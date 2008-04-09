@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-#Copyright (C) 2008  Mario Kemper So 30 Mär 2008 23:16:31 CEST 
+#Copyright (C) 2008  Mi, 09 Apr 2008 22:58:09 +0200 
 
 #This program is free software: you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -553,7 +553,7 @@ sub on_about
 	$about->set_name($gscrot_name);
 	$about->set_version($gscrot_version);
 	$about->set_website_label('Visit the Team Homepage');
-	$about->set_website('http://launchpad.net/~gscrot');
+	$about->set_website('https://launchpad.net/gscrot');
 	$about->set_authors("Mario Kemper");
 	$about->set_copyright ($all_hints);
 	$about->set_license ($all_lines);
