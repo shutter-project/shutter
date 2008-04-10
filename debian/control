@@ -1,0 +1,14 @@
+Source: gscrot
+Section: gnome
+Priority: extra
+Maintainer: Mario Kemper <mario.kemper@gmx.de>
+Build-Depends: debhelper (>= 5)
+
+Package: gscrot
+Architecture: any
+Depends: ${shlibs:Depends}, scrot, libgtk2-trayicon-perl, libgtk2-perl
+Conflicts:
+Replaces:
+Provides: gscrot
+Description: GScrot is a simple GTK+ 2.0 frontend for scrot (Copyright Tom Gilbert 2000) written in perl. 
+

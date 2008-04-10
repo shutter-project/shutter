@@ -20,10 +20,10 @@ use warnings;
 use Glib qw/TRUE FALSE/;
 use Gtk2 '-init';
 use Gtk2::TrayIcon;
-
+use Gtk2::Gdk::Keysyms;
 
 my $gscrot_name = "GScrot";
-my $gscrot_version = "v0.33";
+my $gscrot_version = "v0.34";
 
 #command line parameter
 my $debug_cparam = FALSE;
@@ -38,6 +38,8 @@ $window->set_default_icon_from_file ("/usr/share/pixmaps/gscrot.svg");
 $window->signal_connect(delete_event => \&delete_event);
 $window->set_border_width(10);
 
+my $accel_group = Gtk2::AccelGroup->new;
+$window->add_accel_group($accel_group);
 
 my $vbox = Gtk2::VBox->new(FALSE, 10);
 my $file_vbox = Gtk2::VBox->new(FALSE, 0);
@@ -55,12 +57,9 @@ my $progname_box = Gtk2::HBox->new(TRUE, 0);
 my $progname_box2 = Gtk2::HBox->new(FALSE, 0);
 my $filetype_box = Gtk2::HBox->new(TRUE, 0);
 my $saveDir_box = Gtk2::HBox->new(TRUE, 0);
-
-
-
+my $border_box = Gtk2::HBox->new(TRUE, 0);
 
 $window->add($vbox);
-
 
 #############MENU###################
 my $menubar = Gtk2::MenuBar->new() ;
@@ -69,9 +68,24 @@ my $menu1= Gtk2::Menu->new() ;
 
 my $menuitem_file = Gtk2::MenuItem->new_with_mnemonic("_Datei" ) ;
 
+my $menuitem_revert = Gtk2::ImageMenuItem->new_with_mnemonic("_Einstellungen zurücksetzen" ) ;
+$menuitem_revert->set_image(Gtk2::Image->new_from_icon_name('gtk-revert-to-saved-ltr', 'menu'));
+$menuitem_revert->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ Z }, qw/control-mask/, qw/visible/);
+$menu1->append($menuitem_revert) ;
+$menuitem_revert->signal_connect("activate" , \&settings_event , 'menu_revert') ;
+
+my $menuitem_save = Gtk2::ImageMenuItem->new_with_mnemonic("_Einstellungen speichern" ) ;
+$menuitem_save->set_image(Gtk2::Image->new_from_icon_name('gtk-save', 'menu'));
+$menuitem_save->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ S }, qw/control-mask/, qw/visible/);
+$menu1->append($menuitem_save) ;
+$menuitem_save->signal_connect("activate" , \&settings_event , 'menu_save') ;
+
+my $separator_menu1 = Gtk2::SeparatorMenuItem->new();
+$menu1->append($separator_menu1);
 
 my $menuitem_quit = Gtk2::ImageMenuItem->new_with_mnemonic("_Beenden" ) ;
 $menuitem_quit->set_image(Gtk2::Image->new_from_icon_name('gtk-quit', 'menu'));
+$menuitem_quit->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ Q }, qw/control-mask/, qw/visible/);
 $menu1->append($menuitem_quit) ;
 $menuitem_quit->signal_connect("activate" , \&delete_event , 'menu_quit') ;
 
@@ -82,17 +96,18 @@ my $menu2 = Gtk2::Menu->new() ;
 
 my $menuitem_about = Gtk2::ImageMenuItem->new_with_mnemonic("_Info") ;
 $menuitem_about->set_image(Gtk2::Image->new_from_icon_name('gtk-about', 'menu'));
+$menuitem_about->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ I }, qw/control-mask/, qw/visible/);
 $menu2->append($menuitem_about) ;
 $menuitem_about->signal_connect("activate" , \&on_about, $window) ;
 
 my $menuitem_help = Gtk2::MenuItem->new_with_mnemonic("_Hilfe" ) ;
 
-
-
 $menuitem_help->set_submenu($menu2) ;
 $menubar->append($menuitem_help) ; 
 
 $vbox->pack_start($menubar, FALSE, FALSE, 0);
+
+
 #############MENU###################
 
 
@@ -192,7 +207,7 @@ $delay_box2->pack_start($delay_active, FALSE, FALSE, 0);
 $delay_box2->pack_start($delay, TRUE, TRUE, 0);
 $delay_box->pack_start($delay_box2, TRUE, TRUE, 10);
 
-#ende - delay
+#end - delay
 
 #thumbnail
 my $thumbnail_label = Gtk2::Label->new;
@@ -219,7 +234,7 @@ $thumbnail_box2->pack_start($thumbnail_active, FALSE, FALSE, 0);
 $thumbnail_box2->pack_start($thumbnail, TRUE, TRUE, 0);
 $thumbnail_box->pack_start($thumbnail_box2, TRUE, TRUE, 10);
 
-#ende - thumbnail
+#end - thumbnail
 
 
 #filename
@@ -237,7 +252,7 @@ $tooltip_filename->set_tip($filename_label,"Geben Sie einen Dateinamen an");
 
 $filename_box->pack_start($filename_label, FALSE, TRUE, 10);
 $filename_box->pack_start($filename, TRUE, TRUE, 10);
-#ende - filename
+#end - filename
 
 #type
 my $combobox_type = Gtk2::ComboBox->new_text;
@@ -257,7 +272,7 @@ $tooltip_filetype->set_tip($filetype_label,"Wählen Sie ein Dateiformat");
 
 $filetype_box->pack_start($filetype_label, FALSE, TRUE, 10);
 $filetype_box->pack_start($combobox_type, TRUE, TRUE, 10);
-#ende - filetype
+#end - filetype
 
 
 #saveDir
@@ -272,7 +287,7 @@ $tooltip_saveDir->set_tip($saveDir_label,"Wählen Sie ein Verzeichnis\nzum Speich
 
 $saveDir_box->pack_start($saveDir_label, FALSE, TRUE, 10);
 $saveDir_box->pack_start($saveDir_button, TRUE, TRUE, 10);
-#ende - saveDir
+#end - saveDir
 
 #program
 my $progname = Gtk2::Entry->new;
@@ -295,7 +310,29 @@ $progname_box->pack_start($progname_label, TRUE, TRUE, 10);
 $progname_box2->pack_start($progname_active, TRUE, TRUE, 0);
 $progname_box2->pack_start($progname, TRUE, TRUE, 0);
 $progname_box->pack_start($progname_box2, TRUE, TRUE, 10);
-#ende - porgram
+#end - program
+
+#border
+my $combobox_border = Gtk2::ComboBox->new_text;
+$combobox_border->insert_text (1, "berücksichtigen");
+$combobox_border->insert_text (0, "ignorieren");
+$combobox_border->signal_connect('changed' => \&callback_function, 'border_changed');
+$combobox_border->set_active (1);
+
+my $border_label = Gtk2::Label->new;
+$border_label->set_text("Fensterrahmen");
+$border_label->set_justify('left');
+
+
+my $tooltip_border = Gtk2::Tooltips->new;
+$tooltip_border->set_tip($combobox_border,"Fensterrahmen mit aufnehmen,\nwenn ein bestimmtes Fenster selektiert wird\n(Nur bei Aufnahme mit Auswahl)\nParameter bei der Verwendung von Compiz nicht notwendig");
+$tooltip_border->set_tip($border_label,"Fensterrahmen mit aufnehmen,\nwenn ein bestimmtes Fenster selektiert wird\n(Nur bei Aufnahme mit Auswahl)\nParameter bei der Verwendung von Compiz nicht notwendig");
+
+$border_box->pack_start($border_label, FALSE, TRUE, 10);
+$border_box->pack_start($combobox_border, TRUE, TRUE, 10);
+#end - border
+
+
 #############SETTINGS######################
 
 
@@ -311,6 +348,7 @@ $save_frame->add($save_vbox);
 $extras_vbox->pack_start($progname_box, TRUE, TRUE, 1);
 $extras_vbox->pack_start($delay_box, TRUE, TRUE, 1);
 $extras_vbox->pack_start($thumbnail_box, TRUE, TRUE, 1);
+$extras_vbox->pack_start($border_box, TRUE, TRUE, 1);
 $extras_frame->add($extras_vbox);
 
 
@@ -328,7 +366,7 @@ Gtk2->main;
 0;
 
 
-#initialisiere gscrot, prüfe abhängigkeit von scrot
+#initialize gscrot, check dependencies
 sub init_gscrot()
 {
 
@@ -360,7 +398,7 @@ sub init_gscrot()
 	my $scrot_version = `scrot --version`;
 	print "INFO: you are using $scrot_version\n";
 
-	#gibt es command line parameter?
+	#are there any command line params?
 	if(@ARGV > 0){
 		print "INFO: reading command line parameters...\n";
 		my $arg;	
@@ -375,7 +413,7 @@ sub init_gscrot()
 	}
 }
 
-#fast alle events werden hier behandelt
+#nearly all events are handled here
 sub callback_function
 {
 	my ($widget, $data) = @_;
@@ -385,16 +423,18 @@ sub callback_function
 	my $progname_value = undef;
 	my $filename_value = undef;
 	my $filetype_value = undef;
+	my $border_value = "";
 	my $folder = undef;
 
 	my $thumbnail_param = "";	
-	my $progname_param = "";
+	my $echo_cmd = "-e 'echo \$f'";
+	my $scrot_feedback = "";
 
 	if($debug_cparam){
 		print "\n$data was emitted by widget $widget\n";
 	}
 	
-#checkbox für extra "öffnen mit" -> eingabefeld aktiv/inaktiv
+#checkbox for "open with" -> entry active/inactive
 	if($data eq "progname_toggled"){
 		if($progname_active->get_active){
 			$progname->set_editable(TRUE);
@@ -405,7 +445,7 @@ sub callback_function
 		}
 	}
 
-#checkbox für extra "thumbnail" -> HScale aktiv/inaktiv
+#checkbox for "thumbnail" -> HScale active/inactive
 	if($data eq "delay_toggled"){
 		if($delay_active->get_active){	
 			$delay->set_sensitive(TRUE);			
@@ -415,7 +455,7 @@ sub callback_function
 	}
 
 
-#checkbox für extra "verzögerung" -> HScale aktiv/inaktiv
+#checkbox for "delay" -> HScale active/inactive
 	if($data eq "thumbnail_toggled"){
 		if($thumbnail_active->get_active){
 			$thumbnail->set_sensitive(TRUE);			
@@ -424,24 +464,27 @@ sub callback_function
 		}
 	}
 
-#dateityp ändert sich
+#filetype changed
 	if($data eq "type_changed"){
 		$filetype_value = $combobox_type->get_active_text();
 	
 		if($filetype_value eq "jpeg"){
 			$scale->set_range(1,100);			
-			$scale->set_value(75);			
+			$scale->set_value(75);	
 			$scale_label->set_text("Qualität");			
 		}elsif($filetype_value eq "png"){
 			$scale->set_range(0,9);				
 			$scale->set_value(9);
 			$scale_label->set_text("Kompression");					
 		}
-	}	 
 
-#aufnahme wurde gewählt	
+	}
+	 
+#capture desktop was chosen	
 	if($data eq "raw" || $data eq "select" || $data eq "tray_raw" || $data eq "tray_select"){
-		$filetype_value = $combobox_type->get_active_text();			
+		$border_value = '--border' if $combobox_border->get_active;
+		$filetype_value = $combobox_type->get_active_text();
+			
 		if($filetype_value eq "jpeg"){
 			$quality_value = $scale->get_value();
 		}elsif($filetype_value eq "png"){
@@ -460,12 +503,6 @@ sub callback_function
 			$thumbnail_param = "-t $thumbnail_value";
 		}
 		
-		if($progname_active->get_active){		
-			$progname_value = $progname->get_text();
-			$progname_param = "-e '$progname_value \$f'";
-		}
-
-
 		$filename_value = $filename->get_text();
 		$progname_value = $progname->get_text();
 		$filetype_value = $combobox_type->get_active_text();		
@@ -477,21 +514,86 @@ sub callback_function
 
 
 		if($data eq "raw" || $data eq "tray_raw"){
-			system("scrot '$folder/$filename_value.$filetype_value' -q $quality_value -d $delay_value $thumbnail_param $progname_param &");
+			$scrot_feedback=`scrot '$folder/$filename_value.$filetype_value' -q $quality_value -d $delay_value $border_value $thumbnail_param $echo_cmd`;
 		}else{
-			system("scrot '$folder/$filename_value.$filetype_value' --select -q $quality_value -d $delay_value $thumbnail_param $progname_param &");
+			$scrot_feedback=`scrot '$folder/$filename_value.$filetype_value' --select -q $quality_value -d $delay_value $border_value $thumbnail_param $echo_cmd`;
+		}
+
+		chomp($scrot_feedback);	
+		if (-f $scrot_feedback){
+			print "screenshot successfully saved to $scrot_feedback!" if $debug_cparam;
+		}else{
+			&error_message("Datei konnte nicht gespeichert werden\n$scrot_feedback");
+			print "screenshot could not be saved\n$scrot_feedback!" if $debug_cparam;
+		} 
+					
+		if($progname_active->get_active){		
+			$progname_value = $progname->get_text();
+			system("$progname_value $scrot_feedback &"); #open picture in external program
 		}
 				
 	}
 
-	#about box wird geschlossen
+	#close about box
 	if($data eq "cancel"){
 		$widget->destroy();	
 	}
+
+}
+
+sub error_message
+{
+	
+	my ($error_message) = @_;
+
+	my $error_dialog = Gtk2::MessageDialog->new ($window,
+	[qw/modal destroy-with-parent/],
+	'error' ,
+	'ok' ,
+	$error_message) ;
+	my $error_response = $error_dialog->run ;	
+	$error_dialog->destroy() if($error_response eq "ok");
+	return TRUE;
 }
 
 
-#anwendung wird geschlossen
+#info messages
+sub question_message
+{
+	my ($question_message) = @_;
+
+	my $question_dialog = Gtk2::MessageDialog->new ($window,
+	[qw/modal destroy-with-parent/],
+	'question' ,
+	'yes_no' ,
+	$question_message ) ;
+	my $question_response = $question_dialog->run ;
+	if ($question_response eq "yes" ) {
+		$question_dialog->destroy() ;		
+		return TRUE;
+	}else {
+		$question_dialog->destroy() ;
+		return FALSE;
+	}
+	
+	
+}
+
+sub info_message
+{
+	my ($info_message) = @_;
+	my $info_dialog = Gtk2::MessageDialog->new ($window,
+	[qw/modal destroy-with-parent/],
+	'question' ,
+	'ok' ,
+	$info_message ) ;
+	my $info_response = $info_dialog->run ;	
+	$info_dialog->destroy() if($info_response eq "ok");
+	return TRUE;
+}
+
+
+#close app
 sub delete_event
 {
 
@@ -508,7 +610,7 @@ sub delete_event
 	[qw/modal destroy-with-parent/],
 	'question' ,
 	'yes_no' ,
-	"Möchten Sie das Porgramm\n wirklich beenden?" ) ;
+	"Möchten Sie das Programm\n wirklich beenden?" ) ;
 	my $response = $dialog->run ;
 	if ($response eq "yes" ) {
 		$dialog->destroy() ;		
@@ -522,7 +624,102 @@ sub delete_event
 	
 }
 
-#about box wird aufgerufen
+#save or revert settings
+sub settings_event
+{
+	my ($widget, $data) = @_;
+	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
+
+#save?
+	if($data eq "menu_save"){
+		if(-e "$ENV{ HOME }/.gscrot" && -w "$ENV{ HOME }/.gscrot"){
+			if (&question_message("Möchten Sie die bestehenden Einstellungen überschreiben?")){ #ask is settings-file exists
+				&save_settings;
+			}
+		}else{
+				&save_settings; #do it directly if not
+		}
+	}elsif($data eq "menu_revert"){
+		if(-e "$ENV{ HOME }/.gscrot" && -r "$ENV{ HOME }/.gscrot"){
+			&load_settings;
+		}else{
+			&info_message("Es exisieren keine gesicherten Einstellungen!");
+		}
+	}	
+	
+}
+
+
+#save settings to file
+sub save_settings
+{
+	open(FILE, ">$ENV{ HOME }/.gscrot");	
+	print FILE "FTYPE=".$combobox_type->get_active."\n";
+	print FILE "QSCALE=".$scale->get_value()."\n";
+	print FILE "FNAME=".$filename->get_text()."\n";
+	print FILE "FOLDER=".$saveDir_button->get_filename()."\n";
+	print FILE "PNAME=".$progname->get_text()."\n";
+	print FILE "PNAME_ACT=".$progname_active->get_active()."\n";
+	print FILE "DELAY=".$delay->get_value()."\n";
+	print FILE "DELAY_ACT=".$delay_active->get_active()."\n";
+	print FILE "THUMB=".$thumbnail->get_value()."\n";
+	print FILE "THUMB_ACT=".$thumbnail_active->get_active()."\n";
+	print FILE "BORDER=".$combobox_border->get_active()."\n";
+	close(FILE);
+}
+
+
+sub load_settings
+{
+	my @settings_file;
+	open(FILE, "$ENV{ HOME }/.gscrot");	
+	@settings_file = <FILE>;
+	close(FILE);
+
+	foreach (@settings_file){
+		chomp;
+		if($_ =~ m/^FTYPE=/){
+			$_ =~ s/FTYPE=//;
+			$combobox_type->set_active($_);
+		}elsif($_ =~ m/^QSCALE=/){
+			$_ =~ s/QSCALE=//;
+			$scale->set_value($_);
+		}elsif($_ =~ m/^FNAME=/){
+			$_ =~ s/FNAME=//;
+			$filename->set_text($_);
+		}elsif($_ =~ m/^FOLDER=/){
+			$_ =~ s/FOLDER=//;
+			$saveDir_button->set_filename($_);
+		}elsif($_ =~ m/^PNAME=/){
+			$_ =~ s/PNAME=//;
+			$progname->set_text($_);
+		}elsif($_ =~ m/^PNAME_ACT=/){
+			$_ =~ s/PNAME_ACT=//;
+			$progname_active->set_active($_);
+		}elsif($_ =~ m/^DELAY=/){
+			$_ =~ s/DELAY=//;
+			$delay->set_value($_);
+		}elsif($_ =~ m/^DELAY_ACT=/){
+			$_ =~ s/DELAY_ACT=//;
+			$delay_active->set_active($_);
+		}elsif($_ =~ m/^THUMB=/){
+			$_ =~ s/THUMB=//;
+			$thumbnail->set_value($_);
+		}elsif($_ =~ m/^THUMB_ACT=/){
+			$_ =~ s/THUMB_ACT=//;
+			$thumbnail_active->set_active($_);
+		}elsif($_ =~ m/^BORDER=/){
+			$_ =~ s/BORDER=//;
+			$combobox_border->set_active($_);
+		}
+
+	}
+
+}
+
+
+
+#call about box
 sub on_about 
 {
 
@@ -552,7 +749,7 @@ sub on_about
 	my $about = Gtk2::AboutDialog->new;
 	$about->set_name($gscrot_name);
 	$about->set_version($gscrot_version);
-	$about->set_website_label('Visit the Team Homepage');
+	$about->set_website_label('Visit the Homepage');
 	$about->set_website('https://launchpad.net/gscrot');
 	$about->set_authors("Mario Kemper");
 	$about->set_copyright ($all_hints);
@@ -563,7 +760,7 @@ sub on_about
 }
 
 
-#context menu des tray-icons wird aufgerufen
+#call context menu of tray-icon
 sub show_icon_menu 
 {
 
@@ -572,7 +769,7 @@ sub show_icon_menu
 		print "\n$data was emitted by widget $widget\n";
 	}
 
-	#Linke Maustaste
+	#left button (mouse)
 	if ($_[1]->button == 1) {
 		if($window->visible){
 			$window->hide;
@@ -580,7 +777,7 @@ sub show_icon_menu
 			$window->show_all;
 		}		
 	}   
-	#Rechte Maustaste
+	#right button (mouse)
 	elsif ($_[1]->button == 3) {
 	my $tray_menu = Gtk2::Menu->new();
 	my $menuitem_select = Gtk2::ImageMenuItem->new("Aufnahme mit Auswahl");
