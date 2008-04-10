@@ -41,6 +41,8 @@ $window->set_border_width(10);
 my $accel_group = Gtk2::AccelGroup->new;
 $window->add_accel_group($accel_group);
 
+my $statusbar = Gtk2::Statusbar->new;
+
 my $vbox = Gtk2::VBox->new(FALSE, 10);
 my $file_vbox = Gtk2::VBox->new(FALSE, 0);
 my $save_vbox = Gtk2::VBox->new(FALSE, 0);
@@ -331,8 +333,6 @@ $tooltip_border->set_tip($border_label,"Fensterrahmen mit aufnehmen,\nwenn ein b
 $border_box->pack_start($border_label, FALSE, TRUE, 10);
 $border_box->pack_start($combobox_border, TRUE, TRUE, 10);
 #end - border
-
-
 #############SETTINGS######################
 
 
@@ -355,6 +355,8 @@ $extras_frame->add($extras_vbox);
 $vbox->pack_start($file_frame, TRUE, TRUE, 1);
 $vbox->pack_start($save_frame, TRUE, TRUE, 1);
 $vbox->pack_start($extras_frame, TRUE, TRUE, 1);
+
+$vbox->pack_start($statusbar, TRUE, TRUE, 1);
 #############PACKING######################
 
 
@@ -526,9 +528,11 @@ sub callback_function
 		chomp($scrot_feedback);	
 		if (-f $scrot_feedback){
 			print "screenshot successfully saved to $scrot_feedback!" if $debug_cparam;
+			$statusbar->push (1, "Info --> Datei $scrot_feedback gespeichert!");
 		}else{
 			&error_message("Datei konnte nicht gespeichert werden\n$scrot_feedback");
 			print "screenshot could not be saved\n$scrot_feedback!" if $debug_cparam;
+			$statusbar->push (1, "Error --> Datei $scrot_feedback konnte nicht gespeichert werden!");
 		} 
 					
 		if($progname_active->get_active){		
@@ -657,7 +661,7 @@ sub settings_event
 #save settings to file
 sub save_settings
 {
-	open(FILE, ">$ENV{ HOME }/.gscrot");	
+	open(FILE, ">$ENV{ HOME }/.gscrot") or $statusbar->push (1, "Error --> Einstellungen konnten nicht gespeichert werden!");	
 	print FILE "FTYPE=".$combobox_type->get_active."\n";
 	print FILE "QSCALE=".$scale->get_value()."\n";
 	print FILE "FNAME=".$filename->get_text()."\n";
@@ -669,16 +673,19 @@ sub save_settings
 	print FILE "THUMB=".$thumbnail->get_value()."\n";
 	print FILE "THUMB_ACT=".$thumbnail_active->get_active()."\n";
 	print FILE "BORDER=".$combobox_border->get_active()."\n";
-	close(FILE);
+	close(FILE) or $statusbar->push (1, "Error --> Einstellungen konnten nicht gespeichert werden!");
+
+
+ 	$statusbar->push (1, "Info --> Einstellungen erfolgreich gespeichert!");
 }
 
 
 sub load_settings
 {
 	my @settings_file;
-	open(FILE, "$ENV{ HOME }/.gscrot");	
+	open(FILE, "$ENV{ HOME }/.gscrot") or $statusbar->push (1, "Error --> Einstellungen konnten nicht geladen werden!");	
 	@settings_file = <FILE>;
-	close(FILE);
+	close(FILE) or $statusbar->push (1, "Error --> Einstellungen konnten nicht geladen werden!");
 
 	foreach (@settings_file){
 		chomp;
@@ -692,8 +699,8 @@ sub load_settings
 			$_ =~ s/FNAME=//;
 			$filename->set_text($_);
 		}elsif($_ =~ m/^FOLDER=/){
-			$_ =~ s/FOLDER=//;
-			$saveDir_button->set_filename($_);
+			$_ =~ s/FOLDER=//;			
+			$saveDir_button->set_current_folder($_);
 		}elsif($_ =~ m/^PNAME=/){
 			$_ =~ s/PNAME=//;
 			$progname->set_text($_);
@@ -718,6 +725,9 @@ sub load_settings
 		}
 
 	}
+
+	$statusbar->push (1, "Info --> Einstellungen wurden erfolgreich geladen!");
+
 
 }
 
