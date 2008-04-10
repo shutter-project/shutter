@@ -314,10 +314,10 @@ $progname_box->pack_start($progname_box2, TRUE, TRUE, 10);
 
 #border
 my $combobox_border = Gtk2::ComboBox->new_text;
-$combobox_border->insert_text (1, "berücksichtigen");
-$combobox_border->insert_text (0, "ignorieren");
+$combobox_border->insert_text (1, "aktivieren");
+$combobox_border->insert_text (0, "deaktivieren");
 $combobox_border->signal_connect('changed' => \&callback_function, 'border_changed');
-$combobox_border->set_active (1);
+$combobox_border->set_active (0);
 
 my $border_label = Gtk2::Label->new;
 $border_label->set_text("Fensterrahmen");
@@ -359,6 +359,9 @@ $vbox->pack_start($extras_frame, TRUE, TRUE, 1);
 
 
 $window->show_all;
+
+#load saved settings
+	&load_settings if(-e "$ENV{ HOME }/.gscrot" && -r "$ENV{ HOME }/.gscrot");
 
 #GTK2 Main Loop
 Gtk2->main;
@@ -411,6 +414,7 @@ sub init_gscrot()
 			}			
 		}
 	}
+
 }
 
 #nearly all events are handled here
