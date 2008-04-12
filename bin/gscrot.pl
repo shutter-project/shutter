@@ -36,7 +36,15 @@ my $window = Gtk2::Window->new();
 $window->set_title($gscrot_name." ".$gscrot_version);
 $window->set_default_icon_from_file ("/usr/share/pixmaps/gscrot.svg");
 $window->signal_connect(delete_event => \&delete_event);
-$window->set_border_width(10);
+$window->set_border_width(0);
+
+#hash of screenshots during session	
+my %session_screens;
+my $notebook = Gtk2::Notebook->new;
+$notebook->popup_enable;
+$notebook->set_scrollable(TRUE);
+my $first_page = $notebook->append_page (create_text ("", TRUE),
+Gtk2::Label->new("Alle"));
 
 my $accel_group = Gtk2::AccelGroup->new;
 $window->add_accel_group($accel_group);
@@ -44,6 +52,7 @@ $window->add_accel_group($accel_group);
 my $statusbar = Gtk2::Statusbar->new;
 
 my $vbox = Gtk2::VBox->new(FALSE, 10);
+my $vbox_inner = Gtk2::VBox->new(FALSE, 10);
 my $file_vbox = Gtk2::VBox->new(FALSE, 0);
 my $save_vbox = Gtk2::VBox->new(FALSE, 0);
 my $extras_vbox = Gtk2::VBox->new(FALSE, 0);
@@ -144,7 +153,7 @@ $button_box->pack_start($button_raw, TRUE, TRUE, 0);
 
 #############BUTTON_RAW######################
 
-$vbox->pack_start($button_box, FALSE, FALSE, 0);
+$vbox_inner->pack_start($button_box, FALSE, FALSE, 0);
 
 
 #############TRAYICON######################
@@ -265,8 +274,6 @@ $combobox_type->set_active (1);
 
 my $filetype_label = Gtk2::Label->new;
 $filetype_label->set_text("Dateityp");
-$filetype_label->set_justify('left');
-
 
 my $tooltip_filetype = Gtk2::Tooltips->new;
 $tooltip_filetype->set_tip($combobox_type,"Wählen Sie ein Dateiformat");
@@ -302,7 +309,6 @@ $progname_active->set_active($progname_active);
 my $progname_label = Gtk2::Label->new;
 $progname_label->set_text("Öffnen mit");
 
-
 my $tooltip_progname = Gtk2::Tooltips->new;
 $tooltip_progname->set_tip($progname,"Öffne das Bildschirmfoto\nnach der Aufnahme mit diesem Programm");
 $tooltip_progname->set_tip($progname_active,"Öffne das Bildschirmfoto\nnach der Aufnahme mit diesem Programm");
@@ -324,7 +330,6 @@ $combobox_border->set_active (0);
 my $border_label = Gtk2::Label->new;
 $border_label->set_text("Fensterrahmen");
 $border_label->set_justify('left');
-
 
 my $tooltip_border = Gtk2::Tooltips->new;
 $tooltip_border->set_tip($combobox_border,"Fensterrahmen mit aufnehmen,\nwenn ein bestimmtes Fenster selektiert wird\n(Nur bei Aufnahme mit Auswahl)\nParameter bei der Verwendung von Compiz nicht notwendig");
@@ -351,12 +356,14 @@ $extras_vbox->pack_start($thumbnail_box, TRUE, TRUE, 1);
 $extras_vbox->pack_start($border_box, TRUE, TRUE, 1);
 $extras_frame->add($extras_vbox);
 
+$vbox_inner->pack_start($file_frame, TRUE, TRUE, 1);
+$vbox_inner->pack_start($save_frame, TRUE, TRUE, 1);
+$vbox_inner->pack_start($extras_frame, TRUE, TRUE, 1);
+$vbox_inner->pack_start($notebook, TRUE, TRUE, 1);
+$vbox_inner->set_border_width(10);
 
-$vbox->pack_start($file_frame, TRUE, TRUE, 1);
-$vbox->pack_start($save_frame, TRUE, TRUE, 1);
-$vbox->pack_start($extras_frame, TRUE, TRUE, 1);
-
-$vbox->pack_start($statusbar, TRUE, TRUE, 1);
+$vbox->pack_start($vbox_inner, TRUE, TRUE, 1);
+$vbox->pack_start($statusbar, FALSE, FALSE, 1);
 #############PACKING######################
 
 
@@ -527,8 +534,22 @@ sub callback_function
 
 		chomp($scrot_feedback);	
 		if (-f $scrot_feedback){
-			print "screenshot successfully saved to $scrot_feedback!" if $debug_cparam;
+			print "screenshot successfully saved to $scrot_feedback!\n" if $debug_cparam;
 			$statusbar->push (1, "Info --> Datei $scrot_feedback gespeichert!");
+			#append a page to notebook using with label == filename
+			my ($second, $minute, $hour) = localtime();
+			my $theTime = "$hour:$minute:$second";
+			my $n_pages = $notebook->get_n_pages(); 
+			my $theTimeKey = "[$n_pages] - $theTime";
+			#build hash of screenshots during session	
+			$session_screens{$theTimeKey} = $scrot_feedback;
+			#and append page with label == key			
+			my $new_index = $notebook->append_page (create_text ($theTimeKey, FALSE), Gtk2::Label->new($theTimeKey));
+		  $window->show_all;				
+			my $current_tab = $notebook->get_current_page+1;
+			print "new tab $new_index created, $n_pages tabs overall, current tab is $current_tab\n" if $debug_cparam;
+			$notebook->set_current_page($new_index);
+	
 		}else{
 			&error_message("Datei konnte nicht gespeichert werden\n$scrot_feedback");
 			print "screenshot could not be saved\n$scrot_feedback!" if $debug_cparam;
@@ -539,6 +560,8 @@ sub callback_function
 			$progname_value = $progname->get_text();
 			system("$progname_value $scrot_feedback &"); #open picture in external program
 		}
+
+		
 				
 	}
 
@@ -651,7 +674,7 @@ sub settings_event
 		if(-e "$ENV{ HOME }/.gscrot" && -r "$ENV{ HOME }/.gscrot"){
 			&load_settings;
 		}else{
-			&info_message("Es exisieren keine gesicherten Einstellungen!");
+			&info_message("Es existieren keine gesicherten Einstellungen!");
 		}
 	}	
 	
@@ -824,5 +847,109 @@ sub show_icon_menu
 	return 1;	
 }
 
+sub create_text {
+  my ($key, $is_all) = @_;
+
+  my $scrolled_window = Gtk2::ScrolledWindow->new;
+  $scrolled_window->set_policy ('automatic', 'automatic');
+  $scrolled_window->set_shadow_type ('in');
+	
+	my $vbox_tab = Gtk2::VBox->new(FALSE, 0);
+	my $hbox_tab_file = Gtk2::HBox->new(FALSE, 0);
+	my $hbox_tab_actions = Gtk2::HBox->new(FALSE, 0);
+
+	my $filename = $session_screens{$key} unless $is_all;
+
+	my $exists_status;
+	if(-e $filename){	
+		$exists_status = Gtk2::Image->new_from_icon_name ('gtk-yes', 'menu');
+	}else{
+		$exists_status = Gtk2::Image->new_from_icon_name ('gtk-no', 'menu');
+	}
+
+	$exists_status = Gtk2::Image->new_from_icon_name ('gtk-dnd-multiple', 'menu') if $is_all;
+	my $n_pages = $notebook->get_n_pages;
+	$filename = "Bisher $n_pages Screenshots in dieser Sitzung" if $is_all;
+	
+  my $filename_label = Gtk2::Label->new($filename);
+
+	my $button_delete = Gtk2::Button->new;
+	$button_delete->signal_connect(clicked => \&tab_callback_function, 'delete'.$key);
+	my $image_delete = Gtk2::Image->new_from_icon_name ('gtk-delete', 'button');
+	$button_delete->set_image($image_delete);	
+
+	my $button_rename = Gtk2::Button->new;
+	$button_rename->signal_connect(clicked => \&tab_callback_function, 'rename'.$key);
+	my $image_rename = Gtk2::Image->new_from_icon_name ('gtk-edit', 'button');
+	$button_rename->set_image($image_rename);
+	
+	my $button_print = Gtk2::Button->new;
+	$button_print->signal_connect(clicked => \&tab_callback_function, 'print'.$key);
+	my $image_print = Gtk2::Image->new_from_icon_name ('gtk-print', 'button');
+	$button_print->set_image($image_print);	
+	
+
+	$hbox_tab_file->pack_start($exists_status, TRUE, TRUE, 1);
+	$hbox_tab_file->pack_start($filename_label, TRUE, TRUE, 1);
+
+	$hbox_tab_actions->pack_start($button_delete, TRUE, TRUE, 1);
+	$hbox_tab_actions->pack_start($button_rename, TRUE, TRUE, 1);
+	$hbox_tab_actions->pack_start($button_print, TRUE, TRUE, 1);
+
+	$vbox_tab->pack_start($hbox_tab_file, TRUE, TRUE, 1);
+	$vbox_tab->pack_start($hbox_tab_actions, TRUE, TRUE, 1);
+  $scrolled_window->add_with_viewport($vbox_tab);
+
+  
+  return $scrolled_window;
+}
+
+#tab events are handled here
+sub tab_callback_function
+{
+
+	my ($widget, $data) = @_;
+	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
+	
+	my $current_file;
+	if ($data =~ m/^print\[/){
+		$data =~ s/^print//;
+		$current_file = $session_screens{$data};
+		system("gtklp $current_file &");
+	}
+
+	if ($data =~ m/^delete\[/){
+		$data =~ s/^delete//;
+		$current_file = $session_screens{$data};
+		unlink($current_file); #delete file
+		delete($session_screens{$data}); # delete from hash
+		$notebook->remove_page($notebook->get_current_page); #delete tab
+		$window->show_all;
+	}
+
+
+	if ($data =~ m/^delete$/){ #tab == all
+		foreach my $key(keys %session_screens){
+			unlink($session_screens{$key}); #delete file		
+			delete($session_screens{$key}); # delete from hash	
+		}
+		my $n_pages = $notebook->get_n_pages();
+		while($n_pages > 1){  #delete tab all tabs
+			$n_pages--;
+			$notebook->remove_page($n_pages);		
+		}	
+		$window->show_all;
+	}
+
+	if ($data =~ m/^print$/){ #tab == all
+		my $print_files;		
+		foreach my $key(keys %session_screens){
+			$print_files .= $session_screens{$key}." ";
+		}
+		system("gtklp $print_files &");
+	}
+
+
+}
 
 
