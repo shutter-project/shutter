@@ -31,10 +31,12 @@ my @args = @ARGV;
 
 &init_gscrot();
 
+my $is_in_tray = FALSE;
+
 my $window = Gtk2::Window->new();
 
 $window->set_title($gscrot_name." ".$gscrot_version);
-$window->set_default_icon_from_file ("/usr/share/pixmaps/gscrot.svg");
+$window->set_default_icon_from_file ("../share/pixmaps/gscrot.svg");
 $window->signal_connect(delete_event => \&delete_event);
 $window->set_border_width(0);
 
@@ -43,8 +45,13 @@ my %session_screens;
 my $notebook = Gtk2::Notebook->new;
 $notebook->popup_enable;
 $notebook->set_scrollable(TRUE);
+$notebook->signal_connect('switch-page' => \&notebook_switch, 'tab-switched');
 my $first_page = $notebook->append_page (create_text ("", TRUE),
 Gtk2::Label->new("Alle"));
+
+#Clipboard
+my $clipboard = Gtk2::Clipboard->get(Gtk2::Gdk->SELECTION_CLIPBOARD);
+
 
 my $accel_group = Gtk2::AccelGroup->new;
 $window->add_accel_group($accel_group);
@@ -157,7 +164,7 @@ $vbox_inner->pack_start($button_box, FALSE, FALSE, 0);
 
 
 #############TRAYICON######################
-my $icon = Gtk2::Image->new_from_file("/usr/share/gscrot/resources/icons/gscrot.png");
+my $icon = Gtk2::Image->new_from_file("../share/gscrot/resources/icons/gscrot.png");
 my $eventbox = Gtk2::EventBox->new;
 $eventbox->add($icon);
 my $tray = Gtk2::TrayIcon->new('Test');
@@ -369,6 +376,7 @@ $vbox->pack_start($statusbar, FALSE, FALSE, 1);
 
 $window->show_all;
 
+
 #load saved settings
 	&load_settings if(-e "$ENV{ HOME }/.gscrot" && -r "$ENV{ HOME }/.gscrot");
 
@@ -400,7 +408,7 @@ sub init_gscrot()
 	print "\n";
 
 
-	print "INFO: searching for dependencies...\n";
+	print "INFO: searching for dependencies...\n\n";
 	
 	if(system("which scrot")==0){
 		print "SUCCESS: scrot is installed on your system!\n";
@@ -409,6 +417,12 @@ sub init_gscrot()
 	}
 	my $scrot_version = `scrot --version`;
 	print "INFO: you are using $scrot_version\n";
+
+	if(system("which gtklp")==0){
+		print "SUCCESS: gtklp is installed on your system!\n";
+	}else{
+		die "ERROR: dependency is missing --> gtklp is not installed on your system!\n";
+	}
 
 	#are there any command line params?
 	if(@ARGV > 0){
@@ -534,8 +548,9 @@ sub callback_function
 
 		chomp($scrot_feedback);	
 		if (-f $scrot_feedback){
+			$scrot_feedback =~ s/$ENV{ HOME }/~/; #switch /home/username in path to ~ 
 			print "screenshot successfully saved to $scrot_feedback!\n" if $debug_cparam;
-			$statusbar->push (1, "Info --> Datei $scrot_feedback gespeichert!");
+			&status_message(1, "$scrot_feedback gespeichert!");
 			#append a page to notebook using with label == filename
 			my ($second, $minute, $hour) = localtime();
 			my $theTime = "$hour:$minute:$second";
@@ -545,7 +560,7 @@ sub callback_function
 			$session_screens{$theTimeKey} = $scrot_feedback;
 			#and append page with label == key			
 			my $new_index = $notebook->append_page (create_text ($theTimeKey, FALSE), Gtk2::Label->new($theTimeKey));
-		  $window->show_all;				
+			$window->show_all unless $is_in_tray;				
 			my $current_tab = $notebook->get_current_page+1;
 			print "new tab $new_index created, $n_pages tabs overall, current tab is $current_tab\n" if $debug_cparam;
 			$notebook->set_current_page($new_index);
@@ -553,7 +568,7 @@ sub callback_function
 		}else{
 			&error_message("Datei konnte nicht gespeichert werden\n$scrot_feedback");
 			print "screenshot could not be saved\n$scrot_feedback!" if $debug_cparam;
-			$statusbar->push (1, "Error --> Datei $scrot_feedback konnte nicht gespeichert werden!");
+			&status_message(1, "Error --> Datei $scrot_feedback konnte nicht gespeichert werden!");
 		} 
 					
 		if($progname_active->get_active){		
@@ -572,6 +587,26 @@ sub callback_function
 
 }
 
+sub file_exists
+{
+	my ($filename) = @_;
+	$filename = &switch_home_in_file($filename); 
+	return TRUE if (-e $filename);
+	return FALSE;
+}
+
+sub switch_home_in_file
+{
+	my ($filename) = @_ ;
+	$filename =~ s/^~/$ENV{ HOME }/; #switch ~ in path to /home/username
+	return $filename; 
+}
+sub status_message
+{
+	my ($index, $status_text) = @_;
+	$statusbar->push ($index, $status_text);
+}
+
 sub error_message
 {
 	
@@ -586,7 +621,6 @@ sub error_message
 	$error_dialog->destroy() if($error_response eq "ok");
 	return TRUE;
 }
-
 
 #info messages
 sub question_message
@@ -624,14 +658,58 @@ sub info_message
 }
 
 
+sub notebook_switch
+{
+	my ($widget, $data, $tab_index) = @_;
+	my $filename;
+	my $exists = TRUE; 
+	print "\nselected tab $tab_index was emitted by widget $widget\n" if $debug_cparam;
+	#$tab_index++;
+	$widget = $notebook->get_nth_page($tab_index);
+	my @widget_list = $widget->get_children->get_children->get_children; #scrolledwindow, viewport, vbox
+	my @hbox_content;
+	foreach my $hbox_widget(@widget_list){
+		push(@hbox_content, $hbox_widget->get_children);
+	}
+
+	@hbox_content = reverse(@hbox_content); # a little bit dirty here to get the label with filename first
+	foreach (@hbox_content){
+		if ( $_ =~ /^Gtk2::Label/ && $tab_index != 0){ #normal tab
+			$filename = $_->get_text();
+		}elsif ($_ =~ /^Gtk2::Label/ && $tab_index == 0){ #all tab
+			my $n_pages = keys(%session_screens);
+			$_->set_text("Bisher $n_pages Screenshots in dieser Sitzung");
+		}elsif ($_ =~ /^Gtk2::Image/ && $tab_index != 0){#normal tab
+			if(&file_exists($filename)){	
+				$_->set_from_icon_name ('gtk-yes', 'menu');
+			}else{
+				$_->set_from_icon_name ('gtk-no', 'menu');
+				&status_message(1, "$filename existiert nicht mehr!");
+				$exists = FALSE;
+				foreach my $key(keys %session_screens){
+					delete($session_screens{$key}) if $session_screens{$key} eq $filename; # delete from hash	
+				}
+				
+			}
+		}
+		
+	}
+	#do it again and set buttons disabled
+	foreach (@hbox_content){
+		if ( $_ =~ /^Gtk2::Button/ && $tab_index != 0 && $exists == FALSE){ #normal tab
+			$_->set_sensitive(FALSE);
+		}
+		
+	}		
+
+}
+
 #close app
 sub delete_event
 {
 
 	my ($widget, $data) = @_;
-	if($debug_cparam){
-		print "\n$data was emitted by widget $widget\n";
-	}
+	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
 
 	if($data eq "menu_quit"){
 		Gtk2->main_quit ;
@@ -684,7 +762,7 @@ sub settings_event
 #save settings to file
 sub save_settings
 {
-	open(FILE, ">$ENV{ HOME }/.gscrot") or $statusbar->push (1, "Error --> Einstellungen konnten nicht gespeichert werden!");	
+	open(FILE, ">$ENV{ HOME }/.gscrot") or &status_message(1, "Error --> Einstellungen konnten nicht gespeichert werden!");	
 	print FILE "FTYPE=".$combobox_type->get_active."\n";
 	print FILE "QSCALE=".$scale->get_value()."\n";
 	print FILE "FNAME=".$filename->get_text()."\n";
@@ -696,19 +774,19 @@ sub save_settings
 	print FILE "THUMB=".$thumbnail->get_value()."\n";
 	print FILE "THUMB_ACT=".$thumbnail_active->get_active()."\n";
 	print FILE "BORDER=".$combobox_border->get_active()."\n";
-	close(FILE) or $statusbar->push (1, "Error --> Einstellungen konnten nicht gespeichert werden!");
+	close(FILE) or &status_message(1, "Error --> Einstellungen konnten nicht gespeichert werden!");
 
 
- 	$statusbar->push (1, "Info --> Einstellungen erfolgreich gespeichert!");
+ 	$statusbar->push (1, "Einstellungen erfolgreich gespeichert!");
 }
 
 
 sub load_settings
 {
 	my @settings_file;
-	open(FILE, "$ENV{ HOME }/.gscrot") or $statusbar->push (1, "Error --> Einstellungen konnten nicht geladen werden!");	
+	open(FILE, "$ENV{ HOME }/.gscrot") or &status_message(1, "Error --> Einstellungen konnten nicht geladen werden!");	
 	@settings_file = <FILE>;
-	close(FILE) or $statusbar->push (1, "Error --> Einstellungen konnten nicht geladen werden!");
+	close(FILE) or &status_message(1, "Error --> Einstellungen konnten nicht geladen werden!");
 
 	foreach (@settings_file){
 		chomp;
@@ -749,27 +827,22 @@ sub load_settings
 
 	}
 
-	$statusbar->push (1, "Info --> Einstellungen wurden erfolgreich geladen!");
-
-
+	&status_message(1, "Einstellungen wurden erfolgreich geladen!");
 }
-
-
 
 #call about box
 sub on_about 
 {
-
 	my ($widget, $data) = @_;
  	if($debug_cparam){
 		print "\n$data was emitted by widget $widget\n";
 	}
 
-	open(GPL_HINT, "/usr/share/gscrot/resources/license/gplv3_hint") or die "Copyright-Datei konnte nicht geöffnet werden!";
+	open(GPL_HINT, "../share/gscrot/resources/license/gplv3_hint") or die "Copyright-Datei konnte nicht geöffnet werden!";
 	my @copyright_hint = <GPL_HINT>;
 	close(GPL_HINT);
 
-	open(GPL, "/usr/share/gscrot/resources/license/gplv3") or die "License-Datei konnte nicht geöffnet werden!";
+	open(GPL, "../share/gscrot/resources/license/gplv3") or die "License-Datei konnte nicht geöffnet werden!";
 	my @copyright = <GPL>;
 	close(GPL);
 	
@@ -789,6 +862,7 @@ sub on_about
 	$about->set_website_label('Visit the Homepage');
 	$about->set_website('https://launchpad.net/gscrot');
 	$about->set_authors("Mario Kemper");
+	$about->set_artists("Arne Weinberg, Pascal Grochol");
 	$about->set_copyright ($all_hints);
 	$about->set_license ($all_lines);
 	$about->show_all;
@@ -800,7 +874,6 @@ sub on_about
 #call context menu of tray-icon
 sub show_icon_menu 
 {
-
 	my ($widget, $data) = @_;
 	if($debug_cparam){
 		print "\n$data was emitted by widget $widget\n";
@@ -810,8 +883,10 @@ sub show_icon_menu
 	if ($_[1]->button == 1) {
 		if($window->visible){
 			$window->hide;
+			$is_in_tray = TRUE;
 		}else{
 			$window->show_all;
+			$is_in_tray = FALSE;
 		}		
 	}   
 	#right button (mouse)
@@ -848,59 +923,59 @@ sub show_icon_menu
 }
 
 sub create_text {
-  my ($key, $is_all) = @_;
+	my ($key, $is_all) = @_;
 
-  my $scrolled_window = Gtk2::ScrolledWindow->new;
-  $scrolled_window->set_policy ('automatic', 'automatic');
-  $scrolled_window->set_shadow_type ('in');
+	my $scrolled_window = Gtk2::ScrolledWindow->new;
+	$scrolled_window->set_policy ('automatic', 'automatic');
+	$scrolled_window->set_shadow_type ('in');
 	
 	my $vbox_tab = Gtk2::VBox->new(FALSE, 0);
 	my $hbox_tab_file = Gtk2::HBox->new(FALSE, 0);
 	my $hbox_tab_actions = Gtk2::HBox->new(FALSE, 0);
 
-	my $filename = $session_screens{$key} unless $is_all;
+	my $n_pages = 0;
+	my $filename = "Bisher $n_pages Screenshots in dieser Sitzung";
+	$filename = $session_screens{$key} unless $is_all;
+	$n_pages = $notebook->get_n_pages() if $is_all;
 
 	my $exists_status;
-	if(-e $filename){	
+	if(&file_exists($filename) || $n_pages >= 1){	
 		$exists_status = Gtk2::Image->new_from_icon_name ('gtk-yes', 'menu');
 	}else{
 		$exists_status = Gtk2::Image->new_from_icon_name ('gtk-no', 'menu');
 	}
 
 	$exists_status = Gtk2::Image->new_from_icon_name ('gtk-dnd-multiple', 'menu') if $is_all;
-	my $n_pages = $notebook->get_n_pages;
-	$filename = "Bisher $n_pages Screenshots in dieser Sitzung" if $is_all;
 	
-  my $filename_label = Gtk2::Label->new($filename);
+	my $filename_label = Gtk2::Label->new($filename);
 
 	my $button_delete = Gtk2::Button->new;
 	$button_delete->signal_connect(clicked => \&tab_callback_function, 'delete'.$key);
 	my $image_delete = Gtk2::Image->new_from_icon_name ('gtk-delete', 'button');
 	$button_delete->set_image($image_delete);	
 
-	my $button_rename = Gtk2::Button->new;
-	$button_rename->signal_connect(clicked => \&tab_callback_function, 'rename'.$key);
-	my $image_rename = Gtk2::Image->new_from_icon_name ('gtk-edit', 'button');
-	$button_rename->set_image($image_rename);
+	my $button_clipboard = Gtk2::Button->new;
+	$button_clipboard->signal_connect(clicked => \&tab_callback_function, 'clipboard'.$key);
+	my $image_clipboard = Gtk2::Image->new_from_icon_name ('gtk-copy', 'button');
+	$button_clipboard->set_image($image_clipboard);
 	
 	my $button_print = Gtk2::Button->new;
 	$button_print->signal_connect(clicked => \&tab_callback_function, 'print'.$key);
 	my $image_print = Gtk2::Image->new_from_icon_name ('gtk-print', 'button');
 	$button_print->set_image($image_print);	
 	
-
+	#packing
 	$hbox_tab_file->pack_start($exists_status, TRUE, TRUE, 1);
 	$hbox_tab_file->pack_start($filename_label, TRUE, TRUE, 1);
 
 	$hbox_tab_actions->pack_start($button_delete, TRUE, TRUE, 1);
-	$hbox_tab_actions->pack_start($button_rename, TRUE, TRUE, 1);
+	$hbox_tab_actions->pack_start($button_clipboard, TRUE, TRUE, 1) unless $is_all;
 	$hbox_tab_actions->pack_start($button_print, TRUE, TRUE, 1);
 
 	$vbox_tab->pack_start($hbox_tab_file, TRUE, TRUE, 1);
 	$vbox_tab->pack_start($hbox_tab_actions, TRUE, TRUE, 1);
-  $scrolled_window->add_with_viewport($vbox_tab);
+	$scrolled_window->add_with_viewport($vbox_tab);
 
-  
   return $scrolled_window;
 }
 
@@ -910,43 +985,70 @@ sub tab_callback_function
 
 	my ($widget, $data) = @_;
 	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
-	
+
+
+#single screenshots	
 	my $current_file;
 	if ($data =~ m/^print\[/){
 		$data =~ s/^print//;
-		$current_file = $session_screens{$data};
+		my $current_file = &switch_home_in_file($session_screens{$data});
 		system("gtklp $current_file &");
+		&status_message(1, $session_screens{$data}." wird gedruckt!");
 	}
 
 	if ($data =~ m/^delete\[/){
 		$data =~ s/^delete//;
-		$current_file = $session_screens{$data};
-		unlink($current_file); #delete file
-		delete($session_screens{$data}); # delete from hash
+		unlink(&switch_home_in_file($session_screens{$data})); #delete file
 		$notebook->remove_page($notebook->get_current_page); #delete tab
+		&status_message(1, $session_screens{$data}." gelöscht!");
+		delete($session_screens{$data}); # delete from hash
 		$window->show_all;
 	}
 
+	if ($data =~ m/^clipboard\[/){
+		$data =~ s/^clipboard//;
+		my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file (&switch_home_in_file($session_screens{$data}) );
+		$clipboard->set_image($pixbuf);
+		&status_message(1, $session_screens{$data}." wird in die Zwischenablage kopiert!");
+	}
 
+
+#all screenshots
 	if ($data =~ m/^delete$/){ #tab == all
 		foreach my $key(keys %session_screens){
-			unlink($session_screens{$key}); #delete file		
+			unlink(&switch_home_in_file($session_screens{$key})); #delete file		
 			delete($session_screens{$key}); # delete from hash	
 		}
 		my $n_pages = $notebook->get_n_pages();
 		while($n_pages > 1){  #delete tab all tabs
 			$n_pages--;
 			$notebook->remove_page($n_pages);		
-		}	
+		}
+		&status_message(1, "Alle Aufnahmen dieser Sitzung gelöscht!");
+		
+		#write new number of screenshot to first label
+		my $current_page = $notebook->get_nth_page(0);
+		my @widget_list = $current_page->get_children->get_children->get_children; #scrolledwindow, viewport, vbox
+		my @hbox_content;
+		foreach my $hbox_widget(@widget_list){
+			push(@hbox_content, $hbox_widget->get_children);
+		}
+		foreach (@hbox_content){
+			if ( $_ =~ /^Gtk2::Label/ ){ 
+				$_->set_text("Bisher 0 Screenshots in dieser Sitzung");
+			}
+		}
+		
 		$window->show_all;
 	}
 
 	if ($data =~ m/^print$/){ #tab == all
 		my $print_files;		
 		foreach my $key(keys %session_screens){
-			$print_files .= $session_screens{$key}." ";
+			$print_files .= &switch_home_in_file($session_screens{$key})." ";
 		}
 		system("gtklp $print_files &");
+		&status_message(1, "Alle Aufnahmen werden gedruckt!");
 	}
 
 
