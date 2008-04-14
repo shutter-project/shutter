@@ -18,15 +18,24 @@ use warnings;
 #along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 use Glib qw/TRUE FALSE/;
+use utf8;
 use Gtk2 '-init';
 use Gtk2::TrayIcon;
 use Gtk2::Gdk::Keysyms;
+use POSIX;     # for setlocale()
+use Locale::gettext;
+
+setlocale(LC_MESSAGES, "");
+bindtextdomain("gscrot_domain", "../share/gscrot/resources/locale");
+textdomain("gscrot_domain");
 
 my $gscrot_name = "GScrot";
-my $gscrot_version = "v0.34";
+my $gscrot_version = "v0.35";
 
 #command line parameter
 my $debug_cparam = FALSE;
+my $min_cparam = FALSE;
+my $boff_cparam = FALSE;
 my @args = @ARGV;
 
 &init_gscrot();
@@ -86,13 +95,13 @@ my $menu1= Gtk2::Menu->new() ;
 
 my $menuitem_file = Gtk2::MenuItem->new_with_mnemonic("_Datei" ) ;
 
-my $menuitem_revert = Gtk2::ImageMenuItem->new_with_mnemonic("_Einstellungen zurücksetzen" ) ;
+my $menuitem_revert = Gtk2::ImageMenuItem->new_with_mnemonic(gettext("_Einstellungen zurÃ¼cksetzen")) ;
 $menuitem_revert->set_image(Gtk2::Image->new_from_icon_name('gtk-revert-to-saved-ltr', 'menu'));
 $menuitem_revert->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ Z }, qw/control-mask/, qw/visible/);
 $menu1->append($menuitem_revert) ;
 $menuitem_revert->signal_connect("activate" , \&settings_event , 'menu_revert') ;
 
-my $menuitem_save = Gtk2::ImageMenuItem->new_with_mnemonic("_Einstellungen speichern" ) ;
+my $menuitem_save = Gtk2::ImageMenuItem->new_with_mnemonic(gettext("_Einstellungen speichern")) ;
 $menuitem_save->set_image(Gtk2::Image->new_from_icon_name('gtk-save', 'menu'));
 $menuitem_save->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ S }, qw/control-mask/, qw/visible/);
 $menu1->append($menuitem_save) ;
@@ -101,7 +110,7 @@ $menuitem_save->signal_connect("activate" , \&settings_event , 'menu_save') ;
 my $separator_menu1 = Gtk2::SeparatorMenuItem->new();
 $menu1->append($separator_menu1);
 
-my $menuitem_quit = Gtk2::ImageMenuItem->new_with_mnemonic("_Beenden" ) ;
+my $menuitem_quit = Gtk2::ImageMenuItem->new_with_mnemonic(gettext("_Beenden")) ;
 $menuitem_quit->set_image(Gtk2::Image->new_from_icon_name('gtk-quit', 'menu'));
 $menuitem_quit->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ Q }, qw/control-mask/, qw/visible/);
 $menu1->append($menuitem_quit) ;
@@ -112,7 +121,7 @@ $menubar->append($menuitem_file) ;
 
 my $menu2 = Gtk2::Menu->new() ;
 
-my $menuitem_about = Gtk2::ImageMenuItem->new_with_mnemonic("_Info") ;
+my $menuitem_about = Gtk2::ImageMenuItem->new_with_mnemonic(gettext("_Info")) ;
 $menuitem_about->set_image(Gtk2::Image->new_from_icon_name('gtk-about', 'menu'));
 $menuitem_about->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ I }, qw/control-mask/, qw/visible/);
 $menu2->append($menuitem_about) ;
@@ -131,14 +140,14 @@ $vbox->pack_start($menubar, FALSE, FALSE, 0);
 
 
 #############BUTTON_SELECT###################
-my $button_select = Gtk2::Button->new("Aufnahme\nmit Auswahl");
+my $button_select = Gtk2::Button->new(gettext("Aufnahme\nmit Auswahl"));
 $button_select->signal_connect(clicked => \&callback_function, 'select');
 
 my $image = Gtk2::Image->new_from_icon_name ('gtk-cut', 'button');
 $button_select->set_image($image);
 
 my $tooltip_select = Gtk2::Tooltips->new;
-$tooltip_select->set_tip($button_select,"Ziehen Sie mit der linken Maustaste\nein Rechteck des gewünschten Bildbereiches\noder klicken Sie ein Fenster an, um dessen Inhalt aufzunehmen");
+$tooltip_select->set_tip($button_select,gettext("Ziehen Sie mit der linken Maustaste\nein Rechteck des gewÃ¼nschten Bildbereiches\noder klicken Sie ein Fenster an, um dessen Inhalt aufzunehmen"));
 
 
 $button_box->pack_start($button_select, TRUE, TRUE, 0);
@@ -147,14 +156,14 @@ $button_box->pack_start($button_select, TRUE, TRUE, 0);
 
 
 #############BUTTON_RAW######################
-my $button_raw = Gtk2::Button->new("Aufnahme");
+my $button_raw = Gtk2::Button->new(gettext("Aufnahme"));
 $button_raw->signal_connect(clicked => \&callback_function, 'raw');
 
 $image = Gtk2::Image->new_from_icon_name ('gtk-fullscreen', 'button');
 $button_raw->set_image($image);
 
 my $tooltip_raw = Gtk2::Tooltips->new;
-$tooltip_raw->set_tip($button_raw,"Erzeugt ein Bildschirmfoto des gesamten Desktops");
+$tooltip_raw->set_tip($button_raw,gettext("Erzeugt ein Bildschirmfoto des gesamten Desktops"));
 
 $button_box->pack_start($button_raw, TRUE, TRUE, 0);
 
@@ -187,7 +196,7 @@ my $save_frame = Gtk2::Frame->new("Speichern");
 my $extras_frame = Gtk2::Frame->new("Extras");
 
 my $scale_label = Gtk2::Label->new;
-$scale_label->set_text("Qualität");
+$scale_label->set_text("QualitÃ¤t");
 
 
 my $scale = Gtk2::HScale->new_with_range(1, 100, 1);
@@ -196,14 +205,14 @@ $scale->set_value_pos('right');
 $scale->set_value(75);
 
 my $tooltip_quality = Gtk2::Tooltips->new;
-$tooltip_quality->set_tip($scale,"Bildqualität/Kompression:\nEin hoher Wert führt zu einer hohen Dateigröße / hohen Kompression (abhängig vom gewählten Dateityp)");
-$tooltip_quality->set_tip($scale_label,"Bildqualität/Kompression:\nEin hoher Wert führt zu einer hohen Dateigröße / hohen Kompression (abhängig vom gewählten Dateityp)");
+$tooltip_quality->set_tip($scale,"BildqualitÃ¤t/Kompression:\nEin hoher Wert fÃ¼hrt zu einer hohen DateigrÃ¶ÃŸe / hohen Kompression (abhÃ¤ngig vom gewÃ¤hlten Dateityp)");
+$tooltip_quality->set_tip($scale_label,"BildqualitÃ¤t/Kompression:\nEin hoher Wert fÃ¼hrt zu einer hohen DateigrÃ¶ÃŸe / hohen Kompression (abhÃ¤ngig vom gewÃ¤hlten Dateityp)");
 $scale_box->pack_start($scale_label, FALSE, TRUE, 10);
 $scale_box->pack_start($scale, TRUE, TRUE, 10);
 
 #delay
 my $delay_label = Gtk2::Label->new;
-$delay_label->set_text("Verzögerung");
+$delay_label->set_text("VerzÃ¶gerung");
 
 
 my $delay = Gtk2::HScale->new_with_range(1, 10, 1);
@@ -217,8 +226,8 @@ $delay_active->set_active(TRUE);
 $delay_active->set_active(FALSE);
 
 my $tooltip_delay = Gtk2::Tooltips->new;
-$tooltip_delay->set_tip($delay,"Verzögert die Aufnahme\num n Sekunden");
-$tooltip_delay->set_tip($delay_label,"Verzögert die Aufnahme\num n Sekunden");
+$tooltip_delay->set_tip($delay,"VerzÃ¶gert die Aufnahme\num n Sekunden");
+$tooltip_delay->set_tip($delay_label,"VerzÃ¶gert die Aufnahme\num n Sekunden");
 
 $delay_box->pack_start($delay_label, FALSE, TRUE, 10);
 $delay_box2->pack_start($delay_active, FALSE, FALSE, 0);
@@ -243,9 +252,9 @@ $thumbnail_active->set_active(TRUE);
 $thumbnail_active->set_active(FALSE);
 
 my $tooltip_thumb = Gtk2::Tooltips->new;
-$tooltip_thumb->set_tip($thumbnail,"Erzeugt einen Thumbnail im gleichen\nVerzeichnis mit der Größe n %");
-$tooltip_thumb->set_tip($thumbnail_active,"Erzeugt einen Thumbnail im gleichen\nVerzeichnis mit der Größe n %");
-$tooltip_thumb->set_tip($thumbnail_label,"Erzeugt einen Thumbnail im gleichen\nVerzeichnis mit der Größe n %");
+$tooltip_thumb->set_tip($thumbnail,"Erzeugt einen Thumbnail im gleichen\nVerzeichnis mit der GrÃ¶ÃŸe n %");
+$tooltip_thumb->set_tip($thumbnail_active,"Erzeugt einen Thumbnail im gleichen\nVerzeichnis mit der GrÃ¶ÃŸe n %");
+$tooltip_thumb->set_tip($thumbnail_label,"Erzeugt einen Thumbnail im gleichen\nVerzeichnis mit der GrÃ¶ÃŸe n %");
 
 $thumbnail_box->pack_start($thumbnail_label, FALSE, TRUE, 10);
 $thumbnail_box2->pack_start($thumbnail_active, FALSE, FALSE, 0);
@@ -283,8 +292,8 @@ my $filetype_label = Gtk2::Label->new;
 $filetype_label->set_text("Dateityp");
 
 my $tooltip_filetype = Gtk2::Tooltips->new;
-$tooltip_filetype->set_tip($combobox_type,"Wählen Sie ein Dateiformat");
-$tooltip_filetype->set_tip($filetype_label,"Wählen Sie ein Dateiformat");
+$tooltip_filetype->set_tip($combobox_type,"WÃ¤hlen Sie ein Dateiformat");
+$tooltip_filetype->set_tip($filetype_label,"WÃ¤hlen Sie ein Dateiformat");
 
 $filetype_box->pack_start($filetype_label, FALSE, TRUE, 10);
 $filetype_box->pack_start($combobox_type, TRUE, TRUE, 10);
@@ -298,8 +307,8 @@ $saveDir_label->set_text("Verzeichnis");
 my $saveDir_button = Gtk2::FileChooserButton->new ('gscrot - Select a folder', 'select-folder');
 
 my $tooltip_saveDir = Gtk2::Tooltips->new;
-$tooltip_saveDir->set_tip($saveDir_button,"Wählen Sie ein Verzeichnis\nzum Speichern Ihrer Bildschirmaufnahmen");
-$tooltip_saveDir->set_tip($saveDir_label,"Wählen Sie ein Verzeichnis\nzum Speichern Ihrer Bildschirmaufnahmen");
+$tooltip_saveDir->set_tip($saveDir_button,"WÃ¤hlen Sie ein Verzeichnis\nzum Speichern Ihrer Bildschirmaufnahmen");
+$tooltip_saveDir->set_tip($saveDir_label,"WÃ¤hlen Sie ein Verzeichnis\nzum Speichern Ihrer Bildschirmaufnahmen");
 
 $saveDir_box->pack_start($saveDir_label, FALSE, TRUE, 10);
 $saveDir_box->pack_start($saveDir_button, TRUE, TRUE, 10);
@@ -314,12 +323,12 @@ $progname_active->signal_connect('toggled' => \&callback_function, 'progname_tog
 $progname_active->set_active($progname_active);
 
 my $progname_label = Gtk2::Label->new;
-$progname_label->set_text("Öffnen mit");
+$progname_label->set_text("Ã–ffnen mit");
 
 my $tooltip_progname = Gtk2::Tooltips->new;
-$tooltip_progname->set_tip($progname,"Öffne das Bildschirmfoto\nnach der Aufnahme mit diesem Programm");
-$tooltip_progname->set_tip($progname_active,"Öffne das Bildschirmfoto\nnach der Aufnahme mit diesem Programm");
-$tooltip_progname->set_tip($progname_label,"Öffne das Bildschirmfoto\nnach der Aufnahme mit diesem Programm");
+$tooltip_progname->set_tip($progname,"Ã–ffne das Bildschirmfoto\nnach der Aufnahme mit diesem Programm");
+$tooltip_progname->set_tip($progname_active,"Ã–ffne das Bildschirmfoto\nnach der Aufnahme mit diesem Programm");
+$tooltip_progname->set_tip($progname_label,"Ã–ffne das Bildschirmfoto\nnach der Aufnahme mit diesem Programm");
 
 $progname_box->pack_start($progname_label, TRUE, TRUE, 10);
 $progname_box2->pack_start($progname_active, TRUE, TRUE, 0);
@@ -373,8 +382,12 @@ $vbox->pack_start($vbox_inner, TRUE, TRUE, 1);
 $vbox->pack_start($statusbar, FALSE, FALSE, 1);
 #############PACKING######################
 
+unless($min_cparam){
+	$window->show_all;
+}else{
+	$window->hide;
+}
 
-$window->show_all;
 
 
 #load saved settings
@@ -431,11 +444,22 @@ sub init_gscrot()
 		foreach $arg (@args){
 			if($arg eq "--debug"){
 				$debug_cparam = TRUE;
-				print "\ncommand ".$arg." recognized\n";
+			}elsif($arg eq "--help"){
+				&usage();
+				exit;
+			}elsif($arg eq "--min_at_startup"){
+				$min_cparam = TRUE;
+			}elsif($arg eq "--beeper_off"){
+				$boff_cparam = TRUE;
 			}else{
-				print "\ncommand ".$arg." not recognized --> will be ignored\n";		
-			}			
+				print "\ncommand ".$arg." not recognized --> will be ignored\n";
+				&usage();
+				exit;		
+			}
+			print "\ncommand ".$arg." recognized!\n";			
 		}
+	}else{
+		print "INFO: no command line parameters set...\n";
 	}
 
 }
@@ -498,7 +522,7 @@ sub callback_function
 		if($filetype_value eq "jpeg"){
 			$scale->set_range(1,100);			
 			$scale->set_value(75);	
-			$scale_label->set_text("Qualität");			
+			$scale_label->set_text("QualitÃ¤t");			
 		}elsif($filetype_value eq "png"){
 			$scale->set_range(0,9);				
 			$scale->set_value(9);
@@ -539,12 +563,13 @@ sub callback_function
 			$delay_value = 1;
 		}
 
-
+		system("xset b off") if $boff_cparam; #turns off the speaker if set as arg
 		if($data eq "raw" || $data eq "tray_raw"){
 			$scrot_feedback=`scrot '$folder/$filename_value.$filetype_value' -q $quality_value -d $delay_value $border_value $thumbnail_param $echo_cmd`;
 		}else{
 			$scrot_feedback=`scrot '$folder/$filename_value.$filetype_value' --select -q $quality_value -d $delay_value $border_value $thumbnail_param $echo_cmd`;
 		}
+		system("xset b on") if $boff_cparam; #turns on the speaker again if set as arg
 
 		chomp($scrot_feedback);	
 		if (-f $scrot_feedback){
@@ -585,76 +610,6 @@ sub callback_function
 		$widget->destroy();	
 	}
 
-}
-
-sub file_exists
-{
-	my ($filename) = @_;
-	$filename = &switch_home_in_file($filename); 
-	return TRUE if (-e $filename);
-	return FALSE;
-}
-
-sub switch_home_in_file
-{
-	my ($filename) = @_ ;
-	$filename =~ s/^~/$ENV{ HOME }/; #switch ~ in path to /home/username
-	return $filename; 
-}
-sub status_message
-{
-	my ($index, $status_text) = @_;
-	$statusbar->push ($index, $status_text);
-}
-
-sub error_message
-{
-	
-	my ($error_message) = @_;
-
-	my $error_dialog = Gtk2::MessageDialog->new ($window,
-	[qw/modal destroy-with-parent/],
-	'error' ,
-	'ok' ,
-	$error_message) ;
-	my $error_response = $error_dialog->run ;	
-	$error_dialog->destroy() if($error_response eq "ok");
-	return TRUE;
-}
-
-#info messages
-sub question_message
-{
-	my ($question_message) = @_;
-
-	my $question_dialog = Gtk2::MessageDialog->new ($window,
-	[qw/modal destroy-with-parent/],
-	'question' ,
-	'yes_no' ,
-	$question_message ) ;
-	my $question_response = $question_dialog->run ;
-	if ($question_response eq "yes" ) {
-		$question_dialog->destroy() ;		
-		return TRUE;
-	}else {
-		$question_dialog->destroy() ;
-		return FALSE;
-	}
-	
-	
-}
-
-sub info_message
-{
-	my ($info_message) = @_;
-	my $info_dialog = Gtk2::MessageDialog->new ($window,
-	[qw/modal destroy-with-parent/],
-	'question' ,
-	'ok' ,
-	$info_message ) ;
-	my $info_response = $info_dialog->run ;	
-	$info_dialog->destroy() if($info_response eq "ok");
-	return TRUE;
 }
 
 
@@ -719,7 +674,7 @@ sub delete_event
 	[qw/modal destroy-with-parent/],
 	'question' ,
 	'yes_no' ,
-	"Möchten Sie das Programm\n wirklich beenden?" ) ;
+	"MÃ¶chten Sie das Programm\n wirklich beenden?" ) ;
 	my $response = $dialog->run ;
 	if ($response eq "yes" ) {
 		$dialog->destroy() ;		
@@ -733,103 +688,6 @@ sub delete_event
 	
 }
 
-#save or revert settings
-sub settings_event
-{
-	my ($widget, $data) = @_;
-	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
-
-#save?
-	if($data eq "menu_save"){
-		if(-e "$ENV{ HOME }/.gscrot" && -w "$ENV{ HOME }/.gscrot"){
-			if (&question_message("Möchten Sie die bestehenden Einstellungen überschreiben?")){ #ask is settings-file exists
-				&save_settings;
-			}
-		}else{
-				&save_settings; #do it directly if not
-		}
-	}elsif($data eq "menu_revert"){
-		if(-e "$ENV{ HOME }/.gscrot" && -r "$ENV{ HOME }/.gscrot"){
-			&load_settings;
-		}else{
-			&info_message("Es existieren keine gesicherten Einstellungen!");
-		}
-	}	
-	
-}
-
-
-#save settings to file
-sub save_settings
-{
-	open(FILE, ">$ENV{ HOME }/.gscrot") or &status_message(1, "Error --> Einstellungen konnten nicht gespeichert werden!");	
-	print FILE "FTYPE=".$combobox_type->get_active."\n";
-	print FILE "QSCALE=".$scale->get_value()."\n";
-	print FILE "FNAME=".$filename->get_text()."\n";
-	print FILE "FOLDER=".$saveDir_button->get_filename()."\n";
-	print FILE "PNAME=".$progname->get_text()."\n";
-	print FILE "PNAME_ACT=".$progname_active->get_active()."\n";
-	print FILE "DELAY=".$delay->get_value()."\n";
-	print FILE "DELAY_ACT=".$delay_active->get_active()."\n";
-	print FILE "THUMB=".$thumbnail->get_value()."\n";
-	print FILE "THUMB_ACT=".$thumbnail_active->get_active()."\n";
-	print FILE "BORDER=".$combobox_border->get_active()."\n";
-	close(FILE) or &status_message(1, "Error --> Einstellungen konnten nicht gespeichert werden!");
-
-
- 	$statusbar->push (1, "Einstellungen erfolgreich gespeichert!");
-}
-
-
-sub load_settings
-{
-	my @settings_file;
-	open(FILE, "$ENV{ HOME }/.gscrot") or &status_message(1, "Error --> Einstellungen konnten nicht geladen werden!");	
-	@settings_file = <FILE>;
-	close(FILE) or &status_message(1, "Error --> Einstellungen konnten nicht geladen werden!");
-
-	foreach (@settings_file){
-		chomp;
-		if($_ =~ m/^FTYPE=/){
-			$_ =~ s/FTYPE=//;
-			$combobox_type->set_active($_);
-		}elsif($_ =~ m/^QSCALE=/){
-			$_ =~ s/QSCALE=//;
-			$scale->set_value($_);
-		}elsif($_ =~ m/^FNAME=/){
-			$_ =~ s/FNAME=//;
-			$filename->set_text($_);
-		}elsif($_ =~ m/^FOLDER=/){
-			$_ =~ s/FOLDER=//;			
-			$saveDir_button->set_current_folder($_);
-		}elsif($_ =~ m/^PNAME=/){
-			$_ =~ s/PNAME=//;
-			$progname->set_text($_);
-		}elsif($_ =~ m/^PNAME_ACT=/){
-			$_ =~ s/PNAME_ACT=//;
-			$progname_active->set_active($_);
-		}elsif($_ =~ m/^DELAY=/){
-			$_ =~ s/DELAY=//;
-			$delay->set_value($_);
-		}elsif($_ =~ m/^DELAY_ACT=/){
-			$_ =~ s/DELAY_ACT=//;
-			$delay_active->set_active($_);
-		}elsif($_ =~ m/^THUMB=/){
-			$_ =~ s/THUMB=//;
-			$thumbnail->set_value($_);
-		}elsif($_ =~ m/^THUMB_ACT=/){
-			$_ =~ s/THUMB_ACT=//;
-			$thumbnail_active->set_active($_);
-		}elsif($_ =~ m/^BORDER=/){
-			$_ =~ s/BORDER=//;
-			$combobox_border->set_active($_);
-		}
-
-	}
-
-	&status_message(1, "Einstellungen wurden erfolgreich geladen!");
-}
-
 #call about box
 sub on_about 
 {
@@ -838,11 +696,11 @@ sub on_about
 		print "\n$data was emitted by widget $widget\n";
 	}
 
-	open(GPL_HINT, "../share/gscrot/resources/license/gplv3_hint") or die "Copyright-Datei konnte nicht geöffnet werden!";
+	open(GPL_HINT, "../share/gscrot/resources/license/gplv3_hint") or die "Copyright-Datei konnte nicht geÃ¶ffnet werden!";
 	my @copyright_hint = <GPL_HINT>;
 	close(GPL_HINT);
 
-	open(GPL, "../share/gscrot/resources/license/gplv3") or die "License-Datei konnte nicht geöffnet werden!";
+	open(GPL, "../share/gscrot/resources/license/gplv3") or die "License-Datei konnte nicht geÃ¶ffnet werden!";
 	my @copyright = <GPL>;
 	close(GPL);
 	
@@ -1000,7 +858,7 @@ sub tab_callback_function
 		$data =~ s/^delete//;
 		unlink(&switch_home_in_file($session_screens{$data})); #delete file
 		$notebook->remove_page($notebook->get_current_page); #delete tab
-		&status_message(1, $session_screens{$data}." gelöscht!");
+		&status_message(1, $session_screens{$data}." gelÃ¶scht!");
 		delete($session_screens{$data}); # delete from hash
 		$window->show_all;
 	}
@@ -1024,18 +882,19 @@ sub tab_callback_function
 			$n_pages--;
 			$notebook->remove_page($n_pages);		
 		}
-		&status_message(1, "Alle Aufnahmen dieser Sitzung gelöscht!");
+		&status_message(1, "Alle Aufnahmen dieser Sitzung gelÃ¶scht!");
 		
 		#write new number of screenshot to first label
 		my $current_page = $notebook->get_nth_page(0);
 		my @widget_list = $current_page->get_children->get_children->get_children; #scrolledwindow, viewport, vbox
 		my @hbox_content;
 		foreach my $hbox_widget(@widget_list){
-			push(@hbox_content, $hbox_widget->get_children);
+			push(@hbox_content, $hbox_widget->get_children) ;
 		}
 		foreach (@hbox_content){
 			if ( $_ =~ /^Gtk2::Label/ ){ 
 				$_->set_text("Bisher 0 Screenshots in dieser Sitzung");
+				last;
 			}
 		}
 		
@@ -1054,4 +913,185 @@ sub tab_callback_function
 
 }
 
+
+
+####################SAVE AND REVERT################################
+sub settings_event
+{
+	my ($widget, $data) = @_;
+	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
+
+#save?
+	if($data eq "menu_save"){
+		if(-e "$ENV{ HOME }/.gscrot" && -w "$ENV{ HOME }/.gscrot"){
+			if (&question_message("MÃ¶chten Sie die bestehenden Einstellungen Ã¼berschreiben?")){ #ask is settings-file exists
+				&save_settings;
+			}
+		}else{
+				&save_settings; #do it directly if not
+		}
+	}elsif($data eq "menu_revert"){
+		if(-e "$ENV{ HOME }/.gscrot" && -r "$ENV{ HOME }/.gscrot"){
+			&load_settings;
+		}else{
+			&info_message("Es existieren keine gesicherten Einstellungen!");
+		}
+	}	
+	
+}
+
+
+#save settings to file
+sub save_settings
+{
+	open(FILE, ">$ENV{ HOME }/.gscrot") or &status_message(1, "Error --> Einstellungen konnten nicht gespeichert werden!");	
+	print FILE "FTYPE=".$combobox_type->get_active."\n";
+	print FILE "QSCALE=".$scale->get_value()."\n";
+	print FILE "FNAME=".$filename->get_text()."\n";
+	print FILE "FOLDER=".$saveDir_button->get_filename()."\n";
+	print FILE "PNAME=".$progname->get_text()."\n";
+	print FILE "PNAME_ACT=".$progname_active->get_active()."\n";
+	print FILE "DELAY=".$delay->get_value()."\n";
+	print FILE "DELAY_ACT=".$delay_active->get_active()."\n";
+	print FILE "THUMB=".$thumbnail->get_value()."\n";
+	print FILE "THUMB_ACT=".$thumbnail_active->get_active()."\n";
+	print FILE "BORDER=".$combobox_border->get_active()."\n";
+	close(FILE) or &status_message(1, "Error --> Einstellungen konnten nicht gespeichert werden!");
+
+
+ 	$statusbar->push (1, "Einstellungen erfolgreich gespeichert!");
+}
+
+
+sub load_settings
+{
+	my @settings_file;
+	open(FILE, "$ENV{ HOME }/.gscrot") or &status_message(1, "Error --> Einstellungen konnten nicht geladen werden!");	
+	@settings_file = <FILE>;
+	close(FILE) or &status_message(1, "Error --> Einstellungen konnten nicht geladen werden!");
+
+	foreach (@settings_file){
+		chomp;
+		if($_ =~ m/^FTYPE=/){
+			$_ =~ s/FTYPE=//;
+			$combobox_type->set_active($_);
+		}elsif($_ =~ m/^QSCALE=/){
+			$_ =~ s/QSCALE=//;
+			$scale->set_value($_);
+		}elsif($_ =~ m/^FNAME=/){
+			$_ =~ s/FNAME=//;
+			$filename->set_text($_);
+		}elsif($_ =~ m/^FOLDER=/){
+			$_ =~ s/FOLDER=//;			
+			$saveDir_button->set_current_folder($_);
+		}elsif($_ =~ m/^PNAME=/){
+			$_ =~ s/PNAME=//;
+			$progname->set_text($_);
+		}elsif($_ =~ m/^PNAME_ACT=/){
+			$_ =~ s/PNAME_ACT=//;
+			$progname_active->set_active($_);
+		}elsif($_ =~ m/^DELAY=/){
+			$_ =~ s/DELAY=//;
+			$delay->set_value($_);
+		}elsif($_ =~ m/^DELAY_ACT=/){
+			$_ =~ s/DELAY_ACT=//;
+			$delay_active->set_active($_);
+		}elsif($_ =~ m/^THUMB=/){
+			$_ =~ s/THUMB=//;
+			$thumbnail->set_value($_);
+		}elsif($_ =~ m/^THUMB_ACT=/){
+			$_ =~ s/THUMB_ACT=//;
+			$thumbnail_active->set_active($_);
+		}elsif($_ =~ m/^BORDER=/){
+			$_ =~ s/BORDER=//;
+			$combobox_border->set_active($_);
+		}
+
+	}
+
+	&status_message(1, "Einstellungen wurden erfolgreich geladen!");
+}
+
+####################SAVE AND REVERT################################
+
+
+#################### MY FUNCTIONS  ################################
+sub file_exists
+{
+	my ($filename) = @_;
+	$filename = &switch_home_in_file($filename); 
+	return TRUE if (-e $filename);
+	return FALSE;
+}
+
+sub switch_home_in_file
+{
+	my ($filename) = @_ ;
+	$filename =~ s/^~/$ENV{ HOME }/; #switch ~ in path to /home/username
+	return $filename; 
+}
+sub status_message
+{
+	my ($index, $status_text) = @_;
+	$statusbar->push ($index, $status_text);
+}
+
+sub error_message
+{
+	
+	my ($error_message) = @_;
+
+	my $error_dialog = Gtk2::MessageDialog->new ($window,
+	[qw/modal destroy-with-parent/],
+	'error' ,
+	'ok' ,
+	$error_message) ;
+	my $error_response = $error_dialog->run ;	
+	$error_dialog->destroy() if($error_response eq "ok");
+	return TRUE;
+}
+
+#info messages
+sub question_message
+{
+	my ($question_message) = @_;
+
+	my $question_dialog = Gtk2::MessageDialog->new ($window,
+	[qw/modal destroy-with-parent/],
+	'question' ,
+	'yes_no' ,
+	$question_message ) ;
+	my $question_response = $question_dialog->run ;
+	if ($question_response eq "yes" ) {
+		$question_dialog->destroy() ;		
+		return TRUE;
+	}else {
+		$question_dialog->destroy() ;
+		return FALSE;
+	}
+	
+	
+}
+
+sub info_message
+{
+	my ($info_message) = @_;
+	my $info_dialog = Gtk2::MessageDialog->new ($window,
+	[qw/modal destroy-with-parent/],
+	'question' ,
+	'ok' ,
+	$info_message ) ;
+	my $info_response = $info_dialog->run ;	
+	$info_dialog->destroy() if($info_response eq "ok");
+	return TRUE;
+}
+
+sub usage
+{
+	print "Usage\n gscrot.pl [options]\n";
+	print "Available options:\n --min_at_startup - starts gscrot minimized to tray\n --beeper_off - turns audible feedback off\n --debug - prints a lot of debugging information to STDOUT\n";
+	print " --help - displays this help\n";
+}
+
+#################### MY FUNCTIONS  ################################
 

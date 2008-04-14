@@ -2,9 +2,15 @@ gscrot (0.35~ppa1) gutsy; urgency=low
 
   * fixed typo in info_message
   * changed hbox/vbox arrangement
-  * added feature session collection
+  * added feature "session collection"
+  * added command line args
+    --min_at_startup - starts gscrot minimized to tray
+    --beeper_off - turns audible feedback off
+    --debug - prints a lot of debugging information to STDOUT
+    --help - displays this help
+  * start of localization using gettext
 
- -- Mario Kemper <mario.kemper@gmx.de>  Fr, 11 Apr 2008 23:37:11 +0200   
+ -- Mario Kemper <mario.kemper@gmx.de>  Di, 15 Apr 2008 00:58:46 +0200  
 
 gscrot (0.34~ppa1) gutsy; urgency=low
 
