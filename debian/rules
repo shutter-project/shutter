@@ -29,7 +29,7 @@ binary-arch: build
 
 # Copy the packages's files.
 	find . -maxdepth 1 -mindepth 1 -not -name debian -print0 | \
-		xargs -0 -r -i cp -a {} debian/$(PACKAGE)
+		xargs -0 -r -i cp -a {} debian/$(PACKAGE)/usr/
 
 
 # This has been known to break on some wacky binaries.
