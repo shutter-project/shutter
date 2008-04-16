@@ -1,4 +1,5 @@
 #! /usr/bin/perl
+use utf8;
 use strict;
 use warnings;
 
@@ -18,16 +19,17 @@ use warnings;
 #along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 use Glib qw/TRUE FALSE/;
-use utf8;
 use Gtk2 '-init';
 use Gtk2::TrayIcon;
 use Gtk2::Gdk::Keysyms;
 use POSIX;     # for setlocale()
 use Locale::gettext;
+require Encode;
 
-setlocale(LC_MESSAGES, "");
+
+setlocale(LC_MESSAGES,"");
+bind_textdomain_codeset("gscrot", "ISO-8859-1");
 bindtextdomain("gscrot", "../share/gscrot/resources/locale");
-bind_textdomain_codeset("gscrot", "UTF-8");
 textdomain("gscrot");
 
 my $gscrot_name = "GScrot";

@@ -3,14 +3,19 @@ gscrot (0.35~ppa1) gutsy; urgency=low
   * fixed typo in info_message
   * changed hbox/vbox arrangement
   * added feature "session collection"
+    --keep track of all screenshots during session
+    --copy screeners to clipboard
+    --print screenshots
+    --delete screenshots
   * added command line args
     --min_at_startup - starts gscrot minimized to tray
     --beeper_off - turns audible feedback off
     --debug - prints a lot of debugging information to STDOUT
     --help - displays this help
   * start of localization using gettext
+    --german translation added
 
- -- Mario Kemper <mario.kemper@gmx.de>  Mi, 16 Apr 2008 01:55:53 +0200   
+ -- Mario Kemper <mario.kemper@gmx.de>  Mi, 16 Apr 2008 14:25:19 +0200    
 
 gscrot (0.34~ppa1) gutsy; urgency=low
 
