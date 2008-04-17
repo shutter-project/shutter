@@ -569,15 +569,15 @@ sub event_handle
 			#append a page to notebook using with label == filename
 			my ($second, $minute, $hour) = localtime();
 			my $theTime = "$hour:$minute:$second";
-			my $n_pages = $notebook->get_n_pages(); 
-			my $theTimeKey = "[$n_pages] - $theTime";
+			my $theTimeKey = "[".&function_get_latest_tab_key."] - $theTime";
+	
 			#build hash of screenshots during session	
 			$session_screens{$theTimeKey} = $scrot_feedback;
 			#and append page with label == key			
 			my $new_index = $notebook->append_page (function_create_tab ($theTimeKey, FALSE), Gtk2::Label->new($theTimeKey));
 			$window->show_all unless $is_in_tray;				
 			my $current_tab = $notebook->get_current_page+1;
-			print "new tab $new_index created, $n_pages tabs overall, current tab is $current_tab\n" if $debug_cparam;
+			print "new tab $new_index created, current tab is $current_tab\n" if $debug_cparam;
 			$notebook->set_current_page($new_index);
 	
 		}else{
@@ -1081,6 +1081,17 @@ sub function_update_first_tab
 		}
 	}		
 }
+
+sub function_get_latest_tab_key
+{
+	my $max_key = 0;
+	foreach my $key(keys %session_screens){
+		$key =~ /\[(.*)\]/;
+		$max_key = $1 if($1 > $max_key);
+	}
+	return $max_key+1;
+}
+
 sub function_gnome_open
 {
 	my ($dialog, $link, $user_data) = @_;
@@ -1092,6 +1103,7 @@ sub function_gnome_open_mail
 	my ($dialog, $mail, $user_data) = @_;
 	system("gnome-open mailto: $mail");
 }
+
 
 
 #################### MY FUNCTIONS  ################################
