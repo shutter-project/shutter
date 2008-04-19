@@ -22,6 +22,8 @@ use Glib qw/TRUE FALSE/;
 use Gtk2 '-init';
 use Gtk2::TrayIcon;
 use Gtk2::Gdk::Keysyms;
+use Gtk2::Pango;
+use Image::Magick;
 use POSIX;     # for setlocale()
 use Locale::gettext;
 
@@ -55,7 +57,10 @@ $notebook->popup_enable;
 $notebook->set_scrollable(TRUE);
 $notebook->signal_connect('switch-page' => \&event_notebook_switch, 'tab-switched');
 my $first_page = $notebook->append_page (function_create_tab ("", TRUE),
-Gtk2::Label->new("All"));
+Gtk2::Label->new($d->get("All")));
+
+#arrange settings in notebook
+my $notebook_settings = Gtk2::Notebook->new;
 
 #Clipboard
 my $clipboard = Gtk2::Clipboard->get(Gtk2::Gdk->SELECTION_CLIPBOARD);
@@ -67,9 +72,12 @@ my $statusbar = Gtk2::Statusbar->new;
 
 my $vbox = Gtk2::VBox->new(FALSE, 10);
 my $vbox_inner = Gtk2::VBox->new(FALSE, 10);
+my $vbox_basic = Gtk2::VBox->new(FALSE, 10);
+my $vbox_extras = Gtk2::VBox->new(FALSE, 10);
 my $file_vbox = Gtk2::VBox->new(FALSE, 0);
 my $save_vbox = Gtk2::VBox->new(FALSE, 0);
-my $extras_vbox = Gtk2::VBox->new(FALSE, 0);
+my $actions_vbox = Gtk2::VBox->new(FALSE, 0);
+my $capture_vbox = Gtk2::VBox->new(FALSE, 0);
 
 my $button_box = Gtk2::HBox->new(TRUE, 10);
 my $scale_box = Gtk2::HBox->new(TRUE, 0);
@@ -80,6 +88,8 @@ my $thumbnail_box2 = Gtk2::HBox->new(FALSE, 0);
 my $filename_box = Gtk2::HBox->new(TRUE, 0);
 my $progname_box = Gtk2::HBox->new(TRUE, 0);
 my $progname_box2 = Gtk2::HBox->new(FALSE, 0);
+my $im_colors_box = Gtk2::HBox->new(TRUE, 0);
+my $im_colors_box2 = Gtk2::HBox->new(FALSE, 0);
 my $filetype_box = Gtk2::HBox->new(TRUE, 0);
 my $saveDir_box = Gtk2::HBox->new(TRUE, 0);
 my $border_box = Gtk2::HBox->new(TRUE, 0);
@@ -131,8 +141,6 @@ $menuitem_help->set_submenu($menu2) ;
 $menubar->append($menuitem_help) ; 
 
 $vbox->pack_start($menubar, FALSE, FALSE, 0);
-
-
 #############MENU###################
 
 #############BUTTON_SELECT###################
@@ -181,9 +189,25 @@ $tray->show_all;
 #############TRAYICON######################
 
 #############SETTINGS######################
-my $file_frame = Gtk2::Frame->new($d->get("Image format"));
-my $save_frame = Gtk2::Frame->new($d->get("Save"));
-my $extras_frame = Gtk2::Frame->new($d->get("Extras"));
+my $file_frame_label = Gtk2::Label->new;
+$file_frame_label->set_markup($d->get("Image format"));
+my $file_frame = Gtk2::Frame->new();
+$file_frame->set_label_widget($file_frame_label);
+
+my $save_frame_label = Gtk2::Label->new;
+$save_frame_label->set_markup($d->get("Save"));
+my $save_frame = Gtk2::Frame->new();
+$save_frame->set_label_widget($save_frame_label);
+
+my $actions_frame_label = Gtk2::Label->new;
+$actions_frame_label->set_markup($d->get("Actions"));
+my $actions_frame = Gtk2::Frame->new();
+$actions_frame->set_label_widget($actions_frame_label);
+
+my $capture_frame_label = Gtk2::Label->new;
+$capture_frame_label->set_markup($d->get("Capture"));
+my $capture_frame = Gtk2::Frame->new();
+$capture_frame->set_label_widget($capture_frame_label);
 
 my $scale_label = Gtk2::Label->new;
 $scale_label->set_text($d->get("Quality"));
@@ -323,6 +347,36 @@ $progname_box2->pack_start($progname, TRUE, TRUE, 0);
 $progname_box->pack_start($progname_box2, TRUE, TRUE, 10);
 #end - program
 
+#im_colors
+my $combobox_im_colors = Gtk2::ComboBox->new_text;
+$combobox_im_colors->insert_text (1, $d->get("2 colors   - (1bit)"));
+$combobox_im_colors->insert_text (2, $d->get("4 colors   - (2bit)"));
+$combobox_im_colors->insert_text (3, $d->get("8 colors   - (3bit)"));
+$combobox_im_colors->insert_text (4, $d->get("16 colors  - (4bit)"));
+$combobox_im_colors->insert_text (5, $d->get("32 colors  - (5bit)"));
+$combobox_im_colors->insert_text (6, $d->get("64 colors  - (6bit)"));
+$combobox_im_colors->insert_text (8, $d->get("256 colors - (8bit)"));
+$combobox_im_colors->signal_connect('changed' => \&event_handle, 'border_changed');
+$combobox_im_colors->set_active (3);
+
+my $im_colors_active = Gtk2::CheckButton->new;
+$im_colors_active->signal_connect('toggled' => \&event_handle, 'im_colors_toggled');
+$im_colors_active->set_active($im_colors_active);
+
+my $im_colors_label = Gtk2::Label->new;
+$im_colors_label->set_text($d->get("Add Label"));
+
+my $tooltip_im_colors = Gtk2::Tooltips->new;
+$tooltip_im_colors->set_tip($combobox_im_colors,$d->get("Reduce color depth"));
+$tooltip_im_colors->set_tip($im_colors_active,$d->get("Reduce color depth"));
+$tooltip_im_colors->set_tip($im_colors_label,$d->get("Reduce color depth"));
+
+$im_colors_box->pack_start($im_colors_label, TRUE, TRUE, 10);
+$im_colors_box2->pack_start($im_colors_active, TRUE, TRUE, 0);
+$im_colors_box2->pack_start($combobox_im_colors, TRUE, TRUE, 0);
+$im_colors_box->pack_start($im_colors_box2, TRUE, TRUE, 10);
+#end - colors
+
 #border
 my $combobox_border = Gtk2::ComboBox->new_text;
 $combobox_border->insert_text (1, $d->get("activate"));
@@ -353,15 +407,34 @@ $save_vbox->pack_start($filename_box, TRUE, TRUE, 1);
 $save_vbox->pack_start($saveDir_box, TRUE, TRUE, 1);
 $save_frame->add($save_vbox);
 
-$extras_vbox->pack_start($progname_box, TRUE, TRUE, 1);
-$extras_vbox->pack_start($delay_box, TRUE, TRUE, 1);
-$extras_vbox->pack_start($thumbnail_box, TRUE, TRUE, 1);
-$extras_vbox->pack_start($border_box, TRUE, TRUE, 1);
-$extras_frame->add($extras_vbox);
+$vbox_basic->pack_start($file_frame, TRUE, TRUE, 1);
+$vbox_basic->pack_start($save_frame, TRUE, TRUE, 1);
+$vbox_basic->set_border_width(5);
 
-$vbox_inner->pack_start($file_frame, TRUE, TRUE, 1);
-$vbox_inner->pack_start($save_frame, TRUE, TRUE, 1);
-$vbox_inner->pack_start($extras_frame, TRUE, TRUE, 1);
+$capture_vbox->pack_start($delay_box, TRUE, TRUE, 1);
+$capture_vbox->pack_start($thumbnail_box, TRUE, TRUE, 1);
+$capture_vbox->pack_start($border_box, TRUE, TRUE, 1);
+$capture_frame->add($capture_vbox);
+
+$actions_vbox->pack_start($progname_box, TRUE, TRUE, 1);
+$actions_vbox->pack_start($im_colors_box, TRUE, TRUE, 1);
+$actions_frame->add($actions_vbox);
+
+$vbox_extras->pack_start($actions_frame, TRUE, TRUE, 1);
+$vbox_extras->pack_start($capture_frame, TRUE, TRUE, 1);
+$vbox_extras->set_border_width(5);
+
+my $label_basic = Gtk2::Label->new;
+$label_basic->set_markup ($d->get("<i>Basic Settings</i>"));
+
+my $label_extras = Gtk2::Label->new;
+$label_extras->set_markup ($d->get("<i>Extras</i>"));
+
+my $notebook_settings_first = $notebook_settings->append_page ($vbox_basic,$label_basic);
+my $notebook_settings_second = $notebook_settings->append_page ($vbox_extras,$label_extras);
+
+
+$vbox_inner->pack_start($notebook_settings, TRUE, TRUE, 1);
 $vbox_inner->pack_start($notebook, TRUE, TRUE, 1);
 $vbox_inner->set_border_width(10);
 
@@ -383,10 +456,34 @@ Gtk2->main;
 
 0;
 
-
 #initialize gscrot, check dependencies
 sub function_init()
 {
+	#are there any command line params?
+	if(@ARGV > 0){
+		my $arg;	
+		foreach $arg (@args){
+			if($arg eq "--debug"){
+				$debug_cparam = TRUE;
+			}elsif($arg eq "--help"){
+				&function_usage();
+				exit;
+			}elsif($arg eq "--min_at_startup"){
+				$min_cparam = TRUE;
+			}elsif($arg eq "--beeper_off"){
+				$boff_cparam = TRUE;
+			}else{
+				print "\ncommand ".$arg." not recognized --> will be ignored\n";
+				&function_usage();
+				exit;		
+			}
+			print "\ncommand ".$arg." recognized!\n";			
+		}
+	}else{
+		print "INFO: no command line parameters set...\n";
+	}	
+	
+	
 	print "\nINFO: gathering system information...";
 	print "\n";
 	printf "Glib %s \n", $Glib::VERSION;
@@ -431,30 +528,6 @@ sub function_init()
 		$gscrot_path = "..";
 	}	
 
-	#are there any command line params?
-	if(@ARGV > 0){
-		print "INFO: reading command line parameters...\n";
-		my $arg;	
-		foreach $arg (@args){
-			if($arg eq "--debug"){
-				$debug_cparam = TRUE;
-			}elsif($arg eq "--help"){
-				&function_usage();
-				exit;
-			}elsif($arg eq "--min_at_startup"){
-				$min_cparam = TRUE;
-			}elsif($arg eq "--beeper_off"){
-				$boff_cparam = TRUE;
-			}else{
-				print "\ncommand ".$arg." not recognized --> will be ignored\n";
-				&function_usage();
-				exit;		
-			}
-			print "\ncommand ".$arg." recognized!\n";			
-		}
-	}else{
-		print "INFO: no command line parameters set...\n";
-	}
 }
 
 #nearly all events are handled here
@@ -465,6 +538,7 @@ sub event_handle
 	my $delay_value = undef;
 	my $thumbnail_value = undef;
 	my $progname_value = undef;
+	my $im_colors_value = undef;
 	my $filename_value = undef;
 	my $filetype_value = undef;
 	my $border_value = "";
@@ -486,6 +560,15 @@ sub event_handle
 		}else{
 			$progname->set_editable(FALSE);
 			$progname->set_sensitive(FALSE);
+		}
+	}
+	
+#checkbox for "add label" -> entry active/inactive
+	if($data eq "im_colors_toggled"){
+		if($im_colors_active->get_active){
+			$combobox_im_colors->set_sensitive(TRUE);			
+		}else{
+			$combobox_im_colors->set_sensitive(FALSE);
 		}
 	}
 
@@ -579,17 +662,24 @@ sub event_handle
 			my $current_tab = $notebook->get_current_page+1;
 			print "new tab $new_index created, current tab is $current_tab\n" if $debug_cparam;
 			$notebook->set_current_page($new_index);
-	
+			
+			#perform some im_actions
+			if($im_colors_active->get_active){
+				$im_colors_value = $combobox_im_colors->get_active();		
+				&function_imagemagick_perform("reduce_colors", $scrot_feedback, $im_colors_value);
+			}	
+			
+			if($progname_active->get_active){		
+				$progname_value = $progname->get_text();
+				system("$progname_value $scrot_feedback &"); #open picture in external program
+			}	
+			
 		}else{
 			&dialog_error_message($d->get("file could not be saved")."\n$scrot_feedback");
 			print "screenshot could not be saved\n$scrot_feedback!" if $debug_cparam;
 			&dialog_status_message(1, $scrot_feedback." ".$d->get("could not be saved"));
 		} 
-					
-		if($progname_active->get_active){		
-			$progname_value = $progname->get_text();
-			system("$progname_value $scrot_feedback &"); #open picture in external program
-		}			
+							
 	}
 	#close about box
 	if($data eq "cancel"){
@@ -799,6 +889,14 @@ sub function_create_tab {
 
 	my $tooltip_delete = Gtk2::Tooltips->new;
 	$tooltip_delete->set_tip($button_delete,$d->get("Delete file(s)"));
+	
+	my $button_remove = Gtk2::Button->new;
+	$button_remove->signal_connect(clicked => \&event_in_tab, 'remove'.$key);
+	my $image_remove = Gtk2::Image->new_from_icon_name ('gtk-remove', 'button');
+	$button_remove->set_image($image_remove);	
+
+	my $tooltip_remove = Gtk2::Tooltips->new;
+	$tooltip_remove->set_tip($button_remove,$d->get("Remove file(s) from session"));	
 
 	my $button_clipboard = Gtk2::Button->new;
 	$button_clipboard->signal_connect(clicked => \&event_in_tab, 'clipboard'.$key);
@@ -807,6 +905,14 @@ sub function_create_tab {
 
 	my $tooltip_clipboard = Gtk2::Tooltips->new;
 	$tooltip_clipboard->set_tip($button_clipboard,$d->get("Copy file(s) to clipboard"));
+
+	my $button_reopen = Gtk2::Button->new;
+	$button_reopen->signal_connect(clicked => \&event_in_tab, 'reopen'.$key);
+	my $image_reopen = Gtk2::Image->new_from_icon_name ('gtk-redo-ltr', 'button');
+	$button_reopen->set_image($image_reopen);	
+
+	my $tooltip_reopen = Gtk2::Tooltips->new;
+	$tooltip_reopen->set_tip($button_reopen,$d->get("Open file"));
 
 	my $button_print = Gtk2::Button->new;
 	$button_print->signal_connect(clicked => \&event_in_tab, 'print'.$key);
@@ -820,10 +926,12 @@ sub function_create_tab {
 	$hbox_tab_file->pack_start($exists_status, TRUE, TRUE, 1);
 	$hbox_tab_file->pack_start($filename_label, TRUE, TRUE, 1);
 
+	$hbox_tab_actions->pack_start($button_remove, TRUE, TRUE, 1);
 	$hbox_tab_actions->pack_start($button_delete, TRUE, TRUE, 1);
+	$hbox_tab_actions->pack_start($button_reopen, TRUE, TRUE, 1) unless $is_all;
 	$hbox_tab_actions->pack_start($button_clipboard, TRUE, TRUE, 1) unless $is_all;
 	$hbox_tab_actions->pack_start($button_print, TRUE, TRUE, 1);
-
+	
 	$vbox_tab->pack_start($hbox_tab_file, TRUE, TRUE, 1);
 	$vbox_tab->pack_start($hbox_tab_actions, TRUE, TRUE, 1);
 	$scrolled_window->add_with_viewport($vbox_tab);
@@ -857,6 +965,24 @@ sub event_in_tab
 				
 		$window->show_all;
 	}
+	
+	if ($data =~ m/^remove\[/){
+		$data =~ s/^remove//;
+		$notebook->remove_page($notebook->get_current_page); #delete tab
+		&dialog_status_message(1, $session_screens{$data}." ".$d->get("removed from session"));
+		delete($session_screens{$data}); # delete from hash
+		
+		&function_update_first_tab();
+				
+		$window->show_all;
+	}	
+
+	if ($data =~ m/^reopen\[/){
+		$data =~ s/^reopen//;
+		my $progname_value = $progname->get_text();
+		system($progname_value." ".$session_screens{$data}." &");
+		&dialog_status_message(1, $session_screens{$data}." ".$d->get("opened with $progname_value"));
+	}
 
 	if ($data =~ m/^clipboard\[/){
 		$data =~ s/^clipboard//;
@@ -877,6 +1003,20 @@ sub event_in_tab
 			$notebook->remove_page($n_pages);		
 		}
 		&dialog_status_message(1, $d->get("All screenshots deleted"));
+		&function_update_first_tab;
+		$window->show_all;
+	}
+	
+	if ($data =~ m/^remove$/){ #tab == all
+		foreach my $key(keys %session_screens){	
+			delete($session_screens{$key}); # delete from hash	
+		}
+		my $n_pages = $notebook->get_n_pages();
+		while($n_pages > 1){  #delete tab all tabs
+			$n_pages--;
+			$notebook->remove_page($n_pages);		
+		}
+		&dialog_status_message(1, $d->get("All screenshots removed"));
 		&function_update_first_tab;
 		$window->show_all;
 	}
@@ -925,6 +1065,8 @@ sub function_save_settings
 	print FILE "FOLDER=".$saveDir_button->get_filename()."\n";
 	print FILE "PNAME=".$progname->get_text()."\n";
 	print FILE "PNAME_ACT=".$progname_active->get_active()."\n";
+	print FILE "IM_COLORS=".$progname->get_text()."\n";
+	print FILE "IM_COLORS_ACT=".$progname_active->get_active()."\n";
 	print FILE "DELAY=".$delay->get_value()."\n";
 	print FILE "DELAY_ACT=".$delay_active->get_active()."\n";
 	print FILE "THUMB=".$thumbnail->get_value()."\n";
@@ -962,6 +1104,12 @@ sub function_load_settings
 			$progname->set_text($_);
 		}elsif($_ =~ m/^PNAME_ACT=/){
 			$_ =~ s/PNAME_ACT=//;
+			$progname_active->set_active($_);
+		}elsif($_ =~ m/^IM_COLORS=/){
+			$_ =~ s/IM_COLORS=//;
+			$progname->set_text($_);
+		}elsif($_ =~ m/^PNAME_ACT=/){
+			$_ =~ s/IM_LABEL_ACT=//;
 			$progname_active->set_active($_);
 		}elsif($_ =~ m/^DELAY=/){
 			$_ =~ s/DELAY=//;
@@ -1056,7 +1204,7 @@ sub dialog_info_message
 
 sub function_usage
 {
-	print "function_usage\n gscrot.pl [options]\n";
+	print "gscrot.pl [options]\n";
 	print "Available options:\n --min_at_startup - starts gscrot minimized to tray\n --beeper_off - turns audible feedback off\n --debug - prints a lot of debugging information to STDOUT\n";
 	print " --help - displays this help\n";
 }
@@ -1102,6 +1250,21 @@ sub function_gnome_open_mail
 {
 	my ($dialog, $mail, $user_data) = @_;
 	system("gnome-open mailto: $mail");
+}
+
+sub function_imagemagick_perform
+{
+	my ($function, $file, $data) = @_;
+	my $image=Image::Magick->new;
+	$file = &function_switch_home_in_file($file);
+	$image->ReadImage($file);
+
+	print $data;
+
+	if($function eq "reduce_colors"){
+		$image->Quantize(colors=>$data);
+	}
+	$image->WriteImage($file);	
 }
 
 
