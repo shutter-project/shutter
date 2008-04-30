@@ -56,6 +56,7 @@ my $notebook = Gtk2::Notebook->new;
 $notebook->popup_enable;
 $notebook->set_scrollable(TRUE);
 $notebook->signal_connect('switch-page' => \&event_notebook_switch, 'tab-switched');
+$notebook->set_size_request(-1, 150);
 my $first_page = $notebook->append_page (function_create_tab ("", TRUE),
 Gtk2::Label->new($d->get("All")));
 
@@ -437,7 +438,7 @@ $vbox_inner->pack_start($notebook, TRUE, TRUE, 1);
 $vbox_inner->set_border_width(10);
 
 $vbox->pack_start($vbox_inner, TRUE, TRUE, 1);
-$vbox->pack_start($statusbar, TRUE, TRUE, 1);
+$vbox->pack_start($statusbar, FALSE, TRUE, 1);
 #############PACKING######################
 
 unless($min_cparam){
@@ -722,11 +723,13 @@ sub event_notebook_switch
 		
 	}
 	#do it again and set buttons disabled
+	my $counter = 0;
+	@hbox_content = sort(@hbox_content); #do not disable first button (remove)
 	foreach (@hbox_content){
 		if ( $_ =~ /^Gtk2::Button/ && $tab_index != 0 && $exists == FALSE){ #normal tab
-			$_->set_sensitive(FALSE);
+			$_->set_sensitive(FALSE) unless $counter == 0;
 		}
-		
+		$counter++;
 	}		
 	&function_update_first_tab(); #update first tab for information
 
@@ -881,14 +884,6 @@ sub function_create_tab {
 	
 	my $filename_label = Gtk2::Label->new($filename);
 
-	my $button_delete = Gtk2::Button->new;
-	$button_delete->signal_connect(clicked => \&event_in_tab, 'delete'.$key);
-	my $image_delete = Gtk2::Image->new_from_icon_name ('gtk-delete', 'button');
-	$button_delete->set_image($image_delete);	
-
-	my $tooltip_delete = Gtk2::Tooltips->new;
-	$tooltip_delete->set_tip($button_delete,$d->get("Delete file(s)"));
-	
 	my $button_remove = Gtk2::Button->new;
 	$button_remove->signal_connect(clicked => \&event_in_tab, 'remove'.$key);
 	my $image_remove = Gtk2::Image->new_from_icon_name ('gtk-remove', 'button');
@@ -897,6 +892,14 @@ sub function_create_tab {
 	my $tooltip_remove = Gtk2::Tooltips->new;
 	$tooltip_remove->set_tip($button_remove,$d->get("Remove file(s) from session"));	
 
+	my $button_delete = Gtk2::Button->new;
+	$button_delete->signal_connect(clicked => \&event_in_tab, 'delete'.$key);
+	my $image_delete = Gtk2::Image->new_from_icon_name ('gtk-delete', 'button');
+	$button_delete->set_image($image_delete);	
+
+	my $tooltip_delete = Gtk2::Tooltips->new;
+	$tooltip_delete->set_tip($button_delete,$d->get("Delete file(s)"));
+	
 	my $button_clipboard = Gtk2::Button->new;
 	$button_clipboard->signal_connect(clicked => \&event_in_tab, 'clipboard'.$key);
 	my $image_clipboard = Gtk2::Image->new_from_icon_name ('gtk-copy', 'button');
@@ -911,7 +914,7 @@ sub function_create_tab {
 	$button_reopen->set_image($image_reopen);	
 
 	my $tooltip_reopen = Gtk2::Tooltips->new;
-	$tooltip_reopen->set_tip($button_reopen,$d->get("Open file"));
+	$tooltip_reopen->set_tip($button_reopen,$d->get("Open file(s)"));
 
 	my $button_rename = Gtk2::Button->new;
 	$button_rename->signal_connect(clicked => \&event_in_tab, 'rename'.$key);
@@ -933,14 +936,19 @@ sub function_create_tab {
 	$hbox_tab_file->pack_start($exists_status, TRUE, TRUE, 1);
 	$hbox_tab_file->pack_start($filename_label, TRUE, TRUE, 1);
 
-	$hbox_tab_actions->pack_start($button_remove, TRUE, TRUE, 1);
-	$hbox_tab_actions->pack_start($button_delete, TRUE, TRUE, 1);
-	$hbox_tab_actions->pack_start($button_print, TRUE, TRUE, 1);
-
-	$hbox_tab_actions2->pack_start($button_reopen, TRUE, TRUE, 1) unless $is_all;
-	$hbox_tab_actions2->pack_start($button_rename, TRUE, TRUE, 1) unless $is_all;
-	$hbox_tab_actions2->pack_start($button_clipboard, TRUE, TRUE, 1) unless $is_all;
-	
+	if($is_all){
+		$hbox_tab_actions->pack_start($button_remove, TRUE, TRUE, 1);
+		$hbox_tab_actions->pack_start($button_delete, TRUE, TRUE, 1);
+		$hbox_tab_actions2->pack_start($button_reopen, TRUE, TRUE, 1);
+		$hbox_tab_actions2->pack_start($button_print, TRUE, TRUE, 1);
+	}else{
+		$hbox_tab_actions->pack_start($button_remove, TRUE, TRUE, 1);
+		$hbox_tab_actions->pack_start($button_delete, TRUE, TRUE, 1);
+		$hbox_tab_actions2->pack_start($button_reopen, TRUE, TRUE, 1);
+		$hbox_tab_actions2->pack_start($button_print, TRUE, TRUE, 1);
+		$hbox_tab_actions->pack_start($button_rename, TRUE, TRUE, 1);
+		$hbox_tab_actions2->pack_start($button_clipboard, TRUE, TRUE, 1);		
+	}
 	$vbox_tab->pack_start($hbox_tab_file, TRUE, TRUE, 1);
 	$vbox_tab->pack_start($hbox_tab_actions, TRUE, TRUE, 1);
 	$vbox_tab->pack_start($hbox_tab_actions2, TRUE, TRUE, 1);
@@ -996,8 +1004,7 @@ sub event_in_tab
 	
 	if ($data =~ m/^rename\[/){
 		$data =~ s/^rename//;
-		&dialog_input($session_screens{$data});
-		&dialog_status_message(1, $session_screens{$data}." ".$d->get("renamed"));
+		&dialog_status_message(1, $session_screens{$data}." ".$d->get("renamed")) if &dialog_rename($session_screens{$data}, $data);
 	}
 
 	if ($data =~ m/^clipboard\[/){
@@ -1036,6 +1043,22 @@ sub event_in_tab
 		&function_update_first_tab;
 		$window->show_all;
 	}
+	
+	if ($data =~ m/^reopen$/){
+		my $progname_value = $progname->get_text();
+		my $open_files;
+		if($progname_value =~ /gimp/){
+			foreach my $key(keys %session_screens){
+				$open_files .= &function_switch_home_in_file($session_screens{$key})." ";
+			}
+			system($progname_value." ".$open_files." &");
+		}else{
+			foreach my $key(keys %session_screens){
+				system($progname_value." ".&function_switch_home_in_file($session_screens{$key})." &");
+			}			
+		}
+		&dialog_status_message(1, $d->get("Opened all files with $progname_value"));
+	}	
 
 	if ($data =~ m/^print$/){ #tab == all
 		my $print_files;		
@@ -1208,25 +1231,42 @@ sub dialog_question_message
 	}
 }
 
-#input dialog
-sub dialog_input
+sub dialog_rename
 {
-	my ($dialog_input_text) = @_;
- 	my $input_dialog = Gtk2::Dialog->new ('Rename file',
+	my ($dialog_rename_text, $data) = @_;
+	my $dialog_header = $d->get("Rename file");
+ 	my $input_dialog = Gtk2::Dialog->new ($dialog_header,
         						$window,
                               	[qw/modal destroy-with-parent/],
                               	'gtk-ok'     => 'accept',
                               	'gtk-cancel' => 'reject');
 
-	my $new_filename = Gtk2::Entry->new();
+	$input_dialog->set_default_response ('accept');
 
-	$new_filename->set_text($1);
+	my $new_filename = Gtk2::Entry->new();
+	$dialog_rename_text =~ /.*\/(.*)\./;
+	my $old_file_name = $1;
+	my $old_file_name_full = $dialog_rename_text;
+	$new_filename->set_text($old_file_name);
     $input_dialog->vbox->add ($new_filename);
     $input_dialog->show_all;
 
 	my $input_response = $input_dialog->run ;    
 	if ($input_response eq "accept" ) {
-		$input_dialog->destroy() ;		
+		my $new_name = $new_filename->get_text;
+		$dialog_rename_text =~ s/$old_file_name/$new_name/;
+		unless($old_file_name_full eq $dialog_rename_text){ #filenames eq? -> nothing to do here
+			unless(&function_file_exists($dialog_rename_text)){
+				rename(&function_switch_home_in_file($old_file_name_full), &function_switch_home_in_file($dialog_rename_text));
+			}else{
+				&dialog_error_message($d->get("File $dialog_rename_text already exists,\nplease choose an alternative filename!"));	
+				$input_dialog->destroy();		
+				return FALSE;			
+			}
+			$session_screens{$data} = $dialog_rename_text;
+			&function_update_tab($data);
+		}
+		$input_dialog->destroy();		
 		return TRUE;
 	}else {
 		$input_dialog->destroy() ;
@@ -1277,6 +1317,26 @@ sub function_update_first_tab
 	}		
 }
 
+sub function_update_tab
+{
+	my ($data) = @_;
+	$data =~ /\[(.*)\]/;
+	my $number_of_page = $1;
+	my $current_page = $notebook->get_nth_page($number_of_page);
+	my @widget_list = $current_page->get_children->get_children->get_children; #scrolledwindow, viewport, vbox
+	my @hbox_content;
+	foreach my $hbox_widget(@widget_list){
+		push(@hbox_content, $hbox_widget->get_children) ;
+	}
+	my $n_pages = keys(%session_screens); 
+	foreach (@hbox_content){
+		if( $_ =~ /^Gtk2::Label/ ){
+			$_->set_text($session_screens{$data});
+			last;
+		}
+	}		
+}
+
 sub function_get_latest_tab_key
 {
 	my $max_key = 0;
@@ -1312,8 +1372,6 @@ sub function_imagemagick_perform
 	}
 	$image->WriteImage($file);	
 }
-
-
 
 #################### MY FUNCTIONS  ################################
 
