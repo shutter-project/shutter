@@ -28,7 +28,7 @@ use POSIX;     # for setlocale()
 use Locale::gettext;
 
 my $gscrot_name = "GScrot";
-my $gscrot_version = "v0.35";
+my $gscrot_version = "v0.36";
 my $gscrot_path = "";
 #command line parameter
 my $debug_cparam = FALSE;
@@ -349,13 +349,11 @@ $progname_box->pack_start($progname_box2, TRUE, TRUE, 10);
 
 #im_colors
 my $combobox_im_colors = Gtk2::ComboBox->new_text;
-$combobox_im_colors->insert_text (1, $d->get("2 colors   - (1bit)"));
-$combobox_im_colors->insert_text (2, $d->get("4 colors   - (2bit)"));
-$combobox_im_colors->insert_text (3, $d->get("8 colors   - (3bit)"));
-$combobox_im_colors->insert_text (4, $d->get("16 colors  - (4bit)"));
-$combobox_im_colors->insert_text (5, $d->get("32 colors  - (5bit)"));
-$combobox_im_colors->insert_text (6, $d->get("64 colors  - (6bit)"));
-$combobox_im_colors->insert_text (8, $d->get("256 colors - (8bit)"));
+$combobox_im_colors->insert_text (1, $d->get("16 colors   - (4bit) "));
+$combobox_im_colors->insert_text (2, $d->get("256 colors  - (8bit) "));
+$combobox_im_colors->insert_text (3, $d->get("HighColor   - (16bit)"));
+$combobox_im_colors->insert_text (4, $d->get("TrueColor   - (24bit)"));
+
 $combobox_im_colors->signal_connect('changed' => \&event_handle, 'border_changed');
 $combobox_im_colors->set_active (3);
 
@@ -364,15 +362,15 @@ $im_colors_active->signal_connect('toggled' => \&event_handle, 'im_colors_toggle
 $im_colors_active->set_active($im_colors_active);
 
 my $im_colors_label = Gtk2::Label->new;
-$im_colors_label->set_text($d->get("Add Label"));
+$im_colors_label->set_text($d->get("Color depth"));
 
 my $tooltip_im_colors = Gtk2::Tooltips->new;
-$tooltip_im_colors->set_tip($combobox_im_colors,$d->get("Reduce color depth"));
-$tooltip_im_colors->set_tip($im_colors_active,$d->get("Reduce color depth"));
-$tooltip_im_colors->set_tip($im_colors_label,$d->get("Reduce color depth"));
+$tooltip_im_colors->set_tip($combobox_im_colors,$d->get("Set color depth"));
+$tooltip_im_colors->set_tip($im_colors_active,$d->get("Set color depth"));
+$tooltip_im_colors->set_tip($im_colors_label,$d->get("Set color depth"));
 
 $im_colors_box->pack_start($im_colors_label, TRUE, TRUE, 10);
-$im_colors_box2->pack_start($im_colors_active, TRUE, TRUE, 0);
+$im_colors_box2->pack_start($im_colors_active, FALSE, TRUE, 0);
 $im_colors_box2->pack_start($combobox_im_colors, TRUE, TRUE, 0);
 $im_colors_box->pack_start($im_colors_box2, TRUE, TRUE, 10);
 #end - colors
@@ -434,12 +432,12 @@ my $notebook_settings_first = $notebook_settings->append_page ($vbox_basic,$labe
 my $notebook_settings_second = $notebook_settings->append_page ($vbox_extras,$label_extras);
 
 
-$vbox_inner->pack_start($notebook_settings, TRUE, TRUE, 1);
+$vbox_inner->pack_start($notebook_settings, FALSE, FALSE, 1);
 $vbox_inner->pack_start($notebook, TRUE, TRUE, 1);
 $vbox_inner->set_border_width(10);
 
 $vbox->pack_start($vbox_inner, TRUE, TRUE, 1);
-$vbox->pack_start($statusbar, FALSE, FALSE, 1);
+$vbox->pack_start($statusbar, TRUE, TRUE, 1);
 #############PACKING######################
 
 unless($min_cparam){
@@ -563,7 +561,7 @@ sub event_handle
 		}
 	}
 	
-#checkbox for "add label" -> entry active/inactive
+#checkbox for "color depth" -> entry active/inactive
 	if($data eq "im_colors_toggled"){
 		if($im_colors_active->get_active){
 			$combobox_im_colors->set_sensitive(TRUE);			
@@ -665,7 +663,7 @@ sub event_handle
 			
 			#perform some im_actions
 			if($im_colors_active->get_active){
-				$im_colors_value = $combobox_im_colors->get_active();		
+				$im_colors_value = $combobox_im_colors->get_active_text();		
 				&function_imagemagick_perform("reduce_colors", $scrot_feedback, $im_colors_value);
 			}	
 			
@@ -789,7 +787,7 @@ sub event_about
 
 	my $website = "http://launchpad.net/gscrot";
 	my $about = Gtk2::AboutDialog->new;
-	$about->set_name($gscrot_name);
+	$about->set_program_name($gscrot_name);
 	$about->set_version($gscrot_version);
 	$about->set_url_hook(\&function_gnome_open);
 	$about->set_website_label($website);
@@ -865,6 +863,7 @@ sub function_create_tab {
 	my $vbox_tab = Gtk2::VBox->new(FALSE, 0);
 	my $hbox_tab_file = Gtk2::HBox->new(FALSE, 0);
 	my $hbox_tab_actions = Gtk2::HBox->new(FALSE, 0);
+	my $hbox_tab_actions2 = Gtk2::HBox->new(FALSE, 0);
 
 	my $n_pages = 0;
 	my $filename = $n_pages." ".$d->get("screenshot(s) during this session");
@@ -914,6 +913,14 @@ sub function_create_tab {
 	my $tooltip_reopen = Gtk2::Tooltips->new;
 	$tooltip_reopen->set_tip($button_reopen,$d->get("Open file"));
 
+	my $button_rename = Gtk2::Button->new;
+	$button_rename->signal_connect(clicked => \&event_in_tab, 'rename'.$key);
+	my $image_rename = Gtk2::Image->new_from_icon_name ('gtk-edit', 'button');
+	$button_rename->set_image($image_rename);	
+
+	my $tooltip_rename = Gtk2::Tooltips->new;
+	$tooltip_rename->set_tip($button_rename,$d->get("Rename file"));
+
 	my $button_print = Gtk2::Button->new;
 	$button_print->signal_connect(clicked => \&event_in_tab, 'print'.$key);
 	my $image_print = Gtk2::Image->new_from_icon_name ('gtk-print', 'button');
@@ -928,12 +935,15 @@ sub function_create_tab {
 
 	$hbox_tab_actions->pack_start($button_remove, TRUE, TRUE, 1);
 	$hbox_tab_actions->pack_start($button_delete, TRUE, TRUE, 1);
-	$hbox_tab_actions->pack_start($button_reopen, TRUE, TRUE, 1) unless $is_all;
-	$hbox_tab_actions->pack_start($button_clipboard, TRUE, TRUE, 1) unless $is_all;
 	$hbox_tab_actions->pack_start($button_print, TRUE, TRUE, 1);
+
+	$hbox_tab_actions2->pack_start($button_reopen, TRUE, TRUE, 1) unless $is_all;
+	$hbox_tab_actions2->pack_start($button_rename, TRUE, TRUE, 1) unless $is_all;
+	$hbox_tab_actions2->pack_start($button_clipboard, TRUE, TRUE, 1) unless $is_all;
 	
 	$vbox_tab->pack_start($hbox_tab_file, TRUE, TRUE, 1);
 	$vbox_tab->pack_start($hbox_tab_actions, TRUE, TRUE, 1);
+	$vbox_tab->pack_start($hbox_tab_actions2, TRUE, TRUE, 1);
 	$scrolled_window->add_with_viewport($vbox_tab);
 
   return $scrolled_window;
@@ -982,6 +992,12 @@ sub event_in_tab
 		my $progname_value = $progname->get_text();
 		system($progname_value." ".$session_screens{$data}." &");
 		&dialog_status_message(1, $session_screens{$data}." ".$d->get("opened with $progname_value"));
+	}
+	
+	if ($data =~ m/^rename\[/){
+		$data =~ s/^rename//;
+		&dialog_input($session_screens{$data});
+		&dialog_status_message(1, $session_screens{$data}." ".$d->get("renamed"));
 	}
 
 	if ($data =~ m/^clipboard\[/){
@@ -1065,8 +1081,8 @@ sub function_save_settings
 	print FILE "FOLDER=".$saveDir_button->get_filename()."\n";
 	print FILE "PNAME=".$progname->get_text()."\n";
 	print FILE "PNAME_ACT=".$progname_active->get_active()."\n";
-	print FILE "IM_COLORS=".$progname->get_text()."\n";
-	print FILE "IM_COLORS_ACT=".$progname_active->get_active()."\n";
+	print FILE "IM_COLORS=".$combobox_im_colors->get_active()."\n";
+	print FILE "IM_COLORS_ACT=".$im_colors_active->get_active()."\n";
 	print FILE "DELAY=".$delay->get_value()."\n";
 	print FILE "DELAY_ACT=".$delay_active->get_active()."\n";
 	print FILE "THUMB=".$thumbnail->get_value()."\n";
@@ -1105,9 +1121,12 @@ sub function_load_settings
 		}elsif($_ =~ m/^PNAME_ACT=/){
 			$_ =~ s/PNAME_ACT=//;
 			$progname_active->set_active($_);
+		}elsif($_ =~ m/^IM_COLORS_ACT=/){
+			$_ =~ s/IM_COLORS_ACT=//;
+			$im_colors_active->set_active($_);
 		}elsif($_ =~ m/^IM_COLORS=/){
 			$_ =~ s/IM_COLORS=//;
-			$progname->set_text($_);
+			$combobox_im_colors->set_active($_);
 		}elsif($_ =~ m/^PNAME_ACT=/){
 			$_ =~ s/IM_LABEL_ACT=//;
 			$progname_active->set_active($_);
@@ -1189,6 +1208,34 @@ sub dialog_question_message
 	}
 }
 
+#input dialog
+sub dialog_input
+{
+	my ($dialog_input_text) = @_;
+ 	my $input_dialog = Gtk2::Dialog->new ('Rename file',
+        						$window,
+                              	[qw/modal destroy-with-parent/],
+                              	'gtk-ok'     => 'accept',
+                              	'gtk-cancel' => 'reject');
+
+	my $new_filename = Gtk2::Entry->new();
+
+	$new_filename->set_text($1);
+    $input_dialog->vbox->add ($new_filename);
+    $input_dialog->show_all;
+
+	my $input_response = $input_dialog->run ;    
+	if ($input_response eq "accept" ) {
+		$input_dialog->destroy() ;		
+		return TRUE;
+	}else {
+		$input_dialog->destroy() ;
+		return FALSE;
+	}
+
+}
+
+
 sub dialog_info_message
 {
 	my ($dialog_info_message) = @_;
@@ -1259,10 +1306,9 @@ sub function_imagemagick_perform
 	$file = &function_switch_home_in_file($file);
 	$image->ReadImage($file);
 
-	print $data;
-
 	if($function eq "reduce_colors"){
-		$image->Quantize(colors=>$data);
+		$data =~ /.*\(([0-9]*).*\)/;
+		$image->Quantize(colors=>2**$1);
 	}
 	$image->WriteImage($file);	
 }
