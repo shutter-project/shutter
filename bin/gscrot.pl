@@ -43,6 +43,7 @@ my $d = Locale::gettext->domain("gscrot");
 $d->dir("$gscrot_path/share/gscrot/resources/locale");
 
 my $is_in_tray = FALSE;
+my $ask_at_close = undef;
 my $window = Gtk2::Window->new();
 
 $window->set_title($gscrot_name." ".$gscrot_version);
@@ -743,16 +744,44 @@ sub event_delete_window
 	my ($widget, $data) = @_;
 	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
 
-	if($data eq "menu_quit"){
+	if($data eq "menu_quit" or $ask_at_close == FALSE){
 		Gtk2->main_quit ;
 		return FALSE;
 	}	
-	my $dialog = Gtk2::MessageDialog->new ($window,
-	[qw/modal destroy-with-parent/],
-	'question' ,
-	'yes_no' ,
-	$d->get("Do you really want to quit GScrot?")) ;
+
+	my $dialog_header = $d->get("Quit GScrot");
+ 	my $dialog = Gtk2::Dialog->new ($dialog_header,
+        						$window,
+                              	[qw/modal destroy-with-parent/],
+                              	'gtk-yes'     => 'yes',
+                              	'gtk-no' => 'no');
+
+	$dialog->set_default_response ('no');
+	
+	my $exit_hbox = Gtk2::HBox->new(FALSE, 0);
+	my $exit_vbox = Gtk2::VBox->new(FALSE, 0);
+	my $exit_image = Gtk2::Image->new_from_icon_name ('gtk-help', 'dialog');
+	my $exit_label = Gtk2::Label->new();
+	$exit_label->set_text($d->get("Do you really want to quit GScrot?"));
+	my $ask_active = Gtk2::CheckButton->new_with_label($d->get("Do not ask this Question again"));
+	$ask_active->set_active(FALSE);    
+    $exit_vbox->pack_start($exit_label, TRUE, TRUE, 0);
+    $exit_vbox->pack_start($ask_active, TRUE, TRUE, 0);    
+    $exit_hbox->pack_start($exit_image, TRUE, TRUE, 0);
+    $exit_hbox->pack_start($exit_vbox, TRUE, TRUE, 0);
+    
+    $dialog->vbox->add ($exit_hbox);	
+
+	$dialog->show_all;
+	
 	my $response = $dialog->run ;
+	
+	if($ask_active->get_active){
+		$ask_at_close = FALSE;
+		open(FILE, ">>$ENV{ HOME }/.gscrot") or &dialog_status_message(1, $d->get("Settings could not be saved"));	
+		print FILE "CLOSE_ASK=".$ask_at_close."\n";
+		close(FILE) or &dialog_status_message(1, $d->get("Settings could not be saved"));
+	}
 	if ($response eq "yes" ) {
 		$dialog->destroy() ;		
 		Gtk2->main_quit ;
@@ -1002,7 +1031,7 @@ sub event_in_tab
 		my $progname_value = $progname->get_text();
 		unless ($progname_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No application specified to open the screenshot")); return FALSE;};
 		system($progname_value." ".$session_screens{$data}." &");
-		&dialog_status_message(1, $session_screens{$data}." ".$d->get("opened with $progname_value"));
+		&dialog_status_message(1, $session_screens{$data}." ".$d->get("opened with")." ".$progname_value);
 	}
 	
 	if ($data =~ m/^rename\[/){
@@ -1061,7 +1090,7 @@ sub event_in_tab
 				system($progname_value." ".&function_switch_home_in_file($session_screens{$key})." &");
 			}			
 		}
-		&dialog_status_message(1, $d->get("Opened all files with $progname_value"));
+		&dialog_status_message(1, $d->get("Opened all files with")." ".$progname_value);
 	}	
 
 	if ($data =~ m/^print$/){ #tab == all
@@ -1115,6 +1144,7 @@ sub function_save_settings
 	print FILE "THUMB=".$thumbnail->get_value()."\n";
 	print FILE "THUMB_ACT=".$thumbnail_active->get_active()."\n";
 	print FILE "BORDER=".$combobox_border->get_active()."\n";
+	print FILE "CLOSE_ASK=".$ask_at_close."\n";
 	close(FILE) or &dialog_error_message(1, $d->get("Settings could not be saved"));
 
 
@@ -1172,6 +1202,9 @@ sub function_load_settings
 		}elsif($_ =~ m/^BORDER=/){
 			$_ =~ s/BORDER=//;
 			$combobox_border->set_active($_);
+		}elsif($_ =~ m/^CLOSE_ASK=/){
+				$_ =~ s/CLOSE_ASK=//;
+				$ask_at_close = $_;
 		}
 
 	}
@@ -1263,7 +1296,7 @@ sub dialog_rename
 			unless(&function_file_exists($dialog_rename_text)){
 				rename(&function_switch_home_in_file($old_file_name_full), &function_switch_home_in_file($dialog_rename_text));
 			}else{
-				&dialog_error_message($d->get("File $dialog_rename_text already exists,\nplease choose an alternative filename!"));	
+				&dialog_error_message($d->get("File already exists,\nplease choose an alternative filename!"));	
 				$input_dialog->destroy();		
 				return FALSE;			
 			}

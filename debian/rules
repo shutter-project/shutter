@@ -1,9 +1,5 @@
 #!/usr/bin/make -f
 
-# Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
-
-# Use v4 compatability mode, so ldconfig gets added to maint scripts.
 export DH_COMPAT=4
 
 PACKAGE=$(shell dh_listpackages)
@@ -31,11 +27,7 @@ binary-arch: build
 	find . -maxdepth 1 -mindepth 1 -not -name debian -print0 | \
 		xargs -0 -r -i cp -a {} debian/$(PACKAGE)/usr/
 
-
-# This has been known to break on some wacky binaries.
-#	dh_strip
 	dh_compress
-#	dh_fixperms
 	dh_makeshlibs
 	dh_installdeb
 	-dh_shlibdeps
@@ -45,3 +37,4 @@ binary-arch: build
 
 binary: binary-indep binary-arch
 .PHONY: build clean binary-indep binary-arch binary
+

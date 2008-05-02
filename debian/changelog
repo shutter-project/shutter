@@ -1,18 +1,18 @@
-gscrot (0.36~ppa1) gutsy; urgency=low
+gscrot (0.36~ppa2) hardy; urgency=low
 
   * added functionalities to "session collection"
     --remove screenshots from session (but do not delete them)
-		--reopen screenshot with specified program
-		--rename screenshot
+    --reopen screenshot with specified program
+    --rename screenshot
   * new arrangement of settings area
   * new feature -- reduce color depth --
   * added dependency libimage-magick-perl
 
- -- Mario Kemper <mario.kemper@gmx.de>  Sa, 19 Apr 2008 02:07:19 +0200    
+ -- Mario Kemper <mario.kemper@gmx.de>  Sa, 03 Mai 2008 01:28:56 +0200
 
 gscrot (0.35~ppa3) gutsy; urgency=low
 
-  * added feature "session collection"
+  * added feature "session collection" 
     --keep track of all screenshots during session
     --copy screeners to clipboard
     --print screenshots

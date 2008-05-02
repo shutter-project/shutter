@@ -1,106 +1,120 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GScrot\n"
-"POT-Creation-Date: \n"
-"PO-Revision-Date: 2008-04-16 14:24+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-05-02 18:41+0200\n"
+"PO-Revision-Date: 2008-05-02 18:48+0100\n"
 "Last-Translator: Mario Kemper <mario.kemper@gmx.de>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: gscrot.pl:97
+#: gscrot.pl:61
+msgid "All"
+msgstr ""
+
+#: gscrot.pl:105
+msgid "_File"
+msgstr ""
+
+#: gscrot.pl:107
 msgid "_Revert Settings"
 msgstr ""
 
-#: gscrot.pl:103
+#: gscrot.pl:113
 msgid "_Save Settings"
 msgstr ""
 
-#: gscrot.pl:112
+#: gscrot.pl:122
 msgid "_Quit"
 msgstr ""
 
-#: gscrot.pl:123
+#: gscrot.pl:133
 msgid "_Info"
 msgstr ""
 
-#: gscrot.pl:140
+#: gscrot.pl:139
+msgid "_Help"
+msgstr ""
+
+#: gscrot.pl:148
 msgid ""
 "Capture\n"
 "with selection"
 msgstr ""
 
-#: gscrot.pl:147
+#: gscrot.pl:155
 msgid ""
 "Draw a rectangular capture area with your mouse\n"
 "to select a specified screen area\n"
 "or select a window to capture its content"
 msgstr ""
 
-#: gscrot.pl:155
-#: gscrot.pl:740
+#: gscrot.pl:161
+#: gscrot.pl:209
+#: gscrot.pl:832
 msgid "Capture"
 msgstr ""
 
-#: gscrot.pl:162
+#: gscrot.pl:168
 msgid "Take a screenshot of your whole desktop"
 msgstr ""
 
-#: gscrot.pl:190
-#: gscrot.pl:289
+#: gscrot.pl:194
+#: gscrot.pl:304
 msgid "Image format"
 msgstr ""
 
-#: gscrot.pl:191
+#: gscrot.pl:199
 msgid "Save"
 msgstr ""
 
-#: gscrot.pl:192
-msgid "Extras"
+#: gscrot.pl:204
+msgid "Actions"
 msgstr ""
 
-#: gscrot.pl:195
-#: gscrot.pl:517
+#: gscrot.pl:214
+#: gscrot.pl:599
 msgid "Quality"
 msgstr ""
 
-#: gscrot.pl:204
-#: gscrot.pl:205
+#: gscrot.pl:222
+#: gscrot.pl:223
 msgid ""
 "Quality/Compression:\n"
 "High value means high size / high compression\n"
 "(depending on file format chosen)"
 msgstr ""
 
-#: gscrot.pl:211
+#: gscrot.pl:229
 msgid "Delay"
 msgstr ""
 
-#: gscrot.pl:225
-#: gscrot.pl:226
-#: gscrot.pl:227
+#: gscrot.pl:242
+#: gscrot.pl:243
+#: gscrot.pl:244
 msgid "Wait n seconds before taking a screenshot"
 msgstr ""
 
-#: gscrot.pl:238
+#: gscrot.pl:255
 msgid "Thumbnail"
 msgstr ""
 
-#: gscrot.pl:252
-#: gscrot.pl:253
-#: gscrot.pl:254
+#: gscrot.pl:268
+#: gscrot.pl:269
+#: gscrot.pl:270
 msgid ""
 "Generate thumbnail too.\n"
 "select the percentage of the original size for the thumbnail to be"
 msgstr ""
 
-#: gscrot.pl:270
+#: gscrot.pl:285
 msgid "Filename"
 msgstr ""
 
-#: gscrot.pl:274
-#: gscrot.pl:275
+#: gscrot.pl:289
+#: gscrot.pl:290
 msgid ""
 "There are several wild-cards available, like\n"
 "%Y = year\n"
@@ -111,147 +125,233 @@ msgid ""
 "$h = height"
 msgstr ""
 
-#: gscrot.pl:292
-#: gscrot.pl:293
+#: gscrot.pl:307
+#: gscrot.pl:308
 msgid "Select a file format"
 msgstr ""
 
-#: gscrot.pl:302
+#: gscrot.pl:317
 msgid "Directory"
 msgstr ""
 
-#: gscrot.pl:307
-#: gscrot.pl:308
+#: gscrot.pl:322
+#: gscrot.pl:323
 msgid ""
 "Your screenshots will be saved\n"
 "to this directory"
 msgstr ""
 
-#: gscrot.pl:323
+#: gscrot.pl:338
 msgid "Open with"
 msgstr ""
 
-#: gscrot.pl:326
-#: gscrot.pl:327
-#: gscrot.pl:328
+#: gscrot.pl:341
+#: gscrot.pl:342
+#: gscrot.pl:343
 msgid ""
 "Open your screenshot\n"
 "with this program after capturing"
 msgstr ""
 
-#: gscrot.pl:338
+#: gscrot.pl:353
+msgid "16 colors   - (4bit) "
+msgstr ""
+
+#: gscrot.pl:354
+msgid "64 colors   - (6bit) "
+msgstr ""
+
+#: gscrot.pl:355
+msgid "256 colors  - (8bit) "
+msgstr ""
+
+#: gscrot.pl:356
+msgid "HighColor   - (16bit)"
+msgstr ""
+
+#: gscrot.pl:366
+msgid "Reduce color depth"
+msgstr ""
+
+#: gscrot.pl:369
+#: gscrot.pl:370
+#: gscrot.pl:371
+msgid ""
+"Automatically reduce color depth\n"
+"after taking a screenshot"
+msgstr ""
+
+#: gscrot.pl:381
 msgid "activate"
 msgstr ""
 
-#: gscrot.pl:339
+#: gscrot.pl:382
 msgid "deactivate"
 msgstr ""
 
-#: gscrot.pl:344
+#: gscrot.pl:387
 msgid "Window border"
 msgstr ""
 
-#: gscrot.pl:348
-#: gscrot.pl:349
+#: gscrot.pl:391
+#: gscrot.pl:392
 msgid ""
 "When selecting a window, grab wm border too\n"
 "(capture with selection only)\n"
 "There is no need of this option if you are using compiz"
 msgstr ""
 
-#: gscrot.pl:521
+#: gscrot.pl:427
+msgid "<i>Basic Settings</i>"
+msgstr ""
+
+#: gscrot.pl:430
+msgid "<i>Extras</i>"
+msgstr ""
+
+#: gscrot.pl:603
 msgid "Compression"
 msgstr ""
 
-#: gscrot.pl:568
+#: gscrot.pl:640
+#: gscrot.pl:643
+msgid "No valid filename specified"
+msgstr ""
+
+#: gscrot.pl:652
 msgid "saved"
 msgstr ""
 
-#: gscrot.pl:584
+#: gscrot.pl:675
+#: gscrot.pl:1003
+#: gscrot.pl:1053
+msgid "No application specified to open the screenshot"
+msgstr ""
+
+#: gscrot.pl:680
 msgid "file could not be saved"
 msgstr ""
 
-#: gscrot.pl:586
+#: gscrot.pl:682
 msgid "could not be saved"
 msgstr ""
 
-#: gscrot.pl:621
-#: gscrot.pl:780
-#: gscrot.pl:1076
+#: gscrot.pl:713
+#: gscrot.pl:873
+#: gscrot.pl:1315
 msgid "screenshot(s) during this session"
 msgstr ""
 
-#: gscrot.pl:627
+#: gscrot.pl:719
 msgid "is not existing anymore"
 msgstr ""
 
-#: gscrot.pl:662
+#: gscrot.pl:754
 msgid "Do you really want to quit GScrot?"
 msgstr ""
 
-#: gscrot.pl:738
+#: gscrot.pl:830
 msgid "Capture with selection"
 msgstr ""
 
-#: gscrot.pl:742
+#: gscrot.pl:834
 msgid "Quit"
 msgstr ""
 
-#: gscrot.pl:801
+#: gscrot.pl:895
+msgid "Remove file(s) from session"
+msgstr ""
+
+#: gscrot.pl:903
 msgid "Delete file(s)"
 msgstr ""
 
-#: gscrot.pl:809
+#: gscrot.pl:911
 msgid "Copy file(s) to clipboard"
 msgstr ""
 
-#: gscrot.pl:817
+#: gscrot.pl:919
+msgid "Open file(s)"
+msgstr ""
+
+#: gscrot.pl:927
+#: gscrot.pl:1241
+msgid "Rename file"
+msgstr ""
+
+#: gscrot.pl:935
 msgid "Print file(s)"
 msgstr ""
 
-#: gscrot.pl:846
+#: gscrot.pl:974
 msgid "will be printed"
 msgstr ""
 
-#: gscrot.pl:853
+#: gscrot.pl:981
 msgid "deleted"
 msgstr ""
 
-#: gscrot.pl:865
+#: gscrot.pl:992
+msgid "removed from session"
+msgstr ""
+
+#: gscrot.pl:1005
+msgid "opened with"
+msgstr ""
+
+#: gscrot.pl:1010
+msgid "renamed"
+msgstr ""
+
+#: gscrot.pl:1017
 msgid "copied to clipboard"
 msgstr ""
 
-#: gscrot.pl:879
+#: gscrot.pl:1031
 msgid "All screenshots deleted"
 msgstr ""
 
-#: gscrot.pl:890
+#: gscrot.pl:1045
+msgid "All screenshots removed"
+msgstr ""
+
+#: gscrot.pl:1064
+msgid "Opened all files with"
+msgstr ""
+
+#: gscrot.pl:1073
 msgid "Printing all screenshots"
 msgstr ""
 
-#: gscrot.pl:902
+#: gscrot.pl:1085
 msgid "Do you want to overwrite the existing settings?"
 msgstr ""
 
-#: gscrot.pl:912
+#: gscrot.pl:1095
 msgid "There are no stored settings"
 msgstr ""
 
-#: gscrot.pl:921
-#: gscrot.pl:933
+#: gscrot.pl:1104
+#: gscrot.pl:1118
 msgid "Settings could not be saved"
 msgstr ""
 
-#: gscrot.pl:936
+#: gscrot.pl:1121
 msgid "Settings saved successfully"
 msgstr ""
 
-#: gscrot.pl:942
-#: gscrot.pl:944
+#: gscrot.pl:1127
+#: gscrot.pl:1129
 msgid "Settings could not be loaded"
 msgstr ""
 
-#: gscrot.pl:985
+#: gscrot.pl:1179
 msgid "Settings loaded successfully"
+msgstr ""
+
+#: gscrot.pl:1266
+msgid ""
+"File already exists,\n"
+"please choose an alternative filename!"
 msgstr ""
 
