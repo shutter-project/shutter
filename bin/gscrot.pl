@@ -351,9 +351,9 @@ $progname_box->pack_start($progname_box2, TRUE, TRUE, 10);
 #im_colors
 my $combobox_im_colors = Gtk2::ComboBox->new_text;
 $combobox_im_colors->insert_text (1, $d->get("16 colors   - (4bit) "));
-$combobox_im_colors->insert_text (2, $d->get("256 colors  - (8bit) "));
-$combobox_im_colors->insert_text (3, $d->get("HighColor   - (16bit)"));
-$combobox_im_colors->insert_text (4, $d->get("TrueColor   - (24bit)"));
+$combobox_im_colors->insert_text (2, $d->get("64 colors   - (6bit) "));
+$combobox_im_colors->insert_text (3, $d->get("256 colors  - (8bit) "));
+$combobox_im_colors->insert_text (4, $d->get("HighColor   - (16bit)"));
 
 $combobox_im_colors->signal_connect('changed' => \&event_handle, 'border_changed');
 $combobox_im_colors->set_active (3);
@@ -363,12 +363,12 @@ $im_colors_active->signal_connect('toggled' => \&event_handle, 'im_colors_toggle
 $im_colors_active->set_active($im_colors_active);
 
 my $im_colors_label = Gtk2::Label->new;
-$im_colors_label->set_text($d->get("Color depth"));
+$im_colors_label->set_text($d->get("Reduce color depth"));
 
 my $tooltip_im_colors = Gtk2::Tooltips->new;
-$tooltip_im_colors->set_tip($combobox_im_colors,$d->get("Set color depth"));
-$tooltip_im_colors->set_tip($im_colors_active,$d->get("Set color depth"));
-$tooltip_im_colors->set_tip($im_colors_label,$d->get("Set color depth"));
+$tooltip_im_colors->set_tip($combobox_im_colors,$d->get("Automatically reduce color depth\nafter taking a screenshot"));
+$tooltip_im_colors->set_tip($im_colors_active,$d->get("Automatically reduce color depth\nafter taking a screenshot"));
+$tooltip_im_colors->set_tip($im_colors_label,$d->get("Automatically reduce color depth\nafter taking a screenshot"));
 
 $im_colors_box->pack_start($im_colors_label, TRUE, TRUE, 10);
 $im_colors_box2->pack_start($im_colors_active, FALSE, TRUE, 0);
@@ -398,12 +398,12 @@ $border_box->pack_start($combobox_border, TRUE, TRUE, 10);
 
 
 #############PACKING######################
-$file_vbox->pack_start($scale_box, TRUE, TRUE, 1);
-$file_vbox->pack_start($filetype_box, TRUE, TRUE, 1);
+$file_vbox->pack_start($scale_box, FALSE, TRUE, 1);
+$file_vbox->pack_start($filetype_box, FALSE, TRUE, 1);
 $file_frame->add($file_vbox);
 
-$save_vbox->pack_start($filename_box, TRUE, TRUE, 1);
-$save_vbox->pack_start($saveDir_box, TRUE, TRUE, 1);
+$save_vbox->pack_start($filename_box, FALSE, TRUE, 1);
+$save_vbox->pack_start($saveDir_box, FALSE, TRUE, 1);
 $save_frame->add($save_vbox);
 
 $vbox_basic->pack_start($file_frame, TRUE, TRUE, 1);
@@ -456,7 +456,7 @@ Gtk2->main;
 0;
 
 #initialize gscrot, check dependencies
-sub function_init()
+sub function_init
 {
 	#are there any command line params?
 	if(@ARGV > 0){
@@ -637,8 +637,10 @@ sub event_handle
 
 		system("xset b off") if $boff_cparam; #turns off the speaker if set as arg
 		if($data eq "raw" || $data eq "tray_raw"){
+			unless ($filename_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No valid filename specified")); return FALSE;};
 			$scrot_feedback=`scrot '$folder/$filename_value.$filetype_value' -q $quality_value -d $delay_value $border_value $thumbnail_param $echo_cmd`;
 		}else{
+			unless ($filename_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No valid filename specified")); return FALSE;};
 			$scrot_feedback=`scrot '$folder/$filename_value.$filetype_value' --select -q $quality_value -d $delay_value $border_value $thumbnail_param $echo_cmd`;
 		}
 		system("xset b on") if $boff_cparam; #turns on the speaker again if set as arg
@@ -670,6 +672,7 @@ sub event_handle
 			
 			if($progname_active->get_active){		
 				$progname_value = $progname->get_text();
+				unless ($progname_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No application specified to open the screenshot")); return FALSE;};
 				system("$progname_value $scrot_feedback &"); #open picture in external program
 			}	
 			
@@ -723,13 +726,11 @@ sub event_notebook_switch
 		
 	}
 	#do it again and set buttons disabled
-	my $counter = 0;
 	@hbox_content = sort(@hbox_content); #do not disable first button (remove)
 	foreach (@hbox_content){
-		if ( $_ =~ /^Gtk2::Button/ && $tab_index != 0 && $exists == FALSE){ #normal tab
-			$_->set_sensitive(FALSE) unless $counter == 0;
+		if ($_ =~ /^Gtk2::Button/ && $tab_index != 0 && $exists == FALSE){ #normal tab
+			$_->set_sensitive(FALSE) unless $_->get_name =~ /btn_remove/;
 		}
-		$counter++;
 	}		
 	&function_update_first_tab(); #update first tab for information
 
@@ -885,6 +886,7 @@ sub function_create_tab {
 	my $filename_label = Gtk2::Label->new($filename);
 
 	my $button_remove = Gtk2::Button->new;
+	$button_remove->set_name("btn_remove");
 	$button_remove->signal_connect(clicked => \&event_in_tab, 'remove'.$key);
 	my $image_remove = Gtk2::Image->new_from_icon_name ('gtk-remove', 'button');
 	$button_remove->set_image($image_remove);	
@@ -998,6 +1000,7 @@ sub event_in_tab
 	if ($data =~ m/^reopen\[/){
 		$data =~ s/^reopen//;
 		my $progname_value = $progname->get_text();
+		unless ($progname_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No application specified to open the screenshot")); return FALSE;};
 		system($progname_value." ".$session_screens{$data}." &");
 		&dialog_status_message(1, $session_screens{$data}." ".$d->get("opened with $progname_value"));
 	}
@@ -1047,6 +1050,7 @@ sub event_in_tab
 	if ($data =~ m/^reopen$/){
 		my $progname_value = $progname->get_text();
 		my $open_files;
+		unless ($progname_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No application specified to open the screenshot")); return FALSE;};
 		if($progname_value =~ /gimp/){
 			foreach my $key(keys %session_screens){
 				$open_files .= &function_switch_home_in_file($session_screens{$key})." ";
