@@ -42,8 +42,8 @@ setlocale(LC_MESSAGES,"");
 my $d = Locale::gettext->domain("gscrot");
 $d->dir("$gscrot_path/share/gscrot/resources/locale");
 
+my $ask_at_close = 'TRUE';
 my $is_in_tray = FALSE;
-my $ask_at_close = undef;
 my $window = Gtk2::Window->new();
 
 $window->set_title($gscrot_name." ".$gscrot_version);
@@ -744,7 +744,7 @@ sub event_delete_window
 	my ($widget, $data) = @_;
 	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
 
-	if($data eq "menu_quit" or $ask_at_close == FALSE){
+	if($data eq "menu_quit" or $ask_at_close eq 'FALSE'){
 		Gtk2->main_quit ;
 		return FALSE;
 	}	
@@ -777,7 +777,7 @@ sub event_delete_window
 	my $response = $dialog->run ;
 	
 	if($ask_active->get_active){
-		$ask_at_close = FALSE;
+		$ask_at_close = 'FALSE';
 		open(FILE, ">>$ENV{ HOME }/.gscrot") or &dialog_status_message(1, $d->get("Settings could not be saved"));	
 		print FILE "CLOSE_ASK=".$ask_at_close."\n";
 		close(FILE) or &dialog_status_message(1, $d->get("Settings could not be saved"));
