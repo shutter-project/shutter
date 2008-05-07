@@ -753,17 +753,17 @@ sub event_delete_window
  	my $dialog = Gtk2::Dialog->new ($dialog_header,
         						$window,
                               	[qw/modal destroy-with-parent/],
-                              	'gtk-yes'     => 'yes',
-                              	'gtk-no' => 'no');
+                              	'gtk-no'     => 'no',
+                              	'gtk-yes' => 'yes');
 
 	$dialog->set_default_response ('no');
 	
 	my $exit_hbox = Gtk2::HBox->new(FALSE, 0);
 	my $exit_vbox = Gtk2::VBox->new(FALSE, 0);
-	my $exit_image = Gtk2::Image->new_from_icon_name ('gtk-help', 'dialog');
+	my $exit_image = Gtk2::Image->new_from_icon_name ('gtk-dialog-question', 'dialog');
 	my $exit_label = Gtk2::Label->new();
 	$exit_label->set_text($d->get("Do you really want to quit GScrot?"));
-	my $ask_active = Gtk2::CheckButton->new_with_label($d->get("Do not ask this Question again"));
+	my $ask_active = Gtk2::CheckButton->new_with_label($d->get("Do not ask this question again"));
 	$ask_active->set_active(FALSE);    
     $exit_vbox->pack_start($exit_label, TRUE, TRUE, 0);
     $exit_vbox->pack_start($ask_active, TRUE, TRUE, 0);    
