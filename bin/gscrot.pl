@@ -354,10 +354,9 @@ my $combobox_im_colors = Gtk2::ComboBox->new_text;
 $combobox_im_colors->insert_text (1, $d->get("16 colors   - (4bit) "));
 $combobox_im_colors->insert_text (2, $d->get("64 colors   - (6bit) "));
 $combobox_im_colors->insert_text (3, $d->get("256 colors  - (8bit) "));
-$combobox_im_colors->insert_text (4, $d->get("HighColor   - (16bit)"));
 
 $combobox_im_colors->signal_connect('changed' => \&event_handle, 'border_changed');
-$combobox_im_colors->set_active (3);
+$combobox_im_colors->set_active (2);
 
 my $im_colors_active = Gtk2::CheckButton->new;
 $im_colors_active->signal_connect('toggled' => \&event_handle, 'im_colors_toggled');
@@ -668,7 +667,7 @@ sub event_handle
 			#perform some im_actions
 			if($im_colors_active->get_active){
 				$im_colors_value = $combobox_im_colors->get_active_text();		
-				&function_imagemagick_perform("reduce_colors", $scrot_feedback, $im_colors_value);
+				&function_imagemagick_perform("reduce_colors", $scrot_feedback, $im_colors_value, $quality_value);
 			}	
 			
 			if($progname_active->get_active){		
@@ -820,7 +819,7 @@ sub event_about
 
 	my $website = "http://launchpad.net/gscrot";
 	my $about = Gtk2::AboutDialog->new;
-	$about->set_program_name($gscrot_name);
+	$about->set_name($gscrot_name);
 	$about->set_version($gscrot_version);
 	$about->set_url_hook(\&function_gnome_open);
 	$about->set_website_label($website);
@@ -1398,16 +1397,17 @@ sub function_gnome_open_mail
 
 sub function_imagemagick_perform
 {
-	my ($function, $file, $data) = @_;
+	my ($function, $file, $data, $quality) = @_;
 	my $image=Image::Magick->new;
 	$file = &function_switch_home_in_file($file);
-	$image->ReadImage($file);
-
+	
 	if($function eq "reduce_colors"){
+		$image->ReadImage($file);
 		$data =~ /.*\(([0-9]*).*\)/;
-		$image->Quantize(colors=>2**$1);
+		my $bit = $1;
+		$image->Quantize(colors=>2**$bit);
+		$image->WriteImage(filename=>$file);	
 	}
-	$image->WriteImage($file);	
 }
 
 #################### MY FUNCTIONS  ################################
