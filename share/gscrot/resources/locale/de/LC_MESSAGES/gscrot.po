@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-05-07 13:24+0200\n"
-"PO-Revision-Date: 2008-05-07 13:27+0100\n"
+"POT-Creation-Date: 2008-05-07 19:51+0200\n"
+"PO-Revision-Date: 2008-05-07 19:52+0100\n"
 "Last-Translator: Mario Kemper <mario.kemper@gmx.de>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -58,7 +58,7 @@ msgstr ""
 
 #: gscrot.pl:162
 #: gscrot.pl:210
-#: gscrot.pl:861
+#: gscrot.pl:860
 msgid "Capture"
 msgstr "Aufnahme"
 
@@ -80,7 +80,7 @@ msgid "Actions"
 msgstr "Aktionen"
 
 #: gscrot.pl:215
-#: gscrot.pl:600
+#: gscrot.pl:599
 msgid "Quality"
 msgstr "Qualität"
 
@@ -187,38 +187,34 @@ msgstr "64 Farben   - (6bit) "
 msgid "256 colors  - (8bit) "
 msgstr "256 Farben  - (8bit) "
 
-#: gscrot.pl:357
-msgid "HighColor   - (16bit)"
-msgstr "HighColor   - (16bit)"
+#: gscrot.pl:366
+msgid "Reduce colors"
+msgstr "Anzahl der Farben verringern"
 
-#: gscrot.pl:367
-msgid "Reduce color depth"
-msgstr "Farbtiefe verringern"
-
+#: gscrot.pl:369
 #: gscrot.pl:370
 #: gscrot.pl:371
-#: gscrot.pl:372
 msgid ""
-"Automatically reduce color depth\n"
+"Automatically reduce colors \n"
 "after taking a screenshot"
 msgstr ""
-"Reduziert die Farbtiefe automatisch\n"
+"Reduziert die Anzahl der Farben automatisch\n"
 "nach der Aufnahme"
 
-#: gscrot.pl:382
+#: gscrot.pl:381
 msgid "activate"
 msgstr "aktivieren"
 
-#: gscrot.pl:383
+#: gscrot.pl:382
 msgid "deactivate"
 msgstr "deaktivieren"
 
-#: gscrot.pl:388
+#: gscrot.pl:387
 msgid "Window border"
 msgstr "Fensterrahmen"
 
+#: gscrot.pl:391
 #: gscrot.pl:392
-#: gscrot.pl:393
 msgid ""
 "When selecting a window, grab wm border too\n"
 "(capture with selection only)\n"
@@ -229,169 +225,172 @@ msgstr ""
 "(Nur bei Aufnahme mit Auswahl)\n"
 "Parameter bei der Verwendung von Compiz nicht notwendig"
 
-#: gscrot.pl:428
+#: gscrot.pl:427
 msgid "<i>Basic Settings</i>"
 msgstr "<i>Grundeinstellungen</i>"
 
-#: gscrot.pl:431
+#: gscrot.pl:430
 msgid "<i>Extras</i>"
 msgstr "<i>Extras</i>"
 
-#: gscrot.pl:604
+#: gscrot.pl:603
 msgid "Compression"
 msgstr "Kompression"
 
-#: gscrot.pl:641
-#: gscrot.pl:644
+#: gscrot.pl:640
+#: gscrot.pl:643
 msgid "No valid filename specified"
 msgstr "Kein gültiger Dateiname konfiguriert"
 
-#: gscrot.pl:653
+#: gscrot.pl:652
 msgid "saved"
 msgstr "gespeichert"
 
-#: gscrot.pl:676
-#: gscrot.pl:1032
-#: gscrot.pl:1082
+#: gscrot.pl:675
+#: gscrot.pl:1031
+#: gscrot.pl:1081
 msgid "No application specified to open the screenshot"
 msgstr "Keine Anwendung zum Öffnen der Datei konfiguriert"
 
-#: gscrot.pl:681
+#: gscrot.pl:680
 msgid "file could not be saved"
 msgstr "Datei konnte nicht gespeichert werden"
 
-#: gscrot.pl:683
+#: gscrot.pl:682
 msgid "could not be saved"
 msgstr "konnte nicht gespeichert werden"
 
-#: gscrot.pl:714
-#: gscrot.pl:902
-#: gscrot.pl:1348
+#: gscrot.pl:713
+#: gscrot.pl:901
+#: gscrot.pl:1347
 msgid "screenshot(s) during this session"
 msgstr "Aufnahme(n) in dieser Sitzung"
 
-#: gscrot.pl:720
+#: gscrot.pl:719
 msgid "is not existing anymore"
 msgstr "existiert nicht mehr"
 
-#: gscrot.pl:752
+#: gscrot.pl:751
 msgid "Quit GScrot"
 msgstr "GScrot beenden"
 
-#: gscrot.pl:765
+#: gscrot.pl:764
 msgid "Do you really want to quit GScrot?"
 msgstr "Möchten Sie GScrot wirklich beenden?"
 
-#: gscrot.pl:766
+#: gscrot.pl:765
 msgid "Do not ask this question again"
 msgstr "In Zukunft nicht mehr fragen"
 
-#: gscrot.pl:781
-#: gscrot.pl:783
-#: gscrot.pl:1133
-#: gscrot.pl:1148
+#: gscrot.pl:780
+#: gscrot.pl:782
+#: gscrot.pl:1132
+#: gscrot.pl:1147
 msgid "Settings could not be saved"
 msgstr "Einstellungen konnten nicht gespeichert werden"
 
-#: gscrot.pl:859
+#: gscrot.pl:858
 msgid "Capture with selection"
 msgstr "Aufnahme mit Auswahl"
 
-#: gscrot.pl:863
+#: gscrot.pl:862
 msgid "Quit"
 msgstr "Beenden"
 
-#: gscrot.pl:924
+#: gscrot.pl:923
 msgid "Remove file(s) from session"
 msgstr "Datei(en) aus der Sitzung entfernen"
 
-#: gscrot.pl:932
+#: gscrot.pl:931
 msgid "Delete file(s)"
 msgstr "Datei(en) löschen"
 
-#: gscrot.pl:940
+#: gscrot.pl:939
 msgid "Copy file(s) to clipboard"
 msgstr "Kopiere Datei(en) in die Zwischenablage"
 
-#: gscrot.pl:948
+#: gscrot.pl:947
 msgid "Open file(s)"
 msgstr "Öffne Datei(en)"
 
-#: gscrot.pl:956
-#: gscrot.pl:1274
+#: gscrot.pl:955
+#: gscrot.pl:1273
 msgid "Rename file"
 msgstr "Datei umbennen"
 
-#: gscrot.pl:964
+#: gscrot.pl:963
 msgid "Print file(s)"
 msgstr "Drucke Datei(en)"
 
-#: gscrot.pl:1003
+#: gscrot.pl:1002
 msgid "will be printed"
 msgstr "wird gedruckt"
 
-#: gscrot.pl:1010
+#: gscrot.pl:1009
 msgid "deleted"
 msgstr "gelöscht"
 
-#: gscrot.pl:1021
+#: gscrot.pl:1020
 msgid "removed from session"
 msgstr "aus der Sitzung entfernt"
 
-#: gscrot.pl:1034
+#: gscrot.pl:1033
 msgid "opened with"
 msgstr "geöffnet mit"
 
-#: gscrot.pl:1039
+#: gscrot.pl:1038
 msgid "renamed"
 msgstr "umbenannt"
 
-#: gscrot.pl:1046
+#: gscrot.pl:1045
 msgid "copied to clipboard"
 msgstr "in die Zwischenablage kopiert"
 
-#: gscrot.pl:1060
+#: gscrot.pl:1059
 msgid "All screenshots deleted"
 msgstr "Alle Aufnahmen dieser Sitzung gelöscht"
 
-#: gscrot.pl:1074
+#: gscrot.pl:1073
 msgid "All screenshots removed"
 msgstr "Alle Aufnahmen dieser Sitzung entfernt"
 
-#: gscrot.pl:1093
+#: gscrot.pl:1092
 msgid "Opened all files with"
 msgstr "Alle Dateien geöffnet mit"
 
-#: gscrot.pl:1102
+#: gscrot.pl:1101
 msgid "Printing all screenshots"
 msgstr "Alle Aufnahmen werden gedruckt"
 
-#: gscrot.pl:1114
+#: gscrot.pl:1113
 msgid "Do you want to overwrite the existing settings?"
 msgstr "Möchten Sie die bestehenden Einstellungen überschreiben?"
 
-#: gscrot.pl:1124
+#: gscrot.pl:1123
 msgid "There are no stored settings"
 msgstr "Es existieren keine gesicherten Einstellungen"
 
-#: gscrot.pl:1151
+#: gscrot.pl:1150
 msgid "Settings saved successfully"
 msgstr "Einstellungen erfolgreich gespeichert"
 
-#: gscrot.pl:1157
-#: gscrot.pl:1159
+#: gscrot.pl:1156
+#: gscrot.pl:1158
 msgid "Settings could not be loaded"
 msgstr "Einstellungen konnten nicht geladen werden"
 
-#: gscrot.pl:1212
+#: gscrot.pl:1211
 msgid "Settings loaded successfully"
 msgstr "Einstellungen wurden erfolgreich geladen"
 
-#: gscrot.pl:1299
+#: gscrot.pl:1298
 msgid ""
 "File already exists,\n"
 "please choose an alternative filename!"
 msgstr ""
 "Die Datei existiert bereits,\n"
 "wählen Sie einen alternativen Dateinamen!"
+
+#~ msgid "HighColor   - (16bit)"
+#~ msgstr "HighColor   - (16bit)"
 

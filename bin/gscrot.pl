@@ -363,12 +363,12 @@ $im_colors_active->signal_connect('toggled' => \&event_handle, 'im_colors_toggle
 $im_colors_active->set_active($im_colors_active);
 
 my $im_colors_label = Gtk2::Label->new;
-$im_colors_label->set_text($d->get("Reduce color depth"));
+$im_colors_label->set_text($d->get("Reduce colors"));
 
 my $tooltip_im_colors = Gtk2::Tooltips->new;
-$tooltip_im_colors->set_tip($combobox_im_colors,$d->get("Automatically reduce color depth\nafter taking a screenshot"));
-$tooltip_im_colors->set_tip($im_colors_active,$d->get("Automatically reduce color depth\nafter taking a screenshot"));
-$tooltip_im_colors->set_tip($im_colors_label,$d->get("Automatically reduce color depth\nafter taking a screenshot"));
+$tooltip_im_colors->set_tip($combobox_im_colors,$d->get("Automatically reduce colors \nafter taking a screenshot"));
+$tooltip_im_colors->set_tip($im_colors_active,$d->get("Automatically reduce colors \nafter taking a screenshot"));
+$tooltip_im_colors->set_tip($im_colors_label,$d->get("Automatically reduce colors \nafter taking a screenshot"));
 
 $im_colors_box->pack_start($im_colors_label, TRUE, TRUE, 10);
 $im_colors_box2->pack_start($im_colors_active, FALSE, TRUE, 0);
@@ -667,7 +667,7 @@ sub event_handle
 			#perform some im_actions
 			if($im_colors_active->get_active){
 				$im_colors_value = $combobox_im_colors->get_active_text();		
-				&function_imagemagick_perform("reduce_colors", $scrot_feedback, $im_colors_value, $quality_value);
+				&function_imagemagick_perform("reduce_colors", $scrot_feedback, $im_colors_value, $filetype_value);
 			}	
 			
 			if($progname_active->get_active){		
@@ -1397,16 +1397,19 @@ sub function_gnome_open_mail
 
 sub function_imagemagick_perform
 {
-	my ($function, $file, $data, $quality) = @_;
+	my ($function, $file, $data, $type) = @_;
 	my $image=Image::Magick->new;
 	$file = &function_switch_home_in_file($file);
 	
 	if($function eq "reduce_colors"){
 		$image->ReadImage($file);
 		$data =~ /.*\(([0-9]*).*\)/;
-		my $bit = $1;
-		$image->Quantize(colors=>2**$bit);
-		$image->WriteImage(filename=>$file);	
+		$image->Quantize(colors=>2**$1);
+		if($type eq 'png'){
+			$image->WriteImage(filename=>$file, depth=>8, quality=>95);
+		}else{
+			$image->WriteImage(filename=>$file, depth=>8);
+		}	
 	}
 }
 
