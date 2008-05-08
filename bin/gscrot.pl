@@ -28,7 +28,7 @@ use POSIX;     # for setlocale()
 use Locale::gettext;
 
 my $gscrot_name = "GScrot";
-my $gscrot_version = "v0.36";
+my $gscrot_version = "v0.36.1";
 my $gscrot_path = "";
 #command line parameter
 my $debug_cparam = FALSE;
@@ -351,16 +351,17 @@ $progname_box->pack_start($progname_box2, TRUE, TRUE, 10);
 
 #im_colors
 my $combobox_im_colors = Gtk2::ComboBox->new_text;
-$combobox_im_colors->insert_text (1, $d->get("16 colors   - (4bit) "));
-$combobox_im_colors->insert_text (2, $d->get("64 colors   - (6bit) "));
-$combobox_im_colors->insert_text (3, $d->get("256 colors  - (8bit) "));
+$combobox_im_colors->insert_text (0, $d->get("16 colors   - (4bit) "));
+$combobox_im_colors->insert_text (1, $d->get("64 colors   - (6bit) "));
+$combobox_im_colors->insert_text (2, $d->get("256 colors  - (8bit) "));
 
 $combobox_im_colors->signal_connect('changed' => \&event_handle, 'border_changed');
 $combobox_im_colors->set_active (2);
 
 my $im_colors_active = Gtk2::CheckButton->new;
 $im_colors_active->signal_connect('toggled' => \&event_handle, 'im_colors_toggled');
-$im_colors_active->set_active($im_colors_active);
+$im_colors_active->set_active(TRUE);
+$im_colors_active->set_active(FALSE);
 
 my $im_colors_label = Gtk2::Label->new;
 $im_colors_label->set_text($d->get("Reduce colors"));
