@@ -28,7 +28,7 @@ use POSIX;     # for setlocale()
 use Locale::gettext;
 
 my $gscrot_name = "GScrot";
-my $gscrot_version = "v0.36.2";
+my $gscrot_version = "v0.37";
 my $gscrot_path = "";
 #command line parameter
 my $debug_cparam = FALSE;
