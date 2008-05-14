@@ -3,9 +3,10 @@ Section: gnome
 Priority: extra
 Maintainer: Mario Kemper <mario.kemper@gmx.de>
 Build-Depends: debhelper (>= 5)
+Homepage: https://launchpad.net/gscrot
 
 Package: gscrot
-Architecture: any
+Architecture: all
 Depends: scrot, libgtk2-trayicon-perl, libgtk2-perl, perl, libgtk2.0-0 (>=2.11.6), gtklp, liblocale-gettext-perl, libglib-perl, perlmagick
 Conflicts:
 Replaces:

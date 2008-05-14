@@ -856,7 +856,11 @@ sub event_about
 
 	my $website = "http://launchpad.net/gscrot";
 	my $about = Gtk2::AboutDialog->new;
-	$about->set_name($gscrot_name);
+	
+	my $logo = Gtk2::Gdk::Pixbuf->new_from_file ("$gscrot_path/share/gscrot/resources/icons/gscrot48x48.png");	
+	$about->set_logo ($logo);
+	$about->set_name($gscrot_name) if $Gtk2::VERSION < 1.161;
+	$about->set_program_name($gscrot_name) if $Gtk2::VERSION >= 1.161;
 	$about->set_version($gscrot_version);
 	$about->set_url_hook(\&function_gnome_open);
 	$about->set_website_label($website);
@@ -1465,7 +1469,6 @@ sub check_installed_programs
 		if($gm_programs{$_}->{'binary'} ne "" && $gm_programs{$_}->{'name'} ne ""){
 			unless (-e $gm_programs{$_}->{'binary'}){
 				print " Could not detect binary for program $_, ignoring\n";	
-				print "\n";
 				delete $gm_programs{$_};
 				next;
 			}
