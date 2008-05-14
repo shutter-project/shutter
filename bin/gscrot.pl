@@ -336,7 +336,12 @@ $saveDir_box->pack_start($saveDir_button, TRUE, TRUE, 10);
 my $model = Gtk2::ListStore->new ('Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String');
 foreach (keys %gm_programs){
 	if($gm_programs{$_}->{'binary'} ne "" && $gm_programs{$_}->{'name'} ne ""){
-		my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ($gm_programs{$_}->{'pixmap'}, 20, 20) unless $gm_programs{$_}->{'pixmap'} eq "";
+		my $pixbuf; 
+		if (-f $gm_programs{$_}->{'pixmap'}){
+			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ($gm_programs{$_}->{'pixmap'}, 20, 20);
+		}else{
+			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/executable.svg", 20, 20);
+		} 
 		$model->set ($model->append, 0, $pixbuf , 1, $gm_programs{$_}->{'name'}, 2, $_);				
 	}else{
 		print "WARNING: Program $_ is not configured properly, ignoring\n";	
@@ -547,10 +552,12 @@ sub function_init
 		$gscrot_path = "..";
 	}
 
+	#an old .gscrot file existing?
+	rename("$ENV{ 'HOME' }/.gscrot", "$ENV{ 'HOME' }/.gscrot_old") if (-f "$ENV{ 'HOME' }/.gscrot");
 	#is there already a .gscrot folder?
 	mkdir("$ENV{ 'HOME' }/.gscrot") unless (-d "$ENV{ 'HOME' }/.gscrot");
-	#an old .gscrot file existing?
-	rename("$ENV{ 'HOME' }/.gscrot", "$ENV{ 'HOME' }/.gscrot/settings.conf") if (-f "$ENV{ 'HOME' }/.gscrot");
+	#an old .gscrot file existing (it is renamed above)?
+	rename("$ENV{ 'HOME' }/.gscrot_old", "$ENV{ 'HOME' }/.gscrot/settings.conf") if (-f "$ENV{ 'HOME' }/.gscrot_old");
 
 	%gm_programs = do "$gscrot_path/share/gscrot/resources/system/programs.conf";
 	if (-f "$ENV{ 'HOME' }/.gscrot/programs.conf"){
@@ -1168,7 +1175,10 @@ sub function_save_settings
 	print FILE "QSCALE=".$scale->get_value()."\n";
 	print FILE "FNAME=".$filename->get_text()."\n";
 	print FILE "FOLDER=".$saveDir_button->get_filename()."\n";
-	print FILE "PNAME=".$progname->get_active()."\n";
+	my $model = $progname->get_model();
+	my $progname_iter = $progname->get_active_iter();
+	my $progname_value = $model->get_value($progname_iter, 2);
+	print FILE "PNAME=".$progname_value."\n";
 	print FILE "PNAME_ACT=".$progname_active->get_active()."\n";
 	print FILE "IM_COLORS=".$combobox_im_colors->get_active()."\n";
 	print FILE "IM_COLORS_ACT=".$im_colors_active->get_active()."\n";
@@ -1207,7 +1217,8 @@ sub function_load_settings
 			$saveDir_button->set_current_folder($_);
 		}elsif($_ =~ m/^PNAME=/){
 			$_ =~ s/PNAME=//;
-			$progname->set_active($_);
+			my $model = $progname->get_model;
+			$model->foreach (\&function_iter_programs, $_);
 		}elsif($_ =~ m/^PNAME_ACT=/){
 			$_ =~ s/PNAME_ACT=//;
 			$progname_active->set_active($_);
@@ -1464,6 +1475,15 @@ sub check_installed_programs
 		}	
 	}
 
+}
+
+sub function_iter_programs
+{
+	my ($model, $path, $iter, $search_for) = @_;
+	my $progname_value = $model->get_value($iter, 2);
+	return FALSE if $search_for ne $progname_value;
+	$progname->set_active_iter($iter);
+	return TRUE;
 }
 
 #################### MY FUNCTIONS  ################################
