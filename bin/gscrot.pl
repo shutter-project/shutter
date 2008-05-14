@@ -38,6 +38,9 @@ my @args = @ARGV;
 
 &function_init();
 
+my %gm_programs; #hash to store program infos
+&check_installed_programs;
+
 setlocale(LC_MESSAGES,"");
 my $d = Locale::gettext->domain("gscrot");
 $d->dir("$gscrot_path/share/gscrot/resources/locale");
@@ -328,8 +331,25 @@ $saveDir_box->pack_start($saveDir_button, TRUE, TRUE, 10);
 #end - saveDir
 
 #program
-my $progname = Gtk2::Entry->new;
-$progname->set_text("gimp");
+#my $progname = Gtk2::Entry->new;
+#$progname->set_text("gimp");
+my $model = Gtk2::ListStore->new ('Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String');
+foreach (keys %gm_programs){
+	if($gm_programs{$_}->{'binary'} ne "" && $gm_programs{$_}->{'name'} ne ""){
+		my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ($gm_programs{$_}->{'pixmap'}, 20, 20) unless $gm_programs{$_}->{'pixmap'} eq "";
+		$model->set ($model->append, 0, $pixbuf , 1, $gm_programs{$_}->{'name'}, 2, $_);				
+	}else{
+		print "WARNING: Program $_ is not configured properly, ignoring\n";	
+	}	
+}
+my $progname = Gtk2::ComboBox->new ($model);
+my $renderer_pix = Gtk2::CellRendererPixbuf->new;
+$progname->pack_start ($renderer_pix, FALSE);
+$progname->add_attribute ($renderer_pix, pixbuf => 0);
+my $renderer_text = Gtk2::CellRendererText->new;
+$progname->pack_start ($renderer_text, FALSE);
+$progname->add_attribute ($renderer_text, text => 1);
+$progname->set_active(0);
 
 my $progname_active = Gtk2::CheckButton->new;
 $progname_active->signal_connect('toggled' => \&event_handle, 'progname_toggled');
@@ -344,7 +364,7 @@ $tooltip_progname->set_tip($progname_active,$d->get("Open your screenshot\nwith 
 $tooltip_progname->set_tip($progname_label,$d->get("Open your screenshot\nwith this program after capturing"));
 
 $progname_box->pack_start($progname_label, TRUE, TRUE, 10);
-$progname_box2->pack_start($progname_active, TRUE, TRUE, 0);
+$progname_box2->pack_start($progname_active, FALSE, TRUE, 0);
 $progname_box2->pack_start($progname, TRUE, TRUE, 0);
 $progname_box->pack_start($progname_box2, TRUE, TRUE, 10);
 #end - program
@@ -433,7 +453,6 @@ $label_extras->set_markup ($d->get("<i>Extras</i>"));
 my $notebook_settings_first = $notebook_settings->append_page ($vbox_basic,$label_basic);
 my $notebook_settings_second = $notebook_settings->append_page ($vbox_extras,$label_extras);
 
-
 $vbox_inner->pack_start($notebook_settings, FALSE, FALSE, 1);
 $vbox_inner->pack_start($notebook, TRUE, TRUE, 1);
 $vbox_inner->set_border_width(10);
@@ -449,7 +468,7 @@ unless($min_cparam){
 }
 
 #load saved settings
-	&function_load_settings if(-e "$ENV{ HOME }/.gscrot" && -r "$ENV{ HOME }/.gscrot");
+	&function_load_settings if(-f "$ENV{ 'HOME' }/.gscrot/settings.conf" && -r "$ENV{ 'HOME' }/.gscrot/settings.conf");
 
 #GTK2 Main Loop
 Gtk2->main;
@@ -526,8 +545,19 @@ sub function_init
 		print "INFO: gscrot is not installed on your system!\n";
 		print "INFO: gscrot will try to find resource directory in place (../)!\n";
 		$gscrot_path = "..";
-	}	
+	}
 
+	#is there already a .gscrot folder?
+	mkdir("$ENV{ 'HOME' }/.gscrot") unless (-d "$ENV{ 'HOME' }/.gscrot");
+	#an old .gscrot file existing?
+	rename("$ENV{ 'HOME' }/.gscrot", "$ENV{ 'HOME' }/.gscrot/settings.conf") if (-f "$ENV{ 'HOME' }/.gscrot");
+
+	%gm_programs = do "$gscrot_path/share/gscrot/resources/system/programs.conf";
+	if (-f "$ENV{ 'HOME' }/.gscrot/programs.conf"){
+		print "\nINFO: using custom program settings found at $ENV{ 'HOME' }/.gscrot/programs.conf\n";
+		%gm_programs = do "$ENV{ 'HOME' }/.gscrot/programs.conf";
+	}  	
+	
 }
 
 #nearly all events are handled here
@@ -555,10 +585,8 @@ sub event_handle
 #checkbox for "open with" -> entry active/inactive
 	if($data eq "progname_toggled"){
 		if($progname_active->get_active){
-			$progname->set_editable(TRUE);
 			$progname->set_sensitive(TRUE);			
 		}else{
-			$progname->set_editable(FALSE);
 			$progname->set_sensitive(FALSE);
 		}
 	}
@@ -628,7 +656,6 @@ sub event_handle
 		}
 		
 		$filename_value = $filename->get_text();
-		$progname_value = $progname->get_text();
 		$filetype_value = $combobox_type->get_active_text();		
 		$folder = $saveDir_button->get_filename();
 		
@@ -672,7 +699,9 @@ sub event_handle
 			}	
 			
 			if($progname_active->get_active){		
-				$progname_value = $progname->get_text();
+				my $model = $progname->get_model();
+				my $progname_iter = $progname->get_active_iter();
+				$progname_value = $model->get_value($progname_iter, 2);
 				unless ($progname_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No application specified to open the screenshot")); return FALSE;};
 				system("$progname_value $scrot_feedback &"); #open picture in external program
 			}	
@@ -1028,7 +1057,9 @@ sub event_in_tab
 
 	if ($data =~ m/^reopen\[/){
 		$data =~ s/^reopen//;
-		my $progname_value = $progname->get_text();
+		my $model = $progname->get_model();
+		my $progname_iter = $progname->get_active_iter();
+		my $progname_value = $model->get_value($progname_iter, 2);
 		unless ($progname_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No application specified to open the screenshot")); return FALSE;};
 		system($progname_value." ".$session_screens{$data}." &");
 		&dialog_status_message(1, $session_screens{$data}." ".$d->get("opened with")." ".$progname_value);
@@ -1077,7 +1108,9 @@ sub event_in_tab
 	}
 	
 	if ($data =~ m/^reopen$/){
-		my $progname_value = $progname->get_text();
+		my $model = $progname->get_model();
+		my $progname_iter = $progname->get_active_iter();
+		my $progname_value = $model->get_value($progname_iter, 2);
 		my $open_files;
 		unless ($progname_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No application specified to open the screenshot")); return FALSE;};
 		if($progname_value =~ /gimp/){
@@ -1110,7 +1143,7 @@ sub event_settings
 
 #save?
 	if($data eq "menu_save"){
-		if(-e "$ENV{ HOME }/.gscrot" && -w "$ENV{ HOME }/.gscrot"){
+		if(-e "$ENV{ HOME }/.gscrot/settings.conf" && -w "$ENV{ HOME }/.gscrot/settings.conf"){
 			if (&dialog_question_message($d->get("Do you want to overwrite the existing settings?"))){ #ask is settings-file exists
 				&function_save_settings;
 			}
@@ -1118,7 +1151,7 @@ sub event_settings
 				&function_save_settings; #do it directly if not
 		}
 	}elsif($data eq "menu_revert"){
-		if(-e "$ENV{ HOME }/.gscrot" && -r "$ENV{ HOME }/.gscrot"){
+		if(-e "$ENV{ HOME }/.gscrot/settings.conf" && -r "$ENV{ HOME }/.gscrot/settings.conf"){
 			&function_load_settings;
 		}else{
 			&dialog_info_message($d->get("There are no stored settings"));
@@ -1130,12 +1163,12 @@ sub event_settings
 #save settings to file
 sub function_save_settings
 {
-	open(FILE, ">$ENV{ HOME }/.gscrot") or &dialog_error_message(1, $d->get("Settings could not be saved"));	
+	open(FILE, ">$ENV{ HOME }/.gscrot/settings.conf") or &dialog_error_message(1, $d->get("Settings could not be saved"));	
 	print FILE "FTYPE=".$combobox_type->get_active."\n";
 	print FILE "QSCALE=".$scale->get_value()."\n";
 	print FILE "FNAME=".$filename->get_text()."\n";
 	print FILE "FOLDER=".$saveDir_button->get_filename()."\n";
-	print FILE "PNAME=".$progname->get_text()."\n";
+	print FILE "PNAME=".$progname->get_active()."\n";
 	print FILE "PNAME_ACT=".$progname_active->get_active()."\n";
 	print FILE "IM_COLORS=".$combobox_im_colors->get_active()."\n";
 	print FILE "IM_COLORS_ACT=".$im_colors_active->get_active()."\n";
@@ -1154,7 +1187,7 @@ sub function_save_settings
 sub function_load_settings
 {
 	my @settings_file;
-	open(FILE, "$ENV{ HOME }/.gscrot") or &dialog_status_message(1, $d->get("Settings could not be loaded"));	
+	open(FILE, "$ENV{ HOME }/.gscrot/settings.conf") or &dialog_status_message(1, $d->get("Settings could not be loaded"));	
 	@settings_file = <FILE>;
 	close(FILE) or &dialog_status_message(1, $d->get("Settings could not be loaded"));
 
@@ -1174,7 +1207,7 @@ sub function_load_settings
 			$saveDir_button->set_current_folder($_);
 		}elsif($_ =~ m/^PNAME=/){
 			$_ =~ s/PNAME=//;
-			$progname->set_text($_);
+			$progname->set_active($_);
 		}elsif($_ =~ m/^PNAME_ACT=/){
 			$_ =~ s/PNAME_ACT=//;
 			$progname_active->set_active($_);
@@ -1312,7 +1345,6 @@ sub dialog_rename
 
 }
 
-
 sub dialog_info_message
 {
 	my ($dialog_info_message) = @_;
@@ -1412,6 +1444,26 @@ sub function_imagemagick_perform
 			$image->WriteImage(filename=>$file, depth=>8);
 		}	
 	}
+}
+
+sub check_installed_programs
+{
+	print "\nINFO: checking installed applications...\n";	
+	
+	foreach (keys %gm_programs){
+		if($gm_programs{$_}->{'binary'} ne "" && $gm_programs{$_}->{'name'} ne ""){
+			unless (-e $gm_programs{$_}->{'binary'}){
+				print " Could not detect binary for program $_, ignoring\n";	
+				print "\n";
+				delete $gm_programs{$_};
+				next;
+			}
+			print "$gm_programs{$_}->{'name'} - $gm_programs{$_}->{'binary'}\n";					
+		}else{
+			print "WARNING: Program $_ is not configured properly, ignoring\n";	
+		}	
+	}
+
 }
 
 #################### MY FUNCTIONS  ################################
