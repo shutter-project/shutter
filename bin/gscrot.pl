@@ -52,7 +52,7 @@ my $is_in_tray = FALSE;
 my $window = Gtk2::Window->new();
 
 $window->set_title($gscrot_name." ".$gscrot_version);
-$window->set_default_icon_from_file ("$gscrot_path/share/pixmaps/gscrot.svg");
+$window->set_default_icon_from_file ("$gscrot_path/share/gscrot/resources/icons/gscrot.png");
 $window->signal_connect('delete-event' => \&event_delete_window);
 $window->set_border_width(0);
 
