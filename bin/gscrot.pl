@@ -45,7 +45,7 @@ my %gm_programs; #hash to store program infos
 
 setlocale(LC_MESSAGES,"");
 my $d = Locale::gettext->domain("gscrot");
-$d->dir("$gscrot_path/share/gscrot/resources/locale");
+$d->dir("$gscrot_path/share/locale");
 
 my $ask_at_close = 'TRUE';
 my $is_in_tray = FALSE;
