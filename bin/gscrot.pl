@@ -333,8 +333,6 @@ $saveDir_box->pack_start($saveDir_button, TRUE, TRUE, 10);
 #end - saveDir
 
 #program
-#my $progname = Gtk2::Entry->new;
-#$progname->set_text("gimp");
 my $model = Gtk2::ListStore->new ('Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String');
 foreach (keys %gm_programs){
 	if($gm_programs{$_}->{'binary'} ne "" && $gm_programs{$_}->{'name'} ne ""){
