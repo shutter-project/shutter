@@ -26,6 +26,8 @@ use Gtk2::Pango;
 use Image::Magick;
 use POSIX;     # for setlocale()
 use Locale::gettext;
+use WWW::Mechanize;
+use HTTP::Status;
 
 my $gscrot_name = "GScrot";
 my $gscrot_version = "v0.37";
@@ -39,7 +41,7 @@ my @args = @ARGV;
 &function_init();
 
 my %gm_programs; #hash to store program infos
-&check_installed_programs;
+&function_check_installed_programs;
 
 setlocale(LC_MESSAGES,"");
 my $d = Locale::gettext->domain("gscrot");
@@ -711,8 +713,8 @@ sub event_handle
 				$progname_value = $model->get_value($progname_iter, 2);
 				unless ($progname_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No application specified to open the screenshot")); return FALSE;};
 				system("$progname_value $scrot_feedback &"); #open picture in external program
-			}	
-			
+			}
+					
 		}else{
 			&dialog_error_message($d->get("file could not be saved")."\n$scrot_feedback");
 			print "screenshot could not be saved\n$scrot_feedback!" if $debug_cparam;
@@ -987,6 +989,14 @@ sub function_create_tab {
 	my $tooltip_reopen = Gtk2::Tooltips->new;
 	$tooltip_reopen->set_tip($button_reopen,$d->get("Open file(s)"));
 
+	my $button_upload = Gtk2::Button->new;
+	$button_upload->signal_connect(clicked => \&event_in_tab, 'upload'.$key);
+	my $image_upload = Gtk2::Image->new_from_icon_name ('gtk-go-up', 'button');
+	$button_upload->set_image($image_upload);	
+
+	my $tooltip_upload = Gtk2::Tooltips->new;
+	$tooltip_upload->set_tip($button_upload,$d->get("Upload file to ubuntu-pics.de"));
+
 	my $button_rename = Gtk2::Button->new;
 	$button_rename->signal_connect(clicked => \&event_in_tab, 'rename'.$key);
 	my $image_rename = Gtk2::Image->new_from_icon_name ('gtk-edit', 'button');
@@ -1016,6 +1026,7 @@ sub function_create_tab {
 		$hbox_tab_actions->pack_start($button_remove, TRUE, TRUE, 1);
 		$hbox_tab_actions->pack_start($button_delete, TRUE, TRUE, 1);
 		$hbox_tab_actions2->pack_start($button_reopen, TRUE, TRUE, 1);
+		$hbox_tab_actions2->pack_start($button_upload, TRUE, TRUE, 1);
 		$hbox_tab_actions2->pack_start($button_print, TRUE, TRUE, 1);
 		$hbox_tab_actions->pack_start($button_rename, TRUE, TRUE, 1);
 		$hbox_tab_actions2->pack_start($button_clipboard, TRUE, TRUE, 1);		
@@ -1075,6 +1086,19 @@ sub event_in_tab
 		system($progname_value." ".$session_screens{$data}." &");
 		&dialog_status_message(1, $session_screens{$data}." ".$d->get("opened with")." ".$progname_value);
 	}
+
+	if ($data =~ m/^upload\[/){
+		$data =~ s/^upload//;
+		my %upload_response;
+		%upload_response = &function_upload_ubuntu_pics(&function_switch_home_in_file($session_screens{$data}));	
+		if (is_success($upload_response{'status'})){
+			&dialog_upload_links($upload_response{'thumb1'}, $upload_response{'thumb2'}, $upload_response{'bbcode'}, $upload_response{'direct'}, $upload_response{'status'});				
+		}else{
+			&dialog_error_message($d->get("Upload failed"));	
+		}			
+		&dialog_status_message(1, $session_screens{$data}." ".$d->get("uploaded"));
+	}
+	
 	
 	if ($data =~ m/^rename\[/){
 		$data =~ s/^rename//;
@@ -1360,6 +1384,76 @@ sub dialog_rename
 
 }
 
+sub dialog_upload_links
+{
+	my ($thumb1, $thumb2, $bbcode, $direct, $status) = @_;
+	my $dialog_header = $d->get("Upload");
+ 	my $upload_dialog = Gtk2::Dialog->new ($dialog_header,
+        						$window,
+                              	[qw/modal destroy-with-parent/],
+                              	'gtk-ok'     => 'accept');
+
+	$upload_dialog->set_default_response ('accept');
+
+	my $upload_hbox = Gtk2::HBox->new(FALSE, 0);
+	my $upload_vbox = Gtk2::VBox->new(FALSE, 0);
+	
+	my $label_status = Gtk2::Label->new();
+	$label_status->set_text($d->get("Upload status:")." ".status_message($status));	
+	my $image_status;
+	if (is_success($status)){
+		$image_status = Gtk2::Image->new_from_icon_name ('gtk-yes', 'menu');
+	}else{
+		$image_status = Gtk2::Image->new_from_icon_name ('gtk-no', 'menu');
+	}
+	$upload_hbox->pack_start($image_status, TRUE, TRUE, 0);
+    $upload_hbox->pack_start($label_status, TRUE, TRUE, 0);
+		
+	my $entry_thumb1 = Gtk2::Entry->new();
+	my $entry_thumb2 = Gtk2::Entry->new();
+	my $entry_bbcode = Gtk2::Entry->new();
+	my $entry_direct = Gtk2::Entry->new();
+
+	my $label_thumb1 = Gtk2::Label->new();
+	my $label_thumb2 = Gtk2::Label->new();
+	my $label_bbcode = Gtk2::Label->new();
+	my $label_direct = Gtk2::Label->new();
+
+	$label_thumb1->set_text($d->get("Thumbnail for websites (with Border)"));
+	$label_thumb2->set_text($d->get("Thumbnail for websites (without Border)"));
+	$label_bbcode->set_text($d->get("Thumbnail for forums"));
+	$label_direct->set_text($d->get("Direct link"));
+
+	$entry_thumb1->set_text($thumb1);
+	$entry_thumb2->set_text($thumb2);
+	$entry_bbcode->set_text($bbcode);
+	$entry_direct->set_text($direct);
+
+	$upload_vbox->pack_start($upload_hbox, TRUE, TRUE, 10);
+	$upload_vbox->pack_start($label_thumb1, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($entry_thumb1, TRUE, TRUE, 2);    
+	$upload_vbox->pack_start($label_thumb2, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($entry_thumb2, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($label_bbcode, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($entry_bbcode, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($label_direct, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($entry_direct, TRUE, TRUE, 2);
+	    
+    $upload_dialog->vbox->add ($upload_vbox);	
+ 
+    $upload_dialog->show_all;
+
+	my $upload_response = $upload_dialog->run ;    
+	if ($upload_response eq "accept" ) {
+		$upload_dialog->destroy();		
+		return TRUE;
+	}else {
+		$upload_dialog->destroy() ;
+		return FALSE;
+	}
+
+}
+
 sub dialog_info_message
 {
 	my ($dialog_info_message) = @_;
@@ -1461,7 +1555,7 @@ sub function_imagemagick_perform
 	}
 }
 
-sub check_installed_programs
+sub function_check_installed_programs
 {
 	print "\nINFO: checking installed applications...\n";	
 	
@@ -1488,6 +1582,74 @@ sub function_iter_programs
 	$progname->set_active_iter($iter);
 	return TRUE;
 }
+
+sub function_upload_ubuntu_pics
+{
+	my ($upload_filename) = @_;
+
+	my %links; #returned links will be stored here
+
+	my $filesize = -s $upload_filename;
+	if($filesize > 2048000){
+		$links{'status'} = "Filesize exceeded";
+		return %links;			
+	} 
+	
+	my $mech = WWW::Mechanize->new();
+	$mech->get("http://www.ubuntu-pics.de/easy.html");
+
+	$mech->submit_form(
+		form_name 	=> 'upload_bild',
+		fields      => {
+			"datei[]"    => $upload_filename,
+			}
+		);
+		
+	my $http_status = $mech->status();
+
+	if (is_success($http_status)){
+		my $html_file = $mech->content;
+
+		$html_file =~ /id="thumb1" value='(.*)' onclick/g;
+		$links{'thumb1'} = &function_switch_html_entities($1);
+
+		$html_file =~ /id="thumb2" value='(.*)' onclick/g;
+		$links{'thumb2'} = &function_switch_html_entities($1);
+
+		$html_file =~ /id="bbcode" value='(.*)' onclick/g;
+		$links{'bbcode'} = &function_switch_html_entities($1);
+		
+		$html_file =~ /id="direct" value='(.*)' onclick/g;
+		$links{'direct'} = &function_switch_html_entities($1);
+
+		if ($debug_cparam){
+			print "The following links were returned by http://www.ubuntu-pics.de:\n";
+			print "Thumbnail for websites (with Border)\n$links{'thumb1'}\n";
+			print "Thumbnail for websites (without Border)\n$links{'thumb2'}\n";
+			print "Thumbnail for forums \n$links{'bbcode'}\n";
+			print "Direct link \n$links{'direct'}\n";
+		}
+		
+		$links{'status'} = $http_status;
+		return %links;
+		
+	}else{
+		$links{'status'} = $http_status;
+		return %links;	
+	}
+
+}
+
+sub function_switch_html_entities
+{
+	my ($code) = @_;
+	$code =~ s/&amp;/\&/g;
+	$code =~ s/&lt;/</g;
+	$code =~ s/&gt;/>/g;
+	$code =~ s/&quot;/\"/g;
+	return $code;		
+}
+
 
 #################### MY FUNCTIONS  ################################
 
