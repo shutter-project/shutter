@@ -872,6 +872,7 @@ sub event_about
 	$about->set_artists("Arne Weinberg","Pascal Grochol");
 	$about->set_copyright ($all_hints);
 	$about->set_license ($all_lines);
+	$about->set_comments ("Screenshot Tool");
 	$about->show_all;
 	$about->signal_connect('response' => \&event_handle);
 
