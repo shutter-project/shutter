@@ -554,6 +554,16 @@ sub function_init
 	}else{
 		die "ERROR: dependency is missing --> gtklp is not installed on your system!\n\n";
 	}
+	if(system("which gnome-web-thumbnail")==0){
+		print "SUCCESS: gnome-web-thumbnail is installed on your system!\n\n";
+	}else{
+		die "ERROR: dependency is missing --> gnome-web-thumbnail is not installed on your system!\n\n";
+	}
+	if(system("which gnome-web-photo")==0){
+		print "SUCCESS: gnome-web-photo is installed on your system!\n\n";
+	}else{
+		die "ERROR: dependency is missing --> gnome-web-photo is not installed on your system!\n\n";
+	}
 
 	if(system("which gscrot.pl")==0){
 		print "INFO: gscrot seems to be properly installed on your system!\n";
