@@ -52,7 +52,7 @@ my $is_in_tray = FALSE;
 my $window = Gtk2::Window->new();
 
 $window->set_title($gscrot_name." ".$gscrot_version);
-$window->set_default_icon_from_file ("$gscrot_path/share/gscrot/resources/icons/gscrot.png");
+$window->set_default_icon_from_file ("$gscrot_path/share/gscrot/resources/icons/gscrot24x24.png");
 $window->signal_connect('delete-event' => \&event_delete_window);
 $window->set_border_width(0);
 
@@ -151,11 +151,11 @@ $vbox->pack_start($menubar, FALSE, FALSE, 0);
 #############MENU###################
 
 #############BUTTON_SELECT###################
-my $button_select = Gtk2::Button->new($d->get("Capture\nwith selection"));
+my $button_select = Gtk2::Button->new($d->get("Capture\nselective"));
 $button_select->signal_connect(clicked => \&event_handle, 'select');
 
-my $image = Gtk2::Image->new_from_icon_name ('gtk-cut', 'button');
-$button_select->set_image($image);
+my $image_select = Gtk2::Image->new_from_icon_name ('gtk-cut', 'dialog');
+$button_select->set_image($image_select);
 
 my $tooltip_select = Gtk2::Tooltips->new;
 $tooltip_select->set_tip($button_select,$d->get("Draw a rectangular capture area with your mouse\nto select a specified screen area\nor select a window to capture its content"));
@@ -167,8 +167,8 @@ $button_box->pack_start($button_select, TRUE, TRUE, 0);
 my $button_raw = Gtk2::Button->new($d->get("Capture"));
 $button_raw->signal_connect(clicked => \&event_handle, 'raw');
 
-$image = Gtk2::Image->new_from_icon_name ('gtk-fullscreen', 'button');
-$button_raw->set_image($image);
+my $image_raw = Gtk2::Image->new_from_icon_name ('gtk-fullscreen', 'dialog');
+$button_raw->set_image($image_raw);
 
 my $tooltip_raw = Gtk2::Tooltips->new;
 $tooltip_raw->set_tip($button_raw,$d->get("Take a screenshot of your whole desktop"));
@@ -176,10 +176,23 @@ $tooltip_raw->set_tip($button_raw,$d->get("Take a screenshot of your whole deskt
 $button_box->pack_start($button_raw, TRUE, TRUE, 0);
 #############BUTTON_RAW######################
 
+#############BUTTON_WEB######################
+my $button_web = Gtk2::Button->new($d->get("Capture\nwebsite"));
+$button_web->signal_connect(clicked => \&event_handle, 'web');
+
+my $image_web = Gtk2::Image->new_from_file ("$gscrot_path/share/gscrot/resources/icons/web_image.svg");
+$button_web->set_image($image_web);
+
+my $tooltip_web = Gtk2::Tooltips->new;
+$tooltip_web->set_tip($button_web,$d->get("Take a screenshot of a website"));
+
+$button_box->pack_start($button_web, TRUE, TRUE, 0);
+#############BUTTON_WEB######################
+
 $vbox_inner->pack_start($button_box, FALSE, FALSE, 0);
 
 #############TRAYICON######################
-my $icon = Gtk2::Image->new_from_file("$gscrot_path/share/gscrot/resources/icons/gscrot.png");
+my $icon = Gtk2::Image->new_from_file("$gscrot_path/share/gscrot/resources/icons/gscrot24x24.png");
 my $eventbox = Gtk2::EventBox->new;
 $eventbox->add($icon);
 my $tray = Gtk2::TrayIcon->new('GScrot TrayIcon');
@@ -640,7 +653,7 @@ sub event_handle
 		}
 	} 
 #capture desktop was chosen	
-	if($data eq "raw" || $data eq "select" || $data eq "tray_raw" || $data eq "tray_select"){
+	if($data eq "raw" || $data eq "select" || $data eq "tray_raw" || $data eq "tray_select" || $data eq "web"){
 		$border_value = '--border' if $combobox_border->get_active;
 		$filetype_value = $combobox_type->get_active_text();
 			
@@ -674,9 +687,50 @@ sub event_handle
 		if($data eq "raw" || $data eq "tray_raw"){
 			unless ($filename_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No valid filename specified")); return FALSE;};
 			$scrot_feedback=`scrot '$folder/$filename_value.$filetype_value' -q $quality_value -d $delay_value $border_value $thumbnail_param $echo_cmd`;
+		}elsif($data eq "web"){
+			my $url = &dialog_website;
+			return 0 unless $url;
+			my $hostname = $url; $hostname =~ s/http:\/\///;
+			if($hostname eq ""){&dialog_error_message($d->get("No valid url entered"));return 0;}
+			$filename_value = strftime $filename_value , localtime;
+			$scrot_feedback=`gnome-web-photo --mode=photo --format=$filetype_value $url '$folder/$filename_value.$filetype_value'`;
+			my $width = 0;
+			my $height = 0;
+			if($scrot_feedback eq ""){
+				$scrot_feedback = "$folder/$filename_value.$filetype_value";
+				$width = &function_imagemagick_perform("get_width", $scrot_feedback, 0, $filetype_value);
+				$height = &function_imagemagick_perform("get_height", $scrot_feedback, 0, $filetype_value);
+				if ($width < 1 or $height < 1){&dialog_error_message($d->get("Could not determine file geometry"));return 0;}
+				my $scrot_feedback_old = $scrot_feedback;
+				$scrot_feedback =~ s/\$w/$width/g;
+				$scrot_feedback =~ s/\$h/$height/g;
+				unless (rename($scrot_feedback_old, $scrot_feedback)){&dialog_error_message($d->get("Could not substitute wild-cards in filename"));return 0;}
+			}else{
+				&dialog_error_message($scrot_feedback);exit;	
+			}
+			if($thumbnail_active->get_active){
+				my $webthumbnail_ending = "thumb";
+				my $webthumbnail_size = 256;
+				my $scrot_feedback_thumbnail=`gnome-web-thumbnail --size=$webthumbnail_size --format=$filetype_value $url '$folder/$filename_value.$filetype_value-$webthumbnail_ending'`;			
+
+				$width = 0;
+				$height = 0;
+				if($scrot_feedback_thumbnail eq ""){
+					$scrot_feedback_thumbnail = "$folder/$filename_value.$filetype_value-$webthumbnail_ending";
+					$width = &function_imagemagick_perform("get_width", $scrot_feedback_thumbnail, 0, $filetype_value);
+					$height = &function_imagemagick_perform("get_height", $scrot_feedback_thumbnail, 0, $filetype_value);
+					if ($width < 1 or $height < 1){&dialog_error_message($d->get("Could not determine file geometry"));return 0;}
+					my $scrot_feedback_thumbnail_old = $scrot_feedback_thumbnail;
+					$scrot_feedback_thumbnail =~ s/\$w/$width/g;
+					$scrot_feedback_thumbnail =~ s/\$h/$height/g;
+					unless (rename($scrot_feedback_thumbnail_old, $scrot_feedback_thumbnail)){&dialog_error_message($d->get("Could not substitute wild-cards in filename"));return 0;}
+				}else{
+					&dialog_error_message($scrot_feedback_thumbnail);exit;	
+				}
+			}						
 		}else{
 			unless ($filename_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No valid filename specified")); return FALSE;};
-			$scrot_feedback=`scrot '$folder/$filename_value.$filetype_value' --select -q $quality_value -d $delay_value $border_value $thumbnail_param $echo_cmd`;
+			$scrot_feedback=`scrot '$folder/$filename_value.$filetype_value' --select -q $quality_value -d $delay_value $border_value $thumbnail_param $echo_cmd`;			
 		}
 		system("xset b on") if $boff_cparam; #turns on the speaker again if set as arg
 
@@ -1383,6 +1437,34 @@ sub dialog_rename
 
 }
 
+sub dialog_website
+{
+	my $dialog_header = $d->get("URL to capture");
+ 	my $website_dialog = Gtk2::Dialog->new ($dialog_header,
+        						$window,
+                              	[qw/modal destroy-with-parent/],
+                              	'gtk-ok'     => 'accept',
+                              	'gtk-cancel' => 'reject');
+
+	$website_dialog->set_default_response ('accept');
+
+	my $website = Gtk2::Entry->new();
+	$website->set_text("http://");
+    $website_dialog->vbox->add ($website);
+    $website_dialog->show_all;
+
+	my $website_response = $website_dialog->run ;    
+	if ($website_response eq "accept" ) {
+
+		$website_dialog->destroy();		
+		return $website->get_text;
+	}else {
+		$website_dialog->destroy() ;
+		return FALSE;
+	}
+
+}
+
 sub dialog_upload_links
 {
 	my ($thumb1, $thumb2, $bbcode, $direct, $status) = @_;
@@ -1551,8 +1633,16 @@ sub function_imagemagick_perform
 		}else{
 			$image->WriteImage(filename=>$file, depth=>8);
 		}	
+	}elsif($function eq "get_width"){
+		$image->ReadImage($file);
+		return $image->Get('columns');
+		
+	}elsif($function eq "get_height"){
+		$image->ReadImage($file);
+		return $image->Get('rows');	
 	}
 }
+
 
 sub function_check_installed_programs
 {
