@@ -24,6 +24,7 @@ use Gtk2::TrayIcon;
 use Gtk2::Gdk::Keysyms;
 use Gtk2::Pango;
 use Image::Magick;
+use File::Copy;
 use POSIX;     # for setlocale()
 use Locale::gettext;
 use WWW::Mechanize;
@@ -238,8 +239,8 @@ $scale->set_value_pos('right');
 $scale->set_value(75);
 
 my $tooltip_quality = Gtk2::Tooltips->new;
-$tooltip_quality->set_tip($scale,$d->get("Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)"));
-$tooltip_quality->set_tip($scale_label,$d->get("Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)"));
+$tooltip_quality->set_tip($scale,$d->get("Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)\n\nHint: When capturing a website\nadjusting compression level of png files\nis not supported yet"));
+$tooltip_quality->set_tip($scale_label,$d->get("Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)\n\nHint: When capturing a website\nadjusting compression level of png files\nis not supported yet"));
 $scale_box->pack_start($scale_label, FALSE, TRUE, 10);
 $scale_box->pack_start($scale, TRUE, TRUE, 10);
 
@@ -554,11 +555,6 @@ sub function_init
 	}else{
 		die "ERROR: dependency is missing --> gtklp is not installed on your system!\n\n";
 	}
-	if(system("which gnome-web-thumbnail")==0){
-		print "SUCCESS: gnome-web-thumbnail is installed on your system!\n\n";
-	}else{
-		die "ERROR: dependency is missing --> gnome-web-thumbnail is not installed on your system!\n\n";
-	}
 	if(system("which gnome-web-photo")==0){
 		print "SUCCESS: gnome-web-photo is installed on your system!\n\n";
 	}else{
@@ -663,7 +659,7 @@ sub event_handle
 		}
 	} 
 #capture desktop was chosen	
-	if($data eq "raw" || $data eq "select" || $data eq "tray_raw" || $data eq "tray_select" || $data eq "web"){
+	if($data eq "raw" || $data eq "select" || $data eq "tray_raw" || $data eq "tray_select" || $data eq "web"|| $data eq "tray_web"){
 		$border_value = '--border' if $combobox_border->get_active;
 		$filetype_value = $combobox_type->get_active_text();
 			
@@ -697,17 +693,21 @@ sub event_handle
 		if($data eq "raw" || $data eq "tray_raw"){
 			unless ($filename_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No valid filename specified")); return FALSE;};
 			$scrot_feedback=`scrot '$folder/$filename_value.$filetype_value' -q $quality_value -d $delay_value $border_value $thumbnail_param $echo_cmd`;
-		}elsif($data eq "web"){
+		}elsif($data eq "web" || $data eq "tray_web"){
 			my $url = &dialog_website;
 			return 0 unless $url;
 			my $hostname = $url; $hostname =~ s/http:\/\///;
 			if($hostname eq ""){&dialog_error_message($d->get("No valid url entered"));return 0;}
+			#delay doesnt make much sense here, but it's implemented ;-)
+			if($delay_active->get_active){		
+				sleep $delay_value;
+			}
 			$filename_value = strftime $filename_value , localtime;
-			$scrot_feedback=`gnome-web-photo --mode=photo --format=$filetype_value $url '$folder/$filename_value.$filetype_value'`;
+			$scrot_feedback=`gnome-web-photo --mode=photo --format=$filetype_value -q $quality_value $url '$folder/$filename_value.$filetype_value'`;
 			my $width = 0;
 			my $height = 0;
 			if($scrot_feedback eq ""){
-				$scrot_feedback = "$folder/$filename_value.$filetype_value";
+				$scrot_feedback = "$folder/$filename_value.$filetype_value";	
 				$width = &function_imagemagick_perform("get_width", $scrot_feedback, 0, $filetype_value);
 				$height = &function_imagemagick_perform("get_height", $scrot_feedback, 0, $filetype_value);
 				if ($width < 1 or $height < 1){&dialog_error_message($d->get("Could not determine file geometry"));return 0;}
@@ -716,27 +716,21 @@ sub event_handle
 				$scrot_feedback =~ s/\$h/$height/g;
 				unless (rename($scrot_feedback_old, $scrot_feedback)){&dialog_error_message($d->get("Could not substitute wild-cards in filename"));return 0;}
 			}else{
-				&dialog_error_message($scrot_feedback);exit;	
+				&dialog_error_message($scrot_feedback);return 0;	
 			}
 			if($thumbnail_active->get_active){
 				my $webthumbnail_ending = "thumb";
-				my $webthumbnail_size = 256;
-				my $scrot_feedback_thumbnail=`gnome-web-thumbnail --size=$webthumbnail_size --format=$filetype_value $url '$folder/$filename_value.$filetype_value-$webthumbnail_ending'`;			
-
-				$width = 0;
-				$height = 0;
-				if($scrot_feedback_thumbnail eq ""){
-					$scrot_feedback_thumbnail = "$folder/$filename_value.$filetype_value-$webthumbnail_ending";
-					$width = &function_imagemagick_perform("get_width", $scrot_feedback_thumbnail, 0, $filetype_value);
-					$height = &function_imagemagick_perform("get_height", $scrot_feedback_thumbnail, 0, $filetype_value);
-					if ($width < 1 or $height < 1){&dialog_error_message($d->get("Could not determine file geometry"));return 0;}
-					my $scrot_feedback_thumbnail_old = $scrot_feedback_thumbnail;
-					$scrot_feedback_thumbnail =~ s/\$w/$width/g;
-					$scrot_feedback_thumbnail =~ s/\$h/$height/g;
-					unless (rename($scrot_feedback_thumbnail_old, $scrot_feedback_thumbnail)){&dialog_error_message($d->get("Could not substitute wild-cards in filename"));return 0;}
-				}else{
-					&dialog_error_message($scrot_feedback_thumbnail);exit;	
-				}
+				$width *= ($thumbnail_value/100);
+				$width = int($width);
+				$height *= ($thumbnail_value/100);
+				$height = int($height);
+				my $webthumbnail_size = $width."x".$height;
+				my $scrot_feedback_thumbnail = "$folder/$filename_value-$webthumbnail_ending.$filetype_value";
+				$scrot_feedback_thumbnail =~ s/\$w/$width/g;
+				$scrot_feedback_thumbnail =~ s/\$h/$height/g;
+				unless (copy($scrot_feedback, $scrot_feedback_thumbnail)){&dialog_error_message($d-get("Could not generate thumbnail"));exit;}	
+				&function_imagemagick_perform("resize", $scrot_feedback_thumbnail, $webthumbnail_size, $filetype_value);				
+				unless (&function_file_exists($scrot_feedback_thumbnail)){&dialog_error_message($d-get("Could not generate thumbnail"));exit;}	
 			}						
 		}else{
 			unless ($filename_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No valid filename specified")); return FALSE;};
@@ -965,18 +959,23 @@ sub event_show_icon_menu
 	$menuitem_select->set_image(Gtk2::Image->new_from_icon_name('gtk-cut', 'menu'));
 	my $menuitem_raw = Gtk2::ImageMenuItem->new($d->get("Capture"));
 	$menuitem_raw->set_image(Gtk2::Image->new_from_icon_name('gtk-fullscreen', 'menu'));
+	my $menuitem_web = Gtk2::ImageMenuItem->new($d->get("Capture website"));
+	$menuitem_web->set_image(Gtk2::Image->new_from_file ("$gscrot_path/share/gscrot/resources/icons/web_image.png"));
 	my $menuitem_quit = Gtk2::ImageMenuItem->new($d->get("Quit"));
 	$menuitem_quit->set_image(Gtk2::Image->new_from_icon_name('gtk-quit', 'menu'));
 	$menuitem_quit->signal_connect("activate" , \&event_delete_window ,'menu_quit') ;
 	$menuitem_select->signal_connect(activate => \&event_handle, 'tray_select');
 	$menuitem_raw->signal_connect(activate => \&event_handle, 'tray_raw');
+	$menuitem_web->signal_connect(activate => \&event_handle, 'tray_web');
 	my $separator_tray = Gtk2::SeparatorMenuItem->new();
 	$separator_tray->show;
 	$menuitem_select->show();
 	$menuitem_raw->show();
+	$menuitem_web->show();
 	$menuitem_quit->show();
 	$tray_menu->append($menuitem_select);
 	$tray_menu->append($menuitem_raw);
+	$tray_menu->append($menuitem_web);
 	$tray_menu->append($separator_tray);
 	$tray_menu->append($menuitem_quit);
 	$tray_menu->popup(
@@ -1132,7 +1131,7 @@ sub event_in_tab
 	if ($data =~ m/^remove\[/){
 		$data =~ s/^remove//;
 		$notebook->remove_page($notebook->get_current_page); #delete tab
-		&dialog_status_message(1, $session_screens{$data}." ".$d->get("removed from session"));
+		&dialog_status_message(1, $session_screens{$data}." ".$d->get("removed from session")) if defined($session_screens{$data});
 		delete($session_screens{$data}); # delete from hash
 		
 		&function_update_first_tab();
@@ -1510,8 +1509,8 @@ sub dialog_upload_links
 	my $label_bbcode = Gtk2::Label->new();
 	my $label_direct = Gtk2::Label->new();
 
-	$label_thumb1->set_text($d->get("Thumbnail for websites (with Border)"));
-	$label_thumb2->set_text($d->get("Thumbnail for websites (without Border)"));
+	$label_thumb1->set_text($d->get("Thumbnail for websites (with border)"));
+	$label_thumb2->set_text($d->get("Thumbnail for websites (without border)"));
 	$label_bbcode->set_text($d->get("Thumbnail for forums"));
 	$label_direct->set_text($d->get("Direct link"));
 
@@ -1633,9 +1632,10 @@ sub function_imagemagick_perform
 	my ($function, $file, $data, $type) = @_;
 	my $image=Image::Magick->new;
 	$file = &function_switch_home_in_file($file);
+	$image->ReadImage($file);
 	
 	if($function eq "reduce_colors"){
-		$image->ReadImage($file);
+
 		$data =~ /.*\(([0-9]*).*\)/;
 		$image->Quantize(colors=>2**$1);
 		if($type eq 'png'){
@@ -1644,12 +1644,17 @@ sub function_imagemagick_perform
 			$image->WriteImage(filename=>$file, depth=>8);
 		}	
 	}elsif($function eq "get_width"){
-		$image->ReadImage($file);
-		return $image->Get('columns');
-		
+		return $image->Get('columns');	
 	}elsif($function eq "get_height"){
-		$image->ReadImage($file);
 		return $image->Get('rows');	
+	}elsif($function eq "resize"){
+		$data =~ /(.*)x(.*)/;
+		$image->Resize(width=>$1, height=>$2);
+		if($type eq 'png'){
+			$image->WriteImage(filename=>$file, depth=>8, quality=>95);
+		}else{
+			$image->WriteImage(filename=>$file, depth=>8);
+		}	
 	}
 }
 
@@ -1695,6 +1700,7 @@ sub function_upload_ubuntu_pics
 	} 
 	
 	my $mech = WWW::Mechanize->new();
+
 	$mech->get("http://www.ubuntu-pics.de/easy.html");
 
 	$mech->submit_form(
