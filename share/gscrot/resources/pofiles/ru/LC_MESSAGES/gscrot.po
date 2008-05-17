@@ -3,10 +3,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: GScrot\n"
+"Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-05-17 03:13+0200\n"
-"PO-Revision-Date: 2008-05-17 03:14+0100\n"
+"PO-Revision-Date: 2008-05-17 15:57+0100\n"
 "Last-Translator: Mario Kemper <mario.kemper@gmx.de>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -71,18 +71,16 @@ msgid "Take a screenshot of your whole desktop"
 msgstr "Снять весь экран"
 
 #: gscrot.pl:181
-#, fuzzy
 msgid ""
 "Capture\n"
 "website"
 msgstr ""
 "Снимок\n"
-"с выбором"
+"сайта"
 
 #: gscrot.pl:188
-#, fuzzy
 msgid "Take a screenshot of a website"
-msgstr "Снять весь экран"
+msgstr "Создать снимок веб-сайта"
 
 #: gscrot.pl:214
 #: gscrot.pl:324
@@ -104,7 +102,6 @@ msgstr "Качество"
 
 #: gscrot.pl:242
 #: gscrot.pl:243
-#, fuzzy
 msgid ""
 "Quality/Compression:\n"
 "High value means high size / high compression\n"
@@ -116,7 +113,11 @@ msgid ""
 msgstr ""
 "Качество/Сжатие:\n"
 "Большое значение означает большой размер / выскую степень сжатия\n"
-"(в зависимости от выбранного формата)"
+"(в зависимости от выбранного формата)\n"
+"\n"
+"Подсказка: При съемке веб-сайта\n"
+"регулировка уровня сжатия вайлоф png\n"
+"пока не поддерживается"
 
 #: gscrot.pl:249
 msgid "Delay"
@@ -130,7 +131,7 @@ msgstr "Задержка в n секунд перед тем как делать
 
 #: gscrot.pl:275
 msgid "Thumbnail"
-msgstr "Обзорное изображение"
+msgstr "Эскиз"
 
 #: gscrot.pl:288
 #: gscrot.pl:289
@@ -139,8 +140,8 @@ msgid ""
 "Generate thumbnail too.\n"
 "select the percentage of the original size for the thumbnail to be"
 msgstr ""
-"Создать обзорное изображение\n"
-"выберите размер в процентах от\n"
+"Создать эскиз изображения.\n"
+"Выберите размер эскиза в процентах от\n"
 "оригинального изображения"
 
 #: gscrot.pl:305
@@ -158,7 +159,7 @@ msgid ""
 "$w = width\n"
 "$h = height"
 msgstr ""
-"Имеется несколько шаблонов, как\n"
+"Можно использовать шаблонов, как\n"
 "%Y = год\n"
 "%m = месяц\n"
 "%d = день\n"
@@ -265,17 +266,16 @@ msgid "No valid filename specified"
 msgstr "Заданное имя недопустимо"
 
 #: gscrot.pl:700
-#, fuzzy
 msgid "No valid url entered"
-msgstr "Заданное имя недопустимо"
+msgstr "Заданная ссылка недопустима"
 
 #: gscrot.pl:713
 msgid "Could not determine file geometry"
-msgstr ""
+msgstr "Не удалось определить геометрию файла"
 
 #: gscrot.pl:717
 msgid "Could not substitute wild-cards in filename"
-msgstr ""
+msgstr "Не удалось подставить шаблоны в имени файла"
 
 #: gscrot.pl:745
 msgid "saved"
@@ -289,11 +289,11 @@ msgstr "Не выбрана программа для открытия сним�
 
 #: gscrot.pl:775
 msgid "file could not be saved"
-msgstr "не получилось сохранить файл"
+msgstr "не удалось сохранить файл"
 
 #: gscrot.pl:777
 msgid "could not be saved"
-msgstr "нельзя было сохранить"
+msgstr "не удалось сохранить"
 
 #: gscrot.pl:808
 #: gscrot.pl:1006
@@ -322,16 +322,15 @@ msgstr "Больше не спрашивать"
 #: gscrot.pl:1263
 #: gscrot.pl:1281
 msgid "Settings could not be saved"
-msgstr "Не получилось сохранить настройки"
+msgstr "Не удалось сохранить настройки"
 
 #: gscrot.pl:958
 msgid "Capture with selection"
 msgstr "Снимок с выбором"
 
 #: gscrot.pl:962
-#, fuzzy
 msgid "Capture website"
-msgstr "Снимок с выбором"
+msgstr "Снимок сайта"
 
 #: gscrot.pl:964
 msgid "Quit"
@@ -355,7 +354,7 @@ msgstr "Открыть файл(ы)"
 
 #: gscrot.pl:1060
 msgid "Upload file to ubuntu-pics.de"
-msgstr ""
+msgstr "Загрузить файл на ubuntu-pics.de"
 
 #: gscrot.pl:1068
 #: gscrot.pl:1408
@@ -384,7 +383,7 @@ msgstr "открыт с помощью"
 
 #: gscrot.pl:1161
 msgid "uploaded"
-msgstr ""
+msgstr "загружен"
 
 #: gscrot.pl:1167
 msgid "renamed"
@@ -425,7 +424,7 @@ msgstr "Настройки успешно сохранены"
 #: gscrot.pl:1290
 #: gscrot.pl:1292
 msgid "Settings could not be loaded"
-msgstr "Не получилось загрузить настройки"
+msgstr "Не удалось загрузить настройки"
 
 #: gscrot.pl:1346
 msgid "Settings loaded successfully"
@@ -441,31 +440,29 @@ msgstr ""
 
 #: gscrot.pl:1451
 msgid "URL to capture"
-msgstr ""
+msgstr "Адрес сайта"
 
 #: gscrot.pl:1480
 msgid "Upload"
-msgstr ""
+msgstr "Загрузка"
 
 #: gscrot.pl:1492
 msgid "Upload status:"
-msgstr ""
+msgstr "Статус загрузки:"
 
 #: gscrot.pl:1512
 msgid "Thumbnail for websites (with border)"
-msgstr ""
+msgstr "Эскиз в HTML (с рамкой)"
 
 #: gscrot.pl:1513
 msgid "Thumbnail for websites (without border)"
-msgstr ""
+msgstr "Эскиз в HTML (без рамки)"
 
 #: gscrot.pl:1514
-#, fuzzy
 msgid "Thumbnail for forums"
-msgstr "Обзорное изображение"
+msgstr "Эскиз для форумов"
 
 #: gscrot.pl:1515
-#, fuzzy
 msgid "Direct link"
-msgstr "Папка"
+msgstr "Пря мая ссылка"
 
