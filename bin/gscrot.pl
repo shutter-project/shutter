@@ -152,7 +152,7 @@ $vbox->pack_start($menubar, FALSE, FALSE, 0);
 #############MENU###################
 
 #############BUTTON_SELECT###################
-my $button_select = Gtk2::Button->new($d->get("Capture\nselective"));
+my $button_select = Gtk2::Button->new($d->get("Capture\nwith selection"));
 $button_select->signal_connect(clicked => \&event_handle, 'select');
 
 my $image_select = Gtk2::Image->new_from_icon_name ('gtk-cut', 'dialog');
@@ -1156,7 +1156,7 @@ sub event_in_tab
 		if (is_success($upload_response{'status'})){
 			&dialog_upload_links($upload_response{'thumb1'}, $upload_response{'thumb2'}, $upload_response{'bbcode'}, $upload_response{'direct'}, $upload_response{'status'});				
 		}else{
-			&dialog_error_message($d->get("Upload failed"));	
+			&dialog_error_message($upload_response{'status'});	
 		}			
 		&dialog_status_message(1, $session_screens{$data}." ".$d->get("uploaded"));
 	}
@@ -1695,7 +1695,7 @@ sub function_upload_ubuntu_pics
 
 	my $filesize = -s $upload_filename;
 	if($filesize > 2048000){
-		$links{'status'} = "Filesize exceeded";
+		$links{'status'} = "Filesize exceeded - maximum 2000 Kb\nUpload aborted";
 		return %links;			
 	} 
 	
