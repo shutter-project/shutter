@@ -805,7 +805,7 @@ sub event_notebook_switch
 			$filename = $_->get_text();
 		}elsif ($_ =~ /^Gtk2::Label/ && $tab_index == 0){ #all tab
 			my $n_pages = keys(%session_screens);
-			$_->set_text($n_pages." ".$d->get("screenshot(s) during this session"));
+			$_->set_text($n_pages." ".$d->nget("screenshot during this session", "screenshots during this session", $n_pages));
 		}elsif ($_ =~ /^Gtk2::Image/ && $tab_index != 0){#normal tab
 			if(&function_file_exists($filename)){	
 				$_->set_from_icon_name ('gtk-yes', 'menu');
@@ -1003,7 +1003,7 @@ sub function_create_tab {
 	my $hbox_tab_actions2 = Gtk2::HBox->new(FALSE, 0);
 
 	my $n_pages = 0;
-	my $filename = $n_pages." ".$d->get("screenshot(s) during this session");
+	my $filename = $n_pages." ".$d->nget("screenshot during this session", "screenshots during this session", $n_pages);
 	$filename = $session_screens{$key} unless $is_all;
 	$n_pages = $notebook->get_n_pages() if $is_all;
 
@@ -1576,7 +1576,7 @@ sub function_update_first_tab
 	my $n_pages = keys(%session_screens); 
 	foreach (@hbox_content){
 		if( $_ =~ /^Gtk2::Label/ ){
-			$_->set_text($n_pages." ".$d->get("screenshot(s) during this session"));
+			$_->set_text($n_pages." ".$d->nget("screenshot during this session", "screenshots during this session", $n_pages));
 		}elsif( $_ =~ /^Gtk2::Button/ && $n_pages == 0){
 			$_->set_sensitive(FALSE);	
 		}elsif( $_ =~ /^Gtk2::Button/ && $n_pages > 0){

@@ -2,13 +2,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-05-17 03:13+0200\n"
-"PO-Revision-Date: 2008-05-17 03:24+0100\n"
+"POT-Creation-Date: 2008-05-19 02:53+0200\n"
+"PO-Revision-Date: 2008-05-19 03:01+0100\n"
 "Last-Translator: Mario Kemper <mario.kemper@gmx.de>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 
 #: gscrot.pl:68
 msgid "All"
@@ -295,8 +296,10 @@ msgstr "konnte nicht gespeichert werden"
 #: gscrot.pl:808
 #: gscrot.pl:1006
 #: gscrot.pl:1579
-msgid "screenshot(s) during this session"
-msgstr "Aufnahme(n) in dieser Sitzung"
+msgid "screenshot during this session"
+msgid_plural "screenshots during this session"
+msgstr[0] "Aufnahme in dieser Sitzung"
+msgstr[1] "Aufnahmen in dieser Sitzung"
 
 #: gscrot.pl:814
 msgid "is not existing anymore"
