@@ -1484,6 +1484,7 @@ sub dialog_upload_links
                               	'gtk-ok'     => 'accept');
 
 	$upload_dialog->set_default_response ('accept');
+	$upload_dialog->set_size_request(300, 300);
 
 	my $upload_hbox = Gtk2::HBox->new(FALSE, 0);
 	my $upload_vbox = Gtk2::VBox->new(FALSE, 0);
