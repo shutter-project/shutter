@@ -31,7 +31,7 @@ use WWW::Mechanize;
 use HTTP::Status;
 
 my $gscrot_name = "GScrot";
-my $gscrot_version = "v0.37";
+my $gscrot_version = "v0.38";
 my $gscrot_path = "";
 #command line parameter
 my $debug_cparam = FALSE;
@@ -43,6 +43,9 @@ my @args = @ARGV;
 
 my %gm_programs; #hash to store program infos
 &function_check_installed_programs;
+my %plugins; #hash to store plugin infos
+&function_check_installed_plugins;
+
 
 setlocale(LC_MESSAGES,"");
 my $d = Locale::gettext->domain("gscrot");
@@ -82,10 +85,12 @@ my $vbox = Gtk2::VBox->new(FALSE, 10);
 my $vbox_inner = Gtk2::VBox->new(FALSE, 10);
 my $vbox_basic = Gtk2::VBox->new(FALSE, 10);
 my $vbox_extras = Gtk2::VBox->new(FALSE, 10);
+my $vbox_plugins = Gtk2::VBox->new(FALSE, 10);
 my $file_vbox = Gtk2::VBox->new(FALSE, 0);
 my $save_vbox = Gtk2::VBox->new(FALSE, 0);
 my $actions_vbox = Gtk2::VBox->new(FALSE, 0);
 my $capture_vbox = Gtk2::VBox->new(FALSE, 0);
+my $effects_vbox = Gtk2::VBox->new(FALSE, 0);
 
 my $button_box = Gtk2::HBox->new(TRUE, 10);
 my $scale_box = Gtk2::HBox->new(TRUE, 0);
@@ -434,6 +439,63 @@ $tooltip_border->set_tip($border_label,$d->get("When selecting a window, grab wm
 $border_box->pack_start($border_label, FALSE, TRUE, 10);
 $border_box->pack_start($combobox_border, TRUE, TRUE, 10);
 #end - border
+
+#plugins-effects
+my $effects_model = Gtk2::ListStore->new ('Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String');
+foreach (keys %plugins){
+	if($plugins{$_}->{'binary'} ne "" && $plugins{$_}->{'name'} ne ""){
+		my $pixbuf; 
+		if (-f $plugins{$_}->{'pixmap'}){
+			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ($plugins{$_}->{'pixmap'}, 20, 20);
+		}else{
+			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/executable.svg", 20, 20);
+		} 
+		$effects_model->set ($effects_model->append, 0, $pixbuf , 1, $plugins{$_}->{'name'}, 2, $plugins{$_}->{'binary'});				
+	}else{
+		print "WARNING: Program $_ is not configured properly, ignoring\n";	
+	}	
+}
+
+my $effects_tree = Gtk2::TreeView->new_with_model ($effects_model);
+
+my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
+$tv_clmn_pix_text->set_title($d->get("Icon"));
+#pixbuf renderer
+my $renderer_pix_effects = Gtk2::CellRendererPixbuf->new;
+#pack it into the column
+$tv_clmn_pix_text->pack_start ($renderer_pix_effects, FALSE);
+#set its atributes
+$tv_clmn_pix_text->set_attributes($renderer_pix_effects, pixbuf => 0);
+
+#append this column to the treeview
+$effects_tree->append_column($tv_clmn_pix_text);
+
+my $tv_clmn_text_text = Gtk2::TreeViewColumn->new;
+$tv_clmn_text_text->set_title($d->get("Name"));
+#pixbuf renderer
+my $renderer_text_effects = Gtk2::CellRendererText->new;
+#pack it into the column
+$tv_clmn_text_text->pack_start ($renderer_text_effects, FALSE);
+#set its atributes
+$tv_clmn_text_text->set_attributes($renderer_text_effects, text => 1);
+
+#append this column to the treeview
+$effects_tree->append_column($tv_clmn_text_text);
+
+my $tv_clmn_path_text = Gtk2::TreeViewColumn->new;
+$tv_clmn_path_text->set_title($d->get("Path"));
+#pixbuf renderer
+my $renderer_path_effects = Gtk2::CellRendererText->new;
+#pack it into the column
+$tv_clmn_path_text->pack_start ($renderer_path_effects, FALSE);
+#set its atributes
+$tv_clmn_path_text->set_attributes($renderer_path_effects, text => 2);
+
+#append this column to the treeview
+$effects_tree->append_column($tv_clmn_path_text);
+
+
+
 #############SETTINGS######################
 
 
@@ -463,14 +525,28 @@ $vbox_extras->pack_start($actions_frame, TRUE, TRUE, 1);
 $vbox_extras->pack_start($capture_frame, TRUE, TRUE, 1);
 $vbox_extras->set_border_width(5);
 
+$effects_vbox->pack_start($effects_tree, TRUE, TRUE, 1);
+
+$vbox_plugins->pack_start($effects_vbox, TRUE, TRUE, 1);
+$vbox_plugins->set_border_width(5);
+
+my $scrolled_plugins_window = Gtk2::ScrolledWindow->new;
+$scrolled_plugins_window->set_policy ('automatic', 'automatic');
+$scrolled_plugins_window->set_shadow_type ('in');
+$scrolled_plugins_window->add_with_viewport($vbox_plugins);
+
 my $label_basic = Gtk2::Label->new;
 $label_basic->set_markup ($d->get("<i>Basic Settings</i>"));
 
 my $label_extras = Gtk2::Label->new;
 $label_extras->set_markup ($d->get("<i>Extras</i>"));
 
+my $label_plugins = Gtk2::Label->new;
+$label_plugins->set_markup ($d->get("<i>Plugins</i>"));
+
 my $notebook_settings_first = $notebook_settings->append_page ($vbox_basic,$label_basic);
 my $notebook_settings_second = $notebook_settings->append_page ($vbox_extras,$label_extras);
+my $notebook_settings_third = $notebook_settings->append_page ($scrolled_plugins_window,$label_plugins);
 
 $vbox_inner->pack_start($notebook_settings, FALSE, FALSE, 1);
 $vbox_inner->pack_start($notebook, TRUE, TRUE, 1);
@@ -582,7 +658,12 @@ sub function_init
 	if (-f "$ENV{ 'HOME' }/.gscrot/programs.conf"){
 		print "\nINFO: using custom program settings found at $ENV{ 'HOME' }/.gscrot/programs.conf\n";
 		%gm_programs = do "$ENV{ 'HOME' }/.gscrot/programs.conf";
-	}  	
+	}
+	%plugins = do "$gscrot_path/share/gscrot/resources/system/plugins.conf";
+	if (-f "$ENV{ 'HOME' }/.gscrot/plugins.conf"){
+		print "\nINFO: using custom program settings found at $ENV{ 'HOME' }/.gscrot/plugins.conf\n";
+		%plugins = do "$ENV{ 'HOME' }/.gscrot/plugins.conf";
+	}    	
 	
 }
 
@@ -1066,6 +1147,14 @@ sub function_create_tab {
 
 	my $tooltip_rename = Gtk2::Tooltips->new;
 	$tooltip_rename->set_tip($button_rename,$d->get("Rename file"));
+	
+	my $button_plugin = Gtk2::Button->new;
+	$button_plugin->signal_connect(clicked => \&event_in_tab, 'plugin'.$key);
+	my $image_plugin = Gtk2::Image->new_from_icon_name ('gtk-execute', 'button');
+	$button_plugin->set_image($image_plugin);	
+
+	my $tooltip_plugin = Gtk2::Tooltips->new;
+	$tooltip_plugin->set_tip($button_plugin,$d->get("Execute a plugin"));
 
 	my $button_print = Gtk2::Button->new;
 	$button_print->signal_connect(clicked => \&event_in_tab, 'print'.$key);
@@ -1091,6 +1180,7 @@ sub function_create_tab {
 		$hbox_tab_actions2->pack_start($button_upload, TRUE, TRUE, 1);
 		$hbox_tab_actions2->pack_start($button_print, TRUE, TRUE, 1);
 		$hbox_tab_actions->pack_start($button_rename, TRUE, TRUE, 1);
+		$hbox_tab_actions->pack_start($button_plugin, TRUE, TRUE, 1);
 		$hbox_tab_actions2->pack_start($button_clipboard, TRUE, TRUE, 1);		
 	}
 	$vbox_tab->pack_start($hbox_tab_file, TRUE, TRUE, 1);
@@ -1161,10 +1251,14 @@ sub event_in_tab
 		&dialog_status_message(1, $session_screens{$data}." ".$d->get("uploaded"));
 	}
 	
-	
 	if ($data =~ m/^rename\[/){
 		$data =~ s/^rename//;
 		&dialog_status_message(1, $session_screens{$data}." ".$d->get("renamed")) if &dialog_rename($session_screens{$data}, $data);
+	}
+
+	if ($data =~ m/^plugin\[/){
+		$data =~ s/^plugin//;
+		&dialog_status_message(1, $session_screens{$data}." ".$d->get("executed by plugin")) if &dialog_plugin($session_screens{$data}, $data);
 	}
 
 	if ($data =~ m/^clipboard\[/){
@@ -1446,6 +1540,66 @@ sub dialog_rename
 
 }
 
+sub dialog_plugin
+{
+	my ($dialog_plugin_text, $data) = @_;
+	my $dialog_header = $d->get("Choose a plugin");
+ 	my $plugin_dialog = Gtk2::Dialog->new ($dialog_header,
+        						$window,
+                              	[qw/modal destroy-with-parent/],
+                              	'gtk-ok'     => 'accept',
+                              	'gtk-cancel' => 'reject');
+
+	$plugin_dialog->set_default_response ('accept');
+
+	my $model = Gtk2::ListStore->new ('Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String');
+	foreach (keys %plugins){
+		if($plugins{$_}->{'binary'} ne "" && $plugins{$_}->{'name'} ne ""){
+			my $pixbuf; 
+			if (-f $plugins{$_}->{'pixmap'}){
+				$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ($plugins{$_}->{'pixmap'}, 20, 20);
+			}else{
+				$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/executable.svg", 20, 20);
+			} 
+			$model->set ($model->append, 0, $pixbuf , 1, $plugins{$_}->{'name'}, 2, $plugins{$_}->{'binary'});				
+		}else{
+			print "WARNING: Program $_ is not configured properly, ignoring\n";	
+		}	
+	}
+	my $plugin = Gtk2::ComboBox->new ($model);
+	my $renderer_pix = Gtk2::CellRendererPixbuf->new;
+	$plugin->pack_start ($renderer_pix, FALSE);
+	$plugin->add_attribute ($renderer_pix, pixbuf => 0);
+	my $renderer_text = Gtk2::CellRendererText->new;
+	$plugin->pack_start ($renderer_text, FALSE);
+	$plugin->add_attribute ($renderer_text, text => 1);
+	$plugin->set_active(0);
+
+    $plugin_dialog->vbox->add ($plugin);
+    $plugin_dialog->show_all;
+
+	my $plugin_response = $plugin_dialog->run ;    
+	if ($plugin_response eq "accept" ) {
+		$dialog_plugin_text = &function_switch_home_in_file($dialog_plugin_text);
+		my $model = $plugin->get_model();
+		my $plugin_iter = $plugin->get_active_iter();
+		my $plugin_value = $model->get_value($plugin_iter, 2);
+		my $plugin_name = $model->get_value($plugin_iter, 1);
+		unless ($plugin_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No plugin specified")); return FALSE;};
+		if (system("$plugin_value $dialog_plugin_text &") == 0){
+			&dialog_info_message("Successfully executed plugin:$plugin_name");
+		}else{
+			&dialog_error_message("Plugin $plugin_name reported an error");
+		}
+		$plugin_dialog->destroy();		
+		return TRUE;
+	}else {
+		$plugin_dialog->destroy() ;
+		return FALSE;
+	}
+
+}
+
 sub dialog_website
 {
 	my $dialog_header = $d->get("URL to capture");
@@ -1672,6 +1826,25 @@ sub function_check_installed_programs
 				next;
 			}
 			print "$gm_programs{$_}->{'name'} - $gm_programs{$_}->{'binary'}\n";					
+		}else{
+			print "WARNING: Program $_ is not configured properly, ignoring\n";	
+		}	
+	}
+
+}
+
+sub function_check_installed_plugins
+{
+	print "\nINFO: checking installed plugins...\n";	
+	
+	foreach (keys %plugins){
+		if($plugins{$_}->{'binary'} ne "" && $plugins{$_}->{'name'} ne ""){
+			unless (-e $plugins{$_}->{'binary'}){
+				print " Could not detect binary for program $_, ignoring\n";	
+				delete $plugins{$_};
+				next;
+			}
+			print "$plugins{$_}->{'name'} - $plugins{$_}->{'binary'}\n";					
 		}else{
 			print "WARNING: Program $_ is not configured properly, ignoring\n";	
 		}	
