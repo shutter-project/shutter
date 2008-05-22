@@ -42,9 +42,9 @@ my @args = @ARGV;
 &function_init();
 
 my %gm_programs; #hash to store program infos
-&function_check_installed_programs;
+&function_check_installed_programs if keys(%gm_programs) > 0;
 my %plugins; #hash to store plugin infos
-&function_check_installed_plugins;
+&function_check_installed_plugins if keys(%plugins) > 0;
 
 
 setlocale(LC_MESSAGES,"");
@@ -140,17 +140,43 @@ $menuitem_quit->signal_connect("activate" , \&event_delete_window , 'menu_quit')
 $menuitem_file->set_submenu($menu1);
 $menubar->append($menuitem_file) ;
 
+
 my $menu2 = Gtk2::Menu->new() ;
+
+my $menuitem_selection = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("Capture with selection")) ;
+$menuitem_selection->set_image(Gtk2::Image->new_from_icon_name('gtk-cut', 'menu'));
+$menuitem_selection->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ S }, qw/shift-mask/, qw/visible/);
+$menu2->append($menuitem_selection) ;
+$menuitem_selection->signal_connect("activate" , \&event_handle, 'select') ;
+
+my $menuitem_raw = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("Capture")) ;
+$menuitem_raw->set_image(Gtk2::Image->new_from_icon_name('gtk-fullscreen', 'menu'));
+$menuitem_raw->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ F }, qw/shift-mask/, qw/visible/);
+$menu2->append($menuitem_raw) ;
+$menuitem_raw->signal_connect("activate" , \&event_handle, 'raw') ;
+
+my $menuitem_web = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("Capture website")) ;
+$menuitem_web->set_image(Gtk2::Image->new_from_file ("$gscrot_path/share/gscrot/resources/icons/web_image.png"));
+$menuitem_web->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ W }, qw/shift-mask/, qw/visible/);
+$menu2->append($menuitem_web) ;
+$menuitem_web->signal_connect("activate" , \&event_handle, 'web') ;
+
+my $menuitem_action = Gtk2::MenuItem->new_with_mnemonic($d->get("_Actions")) ;
+
+$menuitem_action->set_submenu($menu2) ;
+$menubar->append($menuitem_action) ; 
+
+my $menu3 = Gtk2::Menu->new() ;
 
 my $menuitem_about = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("_Info")) ;
 $menuitem_about->set_image(Gtk2::Image->new_from_icon_name('gtk-about', 'menu'));
 $menuitem_about->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ I }, qw/control-mask/, qw/visible/);
-$menu2->append($menuitem_about) ;
+$menu3->append($menuitem_about) ;
 $menuitem_about->signal_connect("activate" , \&event_about, $window) ;
 
 my $menuitem_help = Gtk2::MenuItem->new_with_mnemonic($d->get("_Help")) ;
 
-$menuitem_help->set_submenu($menu2) ;
+$menuitem_help->set_submenu($menu3) ;
 $menubar->append($menuitem_help) ; 
 
 $vbox->pack_start($menubar, FALSE, FALSE, 0);
@@ -1258,7 +1284,11 @@ sub event_in_tab
 
 	if ($data =~ m/^plugin\[/){
 		$data =~ s/^plugin//;
-		&dialog_status_message(1, $session_screens{$data}." ".$d->get("executed by plugin")) if &dialog_plugin($session_screens{$data}, $data);
+		if (keys %plugins > 0){
+			&dialog_status_message(1, $session_screens{$data}." ".$d->get("executed by plugin")) if &dialog_plugin($session_screens{$data}, $data);
+		}else{
+			&dialog_error_message($d->get("No plugin installed"));	
+		}
 	}
 
 	if ($data =~ m/^clipboard\[/){
@@ -1846,7 +1876,7 @@ sub function_check_installed_plugins
 			}
 			print "$plugins{$_}->{'name'} - $plugins{$_}->{'binary'}\n";					
 		}else{
-			print "WARNING: Program $_ is not configured properly, ignoring\n";	
+			print "WARNING: Plugin $_ is not configured properly, ignoring\n";	
 		}	
 	}
 
@@ -1928,7 +1958,5 @@ sub function_switch_html_entities
 	$code =~ s/&quot;/\"/g;
 	return $code;		
 }
-
-
 #################### MY FUNCTIONS  ################################
 
