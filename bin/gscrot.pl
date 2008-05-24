@@ -68,7 +68,7 @@ $notebook->set_scrollable(TRUE);
 $notebook->signal_connect('switch-page' => \&event_notebook_switch, 'tab-switched');
 $notebook->set_size_request(-1, 150);
 my $first_page = $notebook->append_page (function_create_tab ("", TRUE),
-Gtk2::Label->new($d->get("All")));
+Gtk2::Label->new(gettext("All")));
 
 #arrange settings in notebook
 my $notebook_settings = Gtk2::Notebook->new;
@@ -114,15 +114,15 @@ my $menubar = Gtk2::MenuBar->new() ;
 
 my $menu1= Gtk2::Menu->new() ;
 
-my $menuitem_file = Gtk2::MenuItem->new_with_mnemonic($d->get("_File")) ;
+my $menuitem_file = Gtk2::MenuItem->new_with_mnemonic(gettext("_File")) ;
 
-my $menuitem_revert = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("_Revert Settings")) ;
+my $menuitem_revert = Gtk2::ImageMenuItem->new_with_mnemonic(gettext("_Revert Settings")) ;
 $menuitem_revert->set_image(Gtk2::Image->new_from_icon_name('gtk-revert-to-saved-ltr', 'menu'));
 $menuitem_revert->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ Z }, qw/control-mask/, qw/visible/);
 $menu1->append($menuitem_revert) ;
 $menuitem_revert->signal_connect("activate" , \&event_settings , 'menu_revert') ;
 
-my $menuitem_save = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("_Save Settings")) ;
+my $menuitem_save = Gtk2::ImageMenuItem->new_with_mnemonic(gettext("_Save Settings")) ;
 $menuitem_save->set_image(Gtk2::Image->new_from_icon_name('gtk-save', 'menu'));
 $menuitem_save->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ S }, qw/control-mask/, qw/visible/);
 $menu1->append($menuitem_save) ;
@@ -131,7 +131,7 @@ $menuitem_save->signal_connect("activate" , \&event_settings , 'menu_save') ;
 my $separator_menu1 = Gtk2::SeparatorMenuItem->new();
 $menu1->append($separator_menu1);
 
-my $menuitem_quit = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("_Quit")) ;
+my $menuitem_quit = Gtk2::ImageMenuItem->new_with_mnemonic(gettext("_Quit")) ;
 $menuitem_quit->set_image(Gtk2::Image->new_from_icon_name('gtk-quit', 'menu'));
 $menuitem_quit->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ Q }, qw/control-mask/, qw/visible/);
 $menu1->append($menuitem_quit) ;
@@ -143,38 +143,38 @@ $menubar->append($menuitem_file) ;
 
 my $menu2 = Gtk2::Menu->new() ;
 
-my $menuitem_selection = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("Capture with selection")) ;
+my $menuitem_selection = Gtk2::ImageMenuItem->new_with_mnemonic(gettext("Capture with selection")) ;
 $menuitem_selection->set_image(Gtk2::Image->new_from_icon_name('gtk-cut', 'menu'));
 $menuitem_selection->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ S }, qw/shift-mask/, qw/visible/);
 $menu2->append($menuitem_selection) ;
 $menuitem_selection->signal_connect("activate" , \&event_handle, 'select') ;
 
-my $menuitem_raw = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("Capture")) ;
+my $menuitem_raw = Gtk2::ImageMenuItem->new_with_mnemonic(gettext("Capture")) ;
 $menuitem_raw->set_image(Gtk2::Image->new_from_icon_name('gtk-fullscreen', 'menu'));
 $menuitem_raw->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ F }, qw/shift-mask/, qw/visible/);
 $menu2->append($menuitem_raw) ;
 $menuitem_raw->signal_connect("activate" , \&event_handle, 'raw') ;
 
-my $menuitem_web = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("Capture website")) ;
+my $menuitem_web = Gtk2::ImageMenuItem->new_with_mnemonic(gettext("Capture website")) ;
 $menuitem_web->set_image(Gtk2::Image->new_from_file ("$gscrot_path/share/gscrot/resources/icons/web_image.png"));
 $menuitem_web->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ W }, qw/shift-mask/, qw/visible/);
 $menu2->append($menuitem_web) ;
 $menuitem_web->signal_connect("activate" , \&event_handle, 'web') ;
 
-my $menuitem_action = Gtk2::MenuItem->new_with_mnemonic($d->get("_Actions")) ;
+my $menuitem_action = Gtk2::MenuItem->new_with_mnemonic(gettext("_Actions")) ;
 
 $menuitem_action->set_submenu($menu2) ;
 $menubar->append($menuitem_action) ; 
 
 my $menu3 = Gtk2::Menu->new() ;
 
-my $menuitem_about = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("_Info")) ;
+my $menuitem_about = Gtk2::ImageMenuItem->new_with_mnemonic(gettext("_Info")) ;
 $menuitem_about->set_image(Gtk2::Image->new_from_icon_name('gtk-about', 'menu'));
 $menuitem_about->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ I }, qw/control-mask/, qw/visible/);
 $menu3->append($menuitem_about) ;
 $menuitem_about->signal_connect("activate" , \&event_about, $window) ;
 
-my $menuitem_help = Gtk2::MenuItem->new_with_mnemonic($d->get("_Help")) ;
+my $menuitem_help = Gtk2::MenuItem->new_with_mnemonic(gettext("_Help")) ;
 
 $menuitem_help->set_submenu($menu3) ;
 $menubar->append($menuitem_help) ; 
@@ -183,40 +183,40 @@ $vbox->pack_start($menubar, FALSE, FALSE, 0);
 #############MENU###################
 
 #############BUTTON_SELECT###################
-my $button_select = Gtk2::Button->new($d->get("Capture\nwith selection"));
+my $button_select = Gtk2::Button->new(gettext("Capture\nwith selection"));
 $button_select->signal_connect(clicked => \&event_handle, 'select');
 
 my $image_select = Gtk2::Image->new_from_icon_name ('gtk-cut', 'dialog');
 $button_select->set_image($image_select);
 
 my $tooltip_select = Gtk2::Tooltips->new;
-$tooltip_select->set_tip($button_select,$d->get("Draw a rectangular capture area with your mouse\nto select a specified screen area\nor select a window to capture its content"));
+$tooltip_select->set_tip($button_select,gettext("Draw a rectangular capture area with your mouse\nto select a specified screen area\nor select a window to capture its content"));
 
 $button_box->pack_start($button_select, TRUE, TRUE, 0);
 #############BUTTON_SELECT###################
 
 #############BUTTON_RAW######################
-my $button_raw = Gtk2::Button->new($d->get("Capture"));
+my $button_raw = Gtk2::Button->new(gettext("Capture"));
 $button_raw->signal_connect(clicked => \&event_handle, 'raw');
 
 my $image_raw = Gtk2::Image->new_from_icon_name ('gtk-fullscreen', 'dialog');
 $button_raw->set_image($image_raw);
 
 my $tooltip_raw = Gtk2::Tooltips->new;
-$tooltip_raw->set_tip($button_raw,$d->get("Take a screenshot of your whole desktop"));
+$tooltip_raw->set_tip($button_raw,gettext("Take a screenshot of your whole desktop"));
 
 $button_box->pack_start($button_raw, TRUE, TRUE, 0);
 #############BUTTON_RAW######################
 
 #############BUTTON_WEB######################
-my $button_web = Gtk2::Button->new($d->get("Capture\nwebsite"));
+my $button_web = Gtk2::Button->new(gettext("Capture\nwebsite"));
 $button_web->signal_connect(clicked => \&event_handle, 'web');
 
 my $image_web = Gtk2::Image->new_from_file ("$gscrot_path/share/gscrot/resources/icons/web_image.svg");
 $button_web->set_image($image_web);
 
 my $tooltip_web = Gtk2::Tooltips->new;
-$tooltip_web->set_tip($button_web,$d->get("Take a screenshot of a website"));
+$tooltip_web->set_tip($button_web,gettext("Take a screenshot of a website"));
 
 $button_box->pack_start($button_web, TRUE, TRUE, 0);
 #############BUTTON_WEB######################
@@ -242,27 +242,27 @@ $tray->show_all;
 
 #############SETTINGS######################
 my $file_frame_label = Gtk2::Label->new;
-$file_frame_label->set_markup($d->get("Image format"));
+$file_frame_label->set_markup(gettext("Image format"));
 my $file_frame = Gtk2::Frame->new();
 $file_frame->set_label_widget($file_frame_label);
 
 my $save_frame_label = Gtk2::Label->new;
-$save_frame_label->set_markup($d->get("Save"));
+$save_frame_label->set_markup(gettext("Save"));
 my $save_frame = Gtk2::Frame->new();
 $save_frame->set_label_widget($save_frame_label);
 
 my $actions_frame_label = Gtk2::Label->new;
-$actions_frame_label->set_markup($d->get("Actions"));
+$actions_frame_label->set_markup(gettext("Actions"));
 my $actions_frame = Gtk2::Frame->new();
 $actions_frame->set_label_widget($actions_frame_label);
 
 my $capture_frame_label = Gtk2::Label->new;
-$capture_frame_label->set_markup($d->get("Capture"));
+$capture_frame_label->set_markup(gettext("Capture"));
 my $capture_frame = Gtk2::Frame->new();
 $capture_frame->set_label_widget($capture_frame_label);
 
 my $scale_label = Gtk2::Label->new;
-$scale_label->set_text($d->get("Quality"));
+$scale_label->set_text(gettext("Quality"));
 
 my $scale = Gtk2::HScale->new_with_range(1, 100, 1);
 $scale->signal_connect('value-changed' => \&event_handle, 'quality_changed');
@@ -270,14 +270,14 @@ $scale->set_value_pos('right');
 $scale->set_value(75);
 
 my $tooltip_quality = Gtk2::Tooltips->new;
-$tooltip_quality->set_tip($scale,$d->get("Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)\n\nHint: When capturing a website\nadjusting compression level of png files\nis not supported yet"));
-$tooltip_quality->set_tip($scale_label,$d->get("Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)\n\nHint: When capturing a website\nadjusting compression level of png files\nis not supported yet"));
+$tooltip_quality->set_tip($scale,gettext("Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)\n\nHint: When capturing a website\nadjusting compression level of png files\nis not supported yet"));
+$tooltip_quality->set_tip($scale_label,gettext("Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)\n\nHint: When capturing a website\nadjusting compression level of png files\nis not supported yet"));
 $scale_box->pack_start($scale_label, FALSE, TRUE, 10);
 $scale_box->pack_start($scale, TRUE, TRUE, 10);
 
 #delay
 my $delay_label = Gtk2::Label->new;
-$delay_label->set_text($d->get("Delay"));
+$delay_label->set_text(gettext("Delay"));
 
 my $delay = Gtk2::HScale->new_with_range(1, 10, 1);
 $delay->signal_connect('value-changed' => \&event_handle, 'delay_changed');
@@ -290,9 +290,9 @@ $delay_active->set_active(TRUE);
 $delay_active->set_active(FALSE);
 
 my $tooltip_delay = Gtk2::Tooltips->new;
-$tooltip_delay->set_tip($delay,$d->get("Wait n seconds before taking a screenshot"));
-$tooltip_delay->set_tip($delay_active,$d->get("Wait n seconds before taking a screenshot"));
-$tooltip_delay->set_tip($delay_label,$d->get("Wait n seconds before taking a screenshot"));
+$tooltip_delay->set_tip($delay,gettext("Wait n seconds before taking a screenshot"));
+$tooltip_delay->set_tip($delay_active,gettext("Wait n seconds before taking a screenshot"));
+$tooltip_delay->set_tip($delay_label,gettext("Wait n seconds before taking a screenshot"));
 
 $delay_box->pack_start($delay_label, FALSE, TRUE, 10);
 $delay_box2->pack_start($delay_active, FALSE, FALSE, 0);
@@ -303,7 +303,7 @@ $delay_box->pack_start($delay_box2, TRUE, TRUE, 10);
 
 #thumbnail
 my $thumbnail_label = Gtk2::Label->new;
-$thumbnail_label->set_text($d->get("Thumbnail"));
+$thumbnail_label->set_text(gettext("Thumbnail"));
 
 my $thumbnail = Gtk2::HScale->new_with_range(1, 100, 1);
 $thumbnail->signal_connect('value-changed' => \&event_handle, 'thumbnail_changed');
@@ -316,9 +316,9 @@ $thumbnail_active->set_active(TRUE);
 $thumbnail_active->set_active(FALSE);
 
 my $tooltip_thumb = Gtk2::Tooltips->new;
-$tooltip_thumb->set_tip($thumbnail,$d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be"));
-$tooltip_thumb->set_tip($thumbnail_active,$d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be"));
-$tooltip_thumb->set_tip($thumbnail_label,$d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be"));
+$tooltip_thumb->set_tip($thumbnail,gettext("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be"));
+$tooltip_thumb->set_tip($thumbnail_active,gettext("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be"));
+$tooltip_thumb->set_tip($thumbnail_label,gettext("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be"));
 
 $thumbnail_box->pack_start($thumbnail_label, FALSE, TRUE, 10);
 $thumbnail_box2->pack_start($thumbnail_active, FALSE, FALSE, 0);
@@ -333,12 +333,12 @@ $filename->set_text("\%Y-\%m-\%d-\%T_\$wx\$h");
 $filename->signal_connect('move-cursor' => \&event_handle, 'cursor_moved');
 
 my $filename_label = Gtk2::Label->new;
-$filename_label->set_text($d->get("Filename"));
+$filename_label->set_text(gettext("Filename"));
 
 
 my $tooltip_filename = Gtk2::Tooltips->new;
-$tooltip_filename->set_tip($filename,$d->get("There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time\n\$w = width\n\$h = height"));
-$tooltip_filename->set_tip($filename_label,$d->get("There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time\n\$w = width\n\$h = height"));
+$tooltip_filename->set_tip($filename,gettext("There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time\n\$w = width\n\$h = height"));
+$tooltip_filename->set_tip($filename_label,gettext("There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time\n\$w = width\n\$h = height"));
 
 $filename_box->pack_start($filename_label, FALSE, TRUE, 10);
 $filename_box->pack_start($filename, TRUE, TRUE, 10);
@@ -352,11 +352,11 @@ $combobox_type->signal_connect('changed' => \&event_handle, 'type_changed');
 $combobox_type->set_active (1);
 
 my $filetype_label = Gtk2::Label->new;
-$filetype_label->set_text($d->get("Image format"));
+$filetype_label->set_text(gettext("Image format"));
 
 my $tooltip_filetype = Gtk2::Tooltips->new;
-$tooltip_filetype->set_tip($combobox_type,$d->get("Select a file format"));
-$tooltip_filetype->set_tip($filetype_label,$d->get("Select a file format"));
+$tooltip_filetype->set_tip($combobox_type,gettext("Select a file format"));
+$tooltip_filetype->set_tip($filetype_label,gettext("Select a file format"));
 
 $filetype_box->pack_start($filetype_label, FALSE, TRUE, 10);
 $filetype_box->pack_start($combobox_type, TRUE, TRUE, 10);
@@ -365,13 +365,13 @@ $filetype_box->pack_start($combobox_type, TRUE, TRUE, 10);
 
 #saveDir
 my $saveDir_label = Gtk2::Label->new;
-$saveDir_label->set_text($d->get("Directory"));
+$saveDir_label->set_text(gettext("Directory"));
 
 my $saveDir_button = Gtk2::FileChooserButton->new ('gscrot - Select a folder', 'select-folder');
 
 my $tooltip_saveDir = Gtk2::Tooltips->new;
-$tooltip_saveDir->set_tip($saveDir_button,$d->get("Your screenshots will be saved\nto this directory"));
-$tooltip_saveDir->set_tip($saveDir_label,$d->get("Your screenshots will be saved\nto this directory"));
+$tooltip_saveDir->set_tip($saveDir_button,gettext("Your screenshots will be saved\nto this directory"));
+$tooltip_saveDir->set_tip($saveDir_label,gettext("Your screenshots will be saved\nto this directory"));
 
 $saveDir_box->pack_start($saveDir_label, FALSE, TRUE, 10);
 $saveDir_box->pack_start($saveDir_button, TRUE, TRUE, 10);
@@ -406,12 +406,12 @@ $progname_active->signal_connect('toggled' => \&event_handle, 'progname_toggled'
 $progname_active->set_active($progname_active);
 
 my $progname_label = Gtk2::Label->new;
-$progname_label->set_text($d->get("Open with"));
+$progname_label->set_text(gettext("Open with"));
 
 my $tooltip_progname = Gtk2::Tooltips->new;
-$tooltip_progname->set_tip($progname,$d->get("Open your screenshot\nwith this program after capturing"));
-$tooltip_progname->set_tip($progname_active,$d->get("Open your screenshot\nwith this program after capturing"));
-$tooltip_progname->set_tip($progname_label,$d->get("Open your screenshot\nwith this program after capturing"));
+$tooltip_progname->set_tip($progname,gettext("Open your screenshot\nwith this program after capturing"));
+$tooltip_progname->set_tip($progname_active,gettext("Open your screenshot\nwith this program after capturing"));
+$tooltip_progname->set_tip($progname_label,gettext("Open your screenshot\nwith this program after capturing"));
 
 $progname_box->pack_start($progname_label, TRUE, TRUE, 10);
 $progname_box2->pack_start($progname_active, FALSE, TRUE, 0);
@@ -421,9 +421,9 @@ $progname_box->pack_start($progname_box2, TRUE, TRUE, 10);
 
 #im_colors
 my $combobox_im_colors = Gtk2::ComboBox->new_text;
-$combobox_im_colors->insert_text (0, $d->get("16 colors   - (4bit) "));
-$combobox_im_colors->insert_text (1, $d->get("64 colors   - (6bit) "));
-$combobox_im_colors->insert_text (2, $d->get("256 colors  - (8bit) "));
+$combobox_im_colors->insert_text (0, gettext("16 colors   - (4bit) "));
+$combobox_im_colors->insert_text (1, gettext("64 colors   - (6bit) "));
+$combobox_im_colors->insert_text (2, gettext("256 colors  - (8bit) "));
 
 $combobox_im_colors->signal_connect('changed' => \&event_handle, 'border_changed');
 $combobox_im_colors->set_active (2);
@@ -434,12 +434,12 @@ $im_colors_active->set_active(TRUE);
 $im_colors_active->set_active(FALSE);
 
 my $im_colors_label = Gtk2::Label->new;
-$im_colors_label->set_text($d->get("Reduce colors"));
+$im_colors_label->set_text(gettext("Reduce colors"));
 
 my $tooltip_im_colors = Gtk2::Tooltips->new;
-$tooltip_im_colors->set_tip($combobox_im_colors,$d->get("Automatically reduce colors \nafter taking a screenshot"));
-$tooltip_im_colors->set_tip($im_colors_active,$d->get("Automatically reduce colors \nafter taking a screenshot"));
-$tooltip_im_colors->set_tip($im_colors_label,$d->get("Automatically reduce colors \nafter taking a screenshot"));
+$tooltip_im_colors->set_tip($combobox_im_colors,gettext("Automatically reduce colors \nafter taking a screenshot"));
+$tooltip_im_colors->set_tip($im_colors_active,gettext("Automatically reduce colors \nafter taking a screenshot"));
+$tooltip_im_colors->set_tip($im_colors_label,gettext("Automatically reduce colors \nafter taking a screenshot"));
 
 $im_colors_box->pack_start($im_colors_label, TRUE, TRUE, 10);
 $im_colors_box2->pack_start($im_colors_active, FALSE, TRUE, 0);
@@ -449,18 +449,18 @@ $im_colors_box->pack_start($im_colors_box2, TRUE, TRUE, 10);
 
 #border
 my $combobox_border = Gtk2::ComboBox->new_text;
-$combobox_border->insert_text (1, $d->get("activate"));
-$combobox_border->insert_text (0, $d->get("deactivate"));
+$combobox_border->insert_text (1, gettext("activate"));
+$combobox_border->insert_text (0, gettext("deactivate"));
 $combobox_border->signal_connect('changed' => \&event_handle, 'border_changed');
 $combobox_border->set_active (0);
 
 my $border_label = Gtk2::Label->new;
-$border_label->set_text($d->get("Window border"));
+$border_label->set_text(gettext("Window border"));
 $border_label->set_justify('left');
 
 my $tooltip_border = Gtk2::Tooltips->new;
-$tooltip_border->set_tip($combobox_border,$d->get("When selecting a window, grab wm border too\n(capture with selection only)\nThere is no need of this option if you are using compiz"));
-$tooltip_border->set_tip($border_label,$d->get("When selecting a window, grab wm border too\n(capture with selection only)\nThere is no need of this option if you are using compiz"));
+$tooltip_border->set_tip($combobox_border,gettext("When selecting a window, grab wm border too\n(capture with selection only)\nThere is no need of this option if you are using compiz"));
+$tooltip_border->set_tip($border_label,gettext("When selecting a window, grab wm border too\n(capture with selection only)\nThere is no need of this option if you are using compiz"));
 
 $border_box->pack_start($border_label, FALSE, TRUE, 10);
 $border_box->pack_start($combobox_border, TRUE, TRUE, 10);
@@ -489,7 +489,7 @@ foreach (keys %plugins){
 my $effects_tree = Gtk2::TreeView->new_with_model ($effects_model);
 
 my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
-$tv_clmn_pix_text->set_title($d->get("Icon"));
+$tv_clmn_pix_text->set_title(gettext("Icon"));
 #pixbuf renderer
 my $renderer_pix_effects = Gtk2::CellRendererPixbuf->new;
 #pack it into the column
@@ -501,7 +501,7 @@ $tv_clmn_pix_text->set_attributes($renderer_pix_effects, pixbuf => 0);
 $effects_tree->append_column($tv_clmn_pix_text);
 
 my $tv_clmn_text_text = Gtk2::TreeViewColumn->new;
-$tv_clmn_text_text->set_title($d->get("Name"));
+$tv_clmn_text_text->set_title(gettext("Name"));
 #pixbuf renderer
 my $renderer_text_effects = Gtk2::CellRendererText->new;
 #pack it into the column
@@ -513,7 +513,7 @@ $tv_clmn_text_text->set_attributes($renderer_text_effects, text => 1);
 $effects_tree->append_column($tv_clmn_text_text);
 
 my $tv_clmn_category_text = Gtk2::TreeViewColumn->new;
-$tv_clmn_category_text->set_title($d->get("Category"));
+$tv_clmn_category_text->set_title(gettext("Category"));
 #pixbuf renderer
 my $renderer_category_effects = Gtk2::CellRendererText->new;
 #pack it into the column
@@ -525,7 +525,7 @@ $tv_clmn_category_text->set_attributes($renderer_category_effects, text => 3);
 $effects_tree->append_column($tv_clmn_category_text);
 
 my $tv_clmn_path_text = Gtk2::TreeViewColumn->new;
-$tv_clmn_path_text->set_title($d->get("Path"));
+$tv_clmn_path_text->set_title(gettext("Path"));
 #pixbuf renderer
 my $renderer_path_effects = Gtk2::CellRendererText->new;
 #pack it into the column
@@ -578,13 +578,13 @@ $scrolled_plugins_window->set_shadow_type ('in');
 $scrolled_plugins_window->add_with_viewport($vbox_plugins);
 
 my $label_basic = Gtk2::Label->new;
-$label_basic->set_markup ($d->get("<i>Basic Settings</i>"));
+$label_basic->set_markup (gettext("<i>Basic Settings</i>"));
 
 my $label_extras = Gtk2::Label->new;
-$label_extras->set_markup ($d->get("<i>Extras</i>"));
+$label_extras->set_markup (gettext("<i>Extras</i>"));
 
 my $label_plugins = Gtk2::Label->new;
-$label_plugins->set_markup ($d->get("<i>Plugins</i>"));
+$label_plugins->set_markup (gettext("<i>Plugins</i>"));
 
 my $notebook_settings_first = $notebook_settings->append_page ($vbox_basic,$label_basic);
 my $notebook_settings_second = $notebook_settings->append_page ($vbox_extras,$label_extras);
@@ -773,11 +773,11 @@ sub event_handle
 		if($filetype_value eq "jpeg"){
 			$scale->set_range(1,100);			
 			$scale->set_value(75);	
-			$scale_label->set_text($d->get("Quality"));			
+			$scale_label->set_text(gettext("Quality"));			
 		}elsif($filetype_value eq "png"){
 			$scale->set_range(0,9);				
 			$scale->set_value(9);
-			$scale_label->set_text($d->get("Compression"));					
+			$scale_label->set_text(gettext("Compression"));					
 		}
 	} 
 #capture desktop was chosen	
@@ -813,13 +813,13 @@ sub event_handle
 
 		system("xset b off") if $boff_cparam; #turns off the speaker if set as arg
 		if($data eq "raw" || $data eq "tray_raw"){
-			unless ($filename_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No valid filename specified")); return FALSE;};
+			unless ($filename_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message(gettext("No valid filename specified")); return FALSE;};
 			$scrot_feedback=`scrot '$folder/$filename_value.$filetype_value' -q $quality_value -d $delay_value $border_value $thumbnail_param $echo_cmd`;
 		}elsif($data eq "web" || $data eq "tray_web"){
 			my $url = &dialog_website;
 			return 0 unless $url;
 			my $hostname = $url; $hostname =~ s/http:\/\///;
-			if($hostname eq ""){&dialog_error_message($d->get("No valid url entered"));return 0;}
+			if($hostname eq ""){&dialog_error_message(gettext("No valid url entered"));return 0;}
 			#delay doesnt make much sense here, but it's implemented ;-)
 			if($delay_active->get_active){		
 				sleep $delay_value;
@@ -832,11 +832,11 @@ sub event_handle
 				$scrot_feedback = "$folder/$filename_value.$filetype_value";	
 				$width = &function_imagemagick_perform("get_width", $scrot_feedback, 0, $filetype_value);
 				$height = &function_imagemagick_perform("get_height", $scrot_feedback, 0, $filetype_value);
-				if ($width < 1 or $height < 1){&dialog_error_message($d->get("Could not determine file geometry"));return 0;}
+				if ($width < 1 or $height < 1){&dialog_error_message(gettext("Could not determine file geometry"));return 0;}
 				my $scrot_feedback_old = $scrot_feedback;
 				$scrot_feedback =~ s/\$w/$width/g;
 				$scrot_feedback =~ s/\$h/$height/g;
-				unless (rename($scrot_feedback_old, $scrot_feedback)){&dialog_error_message($d->get("Could not substitute wild-cards in filename"));return 0;}
+				unless (rename($scrot_feedback_old, $scrot_feedback)){&dialog_error_message(gettext("Could not substitute wild-cards in filename"));return 0;}
 			}else{
 				&dialog_error_message($scrot_feedback);return 0;	
 			}
@@ -855,7 +855,7 @@ sub event_handle
 				unless (&function_file_exists($scrot_feedback_thumbnail)){&dialog_error_message($d-get("Could not generate thumbnail"));exit;}	
 			}						
 		}else{
-			unless ($filename_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No valid filename specified")); return FALSE;};
+			unless ($filename_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message(gettext("No valid filename specified")); return FALSE;};
 			$scrot_feedback=`scrot '$folder/$filename_value.$filetype_value' --select -q $quality_value -d $delay_value $border_value $thumbnail_param $echo_cmd`;			
 		}
 		system("xset b on") if $boff_cparam; #turns on the speaker again if set as arg
@@ -864,7 +864,7 @@ sub event_handle
 		if (-f $scrot_feedback){
 			$scrot_feedback =~ s/$ENV{ HOME }/~/; #switch /home/username in path to ~ 
 			print "screenshot successfully saved to $scrot_feedback!\n" if $debug_cparam;
-			&dialog_status_message(1, "$scrot_feedback ".$d->get("saved"));
+			&dialog_status_message(1, "$scrot_feedback ".gettext("saved"));
 			#append a page to notebook using with label == filename
 			my ($second, $minute, $hour) = localtime();
 			my $theTime = "$hour:$minute:$second";
@@ -889,14 +889,14 @@ sub event_handle
 				my $model = $progname->get_model();
 				my $progname_iter = $progname->get_active_iter();
 				$progname_value = $model->get_value($progname_iter, 2);
-				unless ($progname_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No application specified to open the screenshot")); return FALSE;};
+				unless ($progname_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message(gettext("No application specified to open the screenshot")); return FALSE;};
 				system("$progname_value $scrot_feedback &"); #open picture in external program
 			}
 					
 		}else{
-			&dialog_error_message($d->get("file could not be saved")."\n$scrot_feedback");
+			&dialog_error_message(gettext("file could not be saved")."\n$scrot_feedback");
 			print "screenshot could not be saved\n$scrot_feedback!" if $debug_cparam;
-			&dialog_status_message(1, $scrot_feedback." ".$d->get("could not be saved"));
+			&dialog_status_message(1, $scrot_feedback." ".gettext("could not be saved"));
 		} 
 							
 	}
@@ -927,13 +927,13 @@ sub event_notebook_switch
 			$filename = $_->get_text();
 		}elsif ($_ =~ /^Gtk2::Label/ && $tab_index == 0){ #all tab
 			my $n_pages = keys(%session_screens);
-			$_->set_text($n_pages." ".$d->nget("screenshot during this session", "screenshots during this session", $n_pages));
+			$_->set_text($n_pages." ".ngettext("screenshot during this session", "screenshots during this session", $n_pages));
 		}elsif ($_ =~ /^Gtk2::Image/ && $tab_index != 0){#normal tab
 			if(&function_file_exists($filename)){	
 				$_->set_from_icon_name ('gtk-yes', 'menu');
 			}else{
 				$_->set_from_icon_name ('gtk-no', 'menu');
-				&dialog_status_message(1, $filename." ".$d->get("is not existing anymore"));
+				&dialog_status_message(1, $filename." ".gettext("is not existing anymore"));
 				$exists = FALSE;
 				foreach my $key(keys %session_screens){
 					delete($session_screens{$key}) if $session_screens{$key} eq $filename; # delete from hash	
@@ -965,7 +965,7 @@ sub event_delete_window
 		return FALSE;
 	}	
 
-	my $dialog_header = $d->get("Quit GScrot");
+	my $dialog_header = gettext("Quit GScrot");
  	my $dialog = Gtk2::Dialog->new ($dialog_header,
         						$window,
                               	[qw/modal destroy-with-parent/],
@@ -978,8 +978,8 @@ sub event_delete_window
 	my $exit_vbox = Gtk2::VBox->new(FALSE, 0);
 	my $exit_image = Gtk2::Image->new_from_icon_name ('gtk-dialog-question', 'dialog');
 	my $exit_label = Gtk2::Label->new();
-	$exit_label->set_text($d->get("Do you really want to quit GScrot?"));
-	my $ask_active = Gtk2::CheckButton->new_with_label($d->get("Do not ask this question again"));
+	$exit_label->set_text(gettext("Do you really want to quit GScrot?"));
+	my $ask_active = Gtk2::CheckButton->new_with_label(gettext("Do not ask this question again"));
 	$ask_active->set_active(FALSE);    
     $exit_vbox->pack_start($exit_label, TRUE, TRUE, 0);
     $exit_vbox->pack_start($ask_active, TRUE, TRUE, 0);    
@@ -994,9 +994,9 @@ sub event_delete_window
 	
 	if($ask_active->get_active){
 		$ask_at_close = 'FALSE';
-		open(FILE, ">>$ENV{ HOME }/.gscrot") or &dialog_status_message(1, $d->get("Settings could not be saved"));	
+		open(FILE, ">>$ENV{ HOME }/.gscrot") or &dialog_status_message(1, gettext("Settings could not be saved"));	
 		print FILE "CLOSE_ASK=".$ask_at_close."\n";
-		close(FILE) or &dialog_status_message(1, $d->get("Settings could not be saved"));
+		close(FILE) or &dialog_status_message(1, gettext("Settings could not be saved"));
 	}
 	if ($response eq "yes" ) {
 		$dialog->destroy() ;		
@@ -1077,13 +1077,13 @@ sub event_show_icon_menu
 	#right button (mouse)
 	elsif ($_[1]->button == 3) {
 	my $tray_menu = Gtk2::Menu->new();
-	my $menuitem_select = Gtk2::ImageMenuItem->new($d->get("Capture with selection"));
+	my $menuitem_select = Gtk2::ImageMenuItem->new(gettext("Capture with selection"));
 	$menuitem_select->set_image(Gtk2::Image->new_from_icon_name('gtk-cut', 'menu'));
-	my $menuitem_raw = Gtk2::ImageMenuItem->new($d->get("Capture"));
+	my $menuitem_raw = Gtk2::ImageMenuItem->new(gettext("Capture"));
 	$menuitem_raw->set_image(Gtk2::Image->new_from_icon_name('gtk-fullscreen', 'menu'));
-	my $menuitem_web = Gtk2::ImageMenuItem->new($d->get("Capture website"));
+	my $menuitem_web = Gtk2::ImageMenuItem->new(gettext("Capture website"));
 	$menuitem_web->set_image(Gtk2::Image->new_from_file ("$gscrot_path/share/gscrot/resources/icons/web_image.png"));
-	my $menuitem_quit = Gtk2::ImageMenuItem->new($d->get("Quit"));
+	my $menuitem_quit = Gtk2::ImageMenuItem->new(gettext("Quit"));
 	$menuitem_quit->set_image(Gtk2::Image->new_from_icon_name('gtk-quit', 'menu'));
 	$menuitem_quit->signal_connect("activate" , \&event_delete_window ,'menu_quit') ;
 	$menuitem_select->signal_connect(activate => \&event_handle, 'tray_select');
@@ -1125,7 +1125,7 @@ sub function_create_tab {
 	my $hbox_tab_actions2 = Gtk2::HBox->new(FALSE, 0);
 
 	my $n_pages = 0;
-	my $filename = $n_pages." ".$d->nget("screenshot during this session", "screenshots during this session", $n_pages);
+	my $filename = $n_pages." ".ngettext("screenshot during this session", "screenshots during this session", $n_pages);
 	$filename = $session_screens{$key} unless $is_all;
 	$n_pages = $notebook->get_n_pages() if $is_all;
 
@@ -1147,7 +1147,7 @@ sub function_create_tab {
 	$button_remove->set_image($image_remove);	
 
 	my $tooltip_remove = Gtk2::Tooltips->new;
-	$tooltip_remove->set_tip($button_remove,$d->get("Remove file(s) from session"));	
+	$tooltip_remove->set_tip($button_remove,gettext("Remove file(s) from session"));	
 
 	my $button_delete = Gtk2::Button->new;
 	$button_delete->signal_connect(clicked => \&event_in_tab, 'delete'.$key);
@@ -1155,7 +1155,7 @@ sub function_create_tab {
 	$button_delete->set_image($image_delete);	
 
 	my $tooltip_delete = Gtk2::Tooltips->new;
-	$tooltip_delete->set_tip($button_delete,$d->get("Delete file(s)"));
+	$tooltip_delete->set_tip($button_delete,gettext("Delete file(s)"));
 	
 	my $button_clipboard = Gtk2::Button->new;
 	$button_clipboard->signal_connect(clicked => \&event_in_tab, 'clipboard'.$key);
@@ -1163,7 +1163,7 @@ sub function_create_tab {
 	$button_clipboard->set_image($image_clipboard);
 
 	my $tooltip_clipboard = Gtk2::Tooltips->new;
-	$tooltip_clipboard->set_tip($button_clipboard,$d->get("Copy file(s) to clipboard"));
+	$tooltip_clipboard->set_tip($button_clipboard,gettext("Copy file(s) to clipboard"));
 
 	my $button_reopen = Gtk2::Button->new;
 	$button_reopen->signal_connect(clicked => \&event_in_tab, 'reopen'.$key);
@@ -1171,7 +1171,7 @@ sub function_create_tab {
 	$button_reopen->set_image($image_reopen);	
 
 	my $tooltip_reopen = Gtk2::Tooltips->new;
-	$tooltip_reopen->set_tip($button_reopen,$d->get("Open file(s)"));
+	$tooltip_reopen->set_tip($button_reopen,gettext("Open file(s)"));
 
 	my $button_upload = Gtk2::Button->new;
 	$button_upload->signal_connect(clicked => \&event_in_tab, 'upload'.$key);
@@ -1179,7 +1179,7 @@ sub function_create_tab {
 	$button_upload->set_image($image_upload);	
 
 	my $tooltip_upload = Gtk2::Tooltips->new;
-	$tooltip_upload->set_tip($button_upload,$d->get("Upload file to ubuntu-pics.de"));
+	$tooltip_upload->set_tip($button_upload,gettext("Upload file to ubuntu-pics.de"));
 
 	my $button_rename = Gtk2::Button->new;
 	$button_rename->signal_connect(clicked => \&event_in_tab, 'rename'.$key);
@@ -1187,7 +1187,7 @@ sub function_create_tab {
 	$button_rename->set_image($image_rename);	
 
 	my $tooltip_rename = Gtk2::Tooltips->new;
-	$tooltip_rename->set_tip($button_rename,$d->get("Rename file"));
+	$tooltip_rename->set_tip($button_rename,gettext("Rename file"));
 	
 	my $button_plugin = Gtk2::Button->new;
 	$button_plugin->signal_connect(clicked => \&event_in_tab, 'plugin'.$key);
@@ -1195,7 +1195,7 @@ sub function_create_tab {
 	$button_plugin->set_image($image_plugin);	
 
 	my $tooltip_plugin = Gtk2::Tooltips->new;
-	$tooltip_plugin->set_tip($button_plugin,$d->get("Execute a plugin"));
+	$tooltip_plugin->set_tip($button_plugin,gettext("Execute a plugin"));
 
 	my $button_print = Gtk2::Button->new;
 	$button_print->signal_connect(clicked => \&event_in_tab, 'print'.$key);
@@ -1203,7 +1203,7 @@ sub function_create_tab {
 	$button_print->set_image($image_print);	
 
 	my $tooltip_print = Gtk2::Tooltips->new;
-	$tooltip_print->set_tip($button_print,$d->get("Print file(s)"));
+	$tooltip_print->set_tip($button_print,gettext("Print file(s)"));
 
 	#packing
 	$hbox_tab_file->pack_start($exists_status, TRUE, TRUE, 1);
@@ -1244,14 +1244,14 @@ sub event_in_tab
 		$data =~ s/^print//;
 		my $current_file = &function_switch_home_in_file($session_screens{$data});
 		system("gtklp $current_file &");
-		&dialog_status_message(1, $session_screens{$data}." ".$d->get("will be printed"));
+		&dialog_status_message(1, $session_screens{$data}." ".gettext("will be printed"));
 	}
 
 	if ($data =~ m/^delete\[/){
 		$data =~ s/^delete//;
 		unlink(&function_switch_home_in_file($session_screens{$data})); #delete file
 		$notebook->remove_page($notebook->get_current_page); #delete tab
-		&dialog_status_message(1, $session_screens{$data}." ".$d->get("deleted"));
+		&dialog_status_message(1, $session_screens{$data}." ".gettext("deleted"));
 		delete($session_screens{$data}); # delete from hash
 		
 		&function_update_first_tab();
@@ -1262,7 +1262,7 @@ sub event_in_tab
 	if ($data =~ m/^remove\[/){
 		$data =~ s/^remove//;
 		$notebook->remove_page($notebook->get_current_page); #delete tab
-		&dialog_status_message(1, $session_screens{$data}." ".$d->get("removed from session")) if defined($session_screens{$data});
+		&dialog_status_message(1, $session_screens{$data}." ".gettext("removed from session")) if defined($session_screens{$data});
 		delete($session_screens{$data}); # delete from hash
 		
 		&function_update_first_tab();
@@ -1275,9 +1275,9 @@ sub event_in_tab
 		my $model = $progname->get_model();
 		my $progname_iter = $progname->get_active_iter();
 		my $progname_value = $model->get_value($progname_iter, 2);
-		unless ($progname_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No application specified to open the screenshot")); return FALSE;};
+		unless ($progname_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message(gettext("No application specified to open the screenshot")); return FALSE;};
 		system($progname_value." ".$session_screens{$data}." &");
-		&dialog_status_message(1, $session_screens{$data}." ".$d->get("opened with")." ".$progname_value);
+		&dialog_status_message(1, $session_screens{$data}." ".gettext("opened with")." ".$progname_value);
 	}
 
 	if ($data =~ m/^upload\[/){
@@ -1289,20 +1289,20 @@ sub event_in_tab
 		}else{
 			&dialog_error_message($upload_response{'status'});	
 		}			
-		&dialog_status_message(1, $session_screens{$data}." ".$d->get("uploaded"));
+		&dialog_status_message(1, $session_screens{$data}." ".gettext("uploaded"));
 	}
 	
 	if ($data =~ m/^rename\[/){
 		$data =~ s/^rename//;
-		&dialog_status_message(1, $session_screens{$data}." ".$d->get("renamed")) if &dialog_rename($session_screens{$data}, $data);
+		&dialog_status_message(1, $session_screens{$data}." ".gettext("renamed")) if &dialog_rename($session_screens{$data}, $data);
 	}
 
 	if ($data =~ m/^plugin\[/){
 		$data =~ s/^plugin//;
 		if (keys %plugins > 0){
-			&dialog_status_message(1, $session_screens{$data}." ".$d->get("executed by plugin")) if &dialog_plugin($session_screens{$data}, $data);
+			&dialog_status_message(1, $session_screens{$data}." ".gettext("executed by plugin")) if &dialog_plugin($session_screens{$data}, $data);
 		}else{
-			&dialog_error_message($d->get("No plugin installed"));	
+			&dialog_error_message(gettext("No plugin installed"));	
 		}
 	}
 
@@ -1310,7 +1310,7 @@ sub event_in_tab
 		$data =~ s/^clipboard//;
 		my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file (&function_switch_home_in_file($session_screens{$data}) );
 		$clipboard->set_image($pixbuf);
-		&dialog_status_message(1, $session_screens{$data}." ".$d->get("copied to clipboard"));
+		&dialog_status_message(1, $session_screens{$data}." ".gettext("copied to clipboard"));
 	}
 
 #all screenshots
@@ -1324,7 +1324,7 @@ sub event_in_tab
 			$n_pages--;
 			$notebook->remove_page($n_pages);		
 		}
-		&dialog_status_message(1, $d->get("All screenshots deleted"));
+		&dialog_status_message(1, gettext("All screenshots deleted"));
 		&function_update_first_tab;
 		$window->show_all;
 	}
@@ -1338,7 +1338,7 @@ sub event_in_tab
 			$n_pages--;
 			$notebook->remove_page($n_pages);		
 		}
-		&dialog_status_message(1, $d->get("All screenshots removed"));
+		&dialog_status_message(1, gettext("All screenshots removed"));
 		&function_update_first_tab;
 		$window->show_all;
 	}
@@ -1348,7 +1348,7 @@ sub event_in_tab
 		my $progname_iter = $progname->get_active_iter();
 		my $progname_value = $model->get_value($progname_iter, 2);
 		my $open_files;
-		unless ($progname_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No application specified to open the screenshot")); return FALSE;};
+		unless ($progname_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message(gettext("No application specified to open the screenshot")); return FALSE;};
 		if($progname_value =~ /gimp/){
 			foreach my $key(keys %session_screens){
 				$open_files .= &function_switch_home_in_file($session_screens{$key})." ";
@@ -1359,7 +1359,7 @@ sub event_in_tab
 				system($progname_value." ".&function_switch_home_in_file($session_screens{$key})." &");
 			}			
 		}
-		&dialog_status_message(1, $d->get("Opened all files with")." ".$progname_value);
+		&dialog_status_message(1, gettext("Opened all files with")." ".$progname_value);
 	}	
 
 	if ($data =~ m/^print$/){ #tab == all
@@ -1368,7 +1368,7 @@ sub event_in_tab
 			$print_files .= &function_switch_home_in_file($session_screens{$key})." ";
 		}
 		system("gtklp $print_files &");
-		&dialog_status_message(1, $d->get("Printing all screenshots"));
+		&dialog_status_message(1, gettext("Printing all screenshots"));
 	}
 }
 ####################SAVE AND REVERT################################
@@ -1380,7 +1380,7 @@ sub event_settings
 #save?
 	if($data eq "menu_save"){
 		if(-e "$ENV{ HOME }/.gscrot/settings.conf" && -w "$ENV{ HOME }/.gscrot/settings.conf"){
-			if (&dialog_question_message($d->get("Do you want to overwrite the existing settings?"))){ #ask is settings-file exists
+			if (&dialog_question_message(gettext("Do you want to overwrite the existing settings?"))){ #ask is settings-file exists
 				&function_save_settings;
 			}
 		}else{
@@ -1390,7 +1390,7 @@ sub event_settings
 		if(-e "$ENV{ HOME }/.gscrot/settings.conf" && -r "$ENV{ HOME }/.gscrot/settings.conf"){
 			&function_load_settings;
 		}else{
-			&dialog_info_message($d->get("There are no stored settings"));
+			&dialog_info_message(gettext("There are no stored settings"));
 		}
 	}	
 	
@@ -1399,7 +1399,7 @@ sub event_settings
 #save settings to file
 sub function_save_settings
 {
-	open(FILE, ">$ENV{ HOME }/.gscrot/settings.conf") or &dialog_error_message(1, $d->get("Settings could not be saved"));	
+	open(FILE, ">$ENV{ HOME }/.gscrot/settings.conf") or &dialog_error_message(1, gettext("Settings could not be saved"));	
 	print FILE "FTYPE=".$combobox_type->get_active."\n";
 	print FILE "QSCALE=".$scale->get_value()."\n";
 	print FILE "FNAME=".$filename->get_text()."\n";
@@ -1417,18 +1417,18 @@ sub function_save_settings
 	print FILE "THUMB_ACT=".$thumbnail_active->get_active()."\n";
 	print FILE "BORDER=".$combobox_border->get_active()."\n";
 	print FILE "CLOSE_ASK=".$ask_at_close."\n";
-	close(FILE) or &dialog_error_message(1, $d->get("Settings could not be saved"));
+	close(FILE) or &dialog_error_message(1, gettext("Settings could not be saved"));
 
 
- 	$statusbar->push (1, $d->get("Settings saved successfully"));
+ 	$statusbar->push (1, gettext("Settings saved successfully"));
 }
 
 sub function_load_settings
 {
 	my @settings_file;
-	open(FILE, "$ENV{ HOME }/.gscrot/settings.conf") or &dialog_status_message(1, $d->get("Settings could not be loaded"));	
+	open(FILE, "$ENV{ HOME }/.gscrot/settings.conf") or &dialog_status_message(1, gettext("Settings could not be loaded"));	
 	@settings_file = <FILE>;
-	close(FILE) or &dialog_status_message(1, $d->get("Settings could not be loaded"));
+	close(FILE) or &dialog_status_message(1, gettext("Settings could not be loaded"));
 
 	foreach (@settings_file){
 		chomp;
@@ -1482,7 +1482,7 @@ sub function_load_settings
 
 	}
 
-	&dialog_status_message(1, $d->get("Settings loaded successfully"));
+	&dialog_status_message(1, gettext("Settings loaded successfully"));
 }
 
 ####################SAVE AND REVERT################################
@@ -1544,7 +1544,7 @@ sub dialog_question_message
 sub dialog_rename
 {
 	my ($dialog_rename_text, $data) = @_;
-	my $dialog_header = $d->get("Rename file");
+	my $dialog_header = gettext("Rename file");
  	my $input_dialog = Gtk2::Dialog->new ($dialog_header,
         						$window,
                               	[qw/modal destroy-with-parent/],
@@ -1569,7 +1569,7 @@ sub dialog_rename
 			unless(&function_file_exists($dialog_rename_text)){
 				rename(&function_switch_home_in_file($old_file_name_full), &function_switch_home_in_file($dialog_rename_text));
 			}else{
-				&dialog_error_message($d->get("File already exists,\nplease choose an alternative filename!"));	
+				&dialog_error_message(gettext("File already exists,\nplease choose an alternative filename!"));	
 				$input_dialog->destroy();		
 				return FALSE;			
 			}
@@ -1588,7 +1588,7 @@ sub dialog_rename
 sub dialog_plugin
 {
 	my ($dialog_plugin_text, $data) = @_;
-	my $dialog_header = $d->get("Choose a plugin");
+	my $dialog_header = gettext("Choose a plugin");
  	my $plugin_dialog = Gtk2::Dialog->new ($dialog_header,
         						$window,
                               	[qw/modal destroy-with-parent/],
@@ -1634,7 +1634,7 @@ sub dialog_plugin
 		my $plugin_iter = $plugin->get_active_iter();
 		my $plugin_value = $model->get_value($plugin_iter, 2);
 		my $plugin_name = $model->get_value($plugin_iter, 1);
-		unless ($plugin_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No plugin specified")); return FALSE;};
+		unless ($plugin_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message(gettext("No plugin specified")); return FALSE;};
 		my $width = &function_imagemagick_perform("get_width", $dialog_plugin_text, 0, "");
 		my $height = &function_imagemagick_perform("get_height", $dialog_plugin_text, 0, "");
 		$dialog_plugin_text =~ /.*\.(.*)$/;
@@ -1656,7 +1656,7 @@ sub dialog_plugin
 
 sub dialog_website
 {
-	my $dialog_header = $d->get("URL to capture");
+	my $dialog_header = gettext("URL to capture");
  	my $website_dialog = Gtk2::Dialog->new ($dialog_header,
         						$window,
                               	[qw/modal destroy-with-parent/],
@@ -1685,7 +1685,7 @@ sub dialog_website
 sub dialog_upload_links
 {
 	my ($thumb1, $thumb2, $bbcode, $direct, $status) = @_;
-	my $dialog_header = $d->get("Upload");
+	my $dialog_header = gettext("Upload");
  	my $upload_dialog = Gtk2::Dialog->new ($dialog_header,
         						$window,
                               	[qw/modal destroy-with-parent/],
@@ -1698,7 +1698,7 @@ sub dialog_upload_links
 	my $upload_vbox = Gtk2::VBox->new(FALSE, 0);
 	
 	my $label_status = Gtk2::Label->new();
-	$label_status->set_text($d->get("Upload status:")." ".status_message($status));	
+	$label_status->set_text(gettext("Upload status:")." ".status_message($status));	
 	my $image_status;
 	if (is_success($status)){
 		$image_status = Gtk2::Image->new_from_icon_name ('gtk-yes', 'menu');
@@ -1718,10 +1718,10 @@ sub dialog_upload_links
 	my $label_bbcode = Gtk2::Label->new();
 	my $label_direct = Gtk2::Label->new();
 
-	$label_thumb1->set_text($d->get("Thumbnail for websites (with border)"));
-	$label_thumb2->set_text($d->get("Thumbnail for websites (without border)"));
-	$label_bbcode->set_text($d->get("Thumbnail for forums"));
-	$label_direct->set_text($d->get("Direct link"));
+	$label_thumb1->set_text(gettext("Thumbnail for websites (with border)"));
+	$label_thumb2->set_text(gettext("Thumbnail for websites (without border)"));
+	$label_bbcode->set_text(gettext("Thumbnail for forums"));
+	$label_direct->set_text(gettext("Direct link"));
 
 	$entry_thumb1->set_text($thumb1);
 	$entry_thumb2->set_text($thumb2);
@@ -1785,7 +1785,7 @@ sub function_update_first_tab
 	my $n_pages = keys(%session_screens); 
 	foreach (@hbox_content){
 		if( $_ =~ /^Gtk2::Label/ ){
-			$_->set_text($n_pages." ".$d->nget("screenshot during this session", "screenshots during this session", $n_pages));
+			$_->set_text($n_pages." ".ngettext("screenshot during this session", "screenshots during this session", $n_pages));
 		}elsif( $_ =~ /^Gtk2::Button/ && $n_pages == 0){
 			$_->set_sensitive(FALSE);	
 		}elsif( $_ =~ /^Gtk2::Button/ && $n_pages > 0){
