@@ -482,7 +482,7 @@ if (keys(%plugins) > 0){
 			#get translated plugin-name
 			$plugins{$_}->{'name'} = `$plugins{$_}->{'binary'} name`;
 			$plugins{$_}->{'category'} = `$plugins{$_}->{'binary'} sort`;
-			#$plugins{$_}->{'tooltip'} = `$plugins{$_}->{'binary'} tip`;
+			$plugins{$_}->{'tooltip'} = `$plugins{$_}->{'binary'} tip`;
 			chomp($plugins{$_}->{'name'}); chomp($plugins{$_}->{'category'});
 			$effects_model->set ($effects_model->append, 0, $pixbuf , 1, $plugins{$_}->{'name'}, 2, $plugins{$_}->{'binary'}, 3, $plugins{$_}->{'category'}, 4, $plugins{$_}->{'tooltip'});				
 		}else{
@@ -1056,7 +1056,7 @@ sub event_about
 	$about->set_website_label($website);
 	$about->set_website($website);
 	$about->set_email_hook(\&function_gnome_open_mail);
-	$about->set_authors("Mario Kemper <mario.kemper\@gmx.de>\n\nPlugins:\nMartin Rabeneck (cornix) <martinrabeneck\@gmx.net>");
+	$about->set_authors("Mario Kemper <mario.kemper\@gmx.de>\n\nPlugins:\nMartin Rabeneck (cornix) <martinrabeneck\@gmx.net>\n\nubuntu-pics.de:\nRene Hennig <Rene.Hennig\@my-united.net>");
 	$about->set_artists("Arne Weinberg","Pascal Grochol <pg0803\@gmail.com>");
 	$about->set_translator_credits ("German: Mario Kemper <mario.kemper\@gmx.de>\nRussian: Michael Kogan (PhotonX)");	
 	$about->set_copyright ($all_hints);
@@ -1627,7 +1627,7 @@ sub dialog_plugin
 			}
 			#get translated plugin-name
 			$plugins{$_}->{'name'} = `$plugins{$_}->{'binary'} name`;
-			$plugins{$_}->{'category'} = `$plugins{$_}->{'binary'} sort`; 
+			$plugins{$_}->{'category'} = `$plugins{$_}->{'binary'} sort`;
 			chomp($plugins{$_}->{'name'}); chomp($plugins{$_}->{'category'});
 			$model->set ($model->append, 0, $pixbuf , 1, $plugins{$_}->{'name'}, 2, $plugins{$_}->{'binary'});				
 		}else{
