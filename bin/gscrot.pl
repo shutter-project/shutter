@@ -487,6 +487,7 @@ foreach (keys %plugins){
 }
 
 my $effects_tree = Gtk2::TreeView->new_with_model ($effects_model);
+$effects_tree->signal_connect('row-activated' => \&event_plugins, 'row_activated');
 
 my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
 $tv_clmn_pix_text->set_title($d->get("Icon"));
@@ -1111,6 +1112,17 @@ sub event_show_icon_menu
 	}
 	return 1;	
 }
+
+
+#notebook plugins - events are handled here
+sub event_plugins
+{
+	my ($tree, $path, $column) = @_;
+	
+ 	print "Tree: $tree, Path: $path, Column: $column\n";
+
+}
+
 
 sub function_create_tab {
 	my ($key, $is_all) = @_;
