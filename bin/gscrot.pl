@@ -145,19 +145,19 @@ my $menu2 = Gtk2::Menu->new() ;
 
 my $menuitem_selection = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("Capture with selection")) ;
 $menuitem_selection->set_image(Gtk2::Image->new_from_icon_name('gtk-cut', 'menu'));
-$menuitem_selection->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ S }, qw/shift-mask/, qw/visible/);
+$menuitem_selection->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ S }, qw/mod1-mask/, qw/visible/);
 $menu2->append($menuitem_selection) ;
 $menuitem_selection->signal_connect("activate" , \&event_handle, 'select') ;
 
 my $menuitem_raw = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("Capture")) ;
 $menuitem_raw->set_image(Gtk2::Image->new_from_icon_name('gtk-fullscreen', 'menu'));
-$menuitem_raw->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ F }, qw/shift-mask/, qw/visible/);
+$menuitem_raw->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ F }, qw/mod1-mask/, qw/visible/);
 $menu2->append($menuitem_raw) ;
 $menuitem_raw->signal_connect("activate" , \&event_handle, 'raw') ;
 
 my $menuitem_web = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("Capture website")) ;
 $menuitem_web->set_image(Gtk2::Image->new_from_file ("$gscrot_path/share/gscrot/resources/icons/web_image.png"));
-$menuitem_web->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ W }, qw/shift-mask/, qw/visible/);
+$menuitem_web->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ W }, qw/mod1-mask/, qw/visible/);
 $menu2->append($menuitem_web) ;
 $menuitem_web->signal_connect("activate" , \&event_handle, 'web') ;
 
@@ -466,79 +466,84 @@ $border_box->pack_start($border_label, FALSE, TRUE, 10);
 $border_box->pack_start($combobox_border, TRUE, TRUE, 10);
 #end - border
 
-#plugins-effects
-my $effects_model = Gtk2::ListStore->new ('Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String', 'Glib::String');
-foreach (keys %plugins){
-	if($plugins{$_}->{'binary'} ne ""){
-		my $pixbuf; 
-		if (-f $plugins{$_}->{'pixmap'}){
-			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ($plugins{$_}->{'pixmap'}, 20, 20);
+#this is only important, if there are any plugins
+my $effects_tree;
+if (keys(%plugins) > 0){
+	#plugins-effects
+	my $effects_model = Gtk2::ListStore->new ('Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String');
+	foreach (keys %plugins){
+		if($plugins{$_}->{'binary'} ne ""){
+			my $pixbuf; 
+			if (-f $plugins{$_}->{'pixmap'}){
+				$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ($plugins{$_}->{'pixmap'}, 20, 20);
+			}else{
+				$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/executable.svg", 20, 20);
+			} 
+			#get translated plugin-name
+			$plugins{$_}->{'name'} = `$plugins{$_}->{'binary'} name`;
+			$plugins{$_}->{'category'} = `$plugins{$_}->{'binary'} sort`;
+			#$plugins{$_}->{'tooltip'} = `$plugins{$_}->{'binary'} tip`;
+			chomp($plugins{$_}->{'name'}); chomp($plugins{$_}->{'category'});
+			$effects_model->set ($effects_model->append, 0, $pixbuf , 1, $plugins{$_}->{'name'}, 2, $plugins{$_}->{'binary'}, 3, $plugins{$_}->{'category'}, 4, $plugins{$_}->{'tooltip'});				
 		}else{
-			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/executable.svg", 20, 20);
-		} 
-		#get translated plugin-name
-		$plugins{$_}->{'name'} = `$plugins{$_}->{'binary'} name`;
-		$plugins{$_}->{'category'} = `$plugins{$_}->{'binary'} sort`;
-		chomp($plugins{$_}->{'name'}); chomp($plugins{$_}->{'category'});
-		$effects_model->set ($effects_model->append, 0, $pixbuf , 1, $plugins{$_}->{'name'}, 2, $plugins{$_}->{'binary'}, 3, $plugins{$_}->{'category'});				
-	}else{
-		print "WARNING: Program $_ is not configured properly, ignoring\n";	
-	}	
+			print "WARNING: Program $_ is not configured properly, ignoring\n";	
+		}	
+	}
+
+	$effects_tree = Gtk2::TreeView->new_with_model ($effects_model);
+	$effects_tree->signal_connect('row-activated' => \&event_plugins, 'row_activated');
+	$effects_tree->set_has_tooltip(TRUE);
+	$effects_tree->set_tooltip_column(4);
+	 
+	my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
+	$tv_clmn_pix_text->set_title($d->get("Icon"));
+	#pixbuf renderer
+	my $renderer_pix_effects = Gtk2::CellRendererPixbuf->new;
+	#pack it into the column
+	$tv_clmn_pix_text->pack_start ($renderer_pix_effects, FALSE);
+	#set its atributes
+	$tv_clmn_pix_text->set_attributes($renderer_pix_effects, pixbuf => 0);
+
+	#append this column to the treeview
+	$effects_tree->append_column($tv_clmn_pix_text);
+
+	my $tv_clmn_text_text = Gtk2::TreeViewColumn->new;
+	$tv_clmn_text_text->set_title($d->get("Name"));
+	#pixbuf renderer
+	my $renderer_text_effects = Gtk2::CellRendererText->new;
+	#pack it into the column
+	$tv_clmn_text_text->pack_start ($renderer_text_effects, FALSE);
+	#set its atributes
+	$tv_clmn_text_text->set_attributes($renderer_text_effects, text => 1);
+
+	#append this column to the treeview
+	$effects_tree->append_column($tv_clmn_text_text);
+
+	my $tv_clmn_category_text = Gtk2::TreeViewColumn->new;
+	$tv_clmn_category_text->set_title($d->get("Category"));
+	#pixbuf renderer
+	my $renderer_category_effects = Gtk2::CellRendererText->new;
+	#pack it into the column
+	$tv_clmn_category_text->pack_start ($renderer_category_effects, FALSE);
+	#set its atributes
+	$tv_clmn_category_text->set_attributes($renderer_category_effects, text => 3);
+
+	#append this column to the treeview
+	$effects_tree->append_column($tv_clmn_category_text);
+
+	my $tv_clmn_path_text = Gtk2::TreeViewColumn->new;
+	$tv_clmn_path_text->set_title($d->get("Path"));
+	#pixbuf renderer
+	my $renderer_path_effects = Gtk2::CellRendererText->new;
+	#pack it into the column
+	$tv_clmn_path_text->pack_start ($renderer_path_effects, FALSE);
+	#set its atributes
+	$tv_clmn_path_text->set_attributes($renderer_path_effects, text => 2);
+
+	#append this column to the treeview
+	$effects_tree->append_column($tv_clmn_path_text);
+
 }
-
-my $effects_tree = Gtk2::TreeView->new_with_model ($effects_model);
-$effects_tree->signal_connect('row-activated' => \&event_plugins, 'row_activated');
-
-my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
-$tv_clmn_pix_text->set_title($d->get("Icon"));
-#pixbuf renderer
-my $renderer_pix_effects = Gtk2::CellRendererPixbuf->new;
-#pack it into the column
-$tv_clmn_pix_text->pack_start ($renderer_pix_effects, FALSE);
-#set its atributes
-$tv_clmn_pix_text->set_attributes($renderer_pix_effects, pixbuf => 0);
-
-#append this column to the treeview
-$effects_tree->append_column($tv_clmn_pix_text);
-
-my $tv_clmn_text_text = Gtk2::TreeViewColumn->new;
-$tv_clmn_text_text->set_title($d->get("Name"));
-#pixbuf renderer
-my $renderer_text_effects = Gtk2::CellRendererText->new;
-#pack it into the column
-$tv_clmn_text_text->pack_start ($renderer_text_effects, FALSE);
-#set its atributes
-$tv_clmn_text_text->set_attributes($renderer_text_effects, text => 1);
-
-#append this column to the treeview
-$effects_tree->append_column($tv_clmn_text_text);
-
-my $tv_clmn_category_text = Gtk2::TreeViewColumn->new;
-$tv_clmn_category_text->set_title($d->get("Category"));
-#pixbuf renderer
-my $renderer_category_effects = Gtk2::CellRendererText->new;
-#pack it into the column
-$tv_clmn_category_text->pack_start ($renderer_category_effects, FALSE);
-#set its atributes
-$tv_clmn_category_text->set_attributes($renderer_category_effects, text => 3);
-
-#append this column to the treeview
-$effects_tree->append_column($tv_clmn_category_text);
-
-my $tv_clmn_path_text = Gtk2::TreeViewColumn->new;
-$tv_clmn_path_text->set_title($d->get("Path"));
-#pixbuf renderer
-my $renderer_path_effects = Gtk2::CellRendererText->new;
-#pack it into the column
-$tv_clmn_path_text->pack_start ($renderer_path_effects, FALSE);
-#set its atributes
-$tv_clmn_path_text->set_attributes($renderer_path_effects, text => 2);
-
-#append this column to the treeview
-$effects_tree->append_column($tv_clmn_path_text);
-
-
-
 #############SETTINGS######################
 
 
@@ -564,32 +569,36 @@ $actions_vbox->pack_start($progname_box, TRUE, TRUE, 1);
 $actions_vbox->pack_start($im_colors_box, TRUE, TRUE, 1);
 $actions_frame->add($actions_vbox);
 
-$vbox_extras->pack_start($actions_frame, TRUE, TRUE, 1);
-$vbox_extras->pack_start($capture_frame, TRUE, TRUE, 1);
-$vbox_extras->set_border_width(5);
-
-$effects_vbox->pack_start($effects_tree, TRUE, TRUE, 1);
-
-$vbox_plugins->pack_start($effects_vbox, TRUE, TRUE, 1);
-$vbox_plugins->set_border_width(5);
-
-my $scrolled_plugins_window = Gtk2::ScrolledWindow->new;
-$scrolled_plugins_window->set_policy ('automatic', 'automatic');
-$scrolled_plugins_window->set_shadow_type ('in');
-$scrolled_plugins_window->add_with_viewport($vbox_plugins);
-
 my $label_basic = Gtk2::Label->new;
 $label_basic->set_markup ($d->get("<i>Basic Settings</i>"));
 
 my $label_extras = Gtk2::Label->new;
 $label_extras->set_markup ($d->get("<i>Extras</i>"));
 
-my $label_plugins = Gtk2::Label->new;
-$label_plugins->set_markup ($d->get("<i>Plugins</i>"));
-
 my $notebook_settings_first = $notebook_settings->append_page ($vbox_basic,$label_basic);
 my $notebook_settings_second = $notebook_settings->append_page ($vbox_extras,$label_extras);
-my $notebook_settings_third = $notebook_settings->append_page ($scrolled_plugins_window,$label_plugins);
+
+$vbox_extras->pack_start($actions_frame, TRUE, TRUE, 1);
+$vbox_extras->pack_start($capture_frame, TRUE, TRUE, 1);
+$vbox_extras->set_border_width(5);
+
+
+if (keys(%plugins) > 0){
+	$effects_vbox->pack_start($effects_tree, TRUE, TRUE, 1);
+
+	$vbox_plugins->pack_start($effects_vbox, TRUE, TRUE, 1);
+	$vbox_plugins->set_border_width(5);
+
+	my $scrolled_plugins_window = Gtk2::ScrolledWindow->new;
+	$scrolled_plugins_window->set_policy ('automatic', 'automatic');
+	$scrolled_plugins_window->set_shadow_type ('in');
+	$scrolled_plugins_window->add_with_viewport($vbox_plugins);
+
+	my $label_plugins = Gtk2::Label->new;
+	$label_plugins->set_markup ($d->get("<i>Plugins</i>"));
+
+	my $notebook_settings_third = $notebook_settings->append_page ($scrolled_plugins_window,$label_plugins);
+}
 
 $vbox_inner->pack_start($notebook_settings, FALSE, FALSE, 1);
 $vbox_inner->pack_start($notebook, TRUE, TRUE, 1);
@@ -702,7 +711,7 @@ sub function_init
 		print "\nINFO: using custom program settings found at $ENV{ 'HOME' }/.gscrot/programs.conf\n";
 		%gm_programs = do "$ENV{ 'HOME' }/.gscrot/programs.conf";
 	}
-	%plugins = do "$gscrot_path/share/gscrot/resources/system/plugins.conf";
+	%plugins = do "$gscrot_path/share/gscrot/resources/system/plugins.conf" if (-f "$gscrot_path/share/gscrot/resources/system/plugins.conf");
 	if (-f "$ENV{ 'HOME' }/.gscrot/plugins.conf"){
 		print "\nINFO: using custom program settings found at $ENV{ 'HOME' }/.gscrot/plugins.conf\n";
 		%plugins = do "$ENV{ 'HOME' }/.gscrot/plugins.conf";
@@ -995,7 +1004,7 @@ sub event_delete_window
 	
 	if($ask_active->get_active){
 		$ask_at_close = 'FALSE';
-		open(FILE, ">>$ENV{ HOME }/.gscrot") or &dialog_status_message(1, $d->get("Settings could not be saved"));	
+		open(FILE, ">>$ENV{ HOME }/.gscrot/settings.conf") or &dialog_status_message(1, $d->get("Settings could not be saved"));	
 		print FILE "CLOSE_ASK=".$ask_at_close."\n";
 		close(FILE) or &dialog_status_message(1, $d->get("Settings could not be saved"));
 	}
@@ -1047,8 +1056,9 @@ sub event_about
 	$about->set_website_label($website);
 	$about->set_website($website);
 	$about->set_email_hook(\&function_gnome_open_mail);
-	$about->set_authors("Mario Kemper <mario.kemper\@gmx.de>");
-	$about->set_artists("Arne Weinberg","Pascal Grochol");
+	$about->set_authors("Mario Kemper <mario.kemper\@gmx.de>\n\nPlugins:\nMartin Rabeneck (cornix) <martinrabeneck\@gmx.net>");
+	$about->set_artists("Arne Weinberg","Pascal Grochol <pg0803\@gmail.com>");
+	$about->set_translator_credits ("German: Mario Kemper <mario.kemper\@gmx.de>\nRussian: Michael Kogan (PhotonX)");	
 	$about->set_copyright ($all_hints);
 	$about->set_license ($all_lines);
 	$about->set_comments ("Screenshot Tool");
@@ -1114,15 +1124,12 @@ sub event_show_icon_menu
 }
 
 
-#notebook plugins - events are handled here
+#notebook plugins - double-click-events are handled here
 sub event_plugins
 {
 	my ($tree, $path, $column) = @_;
 	
- 	print "Tree: $tree, Path: $path, Column: $column\n";
-
 }
-
 
 sub function_create_tab {
 	my ($key, $is_all) = @_;
@@ -1233,7 +1240,7 @@ sub function_create_tab {
 		$hbox_tab_actions2->pack_start($button_upload, TRUE, TRUE, 1);
 		$hbox_tab_actions2->pack_start($button_print, TRUE, TRUE, 1);
 		$hbox_tab_actions->pack_start($button_rename, TRUE, TRUE, 1);
-		$hbox_tab_actions->pack_start($button_plugin, TRUE, TRUE, 1);
+		$hbox_tab_actions->pack_start($button_plugin, TRUE, TRUE, 1) if (keys(%plugins) > 0);
 		$hbox_tab_actions2->pack_start($button_clipboard, TRUE, TRUE, 1);		
 	}
 	$vbox_tab->pack_start($hbox_tab_file, TRUE, TRUE, 1);
@@ -1845,7 +1852,7 @@ sub function_gnome_open
 sub function_gnome_open_mail
 {
 	my ($dialog, $mail, $user_data) = @_;
-	system("gnome-open mailto: $mail");
+	system("gnome-open mailto:$mail");
 }
 
 sub function_imagemagick_perform
