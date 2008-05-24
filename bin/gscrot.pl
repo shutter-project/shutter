@@ -467,16 +467,20 @@ $border_box->pack_start($combobox_border, TRUE, TRUE, 10);
 #end - border
 
 #plugins-effects
-my $effects_model = Gtk2::ListStore->new ('Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String');
+my $effects_model = Gtk2::ListStore->new ('Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String', 'Glib::String');
 foreach (keys %plugins){
-	if($plugins{$_}->{'binary'} ne "" && $plugins{$_}->{'name'} ne ""){
+	if($plugins{$_}->{'binary'} ne ""){
 		my $pixbuf; 
 		if (-f $plugins{$_}->{'pixmap'}){
 			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ($plugins{$_}->{'pixmap'}, 20, 20);
 		}else{
 			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/executable.svg", 20, 20);
 		} 
-		$effects_model->set ($effects_model->append, 0, $pixbuf , 1, $plugins{$_}->{'name'}, 2, $plugins{$_}->{'binary'});				
+		#get translated plugin-name
+		$plugins{$_}->{'name'} = `$plugins{$_}->{'binary'} name`;
+		$plugins{$_}->{'category'} = `$plugins{$_}->{'binary'} sort`;
+		chomp($plugins{$_}->{'name'}); chomp($plugins{$_}->{'category'});
+		$effects_model->set ($effects_model->append, 0, $pixbuf , 1, $plugins{$_}->{'name'}, 2, $plugins{$_}->{'binary'}, 3, $plugins{$_}->{'category'});				
 	}else{
 		print "WARNING: Program $_ is not configured properly, ignoring\n";	
 	}	
@@ -507,6 +511,18 @@ $tv_clmn_text_text->set_attributes($renderer_text_effects, text => 1);
 
 #append this column to the treeview
 $effects_tree->append_column($tv_clmn_text_text);
+
+my $tv_clmn_category_text = Gtk2::TreeViewColumn->new;
+$tv_clmn_category_text->set_title($d->get("Category"));
+#pixbuf renderer
+my $renderer_category_effects = Gtk2::CellRendererText->new;
+#pack it into the column
+$tv_clmn_category_text->pack_start ($renderer_category_effects, FALSE);
+#set its atributes
+$tv_clmn_category_text->set_attributes($renderer_category_effects, text => 3);
+
+#append this column to the treeview
+$effects_tree->append_column($tv_clmn_category_text);
 
 my $tv_clmn_path_text = Gtk2::TreeViewColumn->new;
 $tv_clmn_path_text->set_title($d->get("Path"));
@@ -711,9 +727,8 @@ sub event_handle
 	my $echo_cmd = "-e 'echo \$f'";
 	my $scrot_feedback = "";
 
-	if($debug_cparam){
-		print "\n$data was emitted by widget $widget\n";
-	}
+	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
+
 	
 #checkbox for "open with" -> entry active/inactive
 	if($data eq "progname_toggled"){
@@ -1584,13 +1599,17 @@ sub dialog_plugin
 
 	my $model = Gtk2::ListStore->new ('Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String');
 	foreach (keys %plugins){
-		if($plugins{$_}->{'binary'} ne "" && $plugins{$_}->{'name'} ne ""){
+		if($plugins{$_}->{'binary'} ne ""){
 			my $pixbuf; 
 			if (-f $plugins{$_}->{'pixmap'}){
 				$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ($plugins{$_}->{'pixmap'}, 20, 20);
 			}else{
 				$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/executable.svg", 20, 20);
-			} 
+			}
+			#get translated plugin-name
+			$plugins{$_}->{'name'} = `$plugins{$_}->{'binary'} name`;
+			$plugins{$_}->{'category'} = `$plugins{$_}->{'binary'} sort`; 
+			chomp($plugins{$_}->{'name'}); chomp($plugins{$_}->{'category'});
 			$model->set ($model->append, 0, $pixbuf , 1, $plugins{$_}->{'name'}, 2, $plugins{$_}->{'binary'});				
 		}else{
 			print "WARNING: Program $_ is not configured properly, ignoring\n";	
@@ -1616,7 +1635,12 @@ sub dialog_plugin
 		my $plugin_value = $model->get_value($plugin_iter, 2);
 		my $plugin_name = $model->get_value($plugin_iter, 1);
 		unless ($plugin_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No plugin specified")); return FALSE;};
-		if (system("$plugin_value $dialog_plugin_text &") == 0){
+		my $width = &function_imagemagick_perform("get_width", $dialog_plugin_text, 0, "");
+		my $height = &function_imagemagick_perform("get_height", $dialog_plugin_text, 0, "");
+		$dialog_plugin_text =~ /.*\.(.*)$/;
+		my $filetype = $1;
+		print "$plugin_value $dialog_plugin_text $width $height $filetype submitted to plugin\n"; #if $debug_cparam;
+		if (system("$plugin_value $dialog_plugin_text $width $height $filetype") == 0){
 			&dialog_info_message("Successfully executed plugin:$plugin_name");
 		}else{
 			&dialog_error_message("Plugin $plugin_name reported an error");
@@ -1868,12 +1892,15 @@ sub function_check_installed_plugins
 	print "\nINFO: checking installed plugins...\n";	
 	
 	foreach (keys %plugins){
-		if($plugins{$_}->{'binary'} ne "" && $plugins{$_}->{'name'} ne ""){
+		if($plugins{$_}->{'binary'} ne ""){
 			unless (-e $plugins{$_}->{'binary'}){
 				print " Could not detect binary for program $_, ignoring\n";	
 				delete $plugins{$_};
 				next;
 			}
+			$plugins{$_}->{'name'} = `$plugins{$_}->{'binary'} name`;
+			$plugins{$_}->{'category'} = `$plugins{$_}->{'binary'} sort`; 
+			chomp($plugins{$_}->{'name'}); chomp($plugins{$_}->{'category'});
 			print "$plugins{$_}->{'name'} - $plugins{$_}->{'binary'}\n";					
 		}else{
 			print "WARNING: Plugin $_ is not configured properly, ignoring\n";	
