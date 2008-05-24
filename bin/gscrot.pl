@@ -1639,7 +1639,7 @@ sub dialog_plugin
 		my $height = &function_imagemagick_perform("get_height", $dialog_plugin_text, 0, "");
 		$dialog_plugin_text =~ /.*\.(.*)$/;
 		my $filetype = $1;
-		print "$plugin_value $dialog_plugin_text $width $height $filetype submitted to plugin\n"; #if $debug_cparam;
+		print "$plugin_value $dialog_plugin_text $width $height $filetype submitted to plugin\n" if $debug_cparam;
 		if (system("$plugin_value $dialog_plugin_text $width $height $filetype") == 0){
 			&dialog_info_message("Successfully executed plugin:$plugin_name");
 		}else{
