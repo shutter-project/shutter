@@ -470,7 +470,7 @@ $border_box->pack_start($combobox_border, TRUE, TRUE, 10);
 my $effects_tree;
 if (keys(%plugins) > 0){
 	#plugins-effects
-	my $effects_model = Gtk2::ListStore->new ('Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String');
+	my $effects_model = Gtk2::ListStore->new ('Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String');
 	foreach (keys %plugins){
 		if($plugins{$_}->{'binary'} ne ""){
 			my $pixbuf; 
@@ -486,8 +486,16 @@ if (keys(%plugins) > 0){
 			utf8::decode $plugins{$_}->{'category'};
 			$plugins{$_}->{'tooltip'} = `$plugins{$_}->{'binary'} tip`;
 			utf8::decode $plugins{$_}->{'tooltip'};
-			chomp($plugins{$_}->{'name'}); chomp($plugins{$_}->{'category'}); chomp($plugins{$_}->{'tooltip'});
-			$effects_model->set ($effects_model->append, 0, $pixbuf , 1, $plugins{$_}->{'name'}, 2, $plugins{$_}->{'binary'}, 3, $plugins{$_}->{'category'}, 4, $plugins{$_}->{'tooltip'});				
+			$plugins{$_}->{'ext'} = `$plugins{$_}->{'binary'} ext`;
+			utf8::decode $plugins{$_}->{'ext'};			
+			chomp($plugins{$_}->{'name'}); chomp($plugins{$_}->{'category'}); chomp($plugins{$_}->{'tooltip'}); chomp($plugins{$_}->{'ext'});
+			
+			#check if plugin can handle png and/or jpeg
+			my $pixbuf_jpeg = 'gtk-no'; my $pixbuf_png = 'gtk-no';
+			$pixbuf_jpeg = 'gtk-yes' if($plugins{$_}->{'ext'} =~ /jpeg/);
+			$pixbuf_png = 'gtk-yes' if($plugins{$_}->{'ext'} =~ /png/);
+			
+			$effects_model->set ($effects_model->append, 0, $pixbuf , 1, $plugins{$_}->{'name'}, 2, $plugins{$_}->{'binary'}, 3, $plugins{$_}->{'category'}, 4, $plugins{$_}->{'tooltip'}, 5, $pixbuf_jpeg, 6, $pixbuf_png);				
 		}else{
 			print "WARNING: Program $_ is not configured properly, ignoring\n";	
 		}	
@@ -532,6 +540,31 @@ if (keys(%plugins) > 0){
 
 	#append this column to the treeview
 	$effects_tree->append_column($tv_clmn_category_text);
+
+	my $tv_clmn_jpeg_text = Gtk2::TreeViewColumn->new;
+	$tv_clmn_jpeg_text->set_title("jpeg");
+	#pixbuf renderer
+	my $renderer_jpeg_effects = Gtk2::CellRendererPixbuf->new;
+	#pack it into the column
+	$tv_clmn_jpeg_text->pack_start ($renderer_jpeg_effects, FALSE);
+	#set its atributes
+	$tv_clmn_jpeg_text->set_attributes($renderer_jpeg_effects, stock_id => 5);
+
+	#append this column to the treeview
+	$effects_tree->append_column($tv_clmn_jpeg_text);
+
+	my $tv_clmn_png_text = Gtk2::TreeViewColumn->new;
+	$tv_clmn_png_text->set_title("png");
+	#pixbuf renderer
+	my $renderer_png_effects = Gtk2::CellRendererPixbuf->new;
+	#pack it into the column
+	$tv_clmn_png_text->pack_start ($renderer_png_effects, FALSE);
+	#set its atributes
+	$tv_clmn_png_text->set_attributes($renderer_png_effects, stock_id => 6);
+
+	#append this column to the treeview
+	$effects_tree->append_column($tv_clmn_png_text);
+
 
 	my $tv_clmn_path_text = Gtk2::TreeViewColumn->new;
 	$tv_clmn_path_text->set_title($d->get("Path"));
@@ -1618,8 +1651,13 @@ sub dialog_plugin
 
 	$plugin_dialog->set_default_response ('accept');
 
+	#store the filetype of the current screenshot for further processing
+	$dialog_plugin_text =~ /.*\.(.*)$/;
+	my $filetype = $1;
+
 	my $model = Gtk2::ListStore->new ('Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String');
 	foreach (keys %plugins){
+		next unless $plugins{$_}->{'ext'} =~ /$filetype/;
 		if($plugins{$_}->{'binary'} ne ""){
 			my $pixbuf; 
 			if (-f $plugins{$_}->{'pixmap'}){
@@ -1658,8 +1696,7 @@ sub dialog_plugin
 		unless ($plugin_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No plugin specified")); return FALSE;};
 		my $width = &function_imagemagick_perform("get_width", $dialog_plugin_text, 0, "");
 		my $height = &function_imagemagick_perform("get_height", $dialog_plugin_text, 0, "");
-		$dialog_plugin_text =~ /.*\.(.*)$/;
-		my $filetype = $1;
+
 		print "$plugin_value $dialog_plugin_text $width $height $filetype submitted to plugin\n" if $debug_cparam;
 		if (system("$plugin_value $dialog_plugin_text $width $height $filetype") == 0){
 			&dialog_info_message($d->get("Successfully executed plugin").": ".$plugin_name);
