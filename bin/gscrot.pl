@@ -495,7 +495,6 @@ if (keys(%plugins) > 0){
 
 	$effects_tree = Gtk2::TreeView->new_with_model ($effects_model);
 	$effects_tree->signal_connect('row-activated' => \&event_plugins, 'row_activated');
-	$effects_tree->set_has_tooltip(TRUE);
 	$effects_tree->set_tooltip_column(4);
 	 
 	my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
