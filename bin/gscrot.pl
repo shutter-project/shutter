@@ -483,7 +483,7 @@ if (keys(%plugins) > 0){
 			$plugins{$_}->{'name'} = `$plugins{$_}->{'binary'} name`;
 			$plugins{$_}->{'category'} = `$plugins{$_}->{'binary'} sort`;
 			$plugins{$_}->{'tooltip'} = `$plugins{$_}->{'binary'} tip`;
-			chomp($plugins{$_}->{'name'}); chomp($plugins{$_}->{'category'});
+			chomp($plugins{$_}->{'name'}); chomp($plugins{$_}->{'category'}); chomp($plugins{$_}->{'tooltip'});
 			$effects_model->set ($effects_model->append, 0, $pixbuf , 1, $plugins{$_}->{'name'}, 2, $plugins{$_}->{'binary'}, 3, $plugins{$_}->{'category'}, 4, $plugins{$_}->{'tooltip'});				
 		}else{
 			print "WARNING: Program $_ is not configured properly, ignoring\n";	
