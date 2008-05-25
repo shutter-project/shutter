@@ -587,20 +587,20 @@ $vbox_extras->set_border_width(5);
 
 
 if (keys(%plugins) > 0){
-	$effects_vbox->pack_start($effects_tree, TRUE, TRUE, 1);
-
-	$vbox_plugins->pack_start($effects_vbox, TRUE, TRUE, 1);
-	$vbox_plugins->set_border_width(5);
 
 	my $scrolled_plugins_window = Gtk2::ScrolledWindow->new;
 	$scrolled_plugins_window->set_policy ('automatic', 'automatic');
-	$scrolled_plugins_window->set_shadow_type ('in');
-	$scrolled_plugins_window->add_with_viewport($vbox_plugins);
+	$scrolled_plugins_window->add($effects_tree);
 
 	my $label_plugins = Gtk2::Label->new;
 	$label_plugins->set_markup ($d->get("<i>Plugins</i>"));
 
-	my $notebook_settings_third = $notebook_settings->append_page ($scrolled_plugins_window,$label_plugins);
+	$effects_vbox->pack_start($scrolled_plugins_window, TRUE, TRUE, 1);
+
+	$vbox_plugins->pack_start($effects_vbox, TRUE, TRUE, 1);
+	$vbox_plugins->set_border_width(5);
+
+	my $notebook_settings_third = $notebook_settings->append_page ($vbox_plugins,$label_plugins);
 }
 
 $vbox_inner->pack_start($notebook_settings, FALSE, FALSE, 1);
