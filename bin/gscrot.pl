@@ -481,8 +481,11 @@ if (keys(%plugins) > 0){
 			} 
 			#get translated plugin-name
 			$plugins{$_}->{'name'} = `$plugins{$_}->{'binary'} name`;
+			utf8::decode $plugins{$_}->{'name'};
 			$plugins{$_}->{'category'} = `$plugins{$_}->{'binary'} sort`;
+			utf8::decode $plugins{$_}->{'category'};
 			$plugins{$_}->{'tooltip'} = `$plugins{$_}->{'binary'} tip`;
+			utf8::decode $plugins{$_}->{'tooltip'};
 			chomp($plugins{$_}->{'name'}); chomp($plugins{$_}->{'category'}); chomp($plugins{$_}->{'tooltip'});
 			$effects_model->set ($effects_model->append, 0, $pixbuf , 1, $plugins{$_}->{'name'}, 2, $plugins{$_}->{'binary'}, 3, $plugins{$_}->{'category'}, 4, $plugins{$_}->{'tooltip'});				
 		}else{
@@ -1627,8 +1630,8 @@ sub dialog_plugin
 			}
 			#get translated plugin-name
 			$plugins{$_}->{'name'} = `$plugins{$_}->{'binary'} name`;
-			$plugins{$_}->{'category'} = `$plugins{$_}->{'binary'} sort`;
-			chomp($plugins{$_}->{'name'}); chomp($plugins{$_}->{'category'});
+			utf8::decode $plugins{$_}->{'name'};
+			chomp($plugins{$_}->{'name'});
 			$model->set ($model->append, 0, $pixbuf , 1, $plugins{$_}->{'name'}, 2, $plugins{$_}->{'binary'});				
 		}else{
 			print "WARNING: Program $_ is not configured properly, ignoring\n";	
@@ -1918,8 +1921,8 @@ sub function_check_installed_plugins
 				next;
 			}
 			$plugins{$_}->{'name'} = `$plugins{$_}->{'binary'} name`;
-			$plugins{$_}->{'category'} = `$plugins{$_}->{'binary'} sort`; 
-			chomp($plugins{$_}->{'name'}); chomp($plugins{$_}->{'category'});
+			utf8::decode $plugins{$_}->{'name'};
+			chomp($plugins{$_}->{'name'});
 			print "$plugins{$_}->{'name'} - $plugins{$_}->{'binary'}\n";					
 		}else{
 			print "WARNING: Plugin $_ is not configured properly, ignoring\n";	
