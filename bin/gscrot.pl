@@ -503,7 +503,7 @@ if (keys(%plugins) > 0){
 
 	$effects_tree = Gtk2::TreeView->new_with_model ($effects_model);
 	$effects_tree->signal_connect('row-activated' => \&event_plugins, 'row_activated');
-	$effects_tree->set_tooltip_column(4);
+	$effects_tree->set_tooltip_column(4) if $Gtk2::VERSION >= 1.161;
 	 
 	my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
 	$tv_clmn_pix_text->set_title($d->get("Icon"));
@@ -565,6 +565,19 @@ if (keys(%plugins) > 0){
 	#append this column to the treeview
 	$effects_tree->append_column($tv_clmn_png_text);
 
+	if ($Gtk2::VERSION < 1.161){
+		my $tv_clmn_descr_text = Gtk2::TreeViewColumn->new;
+		$tv_clmn_descr_text->set_title($d->get("Description"));
+		#pixbuf renderer
+		my $renderer_descr_effects = Gtk2::CellRendererText->new;
+		#pack it into the column
+		$tv_clmn_descr_text->pack_start ($renderer_descr_effects, FALSE);
+		#set its atributes
+		$tv_clmn_descr_text->set_attributes($renderer_descr_effects, text => 4);
+
+		#append this column to the treeview
+		$effects_tree->append_column($tv_clmn_descr_text);		
+	}
 
 	my $tv_clmn_path_text = Gtk2::TreeViewColumn->new;
 	$tv_clmn_path_text->set_title($d->get("Path"));
