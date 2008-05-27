@@ -45,13 +45,16 @@ my %gm_programs; #hash to store program infos
 &function_check_installed_programs if keys(%gm_programs) > 0;
 my %plugins; #hash to store plugin infos
 &function_check_installed_plugins if keys(%plugins) > 0;
+my %accounts; #hash to account infos
 
+$accounts{'ubuntu-pics.de'}->{host} = "ubuntu-pics.de";
+$accounts{'ubuntu-pics.de'}->{username} = "";
+$accounts{'ubuntu-pics.de'}->{password} = "";
 
 setlocale(LC_MESSAGES,"");
 my $d = Locale::gettext->domain("gscrot");
 $d->dir("$gscrot_path/share/locale");
 
-my $ask_at_close = 'TRUE';
 my $is_in_tray = FALSE;
 my $window = Gtk2::Window->new();
 
@@ -85,12 +88,16 @@ my $vbox = Gtk2::VBox->new(FALSE, 10);
 my $vbox_inner = Gtk2::VBox->new(FALSE, 10);
 my $vbox_basic = Gtk2::VBox->new(FALSE, 10);
 my $vbox_extras = Gtk2::VBox->new(FALSE, 10);
+my $vbox_behavior = Gtk2::VBox->new(FALSE, 10);
 my $vbox_plugins = Gtk2::VBox->new(FALSE, 10);
+my $vbox_accounts = Gtk2::VBox->new(FALSE, 10);
 my $file_vbox = Gtk2::VBox->new(FALSE, 0);
 my $save_vbox = Gtk2::VBox->new(FALSE, 0);
+my $behavior_vbox = Gtk2::VBox->new(FALSE, 0);
 my $actions_vbox = Gtk2::VBox->new(FALSE, 0);
 my $capture_vbox = Gtk2::VBox->new(FALSE, 0);
 my $effects_vbox = Gtk2::VBox->new(FALSE, 0);
+my $accounts_vbox = Gtk2::VBox->new(FALSE, 0);
 
 my $button_box = Gtk2::HBox->new(TRUE, 10);
 my $scale_box = Gtk2::HBox->new(TRUE, 0);
@@ -105,6 +112,7 @@ my $im_colors_box = Gtk2::HBox->new(TRUE, 0);
 my $im_colors_box2 = Gtk2::HBox->new(FALSE, 0);
 my $filetype_box = Gtk2::HBox->new(TRUE, 0);
 my $saveDir_box = Gtk2::HBox->new(TRUE, 0);
+my $behavior_box = Gtk2::HBox->new(TRUE, 0);
 my $border_box = Gtk2::HBox->new(TRUE, 0);
 
 $window->add($vbox);
@@ -251,6 +259,11 @@ $save_frame_label->set_markup($d->get("Save"));
 my $save_frame = Gtk2::Frame->new();
 $save_frame->set_label_widget($save_frame_label);
 
+my $behavior_frame_label = Gtk2::Label->new;
+$behavior_frame_label->set_markup($d->get("Behavior"));
+my $behavior_frame = Gtk2::Frame->new();
+$behavior_frame->set_label_widget($behavior_frame_label);
+
 my $actions_frame_label = Gtk2::Label->new;
 $actions_frame_label->set_markup($d->get("Actions"));
 my $actions_frame = Gtk2::Frame->new();
@@ -377,6 +390,24 @@ $saveDir_box->pack_start($saveDir_label, FALSE, TRUE, 10);
 $saveDir_box->pack_start($saveDir_button, TRUE, TRUE, 10);
 #end - saveDir
 
+#behavior
+my $hide_active = Gtk2::CheckButton->new_with_label("Autohide GScrot Window when taking a screenshot");
+$hide_active->signal_connect('toggled' => \&event_behavior_handle, 'hide_toggled');
+$hide_active->set_active(TRUE);
+
+my $ask_quit_active = Gtk2::CheckButton->new_with_label("Show \"Do you really want to quit\" dialog when exiting");
+$ask_quit_active->signal_connect('toggled' => \&event_behavior_handle, 'ask_quit_toggled');
+$hide_active->set_active(TRUE);
+
+my $tooltip_behavior = Gtk2::Tooltips->new;
+$tooltip_saveDir->set_tip($hide_active,$d->get("Automatically hide GScrot Window when taking a screenshot"));
+
+my $tooltip_ask_quit = Gtk2::Tooltips->new;
+$tooltip_ask_quit->set_tip($hide_active,$d->get("Show \"Do you really want to quit?\" dialog when exiting GScrot"));
+
+#end - behavior
+
+
 #program
 my $model = Gtk2::ListStore->new ('Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String');
 foreach (keys %gm_programs){
@@ -466,6 +497,52 @@ $border_box->pack_start($border_label, FALSE, TRUE, 10);
 $border_box->pack_start($combobox_border, TRUE, TRUE, 10);
 #end - border
 
+#accounts
+my $accounts_model = Gtk2::ListStore->new ('Glib::String', 'Glib::String', 'Glib::String');
+
+foreach (keys %accounts){
+	$accounts_model->set ($accounts_model->append, 0, $accounts{$_}->{'host'} , 1, $accounts{$_}->{'username'}, 2, $accounts{$_}->{'password'});				
+}
+my $accounts_tree = Gtk2::TreeView->new_with_model ($accounts_model);
+ 
+my $tv_clmn_name_text = Gtk2::TreeViewColumn->new;
+$tv_clmn_name_text->set_title($d->get("Host"));
+#pixbuf renderer
+my $renderer_name_accounts = Gtk2::CellRendererText->new;
+#pack it into the column
+$tv_clmn_name_text->pack_start ($renderer_name_accounts, FALSE);
+#set its atributes
+$tv_clmn_name_text->set_attributes($renderer_name_accounts, text => 0);
+
+#append this column to the treeview
+$accounts_tree->append_column($tv_clmn_name_text);
+
+my $tv_clmn_username_text = Gtk2::TreeViewColumn->new;
+$tv_clmn_username_text->set_title($d->get("Username"));
+#pixbuf renderer
+my $renderer_username_accounts = Gtk2::CellRendererText->new;
+#pack it into the column
+$tv_clmn_username_text->pack_start ($renderer_username_accounts, FALSE);
+#set its atributes
+$tv_clmn_username_text->set_attributes($renderer_username_accounts, text => 1);
+
+#append this column to the treeview
+$accounts_tree->append_column($tv_clmn_username_text);
+
+my $tv_clmn_password_text = Gtk2::TreeViewColumn->new;
+$tv_clmn_password_text->set_title($d->get("Password"));
+#pixbuf renderer
+my $renderer_password_accounts = Gtk2::CellRendererText->new;
+#pack it into the column
+$tv_clmn_password_text->pack_start ($renderer_password_accounts, FALSE);
+#set its atributes
+$tv_clmn_password_text->set_attributes($renderer_password_accounts, text => 2);
+
+#append this column to the treeview
+$accounts_tree->append_column($tv_clmn_password_text);
+
+#end accounts
+
 #this is only important, if there are any plugins
 my $effects_tree;
 if (keys(%plugins) > 0){
@@ -503,7 +580,8 @@ if (keys(%plugins) > 0){
 
 	$effects_tree = Gtk2::TreeView->new_with_model ($effects_model);
 	$effects_tree->signal_connect('row-activated' => \&event_plugins, 'row_activated');
-	$effects_tree->set_tooltip_column(4) if $Gtk2::VERSION >= 1.161;
+	$effects_tree->set_tooltip_column(4) if Gtk2->CHECK_VERSION (2, 12, 0);
+
 	 
 	my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
 	$tv_clmn_pix_text->set_title($d->get("Icon"));
@@ -565,7 +643,7 @@ if (keys(%plugins) > 0){
 	#append this column to the treeview
 	$effects_tree->append_column($tv_clmn_png_text);
 
-	if ($Gtk2::VERSION < 1.161){
+	if (Gtk2->CHECK_VERSION (2, 12, 0)){
 		my $tv_clmn_descr_text = Gtk2::TreeViewColumn->new;
 		$tv_clmn_descr_text->set_title($d->get("Description"));
 		#pixbuf renderer
@@ -596,25 +674,32 @@ if (keys(%plugins) > 0){
 
 
 #############PACKING######################
-$file_vbox->pack_start($scale_box, FALSE, TRUE, 1);
-$file_vbox->pack_start($filetype_box, FALSE, TRUE, 1);
+$file_vbox->pack_start($scale_box, FALSE, TRUE, 5);
+$file_vbox->pack_start($filetype_box, FALSE, TRUE, 5);
 $file_frame->add($file_vbox);
 
-$save_vbox->pack_start($filename_box, FALSE, TRUE, 1);
-$save_vbox->pack_start($saveDir_box, FALSE, TRUE, 1);
+$save_vbox->pack_start($filename_box, FALSE, TRUE, 5);
+$save_vbox->pack_start($saveDir_box, FALSE, TRUE, 5);
 $save_frame->add($save_vbox);
 
-$vbox_basic->pack_start($file_frame, TRUE, TRUE, 1);
-$vbox_basic->pack_start($save_frame, TRUE, TRUE, 1);
+$vbox_basic->pack_start($file_frame, FALSE, TRUE, 5);
+$vbox_basic->pack_start($save_frame, FALSE, TRUE, 5);
 $vbox_basic->set_border_width(5);
 
-$capture_vbox->pack_start($delay_box, TRUE, TRUE, 1);
-$capture_vbox->pack_start($thumbnail_box, TRUE, TRUE, 1);
-$capture_vbox->pack_start($border_box, TRUE, TRUE, 1);
+$behavior_vbox->pack_start($hide_active, FALSE, TRUE, 5);
+$behavior_vbox->pack_start($ask_quit_active, FALSE, TRUE, 5);
+$behavior_frame->add($behavior_vbox);
+
+$vbox_behavior->pack_start($behavior_frame, FALSE, TRUE, 5);
+$vbox_behavior->set_border_width(5);
+
+$capture_vbox->pack_start($delay_box, FALSE, TRUE, 5);
+$capture_vbox->pack_start($thumbnail_box, FALSE, TRUE, 5);
+$capture_vbox->pack_start($border_box, FALSE, TRUE, 5);
 $capture_frame->add($capture_vbox);
 
-$actions_vbox->pack_start($progname_box, TRUE, TRUE, 1);
-$actions_vbox->pack_start($im_colors_box, TRUE, TRUE, 1);
+$actions_vbox->pack_start($progname_box, FALSE, TRUE, 5);
+$actions_vbox->pack_start($im_colors_box, FALSE, TRUE, 5);
 $actions_frame->add($actions_vbox);
 
 my $label_basic = Gtk2::Label->new;
@@ -623,13 +708,30 @@ $label_basic->set_markup ($d->get("<i>Basic Settings</i>"));
 my $label_extras = Gtk2::Label->new;
 $label_extras->set_markup ($d->get("<i>Extras</i>"));
 
+my $label_behavior = Gtk2::Label->new;
+$label_behavior->set_markup ($d->get("<i>Behavior</i>"));
+
 my $notebook_settings_first = $notebook_settings->append_page ($vbox_basic,$label_basic);
 my $notebook_settings_second = $notebook_settings->append_page ($vbox_extras,$label_extras);
+my $notebook_settings_third = $notebook_settings->append_page ($vbox_behavior,$label_behavior);
 
 $vbox_extras->pack_start($actions_frame, TRUE, TRUE, 1);
 $vbox_extras->pack_start($capture_frame, TRUE, TRUE, 1);
 $vbox_extras->set_border_width(5);
 
+my $scrolled_accounts_window = Gtk2::ScrolledWindow->new;
+$scrolled_accounts_window->set_policy ('automatic', 'automatic');
+$scrolled_accounts_window->add($accounts_tree);
+
+my $label_accounts = Gtk2::Label->new;
+$label_accounts->set_markup ($d->get("<i>Accounts</i>"));
+
+$accounts_vbox->pack_start($scrolled_accounts_window, TRUE, TRUE, 1);
+
+$vbox_accounts->pack_start($accounts_vbox, TRUE, TRUE, 1);
+$vbox_accounts->set_border_width(5);
+
+my $notebook_settings_fourth = $notebook_settings->append_page ($vbox_accounts,$label_accounts);
 
 if (keys(%plugins) > 0){
 
@@ -645,7 +747,7 @@ if (keys(%plugins) > 0){
 	$vbox_plugins->pack_start($effects_vbox, TRUE, TRUE, 1);
 	$vbox_plugins->set_border_width(5);
 
-	my $notebook_settings_third = $notebook_settings->append_page ($vbox_plugins,$label_plugins);
+	my $notebook_settings_fifth = $notebook_settings->append_page ($vbox_plugins,$label_plugins);
 }
 
 $vbox_inner->pack_start($notebook_settings, FALSE, FALSE, 1);
@@ -913,8 +1015,17 @@ sub event_handle
 				unless (&function_file_exists($scrot_feedback_thumbnail)){&dialog_error_message($d-get("Could not generate thumbnail"));exit;}	
 			}						
 		}else{
+			if($hide_active->get_active() && $window->visible){
+				$window->unstick; 
+				$window->hide;
+				$is_in_tray = TRUE;
+			}
 			unless ($filename_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No valid filename specified")); return FALSE;};
 			$scrot_feedback=`scrot '$folder/$filename_value.$filetype_value' --select -q $quality_value -d $delay_value $border_value $thumbnail_param $echo_cmd`;			
+			#if($hide_active->get_active()){			
+				#$window->show_all;
+				#$is_in_tray = FALSE;
+			#}
 		}
 		system("xset b on") if $boff_cparam; #turns on the speaker again if set as arg
 
@@ -963,6 +1074,14 @@ sub event_handle
 		$widget->destroy();	
 	}
 
+}
+
+#notebook-behavior events are handled here
+sub event_behavior_handle
+{
+	my ($widget, $data) = @_;
+
+	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
 }
 
 sub event_notebook_switch
@@ -1018,7 +1137,7 @@ sub event_delete_window
 	my ($widget, $data) = @_;
 	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
 
-	if($data eq "menu_quit" or $ask_at_close eq 'FALSE'){
+	if($data eq "menu_quit" or !$ask_quit_active->get_active()){
 		Gtk2->main_quit ;
 		return FALSE;
 	}	
@@ -1051,10 +1170,27 @@ sub event_delete_window
 	my $response = $dialog->run ;
 	
 	if($ask_active->get_active){
-		$ask_at_close = 'FALSE';
 		open(FILE, ">>$ENV{ HOME }/.gscrot/settings.conf") or &dialog_status_message(1, $d->get("Settings could not be saved"));	
-		print FILE "CLOSE_ASK=".$ask_at_close."\n";
+		my @saved_lines = <FILE>; 
 		close(FILE) or &dialog_status_message(1, $d->get("Settings could not be saved"));
+		my $found = FALSE;
+		foreach(@saved_lines){
+			if ($_ =~ /CLOSE_ASK=/){
+				$_ = "CLOSE_ASK=\n";
+				$found = TRUE;
+			} 
+		}
+		if ($found == FALSE){
+			open(FILE, ">>$ENV{ HOME }/.gscrot/settings.conf") or &dialog_status_message(1, $d->get("Settings could not be saved"));	
+			print FILE "CLOSE_ASK=\n";
+			close(FILE) or &dialog_status_message(1, $d->get("Settings could not be saved"));
+		}else{
+			open(FILE, ">$ENV{ HOME }/.gscrot/settings.conf") or &dialog_status_message(1, $d->get("Settings could not be saved"));	
+			foreach(@saved_lines){
+				print FILE $_;
+			}			
+			close(FILE) or &dialog_status_message(1, $d->get("Settings could not be saved"));			
+		}		
 	}
 	if ($response eq "yes" ) {
 		$dialog->destroy() ;		
@@ -1097,8 +1233,8 @@ sub event_about
 	
 	my $logo = Gtk2::Gdk::Pixbuf->new_from_file ("$gscrot_path/share/gscrot/resources/icons/gscrot48x48.png");	
 	$about->set_logo ($logo);
-	$about->set_name($gscrot_name) if $Gtk2::VERSION < 1.161;
-	$about->set_program_name($gscrot_name) if $Gtk2::VERSION >= 1.161;
+	$about->set_name($gscrot_name) unless Gtk2->CHECK_VERSION (2, 12, 0);
+	$about->set_program_name($gscrot_name) if Gtk2->CHECK_VERSION (2, 12, 0);
 	$about->set_version($gscrot_version);
 	$about->set_url_hook(\&function_gnome_open);
 	$about->set_website_label($website);
@@ -1483,7 +1619,8 @@ sub function_save_settings
 	print FILE "THUMB=".$thumbnail->get_value()."\n";
 	print FILE "THUMB_ACT=".$thumbnail_active->get_active()."\n";
 	print FILE "BORDER=".$combobox_border->get_active()."\n";
-	print FILE "CLOSE_ASK=".$ask_at_close."\n";
+	print FILE "CLOSE_ASK=".$ask_quit_active->get_active()."\n";
+	print FILE "AUTOHIDE=".$hide_active->get_active()."\n";
 	close(FILE) or &dialog_error_message(1, $d->get("Settings could not be saved"));
 
 
@@ -1543,8 +1680,11 @@ sub function_load_settings
 			$_ =~ s/BORDER=//;
 			$combobox_border->set_active($_);
 		}elsif($_ =~ m/^CLOSE_ASK=/){
-				$_ =~ s/CLOSE_ASK=//;
-				$ask_at_close = $_;
+			$_ =~ s/CLOSE_ASK=//;
+			$ask_quit_active->set_active($_);
+		}elsif($_ =~ m/^AUTOHIDE=/){
+			$_ =~ s/AUTOHIDE=//;
+			$hide_active->set_active($_);
 		}
 
 	}
