@@ -391,20 +391,24 @@ $saveDir_box->pack_start($saveDir_button, TRUE, TRUE, 10);
 #end - saveDir
 
 #behavior
-my $hide_active = Gtk2::CheckButton->new_with_label("Autohide GScrot Window when taking a screenshot");
+my $hide_active = Gtk2::CheckButton->new_with_label($d->get("Autohide GScrot Window when taking a screenshot"));
+my $ask_quit_active = Gtk2::CheckButton->new_with_label($d->get("Show \"Do you really want to quit?\" dialog when exiting"));
+my $close_at_close_active = Gtk2::CheckButton->new_with_label($d->get("Minimize to tray when closing main window"));
+
 $hide_active->signal_connect('toggled' => \&event_behavior_handle, 'hide_toggled');
 $hide_active->set_active(TRUE);
+my $tooltip_hide = Gtk2::Tooltips->new;
+$tooltip_hide->set_tip($hide_active,$d->get("Automatically hide GScrot Window when taking a screenshot"));
 
-my $ask_quit_active = Gtk2::CheckButton->new_with_label("Show \"Do you really want to quit?\" dialog when exiting");
+$close_at_close_active->signal_connect('toggled' => \&event_behavior_handle, 'close_at_close_toggled');
+$close_at_close_active->set_active(TRUE);
+my $tooltip_close_at_close = Gtk2::Tooltips->new;
+$tooltip_close_at_close->set_tip($close_at_close_active,$d->get("Automatically hide GScrot Window when taking a screenshot"));
+
 $ask_quit_active->signal_connect('toggled' => \&event_behavior_handle, 'ask_quit_toggled');
 $hide_active->set_active(TRUE);
-
-my $tooltip_behavior = Gtk2::Tooltips->new;
-$tooltip_saveDir->set_tip($hide_active,$d->get("Automatically hide GScrot Window when taking a screenshot"));
-
 my $tooltip_ask_quit = Gtk2::Tooltips->new;
 $tooltip_ask_quit->set_tip($hide_active,$d->get("Show \"Do you really want to quit?\" dialog when exiting GScrot"));
-
 #end - behavior
 
 
@@ -686,6 +690,7 @@ $vbox_basic->pack_start($save_frame, FALSE, TRUE, 5);
 $vbox_basic->set_border_width(5);
 
 $behavior_vbox->pack_start($hide_active, FALSE, TRUE, 5);
+$behavior_vbox->pack_start($close_at_close_active, FALSE, TRUE, 5);
 $behavior_vbox->pack_start($ask_quit_active, FALSE, TRUE, 5);
 $behavior_frame->add($behavior_vbox);
 
@@ -1091,6 +1096,12 @@ sub event_behavior_handle
 	my ($widget, $data) = @_;
 
 	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
+	
+	if ($data eq "close_at_close_toggled"){
+		$ask_quit_active->set_sensitive(FALSE) if $close_at_close_active->get_active;
+		$ask_quit_active->set_sensitive(TRUE) unless $close_at_close_active->get_active;			
+	}
+	
 }
 
 sub event_notebook_switch
@@ -1145,6 +1156,12 @@ sub event_delete_window
 
 	my ($widget, $data) = @_;
 	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
+
+	if($data ne "menu_quit" && $close_at_close_active->get_active){
+		$window->hide;
+		$is_in_tray = TRUE;
+		return TRUE;				
+	}
 
 	if($data eq "menu_quit" or !$ask_quit_active->get_active()){
 		Gtk2->main_quit ;
@@ -1283,26 +1300,32 @@ sub event_show_icon_menu
 	my $tray_menu = Gtk2::Menu->new();
 	my $menuitem_select = Gtk2::ImageMenuItem->new($d->get("Capture with selection"));
 	$menuitem_select->set_image(Gtk2::Image->new_from_icon_name('gtk-cut', 'menu'));
+	$menuitem_select->signal_connect(activate => \&event_handle, 'tray_select');
 	my $menuitem_raw = Gtk2::ImageMenuItem->new($d->get("Capture"));
 	$menuitem_raw->set_image(Gtk2::Image->new_from_icon_name('gtk-fullscreen', 'menu'));
+	$menuitem_raw->signal_connect(activate => \&event_handle, 'tray_raw');
 	my $menuitem_web = Gtk2::ImageMenuItem->new($d->get("Capture website"));
 	$menuitem_web->set_image(Gtk2::Image->new_from_file ("$gscrot_path/share/gscrot/resources/icons/web_image.png"));
+	$menuitem_web->signal_connect(activate => \&event_handle, 'tray_web');
+	my $menuitem_info = Gtk2::ImageMenuItem->new($d->get("Info"));
+	$menuitem_info->set_image(Gtk2::Image->new_from_icon_name('gtk-about', 'menu'));
+	$menuitem_info->signal_connect("activate" , \&event_about , $window) ;	
 	my $menuitem_quit = Gtk2::ImageMenuItem->new($d->get("Quit"));
 	$menuitem_quit->set_image(Gtk2::Image->new_from_icon_name('gtk-quit', 'menu'));
 	$menuitem_quit->signal_connect("activate" , \&event_delete_window ,'menu_quit') ;
-	$menuitem_select->signal_connect(activate => \&event_handle, 'tray_select');
-	$menuitem_raw->signal_connect(activate => \&event_handle, 'tray_raw');
-	$menuitem_web->signal_connect(activate => \&event_handle, 'tray_web');
+
 	my $separator_tray = Gtk2::SeparatorMenuItem->new();
 	$separator_tray->show;
 	$menuitem_select->show();
 	$menuitem_raw->show();
 	$menuitem_web->show();
+	$menuitem_info->show();
 	$menuitem_quit->show();
 	$tray_menu->append($menuitem_select);
 	$tray_menu->append($menuitem_raw);
 	$tray_menu->append($menuitem_web);
 	$tray_menu->append($separator_tray);
+	$tray_menu->append($menuitem_info);
 	$tray_menu->append($menuitem_quit);
 	$tray_menu->popup(
 		undef, # parent menu shell
@@ -1630,6 +1653,7 @@ sub function_save_settings
 	print FILE "BORDER=".$combobox_border->get_active()."\n";
 	print FILE "CLOSE_ASK=".$ask_quit_active->get_active()."\n";
 	print FILE "AUTOHIDE=".$hide_active->get_active()."\n";
+	print FILE "CLOSE_CLOSE=".$close_at_close_active->get_active()."\n";
 	close(FILE) or &dialog_error_message(1, $d->get("Settings could not be saved"));
 
 
@@ -1694,6 +1718,9 @@ sub function_load_settings
 		}elsif($_ =~ m/^AUTOHIDE=/){
 			$_ =~ s/AUTOHIDE=//;
 			$hide_active->set_active($_);
+		}elsif($_ =~ m/^CLOSE_CLOSE=/){
+			$_ =~ s/CLOSE_CLOSE=//;
+			$close_at_close_active->set_active($_);
 		}
 
 	}
