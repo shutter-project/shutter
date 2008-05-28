@@ -395,7 +395,7 @@ my $hide_active = Gtk2::CheckButton->new_with_label("Autohide GScrot Window when
 $hide_active->signal_connect('toggled' => \&event_behavior_handle, 'hide_toggled');
 $hide_active->set_active(TRUE);
 
-my $ask_quit_active = Gtk2::CheckButton->new_with_label("Show \"Do you really want to quit\" dialog when exiting");
+my $ask_quit_active = Gtk2::CheckButton->new_with_label("Show \"Do you really want to quit?\" dialog when exiting");
 $ask_quit_active->signal_connect('toggled' => \&event_behavior_handle, 'ask_quit_toggled');
 $hide_active->set_active(TRUE);
 
@@ -580,8 +580,7 @@ if (keys(%plugins) > 0){
 
 	$effects_tree = Gtk2::TreeView->new_with_model ($effects_model);
 	$effects_tree->signal_connect('row-activated' => \&event_plugins, 'row_activated');
-	$effects_tree->set_tooltip_column(4) if Gtk2->CHECK_VERSION (2, 12, 0);
-
+	$effects_tree->set_tooltip_column(4) if Gtk2->CHECK_VERSION (2, 11, 0);
 	 
 	my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
 	$tv_clmn_pix_text->set_title($d->get("Icon"));
@@ -643,7 +642,7 @@ if (keys(%plugins) > 0){
 	#append this column to the treeview
 	$effects_tree->append_column($tv_clmn_png_text);
 
-	if (Gtk2->CHECK_VERSION (2, 12, 0)){
+	unless (Gtk2->CHECK_VERSION (2, 12, 0)){
 		my $tv_clmn_descr_text = Gtk2::TreeViewColumn->new;
 		$tv_clmn_descr_text->set_title($d->get("Description"));
 		#pixbuf renderer
@@ -973,8 +972,17 @@ sub event_handle
 
 		system("xset b off") if $boff_cparam; #turns off the speaker if set as arg
 		if($data eq "raw" || $data eq "tray_raw"){
+			if($hide_active->get_active() && $window->visible){
+				$window->hide;
+				Gtk2::Gdk->flush;
+				$is_in_tray = TRUE;
+			}
 			unless ($filename_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No valid filename specified")); return FALSE;};
 			$scrot_feedback=`scrot '$folder/$filename_value.$filetype_value' -q $quality_value -d $delay_value $border_value $thumbnail_param $echo_cmd`;
+			if($hide_active->get_active()){			
+				$window->show_all;
+				$is_in_tray = FALSE;
+			}		
 		}elsif($data eq "web" || $data eq "tray_web"){
 			my $url = &dialog_website;
 			return 0 unless $url;
@@ -1015,17 +1023,18 @@ sub event_handle
 				unless (&function_file_exists($scrot_feedback_thumbnail)){&dialog_error_message($d-get("Could not generate thumbnail"));exit;}	
 			}						
 		}else{
+			
 			if($hide_active->get_active() && $window->visible){
-				$window->unstick; 
 				$window->hide;
+				Gtk2::Gdk->flush;
 				$is_in_tray = TRUE;
 			}
 			unless ($filename_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No valid filename specified")); return FALSE;};
 			$scrot_feedback=`scrot '$folder/$filename_value.$filetype_value' --select -q $quality_value -d $delay_value $border_value $thumbnail_param $echo_cmd`;			
-			#if($hide_active->get_active()){			
-				#$window->show_all;
-				#$is_in_tray = FALSE;
-			#}
+			if($hide_active->get_active()){			
+				$window->show_all;
+				$is_in_tray = FALSE;
+			}
 		}
 		system("xset b on") if $boff_cparam; #turns on the speaker again if set as arg
 
