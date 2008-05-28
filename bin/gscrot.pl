@@ -520,22 +520,36 @@ $tv_clmn_name_text->set_attributes($renderer_name_accounts, text => 0);
 #append this column to the treeview
 $accounts_tree->append_column($tv_clmn_name_text);
 
-my $tv_clmn_username_text = Gtk2::TreeViewColumn->new;
-$tv_clmn_username_text->set_title($d->get("Username"));
-#pixbuf renderer
 my $renderer_username_accounts = Gtk2::CellRendererText->new;
-#pack it into the column
-$tv_clmn_username_text->pack_start ($renderer_username_accounts, FALSE);
-#set its atributes
-$tv_clmn_username_text->set_attributes($renderer_username_accounts, text => 1);
-
+$renderer_username_accounts->set (editable => TRUE);;
+$renderer_username_accounts->signal_connect (edited => sub {
+		my ($cell, $text_path, $new_text, $model) = @_;
+		my $path = Gtk2::TreePath->new_from_string ($text_path);
+		my $iter = $model->get_iter ($path);
+		$accounts{$model->get_value($iter, 0)}->{'username'} = $new_text; #save entered username to the hash
+		$model->set ($iter, 1, $new_text);
+	}, $accounts_model);
+my $tv_clmn_username_text = Gtk2::TreeViewColumn->new_with_attributes ($d->get("Username"), $renderer_username_accounts, text => 1);	
 #append this column to the treeview
 $accounts_tree->append_column($tv_clmn_username_text);
 
 my $tv_clmn_password_text = Gtk2::TreeViewColumn->new;
 $tv_clmn_password_text->set_title($d->get("Password"));
-#pixbuf renderer
+
 my $renderer_password_accounts = Gtk2::CellRendererText->new;
+$renderer_password_accounts->set (editable => TRUE);;
+$renderer_password_accounts->signal_connect (edited => sub {
+		my ($cell, $text_path, $new_text, $model) = @_;
+		my $path = Gtk2::TreePath->new_from_string ($text_path);
+		my $iter = $model->get_iter ($path);
+		my $hidden_text = "";
+		my $i = 1;
+		for($i; $i <= length($new_text); $i++){
+			$hidden_text .= '*';	
+		}
+		$accounts{$model->get_value($iter, 0)}->{'password'} = $new_text; #save entered password to the hash
+		$model->set ($iter, 2, $hidden_text);
+	}, $accounts_model);
 #pack it into the column
 $tv_clmn_password_text->pack_start ($renderer_password_accounts, FALSE);
 #set its atributes
@@ -544,6 +558,9 @@ $tv_clmn_password_text->set_attributes($renderer_password_accounts, text => 2);
 #append this column to the treeview
 $accounts_tree->append_column($tv_clmn_password_text);
 
+my $accounts_label = Gtk2::Label->new;
+$accounts_label->set_line_wrap (TRUE);
+$accounts_label->set_markup($d->get("<b>Note:</b> Entering your Accounts for specific hosting-sites is optional. If entered it will give you the same benefits as the upload on the website. If you leave these fields empty the upload to the specific hosting-partner will be anonymous."));
 #end accounts
 
 #this is only important, if there are any plugins
@@ -706,10 +723,10 @@ $actions_vbox->pack_start($im_colors_box, FALSE, TRUE, 5);
 $actions_frame->add($actions_vbox);
 
 my $label_basic = Gtk2::Label->new;
-$label_basic->set_markup ($d->get("<i>Basic Settings</i>"));
+$label_basic->set_markup ($d->get("<i>Main</i>"));
 
 my $label_extras = Gtk2::Label->new;
-$label_extras->set_markup ($d->get("<i>Extras</i>"));
+$label_extras->set_markup ($d->get("<i>Advanced</i>"));
 
 my $label_behavior = Gtk2::Label->new;
 $label_behavior->set_markup ($d->get("<i>Behavior</i>"));
@@ -730,6 +747,7 @@ my $label_accounts = Gtk2::Label->new;
 $label_accounts->set_markup ($d->get("<i>Accounts</i>"));
 
 $accounts_vbox->pack_start($scrolled_accounts_window, TRUE, TRUE, 1);
+$accounts_vbox->pack_start($accounts_label, TRUE, TRUE, 1);
 
 $vbox_accounts->pack_start($accounts_vbox, TRUE, TRUE, 1);
 $vbox_accounts->set_border_width(5);
@@ -1517,7 +1535,7 @@ sub event_in_tab
 	if ($data =~ m/^upload\[/){
 		$data =~ s/^upload//;
 		my %upload_response;
-		%upload_response = &function_upload_ubuntu_pics(&function_switch_home_in_file($session_screens{$data}), "", "");	
+		%upload_response = &function_upload_ubuntu_pics(&function_switch_home_in_file($session_screens{$data}), $accounts{'ubuntu-pics.de'}->{'username'}, $accounts{'ubuntu-pics.de'}->{'password'});	
 		if (is_success($upload_response{'status'})){
 			&dialog_upload_links($upload_response{'thumb1'}, $upload_response{'thumb2'}, $upload_response{'bbcode'}, $upload_response{'direct'}, $upload_response{'status'});				
 		}else{
