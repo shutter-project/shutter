@@ -46,7 +46,6 @@ my %gm_programs; #hash to store program infos
 my %plugins; #hash to store plugin infos
 &function_check_installed_plugins if keys(%plugins) > 0;
 my %accounts; #hash to account infos
-
 $accounts{'ubuntu-pics.de'}->{host} = "ubuntu-pics.de";
 $accounts{'ubuntu-pics.de'}->{username} = "";
 $accounts{'ubuntu-pics.de'}->{password} = "";
@@ -1518,7 +1517,7 @@ sub event_in_tab
 	if ($data =~ m/^upload\[/){
 		$data =~ s/^upload//;
 		my %upload_response;
-		%upload_response = &function_upload_ubuntu_pics(&function_switch_home_in_file($session_screens{$data}));	
+		%upload_response = &function_upload_ubuntu_pics(&function_switch_home_in_file($session_screens{$data}), "", "");	
 		if (is_success($upload_response{'status'})){
 			&dialog_upload_links($upload_response{'thumb1'}, $upload_response{'thumb2'}, $upload_response{'bbcode'}, $upload_response{'direct'}, $upload_response{'status'});				
 		}else{
@@ -2167,31 +2166,45 @@ sub function_iter_programs
 
 sub function_upload_ubuntu_pics
 {
-	my ($upload_filename) = @_;
+	my ($upload_filename, $username, $password) = @_;
 
 	my %links; #returned links will be stored here
 
 	my $filesize = -s $upload_filename;
 	if($filesize > 2048000){
-		$links{'status'} = "Filesize exceeded - maximum 2000 Kb\nUpload aborted";
+		$links{'status'} = $d->get("Filesize exceeded - maximum 2000 Kb\nUpload aborted");
 		return %links;			
 	} 
 	
 	my $mech = WWW::Mechanize->new();
+	
+	if($username ne "" && $password ne ""){
 
-	$mech->get("http://www.ubuntu-pics.de/easy.html");
+		$mech->get("http://www.ubuntu-pics.de/login.html");
+		$mech->form_number(2);
+		$mech->field(name => $username);
+		$mech->field(passwort => $password);
+		$mech->click("login");
 
-	$mech->submit_form(
-		form_name 	=> 'upload_bild',
-		fields      => {
-			"datei[]"    => $upload_filename,
-			}
-		);
-		
-	my $http_status = $mech->status();
+		my $http_status = $mech->status();
+		unless(is_success($http_status)){
+			$links{'status'} = $http_status; return %links;
+		}
+		if($mech->content =~/Diese Login Daten sind leider falsch/){
+			$links{'status'} = $d->get("Login failed,\nplease recheck your username and/or password"); return %links;
+		}  
+		$links{status}='OK Login';
 
-	if (is_success($http_status)){
-		my $html_file = $mech->content;
+		$mech->get("http://www.ubuntu-pics.de/index.html");
+		$mech->field("datei[]" => $upload_filename);
+		$mech->click("upload_a");
+
+		$http_status = $mech->status();
+		unless(is_success($http_status)){
+			$links{'status'} = $http_status; return %links;
+		} 
+
+		my $html_file = $mech->content();
 
 		$html_file =~ /id="thumb1" value='(.*)' onclick/g;
 		$links{'thumb1'} = &function_switch_html_entities($1);
@@ -2201,7 +2214,7 @@ sub function_upload_ubuntu_pics
 
 		$html_file =~ /id="bbcode" value='(.*)' onclick/g;
 		$links{'bbcode'} = &function_switch_html_entities($1);
-		
+
 		$html_file =~ /id="direct" value='(.*)' onclick/g;
 		$links{'direct'} = &function_switch_html_entities($1);
 
@@ -2212,14 +2225,55 @@ sub function_upload_ubuntu_pics
 			print "Thumbnail for forums \n$links{'bbcode'}\n";
 			print "Direct link \n$links{'direct'}\n";
 		}
-		
+
 		$links{'status'} = $http_status;
 		return %links;
-		
+
 	}else{
-		$links{'status'} = $http_status;
-		return %links;	
-	}
+
+		$mech->get("http://www.ubuntu-pics.de/easy.html");
+
+		$mech->submit_form(
+			form_name 	=> 'upload_bild',
+			fields      => {
+				"datei[]"    => $upload_filename,
+				}
+			);
+			
+		my $http_status = $mech->status();
+
+		if (is_success($http_status)){
+			my $html_file = $mech->content;
+
+			$html_file =~ /id="thumb1" value='(.*)' onclick/g;
+			$links{'thumb1'} = &function_switch_html_entities($1);
+
+			$html_file =~ /id="thumb2" value='(.*)' onclick/g;
+			$links{'thumb2'} = &function_switch_html_entities($1);
+
+			$html_file =~ /id="bbcode" value='(.*)' onclick/g;
+			$links{'bbcode'} = &function_switch_html_entities($1);
+			
+			$html_file =~ /id="direct" value='(.*)' onclick/g;
+			$links{'direct'} = &function_switch_html_entities($1);
+
+			if ($debug_cparam){
+				print "The following links were returned by http://www.ubuntu-pics.de:\n";
+				print "Thumbnail for websites (with Border)\n$links{'thumb1'}\n";
+				print "Thumbnail for websites (without Border)\n$links{'thumb2'}\n";
+				print "Thumbnail for forums \n$links{'bbcode'}\n";
+				print "Direct link \n$links{'direct'}\n";
+			}
+			
+			$links{'status'} = $http_status;
+			return %links;
+			
+		}else{
+			$links{'status'} = $http_status;
+			return %links;	
+		}
+
+	}	
 
 }
 
