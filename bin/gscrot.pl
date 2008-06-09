@@ -1361,39 +1361,6 @@ sub event_show_icon_menu
 sub event_plugins
 {
 	my ($tree, $path, $column) = @_;
-
-
-my $alloc = $notebook_settings->allocation;
-my $pixbuf = Gtk2::Gdk::Pixbuf->new('GDK_COLORSPACE_RGB', TRUE, 8,
-  $alloc->width, $alloc->height);
-$pixbuf->get_from_drawable ($notebook_settings->window,
-  $notebook_settings->window$window,
-  $alloc->x, $alloc->y,
-  0, 0,
-  $alloc->width, $alloc->height);
-
- $pixbuf->save ("/home/mario/Desktop/test.jpeg", 'jpeg', quality => '100');
- my ($window, $win_x, $win_y) = Gtk2::Gdk::Window->at_pointer;
-
-print $window.$win_x.$win_y."\n";
-
-
-  use X11::GUITest qw/
-    StartApp
-    WaitWindowViewable
-    SendKeys
-  /;
-
-  # Start gedit application
-  StartApp('gedit');
-
-  # Wait for application window to come up and become viewable. 
-  my ($GEditWinId) = WaitWindowViewable('gedit');
-  if (!$GEditWinId) {
-    die("Couldn't find gedit window in time!");
-  }
- print $GEditWinId."\n";
-
 }
 
 sub function_create_tab {
