@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 
-#Copyright (C) Mario Kemper 2008  Mi, 09 Apr 2008 22:58:09 +0200 
+#Copyright (C) Mario Kemper 2008 <mario.kemper@googlemail.com> Mi, 09 Apr 2008 22:58:09 +0200 
 
 #This program is free software: you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -27,8 +27,9 @@ use Image::Magick;
 use File::Copy;
 use POSIX;     # for setlocale()
 use Locale::gettext;
-use WWW::Mechanize;
 use HTTP::Status;
+use XML::Simple;
+use Data::Dumper;
 
 my $gscrot_name = "GScrot";
 my $gscrot_version = "v0.38";
@@ -41,21 +42,29 @@ my @args = @ARGV;
 
 &function_init();
 
+#custom modules load at runtime
+require lib;
+import lib "$gscrot_path/share/gscrot/resources/modules";
+require GScrot::ImageBanana;
+import GScrot::ImageBanana;
+require GScrot::UbuntuPics;
+import GScrot::UbuntuPics;
+
 my %gm_programs; #hash to store program infos
 &function_check_installed_programs if keys(%gm_programs) > 0;
 my %plugins; #hash to store plugin infos
 &function_check_installed_plugins if keys(%plugins) > 0;
 my %accounts; #hash to account infos
-$accounts{'ubuntu-pics.de'}->{host} = "ubuntu-pics.de";
-$accounts{'ubuntu-pics.de'}->{username} = "";
-$accounts{'ubuntu-pics.de'}->{password} = "";
+my %settings; #hash to store settings
+
+&function_load_accounts();
 
 setlocale(LC_MESSAGES,"");
 my $d = Locale::gettext->domain("gscrot");
 $d->dir("$gscrot_path/share/locale");
 
 my $is_in_tray = FALSE;
-my $window = Gtk2::Window->new();
+my $window = Gtk2::Window->new('toplevel');
 
 $window->set_title($gscrot_name." ".$gscrot_version);
 $window->set_default_icon_from_file ("$gscrot_path/share/gscrot/resources/icons/gscrot24x24.png");
@@ -410,7 +419,6 @@ my $tooltip_ask_quit = Gtk2::Tooltips->new;
 $tooltip_ask_quit->set_tip($hide_active,$d->get("Show \"Do you really want to quit?\" dialog when exiting GScrot"));
 #end - behavior
 
-
 #program
 my $model = Gtk2::ListStore->new ('Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String');
 foreach (keys %gm_programs){
@@ -510,7 +518,6 @@ my $accounts_tree = Gtk2::TreeView->new_with_model ($accounts_model);
  
 my $tv_clmn_name_text = Gtk2::TreeViewColumn->new;
 $tv_clmn_name_text->set_title($d->get("Host"));
-#pixbuf renderer
 my $renderer_name_accounts = Gtk2::CellRendererText->new;
 #pack it into the column
 $tv_clmn_name_text->pack_start ($renderer_name_accounts, FALSE);
@@ -543,8 +550,7 @@ $renderer_password_accounts->signal_connect (edited => sub {
 		my $path = Gtk2::TreePath->new_from_string ($text_path);
 		my $iter = $model->get_iter ($path);
 		my $hidden_text = "";
-		my $i = 1;
-		for($i; $i <= length($new_text); $i++){
+		for(my $i = 1; $i <= length($new_text); $i++){
 			$hidden_text .= '*';	
 		}
 		$accounts{$model->get_value($iter, 0)}->{'password'} = $new_text; #save entered password to the hash
@@ -786,7 +792,7 @@ unless($min_cparam){
 }
 
 #load saved settings
-	&function_load_settings if(-f "$ENV{ 'HOME' }/.gscrot/settings.conf" && -r "$ENV{ 'HOME' }/.gscrot/settings.conf");
+	&function_load_settings if(-f "$ENV{ 'HOME' }/.gscrot/settings.xml" && -r "$ENV{ 'HOME' }/.gscrot/settings.xml");
 
 #GTK2 Main Loop
 Gtk2->main;
@@ -820,7 +826,6 @@ sub function_init
 		print "INFO: no command line parameters set...\n";
 	}	
 	
-	
 	print "\nINFO: gathering system information...";
 	print "\n";
 	printf "Glib %s \n", $Glib::VERSION;
@@ -838,6 +843,15 @@ sub function_init
   	if $Gtk2::VERSION >= 1.040;
 	print "\n";
 
+	if(system("which gscrot.pl")==0){
+		print "INFO: gscrot seems to be properly installed on your system!\n";
+		print "INFO: gscrot will try to find resource directory at default location (/usr)!\n";
+		$gscrot_path = "/usr";
+	}else{
+		print "INFO: gscrot is not installed on your system!\n";
+		print "INFO: gscrot will try to find resource directory in place (../)!\n";
+		$gscrot_path = "..";
+	}	
 
 	print "INFO: searching for dependencies...\n\n";
 	
@@ -860,34 +874,37 @@ sub function_init
 		die "ERROR: dependency is missing --> gnome-web-photo is not installed on your system!\n\n";
 	}
 
-	if(system("which gscrot.pl")==0){
-		print "INFO: gscrot seems to be properly installed on your system!\n";
-		print "INFO: gscrot will try to find resource directory at default location (/usr)!\n";
-		$gscrot_path = "/usr";
-	}else{
-		print "INFO: gscrot is not installed on your system!\n";
-		print "INFO: gscrot will try to find resource directory in place (../)!\n";
-		$gscrot_path = "..";
-	}
-
 	#an old .gscrot file existing?
-	rename("$ENV{ 'HOME' }/.gscrot", "$ENV{ 'HOME' }/.gscrot_old") if (-f "$ENV{ 'HOME' }/.gscrot");
+	unlink("$ENV{ 'HOME' }/.gscrot") if (-f "$ENV{ 'HOME' }/.gscrot");
+	#an old .gscrot/settings.conf file existing?
+	unlink("$ENV{ 'HOME' }/.gscrot/settings.conf") if (-f "$ENV{ 'HOME' }/.gscrot/settings.conf");
 	#is there already a .gscrot folder?
 	mkdir("$ENV{ 'HOME' }/.gscrot") unless (-d "$ENV{ 'HOME' }/.gscrot");
-	#an old .gscrot file existing (it is renamed above)?
-	rename("$ENV{ 'HOME' }/.gscrot_old", "$ENV{ 'HOME' }/.gscrot/settings.conf") if (-f "$ENV{ 'HOME' }/.gscrot_old");
 
 	%gm_programs = do "$gscrot_path/share/gscrot/resources/system/programs.conf";
 	if (-f "$ENV{ 'HOME' }/.gscrot/programs.conf"){
 		print "\nINFO: using custom program settings found at $ENV{ 'HOME' }/.gscrot/programs.conf\n";
 		%gm_programs = do "$ENV{ 'HOME' }/.gscrot/programs.conf";
 	}
-	%plugins = do "$gscrot_path/share/gscrot/resources/system/plugins.conf" if (-f "$gscrot_path/share/gscrot/resources/system/plugins.conf");
-	if (-f "$ENV{ 'HOME' }/.gscrot/plugins.conf"){
-		print "\nINFO: using custom program settings found at $ENV{ 'HOME' }/.gscrot/plugins.conf\n";
-		%plugins = do "$ENV{ 'HOME' }/.gscrot/plugins.conf";
-	}    	
-	
+
+	my @plugins = <$gscrot_path/share/gscrot/resources/system/plugins/*/*>; 	
+	foreach(@plugins){
+		if (-d $_){
+			my $dir_name = $_;
+			$dir_name =~ s{^.*/}{};				
+			$plugins{$_}->{'binary'} = "$_/$dir_name" if (-f "$_/$dir_name" && -r "$_/$dir_name");
+			$plugins{$_}->{'pixmap'} = "$_/$dir_name.png" if (-f "$_/$dir_name.png" && -r "$_/$dir_name.png");   
+		}
+	}
+	my @custom_plugins = <$ENV{'HOME'}/.gscrot/plugins/*/*>; 	
+	foreach(@custom_plugins){
+		if (-d $_){
+			my $dir_name = $_;
+			$dir_name =~ s{^.*/}{};				
+			$plugins{$_}->{'binary'} = "$_/$dir_name" if (-f "$_/$dir_name" && -r "$_/$dir_name");
+			$plugins{$_}->{'pixmap'} = "$_/$dir_name.png" if (-f "$_/$dir_name.png" && -r "$_/$dir_name.png");   
+		}
+	}
 }
 
 #nearly all events are handled here
@@ -1430,7 +1447,7 @@ sub function_create_tab {
 	$button_upload->set_image($image_upload);	
 
 	my $tooltip_upload = Gtk2::Tooltips->new;
-	$tooltip_upload->set_tip($button_upload,$d->get("Upload file to ubuntu-pics.de"));
+	$tooltip_upload->set_tip($button_upload,$d->get("Upload file to hosting-site"));
 
 	my $button_rename = Gtk2::Button->new;
 	$button_rename->signal_connect(clicked => \&event_in_tab, 'rename'.$key);
@@ -1533,14 +1550,7 @@ sub event_in_tab
 
 	if ($data =~ m/^upload\[/){
 		$data =~ s/^upload//;
-		my %upload_response;
-		%upload_response = &function_upload_ubuntu_pics(&function_switch_home_in_file($session_screens{$data}), $accounts{'ubuntu-pics.de'}->{'username'}, $accounts{'ubuntu-pics.de'}->{'password'});	
-		if (is_success($upload_response{'status'})){
-			&dialog_upload_links($upload_response{'thumb1'}, $upload_response{'thumb2'}, $upload_response{'bbcode'}, $upload_response{'direct'}, $upload_response{'status'});				
-		}else{
-			&dialog_error_message($upload_response{'status'});	
-		}			
-		&dialog_status_message(1, $session_screens{$data}." ".$d->get("uploaded"));
+		&dialog_account_chooser_and_upload($session_screens{$data});		
 	}
 	
 	if ($data =~ m/^rename\[/){
@@ -1630,7 +1640,7 @@ sub event_settings
 
 #save?
 	if($data eq "menu_save"){
-		if(-e "$ENV{ HOME }/.gscrot/settings.conf" && -w "$ENV{ HOME }/.gscrot/settings.conf"){
+		if(-e "$ENV{ HOME }/.gscrot/settings.xml" && -w "$ENV{ HOME }/.gscrot/settings.xml"){
 			if (&dialog_question_message($d->get("Do you want to overwrite the existing settings?"))){ #ask is settings-file exists
 				&function_save_settings;
 			}
@@ -1638,7 +1648,7 @@ sub event_settings
 				&function_save_settings; #do it directly if not
 		}
 	}elsif($data eq "menu_revert"){
-		if(-e "$ENV{ HOME }/.gscrot/settings.conf" && -r "$ENV{ HOME }/.gscrot/settings.conf"){
+		if(-e "$ENV{ HOME }/.gscrot/settings.xml" && -r "$ENV{ HOME }/.gscrot/settings.xml"){
 			&function_load_settings;
 		}else{
 			&dialog_info_message($d->get("There are no stored settings"));
@@ -1650,98 +1660,96 @@ sub event_settings
 #save settings to file
 sub function_save_settings
 {
-	open(FILE, ">$ENV{ HOME }/.gscrot/settings.conf") or &dialog_error_message(1, $d->get("Settings could not be saved"));	
-	print FILE "FTYPE=".$combobox_type->get_active."\n";
-	print FILE "QSCALE=".$scale->get_value()."\n";
-	print FILE "FNAME=".$filename->get_text()."\n";
-	print FILE "FOLDER=".$saveDir_button->get_filename()."\n";
+	open(SETTFILE, ">$ENV{ HOME }/.gscrot/settings.xml") or &dialog_error_message($d->get("Settings could not be saved: $!"));	
+	$settings{'general'}->{'filetype'} = $combobox_type->get_active;
+	$settings{'general'}->{'quality'} = $scale->get_value();
+	$settings{'general'}->{'filename'} = $filename->get_text();
+	$settings{'general'}->{'folder'} = $saveDir_button->get_filename();
+
 	my $model = $progname->get_model();
 	my $progname_iter = $progname->get_active_iter();
 	my $progname_value = $model->get_value($progname_iter, 2);
-	print FILE "PNAME=".$progname_value."\n";
-	print FILE "PNAME_ACT=".$progname_active->get_active()."\n";
-	print FILE "IM_COLORS=".$combobox_im_colors->get_active()."\n";
-	print FILE "IM_COLORS_ACT=".$im_colors_active->get_active()."\n";
-	print FILE "DELAY=".$delay->get_value()."\n";
-	print FILE "DELAY_ACT=".$delay_active->get_active()."\n";
-	print FILE "THUMB=".$thumbnail->get_value()."\n";
-	print FILE "THUMB_ACT=".$thumbnail_active->get_active()."\n";
-	print FILE "BORDER=".$combobox_border->get_active()."\n";
-	print FILE "CLOSE_ASK=".$ask_quit_active->get_active()."\n";
-	print FILE "AUTOHIDE=".$hide_active->get_active()."\n";
-	print FILE "CLOSE_CLOSE=".$close_at_close_active->get_active()."\n";
-	close(FILE) or &dialog_error_message(1, $d->get("Settings could not be saved"));
+	$settings{'general'}->{'program'} = $progname_value;
+	$settings{'general'}->{'programe_active'} = $progname_active->get_active();
+	$settings{'general'}->{'im_colors'} = $combobox_im_colors->get_active();
+	$settings{'general'}->{'im_colors_active'} = $im_colors_active->get_active();
+	$settings{'general'}->{'delay'} = $delay->get_value();
+	$settings{'general'}->{'delay_active'} = $delay_active->get_active();
+	$settings{'general'}->{'thumbnail'} = $thumbnail->get_value();
+	$settings{'general'}->{'thumbnail_active'} = $thumbnail_active->get_active();
+	$settings{'general'}->{'border'} = $combobox_border->get_active();
+	$settings{'general'}->{'ask_at_close'} = $ask_quit_active->get_active();
+	$settings{'general'}->{'autohide'} = $hide_active->get_active();
+	$settings{'general'}->{'close_at_close'} = $close_at_close_active->get_active();
 
+	my $settings_out = XMLout(\%settings);	
+  	print SETTFILE $settings_out;
 
- 	$statusbar->push (1, $d->get("Settings saved successfully"));
+	close(SETTFILE) or &dialog_error_message($d->get("Settings could not be saved: $!"));
+
+	&dialog_status_message(1, $d->get("Settings saved successfully"));
+
+	open(ACC_FILE, ">$ENV{ HOME }/.gscrot/accounts.xml") or &dialog_error_message($d->get("Account-settings could not be saved: $!"));	
+	my $accounts_out = XMLout(\%accounts);	
+  	print ACC_FILE $accounts_out;
+	close(ACC_FILE) or &dialog_error_message($d->get("Account-settings could not be saved: $!"));
+
+	return 1;
 }
 
 sub function_load_settings
 {
-	my @settings_file;
-	open(FILE, "$ENV{ HOME }/.gscrot/settings.conf") or &dialog_status_message(1, $d->get("Settings could not be loaded"));	
-	@settings_file = <FILE>;
-	close(FILE) or &dialog_status_message(1, $d->get("Settings could not be loaded"));
-
-	foreach (@settings_file){
-		chomp;
-		if($_ =~ m/^FTYPE=/){
-			$_ =~ s/FTYPE=//;
-			$combobox_type->set_active($_);
-		}elsif($_ =~ m/^QSCALE=/){
-			$_ =~ s/QSCALE=//;
-			$scale->set_value($_);
-		}elsif($_ =~ m/^FNAME=/){
-			$_ =~ s/FNAME=//;
-			$filename->set_text($_);
-		}elsif($_ =~ m/^FOLDER=/){
-			$_ =~ s/FOLDER=//;			
-			$saveDir_button->set_current_folder($_);
-		}elsif($_ =~ m/^PNAME=/){
-			$_ =~ s/PNAME=//;
-			my $model = $progname->get_model;
-			$model->foreach (\&function_iter_programs, $_);
-		}elsif($_ =~ m/^PNAME_ACT=/){
-			$_ =~ s/PNAME_ACT=//;
-			$progname_active->set_active($_);
-		}elsif($_ =~ m/^IM_COLORS_ACT=/){
-			$_ =~ s/IM_COLORS_ACT=//;
-			$im_colors_active->set_active($_);
-		}elsif($_ =~ m/^IM_COLORS=/){
-			$_ =~ s/IM_COLORS=//;
-			$combobox_im_colors->set_active($_);
-		}elsif($_ =~ m/^PNAME_ACT=/){
-			$_ =~ s/IM_LABEL_ACT=//;
-			$progname_active->set_active($_);
-		}elsif($_ =~ m/^DELAY=/){
-			$_ =~ s/DELAY=//;
-			$delay->set_value($_);
-		}elsif($_ =~ m/^DELAY_ACT=/){
-			$_ =~ s/DELAY_ACT=//;
-			$delay_active->set_active($_);
-		}elsif($_ =~ m/^THUMB=/){
-			$_ =~ s/THUMB=//;
-			$thumbnail->set_value($_);
-		}elsif($_ =~ m/^THUMB_ACT=/){
-			$_ =~ s/THUMB_ACT=//;
-			$thumbnail_active->set_active($_);
-		}elsif($_ =~ m/^BORDER=/){
-			$_ =~ s/BORDER=//;
-			$combobox_border->set_active($_);
-		}elsif($_ =~ m/^CLOSE_ASK=/){
-			$_ =~ s/CLOSE_ASK=//;
-			$ask_quit_active->set_active($_);
-		}elsif($_ =~ m/^AUTOHIDE=/){
-			$_ =~ s/AUTOHIDE=//;
-			$hide_active->set_active($_);
-		}elsif($_ =~ m/^CLOSE_CLOSE=/){
-			$_ =~ s/CLOSE_CLOSE=//;
-			$close_at_close_active->set_active($_);
-		}
-
+	if (&function_file_exists("$ENV{ HOME }/.gscrot/settings.xml")){
+		my $settings_xml = XMLin("$ENV{ HOME }/.gscrot/settings.xml");
+		$combobox_type->set_active($settings_xml->{'general'}->{'filetype'});
+		$scale->set_value($settings_xml->{'general'}->{'quality'});
+		$filename->set_text($settings_xml->{'general'}->{'filename'});
+		$saveDir_button->set_current_folder($settings_xml->{'general'}->{'folder'});
+		my $model = $progname->get_model;
+		$model->foreach (\&function_iter_programs, $settings_xml->{'general'}->{'program'});
+		$progname_active->set_active($settings_xml->{'general'}->{'programe_active'});
+		$im_colors_active->set_active($settings_xml->{'general'}->{'im_colors_active'});
+		$combobox_im_colors->set_active($settings_xml->{'general'}->{'im_colors'});
+		$delay->set_value($settings_xml->{'general'}->{'delay'});
+		$delay_active->set_active($settings_xml->{'general'}->{'delay_active'});
+		$thumbnail->set_value($settings_xml->{'general'}->{'thumbnail'});
+		$thumbnail_active->set_active($settings_xml->{'general'}->{'thumbnail_active'});
+		$combobox_border->set_active($settings_xml->{'general'}->{'border'});
+		$ask_quit_active->set_active($settings_xml->{'general'}->{'ask_at_close'});
+		$hide_active->set_active($settings_xml->{'general'}->{'autohide'});
+		$close_at_close_active->set_active($settings_xml->{'general'}->{'close_at_close'});			
+		&dialog_status_message(1, $d->get("Settings loaded successfully"));
 	}
+	return 1;	
+}
 
-	&dialog_status_message(1, $d->get("Settings loaded successfully"));
+sub function_load_accounts
+{	
+	my $accounts_xml = XMLin("$ENV{ HOME }/.gscrot/accounts.xml") if &function_file_exists("$ENV{ HOME }/.gscrot/accounts.xml");
+	#account data, load defaults if nothing is set
+	unless(exists($accounts_xml->{'ubuntu-pics.de'})){
+		$accounts{'ubuntu-pics.de'}->{host} = "ubuntu-pics.de";
+		$accounts{'ubuntu-pics.de'}->{username} = "";
+		$accounts{'ubuntu-pics.de'}->{password} = "";
+		$accounts{'ubuntu-pics.de'}->{module} = "UbuntuPics.pm";
+	}else{
+		$accounts{'ubuntu-pics.de'}->{host} = $accounts_xml->{'ubuntu-pics.de'}->{host};
+		$accounts{'ubuntu-pics.de'}->{username} = $accounts_xml->{'ubuntu-pics.de'}->{username};
+		$accounts{'ubuntu-pics.de'}->{password} = $accounts_xml->{'ubuntu-pics.de'}->{password};
+		$accounts{'ubuntu-pics.de'}->{module} = $accounts_xml->{'ubuntu-pics.de'}->{module};	
+	}
+	unless(exists($accounts_xml->{'imagebanana.com'})){
+		$accounts{'imagebanana.com'}->{host} = "imagebanana.com";
+		$accounts{'imagebanana.com'}->{username} = "";
+		$accounts{'imagebanana.com'}->{password} = "";
+		$accounts{'imagebanana.com'}->{module} = "ImageBanana.pm";
+	}else{
+		$accounts{'imagebanana.com'}->{host} = $accounts_xml->{'imagebanana.com'}->{host};
+		$accounts{'imagebanana.com'}->{username} = $accounts_xml->{'imagebanana.com'}->{username};
+		$accounts{'imagebanana.com'}->{password} = $accounts_xml->{'imagebanana.com'}->{password};
+		$accounts{'imagebanana.com'}->{module} = $accounts_xml->{'imagebanana.com'}->{module};	
+	}			
+	return 1;	
 }
 
 ####################SAVE AND REVERT################################
@@ -1914,6 +1922,74 @@ sub dialog_plugin
 		$plugin_dialog->destroy() ;
 		return FALSE;
 	}
+}
+
+sub dialog_account_chooser_and_upload
+{
+	my ($file_to_upload) = @_;
+
+	my $dialog_header = $d->get("Choose hosting-site and account");
+ 	my $hosting_dialog = Gtk2::Dialog->new ($dialog_header,
+        						$window,
+                              	[qw/modal destroy-with-parent/],
+                              	'gtk-ok'     => 'accept',
+                              	'gtk-cancel' => 'reject');
+
+	$hosting_dialog->set_default_response ('accept');
+	$hosting_dialog->set_size_request(300);
+
+	my $model = Gtk2::ListStore->new ('Glib::String', 'Glib::String', 'Glib::String');
+	foreach (keys %accounts){
+			$model->set ($model->append, 0, $accounts{$_}->{'host'} , 1, $accounts{$_}->{'username'}, 2, $accounts{$_}->{'password'}) if($accounts{$_}->{'username'} ne "" && $accounts{$_}->{'password'} ne "");		
+			$model->set ($model->append, 0, $accounts{$_}->{'host'} , 1, $d->get("NoAccount"), 2, "");	
+	}
+	
+	my $hosting = Gtk2::ComboBox->new ($model);
+	my $renderer_host = Gtk2::CellRendererText->new;
+	$hosting->pack_start ($renderer_host, FALSE);
+	$hosting->add_attribute ($renderer_host, text => 0);
+	my $renderer_username = Gtk2::CellRendererText->new;
+	$hosting->pack_start ($renderer_username, FALSE);
+	$hosting->add_attribute ($renderer_username, text => 1);
+	$hosting->set_active(0);
+	
+    $hosting_dialog->vbox->add ($hosting);
+    $hosting_dialog->show_all;
+
+	my $hosting_response = $hosting_dialog->run ;    
+	if ($hosting_response eq "accept" ) {
+		my $model = $hosting->get_model();
+		my $hosting_iter = $hosting->get_active_iter();
+		my $hosting_host = $model->get_value($hosting_iter, 0);
+		my $hosting_username = $model->get_value($hosting_iter, 1);
+		my $hosting_password = $model->get_value($hosting_iter, 2);		
+
+		if($hosting_host eq "ubuntu-pics.de"){
+			my %upload_response;
+			%upload_response = &function_upload_ubuntu_pics(&function_switch_home_in_file($file_to_upload), $hosting_username, $hosting_password, $debug_cparam);	
+			if (is_success($upload_response{'status'})){
+				&dialog_upload_links_ubuntu_pics($hosting_host, $hosting_username, $upload_response{'thumb1'}, $upload_response{'thumb2'}, $upload_response{'bbcode'}, $upload_response{'direct'}, $upload_response{'status'});				
+				&dialog_status_message(1, $file_to_upload." ".$d->get("uploaded"));
+			}else{
+				&dialog_error_message($upload_response{'status'});	
+			}
+		}elsif($hosting_host eq "imagebanana.com"){
+			my %upload_response;
+			%upload_response = &function_upload_imagebanana(&function_switch_home_in_file($file_to_upload), $hosting_username, $hosting_password, $debug_cparam);	
+			if (is_success($upload_response{'status'})){
+				&dialog_upload_links_imagebanana($hosting_host, $hosting_username, $upload_response{'thumb1'}, $upload_response{'thumb2'}, $upload_response{'thumb3'}, $upload_response{'friends'}, $upload_response{'popup'}, $upload_response{'direct'}, $upload_response{'hotweb'}, $upload_response{'hotboard1'}, $upload_response{'hotboard2'}, $upload_response{'status'});				
+				&dialog_status_message(1, $file_to_upload." ".$d->get("uploaded"));
+			}else{
+				&dialog_error_message($upload_response{'status'});	
+			}					
+		}		
+		
+		$hosting_dialog->destroy();		
+		return TRUE;
+	}else {
+		$hosting_dialog->destroy() ;
+		return FALSE;
+	}
 
 }
 
@@ -1945,17 +2021,17 @@ sub dialog_website
 
 }
 
-sub dialog_upload_links
+sub dialog_upload_links_ubuntu_pics
 {
-	my ($thumb1, $thumb2, $bbcode, $direct, $status) = @_;
-	my $dialog_header = $d->get("Upload");
+	my ($host, $username, $thumb1, $thumb2, $bbcode, $direct, $status) = @_;
+	my $dialog_header = $d->get("Upload")." - ".$host." - ".$username;
  	my $upload_dialog = Gtk2::Dialog->new ($dialog_header,
         						$window,
                               	[qw/modal destroy-with-parent/],
                               	'gtk-ok'     => 'accept');
 
 	$upload_dialog->set_default_response ('accept');
-	$upload_dialog->set_size_request(300, 300);
+	$upload_dialog->set_size_request(400, 300);
 
 	my $upload_hbox = Gtk2::HBox->new(FALSE, 0);
 	my $upload_vbox = Gtk2::VBox->new(FALSE, 0);
@@ -2001,6 +2077,107 @@ sub dialog_upload_links
 	$upload_vbox->pack_start($label_direct, TRUE, TRUE, 2);
 	$upload_vbox->pack_start($entry_direct, TRUE, TRUE, 2);
 	    
+    $upload_dialog->vbox->add ($upload_vbox);	
+ 
+    $upload_dialog->show_all;
+
+	my $upload_response = $upload_dialog->run ;    
+	if ($upload_response eq "accept" ) {
+		$upload_dialog->destroy();		
+		return TRUE;
+	}else {
+		$upload_dialog->destroy() ;
+		return FALSE;
+	}
+
+}
+
+sub dialog_upload_links_imagebanana
+{
+	my ($host, $username, $thumb1, $thumb2, $thumb3, $friends, $popup, $direct, $hotweb, $hotboard1, $hotboard2, $status) = @_;
+	my $dialog_header = $d->get("Upload")." - ".$host." - ".$username;
+ 	my $upload_dialog = Gtk2::Dialog->new ($dialog_header,
+        						$window,
+                              	[qw/modal destroy-with-parent/],
+                              	'gtk-ok'     => 'accept');
+
+	$upload_dialog->set_default_response ('accept');
+	$upload_dialog->set_size_request(400, 600);
+
+	my $upload_hbox = Gtk2::HBox->new(FALSE, 0);
+	my $upload_vbox = Gtk2::VBox->new(FALSE, 0);
+	
+	my $label_status = Gtk2::Label->new();
+	$label_status->set_text($d->get("Upload status:")." ".status_message($status));	
+	my $image_status;
+	if (is_success($status)){
+		$image_status = Gtk2::Image->new_from_icon_name ('gtk-yes', 'menu');
+	}else{
+		$image_status = Gtk2::Image->new_from_icon_name ('gtk-no', 'menu');
+	}
+	$upload_hbox->pack_start($image_status, TRUE, TRUE, 0);
+    $upload_hbox->pack_start($label_status, TRUE, TRUE, 0);
+		
+	my $entry_thumb1 = Gtk2::Entry->new();
+	my $entry_thumb2 = Gtk2::Entry->new();
+	my $entry_thumb3 = Gtk2::Entry->new();	
+	my $entry_friends = Gtk2::Entry->new();
+	my $entry_popup = Gtk2::Entry->new();
+	my $entry_direct = Gtk2::Entry->new();
+	my $entry_hotweb = Gtk2::Entry->new();
+	my $entry_hotboard1 = Gtk2::Entry->new();
+	my $entry_hotboard2 = Gtk2::Entry->new();
+
+	my $label_thumb1 = Gtk2::Label->new();
+	my $label_thumb2 = Gtk2::Label->new();
+	my $label_thumb3 = Gtk2::Label->new();	
+	my $label_friends = Gtk2::Label->new();
+	my $label_popup = Gtk2::Label->new();
+	my $label_direct = Gtk2::Label->new();
+	my $label_hotweb = Gtk2::Label->new();
+	my $label_hotboard1 = Gtk2::Label->new();
+	my $label_hotboard2 = Gtk2::Label->new();
+
+	$label_thumb1->set_text($d->get("Thumbnail for websites"));
+	$label_thumb2->set_text($d->get("Thumbnail for boards (1)"));
+	$label_thumb3->set_text($d->get("Thumbnail for boards (2)"));
+	$label_friends->set_text($d->get("Show your friends"));	
+	$label_popup->set_text($d->get("Popup for websites"));
+	$label_direct->set_text($d->get("Direct link"));
+	$label_hotweb->set_text($d->get("Hotlink for websites"));
+	$label_hotboard1->set_text($d->get("Hotlink for boards (1)"));							
+	$label_hotboard2->set_text($d->get("Hotlink for boards (2)"));	
+
+	$entry_thumb1->set_text($thumb1);
+	$entry_thumb2->set_text($thumb2);
+	$entry_thumb3->set_text($thumb3);
+	$entry_friends->set_text($friends);	
+	$entry_popup->set_text($popup);
+	$entry_direct->set_text($direct);
+	$entry_hotweb->set_text($hotweb);
+	$entry_hotboard1->set_text($hotboard1);							
+	$entry_hotboard2->set_text($hotboard2);	
+
+	$upload_vbox->pack_start($upload_hbox, TRUE, TRUE, 10);
+	$upload_vbox->pack_start($label_thumb1, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($entry_thumb1, TRUE, TRUE, 2);    
+	$upload_vbox->pack_start($label_thumb2, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($entry_thumb2, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($label_thumb3, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($entry_thumb3, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($label_friends, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($entry_friends, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($label_popup, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($entry_popup, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($label_direct, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($entry_direct, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($label_hotweb, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($entry_hotweb, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($label_hotboard1, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($entry_hotboard1, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($label_hotboard2, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($entry_hotboard2, TRUE, TRUE, 2);
+    
     $upload_dialog->vbox->add ($upload_vbox);	
  
     $upload_dialog->show_all;
@@ -2181,127 +2358,5 @@ sub function_iter_programs
 	return TRUE;
 }
 
-sub function_upload_ubuntu_pics
-{
-	my ($upload_filename, $username, $password) = @_;
-
-	my %links; #returned links will be stored here
-
-	my $filesize = -s $upload_filename;
-	if($filesize > 2048000){
-		$links{'status'} = $d->get("Filesize exceeded - maximum 2000 Kb\nUpload aborted");
-		return %links;			
-	} 
-	
-	my $mech = WWW::Mechanize->new();
-	
-	if($username ne "" && $password ne ""){
-
-		$mech->get("http://www.ubuntu-pics.de/login.html");
-		$mech->form_number(2);
-		$mech->field(name => $username);
-		$mech->field(passwort => $password);
-		$mech->click("login");
-
-		my $http_status = $mech->status();
-		unless(is_success($http_status)){
-			$links{'status'} = $http_status; return %links;
-		}
-		if($mech->content =~/Diese Login Daten sind leider falsch/){
-			$links{'status'} = $d->get("Login failed,\nplease recheck your username and/or password"); return %links;
-		}  
-		$links{status}='OK Login';
-
-		$mech->get("http://www.ubuntu-pics.de/index.html");
-		$mech->field("datei[]" => $upload_filename);
-		$mech->click("upload_a");
-
-		$http_status = $mech->status();
-		unless(is_success($http_status)){
-			$links{'status'} = $http_status; return %links;
-		} 
-
-		my $html_file = $mech->content();
-
-		$html_file =~ /id="thumb1" value='(.*)' onclick/g;
-		$links{'thumb1'} = &function_switch_html_entities($1);
-
-		$html_file =~ /id="thumb2" value='(.*)' onclick/g;
-		$links{'thumb2'} = &function_switch_html_entities($1);
-
-		$html_file =~ /id="bbcode" value='(.*)' onclick/g;
-		$links{'bbcode'} = &function_switch_html_entities($1);
-
-		$html_file =~ /id="direct" value='(.*)' onclick/g;
-		$links{'direct'} = &function_switch_html_entities($1);
-
-		if ($debug_cparam){
-			print "The following links were returned by http://www.ubuntu-pics.de:\n";
-			print "Thumbnail for websites (with Border)\n$links{'thumb1'}\n";
-			print "Thumbnail for websites (without Border)\n$links{'thumb2'}\n";
-			print "Thumbnail for forums \n$links{'bbcode'}\n";
-			print "Direct link \n$links{'direct'}\n";
-		}
-
-		$links{'status'} = $http_status;
-		return %links;
-
-	}else{
-
-		$mech->get("http://www.ubuntu-pics.de/easy.html");
-
-		$mech->submit_form(
-			form_name 	=> 'upload_bild',
-			fields      => {
-				"datei[]"    => $upload_filename,
-				}
-			);
-			
-		my $http_status = $mech->status();
-
-		if (is_success($http_status)){
-			my $html_file = $mech->content;
-
-			$html_file =~ /id="thumb1" value='(.*)' onclick/g;
-			$links{'thumb1'} = &function_switch_html_entities($1);
-
-			$html_file =~ /id="thumb2" value='(.*)' onclick/g;
-			$links{'thumb2'} = &function_switch_html_entities($1);
-
-			$html_file =~ /id="bbcode" value='(.*)' onclick/g;
-			$links{'bbcode'} = &function_switch_html_entities($1);
-			
-			$html_file =~ /id="direct" value='(.*)' onclick/g;
-			$links{'direct'} = &function_switch_html_entities($1);
-
-			if ($debug_cparam){
-				print "The following links were returned by http://www.ubuntu-pics.de:\n";
-				print "Thumbnail for websites (with Border)\n$links{'thumb1'}\n";
-				print "Thumbnail for websites (without Border)\n$links{'thumb2'}\n";
-				print "Thumbnail for forums \n$links{'bbcode'}\n";
-				print "Direct link \n$links{'direct'}\n";
-			}
-			
-			$links{'status'} = $http_status;
-			return %links;
-			
-		}else{
-			$links{'status'} = $http_status;
-			return %links;	
-		}
-
-	}	
-
-}
-
-sub function_switch_html_entities
-{
-	my ($code) = @_;
-	$code =~ s/&amp;/\&/g;
-	$code =~ s/&lt;/</g;
-	$code =~ s/&gt;/>/g;
-	$code =~ s/&quot;/\"/g;
-	return $code;		
-}
 #################### MY FUNCTIONS  ################################
 
