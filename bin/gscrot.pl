@@ -411,12 +411,12 @@ $tooltip_hide->set_tip($hide_active,$d->get("Automatically hide GScrot Window wh
 $close_at_close_active->signal_connect('toggled' => \&event_behavior_handle, 'close_at_close_toggled');
 $close_at_close_active->set_active(TRUE);
 my $tooltip_close_at_close = Gtk2::Tooltips->new;
-$tooltip_close_at_close->set_tip($close_at_close_active,$d->get("Automatically hide GScrot Window when taking a screenshot"));
+$tooltip_close_at_close->set_tip($close_at_close_active,$d->get("Autohide GScrot Window when taking a screenshot"));
 
 $ask_quit_active->signal_connect('toggled' => \&event_behavior_handle, 'ask_quit_toggled');
 $hide_active->set_active(TRUE);
 my $tooltip_ask_quit = Gtk2::Tooltips->new;
-$tooltip_ask_quit->set_tip($hide_active,$d->get("Show \"Do you really want to quit?\" dialog when exiting GScrot"));
+$tooltip_ask_quit->set_tip($hide_active,$d->get("Show \"Do you really want to quit?\" dialog when exiting"));
 #end - behavior
 
 #program
@@ -1660,7 +1660,7 @@ sub event_settings
 #save settings to file
 sub function_save_settings
 {
-	open(SETTFILE, ">$ENV{ HOME }/.gscrot/settings.xml") or &dialog_error_message($d->get("Settings could not be saved: $!"));	
+	open(SETTFILE, ">$ENV{ HOME }/.gscrot/settings.xml") or &dialog_error_message($d->get("Settings could not be saved!"));	
 	$settings{'general'}->{'filetype'} = $combobox_type->get_active;
 	$settings{'general'}->{'quality'} = $scale->get_value();
 	$settings{'general'}->{'filename'} = $filename->get_text();
@@ -1685,14 +1685,14 @@ sub function_save_settings
 	my $settings_out = XMLout(\%settings);	
   	print SETTFILE $settings_out;
 
-	close(SETTFILE) or &dialog_error_message($d->get("Settings could not be saved: $!"));
+	close(SETTFILE) or &dialog_error_message($d->get("Settings could not be saved!"));
 
-	&dialog_status_message(1, $d->get("Settings saved successfully"));
+	&dialog_status_message(1, $d->get("Settings saved successfully!"));
 
-	open(ACC_FILE, ">$ENV{ HOME }/.gscrot/accounts.xml") or &dialog_error_message($d->get("Account-settings could not be saved: $!"));	
+	open(ACC_FILE, ">$ENV{ HOME }/.gscrot/accounts.xml") or &dialog_error_message($d->get("Account-settings could not be saved!"));	
 	my $accounts_out = XMLout(\%accounts);	
   	print ACC_FILE $accounts_out;
-	close(ACC_FILE) or &dialog_error_message($d->get("Account-settings could not be saved: $!"));
+	close(ACC_FILE) or &dialog_error_message($d->get("Account-settings could not be saved!"));
 
 	return 1;
 }
