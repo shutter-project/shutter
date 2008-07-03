@@ -520,7 +520,11 @@ $border_box->pack_start($combobox_border, TRUE, TRUE, 10);
 my $accounts_model = Gtk2::ListStore->new ('Glib::String', 'Glib::String', 'Glib::String');
 
 foreach (keys %accounts){
-	$accounts_model->set ($accounts_model->append, 0, $accounts{$_}->{'host'} , 1, $accounts{$_}->{'username'}, 2, $accounts{$_}->{'password'});				
+	my $hidden_text = "";
+	for(my $i = 1; $i <= length($accounts{$_}->{'password'}); $i++){
+		$hidden_text .= '*';	
+	}
+	$accounts_model->set ($accounts_model->append, 0, $accounts{$_}->{'host'} , 1, $accounts{$_}->{'username'}, 2, $hidden_text);				
 }
 my $accounts_tree = Gtk2::TreeView->new_with_model ($accounts_model);
  
