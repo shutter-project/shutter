@@ -7,7 +7,7 @@ Homepage: https://launchpad.net/gscrot
 
 Package: gscrot
 Architecture: all
-Depends: scrot, libgtk2-trayicon-perl, libgtk2-perl, gtklp, liblocale-gettext-perl, libglib-perl, perlmagick, libxml-simple-perl, libwww-mechanize-perl, libwww-perl, gnome-web-photo
+Depends: scrot, libgtk2-trayicon-perl, libgtk2-perl, gtklp, liblocale-gettext-perl, libglib-perl, perlmagick, libxml-simple-perl, libwww-mechanize-perl, libwww-perl, gnome-web-photo, gscrot-plugins-bash
 Conflicts:
 Replaces:
 Provides: gscrot
@@ -22,4 +22,5 @@ Description: GScrot is a GTK+ 2.0 frontend for scrot (Copyright Tom Gilbert 2000
  - save and revert your settings
  - GScrot session collection
  - Upload your screenshots
+ - Edit your Screenshots directly (simple drawing tool included)
 

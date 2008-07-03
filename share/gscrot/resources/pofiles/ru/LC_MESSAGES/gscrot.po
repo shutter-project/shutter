@@ -5,8 +5,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-07-02 14:38+0200\n"
-"PO-Revision-Date: 2008-07-02 14:39+0100\n"
+"POT-Creation-Date: 2008-07-03 19:33+0200\n"
+"PO-Revision-Date: 2008-07-03 19:34+0100\n"
 "Last-Translator: Mario Kemper <mario.kemper@gmx.de>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -14,56 +14,56 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 
-#: gscrot.pl:82
+#: gscrot.pl:91
 msgid "All"
 msgstr "Все"
 
-#: gscrot.pl:133
+#: gscrot.pl:142
 msgid "_File"
 msgstr "_Файл"
 
-#: gscrot.pl:135
+#: gscrot.pl:144
 msgid "_Revert Settings"
 msgstr "_Сбросить настройки"
 
-#: gscrot.pl:141
+#: gscrot.pl:150
 msgid "_Save Settings"
 msgstr "_Сохранить настройки"
 
-#: gscrot.pl:150
+#: gscrot.pl:159
 msgid "_Quit"
 msgstr "_Выйти"
 
-#: gscrot.pl:162
-#: gscrot.pl:1335
+#: gscrot.pl:171
+#: gscrot.pl:1344
 msgid "Capture with selection"
 msgstr "Снимок с выбором"
 
-#: gscrot.pl:168
-#: gscrot.pl:215
-#: gscrot.pl:281
-#: gscrot.pl:1338
+#: gscrot.pl:177
+#: gscrot.pl:224
+#: gscrot.pl:290
+#: gscrot.pl:1347
 msgid "Capture"
 msgstr "Снимок"
 
-#: gscrot.pl:174
-#: gscrot.pl:1341
+#: gscrot.pl:183
+#: gscrot.pl:1350
 msgid "Capture website"
 msgstr "Снимок сайта"
 
-#: gscrot.pl:180
+#: gscrot.pl:189
 msgid "_Actions"
 msgstr "_Действия"
 
-#: gscrot.pl:187
+#: gscrot.pl:196
 msgid "_Info"
 msgstr "_О программе"
 
-#: gscrot.pl:193
+#: gscrot.pl:202
 msgid "_Help"
 msgstr "_Справка"
 
-#: gscrot.pl:202
+#: gscrot.pl:211
 msgid ""
 "Capture\n"
 "with selection"
@@ -71,7 +71,7 @@ msgstr ""
 "Снимок\n"
 "с выбором"
 
-#: gscrot.pl:209
+#: gscrot.pl:218
 msgid ""
 "Draw a rectangular capture area with your mouse\n"
 "to select a specified screen area\n"
@@ -82,11 +82,11 @@ msgstr ""
 "или выберете отдельное окно,\n"
 "чтобы снять его содержимое"
 
-#: gscrot.pl:222
+#: gscrot.pl:231
 msgid "Take a screenshot of your whole desktop"
 msgstr "Снять весь экран"
 
-#: gscrot.pl:228
+#: gscrot.pl:237
 msgid ""
 "Capture\n"
 "website"
@@ -94,34 +94,35 @@ msgstr ""
 "Снимок\n"
 "сайта"
 
-#: gscrot.pl:235
+#: gscrot.pl:244
 msgid "Take a screenshot of a website"
 msgstr "Создать снимок веб-сайта"
 
-#: gscrot.pl:261
-#: gscrot.pl:376
+#: gscrot.pl:270
+#: gscrot.pl:385
 msgid "Image format"
 msgstr "Формат изображения"
 
-#: gscrot.pl:266
+#: gscrot.pl:275
+#: gscrot.pl:2464
 msgid "Save"
 msgstr "Сохранение"
 
-#: gscrot.pl:271
+#: gscrot.pl:280
 msgid "Behavior"
-msgstr ""
+msgstr "Поведение"
 
-#: gscrot.pl:276
+#: gscrot.pl:285
 msgid "Actions"
 msgstr "Действия"
 
-#: gscrot.pl:286
-#: gscrot.pl:974
+#: gscrot.pl:295
+#: gscrot.pl:983
 msgid "Quality"
 msgstr "Качество"
 
-#: gscrot.pl:294
-#: gscrot.pl:295
+#: gscrot.pl:303
+#: gscrot.pl:304
 msgid ""
 "Quality/Compression:\n"
 "High value means high size / high compression\n"
@@ -139,23 +140,23 @@ msgstr ""
 "регулировка уровня сжатия вайлоф png\n"
 "пока не поддерживается"
 
-#: gscrot.pl:301
+#: gscrot.pl:310
 msgid "Delay"
 msgstr "Задержка"
 
-#: gscrot.pl:314
-#: gscrot.pl:315
-#: gscrot.pl:316
+#: gscrot.pl:323
+#: gscrot.pl:324
+#: gscrot.pl:325
 msgid "Wait n seconds before taking a screenshot"
 msgstr "Задержка в n секунд перед тем как делать снимок"
 
-#: gscrot.pl:327
+#: gscrot.pl:336
 msgid "Thumbnail"
 msgstr "Эскиз"
 
-#: gscrot.pl:340
-#: gscrot.pl:341
-#: gscrot.pl:342
+#: gscrot.pl:349
+#: gscrot.pl:350
+#: gscrot.pl:351
 msgid ""
 "Generate thumbnail too.\n"
 "select the percentage of the original size for the thumbnail to be"
@@ -164,12 +165,12 @@ msgstr ""
 "Выберите размер эскиза в процентах от\n"
 "оригинального изображения"
 
-#: gscrot.pl:357
+#: gscrot.pl:366
 msgid "Filename"
 msgstr "Имя файла"
 
-#: gscrot.pl:361
-#: gscrot.pl:362
+#: gscrot.pl:370
+#: gscrot.pl:371
 msgid ""
 "There are several wild-cards available, like\n"
 "%Y = year\n"
@@ -187,17 +188,17 @@ msgstr ""
 "$w = ширина\n"
 "$h = высота"
 
-#: gscrot.pl:379
-#: gscrot.pl:380
+#: gscrot.pl:388
+#: gscrot.pl:389
 msgid "Select a file format"
 msgstr "Выберите формат файла"
 
-#: gscrot.pl:389
+#: gscrot.pl:398
 msgid "Directory"
 msgstr "Папка"
 
-#: gscrot.pl:394
-#: gscrot.pl:395
+#: gscrot.pl:403
+#: gscrot.pl:404
 msgid ""
 "Your screenshots will be saved\n"
 "to this directory"
@@ -205,38 +206,31 @@ msgstr ""
 "Ваши снимки будут сохранены\n"
 "в этой папке"
 
-#: gscrot.pl:402
-#: gscrot.pl:414
-#, fuzzy
+#: gscrot.pl:411
+#: gscrot.pl:423
 msgid "Autohide GScrot Window when taking a screenshot"
-msgstr ""
-"Автоматически уменьшить\n"
-"количество цветов после съемки"
+msgstr "Автоматически·скрывать·окно·GScrot·на·время·съемки"
 
-#: gscrot.pl:403
-#: gscrot.pl:419
-#, fuzzy
+#: gscrot.pl:412
+#: gscrot.pl:428
 msgid "Show \"Do you really want to quit?\" dialog when exiting"
-msgstr "Вы действительно хотите закрыть GScrot?"
+msgstr "Показывать диалог \"Вы действительно хотите выйти?\" на выходе"
 
-#: gscrot.pl:404
+#: gscrot.pl:413
 msgid "Minimize to tray when closing main window"
-msgstr ""
+msgstr "Сворачивать в область уведомления при закрытии главного окна"
 
-#: gscrot.pl:409
-#, fuzzy
+#: gscrot.pl:418
 msgid "Automatically hide GScrot Window when taking a screenshot"
-msgstr ""
-"Автоматически уменьшить\n"
-"количество цветов после съемки"
+msgstr "Автоматически скрывать окно GScrot на время съемки"
 
-#: gscrot.pl:451
+#: gscrot.pl:460
 msgid "Open with"
 msgstr "Открыть с помощью"
 
-#: gscrot.pl:454
-#: gscrot.pl:455
-#: gscrot.pl:456
+#: gscrot.pl:463
+#: gscrot.pl:464
+#: gscrot.pl:465
 msgid ""
 "Open your screenshot\n"
 "with this program after capturing"
@@ -244,25 +238,25 @@ msgstr ""
 "Открыть снимок следующей\n"
 "программой после съемки"
 
-#: gscrot.pl:466
+#: gscrot.pl:475
 msgid "16 colors   - (4bit) "
 msgstr "16 цветов   - (4 бита) "
 
-#: gscrot.pl:467
+#: gscrot.pl:476
 msgid "64 colors   - (6bit) "
 msgstr "64 цвета   - (6 бит) "
 
-#: gscrot.pl:468
+#: gscrot.pl:477
 msgid "256 colors  - (8bit) "
 msgstr "256 цветов   - (8 бит) "
 
-#: gscrot.pl:479
+#: gscrot.pl:488
 msgid "Reduce colors"
 msgstr "Уменьшить количество цветов"
 
-#: gscrot.pl:482
-#: gscrot.pl:483
-#: gscrot.pl:484
+#: gscrot.pl:491
+#: gscrot.pl:492
+#: gscrot.pl:493
 msgid ""
 "Automatically reduce colors \n"
 "after taking a screenshot"
@@ -270,20 +264,20 @@ msgstr ""
 "Автоматически уменьшить\n"
 "количество цветов после съемки"
 
-#: gscrot.pl:494
+#: gscrot.pl:503
 msgid "activate"
 msgstr "включить"
 
-#: gscrot.pl:495
+#: gscrot.pl:504
 msgid "deactivate"
 msgstr "выключить"
 
-#: gscrot.pl:500
+#: gscrot.pl:509
 msgid "Window border"
 msgstr "Рамка окна"
 
-#: gscrot.pl:504
-#: gscrot.pl:505
+#: gscrot.pl:513
+#: gscrot.pl:514
 msgid ""
 "When selecting a window, grab wm border too\n"
 "(capture with selection only)\n"
@@ -293,259 +287,257 @@ msgstr ""
 "окна (только при съемке с выбором)\n"
 "Эта опция не нужна, если Вы используете Compiz"
 
-#: gscrot.pl:520
+#: gscrot.pl:529
 msgid "Host"
-msgstr ""
+msgstr "Хост"
 
-#: gscrot.pl:539
-#, fuzzy
+#: gscrot.pl:548
 msgid "Username"
-msgstr "переименован"
+msgstr "Имя"
 
-#: gscrot.pl:544
+#: gscrot.pl:553
 msgid "Password"
-msgstr ""
+msgstr "Пароль"
 
-#: gscrot.pl:569
-msgid "<b>Note:</b> Entering your Accounts for specific hosting-sites is optional. If entered it will give you the same benefits as the upload on the website. If you leave these fields empty the upload to the specific hosting-partner will be anonymous."
-msgstr ""
+#: gscrot.pl:578
+#, fuzzy
+msgid "<b>Note:</b> Entering your Accounts for specific hosting-sites is optional. If entered it will give you the same benefits as the upload on the website. If you leave these fields empty you will be able to upload to the specific hosting-partner as a guest."
+msgstr "<b>Указание:</b> Ввод данных Вашего аккаунта для сайтов хостинга не обязателен. Если данные заданы, Вы сможете воспользоваться теми же дополнительными функциями как и на самом сайте. Если Вы оставите эти поля пустыми, Ваша загрузка будет анонимной."
 
-#: gscrot.pl:612
+#: gscrot.pl:621
 msgid "Icon"
 msgstr "Символ"
 
-#: gscrot.pl:624
+#: gscrot.pl:633
 msgid "Name"
 msgstr "Название"
 
-#: gscrot.pl:636
+#: gscrot.pl:645
 msgid "Category"
 msgstr "Категория"
 
-#: gscrot.pl:673
+#: gscrot.pl:682
 msgid "Description"
-msgstr ""
+msgstr "Описание"
 
-#: gscrot.pl:686
+#: gscrot.pl:695
 msgid "Path"
 msgstr "Путь"
 
-#: gscrot.pl:732
-#, fuzzy
+#: gscrot.pl:741
 msgid "<i>Main</i>"
-msgstr "<i>Плагины</i>"
+msgstr "<i>Главные</i>"
 
-#: gscrot.pl:735
+#: gscrot.pl:744
 msgid "<i>Advanced</i>"
-msgstr ""
+msgstr "<i>Дополнительные</i>"
 
-#: gscrot.pl:738
+#: gscrot.pl:747
 msgid "<i>Behavior</i>"
-msgstr ""
+msgstr "<i>Поведение</i>"
 
-#: gscrot.pl:753
-#, fuzzy
+#: gscrot.pl:762
 msgid "<i>Accounts</i>"
-msgstr "<i>Плагины</i>"
+msgstr "<i>Аккаунты</i>"
 
-#: gscrot.pl:770
+#: gscrot.pl:779
 msgid "<i>Plugins</i>"
 msgstr "<i>Плагины</i>"
 
-#: gscrot.pl:978
+#: gscrot.pl:987
 msgid "Compression"
 msgstr "Сжатие"
 
-#: gscrot.pl:1019
-#: gscrot.pl:1071
+#: gscrot.pl:1028
+#: gscrot.pl:1080
 msgid "No valid filename specified"
 msgstr "Заданное имя недопустимо"
 
-#: gscrot.pl:1029
+#: gscrot.pl:1038
 msgid "No valid url entered"
 msgstr "Заданная ссылка недопустима"
 
-#: gscrot.pl:1042
+#: gscrot.pl:1051
 msgid "Could not determine file geometry"
 msgstr "Не удалось определить геометрию файла"
 
-#: gscrot.pl:1046
+#: gscrot.pl:1055
 msgid "Could not substitute wild-cards in filename"
 msgstr "Не удалось подставить шаблоны в имени файла"
 
-#: gscrot.pl:1084
+#: gscrot.pl:1093
 msgid "saved"
 msgstr "сохранен"
 
-#: gscrot.pl:1109
-#: gscrot.pl:1546
-#: gscrot.pl:1612
+#: gscrot.pl:1118
+#: gscrot.pl:1566
+#: gscrot.pl:1643
 msgid "No application specified to open the screenshot"
 msgstr "Не выбрана программа для открытия снимка"
 
-#: gscrot.pl:1114
+#: gscrot.pl:1123
 msgid "file could not be saved"
 msgstr "Не удалось сохранить файл"
 
-#: gscrot.pl:1116
+#: gscrot.pl:1125
 msgid "could not be saved"
 msgstr "не удалось сохранить"
 
-#: gscrot.pl:1161
-#: gscrot.pl:1396
-#: gscrot.pl:2228
+#: gscrot.pl:1170
+#: gscrot.pl:1405
+#: gscrot.pl:2259
 msgid "screenshot during this session"
 msgid_plural "screenshots during this session"
 msgstr[0] "снимок за этот сеанс"
 msgstr[1] "снимка за этот сеанс"
 msgstr[2] "снимков за этот сеанс"
 
-#: gscrot.pl:1167
+#: gscrot.pl:1176
 msgid "is not existing anymore"
 msgstr "больше не существует"
 
-#: gscrot.pl:1205
+#: gscrot.pl:1214
 msgid "Quit GScrot"
 msgstr "Закрыть GScrot"
 
-#: gscrot.pl:1218
+#: gscrot.pl:1227
 msgid "Do you really want to quit GScrot?"
 msgstr "Вы действительно хотите закрыть GScrot?"
 
-#: gscrot.pl:1219
+#: gscrot.pl:1228
 msgid "Do not ask this question again"
 msgstr "Больше не спрашивать"
 
-#: gscrot.pl:1233
-#: gscrot.pl:1235
+#: gscrot.pl:1242
 #: gscrot.pl:1244
-#: gscrot.pl:1246
-#: gscrot.pl:1248
-#: gscrot.pl:1252
+#: gscrot.pl:1253
+#: gscrot.pl:1255
+#: gscrot.pl:1257
+#: gscrot.pl:1261
 msgid "Settings could not be saved"
 msgstr "Не удалось сохранить настройки"
 
-#: gscrot.pl:1344
-#, fuzzy
+#: gscrot.pl:1353
 msgid "Info"
-msgstr "_О программе"
+msgstr "О программе"
 
-#: gscrot.pl:1347
+#: gscrot.pl:1356
+#: gscrot.pl:2477
 msgid "Quit"
 msgstr "Выйти"
 
-#: gscrot.pl:1418
+#: gscrot.pl:1427
 msgid "Remove file(s) from session"
 msgstr "Убрать файл(ы) из сеанса"
 
-#: gscrot.pl:1426
+#: gscrot.pl:1435
 msgid "Delete file(s)"
 msgstr "Стереть файл(ы)"
 
-#: gscrot.pl:1434
+#: gscrot.pl:1443
 msgid "Copy file(s) to clipboard"
 msgstr "Скопировать файл(ы) в буфер обмена"
 
-#: gscrot.pl:1442
+#: gscrot.pl:1451
 msgid "Open file(s)"
 msgstr "Открыть файл(ы)"
 
-#: gscrot.pl:1450
-#, fuzzy
+#: gscrot.pl:1459
 msgid "Upload file to hosting-site"
-msgstr "Загрузить файл на ubuntu-pics.de"
+msgstr "Загрузить файл на сайт хостера"
 
-#: gscrot.pl:1458
-#: gscrot.pl:1814
+#: gscrot.pl:1467
+#: gscrot.pl:1845
 msgid "Rename file"
 msgstr "Переименовать файл"
 
-#: gscrot.pl:1466
+#: gscrot.pl:1475
 msgid "Execute a plugin"
 msgstr "Выполнить плагин"
 
-#: gscrot.pl:1474
+#: gscrot.pl:1485
+msgid "Draw"
+msgstr ""
+
+#: gscrot.pl:1493
 msgid "Print file(s)"
 msgstr "Распечатать файл(ы)"
 
-#: gscrot.pl:1515
+#: gscrot.pl:1535
 msgid "will be printed"
 msgstr "распечатывается"
 
-#: gscrot.pl:1522
+#: gscrot.pl:1542
 msgid "deleted"
 msgstr "стерт"
 
-#: gscrot.pl:1533
+#: gscrot.pl:1553
 msgid "removed from session"
 msgstr "убран из сеанса"
 
-#: gscrot.pl:1548
+#: gscrot.pl:1568
 msgid "opened with"
 msgstr "открыт с помощью"
 
-#: gscrot.pl:1558
+#: gscrot.pl:1589
 msgid "renamed"
 msgstr "переименован"
 
-#: gscrot.pl:1564
+#: gscrot.pl:1595
 msgid "executed by plugin"
 msgstr "выполнено плагином"
 
-#: gscrot.pl:1566
+#: gscrot.pl:1597
 msgid "No plugin installed"
 msgstr "Нет ни одного плагина"
 
-#: gscrot.pl:1574
+#: gscrot.pl:1605
 msgid "copied to clipboard"
 msgstr "скопирован в буфер обмена"
 
-#: gscrot.pl:1588
+#: gscrot.pl:1619
 msgid "All screenshots deleted"
 msgstr "Все снимки стерты"
 
-#: gscrot.pl:1602
+#: gscrot.pl:1633
 msgid "All screenshots removed"
 msgstr "Все снимки убраны"
 
-#: gscrot.pl:1623
+#: gscrot.pl:1654
 msgid "Opened all files with"
 msgstr "Все файлы открыты с помощью"
 
-#: gscrot.pl:1632
+#: gscrot.pl:1663
 msgid "Printing all screenshots"
 msgstr "Все файлы распечатываются"
 
-#: gscrot.pl:1644
+#: gscrot.pl:1675
 msgid "Do you want to overwrite the existing settings?"
 msgstr "Вы хотите перезаписать существующие настройки?"
 
-#: gscrot.pl:1654
+#: gscrot.pl:1685
 msgid "There are no stored settings"
 msgstr "Нет сохраненных настроек"
 
-#: gscrot.pl:1663
-#: gscrot.pl:1688
-#, fuzzy
+#: gscrot.pl:1694
+#: gscrot.pl:1719
 msgid "Settings could not be saved!"
-msgstr "Не удалось сохранить настройки"
-
-#: gscrot.pl:1690
-#, fuzzy
-msgid "Settings saved successfully!"
-msgstr "Настройки успешно сохранены"
-
-#: gscrot.pl:1692
-#: gscrot.pl:1695
-#, fuzzy
-msgid "Account-settings could not be saved!"
-msgstr "Не удалось сохранить настройки"
+msgstr "Не удалось сохранить настройки!"
 
 #: gscrot.pl:1721
+msgid "Settings saved successfully!"
+msgstr "Настройки успешно сохранены!"
+
+#: gscrot.pl:1723
+#: gscrot.pl:1726
+msgid "Account-settings could not be saved!"
+msgstr "Не удалось сохранить настройки аккаунта!"
+
+#: gscrot.pl:1752
 msgid "Settings loaded successfully"
 msgstr "Настройки успешно загружены"
 
-#: gscrot.pl:1839
+#: gscrot.pl:1870
 msgid ""
 "File already exists,\n"
 "please choose an alternative filename!"
@@ -553,101 +545,104 @@ msgstr ""
 "Файл уже существует,\n"
 "пожалуйста, выберите другое имя!"
 
-#: gscrot.pl:1858
+#: gscrot.pl:1889
 msgid "Choose a plugin"
 msgstr "Выбор плагина"
 
-#: gscrot.pl:1909
+#: gscrot.pl:1940
 msgid "No plugin specified"
 msgstr "Плагин не выбран"
 
-#: gscrot.pl:1915
+#: gscrot.pl:1946
 msgid "Successfully executed plugin"
 msgstr "Плагин успешно выполнен"
 
-#: gscrot.pl:1917
+#: gscrot.pl:1948
 msgid "Could not execute plugin"
 msgstr "Не удалось выполнить плагин"
 
-#: gscrot.pl:1931
+#: gscrot.pl:1962
 msgid "Choose hosting-site and account"
+msgstr "Выберите сайт хостера и аккаунт"
+
+#: gscrot.pl:1975
+msgid "Guest"
 msgstr ""
 
-#: gscrot.pl:1944
-msgid "NoAccount"
-msgstr ""
-
-#: gscrot.pl:1972
-#: gscrot.pl:1981
+#: gscrot.pl:2003
+#: gscrot.pl:2012
 msgid "uploaded"
 msgstr "загружен"
 
-#: gscrot.pl:1998
+#: gscrot.pl:2029
 msgid "URL to capture"
 msgstr "Адрес сайта"
 
-#: gscrot.pl:2027
-#: gscrot.pl:2098
+#: gscrot.pl:2058
+#: gscrot.pl:2129
 msgid "Upload"
 msgstr "Загрузка"
 
-#: gscrot.pl:2040
-#: gscrot.pl:2111
+#: gscrot.pl:2071
+#: gscrot.pl:2142
 msgid "Upload status:"
 msgstr "Статус загрузки:"
 
-#: gscrot.pl:2060
+#: gscrot.pl:2091
 msgid "Thumbnail for websites (with border)"
 msgstr "Эскиз в HTML (с рамкой)"
 
-#: gscrot.pl:2061
+#: gscrot.pl:2092
 msgid "Thumbnail for websites (without border)"
 msgstr "Эскиз в HTML (без рамки)"
 
-#: gscrot.pl:2062
+#: gscrot.pl:2093
 msgid "Thumbnail for forums"
 msgstr "Эскиз для форумов"
 
-#: gscrot.pl:2063
-#: gscrot.pl:2146
+#: gscrot.pl:2094
+#: gscrot.pl:2177
 msgid "Direct link"
 msgstr "Прямая ссылка"
 
-#: gscrot.pl:2141
-#, fuzzy
+#: gscrot.pl:2172
 msgid "Thumbnail for websites"
-msgstr "Эскиз в HTML (с рамкой)"
+msgstr "Эскиз в HTML"
 
-#: gscrot.pl:2142
-#, fuzzy
+#: gscrot.pl:2173
 msgid "Thumbnail for boards (1)"
-msgstr "Эскиз для форумов"
+msgstr "Эскиз для форумов (1)"
 
-#: gscrot.pl:2143
-#, fuzzy
+#: gscrot.pl:2174
 msgid "Thumbnail for boards (2)"
-msgstr "Эскиз для форумов"
+msgstr "Эскиз для форумов (2)"
 
-#: gscrot.pl:2144
+#: gscrot.pl:2175
 msgid "Show your friends"
-msgstr ""
+msgstr "Показать друзьям"
 
-#: gscrot.pl:2145
-#, fuzzy
+#: gscrot.pl:2176
 msgid "Popup for websites"
-msgstr "Снимок сайта"
+msgstr "Всплывающее окно для сайтов"
 
-#: gscrot.pl:2147
+#: gscrot.pl:2178
 msgid "Hotlink for websites"
-msgstr ""
+msgstr "Ссылка в HTML"
 
-#: gscrot.pl:2148
+#: gscrot.pl:2179
 msgid "Hotlink for boards (1)"
+msgstr "Ссылка для форумов (1)"
+
+#: gscrot.pl:2180
+msgid "Hotlink for boards (2)"
+msgstr "Ссылка для форумов (2)"
+
+#: gscrot.pl:2470
+msgid "Drawing saved"
 msgstr ""
 
-#: gscrot.pl:2149
-msgid "Hotlink for boards (2)"
-msgstr ""
+#~ msgid "NoAccount"
+#~ msgstr "Нет аккаунта"
 
 #, fuzzy
 #~ msgid "Show \"Do you really want to quit?\" dialog when exiting GScrot"

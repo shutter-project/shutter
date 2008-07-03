@@ -1,13 +1,15 @@
-gscrot (0.38~ppa13) hardy; urgency=low
+gscrot (0.38~ppa14) hardy; urgency=low
 
+  * added simple drawing tool
   * added plugin-interface and gui structure
-  * changed settings-format to xml
   * added support for image-hoster imagebanana.com
   * added support for upload-accounts (ubuntu-pics.de && imagebanana.com)
     -- gui structure and accounts.xml
-  * upload-functionality swapped out to perl-modules 
+  * internal changes  
+    -- upload-functionality swapped out to perl-modules 
+    -- changed settings-format to xml
 
- -- Mario Kemper <mario.kemper@googlemail.com>  Tue, 01 Jul 2008 18:19:57 +0200  
+ -- Mario Kemper <mario.kemper@googlemail.com>  Thu, 03 Jul 2008 19:39:35 +0200 
 
 gscrot (0.37~ppa10) hardy; urgency=low
 

@@ -64,12 +64,20 @@ my $d = Locale::gettext->domain("gscrot");
 $d->dir("$gscrot_path/share/locale");
 
 my $is_in_tray = FALSE;
-my $window = Gtk2::Window->new('toplevel');
 
+#main window
+my $window = Gtk2::Window->new('toplevel');
 $window->set_title($gscrot_name." ".$gscrot_version);
 $window->set_default_icon_from_file ("$gscrot_path/share/gscrot/resources/icons/gscrot24x24.png");
 $window->signal_connect('delete-event' => \&event_delete_window);
 $window->set_border_width(0);
+
+#modal drawing window
+my $drawing_pixmap = undef;
+my $drawing_pixbuf = undef;
+my $drawing_window = undef;
+my $colbut1 = undef;
+
 
 #hash of screenshots during session	
 my %session_screens;
@@ -566,7 +574,7 @@ $accounts_tree->append_column($tv_clmn_password_text);
 
 my $accounts_label = Gtk2::Label->new;
 $accounts_label->set_line_wrap (TRUE);
-$accounts_label->set_markup($d->get("<b>Note:</b> Entering your Accounts for specific hosting-sites is optional. If entered it will give you the same benefits as the upload on the website. If you leave these fields empty the upload to the specific hosting-partner will be anonymous."));
+$accounts_label->set_markup($d->get("<b>Note:</b> Entering your Accounts for specific hosting-sites is optional. If entered it will give you the same benefits as the upload on the website. If you leave these fields empty you will be able to upload to the specific hosting-partner as a guest."));
 #end accounts
 
 #this is only important, if there are any plugins
@@ -1465,6 +1473,16 @@ sub function_create_tab {
 	my $tooltip_plugin = Gtk2::Tooltips->new;
 	$tooltip_plugin->set_tip($button_plugin,$d->get("Execute a plugin"));
 
+	my $button_draw = Gtk2::Button->new;
+	$button_draw->signal_connect(clicked => \&event_in_tab, 'draw'.$key);
+
+	my $draw_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size("$gscrot_path/share/gscrot/resources/icons/draw.svg", Gtk2::IconSize->lookup ('button'));
+	my $image_draw = Gtk2::Image->new_from_pixbuf ($draw_pixbuf);
+	$button_draw->set_image($image_draw);	
+
+	my $tooltip_draw = Gtk2::Tooltips->new;
+	$tooltip_draw->set_tip($button_draw,$d->get("Draw"));
+
 	my $button_print = Gtk2::Button->new;
 	$button_print->signal_connect(clicked => \&event_in_tab, 'print'.$key);
 	my $image_print = Gtk2::Image->new_from_icon_name ('gtk-print', 'button');
@@ -1490,6 +1508,7 @@ sub function_create_tab {
 		$hbox_tab_actions2->pack_start($button_print, TRUE, TRUE, 1);
 		$hbox_tab_actions->pack_start($button_rename, TRUE, TRUE, 1);
 		$hbox_tab_actions->pack_start($button_plugin, TRUE, TRUE, 1) if (keys(%plugins) > 0);
+		$hbox_tab_actions->pack_start($button_draw, TRUE, TRUE, 1);
 		$hbox_tab_actions2->pack_start($button_clipboard, TRUE, TRUE, 1);		
 	}
 	$vbox_tab->pack_start($hbox_tab_file, TRUE, TRUE, 1);
@@ -1550,7 +1569,18 @@ sub event_in_tab
 
 	if ($data =~ m/^upload\[/){
 		$data =~ s/^upload//;
-		&dialog_account_chooser_and_upload($session_screens{$data});		
+		&dialog_account_chooser_and_upload($session_screens{$data});	
+	}
+
+	if ($data =~ m/^draw\[/){
+		$data =~ s/^draw//;
+		my $full_filename = &function_switch_home_in_file($session_screens{$data});
+		#store the filetype of the current screenshot for further processing
+		$session_screens{$data} =~ /.*\.(.*)$/;
+		my $filetype = $1;
+		my $width = &function_imagemagick_perform("get_width", $full_filename, 0, "");
+		my $height = &function_imagemagick_perform("get_height", $full_filename, 0, "");
+		&function_start_drawing($full_filename, $width, $height, $filetype);	
 	}
 	
 	if ($data =~ m/^rename\[/){
@@ -1941,7 +1971,7 @@ sub dialog_account_chooser_and_upload
 	my $model = Gtk2::ListStore->new ('Glib::String', 'Glib::String', 'Glib::String');
 	foreach (keys %accounts){
 			$model->set ($model->append, 0, $accounts{$_}->{'host'} , 1, $accounts{$_}->{'username'}, 2, $accounts{$_}->{'password'}) if($accounts{$_}->{'username'} ne "" && $accounts{$_}->{'password'} ne "");		
-			$model->set ($model->append, 0, $accounts{$_}->{'host'} , 1, $d->get("NoAccount"), 2, "");	
+			$model->set ($model->append, 0, $accounts{$_}->{'host'} , 1, $d->get("Guest"), 2, "");	
 	}
 	
 	my $hosting = Gtk2::ComboBox->new ($model);
@@ -2356,6 +2386,197 @@ sub function_iter_programs
 	return FALSE if $search_for ne $progname_value;
 	$progname->set_active_iter($iter);
 	return TRUE;
+}
+
+
+sub function_start_drawing
+{
+my ($filename, $w, $h, $filetype) = @_;
+
+$drawing_window = Gtk2::Window->new ('toplevel');
+$drawing_window->set_title ($filename);
+$drawing_window->set_modal(1);
+$drawing_window->signal_connect('destroy', \&event_close_modal_window);
+$drawing_window->signal_connect('delete_event', sub { $drawing_window->destroy() });
+$drawing_window->set_resizable(0);
+
+my $drawing_statusbar = Gtk2::Statusbar->new;
+my $drawing_vbox = Gtk2::VBox->new (FALSE, 0);
+my $drawing_vbox_buttons = Gtk2::VBox->new (FALSE, 0);
+my $drawing_hbox = Gtk2::HBox->new (FALSE, 0);
+
+my $halign = Gtk2::Alignment->new (1, 0, 0, 0);
+$drawing_hbox->add($halign);
+
+$drawing_window->add ($drawing_vbox);
+$drawing_vbox->show;
+
+$drawing_pixbuf= Gtk2::Gdk::Pixbuf->new_from_file($filename);
+
+# Create the drawing area
+my $drawing_area = Gtk2::DrawingArea->new;
+$drawing_area->set_size_request ($w, $h);
+
+my $scrolled_accounts_window = Gtk2::ScrolledWindow->new;
+$scrolled_accounts_window->set_policy ('automatic', 'automatic');
+$scrolled_accounts_window->add_with_viewport($drawing_area);
+my $sw_width = $w;
+my $sw_height = $h;
+if ($w > 800){
+	$w = 800;
+	$sw_width = 800;
+}
+if ($h > 600){
+	$h = 600;	
+	$sw_height = 600;
+}
+
+$scrolled_accounts_window->set_size_request ($sw_width, $sw_height);
+
+$drawing_vbox->pack_start ($scrolled_accounts_window, TRUE, TRUE, 10);
+
+$drawing_area->show;
+
+# Signals used to handle backing pixmap
+
+$drawing_area->signal_connect (expose_event => \&event_expose);
+$drawing_area->signal_connect (configure_event => \&event_configure);
+
+# Event signals
+
+$drawing_area->signal_connect (motion_notify_event => \&event_motion_notify);
+$drawing_area->signal_connect (button_press_event => \&event_drawing_button_press);
+
+$drawing_area->set_events ([qw/exposure-mask
+							 leave-notify-mask
+							 button-press-mask
+							 pointer-motion-mask
+							 pointer-motion-hint-mask/]);
+
+# create a color button
+my $red = Gtk2::Gdk::Color->new (0xFFFF,0,0);
+$colbut1 = Gtk2::ColorButton->new();
+$colbut1->set_color($red);
+$drawing_hbox->pack_start($colbut1, FALSE, FALSE, 5 );
+
+# a save button
+my $save_button = Gtk2::Button->new($d->get("Save"));
+$save_button->signal_connect(clicked => sub {
+	my ($pwidth, $pheight) = $drawing_pixmap->get_size(); 
+	my $new_pixbuf = $drawing_pixbuf->copy; 
+	$new_pixbuf->get_from_drawable ($drawing_pixmap, undef, 0, 0, 0, 0, $pwidth, $pheight); 
+	$new_pixbuf->save ($filename, $filetype) if defined($new_pixbuf); 
+	$drawing_statusbar->push (1, $d->get("Drawing saved")); 
+	});
+my $image_save = Gtk2::Image->new_from_icon_name ('gtk-save', 'button');
+$save_button->set_image($image_save);
+$drawing_hbox->pack_start($save_button, FALSE, FALSE, 5 );
+
+# .. And a quit button
+my $quit_button = Gtk2::Button->new ($d->get("Quit"));
+$quit_button->signal_connect(clicked => sub { $drawing_window->destroy() });
+my $image_cancel = Gtk2::Image->new_from_icon_name ('gtk-cancel', 'button');
+$quit_button->set_image($image_cancel);
+$drawing_hbox->pack_start ($quit_button, FALSE, FALSE, 5);
+
+$drawing_vbox->pack_start($drawing_hbox, FALSE, FALSE, 5 );
+
+# and at last - a statusbar
+$drawing_vbox->pack_start($drawing_statusbar, FALSE, FALSE, 0 );
+
+$drawing_window->show_all;
+
+Gtk2->main;
+
+}
+
+
+sub event_close_modal_window {
+ my ($widget) = @_;
+ Gtk2->main_quit();
+}
+
+sub event_configure {
+  my $widget = shift; # GtkWidget         *widget
+  my $event  = shift; # GdkEventConfigure *event
+
+  $drawing_pixmap = Gtk2::Gdk::Pixmap->new ($widget->window,
+                                    $widget->allocation->width,
+                                    $widget->allocation->height,
+                                    -1);
+                                    
+  $drawing_pixmap->draw_pixbuf($widget->style->white_gc, $drawing_pixbuf, 0, 0, 0, 0, $drawing_pixbuf->get_width, $drawing_pixbuf->get_height, 'GDK_RGB_DITHER_NONE', 0, 0);
+ 
+
+  return TRUE;
+}
+
+# Redraw the screen from the backing pixmap
+sub event_expose {
+  my $widget = shift; # GtkWidget      *widget
+  my $event  = shift; # GdkEventExpose *event
+
+  $widget->window->draw_drawable (
+                     $widget->style->fg_gc($widget->state),
+                     $drawing_pixmap,
+                     $event->area->x, $event->area->y,
+                     $event->area->x, $event->area->y,
+                     $event->area->width, $event->area->height);
+
+  return FALSE;
+}
+
+# Draw a rectangle on the screen
+sub function_draw_brush {
+  my ($widget, $x, $y) = @_;
+
+  # this is not a real GdkRectangle structure; we don't actually need one.
+  my @update_rect;
+  $update_rect[0] = $x - 5;
+  $update_rect[1] = $y - 5;
+  $update_rect[2] = 5;
+  $update_rect[3] = 5;
+
+  my $gc = Gtk2::Gdk::GC->new ($widget->window); 
+    
+  $gc->set_rgb_fg_color($colbut1->get_color);  
+  $gc->set_rgb_bg_color($colbut1->get_color); 
+  
+  $drawing_pixmap->draw_rectangle ($gc,
+                           TRUE, @update_rect);
+
+  $widget->queue_draw_area (@update_rect);
+}
+
+sub event_drawing_button_press {
+  my $widget = shift;   # GtkWidget      *widget
+  my $event = shift;    # GdkEventButton *event
+
+  if ($event->button == 1 && defined $drawing_pixmap) {
+    &function_draw_brush ($widget, $event->coords);
+  }
+  return TRUE;
+}
+
+sub event_motion_notify {
+  my $widget = shift; # GtkWidget *widget
+  my $event  = shift; # GdkEventMotion *event
+
+  my ($x, $y, $state);
+
+  if ($event->is_hint) {
+    (undef, $x, $y, $state) = $event->window->get_pointer;
+  } else {
+    $x = $event->x;
+    $y = $event->y;
+    $state = $event->state;
+  }
+
+  if (grep (/button1-mask/, @$state) && defined $drawing_pixmap) {
+    &function_draw_brush ($widget, $x, $y);
+  }
+
+  return TRUE;
 }
 
 #################### MY FUNCTIONS  ################################
