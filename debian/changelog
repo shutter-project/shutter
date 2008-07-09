@@ -1,3 +1,15 @@
+gscrot (0.39~ppa1) hardy; urgency=low
+
+  * drawing-tool
+    -- it's a canvas now ;-)
+    -- zoom-factor and width of brush configurable
+    -- fixed drawing glitches due to fast mouse movement
+  * added new wildcard (%NN = counter)
+  * added keybindings (using gconf, configurable via gui)
+  * added libgnome2-perl to dependencies 
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Thu, 10 Jul 2008 00:48:46 +0200 
+
 gscrot (0.38~ppa15) hardy; urgency=low
 
   * added simple drawing tool

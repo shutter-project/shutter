@@ -30,15 +30,18 @@ use Locale::gettext;
 use HTTP::Status;
 use XML::Simple;
 use Data::Dumper;
+use Gnome2::GConf;
+use Gnome2::Canvas;
 
 my $gscrot_name = "GScrot";
-my $gscrot_version = "v0.38";
+my $gscrot_version = "v0.39";
 my $gscrot_path = "";
 #command line parameter
 my $debug_cparam = FALSE;
 my $min_cparam = FALSE;
 my $boff_cparam = FALSE;
 my @args = @ARGV;
+my $start_with = undef;
 
 &function_init();
 
@@ -65,6 +68,10 @@ $d->dir("$gscrot_path/share/locale");
 
 my $is_in_tray = FALSE;
 
+#signal-handler
+$SIG{USR1} = sub {&event_handle('global_keybinding', 'raw')};
+$SIG{USR2} = sub {&event_handle('global_keybinding', 'select')};
+
 #main window
 my $window = Gtk2::Window->new('toplevel');
 $window->set_title($gscrot_name." ".$gscrot_version);
@@ -73,11 +80,16 @@ $window->signal_connect('delete-event' => \&event_delete_window);
 $window->set_border_width(0);
 
 #modal drawing window
-my $drawing_pixmap = undef;
 my $drawing_pixbuf = undef;
 my $drawing_window = undef;
 my $colbut1 = undef;
-
+my $draw_flag = 0;
+my %lines;   # way to store multiple continuous lines
+my $count = 0;
+my $root = undef;
+my $canvas = undef;
+my $adj_zoom = undef;
+my $sb_width = undef;
 
 #hash of screenshots during session	
 my %session_screens;
@@ -110,6 +122,7 @@ my $vbox_accounts = Gtk2::VBox->new(FALSE, 10);
 my $file_vbox = Gtk2::VBox->new(FALSE, 0);
 my $save_vbox = Gtk2::VBox->new(FALSE, 0);
 my $behavior_vbox = Gtk2::VBox->new(FALSE, 0);
+my $keybinding_vbox = Gtk2::VBox->new(FALSE, 0);
 my $actions_vbox = Gtk2::VBox->new(FALSE, 0);
 my $capture_vbox = Gtk2::VBox->new(FALSE, 0);
 my $effects_vbox = Gtk2::VBox->new(FALSE, 0);
@@ -129,6 +142,10 @@ my $im_colors_box2 = Gtk2::HBox->new(FALSE, 0);
 my $filetype_box = Gtk2::HBox->new(TRUE, 0);
 my $saveDir_box = Gtk2::HBox->new(TRUE, 0);
 my $behavior_box = Gtk2::HBox->new(TRUE, 0);
+my $key_box = Gtk2::HBox->new(TRUE, 0);
+my $key_box2 = Gtk2::HBox->new(FALSE, 0);
+my $key_sel_box = Gtk2::HBox->new(TRUE, 0);
+my $key_sel_box2 = Gtk2::HBox->new(FALSE, 0);
 my $border_box = Gtk2::HBox->new(TRUE, 0);
 
 $window->add($vbox);
@@ -139,6 +156,15 @@ my $menubar = Gtk2::MenuBar->new() ;
 my $menu1= Gtk2::Menu->new() ;
 
 my $menuitem_file = Gtk2::MenuItem->new_with_mnemonic($d->get("_File")) ;
+
+my $menuitem_open = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("_Open")) ;
+$menuitem_open->set_image(Gtk2::Image->new_from_icon_name('gtk-open', 'menu'));
+$menuitem_open->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ O }, qw/control-mask/, qw/visible/);
+$menu1->append($menuitem_open) ;
+$menuitem_open->signal_connect("activate" , \&event_settings , 'menu_open') ;
+
+my $separator_menu1 = Gtk2::SeparatorMenuItem->new();
+$menu1->append($separator_menu1);
 
 my $menuitem_revert = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("_Revert Settings")) ;
 $menuitem_revert->set_image(Gtk2::Image->new_from_icon_name('gtk-revert-to-saved-ltr', 'menu'));
@@ -152,8 +178,8 @@ $menuitem_save->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ 
 $menu1->append($menuitem_save) ;
 $menuitem_save->signal_connect("activate" , \&event_settings , 'menu_save') ;
 
-my $separator_menu1 = Gtk2::SeparatorMenuItem->new();
-$menu1->append($separator_menu1);
+my $separator_menu2 = Gtk2::SeparatorMenuItem->new();
+$menu1->append($separator_menu2);
 
 my $menuitem_quit = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("_Quit")) ;
 $menuitem_quit->set_image(Gtk2::Image->new_from_icon_name('gtk-quit', 'menu'));
@@ -280,6 +306,11 @@ $behavior_frame_label->set_markup($d->get("Behavior"));
 my $behavior_frame = Gtk2::Frame->new();
 $behavior_frame->set_label_widget($behavior_frame_label);
 
+my $keybinding_frame_label = Gtk2::Label->new;
+$keybinding_frame_label->set_markup($d->get("Keybinding"));
+my $keybinding_frame = Gtk2::Frame->new();
+$keybinding_frame->set_label_widget($keybinding_frame_label);
+
 my $actions_frame_label = Gtk2::Label->new;
 $actions_frame_label->set_markup($d->get("Actions"));
 my $actions_frame = Gtk2::Frame->new();
@@ -366,8 +397,8 @@ $filename_label->set_text($d->get("Filename"));
 
 
 my $tooltip_filename = Gtk2::Tooltips->new;
-$tooltip_filename->set_tip($filename,$d->get("There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time\n\$w = width\n\$h = height"));
-$tooltip_filename->set_tip($filename_label,$d->get("There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time\n\$w = width\n\$h = height"));
+$tooltip_filename->set_tip($filename,$d->get("There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time\n\$w = width\n\$h = height\n%NN = counter"));
+$tooltip_filename->set_tip($filename_label,$d->get("There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time\n\$w = width\n\$h = height\n%NN = counter"));
 
 $filename_box->pack_start($filename_label, FALSE, TRUE, 10);
 $filename_box->pack_start($filename, TRUE, TRUE, 10);
@@ -410,6 +441,47 @@ $saveDir_box->pack_start($saveDir_button, TRUE, TRUE, 10);
 my $hide_active = Gtk2::CheckButton->new_with_label($d->get("Autohide GScrot Window when taking a screenshot"));
 my $ask_quit_active = Gtk2::CheckButton->new_with_label($d->get("Show \"Do you really want to quit?\" dialog when exiting"));
 my $close_at_close_active = Gtk2::CheckButton->new_with_label($d->get("Minimize to tray when closing main window"));
+
+my $capture_key = Gtk2::Entry->new;
+$capture_key->set_text("Print");
+
+my $capture_label = Gtk2::Label->new;
+$capture_label->set_text($d->get("Capture"));
+
+my $tooltip_capture = Gtk2::Tooltips->new;
+$tooltip_capture->set_tip($capture_key,$d->get("Configure global keybinding for capture\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "));
+$tooltip_capture->set_tip($capture_label,$d->get("Configure global keybinding for capture\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "));
+
+my $capture_sel_key = Gtk2::Entry->new;
+$capture_sel_key->set_text("<Alt>Print");
+
+my $capture_sel_label = Gtk2::Label->new;
+$capture_sel_label->set_text($d->get("Capture with selection"));
+
+my $tooltip_sel_capture = Gtk2::Tooltips->new;
+$tooltip_sel_capture->set_tip($capture_sel_key,$d->get("Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "));
+$tooltip_sel_capture->set_tip($capture_sel_label,$d->get("Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "));
+
+
+my $keybinding_active = Gtk2::CheckButton->new;
+$keybinding_active->signal_connect('toggled' => \&event_behavior_handle, 'keybinding_toggled');
+$keybinding_active->set_active(TRUE);
+$keybinding_active->set_active(FALSE);
+
+my $keybinding_sel_active = Gtk2::CheckButton->new;
+$keybinding_sel_active->signal_connect('toggled' => \&event_behavior_handle, 'keybinding_sel_toggled');
+$keybinding_sel_active->set_active(TRUE);
+$keybinding_sel_active->set_active(FALSE);
+
+$key_box->pack_start($capture_label, FALSE, TRUE, 10);
+$key_box2->pack_start($keybinding_active, FALSE, FALSE, 0);
+$key_box2->pack_start($capture_key, TRUE, TRUE, 0);
+$key_box->pack_start($key_box2, TRUE, TRUE, 10);
+
+$key_sel_box->pack_start($capture_sel_label, FALSE, TRUE, 10);
+$key_sel_box2->pack_start($keybinding_sel_active, FALSE, FALSE, 0);
+$key_sel_box2->pack_start($capture_sel_key, TRUE, TRUE, 0);
+$key_sel_box->pack_start($key_sel_box2, TRUE, TRUE, 10);
 
 $hide_active->signal_connect('toggled' => \&event_behavior_handle, 'hide_toggled');
 $hide_active->set_active(TRUE);
@@ -728,7 +800,12 @@ $behavior_vbox->pack_start($close_at_close_active, FALSE, TRUE, 5);
 $behavior_vbox->pack_start($ask_quit_active, FALSE, TRUE, 5);
 $behavior_frame->add($behavior_vbox);
 
-$vbox_behavior->pack_start($behavior_frame, FALSE, TRUE, 5);
+$keybinding_vbox->pack_start($key_box, FALSE, TRUE, 5);
+$keybinding_vbox->pack_start($key_sel_box, FALSE, TRUE, 5);
+$keybinding_frame->add($keybinding_vbox);
+
+$vbox_behavior->pack_start($behavior_frame, FALSE, TRUE, 0);
+$vbox_behavior->pack_start($keybinding_frame, FALSE, TRUE, 0);
 $vbox_behavior->set_border_width(5);
 
 $capture_vbox->pack_start($delay_box, FALSE, TRUE, 5);
@@ -804,7 +881,16 @@ unless($min_cparam){
 }
 
 #load saved settings
-	&function_load_settings if(-f "$ENV{ 'HOME' }/.gscrot/settings.xml" && -r "$ENV{ 'HOME' }/.gscrot/settings.xml");
+my $loaded_settings = &function_load_settings if(-f "$ENV{ 'HOME' }/.gscrot/settings.xml" && -r "$ENV{ 'HOME' }/.gscrot/settings.xml");
+my $folder_to_save = $loaded_settings->{'general'}->{'folder'} || $ENV{'HOME'};
+
+if($start_with && $folder_to_save){
+	if ($start_with eq "raw"){	
+		&event_handle('global_keybinding', "raw", $folder_to_save); 
+	}elsif ($start_with eq "select"){
+		&event_handle('global_keybinding', "select", $folder_to_save);	
+	}
+}
 
 #GTK2 Main Loop
 Gtk2->main;
@@ -827,6 +913,22 @@ sub function_init
 				$min_cparam = TRUE;
 			}elsif($arg eq "--beeper_off"){
 				$boff_cparam = TRUE;
+			}elsif($arg eq "--window"){
+				#is there already a process of gscrot running?
+				my @gscrot_pids = `pidof -o $$ -x gscrot.pl`;
+				foreach (@gscrot_pids){
+					kill USR2 => $_;
+					die;  
+				}
+				$start_with = "select";				
+			}elsif($arg eq "--full"){	
+				#is there already a process of gscrot running?
+				my @gscrot_pids = `pidof -o $$ -x gscrot.pl`;
+				foreach (@gscrot_pids){
+					kill USR1 => $_;
+					die;  
+				}
+				$start_with = "raw";									
 			}else{
 				print "\ncommand ".$arg." not recognized --> will be ignored\n";
 				&function_usage();
@@ -922,7 +1024,7 @@ sub function_init
 #nearly all events are handled here
 sub event_handle
 {
-	my ($widget, $data) = @_;
+	my ($widget, $data, $folder_from_config) = @_;
 	my $quality_value = undef;
 	my $delay_value = undef;
 	my $thumbnail_value = undef;
@@ -1014,8 +1116,10 @@ sub event_handle
 		}
 		
 		$filename_value = $filename->get_text();
+		my $current_counter = sprintf("%02d", scalar(keys %session_screens)+1);
+		$filename_value =~ s/\%NN/$current_counter/g;				
 		$filetype_value = $combobox_type->get_active_text();		
-		$folder = $saveDir_button->get_filename();
+		$folder = $saveDir_button->get_filename() || $folder_from_config;
 		
 		if($delay_value == 0 && $data eq "tray_raw"){
 			$delay_value = 1;
@@ -1028,8 +1132,8 @@ sub event_handle
 				Gtk2::Gdk->flush;
 				$is_in_tray = TRUE;
 			}
-			unless ($filename_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No valid filename specified")); return FALSE;};
-			$scrot_feedback=`scrot '$folder/$filename_value.$filetype_value' -q $quality_value -d $delay_value $border_value $thumbnail_param $echo_cmd`;
+			unless ($filename_value =~ /[a-zA-Z0-9]+/ && defined($folder) && defined($filetype_value)) { &dialog_error_message($d->get("No valid filename specified")); return FALSE;};
+			$scrot_feedback=`scrot '$folder/$filename_value.$filetype_value' -q $quality_value -d $delay_value $border_value $thumbnail_param $echo_cmd`;		
 			if($hide_active->get_active()){			
 				$window->show_all;
 				$is_in_tray = FALSE;
@@ -1074,7 +1178,6 @@ sub event_handle
 				unless (&function_file_exists($scrot_feedback_thumbnail)){&dialog_error_message($d-get("Could not generate thumbnail"));exit;}	
 			}						
 		}else{
-			
 			if($hide_active->get_active() && $window->visible){
 				$window->hide;
 				Gtk2::Gdk->flush;
@@ -1094,19 +1197,7 @@ sub event_handle
 			$scrot_feedback =~ s/$ENV{ HOME }/~/; #switch /home/username in path to ~ 
 			print "screenshot successfully saved to $scrot_feedback!\n" if $debug_cparam;
 			&dialog_status_message(1, "$scrot_feedback ".$d->get("saved"));
-			#append a page to notebook using with label == filename
-			my ($second, $minute, $hour) = localtime();
-			my $theTime = "$hour:$minute:$second";
-			my $theTimeKey = "[".&function_get_latest_tab_key."] - $theTime";
-	
-			#build hash of screenshots during session	
-			$session_screens{$theTimeKey} = $scrot_feedback;
-			#and append page with label == key			
-			my $new_index = $notebook->append_page (function_create_tab ($theTimeKey, FALSE), Gtk2::Label->new($theTimeKey));
-			$window->show_all unless $is_in_tray;				
-			my $current_tab = $notebook->get_current_page+1;
-			print "new tab $new_index created, current tab is $current_tab\n" if $debug_cparam;
-			$notebook->set_current_page($new_index);
+			&function_integrate_screenshot_in_notebook($scrot_feedback);
 			
 			#perform some im_actions
 			if($im_colors_active->get_active){
@@ -1146,6 +1237,24 @@ sub event_behavior_handle
 	if ($data eq "close_at_close_toggled"){
 		$ask_quit_active->set_sensitive(FALSE) if $close_at_close_active->get_active;
 		$ask_quit_active->set_sensitive(TRUE) unless $close_at_close_active->get_active;			
+	}
+
+#checkbox for "keybinding" -> entry active/inactive
+	if($data eq "keybinding_toggled"){
+		if($keybinding_active->get_active){
+			$capture_key->set_sensitive(TRUE);			
+		}else{
+			$capture_key->set_sensitive(FALSE);
+		}
+	}
+
+#checkbox for "keybinding_sel" -> entry active/inactive
+	if($data eq "keybinding_sel_toggled"){
+		if($keybinding_sel_active->get_active){
+			$capture_sel_key->set_sensitive(TRUE);			
+		}else{
+			$capture_sel_key->set_sensitive(FALSE);
+		}
 	}
 	
 }
@@ -1392,6 +1501,29 @@ sub event_plugins
 	my ($tree, $path, $column) = @_;
 }
 
+
+sub function_integrate_screenshot_in_notebook
+{
+	my ($filename) = @_;
+
+	#append a page to notebook using with label == filename
+	my ($second, $minute, $hour) = localtime();
+	my $theTime = "$hour:$minute:$second";
+	my $theTimeKey = "[".&function_get_latest_tab_key."] - $theTime";
+
+	#build hash of screenshots during session	
+	$session_screens{$theTimeKey} = $filename;
+	#and append page with label == key			
+	my $new_index = $notebook->append_page (function_create_tab ($theTimeKey, FALSE), Gtk2::Label->new($theTimeKey));
+	$window->show_all unless $is_in_tray;				
+	my $current_tab = $notebook->get_current_page+1;
+	print "new tab $new_index created, current tab is $current_tab\n" if $debug_cparam;
+	$notebook->set_current_page($new_index);	
+
+	return 1;	
+}
+
+
 sub function_create_tab {
 	my ($key, $is_all) = @_;
 
@@ -1542,7 +1674,7 @@ sub event_in_tab
 		$data =~ s/^delete//;
 		unlink(&function_switch_home_in_file($session_screens{$data})); #delete file
 		$notebook->remove_page($notebook->get_current_page); #delete tab
-		&dialog_status_message(1, $session_screens{$data}." ".$d->get("deleted"));
+		&dialog_status_message(1, $session_screens{$data}." ".$d->get("deleted")) if defined($session_screens{$data});
 		delete($session_screens{$data}); # delete from hash
 		
 		&function_update_first_tab();
@@ -1687,13 +1819,45 @@ sub event_settings
 		}else{
 			&dialog_info_message($d->get("There are no stored settings"));
 		}
-	}	
+	}elsif($data eq "menu_open"){
+		my $fs = Gtk2::FileChooserDialog->new($d->get("Choose file to open"), $window, 'open',
+																		'gtk-ok'     => 'accept',
+																		'gtk-cancel' => 'reject');
+		my $pngfilter = Gtk2::FileFilter->new;
+		$pngfilter->set_name ("*.png");
+		$pngfilter->add_pattern ("*.png");
+		
+		my $jpegfilter = Gtk2::FileFilter->new;
+		$jpegfilter->set_name ("*.jpeg");
+		$jpegfilter->add_pattern ("*.jpeg");
+
+		$fs->add_filter($pngfilter);
+		$fs->add_filter($jpegfilter);
+		my $fs_resp = $fs->run;                  	
+		if ($fs_resp eq "accept" ) {
+			my $new_file = $fs->get_filename;
+			$new_file =~ s/$ENV{ HOME }/~/; #switch /home/username in path to ~ 
+			&function_integrate_screenshot_in_notebook($new_file);			
+			$fs->destroy();		
+			return TRUE;
+		}else {
+			$fs->destroy() ;
+			return FALSE;
+		}
+	}		
 	
 }
 
 #save settings to file
 sub function_save_settings
 {
+
+	my $client = Gnome2::GConf::Client->get_default;
+	my $shortcut_full = "/apps/metacity/global_keybindings/run_command_screenshot";
+	my $shortcut_sel = "/apps/metacity/global_keybindings/run_command_window_screenshot";
+	my $command_full = "/apps/metacity/keybinding_commands/command_screenshot";
+	my $command_sel = "/apps/metacity/keybinding_commands/command_window_screenshot";	
+	
 	open(SETTFILE, ">$ENV{ HOME }/.gscrot/settings.xml") or &dialog_error_message($d->get("Settings could not be saved!"));	
 	$settings{'general'}->{'filetype'} = $combobox_type->get_active;
 	$settings{'general'}->{'quality'} = $scale->get_value();
@@ -1716,6 +1880,29 @@ sub function_save_settings
 	$settings{'general'}->{'autohide'} = $hide_active->get_active();
 	$settings{'general'}->{'close_at_close'} = $close_at_close_active->get_active();
 
+	$settings{'general'}->{'keybinding'} = $keybinding_active->get_active();
+	$settings{'general'}->{'keybinding_sel'} = $keybinding_sel_active->get_active();
+	
+	#set gconf values if needed
+	if ($keybinding_active->get_active()){
+		$client->set($command_full, { type => 'string', value => "$gscrot_path/bin/gscrot.pl --full", });
+		$client->set($shortcut_full, { type => 'string', value => $capture_key->get_text(), });		
+	}else{
+		$client->set($command_full, { type => 'string', value => 'gnome-screenshot', });
+		$client->set($shortcut_full, { type => 'string', value => 'Print', });		
+	}
+	if ($keybinding_sel_active->get_active()){
+		$client->set($command_sel, { type => 'string', value => "$gscrot_path/bin/gscrot.pl --window", });		
+		$client->set($shortcut_sel, { type => 'string', value => $capture_sel_key->get_text(), });		
+	}else{
+		$client->set($command_sel, { type => 'string', value => 'gnome-screenshot --window', });			
+		$client->set($shortcut_sel, { type => 'string', value => '<Alt>Print', });		
+	}
+	
+	$settings{'general'}->{'capture_key'} = $capture_key->get_text();
+	$settings{'general'}->{'capture_sel_key'} = $capture_sel_key->get_text();
+
+
 	my $settings_out = XMLout(\%settings);	
   	print SETTFILE $settings_out;
 
@@ -1733,8 +1920,9 @@ sub function_save_settings
 
 sub function_load_settings
 {
+	my $settings_xml = undef;	
 	if (&function_file_exists("$ENV{ HOME }/.gscrot/settings.xml")){
-		my $settings_xml = XMLin("$ENV{ HOME }/.gscrot/settings.xml");
+		$settings_xml = XMLin("$ENV{ HOME }/.gscrot/settings.xml");
 		$combobox_type->set_active($settings_xml->{'general'}->{'filetype'});
 		$scale->set_value($settings_xml->{'general'}->{'quality'});
 		$filename->set_text($settings_xml->{'general'}->{'filename'});
@@ -1752,9 +1940,13 @@ sub function_load_settings
 		$ask_quit_active->set_active($settings_xml->{'general'}->{'ask_at_close'});
 		$hide_active->set_active($settings_xml->{'general'}->{'autohide'});
 		$close_at_close_active->set_active($settings_xml->{'general'}->{'close_at_close'});			
+		$keybinding_active->set_active($settings_xml->{'general'}->{'keybinding'});
+		$keybinding_sel_active->set_active($settings_xml->{'general'}->{'keybinding_sel'});
+		$capture_key->set_text($settings_xml->{'general'}->{'capture_key'});
+		$capture_sel_key->set_text($settings_xml->{'general'}->{'capture_sel_key'});
 		&dialog_status_message(1, $d->get("Settings loaded successfully"));
 	}
-	return 1;	
+	return $settings_xml;	
 }
 
 sub function_load_accounts
@@ -2404,184 +2596,235 @@ $drawing_window->signal_connect('destroy', \&event_close_modal_window);
 $drawing_window->signal_connect('delete_event', sub { $drawing_window->destroy() });
 $drawing_window->set_resizable(0);
 
+$drawing_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($filename);
+
 my $drawing_statusbar = Gtk2::Statusbar->new;
 my $drawing_vbox = Gtk2::VBox->new (FALSE, 0);
 my $drawing_vbox_buttons = Gtk2::VBox->new (FALSE, 0);
+my $drawing_vbox_buttons2 = Gtk2::VBox->new (FALSE, 0);
 my $drawing_hbox = Gtk2::HBox->new (FALSE, 0);
 
-my $halign = Gtk2::Alignment->new (1, 0, 0, 0);
-$drawing_hbox->add($halign);
+my $halign = Gtk2::Alignment->new (0, 1, 0, 0);
+$drawing_vbox_buttons2->add($halign);
 
 $drawing_window->add ($drawing_vbox);
-$drawing_vbox->show;
 
-$drawing_pixbuf= Gtk2::Gdk::Pixbuf->new_from_file($filename);
+my $scrolled_drawing_window = Gtk2::ScrolledWindow->new;
+my $ha1  = $scrolled_drawing_window->get_hadjustment;
+my $va1  = $scrolled_drawing_window->get_vadjustment;
 
-# Create the drawing area
-my $drawing_area = Gtk2::DrawingArea->new;
-$drawing_area->set_size_request ($w, $h);
-
-my $scrolled_accounts_window = Gtk2::ScrolledWindow->new;
-$scrolled_accounts_window->set_policy ('automatic', 'automatic');
-$scrolled_accounts_window->add_with_viewport($drawing_area);
+$scrolled_drawing_window->set_policy ('automatic', 'automatic');
 my $sw_width = $w;
 my $sw_height = $h;
 if ($w > 800){
-	$w = 800;
 	$sw_width = 800;
 }
 if ($h > 600){
-	$h = 600;	
 	$sw_height = 600;
 }
 
-$scrolled_accounts_window->set_size_request ($sw_width, $sw_height);
+$scrolled_drawing_window->set_size_request ($sw_width, $sw_height);
 
-$drawing_vbox->pack_start ($scrolled_accounts_window, TRUE, TRUE, 10);
+$canvas = Gnome2::Canvas->new();
+my $white = Gtk2::Gdk::Color->new (0xFFFF,0xFFFF,0xFFFF);
+$canvas->modify_bg('normal',$white);
 
-$drawing_area->show;
+$scrolled_drawing_window->add($canvas);
 
-# Signals used to handle backing pixmap
+$drawing_hbox->pack_end ($scrolled_drawing_window, FALSE, FALSE, 10);
 
-$drawing_area->signal_connect (expose_event => \&event_expose);
-$drawing_area->signal_connect (configure_event => \&event_configure);
 
-# Event signals
-
-$drawing_area->signal_connect (motion_notify_event => \&event_motion_notify);
-$drawing_area->signal_connect (button_press_event => \&event_drawing_button_press);
-
-$drawing_area->set_events ([qw/exposure-mask
-							 leave-notify-mask
-							 button-press-mask
-							 pointer-motion-mask
-							 pointer-motion-hint-mask/]);
+# Width
+my $width_label = Gtk2::Label->new($d->get("Width:"));
+$drawing_vbox_buttons->pack_start($width_label, FALSE, FALSE, 0 );
+$sb_width = Gtk2::SpinButton->new_with_range(1, 20, 1);
+$sb_width->set_value(3);
+$drawing_vbox_buttons->pack_start($sb_width, FALSE, FALSE, 5 );
 
 # create a color button
+my $col_label = Gtk2::Label->new($d->get("Color:"));
+$drawing_vbox_buttons->pack_start($col_label, FALSE, FALSE, 0 );
 my $red = Gtk2::Gdk::Color->new (0xFFFF,0,0);
 $colbut1 = Gtk2::ColorButton->new();
 $colbut1->set_color($red);
-$drawing_hbox->pack_start($colbut1, FALSE, FALSE, 5 );
+$drawing_vbox_buttons->pack_start($colbut1, FALSE, FALSE, 5 );
+
+# a Zoom
+my $zoom_label = Gtk2::Label->new($d->get("Zoom:"));
+$drawing_vbox_buttons->pack_start($zoom_label, FALSE, FALSE, 0 );
+
+$adj_zoom = Gtk2::Adjustment->new(1, 1, 5, 0.05, 0.5, 0.5);
+my $sb_zoom = Gtk2::SpinButton->new($adj_zoom, 0, 2);
+$adj_zoom->signal_connect("value-changed", \&event_zoom_changed, $canvas);
+$sb_zoom->set_size_request(60, -1);
+$drawing_vbox_buttons->pack_start($sb_zoom, FALSE, FALSE, 5 );
 
 # a save button
 my $save_button = Gtk2::Button->new($d->get("Save"));
+
 $save_button->signal_connect(clicked => sub {
-	my ($pwidth, $pheight) = $drawing_pixmap->get_size(); 
-	my $new_pixbuf = $drawing_pixbuf->copy; 
-	$new_pixbuf->get_from_drawable ($drawing_pixmap, undef, 0, 0, 0, 0, $pwidth, $pheight); 
-	$new_pixbuf->save ($filename, $filetype) if defined($new_pixbuf); 
-	$drawing_statusbar->push (1, $d->get("Drawing saved")); 
-	});
+    
+	my ($width, $height) = $canvas->get_size;
+	my ($x,$y,$width1, $height1,$depth) = $canvas->window->get_geometry;
+
+	# a hack to slide the viewport and grab each viewable area
+	my $cols = int($width/$width1);
+	my $cmod = $width % $width1;
+	my $rows = int($height/$height1);
+	my $rmod = $height % $height1;
+
+	# create large blank pixbuf to hold the stitched image
+	my $gdkpixbuf_l = Gtk2::Gdk::Pixbuf->new ('rgb', 0, 8, $width, $height);
+
+	# get full rows and cols ##################################
+	for my $c (0 .. $cols - 1 ){    
+		#slide viewport along
+		$ha1->set_value( $c * $width1  );    
+		for my $r (0..$rows - 1 ){
+			$va1->set_value( $r * $height1  );    
+
+			# create blank pixbuf to hold the small image
+			my $gdkpixbuf = Gtk2::Gdk::Pixbuf->new ('rgb',0, 8,$width1, $height1);
+
+			$gdkpixbuf->get_from_drawable ($canvas->window, undef, 0, 0, 0, 0, $width1, $height1);
+
+			$gdkpixbuf->copy_area (0, 0, $width1, $height1, $gdkpixbuf_l, $c*$width1, $r*$height1);
+		} #end rows
+	} #end cols
+	########################################################################
+
+	# get bottom odd row except lower right corner#######################
+	for my $c (0 .. $cols - 1 ){    
+		$ha1->set_value( $c * $width1  );    
+		$va1->set_value( $rows * $height1  );    
+
+		my $gdkpixbuf = Gtk2::Gdk::Pixbuf->new ('rgb', 0,8,$width1,$rmod);
+
+		$gdkpixbuf->get_from_drawable ($canvas->window, undef, 0, 0, 0, 0, $width1, $rmod);
+
+		$gdkpixbuf->copy_area (0, 0, $width1, $rmod, $gdkpixbuf_l, $c*$width1, $rows*$height1);
+
+	} #end odd row
+	########################################################################
+
+	# get right odd col except lower right corner ##########################
+	for my $r (0 .. $rows - 1 ){    
+		$ha1->set_value( $cols * $width1  );    
+		$va1->set_value( $r * $height1  );    
+
+		# create blank pixbuf to hold the image
+		my $gdkpixbuf = Gtk2::Gdk::Pixbuf->new ('rgb', 0,8,$cmod, $height1);
+
+		$gdkpixbuf->get_from_drawable ($canvas->window, undef, 0, 0, 0, 0, $cmod, $height1);
+
+		$gdkpixbuf->copy_area (0, 0, $cmod, $height1, $gdkpixbuf_l, $cols*$width1, $r*$height1);
+	} #end odd col
+	########################################################################
+
+	# get  lower right corner ##########################
+	$ha1->set_value( $cols * $width1  );    
+	$va1->set_value( $rows * $height1  );    
+
+	# create blank pixbuf to hold the image
+	my $gdkpixbuf = Gtk2::Gdk::Pixbuf->new ('rgb', 0,8,$cmod,$rmod);
+	$gdkpixbuf->get_from_drawable ($canvas->window, undef, 0, 0, 0, 0, $cmod, $rmod);
+	$gdkpixbuf->copy_area (0, 0, $cmod, $rmod, $gdkpixbuf_l, $width - $cmod, $height - $rmod);
+
+	########################################################################
+	$gdkpixbuf_l->save ($filename, $filetype) if defined($gdkpixbuf_l); 
+	$drawing_statusbar->push (1, $d->get("Drawing saved"));
+	$ha1->set_value( 0 );    
+	$va1->set_value( 0 );    
+  
+	}); 
+
 my $image_save = Gtk2::Image->new_from_icon_name ('gtk-save', 'button');
 $save_button->set_image($image_save);
-$drawing_hbox->pack_start($save_button, FALSE, FALSE, 5 );
+$drawing_vbox_buttons2->pack_start($save_button, FALSE, FALSE, 5 );
 
 # .. And a quit button
 my $quit_button = Gtk2::Button->new ($d->get("Quit"));
 $quit_button->signal_connect(clicked => sub { $drawing_window->destroy() });
 my $image_cancel = Gtk2::Image->new_from_icon_name ('gtk-cancel', 'button');
 $quit_button->set_image($image_cancel);
-$drawing_hbox->pack_start ($quit_button, FALSE, FALSE, 5);
+$drawing_vbox_buttons2->pack_start ($quit_button, FALSE, FALSE, 5);
+
+$canvas->set_scroll_region( 0, 0, $w, $h);	
+$root = $canvas->root;
+
+my $canvas_pixbuf = Gnome2::Canvas::Item->new(
+    $root, 'Gnome2::Canvas::Pixbuf',
+	x => 0,
+	y => 0,
+	pixbuf => $drawing_pixbuf,
+);
+
+$canvas->signal_connect (event => \&event_drawing_handler);
+
+$drawing_vbox_buttons->pack_start($drawing_vbox_buttons2, FALSE, FALSE, 5 );
+
+$drawing_hbox->pack_start($drawing_vbox_buttons, FALSE, FALSE, 5 );
 
 $drawing_vbox->pack_start($drawing_hbox, FALSE, FALSE, 5 );
-
 # and at last - a statusbar
 $drawing_vbox->pack_start($drawing_statusbar, FALSE, FALSE, 0 );
 
-$drawing_window->show_all;
+$drawing_window->show_all();
 
 Gtk2->main;
-
 }
 
+##############################
+
+sub event_drawing_handler{
+     my ( $widget, $event ) = @_;
+     my $scale = $adj_zoom->get_value;
+    if ( $event->type eq "button-press" ) {
+        $draw_flag = 1;       
+        #start a new line curve
+        $count++;      
+        my ($x,$y) = ($event->x,$event->y);
+    
+        $lines{$count}{'points'} = [$x/$scale,$y/$scale,$x/$scale,$y/$scale]; #need at least 2 points 
+        $lines{$count}{'line'} = Gnome2::Canvas::Item->new ($root,
+                'Gnome2::Canvas::Line',
+                points => $lines{$count}{'points'},
+                fill_color_gdk => $colbut1->get_color,
+                width_units => $sb_width->get_value,
+                cap_style => 'projecting',
+                join_style => 'miter',
+            );
+     }
+    if ( $event->type eq "button-release" ) {
+        $draw_flag = 0;
+    }
+
+    if ( $event->type eq "focus-change" ) {
+        return 0;
+    }
+    
+    if ( $event->type eq "expose" ) {
+        return 0;
+    }
+
+  if($draw_flag){
+    #left with motion-notify
+    if ( $event->type eq "motion-notify"){
+   	 my ($x,$y) = ($event->x,$event->y);
+     push @{$lines{$count}{'points'}},$x/$scale,$y/$scale;   
+     $lines{$count}{'line'}->set(points=>$lines{$count}{'points'});
+
+    }
+  }        
+}
+
+sub event_zoom_changed {
+    my ($adj_zoom, $canvas) = @_;
+    $canvas->set_pixels_per_unit($adj_zoom->get_value);
+}
 
 sub event_close_modal_window {
  my ($widget) = @_;
  Gtk2->main_quit();
 }
-
-sub event_configure {
-  my $widget = shift; # GtkWidget         *widget
-  my $event  = shift; # GdkEventConfigure *event
-
-  $drawing_pixmap = Gtk2::Gdk::Pixmap->new ($widget->window,
-                                    $widget->allocation->width,
-                                    $widget->allocation->height,
-                                    -1);
-                                    
-  $drawing_pixmap->draw_pixbuf($widget->style->white_gc, $drawing_pixbuf, 0, 0, 0, 0, $drawing_pixbuf->get_width, $drawing_pixbuf->get_height, 'GDK_RGB_DITHER_NONE', 0, 0);
- 
-
-  return TRUE;
-}
-
-# Redraw the screen from the backing pixmap
-sub event_expose {
-  my $widget = shift; # GtkWidget      *widget
-  my $event  = shift; # GdkEventExpose *event
-
-  $widget->window->draw_drawable (
-                     $widget->style->fg_gc($widget->state),
-                     $drawing_pixmap,
-                     $event->area->x, $event->area->y,
-                     $event->area->x, $event->area->y,
-                     $event->area->width, $event->area->height);
-
-  return FALSE;
-}
-
-# Draw a rectangle on the screen
-sub function_draw_brush {
-  my ($widget, $x, $y) = @_;
-
-  # this is not a real GdkRectangle structure; we don't actually need one.
-  my @update_rect;
-  $update_rect[0] = $x - 5;
-  $update_rect[1] = $y - 5;
-  $update_rect[2] = 5;
-  $update_rect[3] = 5;
-
-  my $gc = Gtk2::Gdk::GC->new ($widget->window); 
-    
-  $gc->set_rgb_fg_color($colbut1->get_color);  
-  $gc->set_rgb_bg_color($colbut1->get_color); 
-  
-  $drawing_pixmap->draw_rectangle ($gc,
-                           TRUE, @update_rect);
-
-  $widget->queue_draw_area (@update_rect);
-}
-
-sub event_drawing_button_press {
-  my $widget = shift;   # GtkWidget      *widget
-  my $event = shift;    # GdkEventButton *event
-
-  if ($event->button == 1 && defined $drawing_pixmap) {
-    &function_draw_brush ($widget, $event->coords);
-  }
-  return TRUE;
-}
-
-sub event_motion_notify {
-  my $widget = shift; # GtkWidget *widget
-  my $event  = shift; # GdkEventMotion *event
-
-  my ($x, $y, $state);
-
-  if ($event->is_hint) {
-    (undef, $x, $y, $state) = $event->window->get_pointer;
-  } else {
-    $x = $event->x;
-    $y = $event->y;
-    $state = $event->state;
-  }
-
-  if (grep (/button1-mask/, @$state) && defined $drawing_pixmap) {
-    &function_draw_brush ($widget, $x, $y);
-  }
-
-  return TRUE;
-}
-
 #################### MY FUNCTIONS  ################################
-
