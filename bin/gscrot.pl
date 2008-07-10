@@ -307,7 +307,7 @@ my $behavior_frame = Gtk2::Frame->new();
 $behavior_frame->set_label_widget($behavior_frame_label);
 
 my $keybinding_frame_label = Gtk2::Label->new;
-$keybinding_frame_label->set_markup($d->get("Keybinding"));
+$keybinding_frame_label->set_markup($d->get("Gnome-Keybinding"));
 my $keybinding_frame = Gtk2::Frame->new();
 $keybinding_frame->set_label_widget($keybinding_frame_label);
 
