@@ -1833,6 +1833,7 @@ sub event_settings
 
 		$fs->add_filter($pngfilter);
 		$fs->add_filter($jpegfilter);
+
 		my $fs_resp = $fs->run;                  	
 		if ($fs_resp eq "accept" ) {
 			my $new_file = $fs->get_filename;

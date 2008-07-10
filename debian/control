@@ -7,7 +7,7 @@ Homepage: https://launchpad.net/gscrot
 
 Package: gscrot
 Architecture: all
-Depends: scrot, libgtk2-trayicon-perl, libgtk2-perl, gtklp, liblocale-gettext-perl, libglib-perl, perlmagick, libxml-simple-perl, libwww-mechanize-perl, libwww-perl, gnome-web-photo, gscrot-plugins-bash, libgnome2-perl
+Depends: scrot, libgtk2-trayicon-perl, libgtk2-perl, gtklp, liblocale-gettext-perl, libglib-perl, perlmagick, libxml-simple-perl, libwww-mechanize-perl, libwww-perl, gnome-web-photo, libgnome2-perl, libgnome2-gconf-perl, gscrot-plugins-bash
 Conflicts:
 Replaces:
 Provides: gscrot
