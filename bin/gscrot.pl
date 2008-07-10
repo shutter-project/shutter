@@ -2587,191 +2587,223 @@ sub function_iter_programs
 
 sub function_start_drawing
 {
-my ($filename, $w, $h, $filetype) = @_;
+	my ($filename, $w, $h, $filetype) = @_;
 
-$drawing_window = Gtk2::Window->new ('toplevel');
-$drawing_window->set_title ($filename);
-$drawing_window->set_modal(1);
-$drawing_window->signal_connect('destroy', \&event_close_modal_window);
-$drawing_window->signal_connect('delete_event', sub { $drawing_window->destroy() });
-$drawing_window->set_resizable(0);
+	$drawing_window = Gtk2::Window->new ('toplevel');
+	$drawing_window->set_title ($filename);
+	$drawing_window->set_modal(1);
+	$drawing_window->signal_connect('destroy', \&event_close_modal_window);
+	$drawing_window->signal_connect('delete_event', sub { $drawing_window->destroy() });
+	$drawing_window->set_resizable(0);
 
-$drawing_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($filename);
+	$drawing_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($filename);
+	
+	#basic packing
+	my $drawing_vbox = Gtk2::VBox->new (FALSE, 0);
+	$drawing_window->add ($drawing_vbox);
+	my $drawing_statusbar = Gtk2::Statusbar->new;
+	$drawing_vbox->pack_end($drawing_statusbar, FALSE, FALSE, 0 );
 
-my $drawing_statusbar = Gtk2::Statusbar->new;
-my $drawing_vbox = Gtk2::VBox->new (FALSE, 0);
-my $drawing_vbox_buttons = Gtk2::VBox->new (FALSE, 0);
-my $drawing_vbox_buttons2 = Gtk2::VBox->new (FALSE, 0);
-my $drawing_hbox = Gtk2::HBox->new (FALSE, 0);
+	my $scrolled_drawing_window = Gtk2::ScrolledWindow->new;
+	my $ha1  = $scrolled_drawing_window->get_hadjustment;
+	my $va1  = $scrolled_drawing_window->get_vadjustment;
 
-my $halign = Gtk2::Alignment->new (0, 1, 0, 0);
-$drawing_vbox_buttons2->add($halign);
+	if($w < 100 && $h < 100){
+		$scrolled_drawing_window->set_policy ('never', 'never');		
+	}else{
+		$scrolled_drawing_window->set_policy ('automatic', 'automatic');		
+	}
 
-$drawing_window->add ($drawing_vbox);
+	my $sw_width = $w;
+	my $sw_height = $h;
+	if ($w > 800){
+		$sw_width = 800;
+	}
+	if ($h > 600){
+		$sw_height = 600;
+	}
 
-my $scrolled_drawing_window = Gtk2::ScrolledWindow->new;
-my $ha1  = $scrolled_drawing_window->get_hadjustment;
-my $va1  = $scrolled_drawing_window->get_vadjustment;
+	my $fixed_container = Gtk2::Fixed->new;
+	$scrolled_drawing_window->set_size_request ($sw_width, $sw_height);
+	$fixed_container->put($scrolled_drawing_window, 0, 0);
+	
+	$canvas = Gnome2::Canvas->new();
+	$canvas->signal_connect (event => \&event_drawing_handler);
+	my $white = Gtk2::Gdk::Color->new (0xFFFF,0xFFFF,0xFFFF);
+	$canvas->modify_bg('normal',$white);
+	$scrolled_drawing_window->add($canvas);
 
-$scrolled_drawing_window->set_policy ('automatic', 'automatic');
-my $sw_width = $w;
-my $sw_height = $h;
-if ($w > 800){
-	$sw_width = 800;
-}
-if ($h > 600){
-	$sw_height = 600;
-}
+	# Width
+	my $width_label = Gtk2::Label->new($d->get("Width:"));
+	$sb_width = Gtk2::SpinButton->new_with_range(1, 20, 1);
+	$sb_width->set_value(3);
 
-$scrolled_drawing_window->set_size_request ($sw_width, $sw_height);
+	# create a color button
+	my $col_label = Gtk2::Label->new($d->get("Color:"));
+	my $red = Gtk2::Gdk::Color->new (0xFFFF,0,0);
+	$colbut1 = Gtk2::ColorButton->new();
+	$colbut1->set_color($red);
 
-$canvas = Gnome2::Canvas->new();
-my $white = Gtk2::Gdk::Color->new (0xFFFF,0xFFFF,0xFFFF);
-$canvas->modify_bg('normal',$white);
+	# a Zoom
+	my $zoom_label = Gtk2::Label->new($d->get("Zoom:"));
+	$adj_zoom = Gtk2::Adjustment->new(1, 1, 5, 0.05, 0.5, 0.5);
+	my $sb_zoom = Gtk2::SpinButton->new($adj_zoom, 0, 2);
+	$adj_zoom->signal_connect("value-changed", \&event_zoom_changed, $canvas);
+	$sb_zoom->set_size_request(60, -1);
 
-$scrolled_drawing_window->add($canvas);
+	# a save button
+	my $save_button = Gtk2::Button->new($d->get("Save"));
 
-$drawing_hbox->pack_end ($scrolled_drawing_window, FALSE, FALSE, 10);
+	$save_button->signal_connect(clicked => sub {
 
-
-# Width
-my $width_label = Gtk2::Label->new($d->get("Width:"));
-$drawing_vbox_buttons->pack_start($width_label, FALSE, FALSE, 0 );
-$sb_width = Gtk2::SpinButton->new_with_range(1, 20, 1);
-$sb_width->set_value(3);
-$drawing_vbox_buttons->pack_start($sb_width, FALSE, FALSE, 5 );
-
-# create a color button
-my $col_label = Gtk2::Label->new($d->get("Color:"));
-$drawing_vbox_buttons->pack_start($col_label, FALSE, FALSE, 0 );
-my $red = Gtk2::Gdk::Color->new (0xFFFF,0,0);
-$colbut1 = Gtk2::ColorButton->new();
-$colbut1->set_color($red);
-$drawing_vbox_buttons->pack_start($colbut1, FALSE, FALSE, 5 );
-
-# a Zoom
-my $zoom_label = Gtk2::Label->new($d->get("Zoom:"));
-$drawing_vbox_buttons->pack_start($zoom_label, FALSE, FALSE, 0 );
-
-$adj_zoom = Gtk2::Adjustment->new(1, 1, 5, 0.05, 0.5, 0.5);
-my $sb_zoom = Gtk2::SpinButton->new($adj_zoom, 0, 2);
-$adj_zoom->signal_connect("value-changed", \&event_zoom_changed, $canvas);
-$sb_zoom->set_size_request(60, -1);
-$drawing_vbox_buttons->pack_start($sb_zoom, FALSE, FALSE, 5 );
-
-# a save button
-my $save_button = Gtk2::Button->new($d->get("Save"));
-
-$save_button->signal_connect(clicked => sub {
-    
 	my ($width, $height) = $canvas->get_size;
-	my ($x,$y,$width1, $height1,$depth) = $canvas->window->get_geometry;
+	my ($x,$y,$width1, $height1,$depth) = $canvas->window->get_geometry;		
 
-	# a hack to slide the viewport and grab each viewable area
-	my $cols = int($width/$width1);
-	my $cmod = $width % $width1;
-	my $rows = int($height/$height1);
-	my $rmod = $height % $height1;
+	if($w < 100 && $h < 100){
+		# create blank pixbuf to hold the stitched image
+		my $gdkpixbuf_l = Gtk2::Gdk::Pixbuf->new ('rgb', 0, 8, $width, $height);
+		$gdkpixbuf_l->get_from_drawable ($canvas->window, undef, 0, 0, 0, 0, $width, $height);		
+		$gdkpixbuf_l->save ($filename, $filetype) if defined($gdkpixbuf_l); 
+		$drawing_statusbar->push (1, $d->get("Drawing saved"));		
+	}else{
 
-	# create large blank pixbuf to hold the stitched image
-	my $gdkpixbuf_l = Gtk2::Gdk::Pixbuf->new ('rgb', 0, 8, $width, $height);
+		# a hack to slide the viewport and grab each viewable area
+		my $cols = int($width/$width1);
+		my $cmod = $width % $width1;
+		my $rows = int($height/$height1);
+		my $rmod = $height % $height1;
 
-	# get full rows and cols ##################################
-	for my $c (0 .. $cols - 1 ){    
-		#slide viewport along
-		$ha1->set_value( $c * $width1  );    
-		for my $r (0..$rows - 1 ){
+		# create large blank pixbuf to hold the stitched image
+		my $gdkpixbuf_l = Gtk2::Gdk::Pixbuf->new ('rgb', 0, 8, $width, $height);
+
+		# get full rows and cols ##################################
+		for my $c (0 .. $cols - 1 ){    
+			#slide viewport along
+			$ha1->set_value( $c * $width1  );    
+			for my $r (0..$rows - 1 ){
+				$va1->set_value( $r * $height1  );    
+
+				# create blank pixbuf to hold the small image
+				my $gdkpixbuf = Gtk2::Gdk::Pixbuf->new ('rgb',0, 8,$width1, $height1);
+
+				$gdkpixbuf->get_from_drawable ($canvas->window, undef, 0, 0, 0, 0, $width1, $height1);
+
+				$gdkpixbuf->copy_area (0, 0, $width1, $height1, $gdkpixbuf_l, $c*$width1, $r*$height1);
+			} #end rows
+		} #end cols
+		########################################################################
+
+		# get bottom odd row except lower right corner#######################
+		for my $c (0 .. $cols - 1 ){    
+			$ha1->set_value( $c * $width1  );    
+			$va1->set_value( $rows * $height1  );    
+
+			my $gdkpixbuf = Gtk2::Gdk::Pixbuf->new ('rgb', 0,8,$width1,$rmod);
+
+			$gdkpixbuf->get_from_drawable ($canvas->window, undef, 0, 0, 0, 0, $width1, $rmod);
+
+			$gdkpixbuf->copy_area (0, 0, $width1, $rmod, $gdkpixbuf_l, $c*$width1, $rows*$height1);
+
+		} #end odd row
+		########################################################################
+
+		# get right odd col except lower right corner ##########################
+		for my $r (0 .. $rows - 1 ){    
+			$ha1->set_value( $cols * $width1  );    
 			$va1->set_value( $r * $height1  );    
 
-			# create blank pixbuf to hold the small image
-			my $gdkpixbuf = Gtk2::Gdk::Pixbuf->new ('rgb',0, 8,$width1, $height1);
+			# create blank pixbuf to hold the image
+			my $gdkpixbuf = Gtk2::Gdk::Pixbuf->new ('rgb', 0,8,$cmod, $height1);
 
-			$gdkpixbuf->get_from_drawable ($canvas->window, undef, 0, 0, 0, 0, $width1, $height1);
+			$gdkpixbuf->get_from_drawable ($canvas->window, undef, 0, 0, 0, 0, $cmod, $height1);
 
-			$gdkpixbuf->copy_area (0, 0, $width1, $height1, $gdkpixbuf_l, $c*$width1, $r*$height1);
-		} #end rows
-	} #end cols
-	########################################################################
+			$gdkpixbuf->copy_area (0, 0, $cmod, $height1, $gdkpixbuf_l, $cols*$width1, $r*$height1);
+		} #end odd col
+		########################################################################
 
-	# get bottom odd row except lower right corner#######################
-	for my $c (0 .. $cols - 1 ){    
-		$ha1->set_value( $c * $width1  );    
+		# get  lower right corner ##########################
+		$ha1->set_value( $cols * $width1  );    
 		$va1->set_value( $rows * $height1  );    
 
-		my $gdkpixbuf = Gtk2::Gdk::Pixbuf->new ('rgb', 0,8,$width1,$rmod);
-
-		$gdkpixbuf->get_from_drawable ($canvas->window, undef, 0, 0, 0, 0, $width1, $rmod);
-
-		$gdkpixbuf->copy_area (0, 0, $width1, $rmod, $gdkpixbuf_l, $c*$width1, $rows*$height1);
-
-	} #end odd row
-	########################################################################
-
-	# get right odd col except lower right corner ##########################
-	for my $r (0 .. $rows - 1 ){    
-		$ha1->set_value( $cols * $width1  );    
-		$va1->set_value( $r * $height1  );    
-
 		# create blank pixbuf to hold the image
-		my $gdkpixbuf = Gtk2::Gdk::Pixbuf->new ('rgb', 0,8,$cmod, $height1);
+		my $gdkpixbuf = Gtk2::Gdk::Pixbuf->new ('rgb', 0,8,$cmod,$rmod);
+		$gdkpixbuf->get_from_drawable ($canvas->window, undef, 0, 0, 0, 0, $cmod, $rmod);
+		$gdkpixbuf->copy_area (0, 0, $cmod, $rmod, $gdkpixbuf_l, $width - $cmod, $height - $rmod);
 
-		$gdkpixbuf->get_from_drawable ($canvas->window, undef, 0, 0, 0, 0, $cmod, $height1);
+		########################################################################
+		$gdkpixbuf_l->save ($filename, $filetype) if defined($gdkpixbuf_l); 
+		$drawing_statusbar->push (1, $d->get("Drawing saved"));
+		$ha1->set_value( 0 );    
+		$va1->set_value( 0 );   		
+		
+	}	
+ 
+	  
+		}); 
 
-		$gdkpixbuf->copy_area (0, 0, $cmod, $height1, $gdkpixbuf_l, $cols*$width1, $r*$height1);
-	} #end odd col
-	########################################################################
+	my $image_save = Gtk2::Image->new_from_icon_name ('gtk-save', 'button');
+	$save_button->set_image($image_save);
 
-	# get  lower right corner ##########################
-	$ha1->set_value( $cols * $width1  );    
-	$va1->set_value( $rows * $height1  );    
+	# .. And a quit button
+	my $quit_button = Gtk2::Button->new ($d->get("Quit"));
+	$quit_button->signal_connect(clicked => sub { $drawing_window->destroy() });
+	my $image_cancel = Gtk2::Image->new_from_icon_name ('gtk-quit', 'button');
+	$quit_button->set_image($image_cancel);
 
-	# create blank pixbuf to hold the image
-	my $gdkpixbuf = Gtk2::Gdk::Pixbuf->new ('rgb', 0,8,$cmod,$rmod);
-	$gdkpixbuf->get_from_drawable ($canvas->window, undef, 0, 0, 0, 0, $cmod, $rmod);
-	$gdkpixbuf->copy_area (0, 0, $cmod, $rmod, $gdkpixbuf_l, $width - $cmod, $height - $rmod);
 
-	########################################################################
-	$gdkpixbuf_l->save ($filename, $filetype) if defined($gdkpixbuf_l); 
-	$drawing_statusbar->push (1, $d->get("Drawing saved"));
-	$ha1->set_value( 0 );    
-	$va1->set_value( 0 );    
-  
-	}); 
+	$canvas->set_scroll_region( 0, 0, $w, $h);	
+	$root = $canvas->root;
 
-my $image_save = Gtk2::Image->new_from_icon_name ('gtk-save', 'button');
-$save_button->set_image($image_save);
-$drawing_vbox_buttons2->pack_start($save_button, FALSE, FALSE, 5 );
+	my $canvas_pixbuf = Gnome2::Canvas::Item->new(
+		$root, 'Gnome2::Canvas::Pixbuf',
+		x => 0,
+		y => 0,
+		pixbuf => $drawing_pixbuf,
+	);
 
-# .. And a quit button
-my $quit_button = Gtk2::Button->new ($d->get("Quit"));
-$quit_button->signal_connect(clicked => sub { $drawing_window->destroy() });
-my $image_cancel = Gtk2::Image->new_from_icon_name ('gtk-cancel', 'button');
-$quit_button->set_image($image_cancel);
-$drawing_vbox_buttons2->pack_start ($quit_button, FALSE, FALSE, 5);
 
-$canvas->set_scroll_region( 0, 0, $w, $h);	
-$root = $canvas->root;
+	my $drawing_box_buttons = undef;
+	my $drawing_box = undef;
+	#start packing, we have a horizontal and a vertical mode	
+	if($h >= $w){ #vertical mode
+		$drawing_box_buttons = Gtk2::VBox->new (FALSE, 0);
+		$drawing_box = Gtk2::HBox->new (FALSE, 0);
+		$drawing_box_buttons->pack_start($width_label, FALSE, FALSE, 0 );
+		$drawing_box_buttons->pack_start($sb_width, FALSE, FALSE, 5 );
+		$drawing_box_buttons->pack_start($col_label, FALSE, FALSE, 0 );
+		$drawing_box_buttons->pack_start($colbut1, FALSE, FALSE, 5 );
+		$drawing_box_buttons->pack_start($zoom_label, FALSE, FALSE, 0 );
+		$drawing_box_buttons->pack_start($sb_zoom, FALSE, FALSE, 5 );
+		$drawing_box_buttons->pack_start($save_button, FALSE, FALSE, 5 );	
+		$drawing_box_buttons->pack_start ($quit_button, FALSE, FALSE, 5);
+		$drawing_box->pack_start($drawing_box_buttons, FALSE, FALSE, 5 );
+		$drawing_box->pack_start ($fixed_container, FALSE, FALSE, 10);
+		$drawing_vbox->pack_start($drawing_box, FALSE, FALSE, 5 );	
 
-my $canvas_pixbuf = Gnome2::Canvas::Item->new(
-    $root, 'Gnome2::Canvas::Pixbuf',
-	x => 0,
-	y => 0,
-	pixbuf => $drawing_pixbuf,
-);
+	}else{ #horizontal mode
+		$drawing_box_buttons = Gtk2::HBox->new (FALSE, 0);
+		$drawing_box = Gtk2::VBox->new (FALSE, 0);
+		my $halign = Gtk2::Alignment->new (1, 0, 0, 0);
+		$drawing_box_buttons->add($halign);
+		$drawing_box_buttons->pack_start($width_label, FALSE, FALSE, 0 );
+		$drawing_box_buttons->pack_start($sb_width, FALSE, FALSE, 5 );
+		$drawing_box_buttons->pack_start($col_label, FALSE, FALSE, 0 );
+		$drawing_box_buttons->pack_start($colbut1, FALSE, FALSE, 5 );
+		$drawing_box_buttons->pack_start($zoom_label, FALSE, FALSE, 0 );
+		$drawing_box_buttons->pack_start($sb_zoom, FALSE, FALSE, 5 );
+		$drawing_box_buttons->pack_start($save_button, FALSE, FALSE, 5 );	
+		$drawing_box_buttons->pack_start ($quit_button, FALSE, FALSE, 5);
+		$drawing_box->pack_start ($fixed_container, FALSE, FALSE, 10);
+		$drawing_box->pack_start($drawing_box_buttons, FALSE, FALSE, 5 );
+		$drawing_vbox->pack_start($drawing_box, FALSE, FALSE, 5 );	
+		
+	}
 
-$canvas->signal_connect (event => \&event_drawing_handler);
 
-$drawing_vbox_buttons->pack_start($drawing_vbox_buttons2, FALSE, FALSE, 5 );
 
-$drawing_hbox->pack_start($drawing_vbox_buttons, FALSE, FALSE, 5 );
+	$drawing_window->show_all();
 
-$drawing_vbox->pack_start($drawing_hbox, FALSE, FALSE, 5 );
-# and at last - a statusbar
-$drawing_vbox->pack_start($drawing_statusbar, FALSE, FALSE, 0 );
-
-$drawing_window->show_all();
-
-Gtk2->main;
+	Gtk2->main;
 }
 
 ##############################
