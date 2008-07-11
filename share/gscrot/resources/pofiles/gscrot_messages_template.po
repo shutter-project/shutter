@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: GScrot\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-07-03 19:33+0200\n"
-"PO-Revision-Date: 2008-07-03 19:34+0100\n"
+"PO-Revision-Date: 2008-07-11 22:24+0100\n"
 "Last-Translator: Mario Kemper <mario.kemper@gmx.de>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -29,6 +29,10 @@ msgstr ""
 #: gscrot.pl:159
 msgid "_Quit"
 msgstr ""
+
+#: gscrot.pl:160
+msgid "_Open"
+msgstr "_Öffnen"
 
 #: gscrot.pl:171
 #: gscrot.pl:1344
@@ -192,6 +196,24 @@ msgstr ""
 #: gscrot.pl:418
 msgid "Automatically hide GScrot Window when taking a screenshot"
 msgstr ""
+
+#: gscrot.pl:452
+msgid ""
+"Configure global keybinding for capture\n"
+"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
+msgstr ""
+"Konfigurieren Sie hier die Tastenkombination für einen Screenshot des gesamten Bildschirms.\n"
+"Dies könnte z.B. so aussehen: \"<Control>a\" oder \"<Shift><Alt>F1\". Dabei ist es egal ob es gross oder klein geschrieben wird.\n"
+"Wenn diese Option abgewählt wird, ist die eingegebene Tastenkombination unwirksam."
+
+#: gscrot.pl:462
+msgid ""
+"Configure global keybinding for capture with selection\n"
+"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
+msgstr ""
+"Konfigurieren Sie hier die Tastenkombination für einen Screenshot mit Auswahl.\n"
+"Dies könnte z.B. so aussehen: \"<Control>a\" oder \"<Shift><Alt>F1\". Dabei ist es egal ob es gross oder klein geschrieben wird.\n"
+"Wenn diese Option abgewählt wird, ist die eingegebene Tastenkombination unwirksam."
 
 #: gscrot.pl:460
 msgid "Open with"
@@ -598,4 +620,30 @@ msgstr ""
 #: gscrot.pl:2470
 msgid "Drawing saved"
 msgstr ""
+
+#: gscrot.pl:2638
+msgid "Width:"
+msgstr "Stiftgröße:"
+
+#: gscrot.pl:2643
+msgid "Color:"
+msgstr "Farbe:"
+
+msgid "NoAccount"
+msgstr "Anonym"
+
+msgid "Show \"Do you really want to quit?\" dialog when exiting GScrot"
+msgstr "\"Möchten Sie GScrot wirklich beenden?\" Dialog anzeigen"
+
+msgid "<i>Basic Settings</i>"
+msgstr "<i>Grundeinstellungen</i>"
+
+msgid "<i>Extras</i>"
+msgstr "<i>Extras</i>"
+
+msgid "Settings could not be loaded"
+msgstr "Einstellungen konnten nicht geladen werden"
+
+msgid "HighColor   - (16bit)"
+msgstr "HighColor   - (16bit)"
 

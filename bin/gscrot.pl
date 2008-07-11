@@ -2762,7 +2762,6 @@ sub function_start_drawing
 		pixbuf => $drawing_pixbuf,
 	);
 
-
 	my $drawing_box_buttons = undef;
 	my $drawing_box = undef;
 	#start packing, we have a horizontal and a vertical mode	
@@ -2800,10 +2799,7 @@ sub function_start_drawing
 		
 	}
 
-
-
 	$drawing_window->show_all();
-
 	Gtk2->main;
 }
 
@@ -2824,8 +2820,8 @@ sub event_drawing_handler{
                 points => $lines{$count}{'points'},
                 fill_color_gdk => $colbut1->get_color,
                 width_units => $sb_width->get_value,
-                cap_style => 'projecting',
-                join_style => 'miter',
+                cap_style => 'round',
+                join_style => 'round',
             );
      }
     if ( $event->type eq "button-release" ) {
