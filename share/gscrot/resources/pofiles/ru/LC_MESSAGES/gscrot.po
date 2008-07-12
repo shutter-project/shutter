@@ -6,7 +6,7 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-07-12 17:56+0200\n"
-"PO-Revision-Date: 2008-07-12 17:57+0100\n"
+"PO-Revision-Date: 2008-07-12 19:03+0100\n"
 "Last-Translator: Mario Kemper <mario.kemper@gmx.de>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -108,7 +108,7 @@ msgstr "Формат изображения"
 #: gscrot.pl:300
 #: gscrot.pl:2656
 msgid "Save"
-msgstr "Сохранение"
+msgstr "Сохранить"
 
 #: gscrot.pl:305
 msgid "Behavior"
@@ -116,7 +116,7 @@ msgstr "Поведение"
 
 #: gscrot.pl:310
 msgid "Gnome-Keybinding"
-msgstr ""
+msgstr "Комбинация клавиш Gnome"
 
 #: gscrot.pl:315
 msgid "Actions"
@@ -177,7 +177,6 @@ msgstr "Имя файла"
 
 #: gscrot.pl:400
 #: gscrot.pl:401
-#, fuzzy
 msgid ""
 "There are several wild-cards available, like\n"
 "%Y = year\n"
@@ -194,7 +193,8 @@ msgstr ""
 "%d = день\n"
 "%T = время\n"
 "$w = ширина\n"
-"$h = высота"
+"$h = высота\n"
+"%NN = счетчик"
 
 #: gscrot.pl:418
 #: gscrot.pl:419
@@ -546,7 +546,7 @@ msgstr "Нет сохраненных настроек"
 
 #: gscrot.pl:1823
 msgid "Choose file to open"
-msgstr ""
+msgstr "Выберите, какой файл открыть"
 
 #: gscrot.pl:1862
 #: gscrot.pl:1910
@@ -668,7 +668,7 @@ msgstr "Ссылка для форумов (2)"
 
 #: gscrot.pl:2638
 msgid "Width:"
-msgstr "Размер:"
+msgstr "Толщина карандаша:"
 
 #: gscrot.pl:2643
 msgid "Color:"
@@ -676,7 +676,7 @@ msgstr "Цвет:"
 
 #: gscrot.pl:2649
 msgid "Zoom:"
-msgstr ""
+msgstr "Масштаб:"
 
 #: gscrot.pl:2668
 #: gscrot.pl:2736
