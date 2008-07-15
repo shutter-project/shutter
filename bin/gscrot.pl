@@ -47,6 +47,10 @@ my $start_with = undef;
 
 &function_init();
 
+setlocale(LC_MESSAGES,"");
+my $d = Locale::gettext->domain("gscrot");
+$d->dir("$gscrot_path/share/locale");
+
 #custom modules load at runtime
 require lib;
 import lib "$gscrot_path/share/gscrot/resources/modules";
@@ -54,6 +58,8 @@ require GScrot::ImageBanana;
 import GScrot::ImageBanana;
 require GScrot::UbuntuPics;
 import GScrot::UbuntuPics;
+require GScrot::Draw;
+import GScrot::Draw;
 
 my %gm_programs; #hash to store program infos
 &function_check_installed_programs if keys(%gm_programs) > 0;
@@ -63,10 +69,6 @@ my %accounts; #hash to account infos
 my %settings; #hash to store settings
 
 &function_load_accounts();
-
-setlocale(LC_MESSAGES,"");
-my $d = Locale::gettext->domain("gscrot");
-$d->dir("$gscrot_path/share/locale");
 
 my $is_in_tray = FALSE;
 
@@ -83,27 +85,22 @@ $window->set_border_width(0);
 $window->set_resizable(0);
 
 
-#modal drawing window
-my $drawing_pixbuf = undef;
-my $drawing_window = undef;
-my $colbut1 = undef;
-my $draw_flag = 0;
-my %lines;   # way to store multiple continuous lines
-my $count = 0;
-my $root = undef;
-my $canvas = undef;
-my $adj_zoom = undef;
-my $sb_width = undef;
-
 #hash of screenshots during session	
 my %session_screens;
 my $notebook = Gtk2::Notebook->new;
-$notebook->popup_enable;
 $notebook->set_scrollable(TRUE);
 $notebook->signal_connect('switch-page' => \&event_notebook_switch, 'tab-switched');
 $notebook->set_size_request(-1, 250);
-my $first_page = $notebook->append_page (function_create_tab ("", TRUE),
-Gtk2::Label->new($d->get("All")));
+
+my $hbox_first_label = Gtk2::HBox->new(FALSE, 0);	
+my $all_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file("$gscrot_path/share/gscrot/resources/icons/session.svg");
+my $thumb_first_icon = Gtk2::Image->new_from_pixbuf ($all_pixbuf->scale_down_pixbuf(20,20));	
+my $tab_first_label = Gtk2::Label->new($d->get("Session"));
+$hbox_first_label->pack_start($thumb_first_icon , FALSE, TRUE, 1);	
+$hbox_first_label->pack_start($tab_first_label , TRUE, TRUE, 1);
+$hbox_first_label->show_all;
+
+my $first_page = $notebook->append_page (function_create_tab ("", TRUE), $hbox_first_label);
 
 #arrange settings in notebook
 my $notebook_settings = Gtk2::Notebook->new;
@@ -1562,24 +1559,28 @@ sub function_integrate_screenshot_in_notebook
 	#create thumbnail for gui
 	&function_create_thumbnail_and_fileinfos($filename, $theTimeKey);
 
-	#and append page with label == key			
-	my $new_index = $notebook->append_page (function_create_tab ($theTimeKey, FALSE), Gtk2::Label->new($theTimeKey));
+	my $hbox_tab_label = Gtk2::HBox->new(FALSE, 0);	
+	my $close_icon = Gtk2::Image->new_from_icon_name ('gtk-close', 'menu');
+	my $thumb_icon = Gtk2::Image->new_from_pixbuf ($session_screens{$theTimeKey}->{'thumb'}->scale_down_pixbuf(20,20));	
+	my $tab_close_button = Gtk2::Button->new;
+	#~ $tab_close_button->signal_connect(clicked => \&event_in_tab, 'remove'.$theTimeKey);	
+	$tab_close_button->set_image($close_icon);
+	my $tab_label = Gtk2::Label->new($theTimeKey);
+	$hbox_tab_label->pack_start($thumb_icon , FALSE, TRUE, 1);	
+	$hbox_tab_label->pack_start($tab_label , TRUE, TRUE, 1);
+	$hbox_tab_label->pack_start($tab_close_button, FALSE, TRUE, 1);
+	$hbox_tab_label->show_all;
+	
+	#and append page with label == key		
+	my $new_index = $notebook->append_page (function_create_tab ($theTimeKey, FALSE), $hbox_tab_label);
+	$session_screens{$theTimeKey}->{'tab_child'} = $notebook->get_nth_page ($new_index);
+	$tab_close_button->signal_connect(clicked => \&event_in_tab, 'remove'.$theTimeKey.'__ind__'.$new_index.'__indold__'.$notebook->get_current_page);	
+	
 	$window->show_all unless $is_in_tray;			
 	my $current_tab = $notebook->get_current_page+1;
 	print "new tab $new_index created, current tab is $current_tab\n" if $debug_cparam;
-	$notebook->set_current_page($new_index);	
-
-		
-	#~ my $hbox_tab_label = Gtk2::HBox->new(FALSE, 0);	
-	#~ my $close_icon = Gtk2::Image->new_from_icon_name ('gtk-no', 'menu');
-	#~ my $tab_label = Gtk2::Label->new($theTimeKey);
-	#~ $hbox_tab_label->pack_start($tab_label , TRUE, TRUE, 1);
-	#~ $hbox_tab_label->pack_start($close_icon, TRUE, TRUE, 1);
-	#~ $notebook->set_tab_label_packing ($notebook->get_current_page, TRUE, TRUE, 'start');
-	#~ $hbox_tab_label->show_all;
-	#~ $notebook->set_tab_label ($notebook->get_current_page, $hbox_tab_label);	
-#~ 
-	#~ $window->show_all unless $is_in_tray;
+	
+	$notebook->set_current_page($new_index);
 
 	return $theTimeKey;	
 }
@@ -1605,7 +1606,7 @@ sub function_create_tab {
 	my $button_remove = Gtk2::Button->new;
 	$button_remove->set_name("btn_remove");
 	$button_remove->signal_connect(clicked => \&event_in_tab, 'remove'.$key);
-	my $image_remove = Gtk2::Image->new_from_icon_name ('gtk-remove', 'button');
+	my $image_remove = Gtk2::Image->new_from_icon_name ('gtk-close', 'button');
 	$button_remove->set_image($image_remove);	
 
 	my $tooltip_remove = Gtk2::Tooltips->new;
@@ -1684,8 +1685,14 @@ sub function_create_tab {
 
 		my $filename_label2 = Gtk2::Label->new($session_screens{$key}->{'short'});
 		$filename_label2->set_name("filename_label");
-		
-		$vbox_fileinfos->pack_start($filename_label, FALSE, TRUE, 0);
+		$filename_label2->set_width_chars (20);
+		$filename_label2->set_line_wrap (1);
+		$filename_label2->set_line_wrap_mode('char');
+
+		my $tooltip_filename_label2 = Gtk2::Tooltips->new;
+		$tooltip_filename_label2->set_tip($filename_label2,$session_screens{$key}->{'filename'});
+	
+		$vbox_fileinfos->pack_start($filename_label, TRUE, TRUE, 0);
 		$vbox_fileinfos->pack_start($filename_label2, TRUE, TRUE, 1);
 		
 		my $mime_type_label = Gtk2::Label->new;
@@ -1694,16 +1701,16 @@ sub function_create_tab {
 		my $mime_type_label2 = Gtk2::Label->new($session_screens{$key}->{'mime_type'});
 		$mime_type_label2->set_name("mime_label");
 		
-		$vbox_fileinfos->pack_start($mime_type_label, FALSE, TRUE, 1);
+		$vbox_fileinfos->pack_start($mime_type_label, TRUE, TRUE, 1);
 		$vbox_fileinfos->pack_start($mime_type_label2, TRUE, TRUE, 1);	
 		
 		my $size_label = Gtk2::Label->new;
 		$size_label->set_markup("<b>".$d->get("Filesize")."</b>");
 		
-		my $size_label2 = Gtk2::Label->new($session_screens{$key}->{'size'});
+		my $size_label2 = Gtk2::Label->new(sprintf("%.2f", $session_screens{$key}->{'size'} / 1024)." KB");
 		$size_label2->set_name("size_label");
 		
-		$vbox_fileinfos2->pack_start($size_label, FALSE, TRUE, 1);		
+		$vbox_fileinfos2->pack_start($size_label, TRUE, TRUE, 1);		
 		$vbox_fileinfos2->pack_start($size_label2, TRUE, TRUE, 1);
 		
 		my $geometry_label = Gtk2::Label->new;
@@ -1712,7 +1719,7 @@ sub function_create_tab {
 		my $geometry_label2 = Gtk2::Label->new($session_screens{$key}->{'width'}."x".$session_screens{$key}->{'height'});
 		$geometry_label2->set_name("geometry_label");
 		
-		$vbox_fileinfos2->pack_start($geometry_label, FALSE, TRUE, 1);		
+		$vbox_fileinfos2->pack_start($geometry_label, TRUE, TRUE, 1);		
 		$vbox_fileinfos2->pack_start($geometry_label2, TRUE, TRUE, 1);
 
 		if(&function_file_exists($session_screens{$key}->{'filename'})){	
@@ -1727,7 +1734,6 @@ sub function_create_tab {
 		$hbox_tab_file->pack_start($vbox_fileinfos, TRUE, TRUE, 1);
 		$hbox_tab_file->pack_start($vbox_fileinfos2, TRUE, TRUE, 1);		
 
-		$hbox_tab_actions->pack_start($button_remove, TRUE, TRUE, 1);
 		$hbox_tab_actions->pack_start($button_delete, TRUE, TRUE, 1);
 		$hbox_tab_actions2->pack_start($button_reopen, TRUE, TRUE, 1);
 		$hbox_tab_actions2->pack_start($button_upload, TRUE, TRUE, 1);
@@ -1744,9 +1750,17 @@ sub function_create_tab {
 
 		my $stats_label2 = Gtk2::Label->new($notebook->get_n_pages." ".$d->nget("screenshot during this session", "screenshots during this session", $notebook->get_n_pages));
 		$stats_label2->set_name("statistics_counter");
+		
+		my $total_size = 0;
+		foreach (keys %session_screens){
+			$total_size += $session_screens{$_}->{'size'};	
+		}	
+		my $stats_label3 = Gtk2::Label->new($total_size);
+		$stats_label3->set_name("size_counter");
 
-		$vbox_all->pack_start($stats_label, FALSE, TRUE, 1);
-		$vbox_all->pack_start($stats_label2, FALSE, TRUE, 1);
+		$vbox_all->pack_start($stats_label, TRUE, TRUE, 1);
+		$vbox_all->pack_start($stats_label2, TRUE, TRUE, 1);
+		$vbox_all->pack_start($stats_label3, TRUE, TRUE, 1);
 
 		$exists_status = Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size("$gscrot_path/share/gscrot/resources/icons/session.svg", Gtk2::IconSize->lookup ('dialog' ))) if $is_all;
 
@@ -1767,8 +1781,8 @@ sub function_create_tab {
 	#~ $fixed_container->put($hbox_tab_actions, 0, 0);
 	#~ my $fixed_container2 = Gtk2::Fixed->new;
 	#~ $fixed_container2->put($hbox_tab_actions2, 0, 0);
-	$vbox_tab->pack_start($hbox_tab_actions, TRUE, TRUE, 1);
-	$vbox_tab->pack_start($hbox_tab_actions2, TRUE, TRUE, 1);
+	$vbox_tab->pack_start($hbox_tab_actions, FALSE, TRUE, 1);
+	$vbox_tab->pack_start($hbox_tab_actions2, FALSE, TRUE, 1);
 	#~ $hbox_tab->pack_start($fixed_container, FALSE, TRUE, 1);
 	#~ $hbox_tab->pack_start($fixed_container2, FALSE, TRUE, 1);
 	#~ $vbox_tab->pack_start($hbox_tab, TRUE, TRUE, 1);				
@@ -1805,10 +1819,16 @@ sub event_in_tab
 	}
 	
 	if ($data =~ m/^remove\[/){
-		$data =~ s/^remove//;
-		$notebook->remove_page($notebook->get_current_page); #delete tab
+		$data =~ /^remove(.*)__ind__(.*)__indold__(.*)/;
+		$data = $1;
+		my $delete_index = $2;
+		my $last_index = $3;
+		#~ $notebook->set_current_page($delete_index);
+		print "Child: ".$notebook->page_num ($session_screens{$data}->{'tab_child'})."\n";
+		$notebook->remove_page($notebook->page_num ($session_screens{$data}->{'tab_child'})); #delete tab
+		#~ $notebook->set_current_page($last_index-1) unless $delete_index = $last_index;		
 		&dialog_status_message(1, $session_screens{$data}->{'filename'}." ".$d->get("removed from session")) if defined($session_screens{$data}->{'filename'});
-		delete($session_screens{$data}->{'filename'}); # delete from hash
+		delete($session_screens{$data}); # delete from hash
 		
 		&function_update_first_tab();
 				
@@ -1836,7 +1856,7 @@ sub event_in_tab
 		my $full_filename = &function_switch_home_in_file($session_screens{$data}->{'filename'});
 		my $width = &function_imagemagick_perform("get_width", $full_filename, 0, "");
 		my $height = &function_imagemagick_perform("get_height", $full_filename, 0, "");
-		&function_start_drawing($full_filename, $width, $height, $session_screens{$data}->{'filetype'});	
+		&function_start_drawing($full_filename, $width, $height, $session_screens{$data}->{'filetype'}, $d);	
 		&function_update_tab($data);
 	}
 	
@@ -2203,7 +2223,7 @@ sub dialog_rename
 
 sub dialog_plugin
 {
-	my ($dialog_plugin_text, $data) = @_;
+	my ($dialog_plugin_text, $key) = @_;
 	my $dialog_header = $d->get("Choose a plugin");
  	my $plugin_dialog = Gtk2::Dialog->new ($dialog_header,
         						$window,
@@ -2213,13 +2233,9 @@ sub dialog_plugin
 
 	$plugin_dialog->set_default_response ('accept');
 
-	#store the filetype of the current screenshot for further processing
-	$dialog_plugin_text =~ /.*\.(.*)$/;
-	my $filetype = $1;
-
 	my $model = Gtk2::ListStore->new ('Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String');
 	foreach (keys %plugins){
-		next unless $plugins{$_}->{'ext'} =~ /$filetype/;
+		next unless $plugins{$_}->{'ext'} =~ /$session_screens{$key}->{'filetype'}/;
 		if($plugins{$_}->{'binary'} ne ""){
 			my $pixbuf; 
 			if (-f $plugins{$_}->{'pixmap'}){
@@ -2256,11 +2272,9 @@ sub dialog_plugin
 		my $plugin_value = $model->get_value($plugin_iter, 2);
 		my $plugin_name = $model->get_value($plugin_iter, 1);
 		unless ($plugin_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No plugin specified")); return FALSE;};
-		my $width = &function_imagemagick_perform("get_width", $dialog_plugin_text, 0, "");
-		my $height = &function_imagemagick_perform("get_height", $dialog_plugin_text, 0, "");
 
-		print "$plugin_value $dialog_plugin_text $width $height $filetype submitted to plugin\n" if $debug_cparam;
-		if (system("$plugin_value $dialog_plugin_text $width $height $filetype") == 0){
+		print "$plugin_value $dialog_plugin_text $session_screens{$key}->{'width'} $session_screens{$key}->{'height'} $session_screens{$key}->{'filetype'} submitted to plugin\n" if $debug_cparam;
+		if (system("$plugin_value $dialog_plugin_text $session_screens{$key}->{'width'} $session_screens{$key}->{'height'} $session_screens{$key}->{'filetype'}") == 0){
 			&dialog_info_message($d->get("Successfully executed plugin").": ".$plugin_name);
 		}else{
 			&dialog_error_message($d->get("Could not execute plugin").": ".$plugin_name);
@@ -2572,7 +2586,7 @@ sub function_update_first_tab
 		eval{	
 			push(@box_content, $children->get_children) ;
 		};
-	}
+	}	
 	my $n_pages = keys(%session_screens); 
 	foreach (@box_content){
 		if ( $_ =~ /^Gtk2::VBox/){
@@ -2580,6 +2594,12 @@ sub function_update_first_tab
 			foreach my $child_fileinfo (@children_fileinfoboxes){
 				if( $child_fileinfo->get_name =~ /statistics_counter/ ){
 					$child_fileinfo->set_text($n_pages." ".$d->nget("screenshot during this session", "screenshots during this session", $n_pages));
+				}elsif( $child_fileinfo->get_name =~ /size_counter/ ){
+					my $total_size = 0;
+					foreach (keys %session_screens){
+						$total_size += $session_screens{$_}->{'size'};	
+					}					
+					$child_fileinfo->set_text(sprintf("%.2f", $total_size / 1024)." KB total size");
 				}
 			}
 		}elsif( $_ =~ /^Gtk2::Button/ && $n_pages == 0){
@@ -2617,7 +2637,7 @@ sub function_update_tab
 				}elsif($child_fileinfo->get_name =~ /mime_label/){ #normal tab
 					$child_fileinfo->set_text($session_screens{$data}->{'mime_type'});
 				}elsif($child_fileinfo->get_name =~ /size_label/){ #normal tab
-					$child_fileinfo->set_text($session_screens{$data}->{'size'});
+					$child_fileinfo->set_text(sprintf("%.2f", $session_screens{$data}->{'size'} / 1024)." KB");
 				}elsif($child_fileinfo->get_name =~ /geometry_label/){ #normal tab
 					$child_fileinfo->set_text($session_screens{$data}->{'width'}."x".$session_screens{$data}->{'height'});
 				}				
@@ -2733,7 +2753,7 @@ sub function_create_thumbnail_and_fileinfos {
 	$filename = &function_switch_home_in_file($filename);
 	my $uri = Gnome2::VFS->get_uri_from_local_path ($filename);
 	my $mime_type = Gnome2::VFS->get_mime_type ($uri);
-	print "Uri: $uri - Mime-Type: $mime_type\n";
+	print "Uri: $uri - Mime-Type: $mime_type\n" if $debug_cparam;
 	my $thumbnailfactory = Gnome2::ThumbnailFactory->new ('normal');
 	if ($thumbnailfactory->can_thumbnail ($uri, $mime_type, time)){
 		my $thumb = $thumbnailfactory->generate_thumbnail ($uri, $mime_type);
@@ -2741,7 +2761,7 @@ sub function_create_thumbnail_and_fileinfos {
 		$session_screens{$key}->{'mime_type'} = $mime_type;
 		$session_screens{$key}->{'width'} = &function_imagemagick_perform("get_width", $filename, 0, "");
 		$session_screens{$key}->{'height'} = &function_imagemagick_perform("get_height", $filename, 0, "");	
-		$session_screens{$key}->{'size'} = sprintf("%.2f", (-s $filename) / 1024)." KB";
+		$session_screens{$key}->{'size'} = -s $filename;
 		#short filename
 		$session_screens{$key}->{'short'} = $filename;	
 		$session_screens{$key}->{'short'} =~ s{^.*/}{};		
@@ -2762,274 +2782,5 @@ sub function_iter_programs
 }
 
 
-sub function_start_drawing
-{
-	my ($filename, $w, $h, $filetype) = @_;
 
-	$drawing_window = Gtk2::Window->new ('toplevel');
-	$drawing_window->set_title ($filename);
-	$drawing_window->set_modal(1);
-	$drawing_window->signal_connect('destroy', \&event_close_modal_window);
-	$drawing_window->signal_connect('delete_event', sub { $drawing_window->destroy() });
-	$drawing_window->set_resizable(0);
-
-	$drawing_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($filename);
-	
-	#basic packing
-	my $drawing_vbox = Gtk2::VBox->new (FALSE, 0);
-	$drawing_window->add ($drawing_vbox);
-	my $drawing_statusbar = Gtk2::Statusbar->new;
-	$drawing_vbox->pack_end($drawing_statusbar, FALSE, FALSE, 0 );
-
-	my $scrolled_drawing_window = Gtk2::ScrolledWindow->new;
-	my $ha1  = $scrolled_drawing_window->get_hadjustment;
-	my $va1  = $scrolled_drawing_window->get_vadjustment;
-
-	if($w < 100 && $h < 100){
-		$scrolled_drawing_window->set_policy ('never', 'never');		
-	}else{
-		$scrolled_drawing_window->set_policy ('automatic', 'automatic');		
-	}
-
-	my $sw_width = $w;
-	my $sw_height = $h;
-	if ($w > 800){
-		$sw_width = 800;
-	}
-	if ($h > 600){
-		$sw_height = 600;
-	}
-
-	my $fixed_container = Gtk2::Fixed->new;
-	$scrolled_drawing_window->set_size_request ($sw_width, $sw_height);
-	$fixed_container->put($scrolled_drawing_window, 0, 0);
-	
-	$canvas = Gnome2::Canvas->new();
-	$canvas->signal_connect (event => \&event_drawing_handler);
-	my $white = Gtk2::Gdk::Color->new (0xFFFF,0xFFFF,0xFFFF);
-	$canvas->modify_bg('normal',$white);
-	$scrolled_drawing_window->add($canvas);
-
-	# Width
-	my $width_label = Gtk2::Label->new($d->get("Width:"));
-	$sb_width = Gtk2::SpinButton->new_with_range(1, 20, 1);
-	$sb_width->set_value(3);
-
-	# create a color button
-	my $col_label = Gtk2::Label->new($d->get("Color:"));
-	my $red = Gtk2::Gdk::Color->new (0xFFFF,0,0);
-	$colbut1 = Gtk2::ColorButton->new();
-	$colbut1->set_color($red);
-
-	# a Zoom
-	my $zoom_label = Gtk2::Label->new($d->get("Zoom:"));
-	$adj_zoom = Gtk2::Adjustment->new(1, 1, 5, 0.05, 0.5, 0.5);
-	my $sb_zoom = Gtk2::SpinButton->new($adj_zoom, 0, 2);
-	$adj_zoom->signal_connect("value-changed", \&event_zoom_changed, $canvas);
-	$sb_zoom->set_size_request(60, -1);
-
-	# a save button
-	my $save_button = Gtk2::Button->new($d->get("Save"));
-
-	$save_button->signal_connect(clicked => sub {
-
-	my ($width, $height) = $canvas->get_size;
-	my ($x,$y,$width1, $height1,$depth) = $canvas->window->get_geometry;		
-
-	if($w < 100 && $h < 100){
-		# create blank pixbuf to hold the stitched image
-		my $gdkpixbuf_l = Gtk2::Gdk::Pixbuf->new ('rgb', 0, 8, $width, $height);
-		$gdkpixbuf_l->get_from_drawable ($canvas->window, undef, 0, 0, 0, 0, $width, $height);		
-		$gdkpixbuf_l->save ($filename, $filetype) if defined($gdkpixbuf_l); 
-		$drawing_statusbar->push (1, $d->get("Drawing saved"));		
-	}else{
-
-		# a hack to slide the viewport and grab each viewable area
-		my $cols = int($width/$width1);
-		my $cmod = $width % $width1;
-		my $rows = int($height/$height1);
-		my $rmod = $height % $height1;
-
-		# create large blank pixbuf to hold the stitched image
-		my $gdkpixbuf_l = Gtk2::Gdk::Pixbuf->new ('rgb', 0, 8, $width, $height);
-
-		# get full rows and cols ##################################
-		for my $c (0 .. $cols - 1 ){    
-			#slide viewport along
-			$ha1->set_value( $c * $width1  );    
-			for my $r (0..$rows - 1 ){
-				$va1->set_value( $r * $height1  );    
-
-				# create blank pixbuf to hold the small image
-				my $gdkpixbuf = Gtk2::Gdk::Pixbuf->new ('rgb',0, 8,$width1, $height1);
-
-				$gdkpixbuf->get_from_drawable ($canvas->window, undef, 0, 0, 0, 0, $width1, $height1);
-
-				$gdkpixbuf->copy_area (0, 0, $width1, $height1, $gdkpixbuf_l, $c*$width1, $r*$height1);
-			} #end rows
-		} #end cols
-		########################################################################
-
-		# get bottom odd row except lower right corner#######################
-		for my $c (0 .. $cols - 1 ){    
-			$ha1->set_value( $c * $width1  );    
-			$va1->set_value( $rows * $height1  );    
-
-			my $gdkpixbuf = Gtk2::Gdk::Pixbuf->new ('rgb', 0,8,$width1,$rmod);
-
-			$gdkpixbuf->get_from_drawable ($canvas->window, undef, 0, 0, 0, 0, $width1, $rmod);
-
-			$gdkpixbuf->copy_area (0, 0, $width1, $rmod, $gdkpixbuf_l, $c*$width1, $rows*$height1);
-
-		} #end odd row
-		########################################################################
-
-		# get right odd col except lower right corner ##########################
-		for my $r (0 .. $rows - 1 ){    
-			$ha1->set_value( $cols * $width1  );    
-			$va1->set_value( $r * $height1  );    
-
-			# create blank pixbuf to hold the image
-			my $gdkpixbuf = Gtk2::Gdk::Pixbuf->new ('rgb', 0,8,$cmod, $height1);
-
-			$gdkpixbuf->get_from_drawable ($canvas->window, undef, 0, 0, 0, 0, $cmod, $height1);
-
-			$gdkpixbuf->copy_area (0, 0, $cmod, $height1, $gdkpixbuf_l, $cols*$width1, $r*$height1);
-		} #end odd col
-		########################################################################
-
-		# get  lower right corner ##########################
-		$ha1->set_value( $cols * $width1  );    
-		$va1->set_value( $rows * $height1  );    
-
-		# create blank pixbuf to hold the image
-		my $gdkpixbuf = Gtk2::Gdk::Pixbuf->new ('rgb', 0,8,$cmod,$rmod);
-		$gdkpixbuf->get_from_drawable ($canvas->window, undef, 0, 0, 0, 0, $cmod, $rmod);
-		$gdkpixbuf->copy_area (0, 0, $cmod, $rmod, $gdkpixbuf_l, $width - $cmod, $height - $rmod);
-
-		########################################################################
-		$gdkpixbuf_l->save ($filename, $filetype) if defined($gdkpixbuf_l); 
-		$drawing_statusbar->push (1, $d->get("Drawing saved"));
-		$ha1->set_value( 0 );    
-		$va1->set_value( 0 );   		
-		
-	}	
- 
-	  
-		}); 
-
-	my $image_save = Gtk2::Image->new_from_icon_name ('gtk-save', 'button');
-	$save_button->set_image($image_save);
-
-	# .. And a quit button
-	my $quit_button = Gtk2::Button->new ($d->get("Quit"));
-	$quit_button->signal_connect(clicked => sub { $drawing_window->destroy() });
-	my $image_cancel = Gtk2::Image->new_from_icon_name ('gtk-quit', 'button');
-	$quit_button->set_image($image_cancel);
-
-
-	$canvas->set_scroll_region( 0, 0, $w, $h);	
-	$root = $canvas->root;
-
-	my $canvas_pixbuf = Gnome2::Canvas::Item->new(
-		$root, 'Gnome2::Canvas::Pixbuf',
-		x => 0,
-		y => 0,
-		pixbuf => $drawing_pixbuf,
-	);
-
-	my $drawing_box_buttons = undef;
-	my $drawing_box = undef;
-	#start packing, we have a horizontal and a vertical mode	
-	if($h >= $w){ #vertical mode
-		$drawing_box_buttons = Gtk2::VBox->new (FALSE, 0);
-		$drawing_box = Gtk2::HBox->new (FALSE, 0);
-		$drawing_box_buttons->pack_start($width_label, FALSE, FALSE, 0 );
-		$drawing_box_buttons->pack_start($sb_width, FALSE, FALSE, 5 );
-		$drawing_box_buttons->pack_start($col_label, FALSE, FALSE, 0 );
-		$drawing_box_buttons->pack_start($colbut1, FALSE, FALSE, 5 );
-		$drawing_box_buttons->pack_start($zoom_label, FALSE, FALSE, 0 );
-		$drawing_box_buttons->pack_start($sb_zoom, FALSE, FALSE, 5 );
-		$drawing_box_buttons->pack_start($save_button, FALSE, FALSE, 5 );	
-		$drawing_box_buttons->pack_start ($quit_button, FALSE, FALSE, 5);
-		$drawing_box->pack_start($drawing_box_buttons, FALSE, FALSE, 5 );
-		$drawing_box->pack_start ($fixed_container, FALSE, FALSE, 10);
-		$drawing_vbox->pack_start($drawing_box, FALSE, FALSE, 5 );	
-
-	}else{ #horizontal mode
-		$drawing_box_buttons = Gtk2::HBox->new (FALSE, 0);
-		$drawing_box = Gtk2::VBox->new (FALSE, 0);
-		my $halign = Gtk2::Alignment->new (1, 0, 0, 0);
-		$drawing_box_buttons->add($halign);
-		$drawing_box_buttons->pack_start($width_label, FALSE, FALSE, 0 );
-		$drawing_box_buttons->pack_start($sb_width, FALSE, FALSE, 5 );
-		$drawing_box_buttons->pack_start($col_label, FALSE, FALSE, 0 );
-		$drawing_box_buttons->pack_start($colbut1, FALSE, FALSE, 5 );
-		$drawing_box_buttons->pack_start($zoom_label, FALSE, FALSE, 0 );
-		$drawing_box_buttons->pack_start($sb_zoom, FALSE, FALSE, 5 );
-		$drawing_box_buttons->pack_start($save_button, FALSE, FALSE, 5 );	
-		$drawing_box_buttons->pack_start ($quit_button, FALSE, FALSE, 5);
-		$drawing_box->pack_start ($fixed_container, FALSE, FALSE, 10);
-		$drawing_box->pack_start($drawing_box_buttons, FALSE, FALSE, 5 );
-		$drawing_vbox->pack_start($drawing_box, FALSE, FALSE, 5 );	
-		
-	}
-
-	$drawing_window->show_all();
-	Gtk2->main;
-}
-
-##############################
-
-sub event_drawing_handler{
-     my ( $widget, $event ) = @_;
-     my $scale = $adj_zoom->get_value;
-    if ( $event->type eq "button-press" ) {
-        $draw_flag = 1;       
-        #start a new line curve
-        $count++;      
-        my ($x,$y) = ($event->x,$event->y);
-    
-        $lines{$count}{'points'} = [$x/$scale,$y/$scale,$x/$scale,$y/$scale]; #need at least 2 points 
-        $lines{$count}{'line'} = Gnome2::Canvas::Item->new ($root,
-                'Gnome2::Canvas::Line',
-                points => $lines{$count}{'points'},
-                fill_color_gdk => $colbut1->get_color,
-                width_units => $sb_width->get_value,
-                cap_style => 'round',
-                join_style => 'round',
-            );
-     }
-    if ( $event->type eq "button-release" ) {
-        $draw_flag = 0;
-    }
-
-    if ( $event->type eq "focus-change" ) {
-        return 0;
-    }
-    
-    if ( $event->type eq "expose" ) {
-        return 0;
-    }
-
-  if($draw_flag){
-    #left with motion-notify
-    if ( $event->type eq "motion-notify"){
-   	 my ($x,$y) = ($event->x,$event->y);
-     push @{$lines{$count}{'points'}},$x/$scale,$y/$scale;   
-     $lines{$count}{'line'}->set(points=>$lines{$count}{'points'});
-
-    }
-  }        
-}
-
-sub event_zoom_changed {
-    my ($adj_zoom, $canvas) = @_;
-    $canvas->set_pixels_per_unit($adj_zoom->get_value);
-}
-
-sub event_close_modal_window {
- my ($widget) = @_;
- Gtk2->main_quit();
-}
 #################### MY FUNCTIONS  ################################
