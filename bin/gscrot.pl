@@ -30,11 +30,13 @@ use Locale::gettext;
 use HTTP::Status;
 use XML::Simple;
 use Data::Dumper;
+use Gnome2;
 use Gnome2::GConf;
-use Gnome2::Canvas;
+
+function_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 my $gscrot_name = "GScrot";
-my $gscrot_version = "v0.39";
+my $gscrot_version = "v0.40";
 my $gscrot_path = "";
 #command line parameter
 my $debug_cparam = FALSE;
@@ -78,6 +80,8 @@ $window->set_title($gscrot_name." ".$gscrot_version);
 $window->set_default_icon_from_file ("$gscrot_path/share/gscrot/resources/icons/gscrot24x24.png");
 $window->signal_connect('delete-event' => \&event_delete_window);
 $window->set_border_width(0);
+$window->set_resizable(0);
+
 
 #modal drawing window
 my $drawing_pixbuf = undef;
@@ -97,7 +101,7 @@ my $notebook = Gtk2::Notebook->new;
 $notebook->popup_enable;
 $notebook->set_scrollable(TRUE);
 $notebook->signal_connect('switch-page' => \&event_notebook_switch, 'tab-switched');
-$notebook->set_size_request(-1, 150);
+$notebook->set_size_request(-1, 250);
 my $first_page = $notebook->append_page (function_create_tab ("", TRUE),
 Gtk2::Label->new($d->get("All")));
 
@@ -113,7 +117,10 @@ $window->add_accel_group($accel_group);
 my $statusbar = Gtk2::Statusbar->new;
 
 my $vbox = Gtk2::VBox->new(FALSE, 10);
-my $vbox_inner = Gtk2::VBox->new(FALSE, 10);
+my $vbox_inner0 = Gtk2::VBox->new(FALSE, 10);
+my $vbox_inner1 = Gtk2::VBox->new(FALSE, 10);
+my $vbox_inner2 = Gtk2::VBox->new(FALSE, 10);
+my $vbox_inner3 = Gtk2::VBox->new(FALSE, 10);
 my $vbox_basic = Gtk2::VBox->new(FALSE, 10);
 my $vbox_extras = Gtk2::VBox->new(FALSE, 10);
 my $vbox_behavior = Gtk2::VBox->new(FALSE, 10);
@@ -271,7 +278,7 @@ $tooltip_web->set_tip($button_web,$d->get("Take a screenshot of a website"));
 $button_box->pack_start($button_web, TRUE, TRUE, 0);
 #############BUTTON_WEB######################
 
-$vbox_inner->pack_start($button_box, FALSE, FALSE, 0);
+$vbox_inner0->pack_start($button_box, FALSE, FALSE, 0);
 
 #############TRAYICON######################
 my $icon = Gtk2::Image->new_from_file("$gscrot_path/share/gscrot/resources/icons/gscrot24x24.png");
@@ -394,7 +401,6 @@ $filename->signal_connect('move-cursor' => \&event_handle, 'cursor_moved');
 
 my $filename_label = Gtk2::Label->new;
 $filename_label->set_text($d->get("Filename"));
-
 
 my $tooltip_filename = Gtk2::Tooltips->new;
 $tooltip_filename->set_tip($filename,$d->get("There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time\n\$w = width\n\$h = height\n%NN = counter"));
@@ -866,11 +872,27 @@ if (keys(%plugins) > 0){
 	my $notebook_settings_fifth = $notebook_settings->append_page ($vbox_plugins,$label_plugins);
 }
 
-$vbox_inner->pack_start($notebook_settings, FALSE, FALSE, 1);
-$vbox_inner->pack_start($notebook, TRUE, TRUE, 1);
-$vbox_inner->set_border_width(10);
+$vbox->pack_start($vbox_inner0, FALSE, TRUE, 1);
 
-$vbox->pack_start($vbox_inner, TRUE, TRUE, 1);
+$vbox_inner2->pack_start($notebook_settings, FALSE, FALSE, 1);
+$vbox_inner2->set_border_width(10);
+$vbox_inner3->pack_start($notebook, TRUE, TRUE, 1);
+$vbox_inner3->set_border_width(10);
+
+my $expander1 = Gtk2::Expander->new ($d->get("Settings"));
+$expander1->signal_connect('activate' => \&event_expander, 'exp_settings');
+$expander1->add($vbox_inner2);
+
+my $expander2 = Gtk2::Expander->new ($d->get("Current Session"));
+$expander2->signal_connect('activate' => \&event_expander, 'exp_session');
+$expander2->set_expanded(1);
+$expander2->add($vbox_inner3);
+
+$vbox_inner1->pack_start($expander2, FALSE, TRUE, 1);
+$vbox_inner1->pack_start($expander1, FALSE, TRUE, 1);
+
+$vbox->pack_start($vbox_inner1, FALSE, TRUE, 1);
+
 $vbox->pack_start($statusbar, FALSE, TRUE, 1);
 #############PACKING######################
 
@@ -1021,6 +1043,18 @@ sub function_init
 	}
 }
 
+sub event_expander
+{
+	my ($widget, $data) = @_;
+	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
+	if($data eq "exp_settings"){
+		$expander2->set_expanded(0);
+	}else{
+		$expander1->set_expanded(0);
+	}
+	return 1;
+}	
+
 #nearly all events are handled here
 sub event_handle
 {
@@ -1034,7 +1068,6 @@ sub event_handle
 	my $filetype_value = undef;
 	my $border_value = "";
 	my $folder = undef;
-
 	my $thumbnail_param = "";	
 	my $echo_cmd = "-e 'echo \$f'";
 	my $scrot_feedback = "";
@@ -1133,7 +1166,7 @@ sub event_handle
 				$is_in_tray = TRUE;
 			}
 			unless ($filename_value =~ /[a-zA-Z0-9]+/ && defined($folder) && defined($filetype_value)) { &dialog_error_message($d->get("No valid filename specified")); return FALSE;};
-			$scrot_feedback=`scrot '$folder/$filename_value.$filetype_value' -q $quality_value -d $delay_value $border_value $thumbnail_param $echo_cmd`;		
+			$scrot_feedback=`scrot '$folder/$filename_value.$filetype_value' -q $quality_value -d $delay_value $border_value $thumbnail_param $echo_cmd`;				
 			if($hide_active->get_active()){			
 				$window->show_all;
 				$is_in_tray = FALSE;
@@ -1197,7 +1230,7 @@ sub event_handle
 			$scrot_feedback =~ s/$ENV{ HOME }/~/; #switch /home/username in path to ~ 
 			print "screenshot successfully saved to $scrot_feedback!\n" if $debug_cparam;
 			&dialog_status_message(1, "$scrot_feedback ".$d->get("saved"));
-			&function_integrate_screenshot_in_notebook($scrot_feedback);
+			my $new_key = &function_integrate_screenshot_in_notebook($scrot_feedback);
 			
 			#perform some im_actions
 			if($im_colors_active->get_active){
@@ -1270,30 +1303,43 @@ sub event_notebook_switch
 	my @widget_list = $widget->get_children->get_children->get_children; #scrolledwindow, viewport, vbox
 	my @hbox_content;
 	foreach my $hbox_widget(@widget_list){
-		push(@hbox_content, $hbox_widget->get_children);
+		eval{
+			#~ print $hbox_widget->get_name."\n";	
+			push(@hbox_content, $hbox_widget->get_children);
+		};
 	}
 
-	@hbox_content = reverse(@hbox_content); # a little bit dirty here to get the label with filename first
 	foreach (@hbox_content){
-		if ( $_ =~ /^Gtk2::Label/ && $tab_index != 0){ #normal tab
-			$filename = $_->get_text();
-		}elsif ($_ =~ /^Gtk2::Label/ && $tab_index == 0){ #all tab
-			my $n_pages = keys(%session_screens);
-			$_->set_text($n_pages." ".$d->nget("screenshot during this session", "screenshots during this session", $n_pages));
-		}elsif ($_ =~ /^Gtk2::Image/ && $tab_index != 0){#normal tab
-			if(&function_file_exists($filename)){	
-				$_->set_from_icon_name ('gtk-yes', 'menu');
-			}else{
-				$_->set_from_icon_name ('gtk-no', 'menu');
-				&dialog_status_message(1, $filename." ".$d->get("is not existing anymore"));
-				$exists = FALSE;
-				foreach my $key(keys %session_screens){
-					delete($session_screens{$key}) if $session_screens{$key} eq $filename; # delete from hash	
-				}			
+		if ( $_ =~ /^Gtk2::VBox/ && $tab_index != 0){
+			my @children_fileinfoboxes = $_->get_children;
+			foreach my $child_fileinfo (@children_fileinfoboxes){
+				if ($child_fileinfo->get_name =~ /filename_label/){ #normal tab
+					$filename = $child_fileinfo->get_text();
+				}elsif ($child_fileinfo =~ /^Gtk2::Label/ && $tab_index == 0){ #all tab
+					my $n_pages = keys(%session_screens);
+					$child_fileinfo->set_text($n_pages." ".$d->nget("screenshot during this session", "screenshots during this session", $n_pages));
+				}
+				
 			}
-		}
-		
+		}	
 	}
+
+	#~ @hbox_content = reverse(@hbox_content); # a little bit dirty here to get the label with filename first
+	#~ foreach (@hbox_content){
+		#~ if ($_ =~ /^Gtk2::Image/ && $tab_index != 0){#normal tab
+			#~ if(&function_file_exists($filename)){
+				#~ $_->set_from_pixbuf($session_screens{$notebook->get_tab_label_text($widget)}->{'thumb'});	
+			#~ }else{
+				#~ $_->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size("$gscrot_path/share/gscrot/resources/icons/Image-missing.svg", Gtk2::IconSize->lookup ('dialog' )));
+				#~ &dialog_status_message(1, $filename." ".$d->get("is not existing anymore"));
+				#~ $exists = FALSE;
+				#~ foreach my $key(keys %session_screens){
+					#~ delete($session_screens{$key}) if $session_screens{$key}->{'filename'} eq $filename; # delete from hash	
+				#~ }			
+			#~ }
+		#~ }
+		#~ 
+	#~ }
 	#do it again and set buttons disabled
 	@hbox_content = sort(@hbox_content); #do not disable first button (remove)
 	foreach (@hbox_content){
@@ -1512,15 +1558,30 @@ sub function_integrate_screenshot_in_notebook
 	my $theTimeKey = "[".&function_get_latest_tab_key."] - $theTime";
 
 	#build hash of screenshots during session	
-	$session_screens{$theTimeKey} = $filename;
+	$session_screens{$theTimeKey}->{'filename'} = $filename;
+	#create thumbnail for gui
+	&function_create_thumbnail_and_fileinfos($filename, $theTimeKey);
+
 	#and append page with label == key			
 	my $new_index = $notebook->append_page (function_create_tab ($theTimeKey, FALSE), Gtk2::Label->new($theTimeKey));
-	$window->show_all unless $is_in_tray;				
+	$window->show_all unless $is_in_tray;			
 	my $current_tab = $notebook->get_current_page+1;
 	print "new tab $new_index created, current tab is $current_tab\n" if $debug_cparam;
 	$notebook->set_current_page($new_index);	
 
-	return 1;	
+		
+	#~ my $hbox_tab_label = Gtk2::HBox->new(FALSE, 0);	
+	#~ my $close_icon = Gtk2::Image->new_from_icon_name ('gtk-no', 'menu');
+	#~ my $tab_label = Gtk2::Label->new($theTimeKey);
+	#~ $hbox_tab_label->pack_start($tab_label , TRUE, TRUE, 1);
+	#~ $hbox_tab_label->pack_start($close_icon, TRUE, TRUE, 1);
+	#~ $notebook->set_tab_label_packing ($notebook->get_current_page, TRUE, TRUE, 'start');
+	#~ $hbox_tab_label->show_all;
+	#~ $notebook->set_tab_label ($notebook->get_current_page, $hbox_tab_label);	
+#~ 
+	#~ $window->show_all unless $is_in_tray;
+
+	return $theTimeKey;	
 }
 
 
@@ -1532,26 +1593,15 @@ sub function_create_tab {
 	$scrolled_window->set_shadow_type ('in');
 	
 	my $vbox_tab = Gtk2::VBox->new(FALSE, 0);
+	my $hbox_tab = Gtk2::HBox->new(FALSE, 0);
+	my $vbox_all = Gtk2::VBox->new(FALSE, 0);	
+	my $vbox_fileinfos = Gtk2::VBox->new(FALSE, 0);
+	my $vbox_fileinfos2 = Gtk2::VBox->new(FALSE, 0);	
 	my $hbox_tab_file = Gtk2::HBox->new(FALSE, 0);
 	my $hbox_tab_actions = Gtk2::HBox->new(FALSE, 0);
 	my $hbox_tab_actions2 = Gtk2::HBox->new(FALSE, 0);
 
-	my $n_pages = 0;
-	my $filename = $n_pages." ".$d->nget("screenshot during this session", "screenshots during this session", $n_pages);
-	$filename = $session_screens{$key} unless $is_all;
-	$n_pages = $notebook->get_n_pages() if $is_all;
-
-	my $exists_status;
-	if(&function_file_exists($filename) || $n_pages >= 1){	
-		$exists_status = Gtk2::Image->new_from_icon_name ('gtk-yes', 'menu');
-	}else{
-		$exists_status = Gtk2::Image->new_from_icon_name ('gtk-no', 'menu');
-	}
-
-	$exists_status = Gtk2::Image->new_from_icon_name ('gtk-dnd-multiple', 'menu') if $is_all;
 	
-	my $filename_label = Gtk2::Label->new($filename);
-
 	my $button_remove = Gtk2::Button->new;
 	$button_remove->set_name("btn_remove");
 	$button_remove->signal_connect(clicked => \&event_in_tab, 'remove'.$key);
@@ -1627,16 +1677,56 @@ sub function_create_tab {
 	my $tooltip_print = Gtk2::Tooltips->new;
 	$tooltip_print->set_tip($button_print,$d->get("Print file(s)"));
 
-	#packing
-	$hbox_tab_file->pack_start($exists_status, TRUE, TRUE, 1);
-	$hbox_tab_file->pack_start($filename_label, TRUE, TRUE, 1);
+	my $exists_status = undef;
+	unless($is_all){
+		my $filename_label = Gtk2::Label->new;
+		$filename_label->set_markup("<b>".$d->get("Filename")."</b>");
 
-	if($is_all){
-		$hbox_tab_actions->pack_start($button_remove, TRUE, TRUE, 1);
-		$hbox_tab_actions->pack_start($button_delete, TRUE, TRUE, 1);
-		$hbox_tab_actions2->pack_start($button_reopen, TRUE, TRUE, 1);
-		$hbox_tab_actions2->pack_start($button_print, TRUE, TRUE, 1);
-	}else{
+		my $filename_label2 = Gtk2::Label->new($session_screens{$key}->{'short'});
+		$filename_label2->set_name("filename_label");
+		
+		$vbox_fileinfos->pack_start($filename_label, FALSE, TRUE, 0);
+		$vbox_fileinfos->pack_start($filename_label2, TRUE, TRUE, 1);
+		
+		my $mime_type_label = Gtk2::Label->new;
+		$mime_type_label->set_markup("<b>".$d->get("Mime-Type")."</b>");
+		
+		my $mime_type_label2 = Gtk2::Label->new($session_screens{$key}->{'mime_type'});
+		$mime_type_label2->set_name("mime_label");
+		
+		$vbox_fileinfos->pack_start($mime_type_label, FALSE, TRUE, 1);
+		$vbox_fileinfos->pack_start($mime_type_label2, TRUE, TRUE, 1);	
+		
+		my $size_label = Gtk2::Label->new;
+		$size_label->set_markup("<b>".$d->get("Filesize")."</b>");
+		
+		my $size_label2 = Gtk2::Label->new($session_screens{$key}->{'size'});
+		$size_label2->set_name("size_label");
+		
+		$vbox_fileinfos2->pack_start($size_label, FALSE, TRUE, 1);		
+		$vbox_fileinfos2->pack_start($size_label2, TRUE, TRUE, 1);
+		
+		my $geometry_label = Gtk2::Label->new;
+		$geometry_label->set_markup("<b>".$d->get("Geometry")."</b>");
+		
+		my $geometry_label2 = Gtk2::Label->new($session_screens{$key}->{'width'}."x".$session_screens{$key}->{'height'});
+		$geometry_label2->set_name("geometry_label");
+		
+		$vbox_fileinfos2->pack_start($geometry_label, FALSE, TRUE, 1);		
+		$vbox_fileinfos2->pack_start($geometry_label2, TRUE, TRUE, 1);
+
+		if(&function_file_exists($session_screens{$key}->{'filename'})){	
+			$exists_status = Gtk2::Image->new_from_pixbuf($session_screens{$key}->{'thumb'});
+		}else{
+			$exists_status = Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size("$gscrot_path/share/gscrot/resources/icons/Image-missing.svg", Gtk2::IconSize->lookup ('dialog' )));
+		}
+
+		#packing
+		$hbox_tab_file->pack_start($exists_status, TRUE, TRUE, 1);
+		
+		$hbox_tab_file->pack_start($vbox_fileinfos, TRUE, TRUE, 1);
+		$hbox_tab_file->pack_start($vbox_fileinfos2, TRUE, TRUE, 1);		
+
 		$hbox_tab_actions->pack_start($button_remove, TRUE, TRUE, 1);
 		$hbox_tab_actions->pack_start($button_delete, TRUE, TRUE, 1);
 		$hbox_tab_actions2->pack_start($button_reopen, TRUE, TRUE, 1);
@@ -1645,11 +1735,43 @@ sub function_create_tab {
 		$hbox_tab_actions->pack_start($button_rename, TRUE, TRUE, 1);
 		$hbox_tab_actions->pack_start($button_plugin, TRUE, TRUE, 1) if (keys(%plugins) > 0);
 		$hbox_tab_actions->pack_start($button_draw, TRUE, TRUE, 1);
-		$hbox_tab_actions2->pack_start($button_clipboard, TRUE, TRUE, 1);		
+		$hbox_tab_actions2->pack_start($button_clipboard, TRUE, TRUE, 1);	
+
+
+	}else{
+		my $stats_label = Gtk2::Label->new;
+		$stats_label->set_markup("<b>".$d->get("Statistics")."</b>");
+
+		my $stats_label2 = Gtk2::Label->new($notebook->get_n_pages." ".$d->nget("screenshot during this session", "screenshots during this session", $notebook->get_n_pages));
+		$stats_label2->set_name("statistics_counter");
+
+		$vbox_all->pack_start($stats_label, FALSE, TRUE, 1);
+		$vbox_all->pack_start($stats_label2, FALSE, TRUE, 1);
+
+		$exists_status = Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size("$gscrot_path/share/gscrot/resources/icons/session.svg", Gtk2::IconSize->lookup ('dialog' ))) if $is_all;
+
+		$hbox_tab_file->pack_start($exists_status, TRUE, TRUE, 1);		
+		
+		$hbox_tab_file->pack_start($vbox_all, TRUE, TRUE, 1);			
+
+		$hbox_tab_actions->pack_start($button_remove, TRUE, TRUE, 1);
+		$hbox_tab_actions->pack_start($button_delete, TRUE, TRUE, 1);
+		$hbox_tab_actions2->pack_start($button_reopen, TRUE, TRUE, 1);
+		$hbox_tab_actions2->pack_start($button_print, TRUE, TRUE, 1);
+
 	}
+
 	$vbox_tab->pack_start($hbox_tab_file, TRUE, TRUE, 1);
+
+	#~ my $fixed_container = Gtk2::Fixed->new;
+	#~ $fixed_container->put($hbox_tab_actions, 0, 0);
+	#~ my $fixed_container2 = Gtk2::Fixed->new;
+	#~ $fixed_container2->put($hbox_tab_actions2, 0, 0);
 	$vbox_tab->pack_start($hbox_tab_actions, TRUE, TRUE, 1);
 	$vbox_tab->pack_start($hbox_tab_actions2, TRUE, TRUE, 1);
+	#~ $hbox_tab->pack_start($fixed_container, FALSE, TRUE, 1);
+	#~ $hbox_tab->pack_start($fixed_container2, FALSE, TRUE, 1);
+	#~ $vbox_tab->pack_start($hbox_tab, TRUE, TRUE, 1);				
 	$scrolled_window->add_with_viewport($vbox_tab);
 
   return $scrolled_window;
@@ -1665,16 +1787,16 @@ sub event_in_tab
 	my $current_file;
 	if ($data =~ m/^print\[/){
 		$data =~ s/^print//;
-		my $current_file = &function_switch_home_in_file($session_screens{$data});
+		my $current_file = &function_switch_home_in_file($session_screens{$data}->{'filename'});
 		system("gtklp $current_file &");
-		&dialog_status_message(1, $session_screens{$data}." ".$d->get("will be printed"));
+		&dialog_status_message(1, $session_screens{$data}->{'filename'}." ".$d->get("will be printed"));
 	}
 
 	if ($data =~ m/^delete\[/){
 		$data =~ s/^delete//;
-		unlink(&function_switch_home_in_file($session_screens{$data})); #delete file
+		unlink(&function_switch_home_in_file($session_screens{$data}->{'filename'})); #delete file
 		$notebook->remove_page($notebook->get_current_page); #delete tab
-		&dialog_status_message(1, $session_screens{$data}." ".$d->get("deleted")) if defined($session_screens{$data});
+		&dialog_status_message(1, $session_screens{$data}->{'filename'}." ".$d->get("deleted")) if defined($session_screens{$data}->{'filename'});
 		delete($session_screens{$data}); # delete from hash
 		
 		&function_update_first_tab();
@@ -1685,8 +1807,8 @@ sub event_in_tab
 	if ($data =~ m/^remove\[/){
 		$data =~ s/^remove//;
 		$notebook->remove_page($notebook->get_current_page); #delete tab
-		&dialog_status_message(1, $session_screens{$data}." ".$d->get("removed from session")) if defined($session_screens{$data});
-		delete($session_screens{$data}); # delete from hash
+		&dialog_status_message(1, $session_screens{$data}->{'filename'}." ".$d->get("removed from session")) if defined($session_screens{$data}->{'filename'});
+		delete($session_screens{$data}->{'filename'}); # delete from hash
 		
 		&function_update_first_tab();
 				
@@ -1699,51 +1821,52 @@ sub event_in_tab
 		my $progname_iter = $progname->get_active_iter();
 		my $progname_value = $model->get_value($progname_iter, 2);
 		unless ($progname_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No application specified to open the screenshot")); return FALSE;};
-		system($progname_value." ".$session_screens{$data}." &");
-		&dialog_status_message(1, $session_screens{$data}." ".$d->get("opened with")." ".$progname_value);
+		system($progname_value." ".$session_screens{$data}->{'filename'}." &");
+		&dialog_status_message(1, $session_screens{$data}->{'filename'}." ".$d->get("opened with")." ".$progname_value);
+		&function_update_tab($data);
 	}
 
 	if ($data =~ m/^upload\[/){
 		$data =~ s/^upload//;
-		&dialog_account_chooser_and_upload($session_screens{$data});	
+		&dialog_account_chooser_and_upload($session_screens{$data}->{'filename'});	
 	}
 
 	if ($data =~ m/^draw\[/){
 		$data =~ s/^draw//;
-		my $full_filename = &function_switch_home_in_file($session_screens{$data});
-		#store the filetype of the current screenshot for further processing
-		$session_screens{$data} =~ /.*\.(.*)$/;
-		my $filetype = $1;
+		my $full_filename = &function_switch_home_in_file($session_screens{$data}->{'filename'});
 		my $width = &function_imagemagick_perform("get_width", $full_filename, 0, "");
 		my $height = &function_imagemagick_perform("get_height", $full_filename, 0, "");
-		&function_start_drawing($full_filename, $width, $height, $filetype);	
+		&function_start_drawing($full_filename, $width, $height, $session_screens{$data}->{'filetype'});	
+		&function_update_tab($data);
 	}
 	
 	if ($data =~ m/^rename\[/){
 		$data =~ s/^rename//;
-		&dialog_status_message(1, $session_screens{$data}." ".$d->get("renamed")) if &dialog_rename($session_screens{$data}, $data);
+		&dialog_status_message(1, $session_screens{$data}->{'filename'}." ".$d->get("renamed")) if &dialog_rename($session_screens{$data}->{'filename'}, $data);
+		&function_update_tab($data);
 	}
 
 	if ($data =~ m/^plugin\[/){
 		$data =~ s/^plugin//;
 		if (keys %plugins > 0){
-			&dialog_status_message(1, $session_screens{$data}." ".$d->get("executed by plugin")) if &dialog_plugin($session_screens{$data}, $data);
+			&dialog_status_message(1, $session_screens{$data}." ".$d->get("executed by plugin")) if &dialog_plugin($session_screens{$data}->{'filename'}, $data);
 		}else{
 			&dialog_error_message($d->get("No plugin installed"));	
 		}
+		&function_update_tab($data);
 	}
 
 	if ($data =~ m/^clipboard\[/){
 		$data =~ s/^clipboard//;
-		my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file (&function_switch_home_in_file($session_screens{$data}) );
+		my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file (&function_switch_home_in_file($session_screens{$data}->{'filename'}) );
 		$clipboard->set_image($pixbuf);
-		&dialog_status_message(1, $session_screens{$data}." ".$d->get("copied to clipboard"));
+		&dialog_status_message(1, $session_screens{$data}->{'filename'}." ".$d->get("copied to clipboard"));
 	}
 
 #all screenshots
 	if ($data =~ m/^delete$/){ #tab == all
 		foreach my $key(keys %session_screens){
-			unlink(&function_switch_home_in_file($session_screens{$key})); #delete file		
+			unlink(&function_switch_home_in_file($session_screens{$key}->{'filename'})); #delete file		
 			delete($session_screens{$key}); # delete from hash	
 		}
 		my $n_pages = $notebook->get_n_pages();
@@ -1778,12 +1901,12 @@ sub event_in_tab
 		unless ($progname_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No application specified to open the screenshot")); return FALSE;};
 		if($progname_value =~ /gimp/){
 			foreach my $key(keys %session_screens){
-				$open_files .= &function_switch_home_in_file($session_screens{$key})." ";
+				$open_files .= &function_switch_home_in_file($session_screens{$key}->{'filename'})." ";
 			}
 			system($progname_value." ".$open_files." &");
 		}else{
 			foreach my $key(keys %session_screens){
-				system($progname_value." ".&function_switch_home_in_file($session_screens{$key})." &");
+				system($progname_value." ".&function_switch_home_in_file($session_screens{$key}->{'filename'})." &");
 			}			
 		}
 		&dialog_status_message(1, $d->get("Opened all files with")." ".$progname_value);
@@ -1792,7 +1915,7 @@ sub event_in_tab
 	if ($data =~ m/^print$/){ #tab == all
 		my $print_files;		
 		foreach my $key(keys %session_screens){
-			$print_files .= &function_switch_home_in_file($session_screens{$key})." ";
+			$print_files .= &function_switch_home_in_file($session_screens{$key}->{'filename'})." ";
 		}
 		system("gtklp $print_files &");
 		&dialog_status_message(1, $d->get("Printing all screenshots"));
@@ -1987,7 +2110,7 @@ sub function_file_exists
 {
 	my ($filename) = @_;
 	$filename = &function_switch_home_in_file($filename); 
-	return TRUE if (-e $filename);
+	return TRUE if (-f $filename);
 	return FALSE;
 }
 
@@ -2067,8 +2190,7 @@ sub dialog_rename
 				$input_dialog->destroy();		
 				return FALSE;			
 			}
-			$session_screens{$data} = $dialog_rename_text;
-			&function_update_tab($data);
+			$session_screens{$data}->{'filename'} = $dialog_rename_text;
 		}
 		$input_dialog->destroy();		
 		return TRUE;
@@ -2445,20 +2567,27 @@ sub function_update_first_tab
 	#write new number of screenshot to first label
 	my $current_page = $notebook->get_nth_page(0);
 	my @widget_list = $current_page->get_children->get_children->get_children; #scrolledwindow, viewport, vbox
-	my @hbox_content;
-	foreach my $hbox_widget(@widget_list){
-		push(@hbox_content, $hbox_widget->get_children) ;
+	my @box_content;
+	foreach my $children(@widget_list){
+		eval{	
+			push(@box_content, $children->get_children) ;
+		};
 	}
 	my $n_pages = keys(%session_screens); 
-	foreach (@hbox_content){
-		if( $_ =~ /^Gtk2::Label/ ){
-			$_->set_text($n_pages." ".$d->nget("screenshot during this session", "screenshots during this session", $n_pages));
+	foreach (@box_content){
+		if ( $_ =~ /^Gtk2::VBox/){
+			my @children_fileinfoboxes = $_->get_children;
+			foreach my $child_fileinfo (@children_fileinfoboxes){
+				if( $child_fileinfo->get_name =~ /statistics_counter/ ){
+					$child_fileinfo->set_text($n_pages." ".$d->nget("screenshot during this session", "screenshots during this session", $n_pages));
+				}
+			}
 		}elsif( $_ =~ /^Gtk2::Button/ && $n_pages == 0){
 			$_->set_sensitive(FALSE);	
 		}elsif( $_ =~ /^Gtk2::Button/ && $n_pages > 0){
 			$_->set_sensitive(TRUE);	
 		}
-	}		
+	}			
 }
 
 sub function_update_tab
@@ -2468,17 +2597,35 @@ sub function_update_tab
 	my $number_of_page = $1;
 	my $current_page = $notebook->get_nth_page($number_of_page);
 	my @widget_list = $current_page->get_children->get_children->get_children; #scrolledwindow, viewport, vbox
-	my @hbox_content;
-	foreach my $hbox_widget(@widget_list){
-		push(@hbox_content, $hbox_widget->get_children) ;
+	my @box_content;
+	foreach my $children(@widget_list){
+		eval{
+			push(@box_content, $children->get_children) ;
+		};
 	}
+	
+	#update fileinfos
+	&function_create_thumbnail_and_fileinfos($session_screens{$data}->{'filename'}, $data);
+	
 	my $n_pages = keys(%session_screens); 
-	foreach (@hbox_content){
-		if( $_ =~ /^Gtk2::Label/ ){
-			$_->set_text($session_screens{$data});
-			last;
-		}
-	}		
+	foreach (@box_content){
+		if ( $_ =~ /^Gtk2::VBox/){
+			my @children_fileinfoboxes = $_->get_children;
+			foreach my $child_fileinfo (@children_fileinfoboxes){
+				if ($child_fileinfo->get_name =~ /filename_label/){ #normal tab
+					$child_fileinfo->set_text($session_screens{$data}->{'short'});
+				}elsif($child_fileinfo->get_name =~ /mime_label/){ #normal tab
+					$child_fileinfo->set_text($session_screens{$data}->{'mime_type'});
+				}elsif($child_fileinfo->get_name =~ /size_label/){ #normal tab
+					$child_fileinfo->set_text($session_screens{$data}->{'size'});
+				}elsif($child_fileinfo->get_name =~ /geometry_label/){ #normal tab
+					$child_fileinfo->set_text($session_screens{$data}->{'width'}."x".$session_screens{$data}->{'height'});
+				}				
+			}
+		}elsif ( $_ =~ /^Gtk2::Image/){
+			$_->set_from_pixbuf($session_screens{$data}->{'thumb'});	
+		}	
+	}
 }
 
 sub function_get_latest_tab_key
@@ -2574,6 +2721,35 @@ sub function_check_installed_plugins
 		}	
 	}
 
+}
+
+sub function_die_with_action {
+   my ($action) = @_;
+   die("An error occured while $action.\n");
+}
+
+sub function_create_thumbnail_and_fileinfos {
+	my ($filename, $key) = @_;	
+	$filename = &function_switch_home_in_file($filename);
+	my $uri = Gnome2::VFS->get_uri_from_local_path ($filename);
+	my $mime_type = Gnome2::VFS->get_mime_type ($uri);
+	print "Uri: $uri - Mime-Type: $mime_type\n";
+	my $thumbnailfactory = Gnome2::ThumbnailFactory->new ('normal');
+	if ($thumbnailfactory->can_thumbnail ($uri, $mime_type, time)){
+		my $thumb = $thumbnailfactory->generate_thumbnail ($uri, $mime_type);
+		$session_screens{$key}->{'thumb'} = $thumb;			
+		$session_screens{$key}->{'mime_type'} = $mime_type;
+		$session_screens{$key}->{'width'} = &function_imagemagick_perform("get_width", $filename, 0, "");
+		$session_screens{$key}->{'height'} = &function_imagemagick_perform("get_height", $filename, 0, "");	
+		$session_screens{$key}->{'size'} = sprintf("%.2f", (-s $filename) / 1024)." KB";
+		#short filename
+		$session_screens{$key}->{'short'} = $filename;	
+		$session_screens{$key}->{'short'} =~ s{^.*/}{};		
+		#store the filetype of the current screenshot for further processing
+		$filename =~ /.*\.(.*)$/;
+		$session_screens{$key}->{'filetype'} = $1;						
+	}
+	return 1;
 }
 
 sub function_iter_programs
