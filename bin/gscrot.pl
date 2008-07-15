@@ -1491,7 +1491,7 @@ sub function_create_session_notebook
 
 	my $hbox_first_label = Gtk2::HBox->new(FALSE, 0);	
 	my $all_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file("$gscrot_path/share/gscrot/resources/icons/session.svg");
-	my $thumb_first_icon = Gtk2::Image->new_from_pixbuf ($all_pixbuf->scale_down_pixbuf(20,20));	
+	my $thumb_first_icon = Gtk2::Image->new_from_pixbuf ($all_pixbuf->scale_down_pixbuf(16,16));	
 	my $tab_first_label = Gtk2::Label->new($d->get("Session"));
 	$hbox_first_label->pack_start($thumb_first_icon , FALSE, TRUE, 1);	
 	$hbox_first_label->pack_start($tab_first_label , TRUE, TRUE, 1);
@@ -1520,10 +1520,11 @@ sub function_integrate_screenshot_in_notebook
 	my $close_icon = Gtk2::Image->new_from_icon_name ('gtk-close', 'menu');
 	#~ my $thumb_icon = Gtk2::Image->new_from_pixbuf ($session_screens{$theTimeKey}->{'thumb'}->scale_down_pixbuf(20,20));	
 
-	$session_screens{$theTimeKey}->{'tab_icon'} = Gtk2::Image->new_from_pixbuf ($session_screens{$theTimeKey}->{'thumb'}->scale_down_pixbuf(20,20));	
+	$session_screens{$theTimeKey}->{'tab_icon'} = Gtk2::Image->new_from_pixbuf ($session_screens{$theTimeKey}->{'thumb'}->scale_down_pixbuf(16,16));	
 
 
 	my $tab_close_button = Gtk2::Button->new;
+	$tab_close_button->set_relief('none');
 	#~ $tab_close_button->signal_connect(clicked => \&event_in_tab, 'remove'.$theTimeKey);	
 	$tab_close_button->set_image($close_icon);
 	my $tab_label = Gtk2::Label->new($theTimeKey);
@@ -2555,7 +2556,7 @@ sub function_update_tab
 	&function_create_thumbnail_and_fileinfos($session_screens{$key}->{'filename'}, $key);
 
 	#update tab icon - maybe pic changed due to use of plugin or drawing tool
-	$session_screens{$key}->{'tab_icon'}->set_from_pixbuf ($session_screens{$key}->{'thumb'}->scale_down_pixbuf(20,20));	
+	$session_screens{$key}->{'tab_icon'}->set_from_pixbuf ($session_screens{$key}->{'thumb'}->scale_down_pixbuf(16,16));	
 	if(&function_file_exists($session_screens{$key}->{'filename'})){	
 		$session_screens{$key}->{'image'}->set_from_pixbuf($session_screens{$key}->{'thumb'});
 	}else{
