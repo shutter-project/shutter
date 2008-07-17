@@ -1235,9 +1235,9 @@ sub event_handle
 			}
 					
 		}else{
-			&dialog_error_message($d->get("file could not be saved")."\n$scrot_feedback");
-			print "screenshot could not be saved\n$scrot_feedback!" if $debug_cparam;
-			&dialog_status_message(1, $scrot_feedback." ".$d->get("could not be saved"));
+			&dialog_error_message($d->get("Screenshot failed - maybe mouse pointer could not be grabbed")."\n$scrot_feedback");
+			print "Screenshot failed - maybe mouse pointer could not be grabbed\n$scrot_feedback!" if $debug_cparam;
+			&dialog_status_message(1, $d->get("Screenshot failed - maybe mouse pointer could not be grabbed"));
 		} 
 							
 	}
@@ -1282,9 +1282,9 @@ sub event_behavior_handle
 
 sub event_notebook_switch
 {
-	
+	my ($widget, $pointer, $int) = @_;
+		
 	&function_update_first_tab(); #update first tab for information
-
 }
 
 #close app
@@ -1509,35 +1509,37 @@ sub function_integrate_screenshot_in_notebook
 	#append a page to notebook using with label == filename
 	my ($second, $minute, $hour) = localtime();
 	my $theTime = "$hour:$minute:$second";
-	my $theTimeKey = "[".&function_get_latest_tab_key."] - $theTime";
+	my $key = "[".&function_get_latest_tab_key."] - $theTime";
 
 	#build hash of screenshots during session	
-	$session_screens{$theTimeKey}->{'filename'} = $filename;
+	$session_screens{$key}->{'filename'} = $filename;
 	#create thumbnail for gui
-	&function_create_thumbnail_and_fileinfos($filename, $theTimeKey);
+	&function_create_thumbnail_and_fileinfos($filename, $key);
 
 	my $hbox_tab_label = Gtk2::HBox->new(FALSE, 0);	
 	my $close_icon = Gtk2::Image->new_from_icon_name ('gtk-close', 'menu');
-	#~ my $thumb_icon = Gtk2::Image->new_from_pixbuf ($session_screens{$theTimeKey}->{'thumb'}->scale_down_pixbuf(20,20));	
-
-	$session_screens{$theTimeKey}->{'tab_icon'} = Gtk2::Image->new_from_pixbuf ($session_screens{$theTimeKey}->{'thumb'}->scale_down_pixbuf(16,16));	
-
+	
+	my $tab_icon_width = 16;
+	my $tab_icon_height = 16;
+	$tab_icon_width = $session_screens{$key}->{'width'} if($session_screens{$key}->{'width'} < 16);
+	$tab_icon_height = $session_screens{$key}->{'height'} if($session_screens{$key}->{'height'} < 16);	
+	$session_screens{$key}->{'tab_icon'} = Gtk2::Image->new_from_pixbuf ($session_screens{$key}->{'thumb'}->scale_down_pixbuf($tab_icon_width,$tab_icon_height));	
 
 	my $tab_close_button = Gtk2::Button->new;
 	$tab_close_button->set_relief('none');
-	#~ $tab_close_button->signal_connect(clicked => \&event_in_tab, 'remove'.$theTimeKey);	
+	#~ $tab_close_button->signal_connect(clicked => \&event_in_tab, 'remove'.$key);	
 	$tab_close_button->set_image($close_icon);
-	my $tab_label = Gtk2::Label->new($theTimeKey);
+	my $tab_label = Gtk2::Label->new($key);
 	#~ $hbox_tab_label->pack_start($thumb_icon , FALSE, TRUE, 1);	
-	$hbox_tab_label->pack_start($session_screens{$theTimeKey}->{'tab_icon'} , FALSE, TRUE, 1);	
+	$hbox_tab_label->pack_start($session_screens{$key}->{'tab_icon'} , FALSE, TRUE, 1);	
 	$hbox_tab_label->pack_start($tab_label , TRUE, TRUE, 1);
 	$hbox_tab_label->pack_start($tab_close_button, FALSE, TRUE, 1);
 	$hbox_tab_label->show_all;
 	
 	#and append page with label == key		
-	my $new_index = $notebook->append_page (function_create_tab ($theTimeKey, FALSE), $hbox_tab_label);
-	$session_screens{$theTimeKey}->{'tab_child'} = $notebook->get_nth_page ($new_index);
-	$tab_close_button->signal_connect(clicked => \&event_in_tab, 'remove'.$theTimeKey.'__ind__'.$new_index.'__indold__'.$notebook->get_current_page);	
+	my $new_index = $notebook->append_page (function_create_tab ($key, FALSE), $hbox_tab_label);
+	$session_screens{$key}->{'tab_child'} = $notebook->get_nth_page ($new_index);
+	$tab_close_button->signal_connect(clicked => \&event_in_tab, 'remove'.$key.'__ind__'.$new_index.'__indold__'.$notebook->get_current_page);	
 	
 	$window->show_all unless $is_in_tray;			
 	my $current_tab = $notebook->get_current_page+1;
@@ -1545,7 +1547,7 @@ sub function_integrate_screenshot_in_notebook
 	
 	$notebook->set_current_page($new_index);
 
-	return $theTimeKey;	
+	return $key;	
 }
 
 
@@ -1692,6 +1694,15 @@ sub function_create_tab {
 		$hbox_tab_file->pack_start($vbox_fileinfos, TRUE, TRUE, 1);
 		$hbox_tab_file->pack_start($vbox_fileinfos2, TRUE, TRUE, 1);		
 
+		$session_screens{$key}->{'btn_delete'} = $button_delete;
+		$session_screens{$key}->{'btn_reopen'} = $button_reopen;
+		$session_screens{$key}->{'btn_upload'} = $button_upload;
+		$session_screens{$key}->{'btn_print'} = $button_print;
+		$session_screens{$key}->{'btn_rename'} = $button_rename;
+		$session_screens{$key}->{'btn_plugin'} = $button_plugin;
+		$session_screens{$key}->{'btn_draw'} = $button_draw;
+		$session_screens{$key}->{'btn_clipboard'} = $button_clipboard;
+
 		$hbox_tab_actions->pack_start($button_delete, TRUE, TRUE, 1);
 		$hbox_tab_actions2->pack_start($button_reopen, TRUE, TRUE, 1);
 		$hbox_tab_actions2->pack_start($button_upload, TRUE, TRUE, 1);
@@ -1743,97 +1754,137 @@ sub function_create_tab {
 #tab events are handled here
 sub event_in_tab
 {
-	my ($widget, $data) = @_;
-	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
+	my ($widget, $key) = @_;
+	print "\n$key was emitted by widget $widget\n" if $debug_cparam;
 
 #single screenshots	
 	my $current_file;
-	if ($data =~ m/^print\[/){
-		$data =~ s/^print//;
-		my $current_file = &function_switch_home_in_file($session_screens{$data}->{'filename'});
+	if ($key =~ m/^print\[/){	
+		$key =~ s/^print//;
+		unless(&function_create_thumbnail_and_fileinfos($session_screens{$key}->{'filename'}, $key)){
+			&dialog_status_message(1, $session_screens{$key}->{'filename'}." ".$d->get("not found"));		
+			&function_update_tab($key);
+			return 0;	
+		}		
+		my $current_file = &function_switch_home_in_file($session_screens{$key}->{'filename'});
 		system("gtklp $current_file &");
-		&dialog_status_message(1, $session_screens{$data}->{'filename'}." ".$d->get("will be printed"));
+		&dialog_status_message(1, $session_screens{$key}->{'filename'}." ".$d->get("will be printed"));
 	}
 
-	if ($data =~ m/^delete\[/){
-		$data =~ s/^delete//;
-		unlink(&function_switch_home_in_file($session_screens{$data}->{'filename'})); #delete file
+	if ($key =~ m/^delete\[/){
+		$key =~ s/^delete//;
+		unless(&function_create_thumbnail_and_fileinfos($session_screens{$key}->{'filename'}, $key)){
+			&dialog_status_message(1, $session_screens{$key}->{'filename'}." ".$d->get("not found"));		
+			&function_update_tab($key);
+			return 0;	
+		}	
+		unlink(&function_switch_home_in_file($session_screens{$key}->{'filename'})); #delete file
 		$notebook->remove_page($notebook->get_current_page); #delete tab
-		&dialog_status_message(1, $session_screens{$data}->{'filename'}." ".$d->get("deleted")) if defined($session_screens{$data}->{'filename'});
-		delete($session_screens{$data}); # delete from hash
+		&dialog_status_message(1, $session_screens{$key}->{'filename'}." ".$d->get("deleted")) if defined($session_screens{$key}->{'filename'});
+		delete($session_screens{$key}); # delete from hash
 		
 		&function_update_first_tab();
 				
 		$window->show_all;
 	}
 	
-	if ($data =~ m/^remove\[/){
-		$data =~ /^remove(.*)__ind__(.*)__indold__(.*)/;
-		$data = $1;
+	if ($key =~ m/^remove\[/){
+		$key =~ /^remove(.*)__ind__(.*)__indold__(.*)/;
+		$key = $1;
 		my $delete_index = $2;
 		my $last_index = $3;
 		#~ $notebook->set_current_page($delete_index);
-		print "Child: ".$notebook->page_num ($session_screens{$data}->{'tab_child'})."\n" if $debug_cparam;
-		$notebook->remove_page($notebook->page_num ($session_screens{$data}->{'tab_child'})); #delete tab
+		print "Child: ".$notebook->page_num ($session_screens{$key}->{'tab_child'})."\n" if $debug_cparam;
+		$notebook->remove_page($notebook->page_num ($session_screens{$key}->{'tab_child'})); #delete tab
 		#~ $notebook->set_current_page($last_index-1) unless $delete_index = $last_index;		
-		&dialog_status_message(1, $session_screens{$data}->{'filename'}." ".$d->get("removed from session")) if defined($session_screens{$data}->{'filename'});
-		delete($session_screens{$data}); # delete from hash
+		&dialog_status_message(1, $session_screens{$key}->{'filename'}." ".$d->get("removed from session")) if defined($session_screens{$key}->{'filename'});
+		delete($session_screens{$key}); # delete from hash
 		
 		&function_update_first_tab();
 				
 		$window->show_all;
 	}	
 
-	if ($data =~ m/^reopen\[/){
-		$data =~ s/^reopen//;
+	if ($key =~ m/^reopen\[/){
+		$key =~ s/^reopen//;
 		my $model = $progname->get_model();
 		my $progname_iter = $progname->get_active_iter();
 		my $progname_value = $model->get_value($progname_iter, 2);
+		unless(&function_create_thumbnail_and_fileinfos($session_screens{$key}->{'filename'}, $key)){
+			&dialog_status_message(1, $session_screens{$key}->{'filename'}." ".$d->get("not found"));		
+			&function_update_tab($key);
+			return 0;	
+		}			
 		unless ($progname_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No application specified to open the screenshot")); return FALSE;};
-		system($progname_value." ".$session_screens{$data}->{'filename'}." &");
-		&dialog_status_message(1, $session_screens{$data}->{'filename'}." ".$d->get("opened with")." ".$progname_value);
-		&function_update_tab($data);
+		system($progname_value." ".$session_screens{$key}->{'filename'}." &");
+		&dialog_status_message(1, $session_screens{$key}->{'filename'}." ".$d->get("opened with")." ".$progname_value);
+		&function_update_tab($key);
 	}
 
-	if ($data =~ m/^upload\[/){
-		$data =~ s/^upload//;
-		&dialog_account_chooser_and_upload($session_screens{$data}->{'filename'});	
+	if ($key =~ m/^upload\[/){
+		$key =~ s/^upload//;
+		unless(&function_create_thumbnail_and_fileinfos($session_screens{$key}->{'filename'}, $key)){
+			&dialog_status_message(1, $session_screens{$key}->{'filename'}." ".$d->get("not found"));		
+			&function_update_tab($key);
+			return 0;	
+		}	
+		&dialog_account_chooser_and_upload($session_screens{$key}->{'filename'});	
 	}
 
-	if ($data =~ m/^draw\[/){
-		$data =~ s/^draw//;
-		my $full_filename = &function_switch_home_in_file($session_screens{$data}->{'filename'});
+	if ($key =~ m/^draw\[/){
+		$key =~ s/^draw//;
+		unless(&function_create_thumbnail_and_fileinfos($session_screens{$key}->{'filename'}, $key)){
+			&dialog_status_message(1, $session_screens{$key}->{'filename'}." ".$d->get("not found"));		
+			&function_update_tab($key);
+			return 0;	
+		}			
+		my $full_filename = &function_switch_home_in_file($session_screens{$key}->{'filename'});
 		my $width = &function_imagemagick_perform("get_width", $full_filename, 0, "");
 		my $height = &function_imagemagick_perform("get_height", $full_filename, 0, "");
-		&function_start_drawing($full_filename, $width, $height, $session_screens{$data}->{'filetype'}, $d);	
-		&function_update_tab($data);
+		&function_start_drawing($full_filename, $width, $height, $session_screens{$key}->{'filetype'}, $d);	
+		&function_update_tab($key);
 	}
 	
-	if ($data =~ m/^rename\[/){
-		$data =~ s/^rename//;
-		&dialog_status_message(1, $session_screens{$data}->{'filename'}." ".$d->get("renamed")) if &dialog_rename($session_screens{$data}->{'filename'}, $data);
-		&function_update_tab($data);
+	if ($key =~ m/^rename\[/){
+		$key =~ s/^rename//;
+		unless(&function_create_thumbnail_and_fileinfos($session_screens{$key}->{'filename'}, $key)){
+			&dialog_status_message(1, $session_screens{$key}->{'filename'}." ".$d->get("not found"));		
+			&function_update_tab($key);
+			return 0;	
+		}			
+		&dialog_status_message(1, $session_screens{$key}->{'filename'}." ".$d->get("renamed")) if &dialog_rename($session_screens{$key}->{'filename'}, $key);
+		&function_update_tab($key);
 	}
 
-	if ($data =~ m/^plugin\[/){
-		$data =~ s/^plugin//;
+	if ($key =~ m/^plugin\[/){
+		$key =~ s/^plugin//;
+		unless(&function_create_thumbnail_and_fileinfos($session_screens{$key}->{'filename'}, $key)){
+			&dialog_status_message(1, $session_screens{$key}->{'filename'}." ".$d->get("not found"));		
+			&function_update_tab($key);
+			return 0;	
+		}			
 		unless (keys %plugins > 0){
 			&dialog_error_message($d->get("No plugin installed"));
 		}else{
-			&dialog_plugin($session_screens{$data}->{'filename'}, $data);			
+			&dialog_plugin($session_screens{$key}->{'filename'}, $key);			
 		}	
-		&function_update_tab($data);
+		&function_update_tab($key);
 	}
 
-	if ($data =~ m/^clipboard\[/){
-		$data =~ s/^clipboard//;
-		my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file (&function_switch_home_in_file($session_screens{$data}->{'filename'}) );
+	if ($key =~ m/^clipboard\[/){		
+		$key =~ s/^clipboard//;
+		unless(&function_create_thumbnail_and_fileinfos($session_screens{$key}->{'filename'}, $key)){
+			&dialog_status_message(1, $session_screens{$key}->{'filename'}." ".$d->get("not found"));		
+			&function_update_tab($key);
+			return 0;	
+		}	
+		my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file (&function_switch_home_in_file($session_screens{$key}->{'filename'}) );
 		$clipboard->set_image($pixbuf);
-		&dialog_status_message(1, $session_screens{$data}->{'filename'}." ".$d->get("copied to clipboard"));
+		&dialog_status_message(1, $session_screens{$key}->{'filename'}." ".$d->get("copied to clipboard"));
 	}
 
 #all screenshots
-	if ($data =~ m/^delete$/){ #tab == all
+	if ($key =~ m/^delete$/){ #tab == all
 		foreach my $key(keys %session_screens){
 			unlink(&function_switch_home_in_file($session_screens{$key}->{'filename'})); #delete file		
 			delete($session_screens{$key}); # delete from hash	
@@ -1848,7 +1899,7 @@ sub event_in_tab
 		$window->show_all;
 	}
 	
-	if ($data =~ m/^remove$/){ #tab == all
+	if ($key =~ m/^remove$/){ #tab == all
 		foreach my $key(keys %session_screens){	
 			delete($session_screens{$key}); # delete from hash	
 		}
@@ -1862,7 +1913,7 @@ sub event_in_tab
 		$window->show_all;
 	}
 	
-	if ($data =~ m/^reopen$/){
+	if ($key =~ m/^reopen$/){
 		my $model = $progname->get_model();
 		my $progname_iter = $progname->get_active_iter();
 		my $progname_value = $model->get_value($progname_iter, 2);
@@ -1881,7 +1932,7 @@ sub event_in_tab
 		&dialog_status_message(1, $d->get("Opened all files with")." ".$progname_value);
 	}	
 
-	if ($data =~ m/^print$/){ #tab == all
+	if ($key =~ m/^print$/){ #tab == all
 		my $print_files;		
 		foreach my $key(keys %session_screens){
 			$print_files .= &function_switch_home_in_file($session_screens{$key}->{'filename'})." ";
@@ -2553,21 +2604,43 @@ sub function_update_tab
 	$key =~ /\[(.*)\]/;
 
 	#update fileinfos
-	&function_create_thumbnail_and_fileinfos($session_screens{$key}->{'filename'}, $key);
+	if(&function_create_thumbnail_and_fileinfos($session_screens{$key}->{'filename'}, $key)){
 
-	#update tab icon - maybe pic changed due to use of plugin or drawing tool
-	$session_screens{$key}->{'tab_icon'}->set_from_pixbuf ($session_screens{$key}->{'thumb'}->scale_down_pixbuf(16,16));	
-	if(&function_file_exists($session_screens{$key}->{'filename'})){	
+		#update tab icon - maybe pic changed due to use of plugin or drawing tool
+		my $tab_icon_width = 16;
+		my $tab_icon_height = 16;
+		$tab_icon_width = $session_screens{$key}->{'width'} if($session_screens{$key}->{'width'} < 16);
+		$tab_icon_height = $session_screens{$key}->{'height'} if($session_screens{$key}->{'height'} < 16);		
+		$session_screens{$key}->{'tab_icon'}->set_from_pixbuf ($session_screens{$key}->{'thumb'}->scale_down_pixbuf($tab_icon_width, $tab_icon_height));	
 		$session_screens{$key}->{'image'}->set_from_pixbuf($session_screens{$key}->{'thumb'});
-	}else{
-		$session_screens{$key}->{'image'} = Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size("$gscrot_path/share/gscrot/resources/icons/Image-missing.svg", Gtk2::IconSize->lookup ('dialog' )));
-	}
-	$session_screens{$key}->{'filename_label'}->set_text($session_screens{$key}->{'short'});
-	$session_screens{$key}->{'tooltip_filename_tab'}->set_tip($session_screens{$key}->{'filename_label'},$session_screens{$key}->{'filename'});
-	$session_screens{$key}->{'mime_type_label'}->set_text($session_screens{$key}->{'mime_type'});
-	$session_screens{$key}->{'size_label'}->set_text(sprintf("%.2f", $session_screens{$key}->{'size'} / 1024)." KB");
-	$session_screens{$key}->{'geometry_label'}->set_text($session_screens{$key}->{'width'}."x".$session_screens{$key}->{'height'});
+		$session_screens{$key}->{'filename_label'}->set_text($session_screens{$key}->{'short'});
+		$session_screens{$key}->{'tooltip_filename_tab'}->set_tip($session_screens{$key}->{'filename_label'},$session_screens{$key}->{'filename'});
+		$session_screens{$key}->{'mime_type_label'}->set_text($session_screens{$key}->{'mime_type'});
+		$session_screens{$key}->{'size_label'}->set_text(sprintf("%.2f", $session_screens{$key}->{'size'} / 1024)." KB");
+		$session_screens{$key}->{'geometry_label'}->set_text($session_screens{$key}->{'width'}."x".$session_screens{$key}->{'height'});
 
+	}else{
+
+		#update tab icon - file is not existing anymore, maybe deleted manually
+		my $file_missing_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file("$gscrot_path/share/gscrot/resources/icons/Image-missing.svg");
+		$session_screens{$key}->{'tab_icon'}->set_from_pixbuf ($file_missing_pixbuf->scale_down_pixbuf(16, 16));	
+		$session_screens{$key}->{'image'}->set_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size("$gscrot_path/share/gscrot/resources/icons/Image-missing.svg", Gtk2::IconSize->lookup ('dialog' )));
+		$session_screens{$key}->{'filename_label'}->set_text("-");
+		$session_screens{$key}->{'tooltip_filename_tab'}->set_tip($session_screens{$key}->{'filename_label'}, "-");
+		$session_screens{$key}->{'mime_type_label'}->set_text("-");
+		$session_screens{$key}->{'size_label'}->set_text("-");
+		$session_screens{$key}->{'geometry_label'}->set_text("-");
+
+		$session_screens{$key}->{'btn_delete'}->set_sensitive(0);
+		$session_screens{$key}->{'btn_reopen'}->set_sensitive(0);
+		$session_screens{$key}->{'btn_upload'}->set_sensitive(0);
+		$session_screens{$key}->{'btn_print'}->set_sensitive(0);
+		$session_screens{$key}->{'btn_rename'}->set_sensitive(0);
+		$session_screens{$key}->{'btn_plugin'}->set_sensitive(0);
+		$session_screens{$key}->{'btn_draw'}->set_sensitive(0);
+		$session_screens{$key}->{'btn_clipboard'}->set_sensitive(0);
+			
+	}
 	return 1;
 }
 
@@ -2672,8 +2745,10 @@ sub function_die_with_action {
 }
 
 sub function_create_thumbnail_and_fileinfos {
-	my ($filename, $key) = @_;	
-	$filename = &function_switch_home_in_file($filename);
+	my ($filename, $key) = @_;
+	return 0 unless &function_file_exists($filename);
+	
+	$filename = &function_switch_home_in_file($filename);	
 	my $uri = Gnome2::VFS->get_uri_from_local_path ($filename);
 	my $mime_type = Gnome2::VFS->get_mime_type ($uri);
 	print "Uri: $uri - Mime-Type: $mime_type\n" if $debug_cparam;
