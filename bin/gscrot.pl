@@ -1534,7 +1534,7 @@ sub function_create_session_notebook
 
 	my $hbox_first_label = Gtk2::HBox->new(FALSE, 0);	
 	my $all_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file("$gscrot_path/share/gscrot/resources/icons/session.svg");
-	my $thumb_first_icon = Gtk2::Image->new_from_pixbuf ($all_pixbuf->scale_down_pixbuf(16,16));	
+	my $thumb_first_icon = Gtk2::Image->new_from_pixbuf ($all_pixbuf->scale_down_pixbuf(20,20));	
 	my $tab_first_label = Gtk2::Label->new($d->get("Session"));
 	$hbox_first_label->pack_start($thumb_first_icon , FALSE, TRUE, 1);	
 	$hbox_first_label->pack_start($tab_first_label , TRUE, TRUE, 1);
@@ -1561,12 +1561,8 @@ sub function_integrate_screenshot_in_notebook
 
 	my $hbox_tab_label = Gtk2::HBox->new(FALSE, 0);	
 	my $close_icon = Gtk2::Image->new_from_icon_name ('gtk-close', 'menu');
-	
-	my $tab_icon_width = 16;
-	my $tab_icon_height = 16;
-	$tab_icon_width = $session_screens{$key}->{'width'} if($session_screens{$key}->{'width'} < 16);
-	$tab_icon_height = $session_screens{$key}->{'height'} if($session_screens{$key}->{'height'} < 16);	
-	$session_screens{$key}->{'tab_icon'} = Gtk2::Image->new_from_pixbuf ($session_screens{$key}->{'thumb'}->scale_down_pixbuf($tab_icon_width,$tab_icon_height));	
+		
+	$session_screens{$key}->{'tab_icon'} = Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size (&function_switch_home_in_file($session_screens{$key}->{'filename'}), 20,20));	
 
 	my $tab_close_button = Gtk2::Button->new;
 	$tab_close_button->set_relief('none');
@@ -2656,11 +2652,12 @@ sub function_update_tab
 	if(&function_create_thumbnail_and_fileinfos($session_screens{$key}->{'filename'}, $key)){
 
 		#update tab icon - maybe pic changed due to use of plugin or drawing tool
-		my $tab_icon_width = 16;
-		my $tab_icon_height = 16;
-		$tab_icon_width = $session_screens{$key}->{'width'} if($session_screens{$key}->{'width'} < 16);
-		$tab_icon_height = $session_screens{$key}->{'height'} if($session_screens{$key}->{'height'} < 16);		
-		$session_screens{$key}->{'tab_icon'}->set_from_pixbuf ($session_screens{$key}->{'thumb'}->scale_down_pixbuf($tab_icon_width, $tab_icon_height));	
+		#~ my $tab_icon_width = 16;
+		#~ my $tab_icon_height = 16;
+		#~ $tab_icon_width = $session_screens{$key}->{'width'} if($session_screens{$key}->{'width'} < 16);
+		#~ $tab_icon_height = $session_screens{$key}->{'height'} if($session_screens{$key}->{'height'} < 16);		
+		#~ $session_screens{$key}->{'tab_icon'}->set_from_pixbuf ($session_screens{$key}->{'thumb'}->scale_down_pixbuf($tab_icon_width, $tab_icon_height));	
+		$session_screens{$key}->{'tab_icon'}->set_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size (&function_switch_home_in_file($session_screens{$key}->{'filename'}), 20 ,20));
 		$session_screens{$key}->{'image'}->set_from_pixbuf($session_screens{$key}->{'thumb'});
 		$session_screens{$key}->{'filename_label'}->set_text($session_screens{$key}->{'short'});
 		$session_screens{$key}->{'tooltip_filename_tab'}->set_tip($session_screens{$key}->{'filename_label'},$session_screens{$key}->{'filename'});
@@ -2672,7 +2669,7 @@ sub function_update_tab
 
 		#update tab icon - file is not existing anymore, maybe deleted manually
 		my $file_missing_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file("$gscrot_path/share/gscrot/resources/icons/Image-missing.svg");
-		$session_screens{$key}->{'tab_icon'}->set_from_pixbuf ($file_missing_pixbuf->scale_down_pixbuf(16, 16));	
+		$session_screens{$key}->{'tab_icon'}->set_from_pixbuf ($file_missing_pixbuf->scale_down_pixbuf(20, 20));	
 		$session_screens{$key}->{'image'}->set_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size("$gscrot_path/share/gscrot/resources/icons/Image-missing.svg", Gtk2::IconSize->lookup ('dialog' )));
 		$session_screens{$key}->{'filename_label'}->set_text("-");
 		$session_screens{$key}->{'tooltip_filename_tab'}->set_tip($session_screens{$key}->{'filename_label'}, "-");
