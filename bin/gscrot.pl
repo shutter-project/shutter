@@ -33,6 +33,8 @@ use Data::Dumper;
 use Gnome2;
 use Gnome2::GConf;
 
+
+
 function_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 my $gscrot_name = "GScrot";
