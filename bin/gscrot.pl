@@ -33,8 +33,6 @@ use Data::Dumper;
 use Gnome2;
 use Gnome2::GConf;
 
-
-
 function_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 my $gscrot_name = "GScrot";
@@ -437,6 +435,7 @@ $saveDir_box->pack_start($saveDir_button, TRUE, TRUE, 10);
 my $hide_active = Gtk2::CheckButton->new_with_label($d->get("Autohide GScrot Window when taking a screenshot"));
 my $ask_quit_active = Gtk2::CheckButton->new_with_label($d->get("Show \"Do you really want to quit?\" dialog when exiting"));
 my $close_at_close_active = Gtk2::CheckButton->new_with_label($d->get("Minimize to tray when closing main window"));
+my $save_at_close_active = Gtk2::CheckButton->new_with_label($d->get("Save settings when exiting"));
 
 my $capture_key = Gtk2::Entry->new;
 $capture_key->set_text("Print");
@@ -488,6 +487,10 @@ $close_at_close_active->signal_connect('toggled' => \&event_behavior_handle, 'cl
 $close_at_close_active->set_active(TRUE);
 my $tooltip_close_at_close = Gtk2::Tooltips->new;
 $tooltip_close_at_close->set_tip($close_at_close_active,$d->get("Autohide GScrot Window when taking a screenshot"));
+$save_at_close_active->signal_connect('toggled' => \&event_behavior_handle, 'save_at_close_toggled');
+$save_at_close_active->set_active(TRUE);
+my $tooltip_save_at_close = Gtk2::Tooltips->new;
+$tooltip_save_at_close->set_tip($save_at_close_active,$d->get("Save settings automatically when exiting GScrot"));
 
 $ask_quit_active->signal_connect('toggled' => \&event_behavior_handle, 'ask_quit_toggled');
 $hide_active->set_active(TRUE);
@@ -585,16 +588,17 @@ $border_box->pack_start($combobox_border, TRUE, TRUE, 10);
 #end - border
 
 #accounts
-my $accounts_model = Gtk2::ListStore->new ('Glib::String', 'Glib::String', 'Glib::String');
+my $accounts_model = Gtk2::ListStore->new ('Glib::String', 'Glib::String', 'Glib::String', 'Glib::String');
 
 foreach (keys %accounts){
 	my $hidden_text = "";
 	for(my $i = 1; $i <= length($accounts{$_}->{'password'}); $i++){
 		$hidden_text .= '*';	
 	}
-	$accounts_model->set ($accounts_model->append, 0, $accounts{$_}->{'host'} , 1, $accounts{$_}->{'username'}, 2, $hidden_text);				
+	$accounts_model->set ($accounts_model->append, 0, $accounts{$_}->{'host'} , 1, $accounts{$_}->{'username'}, 2, $hidden_text , 3, $accounts{$_}->{'register'});				
 }
 my $accounts_tree = Gtk2::TreeView->new_with_model ($accounts_model);
+$accounts_tree->signal_connect('row-activated' => \&event_accounts, 'row_activated');
  
 my $tv_clmn_name_text = Gtk2::TreeViewColumn->new;
 $tv_clmn_name_text->set_title($d->get("Host"));
@@ -643,6 +647,15 @@ $tv_clmn_password_text->set_attributes($renderer_password_accounts, text => 2);
 
 #append this column to the treeview
 $accounts_tree->append_column($tv_clmn_password_text);
+my $tv_clmn_register_text = Gtk2::TreeViewColumn->new;
+$tv_clmn_register_text->set_title($d->get("Register"));
+$tv_clmn_register_text->set_name("register_url");
+my $renderer_register_accounts = Gtk2::CellRendererText->new;
+
+$tv_clmn_register_text->pack_start ($renderer_register_accounts, FALSE);
+$tv_clmn_register_text->set_attributes ($renderer_register_accounts, text => 3);
+
+$accounts_tree->append_column ($tv_clmn_register_text);
 
 my $accounts_label = Gtk2::Label->new;
 $accounts_label->set_line_wrap (TRUE);
@@ -794,6 +807,7 @@ $vbox_basic->set_border_width(5);
 $behavior_vbox->pack_start($hide_active, FALSE, TRUE, 5);
 $behavior_vbox->pack_start($close_at_close_active, FALSE, TRUE, 5);
 $behavior_vbox->pack_start($ask_quit_active, FALSE, TRUE, 5);
+$behavior_vbox->pack_start($save_at_close_active, FALSE, TRUE, 5);
 $behavior_frame->add($behavior_vbox);
 
 $keybinding_vbox->pack_start($key_box, FALSE, TRUE, 5);
@@ -1261,6 +1275,7 @@ sub event_behavior_handle
 		$ask_quit_active->set_sensitive(FALSE) if $close_at_close_active->get_active;
 		$ask_quit_active->set_sensitive(TRUE) unless $close_at_close_active->get_active;			
 	}
+	
 
 #checkbox for "keybinding" -> entry active/inactive
 	if($data eq "keybinding_toggled"){
@@ -1295,6 +1310,16 @@ sub event_delete_window
 
 	my ($widget, $data) = @_;
 	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
+	
+	
+	if($data eq "menu_quit" && $save_at_close_active->get_active){
+	if(-f "$ENV{ HOME }/.gscrot/settings.xml" && -w "$ENV{ HOME }/.gscrot/settings.xml"){
+	&function_save_settings;}}
+	
+	if($data ne "menu_quit" && $save_at_close_active->get_active){
+	if(-f "$ENV{ HOME }/.gscrot/settings.xml" && -w "$ENV{ HOME }/.gscrot/settings.xml"){
+	&function_save_settings;}}
+	
 
 	if($data ne "menu_quit" && $close_at_close_active->get_active){
 		$window->hide;
@@ -1483,6 +1508,22 @@ sub event_show_icon_menu
 sub event_plugins
 {
 	my ($tree, $path, $column) = @_;
+}
+
+#notebook accounts - double-click-events are handled here
+sub event_accounts
+{
+	my ($tree, $path, $column) = @_;
+
+	return 0 unless defined($column->get_name);
+	#open browser if register url is clicked
+	if ($column->get_name eq "register_url"){
+		my $model = $tree->get_model();
+		my $account_iter = $model->get_iter($path);
+		my $account_value = $model->get_value($account_iter, 3);
+		&function_gnome_open(undef, $account_value, undef);
+	}
+	return 1;	
 }
 
 sub function_create_session_notebook
@@ -2025,6 +2066,7 @@ sub function_save_settings
 	$settings{'general'}->{'ask_at_close'} = $ask_quit_active->get_active();
 	$settings{'general'}->{'autohide'} = $hide_active->get_active();
 	$settings{'general'}->{'close_at_close'} = $close_at_close_active->get_active();
+	$settings{'general'}->{'save_at_close'} = $save_at_close_active->get_active();
 
 	$settings{'general'}->{'keybinding'} = $keybinding_active->get_active();
 	$settings{'general'}->{'keybinding_sel'} = $keybinding_sel_active->get_active();
@@ -2085,7 +2127,8 @@ sub function_load_settings
 		$combobox_border->set_active($settings_xml->{'general'}->{'border'});
 		$ask_quit_active->set_active($settings_xml->{'general'}->{'ask_at_close'});
 		$hide_active->set_active($settings_xml->{'general'}->{'autohide'});
-		$close_at_close_active->set_active($settings_xml->{'general'}->{'close_at_close'});			
+		$close_at_close_active->set_active($settings_xml->{'general'}->{'close_at_close'});
+		$save_at_close_active->set_active($settings_xml->{'general'}->{'save_at_close'});				
 		$keybinding_active->set_active($settings_xml->{'general'}->{'keybinding'});
 		$keybinding_sel_active->set_active($settings_xml->{'general'}->{'keybinding_sel'});
 		$capture_key->set_text($settings_xml->{'general'}->{'capture_key'});
@@ -2103,22 +2146,26 @@ sub function_load_accounts
 		$accounts{'ubuntu-pics.de'}->{host} = "ubuntu-pics.de";
 		$accounts{'ubuntu-pics.de'}->{username} = "";
 		$accounts{'ubuntu-pics.de'}->{password} = "";
+		$accounts{'ubuntu-pics.de'}->{register} = "http://www.ubuntu-pics.de/registrieren.html";
 		$accounts{'ubuntu-pics.de'}->{module} = "UbuntuPics.pm";
 	}else{
 		$accounts{'ubuntu-pics.de'}->{host} = $accounts_xml->{'ubuntu-pics.de'}->{host};
 		$accounts{'ubuntu-pics.de'}->{username} = $accounts_xml->{'ubuntu-pics.de'}->{username};
 		$accounts{'ubuntu-pics.de'}->{password} = $accounts_xml->{'ubuntu-pics.de'}->{password};
+		$accounts{'ubuntu-pics.de'}->{register} = "http://www.ubuntu-pics.de/registrieren.html";
 		$accounts{'ubuntu-pics.de'}->{module} = $accounts_xml->{'ubuntu-pics.de'}->{module};	
 	}
 	unless(exists($accounts_xml->{'imagebanana.com'})){
 		$accounts{'imagebanana.com'}->{host} = "imagebanana.com";
 		$accounts{'imagebanana.com'}->{username} = "";
 		$accounts{'imagebanana.com'}->{password} = "";
+		$accounts{'imagebanana.com'}->{register} = "http://www.imagebanana.com/myib/registrieren/";
 		$accounts{'imagebanana.com'}->{module} = "ImageBanana.pm";
 	}else{
 		$accounts{'imagebanana.com'}->{host} = $accounts_xml->{'imagebanana.com'}->{host};
 		$accounts{'imagebanana.com'}->{username} = $accounts_xml->{'imagebanana.com'}->{username};
 		$accounts{'imagebanana.com'}->{password} = $accounts_xml->{'imagebanana.com'}->{password};
+		$accounts{'imagebanana.com'}->{register} = "http://www.imagebanana.com/myib/registrieren/";
 		$accounts{'imagebanana.com'}->{module} = $accounts_xml->{'imagebanana.com'}->{module};	
 	}			
 	return 1;	
