@@ -588,14 +588,14 @@ $border_box->pack_start($combobox_border, TRUE, TRUE, 10);
 #end - border
 
 #accounts
-my $accounts_model = Gtk2::ListStore->new ('Glib::String', 'Glib::String', 'Glib::String', 'Glib::String');
+my $accounts_model = Gtk2::ListStore->new ('Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String');
 
 foreach (keys %accounts){
 	my $hidden_text = "";
 	for(my $i = 1; $i <= length($accounts{$_}->{'password'}); $i++){
 		$hidden_text .= '*';	
 	}
-	$accounts_model->set ($accounts_model->append, 0, $accounts{$_}->{'host'} , 1, $accounts{$_}->{'username'}, 2, $hidden_text , 3, $accounts{$_}->{'register'});				
+	$accounts_model->set ($accounts_model->append, 0, $accounts{$_}->{'host'} , 1, $accounts{$_}->{'username'}, 2, $hidden_text , 3, $accounts{$_}->{'register'}, 4, $accounts{$_}->{'register_color'}, 5, $accounts{$_}->{'register_text'});				
 }
 my $accounts_tree = Gtk2::TreeView->new_with_model ($accounts_model);
 $accounts_tree->signal_connect('row-activated' => \&event_accounts, 'row_activated');
@@ -652,10 +652,27 @@ $tv_clmn_register_text->set_title($d->get("Register"));
 $tv_clmn_register_text->set_name("register_url");
 my $renderer_register_accounts = Gtk2::CellRendererText->new;
 
-$tv_clmn_register_text->pack_start ($renderer_register_accounts, FALSE);
-$tv_clmn_register_text->set_attributes ($renderer_register_accounts, text => 3);
+&color_for_register;
 
-$accounts_tree->append_column ($tv_clmn_register_text);
+sub color_for_register {
+
+my $treeview = Gtk2::TreeView->new;
+
+my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
+$tv_clmn_pix_text->set_title($d->get("Register"));
+$tv_clmn_pix_text->set_name("register_url");
+
+my $ren_text = Gtk2::CellRendererText->new();
+#pack it into the column	
+$tv_clmn_pix_text->pack_start ($ren_text, FALSE);
+#set its atributes		
+$tv_clmn_pix_text->set_attributes($ren_text, 'text', 5, 'foreground', 4);
+
+#append this column to the treeview
+$accounts_tree->append_column($tv_clmn_pix_text);
+######################
+}
+
 
 my $accounts_label = Gtk2::Label->new;
 $accounts_label->set_line_wrap (TRUE);
@@ -1430,7 +1447,7 @@ sub event_about
 	$about->set_website_label($website);
 	$about->set_website($website);
 	$about->set_email_hook(\&function_gnome_open_mail);
-	$about->set_authors("Mario Kemper <mario.kemper\@gmx.de>\n\nPlugins:\nMartin Rabeneck (cornix) <martinrabeneck\@gmx.net>\n\nubuntu-pics.de:\nRene Hennig <Rene.Hennig\@my-united.net>");
+	$about->set_authors("Development:\nMario Kemper <mario.kemper\@gmx.de>\nRene Hennig <Rene.Hennig\@my-united.net>\n\nPlugins:\nMartin Rabeneck (cornix) <martinrabeneck\@gmx.net>\n\nubuntu-pics.de:\nRene Hennig <Rene.Hennig\@my-united.net>");
 	$about->set_artists("Arne Weinberg","Pascal Grochol <pg0803\@gmail.com>");
 	$about->set_translator_credits ("German: Mario Kemper <mario.kemper\@gmx.de>\nRussian: Michael Kogan (PhotonX)");	
 	$about->set_copyright ($all_hints);
@@ -1751,7 +1768,8 @@ sub function_create_tab {
 		$hbox_tab_actions->pack_start($button_draw, TRUE, TRUE, 1);
 		$hbox_tab_actions2->pack_start($button_clipboard, TRUE, TRUE, 1);	
 
-
+		$vbox_tab->pack_start($hbox_tab_file, TRUE, TRUE, 1);
+		
 	}else{
 		my $stats_label = Gtk2::Label->new;
 		$stats_label->set_markup("<b>".$d->get("Statistic")."</b>");
@@ -1760,9 +1778,9 @@ sub function_create_tab {
 		
 		$session_start_screen{'first_page'}->{'size_counter'} = Gtk2::Label->new("0.00 KB");
 
-		$vbox_all->pack_start($stats_label, TRUE, TRUE, 1);
-		$vbox_all->pack_start($session_start_screen{'first_page'}->{'statistics_counter'}, TRUE, TRUE, 1);
-		$vbox_all->pack_start($session_start_screen{'first_page'}->{'size_counter'}, TRUE, TRUE, 1);
+		$vbox_all->pack_start($stats_label, FALSE, TRUE, 1);
+		$vbox_all->pack_start($session_start_screen{'first_page'}->{'statistics_counter'}, FALSE, TRUE, 1);
+		$vbox_all->pack_start($session_start_screen{'first_page'}->{'size_counter'}, FALSE, TRUE, 1);
 
 		$session_start_screen{'first_page'}->{'image'} = Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size("$gscrot_path/share/gscrot/resources/icons/session.svg", Gtk2::IconSize->lookup ('dialog' ))) if $is_all;
 
@@ -1780,9 +1798,10 @@ sub function_create_tab {
 		$hbox_tab_actions2->pack_start($button_reopen, TRUE, TRUE, 1);
 		$hbox_tab_actions2->pack_start($button_print, TRUE, TRUE, 1);
 
+		$vbox_tab->pack_start($hbox_tab_file, TRUE, FALSE, 1);
+
 	}
 
-	$vbox_tab->pack_start($hbox_tab_file, TRUE, TRUE, 1);
 	$vbox_tab->pack_start($hbox_tab_actions, FALSE, TRUE, 1);
 	$vbox_tab->pack_start($hbox_tab_actions2, FALSE, TRUE, 1);		
 	$scrolled_window->add_with_viewport($vbox_tab);
@@ -2143,12 +2162,16 @@ sub function_load_accounts
 		$accounts{'ubuntu-pics.de'}->{username} = "";
 		$accounts{'ubuntu-pics.de'}->{password} = "";
 		$accounts{'ubuntu-pics.de'}->{register} = "http://www.ubuntu-pics.de/registrieren.html";
+		$accounts{'ubuntu-pics.de'}->{register_color} = "blue";
+		$accounts{'ubuntu-pics.de'}->{register_text} = "click";
 		$accounts{'ubuntu-pics.de'}->{module} = "UbuntuPics.pm";
 	}else{
 		$accounts{'ubuntu-pics.de'}->{host} = $accounts_xml->{'ubuntu-pics.de'}->{host};
 		$accounts{'ubuntu-pics.de'}->{username} = $accounts_xml->{'ubuntu-pics.de'}->{username};
 		$accounts{'ubuntu-pics.de'}->{password} = $accounts_xml->{'ubuntu-pics.de'}->{password};
 		$accounts{'ubuntu-pics.de'}->{register} = "http://www.ubuntu-pics.de/registrieren.html";
+		$accounts{'ubuntu-pics.de'}->{register_color} = "blue";
+		$accounts{'ubuntu-pics.de'}->{register_text} = "click";
 		$accounts{'ubuntu-pics.de'}->{module} = $accounts_xml->{'ubuntu-pics.de'}->{module};	
 	}
 	unless(exists($accounts_xml->{'imagebanana.com'})){
@@ -2156,12 +2179,16 @@ sub function_load_accounts
 		$accounts{'imagebanana.com'}->{username} = "";
 		$accounts{'imagebanana.com'}->{password} = "";
 		$accounts{'imagebanana.com'}->{register} = "http://www.imagebanana.com/myib/registrieren/";
+		$accounts{'imagebanana.com'}->{register_color} = "blue";
+		$accounts{'imagebanana.com'}->{register_text} = "click";
 		$accounts{'imagebanana.com'}->{module} = "ImageBanana.pm";
 	}else{
 		$accounts{'imagebanana.com'}->{host} = $accounts_xml->{'imagebanana.com'}->{host};
 		$accounts{'imagebanana.com'}->{username} = $accounts_xml->{'imagebanana.com'}->{username};
 		$accounts{'imagebanana.com'}->{password} = $accounts_xml->{'imagebanana.com'}->{password};
 		$accounts{'imagebanana.com'}->{register} = "http://www.imagebanana.com/myib/registrieren/";
+		$accounts{'imagebanana.com'}->{register_color} = "blue";
+		$accounts{'imagebanana.com'}->{register_text} = "click";
 		$accounts{'imagebanana.com'}->{module} = $accounts_xml->{'imagebanana.com'}->{module};	
 	}			
 	return 1;	
