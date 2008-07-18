@@ -201,7 +201,7 @@ $menu2->append($menuitem_raw) ;
 $menuitem_raw->signal_connect("activate" , \&event_handle, 'raw') ;
 
 my $menuitem_web = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("Capture website")) ;
-$menuitem_web->set_image(Gtk2::Image->new_from_file ("$gscrot_path/share/gscrot/resources/icons/web_image.png"));
+$menuitem_web->set_image(Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/web_image.svg", 22, 22)));
 $menuitem_web->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ W }, qw/mod1-mask/, qw/visible/);
 $menu2->append($menuitem_web) ;
 $menuitem_web->signal_connect("activate" , \&event_handle, 'web') ;
@@ -212,6 +212,14 @@ $menuitem_action->set_submenu($menu2) ;
 $menubar->append($menuitem_action) ; 
 
 my $menu3 = Gtk2::Menu->new() ;
+
+my $menuitem_bug = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("_Report a bug")) ;
+$menuitem_bug->set_image(Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/aiutare.svg", 22, 22)));
+$menuitem_bug->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ B }, qw/control-mask/, qw/visible/);
+$menu3->append($menuitem_bug) ;
+$menuitem_bug->signal_connect("activate" , \&event_bug, $window) ;
+
+$menu3->append(Gtk2::SeparatorMenuItem->new);
 
 my $menuitem_about = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("_Info")) ;
 $menuitem_about->set_image(Gtk2::Image->new_from_icon_name('gtk-about', 'menu'));
@@ -1407,6 +1415,12 @@ sub event_delete_window
 		$dialog->destroy() ;
 		return TRUE;
 	}
+}
+
+#call about box
+sub event_bug 
+{
+	&function_gnome_open(undef, "https://bugs.launchpad.net/gscrot", undef);
 }
 
 #call about box
