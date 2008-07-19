@@ -158,8 +158,7 @@ $menuitem_open->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ 
 $menu1->append($menuitem_open) ;
 $menuitem_open->signal_connect("activate" , \&event_settings , 'menu_open') ;
 
-my $separator_menu1 = Gtk2::SeparatorMenuItem->new();
-$menu1->append($separator_menu1);
+$menu1->append(Gtk2::SeparatorMenuItem->new);
 
 my $menuitem_revert = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("_Revert Settings")) ;
 $menuitem_revert->set_image(Gtk2::Image->new_from_icon_name('gtk-revert-to-saved-ltr', 'menu'));
@@ -173,8 +172,7 @@ $menuitem_save->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ 
 $menu1->append($menuitem_save) ;
 $menuitem_save->signal_connect("activate" , \&event_settings , 'menu_save') ;
 
-my $separator_menu2 = Gtk2::SeparatorMenuItem->new();
-$menu1->append($separator_menu2);
+$menu1->append(Gtk2::SeparatorMenuItem->new);
 
 my $menuitem_quit = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("_Quit")) ;
 $menuitem_quit->set_image(Gtk2::Image->new_from_icon_name('gtk-quit', 'menu'));
@@ -213,9 +211,15 @@ $menubar->append($menuitem_action) ;
 
 my $menu3 = Gtk2::Menu->new() ;
 
-my $menuitem_bug = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("_Report a bug")) ;
+my $menuitem_question = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("Report a _bug")) ;
+$menuitem_question->set_image(Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/help.svg", 22, 22)));
+$menuitem_question->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ B }, qw/control-mask/, qw/visible/);
+$menu3->append($menuitem_question) ;
+$menuitem_question->signal_connect("activate" , \&event_question, $window) ;
+
+my $menuitem_bug = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("_Ask a question")) ;
 $menuitem_bug->set_image(Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/aiutare.svg", 22, 22)));
-$menuitem_bug->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ B }, qw/control-mask/, qw/visible/);
+$menuitem_bug->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ A }, qw/control-mask/, qw/visible/);
 $menu3->append($menuitem_bug) ;
 $menuitem_bug->signal_connect("activate" , \&event_bug, $window) ;
 
@@ -1417,10 +1421,16 @@ sub event_delete_window
 	}
 }
 
-#call about box
+#call bug report
 sub event_bug 
 {
 	&function_gnome_open(undef, "https://bugs.launchpad.net/gscrot", undef);
+}
+
+#ask a question
+sub event_question
+{
+	&function_gnome_open(undef, "https://answers.launchpad.net/gscrot", undef);
 }
 
 #call about box
@@ -1500,7 +1510,7 @@ sub event_show_icon_menu
 	$menuitem_raw->set_image(Gtk2::Image->new_from_icon_name('gtk-fullscreen', 'menu'));
 	$menuitem_raw->signal_connect(activate => \&event_handle, 'tray_raw');
 	my $menuitem_web = Gtk2::ImageMenuItem->new($d->get("Capture website"));
-	$menuitem_web->set_image(Gtk2::Image->new_from_file ("$gscrot_path/share/gscrot/resources/icons/web_image.png"));
+	$menuitem_web->set_image(Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/web_image.svg", 22, 22)));
 	$menuitem_web->signal_connect(activate => \&event_handle, 'tray_web');
 	my $menuitem_info = Gtk2::ImageMenuItem->new($d->get("Info"));
 	$menuitem_info->set_image(Gtk2::Image->new_from_icon_name('gtk-about', 'menu'));
