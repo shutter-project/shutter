@@ -111,7 +111,7 @@ sub function_start_drawing
 	my ($width, $height) = $canvas->get_size;
 	my ($x,$y,$width1, $height1,$depth) = $canvas->window->get_geometry;		
 
-	if($w < 100 && $h < 100){
+	if($w < 400 && $h < 320){
 		# create blank pixbuf to hold the stitched image
 		my $gdkpixbuf_l = Gtk2::Gdk::Pixbuf->new ('rgb', 0, 8, $width, $height);
 		$gdkpixbuf_l->get_from_drawable ($canvas->window, undef, 0, 0, 0, 0, $width, $height);		
