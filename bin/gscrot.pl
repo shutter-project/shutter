@@ -396,7 +396,7 @@ $thumbnail_box->pack_start($thumbnail_box2, TRUE, TRUE, 10);
 
 #filename
 my $filename = Gtk2::Entry->new;
-$filename->set_text("\%Y-\%m-\%d-\%T_\$wx\$h");
+$filename->set_text("screenshot\%NN");
 $filename->signal_connect('move-cursor' => \&event_handle, 'cursor_moved');
 
 my $filename_label = Gtk2::Label->new;
