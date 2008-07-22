@@ -1214,6 +1214,7 @@ sub event_handle
 				sleep $delay_value;
 			}
 			$filename_value = strftime $filename_value , localtime;
+			$filename_value =~ s/\\//g;
 			$scrot_feedback=`gnome-web-photo --mode=photo --format=$filetype_value -q $quality_value $url '$folder/$filename_value.$filetype_value'`;
 			my $width = 0;
 			my $height = 0;
