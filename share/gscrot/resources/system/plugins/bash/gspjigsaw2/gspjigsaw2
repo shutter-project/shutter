@@ -28,7 +28,7 @@ WIDTH="${2}"
 HEIGHT="${3}"
 FILEYTPE="${4}"
 GEO="${2}x${3}"
-PIECE="/usr/share/gscrot/resources/icons/gspjigsaw_2.png"
+PIECE="/usr/share/gscrot/resources/system/plugins/bash/gspjigsaw2/gspjigsaw_2.png"
 JIGSAW="/usr/bin/jigsaw"
 
 convert "${PIECE}" -resize "${GEO}" \

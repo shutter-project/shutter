@@ -29,7 +29,7 @@ HEIGHT="${3}"
 FILEYTPE="${4}"
 GEO="${2}x${3}"
 NAME=$(basename ${FILE})
-PIECE="/usr/share/gscrot/resources/icons/gspjigsaw_1.png"
+PIECE="/usr/share/gscrot/resources/system/plugins/bash/gspjigsaw1/gspjigsaw_1.png"
 JIGSAW="/usr/bin/jigsaw"
 
 convert "${PIECE}" -resize 50% -flip -flop -repage ${GEO} \
