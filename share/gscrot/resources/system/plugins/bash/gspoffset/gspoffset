@@ -1,0 +1,37 @@
+#!/bin/bash
+#offset
+#gscrot-plugin
+
+TEXTDOMAIN=gspoffset
+TEXTDOMAINDIR=/usr/share/locale 
+PLUGIN_NAME=$"offset"
+PLUGIN_SORT=$"effect"
+PLUGIN_TIP=$"give the picture an offset with itself as background"
+PLUGIN_EXT="png,jpeg"
+
+if [[ "${1}" = "name" ]];then
+    echo "${PLUGIN_NAME}"
+    exit 0
+elif [[ "${1}" = "sort" ]];then
+    echo "${PLUGIN_SORT}"
+    exit 0
+elif [[ "${1}" = "tip" ]];then
+    echo "${PLUGIN_TIP}"
+    exit 0
+elif [[ "${1}" = "ext" ]];then
+    echo "${PLUGIN_EXT}"
+    exit 0
+fi
+
+FILE="${1}"
+#WIDTH="${2}"
+#HEIGHT="${3}"
+#FILEYTPE="${4}"
+#GEO="${2}x${3}"
+
+convert "${FILE}" \
+\( -clone 0 -resize 130% -fill white -colorize 40% \) \
+\( -clone 0 -bordercolor black -border 1x1 \) \
+-delete 0 -gravity center -composite  "${FILE}"
+
+exit 0

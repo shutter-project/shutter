@@ -1,0 +1,34 @@
+#!/bin/bash
+#sepia
+#gscrot-plugin
+
+TEXTDOMAIN=gspsepia
+TEXTDOMAINDIR=/usr/share/locale 
+PLUGIN_NAME=$"sepia"
+PLUGIN_SORT=$"effect"
+PLUGIN_TIP=$"sepia tone coloring"
+PLUGIN_EXT="png,jpeg"
+
+if [[ "${1}" = "name" ]];then
+    echo "${PLUGIN_NAME}"
+    exit 0
+elif [[ "${1}" = "sort" ]];then
+    echo "${PLUGIN_SORT}"
+    exit 0
+elif [[ "${1}" = "tip" ]];then
+    echo "${PLUGIN_TIP}"
+    exit 0
+elif [[ "${1}" = "ext" ]];then
+    echo "${PLUGIN_EXT}"
+    exit 0
+fi
+
+FILE="${1}"
+#WIDTH="${2}"
+#HEIGHT="${3}"
+#FILEYTPE="${4}"
+#GEO="${2}x${3}"
+
+mogrify -sepia-tone 65% "${FILE}"
+          
+exit 0

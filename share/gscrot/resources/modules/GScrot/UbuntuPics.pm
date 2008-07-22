@@ -82,6 +82,9 @@ sub function_upload_ubuntu_pics
 		$html_file =~ /id="bbcode" value='(.*)' onclick/g;
 		$links{'bbcode'} = &function_switch_html_entities($1);
 		
+		$html_file =~ /id="ubuntucode" value='(.*)' onclick/g;
+		$links{'ubuntucode'} = &function_switch_html_entities($1);
+		
 		$html_file =~ /id="direct" value='(.*)' onclick/g;
 		$links{'direct'} = &function_switch_html_entities($1);
 
@@ -90,6 +93,7 @@ sub function_upload_ubuntu_pics
 			print "Thumbnail for websites (with Border)\n$links{'thumb1'}\n";
 			print "Thumbnail for websites (without Border)\n$links{'thumb2'}\n";
 			print "Thumbnail for forums \n$links{'bbcode'}\n";
+			print "Thumbnail for Ubuntuusers.de forum \n$links{'ubuntucode'}\n";
 			print "Direct link \n$links{'direct'}\n";
 		}
 		

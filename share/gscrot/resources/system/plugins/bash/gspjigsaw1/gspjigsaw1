@@ -1,0 +1,55 @@
+#!/bin/bash
+#jigsaw piece 1
+#gscrot-plugin
+
+TEXTDOMAIN=gspjigsaw1
+TEXTDOMAINDIR=/usr/share/locale 
+PLUGIN_NAME=$"jigsaw piece 1"
+PLUGIN_SORT=$"effect"
+PLUGIN_TIP=$"cut out a jigsaw piece at the bottom right corner"
+PLUGIN_EXT="png"
+
+if [[ "${1}" = "name" ]];then
+    echo "${PLUGIN_NAME}"
+    exit 0
+elif [[ "${1}" = "sort" ]];then
+    echo "${PLUGIN_SORT}"
+    exit 0
+elif [[ "${1}" = "tip" ]];then
+    echo "${PLUGIN_TIP}"
+    exit 0
+elif [[ "${1}" = "ext" ]];then
+    echo "${PLUGIN_EXT}"
+    exit 0
+fi
+
+FILE="${1}"
+WIDTH="${2}"
+HEIGHT="${3}"
+FILEYTPE="${4}"
+GEO="${2}x${3}"
+NAME=$(basename ${FILE})
+PIECE="/usr/share/gscrot/resources/icons/gspjigsaw_1.png"
+JIGSAW="/usr/bin/jigsaw"
+
+convert "${PIECE}" -resize 50% -flip -flop -repage ${GEO} \
+-background black -flatten -flip -flop /tmp/jigsaw_1_tmpl.png
+
+${JIGSAW} -t 3 -s  -r 15  -d +15+7 \
+"${FILE}" /tmp/jigsaw_1_tmpl.png /tmp/"${NAME}"_piece_tn.png
+
+convert /tmp/jigsaw_1_tmpl.png -negate png:- |\
+${JIGSAW} -t 3 -s "${FILE}" png:- /tmp/"${NAME}"_tn.png
+
+convert /tmp/"${NAME}"_tn.png  /tmp/"${NAME}"_piece_tn.png \
+-background none -mosaic "${FILE}"
+
+NEW_GEO=$(identify -format %wx%h "${FILE}")
+
+convert "${FILE}" -gravity center -crop ${NEW_GEO} +repage \
+"${FILE}"
+
+rm -f /tmp/"${NAME}"*
+rm -f /tmp/jigsaw_1_tmpl.png
+
+exit 0

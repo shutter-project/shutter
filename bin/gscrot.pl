@@ -659,32 +659,23 @@ $tv_clmn_password_text->set_attributes($renderer_password_accounts, text => 2);
 
 #append this column to the treeview
 $accounts_tree->append_column($tv_clmn_password_text);
-my $tv_clmn_register_text = Gtk2::TreeViewColumn->new;
-$tv_clmn_register_text->set_title($d->get("Register"));
-$tv_clmn_register_text->set_name("register_url");
-my $renderer_register_accounts = Gtk2::CellRendererText->new;
-
-&color_for_register;
-
-sub color_for_register {
-
+#create column
 my $treeview = Gtk2::TreeView->new;
 
 my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
+#create column title
 $tv_clmn_pix_text->set_title($d->get("Register"));
 $tv_clmn_pix_text->set_name("register_url");
 
+#create new object for column
 my $ren_text = Gtk2::CellRendererText->new();
 #pack it into the column	
 $tv_clmn_pix_text->pack_start ($ren_text, FALSE);
-#set its atributes		
-$tv_clmn_pix_text->set_attributes($ren_text, 'text', 5, 'foreground', 4);
+#set color and text for column
+$tv_clmn_pix_text->set_attributes($ren_text, 'text', ($d->get(5)), 'foreground', 4);
 
 #append this column to the treeview
 $accounts_tree->append_column($tv_clmn_pix_text);
-######################
-}
-
 
 my $accounts_label = Gtk2::Label->new;
 $accounts_label->set_line_wrap (TRUE);
@@ -2188,7 +2179,7 @@ sub function_load_accounts
 		$accounts{'ubuntu-pics.de'}->{password} = "";
 		$accounts{'ubuntu-pics.de'}->{register} = "http://www.ubuntu-pics.de/registrieren.html";
 		$accounts{'ubuntu-pics.de'}->{register_color} = "blue";
-		$accounts{'ubuntu-pics.de'}->{register_text} = "click";
+		$accounts{'ubuntu-pics.de'}->{register_text} = ($d->get("click me"));
 		$accounts{'ubuntu-pics.de'}->{module} = "UbuntuPics.pm";
 	}else{
 		$accounts{'ubuntu-pics.de'}->{host} = $accounts_xml->{'ubuntu-pics.de'}->{host};
@@ -2196,7 +2187,7 @@ sub function_load_accounts
 		$accounts{'ubuntu-pics.de'}->{password} = $accounts_xml->{'ubuntu-pics.de'}->{password};
 		$accounts{'ubuntu-pics.de'}->{register} = "http://www.ubuntu-pics.de/registrieren.html";
 		$accounts{'ubuntu-pics.de'}->{register_color} = "blue";
-		$accounts{'ubuntu-pics.de'}->{register_text} = "click";
+		$accounts{'ubuntu-pics.de'}->{register_text} = ($d->get("click me"));
 		$accounts{'ubuntu-pics.de'}->{module} = $accounts_xml->{'ubuntu-pics.de'}->{module};	
 	}
 	unless(exists($accounts_xml->{'imagebanana.com'})){
@@ -2205,7 +2196,7 @@ sub function_load_accounts
 		$accounts{'imagebanana.com'}->{password} = "";
 		$accounts{'imagebanana.com'}->{register} = "http://www.imagebanana.com/myib/registrieren/";
 		$accounts{'imagebanana.com'}->{register_color} = "blue";
-		$accounts{'imagebanana.com'}->{register_text} = "click";
+		$accounts{'imagebanana.com'}->{register_text} = ($d->get("click me"));
 		$accounts{'imagebanana.com'}->{module} = "ImageBanana.pm";
 	}else{
 		$accounts{'imagebanana.com'}->{host} = $accounts_xml->{'imagebanana.com'}->{host};
@@ -2213,7 +2204,7 @@ sub function_load_accounts
 		$accounts{'imagebanana.com'}->{password} = $accounts_xml->{'imagebanana.com'}->{password};
 		$accounts{'imagebanana.com'}->{register} = "http://www.imagebanana.com/myib/registrieren/";
 		$accounts{'imagebanana.com'}->{register_color} = "blue";
-		$accounts{'imagebanana.com'}->{register_text} = "click";
+		$accounts{'imagebanana.com'}->{register_text} = ($d->get("click me"));
 		$accounts{'imagebanana.com'}->{module} = $accounts_xml->{'imagebanana.com'}->{module};	
 	}			
 	return 1;	
@@ -2429,7 +2420,7 @@ sub dialog_account_chooser_and_upload
 			my %upload_response;
 			%upload_response = &function_upload_ubuntu_pics(&function_switch_home_in_file($file_to_upload), $hosting_username, $hosting_password, $debug_cparam);	
 			if (is_success($upload_response{'status'})){
-				&dialog_upload_links_ubuntu_pics($hosting_host, $hosting_username, $upload_response{'thumb1'}, $upload_response{'thumb2'}, $upload_response{'bbcode'}, $upload_response{'direct'}, $upload_response{'status'});				
+				&dialog_upload_links_ubuntu_pics($hosting_host, $hosting_username, $upload_response{'thumb1'}, $upload_response{'thumb2'}, $upload_response{'bbcode'}, $upload_response{'ubuntucode'},$upload_response{'direct'}, $upload_response{'status'});				
 				&dialog_status_message(1, $file_to_upload." ".$d->get("uploaded"));
 			}else{
 				&dialog_error_message($upload_response{'status'});	
@@ -2484,7 +2475,7 @@ sub dialog_website
 
 sub dialog_upload_links_ubuntu_pics
 {
-	my ($host, $username, $thumb1, $thumb2, $bbcode, $direct, $status) = @_;
+	my ($host, $username, $thumb1, $thumb2, $bbcode, $direct, $ubuntucode, $status) = @_;
 	my $dialog_header = $d->get("Upload")." - ".$host." - ".$username;
  	my $upload_dialog = Gtk2::Dialog->new ($dialog_header,
         						$window,
@@ -2492,7 +2483,7 @@ sub dialog_upload_links_ubuntu_pics
                               	'gtk-ok'     => 'accept');
 
 	$upload_dialog->set_default_response ('accept');
-	$upload_dialog->set_size_request(400, 300);
+	$upload_dialog->set_size_request(400, 400);
 
 	my $upload_hbox = Gtk2::HBox->new(FALSE, 0);
 	my $upload_vbox = Gtk2::VBox->new(FALSE, 0);
@@ -2511,21 +2502,25 @@ sub dialog_upload_links_ubuntu_pics
 	my $entry_thumb1 = Gtk2::Entry->new();
 	my $entry_thumb2 = Gtk2::Entry->new();
 	my $entry_bbcode = Gtk2::Entry->new();
+	my $entry_ubuntucode = Gtk2::Entry->new();
 	my $entry_direct = Gtk2::Entry->new();
 
 	my $label_thumb1 = Gtk2::Label->new();
 	my $label_thumb2 = Gtk2::Label->new();
 	my $label_bbcode = Gtk2::Label->new();
+	my $label_ubuntucode = Gtk2::Label->new();
 	my $label_direct = Gtk2::Label->new();
 
 	$label_thumb1->set_text($d->get("Thumbnail for websites (with border)"));
 	$label_thumb2->set_text($d->get("Thumbnail for websites (without border)"));
 	$label_bbcode->set_text($d->get("Thumbnail for forums"));
+	$label_ubuntucode->set_text($d->get("Thumbnail for Ubuntuusers.de forum"));
 	$label_direct->set_text($d->get("Direct link"));
 
 	$entry_thumb1->set_text($thumb1);
 	$entry_thumb2->set_text($thumb2);
 	$entry_bbcode->set_text($bbcode);
+	$entry_ubuntucode->set_text($ubuntucode);
 	$entry_direct->set_text($direct);
 
 	$upload_vbox->pack_start($upload_hbox, TRUE, TRUE, 10);
@@ -2535,6 +2530,8 @@ sub dialog_upload_links_ubuntu_pics
 	$upload_vbox->pack_start($entry_thumb2, TRUE, TRUE, 2);
 	$upload_vbox->pack_start($label_bbcode, TRUE, TRUE, 2);
 	$upload_vbox->pack_start($entry_bbcode, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($label_ubuntucode, TRUE, TRUE, 2);
+	$upload_vbox->pack_start($entry_ubuntucode, TRUE, TRUE, 2);
 	$upload_vbox->pack_start($label_direct, TRUE, TRUE, 2);
 	$upload_vbox->pack_start($entry_direct, TRUE, TRUE, 2);
 	    

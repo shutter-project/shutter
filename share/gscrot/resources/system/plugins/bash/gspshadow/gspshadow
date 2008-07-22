@@ -1,0 +1,35 @@
+#!/bin/bash
+#hard shadow
+#gscrot-plugin
+
+TEXTDOMAIN=gspshadow
+TEXTDOMAINDIR=/usr/share/locale 
+PLUGIN_NAME=$"hard shadow"
+PLUGIN_SORT=$"effect"
+PLUGIN_TIP=$"a black hard shadow on transparent background"
+PLUGIN_EXT="png"
+
+if [[ "${1}" = "name" ]];then
+    echo "${PLUGIN_NAME}"
+    exit 0
+elif [[ "${1}" = "sort" ]];then
+    echo "${PLUGIN_SORT}"
+    exit 0
+elif [[ "${1}" = "tip" ]];then
+    echo "${PLUGIN_TIP}"
+    exit 0
+elif [[ "${1}" = "ext" ]];then
+    echo "${PLUGIN_EXT}"
+    exit 0
+fi
+
+FILE="${1}"
+#WIDTH="${2}"
+#HEIGHT="${3}"
+#FILEYTPE="${4}"
+#GEO="${2}x${3}"
+
+convert "${FILE}" \( +clone -background black  -shadow 80x3+5+5 \) \
++swap -background none -mosaic +repage "${FILE}"
+       
+exit 0
