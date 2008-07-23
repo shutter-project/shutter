@@ -2475,7 +2475,7 @@ sub dialog_website
 
 sub dialog_upload_links_ubuntu_pics
 {
-	my ($host, $username, $thumb1, $thumb2, $bbcode, $direct, $ubuntucode, $status) = @_;
+	my ($host, $username, $thumb1, $thumb2, $bbcode, $ubuntucode, $direct, $status) = @_;
 	my $dialog_header = $d->get("Upload")." - ".$host." - ".$username;
  	my $upload_dialog = Gtk2::Dialog->new ($dialog_header,
         						$window,
