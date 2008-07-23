@@ -211,15 +211,15 @@ $menubar->append($menuitem_action) ;
 
 my $menu3 = Gtk2::Menu->new() ;
 
-my $menuitem_question = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("Report a _bug")) ;
+my $menuitem_question = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("_Ask a question"));
 $menuitem_question->set_image(Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/help.svg", 22, 22)));
-$menuitem_question->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ B }, qw/control-mask/, qw/visible/);
+$menuitem_question->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ A }, qw/control-mask/, qw/visible/);
 $menu3->append($menuitem_question) ;
 $menuitem_question->signal_connect("activate" , \&event_question, $window) ;
 
-my $menuitem_bug = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("_Ask a question")) ;
+my $menuitem_bug = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("Report a _bug"));
 $menuitem_bug->set_image(Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/aiutare.svg", 22, 22)));
-$menuitem_bug->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ A }, qw/control-mask/, qw/visible/);
+$menuitem_bug->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ B }, qw/control-mask/, qw/visible/);
 $menu3->append($menuitem_bug) ;
 $menuitem_bug->signal_connect("activate" , \&event_bug, $window) ;
 
