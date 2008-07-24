@@ -2688,7 +2688,7 @@ sub function_update_first_tab
 	foreach (keys %session_screens){
 		$total_size += $session_screens{$_}->{'size'};	
 	}					
-	$session_start_screen{'first_page'}->{'size_counter'}->set_text(sprintf("%.2f", $total_size / 1024)." KB total size");
+	$session_start_screen{'first_page'}->{'size_counter'}->set_text(sprintf("%.2f", $total_size / 1024)." KB ".$d->get("total size"));
 	if(keys(%session_screens) == 0){
 		$session_start_screen{'first_page'}->{'btn_remove'}->set_sensitive(FALSE);
 		$session_start_screen{'first_page'}->{'btn_delete'}->set_sensitive(FALSE);
