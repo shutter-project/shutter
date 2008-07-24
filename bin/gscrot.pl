@@ -1563,7 +1563,7 @@ sub function_create_session_notebook
 {
 	$notebook->set_scrollable(TRUE);
 	$notebook->signal_connect('switch-page' => \&event_notebook_switch, 'tab-switched');
-	$notebook->set_size_request(-1, 250);
+	$notebook->set_size_request(400, 300);
 
 	my $hbox_first_label = Gtk2::HBox->new(FALSE, 0);	
 	my $all_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file("$gscrot_path/share/gscrot/resources/icons/session.svg");
@@ -1774,6 +1774,16 @@ sub function_create_tab {
 		$session_screens{$key}->{'btn_plugin'} = $button_plugin;
 		$session_screens{$key}->{'btn_draw'} = $button_draw;
 		$session_screens{$key}->{'btn_clipboard'} = $button_clipboard;
+
+		my $tab_sizegroup = Gtk2::SizeGroup->new ('both');
+		$tab_sizegroup->add_widget($button_delete);
+		$tab_sizegroup->add_widget($button_reopen);
+		$tab_sizegroup->add_widget($button_upload);
+		$tab_sizegroup->add_widget($button_print);
+		$tab_sizegroup->add_widget($button_rename);
+		$tab_sizegroup->add_widget($button_plugin);
+		$tab_sizegroup->add_widget($button_draw);
+		$tab_sizegroup->add_widget($button_clipboard);
 
 		$hbox_tab_actions->pack_start($button_delete, TRUE, TRUE, 1);
 		$hbox_tab_actions2->pack_start($button_reopen, TRUE, TRUE, 1);
