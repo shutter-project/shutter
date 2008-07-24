@@ -1563,7 +1563,7 @@ sub function_create_session_notebook
 {
 	$notebook->set_scrollable(TRUE);
 	$notebook->signal_connect('switch-page' => \&event_notebook_switch, 'tab-switched');
-	$notebook->set_size_request(400, 300);
+	$notebook->set_size_request(410, 280);
 
 	my $hbox_first_label = Gtk2::HBox->new(FALSE, 0);	
 	my $all_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file("$gscrot_path/share/gscrot/resources/icons/session.svg");
