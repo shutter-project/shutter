@@ -36,7 +36,7 @@ use Gnome2::GConf;
 function_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 #version info
-my $gscrot_branch = "Rev.124";
+my $gscrot_branch = "Rev.127";
 my $ppa_version = "ppa10";
 my $gscrot_name = "GScrot";
 my $gscrot_version = "v0.40";
@@ -100,7 +100,10 @@ $notebook->set(homogeneous => 1);
 
 #arrange settings in notebook
 my $notebook_settings = Gtk2::Notebook->new;
-$notebook_settings->set(homogeneous => 1);
+
+my $notebook_sizegroup = Gtk2::SizeGroup->new ('both');
+$notebook_sizegroup->add_widget($notebook);
+$notebook_sizegroup->add_widget($notebook_settings);
 
 #Clipboard
 my $clipboard = Gtk2::Clipboard->get(Gtk2::Gdk->SELECTION_CLIPBOARD);
