@@ -93,12 +93,14 @@ $window->set_resizable(0);
 my %session_screens;
 my %session_start_screen;
 my $notebook = Gtk2::Notebook->new;
+$notebook->set(homogeneous => 1);
 
 #create first page etc.
 &function_create_session_notebook;
 
 #arrange settings in notebook
 my $notebook_settings = Gtk2::Notebook->new;
+$notebook_settings->set(homogeneous => 1);
 
 #Clipboard
 my $clipboard = Gtk2::Clipboard->get(Gtk2::Gdk->SELECTION_CLIPBOARD);
@@ -519,9 +521,9 @@ foreach (keys %gm_programs){
 	if($gm_programs{$_}->{'binary'} ne "" && $gm_programs{$_}->{'name'} ne ""){
 		my $pixbuf; 
 		if (-f $gm_programs{$_}->{'pixmap'}){
-			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ($gm_programs{$_}->{'pixmap'}, 20, 20);
+			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ($gm_programs{$_}->{'pixmap'}, Gtk2::IconSize->lookup ('menu'));
 		}else{
-			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/executable.svg", 20, 20);
+			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/executable.svg", Gtk2::IconSize->lookup ('menu'));
 		} 
 		$model->set ($model->append, 0, $pixbuf , 1, $gm_programs{$_}->{'name'}, 2, $_);				
 	}else{
@@ -694,9 +696,9 @@ if (keys(%plugins) > 0){
 		if($plugins{$_}->{'binary'} ne ""){
 			my $pixbuf; 
 			if (-f $plugins{$_}->{'pixmap'}){
-				$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ($plugins{$_}->{'pixmap'}, 20, 20);
+				$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ($plugins{$_}->{'pixmap'}, Gtk2::IconSize->lookup ('menu'));
 			}else{
-				$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/executable.svg", 20, 20);
+				$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/executable.svg", Gtk2::IconSize->lookup ('menu'));
 			} 
 			#get translated plugin-name
 			$plugins{$_}->{'name'} = `$plugins{$_}->{'binary'} name`;
@@ -1569,8 +1571,7 @@ sub function_create_session_notebook
 	$notebook->set_size_request(410, 280);
 
 	my $hbox_first_label = Gtk2::HBox->new(FALSE, 0);	
-	my $all_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file("$gscrot_path/share/gscrot/resources/icons/session.svg");
-	my $thumb_first_icon = Gtk2::Image->new_from_pixbuf ($all_pixbuf->scale_down_pixbuf(20,20));	
+	my $thumb_first_icon = Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size("$gscrot_path/share/gscrot/resources/icons/session.svg", Gtk2::IconSize->lookup ('menu')));	
 	my $tab_first_label = Gtk2::Label->new($d->get("Session"));
 	$hbox_first_label->pack_start($thumb_first_icon , FALSE, TRUE, 1);	
 	$hbox_first_label->pack_start($tab_first_label , TRUE, TRUE, 1);
@@ -1598,7 +1599,7 @@ sub function_integrate_screenshot_in_notebook
 	my $hbox_tab_label = Gtk2::HBox->new(FALSE, 0);	
 	my $close_icon = Gtk2::Image->new_from_icon_name ('gtk-close', 'menu');
 		
-	$session_screens{$key}->{'tab_icon'} = Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size (&function_switch_home_in_file($session_screens{$key}->{'filename'}), 20,20));	
+	$session_screens{$key}->{'tab_icon'} = Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size (&function_switch_home_in_file($session_screens{$key}->{'filename'}), Gtk2::IconSize->lookup ('menu')));	
 
 	my $tab_close_button = Gtk2::Button->new;
 	$tab_close_button->set_relief('none');
@@ -2341,9 +2342,9 @@ sub dialog_plugin
 		if($plugins{$_}->{'binary'} ne ""){
 			my $pixbuf; 
 			if (-f $plugins{$_}->{'pixmap'}){
-				$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ($plugins{$_}->{'pixmap'}, 20, 20);
+				$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ($plugins{$_}->{'pixmap'}, Gtk2::IconSize->lookup ('menu'));
 			}else{
-				$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/executable.svg", 20, 20);
+				$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/executable.svg", Gtk2::IconSize->lookup ('menu'));
 			}
 			#get translated plugin-name
 			$plugins{$_}->{'name'} = `$plugins{$_}->{'binary'} name`;
@@ -2714,7 +2715,7 @@ sub function_update_tab
 	if(&function_create_thumbnail_and_fileinfos($session_screens{$key}->{'filename'}, $key)){
 
 		#update tab icon - maybe pic changed due to use of plugin or drawing tool
-		$session_screens{$key}->{'tab_icon'}->set_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size (&function_switch_home_in_file($session_screens{$key}->{'filename'}), 20 ,20));
+		$session_screens{$key}->{'tab_icon'}->set_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size (&function_switch_home_in_file($session_screens{$key}->{'filename'}), Gtk2::IconSize->lookup ('menu')));
 		$session_screens{$key}->{'image'}->set_from_pixbuf($session_screens{$key}->{'thumb'});
 		$session_screens{$key}->{'filename_label'}->set_text($session_screens{$key}->{'short'});
 		$session_screens{$key}->{'tooltip_filename_tab'}->set_tip($session_screens{$key}->{'filename_label'},$session_screens{$key}->{'filename'});
@@ -2725,9 +2726,8 @@ sub function_update_tab
 	}else{
 
 		#update tab icon - file is not existing anymore, maybe deleted manually
-		my $file_missing_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file("$gscrot_path/share/gscrot/resources/icons/Image-missing.svg");
-		$session_screens{$key}->{'tab_icon'}->set_from_pixbuf ($file_missing_pixbuf->scale_down_pixbuf(20, 20));	
-		$session_screens{$key}->{'image'}->set_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size("$gscrot_path/share/gscrot/resources/icons/Image-missing.svg", Gtk2::IconSize->lookup ('dialog' )));
+		$session_screens{$key}->{'tab_icon'}->set_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size("$gscrot_path/share/gscrot/resources/icons/Image-missing.svg", Gtk2::IconSize->lookup ('menu')));	
+		$session_screens{$key}->{'image'}->set_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size("$gscrot_path/share/gscrot/resources/icons/Image-missing.svg", Gtk2::IconSize->lookup ('dialog')));
 		$session_screens{$key}->{'filename_label'}->set_text("-");
 		$session_screens{$key}->{'tooltip_filename_tab'}->set_tip($session_screens{$key}->{'filename_label'}, "-");
 		$session_screens{$key}->{'mime_type_label'}->set_text("-");
