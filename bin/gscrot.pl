@@ -35,8 +35,12 @@ use Gnome2::GConf;
 
 function_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
+#version info
+my $gscrot_branch = "Rev.124";
+my $ppa_version = "ppa10";
 my $gscrot_name = "GScrot";
 my $gscrot_version = "v0.40";
+my $gscrot_version_detailed = "$gscrot_branch - $ppa_version";
 my $gscrot_path = "";
 #command line parameter
 my $debug_cparam = FALSE;
@@ -123,7 +127,7 @@ my $capture_vbox = Gtk2::VBox->new(FALSE, 0);
 my $effects_vbox = Gtk2::VBox->new(FALSE, 0);
 my $accounts_vbox = Gtk2::VBox->new(FALSE, 0);
 
-my $button_box = Gtk2::HBox->new(TRUE, 10);
+my $button_box = Gtk2::HBox->new(TRUE, 15);
 my $scale_box = Gtk2::HBox->new(TRUE, 0);
 my $delay_box = Gtk2::HBox->new(TRUE, 0);
 my $delay_box2 = Gtk2::HBox->new(FALSE, 0);
@@ -199,7 +203,7 @@ $menu2->append($menuitem_raw) ;
 $menuitem_raw->signal_connect("activate" , \&event_handle, 'raw') ;
 
 my $menuitem_web = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("Capture website")) ;
-$menuitem_web->set_image(Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/web_image.svg", 22, 22)));
+$menuitem_web->set_image(Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/web_image.svg", Gtk2::IconSize->lookup ('menu'))));
 $menuitem_web->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ W }, qw/mod1-mask/, qw/visible/);
 $menu2->append($menuitem_web) ;
 $menuitem_web->signal_connect("activate" , \&event_handle, 'web') ;
@@ -212,13 +216,13 @@ $menubar->append($menuitem_action) ;
 my $menu3 = Gtk2::Menu->new() ;
 
 my $menuitem_question = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("_Ask a question"));
-$menuitem_question->set_image(Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/help.svg", 22, 22)));
+$menuitem_question->set_image(Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/help.svg", Gtk2::IconSize->lookup ('menu'))));
 $menuitem_question->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ A }, qw/control-mask/, qw/visible/);
 $menu3->append($menuitem_question) ;
 $menuitem_question->signal_connect("activate" , \&event_question, $window) ;
 
 my $menuitem_bug = Gtk2::ImageMenuItem->new_with_mnemonic($d->get("Report a _bug"));
-$menuitem_bug->set_image(Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/aiutare.svg", 22, 22)));
+$menuitem_bug->set_image(Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/aiutare.svg", Gtk2::IconSize->lookup ('menu'))));
 $menuitem_bug->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ B }, qw/control-mask/, qw/visible/);
 $menu3->append($menuitem_bug) ;
 $menuitem_bug->signal_connect("activate" , \&event_bug, $window) ;
@@ -249,7 +253,7 @@ $button_select->set_image($image_select);
 my $tooltip_select = Gtk2::Tooltips->new;
 $tooltip_select->set_tip($button_select,$d->get("Draw a rectangular capture area with your mouse\nto select a specified screen area\nor select a window to capture its content"));
 
-$button_box->pack_start($button_select, TRUE, TRUE, 0);
+$button_box->pack_start($button_select, TRUE, TRUE, 5);
 #############BUTTON_SELECT###################
 
 #############BUTTON_RAW######################
@@ -262,24 +266,23 @@ $button_raw->set_image($image_raw);
 my $tooltip_raw = Gtk2::Tooltips->new;
 $tooltip_raw->set_tip($button_raw,$d->get("Take a screenshot of your whole desktop"));
 
-$button_box->pack_start($button_raw, TRUE, TRUE, 0);
+$button_box->pack_start($button_raw, TRUE, TRUE, 5);
 #############BUTTON_RAW######################
 
 #############BUTTON_WEB######################
 my $button_web = Gtk2::Button->new($d->get("Capture\nwebsite"));
 $button_web->signal_connect(clicked => \&event_handle, 'web');
 
-my $image_web = Gtk2::Image->new_from_file ("$gscrot_path/share/gscrot/resources/icons/web_image.svg");
+my $image_web = Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/web_image.svg", Gtk2::IconSize->lookup ('dialog')));
 $button_web->set_image($image_web);
 
 my $tooltip_web = Gtk2::Tooltips->new;
 $tooltip_web->set_tip($button_web,$d->get("Take a screenshot of a website"));
 
-$button_box->pack_start($button_web, TRUE, TRUE, 0);
+$button_box->pack_start($button_web, TRUE, TRUE, 5);
 #############BUTTON_WEB######################
 
 $vbox_inner0->pack_start($button_box, FALSE, FALSE, 0);
-
 #############TRAYICON######################
 my $icon = Gtk2::Image->new_from_file("$gscrot_path/share/gscrot/resources/icons/gscrot24x24.png");
 my $eventbox = Gtk2::EventBox->new;
@@ -1468,7 +1471,7 @@ sub event_about
 	$about->set_translator_credits ("German: Mario Kemper <mario.kemper\@gmx.de>\nRussian: Michael Kogan (PhotonX)");	
 	$about->set_copyright ($all_hints);
 	$about->set_license ($all_lines);
-	$about->set_comments ("Screenshot Tool");
+	$about->set_comments ("$gscrot_version_detailed");
 	$about->show_all;
 	$about->signal_connect('response' => \&event_handle);
 
@@ -1502,7 +1505,7 @@ sub event_show_icon_menu
 	$menuitem_raw->set_image(Gtk2::Image->new_from_icon_name('gtk-fullscreen', 'menu'));
 	$menuitem_raw->signal_connect(activate => \&event_handle, 'tray_raw');
 	my $menuitem_web = Gtk2::ImageMenuItem->new($d->get("Capture website"));
-	$menuitem_web->set_image(Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/web_image.svg", 22, 22)));
+	$menuitem_web->set_image(Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/web_image.svg", Gtk2::IconSize->lookup ('menu'))));
 	$menuitem_web->signal_connect(activate => \&event_handle, 'tray_web');
 	my $menuitem_info = Gtk2::ImageMenuItem->new($d->get("Info"));
 	$menuitem_info->set_image(Gtk2::Image->new_from_icon_name('gtk-about', 'menu'));
@@ -2688,7 +2691,7 @@ sub function_update_first_tab
 	foreach (keys %session_screens){
 		$total_size += $session_screens{$_}->{'size'};	
 	}					
-	$session_start_screen{'first_page'}->{'size_counter'}->set_text(sprintf("%.2f", $total_size / 1024)." KB ".$d->get("total size"));
+	$session_start_screen{'first_page'}->{'size_counter'}->set_text($d->get("Total size").": ".sprintf("%.2f", $total_size / 1024)." KB");
 	if(keys(%session_screens) == 0){
 		$session_start_screen{'first_page'}->{'btn_remove'}->set_sensitive(FALSE);
 		$session_start_screen{'first_page'}->{'btn_delete'}->set_sensitive(FALSE);
@@ -2711,11 +2714,6 @@ sub function_update_tab
 	if(&function_create_thumbnail_and_fileinfos($session_screens{$key}->{'filename'}, $key)){
 
 		#update tab icon - maybe pic changed due to use of plugin or drawing tool
-		#~ my $tab_icon_width = 16;
-		#~ my $tab_icon_height = 16;
-		#~ $tab_icon_width = $session_screens{$key}->{'width'} if($session_screens{$key}->{'width'} < 16);
-		#~ $tab_icon_height = $session_screens{$key}->{'height'} if($session_screens{$key}->{'height'} < 16);		
-		#~ $session_screens{$key}->{'tab_icon'}->set_from_pixbuf ($session_screens{$key}->{'thumb'}->scale_down_pixbuf($tab_icon_width, $tab_icon_height));	
 		$session_screens{$key}->{'tab_icon'}->set_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size (&function_switch_home_in_file($session_screens{$key}->{'filename'}), 20 ,20));
 		$session_screens{$key}->{'image'}->set_from_pixbuf($session_screens{$key}->{'thumb'});
 		$session_screens{$key}->{'filename_label'}->set_text($session_screens{$key}->{'short'});

@@ -24,7 +24,7 @@ binary-arch: build
 	dh_installchangelogs
 
 # Copy the packages's files.
-	find . -maxdepth 1 -mindepth 1 -not -name debian -print0 | \
+	find . -maxdepth 1 -mindepth 1 -not -name debian -name tools -print0 | \
 		xargs -0 -r -i cp -a {} debian/$(PACKAGE)/usr/
 
 	dh_compress
