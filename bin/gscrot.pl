@@ -36,8 +36,8 @@ use Gnome2::GConf;
 function_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 #version info
-my $gscrot_branch = "Rev.130";
-my $ppa_version = "ppa12";
+my $gscrot_branch = "Rev.131";
+my $ppa_version = "ppa13";
 my $gscrot_name = "GScrot";
 my $gscrot_version = "v0.40";
 my $gscrot_version_detailed = "$gscrot_branch - $ppa_version";
@@ -1733,34 +1733,22 @@ sub function_create_tab {
 
 		$session_screens{$key}->{'tooltip_filename_tab'} = Gtk2::Tooltips->new;
 		$session_screens{$key}->{'tooltip_filename_tab'}->set_tip($session_screens{$key}->{'filename_label'},$session_screens{$key}->{'filename'});
-	
-		$vbox_fileinfos->pack_start($filename_label, TRUE, TRUE, 0);
-		$vbox_fileinfos->pack_start($session_screens{$key}->{'filename_label'}, TRUE, TRUE, 1);
 		
 		my $mime_type_label = Gtk2::Label->new;
 		$mime_type_label->set_markup("<b>".$d->get("Mime-Type")."</b>");
 		
 		$session_screens{$key}->{'mime_type_label'} = Gtk2::Label->new($session_screens{$key}->{'mime_type'});
-		
-		$vbox_fileinfos->pack_start($mime_type_label, TRUE, TRUE, 1);
-		$vbox_fileinfos->pack_start($session_screens{$key}->{'mime_type_label'}, TRUE, TRUE, 1);	
-		
+				
 		my $size_label = Gtk2::Label->new;
 		$size_label->set_markup("<b>".$d->get("Filesize")."</b>");
 		
 		$session_screens{$key}->{'size_label'} = Gtk2::Label->new(sprintf("%.2f", $session_screens{$key}->{'size'} / 1024)." KB");
-		
-		$vbox_fileinfos2->pack_start($size_label, TRUE, TRUE, 1);		
-		$vbox_fileinfos2->pack_start($session_screens{$key}->{'size_label'}, TRUE, TRUE, 1);
-		
+			
 		my $geometry_label = Gtk2::Label->new;
 		$geometry_label->set_markup("<b>".$d->get("Geometry")."</b>");
 		
 		$session_screens{$key}->{'geometry_label'} = Gtk2::Label->new($session_screens{$key}->{'width'}."x".$session_screens{$key}->{'height'});
 		
-		$vbox_fileinfos2->pack_start($geometry_label, TRUE, TRUE, 1);		
-		$vbox_fileinfos2->pack_start($session_screens{$key}->{'geometry_label'}, TRUE, TRUE, 1);
-
 		if(&function_file_exists($session_screens{$key}->{'filename'})){	
 			$session_screens{$key}->{'image'} = Gtk2::Image->new_from_pixbuf($session_screens{$key}->{'thumb'});
 		}else{
@@ -1768,6 +1756,24 @@ sub function_create_tab {
 		}
 
 		#packing
+		my $tab_infos_sizegroup = Gtk2::SizeGroup->new ('vertical');
+		$tab_infos_sizegroup->add_widget($session_screens{$key}->{'filename_label'});
+		$tab_infos_sizegroup->add_widget($session_screens{$key}->{'size_label'});
+		$tab_infos_sizegroup->add_widget($session_screens{$key}->{'mime_type_label'});
+		$tab_infos_sizegroup->add_widget($session_screens{$key}->{'geometry_label'});
+
+		$vbox_fileinfos->pack_start($filename_label, TRUE, TRUE, 0);
+		$vbox_fileinfos->pack_start($session_screens{$key}->{'filename_label'}, TRUE, TRUE, 1);
+
+		$vbox_fileinfos2->pack_start($size_label, TRUE, TRUE, 1);		
+		$vbox_fileinfos2->pack_start($session_screens{$key}->{'size_label'}, TRUE, TRUE, 1);
+
+		$vbox_fileinfos->pack_start($mime_type_label, TRUE, TRUE, 1);
+		$vbox_fileinfos->pack_start($session_screens{$key}->{'mime_type_label'}, TRUE, TRUE, 1);	
+
+		$vbox_fileinfos2->pack_start($geometry_label, TRUE, TRUE, 1);		
+		$vbox_fileinfos2->pack_start($session_screens{$key}->{'geometry_label'}, TRUE, TRUE, 1);
+		
 		$hbox_tab_file->pack_start($session_screens{$key}->{'image'}, TRUE, TRUE, 1);
 		
 		$hbox_tab_file->pack_start($vbox_fileinfos, TRUE, TRUE, 1);
