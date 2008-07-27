@@ -36,8 +36,8 @@ use Gnome2::GConf;
 function_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 #version info
-my $gscrot_branch = "Rev.131";
-my $ppa_version = "ppa13";
+my $gscrot_branch = "Rev.132";
+my $ppa_version = "ppa14";
 my $gscrot_name = "GScrot";
 my $gscrot_version = "v0.40";
 my $gscrot_version_detailed = "$gscrot_branch - $ppa_version";
