@@ -36,8 +36,8 @@ use Gnome2::GConf;
 function_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 #version info
-my $gscrot_branch = "Rev.132";
-my $ppa_version = "ppa14";
+my $gscrot_branch = "Rev.133";
+my $ppa_version = "ppa15";
 my $gscrot_name = "GScrot";
 my $gscrot_version = "v0.40";
 my $gscrot_version_detailed = "$gscrot_branch - $ppa_version";
@@ -673,7 +673,6 @@ my $treeview = Gtk2::TreeView->new;
 my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
 #create column title
 $tv_clmn_pix_text->set_title($d->get("Register"));
-$tv_clmn_pix_text->set_name("register_url");
 
 #create new object for column
 my $ren_text = Gtk2::CellRendererText->new();
@@ -1556,9 +1555,8 @@ sub event_accounts
 {
 	my ($tree, $path, $column) = @_;
 
-	return 0 unless defined($column->get_name);
 	#open browser if register url is clicked
-	if ($column->get_name eq "register_url"){
+	if ($column->get_title eq $d->get("Register")){
 		my $model = $tree->get_model();
 		my $account_iter = $model->get_iter($path);
 		my $account_value = $model->get_value($account_iter, 3);
