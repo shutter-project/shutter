@@ -1,0 +1,768 @@
+# Spanish translation for gscrot
+# Copyright (c) 2008 Rosetta Contributors and Canonical Ltd 2008
+# This file is distributed under the same license as the gscrot package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2008.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: gscrot\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2008-08-01 01:01+0200\n"
+"PO-Revision-Date: 2008-08-14 01:38+0100\n"
+"Last-Translator: Mario Kemper <mario.kemper@gmx.de>\n"
+"Language-Team: Spanish <es@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Launchpad-Export-Date: 2008-08-13 23:28+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+
+#: translate_tmp.pl:162
+msgid "_File"
+msgstr "_Archivo"
+
+#: translate_tmp.pl:164
+msgid "Open"
+msgstr "Abrir"
+
+#: translate_tmp.pl:172
+msgid "Revert Settings"
+msgstr "Revertir Ajustes"
+
+#: translate_tmp.pl:178
+msgid "Save Settings"
+msgstr "Guardar Ajustes"
+
+#: translate_tmp.pl:186
+#: translate_tmp.pl:1517
+msgid "Quit"
+msgstr "Salir"
+
+#: translate_tmp.pl:198
+#: translate_tmp.pl:474
+#: translate_tmp.pl:1505
+msgid "Capture with selection"
+msgstr "Caputrar con seleccion"
+
+#: translate_tmp.pl:204
+#: translate_tmp.pl:265
+#: translate_tmp.pl:335
+#: translate_tmp.pl:464
+#: translate_tmp.pl:1508
+msgid "Capture"
+msgstr "Capturar"
+
+#: translate_tmp.pl:210
+#: translate_tmp.pl:1511
+msgid "Capture website"
+msgstr "Capturar Sitio Web"
+
+#: translate_tmp.pl:216
+msgid "_Actions"
+msgstr "_Acciones"
+
+#: translate_tmp.pl:223
+msgid "Ask a question"
+msgstr "Haz una pregunta"
+
+#: translate_tmp.pl:229
+msgid "Report a bug"
+msgstr "Informar sobre un error"
+
+#: translate_tmp.pl:237
+#: translate_tmp.pl:1514
+msgid "Info"
+msgstr "Información"
+
+#: translate_tmp.pl:243
+msgid "_Help"
+msgstr "_Ayuda"
+
+#: translate_tmp.pl:252
+msgid ""
+"Capture\n"
+"with selection"
+msgstr ""
+"Capturar\\n"
+"\n"
+"con seleccion"
+
+#: translate_tmp.pl:259
+msgid ""
+"Draw a rectangular capture area with your mouse\n"
+"to select a specified screen area\n"
+"or select a window to capture its content"
+msgstr ""
+"Dibuja un area rectangular con el raton\\n"
+"\n"
+"para seleccionar un area especifica de la pantalla\\n"
+"\n"
+"o selecciona una ventana para capturar su contenido"
+
+#: translate_tmp.pl:272
+msgid "Take a screenshot of your whole desktop"
+msgstr "Toma un captura del escritorio completo"
+
+#: translate_tmp.pl:278
+msgid ""
+"Capture\n"
+"website"
+msgstr ""
+"Capturar\\n"
+"\n"
+"sitio web"
+
+#: translate_tmp.pl:285
+msgid "Take a screenshot of a website"
+msgstr "Tomar una captura de un sitio web"
+
+#: translate_tmp.pl:310
+#: translate_tmp.pl:429
+msgid "Image format"
+msgstr "Formato de la imagen"
+
+#: translate_tmp.pl:315
+msgid "Save"
+msgstr "Guardar"
+
+#: translate_tmp.pl:320
+msgid "Behavior"
+msgstr "Comportamiento"
+
+#: translate_tmp.pl:325
+msgid "Gnome-Keybinding"
+msgstr "Gnome-Keybinding"
+
+#: translate_tmp.pl:330
+msgid "Actions"
+msgstr "Acciones"
+
+#: translate_tmp.pl:340
+#: translate_tmp.pl:1152
+msgid "Quality"
+msgstr "Calidad"
+
+#: translate_tmp.pl:348
+#: translate_tmp.pl:349
+msgid ""
+"Quality/Compression:\n"
+"High value means high size / high compression\n"
+"(depending on file format chosen)\n"
+"\n"
+"Hint: When capturing a website\n"
+"adjusting compression level of png files\n"
+"is not supported yet"
+msgstr ""
+"Calidad/Compresion:\\n"
+"\n"
+"Valor alto significa gran tamaño / alta compresion\\n"
+"\n"
+"(depende del formato de fichero seleccionado)\\n"
+"\n"
+"\\n"
+"\n"
+"Consejo: Cuando se captura un sitio web\\n"
+"\n"
+"ajustar el nivel de compresion de archivos png\\n"
+"\n"
+"todavia no esta soportado"
+
+#: translate_tmp.pl:355
+msgid "Delay"
+msgstr "Retardo"
+
+#: translate_tmp.pl:368
+#: translate_tmp.pl:369
+#: translate_tmp.pl:370
+msgid "Wait n seconds before taking a screenshot"
+msgstr "Espera n segundos antes de tomar una captura"
+
+#: translate_tmp.pl:381
+msgid "Thumbnail"
+msgstr "Miniatura"
+
+#: translate_tmp.pl:394
+#: translate_tmp.pl:395
+#: translate_tmp.pl:396
+msgid ""
+"Generate thumbnail too.\n"
+"select the percentage of the original size for the thumbnail to be"
+msgstr ""
+"Generar miniatura tambien.\\n"
+"\n"
+"selecciona el porcentaje de el tamano original para generar la miniatura"
+
+#: translate_tmp.pl:411
+#: translate_tmp.pl:1725
+msgid "Filename"
+msgstr "Nombre de archivo"
+
+#: translate_tmp.pl:414
+#: translate_tmp.pl:415
+msgid ""
+"There are several wild-cards available, like\n"
+"%Y = year\n"
+"%m = month\n"
+"%d = day\n"
+"%T = time\n"
+"$w = width\n"
+"$h = height\n"
+"%NN = counter"
+msgstr ""
+"Hay muchas wild-cards disponibles, como\\n"
+"\n"
+"%Y = año\\n"
+"\n"
+"%m = mes\\n"
+"\n"
+"%d = dia\\n"
+"\n"
+"%T = hora\\n"
+"\n"
+"$w = ancho\\n"
+"\n"
+"$h = alto\\n"
+"\n"
+"%NN = contador"
+
+#: translate_tmp.pl:432
+#: translate_tmp.pl:433
+msgid "Select a file format"
+msgstr "Selecciona un formato de fichero"
+
+#: translate_tmp.pl:442
+msgid "Directory"
+msgstr "Directorio"
+
+#: translate_tmp.pl:447
+#: translate_tmp.pl:448
+msgid ""
+"Your screenshots will be saved\n"
+"to this directory"
+msgstr ""
+"Tus capturas seran guardadas\\n"
+"\n"
+"en este directorio"
+
+#: translate_tmp.pl:455
+#: translate_tmp.pl:509
+msgid "Autohide GScrot Window when taking a screenshot"
+msgstr "Ocultar automaticamente GScrot cuando se realiza una captura"
+
+#: translate_tmp.pl:456
+#: translate_tmp.pl:518
+msgid "Show \"Do you really want to quit?\" dialog when exiting"
+msgstr "Mostar el dialogo \"Realmente quieres salir?\" al salir"
+
+#: translate_tmp.pl:457
+msgid "Minimize to tray when closing main window"
+msgstr "Minimizar en la bandaja del sistema al cerrar la ventana principal"
+
+#: translate_tmp.pl:458
+msgid "Save settings when exiting"
+msgstr "Guardar ajustes al salir"
+
+#: translate_tmp.pl:467
+#: translate_tmp.pl:468
+msgid ""
+"Configure global keybinding for capture\n"
+"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
+msgstr ""
+"Configurar atajos de teclas globales para la captura \\n"
+"\n"
+"El formato es como \\\"<Control>a\\\" o \\\"<Shift><Alt>F1\\\". El parser es muy liberal y permite mayusculas y minusculas, y tambien abreviaciones como \\\"<Ctl>\\\" como \\\"<Ctrl>\\\". Si seleccional la opcion de la palabra especial  \\\"disabled\\\", entonces no habra atajo para esta accion. "
+
+#: translate_tmp.pl:477
+#: translate_tmp.pl:478
+msgid ""
+"Configure global keybinding for capture with selection\n"
+"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
+msgstr ""
+"Configurar atajos de teclas globales para la captura \\n"
+"\n"
+"El formato es como \\\"<Control>a\\\" o \\\"<Shift><Alt>F1\\\". El parser es muy liberal y permite mayusculas y minusculas, y tambien abreviaciones como \\\"<Ctl>\\\" como \\\"<Ctrl>\\\". Si seleccional la opcion de la palabra especial  \\\"disabled\\\", entonces no habra atajo para esta accion. "
+
+#: translate_tmp.pl:504
+msgid "Automatically hide GScrot Window when taking a screenshot"
+msgstr "Ocultar automaticamente GScrot cuando se toma una captura"
+
+#: translate_tmp.pl:513
+msgid "Save settings automatically when exiting GScrot"
+msgstr "Guardar ajustes automaticamente al cerrar GScrot"
+
+#: translate_tmp.pl:550
+msgid "Open with"
+msgstr "Abrir con"
+
+#: translate_tmp.pl:553
+#: translate_tmp.pl:554
+#: translate_tmp.pl:555
+msgid ""
+"Open your screenshot\n"
+"with this program after capturing"
+msgstr ""
+"Abrir sus capturas\\n"
+"\n"
+"con este programa despues de la captura"
+
+#: translate_tmp.pl:565
+msgid "16 colors   - (4bit) "
+msgstr "16 colores - (4bits) "
+
+#: translate_tmp.pl:566
+msgid "64 colors   - (6bit) "
+msgstr "64 colores   - (6bits) "
+
+#: translate_tmp.pl:567
+msgid "256 colors  - (8bit) "
+msgstr "256 colores  - (8bits) "
+
+#: translate_tmp.pl:578
+msgid "Reduce colors"
+msgstr "Reducir colores"
+
+#: translate_tmp.pl:581
+#: translate_tmp.pl:582
+#: translate_tmp.pl:583
+msgid ""
+"Automatically reduce colors \n"
+"after taking a screenshot"
+msgstr ""
+"Automaticamente reducir colores \\n"
+"\n"
+"despues de tomar una captura"
+
+#: translate_tmp.pl:593
+msgid "activate"
+msgstr "activar"
+
+#: translate_tmp.pl:594
+msgid "deactivate"
+msgstr "desactivar"
+
+#: translate_tmp.pl:599
+msgid "Window border"
+msgstr "Borde de la ventana"
+
+#: translate_tmp.pl:603
+#: translate_tmp.pl:604
+msgid ""
+"When selecting a window, grab wm border too\n"
+"(capture with selection only)\n"
+"There is no need of this option if you are using compiz"
+msgstr ""
+"Al seleccionar una ventana, tomar tambien el borde\\n"
+"\n"
+"(captura solo con seleccion)\\n"
+"\n"
+"No se necesita esta opcion si estas utilizando compiz"
+
+#: translate_tmp.pl:624
+msgid "Host"
+msgstr "Host"
+
+#: translate_tmp.pl:643
+msgid "Username"
+msgstr "Nombre de Usuario"
+
+#: translate_tmp.pl:648
+msgid "Password"
+msgstr "Constaseña"
+
+#: translate_tmp.pl:675
+#: translate_tmp.pl:1559
+msgid "Register"
+msgstr "Registrarse"
+
+#: translate_tmp.pl:689
+msgid "<b>Note:</b> Entering your Accounts for specific hosting-sites is optional. If entered it will give you the same benefits as the upload on the website. If you leave these fields empty you will be able to upload to the specific hosting-partner as a guest."
+msgstr "<b>Nota:</b> Es opcional colocar tus cuentas para sitios de almacenamientos especificos. Si las colocas se obtienen los mismos beneficios. Si dejas vacios estos campos podra subir imagenes a estos sitios como invitado"
+
+#: translate_tmp.pl:732
+msgid "Icon"
+msgstr "Icono"
+
+#: translate_tmp.pl:744
+msgid "Name"
+msgstr "Nombre"
+
+#: translate_tmp.pl:756
+msgid "Category"
+msgstr "Categoria"
+
+#: translate_tmp.pl:793
+msgid "Description"
+msgstr "Descripcion"
+
+#: translate_tmp.pl:806
+msgid "Path"
+msgstr "Ruta"
+
+#: translate_tmp.pl:858
+msgid "<i>Main</i>"
+msgstr "<i>Principal</i>"
+
+#: translate_tmp.pl:861
+msgid "<i>Advanced</i>"
+msgstr "<i>Avanzado</i>"
+
+#: translate_tmp.pl:864
+msgid "<i>Behavior</i>"
+msgstr "<i>Comportamiento</i>"
+
+#: translate_tmp.pl:879
+msgid "<i>Accounts</i>"
+msgstr "<i>Cuentas</i>"
+
+#: translate_tmp.pl:896
+msgid "<i>Plugins</i>"
+msgstr "<i>Complementos</i>"
+
+#: translate_tmp.pl:913
+msgid "Settings"
+msgstr "Ajustes"
+
+#: translate_tmp.pl:917
+msgid "Current Session"
+msgstr "Sesion Actual"
+
+#: translate_tmp.pl:1156
+msgid "Compression"
+msgstr "Compresion"
+
+#: translate_tmp.pl:1199
+#: translate_tmp.pl:1251
+msgid "No valid filename specified"
+msgstr "Nombre de fichero no valido"
+
+#: translate_tmp.pl:1209
+msgid "No valid url entered"
+msgstr "URL ingresada no valida"
+
+#: translate_tmp.pl:1223
+msgid "Could not determine file geometry"
+msgstr "No se pudo determinar la geometria del archivo"
+
+#: translate_tmp.pl:1227
+msgid "Could not substitute wild-cards in filename"
+msgstr "No se pudiero sustituir los wild-cards en el nombre del archivo"
+
+#: translate_tmp.pl:1264
+msgid "saved"
+msgstr "guardado"
+
+#: translate_tmp.pl:1277
+#: translate_tmp.pl:1913
+#: translate_tmp.pl:2016
+msgid "No application specified to open the screenshot"
+msgstr "No hay una aplicacion especificada para abrir la captura"
+
+#: translate_tmp.pl:1282
+#: translate_tmp.pl:1284
+msgid "Screenshot failed - maybe mouse pointer could not be grabbed"
+msgstr "Captura fallida- tal vez el puntero del mouse no fue tomado"
+
+#: translate_tmp.pl:1363
+msgid "Quit GScrot"
+msgstr "Cerrar GScrot"
+
+#: translate_tmp.pl:1376
+msgid "Do you really want to quit GScrot?"
+msgstr "Realmente quieres salir de GScrot?"
+
+#: translate_tmp.pl:1377
+msgid "Do not ask this question again"
+msgstr "No hacer esta pregunta nuevamente"
+
+#: translate_tmp.pl:1391
+#: translate_tmp.pl:1393
+#: translate_tmp.pl:1402
+#: translate_tmp.pl:1404
+#: translate_tmp.pl:1406
+#: translate_tmp.pl:1410
+msgid "Settings could not be saved"
+msgstr "Los ajustes pueden no salvarse"
+
+#: translate_tmp.pl:1576
+msgid "Session"
+msgstr "Sesion"
+
+#: translate_tmp.pl:1655
+msgid "Remove file(s) from session"
+msgstr "Quitar archivos(s) de la sesion"
+
+#: translate_tmp.pl:1663
+msgid "Delete file(s)"
+msgstr "Borar archivo(s)"
+
+#: translate_tmp.pl:1671
+msgid "Copy file(s) to clipboard"
+msgstr "Copiar archivos(s) al portapapeles"
+
+#: translate_tmp.pl:1679
+msgid "Open file(s)"
+msgstr "Abrir archivo(s)"
+
+#: translate_tmp.pl:1687
+msgid "Upload file to hosting-site"
+msgstr "Subir archivo a un hosting"
+
+#: translate_tmp.pl:1695
+#: translate_tmp.pl:2294
+msgid "Rename file"
+msgstr "Renombrar archivo"
+
+#: translate_tmp.pl:1703
+msgid "Execute a plugin"
+msgstr "Ejecutar un complemento"
+
+#: translate_tmp.pl:1713
+msgid "Draw"
+msgstr "Dibujar"
+
+#: translate_tmp.pl:1721
+msgid "Print file(s)"
+msgstr "Imprimir archivo(s)"
+
+#: translate_tmp.pl:1736
+msgid "Mime-Type"
+msgstr "Mime-Type"
+
+#: translate_tmp.pl:1741
+msgid "Filesize"
+msgstr "Tamaño del archivo"
+
+#: translate_tmp.pl:1746
+msgid "Geometry"
+msgstr "Geometría"
+
+#: translate_tmp.pl:1812
+msgid "Statistic"
+msgstr "Estadísticas"
+
+#: translate_tmp.pl:1814
+#: translate_tmp.pl:2697
+msgid "screenshot during this session"
+msgid_plural "screenshots during this session"
+msgstr[0] "Captura durante esta sesion"
+msgstr[1] "Capturas durante esta sesion"
+
+#: translate_tmp.pl:1860
+#: translate_tmp.pl:1872
+#: translate_tmp.pl:1909
+#: translate_tmp.pl:1922
+#: translate_tmp.pl:1932
+#: translate_tmp.pl:1946
+#: translate_tmp.pl:1957
+#: translate_tmp.pl:1972
+msgid "not found"
+msgstr "no encontrado"
+
+#: translate_tmp.pl:1866
+msgid "will be printed"
+msgstr "va a ser impreso"
+
+#: translate_tmp.pl:1878
+msgid "deleted"
+msgstr "borrado"
+
+#: translate_tmp.pl:1895
+msgid "removed from session"
+msgstr "borrado de la sesion"
+
+#: translate_tmp.pl:1915
+msgid "opened with"
+msgstr "abierto con"
+
+#: translate_tmp.pl:1950
+msgid "renamed"
+msgstr "renombrado"
+
+#: translate_tmp.pl:1962
+msgid "No plugin installed"
+msgstr "Complemento no instalado"
+
+#: translate_tmp.pl:1978
+msgid "copied to clipboard"
+msgstr "copiado al portapapeles"
+
+#: translate_tmp.pl:1992
+msgid "All screenshots deleted"
+msgstr "Todas las capturas borradas"
+
+#: translate_tmp.pl:2006
+msgid "All screenshots removed"
+msgstr "Todas las capturas removidas"
+
+#: translate_tmp.pl:2027
+msgid "Opened all files with"
+msgstr "Abiertos todos los archivos con"
+
+#: translate_tmp.pl:2036
+msgid "Printing all screenshots"
+msgstr "Imprimiendo todas las capturas"
+
+#: translate_tmp.pl:2048
+msgid "Do you want to overwrite the existing settings?"
+msgstr "Realmente quieres sobreescribir los ajustes existentes?"
+
+#: translate_tmp.pl:2058
+msgid "There are no stored settings"
+msgstr "No hay ajustes guardados"
+
+#: translate_tmp.pl:2061
+msgid "Choose file to open"
+msgstr "Selecciona el archivo a abrir"
+
+#: translate_tmp.pl:2100
+#: translate_tmp.pl:2149
+msgid "Settings could not be saved!"
+msgstr "Los ajustes pueden no guardarse!"
+
+#: translate_tmp.pl:2151
+msgid "Settings saved successfully!"
+msgstr "Ajustes guardados correctamente!"
+
+#: translate_tmp.pl:2153
+#: translate_tmp.pl:2156
+msgid "Account-settings could not be saved!"
+msgstr "Los ajustes de cuenta podrian no guardarse!"
+
+#: translate_tmp.pl:2188
+msgid "Settings loaded successfully"
+msgstr "Agustes cargados correctamente"
+
+#: translate_tmp.pl:2203
+#: translate_tmp.pl:2211
+#: translate_tmp.pl:2220
+#: translate_tmp.pl:2228
+msgid "click me"
+msgstr "clickeame"
+
+#: translate_tmp.pl:2319
+msgid ""
+"File already exists,\n"
+"please choose an alternative filename!"
+msgstr ""
+"Archivo existente,\\n"
+"\n"
+"seleccione un nombre alternativo!"
+
+#: translate_tmp.pl:2337
+msgid "Choose a plugin"
+msgstr "Selecciona un complemento"
+
+#: translate_tmp.pl:2384
+msgid "No plugin specified"
+msgstr "Ningun complemento especificado"
+
+#: translate_tmp.pl:2388
+msgid "Successfully executed plugin"
+msgstr "Complemento ejecutado correctamente"
+
+#: translate_tmp.pl:2390
+msgid "Could not execute plugin"
+msgstr "No se pudo ejecutar el complemento"
+
+#: translate_tmp.pl:2404
+msgid "Choose hosting-site and account"
+msgstr "Selecciona hosting y cuenta"
+
+#: translate_tmp.pl:2417
+msgid "Guest"
+msgstr "Invitado"
+
+#: translate_tmp.pl:2445
+#: translate_tmp.pl:2454
+msgid "uploaded"
+msgstr "subido"
+
+#: translate_tmp.pl:2471
+msgid "URL to capture"
+msgstr "URL a capturar"
+
+#: translate_tmp.pl:2500
+#: translate_tmp.pl:2577
+msgid "Upload"
+msgstr "Subir"
+
+#: translate_tmp.pl:2513
+#: translate_tmp.pl:2590
+msgid "Upload status:"
+msgstr "estado de subida:"
+
+#: translate_tmp.pl:2535
+msgid "Thumbnail for websites (with border)"
+msgstr "Miniatura para sitios web (con borde)"
+
+#: translate_tmp.pl:2536
+msgid "Thumbnail for websites (without border)"
+msgstr "Miniatura para sitios web (sin borde)"
+
+#: translate_tmp.pl:2537
+msgid "Thumbnail for forums"
+msgstr "Miniatura para foros"
+
+#: translate_tmp.pl:2538
+msgid "Thumbnail for Ubuntuusers.de forum"
+msgstr "Miniatura para foro Ubuntuusers.de"
+
+#: translate_tmp.pl:2539
+#: translate_tmp.pl:2625
+msgid "Direct link"
+msgstr "Link directo"
+
+#: translate_tmp.pl:2620
+msgid "Thumbnail for websites"
+msgstr "Miniatura para sitios web"
+
+#: translate_tmp.pl:2621
+msgid "Thumbnail for boards (1)"
+msgstr "Miniatura para boards (1)"
+
+#: translate_tmp.pl:2622
+msgid "Thumbnail for boards (2)"
+msgstr "Miniatura para boards (2)"
+
+#: translate_tmp.pl:2623
+msgid "Show your friends"
+msgstr "Muestralo a tus amigos"
+
+#: translate_tmp.pl:2624
+msgid "Popup for websites"
+msgstr "Popup para sitios web"
+
+#: translate_tmp.pl:2626
+msgid "Hotlink for websites"
+msgstr "Hotlink para sitios web"
+
+#: translate_tmp.pl:2627
+msgid "Hotlink for boards (1)"
+msgstr "Hotlink para boards (1)"
+
+#: translate_tmp.pl:2628
+msgid "Hotlink for boards (2)"
+msgstr "Hotlink para boards (2)"
+
+#: translate_tmp.pl:2702
+msgid "Total size"
+msgstr "Tamaño total"
+
+#: translate_tmp.pl:2983
+msgid "Width:"
+msgstr "Ancho:"
+
+#: translate_tmp.pl:2988
+msgid "Color:"
+msgstr "Color:"
+
+#: translate_tmp.pl:2994
+msgid "Zoom:"
+msgstr "Zoom:"
+
+#: translate_tmp.pl:3013
+#: translate_tmp.pl:3081
+msgid "Drawing saved"
+msgstr "Dibujo guardado"
+

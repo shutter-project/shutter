@@ -37,7 +37,7 @@ use Gnome2::GConf;
 function_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 #version info
-my $gscrot_branch = "Rev.134";
+my $gscrot_branch = "Rev.135";
 my $ppa_version = "ppa1";
 my $gscrot_name = "GScrot";
 my $gscrot_version = "v0.50";
@@ -88,6 +88,7 @@ $window->set_default_icon_from_file ("$gscrot_path/share/gscrot/resources/icons/
 $window->signal_connect('delete-event' => \&event_delete_window);
 $window->set_border_width(0);
 $window->set_resizable(0);
+$window->set_position('center');
 
 #hash of screenshots during session	
 my %session_screens;
