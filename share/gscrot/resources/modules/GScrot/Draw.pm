@@ -60,7 +60,7 @@ sub function_start_drawing
 	my $ha1  = $scrolled_drawing_window->get_hadjustment;
 	my $va1  = $scrolled_drawing_window->get_vadjustment;
 
-	if($w < 100 && $h < 100){
+	if($w < 560 && $h < 400){
 		$scrolled_drawing_window->set_policy ('never', 'never');		
 	}else{
 		$scrolled_drawing_window->set_policy ('automatic', 'automatic');		
