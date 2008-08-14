@@ -37,7 +37,7 @@ use Gnome2::GConf;
 function_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 #version info
-my $gscrot_branch = "Rev.135";
+my $gscrot_branch = "Rev.136";
 my $ppa_version = "ppa1";
 my $gscrot_name = "GScrot";
 my $gscrot_version = "v0.50";
@@ -1217,7 +1217,7 @@ sub event_take_screenshot
 	if($filetype_value eq "jpeg"){
 		$quality_value = $scale->get_value();
 	}elsif($filetype_value eq "png"){
-		$quality_value = $scale->get_value*10;		
+		$quality_value = $scale->get_value*10+5;		
 	}
 	
 	if($delay_active->get_active){		
@@ -1368,11 +1368,19 @@ sub event_take_screenshot
 	#save and process it if it is not a web-photo
 	unless($data eq "web" || $data eq "tray_web"){
 
+		#user aborted screenshot
+		if($screenshot == 5){
+			&dialog_status_message(1, $d->get("Capture aborted by user"));	
+			return 0;			
+		}
+
+
 		#...successfully???
 		unless($screenshot){
-			&dialog_error_message($d->get("Screenshot failed - maybe mouse pointer could not be grabbed")."\n$screenshot");
-			print "Screenshot failed - maybe mouse pointer could not be grabbed\n$screenshot!" if $debug_cparam;
-			&dialog_status_message(1, $d->get("Screenshot failed - maybe mouse pointer could not be grabbed"));		
+			&dialog_error_message($d->get("Screenshot failed!\nMaybe mouse pointer could not be grabbed or the selected area is invalid."));
+			print "Screenshot failed!" if $debug_cparam;
+			&dialog_status_message(1, $d->get("Screenshot failed!\nMaybe mouse pointer could not be grabbed or the selected area is invalid."));	
+			return 0;
 		}
 
 		#quantize
@@ -1393,7 +1401,7 @@ sub event_take_screenshot
 			my $theight = int($screenshot_thumbnail->Get('rows')*($thumbnail_value/100));
 						
 			#resize it
-			$screenshot_thumbnail->Resize(width=>$twidth, height=>$theight);
+			$screenshot_thumbnail->Sample(width=>$twidth, height=>$theight);
 
 			#save path of thumbnail
 			$screenshot_thumbnail_name = "$folder/$filename_value-$thumbnail_ending.$filetype_value";
@@ -1408,7 +1416,7 @@ sub event_take_screenshot
 			unless (&function_file_exists($screenshot_thumbnail_name)){
 				&dialog_error_message($d-get("Could not generate thumbnail"));
 				undef $screenshot_thumbnail;
-				exit;
+				return 0;
 			}	
 		
 		}		
@@ -1451,9 +1459,9 @@ sub event_take_screenshot
 
 				
 	}else{
-		&dialog_error_message($d->get("Screenshot failed - maybe mouse pointer could not be grabbed")."\n$screenshot_name");
-		print "Screenshot failed - maybe mouse pointer could not be grabbed\n$screenshot_name!" if $debug_cparam;
-		&dialog_status_message(1, $d->get("Screenshot failed - maybe mouse pointer could not be grabbed"));
+			&dialog_error_message($d->get("Screenshot failed!\nMaybe mouse pointer could not be grabbed or the selected area is invalid."));
+			print "Screenshot failed!" if $debug_cparam;
+			&dialog_status_message(1, $d->get("Screenshot failed!\nMaybe mouse pointer could not be grabbed or the selected area is invalid."));
 	} 
 	
 	#destroy the imagemagick objects and free memory
@@ -2967,7 +2975,7 @@ sub function_imagemagick_perform
 		$data =~ /.*\(([0-9]*).*\)/;
 		$image->Quantize(colors=>2**$1);
 		if($type eq 'png'){
-			$image->WriteImage(filename=>$file, depth=>8, quality=>90);
+			$image->WriteImage(filename=>$file, depth=>8, quality=>95);
 		}else{
 			$image->WriteImage(filename=>$file, depth=>8);
 		}	
@@ -2977,9 +2985,9 @@ sub function_imagemagick_perform
 		return $image->Get('rows');	
 	}elsif($function eq "resize"){
 		$data =~ /(.*)x(.*)/;
-		$image->Resize(width=>$1, height=>$2);
+		$image->Sample(width=>$1, height=>$2);
 		if($type eq 'png'){
-			$image->WriteImage(filename=>$file, depth=>8, quality=>90);
+			$image->WriteImage(filename=>$file, depth=>8, quality=>95);
 		}else{
 			$image->WriteImage(filename=>$file, depth=>8);
 		}	
@@ -3099,21 +3107,34 @@ sub function_gscrot_area
 			while(!$done && Gtk2::Gdk->events_pending){
 				my $event = $disp->get_event;
 				next unless defined $event;
-						
-				if($event->type eq 'button-release'){
-					$done = 1;
-					print "Type: ".$event->type."\n" if (defined $event && $debug_cparam);
-					print "Trying to clear a rectangle ($rect_x, $rect_y, $rect_w, $rect_h)\n" if $debug_cparam;									
-					
-					if($rect_w > 5){
-						#clear the last rectangle
-						$root->draw_rectangle($gc, 0, $rect_x, $rect_y, $rect_w, $rect_h);
-						
+
+				#quit on escape	
+				if($event->type eq 'key-press'){
+
+					if($event->keyval == $Gtk2::Gdk::Keysyms{Escape}){
 						#ungrab pointer and keyboard
 						Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
 						Gtk2::Gdk->keyboard_ungrab(Gtk2->get_current_event_time); 
 						$zoom_window->destroy;
+						return 5;	
+					}
 						
+				}elsif($event->type eq 'button-release'){
+					$done = 1;
+					print "Type: ".$event->type."\n" if (defined $event && $debug_cparam);
+					print "Trying to clear a rectangle ($rect_x, $rect_y, $rect_w, $rect_h)\n" if $debug_cparam;									
+					
+					#ungrab pointer and keyboard
+					Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
+					Gtk2::Gdk->keyboard_ungrab(Gtk2->get_current_event_time); 
+					$zoom_window->destroy;
+
+
+					
+					if($rect_w > 1){
+						#clear the last rectangle
+						$root->draw_rectangle($gc, 0, $rect_x, $rect_y, $rect_w, $rect_h);
+												
 						#sleep if there is any delay
 						sleep $delay_value;
 						
@@ -3123,6 +3144,8 @@ sub function_gscrot_area
 						$output->BlobToImage( $pixbuf->save_to_buffer('png') );
 						return $output;
 											
+					}else{
+						return 0;	
 					}
 					
 				}elsif($event->type eq 'button-press'){
@@ -3253,28 +3276,45 @@ sub function_gscrot_window
 			while(!$done && Gtk2::Gdk->events_pending){
 				my $event = $disp->get_event;
 				next unless defined $event;
+				
+				#quit on escape		
+				if($event->type eq 'key-press'){
+
+					if($event->keyval == $Gtk2::Gdk::Keysyms{Escape}){
+						#ungrab pointer and keyboard
+						Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
+						Gtk2::Gdk->keyboard_ungrab(Gtk2->get_current_event_time); 
+						return 5;	
+					}
 						
-				if($event->type eq 'button-release'){
+				}elsif($event->type eq 'button-release'){
 					$done = 1;
 					print "Type: ".$event->type."\n" if (defined $event && $debug_cparam);
 					print "Trying to clear a rectangle ($rect_x, $rect_y, $rect_w, $rect_h)\n" if $debug_cparam;									
 				
-					#clear the last rectangle
-					if (defined $smallest_coords{'last_win'}){
-						$root->draw_rectangle($gc, 0, $smallest_coords{'last_win'}->{'x'}, $smallest_coords{'last_win'}->{'y'}, $smallest_coords{'last_win'}->{'width'}, $smallest_coords{'last_win'}->{'height'});       			
-					}										
 					#ungrab pointer and keyboard
 					Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
 					Gtk2::Gdk->keyboard_ungrab(Gtk2->get_current_event_time); 
+
+					if($event->keyval == $Gtk2::Gdk::Keysyms{Escape}){
+						return 5;	
+					}
+
+					#clear the last rectangle
+					if (defined $smallest_coords{'last_win'}){
+						$root->draw_rectangle($gc, 0, $smallest_coords{'last_win'}->{'x'}, $smallest_coords{'last_win'}->{'y'}, $smallest_coords{'last_win'}->{'width'}, $smallest_coords{'last_win'}->{'height'});       			
+																			
+						#sleep if there is any delay
+						sleep $delay_value;
 					
-					#sleep if there is any delay
-					sleep $delay_value;
-					
-					#get the pixbuf from drawable and save the file
-					my $pixbuf = Gtk2::Gdk::Pixbuf->get_from_drawable ($root, undef, $smallest_coords{'curr_win'}->{'x'}, $smallest_coords{'curr_win'}->{'y'}, 0, 0, $smallest_coords{'curr_win'}->{'width'}, $smallest_coords{'curr_win'}->{'height'});
-					my $output = Image::Magick->new(magick=>'png');
-					$output->BlobToImage( $pixbuf->save_to_buffer('png') );
-					return $output;
+						#get the pixbuf from drawable and save the file
+						my $pixbuf = Gtk2::Gdk::Pixbuf->get_from_drawable ($root, undef, $smallest_coords{'curr_win'}->{'x'}, $smallest_coords{'curr_win'}->{'y'}, 0, 0, $smallest_coords{'curr_win'}->{'width'}, $smallest_coords{'curr_win'}->{'height'});
+						my $output = Image::Magick->new(magick=>'png');
+						$output->BlobToImage( $pixbuf->save_to_buffer('png') );
+						return $output;
+					}else{
+						return 0;	
+					}
 
 				}elsif($event->type eq 'motion-notify'){
 					print "Type: ".$event->type."\n" if (defined $event && $debug_cparam);	
