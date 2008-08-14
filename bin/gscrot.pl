@@ -37,7 +37,7 @@ use Gnome2::GConf;
 function_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 #version info
-my $gscrot_branch = "Rev.136";
+my $gscrot_branch = "Rev.137";
 my $ppa_version = "ppa1";
 my $gscrot_name = "GScrot";
 my $gscrot_version = "v0.50";
@@ -3112,10 +3112,14 @@ sub function_gscrot_area
 				if($event->type eq 'key-press'){
 
 					if($event->keyval == $Gtk2::Gdk::Keysyms{Escape}){
+						if($rect_w > 1){
+							#clear the last rectangle
+							$root->draw_rectangle($gc, 0, $rect_x, $rect_y, $rect_w, $rect_h);
+						}	
+						$zoom_window->destroy;
 						#ungrab pointer and keyboard
 						Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
 						Gtk2::Gdk->keyboard_ungrab(Gtk2->get_current_event_time); 
-						$zoom_window->destroy;
 						return 5;	
 					}
 						
@@ -3128,8 +3132,6 @@ sub function_gscrot_area
 					Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
 					Gtk2::Gdk->keyboard_ungrab(Gtk2->get_current_event_time); 
 					$zoom_window->destroy;
-
-
 					
 					if($rect_w > 1){
 						#clear the last rectangle
@@ -3281,6 +3283,10 @@ sub function_gscrot_window
 				if($event->type eq 'key-press'){
 
 					if($event->keyval == $Gtk2::Gdk::Keysyms{Escape}){
+						#clear the last rectangle
+						if (defined $smallest_coords{'last_win'}){
+							$root->draw_rectangle($gc, 0, $smallest_coords{'last_win'}->{'x'}, $smallest_coords{'last_win'}->{'y'}, $smallest_coords{'last_win'}->{'width'}, $smallest_coords{'last_win'}->{'height'});       			
+						}
 						#ungrab pointer and keyboard
 						Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
 						Gtk2::Gdk->keyboard_ungrab(Gtk2->get_current_event_time); 
@@ -3295,10 +3301,6 @@ sub function_gscrot_window
 					#ungrab pointer and keyboard
 					Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
 					Gtk2::Gdk->keyboard_ungrab(Gtk2->get_current_event_time); 
-
-					if($event->keyval == $Gtk2::Gdk::Keysyms{Escape}){
-						return 5;	
-					}
 
 					#clear the last rectangle
 					if (defined $smallest_coords{'last_win'}){
