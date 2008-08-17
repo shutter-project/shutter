@@ -37,8 +37,8 @@ use Gnome2::GConf;
 function_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 #version info
-my $gscrot_branch = "Rev.138";
-my $ppa_version = "ppa1";
+my $gscrot_branch = "Rev.139";
+my $ppa_version = "ppa3";
 my $gscrot_name = "GScrot";
 my $gscrot_version = "v0.50";
 my $gscrot_version_detailed = "$gscrot_branch - $ppa_version";
@@ -509,11 +509,6 @@ $saveDir_box->pack_start($saveDir_button, TRUE, TRUE, 10);
 #end - saveDir
 
 #behavior
-my $hide_active = Gtk2::CheckButton->new_with_label($d->get("Autohide GScrot Window when taking a screenshot"));
-my $ask_quit_active = Gtk2::CheckButton->new_with_label($d->get("Show \"Do you really want to quit?\" dialog when exiting"));
-my $close_at_close_active = Gtk2::CheckButton->new_with_label($d->get("Minimize to tray when closing main window"));
-my $save_at_close_active = Gtk2::CheckButton->new_with_label($d->get("Save settings when exiting"));
-
 my $capture_key = Gtk2::Entry->new;
 $capture_key->set_text("Print");
 
@@ -555,6 +550,11 @@ $key_sel_box2->pack_start($keybinding_sel_active, FALSE, FALSE, 0);
 $key_sel_box2->pack_start($capture_sel_key, TRUE, TRUE, 0);
 $key_sel_box->pack_start($key_sel_box2, TRUE, TRUE, 10);
 
+my $hide_active = Gtk2::CheckButton->new_with_label($d->get("Autohide GScrot Window when taking a screenshot"));
+my $close_at_close_active = Gtk2::CheckButton->new_with_label($d->get("Minimize to tray when closing main window"));
+my $save_at_close_active = Gtk2::CheckButton->new_with_label($d->get("Save settings when exiting"));
+my $ask_quit_active = Gtk2::CheckButton->new_with_label($d->get("Show \"Do you really want to quit?\" dialog when exiting"));
+
 $hide_active->signal_connect('toggled' => \&event_behavior_handle, 'hide_toggled');
 $hide_active->set_active(TRUE);
 my $tooltip_hide = Gtk2::Tooltips->new;
@@ -563,7 +563,8 @@ $tooltip_hide->set_tip($hide_active,$d->get("Automatically hide GScrot Window wh
 $close_at_close_active->signal_connect('toggled' => \&event_behavior_handle, 'close_at_close_toggled');
 $close_at_close_active->set_active(TRUE);
 my $tooltip_close_at_close = Gtk2::Tooltips->new;
-$tooltip_close_at_close->set_tip($close_at_close_active,$d->get("Autohide GScrot Window when taking a screenshot"));
+$tooltip_close_at_close->set_tip($close_at_close_active,$d->get("Minimize to tray when closing main window"));
+
 $save_at_close_active->signal_connect('toggled' => \&event_behavior_handle, 'save_at_close_toggled');
 $save_at_close_active->set_active(TRUE);
 my $tooltip_save_at_close = Gtk2::Tooltips->new;
@@ -572,7 +573,7 @@ $tooltip_save_at_close->set_tip($save_at_close_active,$d->get("Save settings aut
 $ask_quit_active->signal_connect('toggled' => \&event_behavior_handle, 'ask_quit_toggled');
 $hide_active->set_active(TRUE);
 my $tooltip_ask_quit = Gtk2::Tooltips->new;
-$tooltip_ask_quit->set_tip($hide_active,$d->get("Show \"Do you really want to quit?\" dialog when exiting"));
+$tooltip_ask_quit->set_tip($ask_quit_active,$d->get("Show \"Do you really want to quit?\" dialog when exiting"));
 #end - behavior
 
 #program
@@ -1243,16 +1244,16 @@ sub event_take_screenshot
 	#determine folder to save
 	$folder = $saveDir_button->get_filename || $folder_from_config;
 	
-	if($delay_value == 0 && $data eq "tray_raw"){
-		$delay_value = 1;
+	#mh...just sleep until window/popup is hidden (fixme?)
+	if($delay_value < 2 && $hide_active->get_active && $is_in_tray == FALSE && ($data eq "tray_raw" || $data eq "raw")){
+		$delay_value = 2;
 	}
-
 
 	#fullscreen screenshot
 	if($data eq "raw" || $data eq "tray_raw"){
 		system("xset b off") if $boff_cparam; #turns off the speaker if set as arg
 		
-		if($hide_active->get_active() && $window->visible){
+		if($hide_active->get_active() && $is_in_tray == FALSE){
 			$window->hide;
 			Gtk2::Gdk->flush;
 			$is_in_tray = TRUE;
@@ -1279,7 +1280,7 @@ sub event_take_screenshot
 	#window
 	}elsif($data eq "window" || $data eq "tray_window"){
 		
-		if($hide_active->get_active() && $window->visible){
+		if($hide_active->get_active() && $is_in_tray == FALSE){
 			$window->hide;
 			Gtk2::Gdk->flush;
 			$is_in_tray = TRUE;
@@ -1295,7 +1296,7 @@ sub event_take_screenshot
 				
 	#selection
 	}elsif($data eq "select" || $data eq "tray_select"){
-		if($hide_active->get_active() && $window->visible){
+		if($hide_active->get_active() && $is_in_tray == FALSE){
 			$window->hide;
 			Gtk2::Gdk->flush;
 			$is_in_tray = TRUE;
@@ -1466,7 +1467,12 @@ sub event_take_screenshot
 	
 	#destroy the imagemagick objects and free memory
 	undef $screenshot;
-	undef $screenshot_thumbnail;						
+	undef $screenshot_thumbnail;
+	
+	#buttons stay hovered if we don't do it(fixme?)
+	$toolbar->show_all;
+	
+	return 1;						
 }
 
 #notebook-behavior events are handled here
@@ -1964,6 +1970,7 @@ sub function_create_tab {
 		$hbox_tab_file->pack_start($vbox_fileinfos, TRUE, TRUE, 1);
 		$hbox_tab_file->pack_start($vbox_fileinfos2, TRUE, TRUE, 1);		
 
+		$session_screens{$key}->{'scrolled_window'} = $scrolled_window;
 		$session_screens{$key}->{'btn_delete'} = $button_delete;
 		$session_screens{$key}->{'btn_reopen'} = $button_reopen;
 		$session_screens{$key}->{'btn_upload'} = $button_upload;
@@ -2012,6 +2019,7 @@ sub function_create_tab {
 		
 		$hbox_tab_file->pack_start($vbox_all, TRUE, TRUE, 1);			
 
+		$session_start_screen{'first_page'}->{'scrolled_window'} = $scrolled_window;
 		$session_start_screen{'first_page'}->{'btn_remove'} = $button_remove;
 		$session_start_screen{'first_page'}->{'btn_delete'} = $button_delete;
 		$session_start_screen{'first_page'}->{'btn_reopen'} = $button_reopen;
@@ -3030,6 +3038,7 @@ sub function_gscrot_area
 	my $zoom_window = Gtk2::Window->new('toplevel');
 	$zoom_window->set_decorated (0);
 	$zoom_window->set_skip_taskbar_hint (1);
+	$zoom_window->set_keep_above (1);
 	my ($zoom_window_width, $zoom_window_height) = $zoom_window->get_size;
 	my ($zoom_window_x, $zoom_window_y) = $zoom_window->get_position;
 	my $zoom_window_init = TRUE;
@@ -3197,7 +3206,7 @@ sub function_gscrot_area
 						if ($rect_w > 0) {
 							print "Trying to clear a rectangle ($rect_x, $rect_y, $rect_w, $rect_h)\n" if $debug_cparam;						
 							$root->draw_rectangle($gc, 0, $rect_x, $rect_y, $rect_w, $rect_h);
-							Gtk2::Gdk->flush;
+							#~ Gtk2::Gdk->flush;
 					  	}
 						$rect_x = $rx;
 						$rect_y = $ry;
@@ -3217,7 +3226,7 @@ sub function_gscrot_area
 						if($rect_w != 0){
 							print "Trying to draw a rectangle ($rect_x, $rect_y, $rect_w, $rect_h)\n" if $debug_cparam;
 							$root->draw_rectangle($gc, 0, $rect_x, $rect_y, $rect_w, $rect_h);
-							Gtk2::Gdk->flush;		
+							#~ Gtk2::Gdk->flush;		
 						}			
 					}
 				}			
@@ -3227,6 +3236,10 @@ sub function_gscrot_area
 		}				 
 	}	
 	return 0;	
+	#ungrab pointer and keyboard
+	Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
+	Gtk2::Gdk->keyboard_ungrab(Gtk2->get_current_event_time); 
+	$zoom_window->destroy if defined $zoom_window;
 }
 
 sub function_gscrot_window
@@ -3236,6 +3249,7 @@ sub function_gscrot_window
 	#get basic infos
 	my $screen = Gnome2::Wnck::Screen->get_default;
 	$screen->force_update;
+	my @windows = $screen->get_windows;
 	my $root = Gtk2::Gdk->get_default_root_window;
 	my $disp = Gtk2::Gdk::Display->get_default;
 	my ($rootxp, $rootyp, $rootwidthp, $rootheightp) = $root->get_geometry;
@@ -3279,9 +3293,9 @@ sub function_gscrot_window
 				my $event = $disp->get_event;
 				next unless defined $event;
 				
-				#quit on escape		
+				#handle key events here
 				if($event->type eq 'key-press'){
-
+					next unless defined $event->keyval;
 					if($event->keyval == $Gtk2::Gdk::Keysyms{Escape}){
 						#clear the last rectangle
 						if (defined $smallest_coords{'last_win'}){
@@ -3302,6 +3316,11 @@ sub function_gscrot_window
 					Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
 					Gtk2::Gdk->keyboard_ungrab(Gtk2->get_current_event_time); 
 
+					#focus selected window (maybe it is hidden)
+					$smallest_coords{'last_win'}->{'gdk_window'}->focus(time);
+					Gtk2::Gdk->flush;
+					sleep 1;
+
 					#clear the last rectangle
 					if (defined $smallest_coords{'last_win'}){
 						$root->draw_rectangle($gc, 0, $smallest_coords{'last_win'}->{'x'}, $smallest_coords{'last_win'}->{'y'}, $smallest_coords{'last_win'}->{'width'}, $smallest_coords{'last_win'}->{'height'});       			
@@ -3321,12 +3340,14 @@ sub function_gscrot_window
 				}elsif($event->type eq 'motion-notify'){
 					print "Type: ".$event->type."\n" if (defined $event && $debug_cparam);	
 								
-					my @windows = $screen->get_windows;
 					my $min_x = $screen->get_width; 
 					my $min_y = $screen->get_height;
 										
 					print "Searching for window...\n" if $debug_cparam;
 					foreach my $curr_window(@windows){
+						$drawable = Gtk2::Gdk::Window->foreign_new ($curr_window->get_xid);					
+						#do not detect gscrot window when it is hidden
+						next if ($curr_window->get_xid == $window->window->get_xid && $is_in_tray);
 						if($curr_window->is_visible_on_workspace ($screen->get_active_workspace)){
 							my ($xp, $yp, $widthp, $heightp) = (0, 0, 0, 0);
 							if ($border){
@@ -3339,6 +3360,7 @@ sub function_gscrot_window
 								if(($xp+$widthp <= $min_x) && ($yp+$heightp <= $min_y)){
 									print "X: $xp, Y: $yp, Width: $widthp, Height: $heightp\n" if $debug_cparam;
 									$smallest_coords{'curr_win'}->{'window'} = $curr_window;
+									$smallest_coords{'curr_win'}->{'gdk_window'} = $drawable;
 									$smallest_coords{'curr_win'}->{'x'} = $xp;
 									$smallest_coords{'curr_win'}->{'y'} = $yp;
 									$smallest_coords{'curr_win'}->{'width'} = $widthp;
@@ -3360,13 +3382,12 @@ sub function_gscrot_window
 							if (defined $smallest_coords{'last_win'}){
 								$root->draw_rectangle($gc, 0, $smallest_coords{'last_win'}->{'x'}, $smallest_coords{'last_win'}->{'y'}, $smallest_coords{'last_win'}->{'width'}, $smallest_coords{'last_win'}->{'height'});
 							}
-							
-							$drawable = Gtk2::Gdk::Window->foreign_new ($smallest_coords{'curr_win'}->{'window'}->get_xid);
-							
+														
 							#draw new rectangle for current window
 							$root->draw_rectangle($gc, 0, $smallest_coords{'curr_win'}->{'x'}-3, $smallest_coords{'curr_win'}->{'y'}-3, $smallest_coords{'curr_win'}->{'width'}+5, $smallest_coords{'curr_win'}->{'height'}+5);							
 							$last_selected_window = $smallest_coords{'curr_win'}->{'window'}->get_xid;
 							$smallest_coords{'last_win'}->{'window'} = $smallest_coords{'curr_win'}->{'window'};
+							$smallest_coords{'last_win'}->{'gdk_window'} = $smallest_coords{'curr_win'}->{'gdk_window'};
 							$smallest_coords{'last_win'}->{'x'} = $smallest_coords{'curr_win'}->{'x'}-3;
 							$smallest_coords{'last_win'}->{'y'} = $smallest_coords{'curr_win'}->{'y'}-3;
 							$smallest_coords{'last_win'}->{'width'} = $smallest_coords{'curr_win'}->{'width'}+5;
@@ -3379,7 +3400,10 @@ sub function_gscrot_window
 			#exit loop if drawing finished
 			last if $done;
 		}				 
-	}	
+	}
+	#ungrab pointer and keyboard
+	Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
+	Gtk2::Gdk->keyboard_ungrab(Gtk2->get_current_event_time); 		
 	return 0;	
 }
 
@@ -3403,7 +3427,6 @@ sub function_check_installed_plugins
 			print "WARNING: Plugin $_ is not configured properly, ignoring\n";	
 		}	
 	}
-
 }
 
 sub function_die_with_action {
