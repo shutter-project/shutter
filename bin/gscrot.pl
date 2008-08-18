@@ -37,8 +37,8 @@ use Gnome2::GConf;
 function_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 #version info
-my $gscrot_branch = "Rev.139";
-my $ppa_version = "ppa3";
+my $gscrot_branch = "Rev.140";
+my $ppa_version = "ppa4";
 my $gscrot_name = "GScrot";
 my $gscrot_version = "v0.50";
 my $gscrot_version_detailed = "$gscrot_branch - $ppa_version";
@@ -262,8 +262,8 @@ $vbox->pack_start($menubar, FALSE, TRUE, 0);
 #############BUTTON_SELECT###################
 my $button_select = Gtk2::Button->new($d->get("Selection"));
 $button_select->signal_connect(clicked => \&event_take_screenshot, 'select');
-$button_select->set_image_position('top');
 $button_select->set_relief('none'); 
+$button_select->set_image_position('top');
 
 my $image_select = Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/selection.svg", Gtk2::IconSize->lookup ('large-toolbar')));
 $button_select->set_image($image_select);
@@ -290,8 +290,8 @@ $tooltip_raw->set_tip($button_raw,$d->get("Take a screenshot of your whole deskt
 #############BUTTON_WINDOW######################
 my $button_window = Gtk2::Button->new($d->get("Window"));
 $button_window->signal_connect(clicked => \&event_take_screenshot, 'window');
-$button_window->set_image_position('top');
 $button_window->set_relief('none'); 
+$button_window->set_image_position('top');
 
 my $image_window = Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/sel_window.svg", Gtk2::IconSize->lookup ('large-toolbar')));
 $button_window->set_image($image_window);
@@ -304,8 +304,8 @@ $tooltip_window->set_tip($button_window,$d->get("Take a screenshot of a specific
 #############BUTTON_WEB######################
 my $button_web = Gtk2::Button->new($d->get("Web"));
 $button_web->signal_connect(clicked => \&event_take_screenshot, 'web');
-$button_web->set_image_position('top');
 $button_web->set_relief('none'); 
+$button_web->set_image_position('top');
 
 my $image_web = Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/web_image.svg", Gtk2::IconSize->lookup ('large-toolbar')));
 $button_web->set_image($image_web);
@@ -317,6 +317,7 @@ $tooltip_web->set_tip($button_web,$d->get("Take a screenshot of a website"));
 
 #create the toolbar
 my $toolbar = Gtk2::Toolbar->new;
+$toolbar->set_show_arrow(1);
 my $toolitem_select = Gtk2::ToolItem->new;
 $toolitem_select->set_expand(1);
 $toolitem_select->set_homogeneous(1);
@@ -339,11 +340,11 @@ $toolbar->insert ($toolitem_window, 2);
 $toolitem_web->add($button_web);
 $toolbar->insert ($toolitem_web, 3);
 
+$toolbar->set_size_request(400,-1);  
 #a detachable toolbar
 my $handlebox = Gtk2::HandleBox->new;
 $handlebox->add($toolbar); 
-$toolbar->set_size_request(400,-1);    
-
+  
 $vbox->pack_start($handlebox, FALSE, TRUE, 0);
 
 #############TRAYICON######################
@@ -1213,6 +1214,8 @@ sub event_take_screenshot
 
 	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
 
+	&function_set_toolbar_sensitive(FALSE);
+
 	$filetype_value = $combobox_type->get_active_text();
 		
 	if($filetype_value eq "jpeg"){
@@ -1258,7 +1261,7 @@ sub event_take_screenshot
 			Gtk2::Gdk->flush;
 			$is_in_tray = TRUE;
 		}
-		unless ($filename_value =~ /[a-zA-Z0-9]+/ && defined($folder) && defined($filetype_value)) { &dialog_error_message($d->get("No valid filename specified")); return FALSE;};
+		unless ($filename_value =~ /[a-zA-Z0-9]+/ && defined($folder) && defined($filetype_value)) { &dialog_error_message($d->get("No valid filename specified")); &function_set_toolbar_sensitive(TRUE); return FALSE;};
 			
 		my $root = Gtk2::Gdk->get_default_root_window;
 		my ($rootxp, $rootyp, $rootwidthp, $rootheightp) = $root->get_geometry;
@@ -1285,7 +1288,7 @@ sub event_take_screenshot
 			Gtk2::Gdk->flush;
 			$is_in_tray = TRUE;
 		}
-		unless ($filename_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No valid filename specified")); return FALSE;};
+		unless ($filename_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No valid filename specified")); &function_set_toolbar_sensitive(TRUE); return FALSE;};
 		
 		$screenshot = &function_gscrot_window($folder, $filename_value, $filetype_value, $quality_value, $delay_value, $combobox_border->get_active);
 		
@@ -1301,7 +1304,7 @@ sub event_take_screenshot
 			Gtk2::Gdk->flush;
 			$is_in_tray = TRUE;
 		}
-		unless ($filename_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No valid filename specified")); return FALSE;};
+		unless ($filename_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No valid filename specified")); &function_set_toolbar_sensitive(TRUE); return FALSE;};
 		$screenshot = &function_gscrot_area($folder, $filename_value, $filetype_value, $quality_value, $delay_value);
 		
 		if($hide_active->get_active()){			
@@ -1312,10 +1315,10 @@ sub event_take_screenshot
 	#web
 	}elsif($data eq "web" || $data eq "tray_web"){
 		my $url = &dialog_website;
-		return 0 unless $url;
+		unless($url){&function_set_toolbar_sensitive(TRUE); return 0};
 		
 		my $hostname = $url; $hostname =~ s/http:\/\///;
-		if($hostname eq ""){&dialog_error_message($d->get("No valid url entered"));return 0;}
+		if($hostname eq ""){&dialog_error_message($d->get("No valid url entered")); &function_set_toolbar_sensitive(TRUE); return 0;}
 		
 		#delay doesnt make much sense here, but it's implemented ;-)
 		if($delay_active->get_active){		
@@ -1329,13 +1332,14 @@ sub event_take_screenshot
 			$screenshot_name = "$folder/$filename_value.$filetype_value";	
 			$width = &function_imagemagick_perform("get_width", $screenshot_name, 0, $filetype_value);
 			$height = &function_imagemagick_perform("get_height", $screenshot_name, 0, $filetype_value);
-			if ($width < 1 or $height < 1){&dialog_error_message($d->get("Could not determine file geometry"));return 0;}
+			if ($width < 1 or $height < 1){&dialog_error_message($d->get("Could not determine file geometry")); &function_set_toolbar_sensitive(TRUE); return 0;}
 			my $screenshot_old = $screenshot_name;
 			$screenshot_name =~ s/\$w/$width/g;
 			$screenshot_name =~ s/\$h/$height/g;
-			unless (rename($screenshot_old, $screenshot_name)){&dialog_error_message($d->get("Could not substitute wild-cards in filename"));return 0;}
+			unless (rename($screenshot_old, $screenshot_name)){&dialog_error_message($d->get("Could not substitute wild-cards in filename")); &function_set_toolbar_sensitive(TRUE); return 0;}
 		}else{
 			&dialog_error_message($screenshot_name);
+			&function_set_toolbar_sensitive(TRUE); 
 			return 0;	
 		}
 
@@ -1372,6 +1376,7 @@ sub event_take_screenshot
 		#user aborted screenshot
 		if($screenshot == 5){
 			&dialog_status_message(1, $d->get("Capture aborted by user"));	
+			&function_set_toolbar_sensitive(TRUE); 
 			return 0;			
 		}
 
@@ -1381,6 +1386,7 @@ sub event_take_screenshot
 			&dialog_error_message($d->get("Screenshot failed!\nMaybe mouse pointer could not be grabbed or the selected area is invalid."));
 			print "Screenshot failed!" if $debug_cparam;
 			&dialog_status_message(1, $d->get("Screenshot failed!\nMaybe mouse pointer could not be grabbed or the selected area is invalid."));	
+			&function_set_toolbar_sensitive(TRUE); 
 			return 0;
 		}
 
@@ -1417,6 +1423,7 @@ sub event_take_screenshot
 			unless (&function_file_exists($screenshot_thumbnail_name)){
 				&dialog_error_message($d-get("Could not generate thumbnail"));
 				undef $screenshot_thumbnail;
+				&function_set_toolbar_sensitive(TRUE); 
 				return 0;
 			}	
 		
@@ -1454,7 +1461,7 @@ sub event_take_screenshot
 			my $model = $progname->get_model();
 			my $progname_iter = $progname->get_active_iter();
 			$progname_value = $model->get_value($progname_iter, 2);
-			unless ($progname_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No application specified to open the screenshot")); return FALSE;};
+			unless ($progname_value =~ /[a-zA-Z0-9]+/) { &dialog_error_message($d->get("No application specified to open the screenshot")); &function_set_toolbar_sensitive(TRUE); return FALSE;};
 			system("$progname_value $screenshot_name &"); #open picture in external program
 		}
 
@@ -1468,10 +1475,9 @@ sub event_take_screenshot
 	#destroy the imagemagick objects and free memory
 	undef $screenshot;
 	undef $screenshot_thumbnail;
-	
-	#buttons stay hovered if we don't do it(fixme?)
-	$toolbar->show_all;
-	
+
+	&function_set_toolbar_sensitive(TRUE); 
+
 	return 1;						
 }
 
@@ -1820,6 +1826,18 @@ sub function_integrate_screenshot_in_notebook
 	return $key;	
 }
 
+sub function_set_toolbar_sensitive
+{
+	my ($set) = @_;
+
+	#set all buttons insensitive/sensitive
+	$button_select->set_sensitive($set);
+	$button_raw->set_sensitive($set);
+	$button_window->set_sensitive($set);
+	$button_web->set_sensitive($set);
+	
+	return 1;
+}
 
 sub function_create_tab {
 	my ($key, $is_all) = @_;
@@ -3316,13 +3334,13 @@ sub function_gscrot_window
 					Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
 					Gtk2::Gdk->keyboard_ungrab(Gtk2->get_current_event_time); 
 
-					#focus selected window (maybe it is hidden)
-					$smallest_coords{'last_win'}->{'gdk_window'}->focus(time);
-					Gtk2::Gdk->flush;
-					sleep 1;
-
 					#clear the last rectangle
 					if (defined $smallest_coords{'last_win'}){
+						#focus selected window (maybe it is hidden)
+						$smallest_coords{'last_win'}->{'gdk_window'}->focus(time);
+						Gtk2::Gdk->flush;
+						sleep 1;
+
 						$root->draw_rectangle($gc, 0, $smallest_coords{'last_win'}->{'x'}, $smallest_coords{'last_win'}->{'y'}, $smallest_coords{'last_win'}->{'width'}, $smallest_coords{'last_win'}->{'height'});       			
 																			
 						#sleep if there is any delay
@@ -3401,6 +3419,7 @@ sub function_gscrot_window
 			last if $done;
 		}				 
 	}
+	
 	#ungrab pointer and keyboard
 	Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
 	Gtk2::Gdk->keyboard_ungrab(Gtk2->get_current_event_time); 		
