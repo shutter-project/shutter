@@ -37,7 +37,7 @@ use Gnome2::GConf;
 function_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 #version info
-my $gscrot_branch = "Rev.141";
+my $gscrot_branch = "Rev.142";
 my $ppa_version = "ppa4";
 my $gscrot_name = "GScrot";
 my $gscrot_version = "v0.50";
@@ -3374,7 +3374,7 @@ sub function_gscrot_window
 						#do not detect gscrot window when it is hidden
 						next if ($curr_window->get_xid == $window->window->get_xid && $is_in_tray);
 						if($curr_window->is_visible_on_workspace ($screen->get_active_workspace)){
-							my ($xp, $yp, $widthp, $heightp) = (0, 0, 0, 0, undef);
+							my ($xp, $yp, $widthp, $heightp, $depthp) = (0, 0, 0, 0, undef);
 							if ($border){
 								($xp, $yp, $widthp, $heightp) = $curr_window->get_geometry;	
 							}else{
@@ -3383,7 +3383,7 @@ sub function_gscrot_window
 									($xp, $yp, $widthp, $heightp) = $curr_window->get_client_window_geometry;
 								}else{
 									#not available in gutsy (fixme?)
-									($widthp, $heightp) = $drawable->window->get_size;
+									($xp, $yp, $widthp, $heightp, $depthp) = $drawable->get_geometry;
 									($xp, $yp) = $drawable->get_origin;									
 								}	
 	
