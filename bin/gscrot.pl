@@ -37,7 +37,7 @@ use Gnome2::GConf;
 function_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 #version info
-my $gscrot_branch = "Rev.140";
+my $gscrot_branch = "Rev.141";
 my $ppa_version = "ppa4";
 my $gscrot_name = "GScrot";
 my $gscrot_version = "v0.50";
@@ -1294,8 +1294,10 @@ sub event_take_screenshot
 		
 		if($hide_active->get_active()){			
 			$window->show_all;
-			$is_in_tray = FALSE;
+			$is_in_tray = FALSE;			
 		}
+		$window->maximize;
+		Gtk2::Gdk->flush;
 				
 	#selection
 	}elsif($data eq "select" || $data eq "tray_select"){
@@ -3257,7 +3259,7 @@ sub function_gscrot_area
 	#ungrab pointer and keyboard
 	Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
 	Gtk2::Gdk->keyboard_ungrab(Gtk2->get_current_event_time); 
-	$zoom_window->destroy if defined $zoom_window;
+	$zoom_window->destroy;
 }
 
 sub function_gscrot_window
@@ -3267,10 +3269,15 @@ sub function_gscrot_window
 	#get basic infos
 	my $screen = Gnome2::Wnck::Screen->get_default;
 	$screen->force_update;
-	my @windows = $screen->get_windows;
+
+	my $gdk_screen = Gtk2::Gdk::Screen->get_default;
 	my $root = Gtk2::Gdk->get_default_root_window;
 	my $disp = Gtk2::Gdk::Display->get_default;
 	my ($rootxp, $rootyp, $rootwidthp, $rootheightp) = $root->get_geometry;
+
+	#get all the windows
+	my @windows = $screen->get_windows;
+	#~ my @windows = $gdk_screen->get_window_stack;
 
 	#define gscrot cursor
 	my $cursor_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file ("$gscrot_path/share/gscrot/resources/icons/gscrot_cursor.png");
@@ -3336,13 +3343,13 @@ sub function_gscrot_window
 
 					#clear the last rectangle
 					if (defined $smallest_coords{'last_win'}){
+						$root->draw_rectangle($gc, 0, $smallest_coords{'last_win'}->{'x'}, $smallest_coords{'last_win'}->{'y'}, $smallest_coords{'last_win'}->{'width'}, $smallest_coords{'last_win'}->{'height'});       			
+																			
 						#focus selected window (maybe it is hidden)
 						$smallest_coords{'last_win'}->{'gdk_window'}->focus(time);
 						Gtk2::Gdk->flush;
-						sleep 1;
+						sleep 1 if $delay_value < 1;
 
-						$root->draw_rectangle($gc, 0, $smallest_coords{'last_win'}->{'x'}, $smallest_coords{'last_win'}->{'y'}, $smallest_coords{'last_win'}->{'width'}, $smallest_coords{'last_win'}->{'height'});       			
-																			
 						#sleep if there is any delay
 						sleep $delay_value;
 					
@@ -3367,11 +3374,19 @@ sub function_gscrot_window
 						#do not detect gscrot window when it is hidden
 						next if ($curr_window->get_xid == $window->window->get_xid && $is_in_tray);
 						if($curr_window->is_visible_on_workspace ($screen->get_active_workspace)){
-							my ($xp, $yp, $widthp, $heightp) = (0, 0, 0, 0);
+							my ($xp, $yp, $widthp, $heightp) = (0, 0, 0, 0, undef);
 							if ($border){
 								($xp, $yp, $widthp, $heightp) = $curr_window->get_geometry;	
 							}else{
-								($xp, $yp, $widthp, $heightp) = $curr_window->get_client_window_geometry;	
+								
+								if(Gtk2->CHECK_VERSION (2, 11, 0)){
+									($xp, $yp, $widthp, $heightp) = $curr_window->get_client_window_geometry;
+								}else{
+									#not available in gutsy (fixme?)
+									($widthp, $heightp) = $drawable->window->get_size;
+									($xp, $yp) = $drawable->get_origin;									
+								}	
+	
 							}						
 							print "Current Event x: ".$event->x.", y: ".$event->y."\n" if $debug_cparam;
 							if((($event->x >= $xp) && ($event->x <= ($xp+$widthp))) && (($event->y >= $yp) && ($event->y <= ($yp+$heightp)))){

@@ -1,8 +1,4 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: GScrot\n"
@@ -14,6 +10,9 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"X-Launchpad-Export-Date: 2008-08-19 20:08+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
 
 #: translate_tmp.pl:161
 msgid "_File"
@@ -224,7 +223,10 @@ msgstr ""
 #: translate_tmp.pl:525
 msgid ""
 "Configure global keybinding for capture\n"
-"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
+"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
+"fairly liberal and allows lower or upper case, and also abbreviations such "
+"as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
+"\"disabled\", then there will be no keybinding for this action. "
 msgstr ""
 
 #: translate_tmp.pl:531
@@ -235,7 +237,10 @@ msgstr ""
 #: translate_tmp.pl:535
 msgid ""
 "Configure global keybinding for capture with selection\n"
-"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
+"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
+"fairly liberal and allows lower or upper case, and also abbreviations such "
+"as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
+"\"disabled\", then there will be no keybinding for this action. "
 msgstr ""
 
 #: translate_tmp.pl:561
@@ -320,7 +325,11 @@ msgid "Register"
 msgstr ""
 
 #: translate_tmp.pl:746
-msgid "<b>Note:</b> Entering your Accounts for specific hosting-sites is optional. If entered it will give you the same benefits as the upload on the website. If you leave these fields empty you will be able to upload to the specific hosting-partner as a guest."
+msgid ""
+"<b>Note:</b> Entering your Accounts for specific hosting-sites is optional. "
+"If entered it will give you the same benefits as the upload on the website. "
+"If you leave these fields empty you will be able to upload to the specific "
+"hosting-partner as a guest."
 msgstr ""
 
 #: translate_tmp.pl:789
@@ -715,4 +724,3 @@ msgstr ""
 #: translate_tmp.pl:3636
 msgid "Drawing saved"
 msgstr ""
-
