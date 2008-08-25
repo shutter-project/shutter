@@ -38,7 +38,7 @@ use X11::Protocol;
 function_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 #version info
-my $gscrot_branch = "Rev.144";
+my $gscrot_branch = "Rev.145";
 my $ppa_version = "ppa1";
 my $gscrot_name = "GScrot";
 my $gscrot_version = "v0.50.1";
@@ -2681,9 +2681,9 @@ sub dialog_website
 	$website->set_activates_default (TRUE);
 
 	my $clipboard_string = $clipboard->wait_for_text;
-	print "Content of clipboard is: $clipboard_string\n";
+	print "Content of clipboard is: $clipboard_string\n" if $debug_cparam;
 	
-	if($clipboard_string =~ /^http/ || $clipboard_string =~ /^file/){
+	if($clipboard_string =~ /^http/ || $clipboard_string =~ /^file/ || $clipboard_string =~ /^www\./){
 		$website->set_text($clipboard_string);			
 	}else{
 		$website->set_text("http://");		
