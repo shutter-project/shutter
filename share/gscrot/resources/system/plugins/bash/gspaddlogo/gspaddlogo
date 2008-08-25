@@ -2,7 +2,7 @@
 #GScrot branding
 #gscrot-plugin
 
-TEXTDOMAIN=gspaddlogo
+TEXTDOMAIN=gscrot-plugins-bash
 TEXTDOMAINDIR=/usr/share/locale 
 PLUGIN_NAME=$"GScrot branding"
 PLUGIN_SORT=$"effect"
@@ -29,7 +29,7 @@ HEIGHT="${3}"
 FILEYTPE="${4}"
 GEO="${2}x${3}"
 SHORTNAME=$(basename ${1} .png)
-LOGO="/usr/share/gscrot/resources/icons/gscrot36x36.png"
+LOGO="$GSCROT_BASE/share/gscrot/resources/system/plugins/bash/gspaddlogo/gscrot_branding.png"
 
 mogrify -resize 480x400\> \
 -bordercolor white -border 22x22 \

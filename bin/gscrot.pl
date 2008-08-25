@@ -33,14 +33,15 @@ use Data::Dumper;
 use Gnome2;
 use Gnome2::Wnck;
 use Gnome2::GConf;
+use X11::Protocol;
 
 function_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 #version info
-my $gscrot_branch = "Rev.143";
-my $ppa_version = "ppa4";
+my $gscrot_branch = "Rev.144";
+my $ppa_version = "ppa1";
 my $gscrot_name = "GScrot";
-my $gscrot_version = "v0.50";
+my $gscrot_version = "v0.50.1";
 my $gscrot_version_detailed = "$gscrot_branch - $ppa_version";
 my $gscrot_path = "";
 #command line parameter
@@ -84,7 +85,7 @@ $SIG{USR2} = sub {&event_take_screenshot('global_keybinding', 'select')};
 #main window
 my $window = Gtk2::Window->new('toplevel');
 $window->set_title($gscrot_name." ".$gscrot_version);
-$window->set_default_icon_from_file ("$gscrot_path/share/gscrot/resources/icons/gscrot24x24.png");
+$window->set_default_icon(Gtk2::Gdk::Pixbuf->new_from_file_at_size("$gscrot_path/share/pixmaps/gscrot.svg", 24, 24));
 $window->signal_connect('delete-event' => \&event_delete_window);
 $window->set_border_width(0);
 $window->set_resizable(0);
@@ -348,7 +349,8 @@ $handlebox->add($toolbar);
 $vbox->pack_start($handlebox, FALSE, TRUE, 0);
 
 #############TRAYICON######################
-my $icon = Gtk2::Image->new_from_file("$gscrot_path/share/gscrot/resources/icons/gscrot24x24.png");
+my $icon = Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/pixmaps/gscrot.svg", 24, 24));
+
 my $eventbox = Gtk2::EventBox->new;
 $eventbox->add($icon);
 my $tray = Gtk2::TrayIcon->new('gscrot TrayIcon');
@@ -404,8 +406,8 @@ $scale->set_value_pos('right');
 $scale->set_value(75);
 
 my $tooltip_quality = Gtk2::Tooltips->new;
-$tooltip_quality->set_tip($scale,$d->get("Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)\n\nHint: When capturing a website\nadjusting compression level of png files\nis not supported yet"));
-$tooltip_quality->set_tip($scale_label,$d->get("Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)\n\nHint: When capturing a website\nadjusting compression level of png files\nis not supported yet"));
+$tooltip_quality->set_tip($scale,$d->get("Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)"));
+$tooltip_quality->set_tip($scale_label,$d->get("Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)"));
 $scale_box->pack_start($scale_label, FALSE, TRUE, 10);
 $scale_box->pack_start($scale, TRUE, TRUE, 10);
 
@@ -659,8 +661,8 @@ $border_label->set_text($d->get("Window border"));
 $border_label->set_justify('left');
 
 my $tooltip_border = Gtk2::Tooltips->new;
-$tooltip_border->set_tip($combobox_border,$d->get("When selecting a window, grab wm border too\n(capture with selection only)\nThere is no need of this option if you are using compiz"));
-$tooltip_border->set_tip($border_label,$d->get("When selecting a window, grab wm border too\n(capture with selection only)\nThere is no need of this option if you are using compiz"));
+$tooltip_border->set_tip($combobox_border,$d->get("Include wm border when selecting a window"));
+$tooltip_border->set_tip($border_label,$d->get("Include wm border when selecting a window"));
 
 $border_box->pack_start($border_label, FALSE, TRUE, 10);
 $border_box->pack_start($combobox_border, TRUE, TRUE, 10);
@@ -1077,6 +1079,8 @@ sub function_init
 		$gscrot_path = "..";
 	}	
 
+	$ENV{'GSCROT_BASE'} = $gscrot_path;
+
 	print "INFO: searching for dependencies...\n\n";
 	
 	
@@ -1217,6 +1221,7 @@ sub event_take_screenshot
 	&function_set_toolbar_sensitive(FALSE);
 
 	$filetype_value = $combobox_type->get_active_text();
+
 		
 	if($filetype_value eq "jpeg"){
 		$quality_value = $scale->get_value();
@@ -1327,70 +1332,44 @@ sub event_take_screenshot
 			sleep $delay_value;
 		}
 
-		$screenshot=`gnome-web-photo --mode=photo --format=$filetype_value -q $quality_value $url '$folder/$filename_value.$filetype_value'`;
+		print "Starting webshot ...\n" if $debug_cparam;
+
+		$screenshot=`gnome-web-photo --timeout=15 --mode=photo --format=$filetype_value -q $quality_value '$url' '$folder/$filename_value.$filetype_value'`;
+	
+		print "... webshot finished!\n" if $debug_cparam;
+		
 		my $width = 0;
 		my $height = 0;
 		if($screenshot eq ""){
-			$screenshot_name = "$folder/$filename_value.$filetype_value";	
-			$width = &function_imagemagick_perform("get_width", $screenshot_name, 0, $filetype_value);
-			$height = &function_imagemagick_perform("get_height", $screenshot_name, 0, $filetype_value);
-			if ($width < 1 or $height < 1){&dialog_error_message($d->get("Could not determine file geometry")); &function_set_toolbar_sensitive(TRUE); return 0;}
-			my $screenshot_old = $screenshot_name;
-			$screenshot_name =~ s/\$w/$width/g;
-			$screenshot_name =~ s/\$h/$height/g;
-			unless (rename($screenshot_old, $screenshot_name)){&dialog_error_message($d->get("Could not substitute wild-cards in filename")); &function_set_toolbar_sensitive(TRUE); return 0;}
+			$screenshot_name = "$folder/$filename_value.$filetype_value";
+			$screenshot = &function_imagemagick_perform("get_object", $screenshot_name, 0, $filetype_value);	
 		}else{
 			&dialog_error_message($screenshot_name);
 			&function_set_toolbar_sensitive(TRUE); 
 			return 0;	
 		}
-
-		#perform some im_actions
-		if($im_colors_active->get_active){
-			$im_colors_value = $combobox_im_colors->get_active_text();	
-			&function_imagemagick_perform("reduce_colors", $screenshot_name, $im_colors_value, $filetype_value);
-		}	
-			
-		if($thumbnail_active->get_active){
-			$width *= ($thumbnail_value/100);
-			$width = int($width);
-			$height *= ($thumbnail_value/100);
-			$height = int($height);
-			my $webthumbnail_size = $width."x".$height;
-			$screenshot_thumbnail_name = "$folder/$filename_value-$thumbnail_ending.$filetype_value";
-			$screenshot_thumbnail_name =~ s/\$w/$width/g;
-			$screenshot_thumbnail_name =~ s/\$h/$height/g;
-			unless (copy($screenshot_name, $screenshot_thumbnail_name)){&dialog_error_message($d-get("Could not generate thumbnail"));exit;}	
-			&function_imagemagick_perform("resize", $screenshot_thumbnail_name, $webthumbnail_size, $filetype_value);				
-			unless (&function_file_exists($screenshot_thumbnail_name)){&dialog_error_message($d-get("Could not generate thumbnail"));exit;}	
-		}
 	}
-	
 	
 	#screenshot was taken at this stage...
 	#start postprocessing here
 	
 	system("xset b on") if $boff_cparam; #turns on the speaker again if set as arg
 
-	#save and process it if it is not a web-photo
-	unless($data eq "web" || $data eq "tray_web"){
+	#user aborted screenshot
+	if($screenshot == 5){
+		&dialog_status_message(1, $d->get("Capture aborted by user"));	
+		&function_set_toolbar_sensitive(TRUE); 
+		return 0;			
+	}
 
-		#user aborted screenshot
-		if($screenshot == 5){
-			&dialog_status_message(1, $d->get("Capture aborted by user"));	
-			&function_set_toolbar_sensitive(TRUE); 
-			return 0;			
-		}
-
-
-		#...successfully???
-		unless($screenshot){
-			&dialog_error_message($d->get("Screenshot failed!\nMaybe mouse pointer could not be grabbed or the selected area is invalid."));
-			print "Screenshot failed!" if $debug_cparam;
-			&dialog_status_message(1, $d->get("Screenshot failed!\nMaybe mouse pointer could not be grabbed or the selected area is invalid."));	
-			&function_set_toolbar_sensitive(TRUE); 
-			return 0;
-		}
+	#...successfully???
+	unless($screenshot){
+		&dialog_error_message($d->get("Screenshot failed!\nMaybe mouse pointer could not be grabbed or the selected area is invalid."));
+		print "Screenshot failed!" if $debug_cparam;
+		&dialog_status_message(1, $d->get("Screenshot failed!\nMaybe mouse pointer could not be grabbed or the selected area is invalid."));	
+		&function_set_toolbar_sensitive(TRUE); 
+		return 0;
+	}else{
 
 		#quantize
 		if($im_colors_active->get_active){
@@ -1419,6 +1398,7 @@ sub event_take_screenshot
 			$screenshot_thumbnail_name =~ s/\$w/$twidth/g;
 			$screenshot_thumbnail_name =~ s/\$h/$theight/g;
 
+			print "Trying to save file to $screenshot_thumbnail_name\n" if $debug_cparam;
 			#finally save it to disk
 			$screenshot_thumbnail->Write(filename => $screenshot_thumbnail_name, quality => $quality_value);			
 			
@@ -1427,8 +1407,7 @@ sub event_take_screenshot
 				undef $screenshot_thumbnail;
 				&function_set_toolbar_sensitive(TRUE); 
 				return 0;
-			}	
-		
+			}		
 		}		
 				
 		#and save the filename
@@ -1441,15 +1420,17 @@ sub event_take_screenshot
 		$screenshot_name =~ s/\$w/$swidth/g;
 		$screenshot_name =~ s/\$h/$sheight/g;
 
+		print "Trying to save file to $screenshot_name\n" if $debug_cparam;
 		#save orig file to disk
 		$screenshot->Write(filename => $screenshot_name, quality => $quality_value);			
-	}
+
+	}#end screenshot successfull
 	
 
 	if (&function_file_exists($screenshot_name)){
 		
 		$screenshot_name=~ s/$ENV{ HOME }/~/; #switch /home/username in path to ~ 
-		print "screenshot successfully saved to $screenshot!\n" if $debug_cparam;
+		print "screenshot successfully saved to $screenshot_name!\n" if $debug_cparam;
 		&dialog_status_message(1, "$screenshot_name ".$d->get("saved"));
 
 		#integrate it into the notebook
@@ -1658,8 +1639,8 @@ sub event_about
 
 	my $website = "http://launchpad.net/gscrot";
 	my $about = Gtk2::AboutDialog->new;
-	
-	my $logo = Gtk2::Gdk::Pixbuf->new_from_file ("$gscrot_path/share/gscrot/resources/icons/gscrot48x48.png");	
+
+	my $logo = Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/pixmaps/gscrot.svg", 150, 150);	
 	$about->set_logo ($logo);
 	$about->set_name($gscrot_name) unless Gtk2->CHECK_VERSION (2, 12, 0);
 	$about->set_program_name($gscrot_name) if Gtk2->CHECK_VERSION (2, 12, 0);
@@ -1802,8 +1783,10 @@ sub function_integrate_screenshot_in_notebook
 
 	my $hbox_tab_label = Gtk2::HBox->new(FALSE, 0);	
 	my $close_icon = Gtk2::Image->new_from_icon_name ('gtk-close', 'menu');
-		
-	$session_screens{$key}->{'tab_icon'} = Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size (&function_switch_home_in_file($session_screens{$key}->{'filename'}), Gtk2::IconSize->lookup ('menu')));	
+
+	print "Trying to create tab icon for $filename ...\n" if $debug_cparam;
+	$session_screens{$key}->{'tab_icon'} = Gtk2::Image->new_from_pixbuf ($session_screens{$key}->{'thumb'}->scale_simple (Gtk2::IconSize->lookup ('menu'), 'bilinear'));	
+	print "...tab icon for $filename created!\n" if $debug_cparam;
 
 	my $tab_close_button = Gtk2::Button->new;
 	$tab_close_button->set_relief('none');
@@ -2516,6 +2499,8 @@ sub dialog_rename
 	$input_dialog->set_default_response ('accept');
 
 	my $new_filename = Gtk2::Entry->new();
+	$new_filename->set_activates_default (TRUE);
+	
 	$dialog_rename_text =~ /.*\/(.*)\./;
 	my $old_file_name = $1;
 	my $old_file_name_full = $dialog_rename_text;
@@ -2654,7 +2639,7 @@ sub dialog_account_chooser_and_upload
 
 		if($hosting_host eq "ubuntu-pics.de"){
 			my %upload_response;
-			%upload_response = &function_upload_ubuntu_pics(&function_switch_home_in_file($file_to_upload), $hosting_username, $hosting_password, $debug_cparam);	
+			%upload_response = &function_upload_ubuntu_pics(&function_switch_home_in_file($file_to_upload), $hosting_username, $hosting_password, $debug_cparam, $gscrot_version);	
 			if (is_success($upload_response{'status'})){
 				&dialog_upload_links_ubuntu_pics($hosting_host, $hosting_username, $upload_response{'thumb1'}, $upload_response{'thumb2'}, $upload_response{'bbcode'}, $upload_response{'ubuntucode'},$upload_response{'direct'}, $upload_response{'status'});				
 				&dialog_status_message(1, $file_to_upload." ".$d->get("uploaded"));
@@ -2663,7 +2648,7 @@ sub dialog_account_chooser_and_upload
 			}
 		}elsif($hosting_host eq "imagebanana.com"){
 			my %upload_response;
-			%upload_response = &function_upload_imagebanana(&function_switch_home_in_file($file_to_upload), $hosting_username, $hosting_password, $debug_cparam);	
+			%upload_response = &function_upload_imagebanana(&function_switch_home_in_file($file_to_upload), $hosting_username, $hosting_password, $debug_cparam, $gscrot_version);	
 			if (is_success($upload_response{'status'})){
 				&dialog_upload_links_imagebanana($hosting_host, $hosting_username, $upload_response{'thumb1'}, $upload_response{'thumb2'}, $upload_response{'thumb3'}, $upload_response{'friends'}, $upload_response{'popup'}, $upload_response{'direct'}, $upload_response{'hotweb'}, $upload_response{'hotboard1'}, $upload_response{'hotboard2'}, $upload_response{'status'});				
 				&dialog_status_message(1, $file_to_upload." ".$d->get("uploaded"));
@@ -2693,7 +2678,16 @@ sub dialog_website
 	$website_dialog->set_default_response ('accept');
 
 	my $website = Gtk2::Entry->new();
-	$website->set_text("http://");
+	$website->set_activates_default (TRUE);
+
+	my $clipboard_string = $clipboard->wait_for_text;
+	print "Content of clipboard is: $clipboard_string\n";
+	
+	if($clipboard_string =~ /^http/ || $clipboard_string =~ /^file/){
+		$website->set_text($clipboard_string);			
+	}else{
+		$website->set_text("http://");		
+	}
     $website_dialog->vbox->add ($website);
     $website_dialog->show_all;
 
@@ -2937,7 +2931,7 @@ sub function_update_tab
 	if(&function_create_thumbnail_and_fileinfos($session_screens{$key}->{'filename'}, $key)){
 
 		#update tab icon - maybe pic changed due to use of plugin or drawing tool
-		$session_screens{$key}->{'tab_icon'}->set_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size (&function_switch_home_in_file($session_screens{$key}->{'filename'}), Gtk2::IconSize->lookup ('menu')));
+		$session_screens{$key}->{'tab_icon'}->set_from_pixbuf ($session_screens{$key}->{'thumb'}->scale_simple (Gtk2::IconSize->lookup ('menu'), 'bilinear'));
 		$session_screens{$key}->{'image'}->set_from_pixbuf($session_screens{$key}->{'thumb'});
 		$session_screens{$key}->{'filename_label'}->set_text($session_screens{$key}->{'short'});
 		$session_screens{$key}->{'tooltip_filename_tab'}->set_tip($session_screens{$key}->{'filename_label'},$session_screens{$key}->{'filename'});
@@ -3006,7 +3000,9 @@ sub function_imagemagick_perform
 			$image->WriteImage(filename=>$file, depth=>8, quality=>95);
 		}else{
 			$image->WriteImage(filename=>$file, depth=>8);
-		}	
+		}
+	}elsif($function eq "get_object"){
+		return $image;	
 	}elsif($function eq "get_width"){
 		return $image->Get('columns');	
 	}elsif($function eq "get_height"){
@@ -3255,11 +3251,12 @@ sub function_gscrot_area
 			last if $done;
 		}				 
 	}	
-	return 0;	
+
 	#ungrab pointer and keyboard
 	Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
 	Gtk2::Gdk->keyboard_ungrab(Gtk2->get_current_event_time); 
 	$zoom_window->destroy;
+	return 0;	
 }
 
 sub function_gscrot_window
@@ -3355,6 +3352,64 @@ sub function_gscrot_window
 					
 						#get the pixbuf from drawable and save the file
 						my $pixbuf = Gtk2::Gdk::Pixbuf->get_from_drawable ($root, undef, $smallest_coords{'curr_win'}->{'x'}, $smallest_coords{'curr_win'}->{'y'}, 0, 0, $smallest_coords{'curr_win'}->{'width'}, $smallest_coords{'curr_win'}->{'height'});
+
+
+						
+						#if X11_EXTENSIONS_SHAPE
+						#~ my $x = X11::Protocol->new($ENV{'DISPLAY'});
+						#~ if($x->init_extension('SHAPE')){
+							#~ my @rects = ();
+							#~ my @gdk_rects = ();
+							#~ 
+							#~ my $tmp = $pixbuf->copy;
+							#~ my $rectangle_order = undef;
+							#~ my $rectangle_count = undef;
+							#~ my $i = 0;
+#~ 
+#~ 
+							#~ 
+							#~ ($rectangle_order, @rects) = $x->ShapeGetRectangles($smallest_coords{'curr_win'}->{'gdk_window'}->get_xid, 'ShapeBounding');
+												#~ 
+							#~ print Dumper(@rects);
+							#~ 
+							#~ foreach my $array_ref(@rects){
+								#~ my @xshape_rect = ();
+								#~ foreach my $curr_rect_value(@$array_ref){
+									#~ print "$curr_rect_value\n";
+									#~ push (@xshape_rect, $curr_rect_value)
+								#~ }
+								#~ push (@gdk_rects, Gtk2::Gdk::Rectangle->new ($xshape_rect[0], $xshape_rect[1], $xshape_rect[2], $xshape_rect[3]));
+							#~ }
+							#~ 
+							#~ print Dumper(@gdk_rects);
+							#~ 
+							#~ $rectangle_count = scalar(@rects);
+							#~ print "Number of rectangles: $rectangle_count\n";
+#~ 
+							#~ if ($rectangle_count > 0) { 
+								#~ 
+								#~ #//Create a region from the rectangles the window contents. 
+								#~ my $contents = Gtk2::Gdk::Region->new; 
+								#~ for (my $pos = 0; $pos < $rectangle_count; $pos++){ 
+									#~ $contents->union(Gtk2::Gdk::Region->rectangle(Gtk2::Gdk::Rectangle->new ($gdk_rects[$pos]->x, $gdk_rects[$pos]->y, + $gdk_rects[$pos]->width, $gdk_rects[$pos]->height))); 
+#~ 
+									#~ #//Create the bounding box. 
+									#~ my $bbox = Gtk2::Gdk::Region->rectangle(Gtk2::Gdk::Rectangle->new (0, 0, $smallest_coords{'curr_win'}->{'width'}, $smallest_coords{'curr_win'}->{'height'}));
+									#~ #//Get the masked away are 
+									#~ my $maskedAway = $bbox->subtract ($contents);
+									#~ $bbox->subtract ($contents); 
+ #~ 
+									#~ my @maskedAwayRects = $bbox->get_rectangles; 
+								#~ 
+								#~ for (my $pos = 0; $pos < scalar(@maskedAwayRects); $pos++){
+									#~ $root->draw_rectangle ($gc, TRUE, $maskedAwayRects[$pos]->x, $maskedAwayRects[$pos]->y, $maskedAwayRects[$pos]->width, $maskedAwayRects[$pos]->height);
+								#~ }	 
+							#~ 
+								#~ } 
+#~ 
+							#~ }
+						#~ }									
+
 						my $output = Image::Magick->new(magick=>'png');
 						$output->BlobToImage( $pixbuf->save_to_buffer('png') );
 						return $output;
@@ -3390,7 +3445,7 @@ sub function_gscrot_window
 							}						
 							print "Current Event x: ".$event->x.", y: ".$event->y."\n" if $debug_cparam;
 							if((($event->x >= $xp) && ($event->x <= ($xp+$widthp))) && (($event->y >= $yp) && ($event->y <= ($yp+$heightp)))){
-								if(($xp+$widthp <= $min_x) && ($yp+$heightp <= $min_y)){
+								if(($xp+$widthp) * ($yp+$heightp) <= $min_x * $min_y){
 									print "X: $xp, Y: $yp, Width: $widthp, Height: $heightp\n" if $debug_cparam;
 									$smallest_coords{'curr_win'}->{'window'} = $curr_window;
 									$smallest_coords{'curr_win'}->{'gdk_window'} = $drawable;
@@ -3441,6 +3496,12 @@ sub function_gscrot_window
 	return 0;	
 }
 
+sub function_get_max
+{
+	my ($a, $b) = @_;
+	return $a if($a > $b);
+	return $b;
+}
 
 sub function_check_installed_plugins
 {
@@ -3479,10 +3540,10 @@ sub function_create_thumbnail_and_fileinfos {
 	my $thumbnailfactory = Gnome2::ThumbnailFactory->new ('normal');
 	if ($thumbnailfactory->can_thumbnail ($uri, $mime_type, time)){
 		my $thumb = $thumbnailfactory->generate_thumbnail ($uri, $mime_type);
-		$session_screens{$key}->{'thumb'} = $thumb;			
+		$session_screens{$key}->{'thumb'} = $thumb;                     
 		$session_screens{$key}->{'mime_type'} = $mime_type;
-		$session_screens{$key}->{'width'} = &function_imagemagick_perform("get_width", $filename, 0, "");
-		$session_screens{$key}->{'height'} = &function_imagemagick_perform("get_height", $filename, 0, "");	
+ 		$session_screens{$key}->{'width'} = &function_imagemagick_perform("get_width", $filename, 0, "");
+		$session_screens{$key}->{'height'} = &function_imagemagick_perform("get_height", $filename, 0, "");     
 		$session_screens{$key}->{'size'} = -s $filename;
 		#short filename
 		$session_screens{$key}->{'short'} = $filename;	
@@ -3491,6 +3552,7 @@ sub function_create_thumbnail_and_fileinfos {
 		$filename =~ /.*\.(.*)$/;
 		$session_screens{$key}->{'filetype'} = $1;						
 	}
+	print "Uri: $uri - Mime-Type: $mime_type finished\n" if $debug_cparam;
 	return 1;
 }
 

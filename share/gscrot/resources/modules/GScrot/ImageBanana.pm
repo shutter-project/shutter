@@ -28,7 +28,7 @@ use HTTP::Status;
 ##################public subs##################
 sub function_upload_imagebanana
 {
-	my ($upload_filename, $username, $password, $debug) = @_;
+	my ($upload_filename, $username, $password, $debug, $gscrot_version) = @_;
 
 	my %links; #returned links will be stored here
 
@@ -38,7 +38,7 @@ sub function_upload_imagebanana
 		return %links;			
 	} 
 	
-	my $mech = WWW::Mechanize->new();
+	my $mech = WWW::Mechanize->new(agent => 'GScrot $gscrot_version');
 	
 	if($username ne "" && $password ne ""){
 		
