@@ -38,8 +38,8 @@ use X11::Protocol;
 function_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 #version info
-my $gscrot_branch = "Rev.145";
-my $ppa_version = "ppa1";
+my $gscrot_branch = "Rev.146";
+my $ppa_version = "ppa2";
 my $gscrot_name = "GScrot";
 my $gscrot_version = "v0.50.1";
 my $gscrot_version_detailed = "$gscrot_branch - $ppa_version";
@@ -1626,6 +1626,10 @@ sub event_about
 	open(GPL, "$gscrot_path/share/gscrot/resources/license/gplv3") or die "ERROR--> Failed to open license-file!";
 	my @copyright = <GPL>;
 	close(GPL);
+
+	open(GPL, "$gscrot_path/share/gscrot/resources/pofiles/credits") or die "ERROR--> Failed to open credits-file!";
+	my @translators = <GPL>;
+	close(GPL);
 	
 	my $all_lines = "";
 	foreach my $line (@copyright){
@@ -1635,6 +1639,11 @@ sub event_about
 	my $all_hints = "";
 	foreach my $hint (@copyright_hint){
 		$all_hints = $all_hints.$hint; 
+	}
+
+	my $all_translators = "";
+	foreach my $translator (@translators){
+		$all_translators = $all_translators.$translator; 
 	}
 
 	my $website = "http://launchpad.net/gscrot";
@@ -1649,9 +1658,9 @@ sub event_about
 	$about->set_website_label($website);
 	$about->set_website($website);
 	$about->set_email_hook(\&function_gnome_open_mail);
-	$about->set_authors("Development:\nMario Kemper <mario.kemper\@gmx.de>\nRene Hennig <Rene.Hennig\@my-united.net>\n\nPlugins:\nMartin Rabeneck (cornix) <martinrabeneck\@gmx.net>\n\nubuntu-pics.de:\nRene Hennig <Rene.Hennig\@my-united.net>");
-	$about->set_artists("Arne Weinberg","Pascal Grochol <pg0803\@gmail.com>");
-	$about->set_translator_credits ("German: Mario Kemper <mario.kemper\@gmx.de>\nRussian: Michael Kogan (PhotonX)\nCatalan: David Pinilla (DPini) <Davidpini\@gmail.com>\nSpanish: Nicolas Espina Tacchetti <nicolasespina\@gmail.com>");	
+	$about->set_authors("Development:\nMario Kemper <mario.kemper\@googlemail.com>\nRene Hennig <Rene.Hennig\@my-united.net>\n\nPlugins:\nMartin Rabeneck (cornix) <martinrabeneck\@gmx.net>\n\nubuntu-pics.de:\nRene Hennig <Rene.Hennig\@my-united.net>");
+	$about->set_artists("Pascal Grochol <pg0803\@gmail.com>", "Arne Weinberg");
+	$about->set_translator_credits ($all_translators);	
 	$about->set_copyright ($all_hints);
 	$about->set_license ($all_lines);
 	$about->set_comments ("$gscrot_version_detailed");
