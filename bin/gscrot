@@ -37,8 +37,8 @@ use Gnome2::GConf;
 fct_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 #version info
-my $gscrot_branch = "Rev.150";
-my $ppa_version = "ppa3";
+my $gscrot_branch = "Rev.151";
+my $ppa_version = "ppa4";
 my $gscrot_name = "GScrot";
 my $gscrot_version = "v0.51";
 my $gscrot_version_detailed = "$gscrot_branch - $ppa_version";
@@ -2827,16 +2827,18 @@ sub dlg_website
 
 	$website_dialog->set_default_response ('accept');
 
-	my $website = Gtk2::Entry->new();
+	my $website = Gtk2::Entry->new;
+	$website->set_text("http://");
 	$website->set_activates_default (TRUE);
 
+	
 	my $clipboard_string = $clipboard->wait_for_text;
 	print "Content of clipboard is: $clipboard_string\n" if $debug_cparam;
 	
-	if($clipboard_string =~ /^http/ || $clipboard_string =~ /^file/ || $clipboard_string =~ /^www\./){
-		$website->set_text($clipboard_string);			
-	}else{
-		$website->set_text("http://");		
+	if(defined $clipboard_string){
+		if($clipboard_string =~ /^http/ || $clipboard_string =~ /^file/ || $clipboard_string =~ /^www\./){
+			$website->set_text($clipboard_string);			
+		}
 	}
     $website_dialog->vbox->add ($website);
     $website_dialog->show_all;
