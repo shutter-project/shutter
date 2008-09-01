@@ -20,13 +20,13 @@ use Exporter;
 my $VERSION = 1.00;
 @ISA = qw(Exporter);
 
-@EXPORT = qw(&function_upload_ubuntu_pics);
+@EXPORT = qw(&fct_upload_ubuntu_pics);
 
 use WWW::Mechanize;
 use HTTP::Status;
 
 ##################public subs##################
-sub function_upload_ubuntu_pics
+sub fct_upload_ubuntu_pics
 {
 	my ($upload_filename, $username, $password, $debug, $gscrot_version) = @_;
 
@@ -38,7 +38,7 @@ sub function_upload_ubuntu_pics
 		return %links;			
 	} 
 	
-	my $mech = WWW::Mechanize->new(agent => 'GScrot $gscrot_version');
+	my $mech = WWW::Mechanize->new(agent => "GScrot $gscrot_version");
 	
 	if($username ne "" && $password ne ""){
 

@@ -20,7 +20,7 @@ use Exporter;
 my $VERSION = 1.00;
 @ISA = qw(Exporter);
 
-@EXPORT = qw(&function_start_drawing);
+@EXPORT = qw(&fct_start_drawing);
 use Glib qw/TRUE FALSE/;
 use Gnome2;
 
@@ -37,7 +37,7 @@ my $adj_zoom = undef;
 my $sb_width = undef;
 
 ##################public subs##################
-sub function_start_drawing
+sub fct_start_drawing
 {
 	my ($filename, $w, $h, $filetype, $d) = @_;
 
