@@ -37,8 +37,8 @@ use Gnome2::GConf;
 fct_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 #version info
-my $gscrot_branch = "Rev.147";
-my $ppa_version = "ppa1";
+my $gscrot_branch = "Rev.148";
+my $ppa_version = "ppa2";
 my $gscrot_name = "GScrot";
 my $gscrot_version = "v0.51";
 my $gscrot_version_detailed = "$gscrot_branch - $ppa_version";
@@ -87,14 +87,6 @@ my $screen = Gnome2::Wnck::Screen->get_default;
 $screen->force_update();
 my @workspaces = undef; 
 my $active_workspace = $screen->get_active_workspace;
-if(Gtk2->CHECK_VERSION (2, 11, 0)){
-	@workspaces = $screen->get_workspaces; 
-}else{
-	#not available in gutsy (fixme?)
-	for(my $wcount; $wcount < $screen->get_workspace_count; $wcount++){
-		push(@workspaces, $screen->get_workspace($wcount));	
-	}						
-}	
 
 #main window
 my $window = Gtk2::Window->new('toplevel');
@@ -309,7 +301,7 @@ my $image_window = Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_fil
 my $button_window_menu = Gtk2::MenuToolButton->new($image_window, $d->get("Window"));
 $button_window_menu->signal_connect('clicked' => \&evt_take_screenshot, 'window');
 $button_window_menu->set_menu (&fct_ret_window_menu);
-#~ $button_window_menu->signal_connect('show-menu' => \&fct_ret_window_menu);
+$button_window_menu->signal_connect('show-menu' => \&fct_ret_window_menu);
 
 my $tooltip_window = Gtk2::Tooltips->new;
 $tooltip_window->set_tip($button_window_menu,$d->get("Select a window with your mouse"));
@@ -592,14 +584,14 @@ $key_sel_box2->pack_start($capture_sel_key, TRUE, TRUE, 0);
 $key_sel_box->pack_start($key_sel_box2, TRUE, TRUE, 10);
 
 $keybinding_active->set_active(TRUE);
-if(defined ){
+if(defined $settings_xml->{'general'}->{'keybinding'}){
 	$keybinding_active->set_active($settings_xml->{'general'}->{'keybinding'});
 }else{
 	$keybinding_active->set_active(FALSE);	
 }
 
 $keybinding_sel_active->set_active(TRUE);
-if(defined ){
+if(defined $settings_xml->{'general'}->{'keybinding_sel'}){
 	$keybinding_sel_active->set_active($settings_xml->{'general'}->{'keybinding_sel'});
 }else{
 	$keybinding_sel_active->set_active(FALSE);	
@@ -3831,6 +3823,15 @@ sub fct_ret_workspace_menu
 {	
 	$active_workspace = $screen->get_active_workspace;
 
+	if(Gtk2->CHECK_VERSION (2, 11, 0)){
+		@workspaces = $screen->get_workspaces; 
+	}else{
+		#not available in gutsy (fixme?)
+		for(my $wcount; $wcount < $screen->get_workspace_count; $wcount++){
+			push(@workspaces, $screen->get_workspace($wcount));	
+		}						
+	}	
+
 	my $menu_wrksp = Gtk2::Menu->new;
 	
 	foreach my $space(@workspaces){	
@@ -3899,16 +3900,18 @@ sub fct_ret_web_menu
 	$menu_web->append($timeout2);
 	$menu_web->append($timeout3);
 
-	#determining timeout		
-	my @timeouts = $menu_web->get_children;
-	my $timeout = undef;
-	foreach(@timeouts){
-		$timeout = $_->get_children->get_text;
-		$timeout =~ /([0-9]+)/;
-		$timeout = $1;			
-		if($settings_xml->{'general'}->{'web_timeout'} == $timeout){
-			$_->set_active(TRUE);					
-		}		
+    if(defined $settings_xml->{'general'}->{'web_timeout'}){
+		#determining timeout		
+		my @timeouts = $menu_web->get_children;
+		my $timeout = undef;
+		foreach(@timeouts){
+			$timeout = $_->get_children->get_text;
+			$timeout =~ /([0-9]+)/;
+			$timeout = $1;			
+			if($settings_xml->{'general'}->{'web_timeout'} == $timeout){
+				$_->set_active(TRUE);					
+			}		
+		}
 	}
 	
 	$menu_web->show_all;
