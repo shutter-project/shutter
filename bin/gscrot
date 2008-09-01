@@ -37,8 +37,8 @@ use Gnome2::GConf;
 fct_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 #version info
-my $gscrot_branch = "Rev.149";
-my $ppa_version = "ppa2";
+my $gscrot_branch = "Rev.150";
+my $ppa_version = "ppa3";
 my $gscrot_name = "GScrot";
 my $gscrot_version = "v0.51";
 my $gscrot_version_detailed = "$gscrot_branch - $ppa_version";
@@ -275,7 +275,6 @@ my $button_select_menu = Gtk2::MenuToolButton->new($image_select, $d->get("Selec
 $button_select_menu->signal_connect('clicked' => \&evt_take_screenshot, 'select');
 my $zoom_active = undef;
 $button_select_menu->set_menu (&fct_ret_sel_menu);
-#~ $button_select_menu->signal_connect('show-menu' => \&fct_ret_sel_menu);
 
 my $tooltip_select = Gtk2::Tooltips->new;
 $tooltip_select->set_tip($button_select_menu,$d->get("Draw a rectangular capture area with your mouse\nto select a specified screen area"));
@@ -292,7 +291,9 @@ $button_raw_menu->signal_connect('show-menu' => \&fct_ret_workspace_menu);
 
 my $tooltip_raw = Gtk2::Tooltips->new;
 $tooltip_raw->set_tip($button_raw_menu,$d->get("Take a screenshot of your whole desktop"));
-$button_raw_menu->set_arrow_tooltip_text($d->get("Capture a specific workspace"));
+$button_raw_menu->set_arrow_tooltip (Gtk2::Tooltips->new, $d->get("Capture a specific workspace"), 'arrow');
+
+
 #############BUTTON_RAW######################
 
 #############BUTTON_WINDOW######################
@@ -305,7 +306,7 @@ $button_window_menu->signal_connect('show-menu' => \&fct_ret_window_menu);
 
 my $tooltip_window = Gtk2::Tooltips->new;
 $tooltip_window->set_tip($button_window_menu,$d->get("Select a window with your mouse"));
-$button_window_menu->set_arrow_tooltip_text($d->get("Take a screenshot of a specific window"));
+$button_window_menu->set_arrow_tooltip (Gtk2::Tooltips->new, $d->get("Take a screenshot of a specific window"), 'arrow');
 
 #############BUTTON_WINDOW######################
 
@@ -319,7 +320,7 @@ $button_web_menu->signal_connect('show-menu' => \&fct_ret_web_menu);
 
 my $tooltip_web = Gtk2::Tooltips->new;
 $tooltip_web->set_tip($button_web_menu,$d->get("Take a screenshot of a website"));
-$button_web_menu->set_arrow_tooltip_text($d->get("Set up a connection timeout (seconds)"));
+$button_web_menu->set_arrow_tooltip (Gtk2::Tooltips->new, $d->get("Set up a connection timeout (seconds)"), 'arrow');
 
 #############BUTTON_WEB######################
 
@@ -3827,7 +3828,7 @@ sub fct_ret_workspace_menu
 		@workspaces = $screen->get_workspaces; 
 	}else{
 		#not available in gutsy (fixme?)
-		for(my $wcount; $wcount < $screen->get_workspace_count; $wcount++){
+		for(my $wcount = 0; $wcount < $screen->get_workspace_count; $wcount++){
 			push(@workspaces, $screen->get_workspace($wcount));	
 		}						
 	}	
