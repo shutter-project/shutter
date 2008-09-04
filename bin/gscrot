@@ -23,6 +23,9 @@ use Gtk2 '-init';
 use Gtk2::TrayIcon;
 use Gtk2::Gdk::Keysyms;
 use Gtk2::Pango;
+use Gnome2;
+use Gnome2::Wnck;
+use Gnome2::GConf;
 use Image::Magick;
 use File::Copy;
 use POSIX qw/setlocale strftime/;     # for setlocale()
@@ -30,17 +33,15 @@ use Locale::gettext;
 use HTTP::Status;
 use XML::Simple;
 use Data::Dumper;
-use Gnome2;
-use Gnome2::Wnck;
-use Gnome2::GConf;
+use Time::HiRes;
 
 fct_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 #version info
-my $gscrot_branch = "Rev.152";
-my $ppa_version = "ppa5";
+my $gscrot_branch = "Rev.153";
+my $ppa_version = "ppa1";
 my $gscrot_name = "GScrot";
-my $gscrot_version = "v0.51";
+my $gscrot_version = "v0.51.1";
 my $gscrot_version_detailed = "$gscrot_branch - $ppa_version";
 my $gscrot_path = "";
 #command line parameter
@@ -51,6 +52,8 @@ my @args = @ARGV;
 my $start_with = undef;
 
 &fct_init();
+
+#~ $gscrot_path = "..";	#devel, only
 
 setlocale(LC_MESSAGES,"");
 my $d = Locale::gettext->domain("gscrot");
@@ -85,6 +88,7 @@ $SIG{USR2} = sub {&evt_take_screenshot('global_keybinding', 'select')};
 #screen
 my $screen = Gnome2::Wnck::Screen->get_default;
 $screen->force_update();
+my $gdk_screen = Gtk2::Gdk::Screen->get_default;
 my @workspaces = undef; 
 my $active_workspace = $screen->get_active_workspace;
 
@@ -1158,8 +1162,8 @@ sub fct_init
 		print "INFO: gscrot is not installed on your system!\n";
 		print "INFO: gscrot will try to find resource directory in place (../)!\n";
 		$gscrot_path = "..";
-	}	
-
+	}
+	
 	$ENV{'GSCROT_BASE'} = $gscrot_path;
 
 	print "INFO: searching for dependencies...\n\n";
@@ -1334,17 +1338,21 @@ sub evt_take_screenshot
 	$folder = $saveDir_button->get_filename || $folder_from_config;
 	
 	#mh...just sleep until window/popup is hidden (fixme?)
-	if($delay_value < 2 && $hide_active->get_active && $is_in_tray == FALSE && ($data eq "tray_raw" || $data eq "raw" || $data =~ /^gscrot_wrksp_direct(.*)/)){
-		$delay_value = 2;
-	}
+	#~ if($delay_value < 2 && $hide_active->get_active && $is_in_tray == FALSE && ($data eq "tray_raw" || $data eq "raw" || $data =~ /^gscrot_wrksp_direct(.*)/)){
+		#~ $delay_value = 2;
+	#~ }
 
 	system("xset b off") if $boff_cparam; #turns off the speaker if set as arg
-
 
 	if($hide_active->get_active && ($data ne "web" && $data ne "tray_web") && !$is_in_tray){	
 		$window->hide;
 		Gtk2::Gdk->flush;
 		$is_in_tray = TRUE;
+		if ($screen->get_window_manager_name =~ /compiz/i){
+			sleep 1;
+		}else{
+			sleep 0.5;
+		} 
 	}
 
 	#fullscreen screenshot
@@ -1511,11 +1519,6 @@ sub evt_take_screenshot
 	
 
 	if (&fct_file_exists($screenshot_name)){
-		
-		$screenshot_name=~ s/$ENV{ HOME }/~/; #switch /home/username in path to ~ 
-		print "screenshot successfully saved to $screenshot_name!\n" if $debug_cparam;
-		&dlg_status_message(1, "$screenshot_name ".$d->get("saved"));
-
 		#integrate it into the notebook
 		my $new_key_screenshot = &fct_integrate_screenshot_in_notebook($screenshot_name);
 
@@ -1528,10 +1531,12 @@ sub evt_take_screenshot
 			my $progname_iter = $progname->get_active_iter();
 			$progname_value = $model->get_value($progname_iter, 2);
 			unless ($progname_value =~ /[a-zA-Z0-9]+/) { &dlg_error_message($d->get("No application specified to open the screenshot")); &fct_set_toolbar_sensitive(TRUE); return FALSE;};
-			system("$progname_value '$screenshot_name' &"); #open picture in external program
+			system("$progname_value '$session_screens{$new_key_screenshot}->{'long'}' &"); #open picture in external program
 		}
 
-				
+		print "screenshot successfully saved to $screenshot_name!\n" if $debug_cparam;
+		&dlg_status_message(1, "$session_screens{$new_key_screenshot}->{'short'} ".$d->get("saved"));
+			
 	}else{
 			&dlg_error_message($d->get("Screenshot failed!\nMaybe mouse pointer could not be grabbed or the selected area is invalid."));
 			print "Screenshot failed!" if $debug_cparam;
@@ -3316,30 +3321,29 @@ sub fct_gscrot_area
 				
 				#capture is finished, delete zoom window now
 				$zoom_window->destroy;
+				#ungrab pointer and keyboard
+				Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
+				Gtk2::Gdk->keyboard_ungrab(Gtk2->get_current_event_time);
+				Gtk2::Gdk::Event->handler_set (undef, 'rect');
+				Gtk2->main_quit; 
 				
 				if($rect_w > 1){
 					#clear the last rectangle
 					$root->draw_rectangle($gc, 0, $rect_x, $rect_y, $rect_w, $rect_h);
-											
+					Gtk2::Gdk->flush;		
+										
 					#sleep if there is any delay
 					sleep $delay_value;
 					
 					#get the pixbuf from drawable and save the file
-					my $pixbuf = Gtk2::Gdk::Pixbuf->get_from_drawable ($root, undef, $rect_x, $rect_y, 0, 0, $rect_w, $rect_h);
+					my $pixbuf = Gtk2::Gdk::Pixbuf->get_from_drawable ($root, undef, $rect_x, $rect_y, 0, 0, $rect_w+1, $rect_h+1);
 					$output = Image::Magick->new(magick=>'png');
 					$output->BlobToImage( $pixbuf->save_to_buffer('png') );									
 					
 				}else{
 					$output = 0;	
 				}
-
-				#ungrab pointer and keyboard
-				Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
-				Gtk2::Gdk->keyboard_ungrab(Gtk2->get_current_event_time);
-				Gtk2::Gdk::Event->handler_set (undef, 'rect');
-				Gtk2->main_quit; 
-
-				
+		
 			}elsif($event->type eq 'button-press'){
 				print "Type: ".$event->type."\n" if (defined $event && $debug_cparam);		
 				$btn_pressed = 1;
@@ -3414,6 +3418,9 @@ sub fct_gscrot_area
 			}
 	
 		}, 'rect');			 
+
+		$zoom_window->show_all if $zoom_active->get_active;
+		Gtk2->main;
 	
 	}else{#pointer not grabbed
 
@@ -3421,13 +3428,9 @@ sub fct_gscrot_area
 		#ungrab pointer and keyboard
 		Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
 		Gtk2::Gdk->keyboard_ungrab(Gtk2->get_current_event_time);
-		Gtk2::Gdk::Event->handler_set (undef, 'rect');
-		Gtk2->main_quit; 
-				
+			
 	}
 
-	$zoom_window->show_all if $zoom_active->get_active;
-	Gtk2->main;
 	return $output;	
 }
 
@@ -3439,7 +3442,7 @@ sub fct_gscrot_window
 	my $output = 5;
 	
 	#get basic infos
-	my $gdk_screen = Gtk2::Gdk::Screen->get_default;
+	$gdk_screen = Gtk2::Gdk::Screen->get_default;
 	my $root = Gtk2::Gdk->get_default_root_window;
 	my $disp = Gtk2::Gdk::Display->get_default;
 	my ($rootxp, $rootyp, $rootwidthp, $rootheightp) = $root->get_geometry;
@@ -3659,18 +3662,17 @@ sub fct_gscrot_window
 				}			
 
 		}, 'window');			 
+
+		Gtk2->main;
 	
 	}else{#pointer not grabbed
 
 		#ungrab pointer and keyboard
 		Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
 		Gtk2::Gdk->keyboard_ungrab(Gtk2->get_current_event_time);
-		Gtk2::Gdk::Event->handler_set (undef, 'rect');
-		Gtk2->main_quit; 
-				
+					
 	}
 	
-	Gtk2->main;
 	return $output;	
 }
 
