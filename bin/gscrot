@@ -38,8 +38,8 @@ use Time::HiRes;
 fct_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 #version info
-my $gscrot_branch = "Rev.153";
-my $ppa_version = "ppa1";
+my $gscrot_branch = "Rev.154";
+my $ppa_version = "ppa2";
 my $gscrot_name = "GScrot";
 my $gscrot_version = "v0.51.1";
 my $gscrot_version_detailed = "$gscrot_branch - $ppa_version";
