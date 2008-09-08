@@ -34,14 +34,16 @@ use HTTP::Status;
 use XML::Simple;
 use Data::Dumper;
 use Time::HiRes;
+use X11::Protocol;
+my $x = X11::Protocol->new();
 
 fct_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 #version info
-my $gscrot_branch = "Rev.155";
-my $ppa_version = "ppa3";
+my $gscrot_branch = "Rev.156";
+my $ppa_version = "ppa1";
 my $gscrot_name = "GScrot";
-my $gscrot_version = "v0.51.1";
+my $gscrot_version = "v0.52";
 my $gscrot_version_detailed = "$gscrot_branch - $ppa_version";
 my $gscrot_path = "";
 #command line parameter
@@ -89,7 +91,8 @@ $SIG{USR2} = sub {&evt_take_screenshot('global_keybinding', 'select')};
 my $screen = Gnome2::Wnck::Screen->get_default;
 $screen->force_update();
 my $gdk_screen = Gtk2::Gdk::Screen->get_default;
-my @workspaces = undef; 
+my @workspaces = undef;
+my %children; 
 my $active_workspace = $screen->get_active_workspace;
 
 #main window
@@ -278,6 +281,8 @@ my $image_select = Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_fil
 my $button_select_menu = Gtk2::MenuToolButton->new($image_select, $d->get("Selection"));
 $button_select_menu->signal_connect('clicked' => \&evt_take_screenshot, 'select');
 my $zoom_active = undef;
+my ($zoom_size1, $zoom_size2, $zoom_size3) = undef;
+
 $button_select_menu->set_menu (&fct_ret_sel_menu);
 
 my $tooltip_select = Gtk2::Tooltips->new;
@@ -297,7 +302,6 @@ my $tooltip_raw = Gtk2::Tooltips->new;
 $tooltip_raw->set_tip($button_raw_menu,$d->get("Take a screenshot of your whole desktop"));
 $button_raw_menu->set_arrow_tooltip (Gtk2::Tooltips->new, $d->get("Capture a specific workspace"), 'arrow');
 
-
 #############BUTTON_RAW######################
 
 #############BUTTON_WINDOW######################
@@ -313,6 +317,18 @@ $tooltip_window->set_tip($button_window_menu,$d->get("Select a window with your 
 $button_window_menu->set_arrow_tooltip (Gtk2::Tooltips->new, $d->get("Take a screenshot of a specific window"), 'arrow');
 
 #############BUTTON_WINDOW######################
+
+#############BUTTON_WINDOW_SECTION######################
+my $image_window_sect = Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/sel_window_section.svg", Gtk2::IconSize->lookup ('large-toolbar')));
+
+my $button_window_sect = Gtk2::ToolButton->new($image_window_sect, $d->get("Section"));
+$button_window_sect->signal_connect('clicked' => \&evt_take_screenshot, 'section');
+
+my $tooltip_window_sect = Gtk2::Tooltips->new;
+$tooltip_window_sect->set_tip($button_window_sect,$d->get("Captures only a section of the window. You will be able to select any child window by moving the mouse over it"));
+
+#############BUTTON_WINDOW_SECTION######################
+
 
 #############BUTTON_WEB######################
 my $image_web = Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/web_image.svg", Gtk2::IconSize->lookup ('large-toolbar')));
@@ -333,24 +349,16 @@ my $toolbar = Gtk2::Toolbar->new;
 $toolbar->set_show_arrow(TRUE);
 $toolbar->set_style('both');
 
-#~ $button_select_menu->set_expand(1);
-#~ $button_select_menu->set_homogeneous(1);
-#~ 
-#~ $button_raw_menu->set_expand(1);
-#~ $button_raw_menu->set_homogeneous(1);
-#~ 
-#~ $button_window_menu->set_expand(1);
-#~ $button_window_menu->set_homogeneous(1);
-#~ 
-#~ $button_window_menu->set_expand(1);
-#~ $button_window_menu->set_homogeneous(1);
+$toolbar->insert ($button_select_menu, -1);
+$toolbar->insert (Gtk2::SeparatorToolItem->new, -1);
+$toolbar->insert ($button_raw_menu, -1);
+$toolbar->insert (Gtk2::SeparatorToolItem->new, -1);
+$toolbar->insert ($button_window_menu, -1);
+$toolbar->insert ($button_window_sect, -1);
+$toolbar->insert (Gtk2::SeparatorToolItem->new, -1);
+$toolbar->insert ($button_web_menu, -1);
 
-$toolbar->insert ($button_select_menu, 0);
-$toolbar->insert ($button_raw_menu, 1);
-$toolbar->insert ($button_window_menu, 2);
-$toolbar->insert ($button_web_menu, 3);
-
-$toolbar->set_size_request(400,-1);  
+$toolbar->set_size_request(450,-1);  
 #a detachable toolbar
 my $handlebox = Gtk2::HandleBox->new;
 $handlebox->add($toolbar); 
@@ -1364,10 +1372,10 @@ sub evt_take_screenshot
 		$screenshot = &fct_gscrot_workspace($folder, $filename_value, $filetype_value, $quality_value, $delay_value, $combobox_border->get_active, $active_workspace->get_number);
 										
 	#window
-	}elsif($data eq "window" || $data eq "tray_window"){
+	}elsif($data eq "window" || $data eq "tray_window" || $data eq "section"){
 		
 		unless ($filename_value =~ /[a-zA-Z0-9]+/) { &dlg_error_message($d->get("No valid filename specified")); &fct_set_toolbar_sensitive(TRUE); return FALSE;};	
-		$screenshot = &fct_gscrot_window($folder, $filename_value, $filetype_value, $quality_value, $delay_value, $combobox_border->get_active);
+		$screenshot = &fct_gscrot_window($folder, $filename_value, $filetype_value, $quality_value, $delay_value, $combobox_border->get_active, $data);
 				
 	#selection
 	}elsif($data eq "select" || $data eq "tray_select"){
@@ -1919,6 +1927,7 @@ sub fct_set_toolbar_sensitive
 	$button_select_menu->set_sensitive($set);
 	$button_raw_menu->set_sensitive($set);
 	$button_window_menu->set_sensitive($set);
+	$button_window_sect->set_sensitive($set);
 	$button_web_menu->set_sensitive($set);
 	
 	return 1;
@@ -2130,8 +2139,8 @@ sub fct_create_tab {
 
 		$hbox_tab_actions->pack_start($button_remove, TRUE, TRUE, 1);
 		$hbox_tab_actions->pack_start($button_delete, TRUE, TRUE, 1);
-		$hbox_tab_actions2->pack_start($button_reopen, TRUE, TRUE, 1);
-		$hbox_tab_actions2->pack_start($button_print, TRUE, TRUE, 1);
+		$hbox_tab_actions->pack_start($button_reopen, TRUE, TRUE, 1);
+		$hbox_tab_actions->pack_start($button_print, TRUE, TRUE, 1);
 
 		$vbox_tab->pack_start($hbox_tab_file, TRUE, FALSE, 1);
 
@@ -2422,6 +2431,10 @@ sub fct_save_settings
 		$settings{'general'}->{'folder'} = $saveDir_button->get_filename();
 		$settings{'general'}->{'zoom_active'} = $zoom_active->get_active();
 
+		$settings{'general'}->{'zoom_size'} = 1 if($zoom_size1->get_active);
+		$settings{'general'}->{'zoom_size'} = 2 if($zoom_size2->get_active);
+		$settings{'general'}->{'zoom_size'} = 3 if($zoom_size3->get_active);		
+
 		#determining timeout
 		my $web_menu = $button_web_menu->get_menu;
 		my @timeouts = $web_menu->get_children;
@@ -2505,6 +2518,10 @@ sub fct_load_settings
 			$filename->set_text($settings_xml->{'general'}->{'filename'});
 			$saveDir_button->set_current_folder($settings_xml->{'general'}->{'folder'});
 			$zoom_active->set_active($settings_xml->{'general'}->{'zoom_active'});
+
+			$zoom_size1->set_active(TRUE) if $settings_xml->{'general'}->{'zoom_size'} == 1;
+			$zoom_size2->set_active(TRUE) if $settings_xml->{'general'}->{'zoom_size'} == 2;
+			$zoom_size3->set_active(TRUE) if $settings_xml->{'general'}->{'zoom_size'} == 3;
 
 			#determining timeout		
 			my $web_menu = $button_web_menu->get_menu;
@@ -3210,6 +3227,10 @@ sub fct_gscrot_area
 	my $cursor_item = undef;
 	
 	#define zoom window
+	my $zoom_size_factor = 1;
+	$zoom_size_factor = 2 if($zoom_size2->get_active);
+	$zoom_size_factor = 3 if($zoom_size3->get_active);
+	
 	my $zoom_window = Gtk2::Window->new('toplevel');
 	$zoom_window->set_decorated (0);
 	$zoom_window->set_skip_taskbar_hint (1);
@@ -3220,14 +3241,14 @@ sub fct_gscrot_area
 
 	#pack canvas to a scrolled window
 	my $scwin = Gtk2::ScrolledWindow->new();
-	$scwin->set_size_request(100, 100);
+	$scwin->set_size_request(100*$zoom_size_factor, 100*$zoom_size_factor);
 	$scwin->set_policy('never','never');
 	
 	#define and setup the canvas
 	my $canvas = Gnome2::Canvas->new();
 	$canvas->modify_bg('normal',Gtk2::Gdk::Color->new (65535, 65535, 65535));
 	$canvas->set_pixels_per_unit (5);
-	$canvas->set_scroll_region(-10,-10,$rootwidthp+50,$rootheightp+50);
+	$canvas->set_scroll_region(-10*$zoom_size_factor,-10*$zoom_size_factor,$rootwidthp+50*$zoom_size_factor,$rootheightp+50*$zoom_size_factor);
 	my $canvas_root = $canvas->root();
 	$scwin->add($canvas);
 
@@ -3436,7 +3457,7 @@ sub fct_gscrot_area
 
 sub fct_gscrot_window
 {
-	my ($folder, $filename_value, $filetype_value, $quality_value, $delay_value, $border) = @_;
+	my ($folder, $filename_value, $filetype_value, $quality_value, $delay_value, $border, $mode) = @_;
 
 	#return value
 	my $output = 5;
@@ -3446,9 +3467,23 @@ sub fct_gscrot_window
 	my $root = Gtk2::Gdk->get_default_root_window;
 	my $disp = Gtk2::Gdk::Display->get_default;
 	my ($rootxp, $rootyp, $rootwidthp, $rootheightp) = $root->get_geometry;
-
+	
 	#get all the windows
 	my @windows = $screen->get_windows;
+
+	print "Searching for children...\n" if $debug_cparam;
+	%children = ();
+	foreach my $window(@windows){
+		my $drawable = Gtk2::Gdk::Window->foreign_new ($window->get_xid);	
+		next unless defined $drawable;
+		next unless ($drawable->is_viewable || $drawable->is_visible);
+		&fct_query_children($drawable->XWINDOW, $drawable->XWINDOW);
+	}
+	#~ foreach my $sort_parent (keys %children){
+		#~ foreach my $key (sort{$children{$sort_parent}{$a} <=> $children{$sort_parent}{$b}} keys %{$children{$sort_parent}}){
+			#~ print $key."\n";	
+		#~ }	
+	#~ }
 
 	#define gscrot cursor
 	my $cursor_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file ("$gscrot_path/share/gscrot/resources/icons/gscrot_cursor.png");
@@ -3471,16 +3506,10 @@ sub fct_gscrot_window
 
 	Gtk2::Gdk->keyboard_grab($root, 0, Gtk2->get_current_event_time);
 
-
 	if (Gtk2::Gdk->pointer_is_grabbed){
 		my $done = 0;
-		my $rect_x = 0; 
-		my $rect_y = 0; 
-		my $rect_w = 0; 
-		my $rect_h = 0;
-		my $rectangle = undef;
 		my $last_selected_window = 0;
-		my %smallest_coords = ();
+		my $last_selected_window_wnck = 0;		
 		my $drawable = undef;
 
 		Gtk2::Gdk::Event->handler_set (sub { 
@@ -3493,8 +3522,8 @@ sub fct_gscrot_window
 					next unless defined $event->keyval;
 					if($event->keyval == $Gtk2::Gdk::Keysyms{Escape}){
 						#clear the last rectangle
-						if (defined $smallest_coords{'last_win'}){
-							$root->draw_rectangle($gc, 0, $smallest_coords{'last_win'}->{'x'}, $smallest_coords{'last_win'}->{'y'}, $smallest_coords{'last_win'}->{'width'}, $smallest_coords{'last_win'}->{'height'});       			
+						if (defined $children{'last_win'}){
+							$root->draw_rectangle($gc, 0, $children{'last_win'}{'x'}, $children{'last_win'}{'y'}, $children{'last_win'}{'width'}, $children{'last_win'}{'height'});       			
 						}
 						#ungrab pointer and keyboard
 						Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
@@ -3507,7 +3536,7 @@ sub fct_gscrot_window
 				}elsif($event->type eq 'button-release'){
 					$done = 1;
 					print "Type: ".$event->type."\n" if (defined $event && $debug_cparam);
-					print "Trying to clear a rectangle ($rect_x, $rect_y, $rect_w, $rect_h)\n" if $debug_cparam;									
+					print "Trying to clear a rectangle ($children{'last_win'}{'x'}, $children{'last_win'}{'y'}, $children{'last_win'}{'width'}, $children{'last_win'}{'height'})\n" if $debug_cparam;									
 				
 					#ungrab pointer and keyboard
 					Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
@@ -3516,11 +3545,11 @@ sub fct_gscrot_window
 					Gtk2->main_quit; 
 
 					#clear the last rectangle
-					if (defined $smallest_coords{'last_win'}){
-						$root->draw_rectangle($gc, 0, $smallest_coords{'last_win'}->{'x'}, $smallest_coords{'last_win'}->{'y'}, $smallest_coords{'last_win'}->{'width'}, $smallest_coords{'last_win'}->{'height'});       			
+					if (defined $children{'last_win'}){
+						$root->draw_rectangle($gc, 0, $children{'last_win'}{'x'}, $children{'last_win'}{'y'}, $children{'last_win'}{'width'}, $children{'last_win'}{'height'});       			
 																			
 						#focus selected window (maybe it is hidden)
-						$smallest_coords{'last_win'}->{'gdk_window'}->focus(time);
+						$children{'last_win'}{'gdk_window'}->focus(time);
 						Gtk2::Gdk->flush;
 						sleep 1 if $delay_value < 1;
 
@@ -3528,7 +3557,7 @@ sub fct_gscrot_window
 						sleep $delay_value;
 					
 						#get the pixbuf from drawable and save the file
-						my $pixbuf = Gtk2::Gdk::Pixbuf->get_from_drawable ($root, undef, $smallest_coords{'curr_win'}->{'x'}, $smallest_coords{'curr_win'}->{'y'}, 0, 0, $smallest_coords{'curr_win'}->{'width'}, $smallest_coords{'curr_win'}->{'height'});
+						my $pixbuf = Gtk2::Gdk::Pixbuf->get_from_drawable ($root, undef, $children{'curr_win'}{'x'}, $children{'curr_win'}{'y'}, 0, 0, $children{'curr_win'}{'width'}, $children{'curr_win'}{'height'});
 
 						$output = Image::Magick->new(magick=>'png');
 						$output->BlobToImage( $pixbuf->save_to_buffer('png') );
@@ -3546,7 +3575,7 @@ sub fct_gscrot_window
 #~ 
 #~ 
 							#~ 
-							#~ ($rectangle_order, @rects) = $x->ShapeGetRectangles($smallest_coords{'curr_win'}->{'gdk_window'}->get_xid, 'ShapeBounding');
+							#~ ($rectangle_order, @rects) = $x->ShapeGetRectangles($children{'curr_win'}{'gdk_window'}->get_xid, 'ShapeBounding');
 												#~ 
 							#~ print Dumper(@rects);
 							#~ 
@@ -3572,7 +3601,7 @@ sub fct_gscrot_window
 									#~ $contents->union(Gtk2::Gdk::Region->rectangle(Gtk2::Gdk::Rectangle->new ($gdk_rects[$pos]->x, $gdk_rects[$pos]->y, + $gdk_rects[$pos]->width, $gdk_rects[$pos]->height))); 
 #~ 
 									#~ #//Create the bounding box. 
-									#~ my $bbox = Gtk2::Gdk::Region->rectangle(Gtk2::Gdk::Rectangle->new (0, 0, $smallest_coords{'curr_win'}->{'width'}, $smallest_coords{'curr_win'}->{'height'}));
+									#~ my $bbox = Gtk2::Gdk::Region->rectangle(Gtk2::Gdk::Rectangle->new (0, 0, $children{'curr_win'}{'width'}, $children{'curr_win'}{'height'}));
 									#~ #//Get the masked away are 
 									#~ my $maskedAway = $bbox->subtract ($contents);
 									#~ $bbox->subtract ($contents); 
@@ -3602,6 +3631,7 @@ sub fct_gscrot_window
 					foreach my $curr_window(@windows){
 						$drawable = Gtk2::Gdk::Window->foreign_new ($curr_window->get_xid);	
 						next unless defined $drawable;			
+
 						#do not detect gscrot window when it is hidden
 						next if ($curr_window->get_xid == $window->window->get_xid && $is_in_tray);
 						if($curr_window->is_visible_on_workspace ($screen->get_active_workspace)){
@@ -3617,18 +3647,19 @@ sub fct_gscrot_window
 									($xp, $yp, $widthp, $heightp, $depthp) = $drawable->get_geometry;
 									($xp, $yp) = $drawable->get_origin;									
 								}	
-	
-							}						
+								
+							}
+
 							print "Current Event x: ".$event->x.", y: ".$event->y."\n" if $debug_cparam;
 							if((($event->x >= $xp) && ($event->x <= ($xp+$widthp))) && (($event->y >= $yp) && ($event->y <= ($yp+$heightp)))){
 								if(($xp+$widthp) * ($yp+$heightp) <= $min_x * $min_y){
 									print "Parent X: $xp, Y: $yp, Width: $widthp, Height: $heightp\n" if $debug_cparam;
-									$smallest_coords{'curr_win'}->{'window'} = $curr_window;
-									$smallest_coords{'curr_win'}->{'gdk_window'} = $drawable;
-									$smallest_coords{'curr_win'}->{'x'} = $xp;
-									$smallest_coords{'curr_win'}->{'y'} = $yp;
-									$smallest_coords{'curr_win'}->{'width'} = $widthp;
-									$smallest_coords{'curr_win'}->{'height'} = $heightp;
+									$children{'curr_win'}{'window'} = $curr_window;
+									$children{'curr_win'}{'gdk_window'} = $drawable;
+									$children{'curr_win'}{'x'} = $xp;
+									$children{'curr_win'}{'y'} = $yp;
+									$children{'curr_win'}{'width'} = $widthp;
+									$children{'curr_win'}{'height'} = $heightp;
 									$min_x = $xp+$widthp;
 									$min_y = $yp+$heightp;	
 								}
@@ -3636,26 +3667,56 @@ sub fct_gscrot_window
 						}
 					}
 					
-					if (defined $smallest_coords{'curr_win'}){
+					if (defined $children{'curr_win'}){
 
-						print "Currently smallest window: ".$smallest_coords{'curr_win'}->{'window'}->get_name."\n" if $debug_cparam;
-						print "Curr. Parent X: $smallest_coords{'curr_win'}->{'x'}, Y: $smallest_coords{'curr_win'}->{'y'}, Width: $smallest_coords{'curr_win'}->{'width'}, Height: $smallest_coords{'curr_win'}->{'height'}\n" if $debug_cparam;
-						if($last_selected_window ne $smallest_coords{'curr_win'}->{'window'}->get_xid){	
+						print "Currently smallest window: ".$children{'curr_win'}{'window'}->get_name."\n" if $debug_cparam;
+						print "Curr. Parent X: $children{'curr_win'}{'x'}, Y: $children{'curr_win'}{'y'}, Width: $children{'curr_win'}{'width'}, Height: $children{'curr_win'}{'height'}\n" if $debug_cparam;
+						
+						if($mode eq "section"){					
+							
+							my @query = $x->QueryPointer($children{'curr_win'}{'gdk_window'}->XWINDOW);
+						
+							if(defined $children{'curr_win'}{'gdk_window'}){	
+								if ($query[5] ne 'None'){
+									my $curr_parent = $children{'curr_win'}{'gdk_window'}->XWINDOW;
+									foreach my $curr_child(keys %{$children{$curr_parent}}){				
+										next unless defined $curr_child;														
+										print "Child Current Event x: ".$event->x.", y: ".$event->y."\n" if $debug_cparam;
+										if((($event->x >= $children{$curr_parent}{$curr_child}{'x'}) && ($event->x <= ($children{$curr_parent}{$curr_child}{'x'}+$children{$curr_parent}{$curr_child}{'width'}))) && (($event->y >= $children{$curr_parent}{$curr_child}{'y'}) && ($event->y <= ($children{$curr_parent}{$curr_child}{'y'}+$children{$curr_parent}{$curr_child}{'height'})))){
+											if(($children{$curr_parent}{$curr_child}{'x'}+$children{$curr_parent}{$curr_child}{'width'}) * ($children{$curr_parent}{$curr_child}{'y'}+$children{$curr_parent}{$curr_child}{'height'}) <= $min_x * $min_y){
+												$children{'curr_win'}{'gdk_window'} = $children{$curr_parent}{$curr_child}{'gdk_window'};
+												$children{'curr_win'}{'x'} = $children{$curr_parent}{$curr_child}{'x'};
+												$children{'curr_win'}{'y'} = $children{$curr_parent}{$curr_child}{'y'};
+												$children{'curr_win'}{'width'} = $children{$curr_parent}{$curr_child}{'width'};
+												$children{'curr_win'}{'height'} = $children{$curr_parent}{$curr_child}{'height'};
+												$min_x =  $children{$curr_parent}{$curr_child}{'x'}+ $children{$curr_parent}{$curr_child}{'width'};
+												$min_y =  $children{$curr_parent}{$curr_child}{'y'}+ $children{$curr_parent}{$curr_child}{'height'};	
+											}
+										}
+									}
+								}
+							}
+						
+						}	
+						
+						#draw rect if needed
+						if($last_selected_window ne $children{'curr_win'}{'gdk_window'}){	
 			
 							#clear last rectangle
-							if (defined $smallest_coords{'last_win'}){
-								$root->draw_rectangle($gc, 0, $smallest_coords{'last_win'}->{'x'}, $smallest_coords{'last_win'}->{'y'}, $smallest_coords{'last_win'}->{'width'}, $smallest_coords{'last_win'}->{'height'});
+							if (defined $children{'last_win'}){
+								$root->draw_rectangle($gc, 0, $children{'last_win'}{'x'}, $children{'last_win'}{'y'}, $children{'last_win'}{'width'}, $children{'last_win'}{'height'});
 							}
-														
+																				
 							#draw new rectangle for current window
-							$root->draw_rectangle($gc, 0, $smallest_coords{'curr_win'}->{'x'}-3, $smallest_coords{'curr_win'}->{'y'}-3, $smallest_coords{'curr_win'}->{'width'}+5, $smallest_coords{'curr_win'}->{'height'}+5);							
-							$last_selected_window = $smallest_coords{'curr_win'}->{'window'}->get_xid;
-							$smallest_coords{'last_win'}->{'window'} = $smallest_coords{'curr_win'}->{'window'};
-							$smallest_coords{'last_win'}->{'gdk_window'} = $smallest_coords{'curr_win'}->{'gdk_window'};
-							$smallest_coords{'last_win'}->{'x'} = $smallest_coords{'curr_win'}->{'x'}-3;
-							$smallest_coords{'last_win'}->{'y'} = $smallest_coords{'curr_win'}->{'y'}-3;
-							$smallest_coords{'last_win'}->{'width'} = $smallest_coords{'curr_win'}->{'width'}+5;
-							$smallest_coords{'last_win'}->{'height'} = $smallest_coords{'curr_win'}->{'height'}+5;															
+							$root->draw_rectangle($gc, 0, $children{'curr_win'}{'x'}-3, $children{'curr_win'}{'y'}-3, $children{'curr_win'}{'width'}+5, $children{'curr_win'}{'height'}+5);							
+							$last_selected_window = $children{'curr_win'}{'gdk_window'};
+							$last_selected_window_wnck = $children{'curr_win'}{'window'};
+							$children{'last_win'}{'window'} = $children{'curr_win'}{'window'};
+							$children{'last_win'}{'gdk_window'} = $children{'curr_win'}{'gdk_window'};
+							$children{'last_win'}{'x'} = $children{'curr_win'}{'x'}-3;
+							$children{'last_win'}{'y'} = $children{'curr_win'}{'y'}-3;
+							$children{'last_win'}{'width'} = $children{'curr_win'}{'width'}+5;
+							$children{'last_win'}{'height'} = $children{'curr_win'}{'height'}+5;															
 							
 						}					
 					}
@@ -3666,14 +3727,53 @@ sub fct_gscrot_window
 		Gtk2->main;
 	
 	}else{#pointer not grabbed
-
+	
 		#ungrab pointer and keyboard
 		Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
 		Gtk2::Gdk->keyboard_ungrab(Gtk2->get_current_event_time);
-					
+						
 	}
 	
 	return $output;	
+}
+
+sub fct_query_children
+{							
+	my ($xwindow, $xparent) = @_;
+	my ($qroot, $qparent, @qkids) = $x->QueryTree($xwindow);
+	foreach(@qkids){
+		#~ print "$qroot, $qparent, $_, $xwindow\n";
+		my $gdk_window = Gtk2::Gdk::Window->foreign_new ($_);	
+		if(defined $gdk_window){
+
+			#window needs to be viewable and visible
+			next unless $gdk_window->is_visible;
+			next unless $gdk_window->is_viewable;
+			
+			#min size
+			my ($xp, $yp, $widthp, $heightp, $depthp) = $gdk_window->get_geometry;
+			($xp, $yp) = $gdk_window->get_origin;
+			next if ($widthp*$heightp < 4);
+			
+			#check if $gdk_window is dublicate
+			my $dub = FALSE;
+			foreach my $checkchild(keys %{$children{$xparent}}){
+				$dub = TRUE if $children{$xparent}{$checkchild}{'gdk_window'} == $gdk_window;				
+			}
+					
+			unless($dub == TRUE){
+				$children{$xparent}{$_}{'gdk_window'} = $gdk_window;
+				$children{$xparent}{$_}{'x'} = $xp;
+				$children{$xparent}{$_}{'y'} = $yp;
+				$children{$xparent}{$_}{'width'} = $widthp;
+				$children{$xparent}{$_}{'height'} = $heightp;								
+				$children{$xparent}{$_}{'size'} = $widthp*$heightp;
+				
+				fct_query_children($gdk_window->XWINDOW, $xparent); #check next depth
+			}
+		}	
+	}
+	return 1;
 }
 
 sub fct_gscrot_window_direct
@@ -3887,6 +3987,27 @@ sub fct_ret_sel_menu
 	}
 
 	$menu_sel->append($zoom_active);
+
+	my $menu_size = Gtk2::MenuItem->new_with_label($d->get("Size of zoom window"));
+	my $menu_size2 = Gtk2::Menu->new;
+	$zoom_size1 = Gtk2::RadioMenuItem->new (undef, $d->get("Small"));
+	$zoom_size2 = Gtk2::RadioMenuItem->new ($zoom_size1, $d->get("Medium"));
+	$zoom_size3 = Gtk2::RadioMenuItem->new ($zoom_size1, $d->get("Large"));
+
+	if(defined $settings_xml->{'general'}->{'zoom_size'}){
+		$zoom_size1->set_active(TRUE) if $settings_xml->{'general'}->{'zoom_size'} == 1;
+		$zoom_size2->set_active(TRUE) if $settings_xml->{'general'}->{'zoom_size'} == 2;
+		$zoom_size3->set_active(TRUE) if $settings_xml->{'general'}->{'zoom_size'} == 3;		
+	}else{
+		$zoom_size1->set_active(TRUE);	
+	}
+
+	$menu_sel->append($menu_size);
+	$menu_size->set_submenu($menu_size2);
+	$menu_size2->append($zoom_size1);
+	$menu_size2->append($zoom_size2);
+	$menu_size2->append($zoom_size3);
+
 	$menu_sel->show_all;
 	return $menu_sel;
 
