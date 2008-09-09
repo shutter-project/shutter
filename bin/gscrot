@@ -40,7 +40,7 @@ my $x = X11::Protocol->new();
 fct_die_with_action("initializing GNOME VFS") unless (Gnome2::VFS -> init());
 
 #version info
-my $gscrot_branch = "Rev.156";
+my $gscrot_branch = "Rev.157";
 my $ppa_version = "ppa1";
 my $gscrot_name = "GScrot";
 my $gscrot_version = "v0.52";
@@ -173,104 +173,170 @@ my $settings_xml = &fct_load_settings("start", "start");
 #############MENU###################
 my $menubar = Gtk2::MenuBar->new() ;
 
-my $menu1= Gtk2::Menu->new() ;
+#file
+my $menu_file= Gtk2::Menu->new() ;
 
 my $menuitem_file = Gtk2::MenuItem->new_with_mnemonic($d->get("_File")) ;
 
 my $menuitem_open = Gtk2::ImageMenuItem->new($d->get("Open")) ;
 $menuitem_open->set_image(Gtk2::Image->new_from_icon_name('gtk-open', 'menu'));
 $menuitem_open->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ O }, qw/control-mask/, qw/visible/);
-$menu1->append($menuitem_open) ;
+$menu_file->append($menuitem_open) ;
 $menuitem_open->signal_connect("activate" , \&evt_settings , 'menu_open') ;
 
-$menu1->append(Gtk2::SeparatorMenuItem->new);
+$menu_file->append(Gtk2::SeparatorMenuItem->new);
 
 my $menuitem_revert = Gtk2::ImageMenuItem->new($d->get("Revert Settings")) ;
 $menuitem_revert->set_image(Gtk2::Image->new_from_icon_name('gtk-revert-to-saved-ltr', 'menu'));
 $menuitem_revert->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ Z }, qw/control-mask/, qw/visible/);
-$menu1->append($menuitem_revert) ;
+$menu_file->append($menuitem_revert) ;
 $menuitem_revert->signal_connect("activate" , \&evt_settings , 'menu_revert') ;
 
 my $menuitem_save = Gtk2::ImageMenuItem->new($d->get("Save Settings")) ;
 $menuitem_save->set_image(Gtk2::Image->new_from_icon_name('gtk-save', 'menu'));
 $menuitem_save->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ S }, qw/control-mask/, qw/visible/);
-$menu1->append($menuitem_save) ;
+$menu_file->append($menuitem_save) ;
 $menuitem_save->signal_connect("activate" , \&evt_settings , 'menu_save') ;
 
-$menu1->append(Gtk2::SeparatorMenuItem->new);
+$menu_file->append(Gtk2::SeparatorMenuItem->new);
 
 my $menuitem_quit = Gtk2::ImageMenuItem->new($d->get("Quit")) ;
 $menuitem_quit->set_image(Gtk2::Image->new_from_icon_name('gtk-quit', 'menu'));
 $menuitem_quit->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ Q }, qw/control-mask/, qw/visible/);
-$menu1->append($menuitem_quit) ;
+$menu_file->append($menuitem_quit) ;
 $menuitem_quit->signal_connect("activate" , \&evt_delete_window , 'menu_quit') ;
 
-$menuitem_file->set_submenu($menu1);
+$menuitem_file->set_submenu($menu_file);
 $menubar->append($menuitem_file) ;
+#end file
 
-my $menu2 = Gtk2::Menu->new() ;
+#edit
+my $menu_edit = Gtk2::Menu->new() ;
+
+my $menuitem_settings = Gtk2::ImageMenuItem->new($d->get("Settings"));
+$menuitem_settings->set_image(Gtk2::Image->new_from_stock ('gtk-properties', 'menu'));
+$menuitem_settings->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ P }, qw/mod1-mask/, qw/visible/);
+$menu_edit->append($menuitem_settings) ;
+$menuitem_settings->signal_connect("activate" , \&evt_expander, 'exp_settings_menu') ;
+
+my $menuitem_edit = Gtk2::MenuItem->new_with_mnemonic($d->get("_Edit")) ;
+
+$menuitem_edit->set_submenu($menu_edit);
+$menubar->append($menuitem_edit); 
+#end edit
+
+#actions
+my $menu_actions = Gtk2::Menu->new() ;
 
 my $menuitem_selection = Gtk2::ImageMenuItem->new($d->get("Selection"));
 $menuitem_selection->set_image(Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/selection.svg", Gtk2::IconSize->lookup ('menu'))));
 $menuitem_selection->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ S }, qw/mod1-mask/, qw/visible/);
-$menu2->append($menuitem_selection) ;
+$menu_actions->append($menuitem_selection) ;
 $menuitem_selection->signal_connect("activate" , \&evt_take_screenshot, 'select') ;
+
+$menu_actions->append(Gtk2::SeparatorMenuItem->new);
 
 my $menuitem_raw = Gtk2::ImageMenuItem->new($d->get("Fullscreen"));
 $menuitem_raw->set_image(Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/fullscreen.svg", Gtk2::IconSize->lookup ('menu'))));
 $menuitem_raw->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ F }, qw/mod1-mask/, qw/visible/);
-$menu2->append($menuitem_raw) ;
+$menu_actions->append($menuitem_raw) ;
 $menuitem_raw->signal_connect("activate" , \&evt_take_screenshot, 'raw') ;
+
+$menu_actions->append(Gtk2::SeparatorMenuItem->new);
 
 my $menuitem_window = Gtk2::ImageMenuItem->new($d->get("Window"));
 $menuitem_window->set_image(Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/sel_window.svg", Gtk2::IconSize->lookup ('menu'))));
 $menuitem_window->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ W }, qw/mod1-mask/, qw/visible/);
-$menu2->append($menuitem_window) ;
+$menu_actions->append($menuitem_window) ;
 $menuitem_window->signal_connect("activate" , \&evt_take_screenshot, 'window') ;
+
+my $menuitem_window_sect = Gtk2::ImageMenuItem->new($d->get("Section"));
+$menuitem_window_sect->set_image(Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/sel_window_section.svg", Gtk2::IconSize->lookup ('menu'))));
+$menuitem_window_sect->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ W }, qw/shift-mask/, qw/visible/);
+$menu_actions->append($menuitem_window_sect) ;
+$menuitem_window_sect->signal_connect("activate" , \&evt_take_screenshot, 'section') ;
+
+$menu_actions->append(Gtk2::SeparatorMenuItem->new);
 
 my $menuitem_web = Gtk2::ImageMenuItem->new($d->get("Web"));
 $menuitem_web->set_image(Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/web_image.svg", Gtk2::IconSize->lookup ('menu'))));
 $menuitem_web->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ W }, qw/shift-mask/, qw/visible/);
-$menu2->append($menuitem_web) ;
+$menu_actions->append($menuitem_web) ;
 $menuitem_web->signal_connect("activate" , \&evt_take_screenshot, 'web') ;
 
 my $menuitem_action = Gtk2::MenuItem->new_with_mnemonic($d->get("_Actions")) ;
 
-$menuitem_action->set_submenu($menu2) ;
-$menubar->append($menuitem_action) ; 
+$menuitem_action->set_submenu($menu_actions);
+$menubar->append($menuitem_action); 
+#end actions
 
-my $menu3 = Gtk2::Menu->new() ;
+#session
+my $menu_session = Gtk2::Menu->new() ;
+
+my $menuitem_first = Gtk2::ImageMenuItem->new($d->get("First Page"));
+$menuitem_first->set_image(Gtk2::Image->new_from_stock ('gtk-goto-first', 'menu'));
+$menuitem_first->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ F5 }, qw/control-mask/, qw/visible/);
+$menu_session->append($menuitem_first) ;
+$menuitem_first->signal_connect("activate" , \&evt_navigate, 'first') ;
+
+my $menuitem_back = Gtk2::ImageMenuItem->new($d->get("Previous Page"));
+$menuitem_back->set_image(Gtk2::Image->new_from_stock ('gtk-go-back', 'menu'));
+$menuitem_back->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ F6 }, qw/control-mask/, qw/visible/);
+$menu_session->append($menuitem_back) ;
+$menuitem_back->signal_connect("activate" , \&evt_navigate, 'previous') ;
+
+my $menuitem_forward = Gtk2::ImageMenuItem->new($d->get("Next Page"));
+$menuitem_forward->set_image(Gtk2::Image->new_from_stock ('gtk-go-forward', 'menu'));
+$menuitem_forward->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ F7 }, qw/control-mask/, qw/visible/);
+$menu_session->append($menuitem_forward) ;
+$menuitem_forward->signal_connect("activate" , \&evt_navigate, 'forward') ;
+
+my $menuitem_last = Gtk2::ImageMenuItem->new($d->get("Last Page"));
+$menuitem_last->set_image(Gtk2::Image->new_from_stock ('gtk-goto-last', 'menu'));
+$menuitem_last->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ F8 }, qw/control-mask/, qw/visible/);
+$menu_session->append($menuitem_last) ;
+$menuitem_last->signal_connect("activate" , \&evt_navigate, 'last') ;
+
+my $menuitem_session = Gtk2::MenuItem->new_with_mnemonic($d->get("_Session")) ;
+
+$menuitem_session->set_submenu($menu_session);
+$menubar->append($menuitem_session); 
+#end session
+
+#help
+my $menu_help = Gtk2::Menu->new();
 
 my $menuitem_question = Gtk2::ImageMenuItem->new($d->get("Ask a question"));
 $menuitem_question->set_image(Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/help.svg", Gtk2::IconSize->lookup ('menu'))));
 $menuitem_question->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ A }, qw/control-mask/, qw/visible/);
-$menu3->append($menuitem_question) ;
+$menu_help->append($menuitem_question) ;
 $menuitem_question->signal_connect("activate" , \&evt_question, $window) ;
 
 my $menuitem_bug = Gtk2::ImageMenuItem->new($d->get("Report a bug"));
 $menuitem_bug->set_image(Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/aiutare.svg", Gtk2::IconSize->lookup ('menu'))));
 $menuitem_bug->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ B }, qw/control-mask/, qw/visible/);
-$menu3->append($menuitem_bug) ;
+$menu_help->append($menuitem_bug) ;
 $menuitem_bug->signal_connect("activate" , \&evt_bug, $window) ;
 
 my $menuitem_translate = Gtk2::ImageMenuItem->new($d->get("Add a translation"));
 $menuitem_translate->set_image(Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/translate.svg", Gtk2::IconSize->lookup ('menu'))));
 $menuitem_translate->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ T }, qw/control-mask/, qw/visible/);
-$menu3->append($menuitem_translate) ;
+$menu_help->append($menuitem_translate) ;
 $menuitem_translate->signal_connect("activate" , \&evt_translate, $window) ;
 
-$menu3->append(Gtk2::SeparatorMenuItem->new);
+$menu_help->append(Gtk2::SeparatorMenuItem->new);
 
 my $menuitem_about = Gtk2::ImageMenuItem->new($d->get("Info")) ;
 $menuitem_about->set_image(Gtk2::Image->new_from_icon_name('gtk-about', 'menu'));
 $menuitem_about->add_accelerator ("activate", $accel_group, $Gtk2::Gdk::Keysyms{ I }, qw/control-mask/, qw/visible/);
-$menu3->append($menuitem_about) ;
+$menu_help->append($menuitem_about) ;
 $menuitem_about->signal_connect("activate" , \&evt_about, $window) ;
 
 my $menuitem_help = Gtk2::MenuItem->new_with_mnemonic($d->get("_Help")) ;
 
-$menuitem_help->set_submenu($menu3) ;
+$menuitem_help->set_submenu($menu_help) ;
 $menubar->append($menuitem_help) ; 
+#help
 
 $vbox->pack_start($menubar, FALSE, TRUE, 0);
 #############MENU###################
@@ -1225,13 +1291,33 @@ sub evt_expander
 {
 	my ($widget, $data) = @_;
 	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
-	if($data eq "exp_settings"){
-		$expander2->set_expanded(0);
+	if($data eq "exp_settings_menu"){
+		$expander1->set_expanded(TRUE);
+		$expander2->set_expanded(FALSE);
+	}elsif($data eq "exp_settings"){
+		$expander2->set_expanded(FALSE);
 	}else{
-		$expander1->set_expanded(0);
+		$expander1->set_expanded(FALSE);
 	}
 	return 1;
 }	
+
+sub evt_navigate
+{
+	my ($widget, $data) = @_;
+	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
+	if($data eq "first"){
+		$notebook->set_current_page(0);
+	}elsif($data eq "last"){
+        $notebook->set_current_page($notebook->get_n_pages-1);
+	}elsif($data eq "previous"){
+		$notebook->prev_page;
+	}elsif($data eq "forward"){
+		$notebook->next_page;	
+	}	
+	return 1;
+}	
+
 sub evt_value_changed
 {
 	my ($widget, $data) = @_;	
@@ -1372,7 +1458,7 @@ sub evt_take_screenshot
 		$screenshot = &fct_gscrot_workspace($folder, $filename_value, $filetype_value, $quality_value, $delay_value, $combobox_border->get_active, $active_workspace->get_number);
 										
 	#window
-	}elsif($data eq "window" || $data eq "tray_window" || $data eq "section"){
+	}elsif($data eq "window" || $data eq "tray_window" || $data eq "section" || $data eq "tray_section"){
 		
 		unless ($filename_value =~ /[a-zA-Z0-9]+/) { &dlg_error_message($d->get("No valid filename specified")); &fct_set_toolbar_sensitive(TRUE); return FALSE;};	
 		$screenshot = &fct_gscrot_window($folder, $filename_value, $filetype_value, $quality_value, $delay_value, $combobox_border->get_active, $data);
@@ -1798,6 +1884,9 @@ sub evt_show_icon_menu
 	my $menuitem_window = Gtk2::ImageMenuItem->new($d->get("Window"));
 	$menuitem_window->set_image(Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/sel_window.svg", Gtk2::IconSize->lookup ('menu'))));
 	$menuitem_window->signal_connect(activate => \&evt_take_screenshot, 'tray_window');
+	my $menuitem_window_sect = Gtk2::ImageMenuItem->new($d->get("Section"));
+	$menuitem_window_sect->set_image(Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/sel_window_section.svg", Gtk2::IconSize->lookup ('menu'))));
+	$menuitem_window_sect->signal_connect(activate => \&evt_take_screenshot, 'tray_section');
 	my $menuitem_web = Gtk2::ImageMenuItem->new($d->get("Web"));
 	$menuitem_web->set_image(Gtk2::Image->new_from_pixbuf (Gtk2::Gdk::Pixbuf->new_from_file_at_size ("$gscrot_path/share/gscrot/resources/icons/web_image.svg", Gtk2::IconSize->lookup ('menu'))));
 	$menuitem_web->signal_connect(activate => \&evt_take_screenshot, 'tray_web');
@@ -1808,21 +1897,18 @@ sub evt_show_icon_menu
 	$menuitem_quit->set_image(Gtk2::Image->new_from_icon_name('gtk-quit', 'menu'));
 	$menuitem_quit->signal_connect("activate" , \&evt_delete_window ,'menu_quit') ;
 
-	my $separator_tray = Gtk2::SeparatorMenuItem->new();
-	$separator_tray->show;
-	$menuitem_select->show();
-	$menuitem_raw->show();
-	$menuitem_window->show();
-	$menuitem_web->show();
-	$menuitem_info->show();
-	$menuitem_quit->show();
 	$tray_menu->append($menuitem_select);
+	$tray_menu->append(Gtk2::SeparatorMenuItem->new);
 	$tray_menu->append($menuitem_raw);
+	$tray_menu->append(Gtk2::SeparatorMenuItem->new);
 	$tray_menu->append($menuitem_window);
+	$tray_menu->append($menuitem_window_sect);
+	$tray_menu->append(Gtk2::SeparatorMenuItem->new);
 	$tray_menu->append($menuitem_web);
-	$tray_menu->append($separator_tray);
+	$tray_menu->append(Gtk2::SeparatorMenuItem->new);
 	$tray_menu->append($menuitem_info);
 	$tray_menu->append($menuitem_quit);
+	$tray_menu->show_all;
 	$tray_menu->popup(
 		undef, # parent menu shell
 		undef, # parent menu item
@@ -1832,6 +1918,7 @@ sub evt_show_icon_menu
 		$data->time
 		);
 	}
+		
 	return 1;	
 }
 
@@ -3285,6 +3372,7 @@ sub fct_gscrot_area
 	$gc->set_rgb_fg_color($white);
 	$gc->set_subwindow ('include-inferiors');
 	$gc->set_function ('xor');
+	$gc->set_exposures (FALSE);
 
 	#all screen events are send to gscrot			   
 	Gtk2::Gdk->pointer_grab ($root, 0, [qw/
@@ -3298,8 +3386,6 @@ sub fct_gscrot_area
 
 	if (Gtk2::Gdk->pointer_is_grabbed){
 		my $done = 0;
-		my $counter_outer = 0;
-		my $counter_inner = 0;
 		my $rx = 0;
 		my $ry = 0; 
 		my $rw = 0;
@@ -3435,7 +3521,7 @@ sub fct_gscrot_area
 					}			
 				}
 			}else{
-				Gtk2->main_do_event($event);
+				Gtk2->main_do_event ($event);	
 			}
 	
 		}, 'rect');			 
@@ -3479,11 +3565,6 @@ sub fct_gscrot_window
 		next unless ($drawable->is_viewable || $drawable->is_visible);
 		&fct_query_children($drawable->XWINDOW, $drawable->XWINDOW);
 	}
-	#~ foreach my $sort_parent (keys %children){
-		#~ foreach my $key (sort{$children{$sort_parent}{$a} <=> $children{$sort_parent}{$b}} keys %{$children{$sort_parent}}){
-			#~ print $key."\n";	
-		#~ }	
-	#~ }
 
 	#define gscrot cursor
 	my $cursor_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file ("$gscrot_path/share/gscrot/resources/icons/gscrot_cursor.png");
@@ -3672,7 +3753,7 @@ sub fct_gscrot_window
 						print "Currently smallest window: ".$children{'curr_win'}{'window'}->get_name."\n" if $debug_cparam;
 						print "Curr. Parent X: $children{'curr_win'}{'x'}, Y: $children{'curr_win'}{'y'}, Width: $children{'curr_win'}{'width'}, Height: $children{'curr_win'}{'height'}\n" if $debug_cparam;
 						
-						if($mode eq "section"){					
+						if($mode eq "section" || $mode eq "tray_section"){					
 							
 							my @query = $x->QueryPointer($children{'curr_win'}{'gdk_window'}->XWINDOW);
 						
@@ -3695,8 +3776,7 @@ sub fct_gscrot_window
 										}
 									}
 								}
-							}
-						
+							}					
 						}	
 						
 						#draw rect if needed
@@ -3720,7 +3800,9 @@ sub fct_gscrot_window
 							
 						}					
 					}
-				}			
+				}else{
+					Gtk2->main_do_event ($event);		
+				}		
 
 		}, 'window');			 
 
@@ -3745,7 +3827,7 @@ sub fct_query_children
 		#~ print "$qroot, $qparent, $_, $xwindow\n";
 		my $gdk_window = Gtk2::Gdk::Window->foreign_new ($_);	
 		if(defined $gdk_window){
-
+			
 			#window needs to be viewable and visible
 			next unless $gdk_window->is_visible;
 			next unless $gdk_window->is_viewable;
@@ -3763,6 +3845,7 @@ sub fct_query_children
 					
 			unless($dub == TRUE){
 				$children{$xparent}{$_}{'gdk_window'} = $gdk_window;
+				$children{$xparent}{$_}{'clip_region'} = $gdk_window->get_clip_region;
 				$children{$xparent}{$_}{'x'} = $xp;
 				$children{$xparent}{$_}{'y'} = $yp;
 				$children{$xparent}{$_}{'width'} = $widthp;
