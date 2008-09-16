@@ -21,6 +21,9 @@ elif [[ "${1}" = "tip" ]];then
 elif [[ "${1}" = "ext" ]];then
     echo "${PLUGIN_EXT}"
     exit 0
+elif [[ "${1}" = "lang" ]];then
+    echo "shell"
+    exit 0
 fi
 
 FILE="${1}"

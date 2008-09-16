@@ -21,12 +21,16 @@ elif [[ "${1}" = "tip" ]];then
 elif [[ "${1}" = "ext" ]];then
     echo "${PLUGIN_EXT}"
     exit 0
+elif [[ "${1}" = "lang" ]];then
+    echo "shell"
+    exit 0
 fi
 
 FILE="${1}"
 WIDTH="${2}"
 HEIGHT="${3}"
 FILEYTPE="${4}"
+INTL_PATH="${5}"
 GEO="${2}x${3}"
 SHORTNAME=$(basename ${1} .png)
 LOGO="$GSCROT_BASE/share/gscrot/resources/system/plugins/bash/gspaddlogo/gscrot_branding.png"

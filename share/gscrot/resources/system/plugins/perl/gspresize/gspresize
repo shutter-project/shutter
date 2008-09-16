@@ -1,0 +1,210 @@
+#! /usr/bin/perl
+
+#Copyright (C) Mario Kemper 2008 <mario.kemper@googlemail.com>  Fri, 12 Sep 2008 00:50:28 +0200
+
+#This program is free software: you can redistribute it and/or modify
+#it under the terms of the GNU General Public License as published by
+#the Free Software Foundation, either version 3 of the License, or
+#(at your option) any later version.
+
+#This program is distributed in the hope that it will be useful,
+#but WITHOUT ANY WARRANTY; without even the implied warranty of
+#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#GNU General Public License for more details.
+#
+#You should have received a copy of the GNU General Public License
+#along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+use utf8;
+use strict;
+use warnings;
+use Gtk2 '-init';
+use Image::Magick;
+use POSIX qw/setlocale/;
+use Locale::gettext;
+use Glib qw/TRUE FALSE/;
+use FindBin '$Bin';    #path where plugin is located
+
+#configure gettext using ENV Variable (setup during gscrot start)
+setlocale( LC_MESSAGES, "" );
+my $d = Locale::gettext->domain("gscrot-plugins-bash");
+$d->dir( $ENV{'GSCROT_INTL'} );
+
+#gscrot will ask for some infos - no need of changing anything
+if ( $ARGV[0] eq "name" ) {
+	print $d->get("resize");
+	exit;
+}
+elsif ( $ARGV[0] eq "sort" ) {
+	print $d->get("tool");
+	exit;
+}
+elsif ( $ARGV[0] eq "tip" ) {
+	print $d->get("resize your screenshot");
+	exit;
+}
+elsif ( $ARGV[0] eq "ext" ) {
+	print "png,jpeg";
+	exit;
+}
+elsif ( $ARGV[0] eq "lang" ) {
+	print "perl";
+	exit;
+}
+
+#these variables are passed to the plugin
+my $socket_id = $ARGV[0];
+my $filename  = $ARGV[1];
+my $width     = $ARGV[2];
+my $height    = $ARGV[3];
+my $filetype  = $ARGV[4];
+
+my $plug = Gtk2::Plug->new($socket_id);
+$plug->set_border_width(10);
+
+$plug->signal_connect( destroy => sub { Gtk2->main_quit } );
+
+#variables used in this plugin
+my $ratio       = $width / $height;
+my $last_width  = $width;
+my $last_height = $height;
+
+#define the gui layout
+my $hbox      = Gtk2::HBox->new( 0, 10 );
+my $hbox_btn  = Gtk2::HBox->new( 0, 10 );
+my $vbox_lbl  = Gtk2::VBox->new( 0, 10 );
+my $vbox_btn  = Gtk2::VBox->new( 0, 10 );
+my $vbox_main = Gtk2::VBox->new( 0, 10 );
+
+#configure buttons and other needed controls
+my $aspect_btn = Gtk2::ToggleButton->new;
+$aspect_btn->set_image( Gtk2::Image->new_from_file("$Bin/Locked.svg") );
+$aspect_btn->set_active(TRUE);
+$aspect_btn->signal_connect( 'toggled', \&aspect_toggled, 'toggled' );
+
+my $width_btn  = Gtk2::SpinButton->new_with_range( 1, 10000, 1 );
+my $height_btn = Gtk2::SpinButton->new_with_range( 1, 10000, 1 );
+
+#set initial values delivered by gscrot
+$width_btn->set_value($width);
+$height_btn->set_value($height);
+
+#connect signals to functions
+my $w_sign =
+  $width_btn->signal_connect( 'value-changed', \&value_changed, 'width' );
+my $h_sign =
+  $height_btn->signal_connect( 'value-changed', \&value_changed, 'height' );
+
+my $resize_operator = Gtk2::ComboBox->new_text;
+$resize_operator->insert_text( 0, "Resize" );
+$resize_operator->insert_text( 1, "Thumbnail" );
+$resize_operator->insert_text( 2, "Sample" );
+$resize_operator->insert_text( 3, "Scale" );
+$resize_operator->insert_text( 4, "AdaptiveResize" );
+$resize_operator->set_active(0);
+
+my $save_btn = Gtk2::Button->new_from_stock('gtk-save');
+$save_btn->signal_connect( 'clicked', \&fct_imagemagick_resize, 'save' );
+
+my $cancel_btn = Gtk2::Button->new_from_stock('gtk-cancel');
+$cancel_btn->signal_connect( 'clicked' => sub { Gtk2->main_quit }, 'cancel' );
+
+#packing
+$vbox_lbl->pack_start( Gtk2::Label->new("Width:"),  TRUE, TRUE, 0 );
+$vbox_lbl->pack_start( Gtk2::Label->new("Height:"), TRUE, TRUE, 0 );
+$vbox_btn->pack_start( $width_btn,                  TRUE, TRUE, 0 );
+$vbox_btn->pack_start( $height_btn,                 TRUE, TRUE, 0 );
+$hbox->pack_start( $vbox_lbl,                       TRUE, TRUE, 0 );
+$hbox->pack_start( $vbox_btn,                       TRUE, TRUE, 0 );
+$hbox->pack_start( $aspect_btn,                     TRUE, TRUE, 0 );
+
+$vbox_main->pack_start( $hbox,            TRUE, TRUE, 0 );
+$vbox_main->pack_start( $resize_operator, TRUE, TRUE, 0 );
+$hbox_btn->pack_start( $save_btn,         TRUE, TRUE, 0 );
+$hbox_btn->pack_start( $cancel_btn,       TRUE, TRUE, 0 );
+$vbox_main->pack_start( $hbox_btn,        TRUE, TRUE, 0 );
+
+$plug->add($vbox_main);
+
+$plug->show_all;
+
+#lets'start
+Gtk2->main;
+
+####define your functions here
+sub value_changed {
+	my ( $widget, $data ) = @_;
+
+	if ( $aspect_btn->get_active ) {
+		if ( defined $h_sign && defined $w_sign ) {
+			if ( $data eq 'width' ) {
+				$height_btn->signal_handler_block($h_sign);
+				$height_btn->set_value( $height_btn->get_value +
+					  ( ( $width_btn->get_value - $last_width ) / $ratio ) );
+				$height_btn->signal_handler_unblock($h_sign);
+			}
+			elsif ( $data eq 'height' ) {
+				$width_btn->signal_handler_block($w_sign);
+				$width_btn->set_value( $width_btn->get_value +
+					  ( ( $height_btn->get_value - $last_height ) * $ratio ) );
+				$width_btn->signal_handler_unblock($w_sign);
+			}
+		}
+	}
+	$last_width  = $width_btn->get_value;
+	$last_height = $height_btn->get_value;
+	$ratio       = $last_width / $last_height;
+
+	return TRUE;
+}
+
+sub aspect_toggled {
+	if ( $aspect_btn->get_active ) {
+		$aspect_btn->set_image( Gtk2::Image->new_from_file("$Bin/Locked.svg") );
+		return TRUE;
+	}
+	$aspect_btn->set_image( Gtk2::Image->new_from_file("$Bin/Unlocked.svg") );
+	return TRUE;
+}
+
+sub fct_imagemagick_resize {
+	my $image = Image::Magick->new;
+	$image->ReadImage($filename);
+
+	&fct_resize_imagemagick_plugin( \$image, $width_btn->get_value,
+		$height_btn->get_value, undef );
+
+	$image->WriteImage( filename => $filename );
+	Gtk2->main_quit;
+	return TRUE;
+}
+
+sub fct_resize_imagemagick_plugin {
+
+	#$image is a reference, so dereference it when using it
+	my ( $image, $w, $h, $operator ) = @_;
+
+	$operator = $resize_operator->get_active unless defined $operator;
+
+	if ( $operator == 0 ) {
+		$$image->Resize( width => $w, height => $h );
+	}
+	elsif ( $operator == 1 ) {
+		$$image->Thumbnail( width => $w, height => $h );
+	}
+	elsif ( $operator == 2 ) {
+		$$image->Sample( width => $w, height => $h );
+	}
+	elsif ( $operator == 3 ) {
+		$$image->Scale( width => $w, height => $h );
+	}
+	elsif ( $operator == 4 ) {
+		$$image->AdaptiveResize( width => $w, height => $h );
+	}
+
+	return TRUE;
+}
+####define your functions here
+
+1;
+
