@@ -162,8 +162,6 @@ my $statusbar = Gtk2::Statusbar->new;
 
 my $vbox            = Gtk2::VBox->new( FALSE, 0 );
 my $vbox_inner1     = Gtk2::VBox->new( FALSE, 10 );
-my $vbox_inner2     = Gtk2::VBox->new( FALSE, 10 );
-my $vbox_inner3     = Gtk2::VBox->new( FALSE, 10 );
 my $vbox_basic      = Gtk2::VBox->new( FALSE, 10 );
 my $vbox_extras     = Gtk2::VBox->new( FALSE, 10 );
 my $vbox_behavior   = Gtk2::VBox->new( FALSE, 10 );
@@ -1645,9 +1643,9 @@ if ( keys(%plugins) > 0 ) {
 	  $notebook_settings->append_page( $vbox_plugins, $label_plugins );
 }
 
-$vbox->pack_start( $notebook, TRUE, TRUE, 10 );
+$vbox->pack_start( $notebook, TRUE, TRUE, 0 );
 
-$vbox->pack_start( $statusbar, FALSE, FALSE, 1 );
+$vbox->pack_start( $statusbar, FALSE, FALSE, 0 );
 #############PACKING######################
 
 unless ($min_cparam) {
@@ -2315,6 +2313,7 @@ sub evt_notebook_switch {
 	my ( $widget, $pointer, $int ) = @_;
 
 	&fct_update_first_tab();    #update first tab for information
+
 }
 
 #close app
@@ -2960,6 +2959,8 @@ sub fct_create_tab {
 		$hbox_tab_file->pack_start( $vbox_fileinfos2, FALSE, TRUE, 1 );
 		$vbox_tab->pack_start( $hbox_tab_file,        TRUE,  TRUE, 1 );
 
+		$scrolled_window->add_with_viewport($vbox_tab);
+
 	}
 	else {
 		my $stats_label = Gtk2::Label->new;
@@ -2978,7 +2979,6 @@ sub fct_create_tab {
 		$session_start_screen{'first_page'}->{'size_counter'} =
 		  Gtk2::Label->new("0.00 KB");
 
-		$vbox_all->pack_start( Gtk2::VBox->new, TRUE, TRUE, 1 );
 		$vbox_all->pack_start( $stats_label, FALSE, TRUE, 1 );
 		$vbox_all->pack_start(
 			$session_start_screen{'first_page'}->{'statistics_counter'},
@@ -2986,41 +2986,60 @@ sub fct_create_tab {
 		$vbox_all->pack_start(
 			$session_start_screen{'first_page'}->{'size_counter'},
 			FALSE, TRUE, 1 );
-		$vbox_all->pack_start( Gtk2::VBox->new, TRUE, TRUE, 1 );
 
-		$session_start_screen{'first_page'}->{'thumb'} =
-		  Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
-			"$gscrot_root/share/gscrot/resources/icons/session.svg",
-			400, 400, TRUE );
+	 #		$session_start_screen{'first_page'}->{'thumb'} =
+	 #		  Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
+	 #			"$gscrot_root/share/gscrot/resources/icons/session.svg",
+	 #			400, 400, TRUE );
+	 #
+	 #		$session_start_screen{'first_page'}->{'image'} =
+	 #		  Gtk2::Image->new_from_pixbuf(
+	 #			$session_start_screen{'first_page'}->{'thumb'} );
+	 #
+	 #		$session_start_screen{'first_page'}->{'image'}->{'current_width'} =
+	 #		  $session_start_screen{'first_page'}->{'image'}->get_pixbuf->get_width;
+	 #		$session_start_screen{'first_page'}->{'image'}->{'current_height'} =
+	 #		  $session_start_screen{'first_page'}->{'image'}
+	 #		  ->get_pixbuf->get_height;
+	 #		$session_start_screen{'first_page'}->{'image'}->{'aspect_ratio'} =
+	 #		  $session_start_screen{'first_page'}->{'image'}->{'current_width'} /
+	 #		  $session_start_screen{'first_page'}->{'image'}->{'current_height'};
+	 #		$session_start_screen{'first_page'}->{'image'}
+	 #		  ->signal_connect_after( 'expose-event', \&fct_resize_thumb,
+	 #			'is_all' );
+	 #
+	 #		$hbox_tab_file->pack_start(
+	 #			$session_start_screen{'first_page'}->{'image'},
+	 #			TRUE, TRUE, 1 );
 
-		$session_start_screen{'first_page'}->{'image'} =
-		  Gtk2::Image->new_from_pixbuf(
-			$session_start_screen{'first_page'}->{'thumb'} );
+		my $viewmodel =
+		  Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String',
+			'Glib::String' );
+		foreach ( keys %session_screens ) {
+			$viewmodel->set(
+				$viewmodel->append, 0, $session_screens{$_}->{'thumb'},
+				1, $session_screens{$_}->{'short'},
+				2, $_
+			);
+		}
 
-		$session_start_screen{'first_page'}->{'image'}->{'current_width'} =
-		  $session_start_screen{'first_page'}->{'image'}->get_pixbuf->get_width;
-		$session_start_screen{'first_page'}->{'image'}->{'current_height'} =
-		  $session_start_screen{'first_page'}->{'image'}
-		  ->get_pixbuf->get_height;
-		$session_start_screen{'first_page'}->{'image'}->{'aspect_ratio'} =
-		  $session_start_screen{'first_page'}->{'image'}->{'current_width'} /
-		  $session_start_screen{'first_page'}->{'image'}->{'current_height'};
-		$session_start_screen{'first_page'}->{'image'}
-		  ->signal_connect_after( 'expose-event', \&fct_resize_thumb,
-			'is_all' );
-
-		$hbox_tab_file->pack_start(
-			$session_start_screen{'first_page'}->{'image'},
-			TRUE, TRUE, 1 );
-
-		$hbox_tab_file->pack_start( $vbox_all, TRUE, TRUE, 20 );
+		my $view = Gtk2::IconView->new_with_model($viewmodel);
+		$view->set_pixbuf_column(0);
+		$view->set_text_column(1);
+		$view->set_selection_mode('multiple');
+		$view->set_columns(0);
 
 		$session_start_screen{'first_page'}->{'scrolled_window'} =
 		  $scrolled_window;
+		$session_start_screen{'first_page'}->{'view'}       = $view;
+		$session_start_screen{'first_page'}->{'model'}      = $viewmodel;
 		$session_start_screen{'first_page'}->{'btn_remove'} = $button_remove;
 		$session_start_screen{'first_page'}->{'btn_delete'} = $button_delete;
 		$session_start_screen{'first_page'}->{'btn_reopen'} = $button_reopen;
 		$session_start_screen{'first_page'}->{'btn_print'}  = $button_print;
+
+		$session_start_screen{'first_page'}->{'view'}
+		  ->set_orientation('horizontal');
 
 		$tabtoolbar->insert( $button_reopen,               -1 );
 		$tabtoolbar->insert( Gtk2::SeparatorToolItem->new, -1 );
@@ -3029,12 +3048,20 @@ sub fct_create_tab {
 		$tabtoolbar->insert( $button_remove,               -1 );
 		$tabtoolbar->insert( $button_delete,               -1 );
 
-		$vbox_tab->pack_start( $tabtoolbar,    FALSE, TRUE, 1 );
-		$vbox_tab->pack_start( $hbox_tab_file, TRUE,  TRUE, 1 );
+		$vbox_tab->pack_start( $tabtoolbar, FALSE, TRUE, 1 );
+		$vbox_tab->pack_start( $vbox_all,   FALSE, TRUE, 1 );
+
+		my $scrolled_window_view = Gtk2::ScrolledWindow->new;
+		$scrolled_window_view->set_policy( 'automatic', 'automatic' );
+		$scrolled_window_view->set_shadow_type('in');
+
+		$scrolled_window_view->add($view);
+
+		$vbox_tab->pack_start( $scrolled_window_view, TRUE, TRUE, 0 );
+
+		$scrolled_window->add_with_viewport($vbox_tab);
 
 	}
-
-	$scrolled_window->add_with_viewport($vbox_tab);
 
 	return $scrolled_window;
 }
@@ -4344,6 +4371,23 @@ sub fct_usage {
 }
 
 sub fct_update_first_tab {
+
+	$session_start_screen{'first_page'}->{'model'}->clear;
+	foreach ( sort keys %session_screens ) {
+		$session_start_screen{'first_page'}->{'model'}->set(
+			$session_start_screen{'first_page'}->{'model'}->append,
+			0,
+			$session_screens{$_}->{'thumb'}->scale_simple( 48, 48, 'bilinear' ),
+			1,
+			$session_screens{$_}->{'short'},
+			2,
+			$_
+		);
+	}
+
+	$session_start_screen{'first_page'}->{'view'}
+	  ->set_model( $session_start_screen{'first_page'}->{'model'} );
+
 	$session_start_screen{'first_page'}->{'statistics_counter'}->set_text(
 		scalar( keys(%session_screens) ) . " "
 		  . $d->nget(
@@ -5194,9 +5238,9 @@ sub fct_gscrot_window {
 													$event->x <= (
 														$children{$curr_parent}
 														  {$curr_child}{'x'} +
-														  $children{
-															$curr_parent }
-														  {$curr_child}{'width'}
+														  $children{$curr_parent
+														  }{$curr_child}
+														  {'width'}
 													)
 												)
 											)
@@ -5210,9 +5254,8 @@ sub fct_gscrot_window {
 													$event->y <= (
 														$children{$curr_parent}
 														  {$curr_child}{'y'} +
-														  $children{
-															$curr_parent }
-														  {$curr_child}
+														  $children{$curr_parent
+														  }{$curr_child}
 														  {'height'}
 													)
 												)
