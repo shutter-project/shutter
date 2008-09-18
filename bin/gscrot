@@ -138,10 +138,6 @@ my $notebook_settings = Gtk2::Notebook->new;
 my $settings_dialog =
 	Gtk2::Dialog->new( GSCROT_NAME . " - " . $d->get( "Settings" ), $window, [ qw/modal destroy-with-parent/ ], 'gtk-close' => 'close' );
 
-#settings
-$settings_dialog->vbox->add( $notebook_settings );
-$settings_dialog->set_default_response( 'apply' );
-
 #Clipboard
 my $clipboard = Gtk2::Clipboard->get( Gtk2::Gdk->SELECTION_CLIPBOARD );
 
@@ -154,6 +150,7 @@ my $statusbar = Gtk2::Statusbar->new;
 #--------------------------------------
 my $vbox                = Gtk2::VBox->new( FALSE, 0 );
 my $vbox_inner1         = Gtk2::VBox->new( FALSE, 10 );
+my $vbox_settings       = Gtk2::VBox->new( FALSE, 10 );
 my $vbox_basic          = Gtk2::VBox->new( FALSE, 10 );
 my $vbox_extras         = Gtk2::VBox->new( FALSE, 10 );
 my $vbox_behavior       = Gtk2::VBox->new( FALSE, 10 );
@@ -167,6 +164,7 @@ my $actions_vbox        = Gtk2::VBox->new( FALSE, 0 );
 my $capture_vbox        = Gtk2::VBox->new( FALSE, 0 );
 my $effects_vbox        = Gtk2::VBox->new( FALSE, 0 );
 my $accounts_vbox       = Gtk2::VBox->new( FALSE, 0 );
+my $profiles_box        = Gtk2::HBox->new( FALSE, 0 );
 my $scale_box           = Gtk2::HBox->new( TRUE,  0 );
 my $delay_box           = Gtk2::HBox->new( TRUE,  0 );
 my $delay_box2          = Gtk2::HBox->new( FALSE, 0 );
@@ -499,6 +497,29 @@ $tray->show_all;
 
 #settings
 #--------------------------------------
+my $combobox_settings_profiles = Gtk2::ComboBox->new_text;
+my $tooltip_profiles           = Gtk2::Tooltips->new;
+$tooltip_profiles->set_tip( $combobox_settings_profiles, $d->get( "Choose a profile" ) );
+
+my $button_profile_save = Gtk2::Button->new;
+$button_profile_save->signal_connect( 'clicked', \&evt_save_profile, $combobox_settings_profiles );
+$button_profile_save->set_image( Gtk2::Image->new_from_stock( 'gtk-save', 'button' ) );
+my $tooltip_profiles_save = Gtk2::Tooltips->new;
+$tooltip_profiles_save->set_tip( $button_profile_save, $d->get( "Save configuration as profile" ) );
+
+my $button_profile_delete = Gtk2::Button->new;
+$button_profile_delete->signal_connect( 'clicked', \&evt_delete_profile, $combobox_settings_profiles );
+$button_profile_delete->set_image( Gtk2::Image->new_from_stock( 'gtk-delete', 'button' ) );
+my $tooltip_profiles_delete = Gtk2::Tooltips->new;
+$tooltip_profiles_delete->set_tip( $button_profile_save, $d->get( "Delete profile" ) );
+
+my $button_profile_apply = Gtk2::Button->new;
+$button_profile_apply->signal_connect( 'clicked', \&evt_apply_profile, $combobox_settings_profiles );
+$button_profile_apply->set_image( Gtk2::Image->new_from_stock( 'gtk-apply', 'button' ) );
+my $tooltip_profiles_apply = Gtk2::Tooltips->new;
+$tooltip_profiles_apply->set_tip( $button_profile_apply, $d->get( "Set profile for current configuration" ) );
+
+
 my $file_frame_label = Gtk2::Label->new;
 $file_frame_label->set_markup( $d->get( "Image format" ) );
 my $file_frame = Gtk2::Frame->new();
@@ -1059,7 +1080,7 @@ if ( keys( %plugins ) > 0 ) {
 											 'Glib::String',      'Glib::String', 'Glib::String',  'Glib::String',
 											 'Glib::String',      'Glib::String'
 										   );
-   foreach (sort keys %plugins ) {
+   foreach ( sort keys %plugins ) {
 	  if ( $plugins{ $_ }->{ 'binary' } ne "" ) {
 		 my $pixbuf;
 		 if ( -f $plugins{ $_ }->{ 'pixbuf' } ) {
@@ -1266,6 +1287,21 @@ if ( keys( %plugins ) > 0 ) {
    $vbox_plugins->set_border_width( 5 );
    my $notebook_settings_fifth = $notebook_settings->append_page( $vbox_plugins, $label_plugins );
 }
+
+$profiles_box->pack_start( $combobox_settings_profiles, TRUE,  TRUE, 1 );
+$profiles_box->pack_start( $button_profile_save,        FALSE, TRUE, 1 );
+$profiles_box->pack_start( $button_profile_delete,      FALSE, TRUE, 1 );
+$profiles_box->pack_start( $button_profile_apply,       FALSE, TRUE, 1 );
+
+$vbox_settings->pack_start( $profiles_box,      TRUE, TRUE, 1 );
+$vbox_settings->pack_start( $notebook_settings, TRUE, TRUE, 1 );
+
+#settings
+$settings_dialog->vbox->add( $vbox_settings );
+$settings_dialog->set_default_response( 'apply' );
+
+
+#main app
 $vbox->pack_start( $notebook,  TRUE,  TRUE,  0 );
 $vbox->pack_start( $statusbar, FALSE, FALSE, 0 );
 
@@ -2196,13 +2232,13 @@ sub fct_integrate_screenshot_in_notebook {
    $session_screens{ $key }->{ 'tab_child' } = $notebook->get_nth_page( $new_index );
    $tab_close_button->signal_connect( clicked => \&evt_in_tab,
 									  'remove' . $key . '__ind__' . $new_index . '__indold__' . $notebook->get_current_page );
-   
-   $notebook->set_tab_detachable ($session_screens{ $key }->{ 'tab_child' }, TRUE);
-   
+
+   $notebook->set_tab_detachable( $session_screens{ $key }->{ 'tab_child' }, TRUE );
+
    $window->show_all unless $is_in_tray;
-  
+
    $notebook->set_current_page( $new_index );
-  
+
    return $key;
 }
 
@@ -2389,10 +2425,10 @@ sub fct_create_tab {
 			my $tooltip_btn = Gtk2::Tooltips->new;
 			$tooltip_btn->set_tip( $btn, $plugins{ $_ }->{ 'tooltip' } );
 			$btn->signal_connect( 'clicked', \&fct_execute_plugin, $data );
-			
-			if($first_plugin){
-				$first_plugin = FALSE;
-		  		$tabtoolbar->insert( Gtk2::SeparatorToolItem->new, $tabtoolbar->get_n_items - 2 );			
+
+			if ( $first_plugin ) {
+			   $first_plugin = FALSE;
+			   $tabtoolbar->insert( Gtk2::SeparatorToolItem->new, $tabtoolbar->get_n_items - 2 );
 			}
 			$tabtoolbar->insert( $btn, $tabtoolbar->get_n_items - 2 );
 			$session_screens{ $key }->{ $btn } = $btn;
@@ -2799,7 +2835,16 @@ sub evt_settings {
 }
 
 sub fct_save_settings {
-   my ( $save_part ) = @_;
+   my ( $save_part, $profilename ) = @_;
+
+   #settings file
+   my $settingsfile = "$ENV{ HOME }/.gscrot/settings.xml";
+   $settingsfile = "$ENV{ HOME }/.gscrot/profiles/$profilename.xml" if ( defined $profilename );
+
+   #accounts file
+   my $accountsfile = "$ENV{ HOME }/.gscrot/accounts.xml";
+   $accountsfile = "$ENV{ HOME }/.gscrot/profiles/$profilename\_accounts.xml" if ( defined $profilename );
+
    my $client        = Gnome2::GConf::Client->get_default;
    my $shortcut_full = "/apps/metacity/global_keybindings/run_command_screenshot";
    my $shortcut_sel  = "/apps/metacity/global_keybindings/run_command_window_screenshot";
@@ -2833,7 +2878,7 @@ sub fct_save_settings {
 	  }
    }
    else {
-	  open( SETTFILE, ">$ENV{ HOME }/.gscrot/settings.xml" )
+	  open( SETTFILE, ">$settingsfile" )
 		  or &dlg_error_message( $d->get( "Settings could not be saved!" ) );
 	  $settings{ 'general' }->{ 'filetype' }    = $combobox_type->get_active;
 	  $settings{ 'general' }->{ 'quality' }     = $scale->get_value();
@@ -2925,7 +2970,7 @@ sub fct_save_settings {
 
 	  &dlg_status_message( 1, $d->get( "Settings saved successfully!" ) );
 
-	  open( ACC_FILE, ">$ENV{ HOME }/.gscrot/accounts.xml" )
+	  open( ACC_FILE, ">$accountsfile" )
 		  or &dlg_error_message( $d->get( "Account-settings could not be saved!" ) );
 	  my $accounts_out = XMLout( \%accounts );
 
@@ -3144,7 +3189,7 @@ sub dlg_plugin {
    $plugin_dialog->set_default_response( 'accept' );
    my $model = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String', 'Glib::String' );
 
-   foreach (sort keys %plugins ) {
+   foreach ( sort keys %plugins ) {
 	  next unless $plugins{ $_ }->{ 'ext' } =~ /$session_screens{$key}->{'filetype'}/;
 	  if ( $plugins{ $_ }->{ 'binary' } ne "" ) {
 		 my $pixbuf;
@@ -3616,6 +3661,7 @@ sub fct_update_tab {
 	  $session_screens{ $key }->{ 'tab_icon' }
 		  ->set_from_pixbuf( $session_screens{ $key }->{ 'thumb' }->scale_simple( Gtk2::IconSize->lookup( 'menu' ), 'tiles' ) );
 	  $session_screens{ $key }->{ 'image' }->set_from_pixbuf( $session_screens{ $key }->{ 'thumb' } );
+
 	  foreach ( keys %{ $session_screens{ $key } } ) {
 		 $session_screens{ $key }->{ $_ }->set_sensitive( FALSE ) if $session_screens{ $key }->{ $_ } =~ /button/i;
 		 $session_screens{ $key }->{ $_ }->set_text( "-" )        if $session_screens{ $key }->{ $_ } =~ /label/i;
@@ -4479,6 +4525,76 @@ sub fct_create_thumbnail_and_fileinfos {
    $session_screens{ $key }->{ 'filetype' } = $1;
    return TRUE;
 }
+
+sub evt_save_profile {
+   my ( $widget, $combobox_settings_profiles ) = @_;
+   mkdir "$ENV{'HOME'}/.gscrot/profiles" unless ( -d "$ENV{'HOME'}/.gscrot/profiles" );
+   my $curr_profile_name = $combobox_settings_profiles->get_active_text || "";
+   my $new_profile_name = &dlg_profile_name( $curr_profile_name, $combobox_settings_profiles );
+   if ( $new_profile_name ) {
+	  $combobox_settings_profiles->append_text( $new_profile_name ) if $curr_profile_name ne $new_profile_name;
+	  &fct_save_settings( "all", $new_profile_name );
+   }
+
+   return TRUE;
+}
+
+sub evt_delete_profile {
+   my ( $widget, $combobox_settings_profiles ) = @_;
+
+   return TRUE;
+}
+
+sub evt_apply_profile {
+   my ( $widget, $combobox_settings_profiles ) = @_;
+
+   return TRUE;
+}
+
+sub dlg_profile_name {
+   my ( $curr_profile_name, $combobox_settings_profiles ) = @_;
+   my $dlg_header = $d->get( "Save as profile" );
+   my $profile_dialog = Gtk2::Dialog->new(
+										   $dlg_header,
+										   $window,
+										   [ qw/modal destroy-with-parent/ ],
+										   'gtk-ok'     => 'accept',
+										   'gtk-cancel' => 'reject'
+										 );
+   $profile_dialog->set_default_response( 'accept' );
+   my $new_profile_name = Gtk2::Entry->new();
+   $new_profile_name->set_activates_default( TRUE );
+   $new_profile_name->set_text( $curr_profile_name ) if defined $curr_profile_name;
+   $profile_dialog->vbox->add( $new_profile_name );
+   $profile_dialog->show_all;
+   my $profile_response = $profile_dialog->run;
+
+   if ( $profile_response eq "accept" ) {
+	  my $entered_name = $new_profile_name->get_text;
+	  my @all_profiles = glob( "$ENV{'HOME'}/.gscrot/profiles/$entered_name*.xml" );
+
+	  if ( scalar @all_profiles > 0 ) {
+
+		 if ( &dlg_question_message( $d->get( "Profile $entered_name already exists.\nDo you want to overwrite the existing profile?" ) ) )
+		 {
+			$profile_dialog->destroy();
+			return $new_profile_name->get_text;
+		 }
+		 else {
+			$profile_dialog->destroy();
+			return FALSE;
+		 }
+	  }
+
+	  $profile_dialog->destroy();
+	  return $new_profile_name->get_text;
+   }
+   else {
+	  $profile_dialog->destroy();
+	  return FALSE;
+   }
+}
+
 
 sub fct_iter_programs {
    my ( $model, $path, $iter, $search_for ) = @_;
