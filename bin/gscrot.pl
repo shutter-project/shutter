@@ -42,7 +42,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.165";
+use constant BRANCH              => "Rev.164";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.60";
@@ -1059,7 +1059,7 @@ if ( keys( %plugins ) > 0 ) {
 											 'Glib::String',      'Glib::String', 'Glib::String',  'Glib::String',
 											 'Glib::String',      'Glib::String'
 										   );
-   foreach ( keys %plugins ) {
+   foreach (sort keys %plugins ) {
 	  if ( $plugins{ $_ }->{ 'binary' } ne "" ) {
 		 my $pixbuf;
 		 if ( -f $plugins{ $_ }->{ 'pixbuf' } ) {
@@ -2196,11 +2196,13 @@ sub fct_integrate_screenshot_in_notebook {
    $session_screens{ $key }->{ 'tab_child' } = $notebook->get_nth_page( $new_index );
    $tab_close_button->signal_connect( clicked => \&evt_in_tab,
 									  'remove' . $key . '__ind__' . $new_index . '__indold__' . $notebook->get_current_page );
+   
+   $notebook->set_tab_detachable ($session_screens{ $key }->{ 'tab_child' }, TRUE);
+   
    $window->show_all unless $is_in_tray;
-   my $current_tab = $notebook->get_current_page + 1;
-   print "new tab $new_index created, current tab is $current_tab\n"
-	   if $debug_cparam;
+  
    $notebook->set_current_page( $new_index );
+  
    return $key;
 }
 
@@ -2371,6 +2373,7 @@ sub fct_create_tab {
 	  $tabtoolbar->insert( $button_delete,               -1 );
 
 	  #add plugins to toolbar
+	  my $first_plugin = TRUE;
 	  foreach ( keys %plugins ) {
 		 if ( $plugins{ $_ }->{ 'menu' } ) {
 			my $btn = Gtk2::ToolButton->new(
@@ -2386,6 +2389,11 @@ sub fct_create_tab {
 			my $tooltip_btn = Gtk2::Tooltips->new;
 			$tooltip_btn->set_tip( $btn, $plugins{ $_ }->{ 'tooltip' } );
 			$btn->signal_connect( 'clicked', \&fct_execute_plugin, $data );
+			
+			if($first_plugin){
+				$first_plugin = FALSE;
+		  		$tabtoolbar->insert( Gtk2::SeparatorToolItem->new, $tabtoolbar->get_n_items - 2 );			
+			}
 			$tabtoolbar->insert( $btn, $tabtoolbar->get_n_items - 2 );
 			$session_screens{ $key }->{ $btn } = $btn;
 
@@ -3136,7 +3144,7 @@ sub dlg_plugin {
    $plugin_dialog->set_default_response( 'accept' );
    my $model = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String', 'Glib::String' );
 
-   foreach ( keys %plugins ) {
+   foreach (sort keys %plugins ) {
 	  next unless $plugins{ $_ }->{ 'ext' } =~ /$session_screens{$key}->{'filetype'}/;
 	  if ( $plugins{ $_ }->{ 'binary' } ne "" ) {
 		 my $pixbuf;
