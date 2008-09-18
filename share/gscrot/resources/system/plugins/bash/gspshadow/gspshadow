@@ -3,7 +3,7 @@
 #gscrot-plugin
 
 TEXTDOMAIN=gscrot-plugins-bash
-TEXTDOMAINDIR=/usr/share/locale 
+TEXTDOMAINDIR=$GSCROT_INTL
 PLUGIN_NAME=$"hard shadow"
 PLUGIN_SORT=$"effect"
 PLUGIN_TIP=$"a black hard shadow on transparent background"

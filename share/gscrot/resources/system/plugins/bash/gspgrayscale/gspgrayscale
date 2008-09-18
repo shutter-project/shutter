@@ -3,7 +3,7 @@
 #gscrot-plugin
 
 TEXTDOMAIN=gscrot-plugins-bash
-TEXTDOMAINDIR=/usr/share/locale 
+TEXTDOMAINDIR=$GSCROT_INTL
 PLUGIN_NAME=$"grayscale"
 PLUGIN_SORT=$"effect"
 PLUGIN_TIP=$"256 color grayscale"

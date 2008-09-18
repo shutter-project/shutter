@@ -3,7 +3,7 @@
 #gscrot-plugin
 
 TEXTDOMAIN=gscrot-plugins-bash
-TEXTDOMAINDIR=/usr/share/locale 
+TEXTDOMAINDIR=$GSCROT_INTL
 PLUGIN_NAME=$"offset"
 PLUGIN_SORT=$"effect"
 PLUGIN_TIP=$"give the picture an offset with itself as background"

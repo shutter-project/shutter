@@ -37,20 +37,28 @@ use X11::Protocol;
 use FindBin '$Bin';
 
 #--------------------------------------
+
 #define constants
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.158";
+use constant BRANCH              => "Rev.165";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.60";
 use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
-$Bin =~ m/(.*)\//;
-my $gscrot_root = $1;
-my $gscrot_path = $0;
 
 #--------------------------------------
+
+#configure path settings
+#--------------------------------------
+$Bin =~ m/(.*)\//;
+my $gscrot_root = $1;
+my $gscrot_path = $Bin . "/gscrot";
+$ENV{ 'GSCROT_ROOT' } = $gscrot_root;    #need by some plugins
+
+#--------------------------------------
+
 #command line parameter
 #--------------------------------------
 my $debug_cparam = FALSE;
@@ -114,6 +122,7 @@ $window->signal_connect( 'delete-event' => \&evt_delete_window );
 $window->set_border_width( 0 );
 $window->set_resizable( 1 );
 $window->set_position( 'center' );
+$window->set_default_size( 650, 500 );
 
 #hash of screenshots during session
 my %session_screens;
@@ -126,12 +135,8 @@ $notebook->set( homogeneous => 1 );
 
 #arrange settings in notebook
 my $notebook_settings = Gtk2::Notebook->new;
-my $settings_dialog = Gtk2::Dialog->new(
-										 GSCROT_NAME . " - " . $d->get( "Settings" ),
-										 $window,
-										 [ qw/modal destroy-with-parent/ ],
-										 'gtk-close'  => 'close'
-									   );
+my $settings_dialog =
+	Gtk2::Dialog->new( GSCROT_NAME . " - " . $d->get( "Settings" ), $window, [ qw/modal destroy-with-parent/ ], 'gtk-close' => 'close' );
 
 #settings
 $settings_dialog->vbox->add( $notebook_settings );
@@ -456,6 +461,7 @@ $button_web_menu->set_arrow_tooltip( Gtk2::Tooltips->new, $d->get( "Set up a con
 my $toolbar = Gtk2::Toolbar->new;
 $toolbar->set_show_arrow( TRUE );
 $toolbar->set_style( 'both' );
+$toolbar->set_icon_size( 'large-toolbar' );
 $toolbar->insert( $button_select_menu,          -1 );
 $toolbar->insert( Gtk2::SeparatorToolItem->new, -1 );
 $toolbar->insert( $button_raw_menu,             -1 );
@@ -1395,6 +1401,7 @@ sub fct_init {
 			 if ( -f "$_/$dir_name" && -r "$_/$dir_name" );
 		 $plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.png"
 			 if ( -f "$_/$dir_name.png" && -r "$_/$dir_name.png" );
+
 		 #we prefer svgs
 		 $plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.svg"
 			 if ( -f "$_/$dir_name.svg" && -r "$_/$dir_name.svg" );
@@ -1409,6 +1416,7 @@ sub fct_init {
 			 if ( -f "$_/$dir_name" && -r "$_/$dir_name" );
 		 $plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.png"
 			 if ( -f "$_/$dir_name.png" && -r "$_/$dir_name.png" );
+
 		 #we prefer svgs
 		 $plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.svg"
 			 if ( -f "$_/$dir_name.svg" && -r "$_/$dir_name.svg" );
@@ -2172,7 +2180,7 @@ sub fct_integrate_screenshot_in_notebook {
    my $close_icon = Gtk2::Image->new_from_icon_name( 'gtk-close', 'menu' );
    print "Trying to create tab icon for $filename ...\n" if $debug_cparam;
    $session_screens{ $key }->{ 'tab_icon' } =
-	   Gtk2::Image->new_from_pixbuf( $session_screens{ $key }->{ 'thumb' }->scale_simple( Gtk2::IconSize->lookup( 'menu' ), 'bilinear' ) );
+	   Gtk2::Image->new_from_pixbuf( $session_screens{ $key }->{ 'thumb' }->scale_simple( Gtk2::IconSize->lookup( 'menu' ), 'tiles' ) );
    print "...tab icon for $filename created!\n" if $debug_cparam;
    my $tab_close_button = Gtk2::Button->new;
    $tab_close_button->set_relief( 'none' );
@@ -2226,11 +2234,12 @@ sub fct_create_tab {
    my $hbox_tab_actions2 = Gtk2::HBox->new( FALSE, 0 );
 
    my $tabtoolbar = Gtk2::Toolbar->new;
+   $tabtoolbar->set_orientation( 'horizontal' );
    $tabtoolbar->set_show_arrow( TRUE );
    $tabtoolbar->set_style( 'icons' );
+   $tabtoolbar->set_icon_size( 'button' );
 
    my $button_remove = Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-close', 'button' ), undef );
-   $button_remove->set_name( "btn_remove" );
    $button_remove->signal_connect( clicked => \&evt_in_tab, 'remove' . $key );
    my $tooltip_remove = Gtk2::Tooltips->new;
    $tooltip_remove->set_tip( $button_remove, $d->get( "Remove file(s) from session" ) );
@@ -2240,9 +2249,8 @@ sub fct_create_tab {
    my $tooltip_delete = Gtk2::Tooltips->new;
    $tooltip_delete->set_tip( $button_delete, $d->get( "Delete file(s)" ) );
 
-   my $button_clipboard = Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-copy', 'button' ), $d->get( "Copy file(s) to clipboard" ) );
-   $button_clipboard->signal_connect( clicked => \&evt_in_tab,
-									  'clipboard' . $key );
+   my $button_clipboard = Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-copy', 'button' ), undef );
+   $button_clipboard->signal_connect( clicked => \&evt_in_tab, 'clipboard' . $key );
    my $tooltip_clipboard = Gtk2::Tooltips->new;
    $tooltip_clipboard->set_tip( $button_clipboard, $d->get( "Copy file(s) to clipboard" ) );
 
@@ -2251,8 +2259,7 @@ sub fct_create_tab {
    my $tooltip_reopen = Gtk2::Tooltips->new;
    $tooltip_reopen->set_tip( $button_reopen, $d->get( "Open file(s)" ) );
 
-   my $image_upload = Gtk2::Image->new_from_icon_name( 'gtk-go-up', 'button' );
-   my $button_upload = Gtk2::ToolButton->new( $image_upload, undef );
+   my $button_upload = Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-go-up', 'button' ), undef );
    $button_upload->signal_connect( clicked => \&evt_in_tab, 'upload' . $key );
    my $tooltip_upload = Gtk2::Tooltips->new;
    $tooltip_upload->set_tip( $button_upload, $d->get( "Upload file to hosting-site" ) );
@@ -2267,7 +2274,15 @@ sub fct_create_tab {
    my $tooltip_plugin = Gtk2::Tooltips->new;
    $tooltip_plugin->set_tip( $button_plugin, $d->get( "Execute a plugin" ) );
 
-   my $button_draw = Gtk2::ToolButton->new( Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$gscrot_root/share/gscrot/resources/icons/draw.svg", Gtk2::IconSize->lookup( 'button' ) ) ), undef );
+   my $button_draw = Gtk2::ToolButton->new(
+											Gtk2::Image->new_from_pixbuf(
+																		  Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+																								 "$gscrot_root/share/gscrot/resources/icons/draw.svg",
+																								 Gtk2::IconSize->lookup( 'button' )
+																		  )
+																		),
+											undef
+										  );
    $button_draw->signal_connect( clicked => \&evt_in_tab, 'draw' . $key );
    my $tooltip_draw = Gtk2::Tooltips->new;
    $tooltip_draw->set_tip( $button_draw, $d->get( "Draw" ) );
@@ -2361,18 +2376,21 @@ sub fct_create_tab {
 			my $btn = Gtk2::ToolButton->new(
 											 Gtk2::Image->new_from_pixbuf(
 																		   Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-																													 $plugins{ $_ }->{ 'pixbuf' },
-																													 Gtk2::IconSize->lookup( 'button' )
+																													$plugins{ $_ }->{ 'pixbuf' },
+																													Gtk2::IconSize->lookup( 'button' )
 																												   )
 																		 ),
 											 undef
 										   );
 			my $data = [ $plugins{ $_ }->{ 'binary' }, $plugins{ $_ }->{ 'name' }, $plugins{ $_ }->{ 'lang' }, $key, undef ];
-   			my $tooltip_btn = Gtk2::Tooltips->new;
-   			$tooltip_btn->set_tip( $btn, $plugins{ $_ }->{'tooltip'} );			
+			my $tooltip_btn = Gtk2::Tooltips->new;
+			$tooltip_btn->set_tip( $btn, $plugins{ $_ }->{ 'tooltip' } );
 			$btn->signal_connect( 'clicked', \&fct_execute_plugin, $data );
 			$tabtoolbar->insert( $btn, $tabtoolbar->get_n_items - 2 );
-		 	$session_screens{ $key }->{ $btn } = $btn;
+			$session_screens{ $key }->{ $btn } = $btn;
+
+			#disable button if filetype is not supported
+			$btn->set_sensitive( FALSE ) unless $plugins{ $_ }->{ 'ext' } =~ /$session_screens{$key}->{'filetype'}/;
 		 }
 	  }
 
@@ -2407,7 +2425,8 @@ sub fct_create_tab {
 	  $view->set_text_column( 1 );
 	  $view->set_selection_mode( 'multiple' );
 	  $view->set_columns( 0 );
-	  $view->signal_connect('selection-changed',  \&evt_iconview_sel_changed, 'sel_changed');
+	  $view->signal_connect( 'selection-changed', \&evt_iconview_sel_changed,    'sel_changed' );
+	  $view->signal_connect( 'item-activated',    \&evt_iconview_item_activated, 'item_activated' );
 
 	  $session_start_screen{ 'first_page' }->{ 'scrolled_window' } = $scrolled_window;
 	  $session_start_screen{ 'first_page' }->{ 'view' }            = $view;
@@ -2418,27 +2437,27 @@ sub fct_create_tab {
 	  $session_start_screen{ 'first_page' }->{ 'btn_print' }       = $button_print;
 
 
-	#all buttons start insensitive
-	  foreach(keys %{$session_start_screen{'first_page'}}){
-		$session_start_screen{'first_page'}->{$_}->set_sensitive( FALSE ) if $session_start_screen{'first_page'}->{$_} =~ /button/i;
+	  #all buttons start insensitive
+	  foreach ( keys %{ $session_start_screen{ 'first_page' } } ) {
+		 $session_start_screen{ 'first_page' }->{ $_ }->set_sensitive( FALSE ) if $session_start_screen{ 'first_page' }->{ $_ } =~ /button/i;
 	  }
 
-	  
+
 	  $tabtoolbar->insert( $button_reopen,               -1 );
 	  $tabtoolbar->insert( Gtk2::SeparatorToolItem->new, -1 );
 	  $tabtoolbar->insert( $button_print,                -1 );
 	  $tabtoolbar->insert( Gtk2::SeparatorToolItem->new, -1 );
 	  $tabtoolbar->insert( $button_remove,               -1 );
 	  $tabtoolbar->insert( $button_delete,               -1 );
-	  
+
 	  $vbox_tab->pack_start( $tabtoolbar, FALSE, TRUE, 1 );
 	  $vbox_tab->pack_start( $vbox_all,   FALSE, TRUE, 1 );
-	  
+
 	  my $scrolled_window_view = Gtk2::ScrolledWindow->new;
 	  $scrolled_window_view->set_policy( 'automatic', 'automatic' );
 	  $scrolled_window_view->set_shadow_type( 'in' );
 	  $scrolled_window_view->add( $view );
-	  
+
 	  $vbox_tab->pack_start( $scrolled_window_view, TRUE, TRUE, 0 );
 	  $scrolled_window->add_with_viewport( $vbox_tab );
    }
@@ -2446,15 +2465,27 @@ sub fct_create_tab {
 }
 
 sub evt_iconview_sel_changed {
-	my ( $iconview, $data) = @_;
-	
-	my @sel_items = $iconview->get_selected_items;
-	
-	foreach(keys %{$session_start_screen{'first_page'}}){
-		$session_start_screen{'first_page'}->{$_}->set_sensitive( (scalar @sel_items > 0) ) if $session_start_screen{'first_page'}->{$_} =~ /button/i;
-	}
-	
-	return TRUE;
+   my ( $iconview, $data ) = @_;
+
+   my @sel_items = $iconview->get_selected_items;
+
+   foreach ( keys %{ $session_start_screen{ 'first_page' } } ) {
+	  $session_start_screen{ 'first_page' }->{ $_ }->set_sensitive( ( scalar @sel_items > 0 ) )
+		  if $session_start_screen{ 'first_page' }->{ $_ } =~ /button/i;
+   }
+
+   return TRUE;
+}
+
+sub evt_iconview_item_activated {
+   my ( $iconview, $path, $data ) = @_;
+
+   my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $path );
+   my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
+
+   $notebook->set_current_page( $notebook->page_num( $session_screens{ $key }->{ 'tab_child' } ) );
+
+   return TRUE;
 }
 
 sub fct_resize_thumb {
@@ -2489,7 +2520,7 @@ sub fct_resize_thumb {
 				&& $image->{ 'current_height' } > 0 )
 		 )
 	  {
-		 $image->set_from_pixbuf( $thumb->scale_simple( $image->{ 'current_width' }, $image->{ 'current_height' }, 'bilinear' ) );
+		 $image->set_from_pixbuf( $thumb->scale_simple( $image->{ 'current_width' }, $image->{ 'current_height' }, 'tiles' ) );
 	  }
    }
    return FALSE;
@@ -2634,29 +2665,29 @@ sub evt_in_tab {
    }
 
 
-  #determine selected screenshots - iconview
-  my @sel_items = $session_start_screen{ 'first_page' }->{ 'view' }->get_selected_items;
+   #determine selected screenshots - iconview
+   my @sel_items = $session_start_screen{ 'first_page' }->{ 'view' }->get_selected_items;
 
    #all screenshots
    if ( $key =~ m/^delete$/ ) {    #tab == all
-		foreach(@sel_items){
-  			my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
-  			my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value($iter, 2);
-  			$notebook->remove_page($notebook->page_num($session_screens{ $key }->{ 'tab_child' }));
-			unlink( $session_screens{ $key }->{ 'long' } );    #delete file
-			delete( $session_screens{ $key } );                # delete from hash
- 	 	}  
+	  foreach ( @sel_items ) {
+		 my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
+		 my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
+		 $notebook->remove_page( $notebook->page_num( $session_screens{ $key }->{ 'tab_child' } ) );
+		 unlink( $session_screens{ $key }->{ 'long' } );    #delete file
+		 delete( $session_screens{ $key } );                # delete from hash
+	  }
 	  &dlg_status_message( 1, $d->get( "All screenshots deleted" ) );
 	  &fct_update_first_tab;
 	  $window->show_all;
    }
    if ( $key =~ m/^remove$/ ) {                             #tab == all
-  		foreach(@sel_items){
-  			my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
-  			my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value($iter, 2);
-  			$notebook->remove_page($notebook->page_num($session_screens{ $key }->{ 'tab_child' }));
-			delete( $session_screens{ $key } );                # delete from hash
-  		}
+	  foreach ( @sel_items ) {
+		 my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
+		 my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
+		 $notebook->remove_page( $notebook->page_num( $session_screens{ $key }->{ 'tab_child' } ) );
+		 delete( $session_screens{ $key } );                # delete from hash
+	  }
 	  &dlg_status_message( 1, $d->get( "All screenshots removed" ) );
 	  &fct_update_first_tab;
 	  $window->show_all;
@@ -2672,31 +2703,31 @@ sub evt_in_tab {
 		 return FALSE;
 	  }
 	  if ( $progname_value =~ /gimp/ ) {
-  		foreach(@sel_items){
-  			my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
-  			my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value($iter, 2);
+		 foreach ( @sel_items ) {
+			my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
+			my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
 			$open_files .= quotemeta $session_screens{ $key }->{ 'long' };
-			$open_files .= " ";			
-  		}		 
+			$open_files .= " ";
+		 }
 		 system( "$progname_value $open_files &" );
 	  }
 	  else {
-  		foreach(@sel_items){
-  			my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
-  			my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value($iter, 2);
-			system( "$progname_value '$session_screens{$key}->{'long'}' &" );		
-  		}			 
+		 foreach ( @sel_items ) {
+			my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
+			my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
+			system( "$progname_value '$session_screens{$key}->{'long'}' &" );
+		 }
 	  }
 	  &dlg_status_message( 1, $d->get( "Opened all files with" ) . " " . $progname_value );
    }
    if ( $key =~ m/^print$/ ) {    #tab == all
 	  my $print_files;
-  		foreach(@sel_items){
-  			my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
-  			my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value($iter, 2);
-			$print_files .= quotemeta $session_screens{ $key }->{ 'long' };
-			$print_files .= " ";			
-  		}		
+	  foreach ( @sel_items ) {
+		 my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
+		 my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
+		 $print_files .= quotemeta $session_screens{ $key }->{ 'long' };
+		 $print_files .= " ";
+	  }
 	  system( "gtklp $print_files &" );
 	  &dlg_status_message( 1, $d->get( "Printing all screenshots" ) );
    }
@@ -3106,8 +3137,7 @@ sub dlg_plugin {
    my $model = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String', 'Glib::String' );
 
    foreach ( keys %plugins ) {
-	  next
-		  unless $plugins{ $_ }->{ 'ext' } =~ /$session_screens{$key}->{'filetype'}/;
+	  next unless $plugins{ $_ }->{ 'ext' } =~ /$session_screens{$key}->{'filetype'}/;
 	  if ( $plugins{ $_ }->{ 'binary' } ne "" ) {
 		 my $pixbuf;
 		 if ( -f $plugins{ $_ }->{ 'pixbuf' } ) {
@@ -3169,6 +3199,11 @@ sub fct_execute_plugin {
 
    my $arrayref = $_[ 1 ];
    my ( $plugin_value, $plugin_name, $plugin_lang, $key, $plugin_dialog ) = @$arrayref;
+
+   unless ( &fct_file_exists( $session_screens{ $key }->{ 'long' } ) ) {
+	  &fct_update_tab( $key );
+	  return FALSE;
+   }
 
    #if it is a native perl plugin, use a plug to integrate it properly
    if ( $plugin_lang eq "perl" ) {
@@ -3527,7 +3562,7 @@ sub fct_update_first_tab {
    foreach ( sort keys %session_screens ) {
 	  $session_start_screen{ 'first_page' }->{ 'model' }->set(
 															   $session_start_screen{ 'first_page' }->{ 'model' }->append, 0,
-															   $session_screens{ $_ }->{ 'thumb' }->scale_simple( 48, 48, 'bilinear' ), 1,
+															   $session_screens{ $_ }->{ 'thumb' }->scale_simple( 48, 48, 'tiles' ), 1,
 															   $session_screens{ $_ }->{ 'short' }, 2,
 															   $_
 															 );
@@ -3555,7 +3590,7 @@ sub fct_update_tab {
 
 	  #update tab icon - maybe pic changed due to use of plugin or drawing tool
 	  $session_screens{ $key }->{ 'tab_icon' }
-		  ->set_from_pixbuf( $session_screens{ $key }->{ 'thumb' }->scale_simple( Gtk2::IconSize->lookup( 'menu' ), 'bilinear' ) );
+		  ->set_from_pixbuf( $session_screens{ $key }->{ 'thumb' }->scale_simple( Gtk2::IconSize->lookup( 'menu' ), 'tiles' ) );
 	  $session_screens{ $key }->{ 'image' }->set_from_pixbuf( $session_screens{ $key }->{ 'thumb' } );
 	  $session_screens{ $key }->{ 'filename_label' }->set_text( $session_screens{ $key }->{ 'short' } );
 	  $session_screens{ $key }->{ 'tooltip_filename_tab' }
@@ -3568,28 +3603,25 @@ sub fct_update_tab {
    else {
 
 	  #update tab icon - file is not existing anymore, maybe deleted manually
-	  $session_screens{ $key }->{ 'tab_icon' }->set_from_pixbuf(
-		   Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$gscrot_root/share/gscrot/resources/icons/Image-missing.svg", Gtk2::IconSize->lookup( 'menu' ) )
-	  );
-	  $session_screens{ $key }->{ 'image' }->set_from_pixbuf(
-												  Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-													 "$gscrot_root/share/gscrot/resources/icons/Image-missing.svg", Gtk2::IconSize->lookup( 'dialog' )
-												  )
-	  );
-	  
-	  foreach(keys %{$session_screens{$key}}){
-	  	$session_screens{ $key }->{ $_ }->set_sensitive (FALSE) if $session_screens{ $key }->{ $_ } =~ /button/i;
-	  	$session_screens{ $key }->{ $_ }->set_text ("-") if $session_screens{ $key }->{ $_ } =~ /label/i;
+	  $session_screens{ $key }->{ 'thumb' } =
+		  Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$gscrot_root/share/gscrot/resources/icons/Image-missing.svg", 400, 400, TRUE );
+	  $session_screens{ $key }->{ 'tab_icon' }
+		  ->set_from_pixbuf( $session_screens{ $key }->{ 'thumb' }->scale_simple( Gtk2::IconSize->lookup( 'menu' ), 'tiles' ) );
+	  $session_screens{ $key }->{ 'image' }->set_from_pixbuf( $session_screens{ $key }->{ 'thumb' } );
+	  foreach ( keys %{ $session_screens{ $key } } ) {
+		 $session_screens{ $key }->{ $_ }->set_sensitive( FALSE ) if $session_screens{ $key }->{ $_ } =~ /button/i;
+		 $session_screens{ $key }->{ $_ }->set_text( "-" )        if $session_screens{ $key }->{ $_ } =~ /label/i;
 	  }
-	  
+
    }
 
-	$session_screens{ $key }->{ 'image' }->{ 'current_width' }  = $session_screens{ $key }->{ 'image' }->get_pixbuf->get_width;
-	$session_screens{ $key }->{ 'image' }->{ 'current_height' } = $session_screens{ $key }->{ 'image' }->get_pixbuf->get_height;
-	$session_screens{ $key }->{ 'image' }->{ 'aspect_ratio' } = $session_screens{ $key }->{ 'image' }->{ 'current_width' } / $session_screens{ $key }->{ 'image' }->{ 'current_height' };
+   $session_screens{ $key }->{ 'image' }->{ 'current_width' }  = $session_screens{ $key }->{ 'image' }->get_pixbuf->get_width;
+   $session_screens{ $key }->{ 'image' }->{ 'current_height' } = $session_screens{ $key }->{ 'image' }->get_pixbuf->get_height;
+   $session_screens{ $key }->{ 'image' }->{ 'aspect_ratio' } =
+	   $session_screens{ $key }->{ 'image' }->{ 'current_width' } / $session_screens{ $key }->{ 'image' }->{ 'current_height' };
 
-   	&fct_resize_thumb( $session_screens{ $key }->{ 'image' }, undef, $key);
-   
+   &fct_resize_thumb( $session_screens{ $key }->{ 'image' }, undef, $key );
+
    return 1;
 }
 

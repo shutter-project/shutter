@@ -3,7 +3,7 @@
 #gscrot-plugin
 
 TEXTDOMAIN=gscrot-plugins-bash
-TEXTDOMAINDIR=/usr/share/locale 
+TEXTDOMAINDIR=$GSCROT_INTL
 PLUGIN_NAME=$"jigsaw piece 2"
 PLUGIN_SORT=$"effect"
 PLUGIN_TIP=$"cut a jigsaw piece out of the picture"
@@ -31,8 +31,8 @@ WIDTH="${2}"
 HEIGHT="${3}"
 FILEYTPE="${4}"
 GEO="${2}x${3}"
-PIECE="/usr/share/gscrot/resources/system/plugins/bash/gspjigsaw2/gspjigsaw_2.png"
-JIGSAW="/usr/bin/jigsaw"
+PIECE="$GSCROT_ROOT/share/gscrot/resources/system/plugins/bash/gspjigsaw2/gspjigsaw_2.png"
+JIGSAW="$GSCROT_ROOT/share/gscrot/resources/system/plugins/bash/gspjigsaw2/jigsaw"
 
 convert "${PIECE}" -resize "${GEO}" \
 -background none /tmp/jigsaw_cnr_tmpl.png

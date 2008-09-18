@@ -3,7 +3,7 @@
 #gscrot-plugin  
 
 TEXTDOMAIN=gscrot-plugins-bash 
-TEXTDOMAINDIR=/usr/share/locale  
+TEXTDOMAINDIR=$GSCROT_INTL
 PLUGIN_NAME=$"PDF Export" 
 PLUGIN_SORT=$"tool" 
 PLUGIN_TIP=$"Export your pics" 

@@ -3,7 +3,7 @@
 #gscrot-plugin
 
 TEXTDOMAIN=gscrot-plugins-bash
-TEXTDOMAINDIR=/usr/share/locale 
+TEXTDOMAINDIR=$GSCROT_INTL 
 PLUGIN_NAME=$"sunk border"
 PLUGIN_SORT=$"effect"
 PLUGIN_TIP=$"sunk a rectangular 3d-border"
