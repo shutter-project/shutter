@@ -94,8 +94,8 @@ my %gm_programs;    #hash to store program infos
 &fct_check_installed_programs if keys( %gm_programs ) > 0;
 my %plugins;        #hash to store plugin infos
 &fct_check_installed_plugins if keys( %plugins ) > 0;
-my %accounts;       #hash to account infos
-my %settings;       #hash to store settings
+my %accounts = ();       #hash to account infos
+my %settings = ();       #hash to store settings
 
 #load accounts
 &fct_load_accounts();
@@ -111,7 +111,7 @@ my $screen = Gnome2::Wnck::Screen->get_default;
 $screen->force_update();
 my $gdk_screen = Gtk2::Gdk::Screen->get_default;
 my @workspaces = undef;
-my %children;
+my %children = ();
 my $active_workspace = $screen->get_active_workspace;
 
 #main window
@@ -1882,7 +1882,7 @@ sub evt_delete_window {
    
    if ( $save_at_close_active->get_active ) {
 		 &fct_save_settings("all", undef);
-		 &fct_save_settings("all", $combobox_settings_profiles->get_active_text);
+		 &fct_save_settings("all", $combobox_settings_profiles->get_active_text) if $combobox_settings_profiles->get_active != -1;
    }
 	
 	Gtk2->main_quit;
@@ -2727,12 +2727,16 @@ sub fct_save_settings {
 
    #settings file
    my $settingsfile = "$ENV{ HOME }/.gscrot/settings.xml";
-   $settingsfile = "$ENV{ HOME }/.gscrot/profiles/$profilename.xml" if ( defined $profilename);
+   if ( defined $profilename){
+   $settingsfile = "$ENV{ HOME }/.gscrot/profiles/$profilename.xml" if ($profilename ne "");
+   }
 
    #accounts file
    my $accountsfile = "$ENV{ HOME }/.gscrot/accounts.xml";
-   $accountsfile = "$ENV{ HOME }/.gscrot/profiles/$profilename\_accounts.xml" if ( defined $profilename);
-
+   if ( defined $profilename){
+   $accountsfile = "$ENV{ HOME }/.gscrot/profiles/$profilename\_accounts.xml" if ($profilename ne "");
+   }
+   
    my $client        = Gnome2::GConf::Client->get_default;
    my $shortcut_full = "/apps/metacity/global_keybindings/run_command_screenshot";
    my $shortcut_sel  = "/apps/metacity/global_keybindings/run_command_window_screenshot";
@@ -2853,8 +2857,8 @@ sub fct_save_settings {
 		 $settings{ 'plugins' }->{ $_ }->{ 'menu' } = $plugins{ $_ }->{ 'menu' } if defined $plugins{ $_ }->{ 'menu' };
 	  }
 
-	  my $settings_out = XMLout( \%settings );
-	  print SETTFILE $settings_out;
+	  #write settings to file
+	  print SETTFILE XMLout( \%settings );
 
 	  close( SETTFILE )
 		  or &dlg_error_message( $d->get( "Settings could not be saved!" ) );
@@ -2863,9 +2867,8 @@ sub fct_save_settings {
 
 	  open( ACC_FILE, ">$accountsfile" )
 		  or &dlg_error_message( $d->get( "Account-settings could not be saved!" ) );
-	  my $accounts_out = XMLout( \%accounts );
 
-	  print ACC_FILE $accounts_out;
+	  print ACC_FILE XMLout( \%accounts );
 
 	  close( ACC_FILE )
 		  or &dlg_error_message( $d->get( "Account-settings could not be saved!" ) );
