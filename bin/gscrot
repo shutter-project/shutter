@@ -2887,6 +2887,9 @@ sub fct_save_settings {
    else {
 	  open( SETTFILE, ">$settingsfile" )
 		  or &dlg_error_message( $d->get( "Settings could not be saved!" ) );
+	  
+	  $settings{ 'general' }->{ 'last_profile' } = $combobox_settings_profiles->get_active;
+	  
 	  $settings{ 'general' }->{ 'filetype' }    = $combobox_type->get_active;
 	  $settings{ 'general' }->{ 'quality' }     = $scale->get_value();
 	  $settings{ 'general' }->{ 'filename' }    = $filename->get_text();
@@ -4553,6 +4556,7 @@ sub evt_save_profile {
 
    if ( $new_profile_name ) {
 	  $combobox_settings_profiles->append_text( $new_profile_name ) if $curr_profile_name ne $new_profile_name;
+	  $combobox_settings_profiles->set_active( $combobox_settings_profiles->get_active +1 );
 	  &fct_save_settings( "all", $new_profile_name );
    }
    return TRUE;
@@ -4561,12 +4565,18 @@ sub evt_save_profile {
 sub evt_delete_profile {
    my ( $widget, $combobox_settings_profiles ) = @_;
    if ( $combobox_settings_profiles->get_active_text ) {
-	  unlink( "$ENV{'HOME'}/.gscrot/profiles/" . $combobox_settings_profiles->get_active_text . ".xml" );
-	  unlink( "$ENV{'HOME'}/.gscrot/profiles/" . $combobox_settings_profiles->get_active_text . "_accounts.xml" );
+   	  my $active_text = $combobox_settings_profiles->get_active_text;
+	  my $active_index = $combobox_settings_profiles->get_active;
+	  unlink( "$ENV{'HOME'}/.gscrot/profiles/" . $active_text . ".xml" );
+	  unlink( "$ENV{'HOME'}/.gscrot/profiles/" . $active_text . "_accounts.xml" );
 
-	  unless (    &fct_file_exists( "$ENV{'HOME'}/.gscrot/profiles/" . $combobox_settings_profiles->get_active_text . ".xml" )
-			   || &fct_file_exists( "$ENV{'HOME'}/.gscrot/profiles/" . $combobox_settings_profiles->get_active_text . "_accounts.xml" ) )
+	  unless (    &fct_file_exists( "$ENV{'HOME'}/.gscrot/profiles/" . $active_text . ".xml" )
+			   || &fct_file_exists( "$ENV{'HOME'}/.gscrot/profiles/" . $active_text . "_accounts.xml" ) )
 	  {
+		 $combobox_settings_profiles->remove_text($active_index);
+		 unless($combobox_settings_profiles->set_active( $active_index-1 )){
+		 	$combobox_settings_profiles->set_active( $active_index+1 );
+		 }
 		 &dlg_status_message( 1, $d->get( "Profile deleted" ) );
 	  }
 	  else {
