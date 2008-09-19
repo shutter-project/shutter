@@ -206,20 +206,6 @@ $menuitem_open->signal_connect( "activate", \&evt_settings, 'menu_open' );
 
 $menu_file->append( Gtk2::SeparatorMenuItem->new );
 
-my $menuitem_revert = Gtk2::ImageMenuItem->new( $d->get( "Revert Settings" ) );
-$menuitem_revert->set_image( Gtk2::Image->new_from_icon_name( 'gtk-revert-to-saved-ltr', 'menu' ) );
-$menuitem_revert->add_accelerator( "activate", $accel_group, $Gtk2::Gdk::Keysyms{ Z }, qw/control-mask/, qw/visible/ );
-$menu_file->append( $menuitem_revert );
-$menuitem_revert->signal_connect( "activate", \&evt_settings, 'menu_revert' );
-
-my $menuitem_save = Gtk2::ImageMenuItem->new( $d->get( "Save Settings" ) );
-$menuitem_save->set_image( Gtk2::Image->new_from_icon_name( 'gtk-save', 'menu' ) );
-$menuitem_save->add_accelerator( "activate", $accel_group, $Gtk2::Gdk::Keysyms{ S }, qw/control-mask/, qw/visible/ );
-$menu_file->append( $menuitem_save );
-$menuitem_save->signal_connect( "activate", \&evt_settings, 'menu_save' );
-
-$menu_file->append( Gtk2::SeparatorMenuItem->new );
-
 my $menuitem_quit = Gtk2::ImageMenuItem->new( $d->get( "Quit" ) );
 $menuitem_quit->set_image( Gtk2::Image->new_from_icon_name( 'gtk-quit', 'menu' ) );
 $menuitem_quit->add_accelerator( "activate", $accel_group, $Gtk2::Gdk::Keysyms{ Q }, qw/control-mask/, qw/visible/ );
@@ -518,7 +504,7 @@ my $button_profile_delete = Gtk2::Button->new;
 $button_profile_delete->signal_connect( 'clicked', \&evt_delete_profile, $combobox_settings_profiles );
 $button_profile_delete->set_image( Gtk2::Image->new_from_stock( 'gtk-delete', 'button' ) );
 my $tooltip_profiles_delete = Gtk2::Tooltips->new;
-$tooltip_profiles_delete->set_tip( $button_profile_save, $d->get( "Delete profile" ) );
+$tooltip_profiles_delete->set_tip( $button_profile_delete, $d->get( "Delete profile" ) );
 
 my $button_profile_apply = Gtk2::Button->new;
 $button_profile_apply->signal_connect( 'clicked', \&evt_apply_profile, $combobox_settings_profiles );
@@ -802,7 +788,7 @@ my $hide_active           = Gtk2::CheckButton->new_with_label( $d->get( "Autohid
 my $autocopy_active       = Gtk2::CheckButton->new_with_label( $d->get( "Automatically copy screenshot to clipboard" ) );
 my $close_at_close_active = Gtk2::CheckButton->new_with_label( $d->get( "Minimize to tray when closing main window" ) );
 my $save_at_close_active  = Gtk2::CheckButton->new_with_label( $d->get( "Save settings when exiting" ) );
-my $ask_quit_active       = Gtk2::CheckButton->new_with_label( $d->get( "Show \"Do you really want to quit?\" dialog when exiting" ) );
+
 $hide_active->signal_connect( 'toggled' => \&evt_behavior_handle,
 							  'hide_toggled' );
 
@@ -847,17 +833,7 @@ else {
 }
 my $tooltip_save_at_close = Gtk2::Tooltips->new;
 $tooltip_save_at_close->set_tip( $save_at_close_active, $d->get( "Save settings automatically when exiting GScrot" ) );
-$ask_quit_active->signal_connect( 'toggled' => \&evt_behavior_handle,
-								  'ask_quit_toggled' );
 
-if ( defined $settings_xml->{ 'general' }->{ 'ask_at_close' } ) {
-   $ask_quit_active->set_active( $settings_xml->{ 'general' }->{ 'ask_at_close' } );
-}
-else {
-   $ask_quit_active->set_active( TRUE );
-}
-my $tooltip_ask_quit = Gtk2::Tooltips->new;
-$tooltip_ask_quit->set_tip( $ask_quit_active, $d->get( "Show \"Do you really want to quit?\" dialog when exiting" ) );
 
 #end - behavior
 #program
@@ -1233,7 +1209,6 @@ $vbox_basic->set_border_width( 5 );
 $behavior_vbox->pack_start( $autocopy_active,       FALSE, TRUE, 5 );
 $behavior_vbox->pack_start( $hide_active,           FALSE, TRUE, 5 );
 $behavior_vbox->pack_start( $close_at_close_active, FALSE, TRUE, 5 );
-$behavior_vbox->pack_start( $ask_quit_active,       FALSE, TRUE, 5 );
 $behavior_vbox->pack_start( $save_at_close_active,  FALSE, TRUE, 5 );
 $behavior_frame->add( $behavior_vbox );
 
@@ -1322,9 +1297,11 @@ else {
 }
 
 #load last profile 
+if(defined $settings_xml->{ 'general' }->{ 'last_profile' }){
 if ( $settings_xml->{ 'general' }->{ 'last_profile' } != -1) {
 	$combobox_settings_profiles->set_active($settings_xml->{ 'general' }->{ 'last_profile' });
 	$settings_xml = &fct_load_settings( "start", "profile_load", $settings_xml->{ 'general' }->{ 'last_profile_name' });	
+}
 }	
 
 #load saved settings
@@ -1862,12 +1839,6 @@ sub evt_take_screenshot {
 sub evt_behavior_handle {
    my ( $widget, $data ) = @_;
    print "\n$data was emitted by widget $widget\n" if $debug_cparam;
-   if ( $data eq "close_at_close_toggled" ) {
-	  $ask_quit_active->set_sensitive( FALSE )
-		  if $close_at_close_active->get_active;
-	  $ask_quit_active->set_sensitive( TRUE )
-		  unless $close_at_close_active->get_active;
-   }
 
    #checkbox for "keybinding" -> entry active/inactive
    if ( $data eq "keybinding_toggled" ) {
@@ -1902,95 +1873,20 @@ sub evt_notebook_switch {
 sub evt_delete_window {
    my ( $widget, $data ) = @_;
    print "\n$data was emitted by widget $widget\n" if $debug_cparam;
-   if ( $data eq "menu_quit" && $save_at_close_active->get_active ) {
-	  if (    -f "$ENV{ HOME }/.gscrot/settings.xml"
-		   && -w "$ENV{ HOME }/.gscrot/settings.xml" )
-	  {
-		 &fct_save_settings("all", undef);
-		 &fct_save_settings("all", $combobox_settings_profiles->get_active_text);
-	  }
-   }
-   if ( $data ne "menu_quit" && $save_at_close_active->get_active ) {
-	  if (    -f "$ENV{ HOME }/.gscrot/settings.xml"
-		   && -w "$ENV{ HOME }/.gscrot/settings.xml" )
-	  {
-		 &fct_save_settings("all", undef);
-		 &fct_save_settings("all", $combobox_settings_profiles->get_active_text);
-	  }
-   }
+
    if ( $data ne "menu_quit" && $close_at_close_active->get_active ) {
 	  $window->hide;
 	  $is_in_tray = TRUE;
 	  return TRUE;
    }
-   if ( $data eq "menu_quit" or !$ask_quit_active->get_active() ) {
-	  Gtk2->main_quit;
-	  return FALSE;
+   
+   if ( $save_at_close_active->get_active ) {
+		 &fct_save_settings("all", undef);
+		 &fct_save_settings("all", $combobox_settings_profiles->get_active_text);
    }
-   my $dlg_header = $d->get( "Quit GScrot" );
-   my $dialog = Gtk2::Dialog->new(
-								   $dlg_header,
-								   $window,
-								   [ qw/modal destroy-with-parent/ ],
-								   'gtk-no'  => 'no',
-								   'gtk-yes' => 'yes'
-								 );
-   $dialog->set_default_response( 'no' );
-   my $exit_hbox  = Gtk2::HBox->new( FALSE,                                 0 );
-   my $exit_vbox  = Gtk2::VBox->new( FALSE,                                 0 );
-   my $exit_image = Gtk2::Image->new_from_icon_name( 'gtk-dialog-question', 'dialog' );
-   my $exit_label = Gtk2::Label->new();
-   $exit_label->set_text( $d->get( "Do you really want to quit GScrot?" ) );
-   my $ask_active = Gtk2::CheckButton->new_with_label( $d->get( "Do not ask this question again" ) );
-   $ask_active->set_active( FALSE );
-   $exit_vbox->pack_start( $exit_label, TRUE, TRUE, 0 );
-   $exit_vbox->pack_start( $ask_active, TRUE, TRUE, 0 );
-   $exit_hbox->pack_start( $exit_image, TRUE, TRUE, 0 );
-   $exit_hbox->pack_start( $exit_vbox,  TRUE, TRUE, 0 );
-   $dialog->vbox->add( $exit_hbox );
-   $dialog->show_all;
-   my $response = $dialog->run;
-
-   if ( $ask_active->get_active ) {
-	  open( FILE, ">>$ENV{ HOME }/.gscrot/settings.conf" )
-		  or &dlg_status_message( 1, $d->get( "Settings could not be saved" ) );
-	  my @saved_lines = <FILE>;
-	  close( FILE )
-		  or &dlg_status_message( 1, $d->get( "Settings could not be saved" ) );
-	  my $found = FALSE;
-
-	  foreach ( @saved_lines ) {
-		 if ( $_ =~ /CLOSE_ASK=/ ) {
-			$_     = "CLOSE_ASK=\n";
-			$found = TRUE;
-		 }
-	  }
-	  if ( $found == FALSE ) {
-		 open( FILE, ">>$ENV{ HOME }/.gscrot/settings.conf" )
-			 or &dlg_status_message( 1, $d->get( "Settings could not be saved" ) );
-		 print FILE "CLOSE_ASK=\n";
-		 close( FILE )
-			 or &dlg_status_message( 1, $d->get( "Settings could not be saved" ) );
-	  }
-	  else {
-		 open( FILE, ">$ENV{ HOME }/.gscrot/settings.conf" )
-			 or &dlg_status_message( 1, $d->get( "Settings could not be saved" ) );
-		 foreach ( @saved_lines ) {
-			print FILE $_;
-		 }
-		 close( FILE )
-			 or &dlg_status_message( 1, $d->get( "Settings could not be saved" ) );
-	  }
-   }
-   if ( $response eq "yes" ) {
-	  $dialog->destroy();
-	  Gtk2->main_quit;
-	  return FALSE;
-   }
-   else {
-	  $dialog->destroy();
-	  return TRUE;
-   }
+	
+	Gtk2->main_quit;
+	return FALSE;
 }
 
 #call bug report
@@ -2796,30 +2692,7 @@ sub evt_settings {
    my ( $widget, $data ) = @_;
    print "\n$data was emitted by widget $widget\n" if $debug_cparam;
 
-   #save?
-   if ( $data eq "menu_save" ) {
-	  if (    -f "$ENV{ HOME }/.gscrot/settings.xml"
-		   && -w "$ENV{ HOME }/.gscrot/settings.xml" )
-	  {
-		 if ( &dlg_question_message( $d->get( "Do you want to overwrite the existing settings?" ) ) ) {    #ask is settings-file exists
-			&fct_save_settings("all", $combobox_settings_profiles->get_active_text);
-		 }
-	  }
-	  else {
-		 &fct_save_settings();                                                                               #do it directly if not
-	  }
-   }
-   elsif ( $data eq "menu_revert" ) {
-	  if (    -f "$ENV{ HOME }/.gscrot/settings.xml"
-		   && -r "$ENV{ HOME }/.gscrot/settings.xml" )
-	  {
-		 &fct_load_settings;
-	  }
-	  else {
-		 &dlg_info_message( $d->get( "There are no stored settings" ) );
-	  }
-   }
-   elsif ( $data eq "menu_open" ) {
+   if ( $data eq "menu_open" ) {
 	  my $fs = Gtk2::FileChooserDialog->new(
 											 $d->get( "Choose file to open" ), $window, 'open',
 											 'gtk-ok'     => 'accept',
@@ -2854,11 +2727,11 @@ sub fct_save_settings {
 
    #settings file
    my $settingsfile = "$ENV{ HOME }/.gscrot/settings.xml";
-   $settingsfile = "$ENV{ HOME }/.gscrot/profiles/$profilename.xml" if ( defined $profilename );
+   $settingsfile = "$ENV{ HOME }/.gscrot/profiles/$profilename.xml" if ( defined $profilename);
 
    #accounts file
    my $accountsfile = "$ENV{ HOME }/.gscrot/accounts.xml";
-   $accountsfile = "$ENV{ HOME }/.gscrot/profiles/$profilename\_accounts.xml" if ( defined $profilename );
+   $accountsfile = "$ENV{ HOME }/.gscrot/profiles/$profilename\_accounts.xml" if ( defined $profilename);
 
    my $client        = Gnome2::GConf::Client->get_default;
    my $shortcut_full = "/apps/metacity/global_keybindings/run_command_screenshot";
@@ -2939,7 +2812,6 @@ sub fct_save_settings {
 	  $settings{ 'general' }->{ 'thumbnail' }        = $thumbnail->get_value();
 	  $settings{ 'general' }->{ 'thumbnail_active' } = $thumbnail_active->get_active();
 	  $settings{ 'general' }->{ 'border' }           = $combobox_border->get_active();
-	  $settings{ 'general' }->{ 'ask_at_close' }     = $ask_quit_active->get_active();
 	  $settings{ 'general' }->{ 'autohide' }         = $hide_active->get_active();
 	  $settings{ 'general' }->{ 'autocopy' }         = $autocopy_active->get_active();
 	  $settings{ 'general' }->{ 'close_at_close' }   = $close_at_close_active->get_active();
@@ -3011,7 +2883,7 @@ sub fct_load_settings {
    $settings_xml = undef;
    if ( &fct_file_exists( $settingsfile ) ) {
 	  $settings_xml = XMLin( $settingsfile );
-	  if ( $data eq 'menu_revert' || $data eq 'profile_load' ) {
+	  if ( $data eq 'profile_load' ) {
 		 $combobox_type->set_active( $settings_xml->{ 'general' }->{ 'filetype' } );
 		 $scale->set_value( $settings_xml->{ 'general' }->{ 'quality' } );
 		 $filename->set_text( $settings_xml->{ 'general' }->{ 'filename' } );
@@ -3047,7 +2919,6 @@ sub fct_load_settings {
 		 $thumbnail->set_value( $settings_xml->{ 'general' }->{ 'thumbnail' } );
 		 $thumbnail_active->set_active( $settings_xml->{ 'general' }->{ 'thumbnail_active' } );
 		 $combobox_border->set_active( $settings_xml->{ 'general' }->{ 'border' } );
-		 $ask_quit_active->set_active( $settings_xml->{ 'general' }->{ 'ask_at_close' } );
 		 $hide_active->set_active( $settings_xml->{ 'general' }->{ 'autohide' } );
 		 $autocopy_active->set_active( $settings_xml->{ 'general' }->{ 'autocopy' } );
 		 $close_at_close_active->set_active( $settings_xml->{ 'general' }->{ 'close_at_close' } );
@@ -3935,7 +3806,7 @@ sub fct_gscrot_area {
 
 				  #					$backwindow->destroy if defined $backwindow;
 				  $zoom_window->destroy;
-
+				Gtk2::Gdk->flush;
 				  #ungrab pointer and keyboard
 				  Gtk2::Gdk->pointer_ungrab( Gtk2->get_current_event_time );
 				  Gtk2::Gdk->keyboard_ungrab( Gtk2->get_current_event_time );
@@ -3953,7 +3824,7 @@ sub fct_gscrot_area {
 			   #capture is finished, delete zoom
 			   #				$backwindow->destroy if defined $backwindow;
 			   $zoom_window->destroy;
-
+				Gtk2::Gdk->flush;
 			   #ungrab pointer and keyboard
 			   Gtk2::Gdk->pointer_ungrab( Gtk2->get_current_event_time );
 			   Gtk2::Gdk->keyboard_ungrab( Gtk2->get_current_event_time );
@@ -4076,7 +3947,7 @@ sub fct_gscrot_area {
    }
    else {    #pointer not grabbed
 	  $zoom_window->destroy;
-
+Gtk2::Gdk->flush;
 	  #		$backwindow->destroy if defined $backwindow;
 	  #ungrab pointer and keyboard
 	  Gtk2::Gdk->pointer_ungrab( Gtk2->get_current_event_time );
@@ -4585,9 +4456,8 @@ sub evt_delete_profile {
 			   || &fct_file_exists( "$ENV{'HOME'}/.gscrot/profiles/" . $active_text . "_accounts.xml" ) )
 	  {
 		 $combobox_settings_profiles->remove_text($active_index);
-		 unless($combobox_settings_profiles->set_active( $active_index-1 )){
-		 	$combobox_settings_profiles->set_active( $active_index+1 );
-		 }
+	  	$combobox_settings_profiles->set_active( $combobox_settings_profiles->get_active +1 );
+
 		 &dlg_status_message( 1, $d->get( "Profile deleted" ) );
 	  }
 	  else {
