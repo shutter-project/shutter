@@ -90,7 +90,6 @@ require GScrot::Draw;
 import GScrot::Draw;
 
 #--------------------------------------
-my $x = X11::Protocol->new();
 my %gm_programs;    #hash to store program infos
 &fct_check_installed_programs if keys( %gm_programs ) > 0;
 my %plugins;        #hash to store plugin infos
@@ -107,6 +106,7 @@ $SIG{ USR1 } = sub { &evt_take_screenshot( 'global_keybinding', 'raw' ) };
 $SIG{ USR2 } = sub { &evt_take_screenshot( 'global_keybinding', 'select' ) };
 
 #screen
+my $x = X11::Protocol->new();
 my $screen = Gnome2::Wnck::Screen->get_default;
 $screen->force_update();
 my $gdk_screen = Gtk2::Gdk::Screen->get_default;
@@ -1321,6 +1321,12 @@ else {
    $window->hide;
 }
 
+#load last profile 
+if ( $settings_xml->{ 'general' }->{ 'last_profile' } != -1) {
+	$combobox_settings_profiles->set_active($settings_xml->{ 'general' }->{ 'last_profile' });
+	$settings_xml = &fct_load_settings( "start", "profile_load", $settings_xml->{ 'general' }->{ 'last_profile_name' });	
+}	
+
 #load saved settings
 my $folder_to_save = $settings_xml->{ 'general' }->{ 'folder' }
 	|| $ENV{ 'HOME' };
@@ -1871,7 +1877,7 @@ sub evt_behavior_handle {
 	  else {
 		 $capture_key->set_sensitive( FALSE );
 	  }
-	  &fct_save_settings( "bindings" );
+	  &fct_save_settings( "bindings", undef );
    }
 
    #checkbox for "keybinding_sel" -> entry active/inactive
@@ -1882,7 +1888,7 @@ sub evt_behavior_handle {
 	  else {
 		 $capture_sel_key->set_sensitive( FALSE );
 	  }
-	  &fct_save_settings( "bindings" );
+	  &fct_save_settings( "bindings", undef );
    }
    return 1;
 }
@@ -1900,14 +1906,16 @@ sub evt_delete_window {
 	  if (    -f "$ENV{ HOME }/.gscrot/settings.xml"
 		   && -w "$ENV{ HOME }/.gscrot/settings.xml" )
 	  {
-		 &fct_save_settings;
+		 &fct_save_settings("all", undef);
+		 &fct_save_settings("all", $combobox_settings_profiles->get_active_text);
 	  }
    }
    if ( $data ne "menu_quit" && $save_at_close_active->get_active ) {
 	  if (    -f "$ENV{ HOME }/.gscrot/settings.xml"
 		   && -w "$ENV{ HOME }/.gscrot/settings.xml" )
 	  {
-		 &fct_save_settings;
+		 &fct_save_settings("all", undef);
+		 &fct_save_settings("all", $combobox_settings_profiles->get_active_text);
 	  }
    }
    if ( $data ne "menu_quit" && $close_at_close_active->get_active ) {
@@ -2794,11 +2802,11 @@ sub evt_settings {
 		   && -w "$ENV{ HOME }/.gscrot/settings.xml" )
 	  {
 		 if ( &dlg_question_message( $d->get( "Do you want to overwrite the existing settings?" ) ) ) {    #ask is settings-file exists
-			&fct_save_settings;
+			&fct_save_settings("all", $combobox_settings_profiles->get_active_text);
 		 }
 	  }
 	  else {
-		 &fct_save_settings;                                                                               #do it directly if not
+		 &fct_save_settings();                                                                               #do it directly if not
 	  }
    }
    elsif ( $data eq "menu_revert" ) {
@@ -2889,6 +2897,7 @@ sub fct_save_settings {
 		  or &dlg_error_message( $d->get( "Settings could not be saved!" ) );
 	  
 	  $settings{ 'general' }->{ 'last_profile' } = $combobox_settings_profiles->get_active;
+	  $settings{ 'general' }->{ 'last_profile_name' } = $combobox_settings_profiles->get_active_text;
 	  
 	  $settings{ 'general' }->{ 'filetype' }    = $combobox_type->get_active;
 	  $settings{ 'general' }->{ 'quality' }     = $scale->get_value();
@@ -4555,8 +4564,10 @@ sub evt_save_profile {
    my $new_profile_name = &dlg_profile_name( $curr_profile_name, $combobox_settings_profiles );
 
    if ( $new_profile_name ) {
-	  $combobox_settings_profiles->append_text( $new_profile_name ) if $curr_profile_name ne $new_profile_name;
+   	if ($curr_profile_name ne $new_profile_name){
+	  $combobox_settings_profiles->append_text( $new_profile_name );
 	  $combobox_settings_profiles->set_active( $combobox_settings_profiles->get_active +1 );
+   	}
 	  &fct_save_settings( "all", $new_profile_name );
    }
    return TRUE;
