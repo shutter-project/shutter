@@ -498,8 +498,15 @@ $tray->show_all;
 #settings
 #--------------------------------------
 my $combobox_settings_profiles = Gtk2::ComboBox->new_text;
+my @saved_profiles = glob("$ENV{'HOME'}/.gscrot/profiles/*.xml");
+foreach(@saved_profiles){
+	next if $_ =~ /\_accounts.xml/; #accounts file - we are looking for "real" profiles
+	$_ =~ /.*\/(.*)\.xml/; #get profiles name
+	$combobox_settings_profiles->append_text($1);
+}
 my $tooltip_profiles           = Gtk2::Tooltips->new;
 $tooltip_profiles->set_tip( $combobox_settings_profiles, $d->get( "Choose a profile" ) );
+
 
 my $button_profile_save = Gtk2::Button->new;
 $button_profile_save->signal_connect( 'clicked', \&evt_save_profile, $combobox_settings_profiles );
@@ -2983,11 +2990,16 @@ sub fct_save_settings {
 }
 
 sub fct_load_settings {
-   my ( $widget, $data ) = @_;
+   my ( $widget, $data, $profilename ) = @_;
+
+   #settings file
+   my $settingsfile = "$ENV{ HOME }/.gscrot/settings.xml";
+   $settingsfile = "$ENV{ HOME }/.gscrot/profiles/$profilename.xml" if ( defined $profilename );
+
    $settings_xml = undef;
-   if ( &fct_file_exists( "$ENV{ HOME }/.gscrot/settings.xml" ) ) {
-	  $settings_xml = XMLin( "$ENV{ HOME }/.gscrot/settings.xml" );
-	  if ( $data eq 'menu_revert' ) {
+   if ( &fct_file_exists( $settingsfile ) ) {
+	  $settings_xml = XMLin( $settingsfile );
+	  if ( $data eq 'menu_revert' || $data eq 'profile_load' ) {
 		 $combobox_type->set_active( $settings_xml->{ 'general' }->{ 'filetype' } );
 		 $scale->set_value( $settings_xml->{ 'general' }->{ 'quality' } );
 		 $filename->set_text( $settings_xml->{ 'general' }->{ 'filename' } );
@@ -3034,6 +3046,7 @@ sub fct_load_settings {
 		 $capture_sel_key->set_text( $settings_xml->{ 'general' }->{ 'capture_sel_key' } );
 
 	  }
+	  &fct_load_accounts;
 	  &dlg_status_message( 1, $d->get( "Settings loaded successfully" ) );
    }
 
@@ -3047,8 +3060,14 @@ sub fct_load_settings {
 }
 
 sub fct_load_accounts {
-   my $accounts_xml = XMLin( "$ENV{ HOME }/.gscrot/accounts.xml" )
-	   if &fct_file_exists( "$ENV{ HOME }/.gscrot/accounts.xml" );
+   my ( $profilename ) = @_;
+
+   #accounts file
+   my $accountsfile = "$ENV{ HOME }/.gscrot/accounts.xml";
+   $accountsfile = "$ENV{ HOME }/.gscrot/profiles/$profilename\_accounts.xml" if ( defined $profilename );
+
+   my $accounts_xml = XMLin( $accountsfile )
+	   if &fct_file_exists( $accountsfile );
 
    #account data, load defaults if nothing is set
    unless ( exists( $accounts_xml->{ 'ubuntu-pics.de' } ) ) {
@@ -4531,23 +4550,38 @@ sub evt_save_profile {
    mkdir "$ENV{'HOME'}/.gscrot/profiles" unless ( -d "$ENV{'HOME'}/.gscrot/profiles" );
    my $curr_profile_name = $combobox_settings_profiles->get_active_text || "";
    my $new_profile_name = &dlg_profile_name( $curr_profile_name, $combobox_settings_profiles );
+
    if ( $new_profile_name ) {
 	  $combobox_settings_profiles->append_text( $new_profile_name ) if $curr_profile_name ne $new_profile_name;
 	  &fct_save_settings( "all", $new_profile_name );
    }
-
    return TRUE;
 }
 
 sub evt_delete_profile {
    my ( $widget, $combobox_settings_profiles ) = @_;
+   if ( $combobox_settings_profiles->get_active_text ) {
+	  unlink( "$ENV{'HOME'}/.gscrot/profiles/" . $combobox_settings_profiles->get_active_text . ".xml" );
+	  unlink( "$ENV{'HOME'}/.gscrot/profiles/" . $combobox_settings_profiles->get_active_text . "_accounts.xml" );
 
+	  unless (    &fct_file_exists( "$ENV{'HOME'}/.gscrot/profiles/" . $combobox_settings_profiles->get_active_text . ".xml" )
+			   || &fct_file_exists( "$ENV{'HOME'}/.gscrot/profiles/" . $combobox_settings_profiles->get_active_text . "_accounts.xml" ) )
+	  {
+		 &dlg_status_message( 1, $d->get( "Profile deleted" ) );
+	  }
+	  else {
+		 &dlg_error_message( $d->get( "Profile could not be deleted" ) );
+		 &dlg_status_message( 1, $d->get( "Profile could not be deleted" ) );
+	  }
+   }
    return TRUE;
 }
 
 sub evt_apply_profile {
    my ( $widget, $combobox_settings_profiles ) = @_;
-
+   if ( $combobox_settings_profiles->get_active_text ) {
+	  &fct_load_settings( undef, 'profile_load', $combobox_settings_profiles->get_active_text );
+   }
    return TRUE;
 }
 
@@ -4571,12 +4605,10 @@ sub dlg_profile_name {
 
    if ( $profile_response eq "accept" ) {
 	  my $entered_name = $new_profile_name->get_text;
-	  my @all_profiles = glob( "$ENV{'HOME'}/.gscrot/profiles/$entered_name*.xml" );
 
-	  if ( scalar @all_profiles > 0 ) {
+	  if ( &fct_file_exists( "$ENV{'HOME'}/.gscrot/profiles/$entered_name.xml" ) ) {
 
-		 if ( &dlg_question_message( $d->get( "Profile $entered_name already exists.\nDo you want to overwrite the existing profile?" ) ) )
-		 {
+		 if ( &dlg_question_message( $d->get( "Profile $entered_name already exists.\nDo you want to overwrite the existing profile?" ) ) ) {
 			$profile_dialog->destroy();
 			return $new_profile_name->get_text;
 		 }
