@@ -90,6 +90,7 @@ require GScrot::Draw;
 import GScrot::Draw;
 
 #--------------------------------------
+
 my %gm_programs;    #hash to store program infos
 &fct_check_installed_programs if keys( %gm_programs ) > 0;
 my %plugins;        #hash to store plugin infos
@@ -99,7 +100,6 @@ my %settings = ();    #hash to store settings
 
 #load accounts
 &fct_load_accounts();
-my $is_in_tray = FALSE;
 
 #signal-handler
 $SIG{ USR1 } = sub { &evt_take_screenshot( 'global_keybinding', 'raw' ) };
@@ -114,7 +114,16 @@ my @workspaces       = undef;
 my %children         = ();
 my $active_workspace = $screen->get_active_workspace;
 
-#main window
+#hash of screenshots during session
+my %session_screens;
+my %session_start_screen;
+
+#Clipboard
+my $clipboard = Gtk2::Clipboard->get( Gtk2::Gdk->SELECTION_CLIPBOARD );
+
+#gui
+#--------------------------------------
+
 my $window = Gtk2::Window->new( 'toplevel' );
 $window->set_title( GSCROT_NAME . " " . GSCROT_VERSION );
 $window->set_default_icon( Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$gscrot_root/share/pixmaps/gscrot.svg", 500, 500 ) );
@@ -124,30 +133,25 @@ $window->set_resizable( 1 );
 $window->set_position( 'center' );
 $window->set_default_size( 650, 500 );
 
-#hash of screenshots during session
-my %session_screens;
-my %session_start_screen;
+my $is_in_tray = FALSE;
+
+my $accel_group = Gtk2::AccelGroup->new;
+$window->add_accel_group( $accel_group );
+
 my $notebook = Gtk2::Notebook->new;
 $notebook->set( homogeneous => 1 );
 
 #create first page etc.
 &fct_create_session_notebook;
 
+my $statusbar = Gtk2::Statusbar->new;
+
 #arrange settings in notebook
 my $notebook_settings = Gtk2::Notebook->new;
 my $settings_dialog =
 	Gtk2::Dialog->new( GSCROT_NAME . " - " . $d->get( "Settings" ), $window, [ qw/modal destroy-with-parent/ ], 'gtk-close' => 'close' );
 
-#Clipboard
-my $clipboard = Gtk2::Clipboard->get( Gtk2::Gdk->SELECTION_CLIPBOARD );
 
-my $accel_group = Gtk2::AccelGroup->new;
-$window->add_accel_group( $accel_group );
-
-my $statusbar = Gtk2::Statusbar->new;
-
-#layout
-#--------------------------------------
 my $vbox                = Gtk2::VBox->new( FALSE, 0 );
 my $vbox_inner1         = Gtk2::VBox->new( FALSE, 10 );
 my $vbox_settings       = Gtk2::VBox->new( FALSE, 10 );
@@ -490,7 +494,7 @@ $tray->show_all;
 
 #settings
 #--------------------------------------
-my $profiles_label = Gtk2::Label->new($d->get("Profile")." :");
+my $profiles_label = Gtk2::Label->new( $d->get( "Profile" ) . " :" );
 
 my $combobox_settings_profiles = Gtk2::ComboBox->new_text;
 my @saved_profiles             = glob( "$ENV{'HOME'}/.gscrot/profiles/*.xml" );
@@ -961,100 +965,18 @@ $border_box->pack_start( $border_label,    FALSE, TRUE, 10 );
 $border_box->pack_start( $combobox_border, TRUE,  TRUE, 10 );
 
 #end - border
-#accounts
-my $accounts_model =
-	Gtk2::ListStore->new( 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String' );
 
-foreach ( keys %accounts ) {
-   my $hidden_text = "";
-   for ( my $i = 1 ; $i <= length( $accounts{ $_ }->{ 'password' } ) ; $i++ ) {
-	  $hidden_text .= '*';
-   }
-   $accounts_model->set(
-						 $accounts_model->append,         0, $accounts{ $_ }->{ 'host' },           1,
-						 $accounts{ $_ }->{ 'username' }, 2, $hidden_text,                          3,
-						 $accounts{ $_ }->{ 'register' }, 4, $accounts{ $_ }->{ 'register_color' }, 5,
-						 $accounts{ $_ }->{ 'register_text' }
-					   );
-}
+#accounts
+#--------------------------------------
+my $accounts_model = undef;
+&fct_load_accounts_tree;
+
 my $accounts_tree = Gtk2::TreeView->new_with_model( $accounts_model );
 $accounts_tree->signal_connect( 'row-activated' => \&evt_accounts,
 								'row_activated' );
-my $tv_clmn_name_text = Gtk2::TreeViewColumn->new;
-$tv_clmn_name_text->set_title( $d->get( "Host" ) );
-my $renderer_name_accounts = Gtk2::CellRendererText->new;
 
-#pack it into the column
-$tv_clmn_name_text->pack_start( $renderer_name_accounts, FALSE );
+&fct_set_model_accounts( $accounts_tree );
 
-#set its atributes
-$tv_clmn_name_text->set_attributes( $renderer_name_accounts, text => 0 );
-
-#append this column to the treeview
-$accounts_tree->append_column( $tv_clmn_name_text );
-my $renderer_username_accounts = Gtk2::CellRendererText->new;
-$renderer_username_accounts->set( editable => TRUE );
-$renderer_username_accounts->signal_connect(
-   edited => sub {
-	  my ( $cell, $text_path, $new_text, $model ) = @_;
-	  my $path = Gtk2::TreePath->new_from_string( $text_path );
-	  my $iter = $model->get_iter( $path );
-	  $accounts{ $model->get_value( $iter, 0 ) }->{ 'username' } = $new_text;    #save entered username to the hash
-	  $model->set( $iter, 1, $new_text );
-   },
-   $accounts_model
-										   );
-my $tv_clmn_username_text = Gtk2::TreeViewColumn->new_with_attributes( $d->get( "Username" ), $renderer_username_accounts, text => 1 );
-
-#append this column to the treeview
-$accounts_tree->append_column( $tv_clmn_username_text );
-my $tv_clmn_password_text = Gtk2::TreeViewColumn->new;
-$tv_clmn_password_text->set_title( $d->get( "Password" ) );
-my $renderer_password_accounts = Gtk2::CellRendererText->new;
-$renderer_password_accounts->set( editable => TRUE );
-$renderer_password_accounts->signal_connect(
-   edited => sub {
-	  my ( $cell, $text_path, $new_text, $model ) = @_;
-	  my $path        = Gtk2::TreePath->new_from_string( $text_path );
-	  my $iter        = $model->get_iter( $path );
-	  my $hidden_text = "";
-
-	  for ( my $i = 1 ; $i <= length( $new_text ) ; $i++ ) {
-		 $hidden_text .= '*';
-	  }
-	  $accounts{ $model->get_value( $iter, 0 ) }->{ 'password' } = $new_text;    #save entered password to the hash
-	  $model->set( $iter, 2, $hidden_text );
-   },
-   $accounts_model
-										   );
-
-#pack it into the column
-$tv_clmn_password_text->pack_start( $renderer_password_accounts, FALSE );
-
-#set its atributes
-$tv_clmn_password_text->set_attributes( $renderer_password_accounts, text => 2 );
-
-#append this column to the treeview
-$accounts_tree->append_column( $tv_clmn_password_text );
-
-#create column
-my $treeview         = Gtk2::TreeView->new;
-my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
-
-#create column title
-$tv_clmn_pix_text->set_title( $d->get( "Register" ) );
-
-#create new object for column
-my $ren_text = Gtk2::CellRendererText->new();
-
-#pack it into the column
-$tv_clmn_pix_text->pack_start( $ren_text, FALSE );
-
-#set color and text for column
-$tv_clmn_pix_text->set_attributes( $ren_text, 'text', ( $d->get( 5 ) ), 'foreground', 4 );
-
-#append this column to the treeview
-$accounts_tree->append_column( $tv_clmn_pix_text );
 my $accounts_label = Gtk2::Label->new;
 $accounts_label->set_line_wrap( TRUE );
 $accounts_label->set_markup(
@@ -1063,145 +985,18 @@ $accounts_label->set_markup(
    )
 );
 
-#end accounts
+#--------------------------------------
 
+#plugins
+#--------------------------------------
+my $effects_model = undef;
+&fct_load_plugin_tree;
 
-#this is only important, if there are any plugins
-my $effects_tree;
-if ( keys( %plugins ) > 0 ) {
+my $effects_tree = Gtk2::TreeView->new_with_model( $effects_model );
+$effects_tree->signal_connect( 'row-activated' => \&evt_plugins,
+							   'row_activated' );
 
-   #plugins-effects
-   my $effects_model = Gtk2::ListStore->new(
-											 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::Boolean', 'Glib::String',
-											 'Glib::String',      'Glib::String', 'Glib::String',  'Glib::String',
-											 'Glib::String',      'Glib::String'
-										   );
-   foreach ( sort keys %plugins ) {
-	  if ( $plugins{ $_ }->{ 'binary' } ne "" ) {
-		 my $pixbuf;
-		 if ( -f $plugins{ $_ }->{ 'pixbuf' } ) {
-			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size( $plugins{ $_ }->{ 'pixbuf' }, Gtk2::IconSize->lookup( 'menu' ) );
-		 }
-		 else {
-			$pixbuf =
-				Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$gscrot_root/share/gscrot/resources/icons/executable.svg",
-														  Gtk2::IconSize->lookup( 'menu' ) );
-		 }
-
-		 #get translated plugin-name
-		 $plugins{ $_ }->{ 'name' } = `$plugins{$_}->{'binary'} name`;
-		 utf8::decode $plugins{ $_ }->{ 'name' };
-		 $plugins{ $_ }->{ 'category' } = `$plugins{$_}->{'binary'} sort`;
-		 utf8::decode $plugins{ $_ }->{ 'category' };
-		 $plugins{ $_ }->{ 'tooltip' } = `$plugins{$_}->{'binary'} tip`;
-		 utf8::decode $plugins{ $_ }->{ 'tooltip' };
-		 $plugins{ $_ }->{ 'ext' } = `$plugins{$_}->{'binary'} ext`;
-		 utf8::decode $plugins{ $_ }->{ 'ext' };
-		 $plugins{ $_ }->{ 'lang' } = `$plugins{$_}->{'binary'} lang`;
-		 utf8::decode $plugins{ $_ }->{ 'lang' };
-		 $plugins{ $_ }->{ 'lang' } = "shell" if $plugins{ $_ }->{ 'lang' } eq "";
-		 chomp( $plugins{ $_ }->{ 'name' } );
-		 chomp( $plugins{ $_ }->{ 'category' } );
-		 chomp( $plugins{ $_ }->{ 'tooltip' } );
-		 chomp( $plugins{ $_ }->{ 'ext' } );
-		 chomp( $plugins{ $_ }->{ 'lang' } );
-
-		 #check if plugin can handle png and/or jpeg
-		 my $pixbuf_jpeg = 'gtk-no';
-		 my $pixbuf_png  = 'gtk-no';
-		 $pixbuf_jpeg = 'gtk-yes' if ( $plugins{ $_ }->{ 'ext' } =~ /jpeg/ );
-		 $pixbuf_png  = 'gtk-yes' if ( $plugins{ $_ }->{ 'ext' } =~ /png/ );
-		 $effects_model->set(
-							  $effects_model->append,        0, $pixbuf,                      1, $plugins{ $_ }->{ 'name' },     2,
-							  $plugins{ $_ }->{ 'menu' },    3, $plugins{ $_ }->{ 'binary' }, 4, $plugins{ $_ }->{ 'category' }, 5,
-							  $plugins{ $_ }->{ 'tooltip' }, 6, $pixbuf_jpeg,                 7, $pixbuf_png,                    8,
-							  $plugins{ $_ }->{ 'lang' },    9, $_,
-							);
-	  }
-	  else {
-		 print "WARNING: Program $_ is not configured properly, ignoring\n";
-	  }
-   }
-   $effects_tree = Gtk2::TreeView->new_with_model( $effects_model );
-   $effects_tree->signal_connect( 'row-activated' => \&evt_plugins,
-								  'row_activated' );
-
-   #icon
-   $effects_tree->set_tooltip_column( 5 ) if Gtk2->CHECK_VERSION( 2, 11, 0 );
-   my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
-   $tv_clmn_pix_text->set_title( $d->get( "Icon" ) );
-   my $renderer_pix_effects = Gtk2::CellRendererPixbuf->new;
-   $tv_clmn_pix_text->pack_start( $renderer_pix_effects, FALSE );
-   $tv_clmn_pix_text->set_attributes( $renderer_pix_effects, pixbuf => 0 );
-   $effects_tree->append_column( $tv_clmn_pix_text );
-
-   #name
-   my $tv_clmn_text_text = Gtk2::TreeViewColumn->new;
-   $tv_clmn_text_text->set_title( $d->get( "Name" ) );
-   my $renderer_text_effects = Gtk2::CellRendererText->new;
-   $tv_clmn_text_text->pack_start( $renderer_text_effects, FALSE );
-   $tv_clmn_text_text->set_attributes( $renderer_text_effects, text => 1 );
-   $effects_tree->append_column( $tv_clmn_text_text );
-
-   #menu
-   my $tv_clmn_toolbar_text = Gtk2::TreeViewColumn->new;
-   $tv_clmn_toolbar_text->set_title( $d->get( "Toolbar" ) );
-   my $renderer_toolbar_effects = Gtk2::CellRendererToggle->new;
-   $tv_clmn_toolbar_text->pack_start( $renderer_toolbar_effects, FALSE );
-   $renderer_toolbar_effects->signal_connect( toggled => \&evt_plugins_toolbar, $effects_model );
-   $tv_clmn_toolbar_text->set_attributes( $renderer_toolbar_effects, 'active' => 2 );
-   $effects_tree->append_column( $tv_clmn_toolbar_text );
-
-   #category
-   my $tv_clmn_category_text = Gtk2::TreeViewColumn->new;
-   $tv_clmn_category_text->set_title( $d->get( "Category" ) );
-   my $renderer_category_effects = Gtk2::CellRendererText->new;
-   $tv_clmn_category_text->pack_start( $renderer_category_effects, FALSE );
-   $tv_clmn_category_text->set_attributes( $renderer_category_effects, text => 4 );
-   $effects_tree->append_column( $tv_clmn_category_text );
-
-   #path
-   my $tv_clmn_path_text = Gtk2::TreeViewColumn->new;
-   $tv_clmn_path_text->set_title( $d->get( "Path" ) );
-   my $renderer_path_effects = Gtk2::CellRendererText->new;
-   $tv_clmn_path_text->pack_start( $renderer_path_effects, FALSE );
-   $tv_clmn_path_text->set_attributes( $renderer_path_effects, text => 3 );
-   $effects_tree->append_column( $tv_clmn_path_text );
-
-   #tooltip column
-   unless ( Gtk2->CHECK_VERSION( 2, 12, 0 ) ) {
-	  my $tv_clmn_descr_text = Gtk2::TreeViewColumn->new;
-	  $tv_clmn_descr_text->set_title( $d->get( "Description" ) );
-	  my $renderer_descr_effects = Gtk2::CellRendererText->new;
-	  $tv_clmn_descr_text->pack_start( $renderer_descr_effects, FALSE );
-	  $tv_clmn_descr_text->set_attributes( $renderer_descr_effects, text => 5 );
-	  $effects_tree->append_column( $tv_clmn_descr_text );
-   }
-
-   #jpeg
-   my $tv_clmn_jpeg_text = Gtk2::TreeViewColumn->new;
-   $tv_clmn_jpeg_text->set_title( "jpeg" );
-   my $renderer_jpeg_effects = Gtk2::CellRendererPixbuf->new;
-   $tv_clmn_jpeg_text->pack_start( $renderer_jpeg_effects, FALSE );
-   $tv_clmn_jpeg_text->set_attributes( $renderer_jpeg_effects, stock_id => 6 );
-   $effects_tree->append_column( $tv_clmn_jpeg_text );
-
-   #png
-   my $tv_clmn_png_text = Gtk2::TreeViewColumn->new;
-   $tv_clmn_png_text->set_title( "png" );
-   my $renderer_png_effects = Gtk2::CellRendererPixbuf->new;
-   $tv_clmn_png_text->pack_start( $renderer_png_effects, FALSE );
-   $tv_clmn_png_text->set_attributes( $renderer_png_effects, stock_id => 7 );
-   $effects_tree->append_column( $tv_clmn_png_text );
-
-   #language
-   my $tv_clmn_lang_text = Gtk2::TreeViewColumn->new;
-   $tv_clmn_lang_text->set_title( $d->get( "Language" ) );
-   my $renderer_lang_effects = Gtk2::CellRendererText->new;
-   $tv_clmn_lang_text->pack_start( $renderer_lang_effects, FALSE );
-   $tv_clmn_lang_text->set_attributes( $renderer_lang_effects, text => 8 );
-   $effects_tree->append_column( $tv_clmn_lang_text );
-}
+&fct_set_model_plugins( $effects_tree );
 
 #--------------------------------------
 
@@ -1282,7 +1077,7 @@ if ( keys( %plugins ) > 0 ) {
    $vbox_plugins->set_border_width( 5 );
    my $notebook_settings_fifth = $notebook_settings->append_page( $vbox_plugins, $label_plugins );
 }
-$profiles_box->pack_start( $profiles_label, FALSE,  TRUE, 1 );
+$profiles_box->pack_start( $profiles_label,             FALSE, TRUE, 1 );
 $profiles_box->pack_start( $combobox_settings_profiles, TRUE,  TRUE, 1 );
 $profiles_box->pack_start( $button_profile_save,        FALSE, TRUE, 1 );
 $profiles_box->pack_start( $button_profile_delete,      FALSE, TRUE, 1 );
@@ -1324,140 +1119,8 @@ if ( $start_with && $folder_to_save ) {
 Gtk2->main;
 0;
 
-#initialize gscrot, check dependencies
-sub fct_init {
-
-   #are there any command line params?
-   if ( @ARGV > 0 ) {
-	  my $arg;
-	  foreach $arg ( @args ) {
-		 if ( $arg eq "--debug" ) {
-			$debug_cparam = TRUE;
-		 }
-		 elsif ( $arg eq "--help" ) {
-			&fct_usage();
-			exit;
-		 }
-		 elsif ( $arg eq "--min_at_startup" ) {
-			$min_cparam = TRUE;
-		 }
-		 elsif ( $arg eq "--beeper_off" ) {
-			$boff_cparam = TRUE;
-		 }
-		 elsif ( $arg eq "--window" ) {
-
-			#is there already a process of gscrot running?
-			my @gscrot_pids = `pidof -o $$ -x $gscrot_path`;
-			foreach ( @gscrot_pids ) {
-			   kill USR2 => $_;
-			   die;
-			}
-			$start_with = "select";
-		 }
-		 elsif ( $arg eq "--full" ) {
-
-			#is there already a process of gscrot running?
-			my @gscrot_pids = `pidof -o $$ -x $gscrot_path`;
-			foreach ( @gscrot_pids ) {
-			   kill USR1 => $_;
-			   die;
-			}
-			$start_with = "raw";
-		 }
-		 else {
-			print "\ncommand " . $arg . " not recognized --> will be ignored\n";
-			&fct_usage();
-			exit;
-		 }
-		 print "\ncommand " . $arg . " recognized!\n";
-	  }
-   }
-   else {
-	  print "INFO: no command line parameters set...\n";
-   }
-   if ( $debug_cparam ) {
-	  print "\nINFO: gathering system information...";
-	  print "\n";
-	  printf "Glib %s \n", $Glib::VERSION;
-	  printf "Gtk2 %s \n", $Gtk2::VERSION;
-	  print "\n";
-
-	  # The version info stuff appeared in 1.040.
-	  print "Glib built for "
-		  . join( ".", Glib->GET_VERSION_INFO )
-		  . ", running with "
-		  . join( ".", &Glib::major_version, &Glib::minor_version, &Glib::micro_version ) . "\n"
-		  if $Glib::VERSION >= 1.040;
-	  print "Gtk2 built for "
-		  . join( ".", Gtk2->GET_VERSION_INFO )
-		  . ", running with "
-		  . join( ".", &Gtk2::major_version, &Gtk2::minor_version, &Gtk2::micro_version ) . "\n"
-		  if $Gtk2::VERSION >= 1.040;
-	  print "\n";
-   }
-   print "INFO: searching for dependencies...\n\n";
-   if ( system( "which gtklp" ) == 0 ) {
-	  print "SUCCESS: gtklp is installed on your system!\n\n";
-   }
-   else {
-	  die "ERROR: dependency is missing --> gtklp is not installed on your system!\n\n";
-   }
-   if ( system( "which gnome-web-photo" ) == 0 ) {
-	  print "SUCCESS: gnome-web-photo is installed on your system!\n\n";
-   }
-   else {
-	  die "ERROR: dependency is missing --> gnome-web-photo is not installed on your system!\n\n";
-   }
-
-   #an old .gscrot file existing?
-   unlink( "$ENV{ 'HOME' }/.gscrot" ) if ( -f "$ENV{ 'HOME' }/.gscrot" );
-
-   #an old .gscrot/settings.conf file existing?
-   unlink( "$ENV{ 'HOME' }/.gscrot/settings.conf" )
-	   if ( -f "$ENV{ 'HOME' }/.gscrot/settings.conf" );
-
-   #is there already a .gscrot folder?
-   mkdir( "$ENV{ 'HOME' }/.gscrot" ) unless ( -d "$ENV{ 'HOME' }/.gscrot" );
-
-   #...and a profiles folder?
-   mkdir "$ENV{'HOME'}/.gscrot/profiles" unless ( -d "$ENV{'HOME'}/.gscrot/profiles" );
-   %gm_programs = do "$gscrot_root/share/gscrot/resources/system/programs.conf";
-   if ( -f "$ENV{ 'HOME' }/.gscrot/programs.conf" ) {
-	  print "\nINFO: using custom program settings found at $ENV{ 'HOME' }/.gscrot/programs.conf\n";
-	  %gm_programs = do "$ENV{ 'HOME' }/.gscrot/programs.conf";
-   }
-   my @plugins = glob( "$gscrot_root/share/gscrot/resources/system/plugins/*/*" );
-   foreach ( @plugins ) {
-	  if ( -d $_ ) {
-		 my $dir_name = $_;
-		 $dir_name =~ s{^.*/}{};
-		 $plugins{ $_ }->{ 'binary' } = "$_/$dir_name"
-			 if ( -f "$_/$dir_name" && -r "$_/$dir_name" );
-		 $plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.png"
-			 if ( -f "$_/$dir_name.png" && -r "$_/$dir_name.png" );
-
-		 #we prefer svgs
-		 $plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.svg"
-			 if ( -f "$_/$dir_name.svg" && -r "$_/$dir_name.svg" );
-	  }
-   }
-   my @custom_plugins = glob( "$ENV{'HOME'}/.gscrot/plugins/*/*" );
-   foreach ( @custom_plugins ) {
-	  if ( -d $_ ) {
-		 my $dir_name = $_;
-		 $dir_name =~ s{^.*/}{};
-		 $plugins{ $_ }->{ 'binary' } = "$_/$dir_name"
-			 if ( -f "$_/$dir_name" && -r "$_/$dir_name" );
-		 $plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.png"
-			 if ( -f "$_/$dir_name.png" && -r "$_/$dir_name.png" );
-
-		 #we prefer svgs
-		 $plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.svg"
-			 if ( -f "$_/$dir_name.svg" && -r "$_/$dir_name.svg" );
-	  }
-   }
-}
-
+#events
+#--------------------------------------
 sub evt_navigate {
    my ( $widget, $data ) = @_;
    print "\n$data was emitted by widget $widget\n" if $debug_cparam;
@@ -1537,7 +1200,6 @@ sub evt_value_changed {
    }
 }
 
-#screenshot events are handled here
 sub evt_take_screenshot {
    my ( $widget, $data, $folder_from_config ) = @_;
    my $quality_value             = undef;
@@ -1843,7 +1505,6 @@ sub evt_take_screenshot {
    return 1;
 }
 
-#notebook-behavior events are handled here
 sub evt_behavior_handle {
    my ( $widget, $data ) = @_;
    print "\n$data was emitted by widget $widget\n" if $debug_cparam;
@@ -1877,7 +1538,6 @@ sub evt_notebook_switch {
    &fct_update_first_tab();    #update first tab for information
 }
 
-#close app
 sub evt_delete_window {
    my ( $widget, $data ) = @_;
    print "\n$data was emitted by widget $widget\n" if $debug_cparam;
@@ -1897,22 +1557,18 @@ sub evt_delete_window {
    return FALSE;
 }
 
-#call bug report
 sub evt_bug {
    &fct_gnome_open( undef, "https://bugs.launchpad.net/gscrot", undef );
 }
 
-#ask a question
 sub evt_question {
    &fct_gnome_open( undef, "https://answers.launchpad.net/gscrot", undef );
 }
 
-#add a translation
 sub evt_translate {
    &fct_gnome_open( undef, "https://translations.launchpad.net/gscrot", undef );
 }
 
-#call about box
 sub evt_about {
    my ( $widget, $data ) = @_;
    if ( $debug_cparam ) {
@@ -1966,7 +1622,6 @@ sub evt_about {
    $about->signal_connect( 'response' => sub { $about->destroy } );
 }
 
-#call context menu of tray-icon
 sub evt_show_icon_menu {
    my ( $widget, $data ) = @_;
    if ( $debug_cparam ) {
@@ -2061,12 +1716,10 @@ sub evt_show_icon_menu {
    return 1;
 }
 
-#notebook plugins - double-click-events are handled here
 sub evt_plugins {
    my ( $tree, $path, $column ) = @_;
 }
 
-#notebook accounts - double-click-events are handled here
 sub evt_accounts {
    my ( $tree, $path, $column ) = @_;
 
@@ -2080,7 +1733,6 @@ sub evt_accounts {
    return 1;
 }
 
-#notebook accounts - double-click-events are handled here
 sub evt_plugins_toolbar {
    my ( $renderer, $index, $model ) = @_;
 
@@ -2100,6 +1752,324 @@ sub evt_plugins_toolbar {
 
    return 1;
 }
+
+sub evt_iconview_sel_changed {
+   my ( $iconview, $data ) = @_;
+
+   my @sel_items = $iconview->get_selected_items;
+
+   foreach ( keys %{ $session_start_screen{ 'first_page' } } ) {
+	  $session_start_screen{ 'first_page' }->{ $_ }->set_sensitive( ( scalar @sel_items > 0 ) )
+		  if $session_start_screen{ 'first_page' }->{ $_ } =~ /button/i;
+   }
+
+   return TRUE;
+}
+
+sub evt_iconview_item_activated {
+   my ( $iconview, $path, $data ) = @_;
+
+   my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $path );
+   my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
+
+   $notebook->set_current_page( $notebook->page_num( $session_screens{ $key }->{ 'tab_child' } ) );
+
+   return TRUE;
+}
+
+sub evt_show_settings {
+   $settings_dialog->show_all;
+   my $settings_dialog_response = $settings_dialog->run;
+   if ( $settings_dialog_response eq "close" ) {
+	  $settings_dialog->hide();
+	  return TRUE;
+   }
+   else {
+	  $settings_dialog->hide();
+	  return FALSE;
+   }
+}
+
+sub evt_in_tab {
+   my ( $widget, $key ) = @_;
+   print "\n$key was emitted by widget $widget\n" if $debug_cparam;
+
+   #single screenshots
+   my $current_file;
+   if ( $key =~ m/^print\[/ ) {
+	  $key =~ s/^print//;
+	  unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{ $key }->{ 'filename' }, $key ) ) {
+		 &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "not found" ) );
+
+		 return 0;
+	  }
+	  my $current_file = quotemeta $session_screens{ $key }->{ 'long' };
+	  system( "gtklp $current_file &" );
+	  &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "will be printed" ) );
+   }
+   if ( $key =~ m/^delete\[/ ) {
+	  $key =~ s/^delete//;
+	  unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{ $key }->{ 'filename' }, $key ) ) {
+		 &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "not found" ) );
+		 &fct_update_tab( $key );
+		 return 0;
+	  }
+	  unlink( $session_screens{ $key }->{ 'long' } );           #delete file
+	  $notebook->remove_page( $notebook->get_current_page );    #delete tab
+	  &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "deleted" ) )
+		  if defined( $session_screens{ $key }->{ 'filename' } );
+	  delete( $session_screens{ $key } );                       # delete from hash
+	  &fct_update_first_tab();
+	  $window->show_all;
+   }
+   if ( $key =~ m/^remove\[/ ) {
+	  $key =~ /^remove(.*)__ind__(.*)__indold__(.*)/;
+	  $key = $1;
+	  my $delete_index = $2;
+	  my $last_index   = $3;
+	  print "Child: " . $notebook->page_num( $session_screens{ $key }->{ 'tab_child' } ) . "\n"
+		  if $debug_cparam;
+	  $notebook->remove_page( $notebook->page_num( $session_screens{ $key }->{ 'tab_child' } ) );    #delete tab
+	  &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "removed from session" ) )
+		  if defined( $session_screens{ $key }->{ 'filename' } );
+	  delete( $session_screens{ $key } );                                                            # delete from hash
+	  &fct_update_first_tab();
+	  $window->show_all;
+   }
+   if ( $key =~ m/^reopen\[/ ) {
+	  $key =~ s/^reopen//;
+	  my $model          = $progname->get_model();
+	  my $progname_iter  = $progname->get_active_iter();
+	  my $progname_value = $model->get_value( $progname_iter, 2 );
+
+	  unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{ $key }->{ 'filename' }, $key ) ) {
+		 &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "not found" ) );
+		 &fct_update_tab( $key );
+		 return 0;
+	  }
+	  unless ( $progname_value =~ /[a-zA-Z0-9]+/ ) {
+		 &dlg_error_message( $d->get( "No application specified to open the screenshot" ) );
+		 return FALSE;
+	  }
+	  system( "$progname_value '$session_screens{$key}->{'long'}' &" );
+	  &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "opened with" ) . " " . $progname_value );
+
+   }
+   if ( $key =~ m/^upload\[/ ) {
+	  $key =~ s/^upload//;
+	  unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{ $key }->{ 'filename' }, $key ) ) {
+		 &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "not found" ) );
+		 &fct_update_tab( $key );
+		 return 0;
+	  }
+	  &dlg_account_chooser_and_upload( $session_screens{ $key }->{ 'filename' } );
+   }
+   if ( $key =~ m/^draw\[/ ) {
+	  $key =~ s/^draw//;
+	  unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{ $key }->{ 'filename' }, $key ) ) {
+		 &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "not found" ) );
+
+		 return 0;
+	  }
+	  &fct_start_drawing( $session_screens{ $key }->{ 'long' },
+						  $session_screens{ $key }->{ 'width' },
+						  $session_screens{ $key }->{ 'height' },
+						  $session_screens{ $key }->{ 'filetype' }, $d );
+	  &fct_update_tab( $key );
+   }
+   if ( $key =~ m/^rename\[/ ) {
+	  $key =~ s/^rename//;
+	  unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{ $key }->{ 'filename' }, $key ) ) {
+		 &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "not found" ) );
+		 &fct_update_tab( $key );
+		 return 0;
+	  }
+	  &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "renamed" ) )
+		  if &dlg_rename( $session_screens{ $key }->{ 'filename' }, $key );
+	  &fct_update_tab( $key );
+   }
+   if ( $key =~ m/^plugin\[/ ) {
+	  $key =~ s/^plugin//;
+	  unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{ $key }->{ 'filename' }, $key ) ) {
+		 &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "not found" ) );
+		 &fct_update_tab( $key );
+		 return 0;
+	  }
+	  unless ( keys %plugins > 0 ) {
+		 &dlg_error_message( $d->get( "No plugin installed" ) );
+	  }
+	  else {
+		 &dlg_plugin( $session_screens{ $key }->{ 'filename' }, $key );
+	  }
+	  &fct_update_tab( $key );
+   }
+   if ( $key =~ m/^clipboard\[/ ) {
+	  $key =~ s/^clipboard//;
+	  unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{ $key }->{ 'filename' }, $key ) ) {
+		 &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "not found" ) );
+
+		 return 0;
+	  }
+	  my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{ $key }->{ 'long' } );
+	  $clipboard->set_image( $pixbuf );
+	  &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "copied to clipboard" ) );
+   }
+
+
+   #determine selected screenshots - iconview
+   my @sel_items = $session_start_screen{ 'first_page' }->{ 'view' }->get_selected_items;
+
+   #all screenshots
+   if ( $key =~ m/^delete$/ ) {    #tab == all
+	  foreach ( @sel_items ) {
+		 my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
+		 my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
+		 $notebook->remove_page( $notebook->page_num( $session_screens{ $key }->{ 'tab_child' } ) );
+		 unlink( $session_screens{ $key }->{ 'long' } );    #delete file
+		 delete( $session_screens{ $key } );                # delete from hash
+	  }
+	  &dlg_status_message( 1, $d->get( "All screenshots deleted" ) );
+	  &fct_update_first_tab;
+	  $window->show_all;
+   }
+   if ( $key =~ m/^remove$/ ) {                             #tab == all
+	  foreach ( @sel_items ) {
+		 my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
+		 my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
+		 $notebook->remove_page( $notebook->page_num( $session_screens{ $key }->{ 'tab_child' } ) );
+		 delete( $session_screens{ $key } );                # delete from hash
+	  }
+	  &dlg_status_message( 1, $d->get( "All screenshots removed" ) );
+	  &fct_update_first_tab;
+	  $window->show_all;
+   }
+   if ( $key =~ m/^reopen$/ ) {
+	  my $model          = $progname->get_model();
+	  my $progname_iter  = $progname->get_active_iter();
+	  my $progname_value = $model->get_value( $progname_iter, 2 );
+	  my $open_files;
+
+	  unless ( $progname_value =~ /[a-zA-Z0-9]+/ ) {
+		 &dlg_error_message( $d->get( "No application specified to open the screenshot" ) );
+		 return FALSE;
+	  }
+	  if ( $progname_value =~ /gimp/ ) {
+		 foreach ( @sel_items ) {
+			my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
+			my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
+			$open_files .= quotemeta $session_screens{ $key }->{ 'long' };
+			$open_files .= " ";
+		 }
+		 system( "$progname_value $open_files &" );
+	  }
+	  else {
+		 foreach ( @sel_items ) {
+			my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
+			my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
+			system( "$progname_value '$session_screens{$key}->{'long'}' &" );
+		 }
+	  }
+	  &dlg_status_message( 1, $d->get( "Opened all files with" ) . " " . $progname_value );
+   }
+   if ( $key =~ m/^print$/ ) {    #tab == all
+	  my $print_files;
+	  foreach ( @sel_items ) {
+		 my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
+		 my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
+		 $print_files .= quotemeta $session_screens{ $key }->{ 'long' };
+		 $print_files .= " ";
+	  }
+	  system( "gtklp $print_files &" );
+	  &dlg_status_message( 1, $d->get( "Printing all screenshots" ) );
+   }
+}
+
+sub evt_settings {
+   my ( $widget, $data ) = @_;
+   print "\n$data was emitted by widget $widget\n" if $debug_cparam;
+
+   if ( $data eq "menu_open" ) {
+	  my $fs = Gtk2::FileChooserDialog->new(
+											 $d->get( "Choose file to open" ), $window, 'open',
+											 'gtk-ok'     => 'accept',
+											 'gtk-cancel' => 'reject'
+										   );
+	  my $pngfilter = Gtk2::FileFilter->new;
+	  $pngfilter->set_name( "*.png" );
+	  $pngfilter->add_pattern( "*.png" );
+	  my $jpegfilter = Gtk2::FileFilter->new;
+	  $jpegfilter->set_name( "*.jpeg" );
+	  $jpegfilter->add_pattern( "*.jpeg" );
+	  $fs->add_filter( $pngfilter );
+	  $fs->add_filter( $jpegfilter );
+	  my $fs_resp = $fs->run;
+
+	  if ( $fs_resp eq "accept" ) {
+		 my $new_file = $fs->get_filename;
+		 $new_file =~ s/$ENV{ HOME }/~/;    #switch /home/username in path to ~
+		 &fct_integrate_screenshot_in_notebook( $new_file );
+		 $fs->destroy();
+		 return TRUE;
+	  }
+	  else {
+		 $fs->destroy();
+		 return FALSE;
+	  }
+   }
+}
+
+sub evt_save_profile {
+   my ( $widget, $combobox_settings_profiles ) = @_;
+   my $curr_profile_name = $combobox_settings_profiles->get_active_text || "";
+   my $new_profile_name = &dlg_profile_name( $curr_profile_name, $combobox_settings_profiles );
+
+   if ( $new_profile_name ) {
+	  if ( $curr_profile_name ne $new_profile_name ) {
+		 $combobox_settings_profiles->prepend_text( $new_profile_name );
+		 $combobox_settings_profiles->set_active( 0 );
+	  }
+	  &fct_save_settings( $new_profile_name );
+   }
+   return TRUE;
+}
+
+sub evt_delete_profile {
+   my ( $widget, $combobox_settings_profiles ) = @_;
+   if ( $combobox_settings_profiles->get_active_text ) {
+	  my $active_text  = $combobox_settings_profiles->get_active_text;
+	  my $active_index = $combobox_settings_profiles->get_active;
+	  unlink( "$ENV{'HOME'}/.gscrot/profiles/" . $active_text . ".xml" );
+	  unlink( "$ENV{'HOME'}/.gscrot/profiles/" . $active_text . "_accounts.xml" );
+
+	  unless (    &fct_file_exists( "$ENV{'HOME'}/.gscrot/profiles/" . $active_text . ".xml" )
+			   || &fct_file_exists( "$ENV{'HOME'}/.gscrot/profiles/" . $active_text . "_accounts.xml" ) )
+	  {
+		 $combobox_settings_profiles->remove_text( $active_index );
+		 $combobox_settings_profiles->set_active( $combobox_settings_profiles->get_active + 1 );
+
+		 &dlg_status_message( 1, $d->get( "Profile deleted" ) );
+	  }
+	  else {
+		 &dlg_error_message( $d->get( "Profile could not be deleted" ) );
+		 &dlg_status_message( 1, $d->get( "Profile could not be deleted" ) );
+	  }
+   }
+   return TRUE;
+}
+
+sub evt_apply_profile {
+   my ( $widget, $combobox_settings_profiles ) = @_;
+   if ( $combobox_settings_profiles->get_active_text ) {
+	  &fct_load_settings( undef, 'profile_load', $combobox_settings_profiles->get_active_text );
+   }
+   return TRUE;
+}
+
+#--------------------------------------
+
+
+#functions
+#--------------------------------------
 
 sub fct_create_session_notebook {
    $notebook->set_scrollable( TRUE );
@@ -2427,30 +2397,6 @@ sub fct_create_tab {
    return $scrolled_window;
 }
 
-sub evt_iconview_sel_changed {
-   my ( $iconview, $data ) = @_;
-
-   my @sel_items = $iconview->get_selected_items;
-
-   foreach ( keys %{ $session_start_screen{ 'first_page' } } ) {
-	  $session_start_screen{ 'first_page' }->{ $_ }->set_sensitive( ( scalar @sel_items > 0 ) )
-		  if $session_start_screen{ 'first_page' }->{ $_ } =~ /button/i;
-   }
-
-   return TRUE;
-}
-
-sub evt_iconview_item_activated {
-   my ( $iconview, $path, $data ) = @_;
-
-   my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $path );
-   my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
-
-   $notebook->set_current_page( $notebook->page_num( $session_screens{ $key }->{ 'tab_child' } ) );
-
-   return TRUE;
-}
-
 sub fct_resize_thumb {
    my ( $widget, $event, $key ) = @_;
    print "\n$event was emitted by widget $widget\n" if $debug_cparam;
@@ -2489,247 +2435,6 @@ sub fct_resize_thumb {
    return FALSE;
 }
 
-sub evt_show_settings {
-   $settings_dialog->show_all;
-   my $settings_dialog_response = $settings_dialog->run;
-   if ( $settings_dialog_response eq "close" ) {
-	  $settings_dialog->hide();
-	  return TRUE;
-   }
-   else {
-	  $settings_dialog->hide();
-	  return FALSE;
-   }
-}
-
-sub evt_in_tab {
-   my ( $widget, $key ) = @_;
-   print "\n$key was emitted by widget $widget\n" if $debug_cparam;
-
-   #single screenshots
-   my $current_file;
-   if ( $key =~ m/^print\[/ ) {
-	  $key =~ s/^print//;
-	  unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{ $key }->{ 'filename' }, $key ) ) {
-		 &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "not found" ) );
-
-		 return 0;
-	  }
-	  my $current_file = quotemeta $session_screens{ $key }->{ 'long' };
-	  system( "gtklp $current_file &" );
-	  &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "will be printed" ) );
-   }
-   if ( $key =~ m/^delete\[/ ) {
-	  $key =~ s/^delete//;
-	  unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{ $key }->{ 'filename' }, $key ) ) {
-		 &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "not found" ) );
-		 &fct_update_tab( $key );
-		 return 0;
-	  }
-	  unlink( $session_screens{ $key }->{ 'long' } );           #delete file
-	  $notebook->remove_page( $notebook->get_current_page );    #delete tab
-	  &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "deleted" ) )
-		  if defined( $session_screens{ $key }->{ 'filename' } );
-	  delete( $session_screens{ $key } );                       # delete from hash
-	  &fct_update_first_tab();
-	  $window->show_all;
-   }
-   if ( $key =~ m/^remove\[/ ) {
-	  $key =~ /^remove(.*)__ind__(.*)__indold__(.*)/;
-	  $key = $1;
-	  my $delete_index = $2;
-	  my $last_index   = $3;
-	  print "Child: " . $notebook->page_num( $session_screens{ $key }->{ 'tab_child' } ) . "\n"
-		  if $debug_cparam;
-	  $notebook->remove_page( $notebook->page_num( $session_screens{ $key }->{ 'tab_child' } ) );    #delete tab
-	  &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "removed from session" ) )
-		  if defined( $session_screens{ $key }->{ 'filename' } );
-	  delete( $session_screens{ $key } );                                                            # delete from hash
-	  &fct_update_first_tab();
-	  $window->show_all;
-   }
-   if ( $key =~ m/^reopen\[/ ) {
-	  $key =~ s/^reopen//;
-	  my $model          = $progname->get_model();
-	  my $progname_iter  = $progname->get_active_iter();
-	  my $progname_value = $model->get_value( $progname_iter, 2 );
-
-	  unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{ $key }->{ 'filename' }, $key ) ) {
-		 &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "not found" ) );
-		 &fct_update_tab( $key );
-		 return 0;
-	  }
-	  unless ( $progname_value =~ /[a-zA-Z0-9]+/ ) {
-		 &dlg_error_message( $d->get( "No application specified to open the screenshot" ) );
-		 return FALSE;
-	  }
-	  system( "$progname_value '$session_screens{$key}->{'long'}' &" );
-	  &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "opened with" ) . " " . $progname_value );
-
-   }
-   if ( $key =~ m/^upload\[/ ) {
-	  $key =~ s/^upload//;
-	  unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{ $key }->{ 'filename' }, $key ) ) {
-		 &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "not found" ) );
-		 &fct_update_tab( $key );
-		 return 0;
-	  }
-	  &dlg_account_chooser_and_upload( $session_screens{ $key }->{ 'filename' } );
-   }
-   if ( $key =~ m/^draw\[/ ) {
-	  $key =~ s/^draw//;
-	  unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{ $key }->{ 'filename' }, $key ) ) {
-		 &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "not found" ) );
-
-		 return 0;
-	  }
-	  &fct_start_drawing( $session_screens{ $key }->{ 'long' },
-						  $session_screens{ $key }->{ 'width' },
-						  $session_screens{ $key }->{ 'height' },
-						  $session_screens{ $key }->{ 'filetype' }, $d );
-	  &fct_update_tab( $key );
-   }
-   if ( $key =~ m/^rename\[/ ) {
-	  $key =~ s/^rename//;
-	  unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{ $key }->{ 'filename' }, $key ) ) {
-		 &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "not found" ) );
-		 &fct_update_tab( $key );
-		 return 0;
-	  }
-	  &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "renamed" ) )
-		  if &dlg_rename( $session_screens{ $key }->{ 'filename' }, $key );
-	  &fct_update_tab( $key );
-   }
-   if ( $key =~ m/^plugin\[/ ) {
-	  $key =~ s/^plugin//;
-	  unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{ $key }->{ 'filename' }, $key ) ) {
-		 &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "not found" ) );
-		 &fct_update_tab( $key );
-		 return 0;
-	  }
-	  unless ( keys %plugins > 0 ) {
-		 &dlg_error_message( $d->get( "No plugin installed" ) );
-	  }
-	  else {
-		 &dlg_plugin( $session_screens{ $key }->{ 'filename' }, $key );
-	  }
-	  &fct_update_tab( $key );
-   }
-   if ( $key =~ m/^clipboard\[/ ) {
-	  $key =~ s/^clipboard//;
-	  unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{ $key }->{ 'filename' }, $key ) ) {
-		 &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "not found" ) );
-
-		 return 0;
-	  }
-	  my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{ $key }->{ 'long' } );
-	  $clipboard->set_image( $pixbuf );
-	  &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "copied to clipboard" ) );
-   }
-
-
-   #determine selected screenshots - iconview
-   my @sel_items = $session_start_screen{ 'first_page' }->{ 'view' }->get_selected_items;
-
-   #all screenshots
-   if ( $key =~ m/^delete$/ ) {    #tab == all
-	  foreach ( @sel_items ) {
-		 my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
-		 my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
-		 $notebook->remove_page( $notebook->page_num( $session_screens{ $key }->{ 'tab_child' } ) );
-		 unlink( $session_screens{ $key }->{ 'long' } );    #delete file
-		 delete( $session_screens{ $key } );                # delete from hash
-	  }
-	  &dlg_status_message( 1, $d->get( "All screenshots deleted" ) );
-	  &fct_update_first_tab;
-	  $window->show_all;
-   }
-   if ( $key =~ m/^remove$/ ) {                             #tab == all
-	  foreach ( @sel_items ) {
-		 my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
-		 my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
-		 $notebook->remove_page( $notebook->page_num( $session_screens{ $key }->{ 'tab_child' } ) );
-		 delete( $session_screens{ $key } );                # delete from hash
-	  }
-	  &dlg_status_message( 1, $d->get( "All screenshots removed" ) );
-	  &fct_update_first_tab;
-	  $window->show_all;
-   }
-   if ( $key =~ m/^reopen$/ ) {
-	  my $model          = $progname->get_model();
-	  my $progname_iter  = $progname->get_active_iter();
-	  my $progname_value = $model->get_value( $progname_iter, 2 );
-	  my $open_files;
-
-	  unless ( $progname_value =~ /[a-zA-Z0-9]+/ ) {
-		 &dlg_error_message( $d->get( "No application specified to open the screenshot" ) );
-		 return FALSE;
-	  }
-	  if ( $progname_value =~ /gimp/ ) {
-		 foreach ( @sel_items ) {
-			my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
-			my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
-			$open_files .= quotemeta $session_screens{ $key }->{ 'long' };
-			$open_files .= " ";
-		 }
-		 system( "$progname_value $open_files &" );
-	  }
-	  else {
-		 foreach ( @sel_items ) {
-			my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
-			my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
-			system( "$progname_value '$session_screens{$key}->{'long'}' &" );
-		 }
-	  }
-	  &dlg_status_message( 1, $d->get( "Opened all files with" ) . " " . $progname_value );
-   }
-   if ( $key =~ m/^print$/ ) {    #tab == all
-	  my $print_files;
-	  foreach ( @sel_items ) {
-		 my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
-		 my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
-		 $print_files .= quotemeta $session_screens{ $key }->{ 'long' };
-		 $print_files .= " ";
-	  }
-	  system( "gtklp $print_files &" );
-	  &dlg_status_message( 1, $d->get( "Printing all screenshots" ) );
-   }
-}
-####################SAVE AND REVERT################################
-sub evt_settings {
-   my ( $widget, $data ) = @_;
-   print "\n$data was emitted by widget $widget\n" if $debug_cparam;
-
-   if ( $data eq "menu_open" ) {
-	  my $fs = Gtk2::FileChooserDialog->new(
-											 $d->get( "Choose file to open" ), $window, 'open',
-											 'gtk-ok'     => 'accept',
-											 'gtk-cancel' => 'reject'
-										   );
-	  my $pngfilter = Gtk2::FileFilter->new;
-	  $pngfilter->set_name( "*.png" );
-	  $pngfilter->add_pattern( "*.png" );
-	  my $jpegfilter = Gtk2::FileFilter->new;
-	  $jpegfilter->set_name( "*.jpeg" );
-	  $jpegfilter->add_pattern( "*.jpeg" );
-	  $fs->add_filter( $pngfilter );
-	  $fs->add_filter( $jpegfilter );
-	  my $fs_resp = $fs->run;
-
-	  if ( $fs_resp eq "accept" ) {
-		 my $new_file = $fs->get_filename;
-		 $new_file =~ s/$ENV{ HOME }/~/;    #switch /home/username in path to ~
-		 &fct_integrate_screenshot_in_notebook( $new_file );
-		 $fs->destroy();
-		 return TRUE;
-	  }
-	  else {
-		 $fs->destroy();
-		 return FALSE;
-	  }
-   }
-}
-
 sub fct_save_settings {
    my ( $profilename ) = @_;
 
@@ -2744,11 +2449,11 @@ sub fct_save_settings {
    if ( defined $profilename ) {
 	  $accountsfile = "$ENV{ HOME }/.gscrot/profiles/$profilename\_accounts.xml" if ( $profilename ne "" );
    }
-   
+
    open( SETTFILE, ">$settingsfile" )
 	   or &dlg_error_message( $d->get( "Settings could not be saved!" ) );
 
-   $settings{ 'general' }->{ 'last_profile' }      = $combobox_settings_profiles->get_active;
+   $settings{ 'general' }->{ 'last_profile' } = $combobox_settings_profiles->get_active;
    $settings{ 'general' }->{ 'last_profile_name' } = $combobox_settings_profiles->get_active_text || "";
 
    $settings{ 'general' }->{ 'filetype' }    = $combobox_type->get_active;
@@ -2824,7 +2529,7 @@ sub fct_save_settings {
 }
 
 sub fct_save_bindings {
-	
+
    my $client        = Gnome2::GConf::Client->get_default;
    my $shortcut_full = "/apps/metacity/global_keybindings/run_command_screenshot";
    my $shortcut_sel  = "/apps/metacity/global_keybindings/run_command_window_screenshot";
@@ -2855,7 +2560,7 @@ sub fct_save_bindings {
 	  $client->set( $shortcut_sel, { type => 'string', value => '<Alt>Print', } );
    }
 
-return 1;
+   return 1;
 }
 
 sub fct_load_settings {
@@ -2914,7 +2619,13 @@ sub fct_load_settings {
 		 $capture_sel_key->set_text( $settings_xml->{ 'general' }->{ 'capture_sel_key' } );
 
 	  }
-	  &fct_load_accounts;
+	  &fct_load_accounts( $profilename );
+	  if ( defined $accounts_tree ) {
+		 &fct_load_accounts_tree;
+		 $accounts_tree->set_model( $accounts_model );
+		 &fct_set_model_accounts( $accounts_tree );
+	  }
+
 	  &dlg_status_message( 1, $d->get( "Settings loaded successfully" ) );
    }
 
@@ -2924,6 +2635,12 @@ sub fct_load_settings {
 		 $plugins{ $_ }->{ 'menu' } = $settings_xml->{ 'plugins' }->{ $_ }->{ 'menu' };
 	  }
    }
+   if ( defined $effects_tree ) {
+	  &fct_load_plugin_tree;
+	  $effects_tree->set_model( $effects_model );
+	  &fct_set_model_plugins( $effects_tree );
+   }
+
    return $settings_xml;
 }
 
@@ -2976,8 +2693,7 @@ sub fct_load_accounts {
    }
    return 1;
 }
-####################SAVE AND REVERT################################
-#################### MY FUNCTIONS  ################################
+
 sub fct_file_exists {
    my ( $filename ) = @_;
    $filename = &fct_switch_home_in_file( $filename );
@@ -2989,150 +2705,6 @@ sub fct_switch_home_in_file {
    my ( $filename ) = @_;
    $filename =~ s/^~/$ENV{ HOME }/;    #switch ~ in path to /home/username
    return $filename;
-}
-
-sub dlg_status_message {
-   my ( $index, $status_text ) = @_;
-   $statusbar->push( $index, $status_text );
-   return 1;
-}
-
-sub dlg_error_message {
-   my ( $dlg_error_message ) = @_;
-   my $error_dialog = Gtk2::MessageDialog->new( $window, [ qw/modal destroy-with-parent/ ], 'error', 'ok', $dlg_error_message );
-   my $error_response = $error_dialog->run;
-   $error_dialog->destroy() if ( $error_response eq "ok" );
-   return TRUE;
-}
-
-sub dlg_question_message {
-   my ( $dlg_question_message ) = @_;
-   my $question_dialog = Gtk2::MessageDialog->new( $window, [ qw/modal destroy-with-parent/ ], 'question', 'yes_no', $dlg_question_message );
-   my $question_response = $question_dialog->run;
-   if ( $question_response eq "yes" ) {
-	  $question_dialog->destroy();
-	  return TRUE;
-   }
-   else {
-	  $question_dialog->destroy();
-	  return FALSE;
-   }
-}
-
-sub dlg_rename {
-   my ( $dlg_rename_text, $data ) = @_;
-   my $dlg_header = $d->get( "Rename file" );
-   my $input_dialog = Gtk2::Dialog->new(
-										 $dlg_header,
-										 $window,
-										 [ qw/modal destroy-with-parent/ ],
-										 'gtk-ok'     => 'accept',
-										 'gtk-cancel' => 'reject'
-									   );
-   $input_dialog->set_default_response( 'accept' );
-   my $new_filename = Gtk2::Entry->new();
-   $new_filename->set_activates_default( TRUE );
-   $dlg_rename_text =~ /.*\/(.*)\./;
-   my $old_file_name      = $1;
-   my $old_file_name_full = $dlg_rename_text;
-   $new_filename->set_text( $old_file_name );
-   $input_dialog->vbox->add( $new_filename );
-   $input_dialog->show_all;
-   my $input_response = $input_dialog->run;
-
-   if ( $input_response eq "accept" ) {
-	  my $new_name = $new_filename->get_text;
-	  $dlg_rename_text =~ s/$old_file_name/$new_name/;
-	  unless ( $old_file_name_full eq $dlg_rename_text ) {    #filenames eq? -> nothing to do here
-		 unless ( &fct_file_exists( $dlg_rename_text ) ) {
-			rename( &fct_switch_home_in_file( $old_file_name_full ), &fct_switch_home_in_file( $dlg_rename_text ) );
-		 }
-		 else {
-			&dlg_error_message( $d->get( "File already exists,\nplease choose an alternative filename!" ) );
-			$input_dialog->destroy();
-			return FALSE;
-		 }
-		 $session_screens{ $data }->{ 'filename' } = $dlg_rename_text;
-	  }
-	  $input_dialog->destroy();
-	  return TRUE;
-   }
-   else {
-	  $input_dialog->destroy();
-	  return FALSE;
-   }
-}
-
-sub dlg_plugin {
-   my ( $dlg_plugin_text, $key ) = @_;
-   my $dlg_header = $d->get( "Choose a plugin" );
-   my $plugin_dialog = Gtk2::Dialog->new(
-										  $dlg_header,
-										  $window,
-										  [ qw/modal destroy-with-parent/ ],
-										  'gtk-ok'     => 'accept',
-										  'gtk-cancel' => 'reject'
-										);
-   $plugin_dialog->set_default_response( 'accept' );
-   my $model = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String', 'Glib::String' );
-
-   foreach ( sort keys %plugins ) {
-	  next unless $plugins{ $_ }->{ 'ext' } =~ /$session_screens{$key}->{'filetype'}/;
-	  if ( $plugins{ $_ }->{ 'binary' } ne "" ) {
-		 my $pixbuf;
-		 if ( -f $plugins{ $_ }->{ 'pixbuf' } ) {
-			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size( $plugins{ $_ }->{ 'pixbuf' }, Gtk2::IconSize->lookup( 'menu' ) );
-		 }
-		 else {
-			$pixbuf =
-				Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$gscrot_root/share/gscrot/resources/icons/executable.svg",
-														  Gtk2::IconSize->lookup( 'menu' ) );
-		 }
-
-		 #get translated plugin-name
-		 $plugins{ $_ }->{ 'name' } = `$plugins{$_}->{'binary'} name`;
-		 utf8::decode $plugins{ $_ }->{ 'name' };
-		 chomp( $plugins{ $_ }->{ 'name' } );
-		 $model->set( $model->append, 0, $pixbuf, 1, $plugins{ $_ }->{ 'name' }, 2, $plugins{ $_ }->{ 'binary' }, 3, $plugins{ $_ }->{ 'lang' } );
-	  }
-	  else {
-		 print "WARNING: Program $_ is not configured properly, ignoring\n";
-	  }
-   }
-   my $plugin       = Gtk2::ComboBox->new( $model );
-   my $renderer_pix = Gtk2::CellRendererPixbuf->new;
-   $plugin->pack_start( $renderer_pix, FALSE );
-   $plugin->add_attribute( $renderer_pix, pixbuf => 0 );
-   my $renderer_text = Gtk2::CellRendererText->new;
-   $plugin->pack_start( $renderer_text, FALSE );
-   $plugin->add_attribute( $renderer_text, text => 1 );
-   $plugin->set_active( 0 );
-   $plugin_dialog->vbox->add( $plugin );
-   $plugin_dialog->show_all;
-   my $plugin_response = $plugin_dialog->run;
-
-   if ( $plugin_response eq "accept" ) {
-	  $dlg_plugin_text = &fct_switch_home_in_file( $dlg_plugin_text );
-	  my $model        = $plugin->get_model();
-	  my $plugin_iter  = $plugin->get_active_iter();
-	  my $plugin_value = $model->get_value( $plugin_iter, 2 );
-	  my $plugin_name  = $model->get_value( $plugin_iter, 1 );
-	  my $plugin_lang  = $model->get_value( $plugin_iter, 3 );
-	  unless ( $plugin_value =~ /[a-zA-Z0-9]+/ ) {
-		 &dlg_error_message( $d->get( "No plugin specified" ) );
-		 return FALSE;
-	  }
-
-	  my $data = [ $plugin_value, $plugin_name, $plugin_lang, $key, $plugin_dialog ];
-	  &fct_execute_plugin( undef, $data );
-
-	  $plugin_dialog->destroy();
-	  return TRUE;
-   }
-   else {
-	  $plugin_dialog->destroy();
-	  return FALSE;
-   }
 }
 
 sub fct_execute_plugin {
@@ -3197,299 +2769,6 @@ sub fct_execute_plugin {
    &fct_update_tab( $key );
 }
 
-sub dlg_account_chooser_and_upload {
-   my ( $file_to_upload ) = @_;
-   my $dlg_header = $d->get( "Choose hosting-site and account" );
-   my $hosting_dialog = Gtk2::Dialog->new(
-										   $dlg_header,
-										   $window,
-										   [ qw/modal destroy-with-parent/ ],
-										   'gtk-ok'     => 'accept',
-										   'gtk-cancel' => 'reject'
-										 );
-   $hosting_dialog->set_default_response( 'accept' );
-   $hosting_dialog->set_size_request( 300 );
-   my $model = Gtk2::ListStore->new( 'Glib::String', 'Glib::String', 'Glib::String' );
-
-   foreach ( keys %accounts ) {
-	  $model->set( $model->append, 0, $accounts{ $_ }->{ 'host' }, 1, $accounts{ $_ }->{ 'username' }, 2, $accounts{ $_ }->{ 'password' } )
-		  if (    $accounts{ $_ }->{ 'username' } ne ""
-			   && $accounts{ $_ }->{ 'password' } ne "" );
-	  $model->set( $model->append, 0, $accounts{ $_ }->{ 'host' }, 1, $d->get( "Guest" ), 2, "" );
-   }
-   my $hosting       = Gtk2::ComboBox->new( $model );
-   my $renderer_host = Gtk2::CellRendererText->new;
-   $hosting->pack_start( $renderer_host, FALSE );
-   $hosting->add_attribute( $renderer_host, text => 0 );
-   my $renderer_username = Gtk2::CellRendererText->new;
-   $hosting->pack_start( $renderer_username, FALSE );
-   $hosting->add_attribute( $renderer_username, text => 1 );
-   $hosting->set_active( 0 );
-   $hosting_dialog->vbox->add( $hosting );
-   $hosting_dialog->show_all;
-   my $hosting_response = $hosting_dialog->run;
-
-   if ( $hosting_response eq "accept" ) {
-	  my $model            = $hosting->get_model();
-	  my $hosting_iter     = $hosting->get_active_iter();
-	  my $hosting_host     = $model->get_value( $hosting_iter, 0 );
-	  my $hosting_username = $model->get_value( $hosting_iter, 1 );
-	  my $hosting_password = $model->get_value( $hosting_iter, 2 );
-	  if ( $hosting_host eq "ubuntu-pics.de" ) {
-		 my %upload_response;
-		 %upload_response = &fct_upload_ubuntu_pics( &fct_switch_home_in_file( $file_to_upload ),
-													 $hosting_username, $hosting_password, $debug_cparam, GSCROT_VERSION );
-		 if ( is_success( $upload_response{ 'status' } ) ) {
-			&dlg_upload_links_ubuntu_pics(
-										   $hosting_host,
-										   $hosting_username,
-										   $upload_response{ 'thumb1' },
-										   $upload_response{ 'thumb2' },
-										   $upload_response{ 'bbcode' },
-										   $upload_response{ 'ubuntucode' },
-										   $upload_response{ 'direct' },
-										   $upload_response{ 'status' }
-										 );
-			&dlg_status_message( 1, $file_to_upload . " " . $d->get( "uploaded" ) );
-		 }
-		 else {
-			&dlg_error_message( $upload_response{ 'status' } );
-		 }
-	  }
-	  elsif ( $hosting_host eq "imagebanana.com" ) {
-		 my %upload_response;
-		 %upload_response = &fct_upload_imagebanana( &fct_switch_home_in_file( $file_to_upload ),
-													 $hosting_username, $hosting_password, $debug_cparam, GSCROT_VERSION );
-		 if ( is_success( $upload_response{ 'status' } ) ) {
-			&dlg_upload_links_imagebanana(
-										   $hosting_host,
-										   $hosting_username,
-										   $upload_response{ 'thumb1' },
-										   $upload_response{ 'thumb2' },
-										   $upload_response{ 'thumb3' },
-										   $upload_response{ 'friends' },
-										   $upload_response{ 'popup' },
-										   $upload_response{ 'direct' },
-										   $upload_response{ 'hotweb' },
-										   $upload_response{ 'hotboard1' },
-										   $upload_response{ 'hotboard2' },
-										   $upload_response{ 'status' }
-										 );
-			&dlg_status_message( 1, $file_to_upload . " " . $d->get( "uploaded" ) );
-		 }
-		 else {
-			&dlg_error_message( $upload_response{ 'status' } );
-		 }
-	  }
-	  $hosting_dialog->destroy();
-	  return TRUE;
-   }
-   else {
-	  $hosting_dialog->destroy();
-	  return FALSE;
-   }
-}
-
-sub dlg_website {
-   my $dlg_header = $d->get( "URL to capture" );
-   my $website_dialog = Gtk2::Dialog->new(
-										   $dlg_header,
-										   $window,
-										   [ qw/modal destroy-with-parent/ ],
-										   'gtk-ok'     => 'accept',
-										   'gtk-cancel' => 'reject'
-										 );
-   $website_dialog->set_default_response( 'accept' );
-   my $website = Gtk2::Entry->new;
-   $website->set_text( "http://" );
-   $website->set_activates_default( TRUE );
-   my $clipboard_string = $clipboard->wait_for_text;
-   print "Content of clipboard is: $clipboard_string\n" if $debug_cparam;
-
-   if ( defined $clipboard_string ) {
-	  if (    $clipboard_string =~ /^http/
-		   || $clipboard_string =~ /^file/
-		   || $clipboard_string =~ /^www\./ )
-	  {
-		 $website->set_text( $clipboard_string );
-	  }
-   }
-   $website_dialog->vbox->add( $website );
-   $website_dialog->show_all;
-   my $website_response = $website_dialog->run;
-
-   if ( $website_response eq "accept" ) {
-	  $website_dialog->destroy();
-	  return $website->get_text;
-   }
-   else {
-	  $website_dialog->destroy();
-	  return FALSE;
-   }
-}
-
-sub dlg_upload_links_ubuntu_pics {
-   my ( $host, $username, $thumb1, $thumb2, $bbcode, $ubuntucode, $direct, $status ) = @_;
-   my $dlg_header = $d->get( "Upload" ) . " - " . $host . " - " . $username;
-   my $upload_dialog = Gtk2::Dialog->new( $dlg_header, $window, [ qw/modal destroy-with-parent/ ], 'gtk-ok' => 'accept' );
-   $upload_dialog->set_default_response( 'accept' );
-   $upload_dialog->set_size_request( 400, 400 );
-   my $upload_hbox = Gtk2::HBox->new( FALSE, 0 );
-   my $upload_vbox = Gtk2::VBox->new( FALSE, 0 );
-   my $label_status = Gtk2::Label->new();
-   $label_status->set_text( $d->get( "Upload status:" ) . " " . status_message( $status ) );
-   my $image_status;
-
-   if ( is_success( $status ) ) {
-	  $image_status = Gtk2::Image->new_from_icon_name( 'gtk-yes', 'menu' );
-   }
-   else {
-	  $image_status = Gtk2::Image->new_from_icon_name( 'gtk-no', 'menu' );
-   }
-   $upload_hbox->pack_start( $image_status, TRUE, TRUE, 0 );
-   $upload_hbox->pack_start( $label_status, TRUE, TRUE, 0 );
-   my $entry_thumb1     = Gtk2::Entry->new();
-   my $entry_thumb2     = Gtk2::Entry->new();
-   my $entry_bbcode     = Gtk2::Entry->new();
-   my $entry_ubuntucode = Gtk2::Entry->new();
-   my $entry_direct     = Gtk2::Entry->new();
-   my $label_thumb1     = Gtk2::Label->new();
-   my $label_thumb2     = Gtk2::Label->new();
-   my $label_bbcode     = Gtk2::Label->new();
-   my $label_ubuntucode = Gtk2::Label->new();
-   my $label_direct     = Gtk2::Label->new();
-   $label_thumb1->set_text( $d->get( "Thumbnail for websites (with border)" ) );
-   $label_thumb2->set_text( $d->get( "Thumbnail for websites (without border)" ) );
-   $label_bbcode->set_text( $d->get( "Thumbnail for forums" ) );
-   $label_ubuntucode->set_text( $d->get( "Thumbnail for Ubuntuusers.de forum" ) );
-   $label_direct->set_text( $d->get( "Direct link" ) );
-   $entry_thumb1->set_text( $thumb1 );
-   $entry_thumb2->set_text( $thumb2 );
-   $entry_bbcode->set_text( $bbcode );
-   $entry_ubuntucode->set_text( $ubuntucode );
-   $entry_direct->set_text( $direct );
-   $upload_vbox->pack_start( $upload_hbox,      TRUE, TRUE, 10 );
-   $upload_vbox->pack_start( $label_thumb1,     TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $entry_thumb1,     TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $label_thumb2,     TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $entry_thumb2,     TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $label_bbcode,     TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $entry_bbcode,     TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $label_ubuntucode, TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $entry_ubuntucode, TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $label_direct,     TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $entry_direct,     TRUE, TRUE, 2 );
-   $upload_dialog->vbox->add( $upload_vbox );
-   $upload_dialog->show_all;
-   my $upload_response = $upload_dialog->run;
-
-   if ( $upload_response eq "accept" ) {
-	  $upload_dialog->destroy();
-	  return TRUE;
-   }
-   else {
-	  $upload_dialog->destroy();
-	  return FALSE;
-   }
-}
-
-sub dlg_upload_links_imagebanana {
-   my ( $host, $username, $thumb1, $thumb2, $thumb3, $friends, $popup, $direct, $hotweb, $hotboard1, $hotboard2, $status ) = @_;
-   my $dlg_header = $d->get( "Upload" ) . " - " . $host . " - " . $username;
-   my $upload_dialog = Gtk2::Dialog->new( $dlg_header, $window, [ qw/modal destroy-with-parent/ ], 'gtk-ok' => 'accept' );
-   $upload_dialog->set_default_response( 'accept' );
-   $upload_dialog->set_size_request( 400, 600 );
-   my $upload_hbox = Gtk2::HBox->new( FALSE, 0 );
-   my $upload_vbox = Gtk2::VBox->new( FALSE, 0 );
-   my $label_status = Gtk2::Label->new();
-   $label_status->set_text( $d->get( "Upload status:" ) . " " . status_message( $status ) );
-   my $image_status;
-
-   if ( is_success( $status ) ) {
-	  $image_status = Gtk2::Image->new_from_icon_name( 'gtk-yes', 'menu' );
-   }
-   else {
-	  $image_status = Gtk2::Image->new_from_icon_name( 'gtk-no', 'menu' );
-   }
-   $upload_hbox->pack_start( $image_status, TRUE, TRUE, 0 );
-   $upload_hbox->pack_start( $label_status, TRUE, TRUE, 0 );
-   my $entry_thumb1    = Gtk2::Entry->new();
-   my $entry_thumb2    = Gtk2::Entry->new();
-   my $entry_thumb3    = Gtk2::Entry->new();
-   my $entry_friends   = Gtk2::Entry->new();
-   my $entry_popup     = Gtk2::Entry->new();
-   my $entry_direct    = Gtk2::Entry->new();
-   my $entry_hotweb    = Gtk2::Entry->new();
-   my $entry_hotboard1 = Gtk2::Entry->new();
-   my $entry_hotboard2 = Gtk2::Entry->new();
-   my $label_thumb1    = Gtk2::Label->new();
-   my $label_thumb2    = Gtk2::Label->new();
-   my $label_thumb3    = Gtk2::Label->new();
-   my $label_friends   = Gtk2::Label->new();
-   my $label_popup     = Gtk2::Label->new();
-   my $label_direct    = Gtk2::Label->new();
-   my $label_hotweb    = Gtk2::Label->new();
-   my $label_hotboard1 = Gtk2::Label->new();
-   my $label_hotboard2 = Gtk2::Label->new();
-   $label_thumb1->set_text( $d->get( "Thumbnail for websites" ) );
-   $label_thumb2->set_text( $d->get( "Thumbnail for boards (1)" ) );
-   $label_thumb3->set_text( $d->get( "Thumbnail for boards (2)" ) );
-   $label_friends->set_text( $d->get( "Show your friends" ) );
-   $label_popup->set_text( $d->get( "Popup for websites" ) );
-   $label_direct->set_text( $d->get( "Direct link" ) );
-   $label_hotweb->set_text( $d->get( "Hotlink for websites" ) );
-   $label_hotboard1->set_text( $d->get( "Hotlink for boards (1)" ) );
-   $label_hotboard2->set_text( $d->get( "Hotlink for boards (2)" ) );
-   $entry_thumb1->set_text( $thumb1 );
-   $entry_thumb2->set_text( $thumb2 );
-   $entry_thumb3->set_text( $thumb3 );
-   $entry_friends->set_text( $friends );
-   $entry_popup->set_text( $popup );
-   $entry_direct->set_text( $direct );
-   $entry_hotweb->set_text( $hotweb );
-   $entry_hotboard1->set_text( $hotboard1 );
-   $entry_hotboard2->set_text( $hotboard2 );
-   $upload_vbox->pack_start( $upload_hbox,     TRUE, TRUE, 10 );
-   $upload_vbox->pack_start( $label_thumb1,    TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $entry_thumb1,    TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $label_thumb2,    TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $entry_thumb2,    TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $label_thumb3,    TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $entry_thumb3,    TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $label_friends,   TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $entry_friends,   TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $label_popup,     TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $entry_popup,     TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $label_direct,    TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $entry_direct,    TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $label_hotweb,    TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $entry_hotweb,    TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $label_hotboard1, TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $entry_hotboard1, TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $label_hotboard2, TRUE, TRUE, 2 );
-   $upload_vbox->pack_start( $entry_hotboard2, TRUE, TRUE, 2 );
-   $upload_dialog->vbox->add( $upload_vbox );
-   $upload_dialog->show_all;
-   my $upload_response = $upload_dialog->run;
-
-   if ( $upload_response eq "accept" ) {
-	  $upload_dialog->destroy();
-	  return TRUE;
-   }
-   else {
-	  $upload_dialog->destroy();
-	  return FALSE;
-   }
-}
-
-sub dlg_info_message {
-   my ( $dlg_info_message ) = @_;
-   my $info_dialog = Gtk2::MessageDialog->new( $window, [ qw/modal destroy-with-parent/ ], 'info', 'ok', $dlg_info_message );
-   my $info_response = $info_dialog->run;
-   $info_dialog->destroy() if ( $info_response eq "ok" );
-   return TRUE;
-}
-
 sub fct_usage {
    print "gscrot [options]\n";
    print
@@ -3519,6 +2798,7 @@ sub fct_update_first_tab {
    $session_start_screen{ 'first_page' }->{ 'size_counter' }
 	   ->set_text( $d->get( "Total size" ) . ": " . sprintf( "%.2f", $total_size / 1024 ) . " KB" );
 
+   return TRUE;
 }
 
 sub fct_update_tab {
@@ -3563,7 +2843,7 @@ sub fct_update_tab {
 
    &fct_resize_thumb( $session_screens{ $key }->{ 'image' }, undef, $key );
 
-   return 1;
+   return TRUE;
 }
 
 sub fct_get_latest_tab_key {
@@ -3578,6 +2858,7 @@ sub fct_get_latest_tab_key {
 sub fct_gnome_open {
    my ( $dialog, $link, $user_data ) = @_;
    system( "gnome-open $link" );
+
 }
 
 sub fct_gnome_open_mail {
@@ -3613,6 +2894,7 @@ sub fct_imagemagick_perform {
 	  &fct_resize_imagemagick_object( \$image, $1, $2, undef );
 	  $image->WriteImage( filename => $file );
    }
+   return TRUE;
 }
 
 sub fct_resize_imagemagick_object {
@@ -3636,7 +2918,7 @@ sub fct_resize_imagemagick_object {
    elsif ( $operator == 4 ) {
 	  $$image->AdaptiveResize( width => $w, height => $h );
    }
-   return 1;
+   return TRUE;
 }
 
 sub fct_check_installed_programs {
@@ -3656,6 +2938,7 @@ sub fct_check_installed_programs {
 		 print "WARNING: Program $_ is not configured properly, ignoring\n";
 	  }
    }
+   return TRUE;
 }
 
 sub fct_gscrot_area {
@@ -4416,96 +3699,6 @@ sub fct_create_thumbnail_and_fileinfos {
    return TRUE;
 }
 
-sub evt_save_profile {
-   my ( $widget, $combobox_settings_profiles ) = @_;
-   my $curr_profile_name = $combobox_settings_profiles->get_active_text || "";
-   my $new_profile_name = &dlg_profile_name( $curr_profile_name, $combobox_settings_profiles );
-
-   if ( $new_profile_name ) {
-	  if ( $curr_profile_name ne $new_profile_name ) {
-		 $combobox_settings_profiles->prepend_text( $new_profile_name );
-		 $combobox_settings_profiles->set_active( 0 );
-	  }
-	  &fct_save_settings( $new_profile_name );
-   }
-   return TRUE;
-}
-
-sub evt_delete_profile {
-   my ( $widget, $combobox_settings_profiles ) = @_;
-   if ( $combobox_settings_profiles->get_active_text ) {
-	  my $active_text  = $combobox_settings_profiles->get_active_text;
-	  my $active_index = $combobox_settings_profiles->get_active;
-	  unlink( "$ENV{'HOME'}/.gscrot/profiles/" . $active_text . ".xml" );
-	  unlink( "$ENV{'HOME'}/.gscrot/profiles/" . $active_text . "_accounts.xml" );
-
-	  unless (    &fct_file_exists( "$ENV{'HOME'}/.gscrot/profiles/" . $active_text . ".xml" )
-			   || &fct_file_exists( "$ENV{'HOME'}/.gscrot/profiles/" . $active_text . "_accounts.xml" ) )
-	  {
-		 $combobox_settings_profiles->remove_text( $active_index );
-		 $combobox_settings_profiles->set_active( $combobox_settings_profiles->get_active + 1 );
-
-		 &dlg_status_message( 1, $d->get( "Profile deleted" ) );
-	  }
-	  else {
-		 &dlg_error_message( $d->get( "Profile could not be deleted" ) );
-		 &dlg_status_message( 1, $d->get( "Profile could not be deleted" ) );
-	  }
-   }
-   return TRUE;
-}
-
-sub evt_apply_profile {
-   my ( $widget, $combobox_settings_profiles ) = @_;
-   if ( $combobox_settings_profiles->get_active_text ) {
-	  &fct_load_settings( undef, 'profile_load', $combobox_settings_profiles->get_active_text );
-   }
-   return TRUE;
-}
-
-sub dlg_profile_name {
-   my ( $curr_profile_name, $combobox_settings_profiles ) = @_;
-   my $dlg_header = $d->get( "Save as profile" );
-   my $profile_dialog = Gtk2::Dialog->new(
-										   $dlg_header,
-										   $window,
-										   [ qw/modal destroy-with-parent/ ],
-										   'gtk-ok'     => 'accept',
-										   'gtk-cancel' => 'reject'
-										 );
-   $profile_dialog->set_default_response( 'accept' );
-   my $new_profile_name = Gtk2::Entry->new();
-   $new_profile_name->set_activates_default( TRUE );
-   $new_profile_name->set_text( $curr_profile_name ) if defined $curr_profile_name;
-   $profile_dialog->vbox->add( $new_profile_name );
-   $profile_dialog->show_all;
-   my $profile_response = $profile_dialog->run;
-
-   if ( $profile_response eq "accept" ) {
-	  my $entered_name = $new_profile_name->get_text;
-
-	  if ( &fct_file_exists( "$ENV{'HOME'}/.gscrot/profiles/$entered_name.xml" ) ) {
-
-		 if ( &dlg_question_message( $d->get( "Profile $entered_name already exists.\nDo you want to overwrite the existing profile?" ) ) ) {
-			$profile_dialog->destroy();
-			return $new_profile_name->get_text;
-		 }
-		 else {
-			$profile_dialog->destroy();
-			return FALSE;
-		 }
-	  }
-
-	  $profile_dialog->destroy();
-	  return $new_profile_name->get_text;
-   }
-   else {
-	  $profile_dialog->destroy();
-	  return FALSE;
-   }
-}
-
-
 sub fct_iter_programs {
    my ( $model, $path, $iter, $search_for ) = @_;
    my $progname_value = $model->get_value( $iter, 2 );
@@ -4632,4 +3825,857 @@ sub fct_ret_web_menu {
    $menu_web->show_all;
    return $menu_web;
 }
-#################### MY FUNCTIONS  ################################
+
+sub fct_load_accounts_tree {
+
+   $accounts_model =
+	   Gtk2::ListStore->new( 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String' );
+
+   foreach ( keys %accounts ) {
+	  my $hidden_text = "";
+	  for ( my $i = 1 ; $i <= length( $accounts{ $_ }->{ 'password' } ) ; $i++ ) {
+		 $hidden_text .= '*';
+	  }
+	  $accounts_model->set(
+							$accounts_model->append,         0, $accounts{ $_ }->{ 'host' },           1,
+							$accounts{ $_ }->{ 'username' }, 2, $hidden_text,                          3,
+							$accounts{ $_ }->{ 'register' }, 4, $accounts{ $_ }->{ 'register_color' }, 5,
+							$accounts{ $_ }->{ 'register_text' }
+						  );
+   }
+
+   return TRUE;
+}
+
+sub fct_load_plugin_tree {
+
+   $effects_model = Gtk2::ListStore->new(
+										  'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::Boolean', 'Glib::String',
+										  'Glib::String',      'Glib::String', 'Glib::String',  'Glib::String',
+										  'Glib::String',      'Glib::String'
+										);
+   foreach ( sort keys %plugins ) {
+	  if ( $plugins{ $_ }->{ 'binary' } ne "" ) {
+		 my $pixbuf;
+		 if ( -f $plugins{ $_ }->{ 'pixbuf' } ) {
+			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size( $plugins{ $_ }->{ 'pixbuf' }, Gtk2::IconSize->lookup( 'menu' ) );
+		 }
+		 else {
+			$pixbuf =
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$gscrot_root/share/gscrot/resources/icons/executable.svg",
+														  Gtk2::IconSize->lookup( 'menu' ) );
+		 }
+
+		 #get translated plugin-name
+		 $plugins{ $_ }->{ 'name' } = `$plugins{$_}->{'binary'} name`;
+		 utf8::decode $plugins{ $_ }->{ 'name' };
+		 $plugins{ $_ }->{ 'category' } = `$plugins{$_}->{'binary'} sort`;
+		 utf8::decode $plugins{ $_ }->{ 'category' };
+		 $plugins{ $_ }->{ 'tooltip' } = `$plugins{$_}->{'binary'} tip`;
+		 utf8::decode $plugins{ $_ }->{ 'tooltip' };
+		 $plugins{ $_ }->{ 'ext' } = `$plugins{$_}->{'binary'} ext`;
+		 utf8::decode $plugins{ $_ }->{ 'ext' };
+		 $plugins{ $_ }->{ 'lang' } = `$plugins{$_}->{'binary'} lang`;
+		 utf8::decode $plugins{ $_ }->{ 'lang' };
+		 $plugins{ $_ }->{ 'lang' } = "shell" if $plugins{ $_ }->{ 'lang' } eq "";
+		 chomp( $plugins{ $_ }->{ 'name' } );
+		 chomp( $plugins{ $_ }->{ 'category' } );
+		 chomp( $plugins{ $_ }->{ 'tooltip' } );
+		 chomp( $plugins{ $_ }->{ 'ext' } );
+		 chomp( $plugins{ $_ }->{ 'lang' } );
+
+		 #check if plugin can handle png and/or jpeg
+		 my $pixbuf_jpeg = 'gtk-no';
+		 my $pixbuf_png  = 'gtk-no';
+		 $pixbuf_jpeg = 'gtk-yes' if ( $plugins{ $_ }->{ 'ext' } =~ /jpeg/ );
+		 $pixbuf_png  = 'gtk-yes' if ( $plugins{ $_ }->{ 'ext' } =~ /png/ );
+		 $effects_model->set(
+							  $effects_model->append,        0, $pixbuf,                      1, $plugins{ $_ }->{ 'name' },     2,
+							  $plugins{ $_ }->{ 'menu' },    3, $plugins{ $_ }->{ 'binary' }, 4, $plugins{ $_ }->{ 'category' }, 5,
+							  $plugins{ $_ }->{ 'tooltip' }, 6, $pixbuf_jpeg,                 7, $pixbuf_png,                    8,
+							  $plugins{ $_ }->{ 'lang' },    9, $_,
+							);
+	  }
+	  else {
+		 print "WARNING: Plugin $_ is not configured properly, ignoring\n";
+	  }
+   }
+
+   return TRUE;
+}
+
+sub fct_set_model_accounts {
+   my $accounts_tree = $_[ 0 ];
+
+   my @columns = $accounts_tree->get_columns;
+   foreach ( @columns ) {
+	  $accounts_tree->remove_column( $_ );
+   }
+
+#host
+   my $tv_clmn_name_text = Gtk2::TreeViewColumn->new;
+   $tv_clmn_name_text->set_title( $d->get( "Host" ) );
+   my $renderer_name_accounts = Gtk2::CellRendererText->new;
+   $tv_clmn_name_text->pack_start( $renderer_name_accounts, FALSE );
+   $tv_clmn_name_text->set_attributes( $renderer_name_accounts, text => 0 );
+   $accounts_tree->append_column( $tv_clmn_name_text );
+
+   my $renderer_username_accounts = Gtk2::CellRendererText->new;
+   $renderer_username_accounts->set( editable => TRUE );
+   $renderer_username_accounts->signal_connect(
+	  edited => sub {
+		 my ( $cell, $text_path, $new_text, $model ) = @_;
+		 my $path = Gtk2::TreePath->new_from_string( $text_path );
+		 my $iter = $model->get_iter( $path );
+		 $accounts{ $model->get_value( $iter, 0 ) }->{ 'username' } = $new_text;    #save entered username to the hash
+		 $model->set( $iter, 1, $new_text );
+	  },
+	  $accounts_model
+											  );
+   my $tv_clmn_username_text = Gtk2::TreeViewColumn->new_with_attributes( $d->get( "Username" ), $renderer_username_accounts, text => 1 );
+   $accounts_tree->append_column( $tv_clmn_username_text );
+
+   #password
+   my $tv_clmn_password_text = Gtk2::TreeViewColumn->new;
+   $tv_clmn_password_text->set_title( $d->get( "Password" ) );
+   my $renderer_password_accounts = Gtk2::CellRendererText->new;
+   $renderer_password_accounts->set( editable => TRUE );
+   $renderer_password_accounts->signal_connect(
+	  edited => sub {
+		 my ( $cell, $text_path, $new_text, $model ) = @_;
+		 my $path        = Gtk2::TreePath->new_from_string( $text_path );
+		 my $iter        = $model->get_iter( $path );
+		 my $hidden_text = "";
+
+		 for ( my $i = 1 ; $i <= length( $new_text ) ; $i++ ) {
+			$hidden_text .= '*';
+		 }
+		 $accounts{ $model->get_value( $iter, 0 ) }->{ 'password' } = $new_text;    #save entered password to the hash
+		 $model->set( $iter, 2, $hidden_text );
+	  },
+	  $accounts_model
+											  );
+
+
+   $tv_clmn_password_text->pack_start( $renderer_password_accounts, FALSE );
+   $tv_clmn_password_text->set_attributes( $renderer_password_accounts, text => 2 );
+   $accounts_tree->append_column( $tv_clmn_password_text );
+
+#register
+   my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
+   $tv_clmn_pix_text->set_title( $d->get( "Register" ) );
+   my $ren_text = Gtk2::CellRendererText->new();
+   $tv_clmn_pix_text->pack_start( $ren_text, FALSE );
+   $tv_clmn_pix_text->set_attributes( $ren_text, 'text', ( $d->get( 5 ) ), 'foreground', 4 );
+   $accounts_tree->append_column( $tv_clmn_pix_text );
+
+   return TRUE;
+}
+
+sub fct_set_model_plugins {
+   my $effects_tree = $_[ 0 ];
+
+   my @columns = $effects_tree->get_columns;
+   foreach ( @columns ) {
+	  $effects_tree->remove_column( $_ );
+   }
+
+   #icon
+   $effects_tree->set_tooltip_column( 5 ) if Gtk2->CHECK_VERSION( 2, 11, 0 );
+   my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
+   $tv_clmn_pix_text->set_title( $d->get( "Icon" ) );
+   my $renderer_pix_effects = Gtk2::CellRendererPixbuf->new;
+   $tv_clmn_pix_text->pack_start( $renderer_pix_effects, FALSE );
+   $tv_clmn_pix_text->set_attributes( $renderer_pix_effects, pixbuf => 0 );
+   $effects_tree->append_column( $tv_clmn_pix_text );
+
+#name
+   my $tv_clmn_text_text = Gtk2::TreeViewColumn->new;
+   $tv_clmn_text_text->set_title( $d->get( "Name" ) );
+   my $renderer_text_effects = Gtk2::CellRendererText->new;
+   $tv_clmn_text_text->pack_start( $renderer_text_effects, FALSE );
+   $tv_clmn_text_text->set_attributes( $renderer_text_effects, text => 1 );
+
+   $effects_tree->append_column( $tv_clmn_text_text );
+
+#menu
+   my $tv_clmn_toolbar_text = Gtk2::TreeViewColumn->new;
+   $tv_clmn_toolbar_text->set_title( $d->get( "Toolbar" ) );
+   my $renderer_toolbar_effects = Gtk2::CellRendererToggle->new;
+   $tv_clmn_toolbar_text->pack_start( $renderer_toolbar_effects, FALSE );
+   $renderer_toolbar_effects->signal_connect( toggled => \&evt_plugins_toolbar, $effects_model );
+   $tv_clmn_toolbar_text->set_attributes( $renderer_toolbar_effects, 'active' => 2 );
+
+   $effects_tree->append_column( $tv_clmn_toolbar_text );
+
+#category
+   my $tv_clmn_category_text = Gtk2::TreeViewColumn->new;
+   $tv_clmn_category_text->set_title( $d->get( "Category" ) );
+   my $renderer_category_effects = Gtk2::CellRendererText->new;
+   $tv_clmn_category_text->pack_start( $renderer_category_effects, FALSE );
+   $tv_clmn_category_text->set_attributes( $renderer_category_effects, text => 4 );
+   $effects_tree->append_column( $tv_clmn_category_text );
+
+#path
+   my $tv_clmn_path_text = Gtk2::TreeViewColumn->new;
+   $tv_clmn_path_text->set_title( $d->get( "Path" ) );
+   my $renderer_path_effects = Gtk2::CellRendererText->new;
+   $tv_clmn_path_text->pack_start( $renderer_path_effects, FALSE );
+   $tv_clmn_path_text->set_attributes( $renderer_path_effects, text => 3 );
+   $effects_tree->append_column( $tv_clmn_path_text );
+
+#tooltip column
+   unless ( Gtk2->CHECK_VERSION( 2, 12, 0 ) ) {
+	  my $tv_clmn_descr_text = Gtk2::TreeViewColumn->new;
+	  $tv_clmn_descr_text->set_title( $d->get( "Description" ) );
+	  my $renderer_descr_effects = Gtk2::CellRendererText->new;
+	  $tv_clmn_descr_text->pack_start( $renderer_descr_effects, FALSE );
+	  $tv_clmn_descr_text->set_attributes( $renderer_descr_effects, text => 5 );
+	  $effects_tree->append_column( $tv_clmn_descr_text );
+   }
+
+#jpeg
+   my $tv_clmn_jpeg_text = Gtk2::TreeViewColumn->new;
+   $tv_clmn_jpeg_text->set_title( "jpeg" );
+   my $renderer_jpeg_effects = Gtk2::CellRendererPixbuf->new;
+   $tv_clmn_jpeg_text->pack_start( $renderer_jpeg_effects, FALSE );
+   $tv_clmn_jpeg_text->set_attributes( $renderer_jpeg_effects, stock_id => 6 );
+   $effects_tree->append_column( $tv_clmn_jpeg_text );
+
+#png
+   my $tv_clmn_png_text = Gtk2::TreeViewColumn->new;
+   $tv_clmn_png_text->set_title( "png" );
+   my $renderer_png_effects = Gtk2::CellRendererPixbuf->new;
+   $tv_clmn_png_text->pack_start( $renderer_png_effects, FALSE );
+   $tv_clmn_png_text->set_attributes( $renderer_png_effects, stock_id => 7 );
+   $effects_tree->append_column( $tv_clmn_png_text );
+
+#language
+   my $tv_clmn_lang_text = Gtk2::TreeViewColumn->new;
+   $tv_clmn_lang_text->set_title( $d->get( "Language" ) );
+   my $renderer_lang_effects = Gtk2::CellRendererText->new;
+   $tv_clmn_lang_text->pack_start( $renderer_lang_effects, FALSE );
+   $tv_clmn_lang_text->set_attributes( $renderer_lang_effects, text => 8 );
+   $effects_tree->append_column( $tv_clmn_lang_text );
+
+   return TRUE;
+}
+
+sub fct_init {
+
+   #are there any command line params?
+   if ( @ARGV > 0 ) {
+	  my $arg;
+	  foreach $arg ( @args ) {
+		 if ( $arg eq "--debug" ) {
+			$debug_cparam = TRUE;
+		 }
+		 elsif ( $arg eq "--help" ) {
+			&fct_usage();
+			exit;
+		 }
+		 elsif ( $arg eq "--min_at_startup" ) {
+			$min_cparam = TRUE;
+		 }
+		 elsif ( $arg eq "--beeper_off" ) {
+			$boff_cparam = TRUE;
+		 }
+		 elsif ( $arg eq "--window" ) {
+
+			#is there already a process of gscrot running?
+			my @gscrot_pids = `pidof -o $$ -x $gscrot_path`;
+			foreach ( @gscrot_pids ) {
+			   kill USR2 => $_;
+			   die;
+			}
+			$start_with = "select";
+		 }
+		 elsif ( $arg eq "--full" ) {
+
+			#is there already a process of gscrot running?
+			my @gscrot_pids = `pidof -o $$ -x $gscrot_path`;
+			foreach ( @gscrot_pids ) {
+			   kill USR1 => $_;
+			   die;
+			}
+			$start_with = "raw";
+		 }
+		 else {
+			print "\ncommand " . $arg . " not recognized --> will be ignored\n";
+			&fct_usage();
+			exit;
+		 }
+		 print "\ncommand " . $arg . " recognized!\n";
+	  }
+   }
+   else {
+	  print "INFO: no command line parameters set...\n";
+   }
+   if ( $debug_cparam ) {
+	  print "\nINFO: gathering system information...";
+	  print "\n";
+	  printf "Glib %s \n", $Glib::VERSION;
+	  printf "Gtk2 %s \n", $Gtk2::VERSION;
+	  print "\n";
+
+	  # The version info stuff appeared in 1.040.
+	  print "Glib built for "
+		  . join( ".", Glib->GET_VERSION_INFO )
+		  . ", running with "
+		  . join( ".", &Glib::major_version, &Glib::minor_version, &Glib::micro_version ) . "\n"
+		  if $Glib::VERSION >= 1.040;
+	  print "Gtk2 built for "
+		  . join( ".", Gtk2->GET_VERSION_INFO )
+		  . ", running with "
+		  . join( ".", &Gtk2::major_version, &Gtk2::minor_version, &Gtk2::micro_version ) . "\n"
+		  if $Gtk2::VERSION >= 1.040;
+	  print "\n";
+   }
+   print "INFO: searching for dependencies...\n\n";
+   if ( system( "which gtklp" ) == 0 ) {
+	  print "SUCCESS: gtklp is installed on your system!\n\n";
+   }
+   else {
+	  die "ERROR: dependency is missing --> gtklp is not installed on your system!\n\n";
+   }
+   if ( system( "which gnome-web-photo" ) == 0 ) {
+	  print "SUCCESS: gnome-web-photo is installed on your system!\n\n";
+   }
+   else {
+	  die "ERROR: dependency is missing --> gnome-web-photo is not installed on your system!\n\n";
+   }
+
+   #an old .gscrot file existing?
+   unlink( "$ENV{ 'HOME' }/.gscrot" ) if ( -f "$ENV{ 'HOME' }/.gscrot" );
+
+   #an old .gscrot/settings.conf file existing?
+   unlink( "$ENV{ 'HOME' }/.gscrot/settings.conf" )
+	   if ( -f "$ENV{ 'HOME' }/.gscrot/settings.conf" );
+
+   #is there already a .gscrot folder?
+   mkdir( "$ENV{ 'HOME' }/.gscrot" ) unless ( -d "$ENV{ 'HOME' }/.gscrot" );
+
+   #...and a profiles folder?
+   mkdir "$ENV{'HOME'}/.gscrot/profiles" unless ( -d "$ENV{'HOME'}/.gscrot/profiles" );
+   %gm_programs = do "$gscrot_root/share/gscrot/resources/system/programs.conf";
+   if ( -f "$ENV{ 'HOME' }/.gscrot/programs.conf" ) {
+	  print "\nINFO: using custom program settings found at $ENV{ 'HOME' }/.gscrot/programs.conf\n";
+	  %gm_programs = do "$ENV{ 'HOME' }/.gscrot/programs.conf";
+   }
+   my @plugins = glob( "$gscrot_root/share/gscrot/resources/system/plugins/*/*" );
+   foreach ( @plugins ) {
+	  if ( -d $_ ) {
+		 my $dir_name = $_;
+		 $dir_name =~ s{^.*/}{};
+		 $plugins{ $_ }->{ 'binary' } = "$_/$dir_name"
+			 if ( -f "$_/$dir_name" && -r "$_/$dir_name" );
+		 $plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.png"
+			 if ( -f "$_/$dir_name.png" && -r "$_/$dir_name.png" );
+
+		 #we prefer svgs
+		 $plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.svg"
+			 if ( -f "$_/$dir_name.svg" && -r "$_/$dir_name.svg" );
+	  }
+   }
+   my @custom_plugins = glob( "$ENV{'HOME'}/.gscrot/plugins/*/*" );
+   foreach ( @custom_plugins ) {
+	  if ( -d $_ ) {
+		 my $dir_name = $_;
+		 $dir_name =~ s{^.*/}{};
+		 $plugins{ $_ }->{ 'binary' } = "$_/$dir_name"
+			 if ( -f "$_/$dir_name" && -r "$_/$dir_name" );
+		 $plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.png"
+			 if ( -f "$_/$dir_name.png" && -r "$_/$dir_name.png" );
+
+		 #we prefer svgs
+		 $plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.svg"
+			 if ( -f "$_/$dir_name.svg" && -r "$_/$dir_name.svg" );
+	  }
+   }
+}
+
+#--------------------------------------
+
+#dialogs
+#--------------------------------------
+
+sub dlg_status_message {
+   my ( $index, $status_text ) = @_;
+   $statusbar->push( $index, $status_text );
+   return 1;
+}
+
+sub dlg_error_message {
+   my ( $dlg_error_message ) = @_;
+   my $error_dialog = Gtk2::MessageDialog->new( $window, [ qw/modal destroy-with-parent/ ], 'error', 'ok', $dlg_error_message );
+   my $error_response = $error_dialog->run;
+   $error_dialog->destroy() if ( $error_response eq "ok" );
+   return TRUE;
+}
+
+sub dlg_question_message {
+   my ( $dlg_question_message ) = @_;
+   my $question_dialog = Gtk2::MessageDialog->new( $window, [ qw/modal destroy-with-parent/ ], 'question', 'yes_no', $dlg_question_message );
+   my $question_response = $question_dialog->run;
+   if ( $question_response eq "yes" ) {
+	  $question_dialog->destroy();
+	  return TRUE;
+   }
+   else {
+	  $question_dialog->destroy();
+	  return FALSE;
+   }
+}
+
+sub dlg_rename {
+   my ( $dlg_rename_text, $data ) = @_;
+   my $dlg_header = $d->get( "Rename file" );
+   my $input_dialog = Gtk2::Dialog->new(
+										 $dlg_header,
+										 $window,
+										 [ qw/modal destroy-with-parent/ ],
+										 'gtk-ok'     => 'accept',
+										 'gtk-cancel' => 'reject'
+									   );
+   $input_dialog->set_default_response( 'accept' );
+   my $new_filename = Gtk2::Entry->new();
+   $new_filename->set_activates_default( TRUE );
+   $dlg_rename_text =~ /.*\/(.*)\./;
+   my $old_file_name      = $1;
+   my $old_file_name_full = $dlg_rename_text;
+   $new_filename->set_text( $old_file_name );
+   $input_dialog->vbox->add( $new_filename );
+   $input_dialog->show_all;
+   my $input_response = $input_dialog->run;
+
+   if ( $input_response eq "accept" ) {
+	  my $new_name = $new_filename->get_text;
+	  $dlg_rename_text =~ s/$old_file_name/$new_name/;
+	  unless ( $old_file_name_full eq $dlg_rename_text ) {    #filenames eq? -> nothing to do here
+		 unless ( &fct_file_exists( $dlg_rename_text ) ) {
+			rename( &fct_switch_home_in_file( $old_file_name_full ), &fct_switch_home_in_file( $dlg_rename_text ) );
+		 }
+		 else {
+			&dlg_error_message( $d->get( "File already exists,\nplease choose an alternative filename!" ) );
+			$input_dialog->destroy();
+			return FALSE;
+		 }
+		 $session_screens{ $data }->{ 'filename' } = $dlg_rename_text;
+	  }
+	  $input_dialog->destroy();
+	  return TRUE;
+   }
+   else {
+	  $input_dialog->destroy();
+	  return FALSE;
+   }
+}
+
+sub dlg_plugin {
+   my ( $dlg_plugin_text, $key ) = @_;
+   my $dlg_header = $d->get( "Choose a plugin" );
+   my $plugin_dialog = Gtk2::Dialog->new(
+										  $dlg_header,
+										  $window,
+										  [ qw/modal destroy-with-parent/ ],
+										  'gtk-ok'     => 'accept',
+										  'gtk-cancel' => 'reject'
+										);
+   $plugin_dialog->set_default_response( 'accept' );
+   my $model = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String', 'Glib::String' );
+
+   foreach ( sort keys %plugins ) {
+	  next unless $plugins{ $_ }->{ 'ext' } =~ /$session_screens{$key}->{'filetype'}/;
+	  if ( $plugins{ $_ }->{ 'binary' } ne "" ) {
+		 my $pixbuf;
+		 if ( -f $plugins{ $_ }->{ 'pixbuf' } ) {
+			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size( $plugins{ $_ }->{ 'pixbuf' }, Gtk2::IconSize->lookup( 'menu' ) );
+		 }
+		 else {
+			$pixbuf =
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$gscrot_root/share/gscrot/resources/icons/executable.svg",
+														  Gtk2::IconSize->lookup( 'menu' ) );
+		 }
+
+		 #get translated plugin-name
+		 $plugins{ $_ }->{ 'name' } = `$plugins{$_}->{'binary'} name`;
+		 utf8::decode $plugins{ $_ }->{ 'name' };
+		 chomp( $plugins{ $_ }->{ 'name' } );
+		 $model->set( $model->append, 0, $pixbuf, 1, $plugins{ $_ }->{ 'name' }, 2, $plugins{ $_ }->{ 'binary' }, 3, $plugins{ $_ }->{ 'lang' } );
+	  }
+	  else {
+		 print "WARNING: Program $_ is not configured properly, ignoring\n";
+	  }
+   }
+   my $plugin       = Gtk2::ComboBox->new( $model );
+   my $renderer_pix = Gtk2::CellRendererPixbuf->new;
+   $plugin->pack_start( $renderer_pix, FALSE );
+   $plugin->add_attribute( $renderer_pix, pixbuf => 0 );
+   my $renderer_text = Gtk2::CellRendererText->new;
+   $plugin->pack_start( $renderer_text, FALSE );
+   $plugin->add_attribute( $renderer_text, text => 1 );
+   $plugin->set_active( 0 );
+   $plugin_dialog->vbox->add( $plugin );
+   $plugin_dialog->show_all;
+   my $plugin_response = $plugin_dialog->run;
+
+   if ( $plugin_response eq "accept" ) {
+	  $dlg_plugin_text = &fct_switch_home_in_file( $dlg_plugin_text );
+	  my $model        = $plugin->get_model();
+	  my $plugin_iter  = $plugin->get_active_iter();
+	  my $plugin_value = $model->get_value( $plugin_iter, 2 );
+	  my $plugin_name  = $model->get_value( $plugin_iter, 1 );
+	  my $plugin_lang  = $model->get_value( $plugin_iter, 3 );
+	  unless ( $plugin_value =~ /[a-zA-Z0-9]+/ ) {
+		 &dlg_error_message( $d->get( "No plugin specified" ) );
+		 return FALSE;
+	  }
+
+	  my $data = [ $plugin_value, $plugin_name, $plugin_lang, $key, $plugin_dialog ];
+	  &fct_execute_plugin( undef, $data );
+
+	  $plugin_dialog->destroy();
+	  return TRUE;
+   }
+   else {
+	  $plugin_dialog->destroy();
+	  return FALSE;
+   }
+}
+
+sub dlg_account_chooser_and_upload {
+   my ( $file_to_upload ) = @_;
+   my $dlg_header = $d->get( "Choose hosting-site and account" );
+   my $hosting_dialog = Gtk2::Dialog->new(
+										   $dlg_header,
+										   $window,
+										   [ qw/modal destroy-with-parent/ ],
+										   'gtk-ok'     => 'accept',
+										   'gtk-cancel' => 'reject'
+										 );
+   $hosting_dialog->set_default_response( 'accept' );
+   $hosting_dialog->set_size_request( 300 );
+   my $model = Gtk2::ListStore->new( 'Glib::String', 'Glib::String', 'Glib::String' );
+
+   foreach ( keys %accounts ) {
+	  $model->set( $model->append, 0, $accounts{ $_ }->{ 'host' }, 1, $accounts{ $_ }->{ 'username' }, 2, $accounts{ $_ }->{ 'password' } )
+		  if (    $accounts{ $_ }->{ 'username' } ne ""
+			   && $accounts{ $_ }->{ 'password' } ne "" );
+	  $model->set( $model->append, 0, $accounts{ $_ }->{ 'host' }, 1, $d->get( "Guest" ), 2, "" );
+   }
+   my $hosting       = Gtk2::ComboBox->new( $model );
+   my $renderer_host = Gtk2::CellRendererText->new;
+   $hosting->pack_start( $renderer_host, FALSE );
+   $hosting->add_attribute( $renderer_host, text => 0 );
+   my $renderer_username = Gtk2::CellRendererText->new;
+   $hosting->pack_start( $renderer_username, FALSE );
+   $hosting->add_attribute( $renderer_username, text => 1 );
+   $hosting->set_active( 0 );
+   $hosting_dialog->vbox->add( $hosting );
+   $hosting_dialog->show_all;
+   my $hosting_response = $hosting_dialog->run;
+
+   if ( $hosting_response eq "accept" ) {
+	  my $model            = $hosting->get_model();
+	  my $hosting_iter     = $hosting->get_active_iter();
+	  my $hosting_host     = $model->get_value( $hosting_iter, 0 );
+	  my $hosting_username = $model->get_value( $hosting_iter, 1 );
+	  my $hosting_password = $model->get_value( $hosting_iter, 2 );
+	  if ( $hosting_host eq "ubuntu-pics.de" ) {
+		 my %upload_response;
+		 %upload_response = &fct_upload_ubuntu_pics( &fct_switch_home_in_file( $file_to_upload ),
+													 $hosting_username, $hosting_password, $debug_cparam, GSCROT_VERSION );
+		 if ( is_success( $upload_response{ 'status' } ) ) {
+			&dlg_upload_links_ubuntu_pics(
+										   $hosting_host,
+										   $hosting_username,
+										   $upload_response{ 'thumb1' },
+										   $upload_response{ 'thumb2' },
+										   $upload_response{ 'bbcode' },
+										   $upload_response{ 'ubuntucode' },
+										   $upload_response{ 'direct' },
+										   $upload_response{ 'status' }
+										 );
+			&dlg_status_message( 1, $file_to_upload . " " . $d->get( "uploaded" ) );
+		 }
+		 else {
+			&dlg_error_message( $upload_response{ 'status' } );
+		 }
+	  }
+	  elsif ( $hosting_host eq "imagebanana.com" ) {
+		 my %upload_response;
+		 %upload_response = &fct_upload_imagebanana( &fct_switch_home_in_file( $file_to_upload ),
+													 $hosting_username, $hosting_password, $debug_cparam, GSCROT_VERSION );
+		 if ( is_success( $upload_response{ 'status' } ) ) {
+			&dlg_upload_links_imagebanana(
+										   $hosting_host,
+										   $hosting_username,
+										   $upload_response{ 'thumb1' },
+										   $upload_response{ 'thumb2' },
+										   $upload_response{ 'thumb3' },
+										   $upload_response{ 'friends' },
+										   $upload_response{ 'popup' },
+										   $upload_response{ 'direct' },
+										   $upload_response{ 'hotweb' },
+										   $upload_response{ 'hotboard1' },
+										   $upload_response{ 'hotboard2' },
+										   $upload_response{ 'status' }
+										 );
+			&dlg_status_message( 1, $file_to_upload . " " . $d->get( "uploaded" ) );
+		 }
+		 else {
+			&dlg_error_message( $upload_response{ 'status' } );
+		 }
+	  }
+	  $hosting_dialog->destroy();
+	  return TRUE;
+   }
+   else {
+	  $hosting_dialog->destroy();
+	  return FALSE;
+   }
+}
+
+sub dlg_website {
+   my $dlg_header = $d->get( "URL to capture" );
+   my $website_dialog = Gtk2::Dialog->new(
+										   $dlg_header,
+										   $window,
+										   [ qw/modal destroy-with-parent/ ],
+										   'gtk-ok'     => 'accept',
+										   'gtk-cancel' => 'reject'
+										 );
+   $website_dialog->set_default_response( 'accept' );
+   my $website = Gtk2::Entry->new;
+   $website->set_text( "http://" );
+   $website->set_activates_default( TRUE );
+   my $clipboard_string = $clipboard->wait_for_text;
+   print "Content of clipboard is: $clipboard_string\n" if $debug_cparam;
+
+   if ( defined $clipboard_string ) {
+	  if (    $clipboard_string =~ /^http/
+		   || $clipboard_string =~ /^file/
+		   || $clipboard_string =~ /^www\./ )
+	  {
+		 $website->set_text( $clipboard_string );
+	  }
+   }
+   $website_dialog->vbox->add( $website );
+   $website_dialog->show_all;
+   my $website_response = $website_dialog->run;
+
+   if ( $website_response eq "accept" ) {
+	  $website_dialog->destroy();
+	  return $website->get_text;
+   }
+   else {
+	  $website_dialog->destroy();
+	  return FALSE;
+   }
+}
+
+sub dlg_upload_links_ubuntu_pics {
+   my ( $host, $username, $thumb1, $thumb2, $bbcode, $ubuntucode, $direct, $status ) = @_;
+   my $dlg_header = $d->get( "Upload" ) . " - " . $host . " - " . $username;
+   my $upload_dialog = Gtk2::Dialog->new( $dlg_header, $window, [ qw/modal destroy-with-parent/ ], 'gtk-ok' => 'accept' );
+   $upload_dialog->set_default_response( 'accept' );
+   $upload_dialog->set_size_request( 400, 400 );
+   my $upload_hbox = Gtk2::HBox->new( FALSE, 0 );
+   my $upload_vbox = Gtk2::VBox->new( FALSE, 0 );
+   my $label_status = Gtk2::Label->new();
+   $label_status->set_text( $d->get( "Upload status:" ) . " " . status_message( $status ) );
+   my $image_status;
+
+   if ( is_success( $status ) ) {
+	  $image_status = Gtk2::Image->new_from_icon_name( 'gtk-yes', 'menu' );
+   }
+   else {
+	  $image_status = Gtk2::Image->new_from_icon_name( 'gtk-no', 'menu' );
+   }
+   $upload_hbox->pack_start( $image_status, TRUE, TRUE, 0 );
+   $upload_hbox->pack_start( $label_status, TRUE, TRUE, 0 );
+   my $entry_thumb1     = Gtk2::Entry->new();
+   my $entry_thumb2     = Gtk2::Entry->new();
+   my $entry_bbcode     = Gtk2::Entry->new();
+   my $entry_ubuntucode = Gtk2::Entry->new();
+   my $entry_direct     = Gtk2::Entry->new();
+   my $label_thumb1     = Gtk2::Label->new();
+   my $label_thumb2     = Gtk2::Label->new();
+   my $label_bbcode     = Gtk2::Label->new();
+   my $label_ubuntucode = Gtk2::Label->new();
+   my $label_direct     = Gtk2::Label->new();
+   $label_thumb1->set_text( $d->get( "Thumbnail for websites (with border)" ) );
+   $label_thumb2->set_text( $d->get( "Thumbnail for websites (without border)" ) );
+   $label_bbcode->set_text( $d->get( "Thumbnail for forums" ) );
+   $label_ubuntucode->set_text( $d->get( "Thumbnail for Ubuntuusers.de forum" ) );
+   $label_direct->set_text( $d->get( "Direct link" ) );
+   $entry_thumb1->set_text( $thumb1 );
+   $entry_thumb2->set_text( $thumb2 );
+   $entry_bbcode->set_text( $bbcode );
+   $entry_ubuntucode->set_text( $ubuntucode );
+   $entry_direct->set_text( $direct );
+   $upload_vbox->pack_start( $upload_hbox,      TRUE, TRUE, 10 );
+   $upload_vbox->pack_start( $label_thumb1,     TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $entry_thumb1,     TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $label_thumb2,     TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $entry_thumb2,     TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $label_bbcode,     TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $entry_bbcode,     TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $label_ubuntucode, TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $entry_ubuntucode, TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $label_direct,     TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $entry_direct,     TRUE, TRUE, 2 );
+   $upload_dialog->vbox->add( $upload_vbox );
+   $upload_dialog->show_all;
+   my $upload_response = $upload_dialog->run;
+
+   if ( $upload_response eq "accept" ) {
+	  $upload_dialog->destroy();
+	  return TRUE;
+   }
+   else {
+	  $upload_dialog->destroy();
+	  return FALSE;
+   }
+}
+
+sub dlg_upload_links_imagebanana {
+   my ( $host, $username, $thumb1, $thumb2, $thumb3, $friends, $popup, $direct, $hotweb, $hotboard1, $hotboard2, $status ) = @_;
+   my $dlg_header = $d->get( "Upload" ) . " - " . $host . " - " . $username;
+   my $upload_dialog = Gtk2::Dialog->new( $dlg_header, $window, [ qw/modal destroy-with-parent/ ], 'gtk-ok' => 'accept' );
+   $upload_dialog->set_default_response( 'accept' );
+   $upload_dialog->set_size_request( 400, 600 );
+   my $upload_hbox = Gtk2::HBox->new( FALSE, 0 );
+   my $upload_vbox = Gtk2::VBox->new( FALSE, 0 );
+   my $label_status = Gtk2::Label->new();
+   $label_status->set_text( $d->get( "Upload status:" ) . " " . status_message( $status ) );
+   my $image_status;
+
+   if ( is_success( $status ) ) {
+	  $image_status = Gtk2::Image->new_from_icon_name( 'gtk-yes', 'menu' );
+   }
+   else {
+	  $image_status = Gtk2::Image->new_from_icon_name( 'gtk-no', 'menu' );
+   }
+   $upload_hbox->pack_start( $image_status, TRUE, TRUE, 0 );
+   $upload_hbox->pack_start( $label_status, TRUE, TRUE, 0 );
+   my $entry_thumb1    = Gtk2::Entry->new();
+   my $entry_thumb2    = Gtk2::Entry->new();
+   my $entry_thumb3    = Gtk2::Entry->new();
+   my $entry_friends   = Gtk2::Entry->new();
+   my $entry_popup     = Gtk2::Entry->new();
+   my $entry_direct    = Gtk2::Entry->new();
+   my $entry_hotweb    = Gtk2::Entry->new();
+   my $entry_hotboard1 = Gtk2::Entry->new();
+   my $entry_hotboard2 = Gtk2::Entry->new();
+   my $label_thumb1    = Gtk2::Label->new();
+   my $label_thumb2    = Gtk2::Label->new();
+   my $label_thumb3    = Gtk2::Label->new();
+   my $label_friends   = Gtk2::Label->new();
+   my $label_popup     = Gtk2::Label->new();
+   my $label_direct    = Gtk2::Label->new();
+   my $label_hotweb    = Gtk2::Label->new();
+   my $label_hotboard1 = Gtk2::Label->new();
+   my $label_hotboard2 = Gtk2::Label->new();
+   $label_thumb1->set_text( $d->get( "Thumbnail for websites" ) );
+   $label_thumb2->set_text( $d->get( "Thumbnail for boards (1)" ) );
+   $label_thumb3->set_text( $d->get( "Thumbnail for boards (2)" ) );
+   $label_friends->set_text( $d->get( "Show your friends" ) );
+   $label_popup->set_text( $d->get( "Popup for websites" ) );
+   $label_direct->set_text( $d->get( "Direct link" ) );
+   $label_hotweb->set_text( $d->get( "Hotlink for websites" ) );
+   $label_hotboard1->set_text( $d->get( "Hotlink for boards (1)" ) );
+   $label_hotboard2->set_text( $d->get( "Hotlink for boards (2)" ) );
+   $entry_thumb1->set_text( $thumb1 );
+   $entry_thumb2->set_text( $thumb2 );
+   $entry_thumb3->set_text( $thumb3 );
+   $entry_friends->set_text( $friends );
+   $entry_popup->set_text( $popup );
+   $entry_direct->set_text( $direct );
+   $entry_hotweb->set_text( $hotweb );
+   $entry_hotboard1->set_text( $hotboard1 );
+   $entry_hotboard2->set_text( $hotboard2 );
+   $upload_vbox->pack_start( $upload_hbox,     TRUE, TRUE, 10 );
+   $upload_vbox->pack_start( $label_thumb1,    TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $entry_thumb1,    TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $label_thumb2,    TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $entry_thumb2,    TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $label_thumb3,    TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $entry_thumb3,    TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $label_friends,   TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $entry_friends,   TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $label_popup,     TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $entry_popup,     TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $label_direct,    TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $entry_direct,    TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $label_hotweb,    TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $entry_hotweb,    TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $label_hotboard1, TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $entry_hotboard1, TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $label_hotboard2, TRUE, TRUE, 2 );
+   $upload_vbox->pack_start( $entry_hotboard2, TRUE, TRUE, 2 );
+   $upload_dialog->vbox->add( $upload_vbox );
+   $upload_dialog->show_all;
+   my $upload_response = $upload_dialog->run;
+
+   if ( $upload_response eq "accept" ) {
+	  $upload_dialog->destroy();
+	  return TRUE;
+   }
+   else {
+	  $upload_dialog->destroy();
+	  return FALSE;
+   }
+}
+
+sub dlg_info_message {
+   my ( $dlg_info_message ) = @_;
+   my $info_dialog = Gtk2::MessageDialog->new( $window, [ qw/modal destroy-with-parent/ ], 'info', 'ok', $dlg_info_message );
+   my $info_response = $info_dialog->run;
+   $info_dialog->destroy() if ( $info_response eq "ok" );
+   return TRUE;
+}
+
+sub dlg_profile_name {
+   my ( $curr_profile_name, $combobox_settings_profiles ) = @_;
+   my $dlg_header = $d->get( "Save as profile" );
+   my $profile_dialog = Gtk2::Dialog->new(
+										   $dlg_header,
+										   $window,
+										   [ qw/modal destroy-with-parent/ ],
+										   'gtk-ok'     => 'accept',
+										   'gtk-cancel' => 'reject'
+										 );
+   $profile_dialog->set_default_response( 'accept' );
+   my $new_profile_name = Gtk2::Entry->new();
+   $new_profile_name->set_activates_default( TRUE );
+   $new_profile_name->set_text( $curr_profile_name ) if defined $curr_profile_name;
+   $profile_dialog->vbox->add( $new_profile_name );
+   $profile_dialog->show_all;
+   my $profile_response = $profile_dialog->run;
+
+   if ( $profile_response eq "accept" ) {
+	  my $entered_name = $new_profile_name->get_text;
+
+	  if ( &fct_file_exists( "$ENV{'HOME'}/.gscrot/profiles/$entered_name.xml" ) ) {
+
+		 if ( &dlg_question_message( $d->get( "Profile $entered_name already exists.\nDo you want to overwrite the existing profile?" ) ) ) {
+			$profile_dialog->destroy();
+			return $new_profile_name->get_text;
+		 }
+		 else {
+			$profile_dialog->destroy();
+			return FALSE;
+		 }
+	  }
+
+	  $profile_dialog->destroy();
+	  return $new_profile_name->get_text;
+   }
+   else {
+	  $profile_dialog->destroy();
+	  return FALSE;
+   }
+}
+
+#--------------------------------------
