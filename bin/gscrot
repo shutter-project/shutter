@@ -94,8 +94,8 @@ my %gm_programs;    #hash to store program infos
 &fct_check_installed_programs if keys( %gm_programs ) > 0;
 my %plugins;        #hash to store plugin infos
 &fct_check_installed_plugins if keys( %plugins ) > 0;
-my %accounts = ();       #hash to account infos
-my %settings = ();       #hash to store settings
+my %accounts = ();    #hash to account infos
+my %settings = ();    #hash to store settings
 
 #load accounts
 &fct_load_accounts();
@@ -106,12 +106,12 @@ $SIG{ USR1 } = sub { &evt_take_screenshot( 'global_keybinding', 'raw' ) };
 $SIG{ USR2 } = sub { &evt_take_screenshot( 'global_keybinding', 'select' ) };
 
 #screen
-my $x = X11::Protocol->new();
+my $x      = X11::Protocol->new();
 my $screen = Gnome2::Wnck::Screen->get_default;
 $screen->force_update();
-my $gdk_screen = Gtk2::Gdk::Screen->get_default;
-my @workspaces = undef;
-my %children = ();
+my $gdk_screen       = Gtk2::Gdk::Screen->get_default;
+my @workspaces       = undef;
+my %children         = ();
 my $active_workspace = $screen->get_active_workspace;
 
 #main window
@@ -190,6 +190,13 @@ $window->add( $vbox );
 
 #load settings
 my $settings_xml = &fct_load_settings( "start", "start" );
+
+#load last profile
+if ( defined $settings_xml->{ 'general' }->{ 'last_profile' } ) {
+   if ( $settings_xml->{ 'general' }->{ 'last_profile' } != -1 ) {
+	  $settings_xml = &fct_load_settings( "start", "start", $settings_xml->{ 'general' }->{ 'last_profile_name' } );
+   }
+}
 
 #menu
 #--------------------------------------
@@ -483,14 +490,20 @@ $tray->show_all;
 
 #settings
 #--------------------------------------
+my $profiles_label = Gtk2::Label->new($d->get("Profile")." :");
+
 my $combobox_settings_profiles = Gtk2::ComboBox->new_text;
-my @saved_profiles = glob("$ENV{'HOME'}/.gscrot/profiles/*.xml");
-foreach(@saved_profiles){
-	next if $_ =~ /\_accounts.xml/; #accounts file - we are looking for "real" profiles
-	$_ =~ /.*\/(.*)\.xml/; #get profiles name
-	$combobox_settings_profiles->append_text($1);
+my @saved_profiles             = glob( "$ENV{'HOME'}/.gscrot/profiles/*.xml" );
+my $current_index              = 0;
+foreach ( sort @saved_profiles ) {
+   next if $_ =~ /\_accounts.xml/;    #accounts file - we are looking for "real" profiles
+   $_ =~ /.*\/(.*)\.xml/;             #get profiles name
+   my $last_profile_name = $1;
+   $combobox_settings_profiles->append_text( $last_profile_name );
+   $combobox_settings_profiles->set_active( $current_index ) if $settings_xml->{ 'general' }->{ 'last_profile_name' } eq $last_profile_name;
+   $current_index++;
 }
-my $tooltip_profiles           = Gtk2::Tooltips->new;
+my $tooltip_profiles = Gtk2::Tooltips->new;
 $tooltip_profiles->set_tip( $combobox_settings_profiles, $d->get( "Choose a profile" ) );
 
 
@@ -1269,7 +1282,7 @@ if ( keys( %plugins ) > 0 ) {
    $vbox_plugins->set_border_width( 5 );
    my $notebook_settings_fifth = $notebook_settings->append_page( $vbox_plugins, $label_plugins );
 }
-
+$profiles_box->pack_start( $profiles_label, FALSE,  TRUE, 1 );
 $profiles_box->pack_start( $combobox_settings_profiles, TRUE,  TRUE, 1 );
 $profiles_box->pack_start( $button_profile_save,        FALSE, TRUE, 1 );
 $profiles_box->pack_start( $button_profile_delete,      FALSE, TRUE, 1 );
@@ -1295,14 +1308,6 @@ unless ( $min_cparam ) {
 else {
    $window->hide;
 }
-
-#load last profile 
-if(defined $settings_xml->{ 'general' }->{ 'last_profile' }){
-if ( $settings_xml->{ 'general' }->{ 'last_profile' } != -1) {
-	$combobox_settings_profiles->set_active($settings_xml->{ 'general' }->{ 'last_profile' });
-	$settings_xml = &fct_load_settings( "start", "profile_load", $settings_xml->{ 'general' }->{ 'last_profile_name' });	
-}
-}	
 
 #load saved settings
 my $folder_to_save = $settings_xml->{ 'general' }->{ 'folder' }
@@ -1413,6 +1418,9 @@ sub fct_init {
 
    #is there already a .gscrot folder?
    mkdir( "$ENV{ 'HOME' }/.gscrot" ) unless ( -d "$ENV{ 'HOME' }/.gscrot" );
+
+   #...and a profiles folder?
+   mkdir "$ENV{'HOME'}/.gscrot/profiles" unless ( -d "$ENV{'HOME'}/.gscrot/profiles" );
    %gm_programs = do "$gscrot_root/share/gscrot/resources/system/programs.conf";
    if ( -f "$ENV{ 'HOME' }/.gscrot/programs.conf" ) {
 	  print "\nINFO: using custom program settings found at $ENV{ 'HOME' }/.gscrot/programs.conf\n";
@@ -1848,7 +1856,7 @@ sub evt_behavior_handle {
 	  else {
 		 $capture_key->set_sensitive( FALSE );
 	  }
-	  &fct_save_settings( "bindings", undef );
+	  &fct_save_bindings();
    }
 
    #checkbox for "keybinding_sel" -> entry active/inactive
@@ -1859,7 +1867,7 @@ sub evt_behavior_handle {
 	  else {
 		 $capture_sel_key->set_sensitive( FALSE );
 	  }
-	  &fct_save_settings( "bindings", undef );
+	  &fct_save_bindings();
    }
    return 1;
 }
@@ -1879,14 +1887,14 @@ sub evt_delete_window {
 	  $is_in_tray = TRUE;
 	  return TRUE;
    }
-   
+
    if ( $save_at_close_active->get_active ) {
-		 &fct_save_settings("all", undef);
-		 &fct_save_settings("all", $combobox_settings_profiles->get_active_text) if $combobox_settings_profiles->get_active != -1;
+	  &fct_save_settings( undef );
+	  &fct_save_settings( $combobox_settings_profiles->get_active_text ) if $combobox_settings_profiles->get_active != -1;
    }
-	
-	Gtk2->main_quit;
-	return FALSE;
+
+   Gtk2->main_quit;
+   return FALSE;
 }
 
 #call bug report
@@ -2723,157 +2731,131 @@ sub evt_settings {
 }
 
 sub fct_save_settings {
-   my ( $save_part, $profilename ) = @_;
+   my ( $profilename ) = @_;
 
    #settings file
    my $settingsfile = "$ENV{ HOME }/.gscrot/settings.xml";
-   if ( defined $profilename){
-   $settingsfile = "$ENV{ HOME }/.gscrot/profiles/$profilename.xml" if ($profilename ne "");
+   if ( defined $profilename ) {
+	  $settingsfile = "$ENV{ HOME }/.gscrot/profiles/$profilename.xml" if ( $profilename ne "" );
    }
 
    #accounts file
    my $accountsfile = "$ENV{ HOME }/.gscrot/accounts.xml";
-   if ( defined $profilename){
-   $accountsfile = "$ENV{ HOME }/.gscrot/profiles/$profilename\_accounts.xml" if ($profilename ne "");
+   if ( defined $profilename ) {
+	  $accountsfile = "$ENV{ HOME }/.gscrot/profiles/$profilename\_accounts.xml" if ( $profilename ne "" );
    }
    
+   open( SETTFILE, ">$settingsfile" )
+	   or &dlg_error_message( $d->get( "Settings could not be saved!" ) );
+
+   $settings{ 'general' }->{ 'last_profile' }      = $combobox_settings_profiles->get_active;
+   $settings{ 'general' }->{ 'last_profile_name' } = $combobox_settings_profiles->get_active_text || "";
+
+   $settings{ 'general' }->{ 'filetype' }    = $combobox_type->get_active;
+   $settings{ 'general' }->{ 'quality' }     = $scale->get_value();
+   $settings{ 'general' }->{ 'filename' }    = $filename->get_text();
+   $settings{ 'general' }->{ 'folder' }      = $saveDir_button->get_filename();
+   $settings{ 'general' }->{ 'zoom_active' } = $zoom_active->get_active();
+   $settings{ 'general' }->{ 'zoom_size' }   = 1
+	   if ( $zoom_size1->get_active );
+   $settings{ 'general' }->{ 'zoom_size' } = 2
+	   if ( $zoom_size2->get_active );
+   $settings{ 'general' }->{ 'zoom_size' } = 3
+	   if ( $zoom_size3->get_active );
+
+   #determining timeout
+   my $web_menu = $button_web_menu->get_menu;
+   my @timeouts = $web_menu->get_children;
+   my $timeout  = undef;
+   foreach ( @timeouts ) {
+
+	  if ( $_->get_active ) {
+		 $timeout = $_->get_children->get_text;
+		 $timeout =~ /([0-9]+)/;
+		 $timeout = $1;
+	  }
+   }
+   $settings{ 'general' }->{ 'web_timeout' } = $timeout;
+   my $model          = $progname->get_model();
+   my $progname_iter  = $progname->get_active_iter();
+   my $progname_value = $model->get_value( $progname_iter, 2 );
+
+   $settings{ 'general' }->{ 'prog' }             = $progname_value;
+   $settings{ 'general' }->{ 'prog_active' }      = $progname_active->get_active();
+   $settings{ 'general' }->{ 'im_colors' }        = $combobox_im_colors->get_active();
+   $settings{ 'general' }->{ 'im_colors_active' } = $im_colors_active->get_active();
+   $settings{ 'general' }->{ 'delay' }            = $delay->get_value();
+   $settings{ 'general' }->{ 'delay_active' }     = $delay_active->get_active();
+   $settings{ 'general' }->{ 'resize_operator' }  = $combobox_thumb_operator->get_active();
+   $settings{ 'general' }->{ 'thumbnail' }        = $thumbnail->get_value();
+   $settings{ 'general' }->{ 'thumbnail_active' } = $thumbnail_active->get_active();
+   $settings{ 'general' }->{ 'border' }           = $combobox_border->get_active();
+   $settings{ 'general' }->{ 'autohide' }         = $hide_active->get_active();
+   $settings{ 'general' }->{ 'autocopy' }         = $autocopy_active->get_active();
+   $settings{ 'general' }->{ 'close_at_close' }   = $close_at_close_active->get_active();
+   $settings{ 'general' }->{ 'save_at_close' }    = $save_at_close_active->get_active();
+   $settings{ 'general' }->{ 'keybinding' }       = $keybinding_active->get_active();
+   $settings{ 'general' }->{ 'keybinding_sel' }   = $keybinding_sel_active->get_active();
+   $settings{ 'general' }->{ 'capture_key' }      = $capture_key->get_text();
+   $settings{ 'general' }->{ 'capture_sel_key' }  = $capture_sel_key->get_text();
+
+   #plugins
+   foreach ( keys %plugins ) {
+	  $settings{ 'plugins' }->{ $_ }->{ 'menu' } = $plugins{ $_ }->{ 'menu' } if defined $plugins{ $_ }->{ 'menu' };
+   }
+
+   #write settings to file
+   print SETTFILE XMLout( \%settings );
+
+   close( SETTFILE )
+	   or &dlg_error_message( $d->get( "Settings could not be saved!" ) );
+
+   &dlg_status_message( 1, $d->get( "Settings saved successfully!" ) );
+
+   open( ACC_FILE, ">$accountsfile" )
+	   or &dlg_error_message( $d->get( "Account-settings could not be saved!" ) );
+
+   print ACC_FILE XMLout( \%accounts );
+
+   close( ACC_FILE )
+	   or &dlg_error_message( $d->get( "Account-settings could not be saved!" ) );
+
+   return 1;
+}
+
+sub fct_save_bindings {
+	
    my $client        = Gnome2::GConf::Client->get_default;
    my $shortcut_full = "/apps/metacity/global_keybindings/run_command_screenshot";
    my $shortcut_sel  = "/apps/metacity/global_keybindings/run_command_window_screenshot";
    my $command_full  = "/apps/metacity/keybinding_commands/command_screenshot";
    my $command_sel   = "/apps/metacity/keybinding_commands/command_window_screenshot";
 
-   if ( $save_part eq "bindings" ) {
-
-	  #set gconf values
-	  if ( $keybinding_active->get_active() ) {
-		 $client->set( $command_full,  { type => 'string', value => "$gscrot_path --full", } );
-		 $client->set( $shortcut_full, { type => 'string', value => $capture_key->get_text(), } );
-	  }
-	  else {
-		 $client->set( $command_full,  { type => 'string', value => 'gnome-screenshot', } );
-		 $client->set( $shortcut_full, { type => 'string', value => 'Print', } );
-	  }
-	  if ( $keybinding_sel_active->get_active() ) {
-		 $client->set( $command_sel, { type => 'string', value => "$gscrot_path --window", } );
-		 $client->set(
-					   $shortcut_sel,
-					   {
-						  type  => 'string',
-						  value => $capture_sel_key->get_text(),
-					   }
-					 );
-	  }
-	  else {
-		 $client->set( $command_sel,  { type => 'string', value => 'gnome-screenshot --window', } );
-		 $client->set( $shortcut_sel, { type => 'string', value => '<Alt>Print', } );
-	  }
+   #set gconf values
+   if ( $keybinding_active->get_active() ) {
+	  $client->set( $command_full,  { type => 'string', value => "$gscrot_path --full", } );
+	  $client->set( $shortcut_full, { type => 'string', value => $capture_key->get_text(), } );
    }
    else {
-	  open( SETTFILE, ">$settingsfile" )
-		  or &dlg_error_message( $d->get( "Settings could not be saved!" ) );
-	  
-	  $settings{ 'general' }->{ 'last_profile' } = $combobox_settings_profiles->get_active;
-	  $settings{ 'general' }->{ 'last_profile_name' } = $combobox_settings_profiles->get_active_text;
-	  
-	  $settings{ 'general' }->{ 'filetype' }    = $combobox_type->get_active;
-	  $settings{ 'general' }->{ 'quality' }     = $scale->get_value();
-	  $settings{ 'general' }->{ 'filename' }    = $filename->get_text();
-	  $settings{ 'general' }->{ 'folder' }      = $saveDir_button->get_filename();
-	  $settings{ 'general' }->{ 'zoom_active' } = $zoom_active->get_active();
-	  $settings{ 'general' }->{ 'zoom_size' }   = 1
-		  if ( $zoom_size1->get_active );
-	  $settings{ 'general' }->{ 'zoom_size' } = 2
-		  if ( $zoom_size2->get_active );
-	  $settings{ 'general' }->{ 'zoom_size' } = 3
-		  if ( $zoom_size3->get_active );
-
-	  #determining timeout
-	  my $web_menu = $button_web_menu->get_menu;
-	  my @timeouts = $web_menu->get_children;
-	  my $timeout  = undef;
-	  foreach ( @timeouts ) {
-
-		 if ( $_->get_active ) {
-			$timeout = $_->get_children->get_text;
-			$timeout =~ /([0-9]+)/;
-			$timeout = $1;
-			print $timeout. " saved \n" if $debug_cparam;
-		 }
-	  }
-	  $settings{ 'general' }->{ 'web_timeout' } = $timeout;
-	  my $model          = $progname->get_model();
-	  my $progname_iter  = $progname->get_active_iter();
-	  my $progname_value = $model->get_value( $progname_iter, 2 );
-
-	  $settings{ 'general' }->{ 'prog' }             = $progname_value;
-	  $settings{ 'general' }->{ 'prog_active' }      = $progname_active->get_active();
-	  $settings{ 'general' }->{ 'im_colors' }        = $combobox_im_colors->get_active();
-	  $settings{ 'general' }->{ 'im_colors_active' } = $im_colors_active->get_active();
-	  $settings{ 'general' }->{ 'delay' }            = $delay->get_value();
-	  $settings{ 'general' }->{ 'delay_active' }     = $delay_active->get_active();
-	  $settings{ 'general' }->{ 'resize_operator' }  = $combobox_thumb_operator->get_active();
-	  $settings{ 'general' }->{ 'thumbnail' }        = $thumbnail->get_value();
-	  $settings{ 'general' }->{ 'thumbnail_active' } = $thumbnail_active->get_active();
-	  $settings{ 'general' }->{ 'border' }           = $combobox_border->get_active();
-	  $settings{ 'general' }->{ 'autohide' }         = $hide_active->get_active();
-	  $settings{ 'general' }->{ 'autocopy' }         = $autocopy_active->get_active();
-	  $settings{ 'general' }->{ 'close_at_close' }   = $close_at_close_active->get_active();
-	  $settings{ 'general' }->{ 'save_at_close' }    = $save_at_close_active->get_active();
-	  $settings{ 'general' }->{ 'keybinding' }       = $keybinding_active->get_active();
-	  $settings{ 'general' }->{ 'keybinding_sel' }   = $keybinding_sel_active->get_active();
-
-	  #set gconf values if needed
-	  if ( $keybinding_active->get_active() ) {
-		 $client->set( $command_full,  { type => 'string', value => "$gscrot_path --full", } );
-		 $client->set( $shortcut_full, { type => 'string', value => $capture_key->get_text(), } );
-	  }
-	  else {
-		 $client->set( $command_full,  { type => 'string', value => 'gnome-screenshot', } );
-		 $client->set( $shortcut_full, { type => 'string', value => 'Print', } );
-	  }
-
-	  if ( $keybinding_sel_active->get_active() ) {
-		 $client->set( $command_sel, { type => 'string', value => "$gscrot_path --window", } );
-		 $client->set(
-					   $shortcut_sel,
-					   {
-						  type  => 'string',
-						  value => $capture_sel_key->get_text(),
-					   }
-					 );
-
-	  }
-	  else {
-		 $client->set( $command_sel,  { type => 'string', value => 'gnome-screenshot --window', } );
-		 $client->set( $shortcut_sel, { type => 'string', value => '<Alt>Print', } );
-	  }
-	  $settings{ 'general' }->{ 'capture_key' }     = $capture_key->get_text();
-	  $settings{ 'general' }->{ 'capture_sel_key' } = $capture_sel_key->get_text();
-
-
-	  #plugins
-	  foreach ( keys %plugins ) {
-		 $settings{ 'plugins' }->{ $_ }->{ 'menu' } = $plugins{ $_ }->{ 'menu' } if defined $plugins{ $_ }->{ 'menu' };
-	  }
-
-	  #write settings to file
-	  print SETTFILE XMLout( \%settings );
-
-	  close( SETTFILE )
-		  or &dlg_error_message( $d->get( "Settings could not be saved!" ) );
-
-	  &dlg_status_message( 1, $d->get( "Settings saved successfully!" ) );
-
-	  open( ACC_FILE, ">$accountsfile" )
-		  or &dlg_error_message( $d->get( "Account-settings could not be saved!" ) );
-
-	  print ACC_FILE XMLout( \%accounts );
-
-	  close( ACC_FILE )
-		  or &dlg_error_message( $d->get( "Account-settings could not be saved!" ) );
+	  $client->set( $command_full,  { type => 'string', value => 'gnome-screenshot', } );
+	  $client->set( $shortcut_full, { type => 'string', value => 'Print', } );
    }
-   return 1;
+   if ( $keybinding_sel_active->get_active() ) {
+	  $client->set( $command_sel, { type => 'string', value => "$gscrot_path --window", } );
+	  $client->set(
+					$shortcut_sel,
+					{
+					   type  => 'string',
+					   value => $capture_sel_key->get_text(),
+					}
+				  );
+   }
+   else {
+	  $client->set( $command_sel,  { type => 'string', value => 'gnome-screenshot --window', } );
+	  $client->set( $shortcut_sel, { type => 'string', value => '<Alt>Print', } );
+   }
+
+return 1;
 }
 
 sub fct_load_settings {
@@ -3809,7 +3791,8 @@ sub fct_gscrot_area {
 
 				  #					$backwindow->destroy if defined $backwindow;
 				  $zoom_window->destroy;
-				Gtk2::Gdk->flush;
+				  Gtk2::Gdk->flush;
+
 				  #ungrab pointer and keyboard
 				  Gtk2::Gdk->pointer_ungrab( Gtk2->get_current_event_time );
 				  Gtk2::Gdk->keyboard_ungrab( Gtk2->get_current_event_time );
@@ -3827,7 +3810,8 @@ sub fct_gscrot_area {
 			   #capture is finished, delete zoom
 			   #				$backwindow->destroy if defined $backwindow;
 			   $zoom_window->destroy;
-				Gtk2::Gdk->flush;
+			   Gtk2::Gdk->flush;
+
 			   #ungrab pointer and keyboard
 			   Gtk2::Gdk->pointer_ungrab( Gtk2->get_current_event_time );
 			   Gtk2::Gdk->keyboard_ungrab( Gtk2->get_current_event_time );
@@ -3950,7 +3934,8 @@ sub fct_gscrot_area {
    }
    else {    #pointer not grabbed
 	  $zoom_window->destroy;
-Gtk2::Gdk->flush;
+	  Gtk2::Gdk->flush;
+
 	  #		$backwindow->destroy if defined $backwindow;
 	  #ungrab pointer and keyboard
 	  Gtk2::Gdk->pointer_ungrab( Gtk2->get_current_event_time );
@@ -4433,16 +4418,15 @@ sub fct_create_thumbnail_and_fileinfos {
 
 sub evt_save_profile {
    my ( $widget, $combobox_settings_profiles ) = @_;
-   mkdir "$ENV{'HOME'}/.gscrot/profiles" unless ( -d "$ENV{'HOME'}/.gscrot/profiles" );
    my $curr_profile_name = $combobox_settings_profiles->get_active_text || "";
    my $new_profile_name = &dlg_profile_name( $curr_profile_name, $combobox_settings_profiles );
 
    if ( $new_profile_name ) {
-   	if ($curr_profile_name ne $new_profile_name){
-	  $combobox_settings_profiles->append_text( $new_profile_name );
-	  $combobox_settings_profiles->set_active( $combobox_settings_profiles->get_active +1 );
-   	}
-	  &fct_save_settings( "all", $new_profile_name );
+	  if ( $curr_profile_name ne $new_profile_name ) {
+		 $combobox_settings_profiles->prepend_text( $new_profile_name );
+		 $combobox_settings_profiles->set_active( 0 );
+	  }
+	  &fct_save_settings( $new_profile_name );
    }
    return TRUE;
 }
@@ -4450,7 +4434,7 @@ sub evt_save_profile {
 sub evt_delete_profile {
    my ( $widget, $combobox_settings_profiles ) = @_;
    if ( $combobox_settings_profiles->get_active_text ) {
-   	  my $active_text = $combobox_settings_profiles->get_active_text;
+	  my $active_text  = $combobox_settings_profiles->get_active_text;
 	  my $active_index = $combobox_settings_profiles->get_active;
 	  unlink( "$ENV{'HOME'}/.gscrot/profiles/" . $active_text . ".xml" );
 	  unlink( "$ENV{'HOME'}/.gscrot/profiles/" . $active_text . "_accounts.xml" );
@@ -4458,8 +4442,8 @@ sub evt_delete_profile {
 	  unless (    &fct_file_exists( "$ENV{'HOME'}/.gscrot/profiles/" . $active_text . ".xml" )
 			   || &fct_file_exists( "$ENV{'HOME'}/.gscrot/profiles/" . $active_text . "_accounts.xml" ) )
 	  {
-		 $combobox_settings_profiles->remove_text($active_index);
-	  	$combobox_settings_profiles->set_active( $combobox_settings_profiles->get_active +1 );
+		 $combobox_settings_profiles->remove_text( $active_index );
+		 $combobox_settings_profiles->set_active( $combobox_settings_profiles->get_active + 1 );
 
 		 &dlg_status_message( 1, $d->get( "Profile deleted" ) );
 	  }
