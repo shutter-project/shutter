@@ -42,7 +42,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.165";
+use constant BRANCH              => "Rev.174";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.60";
@@ -153,7 +153,6 @@ my $settings_dialog =
 
 
 my $vbox                = Gtk2::VBox->new( FALSE, 0 );
-my $vbox_inner1         = Gtk2::VBox->new( FALSE, 10 );
 my $vbox_settings       = Gtk2::VBox->new( FALSE, 10 );
 my $vbox_basic          = Gtk2::VBox->new( FALSE, 10 );
 my $vbox_extras         = Gtk2::VBox->new( FALSE, 10 );
@@ -278,7 +277,7 @@ $menuitem_window_sect->set_image(
 											   )
 								  )
 								);
-$menuitem_window_sect->add_accelerator( "activate", $accel_group, $Gtk2::Gdk::Keysyms{ W }, qw/shift-mask/, qw/visible/ );
+$menuitem_window_sect->add_accelerator( "activate", $accel_group, $Gtk2::Gdk::Keysyms{ S }, qw/shift-mask/, qw/visible/ );
 $menu_actions->append( $menuitem_window_sect );
 $menuitem_window_sect->signal_connect( "activate", \&evt_take_screenshot, 'section' );
 $menu_actions->append( Gtk2::SeparatorMenuItem->new );
@@ -1002,40 +1001,40 @@ $effects_tree->signal_connect( 'row-activated' => \&evt_plugins,
 
 #packing
 #--------------------------------------
-$file_vbox->pack_start( $scale_box,    FALSE, TRUE, 5 );
-$file_vbox->pack_start( $filetype_box, FALSE, TRUE, 5 );
+$file_vbox->pack_start( $scale_box,    TRUE, TRUE, 5 );
+$file_vbox->pack_start( $filetype_box, TRUE, TRUE, 5 );
 $file_frame->add( $file_vbox );
 
-$save_vbox->pack_start( $filename_box, FALSE, TRUE, 5 );
-$save_vbox->pack_start( $saveDir_box,  FALSE, TRUE, 5 );
+$save_vbox->pack_start( $filename_box, TRUE, TRUE, 5 );
+$save_vbox->pack_start( $saveDir_box,  TRUE, TRUE, 5 );
 $save_frame->add( $save_vbox );
 
-$vbox_basic->pack_start( $file_frame, FALSE, TRUE, 5 );
-$vbox_basic->pack_start( $save_frame, FALSE, TRUE, 5 );
+$vbox_basic->pack_start( $file_frame, TRUE, TRUE, 5 );
+$vbox_basic->pack_start( $save_frame, TRUE, TRUE, 5 );
 $vbox_basic->set_border_width( 5 );
 
-$behavior_vbox->pack_start( $autocopy_active,       FALSE, TRUE, 5 );
-$behavior_vbox->pack_start( $hide_active,           FALSE, TRUE, 5 );
-$behavior_vbox->pack_start( $close_at_close_active, FALSE, TRUE, 5 );
-$behavior_vbox->pack_start( $save_at_close_active,  FALSE, TRUE, 5 );
+$behavior_vbox->pack_start( $autocopy_active,       TRUE, TRUE, 5 );
+$behavior_vbox->pack_start( $hide_active,           TRUE, TRUE, 5 );
+$behavior_vbox->pack_start( $close_at_close_active, TRUE, TRUE, 5 );
+$behavior_vbox->pack_start( $save_at_close_active,  TRUE, TRUE, 5 );
 $behavior_frame->add( $behavior_vbox );
 
-$keybinding_vbox->pack_start( $key_box,     FALSE, TRUE, 5 );
-$keybinding_vbox->pack_start( $key_sel_box, FALSE, TRUE, 5 );
+$keybinding_vbox->pack_start( $key_box,     TRUE, TRUE, 5 );
+$keybinding_vbox->pack_start( $key_sel_box, TRUE, TRUE, 5 );
 $keybinding_frame->add( $keybinding_vbox );
 
-$vbox_behavior->pack_start( $behavior_frame,   FALSE, TRUE, 0 );
-$vbox_behavior->pack_start( $keybinding_frame, FALSE, TRUE, 0 );
+$vbox_behavior->pack_start( $behavior_frame,   TRUE, TRUE, 0 );
+$vbox_behavior->pack_start( $keybinding_frame, TRUE, TRUE, 0 );
 $vbox_behavior->set_border_width( 5 );
 
-$capture_vbox->pack_start( $delay_box,  FALSE, TRUE, 5 );
-$capture_vbox->pack_start( $border_box, FALSE, TRUE, 5 );
+$capture_vbox->pack_start( $delay_box,  TRUE, TRUE, 5 );
+$capture_vbox->pack_start( $border_box, TRUE, TRUE, 5 );
 $capture_frame->add( $capture_vbox );
 
-$actions_vbox->pack_start( $progname_box,        FALSE, TRUE, 5 );
-$actions_vbox->pack_start( $im_colors_box,       FALSE, TRUE, 5 );
-$actions_vbox->pack_start( $thumbnail_box,       FALSE, TRUE, 5 );
-$actions_vbox->pack_start( $resize_operator_box, FALSE, TRUE, 5 );
+$actions_vbox->pack_start( $progname_box,        TRUE, TRUE, 5 );
+$actions_vbox->pack_start( $im_colors_box,       TRUE, TRUE, 5 );
+$actions_vbox->pack_start( $thumbnail_box,       TRUE, TRUE, 5 );
+$actions_vbox->pack_start( $resize_operator_box, TRUE, TRUE, 5 );
 
 $actions_frame->add( $actions_vbox );
 my $label_basic = Gtk2::Label->new;
@@ -1247,7 +1246,19 @@ sub evt_take_screenshot {
 
    #determine folder to save
    $folder = $saveDir_button->get_filename || $folder_from_config;
-   system( "xset b off" ) if $boff_cparam;    #turns off the speaker if set as arg
+
+   #check if file already exists
+   if ( &fct_file_exists( "$folder/$filename_value.$filetype_value" ) ) {
+	  unless (&dlg_question_message( $d->get( "File already exists.\nDo you want to overwrite it?" ))){
+	  	&fct_set_toolbar_sensitive( TRUE );
+	  	return FALSE; 	  	
+	  }
+   }
+   
+   #turns off the speaker if set as arg
+   system( "xset b off" ) if $boff_cparam;
+
+   #hide mainwindow
    if (    $hide_active->get_active
 		&& ( $data ne "web" && $data ne "tray_web" )
 		&& !$is_in_tray )
@@ -4659,7 +4670,7 @@ sub dlg_profile_name {
 
 	  if ( &fct_file_exists( "$ENV{'HOME'}/.gscrot/profiles/$entered_name.xml" ) ) {
 
-		 if ( &dlg_question_message( $d->get( "Profile $entered_name already exists.\nDo you want to overwrite the existing profile?" ) ) ) {
+		 if ( &dlg_question_message( $d->get( "Profile already exists.\nDo you want to overwrite the existing profile?" ) ) ) {
 			$profile_dialog->destroy();
 			return $new_profile_name->get_text;
 		 }
