@@ -25,7 +25,8 @@ my @translate_files = <LIST>;
 close LIST or die $!;
 
 #open files to translate
-foreach my $file (@translate_files){
+my $file = undef;
+foreach $file (@translate_files){
 	chomp $file;
 	next unless (-f $file);
 	open(FILE, $file) or die $!." :$file";
@@ -40,9 +41,9 @@ foreach my $file (@translate_files){
 	}
 	close FILE or die $!;
 	close FILE_TMP or die $!;
-	my $time = time;
-	system("xgettext ./translate_tmp.pl -o gscrot_$time.pot");		
-	print "Done file $file\n";
+
 }
+my $time = time;
+system("xgettext ./translate_tmp.pl -o gscrot_$time.pot");		
 unlink("./translate_tmp.pl");
 

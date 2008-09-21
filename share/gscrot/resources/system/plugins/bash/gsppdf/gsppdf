@@ -4,9 +4,9 @@
 
 TEXTDOMAIN=gscrot-plugins-bash 
 TEXTDOMAINDIR=$GSCROT_INTL
-PLUGIN_NAME=$"PDF Export" 
+PLUGIN_NAME=$"pdf export" 
 PLUGIN_SORT=$"tool" 
-PLUGIN_TIP=$"Export your pics" 
+PLUGIN_TIP=$"export to pdf" 
 PLUGIN_EXT="png, jpeg"  
 
 if [[ "${1}" = "name" ]];then
