@@ -43,7 +43,7 @@ use FindBin '$Bin';
 use constant TRUE                => 1;
 use constant FALSE               => 0;
 use constant BRANCH              => "Rev.176";
-use constant PPA_VERSION         => "ppa1"; 
+use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.60";
 use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
@@ -1249,12 +1249,12 @@ sub evt_take_screenshot {
 
    #check if file already exists
    if ( &fct_file_exists( "$folder/$filename_value.$filetype_value" ) ) {
-	  unless (&dlg_question_message( $d->get( "File already exists.\nDo you want to overwrite it?" ))){
-	  	&fct_set_toolbar_sensitive( TRUE );
-	  	return FALSE; 	  	
+	  unless ( &dlg_question_message( $d->get( "File already exists.\nDo you want to overwrite it?" ) ) ) {
+		 &fct_set_toolbar_sensitive( TRUE );
+		 return FALSE;
 	  }
    }
-   
+
    #turns off the speaker if set as arg
    system( "xset b off" ) if $boff_cparam;
 
@@ -1266,12 +1266,7 @@ sub evt_take_screenshot {
 	  $window->hide;
 	  Gtk2::Gdk->flush;
 	  $is_in_tray = TRUE;
-	  if ( $gdk_screen->is_composited ) {
-		 sleep 1;
-	  }
-	  else {
-		 sleep 0.9;
-	  }
+	  sleep 1;
    }
 
    #fullscreen screenshot
@@ -1325,7 +1320,7 @@ sub evt_take_screenshot {
 	  if ( $hostname eq "" ) {
 		 &dlg_error_message( $d->get( "No valid url entered" ) );
 		 &fct_set_toolbar_sensitive( TRUE );
-		 return 0;
+		 return FALSE;
 	  }
 
 	  #delay doesnt make much sense here, but it's implemented ;-)
@@ -1361,7 +1356,7 @@ sub evt_take_screenshot {
 		 &dlg_error_message( $d->get( "Unable to capture website" ) . " \n" . $hostname );
 		 &dlg_status_message( 1, $d->get( "Unable to capture website" ) . " " . $hostname );
 		 &fct_set_toolbar_sensitive( TRUE );
-		 return 0;
+		 return FALSE;
 	  }
    }
    elsif ( $data =~ /^gscrot_window_direct(.*)/ ) {
@@ -1402,7 +1397,7 @@ sub evt_take_screenshot {
    if ( $screenshot == 5 ) {
 	  &dlg_status_message( 1, $d->get( "Capture aborted by user" ) );
 	  &fct_set_toolbar_sensitive( TRUE );
-	  return 0;
+	  return FALSE;
    }
 
    #...successfully???
@@ -1411,7 +1406,7 @@ sub evt_take_screenshot {
 	  print "Screenshot failed!" if $debug_cparam;
 	  &dlg_status_message( 1, $d->get( "Screenshot failed!" ) );
 	  &fct_set_toolbar_sensitive( TRUE );
-	  return 0;
+	  return FALSE;
    }
    else {
 
@@ -1926,30 +1921,42 @@ sub evt_in_tab {
 	  &dlg_status_message( 1, $session_screens{ $key }->{ 'filename' } . " " . $d->get( "copied to clipboard" ) );
    }
 
-
-   #determine selected screenshots - iconview
-   my @sel_items = $session_start_screen{ 'first_page' }->{ 'view' }->get_selected_items;
-
    #all screenshots
    if ( $key =~ m/^delete$/ ) {    #tab == all
-	  foreach ( @sel_items ) {
-		 my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
-		 my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
-		 $notebook->remove_page( $notebook->page_num( $session_screens{ $key }->{ 'tab_child' } ) );
-		 unlink( $session_screens{ $key }->{ 'long' } );    #delete file
-		 delete( $session_screens{ $key } );                # delete from hash
-	  }
+
+	  $session_start_screen{ 'first_page' }->{ 'view' }->selected_foreach(
+		 sub {
+			my ( $view, $path ) = @_;
+			my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $path );
+			if ( defined $iter ) {
+			   my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
+			   $notebook->remove_page( $notebook->page_num( $session_screens{ $key }->{ 'tab_child' } ) );
+			   unlink( $session_screens{ $key }->{ 'long' } );
+			   delete( $session_screens{ $key } );
+			}
+		 },
+		 undef
+																		 );
+
 	  &dlg_status_message( 1, $d->get( "All screenshots deleted" ) );
 	  &fct_update_first_tab;
 	  $window->show_all;
    }
-   if ( $key =~ m/^remove$/ ) {                             #tab == all
-	  foreach ( @sel_items ) {
-		 my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
-		 my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
-		 $notebook->remove_page( $notebook->page_num( $session_screens{ $key }->{ 'tab_child' } ) );
-		 delete( $session_screens{ $key } );                # delete from hash
-	  }
+   if ( $key =~ m/^remove$/ ) {    #tab == all
+
+	  $session_start_screen{ 'first_page' }->{ 'view' }->selected_foreach(
+		 sub {
+			my ( $view, $path ) = @_;
+			my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $path );
+			if ( defined $iter ) {
+			   my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
+			   $notebook->remove_page( $notebook->page_num( $session_screens{ $key }->{ 'tab_child' } ) );
+			   delete( $session_screens{ $key } );
+			}
+		 },
+		 undef
+																		 );
+
 	  &dlg_status_message( 1, $d->get( "All screenshots removed" ) );
 	  &fct_update_first_tab;
 	  $window->show_all;
@@ -1965,34 +1972,62 @@ sub evt_in_tab {
 		 return FALSE;
 	  }
 	  if ( $progname_value =~ /gimp/ ) {
-		 foreach ( @sel_items ) {
-			my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
-			my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
-			$open_files .= quotemeta $session_screens{ $key }->{ 'long' };
-			$open_files .= " ";
+
+		 $session_start_screen{ 'first_page' }->{ 'view' }->selected_foreach(
+			sub {
+			   my ( $view, $path ) = @_;
+			   my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $path );
+			   if ( defined $iter ) {
+				  my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
+				  $open_files .= quotemeta $session_screens{ $key }->{ 'long' };
+				  $open_files .= " ";
+			   }
+			},
+			undef
+																			);
+		 if ( $open_files ne "" ) {
+			system( "$progname_value $open_files &" );
 		 }
-		 system( "$progname_value $open_files &" );
 	  }
 	  else {
-		 foreach ( @sel_items ) {
-			my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
-			my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
-			system( "$progname_value '$session_screens{$key}->{'long'}' &" );
-		 }
+
+		 $session_start_screen{ 'first_page' }->{ 'view' }->selected_foreach(
+			sub {
+			   my ( $view, $path ) = @_;
+			   my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $path );
+			   if ( defined $iter ) {
+				  my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
+				  system( "$progname_value '$session_screens{$key}->{'long'}' &" );
+			   }
+			},
+			undef
+																			);
 	  }
 	  &dlg_status_message( 1, $d->get( "Opened all files with" ) . " " . $progname_value );
    }
+
    if ( $key =~ m/^print$/ ) {    #tab == all
 	  my $print_files;
-	  foreach ( @sel_items ) {
-		 my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $_ );
-		 my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
-		 $print_files .= quotemeta $session_screens{ $key }->{ 'long' };
-		 $print_files .= " ";
+	  $session_start_screen{ 'first_page' }->{ 'view' }->selected_foreach(
+		 sub {
+			my ( $view, $path ) = @_;
+			my $iter = $session_start_screen{ 'first_page' }->{ 'model' }->get_iter( $path );
+			if ( defined $iter ) {
+			   my $key = $session_start_screen{ 'first_page' }->{ 'model' }->get_value( $iter, 2 );
+			   $print_files .= quotemeta $session_screens{ $key }->{ 'long' };
+			   $print_files .= " ";
+			}
+
+		 },
+		 undef
+																		 );
+	  if ( $print_files ne "" ) {
+		 system( "gtklp $print_files &" );
+		 &dlg_status_message( 1, $d->get( "Printing all screenshots" ) );
 	  }
-	  system( "gtklp $print_files &" );
-	  &dlg_status_message( 1, $d->get( "Printing all screenshots" ) );
+
    }
+
 }
 
 sub evt_settings {
@@ -3040,20 +3075,26 @@ sub fct_gscrot_area {
 #	$pixbuf->render_to_drawable ($backwindow, $backgc, 0, 0, 0, 0, $rootwidthp, $rootheightp, 'none', 0, 0);
 #..."updating" is blocked - now try to grab the cursor
    #all screen events are send to gscrot
-   Gtk2::Gdk->pointer_grab(
-	  $root, 0,
-	  [
-		 qw/
-			 pointer-motion-mask
-			 button-press-mask
-			 button1-motion-mask
-			 button-release-mask/
-	  ],
-	  undef,
-	  $cursor,
-	  Gtk2->get_current_event_time
-						  );
-   Gtk2::Gdk->keyboard_grab( $root, 0, Gtk2->get_current_event_time );
+   my $grab_counter = 0;
+   while ( !Gtk2::Gdk->pointer_is_grabbed && $grab_counter < 100 ) {
+	  Gtk2::Gdk::X11->grab_server;
+	  Gtk2::Gdk->pointer_grab(
+		 $root, 0,
+		 [
+			qw/
+				pointer-motion-mask
+				button-press-mask
+				button1-motion-mask
+				button-release-mask/
+		 ],
+		 undef,
+		 $cursor,
+		 Gtk2->get_current_event_time
+							 );
+	  Gtk2::Gdk->keyboard_grab( $root, 0, Gtk2->get_current_event_time );
+	  $grab_counter++;
+   }
+
    if ( Gtk2::Gdk->pointer_is_grabbed ) {
 	  my $done                 = 0;
 	  my $rx                   = 0;
@@ -3088,6 +3129,7 @@ sub fct_gscrot_area {
 				  Gtk2::Gdk->flush;
 
 				  #ungrab pointer and keyboard
+				  Gtk2::Gdk::X11->ungrab_server;
 				  Gtk2::Gdk->pointer_ungrab( Gtk2->get_current_event_time );
 				  Gtk2::Gdk->keyboard_ungrab( Gtk2->get_current_event_time );
 				  Gtk2::Gdk::Event->handler_set( undef, 'rect' );
@@ -3107,6 +3149,7 @@ sub fct_gscrot_area {
 			   Gtk2::Gdk->flush;
 
 			   #ungrab pointer and keyboard
+			   Gtk2::Gdk::X11->ungrab_server;
 			   Gtk2::Gdk->pointer_ungrab( Gtk2->get_current_event_time );
 			   Gtk2::Gdk->keyboard_ungrab( Gtk2->get_current_event_time );
 			   Gtk2::Gdk::Event->handler_set( undef, 'rect' );
@@ -3232,6 +3275,7 @@ sub fct_gscrot_area {
 
 	  #		$backwindow->destroy if defined $backwindow;
 	  #ungrab pointer and keyboard
+	  Gtk2::Gdk::X11->ungrab_server;
 	  Gtk2::Gdk->pointer_ungrab( Gtk2->get_current_event_time );
 	  Gtk2::Gdk->keyboard_ungrab( Gtk2->get_current_event_time );
    }
