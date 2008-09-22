@@ -42,8 +42,8 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.179";
-use constant PPA_VERSION         => "ppa1";
+use constant BRANCH              => "Rev.180";
+use constant PPA_VERSION         => "ppa3";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.60";
 use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
@@ -4131,10 +4131,10 @@ sub fct_gscrot_window {
 						"Trying to clear a rectangle ($children{'last_win'}{'x'}, $children{'last_win'}{'y'}, $children{'last_win'}{'width'}, $children{'last_win'}{'height'})\n"
 						if $debug_cparam;
 
-					#ungrab server
 					Gtk2::Gdk::X11->ungrab_server unless $window_selected;
 
-#looking for a section of a window? keep current window in mind and search for children
+					#looking for a section of a window?
+					#keep current window in mind and search for children
 					if ( ( $mode eq "section" || $mode eq "tray_section" )
 						 && !$window_selected )
 					{
@@ -4152,12 +4152,6 @@ sub fct_gscrot_window {
 						return TRUE;
 					}
 
-					#ungrab pointer and keyboard
-					Gtk2::Gdk->pointer_ungrab( Gtk2->get_current_event_time );
-					Gtk2::Gdk->keyboard_ungrab( Gtk2->get_current_event_time );
-					Gtk2::Gdk::Event->handler_set( undef, 'rect' );
-					Gtk2->main_quit;
-
 					#clear the last rectangle
 					if ( defined $children{ 'last_win' } ) {
 						$root->draw_rectangle(
@@ -4173,6 +4167,15 @@ sub fct_gscrot_window {
 						$children{ 'last_win' }{ 'gdk_window' }->focus( time );
 						Gtk2::Gdk->flush;
 						sleep 1 if $delay_value < 1;
+
+						#ungrab pointer and keyboard
+						Gtk2::Gdk->pointer_ungrab(
+												 Gtk2->get_current_event_time );
+						Gtk2::Gdk->keyboard_ungrab(
+												 Gtk2->get_current_event_time );
+						Gtk2::Gdk::Event->handler_set( undef, 'rect' );
+						Gtk2->main_quit;
+
 
 						#sleep if there is any delay
 						sleep $delay_value;
