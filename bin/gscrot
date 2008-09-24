@@ -42,8 +42,8 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.180";
-use constant PPA_VERSION         => "ppa3";
+use constant BRANCH              => "Rev.181";
+use constant PPA_VERSION         => "ppa4";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.60";
 use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
@@ -63,7 +63,6 @@ $ENV{ 'GSCROT_ROOT' } = $gscrot_root;    #need by some plugins
 #--------------------------------------
 my $debug_cparam = FALSE;
 my $min_cparam   = FALSE;
-my $boff_cparam  = FALSE;
 my @args         = @ARGV;
 my $start_with   = undef;
 
@@ -1501,9 +1500,6 @@ sub evt_take_screenshot {
 	#determine folder to save
 	$folder = $saveDir_button->get_filename || $folder_from_config;
 
-	#turns off the speaker if set as arg
-	system( "xset b off" ) if $boff_cparam;
-
 	#hide mainwindow
 	if (    $hide_active->get_active
 		 && ( $data ne "web" && $data ne "tray_web" )
@@ -1600,10 +1596,35 @@ sub evt_take_screenshot {
 				print $timeout. "\n" if $debug_cparam;
 			}
 		}
-		print "Starting webshot ...\n" if $debug_cparam;
-		$screenshot =
-			`gnome-web-photo --timeout=$timeout --mode=photo --format=$filetype_value -q $quality_value '$url' '$folder/$filename_value.$filetype_value'`;
-		print "... webshot finished!\n" if $debug_cparam;
+
+		#check if file already exists
+		if ( &fct_file_exists( "$folder/$filename_value.$filetype_value" ) ) {
+			unless (
+					&dlg_question_message(
+						$d->get(
+							"File already exists.\nDo you want to overwrite it?"
+						)
+					)
+				   )
+			{
+				$screenshot = 5;
+			} else {
+
+				print "Starting webshot ...\n" if $debug_cparam;
+				$screenshot =
+					`gnome-web-photo --timeout=$timeout --mode=photo --format=$filetype_value -q $quality_value '$url' '$folder/$filename_value.$filetype_value'`;
+				print "... webshot finished!\n" if $debug_cparam;
+
+			}
+		} else {
+
+			print "Starting webshot ...\n" if $debug_cparam;
+			$screenshot =
+				`gnome-web-photo --timeout=$timeout --mode=photo --format=$filetype_value -q $quality_value '$url' '$folder/$filename_value.$filetype_value'`;
+			print "... webshot finished!\n" if $debug_cparam;
+
+		}
+
 		my $width  = 0;
 		my $height = 0;
 
@@ -1612,6 +1633,11 @@ sub evt_take_screenshot {
 			$screenshot =
 				&fct_imagemagick_perform( "get_object", $screenshot_name, 0,
 										  $filetype_value );
+		} elsif ( $screenshot == 5 ) {
+			&dlg_status_message( 1, $d->get( "Capture aborted by user" ) );
+			&fct_set_toolbar_sensitive( TRUE );
+			return FALSE;
+
 		} else {
 			&dlg_error_message(
 				   $d->get( "Unable to capture website" ) . " \n" . $hostname );
@@ -1663,11 +1689,11 @@ sub evt_take_screenshot {
 
 	#screenshot was taken at this stage...
 	#start postprocessing here
-	system( "xset b on" )
-		if $boff_cparam;    #turns on the speaker again if set as arg
 
 	#check if file already exists
-	if ( &fct_file_exists( "$folder/$filename_value.$filetype_value" ) ) {
+	if ( &fct_file_exists( "$folder/$filename_value.$filetype_value" )
+		 && ( $data ne "web" && $data ne "tray_web" ) )
+	{
 		unless (
 			 &dlg_question_message(
 				 $d->get( "File already exists.\nDo you want to overwrite it?" )
@@ -3754,10 +3780,12 @@ sub fct_gscrot_area {
 	$scwin->add( $canvas );
 	my $xlabel    = Gtk2::Label->new( "X: " );
 	my $ylabel    = Gtk2::Label->new( "Y: " );
+	my $rect      = Gtk2::Label->new( "0 x 0" );
 	my $zoom_vbox = Gtk2::VBox->new;
 	$zoom_vbox->pack_start_defaults( $scwin );
 	$zoom_vbox->pack_start_defaults( $xlabel );
 	$zoom_vbox->pack_start_defaults( $ylabel );
+	$zoom_vbox->pack_start_defaults( $rect );
 
 	#do some packing
 	$zoom_window->add( $zoom_vbox );
@@ -3793,19 +3821,6 @@ sub fct_gscrot_area {
 	$gc->set_function( 'xor' );
 	$gc->set_exposures( FALSE );
 
-#screens should not update while selecting a region
-#	my $pixbuf = Gtk2::Gdk::Pixbuf->get_from_drawable ($root, undef, $rootxp, $rootyp, 0, 0, $rootwidthp, $rootheightp);
-#	my %attr = (window_type => 'child', wclass => 'GDK_INPUT_OUTPUT', x => 0, y => 0, width => $rootwidthp, height => $rootheightp, override_redirect => 1, colormap => $gdk_screen->get_default_colormap, visual => $gdk_screen->get_system_visual);
-#
-#	my $backwindow = Gtk2::Gdk::Window->new ($root, \%attr);
-#	my $backgc = Gtk2::Gdk::GC->new ($backwindow, undef);
-#	$backgc->set_subwindow ('include-inferiors');
-#
-#	$backwindow->set_back_pixmap (Gtk2::Gdk::Pixmap->new ($root, $rootwidthp, $rootheightp, $rootdepthp), 0);
-#	$backwindow->show;
-#
-#	$pixbuf->render_to_drawable ($backwindow, $backgc, 0, 0, 0, 0, $rootwidthp, $rootheightp, 'none', 0, 0);
-#..."updating" is blocked - now try to grab the cursor
 	#all screen events are send to gscrot
 	my $grab_counter = 0;
 	while ( !Gtk2::Gdk->pointer_is_grabbed && $grab_counter < 100 ) {
@@ -3828,7 +3843,6 @@ sub fct_gscrot_area {
 	}
 
 	if ( Gtk2::Gdk->pointer_is_grabbed ) {
-		my $done                 = 0;
 		my $rx                   = 0;
 		my $ry                   = 0;
 		my $rw                   = 0;
@@ -3857,7 +3871,6 @@ sub fct_gscrot_area {
 												   $rect_w, $rect_h );
 						}
 
-						#					$backwindow->destroy if defined $backwindow;
 						$zoom_window->destroy;
 						Gtk2::Gdk->flush;
 
@@ -3872,7 +3885,6 @@ sub fct_gscrot_area {
 						Gtk2->main_quit;
 					}
 				} elsif ( $event->type eq 'button-release' ) {
-					$done = 1;
 					print "Type: " . $event->type . "\n"
 						if ( defined $event && $debug_cparam );
 					print
@@ -3880,7 +3892,6 @@ sub fct_gscrot_area {
 						if $debug_cparam;
 
 					#capture is finished, delete zoom
-					#				$backwindow->destroy if defined $backwindow;
 					$zoom_window->destroy;
 					Gtk2::Gdk->flush;
 
@@ -4005,6 +4016,10 @@ sub fct_gscrot_area {
 							$rect_h = 0 - $rect_h;
 						}
 
+						my $print_w = $rect_w + 1;
+						my $print_h = $rect_h + 1;
+						$rect->set_text( $print_w . " x " . $print_h );
+
 						#draw new rect to the root window
 						if ( $rect_w != 0 ) {
 							print
@@ -4028,7 +4043,6 @@ sub fct_gscrot_area {
 		$zoom_window->destroy;
 		Gtk2::Gdk->flush;
 
-		#$backwindow->destroy if defined $backwindow;
 		#ungrab pointer and keyboard
 		Gtk2::Gdk::X11->ungrab_server unless $zoom_active->get_active;
 		Gtk2::Gdk->pointer_ungrab( Gtk2->get_current_event_time );
@@ -5087,8 +5101,6 @@ sub fct_init {
 				exit;
 			} elsif ( $arg eq "--min_at_startup" ) {
 				$min_cparam = TRUE;
-			} elsif ( $arg eq "--beeper_off" ) {
-				$boff_cparam = TRUE;
 			} elsif ( $arg eq "--window" ) {
 
 				#is there already a process of gscrot running?
