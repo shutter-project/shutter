@@ -42,7 +42,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.182";
+use constant BRANCH              => "Rev.183";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.61";
@@ -638,6 +638,7 @@ my $combobox_settings_profiles = Gtk2::ComboBox->new_text;
 my @saved_profiles             = glob( "$ENV{'HOME'}/.gscrot/profiles/*.xml" );
 my $current_index              = 0;
 foreach ( sort @saved_profiles ) {
+	utf8::decode $_;
 	next
 		if $_ =~ /\_accounts.xml/
 	;    #accounts file - we are looking for "real" profiles
@@ -3192,8 +3193,10 @@ sub fct_save_settings {
 	$settings{ 'general' }->{ 'last_profile' } =
 		$combobox_settings_profiles->get_active;
 	$settings{ 'general' }->{ 'last_profile_name' } =
-		$combobox_settings_profiles->get_active_text || "";
+		 $combobox_settings_profiles->get_active_text || "";
 
+	utf8::encode $settings{ 'general' }->{ 'last_profile_name' };
+	
 	$settings{ 'general' }->{ 'filetype' }    = $combobox_type->get_active;
 	$settings{ 'general' }->{ 'quality' }     = $scale->get_value();
 	$settings{ 'general' }->{ 'filename' }    = $filename->get_text();
@@ -3581,7 +3584,7 @@ sub fct_execute_plugin {
 sub fct_usage {
 	print "gscrot [options]\n";
 	print
-		"Available options:\n --min_at_startup - starts gscrot minimized to tray\n --beeper_off - turns audible feedback off\n --debug - prints a lot of debugging information to STDOUT\n";
+		"Available options:\n --min_at_startup - starts gscrot minimized to tray\n --debug - prints a lot of debugging information to STDOUT\n";
 	print " --help - displays this help\n";
 }
 
@@ -4283,7 +4286,7 @@ sub fct_gscrot_window {
 											 $children{ 'curr_win' }{ 'width' },
 											 $children{ 'curr_win' }{ 'height' }
 							);
-						
+
 #						my ( $qroot, $qparent, @qkids ) = undef;
 #						my $xwindow = $children{ 'curr_win' }{ 'gdk_window' }->XWINDOW;
 #						my $last_parent = $children{ 'curr_win' }{ 'gdk_window' }->XWINDOW;
@@ -5440,12 +5443,15 @@ sub dlg_plugin {
 						   $dlg_header,
 						   $window,
 						   [ qw/modal destroy-with-parent/ ],
-						   'gtk-ok'     => 'accept',
+						   'gtk-execute'     => 'accept',
 						   'gtk-cancel' => 'reject'
 						 );
 	$plugin_dialog->set_default_response( 'accept' );
-	my $model = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String',
-									  'Glib::String',      'Glib::String' );
+	my $model = Gtk2::ListStore->new(
+									  'Gtk2::Gdk::Pixbuf', 'Glib::String',
+									  'Glib::String',      'Glib::String',
+									  'Glib::String', 'Glib::String'
+									);
 
 	foreach ( sort keys %plugins ) {
 		next
@@ -5470,18 +5476,54 @@ sub dlg_plugin {
 			$plugins{ $_ }->{ 'name' } = `$plugins{$_}->{'binary'} name`;
 			utf8::decode $plugins{ $_ }->{ 'name' };
 			chomp( $plugins{ $_ }->{ 'name' } );
+
+			#get translated plugin-tip
+			$plugins{ $_ }->{ 'tip' } = `$plugins{$_}->{'binary'} tip`;
+			utf8::decode $plugins{ $_ }->{ 'tip' };
+			chomp( $plugins{ $_ }->{ 'tip' } );
+
 			$model->set(
 						 $model->append,               0,
 						 $pixbuf,                      1,
 						 $plugins{ $_ }->{ 'name' },   2,
 						 $plugins{ $_ }->{ 'binary' }, 3,
-						 $plugins{ $_ }->{ 'lang' }
+						 $plugins{ $_ }->{ 'lang' },   4,
+						 $plugins{ $_ }->{ 'tip' }, 5, $_
 					   );
 		} else {
 			print "WARNING: Program $_ is not configured properly, ignoring\n";
 		}
 	}
 	my $plugin       = Gtk2::ComboBox->new( $model );
+	my $plugin_descr = Gtk2::Label->new;
+	$plugin_descr->set_line_wrap (TRUE);
+	$plugin_descr->set_padding (10, 10);
+	my $plugin_image = Gtk2::Image->new;
+	my $plugin_descr_frame = Gtk2::Frame->new ($d->get("Description"));
+	$plugin_descr_frame->add($plugin_descr);
+	my $plugin_hbox = Gtk2::HBox->new (FALSE, 5);
+	$plugin_hbox->set_border_width (10);
+	
+	$plugin->signal_connect(
+		'changed' => sub {
+
+			my $model        = $plugin->get_model();
+			my $plugin_iter  = $plugin->get_active_iter();
+			my $plugin_pixbuf = $model->get_value( $plugin_iter, 0 );
+			my $plugin_name  = $model->get_value( $plugin_iter, 1 );
+			my $plugin_value = $model->get_value( $plugin_iter, 2 );
+			my $plugin_lang  = $model->get_value( $plugin_iter, 3 );
+			my $plugin_tip   = $model->get_value( $plugin_iter, 4 );
+			my $plugin_key   = $model->get_value( $plugin_iter, 5 );
+
+			$plugin_descr->set_text( $plugin_tip );
+			$plugin_image->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+											 $plugins{ $plugin_key }->{ 'pixbuf' },
+											 100, 100 ));
+
+		},
+		'changed'
+						   );
 	my $renderer_pix = Gtk2::CellRendererPixbuf->new;
 	$plugin->pack_start( $renderer_pix, FALSE );
 	$plugin->add_attribute( $renderer_pix, pixbuf => 0 );
@@ -5490,6 +5532,9 @@ sub dlg_plugin {
 	$plugin->add_attribute( $renderer_text, text => 1 );
 	$plugin->set_active( 0 );
 	$plugin_dialog->vbox->add( $plugin );
+	$plugin_dialog->vbox->add( $plugin_hbox );
+	$plugin_hbox->pack_start_defaults( $plugin_image );
+	$plugin_hbox->pack_start_defaults( $plugin_descr_frame );
 	$plugin_dialog->show_all;
 	my $plugin_response = $plugin_dialog->run;
 
