@@ -42,10 +42,10 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.181";
-use constant PPA_VERSION         => "ppa4";
+use constant BRANCH              => "Rev.182";
+use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
-use constant GSCROT_VERSION      => "v0.60";
+use constant GSCROT_VERSION      => "v0.61";
 use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
 
 #--------------------------------------
@@ -105,7 +105,9 @@ $SIG{ USR1 } = sub { &evt_take_screenshot( 'global_keybinding', 'raw' ) };
 $SIG{ USR2 } = sub { &evt_take_screenshot( 'global_keybinding', 'select' ) };
 
 #screen
-my $x      = X11::Protocol->new();
+
+my $x = X11::Protocol->new( $ENV{ 'DISPLAY' } );
+$x->init_extension( 'SHAPE' ) or die;
 my $screen = Gnome2::Wnck::Screen->get_default;
 $screen->force_update();
 my $gdk_screen       = Gtk2::Gdk::Screen->get_default;
@@ -180,6 +182,7 @@ my $delay_box           = Gtk2::HBox->new( TRUE,  0 );
 my $delay_box2          = Gtk2::HBox->new( FALSE, 0 );
 my $thumbnail_box       = Gtk2::HBox->new( TRUE,  0 );
 my $thumbnail_box2      = Gtk2::HBox->new( FALSE, 0 );
+my $resize_operator_box = Gtk2::HBox->new( TRUE,  0 );
 my $filename_box        = Gtk2::HBox->new( TRUE,  0 );
 my $progname_box        = Gtk2::HBox->new( TRUE,  0 );
 my $progname_box2       = Gtk2::HBox->new( FALSE, 0 );
@@ -193,7 +196,8 @@ my $key_box2            = Gtk2::HBox->new( FALSE, 0 );
 my $key_sel_box         = Gtk2::HBox->new( TRUE,  0 );
 my $key_sel_box2        = Gtk2::HBox->new( FALSE, 0 );
 my $border_box          = Gtk2::HBox->new( TRUE,  0 );
-my $resize_operator_box = Gtk2::HBox->new( TRUE,  0 );
+my $cursor_box          = Gtk2::HBox->new( TRUE,  0 );
+
 $window->add( $vbox );
 
 #--------------------------------------
@@ -1224,6 +1228,28 @@ $border_box->pack_start( $combobox_border, TRUE,  TRUE, 10 );
 
 #end - border
 
+#cursor
+my $combobox_cursor = Gtk2::ComboBox->new_text;
+$combobox_cursor->insert_text( 1, $d->get( "activate" ) );
+$combobox_cursor->insert_text( 0, $d->get( "deactivate" ) );
+$combobox_cursor->signal_connect( 'changed' => \&evt_value_changed,
+								  'cursor_changed' );
+
+if ( defined $settings_xml->{ 'general' }->{ 'cursor' } ) {
+	$combobox_cursor->set_active( $settings_xml->{ 'general' }->{ 'cursor' } );
+} else {
+	$combobox_cursor->set_active( TRUE );
+}
+my $cursor_label   = Gtk2::Label->new( $d->get( "Include cursor" ) );
+my $tooltip_cursor = Gtk2::Tooltips->new;
+$tooltip_cursor->set_tip( $combobox_cursor, $d->get( "Include cursor" ) );
+$tooltip_cursor->set_tip( $cursor_label,    $d->get( "Include cursor" ) );
+$cursor_box->pack_start( $cursor_label,    FALSE, TRUE, 10 );
+$cursor_box->pack_start( $combobox_cursor, TRUE,  TRUE, 10 );
+
+#end - cursor
+
+
 #accounts
 #--------------------------------------
 my $accounts_model = undef;
@@ -1288,6 +1314,7 @@ $vbox_behavior->set_border_width( 5 );
 
 $capture_vbox->pack_start( $delay_box,  TRUE, TRUE, 5 );
 $capture_vbox->pack_start( $border_box, TRUE, TRUE, 5 );
+$capture_vbox->pack_start( $cursor_box, TRUE, TRUE, 5 );
 $capture_frame->add( $capture_vbox );
 
 $actions_vbox->pack_start( $progname_box,        TRUE, TRUE, 5 );
@@ -1530,6 +1557,7 @@ sub evt_take_screenshot {
 								   $quality_value,
 								   $delay_value,
 								   $combobox_border->get_active,
+								   $combobox_cursor->get_active,
 								   $active_workspace->get_number
 								 );
 
@@ -1546,9 +1574,13 @@ sub evt_take_screenshot {
 		}
 		$screenshot =
 			&fct_gscrot_window(
-								$folder,         $filename_value,
-								$filetype_value, $quality_value,
-								$delay_value,    $combobox_border->get_active,
+								$folder,
+								$filename_value,
+								$filetype_value,
+								$quality_value,
+								$delay_value,
+								$combobox_border->get_active,
+								$combobox_cursor->get_active,
 								$data
 							  );
 
@@ -1560,9 +1592,12 @@ sub evt_take_screenshot {
 			return FALSE;
 		}
 		$screenshot = &fct_gscrot_area(
-										$folder,         $filename_value,
-										$filetype_value, $quality_value,
-										$delay_value
+										$folder,
+										$filename_value,
+										$filetype_value,
+										$quality_value,
+										$delay_value,
+										$combobox_cursor->get_active
 									  );
 
 		#web
@@ -1656,10 +1691,14 @@ sub evt_take_screenshot {
 		}
 		$screenshot =
 			&fct_gscrot_window_direct(
-								  $folder,         $filename_value,
-								  $filetype_value, $quality_value,
-								  $delay_value,    $combobox_border->get_active,
-								  $xid
+									   $folder,
+									   $filename_value,
+									   $filetype_value,
+									   $quality_value,
+									   $delay_value,
+									   $combobox_border->get_active,
+									   $combobox_cursor->get_active,
+									   $xid
 									 );
 	} elsif ( $data =~ /^gscrot_wrksp_direct(.*)/ ) {
 		my $selected_workspace = $1;
@@ -1677,6 +1716,7 @@ sub evt_take_screenshot {
 								   $quality_value,
 								   $delay_value,
 								   $combobox_border->get_active,
+								   $combobox_cursor->get_active,
 								   $selected_workspace
 								 );
 	}
@@ -3196,6 +3236,7 @@ sub fct_save_settings {
 	$settings{ 'general' }->{ 'thumbnail_active' } =
 		$thumbnail_active->get_active();
 	$settings{ 'general' }->{ 'border' }   = $combobox_border->get_active();
+	$settings{ 'general' }->{ 'cursor' }   = $combobox_cursor->get_active();
 	$settings{ 'general' }->{ 'autohide' } = $hide_active->get_active();
 	$settings{ 'general' }->{ 'autocopy' } = $autocopy_active->get_active();
 	$settings{ 'general' }->{ 'close_at_close' } =
@@ -3344,6 +3385,8 @@ sub fct_load_settings {
 						 $settings_xml->{ 'general' }->{ 'thumbnail_active' } );
 			$combobox_border->set_active(
 								   $settings_xml->{ 'general' }->{ 'border' } );
+			$combobox_cursor->set_active(
+								   $settings_xml->{ 'general' }->{ 'cursor' } );
 			$hide_active->set_active(
 								 $settings_xml->{ 'general' }->{ 'autohide' } );
 			$autocopy_active->set_active(
@@ -3731,10 +3774,9 @@ sub fct_check_installed_programs {
 }
 
 sub fct_gscrot_area {
-	my (
-		 $folder,        $filename_value, $filetype_value,
-		 $quality_value, $delay_value
-	   ) = @_;
+	my ( $folder, $filename_value, $filetype_value, $quality_value,
+		 $delay_value, $cursor )
+		= @_;
 
 	#return value
 	my $output = 5;
@@ -3804,11 +3846,11 @@ sub fct_gscrot_area {
 								 );
 
 	#define gscrot cursor
-	my $cursor_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file(
+	my $gscrot_cursor_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file(
 				"$gscrot_root/share/gscrot/resources/icons/gscrot_cursor.png" );
-	my $cursor =
+	my $gscrot_cursor =
 		Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default,
-											$cursor_pixbuf, 10, 10 );
+											$gscrot_cursor_pixbuf, 10, 10 );
 
 	#define graphics context
 	my $white = Gtk2::Gdk::Color->new( 65535, 65535, 65535 );
@@ -3835,7 +3877,7 @@ sub fct_gscrot_area {
 				   button-release-mask/
 			],
 			undef,
-			$cursor,
+			$gscrot_cursor,
 			Gtk2->get_current_event_time
 							   );
 		Gtk2::Gdk->keyboard_grab( $root, 0, Gtk2->get_current_event_time );
@@ -3919,6 +3961,13 @@ sub fct_gscrot_area {
 														 $rect_x, $rect_y, 0, 0,
 														 $rect_w + 1,
 														 $rect_h + 1 );
+
+						$pixbuf =
+							&fct_include_cursor(
+												 $rect_x, $rect_y, $rect_w,
+												 $rect_h, $root,   $pixbuf
+											   ) if $cursor;
+
 						$output = Image::Magick->new( magick => 'png' );
 						$output->BlobToImage(
 											 $pixbuf->save_to_buffer( 'png' ) );
@@ -3982,12 +4031,12 @@ sub fct_gscrot_area {
 					$cursor_item->destroy if defined( $cursor_item );
 					$cursor_item =
 						Gnome2::Canvas::Item->new(
-												   $canvas_root,
-												   "Gnome2::Canvas::Pixbuf",
-												   x      => $event->x - 10,
-												   y      => $event->y - 10,
-												   pixbuf => $cursor_pixbuf,
-												 );
+												$canvas_root,
+												"Gnome2::Canvas::Pixbuf",
+												x      => $event->x - 10,
+												y      => $event->y - 10,
+												pixbuf => $gscrot_cursor_pixbuf,
+						);
 
 					#...scroll to centered position (*5 because of zoom factor)
 					$canvas->scroll_to( $event->x * 5, $event->y * 5 );
@@ -4053,7 +4102,7 @@ sub fct_gscrot_area {
 
 sub fct_gscrot_window {
 	my ( $folder, $filename_value, $filetype_value, $quality_value,
-		 $delay_value, $border, $mode )
+		 $delay_value, $border, $cursor, $mode )
 		= @_;
 
 	#return value
@@ -4234,6 +4283,32 @@ sub fct_gscrot_window {
 											 $children{ 'curr_win' }{ 'width' },
 											 $children{ 'curr_win' }{ 'height' }
 							);
+						
+#						my ( $qroot, $qparent, @qkids ) = undef;
+#						my $xwindow = $children{ 'curr_win' }{ 'gdk_window' }->XWINDOW;
+#						my $last_parent = $children{ 'curr_win' }{ 'gdk_window' }->XWINDOW;
+#						while(1){
+#							( $qroot, $qparent, @qkids ) = $x->QueryTree( $xwindow );
+#							my ($ordering, $rectangles) = $x->ShapeGetRectangles($last_parent, 'Bounding');
+#							print Dumper($rectangles);
+#							unless ($qroot == $qparent){
+#							$last_parent = $qparent;
+#							$xwindow = $qparent;
+#							}else{
+#								last;
+#							}
+#						}
+
+						$pixbuf =
+							&fct_include_cursor(
+											$children{ 'curr_win' }{ 'x' },
+											$children{ 'curr_win' }{ 'y' },
+											$children{ 'curr_win' }{ 'width' },
+											$children{ 'curr_win' }{ 'height' },
+											$root,
+											$pixbuf
+							) if $cursor;
+
 						$output = Image::Magick->new( magick => 'png' );
 						$output->BlobToImage(
 											 $pixbuf->save_to_buffer( 'png' ) );
@@ -4540,7 +4615,7 @@ sub fct_query_children {
 
 sub fct_gscrot_window_direct {
 	my ( $folder, $filename_value, $filetype_value, $quality_value,
-		 $delay_value, $border, $curr_xid )
+		 $delay_value, $border, $cursor, $curr_xid )
 		= @_;
 	my $drawable    = Gtk2::Gdk::Window->foreign_new( $curr_xid );
 	my $curr_window = Gnome2::Wnck::Window->get( $curr_xid );
@@ -4580,6 +4655,10 @@ sub fct_gscrot_window_direct {
 	my $pixbuf =
 		Gtk2::Gdk::Pixbuf->get_from_drawable( $root, undef, $xp, $yp, 0, 0,
 											  $widthp, $heightp );
+
+	$pixbuf = &fct_include_cursor( $xp, $yp, $widthp, $heightp, $root, $pixbuf )
+		if $cursor;
+
 	my $output = Image::Magick->new( magick => 'png' );
 	$output->BlobToImage( $pixbuf->save_to_buffer( 'png' ) );
 	return $output;
@@ -4587,7 +4666,7 @@ sub fct_gscrot_window_direct {
 
 sub fct_gscrot_workspace {
 	my ( $folder, $filename_value, $filetype_value, $quality_value,
-		 $delay_value, $border, $selected_workspace )
+		 $delay_value, $border, $cursor, $selected_workspace )
 		= @_;
 	$active_workspace = $screen->get_active_workspace;
 	my $wrksp_changed = FALSE;
@@ -4607,6 +4686,7 @@ sub fct_gscrot_workspace {
 	}
 	my $root = Gtk2::Gdk->get_default_root_window;
 	my ( $rootxp, $rootyp, $rootwidthp, $rootheightp ) = $root->get_geometry;
+	( $rootxp, $rootyp ) = $root->get_origin;
 
 	#sleep if there is any delay
 	sleep $delay_value;
@@ -4615,11 +4695,51 @@ sub fct_gscrot_workspace {
 	my $pixbuf =
 		Gtk2::Gdk::Pixbuf->get_from_drawable( $root, undef, $rootxp, $rootyp, 0,
 											  0, $rootwidthp, $rootheightp );
+
+
+	$pixbuf =
+		&fct_include_cursor( $rootxp, $rootyp, $rootwidthp, $rootheightp, $root,
+							 $pixbuf )
+		if $cursor;
+
 	my $output = Image::Magick->new( magick => 'png' );
 	$output->BlobToImage( $pixbuf->save_to_buffer( 'png' ) );
 	$active_workspace->activate( time ) if $wrksp_changed;
 	return $output;
 }
+
+sub fct_include_cursor {
+
+	my ( $xp, $yp, $widthp, $heightp, $gdk_window, $pixbuf ) = @_;
+
+	my $cursor =
+		Gtk2::Gdk::Cursor->new_for_display( Gtk2::Gdk::Display->get_default,
+											'GDK_LEFT_PTR' );
+	my $cursor_pixbuf = $cursor->get_image;
+
+	if ( $cursor_pixbuf ) {
+		my ( $window_at_pointer, $x, $y, $mask ) = $gdk_window->get_pointer;
+
+		my $r1 = Gtk2::Gdk::Rectangle->new( $xp, $yp, $widthp, $heightp );
+		my $r2 = Gtk2::Gdk::Rectangle->new( $x, $y, $cursor_pixbuf->get_width,
+											$cursor_pixbuf->get_height );
+
+		if ( $r2 = $r1->intersect( $r2 ) ) {
+
+			$cursor_pixbuf->composite(
+									   $pixbuf,      $r2->x - $xp,
+									   $r2->y - $yp, $r2->width,
+									   $r2->height,  $x - $xp - 6,
+									   $y - $yp - 4, 1.0,
+									   1.0,          'bilinear',
+									   255
+									 );
+		}
+	}
+
+	return $pixbuf;
+}
+
 
 sub fct_get_max {
 	my ( $a, $b ) = @_;
