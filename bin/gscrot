@@ -42,7 +42,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.185";
+use constant BRANCH              => "Rev.186";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.61";
@@ -107,7 +107,6 @@ $SIG{ USR1 } = sub { &evt_take_screenshot( 'global_keybinding', 'raw' ) };
 $SIG{ USR2 } = sub { &evt_take_screenshot( 'global_keybinding', 'select' ) };
 
 #screen
-
 my $x = X11::Protocol->new( $ENV{ 'DISPLAY' } );
 $x->init_extension( 'SHAPE' ) or die;
 my $screen = Gnome2::Wnck::Screen->get_default;
@@ -118,6 +117,7 @@ my %children         = ();
 my $active_workspace = $screen->get_active_workspace;
 
 #hash of screenshots during session
+my $current_counter = 1;
 my %session_screens;
 my %session_start_screen;
 
@@ -1496,8 +1496,7 @@ sub evt_take_screenshot {
 
 	#prepare filename, parse wild-cards
 	$filename_value = $filename->get_text();
-	my $current_counter =
-		sprintf( "%02d", scalar( keys %session_screens ) + 1 );
+	$current_counter = sprintf( "%02d", $current_counter );
 	$filename_value =~ s/\%NN/$current_counter/g;
 	$filename_value = strftime $filename_value , localtime;
 	$filename_value =~ s/\\//g;
@@ -2718,6 +2717,9 @@ sub fct_integrate_screenshot_in_notebook {
 	$window->show_all unless $is_in_tray;
 
 	$notebook->set_current_page( $new_index );
+
+	#increment global counter
+	$current_counter++;
 
 	return $key;
 }
@@ -5078,7 +5080,7 @@ sub fct_set_model_accounts {
 			if ( $model->get_value( $iter, 0 ) =~ /imageshack/i ) {
 				&dlg_info_message(
 					$d->get(
-						"If you have registered with imageshack.us, you should have received an email with a link similar to\n\nhttp://reg.imageshack.us/setlogin.php?login=SOME_IDENTIFIER\n\nYou should pass either that link as the username or only the user_id (SOME_IDENTIFIER)\n\nYou do not have to provide a password either."
+						"If you have registered with imageshack.us, you should have received an email with a link similar to\n\nhttp://reg.imageshack.us/setlogin.php?login=SOME_IDENTIFIER\n\nYou should pass either that link as the username or only the user_id (SOME_IDENTIFIER)\n\nYou do not have to provide a password."
 					)
 				);
 			}
@@ -5121,7 +5123,7 @@ sub fct_set_model_accounts {
 			if ( $model->get_value( $iter, 0 ) =~ /imageshack/i ) {
 				&dlg_info_message(
 					$d->get(
-						"If you have registered with imageshack.us, you should have received an email with a link similar to\n\nhttp://reg.imageshack.us/setlogin.php?login=SOME_IDENTIFIER\n\nYou should pass either that link as the username or only the user_id (SOME_IDENTIFIER)\n\nYou do not have to provide a password either."
+						"If you have registered with imageshack.us, you should have received an email with a link similar to\n\nhttp://reg.imageshack.us/setlogin.php?login=SOME_IDENTIFIER\n\nYou should pass either that link as the username or only the user_id (SOME_IDENTIFIER)\n\nYou do not have to provide a password."
 					)
 				);
 			}
@@ -5645,8 +5647,11 @@ sub dlg_account_chooser_and_upload {
 					 $accounts{ $_ }->{ 'username' }, 2,
 					 $accounts{ $_ }->{ 'password' }
 				   )
-			if (    $accounts{ $_ }->{ 'username' } ne ""
-				 && $accounts{ $_ }->{ 'password' } ne "" );
+			if (
+				( $_ =~ /imageshack/i && $accounts{ $_ }->{ 'username' } ne "" )
+				|| (    $accounts{ $_ }->{ 'username' } ne ""
+					 && $accounts{ $_ }->{ 'password' } ne "" )
+			   );
 		$model->set( $model->append, 0, $accounts{ $_ }->{ 'host' },
 					 1, $d->get( "Guest" ),
 					 2, "" );
@@ -5769,9 +5774,32 @@ sub dlg_account_chooser_and_upload {
 			}
 		} elsif ( $hosting_host eq "imageshack.us" ) {
 			my $ishack = GScrot::ImageShack->new();
-			$ishack->login( $hosting_username );
-			my $url = $ishack->host( $file_to_upload, undef );
-			my $thumb_url = $ishack->hosted_thumb;
+
+			#login
+			eval { $ishack->login( $hosting_username ); };
+			if ( $@ ) {
+				&dlg_error_message( "Login failed!\nPleas try again later\n" );
+				$hosting_dialog->destroy();
+				return TRUE;
+			}
+
+			#upload
+			my $url = undef;
+			eval { $url = $ishack->host( $file_to_upload, undef ); };
+			if ( $@ ) {
+				&dlg_error_message( "Upload failed!\nPleas try again later\n" );
+				$hosting_dialog->destroy();
+				return TRUE;
+			}
+
+			#get thumbnail url
+			my $thumb_url = undef;
+			eval { $thumb_url = $ishack->hosted_thumb; };
+			if ( $@ ) {
+				&dlg_info_message(
+					"ImageShack does not generate thumbs for images that are 200x200 pixels in resolution or less"
+				);
+			}
 
 			if ( $url ) {
 				&dlg_upload_links_imageshack( $hosting_host, $hosting_username,
@@ -5779,7 +5807,7 @@ sub dlg_account_chooser_and_upload {
 				&dlg_status_message( 1,
 								$file_to_upload . " " . $d->get( "uploaded" ) );
 			} else {
-				&dlg_error_message( $! );
+				&dlg_error_message( "Upload failed!\nPleas try again later\n" );
 			}
 
 		}
@@ -6028,20 +6056,32 @@ sub dlg_upload_links_imageshack {
 						   [ qw/modal destroy-with-parent/ ],
 						   'gtk-ok' => 'accept' );
 	$upload_dialog->set_default_response( 'accept' );
-	$upload_dialog->set_size_request( 400, 300 );
-	my $upload_hbox = Gtk2::HBox->new( FALSE, 0 );
-	my $upload_vbox = Gtk2::VBox->new( FALSE, 0 );
+
+	my $upload_hbox  = Gtk2::HBox->new( FALSE, 0 );
+	my $upload_hbox1 = Gtk2::HBox->new( TRUE,  10 );
+	my $upload_hbox2 = Gtk2::HBox->new( FALSE, 10 );
+	my $upload_hbox3 = Gtk2::HBox->new( TRUE,  10 );
+	my $upload_hbox4 = Gtk2::HBox->new( FALSE, 10 );
+	my $upload_hbox5 = Gtk2::HBox->new( TRUE,  10 );
+	my $upload_hbox6 = Gtk2::HBox->new( FALSE, 10 );
+	my $upload_hbox7 = Gtk2::HBox->new( TRUE,  10 );
+	my $upload_hbox8 = Gtk2::HBox->new( FALSE, 10 );
+	my $upload_vbox  = Gtk2::VBox->new( FALSE, 0 );
 	my $label_status = Gtk2::Label->new();
 	$label_status->set_text(
 				$d->get( "Upload status:" ) . " " . status_message( $status ) );
-	my $image_status;
 
-	if ( is_success( $status ) ) {
-		$image_status = Gtk2::Image->new_from_icon_name( 'gtk-yes', 'menu' );
-	} else {
-		$image_status = Gtk2::Image->new_from_icon_name( 'gtk-no', 'menu' );
-	}
-	$upload_hbox->pack_start( $image_status, TRUE, TRUE, 0 );
+	$upload_hbox->pack_start(
+		Gtk2::Image->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
+				"$gscrot_root/share/gscrot/resources/icons/logo-imageshack.png",
+				100,
+				100,
+				TRUE
+			)
+		),
+		TRUE, TRUE, 0
+	);
 	$upload_hbox->pack_start( $label_status, TRUE, TRUE, 0 );
 
 	my $entry_direct = Gtk2::Entry->new();
@@ -6061,20 +6101,81 @@ sub dlg_upload_links_imageshack {
 	if ( $url_thumb ) {
 		my $entry_thumb1 = Gtk2::Entry->new();
 		my $entry_thumb2 = Gtk2::Entry->new();
-		$entry_thumb1->set_text( "\[url\=$url\]\[img\]$url_thumb\[\/img\]\[\/url\]" );
+
+		my $upload_copy1 = Gtk2::Button->new;
+		$upload_copy1->set_image(
+							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
+		$upload_copy1->signal_connect(
+			'clicked' => sub {
+				my ( $widget, $entry ) = @_;
+				$clipboard->set_text( $entry->get_text );
+			},
+			$entry_thumb1
+									 );
+
+		my $upload_copy2 = Gtk2::Button->new;
+		$upload_copy2->set_image(
+							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
+		$upload_copy2->signal_connect(
+			'clicked' => sub {
+				my ( $widget, $entry ) = @_;
+				$clipboard->set_text( $entry->get_text );
+			},
+			$entry_thumb2
+									 );
+
+		$entry_thumb1->set_text(
+						   "\[url\=$url\]\[img\]$url_thumb\[\/img\]\[\/url\]" );
 		$entry_thumb2->set_text(
 			"<a href=\"$url\"><img src=\"$url_thumb\" border=\"0\" alt=\"Image Hosted by ImageShack.us\"\/><\/a>"
 		);
-		$upload_vbox->pack_start( $label_thumb1, TRUE, TRUE, 2 );
-		$upload_vbox->pack_start( $entry_thumb1, TRUE, TRUE, 2 );
-		$upload_vbox->pack_start( $label_thumb2, TRUE, TRUE, 2 );
-		$upload_vbox->pack_start( $entry_thumb2, TRUE, TRUE, 2 );
+		$upload_hbox1->pack_start_defaults( $label_thumb1 );
+		$upload_hbox1->pack_start_defaults( $entry_thumb1 );
+		$upload_hbox2->pack_start( $upload_hbox1, FALSE, TRUE, 10 );
+		$upload_hbox2->pack_start( $upload_copy1, FALSE, TRUE, 10 );
+		$upload_hbox3->pack_start_defaults( $label_thumb2 );
+		$upload_hbox3->pack_start_defaults( $entry_thumb2 );
+		$upload_hbox4->pack_start( $upload_hbox3, FALSE, TRUE, 10 );
+		$upload_hbox4->pack_start( $upload_copy2, FALSE, TRUE, 10 );
+
 	}
 
-	$upload_vbox->pack_start( $label_direct, TRUE, TRUE, 2 );
-	$upload_vbox->pack_start( $entry_direct, TRUE, TRUE, 2 );
-	$upload_vbox->pack_start( $label_hotweb, TRUE, TRUE, 2 );
-	$upload_vbox->pack_start( $entry_hotweb, TRUE, TRUE, 2 );
+	my $upload_copy3 = Gtk2::Button->new;
+	$upload_copy3->set_image(
+							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
+	$upload_copy3->signal_connect(
+		'clicked' => sub {
+			my ( $widget, $entry ) = @_;
+			$clipboard->set_text( $entry->get_text );
+		},
+		$entry_direct
+								 );
+
+	my $upload_copy4 = Gtk2::Button->new;
+	$upload_copy4->set_image(
+							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
+	$upload_copy4->signal_connect(
+		'clicked' => sub {
+			my ( $widget, $entry ) = @_;
+			$clipboard->set_text( $entry->get_text );
+		},
+		$entry_hotweb
+								 );
+
+	$upload_hbox5->pack_start_defaults( $label_direct );
+	$upload_hbox5->pack_start_defaults( $entry_direct );
+	$upload_hbox6->pack_start( $upload_hbox5, FALSE, TRUE, 10 );
+	$upload_hbox6->pack_start( $upload_copy3, FALSE, TRUE, 10 );
+	$upload_hbox7->pack_start_defaults( $label_hotweb );
+	$upload_hbox7->pack_start_defaults( $entry_hotweb );
+	$upload_hbox8->pack_start( $upload_hbox7, FALSE, TRUE, 10 );
+	$upload_hbox8->pack_start( $upload_copy4, FALSE, TRUE, 10 );
+
+	$upload_vbox->pack_start_defaults( $upload_hbox2 );
+	$upload_vbox->pack_start_defaults( $upload_hbox4 );
+	$upload_vbox->pack_start_defaults( $upload_hbox6 );
+	$upload_vbox->pack_start_defaults( $upload_hbox8 );
+
 	$upload_dialog->vbox->add( $upload_vbox );
 	$upload_dialog->show_all;
 	my $upload_response = $upload_dialog->run;
