@@ -85,6 +85,8 @@ require GScrot::ImageBanana;
 import GScrot::ImageBanana;
 require GScrot::UbuntuPics;
 import GScrot::UbuntuPics;
+require GScrot::ImageShack;
+import GScrot::ImageShack;
 require GScrot::Draw;
 import GScrot::Draw;
 
@@ -221,9 +223,7 @@ my $menubar = Gtk2::MenuBar->new();
 #file
 my $menu_file     = Gtk2::Menu->new();
 my $menuitem_file = Gtk2::MenuItem->new_with_mnemonic( $d->get( "_File" ) );
-my $menuitem_open = Gtk2::ImageMenuItem->new( $d->get( "Open" ) );
-$menuitem_open->set_image(
-						Gtk2::Image->new_from_icon_name( 'gtk-open', 'menu' ) );
+my $menuitem_open = Gtk2::ImageMenuItem->new_from_stock( 'gtk-open' );
 $menuitem_open->add_accelerator( "activate", $accel_group,
 								 $Gtk2::Gdk::Keysyms{ O },
 								 qw/control-mask/, qw/visible/ );
@@ -232,9 +232,7 @@ $menuitem_open->signal_connect( "activate", \&evt_settings, 'menu_open' );
 
 $menu_file->append( Gtk2::SeparatorMenuItem->new );
 
-my $menuitem_quit = Gtk2::ImageMenuItem->new( $d->get( "Quit" ) );
-$menuitem_quit->set_image(
-						Gtk2::Image->new_from_icon_name( 'gtk-quit', 'menu' ) );
+my $menuitem_quit = Gtk2::ImageMenuItem->new_from_stock( 'gtk-quit' );
 $menuitem_quit->add_accelerator( "activate", $accel_group,
 								 $Gtk2::Gdk::Keysyms{ Q },
 								 qw/control-mask/, qw/visible/ );
@@ -246,10 +244,9 @@ $menubar->append( $menuitem_file );
 
 #end file
 #edit
-my $menu_edit         = Gtk2::Menu->new();
-my $menuitem_settings = Gtk2::ImageMenuItem->new( $d->get( "Settings" ) );
-$menuitem_settings->set_image(
-					  Gtk2::Image->new_from_stock( 'gtk-properties', 'menu' ) );
+my $menu_edit = Gtk2::Menu->new();
+my $menuitem_settings =
+	Gtk2::ImageMenuItem->new_from_stock( 'gtk-preferences' );
 $menuitem_settings->add_accelerator( "activate", $accel_group,
 									 $Gtk2::Gdk::Keysyms{ P },
 									 qw/mod1-mask/, qw/visible/ );
@@ -350,33 +347,25 @@ $menubar->append( $menuitem_action );
 #end actions
 #session
 my $menu_session   = Gtk2::Menu->new();
-my $menuitem_first = Gtk2::ImageMenuItem->new( $d->get( "First Page" ) );
-$menuitem_first->set_image(
-					  Gtk2::Image->new_from_stock( 'gtk-goto-first', 'menu' ) );
+my $menuitem_first = Gtk2::ImageMenuItem->new_from_stock( 'gtk-goto-first' );
 $menuitem_first->add_accelerator( "activate", $accel_group,
 								  $Gtk2::Gdk::Keysyms{ F5 },
 								  qw/control-mask/, qw/visible/ );
 $menu_session->append( $menuitem_first );
 $menuitem_first->signal_connect( "activate", \&evt_navigate, 'first' );
-my $menuitem_back = Gtk2::ImageMenuItem->new( $d->get( "Previous Page" ) );
-$menuitem_back->set_image(
-						 Gtk2::Image->new_from_stock( 'gtk-go-back', 'menu' ) );
+my $menuitem_back = Gtk2::ImageMenuItem->new_from_stock( 'gtk-go-back' );
 $menuitem_back->add_accelerator( "activate", $accel_group,
 								 $Gtk2::Gdk::Keysyms{ F6 },
 								 qw/control-mask/, qw/visible/ );
 $menu_session->append( $menuitem_back );
 $menuitem_back->signal_connect( "activate", \&evt_navigate, 'previous' );
-my $menuitem_forward = Gtk2::ImageMenuItem->new( $d->get( "Next Page" ) );
-$menuitem_forward->set_image(
-					  Gtk2::Image->new_from_stock( 'gtk-go-forward', 'menu' ) );
+my $menuitem_forward = Gtk2::ImageMenuItem->new_from_stock( 'gtk-go-forward' );
 $menuitem_forward->add_accelerator( "activate", $accel_group,
 									$Gtk2::Gdk::Keysyms{ F7 },
 									qw/control-mask/, qw/visible/ );
 $menu_session->append( $menuitem_forward );
 $menuitem_forward->signal_connect( "activate", \&evt_navigate, 'forward' );
-my $menuitem_last = Gtk2::ImageMenuItem->new( $d->get( "Last Page" ) );
-$menuitem_last->set_image(
-					   Gtk2::Image->new_from_stock( 'gtk-goto-last', 'menu' ) );
+my $menuitem_last = Gtk2::ImageMenuItem->new_from_stock( 'gtk-goto-last' );
 $menuitem_last->add_accelerator( "activate", $accel_group,
 								 $Gtk2::Gdk::Keysyms{ F8 },
 								 qw/control-mask/, qw/visible/ );
@@ -389,62 +378,51 @@ $menubar->append( $menuitem_session );
 
 #end session
 #help
-my $menu_help         = Gtk2::Menu->new();
-my $menuitem_question = Gtk2::ImageMenuItem->new( $d->get( "Ask a question" ) );
+my $menu_help = Gtk2::Menu->new();
+my $menuitem_question =
+	Gtk2::ImageMenuItem->new( $d->get( "Get Help Online..." ) );
 $menuitem_question->set_image(
-				   Gtk2::Image->new_from_pixbuf(
-					   Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-						   "$gscrot_root/share/gscrot/resources/icons/help.svg",
-						   Gtk2::IconSize->lookup( 'menu' )
-					   )
+			   Gtk2::Image->new_from_pixbuf(
+				   Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+					   "$gscrot_root/share/gscrot/resources/icons/lpi-help.png",
+					   Gtk2::IconSize->lookup( 'menu' )
 				   )
+			   )
 );
-$menuitem_question->add_accelerator(
-									 "activate",
-									 $accel_group,
-									 $Gtk2::Gdk::Keysyms{ A },
-									 qw/control-mask/,
-									 qw/visible/
-								   );
+
 $menu_help->append( $menuitem_question );
+
+my $menuitem_translate =
+	Gtk2::ImageMenuItem->new( $d->get( "Translate this Application..." ) );
+$menuitem_translate->set_image(
+		  Gtk2::Image->new_from_pixbuf(
+			  Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+				  "$gscrot_root/share/gscrot/resources/icons/lpi-translate.png",
+				  Gtk2::IconSize->lookup( 'menu' )
+			  )
+		  )
+);
+
+$menu_help->append( $menuitem_translate );
+$menuitem_translate->signal_connect( "activate", \&evt_translate, $window );
+
 $menuitem_question->signal_connect( "activate", \&evt_question, $window );
-my $menuitem_bug = Gtk2::ImageMenuItem->new( $d->get( "Report a bug" ) );
+my $menuitem_bug = Gtk2::ImageMenuItem->new( $d->get( "Report a Problem" ) );
 $menuitem_bug->set_image(
 				Gtk2::Image->new_from_pixbuf(
 					Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-						"$gscrot_root/share/gscrot/resources/icons/aiutare.svg",
+						"$gscrot_root/share/gscrot/resources/icons/lpi-bug.png",
 						Gtk2::IconSize->lookup( 'menu' )
 					)
 				)
 );
-$menuitem_bug->add_accelerator( "activate", $accel_group,
-								$Gtk2::Gdk::Keysyms{ B },
-								qw/control-mask/, qw/visible/ );
+
 $menu_help->append( $menuitem_bug );
 $menuitem_bug->signal_connect( "activate", \&evt_bug, $window );
-my $menuitem_translate =
-	Gtk2::ImageMenuItem->new( $d->get( "Add a translation" ) );
-$menuitem_translate->set_image(
-			  Gtk2::Image->new_from_pixbuf(
-				  Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-					  "$gscrot_root/share/gscrot/resources/icons/translate.svg",
-					  Gtk2::IconSize->lookup( 'menu' )
-				  )
-			  )
-);
-$menuitem_translate->add_accelerator(
-									  "activate",
-									  $accel_group,
-									  $Gtk2::Gdk::Keysyms{ T },
-									  qw/control-mask/,
-									  qw/visible/
-									);
-$menu_help->append( $menuitem_translate );
-$menuitem_translate->signal_connect( "activate", \&evt_translate, $window );
+
 $menu_help->append( Gtk2::SeparatorMenuItem->new );
-my $menuitem_about = Gtk2::ImageMenuItem->new( $d->get( "Info" ) );
-$menuitem_about->set_image(
-					   Gtk2::Image->new_from_icon_name( 'gtk-about', 'menu' ) );
+my $menuitem_about = Gtk2::ImageMenuItem->new_from_stock( 'gtk-about' );
+
 $menuitem_about->add_accelerator( "activate", $accel_group,
 								  $Gtk2::Gdk::Keysyms{ I },
 								  qw/control-mask/, qw/visible/ );
@@ -1243,8 +1221,10 @@ if ( defined $settings_xml->{ 'general' }->{ 'cursor' } ) {
 }
 my $cursor_label   = Gtk2::Label->new( $d->get( "Include cursor" ) );
 my $tooltip_cursor = Gtk2::Tooltips->new;
-$tooltip_cursor->set_tip( $combobox_cursor, $d->get( "Include cursor" ) );
-$tooltip_cursor->set_tip( $cursor_label,    $d->get( "Include cursor" ) );
+$tooltip_cursor->set_tip( $combobox_cursor,
+						 $d->get( "Include cursor when taking a screenshot" ) );
+$tooltip_cursor->set_tip( $cursor_label,
+						 $d->get( "Include cursor when taking a screenshot" ) );
 $cursor_box->pack_start( $cursor_label,    FALSE, TRUE, 10 );
 $cursor_box->pack_start( $combobox_cursor, TRUE,  TRUE, 10 );
 
@@ -1287,16 +1267,16 @@ $effects_tree->signal_connect( 'row-activated' => \&evt_plugins,
 
 #packing
 #--------------------------------------
-$file_vbox->pack_start( $scale_box,    TRUE, TRUE, 5 );
-$file_vbox->pack_start( $filetype_box, TRUE, TRUE, 5 );
+$file_vbox->pack_start( $scale_box,    TRUE,  TRUE, 5 );
+$file_vbox->pack_start( $filetype_box, FALSE, TRUE, 5 );
 $file_frame->add( $file_vbox );
 
-$save_vbox->pack_start( $filename_box, TRUE, TRUE, 5 );
-$save_vbox->pack_start( $saveDir_box,  TRUE, TRUE, 5 );
+$save_vbox->pack_start( $filename_box, TRUE,  TRUE, 5 );
+$save_vbox->pack_start( $saveDir_box,  FALSE, TRUE, 5 );
 $save_frame->add( $save_vbox );
 
-$vbox_basic->pack_start( $file_frame, TRUE, TRUE, 5 );
-$vbox_basic->pack_start( $save_frame, TRUE, TRUE, 5 );
+$vbox_basic->pack_start( $file_frame, FALSE, TRUE, 5 );
+$vbox_basic->pack_start( $save_frame, FALSE, TRUE, 5 );
 $vbox_basic->set_border_width( 5 );
 
 $behavior_vbox->pack_start( $autocopy_active,       TRUE, TRUE, 5 );
@@ -2578,20 +2558,19 @@ sub evt_settings {
 							  'gtk-ok'     => 'accept',
 							  'gtk-cancel' => 'reject'
 			);
-		my $pngfilter = Gtk2::FileFilter->new;
-		$pngfilter->set_name( "*.png" );
-		$pngfilter->add_pattern( "*.png" );
-		my $jpegfilter = Gtk2::FileFilter->new;
-		$jpegfilter->set_name( "*.jpeg" );
-		$jpegfilter->add_pattern( "*.jpeg" );
-		$fs->add_filter( $pngfilter );
-		$fs->add_filter( $jpegfilter );
+		$fs->set_select_multiple( TRUE );
+		my $filter = Gtk2::FileFilter->new;
+		$filter->set_name( "*.png / *.jpeg" );
+		$filter->add_pattern( "*.png" );
+		$filter->add_pattern( "*.jpeg" );
+		$fs->add_filter( $filter );
 		my $fs_resp = $fs->run;
 
 		if ( $fs_resp eq "accept" ) {
-			my $new_file = $fs->get_filename;
-			$new_file =~ s/$ENV{ HOME }/~/;  #switch /home/username in path to ~
-			&fct_integrate_screenshot_in_notebook( $new_file );
+			my @new_file = $fs->get_filenames;
+			foreach ( @new_file ) {
+				&fct_integrate_screenshot_in_notebook( $_ );
+			}
 			$fs->destroy();
 			return TRUE;
 		} else {
@@ -3193,10 +3172,10 @@ sub fct_save_settings {
 	$settings{ 'general' }->{ 'last_profile' } =
 		$combobox_settings_profiles->get_active;
 	$settings{ 'general' }->{ 'last_profile_name' } =
-		 $combobox_settings_profiles->get_active_text || "";
+		$combobox_settings_profiles->get_active_text || "";
 
 	utf8::encode $settings{ 'general' }->{ 'last_profile_name' };
-	
+
 	$settings{ 'general' }->{ 'filetype' }    = $combobox_type->get_active;
 	$settings{ 'general' }->{ 'quality' }     = $scale->get_value();
 	$settings{ 'general' }->{ 'filename' }    = $filename->get_text();
@@ -3270,6 +3249,11 @@ sub fct_save_settings {
 	open( ACC_FILE, ">$accountsfile" )
 		or
 		&dlg_error_message( $d->get( "Account-settings could not be saved!" ) );
+
+	foreach ( keys %accounts ) {
+		$accounts{ $_ }->{ 'password' } = ""
+			if $accounts{ $_ }->{ 'host' } =~ /imageshack/i;
+	}
 
 	print ACC_FILE XMLout( \%accounts );
 
@@ -3470,6 +3454,30 @@ sub fct_load_accounts {
 			( $d->get( "click me" ) );
 		$accounts{ 'ubuntu-pics.de' }->{ module } =
 			$accounts_xml->{ 'ubuntu-pics.de' }->{ module };
+	}
+
+	#account data, load defaults if nothing is set
+	unless ( exists( $accounts_xml->{ 'imageshack.us' } ) ) {
+		$accounts{ 'imageshack.us' }->{ host }     = "imageshack.us";
+		$accounts{ 'imageshack.us' }->{ username } = "";
+		$accounts{ 'imageshack.us' }->{ password } = "";
+		$accounts{ 'imageshack.us' }->{ register } =
+			"http://my.imageshack.us/registration/";
+		$accounts{ 'imageshack.us' }->{ register_color } = "blue";
+		$accounts{ 'imageshack.us' }->{ register_text } =
+			( $d->get( "click me" ) );
+	} else {
+		$accounts{ 'imageshack.us' }->{ host } =
+			$accounts_xml->{ 'imageshack.us' }->{ host };
+		$accounts{ 'imageshack.us' }->{ username } =
+			$accounts_xml->{ 'imageshack.us' }->{ username };
+		$accounts{ 'imageshack.us' }->{ password } =
+			$accounts_xml->{ 'imageshack.us' }->{ password };
+		$accounts{ 'imageshack.us' }->{ register } =
+			"http://my.imageshack.us/registration/";
+		$accounts{ 'imageshack.us' }->{ register_color } = "blue";
+		$accounts{ 'imageshack.us' }->{ register_text } =
+			( $d->get( "click me" ) );
 	}
 	unless ( exists( $accounts_xml->{ 'imagebanana.com' } ) ) {
 		$accounts{ 'imagebanana.com' }->{ host }     = "imagebanana.com";
@@ -5063,12 +5071,34 @@ sub fct_set_model_accounts {
 	my $renderer_username_accounts = Gtk2::CellRendererText->new;
 	$renderer_username_accounts->set( editable => TRUE );
 	$renderer_username_accounts->signal_connect(
-		edited => sub {
+		'editing-started' => sub {
+			my ( $cell, $cell_editable, $text_path, $model ) = @_;
+			my $path = Gtk2::TreePath->new_from_string( $text_path );
+			my $iter = $model->get_iter( $path );
+			if ( $model->get_value( $iter, 0 ) =~ /imageshack/i ) {
+				&dlg_info_message(
+					$d->get(
+						"If you have registered with imageshack.us, you should have received an email with a link similar to\n\nhttp://reg.imageshack.us/setlogin.php?login=SOME_IDENTIFIER\n\nYou should pass either that link as the username or only the user_id (SOME_IDENTIFIER)\n\nYou do not have to provide a password either."
+					)
+				);
+			}
+		},
+		$accounts_model
+											   );
+	$renderer_username_accounts->signal_connect(
+		'edited' => sub {
 			my ( $cell, $text_path, $new_text, $model ) = @_;
 			my $path = Gtk2::TreePath->new_from_string( $text_path );
 			my $iter = $model->get_iter( $path );
 			$accounts{ $model->get_value( $iter, 0 ) }->{ 'username' } =
 				$new_text;    #save entered username to the hash
+
+			#imageshack does not need a password
+			if ( $model->get_value( $iter, 0 ) =~ /imageshack/i ) {
+				$accounts{ $model->get_value( $iter, 0 ) }->{ 'password' } =
+					$new_text;
+			}
+
 			$model->set( $iter, 1, $new_text );
 		},
 		$accounts_model
@@ -5084,6 +5114,22 @@ sub fct_set_model_accounts {
 	my $renderer_password_accounts = Gtk2::CellRendererText->new;
 	$renderer_password_accounts->set( editable => TRUE );
 	$renderer_password_accounts->signal_connect(
+		'editing-started' => sub {
+			my ( $cell, $cell_editable, $text_path, $model ) = @_;
+			my $path = Gtk2::TreePath->new_from_string( $text_path );
+			my $iter = $model->get_iter( $path );
+			if ( $model->get_value( $iter, 0 ) =~ /imageshack/i ) {
+				&dlg_info_message(
+					$d->get(
+						"If you have registered with imageshack.us, you should have received an email with a link similar to\n\nhttp://reg.imageshack.us/setlogin.php?login=SOME_IDENTIFIER\n\nYou should pass either that link as the username or only the user_id (SOME_IDENTIFIER)\n\nYou do not have to provide a password either."
+					)
+				);
+			}
+		},
+		$accounts_model
+											   );
+
+	$renderer_password_accounts->signal_connect(
 		edited => sub {
 			my ( $cell, $text_path, $new_text, $model ) = @_;
 			my $path        = Gtk2::TreePath->new_from_string( $text_path );
@@ -5093,9 +5139,14 @@ sub fct_set_model_accounts {
 			for ( my $i = 1 ; $i <= length( $new_text ) ; $i++ ) {
 				$hidden_text .= '*';
 			}
-			$accounts{ $model->get_value( $iter, 0 ) }->{ 'password' } =
-				$new_text;    #save entered password to the hash
-			$model->set( $iter, 2, $hidden_text );
+			unless ( $model->get_value( $iter, 0 ) =~ /imageshack/i ) {
+				$accounts{ $model->get_value( $iter, 0 ) }->{ 'password' } =
+					$new_text;    #save entered password to the hash
+				$model->set( $iter, 2, $hidden_text );
+			} else {
+				$model->set( $iter, 2, "" );
+			}
+
 		},
 		$accounts_model
 											   );
@@ -5114,6 +5165,7 @@ sub fct_set_model_accounts {
 	$tv_clmn_pix_text->set_attributes( $ren_text, 'text', ( $d->get( 5 ) ),
 									   'foreground', 4 );
 	$accounts_tree->append_column( $tv_clmn_pix_text );
+
 
 	return TRUE;
 }
@@ -5443,14 +5495,14 @@ sub dlg_plugin {
 						   $dlg_header,
 						   $window,
 						   [ qw/modal destroy-with-parent/ ],
-						   'gtk-execute'     => 'accept',
-						   'gtk-cancel' => 'reject'
+						   'gtk-execute' => 'accept',
+						   'gtk-cancel'  => 'reject'
 						 );
 	$plugin_dialog->set_default_response( 'accept' );
 	my $model = Gtk2::ListStore->new(
 									  'Gtk2::Gdk::Pixbuf', 'Glib::String',
 									  'Glib::String',      'Glib::String',
-									  'Glib::String', 'Glib::String'
+									  'Glib::String',      'Glib::String'
 									);
 
 	foreach ( sort keys %plugins ) {
@@ -5488,7 +5540,8 @@ sub dlg_plugin {
 						 $plugins{ $_ }->{ 'name' },   2,
 						 $plugins{ $_ }->{ 'binary' }, 3,
 						 $plugins{ $_ }->{ 'lang' },   4,
-						 $plugins{ $_ }->{ 'tip' }, 5, $_
+						 $plugins{ $_ }->{ 'tip' },    5,
+						 $_
 					   );
 		} else {
 			print "WARNING: Program $_ is not configured properly, ignoring\n";
@@ -5496,31 +5549,38 @@ sub dlg_plugin {
 	}
 	my $plugin       = Gtk2::ComboBox->new( $model );
 	my $plugin_descr = Gtk2::Label->new;
-	$plugin_descr->set_line_wrap (TRUE);
-	$plugin_descr->set_padding (10, 10);
-	my $plugin_image = Gtk2::Image->new;
-	my $plugin_descr_frame = Gtk2::Frame->new ($d->get("Description"));
-	$plugin_descr_frame->add($plugin_descr);
-	my $plugin_hbox = Gtk2::HBox->new (FALSE, 5);
-	$plugin_hbox->set_border_width (10);
-	
+	$plugin_descr->set_line_wrap( TRUE );
+	$plugin_descr->set_line_wrap_mode( 'word' );
+	$plugin_descr->set_width_chars( 30 );
+	$plugin_descr->set_padding( 10, 10 );
+	my $plugin_image       = Gtk2::Image->new;
+	my $plugin_descr_frame = Gtk2::Frame->new( $d->get( "Description" ) );
+	$plugin_descr_frame->add( $plugin_descr );
+	my $plugin_hbox = Gtk2::HBox->new( FALSE, 5 );
+	$plugin_hbox->set_border_width( 10 );
+
 	$plugin->signal_connect(
 		'changed' => sub {
 
-			my $model        = $plugin->get_model();
-			my $plugin_iter  = $plugin->get_active_iter();
-			my $plugin_pixbuf = $model->get_value( $plugin_iter, 0 );
-			my $plugin_name  = $model->get_value( $plugin_iter, 1 );
-			my $plugin_value = $model->get_value( $plugin_iter, 2 );
-			my $plugin_lang  = $model->get_value( $plugin_iter, 3 );
-			my $plugin_tip   = $model->get_value( $plugin_iter, 4 );
-			my $plugin_key   = $model->get_value( $plugin_iter, 5 );
+			my $model       = $plugin->get_model();
+			my $plugin_iter = $plugin->get_active_iter();
 
-			$plugin_descr->set_text( $plugin_tip );
-			$plugin_image->set_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-											 $plugins{ $plugin_key }->{ 'pixbuf' },
-											 100, 100 ));
+			if ( $plugin_iter ) {
+				my $plugin_pixbuf = $model->get_value( $plugin_iter, 0 );
+				my $plugin_name   = $model->get_value( $plugin_iter, 1 );
+				my $plugin_value  = $model->get_value( $plugin_iter, 2 );
+				my $plugin_lang   = $model->get_value( $plugin_iter, 3 );
+				my $plugin_tip    = $model->get_value( $plugin_iter, 4 );
+				my $plugin_key    = $model->get_value( $plugin_iter, 5 );
 
+				$plugin_descr->set_text( $plugin_tip );
+				$plugin_image->set_from_pixbuf(
+									  Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+										  $plugins{ $plugin_key }->{ 'pixbuf' },
+										  100, 100
+									  )
+				);
+			}
 		},
 		'changed'
 						   );
@@ -5570,8 +5630,8 @@ sub dlg_account_chooser_and_upload {
 						   $dlg_header,
 						   $window,
 						   [ qw/modal destroy-with-parent/ ],
-						   'gtk-ok'     => 'accept',
-						   'gtk-cancel' => 'reject'
+						   'gtk-execute' => 'accept',
+						   'gtk-cancel'  => 'reject'
 						 );
 	$hosting_dialog->set_default_response( 'accept' );
 	$hosting_dialog->set_size_request( 300 );
@@ -5591,6 +5651,9 @@ sub dlg_account_chooser_and_upload {
 					 1, $d->get( "Guest" ),
 					 2, "" );
 	}
+	my $hosting_image = Gtk2::Image->new;
+	my $hosting_hbox = Gtk2::HBox->new( FALSE, 5 );
+	$hosting_hbox->set_border_width( 10 );
 	my $hosting       = Gtk2::ComboBox->new( $model );
 	my $renderer_host = Gtk2::CellRendererText->new;
 	$hosting->pack_start( $renderer_host, FALSE );
@@ -5598,8 +5661,53 @@ sub dlg_account_chooser_and_upload {
 	my $renderer_username = Gtk2::CellRendererText->new;
 	$hosting->pack_start( $renderer_username, FALSE );
 	$hosting->add_attribute( $renderer_username, text => 1 );
+	$hosting->signal_connect(
+		'changed' => sub {
+
+			my $model        = $hosting->get_model();
+			my $hosting_iter = $hosting->get_active_iter();
+
+			if ( $hosting_iter ) {
+				my $hosting_host     = $model->get_value( $hosting_iter, 0 );
+				my $hosting_username = $model->get_value( $hosting_iter, 1 );
+				if ( $hosting_host =~ /imageshack/i ) {
+					$hosting_image->set_from_pixbuf(
+						Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
+							"$gscrot_root/share/gscrot/resources/icons/logo-imageshack.png",
+							200,
+							200,
+							TRUE
+						)
+					);
+				} elsif ( $hosting_host =~ /imagebanana/i ) {
+					$hosting_image->set_from_pixbuf(
+						Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
+							"$gscrot_root/share/gscrot/resources/icons/logo-imagebanana.png",
+							200,
+							200,
+							TRUE
+						)
+					);
+				} elsif ( $hosting_host =~ /ubuntu-pics/i ) {
+					$hosting_image->set_from_pixbuf(
+						Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
+							"$gscrot_root/share/gscrot/resources/icons/logo-ubuntu-pics.png",
+							200,
+							200,
+							TRUE
+						)
+					);
+				}
+
+			}
+		},
+		'changed'
+							);
+
 	$hosting->set_active( 0 );
 	$hosting_dialog->vbox->add( $hosting );
+	$hosting_dialog->vbox->add( $hosting_hbox );
+	$hosting_hbox->pack_start_defaults( $hosting_image );
 	$hosting_dialog->show_all;
 	my $hosting_response = $hosting_dialog->run;
 
@@ -5659,6 +5767,21 @@ sub dlg_account_chooser_and_upload {
 			} else {
 				&dlg_error_message( $upload_response{ 'status' } );
 			}
+		} elsif ( $hosting_host eq "imageshack.us" ) {
+			my $ishack = GScrot::ImageShack->new();
+			$ishack->login( $hosting_username );
+			my $url = $ishack->host( $file_to_upload, undef );
+			my $thumb_url = $ishack->hosted_thumb;
+
+			if ( $url ) {
+				&dlg_upload_links_imageshack( $hosting_host, $hosting_username,
+											  $url, $thumb_url, RC_OK );
+				&dlg_status_message( 1,
+								$file_to_upload . " " . $d->get( "uploaded" ) );
+			} else {
+				&dlg_error_message( $! );
+			}
+
 		}
 		$hosting_dialog->destroy();
 		return TRUE;
@@ -5806,33 +5929,15 @@ sub dlg_upload_links_imagebanana {
 	}
 	$upload_hbox->pack_start( $image_status, TRUE, TRUE, 0 );
 	$upload_hbox->pack_start( $label_status, TRUE, TRUE, 0 );
-	my $entry_thumb1    = Gtk2::Entry->new();
-	my $entry_thumb2    = Gtk2::Entry->new();
-	my $entry_thumb3    = Gtk2::Entry->new();
-	my $entry_friends   = Gtk2::Entry->new();
-	my $entry_popup     = Gtk2::Entry->new();
-	my $entry_direct    = Gtk2::Entry->new();
-	my $entry_hotweb    = Gtk2::Entry->new();
-	my $entry_hotboard1 = Gtk2::Entry->new();
-	my $entry_hotboard2 = Gtk2::Entry->new();
-	my $label_thumb1    = Gtk2::Label->new();
-	my $label_thumb2    = Gtk2::Label->new();
-	my $label_thumb3    = Gtk2::Label->new();
-	my $label_friends   = Gtk2::Label->new();
-	my $label_popup     = Gtk2::Label->new();
-	my $label_direct    = Gtk2::Label->new();
-	my $label_hotweb    = Gtk2::Label->new();
-	my $label_hotboard1 = Gtk2::Label->new();
-	my $label_hotboard2 = Gtk2::Label->new();
-	$label_thumb1->set_text( $d->get( "Thumbnail for websites" ) );
-	$label_thumb2->set_text( $d->get( "Thumbnail for boards (1)" ) );
-	$label_thumb3->set_text( $d->get( "Thumbnail for boards (2)" ) );
-	$label_friends->set_text( $d->get( "Show your friends" ) );
-	$label_popup->set_text( $d->get( "Popup for websites" ) );
-	$label_direct->set_text( $d->get( "Direct link" ) );
-	$label_hotweb->set_text( $d->get( "Hotlink for websites" ) );
-	$label_hotboard1->set_text( $d->get( "Hotlink for boards (1)" ) );
-	$label_hotboard2->set_text( $d->get( "Hotlink for boards (2)" ) );
+	my $entry_thumb1    = Gtk2::Entry->new;
+	my $entry_thumb2    = Gtk2::Entry->new;
+	my $entry_thumb3    = Gtk2::Entry->new;
+	my $entry_friends   = Gtk2::Entry->new;
+	my $entry_popup     = Gtk2::Entry->new;
+	my $entry_direct    = Gtk2::Entry->new;
+	my $entry_hotweb    = Gtk2::Entry->new;
+	my $entry_hotboard1 = Gtk2::Entry->new;
+	my $entry_hotboard2 = Gtk2::Entry->new;
 	$entry_thumb1->set_text( $thumb1 );
 	$entry_thumb2->set_text( $thumb2 );
 	$entry_thumb3->set_text( $thumb3 );
@@ -5842,25 +5947,134 @@ sub dlg_upload_links_imagebanana {
 	$entry_hotweb->set_text( $hotweb );
 	$entry_hotboard1->set_text( $hotboard1 );
 	$entry_hotboard2->set_text( $hotboard2 );
-	$upload_vbox->pack_start( $upload_hbox,     TRUE, TRUE, 10 );
-	$upload_vbox->pack_start( $label_thumb1,    TRUE, TRUE, 2 );
-	$upload_vbox->pack_start( $entry_thumb1,    TRUE, TRUE, 2 );
-	$upload_vbox->pack_start( $label_thumb2,    TRUE, TRUE, 2 );
-	$upload_vbox->pack_start( $entry_thumb2,    TRUE, TRUE, 2 );
-	$upload_vbox->pack_start( $label_thumb3,    TRUE, TRUE, 2 );
-	$upload_vbox->pack_start( $entry_thumb3,    TRUE, TRUE, 2 );
-	$upload_vbox->pack_start( $label_friends,   TRUE, TRUE, 2 );
-	$upload_vbox->pack_start( $entry_friends,   TRUE, TRUE, 2 );
-	$upload_vbox->pack_start( $label_popup,     TRUE, TRUE, 2 );
-	$upload_vbox->pack_start( $entry_popup,     TRUE, TRUE, 2 );
-	$upload_vbox->pack_start( $label_direct,    TRUE, TRUE, 2 );
-	$upload_vbox->pack_start( $entry_direct,    TRUE, TRUE, 2 );
-	$upload_vbox->pack_start( $label_hotweb,    TRUE, TRUE, 2 );
-	$upload_vbox->pack_start( $entry_hotweb,    TRUE, TRUE, 2 );
-	$upload_vbox->pack_start( $label_hotboard1, TRUE, TRUE, 2 );
+	$upload_vbox->pack_start( $upload_hbox, TRUE, TRUE, 10 );
+	$upload_vbox->pack_start(
+							  Gtk2::Label->new(
+											 $d->get( "Thumbnail for websites" )
+							  ),
+							  TRUE, TRUE, 2
+							);
+	$upload_vbox->pack_start( $entry_thumb1, TRUE, TRUE, 2 );
+	$upload_vbox->pack_start(
+							  Gtk2::Label->new(
+										   $d->get( "Thumbnail for boards (1)" )
+							  ),
+							  TRUE, TRUE, 2
+							);
+	$upload_vbox->pack_start( $entry_thumb2, TRUE, TRUE, 2 );
+	$upload_vbox->pack_start(
+							  Gtk2::Label->new(
+										   $d->get( "Thumbnail for boards (2)" )
+							  ),
+							  TRUE, TRUE, 2
+							);
+	$upload_vbox->pack_start( $entry_thumb3, TRUE, TRUE, 2 );
+	$upload_vbox->pack_start(
+							  Gtk2::Label->new(
+												$d->get( "Show your friends" )
+											  ),
+							  TRUE, TRUE, 2
+							);
+	$upload_vbox->pack_start( $entry_friends, TRUE, TRUE, 2 );
+	$upload_vbox->pack_start(
+							  Gtk2::Label->new(
+												$d->get( "Popup for websites" )
+											  ),
+							  TRUE, TRUE, 2
+							);
+	$upload_vbox->pack_start( $entry_popup, TRUE, TRUE, 2 );
+	$upload_vbox->pack_start( Gtk2::Label->new( $d->get( "Direct link" ) ),
+							  TRUE, TRUE, 2 );
+	$upload_vbox->pack_start( $entry_direct, TRUE, TRUE, 2 );
+	$upload_vbox->pack_start(
+							  Gtk2::Label->new(
+											   $d->get( "Hotlink for websites" )
+											  ),
+							  TRUE, TRUE, 2
+							);
+	$upload_vbox->pack_start( $entry_hotweb, TRUE, TRUE, 2 );
+	$upload_vbox->pack_start(
+							  Gtk2::Label->new(
+											 $d->get( "Hotlink for boards (1)" )
+							  ),
+							  TRUE, TRUE, 2
+							);
 	$upload_vbox->pack_start( $entry_hotboard1, TRUE, TRUE, 2 );
-	$upload_vbox->pack_start( $label_hotboard2, TRUE, TRUE, 2 );
+	$upload_vbox->pack_start(
+							  Gtk2::Label->new(
+											 $d->get( "Hotlink for boards (2)" )
+							  ),
+							  TRUE, TRUE, 2
+							);
 	$upload_vbox->pack_start( $entry_hotboard2, TRUE, TRUE, 2 );
+	$upload_dialog->vbox->add( $upload_vbox );
+	$upload_dialog->show_all;
+	my $upload_response = $upload_dialog->run;
+
+	if ( $upload_response eq "accept" ) {
+		$upload_dialog->destroy();
+		return TRUE;
+	} else {
+		$upload_dialog->destroy();
+		return FALSE;
+	}
+}
+
+sub dlg_upload_links_imageshack {
+	my ( $host, $username, $url, $url_thumb, $status ) = @_;
+	my $dlg_header = $d->get( "Upload" ) . " - " . $host . " - " . $username;
+	my $upload_dialog =
+		Gtk2::Dialog->new( $dlg_header, $window,
+						   [ qw/modal destroy-with-parent/ ],
+						   'gtk-ok' => 'accept' );
+	$upload_dialog->set_default_response( 'accept' );
+	$upload_dialog->set_size_request( 400, 300 );
+	my $upload_hbox = Gtk2::HBox->new( FALSE, 0 );
+	my $upload_vbox = Gtk2::VBox->new( FALSE, 0 );
+	my $label_status = Gtk2::Label->new();
+	$label_status->set_text(
+				$d->get( "Upload status:" ) . " " . status_message( $status ) );
+	my $image_status;
+
+	if ( is_success( $status ) ) {
+		$image_status = Gtk2::Image->new_from_icon_name( 'gtk-yes', 'menu' );
+	} else {
+		$image_status = Gtk2::Image->new_from_icon_name( 'gtk-no', 'menu' );
+	}
+	$upload_hbox->pack_start( $image_status, TRUE, TRUE, 0 );
+	$upload_hbox->pack_start( $label_status, TRUE, TRUE, 0 );
+
+	my $entry_direct = Gtk2::Entry->new();
+	my $entry_hotweb = Gtk2::Entry->new();
+	my $label_thumb1 = Gtk2::Label->new( $d->get( "Thumbnail for websites" ) );
+	my $label_thumb2 =
+		Gtk2::Label->new( $d->get( "Thumbnail for boards (1)" ) );
+	my $label_direct = Gtk2::Label->new( $d->get( "Direct link" ) );
+	my $label_hotweb = Gtk2::Label->new( $d->get( "Hotlink for websites" ) );
+
+	$entry_direct->set_text( "$url" );
+	$entry_hotweb->set_text(
+		"<a href=\"http:\/\/imageshack.us\"><img src=\"$url\" border=\"0\" alt=\"Image Hosted by ImageShack.us\"\/><\/a><br\/>By <a href=\"https:\/\/launchpad.net\/gscrot\">GScrot<\/a>"
+	);
+	$upload_vbox->pack_start( $upload_hbox, TRUE, TRUE, 10 );
+
+	if ( $url_thumb ) {
+		my $entry_thumb1 = Gtk2::Entry->new();
+		my $entry_thumb2 = Gtk2::Entry->new();
+		$entry_thumb1->set_text( "\[url\=$url\]\[img\]$url_thumb\[\/img\]\[\/url\]" );
+		$entry_thumb2->set_text(
+			"<a href=\"$url\"><img src=\"$url_thumb\" border=\"0\" alt=\"Image Hosted by ImageShack.us\"\/><\/a>"
+		);
+		$upload_vbox->pack_start( $label_thumb1, TRUE, TRUE, 2 );
+		$upload_vbox->pack_start( $entry_thumb1, TRUE, TRUE, 2 );
+		$upload_vbox->pack_start( $label_thumb2, TRUE, TRUE, 2 );
+		$upload_vbox->pack_start( $entry_thumb2, TRUE, TRUE, 2 );
+	}
+
+	$upload_vbox->pack_start( $label_direct, TRUE, TRUE, 2 );
+	$upload_vbox->pack_start( $entry_direct, TRUE, TRUE, 2 );
+	$upload_vbox->pack_start( $label_hotweb, TRUE, TRUE, 2 );
+	$upload_vbox->pack_start( $entry_hotweb, TRUE, TRUE, 2 );
 	$upload_dialog->vbox->add( $upload_vbox );
 	$upload_dialog->show_all;
 	my $upload_response = $upload_dialog->run;
