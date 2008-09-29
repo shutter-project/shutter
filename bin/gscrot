@@ -42,7 +42,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.187";
+use constant BRANCH              => "Rev.189";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.61";
@@ -3566,6 +3566,12 @@ sub fct_execute_plugin {
 		$plugin_socket->show_all;
 		$plugin_socket->run;
 
+		&dlg_status_message(
+				 1,
+				 $d->get( "Successfully executed plugin" ) . ": " . $plugin_name
+						   );
+
+
 		#...if not => simple execute the plugin via system (e.g. shell plugins)
 	} else {
 		print
@@ -3601,16 +3607,36 @@ sub fct_usage {
 sub fct_update_first_tab {
 	$session_start_screen{ 'first_page' }->{ 'model' }->clear;
 	foreach ( sort keys %session_screens ) {
+
+		#determine size of thumbnail
+		my $width = 48;
+		my $height =
+			$width /
+			( $session_screens{ $_ }->{ 'width' } /
+			  $session_screens{ $_ }->{ 'height' } );
+		my $pixbuf = $session_screens{ $_ }->{ 'thumb' };
+
+		if ( $height > 48 ) {
+			$height = 48;
+			$width =
+				$height *
+				( $session_screens{ $_ }->{ 'width' } /
+				  $session_screens{ $_ }->{ 'height' } );
+		}
+
+		if ( $height < 10 || $width < 10 ) {
+			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file(
+						"$gscrot_root/share/gscrot/resources/icons/Image.svg" );
+			$width  = 48;
+			$height = 48;
+		}
+
 		$session_start_screen{ 'first_page' }->{ 'model' }->set(
-					 $session_start_screen{ 'first_page' }->{ 'model' }->append,
-					 0,
-					 $session_screens{ $_ }->{ 'thumb' }
-						 ->scale_simple( 48, 48, 'tiles' ),
-					 1,
-					 $session_screens{ $_ }->{ 'short' },
-					 2,
-					 $_
-		);
+			$session_start_screen{ 'first_page' }->{ 'model' }->append, 0,
+			$pixbuf->scale_simple( $width, $height, 'tiles' ), 1,
+			$session_screens{ $_ }->{ 'short' }, 2,
+			$_
+															   );
 	}
 	$session_start_screen{ 'first_page' }->{ 'view' }
 		->set_model( $session_start_screen{ 'first_page' }->{ 'model' } );
@@ -4822,19 +4848,13 @@ sub fct_iter_programs {
 
 sub fct_ret_workspace_menu {
 	$active_workspace = $screen->get_active_workspace;
-	if ( Gtk2->CHECK_VERSION( 2, 11, 0 ) ) {
-		@workspaces = $screen->get_workspaces;
-	} else {
 
-		#not available in gutsy (fixme?)
-		@workspaces = ();
-		for ( my $wcount = 0 ;
-			  $wcount < $screen->get_workspace_count ;
-			  $wcount++ )
-		{
-			push( @workspaces, $screen->get_workspace( $wcount ) );
-		}
+	@workspaces = ();
+	for ( my $wcount = 0 ; $wcount < $screen->get_workspace_count ; $wcount++ )
+	{
+		push( @workspaces, $screen->get_workspace( $wcount ) );
 	}
+
 	my $menu_wrksp = Gtk2::Menu->new;
 	foreach my $space ( @workspaces ) {
 		next unless defined $space;
@@ -5108,10 +5128,12 @@ sub fct_set_model_accounts {
 	my $tv_clmn_username_text =
 		Gtk2::TreeViewColumn->new_with_attributes( $d->get( "Username" ),
 									   $renderer_username_accounts, text => 1 );
+	$tv_clmn_username_text->set_max_width( 100 );
 	$accounts_tree->append_column( $tv_clmn_username_text );
 
 	#password
 	my $tv_clmn_password_text = Gtk2::TreeViewColumn->new;
+	$tv_clmn_password_text->set_max_width( 100 );
 	$tv_clmn_password_text->set_title( $d->get( "Password" ) );
 	my $renderer_password_accounts = Gtk2::CellRendererText->new;
 	$renderer_password_accounts->set( editable => TRUE );
@@ -6189,7 +6211,7 @@ sub dlg_upload_links_imagebanana {
 	$upload_vbox->pack_start( $upload_hbox, TRUE, TRUE, 10 );
 
 	$upload_hbox1->pack_start_defaults(
-		Gtk2::Label->new( $d->get( "Thumbnail for websites" ) ) );
+					  Gtk2::Label->new( $d->get( "Thumbnail for websites" ) ) );
 	$upload_hbox1->pack_start_defaults( $entry_thumb1 );
 	$upload_hbox2->pack_start_defaults( $upload_hbox1 );
 	$upload_hbox2->pack_start( $upload_copy1, FALSE, TRUE, 10 );
