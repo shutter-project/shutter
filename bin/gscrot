@@ -2673,53 +2673,57 @@ sub fct_integrate_screenshot_in_notebook {
 	my $theTime = "$hour:$minute:$second";
 	my $key     = "[" . &fct_get_latest_tab_key . "] - $theTime";
 
-	#build hash of screenshots during session
-	$session_screens{ $key }->{ 'filename' } = $filename;
-
 	#create thumbnail for gui
-	&fct_create_thumbnail_and_fileinfos( $filename, $key );
-	my $hbox_tab_label = Gtk2::HBox->new( FALSE, 0 );
-	my $close_icon = Gtk2::Image->new_from_icon_name( 'gtk-close', 'menu' );
-	print "Trying to create tab icon for $filename ...\n" if $debug_cparam;
-	$session_screens{ $key }->{ 'tab_icon' } =
-		Gtk2::Image->new_from_pixbuf( $session_screens{ $key }->{ 'thumb' }
+	if ( &fct_create_thumbnail_and_fileinfos( $filename, $key ) ) {
+
+		#build hash of screenshots during session
+		$session_screens{ $key }->{ 'filename' } = $filename;
+
+		my $hbox_tab_label = Gtk2::HBox->new( FALSE, 0 );
+		my $close_icon = Gtk2::Image->new_from_icon_name( 'gtk-close', 'menu' );
+		print "Trying to create tab icon for $filename ...\n" if $debug_cparam;
+		$session_screens{ $key }->{ 'tab_icon' } =
+			Gtk2::Image->new_from_pixbuf( $session_screens{ $key }->{ 'thumb' }
 				  ->scale_simple( Gtk2::IconSize->lookup( 'menu' ), 'tiles' ) );
-	print "...tab icon for $filename created!\n" if $debug_cparam;
-	my $tab_close_button = Gtk2::Button->new;
-	$tab_close_button->set_relief( 'none' );
-	$tab_close_button->set_image( $close_icon );
-	my $tab_label = Gtk2::Label->new( $key );
-	$hbox_tab_label->pack_start( $session_screens{ $key }->{ 'tab_icon' },
-								 FALSE, TRUE, 1 );
-	$hbox_tab_label->pack_start( $tab_label,        TRUE,  TRUE, 1 );
-	$hbox_tab_label->pack_start( $tab_close_button, FALSE, TRUE, 1 );
-	$hbox_tab_label->show_all;
+		print "...tab icon for $filename created!\n" if $debug_cparam;
+		my $tab_close_button = Gtk2::Button->new;
+		$tab_close_button->set_relief( 'none' );
+		$tab_close_button->set_image( $close_icon );
+		my $tab_label = Gtk2::Label->new( $key );
+		$hbox_tab_label->pack_start( $session_screens{ $key }->{ 'tab_icon' },
+									 FALSE, TRUE, 1 );
+		$hbox_tab_label->pack_start( $tab_label,        TRUE,  TRUE, 1 );
+		$hbox_tab_label->pack_start( $tab_close_button, FALSE, TRUE, 1 );
+		$hbox_tab_label->show_all;
 
-	#and append page with label == key
-	my $new_index =
-		$notebook->append_page( fct_create_tab( $key, FALSE ),
-								$hbox_tab_label );
-	$session_screens{ $key }->{ 'tab_child' } =
-		$notebook->get_nth_page( $new_index );
-	$tab_close_button->signal_connect(
-									   clicked => \&evt_in_tab,
-									   'remove' 
-										   . $key
-										   . '__ind__'
-										   . $new_index
-										   . '__indold__'
-										   . $notebook->get_current_page
-									 );
+		#and append page with label == key
+		my $new_index =
+			$notebook->append_page( fct_create_tab( $key, FALSE ),
+									$hbox_tab_label );
+		$session_screens{ $key }->{ 'tab_child' } =
+			$notebook->get_nth_page( $new_index );
+		$tab_close_button->signal_connect(
+										   clicked => \&evt_in_tab,
+										   'remove' 
+											   . $key
+											   . '__ind__'
+											   . $new_index
+											   . '__indold__'
+											   . $notebook->get_current_page
+										 );
 
-	$notebook->set_tab_detachable( $session_screens{ $key }->{ 'tab_child' },
-								   TRUE );
+		$notebook->set_tab_detachable(
+									  $session_screens{ $key }->{ 'tab_child' },
+									  TRUE );
 
-	$window->show_all unless $is_in_tray;
+		$window->show_all unless $is_in_tray;
 
-	$notebook->set_current_page( $new_index );
+		$notebook->set_current_page( $new_index );
 
-	#increment global counter
-	$current_counter++;
+		#increment global counter
+		$current_counter++;
+
+	}
 
 	return $key;
 }
@@ -3160,6 +3164,9 @@ sub fct_save_settings {
 			if ( $profilename ne "" );
 	}
 
+	#session file
+	my $sessionfile = "$ENV{ HOME }/.gscrot/session.xml";
+
 	#accounts file
 	my $accountsfile = "$ENV{ HOME }/.gscrot/accounts.xml";
 	if ( defined $profilename ) {
@@ -3240,7 +3247,7 @@ sub fct_save_settings {
 			if defined $plugins{ $_ }->{ 'menu' };
 	}
 
-	#write settings to file
+	#settings
 	print SETTFILE XMLout( \%settings );
 
 	close( SETTFILE )
@@ -3248,6 +3255,28 @@ sub fct_save_settings {
 
 	&dlg_status_message( 1, $d->get( "Settings saved successfully!" ) );
 
+	#session
+	open( SESS_FILE, ">$sessionfile" )
+		or &dlg_error_message( $d->get( "Session could not be saved!" ) );
+
+	#we need to clean the hashkeys, so they become parseable
+	my %clean_files;
+	my $counter = 0;
+	foreach ( sort keys %session_screens ) {
+
+		if ( &fct_file_exists( $session_screens{ $_ }->{ 'long' } ) ) {
+			$clean_files{ "file" . $counter }{ 'filename' } =
+				$session_screens{ $_ }->{ 'long' };
+			$counter++;
+		}
+	}
+
+	print SESS_FILE XMLout( \%clean_files );
+
+	close( SESS_FILE )
+		or &dlg_error_message( $d->get( "Session could not be saved!" ) );
+
+	#accounts
 	open( ACC_FILE, ">$accountsfile" )
 		or
 		&dlg_error_message( $d->get( "Account-settings could not be saved!" ) );
@@ -3321,87 +3350,103 @@ sub fct_load_settings {
 	$settingsfile = "$ENV{ HOME }/.gscrot/profiles/$profilename.xml"
 		if ( defined $profilename );
 
-	$settings_xml = undef;
+	my $settings_xml;
 	if ( &fct_file_exists( $settingsfile ) ) {
-		$settings_xml = XMLin( $settingsfile );
-		if ( $data eq 'profile_load' ) {
-			$combobox_type->set_active(
-								 $settings_xml->{ 'general' }->{ 'filetype' } );
-			$scale->set_value( $settings_xml->{ 'general' }->{ 'quality' } );
-			$filename->set_text( $settings_xml->{ 'general' }->{ 'filename' } );
-			$saveDir_button->set_current_folder(
-								   $settings_xml->{ 'general' }->{ 'folder' } );
-			$zoom_active->set_active(
-							  $settings_xml->{ 'general' }->{ 'zoom_active' } );
-			$zoom_size1->set_active( TRUE )
-				if $settings_xml->{ 'general' }->{ 'zoom_size' } == 1;
-			$zoom_size2->set_active( TRUE )
-				if $settings_xml->{ 'general' }->{ 'zoom_size' } == 2;
-			$zoom_size3->set_active( TRUE )
-				if $settings_xml->{ 'general' }->{ 'zoom_size' } == 3;
+		eval {
+			$settings_xml = XMLin( $settingsfile );
 
-			#determining timeout
-			my $web_menu = $button_web_menu->get_menu;
-			my @timeouts = $web_menu->get_children;
-			my $timeout  = undef;
-			foreach ( @timeouts ) {
-				$timeout = $_->get_children->get_text;
-				$timeout =~ /([0-9]+)/;
-				$timeout = $1;
-				if ( $settings_xml->{ 'general' }->{ 'web_timeout' } ==
-					 $timeout )
-				{
-					$_->set_active( TRUE );
+			if ( $data eq 'profile_load' ) {
+				$combobox_type->set_active(
+								 $settings_xml->{ 'general' }->{ 'filetype' } );
+				$scale->set_value(
+								  $settings_xml->{ 'general' }->{ 'quality' } );
+				$filename->set_text(
+								 $settings_xml->{ 'general' }->{ 'filename' } );
+				$saveDir_button->set_current_folder(
+								   $settings_xml->{ 'general' }->{ 'folder' } );
+				$zoom_active->set_active(
+							  $settings_xml->{ 'general' }->{ 'zoom_active' } );
+				$zoom_size1->set_active( TRUE )
+					if $settings_xml->{ 'general' }->{ 'zoom_size' } == 1;
+				$zoom_size2->set_active( TRUE )
+					if $settings_xml->{ 'general' }->{ 'zoom_size' } == 2;
+				$zoom_size3->set_active( TRUE )
+					if $settings_xml->{ 'general' }->{ 'zoom_size' } == 3;
+
+				#determining timeout
+				my $web_menu = $button_web_menu->get_menu;
+				my @timeouts = $web_menu->get_children;
+				my $timeout  = undef;
+				foreach ( @timeouts ) {
+					$timeout = $_->get_children->get_text;
+					$timeout =~ /([0-9]+)/;
+					$timeout = $1;
+					if ( $settings_xml->{ 'general' }->{ 'web_timeout' } ==
+						 $timeout )
+					{
+						$_->set_active( TRUE );
+					}
 				}
-			}
-			my $model = $progname->get_model;
-			$model->foreach( \&fct_iter_programs,
-							 $settings_xml->{ 'general' }->{ 'prog' } );
-			$progname_active->set_active(
+				my $model = $progname->get_model;
+				$model->foreach( \&fct_iter_programs,
+								 $settings_xml->{ 'general' }->{ 'prog' } );
+				$progname_active->set_active(
 							  $settings_xml->{ 'general' }->{ 'prog_active' } );
-			$im_colors_active->set_active(
+				$im_colors_active->set_active(
 						 $settings_xml->{ 'general' }->{ 'im_colors_active' } );
-			$combobox_im_colors->set_active(
+				$combobox_im_colors->set_active(
 								$settings_xml->{ 'general' }->{ 'im_colors' } );
-			$delay->set_value( $settings_xml->{ 'general' }->{ 'delay' } );
-			$delay_active->set_active(
+				$delay->set_value( $settings_xml->{ 'general' }->{ 'delay' } );
+				$delay_active->set_active(
 							 $settings_xml->{ 'general' }->{ 'delay_active' } );
-			$combobox_thumb_operator->set_active(
+				$combobox_thumb_operator->set_active(
 						  $settings_xml->{ 'general' }->{ 'resize_operator' } );
-			$thumbnail->set_value(
+				$thumbnail->set_value(
 								$settings_xml->{ 'general' }->{ 'thumbnail' } );
-			$thumbnail_active->set_active(
+				$thumbnail_active->set_active(
 						 $settings_xml->{ 'general' }->{ 'thumbnail_active' } );
-			$combobox_border->set_active(
+				$combobox_border->set_active(
 								   $settings_xml->{ 'general' }->{ 'border' } );
-			$combobox_cursor->set_active(
+				$combobox_cursor->set_active(
 								   $settings_xml->{ 'general' }->{ 'cursor' } );
-			$hide_active->set_active(
+				$hide_active->set_active(
 								 $settings_xml->{ 'general' }->{ 'autohide' } );
-			$autocopy_active->set_active(
+				$autocopy_active->set_active(
 								 $settings_xml->{ 'general' }->{ 'autocopy' } );
-			$close_at_close_active->set_active(
+				$close_at_close_active->set_active(
 						   $settings_xml->{ 'general' }->{ 'close_at_close' } );
-			$save_at_close_active->set_active(
+				$save_at_close_active->set_active(
 							$settings_xml->{ 'general' }->{ 'save_at_close' } );
-			$keybinding_active->set_active(
+				$keybinding_active->set_active(
 							   $settings_xml->{ 'general' }->{ 'keybinding' } );
-			$keybinding_sel_active->set_active(
+				$keybinding_sel_active->set_active(
 						   $settings_xml->{ 'general' }->{ 'keybinding_sel' } );
-			$capture_key->set_text(
+				$capture_key->set_text(
 							  $settings_xml->{ 'general' }->{ 'capture_key' } );
-			$capture_sel_key->set_text(
+				$capture_sel_key->set_text(
 						  $settings_xml->{ 'general' }->{ 'capture_sel_key' } );
 
-		}
-		&fct_load_accounts( $profilename );
-		if ( defined $accounts_tree ) {
-			&fct_load_accounts_tree;
-			$accounts_tree->set_model( $accounts_model );
-			&fct_set_model_accounts( $accounts_tree );
-		}
+			}
 
-		&dlg_status_message( 1, $d->get( "Settings loaded successfully" ) );
+			#load account data
+			&fct_load_accounts( $profilename );
+			if ( defined $accounts_tree ) {
+				&fct_load_accounts_tree;
+				$accounts_tree->set_model( $accounts_model );
+				&fct_set_model_accounts( $accounts_tree );
+			}
+
+			#restore session, only once
+			&fct_load_session unless ( $profilename );
+
+			&dlg_status_message( 1, $d->get( "Settings loaded successfully" ) );
+			}
+
+	}
+	if ( $@ ) {
+		&dlg_error_message(
+					   $d->get( "Settings could not be restored!" ) . " : $@" );
+		unlink $settingsfile;
 	}
 
 	#plugins
@@ -3428,8 +3473,17 @@ sub fct_load_accounts {
 	$accountsfile = "$ENV{ HOME }/.gscrot/profiles/$profilename\_accounts.xml"
 		if ( defined $profilename );
 
-	my $accounts_xml = XMLin( $accountsfile )
-		if &fct_file_exists( $accountsfile );
+	my $accounts_xml;
+	eval {
+		$accounts_xml = XMLin( $accountsfile )
+			if &fct_file_exists( $accountsfile );
+	};
+
+	if ( $@ ) {
+		&dlg_error_message(
+			   $d->get( "Account-settings could not be restored!" ) . " : $@" );
+		unlink $accountsfile;
+	}
 
 	#account data, load defaults if nothing is set
 	unless ( exists( $accounts_xml->{ 'ubuntu-pics.de' } ) ) {
@@ -3509,6 +3563,33 @@ sub fct_load_accounts {
 	return 1;
 }
 
+sub fct_load_session {
+	my ( $profilename ) = @_;
+
+	#accounts file
+	my $sessionfile = "$ENV{ HOME }/.gscrot/session.xml";
+
+	eval {
+		my $session_xml = XMLin( $sessionfile )
+			if &fct_file_exists( $sessionfile );
+
+		foreach ( keys %{ $session_xml } ) {
+			&fct_integrate_screenshot_in_notebook(
+										${ $session_xml }{ $_ }{ 'filename' } );
+		}
+
+
+	};
+	if ( $@ ) {
+		&dlg_error_message(
+						$d->get( "Session could not be restored!" ) . " : $@" );
+		unlink $sessionfile;
+	}
+
+
+	return TRUE;
+}
+
 sub fct_file_exists {
 	my ( $filename ) = @_;
 	$filename = &fct_switch_home_in_file( $filename );
@@ -3566,10 +3647,8 @@ sub fct_execute_plugin {
 		$plugin_socket->show_all;
 		$plugin_socket->run;
 
-		&dlg_status_message(
-				 1,
-				 $d->get( "Successfully executed plugin" ) . ": " . $plugin_name
-						   );
+		&dlg_status_message( 1,
+			  $d->get( "Successfully executed plugin" ) . ": " . $plugin_name );
 
 
 		#...if not => simple execute the plugin via system (e.g. shell plugins)
