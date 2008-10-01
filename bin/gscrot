@@ -42,7 +42,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.190";
+use constant BRANCH              => "Rev.191";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.61";
@@ -1478,7 +1478,12 @@ sub evt_take_screenshot {
 	my $thumbnail_ending          = "thumb";
 	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
 	&fct_set_toolbar_sensitive( FALSE );
-	$filetype_value = $combobox_type->get_active_text();
+
+	#determine current file type
+	$filetype_value = $combobox_type->get_active_text;
+
+	#determine folder to save
+	$folder = $saveDir_button->get_filename || $folder_from_config;
 
 	if ( $filetype_value eq "jpeg" ) {
 		$quality_value = $scale->get_value();
@@ -1496,16 +1501,33 @@ sub evt_take_screenshot {
 
 	#prepare filename, parse wild-cards
 	$filename_value = $filename->get_text();
-	$current_counter = sprintf( "%02d", $current_counter );
-	$filename_value =~ s/\%NN/$current_counter/g;
 	$filename_value = strftime $filename_value , localtime;
 	$filename_value =~ s/\\//g;
+	
+	#auto increment
+	if ( $filename_value =~ /\%NN/ ) {
+		$filename_value =~ s/\%NN/\*/g;
+		print
+			"Searching for files with pattern: $filename_value.$filetype_value\n";
+		my @files = glob( "$folder/$filename_value.$filetype_value" );
+		@files = sort { $b cmp $a } @files;
 
-	#determine current file type
-	$filetype_value = $combobox_type->get_active_text;
+		#check pos of %NN
+		my $pos = index( "$folder/$filename_value.$filetype_value", "*", 0 );
+		my $next_count = 0;
+		unless ( $pos == -1 ) {
+			foreach ( @files ) {
+				$next_count = substr( $_, $pos, 2 );
+				next unless $next_count =~ /^(\d+\.?\d*|\.\d+)$/;
+				print
+					"Counter at position $pos - $next_count is currently greatest value...\n";
+				last;
+			}
+		}
+		$next_count = sprintf( "%02d", $next_count + 1 );
+		$filename_value =~ s/\*/$next_count/g;
+	}
 
-	#determine folder to save
-	$folder = $saveDir_button->get_filename || $folder_from_config;
 
 	#hide mainwindow
 	if (    $hide_active->get_active
@@ -2720,9 +2742,6 @@ sub fct_integrate_screenshot_in_notebook {
 
 		$notebook->set_current_page( $new_index );
 
-		#increment global counter
-		$current_counter++;
-
 	}
 
 	return $key;
@@ -3573,11 +3592,10 @@ sub fct_load_session {
 		my $session_xml = XMLin( $sessionfile )
 			if &fct_file_exists( $sessionfile );
 
-		foreach ( keys %{ $session_xml } ) {
+		foreach ( sort keys %{ $session_xml } ) {
 			&fct_integrate_screenshot_in_notebook(
 										${ $session_xml }{ $_ }{ 'filename' } );
 		}
-
 
 	};
 	if ( $@ ) {
