@@ -5613,11 +5613,8 @@ sub dlg_rename {
 
 	if ( $input_response eq "accept" ) {
 		my $new_name = $new_filename->get_text;
-		print "File $old_file_name will be renamed to $new_name\n";
-		print "Before: ".$dlg_rename_text."\n";
-		$dlg_rename_text =~ s/\$old_file_name/\$new_name/g;
-		print "After: ".$dlg_rename_text."\n";
-		print "Check if $old_file_name_full eq $dlg_rename_text\n";
+		$dlg_rename_text =~ s/$old_file_name/$new_name/i;
+
 		unless ( $old_file_name_full eq $dlg_rename_text )
 		{    #filenames eq? -> nothing to do here
 			unless ( &fct_file_exists( $dlg_rename_text ) ) {
@@ -5630,12 +5627,19 @@ sub dlg_rename {
 								&fct_switch_home_in_file( $dlg_rename_text )
 							  );
 				} else {
-					&dlg_error_message(
-						$d->get(
-							"File already exists,\nplease choose an alternative filename!"
-						)
-					);
-					$input_dialog->destroy();
+
+			 		if(&dlg_question_message(
+				 		$dlg_rename_text ."\n\n". $d->get( "File already exists.\nDo you want to overwrite it?")
+			 		)){
+						rename(
+								&fct_switch_home_in_file( $old_file_name_full ),
+								&fct_switch_home_in_file( $dlg_rename_text )
+							  );
+									$session_screens{ $data }->{ 'filename' } = $dlg_rename_text;		  			 		  	
+			 				$input_dialog->destroy();
+							return TRUE;
+			 		}
+			 		$input_dialog->destroy();
 					return FALSE;
 				}
 				$session_screens{ $data }->{ 'filename' } = $dlg_rename_text;
