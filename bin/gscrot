@@ -42,7 +42,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.193";
+use constant BRANCH              => "Rev.194";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.61";
@@ -347,32 +347,38 @@ $menubar->append( $menuitem_action );
 #end actions
 #session
 my $menu_session   = Gtk2::Menu->new();
-my $menuitem_first = Gtk2::ImageMenuItem->new_from_stock( 'gtk-goto-first' );
-$menuitem_first->add_accelerator( "activate", $accel_group,
-								  $Gtk2::Gdk::Keysyms{ F5 },
-								  qw/control-mask/, qw/visible/ );
-$menu_session->append( $menuitem_first );
-$menuitem_first->signal_connect( "activate", \&evt_navigate, 'first' );
+
 my $menuitem_back = Gtk2::ImageMenuItem->new_from_stock( 'gtk-go-back' );
 $menuitem_back->add_accelerator( "activate", $accel_group,
-								 $Gtk2::Gdk::Keysyms{ F6 },
-								 qw/control-mask/, qw/visible/ );
+								 $Gtk2::Gdk::Keysyms{ Left },
+								 qw/mod1-mask/, qw/visible/ );
 $menu_session->append( $menuitem_back );
 $menuitem_back->signal_connect( "activate", \&evt_navigate, 'previous' );
 my $menuitem_forward = Gtk2::ImageMenuItem->new_from_stock( 'gtk-go-forward' );
 $menuitem_forward->add_accelerator( "activate", $accel_group,
-									$Gtk2::Gdk::Keysyms{ F7 },
-									qw/control-mask/, qw/visible/ );
+									$Gtk2::Gdk::Keysyms{ Right },
+									qw/mod1-mask/, qw/visible/ );
 $menu_session->append( $menuitem_forward );
 $menuitem_forward->signal_connect( "activate", \&evt_navigate, 'forward' );
+
+$menu_session->append( Gtk2::SeparatorMenuItem->new );
+
+my $menuitem_first = Gtk2::ImageMenuItem->new_from_stock( 'gtk-goto-first' );
+$menuitem_first->add_accelerator( "activate", $accel_group,
+								  $Gtk2::Gdk::Keysyms{ Home },
+								  qw/mod1-mask/, qw/visible/ );
+$menu_session->append( $menuitem_first );
+$menuitem_first->signal_connect( "activate", \&evt_navigate, 'first' );
+
 my $menuitem_last = Gtk2::ImageMenuItem->new_from_stock( 'gtk-goto-last' );
 $menuitem_last->add_accelerator( "activate", $accel_group,
-								 $Gtk2::Gdk::Keysyms{ F8 },
-								 qw/control-mask/, qw/visible/ );
+								 $Gtk2::Gdk::Keysyms{ End },
+								 qw/mod1-mask/, qw/visible/ );
 $menu_session->append( $menuitem_last );
 $menuitem_last->signal_connect( "activate", \&evt_navigate, 'last' );
+
 my $menuitem_session =
-	Gtk2::MenuItem->new_with_mnemonic( $d->get( "_Session" ) );
+	Gtk2::MenuItem->new_with_mnemonic( $d->get( "_Go" ) );
 $menuitem_session->set_submenu( $menu_session );
 $menubar->append( $menuitem_session );
 
