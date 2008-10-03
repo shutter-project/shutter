@@ -43,7 +43,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.194";
+use constant BRANCH              => "Rev.197";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.61";
@@ -1510,42 +1510,7 @@ sub evt_take_screenshot {
 	$filename_value = $filename->get_text();
 	utf8::decode $filename_value;
 	$filename_value = strftime $filename_value , localtime;
-	$filename_value =~ s/\\//g;
-
-	#auto increment
-	if ( $filename_value =~ /\%NN/ ) {
-		$filename_value =~ s/\%NN/\*/g;
-		print
-			"Searching for files with pattern: $filename_value.$filetype_value\n";
-		my @files = glob( "$folder/$filename_value.$filetype_value" );
-		@files = sort { $b cmp $a } @files;
-
-		#check pos of %NN
-		my $pos = index( "$folder/$filename_value.$filetype_value", "*", 0 );
-		my $next_count = 0;
-		unless ( $pos == -1 ) {
-			foreach ( @files ) {
-				$next_count = substr( $_, $pos, 2 );
-				next unless $next_count =~ /^(\d+\.?\d*|\.\d+)$/;
-				print
-					"Counter at position $pos - $next_count is currently greatest value...\n";
-				last;
-			}
-		}
-		$next_count = sprintf( "%02d", $next_count + 1 );
-		$filename_value =~ s/\*/$next_count/g;
-	}
-
-	#file already exists and user is not using ai
-	if ( &fct_file_exists( "$folder/$filename_value.$filetype_value" ) ) {
-		my $count             = 1;
-		my $existing_filename = $filename_value;
-		while ( &fct_file_exists( "$folder/$filename_value.$filetype_value" ) )
-		{
-			$filename_value =
-				$existing_filename . "(" . sprintf( "%03d", $count++ ) . ")";
-		}
-	}
+	$filename_value = &fct_get_next_filename($filename_value, $folder, $filetype_value);
 
 	#hide mainwindow
 	if (    $hide_active->get_active
@@ -3691,7 +3656,7 @@ sub fct_execute_plugin {
 		if ( $pid == 0 ) {
 			exec(
 				sprintf(
-					"$^X $plugin_value %d $session_screens{$key}->{'long'} $session_screens{$key}->{'width'} $session_screens{$key}->{'height'} $session_screens{$key}->{'filetype'}\n",
+					"$^X $plugin_value %d '$session_screens{$key}->{'long'}' $session_screens{$key}->{'width'} $session_screens{$key}->{'height'} $session_screens{$key}->{'filetype'}\n",
 					$socket->get_id )
 				);
 		}
@@ -4914,6 +4879,64 @@ sub fct_get_max {
 	my ( $a, $b ) = @_;
 	return $a if ( $a > $b );
 	return $b;
+}
+
+sub fct_get_next_filename{
+
+	my ($filename_value, $folder, $filetype_value) = @_;
+
+	$filename_value =~ s/\\//g;
+
+	#auto increment
+	if ( $filename_value =~ /\%N{1,}/ ) {
+		#how many Ns are used? (important for formatting)
+		my $pos_proc = index( $filename_value, "%", 0 );
+		my $n_counter = 0;
+		$pos_proc++;
+		while($pos_proc <= length($filename_value)){
+			if (index( $filename_value, "N", $pos_proc ) != -1){
+				$n_counter++;
+				$pos_proc++;
+			}else{
+				last;
+			}
+		}
+		print "$n_counter Ns used in wild-card\n"; 		
+		
+		$filename_value =~ s/\%N{1,}/\*/g;
+		print
+			"Searching for files with pattern: $filename_value.$filetype_value\n" if $debug_cparam;
+		my @files = glob( "$folder/$filename_value.$filetype_value" );
+		@files = sort { $b cmp $a } @files;
+
+		#check pos of %NN
+		my $pos = index( "$folder/$filename_value.$filetype_value", "*", 0 );
+		my $next_count = 0;
+		unless ( $pos == -1 ) {
+			foreach ( @files ) {
+				$next_count = substr( $_, $pos, $n_counter );
+				next unless $next_count =~ /^(\d+\.?\d*|\.\d+)$/;
+				print
+					"Counter at position $pos - $next_count is currently greatest value...\n" if $debug_cparam;
+				last;
+			}
+		}
+		$next_count = sprintf( "%0".$n_counter."d", $next_count + 1 );
+		$filename_value =~ s/\*/$next_count/g;
+	}
+
+	#file already exists and user is not using ai
+	if ( &fct_file_exists( "$folder/$filename_value.$filetype_value" ) ) {
+		my $count             = 1;
+		my $existing_filename = $filename_value;
+		while ( &fct_file_exists( "$folder/$filename_value.$filetype_value" ) )
+		{
+			$filename_value =
+				$existing_filename . "(" . sprintf( "%03d", $count++ ) . ")";
+		}
+	}
+	
+	return $filename_value;
 }
 
 sub fct_check_installed_plugins {
