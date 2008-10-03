@@ -39,7 +39,7 @@ if ( $ARGV[ 0 ] eq "name" ) {
 	print $d->get( "effect" );
 	exit;
 } elsif ( $ARGV[ 0 ] eq "tip" ) {
-	print $d->get( "polaroid effect with customizable border and shadow" );
+	print $d->get( "make your screenshot look like a polaroid photo, add a caption, and even rotate it a little" );
 	exit;
 } elsif ( $ARGV[ 0 ] eq "ext" ) {
 	print "png";
@@ -66,17 +66,17 @@ my $width_preview  = 0;
 my $height_preview = 0;
 
 #configure buttons and other needed controls
-my $caption_frame = Gtk2::Frame->new( $d->get( "Caption" ) );
+my $caption_frame = Gtk2::Frame->new( $d->get( "Caption:" ) );
 
-my $caption_label = Gtk2::Label->new( $d->get( "Text" ) );
+my $caption_label = Gtk2::Label->new( $d->get( "Text:" ) );
 my $caption_entry = Gtk2::Entry->new();
 $caption_entry->set_text( "$ENV{ 'USER' }" );
 
-my $pointsize_label = Gtk2::Label->new( $d->get( "Size" ) );
-my $pointsize_sbutton = Gtk2::SpinButton->new_with_range( 1, 100, 1 );
+my $pointsize_label = Gtk2::Label->new( $d->get( "Size:" ) );
+my $pointsize_sbutton = Gtk2::SpinButton->new_with_range( 1, 200, 1 );
 $pointsize_sbutton->set_value( 40 );
 
-my $gravity_label = Gtk2::Label->new( $d->get( "Gravity" ) );
+my $gravity_label = Gtk2::Label->new( $d->get( "Gravity:" ) );
 my $gravity_combo = Gtk2::ComboBox->new_text;
 $gravity_combo->insert_text( 0, "NorthWest" );
 $gravity_combo->insert_text( 1, "North" );
@@ -100,7 +100,7 @@ $refresh_btn->signal_connect( 'clicked', \&fct_imagemagick_polaroid,
 
 my $preview =
 	Gtk2::Image->new_from_pixbuf(
-	   Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $filename, 200, 200, TRUE ) );
+	   Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $filename, 300, 300, TRUE ) );
 
 
 my $save_btn = Gtk2::Button->new_from_stock( 'gtk-save' );
@@ -159,7 +159,7 @@ $plug->add( $vbox_main );
 $plug->show_all;
 
 #generate first preview
-&fct_imagemagick_polaroid( undef, 'refresh' );
+#&fct_imagemagick_polaroid( undef, 'refresh' );
 
 #lets'start
 Gtk2->main;
@@ -178,7 +178,7 @@ sub fct_imagemagick_polaroid {
 		my $convert_output =
 			system(   "convert -caption '"
 					. $caption_entry->get_text
-					. "' $filename -pointsize "
+					. "' '$filename' -pointsize "
 					. $pointsize_sbutton->get_value
 					. " -gravity "
 					. $gravity_combo->get_active_text
@@ -198,7 +198,7 @@ sub fct_imagemagick_polaroid {
 		my $convert_output =
 			system(   "convert -caption '"
 					. $caption_entry->get_text
-					. "' $filename -pointsize "
+					. "' '$filename' -pointsize "
 					. $pointsize_sbutton->get_value
 					. " -gravity "
 					. $gravity_combo->get_active_text
@@ -210,7 +210,7 @@ sub fct_imagemagick_polaroid {
 
 		$preview->set_from_pixbuf(
 			Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
-													$tmpfilename, 200, 200, TRUE
+													$tmpfilename, 300, 300, TRUE
 													 )
 								 );
 
