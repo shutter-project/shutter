@@ -43,7 +43,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.197";
+use constant BRANCH              => "Rev.198";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.61";
@@ -1510,7 +1510,8 @@ sub evt_take_screenshot {
 	$filename_value = $filename->get_text();
 	utf8::decode $filename_value;
 	$filename_value = strftime $filename_value , localtime;
-	$filename_value = &fct_get_next_filename($filename_value, $folder, $filetype_value);
+	$filename_value =
+		&fct_get_next_filename( $filename_value, $folder, $filetype_value );
 
 	#hide mainwindow
 	if (    $hide_active->get_active
@@ -4288,6 +4289,8 @@ sub fct_gscrot_window {
 		my $last_selected_window_wnck = 0;
 		my $drawable                  = undef;
 		my $window_selected           = FALSE;
+        my $ungrabbed = FALSE;
+
 		%children = ();
 		Gtk2::Gdk::Event->handler_set(
 			sub {
@@ -4328,8 +4331,11 @@ sub fct_gscrot_window {
 						"Trying to clear a rectangle ($children{'last_win'}{'x'}, $children{'last_win'}{'y'}, $children{'last_win'}{'width'}, $children{'last_win'}{'height'})\n"
 						if $debug_cparam;
 
-					Gtk2::Gdk::X11->ungrab_server unless $window_selected;
-
+					unless ($window_selected){
+						Gtk2::Gdk::X11->ungrab_server ;
+						$ungrabbed = TRUE;
+					}
+					
 					#looking for a section of a window?
 					#keep current window in mind and search for children
 					if ( ( $mode eq "section" || $mode eq "tray_section" )
@@ -4366,6 +4372,7 @@ sub fct_gscrot_window {
 						sleep 1 if $delay_value < 1;
 
 						#ungrab pointer and keyboard
+						Gtk2::Gdk::X11->ungrab_server unless $ungrabbed; 
 						Gtk2::Gdk->pointer_ungrab(
 												 Gtk2->get_current_event_time );
 						Gtk2::Gdk->keyboard_ungrab(
@@ -4842,6 +4849,7 @@ sub fct_gscrot_workspace {
 	return $output;
 }
 
+#code ported and borrowed from gnome-screenshot
 sub fct_include_cursor {
 
 	my ( $xp, $yp, $widthp, $heightp, $gdk_window, $pixbuf ) = @_;
@@ -4859,13 +4867,15 @@ sub fct_include_cursor {
 											$cursor_pixbuf->get_height );
 
 		if ( $r2 = $r1->intersect( $r2 ) ) {
-
+			
+			my $dest_y = $r2->y - $yp - 4;
+			$dest_y = 0 if ( $dest_y  < 0 );
 			$cursor_pixbuf->composite(
-									   $pixbuf,      $r2->x - $xp,
-									   $r2->y - $yp, $r2->width,
-									   $r2->height,  $x - $xp - 6,
-									   $y - $yp - 4, 1.0,
-									   1.0,          'bilinear',
+									   $pixbuf,          $r2->x - $xp,
+									   $dest_y , $r2->width,
+									   $r2->height,      $x - 6 - $xp,
+									   $y - 4 - $yp,     1.0,
+									   1.0,              'bilinear',
 									   255
 									 );
 		}
@@ -4874,6 +4884,7 @@ sub fct_include_cursor {
 	return $pixbuf;
 }
 
+#_END code ported and borrowed from gnome-screenshot
 
 sub fct_get_max {
 	my ( $a, $b ) = @_;
@@ -4881,31 +4892,34 @@ sub fct_get_max {
 	return $b;
 }
 
-sub fct_get_next_filename{
+sub fct_get_next_filename {
 
-	my ($filename_value, $folder, $filetype_value) = @_;
+	my ( $filename_value, $folder, $filetype_value ) = @_;
 
 	$filename_value =~ s/\\//g;
 
 	#auto increment
 	if ( $filename_value =~ /\%N{1,}/ ) {
+
 		#how many Ns are used? (important for formatting)
 		my $pos_proc = index( $filename_value, "%", 0 );
 		my $n_counter = 0;
 		$pos_proc++;
-		while($pos_proc <= length($filename_value)){
-			if (index( $filename_value, "N", $pos_proc ) != -1){
+
+		while ( $pos_proc <= length( $filename_value ) ) {
+			if ( index( $filename_value, "N", $pos_proc ) != -1 ) {
 				$n_counter++;
 				$pos_proc++;
-			}else{
+			} else {
 				last;
 			}
 		}
-		print "$n_counter Ns used in wild-card\n"; 		
-		
+		print "$n_counter Ns used in wild-card\n";
+
 		$filename_value =~ s/\%N{1,}/\*/g;
 		print
-			"Searching for files with pattern: $filename_value.$filetype_value\n" if $debug_cparam;
+			"Searching for files with pattern: $filename_value.$filetype_value\n"
+			if $debug_cparam;
 		my @files = glob( "$folder/$filename_value.$filetype_value" );
 		@files = sort { $b cmp $a } @files;
 
@@ -4917,11 +4931,12 @@ sub fct_get_next_filename{
 				$next_count = substr( $_, $pos, $n_counter );
 				next unless $next_count =~ /^(\d+\.?\d*|\.\d+)$/;
 				print
-					"Counter at position $pos - $next_count is currently greatest value...\n" if $debug_cparam;
+					"Counter at position $pos - $next_count is currently greatest value...\n"
+					if $debug_cparam;
 				last;
 			}
 		}
-		$next_count = sprintf( "%0".$n_counter."d", $next_count + 1 );
+		$next_count = sprintf( "%0" . $n_counter . "d", $next_count + 1 );
 		$filename_value =~ s/\*/$next_count/g;
 	}
 
@@ -4935,7 +4950,7 @@ sub fct_get_next_filename{
 				$existing_filename . "(" . sprintf( "%03d", $count++ ) . ")";
 		}
 	}
-	
+
 	return $filename_value;
 }
 
