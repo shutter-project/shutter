@@ -43,8 +43,8 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.200";
-use constant PPA_VERSION         => "ppa1";
+use constant BRANCH              => "Rev.201";
+use constant PPA_VERSION         => "ppa2";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.61";
 use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
@@ -4927,30 +4927,41 @@ sub fct_get_next_filename {
 				last;
 			}
 		}
-		print "$n_counter Ns used in wild-card\n";
+		print "$n_counter Ns used in wild-card\n" if $debug_cparam;
+		my $marks="";
+		my $i = 0;
+		while($i < $n_counter){
+			$marks .= "?";
+			$i++;
+		}
 
-		$filename_value =~ s/\%N{1,}/\*/g;
+		$filename_value =~ s/\%N{1,}/$marks/g;
 		print
-			"Searching for files with pattern: $filename_value.$filetype_value\n"
-			if $debug_cparam;
+			"Searching for files with pattern: $filename_value.$filetype_value\n" if $debug_cparam;
 		my @files = glob( "$folder/$filename_value.$filetype_value" );
 		@files = sort { $b cmp $a } @files;
+		if($debug_cparam){
+		foreach(@files){
+			print $_."\n";
+		}			
+		}
 
 		#check pos of %NN
-		my $pos = index( "$folder/$filename_value.$filetype_value", "*", 0 );
+		my $pos = index( "$folder/$filename_value.$filetype_value", "?", 0 );
 		my $next_count = 0;
 		unless ( $pos == -1 ) {
 			foreach ( @files ) {
 				$next_count = substr( $_, $pos, $n_counter );
 				next unless $next_count =~ /^(\d+\.?\d*|\.\d+)$/;
 				print
-					"Counter at position $pos - $next_count is currently greatest value...\n"
-					if $debug_cparam;
+					"Counter at position $pos - $next_count is currently greatest value...\n"  if $debug_cparam;
 				last;
 			}
 		}
+		$next_count = 0 unless $next_count =~ /^(\d+\.?\d*|\.\d+)$/;
 		$next_count = sprintf( "%0" . $n_counter . "d", $next_count + 1 );
-		$filename_value =~ s/\*/$next_count/g;
+		$marks = quotemeta $marks;
+		$filename_value =~ s/$marks/$next_count/g;
 	}
 
 	#file already exists and user is not using ai

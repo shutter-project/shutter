@@ -39,7 +39,9 @@ if ( $ARGV[ 0 ] eq "name" ) {
 	print $d->get( "effect" );
 	exit;
 } elsif ( $ARGV[ 0 ] eq "tip" ) {
-	print $d->get( "make your screenshot look like a polaroid photo, add a caption, and even rotate it a little" );
+	print $d->get(
+		"make your screenshot look like a polaroid photo, add a caption, and even rotate it a little"
+	);
 	exit;
 } elsif ( $ARGV[ 0 ] eq "ext" ) {
 	print "png";
@@ -55,6 +57,12 @@ my $filename  = $ARGV[ 1 ];
 my $width     = $ARGV[ 2 ];
 my $height    = $ARGV[ 3 ];
 my $filetype  = $ARGV[ 4 ];
+
+#check convert command
+my $use_caption = FALSE;
+if ( `convert --help | grep caption` =~ /caption/ ) {
+	$use_caption = TRUE;
+}
 
 my $plug = Gtk2::Plug->new( $socket_id );
 $plug->set_border_width( 10 );
@@ -89,9 +97,8 @@ $gravity_combo->insert_text( 7, "South" );
 $gravity_combo->insert_text( 8, "SouthEast" );
 $gravity_combo->set_active( 4 );
 
-my $polaroid_frame = Gtk2::Frame->new( $d->get( "Polaroid" ) );
-my $angle_label    = Gtk2::Label->new( $d->get( "Rotation:" ) );
-my $angle_sbutton  = Gtk2::SpinButton->new_with_range( -90, 90, 1 );
+my $angle_label = Gtk2::Label->new( $d->get( "Rotation:" ) );
+my $angle_sbutton = Gtk2::SpinButton->new_with_range( -90, 90, 1 );
 $angle_sbutton->set_value( -5 );
 
 my $refresh_btn = Gtk2::Button->new_from_stock( 'gtk-refresh' );
@@ -110,11 +117,11 @@ my $cancel_btn = Gtk2::Button->new_from_stock( 'gtk-cancel' );
 $cancel_btn->signal_connect( 'clicked' => sub { Gtk2->main_quit }, 'cancel' );
 
 #define the gui layout
-my $vbox_param  = Gtk2::VBox->new( TRUE, 10 );
-my $hbox1 = Gtk2::HBox->new( FALSE, 10 );
-my $hbox2 = Gtk2::HBox->new( FALSE, 10 );
-my $hbox3 = Gtk2::HBox->new( FALSE, 10 );
-my $hbox4 = Gtk2::HBox->new( FALSE, 10 );
+my $vbox_param = Gtk2::VBox->new( TRUE,  10 );
+my $hbox1      = Gtk2::HBox->new( FALSE, 10 );
+my $hbox2      = Gtk2::HBox->new( FALSE, 10 );
+my $hbox3      = Gtk2::HBox->new( FALSE, 10 );
+my $hbox4      = Gtk2::HBox->new( FALSE, 10 );
 
 my $hbox_row1 = Gtk2::HBox->new( TRUE, 10 );
 my $hbox_row2 = Gtk2::HBox->new( TRUE, 10 );
@@ -124,28 +131,38 @@ my $vbox_btn  = Gtk2::VBox->new( FALSE, 10 );
 my $vbox_main = Gtk2::VBox->new( FALSE, 10 );
 
 #packing
-$hbox1->pack_start( $caption_label, FALSE, TRUE, 5 );
-$hbox1->pack_start( $caption_entry, TRUE, TRUE, 5 );
+if ( $use_caption ) {
+	$hbox1->pack_start( $caption_label, FALSE, TRUE, 5 );
+	$hbox1->pack_start( $caption_entry, TRUE,  TRUE, 5 );
 
-$hbox2->pack_start( $gravity_label, FALSE, TRUE, 5 );
-$hbox2->pack_start( $gravity_combo, TRUE, TRUE, 5 );
+	$hbox2->pack_start( $gravity_label, FALSE, TRUE, 5 );
+	$hbox2->pack_start( $gravity_combo, TRUE,  TRUE, 5 );
 
-$hbox3->pack_start( $pointsize_label,   FALSE, TRUE, 5 );
-$hbox3->pack_start( $pointsize_sbutton, TRUE, TRUE, 5 );
+	$hbox3->pack_start( $pointsize_label,   FALSE, TRUE, 5 );
+	$hbox3->pack_start( $pointsize_sbutton, TRUE,  TRUE, 5 );
 
-$hbox4->pack_start( $angle_label,   FALSE, TRUE, 5 );
-$hbox4->pack_start( $angle_sbutton, TRUE, TRUE, 5 );
+	$hbox4->pack_start( $angle_label,   FALSE, TRUE, 5 );
+	$hbox4->pack_start( $angle_sbutton, TRUE,  TRUE, 5 );
 
-$hbox_row1->pack_start_defaults($hbox1);
-$hbox_row1->pack_start_defaults($hbox2);
+	$hbox_row1->pack_start_defaults( $hbox1 );
+	$hbox_row1->pack_start_defaults( $hbox2 );
 
-$hbox_row2->pack_start_defaults($hbox3);
-$hbox_row2->pack_start_defaults($hbox4);
+	$hbox_row2->pack_start_defaults( $hbox3 );
+	$hbox_row2->pack_start_defaults( $hbox4 );
 
-$vbox_param->pack_start( $hbox_row1, TRUE, TRUE, 5 );
+	$vbox_param->pack_start( $hbox_row1, TRUE, TRUE, 5 );
+
+} else {
+	$hbox4->pack_start( $angle_label,   FALSE, TRUE, 5 );
+	$hbox4->pack_start( $angle_sbutton, TRUE,  TRUE, 5 );
+
+	$hbox_row2->pack_start_defaults( $hbox4 );
+}
+
+
 $vbox_param->pack_start( $hbox_row2, TRUE, TRUE, 5 );
 
-$vbox_main->pack_start( $vbox_param,  FALSE, TRUE, 5 );
+$vbox_main->pack_start( $vbox_param, FALSE, TRUE, 5 );
 
 $vbox_main->pack_start( $preview,     TRUE, TRUE, 5 );
 $vbox_main->pack_start( $refresh_btn, TRUE, TRUE, 5 );
@@ -175,18 +192,27 @@ sub fct_imagemagick_polaroid {
 	if ( $data eq 'save' ) {
 
 		my ( $tmpfh, $tmpfilename ) = tempfile();
-		my $convert_output =
-			system(   "convert -caption '"
-					. $caption_entry->get_text
-					. "' '$filename' -pointsize "
-					. $pointsize_sbutton->get_value
-					. " -gravity "
-					. $gravity_combo->get_active_text
-					. "  -bordercolor snow "
-					. " -background black "
-					. " -polaroid "
+		my $convert_output = undef;
+		if ( $use_caption ) {
+			$convert_output =
+				system(   "convert -caption '"
+						. $caption_entry->get_text
+						. "' '$filename' -pointsize "
+						. $pointsize_sbutton->get_value
+						. " -gravity "
+						. $gravity_combo->get_active_text
+						. "  -bordercolor snow "
+						. " -background black "
+						. " -polaroid "
+						. $angle_sbutton->get_value
+						. " $tmpfilename" );
+		} else {
+			$convert_output = system( "
+				  convert '$filename' -bordercolor white -border 6 -bordercolor grey60 -border 1 -background none -rotate "
 					. $angle_sbutton->get_value
-					. " $tmpfilename" );
+					. " -background  black  \\( +clone -shadow 60x4+4+4 \\) +swap -background none -flatten $tmpfilename"
+			);
+		}
 		$image->ReadImage( $tmpfilename );
 		$image->WriteImage( filename => $filename );
 
@@ -195,23 +221,31 @@ sub fct_imagemagick_polaroid {
 	} else {
 
 		my ( $tmpfh, $tmpfilename ) = tempfile();
-		my $convert_output =
-			system(   "convert -caption '"
-					. $caption_entry->get_text
-					. "' '$filename' -pointsize "
-					. $pointsize_sbutton->get_value
-					. " -gravity "
-					. $gravity_combo->get_active_text
-					. "  -bordercolor snow "
-					. " -background black "
-					. " -polaroid "
+		my $convert_output = undef;
+		if ( $use_caption ) {
+			$convert_output =
+				system(   "convert -caption '"
+						. $caption_entry->get_text
+						. "' '$filename' -pointsize "
+						. $pointsize_sbutton->get_value
+						. " -gravity "
+						. $gravity_combo->get_active_text
+						. "  -bordercolor snow "
+						. " -background black "
+						. " -polaroid "
+						. $angle_sbutton->get_value
+						. " $tmpfilename" );
+		} else {
+			$convert_output = system( "
+				  convert '$filename' -bordercolor white -border 6 -bordercolor grey60 -border 1 -background none -rotate "
 					. $angle_sbutton->get_value
-					. " $tmpfilename" );
-
+					. " -background  black  \\( +clone -shadow 60x4+4+4 \\) +swap -background none -flatten $tmpfilename"
+			);
+		}
 		$preview->set_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
+								   Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
 													$tmpfilename, 300, 300, TRUE
-													 )
+																			)
 								 );
 
 		return TRUE;
