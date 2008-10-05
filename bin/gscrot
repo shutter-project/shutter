@@ -43,7 +43,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.198";
+use constant BRANCH              => "Rev.199";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.61";
@@ -109,7 +109,13 @@ $SIG{ USR2 } = sub { &evt_take_screenshot( 'global_keybinding', 'select' ) };
 
 #screen
 my $x = X11::Protocol->new( $ENV{ 'DISPLAY' } );
-$x->init_extension( 'SHAPE' ) or die;
+if ( $debug_cparam ) {
+	my @extensions = $x->ListExtensions;
+	foreach ( @extensions ) {
+		print $_. "\n";
+	}
+}
+#$x->init_extension( 'SHAPE' ) or die "Could not initialize X11 EXTENSION SHAPE";
 my $screen = Gnome2::Wnck::Screen->get_default;
 $screen->force_update();
 my $gdk_screen       = Gtk2::Gdk::Screen->get_default;
@@ -1960,14 +1966,17 @@ sub evt_about {
 	my $all_lines = "";
 
 	foreach my $line ( @copyright ) {
+		utf8::decode $line;
 		$all_lines = $all_lines . $line;
 	}
 	my $all_hints = "";
 	foreach my $hint ( @copyright_hint ) {
+		utf8::decode $hint;
 		$all_hints = $all_hints . $hint;
 	}
 	my $all_translators = "";
 	foreach my $translator ( @translators ) {
+		utf8::decode $translator;
 		$all_translators = $all_translators . $translator;
 	}
 	my $website = "http://launchpad.net/gscrot";
@@ -4289,7 +4298,7 @@ sub fct_gscrot_window {
 		my $last_selected_window_wnck = 0;
 		my $drawable                  = undef;
 		my $window_selected           = FALSE;
-        my $ungrabbed = FALSE;
+		my $ungrabbed                 = FALSE;
 
 		%children = ();
 		Gtk2::Gdk::Event->handler_set(
@@ -4331,11 +4340,11 @@ sub fct_gscrot_window {
 						"Trying to clear a rectangle ($children{'last_win'}{'x'}, $children{'last_win'}{'y'}, $children{'last_win'}{'width'}, $children{'last_win'}{'height'})\n"
 						if $debug_cparam;
 
-					unless ($window_selected){
-						Gtk2::Gdk::X11->ungrab_server ;
+					unless ( $window_selected ) {
+						Gtk2::Gdk::X11->ungrab_server;
 						$ungrabbed = TRUE;
 					}
-					
+
 					#looking for a section of a window?
 					#keep current window in mind and search for children
 					if ( ( $mode eq "section" || $mode eq "tray_section" )
@@ -4372,7 +4381,7 @@ sub fct_gscrot_window {
 						sleep 1 if $delay_value < 1;
 
 						#ungrab pointer and keyboard
-						Gtk2::Gdk::X11->ungrab_server unless $ungrabbed; 
+						Gtk2::Gdk::X11->ungrab_server unless $ungrabbed;
 						Gtk2::Gdk->pointer_ungrab(
 												 Gtk2->get_current_event_time );
 						Gtk2::Gdk->keyboard_ungrab(
@@ -4857,6 +4866,10 @@ sub fct_include_cursor {
 	my $cursor =
 		Gtk2::Gdk::Cursor->new_for_display( Gtk2::Gdk::Display->get_default,
 											'GDK_LEFT_PTR' );
+
+#	my $cursor_pixbuf =
+#		$x->XFixesGetCursorImage( Gtk2::Gdk::Display->get_default );
+
 	my $cursor_pixbuf = $cursor->get_image;
 
 	if ( $cursor_pixbuf ) {
@@ -4867,15 +4880,15 @@ sub fct_include_cursor {
 											$cursor_pixbuf->get_height );
 
 		if ( $r2 = $r1->intersect( $r2 ) ) {
-			
+
 			my $dest_y = $r2->y - $yp - 4;
-			$dest_y = 0 if ( $dest_y  < 0 );
+			$dest_y = 0 if ( $dest_y < 0 );
 			$cursor_pixbuf->composite(
-									   $pixbuf,          $r2->x - $xp,
-									   $dest_y , $r2->width,
-									   $r2->height,      $x - 6 - $xp,
-									   $y - 4 - $yp,     1.0,
-									   1.0,              'bilinear',
+									   $pixbuf,      $r2->x - $xp,
+									   $dest_y,      $r2->width,
+									   $r2->height,  $x - 6 - $xp,
+									   $y - 4 - $yp, 1.0,
+									   1.0,          'bilinear',
 									   255
 									 );
 		}

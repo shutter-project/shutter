@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gscrot-plugins-bash\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-09-21 17:30+0200\n"
-"PO-Revision-Date: 2008-09-21 17:33+0100\n"
+"POT-Creation-Date: 2008-10-05 17:26+0200\n"
+"PO-Revision-Date: 2008-10-05 17:31+0100\n"
 "Last-Translator: Mario Kemper <mario.kemper@gmx.de>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -12,115 +12,13 @@ msgstr ""
 "X-Launchpad-Export-Date: 2008-09-21 14:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: translate_tmp.sh:7
-msgid "GScrot branding"
-msgstr ""
-
-#: translate_tmp.sh:8
-#: translate_tmp.sh:64
-#: translate_tmp.sh:224
-#: translate_tmp.sh:549
-#: translate_tmp.sh:867
-#: translate_tmp.sh:945
-#: translate_tmp.sh:986
-#: translate_tmp.sh:1033
-#: translate_tmp.sh:1071
-#: translate_tmp.sh:1110
-msgid "effect"
-msgstr ""
-
-#: translate_tmp.sh:9
-msgid "polaroid whith GScrot logo and the name of the picture as subtitle"
-msgstr ""
-
-#: translate_tmp.sh:63
-msgid "grayscale"
-msgstr ""
-
-#: translate_tmp.sh:65
-msgid "256 color grayscale"
-msgstr ""
-
-#: translate_tmp.sh:223
-msgid "jigsaw piece 1"
-msgstr ""
-
-#: translate_tmp.sh:225
-msgid "cut out a jigsaw piece at the bottom right corner"
-msgstr ""
-
-#: translate_tmp.sh:548
-msgid "jigsaw piece 2"
-msgstr ""
-
-#: translate_tmp.sh:550
-msgid "cut a jigsaw piece out of the picture"
-msgstr ""
-
-#: translate_tmp.sh:866
-msgid "offset"
-msgstr ""
-
-#: translate_tmp.sh:868
-msgid "give the picture an offset with itself as background"
-msgstr ""
-
-#: translate_tmp.sh:906
-msgid "pdf export"
-msgstr ""
-
-#: translate_tmp.sh:907
-msgid "tool"
-msgstr ""
-
-#: translate_tmp.sh:908
-msgid "export to pdf"
-msgstr ""
-
-#: translate_tmp.sh:944
-msgid "polaroid"
-msgstr ""
-
-#: translate_tmp.sh:946
-msgid "polaroid effect whith white border and black shadow"
-msgstr ""
-
-#: translate_tmp.sh:985
-msgid "raise border"
-msgstr ""
-
-#: translate_tmp.sh:987
-msgid "raise a rectangular 3d-border"
-msgstr ""
-
-#: translate_tmp.sh:1032
-msgid "hard shadow"
-msgstr ""
-
-#: translate_tmp.sh:1034
-msgid "a black hard shadow on transparent background"
-msgstr ""
-
-#: translate_tmp.sh:1070
-msgid "soft edges"
-msgstr ""
-
-#: translate_tmp.sh:1072
-msgid "add soft edges around the picture"
-msgstr ""
-
-#: translate_tmp.sh:1109
-msgid "sunk border"
-msgstr ""
-
-#: translate_tmp.sh:1111
-msgid "sunk a rectangular 3d-border"
-msgstr ""
-
 #: translate_tmp.pl:35
 msgid "negate"
 msgstr ""
 
+#: translate_tmp.pl:39
+#: translate_tmp.pl:430
+#: translate_tmp.pl:600
 #: translate_tmp.pl:43
 msgid "replace every pixel with its complementary color"
 msgstr ""
@@ -133,6 +31,7 @@ msgstr ""
 msgid "resize"
 msgstr ""
 
+#: translate_tmp.pl:220
 #: translate_tmp.pl:224
 msgid "resize your screenshot"
 msgstr ""
@@ -147,5 +46,133 @@ msgstr ""
 
 #: translate_tmp.pl:470
 msgid "Sepia tone"
+msgstr ""
+
+#: translate_tmp.pl:597
+msgid "polaroid"
+msgstr ""
+
+#: translate_tmp.pl:603
+msgid "make your screenshot look like a polaroid photo, add a caption, and even rotate it a little"
+msgstr ""
+
+#: translate_tmp.pl:630
+msgid "Caption:"
+msgstr ""
+
+#: translate_tmp.pl:632
+msgid "Text:"
+msgstr ""
+
+#: translate_tmp.pl:636
+msgid "Font size:"
+msgstr ""
+
+#: translate_tmp.pl:640
+msgid "Gravity:"
+msgstr ""
+
+#: translate_tmp.pl:653
+msgid "Polaroid"
+msgstr ""
+
+#: translate_tmp.pl:654
+msgid "Rotation:"
+msgstr ""
+
+#: translate_tmp.sh:7
+msgid "GScrot branding"
+msgstr ""
+
+#: translate_tmp.sh:8
+#: translate_tmp.sh:141
+#: translate_tmp.sh:301
+#: translate_tmp.sh:669
+#: translate_tmp.sh:1030
+#: translate_tmp.sh:1391
+#: translate_tmp.sh:1485
+#: translate_tmp.sh:1577
+#: translate_tmp.sh:1659
+msgid "effect"
+msgstr ""
+
+#: translate_tmp.sh:9
+msgid "polaroid whith GScrot logo and the name of the picture as subtitle"
+msgstr ""
+
+#: translate_tmp.sh:140
+msgid "grayscale"
+msgstr ""
+
+#: translate_tmp.sh:142
+msgid "256 color grayscale"
+msgstr ""
+
+#: translate_tmp.sh:300
+msgid "jigsaw piece 1"
+msgstr ""
+
+#: translate_tmp.sh:302
+msgid "cut out a jigsaw piece at the bottom right corner"
+msgstr ""
+
+#: translate_tmp.sh:668
+msgid "jigsaw piece 2"
+msgstr ""
+
+#: translate_tmp.sh:670
+msgid "cut a jigsaw piece out of the picture"
+msgstr ""
+
+#: translate_tmp.sh:1029
+msgid "offset"
+msgstr ""
+
+#: translate_tmp.sh:1031
+msgid "give the picture an offset with itself as background"
+msgstr ""
+
+#: translate_tmp.sh:1117
+msgid "pdf export"
+msgstr ""
+
+#: translate_tmp.sh:1118
+msgid "tool"
+msgstr ""
+
+#: translate_tmp.sh:1119
+msgid "export your screenshot to pdf"
+msgstr ""
+
+#: translate_tmp.sh:1390
+msgid "raise border"
+msgstr ""
+
+#: translate_tmp.sh:1392
+msgid "raise a rectangular 3d-border"
+msgstr ""
+
+#: translate_tmp.sh:1484
+msgid "hard shadow"
+msgstr ""
+
+#: translate_tmp.sh:1486
+msgid "a black hard shadow on transparent background"
+msgstr ""
+
+#: translate_tmp.sh:1576
+msgid "soft edges"
+msgstr ""
+
+#: translate_tmp.sh:1578
+msgid "add soft edges around the picture"
+msgstr ""
+
+#: translate_tmp.sh:1658
+msgid "sunk border"
+msgstr ""
+
+#: translate_tmp.sh:1660
+msgid "sunk a rectangular 3d-border"
 msgstr ""
 
