@@ -43,8 +43,8 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.201";
-use constant PPA_VERSION         => "ppa2";
+use constant BRANCH              => "Rev.202";
+use constant PPA_VERSION         => "ppa3";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.61";
 use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
@@ -68,7 +68,6 @@ my @args         = @ARGV;
 my $start_with   = undef;
 
 #--------------------------------------
-&fct_init();
 
 #intl using gettext
 #--------------------------------------
@@ -78,6 +77,20 @@ $d->dir( $gscrot_root . "/share/locale" );
 $ENV{ 'GSCROT_INTL' } = $gscrot_root . "/share/locale";
 
 #--------------------------------------
+
+#data structures
+#--------------------------------------
+my %gm_programs;    #hash to store program infos
+my %plugins;        #hash to store plugin infos
+my %accounts;       #hash to store account infos
+my %settings;       #hash to store settings
+&fct_init;
+&fct_check_installed_programs;
+&fct_check_installed_plugins;
+&fct_load_accounts;
+
+#--------------------------------------
+
 #custom modules load at runtime
 #--------------------------------------
 require lib;
@@ -93,16 +106,6 @@ import GScrot::Draw;
 
 #--------------------------------------
 
-my %gm_programs;    #hash to store program infos
-&fct_check_installed_programs if keys( %gm_programs ) > 0;
-my %plugins;        #hash to store plugin infos
-&fct_check_installed_plugins if keys( %plugins ) > 0;
-my %accounts = ();    #hash to account infos
-my %settings = ();    #hash to store settings
-
-#load accounts
-&fct_load_accounts();
-
 #signal-handler
 $SIG{ USR1 } = sub { &evt_take_screenshot( 'global_keybinding', 'raw' ) };
 $SIG{ USR2 } = sub { &evt_take_screenshot( 'global_keybinding', 'select' ) };
@@ -115,6 +118,7 @@ if ( $debug_cparam ) {
 		print $_. "\n";
 	}
 }
+
 #$x->init_extension( 'SHAPE' ) or die "Could not initialize X11 EXTENSION SHAPE";
 my $screen = Gnome2::Wnck::Screen->get_default;
 $screen->force_update();
@@ -124,7 +128,6 @@ my %children         = ();
 my $active_workspace = $screen->get_active_workspace;
 
 #hash of screenshots during session
-my $current_counter = 1;
 my %session_screens;
 my %session_start_screen;
 
@@ -392,7 +395,7 @@ $menubar->append( $menuitem_session );
 #help
 my $menu_help = Gtk2::Menu->new();
 my $menuitem_question =
-	Gtk2::ImageMenuItem->new( $d->get( "Get Help Online..." ) );
+	Gtk2::ImageMenuItem->new( $d->get( "Get Help Online ..." ) );
 $menuitem_question->set_image(
 			   Gtk2::Image->new_from_pixbuf(
 				   Gtk2::Gdk::Pixbuf->new_from_file_at_size(
@@ -405,7 +408,7 @@ $menuitem_question->set_image(
 $menu_help->append( $menuitem_question );
 
 my $menuitem_translate =
-	Gtk2::ImageMenuItem->new( $d->get( "Translate this Application..." ) );
+	Gtk2::ImageMenuItem->new( $d->get( "Translate this Application ..." ) );
 $menuitem_translate->set_image(
 		  Gtk2::Image->new_from_pixbuf(
 			  Gtk2::Gdk::Pixbuf->new_from_file_at_size(
@@ -1839,21 +1842,22 @@ sub evt_take_screenshot {
 		if ( $progname_active->get_active ) {
 			my $model         = $progname->get_model();
 			my $progname_iter = $progname->get_active_iter();
-			$progname_value = $model->get_value( $progname_iter, 2 );
-			utf8::decode $progname_value;
-
-			unless ( $progname_value =~ /[a-zA-Z0-9]+/ ) {
-				&dlg_error_message(
+			if ( $progname_iter ) {
+				$progname_value = $model->get_value( $progname_iter, 2 );
+				utf8::decode $progname_value;
+				unless ( $progname_value =~ /[a-zA-Z0-9]+/ ) {
+					&dlg_error_message(
 						   $d->get(
 							   "No application specified to open the screenshot"
 						   )
-				);
-				&fct_set_toolbar_sensitive( TRUE );
-				return FALSE;
+					);
+					&fct_set_toolbar_sensitive( TRUE );
+					return FALSE;
+				}
+				system(
+					"$progname_value '$session_screens{$new_key_screenshot}->{'long'}' &"
+				);    #open picture in external program
 			}
-			system(
-				"$progname_value '$session_screens{$new_key_screenshot}->{'long'}' &"
-			);    #open picture in external program
 		}
 		print "screenshot successfully saved to $screenshot_name!\n"
 			if $debug_cparam;
@@ -3234,13 +3238,14 @@ sub fct_save_settings {
 		}
 	}
 	$settings{ 'general' }->{ 'web_timeout' } = $timeout;
-	my $model          = $progname->get_model();
-	my $progname_iter  = $progname->get_active_iter();
-	my $progname_value = $model->get_value( $progname_iter, 2 );
+	my $model         = $progname->get_model();
+	my $progname_iter = $progname->get_active_iter();
 
-	$settings{ 'general' }->{ 'prog' } = $progname_value;
-
-	utf8::encode $settings{ 'general' }->{ 'prog' };
+	if ( defined $progname_iter ) {
+		my $progname_value = $model->get_value( $progname_iter, 2 );
+		$settings{ 'general' }->{ 'prog' } = $progname_value;
+		utf8::encode $settings{ 'general' }->{ 'prog' };
+	}
 
 	$settings{ 'general' }->{ 'prog_active' } = $progname_active->get_active();
 	$settings{ 'general' }->{ 'im_colors' } = $combobox_im_colors->get_active();
@@ -3270,8 +3275,12 @@ sub fct_save_settings {
 
 	#plugins
 	foreach ( keys %plugins ) {
-		$settings{ 'plugins' }->{ $_ }->{ 'menu' } = $plugins{ $_ }->{ 'menu' }
-			if defined $plugins{ $_ }->{ 'menu' };
+		if ( defined $plugins{ $_ }->{ 'menu' } ) {
+			if ( $plugins{ $_ }->{ 'menu' } ) {
+				$settings{ 'plugins' }->{ $_ }->{ 'menu' } =
+					$plugins{ $_ }->{ 'menu' };
+			}
+		}
 	}
 
 	#settings
@@ -3387,10 +3396,12 @@ sub fct_load_settings {
 								 $settings_xml->{ 'general' }->{ 'filetype' } );
 				$scale->set_value(
 								  $settings_xml->{ 'general' }->{ 'quality' } );
+				utf8::decode $settings_xml->{ 'general' }->{ 'filename' };
 				$filename->set_text(
-					utf8::decode $settings_xml->{ 'general' }->{ 'filename' } );
+								 $settings_xml->{ 'general' }->{ 'filename' } );
+				utf8::decode $settings_xml->{ 'general' }->{ 'folder' };
 				$saveDir_button->set_current_folder(
-					  utf8::decode $settings_xml->{ 'general' }->{ 'folder' } );
+								   $settings_xml->{ 'general' }->{ 'folder' } );
 				$zoom_active->set_active(
 							  $settings_xml->{ 'general' }->{ 'zoom_active' } );
 				$zoom_size1->set_active( TRUE )
@@ -3415,8 +3426,9 @@ sub fct_load_settings {
 					}
 				}
 				my $model = $progname->get_model;
+				utf8::decode $settings_xml->{ 'general' }->{ 'prog' };
 				$model->foreach( \&fct_iter_programs,
-						utf8::decode $settings_xml->{ 'general' }->{ 'prog' } );
+								 $settings_xml->{ 'general' }->{ 'prog' } );
 				$progname_active->set_active(
 							  $settings_xml->{ 'general' }->{ 'prog_active' } );
 				$im_colors_active->set_active(
@@ -3479,8 +3491,13 @@ sub fct_load_settings {
 	#plugins
 	foreach ( keys %plugins ) {
 		if ( defined $settings_xml->{ 'plugins' }->{ $_ } ) {
-			$plugins{ $_ }->{ 'menu' } =
-				$settings_xml->{ 'plugins' }->{ $_ }->{ 'menu' };
+			if ( $settings_xml->{ 'plugins' }->{ $_ }->{ 'menu' } ) {
+				$plugins{ $_ }->{ 'menu' } = TRUE;
+			} else {
+				$plugins{ $_ }->{ 'menu' } = FALSE;
+			}
+		} else {
+			$plugins{ $_ }->{ 'menu' } = FALSE;
 		}
 	}
 	if ( defined $effects_tree ) {
@@ -3488,6 +3505,7 @@ sub fct_load_settings {
 		$effects_tree->set_model( $effects_model );
 		&fct_set_model_plugins( $effects_tree );
 	}
+
 
 	return $settings_xml;
 }
@@ -3587,7 +3605,7 @@ sub fct_load_accounts {
 		$accounts{ 'imagebanana.com' }->{ module } =
 			$accounts_xml->{ 'imagebanana.com' }->{ module };
 	}
-	return 1;
+	return TRUE;
 }
 
 sub fct_load_session {
@@ -3899,19 +3917,18 @@ sub fct_resize_imagemagick_object {
 }
 
 sub fct_check_installed_programs {
-	print "\nINFO: checking installed applications...\n";
+	print "INFO: checking installed applications...\n";
 	foreach ( keys %gm_programs ) {
-		if (    $gm_programs{ $_ }->{ 'binary' } ne ""
-			 && $gm_programs{ $_ }->{ 'name' } ne "" )
-		{
-			unless ( -e $gm_programs{ $_ }->{ 'binary' } ) {
-				print " Could not detect binary for program $_, ignoring\n";
-				delete $gm_programs{ $_ };
-				next;
-			}
-			print "$gm_programs{$_}->{'name'} - $gm_programs{$_}->{'binary'}\n";
+		unless ( &fct_file_exists( $gm_programs{ $_ }->{ 'binary' } ) ) {
+			print " Could not detect binary for program $_, ignoring\n"
+				if $debug_cparam;
+			delete $gm_programs{ $_ };
+			next;
 		} else {
-			print "WARNING: Program $_ is not configured properly, ignoring\n";
+			if ( $debug_cparam ) {
+				print
+					"$gm_programs{$_}->{'name'} - $gm_programs{$_}->{'binary'}\n";
+			}
 		}
 	}
 	return TRUE;
@@ -4928,22 +4945,25 @@ sub fct_get_next_filename {
 			}
 		}
 		print "$n_counter Ns used in wild-card\n" if $debug_cparam;
-		my $marks="";
-		my $i = 0;
-		while($i < $n_counter){
+		my $marks = "";
+		my $i     = 0;
+
+		while ( $i < $n_counter ) {
 			$marks .= "?";
 			$i++;
 		}
 
 		$filename_value =~ s/\%N{1,}/$marks/g;
 		print
-			"Searching for files with pattern: $filename_value.$filetype_value\n" if $debug_cparam;
+			"Searching for files with pattern: $filename_value.$filetype_value\n"
+			if $debug_cparam;
 		my @files = glob( "$folder/$filename_value.$filetype_value" );
 		@files = sort { $b cmp $a } @files;
-		if($debug_cparam){
-		foreach(@files){
-			print $_."\n";
-		}			
+
+		if ( $debug_cparam ) {
+			foreach ( @files ) {
+				print $_. "\n";
+			}
 		}
 
 		#check pos of %NN
@@ -4954,7 +4974,8 @@ sub fct_get_next_filename {
 				$next_count = substr( $_, $pos, $n_counter );
 				next unless $next_count =~ /^(\d+\.?\d*|\.\d+)$/;
 				print
-					"Counter at position $pos - $next_count is currently greatest value...\n"  if $debug_cparam;
+					"Counter at position $pos - $next_count is currently greatest value...\n"
+					if $debug_cparam;
 				last;
 			}
 		}
@@ -4982,20 +5003,23 @@ sub fct_check_installed_plugins {
 	print "\nINFO: checking installed plugins...\n";
 	foreach ( keys %plugins ) {
 		if ( $plugins{ $_ }->{ 'binary' } ne "" ) {
-			unless ( -e $plugins{ $_ }->{ 'binary' } ) {
+			unless ( &fct_file_exists( $plugins{ $_ }->{ 'binary' } ) ) {
 				print " Could not detect binary for program $_, ignoring\n";
 				delete $plugins{ $_ };
 				next;
 			}
-			$plugins{ $_ }->{ 'name' } = `$plugins{$_}->{'binary'} name`;
-			utf8::decode $plugins{ $_ }->{ 'name' };
-			chomp( $plugins{ $_ }->{ 'name' } );
-			binmode( STDOUT, ":utf8" );
-			print "$plugins{$_}->{'name'} - $plugins{$_}->{'binary'}\n";
+			if ( $debug_cparam ) {
+				$plugins{ $_ }->{ 'name' } = `$plugins{$_}->{'binary'} name`;
+				utf8::decode $plugins{ $_ }->{ 'name' };
+				chomp( $plugins{ $_ }->{ 'name' } );
+				binmode( STDOUT, ":utf8" );
+				print "$plugins{$_}->{'name'} - $plugins{$_}->{'binary'}\n";
+			}
 		} else {
 			print "WARNING: Plugin $_ is not configured properly, ignoring\n";
 		}
 	}
+	return TRUE;
 }
 
 sub fct_create_thumbnail_and_fileinfos {
@@ -5208,7 +5232,7 @@ sub fct_load_plugin_tree {
 	foreach ( sort keys %plugins ) {
 		if ( $plugins{ $_ }->{ 'binary' } ne "" ) {
 			my $pixbuf;
-			if ( -f $plugins{ $_ }->{ 'pixbuf' } ) {
+			if ( &fct_file_exists( $plugins{ $_ }->{ 'pixbuf' } ) ) {
 				$pixbuf =
 					Gtk2::Gdk::Pixbuf->new_from_file_at_size(
 											 $plugins{ $_ }->{ 'pixbuf' },
@@ -5417,11 +5441,10 @@ sub fct_set_model_plugins {
 	$tv_clmn_toolbar_text->set_title( $d->get( "Toolbar" ) );
 	my $renderer_toolbar_effects = Gtk2::CellRendererToggle->new;
 	$tv_clmn_toolbar_text->pack_start( $renderer_toolbar_effects, FALSE );
-	$renderer_toolbar_effects->signal_connect( toggled => \&evt_plugins_toolbar,
-											   $effects_model );
 	$tv_clmn_toolbar_text->set_attributes( $renderer_toolbar_effects,
 										   'active' => 2 );
-
+	$renderer_toolbar_effects->signal_connect( toggled => \&evt_plugins_toolbar,
+											   $effects_model );
 	$effects_tree->append_column( $tv_clmn_toolbar_text );
 
 #category
@@ -5562,11 +5585,12 @@ sub fct_init {
 	}
 
 	#an old .gscrot file existing?
-	unlink( "$ENV{ 'HOME' }/.gscrot" ) if ( -f "$ENV{ 'HOME' }/.gscrot" );
+	unlink( "$ENV{ 'HOME' }/.gscrot" )
+		if ( &fct_file_exists( "$ENV{ 'HOME' }/.gscrot" ) );
 
 	#an old .gscrot/settings.conf file existing?
 	unlink( "$ENV{ 'HOME' }/.gscrot/settings.conf" )
-		if ( -f "$ENV{ 'HOME' }/.gscrot/settings.conf" );
+		if ( &fct_file_exists( "$ENV{ 'HOME' }/.gscrot/settings.conf" ) );
 
 	#is there already a .gscrot folder?
 	mkdir( "$ENV{ 'HOME' }/.gscrot" ) unless ( -d "$ENV{ 'HOME' }/.gscrot" );
@@ -5576,7 +5600,7 @@ sub fct_init {
 		unless ( -d "$ENV{'HOME'}/.gscrot/profiles" );
 	%gm_programs =
 		do "$gscrot_root/share/gscrot/resources/system/programs.conf";
-	if ( -f "$ENV{ 'HOME' }/.gscrot/programs.conf" ) {
+	if ( &fct_file_exists( "$ENV{ 'HOME' }/.gscrot/programs.conf" ) ) {
 		print
 			"\nINFO: using custom program settings found at $ENV{ 'HOME' }/.gscrot/programs.conf\n";
 		%gm_programs = do "$ENV{ 'HOME' }/.gscrot/programs.conf";
@@ -5588,13 +5612,13 @@ sub fct_init {
 			my $dir_name = $_;
 			$dir_name =~ s{^.*/}{};
 			$plugins{ $_ }->{ 'binary' } = "$_/$dir_name"
-				if ( -f "$_/$dir_name" && -r "$_/$dir_name" );
+				if ( &fct_file_exists( "$_/$dir_name" ) );
 			$plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.png"
-				if ( -f "$_/$dir_name.png" && -r "$_/$dir_name.png" );
+				if ( &fct_file_exists( "$_/$dir_name.png" ) );
 
 			#we prefer svgs
 			$plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.svg"
-				if ( -f "$_/$dir_name.svg" && -r "$_/$dir_name.svg" );
+				if ( &fct_file_exists( "$_/$dir_name.svg" ) );
 		}
 	}
 	my @custom_plugins = glob( "$ENV{'HOME'}/.gscrot/plugins/*/*" );
@@ -5603,15 +5627,16 @@ sub fct_init {
 			my $dir_name = $_;
 			$dir_name =~ s{^.*/}{};
 			$plugins{ $_ }->{ 'binary' } = "$_/$dir_name"
-				if ( -f "$_/$dir_name" && -r "$_/$dir_name" );
+				if ( &fct_file_exists( "$_/$dir_name" ) );
 			$plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.png"
-				if ( -f "$_/$dir_name.png" && -r "$_/$dir_name.png" );
+				if ( &fct_file_exists( "$_/$dir_name.png" ) );
 
 			#we prefer svgs
 			$plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.svg"
-				if ( -f "$_/$dir_name.svg" && -r "$_/$dir_name.svg" );
+				if ( &fct_file_exists( "$_/$dir_name.svg" ) );
 		}
 	}
+	return TRUE;
 }
 
 #--------------------------------------
