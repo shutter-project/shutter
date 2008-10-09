@@ -43,10 +43,10 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.203";
-use constant PPA_VERSION         => "ppa3";
+use constant BRANCH              => "Rev.204";
+use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
-use constant GSCROT_VERSION      => "v0.61";
+use constant GSCROT_VERSION      => "v0.62";
 use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
 
 #--------------------------------------
@@ -107,8 +107,10 @@ import GScrot::Draw;
 #--------------------------------------
 
 #signal-handler
-$SIG{ USR1 } = sub { &evt_take_screenshot( 'global_keybinding', 'raw' ) };
-$SIG{ USR2 } = sub { &evt_take_screenshot( 'global_keybinding', 'select' ) };
+$SIG{ USR1 }  = sub { &evt_take_screenshot( 'global_keybinding', 'raw' ) };
+$SIG{ USR2 }  = sub { &evt_take_screenshot( 'global_keybinding', 'window' ) };
+$SIG{ RTMIN } = sub { &evt_take_screenshot( 'global_keybinding', 'select' ) };
+$SIG{ RTMAX } = sub { &evt_take_screenshot( 'global_keybinding', 'section' ) };
 
 #screen
 my $x = X11::Protocol->new( $ENV{ 'DISPLAY' } );
@@ -735,10 +737,10 @@ $tooltip_delay->set_tip( $delay_active,
 					   $d->get( "Wait n seconds before taking a screenshot" ) );
 $tooltip_delay->set_tip( $delay_label,
 					   $d->get( "Wait n seconds before taking a screenshot" ) );
-$delay_box->pack_start( $delay_label,   FALSE, TRUE,  10 );
+$delay_box->pack_start( $delay_label, FALSE, TRUE, 10 );
 $delay_box2->pack_start( $delay_active, FALSE, FALSE, 0 );
 $delay_box2->pack_start( $delay,        TRUE,  TRUE,  0 );
-$delay_box->pack_start( $delay_box2,    TRUE,  TRUE,  10 );
+$delay_box->pack_start( $delay_box2, TRUE, TRUE, 10 );
 
 #end - delay
 #operator
@@ -763,8 +765,8 @@ $tooltip_thumb_operator->set_tip(
 									  "Select resize operator\nSee http://www.imagemagick.org/Usage/resize/ for help"
 								  )
 								);
-$resize_operator_box->pack_start( Gtk2::Label->new, FALSE, FALSE, 0 );
-$resize_operator_box->pack_start( $combobox_thumb_operator, TRUE, TRUE, 10 );
+$resize_operator_box->pack_start( Gtk2::Label->new,         FALSE, FALSE, 0 );
+$resize_operator_box->pack_start( $combobox_thumb_operator, TRUE,  TRUE,  10 );
 
 #operator
 #thumbnail
@@ -809,10 +811,10 @@ $tooltip_thumb->set_tip(
 							 "Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be"
 						 )
 					   );
-$thumbnail_box->pack_start( $thumbnail_label,   FALSE, TRUE,  10 );
+$thumbnail_box->pack_start( $thumbnail_label, FALSE, TRUE, 10 );
 $thumbnail_box2->pack_start( $thumbnail_active, FALSE, FALSE, 0 );
 $thumbnail_box2->pack_start( $thumbnail,        TRUE,  TRUE,  0 );
-$thumbnail_box->pack_start( $thumbnail_box2,    TRUE,  TRUE,  10 );
+$thumbnail_box->pack_start( $thumbnail_box2, TRUE, TRUE, 10 );
 
 #end - thumbnail
 #filename
@@ -966,14 +968,14 @@ $keybinding_active->signal_connect( 'toggled' => \&evt_behavior_handle,
 my $keybinding_sel_active = Gtk2::CheckButton->new;
 $keybinding_sel_active->signal_connect( 'toggled' => \&evt_behavior_handle,
 										'keybinding_sel_toggled' );
-$key_box->pack_start( $capture_label,              FALSE, TRUE,  10 );
-$key_box2->pack_start( $keybinding_active,         FALSE, FALSE, 0 );
-$key_box2->pack_start( $capture_key,               TRUE,  TRUE,  0 );
-$key_box->pack_start( $key_box2,                   TRUE,  TRUE,  10 );
-$key_sel_box->pack_start( $capture_sel_label,      FALSE, TRUE,  10 );
+$key_box->pack_start( $capture_label, FALSE, TRUE, 10 );
+$key_box2->pack_start( $keybinding_active, FALSE, FALSE, 0 );
+$key_box2->pack_start( $capture_key,       TRUE,  TRUE,  0 );
+$key_box->pack_start( $key_box2, TRUE, TRUE, 10 );
+$key_sel_box->pack_start( $capture_sel_label, FALSE, TRUE, 10 );
 $key_sel_box2->pack_start( $keybinding_sel_active, FALSE, FALSE, 0 );
 $key_sel_box2->pack_start( $capture_sel_key,       TRUE,  TRUE,  0 );
-$key_sel_box->pack_start( $key_sel_box2,           TRUE,  TRUE,  10 );
+$key_sel_box->pack_start( $key_sel_box2, TRUE, TRUE, 10 );
 $keybinding_active->set_active( TRUE );
 
 if ( defined $settings_xml->{ 'general' }->{ 'keybinding' } ) {
@@ -1134,10 +1136,10 @@ $tooltip_progname->set_tip(
 								"Open your screenshot\nwith this program after capturing"
 							)
 						  );
-$progname_box->pack_start( $progname_label,   TRUE,  TRUE, 10 );
+$progname_box->pack_start( $progname_label, TRUE, TRUE, 10 );
 $progname_box2->pack_start( $progname_active, FALSE, TRUE, 0 );
 $progname_box2->pack_start( $progname,        TRUE,  TRUE, 0 );
-$progname_box->pack_start( $progname_box2,    TRUE,  TRUE, 10 );
+$progname_box->pack_start( $progname_box2, TRUE, TRUE, 10 );
 
 #end - program
 #im_colors
@@ -1185,10 +1187,10 @@ $tooltip_im_colors->set_tip(
 								 "Automatically reduce colors \nafter taking a screenshot"
 							 )
 						   );
-$im_colors_box->pack_start( $im_colors_label,     TRUE,  TRUE, 10 );
+$im_colors_box->pack_start( $im_colors_label, TRUE, TRUE, 10 );
 $im_colors_box2->pack_start( $im_colors_active,   FALSE, TRUE, 0 );
 $im_colors_box2->pack_start( $combobox_im_colors, TRUE,  TRUE, 0 );
-$im_colors_box->pack_start( $im_colors_box2,      TRUE,  TRUE, 10 );
+$im_colors_box->pack_start( $im_colors_box2, TRUE, TRUE, 10 );
 
 #end - colors
 #border
@@ -1397,7 +1399,11 @@ if ( $start_with && $folder_to_save ) {
 		&evt_take_screenshot( 'global_keybinding', "raw", $folder_to_save );
 	} elsif ( $start_with eq "select" ) {
 		&evt_take_screenshot( 'global_keybinding', "select", $folder_to_save );
-	}
+	} elsif ( $start_with eq "window" ) {
+		&evt_take_screenshot( 'global_keybinding', "window", $folder_to_save );
+	} elsif ( $start_with eq "section" ) {
+		&evt_take_screenshot( 'global_keybinding', "section", $folder_to_save );
+	}	
 }
 
 Gtk2->main;
@@ -2911,8 +2917,7 @@ sub fct_create_tab {
 			Gtk2::Label->new( $session_screens{ $key }->{ 'mime_type' } );
 		my $size_label = Gtk2::Label->new;
 		$size_label->set_markup( "<b>" . $d->get( "Filesize" ) . "</b>" );
-		$session_screens{ $key }->{ 'size_label' } =
-			Gtk2::Label->new(
+		$session_screens{ $key }->{ 'size_label' } = Gtk2::Label->new(
 				  sprintf( "%.2f", $session_screens{ $key }->{ 'size' } / 1024 )
 					  . " KB" );
 		my $geometry_label = Gtk2::Label->new;
@@ -3722,9 +3727,17 @@ sub fct_execute_plugin {
 
 sub fct_usage {
 	print "gscrot [options]\n";
-	print
-		"Available options:\n --min_at_startup - starts gscrot minimized to tray\n --debug - prints a lot of debugging information to STDOUT\n";
-	print " --help - displays this help\n";
+	print "Available options:\n\n" .
+		"Capture:\n" .
+		"--full (starts gscrot and takes a full screen screenshot directly)\n" .
+		"--selection (starts gscrot in selection mode)\n" .
+		"--window (starts gscrot in window selection mode)\n".
+		"--section (starts gscrot in section selection mode)\n\n".
+		
+		"Application:\n".
+		"--min_at_startup (starts gscrot minimized to tray)\n" .
+		"--debug (prints a lot of debugging information to STDOUT)\n";
+	print "--help (displays this help)\n";
 }
 
 sub fct_update_first_tab {
@@ -4015,7 +4028,7 @@ sub fct_gscrot_area {
 
 	#define graphics context
 	my $white = Gtk2::Gdk::Color->new( 65535, 65535, 65535 );
-	my $black = Gtk2::Gdk::Color->new( 0, 0, 0 );
+	my $black = Gtk2::Gdk::Color->new( 0,     0,     0 );
 	my $gc = Gtk2::Gdk::GC->new( $root, undef );
 	$gc->set_line_attributes( 1, 'double-dash', 'round', 'round' );
 	$gc->set_rgb_bg_color( $black );
@@ -4284,7 +4297,7 @@ sub fct_gscrot_window {
 
 	#define graphics context
 	my $white = Gtk2::Gdk::Color->new( 65535, 65535, 65535 );
-	my $black = Gtk2::Gdk::Color->new( 0, 0, 0 );
+	my $black = Gtk2::Gdk::Color->new( 0,     0,     0 );
 	my $gc = Gtk2::Gdk::GC->new( $root, undef );
 	$gc->set_line_attributes( 5, 'solid', 'round', 'round' );
 	$gc->set_rgb_bg_color( $black );
@@ -4811,7 +4824,7 @@ sub fct_gscrot_window_direct {
 		if ( $xp + $widthp > $rootwidthp );
 	$heightp -= $yp + $heightp - $rootheightp
 		if ( $yp + $heightp > $rootheightp );
-	if     ( $xp < $rootxp ) {
+	if ( $xp < $rootxp ) {
 		$widthp = $widthp + $xp;
 		$xp     = 0;
 	}
@@ -5515,6 +5528,24 @@ sub fct_init {
 				exit;
 			} elsif ( $arg eq "--min_at_startup" ) {
 				$min_cparam = TRUE;
+			} elsif ( $arg eq "--section" ) {
+
+				#is there already a process of gscrot running?
+				my @gscrot_pids = `pidof -o $$ -x $gscrot_path`;
+				foreach ( @gscrot_pids ) {
+					kill RTMAX => $_;
+					die;
+				}
+				$start_with = "section";
+			} elsif ( $arg eq "--select" ) {
+
+				#is there already a process of gscrot running?
+				my @gscrot_pids = `pidof -o $$ -x $gscrot_path`;
+				foreach ( @gscrot_pids ) {
+					kill RTMIN => $_;
+					die;
+				}
+				$start_with = "select";
 			} elsif ( $arg eq "--window" ) {
 
 				#is there already a process of gscrot running?
@@ -5523,7 +5554,7 @@ sub fct_init {
 					kill USR2 => $_;
 					die;
 				}
-				$start_with = "select";
+				$start_with = "window";
 			} elsif ( $arg eq "--full" ) {
 
 				#is there already a process of gscrot running?
