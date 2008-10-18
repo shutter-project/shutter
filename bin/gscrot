@@ -43,7 +43,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.207";
+use constant BRANCH              => "Rev.208";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.62";
@@ -1447,6 +1447,9 @@ unless ( $min_cparam ) {
 } else {
 	$window->hide;
 }
+
+#restore session
+&fct_load_session;
 
 #load saved settings
 my $folder_to_save = $settings_xml->{ 'general' }->{ 'folder' }
@@ -2923,11 +2926,11 @@ sub fct_integrate_screenshot_in_notebook {
 											   . $notebook->get_current_page
 										 );
 
-		$notebook->set_tab_detachable(
-									  $session_screens{ $key }->{ 'tab_child' },
-									  TRUE );
+#		$notebook->set_tab_detachable(
+#									  $session_screens{ $key }->{ 'tab_child' },
+#									  TRUE );
 
-		$window->show_all unless $is_in_tray;
+		$window->show_all unless ($is_in_tray);
 
 		$notebook->set_current_page( $new_index );
 
@@ -3292,7 +3295,7 @@ sub fct_create_tab {
 
 		my $settings_label = Gtk2::Label->new;
 		$settings_label->set_markup(
-							   "<b>" . $d->get( "Current Preferences" ) . "</b>" );
+							"<b>" . $d->get( "Current Preferences" ) . "</b>" );
 		$vbox_all2->pack_start_defaults( $settings_label );
 
 		$session_start_screen{ 'first_page' }->{ 'filename_label' } =
@@ -3730,9 +3733,6 @@ sub fct_load_settings {
 				&fct_set_model_accounts( $accounts_tree );
 			}
 
-			#restore session, only once
-			&fct_load_session unless ( $profilename );
-
 			&dlg_status_message( 1, $d->get( "Settings loaded successfully" ) );
 			}
 
@@ -3755,6 +3755,7 @@ sub fct_load_settings {
 			$plugins{ $_ }->{ 'menu' } = FALSE;
 		}
 	}
+
 	if ( defined $effects_tree ) {
 		&fct_load_plugin_tree;
 		$effects_tree->set_model( $effects_model );
@@ -4339,7 +4340,6 @@ sub fct_gscrot_area {
 	#all screen events are send to gscrot
 	my $grab_counter = 0;
 	while ( !Gtk2::Gdk->pointer_is_grabbed && $grab_counter < 100 ) {
-		Gtk2::Gdk::X11->grab_server unless $zoom_active->get_active;
 		Gtk2::Gdk->pointer_grab(
 			$root, 0,
 			[
@@ -4358,6 +4358,7 @@ sub fct_gscrot_area {
 	}
 
 	if ( Gtk2::Gdk->pointer_is_grabbed ) {
+		Gtk2::Gdk::X11->grab_server unless $zoom_active->get_active;
 		my $rx                   = 0;
 		my $ry                   = 0;
 		my $rw                   = 0;
@@ -4568,9 +4569,9 @@ sub fct_gscrot_area {
 		Gtk2::Gdk->flush;
 
 		#ungrab pointer and keyboard
-		Gtk2::Gdk::X11->ungrab_server unless $zoom_active->get_active;
 		Gtk2::Gdk->pointer_ungrab( Gtk2->get_current_event_time );
 		Gtk2::Gdk->keyboard_ungrab( Gtk2->get_current_event_time );
+		$output = 0;
 	}
 	return $output;
 }
@@ -4608,7 +4609,6 @@ sub fct_gscrot_window {
 
 	my $grab_counter = 0;
 	while ( !Gtk2::Gdk->pointer_is_grabbed && $grab_counter < 100 ) {
-		Gtk2::Gdk::X11->grab_server;
 		Gtk2::Gdk->pointer_grab(
 			$root, 0,
 			[
@@ -4625,6 +4625,7 @@ sub fct_gscrot_window {
 	}
 
 	if ( Gtk2::Gdk->pointer_is_grabbed ) {
+		Gtk2::Gdk::X11->grab_server;
 		my $last_selected_window      = 0;
 		my $last_selected_window_wnck = 0;
 		my $drawable                  = undef;
@@ -5045,9 +5046,9 @@ sub fct_gscrot_window {
 	} else {    #pointer not grabbed
 
 		#ungrab pointer and keyboard
-		Gtk2::Gdk::X11->ungrab_server;
 		Gtk2::Gdk->pointer_ungrab( Gtk2->get_current_event_time );
 		Gtk2::Gdk->keyboard_ungrab( Gtk2->get_current_event_time );
+		$output = 0;
 	}
 	return $output;
 }
@@ -5362,6 +5363,10 @@ sub fct_create_thumbnail_and_fileinfos {
 	   $session_screens{ $key }->{ 'folder' },
 	   $session_screens{ $key }->{ 'filetype' }
 	) = fileparse( $filename, '\..*' );
+
+	$session_screens{ $key }->{ 'short' } .=
+		$session_screens{ $key }->{ 'filetype' };
+	$session_screens{ $key }->{ 'filetype' } =~ s/\.//ig;
 
 	#long filename
 	$session_screens{ $key }->{ 'long' } = $filename;
