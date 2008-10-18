@@ -62,10 +62,12 @@ $ENV{ 'GSCROT_ROOT' } = $gscrot_root;    #need by some plugins
 
 #command line parameter
 #--------------------------------------
-my $debug_cparam = FALSE;
-my $min_cparam   = FALSE;
-my @args         = @ARGV;
-my $start_with   = undef;
+my $debug_cparam    = FALSE;
+my $min_cparam      = FALSE;
+my @args            = @ARGV;
+my $start_with      = undef;
+my $gnome_web_photo = TRUE;
+my $gtklp           = TRUE;
 
 #--------------------------------------
 
@@ -240,7 +242,48 @@ $menuitem_open->add_accelerator( "activate", $accel_group,
 								 $Gtk2::Gdk::Keysyms{ O },
 								 qw/control-mask/, qw/visible/ );
 $menu_file->append( $menuitem_open );
-$menuitem_open->signal_connect( "activate", \&evt_settings, 'menu_open' );
+$menuitem_open->signal_connect( "activate", \&evt_open, 'menu_open' );
+
+$menu_file->append( Gtk2::SeparatorMenuItem->new );
+
+my $menuitem_save_as = Gtk2::ImageMenuItem->new_from_stock( 'gtk-save-as' );
+$menuitem_save_as->set_sensitive( FALSE );
+$menuitem_save_as->add_accelerator(
+									"activate",
+									$accel_group,
+									Gtk2::Accelerator->parse(
+															 "<Shift><Control>S"
+															),
+									qw/visible/
+								  );
+$menu_file->append( $menuitem_save_as );
+$menuitem_save_as->signal_connect( "activate", \&evt_save_as, 'menu_save_as' );
+
+$menu_file->append( Gtk2::SeparatorMenuItem->new );
+
+my $menuitem_close = Gtk2::ImageMenuItem->new_from_stock( 'gtk-close' );
+$menuitem_close->set_sensitive( FALSE );
+$menuitem_close->add_accelerator( "activate", $accel_group,
+								  Gtk2::Accelerator->parse( "<Control>W" ),
+								  qw/visible/ );
+$menu_file->append( $menuitem_close );
+$menuitem_close->signal_connect( "activate", \&evt_close, 'menu_close' );
+
+my $menuitem_close_all =
+	Gtk2::ImageMenuItem->new_with_label( $d->get( "Close all" ) );
+$menuitem_close_all->set_image(
+						   Gtk2::Image->new_from_stock( 'gtk-close', 'menu' ) );
+$menuitem_close_all->add_accelerator(
+									  "activate",
+									  $accel_group,
+									  Gtk2::Accelerator->parse(
+															 "<Shift><Control>W"
+									  ),
+									  qw/visible/
+									);
+$menu_file->append( $menuitem_close_all );
+$menuitem_close_all->signal_connect( "activate", \&evt_close_all,
+								   'menu_close_all' );
 
 $menu_file->append( Gtk2::SeparatorMenuItem->new );
 
@@ -338,6 +381,7 @@ $menuitem_window_sect->signal_connect( "activate", \&evt_take_screenshot,
 									   'section' );
 $menu_actions->append( Gtk2::SeparatorMenuItem->new );
 my $menuitem_web = Gtk2::ImageMenuItem->new( $d->get( "Web" ) );
+$menuitem_web->set_sensitive( $gnome_web_photo );
 $menuitem_web->set_image(
 			  Gtk2::Image->new_from_pixbuf(
 				  Gtk2::Gdk::Pixbuf->new_from_file_at_size(
@@ -568,15 +612,25 @@ $button_web_menu->signal_connect( 'clicked' => \&evt_take_screenshot, 'web' );
 $button_web_menu->set_menu( &fct_ret_web_menu );
 $button_web_menu->signal_connect( 'show-menu' => \&fct_ret_web_menu );
 my $tooltip_web = Gtk2::Tooltips->new;
-$tooltip_web->set_tip( $button_web_menu,
-					   $d->get( "Take a screenshot of a website" ) );
-$button_web_menu->set_arrow_tooltip(
-									 Gtk2::Tooltips->new,
-									 $d->get(
-										 "Set up a connection timeout (seconds)"
-									 ),
-									 'arrow'
-								   );
+
+if ( $gnome_web_photo ) {
+	$tooltip_web->set_tip( $button_web_menu,
+						   $d->get( "Take a screenshot of a website" ) );
+	$button_web_menu->set_arrow_tooltip( Gtk2::Tooltips->new,
+				  $d->get( "Set up a connection timeout (seconds)" ), 'arrow' );
+} else {
+	$tooltip_web->set_tip(
+						   $button_web_menu,
+						   $d->get(
+							   "gnome-web-photo needs to be installed for this feature"
+						   )
+						 );
+	$button_web_menu->set_arrow_tooltip( Gtk2::Tooltips->new,
+			$d->get( "gnome-web-photo needs to be installed for this feature" ),
+			'arrow' );
+	$button_web_menu->set_sensitive( $gnome_web_photo );
+}
+
 
 #--------------------------------------
 
@@ -1403,7 +1457,7 @@ if ( $start_with && $folder_to_save ) {
 		&evt_take_screenshot( 'global_keybinding', "window", $folder_to_save );
 	} elsif ( $start_with eq "section" ) {
 		&evt_take_screenshot( 'global_keybinding', "section", $folder_to_save );
-	}	
+	}
 }
 
 Gtk2->main;
@@ -1920,6 +1974,16 @@ sub evt_behavior_handle {
 
 sub evt_notebook_switch {
 	my ( $widget, $pointer, $int ) = @_;
+	if ( $menuitem_save_as && $menuitem_close && $menuitem_close_all) {
+		if ( $int == 0 ) {
+			$menuitem_save_as->set_sensitive( FALSE );
+			$menuitem_close->set_sensitive( FALSE );
+		} else {
+			$menuitem_save_as->set_sensitive( TRUE );
+			$menuitem_close->set_sensitive( TRUE );
+		}		
+	}
+
 	&fct_update_first_tab();    #update first tab for information
 }
 
@@ -2083,6 +2147,7 @@ sub evt_show_icon_menu {
 		$menuitem_window_sect->signal_connect(activate => \&evt_take_screenshot,
 											  'tray_section' );
 		my $menuitem_web = Gtk2::ImageMenuItem->new( $d->get( "Web" ) );
+		$menuitem_web->set_sensitive( $gnome_web_photo );
 		$menuitem_web->set_image(
 			  Gtk2::Image->new_from_pixbuf(
 				  Gtk2::Gdk::Pixbuf->new_from_file_at_size(
@@ -2577,42 +2642,129 @@ sub evt_in_tab {
 
 }
 
-sub evt_settings {
+sub evt_open {
 	my ( $widget, $data ) = @_;
 	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
 
-	if ( $data eq "menu_open" ) {
-		my $fs =
-			Gtk2::FileChooserDialog->new(
+	my $fs =
+		Gtk2::FileChooserDialog->new(
 							  $d->get( "Choose file to open" ), $window, 'open',
 							  'gtk-ok'     => 'accept',
 							  'gtk-cancel' => 'reject'
-			);
-		$fs->set_select_multiple( TRUE );
-		my $filter = Gtk2::FileFilter->new;
-		$filter->set_name( "*.png / *.jpeg" );
-		$filter->add_pattern( "*.png" );
-		$filter->add_pattern( "*.jpeg" );
-		$fs->add_filter( $filter );
-		my $fs_resp = $fs->run;
+		);
+	$fs->set_select_multiple( TRUE );
+	my $filter = Gtk2::FileFilter->new;
+	$filter->set_name( "*.png / *.jpeg" );
+	$filter->add_pattern( "*.png" );
+	$filter->add_pattern( "*.jpeg" );
+	$fs->add_filter( $filter );
+	my $fs_resp = $fs->run;
 
-		if ( $fs_resp eq "accept" ) {
-			my @new_file = $fs->get_filenames;
-			foreach ( @new_file ) {
-				&fct_integrate_screenshot_in_notebook( $_ );
-			}
-			$fs->destroy();
-			return TRUE;
+	if ( $fs_resp eq "accept" ) {
+		my @new_file = $fs->get_filenames;
+		foreach ( @new_file ) {
+			&fct_integrate_screenshot_in_notebook( $_ );
+		}
+		$fs->destroy();
+		return TRUE;
+	} else {
+		$fs->destroy();
+		return FALSE;
+	}
+
+}
+
+sub evt_close {
+	my ( $widget, $data ) = @_;
+	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
+
+	my $key = &fct_get_current_file;
+	$notebook->remove_page(
+			 $notebook->page_num( $session_screens{ $key }->{ 'tab_child' } ) );
+	&dlg_status_message(
+						 1,
+						 $session_screens{ $key }->{ 'filename' } . " "
+							 . $d->get( "removed from session" )
+					   ) if defined( $session_screens{ $key }->{ 'filename' } );
+	delete( $session_screens{ $key } );    # delete from hash
+	&fct_update_first_tab();
+	$window->show_all;
+
+	return TRUE;
+}
+
+sub evt_close_all {
+	my ( $widget, $data ) = @_;
+	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
+
+	foreach my $key ( keys %session_screens ) {
+		$notebook->remove_page(
+			 $notebook->page_num( $session_screens{ $key }->{ 'tab_child' } ) );
+		delete( $session_screens{ $key } );
+	}
+	&dlg_status_message( 1, $d->get( "All screenshots removed" ) );
+	&fct_update_first_tab;
+	$window->show_all;
+	
+	return TRUE;
+}
+
+sub evt_save_as {
+	my ( $widget, $data ) = @_;
+	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
+
+	my $fs =
+		Gtk2::FileChooserDialog->new(
+							  $d->get( "Choose file to open" ), $window, 'save',
+							  'gtk-ok'     => 'accept',
+							  'gtk-cancel' => 'reject'
+		);
+	my $fs_resp = $fs->run;
+
+	if ( $fs_resp eq "accept" ) {
+		my $filename = $fs->get_filename;
+
+		my $key = &fct_get_current_file;
+		unless ( &fct_file_exists( $filename ) ) {
+			copy( $session_screens{ $key }->{ 'long' }, $filename );
+			&fct_update_tab( $key );
 		} else {
+
+			if (
+				 &dlg_question_message(
+						$filename . "\n\n"
+							. $d->get(
+							"File already exists.\nDo you want to overwrite it?"
+							)
+				 )
+			   )
+			{
+				copy( $session_screens{ $key }->{ 'long' }, $filename );
+				$session_screens{ $key }->{ 'filename' } = $filename;
+				&fct_create_thumbnail_and_fileinfos( $filename, $key );
+				&fct_update_tab( $key );
+
+				$fs->destroy();
+				return TRUE;
+			}
 			$fs->destroy();
 			return FALSE;
 		}
+		$session_screens{ $key }->{ 'filename' } = $filename;
+		&fct_create_thumbnail_and_fileinfos( $filename, $key );
+
+		$fs->destroy();
+		return TRUE;
+	} else {
+		$fs->destroy();
+		return FALSE;
 	}
 }
 
 sub evt_save_profile {
 	my ( $widget, $combobox_settings_profiles ) = @_;
-	my $curr_profile_name = $combobox_settings_profiles->get_active_text || "";
+	my $curr_profile_name = $combobox_settings_profiles->get_active_text
+		|| "";
 	my $new_profile_name =
 		&dlg_profile_name( $curr_profile_name, $combobox_settings_profiles );
 
@@ -2712,7 +2864,8 @@ sub fct_integrate_screenshot_in_notebook {
 
 		my $hbox_tab_label = Gtk2::HBox->new( FALSE, 0 );
 		my $close_icon = Gtk2::Image->new_from_icon_name( 'gtk-close', 'menu' );
-		print "Trying to create tab icon for $filename ...\n" if $debug_cparam;
+		print "Trying to create tab icon for $filename ...\n"
+			if $debug_cparam;
 		$session_screens{ $key }->{ 'tab_icon' } =
 			Gtk2::Image->new_from_pixbuf( $session_screens{ $key }->{ 'thumb' }
 				  ->scale_simple( Gtk2::IconSize->lookup( 'menu' ), 'tiles' ) );
@@ -2764,7 +2917,7 @@ sub fct_set_toolbar_sensitive {
 	$button_raw_menu->set_sensitive( $set );
 	$button_window_menu->set_sensitive( $set );
 	$button_window_sect->set_sensitive( $set );
-	$button_web_menu->set_sensitive( $set );
+	$button_web_menu->set_sensitive( $set ) if ( $gnome_web_photo );
 
 	return 1;
 }
@@ -2798,7 +2951,8 @@ sub fct_create_tab {
 							   ),
 							   undef
 							 );
-	$button_remove->signal_connect( clicked => \&evt_in_tab, 'remove' . $key );
+	$button_remove->signal_connect( clicked => \&evt_in_tab,
+									'remove' . $key );
 	my $tooltip_remove = Gtk2::Tooltips->new;
 	$tooltip_remove->set_tip( $button_remove,
 							  $d->get( "Remove file(s) from session" ) );
@@ -2810,7 +2964,8 @@ sub fct_create_tab {
 							   ),
 							   undef
 							 );
-	$button_delete->signal_connect( clicked => \&evt_in_tab, 'delete' . $key );
+	$button_delete->signal_connect( clicked => \&evt_in_tab,
+									'delete' . $key );
 	my $tooltip_delete = Gtk2::Tooltips->new;
 	$tooltip_delete->set_tip( $button_delete, $d->get( "Delete file(s)" ) );
 
@@ -2834,7 +2989,8 @@ sub fct_create_tab {
 							   ),
 							   undef
 							 );
-	$button_reopen->signal_connect( clicked => \&evt_in_tab, 'reopen' . $key );
+	$button_reopen->signal_connect( clicked => \&evt_in_tab,
+									'reopen' . $key );
 	my $tooltip_reopen = Gtk2::Tooltips->new;
 	$tooltip_reopen->set_tip( $button_reopen, $d->get( "Open file(s)" ) );
 
@@ -2845,7 +3001,8 @@ sub fct_create_tab {
 							   ),
 							   undef
 							 );
-	$button_upload->signal_connect( clicked => \&evt_in_tab, 'upload' . $key );
+	$button_upload->signal_connect( clicked => \&evt_in_tab,
+									'upload' . $key );
 	my $tooltip_upload = Gtk2::Tooltips->new;
 	$tooltip_upload->set_tip( $button_upload,
 							  $d->get( "Upload file to hosting-site" ) );
@@ -2857,7 +3014,8 @@ sub fct_create_tab {
 							   ),
 							   undef
 							 );
-	$button_rename->signal_connect( clicked => \&evt_in_tab, 'rename' . $key );
+	$button_rename->signal_connect( clicked => \&evt_in_tab,
+									'rename' . $key );
 	my $tooltip_rename = Gtk2::Tooltips->new;
 	$tooltip_rename->set_tip( $button_rename, $d->get( "Rename file" ) );
 
@@ -2868,7 +3026,8 @@ sub fct_create_tab {
 							   ),
 							   undef
 							 );
-	$button_plugin->signal_connect( clicked => \&evt_in_tab, 'plugin' . $key );
+	$button_plugin->signal_connect( clicked => \&evt_in_tab,
+									'plugin' . $key );
 	my $tooltip_plugin = Gtk2::Tooltips->new;
 	$tooltip_plugin->set_tip( $button_plugin, $d->get( "Execute a plugin" ) );
 
@@ -2893,9 +3052,21 @@ sub fct_create_tab {
 							   ),
 							   undef
 							 );
-	$button_print->signal_connect( clicked => \&evt_in_tab, 'print' . $key );
+	$button_print->signal_connect( clicked => \&evt_in_tab,
+								   'print' . $key );
 	my $tooltip_print = Gtk2::Tooltips->new;
-	$tooltip_print->set_tip( $button_print, $d->get( "Print file(s)" ) );
+
+	if ( $gtklp ) {
+		$tooltip_print->set_tip( $button_print, $d->get( "Print file(s)" ) );
+	} else {
+		$tooltip_print->set_tip(
+								 $button_print,
+								 $d->get(
+									 "gtklp needs to be installed for this feature"
+								 )
+							   );
+		$button_print->set_sensitive( $gtklp );
+	}
 
 	unless ( $is_all ) {
 		my $filename_label = Gtk2::Label->new;
@@ -3351,16 +3522,26 @@ sub fct_save_bindings {
 	if ( $keybinding_active->get_active() ) {
 		$client->set( $command_full,
 					  { type => 'string', value => "$gscrot_path --full", } );
-		$client->set( $shortcut_full,
-					 { type => 'string', value => $capture_key->get_text(), } );
+		$client->set(
+					  $shortcut_full,
+					  {
+						 type  => 'string',
+						 value => $capture_key->get_text(),
+					  }
+					);
 	} else {
 		$client->set( $command_full,
 					  { type => 'string', value => 'gnome-screenshot', } );
 		$client->set( $shortcut_full, { type => 'string', value => 'Print', } );
 	}
 	if ( $keybinding_sel_active->get_active() ) {
-		$client->set( $command_sel,
-					  { type => 'string', value => "$gscrot_path --window", } );
+		$client->set(
+					  $command_sel,
+					  {
+						 type  => 'string',
+						 value => "$gscrot_path --window",
+					  }
+					);
 		$client->set(
 					  $shortcut_sel,
 					  {
@@ -3727,16 +3908,17 @@ sub fct_execute_plugin {
 
 sub fct_usage {
 	print "gscrot [options]\n";
-	print "Available options:\n\n" .
-		"Capture:\n" .
-		"--full (starts gscrot and takes a full screen screenshot directly)\n" .
-		"--selection (starts gscrot in selection mode)\n" .
-		"--window (starts gscrot in window selection mode)\n".
-		"--section (starts gscrot in section selection mode)\n\n".
-		
-		"Application:\n".
-		"--min_at_startup (starts gscrot minimized to tray)\n" .
-		"--debug (prints a lot of debugging information to STDOUT)\n";
+	print "Available options:\n\n"
+		. "Capture:\n"
+		. "--full (starts gscrot and takes a full screen screenshot directly)\n"
+		. "--selection (starts gscrot in selection mode)\n"
+		. "--window (starts gscrot in window selection mode)\n"
+		. "--section (starts gscrot in section selection mode)\n\n"
+		.
+
+		"Application:\n"
+		. "--min_at_startup (starts gscrot minimized to tray)\n"
+		. "--debug (prints a lot of debugging information to STDOUT)\n";
 	print "--help (displays this help)\n";
 }
 
@@ -3793,8 +3975,29 @@ sub fct_update_first_tab {
 		->set_text(   $d->get( "Total size" ) . ": "
 					. sprintf( "%.2f", $total_size / 1024 )
 					. " KB" );
-
+	
+	#if size == 0 => no screenshot in session (handle menu entries properly)
+	if($menuitem_close_all){
+		if($total_size == 0){
+			$menuitem_close_all->set_sensitive(FALSE);
+		}else{
+			$menuitem_close_all->set_sensitive(TRUE);
+		}
+	}
+	
 	return TRUE;
+}
+
+sub fct_get_current_file {
+
+	my $curr_page = $notebook->get_nth_page( $notebook->get_current_page );
+	my $key       = undef;
+	foreach ( keys %session_screens ) {
+		if ( $session_screens{ $_ }->{ 'tab_child' } == $curr_page ) {
+			$key = $_;
+		}
+	}
+	return $key;
 }
 
 sub fct_update_tab {
@@ -4031,11 +4234,14 @@ sub fct_gscrot_area {
 	my $black = Gtk2::Gdk::Color->new( 0,     0,     0 );
 	my $gc = Gtk2::Gdk::GC->new( $root, undef );
 	$gc->set_line_attributes( 1, 'double-dash', 'round', 'round' );
+
+#	$gc->set_rgb_background( $black->pixel );
+#	$gc->set_rgb_foreground( $white->pixel );
 	$gc->set_rgb_bg_color( $black );
 	$gc->set_rgb_fg_color( $white );
 	$gc->set_subwindow( 'include-inferiors' );
 	$gc->set_function( 'xor' );
-	$gc->set_exposures( FALSE );
+	$gc->set_exposures( TRUE );
 
 	#all screen events are send to gscrot
 	my $grab_counter = 0;
@@ -4221,10 +4427,11 @@ sub fct_gscrot_area {
 							print
 								"Trying to clear a rectangle ($rect_x, $rect_y, $rect_w, $rect_h)\n"
 								if $debug_cparam;
+
 							$root->draw_rectangle( $gc, 0, $rect_x, $rect_y,
 												   $rect_w, $rect_h );
 
-							#~ Gtk2::Gdk->flush;
+#							Gtk2::Gdk->flush;
 						}
 						$rect_x = $rx;
 						$rect_y = $ry;
@@ -4248,10 +4455,11 @@ sub fct_gscrot_area {
 							print
 								"Trying to draw a rectangle ($rect_x, $rect_y, $rect_w, $rect_h)\n"
 								if $debug_cparam;
+
 							$root->draw_rectangle( $gc, 0, $rect_x, $rect_y,
 												   $rect_w, $rect_h );
 
-							#~ Gtk2::Gdk->flush;
+#							Gtk2::Gdk->flush;
 						}
 					}
 				} else {
@@ -4983,6 +5191,7 @@ sub fct_get_next_filename {
 		my $pos = index( "$folder/$filename_value.$filetype_value", "?", 0 );
 		my $next_count = 0;
 		unless ( $pos == -1 ) {
+
 			foreach ( @files ) {
 				$next_count = substr( $_, $pos, $n_counter );
 				next unless $next_count =~ /^(\d+\.?\d*|\.\d+)$/;
@@ -5280,8 +5489,10 @@ sub fct_load_plugin_tree {
 			#check if plugin can handle png and/or jpeg
 			my $pixbuf_jpeg = 'gtk-no';
 			my $pixbuf_png  = 'gtk-no';
-			$pixbuf_jpeg = 'gtk-yes' if ( $plugins{ $_ }->{ 'ext' } =~ /jpeg/ );
-			$pixbuf_png  = 'gtk-yes' if ( $plugins{ $_ }->{ 'ext' } =~ /png/ );
+			$pixbuf_jpeg = 'gtk-yes'
+				if ( $plugins{ $_ }->{ 'ext' } =~ /jpeg/ );
+			$pixbuf_png = 'gtk-yes'
+				if ( $plugins{ $_ }->{ 'ext' } =~ /png/ );
 			$effects_model->set(
 								 $effects_model->append,         0,
 								 $pixbuf,                        1,
@@ -5432,7 +5643,8 @@ sub fct_set_model_plugins {
 	}
 
 	#icon
-	$effects_tree->set_tooltip_column( 5 ) if Gtk2->CHECK_VERSION( 2, 11, 0 );
+	$effects_tree->set_tooltip_column( 5 )
+		if Gtk2->CHECK_VERSION( 2, 11, 0 );
 	my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
 	$tv_clmn_pix_text->set_title( $d->get( "Icon" ) );
 	my $renderer_pix_effects = Gtk2::CellRendererPixbuf->new;
@@ -5605,14 +5817,16 @@ sub fct_init {
 	if ( system( "which gtklp" ) == 0 ) {
 		print "SUCCESS: gtklp is installed on your system!\n\n";
 	} else {
-		die
-			"ERROR: dependency is missing --> gtklp is not installed on your system!\n\n";
+		warn
+			"ERROR: gtklp is missing --> printing of screenshots will be disabled!\n\n";
+		$gtklp = FALSE;
 	}
 	if ( system( "which gnome-web-photo" ) == 0 ) {
 		print "SUCCESS: gnome-web-photo is installed on your system!\n\n";
 	} else {
-		die
-			"ERROR: dependency is missing --> gnome-web-photo is not installed on your system!\n\n";
+		warn
+			"ERROR: gnome-web-photo is missing --> screenshots of websites will be disabled!\n\n";
+		$gnome_web_photo = FALSE;
 	}
 
 	#an old .gscrot file existing?
@@ -5624,7 +5838,8 @@ sub fct_init {
 		if ( &fct_file_exists( "$ENV{ 'HOME' }/.gscrot/settings.conf" ) );
 
 	#is there already a .gscrot folder?
-	mkdir( "$ENV{ 'HOME' }/.gscrot" ) unless ( -d "$ENV{ 'HOME' }/.gscrot" );
+	mkdir( "$ENV{ 'HOME' }/.gscrot" )
+		unless ( -d "$ENV{ 'HOME' }/.gscrot" );
 
 	#...and a profiles folder?
 	mkdir "$ENV{'HOME'}/.gscrot/profiles"
@@ -5714,13 +5929,14 @@ sub dlg_question_message {
 sub dlg_rename {
 	my ( $dlg_rename_text, $data ) = @_;
 	my $dlg_header = $d->get( "Rename file" );
-	my $input_dialog = Gtk2::Dialog->new(
-										  $dlg_header,
-										  $window,
-										  [ qw/modal destroy-with-parent/ ],
-										  'gtk-apply'  => 'accept',
-										  'gtk-cancel' => 'reject'
-										);
+	my $input_dialog =
+		Gtk2::Dialog->new(
+						   $dlg_header,
+						   $window,
+						   [ qw/modal destroy-with-parent/ ],
+						   'gtk-apply'  => 'accept',
+						   'gtk-cancel' => 'reject'
+						 );
 	$input_dialog->set_default_response( 'accept' );
 	my $new_filename = Gtk2::Entry->new();
 	$new_filename->set_activates_default( TRUE );
@@ -5911,15 +6127,14 @@ sub dlg_plugin {
 
 sub dlg_account_chooser_and_upload {
 	my ( $file_to_upload ) = @_;
-	my $dlg_header = $d->get( "Choose hosting-site and account" );
-	my $hosting_dialog =
-		Gtk2::Dialog->new(
-						   $dlg_header,
-						   $window,
-						   [ qw/modal destroy-with-parent/ ],
-						   'gtk-execute' => 'accept',
-						   'gtk-cancel'  => 'reject'
-						 );
+	my $dlg_header         = $d->get( "Choose hosting-site and account" );
+	my $hosting_dialog     = Gtk2::Dialog->new( $dlg_header, $window,
+											[ qw/modal destroy-with-parent/ ] );
+	my $upload_button =
+		$hosting_dialog->add_button( $d->get( "_Upload" ), 'accept' );
+	$upload_button->set_image(
+						 Gtk2::Image->new_from_stock( 'gtk-go-up', 'button' ) );
+	$hosting_dialog->add_button( 'gtk-cancel', 'reject' );
 	$hosting_dialog->set_default_response( 'accept' );
 	$hosting_dialog->set_size_request( 300 );
 	my $model =

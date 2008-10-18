@@ -9,19 +9,20 @@ Homepage: https://launchpad.net/gscrot
 Package: gscrot
 Architecture: all
 Depends: libgtk2-trayicon-perl, libgtk2-perl, gtklp, liblocale-gettext-perl, libglib-perl, perlmagick, libxml-simple-perl, libwww-mechanize-perl, libwww-perl, gnome-web-photo, libgnome2-perl, libgnome2-gconf-perl, imagemagick, libgnome2-wnck-perl, libx11-protocol-perl
+Recommends: postr
 Conflicts: 
 Replaces: gscrot-plugins-bash
 Provides: gscrot, gscrot-plugins-bash
-Description: GScrot is a GTK+ 2.0 screenshot application written in perl (gscrot-plugins-bash included).
+Description: screenshot taking application written in perl and Gtk2
  Some of the features of GScrot
  - take a screenshot of your complete desktop or of a rectangular area
  - take screenshot directly or with a specified delay time
  - save the screenshots to a specified directory and name them in a convenient way (using special wild-cards)
- - GScrot is fully integrated into the Gnome Desktop (TrayIcon etc.)
- - generate thumbnails directly when you are taking a screenshot and set a size level in %
+ - fully integrated into the Gnome Desktop (TrayIcon etc.)
+ - generate thumbnails
  - automatically reduce color depth
  - save and revert your settings
- - GScrot session collection
+ - session collection
  - Upload your screenshots
  - Edit your Screenshots directly (simple drawing tool included)
 
