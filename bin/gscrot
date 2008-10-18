@@ -43,7 +43,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.204";
+use constant BRANCH              => "Rev.206";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.62";
@@ -283,7 +283,7 @@ $menuitem_close_all->add_accelerator(
 									);
 $menu_file->append( $menuitem_close_all );
 $menuitem_close_all->signal_connect( "activate", \&evt_close_all,
-								   'menu_close_all' );
+									 'menu_close_all' );
 
 $menu_file->append( Gtk2::SeparatorMenuItem->new );
 
@@ -1974,14 +1974,14 @@ sub evt_behavior_handle {
 
 sub evt_notebook_switch {
 	my ( $widget, $pointer, $int ) = @_;
-	if ( $menuitem_save_as && $menuitem_close && $menuitem_close_all) {
+	if ( $menuitem_save_as && $menuitem_close && $menuitem_close_all ) {
 		if ( $int == 0 ) {
 			$menuitem_save_as->set_sensitive( FALSE );
 			$menuitem_close->set_sensitive( FALSE );
 		} else {
 			$menuitem_save_as->set_sensitive( TRUE );
 			$menuitem_close->set_sensitive( TRUE );
-		}		
+		}
 	}
 
 	&fct_update_first_tab();    #update first tab for information
@@ -2705,7 +2705,7 @@ sub evt_close_all {
 	&dlg_status_message( 1, $d->get( "All screenshots removed" ) );
 	&fct_update_first_tab;
 	$window->show_all;
-	
+
 	return TRUE;
 }
 
@@ -3975,16 +3975,16 @@ sub fct_update_first_tab {
 		->set_text(   $d->get( "Total size" ) . ": "
 					. sprintf( "%.2f", $total_size / 1024 )
 					. " KB" );
-	
+
 	#if size == 0 => no screenshot in session (handle menu entries properly)
-	if($menuitem_close_all){
-		if($total_size == 0){
-			$menuitem_close_all->set_sensitive(FALSE);
-		}else{
-			$menuitem_close_all->set_sensitive(TRUE);
+	if ( $menuitem_close_all ) {
+		if ( $total_size == 0 ) {
+			$menuitem_close_all->set_sensitive( FALSE );
+		} else {
+			$menuitem_close_all->set_sensitive( TRUE );
 		}
 	}
-	
+
 	return TRUE;
 }
 
@@ -6416,7 +6416,10 @@ sub dlg_upload_links_ubuntu_pics {
 	$entry_ubuntucode->set_text( $ubuntucode );
 	$entry_direct->set_text( $direct );
 
+	my $tooltip_copy = Gtk2::Tooltips->new;
 	my $upload_copy1 = Gtk2::Button->new;
+	$tooltip_copy->set_tip( $upload_copy1,
+							$d->get( "Copy this code to clipboard" ) );
 	$upload_copy1->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy1->signal_connect(
@@ -6429,6 +6432,8 @@ sub dlg_upload_links_ubuntu_pics {
 
 
 	my $upload_copy2 = Gtk2::Button->new;
+	$tooltip_copy->set_tip( $upload_copy2,
+							$d->get( "Copy this code to clipboard" ) );
 	$upload_copy2->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy2->signal_connect(
@@ -6440,6 +6445,8 @@ sub dlg_upload_links_ubuntu_pics {
 								 );
 
 	my $upload_copy3 = Gtk2::Button->new;
+	$tooltip_copy->set_tip( $upload_copy3,
+							$d->get( "Copy this code to clipboard" ) );
 	$upload_copy3->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy3->signal_connect(
@@ -6450,6 +6457,8 @@ sub dlg_upload_links_ubuntu_pics {
 		$entry_bbcode
 								 );
 	my $upload_copy4 = Gtk2::Button->new;
+	$tooltip_copy->set_tip( $upload_copy4,
+							$d->get( "Copy this code to clipboard" ) );
 	$upload_copy4->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy4->signal_connect(
@@ -6460,6 +6469,8 @@ sub dlg_upload_links_ubuntu_pics {
 		$entry_ubuntucode
 								 );
 	my $upload_copy5 = Gtk2::Button->new;
+	$tooltip_copy->set_tip( $upload_copy5,
+							$d->get( "Copy this code to clipboard" ) );
 	$upload_copy5->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy5->signal_connect(
@@ -6530,7 +6541,6 @@ sub dlg_upload_links_imagebanana {
 	$upload_dialog->set_default_response( 'accept' );
 
 	my $upload_hbox = Gtk2::HBox->new( FALSE, 0 );
-
 	my $upload_hbox1  = Gtk2::HBox->new( TRUE,  10 );
 	my $upload_hbox2  = Gtk2::HBox->new( FALSE, 10 );
 	my $upload_hbox3  = Gtk2::HBox->new( TRUE,  10 );
@@ -6586,7 +6596,11 @@ sub dlg_upload_links_imagebanana {
 	$entry_hotweb->set_text( $hotweb );
 	$entry_hotboard1->set_text( $hotboard1 );
 	$entry_hotboard2->set_text( $hotboard2 );
+
+	my $tooltip_copy = Gtk2::Tooltips->new;
 	my $upload_copy1 = Gtk2::Button->new;
+	$tooltip_copy->set_tip( $upload_copy1,
+							$d->get( "Copy this code to clipboard" ) );
 	$upload_copy1->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy1->signal_connect(
@@ -6599,6 +6613,8 @@ sub dlg_upload_links_imagebanana {
 
 
 	my $upload_copy2 = Gtk2::Button->new;
+	$tooltip_copy->set_tip( $upload_copy2,
+							$d->get( "Copy this code to clipboard" ) );
 	$upload_copy2->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy2->signal_connect(
@@ -6610,6 +6626,8 @@ sub dlg_upload_links_imagebanana {
 								 );
 
 	my $upload_copy3 = Gtk2::Button->new;
+	$tooltip_copy->set_tip( $upload_copy3,
+							$d->get( "Copy this code to clipboard" ) );
 	$upload_copy3->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy3->signal_connect(
@@ -6620,6 +6638,8 @@ sub dlg_upload_links_imagebanana {
 		$entry_thumb3
 								 );
 	my $upload_copy4 = Gtk2::Button->new;
+	$tooltip_copy->set_tip( $upload_copy4,
+							$d->get( "Copy this code to clipboard" ) );
 	$upload_copy4->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy4->signal_connect(
@@ -6630,6 +6650,8 @@ sub dlg_upload_links_imagebanana {
 		$entry_friends
 								 );
 	my $upload_copy5 = Gtk2::Button->new;
+	$tooltip_copy->set_tip( $upload_copy5,
+							$d->get( "Copy this code to clipboard" ) );
 	$upload_copy5->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy5->signal_connect(
@@ -6641,6 +6663,8 @@ sub dlg_upload_links_imagebanana {
 								 );
 
 	my $upload_copy6 = Gtk2::Button->new;
+	$tooltip_copy->set_tip( $upload_copy6,
+							$d->get( "Copy this code to clipboard" ) );
 	$upload_copy6->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy6->signal_connect(
@@ -6653,6 +6677,8 @@ sub dlg_upload_links_imagebanana {
 
 
 	my $upload_copy7 = Gtk2::Button->new;
+	$tooltip_copy->set_tip( $upload_copy7,
+							$d->get( "Copy this code to clipboard" ) );
 	$upload_copy7->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy7->signal_connect(
@@ -6664,6 +6690,8 @@ sub dlg_upload_links_imagebanana {
 								 );
 
 	my $upload_copy8 = Gtk2::Button->new;
+	$tooltip_copy->set_tip( $upload_copy8,
+							$d->get( "Copy this code to clipboard" ) );
 	$upload_copy8->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy8->signal_connect(
@@ -6675,6 +6703,8 @@ sub dlg_upload_links_imagebanana {
 								 );
 
 	my $upload_copy9 = Gtk2::Button->new;
+	$tooltip_copy->set_tip( $upload_copy9,
+							$d->get( "Copy this code to clipboard" ) );
 	$upload_copy9->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy9->signal_connect(
@@ -6813,11 +6843,15 @@ sub dlg_upload_links_imageshack {
 	);
 	$upload_vbox->pack_start( $upload_hbox, TRUE, TRUE, 10 );
 
+	my $tooltip_copy = Gtk2::Tooltips->new;
+
 	if ( $url_thumb ) {
 		my $entry_thumb1 = Gtk2::Entry->new();
 		my $entry_thumb2 = Gtk2::Entry->new();
 
 		my $upload_copy1 = Gtk2::Button->new;
+		$tooltip_copy->set_tip( $upload_copy1,
+								$d->get( "Copy this code to clipboard" ) );
 		$upload_copy1->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 		$upload_copy1->signal_connect(
@@ -6829,6 +6863,8 @@ sub dlg_upload_links_imageshack {
 									 );
 
 		my $upload_copy2 = Gtk2::Button->new;
+		$tooltip_copy->set_tip( $upload_copy2,
+								$d->get( "Copy this code to clipboard" ) );
 		$upload_copy2->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 		$upload_copy2->signal_connect(
@@ -6856,6 +6892,8 @@ sub dlg_upload_links_imageshack {
 	}
 
 	my $upload_copy3 = Gtk2::Button->new;
+	$tooltip_copy->set_tip( $upload_copy3,
+							$d->get( "Copy this code to clipboard" ) );
 	$upload_copy3->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy3->signal_connect(
@@ -6867,6 +6905,8 @@ sub dlg_upload_links_imageshack {
 								 );
 
 	my $upload_copy4 = Gtk2::Button->new;
+	$tooltip_copy->set_tip( $upload_copy4,
+							$d->get( "Copy this code to clipboard" ) );
 	$upload_copy4->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy4->signal_connect(
