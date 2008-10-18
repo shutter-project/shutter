@@ -43,7 +43,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.206";
+use constant BRANCH              => "Rev.207";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.62";
@@ -64,7 +64,6 @@ $ENV{ 'GSCROT_ROOT' } = $gscrot_root;    #need by some plugins
 #--------------------------------------
 my $debug_cparam    = FALSE;
 my $min_cparam      = FALSE;
-my @args            = @ARGV;
 my $start_with      = undef;
 my $gnome_web_photo = TRUE;
 my $gtklp           = TRUE;
@@ -953,7 +952,10 @@ my $saveDir_button =
 if ( defined $settings_xml->{ 'general' }->{ 'folder' } ) {
 	$saveDir_button->set_current_folder(
 								   $settings_xml->{ 'general' }->{ 'folder' } );
+} else {
+	$saveDir_button->set_current_folder( $ENV{ 'HOME' } );
 }
+
 my $tooltip_saveDir = Gtk2::Tooltips->new;
 $tooltip_saveDir->set_tip(
 						   $saveDir_button,
@@ -1000,6 +1002,7 @@ if ( defined $settings_xml->{ 'general' }->{ 'capture_sel_key' } ) {
 } else {
 	$capture_sel_key->set_text( "<Alt>Print" );
 }
+
 my $capture_sel_label = Gtk2::Label->new( $d->get( "Capture with selection" ) );
 my $tooltip_sel_capture = Gtk2::Tooltips->new;
 $tooltip_sel_capture->set_tip(
@@ -1461,6 +1464,7 @@ if ( $start_with && $folder_to_save ) {
 }
 
 Gtk2->main;
+
 0;
 
 #events
@@ -1483,6 +1487,8 @@ sub evt_navigate {
 sub evt_value_changed {
 	my ( $widget, $data ) = @_;
 	print "\n$data was emitted by widget $widget\n" if $debug_cparam;
+
+	return FALSE unless $data;
 
 	#checkbox for "open with" -> entry active/inactive
 	if ( $data eq "progname_toggled" ) {
@@ -1534,10 +1540,19 @@ sub evt_value_changed {
 			$scale_label->set_text( $d->get( "Compression" ) );
 		}
 	}
+
+	return TRUE;
 }
 
 sub evt_take_screenshot {
 	my ( $widget, $data, $folder_from_config ) = @_;
+
+	#disable signal-handler
+	$SIG{ USR1 }  = 'IGNORE';
+	$SIG{ USR2 }  = 'IGNORE';
+	$SIG{ RTMIN } = 'IGNORE';
+	$SIG{ RTMAX } = 'IGNORE';
+
 	my $quality_value             = undef;
 	my $delay_value               = undef;
 	my $thumbnail_value           = undef;
@@ -1943,7 +1958,17 @@ sub evt_take_screenshot {
 
 	#focus window after taking a screenshot
 	$window->window->focus( time );
-	return 1;
+
+	#attach signal-handler again
+	$SIG{ USR1 } = sub { &evt_take_screenshot( 'global_keybinding', 'raw' ) };
+	$SIG{ USR2 } =
+		sub { &evt_take_screenshot( 'global_keybinding', 'window' ) };
+	$SIG{ RTMIN } =
+		sub { &evt_take_screenshot( 'global_keybinding', 'select' ) };
+	$SIG{ RTMAX } =
+		sub { &evt_take_screenshot( 'global_keybinding', 'section' ) };
+
+	return TRUE;
 }
 
 sub evt_behavior_handle {
@@ -2261,9 +2286,11 @@ sub evt_show_settings {
 	my $settings_dialog_response = $settings_dialog->run;
 	if ( $settings_dialog_response eq "close" ) {
 		$settings_dialog->hide();
+		&fct_update_first_tab;
 		return TRUE;
 	} else {
 		$settings_dialog->hide();
+		&fct_update_first_tab;
 		return FALSE;
 	}
 }
@@ -2932,6 +2959,8 @@ sub fct_create_tab {
 	my $vbox_tab          = Gtk2::VBox->new( FALSE, 0 );
 	my $hbox_tab          = Gtk2::HBox->new( FALSE, 0 );
 	my $vbox_all          = Gtk2::VBox->new( FALSE, 0 );
+	my $hbox_all          = Gtk2::HBox->new( FALSE, 0 );
+	my $vbox_all2         = Gtk2::VBox->new( FALSE, 0 );
 	my $vbox_fileinfos    = Gtk2::VBox->new( FALSE, 0 );
 	my $vbox_fileinfos2   = Gtk2::VBox->new( FALSE, 0 );
 	my $hbox_tab_file     = Gtk2::HBox->new( FALSE, 0 );
@@ -3081,7 +3110,20 @@ sub fct_create_tab {
 			Gtk2::Tooltips->new;
 		$session_screens{ $key }->{ 'tooltip_filename_tab' }
 			->set_tip( $session_screens{ $key }->{ 'filename_label' },
-					   $session_screens{ $key }->{ 'filename' } );
+					   $session_screens{ $key }->{ 'long' } );
+		my $folder_label = Gtk2::Label->new;
+		$folder_label->set_markup( "<b>" . $d->get( "Directory" ) . "</b>" );
+		$session_screens{ $key }->{ 'folder_label' } =
+			Gtk2::Label->new( $session_screens{ $key }->{ 'folder' } );
+		$session_screens{ $key }->{ 'folder_label' }->set_width_chars( 20 );
+		$session_screens{ $key }->{ 'folder_label' }->set_line_wrap( 1 );
+		$session_screens{ $key }->{ 'folder_label' }
+			->set_line_wrap_mode( 'char' );
+		$session_screens{ $key }->{ 'tooltip_folder_tab' } =
+			Gtk2::Tooltips->new;
+		$session_screens{ $key }->{ 'tooltip_folder_tab' }
+			->set_tip( $session_screens{ $key }->{ 'folder_label' },
+					   $session_screens{ $key }->{ 'long' } );
 		my $mime_type_label = Gtk2::Label->new;
 		$mime_type_label->set_markup( "<b>" . $d->get( "Mime-Type" ) . "</b>" );
 		$session_screens{ $key }->{ 'mime_type_label' } =
@@ -3126,6 +3168,8 @@ sub fct_create_tab {
 		$tab_infos_sizegroup->add_widget(
 							   $session_screens{ $key }->{ 'filename_label' } );
 		$tab_infos_sizegroup->add_widget(
+								 $session_screens{ $key }->{ 'folder_label' } );
+		$tab_infos_sizegroup->add_widget(
 								   $session_screens{ $key }->{ 'size_label' } );
 		$tab_infos_sizegroup->add_widget(
 							  $session_screens{ $key }->{ 'mime_type_label' } );
@@ -3136,6 +3180,10 @@ sub fct_create_tab {
 		$vbox_fileinfos->pack_start(
 								 $session_screens{ $key }->{ 'filename_label' },
 								 FALSE, TRUE, 2 );
+		$vbox_fileinfos->pack_start( $folder_label, FALSE, TRUE, 5 );
+		$vbox_fileinfos->pack_start(
+								   $session_screens{ $key }->{ 'folder_label' },
+								   FALSE, TRUE, 2 );
 		$vbox_fileinfos->pack_start( $size_label, FALSE, TRUE, 10 );
 		$vbox_fileinfos->pack_start( $session_screens{ $key }->{ 'size_label' },
 									 FALSE, TRUE, 2 );
@@ -3242,6 +3290,27 @@ sub fct_create_tab {
 					  $session_start_screen{ 'first_page' }->{ 'size_counter' },
 					  FALSE, TRUE, 1 );
 
+		my $settings_label = Gtk2::Label->new;
+		$settings_label->set_markup(
+							   "<b>" . $d->get( "Current Preferences" ) . "</b>" );
+		$vbox_all2->pack_start_defaults( $settings_label );
+
+		$session_start_screen{ 'first_page' }->{ 'filename_label' } =
+			Gtk2::Label->new( $d->get( "Filename" ) . ": " );
+		$session_start_screen{ 'first_page' }->{ 'folder_label' } =
+			Gtk2::Label->new( $d->get( "Directory" ) . ": " );
+
+		my $tab_all_sizegroup = Gtk2::SizeGroup->new( 'vertical' );
+		$tab_all_sizegroup->add_widget(
+				  $session_start_screen{ 'first_page' }->{ 'filename_label' } );
+		$tab_all_sizegroup->add_widget(
+					$session_start_screen{ 'first_page' }->{ 'folder_label' } );
+
+		$vbox_all2->pack_start_defaults(
+				  $session_start_screen{ 'first_page' }->{ 'filename_label' } );
+		$vbox_all2->pack_start_defaults(
+					$session_start_screen{ 'first_page' }->{ 'folder_label' } );
+
 		#create iconview for session
 		my $viewmodel =
 			Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String',
@@ -3277,14 +3346,12 @@ sub fct_create_tab {
 			$button_reopen;
 		$session_start_screen{ 'first_page' }->{ 'btn_print' } = $button_print;
 
-
 		#all buttons start insensitive
 		foreach ( keys %{ $session_start_screen{ 'first_page' } } ) {
 			$session_start_screen{ 'first_page' }->{ $_ }
 				->set_sensitive( FALSE )
 				if $session_start_screen{ 'first_page' }->{ $_ } =~ /button/i;
 		}
-
 
 		$tabtoolbar->insert( $button_reopen,               -1 );
 		$tabtoolbar->insert( Gtk2::SeparatorToolItem->new, -1 );
@@ -3294,7 +3361,9 @@ sub fct_create_tab {
 		$tabtoolbar->insert( $button_delete,               -1 );
 
 		$vbox_tab->pack_start( $tabtoolbar, FALSE, TRUE, 1 );
-		$vbox_tab->pack_start( $vbox_all,   FALSE, TRUE, 1 );
+		$hbox_all->pack_start_defaults( $vbox_all );
+		$hbox_all->pack_start_defaults( $vbox_all2 );
+		$vbox_tab->pack_start( $hbox_all, FALSE, TRUE, 1 );
 
 		my $scrolled_window_view = Gtk2::ScrolledWindow->new;
 		$scrolled_window_view->set_policy( 'automatic', 'automatic' );
@@ -3692,6 +3761,7 @@ sub fct_load_settings {
 		&fct_set_model_plugins( $effects_tree );
 	}
 
+	&fct_update_first_tab;
 
 	return $settings_xml;
 }
@@ -3797,7 +3867,7 @@ sub fct_load_accounts {
 sub fct_load_session {
 	my ( $profilename ) = @_;
 
-	#accounts file
+	#session file
 	my $sessionfile = "$ENV{ HOME }/.gscrot/session.xml";
 
 	eval {
@@ -3983,6 +4053,29 @@ sub fct_update_first_tab {
 		} else {
 			$menuitem_close_all->set_sensitive( TRUE );
 		}
+	}
+
+	if ( $filename && $saveDir_button ) {
+		my $current_folder = $saveDir_button->get_filename;
+		unless ( $current_folder ) {
+			if ( defined $settings_xml->{ 'general' }->{ 'folder' } ) {
+				$current_folder = $settings_xml->{ 'general' }->{ 'folder' };
+			} else {
+				$current_folder = $ENV{ 'HOME' };
+			}
+		}
+
+		if ( $filename->get_text ne "" ) {
+			$session_start_screen{ 'first_page' }->{ 'filename_label' }
+				->set_text(
+						   $d->get( "Filename" ) . ": " . $filename->get_text );
+		} else {
+			$session_start_screen{ 'first_page' }->{ 'filename_label' }
+				->set_text( $d->get( "Filename" ) . ": -" );
+		}
+
+		$session_start_screen{ 'first_page' }->{ 'folder_label' }
+			->set_text( $d->get( "Directory" ) . ": " . $current_folder );
 	}
 
 	return TRUE;
@@ -5263,16 +5356,16 @@ sub fct_create_thumbnail_and_fileinfos {
 		&fct_imagemagick_perform( "get_height", $filename, 0, "" );
 	$session_screens{ $key }->{ 'size' } = -s $filename;
 
-	#short filename
-	$session_screens{ $key }->{ 'short' } = $filename;
-	$session_screens{ $key }->{ 'short' } =~ s{^.*/}{};
+	#parse filename
+	(
+	   $session_screens{ $key }->{ 'short' },
+	   $session_screens{ $key }->{ 'folder' },
+	   $session_screens{ $key }->{ 'filetype' }
+	) = fileparse( $filename, '\..*' );
 
 	#long filename
 	$session_screens{ $key }->{ 'long' } = $filename;
 
-	#store the filetype of the current screenshot for further processing
-	$filename =~ /.*\.(.*)$/;
-	$session_screens{ $key }->{ 'filetype' } = $1;
 	return TRUE;
 }
 
@@ -5732,7 +5825,7 @@ sub fct_init {
 	#are there any command line params?
 	if ( @ARGV > 0 ) {
 		my $arg;
-		foreach $arg ( @args ) {
+		foreach $arg ( @ARGV ) {
 			if ( $arg eq "--debug" ) {
 				$debug_cparam = TRUE;
 			} elsif ( $arg eq "--help" ) {
@@ -5818,14 +5911,14 @@ sub fct_init {
 		print "SUCCESS: gtklp is installed on your system!\n\n";
 	} else {
 		warn
-			"ERROR: gtklp is missing --> printing of screenshots will be disabled!\n\n";
+			"WARNING: gtklp is missing --> printing of screenshots will be disabled!\n\n";
 		$gtklp = FALSE;
 	}
 	if ( system( "which gnome-web-photo" ) == 0 ) {
 		print "SUCCESS: gnome-web-photo is installed on your system!\n\n";
 	} else {
 		warn
-			"ERROR: gnome-web-photo is missing --> screenshots of websites will be disabled!\n\n";
+			"WARNING: gnome-web-photo is missing --> screenshots of websites will be disabled!\n\n";
 		$gnome_web_photo = FALSE;
 	}
 
@@ -6540,7 +6633,7 @@ sub dlg_upload_links_imagebanana {
 						   'gtk-ok' => 'accept' );
 	$upload_dialog->set_default_response( 'accept' );
 
-	my $upload_hbox = Gtk2::HBox->new( FALSE, 0 );
+	my $upload_hbox   = Gtk2::HBox->new( FALSE, 0 );
 	my $upload_hbox1  = Gtk2::HBox->new( TRUE,  10 );
 	my $upload_hbox2  = Gtk2::HBox->new( FALSE, 10 );
 	my $upload_hbox3  = Gtk2::HBox->new( TRUE,  10 );
