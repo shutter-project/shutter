@@ -43,7 +43,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.208";
+use constant BRANCH              => "Rev.209";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.62";
@@ -62,11 +62,12 @@ $ENV{ 'GSCROT_ROOT' } = $gscrot_root;    #need by some plugins
 
 #command line parameter
 #--------------------------------------
-my $debug_cparam    = FALSE;
-my $min_cparam      = FALSE;
-my $start_with      = undef;
-my $gnome_web_photo = TRUE;
-my $gtklp           = TRUE;
+my $debug_cparam           = FALSE;
+my $min_cparam             = FALSE;
+my $disable_systray_cparam = FALSE;
+my $start_with             = undef;
+my $gnome_web_photo        = TRUE;
+my $gtklp                  = TRUE;
 
 #--------------------------------------
 
@@ -655,26 +656,33 @@ $vbox->pack_start( $handlebox, FALSE, TRUE, 0 );
 
 #trayicon
 #--------------------------------------
-my $icon = Gtk2::Image->new_from_pixbuf(
+#command line param set to disable tray icon?
+unless ( $disable_systray_cparam ) {
+
+	my $icon =
+		Gtk2::Image->new_from_pixbuf(
 									Gtk2::Gdk::Pixbuf->new_from_file_at_size(
 										"$gscrot_root/share/pixmaps/gscrot.svg",
 										24, 24
 									)
-);
-my $eventbox = Gtk2::EventBox->new;
-$eventbox->add( $icon );
-my $tray = Gtk2::TrayIcon->new( 'gscrot TrayIcon' );
-$tray->add( $eventbox );
+		);
+
+	my $eventbox = Gtk2::EventBox->new;
+	$eventbox->add( $icon );
+	my $tray = Gtk2::TrayIcon->new( 'gscrot TrayIcon' );
+	$tray->add( $eventbox );
 
 #tooltip
-my $tooltip_tray = Gtk2::Tooltips->new;
-$tooltip_tray->set_tip( $tray, GSCROT_NAME . " " . GSCROT_VERSION );
+	my $tooltip_tray = Gtk2::Tooltips->new;
+	$tooltip_tray->set_tip( $tray, GSCROT_NAME . " " . GSCROT_VERSION );
 
 #events and timeouts
-$eventbox->signal_connect( 'button_release_event', \&evt_show_icon_menu );
+	$eventbox->signal_connect( 'button_release_event', \&evt_show_systray );
 
 #show tray
-$tray->show_all;
+	$tray->show_all;
+
+}
 
 #--------------------------------------
 
@@ -2108,7 +2116,7 @@ sub evt_about {
 	$about->signal_connect( 'response' => sub { $about->destroy } );
 }
 
-sub evt_show_icon_menu {
+sub evt_show_systray {
 	my ( $widget, $data ) = @_;
 	if ( $debug_cparam ) {
 		print "\n$data was emitted by widget $widget\n";
@@ -2930,7 +2938,7 @@ sub fct_integrate_screenshot_in_notebook {
 #									  $session_screens{ $key }->{ 'tab_child' },
 #									  TRUE );
 
-		$window->show_all unless ($is_in_tray);
+		$window->show_all unless ( $is_in_tray );
 
 		$notebook->set_current_page( $new_index );
 
@@ -3293,11 +3301,12 @@ sub fct_create_tab {
 					  $session_start_screen{ 'first_page' }->{ 'size_counter' },
 					  FALSE, TRUE, 1 );
 
-		my $settings_label = Gtk2::Label->new;
-		$settings_label->set_markup(
-							"<b>" . $d->get( "Current Preferences" ) . "</b>" );
-		$vbox_all2->pack_start_defaults( $settings_label );
-
+		$session_start_screen{ 'first_page' }->{ 'settings_label' } =
+			Gtk2::Label->new;
+		$session_start_screen{ 'first_page' }->{ 'settings_label' }
+			->set_markup( "<b>" . $d->get( "Current Preferences" ) . "</b>" );
+		$vbox_all2->pack_start_defaults(
+				  $session_start_screen{ 'first_page' }->{ 'settings_label' } );
 		$session_start_screen{ 'first_page' }->{ 'filename_label' } =
 			Gtk2::Label->new( $d->get( "Filename" ) . ": " );
 		$session_start_screen{ 'first_page' }->{ 'folder_label' } =
@@ -3989,8 +3998,9 @@ sub fct_usage {
 
 		"Application:\n"
 		. "--min_at_startup (starts gscrot minimized to tray)\n"
-		. "--debug (prints a lot of debugging information to STDOUT)\n";
-	print "--help (displays this help)\n";
+		. "--debug (prints a lot of debugging information to STDOUT)\n"
+		. "--disable_systray (disable systray icon)\n"
+		. "--help (displays this help)\n";
 }
 
 sub fct_update_first_tab {
@@ -4056,8 +4066,21 @@ sub fct_update_first_tab {
 		}
 	}
 
-	if ( $filename && $saveDir_button ) {
+	if ( $filename && $saveDir_button && $combobox_settings_profiles ) {
 		my $current_folder = $saveDir_button->get_filename;
+
+		if ( $combobox_settings_profiles->get_active_text && $combobox_settings_profiles->get_active_text ne "" ) {
+			$session_start_screen{ 'first_page' }->{ 'settings_label' }
+				->set_markup(   "<b>"
+							  . $d->get( "Current Preferences" ) . "</b>" . " ("
+							  . $combobox_settings_profiles->get_active_text
+							  . ")" );
+		} else {
+			$session_start_screen{ 'first_page' }->{ 'settings_label' }
+				->set_markup(
+							"<b>" . $d->get( "Current Preferences" ) . "</b>" );
+		}
+		
 		unless ( $current_folder ) {
 			if ( defined $settings_xml->{ 'general' }->{ 'folder' } ) {
 				$current_folder = $settings_xml->{ 'general' }->{ 'folder' };
@@ -4477,6 +4500,7 @@ sub fct_gscrot_area {
 						$zoom_window->get_size;
 					( $zoom_window_x, $zoom_window_y ) =
 						$zoom_window->get_position;
+
 					if (
 						(
 						   ( $event->x >= $zoom_window_x - 150 )
@@ -5838,6 +5862,8 @@ sub fct_init {
 				exit;
 			} elsif ( $arg eq "--min_at_startup" ) {
 				$min_cparam = TRUE;
+			} elsif ( $arg eq "--disable_systray" ) {
+				$disable_systray_cparam = TRUE;
 			} elsif ( $arg eq "--section" ) {
 
 				#is there already a process of gscrot running?

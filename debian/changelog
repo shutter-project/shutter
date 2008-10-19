@@ -1,14 +1,13 @@
 gscrot (0.62~ppa1) intrepid; urgency=low
 
-  * LP: #277121
-  * LP: #280154
-  * LP: #280155
-  * LP: #280165
-  * LP: #280868
-  * LP: #280886
+  * display session information on startup (see LP: #277121)
+  * minor changes related to upload dialog (see LP: #280154 and LP: #280165)
+  * new file->save as and file->close menu entries (see LP: #280155 and LP: #280886)
+  * new command line parameters (see LP: #280868 and LP: #281793)
+  * deleted hard dependencies of gnome-web-photo and gtklp in source code for more flexibility (e.g. packaging)
   * updated translations    
 
- -- Mario Kemper <mario.kemper@googlemail.com>  Sat, 18 Oct 2008 17:47:11 +0200
+ -- Mario Kemper <mario.kemper@googlemail.com>  Mon, 20 Oct 2008 00:25:43 +0200
 
 gscrot (0.61~ppa3) intrepid; urgency=low
 
