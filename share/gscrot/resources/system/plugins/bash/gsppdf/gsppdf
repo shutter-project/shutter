@@ -34,5 +34,9 @@ FILE="${1}"
 #GEO="${2}x${3}"
 
 convert "$FILE" "$FILE.pdf"  
+
+if [[ -e /usr/bin/gnome-open ]];then
+	gnome-open "$FILE.pdf"
+fi
  
- exit 0
+exit 0

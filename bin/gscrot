@@ -43,7 +43,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.211";
+use constant BRANCH              => "Rev.212";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.62";
@@ -56,7 +56,7 @@ use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
 $Bin =~ m/(.*)\//;
 my $gscrot_root = $1;
 my $gscrot_path = $Bin . "/gscrot";
-$ENV{ 'GSCROT_ROOT' } = $gscrot_root;    #need by some plugins
+$ENV{ 'GSCROT_ROOT' } = $gscrot_root;    #used by some plugins
 
 #--------------------------------------
 
@@ -270,7 +270,7 @@ $menu_file->append( $menuitem_close );
 $menuitem_close->signal_connect( "activate", \&evt_close, 'menu_close' );
 
 my $menuitem_close_all =
-	Gtk2::ImageMenuItem->new_with_label( $d->get( "Close all" ) );
+	Gtk2::ImageMenuItem->new_with_mnemonic( $d->get( "C_lose all" ) );
 $menuitem_close_all->set_image(
 						   Gtk2::Image->new_from_stock( 'gtk-close', 'menu' ) );
 $menuitem_close_all->add_accelerator(
@@ -2253,10 +2253,10 @@ sub evt_plugins_toolbar {
 	my $iter = $model->get_iter( $path );
 
 	if ( $renderer->get_active ) {
-		$model->set( $iter, 2, FALSE );
+		$model->set( $iter, 0, FALSE );
 		$plugins{ $model->get_value( $iter, 9 ) }->{ 'menu' } = FALSE;
 	} else {
-		$model->set( $iter, 2, TRUE );
+		$model->set( $iter, 0, TRUE );
 		$plugins{ $model->get_value( $iter, 9 ) }->{ 'menu' } = TRUE;
 	}
 
@@ -2773,7 +2773,7 @@ sub evt_save_as {
 	my $extra_hbox = Gtk2::HBox->new;
 
 	my $label_save_as_type =
-		Gtk2::Label->new( $d->get( "Image format" ) . ": " );
+		Gtk2::Label->new( $d->get( "Image format" ) . ":" );
 
 	my $combobox_save_as_type = Gtk2::ComboBox->new_text;
 
@@ -2788,25 +2788,23 @@ sub evt_save_as {
 		$combobox_save_as_type->set_active( 1 );
 	}
 
-	$combobox_save_as_type->signal_connect('changed' => sub { 
+	$combobox_save_as_type->signal_connect(
+		'changed' => sub {
 			my $filename = $fs->get_filename;
-			
+
 			my $choosen_format = $combobox_save_as_type->get_active_text;
 			$choosen_format =~ s/.*\- //;    #get png or jpeg
-			
+
 			unless ( $filename =~ /.*\.$choosen_format$/ ) {
 				$filename =~ s/\..*$/\.$choosen_format/;
-			}			
+			}
 
 			#parse filename
-			my (
-	   		$short,
-	   		$folder,
-	   		$ext
-			) = fileparse( $filename, '\..*' );
+			my ( $short, $folder, $ext ) = fileparse( $filename, '\..*' );
 
-			$fs->set_current_name($short.$ext); 
-	});
+			$fs->set_current_name( $short . $ext );
+		}
+	);
 
 	$extra_hbox->pack_start( $label_save_as_type,    FALSE, FALSE, 5 );
 	$extra_hbox->pack_start( $combobox_save_as_type, FALSE, FALSE, 5 );
@@ -2828,7 +2826,7 @@ sub evt_save_as {
 		$choosen_format =~ s/.*\- //;    #get png or jpeg
 
 		unless ( $filename =~ /.*\.$choosen_format$/ ) {
-			$filename .= ".".$choosen_format;
+			$filename .= "." . $choosen_format;
 		}
 
 		unless ( &fct_file_exists( $filename ) ) {
@@ -2852,6 +2850,12 @@ sub evt_save_as {
 				&fct_create_thumbnail_and_fileinfos( $filename, $key );
 				&fct_update_tab( $key );
 
+				&dlg_status_message(
+									 1,
+									 "$session_screens{ $key }->{ 'short' } "
+										 . $d->get( "saved" )
+								   );
+
 				$fs->destroy();
 				return TRUE;
 			}
@@ -2861,6 +2865,10 @@ sub evt_save_as {
 		$session_screens{ $key }->{ 'filename' } = $filename;
 		&fct_create_thumbnail_and_fileinfos( $filename, $key );
 		&fct_update_tab( $key );
+
+		&dlg_status_message( 1,
+				 "$session_screens{ $key }->{ 'short' } " . $d->get( "saved" ) )
+			;
 
 		$fs->destroy();
 		return TRUE;
@@ -3337,6 +3345,9 @@ sub fct_create_tab {
 				$btn->set_sensitive( FALSE )
 					unless $plugins{ $_ }->{ 'ext' } =~
 						/$session_screens{$key}->{'filetype'}/;
+
+				#store btn to hash to manipulate it later
+				$session_screens{ $key }->{ $_ } = $btn;
 			}
 		}
 
@@ -4223,6 +4234,22 @@ sub fct_update_tab {
 		$session_screens{ $key }->{ 'geometry_label' }
 			->set_text(   $session_screens{ $key }->{ 'width' } . "x"
 						. $session_screens{ $key }->{ 'height' } );
+
+		#handle plugins (attached to toolbar)
+		foreach ( keys %plugins ) {
+			if ( $session_screens{ $key }->{ $_ } ) {
+
+				#disable button if filetype is not supported
+				if ( $plugins{ $_ }->{ 'ext' } =~
+					 /$session_screens{$key}->{'filetype'}/ )
+				{
+					$session_screens{ $key }->{ $_ }->set_sensitive( TRUE );
+				} else {
+					$session_screens{ $key }->{ $_ }->set_sensitive( FALSE );
+				}
+			}
+		}
+
 	} else {
 
 		#update tab icon - file is not existing anymore, maybe deleted manually
@@ -4270,7 +4297,6 @@ sub fct_get_latest_tab_key {
 sub fct_gnome_open {
 	my ( $dialog, $link, $user_data ) = @_;
 	system( "gnome-open $link" );
-
 }
 
 sub fct_gnome_open_mail {
@@ -4301,7 +4327,8 @@ sub fct_imagemagick_perform {
 		&fct_resize_imagemagick_object( \$image, $1, $2, undef );
 		$image->WriteImage( filename => $file );
 	} elsif ( $function eq "save" ) {
-		$image->WriteImage( filename => $data , quality => 100);    #$data is new filename
+		$image->WriteImage( filename => $data, quality => 100 )
+			;    #$data is new filename
 	}
 	return TRUE;
 }
@@ -5443,12 +5470,13 @@ sub fct_create_thumbnail_and_fileinfos {
 	my ( $filename, $key ) = @_;
 	return FALSE unless &fct_file_exists( $filename );
 	$filename = &fct_switch_home_in_file( $filename );
-	
+
 	eval {
 		$session_screens{ $key }->{ 'thumb' } =
 			Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $filename, 400, 400,
 													   TRUE );
 	};
+
 	if ( $@ ) {
 		&dlg_error_message( "$@" );
 		return FALSE;
@@ -5466,7 +5494,7 @@ sub fct_create_thumbnail_and_fileinfos {
 			return FALSE;
 		}
 	}
-	
+
 	$session_screens{ $key }->{ 'mime_type' } =
 		&fct_imagemagick_perform( "get_mime", $filename, "" );
 	$session_screens{ $key }->{ 'width' } =
@@ -5661,11 +5689,11 @@ sub fct_load_plugin_tree {
 
 	$effects_model =
 		Gtk2::ListStore->new(
-							  'Gtk2::Gdk::Pixbuf', 'Glib::String',
-							  'Glib::Boolean',     'Glib::String',
-							  'Glib::String',      'Glib::String',
-							  'Glib::String',      'Glib::String',
-							  'Glib::String',      'Glib::String'
+							  'Glib::Boolean', 'Gtk2::Gdk::Pixbuf',
+							  'Glib::String',  'Glib::String',
+							  'Glib::String',  'Glib::String',
+							  'Glib::String',  'Glib::String',
+							  'Glib::String',  'Glib::String'
 							);
 	foreach ( sort keys %plugins ) {
 		if ( $plugins{ $_ }->{ 'binary' } ne "" ) {
@@ -5711,15 +5739,15 @@ sub fct_load_plugin_tree {
 				if ( $plugins{ $_ }->{ 'ext' } =~ /png/ );
 			$effects_model->set(
 								 $effects_model->append,         0,
-								 $pixbuf,                        1,
-								 $plugins{ $_ }->{ 'name' },     2,
-								 $plugins{ $_ }->{ 'menu' },     3,
-								 $plugins{ $_ }->{ 'binary' },   4,
-								 $plugins{ $_ }->{ 'category' }, 5,
-								 $plugins{ $_ }->{ 'tooltip' },  6,
-								 $pixbuf_jpeg,                   7,
-								 $pixbuf_png,                    8,
-								 $plugins{ $_ }->{ 'lang' },     9,
+								 $plugins{ $_ }->{ 'menu' },     1,
+								 $pixbuf,                        2,
+								 $plugins{ $_ }->{ 'name' },     3,
+								 $plugins{ $_ }->{ 'category' }, 4,
+								 $pixbuf_jpeg,                   5,
+								 $pixbuf_png,                    6,
+								 $plugins{ $_ }->{ 'tooltip' },  7,
+								 $plugins{ $_ }->{ 'lang' },     8,
+								 $plugins{ $_ }->{ 'binary' },   9,
 								 $_,
 							   );
 		} else {
@@ -5858,87 +5886,97 @@ sub fct_set_model_plugins {
 		$effects_tree->remove_column( $_ );
 	}
 
-	#icon
-	$effects_tree->set_tooltip_column( 5 )
-		if Gtk2->CHECK_VERSION( 2, 11, 0 );
-	my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
-	$tv_clmn_pix_text->set_title( $d->get( "Icon" ) );
-	my $renderer_pix_effects = Gtk2::CellRendererPixbuf->new;
-	$tv_clmn_pix_text->pack_start( $renderer_pix_effects, FALSE );
-	$tv_clmn_pix_text->set_attributes( $renderer_pix_effects, pixbuf => 0 );
-	$effects_tree->append_column( $tv_clmn_pix_text );
-
-#name
-	my $tv_clmn_text_text = Gtk2::TreeViewColumn->new;
-	$tv_clmn_text_text->set_title( $d->get( "Name" ) );
-	my $renderer_text_effects = Gtk2::CellRendererText->new;
-	$tv_clmn_text_text->pack_start( $renderer_text_effects, FALSE );
-	$tv_clmn_text_text->set_attributes( $renderer_text_effects, text => 1 );
-
-	$effects_tree->append_column( $tv_clmn_text_text );
-
 #menu
 	my $tv_clmn_toolbar_text = Gtk2::TreeViewColumn->new;
+	$tv_clmn_toolbar_text->set_resizable( TRUE );
 	$tv_clmn_toolbar_text->set_title( $d->get( "Toolbar" ) );
 	my $renderer_toolbar_effects = Gtk2::CellRendererToggle->new;
 	$tv_clmn_toolbar_text->pack_start( $renderer_toolbar_effects, FALSE );
 	$tv_clmn_toolbar_text->set_attributes( $renderer_toolbar_effects,
-										   'active' => 2 );
+										   'active' => 0 );
 	$renderer_toolbar_effects->signal_connect( toggled => \&evt_plugins_toolbar,
 											   $effects_model );
 	$effects_tree->append_column( $tv_clmn_toolbar_text );
 
+#icon
+	$effects_tree->set_tooltip_column( 6 )
+		if Gtk2->CHECK_VERSION( 2, 11, 0 );
+	my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
+	$tv_clmn_pix_text->set_resizable( TRUE );
+	$tv_clmn_pix_text->set_title( $d->get( "Icon" ) );
+	my $renderer_pix_effects = Gtk2::CellRendererPixbuf->new;
+	$tv_clmn_pix_text->pack_start( $renderer_pix_effects, FALSE );
+	$tv_clmn_pix_text->set_attributes( $renderer_pix_effects, pixbuf => 1 );
+	$effects_tree->append_column( $tv_clmn_pix_text );
+
+#name
+	my $tv_clmn_text_text = Gtk2::TreeViewColumn->new;
+	$tv_clmn_text_text->set_resizable( TRUE );
+	$tv_clmn_text_text->set_title( $d->get( "Name" ) );
+	my $renderer_text_effects = Gtk2::CellRendererText->new;
+	$tv_clmn_text_text->pack_start( $renderer_text_effects, FALSE );
+	$tv_clmn_text_text->set_attributes( $renderer_text_effects, text => 2 );
+
+	$effects_tree->append_column( $tv_clmn_text_text );
+
 #category
 	my $tv_clmn_category_text = Gtk2::TreeViewColumn->new;
+	$tv_clmn_category_text->set_resizable( TRUE );
 	$tv_clmn_category_text->set_title( $d->get( "Category" ) );
 	my $renderer_category_effects = Gtk2::CellRendererText->new;
 	$tv_clmn_category_text->pack_start( $renderer_category_effects, FALSE );
 	$tv_clmn_category_text->set_attributes( $renderer_category_effects,
-											text => 4 );
+											text => 3 );
 	$effects_tree->append_column( $tv_clmn_category_text );
-
-#path
-	my $tv_clmn_path_text = Gtk2::TreeViewColumn->new;
-	$tv_clmn_path_text->set_title( $d->get( "Path" ) );
-	my $renderer_path_effects = Gtk2::CellRendererText->new;
-	$tv_clmn_path_text->pack_start( $renderer_path_effects, FALSE );
-	$tv_clmn_path_text->set_attributes( $renderer_path_effects, text => 3 );
-	$effects_tree->append_column( $tv_clmn_path_text );
-
-#tooltip column
-	unless ( Gtk2->CHECK_VERSION( 2, 12, 0 ) ) {
-		my $tv_clmn_descr_text = Gtk2::TreeViewColumn->new;
-		$tv_clmn_descr_text->set_title( $d->get( "Description" ) );
-		my $renderer_descr_effects = Gtk2::CellRendererText->new;
-		$tv_clmn_descr_text->pack_start( $renderer_descr_effects, FALSE );
-		$tv_clmn_descr_text->set_attributes( $renderer_descr_effects,
-											 text => 5 );
-		$effects_tree->append_column( $tv_clmn_descr_text );
-	}
 
 #jpeg
 	my $tv_clmn_jpeg_text = Gtk2::TreeViewColumn->new;
+	$tv_clmn_jpeg_text->set_resizable( TRUE );
 	$tv_clmn_jpeg_text->set_title( "jpeg" );
 	my $renderer_jpeg_effects = Gtk2::CellRendererPixbuf->new;
 	$tv_clmn_jpeg_text->pack_start( $renderer_jpeg_effects, FALSE );
-	$tv_clmn_jpeg_text->set_attributes( $renderer_jpeg_effects, stock_id => 6 );
+	$tv_clmn_jpeg_text->set_attributes( $renderer_jpeg_effects, stock_id => 4 );
 	$effects_tree->append_column( $tv_clmn_jpeg_text );
 
 #png
 	my $tv_clmn_png_text = Gtk2::TreeViewColumn->new;
+	$tv_clmn_png_text->set_resizable( TRUE );
 	$tv_clmn_png_text->set_title( "png" );
 	my $renderer_png_effects = Gtk2::CellRendererPixbuf->new;
 	$tv_clmn_png_text->pack_start( $renderer_png_effects, FALSE );
-	$tv_clmn_png_text->set_attributes( $renderer_png_effects, stock_id => 7 );
+	$tv_clmn_png_text->set_attributes( $renderer_png_effects, stock_id => 5 );
 	$effects_tree->append_column( $tv_clmn_png_text );
+
+
+#tooltip column
+	unless ( Gtk2->CHECK_VERSION( 2, 12, 0 ) ) {
+		my $tv_clmn_descr_text = Gtk2::TreeViewColumn->new;
+		$tv_clmn_descr_text->set_resizable( TRUE );
+		$tv_clmn_descr_text->set_title( $d->get( "Description" ) );
+		my $renderer_descr_effects = Gtk2::CellRendererText->new;
+		$tv_clmn_descr_text->pack_start( $renderer_descr_effects, FALSE );
+		$tv_clmn_descr_text->set_attributes( $renderer_descr_effects,
+											 text => 6 );
+		$effects_tree->append_column( $tv_clmn_descr_text );
+	}
 
 #language
 	my $tv_clmn_lang_text = Gtk2::TreeViewColumn->new;
+	$tv_clmn_lang_text->set_resizable( TRUE );
 	$tv_clmn_lang_text->set_title( $d->get( "Language" ) );
 	my $renderer_lang_effects = Gtk2::CellRendererText->new;
 	$tv_clmn_lang_text->pack_start( $renderer_lang_effects, FALSE );
-	$tv_clmn_lang_text->set_attributes( $renderer_lang_effects, text => 8 );
+	$tv_clmn_lang_text->set_attributes( $renderer_lang_effects, text => 7 );
 	$effects_tree->append_column( $tv_clmn_lang_text );
+
+#path
+	my $tv_clmn_path_text = Gtk2::TreeViewColumn->new;
+	$tv_clmn_path_text->set_resizable( TRUE );
+	$tv_clmn_path_text->set_title( $d->get( "Path" ) );
+	my $renderer_path_effects = Gtk2::CellRendererText->new;
+	$tv_clmn_path_text->pack_start( $renderer_path_effects, FALSE );
+	$tv_clmn_path_text->set_attributes( $renderer_path_effects, text => 8 );
+	$effects_tree->append_column( $tv_clmn_path_text );
 
 	return TRUE;
 }

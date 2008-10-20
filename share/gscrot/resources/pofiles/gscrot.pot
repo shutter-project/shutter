@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GScrot\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-20 00:58+0200\n"
-"PO-Revision-Date: 2008-10-20 01:01+0100\n"
+"POT-Creation-Date: 2008-10-21 00:53+0200\n"
+"PO-Revision-Date: 2008-10-21 00:54+0100\n"
 "Last-Translator: Mario Kemper <mario.kemper@gmx.de>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -21,7 +21,7 @@ msgid "_File"
 msgstr ""
 
 #: translate_tmp.pl:273
-msgid "Close all"
+msgid "C_lose all"
 msgstr ""
 
 #: translate_tmp.pl:311
@@ -143,6 +143,7 @@ msgstr ""
 
 #: translate_tmp.pl:747
 #: translate_tmp.pl:920
+#: translate_tmp.pl:2776
 msgid "Image format"
 msgstr ""
 
@@ -200,10 +201,10 @@ msgid ""
 msgstr ""
 
 #: translate_tmp.pl:888
-#: translate_tmp.pl:3113
-#: translate_tmp.pl:3311
-#: translate_tmp.pl:4095
-#: translate_tmp.pl:4098
+#: translate_tmp.pl:3192
+#: translate_tmp.pl:3393
+#: translate_tmp.pl:4179
+#: translate_tmp.pl:4182
 msgid "Filename"
 msgstr ""
 
@@ -239,9 +240,9 @@ msgid ""
 msgstr ""
 
 #: translate_tmp.pl:955
-#: translate_tmp.pl:3126
-#: translate_tmp.pl:3313
-#: translate_tmp.pl:4102
+#: translate_tmp.pl:3205
+#: translate_tmp.pl:3395
+#: translate_tmp.pl:4186
 msgid "Directory"
 msgstr ""
 
@@ -406,8 +407,8 @@ msgstr ""
 
 #: translate_tmp.pl:1721
 #: translate_tmp.pl:1820
-#: translate_tmp.pl:2775
-#: translate_tmp.pl:6092
+#: translate_tmp.pl:2842
+#: translate_tmp.pl:6225
 msgid ""
 "File already exists.\n"
 "Do you want to overwrite it?"
@@ -442,6 +443,8 @@ msgid "No application specified to open the screenshot"
 msgstr ""
 
 #: translate_tmp.pl:1953
+#: translate_tmp.pl:2856
+#: translate_tmp.pl:2870
 msgid "saved"
 msgstr ""
 
@@ -454,7 +457,7 @@ msgid "Quit"
 msgstr ""
 
 #: translate_tmp.pl:2238
-#: translate_tmp.pl:5748
+#: translate_tmp.pl:5871
 msgid "Register"
 msgstr ""
 
@@ -478,7 +481,7 @@ msgid "deleted"
 msgstr ""
 
 #: translate_tmp.pl:2381
-#: translate_tmp.pl:2725
+#: translate_tmp.pl:2732
 msgid "removed from session"
 msgstr ""
 
@@ -503,7 +506,7 @@ msgid "All screenshots deleted"
 msgstr ""
 
 #: translate_tmp.pl:2593
-#: translate_tmp.pl:2743
+#: translate_tmp.pl:2750
 msgid "All screenshots removed"
 msgstr ""
 
@@ -516,183 +519,183 @@ msgid "Printing all screenshots"
 msgstr ""
 
 #: translate_tmp.pl:2689
-#: translate_tmp.pl:2756
+#: translate_tmp.pl:2763
 msgid "Choose file to open"
 msgstr ""
 
-#: translate_tmp.pl:2843
+#: translate_tmp.pl:2922
 msgid "Profile deleted"
 msgstr ""
 
-#: translate_tmp.pl:2845
-#: translate_tmp.pl:2846
+#: translate_tmp.pl:2924
+#: translate_tmp.pl:2925
 msgid "Profile could not be deleted"
 msgstr ""
 
-#: translate_tmp.pl:2880
+#: translate_tmp.pl:2959
 msgid "Session"
 msgstr ""
 
-#: translate_tmp.pl:2998
+#: translate_tmp.pl:3077
 msgid "Remove file(s) from session"
 msgstr ""
 
-#: translate_tmp.pl:3010
+#: translate_tmp.pl:3089
 msgid "Delete file(s)"
 msgstr ""
 
-#: translate_tmp.pl:3023
+#: translate_tmp.pl:3102
 msgid "Copy file(s) to clipboard"
 msgstr ""
 
-#: translate_tmp.pl:3035
+#: translate_tmp.pl:3114
 msgid "Open file(s)"
 msgstr ""
 
-#: translate_tmp.pl:3048
+#: translate_tmp.pl:3127
 msgid "Upload file to hosting-site"
 msgstr ""
 
-#: translate_tmp.pl:3060
-#: translate_tmp.pl:6055
+#: translate_tmp.pl:3139
+#: translate_tmp.pl:6188
 msgid "Rename file"
 msgstr ""
 
-#: translate_tmp.pl:3072
+#: translate_tmp.pl:3151
 msgid "Execute a plugin"
 msgstr ""
 
-#: translate_tmp.pl:3086
+#: translate_tmp.pl:3165
 msgid "Draw"
 msgstr ""
 
-#: translate_tmp.pl:3100
+#: translate_tmp.pl:3179
 msgid "Print file(s)"
 msgstr ""
 
-#: translate_tmp.pl:3105
+#: translate_tmp.pl:3184
 msgid "gtklp needs to be installed for this feature"
 msgstr ""
 
-#: translate_tmp.pl:3139
+#: translate_tmp.pl:3218
 msgid "Mime-Type"
 msgstr ""
 
-#: translate_tmp.pl:3143
+#: translate_tmp.pl:3222
 msgid "Filesize"
 msgstr ""
 
-#: translate_tmp.pl:3148
+#: translate_tmp.pl:3227
 msgid "Geometry"
 msgstr ""
 
-#: translate_tmp.pl:3284
+#: translate_tmp.pl:3366
 msgid "Statistic"
 msgstr ""
 
-#: translate_tmp.pl:3289
-#: translate_tmp.pl:4045
+#: translate_tmp.pl:3371
+#: translate_tmp.pl:4127
 msgid "screenshot during this session"
 msgid_plural "screenshots during this session"
 msgstr[0] ""
 msgstr[1] ""
 
-#: translate_tmp.pl:3307
-#: translate_tmp.pl:4075
-#: translate_tmp.pl:4081
+#: translate_tmp.pl:3389
+#: translate_tmp.pl:4159
+#: translate_tmp.pl:4165
 msgid "Current Preferences"
 msgstr ""
 
-#: translate_tmp.pl:3458
-#: translate_tmp.pl:3547
+#: translate_tmp.pl:3540
+#: translate_tmp.pl:3629
 msgid "Settings could not be saved!"
 msgstr ""
 
-#: translate_tmp.pl:3549
+#: translate_tmp.pl:3631
 msgid "Settings saved successfully!"
 msgstr ""
 
-#: translate_tmp.pl:3553
-#: translate_tmp.pl:3570
+#: translate_tmp.pl:3635
+#: translate_tmp.pl:3652
 msgid "Session could not be saved!"
 msgstr ""
 
-#: translate_tmp.pl:3575
-#: translate_tmp.pl:3586
+#: translate_tmp.pl:3657
+#: translate_tmp.pl:3668
 msgid "Account-settings could not be saved!"
 msgstr ""
 
-#: translate_tmp.pl:3745
+#: translate_tmp.pl:3827
 msgid "Settings loaded successfully"
 msgstr ""
 
-#: translate_tmp.pl:3751
+#: translate_tmp.pl:3833
 msgid "Settings could not be restored!"
 msgstr ""
 
-#: translate_tmp.pl:3795
+#: translate_tmp.pl:3877
 msgid "Account-settings could not be restored!"
 msgstr ""
 
-#: translate_tmp.pl:3808
-#: translate_tmp.pl:3821
-#: translate_tmp.pl:3835
-#: translate_tmp.pl:3847
-#: translate_tmp.pl:3857
-#: translate_tmp.pl:3870
+#: translate_tmp.pl:3890
+#: translate_tmp.pl:3903
+#: translate_tmp.pl:3917
+#: translate_tmp.pl:3929
+#: translate_tmp.pl:3939
+#: translate_tmp.pl:3952
 msgid "click me"
 msgstr ""
 
-#: translate_tmp.pl:3895
+#: translate_tmp.pl:3977
 msgid "Session could not be restored!"
 msgstr ""
 
-#: translate_tmp.pl:3948
-#: translate_tmp.pl:3983
+#: translate_tmp.pl:4030
+#: translate_tmp.pl:4065
 msgid "Could not execute plugin"
 msgstr ""
 
-#: translate_tmp.pl:3961
-#: translate_tmp.pl:3977
+#: translate_tmp.pl:4043
+#: translate_tmp.pl:4059
 msgid "Successfully executed plugin"
 msgstr ""
 
-#: translate_tmp.pl:4056
+#: translate_tmp.pl:4138
 msgid "Total size"
 msgstr ""
 
-#: translate_tmp.pl:5469
+#: translate_tmp.pl:5592
 msgid "Enable zoom window"
 msgstr ""
 
-#: translate_tmp.pl:5478
+#: translate_tmp.pl:5601
 msgid "Size of zoom window"
 msgstr ""
 
-#: translate_tmp.pl:5480
+#: translate_tmp.pl:5603
 msgid "Small"
 msgstr ""
 
-#: translate_tmp.pl:5481
+#: translate_tmp.pl:5604
 msgid "Medium"
 msgstr ""
 
-#: translate_tmp.pl:5482
+#: translate_tmp.pl:5605
 msgid "Large"
 msgstr ""
 
-#: translate_tmp.pl:5506
-#: translate_tmp.pl:5508
-#: translate_tmp.pl:5510
+#: translate_tmp.pl:5629
+#: translate_tmp.pl:5631
+#: translate_tmp.pl:5633
 msgid "Timeout"
 msgstr ""
 
-#: translate_tmp.pl:5649
+#: translate_tmp.pl:5772
 msgid "Host"
 msgstr ""
 
-#: translate_tmp.pl:5665
-#: translate_tmp.pl:5710
+#: translate_tmp.pl:5788
+#: translate_tmp.pl:5833
 msgid ""
 "If you have registered with imageshack.us, you should have received an email with a link similar to\n"
 "\n"
@@ -703,187 +706,187 @@ msgid ""
 "You do not have to provide a password."
 msgstr ""
 
-#: translate_tmp.pl:5691
+#: translate_tmp.pl:5814
 msgid "Username"
 msgstr ""
 
-#: translate_tmp.pl:5699
+#: translate_tmp.pl:5822
 msgid "Password"
 msgstr ""
 
-#: translate_tmp.pl:5771
-msgid "Icon"
-msgstr ""
-
-#: translate_tmp.pl:5779
-msgid "Name"
-msgstr ""
-
-#: translate_tmp.pl:5788
+#: translate_tmp.pl:5893
 msgid "Toolbar"
 msgstr ""
 
-#: translate_tmp.pl:5799
+#: translate_tmp.pl:5907
+msgid "Icon"
+msgstr ""
+
+#: translate_tmp.pl:5916
+msgid "Name"
+msgstr ""
+
+#: translate_tmp.pl:5926
 msgid "Category"
 msgstr ""
 
-#: translate_tmp.pl:5808
-msgid "Path"
-msgstr ""
-
-#: translate_tmp.pl:5817
-#: translate_tmp.pl:6184
+#: translate_tmp.pl:5956
+#: translate_tmp.pl:6317
 msgid "Description"
 msgstr ""
 
-#: translate_tmp.pl:5843
+#: translate_tmp.pl:5967
 msgid "Language"
 msgstr ""
 
-#: translate_tmp.pl:6119
+#: translate_tmp.pl:5976
+msgid "Path"
+msgstr ""
+
+#: translate_tmp.pl:6252
 msgid "Choose a plugin"
 msgstr ""
 
-#: translate_tmp.pl:6236
+#: translate_tmp.pl:6369
 msgid "No plugin specified"
 msgstr ""
 
-#: translate_tmp.pl:6254
+#: translate_tmp.pl:6387
 msgid "Choose hosting-site and account"
 msgstr ""
 
-#: translate_tmp.pl:6258
+#: translate_tmp.pl:6391
 msgid "_Upload"
 msgstr ""
 
-#: translate_tmp.pl:6280
+#: translate_tmp.pl:6413
 msgid "Guest"
 msgstr ""
 
-#: translate_tmp.pl:6368
-#: translate_tmp.pl:6395
-#: translate_tmp.pl:6432
+#: translate_tmp.pl:6501
+#: translate_tmp.pl:6528
+#: translate_tmp.pl:6565
 msgid "uploaded"
 msgstr ""
 
-#: translate_tmp.pl:6447
+#: translate_tmp.pl:6580
 msgid "URL to capture"
 msgstr ""
 
-#: translate_tmp.pl:6489
-#: translate_tmp.pl:6660
-#: translate_tmp.pl:6924
+#: translate_tmp.pl:6622
+#: translate_tmp.pl:6793
+#: translate_tmp.pl:7057
 msgid "Upload"
 msgstr ""
 
-#: translate_tmp.pl:6510
-#: translate_tmp.pl:6690
-#: translate_tmp.pl:6942
+#: translate_tmp.pl:6643
+#: translate_tmp.pl:6823
+#: translate_tmp.pl:7075
 msgid "Upload status:"
 msgstr ""
 
-#: translate_tmp.pl:6530
+#: translate_tmp.pl:6663
 msgid "Thumbnail for websites (with border)"
 msgstr ""
 
-#: translate_tmp.pl:6532
+#: translate_tmp.pl:6665
 msgid "Thumbnail for websites (without border)"
 msgstr ""
 
-#: translate_tmp.pl:6533
-#: translate_tmp.pl:6960
+#: translate_tmp.pl:6666
+#: translate_tmp.pl:7093
 msgid "Thumbnail for forums"
 msgstr ""
 
-#: translate_tmp.pl:6535
+#: translate_tmp.pl:6668
 msgid "Thumbnail for Ubuntuusers.de forum"
 msgstr ""
 
-#: translate_tmp.pl:6536
-#: translate_tmp.pl:6876
-#: translate_tmp.pl:6961
+#: translate_tmp.pl:6669
+#: translate_tmp.pl:7009
+#: translate_tmp.pl:7094
 msgid "Direct link"
 msgstr ""
 
-#: translate_tmp.pl:6546
-#: translate_tmp.pl:6560
-#: translate_tmp.pl:6573
-#: translate_tmp.pl:6585
-#: translate_tmp.pl:6597
-#: translate_tmp.pl:6727
-#: translate_tmp.pl:6741
-#: translate_tmp.pl:6754
-#: translate_tmp.pl:6766
-#: translate_tmp.pl:6778
-#: translate_tmp.pl:6791
-#: translate_tmp.pl:6805
-#: translate_tmp.pl:6818
-#: translate_tmp.pl:6831
-#: translate_tmp.pl:6978
-#: translate_tmp.pl:6991
-#: translate_tmp.pl:7020
-#: translate_tmp.pl:7033
+#: translate_tmp.pl:6679
+#: translate_tmp.pl:6693
+#: translate_tmp.pl:6706
+#: translate_tmp.pl:6718
+#: translate_tmp.pl:6730
+#: translate_tmp.pl:6860
+#: translate_tmp.pl:6874
+#: translate_tmp.pl:6887
+#: translate_tmp.pl:6899
+#: translate_tmp.pl:6911
+#: translate_tmp.pl:6924
+#: translate_tmp.pl:6938
+#: translate_tmp.pl:6951
+#: translate_tmp.pl:6964
+#: translate_tmp.pl:7111
+#: translate_tmp.pl:7124
+#: translate_tmp.pl:7153
+#: translate_tmp.pl:7166
 msgid "Copy this code to clipboard"
 msgstr ""
 
-#: translate_tmp.pl:6846
-#: translate_tmp.pl:6959
+#: translate_tmp.pl:6979
+#: translate_tmp.pl:7092
 msgid "Thumbnail for websites"
 msgstr ""
 
-#: translate_tmp.pl:6852
+#: translate_tmp.pl:6985
 msgid "Thumbnail for boards (1)"
 msgstr ""
 
-#: translate_tmp.pl:6858
+#: translate_tmp.pl:6991
 msgid "Thumbnail for boards (2)"
 msgstr ""
 
-#: translate_tmp.pl:6864
+#: translate_tmp.pl:6997
 msgid "Show your friends"
 msgstr ""
 
-#: translate_tmp.pl:6870
+#: translate_tmp.pl:7003
 msgid "Popup for websites"
 msgstr ""
 
-#: translate_tmp.pl:6882
-#: translate_tmp.pl:6962
+#: translate_tmp.pl:7015
+#: translate_tmp.pl:7095
 msgid "Hotlink for websites"
 msgstr ""
 
-#: translate_tmp.pl:6888
+#: translate_tmp.pl:7021
 msgid "Hotlink for boards (1)"
 msgstr ""
 
-#: translate_tmp.pl:6894
+#: translate_tmp.pl:7027
 msgid "Hotlink for boards (2)"
 msgstr ""
 
-#: translate_tmp.pl:7083
+#: translate_tmp.pl:7216
 msgid "Save as profile"
 msgstr ""
 
-#: translate_tmp.pl:7113
+#: translate_tmp.pl:7246
 msgid ""
 "Profile already exists.\n"
 "Do you want to overwrite the existing profile?"
 msgstr ""
 
-#: translate_tmp.pl:7223
+#: translate_tmp.pl:7356
 msgid "Width:"
 msgstr ""
 
-#: translate_tmp.pl:7228
+#: translate_tmp.pl:7361
 msgid "Color:"
 msgstr ""
 
-#: translate_tmp.pl:7234
+#: translate_tmp.pl:7367
 msgid "Zoom:"
 msgstr ""
 
-#: translate_tmp.pl:7253
-#: translate_tmp.pl:7321
+#: translate_tmp.pl:7386
+#: translate_tmp.pl:7454
 msgid "Drawing saved"
 msgstr ""
 
