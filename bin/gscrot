@@ -28,7 +28,7 @@ use Gnome2::GConf;
 use Image::Magick;
 use File::Copy;
 use File::Basename;
-use POSIX qw/setlocale strftime/;    # for setlocale()
+use POSIX qw/setlocale strftime/;
 use Locale::gettext;
 use HTTP::Status;
 use XML::Simple;
@@ -43,7 +43,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.209";
+use constant BRANCH              => "Rev.210";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.62";
