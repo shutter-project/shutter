@@ -43,7 +43,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.210";
+use constant BRANCH              => "Rev.211";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.62";
@@ -2696,6 +2696,13 @@ sub evt_open {
 	$filter->add_pattern( "*.png" );
 	$filter->add_pattern( "*.jpeg" );
 	$fs->add_filter( $filter );
+
+	my $key = &fct_get_current_file;
+	if ( $key ) {
+		$fs->set_current_folder( $session_screens{ $key }->{ 'folder' } );
+	} elsif ( $ENV{ 'HOME' } ) {
+		$fs->set_current_folder( $ENV{ 'HOME' } );
+	}
 	my $fs_resp = $fs->run;
 
 	if ( $fs_resp eq "accept" ) {
@@ -2757,15 +2764,77 @@ sub evt_save_as {
 							  'gtk-ok'     => 'accept',
 							  'gtk-cancel' => 'reject'
 		);
+
+	#determine current tab >> filename
+	my $key = &fct_get_current_file;
+	$fs->set_current_folder( $session_screens{ $key }->{ 'folder' } );
+	$fs->set_current_name( $session_screens{ $key }->{ 'short' } );
+
+	my $extra_hbox = Gtk2::HBox->new;
+
+	my $label_save_as_type =
+		Gtk2::Label->new( $d->get( "Image format" ) . ": " );
+
+	my $combobox_save_as_type = Gtk2::ComboBox->new_text;
+
+	$combobox_save_as_type->insert_text( 0, "JPEG Image - jpeg" );
+	$combobox_save_as_type->insert_text( 1, "PNG Image - png" );
+
+	if ( $session_screens{ $key }->{ 'filetype' } eq "jpeg" ) {
+		$combobox_save_as_type->set_active( 0 );
+	} elsif ( $session_screens{ $key }->{ 'filetype' } eq "png" ) {
+		$combobox_save_as_type->set_active( 1 );
+	} else {
+		$combobox_save_as_type->set_active( 1 );
+	}
+
+	$combobox_save_as_type->signal_connect('changed' => sub { 
+			my $filename = $fs->get_filename;
+			
+			my $choosen_format = $combobox_save_as_type->get_active_text;
+			$choosen_format =~ s/.*\- //;    #get png or jpeg
+			
+			unless ( $filename =~ /.*\.$choosen_format$/ ) {
+				$filename =~ s/\..*$/\.$choosen_format/;
+			}			
+
+			#parse filename
+			my (
+	   		$short,
+	   		$folder,
+	   		$ext
+			) = fileparse( $filename, '\..*' );
+
+			$fs->set_current_name($short.$ext); 
+	});
+
+	$extra_hbox->pack_start( $label_save_as_type,    FALSE, FALSE, 5 );
+	$extra_hbox->pack_start( $combobox_save_as_type, FALSE, FALSE, 5 );
+
+	my $align_save_as_type = Gtk2::Alignment->new( 1, 0, 0, 0 );
+
+	$align_save_as_type->add( $extra_hbox );
+	$align_save_as_type->show_all;
+
+	$fs->set_extra_widget( $align_save_as_type );
+
 	my $fs_resp = $fs->run;
 
 	if ( $fs_resp eq "accept" ) {
 		my $filename = $fs->get_filename;
 
-		my $key = &fct_get_current_file;
+		#handle file format
+		my $choosen_format = $combobox_save_as_type->get_active_text;
+		$choosen_format =~ s/.*\- //;    #get png or jpeg
+
+		unless ( $filename =~ /.*\.$choosen_format$/ ) {
+			$filename .= ".".$choosen_format;
+		}
+
 		unless ( &fct_file_exists( $filename ) ) {
-			copy( $session_screens{ $key }->{ 'long' }, $filename );
-			&fct_update_tab( $key );
+			&fct_imagemagick_perform( "save",
+									  $session_screens{ $key }->{ 'long' },
+									  $filename );
 		} else {
 
 			if (
@@ -2777,7 +2846,8 @@ sub evt_save_as {
 				 )
 			   )
 			{
-				copy( $session_screens{ $key }->{ 'long' }, $filename );
+				&fct_imagemagick_perform( "save",
+							  $session_screens{ $key }->{ 'long' }, $filename );
 				$session_screens{ $key }->{ 'filename' } = $filename;
 				&fct_create_thumbnail_and_fileinfos( $filename, $key );
 				&fct_update_tab( $key );
@@ -2790,6 +2860,7 @@ sub evt_save_as {
 		}
 		$session_screens{ $key }->{ 'filename' } = $filename;
 		&fct_create_thumbnail_and_fileinfos( $filename, $key );
+		&fct_update_tab( $key );
 
 		$fs->destroy();
 		return TRUE;
@@ -4069,7 +4140,9 @@ sub fct_update_first_tab {
 	if ( $filename && $saveDir_button && $combobox_settings_profiles ) {
 		my $current_folder = $saveDir_button->get_filename;
 
-		if ( $combobox_settings_profiles->get_active_text && $combobox_settings_profiles->get_active_text ne "" ) {
+		if (    $combobox_settings_profiles->get_active_text
+			 && $combobox_settings_profiles->get_active_text ne "" )
+		{
 			$session_start_screen{ 'first_page' }->{ 'settings_label' }
 				->set_markup(   "<b>"
 							  . $d->get( "Current Preferences" ) . "</b>" . " ("
@@ -4080,7 +4153,7 @@ sub fct_update_first_tab {
 				->set_markup(
 							"<b>" . $d->get( "Current Preferences" ) . "</b>" );
 		}
-		
+
 		unless ( $current_folder ) {
 			if ( defined $settings_xml->{ 'general' }->{ 'folder' } ) {
 				$current_folder = $settings_xml->{ 'general' }->{ 'folder' };
@@ -4137,6 +4210,8 @@ sub fct_update_tab {
 			->set_from_pixbuf( $session_screens{ $key }->{ 'thumb' } );
 		$session_screens{ $key }->{ 'filename_label' }
 			->set_text( $session_screens{ $key }->{ 'short' } );
+		$session_screens{ $key }->{ 'folder_label' }
+			->set_text( $session_screens{ $key }->{ 'folder' } );
 		$session_screens{ $key }->{ 'tooltip_filename_tab' }
 			->set_tip( $session_screens{ $key }->{ 'filename_label' },
 					   $session_screens{ $key }->{ 'filename' } );
@@ -4225,6 +4300,8 @@ sub fct_imagemagick_perform {
 		$data =~ /(.*)x(.*)/;
 		&fct_resize_imagemagick_object( \$image, $1, $2, undef );
 		$image->WriteImage( filename => $file );
+	} elsif ( $function eq "save" ) {
+		$image->WriteImage( filename => $data , quality => 100);    #$data is new filename
 	}
 	return TRUE;
 }
@@ -5366,13 +5443,30 @@ sub fct_create_thumbnail_and_fileinfos {
 	my ( $filename, $key ) = @_;
 	return FALSE unless &fct_file_exists( $filename );
 	$filename = &fct_switch_home_in_file( $filename );
-	$session_screens{ $key }->{ 'thumb' } =
-		Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $filename, 400, 400, TRUE );
-	$session_screens{ $key }->{ 'thumb' } =
-		Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
+	
+	eval {
+		$session_screens{ $key }->{ 'thumb' } =
+			Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $filename, 400, 400,
+													   TRUE );
+	};
+	if ( $@ ) {
+		&dlg_error_message( "$@" );
+		return FALSE;
+	}
+
+	unless ( defined $session_screens{ $key }->{ 'thumb' } ) {
+		eval {
+			$session_screens{ $key }->{ 'thumb' } =
+				Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
 				  "$gscrot_root/share/gscrot/resources/icons/Image-missing.svg",
-				  400, 400, TRUE )
-		unless defined $session_screens{ $key }->{ 'thumb' };
+				  400, 400, TRUE );
+		};
+		if ( $@ ) {
+			&dlg_error_message( "$@" );
+			return FALSE;
+		}
+	}
+	
 	$session_screens{ $key }->{ 'mime_type' } =
 		&fct_imagemagick_perform( "get_mime", $filename, "" );
 	$session_screens{ $key }->{ 'width' } =
