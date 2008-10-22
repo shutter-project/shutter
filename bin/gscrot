@@ -43,8 +43,8 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.213";
-use constant PPA_VERSION         => "ppa2";
+use constant BRANCH              => "Rev.214";
+use constant PPA_VERSION         => "ppa3";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.62";
 use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
@@ -2605,7 +2605,7 @@ sub evt_in_tab {
 				 $d->get( "No application specified to open the screenshot" ) );
 			return FALSE;
 		}
-		if ( $progname_value =~ /gimp/ ) {
+		if ( $progname_value =~ /gimp/ || $progname_value =~ /postr/) {
 
 			$session_start_screen{ 'first_page' }->{ 'view' }->selected_foreach(
 				sub {
@@ -2687,8 +2687,8 @@ sub evt_open {
 	my $fs =
 		Gtk2::FileChooserDialog->new(
 							  $d->get( "Choose file to open" ), $window, 'open',
-							  'gtk-ok'     => 'accept',
-							  'gtk-cancel' => 'reject'
+							  'gtk-cancel' => 'reject',
+							  'gtk-open'     => 'accept'
 		);
 	$fs->set_select_multiple( TRUE );
 	my $filter = Gtk2::FileFilter->new;
@@ -2760,9 +2760,9 @@ sub evt_save_as {
 
 	my $fs =
 		Gtk2::FileChooserDialog->new(
-							  $d->get( "Choose file to open" ), $window, 'save',
-							  'gtk-ok'     => 'accept',
-							  'gtk-cancel' => 'reject'
+							  $d->get( "Choose a location to save to" ), $window, 'save',
+							  'gtk-cancel' => 'reject',
+							  'gtk-save'     => 'accept'
 		);
 
 	#determine current tab >> filename
@@ -3104,7 +3104,7 @@ sub fct_create_tab {
 	my $button_reopen =
 		Gtk2::ToolButton->new(
 							   Gtk2::Image->new_from_icon_name(
-														'gtk-redo-ltr', 'button'
+														'gtk-open', 'button'
 							   ),
 							   undef
 							 );
