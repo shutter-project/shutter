@@ -1,8 +1,9 @@
-gscrot (0.62~ppa4) intrepid; urgency=low
+gscrot (0.62.1~ppa1) intrepid; urgency=low
 
+  * ported to Gtk2::StatusIcon
   * faster plugin checks
   * minor changes (human interface guidelines)	
-  * minor changes for latest debian etch
+  * LP: #286632
   * updated translations    
 
  -- Mario Kemper <mario.kemper@googlemail.com>  Sat, 25 Oct 2008 01:04:30 +0200
