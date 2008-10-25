@@ -19,7 +19,6 @@ use utf8;
 use strict;
 use warnings;
 use Gtk2 '-init';
-use Gtk2::TrayIcon;
 use Gtk2::Gdk::Keysyms;
 use Gtk2::Pango;
 use Gnome2;
@@ -43,8 +42,8 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.214";
-use constant PPA_VERSION         => "ppa3";
+use constant BRANCH              => "Rev.215";
+use constant PPA_VERSION         => "ppa4";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.62";
 use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
@@ -153,7 +152,7 @@ $window->signal_connect( 'delete-event' => \&evt_delete_window );
 $window->set_border_width( 0 );
 $window->set_resizable( 1 );
 $window->set_position( 'center' );
-$window->set_default_size( 650, 500 );
+$window->set_default_size( 650, 550 );
 
 my $is_in_tray = FALSE;
 
@@ -659,28 +658,14 @@ $vbox->pack_start( $handlebox, FALSE, TRUE, 0 );
 #command line param set to disable tray icon?
 unless ( $disable_systray_cparam ) {
 
-	my $icon =
-		Gtk2::Image->new_from_pixbuf(
-									Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-										"$gscrot_root/share/pixmaps/gscrot.svg",
-										24, 24
-									)
-		);
+	my $icon = Gtk2::StatusIcon->new();
 
-	my $eventbox = Gtk2::EventBox->new;
-	$eventbox->add( $icon );
-	my $tray = Gtk2::TrayIcon->new( 'gscrot TrayIcon' );
-	$tray->add( $eventbox );
-
-#tooltip
-	my $tooltip_tray = Gtk2::Tooltips->new;
-	$tooltip_tray->set_tip( $tray, GSCROT_NAME . " " . GSCROT_VERSION );
-
-#events and timeouts
-	$eventbox->signal_connect( 'button_release_event', \&evt_show_systray );
-
-#show tray
-	$tray->show_all;
+	$icon->set_from_file( "$gscrot_root/share/pixmaps/gscrot.svg" );
+	$icon->set_visible( 1 );
+	$icon->signal_connect( 'popup-menu' => sub { &evt_show_systray; }, $icon );
+	$icon->signal_connect( 'activate' => sub { &evt_activate_systray; $icon },
+						   $icon );
+	$icon->set_tooltip( GSCROT_NAME . " " . GSCROT_VERSION );
 
 }
 
@@ -2117,114 +2102,117 @@ sub evt_about {
 }
 
 sub evt_show_systray {
-	my ( $widget, $data ) = @_;
+	my ( $widget, $button, $time, $icon ) = @_;
 	if ( $debug_cparam ) {
-		print "\n$data was emitted by widget $widget\n";
+		print "\n$button, $time was emitted by widget $widget\n";
 	}
 
-	#left button (mouse)
-	if ( $_[ 1 ]->button == 1 ) {
-		if ( $window->visible ) {
-			$window->hide;
-			$is_in_tray = TRUE;
-		} else {
-			$window->show_all;
-			$is_in_tray = FALSE;
-		}
-	}
-
-	#right button (mouse)
-	elsif ( $_[ 1 ]->button == 3 ) {
-		my $tray_menu = Gtk2::Menu->new();
-		my $menuitem_select =
-			Gtk2::ImageMenuItem->new( $d->get( "Selection" ) );
-		$menuitem_select->set_image(
+	my $tray_menu       = Gtk2::Menu->new();
+	my $menuitem_select = Gtk2::ImageMenuItem->new( $d->get( "Selection" ) );
+	$menuitem_select->set_image(
 			  Gtk2::Image->new_from_pixbuf(
 				  Gtk2::Gdk::Pixbuf->new_from_file_at_size(
 					  "$gscrot_root/share/gscrot/resources/icons/selection.svg",
 					  Gtk2::IconSize->lookup( 'menu' )
 				  )
 			  )
-		);
-		$menuitem_select->signal_connect( activate => \&evt_take_screenshot,
-										  'tray_select' );
-		my $menuitem_raw = Gtk2::ImageMenuItem->new( $d->get( "Fullscreen" ) );
-		$menuitem_raw->set_image(
+	);
+	$menuitem_select->signal_connect( activate => \&evt_take_screenshot,
+									  'tray_select' );
+	my $menuitem_raw = Gtk2::ImageMenuItem->new( $d->get( "Fullscreen" ) );
+	$menuitem_raw->set_image(
 			 Gtk2::Image->new_from_pixbuf(
 				 Gtk2::Gdk::Pixbuf->new_from_file_at_size(
 					 "$gscrot_root/share/gscrot/resources/icons/fullscreen.svg",
 					 Gtk2::IconSize->lookup( 'menu' )
 				 )
 			 )
-		);
-		$menuitem_raw->signal_connect( activate => \&evt_take_screenshot,
-									   'tray_raw' );
-		my $menuitem_window = Gtk2::ImageMenuItem->new( $d->get( "Window" ) );
-		$menuitem_window->set_image(
+	);
+	$menuitem_raw->signal_connect( activate => \&evt_take_screenshot,
+								   'tray_raw' );
+	my $menuitem_window = Gtk2::ImageMenuItem->new( $d->get( "Window" ) );
+	$menuitem_window->set_image(
 			 Gtk2::Image->new_from_pixbuf(
 				 Gtk2::Gdk::Pixbuf->new_from_file_at_size(
 					 "$gscrot_root/share/gscrot/resources/icons/sel_window.svg",
 					 Gtk2::IconSize->lookup( 'menu' )
 				 )
 			 )
-		);
-		$menuitem_window->signal_connect( activate => \&evt_take_screenshot,
-										  'tray_window' );
-		my $menuitem_window_sect =
-			Gtk2::ImageMenuItem->new( $d->get( "Section" ) );
-		$menuitem_window_sect->set_image(
-			Gtk2::Image->new_from_pixbuf(
-				Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-					"$gscrot_root/share/gscrot/resources/icons/sel_window_section.svg",
-					Gtk2::IconSize->lookup( 'menu' )
-				)
+	);
+	$menuitem_window->signal_connect( activate => \&evt_take_screenshot,
+									  'tray_window' );
+	my $menuitem_window_sect = Gtk2::ImageMenuItem->new( $d->get( "Section" ) );
+	$menuitem_window_sect->set_image(
+		Gtk2::Image->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+				"$gscrot_root/share/gscrot/resources/icons/sel_window_section.svg",
+				Gtk2::IconSize->lookup( 'menu' )
 			)
-		);
-		$menuitem_window_sect->signal_connect(activate => \&evt_take_screenshot,
-											  'tray_section' );
-		my $menuitem_web = Gtk2::ImageMenuItem->new( $d->get( "Web" ) );
-		$menuitem_web->set_sensitive( $gnome_web_photo );
-		$menuitem_web->set_image(
+		)
+	);
+	$menuitem_window_sect->signal_connect( activate => \&evt_take_screenshot,
+										   'tray_section' );
+	my $menuitem_web = Gtk2::ImageMenuItem->new( $d->get( "Web" ) );
+	$menuitem_web->set_sensitive( $gnome_web_photo );
+	$menuitem_web->set_image(
 			  Gtk2::Image->new_from_pixbuf(
 				  Gtk2::Gdk::Pixbuf->new_from_file_at_size(
 					  "$gscrot_root/share/gscrot/resources/icons/web_image.svg",
 					  Gtk2::IconSize->lookup( 'menu' )
 				  )
 			  )
-		);
-		$menuitem_web->signal_connect( activate => \&evt_take_screenshot,
-									   'tray_web' );
-		my $menuitem_info = Gtk2::ImageMenuItem->new( $d->get( "Info" ) );
-		$menuitem_info->set_image(
+	);
+	$menuitem_web->signal_connect( activate => \&evt_take_screenshot,
+								   'tray_web' );
+	my $menuitem_info = Gtk2::ImageMenuItem->new( $d->get( "Info" ) );
+	$menuitem_info->set_image(
 					   Gtk2::Image->new_from_icon_name( 'gtk-about', 'menu' ) );
-		$menuitem_info->signal_connect( "activate", \&evt_about, $window );
-		my $menuitem_quit = Gtk2::ImageMenuItem->new( $d->get( "Quit" ) );
-		$menuitem_quit->set_image(
+	$menuitem_info->signal_connect( "activate", \&evt_about, $window );
+	my $menuitem_quit = Gtk2::ImageMenuItem->new( $d->get( "Quit" ) );
+	$menuitem_quit->set_image(
 						Gtk2::Image->new_from_icon_name( 'gtk-quit', 'menu' ) );
-		$menuitem_quit->signal_connect( "activate", \&evt_delete_window,
-										'menu_quit' );
-		$tray_menu->append( $menuitem_select );
-		$tray_menu->append( Gtk2::SeparatorMenuItem->new );
-		$tray_menu->append( $menuitem_raw );
-		$tray_menu->append( Gtk2::SeparatorMenuItem->new );
-		$tray_menu->append( $menuitem_window );
-		$tray_menu->append( $menuitem_window_sect );
-		$tray_menu->append( Gtk2::SeparatorMenuItem->new );
-		$tray_menu->append( $menuitem_web );
-		$tray_menu->append( Gtk2::SeparatorMenuItem->new );
-		$tray_menu->append( $menuitem_info );
-		$tray_menu->append( $menuitem_quit );
-		$tray_menu->show_all;
-		$tray_menu->popup(
-						   undef,           # parent menu shell
-						   undef,           # parent menu item
-						   undef,           # menu pos func
-						   undef,           # data
-						   $data->button,
-						   $data->time
-						 );
+	$menuitem_quit->signal_connect( "activate", \&evt_delete_window,
+									'menu_quit' );
+	$tray_menu->append( $menuitem_select );
+	$tray_menu->append( Gtk2::SeparatorMenuItem->new );
+	$tray_menu->append( $menuitem_raw );
+	$tray_menu->append( Gtk2::SeparatorMenuItem->new );
+	$tray_menu->append( $menuitem_window );
+	$tray_menu->append( $menuitem_window_sect );
+	$tray_menu->append( Gtk2::SeparatorMenuItem->new );
+	$tray_menu->append( $menuitem_web );
+	$tray_menu->append( Gtk2::SeparatorMenuItem->new );
+	$tray_menu->append( $menuitem_info );
+	$tray_menu->append( $menuitem_quit );
+	$tray_menu->show_all;
+	$tray_menu->popup(
+		undef,    # parent menu shell
+		undef,    # parent menu item
+		sub {
+			return Gtk2::StatusIcon::position_menu( $tray_menu, 0, 0, $icon );
+		},        # menu pos func
+		undef,    # data
+		$time ? $button : 0,
+		$time
+					 );
+	return TRUE;
+}
+
+sub evt_activate_systray {
+	my ( $widget, $data, $icon ) = @_;
+	if ( $debug_cparam ) {
+		print "\n$data was emitted by widget $widget\n";
 	}
-	return 1;
+
+	if ( $window->visible ) {
+		$window->hide;
+		$is_in_tray = TRUE;
+	} else {
+		$window->show_all;
+		$is_in_tray = FALSE;
+	}
+
+	return TRUE;
 }
 
 sub evt_plugins {
@@ -2605,7 +2593,7 @@ sub evt_in_tab {
 				 $d->get( "No application specified to open the screenshot" ) );
 			return FALSE;
 		}
-		if ( $progname_value =~ /gimp/ || $progname_value =~ /postr/) {
+		if ( $progname_value =~ /gimp/ || $progname_value =~ /postr/ ) {
 
 			$session_start_screen{ 'first_page' }->{ 'view' }->selected_foreach(
 				sub {
@@ -2688,7 +2676,7 @@ sub evt_open {
 		Gtk2::FileChooserDialog->new(
 							  $d->get( "Choose file to open" ), $window, 'open',
 							  'gtk-cancel' => 'reject',
-							  'gtk-open'     => 'accept'
+							  'gtk-open'   => 'accept'
 		);
 	$fs->set_select_multiple( TRUE );
 	my $filter = Gtk2::FileFilter->new;
@@ -2760,9 +2748,9 @@ sub evt_save_as {
 
 	my $fs =
 		Gtk2::FileChooserDialog->new(
-							  $d->get( "Choose a location to save to" ), $window, 'save',
-							  'gtk-cancel' => 'reject',
-							  'gtk-save'     => 'accept'
+					 $d->get( "Choose a location to save to" ), $window, 'save',
+					 'gtk-cancel' => 'reject',
+					 'gtk-save'   => 'accept'
 		);
 
 	#determine current tab >> filename
@@ -2867,8 +2855,7 @@ sub evt_save_as {
 		&fct_update_tab( $key );
 
 		&dlg_status_message( 1,
-				 "$session_screens{ $key }->{ 'short' } " . $d->get( "saved" ) )
-			;
+				"$session_screens{ $key }->{ 'short' } " . $d->get( "saved" ) );
 
 		$fs->destroy();
 		return TRUE;
@@ -3104,7 +3091,7 @@ sub fct_create_tab {
 	my $button_reopen =
 		Gtk2::ToolButton->new(
 							   Gtk2::Image->new_from_icon_name(
-														'gtk-open', 'button'
+															'gtk-open', 'button'
 							   ),
 							   undef
 							 );
@@ -3192,10 +3179,9 @@ sub fct_create_tab {
 		$filename_label->set_markup( "<b>" . $d->get( "Filename" ) . "</b>" );
 		$session_screens{ $key }->{ 'filename_label' } =
 			Gtk2::Label->new( $session_screens{ $key }->{ 'short' } );
-		$session_screens{ $key }->{ 'filename_label' }->set_width_chars( 20 );
-		$session_screens{ $key }->{ 'filename_label' }->set_line_wrap( 1 );
+		$session_screens{ $key }->{ 'filename_label' }->set_line_wrap( TRUE );
 		$session_screens{ $key }->{ 'filename_label' }
-			->set_line_wrap_mode( 'char' );
+			->set_single_line_mode( FALSE );
 		$session_screens{ $key }->{ 'tooltip_filename_tab' } =
 			Gtk2::Tooltips->new;
 		$session_screens{ $key }->{ 'tooltip_filename_tab' }
@@ -3205,10 +3191,9 @@ sub fct_create_tab {
 		$folder_label->set_markup( "<b>" . $d->get( "Directory" ) . "</b>" );
 		$session_screens{ $key }->{ 'folder_label' } =
 			Gtk2::Label->new( $session_screens{ $key }->{ 'folder' } );
-		$session_screens{ $key }->{ 'folder_label' }->set_width_chars( 20 );
-		$session_screens{ $key }->{ 'folder_label' }->set_line_wrap( 1 );
+		$session_screens{ $key }->{ 'folder_label' }->set_line_wrap( TRUE );
 		$session_screens{ $key }->{ 'folder_label' }
-			->set_line_wrap_mode( 'char' );
+			->set_single_line_mode( FALSE );
 		$session_screens{ $key }->{ 'tooltip_folder_tab' } =
 			Gtk2::Tooltips->new;
 		$session_screens{ $key }->{ 'tooltip_folder_tab' }
@@ -5446,7 +5431,7 @@ sub fct_get_next_filename {
 sub fct_check_installed_plugins {
 	print "\nINFO: checking installed plugins...\n";
 	foreach ( keys %plugins ) {
-		if ( $plugins{ $_ }->{ 'binary' } ne "" ) {
+		if ( $plugins{ $_ }->{ 'binary' } ) {
 			unless ( &fct_file_exists( $plugins{ $_ }->{ 'binary' } ) ) {
 				print " Could not detect binary for program $_, ignoring\n";
 				delete $plugins{ $_ };
@@ -6069,6 +6054,7 @@ sub fct_init {
 			if $Gtk2::VERSION >= 1.040;
 		print "\n";
 	}
+
 	print "INFO: searching for dependencies...\n\n";
 	if ( system( "which gtklp" ) == 0 ) {
 		print "SUCCESS: gtklp is installed on your system!\n\n";
@@ -6113,32 +6099,74 @@ sub fct_init {
 		if ( -d $_ ) {
 			my $dir_name = $_;
 			$dir_name =~ s{^.*/}{};
+
+			#path to executable
 			$plugins{ $_ }->{ 'binary' } = "$_/$dir_name"
 				if ( &fct_file_exists( "$_/$dir_name" ) );
+
+			#tooltip
+			$plugins{ $_ }->{ 'tip' } = `$plugins{$_}->{'binary'} tip`;
+			utf8::decode $plugins{ $_ }->{ 'tip' };
+			chomp( $plugins{ $_ }->{ 'tip' } );
+
+			#pixbuf
 			$plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.png"
 				if ( &fct_file_exists( "$_/$dir_name.png" ) );
-
-			#we prefer svgs
 			$plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.svg"
 				if ( &fct_file_exists( "$_/$dir_name.svg" ) );
-		}
-	}
-	my @custom_plugins = glob( "$ENV{'HOME'}/.gscrot/plugins/*/*" );
-	foreach ( @custom_plugins ) {
-		if ( -d $_ ) {
-			my $dir_name = $_;
-			$dir_name =~ s{^.*/}{};
-			$plugins{ $_ }->{ 'binary' } = "$_/$dir_name"
-				if ( &fct_file_exists( "$_/$dir_name" ) );
-			$plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.png"
-				if ( &fct_file_exists( "$_/$dir_name.png" ) );
 
-			#we prefer svgs
-			$plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.svg"
-				if ( &fct_file_exists( "$_/$dir_name.svg" ) );
+			if ( &fct_file_exists( $plugins{ $_ }->{ 'pixbuf' } ) ) {
+				$plugins{ $_ }->{ 'pixbuf_object' } =
+					Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+											 $plugins{ $_ }->{ 'pixbuf' },
+											 Gtk2::IconSize->lookup( 'menu' ) );
+			} else {
+				$plugins{ $_ }->{ 'pixbuf_object' } =
+					Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+					 "$gscrot_root/share/gscrot/resources/icons/executable.svg",
+					 Gtk2::IconSize->lookup( 'menu' )
+					);
+			}
 		}
 	}
-	return TRUE;
+
+	if ( -d "$ENV{'HOME'}/.gscrot/plugins" ) {
+		my @custom_plugins = glob( "$ENV{'HOME'}/.gscrot/plugins/*/*" );
+		foreach ( @custom_plugins ) {
+			if ( -d $_ ) {
+				my $dir_name = $_;
+				$dir_name =~ s{^.*/}{};
+
+				#path to executable
+				$plugins{ $_ }->{ 'binary' } = "$_/$dir_name"
+					if ( &fct_file_exists( "$_/$dir_name" ) );
+
+				#tooltip
+				$plugins{ $_ }->{ 'tip' } = `$plugins{$_}->{'binary'} tip`;
+				utf8::decode $plugins{ $_ }->{ 'tip' };
+				chomp( $plugins{ $_ }->{ 'tip' } );
+
+				#pixbuf
+				$plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.png"
+					if ( &fct_file_exists( "$_/$dir_name.png" ) );
+				$plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.svg"
+					if ( &fct_file_exists( "$_/$dir_name.svg" ) );
+				if ( &fct_file_exists( $plugins{ $_ }->{ 'pixbuf' } ) ) {
+					$plugins{ $_ }->{ 'pixbuf_object' } =
+						Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+											 $plugins{ $_ }->{ 'pixbuf' },
+											 Gtk2::IconSize->lookup( 'menu' ) );
+				} else {
+					$plugins{ $_ }->{ 'pixbuf_object' } =
+						Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+						"$gscrot_root/share/gscrot/resources/icons/executable.svg",
+						Gtk2::IconSize->lookup( 'menu' )
+						);
+				}
+			}
+		}
+		return TRUE;
+	}
 }
 
 #--------------------------------------
@@ -6190,10 +6218,13 @@ sub dlg_rename {
 						   $dlg_header,
 						   $window,
 						   [ qw/modal destroy-with-parent/ ],
-						   'gtk-apply'  => 'accept',
-						   'gtk-cancel' => 'reject'
+						   'gtk-cancel' => 'reject',
+						   'gtk-apply'  => 'accept'
 						 );
 	$input_dialog->set_default_response( 'accept' );
+	my $new_filaname_hbox = Gtk2::HBox->new();
+	my $new_filename_label =
+		Gtk2::Label->new( $d->get( "New filename" ) . ": " );
 	my $new_filename = Gtk2::Entry->new();
 	$new_filename->set_activates_default( TRUE );
 
@@ -6203,7 +6234,9 @@ sub dlg_rename {
 	my $old_file_name_full = $dlg_rename_text;
 
 	$new_filename->set_text( $old_file_name );
-	$input_dialog->vbox->add( $new_filename );
+	$new_filaname_hbox->pack_start_defaults( $new_filename_label );
+	$new_filaname_hbox->pack_start_defaults( $new_filename );
+	$input_dialog->vbox->add( $new_filaname_hbox );
 	$input_dialog->show_all;
 	my $input_response = $input_dialog->run;
 
@@ -6254,8 +6287,8 @@ sub dlg_plugin {
 						   $dlg_header,
 						   $window,
 						   [ qw/modal destroy-with-parent/ ],
-						   'gtk-execute' => 'accept',
-						   'gtk-cancel'  => 'reject'
+						   'gtk-cancel'  => 'reject',
+						   'gtk-execute' => 'accept'
 						 );
 	$plugin_dialog->set_default_response( 'accept' );
 	my $model = Gtk2::ListStore->new(
@@ -6269,37 +6302,14 @@ sub dlg_plugin {
 			unless $plugins{ $_ }->{ 'ext' } =~
 				/$session_screens{$key}->{'filetype'}/;
 		if ( $plugins{ $_ }->{ 'binary' } ne "" ) {
-			my $pixbuf;
-			if ( -f $plugins{ $_ }->{ 'pixbuf' } ) {
-				$pixbuf =
-					Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-											 $plugins{ $_ }->{ 'pixbuf' },
-											 Gtk2::IconSize->lookup( 'menu' ) );
-			} else {
-				$pixbuf =
-					Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-					 "$gscrot_root/share/gscrot/resources/icons/executable.svg",
-					 Gtk2::IconSize->lookup( 'menu' )
-					);
-			}
-
-			#get translated plugin-name
-			$plugins{ $_ }->{ 'name' } = `$plugins{$_}->{'binary'} name`;
-			utf8::decode $plugins{ $_ }->{ 'name' };
-			chomp( $plugins{ $_ }->{ 'name' } );
-
-			#get translated plugin-tip
-			$plugins{ $_ }->{ 'tip' } = `$plugins{$_}->{'binary'} tip`;
-			utf8::decode $plugins{ $_ }->{ 'tip' };
-			chomp( $plugins{ $_ }->{ 'tip' } );
 
 			$model->set(
-						 $model->append,               0,
-						 $pixbuf,                      1,
-						 $plugins{ $_ }->{ 'name' },   2,
-						 $plugins{ $_ }->{ 'binary' }, 3,
-						 $plugins{ $_ }->{ 'lang' },   4,
-						 $plugins{ $_ }->{ 'tip' },    5,
+						 $model->append,                      0,
+						 $plugins{ $_ }->{ 'pixbuf_object' }, 1,
+						 $plugins{ $_ }->{ 'name' },          2,
+						 $plugins{ $_ }->{ 'binary' },        3,
+						 $plugins{ $_ }->{ 'lang' },          4,
+						 $plugins{ $_ }->{ 'tip' },           5,
 						 $_
 					   );
 		} else {
@@ -6309,7 +6319,6 @@ sub dlg_plugin {
 	my $plugin       = Gtk2::ComboBox->new( $model );
 	my $plugin_descr = Gtk2::Label->new;
 	$plugin_descr->set_line_wrap( TRUE );
-	$plugin_descr->set_line_wrap_mode( 'word' );
 	$plugin_descr->set_width_chars( 30 );
 	$plugin_descr->set_padding( 10, 10 );
 	my $plugin_image       = Gtk2::Image->new;
@@ -6386,11 +6395,12 @@ sub dlg_account_chooser_and_upload {
 	my $dlg_header         = $d->get( "Choose hosting-site and account" );
 	my $hosting_dialog     = Gtk2::Dialog->new( $dlg_header, $window,
 											[ qw/modal destroy-with-parent/ ] );
+
+	$hosting_dialog->add_button( 'gtk-cancel', 'reject' );
 	my $upload_button =
 		$hosting_dialog->add_button( $d->get( "_Upload" ), 'accept' );
 	$upload_button->set_image(
 						 Gtk2::Image->new_from_stock( 'gtk-go-up', 'button' ) );
-	$hosting_dialog->add_button( 'gtk-cancel', 'reject' );
 	$hosting_dialog->set_default_response( 'accept' );
 	$hosting_dialog->set_size_request( 300 );
 	my $model =
@@ -6576,17 +6586,18 @@ sub dlg_account_chooser_and_upload {
 }
 
 sub dlg_website {
-	my $dlg_header = $d->get( "URL to capture" );
 	my $website_dialog =
 		Gtk2::Dialog->new(
-						   $dlg_header,
+						   $d->get( "Take a screenshot of a website" ),
 						   $window,
 						   [ qw/modal destroy-with-parent/ ],
-						   'gtk-ok'     => 'accept',
-						   'gtk-cancel' => 'reject'
+						   'gtk-cancel'  => 'reject',
+						   'gtk-execute' => 'accept'
 						 );
 	$website_dialog->set_default_response( 'accept' );
-	my $website = Gtk2::Entry->new;
+	my $website_hbox  = Gtk2::HBox->new();
+	my $website_label = Gtk2::Label->new( $d->get( "URL to capture" ) . ": " );
+	my $website       = Gtk2::Entry->new;
 	$website->set_text( "http://" );
 	$website->set_activates_default( TRUE );
 	my $clipboard_string = $clipboard->wait_for_text;
@@ -6600,7 +6611,9 @@ sub dlg_website {
 			$website->set_text( $clipboard_string );
 		}
 	}
-	$website_dialog->vbox->add( $website );
+	$website_hbox->pack_start_defaults( $website_label );
+	$website_hbox->pack_start_defaults( $website );
+	$website_dialog->vbox->add( $website_hbox );
 	$website_dialog->show_all;
 	my $website_response = $website_dialog->run;
 
@@ -7218,8 +7231,8 @@ sub dlg_profile_name {
 						   $dlg_header,
 						   $window,
 						   [ qw/modal destroy-with-parent/ ],
-						   'gtk-ok'     => 'accept',
-						   'gtk-cancel' => 'reject'
+						   'gtk-cancel' => 'reject',
+						   'gtk-ok'     => 'accept'
 						 );
 	$profile_dialog->set_default_response( 'accept' );
 	my $new_profile_name = Gtk2::Entry->new();

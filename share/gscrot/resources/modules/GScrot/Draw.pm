@@ -98,7 +98,7 @@ sub fct_start_drawing
 
 	# a Zoom
 	my $zoom_label = Gtk2::Label->new($d->get("Zoom:"));
-	$adj_zoom = Gtk2::Adjustment->new(1, 1, 5, 0.05, 0.5, 0.5);
+	$adj_zoom = Gtk2::Adjustment->new(1, 1, 5, 0.05, 0.5, 0);
 	my $sb_zoom = Gtk2::SpinButton->new($adj_zoom, 0, 2);
 	$adj_zoom->signal_connect("value-changed", \&event_zoom_changed, $canvas);
 	$sb_zoom->set_size_request(60, -1);
