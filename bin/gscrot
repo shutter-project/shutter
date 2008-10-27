@@ -42,7 +42,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.217";
+use constant BRANCH              => "Rev.218";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.62.1";
@@ -6591,7 +6591,7 @@ sub dlg_account_chooser_and_upload {
 			my $url = undef;
 			eval { $url = $ishack->host( $file_to_upload, undef ); };
 			if ( $@ ) {
-				&dlg_error_message( "Upload failed!\nPleas try again later\n" );
+				&dlg_error_message( $d->get("Upload failed!\nPlease try again later.") );
 				$hosting_dialog->destroy();
 				return TRUE;
 			}
@@ -6599,11 +6599,6 @@ sub dlg_account_chooser_and_upload {
 			#get thumbnail url
 			my $thumb_url = undef;
 			eval { $thumb_url = $ishack->hosted_thumb; };
-			if ( $@ ) {
-				&dlg_info_message(
-					"ImageShack does not generate thumbs for images that are 200x200 pixels in resolution or less"
-				);
-			}
 
 			if ( $url ) {
 				&dlg_upload_links_imageshack( $hosting_host, $hosting_username,
