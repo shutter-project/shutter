@@ -19,6 +19,7 @@ use utf8;
 use strict;
 use warnings;
 use Gtk2 '-init';
+use Gtk2::TrayIcon;
 use Gtk2::Gdk::Keysyms;
 use Gtk2::Pango;
 use Gnome2;
@@ -42,7 +43,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.219";
+use constant BRANCH              => "Rev.220";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.62.1";
@@ -136,6 +137,9 @@ my %session_start_screen;
 
 #Clipboard
 my $clipboard = Gtk2::Clipboard->get( Gtk2::Gdk->SELECTION_CLIPBOARD );
+
+#Tooltips
+my $tooltips = Gtk2::Tooltips->new;
 
 #gui
 #--------------------------------------
@@ -513,13 +517,13 @@ $button_select_menu->signal_connect( 'clicked' => \&evt_take_screenshot,
 my $zoom_active = undef;
 my ( $zoom_size1, $zoom_size2, $zoom_size3 ) = undef;
 $button_select_menu->set_menu( &fct_ret_sel_menu );
-my $tooltip_select = Gtk2::Tooltips->new;
-$tooltip_select->set_tip(
-						  $button_select_menu,
-						  $d->get(
-							  "Draw a rectangular capture area with your mouse\nto select a specified screen area"
-						  )
-						);
+
+$tooltips->set_tip(
+					$button_select_menu,
+					$d->get(
+						"Draw a rectangular capture area with your mouse\nto select a specified screen area"
+					)
+				  );
 
 #--------------------------------------
 
@@ -537,10 +541,9 @@ my $button_raw_menu =
 $button_raw_menu->signal_connect( 'clicked' => \&evt_take_screenshot, 'raw' );
 $button_raw_menu->set_menu( &fct_ret_workspace_menu );
 $button_raw_menu->signal_connect( 'show-menu' => \&fct_ret_workspace_menu );
-my $tooltip_raw = Gtk2::Tooltips->new;
-$tooltip_raw->set_tip( $button_raw_menu,
-					   $d->get( "Take a screenshot of your whole desktop" ) );
-$button_raw_menu->set_arrow_tooltip( Gtk2::Tooltips->new,
+$tooltips->set_tip( $button_raw_menu,
+					$d->get( "Take a screenshot of your whole desktop" ) );
+$button_raw_menu->set_arrow_tooltip( $tooltips,
 									 $d->get( "Capture a specific workspace" ),
 									 'arrow' );
 
@@ -561,11 +564,10 @@ $button_window_menu->signal_connect( 'clicked' => \&evt_take_screenshot,
 									 'window' );
 $button_window_menu->set_menu( &fct_ret_window_menu );
 $button_window_menu->signal_connect( 'show-menu' => \&fct_ret_window_menu );
-my $tooltip_window = Gtk2::Tooltips->new;
-$tooltip_window->set_tip( $button_window_menu,
-						  $d->get( "Select a window with your mouse" ) );
+$tooltips->set_tip( $button_window_menu,
+					$d->get( "Select a window with your mouse" ) );
 $button_window_menu->set_arrow_tooltip(
-									Gtk2::Tooltips->new,
+									$tooltips,
 									$d->get(
 										"Take a screenshot of a specific window"
 									),
@@ -587,13 +589,12 @@ my $button_window_sect =
 	Gtk2::ToolButton->new( $image_window_sect, $d->get( "Section" ) );
 $button_window_sect->signal_connect( 'clicked' => \&evt_take_screenshot,
 									 'section' );
-my $tooltip_window_sect = Gtk2::Tooltips->new;
-$tooltip_window_sect->set_tip(
-							   $button_window_sect,
-							   $d->get(
-								   "Captures only a section of the window. You will be able to select any child window by moving the mouse over it"
-							   )
-							 );
+$tooltips->set_tip(
+					$button_window_sect,
+					$d->get(
+						"Captures only a section of the window. You will be able to select any child window by moving the mouse over it"
+					)
+				  );
 
 #--------------------------------------
 
@@ -610,21 +611,20 @@ my $button_web_menu = Gtk2::MenuToolButton->new( $image_web, $d->get( "Web" ) );
 $button_web_menu->signal_connect( 'clicked' => \&evt_take_screenshot, 'web' );
 $button_web_menu->set_menu( &fct_ret_web_menu );
 $button_web_menu->signal_connect( 'show-menu' => \&fct_ret_web_menu );
-my $tooltip_web = Gtk2::Tooltips->new;
 
 if ( $gnome_web_photo ) {
-	$tooltip_web->set_tip( $button_web_menu,
-						   $d->get( "Take a screenshot of a website" ) );
+	$tooltips->set_tip( $button_web_menu,
+						$d->get( "Take a screenshot of a website" ) );
 	$button_web_menu->set_arrow_tooltip( Gtk2::Tooltips->new,
 				  $d->get( "Set up a connection timeout (seconds)" ), 'arrow' );
 } else {
-	$tooltip_web->set_tip(
-						   $button_web_menu,
-						   $d->get(
-							   "gnome-web-photo needs to be installed for this feature"
-						   )
-						 );
-	$button_web_menu->set_arrow_tooltip( Gtk2::Tooltips->new,
+	$tooltips->set_tip(
+						$button_web_menu,
+						$d->get(
+							"gnome-web-photo needs to be installed for this feature"
+						)
+					  );
+	$button_web_menu->set_arrow_tooltip( $tooltips,
 			$d->get( "gnome-web-photo needs to be installed for this feature" ),
 			'arrow' );
 	$button_web_menu->set_sensitive( $gnome_web_photo );
@@ -658,14 +658,38 @@ $vbox->pack_start( $handlebox, FALSE, TRUE, 0 );
 #command line param set to disable tray icon?
 unless ( $disable_systray_cparam ) {
 
-	my $icon = Gtk2::StatusIcon->new();
-
-	$icon->set_from_file( "$gscrot_root/share/pixmaps/gscrot.svg" );
-	$icon->set_visible( 1 );
-	$icon->signal_connect( 'popup-menu' => sub { &evt_show_systray; }, $icon );
-	$icon->signal_connect( 'activate' => sub { &evt_activate_systray; $icon },
-						   $icon );
-	$icon->set_tooltip( GSCROT_NAME . " " . GSCROT_VERSION );
+	my $icon = undef;
+	if ( Gtk2->CHECK_VERSION( 2, 10, 0 ) ) {
+		$icon = Gtk2::StatusIcon->new();
+		$icon->set_from_file( "$gscrot_root/share/pixmaps/gscrot.svg" );
+		$icon->set_visible( 1 );
+		$icon->signal_connect(
+						  'popup-menu' => sub { &evt_show_systray_statusicon; },
+						  $icon );
+		$icon->signal_connect(
+			'activate' => sub {
+				&evt_activate_systray_statusicon;
+				$icon;
+			},
+			$icon
+							 );
+		$icon->set_tooltip( GSCROT_NAME . " " . GSCROT_VERSION );
+	} else {
+		$icon =
+			Gtk2::Image->new_from_pixbuf(
+									Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+										"$gscrot_root/share/pixmaps/gscrot.svg",
+										24, 24
+									)
+			);
+		my $eventbox = Gtk2::EventBox->new;
+		$eventbox->add( $icon );
+		my $tray = Gtk2::TrayIcon->new( 'gscrot TrayIcon' );
+		$tray->add( $eventbox );
+		$tooltips->set_tip( $tray, GSCROT_NAME . " " . GSCROT_VERSION );
+		$eventbox->signal_connect( 'button_release_event', \&evt_show_systray );
+		$tray->show_all;
+	}
 
 }
 
@@ -691,9 +715,8 @@ foreach ( sort @saved_profiles ) {
 			$last_profile_name;
 	$current_index++;
 }
-my $tooltip_profiles = Gtk2::Tooltips->new;
-$tooltip_profiles->set_tip( $combobox_settings_profiles,
-							$d->get( "Choose a profile" ) );
+$tooltips->set_tip( $combobox_settings_profiles,
+					$d->get( "Choose a profile" ) );
 
 
 my $button_profile_save = Gtk2::Button->new;
@@ -701,31 +724,23 @@ $button_profile_save->signal_connect( 'clicked', \&evt_save_profile,
 									  $combobox_settings_profiles );
 $button_profile_save->set_image(
 						  Gtk2::Image->new_from_stock( 'gtk-save', 'button' ) );
-my $tooltip_profiles_save = Gtk2::Tooltips->new;
-$tooltip_profiles_save->set_tip( $button_profile_save,
-								 $d->get( "Save configuration as profile" ) );
+$tooltips->set_tip( $button_profile_save,
+					$d->get( "Save configuration as profile" ) );
 
 my $button_profile_delete = Gtk2::Button->new;
 $button_profile_delete->signal_connect( 'clicked', \&evt_delete_profile,
 										$combobox_settings_profiles );
 $button_profile_delete->set_image(
 						Gtk2::Image->new_from_stock( 'gtk-delete', 'button' ) );
-my $tooltip_profiles_delete = Gtk2::Tooltips->new;
-$tooltip_profiles_delete->set_tip( $button_profile_delete,
-								   $d->get( "Delete profile" ) );
+$tooltips->set_tip( $button_profile_delete, $d->get( "Delete profile" ) );
 
 my $button_profile_apply = Gtk2::Button->new;
 $button_profile_apply->signal_connect( 'clicked', \&evt_apply_profile,
 									   $combobox_settings_profiles );
 $button_profile_apply->set_image(
 						 Gtk2::Image->new_from_stock( 'gtk-apply', 'button' ) );
-my $tooltip_profiles_apply = Gtk2::Tooltips->new;
-$tooltip_profiles_apply->set_tip(
-								  $button_profile_apply,
-								  $d->get(
-										 "Set profile for current configuration"
-								  )
-								);
+$tooltips->set_tip( $button_profile_apply,
+					$d->get( "Set profile for current configuration" ) );
 
 
 my $file_frame_label = Gtk2::Label->new;
@@ -776,13 +791,12 @@ if ( defined $settings_xml->{ 'general' }->{ 'delay_active' } ) {
 } else {
 	$delay_active->set_active( FALSE );
 }
-my $tooltip_delay = Gtk2::Tooltips->new;
-$tooltip_delay->set_tip( $delay,
-					   $d->get( "Wait n seconds before taking a screenshot" ) );
-$tooltip_delay->set_tip( $delay_active,
-					   $d->get( "Wait n seconds before taking a screenshot" ) );
-$tooltip_delay->set_tip( $delay_label,
-					   $d->get( "Wait n seconds before taking a screenshot" ) );
+$tooltips->set_tip( $delay,
+					$d->get( "Wait n seconds before taking a screenshot" ) );
+$tooltips->set_tip( $delay_active,
+					$d->get( "Wait n seconds before taking a screenshot" ) );
+$tooltips->set_tip( $delay_label,
+					$d->get( "Wait n seconds before taking a screenshot" ) );
 $delay_box->pack_start( $delay_label, FALSE, TRUE, 10 );
 $delay_box2->pack_start( $delay_active, FALSE, FALSE, 0 );
 $delay_box2->pack_start( $delay,        TRUE,  TRUE,  0 );
@@ -804,13 +818,12 @@ if ( defined $settings_xml->{ 'general' }->{ 'resize_operator' } ) {
 } else {
 	$combobox_thumb_operator->set_active( 0 );
 }
-my $tooltip_thumb_operator = Gtk2::Tooltips->new;
-$tooltip_thumb_operator->set_tip(
-								  $combobox_thumb_operator,
-								  $d->get(
-									  "Select resize operator\nSee http://www.imagemagick.org/Usage/resize/ for help"
-								  )
-								);
+$tooltips->set_tip(
+					$combobox_thumb_operator,
+					$d->get(
+						"Select resize operator\nSee http://www.imagemagick.org/Usage/resize/ for help"
+					)
+				  );
 $resize_operator_box->pack_start( Gtk2::Label->new,         FALSE, FALSE, 0 );
 $resize_operator_box->pack_start( $combobox_thumb_operator, TRUE,  TRUE,  10 );
 
@@ -838,25 +851,24 @@ if ( defined $settings_xml->{ 'general' }->{ 'thumbnail_active' } ) {
 } else {
 	$thumbnail_active->set_active( FALSE );
 }
-my $tooltip_thumb = Gtk2::Tooltips->new;
-$tooltip_thumb->set_tip(
-						 $thumbnail,
-						 $d->get(
-							 "Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be"
-						 )
-					   );
-$tooltip_thumb->set_tip(
-						 $thumbnail_active,
-						 $d->get(
-							 "Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be"
-						 )
-					   );
-$tooltip_thumb->set_tip(
-						 $thumbnail_label,
-						 $d->get(
-							 "Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be"
-						 )
-					   );
+$tooltips->set_tip(
+					$thumbnail,
+					$d->get(
+						"Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be"
+					)
+				  );
+$tooltips->set_tip(
+					$thumbnail_active,
+					$d->get(
+						"Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be"
+					)
+				  );
+$tooltips->set_tip(
+					$thumbnail_label,
+					$d->get(
+						"Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be"
+					)
+				  );
 $thumbnail_box->pack_start( $thumbnail_label, FALSE, TRUE, 10 );
 $thumbnail_box2->pack_start( $thumbnail_active, FALSE, FALSE, 0 );
 $thumbnail_box2->pack_start( $thumbnail,        TRUE,  TRUE,  0 );
@@ -870,20 +882,19 @@ if ( defined $settings_xml->{ 'general' }->{ 'filename' } ) {
 } else {
 	$filename->set_text( "screenshot_\%NN" );
 }
-my $filename_label   = Gtk2::Label->new( $d->get( "Filename" ) );
-my $tooltip_filename = Gtk2::Tooltips->new;
-$tooltip_filename->set_tip(
-							$filename,
-							$d->get(
-								"There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time\n\$w = width\n\$h = height\n%NN = counter"
-							)
-						  );
-$tooltip_filename->set_tip(
-							$filename_label,
-							$d->get(
-								"There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time\n\$w = width\n\$h = height\n%NN = counter"
-							)
-						  );
+my $filename_label = Gtk2::Label->new( $d->get( "Filename" ) );
+$tooltips->set_tip(
+					$filename,
+					$d->get(
+						"There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time\n\$w = width\n\$h = height\n%NN = counter"
+					)
+				  );
+$tooltips->set_tip(
+					$filename_label,
+					$d->get(
+						"There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time\n\$w = width\n\$h = height\n%NN = counter"
+					)
+				  );
 $filename_box->pack_start( $filename_label, FALSE, TRUE, 10 );
 $filename_box->pack_start( $filename,       TRUE,  TRUE, 10 );
 
@@ -902,11 +913,9 @@ if ( defined $settings_xml->{ 'general' }->{ 'filetype' } ) {
 } else {
 	$combobox_type->set_active( 1 );
 }
-my $filetype_label   = Gtk2::Label->new( $d->get( "Image format" ) );
-my $tooltip_filetype = Gtk2::Tooltips->new;
-$tooltip_filetype->set_tip( $combobox_type, $d->get( "Select a file format" ) );
-$tooltip_filetype->set_tip( $filetype_label,
-							$d->get( "Select a file format" ) );
+my $filetype_label = Gtk2::Label->new( $d->get( "Image format" ) );
+$tooltips->set_tip( $combobox_type,  $d->get( "Select a file format" ) );
+$tooltips->set_tip( $filetype_label, $d->get( "Select a file format" ) );
 $filetype_box->pack_start( $filetype_label, FALSE, TRUE, 10 );
 $filetype_box->pack_start( $combobox_type,  TRUE,  TRUE, 10 );
 $scale->signal_connect( 'value-changed' => \&evt_value_changed,
@@ -919,19 +928,18 @@ if ( defined $settings_xml->{ 'general' }->{ 'quality' } ) {
 } else {
 	$scale->set_value( 9 );
 }
-my $tooltip_quality = Gtk2::Tooltips->new;
-$tooltip_quality->set_tip(
-						   $scale,
-						   $d->get(
-							   "Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)"
-						   )
-						 );
-$tooltip_quality->set_tip(
-						   $scale_label,
-						   $d->get(
-							   "Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)"
-						   )
-						 );
+$tooltips->set_tip(
+					$scale,
+					$d->get(
+						"Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)"
+					)
+				  );
+$tooltips->set_tip(
+					$scale_label,
+					$d->get(
+						"Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)"
+					)
+				  );
 $scale_box->pack_start( $scale_label, FALSE, TRUE, 10 );
 $scale_box->pack_start( $scale,       TRUE,  TRUE, 10 );
 
@@ -949,19 +957,18 @@ if ( defined $settings_xml->{ 'general' }->{ 'folder' } ) {
 	$saveDir_button->set_current_folder( $ENV{ 'HOME' } );
 }
 
-my $tooltip_saveDir = Gtk2::Tooltips->new;
-$tooltip_saveDir->set_tip(
-						   $saveDir_button,
-						   $d->get(
-							   "Your screenshots will be saved\nto this directory"
+$tooltips->set_tip(
+					$saveDir_button,
+					$d->get(
+							 "Your screenshots will be saved\nto this directory"
 						   )
-						 );
-$tooltip_saveDir->set_tip(
-						   $saveDir_label,
-						   $d->get(
-							   "Your screenshots will be saved\nto this directory"
+				  );
+$tooltips->set_tip(
+					$saveDir_label,
+					$d->get(
+							 "Your screenshots will be saved\nto this directory"
 						   )
-						 );
+				  );
 $saveDir_box->pack_start( $saveDir_label,  FALSE, TRUE, 10 );
 $saveDir_box->pack_start( $saveDir_button, TRUE,  TRUE, 10 );
 
@@ -973,20 +980,19 @@ if ( defined $settings_xml->{ 'general' }->{ 'capture_key' } ) {
 } else {
 	$capture_key->set_text( "Print" );
 }
-my $capture_label   = Gtk2::Label->new( $d->get( "Capture" ) );
-my $tooltip_capture = Gtk2::Tooltips->new;
-$tooltip_capture->set_tip(
-						   $capture_key,
-						   $d->get(
-							   "Configure global keybinding for capture\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
-						   )
-						 );
-$tooltip_capture->set_tip(
-						   $capture_label,
-						   $d->get(
-							   "Configure global keybinding for capture\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
-						   )
-						 );
+my $capture_label = Gtk2::Label->new( $d->get( "Capture" ) );
+$tooltips->set_tip(
+					$capture_key,
+					$d->get(
+						"Configure global keybinding for capture\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
+					)
+				  );
+$tooltips->set_tip(
+					$capture_label,
+					$d->get(
+						"Configure global keybinding for capture\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
+					)
+				  );
 my $capture_sel_key = Gtk2::Entry->new;
 
 if ( defined $settings_xml->{ 'general' }->{ 'capture_sel_key' } ) {
@@ -997,25 +1003,24 @@ if ( defined $settings_xml->{ 'general' }->{ 'capture_sel_key' } ) {
 }
 
 my $capture_sel_label = Gtk2::Label->new( $d->get( "Capture with selection" ) );
-my $tooltip_sel_capture = Gtk2::Tooltips->new;
-$tooltip_sel_capture->set_tip(
-							   $capture_sel_key,
-							   $d->get(
-								   "Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
-							   )
-							 );
-$tooltip_sel_capture->set_tip(
-							   $capture_sel_label,
-							   $d->get(
-								   "Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
-							   )
-							 );
+$tooltips->set_tip(
+					$capture_sel_key,
+					$d->get(
+						"Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
+					)
+				  );
+$tooltips->set_tip(
+					$capture_sel_label,
+					$d->get(
+						"Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
+					)
+				  );
 
 #keybinding_mode
 my $combobox_keybinding_mode = Gtk2::ComboBox->new_text;
-$combobox_keybinding_mode->insert_text( 0, $d->get("Selection") );
-$combobox_keybinding_mode->insert_text( 1, $d->get("Window") );
-$combobox_keybinding_mode->insert_text( 2, $d->get("Section") );
+$combobox_keybinding_mode->insert_text( 0, $d->get( "Selection" ) );
+$combobox_keybinding_mode->insert_text( 1, $d->get( "Window" ) );
+$combobox_keybinding_mode->insert_text( 2, $d->get( "Section" ) );
 
 if ( defined $settings_xml->{ 'general' }->{ 'keybinding_mode' } ) {
 	$combobox_keybinding_mode->set_active(
@@ -1023,13 +1028,12 @@ if ( defined $settings_xml->{ 'general' }->{ 'keybinding_mode' } ) {
 } else {
 	$combobox_keybinding_mode->set_active( 1 );
 }
-my $tooltip_keybinding_mode = Gtk2::Tooltips->new;
-$tooltip_keybinding_mode->set_tip(
-								   $combobox_keybinding_mode,
-								   $d->get(
-									   "Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
-								   )
-								 );
+$tooltips->set_tip(
+					$combobox_keybinding_mode,
+					$d->get(
+						"Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
+					)
+				  );
 $keybinding_mode_box->pack_start( Gtk2::Label->new,          FALSE, FALSE, 0 );
 $keybinding_mode_box->pack_start( $combobox_keybinding_mode, FALSE, TRUE,  10 );
 
@@ -1080,13 +1084,12 @@ if ( defined $settings_xml->{ 'general' }->{ 'autohide' } ) {
 } else {
 	$hide_active->set_active( TRUE );
 }
-my $tooltip_hide = Gtk2::Tooltips->new;
-$tooltip_hide->set_tip(
-						$hide_active,
-						$d->get(
-							"Automatically hide GScrot Window when taking a screenshot"
-						)
-					  );
+$tooltips->set_tip(
+					$hide_active,
+					$d->get(
+						"Automatically hide GScrot Window when taking a screenshot"
+					)
+				  );
 $autocopy_active->signal_connect( 'toggled' => \&evt_behavior_handle,
 								  'autocopy_toggled' );
 
@@ -1096,13 +1099,8 @@ if ( defined $settings_xml->{ 'general' }->{ 'autocopy' } ) {
 } else {
 	$autocopy_active->set_active( TRUE );
 }
-my $tooltip_autocopy = Gtk2::Tooltips->new;
-$tooltip_autocopy->set_tip(
-							$autocopy_active,
-							$d->get(
-									"Automatically copy screenshot to clipboard"
-								   )
-						  );
+$tooltips->set_tip( $autocopy_active,
+					$d->get( "Automatically copy screenshot to clipboard" ) );
 $close_at_close_active->signal_connect( 'toggled' => \&evt_behavior_handle,
 										'close_at_close_toggled' );
 
@@ -1112,13 +1110,8 @@ if ( defined $settings_xml->{ 'general' }->{ 'close_at_close' } ) {
 } else {
 	$close_at_close_active->set_active( TRUE );
 }
-my $tooltip_close_at_close = Gtk2::Tooltips->new;
-$tooltip_close_at_close->set_tip(
-								  $close_at_close_active,
-								  $d->get(
-									  "Minimize to tray when closing main window"
-								  )
-								);
+$tooltips->set_tip( $close_at_close_active,
+					$d->get( "Minimize to tray when closing main window" ) );
 $save_at_close_active->signal_connect( 'toggled' => \&evt_behavior_handle,
 									   'save_at_close_toggled' );
 
@@ -1128,13 +1121,12 @@ if ( defined $settings_xml->{ 'general' }->{ 'save_at_close' } ) {
 } else {
 	$save_at_close_active->set_active( TRUE );
 }
-my $tooltip_save_at_close = Gtk2::Tooltips->new;
-$tooltip_save_at_close->set_tip(
-								 $save_at_close_active,
-								 $d->get(
-									 "Save settings automatically when exiting GScrot"
-								 )
-							   );
+$tooltips->set_tip(
+					$save_at_close_active,
+					$d->get(
+							 "Save settings automatically when exiting GScrot"
+						   )
+				  );
 
 
 #end - behavior
@@ -1188,26 +1180,25 @@ if ( defined $settings_xml->{ 'general' }->{ 'prog_active' } ) {
 } else {
 	$progname_active->set_active( TRUE );
 }
-my $progname_label   = Gtk2::Label->new( $d->get( "Open with" ) );
-my $tooltip_progname = Gtk2::Tooltips->new;
-$tooltip_progname->set_tip(
-							$progname,
-							$d->get(
-								"Open your screenshot\nwith this program after capturing"
-							)
-						  );
-$tooltip_progname->set_tip(
-							$progname_active,
-							$d->get(
-								"Open your screenshot\nwith this program after capturing"
-							)
-						  );
-$tooltip_progname->set_tip(
-							$progname_label,
-							$d->get(
-								"Open your screenshot\nwith this program after capturing"
-							)
-						  );
+my $progname_label = Gtk2::Label->new( $d->get( "Open with" ) );
+$tooltips->set_tip(
+					$progname,
+					$d->get(
+						"Open your screenshot\nwith this program after capturing"
+					)
+				  );
+$tooltips->set_tip(
+					$progname_active,
+					$d->get(
+						"Open your screenshot\nwith this program after capturing"
+					)
+				  );
+$tooltips->set_tip(
+					$progname_label,
+					$d->get(
+						"Open your screenshot\nwith this program after capturing"
+					)
+				  );
 $progname_box->pack_start( $progname_label, TRUE, TRUE, 10 );
 $progname_box2->pack_start( $progname_active, FALSE, TRUE, 0 );
 $progname_box2->pack_start( $progname,        TRUE,  TRUE, 0 );
@@ -1239,26 +1230,25 @@ if ( defined $settings_xml->{ 'general' }->{ 'im_colors_active' } ) {
 } else {
 	$im_colors_active->set_active( FALSE );
 }
-my $im_colors_label   = Gtk2::Label->new( $d->get( "Reduce colors" ) );
-my $tooltip_im_colors = Gtk2::Tooltips->new;
-$tooltip_im_colors->set_tip(
-							 $combobox_im_colors,
-							 $d->get(
-								 "Automatically reduce colors \nafter taking a screenshot"
-							 )
-						   );
-$tooltip_im_colors->set_tip(
-							 $im_colors_active,
-							 $d->get(
-								 "Automatically reduce colors \nafter taking a screenshot"
-							 )
-						   );
-$tooltip_im_colors->set_tip(
-							 $im_colors_label,
-							 $d->get(
-								 "Automatically reduce colors \nafter taking a screenshot"
-							 )
-						   );
+my $im_colors_label = Gtk2::Label->new( $d->get( "Reduce colors" ) );
+$tooltips->set_tip(
+					$combobox_im_colors,
+					$d->get(
+						"Automatically reduce colors \nafter taking a screenshot"
+					)
+				  );
+$tooltips->set_tip(
+					$im_colors_active,
+					$d->get(
+						"Automatically reduce colors \nafter taking a screenshot"
+					)
+				  );
+$tooltips->set_tip(
+					$im_colors_label,
+					$d->get(
+						"Automatically reduce colors \nafter taking a screenshot"
+					)
+				  );
 $im_colors_box->pack_start( $im_colors_label, TRUE, TRUE, 10 );
 $im_colors_box2->pack_start( $im_colors_active,   FALSE, TRUE, 0 );
 $im_colors_box2->pack_start( $combobox_im_colors, TRUE,  TRUE, 0 );
@@ -1277,20 +1267,11 @@ if ( defined $settings_xml->{ 'general' }->{ 'border' } ) {
 } else {
 	$combobox_border->set_active( TRUE );
 }
-my $border_label   = Gtk2::Label->new( $d->get( "Window border" ) );
-my $tooltip_border = Gtk2::Tooltips->new;
-$tooltip_border->set_tip(
-						  $combobox_border,
-						  $d->get(
-								   "Include wm border when selecting a window"
-								 )
-						);
-$tooltip_border->set_tip(
-						  $border_label,
-						  $d->get(
-								   "Include wm border when selecting a window"
-								 )
-						);
+my $border_label = Gtk2::Label->new( $d->get( "Window border" ) );
+$tooltips->set_tip( $combobox_border,
+					$d->get( "Include wm border when selecting a window" ) );
+$tooltips->set_tip( $border_label,
+					$d->get( "Include wm border when selecting a window" ) );
 $border_box->pack_start( $border_label,    FALSE, TRUE, 10 );
 $border_box->pack_start( $combobox_border, TRUE,  TRUE, 10 );
 
@@ -1308,12 +1289,11 @@ if ( defined $settings_xml->{ 'general' }->{ 'cursor' } ) {
 } else {
 	$combobox_cursor->set_active( TRUE );
 }
-my $cursor_label   = Gtk2::Label->new( $d->get( "Include cursor" ) );
-my $tooltip_cursor = Gtk2::Tooltips->new;
-$tooltip_cursor->set_tip( $combobox_cursor,
-						 $d->get( "Include cursor when taking a screenshot" ) );
-$tooltip_cursor->set_tip( $cursor_label,
-						 $d->get( "Include cursor when taking a screenshot" ) );
+my $cursor_label = Gtk2::Label->new( $d->get( "Include cursor" ) );
+$tooltips->set_tip( $combobox_cursor,
+					$d->get( "Include cursor when taking a screenshot" ) );
+$tooltips->set_tip( $cursor_label,
+					$d->get( "Include cursor when taking a screenshot" ) );
 $cursor_box->pack_start( $cursor_label,    FALSE, TRUE, 10 );
 $cursor_box->pack_start( $combobox_cursor, TRUE,  TRUE, 10 );
 
@@ -2129,89 +2109,47 @@ sub evt_about {
 }
 
 sub evt_show_systray {
+	my ( $widget, $data ) = @_;
+	if ( $debug_cparam ) {
+		print "\n$data was emitted by widget $widget\n";
+	}
+
+	#left button (mouse)
+	if ( $_[ 1 ]->button == 1 ) {
+		if ( $window->visible ) {
+			$window->hide;
+			$is_in_tray = TRUE;
+		} else {
+			$window->show_all;
+			$is_in_tray = FALSE;
+		}
+	}
+
+	#right button (mouse)
+	elsif ( $_[ 1 ]->button == 3 ) {
+
+		my $tray_menu = &fct_ret_tray_menu;
+
+		$tray_menu->popup(
+						   undef,           # parent menu shell
+						   undef,           # parent menu item
+						   undef,           # menu pos func
+						   undef,           # data
+						   $data->button,
+						   $data->time
+						 );
+	}
+	return TRUE;
+}
+
+sub evt_show_systray_statusicon {
 	my ( $widget, $button, $time, $icon ) = @_;
 	if ( $debug_cparam ) {
 		print "\n$button, $time was emitted by widget $widget\n";
 	}
 
-	my $tray_menu       = Gtk2::Menu->new();
-	my $menuitem_select = Gtk2::ImageMenuItem->new( $d->get( "Selection" ) );
-	$menuitem_select->set_image(
-			  Gtk2::Image->new_from_pixbuf(
-				  Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-					  "$gscrot_root/share/gscrot/resources/icons/selection.svg",
-					  Gtk2::IconSize->lookup( 'menu' )
-				  )
-			  )
-	);
-	$menuitem_select->signal_connect( activate => \&evt_take_screenshot,
-									  'tray_select' );
-	my $menuitem_raw = Gtk2::ImageMenuItem->new( $d->get( "Fullscreen" ) );
-	$menuitem_raw->set_image(
-			 Gtk2::Image->new_from_pixbuf(
-				 Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-					 "$gscrot_root/share/gscrot/resources/icons/fullscreen.svg",
-					 Gtk2::IconSize->lookup( 'menu' )
-				 )
-			 )
-	);
-	$menuitem_raw->signal_connect( activate => \&evt_take_screenshot,
-								   'tray_raw' );
-	my $menuitem_window = Gtk2::ImageMenuItem->new( $d->get( "Window" ) );
-	$menuitem_window->set_image(
-			 Gtk2::Image->new_from_pixbuf(
-				 Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-					 "$gscrot_root/share/gscrot/resources/icons/sel_window.svg",
-					 Gtk2::IconSize->lookup( 'menu' )
-				 )
-			 )
-	);
-	$menuitem_window->signal_connect( activate => \&evt_take_screenshot,
-									  'tray_window' );
-	my $menuitem_window_sect = Gtk2::ImageMenuItem->new( $d->get( "Section" ) );
-	$menuitem_window_sect->set_image(
-		Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-				"$gscrot_root/share/gscrot/resources/icons/sel_window_section.svg",
-				Gtk2::IconSize->lookup( 'menu' )
-			)
-		)
-	);
-	$menuitem_window_sect->signal_connect( activate => \&evt_take_screenshot,
-										   'tray_section' );
-	my $menuitem_web = Gtk2::ImageMenuItem->new( $d->get( "Web" ) );
-	$menuitem_web->set_sensitive( $gnome_web_photo );
-	$menuitem_web->set_image(
-			  Gtk2::Image->new_from_pixbuf(
-				  Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-					  "$gscrot_root/share/gscrot/resources/icons/web_image.svg",
-					  Gtk2::IconSize->lookup( 'menu' )
-				  )
-			  )
-	);
-	$menuitem_web->signal_connect( activate => \&evt_take_screenshot,
-								   'tray_web' );
-	my $menuitem_info = Gtk2::ImageMenuItem->new( $d->get( "Info" ) );
-	$menuitem_info->set_image(
-					   Gtk2::Image->new_from_icon_name( 'gtk-about', 'menu' ) );
-	$menuitem_info->signal_connect( "activate", \&evt_about, $window );
-	my $menuitem_quit = Gtk2::ImageMenuItem->new( $d->get( "Quit" ) );
-	$menuitem_quit->set_image(
-						Gtk2::Image->new_from_icon_name( 'gtk-quit', 'menu' ) );
-	$menuitem_quit->signal_connect( "activate", \&evt_delete_window,
-									'menu_quit' );
-	$tray_menu->append( $menuitem_select );
-	$tray_menu->append( Gtk2::SeparatorMenuItem->new );
-	$tray_menu->append( $menuitem_raw );
-	$tray_menu->append( Gtk2::SeparatorMenuItem->new );
-	$tray_menu->append( $menuitem_window );
-	$tray_menu->append( $menuitem_window_sect );
-	$tray_menu->append( Gtk2::SeparatorMenuItem->new );
-	$tray_menu->append( $menuitem_web );
-	$tray_menu->append( Gtk2::SeparatorMenuItem->new );
-	$tray_menu->append( $menuitem_info );
-	$tray_menu->append( $menuitem_quit );
-	$tray_menu->show_all;
+	my $tray_menu = &fct_ret_tray_menu;
+
 	$tray_menu->popup(
 		undef,    # parent menu shell
 		undef,    # parent menu item
@@ -2225,7 +2163,7 @@ sub evt_show_systray {
 	return TRUE;
 }
 
-sub evt_activate_systray {
+sub evt_activate_systray_statusicon {
 	my ( $widget, $data, $icon ) = @_;
 	if ( $debug_cparam ) {
 		print "\n$data was emitted by widget $widget\n";
@@ -3086,9 +3024,8 @@ sub fct_create_tab {
 							 );
 	$button_remove->signal_connect( clicked => \&evt_in_tab,
 									'remove' . $key );
-	my $tooltip_remove = Gtk2::Tooltips->new;
-	$tooltip_remove->set_tip( $button_remove,
-							  $d->get( "Remove file(s) from session" ) );
+	$tooltips->set_tip( $button_remove,
+						$d->get( "Remove file(s) from session" ) );
 
 	my $button_delete =
 		Gtk2::ToolButton->new(
@@ -3099,8 +3036,7 @@ sub fct_create_tab {
 							 );
 	$button_delete->signal_connect( clicked => \&evt_in_tab,
 									'delete' . $key );
-	my $tooltip_delete = Gtk2::Tooltips->new;
-	$tooltip_delete->set_tip( $button_delete, $d->get( "Delete file(s)" ) );
+	$tooltips->set_tip( $button_delete, $d->get( "Delete file(s)" ) );
 
 	my $button_clipboard =
 		Gtk2::ToolButton->new(
@@ -3111,9 +3047,8 @@ sub fct_create_tab {
 							 );
 	$button_clipboard->signal_connect( clicked => \&evt_in_tab,
 									   'clipboard' . $key );
-	my $tooltip_clipboard = Gtk2::Tooltips->new;
-	$tooltip_clipboard->set_tip( $button_clipboard,
-								 $d->get( "Copy file(s) to clipboard" ) );
+	$tooltips->set_tip( $button_clipboard,
+						$d->get( "Copy file(s) to clipboard" ) );
 
 	my $button_reopen =
 		Gtk2::ToolButton->new(
@@ -3124,8 +3059,7 @@ sub fct_create_tab {
 							 );
 	$button_reopen->signal_connect( clicked => \&evt_in_tab,
 									'reopen' . $key );
-	my $tooltip_reopen = Gtk2::Tooltips->new;
-	$tooltip_reopen->set_tip( $button_reopen, $d->get( "Open file(s)" ) );
+	$tooltips->set_tip( $button_reopen, $d->get( "Open file(s)" ) );
 
 	my $button_upload =
 		Gtk2::ToolButton->new(
@@ -3136,9 +3070,8 @@ sub fct_create_tab {
 							 );
 	$button_upload->signal_connect( clicked => \&evt_in_tab,
 									'upload' . $key );
-	my $tooltip_upload = Gtk2::Tooltips->new;
-	$tooltip_upload->set_tip( $button_upload,
-							  $d->get( "Upload file to hosting-site" ) );
+	$tooltips->set_tip( $button_upload,
+						$d->get( "Upload file to hosting-site" ) );
 
 	my $button_rename =
 		Gtk2::ToolButton->new(
@@ -3149,8 +3082,7 @@ sub fct_create_tab {
 							 );
 	$button_rename->signal_connect( clicked => \&evt_in_tab,
 									'rename' . $key );
-	my $tooltip_rename = Gtk2::Tooltips->new;
-	$tooltip_rename->set_tip( $button_rename, $d->get( "Rename file" ) );
+	$tooltips->set_tip( $button_rename, $d->get( "Rename file" ) );
 
 	my $button_plugin =
 		Gtk2::ToolButton->new(
@@ -3161,8 +3093,7 @@ sub fct_create_tab {
 							 );
 	$button_plugin->signal_connect( clicked => \&evt_in_tab,
 									'plugin' . $key );
-	my $tooltip_plugin = Gtk2::Tooltips->new;
-	$tooltip_plugin->set_tip( $button_plugin, $d->get( "Execute a plugin" ) );
+	$tooltips->set_tip( $button_plugin, $d->get( "Execute a plugin" ) );
 
 	my $button_draw =
 		Gtk2::ToolButton->new(
@@ -3175,8 +3106,7 @@ sub fct_create_tab {
 				   undef
 		);
 	$button_draw->signal_connect( clicked => \&evt_in_tab, 'draw' . $key );
-	my $tooltip_draw = Gtk2::Tooltips->new;
-	$tooltip_draw->set_tip( $button_draw, $d->get( "Draw" ) );
+	$tooltips->set_tip( $button_draw, $d->get( "Draw" ) );
 
 	my $button_print =
 		Gtk2::ToolButton->new(
@@ -3187,17 +3117,16 @@ sub fct_create_tab {
 							 );
 	$button_print->signal_connect( clicked => \&evt_in_tab,
 								   'print' . $key );
-	my $tooltip_print = Gtk2::Tooltips->new;
 
 	if ( $gtklp ) {
-		$tooltip_print->set_tip( $button_print, $d->get( "Print file(s)" ) );
+		$tooltips->set_tip( $button_print, $d->get( "Print file(s)" ) );
 	} else {
-		$tooltip_print->set_tip(
-								 $button_print,
-								 $d->get(
-									 "gtklp needs to be installed for this feature"
-								 )
-							   );
+		$tooltips->set_tip(
+							$button_print,
+							$d->get(
+								  "gtklp needs to be installed for this feature"
+							)
+						  );
 		$button_print->set_sensitive( $gtklp );
 	}
 
@@ -3209,11 +3138,8 @@ sub fct_create_tab {
 		$session_screens{ $key }->{ 'filename_label' }->set_line_wrap( TRUE );
 		$session_screens{ $key }->{ 'filename_label' }
 			->set_single_line_mode( FALSE );
-		$session_screens{ $key }->{ 'tooltip_filename_tab' } =
-			Gtk2::Tooltips->new;
-		$session_screens{ $key }->{ 'tooltip_filename_tab' }
-			->set_tip( $session_screens{ $key }->{ 'filename_label' },
-					   $session_screens{ $key }->{ 'long' } );
+		$tooltips->set_tip( $session_screens{ $key }->{ 'filename_label' },
+							$session_screens{ $key }->{ 'long' } );
 		my $folder_label = Gtk2::Label->new;
 		$folder_label->set_markup( "<b>" . $d->get( "Directory" ) . "</b>" );
 		$session_screens{ $key }->{ 'folder_label' } =
@@ -3221,11 +3147,8 @@ sub fct_create_tab {
 		$session_screens{ $key }->{ 'folder_label' }->set_line_wrap( TRUE );
 		$session_screens{ $key }->{ 'folder_label' }
 			->set_single_line_mode( FALSE );
-		$session_screens{ $key }->{ 'tooltip_folder_tab' } =
-			Gtk2::Tooltips->new;
-		$session_screens{ $key }->{ 'tooltip_folder_tab' }
-			->set_tip( $session_screens{ $key }->{ 'folder_label' },
-					   $session_screens{ $key }->{ 'long' } );
+		$tooltips->set_tip( $session_screens{ $key }->{ 'folder_label' },
+							$session_screens{ $key }->{ 'long' } );
 		my $mime_type_label = Gtk2::Label->new;
 		$mime_type_label->set_markup( "<b>" . $d->get( "Mime-Type" ) . "</b>" );
 		$session_screens{ $key }->{ 'mime_type_label' } =
@@ -3341,8 +3264,7 @@ sub fct_create_tab {
 							 $key,
 							 undef
 						   ];
-				my $tooltip_btn = Gtk2::Tooltips->new;
-				$tooltip_btn->set_tip( $btn, $plugins{ $_ }->{ 'tooltip' } );
+				$tooltips->set_tip( $btn, $plugins{ $_ }->{ 'tooltip' } );
 				$btn->signal_connect( 'clicked', \&fct_execute_plugin, $data );
 
 				if ( $first_plugin ) {
@@ -4249,7 +4171,7 @@ sub fct_update_tab {
 			->set_text( $session_screens{ $key }->{ 'short' } );
 		$session_screens{ $key }->{ 'folder_label' }
 			->set_text( $session_screens{ $key }->{ 'folder' } );
-		$session_screens{ $key }->{ 'tooltip_filename_tab' }
+		$tooltips
 			->set_tip( $session_screens{ $key }->{ 'filename_label' },
 					   $session_screens{ $key }->{ 'filename' } );
 		$session_screens{ $key }->{ 'mime_type_label' }
@@ -5477,6 +5399,36 @@ sub fct_check_installed_plugins {
 				print " Could not detect binary for program $_, ignoring\n";
 				delete $plugins{ $_ };
 				next;
+			} else {
+
+				#get translated plugin-name
+				$plugins{ $_ }->{ 'name' } = `$plugins{$_}->{'binary'} name`;
+				utf8::decode $plugins{ $_ }->{ 'name' };
+				$plugins{ $_ }->{ 'category' } =
+					`$plugins{$_}->{'binary'} sort`;
+				utf8::decode $plugins{ $_ }->{ 'category' };
+				$plugins{ $_ }->{ 'tooltip' } = `$plugins{$_}->{'binary'} tip`;
+				utf8::decode $plugins{ $_ }->{ 'tooltip' };
+				$plugins{ $_ }->{ 'ext' } = `$plugins{$_}->{'binary'} ext`;
+				utf8::decode $plugins{ $_ }->{ 'ext' };
+				$plugins{ $_ }->{ 'lang' } = `$plugins{$_}->{'binary'} lang`;
+				utf8::decode $plugins{ $_ }->{ 'lang' };
+				$plugins{ $_ }->{ 'lang' } = "shell"
+					if $plugins{ $_ }->{ 'lang' } eq "";
+				chomp( $plugins{ $_ }->{ 'name' } );
+				chomp( $plugins{ $_ }->{ 'category' } );
+				chomp( $plugins{ $_ }->{ 'tooltip' } );
+				chomp( $plugins{ $_ }->{ 'ext' } );
+				chomp( $plugins{ $_ }->{ 'lang' } );
+
+				#check if plugin can handle png and/or jpeg
+				$plugins{ $_ }->{ 'pixbuf_jpeg' } = 'gtk-no';
+				$plugins{ $_ }->{ 'pixbuf_png' }  = 'gtk-no';
+				$plugins{ $_ }->{ 'pixbuf_jpeg' } = 'gtk-yes'
+					if ( $plugins{ $_ }->{ 'ext' } =~ /jpeg/ );
+				$plugins{ $_ }->{ 'pixbuf_png' } = 'gtk-yes'
+					if ( $plugins{ $_ }->{ 'ext' } =~ /png/ );
+
 			}
 			if ( $debug_cparam ) {
 				$plugins{ $_ }->{ 'name' } = `$plugins{$_}->{'binary'} name`;
@@ -5611,6 +5563,90 @@ sub fct_ret_window_menu {
 	return $menu_windows;
 }
 
+sub fct_ret_tray_menu {
+
+	my $tray_menu       = Gtk2::Menu->new();
+	my $menuitem_select = Gtk2::ImageMenuItem->new( $d->get( "Selection" ) );
+	$menuitem_select->set_image(
+			  Gtk2::Image->new_from_pixbuf(
+				  Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+					  "$gscrot_root/share/gscrot/resources/icons/selection.svg",
+					  Gtk2::IconSize->lookup( 'menu' )
+				  )
+			  )
+	);
+	$menuitem_select->signal_connect( activate => \&evt_take_screenshot,
+									  'tray_select' );
+	my $menuitem_raw = Gtk2::ImageMenuItem->new( $d->get( "Fullscreen" ) );
+	$menuitem_raw->set_image(
+			 Gtk2::Image->new_from_pixbuf(
+				 Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+					 "$gscrot_root/share/gscrot/resources/icons/fullscreen.svg",
+					 Gtk2::IconSize->lookup( 'menu' )
+				 )
+			 )
+	);
+	$menuitem_raw->signal_connect( activate => \&evt_take_screenshot,
+								   'tray_raw' );
+	my $menuitem_window = Gtk2::ImageMenuItem->new( $d->get( "Window" ) );
+	$menuitem_window->set_image(
+			 Gtk2::Image->new_from_pixbuf(
+				 Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+					 "$gscrot_root/share/gscrot/resources/icons/sel_window.svg",
+					 Gtk2::IconSize->lookup( 'menu' )
+				 )
+			 )
+	);
+	$menuitem_window->signal_connect( activate => \&evt_take_screenshot,
+									  'tray_window' );
+	my $menuitem_window_sect = Gtk2::ImageMenuItem->new( $d->get( "Section" ) );
+	$menuitem_window_sect->set_image(
+		Gtk2::Image->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+				"$gscrot_root/share/gscrot/resources/icons/sel_window_section.svg",
+				Gtk2::IconSize->lookup( 'menu' )
+			)
+		)
+	);
+	$menuitem_window_sect->signal_connect( activate => \&evt_take_screenshot,
+										   'tray_section' );
+	my $menuitem_web = Gtk2::ImageMenuItem->new( $d->get( "Web" ) );
+	$menuitem_web->set_sensitive( $gnome_web_photo );
+	$menuitem_web->set_image(
+			  Gtk2::Image->new_from_pixbuf(
+				  Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+					  "$gscrot_root/share/gscrot/resources/icons/web_image.svg",
+					  Gtk2::IconSize->lookup( 'menu' )
+				  )
+			  )
+	);
+	$menuitem_web->signal_connect( activate => \&evt_take_screenshot,
+								   'tray_web' );
+	my $menuitem_info = Gtk2::ImageMenuItem->new( $d->get( "Info" ) );
+	$menuitem_info->set_image(
+					   Gtk2::Image->new_from_icon_name( 'gtk-about', 'menu' ) );
+	$menuitem_info->signal_connect( "activate", \&evt_about, $window );
+	my $menuitem_quit = Gtk2::ImageMenuItem->new( $d->get( "Quit" ) );
+	$menuitem_quit->set_image(
+						Gtk2::Image->new_from_icon_name( 'gtk-quit', 'menu' ) );
+	$menuitem_quit->signal_connect( "activate", \&evt_delete_window,
+									'menu_quit' );
+	$tray_menu->append( $menuitem_select );
+	$tray_menu->append( Gtk2::SeparatorMenuItem->new );
+	$tray_menu->append( $menuitem_raw );
+	$tray_menu->append( Gtk2::SeparatorMenuItem->new );
+	$tray_menu->append( $menuitem_window );
+	$tray_menu->append( $menuitem_window_sect );
+	$tray_menu->append( Gtk2::SeparatorMenuItem->new );
+	$tray_menu->append( $menuitem_web );
+	$tray_menu->append( Gtk2::SeparatorMenuItem->new );
+	$tray_menu->append( $menuitem_info );
+	$tray_menu->append( $menuitem_quit );
+	$tray_menu->show_all;
+
+	return $tray_menu;
+}
+
 sub fct_ret_sel_menu {
 	my $menu_sel = Gtk2::Menu->new;
 	$zoom_active =
@@ -5737,43 +5773,17 @@ sub fct_load_plugin_tree {
 					);
 			}
 
-			#get translated plugin-name
-			$plugins{ $_ }->{ 'name' } = `$plugins{$_}->{'binary'} name`;
-			utf8::decode $plugins{ $_ }->{ 'name' };
-			$plugins{ $_ }->{ 'category' } = `$plugins{$_}->{'binary'} sort`;
-			utf8::decode $plugins{ $_ }->{ 'category' };
-			$plugins{ $_ }->{ 'tooltip' } = `$plugins{$_}->{'binary'} tip`;
-			utf8::decode $plugins{ $_ }->{ 'tooltip' };
-			$plugins{ $_ }->{ 'ext' } = `$plugins{$_}->{'binary'} ext`;
-			utf8::decode $plugins{ $_ }->{ 'ext' };
-			$plugins{ $_ }->{ 'lang' } = `$plugins{$_}->{'binary'} lang`;
-			utf8::decode $plugins{ $_ }->{ 'lang' };
-			$plugins{ $_ }->{ 'lang' } = "shell"
-				if $plugins{ $_ }->{ 'lang' } eq "";
-			chomp( $plugins{ $_ }->{ 'name' } );
-			chomp( $plugins{ $_ }->{ 'category' } );
-			chomp( $plugins{ $_ }->{ 'tooltip' } );
-			chomp( $plugins{ $_ }->{ 'ext' } );
-			chomp( $plugins{ $_ }->{ 'lang' } );
-
-			#check if plugin can handle png and/or jpeg
-			my $pixbuf_jpeg = 'gtk-no';
-			my $pixbuf_png  = 'gtk-no';
-			$pixbuf_jpeg = 'gtk-yes'
-				if ( $plugins{ $_ }->{ 'ext' } =~ /jpeg/ );
-			$pixbuf_png = 'gtk-yes'
-				if ( $plugins{ $_ }->{ 'ext' } =~ /png/ );
 			$effects_model->set(
-								 $effects_model->append,         0,
-								 $plugins{ $_ }->{ 'menu' },     1,
-								 $pixbuf,                        2,
-								 $plugins{ $_ }->{ 'name' },     3,
-								 $plugins{ $_ }->{ 'category' }, 4,
-								 $pixbuf_jpeg,                   5,
-								 $pixbuf_png,                    6,
-								 $plugins{ $_ }->{ 'tooltip' },  7,
-								 $plugins{ $_ }->{ 'lang' },     8,
-								 $plugins{ $_ }->{ 'binary' },   9,
+								 $effects_model->append,            0,
+								 $plugins{ $_ }->{ 'menu' },        1,
+								 $pixbuf,                           2,
+								 $plugins{ $_ }->{ 'name' },        3,
+								 $plugins{ $_ }->{ 'category' },    4,
+								 $plugins{ $_ }->{ 'pixbuf_jpeg' }, 5,
+								 $plugins{ $_ }->{ 'pixbuf_png' },  6,
+								 $plugins{ $_ }->{ 'tooltip' },     7,
+								 $plugins{ $_ }->{ 'lang' },        8,
+								 $plugins{ $_ }->{ 'binary' },      9,
 								 $_,
 							   );
 		} else {
@@ -6722,10 +6732,9 @@ sub dlg_upload_links_ubuntu_pics {
 	$entry_ubuntucode->set_text( $ubuntucode );
 	$entry_direct->set_text( $direct );
 
-	my $tooltip_copy = Gtk2::Tooltips->new;
 	my $upload_copy1 = Gtk2::Button->new;
-	$tooltip_copy->set_tip( $upload_copy1,
-							$d->get( "Copy this code to clipboard" ) );
+	$tooltips->set_tip( $upload_copy1,
+						$d->get( "Copy this code to clipboard" ) );
 	$upload_copy1->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy1->signal_connect(
@@ -6738,8 +6747,8 @@ sub dlg_upload_links_ubuntu_pics {
 
 
 	my $upload_copy2 = Gtk2::Button->new;
-	$tooltip_copy->set_tip( $upload_copy2,
-							$d->get( "Copy this code to clipboard" ) );
+	$tooltips->set_tip( $upload_copy2,
+						$d->get( "Copy this code to clipboard" ) );
 	$upload_copy2->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy2->signal_connect(
@@ -6751,8 +6760,8 @@ sub dlg_upload_links_ubuntu_pics {
 								 );
 
 	my $upload_copy3 = Gtk2::Button->new;
-	$tooltip_copy->set_tip( $upload_copy3,
-							$d->get( "Copy this code to clipboard" ) );
+	$tooltips->set_tip( $upload_copy3,
+						$d->get( "Copy this code to clipboard" ) );
 	$upload_copy3->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy3->signal_connect(
@@ -6763,8 +6772,8 @@ sub dlg_upload_links_ubuntu_pics {
 		$entry_bbcode
 								 );
 	my $upload_copy4 = Gtk2::Button->new;
-	$tooltip_copy->set_tip( $upload_copy4,
-							$d->get( "Copy this code to clipboard" ) );
+	$tooltips->set_tip( $upload_copy4,
+						$d->get( "Copy this code to clipboard" ) );
 	$upload_copy4->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy4->signal_connect(
@@ -6775,8 +6784,8 @@ sub dlg_upload_links_ubuntu_pics {
 		$entry_ubuntucode
 								 );
 	my $upload_copy5 = Gtk2::Button->new;
-	$tooltip_copy->set_tip( $upload_copy5,
-							$d->get( "Copy this code to clipboard" ) );
+	$tooltips->set_tip( $upload_copy5,
+						$d->get( "Copy this code to clipboard" ) );
 	$upload_copy5->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy5->signal_connect(
@@ -6903,10 +6912,9 @@ sub dlg_upload_links_imagebanana {
 	$entry_hotboard1->set_text( $hotboard1 );
 	$entry_hotboard2->set_text( $hotboard2 );
 
-	my $tooltip_copy = Gtk2::Tooltips->new;
 	my $upload_copy1 = Gtk2::Button->new;
-	$tooltip_copy->set_tip( $upload_copy1,
-							$d->get( "Copy this code to clipboard" ) );
+	$tooltips->set_tip( $upload_copy1,
+						$d->get( "Copy this code to clipboard" ) );
 	$upload_copy1->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy1->signal_connect(
@@ -6919,8 +6927,8 @@ sub dlg_upload_links_imagebanana {
 
 
 	my $upload_copy2 = Gtk2::Button->new;
-	$tooltip_copy->set_tip( $upload_copy2,
-							$d->get( "Copy this code to clipboard" ) );
+	$tooltips->set_tip( $upload_copy2,
+						$d->get( "Copy this code to clipboard" ) );
 	$upload_copy2->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy2->signal_connect(
@@ -6932,8 +6940,8 @@ sub dlg_upload_links_imagebanana {
 								 );
 
 	my $upload_copy3 = Gtk2::Button->new;
-	$tooltip_copy->set_tip( $upload_copy3,
-							$d->get( "Copy this code to clipboard" ) );
+	$tooltips->set_tip( $upload_copy3,
+						$d->get( "Copy this code to clipboard" ) );
 	$upload_copy3->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy3->signal_connect(
@@ -6944,8 +6952,8 @@ sub dlg_upload_links_imagebanana {
 		$entry_thumb3
 								 );
 	my $upload_copy4 = Gtk2::Button->new;
-	$tooltip_copy->set_tip( $upload_copy4,
-							$d->get( "Copy this code to clipboard" ) );
+	$tooltips->set_tip( $upload_copy4,
+						$d->get( "Copy this code to clipboard" ) );
 	$upload_copy4->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy4->signal_connect(
@@ -6956,8 +6964,8 @@ sub dlg_upload_links_imagebanana {
 		$entry_friends
 								 );
 	my $upload_copy5 = Gtk2::Button->new;
-	$tooltip_copy->set_tip( $upload_copy5,
-							$d->get( "Copy this code to clipboard" ) );
+	$tooltips->set_tip( $upload_copy5,
+						$d->get( "Copy this code to clipboard" ) );
 	$upload_copy5->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy5->signal_connect(
@@ -6969,8 +6977,8 @@ sub dlg_upload_links_imagebanana {
 								 );
 
 	my $upload_copy6 = Gtk2::Button->new;
-	$tooltip_copy->set_tip( $upload_copy6,
-							$d->get( "Copy this code to clipboard" ) );
+	$tooltips->set_tip( $upload_copy6,
+						$d->get( "Copy this code to clipboard" ) );
 	$upload_copy6->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy6->signal_connect(
@@ -6983,8 +6991,8 @@ sub dlg_upload_links_imagebanana {
 
 
 	my $upload_copy7 = Gtk2::Button->new;
-	$tooltip_copy->set_tip( $upload_copy7,
-							$d->get( "Copy this code to clipboard" ) );
+	$tooltips->set_tip( $upload_copy7,
+						$d->get( "Copy this code to clipboard" ) );
 	$upload_copy7->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy7->signal_connect(
@@ -6996,8 +7004,8 @@ sub dlg_upload_links_imagebanana {
 								 );
 
 	my $upload_copy8 = Gtk2::Button->new;
-	$tooltip_copy->set_tip( $upload_copy8,
-							$d->get( "Copy this code to clipboard" ) );
+	$tooltips->set_tip( $upload_copy8,
+						$d->get( "Copy this code to clipboard" ) );
 	$upload_copy8->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy8->signal_connect(
@@ -7009,8 +7017,8 @@ sub dlg_upload_links_imagebanana {
 								 );
 
 	my $upload_copy9 = Gtk2::Button->new;
-	$tooltip_copy->set_tip( $upload_copy9,
-							$d->get( "Copy this code to clipboard" ) );
+	$tooltips->set_tip( $upload_copy9,
+						$d->get( "Copy this code to clipboard" ) );
 	$upload_copy9->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy9->signal_connect(
@@ -7149,15 +7157,13 @@ sub dlg_upload_links_imageshack {
 	);
 	$upload_vbox->pack_start( $upload_hbox, TRUE, TRUE, 10 );
 
-	my $tooltip_copy = Gtk2::Tooltips->new;
-
 	if ( $url_thumb ) {
 		my $entry_thumb1 = Gtk2::Entry->new();
 		my $entry_thumb2 = Gtk2::Entry->new();
 
 		my $upload_copy1 = Gtk2::Button->new;
-		$tooltip_copy->set_tip( $upload_copy1,
-								$d->get( "Copy this code to clipboard" ) );
+		$tooltips->set_tip( $upload_copy1,
+							$d->get( "Copy this code to clipboard" ) );
 		$upload_copy1->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 		$upload_copy1->signal_connect(
@@ -7169,8 +7175,8 @@ sub dlg_upload_links_imageshack {
 									 );
 
 		my $upload_copy2 = Gtk2::Button->new;
-		$tooltip_copy->set_tip( $upload_copy2,
-								$d->get( "Copy this code to clipboard" ) );
+		$tooltips->set_tip( $upload_copy2,
+							$d->get( "Copy this code to clipboard" ) );
 		$upload_copy2->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 		$upload_copy2->signal_connect(
@@ -7198,8 +7204,8 @@ sub dlg_upload_links_imageshack {
 	}
 
 	my $upload_copy3 = Gtk2::Button->new;
-	$tooltip_copy->set_tip( $upload_copy3,
-							$d->get( "Copy this code to clipboard" ) );
+	$tooltips->set_tip( $upload_copy3,
+						$d->get( "Copy this code to clipboard" ) );
 	$upload_copy3->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy3->signal_connect(
@@ -7211,8 +7217,8 @@ sub dlg_upload_links_imageshack {
 								 );
 
 	my $upload_copy4 = Gtk2::Button->new;
-	$tooltip_copy->set_tip( $upload_copy4,
-							$d->get( "Copy this code to clipboard" ) );
+	$tooltips->set_tip( $upload_copy4,
+						$d->get( "Copy this code to clipboard" ) );
 	$upload_copy4->set_image(
 							Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy4->signal_connect(
