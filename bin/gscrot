@@ -42,7 +42,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.216";
+use constant BRANCH              => "Rev.217";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.62.1";
@@ -108,9 +108,9 @@ import GScrot::Draw;
 #--------------------------------------
 
 #signal-handler
+$SIG{ RTMIN } = sub { &evt_take_screenshot( 'global_keybinding', 'select' ) };
 $SIG{ USR1 }  = sub { &evt_take_screenshot( 'global_keybinding', 'raw' ) };
 $SIG{ USR2 }  = sub { &evt_take_screenshot( 'global_keybinding', 'window' ) };
-$SIG{ RTMIN } = sub { &evt_take_screenshot( 'global_keybinding', 'select' ) };
 $SIG{ RTMAX } = sub { &evt_take_screenshot( 'global_keybinding', 'section' ) };
 
 #screen
@@ -187,6 +187,7 @@ my $file_vbox           = Gtk2::VBox->new( FALSE, 0 );
 my $save_vbox           = Gtk2::VBox->new( FALSE, 0 );
 my $behavior_vbox       = Gtk2::VBox->new( FALSE, 0 );
 my $keybinding_vbox     = Gtk2::VBox->new( FALSE, 0 );
+my $keybinding_mode_box = Gtk2::HBox->new( TRUE,  0 );
 my $actions_vbox        = Gtk2::VBox->new( FALSE, 0 );
 my $capture_vbox        = Gtk2::VBox->new( FALSE, 0 );
 my $effects_vbox        = Gtk2::VBox->new( FALSE, 0 );
@@ -205,7 +206,6 @@ my $im_colors_box       = Gtk2::HBox->new( TRUE,  0 );
 my $im_colors_box2      = Gtk2::HBox->new( FALSE, 0 );
 my $filetype_box        = Gtk2::HBox->new( TRUE,  0 );
 my $saveDir_box         = Gtk2::HBox->new( TRUE,  0 );
-my $behavior_box        = Gtk2::HBox->new( TRUE,  0 );
 my $key_box             = Gtk2::HBox->new( TRUE,  0 );
 my $key_box2            = Gtk2::HBox->new( FALSE, 0 );
 my $key_sel_box         = Gtk2::HBox->new( TRUE,  0 );
@@ -1011,6 +1011,28 @@ $tooltip_sel_capture->set_tip(
 							   )
 							 );
 
+#keybinding_mode
+my $combobox_keybinding_mode = Gtk2::ComboBox->new_text;
+$combobox_keybinding_mode->insert_text( 0, "Selection");
+$combobox_keybinding_mode->insert_text( 1, "Window" );
+$combobox_keybinding_mode->insert_text( 2, "Section" );
+
+if ( defined $settings_xml->{ 'general' }->{ 'keybinding_mode' } ) {
+	$combobox_keybinding_mode->set_active(
+						  $settings_xml->{ 'general' }->{ 'keybinding_mode' } );
+} else {
+	$combobox_keybinding_mode->set_active( 1 );
+}
+my $tooltip_keybinding_mode = Gtk2::Tooltips->new;
+$tooltip_keybinding_mode->set_tip(
+								  $combobox_keybinding_mode,
+							   		$d->get(
+									   "Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
+							   		)
+								);
+$keybinding_mode_box->pack_start( Gtk2::Label->new,         FALSE, FALSE, 0 );
+$keybinding_mode_box->pack_start( $combobox_keybinding_mode, FALSE,  TRUE,  10 );
+
 #keybindings
 my $keybinding_active = Gtk2::CheckButton->new;
 $keybinding_active->signal_connect( 'toggled' => \&evt_behavior_handle,
@@ -1352,23 +1374,24 @@ $behavior_vbox->pack_start( $close_at_close_active, TRUE, TRUE, 5 );
 $behavior_vbox->pack_start( $save_at_close_active,  TRUE, TRUE, 5 );
 $behavior_frame->add( $behavior_vbox );
 
-$keybinding_vbox->pack_start( $key_box,     TRUE, TRUE, 5 );
-$keybinding_vbox->pack_start( $key_sel_box, TRUE, TRUE, 5 );
+$keybinding_vbox->pack_start( $key_box,     FALSE, TRUE, 5 );
+$keybinding_vbox->pack_start( $key_sel_box, FALSE, TRUE, 5 );
+$keybinding_vbox->pack_start( $keybinding_mode_box, FALSE, TRUE, 5 );
 $keybinding_frame->add( $keybinding_vbox );
 
-$vbox_behavior->pack_start( $behavior_frame,   TRUE, TRUE, 0 );
-$vbox_behavior->pack_start( $keybinding_frame, TRUE, TRUE, 0 );
+$vbox_behavior->pack_start( $behavior_frame,   FALSE, TRUE, 1 );
+$vbox_behavior->pack_start( $keybinding_frame, FALSE, TRUE, 1 );
 $vbox_behavior->set_border_width( 5 );
 
-$capture_vbox->pack_start( $delay_box,  TRUE, TRUE, 5 );
-$capture_vbox->pack_start( $border_box, TRUE, TRUE, 5 );
-$capture_vbox->pack_start( $cursor_box, TRUE, TRUE, 5 );
+$capture_vbox->pack_start( $delay_box,  FALSE, TRUE, 5 );
+$capture_vbox->pack_start( $border_box, FALSE, TRUE, 5 );
+$capture_vbox->pack_start( $cursor_box, FALSE, TRUE, 5 );
 $capture_frame->add( $capture_vbox );
 
-$actions_vbox->pack_start( $progname_box,        TRUE, TRUE, 5 );
-$actions_vbox->pack_start( $im_colors_box,       TRUE, TRUE, 5 );
-$actions_vbox->pack_start( $thumbnail_box,       TRUE, TRUE, 5 );
-$actions_vbox->pack_start( $resize_operator_box, TRUE, TRUE, 5 );
+$actions_vbox->pack_start( $progname_box,        FALSE, TRUE, 5 );
+$actions_vbox->pack_start( $im_colors_box,       FALSE, TRUE, 5 );
+$actions_vbox->pack_start( $thumbnail_box,       FALSE, TRUE, 5 );
+$actions_vbox->pack_start( $resize_operator_box, FALSE, TRUE, 5 );
 
 $actions_frame->add( $actions_vbox );
 my $label_basic = Gtk2::Label->new;
@@ -1385,8 +1408,8 @@ my $notebook_settings_second =
 my $notebook_settings_third =
 	$notebook_settings->append_page( $vbox_behavior, $label_behavior );
 
-$vbox_extras->pack_start( $actions_frame, TRUE, TRUE, 1 );
-$vbox_extras->pack_start( $capture_frame, TRUE, TRUE, 1 );
+$vbox_extras->pack_start( $actions_frame, FALSE, TRUE, 1 );
+$vbox_extras->pack_start( $capture_frame, FALSE, TRUE, 1 );
 $vbox_extras->set_border_width( 5 );
 
 my $scrolled_accounts_window = Gtk2::ScrolledWindow->new;
@@ -1421,7 +1444,7 @@ $profiles_box->pack_start( $button_profile_save,        FALSE, TRUE, 1 );
 $profiles_box->pack_start( $button_profile_delete,      FALSE, TRUE, 1 );
 $profiles_box->pack_start( $button_profile_apply,       FALSE, TRUE, 1 );
 
-$vbox_settings->pack_start( $profiles_box,      TRUE, TRUE, 1 );
+$vbox_settings->pack_start( $profiles_box,      FALSE, TRUE, 1 );
 $vbox_settings->pack_start( $notebook_settings, TRUE, TRUE, 1 );
 
 #settings
@@ -1985,8 +2008,10 @@ sub evt_behavior_handle {
 	if ( $data eq "keybinding_sel_toggled" ) {
 		if ( $keybinding_sel_active->get_active ) {
 			$capture_sel_key->set_sensitive( TRUE );
+			$combobox_keybinding_mode->set_sensitive( TRUE );
 		} else {
 			$capture_sel_key->set_sensitive( FALSE );
+			$combobox_keybinding_mode->set_sensitive( FALSE );
 		}
 		&fct_save_bindings();
 	}
@@ -3593,6 +3618,7 @@ sub fct_save_settings {
 	$settings{ 'general' }->{ 'keybinding' } = $keybinding_active->get_active();
 	$settings{ 'general' }->{ 'keybinding_sel' } =
 		$keybinding_sel_active->get_active();
+	$settings{ 'general' }->{ 'keybinding_mode' } = $combobox_keybinding_mode->get_active();	
 	$settings{ 'general' }->{ 'capture_key' } = $capture_key->get_text();
 	$settings{ 'general' }->{ 'capture_sel_key' } =
 		$capture_sel_key->get_text();
@@ -3683,11 +3709,21 @@ sub fct_save_bindings {
 		$client->set( $shortcut_full, { type => 'string', value => 'Print', } );
 	}
 	if ( $keybinding_sel_active->get_active() ) {
+		my $mode = undef;
+		if($combobox_keybinding_mode->get_active() == 0){
+			$mode = "--selection";
+		}elsif($combobox_keybinding_mode->get_active() == 1){
+			$mode = "--window";
+		}elsif($combobox_keybinding_mode->get_active() == 2){
+			$mode = "--section";
+		}else{
+			$mode = "--window";
+		}
 		$client->set(
 					  $command_sel,
 					  {
 						 type  => 'string',
-						 value => "$gscrot_path --window",
+						 value => "$gscrot_path $mode",
 					  }
 					);
 		$client->set(
@@ -3709,7 +3745,7 @@ sub fct_save_bindings {
 					  { type => 'string', value => '<Alt>Print', } );
 	}
 
-	return 1;
+	return TRUE;
 }
 
 sub fct_load_settings {
@@ -3798,6 +3834,8 @@ sub fct_load_settings {
 							  $settings_xml->{ 'general' }->{ 'capture_key' } );
 				$capture_sel_key->set_text(
 						  $settings_xml->{ 'general' }->{ 'capture_sel_key' } );
+				$combobox_keybinding_mode->set_active(
+						   $settings_xml->{ 'general' }->{ 'keybinding_mode' } );						  
 
 			}
 
