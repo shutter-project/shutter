@@ -42,7 +42,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.218";
+use constant BRANCH              => "Rev.219";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.62.1";
@@ -1013,9 +1013,9 @@ $tooltip_sel_capture->set_tip(
 
 #keybinding_mode
 my $combobox_keybinding_mode = Gtk2::ComboBox->new_text;
-$combobox_keybinding_mode->insert_text( 0, "Selection");
-$combobox_keybinding_mode->insert_text( 1, "Window" );
-$combobox_keybinding_mode->insert_text( 2, "Section" );
+$combobox_keybinding_mode->insert_text( 0, $d->get("Selection") );
+$combobox_keybinding_mode->insert_text( 1, $d->get("Window") );
+$combobox_keybinding_mode->insert_text( 2, $d->get("Section") );
 
 if ( defined $settings_xml->{ 'general' }->{ 'keybinding_mode' } ) {
 	$combobox_keybinding_mode->set_active(
@@ -1025,13 +1025,13 @@ if ( defined $settings_xml->{ 'general' }->{ 'keybinding_mode' } ) {
 }
 my $tooltip_keybinding_mode = Gtk2::Tooltips->new;
 $tooltip_keybinding_mode->set_tip(
-								  $combobox_keybinding_mode,
-							   		$d->get(
+								   $combobox_keybinding_mode,
+								   $d->get(
 									   "Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
-							   		)
-								);
-$keybinding_mode_box->pack_start( Gtk2::Label->new,         FALSE, FALSE, 0 );
-$keybinding_mode_box->pack_start( $combobox_keybinding_mode, FALSE,  TRUE,  10 );
+								   )
+								 );
+$keybinding_mode_box->pack_start( Gtk2::Label->new,          FALSE, FALSE, 0 );
+$keybinding_mode_box->pack_start( $combobox_keybinding_mode, FALSE, TRUE,  10 );
 
 #keybindings
 my $keybinding_active = Gtk2::CheckButton->new;
@@ -1374,8 +1374,8 @@ $behavior_vbox->pack_start( $close_at_close_active, TRUE, TRUE, 5 );
 $behavior_vbox->pack_start( $save_at_close_active,  TRUE, TRUE, 5 );
 $behavior_frame->add( $behavior_vbox );
 
-$keybinding_vbox->pack_start( $key_box,     FALSE, TRUE, 5 );
-$keybinding_vbox->pack_start( $key_sel_box, FALSE, TRUE, 5 );
+$keybinding_vbox->pack_start( $key_box,             FALSE, TRUE, 5 );
+$keybinding_vbox->pack_start( $key_sel_box,         FALSE, TRUE, 5 );
 $keybinding_vbox->pack_start( $keybinding_mode_box, FALSE, TRUE, 5 );
 $keybinding_frame->add( $keybinding_vbox );
 
@@ -1445,7 +1445,7 @@ $profiles_box->pack_start( $button_profile_delete,      FALSE, TRUE, 1 );
 $profiles_box->pack_start( $button_profile_apply,       FALSE, TRUE, 1 );
 
 $vbox_settings->pack_start( $profiles_box,      FALSE, TRUE, 1 );
-$vbox_settings->pack_start( $notebook_settings, TRUE, TRUE, 1 );
+$vbox_settings->pack_start( $notebook_settings, TRUE,  TRUE, 1 );
 
 #settings
 $settings_dialog->vbox->add( $vbox_settings );
@@ -2114,8 +2114,10 @@ sub evt_about {
 	$about->set_website( $website );
 	$about->set_email_hook( \&fct_gnome_open_mail );
 	$about->set_authors(
-		"Development:\nMario Kemper <mario.kemper\@googlemail.com>\nRene Hennig <Rene.Hennig\@my-united.net>\n\nPlugins:\nMartin Rabeneck (cornix) <martinrabeneck\@gmx.net>\n\nubuntu-pics.de:\nRene Hennig <Rene.Hennig\@my-united.net>"
-	);
+		"Development:\nMario Kemper <mario.kemper\@googlemail.com>\nRene Hennig <Rene.Hennig\@my-united.net>\n\n"
+			. "Patches:\nFranco Zeoli\n\n"
+			. "Plugins:\nMartin Rabeneck (cornix) <martinrabeneck\@gmx.net>\n\n"
+			. "ubuntu-pics.de:\nRene Hennig <Rene.Hennig\@my-united.net>" );
 	$about->set_artists( "Pascal Grochol <pg0803\@gmail.com>",
 						 "Arne Weinberg" );
 	$about->set_translator_credits( $all_translators );
@@ -3618,7 +3620,8 @@ sub fct_save_settings {
 	$settings{ 'general' }->{ 'keybinding' } = $keybinding_active->get_active();
 	$settings{ 'general' }->{ 'keybinding_sel' } =
 		$keybinding_sel_active->get_active();
-	$settings{ 'general' }->{ 'keybinding_mode' } = $combobox_keybinding_mode->get_active();	
+	$settings{ 'general' }->{ 'keybinding_mode' } =
+		$combobox_keybinding_mode->get_active();
 	$settings{ 'general' }->{ 'capture_key' } = $capture_key->get_text();
 	$settings{ 'general' }->{ 'capture_sel_key' } =
 		$capture_sel_key->get_text();
@@ -3710,13 +3713,13 @@ sub fct_save_bindings {
 	}
 	if ( $keybinding_sel_active->get_active() ) {
 		my $mode = undef;
-		if($combobox_keybinding_mode->get_active() == 0){
+		if ( $combobox_keybinding_mode->get_active() == 0 ) {
 			$mode = "--selection";
-		}elsif($combobox_keybinding_mode->get_active() == 1){
+		} elsif ( $combobox_keybinding_mode->get_active() == 1 ) {
 			$mode = "--window";
-		}elsif($combobox_keybinding_mode->get_active() == 2){
+		} elsif ( $combobox_keybinding_mode->get_active() == 2 ) {
 			$mode = "--section";
-		}else{
+		} else {
 			$mode = "--window";
 		}
 		$client->set(
@@ -3835,7 +3838,7 @@ sub fct_load_settings {
 				$capture_sel_key->set_text(
 						  $settings_xml->{ 'general' }->{ 'capture_sel_key' } );
 				$combobox_keybinding_mode->set_active(
-						   $settings_xml->{ 'general' }->{ 'keybinding_mode' } );						  
+						  $settings_xml->{ 'general' }->{ 'keybinding_mode' } );
 
 			}
 
@@ -6591,7 +6594,8 @@ sub dlg_account_chooser_and_upload {
 			my $url = undef;
 			eval { $url = $ishack->host( $file_to_upload, undef ); };
 			if ( $@ ) {
-				&dlg_error_message( $d->get("Upload failed!\nPlease try again later.") );
+				&dlg_error_message(
+						 $d->get( "Upload failed!\nPlease try again later." ) );
 				$hosting_dialog->destroy();
 				return TRUE;
 			}
