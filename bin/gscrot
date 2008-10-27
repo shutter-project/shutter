@@ -123,7 +123,7 @@ if ( $debug_cparam ) {
 	}
 }
 
-#$x->init_extension( 'SHAPE' ) or die "Could not initialize X11 EXTENSION SHAPE";
+$x->init_extension( 'SHAPE' ) or die "Could not initialize X11 EXTENSION SHAPE";
 my $screen = Gnome2::Wnck::Screen->get_default;
 $screen->force_update();
 my $gdk_screen       = Gtk2::Gdk::Screen->get_default;
@@ -4404,8 +4404,6 @@ sub fct_gscrot_area {
 	my $gc = Gtk2::Gdk::GC->new( $root, undef );
 	$gc->set_line_attributes( 1, 'double-dash', 'round', 'round' );
 
-#	$gc->set_rgb_background( $black->pixel );
-#	$gc->set_rgb_foreground( $white->pixel );
 	$gc->set_rgb_bg_color( $black );
 	$gc->set_rgb_fg_color( $white );
 	$gc->set_subwindow( 'include-inferiors' );
@@ -4701,12 +4699,10 @@ sub fct_gscrot_window {
 	}
 
 	if ( Gtk2::Gdk->pointer_is_grabbed ) {
-		Gtk2::Gdk::X11->grab_server;
 		my $last_selected_window      = 0;
 		my $last_selected_window_wnck = 0;
 		my $drawable                  = undef;
 		my $window_selected           = FALSE;
-		my $ungrabbed                 = FALSE;
 
 		%children = ();
 		Gtk2::Gdk::Event->handler_set(
@@ -4732,7 +4728,6 @@ sub fct_gscrot_window {
 						}
 
 						#ungrab pointer and keyboard
-						Gtk2::Gdk::X11->ungrab_server;
 						Gtk2::Gdk->pointer_ungrab(
 												 Gtk2->get_current_event_time );
 						Gtk2::Gdk->keyboard_ungrab(
@@ -4747,11 +4742,6 @@ sub fct_gscrot_window {
 					print
 						"Trying to clear a rectangle ($children{'last_win'}{'x'}, $children{'last_win'}{'y'}, $children{'last_win'}{'width'}, $children{'last_win'}{'height'})\n"
 						if $debug_cparam;
-
-					unless ( $window_selected ) {
-						Gtk2::Gdk::X11->ungrab_server;
-						$ungrabbed = TRUE;
-					}
 
 					#looking for a section of a window?
 					#keep current window in mind and search for children
@@ -4789,14 +4779,12 @@ sub fct_gscrot_window {
 						sleep 1 if $delay_value < 1;
 
 						#ungrab pointer and keyboard
-						Gtk2::Gdk::X11->ungrab_server unless $ungrabbed;
 						Gtk2::Gdk->pointer_ungrab(
 												 Gtk2->get_current_event_time );
 						Gtk2::Gdk->keyboard_ungrab(
 												 Gtk2->get_current_event_time );
 						Gtk2::Gdk::Event->handler_set( undef, 'rect' );
 						Gtk2->main_quit;
-
 
 						#sleep if there is any delay
 						sleep $delay_value;
@@ -4842,20 +4830,8 @@ sub fct_gscrot_window {
 											 $children{ 'curr_win' }{ 'height' }
 							);
 
-#						my ( $qroot, $qparent, @qkids ) = undef;
-#						my $xwindow = $children{ 'curr_win' }{ 'gdk_window' }->XWINDOW;
-#						my $last_parent = $children{ 'curr_win' }{ 'gdk_window' }->XWINDOW;
-#						while(1){
-#							( $qroot, $qparent, @qkids ) = $x->QueryTree( $xwindow );
-#							my ($ordering, $rectangles) = $x->ShapeGetRectangles($last_parent, 'Bounding');
-#							print Dumper($rectangles);
-#							unless ($qroot == $qparent){
-#							$last_parent = $qparent;
-#							$xwindow = $qparent;
-#							}else{
-#								last;
-#							}
-#						}
+#						my ($ordering, $rectangles) = $x->ShapeGetRectangles(&fct_find_wm_window($children{ 'curr_win' }{ 'window' }->get_xid), 'Bounding');
+#						print $rectangles;
 
 						$pixbuf =
 							&fct_include_cursor(
@@ -4892,21 +4868,26 @@ sub fct_gscrot_window {
 								if ( $curr_window->get_xid ==
 									 $window->window->get_xid && $is_in_tray );
 
-#							if($curr_window->is_visible_on_workspace ($screen->get_active_workspace)){
-							my ( $xp, $yp, $widthp, $heightp, $depthp ) =
-								( 0, 0, 0, 0, undef );
+							my ( $xp, $yp, $widthp, $heightp) = $curr_window->get_geometry;
 							if ( $border ) {
-								( $xp, $yp, $widthp, $heightp ) =
-									$curr_window->get_geometry;
-							} else {
-								( $xp, $yp, $widthp, $heightp, $depthp ) =
-									$drawable->get_geometry;
-								( $xp, $yp ) = $drawable->get_origin;
+									#find wm_window
+									my $wm_window = Gtk2::Gdk::Window->foreign_new(&fct_find_wm_window($curr_window->get_xid));													
+									$drawable = $wm_window if $wm_window;
+									
+									#get_size of it
+									my ( $widthp2, $heightp2) = $drawable->get_size;
+									my ( $xp2, $yp2 ) = $drawable->get_origin;
+							
+									#check the correct rect
+									if($xp2+$widthp2 > $xp+$widthp || $yp2+$heightp2 > $yp+$heightp){
+										( $xp, $yp, $widthp, $heightp) = ($xp2, $yp2, $widthp2, $heightp2);
+									}		
+									
+							}else{
+								  ( $widthp, $heightp) = $drawable->get_size;
+									( $xp, $yp ) = $drawable->get_origin;
 							}
-							print "Current Event x: "
-								. $event->x . ", y: "
-								. $event->y . "\n"
-								if $debug_cparam;
+
 							if (
 								 $curr_window->is_visible_on_workspace(
 												   $screen->get_active_workspace
@@ -4938,7 +4919,6 @@ sub fct_gscrot_window {
 								}
 							}
 
-							#							}
 						}    #end if toplevel window loop
 
 						#window selected, search for children now
@@ -5129,12 +5109,21 @@ sub fct_gscrot_window {
 	return $output;
 }
 
+sub fct_find_wm_window {
+	my $xid = shift;
+	do{
+		my ( $qroot, $qparent, @qkids ) = $x->QueryTree( $xid );
+		return undef unless ($qroot || $qparent);
+		return $xid if ($qroot == $qparent);	
+		$xid = $qparent;
+	}while(TRUE)
+}
+
 sub fct_query_children {
 	my ( $xwindow, $xparent ) = @_;
 	my ( $qroot, $qparent, @qkids ) = $x->QueryTree( $xwindow );
 	foreach ( @qkids ) {
 
-		#~ print "$qroot, $qparent, $_, $xwindow\n";
 		my $gdk_window = Gtk2::Gdk::Window->foreign_new( $_ );
 		if ( defined $gdk_window ) {
 
@@ -5253,7 +5242,6 @@ sub fct_gscrot_workspace {
 	my $pixbuf =
 		Gtk2::Gdk::Pixbuf->get_from_drawable( $root, undef, $rootxp, $rootyp, 0,
 											  0, $rootwidthp, $rootheightp );
-
 
 	$pixbuf =
 		&fct_include_cursor( $rootxp, $rootyp, $rootwidthp, $rootheightp, $root,
