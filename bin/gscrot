@@ -19,7 +19,6 @@ use utf8;
 use strict;
 use warnings;
 use Gtk2 '-init';
-use Gtk2::TrayIcon;
 use Gtk2::Gdk::Keysyms;
 use Gtk2::Pango;
 use Gnome2;
@@ -43,7 +42,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.222";
+use constant BRANCH              => "Rev.223";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.62.1";
@@ -659,7 +658,7 @@ $vbox->pack_start( $handlebox, FALSE, TRUE, 0 );
 unless ( $disable_systray_cparam ) {
 
 	my $icon = undef;
-	if ( Gtk2->CHECK_VERSION( 2, 10, 0 ) ) {
+	if ( Gtk2->CHECK_VERSION( 3, 10, 0 ) ) {
 		$icon = Gtk2::StatusIcon->new();
 		$icon->set_from_file( "$gscrot_root/share/pixmaps/gscrot.svg" );
 		$icon->set_visible( 1 );
@@ -675,6 +674,7 @@ unless ( $disable_systray_cparam ) {
 							 );
 		$icon->set_tooltip( GSCROT_NAME . " " . GSCROT_VERSION );
 	} else {
+		require Gtk2::TrayIcon;
 		$icon =
 			Gtk2::Image->new_from_pixbuf(
 									Gtk2::Gdk::Pixbuf->new_from_file_at_size(
