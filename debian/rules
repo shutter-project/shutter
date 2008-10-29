@@ -1,5 +1,7 @@
 #!/usr/bin/make -f
 
+export DH_COMPAT=4 
+
 PACKAGE=$(shell dh_listpackages)
 
 build:
