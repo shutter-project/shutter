@@ -42,7 +42,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.226";
+use constant BRANCH              => "Rev.227";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.62.1";
@@ -7263,14 +7263,20 @@ sub dlg_profile_name {
 						   $window,
 						   [ qw/modal destroy-with-parent/ ],
 						   'gtk-cancel' => 'reject',
-						   'gtk-ok'     => 'accept'
+						   'gtk-save'     => 'accept'
 						 );
 	$profile_dialog->set_default_response( 'accept' );
+
+	my $new_profile_name_hbox = Gtk2::HBox->new();
+	my $new_profile_name_label =
+		Gtk2::Label->new( $d->get( "Profile" ) . ": " );
 	my $new_profile_name = Gtk2::Entry->new();
 	$new_profile_name->set_activates_default( TRUE );
 	$new_profile_name->set_text( $curr_profile_name )
 		if defined $curr_profile_name;
-	$profile_dialog->vbox->add( $new_profile_name );
+	$new_profile_name_hbox->pack_start_defaults($new_profile_name_label);
+	$new_profile_name_hbox->pack_start_defaults($new_profile_name);
+	$profile_dialog->vbox->add( $new_profile_name_hbox );
 	$profile_dialog->show_all;
 	my $profile_response = $profile_dialog->run;
 
