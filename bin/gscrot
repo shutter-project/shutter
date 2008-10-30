@@ -42,7 +42,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.227";
+use constant BRANCH              => "Rev.228";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.62.1";
@@ -4171,9 +4171,8 @@ sub fct_update_tab {
 			->set_text( $session_screens{ $key }->{ 'short' } );
 		$session_screens{ $key }->{ 'folder_label' }
 			->set_text( $session_screens{ $key }->{ 'folder' } );
-		$tooltips
-			->set_tip( $session_screens{ $key }->{ 'filename_label' },
-					   $session_screens{ $key }->{ 'filename' } );
+		$tooltips->set_tip( $session_screens{ $key }->{ 'filename_label' },
+							$session_screens{ $key }->{ 'filename' } );
 		$session_screens{ $key }->{ 'mime_type_label' }
 			->set_text( $session_screens{ $key }->{ 'mime_type' } );
 		$session_screens{ $key }->{ 'size_label' }->set_text(
@@ -4319,6 +4318,22 @@ sub fct_check_installed_programs {
 	return TRUE;
 }
 
+sub fct_ungrab_pointer_and_keyboard {
+	my ($ungrab_server, $quit_event_handler, $quit_main) = @_;
+
+	#ungrab pointer and keyboard
+	Gtk2::Gdk::X11->ungrab_server if $ungrab_server;
+	Gtk2::Gdk->pointer_ungrab(
+							 Gtk2->get_current_event_time );
+	Gtk2::Gdk->keyboard_ungrab(
+							 Gtk2->get_current_event_time );
+	Gtk2::Gdk::Event->handler_set( undef, undef) if $quit_event_handler;	
+	Gtk2->main_quit if $quit_main;
+	
+	return TRUE unless Gtk2::Gdk->pointer_is_grabbed;
+	return FALSE;
+}
+
 sub fct_gscrot_area {
 	my ( $folder, $filename_value, $filetype_value, $quality_value,
 		 $delay_value, $cursor )
@@ -4332,6 +4347,7 @@ sub fct_gscrot_area {
 	my $disp = Gtk2::Gdk::Display->get_default;
 	my ( $rootxp, $rootyp, $rootwidthp, $rootheightp, $rootdepthp ) =
 		$root->get_geometry;
+	( $rootxp, $rootyp ) = $root->get_origin;
 	my $root_item   = undef;
 	my $cursor_item = undef;
 
@@ -4432,17 +4448,8 @@ sub fct_gscrot_area {
 
 	if ( Gtk2::Gdk->pointer_is_grabbed ) {
 		Gtk2::Gdk::X11->grab_server unless $zoom_active->get_active;
-		my $rx                   = 0;
-		my $ry                   = 0;
-		my $rw                   = 0;
-		my $rh                   = 0;
-		my $btn_pressed          = 0;
-		my $rect_x               = 0;
-		my $rect_y               = 0;
-		my $rect_w               = 0;
-		my $rect_h               = 0;
-		my $rectangle            = undef;
-		my $last_selected_window = 0;
+		my ($rx, $ry, $rw , $rh, $rect_x, $rect_y, $rect_w, $rect_h) = (0,0,0,0,0,0,0,0);
+		my ($btn_pressed, $last_selected_window) = (0,0);
 		my %smallest_coords      = ();
 		my $drawable             = undef;
 		Gtk2::Gdk::Event->handler_set(
@@ -4463,15 +4470,8 @@ sub fct_gscrot_area {
 						$zoom_window->destroy;
 						Gtk2::Gdk->flush;
 
-						#ungrab pointer and keyboard
-						Gtk2::Gdk::X11->ungrab_server
-							unless $zoom_active->get_active;
-						Gtk2::Gdk->pointer_ungrab(
-												 Gtk2->get_current_event_time );
-						Gtk2::Gdk->keyboard_ungrab(
-												 Gtk2->get_current_event_time );
-						Gtk2::Gdk::Event->handler_set( undef, 'rect' );
-						Gtk2->main_quit;
+						&fct_ungrab_pointer_and_keyboard(!$zoom_active->get_active, TRUE, TRUE);
+
 					}
 				} elsif ( $event->type eq 'button-release' ) {
 					print "Type: " . $event->type . "\n"
@@ -4484,13 +4484,7 @@ sub fct_gscrot_area {
 					$zoom_window->destroy;
 					Gtk2::Gdk->flush;
 
-					#ungrab pointer and keyboard
-					Gtk2::Gdk::X11->ungrab_server
-						unless $zoom_active->get_active;
-					Gtk2::Gdk->pointer_ungrab( Gtk2->get_current_event_time );
-					Gtk2::Gdk->keyboard_ungrab( Gtk2->get_current_event_time );
-					Gtk2::Gdk::Event->handler_set( undef, 'rect' );
-					Gtk2->main_quit;
+					&fct_ungrab_pointer_and_keyboard(!$zoom_active->get_active, TRUE, TRUE);
 
 					if ( $rect_w > 1 ) {
 
@@ -4499,25 +4493,13 @@ sub fct_gscrot_area {
 											   $rect_w, $rect_h );
 						Gtk2::Gdk->flush;
 
-						#sleep if there is any delay
-						sleep $delay_value;
+						$output =
+							&fct_get_pixbuf_from_drawable( $root, $rect_x,
+														$rect_y,
+														$rect_w + 1,
+														$rect_h + 1,
+														$cursor, $delay_value );
 
-						#get the pixbuf from drawable and save the file
-						my $pixbuf =
-							Gtk2::Gdk::Pixbuf->get_from_drawable( $root, undef,
-														 $rect_x, $rect_y, 0, 0,
-														 $rect_w + 1,
-														 $rect_h + 1 );
-
-						$pixbuf =
-							&fct_include_cursor(
-												 $rect_x, $rect_y, $rect_w,
-												 $rect_h, $root,   $pixbuf
-											   ) if $cursor;
-
-						$output = Image::Magick->new( magick => 'png' );
-						$output->BlobToImage(
-											 $pixbuf->save_to_buffer( 'png' ) );
 					} else {
 						$output = 0;
 					}
@@ -4642,9 +4624,8 @@ sub fct_gscrot_area {
 		$zoom_window->destroy;
 		Gtk2::Gdk->flush;
 
-		#ungrab pointer and keyboard
-		Gtk2::Gdk->pointer_ungrab( Gtk2->get_current_event_time );
-		Gtk2::Gdk->keyboard_ungrab( Gtk2->get_current_event_time );
+		&fct_ungrab_pointer_and_keyboard(FALSE, FALSE, FALSE);
+
 		$output = 0;
 	}
 	return $output;
@@ -4727,13 +4708,8 @@ sub fct_gscrot_window {
 							);
 						}
 
-						#ungrab pointer and keyboard
-						Gtk2::Gdk->pointer_ungrab(
-												 Gtk2->get_current_event_time );
-						Gtk2::Gdk->keyboard_ungrab(
-												 Gtk2->get_current_event_time );
-						Gtk2::Gdk::Event->handler_set( undef, 'rect' );
-						Gtk2->main_quit;
+						&fct_ungrab_pointer_and_keyboard(FALSE, TRUE, TRUE);
+
 						$output = 5;
 					}
 				} elsif ( $event->type eq 'button-release' ) {
@@ -4778,74 +4754,22 @@ sub fct_gscrot_window {
 						Gtk2::Gdk->flush;
 						sleep 1 if $delay_value < 1;
 
-						#ungrab pointer and keyboard
-						Gtk2::Gdk->pointer_ungrab(
-												 Gtk2->get_current_event_time );
-						Gtk2::Gdk->keyboard_ungrab(
-												 Gtk2->get_current_event_time );
-						Gtk2::Gdk::Event->handler_set( undef, 'rect' );
-						Gtk2->main_quit;
-
-						#sleep if there is any delay
-						sleep $delay_value;
-
-						#get the pixbuf from drawable and save the file
-						#maybe window is partially not on the screen
-						$children{ 'curr_win' }{ 'width' } -=
-							$children{ 'curr_win' }{ 'x' } +
-							$children{ 'curr_win' }{ 'width' } -
-							$rootwidthp
-							if ( $children{ 'curr_win' }{ 'x' } +
-							 $children{ 'curr_win' }{ 'width' } > $rootwidthp );
-						$children{ 'curr_win' }{ 'height' } -=
-							$children{ 'curr_win' }{ 'y' } +
-							$children{ 'curr_win' }{ 'height' } -
-							$rootheightp
-							if ( $children{ 'curr_win' }{ 'y' } +
-								 $children{ 'curr_win' }{ 'height' } >
-								 $rootheightp );
-						if ( $children{ 'curr_win' }{ 'x' } < $rootxp ) {
-							$children{ 'curr_win' }{ 'width' } =
-								$children{ 'curr_win' }{ 'width' } +
-								$children{ 'curr_win' }{ 'x' };
-							$children{ 'curr_win' }{ 'x' } = 0;
-						}
-						if ( $children{ 'curr_win' }{ 'y' } < $rootyp ) {
-							$children{ 'curr_win' }{ 'height' } =
-								$children{ 'curr_win' }{ 'height' } +
-								$children{ 'curr_win' }{ 'y' };
-							$children{ 'curr_win' }{ 'y' } = 0;
-						}
-
-						#...take it
-						my $pixbuf =
-							Gtk2::Gdk::Pixbuf->get_from_drawable(
-											 $root,
-											 undef,
-											 $children{ 'curr_win' }{ 'x' },
-											 $children{ 'curr_win' }{ 'y' },
-											 0,
-											 0,
-											 $children{ 'curr_win' }{ 'width' },
-											 $children{ 'curr_win' }{ 'height' }
-							);
+						&fct_ungrab_pointer_and_keyboard(FALSE, TRUE, TRUE);
 
 #						my ($ordering, $rectangles) = $x->ShapeGetRectangles(&fct_find_wm_window($children{ 'curr_win' }{ 'window' }->get_xid), 'Bounding');
 #						print $rectangles;
 
-						$pixbuf =
-							&fct_include_cursor(
+						$output =
+							&fct_get_pixbuf_from_drawable(
+											$root,
 											$children{ 'curr_win' }{ 'x' },
 											$children{ 'curr_win' }{ 'y' },
 											$children{ 'curr_win' }{ 'width' },
 											$children{ 'curr_win' }{ 'height' },
-											$root,
-											$pixbuf
-							) if $cursor;
+											$cursor,
+											$delay_value
+							);
 
-						$output = Image::Magick->new( magick => 'png' );
-						$output->BlobToImage(
-											 $pixbuf->save_to_buffer( 'png' ) );
 					} else {
 						$output = 0;
 					}
@@ -4868,25 +4792,9 @@ sub fct_gscrot_window {
 								if ( $curr_window->get_xid ==
 									 $window->window->get_xid && $is_in_tray );
 
-							my ( $xp, $yp, $widthp, $heightp) = $curr_window->get_geometry;
-							if ( $border ) {
-									#find wm_window
-									my $wm_window = Gtk2::Gdk::Window->foreign_new(&fct_find_wm_window($curr_window->get_xid));													
-									$drawable = $wm_window if $wm_window;
-									
-									#get_size of it
-									my ( $widthp2, $heightp2) = $drawable->get_size;
-									my ( $xp2, $yp2 ) = $drawable->get_origin;
-							
-									#check the correct rect
-									if($xp2+$widthp2 > $xp+$widthp || $yp2+$heightp2 > $yp+$heightp){
-										( $xp, $yp, $widthp, $heightp) = ($xp2, $yp2, $widthp2, $heightp2);
-									}		
-									
-							}else{
-								  ( $widthp, $heightp) = $drawable->get_size;
-									( $xp, $yp ) = $drawable->get_origin;
-							}
+							my ( $xp, $yp, $widthp, $heightp ) =
+								&fct_get_window_size( $curr_window, $drawable,
+													  $border );
 
 							if (
 								 $curr_window->is_visible_on_workspace(
@@ -4898,6 +4806,7 @@ sub fct_gscrot_window {
 									  && ( $event->y <= ( $yp + $heightp ) ) )
 							   )
 							{
+
 								if ( ( $xp + $widthp ) * ( $yp + $heightp ) <=
 									 $min_x * $min_y )
 								{
@@ -5101,9 +5010,7 @@ sub fct_gscrot_window {
 		Gtk2->main;
 	} else {    #pointer not grabbed
 
-		#ungrab pointer and keyboard
-		Gtk2::Gdk->pointer_ungrab( Gtk2->get_current_event_time );
-		Gtk2::Gdk->keyboard_ungrab( Gtk2->get_current_event_time );
+		&fct_ungrab_pointer_and_keyboard(FALSE, FALSE, FALSE);
 		$output = 0;
 	}
 	return $output;
@@ -5111,12 +5018,12 @@ sub fct_gscrot_window {
 
 sub fct_find_wm_window {
 	my $xid = shift;
-	do{
+	do {
 		my ( $qroot, $qparent, @qkids ) = $x->QueryTree( $xid );
-		return undef unless ($qroot || $qparent);
-		return $xid if ($qroot == $qparent);	
+		return undef unless ( $qroot || $qparent );
+		return $xid if ( $qroot == $qparent );
 		$xid = $qparent;
-	}while(TRUE)
+	} while ( TRUE );
 }
 
 sub fct_query_children {
@@ -5167,47 +5074,87 @@ sub fct_gscrot_window_direct {
 	my $drawable    = Gtk2::Gdk::Window->foreign_new( $curr_xid );
 	my $curr_window = Gnome2::Wnck::Window->get( $curr_xid );
 	my $root        = Gtk2::Gdk->get_default_root_window;
-	my ( $rootxp, $rootyp, $rootwidthp, $rootheightp ) = $root->get_geometry;
-	my ( $xp, $yp, $widthp, $heightp, $depthp ) = ( 0, 0, 0, 0, undef );
 
-	if ( $border ) {
-		( $xp, $yp, $widthp, $heightp ) = $curr_window->get_geometry;
-	} else {
-		( $xp, $yp, $widthp, $heightp, $depthp ) = $drawable->get_geometry;
-		( $xp, $yp ) = $drawable->get_origin;
-	}
+	my ( $xp, $yp, $widthp, $heightp ) =
+		&fct_get_window_size( $curr_window, $drawable, $border );
 
 	#focus selected window (maybe it is hidden)
 	$drawable->focus( time );
 	Gtk2::Gdk->flush;
 	sleep 1 if $delay_value < 1;
 
+	return
+		&fct_get_pixbuf_from_drawable( $root, $xp, $yp, $widthp, $heightp,
+									   $cursor, $delay_value );
+}
+
+sub fct_get_window_size {
+	my ( $wnck_window, $gdk_window, $border ) = @_;
+
+	my ( $xp, $yp, $widthp, $heightp ) = $wnck_window->get_geometry;
+	if ( $border ) {
+
+		#find wm_window
+		my $wm_window = Gtk2::Gdk::Window->foreign_new(
+								 &fct_find_wm_window( $wnck_window->get_xid ) );
+		$gdk_window = $wm_window if $wm_window;
+
+		#get_size of it
+		my ( $widthp2, $heightp2 ) = $gdk_window->get_size;
+		my ( $xp2,     $yp2 )      = $gdk_window->get_origin;
+
+		#check the correct rect
+		if (    $xp2 + $widthp2 > $xp + $widthp
+			 || $yp2 + $heightp2 > $yp + $heightp )
+		{
+			( $xp, $yp, $widthp, $heightp ) =
+				( $xp2, $yp2, $widthp2, $heightp2 );
+		}
+
+	} else {
+		( $widthp, $heightp ) = $gdk_window->get_size;
+		( $xp,     $yp )      = $gdk_window->get_origin;
+	}
+
+	return ( $xp, $yp, $widthp, $heightp );
+}
+
+sub fct_get_pixbuf_from_drawable {
+	my ( $drawable, $x, $y, $width, $height, $cursor, $sleep ) = @_;
+
 	#sleep if there is any delay
-	sleep $delay_value;
+	sleep $sleep;
+
+	my $root = Gtk2::Gdk->get_default_root_window;
+	my ( $rootxp, $rootyp, $rootwidthp, $rootheightp ) = $root->get_geometry;
+	( $rootxp, $rootyp ) = $root->get_origin;
 
 	#get the pixbuf from drawable and save the file
 	#maybe window is partially not on the screen
-	$widthp -= $xp + $widthp - $rootwidthp
-		if ( $xp + $widthp > $rootwidthp );
-	$heightp -= $yp + $heightp - $rootheightp
-		if ( $yp + $heightp > $rootheightp );
-	if ( $xp < $rootxp ) {
-		$widthp = $widthp + $xp;
-		$xp     = 0;
+	$width -= $x + $width - $rootwidthp
+		if ( $x + $width > $rootwidthp );
+	$height -= $y + $height - $rootheightp
+		if ( $y + $height > $rootheightp );
+	if ( $x < $rootxp ) {
+		$width = $width + $x;
+		$x     = 0;
 	}
-	if ( $yp < $rootyp ) {
-		$heightp = $heightp + $yp;
-		$yp      = 0;
+	if ( $y < $rootyp ) {
+		$height = $height + $y;
+		$y      = 0;
 	}
-	my $pixbuf =
-		Gtk2::Gdk::Pixbuf->get_from_drawable( $root, undef, $xp, $yp, 0, 0,
-											  $widthp, $heightp );
 
-	$pixbuf = &fct_include_cursor( $xp, $yp, $widthp, $heightp, $root, $pixbuf )
+	#get the pixbuf from drawable and save the file
+	my $pixbuf =
+		Gtk2::Gdk::Pixbuf->get_from_drawable( $drawable, undef, $x, $y, 0, 0,
+											  $width, $height );
+
+	$pixbuf = &fct_include_cursor( $x, $y, $width, $height, $drawable, $pixbuf )
 		if $cursor;
 
 	my $output = Image::Magick->new( magick => 'png' );
 	$output->BlobToImage( $pixbuf->save_to_buffer( 'png' ) );
+
 	return $output;
 }
 
@@ -5235,21 +5182,10 @@ sub fct_gscrot_workspace {
 	my ( $rootxp, $rootyp, $rootwidthp, $rootheightp ) = $root->get_geometry;
 	( $rootxp, $rootyp ) = $root->get_origin;
 
-	#sleep if there is any delay
-	sleep $delay_value;
+	my $output =
+		&fct_get_pixbuf_from_drawable( $root, $rootxp, $rootyp, $rootwidthp,
+									   $rootheightp, $cursor, $delay_value );
 
-	#get the pixbuf from drawable and save the file
-	my $pixbuf =
-		Gtk2::Gdk::Pixbuf->get_from_drawable( $root, undef, $rootxp, $rootyp, 0,
-											  0, $rootwidthp, $rootheightp );
-
-	$pixbuf =
-		&fct_include_cursor( $rootxp, $rootyp, $rootwidthp, $rootheightp, $root,
-							 $pixbuf )
-		if $cursor;
-
-	my $output = Image::Magick->new( magick => 'png' );
-	$output->BlobToImage( $pixbuf->save_to_buffer( 'png' ) );
 	$active_workspace->activate( time ) if $wrksp_changed;
 	return $output;
 }
@@ -7263,7 +7199,7 @@ sub dlg_profile_name {
 						   $window,
 						   [ qw/modal destroy-with-parent/ ],
 						   'gtk-cancel' => 'reject',
-						   'gtk-save'     => 'accept'
+						   'gtk-save'   => 'accept'
 						 );
 	$profile_dialog->set_default_response( 'accept' );
 
@@ -7274,8 +7210,8 @@ sub dlg_profile_name {
 	$new_profile_name->set_activates_default( TRUE );
 	$new_profile_name->set_text( $curr_profile_name )
 		if defined $curr_profile_name;
-	$new_profile_name_hbox->pack_start_defaults($new_profile_name_label);
-	$new_profile_name_hbox->pack_start_defaults($new_profile_name);
+	$new_profile_name_hbox->pack_start_defaults( $new_profile_name_label );
+	$new_profile_name_hbox->pack_start_defaults( $new_profile_name );
 	$profile_dialog->vbox->add( $new_profile_name_hbox );
 	$profile_dialog->show_all;
 	my $profile_response = $profile_dialog->run;
