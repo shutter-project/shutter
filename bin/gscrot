@@ -42,10 +42,10 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.230";
-use constant PPA_VERSION         => "ppa3";
+use constant BRANCH              => "Rev.231";
+use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
-use constant GSCROT_VERSION      => "v0.62.1";
+use constant GSCROT_VERSION      => "v0.63";
 use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
 
 #--------------------------------------
@@ -658,7 +658,7 @@ $vbox->pack_start( $handlebox, FALSE, TRUE, 0 );
 unless ( $disable_systray_cparam ) {
 
 	my $icon = undef;
-	if ( Gtk2->CHECK_VERSION( 3, 10, 0 ) ) {
+	if ( Gtk2->CHECK_VERSION( 2, 10, 0 ) ) {
 		$icon = Gtk2::StatusIcon->new();
 		$icon->set_from_file( "$gscrot_root/share/pixmaps/gscrot.svg" );
 		$icon->set_visible( 1 );
