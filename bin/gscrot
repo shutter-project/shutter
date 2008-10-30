@@ -42,8 +42,8 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.231";
-use constant PPA_VERSION         => "ppa1";
+use constant BRANCH              => "Rev.232";
+use constant PPA_VERSION         => "ppa2";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.63";
 use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
@@ -1034,6 +1034,8 @@ $tooltips->set_tip(
 						"Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
 					)
 				  );
+$combobox_keybinding_mode->signal_connect('changed' => \&evt_behavior_handle, 'keybinding_sel_toggled');				  
+				  
 $keybinding_mode_box->pack_start( Gtk2::Label->new,          FALSE, FALSE, 0 );
 $keybinding_mode_box->pack_start( $combobox_keybinding_mode, FALSE, TRUE,  10 );
 
@@ -1981,7 +1983,6 @@ sub evt_behavior_handle {
 		} else {
 			$capture_key->set_sensitive( FALSE );
 		}
-		&fct_save_bindings();
 	}
 
 	#checkbox for "keybinding_sel" -> entry active/inactive
@@ -1993,9 +1994,11 @@ sub evt_behavior_handle {
 			$capture_sel_key->set_sensitive( FALSE );
 			$combobox_keybinding_mode->set_sensitive( FALSE );
 		}
-		&fct_save_bindings();
 	}
-	return 1;
+	
+	&fct_save_bindings();
+	
+	return TRUE;
 }
 
 sub evt_notebook_switch {
