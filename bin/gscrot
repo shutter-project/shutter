@@ -42,8 +42,8 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.232";
-use constant PPA_VERSION         => "ppa2";
+use constant BRANCH              => "Rev.233";
+use constant PPA_VERSION         => "ppa3";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.63";
 use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
@@ -5968,7 +5968,7 @@ sub fct_init {
 					die;
 				}
 				$start_with = "section";
-			} elsif ( $arg eq "--select" ) {
+			} elsif ( $arg eq "--selection" ) {
 
 				#is there already a process of gscrot running?
 				my @gscrot_pids = `pidof -o $$ -x $gscrot_path`;
