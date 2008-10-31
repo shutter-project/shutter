@@ -42,7 +42,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.234";
+use constant BRANCH              => "Rev.235";
 use constant PPA_VERSION         => "ppa4";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.63";
@@ -1033,8 +1033,9 @@ $tooltips->set_tip(
 						"Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
 					)
 				  );
-$combobox_keybinding_mode->signal_connect('changed' => \&evt_behavior_handle, 'keybinding_sel_toggled');				  
-				  
+$combobox_keybinding_mode->signal_connect( 'changed' => \&evt_behavior_handle,
+										   'keybinding_sel_toggled' );
+
 $keybinding_mode_box->pack_start( Gtk2::Label->new,          FALSE, FALSE, 0 );
 $keybinding_mode_box->pack_start( $combobox_keybinding_mode, FALSE, TRUE,  10 );
 
@@ -1994,9 +1995,9 @@ sub evt_behavior_handle {
 			$combobox_keybinding_mode->set_sensitive( FALSE );
 		}
 	}
-	
+
 	&fct_save_bindings();
-	
+
 	return TRUE;
 }
 
@@ -4321,17 +4322,15 @@ sub fct_check_installed_programs {
 }
 
 sub fct_ungrab_pointer_and_keyboard {
-	my ($ungrab_server, $quit_event_handler, $quit_main) = @_;
+	my ( $ungrab_server, $quit_event_handler, $quit_main ) = @_;
 
 	#ungrab pointer and keyboard
 	Gtk2::Gdk::X11->ungrab_server if $ungrab_server;
-	Gtk2::Gdk->pointer_ungrab(
-							 Gtk2->get_current_event_time );
-	Gtk2::Gdk->keyboard_ungrab(
-							 Gtk2->get_current_event_time );
-	Gtk2::Gdk::Event->handler_set( undef, undef) if $quit_event_handler;	
+	Gtk2::Gdk->pointer_ungrab( Gtk2->get_current_event_time );
+	Gtk2::Gdk->keyboard_ungrab( Gtk2->get_current_event_time );
+	Gtk2::Gdk::Event->handler_set( undef, undef ) if $quit_event_handler;
 	Gtk2->main_quit if $quit_main;
-	
+
 	return TRUE unless Gtk2::Gdk->pointer_is_grabbed;
 	return FALSE;
 }
@@ -4449,10 +4448,11 @@ sub fct_gscrot_area {
 
 	if ( Gtk2::Gdk->pointer_is_grabbed ) {
 		Gtk2::Gdk::X11->grab_server unless $zoom_active->get_active;
-		my ($rx, $ry, $rw , $rh, $rect_x, $rect_y, $rect_w, $rect_h) = (0,0,0,0,0,0,0,0);
-		my ($btn_pressed, $last_selected_window) = (0,0);
-		my %smallest_coords      = ();
-		my $drawable             = undef;
+		my ( $rx, $ry, $rw, $rh, $rect_x, $rect_y, $rect_w, $rect_h ) =
+			( 0, 0, 0, 0, 0, 0, 0, 0 );
+		my ( $btn_pressed, $last_selected_window ) = ( 0, 0 );
+		my %smallest_coords = ();
+		my $drawable        = undef;
 		Gtk2::Gdk::Event->handler_set(
 			sub {
 				my ( $event, $data ) = @_;
@@ -4471,7 +4471,8 @@ sub fct_gscrot_area {
 						$zoom_window->destroy;
 						Gtk2::Gdk->flush;
 
-						&fct_ungrab_pointer_and_keyboard(!$zoom_active->get_active, TRUE, TRUE);
+						&fct_ungrab_pointer_and_keyboard(
+										!$zoom_active->get_active, TRUE, TRUE );
 
 					}
 				} elsif ( $event->type eq 'button-release' ) {
@@ -4485,7 +4486,8 @@ sub fct_gscrot_area {
 					$zoom_window->destroy;
 					Gtk2::Gdk->flush;
 
-					&fct_ungrab_pointer_and_keyboard(!$zoom_active->get_active, TRUE, TRUE);
+					&fct_ungrab_pointer_and_keyboard( !$zoom_active->get_active,
+													  TRUE, TRUE );
 
 					if ( $rect_w > 1 ) {
 
@@ -4625,7 +4627,7 @@ sub fct_gscrot_area {
 		$zoom_window->destroy;
 		Gtk2::Gdk->flush;
 
-		&fct_ungrab_pointer_and_keyboard(FALSE, FALSE, FALSE);
+		&fct_ungrab_pointer_and_keyboard( FALSE, FALSE, FALSE );
 
 		$output = 0;
 	}
@@ -4679,12 +4681,11 @@ sub fct_gscrot_window {
 	}
 
 	if ( Gtk2::Gdk->pointer_is_grabbed ) {
-		my $last_selected_window      = 0;
-		my $last_selected_window_wnck = 0;
-		my $drawable                  = undef;
-		my $window_selected           = FALSE;
-
 		%children = ();
+		my $drawable        = undef;
+		my $window_selected = FALSE;
+		$children{ 'last_win' }{ 'gdk_window' } = 0;
+
 		Gtk2::Gdk::Event->handler_set(
 			sub {
 				my ( $event, $data ) = @_;
@@ -4707,23 +4708,20 @@ sub fct_gscrot_window {
 							);
 						}
 
-						&fct_ungrab_pointer_and_keyboard(FALSE, TRUE, TRUE);
+						&fct_ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
 
 						$output = 5;
 					}
 				} elsif ( $event->type eq 'button-release' ) {
 					print "Type: " . $event->type . "\n"
 						if ( defined $event && $debug_cparam );
-					print
-						"Trying to clear a rectangle ($children{'last_win'}{'x'}, $children{'last_win'}{'y'}, $children{'last_win'}{'width'}, $children{'last_win'}{'height'})\n"
-						if $debug_cparam;
 
 					#looking for a section of a window?
 					#keep current window in mind and search for children
 					if ( ( $mode eq "section" || $mode eq "tray_section" )
 						 && !$window_selected )
 					{
-						return 0 unless defined $children{ 'last_win' };
+						return FALSE unless defined $children{ 'last_win' };
 						&fct_query_children(
 							 $children{ 'last_win' }{ 'gdk_window' }->XWINDOW,
 							 $children{ 'last_win' }{ 'gdk_window' }->XWINDOW );
@@ -4737,7 +4735,7 @@ sub fct_gscrot_window {
 						return TRUE;
 					}
 
-					&fct_ungrab_pointer_and_keyboard(FALSE, TRUE, TRUE);
+					&fct_ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
 
 					#clear the last rectangle
 					if ( defined $children{ 'last_win' } ) {
@@ -4749,7 +4747,7 @@ sub fct_gscrot_window {
 											 $children{ 'last_win' }{ 'width' },
 											 $children{ 'last_win' }{ 'height' }
 						);
-	
+
 						#focus selected window (maybe it is hidden)
 						$children{ 'last_win' }{ 'gdk_window' }->focus( time );
 						Gtk2::Gdk->flush;
@@ -4775,6 +4773,7 @@ sub fct_gscrot_window {
 				} elsif ( $event->type eq 'motion-notify' ) {
 					print "Type: " . $event->type . "\n"
 						if ( defined $event && $debug_cparam );
+
 					my $min_x = $rootwidthp;
 					my $min_y = $rootheightp;
 
@@ -4795,174 +4794,131 @@ sub fct_gscrot_window {
 								&fct_get_window_size( $curr_window, $drawable,
 													  $border );
 
+							my $window_region =
+								Gtk2::Gdk::Region->rectangle(
+												 Gtk2::Gdk::Rectangle->new(
+													 $xp, $yp, $widthp, $heightp
+																		  )
+															);
+
 							if (
 								 $curr_window->is_visible_on_workspace(
 												   $screen->get_active_workspace
 								 )
-								 && (    ( $event->x >= $xp )
-									  && ( $event->x <= ( $xp + $widthp ) ) )
-								 && (    ( $event->y >= $yp )
-									  && ( $event->y <= ( $yp + $heightp ) ) )
+								 && $window_region->point_in(
+															$event->x, $event->y
+								 )
+								 && ( ( $xp + $widthp ) * ( $yp + $heightp ) <=
+									  $min_x * $min_y )
 							   )
 							{
+								print
+									"Parent X: $xp, Y: $yp, Width: $widthp, Height: $heightp\n"
+									if $debug_cparam;
+								$children{ 'curr_win' }{ 'window' } =
+									$curr_window;
+								$children{ 'curr_win' }{ 'gdk_window' } =
+									$drawable;
+								$children{ 'curr_win' }{ 'x' }      = $xp;
+								$children{ 'curr_win' }{ 'y' }      = $yp;
+								$children{ 'curr_win' }{ 'width' }  = $widthp;
+								$children{ 'curr_win' }{ 'height' } = $heightp;
+								$min_x = $xp + $widthp;
+								$min_y = $yp + $heightp;
 
-								if ( ( $xp + $widthp ) * ( $yp + $heightp ) <=
-									 $min_x * $min_y )
-								{
-									print
-										"Parent X: $xp, Y: $yp, Width: $widthp, Height: $heightp\n"
-										if $debug_cparam;
-									$children{ 'curr_win' }{ 'window' } =
-										$curr_window;
-									$children{ 'curr_win' }{ 'gdk_window' } =
-										$drawable;
-									$children{ 'curr_win' }{ 'x' } = $xp;
-									$children{ 'curr_win' }{ 'y' } = $yp;
-									$children{ 'curr_win' }{ 'width' } =
-										$widthp;
-									$children{ 'curr_win' }{ 'height' } =
-										$heightp;
-									$min_x = $xp + $widthp;
-									$min_y = $yp + $heightp;
-								}
 							}
 
 						}    #end if toplevel window loop
 
 						#window selected, search for children now
-					} else {
+					} elsif ( ( $mode eq "section" || $mode eq "tray_section" )
+							  && $window_selected )
+					{
 						print "Searching for children now...\n"
 							if $debug_cparam;
-						if ( defined $children{ 'curr_win' } ) {
-							print "Currently smallest window: "
-								. $children{ 'curr_win' }{ 'window' }->get_name
-								. "\n"
+
+						#selected window is parent
+						my $curr_parent = $window_selected->XWINDOW;
+						foreach my $curr_child (
+										   keys %{ $children{ $curr_parent } } )
+						{
+							next unless defined $curr_child;
+							print "Child Current Event x: "
+								. $event->x . ", y: "
+								. $event->y . "\n"
 								if $debug_cparam;
-							print
-								"Curr. Parent X: $children{'curr_win'}{'x'}, Y: $children{'curr_win'}{'y'}, Width: $children{'curr_win'}{'width'}, Height: $children{'curr_win'}{'height'}\n"
-								if $debug_cparam;
+
+							my $section_region =
+								Gtk2::Gdk::Region->rectangle(
+									Gtk2::Gdk::Rectangle->new(
+										$children{ $curr_parent }{ $curr_child }
+											{ 'x' },
+										$children{ $curr_parent }{ $curr_child }
+											{ 'y' },
+										$children{ $curr_parent }{ $curr_child }
+											{ 'width' },
+										$children{ $curr_parent }{ $curr_child }
+											{ 'height' }
+									)
+								);
+
 							if (
+								$section_region->point_in( $event->x,
+														   $event->y )
+								&&
+
 								(
-								   $mode eq "section" || $mode eq "tray_section"
+								   (
+									  $children{ $curr_parent }{ $curr_child }
+									  { 'x' } +
+									  $children{ $curr_parent }{ $curr_child }
+									  { 'width' }
+								   ) * (
+										$children{ $curr_parent }{ $curr_child }
+											{ 'y' } +
+											$children{ $curr_parent }
+											{ $curr_child }{ 'height' }
+								   ) <= $min_x * $min_y
 								)
-								and $window_selected
+
 							   )
 							{
-								print "QueryPointer for current window...\n"
-									if $debug_cparam;
-								if (
-									 defined $children{ 'curr_win' }
-									 { 'gdk_window' } )
-								{
-
-									#selected window is parent
-									my $curr_parent = $window_selected->XWINDOW;
-									foreach my $curr_child (
-										   keys %{ $children{ $curr_parent } } )
-									{
-										next unless defined $curr_child;
-										print "Child Current Event x: "
-											. $event->x . ", y: "
-											. $event->y . "\n"
-											if $debug_cparam;
-										if (
-											(
-											   (
-												  $event->x >=
-												  $children{ $curr_parent }
-												  { $curr_child }{ 'x' }
-											   )
-											   && (
-												   $event->x <= (
-													   $children{ $curr_parent }
-														   { $curr_child }
-														   { 'x' } +
-														   $children{
-														   $curr_parent }
-														   { $curr_child }
-														   { 'width' }
-												   )
-												  )
-											)
-											&& (
-												 (
-												   $event->y >=
-												   $children{ $curr_parent }
-												   { $curr_child }{ 'y' }
-												 )
-												 && (
-													 $event->y <= (
-														 $children{ $curr_parent
-															 }{ $curr_child }
-															 { 'y' } +
-															 $children{
-															 $curr_parent }
-															 { $curr_child }
-															 { 'height' }
-													 )
-													)
-											   )
-										   )
-										{
-											if (
-												(
-												   $children{ $curr_parent }
-												   { $curr_child }{ 'x' } +
-												   $children{ $curr_parent }
-												   { $curr_child }{ 'width' }
-												) * (
-													$children{ $curr_parent }
-														{ $curr_child }{ 'y' } +
-														$children{ $curr_parent
-														}{ $curr_child }
-														{ 'height' }
-												) <= $min_x * $min_y
-											   )
-											{
-												$children{ 'curr_win' }
-													{ 'gdk_window' } =
-													$children{ $curr_parent }
-													{ $curr_child }
-													{ 'gdk_window' };
-												$children{ 'curr_win' }{ 'x' } =
-													$children{ $curr_parent }
-													{ $curr_child }{ 'x' };
-												$children{ 'curr_win' }{ 'y' } =
-													$children{ $curr_parent }
-													{ $curr_child }{ 'y' };
-												$children{ 'curr_win' }
-													{ 'width' } =
-													$children{ $curr_parent }
-													{ $curr_child }{ 'width' };
-												$children{ 'curr_win' }
-													{ 'height' } =
-													$children{ $curr_parent }
-													{ $curr_child }{ 'height' };
-												$min_x =
-													$children{ $curr_parent }
-													{ $curr_child }{ 'x' } +
-													$children{ $curr_parent }
-													{ $curr_child }{ 'width' };
-												$min_y =
-													$children{ $curr_parent }
-													{ $curr_child }{ 'y' } +
-													$children{ $curr_parent }
-													{ $curr_child }{ 'height' };
-											}
-										}
-									}
-								}
+								$children{ 'curr_win' }{ 'gdk_window' } =
+									$children{ $curr_parent }{ $curr_child }
+									{ 'gdk_window' };
+								$children{ 'curr_win' }{ 'x' } =
+									$children{ $curr_parent }{ $curr_child }
+									{ 'x' };
+								$children{ 'curr_win' }{ 'y' } =
+									$children{ $curr_parent }{ $curr_child }
+									{ 'y' };
+								$children{ 'curr_win' }{ 'width' } =
+									$children{ $curr_parent }{ $curr_child }
+									{ 'width' };
+								$children{ 'curr_win' }{ 'height' } =
+									$children{ $curr_parent }{ $curr_child }
+									{ 'height' };
+								$min_x =
+									$children{ $curr_parent }{ $curr_child }
+									{ 'x' } +
+									$children{ $curr_parent }{ $curr_child }
+									{ 'width' };
+								$min_y =
+									$children{ $curr_parent }{ $curr_child }
+									{ 'y' } +
+									$children{ $curr_parent }{ $curr_child }
+									{ 'height' };
 							}
 						}
 					}    #endif search for children
 
 					#draw rect if needed
-					if ( $last_selected_window ne
+					if ( $children{ 'last_win' }{ 'gdk_window' } ne
 						 $children{ 'curr_win' }{ 'gdk_window' } )
 					{
 
 						#clear last rectangle
-						if ( defined $children{ 'last_win' } ) {
+						if ( $children{ 'last_win' }{ 'gdk_window' } ) {
 							$root->draw_rectangle(
 											 $gc,
 											 0,
@@ -4975,18 +4931,17 @@ sub fct_gscrot_window {
 						}
 
 						#draw new rectangle for current window
-						$root->draw_rectangle(
+						if ( $children{ 'curr_win' }{ 'gdk_window' } ) {
+							$root->draw_rectangle(
 										 $gc,
 										 0,
 										 $children{ 'curr_win' }{ 'x' } - 3,
 										 $children{ 'curr_win' }{ 'y' } - 3,
 										 $children{ 'curr_win' }{ 'width' } + 5,
 										 $children{ 'curr_win' }{ 'height' } + 5
-						);
-						$last_selected_window =
-							$children{ 'curr_win' }{ 'gdk_window' };
-						$last_selected_window_wnck =
-							$children{ 'curr_win' }{ 'window' };
+							);
+						}
+
 						$children{ 'last_win' }{ 'window' } =
 							$children{ 'curr_win' }{ 'window' };
 						$children{ 'last_win' }{ 'gdk_window' } =
@@ -4999,7 +4954,8 @@ sub fct_gscrot_window {
 							$children{ 'curr_win' }{ 'width' } + 5;
 						$children{ 'last_win' }{ 'height' } =
 							$children{ 'curr_win' }{ 'height' } + 5;
-					}    #endif drawing rectangle
+
+					}
 				} else {
 					Gtk2->main_do_event( $event );
 				}
@@ -5009,7 +4965,7 @@ sub fct_gscrot_window {
 		Gtk2->main;
 	} else {    #pointer not grabbed
 
-		&fct_ungrab_pointer_and_keyboard(FALSE, FALSE, FALSE);
+		&fct_ungrab_pointer_and_keyboard( FALSE, FALSE, FALSE );
 		$output = 0;
 	}
 	return $output;
@@ -5064,7 +5020,7 @@ sub fct_query_children {
 			}
 		}
 	}
-	return 1;
+	return TRUE;
 }
 
 sub fct_gscrot_window_direct {
@@ -5101,7 +5057,7 @@ sub fct_get_window_size {
 
 		#get_size of it
 		my ( $xp2, $yp2, $widthp2, $heightp2 ) = $gdk_window->get_geometry;
-		( $xp2, $yp2 )      = $gdk_window->get_origin;
+		( $xp2, $yp2 ) = $gdk_window->get_origin;
 
 		#check the correct rect
 		if (    $xp2 + $widthp2 > $xp + $widthp
