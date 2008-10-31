@@ -42,8 +42,8 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.233";
-use constant PPA_VERSION         => "ppa3";
+use constant BRANCH              => "Rev.234";
+use constant PPA_VERSION         => "ppa4";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.63";
 use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
@@ -122,10 +122,9 @@ if ( $debug_cparam ) {
 	}
 }
 
-$x->init_extension( 'SHAPE' ) or die "Could not initialize X11 EXTENSION SHAPE";
+#$x->init_extension( 'SHAPE' ) or die "Could not initialize X11 EXTENSION SHAPE";
 my $screen = Gnome2::Wnck::Screen->get_default;
 $screen->force_update();
-my $gdk_screen       = Gtk2::Gdk::Screen->get_default;
 my @workspaces       = undef;
 my %children         = ();
 my $active_workspace = $screen->get_active_workspace;
@@ -4347,7 +4346,6 @@ sub fct_gscrot_area {
 
 	#get basic infos
 	my $root = Gtk2::Gdk->get_default_root_window;
-	my $disp = Gtk2::Gdk::Display->get_default;
 	my ( $rootxp, $rootyp, $rootwidthp, $rootheightp, $rootdepthp ) =
 		$root->get_geometry;
 	( $rootxp, $rootyp ) = $root->get_origin;
@@ -4643,9 +4641,7 @@ sub fct_gscrot_window {
 	my $output = 5;
 
 	#get basic infos
-	$gdk_screen = Gtk2::Gdk::Screen->get_default;
 	my $root = Gtk2::Gdk->get_default_root_window;
-	my $disp = Gtk2::Gdk::Display->get_default;
 	my ( $rootxp, $rootyp, $rootwidthp, $rootheightp ) = $root->get_geometry;
 
 	#get all the windows
@@ -4741,6 +4737,8 @@ sub fct_gscrot_window {
 						return TRUE;
 					}
 
+					&fct_ungrab_pointer_and_keyboard(FALSE, TRUE, TRUE);
+
 					#clear the last rectangle
 					if ( defined $children{ 'last_win' } ) {
 						$root->draw_rectangle(
@@ -4751,13 +4749,11 @@ sub fct_gscrot_window {
 											 $children{ 'last_win' }{ 'width' },
 											 $children{ 'last_win' }{ 'height' }
 						);
-
+	
 						#focus selected window (maybe it is hidden)
 						$children{ 'last_win' }{ 'gdk_window' }->focus( time );
 						Gtk2::Gdk->flush;
 						sleep 1 if $delay_value < 1;
-
-						&fct_ungrab_pointer_and_keyboard(FALSE, TRUE, TRUE);
 
 #						my ($ordering, $rectangles) = $x->ShapeGetRectangles(&fct_find_wm_window($children{ 'curr_win' }{ 'window' }->get_xid), 'Bounding');
 #						print $rectangles;
@@ -5021,6 +5017,7 @@ sub fct_gscrot_window {
 
 sub fct_find_wm_window {
 	my $xid = shift;
+
 	do {
 		my ( $qroot, $qparent, @qkids ) = $x->QueryTree( $xid );
 		return undef unless ( $qroot || $qparent );
@@ -5103,12 +5100,12 @@ sub fct_get_window_size {
 		$gdk_window = $wm_window if $wm_window;
 
 		#get_size of it
-		my ( $widthp2, $heightp2 ) = $gdk_window->get_size;
-		my ( $xp2,     $yp2 )      = $gdk_window->get_origin;
+		my ( $xp2, $yp2, $widthp2, $heightp2 ) = $gdk_window->get_geometry;
+		( $xp2, $yp2 )      = $gdk_window->get_origin;
 
 		#check the correct rect
 		if (    $xp2 + $widthp2 > $xp + $widthp
-			 || $yp2 + $heightp2 > $yp + $heightp )
+			 && $yp2 + $heightp2 > $yp + $heightp )
 		{
 			( $xp, $yp, $widthp, $heightp ) =
 				( $xp2, $yp2, $widthp2, $heightp2 );
