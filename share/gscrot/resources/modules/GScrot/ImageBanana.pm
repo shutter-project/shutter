@@ -33,39 +33,49 @@ sub fct_upload_imagebanana
 	my %links; #returned links will be stored here
 
 	my $filesize = -s $upload_filename;
-	if($filesize > 2048000){
-		$links{'status'} = "FILESIZE_EXCEEDED";
+	my $max_filesize = 2048000;
+	if($filesize > $max_filesize){
+		$links{'status'} = 998;
+		$links{'max_filesize'} = sprintf( "%.2f", $max_filesize / 1024 ). " KB";	
 		return %links;			
 	} 
-	
+
 	my $mech = WWW::Mechanize->new(agent => "GScrot $gscrot_version");
+	my $http_status = undef;
 	
 	if($username ne "" && $password ne ""){
 		
 		$mech->get("http://www.imagebanana.com/myib/login/");
+		$http_status = $mech->status();
+		unless(is_success($http_status)){
+			$links{'status'} = $http_status; return %links;
+		}
 		$mech->form_number(1);
 		$mech->field(nick => $username);
 		$mech->field(password => $password);
 		$mech->click("login");
 
-		my $http_status = $mech->status();
+		$http_status = $mech->status();
 		unless(is_success($http_status)){
 			$links{'status'} = $http_status; return %links;
 		}
 		if($mech->content =~ /Login nicht erfolgreich/){
-			$links{'status'} = "LOGIN_FAILED"; return %links;
+			$links{'status'} = 999; return %links;
 		}  
 		$links{status}='OK Login';
 		
 	}
 	
 	$mech->get("http://www.imagebanana.com/");
-
+	$http_status = $mech->status();
+	unless(is_success($http_status)){
+		$links{'status'} = $http_status; return %links;
+	}
 	$mech->form_number(1);
 	$mech->field(img => $upload_filename);
 	$mech->click("send");
 		
-	my $http_status = $mech->status();
+	$http_status = $mech->status();
 	if (is_success($http_status)){
 		my $html_file = $mech->content;
 		$html_file = &function_switch_html_entities($html_file);

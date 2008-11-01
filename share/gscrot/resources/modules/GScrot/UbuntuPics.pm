@@ -33,34 +33,44 @@ sub fct_upload_ubuntu_pics
 	my %links; #returned links will be stored here
 
 	my $filesize = -s $upload_filename;
-	if($filesize > 2048000){
-		$links{'status'} = "FILESIZE_EXCEEDED";
+	my $max_filesize = 2048000;
+	if($filesize > $max_filesize){
+		$links{'status'} = 998;
+		$links{'max_filesize'} = sprintf( "%.2f", $max_filesize / 1024 ). " KB";		
 		return %links;			
 	} 
 	
 	my $mech = WWW::Mechanize->new(agent => "GScrot $gscrot_version");
+	my $http_status = undef;
 	
 	if($username ne "" && $password ne ""){
 
 		$mech->get("http://www.ubuntu-pics.de/login.html");
+		$http_status = $mech->status();
+		unless(is_success($http_status)){
+			$links{'status'} = $http_status; return %links;
+		}
 		$mech->form_number(2);
 		$mech->field(name => $username);
 		$mech->field(passwort => $password);
 		$mech->click("login");
 
-		my $http_status = $mech->status();
+		$http_status = $mech->status();
 		unless(is_success($http_status)){
 			$links{'status'} = $http_status; return %links;
 		}
 		if($mech->content =~/Diese Login Daten sind leider falsch/){
-			$links{'status'} = "LOGIN_FAILED"; return %links;	
+			$links{'status'} = 999; return %links;	
 		}  
 		$links{status}='OK Login';
 
 	}
 	
 	$mech->get("http://www.ubuntu-pics.de/easy.html");
-
+	$http_status = $mech->status();
+	unless(is_success($http_status)){
+		$links{'status'} = $http_status; return %links;
+	}
 	$mech->submit_form(
 		form_name 	=> 'upload_bild',
 		fields      => {
@@ -68,8 +78,7 @@ sub fct_upload_ubuntu_pics
 			}
 		);
 				
-	my $http_status = $mech->status();
-
+	$http_status = $mech->status();
 	if (is_success($http_status)){
 		my $html_file = $mech->content;
 

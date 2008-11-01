@@ -42,7 +42,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.235";
+use constant BRANCH              => "Rev.236";
 use constant PPA_VERSION         => "ppa4";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.63";
@@ -6115,9 +6115,9 @@ sub dlg_error_message {
 	my ( $dlg_error_message ) = @_;
 	my $error_dialog =
 		Gtk2::MessageDialog->new( $window, [ qw/modal destroy-with-parent/ ],
-								  'error', 'ok', $dlg_error_message );
+								  'error', 'cancel', $dlg_error_message );
 	my $error_response = $error_dialog->run;
-	$error_dialog->destroy() if ( $error_response eq "ok" );
+	$error_dialog->destroy() if ( $error_response eq "cancel" );
 	return TRUE;
 }
 
@@ -6420,8 +6420,7 @@ sub dlg_account_chooser_and_upload {
 		my $hosting_username = $model->get_value( $hosting_iter, 1 );
 		my $hosting_password = $model->get_value( $hosting_iter, 2 );
 		if ( $hosting_host eq "ubuntu-pics.de" ) {
-			my %upload_response;
-			%upload_response =
+			my %upload_response =
 				&fct_upload_ubuntu_pics(
 							&fct_switch_home_in_file( $file_to_upload ),
 							$hosting_username, $hosting_password, $debug_cparam,
@@ -6440,11 +6439,11 @@ sub dlg_account_chooser_and_upload {
 				&dlg_status_message( 1,
 								$file_to_upload . " " . $d->get( "uploaded" ) );
 			} else {
-				&dlg_error_message( $upload_response{ 'status' } );
+				&dlg_upload_error_message( $upload_response{ 'status' },
+										   $upload_response{ 'max_filesize' } );
 			}
 		} elsif ( $hosting_host eq "imagebanana.com" ) {
-			my %upload_response;
-			%upload_response =
+			my %upload_response =
 				&fct_upload_imagebanana(
 							&fct_switch_home_in_file( $file_to_upload ),
 							$hosting_username, $hosting_password, $debug_cparam,
@@ -6467,7 +6466,8 @@ sub dlg_account_chooser_and_upload {
 				&dlg_status_message( 1,
 								$file_to_upload . " " . $d->get( "uploaded" ) );
 			} else {
-				&dlg_error_message( $upload_response{ 'status' } );
+				&dlg_upload_error_message( $upload_response{ 'status' },
+										   $upload_response{ 'max_filesize' } );
 			}
 		} elsif ( $hosting_host eq "imageshack.us" ) {
 			my $ishack = GScrot::ImageShack->new();
@@ -6475,7 +6475,11 @@ sub dlg_account_chooser_and_upload {
 			#login
 			eval { $ishack->login( $hosting_username ); };
 			if ( $@ ) {
-				&dlg_error_message( "Login failed!\nPleas try again later\n" );
+				&dlg_error_message(
+					$d->get(
+						"Login failed!\nPlease check your credentials and try again."
+					)
+				);
 				$hosting_dialog->destroy();
 				return TRUE;
 			}
@@ -6485,7 +6489,11 @@ sub dlg_account_chooser_and_upload {
 			eval { $url = $ishack->host( $file_to_upload, undef ); };
 			if ( $@ ) {
 				&dlg_error_message(
-						 $d->get( "Upload failed!\nPlease try again later." ) );
+							 $d->get( "Connection error!" ) . "\n"
+								 . $d->get(
+								 "Please check your connectivity and try again."
+								 )
+				);
 				$hosting_dialog->destroy();
 				return TRUE;
 			}
@@ -6500,7 +6508,12 @@ sub dlg_account_chooser_and_upload {
 				&dlg_status_message( 1,
 								$file_to_upload . " " . $d->get( "uploaded" ) );
 			} else {
-				&dlg_error_message( "Upload failed!\nPleas try again later\n" );
+				&dlg_error_message(
+							 $d->get( "Connection error!" ) . "\n"
+								 . $d->get(
+								 "Please check your connectivity and try again."
+								 )
+				);
 			}
 
 		}
@@ -6509,6 +6522,25 @@ sub dlg_account_chooser_and_upload {
 	} else {
 		$hosting_dialog->destroy();
 		return FALSE;
+	}
+}
+
+sub dlg_upload_error_message {
+	my ( $status, $max_filesize ) = @_;
+
+	if ( $status == 999 ) {
+		&dlg_error_message(
+			$d->get( "Login failed!" ) . "\n"
+				. $d->get(
+				  "Please check your credentials and try again." )
+		);
+	} elsif ( $status == 998 ) {
+		&dlg_error_message(
+				$d->get( "Maximum filesize reached!" ) . " ( $max_filesize )" );
+	} else {
+		&dlg_error_message( $d->get( "Connection error!" ) . " (" 
+				 . $status . ")\n"
+				 . $d->get( "Please check your connectivity and try again." ) );
 	}
 }
 
