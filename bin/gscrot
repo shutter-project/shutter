@@ -42,7 +42,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.236";
+use constant BRANCH              => "Rev.237";
 use constant PPA_VERSION         => "ppa4";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.63";
@@ -6476,9 +6476,10 @@ sub dlg_account_chooser_and_upload {
 			eval { $ishack->login( $hosting_username ); };
 			if ( $@ ) {
 				&dlg_error_message(
-					$d->get(
-						"Login failed!\nPlease check your credentials and try again."
-					)
+							  $d->get( "Login failed!" ) . "\n"
+								  . $d->get(
+								  "Please check your credentials and try again."
+								  )
 				);
 				$hosting_dialog->destroy();
 				return TRUE;
@@ -6529,11 +6530,8 @@ sub dlg_upload_error_message {
 	my ( $status, $max_filesize ) = @_;
 
 	if ( $status == 999 ) {
-		&dlg_error_message(
-			$d->get( "Login failed!" ) . "\n"
-				. $d->get(
-				  "Please check your credentials and try again." )
-		);
+		&dlg_error_message( $d->get( "Login failed!" ) . "\n"
+				  . $d->get( "Please check your credentials and try again." ) );
 	} elsif ( $status == 998 ) {
 		&dlg_error_message(
 				$d->get( "Maximum filesize reached!" ) . " ( $max_filesize )" );
