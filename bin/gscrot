@@ -42,26 +42,12 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.240";
+use constant BRANCH              => "Rev.241";
 use constant PPA_VERSION         => "ppa6";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.63";
 use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
 
-#--------------------------------------
-
-#optional components
-#--------------------------------------
-my $gnome_web_photo        = TRUE;
-my $gtklp                  = TRUE;
-my $gtkimageview           = TRUE;
-
-eval{ require Gtk2::ImageView };
-	if ( $@ ) {
-		warn
-			"WARNING: Gtk2::ImageView is missing --> advanced seletion tool will be disabled!\n\n";
-		$gtkimageview = FALSE;
-	}
 #--------------------------------------
 
 #configure path settings
@@ -73,20 +59,21 @@ $ENV{ 'GSCROT_ROOT' } = $gscrot_root;    #used by some plugins
 
 #--------------------------------------
 
-#command line parameter
-#--------------------------------------
-my $debug_cparam           = FALSE;
-my $min_cparam             = FALSE;
-my $disable_systray_cparam = FALSE;
-my $start_with             = undef;
-#--------------------------------------
-
 #intl using gettext
 #--------------------------------------
 setlocale( LC_MESSAGES, "" );
 my $d = Locale::gettext->domain( "gscrot" );
 $d->dir( $gscrot_root . "/share/locale" );
 $ENV{ 'GSCROT_INTL' } = $gscrot_root . "/share/locale";
+
+#--------------------------------------
+
+#command line parameter
+#--------------------------------------
+my $debug_cparam           = FALSE;
+my $min_cparam             = FALSE;
+my $disable_systray_cparam = FALSE;
+my $start_with             = undef;
 
 #--------------------------------------
 
@@ -100,6 +87,15 @@ my %settings;       #hash to store settings
 &fct_check_installed_programs;
 &fct_check_installed_plugins;
 &fct_load_accounts;
+
+#--------------------------------------
+
+#optional components
+#--------------------------------------
+my $gnome_web_photo = TRUE;
+my $gtklp           = TRUE;
+my $gtkimageview    = TRUE;
+&fct_init_optional;
 
 #--------------------------------------
 
@@ -1686,7 +1682,8 @@ sub evt_take_screenshot {
 								  $filetype_value, $quality_value, $delay_value,
 								  $combobox_cursor->get_active );
 		}
-		     #web
+
+		#web
 	} elsif ( $data eq "web" || $data eq "tray_web" ) {
 		my $url = &dlg_website;
 		unless ( $url ) { &fct_set_toolbar_sensitive( TRUE ); return 0 }
@@ -4396,7 +4393,7 @@ sub fct_gscrot_area_advanced {
 		"Draw a rectangular area using the mouse.\nTo take a screenshot, press the Enter key. Press Esc to quit."
 	);
 	$image_buffer->Annotate(
-							 pointsize => int($rootwidthp * 0.03),
+							 pointsize => int( $rootwidthp * 0.03 ),
 							 fill      => 'red',
 							 gravity   => 'center',
 							 text      => $text
@@ -4412,7 +4409,7 @@ sub fct_gscrot_area_advanced {
 	my $view          = Gtk2::ImageView->new;
 	my $selector      = Gtk2::ImageView::Tool::Selector->new( $view );
 	my $selector_init = TRUE;
-	
+
 	#hide help text when selector is invoked
 	my $selector_handler = $selector->signal_connect(
 		'selection-changed' => sub {
@@ -4930,9 +4927,9 @@ sub fct_gscrot_window {
 							next unless defined $drawable;
 
 							#do not detect gscrot window when it is hidden
-							next
-								if ( $curr_window->get_xid ==
-									 $window->window->get_xid && $is_in_tray );
+							if ( $window->window && $is_in_tray ) {
+								next if ( $curr_window->get_xid == $window->window->get_xid  );
+							}
 
 							my ( $xp, $yp, $widthp, $heightp ) =
 								&fct_get_window_size( $curr_window, $drawable,
@@ -5674,10 +5671,17 @@ sub fct_ret_tray_menu {
 sub fct_ret_sel_menu {
 	my $menu_sel = Gtk2::Menu->new;
 
-	$tool_advanced = Gtk2::RadioMenuItem->new( undef, $d->get( "Advanced selection tool" ) );
+	$tool_advanced =
+		Gtk2::RadioMenuItem->new( undef, $d->get( "Advanced selection tool" ) );
 	$tool_simple = Gtk2::RadioMenuItem->new( $tool_advanced,
 										   $d->get( "Simple selection tool" ) );
-	$tooltips->set_tip($tool_simple, $d->get("The simple selection tool is the fastest way of taking a screenshot.\nIt provides an optional zoom window for precise shots."));
+	$tooltips->set_tip(
+						$tool_simple,
+						$d->get(
+							"The simple selection tool is the fastest way of taking a screenshot.\nIt provides an optional zoom window for precise shots."
+						)
+					  );
+
 	if ( defined $settings_xml->{ 'general' }->{ 'selection_tool' } ) {
 		$tool_advanced->set_active( TRUE )
 			if $settings_xml->{ 'general' }->{ 'selection_tool' } == 1;
@@ -5688,13 +5692,24 @@ sub fct_ret_sel_menu {
 	}
 
 	#check if Gtk2::ImageView is supported
-	if($gtkimageview){
-		$tooltips->set_tip($tool_advanced, $d->get("The advanced selection tool allows you to enlarge/shrink or move your selected area\nuntil you finally take the screenshot."));		
-	}else{
-		$tool_advanced->set_sensitive(FALSE);
-		$tooltips->set_tip($tool_advanced, $d->get("Gtk2::ImageView needs to be installed for this feature"));
+	if ( $gtkimageview ) {
+		$tooltips->set_tip(
+							$tool_advanced,
+							$d->get(
+								"The advanced selection tool allows you to enlarge/shrink or move your selected area\nuntil you finally take the screenshot."
+							)
+						  );
+	} else {
+		$tool_advanced->set_sensitive( FALSE );
+		$tooltips->set_tip(
+							$tool_advanced,
+							$d->get(
+								"Gtk2::ImageView needs to be installed for this feature"
+							)
+						  );
+
 		#needs to be enabled by default now
-		$tool_simple->set_active( TRUE );			
+		$tool_simple->set_active( TRUE );
 	}
 
 	$menu_sel->append( $tool_advanced );
@@ -6073,22 +6088,49 @@ sub fct_set_model_plugins {
 	return TRUE;
 }
 
+sub fct_init_optional {
+
+	print "INFO: searching for optional components...\n\n";
+	if ( system( "which gtklp" ) == 0 ) {
+		print "SUCCESS: gtklp is installed on your system!\n\n";
+	} else {
+		warn
+			"WARNING: gtklp is missing --> printing of screenshots will be disabled!\n\n";
+		$gtklp = FALSE;
+	}
+	if ( system( "which gnome-web-photo" ) == 0 ) {
+		print "SUCCESS: gnome-web-photo is installed on your system!\n\n";
+	} else {
+		warn
+			"WARNING: gnome-web-photo is missing --> screenshots of websites will be disabled!\n\n";
+		$gnome_web_photo = FALSE;
+	}
+	eval { require Gtk2::ImageView };
+	if ( $@ ) {
+		warn
+			"WARNING: Gtk2::ImageView is missing --> advanced seletion tool will be disabled!\n\n";
+		$gtkimageview = FALSE;
+	}
+
+	return TRUE;
+}
+
 sub fct_init {
 
 	#are there any command line params?
 	if ( @ARGV > 0 ) {
-		my $arg;
-		foreach $arg ( @ARGV ) {
-			if ( $arg eq "--debug" ) {
+		foreach my $arg ( @ARGV ) {
+			$arg =~ s/.{2}//;
+			if ( $arg eq "debug" ) {
 				$debug_cparam = TRUE;
-			} elsif ( $arg eq "--help" ) {
+			} elsif ( $arg eq "help" ) {
 				&fct_usage();
 				exit;
-			} elsif ( $arg eq "--min_at_startup" ) {
+			} elsif ( $arg eq "min_at_startup" ) {
 				$min_cparam = TRUE;
-			} elsif ( $arg eq "--disable_systray" ) {
+			} elsif ( $arg eq "disable_systray" ) {
 				$disable_systray_cparam = TRUE;
-			} elsif ( $arg eq "--section" ) {
+			} elsif ( $arg eq "section" ) {
 
 				#is there already a process of gscrot running?
 				my @gscrot_pids = `pidof -o $$ -x $gscrot_path`;
@@ -6097,7 +6139,7 @@ sub fct_init {
 					die;
 				}
 				$start_with = "section";
-			} elsif ( $arg eq "--selection" ) {
+			} elsif ( $arg eq "selection" ) {
 
 				#is there already a process of gscrot running?
 				my @gscrot_pids = `pidof -o $$ -x $gscrot_path`;
@@ -6106,7 +6148,7 @@ sub fct_init {
 					die;
 				}
 				$start_with = "select";
-			} elsif ( $arg eq "--window" ) {
+			} elsif ( $arg eq "window" ) {
 
 				#is there already a process of gscrot running?
 				my @gscrot_pids = `pidof -o $$ -x $gscrot_path`;
@@ -6115,7 +6157,7 @@ sub fct_init {
 					die;
 				}
 				$start_with = "window";
-			} elsif ( $arg eq "--full" ) {
+			} elsif ( $arg eq "full" ) {
 
 				#is there already a process of gscrot running?
 				my @gscrot_pids = `pidof -o $$ -x $gscrot_path`;
@@ -6125,15 +6167,14 @@ sub fct_init {
 				}
 				$start_with = "raw";
 			} else {
-				print "\ncommand " . $arg
-					. " not recognized --> will be ignored\n";
-				&fct_usage();
+				warn "ERROR: illegal command " . $arg . " \n\n";
+				&fct_usage;
 				exit;
 			}
-			print "\ncommand " . $arg . " recognized!\n";
+			print "INFO: command " . $arg . " recognized!\n\n";
 		}
 	} else {
-		print "INFO: no command line parameters set...\n";
+		print "INFO: no command line parameters set...\n\n";
 	}
 	if ( $debug_cparam ) {
 		print "\nINFO: gathering system information...";
@@ -6160,22 +6201,6 @@ sub fct_init {
 			. "\n"
 			if $Gtk2::VERSION >= 1.040;
 		print "\n";
-	}
-
-	print "INFO: searching for dependencies...\n\n";
-	if ( system( "which gtklp" ) == 0 ) {
-		print "SUCCESS: gtklp is installed on your system!\n\n";
-	} else {
-		warn
-			"WARNING: gtklp is missing --> printing of screenshots will be disabled!\n\n";
-		$gtklp = FALSE;
-	}
-	if ( system( "which gnome-web-photo" ) == 0 ) {
-		print "SUCCESS: gnome-web-photo is installed on your system!\n\n";
-	} else {
-		warn
-			"WARNING: gnome-web-photo is missing --> screenshots of websites will be disabled!\n\n";
-		$gnome_web_photo = FALSE;
 	}
 
 	#an old .gscrot file existing?

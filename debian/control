@@ -1,6 +1,6 @@
 Source: gscrot
-Section: gnome
-Priority: extra
+Section: utils
+Priority: optional
 Maintainer: Mario Kemper <mario.kemper@googlemail.com>
 Standards-Version: 3.7.3.0
 Build-Depends: debhelper (>= 5)
@@ -13,5 +13,7 @@ Conflicts:
 Replaces: gscrot-plugins-bash
 Provides: gscrot, gscrot-plugins-bash
 Description: screenshot taking application written in perl and Gtk2
- GScrot covers all features of common command line tools like scrot or import and adds reasonable new features combined with a comfortable GUI using Gtk2.
-
+ GScrot covers all features of common command line tools like scrot or import 
+ and adds reasonable new features combined with a comfortable GUI using Gtk2.
+ .
+ The GScrot homepage is http://launchpad.net/gscrot
