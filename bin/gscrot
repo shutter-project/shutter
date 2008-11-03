@@ -21,6 +21,7 @@ use warnings;
 use Gtk2 '-init';
 use Gtk2::Gdk::Keysyms;
 use Gtk2::Pango;
+use Gtk2::ImageView;
 use Gnome2;
 use Gnome2::Wnck;
 use Gnome2::GConf;
@@ -42,8 +43,8 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.238";
-use constant PPA_VERSION         => "ppa4";
+use constant BRANCH              => "Rev.239";
+use constant PPA_VERSION         => "ppa5";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.63";
 use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
@@ -512,6 +513,8 @@ my $button_select_menu =
 	Gtk2::MenuToolButton->new( $image_select, $d->get( "Selection" ) );
 $button_select_menu->signal_connect( 'clicked' => \&evt_take_screenshot,
 									 'select' );
+
+my ( $tool_advanced, $tool_simple ) = undef;
 my $zoom_active = undef;
 my ( $zoom_size1, $zoom_size2, $zoom_size3 ) = undef;
 $button_select_menu->set_menu( &fct_ret_sel_menu );
@@ -1662,16 +1665,18 @@ sub evt_take_screenshot {
 			&fct_set_toolbar_sensitive( TRUE );
 			return FALSE;
 		}
-		$screenshot = &fct_gscrot_area(
-										$folder,
-										$filename_value,
-										$filetype_value,
-										$quality_value,
-										$delay_value,
-										$combobox_cursor->get_active
-									  );
-
-		#web
+		if ( $tool_advanced->get_active ) {
+			$screenshot =
+				&fct_gscrot_area_advanced( $folder, $filename_value,
+								  $filetype_value, $quality_value, $delay_value,
+								  $combobox_cursor->get_active );
+		} else {
+			$screenshot =
+				&fct_gscrot_area_simple( $folder, $filename_value,
+								  $filetype_value, $quality_value, $delay_value,
+								  $combobox_cursor->get_active );
+		}
+		     #web
 	} elsif ( $data eq "web" || $data eq "tray_web" ) {
 		my $url = &dlg_website;
 		unless ( $url ) { &fct_set_toolbar_sensitive( TRUE ); return 0 }
@@ -3493,6 +3498,11 @@ sub fct_save_settings {
 
 	utf8::encode $settings{ 'general' }->{ 'folder' };
 
+	$settings{ 'general' }->{ 'selection_tool' } = 1
+		if $tool_advanced->get_active;
+	$settings{ 'general' }->{ 'selection_tool' } = 2
+		if $tool_simple->get_active;
+
 	$settings{ 'general' }->{ 'zoom_active' } = $zoom_active->get_active();
 	$settings{ 'general' }->{ 'zoom_size' }   = 1
 		if ( $zoom_size1->get_active );
@@ -3700,6 +3710,11 @@ sub fct_load_settings {
 				utf8::decode $settings_xml->{ 'general' }->{ 'folder' };
 				$saveDir_button->set_current_folder(
 								   $settings_xml->{ 'general' }->{ 'folder' } );
+
+				$tool_advanced->set_active( TRUE )
+					if $settings_xml->{ 'general' }->{ 'selection_tool' } == 1;
+				$tool_simple->set_active( TRUE )
+					if $settings_xml->{ 'general' }->{ 'selection_tool' } == 2;
 				$zoom_active->set_active(
 							  $settings_xml->{ 'general' }->{ 'zoom_active' } );
 				$zoom_size1->set_active( TRUE )
@@ -4321,6 +4336,17 @@ sub fct_check_installed_programs {
 	return TRUE;
 }
 
+sub fct_imagemagick_to_pixbuf {
+	my ( $blob, $width, $height ) = @_;
+	my $pixbufloader = Gtk2::Gdk::PixbufLoader->new;
+	$pixbufloader->set_size( $width, $height );
+	$pixbufloader->write( $blob );
+	$pixbufloader->close;
+	my $pixbuf = $pixbufloader->get_pixbuf;
+
+	return $pixbuf;
+}
+
 sub fct_ungrab_pointer_and_keyboard {
 	my ( $ungrab_server, $quit_event_handler, $quit_main ) = @_;
 
@@ -4335,7 +4361,115 @@ sub fct_ungrab_pointer_and_keyboard {
 	return FALSE;
 }
 
-sub fct_gscrot_area {
+sub fct_gscrot_area_advanced {
+	my ( $folder, $filename_value, $filetype_value, $quality_value,
+		 $delay_value, $cursor )
+		= @_;
+
+	#return value
+	my $output = 5;
+
+	#get basic infos
+	my $root = Gtk2::Gdk->get_default_root_window;
+	my ( $rootxp, $rootyp, $rootwidthp, $rootheightp, $rootdepthp ) =
+		$root->get_geometry;
+	( $rootxp, $rootyp ) = $root->get_origin;
+	my $root_pixbuf =
+		Gtk2::Gdk::Pixbuf->get_from_drawable( $root, undef, 0, 0, 0, 0,
+											  $rootwidthp, $rootheightp );
+
+	#annotate the screenshot (help text)
+	my $image_buffer = Image::Magick->new( magick => 'png' );
+	$image_buffer->BlobToImage( $root_pixbuf->save_to_buffer( 'png' ) );
+
+	my $text = $d->get(
+		"Draw a rectangular area using the mouse.\nTo take a screenshot, press the Enter key. Press Esc to quit."
+	);
+	$image_buffer->Annotate(
+							 pointsize => int($rootwidthp * 0.03),
+							 fill      => 'red',
+							 gravity   => 'center',
+							 text      => $text
+						   );
+
+	my $root_pixbuf_text =
+		fct_imagemagick_to_pixbuf(
+								   $image_buffer->ImageToBlob(),
+								   $image_buffer->Get( 'columns' ),
+								   $image_buffer->Get( 'rows' )
+								 );
+
+	my $view          = Gtk2::ImageView->new;
+	my $selector      = Gtk2::ImageView::Tool::Selector->new( $view );
+	my $selector_init = TRUE;
+	
+	#hide help text when selector is invoked
+	my $selector_handler = $selector->signal_connect(
+		'selection-changed' => sub {
+			if ( $selector_init ) {
+				$view->set_pixbuf( $root_pixbuf, FALSE );
+				$selector_init = FALSE;
+			}
+		}
+	);
+
+	$view->set_pixbuf( $root_pixbuf_text );
+
+	$view->set_tool( $selector );
+
+	my $select_window = Gtk2::Window->new( 'toplevel' );
+	$select_window->set_decorated( FALSE );
+	$select_window->set_skip_taskbar_hint( TRUE );
+	$select_window->set_skip_pager_hint( TRUE );
+	$select_window->set_keep_above( TRUE );
+	$select_window->add( $view );
+	$select_window->set_default_size( $rootwidthp, $rootheightp );
+	$select_window->move( $rootxp, $rootyp );
+
+	Gtk2::Gdk->keyboard_grab( $root, 0, Gtk2->get_current_event_time );
+
+	Gtk2::Gdk::Event->handler_set(
+		sub {
+			my ( $event, $data ) = @_;
+			return 0 unless defined $event;
+
+			#quit on escape
+			if ( $event->type eq 'key-press' ) {
+				if ( $event->keyval == $Gtk2::Gdk::Keysyms{ Escape } ) {
+					&fct_ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
+					$select_window->destroy;
+					Gtk2::Gdk->flush;
+				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{ Return } ) {
+					&fct_ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
+					$select_window->destroy;
+					Gtk2::Gdk->flush;
+					my $selection = $selector->get_selection;
+
+					if ( $selection ) {
+						sleep 1 if $delay_value < 1;
+						$output =
+							&fct_get_pixbuf_from_drawable( $root, $selection->x,
+									$selection->y, $selection->width,
+									$selection->height, $cursor, $delay_value );
+					} else {
+						$output = 0;
+					}
+				}
+			} else {
+				Gtk2->main_do_event( $event );
+			}
+		},
+		'advanced'
+								 );
+
+	$select_window->show_all();
+	$select_window->window->set_type_hint( 'dock' );
+	Gtk2->main();
+
+	return $output;
+}
+
+sub fct_gscrot_area_simple {
 	my ( $folder, $filename_value, $filetype_value, $quality_value,
 		 $delay_value, $cursor )
 		= @_;
@@ -5529,6 +5663,25 @@ sub fct_ret_tray_menu {
 
 sub fct_ret_sel_menu {
 	my $menu_sel = Gtk2::Menu->new;
+
+	$tool_advanced =
+		Gtk2::RadioMenuItem->new( undef, $d->get( "Advanced selection tool" ) );
+	$tooltips->set_tip($tool_advanced, $d->get("The advanced selection tool allows you to enlarge/shrink or move your selected area\nuntil you finally take the screenshot."));
+	$tool_simple = Gtk2::RadioMenuItem->new( $tool_advanced,
+										   $d->get( "Simple selection tool" ) );
+	$tooltips->set_tip($tool_simple, $d->get("The simple selection tool is the fastest way of taking a screenshot.\nIt provides an optional zoom window for precise shots."));
+	if ( defined $settings_xml->{ 'general' }->{ 'selection_tool' } ) {
+		$tool_advanced->set_active( TRUE )
+			if $settings_xml->{ 'general' }->{ 'selection_tool' } == 1;
+		$tool_simple->set_active( TRUE )
+			if $settings_xml->{ 'general' }->{ 'selection_tool' } == 2;
+	} else {
+		$tool_advanced->set_active( TRUE );
+	}
+	$menu_sel->append( $tool_advanced );
+	$menu_sel->append( $tool_simple );
+
+	my $menu_tool_simple = Gtk2::Menu->new;
 	$zoom_active =
 		Gtk2::CheckMenuItem->new_with_label( $d->get( "Enable zoom window" ) );
 	if ( defined $settings_xml->{ 'general' }->{ 'zoom_active' } ) {
@@ -5537,7 +5690,7 @@ sub fct_ret_sel_menu {
 	} else {
 		$zoom_active->set_active( TRUE );
 	}
-	$menu_sel->append( $zoom_active );
+	$menu_tool_simple->append( $zoom_active );
 	my $menu_size =
 		Gtk2::MenuItem->new_with_label( $d->get( "Size of zoom window" ) );
 	my $menu_size2 = Gtk2::Menu->new;
@@ -5555,11 +5708,15 @@ sub fct_ret_sel_menu {
 	} else {
 		$zoom_size1->set_active( TRUE );
 	}
-	$menu_sel->append( $menu_size );
+
 	$menu_size->set_submenu( $menu_size2 );
 	$menu_size2->append( $zoom_size1 );
 	$menu_size2->append( $zoom_size2 );
 	$menu_size2->append( $zoom_size3 );
+
+	$menu_tool_simple->append( $menu_size );
+	$tool_simple->set_submenu( $menu_tool_simple );
+
 	$menu_sel->show_all;
 	return $menu_sel;
 }
