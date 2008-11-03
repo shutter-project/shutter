@@ -21,7 +21,6 @@ use warnings;
 use Gtk2 '-init';
 use Gtk2::Gdk::Keysyms;
 use Gtk2::Pango;
-use Gtk2::ImageView;
 use Gnome2;
 use Gnome2::Wnck;
 use Gnome2::GConf;
@@ -43,12 +42,26 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.239";
-use constant PPA_VERSION         => "ppa5";
+use constant BRANCH              => "Rev.240";
+use constant PPA_VERSION         => "ppa6";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.63";
 use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
 
+#--------------------------------------
+
+#optional components
+#--------------------------------------
+my $gnome_web_photo        = TRUE;
+my $gtklp                  = TRUE;
+my $gtkimageview           = TRUE;
+
+eval{ require Gtk2::ImageView };
+	if ( $@ ) {
+		warn
+			"WARNING: Gtk2::ImageView is missing --> advanced seletion tool will be disabled!\n\n";
+		$gtkimageview = FALSE;
+	}
 #--------------------------------------
 
 #configure path settings
@@ -66,9 +79,6 @@ my $debug_cparam           = FALSE;
 my $min_cparam             = FALSE;
 my $disable_systray_cparam = FALSE;
 my $start_with             = undef;
-my $gnome_web_photo        = TRUE;
-my $gtklp                  = TRUE;
-
 #--------------------------------------
 
 #intl using gettext
@@ -5664,9 +5674,7 @@ sub fct_ret_tray_menu {
 sub fct_ret_sel_menu {
 	my $menu_sel = Gtk2::Menu->new;
 
-	$tool_advanced =
-		Gtk2::RadioMenuItem->new( undef, $d->get( "Advanced selection tool" ) );
-	$tooltips->set_tip($tool_advanced, $d->get("The advanced selection tool allows you to enlarge/shrink or move your selected area\nuntil you finally take the screenshot."));
+	$tool_advanced = Gtk2::RadioMenuItem->new( undef, $d->get( "Advanced selection tool" ) );
 	$tool_simple = Gtk2::RadioMenuItem->new( $tool_advanced,
 										   $d->get( "Simple selection tool" ) );
 	$tooltips->set_tip($tool_simple, $d->get("The simple selection tool is the fastest way of taking a screenshot.\nIt provides an optional zoom window for precise shots."));
@@ -5678,6 +5686,17 @@ sub fct_ret_sel_menu {
 	} else {
 		$tool_advanced->set_active( TRUE );
 	}
+
+	#check if Gtk2::ImageView is supported
+	if($gtkimageview){
+		$tooltips->set_tip($tool_advanced, $d->get("The advanced selection tool allows you to enlarge/shrink or move your selected area\nuntil you finally take the screenshot."));		
+	}else{
+		$tool_advanced->set_sensitive(FALSE);
+		$tooltips->set_tip($tool_advanced, $d->get("Gtk2::ImageView needs to be installed for this feature"));
+		#needs to be enabled by default now
+		$tool_simple->set_active( TRUE );			
+	}
+
 	$menu_sel->append( $tool_advanced );
 	$menu_sel->append( $tool_simple );
 
