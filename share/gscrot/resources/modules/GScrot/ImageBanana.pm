@@ -14,7 +14,7 @@
 #along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 package GScrot::ImageBanana;
-use strict;
+
 our(@ISA, @EXPORT);
 use Exporter;
 my $VERSION = 1.00;
@@ -22,6 +22,8 @@ my $VERSION = 1.00;
 
 @EXPORT = qw(&fct_upload_imagebanana);
 
+use utf8;
+use strict;
 use WWW::Mechanize;
 use HTTP::Status;
 
@@ -43,6 +45,9 @@ sub fct_upload_imagebanana
 	my $mech = WWW::Mechanize->new(agent => "GScrot $gscrot_version");
 	my $http_status = undef;
 	
+	utf8::encode $upload_filename;
+	utf8::encode $password;
+	utf8::encode $username;
 	if($username ne "" && $password ne ""){
 		
 		$mech->get("http://www.imagebanana.com/myib/login/");

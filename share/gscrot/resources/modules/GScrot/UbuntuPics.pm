@@ -14,7 +14,7 @@
 #along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 package GScrot::UbuntuPics;
-use strict;
+
 our(@ISA, @EXPORT);
 use Exporter;
 my $VERSION = 1.00;
@@ -22,6 +22,8 @@ my $VERSION = 1.00;
 
 @EXPORT = qw(&fct_upload_ubuntu_pics);
 
+use utf8;
+use strict;
 use WWW::Mechanize;
 use HTTP::Status;
 
@@ -43,6 +45,9 @@ sub fct_upload_ubuntu_pics
 	my $mech = WWW::Mechanize->new(agent => "GScrot $gscrot_version");
 	my $http_status = undef;
 	
+	utf8::encode $upload_filename;
+	utf8::encode $password;
+	utf8::encode $username;
 	if($username ne "" && $password ne ""){
 
 		$mech->get("http://www.ubuntu-pics.de/login.html");
@@ -50,6 +55,7 @@ sub fct_upload_ubuntu_pics
 		unless(is_success($http_status)){
 			$links{'status'} = $http_status; return %links;
 		}
+		
 		$mech->form_number(2);
 		$mech->field(name => $username);
 		$mech->field(passwort => $password);

@@ -42,8 +42,8 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.242";
-use constant PPA_VERSION         => "ppa7";
+use constant BRANCH              => "Rev.243";
+use constant PPA_VERSION         => "ppa8";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.63";
 use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
@@ -2025,6 +2025,9 @@ sub evt_notebook_switch {
 		}
 	}
 
+	&fct_update_tab_plugins( &fct_get_current_file )
+		;    #update attached plugins (may have changed)
+
 	&fct_update_first_tab();    #update first tab for information
 }
 
@@ -2197,6 +2200,9 @@ sub evt_activate_systray_statusicon {
 
 sub evt_plugins {
 	my ( $tree, $path, $column ) = @_;
+
+	#nothing to do here right now...
+	return TRUE;
 }
 
 sub evt_accounts {
@@ -2209,7 +2215,7 @@ sub evt_accounts {
 		my $account_value = $model->get_value( $account_iter, 3 );
 		&fct_gnome_open( undef, $account_value, undef );
 	}
-	return 1;
+	return TRUE;
 }
 
 sub evt_plugins_toolbar {
@@ -2228,7 +2234,7 @@ sub evt_plugins_toolbar {
 		$plugins{ $model->get_value( $iter, 9 ) }->{ 'menu' } = TRUE;
 	}
 
-	return 1;
+	return TRUE;
 }
 
 sub evt_iconview_sel_changed {
@@ -2265,10 +2271,14 @@ sub evt_show_settings {
 	my $settings_dialog_response = $settings_dialog->run;
 	if ( $settings_dialog_response eq "close" ) {
 		$settings_dialog->hide();
+		&fct_update_tab_plugins( &fct_get_current_file )
+			;    #update attached plugins (may have changed)
 		&fct_update_first_tab;
 		return TRUE;
 	} else {
 		$settings_dialog->hide();
+		&fct_update_tab_plugins( &fct_get_current_file )
+			;    #update attached plugins (may have changed)
 		&fct_update_first_tab;
 		return FALSE;
 	}
@@ -3259,11 +3269,9 @@ sub fct_create_tab {
 		$tabtoolbar->insert( $button_delete,               -1 );
 
 		#add plugins to toolbar
-		my $first_plugin = TRUE;
-		foreach ( keys %plugins ) {
-			if ( $plugins{ $_ }->{ 'menu' } ) {
-				my $btn =
-					Gtk2::ToolButton->new(
+		foreach ( sort keys %plugins ) {
+			my $btn =
+				Gtk2::ToolButton->new(
 								   Gtk2::Image->new_from_pixbuf(
 									   Gtk2::Gdk::Pixbuf->new_from_file_at_size(
 											  $plugins{ $_ }->{ 'pixbuf' },
@@ -3271,32 +3279,34 @@ sub fct_create_tab {
 									   )
 								   ),
 								   undef
-					);
-				my $data = [
-							 $plugins{ $_ }->{ 'binary' },
-							 $plugins{ $_ }->{ 'name' },
-							 $plugins{ $_ }->{ 'lang' },
-							 $key,
-							 undef
-						   ];
-				$tooltips->set_tip( $btn, $plugins{ $_ }->{ 'tooltip' } );
-				$btn->signal_connect( 'clicked', \&fct_execute_plugin, $data );
+				);
+			my $data = [
+						 $plugins{ $_ }->{ 'binary' },
+						 $plugins{ $_ }->{ 'name' },
+						 $plugins{ $_ }->{ 'lang' },
+						 $key,
+						 undef
+					   ];
+			$tooltips->set_tip( $btn, $plugins{ $_ }->{ 'tooltip' } );
+			$btn->signal_connect( 'clicked', \&fct_execute_plugin, $data );
 
-				if ( $first_plugin ) {
-					$first_plugin = FALSE;
-					$tabtoolbar->insert( Gtk2::SeparatorToolItem->new,
-										 $tabtoolbar->get_n_items - 2 );
-				}
-				$tabtoolbar->insert( $btn, $tabtoolbar->get_n_items - 2 );
-				$session_screens{ $key }->{ $btn } = $btn;
+			$tabtoolbar->insert( $btn, $tabtoolbar->get_n_items - 2 );
+			$session_screens{ $key }->{ $btn } = $btn;
 
-				#disable button if filetype is not supported
-				$btn->set_sensitive( FALSE )
-					unless $plugins{ $_ }->{ 'ext' } =~
-						/$session_screens{$key}->{'filetype'}/;
+			#disable button if filetype is not supported
+			$btn->set_sensitive( FALSE )
+				unless $plugins{ $_ }->{ 'ext' } =~
+					/$session_screens{$key}->{'filetype'}/;
 
-				#store btn to hash to manipulate it later
-				$session_screens{ $key }->{ $_ } = $btn;
+			#store btn to hash to manipulate it later
+			$session_screens{ $key }->{ $_ } = $btn;
+
+			#only activated buttons are visible
+			if ( $plugins{ $_ }->{ 'menu' } ) {
+				$btn->show;
+			} else {
+				$btn->hide;
+				$btn->set_no_show_all( TRUE );
 			}
 		}
 
@@ -3569,13 +3579,8 @@ sub fct_save_settings {
 		$capture_sel_key->get_text();
 
 	#plugins
-	foreach ( keys %plugins ) {
-		if ( defined $plugins{ $_ }->{ 'menu' } ) {
-			if ( $plugins{ $_ }->{ 'menu' } ) {
-				$settings{ 'plugins' }->{ $_ }->{ 'menu' } =
-					$plugins{ $_ }->{ 'menu' };
-			}
-		}
+	foreach ( sort keys %plugins ) {
+		$settings{ 'plugins' }->{ $_ }->{ 'menu' } = $plugins{ $_ }->{ 'menu' };
 	}
 
 	#settings
@@ -3594,10 +3599,10 @@ sub fct_save_settings {
 	my %clean_files;
 	my $counter = 0;
 	foreach ( sort keys %session_screens ) {
-
+		my $utf8_filename = $session_screens{ $_ }->{ 'long' };
+		utf8::encode $utf8_filename;
 		if ( &fct_file_exists( $session_screens{ $_ }->{ 'long' } ) ) {
-			$clean_files{ "file" . $counter }{ 'filename' } =
-				$session_screens{ $_ }->{ 'long' };
+			$clean_files{ "file" . $counter }{ 'filename' } = $utf8_filename;
 			$counter++;
 		}
 	}
@@ -3613,6 +3618,8 @@ sub fct_save_settings {
 		&dlg_error_message( $d->get( "Account-settings could not be saved!" ) );
 
 	foreach ( keys %accounts ) {
+		utf8::encode $accounts{ $_ }->{ 'password' };
+		utf8::encode $accounts{ $_ }->{ 'username' };
 		$accounts{ $_ }->{ 'password' } = ""
 			if $accounts{ $_ }->{ 'host' } =~ /imageshack/i;
 	}
@@ -3808,16 +3815,8 @@ sub fct_load_settings {
 	}
 
 	#plugins
-	foreach ( keys %plugins ) {
-		if ( defined $settings_xml->{ 'plugins' }->{ $_ } ) {
-			if ( $settings_xml->{ 'plugins' }->{ $_ }->{ 'menu' } ) {
-				$plugins{ $_ }->{ 'menu' } = TRUE;
-			} else {
-				$plugins{ $_ }->{ 'menu' } = FALSE;
-			}
-		} else {
-			$plugins{ $_ }->{ 'menu' } = FALSE;
-		}
+	foreach ( sort keys %plugins ) {
+		$plugins{ $_ }->{ 'menu' } = $settings_xml->{ 'plugins' }->{ $_ }->{ 'menu' } || FALSE;
 	}
 
 	if ( defined $effects_tree ) {
@@ -3856,12 +3855,6 @@ sub fct_load_accounts {
 		$accounts{ 'ubuntu-pics.de' }->{ host }     = "ubuntu-pics.de";
 		$accounts{ 'ubuntu-pics.de' }->{ username } = "";
 		$accounts{ 'ubuntu-pics.de' }->{ password } = "";
-		$accounts{ 'ubuntu-pics.de' }->{ register } =
-			"http://www.ubuntu-pics.de/registrieren.html";
-		$accounts{ 'ubuntu-pics.de' }->{ register_color } = "blue";
-		$accounts{ 'ubuntu-pics.de' }->{ register_text } =
-			( $d->get( "click me" ) );
-		$accounts{ 'ubuntu-pics.de' }->{ module } = "UbuntuPics.pm";
 	} else {
 		$accounts{ 'ubuntu-pics.de' }->{ host } =
 			$accounts_xml->{ 'ubuntu-pics.de' }->{ host };
@@ -3869,25 +3862,16 @@ sub fct_load_accounts {
 			$accounts_xml->{ 'ubuntu-pics.de' }->{ username };
 		$accounts{ 'ubuntu-pics.de' }->{ password } =
 			$accounts_xml->{ 'ubuntu-pics.de' }->{ password };
-		$accounts{ 'ubuntu-pics.de' }->{ register } =
-			"http://www.ubuntu-pics.de/registrieren.html";
-		$accounts{ 'ubuntu-pics.de' }->{ register_color } = "blue";
-		$accounts{ 'ubuntu-pics.de' }->{ register_text } =
-			( $d->get( "click me" ) );
-		$accounts{ 'ubuntu-pics.de' }->{ module } =
-			$accounts_xml->{ 'ubuntu-pics.de' }->{ module };
 	}
+
+	$accounts{ 'ubuntu-pics.de' }->{ register } =
+		"http://www.ubuntu-pics.de/registrieren.html";
 
 	#account data, load defaults if nothing is set
 	unless ( exists( $accounts_xml->{ 'imageshack.us' } ) ) {
 		$accounts{ 'imageshack.us' }->{ host }     = "imageshack.us";
 		$accounts{ 'imageshack.us' }->{ username } = "";
 		$accounts{ 'imageshack.us' }->{ password } = "";
-		$accounts{ 'imageshack.us' }->{ register } =
-			"http://my.imageshack.us/registration/";
-		$accounts{ 'imageshack.us' }->{ register_color } = "blue";
-		$accounts{ 'imageshack.us' }->{ register_text } =
-			( $d->get( "click me" ) );
 	} else {
 		$accounts{ 'imageshack.us' }->{ host } =
 			$accounts_xml->{ 'imageshack.us' }->{ host };
@@ -3895,22 +3879,15 @@ sub fct_load_accounts {
 			$accounts_xml->{ 'imageshack.us' }->{ username };
 		$accounts{ 'imageshack.us' }->{ password } =
 			$accounts_xml->{ 'imageshack.us' }->{ password };
-		$accounts{ 'imageshack.us' }->{ register } =
-			"http://my.imageshack.us/registration/";
-		$accounts{ 'imageshack.us' }->{ register_color } = "blue";
-		$accounts{ 'imageshack.us' }->{ register_text } =
-			( $d->get( "click me" ) );
 	}
+
+	$accounts{ 'imageshack.us' }->{ register } =
+		"http://my.imageshack.us/registration/";
+
 	unless ( exists( $accounts_xml->{ 'imagebanana.com' } ) ) {
 		$accounts{ 'imagebanana.com' }->{ host }     = "imagebanana.com";
 		$accounts{ 'imagebanana.com' }->{ username } = "";
 		$accounts{ 'imagebanana.com' }->{ password } = "";
-		$accounts{ 'imagebanana.com' }->{ register } =
-			"http://www.imagebanana.com/myib/registrieren/";
-		$accounts{ 'imagebanana.com' }->{ register_color } = "blue";
-		$accounts{ 'imagebanana.com' }->{ register_text } =
-			( $d->get( "click me" ) );
-		$accounts{ 'imagebanana.com' }->{ module } = "ImageBanana.pm";
 	} else {
 		$accounts{ 'imagebanana.com' }->{ host } =
 			$accounts_xml->{ 'imagebanana.com' }->{ host };
@@ -3918,14 +3895,18 @@ sub fct_load_accounts {
 			$accounts_xml->{ 'imagebanana.com' }->{ username };
 		$accounts{ 'imagebanana.com' }->{ password } =
 			$accounts_xml->{ 'imagebanana.com' }->{ password };
-		$accounts{ 'imagebanana.com' }->{ register } =
-			"http://www.imagebanana.com/myib/registrieren/";
-		$accounts{ 'imagebanana.com' }->{ register_color } = "blue";
-		$accounts{ 'imagebanana.com' }->{ register_text } =
-			( $d->get( "click me" ) );
-		$accounts{ 'imagebanana.com' }->{ module } =
-			$accounts_xml->{ 'imagebanana.com' }->{ module };
 	}
+
+	$accounts{ 'imagebanana.com' }->{ register } =
+		"http://www.imagebanana.com/myib/registrieren/";
+
+	foreach ( keys %accounts ) {
+		utf8::decode $accounts{ $_ }->{ 'username' };
+		utf8::decode $accounts{ $_ }->{ 'password' };
+		$accounts{ $_ }->{ 'register_color' } = "blue";
+		$accounts{ $_ }->{ 'register_text' }  = $d->get( "click me" );
+	}
+
 	return TRUE;
 }
 
@@ -4174,6 +4155,37 @@ sub fct_get_current_file {
 	return $key;
 }
 
+sub fct_update_tab_plugins {
+	my ( $key ) = @_;
+
+	return FALSE unless $key;
+
+	#handle plugins (attached to toolbar)
+	foreach ( sort keys %plugins ) {
+
+		#any plugins activated??
+		if ( $plugins{ $_ }->{ 'menu' } ) {
+			$session_screens{ $key }->{ $_ }->set_no_show_all( FALSE );
+			$session_screens{ $key }->{ $_ }->show_all;
+		} else {
+			$session_screens{ $key }->{ $_ }->hide;
+			$session_screens{ $key }->{ $_ }->set_no_show_all( TRUE );
+		}
+		if ( $session_screens{ $key }->{ $_ } ) {
+
+			#disable button if filetype is not supported
+			if ( $plugins{ $_ }->{ 'ext' } =~
+				 /$session_screens{$key}->{'filetype'}/ )
+			{
+				$session_screens{ $key }->{ $_ }->set_sensitive( TRUE );
+			} else {
+				$session_screens{ $key }->{ $_ }->set_sensitive( FALSE );
+			}
+		}
+	}
+	return TRUE;
+}
+
 sub fct_update_tab {
 	my ( $key ) = @_;
 	$key =~ /\[(.*)\]/;
@@ -4207,20 +4219,7 @@ sub fct_update_tab {
 			->set_text(   $session_screens{ $key }->{ 'width' } . "x"
 						. $session_screens{ $key }->{ 'height' } );
 
-		#handle plugins (attached to toolbar)
-		foreach ( keys %plugins ) {
-			if ( $session_screens{ $key }->{ $_ } ) {
-
-				#disable button if filetype is not supported
-				if ( $plugins{ $_ }->{ 'ext' } =~
-					 /$session_screens{$key}->{'filetype'}/ )
-				{
-					$session_screens{ $key }->{ $_ }->set_sensitive( TRUE );
-				} else {
-					$session_screens{ $key }->{ $_ }->set_sensitive( FALSE );
-				}
-			}
-		}
+		&fct_update_tab_plugins( $key );
 
 	} else {
 
@@ -4392,11 +4391,13 @@ sub fct_gscrot_area_advanced {
 	my $text = $d->get(
 		"Draw a rectangular area using the mouse.\nTo take a screenshot, press the Enter key. Press Esc to quit."
 	);
+
 	$image_buffer->Annotate(
-							 pointsize => int( $rootwidthp * 0.03 ),
+							 pointsize => int( $rootwidthp * 0.02 ),
 							 fill      => 'red',
 							 gravity   => 'center',
-							 text      => $text
+							 text      => $text,
+							 encoding => 'UTF-8',
 						   );
 
 	my $root_pixbuf_text =
@@ -4928,7 +4929,9 @@ sub fct_gscrot_window {
 
 							#do not detect gscrot window when it is hidden
 							if ( $window->window && $is_in_tray ) {
-								next if ( $curr_window->get_xid == $window->window->get_xid  );
+								next
+									if ( $curr_window->get_xid ==
+										 $window->window->get_xid );
 							}
 
 							my ( $xp, $yp, $widthp, $heightp ) =
@@ -5414,7 +5417,7 @@ sub fct_get_next_filename {
 
 sub fct_check_installed_plugins {
 	print "\nINFO: checking installed plugins...\n";
-	foreach ( keys %plugins ) {
+	foreach ( sort keys %plugins ) {
 		if ( $plugins{ $_ }->{ 'binary' } ) {
 			unless ( &fct_file_exists( $plugins{ $_ }->{ 'binary' } ) ) {
 				print " Could not detect binary for program $_, ignoring\n";
@@ -5961,7 +5964,6 @@ sub fct_set_model_accounts {
 			} else {
 				$model->set( $iter, 2, "" );
 			}
-
 		},
 		$accounts_model
 											   );
@@ -6235,6 +6237,9 @@ sub fct_init {
 			#path to executable
 			$plugins{ $_ }->{ 'binary' } = "$_/$dir_name"
 				if ( &fct_file_exists( "$_/$dir_name" ) );
+
+			#menu flag
+			$plugins{ $_ }->{ 'menu' } = FALSE;
 
 			#tooltip
 			$plugins{ $_ }->{ 'tip' } = `$plugins{$_}->{'binary'} tip`;

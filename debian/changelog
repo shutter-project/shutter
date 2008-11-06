@@ -1,15 +1,15 @@
-gscrot (0.63~ppa7) intrepid; urgency=low
+gscrot (0.63~ppa8) intrepid; urgency=low
 
   * added new "advanced" selection-tool (see LP: #273763, depends on Gtk2::ImageView)
   * added new keybinding-mode option
   * ported to Gtk2::StatusIcon (Gtk2::TrayIcon supported for older Gtk2 Versions)
   * faster plugin checks
   * minor changes (human interface guidelines)	
-  * fixed (LP: #286632, LP: #293091, LP: #291753)
+  * fixed (LP: #286632, LP: #293091, LP: #291753, LP: #293616)
   * updated translations
   * code cleanup    
 
- -- Mario Kemper <mario.kemper@googlemail.com>  Mon, 03 Nov 2008 00:51:15 +0100
+ -- Mario Kemper <mario.kemper@googlemail.com>  Thu, 06 Nov 2008 13:45:57 +0100
 
 gscrot (0.62~ppa3) intrepid; urgency=low
 
