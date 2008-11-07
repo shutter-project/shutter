@@ -8,11 +8,11 @@ Homepage: https://launchpad.net/gscrot
 
 Package: gscrot
 Architecture: all
-Depends: libglib-perl, libgtk2-perl, liblocale-gettext-perl, perlmagick, libxml-simple-perl, libwww-mechanize-perl, libwww-perl, libgnome2-perl, libgnome2-gconf-perl, imagemagick, libgtk2-imageview-perl, libgnome2-wnck-perl, libx11-protocol-perl, gtklp, libgtk2-trayicon-perl, gnome-web-photo
+Depends: libglib-perl, libgtk2-perl, liblocale-gettext-perl, librsvg2-common, perlmagick, libxml-simple-perl, libwww-mechanize-perl, libwww-perl, libgnome2-perl, libgnome2-gconf-perl, imagemagick, libgtk2-imageview-perl, libgnome2-wnck-perl, libx11-protocol-perl, gtklp, libgtk2-trayicon-perl, gnome-web-photo
 Conflicts: 
 Replaces: gscrot-plugins-bash
 Provides: gscrot, gscrot-plugins-bash
-Description: screenshot taking application written in perl and Gtk2
+Description: Screenshot taking application written in perl and Gtk2
  GScrot covers all features of common command line tools like scrot or import 
  and adds reasonable new features combined with a comfortable GUI using Gtk2.
  .
