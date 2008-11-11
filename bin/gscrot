@@ -42,7 +42,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.246";
+use constant BRANCH              => "Rev.247";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -3587,15 +3587,14 @@ sub fct_save_settings {
 	$settings{ 'general' }->{ 'keybinding_mode' } =
 		$combobox_keybinding_mode->get_active();
 	$settings{ 'general' }->{ 'capture_key' } = $capture_key->get_text();
-	$settings{ 'general' }->{ 'capture_sel_key' } =
-		$capture_sel_key->get_text();
+	$settings{ 'general' }->{ 'capture_sel_key' } = $capture_sel_key->get_text();
 
 	#plugins
 	foreach my $plugin_key ( sort keys %plugins ) {
 		$settings{ 'plugins' }->{ $plugin_key }->{ 'name' } = $plugin_key;
 		$settings{ 'plugins' }->{ $plugin_key }->{ 'binary' } = $plugins{ $plugin_key }->{ 'binary' };
 		$settings{ 'plugins' }->{ $plugin_key }->{ 'name_plugin' } = $plugins{ $plugin_key }->{ 'name' };
-		$settings{ 'plugins' }->{ $plugin_key }->{ 'menu' } = $plugins{ $plugin_key }->{ 'menu' } || FALSE;
+		$settings{ 'plugins' }->{ $plugin_key }->{ 'menu' } = $plugins{ $plugin_key }->{ 'menu' };
 		$settings{ 'plugins' }->{ $plugin_key }->{ 'category' } = $plugins{ $plugin_key }->{ 'category' };
 		$settings{ 'plugins' }->{ $plugin_key }->{ 'tooltip' } = $plugins{ $plugin_key }->{  'tooltip' };
 		$settings{ 'plugins' }->{ $plugin_key }->{ 'ext' } = $plugins{ $plugin_key }->{  'ext' };
@@ -3603,7 +3602,6 @@ sub fct_save_settings {
 		utf8::encode $settings{ 'plugins' }->{ $plugin_key }->{ 'name' };
 		utf8::encode $settings{ 'plugins' }->{ $plugin_key }->{ 'binary' };
 		utf8::encode $settings{ 'plugins' }->{ $plugin_key }->{ 'name_plugin' };
-		utf8::encode $settings{ 'plugins' }->{ $plugin_key }->{ 'menu' };
 		utf8::encode $settings{ 'plugins' }->{ $plugin_key }->{ 'category' };
 		utf8::encode $settings{ 'plugins' }->{ $plugin_key }->{ 'tooltip' };
 		utf8::encode $settings{ 'plugins' }->{ $plugin_key }->{ 'ext' };
@@ -3657,7 +3655,7 @@ sub fct_save_settings {
 		or
 		&dlg_error_message( $d->get( "Account-settings could not be saved!" ) );
 
-	return 1;
+	return TRUE;
 }
 
 sub fct_save_bindings {
@@ -3845,14 +3843,13 @@ sub fct_load_settings {
 	foreach my $plugin_key ( sort keys %{ $settings_xml->{ 'plugins' } } ) {
 		utf8::decode $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'binary' };
 		utf8::decode $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'name_plugin' };
-		utf8::decode $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'menu' };
 		utf8::decode $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'category' };
 		utf8::decode $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'tooltip' };
 		utf8::decode $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'ext' };
 		utf8::decode $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'lang' };	
 		$plugins{ $plugin_key }->{'binary'} = $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'binary' };
 		$plugins{ $plugin_key }->{'name'} = $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'name_plugin' };
-		$plugins{ $plugin_key }->{'menu'} = $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'menu' } || FALSE;
+		$plugins{ $plugin_key }->{'menu'} = $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'menu' };
 		$plugins{ $plugin_key }->{'category'} = $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'category' };
 		$plugins{ $plugin_key }->{'tooltip'} = $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'tooltip' };
 		$plugins{ $plugin_key }->{'ext'} = $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'ext' };
@@ -3978,6 +3975,7 @@ sub fct_load_session {
 
 sub fct_file_exists {
 	my ( $filename ) = @_;
+	return FALSE unless $filename;
 	$filename = &fct_switch_home_in_file( $filename );
 	return TRUE if ( -f $filename );
 	return FALSE;
@@ -5472,7 +5470,10 @@ sub fct_check_installed_plugins {
 
 				if ( &fct_file_exists( "$_/$dir_name" ) ) {
 
-					unless ( $plugins{ $_ }) {
+					unless ( $plugins{ $_ }->{ 'binary' }
+					&& $plugins{ $_ }->{ 'name' } && $plugins{ $_ }->{ 'category' }
+					&& $plugins{ $_ }->{ 'tooltip' } && $plugins{ $_ }->{ 'ext' }
+					&& $plugins{ $_ }->{ 'lang' }) {
 								
 						print "\nINFO: new plugin detected - $_/$dir_name\n";
 
@@ -5480,7 +5481,7 @@ sub fct_check_installed_plugins {
 						$plugins{ $_ }->{ 'binary' } = "$_/$dir_name";
 
 						#menu flag
-						$plugins{ $_ }->{ 'menu' } = FALSE;
+						$plugins{ $_ }->{ 'menu' } = FALSE unless $plugins{ $_ }->{ 'menu' };
 
 						#name
 						$plugins{ $_ }->{ 'name' } =
@@ -5510,13 +5511,13 @@ sub fct_check_installed_plugins {
 						$plugins{ $_ }->{ 'lang' } = "shell"
 							if $plugins{ $_ }->{ 'lang' } eq "";
 
-						chomp( $plugins{ $_ }->{ 'name' } );
-						chomp( $plugins{ $_ }->{ 'category' } );
-						chomp( $plugins{ $_ }->{ 'tooltip' } );
-						chomp( $plugins{ $_ }->{ 'ext' } );
-						chomp( $plugins{ $_ }->{ 'lang' } );
-
 					}
+
+					chomp( $plugins{ $_ }->{ 'name' } );
+					chomp( $plugins{ $_ }->{ 'category' } );
+					chomp( $plugins{ $_ }->{ 'tooltip' } );
+					chomp( $plugins{ $_ }->{ 'ext' } );
+					chomp( $plugins{ $_ }->{ 'lang' } );
 
 					#check if plugin can handle png and/or jpeg
 					$plugins{ $_ }->{ 'pixbuf_jpeg' } = 'gtk-no';
@@ -5538,6 +5539,7 @@ sub fct_check_installed_plugins {
 											 $plugins{ $_ }->{ 'pixbuf' },
 											 Gtk2::IconSize->lookup( 'menu' ) );
 					} else {
+						$plugins{ $_ }->{ 'pixbuf' } = "$gscrot_root/share/gscrot/resources/icons/executable.svg";
 						$plugins{ $_ }->{ 'pixbuf_object' } =
 							Gtk2::Gdk::Pixbuf->new_from_file_at_size(
 							"$gscrot_root/share/gscrot/resources/icons/executable.svg",
@@ -5964,6 +5966,7 @@ sub fct_load_plugin_tree {
 							   );
 		} else {
 			print "WARNING: Plugin $_ is not configured properly, ignoring\n";
+			delete $plugins{ $_ };
 		}
 	}
 
