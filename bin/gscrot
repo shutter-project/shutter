@@ -84,8 +84,7 @@ my %plugins;        #hash to store plugin infos
 my %accounts;       #hash to store account infos
 my %settings;       #hash to store settings
 &fct_init;
-&fct_check_installed_programs;
-&fct_check_installed_plugins;
+&fct_init_framework_versions;
 &fct_load_accounts;
 
 #--------------------------------------
@@ -237,6 +236,9 @@ if ( defined $settings_xml->{ 'general' }->{ 'last_profile' } ) {
 						$settings_xml->{ 'general' }->{ 'last_profile_name' } );
 	}
 }
+
+&fct_check_installed_programs;
+&fct_check_installed_plugins;
 
 #menu
 #--------------------------------------
@@ -2364,23 +2366,27 @@ sub evt_in_tab {
 	}
 	if ( $key =~ m/^reopen\[/ ) {
 		$key =~ s/^reopen//;
-		my $model          = $progname->get_model();
-		my $progname_iter  = $progname->get_active_iter();
-		my $progname_value = $model->get_value( $progname_iter, 2 );
-
-		unless (
-				 &fct_create_thumbnail_and_fileinfos(
+		my $model         = $progname->get_model();
+		my $progname_iter = $progname->get_active_iter();
+		my $progname_value = "";
+		if ( $progname_iter ) {
+			$progname_value =
+				$model->get_value( $progname_iter, 2 );
+			unless (
+					 &fct_create_thumbnail_and_fileinfos(
 								  $session_screens{ $key }->{ 'filename' }, $key
-				 )
-			   )
-		{
-			&dlg_status_message(
-								 1,
-								 $session_screens{ $key }->{ 'filename' } . " "
-									 . $d->get( "not found" )
-							   );
-			&fct_update_tab( $key );
-			return 0;
+					 )
+				   )
+			{
+				&dlg_status_message(
+									 1,
+									 $session_screens{ $key }->{ 'filename' }
+										 . " "
+										 . $d->get( "not found" )
+								   );
+				&fct_update_tab( $key );
+				return FALSE;
+			}
 		}
 		unless ( $progname_value =~ /[a-zA-Z0-9]+/ ) {
 			&dlg_error_message(
@@ -2575,8 +2581,13 @@ sub evt_in_tab {
 	if ( $key =~ m/^reopen$/ ) {
 		my $model          = $progname->get_model();
 		my $progname_iter  = $progname->get_active_iter();
-		my $progname_value = $model->get_value( $progname_iter, 2 );
-		my $open_files;
+
+		my $progname_value = "";
+		my $open_files = "";
+		
+		if($progname_iter){
+			$progname_value = $model->get_value( $progname_iter, 2 );	
+		}
 
 		unless ( $progname_value =~ /[a-zA-Z0-9]+/ ) {
 			&dlg_error_message(
@@ -3270,6 +3281,7 @@ sub fct_create_tab {
 
 		#add plugins to toolbar
 		foreach ( sort keys %plugins ) {
+			next unless $plugins{ $_ }->{ 'binary' };
 			my $btn =
 				Gtk2::ToolButton->new(
 								   Gtk2::Image->new_from_pixbuf(
@@ -3579,8 +3591,23 @@ sub fct_save_settings {
 		$capture_sel_key->get_text();
 
 	#plugins
-	foreach ( sort keys %plugins ) {
-		$settings{ 'plugins' }->{ $_ }->{ 'menu' } = $plugins{ $_ }->{ 'menu' };
+	foreach my $plugin_key ( sort keys %plugins ) {
+		$settings{ 'plugins' }->{ $plugin_key }->{ 'name' } = $plugin_key;
+		$settings{ 'plugins' }->{ $plugin_key }->{ 'binary' } = $plugins{ $plugin_key }->{ 'binary' };
+		$settings{ 'plugins' }->{ $plugin_key }->{ 'name_plugin' } = $plugins{ $plugin_key }->{ 'name' };
+		$settings{ 'plugins' }->{ $plugin_key }->{ 'menu' } = $plugins{ $plugin_key }->{ 'menu' } || FALSE;
+		$settings{ 'plugins' }->{ $plugin_key }->{ 'category' } = $plugins{ $plugin_key }->{ 'category' };
+		$settings{ 'plugins' }->{ $plugin_key }->{ 'tooltip' } = $plugins{ $plugin_key }->{  'tooltip' };
+		$settings{ 'plugins' }->{ $plugin_key }->{ 'ext' } = $plugins{ $plugin_key }->{  'ext' };
+		$settings{ 'plugins' }->{ $plugin_key }->{ 'lang' } = $plugins{ $plugin_key }->{ 'lang'};
+		utf8::encode $settings{ 'plugins' }->{ $plugin_key }->{ 'name' };
+		utf8::encode $settings{ 'plugins' }->{ $plugin_key }->{ 'binary' };
+		utf8::encode $settings{ 'plugins' }->{ $plugin_key }->{ 'name_plugin' };
+		utf8::encode $settings{ 'plugins' }->{ $plugin_key }->{ 'menu' };
+		utf8::encode $settings{ 'plugins' }->{ $plugin_key }->{ 'category' };
+		utf8::encode $settings{ 'plugins' }->{ $plugin_key }->{ 'tooltip' };
+		utf8::encode $settings{ 'plugins' }->{ $plugin_key }->{ 'ext' };
+		utf8::encode $settings{ 'plugins' }->{ $plugin_key }->{ 'lang' };										
 	}
 
 	#settings
@@ -3815,8 +3842,21 @@ sub fct_load_settings {
 	}
 
 	#plugins
-	foreach ( sort keys %plugins ) {
-		$plugins{ $_ }->{ 'menu' } = $settings_xml->{ 'plugins' }->{ $_ }->{ 'menu' } || FALSE;
+	foreach my $plugin_key ( sort keys %{ $settings_xml->{ 'plugins' } } ) {
+		utf8::decode $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'binary' };
+		utf8::decode $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'name_plugin' };
+		utf8::decode $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'menu' };
+		utf8::decode $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'category' };
+		utf8::decode $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'tooltip' };
+		utf8::decode $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'ext' };
+		utf8::decode $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'lang' };	
+		$plugins{ $plugin_key }->{'binary'} = $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'binary' };
+		$plugins{ $plugin_key }->{'name'} = $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'name_plugin' };
+		$plugins{ $plugin_key }->{'menu'} = $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'menu' } || FALSE;
+		$plugins{ $plugin_key }->{'category'} = $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'category' };
+		$plugins{ $plugin_key }->{'tooltip'} = $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'tooltip' };
+		$plugins{ $plugin_key }->{'ext'} = $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'ext' };
+		$plugins{ $plugin_key }->{'lang'} = $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'lang' };				
 	}
 
 	if ( defined $effects_tree ) {
@@ -4397,7 +4437,7 @@ sub fct_gscrot_area_advanced {
 							 fill      => 'red',
 							 gravity   => 'center',
 							 text      => $text,
-							 encoding => 'UTF-8',
+							 encoding  => 'UTF-8',
 						   );
 
 	my $root_pixbuf_text =
@@ -5417,55 +5457,115 @@ sub fct_get_next_filename {
 
 sub fct_check_installed_plugins {
 	print "\nINFO: checking installed plugins...\n";
-	foreach ( sort keys %plugins ) {
-		if ( $plugins{ $_ }->{ 'binary' } ) {
-			unless ( &fct_file_exists( $plugins{ $_ }->{ 'binary' } ) ) {
-				print " Could not detect binary for program $_, ignoring\n";
-				delete $plugins{ $_ };
-				next;
-			} else {
 
-				#get translated plugin-name
-				$plugins{ $_ }->{ 'name' } = `$plugins{$_}->{'binary'} name`;
-				utf8::decode $plugins{ $_ }->{ 'name' };
-				$plugins{ $_ }->{ 'category' } =
-					`$plugins{$_}->{'binary'} sort`;
-				utf8::decode $plugins{ $_ }->{ 'category' };
-				$plugins{ $_ }->{ 'tooltip' } = `$plugins{$_}->{'binary'} tip`;
-				utf8::decode $plugins{ $_ }->{ 'tooltip' };
-				$plugins{ $_ }->{ 'ext' } = `$plugins{$_}->{'binary'} ext`;
-				utf8::decode $plugins{ $_ }->{ 'ext' };
-				$plugins{ $_ }->{ 'lang' } = `$plugins{$_}->{'binary'} lang`;
-				utf8::decode $plugins{ $_ }->{ 'lang' };
-				$plugins{ $_ }->{ 'lang' } = "shell"
-					if $plugins{ $_ }->{ 'lang' } eq "";
-				chomp( $plugins{ $_ }->{ 'name' } );
-				chomp( $plugins{ $_ }->{ 'category' } );
-				chomp( $plugins{ $_ }->{ 'tooltip' } );
-				chomp( $plugins{ $_ }->{ 'ext' } );
-				chomp( $plugins{ $_ }->{ 'lang' } );
+	my @plugin_paths = (
+					   "$gscrot_root/share/gscrot/resources/system/plugins/*/*",
+					   "$ENV{'HOME'}/.gscrot/plugins/*/*"
+	);
 
-				#check if plugin can handle png and/or jpeg
-				$plugins{ $_ }->{ 'pixbuf_jpeg' } = 'gtk-no';
-				$plugins{ $_ }->{ 'pixbuf_png' }  = 'gtk-no';
-				$plugins{ $_ }->{ 'pixbuf_jpeg' } = 'gtk-yes'
-					if ( $plugins{ $_ }->{ 'ext' } =~ /jpeg/ );
-				$plugins{ $_ }->{ 'pixbuf_png' } = 'gtk-yes'
-					if ( $plugins{ $_ }->{ 'ext' } =~ /png/ );
+	foreach my $plugin_path ( @plugin_paths ) {
+		my @plugins = glob( $plugin_path );
+		foreach ( @plugins ) {
+			if ( -d $_ ) {
+				my $dir_name = $_;
+				$dir_name =~ s{^.*/}{};
 
+				if ( &fct_file_exists( "$_/$dir_name" ) ) {
+
+					unless ( $plugins{ $_ }) {
+								
+						print "\nINFO: new plugin detected - $_/$dir_name\n";
+
+						#path to executable
+						$plugins{ $_ }->{ 'binary' } = "$_/$dir_name";
+
+						#menu flag
+						$plugins{ $_ }->{ 'menu' } = FALSE;
+
+						#name
+						$plugins{ $_ }->{ 'name' } =
+							&fct_plugin_get_info( $plugins{ $_ }->{ 'binary' },
+												  'name' );
+
+						#category
+						$plugins{ $_ }->{ 'category' } =
+							&fct_plugin_get_info( $plugins{ $_ }->{ 'binary' },
+												  'sort' );
+
+						#tooltip
+						$plugins{ $_ }->{ 'tooltip' } =
+							&fct_plugin_get_info( $plugins{ $_ }->{ 'binary' },
+												  'tip' );
+
+						#extensions
+						$plugins{ $_ }->{ 'ext' } =
+							&fct_plugin_get_info( $plugins{ $_ }->{ 'binary' },
+												  'ext' );
+
+						#language (shell, perl etc.)
+						$plugins{ $_ }->{ 'lang' } =
+							&fct_plugin_get_info( $plugins{ $_ }->{ 'binary' },
+												  'lang' );
+
+						$plugins{ $_ }->{ 'lang' } = "shell"
+							if $plugins{ $_ }->{ 'lang' } eq "";
+
+						chomp( $plugins{ $_ }->{ 'name' } );
+						chomp( $plugins{ $_ }->{ 'category' } );
+						chomp( $plugins{ $_ }->{ 'tooltip' } );
+						chomp( $plugins{ $_ }->{ 'ext' } );
+						chomp( $plugins{ $_ }->{ 'lang' } );
+
+					}
+
+					#check if plugin can handle png and/or jpeg
+					$plugins{ $_ }->{ 'pixbuf_jpeg' } = 'gtk-no';
+					$plugins{ $_ }->{ 'pixbuf_png' }  = 'gtk-no';
+					$plugins{ $_ }->{ 'pixbuf_jpeg' } = 'gtk-yes'
+						if ( $plugins{ $_ }->{ 'ext' } =~ /jpeg/ );
+					$plugins{ $_ }->{ 'pixbuf_png' } = 'gtk-yes'
+						if ( $plugins{ $_ }->{ 'ext' } =~ /png/ );
+
+					#pixbuf
+					$plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.png"
+						if ( &fct_file_exists( "$_/$dir_name.png" ) );
+					$plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.svg"
+						if ( &fct_file_exists( "$_/$dir_name.svg" ) );
+
+					if ( &fct_file_exists( $plugins{ $_ }->{ 'pixbuf' } ) ) {
+						$plugins{ $_ }->{ 'pixbuf_object' } =
+							Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+											 $plugins{ $_ }->{ 'pixbuf' },
+											 Gtk2::IconSize->lookup( 'menu' ) );
+					} else {
+						$plugins{ $_ }->{ 'pixbuf_object' } =
+							Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+							"$gscrot_root/share/gscrot/resources/icons/executable.svg",
+							Gtk2::IconSize->lookup( 'menu' )
+							);
+					}
+					if ( $debug_cparam ) {
+						binmode( STDOUT, ":utf8" );
+						print
+							"$plugins{$_}->{'name'} - $plugins{$_}->{'binary'}\n";
+					}
+				} else {
+					delete $plugins{ $_ };
+				}    #endif binary exists
 			}
-			if ( $debug_cparam ) {
-				$plugins{ $_ }->{ 'name' } = `$plugins{$_}->{'binary'} name`;
-				utf8::decode $plugins{ $_ }->{ 'name' };
-				chomp( $plugins{ $_ }->{ 'name' } );
-				binmode( STDOUT, ":utf8" );
-				print "$plugins{$_}->{'name'} - $plugins{$_}->{'binary'}\n";
-			}
-		} else {
-			print "WARNING: Plugin $_ is not configured properly, ignoring\n";
 		}
 	}
+
 	return TRUE;
+}
+
+sub fct_plugin_get_info {
+	my ( $plugin, $info ) = @_;
+
+	my $plugin_info = `$plugin $info`;
+	utf8::decode $plugin_info;
+
+	return $plugin_info;
 }
 
 sub fct_create_thumbnail_and_fileinfos {
@@ -5832,8 +5932,9 @@ sub fct_load_plugin_tree {
 							  'Glib::String',  'Glib::String'
 							);
 	foreach ( sort keys %plugins ) {
-		if ( $plugins{ $_ }->{ 'binary' } ne "" ) {
+		if ( $plugins{ $_ }->{ 'binary' }) {
 			my $pixbuf;
+
 			if ( &fct_file_exists( $plugins{ $_ }->{ 'pixbuf' } ) ) {
 				$pixbuf =
 					Gtk2::Gdk::Pixbuf->new_from_file_at_size(
@@ -5845,6 +5946,7 @@ sub fct_load_plugin_tree {
 					 "$gscrot_root/share/gscrot/resources/icons/executable.svg",
 					 Gtk2::IconSize->lookup( 'menu' )
 					);
+
 			}
 
 			$effects_model->set(
@@ -6178,6 +6280,34 @@ sub fct_init {
 	} else {
 		print "INFO: no command line parameters set...\n\n";
 	}
+
+	#an old .gscrot file existing?
+	unlink( "$ENV{ 'HOME' }/.gscrot" )
+		if ( &fct_file_exists( "$ENV{ 'HOME' }/.gscrot" ) );
+
+	#an old .gscrot/settings.conf file existing?
+	unlink( "$ENV{ 'HOME' }/.gscrot/settings.conf" )
+		if ( &fct_file_exists( "$ENV{ 'HOME' }/.gscrot/settings.conf" ) );
+
+	#is there already a .gscrot folder?
+	mkdir( "$ENV{ 'HOME' }/.gscrot" )
+		unless ( -d "$ENV{ 'HOME' }/.gscrot" );
+
+	#...and a profiles folder?
+	mkdir "$ENV{'HOME'}/.gscrot/profiles"
+		unless ( -d "$ENV{'HOME'}/.gscrot/profiles" );
+
+	%gm_programs =
+		do "$gscrot_root/share/gscrot/resources/system/programs.conf";
+	if ( &fct_file_exists( "$ENV{ 'HOME' }/.gscrot/programs.conf" ) ) {
+		print
+			"\nINFO: using custom program settings found at $ENV{ 'HOME' }/.gscrot/programs.conf\n";
+		%gm_programs = do "$ENV{ 'HOME' }/.gscrot/programs.conf";
+	}
+	return TRUE;
+}
+
+sub fct_init_framework_versions {
 	if ( $debug_cparam ) {
 		print "\nINFO: gathering system information...";
 		print "\n";
@@ -6204,106 +6334,7 @@ sub fct_init {
 			if $Gtk2::VERSION >= 1.040;
 		print "\n";
 	}
-
-	#an old .gscrot file existing?
-	unlink( "$ENV{ 'HOME' }/.gscrot" )
-		if ( &fct_file_exists( "$ENV{ 'HOME' }/.gscrot" ) );
-
-	#an old .gscrot/settings.conf file existing?
-	unlink( "$ENV{ 'HOME' }/.gscrot/settings.conf" )
-		if ( &fct_file_exists( "$ENV{ 'HOME' }/.gscrot/settings.conf" ) );
-
-	#is there already a .gscrot folder?
-	mkdir( "$ENV{ 'HOME' }/.gscrot" )
-		unless ( -d "$ENV{ 'HOME' }/.gscrot" );
-
-	#...and a profiles folder?
-	mkdir "$ENV{'HOME'}/.gscrot/profiles"
-		unless ( -d "$ENV{'HOME'}/.gscrot/profiles" );
-	%gm_programs =
-		do "$gscrot_root/share/gscrot/resources/system/programs.conf";
-	if ( &fct_file_exists( "$ENV{ 'HOME' }/.gscrot/programs.conf" ) ) {
-		print
-			"\nINFO: using custom program settings found at $ENV{ 'HOME' }/.gscrot/programs.conf\n";
-		%gm_programs = do "$ENV{ 'HOME' }/.gscrot/programs.conf";
-	}
-	my @plugins =
-		glob( "$gscrot_root/share/gscrot/resources/system/plugins/*/*" );
-	foreach ( @plugins ) {
-		if ( -d $_ ) {
-			my $dir_name = $_;
-			$dir_name =~ s{^.*/}{};
-
-			#path to executable
-			$plugins{ $_ }->{ 'binary' } = "$_/$dir_name"
-				if ( &fct_file_exists( "$_/$dir_name" ) );
-
-			#menu flag
-			$plugins{ $_ }->{ 'menu' } = FALSE;
-
-			#tooltip
-			$plugins{ $_ }->{ 'tip' } = `$plugins{$_}->{'binary'} tip`;
-			utf8::decode $plugins{ $_ }->{ 'tip' };
-			chomp( $plugins{ $_ }->{ 'tip' } );
-
-			#pixbuf
-			$plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.png"
-				if ( &fct_file_exists( "$_/$dir_name.png" ) );
-			$plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.svg"
-				if ( &fct_file_exists( "$_/$dir_name.svg" ) );
-
-			if ( &fct_file_exists( $plugins{ $_ }->{ 'pixbuf' } ) ) {
-				$plugins{ $_ }->{ 'pixbuf_object' } =
-					Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-											 $plugins{ $_ }->{ 'pixbuf' },
-											 Gtk2::IconSize->lookup( 'menu' ) );
-			} else {
-				$plugins{ $_ }->{ 'pixbuf_object' } =
-					Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-					 "$gscrot_root/share/gscrot/resources/icons/executable.svg",
-					 Gtk2::IconSize->lookup( 'menu' )
-					);
-			}
-		}
-	}
-
-	if ( -d "$ENV{'HOME'}/.gscrot/plugins" ) {
-		my @custom_plugins = glob( "$ENV{'HOME'}/.gscrot/plugins/*/*" );
-		foreach ( @custom_plugins ) {
-			if ( -d $_ ) {
-				my $dir_name = $_;
-				$dir_name =~ s{^.*/}{};
-
-				#path to executable
-				$plugins{ $_ }->{ 'binary' } = "$_/$dir_name"
-					if ( &fct_file_exists( "$_/$dir_name" ) );
-
-				#tooltip
-				$plugins{ $_ }->{ 'tip' } = `$plugins{$_}->{'binary'} tip`;
-				utf8::decode $plugins{ $_ }->{ 'tip' };
-				chomp( $plugins{ $_ }->{ 'tip' } );
-
-				#pixbuf
-				$plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.png"
-					if ( &fct_file_exists( "$_/$dir_name.png" ) );
-				$plugins{ $_ }->{ 'pixbuf' } = "$_/$dir_name.svg"
-					if ( &fct_file_exists( "$_/$dir_name.svg" ) );
-				if ( &fct_file_exists( $plugins{ $_ }->{ 'pixbuf' } ) ) {
-					$plugins{ $_ }->{ 'pixbuf_object' } =
-						Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-											 $plugins{ $_ }->{ 'pixbuf' },
-											 Gtk2::IconSize->lookup( 'menu' ) );
-				} else {
-					$plugins{ $_ }->{ 'pixbuf_object' } =
-						Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-						"$gscrot_root/share/gscrot/resources/icons/executable.svg",
-						Gtk2::IconSize->lookup( 'menu' )
-						);
-				}
-			}
-		}
-		return TRUE;
-	}
+	return TRUE;
 }
 
 #--------------------------------------
@@ -6314,7 +6345,7 @@ sub fct_init {
 sub dlg_status_message {
 	my ( $index, $status_text ) = @_;
 	$statusbar->push( $index, $status_text );
-	return 1;
+	return TRUE;
 }
 
 sub dlg_error_message {
@@ -6446,7 +6477,7 @@ sub dlg_plugin {
 						 $plugins{ $_ }->{ 'name' },          2,
 						 $plugins{ $_ }->{ 'binary' },        3,
 						 $plugins{ $_ }->{ 'lang' },          4,
-						 $plugins{ $_ }->{ 'tip' },           5,
+						 $plugins{ $_ }->{ 'tooltip' },           5,
 						 $_
 					   );
 		} else {
