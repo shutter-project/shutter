@@ -42,7 +42,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.247";
+use constant BRANCH              => "Rev.248";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -85,6 +85,7 @@ my %accounts;       #hash to store account infos
 my %settings;       #hash to store settings
 &fct_init;
 &fct_init_framework_versions;
+&fct_check_installed_programs;
 &fct_load_accounts;
 
 #--------------------------------------
@@ -236,9 +237,6 @@ if ( defined $settings_xml->{ 'general' }->{ 'last_profile' } ) {
 						$settings_xml->{ 'general' }->{ 'last_profile_name' } );
 	}
 }
-
-&fct_check_installed_programs;
-&fct_check_installed_plugins;
 
 #menu
 #--------------------------------------
@@ -3856,6 +3854,8 @@ sub fct_load_settings {
 		$plugins{ $plugin_key }->{'lang'} = $settings_xml->{ 'plugins' }->{ $plugin_key }->{ 'lang' };				
 	}
 
+	&fct_check_installed_plugins;
+
 	if ( defined $effects_tree ) {
 		&fct_load_plugin_tree;
 		$effects_tree->set_model( $effects_model );
@@ -5475,7 +5475,7 @@ sub fct_check_installed_plugins {
 					&& $plugins{ $_ }->{ 'tooltip' } && $plugins{ $_ }->{ 'ext' }
 					&& $plugins{ $_ }->{ 'lang' }) {
 								
-						print "\nINFO: new plugin detected - $_/$dir_name\n";
+						print "\nINFO: new plugin information detected - $_/$dir_name\n";
 
 						#path to executable
 						$plugins{ $_ }->{ 'binary' } = "$_/$dir_name";
