@@ -1,28 +1,45 @@
-#Copyright (C) Mario Kemper 2008 <mario.kemper@googlemail.com> Mi, 09 Apr 2008 22:58:09 +0200 
-
-#This program is free software: you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation, either version 3 of the License, or
-#(at your option) any later version.
-
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
+###################################################
 #
-#You should have received a copy of the GNU General Public License
-#along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  Copyright (C) Mario Kemper 2008 <mario.kemper@googlemail.com>
+#
+#  This file is part of GScrot.
+#
+#  GScrot is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  GScrot is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with GScrot; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+###################################################
 
 package GScrot::Draw;
-use strict;
-our(@ISA, @EXPORT);
-use Exporter;
-my $VERSION = 1.00;
-@ISA = qw(Exporter);
 
+our(@ISA, @EXPORT);
+@ISA = qw(Exporter);
 @EXPORT = qw(&fct_start_drawing);
-use Glib qw/TRUE FALSE/;
-use Gnome2;
+
+#modules
+#--------------------------------------
+use utf8;
+use strict;
+use Exporter;
+use Gnome2::Canvas;
+#--------------------------------------
+
+#define constants
+#--------------------------------------
+use constant TRUE                => 1;
+use constant FALSE               => 0;
+
+#--------------------------------------
 
 #modal drawing window
 my $drawing_pixbuf = undef;
