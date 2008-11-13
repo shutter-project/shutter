@@ -3,8 +3,22 @@
 #if your are setting up a new file that contains 
 #translateable strings, put the relative path in this listing
 
+#main app
 ../bin/gscrot
+
+#modules
+../share/gscrot/resources/modules/GScrot/Upload/ImageShack.pm
+../share/gscrot/resources/modules/GScrot/Upload/UbuntuPics.pm
+../share/gscrot/resources/modules/GScrot/Upload/ImageBanana.pm
 ../share/gscrot/resources/modules/GScrot/Draw.pm
+../share/gscrot/resources/modules/GScrot/Screenshot/Window.pm
+../share/gscrot/resources/modules/GScrot/Screenshot/SelectorSimple.pm
+../share/gscrot/resources/modules/GScrot/Screenshot/Main.pm
+../share/gscrot/resources/modules/GScrot/Screenshot/Web.pm
+../share/gscrot/resources/modules/GScrot/Screenshot/SelectorAdvanced.pm
+../share/gscrot/resources/modules/GScrot/Screenshot/Workspace.pm
+
+#plugins
 #../share/gscrot/resources/system/plugins/perl/gspnegate/gspnegate
 #../share/gscrot/resources/system/plugins/perl/gspresize/gspresize
 #../share/gscrot/resources/system/plugins/perl/gspsepia/gspsepia
