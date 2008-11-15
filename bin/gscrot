@@ -27,18 +27,33 @@
 use utf8;
 use strict;
 use warnings;
+
+#Gtk2
 use Gtk2 '-init';
 use Gtk2::Gdk::Keysyms;
 use Gtk2::Pango;
+
+#GConf - used for metacity keybindings
 use Gnome2::GConf;
+
+#Image operations
 use Image::Magick;
+
+#File operations
 use File::Copy;
 use File::Basename;
+
+#Gettext and filename parsing
 use POSIX qw/setlocale strftime/;
 use Locale::gettext;
+
+#handle upload responses properly
 use HTTP::Status;
+
+#load and save settings
 use XML::Simple;
-use Data::Dumper;
+
+#internal use
 use FindBin '$Bin';
 
 #--------------------------------------
@@ -47,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.251";
+use constant BRANCH              => "Rev.252";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -3379,7 +3394,7 @@ sub fct_load_settings {
 			$settings_xml = XMLin($settingsfile);
 
 			if ( $data eq 'profile_load' ) {
-				
+
 				#general settings
 				$combobox_type->set_active( $settings_xml->{'general'}->{'filetype'} );
 				$scale->set_value( $settings_xml->{'general'}->{'quality'} );
@@ -3413,7 +3428,7 @@ sub fct_load_settings {
 						$_->set_active(TRUE);
 					}
 				}
-				
+
 				#advanced settings
 				my $model = $progname->get_model;
 				utf8::decode $settings_xml->{'general'}->{'prog'};
@@ -3429,7 +3444,7 @@ sub fct_load_settings {
 				$thumbnail_active->set_active( $settings_xml->{'general'}->{'thumbnail_active'} );
 				$combobox_border->set_active( $settings_xml->{'general'}->{'border'} );
 				$combobox_cursor->set_active( $settings_xml->{'general'}->{'cursor'} );
-				
+
 				#behavior
 				$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
 				$autocopy_active->set_active( $settings_xml->{'general'}->{'autocopy'} );
@@ -5152,16 +5167,9 @@ sub dlg_upload {
 	$hosting_hbox1->pack_start_defaults($hosting);
 	$hosting_hbox2->pack_start_defaults($hosting_image);
 
-	my $radio_imagehoster = Gtk2::RadioButton->new( undef, $d->get("Upload file to hosting-site") );
-	$hosting_dialog->vbox->add($radio_imagehoster);
-	$hosting_dialog->vbox->add($hosting_hbox1);
-	$hosting_dialog->vbox->add($hosting_hbox2);
-
 	#ftp settings
 	#we are using the same widgets as in the settings and populate
 	#them with saved values when possible
-	my $radio_ftp = Gtk2::RadioButton->new( $radio_imagehoster, $d->get("Upload file via FTP") );
-	$hosting_dialog->vbox->add($radio_ftp);
 
 	my $ftp_hbox1_dlg = Gtk2::HBox->new( TRUE, 0 );
 	my $ftp_hbox2_dlg = Gtk2::HBox->new( TRUE, 0 );
@@ -5198,6 +5206,42 @@ sub dlg_upload {
 	$ftp_vbox_dlg->pack_start( $ftp_hbox3_dlg, FALSE, TRUE, 1 );
 	$ftp_vbox_dlg->pack_start( $ftp_hbox4_dlg, FALSE, TRUE, 1 );
 
+	#default setting
+	$hosting->set_sensitive(TRUE);
+	$ftp_remote_entry_dlg->set_sensitive(FALSE);
+	$ftp_mode_combo_dlg->set_sensitive(FALSE);
+	$ftp_username_entry_dlg->set_sensitive(FALSE);
+	$ftp_password_entry_dlg->set_sensitive(FALSE);
+
+	#handle radiobuttons
+	my $radio_imagehoster = Gtk2::RadioButton->new( undef, $d->get("Upload file to hosting-site") );
+	$radio_imagehoster->signal_connect(
+		'clicked' => sub {
+			$hosting->set_sensitive(TRUE);
+			$ftp_remote_entry_dlg->set_sensitive(FALSE);
+			$ftp_mode_combo_dlg->set_sensitive(FALSE);
+			$ftp_username_entry_dlg->set_sensitive(FALSE);
+			$ftp_password_entry_dlg->set_sensitive(FALSE);
+		}
+	);
+
+	my $radio_ftp = Gtk2::RadioButton->new( $radio_imagehoster, $d->get("Upload file via FTP") );
+	$radio_ftp->signal_connect(
+		'clicked' => sub {
+			$hosting->set_sensitive(FALSE);
+			$ftp_remote_entry_dlg->set_sensitive(TRUE);
+			$ftp_mode_combo_dlg->set_sensitive(TRUE);
+			$ftp_username_entry_dlg->set_sensitive(TRUE);
+			$ftp_password_entry_dlg->set_sensitive(TRUE);
+		}
+	);
+
+	#final packing
+	$hosting_dialog->vbox->add($radio_imagehoster);
+	$hosting_dialog->vbox->add($hosting_hbox1);
+	$hosting_dialog->vbox->add($hosting_hbox2);
+
+	$hosting_dialog->vbox->add($radio_ftp);
 	$hosting_dialog->vbox->add($ftp_vbox_dlg);
 
 	$hosting_dialog->show_all;

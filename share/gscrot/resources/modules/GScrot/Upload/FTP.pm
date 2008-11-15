@@ -75,11 +75,11 @@ sub upload {
 	( $self->{_prot}, $self->{_auth}, $self->{_path}, $self->{_query}, $self->{_frage} )
 		= uri_split($u);
 
-	#get port
-	$self->{_auth} =~ /(.*):(\d{1,5})/ig;
+	#get port and host
+	$self->{_auth} =~ /(.*):?([0-9]?)/;
 	$self->{_host} = $1;
 	$self->{_port} = $2 || 21;
-
+	
 	#check uri and return if anything is missing
 	unless ($self->{_host} && $self->{_port}){
 		return $self->{_gettext_object}->get("Illegal URI!") . "\n"
@@ -97,10 +97,10 @@ sub upload {
 	utf8::encode $self->{_password} if $self->{_password};
 
 	#CONNECT TO FTP SERVER
-	$self->{_ftp} = Net::FTP->new( $self->{_host}, Passive => $self->{_mode}, Port => $self->{_port} )
+	$self->{_ftp} = Net::FTP->new( $self->{_host}, Passive => $self->{_mode}, Port => $self->{_port})
 		or return $self->{_gettext_object}->get("Connection error!") . "\n"
 		. $self->{_gettext_object}->get("Please check your connectivity and try again.") . "\n("
-		. chomp($@) . ")";
+		. $@ . ")";
 	
 	#TRY TO LOGIN WITH GIVEN CREDENTIALS	
 	$self->{_ftp}->login( $self->{_username}, $self->{_password} )
