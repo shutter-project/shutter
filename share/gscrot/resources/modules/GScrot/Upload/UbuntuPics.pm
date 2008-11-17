@@ -56,6 +56,9 @@ sub new {
 	$self->{_filename} = undef;
 	$self->{_username} = undef;
 	$self->{_password} = undef;
+
+	$self->{_notebook} = Gtk2::Notebook->new;
+	$self->{_notebook}->set( homogeneous => 1 );
 	
 	bless $self, $class;
 	return $self;
@@ -154,19 +157,15 @@ sub upload
 	}
 }
 
-sub show {
+sub create_tab {
 	my $self = shift;
-
+	
 	#Clipboard
 	my $clipboard = Gtk2::Clipboard->get( Gtk2::Gdk->SELECTION_CLIPBOARD );
 
 	#Tooltips
 	my $tooltips = Gtk2::Tooltips->new;
 	
-	my $dlg_header = $self->{_gettext_object}->get("Upload") . " - " . $self->{_host} . " - " . $self->{_username};
-	my $upload_dialog = Gtk2::Dialog->new( $dlg_header, $self->{_main_gtk_window}, [qw/modal destroy-with-parent/], 'gtk-ok' => 'accept' );
-	$upload_dialog->set_default_response('accept');
-
 	my $upload_hbox   = Gtk2::HBox->new( FALSE, 0 );
 	my $upload_hbox1  = Gtk2::HBox->new( TRUE,  10 );
 	my $upload_hbox2  = Gtk2::HBox->new( FALSE, 10 );
@@ -284,8 +283,18 @@ sub show {
 	$upload_vbox->pack_start_defaults($upload_hbox6);
 	$upload_vbox->pack_start_defaults($upload_hbox8);
 	$upload_vbox->pack_start_defaults($upload_hbox10);
+	
+	return $upload_vbox;	
+}
 
-	$upload_dialog->vbox->add($upload_vbox);
+sub show_all {
+	my $self = shift;
+
+	my $dlg_header = $self->{_gettext_object}->get("Upload") . " - " . $self->{_host} . " - " . $self->{_username};
+	my $upload_dialog = Gtk2::Dialog->new( $dlg_header, $self->{_main_gtk_window}, [qw/modal destroy-with-parent/], 'gtk-ok' => 'accept' );
+	$upload_dialog->set_default_response('accept');
+
+	$upload_dialog->vbox->add($self->{_notebook});
 	$upload_dialog->show_all;
 	my $upload_response = $upload_dialog->run;
 
@@ -296,6 +305,14 @@ sub show {
 		$upload_dialog->destroy();
 		return FALSE;
 	}
+}
+
+sub show {
+	my $self = shift;
+
+	$self->{_notebook}->append_page( $self->create_tab(), $self->{_filename} );
+		
+	return TRUE;
 }
 
 sub switch_html_entities

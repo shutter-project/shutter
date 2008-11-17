@@ -64,6 +64,10 @@ sub new {
 
 
 #getter / setter
+sub get_root {
+	my $self = shift;
+	return $self->{_gscrot_root};
+}
 
 sub get_gettext {
 	my $self = shift;

@@ -62,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.254";
+use constant BRANCH              => "Rev.255";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -178,7 +178,7 @@ my $statusbar = Gtk2::Statusbar->new;
 #arrange settings in notebook
 my $notebook_settings = Gtk2::Notebook->new;
 my $settings_dialog   = Gtk2::Dialog->new(
-	GSCROT_NAME . " - " . $gscrot_common->get_gettext->get("Settings"),
+	GSCROT_NAME . " - " . $gscrot_common->get_gettext->get("Preferences"),
 	$window,
 	[qw/modal destroy-with-parent/],
 	'gtk-close' => 'close'
@@ -1110,11 +1110,18 @@ my $renderer_text = Gtk2::CellRendererText->new;
 $progname->pack_start( $renderer_text, FALSE );
 $progname->add_attribute( $renderer_text, text => 1 );
 
+#try to set the saved value
 if ( defined $settings_xml->{'general'}->{'prog'} ) {
 	$model->foreach( \&fct_iter_programs, $settings_xml->{'general'}->{'prog'} );
 } else {
 	$progname->set_active(0);
 }
+
+#nothing has been set
+if ( $progname->get_active == -1 ) {
+	$progname->set_active(0);
+}
+
 my $progname_active = Gtk2::CheckButton->new;
 $progname_active->signal_connect(
 	'toggled' => \&evt_value_changed,
@@ -2478,7 +2485,7 @@ sub fct_integrate_screenshot_in_notebook {
 		#and append page with label == key
 		my $new_index = $notebook->append_page( fct_create_tab( $key, FALSE ), $hbox_tab_label );
 		$session_screens{$key}->{'tab_child'} = $notebook->get_nth_page($new_index);
-		$tab_close_button->signal_connect(clicked => sub {&fct_remove();});
+		$tab_close_button->signal_connect( clicked => sub { &fct_remove(); } );
 
 		#		$notebook->set_tab_detachable(
 		#									  $session_screens{ $key }->{ 'tab_child' },
@@ -2793,10 +2800,11 @@ sub fct_create_tab {
 		$session_start_screen{'first_page'}->{'scrolled_window'} = $scrolled_window;
 		$session_start_screen{'first_page'}->{'view'}            = $view;
 		$session_start_screen{'first_page'}->{'model'}           = $viewmodel;
-		$session_start_screen{'first_page'}->{'btn_remove'}      = $button_remove;
-		$session_start_screen{'first_page'}->{'btn_delete'}      = $button_delete;
 		$session_start_screen{'first_page'}->{'btn_reopen'}      = $button_reopen;
 		$session_start_screen{'first_page'}->{'btn_print'}       = $button_print;
+		$session_start_screen{'first_page'}->{'btn_upload'}      = $button_upload;
+		$session_start_screen{'first_page'}->{'btn_remove'}      = $button_remove;
+		$session_start_screen{'first_page'}->{'btn_delete'}      = $button_delete;
 
 		#all buttons start insensitive
 		foreach ( keys %{ $session_start_screen{'first_page'} } ) {
@@ -2807,6 +2815,7 @@ sub fct_create_tab {
 		$tabtoolbar->insert( $button_reopen,               -1 );
 		$tabtoolbar->insert( Gtk2::SeparatorToolItem->new, -1 );
 		$tabtoolbar->insert( $button_print,                -1 );
+		$tabtoolbar->insert( $button_upload,               -1 );
 		$tabtoolbar->insert( Gtk2::SeparatorToolItem->new, -1 );
 		$tabtoolbar->insert( $button_remove,               -1 );
 		$tabtoolbar->insert( $button_delete,               -1 );
@@ -3418,6 +3427,7 @@ sub fct_delete {
 		$window->show_all;
 
 	}
+	return TRUE;
 }
 
 sub fct_remove {
@@ -3461,6 +3471,7 @@ sub fct_remove {
 		$window->show_all;
 
 	}
+	return TRUE;
 }
 
 sub fct_clipboard {
@@ -3479,6 +3490,7 @@ sub fct_clipboard {
 				. $gscrot_common->get_gettext->get("copied to clipboard") );
 
 	}
+	return TRUE;
 }
 
 sub fct_plugin {
@@ -3498,6 +3510,7 @@ sub fct_plugin {
 		&fct_update_tab($key);
 
 	}
+	return TRUE;
 }
 
 sub fct_rename {
@@ -3518,6 +3531,7 @@ sub fct_rename {
 		&fct_update_tab($key);
 
 	}
+	return TRUE;
 }
 
 sub fct_draw {
@@ -3537,20 +3551,41 @@ sub fct_draw {
 		&fct_update_tab($key);
 
 	}
+	return TRUE;
 }
 
 sub fct_upload {
 
 	my $key = &fct_get_current_file;
 
+	my @upload_array;
+
 	#single file
 	if ($key) {
 
 		return FALSE unless &fct_screenshot_exists($key);
+		push( @upload_array, $session_screens{$key}->{'filename'} );
+		&dlg_upload(@upload_array);
 
-		&dlg_upload( $session_screens{$key}->{'filename'} );
+		#session tab
+	} else {
 
+		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
+			sub {
+				my ( $view, $path ) = @_;
+				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
+				if ( defined $iter ) {
+					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
+					return FALSE unless &fct_screenshot_exists($key);
+					push( @upload_array, $session_screens{$key}->{'filename'} );
+				}
+
+			},
+			undef
+		);
+		&dlg_upload(@upload_array);
 	}
+	return TRUE;
 }
 
 sub fct_print {
@@ -3592,6 +3627,7 @@ sub fct_print {
 		}
 
 	}
+	return TRUE;
 }
 
 sub fct_open_with_program {
@@ -3670,6 +3706,7 @@ sub fct_open_with_program {
 			$gscrot_common->get_gettext->get("Opened all files with") . " " . $progname_value );
 
 	}
+	return TRUE;
 }
 
 sub fct_execute_plugin {
@@ -3738,6 +3775,7 @@ sub fct_execute_plugin {
 		}
 	}
 	&fct_update_tab($key);
+	return TRUE;
 }
 
 sub fct_usage {
@@ -3755,6 +3793,8 @@ sub fct_usage {
 		. "--debug (prints a lot of debugging information to STDOUT)\n"
 		. "--disable_systray (disable systray icon)\n"
 		. "--help (displays this help)\n";
+
+	return TRUE;
 }
 
 sub fct_update_first_tab {
@@ -4040,13 +4080,13 @@ sub fct_check_installed_programs {
 			}
 		}
 	}
-	
+
 	#update list of available programs in settings dialog as well
-	if($progname){
+	if ($progname) {
 
 		my $model         = $progname->get_model();
 		my $progname_iter = $progname->get_active_iter();
-	
+
 		#get last prog
 		my $progname_value;
 		if ( defined $progname_iter ) {
@@ -4057,21 +4097,21 @@ sub fct_check_installed_programs {
 		#rebuild model with new hash of installed programs...
 		$model = &fct_get_program_model;
 		$progname->set_model($model);
-		#...and try to set last	value		
-		if ( $progname_value ) {
+
+		#...and try to set last	value
+		if ($progname_value) {
 			$model->foreach( \&fct_iter_programs, $progname_value );
 		} else {
+			$progname->set_active(0);
+		}
+
+		#nothing has been set
+		if ( $progname->get_active == -1 ) {
 			$progname->set_active(0);
 		}
 	}
 
 	return TRUE;
-}
-
-sub fct_get_max {
-	my ( $a, $b ) = @_;
-	return $a if ( $a > $b );
-	return $b;
 }
 
 sub fct_get_next_filename {
@@ -5229,8 +5269,11 @@ sub dlg_plugin {
 }
 
 sub dlg_upload {
-	my ($file_to_upload) = @_;
-	my $dlg_header = $gscrot_common->get_gettext->get("Upload") . "  " . $file_to_upload;
+	my (@files_to_upload) = @_;
+
+	return FALSE if @files_to_upload < 1;
+
+	my $dlg_header = $gscrot_common->get_gettext->get("Upload");
 	my $hosting_dialog = Gtk2::Dialog->new( $dlg_header, $window, [qw/modal destroy-with-parent/] );
 
 	$hosting_dialog->add_button( 'gtk-cancel', 'reject' );
@@ -5417,39 +5460,43 @@ sub dlg_upload {
 					my $uploader
 						= GScrot::Upload::UbuntuPics->new( $hosting_host, $gscrot_common->get_debug,
 						$gscrot_root, $gscrot_common->get_gettext, $window, GSCROT_VERSION );
-					my %upload_response
-						= $uploader->upload( &fct_switch_home_in_file($file_to_upload),
-						$hosting_username, $hosting_password );
+					foreach my $file (@files_to_upload) {
+						my %upload_response = $uploader->upload( &fct_switch_home_in_file($file),
+							$hosting_username, $hosting_password );
 
-					if ( is_success( $upload_response{'status'} ) ) {
-						$uploader->show;
-						&dlg_status_message( 1,
-							$file_to_upload . " " . $gscrot_common->get_gettext->get("uploaded") );
-					} else {
-						&dlg_upload_error_message( $upload_response{'status'},
-							$upload_response{'max_filesize'} );
-						next;
+						if ( is_success( $upload_response{'status'} ) ) {
+							$uploader->show;
+							&dlg_status_message( 1,
+								$file . " " . $gscrot_common->get_gettext->get("uploaded") );
+						} else {
+							&dlg_upload_error_message( $upload_response{'status'},
+								$upload_response{'max_filesize'} );
+							next;
+						}
 					}
+					$uploader->show_all;
 				} elsif ( $hosting_host eq "imagebanana.com" ) {
 					my $uploader
 						= GScrot::Upload::ImageBanana->new( $hosting_host,
 						$gscrot_common->get_debug, $gscrot_root, $gscrot_common->get_gettext,
 						$window, GSCROT_VERSION );
-					my %upload_response
-						= $uploader->upload( &fct_switch_home_in_file($file_to_upload),
-						$hosting_username, $hosting_password );
+					foreach my $file (@files_to_upload) {
+						my %upload_response = $uploader->upload( &fct_switch_home_in_file($file),
+							$hosting_username, $hosting_password );
 
-					if ( is_success( $upload_response{'status'} ) ) {
-						$uploader->show;
-						&dlg_status_message( 1,
-							$file_to_upload . " " . $gscrot_common->get_gettext->get("uploaded") );
-					} else {
-						&dlg_upload_error_message( $upload_response{'status'},
-							$upload_response{'max_filesize'} );
-						next;
+						if ( is_success( $upload_response{'status'} ) ) {
+							$uploader->show;
+							&dlg_status_message( 1,
+								$file . " " . $gscrot_common->get_gettext->get("uploaded") );
+						} else {
+							&dlg_upload_error_message( $upload_response{'status'},
+								$upload_response{'max_filesize'} );
+							next;
+						}
 					}
+					$uploader->show_all;
 				} elsif ( $hosting_host eq "imageshack.us" ) {
-					my $ishack = GScrot::ImageShack->new();
+					my $ishack = GScrot::Upload::ImageShack->new();
 
 					#login
 					eval { $ishack->login($hosting_username); };
@@ -5463,34 +5510,38 @@ sub dlg_upload {
 					}
 
 					#upload
-					my $url = undef;
-					eval { $url = $ishack->host( $file_to_upload, undef ); };
-					if ($@) {
-						&dlg_error_message(
-							$gscrot_common->get_gettext->get("Connection error!") . "\n"
-								. $gscrot_common->get_gettext->get(
-								"Please check your connectivity and try again.")
-						);
-						next;
-					}
+					foreach my $file (@files_to_upload) {
+						my $url = undef;
+						eval { $url = $ishack->host( $file, undef ); };
+						if ($@) {
+							&dlg_error_message(
+								$gscrot_common->get_gettext->get("Connection error!") . "\n"
+									. $gscrot_common->get_gettext->get(
+									"Please check your connectivity and try again.")
+							);
+							next;
+						}
 
-					#get thumbnail url
-					my $thumb_url = undef;
-					eval { $thumb_url = $ishack->hosted_thumb; };
+						#get thumbnail url
+						my $thumb_url = undef;
+						eval { $thumb_url = $ishack->hosted_thumb; };
 
-					if ($url) {
-						$ishack->show( $hosting_host, $hosting_username, $url, $thumb_url, RC_OK,
-							$gscrot_common->get_gettext, $window, $gscrot_root );
-						&dlg_status_message( 1,
-							$file_to_upload . " " . $gscrot_common->get_gettext->get("uploaded") );
-					} else {
-						&dlg_error_message(
-							$gscrot_common->get_gettext->get("Connection error!") . "\n"
-								. $gscrot_common->get_gettext->get(
-								"Please check your connectivity and try again.")
-						);
-						next;
+						if ($url) {
+							$ishack->show( $hosting_host, $hosting_username, $file, $url,
+								$thumb_url, RC_OK, $gscrot_common->get_gettext, $window,
+								$gscrot_root );
+							&dlg_status_message( 1,
+								$file . " " . $gscrot_common->get_gettext->get("uploaded") );
+						} else {
+							&dlg_error_message(
+								$gscrot_common->get_gettext->get("Connection error!") . "\n"
+									. $gscrot_common->get_gettext->get(
+									"Please check your connectivity and try again.")
+							);
+							next;
+						}
 					}
+					$ishack->show_all;
 
 				}
 
@@ -5501,22 +5552,24 @@ sub dlg_upload {
 					$gscrot_common->get_gettext, $window,
 					$ftp_mode_combo_dlg->get_active
 				);
-				my $upload_response = $uploader->upload(
-					$ftp_remote_entry_dlg->get_text,   &fct_switch_home_in_file($file_to_upload),
-					$ftp_username_entry_dlg->get_text, $ftp_password_entry_dlg->get_text
-				);
+				foreach my $file (@files_to_upload) {
+					my $upload_response = $uploader->upload(
+						$ftp_remote_entry_dlg->get_text,   &fct_switch_home_in_file($file),
+						$ftp_username_entry_dlg->get_text, $ftp_password_entry_dlg->get_text
+					);
 
-				#upload returns FALSE if there is no error
-				unless ($upload_response) {
+					#upload returns FALSE if there is no error
+					unless ($upload_response) {
 
-					#everything is fine here
-					&dlg_status_message( 1,
-						$file_to_upload . " " . $gscrot_common->get_gettext->get("uploaded") );
-				} else {
+						#everything is fine here
+						&dlg_status_message( 1,
+							$file . " " . $gscrot_common->get_gettext->get("uploaded") );
+					} else {
 
-					#we already get translated error messaged back
-					&dlg_error_message($upload_response);
-					next;
+						#we already get translated error messaged back
+						&dlg_error_message($upload_response);
+						next;
+					}
 				}
 			}
 

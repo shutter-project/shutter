@@ -38,7 +38,7 @@ A thumbnail is always created.
 
 =cut
 
-package GScrot::Uplaod::ImageShack;
+package GScrot::Upload::ImageShack;
 
 use LWP::UserAgent;
 use HTTP::Response;
@@ -97,7 +97,7 @@ No verification on the validity of the user_id is currently made
 
 =cut
 
-sub new{
+sub new {
 	my ($pack, %attrs) = @_;
 
 	my $self = bless {}, $pack;
@@ -126,6 +126,20 @@ sub new{
 
 		$self->login($login);
 	}
+
+	#FOLLOWING ATTS ADDED BY GSCROT TEAM - quick and dirty - maybe fixme
+	$self->{_host} = undef;
+	$self->{_username} = undef;
+	$self->{_filename} = undef;
+	$self->{_url} = undef;
+	$self->{_url_thumb} = undef;
+	$self->{_status} = undef;
+	$self->{_gettext_object} = undef;
+	$self->{_main_gtk_window} = undef;
+	$self->{_gscrot_root} = undef;
+
+	$self->{_notebook} = Gtk2::Notebook->new;
+	$self->{_notebook}->set( homogeneous => 1 );
 
 	return $self;
 }
@@ -333,20 +347,14 @@ sub logout{
 }
 
 # Preloaded methods go here.
-sub show {
+sub create_tab {
 	my $self = shift;
-	
-	my ( $host, $username, $url, $url_thumb, $status, $d, $window, $gscrot_root ) = @_;
 
 	#Clipboard
 	my $clipboard = Gtk2::Clipboard->get( Gtk2::Gdk->SELECTION_CLIPBOARD );
 
 	#Tooltips
 	my $tooltips = Gtk2::Tooltips->new;
-
-	my $dlg_header = $d->get("Upload") . " - " . $host . " - " . $username;
-	my $upload_dialog = Gtk2::Dialog->new( $dlg_header, $window, [qw/modal destroy-with-parent/], 'gtk-ok' => 'accept' );
-	$upload_dialog->set_default_response('accept');
 
 	my $upload_hbox  = Gtk2::HBox->new( FALSE, 0 );
 	my $upload_hbox1 = Gtk2::HBox->new( TRUE,  10 );
@@ -358,28 +366,28 @@ sub show {
 	my $upload_hbox7 = Gtk2::HBox->new( TRUE,  10 );
 	my $upload_hbox8 = Gtk2::HBox->new( FALSE, 10 );
 	my $upload_vbox  = Gtk2::VBox->new( FALSE, 0 );
-	my $label_status = Gtk2::Label->new( $d->get("Upload status:") . " " . status_message($status) );
+	my $label_status = Gtk2::Label->new( $self->{_gettext_object}->get("Upload status:") . " " . status_message($self->{_status}) );
 
-	$upload_hbox->pack_start( Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$gscrot_root/share/gscrot/resources/icons/logo-imageshack.png", 100, 100, TRUE ) ), TRUE, TRUE, 0 );
+	$upload_hbox->pack_start( Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$self->{_gscrot_root}/share/gscrot/resources/icons/logo-imageshack.png", 100, 100, TRUE ) ), TRUE, TRUE, 0 );
 	$upload_hbox->pack_start( $label_status, TRUE, TRUE, 0 );
 
 	my $entry_direct = Gtk2::Entry->new();
 	my $entry_hotweb = Gtk2::Entry->new();
-	my $label_thumb1 = Gtk2::Label->new( $d->get("Thumbnail for websites") );
-	my $label_thumb2 = Gtk2::Label->new( $d->get("Thumbnail for forums") );
-	my $label_direct = Gtk2::Label->new( $d->get("Direct link") );
-	my $label_hotweb = Gtk2::Label->new( $d->get("Hotlink for websites") );
+	my $label_thumb1 = Gtk2::Label->new( $self->{_gettext_object}->get("Thumbnail for websites") );
+	my $label_thumb2 = Gtk2::Label->new( $self->{_gettext_object}->get("Thumbnail for forums") );
+	my $label_direct = Gtk2::Label->new( $self->{_gettext_object}->get("Direct link") );
+	my $label_hotweb = Gtk2::Label->new( $self->{_gettext_object}->get("Hotlink for websites") );
 
-	$entry_direct->set_text("$url");
-	$entry_hotweb->set_text("<a href=\"http:\/\/imageshack.us\"><img src=\"$url\" border=\"0\" alt=\"Image Hosted by ImageShack.us\"\/><\/a><br\/>By <a href=\"https:\/\/launchpad.net\/gscrot\">GScrot<\/a>");
+	$entry_direct->set_text("$self->{_url}");
+	$entry_hotweb->set_text("<a href=\"http:\/\/imageshack.us\"><img src=\"$self->{_url}\" border=\"0\" alt=\"Image Hosted by ImageShack.us\"\/><\/a><br\/>By <a href=\"https:\/\/launchpad.net\/gscrot\">GScrot<\/a>");
 	$upload_vbox->pack_start( $upload_hbox, TRUE, TRUE, 10 );
 
-	if ($url_thumb) {
+	if ($self->{_url_thumb}) {
 		my $entry_thumb1 = Gtk2::Entry->new();
 		my $entry_thumb2 = Gtk2::Entry->new();
 
 		my $upload_copy1 = Gtk2::Button->new;
-		$tooltips->set_tip( $upload_copy1, $d->get("Copy this code to clipboard") );
+		$tooltips->set_tip( $upload_copy1, $self->{_gettext_object}->get("Copy this code to clipboard") );
 		$upload_copy1->set_image( Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 		$upload_copy1->signal_connect(
 			'clicked' => sub {
@@ -390,7 +398,7 @@ sub show {
 		);
 
 		my $upload_copy2 = Gtk2::Button->new;
-		$tooltips->set_tip( $upload_copy2, $d->get("Copy this code to clipboard") );
+		$tooltips->set_tip( $upload_copy2, $self->{_gettext_object}->get("Copy this code to clipboard") );
 		$upload_copy2->set_image( Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 		$upload_copy2->signal_connect(
 			'clicked' => sub {
@@ -400,8 +408,8 @@ sub show {
 			$entry_thumb2
 		);
 
-		$entry_thumb1->set_text("<a href=\"$url\"><img src=\"$url_thumb\" border=\"0\" alt=\"Image Hosted by ImageShack.us\"\/><\/a>");
-		$entry_thumb2->set_text("\[url\=$url\]\[img\]$url_thumb\[\/img\]\[\/url\]");
+		$entry_thumb1->set_text("<a href=\"$self->{_url}\"><img src=\"$self->{_url_thumb}\" border=\"0\" alt=\"Image Hosted by ImageShack.us\"\/><\/a>");
+		$entry_thumb2->set_text("\[url\=$self->{_url}\]\[img\]$self->{_url_thumb}\[\/img\]\[\/url\]");
 		$upload_hbox1->pack_start_defaults($label_thumb1);
 		$upload_hbox1->pack_start_defaults($entry_thumb1);
 		$upload_hbox2->pack_start_defaults($upload_hbox1);
@@ -414,7 +422,7 @@ sub show {
 	}
 
 	my $upload_copy3 = Gtk2::Button->new;
-	$tooltips->set_tip( $upload_copy3, $d->get("Copy this code to clipboard") );
+	$tooltips->set_tip( $upload_copy3, $self->{_gettext_object}->get("Copy this code to clipboard") );
 	$upload_copy3->set_image( Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy3->signal_connect(
 		'clicked' => sub {
@@ -425,7 +433,7 @@ sub show {
 	);
 
 	my $upload_copy4 = Gtk2::Button->new;
-	$tooltips->set_tip( $upload_copy4, $d->get("Copy this code to clipboard") );
+	$tooltips->set_tip( $upload_copy4, $self->{_gettext_object}->get("Copy this code to clipboard") );
 	$upload_copy4->set_image( Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy4->signal_connect(
 		'clicked' => sub {
@@ -448,8 +456,18 @@ sub show {
 	$upload_vbox->pack_start_defaults($upload_hbox4);
 	$upload_vbox->pack_start_defaults($upload_hbox6);
 	$upload_vbox->pack_start_defaults($upload_hbox8);
+	
+	return $upload_vbox;
+}
 
-	$upload_dialog->vbox->add($upload_vbox);
+sub show_all {
+	my $self = shift;
+
+	my $dlg_header = $self->{_gettext_object}->get("Upload") . " - " . $self->{_host} . " - " . $self->{_username};
+	my $upload_dialog = Gtk2::Dialog->new( $dlg_header, $self->{_main_gtk_window}, [qw/modal destroy-with-parent/], 'gtk-ok' => 'accept' );
+	$upload_dialog->set_default_response('accept');
+
+	$upload_dialog->vbox->add($self->{_notebook});
 	$upload_dialog->show_all;
 	my $upload_response = $upload_dialog->run;
 
@@ -460,6 +478,24 @@ sub show {
 		$upload_dialog->destroy();
 		return FALSE;
 	}
+}
+
+sub show {
+	my ( $self, $host, $username, $filename, $url, $url_thumb, $status, $d, $window, $gscrot_root ) = @_;
+
+	$self->{_host} = $host;
+	$self->{_username} = $username;
+	$self->{_filename} = $filename;
+	$self->{_url} = $url;
+	$self->{_url_thumb} = $url_thumb;
+	$self->{_status} = $status;
+	$self->{_gettext_object} = $d;
+	$self->{_main_gtk_window} = $window;
+	$self->{_gscrot_root} = $gscrot_root;
+
+	$self->{_notebook}->append_page( $self->create_tab(), $self->{_filename} );
+	
+	return TRUE;
 }
 
 
