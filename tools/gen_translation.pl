@@ -37,6 +37,10 @@ foreach $file (@translate_files){
 		chomp;
 		$_ =~ s/\$d\-\>get/gettext/ig;
 		$_ =~ s/\$d\-\>nget/ngettext/ig;
+		$_ =~ s/\$self\-\{\_gettext\_object\}\-\>get/gettext/ig;
+		$_ =~ s/\$self\-\{\_gettext\_object\}\-\>nget/ngettext/ig;
+		$_ =~ s/\$gscrot_common\-\>get\_gettext\-\>get/gettext/ig;
+		$_ =~ s/\$gscrot_common\-\>get\_gettext\-\>nget/ngettext/ig;
 		print FILE_TMP $_."\n";		
 	}
 	close FILE or die $!;

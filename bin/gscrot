@@ -62,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.253";
+use constant BRANCH              => "Rev.254";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -1101,7 +1101,7 @@ $tooltips->set_tip( $save_at_close_active,
 
 #end - behavior
 #program
-my $model = &fct_get_program_model;
+my $model        = &fct_get_program_model;
 my $progname     = Gtk2::ComboBox->new($model);
 my $renderer_pix = Gtk2::CellRendererPixbuf->new;
 $progname->pack_start( $renderer_pix, FALSE );
@@ -1113,7 +1113,7 @@ $progname->add_attribute( $renderer_text, text => 1 );
 if ( defined $settings_xml->{'general'}->{'prog'} ) {
 	$model->foreach( \&fct_iter_programs, $settings_xml->{'general'}->{'prog'} );
 } else {
-	$progname->set_active(FALSE);
+	$progname->set_active(0);
 }
 my $progname_active = Gtk2::CheckButton->new;
 $progname_active->signal_connect(
@@ -1859,18 +1859,8 @@ sub evt_take_screenshot {
 			my $progname_iter = $progname->get_active_iter();
 			if ($progname_iter) {
 				$progname_value = $model->get_value( $progname_iter, 2 );
-				utf8::decode $progname_value;
-				unless ( $progname_value =~ /[a-zA-Z0-9]+/ ) {
-					&dlg_error_message(
-						$gscrot_common->get_gettext->get(
-							"No application specified to open the screenshot")
-					);
-					&fct_set_toolbar_sensitive(TRUE);
-					return FALSE;
-				}
-				system("$progname_value '$session_screens{$new_key_screenshot}->{'long'}' &")
-					;    #open picture in external program
 			}
+			&fct_open_with_program($progname_value);
 		}
 		print "screenshot successfully saved to $screenshot_name!\n"
 			if $gscrot_common->get_debug;
@@ -2177,6 +2167,7 @@ sub evt_iconview_item_activated {
 }
 
 sub evt_show_settings {
+	&fct_check_installed_programs;
 	$settings_dialog->show_all;
 	my $settings_dialog_response = $settings_dialog->run;
 	if ( $settings_dialog_response eq "close" ) {
@@ -2190,297 +2181,6 @@ sub evt_show_settings {
 		&fct_update_first_tab;
 		return FALSE;
 	}
-}
-
-sub evt_in_tab {
-	my ( $widget, $key ) = @_;
-	print "\n$key was emitted by widget $widget\n" if $gscrot_common->get_debug;
-
-	#single screenshots
-	my $current_file;
-	if ( $key =~ m/^print\[/ ) {
-		$key =~ s/^print//;
-		unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{$key}->{'filename'}, $key ) )
-		{
-			&dlg_status_message( 1,
-				      $session_screens{$key}->{'filename'} . " "
-					. $gscrot_common->get_gettext->get("not found") );
-
-			return 0;
-		}
-		my $current_file = quotemeta $session_screens{$key}->{'long'};
-		system("gtklp $current_file &");
-		&dlg_status_message( 1,
-			      $session_screens{$key}->{'filename'} . " "
-				. $gscrot_common->get_gettext->get("will be printed") );
-	}
-	if ( $key =~ m/^delete\[/ ) {
-		$key =~ s/^delete//;
-		unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{$key}->{'filename'}, $key ) )
-		{
-			&dlg_status_message( 1,
-				      $session_screens{$key}->{'filename'} . " "
-					. $gscrot_common->get_gettext->get("not found") );
-			&fct_update_tab($key);
-			return 0;
-		}
-		unlink( $session_screens{$key}->{'long'} );               #delete file
-		$notebook->remove_page( $notebook->get_current_page );    #delete tab
-		&dlg_status_message( 1,
-			      $session_screens{$key}->{'filename'} . " "
-				. $gscrot_common->get_gettext->get("deleted") )
-			if defined( $session_screens{$key}->{'filename'} );
-		delete( $session_screens{$key} );                         # delete from hash
-		&fct_update_first_tab();
-		$window->show_all;
-	}
-	if ( $key =~ m/^remove\[/ ) {
-		$key =~ /^remove(.*)__ind__(.*)__indold__(.*)/;
-		$key = $1;
-		my $delete_index = $2;
-		my $last_index   = $3;
-		print "Child: " . $notebook->page_num( $session_screens{$key}->{'tab_child'} ) . "\n"
-			if $gscrot_common->get_debug;
-		$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) )
-			;                                                     #delete tab
-		&dlg_status_message( 1,
-			      $session_screens{$key}->{'filename'} . " "
-				. $gscrot_common->get_gettext->get("removed from session") )
-			if defined( $session_screens{$key}->{'filename'} );
-		delete( $session_screens{$key} );                         # delete from hash
-		&fct_update_first_tab();
-		$window->show_all;
-	}
-	if ( $key =~ m/^reopen\[/ ) {
-		$key =~ s/^reopen//;
-		my $model          = $progname->get_model();
-		my $progname_iter  = $progname->get_active_iter();
-		my $progname_value = "";
-
-		if ($progname_iter) {
-			$progname_value = $model->get_value( $progname_iter, 2 );
-			unless (
-				&fct_create_thumbnail_and_fileinfos( $session_screens{$key}->{'filename'}, $key ) )
-			{
-				&dlg_status_message( 1,
-					      $session_screens{$key}->{'filename'} . " "
-						. $gscrot_common->get_gettext->get("not found") );
-				&fct_update_tab($key);
-				return FALSE;
-			}
-		}
-		unless ( $progname_value =~ /[a-zA-Z0-9]+/ ) {
-			&dlg_error_message(
-				$gscrot_common->get_gettext->get("No application specified to open the screenshot")
-			);
-			return FALSE;
-		}
-		system("$progname_value '$session_screens{$key}->{'long'}' &");
-		&dlg_status_message( 1,
-			      $session_screens{$key}->{'filename'} . " "
-				. $gscrot_common->get_gettext->get("opened with") . " "
-				. $progname_value );
-
-	}
-	if ( $key =~ m/^upload\[/ ) {
-		$key =~ s/^upload//;
-		unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{$key}->{'filename'}, $key ) )
-		{
-			&dlg_status_message( 1,
-				      $session_screens{$key}->{'filename'} . " "
-					. $gscrot_common->get_gettext->get("not found") );
-			&fct_update_tab($key);
-			return 0;
-		}
-		&dlg_upload( $session_screens{$key}->{'filename'} );
-	}
-	if ( $key =~ m/^draw\[/ ) {
-		$key =~ s/^draw//;
-		unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{$key}->{'filename'}, $key ) )
-		{
-			&dlg_status_message( 1,
-				      $session_screens{$key}->{'filename'} . " "
-					. $gscrot_common->get_gettext->get("not found") );
-
-			return 0;
-		}
-		&fct_start_drawing(
-			$session_screens{$key}->{'long'},   $session_screens{$key}->{'width'},
-			$session_screens{$key}->{'height'}, $session_screens{$key}->{'filetype'},
-			$gscrot_common->get_gettext
-		);
-		&fct_update_tab($key);
-	}
-	if ( $key =~ m/^rename\[/ ) {
-		$key =~ s/^rename//;
-		unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{$key}->{'filename'}, $key ) )
-		{
-			&dlg_status_message( 1,
-				      $session_screens{$key}->{'filename'} . " "
-					. $gscrot_common->get_gettext->get("not found") );
-			&fct_update_tab($key);
-			return 0;
-		}
-		print "Renaming of file " . $session_screens{$key}->{'long'} . " started\n"
-			if $gscrot_common->get_debug;
-		&dlg_status_message( 1,
-			      $session_screens{$key}->{'filename'} . " "
-				. $gscrot_common->get_gettext->get("renamed") )
-			if &dlg_rename( $session_screens{$key}->{'long'}, $key );
-		&fct_update_tab($key);
-	}
-	if ( $key =~ m/^plugin\[/ ) {
-		$key =~ s/^plugin//;
-		unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{$key}->{'filename'}, $key ) )
-		{
-			&dlg_status_message( 1,
-				      $session_screens{$key}->{'filename'} . " "
-					. $gscrot_common->get_gettext->get("not found") );
-			&fct_update_tab($key);
-			return 0;
-		}
-		unless ( keys %plugins > 0 ) {
-			&dlg_error_message( $gscrot_common->get_gettext->get("No plugin installed") );
-		} else {
-			&dlg_plugin( $session_screens{$key}->{'filename'}, $key );
-		}
-		&fct_update_tab($key);
-	}
-	if ( $key =~ m/^clipboard\[/ ) {
-		$key =~ s/^clipboard//;
-		unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{$key}->{'filename'}, $key ) )
-		{
-			&dlg_status_message( 1,
-				      $session_screens{$key}->{'filename'} . " "
-					. $gscrot_common->get_gettext->get("not found") );
-
-			return 0;
-		}
-		my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} );
-		$clipboard->set_image($pixbuf);
-		&dlg_status_message( 1,
-			      $session_screens{$key}->{'filename'} . " "
-				. $gscrot_common->get_gettext->get("copied to clipboard") );
-	}
-
-	#all screenshots
-	if ( $key =~ m/^delete$/ ) {    #tab == all
-
-		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
-			sub {
-				my ( $view, $path ) = @_;
-				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
-				if ( defined $iter ) {
-					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
-					$notebook->remove_page(
-						$notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
-					unlink( $session_screens{$key}->{'long'} );
-					delete( $session_screens{$key} );
-				}
-			},
-			undef
-		);
-
-		&dlg_status_message( 1, $gscrot_common->get_gettext->get("All screenshots deleted") );
-		&fct_update_first_tab;
-		$window->show_all;
-	}
-	if ( $key =~ m/^remove$/ ) {    #tab == all
-
-		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
-			sub {
-				my ( $view, $path ) = @_;
-				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
-				if ( defined $iter ) {
-					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
-					$notebook->remove_page(
-						$notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
-					delete( $session_screens{$key} );
-				}
-			},
-			undef
-		);
-
-		&dlg_status_message( 1, $gscrot_common->get_gettext->get("All screenshots removed") );
-		&fct_update_first_tab;
-		$window->show_all;
-	}
-	if ( $key =~ m/^reopen$/ ) {
-		my $model         = $progname->get_model();
-		my $progname_iter = $progname->get_active_iter();
-
-		my $progname_value = "";
-		my $open_files     = "";
-
-		if ($progname_iter) {
-			$progname_value = $model->get_value( $progname_iter, 2 );
-		}
-
-		unless ( $progname_value =~ /[a-zA-Z0-9]+/ ) {
-			&dlg_error_message(
-				$gscrot_common->get_gettext->get("No application specified to open the screenshot")
-			);
-			return FALSE;
-		}
-		if ( $progname_value =~ /gimp/ || $progname_value =~ /postr/ ) {
-
-			$session_start_screen{'first_page'}->{'view'}->selected_foreach(
-				sub {
-					my ( $view, $path ) = @_;
-					my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
-					if ( defined $iter ) {
-						my $key
-							= $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
-						$open_files .= quotemeta $session_screens{$key}->{'long'};
-						$open_files .= " ";
-					}
-				},
-				undef
-			);
-			if ( $open_files ne "" ) {
-				system("$progname_value $open_files &");
-			}
-		} else {
-
-			$session_start_screen{'first_page'}->{'view'}->selected_foreach(
-				sub {
-					my ( $view, $path ) = @_;
-					my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
-					if ( defined $iter ) {
-						my $key
-							= $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
-						system("$progname_value '$session_screens{$key}->{'long'}' &");
-					}
-				},
-				undef
-			);
-		}
-		&dlg_status_message( 1,
-			$gscrot_common->get_gettext->get("Opened all files with") . " " . $progname_value );
-	}
-
-	if ( $key =~ m/^print$/ ) {    #tab == all
-		my $print_files;
-		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
-			sub {
-				my ( $view, $path ) = @_;
-				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
-				if ( defined $iter ) {
-					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
-					$print_files .= quotemeta $session_screens{$key}->{'long'};
-					$print_files .= " ";
-				}
-
-			},
-			undef
-		);
-		if ( $print_files ne "" ) {
-			system("gtklp $print_files &");
-			&dlg_status_message( 1, $gscrot_common->get_gettext->get("Printing all screenshots") );
-		}
-
-	}
-
 }
 
 sub evt_open {
@@ -2778,10 +2478,7 @@ sub fct_integrate_screenshot_in_notebook {
 		#and append page with label == key
 		my $new_index = $notebook->append_page( fct_create_tab( $key, FALSE ), $hbox_tab_label );
 		$session_screens{$key}->{'tab_child'} = $notebook->get_nth_page($new_index);
-		$tab_close_button->signal_connect(
-			clicked => \&evt_in_tab,
-			'remove' . $key . '__ind__' . $new_index . '__indold__' . $notebook->get_current_page
-		);
+		$tab_close_button->signal_connect(clicked => sub {&fct_remove();});
 
 		#		$notebook->set_tab_detachable(
 		#									  $session_screens{ $key }->{ 'tab_child' },
@@ -2835,62 +2532,44 @@ sub fct_create_tab {
 
 	my $button_remove
 		= Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-close', 'button' ), undef );
-	$button_remove->signal_connect(
-		clicked => \&evt_in_tab,
-		'remove' . $key
-	);
+	$button_remove->signal_connect( 'clicked' => sub { &fct_remove(); } );
 	$tooltips->set_tip( $button_remove,
 		$gscrot_common->get_gettext->get("Remove file(s) from session") );
 
 	my $button_delete
 		= Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-delete', 'button' ), undef );
-	$button_delete->signal_connect(
-		clicked => \&evt_in_tab,
-		'delete' . $key
-	);
+	$button_delete->signal_connect( 'clicked' => sub { &fct_delete(); } );
 	$tooltips->set_tip( $button_delete, $gscrot_common->get_gettext->get("Delete file(s)") );
 
 	my $button_clipboard
 		= Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-copy', 'button' ), undef );
-	$button_clipboard->signal_connect(
-		clicked => \&evt_in_tab,
-		'clipboard' . $key
-	);
+	$button_clipboard->signal_connect( 'clicked' => sub { &fct_clipboard(); } );
 	$tooltips->set_tip( $button_clipboard,
 		$gscrot_common->get_gettext->get("Copy file(s) to clipboard") );
 
 	my $button_reopen
-		= Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-open', 'button' ), undef );
-	$button_reopen->signal_connect(
-		clicked => \&evt_in_tab,
-		'reopen' . $key
-	);
+		= Gtk2::MenuToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-open', 'button' ),
+		undef );
+	$button_reopen->signal_connect( 'clicked' => sub { &fct_open_with_program(); } );
+	$button_reopen->signal_connect( 'show-menu' => \&fct_ret_program_menu );
 	$tooltips->set_tip( $button_reopen, $gscrot_common->get_gettext->get("Open file(s)") );
+	$button_reopen->set_menu( &fct_ret_program_menu($button_reopen) );
 
 	my $button_upload
 		= Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-go-up', 'button' ), undef );
-	$button_upload->signal_connect(
-		clicked => \&evt_in_tab,
-		'upload' . $key
-	);
+	$button_upload->signal_connect( 'clicked' => sub { &fct_upload(); } );
 	$tooltips->set_tip( $button_upload,
 		$gscrot_common->get_gettext->get("Upload file to hosting-site") );
 
 	my $button_rename
 		= Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-edit', 'button' ), undef );
-	$button_rename->signal_connect(
-		clicked => \&evt_in_tab,
-		'rename' . $key
-	);
+	$button_rename->signal_connect( 'clicked' => sub { &fct_rename(); } );
 	$tooltips->set_tip( $button_rename, $gscrot_common->get_gettext->get("Rename file") );
 
 	my $button_plugin
 		= Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-execute', 'button' ),
 		undef );
-	$button_plugin->signal_connect(
-		clicked => \&evt_in_tab,
-		'plugin' . $key
-	);
+	$button_plugin->signal_connect( 'clicked' => sub { &fct_plugin(); } );
 	$tooltips->set_tip( $button_plugin, $gscrot_common->get_gettext->get("Execute a plugin") );
 
 	my $button_draw = Gtk2::ToolButton->new(
@@ -2902,15 +2581,12 @@ sub fct_create_tab {
 		),
 		undef
 	);
-	$button_draw->signal_connect( clicked => \&evt_in_tab, 'draw' . $key );
+	$button_draw->signal_connect( 'clicked' => sub { &fct_draw(); } );
 	$tooltips->set_tip( $button_draw, $gscrot_common->get_gettext->get("Draw") );
 
 	my $button_print
 		= Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-print', 'button' ), undef );
-	$button_print->signal_connect(
-		clicked => \&evt_in_tab,
-		'print' . $key
-	);
+	$button_print->signal_connect( 'clicked' => sub { &fct_print(); } );
 
 	if ($gtklp) {
 		$tooltips->set_tip( $button_print, $gscrot_common->get_gettext->get("Print file(s)") );
@@ -3257,6 +2933,7 @@ sub fct_save_settings {
 		}
 	}
 	$settings{'general'}->{'web_timeout'} = $timeout;
+
 	my $model         = $progname->get_model();
 	my $progname_iter = $progname->get_active_iter();
 
@@ -3685,6 +3362,316 @@ sub fct_switch_home_in_file {
 	return $filename;
 }
 
+sub fct_screenshot_exists {
+	my ($key) = @_;
+
+	#check if file still exists
+	unless ( &fct_create_thumbnail_and_fileinfos( $session_screens{$key}->{'filename'}, $key ) ) {
+		&dlg_status_message( 1,
+			      $session_screens{$key}->{'filename'} . " "
+				. $gscrot_common->get_gettext->get("not found") );
+		&fct_update_tab($key);
+		return FALSE;
+	}
+	return TRUE;
+}
+
+sub fct_delete {
+
+	my $key = &fct_get_current_file;
+
+	#single file
+	if ($key) {
+
+		return FALSE unless &fct_screenshot_exists($key);
+
+		unlink( $session_screens{$key}->{'long'} );               #delete file
+		$notebook->remove_page( $notebook->get_current_page );    #delete tab
+		&dlg_status_message( 1,
+			      $session_screens{$key}->{'filename'} . " "
+				. $gscrot_common->get_gettext->get("deleted") )
+			if defined( $session_screens{$key}->{'filename'} );
+		delete( $session_screens{$key} );                         # delete from hash
+		&fct_update_first_tab();
+		$window->show_all;
+
+		#session tab
+	} else {
+
+		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
+			sub {
+				my ( $view, $path ) = @_;
+				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
+				if ( defined $iter ) {
+					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
+					$notebook->remove_page(
+						$notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
+					unlink( $session_screens{$key}->{'long'} );
+					delete( $session_screens{$key} );
+				}
+			},
+			undef
+		);
+
+		&dlg_status_message( 1, $gscrot_common->get_gettext->get("All screenshots deleted") );
+		&fct_update_first_tab;
+		$window->show_all;
+
+	}
+}
+
+sub fct_remove {
+
+	my $key = &fct_get_current_file;
+
+	#single file
+	if ($key) {
+
+		return FALSE unless &fct_screenshot_exists($key);
+
+		$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) )
+			;    #delete tab
+		&dlg_status_message( 1,
+			      $session_screens{$key}->{'filename'} . " "
+				. $gscrot_common->get_gettext->get("removed from session") )
+			if defined( $session_screens{$key}->{'filename'} );
+		delete( $session_screens{$key} );    # delete from hash
+		&fct_update_first_tab();
+		$window->show_all;
+
+		#session tab
+	} else {
+
+		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
+			sub {
+				my ( $view, $path ) = @_;
+				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
+				if ( defined $iter ) {
+					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
+					$notebook->remove_page(
+						$notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
+					delete( $session_screens{$key} );
+				}
+			},
+			undef
+		);
+
+		&dlg_status_message( 1, $gscrot_common->get_gettext->get("All screenshots removed") );
+		&fct_update_first_tab;
+		$window->show_all;
+
+	}
+}
+
+sub fct_clipboard {
+
+	my $key = &fct_get_current_file;
+
+	#single file
+	if ($key) {
+
+		return FALSE unless &fct_screenshot_exists($key);
+
+		my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} );
+		$clipboard->set_image($pixbuf);
+		&dlg_status_message( 1,
+			      $session_screens{$key}->{'filename'} . " "
+				. $gscrot_common->get_gettext->get("copied to clipboard") );
+
+	}
+}
+
+sub fct_plugin {
+
+	my $key = &fct_get_current_file;
+
+	#single file
+	if ($key) {
+
+		return FALSE unless &fct_screenshot_exists($key);
+
+		unless ( keys %plugins > 0 ) {
+			&dlg_error_message( $gscrot_common->get_gettext->get("No plugin installed") );
+		} else {
+			&dlg_plugin( $session_screens{$key}->{'filename'}, $key );
+		}
+		&fct_update_tab($key);
+
+	}
+}
+
+sub fct_rename {
+
+	my $key = &fct_get_current_file;
+
+	#single file
+	if ($key) {
+
+		return FALSE unless &fct_screenshot_exists($key);
+
+		print "Renaming of file " . $session_screens{$key}->{'long'} . " started\n"
+			if $gscrot_common->get_debug;
+		&dlg_status_message( 1,
+			      $session_screens{$key}->{'filename'} . " "
+				. $gscrot_common->get_gettext->get("renamed") )
+			if &dlg_rename( $session_screens{$key}->{'long'}, $key );
+		&fct_update_tab($key);
+
+	}
+}
+
+sub fct_draw {
+
+	my $key = &fct_get_current_file;
+
+	#single file
+	if ($key) {
+
+		return FALSE unless &fct_screenshot_exists($key);
+
+		&fct_start_drawing(
+			$session_screens{$key}->{'long'},   $session_screens{$key}->{'width'},
+			$session_screens{$key}->{'height'}, $session_screens{$key}->{'filetype'},
+			$gscrot_common->get_gettext
+		);
+		&fct_update_tab($key);
+
+	}
+}
+
+sub fct_upload {
+
+	my $key = &fct_get_current_file;
+
+	#single file
+	if ($key) {
+
+		return FALSE unless &fct_screenshot_exists($key);
+
+		&dlg_upload( $session_screens{$key}->{'filename'} );
+
+	}
+}
+
+sub fct_print {
+
+	my $key = &fct_get_current_file;
+
+	#single file
+	if ($key) {
+
+		return FALSE unless &fct_screenshot_exists($key);
+
+		#everything is fine -> print it
+		my $current_file = quotemeta $session_screens{$key}->{'long'};
+		system("gtklp $current_file &");
+		&dlg_status_message( 1,
+			      $session_screens{$key}->{'filename'} . " "
+				. $gscrot_common->get_gettext->get("will be printed") );
+
+		#session tab
+	} else {
+
+		my $print_files = "";
+		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
+			sub {
+				my ( $view, $path ) = @_;
+				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
+				if ( defined $iter ) {
+					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
+					$print_files .= quotemeta $session_screens{$key}->{'long'};
+					$print_files .= " ";
+				}
+
+			},
+			undef
+		);
+		if ( $print_files ne "" ) {
+			system("gtklp $print_files &");
+			&dlg_status_message( 1, $gscrot_common->get_gettext->get("Printing all screenshots") );
+		}
+
+	}
+}
+
+sub fct_open_with_program {
+	my ($progname_value) = @_;
+	my $key = &fct_get_current_file;
+
+	#no program set - take default from settings
+	unless ($progname_value) {
+		my $model         = $progname->get_model();
+		my $progname_iter = $progname->get_active_iter();
+
+		if ($progname_iter) {
+			$progname_value = $model->get_value( $progname_iter, 2 );
+		}
+	}
+
+	#check if program still exists
+	unless ( $progname_value =~ /[a-zA-Z0-9]+/ ) {
+		&dlg_error_message(
+			$gscrot_common->get_gettext->get("No application specified to open the screenshot")
+				. "!" );
+		return FALSE;
+	}
+
+	#single file
+	if ($key) {
+
+		return FALSE unless &fct_screenshot_exists($key);
+
+		#everything is fine -> open it
+		system("$progname_value '$session_screens{$key}->{'long'}' &");
+		&dlg_status_message( 1,
+			      $session_screens{$key}->{'filename'} . " "
+				. $gscrot_common->get_gettext->get("opened with") . " "
+				. $progname_value );
+
+		#session tab
+	} else {
+
+		my $open_files = "";
+
+		if ( $progname_value =~ /gimp/ || $progname_value =~ /postr/ ) {
+
+			$session_start_screen{'first_page'}->{'view'}->selected_foreach(
+				sub {
+					my ( $view, $path ) = @_;
+					my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
+					if ( defined $iter ) {
+						my $key
+							= $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
+						$open_files .= quotemeta $session_screens{$key}->{'long'};
+						$open_files .= " ";
+					}
+				},
+				undef
+			);
+			if ( $open_files ne "" ) {
+				system("$progname_value $open_files &");
+			}
+		} else {
+
+			$session_start_screen{'first_page'}->{'view'}->selected_foreach(
+				sub {
+					my ( $view, $path ) = @_;
+					my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
+					if ( defined $iter ) {
+						my $key
+							= $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
+						system("$progname_value '$session_screens{$key}->{'long'}' &");
+					}
+				},
+				undef
+			);
+		}
+		&dlg_status_message( 1,
+			$gscrot_common->get_gettext->get("Opened all files with") . " " . $progname_value );
+
+	}
+}
+
 sub fct_execute_plugin {
 
 	my $arrayref = $_[1];
@@ -4033,7 +4020,14 @@ sub fct_resize_imagemagick_object {
 }
 
 sub fct_check_installed_programs {
-	print "INFO: checking installed applications...\n";
+
+	%gm_programs = do "$gscrot_root/share/gscrot/resources/system/programs.conf";
+	if ( &fct_file_exists("$ENV{ 'HOME' }/.gscrot/programs.conf") ) {
+		print
+			"\nINFO: using custom program settings found at $ENV{ 'HOME' }/.gscrot/programs.conf\n";
+		%gm_programs = do "$ENV{ 'HOME' }/.gscrot/programs.conf";
+	}
+
 	foreach ( keys %gm_programs ) {
 		unless ( &fct_file_exists( $gm_programs{$_}->{'binary'} ) ) {
 			print " Could not detect binary for program $_, ignoring\n"
@@ -4046,6 +4040,31 @@ sub fct_check_installed_programs {
 			}
 		}
 	}
+	
+	#update list of available programs in settings dialog as well
+	if($progname){
+
+		my $model         = $progname->get_model();
+		my $progname_iter = $progname->get_active_iter();
+	
+		#get last prog
+		my $progname_value;
+		if ( defined $progname_iter ) {
+			$progname_value = $model->get_value( $progname_iter, 2 );
+			utf8::encode $progname_value;
+		}
+
+		#rebuild model with new hash of installed programs...
+		$model = &fct_get_program_model;
+		$progname->set_model($model);
+		#...and try to set last	value		
+		if ( $progname_value ) {
+			$model->foreach( \&fct_iter_programs, $progname_value );
+		} else {
+			$progname->set_active(0);
+		}
+	}
+
 	return TRUE;
 }
 
@@ -4130,7 +4149,6 @@ sub fct_get_next_filename {
 }
 
 sub fct_check_installed_plugins {
-	print "\nINFO: checking installed plugins...\n";
 
 	my @plugin_paths = (
 		"$gscrot_root/share/gscrot/resources/system/plugins/*/*",
@@ -4526,6 +4544,44 @@ sub fct_ret_sel_menu {
 
 	$menu_sel->show_all;
 	return $menu_sel;
+}
+
+sub fct_ret_program_menu {
+	my ($button_program_menu) = @_;
+
+	&fct_check_installed_programs;
+
+	my $menu_programs = Gtk2::Menu->new;
+	foreach my $program ( keys %gm_programs ) {
+		if (   $gm_programs{$program}->{'binary'} ne ""
+			&& $gm_programs{$program}->{'name'} ne "" )
+		{
+			my $pixbuf;
+			if ( -f $gm_programs{$program}->{'pixmap'} ) {
+				$pixbuf
+					= Gtk2::Gdk::Pixbuf->new_from_file_at_size( $gm_programs{$program}->{'pixmap'},
+					Gtk2::IconSize->lookup('menu') );
+			} else {
+				$pixbuf
+					= Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+					"$gscrot_root/share/gscrot/resources/icons/executable.svg",
+					Gtk2::IconSize->lookup('menu') );
+			}
+			my $program_item
+				= Gtk2::ImageMenuItem->new_with_label( $gm_programs{$program}->{'name'} );
+			$program_item->set_image( Gtk2::Image->new_from_pixbuf($pixbuf) );
+			$program_item->signal_connect(
+				'activate' => sub { &fct_open_with_program( $gm_programs{$program}->{'binary'} ); }
+			);
+			$menu_programs->append($program_item);
+		} else {
+			print "WARNING: Program $_ is not configured properly, ignoring\n";
+		}
+	}
+
+	$button_program_menu->set_menu($menu_programs);
+	$menu_programs->show_all;
+	return $menu_programs;
 }
 
 sub fct_ret_web_menu {
@@ -4940,12 +4996,6 @@ sub fct_init {
 	mkdir "$ENV{'HOME'}/.gscrot/profiles"
 		unless ( -d "$ENV{'HOME'}/.gscrot/profiles" );
 
-	%gm_programs = do "$gscrot_root/share/gscrot/resources/system/programs.conf";
-	if ( &fct_file_exists("$ENV{ 'HOME' }/.gscrot/programs.conf") ) {
-		print
-			"\nINFO: using custom program settings found at $ENV{ 'HOME' }/.gscrot/programs.conf\n";
-		%gm_programs = do "$ENV{ 'HOME' }/.gscrot/programs.conf";
-	}
 	return TRUE;
 }
 
