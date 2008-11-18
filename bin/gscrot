@@ -62,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.255";
+use constant BRANCH              => "Rev.256";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -2516,10 +2516,7 @@ sub fct_set_toolbar_sensitive {
 sub fct_create_tab {
 	my ( $key, $is_all ) = @_;
 
-	my $scrolled_window = Gtk2::ScrolledWindow->new;
-	$scrolled_window->set_policy( 'automatic', 'automatic' );
-	$scrolled_window->set_shadow_type('in');
-
+	my $vbox              = Gtk2::VBox->new( FALSE, 0 );
 	my $vbox_tab          = Gtk2::VBox->new( FALSE, 0 );
 	my $hbox_tab          = Gtk2::HBox->new( FALSE, 0 );
 	my $vbox_all          = Gtk2::VBox->new( FALSE, 0 );
@@ -2677,15 +2674,14 @@ sub fct_create_tab {
 		$vbox_fileinfos->pack_start( $geometry_label,                             FALSE, TRUE, 10 );
 		$vbox_fileinfos->pack_start( $session_screens{$key}->{'geometry_label'},  FALSE, TRUE, 2 );
 
-		$session_screens{$key}->{'scrolled_window'} = $scrolled_window;
-		$session_screens{$key}->{'btn_delete'}      = $button_delete;
-		$session_screens{$key}->{'btn_reopen'}      = $button_reopen;
-		$session_screens{$key}->{'btn_upload'}      = $button_upload;
-		$session_screens{$key}->{'btn_print'}       = $button_print;
-		$session_screens{$key}->{'btn_rename'}      = $button_rename;
-		$session_screens{$key}->{'btn_plugin'}      = $button_plugin;
-		$session_screens{$key}->{'btn_draw'}        = $button_draw;
-		$session_screens{$key}->{'btn_clipboard'}   = $button_clipboard;
+		$session_screens{$key}->{'btn_delete'}    = $button_delete;
+		$session_screens{$key}->{'btn_reopen'}    = $button_reopen;
+		$session_screens{$key}->{'btn_upload'}    = $button_upload;
+		$session_screens{$key}->{'btn_print'}     = $button_print;
+		$session_screens{$key}->{'btn_rename'}    = $button_rename;
+		$session_screens{$key}->{'btn_plugin'}    = $button_plugin;
+		$session_screens{$key}->{'btn_draw'}      = $button_draw;
+		$session_screens{$key}->{'btn_clipboard'} = $button_clipboard;
 
 		$tabtoolbar->insert( $button_reopen,               -1 );
 		$tabtoolbar->insert( $button_rename,               -1 );
@@ -2737,14 +2733,14 @@ sub fct_create_tab {
 			}
 		}
 
-		$vbox_tab->pack_start( $tabtoolbar, FALSE, TRUE, 1 );
+		$vbox_tab->pack_start( $tabtoolbar, FALSE, TRUE, 0 );
 
 		$hbox_tab_file->pack_start( $session_screens{$key}->{'image'}, TRUE,  TRUE, 10 );
 		$hbox_tab_file->pack_start( $vbox_fileinfos,                   FALSE, TRUE, 1 );
 		$hbox_tab_file->pack_start( $vbox_fileinfos2,                  FALSE, TRUE, 1 );
 
-		$vbox_tab->pack_start( $hbox_tab_file, TRUE, TRUE, 1 );
-		$scrolled_window->add_with_viewport($vbox_tab);
+		$vbox_tab->pack_start( $hbox_tab_file, TRUE, TRUE, 0 );
+
 	} else {
 		my $stats_label = Gtk2::Label->new;
 		$stats_label->set_markup( "<b>" . $gscrot_common->get_gettext->get("Statistic") . "</b>" );
@@ -2796,15 +2792,12 @@ sub fct_create_tab {
 		$view->set_columns(0);
 		$view->signal_connect( 'selection-changed', \&evt_iconview_sel_changed, 'sel_changed' );
 		$view->signal_connect( 'item-activated', \&evt_iconview_item_activated, 'item_activated' );
-
-		$session_start_screen{'first_page'}->{'scrolled_window'} = $scrolled_window;
-		$session_start_screen{'first_page'}->{'view'}            = $view;
-		$session_start_screen{'first_page'}->{'model'}           = $viewmodel;
-		$session_start_screen{'first_page'}->{'btn_reopen'}      = $button_reopen;
-		$session_start_screen{'first_page'}->{'btn_print'}       = $button_print;
-		$session_start_screen{'first_page'}->{'btn_upload'}      = $button_upload;
-		$session_start_screen{'first_page'}->{'btn_remove'}      = $button_remove;
-		$session_start_screen{'first_page'}->{'btn_delete'}      = $button_delete;
+		$session_start_screen{'first_page'}->{'view'}       = $view;
+		$session_start_screen{'first_page'}->{'model'}      = $viewmodel;
+		$session_start_screen{'first_page'}->{'btn_reopen'} = $button_reopen;
+		$session_start_screen{'first_page'}->{'btn_print'}  = $button_print;
+		$session_start_screen{'first_page'}->{'btn_upload'} = $button_upload;
+		$session_start_screen{'first_page'}->{'btn_delete'} = $button_delete;
 
 		#all buttons start insensitive
 		foreach ( keys %{ $session_start_screen{'first_page'} } ) {
@@ -2817,13 +2810,12 @@ sub fct_create_tab {
 		$tabtoolbar->insert( $button_print,                -1 );
 		$tabtoolbar->insert( $button_upload,               -1 );
 		$tabtoolbar->insert( Gtk2::SeparatorToolItem->new, -1 );
-		$tabtoolbar->insert( $button_remove,               -1 );
 		$tabtoolbar->insert( $button_delete,               -1 );
 
-		$vbox_tab->pack_start( $tabtoolbar, FALSE, TRUE, 1 );
+		$vbox_tab->pack_start( $tabtoolbar, FALSE, TRUE, 0 );
 		$hbox_all->pack_start_defaults($vbox_all);
 		$hbox_all->pack_start_defaults($vbox_all2);
-		$vbox_tab->pack_start( $hbox_all, FALSE, TRUE, 1 );
+		$vbox_tab->pack_start( $hbox_all, FALSE, TRUE, 0 );
 
 		my $scrolled_window_view = Gtk2::ScrolledWindow->new;
 		$scrolled_window_view->set_policy( 'automatic', 'automatic' );
@@ -2831,9 +2823,13 @@ sub fct_create_tab {
 		$scrolled_window_view->add($view);
 
 		$vbox_tab->pack_start( $scrolled_window_view, TRUE, TRUE, 0 );
-		$scrolled_window->add_with_viewport($vbox_tab);
+
 	}
-	return $scrolled_window;
+	
+	$vbox->pack_start_defaults($vbox_tab);
+	$vbox->show_all;
+
+	return $vbox;
 }
 
 sub fct_resize_thumb {
@@ -3471,6 +3467,16 @@ sub fct_remove {
 		$window->show_all;
 
 	}
+	return TRUE;
+}
+
+sub fct_update_gui {
+
+	while ( Gtk2->events_pending ) {
+		Gtk2->main_iteration;
+	}
+	Gtk2::Gdk->flush;
+
 	return TRUE;
 }
 
@@ -5075,12 +5081,26 @@ sub dlg_status_message {
 }
 
 sub dlg_error_message {
-	my ($dlg_error_message) = @_;
-	my $error_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/],
-		'error', 'cancel', $dlg_error_message );
+	my ( $dlg_error_message, $button_text_extra1, $button_text_extra2 ) = @_;
+	my $dlg_header = $gscrot_common->get_gettext->get("Error");
+	my $error_dialog = Gtk2::Dialog->new( $dlg_header, $window, [qw/modal destroy-with-parent/] );
+
+	$error_dialog->add_button( 'gtk-cancel', 0 );
+	$error_dialog->add_button( $button_text_extra1, 10 ) if $button_text_extra1;
+	$error_dialog->add_button( $button_text_extra2, 20 ) if $button_text_extra2;
+
+	#image and text to dialog
+	my $error_hbox = Gtk2::HBox->new( FALSE, 5 );
+	$error_hbox->pack_start_defaults( Gtk2::Image->new_from_stock( 'gtk-dialog-error', 'dialog' ) );
+	$error_hbox->pack_start_defaults( Gtk2::Label->new($dlg_error_message) );
+
+	$error_dialog->vbox->add($error_hbox);
+	$error_dialog->show_all;
+
 	my $error_response = $error_dialog->run;
-	$error_dialog->destroy() if ( $error_response eq "cancel" );
-	return TRUE;
+
+	$error_dialog->destroy();
+	return $error_response;
 }
 
 sub dlg_question_message {
@@ -5108,7 +5128,7 @@ sub dlg_rename {
 		'gtk-apply'  => 'accept'
 	);
 	$input_dialog->set_default_response('accept');
-	my $new_filaname_hbox = Gtk2::HBox->new();
+	my $new_filename_hbox = Gtk2::HBox->new();
 	my $new_filename_label
 		= Gtk2::Label->new( $gscrot_common->get_gettext->get("New filename") . ": " );
 	my $new_filename = Gtk2::Entry->new();
@@ -5119,9 +5139,9 @@ sub dlg_rename {
 	my $old_file_name_full = $dlg_rename_text;
 
 	$new_filename->set_text($old_file_name);
-	$new_filaname_hbox->pack_start_defaults($new_filename_label);
-	$new_filaname_hbox->pack_start_defaults($new_filename);
-	$input_dialog->vbox->add($new_filaname_hbox);
+	$new_filename_hbox->pack_start_defaults($new_filename_label);
+	$new_filename_hbox->pack_start_defaults($new_filename);
+	$input_dialog->vbox->add($new_filename_hbox);
 	$input_dialog->show_all;
 	my $input_response = $input_dialog->run;
 
@@ -5441,10 +5461,17 @@ sub dlg_upload {
 	$hosting_dialog->vbox->add($radio_ftp);
 	$hosting_dialog->vbox->add($ftp_vbox_dlg);
 
+	my $hosting_progress = Gtk2::ProgressBar->new;
+	$hosting_progress->set_no_show_all(TRUE);
+	$hosting_progress->set_ellipsize('middle');
+	$hosting_progress->set_orientation('left-to-right');
+	$hosting_dialog->vbox->add($hosting_progress);
+
 	$hosting_dialog->show_all;
 	while ($hosting_dialog) {
 
 		my $hosting_response = $hosting_dialog->run;
+		$hosting_progress->show;
 
 		#start upload
 		if ( $hosting_response eq "accept" ) {
@@ -5460,7 +5487,13 @@ sub dlg_upload {
 					my $uploader
 						= GScrot::Upload::UbuntuPics->new( $hosting_host, $gscrot_common->get_debug,
 						$gscrot_root, $gscrot_common->get_gettext, $window, GSCROT_VERSION );
-					foreach my $file (@files_to_upload) {
+					my $counter = 1;
+					$hosting_progress->set_fraction(0);
+					foreach my $file ( sort @files_to_upload ) {
+						$hosting_progress->set_text($file);
+
+						#update gui
+						&fct_update_gui;
 						my %upload_response = $uploader->upload( &fct_switch_home_in_file($file),
 							$hosting_username, $hosting_password );
 
@@ -5469,10 +5502,20 @@ sub dlg_upload {
 							&dlg_status_message( 1,
 								$file . " " . $gscrot_common->get_gettext->get("uploaded") );
 						} else {
-							&dlg_upload_error_message( $upload_response{'status'},
+							my $response = &dlg_upload_error_message( $upload_response{'status'},
 								$upload_response{'max_filesize'} );
-							next;
+
+							#10 == skip all, 20 == skip, else == cancel
+							last if $response == 10;
+							next if $response == 20;
+							$hosting_dialog->destroy();
+							return FALSE if $response == 0;
 						}
+						$hosting_progress->set_fraction( $counter / @files_to_upload );
+
+						#update gui
+						&fct_update_gui;
+						$counter++;
 					}
 					$uploader->show_all;
 				} elsif ( $hosting_host eq "imagebanana.com" ) {
@@ -5480,7 +5523,13 @@ sub dlg_upload {
 						= GScrot::Upload::ImageBanana->new( $hosting_host,
 						$gscrot_common->get_debug, $gscrot_root, $gscrot_common->get_gettext,
 						$window, GSCROT_VERSION );
+					my $counter = 1;
+					$hosting_progress->set_fraction(0);
 					foreach my $file (@files_to_upload) {
+						$hosting_progress->set_text($file);
+
+						#update gui
+						&fct_update_gui;
 						my %upload_response = $uploader->upload( &fct_switch_home_in_file($file),
 							$hosting_username, $hosting_password );
 
@@ -5489,10 +5538,20 @@ sub dlg_upload {
 							&dlg_status_message( 1,
 								$file . " " . $gscrot_common->get_gettext->get("uploaded") );
 						} else {
-							&dlg_upload_error_message( $upload_response{'status'},
+							my $response = &dlg_upload_error_message( $upload_response{'status'},
 								$upload_response{'max_filesize'} );
-							next;
+
+							#10 == skip all, 20 == skip, else == cancel
+							last if $response == 10;
+							next if $response == 20;
+							$hosting_dialog->destroy();
+							return FALSE if $response == 0;
 						}
+						$hosting_progress->set_fraction( $counter / @files_to_upload );
+
+						#update gui
+						&fct_update_gui;
+						$counter++;
 					}
 					$uploader->show_all;
 				} elsif ( $hosting_host eq "imageshack.us" ) {
@@ -5501,25 +5560,41 @@ sub dlg_upload {
 					#login
 					eval { $ishack->login($hosting_username); };
 					if ($@) {
-						&dlg_error_message(
+						my $response = &dlg_error_message(
 							$gscrot_common->get_gettext->get("Login failed!") . "\n"
 								. $gscrot_common->get_gettext->get(
 								"Please check your credentials and try again.")
 						);
-						next;
+
+						#10 == skip all, 20 == skip, else == cancel
+						last if $response == 10;
+						next if $response == 20;
+						$hosting_dialog->destroy();
+						return FALSE if $response == 0;
 					}
 
 					#upload
+					my $counter = 1;
+					$hosting_progress->set_fraction(0);
 					foreach my $file (@files_to_upload) {
+						$hosting_progress->set_text($file);
+
+						#update gui
+						&fct_update_gui;
 						my $url = undef;
 						eval { $url = $ishack->host( $file, undef ); };
 						if ($@) {
-							&dlg_error_message(
+							my $response = &dlg_error_message(
 								$gscrot_common->get_gettext->get("Connection error!") . "\n"
 									. $gscrot_common->get_gettext->get(
 									"Please check your connectivity and try again.")
 							);
-							next;
+
+							#10 == skip all, 20 == skip, else == cancel
+							last if $response == 10;
+							next if $response == 20;
+							$hosting_dialog->destroy();
+							return FALSE if $response == 0;
 						}
 
 						#get thumbnail url
@@ -5533,16 +5608,25 @@ sub dlg_upload {
 							&dlg_status_message( 1,
 								$file . " " . $gscrot_common->get_gettext->get("uploaded") );
 						} else {
-							&dlg_error_message(
+							my $response = &dlg_error_message(
 								$gscrot_common->get_gettext->get("Connection error!") . "\n"
 									. $gscrot_common->get_gettext->get(
 									"Please check your connectivity and try again.")
 							);
-							next;
+
+							#10 == skip all, 20 == skip, else == cancel
+							last if $response == 10;
+							next if $response == 20;
+							$hosting_dialog->destroy();
+							return FALSE if $response == 0;
 						}
+						$hosting_progress->set_fraction( $counter / @files_to_upload );
+
+						#update gui
+						&fct_update_gui;
+						$counter++;
 					}
 					$ishack->show_all;
-
 				}
 
 				#ftp
@@ -5567,8 +5651,13 @@ sub dlg_upload {
 					} else {
 
 						#we already get translated error messaged back
-						&dlg_error_message($upload_response);
-						next;
+						my $response = &dlg_error_message($upload_response);
+
+						#10 == skip all, 20 == skip, else == cancel
+						last if $response == 10;
+						next if $response == 20;
+						$hosting_dialog->destroy();
+						return FALSE if $response == 0;
 					}
 				}
 			}
@@ -5586,19 +5675,30 @@ sub dlg_upload {
 sub dlg_upload_error_message {
 	my ( $status, $max_filesize ) = @_;
 
+	my $response;
 	if ( $status == 999 ) {
-		&dlg_error_message( $gscrot_common->get_gettext->get("Login failed!") . "\n"
-				. $gscrot_common->get_gettext->get("Please check your credentials and try again.")
+		$response = &dlg_error_message(
+			$gscrot_common->get_gettext->get("Login failed!") . "\n"
+				. $gscrot_common->get_gettext->get("Please check your credentials and try again."),
+			$gscrot_common->get_gettext->get("Skip all"),
+			$gscrot_common->get_gettext->get("Skip")
 		);
 	} elsif ( $status == 998 ) {
-		&dlg_error_message(
-			$gscrot_common->get_gettext->get("Maximum filesize reached!") . " ( $max_filesize )" );
+		$response = &dlg_error_message(
+			$gscrot_common->get_gettext->get("Maximum filesize reached!") . " ( $max_filesize )",
+			$gscrot_common->get_gettext->get("Skip all"),
+			$gscrot_common->get_gettext->get("Skip")
+		);
 	} else {
-		&dlg_error_message( $gscrot_common->get_gettext->get("Connection error!") . " (" 
+		$response = &dlg_error_message(
+			$gscrot_common->get_gettext->get("Connection error!") . " (" 
 				. $status . ")\n"
-				. $gscrot_common->get_gettext->get("Please check your connectivity and try again.")
+				. $gscrot_common->get_gettext->get("Please check your connectivity and try again."),
+			$gscrot_common->get_gettext->get("Skip all"),
+			$gscrot_common->get_gettext->get("Skip")
 		);
 	}
+	return $response;
 }
 
 sub dlg_website {

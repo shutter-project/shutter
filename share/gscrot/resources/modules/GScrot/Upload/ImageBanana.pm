@@ -59,6 +59,7 @@ sub new {
 
 	$self->{_notebook} = Gtk2::Notebook->new;
 	$self->{_notebook}->set( homogeneous => 1 );
+	$self->{_notebook}->set_scrollable(TRUE);
 
 	bless $self, $class;
 	return $self;
@@ -176,7 +177,7 @@ sub show_all {
 	);
 	$upload_dialog->set_default_response('accept');
 
-	$upload_dialog->vbox->add($self->{_notebook});
+	$upload_dialog->vbox->add( $self->{_notebook} );
 	$upload_dialog->show_all;
 	my $upload_response = $upload_dialog->run;
 
@@ -432,7 +433,7 @@ sub show {
 	my $self = shift;
 
 	$self->{_notebook}->append_page( $self->create_tab(), $self->{_filename} );
-	
+
 	return TRUE;
 
 }

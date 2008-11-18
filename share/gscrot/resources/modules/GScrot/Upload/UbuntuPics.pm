@@ -59,6 +59,7 @@ sub new {
 
 	$self->{_notebook} = Gtk2::Notebook->new;
 	$self->{_notebook}->set( homogeneous => 1 );
+	$self->{_notebook}->set_scrollable(TRUE);
 	
 	bless $self, $class;
 	return $self;
