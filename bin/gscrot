@@ -511,7 +511,7 @@ my $image_raw = Gtk2::Image->new_from_pixbuf(
 	)
 );
 my $button_raw_menu
-	= Gtk2::MenuToolButton->new( $image_raw, $gscrot_common->get_gettext->get("Fullscreen") );
+	= Gtk2::MenuToolButton->new( $image_raw, $gscrot_common->get_gettext->get("Full Screen") );
 $button_raw_menu->signal_connect( 'clicked' => \&evt_take_screenshot, 'raw' );
 $button_raw_menu->set_menu(&fct_ret_workspace_menu);
 $button_raw_menu->signal_connect( 'show-menu' => \&fct_ret_workspace_menu );
@@ -1667,50 +1667,22 @@ sub evt_take_screenshot {
 
 		#web
 	} elsif ( $data eq "web" || $data eq "tray_web" ) {
-		my $url = &dlg_website;
-		unless ($url) { &fct_set_toolbar_sensitive(TRUE); return 0 }
-		my $hostname = $url;
-		$hostname =~ s/http:\/\///;
+		$screenshot = &dlg_website( $folder, $filename_value, $filetype_value, $quality_value );
 
-		if ( $hostname eq "" ) {
-			&dlg_error_message( $gscrot_common->get_gettext->get("No valid url entered") );
-			&fct_set_toolbar_sensitive(TRUE);
-			return FALSE;
-		}
-
-		#delay doesnt make much sense here, but it's implemented ;-)
-		if ( $delay_active->get_active ) {
-			sleep $delay_value;
-		}
-
-		#determining timeout
-		my $web_menu = $button_web_menu->get_menu;
-		my @timeouts = $web_menu->get_children;
-		my $timeout  = undef;
-		foreach (@timeouts) {
-
-			if ( $_->get_active ) {
-				$timeout = $_->get_children->get_text;
-				$timeout =~ /([0-9]+)/;
-				$timeout = $1;
-				print $timeout. "\n" if $gscrot_common->get_debug;
+		if ($screenshot) {
+			unless ( $screenshot->Get('width') ) {
+				&dlg_error_message(
+					$gscrot_common->get_gettext->get("Unable to capture website") . "!" );
+				&dlg_status_message( 1,
+					$gscrot_common->get_gettext->get("Unable to capture website") . "!" );
+				&fct_set_toolbar_sensitive(TRUE);
+				return FALSE;
 			}
-		}
-
-		my $screenshooter
-			= GScrot::Screenshot::Web->new( $timeout, $filetype_value, $quality_value, $url,
-			"$folder/$filename_value.$filetype_value" );
-		$screenshot = $screenshooter->web();
-
-		unless ( $screenshot->Get('width') ) {
-			&dlg_error_message(
-				$gscrot_common->get_gettext->get("Unable to capture website") . " \n" . $hostname );
-			&dlg_status_message( 1,
-				$gscrot_common->get_gettext->get("Unable to capture website") . " " . $hostname );
+		}else{
 			&fct_set_toolbar_sensitive(TRUE);
-			return FALSE;
+			return FALSE;			
 		}
-
+		
 	} elsif ( $data =~ /^gscrot_window_direct(.*)/ ) {
 		my $xid = $1;
 		print "Selected xid: $xid\n" if $gscrot_common->get_debug;
@@ -2485,7 +2457,7 @@ sub fct_integrate_screenshot_in_notebook {
 		#and append page with label == key
 		my $new_index = $notebook->append_page( fct_create_tab( $key, FALSE ), $hbox_tab_label );
 		$session_screens{$key}->{'tab_child'} = $notebook->get_nth_page($new_index);
-		$tab_close_button->signal_connect( clicked => sub { &fct_remove(); } );
+		$tab_close_button->signal_connect( clicked => sub { &fct_remove($key); } );
 
 		#		$notebook->set_tab_detachable(
 		#									  $session_screens{ $key }->{ 'tab_child' },
@@ -2533,12 +2505,6 @@ sub fct_create_tab {
 	$tabtoolbar->set_show_arrow(TRUE);
 	$tabtoolbar->set_style('icons');
 	$tabtoolbar->set_icon_size('button');
-
-	my $button_remove
-		= Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-close', 'button' ), undef );
-	$button_remove->signal_connect( 'clicked' => sub { &fct_remove(); } );
-	$tooltips->set_tip( $button_remove,
-		$gscrot_common->get_gettext->get("Remove file(s) from session") );
 
 	my $button_delete
 		= Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-delete', 'button' ), undef );
@@ -2825,7 +2791,7 @@ sub fct_create_tab {
 		$vbox_tab->pack_start( $scrolled_window_view, TRUE, TRUE, 0 );
 
 	}
-	
+
 	$vbox->pack_start_defaults($vbox_tab);
 	$vbox->show_all;
 
@@ -3427,8 +3393,9 @@ sub fct_delete {
 }
 
 sub fct_remove {
+	my ($key) = @_;
 
-	my $key = &fct_get_current_file;
+	$key = &fct_get_current_file unless $key;
 
 	#single file
 	if ($key) {
@@ -4429,7 +4396,7 @@ sub fct_ret_tray_menu {
 		activate => \&evt_take_screenshot,
 		'tray_select'
 	);
-	my $menuitem_raw = Gtk2::ImageMenuItem->new( $gscrot_common->get_gettext->get("Fullscreen") );
+	my $menuitem_raw = Gtk2::ImageMenuItem->new( $gscrot_common->get_gettext->get("Full Screen") );
 	$menuitem_raw->set_image(
 		Gtk2::Image->new_from_pixbuf(
 			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
@@ -5702,6 +5669,8 @@ sub dlg_upload_error_message {
 }
 
 sub dlg_website {
+	my ( $folder, $filename_value, $filetype_value, $quality_value ) = @_;
+
 	my $website_dialog = Gtk2::Dialog->new(
 		$gscrot_common->get_gettext->get("Take a screenshot of a website"),
 		$window,
@@ -5730,12 +5699,52 @@ sub dlg_website {
 	$website_hbox->pack_start_defaults($website_label);
 	$website_hbox->pack_start_defaults($website);
 	$website_dialog->vbox->add($website_hbox);
+
+#	my $website_progress = Gtk2::ProgressBar->new;
+#	$website_progress->set_no_show_all(TRUE);
+#	$website_progress->set_ellipsize('middle');
+#	$website_progress->set_orientation('left-to-right');
+#	$website_progress->set_pulse_step(0.1);
+#	$website_dialog->vbox->add($website_progress);
+
 	$website_dialog->show_all;
 	my $website_response = $website_dialog->run;
 
 	if ( $website_response eq "accept" ) {
+
+		#imagemagick object
+		my $screenshot;
+
+		my $url      = $website->get_text;
+		my $hostname = $url;
+		$hostname =~ s/http:\/\///;
+
+		if ( $hostname eq "" ) {
+			&dlg_error_message( $gscrot_common->get_gettext->get("No valid url entered") );
+			$website_dialog->destroy();
+			return $screenshot;
+		}
+
+		#determining timeout
+		my $web_menu = $button_web_menu->get_menu;
+		my @timeouts = $web_menu->get_children;
+		my $timeout  = undef;
+		foreach (@timeouts) {
+			if ( $_->get_active ) {
+				$timeout = $_->get_children->get_text;
+				$timeout =~ /([0-9]+)/;
+				$timeout = $1;
+				print $timeout. "\n" if $gscrot_common->get_debug;
+			}
+		}
+
+		my $screenshooter
+			= GScrot::Screenshot::Web->new( $timeout, $filetype_value, $quality_value, $url,
+			"$folder/$filename_value.$filetype_value" );		
+		$screenshot = $screenshooter->web();
+
 		$website_dialog->destroy();
-		return $website->get_text;
+		return $screenshot;
 	} else {
 		$website_dialog->destroy();
 		return FALSE;

@@ -162,34 +162,6 @@ sub upload {
 	}
 }
 
-sub show_all {
-	my $self = shift;
-
-	my $dlg_header
-		= $self->{_gettext_object}->get("Upload") . " - "
-		. $self->{_host} . " - "
-		. $self->{_username};
-	my $upload_dialog = Gtk2::Dialog->new(
-		$dlg_header,
-		$self->{_main_gtk_window},
-		[qw/modal destroy-with-parent/],
-		'gtk-ok' => 'accept'
-	);
-	$upload_dialog->set_default_response('accept');
-
-	$upload_dialog->vbox->add( $self->{_notebook} );
-	$upload_dialog->show_all;
-	my $upload_response = $upload_dialog->run;
-
-	if ( $upload_response eq "accept" ) {
-		$upload_dialog->destroy();
-		return TRUE;
-	} else {
-		$upload_dialog->destroy();
-		return FALSE;
-	}
-}
-
 sub create_tab {
 	my $self = shift;
 
@@ -427,6 +399,37 @@ sub create_tab {
 	$upload_vbox->pack_start_defaults($upload_hbox18);
 
 	return $upload_vbox;
+}
+
+sub show_all {
+	my $self = shift;
+	
+	#are there any uploaded files?
+	return FALSE if $self->{_notebook}->get_n_pages < 1;
+
+	my $dlg_header
+		= $self->{_gettext_object}->get("Upload") . " - "
+		. $self->{_host} . " - "
+		. $self->{_username};
+	my $upload_dialog = Gtk2::Dialog->new(
+		$dlg_header,
+		$self->{_main_gtk_window},
+		[qw/modal destroy-with-parent/],
+		'gtk-ok' => 'accept'
+	);
+	$upload_dialog->set_default_response('accept');
+
+	$upload_dialog->vbox->add( $self->{_notebook} );
+	$upload_dialog->show_all;
+	my $upload_response = $upload_dialog->run;
+
+	if ( $upload_response eq "accept" ) {
+		$upload_dialog->destroy();
+		return TRUE;
+	} else {
+		$upload_dialog->destroy();
+		return FALSE;
+	}
 }
 
 sub show {

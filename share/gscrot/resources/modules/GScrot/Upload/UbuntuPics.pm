@@ -160,7 +160,7 @@ sub upload
 
 sub create_tab {
 	my $self = shift;
-	
+		
 	#Clipboard
 	my $clipboard = Gtk2::Clipboard->get( Gtk2::Gdk->SELECTION_CLIPBOARD );
 
@@ -290,6 +290,9 @@ sub create_tab {
 
 sub show_all {
 	my $self = shift;
+
+	#are there any uploaded files?
+	return FALSE if $self->{_notebook}->get_n_pages < 1;
 
 	my $dlg_header = $self->{_gettext_object}->get("Upload") . " - " . $self->{_host} . " - " . $self->{_username};
 	my $upload_dialog = Gtk2::Dialog->new( $dlg_header, $self->{_main_gtk_window}, [qw/modal destroy-with-parent/], 'gtk-ok' => 'accept' );
