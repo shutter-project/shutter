@@ -29,7 +29,6 @@ use strict;
 use GScrot::Screenshot::Main;
 our @ISA = qw(GScrot::Screenshot::Main);
 
-
 #define constants
 #--------------------------------------
 use constant TRUE  => 1;
@@ -40,28 +39,42 @@ use constant FALSE => 0;
 sub new {
 	my $class = shift;
 
-	#call constructor of super class (gscrot_root, debug_cparam, gettext_object, include_cursor, delay)
+ #call constructor of super class (gscrot_root, debug_cparam, gettext_object, include_cursor, delay)
 	my $self = $class->SUPER::new( shift, shift, shift, shift, shift );
-	
+
 	$self->{_selected_workspace} = shift;
-	
+	$self->{_vpx}                = shift;
+	$self->{_vpy}                = shift;
+
 	bless $self, $class;
 	return $self;
 }
 
 sub workspace {
 	my $self = shift;
-	
-	my $active_workspace = $self->{_wnck_screen}->get_active_workspace;
+
 	my $wrksp_changed = FALSE;
-	foreach my $space ( @{$self->{_workspaces}} ) {
-		next unless defined $space;
-		if (    $self->{_selected_workspace} == $space->get_number
-			 && $self->{_selected_workspace} != $active_workspace->get_number )
-		{
-			$space->activate( time );
-			$wrksp_changed = TRUE;
+
+	my $active_workspace = $self->{_wnck_screen}->get_active_workspace;
+	my $active_vpx       = $active_workspace->get_viewport_x;
+	my $active_vpy       = $active_workspace->get_viewport_y;
+
+	#metacity etc
+	if ( $self->{_selected_workspace} ) {
+		foreach my $space ( @{ $self->{_workspaces} } ) {
+			next unless defined $space;
+			if (   $self->{_selected_workspace} == $space->get_number
+				&& $self->{_selected_workspace} != $active_workspace->get_number )
+			{
+				$space->activate(time);
+				$wrksp_changed = TRUE;
+			}
 		}
+
+		#compiz
+	} else {
+		$self->{_wnck_screen}->move_viewport( $self->{_vpx}, $self->{_vpy} );
+		$wrksp_changed = TRUE;
 	}
 
 	#mh...just sleep until workspace is changed (fixme?)
@@ -69,10 +82,20 @@ sub workspace {
 		$self->{_delay} = 2;
 	}
 
-	my $output =
-		$self->get_pixbuf_from_drawable( $self->get_root_and_geometry, $self->{_include_cursor}, $self->{_delay});
+	my $output = $self->get_pixbuf_from_drawable(
+		$self->get_root_and_geometry,
+		$self->{_include_cursor},
+		$self->{_delay}
+	);
 
-	$active_workspace->activate( time ) if $wrksp_changed;
+	#metacity etc
+	if ( $self->{_selected_workspace} ) {
+		$active_workspace->activate(time) if $wrksp_changed;
+	#compiz
+	} else {
+		$self->{_wnck_screen}->move_viewport( $active_vpx, $active_vpy );
+	}
+
 	return $output;
 }
 
