@@ -62,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.256";
+use constant BRANCH              => "Rev.257";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -1678,11 +1678,11 @@ sub evt_take_screenshot {
 				&fct_set_toolbar_sensitive(TRUE);
 				return FALSE;
 			}
-		}else{
+		} else {
 			&fct_set_toolbar_sensitive(TRUE);
-			return FALSE;			
+			return FALSE;
 		}
-		
+
 	} elsif ( $data =~ /^gscrot_window_direct(.*)/ ) {
 		my $xid = $1;
 		print "Selected xid: $xid\n" if $gscrot_common->get_debug;
@@ -4332,17 +4332,63 @@ sub fct_iter_programs {
 
 sub fct_ret_workspace_menu {
 
+	my $menu_wrksp = Gtk2::Menu->new;
+
 	my $screen = Gnome2::Wnck::Screen->get_default;
 	$screen->force_update();
 
+	my $wm_name = $screen->get_window_manager_name;
+
 	my $active_workspace = $screen->get_active_workspace;
+
+	#we need to handle different window manager here because there are some different models related
+	#to workspaces and viewports
+	#	compiz uses "one workspace" - "multiple viewports" model for example
+	#	default gnome wm metacity simply uses multiple workspaces
+	#we will try to handle them by name
+
+	#compiz
+	if ( $wm_name =~ /compiz/ ) {
+
+		#calculate viewports with size of workspace
+		my $vpx = $active_workspace->get_viewport_x;
+		my $vpy = $active_workspace->get_viewport_y;
+
+		my $n_viewports_column = int( $active_workspace->get_width / $screen->get_width );
+		my $n_viewports_rows   = int( $active_workspace->get_height / $screen->get_height );
+
+		#rows
+		for ( my $j = 0; $j < $n_viewports_rows; $j++ ) {
+
+			#columns
+			for ( my $i = 0; $i < $n_viewports_column; $i++ ) {
+				my @vp = ( $i * $screen->get_width, $j * $screen->get_height );
+				my $vp_name = "$wm_name #x: $i #y: $j";
+
+				#do not offer current viewport
+				next if ( $vp[0] == $vpx && $vp[1] == $vpy );
+				
+				my $vp_item = Gtk2::MenuItem->new_with_label($vp_name);
+				$vp_item->signal_connect(
+					'activate' => \&evt_take_screenshot,
+					"gscrot_wrksp_direct" . $space->get_number
+				);
+				$menu_wrksp->append($vp_item);
+			
+			}
+		}    #columns
+	}    #rows
+
+	#all other wm manager like metacity etc.
+	#we could add more of them here if needed
+}
+else {
 
 	my @workspaces = ();
 	for ( my $wcount = 0; $wcount < $screen->get_workspace_count; $wcount++ ) {
 		push( @workspaces, $screen->get_workspace($wcount) );
 	}
 
-	my $menu_wrksp = Gtk2::Menu->new;
 	foreach my $space (@workspaces) {
 		next unless defined $space;
 		if ( $active_workspace->get_number != $space->get_number ) {
@@ -4354,9 +4400,12 @@ sub fct_ret_workspace_menu {
 			$menu_wrksp->append($wrkspace_item);
 		}
 	}
-	$button_raw_menu->set_menu($menu_wrksp);
-	$menu_wrksp->show_all();
-	return $menu_wrksp;
+
+}
+
+$button_raw_menu->set_menu($menu_wrksp);
+$menu_wrksp->show_all();
+return $menu_wrksp;
 }
 
 sub fct_ret_window_menu {
@@ -5700,12 +5749,12 @@ sub dlg_website {
 	$website_hbox->pack_start_defaults($website);
 	$website_dialog->vbox->add($website_hbox);
 
-#	my $website_progress = Gtk2::ProgressBar->new;
-#	$website_progress->set_no_show_all(TRUE);
-#	$website_progress->set_ellipsize('middle');
-#	$website_progress->set_orientation('left-to-right');
-#	$website_progress->set_pulse_step(0.1);
-#	$website_dialog->vbox->add($website_progress);
+	#	my $website_progress = Gtk2::ProgressBar->new;
+	#	$website_progress->set_no_show_all(TRUE);
+	#	$website_progress->set_ellipsize('middle');
+	#	$website_progress->set_orientation('left-to-right');
+	#	$website_progress->set_pulse_step(0.1);
+	#	$website_dialog->vbox->add($website_progress);
 
 	$website_dialog->show_all;
 	my $website_response = $website_dialog->run;
@@ -5740,7 +5789,7 @@ sub dlg_website {
 
 		my $screenshooter
 			= GScrot::Screenshot::Web->new( $timeout, $filetype_value, $quality_value, $url,
-			"$folder/$filename_value.$filetype_value" );		
+			"$folder/$filename_value.$filetype_value" );
 		$screenshot = $screenshooter->web();
 
 		$website_dialog->destroy();

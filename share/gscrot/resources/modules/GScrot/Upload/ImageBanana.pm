@@ -56,6 +56,7 @@ sub new {
 	$self->{_filename} = undef;
 	$self->{_username} = undef;
 	$self->{_password} = undef;
+	$self->{_logged_in} = FALSE;	
 
 	$self->{_notebook} = Gtk2::Notebook->new;
 	$self->{_notebook}->set( homogeneous => 1 );
@@ -84,7 +85,7 @@ sub upload {
 	utf8::encode $upload_filename;
 	utf8::encode $password;
 	utf8::encode $username;
-	if ( $username ne "" && $password ne "" ) {
+	if ( $username ne "" && $password ne "" && !$self->{_logged_in}) {
 
 		$self->{_mech}->get("http://www.imagebanana.com/myib/login/");
 		$self->{_http_status} = $self->{_mech}->status();
@@ -107,6 +108,7 @@ sub upload {
 			return %{ $self->{_links} };
 		}
 		$self->{_links}{status} = 'OK Login';
+		$self->{_logged_in} = TRUE;
 
 	}
 
@@ -403,6 +405,8 @@ sub create_tab {
 
 sub show_all {
 	my $self = shift;
+
+	$self->{_logged_in} = FALSE;
 	
 	#are there any uploaded files?
 	return FALSE if $self->{_notebook}->get_n_pages < 1;
