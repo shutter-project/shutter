@@ -63,8 +63,8 @@ sub new {
 	return $self;
 }
 
-sub upload {
-	my ( $self, $uri, $upload_filename, $username, $password ) = @_;
+sub login {
+	my ( $self, $uri, $username, $password ) = @_;
 
 	#uri should start with ftp:// to parse it correctly
 	$uri = "ftp://" . $uri unless ( $uri =~ /^ftp:\/\// );
@@ -79,43 +79,60 @@ sub upload {
 	$self->{_auth} =~ /(.*):?([0-9]?)/;
 	$self->{_host} = $1;
 	$self->{_port} = $2 || 21;
-	
+
 	#check uri and return if anything is missing
-	unless ($self->{_host} && $self->{_port}){
-		return $self->{_gettext_object}->get("Illegal URI!") . "\n"
-		. "<<ftp://host:port/path>>";		
+	unless ( $self->{_host} && $self->{_port} ) {
+		return $self->{_gettext_object}->get("Illegal URI!") . "\n" . "<<ftp://host:port/path>>";
 	}
 
 	#store parms as object vars
-	$self->{_filename} = $upload_filename;
 	$self->{_username} = $username;
 	$self->{_password} = $password;
 
 	utf8::encode $self->{_host};
-	utf8::encode $self->{_filename};
 	utf8::encode $self->{_username} if $self->{_username};
 	utf8::encode $self->{_password} if $self->{_password};
 
 	#CONNECT TO FTP SERVER
-	$self->{_ftp} = Net::FTP->new( $self->{_host}, Passive => $self->{_mode}, Port => $self->{_port})
+	$self->{_ftp}
+		= Net::FTP->new( $self->{_host}, Passive => $self->{_mode}, Port => $self->{_port} )
 		or return $self->{_gettext_object}->get("Connection error!") . "\n"
 		. $self->{_gettext_object}->get("Please check your connectivity and try again.") . "\n("
 		. $@ . ")";
-	
-	#TRY TO LOGIN WITH GIVEN CREDENTIALS	
+
+	#TRY TO LOGIN WITH GIVEN CREDENTIALS
 	$self->{_ftp}->login( $self->{_username}, $self->{_password} )
 		or return $self->{_gettext_object}->get("Login failed!") . "\n"
 		. $self->{_gettext_object}->get("Please check your credentials and try again.");
 
+	#THERE ARE NO ERRORS WHEN ROUTINE RETURNS AT THIS POINT
+	return FALSE;
+}
+
+sub upload {
+	my ( $self, $upload_filename ) = @_;
+
+	#store parms as object vars
+	$self->{_filename} = $upload_filename;
+
+	utf8::encode $self->{_filename};
+
 	#CHANGE WORKING DIRECTORY USING CWD COMMAND
 	$self->{_ftp}->cwd( $self->{_path} )
 		or return $self->{_gettext_object}->get("Cannot change working directory!") . "\n("
-		. chomp($self->{_ftp}->message) . ")";
+		. chomp( $self->{_ftp}->message ) . ")";
 
 	#UPLOAD FILE
 	$self->{_ftp}->put( $self->{_filename} )
 		or return $self->{_gettext_object}->get("Upload failed!") . "\n("
-		. chomp($self->{_ftp}->message) . ")";
+		. chomp( $self->{_ftp}->message ) . ")";
+
+	#THERE ARE NO ERRORS WHEN ROUTINE RETURNS AT THIS POINT
+	return FALSE;
+}
+
+sub quit {
+	my $self = shift;
 
 	#QUIT CONNECTION
 	$self->{_ftp}->quit;

@@ -73,6 +73,9 @@ sub new {
 	#wnck screen
 	$self->{_wnck_screen} = Gnome2::Wnck::Screen->get_default;
 	$self->{_wnck_screen}->force_update();	
+	
+	#window_manager_name
+	$self->{_wm_manager_name} = $self->{_wnck_screen}->get_window_manager_name;
 
 	#workspaces
 	$self->{_workspaces} = ();

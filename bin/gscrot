@@ -62,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.259";
+use constant BRANCH              => "Rev.260";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -89,6 +89,7 @@ import GScrot::Draw;
 
 #gscrot app classes
 require GScrot::App::Common;
+require GScrot::App::HelperFunctions;
 
 #screenshot classes
 require GScrot::Screenshot::SelectorAdvanced;
@@ -105,9 +106,10 @@ require GScrot::Upload::FTP;
 
 #--------------------------------------
 
-#create common app object
+#create app objects
 #--------------------------------------
 my $gscrot_common = GScrot::App::Common->new($gscrot_root);
+my $gscrot_hfunct = GScrot::App::HelperFunctions->new($gscrot_common);
 
 #--------------------------------------
 
@@ -148,6 +150,7 @@ my $clipboard = Gtk2::Clipboard->get( Gtk2::Gdk->SELECTION_CLIPBOARD );
 
 #Tooltips
 my $tooltips = Gtk2::Tooltips->new;
+$tooltips->force_window;
 
 #gui
 #--------------------------------------
@@ -499,6 +502,9 @@ $tooltips->set_tip(
 	$gscrot_common->get_gettext->get(
 		"Draw a rectangular capture area with your mouse\nto select a specified screen area")
 );
+
+$button_select_menu->set_arrow_tooltip( $tooltips,
+	$gscrot_common->get_gettext->get("Choose selection tool"), 'arrow' );
 
 #--------------------------------------
 
@@ -1242,7 +1248,7 @@ my $accounts_tree = Gtk2::TreeView->new_with_model($accounts_model);
 $tooltips->set_tip(
 	$accounts_tree,
 	$gscrot_common->get_gettext->get(
-		"<b>Note:</b> Entering your Accounts for specific hosting-sites is optional. If entered it will give you the same benefits as the upload on the website. If you leave these fields empty you will be able to upload to the specific hosting-partner as a guest."
+		"Entering your Accounts for specific hosting-sites is optional. If entered it will give you the same benefits as the upload on the website. If you leave these fields empty you will be able to upload to the specific hosting-partner as a guest."
 	)
 );
 
@@ -1253,19 +1259,31 @@ $accounts_tree->signal_connect(
 
 &fct_set_model_accounts($accounts_tree);
 
-#ftp box
-$ftp_hbox1->pack_start( Gtk2::Label->new( $gscrot_common->get_gettext->get("URI") ),
-	TRUE, TRUE, 10 );
+#ftp uri
+my $ftp_entry_label = Gtk2::Label->new( $gscrot_common->get_gettext->get("URI") );
+
+$ftp_hbox1->pack_start( $ftp_entry_label, TRUE, TRUE, 10 );
+
 my $ftp_remote_entry = Gtk2::Entry->new;
 if ( defined $settings_xml->{'general'}->{'ftp_uri'} ) {
 	$ftp_remote_entry->set_text( $settings_xml->{'general'}->{'ftp_uri'} );
 } else {
 	$ftp_remote_entry->set_text("ftp://host:port/path");
 }
+
+$tooltips->set_tip( $ftp_entry_label,
+	$gscrot_common->get_gettext->get("URI\nExample: ftp://host:port/path") );
+
+$tooltips->set_tip( $ftp_remote_entry,
+	$gscrot_common->get_gettext->get("URI\nExample: ftp://host:port/path") );
+
 $ftp_hbox1->pack_start( $ftp_remote_entry, TRUE, TRUE, 10 );
 
-$ftp_hbox2->pack_start( Gtk2::Label->new( $gscrot_common->get_gettext->get("Mode") ),
-	TRUE, TRUE, 10 );
+#connection mode
+my $ftp_mode_label = Gtk2::Label->new( $gscrot_common->get_gettext->get("Connection mode") );
+
+$ftp_hbox2->pack_start( $ftp_mode_label, TRUE, TRUE, 10 );
+
 my $ftp_mode_combo = Gtk2::ComboBox->new_text;
 $ftp_mode_combo->insert_text( 0, "Active mode" );
 $ftp_mode_combo->insert_text( 1, "Passive mode" );
@@ -1274,20 +1292,34 @@ if ( defined $settings_xml->{'general'}->{'ftp_mode'} ) {
 } else {
 	$ftp_mode_combo->set_active(0);
 }
+
+$tooltips->set_tip( $ftp_mode_label, $gscrot_common->get_gettext->get("Connection method") );
+
+$tooltips->set_tip( $ftp_mode_combo, $gscrot_common->get_gettext->get("Connection method") );
+
 $ftp_hbox2->pack_start( $ftp_mode_combo, TRUE, TRUE, 10 );
 
-$ftp_hbox3->pack_start( Gtk2::Label->new( $gscrot_common->get_gettext->get("Username") ),
-	TRUE, TRUE, 10 );
+#username
+my $ftp_username_label = Gtk2::Label->new( $gscrot_common->get_gettext->get("Username") );
+$ftp_hbox3->pack_start( $ftp_username_label, TRUE, TRUE, 10 );
+
 my $ftp_username_entry = Gtk2::Entry->new;
 if ( defined $settings_xml->{'general'}->{'ftp_username'} ) {
 	$ftp_username_entry->set_text( $settings_xml->{'general'}->{'ftp_username'} );
 } else {
 	$ftp_username_entry->set_text("");
 }
+
+$tooltips->set_tip( $ftp_username_label, $gscrot_common->get_gettext->get("Username") );
+
+$tooltips->set_tip( $ftp_username_entry, $gscrot_common->get_gettext->get("Username") );
+
 $ftp_hbox3->pack_start( $ftp_username_entry, TRUE, TRUE, 10 );
 
-$ftp_hbox4->pack_start( Gtk2::Label->new( $gscrot_common->get_gettext->get("Password") ),
-	TRUE, TRUE, 10 );
+#password
+my $ftp_password_label = Gtk2::Label->new( $gscrot_common->get_gettext->get("Password") );
+$ftp_hbox4->pack_start( $ftp_password_label, TRUE, TRUE, 10 );
+
 my $ftp_password_entry = Gtk2::Entry->new;
 $ftp_password_entry->set_invisible_char("*");
 $ftp_password_entry->set_visibility(FALSE);
@@ -1296,6 +1328,11 @@ if ( defined $settings_xml->{'general'}->{'ftp_password'} ) {
 } else {
 	$ftp_password_entry->set_text("");
 }
+
+$tooltips->set_tip( $ftp_password_label, $gscrot_common->get_gettext->get("Password") );
+
+$tooltips->set_tip( $ftp_password_entry, $gscrot_common->get_gettext->get("Password") );
+
 $ftp_hbox4->pack_start( $ftp_password_entry, TRUE, TRUE, 10 );
 
 #--------------------------------------
@@ -1526,7 +1563,7 @@ sub evt_value_changed {
 	if ( $data eq "type_changed" ) {
 		if ( $combobox_type->get_active_text eq "jpeg" ) {
 			$scale->set_range( 1, 100 );
-			$scale->set_value(75);
+			$scale->set_value(90);
 			$scale_label->set_text( $gscrot_common->get_gettext->get("Quality") );
 		} elsif ( $combobox_type->get_active_text eq "png" ) {
 			$scale->set_range( 0, 9 );
@@ -1728,17 +1765,18 @@ sub evt_take_screenshot {
 			$delay_value, $selected_workspace, $vpx, $vpy );
 		$screenshot = $screenshooter->workspace();
 	}
+
+	#screenshot was taken at this stage...
+	#start postprocessing here
+
 	if ( $hide_active->get_active && ( $data ne "web" && $data ne "tray_web" ) ) {
 		$window->show_all;
 		Gtk2::Gdk->flush;
 		$is_in_tray = FALSE;
 	}
 
-	#screenshot was taken at this stage...
-	#start postprocessing here
-
 	#check if file already exists
-	if ( &fct_file_exists("$folder/$filename_value.$filetype_value")
+	if ( $gscrot_hfunct->file_exists("$folder/$filename_value.$filetype_value")
 		&& ( $data ne "web" && $data ne "tray_web" ) )
 	{
 		unless (
@@ -1807,7 +1845,7 @@ sub evt_take_screenshot {
 				filename => $screenshot_thumbnail_name,
 				quality  => $quality_value
 			);
-			unless ( &fct_file_exists($screenshot_thumbnail_name) ) {
+			unless ( $gscrot_hfunct->file_exists($screenshot_thumbnail_name) ) {
 				&dlg_error_message(
 					$$gscrot_common->get_gettext->get("Could not generate thumbnail") );
 				undef $screenshot_thumbnail;
@@ -1832,7 +1870,7 @@ sub evt_take_screenshot {
 			quality  => $quality_value
 		);
 	}    #end screenshot successfull
-	if ( &fct_file_exists($screenshot_name) ) {
+	if ( $gscrot_hfunct->file_exists($screenshot_name) ) {
 
 		#integrate it into the notebook
 		my $new_key_screenshot = &fct_integrate_screenshot_in_notebook($screenshot_name);
@@ -1957,15 +1995,15 @@ sub evt_delete_window {
 }
 
 sub evt_bug {
-	&fct_gnome_open( undef, "https://bugs.launchpad.net/gscrot", undef );
+	$gscrot_hfunct->gnome_open( undef, "https://bugs.launchpad.net/gscrot", undef );
 }
 
 sub evt_question {
-	&fct_gnome_open( undef, "https://answers.launchpad.net/gscrot", undef );
+	$gscrot_hfunct->gnome_open( undef, "https://answers.launchpad.net/gscrot", undef );
 }
 
 sub evt_translate {
-	&fct_gnome_open( undef, "https://translations.launchpad.net/gscrot", undef );
+	$gscrot_hfunct->gnome_open( undef, "https://translations.launchpad.net/gscrot", undef );
 }
 
 sub evt_about {
@@ -2009,10 +2047,10 @@ sub evt_about {
 	$about->set_name(GSCROT_NAME) unless Gtk2->CHECK_VERSION( 2, 12, 0 );
 	$about->set_program_name(GSCROT_NAME) if Gtk2->CHECK_VERSION( 2, 12, 0 );
 	$about->set_version(GSCROT_VERSION);
-	$about->set_url_hook( \&fct_gnome_open );
+	$about->set_url_hook( sub { $gscrot_hfunct->gnome_open(@_) } );
 	$about->set_website_label($website);
 	$about->set_website($website);
-	$about->set_email_hook( \&fct_gnome_open_mail );
+	$about->set_email_hook( sub { $gscrot_hfunct->gnome_open_mail(@_) } );
 	$about->set_authors(
 		"Development:\nMario Kemper <mario.kemper\@googlemail.com>\nRene Hennig <Rene.Hennig\@my-united.net>\n\n"
 			. "Patches:\nFranco Zeoli\n\n"
@@ -2114,7 +2152,7 @@ sub evt_accounts {
 		my $model         = $tree->get_model();
 		my $account_iter  = $model->get_iter($path);
 		my $account_value = $model->get_value( $account_iter, 3 );
-		&fct_gnome_open( undef, $account_value, undef );
+		$gscrot_hfunct->gnome_open( undef, $account_value, undef );
 	}
 	return TRUE;
 }
@@ -2323,7 +2361,7 @@ sub evt_save_as {
 			$filename .= "." . $choosen_format;
 		}
 
-		unless ( &fct_file_exists($filename) ) {
+		unless ( $gscrot_hfunct->file_exists($filename) ) {
 			&fct_imagemagick_perform( "save", $session_screens{$key}->{'long'}, $filename );
 		} else {
 
@@ -2388,8 +2426,11 @@ sub evt_delete_profile {
 		unlink( "$ENV{'HOME'}/.gscrot/profiles/" . $active_text . ".xml" );
 		unlink( "$ENV{'HOME'}/.gscrot/profiles/" . $active_text . "_accounts.xml" );
 
-		unless ( &fct_file_exists( "$ENV{'HOME'}/.gscrot/profiles/" . $active_text . ".xml" )
-			|| &fct_file_exists( "$ENV{'HOME'}/.gscrot/profiles/" . $active_text . "_accounts.xml" )
+		unless (
+			$gscrot_hfunct->file_exists( "$ENV{'HOME'}/.gscrot/profiles/" . $active_text . ".xml" )
+			|| $gscrot_hfunct->file_exists(
+				"$ENV{'HOME'}/.gscrot/profiles/" . $active_text . "_accounts.xml"
+			)
 			)
 		{
 			$combobox_settings_profiles->remove_text($active_index);
@@ -2616,7 +2657,7 @@ sub fct_create_tab {
 		$session_screens{$key}->{'geometry_label'} = Gtk2::Label->new(
 			$session_screens{$key}->{'width'} . "x" . $session_screens{$key}->{'height'} );
 
-		if ( &fct_file_exists( $session_screens{$key}->{'filename'} ) ) {
+		if ( $gscrot_hfunct->file_exists( $session_screens{$key}->{'filename'} ) ) {
 			$session_screens{$key}->{'image'}
 				= Gtk2::Image->new_from_pixbuf( $session_screens{$key}->{'thumb'} );
 		} else {
@@ -2994,7 +3035,7 @@ sub fct_save_settings {
 	foreach ( sort keys %session_screens ) {
 		my $utf8_filename = $session_screens{$_}->{'long'};
 		utf8::encode $utf8_filename;
-		if ( &fct_file_exists( $session_screens{$_}->{'long'} ) ) {
+		if ( $gscrot_hfunct->file_exists( $session_screens{$_}->{'long'} ) ) {
 			$clean_files{ "file" . $counter }{'filename'} = $utf8_filename;
 			$counter++;
 		}
@@ -3092,7 +3133,7 @@ sub fct_load_settings {
 		if ( defined $profilename );
 
 	my $settings_xml;
-	if ( &fct_file_exists($settingsfile) ) {
+	if ( $gscrot_hfunct->file_exists($settingsfile) ) {
 		eval {
 			$settings_xml = XMLin($settingsfile);
 
@@ -3256,7 +3297,7 @@ sub fct_load_accounts {
 		if ( defined $profilename );
 
 	my $accounts_xml;
-	eval { $accounts_xml = XMLin($accountsfile) if &fct_file_exists($accountsfile); };
+	eval { $accounts_xml = XMLin($accountsfile) if $gscrot_hfunct->file_exists($accountsfile); };
 
 	if ($@) {
 		&dlg_error_message(
@@ -3320,7 +3361,7 @@ sub fct_load_session {
 
 	eval {
 		my $session_xml = XMLin($sessionfile)
-			if &fct_file_exists($sessionfile);
+			if $gscrot_hfunct->file_exists($sessionfile);
 
 		foreach ( sort keys %{$session_xml} ) {
 			&fct_integrate_screenshot_in_notebook( ${$session_xml}{$_}{'filename'} );
@@ -3334,20 +3375,6 @@ sub fct_load_session {
 	}
 
 	return TRUE;
-}
-
-sub fct_file_exists {
-	my ($filename) = @_;
-	return FALSE unless $filename;
-	$filename = &fct_switch_home_in_file($filename);
-	return TRUE if ( -f $filename );
-	return FALSE;
-}
-
-sub fct_switch_home_in_file {
-	my ($filename) = @_;
-	$filename =~ s/^~/$ENV{ HOME }/;    #switch ~ in path to /home/username
-	return $filename;
 }
 
 sub fct_screenshot_exists {
@@ -3704,7 +3731,7 @@ sub fct_execute_plugin {
 	my $arrayref = $_[1];
 	my ( $plugin_value, $plugin_name, $plugin_lang, $key, $plugin_dialog ) = @$arrayref;
 
-	unless ( &fct_file_exists( $session_screens{$key}->{'long'} ) ) {
+	unless ( $gscrot_hfunct->file_exists( $session_screens{$key}->{'long'} ) ) {
 		&fct_update_tab($key);
 		return FALSE;
 	}
@@ -3765,25 +3792,6 @@ sub fct_execute_plugin {
 		}
 	}
 	&fct_update_tab($key);
-	return TRUE;
-}
-
-sub fct_usage {
-	print "gscrot [options]\n";
-	print "Available options:\n\n"
-		. "Capture:\n"
-		. "--full (starts gscrot and takes a full screen screenshot directly)\n"
-		. "--selection (starts gscrot in selection mode)\n"
-		. "--window (starts gscrot in window selection mode)\n"
-		. "--section (starts gscrot in section selection mode)\n\n"
-		.
-
-		"Application:\n"
-		. "--min_at_startup (starts gscrot minimized to tray)\n"
-		. "--debug (prints a lot of debugging information to STDOUT)\n"
-		. "--disable_systray (disable systray icon)\n"
-		. "--help (displays this help)\n";
-
 	return TRUE;
 }
 
@@ -3991,20 +3999,10 @@ sub fct_get_latest_tab_key {
 	return $max_key + 1;
 }
 
-sub fct_gnome_open {
-	my ( $dialog, $link, $user_data ) = @_;
-	system("gnome-open $link");
-}
-
-sub fct_gnome_open_mail {
-	my ( $dialog, $mail, $user_data ) = @_;
-	system("gnome-open mailto:$mail");
-}
-
 sub fct_imagemagick_perform {
 	my ( $function, $file, $data ) = @_;
 	my $image = Image::Magick->new;
-	$file = &fct_switch_home_in_file($file);
+	$file = $gscrot_hfunct->switch_home_in_file($file);
 	$image->ReadImage($file);
 
 	if ( $function eq "reduce_colors" ) {
@@ -4052,14 +4050,14 @@ sub fct_resize_imagemagick_object {
 sub fct_check_installed_programs {
 
 	%gm_programs = do "$gscrot_root/share/gscrot/resources/system/programs.conf";
-	if ( &fct_file_exists("$ENV{ 'HOME' }/.gscrot/programs.conf") ) {
+	if ( $gscrot_hfunct->file_exists("$ENV{ 'HOME' }/.gscrot/programs.conf") ) {
 		print
 			"\nINFO: using custom program settings found at $ENV{ 'HOME' }/.gscrot/programs.conf\n";
 		%gm_programs = do "$ENV{ 'HOME' }/.gscrot/programs.conf";
 	}
 
 	foreach ( keys %gm_programs ) {
-		unless ( &fct_file_exists( $gm_programs{$_}->{'binary'} ) ) {
+		unless ( $gscrot_hfunct->file_exists( $gm_programs{$_}->{'binary'} ) ) {
 			print " Could not detect binary for program $_, ignoring\n"
 				if $gscrot_common->get_debug;
 			delete $gm_programs{$_};
@@ -4167,10 +4165,10 @@ sub fct_get_next_filename {
 	}
 
 	#file already exists and user is not using ai
-	if ( &fct_file_exists("$folder/$filename_value.$filetype_value") ) {
+	if ( $gscrot_hfunct->file_exists("$folder/$filename_value.$filetype_value") ) {
 		my $count             = 1;
 		my $existing_filename = $filename_value;
-		while ( &fct_file_exists("$folder/$filename_value.$filetype_value") ) {
+		while ( $gscrot_hfunct->file_exists("$folder/$filename_value.$filetype_value") ) {
 			$filename_value = $existing_filename . "(" . sprintf( "%03d", $count++ ) . ")";
 		}
 	}
@@ -4192,7 +4190,7 @@ sub fct_check_installed_plugins {
 				my $dir_name = $_;
 				$dir_name =~ s{^.*/}{};
 
-				if ( &fct_file_exists("$_/$dir_name") ) {
+				if ( $gscrot_hfunct->file_exists("$_/$dir_name") ) {
 
 					unless ( $plugins{$_}->{'binary'}
 						&& $plugins{$_}->{'name'}
@@ -4252,11 +4250,11 @@ sub fct_check_installed_plugins {
 
 					#pixbuf
 					$plugins{$_}->{'pixbuf'} = "$_/$dir_name.png"
-						if ( &fct_file_exists("$_/$dir_name.png") );
+						if ( $gscrot_hfunct->file_exists("$_/$dir_name.png") );
 					$plugins{$_}->{'pixbuf'} = "$_/$dir_name.svg"
-						if ( &fct_file_exists("$_/$dir_name.svg") );
+						if ( $gscrot_hfunct->file_exists("$_/$dir_name.svg") );
 
-					if ( &fct_file_exists( $plugins{$_}->{'pixbuf'} ) ) {
+					if ( $gscrot_hfunct->file_exists( $plugins{$_}->{'pixbuf'} ) ) {
 						$plugins{$_}->{'pixbuf_object'}
 							= Gtk2::Gdk::Pixbuf->new_from_file_at_size( $plugins{$_}->{'pixbuf'},
 							Gtk2::IconSize->lookup('menu') );
@@ -4293,8 +4291,8 @@ sub fct_plugin_get_info {
 
 sub fct_create_thumbnail_and_fileinfos {
 	my ( $filename, $key ) = @_;
-	return FALSE unless &fct_file_exists($filename);
-	$filename = &fct_switch_home_in_file($filename);
+	return FALSE unless $gscrot_hfunct->file_exists($filename);
+	$filename = $gscrot_hfunct->switch_home_in_file($filename);
 
 	eval {
 		$session_screens{$key}->{'thumb'}
@@ -4385,7 +4383,8 @@ sub fct_ret_workspace_menu {
 				#do not offer current viewport
 				next if ( $vp[0] == $vpx && $vp[1] == $vpy );
 
-				print "gscrot_wrksp_direct_compiz" . $vp[0] . "x" . $vp[1] . "\n";
+				print "gscrot_wrksp_direct_compiz" . $vp[0] . "x" . $vp[1] . "\n"
+					if $gscrot_common->get_debug;
 
 				my $vp_item = Gtk2::MenuItem->new_with_label( ucfirst $vp_name );
 				$vp_item->signal_connect(
@@ -4727,7 +4726,7 @@ sub fct_load_plugin_tree {
 		if ( $plugins{$_}->{'binary'} ) {
 			my $pixbuf;
 
-			if ( &fct_file_exists( $plugins{$_}->{'pixbuf'} ) ) {
+			if ( $gscrot_hfunct->file_exists( $plugins{$_}->{'pixbuf'} ) ) {
 				$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size( $plugins{$_}->{'pixbuf'},
 					Gtk2::IconSize->lookup('menu') );
 			} else {
@@ -4793,11 +4792,18 @@ sub fct_set_model_accounts {
 			my ( $cell, $text_path, $new_text, $model ) = @_;
 			my $path = Gtk2::TreePath->new_from_string($text_path);
 			my $iter = $model->get_iter($path);
-			$accounts{ $model->get_value( $iter, 0 ) }->{'username'}
-				= $new_text;    #save entered username to the hash
 
-			#imageshack does not need a password
+			#save entered username to the hash
+			$accounts{ $model->get_value( $iter, 0 ) }->{'username'} = $new_text;
+
 			if ( $model->get_value( $iter, 0 ) =~ /imageshack/i ) {
+
+				#we catch the user-id when url is entered
+				if ( $new_text =~ /^http.*login=(.*)/ ) {
+					$new_text = $1;
+				}
+
+				#imageshack does not need a password
 				$accounts{ $model->get_value( $iter, 0 ) }->{'password'} = $new_text;
 			}
 
@@ -5005,7 +5011,7 @@ sub fct_init {
 			if ( $arg eq "debug" ) {
 				$gscrot_common->set_debug(TRUE);
 			} elsif ( $arg eq "help" ) {
-				&fct_usage();
+				$gscrot_hfunct->usage;
 				exit;
 			} elsif ( $arg eq "min_at_startup" ) {
 				$gscrot_common->set_min(TRUE);
@@ -5049,7 +5055,7 @@ sub fct_init {
 				$gscrot_common->set_start_with("raw");
 			} else {
 				warn "ERROR: illegal command " . $arg . " \n\n";
-				&fct_usage;
+				$gscrot_hfunct->usage;
 				exit;
 			}
 			print "INFO: command " . $arg . " recognized!\n\n";
@@ -5060,11 +5066,11 @@ sub fct_init {
 
 	#an old .gscrot file existing?
 	unlink("$ENV{ 'HOME' }/.gscrot")
-		if ( &fct_file_exists("$ENV{ 'HOME' }/.gscrot") );
+		if ( $gscrot_hfunct->file_exists("$ENV{ 'HOME' }/.gscrot") );
 
 	#an old .gscrot/settings.conf file existing?
 	unlink("$ENV{ 'HOME' }/.gscrot/settings.conf")
-		if ( &fct_file_exists("$ENV{ 'HOME' }/.gscrot/settings.conf") );
+		if ( $gscrot_hfunct->file_exists("$ENV{ 'HOME' }/.gscrot/settings.conf") );
 
 	#is there already a .gscrot folder?
 	mkdir("$ENV{ 'HOME' }/.gscrot")
@@ -5181,10 +5187,10 @@ sub dlg_rename {
 		my $new_name = $new_filename->get_text;
 		$dlg_rename_text = $directory . $new_name . $ext;
 		unless ( $old_file_name_full eq $dlg_rename_text ) {    #filenames eq? -> nothing to do here
-			unless ( &fct_file_exists($dlg_rename_text) ) {
+			unless ( $gscrot_hfunct->file_exists($dlg_rename_text) ) {
 				rename(
-					&fct_switch_home_in_file($old_file_name_full),
-					&fct_switch_home_in_file($dlg_rename_text)
+					$gscrot_hfunct->switch_home_in_file($old_file_name_full),
+					$gscrot_hfunct->switch_home_in_file($dlg_rename_text)
 				);
 			} else {
 
@@ -5196,8 +5202,8 @@ sub dlg_rename {
 					)
 				{
 					rename(
-						&fct_switch_home_in_file($old_file_name_full),
-						&fct_switch_home_in_file($dlg_rename_text)
+						$gscrot_hfunct->switch_home_in_file($old_file_name_full),
+						$gscrot_hfunct->switch_home_in_file($dlg_rename_text)
 					);
 					$session_screens{$data}->{'filename'} = $dlg_rename_text;
 					$input_dialog->destroy();
@@ -5298,7 +5304,7 @@ sub dlg_plugin {
 	my $plugin_response = $plugin_dialog->run;
 
 	if ( $plugin_response eq "accept" ) {
-		$dlg_plugin_text = &fct_switch_home_in_file($dlg_plugin_text);
+		$dlg_plugin_text = $gscrot_hfunct->switch_home_in_file($dlg_plugin_text);
 		my $model        = $plugin->get_model();
 		my $plugin_iter  = $plugin->get_active_iter();
 		my $plugin_value = $model->get_value( $plugin_iter, 2 );
@@ -5419,32 +5425,60 @@ sub dlg_upload {
 	my $ftp_hbox3_dlg = Gtk2::HBox->new( TRUE, 0 );
 	my $ftp_hbox4_dlg = Gtk2::HBox->new( TRUE, 0 );
 
-	$ftp_hbox1_dlg->pack_start( Gtk2::Label->new( $gscrot_common->get_gettext->get("URI") ),
-		TRUE, TRUE, 10 );
+	#uri
+	my $ftp_entry_label_dlg = Gtk2::Label->new( $gscrot_common->get_gettext->get("URI") );
+	$ftp_hbox1_dlg->pack_start( $ftp_entry_label_dlg, TRUE, TRUE, 10 );
 	my $ftp_remote_entry_dlg = Gtk2::Entry->new;
 	$ftp_remote_entry_dlg->set_text( $ftp_remote_entry->get_text );
+
+	$tooltips->set_tip( $ftp_entry_label_dlg,
+		$gscrot_common->get_gettext->get("URI\nExample: ftp://host:port/path") );
+
+	$tooltips->set_tip( $ftp_remote_entry_dlg,
+		$gscrot_common->get_gettext->get("URI\nExample: ftp://host:port/path") );
+
 	$ftp_hbox1_dlg->pack_start( $ftp_remote_entry_dlg, TRUE, TRUE, 10 );
 
-	$ftp_hbox2_dlg->pack_start( Gtk2::Label->new( $gscrot_common->get_gettext->get("Mode") ),
-		TRUE, TRUE, 10 );
+	#connection mode
+	my $ftp_mode_label_dlg = Gtk2::Label->new( $gscrot_common->get_gettext->get("Mode") );
+	$ftp_hbox2_dlg->pack_start( $ftp_mode_label_dlg, TRUE, TRUE, 10 );
 	my $ftp_mode_combo_dlg = Gtk2::ComboBox->new_text;
 	$ftp_mode_combo_dlg->insert_text( 0, "Active mode" );
 	$ftp_mode_combo_dlg->insert_text( 1, "Passive mode" );
 	$ftp_mode_combo_dlg->set_active( $ftp_mode_combo->get_active );
+
+	$tooltips->set_tip( $ftp_mode_label_dlg,
+		$gscrot_common->get_gettext->get("Connection method") );
+
+	$tooltips->set_tip( $ftp_mode_combo_dlg,
+		$gscrot_common->get_gettext->get("Connection method") );
+
 	$ftp_hbox2_dlg->pack_start( $ftp_mode_combo_dlg, TRUE, TRUE, 10 );
 
-	$ftp_hbox3_dlg->pack_start( Gtk2::Label->new( $gscrot_common->get_gettext->get("Username") ),
-		TRUE, TRUE, 10 );
+	#username
+	my $ftp_username_label_dlg = Gtk2::Label->new( $gscrot_common->get_gettext->get("Username") );
+	$ftp_hbox3_dlg->pack_start( $ftp_username_label_dlg, TRUE, TRUE, 10 );
 	my $ftp_username_entry_dlg = Gtk2::Entry->new;
 	$ftp_username_entry_dlg->set_text( $ftp_username_entry->get_text );
+
+	$tooltips->set_tip( $ftp_username_label_dlg, $gscrot_common->get_gettext->get("Username") );
+
+	$tooltips->set_tip( $ftp_username_entry_dlg, $gscrot_common->get_gettext->get("Username") );
+
 	$ftp_hbox3_dlg->pack_start( $ftp_username_entry_dlg, TRUE, TRUE, 10 );
 
-	$ftp_hbox4_dlg->pack_start( Gtk2::Label->new( $gscrot_common->get_gettext->get("Password") ),
-		TRUE, TRUE, 10 );
+	#password
+	my $ftp_password_label_dlg = Gtk2::Label->new( $gscrot_common->get_gettext->get("Password") );
+	$ftp_hbox4_dlg->pack_start( $ftp_password_label_dlg, TRUE, TRUE, 10 );
 	my $ftp_password_entry_dlg = Gtk2::Entry->new;
 	$ftp_password_entry_dlg->set_invisible_char("*");
 	$ftp_password_entry_dlg->set_visibility(FALSE);
 	$ftp_password_entry_dlg->set_text( $ftp_password_entry->get_text );
+
+	$tooltips->set_tip( $ftp_password_label_dlg, $gscrot_common->get_gettext->get("Password") );
+
+	$tooltips->set_tip( $ftp_password_entry_dlg, $gscrot_common->get_gettext->get("Password") );
+
 	$ftp_hbox4_dlg->pack_start( $ftp_password_entry_dlg, TRUE, TRUE, 10 );
 
 	my $ftp_vbox_dlg = Gtk2::VBox->new( TRUE, 0 );
@@ -5526,7 +5560,8 @@ sub dlg_upload {
 
 						#update gui
 						&fct_update_gui;
-						my %upload_response = $uploader->upload( &fct_switch_home_in_file($file),
+						my %upload_response
+							= $uploader->upload( $gscrot_hfunct->switch_home_in_file($file),
 							$hosting_username, $hosting_password );
 
 						if ( is_success( $upload_response{'status'} ) ) {
@@ -5562,7 +5597,8 @@ sub dlg_upload {
 
 						#update gui
 						&fct_update_gui;
-						my %upload_response = $uploader->upload( &fct_switch_home_in_file($file),
+						my %upload_response
+							= $uploader->upload( $gscrot_hfunct->switch_home_in_file($file),
 							$hosting_username, $hosting_password );
 
 						if ( is_success( $upload_response{'status'} ) ) {
@@ -5619,7 +5655,9 @@ sub dlg_upload {
 							my $response = &dlg_error_message(
 								$gscrot_common->get_gettext->get("Connection error!") . "\n"
 									. $gscrot_common->get_gettext->get(
-									"Please check your connectivity and try again.")
+									"Please check your connectivity and try again."),
+								$gscrot_common->get_gettext->get("Skip all"),
+								$gscrot_common->get_gettext->get("Skip")
 							);
 
 							#10 == skip all, 20 == skip, else == cancel
@@ -5643,7 +5681,9 @@ sub dlg_upload {
 							my $response = &dlg_error_message(
 								$gscrot_common->get_gettext->get("Connection error!") . "\n"
 									. $gscrot_common->get_gettext->get(
-									"Please check your connectivity and try again.")
+									"Please check your connectivity and try again."),
+								$gscrot_common->get_gettext->get("Skip all"),
+								$gscrot_common->get_gettext->get("Skip")
 							);
 
 							#10 == skip all, 20 == skip, else == cancel
@@ -5668,11 +5708,29 @@ sub dlg_upload {
 					$gscrot_common->get_gettext, $window,
 					$ftp_mode_combo_dlg->get_active
 				);
+
+				my $upload_response = $uploader->login(
+					$ftp_remote_entry_dlg->get_text,
+					$ftp_username_entry_dlg->get_text,
+					$ftp_password_entry_dlg->get_text
+				);
+
+				if ($upload_response) {
+
+					#we already get translated error messaged back
+					my $response = &dlg_error_message($upload_response);
+					next;
+				}
+
+				my $counter = 1;
+				$hosting_progress->set_fraction(0);
 				foreach my $file (@files_to_upload) {
-					my $upload_response = $uploader->upload(
-						$ftp_remote_entry_dlg->get_text,   &fct_switch_home_in_file($file),
-						$ftp_username_entry_dlg->get_text, $ftp_password_entry_dlg->get_text
-					);
+					$hosting_progress->set_text($file);
+
+					#update gui
+					&fct_update_gui;
+					my $upload_response
+						= $uploader->upload( $gscrot_hfunct->switch_home_in_file($file) );
 
 					#upload returns FALSE if there is no error
 					unless ($upload_response) {
@@ -5683,7 +5741,11 @@ sub dlg_upload {
 					} else {
 
 						#we already get translated error messaged back
-						my $response = &dlg_error_message($upload_response);
+						my $response = &dlg_error_message(
+							$upload_response,
+							$gscrot_common->get_gettext->get("Skip all"),
+							$gscrot_common->get_gettext->get("Skip")
+						);
 
 						#10 == skip all, 20 == skip, else == cancel
 						last if $response == 10;
@@ -5691,7 +5753,13 @@ sub dlg_upload {
 						$hosting_dialog->destroy();
 						return FALSE if $response == 0;
 					}
-				}
+					$hosting_progress->set_fraction( $counter / @files_to_upload );
+
+					#update gui
+					&fct_update_gui;
+					$counter++;
+				}    #end foreach
+				$uploader->quit;
 			}
 
 			$hosting_dialog->destroy();
@@ -5853,7 +5921,7 @@ sub dlg_profile_name {
 	if ( $profile_response eq "accept" ) {
 		my $entered_name = $new_profile_name->get_text;
 
-		if ( &fct_file_exists("$ENV{'HOME'}/.gscrot/profiles/$entered_name.xml") ) {
+		if ( $gscrot_hfunct->file_exists("$ENV{'HOME'}/.gscrot/profiles/$entered_name.xml") ) {
 
 			if (&dlg_question_message(
 					$gscrot_common->get_gettext->get(
