@@ -63,7 +63,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.262";
+use constant BRANCH              => "Rev.263";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -5543,7 +5543,7 @@ sub dlg_upload {
 	$hosting_dialog->vbox->add($hosting_progress);
 
 	$hosting_dialog->show_all;
-	while ($hosting_dialog) {
+	UPDIALOG: while ($hosting_dialog) {
 
 		#initial state of dialog
 		$upload_button->set_sensitive(TRUE);
@@ -5595,8 +5595,7 @@ sub dlg_upload {
 							last if $response == 10;
 							next if $response == 20;
 							redo if $response == 30;
-							$hosting_dialog->destroy();
-							return FALSE if $response == 0;
+							next UPDIALOG;
 						}
 						$hosting_progress->set_fraction( $counter / @files_to_upload );
 
@@ -5633,8 +5632,7 @@ sub dlg_upload {
 							last if $response == 10;
 							next if $response == 20;
 							redo if $response == 30;
-							$hosting_dialog->destroy();
-							return FALSE if $response == 0;
+							next UPDIALOG;
 						}
 						$hosting_progress->set_fraction( $counter / @files_to_upload );
 
@@ -5646,22 +5644,23 @@ sub dlg_upload {
 				} elsif ( $hosting_host eq "imageshack.us" ) {
 					my $ishack = GScrot::Upload::ImageShack->new();
 
-					#login
-					eval { $ishack->login($hosting_username); };
-					if ($@) {
-						my $response = &dlg_error_message(
-							$gscrot_common->get_gettext->get("Login failed!") . "\n"
-								. $gscrot_common->get_gettext->get(
-								"Please check your credentials and try again.")
-						);
-
-						next;
-					}
-
 					#upload
 					my $counter = 1;
 					$hosting_progress->set_fraction(0);
 					foreach my $file (@files_to_upload) {
+
+						#login
+						eval { $ishack->login($hosting_username); };
+						if ($@) {
+							my $response = &dlg_error_message(
+								$gscrot_common->get_gettext->get("Login failed!") . "\n"
+									. $gscrot_common->get_gettext->get(
+									"Please check your credentials and try again.")
+							);
+							
+							next UPDIALOG;
+						}
+
 						$hosting_progress->set_text($file);
 
 						#update gui
@@ -5682,8 +5681,7 @@ sub dlg_upload {
 							last if $response == 10;
 							next if $response == 20;
 							redo if $response == 30;
-							$hosting_dialog->destroy();
-							return FALSE if $response == 0;
+							next UPDIALOG;
 						}
 
 						#get thumbnail url
@@ -5710,8 +5708,7 @@ sub dlg_upload {
 							last if $response == 10;
 							next if $response == 20;
 							redo if $response == 30;
-							$hosting_dialog->destroy();
-							return FALSE if $response == 0;
+							next UPDIALOG;
 						}
 						$hosting_progress->set_fraction( $counter / @files_to_upload );
 
@@ -5755,7 +5752,7 @@ sub dlg_upload {
 
 							#we already get translated error messaged back
 							my $response = &dlg_error_message($upload_response);
-							last;
+							next UPDIALOG;
 						} else {
 							$login = TRUE;
 						}
@@ -5796,8 +5793,7 @@ sub dlg_upload {
 							$login = FALSE;
 							redo;
 						}else{
-							$hosting_dialog->destroy();
-							return FALSE;							
+							next UPDIALOG;						
 						}
 
 					}
