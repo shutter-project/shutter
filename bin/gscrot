@@ -56,8 +56,6 @@ use XML::Simple;
 #internal use
 use FindBin '$Bin';
 
-#dev -  do not use in released code!!
-use diagnostics;
 
 #--------------------------------------
 
@@ -65,7 +63,7 @@ use diagnostics;
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.261";
+use constant BRANCH              => "Rev.262";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
