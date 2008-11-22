@@ -46,13 +46,13 @@ sub new {
 	};
 
 	#connection settings
-	$self->{_prot}  = undef;
-	$self->{_host}  = undef;
-	$self->{_port}  = undef;
-	$self->{_path}  = undef;
-	$self->{_auth}  = undef;
-	$self->{_query} = undef;
-	$self->{_frag}  = undef;
+	$self->{_prot}  = "";
+	$self->{_host}  = "";
+	$self->{_port}  = "";
+	$self->{_path}  = "";
+	$self->{_auth}  = "";
+	$self->{_query} = "";
+	$self->{_frag}  = "";
 
 	#credentials and filename
 	$self->{_filename} = undef;
@@ -77,7 +77,7 @@ sub login {
 
 	#get port and host
 	$self->{_auth} =~ /(.*):?([0-9]?)/;
-	$self->{_host} = $1;
+	$self->{_host} = $1 || "undefined.host";
 	$self->{_port} = $2 || 21;
 
 	#check uri and return if anything is missing
@@ -88,22 +88,30 @@ sub login {
 	#store parms as object vars
 	$self->{_username} = $username;
 	$self->{_password} = $password;
-
 	utf8::encode $self->{_host};
 	utf8::encode $self->{_username} if $self->{_username};
 	utf8::encode $self->{_password} if $self->{_password};
 
-	#CONNECT TO FTP SERVER
-	$self->{_ftp}
-		= Net::FTP->new( $self->{_host}, Passive => $self->{_mode}, Port => $self->{_port} )
-		or return $self->{_gettext_object}->get("Connection error!") . "\n"
-		. $self->{_gettext_object}->get("Please check your connectivity and try again.") . "\n("
-		. $@ . ")";
+#	eval {
 
-	#TRY TO LOGIN WITH GIVEN CREDENTIALS
-	$self->{_ftp}->login( $self->{_username}, $self->{_password} )
-		or return $self->{_gettext_object}->get("Login failed!") . "\n"
-		. $self->{_gettext_object}->get("Please check your credentials and try again.");
+		#CONNECT TO FTP SERVER
+		$self->{_ftp}
+			= Net::FTP->new( $self->{_host}, Passive => $self->{_mode}, Port => $self->{_port}, Timeout => 10 )
+			or return $self->{_gettext_object}->get("Connection error!") . "\n"
+			. $self->{_gettext_object}->get("Please check your connectivity and try again.") . "\n>> "
+			. $@ ;
+
+		#TRY TO LOGIN WITH GIVEN CREDENTIALS
+		$self->{_ftp}->login( $self->{_username}, $self->{_password} )
+			or return $self->{_gettext_object}->get("Login failed!") . "\n"
+			. $self->{_gettext_object}->get("Please check your credentials and try again.");
+#	};
+#	if ($@) {
+#		return
+#			  $self->{_gettext_object}->get("Connection error!") . "\n"
+#			. $self->{_gettext_object}->get("Please check your connectivity and try again.") . "\n>>"
+#			. $@ ;
+#	}
 
 	#THERE ARE NO ERRORS WHEN ROUTINE RETURNS AT THIS POINT
 	return FALSE;
@@ -117,15 +125,25 @@ sub upload {
 
 	utf8::encode $self->{_filename};
 
-	#CHANGE WORKING DIRECTORY USING CWD COMMAND
-	$self->{_ftp}->cwd( $self->{_path} )
-		or return $self->{_gettext_object}->get("Cannot change working directory!") . "\n("
-		. chomp( $self->{_ftp}->message ) . ")";
+#	eval {
 
-	#UPLOAD FILE
-	$self->{_ftp}->put( $self->{_filename} )
-		or return $self->{_gettext_object}->get("Upload failed!") . "\n("
-		. chomp( $self->{_ftp}->message ) . ")";
+		#CHANGE WORKING DIRECTORY USING CWD COMMAND
+		$self->{_ftp}->cwd( $self->{_path} )
+			or return $self->{_gettext_object}->get("Cannot change working directory!") . "\n>>"
+			. $self->{_ftp}->message ;
+
+		#UPLOAD FILE
+		$self->{_ftp}->put( $self->{_filename} )
+			or return $self->{_gettext_object}->get("Upload failed!") . "\n>>"
+			. $self->{_ftp}->message ;
+
+#	};
+#	if ($@) {
+#		return
+#			  $self->{_gettext_object}->get("Connection error!") . "\n"
+#			. $self->{_gettext_object}->get("Please check your connectivity and try again.") . "\n>>"
+#			. $@ ;
+#	}
 
 	#THERE ARE NO ERRORS WHEN ROUTINE RETURNS AT THIS POINT
 	return FALSE;
@@ -134,8 +152,17 @@ sub upload {
 sub quit {
 	my $self = shift;
 
-	#QUIT CONNECTION
-	$self->{_ftp}->quit;
+	eval {
+
+		#QUIT CONNECTION
+		$self->{_ftp}->quit;
+	};
+	if ($@) {
+		return
+			  $self->{_gettext_object}->get("Connection error!") . "\n"
+			. $self->{_gettext_object}->get("Please check your connectivity and try again.") . "\n>>"
+			. $@ ;
+	}
 
 	#THERE ARE NO ERRORS WHEN ROUTINE RETURNS AT THIS POINT
 	return FALSE;

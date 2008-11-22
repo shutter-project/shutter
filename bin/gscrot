@@ -56,13 +56,16 @@ use XML::Simple;
 #internal use
 use FindBin '$Bin';
 
+#dev -  do not use in released code!!
+use diagnostics;
+
 #--------------------------------------
 
 #define constants
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.260";
+use constant BRANCH              => "Rev.261";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -1472,8 +1475,10 @@ $vbox->pack_start( $statusbar, FALSE, FALSE, 0 );
 #start minimized?
 unless ( $gscrot_common->get_min ) {
 	$window->show_all;
+	$is_in_tray = FALSE;
 } else {
 	$window->hide;
+	$is_in_tray = TRUE;
 }
 
 #restore session
@@ -3033,8 +3038,13 @@ sub fct_save_settings {
 	my %clean_files;
 	my $counter = 0;
 	foreach ( sort keys %session_screens ) {
+
+		#encode filename
 		my $utf8_filename = $session_screens{$_}->{'long'};
 		utf8::encode $utf8_filename;
+
+		#8 leading zeros to counter
+		$counter = sprintf( "%08d", $counter );
 		if ( $gscrot_hfunct->file_exists( $session_screens{$_}->{'long'} ) ) {
 			$clean_files{ "file" . $counter }{'filename'} = $utf8_filename;
 			$counter++;
@@ -5119,13 +5129,14 @@ sub dlg_status_message {
 }
 
 sub dlg_error_message {
-	my ( $dlg_error_message, $button_text_extra1, $button_text_extra2 ) = @_;
+	my ( $dlg_error_message, $button_text_extra1, $button_text_extra2, $button_text_extra3 ) = @_;
 	my $dlg_header = $gscrot_common->get_gettext->get("Error");
 	my $error_dialog = Gtk2::Dialog->new( $dlg_header, $window, [qw/modal destroy-with-parent/] );
 
 	$error_dialog->add_button( 'gtk-cancel', 0 );
 	$error_dialog->add_button( $button_text_extra1, 10 ) if $button_text_extra1;
 	$error_dialog->add_button( $button_text_extra2, 20 ) if $button_text_extra2;
+	$error_dialog->add_button( $button_text_extra3, 30 ) if $button_text_extra3;
 
 	#image and text to dialog
 	my $error_hbox = Gtk2::HBox->new( FALSE, 5 );
@@ -5334,7 +5345,7 @@ sub dlg_upload {
 	my $dlg_header = $gscrot_common->get_gettext->get("Upload");
 	my $hosting_dialog = Gtk2::Dialog->new( $dlg_header, $window, [qw/modal destroy-with-parent/] );
 
-	$hosting_dialog->add_button( 'gtk-cancel', 'reject' );
+	my $cancel_button = $hosting_dialog->add_button( 'gtk-cancel', 'reject' );
 	my $upload_button
 		= $hosting_dialog->add_button( $gscrot_common->get_gettext->get("_Upload"), 'accept' );
 	$upload_button->set_image( Gtk2::Image->new_from_stock( 'gtk-go-up', 'button' ) );
@@ -5536,7 +5547,17 @@ sub dlg_upload {
 	$hosting_dialog->show_all;
 	while ($hosting_dialog) {
 
+		#initial state of dialog
+		$upload_button->set_sensitive(TRUE);
+		$cancel_button->set_sensitive(TRUE);
+		$hosting_progress->hide;
+
+		#DIALOG RUN
 		my $hosting_response = $hosting_dialog->run;
+
+		#running state of dialog
+		$upload_button->set_sensitive(FALSE);
+		$cancel_button->set_sensitive(FALSE);
 		$hosting_progress->show;
 
 		#start upload
@@ -5575,6 +5596,7 @@ sub dlg_upload {
 							#10 == skip all, 20 == skip, else == cancel
 							last if $response == 10;
 							next if $response == 20;
+							redo if $response == 30;
 							$hosting_dialog->destroy();
 							return FALSE if $response == 0;
 						}
@@ -5612,6 +5634,7 @@ sub dlg_upload {
 							#10 == skip all, 20 == skip, else == cancel
 							last if $response == 10;
 							next if $response == 20;
+							redo if $response == 30;
 							$hosting_dialog->destroy();
 							return FALSE if $response == 0;
 						}
@@ -5634,11 +5657,7 @@ sub dlg_upload {
 								"Please check your credentials and try again.")
 						);
 
-						#10 == skip all, 20 == skip, else == cancel
-						last if $response == 10;
-						next if $response == 20;
-						$hosting_dialog->destroy();
-						return FALSE if $response == 0;
+						next;
 					}
 
 					#upload
@@ -5657,12 +5676,14 @@ sub dlg_upload {
 									. $gscrot_common->get_gettext->get(
 									"Please check your connectivity and try again."),
 								$gscrot_common->get_gettext->get("Skip all"),
-								$gscrot_common->get_gettext->get("Skip")
+								$gscrot_common->get_gettext->get("Skip"),
+								'gtk-redo'
 							);
 
 							#10 == skip all, 20 == skip, else == cancel
 							last if $response == 10;
 							next if $response == 20;
+							redo if $response == 30;
 							$hosting_dialog->destroy();
 							return FALSE if $response == 0;
 						}
@@ -5683,12 +5704,14 @@ sub dlg_upload {
 									. $gscrot_common->get_gettext->get(
 									"Please check your connectivity and try again."),
 								$gscrot_common->get_gettext->get("Skip all"),
-								$gscrot_common->get_gettext->get("Skip")
+								$gscrot_common->get_gettext->get("Skip"),
+								'gtk-redo'
 							);
 
 							#10 == skip all, 20 == skip, else == cancel
 							last if $response == 10;
 							next if $response == 20;
+							redo if $response == 30;
 							$hosting_dialog->destroy();
 							return FALSE if $response == 0;
 						}
@@ -5703,33 +5726,51 @@ sub dlg_upload {
 
 				#ftp
 			} elsif ( $radio_ftp->get_active ) {
+				
+				#create upload object
 				my $uploader = GScrot::Upload::FTP->new(
 					$gscrot_common->get_debug,   $gscrot_root,
 					$gscrot_common->get_gettext, $window,
 					$ftp_mode_combo_dlg->get_active
 				);
 
-				my $upload_response = $uploader->login(
-					$ftp_remote_entry_dlg->get_text,
-					$ftp_username_entry_dlg->get_text,
-					$ftp_password_entry_dlg->get_text
-				);
-
-				if ($upload_response) {
-
-					#we already get translated error messaged back
-					my $response = &dlg_error_message($upload_response);
-					next;
-				}
-
 				my $counter = 1;
+				my $login   = FALSE;
 				$hosting_progress->set_fraction(0);
+				
+				#start upload
 				foreach my $file (@files_to_upload) {
+
+					#need to login?
+					my $upload_response;
+					unless ($login) {
+
+						eval { $uploader->quit; };
+
+						$upload_response = $uploader->login(
+							$ftp_remote_entry_dlg->get_text,
+							$ftp_username_entry_dlg->get_text,
+							$ftp_password_entry_dlg->get_text
+						);
+
+						if ($upload_response) {
+
+							#we already get translated error messaged back
+							my $response = &dlg_error_message($upload_response);
+							last;
+						} else {
+							$login = TRUE;
+						}
+
+						$hosting_progress->set_text($upload_response);
+
+					}
+
 					$hosting_progress->set_text($file);
 
 					#update gui
 					&fct_update_gui;
-					my $upload_response
+					$upload_response
 						= $uploader->upload( $gscrot_hfunct->switch_home_in_file($file) );
 
 					#upload returns FALSE if there is no error
@@ -5744,14 +5785,23 @@ sub dlg_upload {
 						my $response = &dlg_error_message(
 							$upload_response,
 							$gscrot_common->get_gettext->get("Skip all"),
-							$gscrot_common->get_gettext->get("Skip")
+							$gscrot_common->get_gettext->get("Skip"), 'gtk-redo'
 						);
 
-						#10 == skip all, 20 == skip, else == cancel
-						last if $response == 10;
-						next if $response == 20;
-						$hosting_dialog->destroy();
-						return FALSE if $response == 0;
+						#10 == skip all, 20 == skip, 30 == redo, else == cancel
+						if ($response == 10){
+							last;
+						}elsif($response == 20){
+							$login = FALSE;
+							next;
+						}elsif($response == 30){
+							$login = FALSE;
+							redo;
+						}else{
+							$hosting_dialog->destroy();
+							return FALSE;							
+						}
+
 					}
 					$hosting_progress->set_fraction( $counter / @files_to_upload );
 
@@ -5777,12 +5827,10 @@ sub dlg_upload_error_message {
 
 	my $response;
 	if ( $status == 999 ) {
-		$response = &dlg_error_message(
-			$gscrot_common->get_gettext->get("Login failed!") . "\n"
-				. $gscrot_common->get_gettext->get("Please check your credentials and try again."),
-			$gscrot_common->get_gettext->get("Skip all"),
-			$gscrot_common->get_gettext->get("Skip")
-		);
+		$response
+			= &dlg_error_message( $gscrot_common->get_gettext->get("Login failed!") . "\n"
+				. $gscrot_common->get_gettext->get("Please check your credentials and try again.")
+			);
 	} elsif ( $status == 998 ) {
 		$response = &dlg_error_message(
 			$gscrot_common->get_gettext->get("Maximum filesize reached!") . " ( $max_filesize )",
@@ -5795,7 +5843,8 @@ sub dlg_upload_error_message {
 				. $status . ")\n"
 				. $gscrot_common->get_gettext->get("Please check your connectivity and try again."),
 			$gscrot_common->get_gettext->get("Skip all"),
-			$gscrot_common->get_gettext->get("Skip")
+			$gscrot_common->get_gettext->get("Skip"),
+			'gtk-redo'
 		);
 	}
 	return $response;

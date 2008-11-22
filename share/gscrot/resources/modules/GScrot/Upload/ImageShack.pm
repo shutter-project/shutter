@@ -107,7 +107,7 @@ sub new {
 	}else{
 		my $ua = LWP::UserAgent->new(
 			'agent'      => $agent,
-			'timeout'    => 60*5,
+			'timeout'    => 30,
 			'keep_alive' => 10,
 			'env_proxy'  => 1,
 		);

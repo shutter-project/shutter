@@ -46,7 +46,7 @@ sub new {
 				 _ua => shift			
 	};
 	
-	$self->{_mech} = WWW::Mechanize->new(agent => "$self->{_ua}");
+	$self->{_mech} = WWW::Mechanize->new(agent => "$self->{_ua}", timeout => 20);
 	$self->{_http_status} = undef;
 	
 	#received links are stored here
