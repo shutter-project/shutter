@@ -47,6 +47,8 @@ sub new {
 
 	my $self = { _gscrot_common => shift };
 
+	$self->{_factory} = undef;
+
 	$self->{_canvas} = undef;
 
 	$self->{_current_mode} = 10;
@@ -60,6 +62,8 @@ sub show {
 	my $self     = shift;
 	my $filename = shift;
 	my $filetype = shift;
+
+	my $d = $self->{_gscrot_common}->get_gettext;
 
 	$self->{_drawing_window} = Gtk2::Window->new('toplevel');
 	$self->{_drawing_window}->set_title($filename);
@@ -87,6 +91,18 @@ sub show {
 
 	$self->{_canvas_bg} = Goo::Canvas::Image->new( $root, $self->{_drawing_pixbuf}, 0, 0 );
 
+	#define own icons
+	my $dicons = $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool";
+	$self->{_factory} = Gtk2::IconFactory->new();
+  	$self->{_factory}->add('gscrot-ellipse', Gtk2::IconSet->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-ellipse.png")));
+  	$self->{_factory}->add('gscrot-eraser', Gtk2::IconSet->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-eraser.png")));
+  	$self->{_factory}->add('gscrot-freehand', Gtk2::IconSet->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-freehand.png")));
+  	$self->{_factory}->add('gscrot-pointer', Gtk2::IconSet->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-pointer.png")));
+  	$self->{_factory}->add('gscrot-rectangle', Gtk2::IconSet->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-rectangle.png")));
+  	$self->{_factory}->add('gscrot-star', Gtk2::IconSet->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-star.png")));
+  	$self->{_factory}->add('gscrot-text', Gtk2::IconSet->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-text.png")));
+	$self->{_factory}->add_default();
+
 	my @toolbar_actions = (
 		[ "Quit",    'gtk-quit',     undef, undef,            undef, sub { &quit($self) } ],
 		[ "Save",    'gtk-save',     undef, "<control>S",     undef, sub { &save($self) } ],
@@ -97,18 +113,17 @@ sub show {
 	);
 
 	my @toolbar_drawing_actions = (
-		[ "Select", 'gtk-zoom-in',  "Zoom _In",  "<control>plus",  "Zoom in one step",  10 ],
-		[ "Drag",   'gtk-zoom-out', "Zoom _Out", "<control>minus", "Zoom out one step", 20 ],
-		[   "Line", 'gtk-zoom-100', "_Normal Size", "<control>0",
+		[ "Select", 'gscrot-pointer',  $d->get("Select item"),  undef,  $d->get("Select item to move or resize it"),  10 ],
+		[   "Line", 'gscrot-freehand', $d->get("Draw a simple freehand line"), undef,
+			$d->get("Draw a line using the freehand tool"), 20
+		],
+		[   "Rect", 'gscrot-rectangle', "_Normal Size", "<control>0",
 			"Set zoom to natural size of the image", 30
 		],
-		[   "Rect", 'gtk-zoom-100', "_Normal Size", "<control>0",
-			"Set zoom to natural size of the image", 40
-		],
-		[ "Ellips", 'gtk-zoom-fit',   "Best _Fit", undef, "Adapt zoom to fit image",  50 ],
-		[ "Image",  'gtk-zoom-fit',   "Best _Fit", undef, "Adapt zoom to fit image",  60 ],
-		[ "Text",   'gtk-fullscreen', undef,       "F11", "View image in fullscreen", 70 ],
-		[ "Clear",  'gtk-clear',      undef,       "F11", undef,                      80 ]
+		[ "Ellips", 'gscrot-ellipse',   "Best _Fit", undef, "Adapt zoom to fit image",  40 ],
+		[ "Image",  'gscrot-star',   "Best _Fit", undef, "Adapt zoom to fit image",  50 ],
+		[ "Text",   'gscrot-text', undef,       "F11", "View image in fullscreen", 60 ],
+		[ "Clear",  'gscrot-eraser',      undef,       "F11", undef,                      70 ]
 	);
 
 	my $uimanager = Gtk2::UIManager->new();
@@ -139,7 +154,6 @@ sub show {
   <toolbar name = 'ToolBarDrawing'>
     <separator/>
     <toolitem action='Select'/>
-    <toolitem action='Drag'/>
     <separator/>
     <toolitem action='Line'/>
     <toolitem action='Rect'/>
@@ -347,7 +361,6 @@ sub save {
 	#enter routine to save here
 	return TRUE;
 }
-
 
 #handle events here
 sub event_on_background_button_press {
