@@ -63,7 +63,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.263";
+use constant BRANCH              => "Rev.264";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -85,12 +85,13 @@ $ENV{'GSCROT_ROOT'} = $gscrot_root;    #used by some plugins
 require lib;
 import lib "$gscrot_root/share/gscrot/resources/modules";
 
-require GScrot::Draw;
-import GScrot::Draw;
-
 #gscrot app classes
 require GScrot::App::Common;
 require GScrot::App::HelperFunctions;
+
+#drawing classes
+require GScrot::Draw::DrawingTool;
+import  GScrot::Draw::DrawingTool;
 
 #screenshot classes
 require GScrot::Screenshot::SelectorAdvanced;
@@ -3568,11 +3569,9 @@ sub fct_draw {
 
 		return FALSE unless &fct_screenshot_exists($key);
 
-		&fct_start_drawing(
-			$session_screens{$key}->{'long'},   $session_screens{$key}->{'width'},
-			$session_screens{$key}->{'height'}, $session_screens{$key}->{'filetype'},
-			$gscrot_common->get_gettext
-		);
+		my $drawing_tool = GScrot::Draw::DrawingTool->new($gscrot_common);
+		$drawing_tool->show($session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'});
+		
 		&fct_update_tab($key);
 
 	}
