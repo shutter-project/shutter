@@ -50,8 +50,11 @@ sub new {
 	$self->{_factory} = undef;
 
 	$self->{_canvas} = undef;
+	$self->{_lines} = undef;
+	$self->{_count} = undef;
 
-	$self->{_current_mode} = 10;
+	$self->{_current_mode}       = 10;
+	$self->{_current_mode_descr} = "select";
 
 	bless $self, $class;
 
@@ -64,6 +67,8 @@ sub show {
 	my $filetype = shift;
 
 	my $d = $self->{_gscrot_common}->get_gettext;
+
+	my $uimanager = $self->setup_uimanager();
 
 	$self->{_drawing_window} = Gtk2::Window->new('toplevel');
 	$self->{_drawing_window}->set_title($filename);
@@ -87,89 +92,11 @@ sub show {
 		$self->{_drawing_pixbuf}->get_height
 	);
 	my $root = $self->{_canvas}->get_root_item;
-	$root->signal_connect( 'button_press_event', \&event_on_background_button_press );
+	$root->signal_connect( 'button_press_event', $self->event_on_background_button_press );
 
 	$self->{_canvas_bg} = Goo::Canvas::Image->new( $root, $self->{_drawing_pixbuf}, 0, 0 );
+	$self->setup_item_signals($self->{_canvas_bg});
 
-	#define own icons
-	my $dicons = $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool";
-	$self->{_factory} = Gtk2::IconFactory->new();
-  	$self->{_factory}->add('gscrot-ellipse', Gtk2::IconSet->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-ellipse.png")));
-  	$self->{_factory}->add('gscrot-eraser', Gtk2::IconSet->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-eraser.png")));
-  	$self->{_factory}->add('gscrot-freehand', Gtk2::IconSet->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-freehand.png")));
-  	$self->{_factory}->add('gscrot-pointer', Gtk2::IconSet->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-pointer.png")));
-  	$self->{_factory}->add('gscrot-rectangle', Gtk2::IconSet->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-rectangle.png")));
-  	$self->{_factory}->add('gscrot-star', Gtk2::IconSet->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-star.png")));
-  	$self->{_factory}->add('gscrot-text', Gtk2::IconSet->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-text.png")));
-	$self->{_factory}->add_default();
-
-	my @toolbar_actions = (
-		[ "Quit",    'gtk-quit',     undef, undef,            undef, sub { &quit($self) } ],
-		[ "Save",    'gtk-save',     undef, "<control>S",     undef, sub { &save($self) } ],
-		[ "ZoomIn",  'gtk-zoom-in',  undef, "<control>plus",  undef, sub { &zoom_in_cb($self) } ],
-		[ "ZoomOut", 'gtk-zoom-out', undef, "<control>minus", undef, sub { &zoom_out_cb($self) } ],
-		[   "ZoomNormal", 'gtk-zoom-100', undef, "<control>0", undef, sub { &zoom_normal_cb($self) }
-		]
-	);
-
-	my @toolbar_drawing_actions = (
-		[ "Select", 'gscrot-pointer',  $d->get("Select item"),  undef,  $d->get("Select item to move or resize it"),  10 ],
-		[   "Line", 'gscrot-freehand', $d->get("Draw a simple freehand line"), undef,
-			$d->get("Draw a line using the freehand tool"), 20
-		],
-		[   "Rect", 'gscrot-rectangle', "_Normal Size", "<control>0",
-			"Set zoom to natural size of the image", 30
-		],
-		[ "Ellips", 'gscrot-ellipse',   "Best _Fit", undef, "Adapt zoom to fit image",  40 ],
-		[ "Image",  'gscrot-star',   "Best _Fit", undef, "Adapt zoom to fit image",  50 ],
-		[ "Text",   'gscrot-text', undef,       "F11", "View image in fullscreen", 60 ],
-		[ "Clear",  'gscrot-eraser',      undef,       "F11", undef,                      70 ]
-	);
-
-	my $uimanager = Gtk2::UIManager->new();
-
-	# Setup the image group.
-	my $toolbar_group = Gtk2::ActionGroup->new("image");
-	$toolbar_group->add_actions( \@toolbar_actions );
-
-	$uimanager->insert_action_group( $toolbar_group, 0 );
-
-	# Setup the drawing group.
-	my $toolbar_drawing_group = Gtk2::ActionGroup->new("drawing");
-	$toolbar_drawing_group->add_radio_actions( \@toolbar_drawing_actions, 10,
-		sub { my $action = shift; &change_drawing_tool_cb( $self, $action ); } );
-
-	$uimanager->insert_action_group( $toolbar_drawing_group, 0 );
-
-	my $ui_info = "
-<ui>
-  <toolbar name = 'ToolBar'>
-    <toolitem action='Quit'/>
-    <toolitem action='Save'/>
-    <separator/>
-    <toolitem action='ZoomIn'/>
-    <toolitem action='ZoomOut'/>
-    <toolitem action='ZoomNormal'/>
-  </toolbar>
-  <toolbar name = 'ToolBarDrawing'>
-    <separator/>
-    <toolitem action='Select'/>
-    <separator/>
-    <toolitem action='Line'/>
-    <toolitem action='Rect'/>
-    <toolitem action='Ellips'/>
-    <toolitem action='Text'/>
-    <toolitem action='Image'/>
-    <separator/>
-    <toolitem action='Clear'/>
-  </toolbar>  
-</ui>";
-
-	eval { $uimanager->add_ui_from_string($ui_info) };
-
-	if ($@) {
-		die "Unable to create menus: $@\n";
-	}
 
 	# Width
 	my $width_label = Gtk2::Label->new( $self->{_gscrot_common}->get_gettext->get("Width:") );
@@ -189,14 +116,14 @@ sub show {
 	$quit_button->signal_connect( clicked => sub { $self->{_drawing_window}->destroy() } );
 
 	my @stipple_data = ( 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255 );
-	my $pattern = create_stipple( 'cadetblue', \@stipple_data );
+	my $pattern = $self->create_stipple( 'cadetblue', \@stipple_data );
 	my $ellipse3 = Goo::Canvas::Ellipse->new(
 		$root, 245, 110, 35, 30,
 		'fill-pattern' => $pattern,
 		'stroke-color' => 'black',
 		'line-width'   => 1,
 	);
-	setup_item_signals($ellipse3);
+	$self->setup_item_signals($ellipse3);
 
 	#packing
 	my $scrolled_drawing_window = Gtk2::ScrolledWindow->new;
@@ -210,19 +137,10 @@ sub show {
 
 	$self->{_drawing_window}->add($drawing_vbox);
 
-	#	my $halign = Gtk2::Alignment->new( 1, 0, 0, 0 );
-	#	$drawing_box_buttons->add($halign);
-	#	$drawing_box_buttons->pack_start( $width_label, FALSE, FALSE, 0 );
-	#	$drawing_box_buttons->pack_start( $sb_width,    FALSE, FALSE, 5 );
-	#	$drawing_box_buttons->pack_start( $col_label,   FALSE, FALSE, 0 );
-	#	$drawing_box_buttons->pack_start( $colbut1,     FALSE, FALSE, 5 );
-	#	$drawing_box_buttons->pack_start( $zoom_label,  FALSE, FALSE, 0 );
-	#	$drawing_box_buttons->pack_start( $sb_zoom,     FALSE, FALSE, 5 );
-	#	$drawing_box_buttons->pack_start( $save_button, FALSE, FALSE, 5 );
-	#	$drawing_box_buttons->pack_start( $quit_button, FALSE, FALSE, 5 );
-
 	my $toolbar_drawing = $uimanager->get_widget("/ToolBarDrawing");
 	$toolbar_drawing->set_orientation('vertical');
+	$toolbar_drawing->set_style('icons');
+	$toolbar_drawing->set_icon_size('small-toolbar');
 	$drawing_hbox->pack_start( $toolbar_drawing,         FALSE, FALSE, 0 );
 	$drawing_hbox->pack_start( $scrolled_drawing_window, FALSE, FALSE, 0 );
 
@@ -237,40 +155,154 @@ sub show {
 
 	$self->{_drawing_window}->show_all();
 
-	setup_main_window();
-
 	Gtk2->main;
 
 	return TRUE;
 }
 
-sub setup_main_window {
+sub setup_uimanager {
+	my $self = shift;
 
-	return TRUE;
+	my $d = $self->{_gscrot_common}->get_gettext;
+
+	#define own icons
+	my $dicons = $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool";
+	$self->{_factory} = Gtk2::IconFactory->new();
+	$self->{_factory}->add(
+		'gscrot-ellipse',
+		Gtk2::IconSet->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-ellipse.png")
+		)
+	);
+	$self->{_factory}->add(
+		'gscrot-eraser',
+		Gtk2::IconSet->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-eraser.png")
+		)
+	);
+	$self->{_factory}->add(
+		'gscrot-freehand',
+		Gtk2::IconSet->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-freehand.png")
+		)
+	);
+	$self->{_factory}->add(
+		'gscrot-pointer',
+		Gtk2::IconSet->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-pointer.png")
+		)
+	);
+	$self->{_factory}->add(
+		'gscrot-rectangle',
+		Gtk2::IconSet->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-rectangle.png")
+		)
+	);
+	$self->{_factory}->add( 'gscrot-star',
+		Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-star.png") )
+	);
+	$self->{_factory}->add( 'gscrot-text',
+		Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-text.png") )
+	);
+	$self->{_factory}->add_default();
+
+	my @toolbar_actions = (
+		[ "Quit", 'gtk-quit', undef, "<control>W", undef, sub { $self->quit($self) } ],
+		[ "Save", 'gtk-save', undef, "<control>S", undef, sub { $self->save($self) } ],
+		[   "ZoomIn", 'gtk-zoom-in', undef, "<control>plus", undef, sub { $self->zoom_in_cb($self) }
+		],
+		[   "ZoomOut", 'gtk-zoom-out',
+			undef,     "<control>minus",
+			undef, sub { $self->zoom_out_cb($self) }
+		],
+		[   "ZoomNormal", 'gtk-zoom-100',
+			undef,        "<control>0",
+			undef, sub { $self->zoom_normal_cb($self) }
+		]
+	);
+
+	my @toolbar_drawing_actions = (
+		[   "Select", 'gscrot-pointer', undef, undef, $d->get("Select item to move or resize it"),
+			10
+		],
+		[   "Line", 'gscrot-freehand', undef, undef, $d->get("Draw a line using the freehand tool"),
+			20
+		],
+		[ "Rect",    'gscrot-rectangle', undef, undef, $d->get("Draw a rectangle"), 30 ],
+		[ "Ellipse", 'gscrot-ellipse',   undef, undef, $d->get("Draw a ellipse"),   40 ],
+		[ "Image", 'gscrot-star', undef, undef, $d->get("Insert an arbitrary object or file"), 50 ],
+		[ "Text",  'gscrot-text', undef, undef, $d->get("Add some text to the screenshot"),    60 ],
+		[ "Clear", 'gscrot-eraser', undef, undef, $d->get("Delete objects"), 70 ]
+	);
+
+	my $uimanager = Gtk2::UIManager->new();
+
+	# Setup the image group.
+	my $toolbar_group = Gtk2::ActionGroup->new("image");
+	$toolbar_group->add_actions( \@toolbar_actions );
+
+	$uimanager->insert_action_group( $toolbar_group, 0 );
+
+	# Setup the drawing group.
+	my $toolbar_drawing_group = Gtk2::ActionGroup->new("drawing");
+	$toolbar_drawing_group->add_radio_actions( \@toolbar_drawing_actions, 10,
+		sub { my $action = shift; $self->change_drawing_tool_cb($action); } );
+
+	$uimanager->insert_action_group( $toolbar_drawing_group, 0 );
+
+	my $ui_info = "
+<ui>
+  <toolbar name = 'ToolBar'>
+    <toolitem action='Quit'/>
+    <toolitem action='Save'/>
+    <separator/>
+    <toolitem action='ZoomIn'/>
+    <toolitem action='ZoomOut'/>
+    <toolitem action='ZoomNormal'/>
+  </toolbar>
+  <toolbar name = 'ToolBarDrawing'>
+    <separator/>
+    <toolitem action='Select'/>
+    <separator/>
+    <toolitem action='Line'/>
+    <toolitem action='Rect'/>
+    <toolitem action='Ellipse'/>
+    <toolitem action='Text'/>
+    <toolitem action='Image'/>
+    <separator/>
+    <toolitem action='Clear'/>
+  </toolbar>  
+</ui>";
+
+	eval { $uimanager->add_ui_from_string($ui_info) };
+
+	if ($@) {
+		die "Unable to create menus: $@\n";
+	}
+
+	return $uimanager;
 }
 
 sub change_drawing_tool_cb {
 	my $self   = shift;
 	my $action = shift;
 
-	$self->{_current_mode}->{value} = $action->get_current_value;
+	$self->{_current_mode} = $action->get_current_value;
 
-	if ( $self->{_current_mode}->{value} == 10 ) {
-		$self->{_current_mode}->{descr} = "select";
-	} elsif ( $self->{_current_mode}->{value} == 20 ) {
-		$self->{_current_mode}->{descr} = "drag";
-	} elsif ( $self->{_current_mode}->{value} == 30 ) {
-		$self->{_current_mode}->{descr} = "line";
-	} elsif ( $self->{_current_mode}->{value} == 40 ) {
-		$self->{_current_mode}->{descr} = "rect";
-	} elsif ( $self->{_current_mode}->{value} == 50 ) {
-		$self->{_current_mode}->{descr} = "ellips";
-	} elsif ( $self->{_current_mode}->{value} == 60 ) {
-		$self->{_current_mode}->{descr} = "image";
-	} elsif ( $self->{_current_mode}->{value} == 70 ) {
-		$self->{_current_mode}->{descr} = "text";
-	} elsif ( $self->{_current_mode}->{value} == 80 ) {
-		$self->{_current_mode}->{descr} = "clear";
+	if ( $self->{_current_mode} == 10 ) {
+		$self->{_current_mode_descr} = "select";
+	} elsif ( $self->{_current_mode} == 20 ) {
+		$self->{_current_mode_descr} = "line";
+	} elsif ( $self->{_current_mode} == 30 ) {
+		$self->{_current_mode_descr} = "rect";
+	} elsif ( $self->{_current_mode} == 40 ) {
+		$self->{_current_mode_descr} = "ellipse";
+	} elsif ( $self->{_current_mode} == 50 ) {
+		$self->{_current_mode_descr} = "image";
+	} elsif ( $self->{_current_mode} == 60 ) {
+		$self->{_current_mode_descr} = "text";
+	} elsif ( $self->{_current_mode} == 70 ) {
+		$self->{_current_mode_descr} = "clear";
 	}
 
 	return TRUE;
@@ -325,6 +357,11 @@ sub change_drawing_tool_cb {
 #	}
 #}
 
+sub selfcanvas {
+	my $self = shift;
+	print $self->{_canvas} . "\n";
+}
+
 sub zoom_in_cb {
 	my $self = shift;
 	$self->{_canvas}->set_scale( $self->{_canvas}->get_scale + 0.5 );
@@ -364,55 +401,113 @@ sub save {
 
 #handle events here
 sub event_on_background_button_press {
+	my $self = shift;
+
 	return TRUE;
 }
 
 #ITEM SIGNALS
 sub setup_item_signals {
-	my $item = shift;
-	$item->signal_connect( 'motion_notify_event',  \&event_item_on_motion_notify );
-	$item->signal_connect( 'button_press_event',   \&event_item_on_button_press );
-	$item->signal_connect( 'button_release_event', \&event_item_on_button_release );
+	my ( $self, $item ) = @_;
+	$item->signal_connect(
+		'motion_notify_event',
+		sub {
+			my ( $item, $target, $ev ) = @_;
+			$self->event_item_on_motion_notify( $item, $target, $ev );
+		}
+	);
+	$item->signal_connect(
+		'button_press_event',
+		sub {
+			my ( $item, $target, $ev ) = @_;
+			$self->event_item_on_button_press( $item, $target, $ev );
+		}
+	);
+	$item->signal_connect(
+		'button_release_event',
+		sub {
+			my ( $item, $target, $ev ) = @_;
+			$self->event_item_on_button_release( $item, $target, $ev );
+		}
+	);
+
+	return TRUE;
 }
 
 sub event_item_on_motion_notify {
-	my ( $item, $target, $ev ) = @_;
+	my ( $self, $item, $target, $ev ) = @_;
 
-	#	print "Ev state: ", $ev->state, "\n";
+	#move an item
 	if ( $item->{dragging} && $ev->state >= 'button1-mask' ) {
 
-		#        $item->translate($ev->x - $item->{drag_x},
-		#                         $ev->y - $item->{drag_y});
+		$item->translate( $ev->x - $item->{drag_x}, $ev->y - $item->{drag_y} );
 
-#		my ($evtx_canv, $evty_canv) = $self->{_canvas}->convert_from_pixels($ev->x, $ev->y);
-#		($evtx_canv, $evty_canv) = $self->{_canvas}->convert_to_item_space($item, $evtx_canv, $evty_canv);
+		#		my $new_x = abs( $ev->x - $item->get('center-x') );
+		#		my $new_y = abs( $ev->y - $item->get('center-y') );
+		#
+		#		$item->set(
+		#			'radius-x' => $new_x,
+		#			'radius-y' => $new_y,
+		#		);
 
-		my $new_x = abs( $ev->x - $item->get('center-x') );
-		my $new_y = abs( $ev->y - $item->get('center-y') );
 
-		$item->set(
-			'radius-x' => $new_x,
-			'radius-y' => $new_y,
-		);
-
+	#freehand line
+	}elsif ($self->{_current_mode_descr} eq "line" && $ev->state >= 'button1-mask'){
+				
+			my $count = $self->{_count};
+			push @{ $self->{_lines}{$count}{'points'} }, $ev->x, $ev->y ;
+			$self->{_lines}{$count}{'line'}
+				->set( points => Goo::Canvas::Points->new( $self->{_lines}{$count}{'points'} ) );		
+	
 	}
 	return TRUE;
 }
 
 sub event_item_on_button_press {
-	my ( $item, $target, $ev ) = @_;
+	my ( $self, $item, $target, $ev ) = @_;
 	if ( $ev->button == 1 ) {
-		if ( $ev->state >= 'shift-mask' ) {
+
+		print $self->{_current_mode_descr} . "\n";
+
+		#delete items - shift or clear mode
+		if ( $ev->state >= 'shift-mask' || $self->{_current_mode_descr} eq "clear" ) {
 			my $parent = $item->get_parent;
 			$parent->remove_child( $parent->find_child($item) );
+
+			#start other actions here
 		} else {
-			$item->{drag_x} = $ev->x;
-			$item->{drag_y} = $ev->y;
-			my $fleur = Gtk2::Gdk::Cursor->new('fleur');
-			my $self->{_canvas} = $item->get_canvas;
-			$self->{_canvas}->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ],
-				$fleur, $ev->time );
-			$item->{dragging} = TRUE;
+			my $canvas = $item->get_canvas;
+			my $root = $canvas->get_root_item;
+
+			#MOVE AND SELECT
+			if ( $self->{_current_mode_descr} eq "select" ) {
+				$item->{drag_x} = $ev->x;
+				$item->{drag_y} = $ev->y;
+				my $fleur  = Gtk2::Gdk::Cursor->new('fleur');
+				
+				$canvas->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ],
+					$fleur, $ev->time );
+				$item->{dragging} = TRUE;
+
+			#FREEHAND
+			} elsif ( $self->{_current_mode_descr} eq "line" ) {
+			  	
+			  	#new line
+			  	$self->{_count}++;
+			  	my $count = $self->{_count};
+			  
+			  	#need at least 2 points
+				$self->{_lines}{$count}{'points'}
+					= [ $ev->x , $ev->y , $ev->x , $ev->y  ];    
+
+				$self->{_lines}{$count}{'line'} = Goo::Canvas::Polyline->new_line(
+					$root, $self->{_lines}{$count}{'points'}[0], $self->{_lines}{$count}{'points'}[1],
+					$self->{_lines}{$count}{'points'}[2], $self->{_lines}{$count}{'points'}[3]
+				);			  
+
+				$self->setup_item_signals($self->{_lines}{$count}{'line'});
+		  					
+			}
 
 		}
 	} elsif ( $ev->button == 2 ) {
@@ -424,14 +519,18 @@ sub event_item_on_button_press {
 }
 
 sub event_item_on_button_release {
-	my ( $item, $target, $ev ) = @_;
-	my $self->{_canvas} = $item->get_canvas;
-	$self->{_canvas}->pointer_ungrab( $item, $ev->time );
+	my ( $self, $item, $target, $ev ) = @_;
+	my $canvas = $item->get_canvas;
+	$canvas->pointer_ungrab( $item, $ev->time );
+	
+	#unset action flags
 	$item->{dragging} = FALSE;
+
 	return TRUE;
 }
 
 sub create_stipple {
+	my $self = shift;
 	our @stipples;
 	my ( $color_name, $stipple_data ) = @_;
 	my $color = Gtk2::Gdk::Color->parse($color_name);
