@@ -50,9 +50,14 @@ sub new {
 	$self->{_factory} = undef;
 
 	$self->{_canvas} = undef;
-	$self->{_lines} = undef;
-	$self->{_count} = undef;
 
+	#items
+	$self->{_items} = undef;
+
+	#
+	$self->{_last_item}          = undef;
+	$self->{_current_item}       = undef;
+	$self->{_current_new_item}   = undef;
 	$self->{_current_mode}       = 10;
 	$self->{_current_mode_descr} = "select";
 
@@ -95,8 +100,7 @@ sub show {
 	$root->signal_connect( 'button_press_event', $self->event_on_background_button_press );
 
 	$self->{_canvas_bg} = Goo::Canvas::Image->new( $root, $self->{_drawing_pixbuf}, 0, 0 );
-	$self->setup_item_signals($self->{_canvas_bg});
-
+	$self->setup_item_signals( $self->{_canvas_bg} );
 
 	# Width
 	my $width_label = Gtk2::Label->new( $self->{_gscrot_common}->get_gettext->get("Width:") );
@@ -308,55 +312,6 @@ sub change_drawing_tool_cb {
 	return TRUE;
 }
 
-#sub event_drawing_handler {
-#	my ( $widget, $event ) = @_;
-#	my $scale = $adj_zoom->get_value;
-#	if ( $event->type eq "button-press" ) {
-#		$draw_flag = 1;
-#
-#		#start a new line curve
-#		$count++;
-#		my ( $x, $y ) = ( $event->x, $event->y );
-#
-#		$lines{$count}{'points'}
-#			= [ $x / $scale, $y / $scale, $x / $scale, $y / $scale ];    #need at least 2 points
-#
-#		#		$lines{$count}{'line'} = Goo::Canvas::Polyline->new_line(
-#		#			$root,                       $lines{$count}{'points'}[0], $lines{$count}{'points'}[1],
-#		#			$lines{$count}{'points'}[2], $lines{$count}{'points'}[3]
-#		#		);
-#
-#		#		$lines{$count}{'line'} = Goo::Canvas::Rect->new(
-#		#			$root,                       $lines{$count}{'points'}[0], $lines{$count}{'points'}[1],
-#		#			$lines{$count}{'points'}[2], $lines{$count}{'points'}[3]
-#		#		);
-#
-#	}
-#	if ( $event->type eq "button-release" ) {
-#		$draw_flag = 0;
-#	}
-#
-#	if ( $event->type eq "focus-change" ) {
-#		return 0;
-#	}
-#
-#	if ( $event->type eq "expose" ) {
-#		return 0;
-#	}
-#
-#	if ($draw_flag) {
-#
-#		#left with motion-notify
-#		if ( $event->type eq "motion-notify" ) {
-#			my ( $x, $y ) = ( $event->x, $event->y );
-#			push @{ $lines{$count}{'points'} }, $x / $scale, $y / $scale;
-#			$lines{$count}{'line'}
-#				->set( points => Goo::Canvas::Points->new( $lines{$count}{'points'} ) );
-#
-#		}
-#	}
-#}
-
 sub selfcanvas {
 	my $self = shift;
 	print $self->{_canvas} . "\n";
@@ -409,6 +364,7 @@ sub event_on_background_button_press {
 #ITEM SIGNALS
 sub setup_item_signals {
 	my ( $self, $item ) = @_;
+
 	$item->signal_connect(
 		'motion_notify_event',
 		sub {
@@ -434,13 +390,56 @@ sub setup_item_signals {
 	return TRUE;
 }
 
+sub setup_item_signals_extra {
+	my ( $self, $item ) = @_;
+
+	$item->signal_connect(
+		'enter_notify_event',
+		sub {
+			my ( $item, $target, $ev ) = @_;
+			$self->event_item_on_enter_notify( $item, $target, $ev );
+		}
+	);
+
+	$item->signal_connect(
+		'leave_notify_event',
+		sub {
+			my ( $item, $target, $ev ) = @_;
+			$self->event_item_on_leave_notify( $item, $target, $ev );
+		}
+	);
+
+	return TRUE;
+}
+
 sub event_item_on_motion_notify {
 	my ( $self, $item, $target, $ev ) = @_;
 
 	#move an item
 	if ( $item->{dragging} && $ev->state >= 'button1-mask' ) {
 
-		$item->translate( $ev->x - $item->{drag_x}, $ev->y - $item->{drag_y} );
+		if ( $item->isa('Goo::Canvas::Rect') ) {
+
+			my $new_x = $self->{_items}{$item}->get('x') + $ev->x - $item->{drag_x};
+			my $new_y = $self->{_items}{$item}->get('y') + $ev->y - $item->{drag_y};
+
+			$self->{_items}{$item}->set(
+				'x' => $new_x,
+				'y' => $new_y,
+			);
+
+			$item->{drag_x} = $ev->x;
+			$item->{drag_y} = $ev->y;
+
+			$self->handle_rects( 'update', $item );
+
+		} else {
+
+			$item->translate( $ev->x - $item->{drag_x}, $ev->y - $item->{drag_y} );
+
+		}
+
+		#		$self->handle_rects( 'update', $count );
 
 		#		my $new_x = abs( $ev->x - $item->get('center-x') );
 		#		my $new_y = abs( $ev->y - $item->get('center-y') );
@@ -450,16 +449,35 @@ sub event_item_on_motion_notify {
 		#			'radius-y' => $new_y,
 		#		);
 
+		#freehand line
+	} elsif ( $self->{_current_mode_descr} eq "line" && $ev->state >= 'button1-mask' ) {
 
-	#freehand line
-	}elsif ($self->{_current_mode_descr} eq "line" && $ev->state >= 'button1-mask'){
-				
-			my $count = $self->{_count};
-			push @{ $self->{_lines}{$count}{'points'} }, $ev->x, $ev->y ;
-			$self->{_lines}{$count}{'line'}
-				->set( points => Goo::Canvas::Points->new( $self->{_lines}{$count}{'points'} ) );		
-	
+		my $item = $self->{_current_new_item};
+
+		push @{ $self->{_items}{$item}{'points'} }, $ev->x, $ev->y;
+		$self->{_items}{$item}
+			->set( points => Goo::Canvas::Points->new( $self->{_items}{$item}{'points'} ) );
+
+		#rectangle
+	} elsif ( $self->{_current_mode_descr} eq "rect" && $ev->state >= 'button1-mask' ) {
+
+		my $item = $self->{_current_new_item};
+
+		my $new_width  = $ev->x - $self->{_items}{$item}->get('x');
+		my $new_height = $ev->y - $self->{_items}{$item}->get('y');
+
+		$new_width  = 1 if $new_width < 1;
+		$new_height = 1 if $new_height < 1;
+
+		$self->{_items}{$item}->set(
+			'width'  => $new_width,
+			'height' => $new_height,
+		);
+
+		$self->handle_rects( 'hide', $item );
+
 	}
+
 	return TRUE;
 }
 
@@ -467,46 +485,60 @@ sub event_item_on_button_press {
 	my ( $self, $item, $target, $ev ) = @_;
 	if ( $ev->button == 1 ) {
 
-		print $self->{_current_mode_descr} . "\n";
+		my $canvas = $item->get_canvas;
+		my $root   = $canvas->get_root_item;
 
-		#delete items - shift or clear mode
-		if ( $ev->state >= 'shift-mask' || $self->{_current_mode_descr} eq "clear" ) {
+		#CLEAR
+		if ( $self->{_current_mode_descr} eq "clear" ) {
+
 			my $parent = $item->get_parent;
 			$parent->remove_child( $parent->find_child($item) );
 
-			#start other actions here
-		} else {
-			my $canvas = $item->get_canvas;
-			my $root = $canvas->get_root_item;
-
 			#MOVE AND SELECT
-			if ( $self->{_current_mode_descr} eq "select" ) {
-				$item->{drag_x} = $ev->x;
-				$item->{drag_y} = $ev->y;
-				my $fleur  = Gtk2::Gdk::Cursor->new('fleur');
-				
-				$canvas->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ],
-					$fleur, $ev->time );
-				$item->{dragging} = TRUE;
+		} elsif ( $self->{_current_mode_descr} eq "select" ) {
+			$item->{drag_x} = $ev->x;
+			$item->{drag_y} = $ev->y;
+			my $fleur = Gtk2::Gdk::Cursor->new('fleur');
+
+			$canvas->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ],
+				$fleur, $ev->time );
+			$item->{dragging} = TRUE;
+
+		} else {
+
+			#new items
+			#			$self->{_count}++;
+			#			my $count = $self->{_count};
 
 			#FREEHAND
-			} elsif ( $self->{_current_mode_descr} eq "line" ) {
-			  	
-			  	#new line
-			  	$self->{_count}++;
-			  	my $count = $self->{_count};
-			  
-			  	#need at least 2 points
-				$self->{_lines}{$count}{'points'}
-					= [ $ev->x , $ev->y , $ev->x , $ev->y  ];    
+			if ( $self->{_current_mode_descr} eq "line" ) {
 
-				$self->{_lines}{$count}{'line'} = Goo::Canvas::Polyline->new_line(
-					$root, $self->{_lines}{$count}{'points'}[0], $self->{_lines}{$count}{'points'}[1],
-					$self->{_lines}{$count}{'points'}[2], $self->{_lines}{$count}{'points'}[3]
-				);			  
+				my $item = Goo::Canvas::Polyline->new_line( $root, $ev->x, $ev->y, $ev->x, $ev->y );
 
-				$self->setup_item_signals($self->{_lines}{$count}{'line'});
-		  					
+				$self->{_current_new_item} = $item;
+				$self->{_items}{$item} = $item;
+
+				#need at least 2 points
+				$self->{_items}{$item}{'points'} = [ $ev->x, $ev->y, $ev->x, $ev->y ];
+
+				$self->setup_item_signals( $self->{_items}{$item} );
+
+				#RECTANGLES
+			} elsif ( $self->{_current_mode_descr} eq "rect" ) {
+
+				my $pattern = $self->create_alpha;
+				my $item    = Goo::Canvas::Rect->new( $root, $ev->x, $ev->y, 2, 2,
+					'fill-pattern' => $pattern );
+
+				$self->{_current_new_item} = $item;
+				$self->{_items}{$item} = $item;
+
+				#create rectangles
+				$self->handle_rects( 'create', $item );
+
+				$self->setup_item_signals( $self->{_items}{$item} );
+				$self->setup_item_signals_extra( $self->{_items}{$item} );
+
 			}
 
 		}
@@ -518,14 +550,179 @@ sub event_item_on_button_press {
 	return TRUE;
 }
 
+sub handle_rects {
+	my $self   = shift;
+	my $action = shift;
+	my $item   = shift;
+
+	return FALSE unless ( $item && exists $self->{_items}{$item} );
+
+	#get root item
+	my $root = $self->{_canvas}->get_root_item;
+
+	if ( $self->{_items}{$item}->isa('Goo::Canvas::Rect') ) {
+
+		my $middle
+			= $self->{_items}{$item}->get('x') + int( $self->{_items}{$item}->get('width') / 2 );
+
+		my $bottom = $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height');
+
+		my $top = $self->{_items}{$item}->get('y');
+
+		my $left = $self->{_items}{$item}->get('x');
+
+		my $right = $self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width');
+
+		if ( $action eq 'create' ) {
+
+			my $pattern = $self->create_color( 'blue', 0.3 );
+
+			$self->{_items}{$item}{top_middle} = Goo::Canvas::Rect->new(
+				$root, $middle, $top, 5, 5,
+				'fill-pattern' => $pattern,
+				'visibility'   => 'hidden'
+			);
+
+			$self->{_items}{$item}{top_left} = Goo::Canvas::Rect->new(
+				$root, $left, $top, 5, 5,
+				'fill-pattern' => $pattern,
+				'visibility'   => 'hidden'
+			);
+
+			$self->{_items}{$item}{top_right} = Goo::Canvas::Rect->new(
+				$root, $right, $top, 5, 5,
+				'fill-pattern' => $pattern,
+				'visibility'   => 'hidden'
+			);
+
+			$self->{_items}{$item}{bottom_middle} = Goo::Canvas::Rect->new(
+				$root, $middle, $bottom, 5, 5,
+				'fill-pattern' => $pattern,
+				'visibility'   => 'hidden'
+			);
+
+			$self->{_items}{$item}{bottom_left} = Goo::Canvas::Rect->new(
+				$root, $left, $bottom, 5, 5,
+				'fill-pattern' => $pattern,
+				'visibility'   => 'hidden'
+			);
+
+			$self->{_items}{$item}{bottom_right} = Goo::Canvas::Rect->new(
+				$root, $right, $bottom, 5, 5,
+				'fill-pattern' => $pattern,
+				'visibility'   => 'hidden'
+			);
+
+			$self->setup_item_signals( $self->{_items}{$item}{top_middle} );
+			$self->setup_item_signals( $self->{_items}{$item}{top_left} );
+			$self->setup_item_signals( $self->{_items}{$item}{top_right} );
+			$self->setup_item_signals( $self->{_items}{$item}{bottom_middle} );
+			$self->setup_item_signals( $self->{_items}{$item}{bottom_left} );
+			$self->setup_item_signals( $self->{_items}{$item}{bottom_right} );
+			$self->setup_item_signals_extra( $self->{_items}{$item}{top_middle} );
+			$self->setup_item_signals_extra( $self->{_items}{$item}{top_left} );
+			$self->setup_item_signals_extra( $self->{_items}{$item}{top_right} );
+			$self->setup_item_signals_extra( $self->{_items}{$item}{bottom_middle} );
+			$self->setup_item_signals_extra( $self->{_items}{$item}{bottom_left} );
+			$self->setup_item_signals_extra( $self->{_items}{$item}{bottom_right} );
+
+		} elsif ( $action eq 'update' || $action eq 'hide' ) {
+
+			my $visibilty = 'visible';
+			$visibilty = 'hidden' if $action eq 'hide';
+
+			my $pattern = $self->create_color( 'blue', 0.3 );
+
+			$self->{_items}{$item}{top_middle}->set(
+				'x'            => $middle,
+				'y'            => $top - 5,
+				'visibility'   => $visibilty,
+				'fill-pattern' => $pattern
+			);
+
+			$self->{_items}{$item}{top_left}->set(
+				'x'            => $left - 5,
+				'y'            => $top - 5,
+				'visibility'   => $visibilty,
+				'fill-pattern' => $pattern
+			);
+
+			$self->{_items}{$item}{top_right}->set(
+				'x'            => $right,
+				'y'            => $top - 5,
+				'visibility'   => $visibilty,
+				'fill-pattern' => $pattern
+			);
+
+			$self->{_items}{$item}{bottom_middle}->set(
+				'x'            => $middle,
+				'y'            => $bottom,
+				'visibility'   => $visibilty,
+				'fill-pattern' => $pattern
+			);
+
+			$self->{_items}{$item}{bottom_left}->set(
+				'x'            => $left - 5,
+				'y'            => $bottom,
+				'visibility'   => $visibilty,
+				'fill-pattern' => $pattern
+			);
+
+			$self->{_items}{$item}{bottom_right}->set(
+				'x'            => $right,
+				'y'            => $bottom,
+				'visibility'   => $visibilty,
+				'fill-pattern' => $pattern
+			);
+		}
+	}
+
+}
+
 sub event_item_on_button_release {
 	my ( $self, $item, $target, $ev ) = @_;
 	my $canvas = $item->get_canvas;
 	$canvas->pointer_ungrab( $item, $ev->time );
-	
+
 	#unset action flags
 	$item->{dragging} = FALSE;
 
+	return TRUE;
+}
+
+sub event_item_on_enter_notify {
+	my ( $self, $item, $target, $ev ) = @_;
+	if ( $item->isa('Goo::Canvas::Rect') ) {
+
+		#real shape
+		if ( exists $self->{_items}{$item} ) {
+			$self->{_last_item}    = $self->{_current_item};
+			$self->{_current_item} = $item;
+			$self->handle_rects( 'hide',   $self->{_last_item} );
+			$self->handle_rects( 'update', $self->{_current_item} );
+
+			#resizing shape
+		} else {
+			my $pattern = $self->create_color( 'red', 0.5 );
+			$item->set( 'fill-pattern' => $pattern );
+		}
+	}
+	return TRUE;
+}
+
+sub event_item_on_leave_notify {
+	my ( $self, $item, $target, $ev ) = @_;
+	if ( $item->isa('Goo::Canvas::Rect') ) {
+
+		#real shape
+		if ( exists $self->{_items}{$item} ) {
+
+			#resizing shape
+		} else {
+			my $pattern = $self->create_color( 'blue', 0.3 );
+			$item->set( 'fill-pattern' => $pattern );
+		}
+	}
 	return TRUE;
 }
 
@@ -542,6 +739,22 @@ sub create_stipple {
 	my $surface = Cairo::ImageSurface->create_for_data( $stipple_str, 'argb32', 2, 2, 8 );
 	my $pattern = Cairo::SurfacePattern->create($surface);
 	$pattern->set_extend('repeat');
+	return Goo::Cairo::Pattern->new($pattern);
+}
+
+sub create_alpha {
+	my $self = shift;
+	my $pattern = Cairo::SolidPattern->create_rgba( 0, 0, 0, 0 );
+	return Goo::Cairo::Pattern->new($pattern);
+}
+
+sub create_color {
+	my $self       = shift;
+	my $color_name = shift;
+	my $alpha      = shift;
+	my $color      = Gtk2::Gdk::Color->parse($color_name);
+	my $pattern
+		= Cairo::SolidPattern->create_rgba( $color->red, $color->green, $color->blue, $alpha );
 	return Goo::Cairo::Pattern->new($pattern);
 }
 
