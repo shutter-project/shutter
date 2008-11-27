@@ -63,7 +63,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.267";
+use constant BRANCH              => "Rev.268";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -91,7 +91,6 @@ require GScrot::App::HelperFunctions;
 
 #drawing classes
 require GScrot::Draw::DrawingTool;
-import  GScrot::Draw::DrawingTool;
 
 #screenshot classes
 require GScrot::Screenshot::SelectorAdvanced;

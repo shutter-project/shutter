@@ -22,10 +22,6 @@
 
 package GScrot::Draw::DrawingTool;
 
-our ( @ISA, @EXPORT );
-@ISA    = qw(Exporter);
-@EXPORT = qw(&fct_start_drawing);
-
 #modules
 #--------------------------------------
 use utf8;
@@ -47,14 +43,15 @@ sub new {
 
 	my $self = { _gscrot_common => shift };
 
-	$self->{_factory} = undef;
+	#ui
+	$self->{_uimanager} = undef;
+	$self->{_factory}   = undef;
 
+	#canvas data
 	$self->{_canvas} = undef;
+	$self->{_items}  = undef;
 
-	#items
-	$self->{_items} = undef;
-
-	#
+	#help variables
 	$self->{_last_item}          = undef;
 	$self->{_current_item}       = undef;
 	$self->{_current_new_item}   = undef;
@@ -73,7 +70,7 @@ sub show {
 
 	my $d = $self->{_gscrot_common}->get_gettext;
 
-	my $uimanager = $self->setup_uimanager();
+	$self->{_uimanager} = $self->setup_uimanager();
 
 	$self->{_drawing_window} = Gtk2::Window->new('toplevel');
 	$self->{_drawing_window}->set_title($filename);
@@ -119,16 +116,6 @@ sub show {
 	my $quit_button = Gtk2::Button->new_from_stock('gtk-close');
 	$quit_button->signal_connect( clicked => sub { $self->{_drawing_window}->destroy() } );
 
-	my @stipple_data = ( 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255 );
-	my $pattern = $self->create_stipple( 'cadetblue', \@stipple_data );
-	my $ellipse3 = Goo::Canvas::Ellipse->new(
-		$root, 245, 110, 35, 30,
-		'fill-pattern' => $pattern,
-		'stroke-color' => 'black',
-		'line-width'   => 1,
-	);
-	$self->setup_item_signals($ellipse3);
-
 	#packing
 	my $scrolled_drawing_window = Gtk2::ScrolledWindow->new;
 	$scrolled_drawing_window->set_policy( 'automatic', 'automatic' );
@@ -141,7 +128,7 @@ sub show {
 
 	$self->{_drawing_window}->add($drawing_vbox);
 
-	my $toolbar_drawing = $uimanager->get_widget("/ToolBarDrawing");
+	my $toolbar_drawing = $self->{_uimanager}->get_widget("/ToolBarDrawing");
 	$toolbar_drawing->set_orientation('vertical');
 	$toolbar_drawing->set_style('icons');
 	$toolbar_drawing->set_icon_size('small-toolbar');
@@ -150,8 +137,8 @@ sub show {
 
 	#	$drawing_boxh->pack_start( $drawing_box_buttons,     FALSE, FALSE, 5 );
 
-	my $toolbar = $uimanager->get_widget("/ToolBar");
-	$drawing_vbox->pack_start( $uimanager->get_widget("/ToolBar"), FALSE, FALSE, 0 );
+	my $toolbar = $self->{_uimanager}->get_widget("/ToolBar");
+	$drawing_vbox->pack_start( $self->{_uimanager}->get_widget("/ToolBar"), FALSE, FALSE, 0 );
 
 	my $drawing_statusbar = Gtk2::Statusbar->new;
 	$drawing_vbox->pack_start( $drawing_hbox,      FALSE, FALSE, 0 );
@@ -162,129 +149,6 @@ sub show {
 	Gtk2->main;
 
 	return TRUE;
-}
-
-sub setup_uimanager {
-	my $self = shift;
-
-	my $d = $self->{_gscrot_common}->get_gettext;
-
-	#define own icons
-	my $dicons = $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool";
-	$self->{_factory} = Gtk2::IconFactory->new();
-	$self->{_factory}->add(
-		'gscrot-ellipse',
-		Gtk2::IconSet->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-ellipse.png")
-		)
-	);
-	$self->{_factory}->add(
-		'gscrot-eraser',
-		Gtk2::IconSet->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-eraser.png")
-		)
-	);
-	$self->{_factory}->add(
-		'gscrot-freehand',
-		Gtk2::IconSet->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-freehand.png")
-		)
-	);
-	$self->{_factory}->add(
-		'gscrot-pointer',
-		Gtk2::IconSet->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-pointer.png")
-		)
-	);
-	$self->{_factory}->add(
-		'gscrot-rectangle',
-		Gtk2::IconSet->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-rectangle.png")
-		)
-	);
-	$self->{_factory}->add( 'gscrot-star',
-		Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-star.png") )
-	);
-	$self->{_factory}->add( 'gscrot-text',
-		Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-text.png") )
-	);
-	$self->{_factory}->add_default();
-
-	my @toolbar_actions = (
-		[ "Quit", 'gtk-quit', undef, "<control>W", undef, sub { $self->quit($self) } ],
-		[ "Save", 'gtk-save', undef, "<control>S", undef, sub { $self->save($self) } ],
-		[   "ZoomIn", 'gtk-zoom-in', undef, "<control>plus", undef, sub { $self->zoom_in_cb($self) }
-		],
-		[   "ZoomOut", 'gtk-zoom-out',
-			undef,     "<control>minus",
-			undef, sub { $self->zoom_out_cb($self) }
-		],
-		[   "ZoomNormal", 'gtk-zoom-100',
-			undef,        "<control>0",
-			undef, sub { $self->zoom_normal_cb($self) }
-		]
-	);
-
-	my @toolbar_drawing_actions = (
-		[   "Select", 'gscrot-pointer', undef, undef, $d->get("Select item to move or resize it"),
-			10
-		],
-		[   "Line", 'gscrot-freehand', undef, undef, $d->get("Draw a line using the freehand tool"),
-			20
-		],
-		[ "Rect",    'gscrot-rectangle', undef, undef, $d->get("Draw a rectangle"), 30 ],
-		[ "Ellipse", 'gscrot-ellipse',   undef, undef, $d->get("Draw a ellipse"),   40 ],
-		[ "Image", 'gscrot-star', undef, undef, $d->get("Insert an arbitrary object or file"), 50 ],
-		[ "Text",  'gscrot-text', undef, undef, $d->get("Add some text to the screenshot"),    60 ],
-		[ "Clear", 'gscrot-eraser', undef, undef, $d->get("Delete objects"), 70 ]
-	);
-
-	my $uimanager = Gtk2::UIManager->new();
-
-	# Setup the image group.
-	my $toolbar_group = Gtk2::ActionGroup->new("image");
-	$toolbar_group->add_actions( \@toolbar_actions );
-
-	$uimanager->insert_action_group( $toolbar_group, 0 );
-
-	# Setup the drawing group.
-	my $toolbar_drawing_group = Gtk2::ActionGroup->new("drawing");
-	$toolbar_drawing_group->add_radio_actions( \@toolbar_drawing_actions, 10,
-		sub { my $action = shift; $self->change_drawing_tool_cb($action); } );
-
-	$uimanager->insert_action_group( $toolbar_drawing_group, 0 );
-
-	my $ui_info = "
-<ui>
-  <toolbar name = 'ToolBar'>
-    <toolitem action='Quit'/>
-    <toolitem action='Save'/>
-    <separator/>
-    <toolitem action='ZoomIn'/>
-    <toolitem action='ZoomOut'/>
-    <toolitem action='ZoomNormal'/>
-  </toolbar>
-  <toolbar name = 'ToolBarDrawing'>
-    <separator/>
-    <toolitem action='Select'/>
-    <separator/>
-    <toolitem action='Line'/>
-    <toolitem action='Rect'/>
-    <toolitem action='Ellipse'/>
-    <toolitem action='Text'/>
-    <toolitem action='Image'/>
-    <separator/>
-    <toolitem action='Clear'/>
-  </toolbar>  
-</ui>";
-
-	eval { $uimanager->add_ui_from_string($ui_info) };
-
-	if ($@) {
-		die "Unable to create menus: $@\n";
-	}
-
-	return $uimanager;
 }
 
 sub change_drawing_tool_cb {
@@ -415,7 +279,7 @@ sub setup_item_signals_extra {
 sub event_item_on_motion_notify {
 	my ( $self, $item, $target, $ev ) = @_;
 
-	#move an item
+	#move
 	if ( $item->{dragging} && $ev->state >= 'button1-mask' ) {
 
 		if ( $item->isa('Goo::Canvas::Rect') ) {
@@ -433,21 +297,32 @@ sub event_item_on_motion_notify {
 
 			$self->handle_rects( 'update', $item );
 
+		} elsif ( $item->isa('Goo::Canvas::Ellipse') ) {
+
+			my $parent = $self->get_parent_item($item);
+
+			if ($parent) {
+				my $new_x = $self->{_items}{$parent}->get('x') + $ev->x - $item->{drag_x};
+				my $new_y = $self->{_items}{$parent}->get('y') + $ev->y - $item->{drag_y};
+
+				$self->{_items}{$parent}->set(
+					'x' => $new_x,
+					'y' => $new_y,
+				);
+
+				$item->{drag_x} = $ev->x;
+				$item->{drag_y} = $ev->y;
+
+				$self->handle_rects( 'update', $parent );
+				$self->handle_embedded( 'update', $parent );
+
+			}
+
 		} else {
 
 			$item->translate( $ev->x - $item->{drag_x}, $ev->y - $item->{drag_y} );
 
 		}
-
-		#		$self->handle_rects( 'update', $count );
-
-		#		my $new_x = abs( $ev->x - $item->get('center-x') );
-		#		my $new_y = abs( $ev->y - $item->get('center-y') );
-		#
-		#		$item->set(
-		#			'radius-x' => $new_x,
-		#			'radius-y' => $new_y,
-		#		);
 
 		#freehand line
 	} elsif ( $self->{_current_mode_descr} eq "line" && $ev->state >= 'button1-mask' ) {
@@ -458,8 +333,11 @@ sub event_item_on_motion_notify {
 		$self->{_items}{$item}
 			->set( points => Goo::Canvas::Points->new( $self->{_items}{$item}{'points'} ) );
 
-		#rectangle
-	} elsif ( $self->{_current_mode_descr} eq "rect" && $ev->state >= 'button1-mask' ) {
+		#items
+	} elsif (
+		( $self->{_current_mode_descr} eq "rect" || $self->{_current_mode_descr} eq "ellipse" )
+		&& $ev->state >= 'button1-mask' )
+	{
 
 		my $item = $self->{_current_new_item};
 
@@ -475,10 +353,142 @@ sub event_item_on_motion_notify {
 		);
 
 		$self->handle_rects( 'hide', $item );
+		$self->handle_embedded( 'update', $item );
+
+	} elsif ( $item->{resizing} && $ev->state >= 'button1-mask' ) {
+
+		my $curr_item = $self->{_current_item};
+
+		foreach ( keys %{ $self->{_items}{$curr_item} } ) {
+
+			#fancy resizing using our little resize boxes
+			if ( $item == $self->{_items}{$curr_item}{$_} ) {
+
+				my $new_x      = 0;
+				my $new_y      = 0;
+				my $new_width  = 0;
+				my $new_height = 0;
+
+				if ( $_ =~ /top.*left/ ) {
+
+					$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
+					$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};
+
+					$new_width = $self->{_items}{$curr_item}->get('width')
+						+ ( $self->{_items}{$curr_item}->get('x') - $new_x );
+					$new_height = $self->{_items}{$curr_item}->get('height')
+						+ ( $self->{_items}{$curr_item}->get('y') - $new_y );
+
+				} elsif ( $_ =~ /top.*middle/ ) {
+
+					$new_x = $self->{_items}{$curr_item}->get('x');
+					$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};
+
+					$new_width  = $self->{_items}{$curr_item}->get('width');
+					$new_height = $self->{_items}{$curr_item}->get('height')
+						+ ( $self->{_items}{$curr_item}->get('y') - $new_y );
+				} elsif ( $_ =~ /top.*right/ ) {
+
+					$new_x = $self->{_items}{$curr_item}->get('x');
+					$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};
+
+					$new_width
+						= $self->{_items}{$curr_item}->get('width') + ( $ev->x - $item->{res_x} );
+					$new_height = $self->{_items}{$curr_item}->get('height')
+						+ ( $self->{_items}{$curr_item}->get('y') - $new_y );
+
+				} elsif ( $_ =~ /middle.*left/ ) {
+
+					$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
+					$new_y = $self->{_items}{$curr_item}->get('y');
+
+					$new_width = $self->{_items}{$curr_item}->get('width')
+						+ ( $self->{_items}{$curr_item}->get('x') - $new_x );
+					$new_height = $self->{_items}{$curr_item}->get('height');
+
+				} elsif ( $_ =~ /middle.*right/ ) {
+
+					$new_x = $self->{_items}{$curr_item}->get('x');
+					$new_y = $self->{_items}{$curr_item}->get('y');
+
+					$new_width
+						= $self->{_items}{$curr_item}->get('width') + ( $ev->x - $item->{res_x} );
+					$new_height = $self->{_items}{$curr_item}->get('height');
+
+				} elsif ( $_ =~ /bottom.*left/ ) {
+
+					$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
+					$new_y = $self->{_items}{$curr_item}->get('y');
+
+					$new_width = $self->{_items}{$curr_item}->get('width')
+						+ ( $self->{_items}{$curr_item}->get('x') - $new_x );
+					$new_height
+						= $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );
+
+				} elsif ( $_ =~ /bottom.*middle/ ) {
+
+					$new_x = $self->{_items}{$curr_item}->get('x');
+					$new_y = $self->{_items}{$curr_item}->get('y');
+
+					$new_width = $self->{_items}{$curr_item}->get('width');
+					$new_height
+						= $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );
+
+				} elsif ( $_ =~ /bottom.*right/ ) {
+
+					$new_x = $self->{_items}{$curr_item}->get('x');
+					$new_y = $self->{_items}{$curr_item}->get('y');
+
+					$new_width
+						= $self->{_items}{$curr_item}->get('width') + ( $ev->x - $item->{res_x} );
+					$new_height
+						= $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );
+
+				}
+
+				$item->{res_x} = $ev->x;
+				$item->{res_y} = $ev->y;
+
+				#min size while resizing
+				if ( $new_width <= 5 ) {
+					$new_x         = $self->{_items}{$curr_item}->get('x');
+					$new_width     = $self->{_items}{$curr_item}->get('width');
+					$item->{res_x} = $new_x;
+				}
+				if ( $new_height <= 5 ) {
+					$new_y         = $self->{_items}{$curr_item}->get('y');
+					$new_height    = $self->{_items}{$curr_item}->get('height');
+					$item->{res_y} = $new_y;
+				}
+
+				$self->{_items}{$curr_item}->set(
+					'x'      => $new_x,
+					'y'      => $new_y,
+					'width'  => $new_width,
+					'height' => $new_height,
+				);
+
+				$self->handle_rects( 'update', $self->{_items}{$curr_item} );
+				$self->handle_embedded( 'update', $self->{_items}{$curr_item} );
+
+			}
+		}
 
 	}
 
 	return TRUE;
+}
+
+sub get_parent_item {
+	my $self   = shift;
+	my $item   = shift;
+	my $parent = undef;
+	foreach ( keys %{ $self->{_items} } ) {
+		$parent = $self->{_items}{$_} if $self->{_items}{$_}{ellipse} = $item;
+	}
+
+	print $parent . "\n";
+	return $parent;
 }
 
 sub event_item_on_button_press {
@@ -491,24 +501,46 @@ sub event_item_on_button_press {
 		#CLEAR
 		if ( $self->{_current_mode_descr} eq "clear" ) {
 
-			my $parent = $item->get_parent;
-			$parent->remove_child( $parent->find_child($item) );
+#			my $parent = $item->get_parent;
+#			$parent->remove_child( $parent->find_child($item) );
 
 			#MOVE AND SELECT
 		} elsif ( $self->{_current_mode_descr} eq "select" ) {
-			$item->{drag_x} = $ev->x;
-			$item->{drag_y} = $ev->y;
-			my $fleur = Gtk2::Gdk::Cursor->new('fleur');
+			if ( $item->isa('Goo::Canvas::Rect') ) {
 
-			$canvas->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ],
-				$fleur, $ev->time );
-			$item->{dragging} = TRUE;
+#				my $parent = $self->get_parent_item($item);
+#				$item = $parent if $parent;
 
+				#real shape
+				if ( exists $self->{_items}{$item} ) {
+					$item->{drag_x} = $ev->x;
+					$item->{drag_y} = $ev->y;
+					my $fleur = Gtk2::Gdk::Cursor->new('fleur');
+					$canvas->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ],
+						$fleur, $ev->time );
+					$item->{dragging} = TRUE;
+
+					#resizing shape
+				} else {
+					$item->{res_x} = $ev->x;
+					$item->{res_y} = $ev->y;
+					my $fleur = Gtk2::Gdk::Cursor->new('fleur');
+					$canvas->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ],
+						$fleur, $ev->time );
+					$item->{resizing} = TRUE;
+				}
+			} else {
+
+				#				return TRUE if $item = $self->{_canvas_bg};
+
+				$item->{drag_x} = $ev->x;
+				$item->{drag_y} = $ev->y;
+				my $fleur = Gtk2::Gdk::Cursor->new('fleur');
+				$canvas->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ],
+					$fleur, $ev->time );
+				$item->{dragging} = TRUE;
+			}
 		} else {
-
-			#new items
-			#			$self->{_count}++;
-			#			my $count = $self->{_count};
 
 			#FREEHAND
 			if ( $self->{_current_mode_descr} eq "line" ) {
@@ -539,6 +571,40 @@ sub event_item_on_button_press {
 				$self->setup_item_signals( $self->{_items}{$item} );
 				$self->setup_item_signals_extra( $self->{_items}{$item} );
 
+				#ELLIPSE
+			} elsif ( $self->{_current_mode_descr} eq "ellipse" ) {
+
+				my $pattern = $self->create_alpha;
+				my $item    = Goo::Canvas::Rect->new(
+					$root, $ev->x, $ev->y, 2, 2,
+					'fill-pattern' => $pattern,
+					'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
+					'line-width'   => 1,
+					'stroke-color' => 'gray',
+				);
+
+				$self->{_current_new_item} = $item;
+				$self->{_items}{$item} = $item;
+
+				my @stipple_data = ( 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255 );
+				my $pattern = $self->create_stipple( 'cadetblue', \@stipple_data );
+				$self->{_items}{$item}{ellipse} = Goo::Canvas::Ellipse->new(
+					$root, $item->get('x'), $item->get('y'), $item->get('width'),
+					$item->get('height'),
+					'fill-pattern' => $pattern,
+					'stroke-color' => 'black',
+					'line-width'   => 1,
+				);
+
+				#create rectangles
+				$self->handle_rects( 'create', $item );
+
+				$self->setup_item_signals( $self->{_items}{$item}{ellipse} );
+				$self->setup_item_signals_extra( $self->{_items}{$item}{ellipse} );
+
+				$self->setup_item_signals( $self->{_items}{$item} );
+				$self->setup_item_signals_extra( $self->{_items}{$item} );
+
 			}
 
 		}
@@ -550,20 +616,58 @@ sub event_item_on_button_press {
 	return TRUE;
 }
 
-sub handle_rects {
+sub handle_embedded {
 	my $self   = shift;
 	my $action = shift;
 	my $item   = shift;
 
 	return FALSE unless ( $item && exists $self->{_items}{$item} );
 
+	if ( $action eq 'update' ) {
+
+		#embedded ellipse
+		if ( exists $self->{_items}{$item}{ellipse} ) {
+
+			$self->{_items}{$item}{ellipse}->set(
+				'center-x' => int( $item->get('x') + $item->get('width') / 2 ),
+				'center-y' => int( $item->get('y') + $item->get('height') / 2 ),
+			);
+			$self->{_items}{$item}{ellipse}->set(
+				'radius-x' => $item->get('x') 
+					+ $item->get('width')
+					- $self->{_items}{$item}{ellipse}->get('center-x'),
+				'radius-y' => $item->get('y') 
+					+ $item->get('height')
+					- $self->{_items}{$item}{ellipse}->get('center-y'),
+			);
+
+		}
+
+	}
+
+	return TRUE;
+}
+
+sub handle_rects {
+	my $self   = shift;
+	my $action = shift;
+	my $item   = shift;
+
+	#	my $parent = $self->get_parent_item($item);
+	#	$item = $parent if $parent;
+
+	return FALSE unless ( $item && exists $self->{_items}{$item} );
+
 	#get root item
 	my $root = $self->{_canvas}->get_root_item;
 
-	if ( $self->{_items}{$item}->isa('Goo::Canvas::Rect') ) {
+	if (   $self->{_items}{$item}->isa('Goo::Canvas::Rect')){
 
-		my $middle
+		my $middle_h
 			= $self->{_items}{$item}->get('x') + int( $self->{_items}{$item}->get('width') / 2 );
+
+		my $middle_v
+			= $self->{_items}{$item}->get('y') + int( $self->{_items}{$item}->get('height') / 2 );
 
 		my $bottom = $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height');
 
@@ -578,7 +682,7 @@ sub handle_rects {
 			my $pattern = $self->create_color( 'blue', 0.3 );
 
 			$self->{_items}{$item}{top_middle} = Goo::Canvas::Rect->new(
-				$root, $middle, $top, 5, 5,
+				$root, $middle_h, $top, 5, 5,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden'
 			);
@@ -596,7 +700,7 @@ sub handle_rects {
 			);
 
 			$self->{_items}{$item}{bottom_middle} = Goo::Canvas::Rect->new(
-				$root, $middle, $bottom, 5, 5,
+				$root, $middle_h, $bottom, 5, 5,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden'
 			);
@@ -613,18 +717,34 @@ sub handle_rects {
 				'visibility'   => 'hidden'
 			);
 
+			$self->{_items}{$item}{middle_left} = Goo::Canvas::Rect->new(
+				$root, $left - 5, $middle_v, 5, 5,
+				'fill-pattern' => $pattern,
+				'visibility'   => 'hidden'
+			);
+
+			$self->{_items}{$item}{middle_right} = Goo::Canvas::Rect->new(
+				$root, $right, $middle_v, 5, 5,
+				'fill-pattern' => $pattern,
+				'visibility'   => 'hidden'
+			);
+
 			$self->setup_item_signals( $self->{_items}{$item}{top_middle} );
 			$self->setup_item_signals( $self->{_items}{$item}{top_left} );
 			$self->setup_item_signals( $self->{_items}{$item}{top_right} );
 			$self->setup_item_signals( $self->{_items}{$item}{bottom_middle} );
 			$self->setup_item_signals( $self->{_items}{$item}{bottom_left} );
 			$self->setup_item_signals( $self->{_items}{$item}{bottom_right} );
+			$self->setup_item_signals( $self->{_items}{$item}{middle_left} );
+			$self->setup_item_signals( $self->{_items}{$item}{middle_right} );
 			$self->setup_item_signals_extra( $self->{_items}{$item}{top_middle} );
 			$self->setup_item_signals_extra( $self->{_items}{$item}{top_left} );
 			$self->setup_item_signals_extra( $self->{_items}{$item}{top_right} );
 			$self->setup_item_signals_extra( $self->{_items}{$item}{bottom_middle} );
 			$self->setup_item_signals_extra( $self->{_items}{$item}{bottom_left} );
 			$self->setup_item_signals_extra( $self->{_items}{$item}{bottom_right} );
+			$self->setup_item_signals_extra( $self->{_items}{$item}{middle_left} );
+			$self->setup_item_signals_extra( $self->{_items}{$item}{middle_right} );
 
 		} elsif ( $action eq 'update' || $action eq 'hide' ) {
 
@@ -634,12 +754,11 @@ sub handle_rects {
 			my $pattern = $self->create_color( 'blue', 0.3 );
 
 			$self->{_items}{$item}{top_middle}->set(
-				'x'            => $middle,
+				'x'            => $middle_h,
 				'y'            => $top - 5,
 				'visibility'   => $visibilty,
 				'fill-pattern' => $pattern
 			);
-
 			$self->{_items}{$item}{top_left}->set(
 				'x'            => $left - 5,
 				'y'            => $top - 5,
@@ -655,7 +774,7 @@ sub handle_rects {
 			);
 
 			$self->{_items}{$item}{bottom_middle}->set(
-				'x'            => $middle,
+				'x'            => $middle_h,
 				'y'            => $bottom,
 				'visibility'   => $visibilty,
 				'fill-pattern' => $pattern
@@ -674,6 +793,20 @@ sub handle_rects {
 				'visibility'   => $visibilty,
 				'fill-pattern' => $pattern
 			);
+
+			$self->{_items}{$item}{middle_left}->set(
+				'x'            => $left - 5,
+				'y'            => $middle_v,
+				'visibility'   => $visibilty,
+				'fill-pattern' => $pattern
+			);
+			$self->{_items}{$item}{middle_right}->set(
+				'x'            => $right,
+				'y'            => $middle_v,
+				'visibility'   => $visibilty,
+				'fill-pattern' => $pattern
+			);
+
 		}
 	}
 
@@ -687,15 +820,22 @@ sub event_item_on_button_release {
 	#unset action flags
 	$item->{dragging} = FALSE;
 
+	$self->set_drawing_action(0);
+
 	return TRUE;
 }
 
 sub event_item_on_enter_notify {
 	my ( $self, $item, $target, $ev ) = @_;
-	if ( $item->isa('Goo::Canvas::Rect') ) {
+	if ( $item->isa('Goo::Canvas::Rect')  ) {
+
+#		#embedded item?
+#		my $parent = $self->get_parent_item($item);
+#		$item = $parent if $parent;
 
 		#real shape
 		if ( exists $self->{_items}{$item} ) {
+
 			$self->{_last_item}    = $self->{_current_item};
 			$self->{_current_item} = $item;
 			$self->handle_rects( 'hide',   $self->{_last_item} );
@@ -712,7 +852,11 @@ sub event_item_on_enter_notify {
 
 sub event_item_on_leave_notify {
 	my ( $self, $item, $target, $ev ) = @_;
-	if ( $item->isa('Goo::Canvas::Rect') ) {
+	if ( $item->isa('Goo::Canvas::Rect')  ) {
+
+#		#embedded item?
+#		my $parent = $self->get_parent_item($item);
+#		$item = $parent if $parent;
 
 		#real shape
 		if ( exists $self->{_items}{$item} ) {
@@ -756,6 +900,142 @@ sub create_color {
 	my $pattern
 		= Cairo::SolidPattern->create_rgba( $color->red, $color->green, $color->blue, $alpha );
 	return Goo::Cairo::Pattern->new($pattern);
+}
+
+#ui related stuff
+sub setup_uimanager {
+	my $self = shift;
+
+	my $d = $self->{_gscrot_common}->get_gettext;
+
+	#define own icons
+	my $dicons = $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool";
+	$self->{_factory} = Gtk2::IconFactory->new();
+	$self->{_factory}->add(
+		'gscrot-ellipse',
+		Gtk2::IconSet->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-ellipse.png")
+		)
+	);
+	$self->{_factory}->add(
+		'gscrot-eraser',
+		Gtk2::IconSet->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-eraser.png")
+		)
+	);
+	$self->{_factory}->add(
+		'gscrot-freehand',
+		Gtk2::IconSet->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-freehand.png")
+		)
+	);
+	$self->{_factory}->add(
+		'gscrot-pointer',
+		Gtk2::IconSet->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-pointer.png")
+		)
+	);
+	$self->{_factory}->add(
+		'gscrot-rectangle',
+		Gtk2::IconSet->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-rectangle.png")
+		)
+	);
+	$self->{_factory}->add( 'gscrot-star',
+		Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-star.png") )
+	);
+	$self->{_factory}->add( 'gscrot-text',
+		Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-text.png") )
+	);
+	$self->{_factory}->add_default();
+
+	my @toolbar_actions = (
+		[ "Quit", 'gtk-quit', undef, "<control>W", undef, sub { $self->quit($self) } ],
+		[ "Save", 'gtk-save', undef, "<control>S", undef, sub { $self->save($self) } ],
+		[   "ZoomIn", 'gtk-zoom-in', undef, "<control>plus", undef, sub { $self->zoom_in_cb($self) }
+		],
+		[   "ZoomOut", 'gtk-zoom-out',
+			undef,     "<control>minus",
+			undef, sub { $self->zoom_out_cb($self) }
+		],
+		[   "ZoomNormal", 'gtk-zoom-100',
+			undef,        "<control>0",
+			undef, sub { $self->zoom_normal_cb($self) }
+		]
+	);
+
+	my @toolbar_drawing_actions = (
+		[   "Select", 'gscrot-pointer', undef, undef, $d->get("Select item to move or resize it"),
+			10
+		],
+		[   "Line", 'gscrot-freehand', undef, undef, $d->get("Draw a line using the freehand tool"),
+			20
+		],
+		[ "Rect",    'gscrot-rectangle', undef, undef, $d->get("Draw a rectangle"), 30 ],
+		[ "Ellipse", 'gscrot-ellipse',   undef, undef, $d->get("Draw a ellipse"),   40 ],
+		[ "Image", 'gscrot-star', undef, undef, $d->get("Insert an arbitrary object or file"), 50 ],
+		[ "Text",  'gscrot-text', undef, undef, $d->get("Add some text to the screenshot"),    60 ],
+		[ "Clear", 'gscrot-eraser', undef, undef, $d->get("Delete objects"), 70 ]
+	);
+
+	my $uimanager = Gtk2::UIManager->new();
+
+	# Setup the image group.
+	my $toolbar_group = Gtk2::ActionGroup->new("image");
+	$toolbar_group->add_actions( \@toolbar_actions );
+
+	$uimanager->insert_action_group( $toolbar_group, 0 );
+
+	# Setup the drawing group.
+	my $toolbar_drawing_group = Gtk2::ActionGroup->new("drawing");
+	$toolbar_drawing_group->add_radio_actions( \@toolbar_drawing_actions, 10,
+		sub { my $action = shift; $self->change_drawing_tool_cb($action); } );
+
+	$uimanager->insert_action_group( $toolbar_drawing_group, 0 );
+
+	my $ui_info = "
+<ui>
+  <toolbar name = 'ToolBar'>
+    <toolitem action='Quit'/>
+    <toolitem action='Save'/>
+    <separator/>
+    <toolitem action='ZoomIn'/>
+    <toolitem action='ZoomOut'/>
+    <toolitem action='ZoomNormal'/>
+  </toolbar>
+  <toolbar name = 'ToolBarDrawing'>
+    <toolitem action='Select'/>
+    <separator/>
+    <toolitem action='Line'/>
+    <toolitem action='Rect'/>
+    <toolitem action='Ellipse'/>
+    <toolitem action='Text'/>
+    <toolitem action='Image'/>
+    <separator/>
+    <toolitem action='Clear'/>
+  </toolbar>  
+</ui>";
+
+	eval { $uimanager->add_ui_from_string($ui_info) };
+
+	if ($@) {
+		die "Unable to create menus: $@\n";
+	}
+
+	return $uimanager;
+}
+
+sub set_drawing_action {
+	my $self  = shift;
+	my $index = shift;
+
+	my $toolbar = $self->{_uimanager}->get_widget("/ToolBarDrawing");
+	for ( my $i = 0; $i < $toolbar->get_n_items; $i++ ) {
+		my $item       = $toolbar->get_nth_item($i);
+		my $item_index = $toolbar->get_item_index($item);
+		$item->set_active(TRUE) if $item_index == $index;
+	}
+
 }
 
 1;
