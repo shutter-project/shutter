@@ -52,8 +52,8 @@ sub new {
 	$self->{_items}  = undef;
 
 	#drawing colors
-	$self->{_fill_color}       = Gtk2::Gdk::Color->parse('#0000ff');
-	$self->{_fill_color_alpha} = 0.25;
+	$self->{_fill_color}         = Gtk2::Gdk::Color->parse('#0000ff');
+	$self->{_fill_color_alpha}   = 0.25;
 	$self->{_stroke_color}       = Gtk2::Gdk::Color->parse('#000000');
 	$self->{_stroke_color_alpha} = 0.95;
 
@@ -307,7 +307,7 @@ sub event_item_on_motion_notify {
 
 		} else {
 
-			#			$item->translate( $ev->x - $item->{drag_x}, $ev->y - $item->{drag_y} );
+			$item->translate( $ev->x - $item->{drag_x}, $ev->y - $item->{drag_y} );
 
 		}
 
@@ -488,6 +488,8 @@ sub event_item_on_button_press {
 		#CLEAR
 		if ( $self->{_current_mode_descr} eq "clear" ) {
 
+			return TRUE if $item == $self->{_canvas_bg};
+	
 			my @items_to_delete;
 			push @items_to_delete, $item;
 
@@ -538,8 +540,31 @@ sub event_item_on_button_press {
 				}
 			} else {
 
-				#				return TRUE if $item = $self->{_canvas_bg};
+				#click on background => deactivate all selected items
+				if ( $item == $self->{_canvas_bg} ) {
 
+					my @items_to_deactivate;
+					push @items_to_deactivate, $self->{_last_item};
+					push @items_to_deactivate, $self->{_current_item};
+
+					foreach my $item (@items_to_deactivate) {
+						#embedded item?
+						my $parent = $self->get_parent_item( $self->{_last_item} );
+						$item = $parent if $parent;
+
+						#real shape
+						if ( exists $self->{_items}{$item} ) {
+							$self->handle_rects( 'hide', $item );
+						}
+					}
+					
+					$self->{_last_item}    = undef;
+					$self->{_current_item} = undef;
+					return TRUE;
+				}
+
+
+				#no rect and no background, just move it ...
 				$item->{drag_x} = $ev->x;
 				$item->{drag_y} = $ev->y;
 				my $fleur = Gtk2::Gdk::Cursor->new('fleur');
@@ -552,9 +577,15 @@ sub event_item_on_button_press {
 			#FREEHAND
 			if ( $self->{_current_mode_descr} eq "line" ) {
 
-				my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
-				my $fill_pattern =  $self->create_color( $self->{_fill_color}, $self->{_fill_color_alpha} );
-				my $item = Goo::Canvas::Polyline->new_line( $root, $ev->x, $ev->y, $ev->x, $ev->y, 'stroke-pattern' => $stroke_pattern, 'line-width'   => 1);
+				my $stroke_pattern
+					= $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
+				my $fill_pattern
+					= $self->create_color( $self->{_fill_color}, $self->{_fill_color_alpha} );
+				my $item = Goo::Canvas::Polyline->new_line(
+					$root, $ev->x, $ev->y, $ev->x, $ev->y,
+					'stroke-pattern' => $stroke_pattern,
+					'line-width'     => 1
+				);
 
 				$self->{_current_new_item} = $item;
 				$self->{_items}{$item} = $item;
@@ -567,10 +598,16 @@ sub event_item_on_button_press {
 				#RECTANGLES
 			} elsif ( $self->{_current_mode_descr} eq "rect" ) {
 
-				my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
-				my $fill_pattern =  $self->create_color( $self->{_fill_color}, $self->{_fill_color_alpha} );
-				my $item    = Goo::Canvas::Rect->new( $root, $ev->x, $ev->y, 2, 2,
-					'fill-pattern' => $fill_pattern, 'stroke-pattern' => $stroke_pattern, 'line-width'   => 1, );
+				my $stroke_pattern
+					= $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
+				my $fill_pattern
+					= $self->create_color( $self->{_fill_color}, $self->{_fill_color_alpha} );
+				my $item = Goo::Canvas::Rect->new(
+					$root, $ev->x, $ev->y, 2, 2,
+					'fill-pattern'   => $fill_pattern,
+					'stroke-pattern' => $stroke_pattern,
+					'line-width'     => 1,
+				);
 
 				$self->{_current_new_item} = $item;
 				$self->{_items}{$item} = $item;
@@ -596,18 +633,20 @@ sub event_item_on_button_press {
 				$self->{_current_new_item} = $item;
 				$self->{_items}{$item} = $item;
 
-#				my @stipple_data = ( 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255 );
-#				my $pattern = $self->create_stipple( 'cadetblue', \@stipple_data );
+				#				my @stipple_data = ( 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255 );
+				#				my $pattern = $self->create_stipple( 'cadetblue', \@stipple_data );
 
-				my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
-				my $fill_pattern =  $self->create_color( $self->{_fill_color}, $self->{_fill_color_alpha} );
+				my $stroke_pattern
+					= $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
+				my $fill_pattern
+					= $self->create_color( $self->{_fill_color}, $self->{_fill_color_alpha} );
 
 				$self->{_items}{$item}{ellipse} = Goo::Canvas::Ellipse->new(
 					$root, $item->get('x'), $item->get('y'), $item->get('width'),
 					$item->get('height'),
-					'fill-pattern' => $fill_pattern,
+					'fill-pattern'   => $fill_pattern,
 					'stroke-pattern' => $stroke_pattern,
-					'line-width'   => 1,
+					'line-width'     => 1,
 				);
 
 				#create rectangles
@@ -915,12 +954,13 @@ sub create_color {
 	my $self       = shift;
 	my $color_name = shift;
 	my $alpha      = shift;
-	
+
 	my $color;
+
 	#if it is a color, we do not need to parse it
-	unless($color_name->isa('Gtk2::Gdk::Color')){
-		$color = Gtk2::Gdk::Color->parse($color_name);		
-	}else{
+	unless ( $color_name->isa('Gtk2::Gdk::Color') ) {
+		$color = Gtk2::Gdk::Color->parse($color_name);
+	} else {
 		$color = $color_name;
 	}
 
@@ -1096,16 +1136,15 @@ sub set_color_fill_color_button {
 			$color_dialog->set_default_response('accept');
 
 			my $color_select = Gtk2::ColorSelection->new;
-			$color_select->set_has_palette(TRUE);
 			$color_select->set_has_opacity_control(TRUE);
 			$color_select->set_current_color( $self->{_fill_color} );
-			$color_select->set_current_alpha( int ( $self->{_fill_color_alpha} *  65636) );
+			$color_select->set_current_alpha( int( $self->{_fill_color_alpha} * 65636 ) );
 
 			$color_dialog->vbox->add($color_select);
 			$color_dialog->show_all;
 
 			if ( 'accept' eq $color_dialog->run ) {
-				$self->{_fill_color} = $color_select->get_current_color;
+				$self->{_fill_color}       = $color_select->get_current_color;
 				$self->{_fill_color_alpha} = $color_select->get_current_alpha / 65636;
 
 				$btn->set_state('prelight');
@@ -1134,11 +1173,11 @@ sub set_color_stroke_color_button {
 	$btn->set_border_width(10);
 
 	$btn->set_state('prelight');
-	$btn->modify_bg( 'normal',     $self->{_stroke_color} );
-	$btn->modify_bg( 'prelight',   $self->{_stroke_color} );
-	$btn->modify_bg( 'active',     $self->{_stroke_color} );
-	$btn->modify_bg( 'insensitive',$self->{_stroke_color} );
-	$btn->modify_bg( 'selected',   $self->{_stroke_color} );
+	$btn->modify_bg( 'normal',      $self->{_stroke_color} );
+	$btn->modify_bg( 'prelight',    $self->{_stroke_color} );
+	$btn->modify_bg( 'active',      $self->{_stroke_color} );
+	$btn->modify_bg( 'insensitive', $self->{_stroke_color} );
+	$btn->modify_bg( 'selected',    $self->{_stroke_color} );
 
 	$btn->signal_connect( 'state-changed' => sub { $btn->set_state('prelight') } );
 
@@ -1156,16 +1195,15 @@ sub set_color_stroke_color_button {
 			$color_dialog->set_default_response('accept');
 
 			my $color_select = Gtk2::ColorSelection->new;
-			$color_select->set_has_palette(TRUE);
 			$color_select->set_has_opacity_control(TRUE);
 			$color_select->set_current_color( $self->{_stroke_color} );
-			$color_select->set_current_alpha( int ($self->{_stroke_color_alpha} *  65636) );
+			$color_select->set_current_alpha( int( $self->{_stroke_color_alpha} * 65636 ) );
 
 			$color_dialog->vbox->add($color_select);
 			$color_dialog->show_all;
 
 			if ( 'accept' eq $color_dialog->run ) {
-				$self->{_stroke_color} = $color_select->get_current_color;
+				$self->{_stroke_color}       = $color_select->get_current_color;
 				$self->{_stroke_color_alpha} = $color_select->get_current_alpha / 65636;
 
 				$btn->set_state('prelight');
