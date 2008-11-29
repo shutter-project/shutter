@@ -51,6 +51,12 @@ sub new {
 	$self->{_canvas} = undef;
 	$self->{_items}  = undef;
 
+	#drawing colors
+	$self->{_fill_color}       = Gtk2::Gdk::Color->parse('#0000ff');
+	$self->{_fill_color_alpha} = 0.25;
+	$self->{_stroke_color}       = Gtk2::Gdk::Color->parse('#000000');
+	$self->{_stroke_color_alpha} = 0.95;
+
 	#help variables
 	$self->{_last_item}          = undef;
 	$self->{_current_item}       = undef;
@@ -99,23 +105,6 @@ sub show {
 	$self->{_canvas_bg} = Goo::Canvas::Image->new( $root, $self->{_drawing_pixbuf}, 0, 0 );
 	$self->setup_item_signals( $self->{_canvas_bg} );
 
-	# Width
-	my $width_label = Gtk2::Label->new( $self->{_gscrot_common}->get_gettext->get("Width:") );
-	my $sb_width = Gtk2::SpinButton->new_with_range( 1, 20, 1 );
-	$sb_width->set_value(3);
-
-	# create a color button
-	my $col_label = Gtk2::Label->new( $self->{_gscrot_common}->get_gettext->get("Color:") );
-	my $colbut1   = Gtk2::ColorButton->new();
-	$colbut1->set_color( Gtk2::Gdk::Color->new( 0xFFFF, 0, 0 ) );
-
-	# a save button
-	my $save_button = Gtk2::Button->new_from_stock('gtk-save');
-
-	# .. And a quit button
-	my $quit_button = Gtk2::Button->new_from_stock('gtk-close');
-	$quit_button->signal_connect( clicked => sub { $self->{_drawing_window}->destroy() } );
-
 	#packing
 	my $scrolled_drawing_window = Gtk2::ScrolledWindow->new;
 	$scrolled_drawing_window->set_policy( 'automatic', 'automatic' );
@@ -123,7 +112,6 @@ sub show {
 
 	my $drawing_vbox = Gtk2::VBox->new( FALSE, 0 );
 
-	#	my $drawing_box_buttons = Gtk2::HBox->new( FALSE, 0 );
 	my $drawing_hbox = Gtk2::HBox->new( FALSE, 0 );
 
 	$self->{_drawing_window}->add($drawing_vbox);
@@ -134,8 +122,6 @@ sub show {
 	$toolbar_drawing->set_icon_size('small-toolbar');
 	$drawing_hbox->pack_start( $toolbar_drawing,         FALSE, FALSE, 0 );
 	$drawing_hbox->pack_start( $scrolled_drawing_window, FALSE, FALSE, 0 );
-
-	#	$drawing_boxh->pack_start( $drawing_box_buttons,     FALSE, FALSE, 5 );
 
 	my $toolbar = $self->{_uimanager}->get_widget("/ToolBar");
 	$drawing_vbox->pack_start( $self->{_uimanager}->get_widget("/ToolBar"), FALSE, FALSE, 0 );
@@ -296,6 +282,7 @@ sub event_item_on_motion_notify {
 			$item->{drag_y} = $ev->y;
 
 			$self->handle_rects( 'update', $item );
+			$self->handle_embedded( 'update', $item );
 
 		} elsif ( $item->isa('Goo::Canvas::Ellipse') ) {
 
@@ -320,7 +307,7 @@ sub event_item_on_motion_notify {
 
 		} else {
 
-			$item->translate( $ev->x - $item->{drag_x}, $ev->y - $item->{drag_y} );
+			#			$item->translate( $ev->x - $item->{drag_x}, $ev->y - $item->{drag_y} );
 
 		}
 
@@ -480,14 +467,14 @@ sub event_item_on_motion_notify {
 }
 
 sub get_parent_item {
-	my $self   = shift;
-	my $item   = shift;
+	my $self = shift;
+	my $item = shift;
+
 	my $parent = undef;
 	foreach ( keys %{ $self->{_items} } ) {
-		$parent = $self->{_items}{$_} if $self->{_items}{$_}{ellipse} = $item;
+		$parent = $self->{_items}{$_} if $self->{_items}{$_}{ellipse} == $item;
 	}
 
-	print $parent . "\n";
 	return $parent;
 }
 
@@ -501,15 +488,35 @@ sub event_item_on_button_press {
 		#CLEAR
 		if ( $self->{_current_mode_descr} eq "clear" ) {
 
-#			my $parent = $item->get_parent;
-#			$parent->remove_child( $parent->find_child($item) );
+			my @items_to_delete;
+			push @items_to_delete, $item;
+
+			#maybe there is a parent item to delete?
+			my $parent = $self->get_parent_item($item);
+			if ($parent) {
+				push @items_to_delete, $parent;
+				foreach ( keys %{ $self->{_items}{$parent} } ) {
+					push @items_to_delete, $self->{_items}{$parent}{$_};
+				}
+			} else {
+				foreach ( keys %{ $self->{_items}{$item} } ) {
+					push @items_to_delete, $self->{_items}{$item}{$_};
+				}
+			}
+
+			foreach (@items_to_delete) {
+				eval {
+					my $bigparent = $_->get_parent;
+					$bigparent->remove_child( $bigparent->find_child($_) );
+				};
+			}
 
 			#MOVE AND SELECT
 		} elsif ( $self->{_current_mode_descr} eq "select" ) {
 			if ( $item->isa('Goo::Canvas::Rect') ) {
 
-#				my $parent = $self->get_parent_item($item);
-#				$item = $parent if $parent;
+				#				my $parent = $self->get_parent_item($item);
+				#				$item = $parent if $parent;
 
 				#real shape
 				if ( exists $self->{_items}{$item} ) {
@@ -545,7 +552,9 @@ sub event_item_on_button_press {
 			#FREEHAND
 			if ( $self->{_current_mode_descr} eq "line" ) {
 
-				my $item = Goo::Canvas::Polyline->new_line( $root, $ev->x, $ev->y, $ev->x, $ev->y );
+				my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
+				my $fill_pattern =  $self->create_color( $self->{_fill_color}, $self->{_fill_color_alpha} );
+				my $item = Goo::Canvas::Polyline->new_line( $root, $ev->x, $ev->y, $ev->x, $ev->y, 'stroke-pattern' => $stroke_pattern, 'line-width'   => 1);
 
 				$self->{_current_new_item} = $item;
 				$self->{_items}{$item} = $item;
@@ -558,9 +567,10 @@ sub event_item_on_button_press {
 				#RECTANGLES
 			} elsif ( $self->{_current_mode_descr} eq "rect" ) {
 
-				my $pattern = $self->create_alpha;
+				my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
+				my $fill_pattern =  $self->create_color( $self->{_fill_color}, $self->{_fill_color_alpha} );
 				my $item    = Goo::Canvas::Rect->new( $root, $ev->x, $ev->y, 2, 2,
-					'fill-pattern' => $pattern );
+					'fill-pattern' => $fill_pattern, 'stroke-pattern' => $stroke_pattern, 'line-width'   => 1, );
 
 				$self->{_current_new_item} = $item;
 				$self->{_items}{$item} = $item;
@@ -586,13 +596,17 @@ sub event_item_on_button_press {
 				$self->{_current_new_item} = $item;
 				$self->{_items}{$item} = $item;
 
-				my @stipple_data = ( 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255 );
-				my $pattern = $self->create_stipple( 'cadetblue', \@stipple_data );
+#				my @stipple_data = ( 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255 );
+#				my $pattern = $self->create_stipple( 'cadetblue', \@stipple_data );
+
+				my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
+				my $fill_pattern =  $self->create_color( $self->{_fill_color}, $self->{_fill_color_alpha} );
+
 				$self->{_items}{$item}{ellipse} = Goo::Canvas::Ellipse->new(
 					$root, $item->get('x'), $item->get('y'), $item->get('width'),
 					$item->get('height'),
-					'fill-pattern' => $pattern,
-					'stroke-color' => 'black',
+					'fill-pattern' => $fill_pattern,
+					'stroke-pattern' => $stroke_pattern,
 					'line-width'   => 1,
 				);
 
@@ -629,15 +643,19 @@ sub handle_embedded {
 		if ( exists $self->{_items}{$item}{ellipse} ) {
 
 			$self->{_items}{$item}{ellipse}->set(
-				'center-x' => int( $item->get('x') + $item->get('width') / 2 ),
-				'center-y' => int( $item->get('y') + $item->get('height') / 2 ),
+				'center-x' => int(
+					$self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width') / 2
+				),
+				'center-y' => int(
+					$self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height') / 2
+				),
 			);
 			$self->{_items}{$item}{ellipse}->set(
-				'radius-x' => $item->get('x') 
-					+ $item->get('width')
+				'radius-x' => $self->{_items}{$item}->get('x')
+					+ $self->{_items}{$item}->get('width')
 					- $self->{_items}{$item}{ellipse}->get('center-x'),
 				'radius-y' => $item->get('y') 
-					+ $item->get('height')
+					+ $self->{_items}{$item}->get('height')
 					- $self->{_items}{$item}{ellipse}->get('center-y'),
 			);
 
@@ -661,7 +679,7 @@ sub handle_rects {
 	#get root item
 	my $root = $self->{_canvas}->get_root_item;
 
-	if (   $self->{_items}{$item}->isa('Goo::Canvas::Rect')){
+	if ( $self->{_items}{$item}->isa('Goo::Canvas::Rect') ) {
 
 		my $middle_h
 			= $self->{_items}{$item}->get('x') + int( $self->{_items}{$item}->get('width') / 2 );
@@ -819,6 +837,7 @@ sub event_item_on_button_release {
 
 	#unset action flags
 	$item->{dragging} = FALSE;
+	$item->{resizing} = FALSE;
 
 	$self->set_drawing_action(0);
 
@@ -827,11 +846,11 @@ sub event_item_on_button_release {
 
 sub event_item_on_enter_notify {
 	my ( $self, $item, $target, $ev ) = @_;
-	if ( $item->isa('Goo::Canvas::Rect')  ) {
+	if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
 
-#		#embedded item?
-#		my $parent = $self->get_parent_item($item);
-#		$item = $parent if $parent;
+		#embedded item?
+		my $parent = $self->get_parent_item($item);
+		$item = $parent if $parent;
 
 		#real shape
 		if ( exists $self->{_items}{$item} ) {
@@ -852,11 +871,11 @@ sub event_item_on_enter_notify {
 
 sub event_item_on_leave_notify {
 	my ( $self, $item, $target, $ev ) = @_;
-	if ( $item->isa('Goo::Canvas::Rect')  ) {
+	if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
 
-#		#embedded item?
-#		my $parent = $self->get_parent_item($item);
-#		$item = $parent if $parent;
+		#embedded item?
+		my $parent = $self->get_parent_item($item);
+		$item = $parent if $parent;
 
 		#real shape
 		if ( exists $self->{_items}{$item} ) {
@@ -896,7 +915,15 @@ sub create_color {
 	my $self       = shift;
 	my $color_name = shift;
 	my $alpha      = shift;
-	my $color      = Gtk2::Gdk::Color->parse($color_name);
+	
+	my $color;
+	#if it is a color, we do not need to parse it
+	unless($color_name->isa('Gtk2::Gdk::Color')){
+		$color = Gtk2::Gdk::Color->parse($color_name);		
+	}else{
+		$color = $color_name;
+	}
+
 	my $pattern
 		= Cairo::SolidPattern->create_rgba( $color->red, $color->green, $color->blue, $alpha );
 	return Goo::Cairo::Pattern->new($pattern);
@@ -977,6 +1004,10 @@ sub setup_uimanager {
 		[ "Text",  'gscrot-text', undef, undef, $d->get("Add some text to the screenshot"),    60 ],
 		[ "Clear", 'gscrot-eraser', undef, undef, $d->get("Delete objects"), 70 ]
 	);
+	my @toolbar_color_actions = (
+		[ "FillColor",   undef, undef, undef, undef ],
+		[ "StrokeColor", undef, undef, undef, undef ]
+	);
 
 	my $uimanager = Gtk2::UIManager->new();
 
@@ -990,6 +1021,8 @@ sub setup_uimanager {
 	my $toolbar_drawing_group = Gtk2::ActionGroup->new("drawing");
 	$toolbar_drawing_group->add_radio_actions( \@toolbar_drawing_actions, 10,
 		sub { my $action = shift; $self->change_drawing_tool_cb($action); } );
+
+	$toolbar_drawing_group->add_actions( \@toolbar_color_actions );
 
 	$uimanager->insert_action_group( $toolbar_drawing_group, 0 );
 
@@ -1013,6 +1046,9 @@ sub setup_uimanager {
     <toolitem action='Image'/>
     <separator/>
     <toolitem action='Clear'/>
+    <separator/>
+    <toolitem action='FillColor'/>
+    <toolitem action='StrokeColor'/>
   </toolbar>  
 </ui>";
 
@@ -1022,7 +1058,130 @@ sub setup_uimanager {
 		die "Unable to create menus: $@\n";
 	}
 
+	#manip color buttons
+	$self->set_color_fill_color_button( $uimanager->get_widget("/ToolBarDrawing/FillColor") );
+	$self->set_color_stroke_color_button( $uimanager->get_widget("/ToolBarDrawing/StrokeColor") );
+
 	return $uimanager;
+}
+
+sub set_color_fill_color_button {
+	my $self           = shift;
+	my $fill_color_btn = shift;
+
+	my $btn = $fill_color_btn->get_child;
+	$btn->remove( $btn->get_child );
+	$btn->set_border_width(3);
+
+	$btn->set_state('prelight');
+	$btn->modify_bg( 'normal',      $self->{_fill_color} );
+	$btn->modify_bg( 'prelight',    $self->{_fill_color} );
+	$btn->modify_bg( 'active',      $self->{_fill_color} );
+	$btn->modify_bg( 'insensitive', $self->{_fill_color} );
+	$btn->modify_bg( 'selected',    $self->{_fill_color} );
+
+	$btn->signal_connect( 'state-changed' => sub { $btn->set_state('prelight') } );
+
+	$btn->signal_connect(
+		clicked => sub {
+			my $d = $self->{_gscrot_common}->get_gettext;
+
+			my $color_dialog = Gtk2::Dialog->new(
+				$d->get("Choose fill color"),
+				$self->{_drawing_window},
+				[qw/modal destroy-with-parent/],
+				'gtk-cancel'       => 'reject',
+				'gtk-select-color' => 'accept'
+			);
+			$color_dialog->set_default_response('accept');
+
+			my $color_select = Gtk2::ColorSelection->new;
+			$color_select->set_has_palette(TRUE);
+			$color_select->set_has_opacity_control(TRUE);
+			$color_select->set_current_color( $self->{_fill_color} );
+			$color_select->set_current_alpha( int ( $self->{_fill_color_alpha} *  65636) );
+
+			$color_dialog->vbox->add($color_select);
+			$color_dialog->show_all;
+
+			if ( 'accept' eq $color_dialog->run ) {
+				$self->{_fill_color} = $color_select->get_current_color;
+				$self->{_fill_color_alpha} = $color_select->get_current_alpha / 65636;
+
+				$btn->set_state('prelight');
+				$btn->modify_bg( 'normal',      $self->{_fill_color} );
+				$btn->modify_bg( 'prelight',    $self->{_fill_color} );
+				$btn->modify_bg( 'active',      $self->{_fill_color} );
+				$btn->modify_bg( 'insensitive', $self->{_fill_color} );
+				$btn->modify_bg( 'selected',    $self->{_fill_color} );
+
+			}
+			$color_dialog->destroy;
+		}
+	);
+
+	$btn->show_all;
+
+	return TRUE;
+}
+
+sub set_color_stroke_color_button {
+	my $self             = shift;
+	my $stroke_color_btn = shift;
+
+	my $btn = $stroke_color_btn->get_child;
+	$btn->remove( $btn->get_child );
+	$btn->set_border_width(10);
+
+	$btn->set_state('prelight');
+	$btn->modify_bg( 'normal',     $self->{_stroke_color} );
+	$btn->modify_bg( 'prelight',   $self->{_stroke_color} );
+	$btn->modify_bg( 'active',     $self->{_stroke_color} );
+	$btn->modify_bg( 'insensitive',$self->{_stroke_color} );
+	$btn->modify_bg( 'selected',   $self->{_stroke_color} );
+
+	$btn->signal_connect( 'state-changed' => sub { $btn->set_state('prelight') } );
+
+	$btn->signal_connect(
+		clicked => sub {
+			my $d = $self->{_gscrot_common}->get_gettext;
+
+			my $color_dialog = Gtk2::Dialog->new(
+				$d->get("Choose stroke color"),
+				$self->{_drawing_window},
+				[qw/modal destroy-with-parent/],
+				'gtk-cancel'       => 'reject',
+				'gtk-select-color' => 'accept'
+			);
+			$color_dialog->set_default_response('accept');
+
+			my $color_select = Gtk2::ColorSelection->new;
+			$color_select->set_has_palette(TRUE);
+			$color_select->set_has_opacity_control(TRUE);
+			$color_select->set_current_color( $self->{_stroke_color} );
+			$color_select->set_current_alpha( int ($self->{_stroke_color_alpha} *  65636) );
+
+			$color_dialog->vbox->add($color_select);
+			$color_dialog->show_all;
+
+			if ( 'accept' eq $color_dialog->run ) {
+				$self->{_stroke_color} = $color_select->get_current_color;
+				$self->{_stroke_color_alpha} = $color_select->get_current_alpha / 65636;
+
+				$btn->set_state('prelight');
+				$btn->modify_bg( 'normal',      $self->{_stroke_color} );
+				$btn->modify_bg( 'prelight',    $self->{_stroke_color} );
+				$btn->modify_bg( 'active',      $self->{_stroke_color} );
+				$btn->modify_bg( 'insensitive', $self->{_stroke_color} );
+				$btn->modify_bg( 'selected',    $self->{_stroke_color} );
+			}
+			$color_dialog->destroy;
+		}
+	);
+
+	$btn->show_all;
+
+	return TRUE;
 }
 
 sub set_drawing_action {
