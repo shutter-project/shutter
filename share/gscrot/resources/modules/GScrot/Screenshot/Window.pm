@@ -27,6 +27,7 @@ package GScrot::Screenshot::Window;
 use utf8;
 use strict;
 use GScrot::Screenshot::Main;
+use Cairo;
 our @ISA = qw(GScrot::Screenshot::Main);
 
 #define constants
@@ -369,7 +370,7 @@ sub window_select {
 						if ( $self->{_children}{'curr_win'}{'gdk_window'} ) {
 							$self->{_root}->draw_rectangle( $gc, 0, $self->{_children}{'curr_win'}{'x'} - 3, $self->{_children}{'curr_win'}{'y'} - 3, $self->{_children}{'curr_win'}{'width'} + 5, $self->{_children}{'curr_win'}{'height'} + 5 );
 						}
-
+						
 						$self->{_children}{'last_win'}{'window'}     = $self->{_children}{'curr_win'}{'window'};
 						$self->{_children}{'last_win'}{'gdk_window'} = $self->{_children}{'curr_win'}{'gdk_window'};
 						$self->{_children}{'last_win'}{'x'}          = $self->{_children}{'curr_win'}{'x'} - 3;

@@ -43,6 +43,10 @@ sub new {
 
 	my $self = { _gscrot_common => shift };
 
+	#file
+	$self->{_filename} = undef;
+	$self->{_filetype}   = undef;
+
 	#ui
 	$self->{_uimanager} = undef;
 	$self->{_factory}   = undef;
@@ -73,6 +77,9 @@ sub show {
 	my $self     = shift;
 	my $filename = shift;
 	my $filetype = shift;
+
+	$self->{_filename} = $filename;
+	$self->{_filetype} = $filetype;
 
 	my $d = $self->{_gscrot_common}->get_gettext;
 
@@ -200,6 +207,28 @@ sub quit {
 sub save {
 	my $self = shift;
 
+	#	my $surface = Cairo::ImageSurface->create ('argb32', 100, 100);
+
+	my $surface = Cairo::ImageSurface->create( 'rgb24', $self->{_canvas_bg}->get('width'), $self->{_canvas_bg}->get('height'));
+
+	# also argb32 is available
+	# my $surface = Cairo::ImageSurface->create ('argb32', 1000, 1000);
+
+	my $cr = Cairo::Context->create($surface);
+	$self->{_canvas}->render( $cr, undef, 1 );
+
+	my $loader = Gtk2::Gdk::PixbufLoader->new;
+	$surface->write_to_png_stream(
+		sub {
+			my ( $closure, $data ) = @_;
+			$loader->write($data);
+		}
+	);
+	$loader->close;
+	my $pixbuf = $loader->get_pixbuf;
+
+	$pixbuf->save( $self->{_filename}, $self->{_filetype} );
+
 	#enter routine to save here
 	return TRUE;
 }
@@ -284,7 +313,7 @@ sub event_item_on_motion_notify {
 			$self->handle_rects( 'update', $item );
 			$self->handle_embedded( 'update', $item );
 
-		} elsif ( $item->isa('Goo::Canvas::Ellipse') ) {
+		} elsif ( $item->isa('Goo::Canvas::Ellipse') || $item->isa('Goo::Canvas::Text') ) {
 
 			my $parent = $self->get_parent_item($item);
 
@@ -322,8 +351,12 @@ sub event_item_on_motion_notify {
 
 		#items
 	} elsif (
-		( $self->{_current_mode_descr} eq "rect" || $self->{_current_mode_descr} eq "ellipse" )
-		&& $ev->state >= 'button1-mask' )
+		(      $self->{_current_mode_descr} eq "rect"
+			|| $self->{_current_mode_descr} eq "ellipse"
+			|| $self->{_current_mode_descr} eq "text"
+		)
+		&& $ev->state >= 'button1-mask'
+		)
 	{
 
 		my $item = $self->{_current_new_item};
@@ -473,6 +506,7 @@ sub get_parent_item {
 	my $parent = undef;
 	foreach ( keys %{ $self->{_items} } ) {
 		$parent = $self->{_items}{$_} if $self->{_items}{$_}{ellipse} == $item;
+		$parent = $self->{_items}{$_} if $self->{_items}{$_}{text} == $item;
 	}
 
 	return $parent;
@@ -653,6 +687,46 @@ sub event_item_on_button_press {
 				$self->setup_item_signals( $self->{_items}{$item} );
 				$self->setup_item_signals_extra( $self->{_items}{$item} );
 
+				#TEXT
+			} elsif ( $self->{_current_mode_descr} eq "text" ) {
+
+				my $pattern = $self->create_alpha;
+				my $item    = Goo::Canvas::Rect->new(
+					$root, $ev->x, $ev->y, 2, 2,
+					'fill-pattern' => $pattern,
+					'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
+					'line-width'   => 1,
+					'stroke-color' => 'gray',
+				);
+
+				$self->{_current_new_item} = $item;
+				$self->{_items}{$item} = $item;
+
+				#				my @stipple_data = ( 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255 );
+				#				my $pattern = $self->create_stipple( 'cadetblue', \@stipple_data );
+
+				my $stroke_pattern
+					= $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
+				my $fill_pattern
+					= $self->create_color( $self->{_fill_color}, $self->{_fill_color_alpha} );
+
+				$self->{_items}{$item}{text} = Goo::Canvas::Text->new(
+					$root, 'New Text...', $item->get('x'), $item->get('y'), $item->get('width'),
+					'nw',
+					'fill-pattern'   => $fill_pattern,
+					'stroke-pattern' => $stroke_pattern,
+					'line-width'     => 1,
+				);
+
+				#create rectangles
+				$self->handle_rects( 'create', $item );
+
+				$self->setup_item_signals( $self->{_items}{$item}{text} );
+				$self->setup_item_signals_extra( $self->{_items}{$item}{text} );
+
+				$self->setup_item_signals( $self->{_items}{$item} );
+				$self->setup_item_signals_extra( $self->{_items}{$item} );
+
 			}
 
 		}
@@ -693,6 +767,12 @@ sub handle_embedded {
 					- $self->{_items}{$item}{ellipse}->get('center-y'),
 			);
 
+		} elsif ( exists $self->{_items}{$item}{text} ) {
+			$self->{_items}{$item}{text}->set(
+				'x'     => $self->{_items}{$item}->get('x'),
+				'y'     => $self->{_items}{$item}->get('y'),
+				'width' => $self->{_items}{$item}->get('width'),
+			);
 		}
 
 	}
@@ -808,12 +888,24 @@ sub handle_rects {
 				if ( exists $self->{_items}{$item}{ellipse} ) {
 					$self->{_items}{$item}->set( 'visibility' => 'invisible' );
 				}
+
+				#text => hide rectangle as well
+				if ( exists $self->{_items}{$item}{text} ) {
+					$self->{_items}{$item}->set( 'visibility' => 'invisible' );
+				}
+
 			} else {
 
 				#ellipse => hide rectangle as well
 				if ( exists $self->{_items}{$item}{ellipse} ) {
 					$self->{_items}{$item}->set( 'visibility' => $visibilty );
 				}
+
+				#text => hide rectangle as well
+				if ( exists $self->{_items}{$item}{text} ) {
+					$self->{_items}{$item}->set( 'visibility' => $visibilty );
+				}
+
 			}
 
 			my $pattern = $self->create_color( 'blue', 0.3 );
@@ -892,7 +984,10 @@ sub event_item_on_button_release {
 
 sub event_item_on_enter_notify {
 	my ( $self, $item, $target, $ev ) = @_;
-	if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
+	if (   $item->isa('Goo::Canvas::Rect')
+		|| $item->isa('Goo::Canvas::Ellipse')
+		|| $item->isa('Goo::Canvas::Text') )
+	{
 
 		#embedded item?
 		my $parent = $self->get_parent_item($item);
@@ -917,7 +1012,10 @@ sub event_item_on_enter_notify {
 
 sub event_item_on_leave_notify {
 	my ( $self, $item, $target, $ev ) = @_;
-	if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
+	if (   $item->isa('Goo::Canvas::Rect')
+		|| $item->isa('Goo::Canvas::Ellipse')
+		|| $item->isa('Goo::Canvas::Text') )
+	{
 
 		#embedded item?
 		my $parent = $self->get_parent_item($item);
@@ -971,10 +1069,17 @@ sub create_color {
 		$color = $color_name;
 	}
 
-	print $color->red . " " . $color->green . " " . $color->blue . "\n";
+	if ( $color->red == 0 && $color->green == 0 && $color->blue == 0 ) {
+		print $color->red . " " . $color->green . " " . $color->blue . "\n";
 
-		my $pattern
-		= Cairo::SolidPattern->create_rgba( $color->red, $color->green, $color->blue, $alpha );
+	}
+
+	my $pattern = Cairo::SolidPattern->create_rgba(
+		$color->red / 257 / 255,
+		$color->green / 257 / 255,
+		$color->blue / 257 / 255, $alpha
+	);
+
 	return Goo::Cairo::Pattern->new($pattern);
 }
 
@@ -1156,6 +1261,8 @@ sub set_color_fill_color_button {
 				$self->{_fill_color}       = $color_select->get_current_color;
 				$self->{_fill_color_alpha} = $color_select->get_current_alpha / 65636;
 
+				print $self->{_fill_color_alpha} . "\n";
+
 				$btn->set_state('prelight');
 				$btn->modify_bg( 'normal',      $self->{_fill_color} );
 				$btn->modify_bg( 'prelight',    $self->{_fill_color} );
@@ -1214,6 +1321,8 @@ sub set_color_stroke_color_button {
 			if ( 'accept' eq $color_dialog->run ) {
 				$self->{_stroke_color}       = $color_select->get_current_color;
 				$self->{_stroke_color_alpha} = $color_select->get_current_alpha / 65636;
+
+				print $self->{_stroke_color_alpha} . "\n";
 
 				$btn->set_state('prelight');
 				$btn->modify_bg( 'normal',      $self->{_stroke_color} );
