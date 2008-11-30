@@ -339,7 +339,7 @@ sub event_item_on_motion_notify {
 			'height' => $new_height,
 		);
 
-		$self->handle_rects( 'hide', $item );
+		$self->handle_rects( 'update', $item );
 		$self->handle_embedded( 'update', $item );
 
 	} elsif ( $item->{resizing} && $ev->state >= 'button1-mask' ) {
@@ -489,7 +489,7 @@ sub event_item_on_button_press {
 		if ( $self->{_current_mode_descr} eq "clear" ) {
 
 			return TRUE if $item == $self->{_canvas_bg};
-	
+
 			my @items_to_delete;
 			push @items_to_delete, $item;
 
@@ -517,27 +517,19 @@ sub event_item_on_button_press {
 		} elsif ( $self->{_current_mode_descr} eq "select" ) {
 			if ( $item->isa('Goo::Canvas::Rect') ) {
 
-				#				my $parent = $self->get_parent_item($item);
-				#				$item = $parent if $parent;
-
 				#real shape
 				if ( exists $self->{_items}{$item} ) {
-					$item->{drag_x} = $ev->x;
-					$item->{drag_y} = $ev->y;
-					my $fleur = Gtk2::Gdk::Cursor->new('fleur');
-					$canvas->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ],
-						$fleur, $ev->time );
+					$item->{drag_x}   = $ev->x;
+					$item->{drag_y}   = $ev->y;
 					$item->{dragging} = TRUE;
 
 					#resizing shape
 				} else {
-					$item->{res_x} = $ev->x;
-					$item->{res_y} = $ev->y;
-					my $fleur = Gtk2::Gdk::Cursor->new('fleur');
-					$canvas->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ],
-						$fleur, $ev->time );
+					$item->{res_x}    = $ev->x;
+					$item->{res_y}    = $ev->y;
 					$item->{resizing} = TRUE;
 				}
+
 			} else {
 
 				#click on background => deactivate all selected items
@@ -548,6 +540,7 @@ sub event_item_on_button_press {
 					push @items_to_deactivate, $self->{_current_item};
 
 					foreach my $item (@items_to_deactivate) {
+
 						#embedded item?
 						my $parent = $self->get_parent_item( $self->{_last_item} );
 						$item = $parent if $parent;
@@ -557,21 +550,23 @@ sub event_item_on_button_press {
 							$self->handle_rects( 'hide', $item );
 						}
 					}
-					
+
 					$self->{_last_item}    = undef;
 					$self->{_current_item} = undef;
 					return TRUE;
 				}
 
-
 				#no rect and no background, just move it ...
-				$item->{drag_x} = $ev->x;
-				$item->{drag_y} = $ev->y;
-				my $fleur = Gtk2::Gdk::Cursor->new('fleur');
-				$canvas->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ],
-					$fleur, $ev->time );
+				$item->{drag_x}   = $ev->x;
+				$item->{drag_y}   = $ev->y;
 				$item->{dragging} = TRUE;
+
 			}
+
+			my $fleur = Gtk2::Gdk::Cursor->new('fleur');
+			$canvas->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ],
+				$fleur, $ev->time );
+
 		} else {
 
 			#FREEHAND
@@ -806,7 +801,20 @@ sub handle_rects {
 		} elsif ( $action eq 'update' || $action eq 'hide' ) {
 
 			my $visibilty = 'visible';
-			$visibilty = 'hidden' if $action eq 'hide';
+			if ( $action eq 'hide' ) {
+				$visibilty = 'hidden';
+
+				#ellipse => hide rectangle as well
+				if ( exists $self->{_items}{$item}{ellipse} ) {
+					$self->{_items}{$item}->set( 'visibility' => 'invisible' );
+				}
+			} else {
+
+				#ellipse => hide rectangle as well
+				if ( exists $self->{_items}{$item}{ellipse} ) {
+					$self->{_items}{$item}->set( 'visibility' => $visibilty );
+				}
+			}
 
 			my $pattern = $self->create_color( 'blue', 0.3 );
 
@@ -863,7 +871,6 @@ sub handle_rects {
 				'visibility'   => $visibilty,
 				'fill-pattern' => $pattern
 			);
-
 		}
 	}
 
@@ -964,7 +971,9 @@ sub create_color {
 		$color = $color_name;
 	}
 
-	my $pattern
+	print $color->red . " " . $color->green . " " . $color->blue . "\n";
+
+		my $pattern
 		= Cairo::SolidPattern->create_rgba( $color->red, $color->green, $color->blue, $alpha );
 	return Goo::Cairo::Pattern->new($pattern);
 }
