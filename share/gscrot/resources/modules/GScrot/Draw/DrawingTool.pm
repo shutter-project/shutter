@@ -28,6 +28,7 @@ use utf8;
 use strict;
 use Exporter;
 use Goo::Canvas;
+use File::Basename;
 
 #--------------------------------------
 
@@ -45,7 +46,7 @@ sub new {
 
 	#file
 	$self->{_filename} = undef;
-	$self->{_filetype}   = undef;
+	$self->{_filetype} = undef;
 
 	#ui
 	$self->{_uimanager} = undef;
@@ -67,6 +68,7 @@ sub new {
 	$self->{_current_new_item}   = undef;
 	$self->{_current_mode}       = 10;
 	$self->{_current_mode_descr} = "select";
+	$self->{_current_pixbuf}     = undef;
 
 	bless $self, $class;
 
@@ -107,7 +109,6 @@ sub show {
 		$self->{_drawing_pixbuf}->get_height
 	);
 	my $root = $self->{_canvas}->get_root_item;
-	$root->signal_connect( 'button_press_event', $self->event_on_background_button_press );
 
 	$self->{_canvas_bg} = Goo::Canvas::Image->new( $root, $self->{_drawing_pixbuf}, 0, 0 );
 	$self->setup_item_signals( $self->{_canvas_bg} );
@@ -126,11 +127,13 @@ sub show {
 	my $toolbar_drawing = $self->{_uimanager}->get_widget("/ToolBarDrawing");
 	$toolbar_drawing->set_orientation('vertical');
 	$toolbar_drawing->set_style('icons');
-	$toolbar_drawing->set_icon_size('small-toolbar');
+	$toolbar_drawing->set_icon_size('menu');
+	$toolbar_drawing->set_show_arrow(TRUE);
 	$drawing_hbox->pack_start( $toolbar_drawing,         FALSE, FALSE, 0 );
 	$drawing_hbox->pack_start( $scrolled_drawing_window, FALSE, FALSE, 0 );
 
 	my $toolbar = $self->{_uimanager}->get_widget("/ToolBar");
+	$toolbar->set_show_arrow(TRUE);
 	$drawing_vbox->pack_start( $self->{_uimanager}->get_widget("/ToolBar"), FALSE, FALSE, 0 );
 
 	my $drawing_statusbar = Gtk2::Statusbar->new;
@@ -148,7 +151,10 @@ sub change_drawing_tool_cb {
 	my $self   = shift;
 	my $action = shift;
 
-	$self->{_current_mode} = $action->get_current_value;
+	eval { $self->{_current_mode} = $action->get_current_value; };
+	if ($@) {
+		$self->{_current_mode} = $action;
+	}
 
 	if ( $self->{_current_mode} == 10 ) {
 		$self->{_current_mode_descr} = "select";
@@ -209,7 +215,11 @@ sub save {
 
 	#	my $surface = Cairo::ImageSurface->create ('argb32', 100, 100);
 
-	my $surface = Cairo::ImageSurface->create( 'rgb24', $self->{_canvas_bg}->get('width'), $self->{_canvas_bg}->get('height'));
+	my $surface = Cairo::ImageSurface->create(
+		'rgb24',
+		$self->{_canvas_bg}->get('width'),
+		$self->{_canvas_bg}->get('height')
+	);
 
 	# also argb32 is available
 	# my $surface = Cairo::ImageSurface->create ('argb32', 1000, 1000);
@@ -230,13 +240,6 @@ sub save {
 	$pixbuf->save( $self->{_filename}, $self->{_filetype} );
 
 	#enter routine to save here
-	return TRUE;
-}
-
-#handle events here
-sub event_on_background_button_press {
-	my $self = shift;
-
 	return TRUE;
 }
 
@@ -313,7 +316,10 @@ sub event_item_on_motion_notify {
 			$self->handle_rects( 'update', $item );
 			$self->handle_embedded( 'update', $item );
 
-		} elsif ( $item->isa('Goo::Canvas::Ellipse') || $item->isa('Goo::Canvas::Text') ) {
+		} elsif ( $item->isa('Goo::Canvas::Ellipse')
+			|| $item->isa('Goo::Canvas::Text')
+			|| $item->isa('Goo::Canvas::Image') )
+		{
 
 			my $parent = $self->get_parent_item($item);
 
@@ -354,6 +360,7 @@ sub event_item_on_motion_notify {
 		(      $self->{_current_mode_descr} eq "rect"
 			|| $self->{_current_mode_descr} eq "ellipse"
 			|| $self->{_current_mode_descr} eq "text"
+			|| $self->{_current_mode_descr} eq "image"
 		)
 		&& $ev->state >= 'button1-mask'
 		)
@@ -507,6 +514,7 @@ sub get_parent_item {
 	foreach ( keys %{ $self->{_items} } ) {
 		$parent = $self->{_items}{$_} if $self->{_items}{$_}{ellipse} == $item;
 		$parent = $self->{_items}{$_} if $self->{_items}{$_}{text} == $item;
+		$parent = $self->{_items}{$_} if $self->{_items}{$_}{image} == $item;
 	}
 
 	return $parent;
@@ -514,7 +522,11 @@ sub get_parent_item {
 
 sub event_item_on_button_press {
 	my ( $self, $item, $target, $ev ) = @_;
-	if ( $ev->button == 1 ) {
+
+	my $valid = FALSE;
+	$valid = TRUE if $self->{_canvas}->get_item_at( $ev->x, $ev->y, TRUE );
+
+	if ( $ev->button == 1 && $valid ) {
 
 		my $canvas = $item->get_canvas;
 		my $root   = $canvas->get_root_item;
@@ -727,12 +739,47 @@ sub event_item_on_button_press {
 				$self->setup_item_signals( $self->{_items}{$item} );
 				$self->setup_item_signals_extra( $self->{_items}{$item} );
 
+				#IMAGE
+			} elsif ( $self->{_current_mode_descr} eq "image" ) {
+
+				my $pattern = $self->create_alpha;
+				my $item    = Goo::Canvas::Rect->new(
+					$root, $ev->x, $ev->y, 2, 2,
+					'fill-pattern' => $pattern,
+					'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
+					'line-width'   => 1,
+					'stroke-color' => 'gray',
+				);
+
+				$self->{_current_new_item} = $item;
+				$self->{_items}{$item} = $item;
+
+				my $copy = $self->{_current_pixbuf}->copy;
+				$self->{_items}{$item}{orig_pixbuf} = $self->{_current_pixbuf}->copy;
+				
+				$self->{_items}{$item}{image} = Goo::Canvas::Image->new(
+					$root,
+					$copy->scale_simple( $item->get('width'), $item->get('height'), 'bilinear' ),
+					$item->get('x'), $item->get('y'),
+					'width'  => $item->get('width'),
+					'height' => $item->get('height'),
+				);
+
+				#create rectangles
+				$self->handle_rects( 'create', $item );
+
+				$self->setup_item_signals( $self->{_items}{$item}{image} );
+				$self->setup_item_signals_extra( $self->{_items}{$item}{image} );
+
+				$self->setup_item_signals( $self->{_items}{$item} );
+				$self->setup_item_signals_extra( $self->{_items}{$item} );
+
 			}
 
 		}
-	} elsif ( $ev->button == 2 ) {
+	} elsif ( $ev->button == 2 && $valid ) {
 		$item->lower;
-	} elsif ( $ev->button == 3 ) {
+	} elsif ( $ev->button == 3 && $valid ) {
 		$item->raise;
 	}
 	return TRUE;
@@ -773,6 +820,21 @@ sub handle_embedded {
 				'y'     => $self->{_items}{$item}->get('y'),
 				'width' => $self->{_items}{$item}->get('width'),
 			);
+		} elsif ( exists $self->{_items}{$item}{image} ) {
+
+			my $copy = $self->{_items}{$item}{orig_pixbuf}->copy;
+
+			$self->{_items}{$item}{image}->set(
+				'x'      => $self->{_items}{$item}->get('x'),
+				'y'      => $self->{_items}{$item}->get('y'),
+				'width'  => $self->{_items}{$item}->get('width'),
+				'height' => $self->{_items}{$item}->get('height'),
+				'pixbuf' => $copy->scale_simple(
+					$self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'),
+					'bilinear'
+					)
+			);
+
 		}
 
 	}
@@ -894,6 +956,10 @@ sub handle_rects {
 					$self->{_items}{$item}->set( 'visibility' => 'invisible' );
 				}
 
+				if ( exists $self->{_items}{$item}{image} ) {
+					$self->{_items}{$item}->set( 'visibility' => 'invisible' );
+				}
+
 			} else {
 
 				#ellipse => hide rectangle as well
@@ -903,6 +969,11 @@ sub handle_rects {
 
 				#text => hide rectangle as well
 				if ( exists $self->{_items}{$item}{text} ) {
+					$self->{_items}{$item}->set( 'visibility' => $visibilty );
+				}
+
+				#image => hide rectangle as well
+				if ( exists $self->{_items}{$item}{image} ) {
 					$self->{_items}{$item}->set( 'visibility' => $visibilty );
 				}
 
@@ -986,7 +1057,8 @@ sub event_item_on_enter_notify {
 	my ( $self, $item, $target, $ev ) = @_;
 	if (   $item->isa('Goo::Canvas::Rect')
 		|| $item->isa('Goo::Canvas::Ellipse')
-		|| $item->isa('Goo::Canvas::Text') )
+		|| $item->isa('Goo::Canvas::Text')
+		|| $item->isa('Goo::Canvas::Image') )
 	{
 
 		#embedded item?
@@ -1014,7 +1086,8 @@ sub event_item_on_leave_notify {
 	my ( $self, $item, $target, $ev ) = @_;
 	if (   $item->isa('Goo::Canvas::Rect')
 		|| $item->isa('Goo::Canvas::Ellipse')
-		|| $item->isa('Goo::Canvas::Text') )
+		|| $item->isa('Goo::Canvas::Text')
+		|| $item->isa('Goo::Canvas::Image') )
 	{
 
 		#embedded item?
@@ -1091,6 +1164,7 @@ sub setup_uimanager {
 
 	#define own icons
 	my $dicons = $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool";
+
 	$self->{_factory} = Gtk2::IconFactory->new();
 	$self->{_factory}->add(
 		'gscrot-ellipse',
@@ -1169,12 +1243,12 @@ sub setup_uimanager {
 	my $toolbar_group = Gtk2::ActionGroup->new("image");
 	$toolbar_group->add_actions( \@toolbar_actions );
 
-	$uimanager->insert_action_group( $toolbar_group, 0 );
-
 	# Setup the drawing group.
 	my $toolbar_drawing_group = Gtk2::ActionGroup->new("drawing");
 	$toolbar_drawing_group->add_radio_actions( \@toolbar_drawing_actions, 10,
 		sub { my $action = shift; $self->change_drawing_tool_cb($action); } );
+
+	$uimanager->insert_action_group( $toolbar_group, 0 );
 
 	$toolbar_drawing_group->add_actions( \@toolbar_color_actions );
 
@@ -1216,7 +1290,73 @@ sub setup_uimanager {
 	$self->set_color_fill_color_button( $uimanager->get_widget("/ToolBarDrawing/FillColor") );
 	$self->set_color_stroke_color_button( $uimanager->get_widget("/ToolBarDrawing/StrokeColor") );
 
+	#insert menutoolbutton image
+	my $toolbar = $uimanager->get_widget("/ToolBarDrawing");
+
+	my $image_button = Gtk2::MenuToolButton->new( undef, undef );
+	$image_button->set_menu( $self->ret_objects_menu($image_button) );
+
+	$image_button->signal_connect(
+		'show-menu' => sub { my ($widget) = @_; $self->ret_objects_menu($widget) } );
+	$image_button->signal_connect(
+		'clicked' => sub {
+			$self->set_drawing_action(6);
+		}
+	);
+
+	$toolbar->insert( $image_button, 12 );
+
 	return $uimanager;
+}
+
+sub ret_objects_menu {
+	my $self   = shift;
+	my $button = shift;
+
+	my $menu_objects = Gtk2::Menu->new;
+
+	my $dobjects
+		= $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool/objects";
+
+	my @objects = glob("$dobjects/*");
+	foreach (@objects) {
+
+		#parse filename
+		my ( $short, $folder, $type ) = fileparse( $_, '\..*' );
+
+		#create pixbufs
+		my $small_image = Gtk2::Image->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $_, Gtk2::IconSize->lookup('menu'), TRUE ) );
+		my $small_image_button = Gtk2::Image->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $_, Gtk2::IconSize->lookup('menu'), TRUE ) );
+		my $orig_image = Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($_) );
+
+		#create items
+		my $new_item = Gtk2::ImageMenuItem->new_with_label($short);
+		$new_item->set_image($small_image);
+
+		#init
+		unless ( $button->get_icon_widget ) {
+			$button->set_icon_widget($small_image_button);
+			$self->{_current_pixbuf} = $orig_image->get_pixbuf;
+		}
+
+		$new_item->signal_connect(
+			'activate' => sub {
+				$self->{_current_pixbuf} = $orig_image->get_pixbuf;			
+				$button->set_icon_widget($small_image_button);
+				$button->show_all;
+				$self->set_drawing_action(6);
+			}
+		);
+
+		$menu_objects->append($new_item);
+	}
+
+	$button->show_all;
+	$menu_objects->show_all;
+
+	return $menu_objects;
 }
 
 sub set_color_fill_color_button {
@@ -1260,8 +1400,6 @@ sub set_color_fill_color_button {
 			if ( 'accept' eq $color_dialog->run ) {
 				$self->{_fill_color}       = $color_select->get_current_color;
 				$self->{_fill_color_alpha} = $color_select->get_current_alpha / 65636;
-
-				print $self->{_fill_color_alpha} . "\n";
 
 				$btn->set_state('prelight');
 				$btn->modify_bg( 'normal',      $self->{_fill_color} );
@@ -1321,8 +1459,6 @@ sub set_color_stroke_color_button {
 			if ( 'accept' eq $color_dialog->run ) {
 				$self->{_stroke_color}       = $color_select->get_current_color;
 				$self->{_stroke_color_alpha} = $color_select->get_current_alpha / 65636;
-
-				print $self->{_stroke_color_alpha} . "\n";
 
 				$btn->set_state('prelight');
 				$btn->modify_bg( 'normal',      $self->{_stroke_color} );

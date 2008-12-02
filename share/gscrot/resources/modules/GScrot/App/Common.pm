@@ -58,6 +58,9 @@ sub new {
 	$self->{_gettext_object}->dir( $self->{_gscrot_root} . "/share/locale" );
 	$ENV{'GSCROT_INTL'} = $self->{_gscrot_root} . "/share/locale";
 
+	#tooltips
+	$self->{_tooltips} = Gtk2::Tooltips->new;	
+
 	bless $self, $class;
 	return $self;
 }
@@ -80,6 +83,19 @@ sub set_gettext {
 		$self->{_gettext_object} = shift;
 	}
 	return $self->{_gettext_object};
+}
+
+sub get_tooltips {
+	my $self = shift;
+	return $self->{_tooltips};
+}
+
+sub set_tooltips {
+	my $self = shift;
+	if (@_) {
+		$self->{_tooltips} = shift;
+	}
+	return $self->{_tooltips};
 }
 
 sub get_debug {
