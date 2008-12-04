@@ -213,6 +213,9 @@ sub quit {
 sub save {
 	my $self = shift;
 
+	#make sure not to save the bounding rectangles
+	$self->deactivate_all;
+
 	#	my $surface = Cairo::ImageSurface->create ('argb32', 100, 100);
 
 	my $surface = Cairo::ImageSurface->create(
@@ -239,7 +242,6 @@ sub save {
 
 	$pixbuf->save( $self->{_filename}, $self->{_filetype} );
 
-	#enter routine to save here
 	return TRUE;
 }
 
@@ -581,25 +583,8 @@ sub event_item_on_button_press {
 				#click on background => deactivate all selected items
 				if ( $item == $self->{_canvas_bg} ) {
 
-					my @items_to_deactivate;
-					push @items_to_deactivate, $self->{_last_item};
-					push @items_to_deactivate, $self->{_current_item};
+					$self->deactivate_all;
 
-					foreach my $item (@items_to_deactivate) {
-
-						#embedded item?
-						my $parent = $self->get_parent_item( $self->{_last_item} );
-						$item = $parent if $parent;
-
-						#real shape
-						if ( exists $self->{_items}{$item} ) {
-							$self->handle_rects( 'hide', $item );
-						}
-					}
-
-					$self->{_last_item}    = undef;
-					$self->{_current_item} = undef;
-					return TRUE;
 				}
 
 				#no rect and no background, just move it ...
@@ -756,7 +741,7 @@ sub event_item_on_button_press {
 
 				my $copy = $self->{_current_pixbuf}->copy;
 				$self->{_items}{$item}{orig_pixbuf} = $self->{_current_pixbuf}->copy;
-				
+
 				$self->{_items}{$item}{image} = Goo::Canvas::Image->new(
 					$root,
 					$copy->scale_simple( $item->get('width'), $item->get('height'), 'bilinear' ),
@@ -783,6 +768,30 @@ sub event_item_on_button_press {
 		$item->raise;
 	}
 	return TRUE;
+}
+
+sub deactivate_all {
+	my $self = shift;
+
+	foreach ( keys %{ $self->{_items} } ) {
+
+		my $item = $self->{_items}{$_};
+
+		#embedded item?
+		my $parent = $self->get_parent_item($item);
+		$item = $parent if $parent;
+
+		#real shape
+		if ( exists $self->{_items}{$item} ) {
+			$self->handle_rects( 'hide', $item );
+		}
+
+	}
+
+	$self->{_last_item}    = undef;
+	$self->{_current_item} = undef;
+	return TRUE;
+
 }
 
 sub handle_embedded {
@@ -832,7 +841,7 @@ sub handle_embedded {
 				'pixbuf' => $copy->scale_simple(
 					$self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'),
 					'bilinear'
-					)
+				)
 			);
 
 		}
@@ -1044,10 +1053,64 @@ sub event_item_on_button_release {
 	my $canvas = $item->get_canvas;
 	$canvas->pointer_ungrab( $item, $ev->time );
 
+	#we handle some minimum sizes here if the new items are too small
+	#maybe the user just wanted to place an rect or an object on the canvas
+	#and clicked on it without describing an rectangular area
+	my $nitem = $self->{_current_new_item};
+	if ($nitem) {
+
+		#set minimum sizes
+		if ( $nitem->isa('Goo::Canvas::Rect') ) {
+
+			#real shape
+			if ( exists $self->{_items}{$nitem} ) {
+
+				$nitem->set( 'width'  => 100 ) if ( $nitem->get('width') < 10 );
+				$nitem->set( 'height' => 100 ) if ( $nitem->get('height') < 10 );
+
+			}
+
+		} elsif ( $item->isa('Goo::Canvas::Ellipse') ) {
+
+			$nitem->set( 'x-radius' => 50 ) if ( $nitem->get('x-radius') < 5 );
+			$nitem->set( 'y-radius' => 50 ) if ( $nitem->get('y-radius') < 5 );
+
+		} elsif ( $item->isa('Goo::Canvas::Text') ) {
+
+			$nitem->set( 'width' => 100 ) if ( $nitem->get('width') < 10 );
+
+		} elsif ( $item->isa('Goo::Canvas::Image') ) {
+
+			my $copy = $self->{_items}{$item}{orig_pixbuf}->copy;
+
+			if ( $nitem->get('width') < 10 ) {
+				$self->{_items}{$item}{image}->set(
+					'width'  => $copy->get_width,
+					'pixbuf' => $copy
+				);
+
+			}
+		}
+
+		#parent?
+		my $nparent = $self->get_parent_item($nitem);
+		$nitem = $nparent if $nparent;
+
+		#update only real shape
+		if ( exists $self->{_items}{$nitem} ) {
+
+			$self->handle_rects( 'update', $nitem );
+			$self->handle_embedded( 'update', $nitem );
+
+		}
+
+	}
+
 	#unset action flags
 	$item->{dragging} = FALSE;
 	$item->{resizing} = FALSE;
 
+	$self->{_current_new_item} = undef;
 	$self->set_drawing_action(0);
 
 	return TRUE;
@@ -1142,11 +1205,6 @@ sub create_color {
 		$color = $color_name;
 	}
 
-	if ( $color->red == 0 && $color->green == 0 && $color->blue == 0 ) {
-		print $color->red . " " . $color->green . " " . $color->blue . "\n";
-
-	}
-
 	my $pattern = Cairo::SolidPattern->create_rgba(
 		$color->red / 257 / 255,
 		$color->green / 257 / 255,
@@ -1159,7 +1217,6 @@ sub create_color {
 #ui related stuff
 sub setup_uimanager {
 	my $self = shift;
-
 	my $d = $self->{_gscrot_common}->get_gettext;
 
 	#define own icons
@@ -1343,7 +1400,7 @@ sub ret_objects_menu {
 
 		$new_item->signal_connect(
 			'activate' => sub {
-				$self->{_current_pixbuf} = $orig_image->get_pixbuf;			
+				$self->{_current_pixbuf} = $orig_image->get_pixbuf;
 				$button->set_icon_widget($small_image_button);
 				$button->show_all;
 				$self->set_drawing_action(6);
