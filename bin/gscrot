@@ -62,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.275";
+use constant BRANCH              => "Rev.276";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -1617,7 +1617,7 @@ sub evt_take_screenshot {
 	my $screenshot_thumbnail_name = undef;
 	my $thumbnail_ending          = "thumb";
 	print "\n$data was emitted by widget $widget\n" if $gscrot_common->get_debug;
-	&fct_set_toolbar_sensitive(FALSE);
+	&fct_set_toolbar_sensitive(FALSE, $data);
 
 	#determine current file type
 	$filetype_value = $combobox_type->get_active_text;
@@ -1666,7 +1666,7 @@ sub evt_take_screenshot {
 			&& defined($filetype_value) )
 		{
 			&dlg_error_message( $gscrot_common->get_gettext->get("No valid filename specified") );
-			&fct_set_toolbar_sensitive(TRUE);
+			&fct_set_toolbar_sensitive(TRUE, $data);
 			return FALSE;
 		}
 
@@ -1684,7 +1684,7 @@ sub evt_take_screenshot {
 	{
 		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
 			&dlg_error_message( $gscrot_common->get_gettext->get("No valid filename specified") );
-			&fct_set_toolbar_sensitive(TRUE);
+			&fct_set_toolbar_sensitive(TRUE, $data);
 			return FALSE;
 		}
 
@@ -1701,7 +1701,7 @@ sub evt_take_screenshot {
 	} elsif ( $data eq "select" || $data eq "tray_select" ) {
 		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
 			&dlg_error_message( $gscrot_common->get_gettext->get("No valid filename specified") );
-			&fct_set_toolbar_sensitive(TRUE);
+			&fct_set_toolbar_sensitive(TRUE, $data);
 			return FALSE;
 		}
 		if ( $tool_advanced->get_active ) {
@@ -1732,11 +1732,11 @@ sub evt_take_screenshot {
 					$gscrot_common->get_gettext->get("Unable to capture website") . "!" );
 				&dlg_status_message( 1,
 					$gscrot_common->get_gettext->get("Unable to capture website") . "!" );
-				&fct_set_toolbar_sensitive(TRUE);
+				&fct_set_toolbar_sensitive(TRUE, $data);
 				return FALSE;
 			}
 		} else {
-			&fct_set_toolbar_sensitive(TRUE);
+			&fct_set_toolbar_sensitive(TRUE, $data);
 			return FALSE;
 		}
 
@@ -1745,7 +1745,7 @@ sub evt_take_screenshot {
 		print "Selected xid: $xid\n" if $gscrot_common->get_debug;
 		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
 			&dlg_error_message( $gscrot_common->get_gettext->get("No valid filename specified") );
-			&fct_set_toolbar_sensitive(TRUE);
+			&fct_set_toolbar_sensitive(TRUE, $data);
 			return FALSE;
 		}
 		my $screenshooter
@@ -1776,7 +1776,7 @@ sub evt_take_screenshot {
 
 		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
 			&dlg_error_message( $gscrot_common->get_gettext->get("No valid filename specified") );
-			&fct_set_toolbar_sensitive(TRUE);
+			&fct_set_toolbar_sensitive(TRUE, $data);
 			return FALSE;
 		}
 		my $screenshooter
@@ -1813,14 +1813,14 @@ sub evt_take_screenshot {
 		);
 		print "Screenshot failed!" if $gscrot_common->get_debug;
 		&dlg_status_message( 1, $gscrot_common->get_gettext->get("Screenshot failed!") );
-		&fct_set_toolbar_sensitive(TRUE);
+		&fct_set_toolbar_sensitive(TRUE, $data);
 		return FALSE;
 	} else {
 
 		#user aborted screenshot
 		if ( $screenshot == 5 ) {
 			&dlg_status_message( 1, $gscrot_common->get_gettext->get("Capture aborted by user") );
-			&fct_set_toolbar_sensitive(TRUE);
+			&fct_set_toolbar_sensitive(TRUE, $data);
 			return FALSE;
 		}
 
@@ -1863,7 +1863,7 @@ sub evt_take_screenshot {
 				&dlg_error_message(
 					$$gscrot_common->get_gettext->get("Could not generate thumbnail") );
 				undef $screenshot_thumbnail;
-				&fct_set_toolbar_sensitive(TRUE);
+				&fct_set_toolbar_sensitive(TRUE, $data);
 				return 0;
 			}
 		}
@@ -1928,7 +1928,7 @@ sub evt_take_screenshot {
 	#destroy the imagemagick objects and free memory
 	undef $screenshot;
 	undef $screenshot_thumbnail;
-	&fct_set_toolbar_sensitive(TRUE);
+	&fct_set_toolbar_sensitive(TRUE, $data);
 
 	#focus window after taking a screenshot
 	$window->window->focus(time);
@@ -1938,13 +1938,6 @@ sub evt_take_screenshot {
 	$SIG{USR2}  = sub { &evt_take_screenshot( 'global_keybinding', 'window' ) };
 	$SIG{RTMIN} = sub { &evt_take_screenshot( 'global_keybinding', 'select' ) };
 	$SIG{RTMAX} = sub { &evt_take_screenshot( 'global_keybinding', 'section' ) };
-
-	if ( $hide_active->get_active && ( $data ne "web" && $data ne "tray_web" ) ) {
-		$window->show_all;
-		&fct_update_gui;
-		Gtk2::Gdk->flush;
-		$is_in_tray = FALSE;
-	}
 
 	return TRUE;
 }
@@ -2555,7 +2548,7 @@ sub fct_integrate_screenshot_in_notebook {
 }
 
 sub fct_set_toolbar_sensitive {
-	my ($set) = @_;
+	my ($set, $data) = @_;
 
 	#set all buttons insensitive/sensitive
 	$button_select_menu->set_sensitive($set);
@@ -2563,6 +2556,13 @@ sub fct_set_toolbar_sensitive {
 	$button_window_menu->set_sensitive($set);
 	$button_window_sect->set_sensitive($set);
 	$button_web_menu->set_sensitive($set) if ($gnome_web_photo);
+
+	if ( $hide_active->get_active && ( $data ne "web" && $data ne "tray_web" ) ) {
+		$window->show_all;
+		&fct_update_gui;
+		Gtk2::Gdk->flush;
+		$is_in_tray = FALSE;
+	}
 
 	return 1;
 }
@@ -3450,6 +3450,8 @@ sub fct_load_session {
 	eval {
 		my $session_xml = XMLin($sessionfile)
 			if $gscrot_hfunct->file_exists($sessionfile);
+
+		return FALSE if scalar( keys %{$session_xml} ) < 1;
 
 		my $restore_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/],
 			'info', 'none', $gscrot_common->get_gettext->get("Restoring session") );

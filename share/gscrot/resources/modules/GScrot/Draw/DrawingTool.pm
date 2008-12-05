@@ -130,14 +130,14 @@ sub show {
 	$toolbar_drawing->set_icon_size('menu');
 	$toolbar_drawing->set_show_arrow(TRUE);
 	$drawing_hbox->pack_start( $toolbar_drawing,         FALSE, FALSE, 0 );
-	$drawing_hbox->pack_start( $scrolled_drawing_window, TRUE, TRUE, 0 );
+	$drawing_hbox->pack_start( $scrolled_drawing_window, TRUE,  TRUE,  0 );
 
 	my $toolbar = $self->{_uimanager}->get_widget("/ToolBar");
 	$toolbar->set_show_arrow(TRUE);
 	$drawing_vbox->pack_start( $self->{_uimanager}->get_widget("/ToolBar"), FALSE, FALSE, 0 );
 
 	my $drawing_statusbar = Gtk2::Statusbar->new;
-	$drawing_vbox->pack_start( $drawing_hbox,      TRUE, TRUE, 0 );
+	$drawing_vbox->pack_start( $drawing_hbox,      TRUE,  TRUE,  0 );
 	$drawing_vbox->pack_start( $drawing_statusbar, FALSE, FALSE, 0 );
 
 	$self->{_drawing_window}->show_all();
@@ -341,10 +341,10 @@ sub event_item_on_motion_notify {
 				$self->handle_rects( 'update', $parent );
 				$self->handle_embedded( 'update', $parent );
 
-			#no rect and no parent? => we are handling the background image here
-			}else{
-				$self->{_canvas}->scroll_to($ev->x, $ev->y);
-#				$self->{_canvas}->request_redraw(Goo::Canvas::Bounds->new($self->{_canvas}->get_bounds));
+				#no rect and no parent? => we are handling the background image here
+			} else {
+	  #				$self->{_canvas}->scroll_to( $ev->x, $ev->y );
+	  #				$self->{_canvas}->request_redraw(Goo::Canvas::Bounds->new($self->{_canvas}->get_bounds));
 			}
 
 		} else {
@@ -596,12 +596,14 @@ sub event_item_on_button_press {
 				$item->{drag_x}   = $ev->x;
 				$item->{drag_y}   = $ev->y;
 				$item->{dragging} = TRUE;
-	
+
 			}
 
-			my $fleur = Gtk2::Gdk::Cursor->new('fleur');
-			$canvas->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ],
-				$fleur, $ev->time );
+			$canvas->pointer_grab(
+				$item,
+				[ 'pointer-motion-mask', 'button-release-mask' ],
+				Gtk2::Gdk::Cursor->new('fleur'), $ev->time
+			);
 
 		} else {
 
@@ -861,8 +863,6 @@ sub handle_rects {
 	my $action = shift;
 	my $item   = shift;
 
-	#	my $parent = $self->get_parent_item($item);
-	#	$item = $parent if $parent;
 
 	return FALSE unless ( $item && exists $self->{_items}{$item} );
 
@@ -1084,7 +1084,7 @@ sub event_item_on_button_release {
 
 			$nitem->set( 'width' => 100 ) if ( $nitem->get('width') < 10 );
 
-		} elsif ( $item->isa('Goo::Canvas::Image') ) {
+		} elsif ( $item->isa('Goo::Canvas::Image') && $self->{_current_mode_descr} ne "line") {
 
 			my $copy = $self->{_items}{$item}{orig_pixbuf}->copy;
 
@@ -1145,6 +1145,54 @@ sub event_item_on_enter_notify {
 		} else {
 			my $pattern = $self->create_color( 'red', 0.5 );
 			$item->set( 'fill-pattern' => $pattern );
+
+#			my $curr_item = $self->{_current_item};
+#
+#			my $cursor = Gtk2::Gdk::Cursor->new('fleur');
+#			foreach ( keys %{ $self->{_items}{$curr_item} } ) {
+#
+#				if ( $item == $self->{_items}{$curr_item}{$_} ) {
+#
+#					if ( $_ =~ /top.*left/ ) {
+#
+#						$cursor = Gtk2::Gdk::Cursor->new('top-left-corner');
+#
+#					} elsif ( $_ =~ /top.*middle/ ) {
+#
+#						$cursor = Gtk2::Gdk::Cursor->new('top-side');
+#
+#					} elsif ( $_ =~ /top.*right/ ) {
+#
+#						$cursor = Gtk2::Gdk::Cursor->new('top-right-corner');
+#
+#					} elsif ( $_ =~ /middle.*left/ ) {
+#
+#						$cursor = Gtk2::Gdk::Cursor->new('left-side');
+#
+#					} elsif ( $_ =~ /middle.*right/ ) {
+#
+#						$cursor = Gtk2::Gdk::Cursor->new('right-side');
+#
+#					} elsif ( $_ =~ /bottom.*left/ ) {
+#
+#						$cursor = Gtk2::Gdk::Cursor->new('bottom-left-corner');
+#
+#					} elsif ( $_ =~ /bottom.*middle/ ) {
+#
+#						$cursor = Gtk2::Gdk::Cursor->new('bottom-side');
+#
+#					} elsif ( $_ =~ /bottom.*right/ ) {
+#
+#						$cursor = Gtk2::Gdk::Cursor->new('bottom-right-corner');
+#
+#					}
+#
+#				}
+#			}
+#
+#			$self->{_canvas}->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ],
+#				$cursor, $ev->time );
+
 		}
 	}
 	return TRUE;
@@ -1152,6 +1200,7 @@ sub event_item_on_enter_notify {
 
 sub event_item_on_leave_notify {
 	my ( $self, $item, $target, $ev ) = @_;
+
 	if (   $item->isa('Goo::Canvas::Rect')
 		|| $item->isa('Goo::Canvas::Ellipse')
 		|| $item->isa('Goo::Canvas::Text')
@@ -1222,7 +1271,7 @@ sub create_color {
 #ui related stuff
 sub setup_uimanager {
 	my $self = shift;
-	my $d = $self->{_gscrot_common}->get_gettext;
+	my $d    = $self->{_gscrot_common}->get_gettext;
 
 	#define own icons
 	my $dicons = $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool";

@@ -241,7 +241,7 @@ sub window_select {
 					$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
 
 					#clear the last rectangle
-					if ( defined $self->{_children}{'last_win'} ) {
+					if ( defined $self->{_children}{'last_win'} &&  $self->{_children}{'last_win'}{'gdk_window'}) {
 						$self->{_root}->draw_rectangle( $gc, 0, $self->{_children}{'last_win'}{'x'}, $self->{_children}{'last_win'}{'y'}, $self->{_children}{'last_win'}{'width'}, $self->{_children}{'last_win'}{'height'} );
 
 						#focus selected window (maybe it is hidden)
