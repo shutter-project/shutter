@@ -101,7 +101,9 @@ sub show {
 	$self->{_canvas} = Goo::Canvas->new();
 	$self->{_canvas}->set_size_request( 640, 480 );
 
-	$self->{_canvas}->modify_bg( 'normal', Gtk2::Gdk::Color->new( 0xFFFF, 0xFFFF, 0xFFFF ) );
+#	$self->{_canvas}->modify_bg( 'normal', Gtk2::Gdk::Color->parse( 'gray' ));
+
+	$self->{_canvas}->set('background-color' => Gtk2::Gdk::Color->parse( 'gray' )->to_string);
 
 	$self->{_canvas}->set_bounds(
 		0, 0,
@@ -216,19 +218,15 @@ sub save {
 	#make sure not to save the bounding rectangles
 	$self->deactivate_all;
 
-	#	my $surface = Cairo::ImageSurface->create ('argb32', 100, 100);
-
 	my $surface = Cairo::ImageSurface->create(
-		'rgb24',
+		'argb32',
 		$self->{_canvas_bg}->get('width'),
 		$self->{_canvas_bg}->get('height')
 	);
 
-	# also argb32 is available
-	# my $surface = Cairo::ImageSurface->create ('argb32', 1000, 1000);
-
 	my $cr = Cairo::Context->create($surface);
-	$self->{_canvas}->render( $cr, undef, 1 );
+	my $root = $self->{_canvas}->get_root_item;
+	$root->paint( $cr, $self->{_canvas_bg}->get_bounds , 1 );
 
 	my $loader = Gtk2::Gdk::PixbufLoader->new;
 	$surface->write_to_png_stream(
