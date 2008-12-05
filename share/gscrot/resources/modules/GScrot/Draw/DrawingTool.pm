@@ -130,14 +130,14 @@ sub show {
 	$toolbar_drawing->set_icon_size('menu');
 	$toolbar_drawing->set_show_arrow(TRUE);
 	$drawing_hbox->pack_start( $toolbar_drawing,         FALSE, FALSE, 0 );
-	$drawing_hbox->pack_start( $scrolled_drawing_window, FALSE, FALSE, 0 );
+	$drawing_hbox->pack_start( $scrolled_drawing_window, TRUE, TRUE, 0 );
 
 	my $toolbar = $self->{_uimanager}->get_widget("/ToolBar");
 	$toolbar->set_show_arrow(TRUE);
 	$drawing_vbox->pack_start( $self->{_uimanager}->get_widget("/ToolBar"), FALSE, FALSE, 0 );
 
 	my $drawing_statusbar = Gtk2::Statusbar->new;
-	$drawing_vbox->pack_start( $drawing_hbox,      FALSE, FALSE, 0 );
+	$drawing_vbox->pack_start( $drawing_hbox,      TRUE, TRUE, 0 );
 	$drawing_vbox->pack_start( $drawing_statusbar, FALSE, FALSE, 0 );
 
 	$self->{_drawing_window}->show_all();
@@ -241,6 +241,7 @@ sub save {
 	my $pixbuf = $loader->get_pixbuf;
 
 	$pixbuf->save( $self->{_filename}, $self->{_filetype} );
+	$self->quit;
 
 	return TRUE;
 }
@@ -340,6 +341,10 @@ sub event_item_on_motion_notify {
 				$self->handle_rects( 'update', $parent );
 				$self->handle_embedded( 'update', $parent );
 
+			#no rect and no parent? => we are handling the background image here
+			}else{
+				$self->{_canvas}->scroll_to($ev->x, $ev->y);
+#				$self->{_canvas}->request_redraw(Goo::Canvas::Bounds->new($self->{_canvas}->get_bounds));
 			}
 
 		} else {
@@ -591,7 +596,7 @@ sub event_item_on_button_press {
 				$item->{drag_x}   = $ev->x;
 				$item->{drag_y}   = $ev->y;
 				$item->{dragging} = TRUE;
-
+	
 			}
 
 			my $fleur = Gtk2::Gdk::Cursor->new('fleur');
