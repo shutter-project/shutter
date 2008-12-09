@@ -62,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.277";
+use constant BRANCH              => "Rev.278";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -1244,7 +1244,7 @@ $combobox_cursor->signal_connect(
 if ( defined $settings_xml->{'general'}->{'cursor'} ) {
 	$combobox_cursor->set_active( $settings_xml->{'general'}->{'cursor'} );
 } else {
-	$combobox_cursor->set_active(TRUE);
+	$combobox_cursor->set_active(0);
 }
 my $cursor_label = Gtk2::Label->new( $gscrot_common->get_gettext->get("Include cursor") );
 $tooltips->set_tip( $combobox_cursor,
