@@ -101,9 +101,7 @@ sub show {
 	$self->{_canvas} = Goo::Canvas->new();
 	$self->{_canvas}->set_size_request( 640, 480 );
 
-#	$self->{_canvas}->modify_bg( 'normal', Gtk2::Gdk::Color->parse( 'gray' ));
-
-	$self->{_canvas}->set('background-color' => Gtk2::Gdk::Color->parse( 'gray' )->to_string);
+	$self->{_canvas}->set( 'background-color' => Gtk2::Gdk::Color->parse('gray')->to_string );
 
 	$self->{_canvas}->set_bounds(
 		0, 0,
@@ -116,9 +114,9 @@ sub show {
 	$self->setup_item_signals( $self->{_canvas_bg} );
 
 	#packing
-	my $scrolled_drawing_window = Gtk2::ScrolledWindow->new;
-	$scrolled_drawing_window->set_policy( 'automatic', 'automatic' );
-	$scrolled_drawing_window->add( $self->{_canvas} );
+	$self->{_scrolled_window} = Gtk2::ScrolledWindow->new;
+	$self->{_scrolled_window}->set_policy( 'automatic', 'automatic' );
+	$self->{_scrolled_window}->add( $self->{_canvas} );
 
 	my $drawing_vbox = Gtk2::VBox->new( FALSE, 0 );
 
@@ -131,8 +129,8 @@ sub show {
 	$toolbar_drawing->set_style('icons');
 	$toolbar_drawing->set_icon_size('menu');
 	$toolbar_drawing->set_show_arrow(TRUE);
-	$drawing_hbox->pack_start( $toolbar_drawing,         FALSE, FALSE, 0 );
-	$drawing_hbox->pack_start( $scrolled_drawing_window, TRUE,  TRUE,  0 );
+	$drawing_hbox->pack_start( $toolbar_drawing,          FALSE, FALSE, 0 );
+	$drawing_hbox->pack_start( $self->{_scrolled_window}, TRUE,  TRUE,  0 );
 
 	my $toolbar = $self->{_uimanager}->get_widget("/ToolBar");
 	$toolbar->set_show_arrow(TRUE);
@@ -158,21 +156,61 @@ sub change_drawing_tool_cb {
 		$self->{_current_mode} = $action;
 	}
 
+	#define own icons
+	my $dicons = $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool";
+	my $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
+
 	if ( $self->{_current_mode} == 10 ) {
+
 		$self->{_current_mode_descr} = "select";
+
 	} elsif ( $self->{_current_mode} == 20 ) {
+
 		$self->{_current_mode_descr} = "line";
+		$cursor = Gtk2::Gdk::Cursor->new('pencil');
+
 	} elsif ( $self->{_current_mode} == 30 ) {
+
 		$self->{_current_mode_descr} = "rect";
+		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
+			Gtk2::Gdk::Display->get_default,
+			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-rectangle.png"),
+			Gtk2::IconSize->lookup('menu')
+		);
+
 	} elsif ( $self->{_current_mode} == 40 ) {
+
 		$self->{_current_mode_descr} = "ellipse";
+		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
+			Gtk2::Gdk::Display->get_default,
+			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-ellipse.png"),
+			Gtk2::IconSize->lookup('menu')
+		);
+
 	} elsif ( $self->{_current_mode} == 50 ) {
+
 		$self->{_current_mode_descr} = "image";
+		my $copy = $self->{_current_pixbuf}->copy;
+		my $scaled_copy = $copy->scale_simple( Gtk2::IconSize->lookup('menu'), 'bilinear' );
+		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default,
+			$scaled_copy, undef, undef );
+
 	} elsif ( $self->{_current_mode} == 60 ) {
+
 		$self->{_current_mode_descr} = "text";
+		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
+			Gtk2::Gdk::Display->get_default,
+			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-text.png"),
+			Gtk2::IconSize->lookup('menu')
+		);
+
 	} elsif ( $self->{_current_mode} == 70 ) {
+
 		$self->{_current_mode_descr} = "clear";
+
 	}
+
+	$self->{_canvas}->window->set_cursor($cursor);
 
 	return TRUE;
 }
@@ -191,10 +229,10 @@ sub zoom_in_cb {
 sub zoom_out_cb {
 	my $self      = shift;
 	my $new_scale = $self->{_canvas}->get_scale - 0.5;
-	if ( $new_scale > 1 ) {
-		$self->{_canvas}->set_scale($new_scale);
+	if ( $new_scale < 0.5 ) {
+		$self->{_canvas}->set_scale(0.5);
 	} else {
-		$self->{_canvas}->set_scale(1);
+		$self->{_canvas}->set_scale($new_scale);
 	}
 	return TRUE;
 }
@@ -224,9 +262,9 @@ sub save {
 		$self->{_canvas_bg}->get('height')
 	);
 
-	my $cr = Cairo::Context->create($surface);
+	my $cr   = Cairo::Context->create($surface);
 	my $root = $self->{_canvas}->get_root_item;
-	$root->paint( $cr, $self->{_canvas_bg}->get_bounds , 1 );
+	$root->paint( $cr, $self->{_canvas_bg}->get_bounds, 1 );
 
 	my $loader = Gtk2::Gdk::PixbufLoader->new;
 	$surface->write_to_png_stream(
@@ -341,8 +379,9 @@ sub event_item_on_motion_notify {
 
 				#no rect and no parent? => we are handling the background image here
 			} else {
-	  #				$self->{_canvas}->scroll_to( $ev->x, $ev->y );
-	  #				$self->{_canvas}->request_redraw(Goo::Canvas::Bounds->new($self->{_canvas}->get_bounds));
+
+				#not needed currently
+
 			}
 
 		} else {
@@ -528,6 +567,8 @@ sub get_parent_item {
 sub event_item_on_button_press {
 	my ( $self, $item, $target, $ev ) = @_;
 
+	my $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
+
 	my $valid = FALSE;
 	$valid = TRUE if $self->{_canvas}->get_item_at( $ev->x, $ev->y, TRUE );
 
@@ -564,8 +605,13 @@ sub event_item_on_button_press {
 				};
 			}
 
+			$self->{_canvas}->window->set_cursor($cursor);
+
 			#MOVE AND SELECT
 		} elsif ( $self->{_current_mode_descr} eq "select" ) {
+
+			#			return TRUE if $item == $self->{_canvas_bg};
+
 			if ( $item->isa('Goo::Canvas::Rect') ) {
 
 				#real shape
@@ -574,11 +620,17 @@ sub event_item_on_button_press {
 					$item->{drag_y}   = $ev->y;
 					$item->{dragging} = TRUE;
 
+					$cursor = Gtk2::Gdk::Cursor->new('fleur');
+
 					#resizing shape
 				} else {
+
 					$item->{res_x}    = $ev->x;
 					$item->{res_y}    = $ev->y;
 					$item->{resizing} = TRUE;
+
+					$cursor = undef;
+
 				}
 
 			} else {
@@ -595,13 +647,12 @@ sub event_item_on_button_press {
 				$item->{drag_y}   = $ev->y;
 				$item->{dragging} = TRUE;
 
+				$cursor = undef;
+
 			}
 
-			$canvas->pointer_grab(
-				$item,
-				[ 'pointer-motion-mask', 'button-release-mask' ],
-				Gtk2::Gdk::Cursor->new('fleur'), $ev->time
-			);
+			$canvas->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ],
+				$cursor, $ev->time );
 
 		} else {
 
@@ -625,6 +676,7 @@ sub event_item_on_button_press {
 				$self->{_items}{$item}{'points'} = [ $ev->x, $ev->y, $ev->x, $ev->y ];
 
 				$self->setup_item_signals( $self->{_items}{$item} );
+				$self->setup_item_signals_extra( $self->{_items}{$item} );
 
 				#RECTANGLES
 			} elsif ( $self->{_current_mode_descr} eq "rect" ) {
@@ -709,15 +761,12 @@ sub event_item_on_button_press {
 
 				my $stroke_pattern
 					= $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
-				my $fill_pattern
-					= $self->create_color( $self->{_fill_color}, $self->{_fill_color_alpha} );
 
 				$self->{_items}{$item}{text} = Goo::Canvas::Text->new(
 					$root, 'New Text...', $item->get('x'), $item->get('y'), $item->get('width'),
 					'nw',
-					'fill-pattern'   => $fill_pattern,
-					'stroke-pattern' => $stroke_pattern,
-					'line-width'     => 1,
+					'fill-pattern' => $stroke_pattern,
+					'line-width'   => 1,
 				);
 
 				#create rectangles
@@ -768,11 +817,76 @@ sub event_item_on_button_press {
 
 		}
 	} elsif ( $ev->button == 2 && $valid ) {
-		$item->lower;
+
+		#right click => show context menu
 	} elsif ( $ev->button == 3 && $valid ) {
-		$item->raise;
+
+		if (   $item->isa('Goo::Canvas::Rect')
+			|| $item->isa('Goo::Canvas::Ellipse')
+			|| $item->isa('Goo::Canvas::Text')
+			|| $item->isa('Goo::Canvas::Image')
+			|| $item->isa('Goo::Canvas::Polyline') )
+		{
+
+			#embedded item?
+			my $parent = $self->get_parent_item($item);
+
+			#real shape
+			if ( exists $self->{_items}{$item} || exists $self->{_items}{$parent}) {
+
+				my $item_menu = $self->ret_item_menu( $item, $parent );
+
+				$item_menu->popup(
+					undef,    # parent menu shell
+					undef,    # parent menu item
+					undef,    # menu pos func
+					undef,    # data
+					$ev->button,
+					$ev->time
+				);
+			}
+
+		}
+
 	}
+
 	return TRUE;
+}
+
+sub ret_item_menu {
+	my $self   = shift;
+	my $item   = shift;
+	my $parent = shift;
+
+	my $dicons = $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool";
+
+	my $menu_item = Gtk2::Menu->new;
+
+	#rotate
+#	my $rotate_item = Gtk2::ImageMenuItem->new_with_label('Rotate clockwise');
+#	$rotate_item->set_image(
+#		Gtk2::Image->new_from_pixbuf(
+#			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$dicons/draw-rotate.png",
+#				Gtk2::IconSize->lookup('menu') )
+#		)
+#	);
+#
+#	$rotate_item->signal_connect(
+#		'activate' => sub {
+#			if($parent){
+#
+#
+#			}else{
+#
+#			}
+#		}
+#	);
+#
+#	$menu_item->append($rotate_item);
+
+	$menu_item->show_all;
+
+	return $menu_item;
 }
 
 sub deactivate_all {
@@ -861,7 +975,6 @@ sub handle_rects {
 	my $action = shift;
 	my $item   = shift;
 
-
 	return FALSE unless ( $item && exists $self->{_items}{$item} );
 
 	#get root item
@@ -885,54 +998,62 @@ sub handle_rects {
 
 		if ( $action eq 'create' ) {
 
-			my $pattern = $self->create_color( 'blue', 0.3 );
+			my $pattern = $self->create_color( 'green', 0.3 );
 
 			$self->{_items}{$item}{top_middle} = Goo::Canvas::Rect->new(
-				$root, $middle_h, $top, 5, 5,
+				$root, $middle_h, $top, 8, 8,
 				'fill-pattern' => $pattern,
-				'visibility'   => 'hidden'
+				'visibility'   => 'hidden',
+				'line-width'   => 1
 			);
 
 			$self->{_items}{$item}{top_left} = Goo::Canvas::Rect->new(
-				$root, $left, $top, 5, 5,
+				$root, $left, $top, 8, 8,
 				'fill-pattern' => $pattern,
-				'visibility'   => 'hidden'
+				'visibility'   => 'hidden',
+				'line-width'   => 1
 			);
 
 			$self->{_items}{$item}{top_right} = Goo::Canvas::Rect->new(
-				$root, $right, $top, 5, 5,
+				$root, $right, $top, 8, 8,
 				'fill-pattern' => $pattern,
-				'visibility'   => 'hidden'
+				'visibility'   => 'hidden',
+				'line-width'   => 1
 			);
 
 			$self->{_items}{$item}{bottom_middle} = Goo::Canvas::Rect->new(
-				$root, $middle_h, $bottom, 5, 5,
+				$root, $middle_h, $bottom, 8, 8,
 				'fill-pattern' => $pattern,
-				'visibility'   => 'hidden'
+				'visibility'   => 'hidden',
+				'line-width'   => 1
 			);
 
 			$self->{_items}{$item}{bottom_left} = Goo::Canvas::Rect->new(
-				$root, $left, $bottom, 5, 5,
+				$root, $left, $bottom, 8, 8,
 				'fill-pattern' => $pattern,
-				'visibility'   => 'hidden'
+				'visibility'   => 'hidden',
+				'line-width'   => 1
 			);
 
 			$self->{_items}{$item}{bottom_right} = Goo::Canvas::Rect->new(
-				$root, $right, $bottom, 5, 5,
+				$root, $right, $bottom, 8, 8,
 				'fill-pattern' => $pattern,
-				'visibility'   => 'hidden'
+				'visibility'   => 'hidden',
+				'line-width'   => 1
 			);
 
 			$self->{_items}{$item}{middle_left} = Goo::Canvas::Rect->new(
-				$root, $left - 5, $middle_v, 5, 5,
+				$root, $left - 8, $middle_v, 8, 8,
 				'fill-pattern' => $pattern,
-				'visibility'   => 'hidden'
+				'visibility'   => 'hidden',
+				'line-width'   => 1
 			);
 
 			$self->{_items}{$item}{middle_right} = Goo::Canvas::Rect->new(
-				$root, $right, $middle_v, 5, 5,
+				$root, $right, $middle_v, 8, 8,
 				'fill-pattern' => $pattern,
-				'visibility'   => 'hidden'
+				'visibility'   => 'hidden',
+				'line-width'   => 1
 			);
 
 			$self->setup_item_signals( $self->{_items}{$item}{top_middle} );
@@ -991,60 +1112,50 @@ sub handle_rects {
 
 			}
 
-			my $pattern = $self->create_color( 'blue', 0.3 );
-
 			$self->{_items}{$item}{top_middle}->set(
-				'x'            => $middle_h,
-				'y'            => $top - 5,
-				'visibility'   => $visibilty,
-				'fill-pattern' => $pattern
+				'x'          => $middle_h,
+				'y'          => $top - 8,
+				'visibility' => $visibilty,
 			);
 			$self->{_items}{$item}{top_left}->set(
-				'x'            => $left - 5,
-				'y'            => $top - 5,
-				'visibility'   => $visibilty,
-				'fill-pattern' => $pattern
+				'x'          => $left - 8,
+				'y'          => $top - 8,
+				'visibility' => $visibilty,
 			);
 
 			$self->{_items}{$item}{top_right}->set(
-				'x'            => $right,
-				'y'            => $top - 5,
-				'visibility'   => $visibilty,
-				'fill-pattern' => $pattern
+				'x'          => $right,
+				'y'          => $top - 8,
+				'visibility' => $visibilty,
 			);
 
 			$self->{_items}{$item}{bottom_middle}->set(
-				'x'            => $middle_h,
-				'y'            => $bottom,
-				'visibility'   => $visibilty,
-				'fill-pattern' => $pattern
+				'x'          => $middle_h,
+				'y'          => $bottom,
+				'visibility' => $visibilty,
 			);
 
 			$self->{_items}{$item}{bottom_left}->set(
-				'x'            => $left - 5,
-				'y'            => $bottom,
-				'visibility'   => $visibilty,
-				'fill-pattern' => $pattern
+				'x'          => $left - 8,
+				'y'          => $bottom,
+				'visibility' => $visibilty,
 			);
 
 			$self->{_items}{$item}{bottom_right}->set(
-				'x'            => $right,
-				'y'            => $bottom,
-				'visibility'   => $visibilty,
-				'fill-pattern' => $pattern
+				'x'          => $right,
+				'y'          => $bottom,
+				'visibility' => $visibilty,
 			);
 
 			$self->{_items}{$item}{middle_left}->set(
-				'x'            => $left - 5,
-				'y'            => $middle_v,
-				'visibility'   => $visibilty,
-				'fill-pattern' => $pattern
+				'x'          => $left - 8,
+				'y'          => $middle_v - 4,
+				'visibility' => $visibilty,
 			);
 			$self->{_items}{$item}{middle_right}->set(
-				'x'            => $right,
-				'y'            => $middle_v,
-				'visibility'   => $visibilty,
-				'fill-pattern' => $pattern
+				'x'          => $right,
+				'y'          => $middle_v - 4,
+				'visibility' => $visibilty,
 			);
 		}
 	}
@@ -1082,7 +1193,7 @@ sub event_item_on_button_release {
 
 			$nitem->set( 'width' => 100 ) if ( $nitem->get('width') < 10 );
 
-		} elsif ( $item->isa('Goo::Canvas::Image') && $self->{_current_mode_descr} ne "line") {
+		} elsif ( $item->isa('Goo::Canvas::Image') && $self->{_current_mode_descr} ne "line" ) {
 
 			my $copy = $self->{_items}{$item}{orig_pixbuf}->copy;
 
@@ -1116,6 +1227,9 @@ sub event_item_on_button_release {
 	$self->{_current_new_item} = undef;
 	$self->set_drawing_action(0);
 
+	my $cursor = Gtk2::Gdk::Cursor->new('fleur');
+	$self->{_canvas}->window->set_cursor($cursor);
+
 	return TRUE;
 }
 
@@ -1124,8 +1238,11 @@ sub event_item_on_enter_notify {
 	if (   $item->isa('Goo::Canvas::Rect')
 		|| $item->isa('Goo::Canvas::Ellipse')
 		|| $item->isa('Goo::Canvas::Text')
-		|| $item->isa('Goo::Canvas::Image') )
+		|| $item->isa('Goo::Canvas::Image')
+		|| $item->isa('Goo::Canvas::Polyline') )
 	{
+
+		my $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
 
 		#embedded item?
 		my $parent = $self->get_parent_item($item);
@@ -1133,6 +1250,8 @@ sub event_item_on_enter_notify {
 
 		#real shape
 		if ( exists $self->{_items}{$item} ) {
+
+			$cursor = Gtk2::Gdk::Cursor->new('fleur');
 
 			$self->{_last_item}    = $self->{_current_item};
 			$self->{_current_item} = $item;
@@ -1144,55 +1263,67 @@ sub event_item_on_enter_notify {
 			my $pattern = $self->create_color( 'red', 0.5 );
 			$item->set( 'fill-pattern' => $pattern );
 
-#			my $curr_item = $self->{_current_item};
-#
-#			my $cursor = Gtk2::Gdk::Cursor->new('fleur');
-#			foreach ( keys %{ $self->{_items}{$curr_item} } ) {
-#
-#				if ( $item == $self->{_items}{$curr_item}{$_} ) {
-#
-#					if ( $_ =~ /top.*left/ ) {
-#
-#						$cursor = Gtk2::Gdk::Cursor->new('top-left-corner');
-#
-#					} elsif ( $_ =~ /top.*middle/ ) {
-#
-#						$cursor = Gtk2::Gdk::Cursor->new('top-side');
-#
-#					} elsif ( $_ =~ /top.*right/ ) {
-#
-#						$cursor = Gtk2::Gdk::Cursor->new('top-right-corner');
-#
-#					} elsif ( $_ =~ /middle.*left/ ) {
-#
-#						$cursor = Gtk2::Gdk::Cursor->new('left-side');
-#
-#					} elsif ( $_ =~ /middle.*right/ ) {
-#
-#						$cursor = Gtk2::Gdk::Cursor->new('right-side');
-#
-#					} elsif ( $_ =~ /bottom.*left/ ) {
-#
-#						$cursor = Gtk2::Gdk::Cursor->new('bottom-left-corner');
-#
-#					} elsif ( $_ =~ /bottom.*middle/ ) {
-#
-#						$cursor = Gtk2::Gdk::Cursor->new('bottom-side');
-#
-#					} elsif ( $_ =~ /bottom.*right/ ) {
-#
-#						$cursor = Gtk2::Gdk::Cursor->new('bottom-right-corner');
-#
-#					}
-#
-#				}
-#			}
-#
-#			$self->{_canvas}->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ],
-#				$cursor, $ev->time );
+			my $curr_item = $self->{_current_item};
+
+			foreach ( keys %{ $self->{_items}{$curr_item} } ) {
+
+				if ( $item == $self->{_items}{$curr_item}{$_} ) {
+
+					if ( $_ =~ /top.*left/ ) {
+
+						$cursor = Gtk2::Gdk::Cursor->new('top-left-corner');
+
+					} elsif ( $_ =~ /top.*middle/ ) {
+
+						$cursor = Gtk2::Gdk::Cursor->new('top-side');
+
+					} elsif ( $_ =~ /top.*right/ ) {
+
+						$cursor = Gtk2::Gdk::Cursor->new('top-right-corner');
+
+					} elsif ( $_ =~ /middle.*left/ ) {
+
+						$cursor = Gtk2::Gdk::Cursor->new('left-side');
+
+					} elsif ( $_ =~ /middle.*right/ ) {
+
+						$cursor = Gtk2::Gdk::Cursor->new('right-side');
+
+					} elsif ( $_ =~ /bottom.*left/ ) {
+
+						$cursor = Gtk2::Gdk::Cursor->new('bottom-left-corner');
+
+					} elsif ( $_ =~ /bottom.*middle/ ) {
+
+						$cursor = Gtk2::Gdk::Cursor->new('bottom-side');
+
+					} elsif ( $_ =~ /bottom.*right/ ) {
+
+						$cursor = Gtk2::Gdk::Cursor->new('bottom-right-corner');
+
+					}
+
+				}
+			}    #end determine cursor
 
 		}
+
+		#set cursor
+		if ( $self->{_current_mode_descr} eq "select" ) {
+			$self->{_canvas}->window->set_cursor($cursor);
+		} elsif ( $self->{_current_mode_descr} eq "clear" ) {
+			my $dicons
+				= $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool";
+			$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
+				Gtk2::Gdk::Display->get_default,
+				Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-eraser.png"),
+				Gtk2::IconSize->lookup('menu')
+			);
+			$self->{_canvas}->window->set_cursor($cursor);
+		}
+
 	}
+
 	return TRUE;
 }
 
@@ -1202,7 +1333,8 @@ sub event_item_on_leave_notify {
 	if (   $item->isa('Goo::Canvas::Rect')
 		|| $item->isa('Goo::Canvas::Ellipse')
 		|| $item->isa('Goo::Canvas::Text')
-		|| $item->isa('Goo::Canvas::Image') )
+		|| $item->isa('Goo::Canvas::Image')
+		|| $item->isa('Goo::Canvas::Polyline') )
 	{
 
 		#embedded item?
@@ -1214,10 +1346,16 @@ sub event_item_on_leave_notify {
 
 			#resizing shape
 		} else {
-			my $pattern = $self->create_color( 'blue', 0.3 );
+			my $pattern = $self->create_color( 'green', 0.3 );
 			$item->set( 'fill-pattern' => $pattern );
 		}
 	}
+
+	my $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
+	$self->{_canvas}->window->set_cursor($cursor)
+		if ( $self->{_current_mode_descr} eq "select"
+		|| $self->{_current_mode_descr} eq "clear" );
+
 	return TRUE;
 }
 

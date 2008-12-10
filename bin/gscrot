@@ -62,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.278";
+use constant BRANCH              => "Rev.279";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -3388,7 +3388,7 @@ sub fct_open_files {
 	return FALSE if scalar(@new_files) < 1;
 
 	my $open_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/],
-		'info', 'none', $gscrot_common->get_gettext->get("Loading files") );
+		'info', 'close', $gscrot_common->get_gettext->get("Loading files") );
 
 	$open_dialog->set(
 		'secondary-text' => $gscrot_common->get_gettext->get(
@@ -3454,7 +3454,11 @@ sub fct_load_session {
 		return FALSE if scalar( keys %{$session_xml} ) < 1;
 
 		my $restore_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/],
-			'info', 'none', $gscrot_common->get_gettext->get("Restoring session") );
+			'info', 'close', undef );
+
+		$restore_dialog->set(
+			'text' => $gscrot_common->get_gettext->get("Restoring session")
+		);
 
 		$restore_dialog->set(
 			'secondary-text' => $gscrot_common->get_gettext->get(
@@ -3476,6 +3480,7 @@ sub fct_load_session {
 		unless ( $gscrot_common->get_min ) {
 			$restore_progress->show;
 			$restore_dialog->show_all;
+			$restore_progress->grab_focus;
 		}
 
 		my $num_files = scalar( keys %{$session_xml} );
@@ -3510,7 +3515,7 @@ sub fct_load_session {
 		&dlg_error_message(
 			$gscrot_common->get_gettext->get("Session could not be restored!") . " : $@" );
 
-		#		unlink $sessionfile;
+		unlink $sessionfile;
 		#refresh tray icon
 		if ( $icon->isa('Gtk2::StatusIcon') ) {
 			$icon->set_blinking(FALSE);
@@ -5399,6 +5404,8 @@ sub dlg_plugin {
 			print "WARNING: Program $_ is not configured properly, ignoring\n";
 		}
 	}
+	my $plugin_label = Gtk2::Label->new($gscrot_common->get_gettext->get("Plugin").":");
+	my $plugin_label_blank = Gtk2::Label->new();	
 	my $plugin       = Gtk2::ComboBox->new($model);
 	my $plugin_descr = Gtk2::Label->new;
 	$plugin_descr->set_line_wrap(TRUE);
@@ -5407,8 +5414,9 @@ sub dlg_plugin {
 	my $plugin_image       = Gtk2::Image->new;
 	my $plugin_descr_frame = Gtk2::Frame->new( $gscrot_common->get_gettext->get("Description") );
 	$plugin_descr_frame->add($plugin_descr);
-	my $plugin_hbox = Gtk2::HBox->new( FALSE, 5 );
-	$plugin_hbox->set_border_width(10);
+	my $plugin_hbox1 = Gtk2::HBox->new( FALSE, 5 );
+	my $plugin_hbox2 = Gtk2::HBox->new( FALSE, 5 );
+	$plugin_hbox2->set_border_width(10);
 
 	$plugin->signal_connect(
 		'changed' => sub {
@@ -5442,11 +5450,17 @@ sub dlg_plugin {
 	$plugin->pack_start( $renderer_text, FALSE );
 	$plugin->add_attribute( $renderer_text, text => 1 );
 	$plugin->set_active(0);
-	$plugin_dialog->vbox->add($plugin);
-	$plugin_dialog->vbox->add($plugin_hbox);
-	$plugin_hbox->pack_start_defaults($plugin_image);
-	$plugin_hbox->pack_start_defaults($plugin_descr_frame);
+
+	$plugin_hbox1->pack_start_defaults($plugin);
+
+	$plugin_hbox2->pack_start_defaults($plugin_image);
+	$plugin_hbox2->pack_start_defaults($plugin_descr_frame);
+
+	$plugin_dialog->vbox->add($plugin_hbox1);
+	$plugin_dialog->vbox->add($plugin_hbox2);
+
 	$plugin_dialog->show_all;
+
 	my $plugin_response = $plugin_dialog->run;
 
 	if ( $plugin_response eq "accept" ) {
