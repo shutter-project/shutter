@@ -544,7 +544,6 @@ sub event_item_on_motion_notify {
 
 			}
 		}
-
 	}
 
 	return TRUE;
@@ -562,6 +561,19 @@ sub get_parent_item {
 	}
 
 	return $parent;
+}
+
+sub get_child_item {
+	my $self = shift;
+	my $item = shift;
+
+	my $child = undef;
+
+	$child = $self->{_items}{$item}{ellipse} if exists $self->{_items}{$item}{ellipse};
+	$child = $self->{_items}{$item}{text}    if exists $self->{_items}{$item}{text};
+	$child = $self->{_items}{$item}{image}   if exists $self->{_items}{$item}{image};
+
+	return $child;
 }
 
 sub event_item_on_button_press {
@@ -821,18 +833,42 @@ sub event_item_on_button_press {
 		#right click => show context menu
 	} elsif ( $ev->button == 3 && $valid ) {
 
-		if (   $item->isa('Goo::Canvas::Rect')
-			|| $item->isa('Goo::Canvas::Ellipse')
+		if ( $item->isa('Goo::Canvas::Rect') ) {
+
+			if ( exists $self->{_items}{$item} ) {
+
+				my $child = $self->get_child_item($item);
+				if ($child) {
+					$item = $child;
+				} else {
+
+					my $item_menu = $self->ret_item_menu($item);
+
+					$item_menu->popup(
+						undef,    # parent menu shell
+						undef,    # parent menu item
+						undef,    # menu pos func
+						undef,    # data
+						$ev->button,
+						$ev->time
+					);
+
+				}
+
+			}
+
+		}
+
+		if (   $item->isa('Goo::Canvas::Ellipse')
 			|| $item->isa('Goo::Canvas::Text')
-			|| $item->isa('Goo::Canvas::Image')
-			|| $item->isa('Goo::Canvas::Polyline') )
+			|| $item->isa('Goo::Canvas::Image') )
 		{
 
 			#embedded item?
 			my $parent = $self->get_parent_item($item);
 
 			#real shape
-			if ( exists $self->{_items}{$item} || exists $self->{_items}{$parent}) {
+			if ( exists $self->{_items}{$parent} ) {
 
 				my $item_menu = $self->ret_item_menu( $item, $parent );
 
@@ -858,31 +894,95 @@ sub ret_item_menu {
 	my $item   = shift;
 	my $parent = shift;
 
+	my $d      = $self->{_gscrot_common}->get_gettext;
 	my $dicons = $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool";
 
 	my $menu_item = Gtk2::Menu->new;
 
-	#rotate
-#	my $rotate_item = Gtk2::ImageMenuItem->new_with_label('Rotate clockwise');
-#	$rotate_item->set_image(
-#		Gtk2::Image->new_from_pixbuf(
-#			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$dicons/draw-rotate.png",
-#				Gtk2::IconSize->lookup('menu') )
-#		)
-#	);
-#
-#	$rotate_item->signal_connect(
-#		'activate' => sub {
-#			if($parent){
-#
-#
-#			}else{
-#
-#			}
-#		}
-#	);
-#
-#	$menu_item->append($rotate_item);
+	#properties
+	my $prop_item = Gtk2::ImageMenuItem->new_from_stock('gtk-properties');
+	$prop_item->signal_connect(
+		'activate' => sub {
+
+			#create dialog
+			my $prop_dialog = Gtk2::Dialog->new(
+				$d->get("Preferences"),
+				$self->{_drawing_window},
+				[qw/modal destroy-with-parent/],
+				'gtk-close' => 'close',
+				'gtk-apply' => 'apply'
+			);
+
+			#RECT OR ELLIPSE
+			my $line_spin;
+			if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
+
+				my $label_general = Gtk2::Label->new;
+				$label_general->set_markup( $d->get("<i>Main</i>") );
+				my $frame_general = Gtk2::Frame->new();
+				$frame_general->set_label_widget($label_general);
+				$prop_dialog->vbox->add($frame_general);
+
+				#line_width
+				my $line_hbox   = Gtk2::HBox->new;
+				my $linew_label = Gtk2::Label->new( $d->get("Line width") );
+				$line_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
+				
+				$line_spin->set_value($item->get( 'line-width'));
+				
+				$line_hbox->pack_start_defaults($linew_label);
+				$line_hbox->pack_start_defaults($line_spin);
+				$frame_general->add($line_hbox);
+
+			}
+
+			#TEXT
+			my $text;
+			my $textview;
+			if ( $item->isa('Goo::Canvas::Text') ) {
+
+				my $label_text = Gtk2::Label->new;
+				$label_text->set_markup( $d->get("<i>Text</i>") );
+				my $frame_text = Gtk2::Frame->new();
+				$frame_text->set_label_widget($label_text);
+				$prop_dialog->vbox->add($frame_text);
+				$text = Gtk2::TextBuffer->new();
+				
+				$text->set_text( $item->get('text') );
+
+				$textview = Gtk2::TextView->new_with_buffer($text);
+				$frame_text->add($textview);
+			}
+
+			#run dialog
+			$prop_dialog->show_all;
+			my $prop_dialog_res = $prop_dialog->run;
+			if ( $prop_dialog_res eq 'apply' ) {
+
+				#apply rect or ellipse options
+				if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
+
+					$item->set( 'line-width' => $line_spin->get_value );
+
+				}
+
+				#apply text options
+				if ( $item->isa('Goo::Canvas::Text') ) {
+					$item->set( 'text' =>
+							$text->get_text( $text->get_start_iter, $text->get_end_iter, FALSE ) );
+				}
+				$prop_dialog->destroy;
+				return TRUE;
+			} else {
+
+				$prop_dialog->destroy;
+				return FALSE;
+			}
+
+		}
+	);
+
+	$menu_item->append($prop_item);
 
 	$menu_item->show_all;
 
@@ -1113,7 +1213,7 @@ sub handle_rects {
 			}
 
 			$self->{_items}{$item}{top_middle}->set(
-				'x'          => $middle_h,
+				'x'          => $middle_h - 4,
 				'y'          => $top - 8,
 				'visibility' => $visibilty,
 			);
@@ -1130,7 +1230,7 @@ sub handle_rects {
 			);
 
 			$self->{_items}{$item}{bottom_middle}->set(
-				'x'          => $middle_h,
+				'x'          => $middle_h - 4,
 				'y'          => $bottom,
 				'visibility' => $visibilty,
 			);
