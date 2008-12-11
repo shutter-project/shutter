@@ -775,8 +775,9 @@ sub event_item_on_button_press {
 					= $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
 
 				$self->{_items}{$item}{text} = Goo::Canvas::Text->new(
-					$root, 'New Text...', $item->get('x'), $item->get('y'), $item->get('width'),
+					$root, "<span font_desc='Sans Italic 16' >New Text...</span>", $item->get('x'), $item->get('y'), $item->get('width'),
 					'nw',
+					'use-markup'   => TRUE,
 					'fill-pattern' => $stroke_pattern,
 					'line-width'   => 1,
 				);
@@ -917,41 +918,107 @@ sub ret_item_menu {
 			my $line_spin;
 			if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
 
+				my $general_vbox = Gtk2::VBox->new( FALSE, 5 );
+
 				my $label_general = Gtk2::Label->new;
 				$label_general->set_markup( $d->get("<i>Main</i>") );
 				my $frame_general = Gtk2::Frame->new();
 				$frame_general->set_label_widget($label_general);
+				$frame_general->set_border_width(5);
 				$prop_dialog->vbox->add($frame_general);
 
 				#line_width
-				my $line_hbox   = Gtk2::HBox->new;
+				my $line_hbox = Gtk2::HBox->new( FALSE, 5 );
+				$line_hbox->set_border_width(5);
 				my $linew_label = Gtk2::Label->new( $d->get("Line width") );
 				$line_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
-				
-				$line_spin->set_value($item->get( 'line-width'));
-				
+
+				$line_spin->set_value( $item->get('line-width') );
+
 				$line_hbox->pack_start_defaults($linew_label);
 				$line_hbox->pack_start_defaults($line_spin);
-				$frame_general->add($line_hbox);
+				$general_vbox->pack_start( $line_hbox, FALSE, FALSE, 0 );
+
+				$frame_general->add($general_vbox);
 
 			}
 
 			#TEXT
+			my $font_btn;
 			my $text;
 			my $textview;
 			if ( $item->isa('Goo::Canvas::Text') ) {
+
+				my $text_vbox = Gtk2::VBox->new( FALSE, 5 );
 
 				my $label_text = Gtk2::Label->new;
 				$label_text->set_markup( $d->get("<i>Text</i>") );
 				my $frame_text = Gtk2::Frame->new();
 				$frame_text->set_label_widget($label_text);
+				$frame_text->set_border_width(5);
 				$prop_dialog->vbox->add($frame_text);
-				$text = Gtk2::TextBuffer->new();
-				
-				$text->set_text( $item->get('text') );
 
+				#font button
+				my $font_hbox = Gtk2::HBox->new( FALSE, 5 );
+				$font_hbox->set_border_width(5);
+				$font_btn = Gtk2::FontButton->new();
+
+				#determine font description from string
+				my ($attr_list, $text_raw, $accel_char) = Gtk2::Pango->parse_markup ($item->get('text'));
+				my $iterator = $attr_list->get_iterator;
+				my $font_desc = $iterator->get ('font-desc');
+								
+				$font_hbox->pack_start_defaults($font_btn);
+				$text_vbox->pack_start( $font_hbox, FALSE, FALSE, 0 );
+
+				#initial buffer
+				my $text = Gtk2::TextBuffer->new;
+				$text->set_text($text_raw);
+
+				#textview
+				my $textview_hbox = Gtk2::HBox->new( FALSE, 5 );
+				$textview_hbox->set_border_width(5);
 				$textview = Gtk2::TextView->new_with_buffer($text);
-				$frame_text->add($textview);
+				$textview->set_size_request( 150, 200 );
+				$textview_hbox->pack_start_defaults($textview);
+				$text_vbox->pack_start_defaults($textview_hbox);
+
+				$font_btn->signal_connect(
+					'font-set' => sub {
+						
+						my $font_descr
+							= Gtk2::Pango::FontDescription->from_string( $font_btn->get_font_name );
+						my $texttag = Gtk2::TextTag->new;
+						$texttag->set( 'font-desc' => $font_descr );
+						my $texttagtable = Gtk2::TextTagTable->new;
+						$texttagtable->add($texttag);
+						my $text = Gtk2::TextBuffer->new($texttagtable);
+						$text->signal_connect(
+							'changed' => sub {
+								$text->apply_tag( $texttag, $text->get_start_iter,
+									$text->get_end_iter );
+							}
+						);
+
+						$text->set_text(
+							$textview->get_buffer->get_text(
+								$textview->get_buffer->get_start_iter,
+								$textview->get_buffer->get_end_iter,
+								FALSE
+							)
+						);
+						$text->apply_tag( $texttag, $text->get_start_iter, $text->get_end_iter );
+						$textview->set_buffer($text);
+
+					}
+				);
+
+				#apply current font settings to button
+				$font_btn->set_font_name($font_desc->desc->to_string);
+				#FIXME >> why do we have to invoke this manually??
+				$font_btn->signal_emit('font-set');
+
+				$frame_text->add($text_vbox);
 			}
 
 			#run dialog
@@ -968,8 +1035,22 @@ sub ret_item_menu {
 
 				#apply text options
 				if ( $item->isa('Goo::Canvas::Text') ) {
-					$item->set( 'text' =>
-							$text->get_text( $text->get_start_iter, $text->get_end_iter, FALSE ) );
+					my $font_descr
+						= Gtk2::Pango::FontDescription->from_string( $font_btn->get_font_name );
+
+					my $new_text = $textview->get_buffer->get_text(
+							$textview->get_buffer->get_start_iter,
+							$textview->get_buffer->get_end_iter,
+							FALSE
+							) || "New Text...";
+
+					$item->set(
+						      'text' => "<span font_desc=' " 
+							. $font_descr->to_string . " ' >"
+							. $new_text
+							. "</span>",
+						'use-markup' => TRUE,
+					);
 				}
 				$prop_dialog->destroy;
 				return TRUE;
