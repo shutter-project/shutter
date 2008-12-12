@@ -775,7 +775,8 @@ sub event_item_on_button_press {
 					= $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
 
 				$self->{_items}{$item}{text} = Goo::Canvas::Text->new(
-					$root, "<span font_desc='Sans Italic 16' >New Text...</span>", $item->get('x'), $item->get('y'), $item->get('width'),
+					$root, "<span font_desc='Sans Italic 16' >New Text...</span>", $item->get('x'),
+					$item->get('y'), $item->get('width'),
 					'nw',
 					'use-markup'   => TRUE,
 					'fill-pattern' => $stroke_pattern,
@@ -900,6 +901,56 @@ sub ret_item_menu {
 
 	my $menu_item = Gtk2::Menu->new;
 
+	#raise
+	my $raise_item = Gtk2::ImageMenuItem->new( $d->get("Raise") );
+	$raise_item->set_image(
+		Gtk2::Image->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+				"$dicons/draw-raise.png", Gtk2::IconSize->lookup('menu')
+			)
+		)
+	);
+	$raise_item->signal_connect(
+		'activate' => sub {
+			$item->raise;
+			if ($parent) {
+				$parent->raise;
+				$self->handle_rects( 'raise', $parent );
+			}else{
+				$self->handle_rects( 'raise', $item );
+			}
+		}
+	);
+
+	$menu_item->append($raise_item);
+
+	#lower
+	my $lower_item = Gtk2::ImageMenuItem->new( $d->get("Lower") );
+	$lower_item->set_image(
+		Gtk2::Image->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+				"$dicons/draw-lower.png", Gtk2::IconSize->lookup('menu')
+			)
+		)
+	);
+
+	$lower_item->signal_connect(
+		'activate' => sub {
+			$item->lower;
+			if ($parent) {
+				$parent->lower;
+				$self->handle_rects( 'lower', $parent );
+			}else{
+				$self->handle_rects( 'lower', $item );
+			}
+			$self->{_canvas_bg}->lower;
+		}
+	);
+
+	$menu_item->append($lower_item);
+
+	$menu_item->append( Gtk2::SeparatorMenuItem->new );
+
 	#properties
 	my $prop_item = Gtk2::ImageMenuItem->new_from_stock('gtk-properties');
 	$prop_item->signal_connect(
@@ -964,10 +1015,11 @@ sub ret_item_menu {
 				$font_btn = Gtk2::FontButton->new();
 
 				#determine font description from string
-				my ($attr_list, $text_raw, $accel_char) = Gtk2::Pango->parse_markup ($item->get('text'));
-				my $iterator = $attr_list->get_iterator;
-				my $font_desc = $iterator->get ('font-desc');
-								
+				my ( $attr_list, $text_raw, $accel_char )
+					= Gtk2::Pango->parse_markup( $item->get('text') );
+				my $iterator  = $attr_list->get_iterator;
+				my $font_desc = $iterator->get('font-desc');
+
 				$font_hbox->pack_start_defaults($font_btn);
 				$text_vbox->pack_start( $font_hbox, FALSE, FALSE, 0 );
 
@@ -985,7 +1037,7 @@ sub ret_item_menu {
 
 				$font_btn->signal_connect(
 					'font-set' => sub {
-						
+
 						my $font_descr
 							= Gtk2::Pango::FontDescription->from_string( $font_btn->get_font_name );
 						my $texttag = Gtk2::TextTag->new;
@@ -1014,7 +1066,8 @@ sub ret_item_menu {
 				);
 
 				#apply current font settings to button
-				$font_btn->set_font_name($font_desc->desc->to_string);
+				$font_btn->set_font_name( $font_desc->desc->to_string );
+
 				#FIXME >> why do we have to invoke this manually??
 				$font_btn->signal_emit('font-set');
 
@@ -1038,14 +1091,13 @@ sub ret_item_menu {
 					my $font_descr
 						= Gtk2::Pango::FontDescription->from_string( $font_btn->get_font_name );
 
-					my $new_text = $textview->get_buffer->get_text(
-							$textview->get_buffer->get_start_iter,
-							$textview->get_buffer->get_end_iter,
-							FALSE
-							) || "New Text...";
+					my $new_text
+						= $textview->get_buffer->get_text( $textview->get_buffer->get_start_iter,
+						$textview->get_buffer->get_end_iter, FALSE )
+						|| "New Text...";
 
 					$item->set(
-						      'text' => "<span font_desc=' " 
+						'text' => "<span font_desc=' "
 							. $font_descr->to_string . " ' >"
 							. $new_text
 							. "</span>",
@@ -1338,9 +1390,31 @@ sub handle_rects {
 				'y'          => $middle_v - 4,
 				'visibility' => $visibilty,
 			);
+
+		} elsif ( $action eq 'raise' ) {
+
+			$self->{_items}{$item}{top_middle}->raise;
+			$self->{_items}{$item}{top_left}->raise;
+			$self->{_items}{$item}{top_right}->raise;
+			$self->{_items}{$item}{bottom_middle}->raise;
+			$self->{_items}{$item}{bottom_left}->raise;
+			$self->{_items}{$item}{bottom_right}->raise;
+			$self->{_items}{$item}{middle_left}->raise;
+			$self->{_items}{$item}{middle_right}->raise;
+
+		} elsif ( $action eq 'lower' ) {
+
+			$self->{_items}{$item}{top_middle}->lower;
+			$self->{_items}{$item}{top_left}->lower;
+			$self->{_items}{$item}{top_right}->lower;
+			$self->{_items}{$item}{bottom_middle}->lower;
+			$self->{_items}{$item}{bottom_left}->lower;
+			$self->{_items}{$item}{bottom_right}->lower;
+			$self->{_items}{$item}{middle_left}->lower;
+			$self->{_items}{$item}{middle_right}->lower;
+
 		}
 	}
-
 }
 
 sub event_item_on_button_release {
