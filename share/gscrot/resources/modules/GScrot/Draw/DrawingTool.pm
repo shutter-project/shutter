@@ -62,6 +62,12 @@ sub new {
 	$self->{_stroke_color}       = Gtk2::Gdk::Color->parse('#000000');
 	$self->{_stroke_color_alpha} = 0.95;
 
+	#line_width
+	$self->{_line_width} = 3;
+	
+	#font
+	$self->{_font} = 'Sans Italic 16';
+
 	#help variables
 	$self->{_last_item}          = undef;
 	$self->{_current_item}       = undef;
@@ -88,7 +94,7 @@ sub show {
 	$self->{_uimanager} = $self->setup_uimanager();
 
 	$self->{_drawing_window} = Gtk2::Window->new('toplevel');
-	$self->{_drawing_window}->set_title($filename);
+	$self->{_drawing_window}->set_title( "GScrot DrawingTool - " . $filename );
 	$self->{_drawing_window}->set_modal(1);
 	$self->{_drawing_window}->signal_connect( 'destroy', \&quit );
 	$self->{_drawing_window}
@@ -136,8 +142,10 @@ sub show {
 	$toolbar->set_show_arrow(TRUE);
 	$drawing_vbox->pack_start( $self->{_uimanager}->get_widget("/ToolBar"), FALSE, FALSE, 0 );
 
+	$drawing_vbox->pack_start( $drawing_hbox,            TRUE,  TRUE, 0 );
+	$drawing_vbox->pack_start( $self->setup_bottom_hbox, FALSE, TRUE, 0 );
+
 	my $drawing_statusbar = Gtk2::Statusbar->new;
-	$drawing_vbox->pack_start( $drawing_hbox,      TRUE,  TRUE,  0 );
 	$drawing_vbox->pack_start( $drawing_statusbar, FALSE, FALSE, 0 );
 
 	$self->{_drawing_window}->show_all();
@@ -145,6 +153,81 @@ sub show {
 	Gtk2->main;
 
 	return TRUE;
+}
+
+sub setup_bottom_hbox {
+	my $self = shift;
+
+	my $d = $self->{_gscrot_common}->get_gettext;
+
+	my $drawing_bottom_hbox = Gtk2::HBox->new( FALSE, 5 );
+
+	#fill color
+	my $fill_color_label = Gtk2::Label->new( $d->get("Fill color") );
+	my $fill_color       = Gtk2::ColorButton->new();
+	$fill_color->set_color( $self->{_fill_color} );
+	$fill_color->set_alpha( int( $self->{_fill_color_alpha} * 65636 ) );
+	$fill_color->set_use_alpha(TRUE);
+	$fill_color->set_title( $d->get("Choose fill color") );
+	$fill_color->signal_connect(
+		'color-set' => sub {
+			$self->{_fill_color}       = $fill_color->get_color;
+			$self->{_fill_color_alpha} = $fill_color->get_alpha / 65636;
+		}
+	);
+
+	$drawing_bottom_hbox->pack_start( $fill_color_label, FALSE, FALSE, 5 );
+	$drawing_bottom_hbox->pack_start( $fill_color,       FALSE, FALSE, 5 );
+
+	#stroke color
+	my $stroke_color_label = Gtk2::Label->new( $d->get("Stroke color") );
+	my $stroke_color       = Gtk2::ColorButton->new();
+	$stroke_color->set_color( $self->{_stroke_color} );
+	$stroke_color->set_alpha( int( $self->{_stroke_color_alpha} * 65636 ) );
+	$stroke_color->set_use_alpha(TRUE);
+	$stroke_color->set_title( $d->get("Choose stroke color") );
+	$stroke_color->signal_connect(
+		'color-set' => sub {
+			$self->{_stroke_color}       = $stroke_color->get_color;
+			$self->{_stroke_color_alpha} = $stroke_color->get_alpha / 65636;
+		}
+	);
+
+	$drawing_bottom_hbox->pack_start( $stroke_color_label, FALSE, FALSE, 5 );
+	$drawing_bottom_hbox->pack_start( $stroke_color,       FALSE, FALSE, 5 );
+
+	#line_width
+	my $line_hbox = Gtk2::HBox->new( TRUE, 5 );
+	$line_hbox->set_border_width(5);
+	my $linew_label = Gtk2::Label->new( $d->get("Line width") );
+	my $line_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
+	$line_spin->set_value( $self->{_line_width} );
+	$line_spin->signal_connect(
+		'value-changed' => sub {
+			$self->{_line_width} = $line_spin->get_value;
+		}
+	);
+
+	$drawing_bottom_hbox->pack_start( $linew_label, FALSE, FALSE, 5 );
+	$drawing_bottom_hbox->pack_start( $line_spin,   FALSE, FALSE, 5 );
+
+	#font button
+	my $font_hbox = Gtk2::HBox->new( TRUE, 5 );
+	$font_hbox->set_border_width(5);
+	my $font_label = Gtk2::Label->new( $d->get("Font") );
+	my $font_btn = Gtk2::FontButton->new();
+	$font_btn->set_font_name( $self->{_font} );
+	$font_btn->signal_connect(
+		'font-set' => sub {
+			my $font_descr = Gtk2::Pango::FontDescription->from_string( $font_btn->get_font_name );
+			$self->{_font} = $font_descr->to_string;
+		}
+	);
+
+	$drawing_bottom_hbox->pack_start( $font_label, FALSE, FALSE, 5 );
+	$drawing_bottom_hbox->pack_start( $font_btn,   FALSE, FALSE, 5 );
+
+	return $drawing_bottom_hbox;
 }
 
 sub change_drawing_tool_cb {
@@ -678,7 +761,7 @@ sub event_item_on_button_press {
 				my $item = Goo::Canvas::Polyline->new_line(
 					$root, $ev->x, $ev->y, $ev->x, $ev->y,
 					'stroke-pattern' => $stroke_pattern,
-					'line-width'     => 1
+					'line-width'     => $self->{_line_width}
 				);
 
 				$self->{_current_new_item} = $item;
@@ -701,11 +784,16 @@ sub event_item_on_button_press {
 					$root, $ev->x, $ev->y, 2, 2,
 					'fill-pattern'   => $fill_pattern,
 					'stroke-pattern' => $stroke_pattern,
-					'line-width'     => 1,
+					'line-width'     => $self->{_line_width},
 				);
 
 				$self->{_current_new_item} = $item;
 				$self->{_items}{$item} = $item;
+
+				$self->{_items}{$item}{fill_color}         = $self->{_fill_color};
+				$self->{_items}{$item}{fill_color_alpha}   = $self->{_fill_color_alpha};
+				$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
+				$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
 
 				#create rectangles
 				$self->handle_rects( 'create', $item );
@@ -741,8 +829,14 @@ sub event_item_on_button_press {
 					$item->get('height'),
 					'fill-pattern'   => $fill_pattern,
 					'stroke-pattern' => $stroke_pattern,
-					'line-width'     => 1,
+					'line-width'     => $self->{_line_width},
 				);
+
+				#save color and opacity as well
+				$self->{_items}{$item}{fill_color}         = $self->{_fill_color};
+				$self->{_items}{$item}{fill_color_alpha}   = $self->{_fill_color_alpha};
+				$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
+				$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
 
 				#create rectangles
 				$self->handle_rects( 'create', $item );
@@ -775,13 +869,16 @@ sub event_item_on_button_press {
 					= $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
 
 				$self->{_items}{$item}{text} = Goo::Canvas::Text->new(
-					$root, "<span font_desc='Sans Italic 16' >New Text...</span>", $item->get('x'),
+					$root, "<span font_desc='". $self->{_font} ."' >New Text...</span>", $item->get('x'),
 					$item->get('y'), $item->get('width'),
 					'nw',
 					'use-markup'   => TRUE,
 					'fill-pattern' => $stroke_pattern,
-					'line-width'   => 1,
+					'line-width'   => $self->{_line_width},
 				);
+
+				$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
+				$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
 
 				#create rectangles
 				$self->handle_rects( 'create', $item );
@@ -896,6 +993,14 @@ sub ret_item_menu {
 	my $item   = shift;
 	my $parent = shift;
 
+	#determine key for item hash
+	my $key = undef;
+	if ( exists $self->{_items}{$item} ) {
+		$key = $item;
+	} else {
+		$key = $parent;
+	}
+
 	my $d      = $self->{_gscrot_common}->get_gettext;
 	my $dicons = $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool";
 
@@ -916,7 +1021,7 @@ sub ret_item_menu {
 			if ($parent) {
 				$parent->raise;
 				$self->handle_rects( 'raise', $parent );
-			}else{
+			} else {
 				$self->handle_rects( 'raise', $item );
 			}
 		}
@@ -940,7 +1045,7 @@ sub ret_item_menu {
 			if ($parent) {
 				$parent->lower;
 				$self->handle_rects( 'lower', $parent );
-			}else{
+			} else {
 				$self->handle_rects( 'lower', $item );
 			}
 			$self->{_canvas_bg}->lower;
@@ -967,6 +1072,8 @@ sub ret_item_menu {
 
 			#RECT OR ELLIPSE
 			my $line_spin;
+			my $fill_color;
+			my $stroke_color;
 			if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
 
 				my $general_vbox = Gtk2::VBox->new( FALSE, 5 );
@@ -979,7 +1086,7 @@ sub ret_item_menu {
 				$prop_dialog->vbox->add($frame_general);
 
 				#line_width
-				my $line_hbox = Gtk2::HBox->new( FALSE, 5 );
+				my $line_hbox = Gtk2::HBox->new( TRUE, 5 );
 				$line_hbox->set_border_width(5);
 				my $linew_label = Gtk2::Label->new( $d->get("Line width") );
 				$line_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
@@ -990,6 +1097,37 @@ sub ret_item_menu {
 				$line_hbox->pack_start_defaults($line_spin);
 				$general_vbox->pack_start( $line_hbox, FALSE, FALSE, 0 );
 
+				#fill color
+				my $fill_color_hbox = Gtk2::HBox->new( TRUE, 5 );
+				$fill_color_hbox->set_border_width(5);
+				my $fill_color_label = Gtk2::Label->new( $d->get("Fill color") );
+				$fill_color = Gtk2::ColorButton->new();
+
+				$fill_color->set_color( $self->{_items}{$key}{fill_color} );
+				$fill_color->set_alpha( int( $self->{_items}{$key}{fill_color_alpha} * 65636 ) );
+				$fill_color->set_use_alpha(TRUE);
+				$fill_color->set_title( $d->get("Choose fill color") );
+
+				$fill_color_hbox->pack_start_defaults($fill_color_label);
+				$fill_color_hbox->pack_start_defaults($fill_color);
+				$general_vbox->pack_start( $fill_color_hbox, FALSE, FALSE, 0 );
+
+				#stroke color
+				my $stroke_color_hbox = Gtk2::HBox->new( TRUE, 5 );
+				$stroke_color_hbox->set_border_width(5);
+				my $stroke_color_label = Gtk2::Label->new( $d->get("Stroke color") );
+				$stroke_color = Gtk2::ColorButton->new();
+
+				$stroke_color->set_color( $self->{_items}{$key}{stroke_color} );
+				$stroke_color->set_alpha(
+					int( $self->{_items}{$key}{stroke_color_alpha} * 65636 ) );
+				$stroke_color->set_use_alpha(TRUE);
+				$stroke_color->set_title( $d->get("Choose stroke color") );
+
+				$stroke_color_hbox->pack_start_defaults($stroke_color_label);
+				$stroke_color_hbox->pack_start_defaults($stroke_color);
+				$general_vbox->pack_start( $stroke_color_hbox, FALSE, FALSE, 0 );
+
 				$frame_general->add($general_vbox);
 
 			}
@@ -998,6 +1136,7 @@ sub ret_item_menu {
 			my $font_btn;
 			my $text;
 			my $textview;
+			my $font_color;
 			if ( $item->isa('Goo::Canvas::Text') ) {
 
 				my $text_vbox = Gtk2::VBox->new( FALSE, 5 );
@@ -1010,8 +1149,9 @@ sub ret_item_menu {
 				$prop_dialog->vbox->add($frame_text);
 
 				#font button
-				my $font_hbox = Gtk2::HBox->new( FALSE, 5 );
+				my $font_hbox = Gtk2::HBox->new( TRUE, 5 );
 				$font_hbox->set_border_width(5);
+				my $font_label = Gtk2::Label->new( $d->get("Font") );
 				$font_btn = Gtk2::FontButton->new();
 
 				#determine font description from string
@@ -1020,8 +1160,25 @@ sub ret_item_menu {
 				my $iterator  = $attr_list->get_iterator;
 				my $font_desc = $iterator->get('font-desc');
 
+				$font_hbox->pack_start_defaults($font_label);
 				$font_hbox->pack_start_defaults($font_btn);
 				$text_vbox->pack_start( $font_hbox, FALSE, FALSE, 0 );
+
+				#font color
+				my $font_color_hbox = Gtk2::HBox->new( TRUE, 5 );
+				$font_color_hbox->set_border_width(5);
+				my $font_color_label = Gtk2::Label->new( $d->get("Font color") );
+				$font_color = Gtk2::ColorButton->new();
+
+				$font_color->set_color( $self->{_items}{$key}{stroke_color} );
+				$font_color->set_alpha( int( $self->{_items}{$key}{stroke_color_alpha} * 65636 ) );
+				$font_color->set_use_alpha(TRUE);
+				$font_color->set_title( $d->get("Choose font color") );
+
+				$font_color_hbox->pack_start_defaults($font_color_label);
+				$font_color_hbox->pack_start_defaults($font_color);
+
+				$text_vbox->pack_start( $font_color_hbox, FALSE, FALSE, 0 );
 
 				#initial buffer
 				my $text = Gtk2::TextBuffer->new;
@@ -1033,6 +1190,7 @@ sub ret_item_menu {
 				$textview = Gtk2::TextView->new_with_buffer($text);
 				$textview->set_size_request( 150, 200 );
 				$textview_hbox->pack_start_defaults($textview);
+
 				$text_vbox->pack_start_defaults($textview_hbox);
 
 				$font_btn->signal_connect(
@@ -1082,8 +1240,21 @@ sub ret_item_menu {
 				#apply rect or ellipse options
 				if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
 
-					$item->set( 'line-width' => $line_spin->get_value );
+					my $fill_pattern = $self->create_color( $fill_color->get_color,
+						$fill_color->get_alpha / 65636 );
+					my $stroke_pattern = $self->create_color( $stroke_color->get_color,
+						$stroke_color->get_alpha / 65636 );
+					$item->set(
+						'line-width'     => $line_spin->get_value,
+						'fill-pattern'   => $fill_pattern,
+						'stroke-pattern' => $stroke_pattern
+					);
 
+					#save color and opacity as well
+					$self->{_items}{$key}{fill_color}         = $fill_color->get_color;
+					$self->{_items}{$key}{fill_color_alpha}   = $fill_color->get_alpha / 65636;
+					$self->{_items}{$key}{stroke_color}       = $stroke_color->get_color;
+					$self->{_items}{$key}{stroke_color_alpha} = $stroke_color->get_alpha / 65636;
 				}
 
 				#apply text options
@@ -1096,13 +1267,22 @@ sub ret_item_menu {
 						$textview->get_buffer->get_end_iter, FALSE )
 						|| "New Text...";
 
+					my $fill_pattern = $self->create_color( $font_color->get_color,
+						$font_color->get_alpha / 65636 );
+
 					$item->set(
 						'text' => "<span font_desc=' "
 							. $font_descr->to_string . " ' >"
 							. $new_text
 							. "</span>",
-						'use-markup' => TRUE,
+						'use-markup'   => TRUE,
+						'fill-pattern' => $fill_pattern
 					);
+
+					#save color and opacity as well
+					$self->{_items}{$key}{stroke_color}       = $font_color->get_color;
+					$self->{_items}{$key}{stroke_color_alpha} = $font_color->get_alpha / 65636;
+
 				}
 				$prop_dialog->destroy;
 				return TRUE;
@@ -1734,10 +1914,6 @@ sub setup_uimanager {
 		[ "Text",  'gscrot-text', undef, undef, $d->get("Add some text to the screenshot"),    60 ],
 		[ "Clear", 'gscrot-eraser', undef, undef, $d->get("Delete objects"), 70 ]
 	);
-	my @toolbar_color_actions = (
-		[ "FillColor",   undef, undef, undef, undef ],
-		[ "StrokeColor", undef, undef, undef, undef ]
-	);
 
 	my $uimanager = Gtk2::UIManager->new();
 
@@ -1751,8 +1927,6 @@ sub setup_uimanager {
 		sub { my $action = shift; $self->change_drawing_tool_cb($action); } );
 
 	$uimanager->insert_action_group( $toolbar_group, 0 );
-
-	$toolbar_drawing_group->add_actions( \@toolbar_color_actions );
 
 	$uimanager->insert_action_group( $toolbar_drawing_group, 0 );
 
@@ -1776,9 +1950,6 @@ sub setup_uimanager {
     <toolitem action='Image'/>
     <separator/>
     <toolitem action='Clear'/>
-    <separator/>
-    <toolitem action='FillColor'/>
-    <toolitem action='StrokeColor'/>
   </toolbar>  
 </ui>";
 
@@ -1787,10 +1958,6 @@ sub setup_uimanager {
 	if ($@) {
 		die "Unable to create menus: $@\n";
 	}
-
-	#manip color buttons
-	$self->set_color_fill_color_button( $uimanager->get_widget("/ToolBarDrawing/FillColor") );
-	$self->set_color_stroke_color_button( $uimanager->get_widget("/ToolBarDrawing/StrokeColor") );
 
 	#insert menutoolbutton image
 	my $toolbar = $uimanager->get_widget("/ToolBarDrawing");
@@ -1806,7 +1973,8 @@ sub setup_uimanager {
 		}
 	);
 
-	$toolbar->insert( $image_button, 12 );
+	$toolbar->insert( Gtk2::SeparatorToolItem->new, 9 );
+	$toolbar->insert( $image_button,                10 );
 
 	return $uimanager;
 }
@@ -1859,123 +2027,6 @@ sub ret_objects_menu {
 	$menu_objects->show_all;
 
 	return $menu_objects;
-}
-
-sub set_color_fill_color_button {
-	my $self           = shift;
-	my $fill_color_btn = shift;
-
-	my $btn = $fill_color_btn->get_child;
-	$btn->remove( $btn->get_child );
-	$btn->set_border_width(3);
-
-	$btn->set_state('prelight');
-	$btn->modify_bg( 'normal',      $self->{_fill_color} );
-	$btn->modify_bg( 'prelight',    $self->{_fill_color} );
-	$btn->modify_bg( 'active',      $self->{_fill_color} );
-	$btn->modify_bg( 'insensitive', $self->{_fill_color} );
-	$btn->modify_bg( 'selected',    $self->{_fill_color} );
-
-	$btn->signal_connect( 'state-changed' => sub { $btn->set_state('prelight') } );
-
-	$btn->signal_connect(
-		clicked => sub {
-			my $d = $self->{_gscrot_common}->get_gettext;
-
-			my $color_dialog = Gtk2::Dialog->new(
-				$d->get("Choose fill color"),
-				$self->{_drawing_window},
-				[qw/modal destroy-with-parent/],
-				'gtk-cancel'       => 'reject',
-				'gtk-select-color' => 'accept'
-			);
-			$color_dialog->set_default_response('accept');
-
-			my $color_select = Gtk2::ColorSelection->new;
-			$color_select->set_has_opacity_control(TRUE);
-			$color_select->set_current_color( $self->{_fill_color} );
-			$color_select->set_current_alpha( int( $self->{_fill_color_alpha} * 65636 ) );
-
-			$color_dialog->vbox->add($color_select);
-			$color_dialog->show_all;
-
-			if ( 'accept' eq $color_dialog->run ) {
-				$self->{_fill_color}       = $color_select->get_current_color;
-				$self->{_fill_color_alpha} = $color_select->get_current_alpha / 65636;
-
-				$btn->set_state('prelight');
-				$btn->modify_bg( 'normal',      $self->{_fill_color} );
-				$btn->modify_bg( 'prelight',    $self->{_fill_color} );
-				$btn->modify_bg( 'active',      $self->{_fill_color} );
-				$btn->modify_bg( 'insensitive', $self->{_fill_color} );
-				$btn->modify_bg( 'selected',    $self->{_fill_color} );
-
-			}
-			$color_dialog->destroy;
-		}
-	);
-
-	$btn->show_all;
-
-	return TRUE;
-}
-
-sub set_color_stroke_color_button {
-	my $self             = shift;
-	my $stroke_color_btn = shift;
-
-	my $btn = $stroke_color_btn->get_child;
-	$btn->remove( $btn->get_child );
-	$btn->set_border_width(10);
-
-	$btn->set_state('prelight');
-	$btn->modify_bg( 'normal',      $self->{_stroke_color} );
-	$btn->modify_bg( 'prelight',    $self->{_stroke_color} );
-	$btn->modify_bg( 'active',      $self->{_stroke_color} );
-	$btn->modify_bg( 'insensitive', $self->{_stroke_color} );
-	$btn->modify_bg( 'selected',    $self->{_stroke_color} );
-
-	$btn->signal_connect( 'state-changed' => sub { $btn->set_state('prelight') } );
-
-	$btn->signal_connect(
-		clicked => sub {
-			my $d = $self->{_gscrot_common}->get_gettext;
-
-			my $color_dialog = Gtk2::Dialog->new(
-				$d->get("Choose stroke color"),
-				$self->{_drawing_window},
-				[qw/modal destroy-with-parent/],
-				'gtk-cancel'       => 'reject',
-				'gtk-select-color' => 'accept'
-			);
-			$color_dialog->set_default_response('accept');
-
-			my $color_select = Gtk2::ColorSelection->new;
-			$color_select->set_has_opacity_control(TRUE);
-			$color_select->set_current_color( $self->{_stroke_color} );
-			$color_select->set_current_alpha( int( $self->{_stroke_color_alpha} * 65636 ) );
-
-			$color_dialog->vbox->add($color_select);
-			$color_dialog->show_all;
-
-			if ( 'accept' eq $color_dialog->run ) {
-				$self->{_stroke_color}       = $color_select->get_current_color;
-				$self->{_stroke_color_alpha} = $color_select->get_current_alpha / 65636;
-
-				$btn->set_state('prelight');
-				$btn->modify_bg( 'normal',      $self->{_stroke_color} );
-				$btn->modify_bg( 'prelight',    $self->{_stroke_color} );
-				$btn->modify_bg( 'active',      $self->{_stroke_color} );
-				$btn->modify_bg( 'insensitive', $self->{_stroke_color} );
-				$btn->modify_bg( 'selected',    $self->{_stroke_color} );
-			}
-			$color_dialog->destroy;
-		}
-	);
-
-	$btn->show_all;
-
-	return TRUE;
 }
 
 sub set_drawing_action {

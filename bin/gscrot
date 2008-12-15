@@ -62,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.282";
+use constant BRANCH              => "Rev.283";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -383,7 +383,7 @@ $menuitem_web->add_accelerator( "activate", $accel_group, $Gtk2::Gdk::Keysyms{W}
 $menu_actions->append($menuitem_web);
 $menuitem_web->signal_connect( "activate", \&evt_take_screenshot, 'web' );
 my $menuitem_action
-	= Gtk2::MenuItem->new_with_mnemonic( $gscrot_common->get_gettext->get("_Actions") );
+	= Gtk2::MenuItem->new_with_mnemonic( $gscrot_common->get_gettext->get("_Screenshot") );
 $menuitem_action->set_submenu($menu_actions);
 $menubar->append($menuitem_action);
 
