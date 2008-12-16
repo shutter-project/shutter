@@ -64,7 +64,7 @@ sub new {
 
 	#line_width
 	$self->{_line_width} = 3;
-	
+
 	#font
 	$self->{_font} = 'Sans Italic 16';
 
@@ -91,17 +91,17 @@ sub show {
 
 	my $d = $self->{_gscrot_common}->get_gettext;
 
-	$self->{_uimanager} = $self->setup_uimanager();
-
 	$self->{_drawing_window} = Gtk2::Window->new('toplevel');
-	$self->{_drawing_window}->set_title( "GScrot DrawingTool - " . $filename );
+	$self->{_drawing_window}->set_title( "GScrot DrawingTool - " . $self->{_filename} );
 	$self->{_drawing_window}->set_modal(1);
 	$self->{_drawing_window}->signal_connect( 'destroy', \&quit );
 	$self->{_drawing_window}
 		->signal_connect( 'delete_event', sub { $self->{_drawing_window}->destroy() } );
 
+	$self->{_uimanager} = $self->setup_uimanager();
+
 	#load file
-	$self->{_drawing_pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($filename);
+	$self->{_drawing_pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file( $self->{_filename} );
 
 	#create canvas
 	$self->{_canvas} = Goo::Canvas->new();
@@ -124,29 +124,61 @@ sub show {
 	$self->{_scrolled_window}->set_policy( 'automatic', 'automatic' );
 	$self->{_scrolled_window}->add( $self->{_canvas} );
 
-	my $drawing_vbox = Gtk2::VBox->new( FALSE, 0 );
+	my $drawing_vbox       = Gtk2::VBox->new( FALSE, 0 );
+	my $drawing_inner_vbox = Gtk2::VBox->new( FALSE, 0 );
+	my $drawing_hbox       = Gtk2::HBox->new( FALSE, 0 );
 
-	my $drawing_hbox = Gtk2::HBox->new( FALSE, 0 );
+	#create a table for placing the ruler and scrolle window
+	my $table = new Gtk2::Table( 3, 2, FALSE );
 
 	$self->{_drawing_window}->add($drawing_vbox);
+
+	my $menubar = $self->{_uimanager}->get_widget("/MenuBar");
+	$drawing_vbox->pack_start( $menubar, FALSE, FALSE, 0 );
 
 	my $toolbar_drawing = $self->{_uimanager}->get_widget("/ToolBarDrawing");
 	$toolbar_drawing->set_orientation('vertical');
 	$toolbar_drawing->set_style('icons');
 	$toolbar_drawing->set_icon_size('menu');
 	$toolbar_drawing->set_show_arrow(TRUE);
-	$drawing_hbox->pack_start( $toolbar_drawing,          FALSE, FALSE, 0 );
-	$drawing_hbox->pack_start( $self->{_scrolled_window}, TRUE,  TRUE,  0 );
+	$drawing_hbox->pack_start( $toolbar_drawing, FALSE, FALSE, 0 );
+
+	#vruler
+	$self->{_vruler} = Gtk2::VRuler->new;
+	$self->{_vruler}->set_metric('pixels');
+	$self->{_vruler}->set_range( 0, $self->{_drawing_pixbuf}->get_height,
+		0, $self->{_drawing_pixbuf}->get_height );
+
+	#hruler
+	$self->{_hruler} = Gtk2::HRuler->new;
+	$self->{_hruler}->set_metric('pixels');
+	$self->{_hruler}->set_range( 0, $self->{_drawing_pixbuf}->get_width,
+		0, $self->{_drawing_pixbuf}->get_width );
+
+	#attach scrolled window and rulers to the table
+	$table->attach(
+		$self->{_scrolled_window},
+		1, 2, 1, 2,
+		[ 'expand', 'fill' ],
+		[ 'expand', 'fill' ],
+		0, 0
+	);
+
+	$table->attach( $self->{_hruler}, 1, 2, 0, 1, [ 'expand', 'shrink', 'fill' ], [], 0, 0 );
+	$table->attach( $self->{_vruler}, 0, 1, 1, 2, [], [ 'fill', 'expand', 'shrink' ], 0, 0 );
+
+	$drawing_inner_vbox->pack_start( $table,                   TRUE,  TRUE, 0 );
+	$drawing_inner_vbox->pack_start( $self->setup_bottom_hbox, FALSE, TRUE, 0 );
+	$drawing_hbox->pack_start( $drawing_inner_vbox, TRUE, TRUE, 0 );
 
 	my $toolbar = $self->{_uimanager}->get_widget("/ToolBar");
 	$toolbar->set_show_arrow(TRUE);
 	$drawing_vbox->pack_start( $self->{_uimanager}->get_widget("/ToolBar"), FALSE, FALSE, 0 );
 
-	$drawing_vbox->pack_start( $drawing_hbox,            TRUE,  TRUE, 0 );
-	$drawing_vbox->pack_start( $self->setup_bottom_hbox, FALSE, TRUE, 0 );
+	$drawing_vbox->pack_start( $drawing_hbox, TRUE, TRUE, 0 );
 
-	my $drawing_statusbar = Gtk2::Statusbar->new;
-	$drawing_vbox->pack_start( $drawing_statusbar, FALSE, FALSE, 0 );
+	$self->{_drawing_statusbar} = Gtk2::Statusbar->new;
+	$drawing_vbox->pack_start( $self->{_drawing_statusbar}, FALSE, FALSE, 0 );
 
 	$self->{_drawing_window}->show_all();
 
@@ -163,7 +195,7 @@ sub setup_bottom_hbox {
 	my $drawing_bottom_hbox = Gtk2::HBox->new( FALSE, 5 );
 
 	#fill color
-	my $fill_color_label = Gtk2::Label->new( $d->get("Fill color") );
+	my $fill_color_label = Gtk2::Label->new( $d->get("Fill color") .":" );
 	my $fill_color       = Gtk2::ColorButton->new();
 	$fill_color->set_color( $self->{_fill_color} );
 	$fill_color->set_alpha( int( $self->{_fill_color_alpha} * 65636 ) );
@@ -180,7 +212,7 @@ sub setup_bottom_hbox {
 	$drawing_bottom_hbox->pack_start( $fill_color,       FALSE, FALSE, 5 );
 
 	#stroke color
-	my $stroke_color_label = Gtk2::Label->new( $d->get("Stroke color") );
+	my $stroke_color_label = Gtk2::Label->new( $d->get("Stroke color").":" );
 	my $stroke_color       = Gtk2::ColorButton->new();
 	$stroke_color->set_color( $self->{_stroke_color} );
 	$stroke_color->set_alpha( int( $self->{_stroke_color_alpha} * 65636 ) );
@@ -199,7 +231,7 @@ sub setup_bottom_hbox {
 	#line_width
 	my $line_hbox = Gtk2::HBox->new( TRUE, 5 );
 	$line_hbox->set_border_width(5);
-	my $linew_label = Gtk2::Label->new( $d->get("Line width") );
+	my $linew_label = Gtk2::Label->new( $d->get("Line width").":" );
 	my $line_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
 	$line_spin->set_value( $self->{_line_width} );
 	$line_spin->signal_connect(
@@ -214,8 +246,8 @@ sub setup_bottom_hbox {
 	#font button
 	my $font_hbox = Gtk2::HBox->new( TRUE, 5 );
 	$font_hbox->set_border_width(5);
-	my $font_label = Gtk2::Label->new( $d->get("Font") );
-	my $font_btn = Gtk2::FontButton->new();
+	my $font_label = Gtk2::Label->new( $d->get("Font").":" );
+	my $font_btn   = Gtk2::FontButton->new();
 	$font_btn->set_font_name( $self->{_font} );
 	$font_btn->signal_connect(
 		'font-set' => sub {
@@ -418,6 +450,13 @@ sub setup_item_signals_extra {
 
 sub event_item_on_motion_notify {
 	my ( $self, $item, $target, $ev ) = @_;
+
+	#propagate event to the rulers so they can update themselves
+	$self->{_vruler}->event($ev);
+	$self->{_hruler}->event($ev);
+
+	#update statusbar
+	$self->{_drawing_statusbar}->push( -1, int( $ev->x ) . " x " . int( $ev->y ) );
 
 	#move
 	if ( $item->{dragging} && $ev->state >= 'button1-mask' ) {
@@ -659,6 +698,36 @@ sub get_child_item {
 	return $child;
 }
 
+sub clear_item_from_canvas {
+	my $self = shift;
+	my $item = shift;
+
+	my @items_to_delete;
+	push @items_to_delete, $item;
+
+	#maybe there is a parent item to delete?
+	my $parent = $self->get_parent_item($item);
+	if ($parent) {
+		push @items_to_delete, $parent;
+		foreach ( keys %{ $self->{_items}{$parent} } ) {
+			push @items_to_delete, $self->{_items}{$parent}{$_};
+		}
+	} else {
+		foreach ( keys %{ $self->{_items}{$item} } ) {
+			push @items_to_delete, $self->{_items}{$item}{$_};
+		}
+	}
+
+	foreach (@items_to_delete) {
+		eval {
+			my $bigparent = $_->get_parent;
+			$bigparent->remove_child( $bigparent->find_child($_) );
+		};
+	}
+
+	return TRUE;
+}
+
 sub event_item_on_button_press {
 	my ( $self, $item, $target, $ev ) = @_;
 
@@ -666,6 +735,33 @@ sub event_item_on_button_press {
 
 	my $valid = FALSE;
 	$valid = TRUE if $self->{_canvas}->get_item_at( $ev->x, $ev->y, TRUE );
+
+	#activate item
+	if ( $valid && $self->{_current_mode_descr} eq "select" ) {
+
+		#embedded item?
+		my $parent = $self->get_parent_item($item);
+		$item = $parent if $parent;
+
+		#real shape
+		if ( exists $self->{_items}{$item} ) {
+
+			$self->{_last_item}    = $self->{_current_item};
+			$self->{_current_item} = $item;
+			$self->handle_rects( 'hide',   $self->{_last_item} );
+			$self->handle_rects( 'update', $self->{_current_item} );
+
+		}
+
+		#end of activate item
+	} elsif ($valid) {
+		my $item = $self->{_current_new_item} || $self->{_last_item} || $self->{_current_item};
+		$self->handle_rects( 'hide', $item );
+		$self->{_current_item}     = undef;
+		$self->{_last_item}        = undef;
+		$self->{_current_new_item} = undef;
+
+	}
 
 	if ( $ev->button == 1 && $valid ) {
 
@@ -677,28 +773,7 @@ sub event_item_on_button_press {
 
 			return TRUE if $item == $self->{_canvas_bg};
 
-			my @items_to_delete;
-			push @items_to_delete, $item;
-
-			#maybe there is a parent item to delete?
-			my $parent = $self->get_parent_item($item);
-			if ($parent) {
-				push @items_to_delete, $parent;
-				foreach ( keys %{ $self->{_items}{$parent} } ) {
-					push @items_to_delete, $self->{_items}{$parent}{$_};
-				}
-			} else {
-				foreach ( keys %{ $self->{_items}{$item} } ) {
-					push @items_to_delete, $self->{_items}{$item}{$_};
-				}
-			}
-
-			foreach (@items_to_delete) {
-				eval {
-					my $bigparent = $_->get_parent;
-					$bigparent->remove_child( $bigparent->find_child($_) );
-				};
-			}
+			$self->clear_item_from_canvas($item);
 
 			$self->{_canvas}->window->set_cursor($cursor);
 
@@ -756,8 +831,6 @@ sub event_item_on_button_press {
 
 				my $stroke_pattern
 					= $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
-				my $fill_pattern
-					= $self->create_color( $self->{_fill_color}, $self->{_fill_color_alpha} );
 				my $item = Goo::Canvas::Polyline->new_line(
 					$root, $ev->x, $ev->y, $ev->x, $ev->y,
 					'stroke-pattern' => $stroke_pattern,
@@ -769,6 +842,9 @@ sub event_item_on_button_press {
 
 				#need at least 2 points
 				$self->{_items}{$item}{'points'} = [ $ev->x, $ev->y, $ev->x, $ev->y ];
+
+				$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
+				$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
 
 				$self->setup_item_signals( $self->{_items}{$item} );
 				$self->setup_item_signals_extra( $self->{_items}{$item} );
@@ -869,7 +945,8 @@ sub event_item_on_button_press {
 					= $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
 
 				$self->{_items}{$item}{text} = Goo::Canvas::Text->new(
-					$root, "<span font_desc='". $self->{_font} ."' >New Text...</span>", $item->get('x'),
+					$root, "<span font_desc='" . $self->{_font} . "' >New Text...</span>",
+					$item->get('x'),
 					$item->get('y'), $item->get('width'),
 					'nw',
 					'use-markup'   => TRUE,
@@ -932,7 +1009,7 @@ sub event_item_on_button_press {
 		#right click => show context menu
 	} elsif ( $ev->button == 3 && $valid ) {
 
-		if ( $item->isa('Goo::Canvas::Rect') ) {
+		if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Polyline') ) {
 
 			if ( exists $self->{_items}{$item} ) {
 
@@ -1056,8 +1133,22 @@ sub ret_item_menu {
 
 	$menu_item->append( Gtk2::SeparatorMenuItem->new );
 
+	#delete item
+	my $remove_item = Gtk2::ImageMenuItem->new_from_stock('gtk-delete');
+
+	$remove_item->signal_connect(
+		'activate' => sub {
+			$self->clear_item_from_canvas($item);
+		}
+	);
+
+	$menu_item->append($remove_item);
+
+	$menu_item->append( Gtk2::SeparatorMenuItem->new );
+
 	#properties
 	my $prop_item = Gtk2::ImageMenuItem->new_from_stock('gtk-properties');
+	$prop_item->set_sensitive(FALSE) if $item->isa('Goo::Canvas::Image');
 	$prop_item->signal_connect(
 		'activate' => sub {
 
@@ -1070,11 +1161,16 @@ sub ret_item_menu {
 				'gtk-apply' => 'apply'
 			);
 
+			$prop_dialog->set_default_response('apply');
+
 			#RECT OR ELLIPSE
 			my $line_spin;
 			my $fill_color;
 			my $stroke_color;
-			if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
+			if (   $item->isa('Goo::Canvas::Rect')
+				|| $item->isa('Goo::Canvas::Ellipse')
+				|| $item->isa('Goo::Canvas::Polyline') )
+			{
 
 				my $general_vbox = Gtk2::VBox->new( FALSE, 5 );
 
@@ -1097,20 +1193,24 @@ sub ret_item_menu {
 				$line_hbox->pack_start_defaults($line_spin);
 				$general_vbox->pack_start( $line_hbox, FALSE, FALSE, 0 );
 
-				#fill color
-				my $fill_color_hbox = Gtk2::HBox->new( TRUE, 5 );
-				$fill_color_hbox->set_border_width(5);
-				my $fill_color_label = Gtk2::Label->new( $d->get("Fill color") );
-				$fill_color = Gtk2::ColorButton->new();
+				if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
 
-				$fill_color->set_color( $self->{_items}{$key}{fill_color} );
-				$fill_color->set_alpha( int( $self->{_items}{$key}{fill_color_alpha} * 65636 ) );
-				$fill_color->set_use_alpha(TRUE);
-				$fill_color->set_title( $d->get("Choose fill color") );
+					#fill color
+					my $fill_color_hbox = Gtk2::HBox->new( TRUE, 5 );
+					$fill_color_hbox->set_border_width(5);
+					my $fill_color_label = Gtk2::Label->new( $d->get("Fill color") );
+					$fill_color = Gtk2::ColorButton->new();
 
-				$fill_color_hbox->pack_start_defaults($fill_color_label);
-				$fill_color_hbox->pack_start_defaults($fill_color);
-				$general_vbox->pack_start( $fill_color_hbox, FALSE, FALSE, 0 );
+					$fill_color->set_color( $self->{_items}{$key}{fill_color} );
+					$fill_color->set_alpha(
+						int( $self->{_items}{$key}{fill_color_alpha} * 65636 ) );
+					$fill_color->set_use_alpha(TRUE);
+					$fill_color->set_title( $d->get("Choose fill color") );
+
+					$fill_color_hbox->pack_start_defaults($fill_color_label);
+					$fill_color_hbox->pack_start_defaults($fill_color);
+					$general_vbox->pack_start( $fill_color_hbox, FALSE, FALSE, 0 );
+				}
 
 				#stroke color
 				my $stroke_color_hbox = Gtk2::HBox->new( TRUE, 5 );
@@ -1171,8 +1271,6 @@ sub ret_item_menu {
 				$font_color = Gtk2::ColorButton->new();
 
 				$font_color->set_color( $self->{_items}{$key}{stroke_color} );
-				$font_color->set_alpha( int( $self->{_items}{$key}{stroke_color_alpha} * 65636 ) );
-				$font_color->set_use_alpha(TRUE);
 				$font_color->set_title( $d->get("Choose font color") );
 
 				$font_color_hbox->pack_start_defaults($font_color_label);
@@ -1193,32 +1291,21 @@ sub ret_item_menu {
 
 				$text_vbox->pack_start_defaults($textview_hbox);
 
+				#apply changes directly
 				$font_btn->signal_connect(
 					'font-set' => sub {
 
-						my $font_descr
-							= Gtk2::Pango::FontDescription->from_string( $font_btn->get_font_name );
-						my $texttag = Gtk2::TextTag->new;
-						$texttag->set( 'font-desc' => $font_descr );
-						my $texttagtable = Gtk2::TextTagTable->new;
-						$texttagtable->add($texttag);
-						my $text = Gtk2::TextBuffer->new($texttagtable);
-						$text->signal_connect(
-							'changed' => sub {
-								$text->apply_tag( $texttag, $text->get_start_iter,
-									$text->get_end_iter );
-							}
-						);
+						$self->modify_text_in_properties( $font_btn, $textview, $font_color,
+							$item );
 
-						$text->set_text(
-							$textview->get_buffer->get_text(
-								$textview->get_buffer->get_start_iter,
-								$textview->get_buffer->get_end_iter,
-								FALSE
-							)
-						);
-						$text->apply_tag( $texttag, $text->get_start_iter, $text->get_end_iter );
-						$textview->set_buffer($text);
+					}
+				);
+
+				$font_color->signal_connect(
+					'color-set' => sub {
+
+						$self->modify_text_in_properties( $font_btn, $textview, $font_color,
+							$item );
 
 					}
 				);
@@ -1257,6 +1344,20 @@ sub ret_item_menu {
 					$self->{_items}{$key}{stroke_color_alpha} = $stroke_color->get_alpha / 65636;
 				}
 
+				#apply polyline options
+				if ( $item->isa('Goo::Canvas::Polyline') ) {
+					my $stroke_pattern = $self->create_color( $stroke_color->get_color,
+						$stroke_color->get_alpha / 65636 );
+					$item->set(
+						'line-width'     => $line_spin->get_value,
+						'stroke-pattern' => $stroke_pattern
+					);
+
+					#save color and opacity as well
+					$self->{_items}{$key}{stroke_color}       = $stroke_color->get_color;
+					$self->{_items}{$key}{stroke_color_alpha} = $stroke_color->get_alpha / 65636;
+				}
+
 				#apply text options
 				if ( $item->isa('Goo::Canvas::Text') ) {
 					my $font_descr
@@ -1279,6 +1380,22 @@ sub ret_item_menu {
 						'fill-pattern' => $fill_pattern
 					);
 
+					#adjust rectangle to display text properly
+					my $no_lines  = $textview->get_buffer->get_line_count;
+					my $font_size = $font_descr->get_size / 1024;
+
+					if ( ( $no_lines * $font_size ) + $parent->get('height')
+						> ( $self->{_drawing_pixbuf}->get_height - 50 ) )
+					{
+						$parent->set( 'height' =>
+								( $self->{_drawing_pixbuf}->get_height - $parent->get('height') ) );
+					} else {
+						$parent->set( 'height' => ( $no_lines * $font_size ) + 30 );
+					}
+
+					$self->handle_rects( 'update', $parent );
+					$self->handle_embedded( 'update', $parent );
+
 					#save color and opacity as well
 					$self->{_items}{$key}{stroke_color}       = $font_color->get_color;
 					$self->{_items}{$key}{stroke_color_alpha} = $font_color->get_alpha / 65636;
@@ -1300,6 +1417,37 @@ sub ret_item_menu {
 	$menu_item->show_all;
 
 	return $menu_item;
+}
+
+sub modify_text_in_properties {
+	my $self       = shift;
+	my $font_btn   = shift;
+	my $textview   = shift;
+	my $font_color = shift;
+	my $item       = shift;
+
+	my $font_descr = Gtk2::Pango::FontDescription->from_string( $font_btn->get_font_name );
+	my $texttag    = Gtk2::TextTag->new;
+	$texttag->set( 'font-desc' => $font_descr, 'foreground-gdk' => $font_color->get_color );
+	my $texttagtable = Gtk2::TextTagTable->new;
+	$texttagtable->add($texttag);
+	my $text = Gtk2::TextBuffer->new($texttagtable);
+	$text->signal_connect(
+		'changed' => sub {
+			$text->apply_tag( $texttag, $text->get_start_iter, $text->get_end_iter );
+		}
+	);
+
+	$text->set_text(
+		$textview->get_buffer->get_text(
+			$textview->get_buffer->get_start_iter,
+			$textview->get_buffer->get_end_iter, FALSE
+		)
+	);
+	$text->apply_tag( $texttag, $text->get_start_iter, $text->get_end_iter );
+	$textview->set_buffer($text);
+
+	return TRUE;
 }
 
 sub deactivate_all {
@@ -1659,10 +1807,10 @@ sub event_item_on_button_release {
 	$item->{dragging} = FALSE;
 	$item->{resizing} = FALSE;
 
-	$self->{_current_new_item} = undef;
+	#	$self->{_current_new_item} = undef;
 	$self->set_drawing_action(0);
 
-	my $cursor = Gtk2::Gdk::Cursor->new('fleur');
+	my $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
 	$self->{_canvas}->window->set_cursor($cursor);
 
 	return TRUE;
@@ -1688,17 +1836,24 @@ sub event_item_on_enter_notify {
 
 			$cursor = Gtk2::Gdk::Cursor->new('fleur');
 
-			$self->{_last_item}    = $self->{_current_item};
-			$self->{_current_item} = $item;
-			$self->handle_rects( 'hide',   $self->{_last_item} );
-			$self->handle_rects( 'update', $self->{_current_item} );
+			#autofocus
+			#			$self->{_last_item}    = $self->{_current_item};
+			#			$self->{_current_item} = $item;
+			#			$self->handle_rects( 'hide',   $self->{_last_item} );
+			#			$self->handle_rects( 'update', $self->{_current_item} );
 
 			#resizing shape
 		} else {
 			my $pattern = $self->create_color( 'red', 0.5 );
 			$item->set( 'fill-pattern' => $pattern );
 
-			my $curr_item = $self->{_current_item};
+			#activate correct item if not activated yet
+			my $curr_item = $self->{_current_new_item} || $self->{_current_item};
+			$self->{_current_new_item} = undef;
+			$self->{_last_item}        = $self->{_current_item};
+			$self->{_current_item}     = $curr_item;
+			$self->handle_rects( 'hide',   $self->{_last_item} );
+			$self->handle_rects( 'update', $curr_item );
 
 			foreach ( keys %{ $self->{_items}{$curr_item} } ) {
 
@@ -1886,8 +2041,12 @@ sub setup_uimanager {
 	);
 	$self->{_factory}->add_default();
 
+	my @default_actions
+		= ( [ "File", undef, $d->get("_File") ], [ "View", undef, $d->get("_View") ] );
+
 	my @toolbar_actions = (
-		[ "Quit", 'gtk-quit', undef, "<control>W", undef, sub { $self->quit($self) } ],
+		[ "Quit", 'gtk-quit', undef, "<control>Q", undef, sub { $self->quit($self) } ]
+		,
 		[ "Save", 'gtk-save', undef, "<control>S", undef, sub { $self->save($self) } ],
 		[   "ZoomIn", 'gtk-zoom-in', undef, "<control>plus", undef, sub { $self->zoom_in_cb($self) }
 		],
@@ -1917,6 +2076,14 @@ sub setup_uimanager {
 
 	my $uimanager = Gtk2::UIManager->new();
 
+	#keyboard accel_group
+	my $accelgroup = $uimanager->get_accel_group;
+	$self->{_drawing_window}->add_accel_group($accelgroup);
+
+	# Setup the default group.
+	my $default_group = Gtk2::ActionGroup->new("default");
+	$default_group->add_actions( \@default_actions );
+
 	# Setup the image group.
 	my $toolbar_group = Gtk2::ActionGroup->new("image");
 	$toolbar_group->add_actions( \@toolbar_actions );
@@ -1926,12 +2093,24 @@ sub setup_uimanager {
 	$toolbar_drawing_group->add_radio_actions( \@toolbar_drawing_actions, 10,
 		sub { my $action = shift; $self->change_drawing_tool_cb($action); } );
 
-	$uimanager->insert_action_group( $toolbar_group, 0 );
-
+	$uimanager->insert_action_group( $default_group,         0 );
+	$uimanager->insert_action_group( $toolbar_group,         0 );
 	$uimanager->insert_action_group( $toolbar_drawing_group, 0 );
 
 	my $ui_info = "
 <ui>
+  <menubar name = 'MenuBar'>
+    <menu action = 'File'>
+      <menuitem action = 'Save'/>
+      <separator/>
+      <menuitem action = 'Quit'/>
+    </menu>
+    <menu action = 'View'>
+      <menuitem action = 'ZoomIn'/>
+      <menuitem action = 'ZoomOut'/>
+      <menuitem action = 'ZoomNormal'/>
+    </menu>
+  </menubar>
   <toolbar name = 'ToolBar'>
     <toolitem action='Quit'/>
     <toolitem action='Save'/>
