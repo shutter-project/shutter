@@ -45,8 +45,9 @@ sub new {
 	my $self = { _gscrot_common => shift };
 
 	#file
-	$self->{_filename} = undef;
-	$self->{_filetype} = undef;
+	$self->{_filename}    = undef;
+	$self->{_filetype}    = undef;
+	$self->{_import_hash} = undef;
 
 	#ui
 	$self->{_uimanager} = undef;
@@ -82,12 +83,14 @@ sub new {
 }
 
 sub show {
-	my $self     = shift;
-	my $filename = shift;
-	my $filetype = shift;
+	my $self        = shift;
+	my $filename    = shift;
+	my $filetype    = shift;
+	my $import_hash = shift;
 
-	$self->{_filename} = $filename;
-	$self->{_filetype} = $filetype;
+	$self->{_filename}    = $filename;
+	$self->{_filetype}    = $filetype;
+	$self->{_import_hash} = $import_hash;
 
 	my $d = $self->{_gscrot_common}->get_gettext;
 
@@ -195,7 +198,7 @@ sub setup_bottom_hbox {
 	my $drawing_bottom_hbox = Gtk2::HBox->new( FALSE, 5 );
 
 	#fill color
-	my $fill_color_label = Gtk2::Label->new( $d->get("Fill color") .":" );
+	my $fill_color_label = Gtk2::Label->new( $d->get("Fill color") . ":" );
 	my $fill_color       = Gtk2::ColorButton->new();
 	$fill_color->set_color( $self->{_fill_color} );
 	$fill_color->set_alpha( int( $self->{_fill_color_alpha} * 65636 ) );
@@ -212,7 +215,7 @@ sub setup_bottom_hbox {
 	$drawing_bottom_hbox->pack_start( $fill_color,       FALSE, FALSE, 5 );
 
 	#stroke color
-	my $stroke_color_label = Gtk2::Label->new( $d->get("Stroke color").":" );
+	my $stroke_color_label = Gtk2::Label->new( $d->get("Stroke color") . ":" );
 	my $stroke_color       = Gtk2::ColorButton->new();
 	$stroke_color->set_color( $self->{_stroke_color} );
 	$stroke_color->set_alpha( int( $self->{_stroke_color_alpha} * 65636 ) );
@@ -229,9 +232,7 @@ sub setup_bottom_hbox {
 	$drawing_bottom_hbox->pack_start( $stroke_color,       FALSE, FALSE, 5 );
 
 	#line_width
-	my $line_hbox = Gtk2::HBox->new( TRUE, 5 );
-	$line_hbox->set_border_width(5);
-	my $linew_label = Gtk2::Label->new( $d->get("Line width").":" );
+	my $linew_label = Gtk2::Label->new( $d->get("Line width") . ":" );
 	my $line_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
 	$line_spin->set_value( $self->{_line_width} );
 	$line_spin->signal_connect(
@@ -244,9 +245,7 @@ sub setup_bottom_hbox {
 	$drawing_bottom_hbox->pack_start( $line_spin,   FALSE, FALSE, 5 );
 
 	#font button
-	my $font_hbox = Gtk2::HBox->new( TRUE, 5 );
-	$font_hbox->set_border_width(5);
-	my $font_label = Gtk2::Label->new( $d->get("Font").":" );
+	my $font_label = Gtk2::Label->new( $d->get("Font") . ":" );
 	my $font_btn   = Gtk2::FontButton->new();
 	$font_btn->set_font_name( $self->{_font} );
 	$font_btn->signal_connect(
@@ -258,6 +257,22 @@ sub setup_bottom_hbox {
 
 	$drawing_bottom_hbox->pack_start( $font_label, FALSE, FALSE, 5 );
 	$drawing_bottom_hbox->pack_start( $font_btn,   FALSE, FALSE, 5 );
+
+	#image button
+	my $image_label = Gtk2::Label->new( $d->get("Symbol") . ":" );
+	my $image_btn = Gtk2::MenuToolButton->new( undef, undef );
+	$image_btn->set_menu( $self->ret_objects_menu($image_btn) );
+
+	$image_btn->signal_connect(
+		'show-menu' => sub { my ($widget) = @_; $self->ret_objects_menu($widget) } );
+	$image_btn->signal_connect(
+		'clicked' => sub {
+			$self->set_drawing_action(6);
+		}
+	);
+
+	$drawing_bottom_hbox->pack_start( $image_label, FALSE, FALSE, 5 );
+	$drawing_bottom_hbox->pack_start( $image_btn,   FALSE, FALSE, 5 );
 
 	return $drawing_bottom_hbox;
 }
@@ -306,9 +321,18 @@ sub change_drawing_tool_cb {
 
 		$self->{_current_mode_descr} = "image";
 		my $copy = $self->{_current_pixbuf}->copy;
-		my $scaled_copy = $copy->scale_simple( Gtk2::IconSize->lookup('menu'), 'bilinear' );
-		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default,
-			$scaled_copy, undef, undef );
+		if ( $copy->get_width < 100 && $copy->get_height < 100 ) {
+			my $scaled_copy = $copy->scale_simple( Gtk2::IconSize->lookup('menu'), 'bilinear' );
+			$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default,
+				$scaled_copy, undef, undef );
+
+		} else {
+			$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
+				Gtk2::Gdk::Display->get_default,
+				Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-image.svg"),
+				Gtk2::IconSize->lookup('menu')
+			);
+		}
 
 	} elsif ( $self->{_current_mode} == 60 ) {
 
@@ -642,13 +666,22 @@ sub event_item_on_motion_notify {
 				$item->{res_x} = $ev->x;
 				$item->{res_y} = $ev->y;
 
+				my $min_w = 5;
+				my $min_h = 5;
+
+				#be careful when resizing images
+				if ( $self->{_current_mode_descr} eq "image" ) {
+					$min_w = 30;
+					$min_h = 30;
+				}
+
 				#min size while resizing
-				if ( $new_width <= 5 ) {
+				if ( $new_width <= $min_w ) {
 					$new_x         = $self->{_items}{$curr_item}->get('x');
 					$new_width     = $self->{_items}{$curr_item}->get('width');
 					$item->{res_x} = $new_x;
 				}
-				if ( $new_height <= 5 ) {
+				if ( $new_height <= $min_h ) {
 					$new_y         = $self->{_items}{$curr_item}->get('y');
 					$new_height    = $self->{_items}{$curr_item}->get('height');
 					$item->{res_y} = $new_y;
@@ -752,15 +785,6 @@ sub event_item_on_button_press {
 			$self->handle_rects( 'update', $self->{_current_item} );
 
 		}
-
-		#end of activate item
-	} elsif ($valid) {
-		my $item = $self->{_current_new_item} || $self->{_last_item} || $self->{_current_item};
-		$self->handle_rects( 'hide', $item );
-		$self->{_current_item}     = undef;
-		$self->{_last_item}        = undef;
-		$self->{_current_new_item} = undef;
-
 	}
 
 	if ( $ev->button == 1 && $valid ) {
@@ -969,9 +993,21 @@ sub event_item_on_button_press {
 				#IMAGE
 			} elsif ( $self->{_current_mode_descr} eq "image" ) {
 
+				my $copy;
+				if (   $self->{_current_pixbuf}->get_height > $self->{_canvas_bg}->get('height')
+					|| $self->{_current_pixbuf}->get_width > $self->{_canvas_bg}->get('width') )
+				{
+					$copy
+						= $self->{_current_pixbuf}
+						->scale_simple( $self->{_canvas_bg}->get('width') - 100,
+						$self->{_canvas_bg}->get('height') - 100, 'bilinear' );
+				} else {
+					$copy = $self->{_current_pixbuf}->copy;
+				}
+
 				my $pattern = $self->create_alpha;
 				my $item    = Goo::Canvas::Rect->new(
-					$root, $ev->x, $ev->y, 2, 2,
+					$root, $ev->x, $ev->y, $copy->get_width, $copy->get_height,
 					'fill-pattern' => $pattern,
 					'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
 					'line-width'   => 1,
@@ -981,15 +1017,9 @@ sub event_item_on_button_press {
 				$self->{_current_new_item} = $item;
 				$self->{_items}{$item} = $item;
 
-				my $copy = $self->{_current_pixbuf}->copy;
 				$self->{_items}{$item}{orig_pixbuf} = $self->{_current_pixbuf}->copy;
-
-				$self->{_items}{$item}{image} = Goo::Canvas::Image->new(
-					$root,
-					$copy->scale_simple( $item->get('width'), $item->get('height'), 'bilinear' ),
-					$item->get('x'), $item->get('y'),
-					'width'  => $item->get('width'),
-					'height' => $item->get('height'),
+				$self->{_items}{$item}{image}       = Goo::Canvas::Image->new(
+					$root, $copy, $item->get('x'), $item->get('y')
 				);
 
 				#create rectangles
@@ -1390,7 +1420,7 @@ sub ret_item_menu {
 						$parent->set( 'height' =>
 								( $self->{_drawing_pixbuf}->get_height - $parent->get('height') ) );
 					} else {
-						$parent->set( 'height' => ( $no_lines * $font_size ) + 30 );
+						$parent->set( 'height' => ( $no_lines * $font_size ) + 80 );
 					}
 
 					$self->handle_rects( 'update', $parent );
@@ -1514,10 +1544,8 @@ sub handle_embedded {
 			my $copy = $self->{_items}{$item}{orig_pixbuf}->copy;
 
 			$self->{_items}{$item}{image}->set(
-				'x'      => $self->{_items}{$item}->get('x'),
-				'y'      => $self->{_items}{$item}->get('y'),
-				'width'  => $self->{_items}{$item}->get('width'),
-				'height' => $self->{_items}{$item}->get('height'),
+				'x'      => int $self->{_items}{$item}->get('x'),
+				'y'      => int $self->{_items}{$item}->get('y'),
 				'pixbuf' => $copy->scale_simple(
 					$self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'),
 					'bilinear'
@@ -1789,18 +1817,8 @@ sub event_item_on_button_release {
 			}
 		}
 
-		#parent?
-		my $nparent = $self->get_parent_item($nitem);
-		$nitem = $nparent if $nparent;
-
-		#update only real shape
-		if ( exists $self->{_items}{$nitem} ) {
-
-			$self->handle_rects( 'update', $nitem );
-			$self->handle_embedded( 'update', $nitem );
-
-		}
-
+		$self->handle_rects( 'update', $nitem );
+		$self->handle_embedded( 'update', $nitem );
 	}
 
 	#unset action flags
@@ -2045,8 +2063,7 @@ sub setup_uimanager {
 		= ( [ "File", undef, $d->get("_File") ], [ "View", undef, $d->get("_View") ] );
 
 	my @toolbar_actions = (
-		[ "Quit", 'gtk-quit', undef, "<control>Q", undef, sub { $self->quit($self) } ]
-		,
+		[ "Quit", 'gtk-quit', undef, "<control>Q", undef, sub { $self->quit($self) } ],
 		[ "Save", 'gtk-save', undef, "<control>S", undef, sub { $self->save($self) } ],
 		[   "ZoomIn", 'gtk-zoom-in', undef, "<control>plus", undef, sub { $self->zoom_in_cb($self) }
 		],
@@ -2138,23 +2155,6 @@ sub setup_uimanager {
 		die "Unable to create menus: $@\n";
 	}
 
-	#insert menutoolbutton image
-	my $toolbar = $uimanager->get_widget("/ToolBarDrawing");
-
-	my $image_button = Gtk2::MenuToolButton->new( undef, undef );
-	$image_button->set_menu( $self->ret_objects_menu($image_button) );
-
-	$image_button->signal_connect(
-		'show-menu' => sub { my ($widget) = @_; $self->ret_objects_menu($widget) } );
-	$image_button->signal_connect(
-		'clicked' => sub {
-			$self->set_drawing_action(6);
-		}
-	);
-
-	$toolbar->insert( Gtk2::SeparatorToolItem->new, 9 );
-	$toolbar->insert( $image_button,                10 );
-
 	return $uimanager;
 }
 
@@ -2163,6 +2163,8 @@ sub ret_objects_menu {
 	my $button = shift;
 
 	my $menu_objects = Gtk2::Menu->new;
+
+	my $d = $self->{_gscrot_common}->get_gettext;
 
 	my $dobjects
 		= $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool/objects";
@@ -2178,7 +2180,7 @@ sub ret_objects_menu {
 			Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $_, Gtk2::IconSize->lookup('menu'), TRUE ) );
 		my $small_image_button = Gtk2::Image->new_from_pixbuf(
 			Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $_, Gtk2::IconSize->lookup('menu'), TRUE ) );
-		my $orig_image = Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($_) );
+		my $orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($_);
 
 		#create items
 		my $new_item = Gtk2::ImageMenuItem->new_with_label($short);
@@ -2187,12 +2189,12 @@ sub ret_objects_menu {
 		#init
 		unless ( $button->get_icon_widget ) {
 			$button->set_icon_widget($small_image_button);
-			$self->{_current_pixbuf} = $orig_image->get_pixbuf;
+			$self->{_current_pixbuf} = $orig_pixbuf->copy;
 		}
 
 		$new_item->signal_connect(
 			'activate' => sub {
-				$self->{_current_pixbuf} = $orig_image->get_pixbuf;
+				$self->{_current_pixbuf} = $orig_pixbuf->copy;
 				$button->set_icon_widget($small_image_button);
 				$button->show_all;
 				$self->set_drawing_action(6);
@@ -2202,10 +2204,57 @@ sub ret_objects_menu {
 		$menu_objects->append($new_item);
 	}
 
+	$menu_objects->append( Gtk2::SeparatorMenuItem->new );
+
+	#objects from session
+	my $session_menu_item = Gtk2::MenuItem->new_with_label( $d->get("Import from session...") );
+	$session_menu_item->set_submenu( $self->import_from_session($button) );
+
+	$menu_objects->append($session_menu_item);
+
 	$button->show_all;
 	$menu_objects->show_all;
 
 	return $menu_objects;
+}
+
+sub import_from_session {
+	my $self                 = shift;
+	my $button               = shift;
+	my $menu_session_objects = Gtk2::Menu->new;
+
+	my %import_hash = %{ $self->{_import_hash} };
+
+	foreach my $key (sort keys %import_hash ) {
+
+		#create pixbufs
+		my $small_image        = Gtk2::Image->new_from_stock( 'gtk-new', 'menu' );
+		my $small_image_button = Gtk2::Image->new_from_stock( 'gtk-new', 'menu' );
+		my $orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $import_hash{$key}->{'long'} );
+
+		my $screen_menu_item = Gtk2::ImageMenuItem->new_with_label( $import_hash{$key}->{'short'} );
+		$screen_menu_item->set_image($small_image);
+
+		#set sensitive == FALSE if image eq current file
+		$screen_menu_item->set_sensitive(FALSE)
+			if $import_hash{$key}->{'long'} eq $self->{_filename};
+
+		$screen_menu_item->signal_connect(
+			'activate' => sub {
+				$self->{_current_pixbuf} = $orig_pixbuf->copy;
+				$button->set_icon_widget($small_image_button);
+				$button->show_all;
+				$self->set_drawing_action(6);
+			}
+		);
+
+		$menu_session_objects->append($screen_menu_item);
+
+	}
+
+	$menu_session_objects->show_all;
+
+	return $menu_session_objects;
 }
 
 sub set_drawing_action {

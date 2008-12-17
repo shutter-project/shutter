@@ -62,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.284";
+use constant BRANCH              => "Rev.285";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -3711,7 +3711,7 @@ sub fct_draw {
 
 		my $drawing_tool = GScrot::Draw::DrawingTool->new($gscrot_common);
 		$drawing_tool->show( $session_screens{$key}->{'long'},
-			$session_screens{$key}->{'filetype'} );
+			$session_screens{$key}->{'filetype'}, \%session_screens);
 
 		&fct_update_tab($key);
 
