@@ -62,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.285";
+use constant BRANCH              => "Rev.286";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -86,6 +86,7 @@ import lib "$gscrot_root/share/gscrot/resources/modules";
 
 #gscrot app classes
 require GScrot::App::Common;
+require GScrot::App::SimpleDialogs;
 require GScrot::App::HelperFunctions;
 
 #drawing classes
@@ -106,10 +107,17 @@ require GScrot::Upload::FTP;
 
 #--------------------------------------
 
+#main window
+#--------------------------------------
+my $window = Gtk2::Window->new('toplevel');
+
+#--------------------------------------
+
 #create app objects
 #--------------------------------------
 my $gscrot_common = GScrot::App::Common->new($gscrot_root);
 my $gscrot_hfunct = GScrot::App::HelperFunctions->new($gscrot_common);
+my $gscrot_dialog = GScrot::App::Common->new($window);
 
 #--------------------------------------
 
@@ -152,10 +160,8 @@ my $clipboard = Gtk2::Clipboard->get( Gtk2::Gdk->SELECTION_CLIPBOARD );
 my $tooltips = Gtk2::Tooltips->new;
 $tooltips->force_window;
 
-#gui
+#main window gui
 #--------------------------------------
-
-my $window = Gtk2::Window->new('toplevel');
 $window->set_title( GSCROT_NAME . " " . GSCROT_VERSION );
 $window->set_default_icon(
 	Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$gscrot_root/share/pixmaps/gscrot.svg", 100, 100 ) );
@@ -1617,7 +1623,7 @@ sub evt_take_screenshot {
 	my $screenshot_thumbnail_name = undef;
 	my $thumbnail_ending          = "thumb";
 	print "\n$data was emitted by widget $widget\n" if $gscrot_common->get_debug;
-	&fct_set_toolbar_sensitive(FALSE, $data);
+	&fct_set_toolbar_sensitive( FALSE, $data );
 
 	#determine current file type
 	$filetype_value = $combobox_type->get_active_text;
@@ -1666,7 +1672,7 @@ sub evt_take_screenshot {
 			&& defined($filetype_value) )
 		{
 			&dlg_error_message( $gscrot_common->get_gettext->get("No valid filename specified") );
-			&fct_set_toolbar_sensitive(TRUE, $data);
+			&fct_set_toolbar_sensitive( TRUE, $data );
 			return FALSE;
 		}
 
@@ -1684,7 +1690,7 @@ sub evt_take_screenshot {
 	{
 		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
 			&dlg_error_message( $gscrot_common->get_gettext->get("No valid filename specified") );
-			&fct_set_toolbar_sensitive(TRUE, $data);
+			&fct_set_toolbar_sensitive( TRUE, $data );
 			return FALSE;
 		}
 
@@ -1701,7 +1707,7 @@ sub evt_take_screenshot {
 	} elsif ( $data eq "select" || $data eq "tray_select" ) {
 		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
 			&dlg_error_message( $gscrot_common->get_gettext->get("No valid filename specified") );
-			&fct_set_toolbar_sensitive(TRUE, $data);
+			&fct_set_toolbar_sensitive( TRUE, $data );
 			return FALSE;
 		}
 		if ( $tool_advanced->get_active ) {
@@ -1732,11 +1738,11 @@ sub evt_take_screenshot {
 					$gscrot_common->get_gettext->get("Unable to capture website") . "!" );
 				&dlg_status_message( 1,
 					$gscrot_common->get_gettext->get("Unable to capture website") . "!" );
-				&fct_set_toolbar_sensitive(TRUE, $data);
+				&fct_set_toolbar_sensitive( TRUE, $data );
 				return FALSE;
 			}
 		} else {
-			&fct_set_toolbar_sensitive(TRUE, $data);
+			&fct_set_toolbar_sensitive( TRUE, $data );
 			return FALSE;
 		}
 
@@ -1745,7 +1751,7 @@ sub evt_take_screenshot {
 		print "Selected xid: $xid\n" if $gscrot_common->get_debug;
 		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
 			&dlg_error_message( $gscrot_common->get_gettext->get("No valid filename specified") );
-			&fct_set_toolbar_sensitive(TRUE, $data);
+			&fct_set_toolbar_sensitive( TRUE, $data );
 			return FALSE;
 		}
 		my $screenshooter
@@ -1776,7 +1782,7 @@ sub evt_take_screenshot {
 
 		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
 			&dlg_error_message( $gscrot_common->get_gettext->get("No valid filename specified") );
-			&fct_set_toolbar_sensitive(TRUE, $data);
+			&fct_set_toolbar_sensitive( TRUE, $data );
 			return FALSE;
 		}
 		my $screenshooter
@@ -1794,7 +1800,7 @@ sub evt_take_screenshot {
 		&& ( $data ne "web" && $data ne "tray_web" ) )
 	{
 		unless (
-			&dlg_question_message(
+			$gscrot_dialog->dlg_question_message(
 				$gscrot_common->get_gettext->get(
 					"File already exists.\nDo you want to overwrite it?")
 			)
@@ -1813,14 +1819,14 @@ sub evt_take_screenshot {
 		);
 		print "Screenshot failed!" if $gscrot_common->get_debug;
 		&dlg_status_message( 1, $gscrot_common->get_gettext->get("Screenshot failed!") );
-		&fct_set_toolbar_sensitive(TRUE, $data);
+		&fct_set_toolbar_sensitive( TRUE, $data );
 		return FALSE;
 	} else {
 
 		#user aborted screenshot
 		if ( $screenshot == 5 ) {
 			&dlg_status_message( 1, $gscrot_common->get_gettext->get("Capture aborted by user") );
-			&fct_set_toolbar_sensitive(TRUE, $data);
+			&fct_set_toolbar_sensitive( TRUE, $data );
 			return FALSE;
 		}
 
@@ -1863,7 +1869,7 @@ sub evt_take_screenshot {
 				&dlg_error_message(
 					$$gscrot_common->get_gettext->get("Could not generate thumbnail") );
 				undef $screenshot_thumbnail;
-				&fct_set_toolbar_sensitive(TRUE, $data);
+				&fct_set_toolbar_sensitive( TRUE, $data );
 				return 0;
 			}
 		}
@@ -1928,7 +1934,7 @@ sub evt_take_screenshot {
 	#destroy the imagemagick objects and free memory
 	undef $screenshot;
 	undef $screenshot_thumbnail;
-	&fct_set_toolbar_sensitive(TRUE, $data);
+	&fct_set_toolbar_sensitive( TRUE, $data );
 
 	#focus window after taking a screenshot
 	$window->window->focus(time);
@@ -2379,7 +2385,7 @@ sub evt_save_as {
 			&fct_imagemagick_perform( "save", $session_screens{$key}->{'long'}, $filename );
 		} else {
 
-			if (&dlg_question_message(
+			if ($gscrot_dialog->dlg_question_message(
 					$filename . "\n\n"
 						. $gscrot_common->get_gettext->get(
 						"File already exists.\nDo you want to overwrite it?")
@@ -2548,7 +2554,7 @@ sub fct_integrate_screenshot_in_notebook {
 }
 
 sub fct_set_toolbar_sensitive {
-	my ($set, $data) = @_;
+	my ( $set, $data ) = @_;
 
 	#set all buttons insensitive/sensitive
 	$button_select_menu->set_sensitive($set);
@@ -3263,20 +3269,32 @@ sub fct_load_settings {
 	#plugins
 	foreach my $plugin_key ( sort keys %{ $settings_xml->{'plugins'} } ) {
 		utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'binary'};
-		utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'name_plugin'};
-		utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'category'};
-		utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'tooltip'};
-		utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'ext'};
-		utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'lang'};
-		$plugins{$plugin_key}->{'binary'} = $settings_xml->{'plugins'}->{$plugin_key}->{'binary'};
-		$plugins{$plugin_key}->{'name'}
-			= $settings_xml->{'plugins'}->{$plugin_key}->{'name_plugin'};
-		$plugins{$plugin_key}->{'menu'} = $settings_xml->{'plugins'}->{$plugin_key}->{'menu'};
-		$plugins{$plugin_key}->{'category'}
-			= $settings_xml->{'plugins'}->{$plugin_key}->{'category'};
-		$plugins{$plugin_key}->{'tooltip'} = $settings_xml->{'plugins'}->{$plugin_key}->{'tooltip'};
-		$plugins{$plugin_key}->{'ext'}     = $settings_xml->{'plugins'}->{$plugin_key}->{'ext'};
-		$plugins{$plugin_key}->{'lang'}    = $settings_xml->{'plugins'}->{$plugin_key}->{'lang'};
+
+		#check if plugin still exists in filesystem
+		if ( $gscrot_hfunct->file_exists( $settings_xml->{'plugins'}->{$plugin_key}->{'binary'} ) )
+		{
+			utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'name_plugin'};
+			utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'category'};
+			utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'tooltip'};
+			utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'ext'};
+			utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'lang'};
+			$plugins{$plugin_key}->{'binary'}
+				= $settings_xml->{'plugins'}->{$plugin_key}->{'binary'};
+			$plugins{$plugin_key}->{'name'}
+				= $settings_xml->{'plugins'}->{$plugin_key}->{'name_plugin'};
+			$plugins{$plugin_key}->{'menu'} = $settings_xml->{'plugins'}->{$plugin_key}->{'menu'};
+			$plugins{$plugin_key}->{'category'}
+				= $settings_xml->{'plugins'}->{$plugin_key}->{'category'};
+			$plugins{$plugin_key}->{'tooltip'}
+				= $settings_xml->{'plugins'}->{$plugin_key}->{'tooltip'};
+			$plugins{$plugin_key}->{'ext'}  = $settings_xml->{'plugins'}->{$plugin_key}->{'ext'};
+			$plugins{$plugin_key}->{'lang'} = $settings_xml->{'plugins'}->{$plugin_key}->{'lang'};
+		} else {
+			print "\nWARNING: Plugin "
+				. $settings_xml->{'plugins'}->{$plugin_key}->{'binary'}
+				. " is not configured properly, ignoring\n";
+			next;
+		}
 	}
 
 	&fct_check_installed_plugins;
@@ -3456,9 +3474,7 @@ sub fct_load_session {
 		my $restore_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/],
 			'info', 'close', undef );
 
-		$restore_dialog->set(
-			'text' => $gscrot_common->get_gettext->get("Restoring session")
-		);
+		$restore_dialog->set( 'text' => $gscrot_common->get_gettext->get("Restoring session") );
 
 		$restore_dialog->set(
 			'secondary-text' => $gscrot_common->get_gettext->get(
@@ -3516,6 +3532,7 @@ sub fct_load_session {
 			$gscrot_common->get_gettext->get("Session could not be restored!") . " : $@" );
 
 		unlink $sessionfile;
+
 		#refresh tray icon
 		if ( $icon->isa('Gtk2::StatusIcon') ) {
 			$icon->set_blinking(FALSE);
@@ -3710,8 +3727,11 @@ sub fct_draw {
 		return FALSE unless &fct_screenshot_exists($key);
 
 		my $drawing_tool = GScrot::Draw::DrawingTool->new($gscrot_common);
-		$drawing_tool->show( $session_screens{$key}->{'long'},
-			$session_screens{$key}->{'filetype'}, \%session_screens);
+		$drawing_tool->show(
+			$session_screens{$key}->{'long'},
+			$session_screens{$key}->{'filetype'},
+			\%session_screens
+		);
 
 		&fct_update_tab($key);
 
@@ -4896,7 +4916,7 @@ sub fct_load_plugin_tree {
 				$_,
 			);
 		} else {
-			print "WARNING: Plugin $_ is not configured properly, ignoring\n";
+			print "\nWARNING: Plugin $_ is not configured properly, ignoring\n";
 			delete $plugins{$_};
 		}
 	}
@@ -4928,7 +4948,7 @@ sub fct_set_model_accounts {
 			my $path = Gtk2::TreePath->new_from_string($text_path);
 			my $iter = $model->get_iter($path);
 			if ( $model->get_value( $iter, 0 ) =~ /imageshack/i ) {
-				&dlg_info_message(
+				$gscrot_dialog->dlg_info_message(
 					$gscrot_common->get_gettext->get(
 						"If you have registered with imageshack.us, you should have received an email with a link similar to\n\nhttp://reg.imageshack.us/setlogin.php?login=SOME_IDENTIFIER\n\nYou should pass either that link as the username or only the user_id (SOME_IDENTIFIER)\n\nYou do not have to provide a password."
 					)
@@ -4979,7 +4999,7 @@ sub fct_set_model_accounts {
 			my $path = Gtk2::TreePath->new_from_string($text_path);
 			my $iter = $model->get_iter($path);
 			if ( $model->get_value( $iter, 0 ) =~ /imageshack/i ) {
-				&dlg_info_message(
+				$gscrot_dialog->dlg_info_message(
 					$gscrot_common->get_gettext->get(
 						"If you have registered with imageshack.us, you should have received an email with a link similar to\n\nhttp://reg.imageshack.us/setlogin.php?login=SOME_IDENTIFIER\n\nYou should pass either that link as the username or only the user_id (SOME_IDENTIFIER)\n\nYou do not have to provide a password."
 					)
@@ -5292,20 +5312,6 @@ sub dlg_error_message {
 	return $error_response;
 }
 
-sub dlg_question_message {
-	my ($dlg_question_message) = @_;
-	my $question_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/],
-		'question', 'yes_no', $dlg_question_message );
-	my $question_response = $question_dialog->run;
-	if ( $question_response eq "yes" ) {
-		$question_dialog->destroy();
-		return TRUE;
-	} else {
-		$question_dialog->destroy();
-		return FALSE;
-	}
-}
-
 sub dlg_rename {
 	my ( $dlg_rename_text, $data ) = @_;
 	my $dlg_header   = $gscrot_common->get_gettext->get("Rename file");
@@ -5345,7 +5351,7 @@ sub dlg_rename {
 				);
 			} else {
 
-				if (&dlg_question_message(
+				if ($gscrot_dialog->dlg_question_message(
 						$dlg_rename_text . "\n\n"
 							. $gscrot_common->get_gettext->get(
 							"File already exists.\nDo you want to overwrite it?")
@@ -5404,10 +5410,10 @@ sub dlg_plugin {
 			print "WARNING: Program $_ is not configured properly, ignoring\n";
 		}
 	}
-	my $plugin_label = Gtk2::Label->new($gscrot_common->get_gettext->get("Plugin").":");
-	my $plugin_label_blank = Gtk2::Label->new();	
-	my $plugin       = Gtk2::ComboBox->new($model);
-	my $plugin_descr = Gtk2::Label->new;
+	my $plugin_label       = Gtk2::Label->new( $gscrot_common->get_gettext->get("Plugin") . ":" );
+	my $plugin_label_blank = Gtk2::Label->new();
+	my $plugin             = Gtk2::ComboBox->new($model);
+	my $plugin_descr       = Gtk2::Label->new;
 	$plugin_descr->set_line_wrap(TRUE);
 	$plugin_descr->set_width_chars(30);
 	$plugin_descr->set_padding( 10, 10 );
@@ -6078,15 +6084,6 @@ sub dlg_website {
 	}
 }
 
-sub dlg_info_message {
-	my ($dlg_info_message) = @_;
-	my $info_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/],
-		'info', 'ok', $dlg_info_message );
-	my $info_response = $info_dialog->run;
-	$info_dialog->destroy() if ( $info_response eq "ok" );
-	return TRUE;
-}
-
 sub dlg_profile_name {
 	my ( $curr_profile_name, $combobox_settings_profiles ) = @_;
 	my $dlg_header     = $gscrot_common->get_gettext->get("Save as profile");
@@ -6117,7 +6114,7 @@ sub dlg_profile_name {
 
 		if ( $gscrot_hfunct->file_exists("$ENV{'HOME'}/.gscrot/profiles/$entered_name.xml") ) {
 
-			if (&dlg_question_message(
+			if ($gscrot_dialog->dlg_question_message(
 					$gscrot_common->get_gettext->get(
 						"Profile already exists.\nDo you want to overwrite the existing profile?"
 					)

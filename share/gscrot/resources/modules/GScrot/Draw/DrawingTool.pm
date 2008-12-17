@@ -101,6 +101,9 @@ sub show {
 	$self->{_drawing_window}
 		->signal_connect( 'delete_event', sub { $self->{_drawing_window}->destroy() } );
 
+	#dialogs
+	$self->{_dialogs} = GScrot::App::SimpleDialogs->new( $self->{_drawing_window} );
+
 	$self->{_uimanager} = $self->setup_uimanager();
 
 	#load file
@@ -259,7 +262,7 @@ sub setup_bottom_hbox {
 	$drawing_bottom_hbox->pack_start( $font_btn,   FALSE, FALSE, 5 );
 
 	#image button
-	my $image_label = Gtk2::Label->new( $d->get("Symbol") . ":" );
+	my $image_label = Gtk2::Label->new( $d->get("Image") . ":" );
 	my $image_btn = Gtk2::MenuToolButton->new( undef, undef );
 	$image_btn->set_menu( $self->ret_objects_menu($image_btn) );
 
@@ -670,9 +673,9 @@ sub event_item_on_motion_notify {
 				my $min_h = 5;
 
 				#be careful when resizing images
-				if ( $self->{_current_mode_descr} eq "image" ) {
-					$min_w = 30;
-					$min_h = 30;
+				if ( exists $self->{_items}{$curr_item}{image} ) {
+					$min_w = 20;
+					$min_h = 20;
 				}
 
 				#min size while resizing
@@ -764,6 +767,7 @@ sub clear_item_from_canvas {
 sub event_item_on_button_press {
 	my ( $self, $item, $target, $ev ) = @_;
 
+	my $d      = $self->{_gscrot_common}->get_gettext;
 	my $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
 
 	my $valid = FALSE;
@@ -994,9 +998,13 @@ sub event_item_on_button_press {
 			} elsif ( $self->{_current_mode_descr} eq "image" ) {
 
 				my $copy;
+				my $scaled = FALSE;
 				if (   $self->{_current_pixbuf}->get_height > $self->{_canvas_bg}->get('height')
 					|| $self->{_current_pixbuf}->get_width > $self->{_canvas_bg}->get('width') )
 				{
+
+					$scaled = TRUE;
+
 					$copy
 						= $self->{_current_pixbuf}
 						->scale_simple( $self->{_canvas_bg}->get('width') - 100,
@@ -1018,9 +1026,9 @@ sub event_item_on_button_press {
 				$self->{_items}{$item} = $item;
 
 				$self->{_items}{$item}{orig_pixbuf} = $self->{_current_pixbuf}->copy;
-				$self->{_items}{$item}{image}       = Goo::Canvas::Image->new(
-					$root, $copy, $item->get('x'), $item->get('y')
-				);
+				$self->{_items}{$item}{scaled}      = $scaled;
+				$self->{_items}{$item}{image}
+					= Goo::Canvas::Image->new( $root, $copy, $item->get('x'), $item->get('y') );
 
 				#create rectangles
 				$self->handle_rects( 'create', $item );
@@ -1778,6 +1786,8 @@ sub event_item_on_button_release {
 	my $canvas = $item->get_canvas;
 	$canvas->pointer_ungrab( $item, $ev->time );
 
+	my $d = $self->{_gscrot_common}->get_gettext;
+
 	#we handle some minimum sizes here if the new items are too small
 	#maybe the user just wanted to place an rect or an object on the canvas
 	#and clicked on it without describing an rectangular area
@@ -1830,6 +1840,16 @@ sub event_item_on_button_release {
 
 	my $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
 	$self->{_canvas}->window->set_cursor($cursor);
+
+	#did we scale the image to fit on the canvas? inform the user...
+	if ( $self->{_items}{$nitem}{scaled} ) {
+		$self->{_dialogs}->dlg_info_message(
+			$d->get(
+				"Image dimensions are greater than dimensions of the target image.\nIt was scaled automatically so it fits on the canvas."
+			)
+		);
+		$self->{_items}{$nitem}{scaled} = FALSE;
+	}
 
 	return TRUE;
 }
@@ -2175,6 +2195,8 @@ sub ret_objects_menu {
 		#parse filename
 		my ( $short, $folder, $type ) = fileparse( $_, '\..*' );
 
+		eval{
+
 		#create pixbufs
 		my $small_image = Gtk2::Image->new_from_pixbuf(
 			Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $_, Gtk2::IconSize->lookup('menu'), TRUE ) );
@@ -2202,6 +2224,13 @@ sub ret_objects_menu {
 		);
 
 		$menu_objects->append($new_item);
+			
+		};
+		if($@){
+			warn "ERROR: $_ : $@ \n\n";
+			next;
+		}
+
 	}
 
 	$menu_objects->append( Gtk2::SeparatorMenuItem->new );
@@ -2211,6 +2240,63 @@ sub ret_objects_menu {
 	$session_menu_item->set_submenu( $self->import_from_session($button) );
 
 	$menu_objects->append($session_menu_item);
+
+	#objects from filesystem
+	my $filesystem_menu_item
+		= Gtk2::MenuItem->new_with_label( $d->get("Import from filesystem...") );
+	$filesystem_menu_item->signal_connect(
+		'activate' => sub {
+
+			my $fs = Gtk2::FileChooserDialog->new(
+				$d->get("Choose file to open"), $self->{_drawing_window}, 'open',
+				'gtk-cancel' => 'reject',
+				'gtk-open'   => 'accept'
+			);
+
+			$fs->set_select_multiple(FALSE);
+
+			my $filter_all = Gtk2::FileFilter->new;
+			$filter_all->set_name( $d->get("All compatible image formats") );
+			$fs->add_filter($filter_all);
+
+			foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
+				my $filter = Gtk2::FileFilter->new;
+				$filter->set_name( $_->{name} . " - " . $_->{description} );
+				foreach ( @{ $_->{extensions} } ) {
+					$filter->add_pattern( "*." . $_ );
+					$filter_all->add_pattern( "*." . $_ );
+				}
+				$fs->add_filter($filter);
+			}
+
+			if ( $ENV{'HOME'} ) {
+				$fs->set_current_folder( $ENV{'HOME'} );
+			}
+			my $fs_resp = $fs->run;
+
+			my $new_file;
+			if ( $fs_resp eq "accept" ) {
+				$new_file = $fs->get_filenames;
+
+				#create pixbufs
+				my $small_image        = Gtk2::Image->new_from_stock( 'gtk-new', 'menu' );
+				my $small_image_button = Gtk2::Image->new_from_stock( 'gtk-new', 'menu' );
+				my $orig_pixbuf        = Gtk2::Gdk::Pixbuf->new_from_file($new_file);
+
+				$self->{_current_pixbuf} = $orig_pixbuf->copy;
+				$button->set_icon_widget($small_image_button);
+				$button->show_all;
+				$self->set_drawing_action(6);
+
+				$fs->destroy();
+			} else {
+				$fs->destroy();
+			}
+
+		}
+	);
+
+	$menu_objects->append($filesystem_menu_item);
 
 	$button->show_all;
 	$menu_objects->show_all;
@@ -2225,7 +2311,7 @@ sub import_from_session {
 
 	my %import_hash = %{ $self->{_import_hash} };
 
-	foreach my $key (sort keys %import_hash ) {
+	foreach my $key ( sort keys %import_hash ) {
 
 		#create pixbufs
 		my $small_image        = Gtk2::Image->new_from_stock( 'gtk-new', 'menu' );
