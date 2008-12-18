@@ -39,8 +39,8 @@ use constant FALSE => 0;
 sub new {
 	my $class = shift;
 
- #call constructor of super class (gscrot_root, debug_cparam, gettext_object, include_cursor, delay)
-	my $self = $class->SUPER::new( shift, shift, shift, shift, shift );
+ #call constructor of super class (gscrot_common, include_cursor, delay)
+	my $self = $class->SUPER::new( shift, shift, shift );
 
 	$self->{_selected_workspace} = shift;
 	$self->{_vpx}                = shift;

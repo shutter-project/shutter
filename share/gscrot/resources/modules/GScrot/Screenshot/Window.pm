@@ -40,8 +40,8 @@ use constant FALSE => 0;
 sub new {
 	my $class = shift;
 
-	#call constructor of super class (gscrot_root, debug_cparam, gettext_object, include_cursor, delay)
-	my $self = $class->SUPER::new( shift, shift, shift, shift, shift );
+	#call constructor of super class (gscrot_common, include_cursor, delay)
+	my $self = $class->SUPER::new( shift, shift, shift );
 
 	$self->{_include_border}  = shift;
 	$self->{_xid}             = shift;    #only used by window_by_xid, undef this when selecting a window
@@ -219,7 +219,7 @@ sub window_select {
 					}
 				} elsif ( $event->type eq 'button-release' ) {
 					print "Type: " . $event->type . "\n"
-						if ( defined $event && $self->{_debug_cparam} );
+						if ( defined $event && $self->{_gc}->get_debug );
 
 					#looking for a section of a window?
 					#keep current window in mind and search for children
@@ -260,7 +260,7 @@ sub window_select {
 					}
 				} elsif ( $event->type eq 'motion-notify' ) {
 					print "Type: " . $event->type . "\n"
-						if ( defined $event && $self->{_debug_cparam} );
+						if ( defined $event && $self->{_gc}->get_debug  );
 
 					my $min_x = $self->{_root}->{w};
 					my $min_y = $self->{_root}->{h};
@@ -268,13 +268,13 @@ sub window_select {
 					#if there is no window already selected
 					unless ($window_selected) {
 						print "Searching for window...\n"
-							if $self->{_debug_cparam};
+							if $self->{_gc}->get_debug ;
 						foreach my $curr_window (@wnck_windows) {
 							$drawable = Gtk2::Gdk::Window->foreign_new( $curr_window->get_xid );
 							next unless defined $drawable;
 
 							print "Do not detect gscrot main window...\n"
-								if $self->{_debug_cparam};
+								if $self->{_gc}->get_debug ;
 
 							#do not detect gscrot window when it is hidden
 							if (   $self->{_main_gtk_window}->window
@@ -287,17 +287,17 @@ sub window_select {
 							my ( $xp, $yp, $widthp, $heightp ) = $self->get_window_size( $curr_window, $drawable, $self->{_include_border} );
 
 							print "Create region of window...\n"
-								if $self->{_debug_cparam};
+								if $self->{_gc}->get_debug ;
 							my $window_region = Gtk2::Gdk::Region->rectangle( Gtk2::Gdk::Rectangle->new( $xp, $yp, $widthp, $heightp ) );
 
 							print "determine if window fits on screen...\n"
-								if $self->{_debug_cparam};
+								if $self->{_gc}->get_debug ;
 							if (   $curr_window->is_visible_on_workspace( $self->{_wnck_screen}->get_active_workspace )
 								&& $window_region->point_in( $event->x, $event->y )
 								&& ( ( $xp + $widthp ) * ( $yp + $heightp ) <= $min_x * $min_y ) )
 							{
 								print "Parent X: $xp, Y: $yp, Width: $widthp, Height: $heightp\n"
-									if $self->{_debug_cparam};
+									if $self->{_gc}->get_debug ;
 								$self->{_children}{'curr_win'}{'window'}     = $curr_window;
 								$self->{_children}{'curr_win'}{'gdk_window'} = $drawable;
 								$self->{_children}{'curr_win'}{'x'}          = $xp;
@@ -323,14 +323,14 @@ sub window_select {
 						&& $window_selected )
 					{
 						print "Searching for children now...\n"
-							if $self->{_debug_cparam};
+							if $self->{_gc}->get_debug ;
 
 						#selected window is parent
 						my $curr_parent = $window_selected->XWINDOW;
 						foreach my $curr_child ( keys %{ $self->{_children}{$curr_parent} } ) {
 							next unless defined $curr_child;
 							print "Child Current Event x: " . $event->x . ", y: " . $event->y . "\n"
-								if $self->{_debug_cparam};
+								if $self->{_gc}->get_debug ;
 
 							my $section_region
 								= Gtk2::Gdk::Region->rectangle(

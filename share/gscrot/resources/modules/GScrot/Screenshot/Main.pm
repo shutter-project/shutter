@@ -43,16 +43,14 @@ sub new {
 	my $class = shift;
 	
 	my $self = {
-				 _debug_cparam   => shift,
-				 _gscrot_root	 => shift,
-				 _gettext_object => shift,
+				 _gc  => shift,
 				 _include_cursor => shift,
 				 _delay          => shift,
 			   };
 	
 	#x11
 	$self->{_x11} = X11::Protocol->new( $ENV{ 'DISPLAY' } );
-	if ( $self->{_debug_cparam} ) {
+	if ( $self->{_gc}->get_debug ) {
 		my @extensions = $self->{_x11}->ListExtensions;
 		foreach ( @extensions ) {
 			print $_. "\n";

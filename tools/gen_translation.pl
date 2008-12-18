@@ -35,12 +35,16 @@ foreach $file (@translate_files){
 	print "Preparing file $file\n";
 	while (<FILE>){
 		chomp;
-		$_ =~ s/\$d\-\>get/gettext/ig;
-		$_ =~ s/\$d\-\>nget/ngettext/ig;
-		$_ =~ s/\$self\-\{\_gettext\_object\}\-\>get/gettext/ig;
-		$_ =~ s/\$self\-\{\_gettext\_object\}\-\>nget/ngettext/ig;
-		$_ =~ s/\$gscrot_common\-\>get\_gettext\-\>get/gettext/ig;
-		$_ =~ s/\$gscrot_common\-\>get\_gettext\-\>nget/ngettext/ig;
+		next if $_ =~ /^\#/;
+		next if $_ =~ /^__END/;
+		$_ =~ s/\$d->get/gettext/ig;
+		$_ =~ s/\$d->nget/ngettext/ig;
+		$_ =~ s/\$self->\{\_gettext\_object\}->get/gettext/ig;
+		$_ =~ s/\$self->\{\_gettext\_object\}->nget/ngettext/ig;
+		$_ =~ s/\$self->\{\_gc\}->get\_gettext->get/gettext/ig;
+		$_ =~ s/\$self->\{\_gc\}->get\_gettext->nget/gettext/ig;
+		$_ =~ s/\$gscrot\_common->get\_gettext->get/gettext/ig;
+		$_ =~ s/\$gscrot\_common->get\_gettext->nget/ngettext/ig;
 		print FILE_TMP $_."\n";		
 	}
 	close FILE or die $!;

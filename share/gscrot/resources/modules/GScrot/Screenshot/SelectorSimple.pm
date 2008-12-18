@@ -41,8 +41,8 @@ use constant FALSE => 0;
 sub new {
 	my $class = shift;
 
-	#call constructor of super class (gscrot_root, debug_cparam, gettext_object, include_cursor, delay)
-	my $self = $class->SUPER::new( shift, shift, shift, shift, shift );
+	#call constructor of super class (gscrot_common, include_cursor, delay)
+	my $self = $class->SUPER::new( shift, shift, shift );
 
 	#subclass attributes
 	$self->{_zoom_size_factor} = shift;
@@ -116,7 +116,7 @@ sub select_simple {
 
 	#define gscrot cursor
 	my $gscrot_cursor_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file(
-				$self->{_gscrot_root}."/share/gscrot/resources/icons/gscrot_cursor.png" );
+				$self->{_gc}->get_root."/share/gscrot/resources/icons/gscrot_cursor.png" );
 	my $gscrot_cursor =
 		Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default,
 											$gscrot_cursor_pixbuf, 10, 10 );

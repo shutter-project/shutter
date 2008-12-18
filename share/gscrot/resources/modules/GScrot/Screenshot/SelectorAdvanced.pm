@@ -41,7 +41,7 @@ sub new {
 	my $class = shift;
 
 	#call constructor of super class (gscrot_root, debug_cparam, gettext_object, include_cursor, delay)
-	my $self = $class->SUPER::new( shift, shift, shift, shift, shift );
+	my $self = $class->SUPER::new( shift, shift, shift );
 
 	bless $self, $class;
 	return $self;
@@ -64,7 +64,7 @@ sub select_advanced {
 	$image_buffer->BlobToImage( $root_pixbuf->save_to_buffer( 'png' ) );
 
 	my $text =
-		$self->{ _gettext_object }->get(
+		$self->{_gc}->get_gettext->get(
 		"Draw a rectangular area using the mouse.\nTo take a screenshot, press the Enter key. Press Esc to quit."
 		);
 

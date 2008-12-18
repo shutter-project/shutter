@@ -62,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.286";
+use constant BRANCH              => "Rev.287";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -117,7 +117,7 @@ my $window = Gtk2::Window->new('toplevel');
 #--------------------------------------
 my $gscrot_common = GScrot::App::Common->new($gscrot_root);
 my $gscrot_hfunct = GScrot::App::HelperFunctions->new($gscrot_common);
-my $gscrot_dialog = GScrot::App::Common->new($window);
+my $gscrot_dialog = GScrot::App::SimpleDialogs->new($window);
 
 #--------------------------------------
 
@@ -1677,8 +1677,7 @@ sub evt_take_screenshot {
 		}
 
 		my $screenshooter
-			= GScrot::Screenshot::Workspace->new( $gscrot_common->get_debug, $gscrot_root,
-			$gscrot_common->get_gettext, $combobox_cursor->get_active,
+			= GScrot::Screenshot::Workspace->new( $gscrot_common, $combobox_cursor->get_active,
 			$delay_value, $wnck_screen->get_active_workspace );
 		$screenshot = $screenshooter->workspace();
 
@@ -1695,8 +1694,7 @@ sub evt_take_screenshot {
 		}
 
 		my $screenshooter = GScrot::Screenshot::Window->new(
-			$gscrot_common->get_debug,   $gscrot_root,
-			$gscrot_common->get_gettext, $combobox_cursor->get_active,
+			$gscrot_common, $combobox_cursor->get_active,
 			$delay_value,                $combobox_border->get_active,
 			undef,                       $data,
 			$window,                     $is_in_tray
@@ -1712,8 +1710,7 @@ sub evt_take_screenshot {
 		}
 		if ( $tool_advanced->get_active ) {
 			my $screenshooter
-				= GScrot::Screenshot::SelectorAdvanced->new( $gscrot_common->get_debug,
-				$gscrot_root, $gscrot_common->get_gettext, $combobox_cursor->get_active,
+				= GScrot::Screenshot::SelectorAdvanced->new( $gscrot_common, $combobox_cursor->get_active,
 				$delay_value );
 			$screenshot = $screenshooter->select_advanced();
 
@@ -1722,8 +1719,7 @@ sub evt_take_screenshot {
 			$zoom_size_factor = 2 if ( $zoom_size2->get_active );
 			$zoom_size_factor = 3 if ( $zoom_size3->get_active );
 			my $screenshooter
-				= GScrot::Screenshot::SelectorSimple->new( $gscrot_common->get_debug, $gscrot_root,
-				$gscrot_common->get_gettext, $combobox_cursor->get_active,
+				= GScrot::Screenshot::SelectorSimple->new( $gscrot_common, $combobox_cursor->get_active,
 				$delay_value, $zoom_size_factor, $zoom_active->get_active );
 			$screenshot = $screenshooter->select_simple();
 		}
@@ -1755,8 +1751,7 @@ sub evt_take_screenshot {
 			return FALSE;
 		}
 		my $screenshooter
-			= GScrot::Screenshot::Window->new( $gscrot_common->get_debug, $gscrot_root,
-			$gscrot_common->get_gettext, $combobox_cursor->get_active,
+			= GScrot::Screenshot::Window->new( $gscrot_common, $combobox_cursor->get_active,
 			$delay_value, $combobox_border->get_active, $xid );
 		$screenshot = $screenshooter->window_by_xid();
 
@@ -1786,8 +1781,7 @@ sub evt_take_screenshot {
 			return FALSE;
 		}
 		my $screenshooter
-			= GScrot::Screenshot::Workspace->new( $gscrot_common->get_debug, $gscrot_root,
-			$gscrot_common->get_gettext, $combobox_cursor->get_active,
+			= GScrot::Screenshot::Workspace->new( $gscrot_common, $combobox_cursor->get_active,
 			$delay_value, $selected_workspace, $vpx, $vpy );
 		$screenshot = $screenshooter->workspace();
 	}
@@ -3290,9 +3284,6 @@ sub fct_load_settings {
 			$plugins{$plugin_key}->{'ext'}  = $settings_xml->{'plugins'}->{$plugin_key}->{'ext'};
 			$plugins{$plugin_key}->{'lang'} = $settings_xml->{'plugins'}->{$plugin_key}->{'lang'};
 		} else {
-			print "\nWARNING: Plugin "
-				. $settings_xml->{'plugins'}->{$plugin_key}->{'binary'}
-				. " is not configured properly, ignoring\n";
 			next;
 		}
 	}

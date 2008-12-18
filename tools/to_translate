@@ -7,10 +7,14 @@
 ../bin/gscrot
 
 #modules
+../share/gscrot/resources/modules/GScrot/App/Common.pm
+../share/gscrot/resources/modules/GScrot/App/HelperFunctions.pm
+../share/gscrot/resources/modules/GScrot/App/SimpleDialogs.pm
 ../share/gscrot/resources/modules/GScrot/Upload/ImageShack.pm
 ../share/gscrot/resources/modules/GScrot/Upload/UbuntuPics.pm
 ../share/gscrot/resources/modules/GScrot/Upload/ImageBanana.pm
-../share/gscrot/resources/modules/GScrot/Draw.pm
+../share/gscrot/resources/modules/GScrot/Upload/FTP.pm
+../share/gscrot/resources/modules/GScrot/Draw/DrawingTool.pm
 ../share/gscrot/resources/modules/GScrot/Screenshot/Window.pm
 ../share/gscrot/resources/modules/GScrot/Screenshot/SelectorSimple.pm
 ../share/gscrot/resources/modules/GScrot/Screenshot/Main.pm

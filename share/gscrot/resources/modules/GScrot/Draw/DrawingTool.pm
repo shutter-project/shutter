@@ -30,6 +30,9 @@ use Exporter;
 use Goo::Canvas;
 use File::Basename;
 
+#load and save settings
+use XML::Simple;
+
 #--------------------------------------
 
 #define constants
@@ -94,10 +97,13 @@ sub show {
 
 	my $d = $self->{_gscrot_common}->get_gettext;
 
+	#load settings
+	$self->load_settings;
+
 	$self->{_drawing_window} = Gtk2::Window->new('toplevel');
 	$self->{_drawing_window}->set_title( "GScrot DrawingTool - " . $self->{_filename} );
 	$self->{_drawing_window}->set_modal(1);
-	$self->{_drawing_window}->signal_connect( 'destroy', \&quit );
+	$self->{_drawing_window}->signal_connect( 'destroy', sub {$self->quit} );
 	$self->{_drawing_window}
 		->signal_connect( 'delete_event', sub { $self->{_drawing_window}->destroy() } );
 
@@ -387,13 +393,98 @@ sub zoom_normal_cb {
 
 sub quit {
 	my $self = shift;
+
+	#we are closing the drawing tool as well after saving the changes
+	#so save changes to a file in the gscrot folder
+	#is there already a .gscrot folder?
+	mkdir("$ENV{ 'HOME' }/.gscrot")
+		unless ( -d "$ENV{ 'HOME' }/.gscrot" );
+
+	$self->save_settings;
+	
 	$self->{_drawing_window}->destroy if $self->{_drawing_window};
 	Gtk2->main_quit();
 	return TRUE;
 }
 
+sub load_settings {
+	my $self = shift;
+
+	my $gscrot_hfunct = GScrot::App::HelperFunctions->new( $self->{_gscrot_common} );
+
+	#settings file
+	my $settingsfile = "$ENV{ HOME }/.gscrot/drawingtool.xml";
+
+	my $settings_xml;
+	if ( $gscrot_hfunct->file_exists($settingsfile) ) {
+		eval {
+			$settings_xml = XMLin($settingsfile);
+			#drawing colors
+			$self->{_fill_color}
+				= Gtk2::Gdk::Color->parse( $settings_xml->{'drawing'}->{'fill_color'} );
+			$self->{_fill_color_alpha} = $settings_xml->{'drawing'}->{'fill_color_alpha'};
+			$self->{_stroke_color}
+				= Gtk2::Gdk::Color->parse( $settings_xml->{'drawing'}->{'stroke_color'} );
+			$self->{_stroke_color_alpha} = $settings_xml->{'drawing'}->{'stroke_color_alpha'};
+
+			#line_width
+			$self->{_line_width} = $settings_xml->{'drawing'}->{'line_width'};
+
+			#font
+			$self->{_font} = $settings_xml->{'drawing'}->{'font'};
+		};
+		if ($@) {
+			warn "ERROR: Settings of DrawingTool could not be restored: $@ - ignoring\n";
+		}
+	}
+	return TRUE;
+}
+
+sub save_settings {
+	my $self = shift;
+
+	#settings file
+	my $settingsfile = "$ENV{ HOME }/.gscrot/drawingtool.xml";
+
+	eval {
+		open( SETTFILE, ">$settingsfile" );
+
+		my %settings;    #hash to store settings
+
+		#drawing colors
+		$settings{'drawing'}->{'fill_color'}         = $self->{_fill_color}->to_string;
+		$settings{'drawing'}->{'fill_color_alpha'}   = $self->{_fill_color_alpha};
+		$settings{'drawing'}->{'stroke_color'}       = $self->{_stroke_color}->to_string;
+		$settings{'drawing'}->{'stroke_color_alpha'} = $self->{_stroke_color_alpha};
+
+		#line_width
+		$settings{'drawing'}->{'line_width'} = $self->{_line_width};
+
+		#font
+		$settings{'drawing'}->{'font'} = $self->{_font};
+
+		#settings
+		print SETTFILE XMLout( \%settings );
+
+		close(SETTFILE);
+	};
+	if ($@) {
+		warn "ERROR: Settings of DrawingTool could not be saved: $@ - ignoring\n";
+	}
+
+	return TRUE;
+}
+
 sub save {
 	my $self = shift;
+
+	#we are closing the drawing tool as well after saving the changes
+	#so save changes to a file in the gscrot folder
+	#is there already a .gscrot folder?
+	mkdir("$ENV{ 'HOME' }/.gscrot")
+		unless ( -d "$ENV{ 'HOME' }/.gscrot" );
+
+	$self->save_settings;
 
 	#make sure not to save the bounding rectangles
 	$self->deactivate_all;
@@ -2195,38 +2286,44 @@ sub ret_objects_menu {
 		#parse filename
 		my ( $short, $folder, $type ) = fileparse( $_, '\..*' );
 
-		eval{
+		eval {
 
-		#create pixbufs
-		my $small_image = Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $_, Gtk2::IconSize->lookup('menu'), TRUE ) );
-		my $small_image_button = Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $_, Gtk2::IconSize->lookup('menu'), TRUE ) );
-		my $orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($_);
+			#create pixbufs
+			my $small_image = Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
+					$_, Gtk2::IconSize->lookup('menu'), TRUE
+				)
+			);
+			my $small_image_button = Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
+					$_, Gtk2::IconSize->lookup('menu'), TRUE
+				)
+			);
+			my $orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($_);
 
-		#create items
-		my $new_item = Gtk2::ImageMenuItem->new_with_label($short);
-		$new_item->set_image($small_image);
+			#create items
+			my $new_item = Gtk2::ImageMenuItem->new_with_label($short);
+			$new_item->set_image($small_image);
 
-		#init
-		unless ( $button->get_icon_widget ) {
-			$button->set_icon_widget($small_image_button);
-			$self->{_current_pixbuf} = $orig_pixbuf->copy;
-		}
-
-		$new_item->signal_connect(
-			'activate' => sub {
-				$self->{_current_pixbuf} = $orig_pixbuf->copy;
+			#init
+			unless ( $button->get_icon_widget ) {
 				$button->set_icon_widget($small_image_button);
-				$button->show_all;
-				$self->set_drawing_action(6);
+				$self->{_current_pixbuf} = $orig_pixbuf->copy;
 			}
-		);
 
-		$menu_objects->append($new_item);
-			
+			$new_item->signal_connect(
+				'activate' => sub {
+					$self->{_current_pixbuf} = $orig_pixbuf->copy;
+					$button->set_icon_widget($small_image_button);
+					$button->show_all;
+					$self->set_drawing_action(6);
+				}
+			);
+
+			$menu_objects->append($new_item);
+
 		};
-		if($@){
+		if ($@) {
 			warn "ERROR: $_ : $@ \n\n";
 			next;
 		}
