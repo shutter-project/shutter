@@ -62,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.288";
+use constant BRANCH              => "Rev.289";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -126,7 +126,7 @@ my $gscrot_dialog = GScrot::App::SimpleDialogs->new($window);
 my $gnome_web_photo = TRUE;
 my $gtklp           = TRUE;
 my $gtkimageview    = TRUE;
-my $goocanvas    	= TRUE;
+my $goocanvas       = TRUE;
 &fct_init_optional;
 
 #--------------------------------------
@@ -173,9 +173,9 @@ $window->set_position('center');
 $window->set_default_size( 650, 550 );
 
 #tray icon
-my $icon = undef;
-
-my $is_in_tray = TRUE;
+my $icon                 = undef;
+my $current_profile_indx = 0;
+my $is_in_tray           = TRUE;
 
 my $accel_group = Gtk2::AccelGroup->new;
 $window->add_accel_group($accel_group);
@@ -307,11 +307,17 @@ $menubar->append($menuitem_file);
 
 #end file
 #edit
-my $menu_edit         = Gtk2::Menu->new();
+my $menu_edit = Gtk2::Menu->new();
+my $menuitem_quicks
+	= Gtk2::MenuItem->new_with_label( $gscrot_common->get_gettext->get("Quick select") );
+$menu_edit->append($menuitem_quicks);
+$menu_edit->append( Gtk2::SeparatorMenuItem->new );
+
 my $menuitem_settings = Gtk2::ImageMenuItem->new_from_stock('gtk-preferences');
 $menuitem_settings->add_accelerator( "activate", $accel_group, $Gtk2::Gdk::Keysyms{P},
 	qw/mod1-mask/, qw/visible/ );
 $menu_edit->append($menuitem_settings);
+
 $menuitem_settings->signal_connect( "activate", \&evt_show_settings, 'exp_settings_menu' );
 my $menuitem_edit = Gtk2::MenuItem->new_with_mnemonic( $gscrot_common->get_gettext->get("_Edit") );
 $menuitem_edit->set_submenu($menu_edit);
@@ -700,7 +706,8 @@ my $profiles_label = Gtk2::Label->new( $gscrot_common->get_gettext->get("Profile
 
 my $combobox_settings_profiles = Gtk2::ComboBox->new_text;
 my @saved_profiles             = glob("$ENV{'HOME'}/.gscrot/profiles/*.xml");
-my $current_index              = 0;
+my @current_profiles;
+my $current_index = 0;
 foreach ( sort @saved_profiles ) {
 	utf8::decode $_;
 	next
@@ -708,28 +715,58 @@ foreach ( sort @saved_profiles ) {
 	$_ =~ /.*\/(.*)\.xml/;            #get profiles name
 	my $last_profile_name = $1;
 	$combobox_settings_profiles->append_text($last_profile_name);
-	$combobox_settings_profiles->set_active($current_index)
-		if $settings_xml->{'general'}->{'last_profile_name'} eq $last_profile_name;
+
+	#set active profile
+	if ( exists $settings_xml->{'general'}->{'last_profile_name'} ) {
+		if ( $settings_xml->{'general'}->{'last_profile_name'} eq $last_profile_name ) {
+			$combobox_settings_profiles->set_active($current_index);
+			$current_profile_indx = $current_index;
+		}
+	}
+
+	push( @current_profiles, $last_profile_name );
 	$current_index++;
 }
 $tooltips->set_tip( $combobox_settings_profiles,
 	$gscrot_common->get_gettext->get("Choose a profile") );
 
+#set 0 if nothing is selected yet
+if ( !$combobox_settings_profiles->get_active_text ) {
+	$combobox_settings_profiles->set_active(0);
+	$current_profile_indx = 0;
+}
+
+#populate quick selector as well
+$menuitem_quicks->set_submenu(
+	fct_ret_profile_menu( $combobox_settings_profiles, \@current_profiles ) );
+
 my $button_profile_save = Gtk2::Button->new;
-$button_profile_save->signal_connect( 'clicked', \&evt_save_profile, $combobox_settings_profiles );
+$button_profile_save->signal_connect(
+	'clicked' => sub {
+		my $widget = shift;
+		&evt_save_profile( $widget, $combobox_settings_profiles, \@current_profiles );
+	}
+);
 $button_profile_save->set_image( Gtk2::Image->new_from_stock( 'gtk-save', 'button' ) );
 $tooltips->set_tip( $button_profile_save,
 	$gscrot_common->get_gettext->get("Save configuration as profile") );
 
 my $button_profile_delete = Gtk2::Button->new;
-$button_profile_delete->signal_connect( 'clicked', \&evt_delete_profile,
-	$combobox_settings_profiles );
+$button_profile_delete->signal_connect(
+	'clicked' => sub {
+		my $widget = shift;
+		&evt_delete_profile( $widget, $combobox_settings_profiles, \@current_profiles );
+	}
+);
 $button_profile_delete->set_image( Gtk2::Image->new_from_stock( 'gtk-delete', 'button' ) );
 $tooltips->set_tip( $button_profile_delete, $gscrot_common->get_gettext->get("Delete profile") );
-
 my $button_profile_apply = Gtk2::Button->new;
-$button_profile_apply->signal_connect( 'clicked', \&evt_apply_profile,
-	$combobox_settings_profiles );
+$button_profile_apply->signal_connect(
+	'clicked' => sub {
+		my $widget = shift;
+		&evt_apply_profile( $widget, $combobox_settings_profiles, \@current_profiles );
+	}
+);
 $button_profile_apply->set_image( Gtk2::Image->new_from_stock( 'gtk-apply', 'button' ) );
 $tooltips->set_tip( $button_profile_apply,
 	$gscrot_common->get_gettext->get("Set profile for current configuration") );
@@ -2218,19 +2255,35 @@ sub evt_iconview_item_activated {
 
 sub evt_show_settings {
 	&fct_check_installed_programs;
+
 	$settings_dialog->show_all;
 	my $settings_dialog_response = $settings_dialog->run;
 	if ( $settings_dialog_response eq "close" ) {
-		$settings_dialog->hide();
-		&fct_update_tab_plugins(&fct_get_current_file);  #update attached plugins (may have changed)
-		&fct_update_first_tab;
+
+		&fct_post_settings($settings_dialog);
+
 		return TRUE;
 	} else {
-		$settings_dialog->hide();
-		&fct_update_tab_plugins(&fct_get_current_file);  #update attached plugins (may have changed)
-		&fct_update_first_tab;
+
+		&fct_post_settings($settings_dialog);
+
 		return FALSE;
 	}
+}
+
+sub fct_post_settings {
+	my $settings_dialog = shift;
+
+	#unset profile combobox when profile was not applied
+	if ( $current_profile_indx != $combobox_settings_profiles->get_active ) {
+		$combobox_settings_profiles->set_active($current_profile_indx);
+	}
+
+	$settings_dialog->hide();
+	&fct_update_tab_plugins(&fct_get_current_file);    #update attached plugins (may have changed)
+	&fct_update_first_tab;
+
+	return TRUE;
 }
 
 sub evt_open {
@@ -2419,7 +2472,7 @@ sub evt_save_as {
 }
 
 sub evt_save_profile {
-	my ( $widget, $combobox_settings_profiles ) = @_;
+	my ( $widget, $combobox_settings_profiles, $current_profiles_ref ) = @_;
 	my $curr_profile_name = $combobox_settings_profiles->get_active_text
 		|| "";
 	my $new_profile_name = &dlg_profile_name( $curr_profile_name, $combobox_settings_profiles );
@@ -2428,6 +2481,14 @@ sub evt_save_profile {
 		if ( $curr_profile_name ne $new_profile_name ) {
 			$combobox_settings_profiles->prepend_text($new_profile_name);
 			$combobox_settings_profiles->set_active(0);
+			$current_profile_indx = 0;
+
+			#unshift to array as well
+			unshift( @{$current_profiles_ref}, $new_profile_name );
+
+			#populate quick selector as well
+			$menuitem_quicks->set_submenu(
+				fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );
 		}
 		&fct_save_settings($new_profile_name);
 	}
@@ -2435,7 +2496,7 @@ sub evt_save_profile {
 }
 
 sub evt_delete_profile {
-	my ( $widget, $combobox_settings_profiles ) = @_;
+	my ( $widget, $combobox_settings_profiles, $current_profiles_ref ) = @_;
 	if ( $combobox_settings_profiles->get_active_text ) {
 		my $active_text  = $combobox_settings_profiles->get_active_text;
 		my $active_index = $combobox_settings_profiles->get_active;
@@ -2451,6 +2512,14 @@ sub evt_delete_profile {
 		{
 			$combobox_settings_profiles->remove_text($active_index);
 			$combobox_settings_profiles->set_active( $combobox_settings_profiles->get_active + 1 );
+			$current_profile_indx = $combobox_settings_profiles->get_active;
+
+			#remove from array as well
+			splice( @{$current_profiles_ref}, $active_index, 1 );
+
+			#populate quick selector as well
+			$menuitem_quicks->set_submenu(
+				fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );
 
 			&dlg_status_message( 1, $gscrot_common->get_gettext->get("Profile deleted") );
 		} else {
@@ -2463,10 +2532,17 @@ sub evt_delete_profile {
 }
 
 sub evt_apply_profile {
-	my ( $widget, $combobox_settings_profiles ) = @_;
+	my ( $widget, $combobox_settings_profiles, $current_profiles_ref ) = @_;
+
 	if ( $combobox_settings_profiles->get_active_text ) {
 		&fct_load_settings( undef, 'profile_load', $combobox_settings_profiles->get_active_text );
+		$current_profile_indx = $combobox_settings_profiles->get_active;
+
+		#populate quick selector as well
+		$menuitem_quicks->set_submenu(
+			fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );
 	}
+
 	return TRUE;
 }
 
@@ -2636,17 +2712,15 @@ sub fct_create_tab {
 		undef
 	);
 	$button_draw->signal_connect( 'clicked' => sub { &fct_draw(); } );
-	
+
 	#maybe lib is not installed
-	if(!$goocanvas){
-		$button_draw->set_sensitive(FALSE);	
-		$tooltips->set_tip(
-			$button_draw,
-			$gscrot_common->get_gettext->get(
-				"Goo::Canvas needs to be installed for this feature")
+	if ( !$goocanvas ) {
+		$button_draw->set_sensitive(FALSE);
+		$tooltips->set_tip( $button_draw,
+			$gscrot_common->get_gettext->get("Goo::Canvas needs to be installed for this feature")
 		);
-	}else{
-		$tooltips->set_tip( $button_draw, $gscrot_common->get_gettext->get("Edit screenshot") );		
+	} else {
+		$tooltips->set_tip( $button_draw, $gscrot_common->get_gettext->get("Edit screenshot") );
 	}
 
 	my $button_print
@@ -4866,6 +4940,43 @@ sub fct_ret_web_menu {
 	}
 	$menu_web->show_all;
 	return $menu_web;
+}
+
+sub fct_ret_profile_menu {
+	my $combobox_settings_profiles = shift;
+	my $current_profiles_ref       = shift;
+
+	my $menu_profile = Gtk2::Menu->new;
+
+	my $group   = undef;
+	my $counter = 0;
+	foreach my $profile ( @{$current_profiles_ref} ) {
+		my $profile_item = Gtk2::RadioMenuItem->new( $group, $profile );
+		$profile_item->set_active(TRUE) if $profile eq $combobox_settings_profiles->get_active_text;
+		$profile_item->signal_connect(
+			'toggled' => sub {
+				my $widget = shift;
+				return TRUE unless $widget->get_active;
+
+				for ( my $i = 0; $i < scalar @{$current_profiles_ref}; $i++ ) {
+					$combobox_settings_profiles->set_active($i);
+					$current_profile_indx = $i;
+					if ( $profile eq $combobox_settings_profiles->get_active_text ) {
+						&evt_apply_profile( $widget, $combobox_settings_profiles,
+							$current_profiles_ref );
+						last;
+						&fct_update_first_tab;
+					}
+				}
+			}
+		);
+		$group = $profile_item unless $group;
+		$menu_profile->append($profile_item);
+		$counter++;
+	}
+
+	$menu_profile->show_all;
+	return $menu_profile;
 }
 
 sub fct_load_accounts_tree {
