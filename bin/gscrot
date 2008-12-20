@@ -62,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.287";
+use constant BRANCH              => "Rev.288";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -126,6 +126,7 @@ my $gscrot_dialog = GScrot::App::SimpleDialogs->new($window);
 my $gnome_web_photo = TRUE;
 my $gtklp           = TRUE;
 my $gtkimageview    = TRUE;
+my $goocanvas    	= TRUE;
 &fct_init_optional;
 
 #--------------------------------------
@@ -1676,9 +1677,10 @@ sub evt_take_screenshot {
 			return FALSE;
 		}
 
-		my $screenshooter
-			= GScrot::Screenshot::Workspace->new( $gscrot_common, $combobox_cursor->get_active,
-			$delay_value, $wnck_screen->get_active_workspace );
+		my $screenshooter = GScrot::Screenshot::Workspace->new(
+			$gscrot_common, $combobox_cursor->get_active,
+			$delay_value,   $wnck_screen->get_active_workspace
+		);
 		$screenshot = $screenshooter->workspace();
 
 		#window
@@ -1695,9 +1697,8 @@ sub evt_take_screenshot {
 
 		my $screenshooter = GScrot::Screenshot::Window->new(
 			$gscrot_common, $combobox_cursor->get_active,
-			$delay_value,                $combobox_border->get_active,
-			undef,                       $data,
-			$window,                     $is_in_tray
+			$delay_value, $combobox_border->get_active,
+			undef, $data, $window, $is_in_tray
 		);
 		$screenshot = $screenshooter->window_select();
 
@@ -1709,9 +1710,8 @@ sub evt_take_screenshot {
 			return FALSE;
 		}
 		if ( $tool_advanced->get_active ) {
-			my $screenshooter
-				= GScrot::Screenshot::SelectorAdvanced->new( $gscrot_common, $combobox_cursor->get_active,
-				$delay_value );
+			my $screenshooter = GScrot::Screenshot::SelectorAdvanced->new( $gscrot_common,
+				$combobox_cursor->get_active, $delay_value );
 			$screenshot = $screenshooter->select_advanced();
 
 		} else {
@@ -1719,7 +1719,8 @@ sub evt_take_screenshot {
 			$zoom_size_factor = 2 if ( $zoom_size2->get_active );
 			$zoom_size_factor = 3 if ( $zoom_size3->get_active );
 			my $screenshooter
-				= GScrot::Screenshot::SelectorSimple->new( $gscrot_common, $combobox_cursor->get_active,
+				= GScrot::Screenshot::SelectorSimple->new( $gscrot_common,
+				$combobox_cursor->get_active,
 				$delay_value, $zoom_size_factor, $zoom_active->get_active );
 			$screenshot = $screenshooter->select_simple();
 		}
@@ -1931,7 +1932,8 @@ sub evt_take_screenshot {
 	&fct_set_toolbar_sensitive( TRUE, $data );
 
 	#focus window after taking a screenshot
-	$window->window->focus(time);
+	$window->show_all;
+	$is_in_tray = FALSE;
 
 	#attach signal-handler again
 	$SIG{USR1}  = sub { &evt_take_screenshot( 'global_keybinding', 'raw' ) };
@@ -2557,7 +2559,7 @@ sub fct_set_toolbar_sensitive {
 	$button_window_sect->set_sensitive($set);
 	$button_web_menu->set_sensitive($set) if ($gnome_web_photo);
 
-	if ( $hide_active->get_active && ( $data ne "web" && $data ne "tray_web" ) ) {
+	if ( $hide_active->get_active && ( $data ne "web" && $data ne "tray_web" ) && !$is_in_tray ) {
 		$window->show_all;
 		&fct_update_gui;
 		Gtk2::Gdk->flush;
@@ -2634,7 +2636,18 @@ sub fct_create_tab {
 		undef
 	);
 	$button_draw->signal_connect( 'clicked' => sub { &fct_draw(); } );
-	$tooltips->set_tip( $button_draw, $gscrot_common->get_gettext->get("Draw") );
+	
+	#maybe lib is not installed
+	if(!$goocanvas){
+		$button_draw->set_sensitive(FALSE);	
+		$tooltips->set_tip(
+			$button_draw,
+			$gscrot_common->get_gettext->get(
+				"Goo::Canvas needs to be installed for this feature")
+		);
+	}else{
+		$tooltips->set_tip( $button_draw, $gscrot_common->get_gettext->get("Edit screenshot") );		
+	}
 
 	my $button_print
 		= Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-print', 'button' ), undef );
@@ -3530,6 +3543,8 @@ sub fct_load_session {
 		}
 
 	}
+
+	&fct_update_first_tab;
 
 	return TRUE;
 }
@@ -5159,6 +5174,11 @@ sub fct_init_optional {
 		warn "WARNING: Gtk2::ImageView is missing --> advanced seletion tool will be disabled!\n\n";
 		$gtkimageview = FALSE;
 	}
+	eval { require Goo::Canvas };
+	if ($@) {
+		warn "WARNING: Goo::Canvas is missing --> drawing tool will be disabled!\n\n";
+		$goocanvas = FALSE;
+	}
 
 	return TRUE;
 }
@@ -5187,6 +5207,7 @@ sub fct_init {
 					die;
 				}
 				$gscrot_common->set_start_with("section");
+				$gscrot_common->set_min(TRUE);
 			} elsif ( $arg eq "selection" ) {
 
 				#is there already a process of gscrot running?
@@ -5196,6 +5217,7 @@ sub fct_init {
 					die;
 				}
 				$gscrot_common->set_start_with("select");
+				$gscrot_common->set_min(TRUE);
 			} elsif ( $arg eq "window" ) {
 
 				#is there already a process of gscrot running?
@@ -5205,6 +5227,7 @@ sub fct_init {
 					die;
 				}
 				$gscrot_common->set_start_with("window");
+				$gscrot_common->set_min(TRUE);
 			} elsif ( $arg eq "full" ) {
 
 				#is there already a process of gscrot running?
@@ -5214,6 +5237,7 @@ sub fct_init {
 					die;
 				}
 				$gscrot_common->set_start_with("raw");
+				$gscrot_common->set_min(TRUE);
 			} else {
 				warn "ERROR: illegal command " . $arg . " \n\n";
 				$gscrot_hfunct->usage;
@@ -5496,12 +5520,21 @@ sub dlg_upload {
 		= $hosting_dialog->add_button( $gscrot_common->get_gettext->get("_Upload"), 'accept' );
 	$upload_button->set_image( Gtk2::Image->new_from_stock( 'gtk-go-up', 'button' ) );
 	$hosting_dialog->set_default_response('accept');
-	my $model = Gtk2::ListStore->new( 'Glib::String', 'Glib::String', 'Glib::String' );
+	my $model
+		= Gtk2::ListStore->new( 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String' );
 
 	foreach ( keys %accounts ) {
+
+		#cut username so the dialog will not explode ;-)
+		my $short_username = $accounts{$_}->{'username'};
+		if ( length $accounts{$_}->{'username'} > 10 ) {
+			$short_username = substr( $accounts{$_}->{'username'}, 0, 10 ) . "...";
+		}
+
 		$model->set(
-			$model->append,              0, $accounts{$_}->{'host'}, 1,
-			$accounts{$_}->{'username'}, 2, $accounts{$_}->{'password'}
+			$model->append,              0, $accounts{$_}->{'host'},     1,
+			$accounts{$_}->{'username'}, 2, $accounts{$_}->{'password'}, 3,
+			$short_username
 			)
 			if (
 			( $_ =~ /imageshack/i && $accounts{$_}->{'username'} ne "" )
@@ -5509,9 +5542,11 @@ sub dlg_upload {
 				&& $accounts{$_}->{'password'} ne "" )
 			);
 		$model->set(
-			$model->append, 0, $accounts{$_}->{'host'},
-			1, $gscrot_common->get_gettext->get("Guest"),
-			2, ""
+			$model->append,                            0,
+			$accounts{$_}->{'host'},                   1,
+			$gscrot_common->get_gettext->get("Guest"), 2,
+			"",                                        3,
+			$gscrot_common->get_gettext->get("Guest")
 		);
 	}
 
@@ -5524,7 +5559,7 @@ sub dlg_upload {
 	$hosting->add_attribute( $renderer_host, text => 0 );
 	my $renderer_username = Gtk2::CellRendererText->new;
 	$hosting->pack_start( $renderer_username, FALSE );
-	$hosting->add_attribute( $renderer_username, text => 1 );
+	$hosting->add_attribute( $renderer_username, text => 3 );
 	$hosting->signal_connect(
 		'changed' => sub {
 
@@ -6024,12 +6059,12 @@ sub dlg_website {
 	$website_hbox->pack_start_defaults($website);
 	$website_dialog->vbox->add($website_hbox);
 
-	#	my $website_progress = Gtk2::ProgressBar->new;
-	#	$website_progress->set_no_show_all(TRUE);
-	#	$website_progress->set_ellipsize('middle');
-	#	$website_progress->set_orientation('left-to-right');
-	#	$website_progress->set_pulse_step(0.1);
-	#	$website_dialog->vbox->add($website_progress);
+	my $website_progress = Gtk2::ProgressBar->new;
+	$website_progress->set_no_show_all(TRUE);
+	$website_progress->set_ellipsize('middle');
+	$website_progress->set_orientation('left-to-right');
+	$website_progress->set_fraction(0);
+	$website_dialog->vbox->add($website_progress);
 
 	$website_dialog->show_all;
 	my $website_response = $website_dialog->run;
@@ -6080,8 +6115,7 @@ sub dlg_profile_name {
 	my $dlg_header     = $gscrot_common->get_gettext->get("Save as profile");
 	my $profile_dialog = Gtk2::Dialog->new(
 		$dlg_header,
-		$window,
-		[qw/modal destroy-with-parent/],
+		$window, [qw/modal destroy-with-parent/],
 		'gtk-cancel' => 'reject',
 		'gtk-save'   => 'accept'
 	);

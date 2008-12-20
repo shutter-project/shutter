@@ -120,8 +120,8 @@ $hbox->pack_start( $aspect_btn,                     TRUE, TRUE, 0 );
 
 $vbox_main->pack_start( $hbox,            TRUE, TRUE, 0 );
 $vbox_main->pack_start( $resize_operator, TRUE, TRUE, 0 );
-$hbox_btn->pack_start( $save_btn,         TRUE, TRUE, 0 );
 $hbox_btn->pack_start( $cancel_btn,       TRUE, TRUE, 0 );
+$hbox_btn->pack_start( $save_btn,         TRUE, TRUE, 0 );
 $vbox_main->pack_start( $hbox_btn,        TRUE, TRUE, 0 );
 
 $plug->add($vbox_main);

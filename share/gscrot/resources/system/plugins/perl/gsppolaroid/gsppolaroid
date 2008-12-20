@@ -167,8 +167,8 @@ $vbox_main->pack_start( $vbox_param, FALSE, TRUE, 5 );
 $vbox_main->pack_start( $preview,     TRUE, TRUE, 5 );
 $vbox_main->pack_start( $refresh_btn, TRUE, TRUE, 5 );
 
-$hbox_btn->pack_start( $save_btn,   TRUE, TRUE, 5 );
 $hbox_btn->pack_start( $cancel_btn, TRUE, TRUE, 5 );
+$hbox_btn->pack_start( $save_btn,   TRUE, TRUE, 5 );
 $vbox_main->pack_start( $hbox_btn,  TRUE, TRUE, 5 );
 
 $plug->add( $vbox_main );

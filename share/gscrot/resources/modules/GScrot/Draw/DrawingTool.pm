@@ -97,13 +97,20 @@ sub show {
 
 	my $d = $self->{_gscrot_common}->get_gettext;
 
+	#root window
+	$self->{_root} = Gtk2::Gdk->get_default_root_window;
+	( $self->{_root}->{x}, $self->{_root}->{y}, $self->{_root}->{w}, $self->{_root}->{h} )
+		= $self->{_root}->get_geometry;
+	( $self->{_root}->{x}, $self->{_root}->{y} ) = $self->{_root}->get_origin;
+
 	#load settings
 	$self->load_settings;
 
 	$self->{_drawing_window} = Gtk2::Window->new('toplevel');
 	$self->{_drawing_window}->set_title( "GScrot DrawingTool - " . $self->{_filename} );
 	$self->{_drawing_window}->set_modal(1);
-	$self->{_drawing_window}->signal_connect( 'destroy', sub {$self->quit} );
+	$self->{_drawing_window}->set_position('center');
+	$self->{_drawing_window}->signal_connect( 'destroy', sub { $self->quit } );
 	$self->{_drawing_window}
 		->signal_connect( 'delete_event', sub { $self->{_drawing_window}->destroy() } );
 
@@ -117,7 +124,12 @@ sub show {
 
 	#create canvas
 	$self->{_canvas} = Goo::Canvas->new();
-	$self->{_canvas}->set_size_request( 640, 480 );
+	if ( $self->{_root}->{w} > 640 && $self->{_root}->{h} > 480 ) {
+		$self->{_canvas}->set_size_request( 640, 480 );
+	} else {
+		$self->{_canvas}->set_size_request( $self->{_root}->{w} - 100, $self->{_root}->{h} - 100 )
+			;
+	}
 
 	$self->{_canvas}->set( 'background-color' => Gtk2::Gdk::Color->parse('gray')->to_string );
 
@@ -193,6 +205,8 @@ sub show {
 	$drawing_vbox->pack_start( $self->{_drawing_statusbar}, FALSE, FALSE, 0 );
 
 	$self->{_drawing_window}->show_all();
+
+	$self->{_drawing_window}->window->focus(time);
 
 	Gtk2->main;
 
@@ -330,7 +344,7 @@ sub change_drawing_tool_cb {
 
 		$self->{_current_mode_descr} = "image";
 		my $copy = $self->{_current_pixbuf}->copy;
-		if ( $copy->get_width < 100 && $copy->get_height < 100 ) {
+		if ( $copy->get_width < 200 && $copy->get_height < 200 ) {
 			my $scaled_copy = $copy->scale_simple( Gtk2::IconSize->lookup('menu'), 'bilinear' );
 			$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default,
 				$scaled_copy, undef, undef );
@@ -401,7 +415,7 @@ sub quit {
 		unless ( -d "$ENV{ 'HOME' }/.gscrot" );
 
 	$self->save_settings;
-	
+
 	$self->{_drawing_window}->destroy if $self->{_drawing_window};
 	Gtk2->main_quit();
 	return TRUE;
@@ -419,6 +433,7 @@ sub load_settings {
 	if ( $gscrot_hfunct->file_exists($settingsfile) ) {
 		eval {
 			$settings_xml = XMLin($settingsfile);
+
 			#drawing colors
 			$self->{_fill_color}
 				= Gtk2::Gdk::Color->parse( $settings_xml->{'drawing'}->{'fill_color'} );

@@ -114,8 +114,8 @@ $cancel_btn->signal_connect( 'clicked' => sub { Gtk2->main_quit }, 'cancel' );
 $hbox->pack_start( $negate_label, FALSE, TRUE, 0 );
 $hbox->pack_start( $negate_channel,  TRUE,  TRUE, 0 );
 
-$hbox_btn->pack_start( $save_btn,   TRUE, TRUE, 0 );
 $hbox_btn->pack_start( $cancel_btn, TRUE, TRUE, 0 );
+$hbox_btn->pack_start( $save_btn,   TRUE, TRUE, 0 );
 
 $vbox_main->pack_start( $hbox,        TRUE, TRUE, 0 );
 $vbox_main->pack_start( $preview,     TRUE, TRUE, 0 );
