@@ -109,6 +109,9 @@ sub select_advanced {
 	$select_window->set_skip_pager_hint( TRUE );
 	$select_window->set_keep_above( TRUE );
 	$select_window->add( $view );
+	$select_window->move( $self->{ _root }->{ x } , $self->{ _root }->{ y } );
+	$select_window->set_default_size( $self->{ _root }->{ w },
+									  $self->{ _root }->{ h } );
 
 	Gtk2::Gdk->keyboard_grab( $self->{ _root },
 							  0, Gtk2->get_current_event_time );

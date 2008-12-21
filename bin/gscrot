@@ -62,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.291";
+use constant BRANCH              => "Rev.292";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -2678,31 +2678,36 @@ sub fct_create_tab {
 	$tabtoolbar->set_show_arrow(TRUE);
 	$tabtoolbar->set_style('icons');
 	$tabtoolbar->set_icon_size('button');
-
+	
+	#keep number (1 = single tab, 2 = session tab) for translation
+	my $number = 1; 
+	$number = 2 if $is_all;
+	
 	my $button_delete
 		= Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-delete', 'button' ), undef );
 	$button_delete->signal_connect( 'clicked' => sub { &fct_delete(); } );
-	$tooltips->set_tip( $button_delete, $gscrot_common->get_gettext->get("Delete file(s)") );
+	$tooltips->set_tip( $button_delete, $gscrot_common->get_gettext->nget("Delete file", "Delete files", $number) );
 
 	my $button_clipboard
 		= Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-copy', 'button' ), undef );
 	$button_clipboard->signal_connect( 'clicked' => sub { &fct_clipboard(); } );
 	$tooltips->set_tip( $button_clipboard,
-		$gscrot_common->get_gettext->get("Copy file(s) to clipboard") );
+		$gscrot_common->get_gettext->get("Copy file to clipboard") );
 
 	my $button_reopen
 		= Gtk2::MenuToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-open', 'button' ),
 		undef );
 	$button_reopen->signal_connect( 'clicked' => sub { &fct_open_with_program(); } );
 	$button_reopen->signal_connect( 'show-menu' => \&fct_ret_program_menu );
-	$tooltips->set_tip( $button_reopen, $gscrot_common->get_gettext->get("Open file(s)") );
+	$tooltips->set_tip( $button_reopen, $gscrot_common->get_gettext->nget("Open file", "Open files", $number) );
 	$button_reopen->set_menu( &fct_ret_program_menu($button_reopen) );
+	$button_reopen->set_arrow_tooltip( $tooltips, $gscrot_common->get_gettext->nget("Choose a program to open the file with", "Choose a program to open the files with", $number), 'arrow' );
 
 	my $button_upload
 		= Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-go-up', 'button' ), undef );
 	$button_upload->signal_connect( 'clicked' => sub { &fct_upload(); } );
 	$tooltips->set_tip( $button_upload,
-		$gscrot_common->get_gettext->get("Upload file to hosting-site") );
+		$gscrot_common->get_gettext->nget("Upload file", "Upload files", $number) );
 
 	my $button_rename
 		= Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-edit', 'button' ), undef );
@@ -2741,7 +2746,7 @@ sub fct_create_tab {
 	$button_print->signal_connect( 'clicked' => sub { &fct_print(); } );
 
 	if ($gtklp) {
-		$tooltips->set_tip( $button_print, $gscrot_common->get_gettext->get("Print file(s)") );
+		$tooltips->set_tip( $button_print, $gscrot_common->get_gettext->nget("Print file", "Print files", $number) );
 	} else {
 		$tooltips->set_tip( $button_print,
 			$gscrot_common->get_gettext->get("gtklp needs to be installed for this feature") );
