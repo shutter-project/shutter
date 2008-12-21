@@ -604,43 +604,45 @@ sub event_item_on_motion_notify {
 
 		my ( $x, $y, $width, $height, $depth ) = $self->{_canvas}->window->get_geometry;
 
+		my $scale = $self->{_canvas}->get_scale;
+
 		#autoscroll >> down and right
-		if (   $ev->x > ( $self->{_scrolled_window}->get_hadjustment->value + $width - 100 )
-			&& $ev->y > ( $self->{_scrolled_window}->get_vadjustment->value + $height - 100 ) )
+		if (   $ev->x > ( $self->{_scrolled_window}->get_hadjustment->value/$scale + $width/$scale - 100/$scale )
+			&& $ev->y > ( $self->{_scrolled_window}->get_vadjustment->value/$scale + $height/$scale - 100/$scale ) )
 		{
 			$self->{_canvas}->scroll_to(
-				$self->{_scrolled_window}->get_hadjustment->value + 10,
-				$self->{_scrolled_window}->get_vadjustment->value + 10
+				$self->{_scrolled_window}->get_hadjustment->value/$scale + 10/$scale,
+				$self->{_scrolled_window}->get_vadjustment->value/$scale + 10/$scale
 			);
-		} elsif ( $ev->x > ( $self->{_scrolled_window}->get_hadjustment->value + $width - 100 ) ) {
+		} elsif ( $ev->x > ( $self->{_scrolled_window}->get_hadjustment->value/$scale + $width/$scale - 100/$scale ) ) {
 			$self->{_canvas}->scroll_to(
-				$self->{_scrolled_window}->get_hadjustment->value + 10,
-				$self->{_scrolled_window}->get_vadjustment->value
+				$self->{_scrolled_window}->get_hadjustment->value/$scale + 10/$scale,
+				$self->{_scrolled_window}->get_vadjustment->value/$scale
 			);
-		} elsif ( $ev->y > ( $self->{_scrolled_window}->get_vadjustment->value + $height - 100 ) ) {
+		} elsif ( $ev->y > ( $self->{_scrolled_window}->get_vadjustment->value/$scale + $height/$scale - 100/$scale ) ) {
 			$self->{_canvas}->scroll_to(
-				$self->{_scrolled_window}->get_hadjustment->value,
-				$self->{_scrolled_window}->get_vadjustment->value + 10
+				$self->{_scrolled_window}->get_hadjustment->value/$scale,
+				$self->{_scrolled_window}->get_vadjustment->value/$scale + 10/$scale
 			);
 		}
 
 		#autoscroll >> up and left
-		if (   $ev->x < ( $self->{_scrolled_window}->get_hadjustment->value + 100 )
-			&& $ev->y < ( $self->{_scrolled_window}->get_vadjustment->value + 100 ) )
+		if (   $ev->x < ( $self->{_scrolled_window}->get_hadjustment->value/$scale + 100/$scale )
+			&& $ev->y < ( $self->{_scrolled_window}->get_vadjustment->value/$scale + 100/$scale ) )
 		{
 			$self->{_canvas}->scroll_to(
-				$self->{_scrolled_window}->get_hadjustment->value - 10,
-				$self->{_scrolled_window}->get_vadjustment->value - 10
+				$self->{_scrolled_window}->get_hadjustment->value/$scale - 10/$scale,
+				$self->{_scrolled_window}->get_vadjustment->value/$scale - 10/$scale
 			);
-		} elsif ( $ev->x < ( $self->{_scrolled_window}->get_hadjustment->value + 100 ) ) {
+		} elsif ( $ev->x < ( $self->{_scrolled_window}->get_hadjustment->value/$scale + 100/$scale ) ) {
 			$self->{_canvas}->scroll_to(
-				$self->{_scrolled_window}->get_hadjustment->value - 10,
-				$self->{_scrolled_window}->get_vadjustment->value
+				$self->{_scrolled_window}->get_hadjustment->value/$scale - 10/$scale,
+				$self->{_scrolled_window}->get_vadjustment->value/$scale
 			);
-		} elsif ( $ev->y < ( $self->{_scrolled_window}->get_vadjustment->value + 100 ) ) {
+		} elsif ( $ev->y < ( $self->{_scrolled_window}->get_vadjustment->value/$scale + 100/$scale ) ) {
 			$self->{_canvas}->scroll_to(
-				$self->{_scrolled_window}->get_hadjustment->value,
-				$self->{_scrolled_window}->get_vadjustment->value - 10
+				$self->{_scrolled_window}->get_hadjustment->value/$scale,
+				$self->{_scrolled_window}->get_vadjustment->value/$scale - 10/$scale
 			);
 		}
 	}
