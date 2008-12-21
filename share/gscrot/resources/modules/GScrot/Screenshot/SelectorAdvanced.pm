@@ -109,9 +109,6 @@ sub select_advanced {
 	$select_window->set_skip_pager_hint( TRUE );
 	$select_window->set_keep_above( TRUE );
 	$select_window->add( $view );
-	$select_window->set_default_size( $self->{ _root }->{ w },
-									  $self->{ _root }->{ h } );
-	$select_window->move( $self->{ _root }->{ x }, $self->{ _root }->{ y } );
 
 	Gtk2::Gdk->keyboard_grab( $self->{ _root },
 							  0, Gtk2->get_current_event_time );
@@ -155,6 +152,21 @@ sub select_advanced {
 
 	$select_window->show_all();
 	$select_window->window->set_type_hint( 'dock' );
+
+	#see docs 
+	#http://library.gnome.org/devel/gtk/stable/GtkWindow.html
+	#asks the window manager to move window to the given position. 
+	#Window managers are free to ignore this; 
+	#most window managers ignore requests for initial window positions 
+	#(instead using a user-defined placement algorithm) and 
+	#honor requests after the window has already been shown. 
+	$select_window->move( $self->{ _root }->{ x } , $self->{ _root }->{ y } );
+	$select_window->set_size_request( $self->{ _root }->{ w },
+									  $self->{ _root }->{ h } );
+	
+	#finally focus it
+	$select_window->window->focus(time);								  
+
 	Gtk2->main();
 
 	return $output;

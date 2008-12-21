@@ -62,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.290";
+use constant BRANCH              => "Rev.291";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -1700,7 +1700,7 @@ sub evt_take_screenshot {
 		Gtk2::Gdk->flush;
 		$is_in_tray = TRUE;
 
-		#		sleep 1;
+		sleep 1;
 	}
 
 	#fullscreen screenshot
@@ -1853,6 +1853,11 @@ sub evt_take_screenshot {
 		print "Screenshot failed!" if $gscrot_common->get_debug;
 		&dlg_status_message( 1, $gscrot_common->get_gettext->get("Screenshot failed!") );
 		&fct_set_toolbar_sensitive( TRUE, $data );
+
+		#focus window after taking a screenshot
+		$window->show_all;
+		$is_in_tray = FALSE;
+
 		return FALSE;
 	} else {
 
@@ -1860,6 +1865,11 @@ sub evt_take_screenshot {
 		if ( $screenshot == 5 ) {
 			&dlg_status_message( 1, $gscrot_common->get_gettext->get("Capture aborted by user") );
 			&fct_set_toolbar_sensitive( TRUE, $data );
+
+			#focus window after taking a screenshot
+			$window->show_all;
+			$is_in_tray = FALSE;
+
 			return FALSE;
 		}
 
@@ -4124,7 +4134,7 @@ sub fct_update_first_tab {
 
 		my $current_folder = $saveDir_button->get_filename;
 
-		if ($settings_xml->{'general'}->{'folder_force'} || !$current_folder) {
+		if ( $settings_xml->{'general'}->{'folder_force'} || !$current_folder ) {
 			if ( exists $settings_xml->{'general'}->{'folder'} ) {
 				$current_folder = $settings_xml->{'general'}->{'folder'};
 			} else {
