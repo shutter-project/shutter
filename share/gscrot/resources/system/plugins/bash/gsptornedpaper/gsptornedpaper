@@ -2,11 +2,13 @@
 #torned paper
 #gscrot-plugin
 
+. gettext.sh
+
 TEXTDOMAIN=gscrot-plugins-bash
 TEXTDOMAINDIR=$GSCROT_INTL 
-PLUGIN_NAME=$"torned paper"
-PLUGIN_SORT=$"effect"
-PLUGIN_TIP=$"generates a torned-border"
+PLUGIN_NAME=gettext "torned paper"
+PLUGIN_SORT=gettext "effect"
+PLUGIN_TIP=gettext "generates a torned-border"
 PLUGIN_EXT="png"
 
 if [[ "${1}" = "name" ]];then

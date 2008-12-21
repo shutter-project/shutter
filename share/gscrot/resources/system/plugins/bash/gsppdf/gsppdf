@@ -2,11 +2,13 @@
 #GScrot PDF Export 
 #gscrot-plugin  
 
+. gettext.sh
+
 TEXTDOMAIN=gscrot-plugins-bash 
 TEXTDOMAINDIR=$GSCROT_INTL
-PLUGIN_NAME=$"pdf export" 
-PLUGIN_SORT=$"tool" 
-PLUGIN_TIP=$"export your screenshot to pdf" 
+PLUGIN_NAME=gettext "pdf export" 
+PLUGIN_SORT=gettext "tool" 
+PLUGIN_TIP=gettext "export your screenshot to pdf" 
 PLUGIN_EXT="png, jpeg"  
 
 if [[ "${1}" = "name" ]];then

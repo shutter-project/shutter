@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gscrot-plugins-bash\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-10-05 17:26+0200\n"
-"PO-Revision-Date: 2008-10-05 17:31+0100\n"
+"POT-Creation-Date: 2008-12-21 20:55+0100\n"
+"PO-Revision-Date: 2008-12-21 20:56+0100\n"
 "Last-Translator: Mario Kemper <mario.kemper@gmx.de>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -12,167 +12,161 @@ msgstr ""
 "X-Launchpad-Export-Date: 2008-09-21 14:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: translate_tmp.pl:35
-msgid "negate"
-msgstr ""
-
-#: translate_tmp.pl:39
-#: translate_tmp.pl:430
-#: translate_tmp.pl:600
-#: translate_tmp.pl:43
-msgid "replace every pixel with its complementary color"
-msgstr ""
-
-#: translate_tmp.pl:79
-msgid "Channel"
-msgstr ""
-
-#: translate_tmp.pl:216
-msgid "resize"
-msgstr ""
-
-#: translate_tmp.pl:220
-#: translate_tmp.pl:224
-msgid "resize your screenshot"
-msgstr ""
-
-#: translate_tmp.pl:426
-msgid "sepia"
-msgstr ""
-
-#: translate_tmp.pl:434
-msgid "sepia tone coloring"
-msgstr ""
-
-#: translate_tmp.pl:470
-msgid "Sepia tone"
-msgstr ""
-
-#: translate_tmp.pl:597
-msgid "polaroid"
-msgstr ""
-
-#: translate_tmp.pl:603
-msgid "make your screenshot look like a polaroid photo, add a caption, and even rotate it a little"
-msgstr ""
-
-#: translate_tmp.pl:630
-msgid "Caption:"
-msgstr ""
-
-#: translate_tmp.pl:632
-msgid "Text:"
-msgstr ""
-
-#: translate_tmp.pl:636
-msgid "Font size:"
-msgstr ""
-
-#: translate_tmp.pl:640
-msgid "Gravity:"
-msgstr ""
-
-#: translate_tmp.pl:653
-msgid "Polaroid"
-msgstr ""
-
-#: translate_tmp.pl:654
-msgid "Rotation:"
-msgstr ""
-
-#: translate_tmp.sh:7
+#: translate_tmp.sh:9
 msgid "GScrot branding"
 msgstr ""
 
-#: translate_tmp.sh:8
-#: translate_tmp.sh:141
-#: translate_tmp.sh:301
-#: translate_tmp.sh:669
-#: translate_tmp.sh:1030
-#: translate_tmp.sh:1391
-#: translate_tmp.sh:1485
-#: translate_tmp.sh:1577
-#: translate_tmp.sh:1659
+#: translate_tmp.sh:10
+#: translate_tmp.sh:39
 msgid "effect"
 msgstr ""
 
-#: translate_tmp.sh:9
+#: translate_tmp.sh:11
 msgid "polaroid whith GScrot logo and the name of the picture as subtitle"
 msgstr ""
 
-#: translate_tmp.sh:140
+#: translate_tmp.sh:9
 msgid "grayscale"
 msgstr ""
 
-#: translate_tmp.sh:142
+#: translate_tmp.sh:11
 msgid "256 color grayscale"
 msgstr ""
 
-#: translate_tmp.sh:300
+#: translate_tmp.sh:9
 msgid "jigsaw piece 1"
 msgstr ""
 
-#: translate_tmp.sh:302
+#: translate_tmp.sh:11
 msgid "cut out a jigsaw piece at the bottom right corner"
 msgstr ""
 
-#: translate_tmp.sh:668
+#: translate_tmp.sh:9
 msgid "jigsaw piece 2"
 msgstr ""
 
-#: translate_tmp.sh:670
+#: translate_tmp.sh:11
 msgid "cut a jigsaw piece out of the picture"
 msgstr ""
 
-#: translate_tmp.sh:1029
+#: translate_tmp.sh:9
 msgid "offset"
 msgstr ""
 
-#: translate_tmp.sh:1031
+#: translate_tmp.sh:11
 msgid "give the picture an offset with itself as background"
 msgstr ""
 
-#: translate_tmp.sh:1117
+#: translate_tmp.sh:9
 msgid "pdf export"
 msgstr ""
 
-#: translate_tmp.sh:1118
+#: translate_tmp.sh:10
+#: translate_tmp.sh:39
 msgid "tool"
 msgstr ""
 
-#: translate_tmp.sh:1119
+#: translate_tmp.sh:11
 msgid "export your screenshot to pdf"
 msgstr ""
 
-#: translate_tmp.sh:1390
+#: translate_tmp.sh:9
 msgid "raise border"
 msgstr ""
 
-#: translate_tmp.sh:1392
+#: translate_tmp.sh:11
 msgid "raise a rectangular 3d-border"
 msgstr ""
 
-#: translate_tmp.sh:1484
+#: translate_tmp.sh:9
 msgid "hard shadow"
 msgstr ""
 
-#: translate_tmp.sh:1486
+#: translate_tmp.sh:11
 msgid "a black hard shadow on transparent background"
 msgstr ""
 
-#: translate_tmp.sh:1576
+#: translate_tmp.sh:9
 msgid "soft edges"
 msgstr ""
 
-#: translate_tmp.sh:1578
+#: translate_tmp.sh:11
 msgid "add soft edges around the picture"
 msgstr ""
 
-#: translate_tmp.sh:1658
+#: translate_tmp.sh:9
 msgid "sunk border"
 msgstr ""
 
-#: translate_tmp.sh:1660
+#: translate_tmp.sh:11
 msgid "sunk a rectangular 3d-border"
+msgstr ""
+
+#: translate_tmp.sh:9
+msgid "torned paper"
+msgstr ""
+
+#: translate_tmp.sh:11
+msgid "generates a torned-border"
+msgstr ""
+
+#: translate_tmp.sh:35
+msgid "negate"
+msgstr ""
+
+#: translate_tmp.sh:43
+msgid "replace every pixel with its complementary color"
+msgstr ""
+
+#: translate_tmp.sh:79
+msgid "Channel"
+msgstr ""
+
+#: translate_tmp.sh:36
+msgid "polaroid"
+msgstr ""
+
+#: translate_tmp.sh:43
+msgid "make your screenshot look like a polaroid photo, add a caption, and even rotate it a little"
+msgstr ""
+
+#: translate_tmp.sh:77
+msgid "Caption:"
+msgstr ""
+
+#: translate_tmp.sh:79
+msgid "Text:"
+msgstr ""
+
+#: translate_tmp.sh:83
+msgid "Font size:"
+msgstr ""
+
+#: translate_tmp.sh:87
+msgid "Gravity:"
+msgstr ""
+
+#: translate_tmp.sh:100
+msgid "Rotation:"
+msgstr ""
+
+#: translate_tmp.sh:35
+msgid "resize"
+msgstr ""
+
+#: translate_tmp.sh:43
+msgid "resize your screenshot"
+msgstr ""
+
+#: translate_tmp.sh:35
+msgid "sepia"
+msgstr ""
+
+#: translate_tmp.sh:43
+msgid "sepia tone coloring"
+msgstr ""
+
+#: translate_tmp.sh:79
+msgid "Sepia tone"
 msgstr ""
 

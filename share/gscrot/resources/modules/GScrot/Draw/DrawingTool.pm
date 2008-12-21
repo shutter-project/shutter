@@ -59,6 +59,7 @@ sub new {
 	#canvas data
 	$self->{_canvas} = undef;
 	$self->{_items}  = undef;
+	$self->{_autoscroll} = FALSE;
 
 	#drawing colors
 	$self->{_fill_color}         = Gtk2::Gdk::Color->parse('#0000ff');
@@ -103,9 +104,6 @@ sub show {
 		= $self->{_root}->get_geometry;
 	( $self->{_root}->{x}, $self->{_root}->{y} ) = $self->{_root}->get_origin;
 
-	#load settings
-	$self->load_settings;
-
 	$self->{_drawing_window} = Gtk2::Window->new('toplevel');
 	$self->{_drawing_window}->set_title( "GScrot DrawingTool - " . $self->{_filename} );
 	$self->{_drawing_window}->set_modal(1);
@@ -119,6 +117,9 @@ sub show {
 
 	$self->{_uimanager} = $self->setup_uimanager();
 
+	#load settings
+	$self->load_settings;
+
 	#load file
 	$self->{_drawing_pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file( $self->{_filename} );
 
@@ -127,8 +128,7 @@ sub show {
 	if ( $self->{_root}->{w} > 640 && $self->{_root}->{h} > 480 ) {
 		$self->{_canvas}->set_size_request( 640, 480 );
 	} else {
-		$self->{_canvas}->set_size_request( $self->{_root}->{w} - 100, $self->{_root}->{h} - 100 )
-			;
+		$self->{_canvas}->set_size_request( $self->{_root}->{w} - 100, $self->{_root}->{h} - 100 );
 	}
 
 	$self->{_canvas}->set( 'background-color' => Gtk2::Gdk::Color->parse('gray')->to_string );
@@ -434,6 +434,10 @@ sub load_settings {
 		eval {
 			$settings_xml = XMLin($settingsfile);
 
+			#autoscroll
+			my $autoscroll_toggle = $self->{_uimanager}->get_widget("/MenuBar/Edit/Autoscroll");
+			$autoscroll_toggle->set_active( $settings_xml->{'drawing'}->{'autoscroll'} );
+
 			#drawing colors
 			$self->{_fill_color}
 				= Gtk2::Gdk::Color->parse( $settings_xml->{'drawing'}->{'fill_color'} );
@@ -465,6 +469,10 @@ sub save_settings {
 		open( SETTFILE, ">$settingsfile" );
 
 		my %settings;    #hash to store settings
+
+		#autoscroll
+		my $autoscroll_toggle = $self->{_uimanager}->get_widget("/MenuBar/Edit/Autoscroll");
+		$settings{'drawing'}->{'autoscroll'} = $autoscroll_toggle->get_active();
 
 		#drawing colors
 		$settings{'drawing'}->{'fill_color'}         = $self->{_fill_color}->to_string;
@@ -590,6 +598,52 @@ sub event_item_on_motion_notify {
 
 	#update statusbar
 	$self->{_drawing_statusbar}->push( -1, int( $ev->x ) . " x " . int( $ev->y ) );
+
+	#autoscroll if enabled
+	if ( $self->{_autoscroll} && $self->{_current_mode_descr} ne "clear" && $ev->state >= 'button1-mask' ) {
+
+		my ( $x, $y, $width, $height, $depth ) = $self->{_canvas}->window->get_geometry;
+
+		#autoscroll >> down and right
+		if (   $ev->x > ( $self->{_scrolled_window}->get_hadjustment->value + $width - 100 )
+			&& $ev->y > ( $self->{_scrolled_window}->get_vadjustment->value + $height - 100 ) )
+		{
+			$self->{_canvas}->scroll_to(
+				$self->{_scrolled_window}->get_hadjustment->value + 10,
+				$self->{_scrolled_window}->get_vadjustment->value + 10
+			);
+		} elsif ( $ev->x > ( $self->{_scrolled_window}->get_hadjustment->value + $width - 100 ) ) {
+			$self->{_canvas}->scroll_to(
+				$self->{_scrolled_window}->get_hadjustment->value + 10,
+				$self->{_scrolled_window}->get_vadjustment->value
+			);
+		} elsif ( $ev->y > ( $self->{_scrolled_window}->get_vadjustment->value + $height - 100 ) ) {
+			$self->{_canvas}->scroll_to(
+				$self->{_scrolled_window}->get_hadjustment->value,
+				$self->{_scrolled_window}->get_vadjustment->value + 10
+			);
+		}
+
+		#autoscroll >> up and left
+		if (   $ev->x < ( $self->{_scrolled_window}->get_hadjustment->value + 100 )
+			&& $ev->y < ( $self->{_scrolled_window}->get_vadjustment->value + 100 ) )
+		{
+			$self->{_canvas}->scroll_to(
+				$self->{_scrolled_window}->get_hadjustment->value - 10,
+				$self->{_scrolled_window}->get_vadjustment->value - 10
+			);
+		} elsif ( $ev->x < ( $self->{_scrolled_window}->get_hadjustment->value + 100 ) ) {
+			$self->{_canvas}->scroll_to(
+				$self->{_scrolled_window}->get_hadjustment->value - 10,
+				$self->{_scrolled_window}->get_vadjustment->value
+			);
+		} elsif ( $ev->y < ( $self->{_scrolled_window}->get_vadjustment->value + 100 ) ) {
+			$self->{_canvas}->scroll_to(
+				$self->{_scrolled_window}->get_hadjustment->value,
+				$self->{_scrolled_window}->get_vadjustment->value - 10
+			);
+		}
+	}
 
 	#move
 	if ( $item->{dragging} && $ev->state >= 'button1-mask' ) {
@@ -1920,7 +1974,10 @@ sub event_item_on_button_release {
 
 			$nitem->set( 'width' => 100 ) if ( $nitem->get('width') < 10 );
 
-		} elsif ( $item->isa('Goo::Canvas::Image') && $self->{_current_mode_descr} ne "line" ) {
+		} elsif ( $item->isa('Goo::Canvas::Image')
+			&& $self->{_current_mode_descr} ne "line"
+			&& $item != $self->{_canvas_bg} )
+		{
 
 			my $copy = $self->{_items}{$item}{orig_pixbuf}->copy;
 
@@ -2185,8 +2242,17 @@ sub setup_uimanager {
 	);
 	$self->{_factory}->add_default();
 
-	my @default_actions
-		= ( [ "File", undef, $d->get("_File") ], [ "View", undef, $d->get("_View") ] );
+	my @default_actions = (
+		[ "File", undef, $d->get("_File") ],
+		[ "Edit", undef, $d->get("_Edit") ],
+		[ "View", undef, $d->get("_View") ]
+	);
+
+	my @menu_actions = (
+		[   "Autoscroll",  undef, $d->get("Automatic scrolling"), undef, undef,
+			sub { my $widget = shift; $self->{_autoscroll} = $widget->get_active; }
+		]
+	);
 
 	my @toolbar_actions = (
 		[ "Quit", 'gtk-quit', undef, "<control>Q", undef, sub { $self->quit($self) } ],
@@ -2227,8 +2293,12 @@ sub setup_uimanager {
 	my $default_group = Gtk2::ActionGroup->new("default");
 	$default_group->add_actions( \@default_actions );
 
-	# Setup the image group.
-	my $toolbar_group = Gtk2::ActionGroup->new("image");
+	# Setup the menu group.
+	my $menu_group = Gtk2::ActionGroup->new("menu");
+	$menu_group->add_toggle_actions( \@menu_actions );
+
+	# Setup the toolbar group.
+	my $toolbar_group = Gtk2::ActionGroup->new("toolbar");
 	$toolbar_group->add_actions( \@toolbar_actions );
 
 	# Setup the drawing group.
@@ -2237,6 +2307,7 @@ sub setup_uimanager {
 		sub { my $action = shift; $self->change_drawing_tool_cb($action); } );
 
 	$uimanager->insert_action_group( $default_group,         0 );
+	$uimanager->insert_action_group( $menu_group,            0 );
 	$uimanager->insert_action_group( $toolbar_group,         0 );
 	$uimanager->insert_action_group( $toolbar_drawing_group, 0 );
 
@@ -2247,6 +2318,9 @@ sub setup_uimanager {
       <menuitem action = 'Save'/>
       <separator/>
       <menuitem action = 'Quit'/>
+    </menu>
+    <menu action = 'Edit'>
+      <menuitem action = 'Autoscroll'/>
     </menu>
     <menu action = 'View'>
       <menuitem action = 'ZoomIn'/>

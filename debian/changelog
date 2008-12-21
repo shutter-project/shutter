@@ -1,13 +1,20 @@
 gscrot (0.64~ppa1) intrepid; urgency=low
 
-  * added ftp-upload
-  * new goo-canvas based drawing tool
-  * improved start time
-  * improved plugin interface and error handling
+  * new goo-canvas based drawing tool (LP: #264617, LP: #278999, LP: #279001)
+  * added ftp-upload (LP: #291286)
+  * improved startup time (LP: #296341)
+  * improved plugin interface and error handling (LP: #296091)
+  * fixed bugs/smaller feature requests
+    -- LP: #306420
+    -- LP: #264616
+    -- LP: #277040
+    -- LP: #279271
+    -- LP: #280161
+    -- LP: #291284
   * updated translations
   * massive code cleanup
 
- -- Mario Kemper <mario.kemper@googlemail.com>  Sat, 15 Nov 2008 02:35:35 +0100
+ -- Mario Kemper <mario.kemper@googlemail.com>  Sun, 21 Dec 2008 21:16:39 +0100
 
 gscrot (0.63~ppa9) intrepid; urgency=low
 

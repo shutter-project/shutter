@@ -35,7 +35,7 @@ foreach $file (@translate_files) {
 	next unless ( -f $file );
 	open( FILE, $file ) or die $! . " :$file";
 	$file =~ s{^.*/}{};
-	open( FILE_TMP, ">>./translate_tmp.pl" ) or die $!;
+	open( FILE_TMP, ">./translate_tmp.pl" ) or die $!;
 	print "Preparing file $file\n";
 	while (<FILE>) {
 		chomp;

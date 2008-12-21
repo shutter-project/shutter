@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 
-#Copyright (C) Mario Kemper 2008 <mario.kemper@googlemail.com> Mi, 09 Apr 2008 22:58:09 +0200 
+#Copyright (C) Mario Kemper 2008 <mario.kemper@googlemail.com> Mi, 09 Apr 2008 22:58:09 +0200
 
 #This program is free software: you can redistribute it and/or modify
 #it under the terms of the GNU General Public License as published by
@@ -19,36 +19,58 @@ use utf8;
 use strict;
 use warnings;
 
+my $time     = time;
+my $language = "--language=Shell";
+
+#create file
+system("touch ./gscrot_plugins_bash$time.pot");
+
 #read files to translate
-open(LIST, "./to_translate_bash") or die $!;
+open( LIST, "./to_translate_bash" ) or die $!;
 my @translate_files = <LIST>;
 close LIST or die $!;
 
-	#open files to translate
-foreach my $file (@translate_files){
+#open files to translate
+foreach my $file (@translate_files) {
 	chomp $file;
-	
+
 	#folder? then add files included
-	if(-d $file){
+	if ( -d $file ) {
+		if ( $file =~ /bash/ ) {
+			$language = "--language=Shell";
+		} elsif ( $file =~ /perl/ ) {
+			$language = "--language=Perl";
+		}
 		my @new_files = <$file/*>;
-		push(@translate_files, @new_files);
-		next;	
+		push( @translate_files, @new_files );
+		next;
 	}
-	next unless (-T $file); #textfile??
-	
-	open(FILE, $file) or die $!." :$file";
+	next unless ( -T $file );    #textfile??
+	next if ( $file =~ /\.svg/ );    #svg file??
+
+	open( FILE, $file ) or die $! . " :$file";
 	$file =~ s{^.*/}{};
-	open(FILE_TMP, ">>./translate_tmp.sh") or die $!;	
+	open( FILE_TMP, ">./translate_tmp.sh" ) or die $!;
 	print "Preparing file $file\n";
-	while (<FILE>){
+	while (<FILE>) {
 		chomp;
-		print FILE_TMP $_."\n";		
+
+		if ( $language eq "--language=Perl" ) {
+			$_ =~ s/\$d->get/gettext/ig;
+			$_ =~ s/\$d->nget/ngettext/ig;
+			$_ =~ s/\$self->\{\_gettext\_object\}->get/gettext/ig;
+			$_ =~ s/\$self->\{\_gettext\_object\}->nget/ngettext/ig;
+			$_ =~ s/\$gscrot\_common->get\_gettext->get/gettext/ig;
+			$_ =~ s/\$gscrot\_common->get\_gettext->nget/ngettext/ig;
+		}
+
+		print FILE_TMP $_ . "\n";
 	}
-	close FILE or die $!;
+	close FILE     or die $!;
 	close FILE_TMP or die $!;
 	print "Done file $file\n";
+
+	system("xgettext ./translate_tmp.sh $language -j -o ./gscrot_plugins_bash$time.pot");
+	unlink("./translate_tmp.sh");
 }
-my $time = time;
-system("xgettext ./translate_tmp.sh -o ./gscrot_plugins_bash$time.pot");		
-unlink("./translate_tmp.sh");
 

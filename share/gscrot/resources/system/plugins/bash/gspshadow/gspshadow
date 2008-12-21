@@ -2,11 +2,13 @@
 #hard shadow
 #gscrot-plugin
 
+. gettext.sh
+
 TEXTDOMAIN=gscrot-plugins-bash
 TEXTDOMAINDIR=$GSCROT_INTL
-PLUGIN_NAME=$"hard shadow"
-PLUGIN_SORT=$"effect"
-PLUGIN_TIP=$"a black hard shadow on transparent background"
+PLUGIN_NAME=gettext "hard shadow"
+PLUGIN_SORT=gettext "effect"
+PLUGIN_TIP=gettext "a black hard shadow on transparent background"
 PLUGIN_EXT="png"
 
 if [[ "${1}" = "name" ]];then

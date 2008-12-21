@@ -2,11 +2,13 @@
 #grayscale
 #gscrot-plugin
 
+. gettext.sh
+
 TEXTDOMAIN=gscrot-plugins-bash
 TEXTDOMAINDIR=$GSCROT_INTL
-PLUGIN_NAME=$"grayscale"
-PLUGIN_SORT=$"effect"
-PLUGIN_TIP=$"256 color grayscale"
+PLUGIN_NAME=gettext "grayscale"
+PLUGIN_SORT=gettext "effect"
+PLUGIN_TIP=gettext "256 color grayscale"
 PLUGIN_EXT="png,jpeg"
 
 if [[ "${1}" = "name" ]];then

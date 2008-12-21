@@ -2,11 +2,13 @@
 #GScrot branding
 #gscrot-plugin
 
+. gettext.sh
+
 TEXTDOMAIN=gscrot-plugins-bash
 TEXTDOMAINDIR=$GSCROT_INTL
-PLUGIN_NAME=$"GScrot branding"
-PLUGIN_SORT=$"effect"
-PLUGIN_TIP=$"polaroid whith GScrot logo and the name of the picture as subtitle"
+PLUGIN_NAME=gettext "GScrot branding"
+PLUGIN_SORT=gettext "effect"
+PLUGIN_TIP=gettext "polaroid whith GScrot logo and the name of the picture as subtitle"
 PLUGIN_EXT="png"
 
 if [[ "${1}" = "name" ]];then
