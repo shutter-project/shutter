@@ -40,7 +40,7 @@ use constant FALSE => 0;
 sub new {
 	my $class = shift;
 
-	#call constructor of super class (gscrot_root, debug_cparam, gettext_object, include_cursor, delay)
+	#call constructor of super class (gscrot_common, include_cursor, delay)
 	my $self = $class->SUPER::new( shift, shift, shift );
 
 	bless $self, $class;
@@ -53,6 +53,8 @@ sub select_advanced {
 	#return value
 	my $output = 5;
 
+	my $d = $self->{_gc}->get_gettext;
+
 	my $root_pixbuf =
 		Gtk2::Gdk::Pixbuf->get_from_drawable( $self->{ _root },
 											  undef, 0, 0, 0, 0,
@@ -64,7 +66,7 @@ sub select_advanced {
 	$image_buffer->BlobToImage( $root_pixbuf->save_to_buffer( 'png' ) );
 
 	my $text =
-		$self->{_gc}->get_gettext->get(
+		$d->get(
 		"Draw a rectangular area using the mouse.\nTo take a screenshot, press the Enter key. Press Esc to quit."
 		);
 

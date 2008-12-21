@@ -62,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.289";
+use constant BRANCH              => "Rev.290";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -993,6 +993,7 @@ my $saveDir_label = Gtk2::Label->new( $gscrot_common->get_gettext->get("Director
 my $saveDir_button
 	= Gtk2::FileChooserButton->new( "GScrot - " . $gscrot_common->get_gettext->get("Choose folder"),
 	'select-folder' );
+$saveDir_button->set_width_chars(10);
 
 if ( defined $settings_xml->{'general'}->{'folder'} ) {
 	$saveDir_button->set_current_folder( $settings_xml->{'general'}->{'folder'} );
@@ -2535,14 +2536,16 @@ sub evt_apply_profile {
 	my ( $widget, $combobox_settings_profiles, $current_profiles_ref ) = @_;
 
 	if ( $combobox_settings_profiles->get_active_text ) {
-		&fct_load_settings( undef, 'profile_load', $combobox_settings_profiles->get_active_text );
+		$settings_xml = &fct_load_settings( undef, 'profile_load',
+			$combobox_settings_profiles->get_active_text );
 		$current_profile_indx = $combobox_settings_profiles->get_active;
 
 		#populate quick selector as well
 		$menuitem_quicks->set_submenu(
 			fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );
-	}
 
+		&fct_update_first_tab;
+	}
 	return TRUE;
 }
 
@@ -3260,8 +3263,15 @@ sub fct_load_settings {
 				$scale->set_value( $settings_xml->{'general'}->{'quality'} );
 				utf8::decode $settings_xml->{'general'}->{'filename'};
 				$filename->set_text( $settings_xml->{'general'}->{'filename'} );
+
 				utf8::decode $settings_xml->{'general'}->{'folder'};
 				$saveDir_button->set_current_folder( $settings_xml->{'general'}->{'folder'} );
+
+				#FIXME
+				#this is a dirty hack to force the setting to be enabled in session tab
+				#at the moment i simply dont know why the filechooser "caches" the old value
+				# => weird...
+				$settings_xml->{'general'}->{'folder_force'} = TRUE;
 
 				#selection tool -> submenu
 				$tool_advanced->set_active(TRUE)
@@ -3382,8 +3392,6 @@ sub fct_load_settings {
 		$effects_tree->set_model($effects_model);
 		&fct_set_model_plugins($effects_tree);
 	}
-
-	&fct_update_first_tab;
 
 	return $settings_xml;
 }
@@ -4103,11 +4111,8 @@ sub fct_update_first_tab {
 	}
 
 	if ( $filename && $saveDir_button && $combobox_settings_profiles ) {
-		my $current_folder = $saveDir_button->get_filename;
 
-		if (   $combobox_settings_profiles->get_active_text
-			&& $combobox_settings_profiles->get_active_text ne "" )
-		{
+		if ( $combobox_settings_profiles->get_active_text ) {
 			$session_start_screen{'first_page'}->{'settings_label'}->set_markup( "<b>"
 					. $gscrot_common->get_gettext->get("Current Preferences") . "</b>" . " ("
 					. $combobox_settings_profiles->get_active_text
@@ -4117,12 +4122,15 @@ sub fct_update_first_tab {
 				"<b>" . $gscrot_common->get_gettext->get("Current Preferences") . "</b>" );
 		}
 
-		unless ($current_folder) {
-			if ( defined $settings_xml->{'general'}->{'folder'} ) {
+		my $current_folder = $saveDir_button->get_filename;
+
+		if ($settings_xml->{'general'}->{'folder_force'} || !$current_folder) {
+			if ( exists $settings_xml->{'general'}->{'folder'} ) {
 				$current_folder = $settings_xml->{'general'}->{'folder'};
 			} else {
 				$current_folder = $ENV{'HOME'};
 			}
+			$settings_xml->{'general'}->{'folder_force'} = FALSE;
 		}
 
 		if ( $filename->get_text ne "" ) {
@@ -4804,7 +4812,7 @@ sub fct_ret_sel_menu {
 		$tool_simple->set_active(TRUE)
 			if $settings_xml->{'general'}->{'selection_tool'} == 2;
 	} else {
-		$tool_advanced->set_active(TRUE);
+		$tool_simple->set_active(TRUE);
 	}
 
 	#check if Gtk2::ImageView is supported
@@ -4964,8 +4972,9 @@ sub fct_ret_profile_menu {
 					if ( $profile eq $combobox_settings_profiles->get_active_text ) {
 						&evt_apply_profile( $widget, $combobox_settings_profiles,
 							$current_profiles_ref );
+
+						#						&fct_update_first_tab;
 						last;
-						&fct_update_first_tab;
 					}
 				}
 			}
