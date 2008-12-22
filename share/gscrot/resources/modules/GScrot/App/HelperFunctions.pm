@@ -63,22 +63,22 @@ sub gnome_open_mail {
 }
 
 sub file_exists {
-	my ($self, $filename) = @_;
+	my ( $self, $filename ) = @_;
 	return FALSE unless $filename;
 	$filename = $self->switch_home_in_file($filename);
-	return TRUE if ( -f $filename && -r $filename);
+	return TRUE if ( -f $filename && -r $filename );
 	return FALSE;
 }
 
 sub switch_home_in_file {
-	my ($self, $filename) = @_;
+	my ( $self, $filename ) = @_;
 	$filename =~ s/^~/$ENV{ HOME }/;    #switch ~ in path to /home/username
 	return $filename;
 }
 
 sub usage {
 	my $self = shift;
-	
+
 	print "gscrot [options]\n";
 	print "Available options:\n\n"
 		. "Capture:\n"
@@ -90,12 +90,12 @@ sub usage {
 
 		"Application:\n"
 		. "--min_at_startup (starts gscrot minimized to tray)\n"
+		. "--clear_cache (clears cache, e.g. installed plugins, at startup)\n"
 		. "--debug (prints a lot of debugging information to STDOUT)\n"
 		. "--disable_systray (disable systray icon)\n"
 		. "--help (displays this help)\n";
 
 	return TRUE;
 }
-
 
 1;

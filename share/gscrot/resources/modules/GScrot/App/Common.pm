@@ -48,6 +48,7 @@ sub new {
 
 	#vars
 	$self->{_debug_cparam}           = FALSE;
+	$self->{_clear_cache}            = FALSE;
 	$self->{_min_cparam}             = FALSE;
 	$self->{_disable_systray_cparam} = FALSE;
 	$self->{_start_with}             = undef;
@@ -59,12 +60,11 @@ sub new {
 	$ENV{'GSCROT_INTL'} = $self->{_gscrot_root} . "/share/locale";
 
 	#tooltips
-	$self->{_tooltips} = Gtk2::Tooltips->new;	
+	$self->{_tooltips} = Gtk2::Tooltips->new;
 
 	bless $self, $class;
 	return $self;
 }
-
 
 #getter / setter
 sub get_root {
@@ -109,6 +109,19 @@ sub set_debug {
 		$self->{_debug_cparam} = shift;
 	}
 	return $self->{_debug_cparam};
+}
+
+sub get_clear_cache {
+	my $self = shift;
+	return $self->{_clear_cache};
+}
+
+sub set_clear_cache {
+	my $self = shift;
+	if (@_) {
+		$self->{_clear_cache} = shift;
+	}
+	return $self->{_clear_cache};
 }
 
 sub get_min {

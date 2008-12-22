@@ -6,25 +6,25 @@
 
 TEXTDOMAIN=gscrot-plugins-bash
 TEXTDOMAINDIR=$GSCROT_INTL
-PLUGIN_NAME=gettext "jigsaw piece 2"
-PLUGIN_SORT=gettext "effect"
-PLUGIN_TIP=gettext "cut a jigsaw piece out of the picture"
+PLUGIN_NAME="jigsaw piece 2"
+PLUGIN_SORT="effect"
+PLUGIN_TIP="cut a jigsaw piece out of the picture"
 PLUGIN_EXT="png"
 
 if [[ "${1}" = "name" ]];then
-    echo "${PLUGIN_NAME}"
+    gettext "${PLUGIN_NAME}"
     exit 0
 elif [[ "${1}" = "sort" ]];then
-    echo "${PLUGIN_SORT}"
+    gettext "${PLUGIN_SORT}"
     exit 0
 elif [[ "${1}" = "tip" ]];then
-    echo "${PLUGIN_TIP}"
+    gettext "${PLUGIN_TIP}"
     exit 0
 elif [[ "${1}" = "ext" ]];then
-    echo "${PLUGIN_EXT}"
+    gettext "${PLUGIN_EXT}"
     exit 0
 elif [[ "${1}" = "lang" ]];then
-    echo "shell"
+    gettext "shell"
     exit 0
 fi
 

@@ -62,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.295";
+use constant BRANCH              => "Rev.297";
 use constant PPA_VERSION         => "ppa1";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -2118,7 +2118,7 @@ sub evt_about {
 	$about->set_authors(
 		"Development:\nMario Kemper <mario.kemper\@googlemail.com>\nRene Hennig <Rene.Hennig\@my-united.net>\n\n"
 			. "Patches:\nFranco Zeoli\n\n"
-			. "Plugins:\nMartin Rabeneck (cornix) <martinrabeneck\@gmx.net>\n\n"
+			. "Plugins:\nMartin Rabeneck (cornix) <martinrabeneck\@gmx.net>\nEdwood Ocasio <edwood.ocasio\@gmail.com> \n\n"
 			. "ubuntu-pics.de:\nRene Hennig <Rene.Hennig\@my-united.net>" );
 	$about->set_artists( "Pascal Grochol <pg0803\@gmail.com>", "Arne Weinberg" );
 	$about->set_translator_credits($all_translators);
@@ -2678,15 +2678,16 @@ sub fct_create_tab {
 	$tabtoolbar->set_show_arrow(TRUE);
 	$tabtoolbar->set_style('icons');
 	$tabtoolbar->set_icon_size('button');
-	
+
 	#keep number (1 = single tab, 2 = session tab) for translation
-	my $number = 1; 
+	my $number = 1;
 	$number = 2 if $is_all;
-	
+
 	my $button_delete
 		= Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-delete', 'button' ), undef );
 	$button_delete->signal_connect( 'clicked' => sub { &fct_delete(); } );
-	$tooltips->set_tip( $button_delete, $gscrot_common->get_gettext->nget("Delete file", "Delete files", $number) );
+	$tooltips->set_tip( $button_delete,
+		$gscrot_common->get_gettext->nget( "Delete file", "Delete files", $number ) );
 
 	my $button_clipboard
 		= Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-copy', 'button' ), undef );
@@ -2699,15 +2700,24 @@ sub fct_create_tab {
 		undef );
 	$button_reopen->signal_connect( 'clicked' => sub { &fct_open_with_program(); } );
 	$button_reopen->signal_connect( 'show-menu' => \&fct_ret_program_menu );
-	$tooltips->set_tip( $button_reopen, $gscrot_common->get_gettext->nget("Open file", "Open files", $number) );
+	$tooltips->set_tip( $button_reopen,
+		$gscrot_common->get_gettext->nget( "Open file", "Open files", $number ) );
 	$button_reopen->set_menu( &fct_ret_program_menu($button_reopen) );
-	$button_reopen->set_arrow_tooltip( $tooltips, $gscrot_common->get_gettext->nget("Choose a program to open the file with", "Choose a program to open the files with", $number), 'arrow' );
+	$button_reopen->set_arrow_tooltip(
+		$tooltips,
+		$gscrot_common->get_gettext->nget(
+			"Choose a program to open the file with",
+			"Choose a program to open the files with",
+			$number
+		),
+		'arrow'
+	);
 
 	my $button_upload
 		= Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-go-up', 'button' ), undef );
 	$button_upload->signal_connect( 'clicked' => sub { &fct_upload(); } );
 	$tooltips->set_tip( $button_upload,
-		$gscrot_common->get_gettext->nget("Upload file", "Upload files", $number) );
+		$gscrot_common->get_gettext->nget( "Upload file", "Upload files", $number ) );
 
 	my $button_rename
 		= Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-edit', 'button' ), undef );
@@ -2746,7 +2756,8 @@ sub fct_create_tab {
 	$button_print->signal_connect( 'clicked' => sub { &fct_print(); } );
 
 	if ($gtklp) {
-		$tooltips->set_tip( $button_print, $gscrot_common->get_gettext->nget("Print file", "Print files", $number) );
+		$tooltips->set_tip( $button_print,
+			$gscrot_common->get_gettext->nget( "Print file", "Print files", $number ) );
 	} else {
 		$tooltips->set_tip( $button_print,
 			$gscrot_common->get_gettext->get("gtklp needs to be installed for this feature") );
@@ -2851,6 +2862,7 @@ sub fct_create_tab {
 		#add plugins to toolbar
 		foreach ( sort keys %plugins ) {
 			next unless $plugins{$_}->{'binary'};
+			next unless $plugins{$_}->{'pixbuf'};
 			my $btn = Gtk2::ToolButton->new(
 				Gtk2::Image->new_from_pixbuf(
 					Gtk2::Gdk::Pixbuf->new_from_file_at_size(
@@ -3372,34 +3384,43 @@ sub fct_load_settings {
 		unlink $settingsfile;
 	}
 
-	#plugins
-	foreach my $plugin_key ( sort keys %{ $settings_xml->{'plugins'} } ) {
-		utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'binary'};
+	#get plugins from cache unless param is set to ignore it
+	if ( !$gscrot_common->get_clear_cache ) {
 
-		#check if plugin still exists in filesystem
-		if ( $gscrot_hfunct->file_exists( $settings_xml->{'plugins'}->{$plugin_key}->{'binary'} ) )
-		{
-			utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'name_plugin'};
-			utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'category'};
-			utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'tooltip'};
-			utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'ext'};
-			utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'lang'};
-			$plugins{$plugin_key}->{'binary'}
-				= $settings_xml->{'plugins'}->{$plugin_key}->{'binary'};
-			$plugins{$plugin_key}->{'name'}
-				= $settings_xml->{'plugins'}->{$plugin_key}->{'name_plugin'};
-			$plugins{$plugin_key}->{'menu'} = $settings_xml->{'plugins'}->{$plugin_key}->{'menu'};
-			$plugins{$plugin_key}->{'category'}
-				= $settings_xml->{'plugins'}->{$plugin_key}->{'category'};
-			$plugins{$plugin_key}->{'tooltip'}
-				= $settings_xml->{'plugins'}->{$plugin_key}->{'tooltip'};
-			$plugins{$plugin_key}->{'ext'}  = $settings_xml->{'plugins'}->{$plugin_key}->{'ext'};
-			$plugins{$plugin_key}->{'lang'} = $settings_xml->{'plugins'}->{$plugin_key}->{'lang'};
-		} else {
-			next;
+		foreach my $plugin_key ( sort keys %{ $settings_xml->{'plugins'} } ) {
+			utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'binary'};
+
+			#check if plugin still exists in filesystem
+			if ($gscrot_hfunct->file_exists(
+					$settings_xml->{'plugins'}->{$plugin_key}->{'binary'}
+				)
+				)
+			{
+				utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'name_plugin'};
+				utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'category'};
+				utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'tooltip'};
+				utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'ext'};
+				utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'lang'};
+				$plugins{$plugin_key}->{'binary'}
+					= $settings_xml->{'plugins'}->{$plugin_key}->{'binary'};
+				$plugins{$plugin_key}->{'name'}
+					= $settings_xml->{'plugins'}->{$plugin_key}->{'name_plugin'};
+				$plugins{$plugin_key}->{'menu'}
+					= $settings_xml->{'plugins'}->{$plugin_key}->{'menu'};
+				$plugins{$plugin_key}->{'category'}
+					= $settings_xml->{'plugins'}->{$plugin_key}->{'category'};
+				$plugins{$plugin_key}->{'tooltip'}
+					= $settings_xml->{'plugins'}->{$plugin_key}->{'tooltip'};
+				$plugins{$plugin_key}->{'ext'} = $settings_xml->{'plugins'}->{$plugin_key}->{'ext'};
+				$plugins{$plugin_key}->{'lang'}
+					= $settings_xml->{'plugins'}->{$plugin_key}->{'lang'};
+			} else {
+				next;
+			}
 		}
 	}
 
+	#maybe there are new plugins...
 	&fct_check_installed_plugins;
 
 	if ( defined $effects_tree ) {
@@ -4182,24 +4203,26 @@ sub fct_update_tab_plugins {
 
 	#handle plugins (attached to toolbar)
 	foreach ( sort keys %plugins ) {
+		eval {
 
-		#any plugins activated??
-		if ( $plugins{$_}->{'menu'} ) {
-			$session_screens{$key}->{$_}->set_no_show_all(FALSE);
-			$session_screens{$key}->{$_}->show_all;
-		} else {
-			$session_screens{$key}->{$_}->hide;
-			$session_screens{$key}->{$_}->set_no_show_all(TRUE);
-		}
-		if ( $session_screens{$key}->{$_} ) {
-
-			#disable button if filetype is not supported
-			if ( $plugins{$_}->{'ext'} =~ /$session_screens{$key}->{'filetype'}/ ) {
-				$session_screens{$key}->{$_}->set_sensitive(TRUE);
+			#any plugins activated??
+			if ( $plugins{$_}->{'menu'} ) {
+				$session_screens{$key}->{$_}->set_no_show_all(FALSE);
+				$session_screens{$key}->{$_}->show_all;
 			} else {
-				$session_screens{$key}->{$_}->set_sensitive(FALSE);
+				$session_screens{$key}->{$_}->hide;
+				$session_screens{$key}->{$_}->set_no_show_all(TRUE);
 			}
-		}
+			if ( $session_screens{$key}->{$_} ) {
+
+				#disable button if filetype is not supported
+				if ( $plugins{$_}->{'ext'} =~ /$session_screens{$key}->{'filetype'}/ ) {
+					$session_screens{$key}->{$_}->set_sensitive(TRUE);
+				} else {
+					$session_screens{$key}->{$_}->set_sensitive(FALSE);
+				}
+			}
+		};
 	}
 	return TRUE;
 }
@@ -4459,9 +4482,11 @@ sub fct_check_installed_plugins {
 		foreach (@plugins) {
 			if ( -d $_ ) {
 				my $dir_name = $_;
-				$dir_name =~ s{^.*/}{};
 
-				if ( $gscrot_hfunct->file_exists("$_/$dir_name") ) {
+				#parse filename
+				my ( $name, $folder, $type ) = fileparse( $dir_name, '\..*' );
+
+				if ( $gscrot_hfunct->file_exists("$dir_name/$name") ) {
 
 					unless ( $plugins{$_}->{'binary'}
 						&& $plugins{$_}->{'name'}
@@ -4471,10 +4496,10 @@ sub fct_check_installed_plugins {
 						&& $plugins{$_}->{'lang'} )
 					{
 
-						print "\nINFO: new plugin information detected - $_/$dir_name\n";
+						print "\nINFO: new plugin information detected - $dir_name/$name\n";
 
 						#path to executable
-						$plugins{$_}->{'binary'} = "$_/$dir_name";
+						$plugins{$_}->{'binary'} = "$dir_name/$name";
 
 						#menu flag
 						$plugins{$_}->{'menu'} = FALSE
@@ -4500,10 +4525,10 @@ sub fct_check_installed_plugins {
 						$plugins{$_}->{'lang'}
 							= &fct_plugin_get_info( $plugins{$_}->{'binary'}, 'lang' );
 
-						$plugins{$_}->{'lang'} = "shell"
-							if $plugins{$_}->{'lang'} eq "";
-
 					}
+
+					$plugins{$_}->{'lang'} = "shell"
+						if $plugins{$_}->{'lang'} eq "";
 
 					chomp( $plugins{$_}->{'name'} );
 					chomp( $plugins{$_}->{'category'} );
@@ -4520,10 +4545,10 @@ sub fct_check_installed_plugins {
 						if ( $plugins{$_}->{'ext'} =~ /png/ );
 
 					#pixbuf
-					$plugins{$_}->{'pixbuf'} = "$_/$dir_name.png"
-						if ( $gscrot_hfunct->file_exists("$_/$dir_name.png") );
-					$plugins{$_}->{'pixbuf'} = "$_/$dir_name.svg"
-						if ( $gscrot_hfunct->file_exists("$_/$dir_name.svg") );
+					$plugins{$_}->{'pixbuf'} = $plugins{$_}->{'binary'} . ".png"
+						if ( $gscrot_hfunct->file_exists( $plugins{$_}->{'binary'} . ".png" ) );
+					$plugins{$_}->{'pixbuf'} = $plugins{$_}->{'binary'} . ".svg"
+						if ( $gscrot_hfunct->file_exists( $plugins{$_}->{'binary'} . ".svg" ) );
 
 					if ( $gscrot_hfunct->file_exists( $plugins{$_}->{'pixbuf'} ) ) {
 						$plugins{$_}->{'pixbuf_object'}
@@ -4533,8 +4558,7 @@ sub fct_check_installed_plugins {
 						$plugins{$_}->{'pixbuf'}
 							= "$gscrot_root/share/gscrot/resources/icons/executable.svg";
 						$plugins{$_}->{'pixbuf_object'}
-							= Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-							"$gscrot_root/share/gscrot/resources/icons/executable.svg",
+							= Gtk2::Gdk::Pixbuf->new_from_file_at_size( $plugins{$_}->{'pixbuf'},
 							Gtk2::IconSize->lookup('menu') );
 					}
 					if ( $gscrot_common->get_debug ) {
@@ -5035,25 +5059,39 @@ sub fct_load_plugin_tree {
 	);
 	foreach ( sort keys %plugins ) {
 		if ( $plugins{$_}->{'binary'} ) {
-			my $pixbuf;
+
+			#check if plugin can handle png and/or jpeg
+			$plugins{$_}->{'pixbuf_jpeg'} = 'gtk-no';
+			$plugins{$_}->{'pixbuf_png'}  = 'gtk-no';
+			$plugins{$_}->{'pixbuf_jpeg'} = 'gtk-yes'
+				if ( $plugins{$_}->{'ext'} =~ /jpeg/ );
+			$plugins{$_}->{'pixbuf_png'} = 'gtk-yes'
+				if ( $plugins{$_}->{'ext'} =~ /png/ );
+
+			#pixbuf
+			$plugins{$_}->{'pixbuf'} = $plugins{$_}->{'binary'} . ".png"
+				if ( $gscrot_hfunct->file_exists( $plugins{$_}->{'binary'} . ".png" ) );
+			$plugins{$_}->{'pixbuf'} = $plugins{$_}->{'binary'} . ".svg"
+				if ( $gscrot_hfunct->file_exists( $plugins{$_}->{'binary'} . ".svg" ) );
 
 			if ( $gscrot_hfunct->file_exists( $plugins{$_}->{'pixbuf'} ) ) {
-				$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size( $plugins{$_}->{'pixbuf'},
+				$plugins{$_}->{'pixbuf_object'}
+					= Gtk2::Gdk::Pixbuf->new_from_file_at_size( $plugins{$_}->{'pixbuf'},
 					Gtk2::IconSize->lookup('menu') );
 			} else {
-				$pixbuf
-					= Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-					"$gscrot_root/share/gscrot/resources/icons/executable.svg",
+				$plugins{$_}->{'pixbuf'}
+					= "$gscrot_root/share/gscrot/resources/icons/executable.svg";
+				$plugins{$_}->{'pixbuf_object'}
+					= Gtk2::Gdk::Pixbuf->new_from_file_at_size( $plugins{$_}->{'pixbuf'},
 					Gtk2::IconSize->lookup('menu') );
-
 			}
 
 			$effects_model->set(
-				$effects_model->append,       0, $plugins{$_}->{'menu'},        1,
-				$pixbuf,                      2, $plugins{$_}->{'name'},        3,
-				$plugins{$_}->{'category'},   4, $plugins{$_}->{'pixbuf_jpeg'}, 5,
-				$plugins{$_}->{'pixbuf_png'}, 6, $plugins{$_}->{'tooltip'},     7,
-				$plugins{$_}->{'lang'},       8, $plugins{$_}->{'binary'},      9,
+				$effects_model->append,          0, $plugins{$_}->{'menu'},        1,
+				$plugins{$_}->{'pixbuf_object'}, 2, $plugins{$_}->{'name'},        3,
+				$plugins{$_}->{'category'},      4, $plugins{$_}->{'pixbuf_jpeg'}, 5,
+				$plugins{$_}->{'pixbuf_png'},    6, $plugins{$_}->{'tooltip'},     7,
+				$plugins{$_}->{'lang'},          8, $plugins{$_}->{'binary'},      9,
 				$_,
 			);
 		} else {
@@ -5329,6 +5367,8 @@ sub fct_init {
 			} elsif ( $arg eq "help" ) {
 				$gscrot_hfunct->usage;
 				exit;
+			} elsif ( $arg eq "clear_cache" ) {
+				$gscrot_common->set_clear_cache(TRUE);
 			} elsif ( $arg eq "min_at_startup" ) {
 				$gscrot_common->set_min(TRUE);
 			} elsif ( $arg eq "disable_systray" ) {
@@ -5589,12 +5629,14 @@ sub dlg_plugin {
 				my $plugin_key    = $model->get_value( $plugin_iter, 5 );
 
 				$plugin_descr->set_text($plugin_tip);
-				$plugin_image->set_from_pixbuf(
-					Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-						$plugins{$plugin_key}->{'pixbuf'},
-						100, 100
-					)
-				);
+				if ( $gscrot_hfunct->file_exists( $plugins{$plugin_key}->{'pixbuf'} ) ) {
+					$plugin_image->set_from_pixbuf(
+						Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+							$plugins{$plugin_key}->{'pixbuf'},
+							100, 100
+						)
+					);
+				}
 			}
 		},
 		'changed'
