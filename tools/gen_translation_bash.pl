@@ -26,11 +26,13 @@ use utf8;
 use strict;
 use warnings;
 
-my $time     = time;
-my $language = "--language=Shell";
+my $language = " ";
+
+my $time = time;
 
 #create file
-system("touch ./gscrot_plugins_bash$time.pot");
+system("touch ./gscrot_plugins_bash_perl.pot");
+system("touch ./gscrot_plugins_bash_bash.pot");
 
 #read files to translate
 open( LIST, "./to_translate_bash" ) or die $!;
@@ -43,11 +45,6 @@ foreach my $file (@translate_files) {
 
 	#folder? then add files included
 	if ( -d $file ) {
-		if ( $file =~ /bash/ ) {
-			$language = "--language=Shell";
-		} elsif ( $file =~ /perl/ ) {
-			$language = "--language=Perl";
-		}
 		my @new_files = <$file/*>;
 		push( @translate_files, @new_files );
 		next;
@@ -56,8 +53,13 @@ foreach my $file (@translate_files) {
 	next if ( $file =~ /\.svg/ );    #svg file??
 
 	open( FILE, $file ) or die $! . " :$file";
+	if ( $file =~ /bash/ ) {
+		$language = " ";
+	} elsif ( $file =~ /perl/ ) {
+		$language = "--language=Perl";
+	}
 	$file =~ s{^.*/}{};
-	open( FILE_TMP, ">./translate_tmp.sh" ) or die $!;
+	open( FILE_TMP, ">./translate_tmp" ) or die $!;
 	print "Preparing file $file\n";
 	while (<FILE>) {
 		chomp;
@@ -75,9 +77,24 @@ foreach my $file (@translate_files) {
 	}
 	close FILE     or die $!;
 	close FILE_TMP or die $!;
-	print "Done file $file\n";
 
-	system("xgettext ./translate_tmp.sh $language -j -o ./gscrot_plugins_bash$time.pot");
-	unlink("./translate_tmp.sh");
+	if ( $language eq "--language=Perl" ) {
+		system("xgettext ./translate_tmp $language -j -o ./gscrot_plugins_bash_perl.pot");
+	} else {
+		system(
+			"bash --dump-po-strings ./translate_tmp | xgettext -L PO -j -o ./gscrot_plugins_bash_bash.pot - "
+		);
+	}
+	unlink("./translate_tmp");
+
+	print "Done file $file\n";
 }
 
+#concatenate the files
+system(
+	"msgcat ./gscrot_plugins_bash_bash.pot ./gscrot_plugins_bash_perl.pot > ./gscrot_plugins_bash_$time.pot"
+);
+
+#delete temp files
+unlink("./gscrot_plugins_bash_perl.pot");
+unlink("./gscrot_plugins_bash_bash.pot");

@@ -6,28 +6,27 @@
 
 TEXTDOMAIN=gscrot-plugins-bash 
 TEXTDOMAINDIR=$GSCROT_INTL
-PLUGIN_NAME="pdf export" 
-PLUGIN_SORT="tool" 
-PLUGIN_TIP="export your screenshot to pdf" 
+PLUGIN_NAME=$"pdf export" 
+PLUGIN_SORT=$"tool" 
+PLUGIN_TIP=$"export your screenshot to pdf" 
 PLUGIN_EXT="png, jpeg"  
 
 if [[ "${1}" = "name" ]];then
-    gettext "${PLUGIN_NAME}"
+   	echo "${PLUGIN_NAME}"
     exit 0
 elif [[ "${1}" = "sort" ]];then
-    gettext "${PLUGIN_SORT}"
+    echo "${PLUGIN_SORT}"
     exit 0
 elif [[ "${1}" = "tip" ]];then
-    gettext "${PLUGIN_TIP}"
+    echo "${PLUGIN_TIP}"
     exit 0
 elif [[ "${1}" = "ext" ]];then
-    gettext "${PLUGIN_EXT}"
+    echo "${PLUGIN_EXT}"
     exit 0
 elif [[ "${1}" = "lang" ]];then
-    gettext "shell"
+    echo "shell"
     exit 0
 fi
-
 
 FILE="${1}"
 #WIDTH="${2}"

@@ -2,29 +2,28 @@
 #jigsaw piece 1
 #gscrot-plugin
 
-. gettext.sh
 
 TEXTDOMAIN=gscrot-plugins-bash
 TEXTDOMAINDIR=$GSCROT_INTL
-PLUGIN_NAME="jigsaw piece 1"
-PLUGIN_SORT="effect"
-PLUGIN_TIP="cut out a jigsaw piece at the bottom right corner"
+PLUGIN_NAME=$"jigsaw piece 1"
+PLUGIN_SORT=$"effect"
+PLUGIN_TIP=$"cut out a jigsaw piece at the bottom right corner"
 PLUGIN_EXT="png"
 
 if [[ "${1}" = "name" ]];then
-    gettext "${PLUGIN_NAME}"
+   	echo "${PLUGIN_NAME}"
     exit 0
 elif [[ "${1}" = "sort" ]];then
-    gettext "${PLUGIN_SORT}"
+    echo "${PLUGIN_SORT}"
     exit 0
 elif [[ "${1}" = "tip" ]];then
-    gettext "${PLUGIN_TIP}"
+    echo "${PLUGIN_TIP}"
     exit 0
 elif [[ "${1}" = "ext" ]];then
-    gettext "${PLUGIN_EXT}"
+    echo "${PLUGIN_EXT}"
     exit 0
 elif [[ "${1}" = "lang" ]];then
-    gettext "shell"
+    echo "shell"
     exit 0
 fi
 
