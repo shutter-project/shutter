@@ -131,7 +131,8 @@ sub show {
 		$self->{_canvas}->set_size_request( $self->{_root}->{w} - 100, $self->{_root}->{h} - 100 );
 	}
 
-	$self->{_canvas}->set( 'background-color' => Gtk2::Gdk::Color->parse('gray')->to_string );
+	my $gray = Gtk2::Gdk::Color->parse('gray');
+	$self->{_canvas}->set( 'background-color' => sprintf ("#%04x%04x%04x", $gray->red, $gray->green, $gray->blue) );
 
 	$self->{_canvas}->set_bounds(
 		0, 0,
@@ -475,9 +476,9 @@ sub save_settings {
 		$settings{'drawing'}->{'autoscroll'} = $autoscroll_toggle->get_active();
 
 		#drawing colors
-		$settings{'drawing'}->{'fill_color'}         = $self->{_fill_color}->to_string;
+		$settings{'drawing'}->{'fill_color'}         = sprintf ("#%04x%04x%04x", $self->{_fill_color}->red, $self->{_fill_color}->green, $self->{_fill_color}->blue);
 		$settings{'drawing'}->{'fill_color_alpha'}   = $self->{_fill_color_alpha};
-		$settings{'drawing'}->{'stroke_color'}       = $self->{_stroke_color}->to_string;
+		$settings{'drawing'}->{'stroke_color'}       = sprintf ("#%04x%04x%04x", $self->{_stroke_color}->red, $self->{_stroke_color}->green, $self->{_stroke_color}->blue);
 		$settings{'drawing'}->{'stroke_color_alpha'} = $self->{_stroke_color_alpha};
 
 		#line_width

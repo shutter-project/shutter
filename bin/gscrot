@@ -63,8 +63,8 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.299";
-use constant PPA_VERSION         => "ppa2";
+use constant BRANCH              => "Rev.300";
+use constant PPA_VERSION         => "ppa3";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
 use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
@@ -1199,7 +1199,7 @@ $progname_active->signal_connect(
 if ( defined $settings_xml->{'general'}->{'prog_active'} ) {
 	$progname_active->set_active( $settings_xml->{'general'}->{'prog_active'} );
 } else {
-	$progname_active->set_active(TRUE);
+	$progname_active->set_active(FALSE);
 }
 my $progname_label = Gtk2::Label->new( $gscrot_common->get_gettext->get("Open with") );
 $tooltips->set_tip( $progname,
@@ -1697,11 +1697,10 @@ sub evt_take_screenshot {
 		&& ( $data ne "web" && $data ne "tray_web" )
 		&& !$is_in_tray )
 	{
+		$window->iconify;
 		$window->hide;
 		Gtk2::Gdk->flush;
-		$is_in_tray = TRUE;
-
-		sleep 1;
+		$is_in_tray = TRUE;	
 	}
 
 	#fullscreen screenshot
@@ -4648,7 +4647,7 @@ sub fct_ret_workspace_menu {
 	my $screen = Gnome2::Wnck::Screen->get_default;
 	$screen->force_update();
 
-	my $wm_name = $screen->get_window_manager_name;
+	my $wm_name = Gtk2::Gdk::Screen->get_default->get_window_manager_name;
 
 	my $active_workspace = $screen->get_active_workspace;
 
@@ -4852,7 +4851,7 @@ sub fct_ret_sel_menu {
 		$tool_simple->set_active(TRUE)
 			if $settings_xml->{'general'}->{'selection_tool'} == 2;
 	} else {
-		$tool_simple->set_active(TRUE);
+		$tool_advanced->set_active(TRUE);
 	}
 
 	#check if Gtk2::ImageView is supported

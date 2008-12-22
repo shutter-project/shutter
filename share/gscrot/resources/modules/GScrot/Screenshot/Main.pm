@@ -73,7 +73,7 @@ sub new {
 	$self->{_wnck_screen}->force_update();	
 	
 	#window_manager_name
-	$self->{_wm_manager_name} = $self->{_wnck_screen}->get_window_manager_name;
+	$self->{_wm_manager_name} = Gtk2::Gdk::Screen->get_default->get_window_manager_name;
 
 	#workspaces
 	$self->{_workspaces} = ();
