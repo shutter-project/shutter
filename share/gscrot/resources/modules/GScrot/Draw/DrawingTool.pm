@@ -65,7 +65,7 @@ sub new {
 	$self->{_fill_color}         = Gtk2::Gdk::Color->parse('#0000ff');
 	$self->{_fill_color_alpha}   = 0.25;
 	$self->{_stroke_color}       = Gtk2::Gdk::Color->parse('#000000');
-	$self->{_stroke_color_alpha} = 0.95;
+	$self->{_stroke_color_alpha} = 1;
 
 	#line_width
 	$self->{_line_width} = 3;
@@ -952,7 +952,9 @@ sub event_item_on_button_press {
 			$self->handle_rects( 'update', $self->{_current_item} );
 
 		}
-	}
+	}else{
+		$self->deactivate_all;
+	}	
 
 	if ( $ev->button == 1 && $valid ) {
 
@@ -1025,7 +1027,9 @@ sub event_item_on_button_press {
 				my $item = Goo::Canvas::Polyline->new_line(
 					$root, $ev->x, $ev->y, $ev->x, $ev->y,
 					'stroke-pattern' => $stroke_pattern,
-					'line-width'     => $self->{_line_width}
+					'line-width'     => $self->{_line_width},
+					'line-cap'		 => 'CAIRO_LINE_CAP_ROUND',
+					'line-join'      => 'CAIRO_LINE_JOIN_ROUND'
 				);
 
 				$self->{_current_new_item} = $item;
@@ -1992,16 +1996,12 @@ sub event_item_on_button_release {
 
 			}
 		}
-
-		$self->handle_rects( 'update', $nitem );
-		$self->handle_embedded( 'update', $nitem );
 	}
 
 	#unset action flags
 	$item->{dragging} = FALSE;
 	$item->{resizing} = FALSE;
 
-	#	$self->{_current_new_item} = undef;
 	$self->set_drawing_action(0);
 
 	my $cursor = Gtk2::Gdk::Cursor->new('left-ptr');

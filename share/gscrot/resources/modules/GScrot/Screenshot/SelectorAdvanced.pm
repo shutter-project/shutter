@@ -60,27 +60,37 @@ sub select_advanced {
 		$self->{_root}->{h}
 	);
 
-	#annotate the screenshot (help text)
-	my $image_buffer = Image::Magick->new( magick => 'png' );
-	$image_buffer->BlobToImage( $root_pixbuf->save_to_buffer('png') );
-
-	my $text
-		= $d->get(
-		"Draw a rectangular area using the mouse.\nTo take a screenshot, press the Enter key. Press Esc to quit."
-		);
-
-	$image_buffer->Annotate(
-		pointsize => int( $self->{_root}->{w} * 0.02 ),
-		fill      => 'red',
-		gravity   => 'center',
-		text      => $text,
-		encoding  => 'UTF-8',
+	my $root_pixmap = Gtk2::Gdk::Pixmap->new(
+		undef,
+		$self->{_root}->{w},
+		$self->{_root}->{h}, $self->{_root}->get_depth
 	);
 
-	my $root_pixbuf_text = $self->imagemagick_to_pixbuf(
-		$image_buffer->ImageToBlob(),
-		$image_buffer->Get('columns'),
-		$image_buffer->Get('rows')
+	my $gc = Gtk2::Gdk::GC->new ($root_pixmap);
+
+	$root_pixmap->draw_pixbuf ($gc, $root_pixbuf, 0, 0, 0, 0 , $self->{_root}->{w}, $self->{_root}->{h}, 'none', 0, 0);
+
+	my $scratch = Gtk2::Invisible->new;
+	$scratch->realize;
+
+	my $layout = Gtk2::Pango::Layout->new ($scratch->create_pango_context);
+	my $size = int( $self->{_root}->{w} * 0.01 );
+
+	$layout->set_font_description(Gtk2::Pango::FontDescription->from_string ("Sans $size"));
+
+	my $text = $d->get(
+		"Draw a rectangular area using the mouse.\nTo take a screenshot, press the Enter key. Press Esc to quit.");
+
+	$layout->set_markup("<span foreground='#000000' background='#F1EEC4'>$text</span>");
+
+	$root_pixmap->draw_layout ($gc, 0, 0, $layout);
+
+	my $clean_pixbuf = $root_pixbuf->copy;
+
+	$root_pixbuf = Gtk2::Gdk::Pixbuf->get_from_drawable(
+		$root_pixmap, undef, 0, 0, 0, 0,
+		$self->{_root}->{w},
+		$self->{_root}->{h}
 	);
 
 	my $view          = Gtk2::ImageView->new;
@@ -91,13 +101,13 @@ sub select_advanced {
 	my $selector_handler = $selector->signal_connect(
 		'selection-changed' => sub {
 			if ($selector_init) {
-				$view->set_pixbuf( $root_pixbuf, FALSE );
+				$view->set_pixbuf( $clean_pixbuf, FALSE );
 				$selector_init = FALSE;
 			}
 		}
 	);
 
-	$view->set_pixbuf($root_pixbuf_text);
+	$view->set_pixbuf($root_pixbuf);
 
 	$view->set_tool($selector);
 
