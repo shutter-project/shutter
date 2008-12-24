@@ -70,19 +70,24 @@ sub select_advanced {
 
 	$root_pixmap->draw_pixbuf ($gc, $root_pixbuf, 0, 0, 0, 0 , $self->{_root}->{w}, $self->{_root}->{h}, 'none', 0, 0);
 
+	#we need this little hack for the pango context
 	my $scratch = Gtk2::Invisible->new;
 	$scratch->realize;
 
+	#create the layout
 	my $layout = Gtk2::Pango::Layout->new ($scratch->create_pango_context);
-	my $size = int( $self->{_root}->{w} * 0.01 );
+	$layout->set_width(Gtk2::Pango->PANGO_PIXELS ($self->{_root}->{w}));
+	
+#	my $size = int( $self->{_root}->{w} * 0.01 );
 
-	$layout->set_font_description(Gtk2::Pango::FontDescription->from_string ("Sans $size"));
+	$layout->set_font_description(Gtk2::Pango::FontDescription->from_string ("Sans"));
 
+	#text to display
 	my $text = $d->get(
 		"Draw a rectangular area using the mouse.\nTo take a screenshot, press the Enter key. Press Esc to quit.");
-
 	$layout->set_markup("<span foreground='#000000' background='#F1EEC4'>$text</span>");
 
+	#draw the layout to the drawable 
 	$root_pixmap->draw_layout ($gc, 0, 0, $layout);
 
 	my $clean_pixbuf = $root_pixbuf->copy;

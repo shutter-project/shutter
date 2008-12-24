@@ -57,8 +57,8 @@ sub new {
 	$self->{_factory}   = undef;
 
 	#canvas data
-	$self->{_canvas} = undef;
-	$self->{_items}  = undef;
+	$self->{_canvas}     = undef;
+	$self->{_items}      = undef;
 	$self->{_autoscroll} = FALSE;
 
 	#drawing colors
@@ -80,6 +80,8 @@ sub new {
 	$self->{_current_mode}       = 10;
 	$self->{_current_mode_descr} = "select";
 	$self->{_current_pixbuf}     = undef;
+
+	$self->{_start_time} = undef;
 
 	bless $self, $class;
 
@@ -106,11 +108,8 @@ sub show {
 
 	$self->{_drawing_window} = Gtk2::Window->new('toplevel');
 	$self->{_drawing_window}->set_title( "GScrot DrawingTool - " . $self->{_filename} );
-	$self->{_drawing_window}->set_modal(1);
 	$self->{_drawing_window}->set_position('center');
-	$self->{_drawing_window}->signal_connect( 'destroy', sub { $self->quit } );
-	$self->{_drawing_window}
-		->signal_connect( 'delete_event', sub { $self->{_drawing_window}->destroy() } );
+	$self->{_drawing_window}->signal_connect( 'delete_event', sub { return $self->quit(TRUE) } );
 
 	#dialogs
 	$self->{_dialogs} = GScrot::App::SimpleDialogs->new( $self->{_drawing_window} );
@@ -132,7 +131,8 @@ sub show {
 	}
 
 	my $gray = Gtk2::Gdk::Color->parse('gray');
-	$self->{_canvas}->set( 'background-color' => sprintf ("#%04x%04x%04x", $gray->red, $gray->green, $gray->blue) );
+	$self->{_canvas}->set(
+		'background-color' => sprintf( "#%04x%04x%04x", $gray->red, $gray->green, $gray->blue ) );
 
 	$self->{_canvas}->set_bounds(
 		0, 0,
@@ -208,6 +208,9 @@ sub show {
 	$self->{_drawing_window}->show_all();
 
 	$self->{_drawing_window}->window->focus(time);
+
+	#save start time to show in close dialog
+	$self->{_start_time} = time;
 
 	Gtk2->main;
 
@@ -343,20 +346,7 @@ sub change_drawing_tool_cb {
 
 	} elsif ( $self->{_current_mode} == 50 ) {
 
-		$self->{_current_mode_descr} = "image";
-		my $copy = $self->{_current_pixbuf}->copy;
-		if ( $copy->get_width < 200 && $copy->get_height < 200 ) {
-			my $scaled_copy = $copy->scale_simple( Gtk2::IconSize->lookup('menu'), 'bilinear' );
-			$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default,
-				$scaled_copy, undef, undef );
-
-		} else {
-			$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
-				Gtk2::Gdk::Display->get_default,
-				Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-image.svg"),
-				Gtk2::IconSize->lookup('menu')
-			);
-		}
+		$cursor = $self->change_cursor_to_current_pixbuf();
 
 	} elsif ( $self->{_current_mode} == 60 ) {
 
@@ -376,11 +366,6 @@ sub change_drawing_tool_cb {
 	$self->{_canvas}->window->set_cursor($cursor);
 
 	return TRUE;
-}
-
-sub selfcanvas {
-	my $self = shift;
-	print $self->{_canvas} . "\n";
 }
 
 sub zoom_in_cb {
@@ -407,7 +392,12 @@ sub zoom_normal_cb {
 }
 
 sub quit {
-	my $self = shift;
+	my $self         = shift;
+	my $show_warning = shift;
+
+	my $d = $self->{_gscrot_common}->get_gettext;
+
+	my ( $name, $folder, $type ) = fileparse( $self->{_filename}, '\..*' );
 
 	#we are closing the drawing tool as well after saving the changes
 	#so save changes to a file in the gscrot folder
@@ -417,8 +407,91 @@ sub quit {
 
 	$self->save_settings;
 
+	if ( $show_warning && scalar( keys %{ $self->{_items} } ) > 0 ) {
+
+		#warn the user if there are any unsaved changes
+		my $warn_dialog = Gtk2::MessageDialog->new(
+			$self->{_drawing_window},
+			[qw/modal destroy-with-parent/],
+			'other', 'none', undef
+		);
+
+		#set question text
+		$warn_dialog->set(
+			'text' => sprintf( $d->get("Save the changes to image %s before closing?"), "'$name'" )
+		);
+		
+		#set text...
+		$self->update_warning_text($warn_dialog);
+
+		#...and update it
+		my $id = Glib::Timeout->add(
+			1000,
+			sub {
+				$self->update_warning_text($warn_dialog);
+				return TRUE;
+			}
+		);
+
+		$warn_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-save', 'dialog' ) );
+
+		$warn_dialog->set( 'title' => $d->get("Close") . " " . $name );
+
+		#don't save button
+		my $dsave_btn = Gtk2::Button->new_with_mnemonic( $d->get("Do_n't save") );
+		$dsave_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-delete', 'button' ) );
+
+		#cancel button
+		my $cancel_btn = Gtk2::Button->new_from_stock('gtk-cancel');
+		$cancel_btn->can_default (TRUE);
+
+		#save button
+		my $save_btn = Gtk2::Button->new_from_stock('gtk-save');
+
+		$warn_dialog->add_action_widget( $dsave_btn,  10 );
+		$warn_dialog->add_action_widget( $cancel_btn, 20 );
+		$warn_dialog->add_action_widget( $save_btn,   30 );
+
+		$warn_dialog->set_default_response (20);
+
+		$warn_dialog->vbox->show_all;
+		my $response = $warn_dialog->run;
+		Glib::Source->remove($id);
+		if ( $response == 20 ) {
+			$warn_dialog->destroy;
+			return TRUE;
+		} elsif ( $response == 30 ) {
+			$self->save();
+		}
+
+		$warn_dialog->destroy;
+
+	}
 	$self->{_drawing_window}->destroy if $self->{_drawing_window};
 	Gtk2->main_quit();
+
+	return FALSE;
+}
+
+sub update_warning_text {
+	my $self = shift;
+	my $warn_dialog = shift;
+
+	my $d = $self->{_gscrot_common}->get_gettext;
+
+	my $minutes = int( ( time - $self->{_start_time} ) / 60 );
+	$minutes = 1 if $minutes == 0;
+	$warn_dialog->set(
+		'secondary-text' => sprintf(
+			$d->nget(
+				"If you don't save the image, changes from the last minute will be lost",
+				"If you don't save the image, changes from the last %d minutes will be lost",
+				$minutes
+			),
+			$minutes,
+			)
+			. "."
+	);
 	return TRUE;
 }
 
@@ -476,9 +549,15 @@ sub save_settings {
 		$settings{'drawing'}->{'autoscroll'} = $autoscroll_toggle->get_active();
 
 		#drawing colors
-		$settings{'drawing'}->{'fill_color'}         = sprintf ("#%04x%04x%04x", $self->{_fill_color}->red, $self->{_fill_color}->green, $self->{_fill_color}->blue);
-		$settings{'drawing'}->{'fill_color_alpha'}   = $self->{_fill_color_alpha};
-		$settings{'drawing'}->{'stroke_color'}       = sprintf ("#%04x%04x%04x", $self->{_stroke_color}->red, $self->{_stroke_color}->green, $self->{_stroke_color}->blue);
+		$settings{'drawing'}->{'fill_color'} = sprintf( "#%04x%04x%04x",
+			$self->{_fill_color}->red,
+			$self->{_fill_color}->green,
+			$self->{_fill_color}->blue );
+		$settings{'drawing'}->{'fill_color_alpha'} = $self->{_fill_color_alpha};
+		$settings{'drawing'}->{'stroke_color'}     = sprintf( "#%04x%04x%04x",
+			$self->{_stroke_color}->red,
+			$self->{_stroke_color}->green,
+			$self->{_stroke_color}->blue );
 		$settings{'drawing'}->{'stroke_color_alpha'} = $self->{_stroke_color_alpha};
 
 		#line_width
@@ -534,7 +613,6 @@ sub save {
 	my $pixbuf = $loader->get_pixbuf;
 
 	$pixbuf->save( $self->{_filename}, $self->{_filetype} );
-	$self->quit;
 
 	return TRUE;
 }
@@ -601,49 +679,80 @@ sub event_item_on_motion_notify {
 	$self->{_drawing_statusbar}->push( -1, int( $ev->x ) . " x " . int( $ev->y ) );
 
 	#autoscroll if enabled
-	if ( $self->{_autoscroll} && $self->{_current_mode_descr} ne "clear" && $ev->state >= 'button1-mask' ) {
+	if (   $self->{_autoscroll}
+		&& $self->{_current_mode_descr} ne "clear"
+		&& $ev->state >= 'button1-mask' )
+	{
 
 		my ( $x, $y, $width, $height, $depth ) = $self->{_canvas}->window->get_geometry;
 
 		my $scale = $self->{_canvas}->get_scale;
 
 		#autoscroll >> down and right
-		if (   $ev->x > ( $self->{_scrolled_window}->get_hadjustment->value/$scale + $width/$scale - 100/$scale )
-			&& $ev->y > ( $self->{_scrolled_window}->get_vadjustment->value/$scale + $height/$scale - 100/$scale ) )
+		if ($ev->x > (
+				      $self->{_scrolled_window}->get_hadjustment->value / $scale 
+					+ $width / $scale
+					- 100 / $scale
+			)
+			&& $ev->y > (
+				      $self->{_scrolled_window}->get_vadjustment->value / $scale 
+					+ $height / $scale
+					- 100 / $scale
+			)
+			)
 		{
 			$self->{_canvas}->scroll_to(
-				$self->{_scrolled_window}->get_hadjustment->value/$scale + 10/$scale,
-				$self->{_scrolled_window}->get_vadjustment->value/$scale + 10/$scale
+				$self->{_scrolled_window}->get_hadjustment->value / $scale + 10 / $scale,
+				$self->{_scrolled_window}->get_vadjustment->value / $scale + 10 / $scale
 			);
-		} elsif ( $ev->x > ( $self->{_scrolled_window}->get_hadjustment->value/$scale + $width/$scale - 100/$scale ) ) {
+		} elsif (
+			$ev->x > (
+				      $self->{_scrolled_window}->get_hadjustment->value / $scale 
+					+ $width / $scale
+					- 100 / $scale
+			)
+			)
+		{
 			$self->{_canvas}->scroll_to(
-				$self->{_scrolled_window}->get_hadjustment->value/$scale + 10/$scale,
-				$self->{_scrolled_window}->get_vadjustment->value/$scale
+				$self->{_scrolled_window}->get_hadjustment->value / $scale + 10 / $scale,
+				$self->{_scrolled_window}->get_vadjustment->value / $scale
 			);
-		} elsif ( $ev->y > ( $self->{_scrolled_window}->get_vadjustment->value/$scale + $height/$scale - 100/$scale ) ) {
+		} elsif (
+			$ev->y > (
+				      $self->{_scrolled_window}->get_vadjustment->value / $scale 
+					+ $height / $scale
+					- 100 / $scale
+			)
+			)
+		{
 			$self->{_canvas}->scroll_to(
-				$self->{_scrolled_window}->get_hadjustment->value/$scale,
-				$self->{_scrolled_window}->get_vadjustment->value/$scale + 10/$scale
+				$self->{_scrolled_window}->get_hadjustment->value / $scale,
+				$self->{_scrolled_window}->get_vadjustment->value / $scale + 10 / $scale
 			);
 		}
 
 		#autoscroll >> up and left
-		if (   $ev->x < ( $self->{_scrolled_window}->get_hadjustment->value/$scale + 100/$scale )
-			&& $ev->y < ( $self->{_scrolled_window}->get_vadjustment->value/$scale + 100/$scale ) )
+		if ( $ev->x < ( $self->{_scrolled_window}->get_hadjustment->value / $scale + 100 / $scale )
+			&& $ev->y
+			< ( $self->{_scrolled_window}->get_vadjustment->value / $scale + 100 / $scale ) )
 		{
 			$self->{_canvas}->scroll_to(
-				$self->{_scrolled_window}->get_hadjustment->value/$scale - 10/$scale,
-				$self->{_scrolled_window}->get_vadjustment->value/$scale - 10/$scale
+				$self->{_scrolled_window}->get_hadjustment->value / $scale - 10 / $scale,
+				$self->{_scrolled_window}->get_vadjustment->value / $scale - 10 / $scale
 			);
-		} elsif ( $ev->x < ( $self->{_scrolled_window}->get_hadjustment->value/$scale + 100/$scale ) ) {
+		} elsif (
+			$ev->x < ( $self->{_scrolled_window}->get_hadjustment->value / $scale + 100 / $scale ) )
+		{
 			$self->{_canvas}->scroll_to(
-				$self->{_scrolled_window}->get_hadjustment->value/$scale - 10/$scale,
-				$self->{_scrolled_window}->get_vadjustment->value/$scale
+				$self->{_scrolled_window}->get_hadjustment->value / $scale - 10 / $scale,
+				$self->{_scrolled_window}->get_vadjustment->value / $scale
 			);
-		} elsif ( $ev->y < ( $self->{_scrolled_window}->get_vadjustment->value/$scale + 100/$scale ) ) {
+		} elsif (
+			$ev->y < ( $self->{_scrolled_window}->get_vadjustment->value / $scale + 100 / $scale ) )
+		{
 			$self->{_canvas}->scroll_to(
-				$self->{_scrolled_window}->get_hadjustment->value/$scale,
-				$self->{_scrolled_window}->get_vadjustment->value/$scale - 10/$scale
+				$self->{_scrolled_window}->get_hadjustment->value / $scale,
+				$self->{_scrolled_window}->get_vadjustment->value / $scale - 10 / $scale
 			);
 		}
 	}
@@ -921,6 +1030,8 @@ sub clear_item_from_canvas {
 		eval {
 			my $bigparent = $_->get_parent;
 			$bigparent->remove_child( $bigparent->find_child($_) );
+			#clear from session hash
+			delete $self->{_items}{$_};
 		};
 	}
 
@@ -952,9 +1063,9 @@ sub event_item_on_button_press {
 			$self->handle_rects( 'update', $self->{_current_item} );
 
 		}
-	}else{
+	} else {
 		$self->deactivate_all;
-	}	
+	}
 
 	if ( $ev->button == 1 && $valid ) {
 
@@ -1028,7 +1139,7 @@ sub event_item_on_button_press {
 					$root, $ev->x, $ev->y, $ev->x, $ev->y,
 					'stroke-pattern' => $stroke_pattern,
 					'line-width'     => $self->{_line_width},
-					'line-cap'		 => 'CAIRO_LINE_CAP_ROUND',
+					'line-cap'       => 'CAIRO_LINE_CAP_ROUND',
 					'line-join'      => 'CAIRO_LINE_JOIN_ROUND'
 				);
 
@@ -1972,30 +2083,32 @@ sub event_item_on_button_release {
 
 			}
 
-		} elsif ( $item->isa('Goo::Canvas::Ellipse') ) {
+		} elsif ( $nitem->isa('Goo::Canvas::Ellipse') ) {
 
 			$nitem->set( 'x-radius' => 50 ) if ( $nitem->get('x-radius') < 5 );
 			$nitem->set( 'y-radius' => 50 ) if ( $nitem->get('y-radius') < 5 );
 
-		} elsif ( $item->isa('Goo::Canvas::Text') ) {
+		} elsif ( $nitem->isa('Goo::Canvas::Text') ) {
 
 			$nitem->set( 'width' => 100 ) if ( $nitem->get('width') < 10 );
 
-		} elsif ( $item->isa('Goo::Canvas::Image')
+		} elsif ( $nitem->isa('Goo::Canvas::Image')
 			&& $self->{_current_mode_descr} ne "line"
-			&& $item != $self->{_canvas_bg} )
+			&& $nitem != $self->{_canvas_bg} )
 		{
 
-			my $copy = $self->{_items}{$item}{orig_pixbuf}->copy;
+			my $copy = $self->{_items}{$nitem}{orig_pixbuf}->copy;
 
 			if ( $nitem->get('width') < 10 ) {
-				$self->{_items}{$item}{image}->set(
+				$self->{_items}{$nitem}{image}->set(
 					'width'  => $copy->get_width,
 					'pixbuf' => $copy
 				);
 
 			}
 		}
+		$self->handle_rects( 'update', $nitem );
+		$self->handle_embedded( 'update', $nitem );
 	}
 
 	#unset action flags
@@ -2252,14 +2365,17 @@ sub setup_uimanager {
 	);
 
 	my @menu_actions = (
-		[   "Autoscroll",  undef, $d->get("Automatic scrolling"), undef, undef,
-			sub { my $widget = shift; $self->{_autoscroll} = $widget->get_active; }
+		[   "Autoscroll", undef, $d->get("Automatic scrolling"),
+			undef, undef, sub { my $widget = shift; $self->{_autoscroll} = $widget->get_active; }
 		]
 	);
 
 	my @toolbar_actions = (
-		[ "Quit", 'gtk-quit', undef, "<control>Q", undef, sub { $self->quit($self) } ],
-		[ "Save", 'gtk-save', undef, "<control>S", undef, sub { $self->save($self) } ],
+		[ "Close", 'gtk-close', undef, "<control>Q", undef, sub { $self->quit(TRUE) } ],
+		[   "Save", 'gtk-save',
+			undef,  "<control>S",
+			undef, sub { $self->save(), $self->quit(FALSE) }
+		],
 		[   "ZoomIn", 'gtk-zoom-in', undef, "<control>plus", undef, sub { $self->zoom_in_cb($self) }
 		],
 		[   "ZoomOut", 'gtk-zoom-out',
@@ -2320,7 +2436,7 @@ sub setup_uimanager {
     <menu action = 'File'>
       <menuitem action = 'Save'/>
       <separator/>
-      <menuitem action = 'Quit'/>
+      <menuitem action = 'Close'/>
     </menu>
     <menu action = 'Edit'>
       <menuitem action = 'Autoscroll'/>
@@ -2332,7 +2448,7 @@ sub setup_uimanager {
     </menu>
   </menubar>
   <toolbar name = 'ToolBar'>
-    <toolitem action='Quit'/>
+    <toolitem action='Close'/>
     <toolitem action='Save'/>
     <separator/>
     <toolitem action='ZoomIn'/>
@@ -2408,6 +2524,7 @@ sub ret_objects_menu {
 					$self->{_current_pixbuf} = $orig_pixbuf->copy;
 					$button->set_icon_widget($small_image_button);
 					$button->show_all;
+					$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
 					$self->set_drawing_action(6);
 				}
 			);
@@ -2543,6 +2660,31 @@ sub set_drawing_action {
 		$item->set_active(TRUE) if $item_index == $index;
 	}
 
+}
+
+sub change_cursor_to_current_pixbuf {
+	my $self = shift;
+
+	#define own icons
+	my $dicons = $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool";
+	my $cursor = undef;
+
+	$self->{_current_mode_descr} = "image";
+	my $copy = $self->{_current_pixbuf}->copy;
+	if ( $copy->get_width < 200 && $copy->get_height < 200 ) {
+		my $scaled_copy = $copy->scale_simple( Gtk2::IconSize->lookup('menu'), 'bilinear' );
+		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default,
+			$scaled_copy, undef, undef );
+
+	} else {
+		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
+			Gtk2::Gdk::Display->get_default,
+			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-image.svg"),
+			Gtk2::IconSize->lookup('menu')
+		);
+	}
+
+	return $cursor;
 }
 
 1;

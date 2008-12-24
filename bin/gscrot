@@ -56,15 +56,14 @@ use XML::Simple;
 #internal use
 use FindBin '$Bin';
 
-
 #--------------------------------------
 
 #define constants
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.301";
-use constant PPA_VERSION         => "ppa4";
+use constant BRANCH              => "Rev.302";
+use constant PPA_VERSION         => "ppa5";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
 use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
@@ -1700,7 +1699,7 @@ sub evt_take_screenshot {
 		$window->iconify;
 		$window->hide;
 		Gtk2::Gdk->flush;
-		$is_in_tray = TRUE;	
+		$is_in_tray = TRUE;
 	}
 
 	#fullscreen screenshot
@@ -4838,6 +4837,13 @@ sub fct_ret_sel_menu {
 		$gscrot_common->get_gettext->get("Advanced selection tool") );
 	$tool_simple = Gtk2::RadioMenuItem->new( $tool_advanced,
 		$gscrot_common->get_gettext->get("Simple selection tool") );
+	$tool_simple->signal_connect(
+		'activate' => sub {
+			my $widget = shift;
+			print Juchuhu. "\n";
+			print "Ich war es\n" if $widget == $tool_simple;
+		}
+	);
 	$tooltips->set_tip(
 		$tool_simple,
 		$gscrot_common->get_gettext->get(
