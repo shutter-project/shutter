@@ -111,6 +111,13 @@ sub show {
 	$self->{_drawing_window}->set_position('center');
 	$self->{_drawing_window}->signal_connect( 'delete_event', sub { return $self->quit(TRUE) } );
 
+	#adjust toplevel window size
+	if ( $self->{_root}->{w} > 640 && $self->{_root}->{h} > 480 ) {
+		$self->{_drawing_window}->set_default_size( 640, 480 );
+	} else {
+		$self->{_drawing_window}->set_default_size( $self->{_root}->{w} - 100, $self->{_root}->{h} - 100 );
+	}
+
 	#dialogs
 	$self->{_dialogs} = GScrot::App::SimpleDialogs->new( $self->{_drawing_window} );
 
@@ -124,12 +131,6 @@ sub show {
 
 	#create canvas
 	$self->{_canvas} = Goo::Canvas->new();
-	if ( $self->{_root}->{w} > 640 && $self->{_root}->{h} > 480 ) {
-		$self->{_canvas}->set_size_request( 640, 480 );
-	} else {
-		$self->{_canvas}->set_size_request( $self->{_root}->{w} - 100, $self->{_root}->{h} - 100 );
-	}
-
 	my $gray = Gtk2::Gdk::Color->parse('gray');
 	$self->{_canvas}->set(
 		'background-color' => sprintf( "#%04x%04x%04x", $gray->red, $gray->green, $gray->blue ) );
@@ -165,7 +166,7 @@ sub show {
 	$toolbar_drawing->set_orientation('vertical');
 	$toolbar_drawing->set_style('icons');
 	$toolbar_drawing->set_icon_size('menu');
-	$toolbar_drawing->set_show_arrow(TRUE);
+	$toolbar_drawing->set_show_arrow(FALSE);
 	$drawing_hbox->pack_start( $toolbar_drawing, FALSE, FALSE, 0 );
 
 	#vruler
@@ -197,7 +198,6 @@ sub show {
 	$drawing_hbox->pack_start( $drawing_inner_vbox, TRUE, TRUE, 0 );
 
 	my $toolbar = $self->{_uimanager}->get_widget("/ToolBar");
-	$toolbar->set_show_arrow(TRUE);
 	$drawing_vbox->pack_start( $self->{_uimanager}->get_widget("/ToolBar"), FALSE, FALSE, 0 );
 
 	$drawing_vbox->pack_start( $drawing_hbox, TRUE, TRUE, 0 );
@@ -222,6 +222,9 @@ sub setup_bottom_hbox {
 
 	my $d = $self->{_gscrot_common}->get_gettext;
 
+	#Tooltips
+	my $tooltips = $self->{_gscrot_common}->get_tooltips;
+
 	my $drawing_bottom_hbox = Gtk2::HBox->new( FALSE, 5 );
 
 	#fill color
@@ -237,6 +240,9 @@ sub setup_bottom_hbox {
 			$self->{_fill_color_alpha} = $fill_color->get_alpha / 65636;
 		}
 	);
+
+	$tooltips->set_tip( $fill_color_label, $d->get("Adjust fill color and opacity") );
+	$tooltips->set_tip( $fill_color,       $d->get("Adjust fill color and opacity") );
 
 	$drawing_bottom_hbox->pack_start( $fill_color_label, FALSE, FALSE, 5 );
 	$drawing_bottom_hbox->pack_start( $fill_color,       FALSE, FALSE, 5 );
@@ -255,18 +261,24 @@ sub setup_bottom_hbox {
 		}
 	);
 
+	$tooltips->set_tip( $stroke_color_label, $d->get("Adjust stroke color and opacity") );
+	$tooltips->set_tip( $stroke_color,       $d->get("Adjust stroke color and opacity") );
+
 	$drawing_bottom_hbox->pack_start( $stroke_color_label, FALSE, FALSE, 5 );
 	$drawing_bottom_hbox->pack_start( $stroke_color,       FALSE, FALSE, 5 );
 
 	#line_width
 	my $linew_label = Gtk2::Label->new( $d->get("Line width") . ":" );
-	my $line_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
+	my $line_spin = Gtk2::SpinButton->new_with_range( 0.5, 20, 0.1 );
 	$line_spin->set_value( $self->{_line_width} );
 	$line_spin->signal_connect(
 		'value-changed' => sub {
 			$self->{_line_width} = $line_spin->get_value;
 		}
 	);
+
+	$tooltips->set_tip( $linew_label, $d->get("Adjust line width") );
+	$tooltips->set_tip( $line_spin,   $d->get("Adjust line width") );
 
 	$drawing_bottom_hbox->pack_start( $linew_label, FALSE, FALSE, 5 );
 	$drawing_bottom_hbox->pack_start( $line_spin,   FALSE, FALSE, 5 );
@@ -282,11 +294,17 @@ sub setup_bottom_hbox {
 		}
 	);
 
+	$tooltips->set_tip( $font_label, $d->get("Select font family and size") );
+	$tooltips->set_tip(
+		$font_btn,
+		$d->get("Select font family and size")
+	);
+
 	$drawing_bottom_hbox->pack_start( $font_label, FALSE, FALSE, 5 );
 	$drawing_bottom_hbox->pack_start( $font_btn,   FALSE, FALSE, 5 );
 
 	#image button
-	my $image_label = Gtk2::Label->new( $d->get("Image") . ":" );
+	my $image_label = Gtk2::Label->new( $d->get("Insert image") . ":" );
 	my $image_btn = Gtk2::MenuToolButton->new( undef, undef );
 	$image_btn->set_menu( $self->ret_objects_menu($image_btn) );
 
@@ -297,6 +315,9 @@ sub setup_bottom_hbox {
 			$self->set_drawing_action(6);
 		}
 	);
+
+	$tooltips->set_tip( $image_label, $d->get("Insert an arbitrary object or file") );
+	$tooltips->set_tip( $image_btn,   $d->get("Insert an arbitrary object or file") );
 
 	$drawing_bottom_hbox->pack_start( $image_label, FALSE, FALSE, 5 );
 	$drawing_bottom_hbox->pack_start( $image_btn,   FALSE, FALSE, 5 );
@@ -418,9 +439,9 @@ sub quit {
 
 		#set question text
 		$warn_dialog->set(
-			'text' => sprintf( $d->get("Save the changes to image %s before closing?"), "'$name'" )
+			'text' => sprintf( $d->get("Save the changes to image %s before closing?"), "'$name$type'" )
 		);
-		
+
 		#set text...
 		$self->update_warning_text($warn_dialog);
 
@@ -435,7 +456,7 @@ sub quit {
 
 		$warn_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-save', 'dialog' ) );
 
-		$warn_dialog->set( 'title' => $d->get("Close") . " " . $name );
+		$warn_dialog->set( 'title' => $d->get("Close") . " " . $name.$type );
 
 		#don't save button
 		my $dsave_btn = Gtk2::Button->new_with_mnemonic( $d->get("Do_n't save") );
@@ -443,7 +464,7 @@ sub quit {
 
 		#cancel button
 		my $cancel_btn = Gtk2::Button->new_from_stock('gtk-cancel');
-		$cancel_btn->can_default (TRUE);
+		$cancel_btn->can_default(TRUE);
 
 		#save button
 		my $save_btn = Gtk2::Button->new_from_stock('gtk-save');
@@ -452,7 +473,7 @@ sub quit {
 		$warn_dialog->add_action_widget( $cancel_btn, 20 );
 		$warn_dialog->add_action_widget( $save_btn,   30 );
 
-		$warn_dialog->set_default_response (20);
+		$warn_dialog->set_default_response(20);
 
 		$warn_dialog->vbox->show_all;
 		my $response = $warn_dialog->run;
@@ -474,7 +495,7 @@ sub quit {
 }
 
 sub update_warning_text {
-	my $self = shift;
+	my $self        = shift;
 	my $warn_dialog = shift;
 
 	my $d = $self->{_gscrot_common}->get_gettext;
@@ -1030,6 +1051,7 @@ sub clear_item_from_canvas {
 		eval {
 			my $bigparent = $_->get_parent;
 			$bigparent->remove_child( $bigparent->find_child($_) );
+
 			#clear from session hash
 			delete $self->{_items}{$_};
 		};
@@ -1501,7 +1523,7 @@ sub ret_item_menu {
 				my $line_hbox = Gtk2::HBox->new( TRUE, 5 );
 				$line_hbox->set_border_width(5);
 				my $linew_label = Gtk2::Label->new( $d->get("Line width") );
-				$line_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
+				$line_spin = Gtk2::SpinButton->new_with_range( 0.5, 20, 0.1 );
 
 				$line_spin->set_value( $item->get('line-width') );
 

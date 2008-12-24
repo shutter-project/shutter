@@ -62,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.302";
+use constant BRANCH              => "Rev.303";
 use constant PPA_VERSION         => "ppa5";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -158,8 +158,7 @@ my %session_start_screen;
 my $clipboard = Gtk2::Clipboard->get( Gtk2::Gdk->SELECTION_CLIPBOARD );
 
 #Tooltips
-my $tooltips = Gtk2::Tooltips->new;
-$tooltips->force_window;
+my $tooltips = $gscrot_common->get_tooltips;
 
 #main window gui
 #--------------------------------------
