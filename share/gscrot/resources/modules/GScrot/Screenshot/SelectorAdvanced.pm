@@ -70,26 +70,51 @@ sub select_advanced {
 
 	$root_pixmap->draw_pixbuf ($gc, $root_pixbuf, 0, 0, 0, 0 , $self->{_root}->{w}, $self->{_root}->{h}, 'none', 0, 0);
 
-	#we need this little hack for the pango context
-	my $scratch = Gtk2::Invisible->new;
-	$scratch->realize;
+	#create cairo context und layout
+	my $cr = Gtk2::Gdk::Cairo::Context->create ($root_pixmap);
+	my $layout = Gtk2::Pango::Cairo::create_layout ($cr);
+	$layout->set_width(int($self->{_root}->{w} / 2) * Gtk2::Pango->scale);
+	$layout->set_wrap('word');
 
-	#create the layout
-	my $layout = Gtk2::Pango::Layout->new ($scratch->create_pango_context);
-	$layout->set_width(Gtk2::Pango->PANGO_PIXELS ($self->{_root}->{w}));
-	
-#	my $size = int( $self->{_root}->{w} * 0.01 );
-
-	$layout->set_font_description(Gtk2::Pango::FontDescription->from_string ("Sans"));
-
-	#text to display
+	#create font family and determine size
+	my $size = int( $self->{_root}->{w} * 0.02 );
+	$layout->set_font_description(Gtk2::Pango::FontDescription->from_string ("Sans $size"));
 	my $text = $d->get(
-		"Draw a rectangular area using the mouse.\nTo take a screenshot, press the Enter key. Press Esc to quit.");
-	$layout->set_markup("<span foreground='#000000' background='#F1EEC4'>$text</span>");
+		"Draw a rectangular area using the mouse. To take a screenshot, press the Enter key. Press Esc to quit.");
+	$layout->set_markup("<span foreground='#FFFFFF'>$text</span>");
 
-	#draw the layout to the drawable 
-	$root_pixmap->draw_layout ($gc, 0, 0, $layout);
+	#draw the rectangle
+	$cr->set_source_rgba (0, 0, 0, 0.8);
 
+	my ($lw, $lh) = $layout->get_pixel_size;
+
+	my $w = $lw+$size*2;
+	my $h = $lh+$size*2;
+	my $x = int(($self->{_root}->{w} - $w) / 2);
+	my $y = int(($self->{_root}->{h} - $h) / 2);
+	my $r = 30;
+
+    $cr->move_to($x+$r,$y);                      # Move to A
+    $cr->line_to($x+$w-$r,$y);                    # Straight line to B
+    $cr->curve_to($x+$w,$y,$x+$w,$y,$x+$w,$y+$r);       # Curve to C, Control points are both at Q
+    $cr->line_to($x+$w,$y+$h-$r);                  # Move to D
+    $cr->curve_to($x+$w,$y+$h,$x+$w,$y+$h,$x+$w-$r,$y+$h); # Curve to E
+    $cr->line_to($x+$r,$y+$h);                    # Line to F
+    $cr->curve_to($x,$y+$h,$x,$y+$h,$x,$y+$h-$r);       # Curve to G
+    $cr->line_to($x,$y+$r);                      # Line to H
+    $cr->curve_to($x,$y,$x,$y,$x+$r,$y);             # Cu$rve to A
+
+	$cr->fill;
+	
+	#...and place the text above
+	$cr->set_source_rgb (0.0, 0.0, 1.0);
+	$cr->set_operator('over');
+	$cr->move_to ($x+$size, $y+$size);
+
+	Gtk2::Pango::Cairo::show_layout ($cr, $layout);
+
+	#keep a clean copy of the pixbuf and show it
+	#after pressing the mouse button
 	my $clean_pixbuf = $root_pixbuf->copy;
 
 	$root_pixbuf = Gtk2::Gdk::Pixbuf->get_from_drawable(

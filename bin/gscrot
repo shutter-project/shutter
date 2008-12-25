@@ -62,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.303";
+use constant BRANCH              => "Rev.304";
 use constant PPA_VERSION         => "ppa5";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -2630,7 +2630,6 @@ sub fct_integrate_screenshot_in_notebook {
 			$window->show_all;
 			&fct_update_gui;
 		}
-
 	}
 
 	return $key;
@@ -3649,7 +3648,7 @@ sub fct_load_session {
 	};
 	if ($@) {
 		&dlg_error_message(
-			$gscrot_common->get_gettext->get("Session could not be restored!") . " : $@" );
+			$gscrot_common->get_gettext->get("Session could not be restored!") . "\n : $@" );
 
 		unlink $sessionfile;
 
@@ -3731,8 +3730,6 @@ sub fct_remove {
 
 	#single file
 	if ($key) {
-
-		return FALSE unless &fct_screenshot_exists($key);
 
 		$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) )
 			;    #delete tab

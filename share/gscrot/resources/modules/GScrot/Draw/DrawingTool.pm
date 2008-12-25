@@ -269,7 +269,7 @@ sub setup_bottom_hbox {
 
 	#line_width
 	my $linew_label = Gtk2::Label->new( $d->get("Line width") . ":" );
-	my $line_spin = Gtk2::SpinButton->new_with_range( 0.5, 20, 0.1 );
+	my $line_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
 	$line_spin->set_value( $self->{_line_width} );
 	$line_spin->signal_connect(
 		'value-changed' => sub {
@@ -851,6 +851,8 @@ sub event_item_on_motion_notify {
 		&& $ev->state >= 'button1-mask'
 		)
 	{
+
+		$self->{_canvas}->window->set_cursor(Gtk2::Gdk::Cursor->new('bottom-right-corner'));
 
 		my $item = $self->{_current_new_item};
 
@@ -1523,7 +1525,7 @@ sub ret_item_menu {
 				my $line_hbox = Gtk2::HBox->new( TRUE, 5 );
 				$line_hbox->set_border_width(5);
 				my $linew_label = Gtk2::Label->new( $d->get("Line width") );
-				$line_spin = Gtk2::SpinButton->new_with_range( 0.5, 20, 0.1 );
+				$line_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
 
 				$line_spin->set_value( $item->get('line-width') );
 
@@ -1898,56 +1900,56 @@ sub handle_rects {
 			my $pattern = $self->create_color( 'green', 0.3 );
 
 			$self->{_items}{$item}{top_middle} = Goo::Canvas::Rect->new(
-				$root, $middle_h, $top, 8, 8,
+				$root, $middle_h, $top, 8,8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
 			);
 
 			$self->{_items}{$item}{top_left} = Goo::Canvas::Rect->new(
-				$root, $left, $top, 8, 8,
+				$root, $left, $top, 8,8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
 			);
 
 			$self->{_items}{$item}{top_right} = Goo::Canvas::Rect->new(
-				$root, $right, $top, 8, 8,
+				$root, $right, $top, 8,8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
 			);
 
 			$self->{_items}{$item}{bottom_middle} = Goo::Canvas::Rect->new(
-				$root, $middle_h, $bottom, 8, 8,
+				$root, $middle_h, $bottom, 8,8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
 			);
 
 			$self->{_items}{$item}{bottom_left} = Goo::Canvas::Rect->new(
-				$root, $left, $bottom, 8, 8,
+				$root, $left, $bottom, 8,8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
 			);
 
 			$self->{_items}{$item}{bottom_right} = Goo::Canvas::Rect->new(
-				$root, $right, $bottom, 8, 8,
+				$root, $right, $bottom, 8,8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
 			);
 
 			$self->{_items}{$item}{middle_left} = Goo::Canvas::Rect->new(
-				$root, $left - 8, $middle_v, 8, 8,
+				$root, $left - 8, $middle_v, 8,8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
 			);
 
 			$self->{_items}{$item}{middle_right} = Goo::Canvas::Rect->new(
-				$root, $right, $middle_v, 8, 8,
+				$root, $right, $middle_v, 8,8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
@@ -2079,6 +2081,8 @@ sub handle_rects {
 
 		}
 	}
+	
+	return TRUE;
 }
 
 sub event_item_on_button_release {
@@ -2686,6 +2690,7 @@ sub set_drawing_action {
 
 sub change_cursor_to_current_pixbuf {
 	my $self = shift;
+	my $scale = shift;
 
 	#define own icons
 	my $dicons = $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool";
@@ -2694,9 +2699,9 @@ sub change_cursor_to_current_pixbuf {
 	$self->{_current_mode_descr} = "image";
 	my $copy = $self->{_current_pixbuf}->copy;
 	if ( $copy->get_width < 200 && $copy->get_height < 200 ) {
-		my $scaled_copy = $copy->scale_simple( Gtk2::IconSize->lookup('menu'), 'bilinear' );
+		$copy = $copy->scale_simple( Gtk2::IconSize->lookup('menu'), 'bilinear' ) if $scale;
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default,
-			$scaled_copy, undef, undef );
+			$copy, undef, undef );
 
 	} else {
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
