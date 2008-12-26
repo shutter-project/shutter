@@ -82,7 +82,7 @@ sub workspace {
 
 	#mh...just sleep until workspace is changed (fixme?)
 	if ( $self->{_delay} < 2 && $wrksp_changed ) {
-		$self->{_delay} = 2;
+		$self->{_delay} = 1;
 	}
 
 	my $output = $self->get_pixbuf_from_drawable(

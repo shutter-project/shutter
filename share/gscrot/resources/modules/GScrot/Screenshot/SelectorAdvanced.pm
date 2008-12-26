@@ -63,55 +63,62 @@ sub select_advanced {
 	my $root_pixmap = Gtk2::Gdk::Pixmap->new(
 		undef,
 		$self->{_root}->{w},
-		$self->{_root}->{h}, $self->{_root}->get_depth
+		$self->{_root}->{h},
+		$self->{_root}->get_depth
 	);
 
-	my $gc = Gtk2::Gdk::GC->new ($root_pixmap);
+	my $gc = Gtk2::Gdk::GC->new($root_pixmap);
 
-	$root_pixmap->draw_pixbuf ($gc, $root_pixbuf, 0, 0, 0, 0 , $self->{_root}->{w}, $self->{_root}->{h}, 'none', 0, 0);
+	$root_pixmap->draw_pixbuf(
+		$gc, $root_pixbuf, 0, 0, 0, 0,
+		$self->{_root}->{w},
+		$self->{_root}->{h},
+		'none', 0, 0
+	);
 
 	#create cairo context und layout
-	my $cr = Gtk2::Gdk::Cairo::Context->create ($root_pixmap);
-	my $layout = Gtk2::Pango::Cairo::create_layout ($cr);
-	$layout->set_width(int($self->{_root}->{w} / 2) * Gtk2::Pango->scale);
+	my $cr     = Gtk2::Gdk::Cairo::Context->create($root_pixmap);
+	my $layout = Gtk2::Pango::Cairo::create_layout($cr);
+	$layout->set_width( int( $self->{_root}->{w} / 2 ) * Gtk2::Pango->scale );
 	$layout->set_wrap('word');
 
 	#create font family and determine size
 	my $size = int( $self->{_root}->{w} * 0.02 );
-	$layout->set_font_description(Gtk2::Pango::FontDescription->from_string ("Sans $size"));
-	my $text = $d->get(
-		"Draw a rectangular area using the mouse. To take a screenshot, press the Enter key. Press Esc to quit.");
+	$layout->set_font_description( Gtk2::Pango::FontDescription->from_string("Sans $size") );
+	my $text
+		= $d->get(
+		"Draw a rectangular area using the mouse. To take a screenshot, press the Enter key. Press Esc to quit."
+		);
 	$layout->set_markup("<span foreground='#FFFFFF'>$text</span>");
 
 	#draw the rectangle
-	$cr->set_source_rgba (0, 0, 0, 0.8);
+	$cr->set_source_rgba( 0, 0, 0, 0.8 );
 
-	my ($lw, $lh) = $layout->get_pixel_size;
+	my ( $lw, $lh ) = $layout->get_pixel_size;
 
-	my $w = $lw+$size*2;
-	my $h = $lh+$size*2;
-	my $x = int(($self->{_root}->{w} - $w) / 2);
-	my $y = int(($self->{_root}->{h} - $h) / 2);
+	my $w = $lw + $size * 2;
+	my $h = $lh + $size * 2;
+	my $x = int( ( $self->{_root}->{w} - $w ) / 2 );
+	my $y = int( ( $self->{_root}->{h} - $h ) / 2 );
 	my $r = 30;
 
-    $cr->move_to($x+$r,$y);                      # Move to A
-    $cr->line_to($x+$w-$r,$y);                    # Straight line to B
-    $cr->curve_to($x+$w,$y,$x+$w,$y,$x+$w,$y+$r);       # Curve to C, Control points are both at Q
-    $cr->line_to($x+$w,$y+$h-$r);                  # Move to D
-    $cr->curve_to($x+$w,$y+$h,$x+$w,$y+$h,$x+$w-$r,$y+$h); # Curve to E
-    $cr->line_to($x+$r,$y+$h);                    # Line to F
-    $cr->curve_to($x,$y+$h,$x,$y+$h,$x,$y+$h-$r);       # Curve to G
-    $cr->line_to($x,$y+$r);                      # Line to H
-    $cr->curve_to($x,$y,$x,$y,$x+$r,$y);             # Cu$rve to A
-
+	$cr->move_to( $x + $r, $y );
+	$cr->line_to( $x + $w - $r, $y );
+	$cr->curve_to( $x + $w, $y, $x + $w, $y, $x + $w, $y + $r );
+	$cr->line_to( $x + $w, $y + $h - $r );
+	$cr->curve_to( $x + $w, $y + $h, $x + $w, $y + $h, $x + $w - $r, $y + $h );
+	$cr->line_to( $x + $r, $y + $h );
+	$cr->curve_to( $x, $y + $h, $x, $y + $h, $x, $y + $h - $r );
+	$cr->line_to( $x, $y + $r );
+	$cr->curve_to( $x, $y, $x, $y, $x + $r, $y );
 	$cr->fill;
-	
-	#...and place the text above
-	$cr->set_source_rgb (0.0, 0.0, 1.0);
-	$cr->set_operator('over');
-	$cr->move_to ($x+$size, $y+$size);
 
-	Gtk2::Pango::Cairo::show_layout ($cr, $layout);
+	#...and place the text above
+	$cr->set_source_rgb( 0.0, 0.0, 1.0 );
+	$cr->set_operator('over');
+	$cr->move_to( $x + $size, $y + $size );
+
+	Gtk2::Pango::Cairo::show_layout( $cr, $layout );
 
 	#keep a clean copy of the pixbuf and show it
 	#after pressing the mouse button

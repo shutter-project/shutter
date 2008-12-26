@@ -62,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.304";
+use constant BRANCH              => "Rev.305";
 use constant PPA_VERSION         => "ppa5";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -1978,6 +1978,7 @@ sub evt_take_screenshot {
 	&fct_set_toolbar_sensitive( TRUE, $data );
 
 	#focus window after taking a screenshot
+	$window->deiconify;
 	$window->show_all;
 	$is_in_tray = FALSE;
 
@@ -4670,9 +4671,6 @@ sub fct_ret_workspace_menu {
 				my @vp = ( $i * $screen->get_width, $j * $screen->get_height );
 				my $vp_name = "$wm_name x: $i y: $j";
 
-				#do not offer current viewport
-				next if ( $vp[0] == $vpx && $vp[1] == $vpy );
-
 				print "gscrot_wrksp_direct_compiz" . $vp[0] . "x" . $vp[1] . "\n"
 					if $gscrot_common->get_debug;
 
@@ -4682,6 +4680,11 @@ sub fct_ret_workspace_menu {
 					"gscrot_wrksp_direct_compiz" . $vp[0] . "x" . $vp[1]
 				);
 				$menu_wrksp->append($vp_item);
+
+				#do not offer current viewport
+				if ( $vp[0] == $vpx && $vp[1] == $vpy ) {
+					$vp_item->set_sensitive(FALSE);
+				}
 			}    #columns
 		}    #rows
 
@@ -4696,16 +4699,17 @@ sub fct_ret_workspace_menu {
 
 		foreach my $space (@workspaces) {
 			next unless defined $space;
-			if ( $active_workspace->get_number != $space->get_number ) {
-				my $wrkspace_item = Gtk2::MenuItem->new_with_label( $space->get_name );
-				$wrkspace_item->signal_connect(
-					'activate' => \&evt_take_screenshot,
-					"gscrot_wrksp_direct" . $space->get_number
-				);
-				$menu_wrksp->append($wrkspace_item);
+
+			my $wrkspace_item = Gtk2::MenuItem->new_with_label( $space->get_name );
+			$wrkspace_item->signal_connect(
+				'activate' => \&evt_take_screenshot,
+				"gscrot_wrksp_direct" . $space->get_number
+			);
+			$menu_wrksp->append($wrkspace_item);
+			if ( $active_workspace->get_number == $space->get_number ) {
+				$wrkspace_item->set_sensitive(FALSE);
 			}
 		}
-
 	}
 
 	$button_raw_menu->set_menu($menu_wrksp);
@@ -4833,13 +4837,6 @@ sub fct_ret_sel_menu {
 		$gscrot_common->get_gettext->get("Advanced selection tool") );
 	$tool_simple = Gtk2::RadioMenuItem->new( $tool_advanced,
 		$gscrot_common->get_gettext->get("Simple selection tool") );
-	$tool_simple->signal_connect(
-		'activate' => sub {
-			my $widget = shift;
-			print Juchuhu. "\n";
-			print "Ich war es\n" if $widget == $tool_simple;
-		}
-	);
 	$tooltips->set_tip(
 		$tool_simple,
 		$gscrot_common->get_gettext->get(
