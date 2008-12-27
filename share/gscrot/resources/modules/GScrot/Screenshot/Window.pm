@@ -43,9 +43,9 @@ sub new {
 	#call constructor of super class (gscrot_common, include_cursor, delay)
 	my $self = $class->SUPER::new( shift, shift, shift );
 
-	$self->{_include_border}  = shift;
-	$self->{_xid}             = shift;    #only used by window_by_xid, undef this when selecting a window
-	$self->{_mode}            = shift;
+	$self->{_include_border} = shift;
+	$self->{_xid}  = shift;    #only used by window_by_xid, undef this when selecting a window
+	$self->{_mode} = shift;
 	$self->{_main_gtk_window} = shift;
 	$self->{_is_in_tray}      = shift;
 
@@ -114,7 +114,8 @@ sub get_window_size {
 	if ($border) {
 
 		#find wm_window
-		my $wm_window = Gtk2::Gdk::Window->foreign_new( $self->find_wm_window( $wnck_window->get_xid ) );
+		my $wm_window
+			= Gtk2::Gdk::Window->foreign_new( $self->find_wm_window( $wnck_window->get_xid ) );
 		$gdk_window = $wm_window if $wm_window;
 
 		#get_size of it
@@ -142,14 +143,17 @@ sub window_by_xid {
 	my $gdk_window  = Gtk2::Gdk::Window->foreign_new( $self->{_xid} );
 	my $wnck_window = Gnome2::Wnck::Window->get( $self->{_xid} );
 
-	my ( $xp, $yp, $widthp, $heightp ) = $self->get_window_size( $wnck_window, $gdk_window, $self->{_include_border} );
+	my ( $xp, $yp, $widthp, $heightp )
+		= $self->get_window_size( $wnck_window, $gdk_window, $self->{_include_border} );
 
 	#focus selected window (maybe it is hidden)
 	$gdk_window->focus(time);
 	Gtk2::Gdk->flush;
 	sleep 1 if $self->{_delay} < 1;
 
-	return $self->get_pixbuf_from_drawable( $self->{_root}, $xp, $yp, $widthp, $heightp, $self->{_include_cursor}, $self->{_delay} );
+	return $self->get_pixbuf_from_drawable( $self->{_root}, $xp, $yp, $widthp, $heightp,
+		$self->{_include_cursor},
+		$self->{_delay} );
 
 }
 
@@ -210,7 +214,14 @@ sub window_select {
 
 						#clear the last rectangle
 						if ( defined $self->{_children}{'last_win'} ) {
-							$self->{_root}->draw_rectangle( $gc, 0, $self->{_children}{'last_win'}{'x'}, $self->{_children}{'last_win'}{'y'}, $self->{_children}{'last_win'}{'width'}, $self->{_children}{'last_win'}{'height'} );
+							$self->{_root}->draw_rectangle(
+								$gc,
+								0,
+								$self->{_children}{'last_win'}{'x'},
+								$self->{_children}{'last_win'}{'y'},
+								$self->{_children}{'last_win'}{'width'},
+								$self->{_children}{'last_win'}{'height'}
+							);
 						}
 
 						&fct_ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
@@ -226,14 +237,24 @@ sub window_select {
 					if ( ( $self->{_mode} eq "section" || $self->{_mode} eq "tray_section" )
 						&& !$window_selected )
 					{
-						return FALSE
-							unless defined $self->{_children}{'last_win'};
-						$self->query_children( $self->{_children}{'last_win'}{'gdk_window'}->XWINDOW, $self->{_children}{'last_win'}{'gdk_window'}->XWINDOW );
+
+						#something went wrong here, no window on screen detected
+						unless ( $self->{_children}{'last_win'}{'gdk_window'} ) {
+							$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
+							$output = "";
+							return $output;
+						}
+
+						$self->query_children(
+							$self->{_children}{'last_win'}{'gdk_window'}->XWINDOW,
+							$self->{_children}{'last_win'}{'gdk_window'}->XWINDOW
+						);
 
 						#focus selected window (maybe it is hidden)
 						$self->{_children}{'last_win'}{'gdk_window'}->focus(time);
 						Gtk2::Gdk->flush;
-						$window_selected = $self->{_children}{'curr_win'}{'gdk_window'};
+						$window_selected
+							= $self->{_children}{'curr_win'}{'gdk_window'};
 
 						return TRUE;
 					}
@@ -241,26 +262,42 @@ sub window_select {
 					$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
 
 					#clear the last rectangle
-					if ( defined $self->{_children}{'last_win'} &&  $self->{_children}{'last_win'}{'gdk_window'}) {
-						$self->{_root}->draw_rectangle( $gc, 0, $self->{_children}{'last_win'}{'x'}, $self->{_children}{'last_win'}{'y'}, $self->{_children}{'last_win'}{'width'}, $self->{_children}{'last_win'}{'height'} );
+					if ( defined $self->{_children}{'last_win'}
+						&& $self->{_children}{'last_win'}{'gdk_window'} )
+					{
+						$self->{_root}->draw_rectangle(
+							$gc,
+							0,
+							$self->{_children}{'last_win'}{'x'},
+							$self->{_children}{'last_win'}{'y'},
+							$self->{_children}{'last_win'}{'width'},
+							$self->{_children}{'last_win'}{'height'}
+						);
 
 						#focus selected window (maybe it is hidden)
 						$self->{_children}{'last_win'}{'gdk_window'}->focus(time);
 						Gtk2::Gdk->flush;
 						sleep 1 if $self->{_delay} < 1;
 
-						#						my ($ordering, $rectangles) = $x->ShapeGetRectangles(&fct_find_wm_window($self->{_children}{ 'curr_win' }{ 'window' }->get_xid), 'Bounding');
-						#						print $rectangles;
+#						my ($ordering, $rectangles) = $x->ShapeGetRectangles(&fct_find_wm_window($self->{_children}{ 'curr_win' }{ 'window' }->get_xid), 'Bounding');
+#						print $rectangles;
 
-						$output = $self->get_pixbuf_from_drawable( $self->{_root}, $self->{_children}{'curr_win'}{'x'}, $self->{_children}{'curr_win'}{'y'}, $self->{_children}{'curr_win'}{'width'}, $self->{_children}{'curr_win'}{'height'}, $self->{_include_cursor},
-							$self->{_delay} );
+						$output = $self->get_pixbuf_from_drawable(
+							$self->{_root},
+							$self->{_children}{'curr_win'}{'x'},
+							$self->{_children}{'curr_win'}{'y'},
+							$self->{_children}{'curr_win'}{'width'},
+							$self->{_children}{'curr_win'}{'height'},
+							$self->{_include_cursor},
+							$self->{_delay}
+						);
 
 					} else {
 						$output = 0;
 					}
 				} elsif ( $event->type eq 'motion-notify' ) {
 					print "Type: " . $event->type . "\n"
-						if ( defined $event && $self->{_gc}->get_debug  );
+						if ( defined $event && $self->{_gc}->get_debug );
 
 					my $min_x = $self->{_root}->{w};
 					my $min_y = $self->{_root}->{h};
@@ -268,36 +305,43 @@ sub window_select {
 					#if there is no window already selected
 					unless ($window_selected) {
 						print "Searching for window...\n"
-							if $self->{_gc}->get_debug ;
+							if $self->{_gc}->get_debug;
 						foreach my $curr_window (@wnck_windows) {
 							$drawable = Gtk2::Gdk::Window->foreign_new( $curr_window->get_xid );
 							next unless defined $drawable;
 
 							print "Do not detect gscrot main window...\n"
-								if $self->{_gc}->get_debug ;
+								if $self->{_gc}->get_debug;
 
 							#do not detect gscrot window when it is hidden
 							if (   $self->{_main_gtk_window}->window
 								&& $self->{_is_in_tray} )
 							{
 								next
-									if ( $curr_window->get_xid == $self->{_main_gtk_window}->window->get_xid );
+									if ( $curr_window->get_xid
+									== $self->{_main_gtk_window}->window->get_xid );
 							}
 
-							my ( $xp, $yp, $widthp, $heightp ) = $self->get_window_size( $curr_window, $drawable, $self->{_include_border} );
+							my ( $xp, $yp, $widthp, $heightp )
+								= $self->get_window_size( $curr_window, $drawable,
+								$self->{_include_border} );
 
 							print "Create region of window...\n"
-								if $self->{_gc}->get_debug ;
-							my $window_region = Gtk2::Gdk::Region->rectangle( Gtk2::Gdk::Rectangle->new( $xp, $yp, $widthp, $heightp ) );
+								if $self->{_gc}->get_debug;
+							my $window_region = Gtk2::Gdk::Region->rectangle(
+								Gtk2::Gdk::Rectangle->new( $xp, $yp, $widthp, $heightp ) );
 
 							print "determine if window fits on screen...\n"
-								if $self->{_gc}->get_debug ;
-							if (   $curr_window->is_visible_on_workspace( $self->{_wnck_screen}->get_active_workspace )
+								if $self->{_gc}->get_debug;
+							if ($curr_window->is_visible_on_workspace(
+									$self->{_wnck_screen}->get_active_workspace
+								)
 								&& $window_region->point_in( $event->x, $event->y )
-								&& ( ( $xp + $widthp ) * ( $yp + $heightp ) <= $min_x * $min_y ) )
+								&& ( ( $xp + $widthp ) * ( $yp + $heightp ) <= $min_x * $min_y )
+								)
 							{
 								print "Parent X: $xp, Y: $yp, Width: $widthp, Height: $heightp\n"
-									if $self->{_gc}->get_debug ;
+									if $self->{_gc}->get_debug;
 								$self->{_children}{'curr_win'}{'window'}     = $curr_window;
 								$self->{_children}{'curr_win'}{'gdk_window'} = $drawable;
 								$self->{_children}{'curr_win'}{'x'}          = $xp;
@@ -323,60 +367,98 @@ sub window_select {
 						&& $window_selected )
 					{
 						print "Searching for children now...\n"
-							if $self->{_gc}->get_debug ;
+							if $self->{_gc}->get_debug;
 
 						#selected window is parent
 						my $curr_parent = $window_selected->XWINDOW;
 						foreach my $curr_child ( keys %{ $self->{_children}{$curr_parent} } ) {
 							next unless defined $curr_child;
 							print "Child Current Event x: " . $event->x . ", y: " . $event->y . "\n"
-								if $self->{_gc}->get_debug ;
+								if $self->{_gc}->get_debug;
 
-							my $section_region
-								= Gtk2::Gdk::Region->rectangle(
-								Gtk2::Gdk::Rectangle->new( $self->{_children}{$curr_parent}{$curr_child}{'x'}, $self->{_children}{$curr_parent}{$curr_child}{'y'}, $self->{_children}{$curr_parent}{$curr_child}{'width'}, $self->{_children}{$curr_parent}{$curr_child}{'height'} )
-								);
+							my $section_region = Gtk2::Gdk::Region->rectangle(
+								Gtk2::Gdk::Rectangle->new(
+									$self->{_children}{$curr_parent}{$curr_child}{'x'},
+									$self->{_children}{$curr_parent}{$curr_child}{'y'},
+									$self->{_children}{$curr_parent}{$curr_child}{'width'},
+									$self->{_children}{$curr_parent}{$curr_child}{'height'}
+								)
+							);
 
 							if ($section_region->point_in( $event->x, $event->y )
 								&&
 
-								(   ( $self->{_children}{$curr_parent}{$curr_child}{'x'} + $self->{_children}{$curr_parent}{$curr_child}{'width'} ) * ( $self->{_children}{$curr_parent}{$curr_child}{'y'} + $self->{_children}{$curr_parent}{$curr_child}{'height'} )
-									<= $min_x * $min_y
+								(   (     $self->{_children}{$curr_parent}{$curr_child}{'x'}
+										+ $self->{_children}{$curr_parent}{$curr_child}{'width'}
+									) * (
+										$self->{_children}{$curr_parent}{$curr_child}{'y'}
+											+ $self->{_children}{$curr_parent}{$curr_child}
+											{'height'}
+									) <= $min_x * $min_y
 								)
 
 								)
 							{
-								$self->{_children}{'curr_win'}{'gdk_window'} = $self->{_children}{$curr_parent}{$curr_child}{'gdk_window'};
-								$self->{_children}{'curr_win'}{'x'}          = $self->{_children}{$curr_parent}{$curr_child}{'x'};
-								$self->{_children}{'curr_win'}{'y'}          = $self->{_children}{$curr_parent}{$curr_child}{'y'};
-								$self->{_children}{'curr_win'}{'width'}      = $self->{_children}{$curr_parent}{$curr_child}{'width'};
-								$self->{_children}{'curr_win'}{'height'}     = $self->{_children}{$curr_parent}{$curr_child}{'height'};
-								$min_x                                       = $self->{_children}{$curr_parent}{$curr_child}{'x'} + $self->{_children}{$curr_parent}{$curr_child}{'width'};
-								$min_y                                       = $self->{_children}{$curr_parent}{$curr_child}{'y'} + $self->{_children}{$curr_parent}{$curr_child}{'height'};
+								$self->{_children}{'curr_win'}{'gdk_window'}
+									= $self->{_children}{$curr_parent}{$curr_child}{'gdk_window'};
+								$self->{_children}{'curr_win'}{'x'}
+									= $self->{_children}{$curr_parent}{$curr_child}{'x'};
+								$self->{_children}{'curr_win'}{'y'}
+									= $self->{_children}{$curr_parent}{$curr_child}{'y'};
+								$self->{_children}{'curr_win'}{'width'}
+									= $self->{_children}{$curr_parent}{$curr_child}{'width'};
+								$self->{_children}{'curr_win'}{'height'}
+									= $self->{_children}{$curr_parent}{$curr_child}{'height'};
+								$min_x = $self->{_children}{$curr_parent}{$curr_child}{'x'}
+									+ $self->{_children}{$curr_parent}{$curr_child}{'width'};
+								$min_y = $self->{_children}{$curr_parent}{$curr_child}{'y'}
+									+ $self->{_children}{$curr_parent}{$curr_child}{'height'};
 							}
 						}
 					}    #endif search for children
 
 					#draw rect if needed
-					if ( $self->{_children}{'last_win'}{'gdk_window'} ne $self->{_children}{'curr_win'}{'gdk_window'} ) {
+					if ( $self->{_children}{'last_win'}{'gdk_window'} ne
+						$self->{_children}{'curr_win'}{'gdk_window'} )
+					{
 
 						#clear last rectangle
 						if ( $self->{_children}{'last_win'}{'gdk_window'} ) {
-							$self->{_root}->draw_rectangle( $gc, 0, $self->{_children}{'last_win'}{'x'}, $self->{_children}{'last_win'}{'y'}, $self->{_children}{'last_win'}{'width'}, $self->{_children}{'last_win'}{'height'} );
+							$self->{_root}->draw_rectangle(
+								$gc,
+								0,
+								$self->{_children}{'last_win'}{'x'},
+								$self->{_children}{'last_win'}{'y'},
+								$self->{_children}{'last_win'}{'width'},
+								$self->{_children}{'last_win'}{'height'}
+							);
 							Gtk2::Gdk->flush;
 						}
 
 						#draw new rectangle for current window
 						if ( $self->{_children}{'curr_win'}{'gdk_window'} ) {
-							$self->{_root}->draw_rectangle( $gc, 0, $self->{_children}{'curr_win'}{'x'} - 3, $self->{_children}{'curr_win'}{'y'} - 3, $self->{_children}{'curr_win'}{'width'} + 5, $self->{_children}{'curr_win'}{'height'} + 5 );
+							$self->{_root}->draw_rectangle(
+								$gc,
+								0,
+								$self->{_children}{'curr_win'}{'x'} - 3,
+								$self->{_children}{'curr_win'}{'y'} - 3,
+								$self->{_children}{'curr_win'}{'width'} + 5,
+								$self->{_children}{'curr_win'}{'height'} + 5
+							);
 						}
-						
-						$self->{_children}{'last_win'}{'window'}     = $self->{_children}{'curr_win'}{'window'};
-						$self->{_children}{'last_win'}{'gdk_window'} = $self->{_children}{'curr_win'}{'gdk_window'};
-						$self->{_children}{'last_win'}{'x'}          = $self->{_children}{'curr_win'}{'x'} - 3;
-						$self->{_children}{'last_win'}{'y'}          = $self->{_children}{'curr_win'}{'y'} - 3;
-						$self->{_children}{'last_win'}{'width'}      = $self->{_children}{'curr_win'}{'width'} + 5;
-						$self->{_children}{'last_win'}{'height'}     = $self->{_children}{'curr_win'}{'height'} + 5;
+
+						$self->{_children}{'last_win'}{'window'}
+							= $self->{_children}{'curr_win'}{'window'};
+						$self->{_children}{'last_win'}{'gdk_window'}
+							= $self->{_children}{'curr_win'}{'gdk_window'};
+						$self->{_children}{'last_win'}{'x'}
+							= $self->{_children}{'curr_win'}{'x'} - 3;
+						$self->{_children}{'last_win'}{'y'}
+							= $self->{_children}{'curr_win'}{'y'} - 3;
+						$self->{_children}{'last_win'}{'width'}
+							= $self->{_children}{'curr_win'}{'width'} + 5;
+						$self->{_children}{'last_win'}{'height'}
+							= $self->{_children}{'curr_win'}{'height'} + 5;
 
 					}
 				} else {

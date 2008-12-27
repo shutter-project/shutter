@@ -109,13 +109,15 @@ sub show {
 	$self->{_drawing_window} = Gtk2::Window->new('toplevel');
 	$self->{_drawing_window}->set_title( "GScrot DrawingTool - " . $self->{_filename} );
 	$self->{_drawing_window}->set_position('center');
+	$self->{_drawing_window}->set_modal(1);
 	$self->{_drawing_window}->signal_connect( 'delete_event', sub { return $self->quit(TRUE) } );
 
 	#adjust toplevel window size
 	if ( $self->{_root}->{w} > 640 && $self->{_root}->{h} > 480 ) {
 		$self->{_drawing_window}->set_default_size( 640, 480 );
 	} else {
-		$self->{_drawing_window}->set_default_size( $self->{_root}->{w} - 100, $self->{_root}->{h} - 100 );
+		$self->{_drawing_window}
+			->set_default_size( $self->{_root}->{w} - 100, $self->{_root}->{h} - 100 );
 	}
 
 	#dialogs
@@ -295,10 +297,7 @@ sub setup_bottom_hbox {
 	);
 
 	$tooltips->set_tip( $font_label, $d->get("Select font family and size") );
-	$tooltips->set_tip(
-		$font_btn,
-		$d->get("Select font family and size")
-	);
+	$tooltips->set_tip( $font_btn,   $d->get("Select font family and size") );
 
 	$drawing_bottom_hbox->pack_start( $font_label, FALSE, FALSE, 5 );
 	$drawing_bottom_hbox->pack_start( $font_btn,   FALSE, FALSE, 5 );
@@ -438,8 +437,8 @@ sub quit {
 		);
 
 		#set question text
-		$warn_dialog->set(
-			'text' => sprintf( $d->get("Save the changes to image %s before closing?"), "'$name$type'" )
+		$warn_dialog->set( 'text' =>
+				sprintf( $d->get("Save the changes to image %s before closing?"), "'$name$type'" )
 		);
 
 		#set text...
@@ -456,7 +455,7 @@ sub quit {
 
 		$warn_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-save', 'dialog' ) );
 
-		$warn_dialog->set( 'title' => $d->get("Close") . " " . $name.$type );
+		$warn_dialog->set( 'title' => $d->get("Close") . " " . $name . $type );
 
 		#don't save button
 		my $dsave_btn = Gtk2::Button->new_with_mnemonic( $d->get("Do_n't save") );
@@ -852,7 +851,7 @@ sub event_item_on_motion_notify {
 		)
 	{
 
-		$self->{_canvas}->window->set_cursor(Gtk2::Gdk::Cursor->new('bottom-right-corner'));
+		$self->{_canvas}->window->set_cursor( Gtk2::Gdk::Cursor->new('bottom-right-corner') );
 
 		my $item = $self->{_current_new_item};
 
@@ -1597,8 +1596,21 @@ sub ret_item_menu {
 				#determine font description from string
 				my ( $attr_list, $text_raw, $accel_char )
 					= Gtk2::Pango->parse_markup( $item->get('text') );
-				my $iterator  = $attr_list->get_iterator;
-				my $font_desc = $iterator->get('font-desc');
+				my $font_desc = Gtk2::Pango::FontDescription->from_string( $self->{_font} );
+				#FIXME, maybe the pango version installed is too old
+				eval {
+					$attr_list->filter(
+						sub {
+							my $attr = shift;
+							$font_desc = $attr->copy->desc
+								if $attr->isa('Gtk2::Pango::AttrFontDesc');
+							return TRUE;
+						},
+					);
+				};
+				if ($@) {
+					print "\nERROR: Pango Markup could not be parsed:\n$@";
+				}
 
 				$font_hbox->pack_start_defaults($font_label);
 				$font_hbox->pack_start_defaults($font_btn);
@@ -1651,7 +1663,7 @@ sub ret_item_menu {
 				);
 
 				#apply current font settings to button
-				$font_btn->set_font_name( $font_desc->desc->to_string );
+				$font_btn->set_font_name( $font_desc->to_string );
 
 				#FIXME >> why do we have to invoke this manually??
 				$font_btn->signal_emit('font-set');
@@ -1900,56 +1912,56 @@ sub handle_rects {
 			my $pattern = $self->create_color( 'green', 0.3 );
 
 			$self->{_items}{$item}{top_middle} = Goo::Canvas::Rect->new(
-				$root, $middle_h, $top, 8,8,
+				$root, $middle_h, $top, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
 			);
 
 			$self->{_items}{$item}{top_left} = Goo::Canvas::Rect->new(
-				$root, $left, $top, 8,8,
+				$root, $left, $top, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
 			);
 
 			$self->{_items}{$item}{top_right} = Goo::Canvas::Rect->new(
-				$root, $right, $top, 8,8,
+				$root, $right, $top, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
 			);
 
 			$self->{_items}{$item}{bottom_middle} = Goo::Canvas::Rect->new(
-				$root, $middle_h, $bottom, 8,8,
+				$root, $middle_h, $bottom, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
 			);
 
 			$self->{_items}{$item}{bottom_left} = Goo::Canvas::Rect->new(
-				$root, $left, $bottom, 8,8,
+				$root, $left, $bottom, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
 			);
 
 			$self->{_items}{$item}{bottom_right} = Goo::Canvas::Rect->new(
-				$root, $right, $bottom, 8,8,
+				$root, $right, $bottom, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
 			);
 
 			$self->{_items}{$item}{middle_left} = Goo::Canvas::Rect->new(
-				$root, $left - 8, $middle_v, 8,8,
+				$root, $left - 8, $middle_v, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
 			);
 
 			$self->{_items}{$item}{middle_right} = Goo::Canvas::Rect->new(
-				$root, $right, $middle_v, 8,8,
+				$root, $right, $middle_v, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
@@ -2081,7 +2093,7 @@ sub handle_rects {
 
 		}
 	}
-	
+
 	return TRUE;
 }
 
