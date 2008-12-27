@@ -2690,7 +2690,6 @@ sub set_drawing_action {
 
 sub change_cursor_to_current_pixbuf {
 	my $self = shift;
-	my $scale = shift;
 
 	#define own icons
 	my $dicons = $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool";
@@ -2699,7 +2698,6 @@ sub change_cursor_to_current_pixbuf {
 	$self->{_current_mode_descr} = "image";
 	my $copy = $self->{_current_pixbuf}->copy;
 	if ( $copy->get_width < 200 && $copy->get_height < 200 ) {
-		$copy = $copy->scale_simple( Gtk2::IconSize->lookup('menu'), 'bilinear' ) if $scale;
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default,
 			$copy, undef, undef );
 

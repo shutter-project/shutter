@@ -39,12 +39,13 @@ use constant FALSE => 0;
 sub new {
 	my $class = shift;
 
- #call constructor of super class (gscrot_common, include_cursor, delay)
+	#call constructor of super class (gscrot_common, include_cursor, delay)
 	my $self = $class->SUPER::new( shift, shift, shift );
 
-	$self->{_selected_workspace} = shift;
-	$self->{_vpx}                = shift;
-	$self->{_vpy}                = shift;
+	$self->{_selected_workspace}   = shift;
+	$self->{_vpx}                  = shift;
+	$self->{_vpy}                  = shift;
+	$self->{_current_monitor_only} = shift;
 
 	bless $self, $class;
 	return $self;
@@ -58,8 +59,8 @@ sub workspace {
 	my $active_workspace = $self->{_wnck_screen}->get_active_workspace;
 	$self->{_wsp_name} = $active_workspace->get_name;
 	utf8::encode $self->{_wsp_name};
-	my $active_vpx       = $active_workspace->get_viewport_x;
-	my $active_vpy       = $active_workspace->get_viewport_y;
+	my $active_vpx = $active_workspace->get_viewport_x;
+	my $active_vpy = $active_workspace->get_viewport_y;
 
 	#metacity etc
 	if ( $self->{_selected_workspace} ) {
@@ -85,22 +86,31 @@ sub workspace {
 		$self->{_delay} = 1;
 	}
 
-	my $output = $self->get_pixbuf_from_drawable(
-		$self->get_root_and_geometry,
-		$self->{_include_cursor},
-		$self->{_delay}
-	);
+	my $output = undef;
+	if ( $self->{_current_monitor_only} ) {
+		$output = $self->get_pixbuf_from_drawable(
+			$self->get_root_and_current_monitor_geometry,
+			$self->{_include_cursor},
+			$self->{_delay}
+		);
+	} else {
+		$output = $self->get_pixbuf_from_drawable(
+			$self->get_root_and_geometry,
+			$self->{_include_cursor},
+			$self->{_delay}
+		);
+	}
 
 	#metacity etc
 	if ( $self->{_selected_workspace} ) {
 		$active_workspace->activate(time) if $wrksp_changed;
-	#compiz
+
+		#compiz
 	} else {
 		$self->{_wnck_screen}->move_viewport( $active_vpx, $active_vpy );
 	}
 
 	return $output;
 }
-
 
 1;

@@ -76,14 +76,26 @@ sub select_advanced {
 		'none', 0, 0
 	);
 
+	#we display the tip only on the current monitor
+	#if we would use the root window we would display the next
+	#right in the middle of both screens, this is pretty ugly
+	my $mon1 = $self->get_current_monitor;
+
+	print "Using monitor: "
+		. $mon1->x . " - "
+		. $mon1->y . " - "
+		. $mon1->width . " - "
+		. $mon1->height . "\n"
+		if $self->{_gc}->get_debug;
+
 	#create cairo context und layout
 	my $cr     = Gtk2::Gdk::Cairo::Context->create($root_pixmap);
 	my $layout = Gtk2::Pango::Cairo::create_layout($cr);
-	$layout->set_width( int( $self->{_root}->{w} / 2 ) * Gtk2::Pango->scale );
+	$layout->set_width( int( $mon1->width / 2 ) * Gtk2::Pango->scale );
 	$layout->set_wrap('word');
 
 	#create font family and determine size
-	my $size = int( $self->{_root}->{w} * 0.02 );
+	my $size = int( $mon1->width * 0.02 );
 	$layout->set_font_description( Gtk2::Pango::FontDescription->from_string("Sans $size") );
 	my $text
 		= $d->get(
@@ -98,8 +110,8 @@ sub select_advanced {
 
 	my $w = $lw + $size * 2;
 	my $h = $lh + $size * 2;
-	my $x = int( ( $self->{_root}->{w} - $w ) / 2 );
-	my $y = int( ( $self->{_root}->{h} - $h ) / 2 );
+	my $x = int( ( $mon1->width - $w ) / 2 ) + $mon1->x;
+	my $y = int( ( $mon1->height - $h ) / 2 ) + $mon1->y;
 	my $r = 30;
 
 	$cr->move_to( $x + $r, $y );

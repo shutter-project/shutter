@@ -52,6 +52,7 @@ sub new {
 	$self->{_min_cparam}             = FALSE;
 	$self->{_disable_systray_cparam} = FALSE;
 	$self->{_start_with}             = undef;
+	$self->{_mainwindow}             = undef;
 
 	#gettext init
 	setlocale( LC_MESSAGES, "" );
@@ -122,6 +123,19 @@ sub set_clear_cache {
 		$self->{_clear_cache} = shift;
 	}
 	return $self->{_clear_cache};
+}
+
+sub get_mainwindow {
+	my $self = shift;
+	return $self->{_mainwindow};
+}
+
+sub set_mainwindow {
+	my $self = shift;
+	if (@_) {
+		$self->{_mainwindow} = shift;
+	}
+	return $self->{_mainwindow};
 }
 
 sub get_min {

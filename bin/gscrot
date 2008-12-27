@@ -62,8 +62,8 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.305";
-use constant PPA_VERSION         => "ppa5";
+use constant BRANCH              => "Rev.306";
+use constant PPA_VERSION         => "ppa6";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
 use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
@@ -116,6 +116,7 @@ my $window = Gtk2::Window->new('toplevel');
 #create app objects
 #--------------------------------------
 my $gscrot_common = GScrot::App::Common->new($gscrot_root);
+$gscrot_common->set_mainwindow($window);
 my $gscrot_hfunct = GScrot::App::HelperFunctions->new($gscrot_common);
 my $gscrot_dialog = GScrot::App::SimpleDialogs->new($window);
 
@@ -548,9 +549,9 @@ $button_raw_menu->signal_connect( 'clicked' => \&evt_take_screenshot, 'raw' );
 #	},
 #	'raw'
 #);
-
-$button_raw_menu->set_menu(&fct_ret_workspace_menu);
-$button_raw_menu->signal_connect( 'show-menu' => \&fct_ret_workspace_menu );
+my $current_monitor_active = undef;
+$button_raw_menu->set_menu( &fct_ret_workspace_menu(TRUE) );
+$button_raw_menu->signal_connect( 'show-menu' => sub { &fct_ret_workspace_menu(FALSE) } );
 $tooltips->set_tip( $button_raw_menu,
 	$gscrot_common->get_gettext->get("Take a screenshot of your whole desktop") );
 $button_raw_menu->set_arrow_tooltip( $tooltips,
@@ -1354,9 +1355,9 @@ if ( defined $settings_xml->{'general'}->{'ftp_mode'} ) {
 	$ftp_mode_combo->set_active(0);
 }
 
-$tooltips->set_tip( $ftp_mode_label, $gscrot_common->get_gettext->get("Connection method") );
+$tooltips->set_tip( $ftp_mode_label, $gscrot_common->get_gettext->get("Connection mode") );
 
-$tooltips->set_tip( $ftp_mode_combo, $gscrot_common->get_gettext->get("Connection method") );
+$tooltips->set_tip( $ftp_mode_combo, $gscrot_common->get_gettext->get("Connection mode") );
 
 $ftp_hbox2->pack_start( $ftp_mode_combo, TRUE, TRUE, 10 );
 
@@ -1663,6 +1664,13 @@ sub evt_take_screenshot {
 	print "\n$data was emitted by widget $widget\n" if $gscrot_common->get_debug;
 	&fct_set_toolbar_sensitive( FALSE, $data );
 
+	#get xid if any window was selected from the submenu...
+	my $selfcapture = FALSE;
+	if ( $data =~ /^gscrot_window_direct(.*)/ ) {
+		my $xid = $1;
+		$selfcapture = TRUE if $xid == $window->window->XID;
+	}
+
 	#determine current file type
 	$filetype_value = $combobox_type->get_active_text;
 
@@ -1693,7 +1701,8 @@ sub evt_take_screenshot {
 	#hide mainwindow
 	if (   $hide_active->get_active
 		&& ( $data ne "web" && $data ne "tray_web" )
-		&& !$is_in_tray )
+		&& !$is_in_tray
+		&& !$selfcapture )
 	{
 		$window->iconify;
 		$window->hide;
@@ -1715,7 +1724,8 @@ sub evt_take_screenshot {
 
 		my $screenshooter = GScrot::Screenshot::Workspace->new(
 			$gscrot_common, $combobox_cursor->get_active,
-			$delay_value,   $wnck_screen->get_active_workspace
+			$delay_value, $wnck_screen->get_active_workspace,
+			undef, undef, $current_monitor_active->get_active
 		);
 		$screenshot = $screenshooter->workspace();
 
@@ -1819,7 +1829,7 @@ sub evt_take_screenshot {
 		}
 		my $screenshooter
 			= GScrot::Screenshot::Workspace->new( $gscrot_common, $combobox_cursor->get_active,
-			$delay_value, $selected_workspace, $vpx, $vpy );
+			$delay_value, $selected_workspace, $vpx, $vpy, $current_monitor_active->get_active );
 		$screenshot = $screenshooter->workspace();
 	}
 
@@ -3075,6 +3085,9 @@ sub fct_save_settings {
 
 	utf8::encode $settings{'general'}->{'folder'};
 
+	#wrksp -> submenu
+	$settings{'general'}->{'current_monitor_active'} = $current_monitor_active->get_active;
+	
 	$settings{'general'}->{'selection_tool'} = 1
 		if $tool_advanced->get_active;
 	$settings{'general'}->{'selection_tool'} = 2
@@ -3298,6 +3311,9 @@ sub fct_load_settings {
 				# => weird...
 				$settings_xml->{'general'}->{'folder_force'} = TRUE;
 
+				#wrksp -> submenu 
+				$current_monitor_active->set_active($settings_xml->{'general'}->{'current_monitor_active'});
+		
 				#selection tool -> submenu
 				$tool_advanced->set_active(TRUE)
 					if $settings_xml->{'general'}->{'selection_tool'} == 1;
@@ -3530,7 +3546,7 @@ sub fct_open_files {
 
 	$open_dialog->set(
 		'secondary-text' => $gscrot_common->get_gettext->get(
-			"Please wait while your selected files \nare being integrated into GScrot")
+			"Please wait while your selected files\nare being integrated into GScrot")
 			. "."
 	);
 
@@ -4637,6 +4653,7 @@ sub fct_iter_programs {
 }
 
 sub fct_ret_workspace_menu {
+	my $init = shift;
 
 	my $menu_wrksp = Gtk2::Menu->new;
 
@@ -4710,6 +4727,41 @@ sub fct_ret_workspace_menu {
 				$wrkspace_item->set_sensitive(FALSE);
 			}
 		}
+	}
+
+	my $n_mons = Gtk2::Gdk::Screen->get_default->get_n_monitors;
+
+	#use only current monitore
+	$menu_wrksp->append( Gtk2::SeparatorMenuItem->new );
+	if ($init) {
+		$current_monitor_active = Gtk2::CheckMenuItem->new_with_label(
+			$gscrot_common->get_gettext->get("Limit to current monitor") );
+		if ( defined $settings_xml->{'general'}->{'current_monitor_active'} ) {
+			$current_monitor_active->set_active(
+				$settings_xml->{'general'}->{'current_monitor_active'} );
+		} else {
+			$current_monitor_active->set_active(FALSE);
+		}
+		$menu_wrksp->append($current_monitor_active);
+	} else {
+		$current_monitor_active->reparent($menu_wrksp);
+	}
+	$tooltips->set_tip(
+		$current_monitor_active,
+		sprintf(
+			$gscrot_common->get_gettext->nget(
+				"This option is only useful when you are running a multi-monitor system (%d monitor detected).\nEnable it to capture only the current monitor.",
+				"This option is only useful when you are running a multi-monitor system (%d monitors detected).\nEnable it to capture only the current monitor.",
+				$n_mons
+			),
+			$n_mons
+		)
+	);
+	if ( $n_mons > 1 ) {
+		$current_monitor_active->set_sensitive(TRUE);
+	} else {
+		$current_monitor_active->set_active(FALSE);
+		$current_monitor_active->set_sensitive(FALSE);
 	}
 
 	$button_raw_menu->set_menu($menu_wrksp);
@@ -4831,52 +4883,9 @@ sub fct_ret_tray_menu {
 }
 
 sub fct_ret_sel_menu {
-	my $menu_sel = Gtk2::Menu->new;
 
-	$tool_advanced = Gtk2::RadioMenuItem->new( undef,
-		$gscrot_common->get_gettext->get("Advanced selection tool") );
-	$tool_simple = Gtk2::RadioMenuItem->new( $tool_advanced,
-		$gscrot_common->get_gettext->get("Simple selection tool") );
-	$tooltips->set_tip(
-		$tool_simple,
-		$gscrot_common->get_gettext->get(
-			"The simple selection tool is the fastest way of taking a screenshot.\nIt provides an optional zoom window for precise shots."
-		)
-	);
-
-	if ( defined $settings_xml->{'general'}->{'selection_tool'} ) {
-		$tool_advanced->set_active(TRUE)
-			if $settings_xml->{'general'}->{'selection_tool'} == 1;
-		$tool_simple->set_active(TRUE)
-			if $settings_xml->{'general'}->{'selection_tool'} == 2;
-	} else {
-		$tool_advanced->set_active(TRUE);
-	}
-
-	#check if Gtk2::ImageView is supported
-	if ($gtkimageview) {
-		$tooltips->set_tip(
-			$tool_advanced,
-			$gscrot_common->get_gettext->get(
-				"The advanced selection tool allows you to enlarge/shrink or move your selected area\nuntil you finally take the screenshot."
-			)
-		);
-	} else {
-		$tool_advanced->set_sensitive(FALSE);
-		$tooltips->set_tip(
-			$tool_advanced,
-			$gscrot_common->get_gettext->get(
-				"Gtk2::ImageView needs to be installed for this feature")
-		);
-
-		#needs to be enabled by default now
-		$tool_simple->set_active(TRUE);
-	}
-
-	$menu_sel->append($tool_advanced);
-	$menu_sel->append($tool_simple);
-
-	my $menu_tool_simple = Gtk2::Menu->new;
+	#PREF MENU
+	my $menu_settings = Gtk2::Menu->new;
 	$zoom_active = Gtk2::CheckMenuItem->new_with_label(
 		$gscrot_common->get_gettext->get("Enable zoom window") );
 	if ( defined $settings_xml->{'general'}->{'zoom_active'} ) {
@@ -4884,7 +4893,7 @@ sub fct_ret_sel_menu {
 	} else {
 		$zoom_active->set_active(TRUE);
 	}
-	$menu_tool_simple->append($zoom_active);
+
 	my $menu_size
 		= Gtk2::MenuItem->new_with_label( $gscrot_common->get_gettext->get("Size of zoom window") );
 	my $menu_size2 = Gtk2::Menu->new;
@@ -4905,15 +4914,89 @@ sub fct_ret_sel_menu {
 		$zoom_size1->set_active(TRUE);
 	}
 
+	#TOP MENU
+	my $menu_sel = Gtk2::Menu->new;
+
+	#advanced tool
+	$tool_advanced = Gtk2::RadioMenuItem->new( undef,
+		$gscrot_common->get_gettext->get("Advanced selection tool") );
+
+	#simple tool
+	$tool_simple = Gtk2::RadioMenuItem->new( $tool_advanced,
+		$gscrot_common->get_gettext->get("Simple selection tool") );
+
+	#and some more preferences
+	my $advanced_settings
+		= Gtk2::MenuItem->new_with_label( $gscrot_common->get_gettext->get("Preferences") );
+
+	$menu_sel->append($tool_advanced);
+	$menu_sel->append($tool_simple);
+	$menu_sel->append($advanced_settings);
+
 	$menu_size->set_submenu($menu_size2);
 	$menu_size2->append($zoom_size1);
 	$menu_size2->append($zoom_size2);
 	$menu_size2->append($zoom_size3);
 
-	$menu_tool_simple->append($menu_size);
-	$tool_simple->set_submenu($menu_tool_simple);
+	$menu_settings->append($zoom_active);
+	$menu_settings->append($menu_size);
+	$advanced_settings->set_submenu($menu_settings);
+
+	$tool_simple->signal_connect(
+		'activate' => sub {
+			my $widget = shift;
+			if ( $widget->get_active ) {
+				$advanced_settings->set_sensitive(TRUE);
+			} else {
+				$advanced_settings->set_sensitive(FALSE);
+			}
+		}
+	);
+
+	#set saved/default settings
+	if ( defined $settings_xml->{'general'}->{'selection_tool'} ) {
+		if ( $settings_xml->{'general'}->{'selection_tool'} == 1 ) {
+			$tool_advanced->set_active(TRUE);
+			$advanced_settings->set_sensitive(FALSE);
+		} elsif ( $settings_xml->{'general'}->{'selection_tool'} == 2 ) {
+			$tool_simple->set_active(TRUE);
+			$advanced_settings->set_sensitive(TRUE);
+		}
+	} else {
+		$tool_advanced->set_active(TRUE);
+		$advanced_settings->set_sensitive(FALSE);
+	}
+
+	#check if Gtk2::ImageView is supported
+	if ($gtkimageview) {
+		$tooltips->set_tip(
+			$tool_advanced,
+			$gscrot_common->get_gettext->get(
+				"The advanced selection tool allows you to enlarge/shrink or move your selected area\nuntil you finally take the screenshot."
+			)
+		);
+	} else {
+		$tool_advanced->set_sensitive(FALSE);
+		$tooltips->set_tip(
+			$tool_advanced,
+			$gscrot_common->get_gettext->get(
+				"Gtk2::ImageView needs to be installed for this feature")
+		);
+
+		#needs to be enabled by default now
+		$tool_simple->set_active(TRUE);
+		$advanced_settings->set_sensitive(TRUE);
+	}
+
+	$tooltips->set_tip(
+		$tool_simple,
+		$gscrot_common->get_gettext->get(
+			"The simple selection tool is the fastest way of taking a screenshot.\nIt provides an optional zoom window for precise shots."
+		)
+	);
 
 	$menu_sel->show_all;
+
 	return $menu_sel;
 }
 
@@ -4998,7 +5081,8 @@ sub fct_ret_profile_menu {
 	my $counter = 0;
 	foreach my $profile ( @{$current_profiles_ref} ) {
 		my $profile_item = Gtk2::RadioMenuItem->new( $group, $profile );
-		$profile_item->set_active(TRUE) if $profile eq $combobox_settings_profiles->get_active_text;
+		$profile_item->set_active(TRUE)
+			if $profile eq $combobox_settings_profiles->get_active_text;
 		$profile_item->signal_connect(
 			'toggled' => sub {
 				my $widget = shift;
@@ -5808,18 +5892,17 @@ sub dlg_upload {
 	$ftp_hbox1_dlg->pack_start( $ftp_remote_entry_dlg, TRUE, TRUE, 10 );
 
 	#connection mode
-	my $ftp_mode_label_dlg = Gtk2::Label->new( $gscrot_common->get_gettext->get("Mode") );
+	my $ftp_mode_label_dlg
+		= Gtk2::Label->new( $gscrot_common->get_gettext->get("Connection mode") );
 	$ftp_hbox2_dlg->pack_start( $ftp_mode_label_dlg, TRUE, TRUE, 10 );
 	my $ftp_mode_combo_dlg = Gtk2::ComboBox->new_text;
 	$ftp_mode_combo_dlg->insert_text( 0, "Active mode" );
 	$ftp_mode_combo_dlg->insert_text( 1, "Passive mode" );
 	$ftp_mode_combo_dlg->set_active( $ftp_mode_combo->get_active );
 
-	$tooltips->set_tip( $ftp_mode_label_dlg,
-		$gscrot_common->get_gettext->get("Connection method") );
+	$tooltips->set_tip( $ftp_mode_label_dlg, $gscrot_common->get_gettext->get("Connection mode") );
 
-	$tooltips->set_tip( $ftp_mode_combo_dlg,
-		$gscrot_common->get_gettext->get("Connection method") );
+	$tooltips->set_tip( $ftp_mode_combo_dlg, $gscrot_common->get_gettext->get("Connection mode") );
 
 	$ftp_hbox2_dlg->pack_start( $ftp_mode_combo_dlg, TRUE, TRUE, 10 );
 
