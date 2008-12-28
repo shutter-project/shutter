@@ -30,6 +30,7 @@ setlocale( LC_MESSAGES, "" );
 my $d = Locale::gettext->domain("gscrot-plugins-bash");
 $d->dir( $ENV{'GSCROT_INTL'} );
 
+binmode( STDOUT, ":utf8" );
 #gscrot will ask for some infos - no need of changing anything
 if ( $ARGV[0] eq "name" ) {
 	print $d->get("negate");

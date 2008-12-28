@@ -29,6 +29,7 @@ use strict;
 use Exporter;
 use Goo::Canvas;
 use File::Basename;
+use Data::Dumper;
 
 #load and save settings
 use XML::Simple;
@@ -80,6 +81,7 @@ sub new {
 	$self->{_current_mode}       = 10;
 	$self->{_current_mode_descr} = "select";
 	$self->{_current_pixbuf}     = undef;
+	$self->{_current_pixbuf_filename} = undef;	
 
 	$self->{_start_time} = undef;
 
@@ -796,39 +798,10 @@ sub event_item_on_motion_notify {
 			$self->handle_rects( 'update', $item );
 			$self->handle_embedded( 'update', $item );
 
-		} elsif ( $item->isa('Goo::Canvas::Ellipse')
-			|| $item->isa('Goo::Canvas::Text')
-			|| $item->isa('Goo::Canvas::Image') )
-		{
-
-			my $parent = $self->get_parent_item($item);
-
-			if ($parent) {
-				my $new_x = $self->{_items}{$parent}->get('x') + $ev->x - $item->{drag_x};
-				my $new_y = $self->{_items}{$parent}->get('y') + $ev->y - $item->{drag_y};
-
-				$self->{_items}{$parent}->set(
-					'x' => $new_x,
-					'y' => $new_y,
-				);
-
-				$item->{drag_x} = $ev->x;
-				$item->{drag_y} = $ev->y;
-
-				$self->handle_rects( 'update', $parent );
-				$self->handle_embedded( 'update', $parent );
-
-				#no rect and no parent? => we are handling the background image here
-			} else {
-
-				#not needed currently
-
-			}
-
 		} else {
 
-			$item->translate( $ev->x - $item->{drag_x}, $ev->y - $item->{drag_y} );
-
+			$item->translate( $ev->x - $item->{drag_x}, $ev->y - $item->{drag_y} )
+				unless $item == $self->{_canvas_bg};
 		}
 
 		#freehand line
@@ -991,8 +964,8 @@ sub event_item_on_motion_notify {
 					'height' => $new_height,
 				);
 
-				$self->handle_rects( 'update', $self->{_items}{$curr_item} );
-				$self->handle_embedded( 'update', $self->{_items}{$curr_item} );
+				$self->handle_rects( 'update', $curr_item );
+				$self->handle_embedded( 'update', $curr_item );
 
 			}
 		}
@@ -1037,6 +1010,7 @@ sub clear_item_from_canvas {
 
 	#maybe there is a parent item to delete?
 	my $parent = $self->get_parent_item($item);
+
 	if ($parent) {
 		push @items_to_delete, $parent;
 		foreach ( keys %{ $self->{_items}{$parent} } ) {
@@ -1052,11 +1026,18 @@ sub clear_item_from_canvas {
 		eval {
 			my $bigparent = $_->get_parent;
 			$bigparent->remove_child( $bigparent->find_child($_) );
-
-			#clear from session hash
-			delete $self->{_items}{$_};
 		};
 	}
+
+	#clear from session hash >> parent
+	delete $self->{_items}{$parent};
+
+	#clear from session hash >> item
+	delete $self->{_items}{$item};
+
+	$self->{_last_item}          = undef;
+	$self->{_current_item}       = undef;
+	$self->{_current_new_item}   = undef;
 
 	return TRUE;
 }
@@ -1597,6 +1578,7 @@ sub ret_item_menu {
 				my ( $attr_list, $text_raw, $accel_char )
 					= Gtk2::Pango->parse_markup( $item->get('text') );
 				my $font_desc = Gtk2::Pango::FontDescription->from_string( $self->{_font} );
+
 				#FIXME, maybe the pango version installed is too old
 				eval {
 					$attr_list->filter(
@@ -1886,10 +1868,17 @@ sub handle_rects {
 	my $action = shift;
 	my $item   = shift;
 
-	return FALSE unless ( $item && exists $self->{_items}{$item} );
+	return FALSE unless $item;
+	return FALSE unless exists $self->{_items}{$item};
 
 	#get root item
 	my $root = $self->{_canvas}->get_root_item;
+
+	#do we have a blessed reference?
+	eval { $self->{_items}{$item}->can('isa'); };
+	if ($@) {
+		return FALSE;
+	}
 
 	if ( $self->{_items}{$item}->isa('Goo::Canvas::Rect') ) {
 
@@ -2145,8 +2134,19 @@ sub event_item_on_button_release {
 
 			}
 		}
+
 		$self->handle_rects( 'update', $nitem );
 		$self->handle_embedded( 'update', $nitem );
+
+		#did we scale the image to fit on the canvas? inform the user...
+		if ( $self->{_items}{$nitem}{scaled} ) {
+			$self->{_dialogs}->dlg_info_message(
+				$d->get(
+					"Image dimensions are greater than dimensions of the target image.\nIt was scaled automatically so it fits on the canvas."
+				)
+			);
+			$self->{_items}{$nitem}{scaled} = FALSE;
+		}
 	}
 
 	#unset action flags
@@ -2154,20 +2154,7 @@ sub event_item_on_button_release {
 	$item->{resizing} = FALSE;
 
 	$self->set_drawing_action(0);
-
-	my $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
-	$self->{_canvas}->window->set_cursor($cursor);
-
-	#did we scale the image to fit on the canvas? inform the user...
-	if ( $self->{_items}{$nitem}{scaled} ) {
-		$self->{_dialogs}->dlg_info_message(
-			$d->get(
-				"Image dimensions are greater than dimensions of the target image.\nIt was scaled automatically so it fits on the canvas."
-			)
-		);
-		$self->{_items}{$nitem}{scaled} = FALSE;
-	}
-
+	
 	return TRUE;
 }
 
@@ -2191,12 +2178,6 @@ sub event_item_on_enter_notify {
 
 			$cursor = Gtk2::Gdk::Cursor->new('fleur');
 
-			#autofocus
-			#			$self->{_last_item}    = $self->{_current_item};
-			#			$self->{_current_item} = $item;
-			#			$self->handle_rects( 'hide',   $self->{_last_item} );
-			#			$self->handle_rects( 'update', $self->{_current_item} );
-
 			#resizing shape
 		} else {
 			my $pattern = $self->create_color( 'red', 0.5 );
@@ -2207,6 +2188,7 @@ sub event_item_on_enter_notify {
 			$self->{_current_new_item} = undef;
 			$self->{_last_item}        = $self->{_current_item};
 			$self->{_current_item}     = $curr_item;
+
 			$self->handle_rects( 'hide',   $self->{_last_item} );
 			$self->handle_rects( 'update', $curr_item );
 
@@ -2249,6 +2231,7 @@ sub event_item_on_enter_notify {
 					}
 
 				}
+
 			}    #end determine cursor
 
 		}
@@ -2628,6 +2611,7 @@ sub ret_objects_menu {
 				my $orig_pixbuf        = Gtk2::Gdk::Pixbuf->new_from_file($new_file);
 
 				$self->{_current_pixbuf} = $orig_pixbuf->copy;
+				$self->{_current_pixbuf_filename} = $new_file;
 				$button->set_icon_widget($small_image_button);
 				$button->show_all;
 				$self->set_drawing_action(6);
@@ -2672,6 +2656,7 @@ sub import_from_session {
 		$screen_menu_item->signal_connect(
 			'activate' => sub {
 				$self->{_current_pixbuf} = $orig_pixbuf->copy;
+				$self->{_current_pixbuf_filename} = $import_hash{$key}->{'long'};
 				$button->set_icon_widget($small_image_button);
 				$button->show_all;
 				$self->set_drawing_action(6);

@@ -62,7 +62,7 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.308";
+use constant BRANCH              => "Rev.309";
 use constant PPA_VERSION         => "ppa7";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
@@ -1347,8 +1347,8 @@ my $ftp_mode_label = Gtk2::Label->new( $gscrot_common->get_gettext->get("Connect
 $ftp_hbox2->pack_start( $ftp_mode_label, TRUE, TRUE, 10 );
 
 my $ftp_mode_combo = Gtk2::ComboBox->new_text;
-$ftp_mode_combo->insert_text( 0, "Active mode" );
-$ftp_mode_combo->insert_text( 1, "Passive mode" );
+$ftp_mode_combo->insert_text( 0, $gscrot_common->get_gettext->get("Active mode") );
+$ftp_mode_combo->insert_text( 1, $gscrot_common->get_gettext->get("Passive mode") );
 if ( defined $settings_xml->{'general'}->{'ftp_mode'} ) {
 	$ftp_mode_combo->set_active( $settings_xml->{'general'}->{'ftp_mode'} );
 } else {
@@ -3087,7 +3087,7 @@ sub fct_save_settings {
 
 	#wrksp -> submenu
 	$settings{'general'}->{'current_monitor_active'} = $current_monitor_active->get_active;
-	
+
 	$settings{'general'}->{'selection_tool'} = 1
 		if $tool_advanced->get_active;
 	$settings{'general'}->{'selection_tool'} = 2
@@ -3211,6 +3211,7 @@ sub fct_save_settings {
 	foreach ( keys %accounts ) {
 		utf8::encode $accounts{$_}->{'password'};
 		utf8::encode $accounts{$_}->{'username'};
+		utf8::encode $accounts{$_}->{'register_text'};
 		$accounts{$_}->{'password'} = ""
 			if $accounts{$_}->{'host'} =~ /imageshack/i;
 	}
@@ -3311,9 +3312,10 @@ sub fct_load_settings {
 				# => weird...
 				$settings_xml->{'general'}->{'folder_force'} = TRUE;
 
-				#wrksp -> submenu 
-				$current_monitor_active->set_active($settings_xml->{'general'}->{'current_monitor_active'});
-		
+				#wrksp -> submenu
+				$current_monitor_active->set_active(
+					$settings_xml->{'general'}->{'current_monitor_active'} );
+
 				#selection tool -> submenu
 				$tool_advanced->set_active(TRUE)
 					if $settings_xml->{'general'}->{'selection_tool'} == 1;
@@ -3576,10 +3578,9 @@ sub fct_open_files {
 		$open_progress->set_text($_);
 
 		#refresh tray icon
-		if ( $icon->isa('Gtk2::StatusIcon') ) {
+		if ( $icon && $icon->isa('Gtk2::StatusIcon') ) {
 			$icon->set_blinking(TRUE);
 		}
-
 		#refresh gui
 		&fct_update_gui;
 
@@ -3589,7 +3590,7 @@ sub fct_open_files {
 	$open_dialog->response('ok');
 
 	#refresh tray icon
-	if ( $icon->isa('Gtk2::StatusIcon') ) {
+	if ( $icon && $icon->isa('Gtk2::StatusIcon') ) {
 		$icon->set_blinking(FALSE);
 	}
 
@@ -3645,7 +3646,7 @@ sub fct_load_session {
 			$restore_progress->set_text( ${$session_xml}{$_}{'filename'} );
 
 			#refresh tray icon
-			if ( $icon->isa('Gtk2::StatusIcon') ) {
+			if ( $icon && $icon->isa('Gtk2::StatusIcon') ) {
 				$icon->set_blinking(TRUE);
 			}
 
@@ -3658,7 +3659,7 @@ sub fct_load_session {
 		$restore_dialog->response('ok');
 
 		#refresh tray icon
-		if ( $icon->isa('Gtk2::StatusIcon') ) {
+		if ( $icon && $icon->isa('Gtk2::StatusIcon') ) {
 			$icon->set_blinking(FALSE);
 		}
 
@@ -3670,7 +3671,7 @@ sub fct_load_session {
 		unlink $sessionfile;
 
 		#refresh tray icon
-		if ( $icon->isa('Gtk2::StatusIcon') ) {
+		if ( $icon && $icon->isa('Gtk2::StatusIcon') ) {
 			$icon->set_blinking(FALSE);
 		}
 
@@ -5896,8 +5897,8 @@ sub dlg_upload {
 		= Gtk2::Label->new( $gscrot_common->get_gettext->get("Connection mode") );
 	$ftp_hbox2_dlg->pack_start( $ftp_mode_label_dlg, TRUE, TRUE, 10 );
 	my $ftp_mode_combo_dlg = Gtk2::ComboBox->new_text;
-	$ftp_mode_combo_dlg->insert_text( 0, "Active mode" );
-	$ftp_mode_combo_dlg->insert_text( 1, "Passive mode" );
+	$ftp_mode_combo_dlg->insert_text( 0, $gscrot_common->get_gettext->get("Active mode") );
+	$ftp_mode_combo_dlg->insert_text( 1, $gscrot_common->get_gettext->get("Passive mode") );
 	$ftp_mode_combo_dlg->set_active( $ftp_mode_combo->get_active );
 
 	$tooltips->set_tip( $ftp_mode_label_dlg, $gscrot_common->get_gettext->get("Connection mode") );
