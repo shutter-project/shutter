@@ -75,13 +75,13 @@ sub new {
 	$self->{_font} = 'Sans Italic 16';
 
 	#help variables
-	$self->{_last_item}          = undef;
-	$self->{_current_item}       = undef;
-	$self->{_current_new_item}   = undef;
-	$self->{_current_mode}       = 10;
-	$self->{_current_mode_descr} = "select";
-	$self->{_current_pixbuf}     = undef;
-	$self->{_current_pixbuf_filename} = undef;	
+	$self->{_last_item}               = undef;
+	$self->{_current_item}            = undef;
+	$self->{_current_new_item}        = undef;
+	$self->{_current_mode}            = 10;
+	$self->{_current_mode_descr}      = "select";
+	$self->{_current_pixbuf}          = undef;
+	$self->{_current_pixbuf_filename} = undef;
 
 	$self->{_start_time} = undef;
 
@@ -1035,9 +1035,9 @@ sub clear_item_from_canvas {
 	#clear from session hash >> item
 	delete $self->{_items}{$item};
 
-	$self->{_last_item}          = undef;
-	$self->{_current_item}       = undef;
-	$self->{_current_new_item}   = undef;
+	$self->{_last_item}        = undef;
+	$self->{_current_item}     = undef;
+	$self->{_current_new_item} = undef;
 
 	return TRUE;
 }
@@ -1286,11 +1286,26 @@ sub event_item_on_button_press {
 				{
 
 					$scaled = TRUE;
+					eval {
+						$self->{_current_pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
+							$self->{_current_pixbuf_filename},
+							$self->{_canvas_bg}->get('width') - 100,
+							$self->{_canvas_bg}->get('height') - 100, TRUE
+						);
+						$copy = $self->{_current_pixbuf}->copy;
+					};
+					if ($@) {
+						$self->{_dialogs}->dlg_info_message(
+							$d->get(
+								"Image dimensions are greater than dimensions of the target image.\nImage could not be scaled to fit on the canvas."
+							)
+						);
+						$self->change_drawing_tool_cb(0);
+						$self->{_current_pixbuf}          = undef;
+						$self->{_current_pixbuf_filename} = undef;
+						return TRUE;
+					}
 
-					$copy
-						= $self->{_current_pixbuf}
-						->scale_simple( $self->{_canvas_bg}->get('width') - 100,
-						$self->{_canvas_bg}->get('height') - 100, 'bilinear' );
 				} else {
 					$copy = $self->{_current_pixbuf}->copy;
 				}
@@ -2154,7 +2169,7 @@ sub event_item_on_button_release {
 	$item->{resizing} = FALSE;
 
 	$self->set_drawing_action(0);
-	
+
 	return TRUE;
 }
 
@@ -2610,7 +2625,7 @@ sub ret_objects_menu {
 				my $small_image_button = Gtk2::Image->new_from_stock( 'gtk-new', 'menu' );
 				my $orig_pixbuf        = Gtk2::Gdk::Pixbuf->new_from_file($new_file);
 
-				$self->{_current_pixbuf} = $orig_pixbuf->copy;
+				$self->{_current_pixbuf}          = $orig_pixbuf->copy;
 				$self->{_current_pixbuf_filename} = $new_file;
 				$button->set_icon_widget($small_image_button);
 				$button->show_all;
@@ -2655,7 +2670,7 @@ sub import_from_session {
 
 		$screen_menu_item->signal_connect(
 			'activate' => sub {
-				$self->{_current_pixbuf} = $orig_pixbuf->copy;
+				$self->{_current_pixbuf}          = $orig_pixbuf->copy;
 				$self->{_current_pixbuf_filename} = $import_hash{$key}->{'long'};
 				$button->set_icon_widget($small_image_button);
 				$button->show_all;
