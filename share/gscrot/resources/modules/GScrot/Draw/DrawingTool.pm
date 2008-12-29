@@ -29,7 +29,6 @@ use strict;
 use Exporter;
 use Goo::Canvas;
 use File::Basename;
-use Data::Dumper;
 
 #load and save settings
 use XML::Simple;
