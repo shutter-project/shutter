@@ -212,6 +212,8 @@ sub show {
 
 	$self->{_drawing_window}->window->focus(time);
 
+	$self->adjust_rulers;
+
 	#save start time to show in close dialog
 	$self->{_start_time} = time;
 
@@ -254,13 +256,13 @@ sub setup_bottom_hbox {
 	my $stroke_color_label = Gtk2::Label->new( $d->get("Stroke color") . ":" );
 	my $stroke_color       = Gtk2::ColorButton->new();
 	$stroke_color->set_color( $self->{_stroke_color} );
-	$stroke_color->set_alpha( int( $self->{_stroke_color_alpha} * 65636 ) );
+	$stroke_color->set_alpha( int( $self->{_stroke_color_alpha} * 65535 ) );
 	$stroke_color->set_use_alpha(TRUE);
 	$stroke_color->set_title( $d->get("Choose stroke color") );
 	$stroke_color->signal_connect(
 		'color-set' => sub {
 			$self->{_stroke_color}       = $stroke_color->get_color;
-			$self->{_stroke_color_alpha} = $stroke_color->get_alpha / 65636;
+			$self->{_stroke_color_alpha} = $stroke_color->get_alpha / 65535;
 		}
 	);
 
@@ -392,6 +394,7 @@ sub change_drawing_tool_cb {
 sub zoom_in_cb {
 	my $self = shift;
 	$self->{_canvas}->set_scale( $self->{_canvas}->get_scale + 0.5 );
+	$self->adjust_rulers;
 	return TRUE;
 }
 
@@ -403,12 +406,39 @@ sub zoom_out_cb {
 	} else {
 		$self->{_canvas}->set_scale($new_scale);
 	}
+	$self->adjust_rulers;
 	return TRUE;
 }
 
 sub zoom_normal_cb {
 	my $self = shift;
 	$self->{_canvas}->set_scale(1);
+	$self->adjust_rulers;
+	return TRUE;
+}
+
+sub adjust_rulers {
+	my $self = shift;
+	my $ev   = shift;
+	my $item = shift;
+	my ( $hlower, $hupper, $hposition, $hmax_size ) = $self->{_hruler}->get_range;
+	my ( $vlower, $vupper, $vposition, $vmax_size ) = $self->{_vruler}->get_range;
+
+	my $s = $self->{_canvas}->get_scale;
+
+	my ( $x, $y, $width, $height, $depth ) = $self->{_canvas}->window->get_geometry;
+	my $ha = $self->{_scrolled_window}->get_hadjustment->value / $s;
+	my $va = $self->{_scrolled_window}->get_vadjustment->value / $s;
+
+	my $xpos = 0;
+	my $ypos = 0;
+	if ($ev) {
+		$xpos = $ev->x;
+		$ypos = $ev->y;
+	}
+
+	$self->{_hruler}->set_range( $ha, $ha + $width / $s,  $xpos, $hmax_size );
+	$self->{_vruler}->set_range( $va, $va + $height / $s, $ypos, $vmax_size );
 	return TRUE;
 }
 
@@ -692,9 +722,7 @@ sub setup_item_signals_extra {
 sub event_item_on_motion_notify {
 	my ( $self, $item, $target, $ev ) = @_;
 
-	#propagate event to the rulers so they can update themselves
-	$self->{_vruler}->event($ev);
-	$self->{_hruler}->event($ev);
+	$self->adjust_rulers($ev);
 
 	#update statusbar
 	$self->{_drawing_statusbar}->push( -1, int( $ev->x ) . " x " . int( $ev->y ) );
@@ -1062,6 +1090,7 @@ sub event_item_on_button_press {
 
 			$self->{_last_item}    = $self->{_current_item};
 			$self->{_current_item} = $item;
+			$self->{_current_new_item} = undef;
 			$self->handle_rects( 'hide',   $self->{_last_item} );
 			$self->handle_rects( 'update', $self->{_current_item} );
 
@@ -1278,40 +1307,10 @@ sub event_item_on_button_press {
 				#IMAGE
 			} elsif ( $self->{_current_mode_descr} eq "image" ) {
 
-				my $copy;
-				my $scaled = FALSE;
-				if (   $self->{_current_pixbuf}->get_height > $self->{_canvas_bg}->get('height')
-					|| $self->{_current_pixbuf}->get_width > $self->{_canvas_bg}->get('width') )
-				{
-
-					$scaled = TRUE;
-					eval {
-						$self->{_current_pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
-							$self->{_current_pixbuf_filename},
-							$self->{_canvas_bg}->get('width') - 100,
-							$self->{_canvas_bg}->get('height') - 100, TRUE
-						);
-						$copy = $self->{_current_pixbuf}->copy;
-					};
-					if ($@) {
-						$self->{_dialogs}->dlg_info_message(
-							$d->get(
-								"Image dimensions are greater than dimensions of the target image.\nImage could not be scaled to fit on the canvas."
-							)
-						);
-						$self->change_drawing_tool_cb(0);
-						$self->{_current_pixbuf}          = undef;
-						$self->{_current_pixbuf_filename} = undef;
-						return TRUE;
-					}
-
-				} else {
-					$copy = $self->{_current_pixbuf}->copy;
-				}
-
 				my $pattern = $self->create_alpha;
 				my $item    = Goo::Canvas::Rect->new(
-					$root, $ev->x, $ev->y, $copy->get_width, $copy->get_height,
+					$root, $ev->x, $ev->y, $self->{_current_pixbuf}->get_width,
+					$self->{_current_pixbuf}->get_height,
 					'fill-pattern' => $pattern,
 					'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
 					'line-width'   => 1,
@@ -1322,9 +1321,9 @@ sub event_item_on_button_press {
 				$self->{_items}{$item} = $item;
 
 				$self->{_items}{$item}{orig_pixbuf} = $self->{_current_pixbuf}->copy;
-				$self->{_items}{$item}{scaled}      = $scaled;
 				$self->{_items}{$item}{image}
-					= Goo::Canvas::Image->new( $root, $copy, $item->get('x'), $item->get('y') );
+					= Goo::Canvas::Image->new( $root, $self->{_items}{$item}{orig_pixbuf},
+					$item->get('x'), $item->get('y') );
 
 				#create rectangles
 				$self->handle_rects( 'create', $item );
@@ -1336,7 +1335,6 @@ sub event_item_on_button_press {
 				$self->setup_item_signals_extra( $self->{_items}{$item} );
 
 			}
-
 		}
 	} elsif ( $ev->button == 2 && $valid ) {
 
@@ -1366,7 +1364,6 @@ sub event_item_on_button_press {
 				}
 
 			}
-
 		}
 
 		if (   $item->isa('Goo::Canvas::Ellipse')
@@ -1491,8 +1488,8 @@ sub ret_item_menu {
 				$d->get("Preferences"),
 				$self->{_drawing_window},
 				[qw/modal destroy-with-parent/],
-				'gtk-close' => 'close',
-				'gtk-apply' => 'apply'
+				'gtk-cancel' => 'cancel',
+				'gtk-apply'  => 'apply'
 			);
 
 			$prop_dialog->set_default_response('apply');
@@ -1537,7 +1534,7 @@ sub ret_item_menu {
 
 					$fill_color->set_color( $self->{_items}{$key}{fill_color} );
 					$fill_color->set_alpha(
-						int( $self->{_items}{$key}{fill_color_alpha} * 65636 ) );
+						int( $self->{_items}{$key}{fill_color_alpha} * 65535 ) );
 					$fill_color->set_use_alpha(TRUE);
 					$fill_color->set_title( $d->get("Choose fill color") );
 
@@ -1554,7 +1551,7 @@ sub ret_item_menu {
 
 				$stroke_color->set_color( $self->{_items}{$key}{stroke_color} );
 				$stroke_color->set_alpha(
-					int( $self->{_items}{$key}{stroke_color_alpha} * 65636 ) );
+					int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
 				$stroke_color->set_use_alpha(TRUE);
 				$stroke_color->set_title( $d->get("Choose stroke color") );
 
@@ -1617,7 +1614,10 @@ sub ret_item_menu {
 				$font_color_hbox->set_border_width(5);
 				my $font_color_label = Gtk2::Label->new( $d->get("Font color") );
 				$font_color = Gtk2::ColorButton->new();
+				$font_color->set_use_alpha(TRUE);
 
+				$font_color->set_alpha(
+					int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
 				$font_color->set_color( $self->{_items}{$key}{stroke_color} );
 				$font_color->set_title( $d->get("Choose font color") );
 
@@ -1676,9 +1676,9 @@ sub ret_item_menu {
 				if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
 
 					my $fill_pattern = $self->create_color( $fill_color->get_color,
-						$fill_color->get_alpha / 65636 );
+						$fill_color->get_alpha / 65535 );
 					my $stroke_pattern = $self->create_color( $stroke_color->get_color,
-						$stroke_color->get_alpha / 65636 );
+						$stroke_color->get_alpha / 65535 );
 					$item->set(
 						'line-width'     => $line_spin->get_value,
 						'fill-pattern'   => $fill_pattern,
@@ -1687,15 +1687,15 @@ sub ret_item_menu {
 
 					#save color and opacity as well
 					$self->{_items}{$key}{fill_color}         = $fill_color->get_color;
-					$self->{_items}{$key}{fill_color_alpha}   = $fill_color->get_alpha / 65636;
+					$self->{_items}{$key}{fill_color_alpha}   = $fill_color->get_alpha / 65535;
 					$self->{_items}{$key}{stroke_color}       = $stroke_color->get_color;
-					$self->{_items}{$key}{stroke_color_alpha} = $stroke_color->get_alpha / 65636;
+					$self->{_items}{$key}{stroke_color_alpha} = $stroke_color->get_alpha / 65535;
 				}
 
 				#apply polyline options
 				if ( $item->isa('Goo::Canvas::Polyline') ) {
 					my $stroke_pattern = $self->create_color( $stroke_color->get_color,
-						$stroke_color->get_alpha / 65636 );
+						$stroke_color->get_alpha / 65535 );
 					$item->set(
 						'line-width'     => $line_spin->get_value,
 						'stroke-pattern' => $stroke_pattern
@@ -1703,7 +1703,7 @@ sub ret_item_menu {
 
 					#save color and opacity as well
 					$self->{_items}{$key}{stroke_color}       = $stroke_color->get_color;
-					$self->{_items}{$key}{stroke_color_alpha} = $stroke_color->get_alpha / 65636;
+					$self->{_items}{$key}{stroke_color_alpha} = $stroke_color->get_alpha / 65535;
 				}
 
 				#apply text options
@@ -1717,7 +1717,7 @@ sub ret_item_menu {
 						|| "New Text...";
 
 					my $fill_pattern = $self->create_color( $font_color->get_color,
-						$font_color->get_alpha / 65636 );
+						$font_color->get_alpha / 65535 );
 
 					$item->set(
 						'text' => "<span font_desc=' "
@@ -1738,7 +1738,7 @@ sub ret_item_menu {
 						$parent->set( 'height' =>
 								( $self->{_drawing_pixbuf}->get_height - $parent->get('height') ) );
 					} else {
-						$parent->set( 'height' => ( $no_lines * $font_size ) + 80 );
+						$parent->set( 'height' => $no_lines * $font_size + $no_lines * 20 );
 					}
 
 					$self->handle_rects( 'update', $parent );
@@ -1746,7 +1746,7 @@ sub ret_item_menu {
 
 					#save color and opacity as well
 					$self->{_items}{$key}{stroke_color}       = $font_color->get_color;
-					$self->{_items}{$key}{stroke_color_alpha} = $font_color->get_alpha / 65636;
+					$self->{_items}{$key}{stroke_color_alpha} = $font_color->get_alpha / 65535;
 
 				}
 				$prop_dialog->destroy;
@@ -1799,11 +1799,14 @@ sub modify_text_in_properties {
 }
 
 sub deactivate_all {
-	my $self = shift;
+	my $self    = shift;
+	my $exclude = shift;
 
 	foreach ( keys %{ $self->{_items} } ) {
 
 		my $item = $self->{_items}{$_};
+
+		next if $item == $exclude;
 
 		#embedded item?
 		my $parent = $self->get_parent_item($item);
@@ -1818,8 +1821,9 @@ sub deactivate_all {
 
 	$self->{_last_item}    = undef;
 	$self->{_current_item} = undef;
+	$self->{_current_new_item} = undef;
+	
 	return TRUE;
-
 }
 
 sub handle_embedded {
@@ -1835,12 +1839,10 @@ sub handle_embedded {
 		if ( exists $self->{_items}{$item}{ellipse} ) {
 
 			$self->{_items}{$item}{ellipse}->set(
-				'center-x' => int(
-					$self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width') / 2
-				),
-				'center-y' => int(
-					$self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height') / 2
-				),
+				'center-x' => $self->{_items}{$item}->get('x')
+					+ $self->{_items}{$item}->get('width') / 2,
+				'center-y' => $self->{_items}{$item}->get('y')
+					+ $self->{_items}{$item}->get('height') / 2,
 			);
 			$self->{_items}{$item}{ellipse}->set(
 				'radius-x' => $self->{_items}{$item}->get('x')
@@ -2152,15 +2154,6 @@ sub event_item_on_button_release {
 		$self->handle_rects( 'update', $nitem );
 		$self->handle_embedded( 'update', $nitem );
 
-		#did we scale the image to fit on the canvas? inform the user...
-		if ( $self->{_items}{$nitem}{scaled} ) {
-			$self->{_dialogs}->dlg_info_message(
-				$d->get(
-					"Image dimensions are greater than dimensions of the target image.\nIt was scaled automatically so it fits on the canvas."
-				)
-			);
-			$self->{_items}{$nitem}{scaled} = FALSE;
-		}
 	}
 
 	#unset action flags
@@ -2199,8 +2192,9 @@ sub event_item_on_enter_notify {
 
 			#activate correct item if not activated yet
 			my $curr_item = $self->{_current_new_item} || $self->{_current_item};
+
 			$self->{_current_new_item} = undef;
-			$self->{_last_item}        = $self->{_current_item};
+			$self->{_last_item}        = $curr_item;
 			$self->{_current_item}     = $curr_item;
 
 			$self->handle_rects( 'hide',   $self->{_last_item} );

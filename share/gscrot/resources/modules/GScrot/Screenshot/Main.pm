@@ -105,7 +105,7 @@ sub get_root_and_geometry {
 
 sub get_root_and_current_monitor_geometry {
 	my $self = shift;
-	my $mainwindow = $self->{_gc}->get_mainwindow->window;
+	my $mainwindow = $self->{_gc}->get_mainwindow->window || $self->{_root};
 	my $mon1       = $self->{_gdk_screen}
 		->get_monitor_geometry( $self->{_gdk_screen}->get_monitor_at_window($mainwindow) );
 	return ($self->{_root}, $mon1->x, $mon1->y, $mon1->width, $mon1->height);
@@ -113,7 +113,7 @@ sub get_root_and_current_monitor_geometry {
 
 sub get_current_monitor {
 	my $self = shift;
-	my $mainwindow = $self->{_gc}->get_mainwindow->window;
+	my $mainwindow = $self->{_gc}->get_mainwindow->window || $self->{_root};
 	my $mon1       = $self->{_gdk_screen}
 		->get_monitor_geometry( $self->{_gdk_screen}->get_monitor_at_window($mainwindow) );
 	return ($mon1);

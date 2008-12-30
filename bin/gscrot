@@ -62,8 +62,8 @@ use FindBin '$Bin';
 #--------------------------------------
 use constant TRUE                => 1;
 use constant FALSE               => 0;
-use constant BRANCH              => "Rev.312";
-use constant PPA_VERSION         => "ppa8";
+use constant BRANCH              => "Rev.313";
+use constant PPA_VERSION         => "ppa9";
 use constant GSCROT_NAME         => "GScrot";
 use constant GSCROT_VERSION      => "v0.64";
 use constant GSCROT_VERSION_FULL => BRANCH . " - " . PPA_VERSION;
@@ -170,7 +170,8 @@ $window->signal_connect( 'delete-event' => \&evt_delete_window );
 $window->set_border_width(0);
 $window->set_resizable(1);
 $window->set_position('center');
-$window->set_default_size( 650, 550 );
+$window->set_default_size( 650, 500 );
+$window->set_size_request( -1, 450 );
 
 #tray icon
 my $icon                 = undef;
@@ -2042,7 +2043,7 @@ sub evt_notebook_switch {
 		}
 	}
 
-	&fct_update_tab_plugins(&fct_get_current_file);    #update attached plugins (may have changed)
+	&fct_update_tab_plugins(&fct_get_current_file($int));    #update attached plugins (may have changed)
 
 	&fct_update_first_tab();                           #update first tab for information
 }
@@ -2630,10 +2631,6 @@ sub fct_integrate_screenshot_in_notebook {
 		my $new_index = $notebook->append_page( fct_create_tab( $key, FALSE ), $hbox_tab_label );
 		$session_screens{$key}->{'tab_child'} = $notebook->get_nth_page($new_index);
 		$tab_close_button->signal_connect( clicked => sub { &fct_remove($key); } );
-
-		#		$notebook->set_tab_detachable(
-		#									  $session_screens{ $key }->{ 'tab_child' },
-		#									  TRUE );
 
 		$notebook->set_current_page($new_index);
 
@@ -4198,8 +4195,14 @@ sub fct_update_first_tab {
 }
 
 sub fct_get_current_file {
-
-	my $curr_page = $notebook->get_nth_page( $notebook->get_current_page );
+	my $index = shift;
+	
+	my $curr_page;
+	if($index){
+		$curr_page = $notebook->get_nth_page( $index );
+	}else{
+		$curr_page = $notebook->get_nth_page( $notebook->get_current_page );	
+	}
 	my $key       = undef;
 	foreach ( keys %session_screens ) {
 		if ( $session_screens{$_}->{'tab_child'} == $curr_page ) {
