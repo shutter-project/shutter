@@ -53,20 +53,10 @@ sub new {
 
 sub web {
 	my $self = shift;
-
+	
 	my $output = `gnome-web-photo --timeout=$self->{_timeout} --mode=photo --format=$self->{_format} -q $self->{_quality} '$self->{_url}' '$self->{_dest_filename}'`;
 	
-	return $self->get_imagemagick_object($self->{_dest_filename});
-}
-
-sub get_imagemagick_object {
-	my $self = shift;
-	my $filename = shift;
-	 
-	my $image = Image::Magick->new;
-	$image->ReadImage( $filename );
-	
-	return $image;
+	return TRUE;
 }
 
 1;
