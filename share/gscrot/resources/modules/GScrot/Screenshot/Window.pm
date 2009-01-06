@@ -1,6 +1,6 @@
 ###################################################
 #
-#  Copyright (C) Mario Kemper 2008 <mario.kemper@googlemail.com>
+#  Copyright (C) Mario Kemper 2008 - 2009 <mario.kemper@googlemail.com>
 #
 #  This file is part of GScrot.
 #
@@ -51,6 +51,8 @@ sub new {
 
 	#only used by window_select
 	$self->{_children} = {};
+
+	#info window
 
 	bless $self, $class;
 	return $self;
@@ -197,6 +199,7 @@ sub window_select {
 	}
 
 	if ( Gtk2::Gdk->pointer_is_grabbed ) {
+
 		$self->{_children} = ();
 		my $drawable        = undef;
 		my $window_selected = FALSE;
@@ -222,6 +225,7 @@ sub window_select {
 								$self->{_children}{'last_win'}{'width'},
 								$self->{_children}{'last_win'}{'height'}
 							);
+							
 						}
 
 						&fct_ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );

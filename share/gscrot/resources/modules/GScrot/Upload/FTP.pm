@@ -1,6 +1,6 @@
 ###################################################
 #
-#  Copyright (C) Mario Kemper 2008 <mario.kemper@googlemail.com>
+#  Copyright (C) Mario Kemper 2008 - 2009 <mario.kemper@googlemail.com>
 #
 #  This file is part of GScrot.
 #
@@ -124,6 +124,8 @@ sub upload {
 	$self->{_ftp}->cwd( $self->{_path} )
 		or return $self->{_gettext_object}->get("Cannot change working directory!") . "\n>>"
 		. $self->{_ftp}->message;
+
+	$self->{_ftp}->binary;
 
 	#UPLOAD FILE
 	$self->{_ftp}->put( $self->{_filename} )

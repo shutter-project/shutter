@@ -1,6 +1,6 @@
 ###################################################
 #
-#  Copyright (C) Mario Kemper 2008 <mario.kemper@googlemail.com>
+#  Copyright (C) Mario Kemper 2008 - 2009 <mario.kemper@googlemail.com>
 #
 #  This file is part of GScrot.
 #
@@ -77,6 +77,7 @@ sub new {
 	$self->{_last_item}               = undef;
 	$self->{_current_item}            = undef;
 	$self->{_current_new_item}        = undef;
+	$self->{_current_copy_item}       = undef;
 	$self->{_current_mode}            = 10;
 	$self->{_current_mode_descr}      = "select";
 	$self->{_current_pixbuf}          = undef;
@@ -103,8 +104,7 @@ sub show {
 
 	#root window
 	$self->{_root} = Gtk2::Gdk->get_default_root_window;
-	( $self->{_root}->{x}, $self->{_root}->{y}, $self->{_root}->{w}, $self->{_root}->{h} )
-		= $self->{_root}->get_geometry;
+	( $self->{_root}->{x}, $self->{_root}->{y}, $self->{_root}->{w}, $self->{_root}->{h} ) = $self->{_root}->get_geometry;
 	( $self->{_root}->{x}, $self->{_root}->{y} ) = $self->{_root}->get_origin;
 
 	$self->{_drawing_window} = Gtk2::Window->new('toplevel');
@@ -117,8 +117,7 @@ sub show {
 	if ( $self->{_root}->{w} > 640 && $self->{_root}->{h} > 480 ) {
 		$self->{_drawing_window}->set_default_size( 640, 480 );
 	} else {
-		$self->{_drawing_window}
-			->set_default_size( $self->{_root}->{w} - 100, $self->{_root}->{h} - 100 );
+		$self->{_drawing_window}->set_default_size( $self->{_root}->{w} - 100, $self->{_root}->{h} - 100 );
 	}
 
 	#dialogs
@@ -135,14 +134,9 @@ sub show {
 	#create canvas
 	$self->{_canvas} = Goo::Canvas->new();
 	my $gray = Gtk2::Gdk::Color->parse('gray');
-	$self->{_canvas}->set(
-		'background-color' => sprintf( "#%04x%04x%04x", $gray->red, $gray->green, $gray->blue ) );
+	$self->{_canvas}->set( 'background-color' => sprintf( "#%04x%04x%04x", $gray->red, $gray->green, $gray->blue ) );
 
-	$self->{_canvas}->set_bounds(
-		0, 0,
-		$self->{_drawing_pixbuf}->get_width,
-		$self->{_drawing_pixbuf}->get_height
-	);
+	$self->{_canvas}->set_bounds( 0, 0, $self->{_drawing_pixbuf}->get_width, $self->{_drawing_pixbuf}->get_height );
 	my $root = $self->{_canvas}->get_root_item;
 
 	$self->{_canvas_bg} = Goo::Canvas::Image->new( $root, $self->{_drawing_pixbuf}, 0, 0 );
@@ -175,23 +169,15 @@ sub show {
 	#vruler
 	$self->{_vruler} = Gtk2::VRuler->new;
 	$self->{_vruler}->set_metric('pixels');
-	$self->{_vruler}->set_range( 0, $self->{_drawing_pixbuf}->get_height,
-		0, $self->{_drawing_pixbuf}->get_height );
+	$self->{_vruler}->set_range( 0, $self->{_drawing_pixbuf}->get_height, 0, $self->{_drawing_pixbuf}->get_height );
 
 	#hruler
 	$self->{_hruler} = Gtk2::HRuler->new;
 	$self->{_hruler}->set_metric('pixels');
-	$self->{_hruler}->set_range( 0, $self->{_drawing_pixbuf}->get_width,
-		0, $self->{_drawing_pixbuf}->get_width );
+	$self->{_hruler}->set_range( 0, $self->{_drawing_pixbuf}->get_width, 0, $self->{_drawing_pixbuf}->get_width );
 
 	#attach scrolled window and rulers to the table
-	$table->attach(
-		$self->{_scrolled_window},
-		1, 2, 1, 2,
-		[ 'expand', 'fill' ],
-		[ 'expand', 'fill' ],
-		0, 0
-	);
+	$table->attach( $self->{_scrolled_window}, 1, 2, 1, 2, [ 'expand', 'fill' ], [ 'expand', 'fill' ], 0, 0 );
 
 	$table->attach( $self->{_hruler}, 1, 2, 0, 1, [ 'expand', 'shrink', 'fill' ], [], 0, 0 );
 	$table->attach( $self->{_vruler}, 0, 1, 1, 2, [], [ 'fill', 'expand', 'shrink' ], 0, 0 );
@@ -310,8 +296,7 @@ sub setup_bottom_hbox {
 	my $image_btn = Gtk2::MenuToolButton->new( undef, undef );
 	$image_btn->set_menu( $self->ret_objects_menu($image_btn) );
 
-	$image_btn->signal_connect(
-		'show-menu' => sub { my ($widget) = @_; $self->ret_objects_menu($widget) } );
+	$image_btn->signal_connect( 'show-menu' => sub { my ($widget) = @_; $self->ret_objects_menu($widget) } );
 	$image_btn->signal_connect(
 		'clicked' => sub {
 			$self->set_drawing_action(6);
@@ -461,16 +446,10 @@ sub quit {
 	if ( $show_warning && scalar( keys %{ $self->{_items} } ) > 0 ) {
 
 		#warn the user if there are any unsaved changes
-		my $warn_dialog = Gtk2::MessageDialog->new(
-			$self->{_drawing_window},
-			[qw/modal destroy-with-parent/],
-			'other', 'none', undef
-		);
+		my $warn_dialog = Gtk2::MessageDialog->new( $self->{_drawing_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef );
 
 		#set question text
-		$warn_dialog->set( 'text' =>
-				sprintf( $d->get("Save the changes to image %s before closing?"), "'$name$type'" )
-		);
+		$warn_dialog->set( 'text' => sprintf( $d->get("Save the changes to image %s before closing?"), "'$name$type'" ) );
 
 		#set text...
 		$self->update_warning_text($warn_dialog);
@@ -564,11 +543,9 @@ sub load_settings {
 			$autoscroll_toggle->set_active( $settings_xml->{'drawing'}->{'autoscroll'} );
 
 			#drawing colors
-			$self->{_fill_color}
-				= Gtk2::Gdk::Color->parse( $settings_xml->{'drawing'}->{'fill_color'} );
-			$self->{_fill_color_alpha} = $settings_xml->{'drawing'}->{'fill_color_alpha'};
-			$self->{_stroke_color}
-				= Gtk2::Gdk::Color->parse( $settings_xml->{'drawing'}->{'stroke_color'} );
+			$self->{_fill_color}         = Gtk2::Gdk::Color->parse( $settings_xml->{'drawing'}->{'fill_color'} );
+			$self->{_fill_color_alpha}   = $settings_xml->{'drawing'}->{'fill_color_alpha'};
+			$self->{_stroke_color}       = Gtk2::Gdk::Color->parse( $settings_xml->{'drawing'}->{'stroke_color'} );
 			$self->{_stroke_color_alpha} = $settings_xml->{'drawing'}->{'stroke_color_alpha'};
 
 			#line_width
@@ -600,15 +577,11 @@ sub save_settings {
 		$settings{'drawing'}->{'autoscroll'} = $autoscroll_toggle->get_active();
 
 		#drawing colors
-		$settings{'drawing'}->{'fill_color'} = sprintf( "#%04x%04x%04x",
-			$self->{_fill_color}->red,
-			$self->{_fill_color}->green,
-			$self->{_fill_color}->blue );
+		$settings{'drawing'}->{'fill_color'}
+			= sprintf( "#%04x%04x%04x", $self->{_fill_color}->red, $self->{_fill_color}->green, $self->{_fill_color}->blue );
 		$settings{'drawing'}->{'fill_color_alpha'} = $self->{_fill_color_alpha};
-		$settings{'drawing'}->{'stroke_color'}     = sprintf( "#%04x%04x%04x",
-			$self->{_stroke_color}->red,
-			$self->{_stroke_color}->green,
-			$self->{_stroke_color}->blue );
+		$settings{'drawing'}->{'stroke_color'}
+			= sprintf( "#%04x%04x%04x", $self->{_stroke_color}->red, $self->{_stroke_color}->green, $self->{_stroke_color}->blue );
 		$settings{'drawing'}->{'stroke_color_alpha'} = $self->{_stroke_color_alpha};
 
 		#line_width
@@ -643,11 +616,7 @@ sub save {
 	#make sure not to save the bounding rectangles
 	$self->deactivate_all;
 
-	my $surface = Cairo::ImageSurface->create(
-		'argb32',
-		$self->{_canvas_bg}->get('width'),
-		$self->{_canvas_bg}->get('height')
-	);
+	my $surface = Cairo::ImageSurface->create( 'argb32', $self->{_canvas_bg}->get('width'), $self->{_canvas_bg}->get('height') );
 
 	my $cr   = Cairo::Context->create($surface);
 	my $root = $self->{_canvas}->get_root_item;
@@ -738,42 +707,19 @@ sub event_item_on_motion_notify {
 		my $scale = $self->{_canvas}->get_scale;
 
 		#autoscroll >> down and right
-		if ($ev->x > (
-				      $self->{_scrolled_window}->get_hadjustment->value / $scale 
-					+ $width / $scale
-					- 100 / $scale
-			)
-			&& $ev->y > (
-				      $self->{_scrolled_window}->get_vadjustment->value / $scale 
-					+ $height / $scale
-					- 100 / $scale
-			)
-			)
+		if (   $ev->x > ( $self->{_scrolled_window}->get_hadjustment->value / $scale + $width / $scale - 100 / $scale )
+			&& $ev->y > ( $self->{_scrolled_window}->get_vadjustment->value / $scale + $height / $scale - 100 / $scale ) )
 		{
 			$self->{_canvas}->scroll_to(
 				$self->{_scrolled_window}->get_hadjustment->value / $scale + 10 / $scale,
 				$self->{_scrolled_window}->get_vadjustment->value / $scale + 10 / $scale
 			);
-		} elsif (
-			$ev->x > (
-				      $self->{_scrolled_window}->get_hadjustment->value / $scale 
-					+ $width / $scale
-					- 100 / $scale
-			)
-			)
-		{
+		} elsif ( $ev->x > ( $self->{_scrolled_window}->get_hadjustment->value / $scale + $width / $scale - 100 / $scale ) ) {
 			$self->{_canvas}->scroll_to(
 				$self->{_scrolled_window}->get_hadjustment->value / $scale + 10 / $scale,
 				$self->{_scrolled_window}->get_vadjustment->value / $scale
 			);
-		} elsif (
-			$ev->y > (
-				      $self->{_scrolled_window}->get_vadjustment->value / $scale 
-					+ $height / $scale
-					- 100 / $scale
-			)
-			)
-		{
+		} elsif ( $ev->y > ( $self->{_scrolled_window}->get_vadjustment->value / $scale + $height / $scale - 100 / $scale ) ) {
 			$self->{_canvas}->scroll_to(
 				$self->{_scrolled_window}->get_hadjustment->value / $scale,
 				$self->{_scrolled_window}->get_vadjustment->value / $scale + 10 / $scale
@@ -781,24 +727,19 @@ sub event_item_on_motion_notify {
 		}
 
 		#autoscroll >> up and left
-		if ( $ev->x < ( $self->{_scrolled_window}->get_hadjustment->value / $scale + 100 / $scale )
-			&& $ev->y
-			< ( $self->{_scrolled_window}->get_vadjustment->value / $scale + 100 / $scale ) )
+		if (   $ev->x < ( $self->{_scrolled_window}->get_hadjustment->value / $scale + 100 / $scale )
+			&& $ev->y < ( $self->{_scrolled_window}->get_vadjustment->value / $scale + 100 / $scale ) )
 		{
 			$self->{_canvas}->scroll_to(
 				$self->{_scrolled_window}->get_hadjustment->value / $scale - 10 / $scale,
 				$self->{_scrolled_window}->get_vadjustment->value / $scale - 10 / $scale
 			);
-		} elsif (
-			$ev->x < ( $self->{_scrolled_window}->get_hadjustment->value / $scale + 100 / $scale ) )
-		{
+		} elsif ( $ev->x < ( $self->{_scrolled_window}->get_hadjustment->value / $scale + 100 / $scale ) ) {
 			$self->{_canvas}->scroll_to(
 				$self->{_scrolled_window}->get_hadjustment->value / $scale - 10 / $scale,
 				$self->{_scrolled_window}->get_vadjustment->value / $scale
 			);
-		} elsif (
-			$ev->y < ( $self->{_scrolled_window}->get_vadjustment->value / $scale + 100 / $scale ) )
-		{
+		} elsif ( $ev->y < ( $self->{_scrolled_window}->get_vadjustment->value / $scale + 100 / $scale ) ) {
 			$self->{_canvas}->scroll_to(
 				$self->{_scrolled_window}->get_hadjustment->value / $scale,
 				$self->{_scrolled_window}->get_vadjustment->value / $scale - 10 / $scale
@@ -837,8 +778,7 @@ sub event_item_on_motion_notify {
 		my $item = $self->{_current_new_item};
 
 		push @{ $self->{_items}{$item}{'points'} }, $ev->x, $ev->y;
-		$self->{_items}{$item}
-			->set( points => Goo::Canvas::Points->new( $self->{_items}{$item}{'points'} ) );
+		$self->{_items}{$item}->set( points => Goo::Canvas::Points->new( $self->{_items}{$item}{'points'} ) );
 
 		#items
 	} elsif (
@@ -888,36 +828,30 @@ sub event_item_on_motion_notify {
 					$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
 					$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};
 
-					$new_width = $self->{_items}{$curr_item}->get('width')
-						+ ( $self->{_items}{$curr_item}->get('x') - $new_x );
-					$new_height = $self->{_items}{$curr_item}->get('height')
-						+ ( $self->{_items}{$curr_item}->get('y') - $new_y );
+					$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
+					$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
 
 				} elsif ( $_ =~ /top.*middle/ ) {
 
 					$new_x = $self->{_items}{$curr_item}->get('x');
 					$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};
 
-					$new_width  = $self->{_items}{$curr_item}->get('width');
-					$new_height = $self->{_items}{$curr_item}->get('height')
-						+ ( $self->{_items}{$curr_item}->get('y') - $new_y );
+					$new_width = $self->{_items}{$curr_item}->get('width');
+					$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
 				} elsif ( $_ =~ /top.*right/ ) {
 
 					$new_x = $self->{_items}{$curr_item}->get('x');
 					$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};
 
-					$new_width
-						= $self->{_items}{$curr_item}->get('width') + ( $ev->x - $item->{res_x} );
-					$new_height = $self->{_items}{$curr_item}->get('height')
-						+ ( $self->{_items}{$curr_item}->get('y') - $new_y );
+					$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x - $item->{res_x} );
+					$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
 
 				} elsif ( $_ =~ /middle.*left/ ) {
 
 					$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
 					$new_y = $self->{_items}{$curr_item}->get('y');
 
-					$new_width = $self->{_items}{$curr_item}->get('width')
-						+ ( $self->{_items}{$curr_item}->get('x') - $new_x );
+					$new_width = $self->{_items}{$curr_item}->get('width') + ( $self->{_items}{$curr_item}->get('x') - $new_x );
 					$new_height = $self->{_items}{$curr_item}->get('height');
 
 				} elsif ( $_ =~ /middle.*right/ ) {
@@ -925,8 +859,7 @@ sub event_item_on_motion_notify {
 					$new_x = $self->{_items}{$curr_item}->get('x');
 					$new_y = $self->{_items}{$curr_item}->get('y');
 
-					$new_width
-						= $self->{_items}{$curr_item}->get('width') + ( $ev->x - $item->{res_x} );
+					$new_width = $self->{_items}{$curr_item}->get('width') + ( $ev->x - $item->{res_x} );
 					$new_height = $self->{_items}{$curr_item}->get('height');
 
 				} elsif ( $_ =~ /bottom.*left/ ) {
@@ -934,10 +867,8 @@ sub event_item_on_motion_notify {
 					$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
 					$new_y = $self->{_items}{$curr_item}->get('y');
 
-					$new_width = $self->{_items}{$curr_item}->get('width')
-						+ ( $self->{_items}{$curr_item}->get('x') - $new_x );
-					$new_height
-						= $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );
+					$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
+					$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );
 
 				} elsif ( $_ =~ /bottom.*middle/ ) {
 
@@ -945,18 +876,15 @@ sub event_item_on_motion_notify {
 					$new_y = $self->{_items}{$curr_item}->get('y');
 
 					$new_width = $self->{_items}{$curr_item}->get('width');
-					$new_height
-						= $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );
+					$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );
 
 				} elsif ( $_ =~ /bottom.*right/ ) {
 
 					$new_x = $self->{_items}{$curr_item}->get('x');
 					$new_y = $self->{_items}{$curr_item}->get('y');
 
-					$new_width
-						= $self->{_items}{$curr_item}->get('width') + ( $ev->x - $item->{res_x} );
-					$new_height
-						= $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );
+					$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x - $item->{res_x} );
+					$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );
 
 				}
 
@@ -1032,36 +960,37 @@ sub clear_item_from_canvas {
 	my $self = shift;
 	my $item = shift;
 
-	my @items_to_delete;
-	push @items_to_delete, $item;
+	if ($item) {
+		my @items_to_delete;
+		push @items_to_delete, $item;
 
-	#maybe there is a parent item to delete?
-	my $parent = $self->get_parent_item($item);
+		#maybe there is a parent item to delete?
+		my $parent = $self->get_parent_item($item);
 
-	if ($parent) {
-		push @items_to_delete, $parent;
-		foreach ( keys %{ $self->{_items}{$parent} } ) {
-			push @items_to_delete, $self->{_items}{$parent}{$_};
+		if ($parent) {
+			push @items_to_delete, $parent;
+			foreach ( keys %{ $self->{_items}{$parent} } ) {
+				push @items_to_delete, $self->{_items}{$parent}{$_};
+			}
+		} else {
+			foreach ( keys %{ $self->{_items}{$item} } ) {
+				push @items_to_delete, $self->{_items}{$item}{$_};
+			}
 		}
-	} else {
-		foreach ( keys %{ $self->{_items}{$item} } ) {
-			push @items_to_delete, $self->{_items}{$item}{$_};
+
+		foreach (@items_to_delete) {
+			eval {
+				my $bigparent = $_->get_parent;
+				$bigparent->remove_child( $bigparent->find_child($_) );
+			};
 		}
+
+		#clear from session hash >> parent
+		delete $self->{_items}{$parent};
+
+		#clear from session hash >> item
+		delete $self->{_items}{$item};
 	}
-
-	foreach (@items_to_delete) {
-		eval {
-			my $bigparent = $_->get_parent;
-			$bigparent->remove_child( $bigparent->find_child($_) );
-		};
-	}
-
-	#clear from session hash >> parent
-	delete $self->{_items}{$parent};
-
-	#clear from session hash >> item
-	delete $self->{_items}{$item};
-
 	$self->{_last_item}        = undef;
 	$self->{_current_item}     = undef;
 	$self->{_current_new_item} = undef;
@@ -1088,8 +1017,8 @@ sub event_item_on_button_press {
 		#real shape
 		if ( exists $self->{_items}{$item} ) {
 
-			$self->{_last_item}    = $self->{_current_item};
-			$self->{_current_item} = $item;
+			$self->{_last_item}        = $self->{_current_item};
+			$self->{_current_item}     = $item;
 			$self->{_current_new_item} = undef;
 			$self->handle_rects( 'hide',   $self->{_last_item} );
 			$self->handle_rects( 'update', $self->{_current_item} );
@@ -1157,16 +1086,14 @@ sub event_item_on_button_press {
 
 			}
 
-			$canvas->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ],
-				$cursor, $ev->time );
+			$canvas->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ], $cursor, $ev->time );
 
 		} else {
 
 			#FREEHAND
 			if ( $self->{_current_mode_descr} eq "line" ) {
 
-				my $stroke_pattern
-					= $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
+				my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
 				my $item = Goo::Canvas::Polyline->new_line(
 					$root, $ev->x, $ev->y, $ev->x, $ev->y,
 					'stroke-pattern' => $stroke_pattern,
@@ -1190,30 +1117,8 @@ sub event_item_on_button_press {
 				#RECTANGLES
 			} elsif ( $self->{_current_mode_descr} eq "rect" ) {
 
-				my $stroke_pattern
-					= $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
-				my $fill_pattern
-					= $self->create_color( $self->{_fill_color}, $self->{_fill_color_alpha} );
-				my $item = Goo::Canvas::Rect->new(
-					$root, $ev->x, $ev->y, 2, 2,
-					'fill-pattern'   => $fill_pattern,
-					'stroke-pattern' => $stroke_pattern,
-					'line-width'     => $self->{_line_width},
-				);
-
-				$self->{_current_new_item} = $item;
-				$self->{_items}{$item} = $item;
-
-				$self->{_items}{$item}{fill_color}         = $self->{_fill_color};
-				$self->{_items}{$item}{fill_color_alpha}   = $self->{_fill_color_alpha};
-				$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
-				$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
-
-				#create rectangles
-				$self->handle_rects( 'create', $item );
-
-				$self->setup_item_signals( $self->{_items}{$item} );
-				$self->setup_item_signals_extra( $self->{_items}{$item} );
+				#call sub ($event, $copy_item)
+				$self->create_rectangle( $ev, undef );
 
 				#ELLIPSE
 			} elsif ( $self->{_current_mode_descr} eq "ellipse" ) {
@@ -1233,10 +1138,8 @@ sub event_item_on_button_press {
 				#				my @stipple_data = ( 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255 );
 				#				my $pattern = $self->create_stipple( 'cadetblue', \@stipple_data );
 
-				my $stroke_pattern
-					= $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
-				my $fill_pattern
-					= $self->create_color( $self->{_fill_color}, $self->{_fill_color_alpha} );
+				my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
+				my $fill_pattern   = $self->create_color( $self->{_fill_color},   $self->{_fill_color_alpha} );
 
 				$self->{_items}{$item}{ellipse} = Goo::Canvas::Ellipse->new(
 					$root, $item->get('x'), $item->get('y'), $item->get('width'),
@@ -1279,8 +1182,7 @@ sub event_item_on_button_press {
 				#				my @stipple_data = ( 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255 );
 				#				my $pattern = $self->create_stipple( 'cadetblue', \@stipple_data );
 
-				my $stroke_pattern
-					= $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
+				my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
 
 				$self->{_items}{$item}{text} = Goo::Canvas::Text->new(
 					$root, "<span font_desc='" . $self->{_font} . "' >New Text...</span>",
@@ -1322,8 +1224,7 @@ sub event_item_on_button_press {
 
 				$self->{_items}{$item}{orig_pixbuf} = $self->{_current_pixbuf}->copy;
 				$self->{_items}{$item}{image}
-					= Goo::Canvas::Image->new( $root, $self->{_items}{$item}{orig_pixbuf},
-					$item->get('x'), $item->get('y') );
+					= Goo::Canvas::Image->new( $root, $self->{_items}{$item}{orig_pixbuf}, $item->get('x'), $item->get('y') );
 
 				#create rectangles
 				$self->handle_rects( 'create', $item );
@@ -1417,12 +1318,7 @@ sub ret_item_menu {
 	#raise
 	my $raise_item = Gtk2::ImageMenuItem->new( $d->get("Raise") );
 	$raise_item->set_image(
-		Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-				"$dicons/draw-raise.png", Gtk2::IconSize->lookup('menu')
-			)
-		)
-	);
+		Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$dicons/draw-raise.png", Gtk2::IconSize->lookup('menu') ) ) );
 	$raise_item->signal_connect(
 		'activate' => sub {
 			$item->raise;
@@ -1440,12 +1336,7 @@ sub ret_item_menu {
 	#lower
 	my $lower_item = Gtk2::ImageMenuItem->new( $d->get("Lower") );
 	$lower_item->set_image(
-		Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-				"$dicons/draw-lower.png", Gtk2::IconSize->lookup('menu')
-			)
-		)
-	);
+		Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$dicons/draw-lower.png", Gtk2::IconSize->lookup('menu') ) ) );
 
 	$lower_item->signal_connect(
 		'activate' => sub {
@@ -1533,8 +1424,7 @@ sub ret_item_menu {
 					$fill_color = Gtk2::ColorButton->new();
 
 					$fill_color->set_color( $self->{_items}{$key}{fill_color} );
-					$fill_color->set_alpha(
-						int( $self->{_items}{$key}{fill_color_alpha} * 65535 ) );
+					$fill_color->set_alpha( int( $self->{_items}{$key}{fill_color_alpha} * 65535 ) );
 					$fill_color->set_use_alpha(TRUE);
 					$fill_color->set_title( $d->get("Choose fill color") );
 
@@ -1550,8 +1440,7 @@ sub ret_item_menu {
 				$stroke_color = Gtk2::ColorButton->new();
 
 				$stroke_color->set_color( $self->{_items}{$key}{stroke_color} );
-				$stroke_color->set_alpha(
-					int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
+				$stroke_color->set_alpha( int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
 				$stroke_color->set_use_alpha(TRUE);
 				$stroke_color->set_title( $d->get("Choose stroke color") );
 
@@ -1586,8 +1475,7 @@ sub ret_item_menu {
 				$font_btn = Gtk2::FontButton->new();
 
 				#determine font description from string
-				my ( $attr_list, $text_raw, $accel_char )
-					= Gtk2::Pango->parse_markup( $item->get('text') );
+				my ( $attr_list, $text_raw, $accel_char ) = Gtk2::Pango->parse_markup( $item->get('text') );
 				my $font_desc = Gtk2::Pango::FontDescription->from_string( $self->{_font} );
 
 				#FIXME, maybe the pango version installed is too old
@@ -1616,8 +1504,7 @@ sub ret_item_menu {
 				$font_color = Gtk2::ColorButton->new();
 				$font_color->set_use_alpha(TRUE);
 
-				$font_color->set_alpha(
-					int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
+				$font_color->set_alpha( int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
 				$font_color->set_color( $self->{_items}{$key}{stroke_color} );
 				$font_color->set_title( $d->get("Choose font color") );
 
@@ -1643,8 +1530,7 @@ sub ret_item_menu {
 				$font_btn->signal_connect(
 					'font-set' => sub {
 
-						$self->modify_text_in_properties( $font_btn, $textview, $font_color,
-							$item );
+						$self->modify_text_in_properties( $font_btn, $textview, $font_color, $item );
 
 					}
 				);
@@ -1652,8 +1538,7 @@ sub ret_item_menu {
 				$font_color->signal_connect(
 					'color-set' => sub {
 
-						$self->modify_text_in_properties( $font_btn, $textview, $font_color,
-							$item );
+						$self->modify_text_in_properties( $font_btn, $textview, $font_color, $item );
 
 					}
 				);
@@ -1675,10 +1560,8 @@ sub ret_item_menu {
 				#apply rect or ellipse options
 				if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
 
-					my $fill_pattern = $self->create_color( $fill_color->get_color,
-						$fill_color->get_alpha / 65535 );
-					my $stroke_pattern = $self->create_color( $stroke_color->get_color,
-						$stroke_color->get_alpha / 65535 );
+					my $fill_pattern   = $self->create_color( $fill_color->get_color,   $fill_color->get_alpha / 65535 );
+					my $stroke_pattern = $self->create_color( $stroke_color->get_color, $stroke_color->get_alpha / 65535 );
 					$item->set(
 						'line-width'     => $line_spin->get_value,
 						'fill-pattern'   => $fill_pattern,
@@ -1694,8 +1577,7 @@ sub ret_item_menu {
 
 				#apply polyline options
 				if ( $item->isa('Goo::Canvas::Polyline') ) {
-					my $stroke_pattern = $self->create_color( $stroke_color->get_color,
-						$stroke_color->get_alpha / 65535 );
+					my $stroke_pattern = $self->create_color( $stroke_color->get_color, $stroke_color->get_alpha / 65535 );
 					$item->set(
 						'line-width'     => $line_spin->get_value,
 						'stroke-pattern' => $stroke_pattern
@@ -1708,22 +1590,16 @@ sub ret_item_menu {
 
 				#apply text options
 				if ( $item->isa('Goo::Canvas::Text') ) {
-					my $font_descr
-						= Gtk2::Pango::FontDescription->from_string( $font_btn->get_font_name );
+					my $font_descr = Gtk2::Pango::FontDescription->from_string( $font_btn->get_font_name );
 
 					my $new_text
-						= $textview->get_buffer->get_text( $textview->get_buffer->get_start_iter,
-						$textview->get_buffer->get_end_iter, FALSE )
+						= $textview->get_buffer->get_text( $textview->get_buffer->get_start_iter, $textview->get_buffer->get_end_iter, FALSE )
 						|| "New Text...";
 
-					my $fill_pattern = $self->create_color( $font_color->get_color,
-						$font_color->get_alpha / 65535 );
+					my $fill_pattern = $self->create_color( $font_color->get_color, $font_color->get_alpha / 65535 );
 
 					$item->set(
-						'text' => "<span font_desc=' "
-							. $font_descr->to_string . " ' >"
-							. $new_text
-							. "</span>",
+						'text'         => "<span font_desc=' " . $font_descr->to_string . " ' >" . $new_text . "</span>",
 						'use-markup'   => TRUE,
 						'fill-pattern' => $fill_pattern
 					);
@@ -1732,11 +1608,8 @@ sub ret_item_menu {
 					my $no_lines  = $textview->get_buffer->get_line_count;
 					my $font_size = $font_descr->get_size / 1024;
 
-					if ( ( $no_lines * $font_size ) + $parent->get('height')
-						> ( $self->{_drawing_pixbuf}->get_height - 50 ) )
-					{
-						$parent->set( 'height' =>
-								( $self->{_drawing_pixbuf}->get_height - $parent->get('height') ) );
+					if ( ( $no_lines * $font_size ) + $parent->get('height') > ( $self->{_drawing_pixbuf}->get_height - 50 ) ) {
+						$parent->set( 'height' => ( $self->{_drawing_pixbuf}->get_height - $parent->get('height') ) );
 					} else {
 						$parent->set( 'height' => $no_lines * $font_size + $no_lines * 20 );
 					}
@@ -1786,12 +1659,7 @@ sub modify_text_in_properties {
 		}
 	);
 
-	$text->set_text(
-		$textview->get_buffer->get_text(
-			$textview->get_buffer->get_start_iter,
-			$textview->get_buffer->get_end_iter, FALSE
-		)
-	);
+	$text->set_text( $textview->get_buffer->get_text( $textview->get_buffer->get_start_iter, $textview->get_buffer->get_end_iter, FALSE ) );
 	$text->apply_tag( $texttag, $text->get_start_iter, $text->get_end_iter );
 	$textview->set_buffer($text);
 
@@ -1819,10 +1687,10 @@ sub deactivate_all {
 
 	}
 
-	$self->{_last_item}    = undef;
-	$self->{_current_item} = undef;
+	$self->{_last_item}        = undef;
+	$self->{_current_item}     = undef;
 	$self->{_current_new_item} = undef;
-	
+
 	return TRUE;
 }
 
@@ -1839,18 +1707,14 @@ sub handle_embedded {
 		if ( exists $self->{_items}{$item}{ellipse} ) {
 
 			$self->{_items}{$item}{ellipse}->set(
-				'center-x' => $self->{_items}{$item}->get('x')
-					+ $self->{_items}{$item}->get('width') / 2,
-				'center-y' => $self->{_items}{$item}->get('y')
-					+ $self->{_items}{$item}->get('height') / 2,
+				'center-x' => $self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width') / 2,
+				'center-y' => $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height') / 2,
 			);
 			$self->{_items}{$item}{ellipse}->set(
-				'radius-x' => $self->{_items}{$item}->get('x')
+				'radius-x' => $self->{_items}{$item}->get('x') 
 					+ $self->{_items}{$item}->get('width')
 					- $self->{_items}{$item}{ellipse}->get('center-x'),
-				'radius-y' => $item->get('y') 
-					+ $self->{_items}{$item}->get('height')
-					- $self->{_items}{$item}{ellipse}->get('center-y'),
+				'radius-y' => $item->get('y') + $self->{_items}{$item}->get('height') - $self->{_items}{$item}{ellipse}->get('center-y'),
 			);
 
 		} elsif ( exists $self->{_items}{$item}{text} ) {
@@ -1866,10 +1730,7 @@ sub handle_embedded {
 			$self->{_items}{$item}{image}->set(
 				'x'      => int $self->{_items}{$item}->get('x'),
 				'y'      => int $self->{_items}{$item}->get('y'),
-				'pixbuf' => $copy->scale_simple(
-					$self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'),
-					'bilinear'
-				)
+				'pixbuf' => $copy->scale_simple( $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'), 'bilinear' )
 			);
 
 		}
@@ -1898,11 +1759,9 @@ sub handle_rects {
 
 	if ( $self->{_items}{$item}->isa('Goo::Canvas::Rect') ) {
 
-		my $middle_h
-			= $self->{_items}{$item}->get('x') + int( $self->{_items}{$item}->get('width') / 2 );
+		my $middle_h = $self->{_items}{$item}->get('x') + int( $self->{_items}{$item}->get('width') / 2 );
 
-		my $middle_v
-			= $self->{_items}{$item}->get('y') + int( $self->{_items}{$item}->get('height') / 2 );
+		my $middle_v = $self->{_items}{$item}->get('y') + int( $self->{_items}{$item}->get('height') / 2 );
 
 		my $bottom = $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height');
 
@@ -2248,8 +2107,7 @@ sub event_item_on_enter_notify {
 		if ( $self->{_current_mode_descr} eq "select" ) {
 			$self->{_canvas}->window->set_cursor($cursor);
 		} elsif ( $self->{_current_mode_descr} eq "clear" ) {
-			my $dicons
-				= $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool";
+			my $dicons = $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool";
 			$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
 				Gtk2::Gdk::Display->get_default,
 				Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-eraser.png"),
@@ -2331,11 +2189,7 @@ sub create_color {
 		$color = $color_name;
 	}
 
-	my $pattern = Cairo::SolidPattern->create_rgba(
-		$color->red / 257 / 255,
-		$color->green / 257 / 255,
-		$color->blue / 257 / 255, $alpha
-	);
+	my $pattern = Cairo::SolidPattern->create_rgba( $color->red / 257 / 255, $color->green / 257 / 255, $color->blue / 257 / 255, $alpha );
 
 	return Goo::Cairo::Pattern->new($pattern);
 }
@@ -2349,86 +2203,56 @@ sub setup_uimanager {
 	my $dicons = $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool";
 
 	$self->{_factory} = Gtk2::IconFactory->new();
-	$self->{_factory}->add(
-		'gscrot-ellipse',
-		Gtk2::IconSet->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-ellipse.png")
-		)
-	);
-	$self->{_factory}->add(
-		'gscrot-eraser',
-		Gtk2::IconSet->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-eraser.png")
-		)
-	);
-	$self->{_factory}->add(
-		'gscrot-freehand',
-		Gtk2::IconSet->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-freehand.png")
-		)
-	);
-	$self->{_factory}->add(
-		'gscrot-pointer',
-		Gtk2::IconSet->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-pointer.png")
-		)
-	);
-	$self->{_factory}->add(
-		'gscrot-rectangle',
-		Gtk2::IconSet->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-rectangle.png")
-		)
-	);
-	$self->{_factory}->add( 'gscrot-star',
-		Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-star.png") )
-	);
-	$self->{_factory}->add( 'gscrot-text',
-		Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-text.png") )
-	);
+	$self->{_factory}->add( 'gscrot-ellipse',   Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-ellipse.png") ) );
+	$self->{_factory}->add( 'gscrot-eraser',    Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-eraser.png") ) );
+	$self->{_factory}->add( 'gscrot-freehand',  Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-freehand.png") ) );
+	$self->{_factory}->add( 'gscrot-pointer',   Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-pointer.png") ) );
+	$self->{_factory}->add( 'gscrot-rectangle', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-rectangle.png") ) );
+	$self->{_factory}->add( 'gscrot-star',      Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-star.png") ) );
+	$self->{_factory}->add( 'gscrot-text',      Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-text.png") ) );
 	$self->{_factory}->add_default();
 
-	my @default_actions = (
-		[ "File", undef, $d->get("_File") ],
-		[ "Edit", undef, $d->get("_Edit") ],
-		[ "View", undef, $d->get("_View") ]
-	);
+	my @default_actions = ( [ "File", undef, $d->get("_File") ], [ "Edit", undef, $d->get("_Edit") ], [ "View", undef, $d->get("_View") ] );
 
 	my @menu_actions = (
-		[   "Autoscroll", undef, $d->get("Automatic scrolling"),
-			undef, undef, sub { my $widget = shift; $self->{_autoscroll} = $widget->get_active; }
+		[ "Copy", 'gtk-copy', undef, "<control>C", undef, sub { $self->{_current_copy_item} = $self->{_current_item}; } ],
+		[ "Cut", 'gtk-cut', undef, "<control>X", undef, sub { $self->clear_item_from_canvas( $self->{_current_item} ); } ],
+		[   "Paste",
+			'gtk-paste',
+			undef,
+			"<control>V",
+			undef,
+			sub {
+				return FALSE unless $self->{_current_copy_item};
+				if ( $self->{_current_copy_item}->isa('Goo::Canvas::Rect') ) {
+					$self->create_rectangle( undef, $self->{_current_copy_item} );
+				}
+				}
+		],
+		[ "Delete", 'gtk-delete', undef, "Delete", undef, sub { $self->clear_item_from_canvas( $self->{_current_item} ); } ]
+	);
+
+	my @menu_toggle_actions = (
+		[   "Autoscroll", undef, $d->get("Automatic scrolling"), undef, undef, sub { my $widget = shift; $self->{_autoscroll} = $widget->get_active; }
 		]
 	);
 
 	my @toolbar_actions = (
 		[ "Close", 'gtk-close', undef, "<control>Q", undef, sub { $self->quit(TRUE) } ],
-		[   "Save", 'gtk-save',
-			undef,  "<control>S",
-			undef, sub { $self->save(), $self->quit(FALSE) }
-		],
-		[   "ZoomIn", 'gtk-zoom-in', undef, "<control>plus", undef, sub { $self->zoom_in_cb($self) }
-		],
-		[   "ZoomOut", 'gtk-zoom-out',
-			undef,     "<control>minus",
-			undef, sub { $self->zoom_out_cb($self) }
-		],
-		[   "ZoomNormal", 'gtk-zoom-100',
-			undef,        "<control>0",
-			undef, sub { $self->zoom_normal_cb($self) }
-		]
+		[ "Save",       'gtk-save',     undef, "<control>S",     undef, sub { $self->save(), $self->quit(FALSE) } ],
+		[ "ZoomIn",     'gtk-zoom-in',  undef, "<control>plus",  undef, sub { $self->zoom_in_cb($self) } ],
+		[ "ZoomOut",    'gtk-zoom-out', undef, "<control>minus", undef, sub { $self->zoom_out_cb($self) } ],
+		[ "ZoomNormal", 'gtk-zoom-100', undef, "<control>0",     undef, sub { $self->zoom_normal_cb($self) } ]
 	);
 
 	my @toolbar_drawing_actions = (
-		[   "Select", 'gscrot-pointer', undef, undef, $d->get("Select item to move or resize it"),
-			10
-		],
-		[   "Line", 'gscrot-freehand', undef, undef, $d->get("Draw a line using the freehand tool"),
-			20
-		],
-		[ "Rect",    'gscrot-rectangle', undef, undef, $d->get("Draw a rectangle"), 30 ],
-		[ "Ellipse", 'gscrot-ellipse',   undef, undef, $d->get("Draw a ellipse"),   40 ],
-		[ "Image", 'gscrot-star', undef, undef, $d->get("Insert an arbitrary object or file"), 50 ],
-		[ "Text",  'gscrot-text', undef, undef, $d->get("Add some text to the screenshot"),    60 ],
-		[ "Clear", 'gscrot-eraser', undef, undef, $d->get("Delete objects"), 70 ]
+		[ "Select",  'gscrot-pointer',   undef, undef, $d->get("Select item to move or resize it"),    10 ],
+		[ "Line",    'gscrot-freehand',  undef, undef, $d->get("Draw a line using the freehand tool"), 20 ],
+		[ "Rect",    'gscrot-rectangle', undef, undef, $d->get("Draw a rectangle"),                    30 ],
+		[ "Ellipse", 'gscrot-ellipse',   undef, undef, $d->get("Draw a ellipse"),                      40 ],
+		[ "Image",   'gscrot-star',      undef, undef, $d->get("Insert an arbitrary object or file"),  50 ],
+		[ "Text",    'gscrot-text',      undef, undef, $d->get("Add some text to the screenshot"),     60 ],
+		[ "Clear",   'gscrot-eraser',    undef, undef, $d->get("Delete objects"),                      70 ]
 	);
 
 	my $uimanager = Gtk2::UIManager->new();
@@ -2443,7 +2267,11 @@ sub setup_uimanager {
 
 	# Setup the menu group.
 	my $menu_group = Gtk2::ActionGroup->new("menu");
-	$menu_group->add_toggle_actions( \@menu_actions );
+	$menu_group->add_actions( \@menu_actions );
+
+	#setup the menu toggle group
+	my $menu_toggle_group = Gtk2::ActionGroup->new("menu_toggle");
+	$menu_toggle_group->add_toggle_actions( \@menu_toggle_actions );
 
 	# Setup the toolbar group.
 	my $toolbar_group = Gtk2::ActionGroup->new("toolbar");
@@ -2451,11 +2279,11 @@ sub setup_uimanager {
 
 	# Setup the drawing group.
 	my $toolbar_drawing_group = Gtk2::ActionGroup->new("drawing");
-	$toolbar_drawing_group->add_radio_actions( \@toolbar_drawing_actions, 10,
-		sub { my $action = shift; $self->change_drawing_tool_cb($action); } );
+	$toolbar_drawing_group->add_radio_actions( \@toolbar_drawing_actions, 10, sub { my $action = shift; $self->change_drawing_tool_cb($action); } );
 
 	$uimanager->insert_action_group( $default_group,         0 );
 	$uimanager->insert_action_group( $menu_group,            0 );
+	$uimanager->insert_action_group( $menu_toggle_group,     0 );
 	$uimanager->insert_action_group( $toolbar_group,         0 );
 	$uimanager->insert_action_group( $toolbar_drawing_group, 0 );
 
@@ -2468,6 +2296,11 @@ sub setup_uimanager {
       <menuitem action = 'Close'/>
     </menu>
     <menu action = 'Edit'>
+      <menuitem action = 'Copy'/>
+      <menuitem action = 'Cut'/>
+      <menuitem action = 'Paste'/>
+      <menuitem action = 'Delete'/>
+      <separator/>
       <menuitem action = 'Autoscroll'/>
     </menu>
     <menu action = 'View'>
@@ -2514,8 +2347,7 @@ sub ret_objects_menu {
 
 	my $d = $self->{_gscrot_common}->get_gettext;
 
-	my $dobjects
-		= $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool/objects";
+	my $dobjects = $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool/objects";
 
 	my @objects = glob("$dobjects/*");
 	foreach (@objects) {
@@ -2526,16 +2358,9 @@ sub ret_objects_menu {
 		eval {
 
 			#create pixbufs
-			my $small_image = Gtk2::Image->new_from_pixbuf(
-				Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
-					$_, Gtk2::IconSize->lookup('menu'), TRUE
-				)
-			);
-			my $small_image_button = Gtk2::Image->new_from_pixbuf(
-				Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
-					$_, Gtk2::IconSize->lookup('menu'), TRUE
-				)
-			);
+			my $small_image = Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $_, Gtk2::IconSize->lookup('menu'), TRUE ) );
+			my $small_image_button
+				= Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $_, Gtk2::IconSize->lookup('menu'), TRUE ) );
 			my $orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($_);
 
 			#create items
@@ -2577,8 +2402,7 @@ sub ret_objects_menu {
 	$menu_objects->append($session_menu_item);
 
 	#objects from filesystem
-	my $filesystem_menu_item
-		= Gtk2::MenuItem->new_with_label( $d->get("Import from filesystem...") );
+	my $filesystem_menu_item = Gtk2::MenuItem->new_with_label( $d->get("Import from filesystem...") );
 	$filesystem_menu_item->signal_connect(
 		'activate' => sub {
 
@@ -2598,6 +2422,8 @@ sub ret_objects_menu {
 				my $filter = Gtk2::FileFilter->new;
 				$filter->set_name( $_->{name} . " - " . $_->{description} );
 				foreach ( @{ $_->{extensions} } ) {
+					$filter->add_pattern( "*." . uc $_ );
+					$filter_all->add_pattern( "*." . uc $_ );
 					$filter->add_pattern( "*." . $_ );
 					$filter_all->add_pattern( "*." . $_ );
 				}
@@ -2652,7 +2478,7 @@ sub import_from_session {
 		#create pixbufs
 		my $small_image        = Gtk2::Image->new_from_stock( 'gtk-new', 'menu' );
 		my $small_image_button = Gtk2::Image->new_from_stock( 'gtk-new', 'menu' );
-		my $orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $import_hash{$key}->{'long'} );
+		my $orig_pixbuf        = Gtk2::Gdk::Pixbuf->new_from_file( $import_hash{$key}->{'long'} );
 
 		my $screen_menu_item = Gtk2::ImageMenuItem->new_with_label( $import_hash{$key}->{'short'} );
 		$screen_menu_item->set_image($small_image);
@@ -2703,8 +2529,7 @@ sub change_cursor_to_current_pixbuf {
 	$self->{_current_mode_descr} = "image";
 	my $copy = $self->{_current_pixbuf}->copy;
 	if ( $copy->get_width < 200 && $copy->get_height < 200 ) {
-		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default,
-			$copy, undef, undef );
+		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default, $copy, undef, undef );
 
 	} else {
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
@@ -2715,6 +2540,51 @@ sub change_cursor_to_current_pixbuf {
 	}
 
 	return $cursor;
+}
+
+sub create_rectangle {
+	my $self      = shift;
+	my $ev        = shift;
+	my $copy_item = shift;
+
+	my @dimensions = ( 0, 0, 0, 0 );
+	my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
+	my $fill_pattern   = $self->create_color( $self->{_fill_color},   $self->{_fill_color_alpha} );
+
+	#use event coordinates and selected color
+	if ($ev) {
+		@dimensions = ( $ev->x, $ev->y, 2, 2 );
+
+		#use source item coordinates and item color
+	} elsif ($copy_item) {
+		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
+		$stroke_pattern = $self->create_color( $self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha} );
+		$fill_pattern   = $self->create_color( $self->{_items}{$copy_item}{fill_color},   $self->{_items}{$copy_item}{fill_color_alpha} );
+
+	}
+
+	my $item = Goo::Canvas::Rect->new(
+		$self->{_canvas}->get_root_item, @dimensions,
+		'fill-pattern'   => $fill_pattern,
+		'stroke-pattern' => $stroke_pattern,
+		'line-width'     => $self->{_line_width},
+	);
+
+	$self->{_current_new_item} = $item;
+	$self->{_items}{$item} = $item;
+
+	$self->{_items}{$item}{fill_color}         = $self->{_fill_color};
+	$self->{_items}{$item}{fill_color_alpha}   = $self->{_fill_color_alpha};
+	$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
+	$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
+
+	#create rectangles
+	$self->handle_rects( 'create', $item );
+
+	$self->setup_item_signals( $self->{_items}{$item} );
+	$self->setup_item_signals_extra( $self->{_items}{$item} );
+
+	return TRUE;
 }
 
 1;

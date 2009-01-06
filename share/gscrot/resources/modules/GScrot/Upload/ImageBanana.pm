@@ -1,6 +1,6 @@
 ###################################################
 #
-#  Copyright (C) Mario Kemper 2008 <mario.kemper@googlemail.com>
+#  Copyright (C) Mario Kemper 2008 - 2009 <mario.kemper@googlemail.com>
 #
 #  This file is part of GScrot.
 #
