@@ -834,7 +834,7 @@ my $progname_label = Gtk2::Label->new( $gscrot_common->get_gettext->get("Open wi
 $tooltips->set_tip( $progname,        $gscrot_common->get_gettext->get("Open your screenshot\nwith this program after capturing") );
 $tooltips->set_tip( $progname_active, $gscrot_common->get_gettext->get("Open your screenshot\nwith this program after capturing") );
 $tooltips->set_tip( $progname_label,  $gscrot_common->get_gettext->get("Open your screenshot\nwith this program after capturing") );
-$progname_box->pack_start( $progname_label, TRUE, TRUE, 10 );
+$progname_box->pack_start( $progname_label, FALSE, TRUE, 10 );
 $progname_box2->pack_start( $progname_active, FALSE, TRUE, 0 );
 $progname_box2->pack_start( $progname,        TRUE,  TRUE, 0 );
 $progname_box->pack_start( $progname_box2, TRUE, TRUE, 10 );
