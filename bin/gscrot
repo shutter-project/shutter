@@ -30,6 +30,7 @@ use warnings;
 
 #Gtk2
 use Gtk2 '-init';
+use Gtk2;
 use Gtk2::Gdk::Keysyms;
 use Gtk2::Pango;
 
@@ -56,6 +57,9 @@ use HTTP::Status;
 
 #load and save settings
 use XML::Simple;
+
+#timing issues
+use Time::HiRes;
 
 #internal use
 use FindBin '$Bin';
@@ -1456,20 +1460,17 @@ sub evt_take_screenshot {
 
 		#web
 	} elsif ( $data eq "web" || $data eq "tray_web" ) {
-		$screenshot = &dlg_website( $folder, $filename_value, $filetype_value, $quality_value );
 
-		if ($screenshot) {
-			unless ( $screenshot->Get('width') ) {
+		$screenshot = &dlg_website( $folder, $filename_value, $filetype_value, $quality_value );
+		if ( $screenshot != 5 ) {
+			eval { $screenshot->isa('Image::Magick'); };
+			if ($@) {
 				&dlg_error_message( $gscrot_common->get_gettext->get("Unable to capture website") . "!" );
 				&dlg_status_message( 1, $gscrot_common->get_gettext->get("Unable to capture website") . "!" );
 				&fct_set_toolbar_sensitive( TRUE, $data );
 				return FALSE;
 			}
-		} else {
-			&fct_set_toolbar_sensitive( TRUE, $data );
-			return FALSE;
 		}
-
 	} elsif ( $data =~ /^gscrot_window_direct(.*)/ ) {
 		my $xid = $1;
 		print "Selected xid: $xid\n" if $gscrot_common->get_debug;
@@ -2156,9 +2157,10 @@ sub evt_save_as {
 			$fs->destroy();
 			return FALSE;
 		}
-		
+
 		$session_screens{$key}->{'filename'} = $filename;
-		&fct_update_tab( $key );
+		&fct_update_tab($key);
+
 		#setup a new filemonitor, so we get noticed if the file changed
 		&fct_add_file_monitor($key);
 
@@ -2317,45 +2319,42 @@ sub fct_integrate_screenshot_in_notebook {
 	return $key;
 }
 
-sub fct_add_file_monitor{
-		my $key = shift;
+sub fct_add_file_monitor {
+	my $key = shift;
 
-		$session_screens{$key}->{'changed'} = FALSE;
-		$session_screens{$key}->{'deleted'} = FALSE;
+	$session_screens{$key}->{'changed'} = FALSE;
+	$session_screens{$key}->{'deleted'} = FALSE;
 
-		$session_screens{$key}->{'handle'} = Gnome2::VFS::Monitor->add(
-			$session_screens{$key}->{'uri'}->to_string,
-			'file',
-			sub {
-				my $handle = shift;
-				my $file1  = shift;
-				my $file2  = shift;
-				my $event  = shift;
-				my $key    = shift;
+	$session_screens{$key}->{'handle'} = Gnome2::VFS::Monitor->add(
+		$session_screens{$key}->{'uri'}->to_string,
+		'file',
+		sub {
+			my $handle = shift;
+			my $file1  = shift;
+			my $file2  = shift;
+			my $event  = shift;
+			my $key    = shift;
 
-				print $session_screens{$key}->{'long'} . " - " . $event . "\n";
+			print $session_screens{$key}->{'long'} . " - " . $event . "\n";
 
-				if ( $event eq 'deleted' ) {
-					$session_screens{$key}->{'deleted'} = TRUE;
-					&fct_update_tab($key);
-					&fct_update_first_tab;
-					$handle->cancel;
-				} elsif ( $event eq 'changed' ) {
-					$session_screens{$key}->{'changed'} = TRUE;
-					&fct_update_tab($key);
-					&fct_update_first_tab;
-				}
+			if ( $event eq 'deleted' ) {
+				$session_screens{$key}->{'deleted'} = TRUE;
+				&fct_update_tab($key);
+				&fct_update_first_tab;
+				$handle->cancel;
+			} elsif ( $event eq 'changed' ) {
+				$session_screens{$key}->{'changed'} = TRUE;
+				&fct_update_tab($key);
+				&fct_update_first_tab;
+			}
 
-				return TRUE;
-			},
-			$key
-		);
-	
+			return TRUE;
+		},
+		$key
+	);
+
 	return TRUE;
 }
-
-
-
 
 sub fct_set_toolbar_sensitive {
 	my ( $set, $data ) = @_;
@@ -2627,11 +2626,12 @@ sub fct_resize_thumb {
 		return FALSE if $image->{'current_width'} < 10 || $image->{'current_height'} < 10;
 
 		if ( $old_width != $image->{'current_width'} || $session_screens{$key}->{'changed'} == TRUE || $session_screens{$key}->{'deleted'} == TRUE ) {
+
 			my $scaled = $orig->scale_simple( $image->{'current_width'}, $image->{'current_height'}, 'tiles' );
 			$image->set_from_pixbuf($scaled);
 			$session_screens{$key}->{'changed'} = FALSE;
-		}
 
+		}
 	}
 	return FALSE;
 }
@@ -3633,7 +3633,16 @@ sub fct_update_first_tab {
 
 		#try to generate a new thumbnail
 		my $pixbuf;
-		eval { $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $session_screens{$key}->{'long'}, Gtk2::IconSize->lookup('dialog'), TRUE ); };
+		eval {
+
+			#use different algos for image sizes...
+			if ( $session_screens{$key}->{'orig'}->get_width + $session_screens{$key}->{'orig'}->get_height > 5000 ) {
+				$pixbuf = $session_screens{$key}->{'orig'}->scale_simple( Gtk2::IconSize->lookup('dialog'), 'nearest' );
+			} else {
+				$pixbuf = $session_screens{$key}->{'orig'}->scale_simple( Gtk2::IconSize->lookup('dialog'), 'tiles' );
+			}
+
+		};
 		if ($@) {
 			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$gscrot_root/share/gscrot/resources/icons/Image-missing.svg",
 				Gtk2::IconSize->lookup('dialog'), TRUE );
@@ -3813,6 +3822,17 @@ sub fct_imagemagick_perform {
 		$image->WriteImage( filename => $data, quality => 100 );    #$data is new filename
 	}
 	return TRUE;
+}
+
+sub fct_get_imagemagick_object {
+	my $filename = shift;
+
+	return FALSE unless $gscrot_hfunct->file_exists($filename);
+
+	my $image = Image::Magick->new;
+	$image->ReadImage($filename);
+
+	return $image;
 }
 
 sub fct_resize_imagemagick_object {
@@ -4061,11 +4081,17 @@ sub fct_create_thumbnail_and_fileinfos {
 		$session_screens{$key}->{'mime_type'} = Gnome2::VFS->get_mime_type( $session_screens{$key}->{'uri'}->to_string );
 
 		$session_screens{$key}->{'orig'} = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} );
-		$session_screens{$key}->{'thumb'} = $session_screens{$key}->{'orig'}->copy->scale_simple( Gtk2::IconSize->lookup('menu'), 'bilinear' );
 
 		#get dimensions - using the pixbuf
 		$session_screens{$key}->{'width'}  = $session_screens{$key}->{'orig'}->get_width;
 		$session_screens{$key}->{'height'} = $session_screens{$key}->{'orig'}->get_height;
+
+		#use different algos for image sizes...
+		if ( $session_screens{$key}->{'orig'}->get_width + $session_screens{$key}->{'orig'}->get_height > 5000 ) {
+			$session_screens{$key}->{'thumb'} = $session_screens{$key}->{'orig'}->scale_simple( Gtk2::IconSize->lookup('menu'), 'nearest' );
+		} else {
+			$session_screens{$key}->{'thumb'} = $session_screens{$key}->{'orig'}->scale_simple( Gtk2::IconSize->lookup('menu'), 'tiles' );
+		}
 
 	};
 
@@ -4073,14 +4099,15 @@ sub fct_create_thumbnail_and_fileinfos {
 
 		#we only handle one case here:
 		#file was deleted in filesystem and we got informed about that...
-		if ($session_screens{$key}->{'deleted'} == TRUE){
-			&dlg_error_message($gscrot_common->get_gettext->get("The file was deleted by another person or process."), undef, undef, undef, sprintf( $gscrot_common->get_gettext->get("File %s deleted"), "'$session_screens{$key}->{'short'}'" ));						
-	
-		#all other cases are unknown => show "real" error
-		}else{
-			&dlg_error_message("$@", undef, undef, undef, "Unhandled Exception");			
+		if ( $session_screens{$key}->{'deleted'} == TRUE ) {
+			&dlg_error_message( $gscrot_common->get_gettext->get("The file was deleted by another person or process."),
+				undef, undef, undef, sprintf( $gscrot_common->get_gettext->get("File %s deleted"), "'$session_screens{$key}->{'short'}'" ) );
+
+			#all other cases are unknown => show "real" error
+		} else {
+			&dlg_error_message( "$@", undef, undef, undef, "Unhandled Exception" );
 		}
-		
+
 		return FALSE;
 	}
 
@@ -4187,7 +4214,7 @@ sub fct_ret_workspace_menu {
 	} else {
 		$current_monitor_active->reparent($menu_wrksp);
 	}
-	
+
 	$tooltips->set_tip(
 		$current_monitor_active,
 		sprintf(
@@ -4955,14 +4982,14 @@ sub dlg_status_message {
 sub dlg_error_message {
 	my ( $dlg_error_message, $button_text_extra1, $button_text_extra2, $button_text_extra3, $dlg_error_header ) = @_;
 	my $dlg_error_title = $gscrot_common->get_gettext->get("Error");
-	my $error_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/] , 'other', 'none', undef);
+	my $error_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/], 'other', 'none', undef );
 
 	$error_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-dialog-error', 'dialog' ) );
 
 	$error_dialog->set( 'text' => $dlg_error_header );
-	
+
 	$error_dialog->set( 'secondary-text' => $dlg_error_message );
-	
+
 	$error_dialog->set( 'title' => $dlg_error_title );
 
 	$error_dialog->add_button( 'gtk-ok', 0 );
@@ -5609,17 +5636,37 @@ sub dlg_upload_error_message {
 sub dlg_website {
 	my ( $folder, $filename_value, $filetype_value, $quality_value ) = @_;
 
-	my $website_dialog = Gtk2::Dialog->new(
-		$gscrot_common->get_gettext->get("Take a screenshot of a website"),
-		$window,
-		[qw/modal destroy-with-parent/],
-		'gtk-cancel'  => 'reject',
-		'gtk-execute' => 'accept'
+	my $screenshot  = 5;
+	my $web_process = Proc::Simple->new;
+
+	my $website_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/], 'other', 'none', undef );
+
+	$website_dialog->set( 'text' => $gscrot_common->get_gettext->get("Take a screenshot of a website") );
+
+	$website_dialog->set( 'secondary-text' => $gscrot_common->get_gettext->get("URL to capture") . ": " );
+
+	$website_dialog->set(
+		'image' => Gtk2::Image->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$gscrot_root/share/gscrot/resources/icons/web_image.svg", Gtk2::IconSize->lookup('dialog') )
+		)
 	);
+
+	#cancel button
+	my $cancel_btn = Gtk2::Button->new_from_stock('gtk-cancel');
+
+	#save button
+	my $execute_btn = Gtk2::Button->new_from_stock('gtk-execute');
+	$execute_btn->can_default(TRUE);
+
+	$website_dialog->add_action_widget( $cancel_btn,  'cancel' );
+	$website_dialog->add_action_widget( $execute_btn, 'accept' );
+
 	$website_dialog->set_default_response('accept');
+
 	my $website_hbox  = Gtk2::HBox->new();
-	my $website_label = Gtk2::Label->new( $gscrot_common->get_gettext->get("URL to capture") . ": " );
-	my $website       = Gtk2::Entry->new;
+	my $website_hbox2 = Gtk2::HBox->new();
+
+	my $website = Gtk2::Entry->new;
 	$website->set_text("http://");
 	$website->set_activates_default(TRUE);
 	my $clipboard_string = $clipboard->wait_for_text;
@@ -5634,23 +5681,27 @@ sub dlg_website {
 			$website->set_text($clipboard_string);
 		}
 	}
-	$website_hbox->pack_start_defaults($website_label);
-	$website_hbox->pack_start_defaults($website);
+
+	$website_hbox->pack_start( $website, TRUE, TRUE, 12 );
 	$website_dialog->vbox->add($website_hbox);
 
 	my $website_progress = Gtk2::ProgressBar->new;
 	$website_progress->set_no_show_all(TRUE);
 	$website_progress->set_ellipsize('middle');
 	$website_progress->set_orientation('left-to-right');
-	$website_progress->set_fraction(0);
-	$website_dialog->vbox->add($website_progress);
+	$website_hbox2->pack_start( $website_progress, TRUE, TRUE, 12 );
+	$website_dialog->vbox->add($website_hbox2);
 
 	$website_dialog->show_all;
 	my $website_response = $website_dialog->run;
 
 	if ( $website_response eq "accept" ) {
 
-		my $screenshot;
+		$execute_btn->set_sensitive(FALSE);
+
+		#show progress bar while executing gnome-web-photo
+		$website_progress->show;
+		&fct_update_gui;
 
 		my $url      = $website->get_text;
 		my $hostname = $url;
@@ -5678,43 +5729,55 @@ sub dlg_website {
 		my $screenshooter
 			= GScrot::Screenshot::Web->new( $timeout, $filetype_value, $quality_value, $url, "$folder/$filename_value.$filetype_value" );
 
-		my $myproc = Proc::Simple->new();
+		Proc::Simple::debug(1) if $gscrot_common->get_debug;
 
-		$myproc->start(
+		$web_process->start(
 			sub {
-
 				$screenshooter->web();
-
+				POSIX::_exit(0);
 			}
 		);
 
-		while ( $myproc->poll ) {
-			print "Immer noch\n";
+		$cancel_btn->signal_connect(
+			'clicked' => sub {
+				if($web_process->kill()){
+					$website_dialog->destroy();					
+				}
+			}
+		);
+
+		while ( $web_process->poll ) {
+			$website_progress->pulse;
+			&fct_update_gui;
 			sleep 1;
 		}
 
-		print "Fertig!\n";
-		$myproc->kill;
+		#we cannot kill the process anymore
+		#closing the dialog will confuse the user 
+		#because the image will appear in the session later on
+		$cancel_btn->set_sensitive(FALSE);
+		&fct_update_gui;
 
-		sleep 2;
+		if ( $web_process->exit_status() == 0 ) {
 
-		$screenshot = &get_imagemagick_object("$folder/$filename_value.$filetype_value");
+			$website_progress->pulse;
+			&fct_update_gui;
+
+			$screenshot = &fct_get_imagemagick_object("$folder/$filename_value.$filetype_value");
+
+			$website_progress->pulse;
+			&fct_update_gui;
+
+		}
 
 		$website_dialog->destroy();
+
 		return $screenshot;
 	} else {
 		$website_dialog->destroy();
-		return FALSE;
+
+		return $screenshot;
 	}
-}
-
-sub get_imagemagick_object {
-	my $filename = shift;
-
-	my $image = Image::Magick->new;
-	$image->ReadImage($filename);
-
-	return $image;
 }
 
 sub dlg_profile_name {
