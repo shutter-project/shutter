@@ -59,7 +59,6 @@ use XML::Simple;
 
 #internal use
 use FindBin '$Bin';
-
 use Data::Dumper;
 
 #--------------------------------------
@@ -177,12 +176,13 @@ my $tooltips = $gscrot_common->get_tooltips;
 #main window gui
 #--------------------------------------
 $window->set_title(GSCROT_NAME);
-$window->set_default_icon( Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$gscrot_root/share/pixmaps/gscrot.svg", 100, 100 ) );
+$window->set_default_icon( Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$gscrot_root/share/pixmaps/gscrot.svg", 100, 100, TRUE ) );
 $window->signal_connect( 'delete-event' => \&evt_delete_window );
 $window->set_border_width(0);
-$window->set_resizable(1);
+$window->set_resizable(TRUE);
+$window->set_focus_on_map(TRUE);
 
-#$window->set_position('center');
+$window->set_position('center');
 $window->set_default_size( 650, 500 );
 $window->set_size_request( -1, 450 );
 
@@ -251,9 +251,9 @@ $gscrot_tool->{_select}->set_menu(&fct_ret_sel_menu);
 $gscrot_tool->{_select}->signal_connect( 'clicked' => \&evt_take_screenshot, 'select' );
 
 my $current_monitor_active = undef;
+$gscrot_tool->{_full}->signal_connect( 'clicked' => \&evt_take_screenshot, 'raw' );
 $gscrot_tool->{_full}->set_menu( &fct_ret_workspace_menu(TRUE) );
 $gscrot_tool->{_full}->signal_connect( 'show-menu' => sub { &fct_ret_workspace_menu(FALSE) } );
-$gscrot_tool->{_full}->signal_connect( 'clicked' => \&evt_take_screenshot, 'raw' );
 
 $gscrot_tool->{_window}->signal_connect( 'clicked' => \&evt_take_screenshot, 'window' );
 $gscrot_tool->{_window}->set_menu(&fct_ret_window_menu);
@@ -1879,9 +1879,11 @@ sub evt_activate_systray_statusicon {
 	}
 
 	if ( $window->visible ) {
+		$window->iconify;
 		$window->hide;
 		$is_in_tray = TRUE;
 	} else {
+		$window->deiconify;
 		$window->show_all;
 		$is_in_tray = FALSE;
 	}
@@ -2154,8 +2156,11 @@ sub evt_save_as {
 			$fs->destroy();
 			return FALSE;
 		}
+		
 		$session_screens{$key}->{'filename'} = $filename;
-		&fct_create_thumbnail_and_fileinfos( $filename, $key );
+		&fct_update_tab( $key );
+		#setup a new filemonitor, so we get noticed if the file changed
+		&fct_add_file_monitor($key);
 
 		&dlg_status_message( 1, "$session_screens{ $key }->{ 'short' } " . $gscrot_common->get_gettext->get("saved") );
 
@@ -2302,6 +2307,22 @@ sub fct_integrate_screenshot_in_notebook {
 		$notebook->set_current_page($new_index);
 
 		#setup a filemonitor, so we get noticed if the file changed
+		&fct_add_file_monitor($key);
+
+	}
+
+	&fct_update_tab($key);
+	&fct_update_first_tab;
+
+	return $key;
+}
+
+sub fct_add_file_monitor{
+		my $key = shift;
+
+		$session_screens{$key}->{'changed'} = FALSE;
+		$session_screens{$key}->{'deleted'} = FALSE;
+
 		$session_screens{$key}->{'handle'} = Gnome2::VFS::Monitor->add(
 			$session_screens{$key}->{'uri'}->to_string,
 			'file',
@@ -2315,7 +2336,7 @@ sub fct_integrate_screenshot_in_notebook {
 				print $session_screens{$key}->{'long'} . " - " . $event . "\n";
 
 				if ( $event eq 'deleted' ) {
-					$session_screens{$key}->{'changed'} = TRUE;
+					$session_screens{$key}->{'deleted'} = TRUE;
 					&fct_update_tab($key);
 					&fct_update_first_tab;
 					$handle->cancel;
@@ -2329,13 +2350,12 @@ sub fct_integrate_screenshot_in_notebook {
 			},
 			$key
 		);
-	}
-
-	&fct_update_tab($key);
-	&fct_update_first_tab;
-
-	return $key;
+	
+	return TRUE;
 }
+
+
+
 
 sub fct_set_toolbar_sensitive {
 	my ( $set, $data ) = @_;
@@ -2606,7 +2626,7 @@ sub fct_resize_thumb {
 
 		return FALSE if $image->{'current_width'} < 10 || $image->{'current_height'} < 10;
 
-		if ( $old_width != $image->{'current_width'} || $session_screens{$key}->{'changed'} == TRUE ) {
+		if ( $old_width != $image->{'current_width'} || $session_screens{$key}->{'changed'} == TRUE || $session_screens{$key}->{'deleted'} == TRUE ) {
 			my $scaled = $orig->scale_simple( $image->{'current_width'}, $image->{'current_height'}, 'tiles' );
 			$image->set_from_pixbuf($scaled);
 			$session_screens{$key}->{'changed'} = FALSE;
@@ -3708,7 +3728,7 @@ sub fct_update_tab {
 	my $key = shift;
 
 	#update fileinfos
-	if ( &fct_create_thumbnail_and_fileinfos( $session_screens{$key}->{'long'}, $key ) ) {
+	if ( &fct_create_thumbnail_and_fileinfos( $session_screens{$key}->{'filename'}, $key ) ) {
 
 		#update tab icon - maybe pic changed due to use of plugin or drawing tool
 		$session_screens{$key}->{'tab_icon'}->set_from_pixbuf( $session_screens{$key}->{'thumb'} );
@@ -4051,10 +4071,17 @@ sub fct_create_thumbnail_and_fileinfos {
 
 	if ($@) {
 
-		&dlg_error_message("$@");
-
+		#we only handle one case here:
+		#file was deleted in filesystem and we got informed about that...
+		if ($session_screens{$key}->{'deleted'} == TRUE){
+			&dlg_error_message($gscrot_common->get_gettext->get("The file was deleted by another person or process."), undef, undef, undef, sprintf( $gscrot_common->get_gettext->get("File %s deleted"), "'$session_screens{$key}->{'short'}'" ));						
+	
+		#all other cases are unknown => show "real" error
+		}else{
+			&dlg_error_message("$@", undef, undef, undef, "Unhandled Exception");			
+		}
+		
 		return FALSE;
-
 	}
 
 	return TRUE;
@@ -4160,6 +4187,7 @@ sub fct_ret_workspace_menu {
 	} else {
 		$current_monitor_active->reparent($menu_wrksp);
 	}
+	
 	$tooltips->set_tip(
 		$current_monitor_active,
 		sprintf(
@@ -4925,21 +4953,23 @@ sub dlg_status_message {
 }
 
 sub dlg_error_message {
-	my ( $dlg_error_message, $button_text_extra1, $button_text_extra2, $button_text_extra3 ) = @_;
-	my $dlg_header = $gscrot_common->get_gettext->get("Error");
-	my $error_dialog = Gtk2::Dialog->new( $dlg_header, $window, [qw/modal destroy-with-parent/] );
+	my ( $dlg_error_message, $button_text_extra1, $button_text_extra2, $button_text_extra3, $dlg_error_header ) = @_;
+	my $dlg_error_title = $gscrot_common->get_gettext->get("Error");
+	my $error_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/] , 'other', 'none', undef);
 
-	$error_dialog->add_button( 'gtk-cancel', 0 );
+	$error_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-dialog-error', 'dialog' ) );
+
+	$error_dialog->set( 'text' => $dlg_error_header );
+	
+	$error_dialog->set( 'secondary-text' => $dlg_error_message );
+	
+	$error_dialog->set( 'title' => $dlg_error_title );
+
+	$error_dialog->add_button( 'gtk-ok', 0 );
 	$error_dialog->add_button( $button_text_extra1, 10 ) if $button_text_extra1;
 	$error_dialog->add_button( $button_text_extra2, 20 ) if $button_text_extra2;
 	$error_dialog->add_button( $button_text_extra3, 30 ) if $button_text_extra3;
 
-	#image and text to dialog
-	my $error_hbox = Gtk2::HBox->new( FALSE, 5 );
-	$error_hbox->pack_start_defaults( Gtk2::Image->new_from_stock( 'gtk-dialog-error', 'dialog' ) );
-	$error_hbox->pack_start_defaults( Gtk2::Label->new($dlg_error_message) );
-
-	$error_dialog->vbox->add($error_hbox);
 	$error_dialog->show_all;
 
 	my $error_response = $error_dialog->run;
