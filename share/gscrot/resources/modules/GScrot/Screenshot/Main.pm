@@ -148,7 +148,7 @@ sub get_pixbuf_from_drawable {
 	my ( $self, $drawable, $x, $y, $width, $height, $cursor, $sleep ) = @_;
 
 	#sleep if there is any delay
-	sleep $sleep;
+	sleep $sleep if $sleep;
 
 	#get the pixbuf from drawable and save the file
 	#maybe window is partially not on the screen
@@ -173,10 +173,7 @@ sub get_pixbuf_from_drawable {
 	$pixbuf = $self->include_cursor( $x, $y, $width, $height, $drawable, $pixbuf )
 		if $self->{_include_cursor};
 
-	my $output = Image::Magick->new( magick => 'png' );
-	$output->BlobToImage( $pixbuf->save_to_buffer( 'png' ) );
-
-	return $output;
+	return $pixbuf;
 }
 
 #code ported and borrowed from gnome-screenshot

@@ -62,20 +62,55 @@ sub dlg_info_message {
 	return TRUE;
 }
 
+#sub dlg_question_message {
+#	my $self = shift;
+#	my $dlg_question_message = shift;
+#	
+#	my $question_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/],
+#		'question', 'yes_no', $dlg_question_message );
+#	my $question_response = $question_dialog->run;
+#	if ( $question_response eq "yes" ) {
+#		$question_dialog->destroy();
+#		return TRUE;
+#	} else {
+#		$question_dialog->destroy();
+#		return FALSE;
+#	}
+#}
+
 sub dlg_question_message {
 	my $self = shift;
 	my $dlg_question_message = shift;
+	my $button_text_extra1 = shift;
+	my $button_text_extra2 = shift;
+	my $button_text_extra3 = shift;
+	my $button_widget_extra1 = shift;
+	my $button_widget_extra2 = shift;
+	my $button_widget_extra3 = shift;
+	my $dlg_question_header = shift;
 	
-	my $question_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/],
-		'question', 'yes_no', $dlg_question_message );
+	my $question_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef );
+
+	$question_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-dialog-question', 'dialog' ) );
+
+	$question_dialog->set( 'text' => $dlg_question_header );
+
+	$question_dialog->set( 'secondary-text' => $dlg_question_message );
+
+	$question_dialog->add_button( $button_text_extra1, 10 ) if $button_text_extra1;
+	$question_dialog->add_button( $button_text_extra2, 20 ) if $button_text_extra2;
+	$question_dialog->add_button( $button_text_extra3, 30 ) if $button_text_extra3;
+
+	$question_dialog->add_action_widget( $button_widget_extra1, 40 ) if $button_widget_extra1;
+	$question_dialog->add_action_widget( $button_widget_extra2, 50 ) if $button_widget_extra2;
+	$question_dialog->add_action_widget( $button_widget_extra3, 60 ) if $button_widget_extra3;
+
+	$question_dialog->show_all;
+
 	my $question_response = $question_dialog->run;
-	if ( $question_response eq "yes" ) {
-		$question_dialog->destroy();
-		return TRUE;
-	} else {
-		$question_dialog->destroy();
-		return FALSE;
-	}
+
+	$question_dialog->destroy();
+	return $question_response;
 }
 
 1;
