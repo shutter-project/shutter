@@ -222,29 +222,37 @@ $window->add($vbox);
 #--------------------------------------
 $vbox->pack_start( $gscrot_menu->create_menu, FALSE, TRUE, 0 );
 
-$gscrot_menu->{_menuitem_open}->signal_connect( "activate", \&evt_open, 'menu_open' );
-$gscrot_menu->{_menuitem_save_as}->signal_connect( "activate", \&evt_save_as, 'menu_save_as' );
-$gscrot_menu->{_menuitem_print}->signal_connect( "activate", \&fct_print, 'menu_print' );
-$gscrot_menu->{_menuitem_pagesetup}->signal_connect( "activate", \&evt_page_setup, 'menu_pagesetup' );
-$gscrot_menu->{_menuitem_close}->signal_connect( "activate", \&evt_close, 'menu_close' );
-$gscrot_menu->{_menuitem_close_all}->signal_connect( "activate", \&evt_close_all, 'menu_close_all' );
-$gscrot_menu->{_menuitem_quit}->signal_connect( "activate", \&evt_delete_window, 'menu_quit' );
-$gscrot_menu->{_menuitem_copy}->signal_connect( "activate", \&fct_clipboard );
-$gscrot_menu->{_menuitem_trash}->signal_connect( "activate", \&fct_delete );
-$gscrot_menu->{_menuitem_settings}->signal_connect( "activate", \&evt_show_settings, 'exp_settings_menu' );
-$gscrot_menu->{_menuitem_selection}->signal_connect( "activate", \&evt_take_screenshot, 'select' );
-$gscrot_menu->{_menuitem_full}->signal_connect( "activate", \&evt_take_screenshot, 'raw' );
-$gscrot_menu->{_menuitem_window}->signal_connect( "activate", \&evt_take_screenshot, 'window' );
-$gscrot_menu->{_menuitem_section}->signal_connect( "activate", \&evt_take_screenshot, 'section' );
-$gscrot_menu->{_menuitem_web}->signal_connect( "activate", \&evt_take_screenshot, 'web' );
-$gscrot_menu->{_menuitem_back}->signal_connect( "activate", \&evt_navigate, 'previous' );
-$gscrot_menu->{_menuitem_forward}->signal_connect( "activate", \&evt_navigate, 'forward' );
-$gscrot_menu->{_menuitem_first}->signal_connect( "activate", \&evt_navigate, 'first' );
-$gscrot_menu->{_menuitem_last}->signal_connect( "activate", \&evt_navigate, 'last' );
-$gscrot_menu->{_menuitem_question}->signal_connect( "activate", \&evt_question, $window );
-$gscrot_menu->{_menuitem_translate}->signal_connect( "activate", \&evt_translate, $window );
-$gscrot_menu->{_menuitem_bug}->signal_connect( "activate", \&evt_bug, $window );
-$gscrot_menu->{_menuitem_about}->signal_connect( "activate", \&evt_about, $window );
+$gscrot_menu->{_menuitem_open}->signal_connect( 'activate', \&evt_open, 'menu_open' );
+$gscrot_menu->{_menuitem_selection}->signal_connect( 'activate', \&evt_take_screenshot, 'select' );
+$gscrot_menu->{_menuitem_full}->signal_connect( 'activate', \&evt_take_screenshot, 'raw' );
+$gscrot_menu->{_menuitem_window}->signal_connect( 'activate', \&evt_take_screenshot, 'window' );
+$gscrot_menu->{_menuitem_section}->signal_connect( 'activate', \&evt_take_screenshot, 'section' );
+$gscrot_menu->{_menuitem_web}->signal_connect( 'activate', \&evt_take_screenshot, 'web' );
+$gscrot_menu->{_menuitem_save_as}->signal_connect( 'activate', \&evt_save_as, 'menu_save_as' );
+$gscrot_menu->{_menuitem_print}->signal_connect( 'activate', \&fct_print, 'menu_print' );
+$gscrot_menu->{_menuitem_pagesetup}->signal_connect( 'activate', \&evt_page_setup, 'menu_pagesetup' );
+$gscrot_menu->{_menuitem_close}->signal_connect( 'activate', \&evt_close, 'menu_close' );
+$gscrot_menu->{_menuitem_close_all}->signal_connect( 'activate', \&evt_close_all, 'menu_close_all' );
+$gscrot_menu->{_menuitem_quit}->signal_connect( 'activate', \&evt_delete_window, 'menu_quit' );
+
+$gscrot_menu->{_menuitem_copy}->signal_connect( 'activate', \&fct_clipboard );
+$gscrot_menu->{_menuitem_trash}->signal_connect( 'activate', \&fct_delete );
+$gscrot_menu->{_menuitem_settings}->signal_connect( 'activate', \&evt_show_settings, 'exp_settings_menu' );
+
+$gscrot_menu->{_menuitem_reopen}->set_submenu(&fct_ret_program_menu);
+$gscrot_menu->{_menuitem_rename}->signal_connect( 'activate', \&fct_rename );
+$gscrot_menu->{_menuitem_upload}->signal_connect( 'activate', \&fct_upload );
+$gscrot_menu->{_menuitem_draw}->signal_connect( 'activate', \&fct_draw );
+$gscrot_menu->{_menuitem_plugin}->signal_connect( 'activate', \&fct_plugin );
+
+$gscrot_menu->{_menuitem_back}->signal_connect( 'activate', \&evt_navigate, 'previous' );
+$gscrot_menu->{_menuitem_forward}->signal_connect( 'activate', \&evt_navigate, 'forward' );
+$gscrot_menu->{_menuitem_first}->signal_connect( 'activate', \&evt_navigate, 'first' );
+$gscrot_menu->{_menuitem_last}->signal_connect( 'activate', \&evt_navigate, 'last' );
+$gscrot_menu->{_menuitem_question}->signal_connect( 'activate', \&evt_question, $window );
+$gscrot_menu->{_menuitem_translate}->signal_connect( 'activate', \&evt_translate, $window );
+$gscrot_menu->{_menuitem_bug}->signal_connect( 'activate', \&evt_bug, $window );
+$gscrot_menu->{_menuitem_about}->signal_connect( 'activate', \&evt_about, $window );
 
 #--------------------------------------
 
@@ -1706,12 +1714,23 @@ sub evt_notebook_switch {
 	my ( $widget, $pointer, $int ) = @_;
 	if ( $gscrot_menu->{_menubar} ) {
 		if ( $int == 0 ) {
+			$gscrot_menu->{_menuitem_reopen}->set_sensitive(FALSE);
+			$gscrot_menu->{_menuitem_rename}->set_sensitive(FALSE);
+			$gscrot_menu->{_menuitem_upload}->set_sensitive(FALSE);
+			$gscrot_menu->{_menuitem_draw}->set_sensitive(FALSE);
+			$gscrot_menu->{_menuitem_plugin}->set_sensitive(FALSE);
 			$gscrot_menu->{_menuitem_save_as}->set_sensitive(FALSE);
 			$gscrot_menu->{_menuitem_print}->set_sensitive(FALSE);
 			$gscrot_menu->{_menuitem_close}->set_sensitive(FALSE);
 			$gscrot_menu->{_menuitem_trash}->set_sensitive(FALSE);
 			$gscrot_menu->{_menuitem_copy}->set_sensitive(FALSE);
 		} else {
+			$gscrot_menu->{_menuitem_reopen}->set_sensitive(TRUE);
+			$gscrot_menu->{_menuitem_reopen}->set_submenu(&fct_ret_program_menu);
+			$gscrot_menu->{_menuitem_rename}->set_sensitive(TRUE);
+			$gscrot_menu->{_menuitem_upload}->set_sensitive(TRUE);
+			$gscrot_menu->{_menuitem_draw}->set_sensitive(TRUE);
+			$gscrot_menu->{_menuitem_plugin}->set_sensitive(TRUE);
 			$gscrot_menu->{_menuitem_save_as}->set_sensitive(TRUE);
 			$gscrot_menu->{_menuitem_print}->set_sensitive(TRUE);
 			$gscrot_menu->{_menuitem_close}->set_sensitive(TRUE);
@@ -2439,54 +2458,9 @@ sub fct_create_tab {
 	my $vbox_fileinfos2 = Gtk2::VBox->new( FALSE, 0 );
 	my $hbox_tab_file   = Gtk2::HBox->new( FALSE, 0 );
 
-	my $tabtoolbar = Gtk2::Toolbar->new;
-	$tabtoolbar->set_orientation('horizontal');
-	$tabtoolbar->set_show_arrow(TRUE);
-	$tabtoolbar->set_style('icons');
-	$tabtoolbar->set_icon_size('button');
-
 	#keep number (1 = single tab, 2 = session tab) for translation
 	my $number = 1;
 	$number = 2 if $is_all;
-
-	my $button_reopen = Gtk2::MenuToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-open', 'button' ), undef );
-	$button_reopen->signal_connect( 'clicked' => sub { &fct_open_with_program(); } );
-
-	$button_reopen->signal_connect( 'show-menu' => \&fct_ret_program_menu,$button_reopen  );
-	$tooltips->set_tip( $button_reopen, $gscrot_common->get_gettext->nget( "Open file", "Open files", $number ) );
-	$button_reopen->set_menu( &fct_ret_program_menu($button_reopen) );
-	$button_reopen->set_arrow_tooltip( $tooltips,
-		$gscrot_common->get_gettext->nget( "Choose a program to open the file with", "Choose a program to open the files with", $number ), 'arrow' );
-
-
-
-	my $button_upload = Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-go-up', 'button' ), undef );
-	$button_upload->signal_connect( 'clicked' => sub { &fct_upload(); } );
-	$tooltips->set_tip( $button_upload, $gscrot_common->get_gettext->nget( "Upload file", "Upload files", $number ) );
-
-	my $button_rename = Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-edit', 'button' ), undef );
-	$button_rename->signal_connect( 'clicked' => sub { &fct_rename(); } );
-	$tooltips->set_tip( $button_rename, $gscrot_common->get_gettext->get("Rename file") );
-
-	my $button_plugin = Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-execute', 'button' ), undef );
-	$button_plugin->signal_connect( 'clicked' => sub { &fct_plugin(); } );
-	$tooltips->set_tip( $button_plugin, $gscrot_common->get_gettext->get("Execute a plugin") );
-
-	my $button_draw = Gtk2::ToolButton->new(
-		Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$gscrot_root/share/gscrot/resources/icons/draw.svg", Gtk2::IconSize->lookup('button') )
-		),
-		undef
-	);
-	$button_draw->signal_connect( 'clicked' => sub { &fct_draw(); } );
-
-	#maybe lib is not installed
-	if ( !$goocanvas ) {
-		$button_draw->set_sensitive(FALSE);
-		$tooltips->set_tip( $button_draw, $gscrot_common->get_gettext->get("Goo::Canvas needs to be installed for this feature") );
-	} else {
-		$tooltips->set_tip( $button_draw, $gscrot_common->get_gettext->get("Edit screenshot") );
-	}
 
 	unless ($is_all) {
 		my $filename_label = Gtk2::Label->new;
@@ -2540,22 +2514,6 @@ sub fct_create_tab {
 		$vbox_fileinfos->pack_start( $geometry_label,                             FALSE, TRUE, 10 );
 		$vbox_fileinfos->pack_start( $session_screens{$key}->{'geometry_label'},  FALSE, TRUE, 2 );
 
-		$session_screens{$key}->{'btn_reopen'} = $button_reopen;
-		$session_screens{$key}->{'btn_upload'} = $button_upload;
-		$session_screens{$key}->{'btn_rename'} = $button_rename;
-		$session_screens{$key}->{'btn_plugin'} = $button_plugin;
-		$session_screens{$key}->{'btn_draw'}   = $button_draw;
-
-		$tabtoolbar->insert( $button_reopen,               -1 );
-		$tabtoolbar->insert( $button_rename,               -1 );
-		$tabtoolbar->insert( Gtk2::SeparatorToolItem->new, -1 );
-		$tabtoolbar->insert( $button_upload,               -1 );
-		$tabtoolbar->insert( Gtk2::SeparatorToolItem->new, -1 );
-		$tabtoolbar->insert( $button_plugin,               -1 );
-		$tabtoolbar->insert( $button_draw,                 -1 );
-
-		$vbox_tab->pack_start( $tabtoolbar, FALSE, TRUE, 0 );
-
 		$hbox_tab_file->pack_start( $session_screens{$key}->{'image'}, TRUE,  TRUE, 10 );
 		$hbox_tab_file->pack_start( $vbox_fileinfos,                   FALSE, TRUE, 1 );
 		$hbox_tab_file->pack_start( $vbox_fileinfos2,                  FALSE, TRUE, 1 );
@@ -2606,16 +2564,9 @@ sub fct_create_tab {
 		$view->signal_connect( 'selection-changed', \&evt_iconview_sel_changed,    'sel_changed' );
 		$view->signal_connect( 'item-activated',    \&evt_iconview_item_activated, 'item_activated' );
 
-		$session_start_screen{'first_page'}->{'view'}       = $view;
-		$session_start_screen{'first_page'}->{'model'}      = $viewmodel;
-		$session_start_screen{'first_page'}->{'btn_reopen'} = $button_reopen;
-		$session_start_screen{'first_page'}->{'btn_upload'} = $button_upload;
+		$session_start_screen{'first_page'}->{'view'}  = $view;
+		$session_start_screen{'first_page'}->{'model'} = $viewmodel;
 
-		$tabtoolbar->insert( $button_reopen,               -1 );
-		$tabtoolbar->insert( Gtk2::SeparatorToolItem->new, -1 );
-		$tabtoolbar->insert( $button_upload,               -1 );
-
-		$vbox_tab->pack_start( $tabtoolbar, FALSE, TRUE, 0 );
 		$hbox_all->pack_start_defaults($vbox_all);
 		$hbox_all->pack_start_defaults($vbox_all2);
 		$vbox_tab->pack_start( $hbox_all, FALSE, TRUE, 0 );
@@ -3644,9 +3595,9 @@ sub fct_open_with_program {
 	}
 
 	if ($exec_call) {
-		foreach(split /;/, $exec_call){
-			print Dumper $_. " &";
-			system( $_ . " &" );			
+		foreach ( split /;/, $exec_call ) {
+			print Dumper $_ . " &";
+			system( $_ . " &" );
 		}
 
 	}
@@ -3758,14 +3709,15 @@ sub fct_update_first_tab {
 	$session_start_screen{'first_page'}->{'size_counter'}
 		->set_text( $gscrot_common->get_gettext->get("Total size") . ": " . Gnome2::VFS->format_file_size_for_display($total_size) );
 
-	#if size == 0 => no screenshot in session (handle menu entries properly)
-	#	if ($menuitem_close_all) {
-	#		if ( $total_size == 0 ) {
-	#			$menuitem_close_all->set_sensitive(FALSE);
-	#		} else {
-	#			$menuitem_close_all->set_sensitive(TRUE);
-	#		}
-	#	}
+	#if size == 0 => no screenshot in session( handle menu entries properly )
+	if ($gscrot_menu->{_menuitem_close_all})
+	{
+		if ( $total_size == 0 ) {
+			$gscrot_menu->{_menuitem_close_all}->set_sensitive(FALSE);
+		} else {
+			$gscrot_menu->{_menuitem_close_all}->set_sensitive(TRUE);
+		}
+	}
 
 	if ( $filename && $saveDir_button && $combobox_settings_profiles ) {
 
@@ -3867,13 +3819,6 @@ sub fct_update_tab {
 		$session_screens{$key}->{'image'}->signal_handler_disconnect( $session_screens{$key}->{'image_handler'} );
 
 		$session_screens{$key}->{'tab_icon'}->set_from_pixbuf( $session_screens{$key}->{'thumb'} );
-
-		foreach ( keys %{ $session_screens{$key} } ) {
-			next unless $session_screens{$key}->{$_};
-			$session_screens{$key}->{$_}->set_text("-")
-				if $session_screens{$key}->{$_} =~ /label/i;
-		}
-
 	}
 
 	return TRUE;
@@ -4502,19 +4447,17 @@ sub fct_ret_sel_menu {
 }
 
 sub fct_ret_program_menu {
-	my $button_program_menu = shift;
-
+	
 	my $icontheme     = Gtk2::IconTheme->get_for_screen( Gtk2::Gdk::Screen->get_default );
 	my $menu_programs = Gtk2::Menu->new;
-
-	#no iconview ??
-	return $menu_programs unless $session_start_screen{'first_page'}->{'view'};
 
 	#take $key (mime) directly
 	my $key = &fct_get_current_file(undef);
 
 	#search selected files for mime...
 	unless ($key) {
+		#no iconview ??
+		return $menu_programs unless $session_start_screen{'first_page'}->{'view'};
 		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
 			sub {
 				my ( $view, $path ) = @_;
@@ -4529,7 +4472,6 @@ sub fct_ret_program_menu {
 
 	#still no key? => leave sub
 	return $menu_programs unless $key;
-
 
 	#	my $mime_type = Gnome2::VFS::Mime::Type->new ($session_screens{$key}->{'mime_type'});
 	#	my @apps = $mime_type->get_all_applications_for_uri( $session_screens{$key}->{'uri'} );
@@ -4558,7 +4500,6 @@ sub fct_ret_program_menu {
 		$menu_programs->append($program_item);
 	}
 
-	$button_program_menu->set_menu($menu_programs);
 	$menu_programs->show_all;
 	return $menu_programs;
 }
