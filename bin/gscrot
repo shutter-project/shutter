@@ -2452,11 +2452,13 @@ sub fct_create_tab {
 	my $button_reopen = Gtk2::MenuToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-open', 'button' ), undef );
 	$button_reopen->signal_connect( 'clicked' => sub { &fct_open_with_program(); } );
 
-	#	$button_reopen->signal_connect( 'show-menu' => \&fct_ret_program_menu );
+	$button_reopen->signal_connect( 'show-menu' => \&fct_ret_program_menu,$button_reopen  );
 	$tooltips->set_tip( $button_reopen, $gscrot_common->get_gettext->nget( "Open file", "Open files", $number ) );
 	$button_reopen->set_menu( &fct_ret_program_menu($button_reopen) );
 	$button_reopen->set_arrow_tooltip( $tooltips,
 		$gscrot_common->get_gettext->nget( "Choose a program to open the file with", "Choose a program to open the files with", $number ), 'arrow' );
+
+
 
 	my $button_upload = Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-go-up', 'button' ), undef );
 	$button_upload->signal_connect( 'clicked' => sub { &fct_upload(); } );
@@ -3592,6 +3594,8 @@ sub fct_open_with_program {
 		}
 	}
 
+	my $exec_call;
+
 	#single file
 	if ($key) {
 
@@ -3599,9 +3603,9 @@ sub fct_open_with_program {
 
 		#everything is fine -> open it
 		if ( $dentry->wants_uris ) {
-			$dentry->exec( $session_screens{$key}->{'uri'}->to_string );
+			$exec_call = $dentry->parse_Exec( $session_screens{$key}->{'uri'}->to_string );
 		} else {
-			$dentry->exec( $session_screens{$key}->{'long'} );
+			$exec_call = $dentry->parse_Exec( $session_screens{$key}->{'long'} );
 		}
 
 		&dlg_status_message( 1, $session_screens{$key}->{'filename'} . " " . $gscrot_common->get_gettext->get("opened with") . " " . $dentry->Name );
@@ -3627,9 +3631,24 @@ sub fct_open_with_program {
 			undef
 		);
 		if ( @open_files > 0 ) {
-			$dentry->exec(@open_files);
-			&dlg_status_message( 1, $gscrot_common->get_gettext->get("Opened all files with") . " " . $dentry->Name );
+			if ( $dentry->wants_list ) {
+				$exec_call = $dentry->parse_Exec(@open_files);
+				&dlg_status_message( 1, $gscrot_common->get_gettext->get("Opened all files with") . " " . $dentry->Name );
+			} else {
+				foreach my $file (@open_files) {
+					$exec_call .= $dentry->parse_Exec($file) . ";";
+				}
+			}
+
 		}
+	}
+
+	if ($exec_call) {
+		foreach(split /;/, $exec_call){
+			print Dumper $_. " &";
+			system( $_ . " &" );			
+		}
+
 	}
 	return TRUE;
 }
@@ -4490,18 +4509,19 @@ sub fct_ret_program_menu {
 
 	#no iconview ??
 	return $menu_programs unless $session_start_screen{'first_page'}->{'view'};
-	
+
 	#take $key (mime) directly
 	my $key = &fct_get_current_file(undef);
-	
+
 	#search selected files for mime...
-	unless( $key ) {
+	unless ($key) {
 		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
 			sub {
 				my ( $view, $path ) = @_;
 				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
 				if ( defined $iter ) {
 					$key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
+					print "Yeaahhh - $key\n";
 				}
 			}
 		);
@@ -4510,16 +4530,17 @@ sub fct_ret_program_menu {
 	#still no key? => leave sub
 	return $menu_programs unless $key;
 
-#	my $mime_type = Gnome2::VFS::Mime::Type->new ($session_screens{$key}->{'mime_type'});
-#	my @apps = $mime_type->get_all_applications_for_uri( $session_screens{$key}->{'uri'} );
-	
+
+	#	my $mime_type = Gnome2::VFS::Mime::Type->new ($session_screens{$key}->{'mime_type'});
+	#	my @apps = $mime_type->get_all_applications_for_uri( $session_screens{$key}->{'uri'} );
+
 	#FIXME
 	#cannot get icon with GnomeVFS
-	#libgnomevfs-WARNING **: 
-	#Cannot call gnome_vfs_mime_application_get_icon 
-	#with a GNOMEVFSMimeApplication structure 
-	#constructed by the deprecated application registry 
-	my ( $default, @apps ) = mime_applications($session_screens{$key}->{'mime_type'});
+	#libgnomevfs-WARNING **:
+	#Cannot call gnome_vfs_mime_application_get_icon
+	#with a GNOMEVFSMimeApplication structure
+	#constructed by the deprecated application registry
+	my ( $default, @apps ) = mime_applications( $session_screens{$key}->{'mime_type'} );
 	foreach my $app (@apps) {
 
 		my $program_item = Gtk2::ImageMenuItem->new_with_label( $app->Name );

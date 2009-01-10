@@ -233,7 +233,6 @@ sub _fct_ret_new_menu {
 			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$gscrot_root/share/gscrot/resources/icons/selection.svg", Gtk2::IconSize->lookup('menu') )
 		)
 	);
-	$self->{_menuitem_selection}->add_accelerator( "activate", $accel_group, $Gtk2::Gdk::Keysyms{S}, qw/mod1-mask/, qw/visible/ );
 	$self->{_menu_new}->append( $self->{_menuitem_selection} );
 
 	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
@@ -244,7 +243,6 @@ sub _fct_ret_new_menu {
 			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$gscrot_root/share/gscrot/resources/icons/fullscreen.svg", Gtk2::IconSize->lookup('menu') )
 		)
 	);
-	$self->{_menuitem_full}->add_accelerator( "activate", $accel_group, $Gtk2::Gdk::Keysyms{F}, qw/mod1-mask/, qw/visible/ );
 	$self->{_menu_new}->append( $self->{_menuitem_full} );
 
 	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
@@ -255,7 +253,6 @@ sub _fct_ret_new_menu {
 			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$gscrot_root/share/gscrot/resources/icons/sel_window.svg", Gtk2::IconSize->lookup('menu') )
 		)
 	);
-	$self->{_menuitem_window}->add_accelerator( "activate", $accel_group, $Gtk2::Gdk::Keysyms{W}, qw/mod1-mask/, qw/visible/ );
 	$self->{_menu_new}->append( $self->{_menuitem_window} );
 
 	$self->{_menuitem_section} = Gtk2::ImageMenuItem->new( $d->get("Section") );
@@ -267,7 +264,6 @@ sub _fct_ret_new_menu {
 			)
 		)
 	);
-	$self->{_menuitem_section}->add_accelerator( "activate", $accel_group, $Gtk2::Gdk::Keysyms{S}, qw/shift-mask/, qw/visible/ );
 	$self->{_menu_new}->append( $self->{_menuitem_section} );
 
 	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
@@ -286,7 +282,6 @@ sub _fct_ret_new_menu {
 			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$gscrot_root/share/gscrot/resources/icons/web_image.svg", Gtk2::IconSize->lookup('menu') )
 		)
 	);
-	$self->{_menuitem_web}->add_accelerator( "activate", $accel_group, $Gtk2::Gdk::Keysyms{W}, qw/shift-mask/, qw/visible/ );
 	$self->{_menu_new}->append( $self->{_menuitem_web} );
 
 	return $self->{_menu_new};
