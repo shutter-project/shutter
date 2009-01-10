@@ -30,12 +30,11 @@ use warnings;
 
 #Gtk2
 use Gtk2 '-init';
-use Gtk2;
 use Gtk2::Gdk::Keysyms;
 use Gtk2::Pango;
 
 #GConf - used for metacity keybindings
-use Gnome2::GConf();
+use Gnome2::GConf;
 
 #Image operations
 use Image::Magick();
@@ -43,10 +42,10 @@ use Image::Magick();
 #File operations
 use File::Copy;
 use File::Basename;
+use File::MimeInfo::Applications;
 
 #URI
-use Gnome2::VFS;
-Gnome2::VFS->init();
+use Gnome2::VFS '-init';
 
 #Gettext and filename parsing
 use POSIX qw/setlocale strftime/;
@@ -141,7 +140,6 @@ my $gscrot_dialog = GScrot::App::SimpleDialogs->new($window);
 #optional components
 #--------------------------------------
 my $gnome_web_photo = TRUE;
-my $gtklp           = TRUE;
 my $gtkimageview    = TRUE;
 my $goocanvas       = TRUE;
 &fct_init_optional;
@@ -176,6 +174,9 @@ my $clipboard = Gtk2::Clipboard->get( Gtk2::Gdk->SELECTION_CLIPBOARD );
 
 #Gettext
 my $d = $gscrot_common->get_gettext;
+
+#Page Setup
+my $pagesetup = undef;
 
 #Tooltips
 my $tooltips = $gscrot_common->get_tooltips;
@@ -223,6 +224,8 @@ $vbox->pack_start( $gscrot_menu->create_menu, FALSE, TRUE, 0 );
 
 $gscrot_menu->{_menuitem_open}->signal_connect( "activate", \&evt_open, 'menu_open' );
 $gscrot_menu->{_menuitem_save_as}->signal_connect( "activate", \&evt_save_as, 'menu_save_as' );
+$gscrot_menu->{_menuitem_print}->signal_connect( "activate", \&fct_print, 'menu_print' );
+$gscrot_menu->{_menuitem_pagesetup}->signal_connect( "activate", \&evt_page_setup, 'menu_pagesetup' );
 $gscrot_menu->{_menuitem_close}->signal_connect( "activate", \&evt_close, 'menu_close' );
 $gscrot_menu->{_menuitem_close_all}->signal_connect( "activate", \&evt_close_all, 'menu_close_all' );
 $gscrot_menu->{_menuitem_quit}->signal_connect( "activate", \&evt_delete_window, 'menu_quit' );
@@ -1557,8 +1560,6 @@ sub evt_take_screenshot {
 		#and save the filename
 		$screenshot_name = "$folder/$filename_value.$filetype_value";
 
-		print $screenshot->get('bits-per-sample') . "\n";
-
 		#parse wild cards
 		my $swidth  = $screenshot->get_width;
 		my $sheight = $screenshot->get_height;
@@ -1706,11 +1707,13 @@ sub evt_notebook_switch {
 	if ( $gscrot_menu->{_menubar} ) {
 		if ( $int == 0 ) {
 			$gscrot_menu->{_menuitem_save_as}->set_sensitive(FALSE);
+			$gscrot_menu->{_menuitem_print}->set_sensitive(FALSE);
 			$gscrot_menu->{_menuitem_close}->set_sensitive(FALSE);
 			$gscrot_menu->{_menuitem_trash}->set_sensitive(FALSE);
 			$gscrot_menu->{_menuitem_copy}->set_sensitive(FALSE);
 		} else {
 			$gscrot_menu->{_menuitem_save_as}->set_sensitive(TRUE);
+			$gscrot_menu->{_menuitem_print}->set_sensitive(TRUE);
 			$gscrot_menu->{_menuitem_close}->set_sensitive(TRUE);
 			$gscrot_menu->{_menuitem_trash}->set_sensitive(TRUE);
 			$gscrot_menu->{_menuitem_copy}->set_sensitive(TRUE);
@@ -1930,23 +1933,21 @@ sub evt_accounts {
 sub evt_iconview_sel_changed {
 	my ( $iconview, $data ) = @_;
 
-	my @sel_items = $iconview->get_selected_items;
+	my @sel_items;
+	$session_start_screen{'first_page'}->{'view'}->selected_foreach(
+		sub {
+			my ( $view, $path ) = @_;
+			my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
+			if ( defined $iter ) {
+				my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
+				push( @sel_items, $session_screens{$key}->{'long'} );
+			}
+		}
+	);
 
-	foreach ( keys %{ $session_start_screen{'first_page'} } ) {
-
-		#enable/disable toolbar
-		$session_start_screen{'first_page'}->{$_}->set_sensitive( ( scalar @sel_items > 0 ) )
-			if $session_start_screen{'first_page'}->{$_} =~ /button/i;
-
-		#enable/disable menu entry when we are in the session tab
-		$gscrot_menu->{_menuitem_trash}->set_sensitive( ( scalar @sel_items > 0 ) )
-			unless &fct_get_current_file(undef);
-
-	}
-
-	#request applications again, some of them support multiple args, some not
-	$session_start_screen{'first_page'}->{'btn_reopen'}
-		->set_menu( &fct_ret_program_menu( $session_start_screen{'first_page'}->{'btn_reopen'}, scalar @sel_items ) );
+	#enable/disable menu entry when we are in the session tab and selection changes
+	$gscrot_menu->{_menuitem_trash}->set_sensitive( ( scalar @sel_items > 0 ) );
+	$gscrot_menu->{_menuitem_print}->set_sensitive( ( scalar @sel_items > 0 ) );
 
 	return TRUE;
 }
@@ -2044,6 +2045,20 @@ sub evt_open {
 	return TRUE;
 }
 
+sub evt_page_setup {
+	my ( $widget, $data ) = @_;
+
+	#restore settings if prossible
+	my $ssettings = Gtk2::PrintSettings->new;
+	if ( $gscrot_hfunct->file_exists("$ENV{ HOME }/.gscrot/printing.xml") ) {
+		eval { $ssettings = Gtk2::PrintSettings->new_from_file("$ENV{ HOME }/.gscrot/printing.xml"); };
+	}
+
+	$pagesetup = Gtk2::Print->run_page_setup_dialog( $window, $pagesetup, $ssettings );
+
+	return TRUE;
+}
+
 sub evt_close {
 	my ( $widget, $data ) = @_;
 	print "\n$data was emitted by widget $widget\n"
@@ -2055,6 +2070,7 @@ sub evt_close {
 		if defined( $session_screens{$key}->{'filename'} );
 	delete( $session_screens{$key} );    # delete from hash
 
+	&fct_update_first_tab;
 	$window->show_all unless $is_in_tray;
 
 	return TRUE;
@@ -2071,6 +2087,7 @@ sub evt_close_all {
 	}
 	&dlg_status_message( 1, $gscrot_common->get_gettext->get("All screenshots removed") );
 
+	&fct_update_first_tab;
 	$window->show_all unless $is_in_tray;
 
 	return TRUE;
@@ -2354,8 +2371,6 @@ sub fct_add_file_monitor {
 			my $event  = shift;
 			my $key    = shift;
 
-			print $session_screens{$key}->{'long'} . " - " . $event . "\n";
-
 			if ( $event eq 'deleted' ) {
 				$session_screens{$key}->{'deleted'} = TRUE;
 				$session_screens{$key}->{'changed'} = TRUE;
@@ -2371,20 +2386,22 @@ sub fct_add_file_monitor {
 					$session_screens{$key}->{'changed'} = TRUE;
 					&fct_update_tab($key);
 					&fct_update_first_tab;
+					print $session_screens{$key}->{'long'} . " - " . $event . "\n";
 				} else {
 					$session_screens{$key}->{'created'} = FALSE;
 				}
-			
-			#mark file when CREATED - see above
+
+				#mark file when CREATED - see above
 			} elsif ( $event eq 'created' ) {
 				$session_screens{$key}->{'created'} = TRUE;
 			}
 
 			return TRUE;
-	}, $key
+		},
+		$key
 	);
 
-return TRUE;
+	return TRUE;
 }
 
 sub fct_set_toolbar_sensitive {
@@ -2469,16 +2486,6 @@ sub fct_create_tab {
 		$tooltips->set_tip( $button_draw, $gscrot_common->get_gettext->get("Edit screenshot") );
 	}
 
-	my $button_print = Gtk2::ToolButton->new( Gtk2::Image->new_from_icon_name( 'gtk-print', 'button' ), undef );
-	$button_print->signal_connect( 'clicked' => sub { &fct_print(); } );
-
-	if ($gtklp) {
-		$tooltips->set_tip( $button_print, $gscrot_common->get_gettext->nget( "Print file", "Print files", $number ) );
-	} else {
-		$tooltips->set_tip( $button_print, $gscrot_common->get_gettext->get("gtklp needs to be installed for this feature") );
-		$button_print->set_sensitive($gtklp);
-	}
-
 	unless ($is_all) {
 		my $filename_label = Gtk2::Label->new;
 		$filename_label->set_markup( "<b>" . $gscrot_common->get_gettext->get("Filename") . "</b>" );
@@ -2533,7 +2540,6 @@ sub fct_create_tab {
 
 		$session_screens{$key}->{'btn_reopen'} = $button_reopen;
 		$session_screens{$key}->{'btn_upload'} = $button_upload;
-		$session_screens{$key}->{'btn_print'}  = $button_print;
 		$session_screens{$key}->{'btn_rename'} = $button_rename;
 		$session_screens{$key}->{'btn_plugin'} = $button_plugin;
 		$session_screens{$key}->{'btn_draw'}   = $button_draw;
@@ -2541,7 +2547,6 @@ sub fct_create_tab {
 		$tabtoolbar->insert( $button_reopen,               -1 );
 		$tabtoolbar->insert( $button_rename,               -1 );
 		$tabtoolbar->insert( Gtk2::SeparatorToolItem->new, -1 );
-		$tabtoolbar->insert( $button_print,                -1 );
 		$tabtoolbar->insert( $button_upload,               -1 );
 		$tabtoolbar->insert( Gtk2::SeparatorToolItem->new, -1 );
 		$tabtoolbar->insert( $button_plugin,               -1 );
@@ -2602,12 +2607,10 @@ sub fct_create_tab {
 		$session_start_screen{'first_page'}->{'view'}       = $view;
 		$session_start_screen{'first_page'}->{'model'}      = $viewmodel;
 		$session_start_screen{'first_page'}->{'btn_reopen'} = $button_reopen;
-		$session_start_screen{'first_page'}->{'btn_print'}  = $button_print;
 		$session_start_screen{'first_page'}->{'btn_upload'} = $button_upload;
 
 		$tabtoolbar->insert( $button_reopen,               -1 );
 		$tabtoolbar->insert( Gtk2::SeparatorToolItem->new, -1 );
-		$tabtoolbar->insert( $button_print,                -1 );
 		$tabtoolbar->insert( $button_upload,               -1 );
 
 		$vbox_tab->pack_start( $tabtoolbar, FALSE, TRUE, 0 );
@@ -3505,39 +3508,72 @@ sub fct_print {
 
 	my $key = &fct_get_current_file(undef);
 
-	#single file
-	if ($key) {
-
-		return FALSE unless &fct_screenshot_exists($key);
-
-		#everything is fine -> print it
-		my $current_file = quotemeta $session_screens{$key}->{'long'};
-		system("gtklp $current_file &");
-		&dlg_status_message( 1, $session_screens{$key}->{'filename'} . " " . $gscrot_common->get_gettext->get("will be printed") );
-
-		#session tab
-	} else {
-
-		my $print_files = "";
+	my @pages;
+	unless ($key) {
 		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
 			sub {
 				my ( $view, $path ) = @_;
 				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
 				if ( defined $iter ) {
 					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
-					$print_files .= quotemeta $session_screens{$key}->{'long'};
-					$print_files .= " ";
+					push( @pages, $session_screens{$key}->{'long'} );
 				}
 
-			},
-			undef
+			}
 		);
-		if ( $print_files ne "" ) {
-			system("gtklp $print_files &");
-			&dlg_status_message( 1, $gscrot_common->get_gettext->get("Printing all screenshots") );
-		}
-
+	} else {
+		push( @pages, $session_screens{$key}->{'long'} );
 	}
+
+	my $op = Gtk2::PrintOperation->new;
+	$op->set_job_name( GSCROT_NAME . " - " . GSCROT_VERSION . " - " . localtime );
+	$op->set_n_pages( scalar @pages );
+	$op->set_unit('pixel');
+	$op->set_show_progress(TRUE);
+	$op->set_default_page_setup($pagesetup);
+
+	#restore settings if prossible
+	if ( $gscrot_hfunct->file_exists("$ENV{ HOME }/.gscrot/printing.xml") ) {
+		eval {
+			my $ssettings = Gtk2::PrintSettings->new_from_file("$ENV{ HOME }/.gscrot/printing.xml");
+			$op->set_print_settings($ssettings);
+		};
+	}
+
+	$op->signal_connect(
+		'status-changed' => sub {
+			my $op = shift;
+			&dlg_status_message( 1, $op->get_status_string );
+		}
+	);
+
+	$op->signal_connect(
+		'draw-page' => sub {
+			my $op  = shift;
+			my $pc  = shift;
+			my $int = shift;
+
+			#manip cairo context
+			my $cr = $pc->get_cairo_context;
+
+			#see if pixbuf fits on the printing area
+			my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $pages[$int] );
+			if ( $pc->get_width < $pixbuf->get_width || $pc->get_height < $pixbuf->get_height ) {
+				$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $pages[$int], $pc->get_width, $pc->get_height, TRUE );
+			}
+
+			Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $pixbuf, 0, 0 );
+
+			$cr->paint;
+		}
+	);
+
+	$op->run( 'print-dialog', $window );
+
+	#save settings
+	my $settings = $op->get_print_settings;
+	eval { $settings->to_file("$ENV{ HOME }/.gscrot/printing.xml"); };
+
 	return TRUE;
 }
 
@@ -3563,9 +3599,9 @@ sub fct_open_with_program {
 
 		#everything is fine -> open it
 		if ( $dentry->wants_uris ) {
-			$dentry->system( $session_screens{$key}->{'uri'} );
+			$dentry->exec( $session_screens{$key}->{'uri'}->to_string );
 		} else {
-			$dentry->system( $session_screens{$key}->{'long'} );
+			$dentry->exec( $session_screens{$key}->{'long'} );
 		}
 
 		&dlg_status_message( 1, $session_screens{$key}->{'filename'} . " " . $gscrot_common->get_gettext->get("opened with") . " " . $dentry->Name );
@@ -3582,7 +3618,7 @@ sub fct_open_with_program {
 				if ( defined $iter ) {
 					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
 					if ( $dentry->wants_uris ) {
-						push @open_files, $session_screens{$key}->{'uri'};
+						push @open_files, $session_screens{$key}->{'uri'}->to_string;
 					} else {
 						push @open_files, $session_screens{$key}->{'long'};
 					}
@@ -3591,7 +3627,7 @@ sub fct_open_with_program {
 			undef
 		);
 		if ( @open_files > 0 ) {
-			$dentry->system(@open_files);
+			$dentry->exec(@open_files);
 			&dlg_status_message( 1, $gscrot_common->get_gettext->get("Opened all files with") . " " . $dentry->Name );
 		}
 	}
@@ -4448,46 +4484,61 @@ sub fct_ret_sel_menu {
 
 sub fct_ret_program_menu {
 	my $button_program_menu = shift;
-	my $nfiles_to_open = shift || 1;
 
-	my $icontheme = Gtk2::IconTheme->get_for_screen( Gtk2::Gdk::Screen->get_default );
-
+	my $icontheme     = Gtk2::IconTheme->get_for_screen( Gtk2::Gdk::Screen->get_default );
 	my $menu_programs = Gtk2::Menu->new;
 
-	#
-	#	my $key = &fct_get_current_file(undef);
-	#
-	#	my $mimetype = 'image/png';
-	#	if ($key) {
-	#		$mimetype = mimetype( $session_screens{$key}->{'long'} ) || return $menu_programs;
-	#	}
-	#	my ( $default, @apps ) = mime_applications($mimetype);
-	#
-	#	foreach my $dentry (@apps) {
-	#
-	#		my $program_item = Gtk2::ImageMenuItem->new_with_label( $dentry->Name );
-	#		if ( $icontheme->has_icon( $dentry->Icon ) ) {
-	#			my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
-	#			my $icon_pixbuf = $icontheme->load_icon( $dentry->Icon, $ih, 'generic-fallback' );
-	#			$program_item->set_image( Gtk2::Image->new_from_pixbuf($icon_pixbuf) );
-	#		}
-	#		$program_item->signal_connect(
-	#			'activate' => sub {
-	#				&fct_open_with_program($dentry);
-	#			}
-	#		);
-	#
-	#		#desktop entry specifies that the application can handle multiple arguments at once
-	#		if ( $nfiles_to_open > 1 ) {
-	#			unless ( $dentry->wants_list ) {
-	#				$program_item->set_sensitive(FALSE);
-	#			}
-	#		}
-	#		$menu_programs->append($program_item);
-	#	}
-	#
-	#	$button_program_menu->set_menu($menu_programs);
-	#	$menu_programs->show_all;
+	#no iconview ??
+	return $menu_programs unless $session_start_screen{'first_page'}->{'view'};
+	
+	#take $key (mime) directly
+	my $key = &fct_get_current_file(undef);
+	
+	#search selected files for mime...
+	unless( $key ) {
+		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
+			sub {
+				my ( $view, $path ) = @_;
+				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
+				if ( defined $iter ) {
+					$key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
+				}
+			}
+		);
+	}
+
+	#still no key? => leave sub
+	return $menu_programs unless $key;
+
+#	my $mime_type = Gnome2::VFS::Mime::Type->new ($session_screens{$key}->{'mime_type'});
+#	my @apps = $mime_type->get_all_applications_for_uri( $session_screens{$key}->{'uri'} );
+	
+	#FIXME
+	#cannot get icon with GnomeVFS
+	#libgnomevfs-WARNING **: 
+	#Cannot call gnome_vfs_mime_application_get_icon 
+	#with a GNOMEVFSMimeApplication structure 
+	#constructed by the deprecated application registry 
+	my ( $default, @apps ) = mime_applications($session_screens{$key}->{'mime_type'});
+	foreach my $app (@apps) {
+
+		my $program_item = Gtk2::ImageMenuItem->new_with_label( $app->Name );
+		if ( $icontheme->has_icon( $app->Icon ) ) {
+			my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
+			my $icon_pixbuf = $icontheme->load_icon( $app->Icon, $ih, 'generic-fallback' );
+			$program_item->set_image( Gtk2::Image->new_from_pixbuf($icon_pixbuf) );
+		}
+		$program_item->signal_connect(
+			'activate' => sub {
+				&fct_open_with_program($app);
+			}
+		);
+
+		$menu_programs->append($program_item);
+	}
+
+	$button_program_menu->set_menu($menu_programs);
+	$menu_programs->show_all;
 	return $menu_programs;
 }
 
@@ -4832,12 +4883,6 @@ sub fct_set_model_plugins {
 sub fct_init_optional {
 
 	print "INFO: searching for optional components...\n\n";
-	if ( system("which gtklp") == 0 ) {
-		print "SUCCESS: gtklp is installed on your system!\n\n";
-	} else {
-		warn "WARNING: gtklp is missing --> printing of screenshots will be disabled!\n\n";
-		$gtklp = FALSE;
-	}
 	if ( system("which gnome-web-photo") == 0 ) {
 		print "SUCCESS: gnome-web-photo is installed on your system!\n\n";
 	} else {
@@ -5813,7 +5858,14 @@ sub dlg_website {
 			$website_progress->set_fraction( 2 / 3 );
 			&fct_update_gui;
 
-			$screenshot = Gtk2::Gdk::Pixbuf->new_from_file("$folder/$filename_value.$filetype_value");
+			eval { $screenshot = Gtk2::Gdk::Pixbuf->new_from_file("$folder/$filename_value.$filetype_value"); };
+			if ($@) {
+
+				#error when loading file
+				$screenshot = 0;
+				unlink("$folder/$filename_value.$filetype_value");
+				$website_dialog->destroy();
+			}
 
 			$website_progress->set_fraction( 3 / 3 );
 			&fct_update_gui;
@@ -5877,11 +5929,6 @@ sub dlg_profile_name {
 		$profile_dialog->destroy();
 		return FALSE;
 	}
-}
-
-sub AUTOLOAD {
-	our $AUTOLOAD;
-	warn "Attempt to call $AUTOLOAD failed.\n";
 }
 
 #--------------------------------------

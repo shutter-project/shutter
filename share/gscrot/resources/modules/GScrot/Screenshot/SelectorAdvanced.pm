@@ -202,8 +202,7 @@ sub select_advanced {
 			} else {
 				Gtk2->main_do_event($event);
 			}
-		},
-		'advanced'
+		}
 	);
 
 	$select_window->show_all();
