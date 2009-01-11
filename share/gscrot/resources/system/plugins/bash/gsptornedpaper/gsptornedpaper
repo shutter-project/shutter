@@ -8,7 +8,7 @@ TEXTDOMAINDIR=$GSCROT_INTL
 PLUGIN_NAME=$"torned paper"
 PLUGIN_SORT=$"effect"
 PLUGIN_TIP=$"generates a torned-border"
-PLUGIN_EXT="png"
+PLUGIN_EXT="image/png"
 
 if [[ "${1}" = "name" ]];then
    	echo "${PLUGIN_NAME}"

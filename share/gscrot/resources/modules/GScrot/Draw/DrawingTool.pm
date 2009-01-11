@@ -110,7 +110,7 @@ sub show {
 	$self->{_drawing_window} = Gtk2::Window->new('toplevel');
 	$self->{_drawing_window}->set_title( "GScrot DrawingTool - " . $self->{_filename} );
 	$self->{_drawing_window}->set_position('center');
-	$self->{_drawing_window}->set_modal(1);
+	$self->{_drawing_window}->set_modal(0);
 	$self->{_drawing_window}->signal_connect( 'delete_event', sub { return $self->quit(TRUE) } );
 
 	#adjust toplevel window size

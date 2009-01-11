@@ -231,8 +231,8 @@ $gscrot_menu->{_menuitem_web}->signal_connect( 'activate', \&evt_take_screenshot
 $gscrot_menu->{_menuitem_save_as}->signal_connect( 'activate', \&evt_save_as, 'menu_save_as' );
 $gscrot_menu->{_menuitem_print}->signal_connect( 'activate', \&fct_print, 'menu_print' );
 $gscrot_menu->{_menuitem_pagesetup}->signal_connect( 'activate', \&evt_page_setup, 'menu_pagesetup' );
-$gscrot_menu->{_menuitem_close}->signal_connect( 'activate', \&evt_close, 'menu_close' );
-$gscrot_menu->{_menuitem_close_all}->signal_connect( 'activate', \&evt_close_all, 'menu_close_all' );
+$gscrot_menu->{_menuitem_close}->signal_connect( 'activate', sub { &fct_remove(undef); }, 'menu_close' );
+$gscrot_menu->{_menuitem_close_all}->signal_connect( 'activate', sub { &fct_remove_all(); }, 'menu_close_all' );
 $gscrot_menu->{_menuitem_quit}->signal_connect( 'activate', \&evt_delete_window, 'menu_quit' );
 
 $gscrot_menu->{_menuitem_copy}->signal_connect( 'activate', \&fct_clipboard );
@@ -653,6 +653,7 @@ if ( defined $settings_xml->{'general'}->{'filetype'} ) {
 			last;
 		}
 	}
+
 }
 
 my $filetype_label = Gtk2::Label->new( $gscrot_common->get_gettext->get("Image format") . ":" );
@@ -1713,30 +1714,10 @@ sub evt_behavior_handle {
 sub evt_notebook_switch {
 	my ( $widget, $pointer, $int ) = @_;
 	if ( $gscrot_menu->{_menubar} ) {
-		if ( $int == 0 ) {
-			$gscrot_menu->{_menuitem_reopen}->set_sensitive(FALSE);
-			$gscrot_menu->{_menuitem_rename}->set_sensitive(FALSE);
-			$gscrot_menu->{_menuitem_upload}->set_sensitive(FALSE);
-			$gscrot_menu->{_menuitem_draw}->set_sensitive(FALSE);
-			$gscrot_menu->{_menuitem_plugin}->set_sensitive(FALSE);
-			$gscrot_menu->{_menuitem_save_as}->set_sensitive(FALSE);
-			$gscrot_menu->{_menuitem_print}->set_sensitive(FALSE);
-			$gscrot_menu->{_menuitem_close}->set_sensitive(FALSE);
-			$gscrot_menu->{_menuitem_trash}->set_sensitive(FALSE);
-			$gscrot_menu->{_menuitem_copy}->set_sensitive(FALSE);
-		} else {
-			$gscrot_menu->{_menuitem_reopen}->set_sensitive(TRUE);
-			$gscrot_menu->{_menuitem_reopen}->set_submenu(&fct_ret_program_menu);
-			$gscrot_menu->{_menuitem_rename}->set_sensitive(TRUE);
-			$gscrot_menu->{_menuitem_upload}->set_sensitive(TRUE);
-			$gscrot_menu->{_menuitem_draw}->set_sensitive(TRUE);
-			$gscrot_menu->{_menuitem_plugin}->set_sensitive(TRUE);
-			$gscrot_menu->{_menuitem_save_as}->set_sensitive(TRUE);
-			$gscrot_menu->{_menuitem_print}->set_sensitive(TRUE);
-			$gscrot_menu->{_menuitem_close}->set_sensitive(TRUE);
-			$gscrot_menu->{_menuitem_trash}->set_sensitive(TRUE);
-			$gscrot_menu->{_menuitem_copy}->set_sensitive(TRUE);
-		}
+
+		#enable/disable menu entry when we are in the session tab and selection changes
+		&fct_update_menu($int);
+
 	}
 
 	#	foreach my $key ( keys %session_screens ) {
@@ -1761,7 +1742,7 @@ sub evt_notebook_switch {
 	#	print $calc_num."\n";
 
 	#	$notebook->reorder_child ($session_start_screen{'first_page'}->{'tab_child'}, $int-1);
-
+	return TRUE;
 }
 
 sub evt_delete_window {
@@ -1952,22 +1933,29 @@ sub evt_accounts {
 sub evt_iconview_sel_changed {
 	my ( $iconview, $data ) = @_;
 
-	my @sel_items;
-	$session_start_screen{'first_page'}->{'view'}->selected_foreach(
-		sub {
-			my ( $view, $path ) = @_;
-			my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
-			if ( defined $iter ) {
-				my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
-				push( @sel_items, $session_screens{$key}->{'long'} );
-			}
-		}
-	);
+	my @sel_items = $iconview->get_selected_items;
 
 	#enable/disable menu entry when we are in the session tab and selection changes
-	$gscrot_menu->{_menuitem_trash}->set_sensitive( ( scalar @sel_items > 0 ) );
-	$gscrot_menu->{_menuitem_print}->set_sensitive( ( scalar @sel_items > 0 ) );
+	&fct_update_menu( scalar @sel_items > 0 );
 
+	return TRUE;
+}
+
+sub fct_update_menu {
+	my $n_items = shift;
+	$gscrot_menu->{_menuitem_reopen}->set_sensitive($n_items);
+	$gscrot_menu->{_menuitem_reopen}->set_sensitive($n_items);
+	$gscrot_menu->{_menuitem_reopen}->set_submenu(&fct_ret_program_menu);
+	$gscrot_menu->{_menuitem_rename}->set_sensitive($n_items);
+	$gscrot_menu->{_menuitem_upload}->set_sensitive($n_items);
+	$gscrot_menu->{_menuitem_draw}->set_sensitive($n_items);
+	$gscrot_menu->{_menuitem_plugin}->set_sensitive($n_items);
+	$gscrot_menu->{_menuitem_save_as}->set_sensitive($n_items);
+	$gscrot_menu->{_menuitem_pagesetup}->set_sensitive($n_items);
+	$gscrot_menu->{_menuitem_print}->set_sensitive($n_items);
+	$gscrot_menu->{_menuitem_close}->set_sensitive($n_items);
+	$gscrot_menu->{_menuitem_trash}->set_sensitive($n_items);
+	$gscrot_menu->{_menuitem_copy}->set_sensitive($n_items);
 	return TRUE;
 }
 
@@ -2074,40 +2062,6 @@ sub evt_page_setup {
 	}
 
 	$pagesetup = Gtk2::Print->run_page_setup_dialog( $window, $pagesetup, $ssettings );
-
-	return TRUE;
-}
-
-sub evt_close {
-	my ( $widget, $data ) = @_;
-	print "\n$data was emitted by widget $widget\n"
-		if $gscrot_common->get_debug;
-
-	my $key = &fct_get_current_file(undef);
-	$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
-	&dlg_status_message( 1, $session_screens{$key}->{'filename'} . " " . $gscrot_common->get_gettext->get("removed from session") )
-		if defined( $session_screens{$key}->{'filename'} );
-	delete( $session_screens{$key} );    # delete from hash
-
-	&fct_update_first_tab;
-	$window->show_all unless $is_in_tray;
-
-	return TRUE;
-}
-
-sub evt_close_all {
-	my ( $widget, $data ) = @_;
-	print "\n$data was emitted by widget $widget\n"
-		if $gscrot_common->get_debug;
-
-	foreach my $key ( keys %session_screens ) {
-		$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
-		delete( $session_screens{$key} );
-	}
-	&dlg_status_message( 1, $gscrot_common->get_gettext->get("All screenshots removed") );
-
-	&fct_update_first_tab;
-	$window->show_all unless $is_in_tray;
 
 	return TRUE;
 }
@@ -2390,12 +2344,14 @@ sub fct_add_file_monitor {
 			my $event  = shift;
 			my $key    = shift;
 
+			print $event. " - $key\n";
+
 			if ( $event eq 'deleted' ) {
+				$handle->cancel;
 				$session_screens{$key}->{'deleted'} = TRUE;
 				$session_screens{$key}->{'changed'} = TRUE;
 				&fct_update_tab($key);
 				&fct_update_first_tab;
-				$handle->cancel;
 
 			} elsif ( $event eq 'changed' ) {
 
@@ -2764,6 +2720,8 @@ sub fct_save_settings {
 	my $counter = 0;
 	foreach ( sort keys %session_screens ) {
 
+		next unless exists $session_screens{$_}->{'long'};
+
 		#encode filename
 		my $utf8_filename = $session_screens{$_}->{'long'};
 		utf8::encode $utf8_filename;
@@ -3010,18 +2968,19 @@ sub fct_get_program_model {
 
 	my $icontheme = Gtk2::IconTheme->get_for_screen( Gtk2::Gdk::Screen->get_default );
 
-	#	my ( $default, @apps ) = mime_applications('image/png');
-	#
-	#	foreach (@apps) {
-	#		my $program_item = Gtk2::ImageMenuItem->new_with_label();
-	#		my $icon_pixbuf;
-	#		if ( $icontheme->has_icon( $_->Icon ) ) {
-	#			my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
-	#			$icon_pixbuf = $icontheme->load_icon( $_->Icon, $ih, 'generic-fallback' );
-	#			$program_item->set_image( Gtk2::Image->new_from_pixbuf($icon_pixbuf) );
-	#		}
-	#		$model->set( $model->append, 0, $icon_pixbuf, 1, $_->Name, 2, $_ );
-	#	}
+	#FIXME - use png as default mime type (is this clever enough?)
+	my ( $default, @apps ) = mime_applications('image/png');
+
+	foreach (@apps) {
+		my $program_item = Gtk2::ImageMenuItem->new_with_label();
+		my $icon_pixbuf;
+		if ( $icontheme->has_icon( $_->Icon ) ) {
+			my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
+			$icon_pixbuf = $icontheme->load_icon( $_->Icon, $ih, 'generic-fallback' );
+			$program_item->set_image( Gtk2::Image->new_from_pixbuf($icon_pixbuf) );
+		}
+		$model->set( $model->append, 0, $icon_pixbuf, 1, $_->Name, 2, $_ );
+	}
 
 	return $model;
 }
@@ -3245,6 +3204,9 @@ sub fct_delete {
 
 		if ( $session_screens{$key}->{'uri'}->exists ) {
 
+			#cancel handle
+			$session_screens{$key}->{'handle'}->cancel;
+
 			#find trash directory
 			my $trash_uri = Gnome2::VFS->find_directory( Gnome2::VFS::URI->new( $ENV{'HOME'} ), 'trash', TRUE, TRUE, 755 );
 
@@ -3252,14 +3214,13 @@ sub fct_delete {
 			$trash_uri = $trash_uri->append_file_name( $session_screens{$key}->{'short'} );
 			$session_screens{$key}->{'uri'}->move( $trash_uri, TRUE ) if $session_screens{$key}->{'uri'}->exists;
 
-			#cancel handle
-			$session_screens{$key}->{'handle'}->cancel;
 		}
 
 		$notebook->remove_page( $notebook->get_current_page );    #delete tab
 		&dlg_status_message( 1, $session_screens{$key}->{'filename'} . " " . $gscrot_common->get_gettext->get("deleted") )
 			if defined( $session_screens{$key}->{'filename'} );
-		delete( $session_screens{$key} );                         # delete from hash
+
+		delete $session_screens{$key};                            # delete from hash
 
 		$window->show_all unless $is_in_tray;
 
@@ -3276,6 +3237,9 @@ sub fct_delete {
 
 					if ( $session_screens{$key}->{'uri'}->exists ) {
 
+						#cancel handle
+						$session_screens{$key}->{'handle'}->cancel;
+
 						#find trash directory
 						my $trash_uri = Gnome2::VFS->find_directory( Gnome2::VFS::URI->new( $ENV{'HOME'} ), 'trash', TRUE, TRUE, 755 );
 
@@ -3283,11 +3247,10 @@ sub fct_delete {
 						$trash_uri = $trash_uri->append_file_name( $session_screens{$key}->{'short'} );
 						$session_screens{$key}->{'uri'}->move( $trash_uri, TRUE );
 
-						#cancel handle
-						$session_screens{$key}->{'handle'}->cancel;
 					}
 
-					delete( $session_screens{$key} );
+					delete $session_screens{$key};
+
 					&dlg_status_message( 1, $gscrot_common->get_gettext->get("All screenshots deleted") );
 
 				}
@@ -3304,13 +3267,40 @@ sub fct_delete {
 	return TRUE;
 }
 
+sub fct_remove_all {
+
+	foreach my $key ( keys %session_screens ) {
+		if ( exists $session_screens{$key}->{'handle'} ) {
+
+			#cancel handle
+			$session_screens{$key}->{'handle'}->cancel;
+		}
+
+		$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
+		delete( $session_screens{$key} );
+	}
+
+	&dlg_status_message( 1, $gscrot_common->get_gettext->get("All screenshots removed") );
+	$window->show_all unless $is_in_tray;
+
+	&fct_update_first_tab;
+
+	return TRUE;
+}
+
 sub fct_remove {
-	my ($key) = @_;
+	my $key = shift;
 
 	$key = &fct_get_current_file(undef) unless $key;
 
 	#single file
 	if ($key) {
+
+		if ( exists $session_screens{$key}->{'handle'} ) {
+
+			#cancel handle
+			$session_screens{$key}->{'handle'}->cancel;
+		}
 
 		$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
 		&dlg_status_message( 1, $session_screens{$key}->{'filename'} . " " . $gscrot_common->get_gettext->get("removed from session") )
@@ -3319,15 +3309,20 @@ sub fct_remove {
 
 		$window->show_all unless $is_in_tray;
 
-		#session tab
 	} else {
-
 		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
 			sub {
 				my ( $view, $path ) = @_;
 				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
 				if ( defined $iter ) {
 					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
+
+					if ( exists $session_screens{$key}->{'handle'} ) {
+
+						#cancel handle
+						$session_screens{$key}->{'handle'}->cancel;
+					}
+
 					$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
 					delete( $session_screens{$key} );
 				}
@@ -3374,6 +3369,8 @@ sub fct_plugin {
 
 	my $key = &fct_get_current_file(undef);
 
+	my @plugin_array;
+
 	#single file
 	if ($key) {
 
@@ -3382,9 +3379,26 @@ sub fct_plugin {
 		unless ( keys %plugins > 0 ) {
 			&dlg_error_message( $gscrot_common->get_gettext->get("No plugin installed") );
 		} else {
-			&dlg_plugin( $session_screens{$key}->{'filename'}, $key );
+			push( @plugin_array, $key );
+			&dlg_plugin(@plugin_array);
 		}
 
+		#session tab
+	} else {
+
+		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
+			sub {
+				my ( $view, $path ) = @_;
+				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
+				if ( defined $iter ) {
+					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
+					push( @plugin_array, $key );
+				}
+
+			},
+			undef
+		);
+		&dlg_plugin(@plugin_array);
 	}
 	return TRUE;
 }
@@ -3403,7 +3417,21 @@ sub fct_rename {
 		&dlg_status_message( 1, $session_screens{$key}->{'filename'} . " " . $gscrot_common->get_gettext->get("renamed") )
 			if &dlg_rename( $session_screens{$key}->{'long'}, $key );
 
+	} else {
+		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
+			sub {
+				my ( $view, $path ) = @_;
+				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
+				if ( defined $iter ) {
+					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
+					&dlg_status_message( 1, $session_screens{$key}->{'filename'} . " " . $gscrot_common->get_gettext->get("renamed") )
+						if &dlg_rename( $session_screens{$key}->{'long'}, $key );
+				}
+			},
+			undef
+		);
 	}
+
 	return TRUE;
 }
 
@@ -3419,6 +3447,19 @@ sub fct_draw {
 		my $drawing_tool = GScrot::Draw::DrawingTool->new($gscrot_common);
 		$drawing_tool->show( $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'}, \%session_screens );
 
+	} else {
+		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
+			sub {
+				my ( $view, $path ) = @_;
+				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
+				if ( defined $iter ) {
+					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
+					my $drawing_tool = GScrot::Draw::DrawingTool->new($gscrot_common);
+					$drawing_tool->show( $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'}, \%session_screens );
+				}
+			},
+			undef
+		);
 	}
 	return TRUE;
 }
@@ -3667,6 +3708,7 @@ sub fct_execute_plugin {
 }
 
 sub fct_update_first_tab {
+	$session_start_screen{'first_page'}->{'view'}->unselect_all;
 	$session_start_screen{'first_page'}->{'model'}->clear;
 
 	#create thumbails for iconview
@@ -3674,16 +3716,7 @@ sub fct_update_first_tab {
 
 		#try to generate a new thumbnail
 		my $pixbuf;
-		eval {
-
-			#use different algos for image sizes...
-			if ( $session_screens{$key}->{'orig'}->get_width + $session_screens{$key}->{'orig'}->get_height > 5000 ) {
-				$pixbuf = $session_screens{$key}->{'orig'}->scale_simple( Gtk2::IconSize->lookup('dialog'), 'nearest' );
-			} else {
-				$pixbuf = $session_screens{$key}->{'orig'}->scale_simple( Gtk2::IconSize->lookup('dialog'), 'tiles' );
-			}
-
-		};
+		eval { $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $session_screens{$key}->{'long'}, Gtk2::IconSize->lookup('dialog'), TRUE ); };
 		if ($@) {
 			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$gscrot_root/share/gscrot/resources/icons/Image-missing.svg",
 				Gtk2::IconSize->lookup('dialog'), TRUE );
@@ -3701,6 +3734,7 @@ sub fct_update_first_tab {
 			)
 	);
 
+	#handle total size in session
 	my $total_size = 0;
 	foreach ( keys %session_screens ) {
 		next unless $session_screens{$_}->{'size'};
@@ -3710,15 +3744,13 @@ sub fct_update_first_tab {
 		->set_text( $gscrot_common->get_gettext->get("Total size") . ": " . Gnome2::VFS->format_file_size_for_display($total_size) );
 
 	#if size == 0 => no screenshot in session( handle menu entries properly )
-	if ($gscrot_menu->{_menuitem_close_all})
-	{
-		if ( $total_size == 0 ) {
-			$gscrot_menu->{_menuitem_close_all}->set_sensitive(FALSE);
-		} else {
-			$gscrot_menu->{_menuitem_close_all}->set_sensitive(TRUE);
-		}
+	if ( $gscrot_menu->{_menuitem_close_all} ) {
+
+		#enable/disable menu entry when we are in the session tab and selection changes
+		&fct_update_menu($total_size);
 	}
 
+	#handle session information
 	if ( $filename && $saveDir_button && $combobox_settings_profiles ) {
 
 		if ( $combobox_settings_profiles->get_active_text ) {
@@ -4447,7 +4479,7 @@ sub fct_ret_sel_menu {
 }
 
 sub fct_ret_program_menu {
-	
+
 	my $icontheme     = Gtk2::IconTheme->get_for_screen( Gtk2::Gdk::Screen->get_default );
 	my $menu_programs = Gtk2::Menu->new;
 
@@ -4456,6 +4488,7 @@ sub fct_ret_program_menu {
 
 	#search selected files for mime...
 	unless ($key) {
+
 		#no iconview ??
 		return $menu_programs unless $session_start_screen{'first_page'}->{'view'};
 		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
@@ -4464,7 +4497,6 @@ sub fct_ret_program_menu {
 				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
 				if ( defined $iter ) {
 					$key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
-					print "Yeaahhh - $key\n";
 				}
 			}
 		);
@@ -4482,6 +4514,8 @@ sub fct_ret_program_menu {
 	#Cannot call gnome_vfs_mime_application_get_icon
 	#with a GNOMEVFSMimeApplication structure
 	#constructed by the deprecated application registry
+	return $menu_programs unless exists $session_screens{$key}->{'mime_type'};
+
 	my ( $default, @apps ) = mime_applications( $session_screens{$key}->{'mime_type'} );
 	foreach my $app (@apps) {
 
@@ -5117,7 +5151,8 @@ sub dlg_rename {
 }
 
 sub dlg_plugin {
-	my ( $dlg_plugin_text, $key ) = @_;
+	my (@file_to_plugin_keys) = @_;
+
 	my $dlg_header    = $gscrot_common->get_gettext->get("Choose a plugin");
 	my $plugin_dialog = Gtk2::Dialog->new(
 		$dlg_header,
@@ -5130,8 +5165,10 @@ sub dlg_plugin {
 	my $model = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String' );
 
 	foreach ( sort keys %plugins ) {
-		next
-			unless $plugins{$_}->{'ext'} =~ /$session_screens{$key}->{'filetype'}/;
+
+		#TODO hier müssen die neuen Mime types hinzugefügt werden
+		#		next
+		#			unless $plugins{$_}->{'ext'} =~ /$session_screens{$key}->{'filetype'}/;
 		if ( $plugins{$_}->{'binary'} ne "" ) {
 
 			$model->set(
@@ -5200,7 +5237,6 @@ sub dlg_plugin {
 	my $plugin_response = $plugin_dialog->run;
 
 	if ( $plugin_response eq "accept" ) {
-		$dlg_plugin_text = $gscrot_hfunct->switch_home_in_file($dlg_plugin_text);
 		my $model        = $plugin->get_model();
 		my $plugin_iter  = $plugin->get_active_iter();
 		my $plugin_value = $model->get_value( $plugin_iter, 2 );
@@ -5211,8 +5247,10 @@ sub dlg_plugin {
 			return FALSE;
 		}
 
-		my $data = [ $plugin_value, $plugin_name, $plugin_lang, $key, $plugin_dialog ];
-		&fct_execute_plugin( undef, $data );
+		foreach my $key (@file_to_plugin_keys) {
+			my $data = [ $plugin_value, $plugin_name, $plugin_lang, $key, $plugin_dialog ];
+			&fct_execute_plugin( undef, $data );
+		}
 
 		$plugin_dialog->destroy();
 		return TRUE;

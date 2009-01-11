@@ -8,7 +8,7 @@ TEXTDOMAINDIR=$GSCROT_INTL
 PLUGIN_NAME=$"raise border"
 PLUGIN_SORT=$"effect"
 PLUGIN_TIP=$"raise a rectangular 3d-border"
-PLUGIN_EXT="png,jpeg"
+PLUGIN_EXT="image/png;image/bmp;image/jpeg"
 
 if [[ "${1}" = "name" ]];then
    	echo "${PLUGIN_NAME}"

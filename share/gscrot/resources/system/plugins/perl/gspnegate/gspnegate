@@ -52,7 +52,7 @@ elsif ( $ARGV[0] eq "tip" ) {
 	exit;
 }
 elsif ( $ARGV[0] eq "ext" ) {
-	print "png,jpeg";
+	print "image/png;image/bmp;image/jpeg";
 	exit;
 }
 elsif ( $ARGV[0] eq "lang" ) {

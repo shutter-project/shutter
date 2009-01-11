@@ -52,7 +52,7 @@ if ( $ARGV[ 0 ] eq "name" ) {
 	);
 	exit;
 } elsif ( $ARGV[ 0 ] eq "ext" ) {
-	print "png";
+	print "image/png";
 	exit;
 } elsif ( $ARGV[ 0 ] eq "lang" ) {
 	print "perl";
