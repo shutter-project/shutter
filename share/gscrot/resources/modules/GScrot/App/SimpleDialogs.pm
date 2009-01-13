@@ -62,22 +62,6 @@ sub dlg_info_message {
 	return TRUE;
 }
 
-#sub dlg_question_message {
-#	my $self = shift;
-#	my $dlg_question_message = shift;
-#	
-#	my $question_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/],
-#		'question', 'yes_no', $dlg_question_message );
-#	my $question_response = $question_dialog->run;
-#	if ( $question_response eq "yes" ) {
-#		$question_dialog->destroy();
-#		return TRUE;
-#	} else {
-#		$question_dialog->destroy();
-#		return FALSE;
-#	}
-#}
-
 sub dlg_question_message {
 	my $self = shift;
 	my $dlg_question_message = shift;

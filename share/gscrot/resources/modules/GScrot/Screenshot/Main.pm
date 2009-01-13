@@ -50,12 +50,12 @@ sub new {
 	
 	#x11
 	$self->{_x11} = X11::Protocol->new( $ENV{ 'DISPLAY' } );
-	if ( $self->{_gc}->get_debug ) {
-		my @extensions = $self->{_x11}->ListExtensions;
-		foreach ( @extensions ) {
-			print $_. "\n";
-		}
-	}
+#	if ( $self->{_gc}->get_debug ) {
+#		my @extensions = $self->{_x11}->ListExtensions;
+#		foreach ( @extensions ) {
+#			print $_. "\n";
+#		}
+#	}
 	
 	#root window
 	$self->{ _root } = Gtk2::Gdk->get_default_root_window;
