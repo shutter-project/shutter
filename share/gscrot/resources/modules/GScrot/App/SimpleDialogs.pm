@@ -53,9 +53,15 @@ sub new {
 sub dlg_info_message {
 	my $self = shift;
 	my $dlg_info_message = shift;
+	my $dlg_info_header = shift;
 
 	my $info_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/],
 		'info', 'ok', $dlg_info_message );
+
+	$info_dialog->set( 'text' => $dlg_info_header );
+
+	$info_dialog->set( 'secondary-text' => $dlg_info_message );
+
 	my $info_response = $info_dialog->run;
 	$info_dialog->destroy() if ( $info_response eq "ok" );
 	
@@ -65,14 +71,14 @@ sub dlg_info_message {
 sub dlg_question_message {
 	my $self = shift;
 	my $dlg_question_message = shift;
+	my $dlg_question_header = shift;
 	my $button_text_extra1 = shift;
 	my $button_text_extra2 = shift;
 	my $button_text_extra3 = shift;
 	my $button_widget_extra1 = shift;
 	my $button_widget_extra2 = shift;
 	my $button_widget_extra3 = shift;
-	my $dlg_question_header = shift;
-	
+
 	my $question_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef );
 
 	$question_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-dialog-question', 'dialog' ) );
@@ -95,6 +101,42 @@ sub dlg_question_message {
 
 	$question_dialog->destroy();
 	return $question_response;
+}
+
+sub dlg_error_message {
+	my $self = shift;
+	my $dlg_error_message = shift;
+	my $dlg_error_header = shift;
+	my $button_text_extra1 = shift;
+	my $button_text_extra2 = shift;
+	my $button_text_extra3 = shift;
+	my $button_widget_extra1 = shift;
+	my $button_widget_extra2 = shift;
+	my $button_widget_extra3 = shift;
+	
+	my $error_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef );
+
+	$error_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-dialog-error', 'dialog' ) );
+
+	$error_dialog->set( 'text' => $dlg_error_header );
+
+	$error_dialog->set( 'secondary-text' => $dlg_error_message );
+
+	$error_dialog->add_button( 'gtk-ok', 0 );
+	$error_dialog->add_button( $button_text_extra1, 10 ) if $button_text_extra1;
+	$error_dialog->add_button( $button_text_extra2, 20 ) if $button_text_extra2;
+	$error_dialog->add_button( $button_text_extra3, 30 ) if $button_text_extra3;
+
+	$error_dialog->add_action_widget( $button_widget_extra1, 40 ) if $button_widget_extra1;
+	$error_dialog->add_action_widget( $button_widget_extra2, 50 ) if $button_widget_extra2;
+	$error_dialog->add_action_widget( $button_widget_extra3, 60 ) if $button_widget_extra3;
+
+	$error_dialog->show_all;
+
+	my $error_response = $error_dialog->run;
+
+	$error_dialog->destroy();
+	return $error_response;
 }
 
 1;

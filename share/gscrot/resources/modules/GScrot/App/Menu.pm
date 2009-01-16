@@ -86,7 +86,7 @@ sub create_menu {
 
 	$self->{_menu_file}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_pagesetup} = Gtk2::MenuItem->new_with_mnemonic( $d->get("Page Set_up") );
+	$self->{_menuitem_pagesetup} = Gtk2::ImageMenuItem->new_from_stock('gtk-page-setup');
 	$self->{_menu_file}->append( $self->{_menuitem_pagesetup} );
 
 	$self->{_menuitem_print} = Gtk2::ImageMenuItem->new_from_stock('gtk-print');
@@ -147,35 +147,35 @@ sub create_menu {
 	#actions
 	$self->{_menu_actions} = Gtk2::Menu->new();
 
-	$self->{_menuitem_reopen} = Gtk2::ImageMenuItem->new( $d->get("Open with") );
-	$self->{_menuitem_reopen}->set_image( Gtk2::Image->new_from_stock( 'gtk-open', 'menu' ) );
+	$self->{_menuitem_reopen} = Gtk2::ImageMenuItem->new_from_stock( 'gtk-open' );
 	$self->{_menuitem_reopen}->set_sensitive(FALSE);
 	$self->{_menu_actions}->append( $self->{_menuitem_reopen} );
 
-	$self->{_menuitem_rename} = Gtk2::ImageMenuItem->new( $d->get("Rename") );
+	$self->{_menuitem_rename} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("_Rename") );
 	$self->{_menuitem_rename}->set_image( Gtk2::Image->new_from_stock( 'gtk-edit', 'menu' ) );
 	$self->{_menuitem_rename}->set_sensitive(FALSE);
 	$self->{_menu_actions}->append( $self->{_menuitem_rename} );
 
 	$self->{_menu_actions}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_upload} = Gtk2::ImageMenuItem->new( $d->get("Upload") );
+	$self->{_menuitem_upload} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("_Upload") );
 	$self->{_menuitem_upload}->set_image( Gtk2::Image->new_from_stock( 'gtk-go-up', 'menu' ) );
 	$self->{_menuitem_upload}->set_sensitive(FALSE);
 	$self->{_menu_actions}->append( $self->{_menuitem_upload} );
 
 	$self->{_menu_actions}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_draw} = Gtk2::ImageMenuItem->new( $d->get("Edit") );
+	$self->{_menuitem_draw} = Gtk2::ImageMenuItem->new_from_stock( 'gtk-edit' );
 	$self->{_menuitem_draw}->set_image(
 		Gtk2::Image->new_from_pixbuf(
 			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$gscrot_root/share/gscrot/resources/icons/draw.svg", Gtk2::IconSize->lookup('menu') )
 		)
 	);
+	
 	$self->{_menuitem_draw}->set_sensitive(FALSE);
 	$self->{_menu_actions}->append( $self->{_menuitem_draw} );
 
-	$self->{_menuitem_plugin} = Gtk2::ImageMenuItem->new( $d->get("Execute a plugin") );
+	$self->{_menuitem_plugin} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("Execute a _plugin") );
 	$self->{_menuitem_plugin}->set_image( Gtk2::Image->new_from_stock( 'gtk-execute', 'menu' ) );
 	$self->{_menuitem_plugin}->set_sensitive(FALSE);
 	$self->{_menu_actions}->append( $self->{_menuitem_plugin} );
