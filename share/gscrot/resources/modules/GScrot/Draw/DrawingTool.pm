@@ -958,6 +958,15 @@ sub get_child_item {
 	return $child;
 }
 
+sub abort_current_mode {
+	my $self = shift;
+
+	$self->set_drawing_action(0);
+	$self->change_drawing_tool_cb(10);
+
+	return TRUE;
+}	
+
 sub clear_item_from_canvas {
 	my $self = shift;
 	my $item = shift;
@@ -2231,7 +2240,9 @@ sub setup_uimanager {
 				}
 				}
 		],
-		[ "Delete", 'gtk-delete', undef, "Delete", undef, sub { $self->clear_item_from_canvas( $self->{_current_item} ); } ]
+		[ "Delete", 'gtk-delete', undef, "Delete", undef, sub { $self->clear_item_from_canvas( $self->{_current_item} ); } ],
+		[ "Stop", 'gtk-stop', undef, "Escape", undef, sub { $self->abort_current_mode } ]
+
 	);
 
 	my @menu_toggle_actions = (
@@ -2301,6 +2312,8 @@ sub setup_uimanager {
       <menuitem action = 'Cut'/>
       <menuitem action = 'Paste'/>
       <menuitem action = 'Delete'/>
+      <separator/>
+      <menuitem action = 'Stop'/>
       <separator/>
       <menuitem action = 'Autoscroll'/>
     </menu>
