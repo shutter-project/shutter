@@ -299,7 +299,7 @@ sub setup_bottom_hbox {
 	$image_btn->signal_connect( 'show-menu' => sub { my ($widget) = @_; $self->ret_objects_menu($widget) } );
 	$image_btn->signal_connect(
 		'clicked' => sub {
-			$self->set_drawing_action(6);
+			$self->{_canvas}->window->set_cursor($self->change_cursor_to_current_pixbuf());
 		}
 	);
 
@@ -354,10 +354,6 @@ sub change_drawing_tool_cb {
 
 	} elsif ( $self->{_current_mode} == 50 ) {
 
-		$cursor = $self->change_cursor_to_current_pixbuf();
-
-	} elsif ( $self->{_current_mode} == 60 ) {
-
 		$self->{_current_mode_descr} = "text";
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
 			Gtk2::Gdk::Display->get_default,
@@ -365,7 +361,7 @@ sub change_drawing_tool_cb {
 			Gtk2::IconSize->lookup('menu')
 		);
 
-	} elsif ( $self->{_current_mode} == 70 ) {
+	} elsif ( $self->{_current_mode} == 60 ) {
 
 		$self->{_current_mode_descr} = "clear";
 
@@ -2026,6 +2022,7 @@ sub event_item_on_button_release {
 	$item->{resizing} = FALSE;
 
 	$self->set_drawing_action(0);
+	$self->change_drawing_tool_cb(10);
 
 	return TRUE;
 }
@@ -2214,7 +2211,6 @@ sub setup_uimanager {
 	$self->{_factory}->add( 'gscrot-freehand',  Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-freehand.png") ) );
 	$self->{_factory}->add( 'gscrot-pointer',   Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-pointer.png") ) );
 	$self->{_factory}->add( 'gscrot-rectangle', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-rectangle.png") ) );
-	$self->{_factory}->add( 'gscrot-star',      Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-star.png") ) );
 	$self->{_factory}->add( 'gscrot-text',      Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-text.png") ) );
 	$self->{_factory}->add_default();
 
@@ -2256,9 +2252,8 @@ sub setup_uimanager {
 		[ "Line",    'gscrot-freehand',  undef, undef, $d->get("Draw a line using the freehand tool"), 20 ],
 		[ "Rect",    'gscrot-rectangle', undef, undef, $d->get("Draw a rectangle"),                    30 ],
 		[ "Ellipse", 'gscrot-ellipse',   undef, undef, $d->get("Draw a ellipse"),                      40 ],
-		[ "Image",   'gscrot-star',      undef, undef, $d->get("Insert an arbitrary object or file"),  50 ],
-		[ "Text",    'gscrot-text',      undef, undef, $d->get("Add some text to the screenshot"),     60 ],
-		[ "Clear",   'gscrot-eraser',    undef, undef, $d->get("Delete objects"),                      70 ]
+		[ "Text",    'gscrot-text',      undef, undef, $d->get("Add some text to the screenshot"),     50 ],
+		[ "Clear",   'gscrot-eraser',    undef, undef, $d->get("Delete objects"),                      60 ]
 	);
 
 	my $uimanager = Gtk2::UIManager->new();
@@ -2330,7 +2325,6 @@ sub setup_uimanager {
     <toolitem action='Rect'/>
     <toolitem action='Ellipse'/>
     <toolitem action='Text'/>
-    <toolitem action='Image'/>
     <separator/>
     <toolitem action='Clear'/>
   </toolbar>  
@@ -2385,7 +2379,6 @@ sub ret_objects_menu {
 					$button->set_icon_widget($small_image_button);
 					$button->show_all;
 					$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
-					$self->set_drawing_action(6);
 				}
 			);
 
@@ -2454,7 +2447,6 @@ sub ret_objects_menu {
 				$self->{_current_pixbuf_filename} = $new_file;
 				$button->set_icon_widget($small_image_button);
 				$button->show_all;
-				$self->set_drawing_action(6);
 
 				$fs->destroy();
 			} else {
@@ -2499,7 +2491,6 @@ sub import_from_session {
 				$self->{_current_pixbuf_filename} = $import_hash{$key}->{'long'};
 				$button->set_icon_widget($small_image_button);
 				$button->show_all;
-				$self->set_drawing_action(6);
 			}
 		);
 
