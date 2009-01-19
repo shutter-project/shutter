@@ -228,7 +228,7 @@ sub window_select {
 							
 						}
 
-						&fct_ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
+						$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
 
 						$output = 5;
 					}

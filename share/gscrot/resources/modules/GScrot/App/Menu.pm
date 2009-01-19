@@ -159,7 +159,7 @@ sub create_menu {
 	$self->{_menu_actions}->append( Gtk2::SeparatorMenuItem->new );
 
 	$self->{_menuitem_upload} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("_Upload") );
-	$self->{_menuitem_upload}->set_image( Gtk2::Image->new_from_stock( 'gtk-go-up', 'menu' ) );
+	$self->{_menuitem_upload}->set_image( Gtk2::Image->new_from_stock( 'gtk-network', 'menu' ) );
 	$self->{_menuitem_upload}->set_sensitive(FALSE);
 	$self->{_menu_actions}->append( $self->{_menuitem_upload} );
 
@@ -268,7 +268,7 @@ sub _fct_ret_new_menu {
 	my $gscrot_root = shift;
 
 	$self->{_menu_new}           = Gtk2::Menu->new;
-	$self->{_menuitem_selection} = Gtk2::ImageMenuItem->new( $d->get("Selection") );
+	$self->{_menuitem_selection} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("_Selection") );
 	$self->{_menuitem_selection}->set_image(
 		Gtk2::Image->new_from_pixbuf(
 			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$gscrot_root/share/gscrot/resources/icons/selection.svg", Gtk2::IconSize->lookup('menu') )
@@ -278,7 +278,7 @@ sub _fct_ret_new_menu {
 
 	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_full} = Gtk2::ImageMenuItem->new( $d->get("Full Screen") );
+	$self->{_menuitem_full} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("_Full Screen") );
 	$self->{_menuitem_full}->set_image(
 		Gtk2::Image->new_from_pixbuf(
 			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$gscrot_root/share/gscrot/resources/icons/fullscreen.svg", Gtk2::IconSize->lookup('menu') )
@@ -288,7 +288,7 @@ sub _fct_ret_new_menu {
 
 	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_window} = Gtk2::ImageMenuItem->new( $d->get("Window") );
+	$self->{_menuitem_window} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("W_indow") );
 	$self->{_menuitem_window}->set_image(
 		Gtk2::Image->new_from_pixbuf(
 			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$gscrot_root/share/gscrot/resources/icons/sel_window.svg", Gtk2::IconSize->lookup('menu') )
@@ -296,7 +296,7 @@ sub _fct_ret_new_menu {
 	);
 	$self->{_menu_new}->append( $self->{_menuitem_window} );
 
-	$self->{_menuitem_section} = Gtk2::ImageMenuItem->new( $d->get("Section") );
+	$self->{_menuitem_section} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("Se_ction") );
 	$self->{_menuitem_section}->set_image(
 		Gtk2::Image->new_from_pixbuf(
 			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
@@ -309,7 +309,7 @@ sub _fct_ret_new_menu {
 
 	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_web} = Gtk2::ImageMenuItem->new( $d->get("Web") );
+	$self->{_menuitem_web} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("_Web") );
 
 	#gnome web photo is optional, don't enable it when gnome-web-photo is not in PATH
 	if ( system("which gnome-web-photo") == 0 ) {

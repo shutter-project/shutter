@@ -122,7 +122,6 @@ require GScrot::Upload::FTP;
 
 #--------------------------------------
 
-
 #main window
 #--------------------------------------
 my $window = Gtk2::Window->new('toplevel');
@@ -161,7 +160,6 @@ my $goocanvas       = TRUE;
 
 #--------------------------------------
 
-
 #data structures
 #--------------------------------------
 my %gm_programs;    #hash to store program infos
@@ -172,6 +170,7 @@ my %settings;       #hash to store settings
 &fct_init_framework_versions;
 &fct_check_installed_programs;
 &fct_load_accounts;
+
 #--------------------------------------
 
 #signal-handler
@@ -674,9 +673,7 @@ $filetype_box->pack_start( $combobox_type,  TRUE,  TRUE, 0 );
 #end - filetype and scale
 #saveDir
 my $saveDir_label = Gtk2::Label->new( $gscrot_common->get_gettext->get("Directory") . ":" );
-my $saveDir_button
-	= Gtk2::FileChooserButton->new( "GScrot - " . $gscrot_common->get_gettext->get("Choose folder"), 'select-folder');
-$saveDir_button->set( 'local-only' => FALSE );
+my $saveDir_button = Gtk2::FileChooserButton->new( "GScrot - " . $gscrot_common->get_gettext->get("Choose folder"), 'select-folder' );
 if ( defined $settings_xml->{'general'}->{'folder'} ) {
 	$saveDir_button->set_filename( $settings_xml->{'general'}->{'folder'} );
 } else {
@@ -1405,10 +1402,9 @@ sub evt_take_screenshot {
 	}
 
 	#determine folder to save
-	$folder = $saveDir_button->get_uri || $folder_from_config;
-	$folder = Gnome2::VFS::URI->new($folder);
-	print $folder->to_string ."\n";
-	#~ utf8::decode $folder;
+	$folder = $saveDir_button->get_filename || $folder_from_config;
+	utf8::decode $folder;
+
 	if ( $delay_active->get_active ) {
 		$delay_value = $delay->get_value;
 	} else {
@@ -1421,7 +1417,9 @@ sub evt_take_screenshot {
 	$filename_value = strftime $filename_value , localtime;
 
 	my $uri = &fct_get_next_filename( $filename_value, $folder, $filetype_value );
-	print $uri->to_string."\n";
+
+	#save current position of main window
+	my ( $old_x, $old_y ) = $window->get_position;
 
 	#hide mainwindow
 	if (   $hide_active->get_active
@@ -1431,6 +1429,7 @@ sub evt_take_screenshot {
 	{
 		$window->iconify;
 		$window->hide;
+		usleep 100000;
 		Gtk2::Gdk->flush;
 		$is_in_tray = TRUE;
 	}
@@ -1501,7 +1500,7 @@ sub evt_take_screenshot {
 			eval { $screenshot->isa('Image::Magick'); };
 			if ($@) {
 				$gscrot_dialog->dlg_error_message( $gscrot_common->get_gettext->get("Unable to capture website"), $d->get("Failed") );
-				&dlg_status_message( 1, $gscrot_common->get_gettext->get("Unable to capture website"), $d->get("Failed"));
+				&dlg_status_message( 1, $gscrot_common->get_gettext->get("Unable to capture website"), $d->get("Failed") );
 				&fct_set_toolbar_sensitive( TRUE, $data );
 				return FALSE;
 			}
@@ -1556,7 +1555,8 @@ sub evt_take_screenshot {
 	#...successfully???
 	unless ($screenshot) {
 		$gscrot_dialog->dlg_error_message(
-			$gscrot_common->get_gettext->get("Screenshot failed!\nMaybe mouse pointer could not be grabbed or the selected area is invalid."), $d->get("Failed") );
+			$gscrot_common->get_gettext->get("Screenshot failed!\nMaybe mouse pointer could not be grabbed or the selected area is invalid."),
+			$d->get("Failed") );
 		print "Screenshot failed!" if $gscrot_common->get_debug;
 		&dlg_status_message( 1, $gscrot_common->get_gettext->get("Screenshot failed!") );
 		&fct_set_toolbar_sensitive( TRUE, $data );
@@ -1577,18 +1577,18 @@ sub evt_take_screenshot {
 			#focus window after taking a screenshot
 			$window->show_all;
 			$window->present;
+
+			#move window to saved position
+			$window->move( $old_x, $old_y );
+
 			$is_in_tray = FALSE;
 
 			return FALSE;
 		}
 
-		#and save the filename
-		#~ my $fh = File::Temp->new();
-		#~ $screenshot_name = $fh->filename();
-  		(undef, $screenshot_name) = tempfile();
-
-		
-		print "Tempfile $screenshot_name created\n";
+		#we have to use the path (e.g. /home/username/file1.png)
+		#so we can save teh screenshot_properly
+		$screenshot_name = $uri->get_path();
 
 		#parse wild cards
 		my $swidth  = $screenshot->get_width;
@@ -1607,9 +1607,9 @@ sub evt_take_screenshot {
 		} else {
 			$screenshot->save( $screenshot_name, $filetype_value );
 		}
-				
+
 	}    #end screenshot successfull
-	if ( $gscrot_hfunct->file_exists($screenshot_name) ) {
+	if ( $uri->exists ) {
 
 		#quantize
 		if ( $im_colors_active->get_active ) {
@@ -1629,7 +1629,8 @@ sub evt_take_screenshot {
 			$screenshot_thumbnail = Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $screenshot_name, $twidth, $theight, TRUE );
 
 			#save path of thumbnail
-			$screenshot_thumbnail_name = "$folder/$filename_value-$thumbnail_ending.$filetype_value";
+			my $name = fileparse( $uri->get_path, '\..*' );
+			$screenshot_thumbnail_name = $uri->get_dirname . "/$name-$thumbnail_ending.$filetype_value";
 
 			#parse wild cards
 			$screenshot_thumbnail_name =~ s/\$w/$twidth/g;
@@ -1654,17 +1655,17 @@ sub evt_take_screenshot {
 			}
 		}
 
-		my $screenshot_source_uri = Gnome2::VFS::URI->new(Gnome2::VFS->make_uri_from_input ($screenshot_name));
+		#		my $screenshot_source_uri = Gnome2::VFS::URI->new(Gnome2::VFS->make_uri_from_input ($screenshot_name));
 
-		print "Transfer: ".$screenshot_source_uri->to_string()." to ".$uri->to_string."\n";
-		my $result = Gnome2::VFS::Xfer->uri ($screenshot_source_uri, $uri, 'default', 'abort', 'replace', sub{ return TRUE;});
-		print "Transfer result: ".$result."\n";		
+		#		print "Transfer: ".$screenshot_source_uri->to_string()." to ".$uri->to_string."\n";
+		#		my $result = Gnome2::VFS::Xfer->uri ($screenshot_source_uri, $uri, 'default', 'abort', 'replace', sub{ return TRUE;});
+		#		print "Transfer result: ".$result."\n";
 
 		#integrate it into the notebook
-		my $new_key_screenshot = &fct_integrate_screenshot_in_notebook( $screenshot_name, $uri, $screenshot );
+		my $new_key_screenshot = &fct_integrate_screenshot_in_notebook( $uri, $screenshot );
 
 		#thumbnail as well if present
-		my $new_key_screenshot_thumbnail = &fct_integrate_screenshot_in_notebook( $screenshot_thumbnail_name, $screenshot )
+		my $new_key_screenshot_thumbnail = &fct_integrate_screenshot_in_notebook( Gnome2::VFS::URI->new($screenshot_thumbnail_name), $screenshot )
 			if $thumbnail_active->get_active;
 
 		#autocopy to clipboard if configured
@@ -1686,7 +1687,8 @@ sub evt_take_screenshot {
 		&dlg_status_message( 1, "$session_screens{$new_key_screenshot}->{'short'} " . $gscrot_common->get_gettext->get("saved") );
 	} else {
 		$gscrot_dialog->dlg_error_message(
-			$gscrot_common->get_gettext->get("Screenshot failed!\nMaybe mouse pointer could not be grabbed or the selected area is invalid."), $d->get("Failed") );
+			$gscrot_common->get_gettext->get("Screenshot failed!\nMaybe mouse pointer could not be grabbed or the selected area is invalid."),
+			$d->get("Failed") );
 		print "Screenshot failed!" if $gscrot_common->get_debug;
 		&dlg_status_message( 1, $gscrot_common->get_gettext->get("Screenshot failed!") );
 	}
@@ -1696,6 +1698,10 @@ sub evt_take_screenshot {
 	#focus window after taking a screenshot
 	$window->deiconify;
 	$window->show_all;
+
+	#move window to saved position
+	$window->move( $old_x, $old_y );
+
 	$window->present;
 	$is_in_tray = FALSE;
 
@@ -2061,7 +2067,7 @@ sub evt_open {
 	if ($key) {
 		$fs->set_filename( $session_screens{$key}->{'folder'} );
 	} elsif ( $ENV{'HOME'} ) {
-		$fs->set_filename( $saveDir_button->get_uri() );
+		$fs->set_filename( $saveDir_button->get_filename() );
 	}
 	my $fs_resp = $fs->run;
 
@@ -2175,8 +2181,7 @@ sub evt_save_as {
 
 			if ( $gscrot_dialog->dlg_question_message( $filename . "\n\n" . $d->get("File already exists.\nDo you want to overwrite it?") ) ) {
 				&fct_imagemagick_perform( "save", $session_screens{$key}->{'long'}, $filename );
-				$session_screens{$key}->{'filename'} = $filename;
-				&fct_create_thumbnail_and_fileinfos( $filename, $key );
+				&fct_create_thumbnail_and_fileinfos( $key, undef, Gnome2::VFS::URI->new( $session_screens{$key}->{'long'} ) );
 
 				&dlg_status_message( 1, "$session_screens{ $key }->{ 'short' } " . $d->get("saved") );
 
@@ -2187,8 +2192,7 @@ sub evt_save_as {
 			return FALSE;
 		}
 
-		$session_screens{$key}->{'filename'} = $filename;
-		&fct_update_tab($key);
+		&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($filename) );
 
 		#setup a new filemonitor, so we get noticed if the file changed
 		&fct_add_file_monitor($key);
@@ -2277,12 +2281,12 @@ sub evt_apply_profile {
 
 sub fct_create_session_notebook {
 
-	$notebook->set( homogeneous    => TRUE );
-	$notebook->set( 'scrollable'   => TRUE );
+	$notebook->set( homogeneous  => TRUE );
+	$notebook->set( 'scrollable' => TRUE );
 
 	$notebook->set_size_request( 430, 320 );
 	my $hbox_first_label = Gtk2::HBox->new( FALSE, 0 );
-	my $thumb_first_icon = Gtk2::Image->new_from_stock('gtk-index', 'menu');
+	my $thumb_first_icon = Gtk2::Image->new_from_stock( 'gtk-index', 'menu' );
 	my $tab_first_label = Gtk2::Label->new();
 	$tab_first_label->set_markup( "<b>" . $d->get("Session") . "</b>" );
 	$hbox_first_label->pack_start( $thumb_first_icon, FALSE, TRUE, 1 );
@@ -2298,50 +2302,52 @@ sub fct_create_session_notebook {
 }
 
 sub fct_integrate_screenshot_in_notebook {
-	my $filename = shift;
-	my $uri		 = shift;
-	my $pixbuf   = shift;
+	my $uri    = shift;
+	my $pixbuf = shift;
 
 	#append a page to notebook using with label == filename
 	my ( $second, $minute, $hour ) = localtime();
 	my $theTime = "$hour:$minute:$second";
 	my $key     = "[" . &fct_get_latest_tab_key . "] - $theTime";
 
-	#create thumbnail for gui
-	if ( &fct_create_thumbnail_and_fileinfos( $filename, $uri, $key, $pixbuf ) ) {
+	#setup tab label (thumb, preview etc.)
+	my $hbox_tab_label = Gtk2::HBox->new( FALSE, 0 );
+	my $close_icon = Gtk2::Image->new_from_icon_name( 'gtk-close', 'menu' );
+
+	$session_screens{$key}->{'tab_icon'} = Gtk2::Image->new_from_pixbuf( $session_screens{$key}->{'thumb'} );
+
+	#setup tab label
+	my $tab_close_button = Gtk2::Button->new;
+	$tab_close_button->set_relief('none');
+	$tab_close_button->set_image($close_icon);
+	my $tab_label = Gtk2::Label->new($key);
+	$hbox_tab_label->pack_start( $session_screens{$key}->{'tab_icon'}, FALSE, TRUE, 1 );
+	$hbox_tab_label->pack_start( $tab_label,                           TRUE,  TRUE, 1 );
+	$hbox_tab_label->pack_start( $tab_close_button,                    FALSE, TRUE, 1 );
+	$hbox_tab_label->show_all;
+
+	#and append page with label == key
+	my $new_index = $notebook->append_page( &fct_create_tab( $key, FALSE ), $hbox_tab_label );
+	$session_screens{$key}->{'tab_label'} = $hbox_tab_label;
+	$session_screens{$key}->{'tab_child'} = $notebook->get_nth_page($new_index);
+	$tab_close_button->signal_connect( clicked => sub { &fct_remove($key); } );
+
+	$notebook->set_current_page($new_index);
+
+	if ( &fct_update_tab( $key, $pixbuf, $uri ) ) {
 
 		#build hash of screenshots during session
-		$session_screens{$key}->{'filename'} = $filename;
+		#$session_screens{$key}->{'long'} = $uri->get_path;
 
-		#setup tab label (thumb, preview etc.)
-		my $hbox_tab_label = Gtk2::HBox->new( FALSE, 0 );
-		my $close_icon = Gtk2::Image->new_from_icon_name( 'gtk-close', 'menu' );
-
-		$session_screens{$key}->{'tab_icon'} = Gtk2::Image->new_from_pixbuf( $session_screens{$key}->{'thumb'} );
-
-		#setup tab label
-		my $tab_close_button = Gtk2::Button->new;
-		$tab_close_button->set_relief('none');
-		$tab_close_button->set_image($close_icon);
-		my $tab_label = Gtk2::Label->new($key);
-		$hbox_tab_label->pack_start( $session_screens{$key}->{'tab_icon'}, FALSE, TRUE, 1 );
-		$hbox_tab_label->pack_start( $tab_label,                           TRUE,  TRUE, 1 );
-		$hbox_tab_label->pack_start( $tab_close_button,                    FALSE, TRUE, 1 );
-		$hbox_tab_label->show_all;
-
-		#and append page with label == key
-		my $new_index = $notebook->append_page( &fct_create_tab( $key, FALSE ), $hbox_tab_label );
-		$session_screens{$key}->{'tab_label'} = $hbox_tab_label;
-		$session_screens{$key}->{'tab_child'} = $notebook->get_nth_page($new_index);
-		$tab_close_button->signal_connect( clicked => sub { &fct_remove($key); } );
-
-		$notebook->set_current_page($new_index);
-
-		&fct_update_tab($key);
+		#set image
+		$session_screens{$key}->{'image'}->set_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} ) );
+		$session_screens{$key}->{'image'}->{'current_width'}  = $session_screens{$key}->{'image'}->get_pixbuf->get_width;
+		$session_screens{$key}->{'image'}->{'current_height'} = $session_screens{$key}->{'image'}->get_pixbuf->get_height;
+		$session_screens{$key}->{'image'}->{'aspect_ratio'}
+			= $session_screens{$key}->{'image'}->{'current_width'} / $session_screens{$key}->{'image'}->{'current_height'};
 
 		#setup a filemonitor, so we get noticed if the file changed
 		&fct_add_file_monitor($key);
-
 	}
 
 	&fct_update_first_tab;
@@ -2356,15 +2362,9 @@ sub fct_add_file_monitor {
 	$session_screens{$key}->{'deleted'} = FALSE;
 	$session_screens{$key}->{'created'} = FALSE;
 
-	#determine file to watch
-	my $file_to_monitor = $session_screens{$key}->{'uri'};
-	if(!$session_screens{$key}->{'is_local'} && exists $session_screens{$key}->{'target_uri'}){
-		$file_to_monitor = $session_screens{$key}->{'target_uri'}->to_string;
-	}
-
 	my $result;
-	($result, $session_screens{$key}->{'handle'}) = Gnome2::VFS::Monitor->add(
-		$file_to_monitor,
+	( $result, $session_screens{$key}->{'handle'} ) = Gnome2::VFS::Monitor->add(
+		$session_screens{$key}->{'uri'}->to_string,
 		'file',
 		sub {
 			my $handle = shift;
@@ -2390,7 +2390,7 @@ sub fct_add_file_monitor {
 					$session_screens{$key}->{'changed'} = TRUE;
 					&fct_update_tab($key);
 					&fct_update_first_tab;
-					print $session_screens{$key}->{'target_uri'}->to_string . " - " . $event . "\n";
+					print $session_screens{$key}->{'uri'}->to_string . " - " . $event . "\n";
 				} else {
 					$session_screens{$key}->{'created'} = FALSE;
 				}
@@ -2406,7 +2406,7 @@ sub fct_add_file_monitor {
 	);
 
 	#TODO - hier nochmal ran...
-	print "Added File Monitor: ".Gnome2::VFS->result_to_string ($result)."\n";
+	print "Added File Monitor: " . Gnome2::VFS->result_to_string($result) . "\n";
 
 	return TRUE;
 }
@@ -2475,12 +2475,15 @@ sub fct_create_tab {
 		$geometry_label->set_markup( "<b>" . $d->get("Geometry") . "</b>" );
 		$session_screens{$key}->{'geometry_label'} = Gtk2::Label->new();
 
-		$session_screens{$key}->{'image'} = Gtk2::Image->new_from_pixbuf( $session_screens{$key}->{'orig'} );
+		#		$session_screens{$key}->{'image'} = Gtk2::Image->new_from_pixbuf( $session_screens{$key}->{'orig'} );
+		#
+		#		$session_screens{$key}->{'image'}->{'current_width'}  = $session_screens{$key}->{'image'}->get_pixbuf->get_width;
+		#		$session_screens{$key}->{'image'}->{'current_height'} = $session_screens{$key}->{'image'}->get_pixbuf->get_height;
+		#		$session_screens{$key}->{'image'}->{'aspect_ratio'}
+		#			= $session_screens{$key}->{'image'}->{'current_width'} / $session_screens{$key}->{'image'}->{'current_height'};
+		#		$session_screens{$key}->{'image_handler'} = $session_screens{$key}->{'image'}->signal_connect( 'expose-event', \&fct_resize_thumb, $key );
 
-		$session_screens{$key}->{'image'}->{'current_width'}  = $session_screens{$key}->{'image'}->get_pixbuf->get_width;
-		$session_screens{$key}->{'image'}->{'current_height'} = $session_screens{$key}->{'image'}->get_pixbuf->get_height;
-		$session_screens{$key}->{'image'}->{'aspect_ratio'}
-			= $session_screens{$key}->{'image'}->{'current_width'} / $session_screens{$key}->{'image'}->{'current_height'};
+		$session_screens{$key}->{'image'} = Gtk2::Image->new();
 		$session_screens{$key}->{'image_handler'} = $session_screens{$key}->{'image'}->signal_connect( 'expose-event', \&fct_resize_thumb, $key );
 
 		#packing
@@ -2633,7 +2636,7 @@ sub fct_save_settings {
 			if ( $profilename ne "" );
 	}
 
-  open my $fh_setting, '>', $settingsfile
+	open my $fh_setting, '>', $settingsfile
 		or $gscrot_dialog->dlg_error_message( $!, $d->get("Settings could not be saved!") );
 
 	$settings{'general'}->{'last_profile'}      = $combobox_settings_profiles->get_active;
@@ -2735,18 +2738,18 @@ sub fct_save_settings {
 	}
 
 	#settings
-	eval{
-		XMLout( \%settings, OutputFile => $fh_setting);
+	eval {
+		XMLout( \%settings, OutputFile => $fh_setting );
 		$fh_setting->close();
 		&dlg_status_message( 1, $d->get("Settings saved successfully!") );
 	};
-	if($@){
-		$gscrot_dialog->dlg_error_message( $@, $d->get("Settings could not be saved!"));		
-	}	
+	if ($@) {
+		$gscrot_dialog->dlg_error_message( $@, $d->get("Settings could not be saved!") );
+	}
 
 	#session
-  open my $fh_session, '>', $sessionfile
-		or $gscrot_dialog->dlg_error_message( $!, $d->get("Session could not be saved!"));
+	open my $fh_session, '>', $sessionfile
+		or $gscrot_dialog->dlg_error_message( $!, $d->get("Session could not be saved!") );
 
 	#we need to clean the hashkeys, so they become parseable
 	my %clean_files;
@@ -2763,22 +2766,20 @@ sub fct_save_settings {
 		$counter = sprintf( "%08d", $counter );
 		if ( $gscrot_hfunct->file_exists( $session_screens{$_}->{'long'} ) ) {
 			$clean_files{ "file" . $counter }{'filename'} = $utf8_filename;
-			$clean_files{ "file" . $counter }{'target_uri'} = $session_screens{$_}->{'target_uri'}->to_string;
 			$counter++;
 		}
 	}
-	
-	eval{
-		XMLout( \%clean_files, OutputFile => $fh_session);
-		$fh_session->close();	
-	};
-	if($@){
-		$gscrot_dialog->dlg_error_message( $@, $d->get("Session could not be saved!") );	
-	}	
 
+	eval {
+		XMLout( \%clean_files, OutputFile => $fh_session );
+		$fh_session->close();
+	};
+	if ($@) {
+		$gscrot_dialog->dlg_error_message( $@, $d->get("Session could not be saved!") );
+	}
 
 	#accounts
-  open my $fh_accounts, '>', $accountsfile
+	open my $fh_accounts, '>', $accountsfile
 		or $gscrot_dialog->dlg_error_message( $!, $d->get("Account-settings could not be saved!") );
 
 	foreach ( keys %accounts ) {
@@ -2789,12 +2790,12 @@ sub fct_save_settings {
 			if $accounts{$_}->{'host'} =~ /imageshack/i;
 	}
 
-	eval{
-		XMLout( \%accounts, OutputFile => $fh_accounts);
-		$fh_accounts->close()
+	eval {
+		XMLout( \%accounts, OutputFile => $fh_accounts );
+		$fh_accounts->close();
 	};
-	if($@){
-		$gscrot_dialog->dlg_error_message( $@, $d->get("Account-settings could not be saved!"));
+	if ($@) {
+		$gscrot_dialog->dlg_error_message( $@, $d->get("Account-settings could not be saved!") );
 	}
 
 	return TRUE;
@@ -2868,7 +2869,7 @@ sub fct_load_settings {
 	my $settings_xml;
 	if ( $gscrot_hfunct->file_exists($settingsfile) ) {
 		eval {
-			$settings_xml = XMLin(IO::File->new($settingsfile));
+			$settings_xml = XMLin( IO::File->new($settingsfile) );
 
 			if ( $data eq 'profile_load' ) {
 
@@ -3035,7 +3036,7 @@ sub fct_load_accounts {
 		if ( defined $profilename );
 
 	my $accounts_xml;
-	eval { $accounts_xml = XMLin(IO::File->new($accountsfile)) if $gscrot_hfunct->file_exists($accountsfile); };
+	eval { $accounts_xml = XMLin( IO::File->new($accountsfile) ) if $gscrot_hfunct->file_exists($accountsfile); };
 
 	if ($@) {
 		$gscrot_dialog->dlg_error_message( $@, $d->get("Account-settings could not be restored!") );
@@ -3151,7 +3152,7 @@ sub fct_load_session {
 	my $sessionfile = "$ENV{ HOME }/.gscrot/session.xml";
 
 	eval {
-		my $session_xml = XMLin(IO::File->new($sessionfile))
+		my $session_xml = XMLin( IO::File->new($sessionfile) )
 			if $gscrot_hfunct->file_exists($sessionfile);
 
 		return FALSE if scalar( keys %{$session_xml} ) < 1;
@@ -3186,7 +3187,7 @@ sub fct_load_session {
 			#refresh the progressbar
 			$count++;
 			$restore_progress->set_fraction( $count / $num_files );
-			$restore_progress->set_text( Gnome2::VFS->format_uri_for_display (${$session_xml}{$_}{'target_uri'}) );
+			$restore_progress->set_text( Gnome2::VFS->format_uri_for_display( ${$session_xml}{$_}{'filename'} ) );
 
 			#refresh tray icon
 			if ( $icon && $icon->isa('Gtk2::StatusIcon') ) {
@@ -3197,7 +3198,7 @@ sub fct_load_session {
 			&fct_update_gui;
 
 			#do the real work
-			&fct_integrate_screenshot_in_notebook( ${$session_xml}{$_}{'filename'}, Gnome2::VFS::URI->new(${$session_xml}{$_}{'target_uri'}), undef );
+			&fct_integrate_screenshot_in_notebook( Gnome2::VFS::URI->new( ${$session_xml}{$_}{'filename'} ), undef );
 		}
 		$restore_dialog->response('ok');
 
@@ -3227,7 +3228,7 @@ sub fct_screenshot_exists {
 
 	#check if file still exists
 	unless ( $session_screens{$key}->{'uri'}->exists ) {
-		&dlg_status_message( 1, $session_screens{$key}->{'filename'} . " " . $d->get("not found") );
+		&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("not found") );
 
 		return FALSE;
 	}
@@ -3256,10 +3257,10 @@ sub fct_delete {
 		}
 
 		$notebook->remove_page( $notebook->get_current_page );    #delete tab
-		&dlg_status_message( 1, $session_screens{$key}->{'filename'} . " " . $d->get("deleted") )
-			if defined( $session_screens{$key}->{'filename'} );
+		&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("deleted") )
+			if defined( $session_screens{$key}->{'long'} );
 
-		delete $session_screens{$key};                            # delete from hash
+		delete $session_screens{$key};                             # delete from hash
 
 		$window->show_all unless $is_in_tray;
 
@@ -3342,8 +3343,8 @@ sub fct_remove {
 		}
 
 		$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
-		&dlg_status_message( 1, $session_screens{$key}->{'filename'} . " " . $d->get("removed from session") )
-			if defined( $session_screens{$key}->{'filename'} );
+		&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
+			if defined( $session_screens{$key}->{'long'} );
 		delete( $session_screens{$key} );                                                          # delete from hash
 
 		$window->show_all unless $is_in_tray;
@@ -3453,7 +3454,7 @@ sub fct_rename {
 
 		print "Renaming of file " . $session_screens{$key}->{'long'} . " started\n"
 			if $gscrot_common->get_debug;
-		&dlg_status_message( 1, $session_screens{$key}->{'filename'} . " " . $d->get("renamed") )
+		&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("renamed") )
 			if &dlg_rename($key);
 
 	} else {
@@ -3463,7 +3464,7 @@ sub fct_rename {
 				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
 				if ( defined $iter ) {
 					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
-					&dlg_status_message( 1, $session_screens{$key}->{'filename'} . " " . $d->get("renamed") )
+					&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("renamed") )
 						if &dlg_rename($key);
 				}
 			},
@@ -3515,7 +3516,7 @@ sub fct_upload {
 	if ($key) {
 
 		return FALSE unless &fct_screenshot_exists($key);
-		push( @upload_array, $session_screens{$key}->{'filename'} );
+		push( @upload_array, $session_screens{$key}->{'long'} );
 		&dlg_upload(@upload_array);
 
 		#session tab
@@ -3528,7 +3529,7 @@ sub fct_upload {
 				if ( defined $iter ) {
 					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
 					return FALSE unless &fct_screenshot_exists($key);
-					push( @upload_array, $session_screens{$key}->{'filename'} );
+					push( @upload_array, $session_screens{$key}->{'long'} );
 				}
 
 			},
@@ -3641,7 +3642,7 @@ sub fct_open_with_program {
 			$exec_call = $dentry->parse_Exec( $session_screens{$key}->{'long'} );
 		}
 
-		&dlg_status_message( 1, $session_screens{$key}->{'filename'} . " " . $d->get("opened with") . " " . $dentry->Name );
+		&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("opened with") . " " . $dentry->Name );
 
 		#session tab
 	} else {
@@ -3715,7 +3716,7 @@ sub fct_execute_plugin {
 		printf( "\n", $socket->get_id );
 		my $pid = fork;
 		if ( $pid < 0 ) {
-			$gscrot_dialog->dlg_error_message( $d->get("Could not execute plugin") . ": " . $plugin_name , $d->get("Failed"));
+			$gscrot_dialog->dlg_error_message( $d->get("Could not execute plugin") . ": " . $plugin_name, $d->get("Failed") );
 		}
 		if ( $pid == 0 ) {
 			exec(
@@ -3741,7 +3742,7 @@ sub fct_execute_plugin {
 		{
 			&dlg_status_message( 1, $d->get("Successfully executed plugin") . ": " . $plugin_name );
 		} else {
-			$gscrot_dialog->dlg_error_message( $d->get("Could not execute plugin") . ": " . $plugin_name, $d->get("Failed"));
+			$gscrot_dialog->dlg_error_message( $d->get("Could not execute plugin") . ": " . $plugin_name, $d->get("Failed") );
 		}
 	}
 
@@ -3842,21 +3843,28 @@ sub fct_get_current_file {
 }
 
 sub fct_update_tab {
+
+	#mandatory
 	my $key = shift;
+	return FALSE unless $key;
+
+	#optional, e.g.used by fct_integrate...
+	my $pixbuf = shift;
+	my $uri    = shift;
 
 	#update fileinfos
-	if ( &fct_create_thumbnail_and_fileinfos( $session_screens{$key}->{'filename'}, $session_screens{$key}->{'target_uri'}, $key ) ) {
+	if ( &fct_create_thumbnail_and_fileinfos( $key, $pixbuf, $uri ) ) {
 
 		eval {
 
 			#update tab icon - maybe pic changed due to use of plugin or drawing tool
 			$session_screens{$key}->{'tab_icon'}->set_from_pixbuf( $session_screens{$key}->{'thumb'} );
 
-			$session_screens{$key}->{'filename_label'}->set_text( $session_screens{$key}->{'target_uri'}->to_string );
-			$tooltips->set_tip( $session_screens{$key}->{'filename_label'},  $session_screens{$key}->{'target_uri'}->to_string  );
+			$session_screens{$key}->{'filename_label'}->set_text( $session_screens{$key}->{'uri'}->extract_short_name );
+			$tooltips->set_tip( $session_screens{$key}->{'filename_label'}, $session_screens{$key}->{'uri'}->to_string );
 
-			$session_screens{$key}->{'folder_label'}->set_text( $session_screens{$key}->{'target_uri'}->extract_dirname );
-			$tooltips->set_tip( $session_screens{$key}->{'folder_label'}, $session_screens{$key}->{'target_uri'}->to_string );
+			$session_screens{$key}->{'folder_label'}->set_text( $session_screens{$key}->{'uri'}->extract_dirname );
+			$tooltips->set_tip( $session_screens{$key}->{'folder_label'}, $session_screens{$key}->{'uri'}->extract_dirname );
 
 			$session_screens{$key}->{'mime_type_label'}->set_text( $session_screens{$key}->{'mime_type'} );
 
@@ -3873,12 +3881,15 @@ sub fct_update_tab {
 		}
 
 		eval {
-			$session_screens{$key}->{'image'}->{'current_width'}  = $session_screens{$key}->{'image'}->get_pixbuf->get_width;
-			$session_screens{$key}->{'image'}->{'current_height'} = $session_screens{$key}->{'image'}->get_pixbuf->get_height;
-			$session_screens{$key}->{'image'}->{'aspect_ratio'}
-				= $session_screens{$key}->{'image'}->{'current_width'} / $session_screens{$key}->{'image'}->{'current_height'};
+			if ( $session_screens{$key}->{'image'}->get_pixbuf )
+			{
+				$session_screens{$key}->{'image'}->{'current_width'}  = $session_screens{$key}->{'image'}->get_pixbuf->get_width;
+				$session_screens{$key}->{'image'}->{'current_height'} = $session_screens{$key}->{'image'}->get_pixbuf->get_height;
+				$session_screens{$key}->{'image'}->{'aspect_ratio'}
+					= $session_screens{$key}->{'image'}->{'current_width'} / $session_screens{$key}->{'image'}->{'current_height'};
 
-			$session_screens{$key}->{'image'}->signal_emit( 'expose-event', Gtk2::Gdk::Event->new('expose') );
+				$session_screens{$key}->{'image'}->signal_emit( 'expose-event', Gtk2::Gdk::Event->new('expose') );
+			}
 		};
 		if ($@) {
 
@@ -3908,10 +3919,12 @@ sub fct_update_tab {
 		if ($@) {
 
 			#we handle no case here ;-)
-			$gscrot_dialog->dlg_error_message( $@, $d->get("Failed"));
+			$gscrot_dialog->dlg_error_message( $@, $d->get("Failed") );
 
 			return FALSE;
 		}
+
+		return FALSE;
 
 	}
 
@@ -4016,17 +4029,16 @@ sub fct_get_next_filename {
 		#get_all files from directory
 		#we handle the listing with GnomeVFS to read remote dirs as well
 		my @files;
-		my ($result, $uri_list) = Gnome2::VFS::Directory->open_from_uri( $folder, 'default' );
-		
+		my ( $result, $uri_list ) = Gnome2::VFS::Directory->open( $folder, 'default' );
+
 		#TODO - hier nochmal ran...
-		die Gnome2::VFS->result_to_string ($result) unless $result eq 'ok';
-		
+		die Gnome2::VFS->result_to_string($result) unless $result eq 'ok';
+
 		while ( my ( $result, $file ) = $uri_list->read_next ) {
 			if ( $result eq 'ok' ) {
 				my $fileinfo = Gnome2::VFS::FileInfo->new($file);
 				push @files, $fileinfo->{'name'} if $fileinfo->{'name'} =~ /$filename_value/;
-				#~ print Dumper $fileinfo;
-			} elsif($result eq 'error-eof'){
+			} elsif ( $result eq 'error-eof' ) {
 				$uri_list->close();
 				last;
 			} else {
@@ -4035,11 +4047,11 @@ sub fct_get_next_filename {
 		}
 
 		@files = sort { $b cmp $a } @files;
-	
-		if($gscrot_common->get_debug){
+
+		if ( $gscrot_common->get_debug ) {
 			print "All files in directory for this pattern:\n";
-			foreach(@files){
-				print $_." \n";
+			foreach (@files) {
+				print $_. " \n";
 			}
 		}
 
@@ -4063,20 +4075,19 @@ sub fct_get_next_filename {
 	}
 
 	#create new uri
-	my $new_uri = $folder;
-	$new_uri = $new_uri->append_file_name("$filename_value.$filetype_value");
+	my $new_uri = Gnome2::VFS::URI->new("$folder/$filename_value.$filetype_value");
 
-	print "Checking new uri: ".$new_uri->to_string. "\n";
-	if($new_uri->exists){
+	print "Checking new uri: " . $new_uri->to_string . "\n";
+	if ( $new_uri->exists ) {
 		my $count             = 1;
 		my $existing_filename = $filename_value;
 		while ( $new_uri->exists ) {
 			$filename_value = $existing_filename . "(" . sprintf( "%03d", $count++ ) . ")";
-			$new_uri = $folder;
-			$new_uri = $new_uri->append_string("$filename_value.$filetype_value");
-			print "Checking new uri: ".$new_uri->to_string. "\n";
-		}	
-	}	
+			$new_uri        = $folder;
+			$new_uri        = $new_uri->append_string("$filename_value.$filetype_value");
+			print "Checking new uri: " . $new_uri->to_string . "\n";
+		}
+	}
 
 	return $new_uri;
 }
@@ -4180,30 +4191,25 @@ sub fct_plugin_get_info {
 }
 
 sub fct_create_thumbnail_and_fileinfos {
-	my $filename = shift;
-	my $uri		 = shift;
-	my $key      = shift;
-	my $pixbuf;
+
+	#mandatory
+	my $key = shift;
+	return FALSE unless $key;
+
+	#optional, e.g.used by fct_integrate...
+	my $pixbuf = shift;
+	my $uri    = shift;
+
+	print "Updating fileinfos for key: $key\n";
 
 	eval {
 
-		#get some file/uri related infos here
-		#     filename/uri:
-		#              file in temp directory
-		#       target_uri:
-		#              "real file" at target destination (local fs, smb, webdav, ftp etc.)
-		$session_screens{$key}->{'uri'}      = Gnome2::VFS::URI->new($filename);
-		
-		$session_screens{$key}->{'target_uri'} = $uri;
-		$session_screens{$key}->{'is_local'} = $session_screens{$key}->{'target_uri'}->is_local;
-		print "Registered as target uri: ".$uri->to_string."\n";
-		
+		$session_screens{$key}->{'uri'}      = $uri if $uri;
 		$session_screens{$key}->{'short'}    = $session_screens{$key}->{'uri'}->extract_short_name;
 		$session_screens{$key}->{'long'}     = $session_screens{$key}->{'uri'}->get_path;
 		$session_screens{$key}->{'folder'}   = $session_screens{$key}->{'uri'}->extract_dirname;
 		$session_screens{$key}->{'filetype'} = $session_screens{$key}->{'short'};
 		$session_screens{$key}->{'filetype'} =~ s/.*\.//ig;
-
 
 		#volume infos
 		my $volume_monitor = Gnome2::VFS->get_volume_monitor();
@@ -4214,7 +4220,7 @@ sub fct_create_thumbnail_and_fileinfos {
 		$session_screens{$key}->{'volume_volume_type'}     = $volume->get_volume_type;
 		$session_screens{$key}->{'volume_activation_uri'}  = $volume->get_activation_uri;
 		$session_screens{$key}->{'volume_display_name'}    = $volume->get_display_name;
-		$session_screens{$key}->{'volume_handled_trash'}    = $volume->handles_trash;
+		$session_screens{$key}->{'volume_handled_trash'}   = $volume->handles_trash;
 
 		#just the name
 		$session_screens{$key}->{'name'} = fileparse( $session_screens{$key}->{'long'}, '\..*' );
@@ -4248,8 +4254,11 @@ sub fct_create_thumbnail_and_fileinfos {
 		#we only handle one case here:
 		#file was deleted in filesystem and we got informed about that...
 		if ( $session_screens{$key}->{'deleted'} == TRUE ) {
-			$gscrot_dialog->dlg_error_message( sprintf($d->get("Image %s was not found"), "'".Gnome2::VFS->format_uri_for_display ($session_screens{$key}->{'target_uri'})."'" ),
-				$d->get("Maybe it was deleted by another person or process").".", 'gtk-discard', 'gtk-save-as' );
+			$gscrot_dialog->dlg_error_message(
+				$d->get("Maybe it was deleted by another person or process") . ".",
+				sprintf( $d->get("Image %s was not found"), "'" . $session_screens{$key}->{'uri'}->to_string . "'" ),
+				'gtk-discard', 'gtk-save-as'
+			);
 
 			#all other cases are unknown => show "real" error
 		} else {
@@ -4854,7 +4863,7 @@ sub fct_set_model_accounts {
 					$d->get(
 						"If you have registered with imageshack.us, you should have received an email with a link similar to\n\nhttp://reg.imageshack.us/setlogin.php?login=SOME_IDENTIFIER\n\nYou should pass either that link as the username or only the user_id (SOME_IDENTIFIER)\n\nYou do not have to provide a password."
 					),
-					"Imageshack info"					
+					"Imageshack info"
 				);
 			}
 		},
@@ -5129,8 +5138,6 @@ sub dlg_status_message {
 	return TRUE;
 }
 
-
-
 sub dlg_rename {
 	my ($key) = @_;
 
@@ -5182,8 +5189,7 @@ sub dlg_rename {
 				#ok => rename it
 				$session_screens{$key}->{'handle'}->cancel;
 				rename( $session_screens{$key}->{'long'}, $new_name );
-				$session_screens{$key}->{'filename'} = $new_name;
-				&fct_update_tab($key);
+				&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($new_name) );
 
 				#setup a new filemonitor, so we get noticed if the file changed
 				&fct_add_file_monitor($key);
@@ -5213,9 +5219,7 @@ sub dlg_rename {
 
 					$session_screens{$key}->{'handle'}->cancel;
 					rename( $session_screens{$key}->{'long'}, $new_name );
-					$session_screens{$key}->{'filename'} = $new_name;
-
-					&fct_update_tab($key);
+					&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($new_name) );
 
 					#setup a new filemonitor, so we get noticed if the file changed
 					&fct_add_file_monitor($key);
@@ -5643,8 +5647,8 @@ UPDIALOG: while ($hosting_dialog) {
 						#login
 						eval { $ishack->login($hosting_username); };
 						if ($@) {
-							my $response
-								= $gscrot_dialog->dlg_error_message( $d->get("Please check your credentials and try again."), $d->get("Login failed!") );
+							my $response = $gscrot_dialog->dlg_error_message( $d->get("Please check your credentials and try again."),
+								$d->get("Login failed!") );
 
 							next UPDIALOG;
 						}
@@ -5656,9 +5660,11 @@ UPDIALOG: while ($hosting_dialog) {
 						my $url = undef;
 						eval { $url = $ishack->host( $file, undef ); };
 						if ($@) {
-							my $response
-								= $gscrot_dialog->dlg_error_message( $d->get("Please check your connectivity and try again."), $d->get("Connection error!"),
-								$d->get("Skip all"), $d->get("Skip"), 'gtk-redo' );
+							my $response = $gscrot_dialog->dlg_error_message(
+								$d->get("Please check your connectivity and try again."),
+								$d->get("Connection error!"),
+								$d->get("Skip all"), $d->get("Skip"), 'gtk-redo'
+							);
 
 							#10 == skip all, 20 == skip, else == cancel
 							last if $response == 10;
@@ -5675,9 +5681,11 @@ UPDIALOG: while ($hosting_dialog) {
 							$ishack->show( $hosting_host, $hosting_username, $file, $url, $thumb_url, RC_OK, $d, $window, $gscrot_root );
 							&dlg_status_message( 1, $file . " " . $d->get("uploaded") );
 						} else {
-							my $response
-								= $gscrot_dialog->dlg_error_message( $d->get("Please check your connectivity and try again."), $d->get("Connection error!"),
-								$d->get("Skip all"), $d->get("Skip"), 'gtk-redo' );
+							my $response = $gscrot_dialog->dlg_error_message(
+								$d->get("Please check your connectivity and try again."),
+								$d->get("Connection error!"),
+								$d->get("Skip all"), $d->get("Skip"), 'gtk-redo'
+							);
 
 							#10 == skip all, 20 == skip, else == cancel
 							last if $response == 10;
@@ -5719,7 +5727,7 @@ UPDIALOG: while ($hosting_dialog) {
 						if ($upload_response) {
 
 							#we already get translated error messaged back
-							my $response = $gscrot_dialog->dlg_error_message($upload_response, $d->get("Failed"));
+							my $response = $gscrot_dialog->dlg_error_message( $upload_response, $d->get("Failed") );
 							next UPDIALOG;
 						} else {
 							$login = TRUE;
@@ -5743,7 +5751,8 @@ UPDIALOG: while ($hosting_dialog) {
 					} else {
 
 						#we already get translated error messaged back
-						my $response = $gscrot_dialog->dlg_error_message( $upload_response, $d->get("Failed"), $d->get("Skip all"), $d->get("Skip"), 'gtk-redo' );
+						my $response = $gscrot_dialog->dlg_error_message( $upload_response, $d->get("Failed"), $d->get("Skip all"), $d->get("Skip"),
+							'gtk-redo' );
 
 						#10 == skip all, 20 == skip, 30 == redo, else == cancel
 						if ( $response == 10 ) {
@@ -5785,11 +5794,14 @@ sub dlg_upload_error_message {
 	if ( $status == 999 ) {
 		$response = $gscrot_dialog->dlg_error_message( $d->get("Please check your credentials and try again."), $d->get("Login failed!") );
 	} elsif ( $status == 998 ) {
-		$response = $gscrot_dialog->dlg_error_message( $d->get("Maximum filesize reached!") . " ( $max_filesize )", $d->get("Failed"), $d->get("Skip all"), $d->get("Skip") );
+		$response = $gscrot_dialog->dlg_error_message( $d->get("Maximum filesize reached!") . " ( $max_filesize )",
+			$d->get("Failed"), $d->get("Skip all"), $d->get("Skip") );
 	} else {
-		$response
-			= $gscrot_dialog->dlg_error_message( $d->get("Please check your connectivity and try again."), $d->get("Connection error!") . " (" . $status . ")",
-			$d->get("Skip all"), $d->get("Skip"), 'gtk-redo' );
+		$response = $gscrot_dialog->dlg_error_message(
+			$d->get("Please check your connectivity and try again."),
+			$d->get("Connection error!") . " (" . $status . ")",
+			$d->get("Skip all"), $d->get("Skip"), 'gtk-redo'
+		);
 	}
 	return $response;
 }
@@ -5997,8 +6009,4 @@ sub dlg_profile_name {
 }
 
 #--------------------------------------
-
-
-
-
 

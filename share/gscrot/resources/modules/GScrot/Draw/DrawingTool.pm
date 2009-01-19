@@ -632,7 +632,13 @@ sub save {
 	$loader->close;
 	my $pixbuf = $loader->get_pixbuf;
 
-	$pixbuf->save( $self->{_filename}, $self->{_filetype} );
+	if($self->{_filetype} =~ /jpeg/){
+		$pixbuf->save( $self->{_filename}, $self->{_filetype}, quality => '100' );		
+	}elsif($self->{_filetype} =~ /png/){
+		$pixbuf->save( $self->{_filename}, $self->{_filetype}, compression => '9' );		
+	}else{		
+		$pixbuf->save( $self->{_filename}, $self->{_filetype});		
+	}
 
 	return TRUE;
 }
