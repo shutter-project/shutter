@@ -1104,147 +1104,27 @@ sub event_item_on_button_press {
 			#FREEHAND
 			if ( $self->{_current_mode_descr} eq "line" ) {
 
-				my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
-				my $item = Goo::Canvas::Polyline->new_line(
-					$root, $ev->x, $ev->y, $ev->x, $ev->y,
-					'stroke-pattern' => $stroke_pattern,
-					'line-width'     => $self->{_line_width},
-					'line-cap'       => 'CAIRO_LINE_CAP_ROUND',
-					'line-join'      => 'CAIRO_LINE_JOIN_ROUND'
-				);
-
-				$self->{_current_new_item} = $item;
-				$self->{_items}{$item} = $item;
-
-				#need at least 2 points
-				$self->{_items}{$item}{'points'} = [ $ev->x, $ev->y, $ev->x, $ev->y ];
-
-				$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
-				$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
-
-				$self->setup_item_signals( $self->{_items}{$item} );
-				$self->setup_item_signals_extra( $self->{_items}{$item} );
+				$self->create_polyline( $ev, undef );
 
 				#RECTANGLES
 			} elsif ( $self->{_current_mode_descr} eq "rect" ) {
 
-				#call sub ($event, $copy_item)
 				$self->create_rectangle( $ev, undef );
 
 				#ELLIPSE
 			} elsif ( $self->{_current_mode_descr} eq "ellipse" ) {
 
-				my $pattern = $self->create_alpha;
-				my $item    = Goo::Canvas::Rect->new(
-					$root, $ev->x, $ev->y, 2, 2,
-					'fill-pattern' => $pattern,
-					'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
-					'line-width'   => 1,
-					'stroke-color' => 'gray',
-				);
-
-				$self->{_current_new_item} = $item;
-				$self->{_items}{$item} = $item;
-
-				#				my @stipple_data = ( 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255 );
-				#				my $pattern = $self->create_stipple( 'cadetblue', \@stipple_data );
-
-				my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
-				my $fill_pattern   = $self->create_color( $self->{_fill_color},   $self->{_fill_color_alpha} );
-
-				$self->{_items}{$item}{ellipse} = Goo::Canvas::Ellipse->new(
-					$root, $item->get('x'), $item->get('y'), $item->get('width'),
-					$item->get('height'),
-					'fill-pattern'   => $fill_pattern,
-					'stroke-pattern' => $stroke_pattern,
-					'line-width'     => $self->{_line_width},
-				);
-
-				#save color and opacity as well
-				$self->{_items}{$item}{fill_color}         = $self->{_fill_color};
-				$self->{_items}{$item}{fill_color_alpha}   = $self->{_fill_color_alpha};
-				$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
-				$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
-
-				#create rectangles
-				$self->handle_rects( 'create', $item );
-
-				$self->setup_item_signals( $self->{_items}{$item}{ellipse} );
-				$self->setup_item_signals_extra( $self->{_items}{$item}{ellipse} );
-
-				$self->setup_item_signals( $self->{_items}{$item} );
-				$self->setup_item_signals_extra( $self->{_items}{$item} );
+				$self->create_ellipse( $ev, undef );
 
 				#TEXT
 			} elsif ( $self->{_current_mode_descr} eq "text" ) {
 
-				my $pattern = $self->create_alpha;
-				my $item    = Goo::Canvas::Rect->new(
-					$root, $ev->x, $ev->y, 2, 2,
-					'fill-pattern' => $pattern,
-					'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
-					'line-width'   => 1,
-					'stroke-color' => 'gray',
-				);
-
-				$self->{_current_new_item} = $item;
-				$self->{_items}{$item} = $item;
-
-				#				my @stipple_data = ( 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255 );
-				#				my $pattern = $self->create_stipple( 'cadetblue', \@stipple_data );
-
-				my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
-
-				$self->{_items}{$item}{text} = Goo::Canvas::Text->new(
-					$root, "<span font_desc='" . $self->{_font} . "' >New Text...</span>",
-					$item->get('x'),
-					$item->get('y'), $item->get('width'),
-					'nw',
-					'use-markup'   => TRUE,
-					'fill-pattern' => $stroke_pattern,
-					'line-width'   => $self->{_line_width},
-				);
-
-				$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
-				$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
-
-				#create rectangles
-				$self->handle_rects( 'create', $item );
-
-				$self->setup_item_signals( $self->{_items}{$item}{text} );
-				$self->setup_item_signals_extra( $self->{_items}{$item}{text} );
-
-				$self->setup_item_signals( $self->{_items}{$item} );
-				$self->setup_item_signals_extra( $self->{_items}{$item} );
+				$self->create_text( $ev, undef );
 
 				#IMAGE
 			} elsif ( $self->{_current_mode_descr} eq "image" ) {
 
-				my $pattern = $self->create_alpha;
-				my $item    = Goo::Canvas::Rect->new(
-					$root, $ev->x, $ev->y, $self->{_current_pixbuf}->get_width,
-					$self->{_current_pixbuf}->get_height,
-					'fill-pattern' => $pattern,
-					'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
-					'line-width'   => 1,
-					'stroke-color' => 'gray',
-				);
-
-				$self->{_current_new_item} = $item;
-				$self->{_items}{$item} = $item;
-
-				$self->{_items}{$item}{orig_pixbuf} = $self->{_current_pixbuf}->copy;
-				$self->{_items}{$item}{image}
-					= Goo::Canvas::Image->new( $root, $self->{_items}{$item}{orig_pixbuf}, $item->get('x'), $item->get('y') );
-
-				#create rectangles
-				$self->handle_rects( 'create', $item );
-
-				$self->setup_item_signals( $self->{_items}{$item}{image} );
-				$self->setup_item_signals_extra( $self->{_items}{$item}{image} );
-
-				$self->setup_item_signals( $self->{_items}{$item} );
-				$self->setup_item_signals_extra( $self->{_items}{$item} );
+				$self->create_image( $ev, undef );
 
 			}
 		}
@@ -1739,8 +1619,8 @@ sub handle_embedded {
 			my $copy = $self->{_items}{$item}{orig_pixbuf}->copy;
 
 			$self->{_items}{$item}{image}->set(
-				'x'      => int $self->{_items}{$item}->get('x'),
-				'y'      => int $self->{_items}{$item}->get('y'),
+				'x'      => $self->{_items}{$item}->get('x'),
+				'y'      => $self->{_items}{$item}->get('y'),
 				'pixbuf' => $copy->scale_simple( $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'), 'bilinear' )
 			);
 
@@ -1770,9 +1650,9 @@ sub handle_rects {
 
 	if ( $self->{_items}{$item}->isa('Goo::Canvas::Rect') ) {
 
-		my $middle_h = $self->{_items}{$item}->get('x') + int( $self->{_items}{$item}->get('width') / 2 );
+		my $middle_h = $self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width') / 2 ;
 
-		my $middle_v = $self->{_items}{$item}->get('y') + int( $self->{_items}{$item}->get('height') / 2 );
+		my $middle_v = $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height') / 2 ;
 
 		my $bottom = $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height');
 
@@ -2228,18 +2108,7 @@ sub setup_uimanager {
 	my @menu_actions = (
 		[ "Copy", 'gtk-copy', undef, "<control>C", undef, sub { $self->{_current_copy_item} = $self->{_current_item}; } ],
 		[ "Cut", 'gtk-cut', undef, "<control>X", undef, sub { $self->clear_item_from_canvas( $self->{_current_item} ); } ],
-		[   "Paste",
-			'gtk-paste',
-			undef,
-			"<control>V",
-			undef,
-			sub {
-				return FALSE unless $self->{_current_copy_item};
-				if ( $self->{_current_copy_item}->isa('Goo::Canvas::Rect') ) {
-					$self->create_rectangle( undef, $self->{_current_copy_item} );
-				}
-				}
-		],
+		[ "Paste", 'gtk-paste', undef, "<control>V", undef, sub { $self->paste_item($self->{_current_copy_item} ); } ],
 		[ "Delete", 'gtk-delete', undef, "Delete", undef, sub { $self->clear_item_from_canvas( $self->{_current_item} ); } ],
 		[ "Stop", 'gtk-stop', undef, "Escape", undef, sub { $self->abort_current_mode } ]
 
@@ -2551,6 +2420,255 @@ sub change_cursor_to_current_pixbuf {
 
 	return $cursor;
 }
+
+sub paste_item {
+	my $self = shift;
+	my $item = shift;
+	
+	my $child = $self->get_child_item($item);
+	
+	return FALSE unless $item;
+	
+	print "Pasting: $item\n";
+	
+	if ( $item->isa('Goo::Canvas::Rect') && !$child ) {
+		print "Creating Rectangle...\n";
+		$self->create_rectangle( undef, $item );
+	}elsif ( $item->isa('Goo::Canvas::Polyline') && !$child ){
+		print "Creating Polyline...\n";
+		$self->create_polyline( undef, $item );
+	}elsif ( $child->isa('Goo::Canvas::Ellipse') ){
+		print "Creating Ellipse...\n";
+		$self->create_ellipse( undef, $item);
+	}elsif ( $child->isa('Goo::Canvas::Text') ){
+		print "Creating Text...\n";
+		$self->create_text( undef, $item );
+	}elsif ( $child->isa('Goo::Canvas::Image') ){
+		print "Creating Image...\n";
+		$self->create_image( undef, $item );
+	}	
+
+	return TRUE;
+}	
+
+sub create_polyline {
+	my $self      = shift;
+	my $ev        = shift;
+	my $copy_item = shift;
+
+	my @points = ();
+	my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
+	my $transform;
+	
+	#use event coordinates
+	if ($ev) {
+		@points = ( $ev->x, $ev->y, $ev->x, $ev->y );
+	#use source item coordinates
+	} elsif ($copy_item) {
+		foreach(@{$self->{_items}{$copy_item}{points}}){
+			push @points, $_ + 20;
+		}
+		$stroke_pattern = $self->create_color( $self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha} );
+		$transform = $self->{_items}{$copy_item}->get('transform');
+	}
+		
+	my $item = Goo::Canvas::Polyline->new_line(
+		$self->{_canvas}->get_root_item, $points[0],$points[1],$points[2],$points[3],
+		'stroke-pattern' => $stroke_pattern,
+		'line-width'     => $self->{_line_width},
+		'line-cap'       => 'CAIRO_LINE_CAP_ROUND',
+		'line-join'      => 'CAIRO_LINE_JOIN_ROUND'
+	);
+
+	$self->{_current_new_item} = $item;
+	$self->{_items}{$item} = $item;
+
+	#need at least 2 points
+	push @{ $self->{_items}{$item}{'points'} }, @points;
+	$self->{_items}{$item}->set( points => Goo::Canvas::Points->new( $self->{_items}{$item}{'points'} ) );	
+	$self->{_items}{$item}->set( transform => $transform) if $transform;
+
+	$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
+	$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
+
+	$self->setup_item_signals( $self->{_items}{$item} );
+	$self->setup_item_signals_extra( $self->{_items}{$item} );
+
+	return TRUE;
+
+}
+
+
+sub create_image {
+	my $self      = shift;
+	my $ev        = shift;
+	my $copy_item = shift;
+
+	my @dimensions = ( 0, 0, 0, 0 );
+
+	#use event coordinates
+	if ($ev) {
+		@dimensions = ( $ev->x, $ev->y, $self->{_current_pixbuf}->get_width, $self->{_current_pixbuf}->get_height );
+	#use source item coordinates
+	} elsif ($copy_item) {
+		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $self->{_items}{$copy_item}->get('width'), $self->{_items}{$copy_item}->get('height'));
+	}
+	
+	my $pattern = $self->create_alpha;
+	my $item    = Goo::Canvas::Rect->new(
+		$self->{_canvas}->get_root_item, @dimensions,
+		'fill-pattern' => $pattern,
+		'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
+		'line-width'   => 1,
+		'stroke-color' => 'gray',
+	);
+
+	$self->{_current_new_item} = $item;
+	$self->{_items}{$item} = $item;
+
+
+	if ($ev) {
+		$self->{_items}{$item}{orig_pixbuf} = $self->{_current_pixbuf}->copy;
+	} elsif ($copy_item) {
+		$self->{_items}{$item}{orig_pixbuf} = $self->{_items}{$copy_item}{orig_pixbuf}->copy;
+	}
+	
+	$self->{_items}{$item}{image}
+		= Goo::Canvas::Image->new( $self->{_canvas}->get_root_item, $self->{_items}{$item}{orig_pixbuf}, $item->get('x'), $item->get('y') );
+
+	#create rectangles
+	$self->handle_rects( 'create', $item );
+	$self->handle_embedded('update', $item) if $copy_item;
+
+	$self->setup_item_signals( $self->{_items}{$item}{image} );
+	$self->setup_item_signals_extra( $self->{_items}{$item}{image} );
+
+	$self->setup_item_signals( $self->{_items}{$item} );
+	$self->setup_item_signals_extra( $self->{_items}{$item} );
+	
+	return TRUE;	
+}
+
+sub create_text{
+	my $self      = shift;
+	my $ev        = shift;
+	my $copy_item = shift;
+
+	my @dimensions = ( 0, 0, 0, 0 );
+	my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
+	my $text = 'New Text...';
+
+	#use event coordinates and selected color
+	if ($ev) {
+		@dimensions = ( $ev->x, $ev->y, 2, 2 );
+		#use source item coordinates and item color
+	} elsif ($copy_item) {
+		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
+		$stroke_pattern = $self->create_color( $self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha} );
+		$text = $self->{_items}{$copy_item}{text}->get('text');
+	}
+
+	my $pattern = $self->create_alpha;
+	my $item    = Goo::Canvas::Rect->new(
+		$self->{_canvas}->get_root_item, @dimensions,
+		'fill-pattern' => $pattern,
+		'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
+		'line-width'   => 1,
+		'stroke-color' => 'gray',
+	);
+
+	$self->{_current_new_item} = $item;
+	$self->{_items}{$item} = $item;
+
+	my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
+
+	$self->{_items}{$item}{text} = Goo::Canvas::Text->new(
+		$self->{_canvas}->get_root_item, "<span font_desc='" . $self->{_font} . "' >".$text."</span>",
+		$item->get('x'),
+		$item->get('y'), $item->get('width'),
+		'nw',
+		'use-markup'   => TRUE,
+		'fill-pattern' => $stroke_pattern,
+		'line-width'   => $self->{_line_width},
+	);
+
+	$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
+	$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
+
+	#create rectangles
+	$self->handle_rects( 'create', $item );
+	$self->handle_embedded('update', $item) if $copy_item;
+
+	$self->setup_item_signals( $self->{_items}{$item}{text} );
+	$self->setup_item_signals_extra( $self->{_items}{$item}{text} );
+
+	$self->setup_item_signals( $self->{_items}{$item} );
+	$self->setup_item_signals_extra( $self->{_items}{$item} );
+	
+	return TRUE;
+	
+}	
+
+sub create_ellipse {
+	my $self      = shift;
+	my $ev        = shift;
+	my $copy_item = shift;
+
+	my @dimensions = ( 0, 0, 0, 0 );
+	my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
+	my $fill_pattern   = $self->create_color( $self->{_fill_color},   $self->{_fill_color_alpha} );
+
+	#use event coordinates and selected color
+	if ($ev) {
+		@dimensions = ( $ev->x, $ev->y, 2, 2 );
+		#use source item coordinates and item color
+	} elsif ($copy_item) {
+		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
+		$stroke_pattern = $self->create_color( $self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha} );
+		$fill_pattern   = $self->create_color( $self->{_items}{$copy_item}{fill_color},   $self->{_items}{$copy_item}{fill_color_alpha} );
+
+	}
+
+	my $pattern = $self->create_alpha;
+	my $item    = Goo::Canvas::Rect->new(
+		$self->{_canvas}->get_root_item, @dimensions,
+		'fill-pattern' => $pattern,
+		'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
+		'line-width'   => 1,
+		'stroke-color' => 'gray',
+	);
+
+	$self->{_current_new_item} = $item;
+	$self->{_items}{$item} = $item;
+
+	$self->{_items}{$item}{ellipse} = Goo::Canvas::Ellipse->new(
+		$self->{_canvas}->get_root_item, $item->get('x'), $item->get('y'), $item->get('width'),
+		$item->get('height'),
+		'fill-pattern'   => $fill_pattern,
+		'stroke-pattern' => $stroke_pattern,
+		'line-width'     => $self->{_line_width},
+	);
+
+	#save color and opacity as well
+	$self->{_items}{$item}{fill_color}         = $self->{_fill_color};
+	$self->{_items}{$item}{fill_color_alpha}   = $self->{_fill_color_alpha};
+	$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
+	$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
+
+	#create rectangles
+	$self->handle_rects( 'create', $item );
+	$self->handle_embedded('update', $item) if $copy_item;
+
+	$self->setup_item_signals( $self->{_items}{$item}{ellipse} );
+	$self->setup_item_signals_extra( $self->{_items}{$item}{ellipse} );
+
+	$self->setup_item_signals( $self->{_items}{$item} );
+	$self->setup_item_signals_extra( $self->{_items}{$item} );
+	
+	return TRUE;
+
+}
+
 
 sub create_rectangle {
 	my $self      = shift;
