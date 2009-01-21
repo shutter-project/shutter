@@ -1617,11 +1617,11 @@ sub handle_embedded {
 		} elsif ( exists $self->{_items}{$item}{image} ) {
 
 			my $copy = $self->{_items}{$item}{orig_pixbuf}->copy;
-
+			
 			$self->{_items}{$item}{image}->set(
-				'x'      => $self->{_items}{$item}->get('x'),
-				'y'      => $self->{_items}{$item}->get('y'),
-				'pixbuf' => $copy->scale_simple( $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'), 'bilinear' )
+				'x'      => int $self->{_items}{$item}->get('x'),
+				'y'      => int $self->{_items}{$item}->get('y'),
+				'pixbuf' => $copy->scale_simple( $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'), 'nearest' )
 			);
 
 		}
@@ -1910,6 +1910,27 @@ sub event_item_on_button_release {
 	$item->{dragging} = FALSE;
 	$item->{resizing} = FALSE;
 
+
+	#because of performance reason we load the current image new from file when
+	#the current action is over => button-release
+	#when resizing or moving the image we just scale the current image with low quality settings
+	#see handle_embedded
+	my $child = $self->get_child_item($self->{_current_new_item});
+	$child = $self->get_child_item($self->{_current_item}) unless $child;
+	
+	if ( $child && $child->isa('Goo::Canvas::Image') ){
+		print $child." Child\n";
+		my $parent = $self->get_parent_item($child);
+		
+		my $copy = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($self->{_items}{$parent}{orig_pixbuf_filename},$self->{_items}{$parent}->get('width'), $self->{_items}{$parent}->get('height'), FALSE);
+				
+		$self->{_items}{$parent}{image}->set(
+			'x'      => int $self->{_items}{$parent}->get('x'),
+			'y'      => int $self->{_items}{$parent}->get('y'),
+			'pixbuf' => $copy
+		);
+	}	
+			
 	$self->set_drawing_action(0);
 	$self->change_drawing_tool_cb(10);
 
@@ -2232,18 +2253,18 @@ sub ret_objects_menu {
 	my $dobjects = $self->{_gscrot_common}->get_root . "/share/gscrot/resources/icons/drawing_tool/objects";
 
 	my @objects = glob("$dobjects/*");
-	foreach (@objects) {
+	foreach my $filename (@objects) {
 
 		#parse filename
-		my ( $short, $folder, $type ) = fileparse( $_, '\..*' );
+		my ( $short, $folder, $type ) = fileparse( $filename, '\..*' );
 
 		eval {
 
 			#create pixbufs
-			my $small_image = Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $_, Gtk2::IconSize->lookup('menu'), TRUE ) );
+			my $small_image = Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $filename, Gtk2::IconSize->lookup('menu'), TRUE ) );
 			my $small_image_button
-				= Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $_, Gtk2::IconSize->lookup('menu'), TRUE ) );
-			my $orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($_);
+				= Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $filename, Gtk2::IconSize->lookup('menu'), TRUE ) );
+			my $orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($filename);
 
 			#create items
 			my $new_item = Gtk2::ImageMenuItem->new_with_label($short);
@@ -2253,11 +2274,13 @@ sub ret_objects_menu {
 			unless ( $button->get_icon_widget ) {
 				$button->set_icon_widget($small_image_button);
 				$self->{_current_pixbuf} = $orig_pixbuf->copy;
+				$self->{_current_pixbuf_filename} = $filename;
 			}
 
 			$new_item->signal_connect(
 				'activate' => sub {
 					$self->{_current_pixbuf} = $orig_pixbuf->copy;
+					$self->{_current_pixbuf_filename} = $filename;
 					$button->set_icon_widget($small_image_button);
 					$button->show_all;
 					$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
@@ -2329,6 +2352,7 @@ sub ret_objects_menu {
 				$self->{_current_pixbuf_filename} = $new_file;
 				$button->set_icon_widget($small_image_button);
 				$button->show_all;
+				$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
 
 				$fs->destroy();
 			} else {
@@ -2373,6 +2397,7 @@ sub import_from_session {
 				$self->{_current_pixbuf_filename} = $import_hash{$key}->{'long'};
 				$button->set_icon_widget($small_image_button);
 				$button->show_all;
+				$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
 			}
 		);
 
@@ -2429,8 +2454,6 @@ sub paste_item {
 	
 	return FALSE unless $item;
 	
-	print "Pasting: $item\n";
-	
 	if ( $item->isa('Goo::Canvas::Rect') && !$child ) {
 		print "Creating Rectangle...\n";
 		$self->create_rectangle( undef, $item );
@@ -2459,6 +2482,7 @@ sub create_polyline {
 	my @points = ();
 	my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
 	my $transform;
+	my $line_width = $self->{_line_width};
 	
 	#use event coordinates
 	if ($ev) {
@@ -2470,12 +2494,13 @@ sub create_polyline {
 		}
 		$stroke_pattern = $self->create_color( $self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha} );
 		$transform = $self->{_items}{$copy_item}->get('transform');
+		$line_width = $self->{_items}{$copy_item}->get('line_width');
 	}
 		
 	my $item = Goo::Canvas::Polyline->new_line(
 		$self->{_canvas}->get_root_item, $points[0],$points[1],$points[2],$points[3],
 		'stroke-pattern' => $stroke_pattern,
-		'line-width'     => $self->{_line_width},
+		'line-width'     => $line_width,
 		'line-cap'       => 'CAIRO_LINE_CAP_ROUND',
 		'line-join'      => 'CAIRO_LINE_JOIN_ROUND'
 	);
@@ -2529,8 +2554,10 @@ sub create_image {
 
 	if ($ev) {
 		$self->{_items}{$item}{orig_pixbuf} = $self->{_current_pixbuf}->copy;
+		$self->{_items}{$item}{orig_pixbuf_filename} = $self->{_current_pixbuf_filename};
 	} elsif ($copy_item) {
 		$self->{_items}{$item}{orig_pixbuf} = $self->{_items}{$copy_item}{orig_pixbuf}->copy;
+		$self->{_items}{$item}{orig_pixbuf_filename} = $self->{_items}{$copy_item}{orig_pixbuf_filename};
 	}
 	
 	$self->{_items}{$item}{image}
@@ -2545,6 +2572,20 @@ sub create_image {
 
 	$self->setup_item_signals( $self->{_items}{$item} );
 	$self->setup_item_signals_extra( $self->{_items}{$item} );
+
+	if ( $copy_item ){
+		
+		my $copy = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($self->{_items}{$item}{orig_pixbuf_filename},$self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'), FALSE);
+				
+		$self->{_items}{$item}{image}->set(
+			'x'      => int $self->{_items}{$item}->get('x'),
+			'y'      => int $self->{_items}{$item}->get('y'),
+			'pixbuf' => $copy
+		);
+		
+		$self->handle_rects( 'hide', $item );
+		
+	}	
 	
 	return TRUE;	
 }
@@ -2557,6 +2598,7 @@ sub create_text{
 	my @dimensions = ( 0, 0, 0, 0 );
 	my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
 	my $text = 'New Text...';
+	my $line_width = $self->{_line_width};
 
 	#use event coordinates and selected color
 	if ($ev) {
@@ -2566,6 +2608,7 @@ sub create_text{
 		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
 		$stroke_pattern = $self->create_color( $self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha} );
 		$text = $self->{_items}{$copy_item}{text}->get('text');
+		$line_width = $self->{_items}{$copy_item}{text}->get('line-width');
 	}
 
 	my $pattern = $self->create_alpha;
@@ -2589,7 +2632,7 @@ sub create_text{
 		'nw',
 		'use-markup'   => TRUE,
 		'fill-pattern' => $stroke_pattern,
-		'line-width'   => $self->{_line_width},
+		'line-width'   => $line_width,
 	);
 
 	$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
@@ -2597,7 +2640,7 @@ sub create_text{
 
 	#create rectangles
 	$self->handle_rects( 'create', $item );
-	$self->handle_embedded('update', $item) if $copy_item;
+	#~ $self->handle_embedded('update', $item) if $copy_item;
 
 	$self->setup_item_signals( $self->{_items}{$item}{text} );
 	$self->setup_item_signals_extra( $self->{_items}{$item}{text} );
@@ -2617,6 +2660,7 @@ sub create_ellipse {
 	my @dimensions = ( 0, 0, 0, 0 );
 	my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
 	my $fill_pattern   = $self->create_color( $self->{_fill_color},   $self->{_fill_color_alpha} );
+	my $line_width = $self->{_line_width};
 
 	#use event coordinates and selected color
 	if ($ev) {
@@ -2626,7 +2670,7 @@ sub create_ellipse {
 		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
 		$stroke_pattern = $self->create_color( $self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha} );
 		$fill_pattern   = $self->create_color( $self->{_items}{$copy_item}{fill_color},   $self->{_items}{$copy_item}{fill_color_alpha} );
-
+		$line_width = $self->{_items}{$copy_item}{ellipse}->get('line-width');
 	}
 
 	my $pattern = $self->create_alpha;
@@ -2646,7 +2690,7 @@ sub create_ellipse {
 		$item->get('height'),
 		'fill-pattern'   => $fill_pattern,
 		'stroke-pattern' => $stroke_pattern,
-		'line-width'     => $self->{_line_width},
+		'line-width'     => $line_width,
 	);
 
 	#save color and opacity as well
@@ -2678,6 +2722,7 @@ sub create_rectangle {
 	my @dimensions = ( 0, 0, 0, 0 );
 	my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
 	my $fill_pattern   = $self->create_color( $self->{_fill_color},   $self->{_fill_color_alpha} );
+	my $line_width = $self->{_line_width};
 
 	#use event coordinates and selected color
 	if ($ev) {
@@ -2688,14 +2733,14 @@ sub create_rectangle {
 		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
 		$stroke_pattern = $self->create_color( $self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha} );
 		$fill_pattern   = $self->create_color( $self->{_items}{$copy_item}{fill_color},   $self->{_items}{$copy_item}{fill_color_alpha} );
-
+		$line_width = $self->{_items}{$copy_item}->get('line-width');
 	}
 
 	my $item = Goo::Canvas::Rect->new(
 		$self->{_canvas}->get_root_item, @dimensions,
 		'fill-pattern'   => $fill_pattern,
 		'stroke-pattern' => $stroke_pattern,
-		'line-width'     => $self->{_line_width},
+		'line-width'     => $line_width,
 	);
 
 	$self->{_current_new_item} = $item;
