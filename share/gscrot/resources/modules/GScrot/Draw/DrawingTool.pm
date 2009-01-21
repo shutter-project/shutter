@@ -82,6 +82,7 @@ sub new {
 	$self->{_current_mode_descr}      = "select";
 	$self->{_current_pixbuf}          = undef;
 	$self->{_current_pixbuf_filename} = undef;
+	$self->{_cut}					  = FALSE;
 
 	$self->{_start_time} = undef;
 
@@ -970,6 +971,7 @@ sub abort_current_mode {
 sub clear_item_from_canvas {
 	my $self = shift;
 	my $item = shift;
+	my $delete = shift;
 
 	if ($item) {
 		my @items_to_delete;
@@ -990,21 +992,32 @@ sub clear_item_from_canvas {
 		}
 
 		foreach (@items_to_delete) {
-			eval {
-				my $bigparent = $_->get_parent;
-				$bigparent->remove_child( $bigparent->find_child($_) );
-			};
+				if($delete){
+					eval{
+						my $bigparent = $_->get_parent;
+						$bigparent->remove_child( $bigparent->find_child($_) );
+					};
+				}else{
+					eval{
+						$_->set('visibility' => 'GOO_CANVAS_ITEM_HIDDEN');
+					};
+				}
 		}
 
-		#clear from session hash >> parent
-		delete $self->{_items}{$parent};
+		if($delete){
+			#clear from session hash >> parent
+			delete $self->{_items}{$parent};
 
-		#clear from session hash >> item
-		delete $self->{_items}{$item};
+			#clear from session hash >> item
+			delete $self->{_items}{$item};
+		}
 	}
-	$self->{_last_item}        = undef;
-	$self->{_current_item}     = undef;
-	$self->{_current_new_item} = undef;
+	
+	if($delete){
+		$self->{_last_item}        = undef;
+		$self->{_current_item}     = undef;
+		$self->{_current_new_item} = undef;	
+	}
 
 	return TRUE;
 }
@@ -1049,7 +1062,7 @@ sub event_item_on_button_press {
 
 			return TRUE if $item == $self->{_canvas_bg};
 
-			$self->clear_item_from_canvas($item);
+			$self->clear_item_from_canvas($item, TRUE);
 
 			$self->{_canvas}->window->set_cursor($cursor);
 
@@ -1251,7 +1264,7 @@ sub ret_item_menu {
 
 	$remove_item->signal_connect(
 		'activate' => sub {
-			$self->clear_item_from_canvas($item);
+			$self->clear_item_from_canvas($item, TRUE);
 		}
 	);
 
@@ -1939,6 +1952,7 @@ sub event_item_on_button_release {
 
 sub event_item_on_enter_notify {
 	my ( $self, $item, $target, $ev ) = @_;
+
 	if (   $item->isa('Goo::Canvas::Rect')
 		|| $item->isa('Goo::Canvas::Ellipse')
 		|| $item->isa('Goo::Canvas::Text')
@@ -2093,6 +2107,9 @@ sub create_color {
 	my $color_name = shift;
 	my $alpha      = shift;
 
+	return FALSE unless $color_name;
+	return FALSE unless $alpha;
+
 	my $color;
 
 	#if it is a color, we do not need to parse it
@@ -2127,10 +2144,10 @@ sub setup_uimanager {
 	my @default_actions = ( [ "File", undef, $d->get("_File") ], [ "Edit", undef, $d->get("_Edit") ], [ "View", undef, $d->get("_View") ] );
 
 	my @menu_actions = (
-		[ "Copy", 'gtk-copy', undef, "<control>C", undef, sub { $self->{_current_copy_item} = $self->{_current_item}; } ],
-		[ "Cut", 'gtk-cut', undef, "<control>X", undef, sub { $self->clear_item_from_canvas( $self->{_current_item} ); } ],
-		[ "Paste", 'gtk-paste', undef, "<control>V", undef, sub { $self->paste_item($self->{_current_copy_item} ); } ],
-		[ "Delete", 'gtk-delete', undef, "Delete", undef, sub { $self->clear_item_from_canvas( $self->{_current_item} ); } ],
+		[ "Copy", 'gtk-copy', undef, "<control>C", undef, sub { $self->{_cut} = FALSE; $self->{_current_copy_item} = $self->{_current_item}; } ],
+		[ "Cut", 'gtk-cut', undef, "<control>X", undef, sub { $self->{_cut} = TRUE; $self->{_current_copy_item} = $self->{_current_item}; $self->clear_item_from_canvas( $self->{_current_copy_item}, FALSE ); } ],
+		[ "Paste", 'gtk-paste', undef, "<control>V", undef, sub { $self->paste_item($self->{_current_copy_item}, $self->{_cut} ); $self->{_cut} = FALSE; } ],
+		[ "Delete", 'gtk-delete', undef, "Delete", undef, sub { $self->clear_item_from_canvas( $self->{_current_item}, TRUE ); } ],
 		[ "Stop", 'gtk-stop', undef, "Escape", undef, sub { $self->abort_current_mode } ]
 
 	);
@@ -2450,9 +2467,12 @@ sub paste_item {
 	my $self = shift;
 	my $item = shift;
 	
-	my $child = $self->get_child_item($item);
-	
+	#cut instead of copy
+	my $delete_after = shift;
+
 	return FALSE unless $item;
+	
+	my $child = $self->get_child_item($item);
 	
 	if ( $item->isa('Goo::Canvas::Rect') && !$child ) {
 		print "Creating Rectangle...\n";
@@ -2470,6 +2490,13 @@ sub paste_item {
 		print "Creating Image...\n";
 		$self->create_image( undef, $item );
 	}	
+
+	#cut instead of copy
+	if($delete_after){
+		$self->clear_item_from_canvas($item, TRUE);
+		$self->{_current_item} = undef;
+		$self->{_current_copy_item} = undef;
+	}
 
 	return TRUE;
 }	
@@ -2492,6 +2519,7 @@ sub create_polyline {
 		foreach(@{$self->{_items}{$copy_item}{points}}){
 			push @points, $_ + 20;
 		}
+
 		$stroke_pattern = $self->create_color( $self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha} );
 		$transform = $self->{_items}{$copy_item}->get('transform');
 		$line_width = $self->{_items}{$copy_item}->get('line_width');
@@ -2640,7 +2668,10 @@ sub create_text{
 
 	#create rectangles
 	$self->handle_rects( 'create', $item );
-	#~ $self->handle_embedded('update', $item) if $copy_item;
+	if ($copy_item){	
+		$self->handle_embedded('update', $item); 
+		$self->handle_rects('hide', $item); 	
+	}
 
 	$self->setup_item_signals( $self->{_items}{$item}{text} );
 	$self->setup_item_signals_extra( $self->{_items}{$item}{text} );
@@ -2701,7 +2732,10 @@ sub create_ellipse {
 
 	#create rectangles
 	$self->handle_rects( 'create', $item );
-	$self->handle_embedded('update', $item) if $copy_item;
+	if ($copy_item){	
+		$self->handle_embedded('update', $item); 
+		$self->handle_rects('hide', $item); 	
+	}
 
 	$self->setup_item_signals( $self->{_items}{$item}{ellipse} );
 	$self->setup_item_signals_extra( $self->{_items}{$item}{ellipse} );
