@@ -379,8 +379,6 @@ sub change_drawing_tool_cb {
 
 	} 
 
-
-
 	$self->{_canvas}->window->set_cursor($cursor);
 
 	return TRUE;
@@ -843,12 +841,18 @@ sub event_item_on_motion_notify {
 				my $new_height = 0;
 
 				if ( $_ =~ /top.*left/ ) {
-
-					$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
-					$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};
-
-					$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
-					$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
+					
+					if($ev->state >= 'control-mask'){
+						$new_x = $self->{_items}{$curr_item}->get('x') + $ev->y - $item->{res_y};
+						$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};						
+						$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
+						$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
+					}else{
+						$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
+						$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};						
+						$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
+						$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
+					}
 
 				} elsif ( $_ =~ /top.*middle/ ) {
 
@@ -857,13 +861,19 @@ sub event_item_on_motion_notify {
 
 					$new_width = $self->{_items}{$curr_item}->get('width');
 					$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
+				
 				} elsif ( $_ =~ /top.*right/ ) {
 
-					$new_x = $self->{_items}{$curr_item}->get('x');
-					$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};
+						$new_x = $self->{_items}{$curr_item}->get('x');
+						$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};
 
-					$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x - $item->{res_x} );
-					$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
+					if($ev->state >= 'control-mask'){
+						$new_width  = $self->{_items}{$curr_item}->get('width') - ( $ev->y - $item->{res_y} );
+						$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );		
+					}else{
+						$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x - $item->{res_x} );
+						$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );					
+					}
 
 				} elsif ( $_ =~ /middle.*left/ ) {
 
@@ -883,11 +893,19 @@ sub event_item_on_motion_notify {
 
 				} elsif ( $_ =~ /bottom.*left/ ) {
 
-					$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
-					$new_y = $self->{_items}{$curr_item}->get('y');
+					if($ev->state >= 'control-mask'){
+						$new_x = $self->{_items}{$curr_item}->get('x') - $ev->y + $item->{res_y};
+						$new_y = $self->{_items}{$curr_item}->get('y');
+						
+						$new_width  = $self->{_items}{$curr_item}->get('width') + ( $self->{_items}{$curr_item}->get('x') - $new_x);
+						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );
+					}else{
+						$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
+						$new_y = $self->{_items}{$curr_item}->get('y');
 
-					$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
-					$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );
+						$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
+						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );					
+					}
 
 				} elsif ( $_ =~ /bottom.*middle/ ) {
 
@@ -902,8 +920,15 @@ sub event_item_on_motion_notify {
 					$new_x = $self->{_items}{$curr_item}->get('x');
 					$new_y = $self->{_items}{$curr_item}->get('y');
 
-					$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x - $item->{res_x} );
-					$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );
+					
+					if($ev->state >= 'control-mask'){
+						$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->y - $item->{res_y} );
+						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );						
+					}else{
+						$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x - $item->{res_x} );
+						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );					
+					}
+
 
 				}
 
