@@ -366,7 +366,20 @@ sub change_drawing_tool_cb {
 
 		$self->{_current_mode_descr} = "clear";
 
-	}
+	} elsif ( $self->{_current_mode} == 70 ) {
+
+		$self->{_current_mode_descr} = "clear_all";
+
+		foreach(keys %{$self->{_items}}){
+			$self->clear_item_from_canvas($self->{_items}{$_}, TRUE);	
+		}
+		
+		$self->set_drawing_action(0);
+		$self->change_drawing_tool_cb(10);
+
+	} 
+
+
 
 	$self->{_canvas}->window->set_cursor($cursor);
 
@@ -812,9 +825,12 @@ sub event_item_on_motion_notify {
 		$self->handle_rects( 'update', $item );
 		$self->handle_embedded( 'update', $item );
 
+	#resizing
 	} elsif ( $item->{resizing} && $ev->state >= 'button1-mask' ) {
 
 		my $curr_item = $self->{_current_item};
+
+		print "Controll is down\n" if $ev->state >= 'control-mask';
 
 		foreach ( keys %{ $self->{_items}{$curr_item} } ) {
 
@@ -2171,7 +2187,8 @@ sub setup_uimanager {
 		[ "Rect",    'gscrot-rectangle', undef, undef, $d->get("Draw a rectangle"),                    30 ],
 		[ "Ellipse", 'gscrot-ellipse',   undef, undef, $d->get("Draw a ellipse"),                      40 ],
 		[ "Text",    'gscrot-text',      undef, undef, $d->get("Add some text to the screenshot"),     50 ],
-		[ "Clear",   'gscrot-eraser',    undef, undef, $d->get("Delete objects"),                      60 ]
+		[ "Clear",   'gscrot-eraser',    undef, undef, $d->get("Delete objects"),                      60 ],
+		[ "ClearAll",'gtk-clear',  	 undef, undef, $d->get("Delete all objects"),                  70 ]
 	);
 
 	my $uimanager = Gtk2::UIManager->new();
@@ -2247,6 +2264,7 @@ sub setup_uimanager {
     <toolitem action='Text'/>
     <separator/>
     <toolitem action='Clear'/>
+    <toolitem action='ClearAll'/>
   </toolbar>  
 </ui>";
 
