@@ -766,6 +766,8 @@ sub event_item_on_motion_notify {
 
 		if ( $item->isa('Goo::Canvas::Rect') ) {
 
+			print "dragging\n";
+
 			my $new_x = $self->{_items}{$item}->get('x') + $ev->x - $item->{drag_x};
 			my $new_y = $self->{_items}{$item}->get('y') + $ev->y - $item->{drag_y};
 
@@ -781,6 +783,8 @@ sub event_item_on_motion_notify {
 			$self->handle_embedded( 'update', $item );
 
 		} else {
+
+			print "simple translate\n";
 
 			$item->translate( $ev->x - $item->{drag_x}, $ev->y - $item->{drag_y} )
 				unless $item == $self->{_canvas_bg};
@@ -805,12 +809,23 @@ sub event_item_on_motion_notify {
 		)
 	{
 
+		print "creating new item\n";
+
 		$self->{_canvas}->window->set_cursor( Gtk2::Gdk::Cursor->new('bottom-right-corner') );
 
 		my $item = $self->{_current_new_item};
 
-		my $new_width  = $ev->x - $self->{_items}{$item}->get('x');
-		my $new_height = $ev->y - $self->{_items}{$item}->get('y');
+		my $new_width  = -1;
+		my $new_height = -1;	
+		
+		if($ev->state >= 'control-mask'){
+			$new_width  = $ev->y - $self->{_items}{$item}->get('y');
+			$new_height = $ev->y - $self->{_items}{$item}->get('y');			
+		}else{
+			$new_width  = $ev->x - $self->{_items}{$item}->get('x');
+			$new_height = $ev->y - $self->{_items}{$item}->get('y');		
+		}
+
 
 		$new_width  = 1 if $new_width < 1;
 		$new_height = 1 if $new_height < 1;
@@ -826,9 +841,9 @@ sub event_item_on_motion_notify {
 	#resizing
 	} elsif ( $item->{resizing} && $ev->state >= 'button1-mask' ) {
 
-		my $curr_item = $self->{_current_item};
+		print "Jaeahahahaha\n";
 
-		print "Controll is down\n" if $ev->state >= 'control-mask';
+		my $curr_item = $self->{_current_item};
 
 		foreach ( keys %{ $self->{_items}{$curr_item} } ) {
 
