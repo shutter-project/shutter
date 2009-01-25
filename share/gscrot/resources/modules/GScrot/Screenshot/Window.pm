@@ -27,7 +27,7 @@ package GScrot::Screenshot::Window;
 use utf8;
 use strict;
 use GScrot::Screenshot::Main;
-use Cairo;
+use Data::Dumper;
 our @ISA = qw(GScrot::Screenshot::Main);
 
 #define constants
@@ -283,9 +283,28 @@ sub window_select {
 						Gtk2::Gdk->flush;
 						sleep 1 if $self->{_delay} < 1;
 
-#						my ($ordering, $rectangles) = $x->ShapeGetRectangles(&fct_find_wm_window($self->{_children}{ 'curr_win' }{ 'window' }->get_xid), 'Bounding');
-#						print $rectangles;
-
+						my ($ordering, @r) = $self->{_x11}->ShapeGetRectangles($self->find_wm_window($self->{_children}{ 'curr_win' }{ 'window' }->get_xid), 'Bounding');
+						print Dumper @r;
+						
+						#region from window dimensions
+						my $wregion = Gtk2::Gdk::Region->rectangle (Gtk2::Gdk::Rectangle->new(
+							0,
+							0,
+							$self->{_children}{'curr_win'}{'width'},
+							$self->{_children}{'curr_win'}{'height'}));
+					
+						
+						#create a region from the bounding rectangles
+						my $bregion = Gtk2::Gdk::Region->new;					
+						foreach my $r (@r){
+							my @rect =  @{$r};
+							print "Current $rect[0],$rect[1],$rect[2],$rect[3]\n";
+							$bregion->union_with_rect(Gtk2::Gdk::Rectangle->new ($rect[0],$rect[1],$rect[2],$rect[3]));	
+						}
+						
+						#subtract bounding from window
+						#~ $wregion->subtract($bregion);
+						
 						$output = $self->get_pixbuf_from_drawable(
 							$self->{_root},
 							$self->{_children}{'curr_win'}{'x'},
@@ -295,6 +314,26 @@ sub window_select {
 							$self->{_include_cursor},
 							$self->{_delay}
 						);
+
+						my $target = Gtk2::Gdk::Pixbuf->new ($output->get_colorspace, TRUE, 8, $self->{_children}{'curr_win'}{'width'}, $self->{_children}{'curr_win'}{'height'});
+						foreach my $r($bregion->get_rectangles){
+							print $r->x." ".$r->y." ".$r->width." ".$r->height."\n";
+							my $sub = $output->new_subpixbuf($r->x, $r->y, $r->width, $r->height);
+							$sub->composite(
+									   $target,      $r->x,
+									   $r->y,      $r->width,
+									   $r->height,  0,
+									   0, 1.0,
+									   1.0,          'bilinear',
+									   255
+									 );
+							#~ $output->copy_area ($r->x, $r->y, $r->width, $r->height, $target, $r->x, $r->y);
+							#~ $target->fill($output->new_subpixbuf($r->x, $r->y, $r->width, $r->height)->get_pixels + $r->y * $output->get_rowstride + $r->x * 3);				
+						}
+						
+						#~ $output = $target->add_alpha (TRUE, 0xff, 0xff, 0xff);
+						$output = $target->copy;
+						
 
 					} else {
 						$output = 0;
