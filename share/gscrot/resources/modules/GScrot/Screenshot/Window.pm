@@ -189,9 +189,18 @@ sub window_by_xid {
 	Gtk2::Gdk->flush;
 	sleep 1 if $self->{_delay} < 1;
 
-	return $self->get_pixbuf_from_drawable( $self->{_root}, $xp, $yp, $widthp, $heightp,
+	my $output = $self->get_pixbuf_from_drawable( $self->{_root}, $xp, $yp, $widthp, $heightp,
 		$self->{_include_cursor},
 		$self->{_delay} );
+
+	#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
+	unless (Gtk2::Gdk::Screen->get_default->get_window_manager_name =~ /compiz/){
+		if($self->{_x11}{ext_shape}){
+			$output = $self->get_shape($self->{_xid}, $output);				
+		}
+	}
+
+	return $output;
 
 }
 
@@ -208,6 +217,7 @@ sub window_select {
 	my $hand_cursor2 = Gtk2::Gdk::Cursor->new('GDK_HAND2');
 
 	#define graphics context
+	my $cr = undef;
 	my $white = Gtk2::Gdk::Color->new( 65535, 65535, 65535 );
 	my $black = Gtk2::Gdk::Color->new( 0,     0,     0 );
 	my $gc = Gtk2::Gdk::GC->new( $self->{_root}, undef );
@@ -332,7 +342,13 @@ sub window_select {
 						#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
 						unless (Gtk2::Gdk::Screen->get_default->get_window_manager_name =~ /compiz/){
 							if($self->{_x11}{ext_shape}){
-								$output = $self->get_shape($self->{_children}{ 'curr_win' }{ 'window' }->get_xid, $output);						
+								my $xid = $self->{_children}{ 'curr_win' }{ 'gdk_window' }->get_xid;
+								#do not try this for child windows
+								foreach my $win ($self->{_wnck_screen}->get_windows){
+									if($win->get_xid == $xid){
+										$output = $self->get_shape($xid, $output);				
+									}
+								}
 							}
 						}	
 
