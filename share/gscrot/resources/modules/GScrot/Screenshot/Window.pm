@@ -109,6 +109,42 @@ sub query_children {
 	return TRUE;
 }
 
+sub get_shape {
+	my $self = shift;
+	my $xid = shift;
+	my $orig = shift;
+
+	my ($ordering, @r) = $self->{_x11}->ShapeGetRectangles($self->find_wm_window($xid), 'Bounding');
+							
+	#create a region from the bounding rectangles
+	my $bregion = Gtk2::Gdk::Region->new;					
+	foreach my $r (@r){
+		my @rect =  @{$r};
+		print "Current $rect[0],$rect[1],$rect[2],$rect[3]\n" if $self->{_gc}->get_debug;
+		$bregion->union_with_rect(Gtk2::Gdk::Rectangle->new ($rect[0],$rect[1],$rect[2],$rect[3]));	
+	}
+
+	#create target pixbuf with dimensions if selected/current window
+	my $target = Gtk2::Gdk::Pixbuf->new ($orig->get_colorspace, TRUE, 8, $orig->get_width, $orig->get_height);
+	#whole pixbuf is transparent
+	$target->fill('0x00000000');
+	
+	#copy all rectangles of bounding region to the target pixbuf
+	foreach my $r($bregion->get_rectangles){
+		print $r->x." ".$r->y." ".$r->width." ".$r->height."\n" if $self->{_gc}->get_debug;
+
+		next if($r->x > $orig->get_width);
+		next if($r->y > $orig->get_height);
+
+		$r->width($orig->get_width - $r->x) if($r->x+$r->width > $orig->get_width);
+		$r->height($orig->get_height - $r->y) if($r->y+$r->height > $orig->get_height);	
+		
+		$orig->copy_area ($r->x, $r->y, $r->width, $r->height, $target, $r->x, $r->y);		
+	}
+	
+	return $target;
+}	
+
 sub get_window_size {
 	my ( $self, $wnck_window, $gdk_window, $border ) = @_;
 
@@ -282,28 +318,6 @@ sub window_select {
 						$self->{_children}{'last_win'}{'gdk_window'}->focus(time);
 						Gtk2::Gdk->flush;
 						sleep 1 if $self->{_delay} < 1;
-
-						my ($ordering, @r) = $self->{_x11}->ShapeGetRectangles($self->find_wm_window($self->{_children}{ 'curr_win' }{ 'window' }->get_xid), 'Bounding');
-						print Dumper @r;
-						
-						#region from window dimensions
-						my $wregion = Gtk2::Gdk::Region->rectangle (Gtk2::Gdk::Rectangle->new(
-							0,
-							0,
-							$self->{_children}{'curr_win'}{'width'},
-							$self->{_children}{'curr_win'}{'height'}));
-					
-						
-						#create a region from the bounding rectangles
-						my $bregion = Gtk2::Gdk::Region->new;					
-						foreach my $r (@r){
-							my @rect =  @{$r};
-							print "Current $rect[0],$rect[1],$rect[2],$rect[3]\n";
-							$bregion->union_with_rect(Gtk2::Gdk::Rectangle->new ($rect[0],$rect[1],$rect[2],$rect[3]));	
-						}
-						
-						#subtract bounding from window
-						#~ $wregion->subtract($bregion);
 						
 						$output = $self->get_pixbuf_from_drawable(
 							$self->{_root},
@@ -313,27 +327,14 @@ sub window_select {
 							$self->{_children}{'curr_win'}{'height'},
 							$self->{_include_cursor},
 							$self->{_delay}
-						);
-
-						my $target = Gtk2::Gdk::Pixbuf->new ($output->get_colorspace, TRUE, 8, $self->{_children}{'curr_win'}{'width'}, $self->{_children}{'curr_win'}{'height'});
-						foreach my $r($bregion->get_rectangles){
-							print $r->x." ".$r->y." ".$r->width." ".$r->height."\n";
-							my $sub = $output->new_subpixbuf($r->x, $r->y, $r->width, $r->height);
-							$sub->composite(
-									   $target,      $r->x,
-									   $r->y,      $r->width,
-									   $r->height,  0,
-									   0, 1.0,
-									   1.0,          'bilinear',
-									   255
-									 );
-							#~ $output->copy_area ($r->x, $r->y, $r->width, $r->height, $target, $r->x, $r->y);
-							#~ $target->fill($output->new_subpixbuf($r->x, $r->y, $r->width, $r->height)->get_pixels + $r->y * $output->get_rowstride + $r->x * 3);				
-						}
+						);						 
 						
-						#~ $output = $target->add_alpha (TRUE, 0xff, 0xff, 0xff);
-						$output = $target->copy;
-						
+						#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
+						unless (Gtk2::Gdk::Screen->get_default->get_window_manager_name =~ /compiz/){
+							if($self->{_x11}{ext_shape}){
+								$output = $self->get_shape($self->{_children}{ 'curr_win' }{ 'window' }->get_xid, $output);						
+							}
+						}	
 
 					} else {
 						$output = 0;
