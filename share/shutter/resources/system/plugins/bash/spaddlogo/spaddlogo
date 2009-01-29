@@ -1,0 +1,57 @@
+#!/bin/bash
+#Shutter branding
+#shutter-plugin
+
+
+TEXTDOMAIN=shutter-plugins-bash
+TEXTDOMAINDIR=$SHUTTER_INTL
+PLUGIN_NAME=$"Shutter branding"
+PLUGIN_SORT=$"effect"
+PLUGIN_TIP=$"polaroid whith Shutter logo and the name of the picture as subtitle"
+PLUGIN_EXT="image/png"
+
+if [[ "${1}" = "name" ]];then
+   	echo "${PLUGIN_NAME}"
+    exit 0
+elif [[ "${1}" = "sort" ]];then
+    echo "${PLUGIN_SORT}"
+    exit 0
+elif [[ "${1}" = "tip" ]];then
+    echo "${PLUGIN_TIP}"
+    exit 0
+elif [[ "${1}" = "ext" ]];then
+    echo "${PLUGIN_EXT}"
+    exit 0
+elif [[ "${1}" = "lang" ]];then
+    echo "shell"
+    exit 0
+fi
+
+FILE="${1}"
+WIDTH="${2}"
+HEIGHT="${3}"
+FILEYTPE="${4}"
+INTL_PATH="${5}"
+GEO="${2}x${3}"
+SHORTNAME=$(basename ${1} .png)
+LOGO="$SHUTTER_ROOT/share/shutter/resources/system/plugins/bash/spaddlogo/shutter_branding.png"
+
+mogrify -resize 480x400\> \
+-bordercolor white -border 22x22 \
+-gravity south -annotate 0 "${SHORTNAME}" \
+-bordercolor white -border 4x4 \
+"${FILE}"
+
+convert "${FILE}" "${LOGO}" \
+-background none -mosaic +repage "${FILE}"
+
+mogrify  \
+-bordercolor gray -border 1x1 \
+-set comment "http://shutter-project.org" \
+"${FILE}"
+
+convert "${FILE}" \( +clone -background black  -shadow 80x3+5+5 \) \
++swap -background none -mosaic +repage -rotate -4 \
+"${FILE}"
+
+exit 0

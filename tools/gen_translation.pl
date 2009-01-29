@@ -2,22 +2,22 @@
 
 ###################################################
 #
-#  Copyright (C) Mario Kemper 2008 <mario.kemper@googlemail.com>
+#  Copyright (C) Mario Kemper <mario.kemper@googlemail.com> and Shutter Team
 #
-#  This file is part of GScrot.
+#  This file is part of Shutter.
 #
-#  GScrot is free software; you can redistribute it and/or modify
+#  Shutter is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 3 of the License, or
 #  (at your option) any later version.
 #
-#  GScrot is distributed in the hope that it will be useful,
+#  Shutter is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
 #
 #  You should have received a copy of the GNU General Public License
-#  along with GScrot; if not, write to the Free Software
+#  along with Shutter; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 ###################################################
@@ -33,7 +33,7 @@ close LIST or die $!;
 
 my $time = time;
 #create file
-system("touch ./gscrot_$time.pot");
+system("touch ./shutter_$time.pot");
 
 #open files to translate
 my $file = undef;
@@ -52,14 +52,14 @@ foreach $file (@translate_files) {
 		$_ =~ s/\$d->nget/ngettext/ig;
 		$_ =~ s/\$self->\{\_gettext\_object\}->get/gettext/ig;
 		$_ =~ s/\$self->\{\_gettext\_object\}->nget/ngettext/ig;
-		$_ =~ s/\$gscrot\_common->get\_gettext->get/gettext/ig;
-		$_ =~ s/\$gscrot\_common->get\_gettext->nget/ngettext/ig;
+		$_ =~ s/\$shutter\_common->get\_gettext->get/gettext/ig;
+		$_ =~ s/\$shutter\_common->get\_gettext->nget/ngettext/ig;
 		print FILE_TMP $_ . "\n";
 	}
 	close FILE     or die $!;
 	close FILE_TMP or die $!;
 
-	system("xgettext ./translate_tmp.pl --language=Perl -j -o gscrot_$time.pot");
+	system("xgettext ./translate_tmp.pl --language=Perl -j -o shutter_$time.pot");
 	unlink("./translate_tmp.pl");
 
 }

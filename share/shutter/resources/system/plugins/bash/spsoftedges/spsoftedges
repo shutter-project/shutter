@@ -1,0 +1,40 @@
+#!/bin/bash
+#soft edges
+#shutter-plugin
+
+
+TEXTDOMAIN=shutter-plugins-bash
+TEXTDOMAINDIR=$SHUTTER_INTL
+PLUGIN_NAME=$"soft edges"
+PLUGIN_SORT=$"effect"
+PLUGIN_TIP=$"add soft edges around the picture"
+PLUGIN_EXT="image/png"
+
+if [[ "${1}" = "name" ]];then
+   	echo "${PLUGIN_NAME}"
+    exit 0
+elif [[ "${1}" = "sort" ]];then
+    echo "${PLUGIN_SORT}"
+    exit 0
+elif [[ "${1}" = "tip" ]];then
+    echo "${PLUGIN_TIP}"
+    exit 0
+elif [[ "${1}" = "ext" ]];then
+    echo "${PLUGIN_EXT}"
+    exit 0
+elif [[ "${1}" = "lang" ]];then
+    echo "shell"
+    exit 0
+fi
+
+FILE="${1}"
+#WIDTH="${2}"
+#HEIGHT="${3}"
+#FILEYTPE="${4}"
+#GEO="${2}x${3}"
+
+convert  "${FILE}" -matte -virtual-pixel transparent -channel A \
+-blur 0x8  -evaluate subtract 50%  -evaluate multiply 2.001 \
+"${FILE}"
+             
+exit 0

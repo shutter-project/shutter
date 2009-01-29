@@ -1,0 +1,189 @@
+#! /usr/bin/perl
+
+###################################################
+#
+#  Copyright (C) Mario Kemper <mario.kemper@googlemail.com> and Shutter Team
+#
+#  This file is part of Shutter.
+#
+#  Shutter is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Shutter is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Shutter; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+###################################################
+
+use utf8;
+use strict;
+use warnings;
+use Gtk2 '-init';
+use Image::Magick;
+use POSIX qw/setlocale/;
+use Locale::gettext;
+use Glib qw/TRUE FALSE/;
+use FindBin '$Bin';    #path where plugin is located
+
+#configure gettext using ENV Variable (setup during shutter start)
+setlocale( LC_MESSAGES, "" );
+my $d = Locale::gettext->domain("shutter-plugins");
+$d->dir( $ENV{'SHUTTER_INTL'} );
+
+binmode( STDOUT, ":utf8" );
+#gscrot will ask for some infos - no need of changing anything
+if ( $ARGV[0] eq "name" ) {
+	print $d->get("negate");
+	exit;
+}
+elsif ( $ARGV[0] eq "sort" ) {
+	print $d->get("effect");
+	exit;
+}
+elsif ( $ARGV[0] eq "tip" ) {
+	print $d->get("replace every pixel with its complementary color");
+	exit;
+}
+elsif ( $ARGV[0] eq "ext" ) {
+	print "image/png;image/bmp;image/jpeg";
+	exit;
+}
+elsif ( $ARGV[0] eq "lang" ) {
+	print "perl";
+	exit;
+}
+
+#these variables are passed to the plugin
+my $socket_id = $ARGV[0];
+my $filename  = $ARGV[1];
+my $width     = $ARGV[2];
+my $height    = $ARGV[3];
+my $filetype  = $ARGV[4];
+
+my $plug = Gtk2::Plug->new($socket_id);
+$plug->set_border_width(10);
+
+$plug->signal_connect( destroy => sub { Gtk2->main_quit } );
+
+#variables used in this plugin
+my $width_preview  = 0;
+my $height_preview = 0;
+
+#define the gui layout
+my $hbox      = Gtk2::HBox->new( 0, 10 );
+my $hbox_btn  = Gtk2::HBox->new( 0, 10 );
+my $vbox_lbl  = Gtk2::VBox->new( 0, 10 );
+my $vbox_btn  = Gtk2::VBox->new( 0, 10 );
+my $vbox_main = Gtk2::VBox->new( 0, 10 );
+
+#configure buttons and other needed controls
+my $negate_label = Gtk2::Label->new( $d->get("Channel") );
+
+my $negate_channel = Gtk2::ComboBox->new_text;
+$negate_channel->insert_text( 0, "All" );
+$negate_channel->insert_text( 1, "Alpha" );
+$negate_channel->insert_text( 2, "Black" );
+$negate_channel->insert_text( 3, "Blue" );
+$negate_channel->insert_text( 4, "Cyan" );
+$negate_channel->insert_text( 5, "Gray" );
+$negate_channel->insert_text( 6, "Green" );
+$negate_channel->insert_text( 7, "Index" );
+$negate_channel->insert_text( 8, "Magenta" );
+$negate_channel->insert_text( 9, "Opacity" );
+$negate_channel->insert_text( 10, "Red" );
+$negate_channel->insert_text( 11, "Yellow" );
+$negate_channel->set_active(0);
+
+my $refresh_btn = Gtk2::Button->new_from_stock('gtk-refresh');
+$refresh_btn->signal_connect( 'clicked', \&fct_imagemagick_negate, 'refresh' );
+
+my $preview =
+  Gtk2::Image->new_from_pixbuf(
+	Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $filename, 200, 200, TRUE ) );
+
+#set width and height of preview image
+$width_preview  = $preview->get_pixbuf->get_width;
+$height_preview = $preview->get_pixbuf->get_height;
+
+my $save_btn = Gtk2::Button->new_from_stock('gtk-save');
+$save_btn->signal_connect( 'clicked', \&fct_imagemagick_negate, 'save' );
+
+my $cancel_btn = Gtk2::Button->new_from_stock('gtk-cancel');
+$cancel_btn->signal_connect( 'clicked' => sub { Gtk2->main_quit }, 'cancel' );
+
+#packing
+$hbox->pack_start( $negate_label, FALSE, TRUE, 0 );
+$hbox->pack_start( $negate_channel,  TRUE,  TRUE, 0 );
+
+$hbox_btn->pack_start( $cancel_btn, TRUE, TRUE, 0 );
+$hbox_btn->pack_start( $save_btn,   TRUE, TRUE, 0 );
+
+$vbox_main->pack_start( $hbox,        TRUE, TRUE, 0 );
+$vbox_main->pack_start( $preview,     TRUE, TRUE, 0 );
+$vbox_main->pack_start( $refresh_btn, TRUE, TRUE, 0 );
+$vbox_main->pack_start( $hbox_btn,    TRUE, TRUE, 0 );
+
+$plug->add($vbox_main);
+
+$plug->show_all;
+
+#generate first preview
+&fct_imagemagick_negate( undef, 'refresh' );
+
+#lets'start
+Gtk2->main;
+
+####define your functions here
+sub value_changed {
+	my ( $widget, $data ) = @_;
+
+	return TRUE;
+}
+
+sub fct_imagemagick_negate {
+	my ( $widget, $data ) = @_;
+
+	my $image = Image::Magick->new;
+
+	if ( $data eq 'save' ) {
+
+		$image->ReadImage($filename);
+		$image->Negate(channel => $negate_channel->get_active_text);
+		$image->WriteImage( filename => $filename );
+
+		Gtk2->main_quit;
+		return TRUE;
+	}
+	else {
+
+		$image->ReadImage($filename);
+		$image->Negate(channel => $negate_channel->get_active_text);
+
+		$preview->set_from_pixbuf(
+			&fct_imagemagick_to_pixbuf( $image->ImageToBlob() ) );
+
+		return TRUE;
+	}
+}
+
+sub fct_imagemagick_to_pixbuf {
+	my ($blob) = @_;
+	my $pixbufloader = Gtk2::Gdk::PixbufLoader->new;
+	$pixbufloader->set_size( $width_preview, $height_preview );
+	$pixbufloader->write($blob);
+	$pixbufloader->close;
+	my $pixbuf = $pixbufloader->get_pixbuf;
+
+	return $pixbuf;
+}
+####define your functions here
+
+1;
+

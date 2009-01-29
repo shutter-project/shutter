@@ -2,7 +2,7 @@ Source: shutter
 Section: utils
 Priority: optional
 Maintainer: Mario Kemper <mario.kemper@googlemail.com>
-Standards-Version: 3.7.3.0
+Standards-Version: 3.8.0
 Build-Depends: debhelper (>= 5)
 Homepage: https://launchpad.net/shutter
 
@@ -10,8 +10,8 @@ Package: shutter
 Architecture: all
 Depends: libglib-perl, libgtk2-perl, liblocale-gettext-perl, librsvg2-common, libxml-simple-perl, libfile-remove-perl, libwww-mechanize-perl, libwww-perl, libgnome2-gconf-perl, imagemagick, perlmagick, libgtk2-imageview-perl, libgnome2-wnck-perl, libx11-protocol-perl, gtklp, libgtk2-trayicon-perl, libgoo-canvas-perl, gnome-web-photo
 Conflicts: 
-Replaces: gscrot-plugins-bash
-Provides: shutter, gscrot, gscrot-plugins-bash
+Replaces: gscrot-plugins-bash, gscrot
+Provides: shutter
 Description: Feature-rich screenshot application
  Shutter is a feature-rich screenshot program. 
  You can take a screenshot of a specific area, window, your whole screen, or even of a website - apply different effects to it, draw on it to highlight points, and then upload to a image hosting site, all within one window.

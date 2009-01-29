@@ -1,0 +1,48 @@
+#!/bin/bash
+#raise
+#shutter-plugin
+
+
+TEXTDOMAIN=shutter-plugins-bash
+TEXTDOMAINDIR=$SHUTTER_INTL
+PLUGIN_NAME=$"raise border"
+PLUGIN_SORT=$"effect"
+PLUGIN_TIP=$"raise a rectangular 3d-border"
+PLUGIN_EXT="image/png;image/bmp;image/jpeg"
+
+if [[ "${1}" = "name" ]];then
+   	echo "${PLUGIN_NAME}"
+    exit 0
+elif [[ "${1}" = "sort" ]];then
+    echo "${PLUGIN_SORT}"
+    exit 0
+elif [[ "${1}" = "tip" ]];then
+    echo "${PLUGIN_TIP}"
+    exit 0
+elif [[ "${1}" = "ext" ]];then
+    echo "${PLUGIN_EXT}"
+    exit 0
+elif [[ "${1}" = "lang" ]];then
+    echo "shell"
+    exit 0
+fi
+
+FILE="${1}"
+WIDTH="${2}"
+HEIGHT="${3}"
+#FILEYTPE="${4}"
+#GEO="${2}x${3}"
+
+BORDER_SCALE=60
+MIN_BORDER=4
+
+let BORDER=(${WIDTH}+${HEIGHT})/${BORDER_SCALE}
+
+if [[ ${BORDER} -le ${MIN_BORDER} ]];then
+    BORDER=${MIN_BORDER}
+fi
+
+convert "${FILE}" -raise ${BORDER}x${BORDER} \
+"${FILE}"
+       
+exit 0
