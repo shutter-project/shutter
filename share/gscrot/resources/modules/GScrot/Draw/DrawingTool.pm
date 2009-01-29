@@ -545,6 +545,15 @@ sub load_settings {
 	if ( $gscrot_hfunct->file_exists($settingsfile) ) {
 		eval {
 			$settings_xml = XMLin($settingsfile);
+	
+			#window size and position
+			if($settings_xml->{'drawing'}->{'x'} && $settings_xml->{'drawing'}->{'y'}){
+				$self->{_drawing_window}->move($settings_xml->{'drawing'}->{'x'}, $settings_xml->{'drawing'}->{'y'});
+			}
+	
+			if($settings_xml->{'drawing'}->{'width'} && $settings_xml->{'drawing'}->{'height'}){
+				$self->{_drawing_window}->resize($settings_xml->{'drawing'}->{'width'}, $settings_xml->{'drawing'}->{'height'});			
+			}			
 
 			#autoscroll
 			my $autoscroll_toggle = $self->{_uimanager}->get_widget("/MenuBar/Edit/Autoscroll");
@@ -579,6 +588,17 @@ sub save_settings {
 		open( SETTFILE, ">$settingsfile" );
 
 		my %settings;    #hash to store settings
+
+		#window size and position
+		my ($w, $h) = $self->{_drawing_window}->get_size;
+		my ($x, $y) = $self->{_drawing_window}->get_position;
+		$settings{'drawing'}->{'x'} = $x;
+		$settings{'drawing'}->{'y'} = $y;
+		$settings{'drawing'}->{'width'} = $w;
+		$settings{'drawing'}->{'height'} = $h;
+		
+		#current action
+		$settings{'drawing'}->{'mode'} = $self->{_current_mode}; 
 
 		#autoscroll
 		my $autoscroll_toggle = $self->{_uimanager}->get_widget("/MenuBar/Edit/Autoscroll");
