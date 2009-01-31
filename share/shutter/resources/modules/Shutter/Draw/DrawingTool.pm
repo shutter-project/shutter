@@ -388,16 +388,16 @@ sub change_drawing_tool_cb {
 
 sub zoom_in_cb {
 	my $self = shift;
-	$self->{_canvas}->set_scale( $self->{_canvas}->get_scale + 0.5 );
+	$self->{_canvas}->set_scale( $self->{_canvas}->get_scale + 0.25 );
 	$self->adjust_rulers;
 	return TRUE;
 }
 
 sub zoom_out_cb {
 	my $self      = shift;
-	my $new_scale = $self->{_canvas}->get_scale - 0.5;
-	if ( $new_scale < 0.5 ) {
-		$self->{_canvas}->set_scale(0.5);
+	my $new_scale = $self->{_canvas}->get_scale - 0.25;
+	if ( $new_scale < 0.25 ) {
+		$self->{_canvas}->set_scale(0.25);
 	} else {
 		$self->{_canvas}->set_scale($new_scale);
 	}
@@ -819,7 +819,20 @@ sub event_item_on_motion_notify {
 
 		my $item = $self->{_current_new_item};
 
-		push @{ $self->{_items}{$item}{'points'} }, $ev->x, $ev->y;
+		
+		if($ev->state >= 'control-mask'){
+			my $last_point = pop @{ $self->{_items}{$item}{'points'} };
+			$last_point = $ev->y unless $last_point;
+			push @{ $self->{_items}{$item}{'points'} }, $last_point, $ev->x, $last_point;
+		}elsif($ev->state >= 'shift-mask'){
+			my $last_point_y = pop @{ $self->{_items}{$item}{'points'} };
+			my $last_point_x = pop @{ $self->{_items}{$item}{'points'} };
+			$last_point_x = $ev->x unless $last_point_x;
+			$last_point_y = $ev->y unless $last_point_y;
+			push @{ $self->{_items}{$item}{'points'} }, $last_point_x, $last_point_y, $last_point_x, $ev->y;		
+		}else{
+			push @{ $self->{_items}{$item}{'points'} }, $ev->x, $ev->y;		
+		}
 		$self->{_items}{$item}->set( points => Goo::Canvas::Points->new( $self->{_items}{$item}{'points'} ) );
 
 		#items
