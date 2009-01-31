@@ -559,6 +559,7 @@ sub load_settings {
 			
 			#current mode
 			if($settings_xml->{'drawing'}->{'mode'}){
+				$self->set_drawing_action($settings_xml->{'drawing'}->{'mode'} % 10);
 				$self->change_drawing_tool_cb($settings_xml->{'drawing'}->{'mode'});
 			}
 					
@@ -877,8 +878,8 @@ sub event_item_on_motion_notify {
 				if ( $_ =~ /top.*left/ ) {
 					
 					if($ev->state >= 'control-mask'){
-						$new_x = $self->{_items}{$curr_item}->get('x') + $ev->y - $item->{res_y};
-						$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};						
+						$new_x = $self->{_items}{$curr_item}->get('x') + ($ev->y - $item->{res_y}) * ($self->{_items}{$curr_item}->get('width')/$self->{_items}{$curr_item}->get('height'));
+						$new_y = $self->{_items}{$curr_item}->get('y') + ($ev->y - $item->{res_y});						
 						$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
 						$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
 					}else{
@@ -902,7 +903,7 @@ sub event_item_on_motion_notify {
 						$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};
 
 					if($ev->state >= 'control-mask'){
-						$new_width  = $self->{_items}{$curr_item}->get('width') - ( $ev->y - $item->{res_y} );
+						$new_width  = $self->{_items}{$curr_item}->get('width') - ( $ev->y - $item->{res_y} ) * ($self->{_items}{$curr_item}->get('width')/$self->{_items}{$curr_item}->get('height'));
 						$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );		
 					}else{
 						$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x - $item->{res_x} );
@@ -931,8 +932,8 @@ sub event_item_on_motion_notify {
 						$new_x = $self->{_items}{$curr_item}->get('x') - $ev->y + $item->{res_y};
 						$new_y = $self->{_items}{$curr_item}->get('y');
 						
-						$new_width  = $self->{_items}{$curr_item}->get('width') + ( $self->{_items}{$curr_item}->get('x') - $new_x);
-						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );
+						$new_width  = $self->{_items}{$curr_item}->get('width') + ( $self->{_items}{$curr_item}->get('x') - $new_x );
+						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} ) / ($self->{_items}{$curr_item}->get('width')/$self->{_items}{$curr_item}->get('height'));
 					}else{
 						$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
 						$new_y = $self->{_items}{$curr_item}->get('y');
@@ -956,7 +957,7 @@ sub event_item_on_motion_notify {
 
 					
 					if($ev->state >= 'control-mask'){
-						$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->y - $item->{res_y} );
+						$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->y - $item->{res_y} ) * ($self->{_items}{$curr_item}->get('width')/$self->{_items}{$curr_item}->get('height'));
 						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );						
 					}else{
 						$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x - $item->{res_x} );
@@ -978,27 +979,21 @@ sub event_item_on_motion_notify {
 					$min_h = 20;
 				}
 
-				#min size while resizing
-				if ( $new_width <= $min_w ) {
-					$new_x         = $self->{_items}{$curr_item}->get('x');
-					$new_width     = $self->{_items}{$curr_item}->get('width');
-					$item->{res_x} = $new_x;
-				}
-				if ( $new_height <= $min_h ) {
-					$new_y         = $self->{_items}{$curr_item}->get('y');
-					$new_height    = $self->{_items}{$curr_item}->get('height');
-					$item->{res_y} = $new_y;
+				#only do something when min sizes are met
+				if ( $new_width > $min_w && $new_height > $min_h ) {
+
+					$self->{_items}{$curr_item}->set(
+						'x'      => $new_x,
+						'y'      => $new_y,
+						'width'  => $new_width,
+						'height' => $new_height,
+					);
+
+					$self->handle_rects( 'update', $curr_item );
+					$self->handle_embedded( 'update', $curr_item );
+				
 				}
 
-				$self->{_items}{$curr_item}->set(
-					'x'      => $new_x,
-					'y'      => $new_y,
-					'width'  => $new_width,
-					'height' => $new_height,
-				);
-
-				$self->handle_rects( 'update', $curr_item );
-				$self->handle_embedded( 'update', $curr_item );
 
 			}
 		}
@@ -1704,13 +1699,26 @@ sub handle_embedded {
 			);
 		} elsif ( exists $self->{_items}{$item}{image} ) {
 
-			my $copy = $self->{_items}{$item}{orig_pixbuf}->copy;
-			
-			$self->{_items}{$item}{image}->set(
-				'x'      => int $self->{_items}{$item}->get('x'),
-				'y'      => int $self->{_items}{$item}->get('y'),
-				'pixbuf' => $copy->scale_simple( $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'), 'nearest' )
-			);
+			if($self->{_items}{$item}->get('width') == $self->{_items}{$item}{image}->get('width') && $self->{_items}{$item}->get('height') == $self->{_items}{$item}{image}->get('height')){
+				
+				$self->{_items}{$item}{image}->set(
+					'x'      => int $self->{_items}{$item}->get('x'),
+					'y'      => int $self->{_items}{$item}->get('y'),
+					'width'  => $self->{_items}{$item}->get('width'),
+					'height' => $self->{_items}{$item}->get('height')
+				);			
+
+			}else{
+
+				$self->{_items}{$item}{image}->set(
+					'x'      => int $self->{_items}{$item}->get('x'),
+					'y'      => int $self->{_items}{$item}->get('y'),
+					'width'  => $self->{_items}{$item}->get('width'),
+					'height' => $self->{_items}{$item}->get('height'),
+					'pixbuf' => $self->{_items}{$item}{orig_pixbuf}->scale_simple( $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'), 'nearest' )
+				);	
+
+			}
 
 		}
 
@@ -2014,6 +2022,8 @@ sub event_item_on_button_release {
 		$self->{_items}{$parent}{image}->set(
 			'x'      => int $self->{_items}{$parent}->get('x'),
 			'y'      => int $self->{_items}{$parent}->get('y'),
+			'width'  => $self->{_items}{$parent}->get('width'),
+			'height' => $self->{_items}{$parent}->get('height'),
 			'pixbuf' => $copy
 		);
 	}	
