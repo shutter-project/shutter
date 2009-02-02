@@ -332,10 +332,19 @@ sub change_drawing_tool_cb {
 
 	} elsif ( $self->{_current_mode} == 20 ) {
 
-		$self->{_current_mode_descr} = "line";
+		$self->{_current_mode_descr} = "freehand";
 		$cursor = Gtk2::Gdk::Cursor->new('pencil');
 
 	} elsif ( $self->{_current_mode} == 30 ) {
+
+		$self->{_current_mode_descr} = "line";
+		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
+			Gtk2::Gdk::Display->get_default,
+			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-line.png"),
+			Gtk2::IconSize->lookup('menu')
+		);
+
+	} elsif ( $self->{_current_mode} == 40 ) {
 
 		$self->{_current_mode_descr} = "rect";
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
@@ -344,7 +353,7 @@ sub change_drawing_tool_cb {
 			Gtk2::IconSize->lookup('menu')
 		);
 
-	} elsif ( $self->{_current_mode} == 40 ) {
+	} elsif ( $self->{_current_mode} == 50 ) {
 
 		$self->{_current_mode_descr} = "ellipse";
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
@@ -353,7 +362,7 @@ sub change_drawing_tool_cb {
 			Gtk2::IconSize->lookup('menu')
 		);
 
-	} elsif ( $self->{_current_mode} == 50 ) {
+	} elsif ( $self->{_current_mode} == 60 ) {
 
 		$self->{_current_mode_descr} = "text";
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
@@ -362,11 +371,11 @@ sub change_drawing_tool_cb {
 			Gtk2::IconSize->lookup('menu')
 		);
 
-	} elsif ( $self->{_current_mode} == 60 ) {
+	} elsif ( $self->{_current_mode} == 70 ) {
 
 		$self->{_current_mode_descr} = "clear";
 
-	} elsif ( $self->{_current_mode} == 70 ) {
+	} elsif ( $self->{_current_mode} == 80 ) {
 
 		$self->{_current_mode_descr} = "clear_all";
 
@@ -815,7 +824,7 @@ sub event_item_on_motion_notify {
 		}
 
 		#freehand line
-	} elsif ( $self->{_current_mode_descr} eq "line" && $ev->state >= 'button1-mask' ) {
+	} elsif ( $self->{_current_mode_descr} eq "freehand" && $ev->state >= 'button1-mask' ) {
 
 		my $item = $self->{_current_new_item};
 
@@ -838,6 +847,7 @@ sub event_item_on_motion_notify {
 		#items
 	} elsif (
 		(      $self->{_current_mode_descr} eq "rect"
+			|| $self->{_current_mode_descr} eq "line"
 			|| $self->{_current_mode_descr} eq "ellipse"
 			|| $self->{_current_mode_descr} eq "text"
 			|| $self->{_current_mode_descr} eq "image"
@@ -851,10 +861,10 @@ sub event_item_on_motion_notify {
 		my $item = $self->{_current_new_item};
 
 		my $new_width  = -1;
-		my $new_height = -1;	
+		my $new_height = -1;		
 		
 		if($ev->state >= 'control-mask'){
-			$new_width  = $ev->y - $self->{_items}{$item}->get('y');
+			$new_width  = ($ev->y - $self->{_items}{$item}->get('y')) * ($self->{_items}{$item}->get('width')/$self->{_items}{$item}->get('height'));
 			$new_height = $ev->y - $self->{_items}{$item}->get('y');			
 		}else{
 			$new_width  = $ev->x - $self->{_items}{$item}->get('x');
@@ -867,7 +877,7 @@ sub event_item_on_motion_notify {
 
 		$self->{_items}{$item}->set(
 			'width'  => $new_width,
-			'height' => $new_height,
+			'height' => $new_height
 		);
 
 		$self->handle_rects( 'update', $item );
@@ -983,8 +993,8 @@ sub event_item_on_motion_notify {
 				$item->{res_x} = $ev->x;
 				$item->{res_y} = $ev->y;
 
-				my $min_w = 5;
-				my $min_h = 5;
+				my $min_w = 0;
+				my $min_h = 0;
 
 				#be careful when resizing images
 				if ( exists $self->{_items}{$curr_item}{image} ) {
@@ -992,14 +1002,24 @@ sub event_item_on_motion_notify {
 					$min_h = 20;
 				}
 
+				if ( $new_width < 0 || $new_height < 0) {
+					$self->{_canvas}->pointer_ungrab($item, $ev->time);
+					my $oppo = $self->get_opposite_rect($item, $curr_item, $new_width, $new_height);
+					$self->{_items}{$curr_item}{$oppo}->{res_x}    = $ev->x;
+					$self->{_items}{$curr_item}{$oppo}->{res_y}    = $ev->y;
+					$self->{_items}{$curr_item}{$oppo}->{resizing} = TRUE;
+					$self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], undef, $ev->time );
+					$self->handle_embedded( 'mirror', $curr_item );
+				}
+
 				#only do something when min sizes are met
-				if ( $new_width > $min_w && $new_height > $min_h ) {
+				if ( $new_width >= $min_w && $new_height >= $min_h ) {
 
 					$self->{_items}{$curr_item}->set(
 						'x'      => $new_x,
 						'y'      => $new_y,
-						'width'  => $new_width,
-						'height' => $new_height,
+						'width'  => abs $new_width,
+						'height' => abs $new_height,
 					);
 
 					$self->handle_rects( 'update', $curr_item );
@@ -1007,12 +1027,66 @@ sub event_item_on_motion_notify {
 				
 				}
 
-
 			}
 		}
 	}
 
 	return TRUE;
+}
+
+sub get_opposite_rect {
+	my $self = shift;
+	my $rect = shift;
+	my $item = shift;
+	my $width = shift;
+	my $height = shift;
+
+	foreach ( keys %{ $self->{_items}{$item} } ) {
+
+		#fancy resizing using our little resize boxes
+		if ( $rect == $self->{_items}{$item}{$_} ) {
+
+			if ( $_ =~ /top.*left/ ) {
+			
+				return 'top_right' if $width < 0;	
+				return 'bottom_left' if $height < 0;
+				
+			} elsif ( $_ =~ /top.*middle/ ) {
+
+				return 'bottom_middle';
+	
+			} elsif ( $_ =~ /top.*right/ ) {
+
+				return 'top_left' if $width < 0;	
+				return 'bottom_right' if $height < 0;
+
+			} elsif ( $_ =~ /middle.*left/ ) {
+
+				return 'middle_right';
+
+			} elsif ( $_ =~ /middle.*right/ ) {
+
+				return 'middle_left';
+
+			} elsif ( $_ =~ /bottom.*left/ ) {
+
+				return 'bottom_right' if $width < 0;	
+				return 'top_left' if $height < 0;
+
+			} elsif ( $_ =~ /bottom.*middle/ ) {
+
+				return 'top_middle';
+
+			} elsif ( $_ =~ /bottom.*right/ ) {
+				
+				return 'bottom_left' if $width < 0;	
+				return 'top_right' if $height < 0;
+
+			}
+		}
+	}		
+	
+	return FALSE;	
 }
 
 sub get_parent_item {
@@ -1024,6 +1098,7 @@ sub get_parent_item {
 		$parent = $self->{_items}{$_} if $self->{_items}{$_}{ellipse} == $item;
 		$parent = $self->{_items}{$_} if $self->{_items}{$_}{text} == $item;
 		$parent = $self->{_items}{$_} if $self->{_items}{$_}{image} == $item;
+		$parent = $self->{_items}{$_} if $self->{_items}{$_}{line} == $item;
 	}
 
 	return $parent;
@@ -1038,6 +1113,7 @@ sub get_child_item {
 	$child = $self->{_items}{$item}{ellipse} if exists $self->{_items}{$item}{ellipse};
 	$child = $self->{_items}{$item}{text}    if exists $self->{_items}{$item}{text};
 	$child = $self->{_items}{$item}{image}   if exists $self->{_items}{$item}{image};
+	$child = $self->{_items}{$item}{line}   if exists $self->{_items}{$item}{line};
 
 	return $child;
 }
@@ -1198,9 +1274,14 @@ sub event_item_on_button_press {
 		} else {
 
 			#FREEHAND
-			if ( $self->{_current_mode_descr} eq "line" ) {
+			if ( $self->{_current_mode_descr} eq "freehand" ) {
 
 				$self->create_polyline( $ev, undef );
+
+				#Line
+			} elsif ( $self->{_current_mode_descr} eq "line" ) {
+
+				$self->create_line( $ev, undef );
 
 				#RECTANGLES
 			} elsif ( $self->{_current_mode_descr} eq "rect" ) {
@@ -1234,6 +1315,7 @@ sub event_item_on_button_press {
 			if ( exists $self->{_items}{$item} ) {
 
 				my $child = $self->get_child_item($item);
+				print $child."\n";
 				if ($child) {
 					$item = $child;
 				} else {
@@ -1256,8 +1338,11 @@ sub event_item_on_button_press {
 
 		if (   $item->isa('Goo::Canvas::Ellipse')
 			|| $item->isa('Goo::Canvas::Text')
-			|| $item->isa('Goo::Canvas::Image') )
+			|| $item->isa('Goo::Canvas::Image') 
+			|| $item->isa('Goo::Canvas::Polyline') )
 		{
+
+			print "Jaaa\n";
 
 			#embedded item?
 			my $parent = $self->get_parent_item($item);
@@ -1710,6 +1795,28 @@ sub handle_embedded {
 				'y'     => $self->{_items}{$item}->get('y'),
 				'width' => $self->{_items}{$item}->get('width'),
 			);
+		} elsif ( exists $self->{_items}{$item}{line} ) {
+			
+			if($self->{_items}{$item}{mirrored}){
+				$self->{_items}{$item}{line}->set(
+					'points' => Goo::Canvas::Points->new( 
+					[$self->{_items}{$item}->get('x'),
+					$self->{_items}{$item}->get('y')+$self->{_items}{$item}->get('height'),
+					$self->{_items}{$item}->get('x')+$self->{_items}{$item}->get('width'),
+					$self->{_items}{$item}->get('y')] 
+					)
+				);						
+			}else{
+				$self->{_items}{$item}{line}->set(
+					'points' => Goo::Canvas::Points->new( 
+					[$self->{_items}{$item}->get('x'),
+					$self->{_items}{$item}->get('y'),
+					$self->{_items}{$item}->get('x')+$self->{_items}{$item}->get('width'),
+					$self->{_items}{$item}->get('y')+$self->{_items}{$item}->get('height')] 
+					)
+				);					
+			}
+
 		} elsif ( exists $self->{_items}{$item}{image} ) {
 
 			if($self->{_items}{$item}->get('width') == $self->{_items}{$item}{image}->get('width') && $self->{_items}{$item}->get('height') == $self->{_items}{$item}{image}->get('height')){
@@ -1735,6 +1842,14 @@ sub handle_embedded {
 
 		}
 
+	}elsif( $action eq 'mirror' ) {
+		if ( exists $self->{_items}{$item}{line} ) {
+			if ($self->{_items}{$item}{mirrored}){
+				$self->{_items}{$item}{mirrored} = FALSE;
+			}else{
+				$self->{_items}{$item}{mirrored} = TRUE;	
+			}
+		}
 	}
 
 	return TRUE;
@@ -1868,6 +1983,10 @@ sub handle_rects {
 					$self->{_items}{$item}->set( 'visibility' => 'invisible' );
 				}
 
+				if ( exists $self->{_items}{$item}{line} ) {
+					$self->{_items}{$item}->set( 'visibility' => 'invisible' );
+				}
+
 			} else {
 
 				#ellipse => hide rectangle as well
@@ -1882,6 +2001,11 @@ sub handle_rects {
 
 				#image => hide rectangle as well
 				if ( exists $self->{_items}{$item}{image} ) {
+					$self->{_items}{$item}->set( 'visibility' => $visibilty );
+				}
+
+				#line => hide rectangle as well
+				if ( exists $self->{_items}{$item}{line} ) {
 					$self->{_items}{$item}->set( 'visibility' => $visibilty );
 				}
 
@@ -1995,7 +2119,7 @@ sub event_item_on_button_release {
 			$nitem->set( 'width' => 100 ) if ( $nitem->get('width') < 10 );
 
 		} elsif ( $nitem->isa('Goo::Canvas::Image')
-			&& $self->{_current_mode_descr} ne "line"
+			&& $self->{_current_mode_descr} ne "freehand"
 			&& $nitem != $self->{_canvas_bg} )
 		{
 
@@ -2235,6 +2359,7 @@ sub setup_uimanager {
 	$self->{_factory}->add( 'shutter-freehand',  Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-freehand.png") ) );
 	$self->{_factory}->add( 'shutter-pointer',   Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-pointer.png") ) );
 	$self->{_factory}->add( 'shutter-rectangle', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-rectangle.png") ) );
+	$self->{_factory}->add( 'shutter-line', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-line.png") ) );
 	$self->{_factory}->add( 'shutter-text',      Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-text.png") ) );
 	$self->{_factory}->add_default();
 
@@ -2264,12 +2389,13 @@ sub setup_uimanager {
 
 	my @toolbar_drawing_actions = (
 		[ "Select",  'shutter-pointer',   undef, undef, $d->get("Select item to move or resize it"),    10 ],
-		[ "Line",    'shutter-freehand',  undef, undef, $d->get("Draw a line using the freehand tool"), 20 ],
-		[ "Rect",    'shutter-rectangle', undef, undef, $d->get("Draw a rectangle"),                    30 ],
-		[ "Ellipse", 'shutter-ellipse',   undef, undef, $d->get("Draw a ellipse"),                      40 ],
-		[ "Text",    'shutter-text',      undef, undef, $d->get("Add some text to the screenshot"),     50 ],
-		[ "Clear",   'shutter-eraser',    undef, undef, $d->get("Delete objects"),                      60 ],
-		[ "ClearAll",'gtk-clear',  	 undef, undef, $d->get("Delete all objects"),                  70 ]
+		[ "Freehand",    'shutter-freehand',  undef, undef, $d->get("Draw a line using the freehand tool"), 20 ],
+		[ "Line",    'shutter-line', undef, undef, $d->get("Draw a straight line"),                    30 ],
+		[ "Rect",    'shutter-rectangle', undef, undef, $d->get("Draw a rectangle"),                    40 ],
+		[ "Ellipse", 'shutter-ellipse',   undef, undef, $d->get("Draw a ellipse"),                      50 ],
+		[ "Text",    'shutter-text',      undef, undef, $d->get("Add some text to the screenshot"),     60 ],
+		[ "Clear",   'shutter-eraser',    undef, undef, $d->get("Delete objects"),                      70 ],
+		[ "ClearAll",'gtk-clear',  	 undef, undef, $d->get("Delete all objects"),                  80 ]
 	);
 
 	my $uimanager = Gtk2::UIManager->new();
@@ -2339,6 +2465,7 @@ sub setup_uimanager {
   <toolbar name = 'ToolBarDrawing'>
     <toolitem action='Select'/>
     <separator/>
+    <toolitem action='Freehand'/>
     <toolitem action='Line'/>
     <toolitem action='Rect'/>
     <toolitem action='Ellipse'/>
@@ -2579,6 +2706,9 @@ sub paste_item {
 	}elsif ( $item->isa('Goo::Canvas::Polyline') && !$child ){
 		print "Creating Polyline...\n";
 		$self->create_polyline( undef, $item );
+	}elsif ( $child->isa('Goo::Canvas::Polyline') ){
+		print "Creating Line...\n";
+		$self->create_line( undef, $item );
 	}elsif ( $child->isa('Goo::Canvas::Ellipse') ){
 		print "Creating Ellipse...\n";
 		$self->create_ellipse( undef, $item);
@@ -2781,6 +2911,69 @@ sub create_text{
 	return TRUE;
 	
 }	
+
+sub create_line {
+	my $self      = shift;
+	my $ev        = shift;
+	my $copy_item = shift;
+	
+	my @dimensions = ( 0, 0, 0, 0 );
+	my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
+	my $line_width = $self->{_line_width};
+
+	#use event coordinates and selected color
+	if ($ev) {
+		@dimensions = ( $ev->x, $ev->y, 2, 2 );
+		#use source item coordinates and item color
+	} elsif ($copy_item) {
+		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
+		$stroke_pattern = $self->create_color( $self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha} );
+		$line_width = $self->{_items}{$copy_item}{line}->get('line-width');
+	}
+
+	my $pattern = $self->create_alpha;
+	my $item    = Goo::Canvas::Rect->new(
+		$self->{_canvas}->get_root_item, @dimensions,
+		'fill-pattern' => $pattern,
+		'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
+		'line-width'   => 1,
+		'stroke-color' => 'gray',
+	);
+
+	$self->{_current_new_item} = $item;
+	$self->{_items}{$item} = $item;
+		
+	$self->{_items}{$item}{line} = Goo::Canvas::Polyline->new_line(
+		$self->{_canvas}->get_root_item, $item->get('x'), $item->get('y'), $item->get('x') + $item->get('width'),
+		$item->get('y') + $item->get('height'),
+		'stroke-pattern' => $stroke_pattern,
+		'line-width'     => $line_width,
+		'line-cap'       => 'CAIRO_LINE_CAP_ROUND',
+		'line-join'      => 'CAIRO_LINE_JOIN_ROUND'
+	);
+
+	$self->{_current_new_item} = $item;
+	$self->{_items}{$item} = $item;
+
+	$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
+	$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
+
+	#create rectangles
+	$self->handle_rects( 'create', $item );
+	if ($copy_item){	
+		$self->handle_embedded('update', $item); 
+		$self->handle_rects('hide', $item); 	
+	}
+	
+	$self->setup_item_signals( $self->{_items}{$item}{line} );
+	$self->setup_item_signals_extra( $self->{_items}{$item}{line} );
+
+	$self->setup_item_signals( $self->{_items}{$item} );
+	$self->setup_item_signals_extra( $self->{_items}{$item} );
+	
+	return TRUE;
+
+}
 
 sub create_ellipse {
 	my $self      = shift;
