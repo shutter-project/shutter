@@ -1,0 +1,6 @@
+Name: Show something very important
+Priority: High
+Terminal: False
+DontShowAfterReboot: True
+DisplayIf: -d $HOME/.gscrot
+Description: Show some text

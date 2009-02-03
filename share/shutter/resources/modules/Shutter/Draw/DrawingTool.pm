@@ -29,6 +29,7 @@ use strict;
 use Exporter;
 use Goo::Canvas;
 use File::Basename;
+use Data::Dumper;
 
 #load and save settings
 use XML::Simple;
@@ -56,9 +57,18 @@ sub new {
 	$self->{_uimanager} = undef;
 	$self->{_factory}   = undef;
 
-	#canvas data
+	#canvas
 	$self->{_canvas}     = undef;
-	$self->{_items}      = undef;
+	
+	#all items are stored here
+	$self->{_items} = undef;
+	$self->{_items_history} = undef;
+	
+	#undo and redo stacks
+	$self->{_undo}      = undef;
+	$self->{_redo}      = undef;
+	
+	#autoscroll option, disabled by default
 	$self->{_autoscroll} = FALSE;
 
 	#drawing colors
@@ -151,6 +161,10 @@ sub show {
 	my $drawing_vbox       = Gtk2::VBox->new( FALSE, 0 );
 	my $drawing_inner_vbox = Gtk2::VBox->new( FALSE, 0 );
 	my $drawing_hbox       = Gtk2::HBox->new( FALSE, 0 );
+
+	#disable undo/redo actions at startup
+	$self->{_uimanager}->get_widget("/MenuBar/Edit/Undo")->set_sensitive(FALSE);
+	$self->{_uimanager}->get_widget("/MenuBar/Edit/Redo")->set_sensitive(FALSE);
 
 	#create a table for placing the ruler and scrolle window
 	my $table = new Gtk2::Table( 3, 2, FALSE );
@@ -380,7 +394,7 @@ sub change_drawing_tool_cb {
 		$self->{_current_mode_descr} = "clear_all";
 
 		foreach(keys %{$self->{_items}}){
-			$self->clear_item_from_canvas($self->{_items}{$_}, TRUE);	
+			$self->clear_item_from_canvas($self->{_items}{$_});	
 		}
 		
 		$self->set_drawing_action(0);
@@ -747,13 +761,15 @@ sub event_item_on_motion_notify {
 	#update statusbar
 	$self->{_drawing_statusbar}->push( -1, int( $ev->x ) . " x " . int( $ev->y ) );
 
+	my ( $x, $y, $width, $height, $depth ) = $self->{_canvas}->window->get_geometry;
+
 	#autoscroll if enabled
 	if (   $self->{_autoscroll}
 		&& $self->{_current_mode_descr} ne "clear"
 		&& $ev->state >= 'button1-mask' )
 	{
 
-		my ( $x, $y, $width, $height, $depth ) = $self->{_canvas}->window->get_geometry;
+		#~ my ( $x, $y, $width, $height, $depth ) = $self->{_canvas}->window->get_geometry;
 
 		my $scale = $self->{_canvas}->get_scale;
 
@@ -856,37 +872,26 @@ sub event_item_on_motion_notify {
 		)
 	{
 
-		$self->{_canvas}->window->set_cursor( Gtk2::Gdk::Cursor->new('bottom-right-corner') );
-
+		#new item is already on the canvas with small initial size
+		#drawing is like resizing, so set up tool for resizing
 		my $item = $self->{_current_new_item};
-
-		my $new_width  = -1;
-		my $new_height = -1;		
-		
-		if($ev->state >= 'control-mask'){
-			$new_width  = ($ev->y - $self->{_items}{$item}->get('y')) * ($self->{_items}{$item}->get('width')/$self->{_items}{$item}->get('height'));
-			$new_height = $ev->y - $self->{_items}{$item}->get('y');			
-		}else{
-			$new_width  = $ev->x - $self->{_items}{$item}->get('x');
-			$new_height = $ev->y - $self->{_items}{$item}->get('y');		
-		}
-
-
-		$new_width  = 1 if $new_width < 1;
-		$new_height = 1 if $new_height < 1;
-
-		$self->{_items}{$item}->set(
-			'width'  => $new_width,
-			'height' => $new_height
-		);
-
-		$self->handle_rects( 'update', $item );
-		$self->handle_embedded( 'update', $item );
+		$self->set_drawing_action(0);
+		$self->change_drawing_tool_cb(10);
+		$self->{_current_item} = $item;
+		$self->{_items}{$item}{'bottom-right-corner'}->{res_x}    = $ev->x;
+		$self->{_items}{$item}{'bottom-right-corner'}->{res_y}    = $ev->y;
+		$self->{_items}{$item}{'bottom-right-corner'}->{resizing} = TRUE;
+		$self->{_canvas}->pointer_grab( $self->{_items}{$item}{'bottom-right-corner'}, [ 'pointer-motion-mask', 'button-release-mask' ], Gtk2::Gdk::Cursor->new('bottom-right-corner'), $ev->time );
 
 	#resizing
 	} elsif ( $item->{resizing} && $ev->state >= 'button1-mask' ) {
 
 		my $curr_item = $self->{_current_item};
+		my $cursor = undef;
+
+		#calculate aspect ratio (resizing when control is pressed)
+		my $ratio = 1;
+		$ratio = $self->{_items}{$curr_item}->get('width')/$self->{_items}{$curr_item}->get('height') if $self->{_items}{$curr_item}->get('height') != 0;
 
 		foreach ( keys %{ $self->{_items}{$curr_item} } ) {
 
@@ -898,10 +903,12 @@ sub event_item_on_motion_notify {
 				my $new_width  = 0;
 				my $new_height = 0;
 
-				if ( $_ =~ /top.*left/ ) {
+				if ( $_ eq 'top-left-corner' ) {
+					
+					$cursor = $_;
 					
 					if($ev->state >= 'control-mask'){
-						$new_x = $self->{_items}{$curr_item}->get('x') + ($ev->y - $item->{res_y}) * ($self->{_items}{$curr_item}->get('width')/$self->{_items}{$curr_item}->get('height'));
+						$new_x = $self->{_items}{$curr_item}->get('x') + ($ev->y - $item->{res_y}) * $ratio;
 						$new_y = $self->{_items}{$curr_item}->get('y') + ($ev->y - $item->{res_y});						
 						$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
 						$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
@@ -912,7 +919,9 @@ sub event_item_on_motion_notify {
 						$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
 					}
 
-				} elsif ( $_ =~ /top.*middle/ ) {
+				} elsif ( $_ eq 'top-side' ) {
+
+					$cursor = $_;
 
 					$new_x = $self->{_items}{$curr_item}->get('x');
 					$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};
@@ -920,20 +929,24 @@ sub event_item_on_motion_notify {
 					$new_width = $self->{_items}{$curr_item}->get('width');
 					$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
 				
-				} elsif ( $_ =~ /top.*right/ ) {
+				} elsif ( $_ eq 'top-right-corner' ) {
+
+						$cursor = $_;
 
 						$new_x = $self->{_items}{$curr_item}->get('x');
 						$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};
 
 					if($ev->state >= 'control-mask'){
-						$new_width  = $self->{_items}{$curr_item}->get('width') - ( $ev->y - $item->{res_y} ) * ($self->{_items}{$curr_item}->get('width')/$self->{_items}{$curr_item}->get('height'));
+						$new_width  = $self->{_items}{$curr_item}->get('width') - ( $ev->y - $item->{res_y} ) * $ratio;
 						$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );		
 					}else{
 						$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x - $item->{res_x} );
 						$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );					
 					}
 
-				} elsif ( $_ =~ /middle.*left/ ) {
+				} elsif ( $_ eq 'left-side' ) {
+
+					$cursor = $_;
 
 					$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
 					$new_y = $self->{_items}{$curr_item}->get('y');
@@ -941,22 +954,26 @@ sub event_item_on_motion_notify {
 					$new_width = $self->{_items}{$curr_item}->get('width') + ( $self->{_items}{$curr_item}->get('x') - $new_x );
 					$new_height = $self->{_items}{$curr_item}->get('height');
 
-				} elsif ( $_ =~ /middle.*right/ ) {
+				} elsif ( $_ eq 'right-side' ) {
 
+					$cursor = $_;
+	
 					$new_x = $self->{_items}{$curr_item}->get('x');
 					$new_y = $self->{_items}{$curr_item}->get('y');
 
 					$new_width = $self->{_items}{$curr_item}->get('width') + ( $ev->x - $item->{res_x} );
 					$new_height = $self->{_items}{$curr_item}->get('height');
 
-				} elsif ( $_ =~ /bottom.*left/ ) {
+				} elsif ( $_ eq 'bottom-left-corner' ) {
+
+					$cursor = $_;
 
 					if($ev->state >= 'control-mask'){
 						$new_x = $self->{_items}{$curr_item}->get('x') - $ev->y + $item->{res_y};
 						$new_y = $self->{_items}{$curr_item}->get('y');
 						
 						$new_width  = $self->{_items}{$curr_item}->get('width') + ( $self->{_items}{$curr_item}->get('x') - $new_x );
-						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} ) / ($self->{_items}{$curr_item}->get('width')/$self->{_items}{$curr_item}->get('height'));
+						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} ) / $ratio;
 					}else{
 						$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
 						$new_y = $self->{_items}{$curr_item}->get('y');
@@ -965,7 +982,9 @@ sub event_item_on_motion_notify {
 						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );					
 					}
 
-				} elsif ( $_ =~ /bottom.*middle/ ) {
+				} elsif ( $_ eq 'bottom-side' ) {
+
+					$cursor = $_;
 
 					$new_x = $self->{_items}{$curr_item}->get('x');
 					$new_y = $self->{_items}{$curr_item}->get('y');
@@ -973,14 +992,15 @@ sub event_item_on_motion_notify {
 					$new_width = $self->{_items}{$curr_item}->get('width');
 					$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );
 
-				} elsif ( $_ =~ /bottom.*right/ ) {
+				} elsif ( $_ eq 'bottom-right-corner' ) {
+
+					$cursor = $_;
 
 					$new_x = $self->{_items}{$curr_item}->get('x');
 					$new_y = $self->{_items}{$curr_item}->get('y');
 
-					
 					if($ev->state >= 'control-mask'){
-						$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->y - $item->{res_y} ) * ($self->{_items}{$curr_item}->get('width')/$self->{_items}{$curr_item}->get('height'));
+						$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->y - $item->{res_y} ) * $ratio;
 						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );						
 					}else{
 						$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x - $item->{res_x} );
@@ -989,6 +1009,9 @@ sub event_item_on_motion_notify {
 
 
 				}
+
+				#set cursor
+				$self->{_canvas}->window->set_cursor( Gtk2::Gdk::Cursor->new($cursor) );
 
 				$item->{res_x} = $ev->x;
 				$item->{res_y} = $ev->y;
@@ -1002,13 +1025,14 @@ sub event_item_on_motion_notify {
 					$min_h = 20;
 				}
 
+				#when width or height are too small we switch to opposite rectangle and do the resizing in this way
 				if ( $new_width < 0 || $new_height < 0) {
 					$self->{_canvas}->pointer_ungrab($item, $ev->time);
 					my $oppo = $self->get_opposite_rect($item, $curr_item, $new_width, $new_height);
 					$self->{_items}{$curr_item}{$oppo}->{res_x}    = $ev->x;
 					$self->{_items}{$curr_item}{$oppo}->{res_y}    = $ev->y;
 					$self->{_items}{$curr_item}{$oppo}->{resizing} = TRUE;
-					$self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], undef, $ev->time );
+					$self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], Gtk2::Gdk::Cursor->new($oppo), $ev->time );
 					$self->handle_embedded( 'mirror', $curr_item );
 				}
 
@@ -1024,7 +1048,7 @@ sub event_item_on_motion_notify {
 
 					$self->handle_rects( 'update', $curr_item );
 					$self->handle_embedded( 'update', $curr_item );
-				
+									
 				}
 
 			}
@@ -1046,41 +1070,41 @@ sub get_opposite_rect {
 		#fancy resizing using our little resize boxes
 		if ( $rect == $self->{_items}{$item}{$_} ) {
 
-			if ( $_ =~ /top.*left/ ) {
+			if ( $_ eq 'top-left-corner' ) {
 			
-				return 'top_right' if $width < 0;	
-				return 'bottom_left' if $height < 0;
+				return 'top-right-corner' if $width < 0;	
+				return 'bottom-left-corner' if $height < 0;
 				
-			} elsif ( $_ =~ /top.*middle/ ) {
+			} elsif ( $_ eq 'top-side' ) {
 
-				return 'bottom_middle';
+				return 'bottom-side';
 	
-			} elsif ( $_ =~ /top.*right/ ) {
+			} elsif ( $_ eq 'top-right-corner' ) {
 
-				return 'top_left' if $width < 0;	
-				return 'bottom_right' if $height < 0;
+				return 'top-left-corner' if $width < 0;	
+				return 'bottom-right-corner' if $height < 0;
 
-			} elsif ( $_ =~ /middle.*left/ ) {
+			} elsif ( $_ eq 'left-side' ) {
 
-				return 'middle_right';
+				return 'right-side';
 
-			} elsif ( $_ =~ /middle.*right/ ) {
+			} elsif ( $_ eq 'right-side' ) {
 
-				return 'middle_left';
+				return 'left-side';
 
-			} elsif ( $_ =~ /bottom.*left/ ) {
+			} elsif ( $_ eq 'bottom-left-corner' ) {
 
-				return 'bottom_right' if $width < 0;	
-				return 'top_left' if $height < 0;
+				return 'bottom-right-corner' if $width < 0;	
+				return 'top-left-corner' if $height < 0;
 
-			} elsif ( $_ =~ /bottom.*middle/ ) {
+			} elsif ( $_ eq 'bottom-side' ) {
 
-				return 'top_middle';
+				return 'top-side';
 
-			} elsif ( $_ =~ /bottom.*right/ ) {
+			} elsif ( $_ eq 'bottom-right-corner' ) {
 				
-				return 'bottom_left' if $width < 0;	
-				return 'top_right' if $height < 0;
+				return 'bottom-left-corner' if $width < 0;	
+				return 'top-right-corner' if $height < 0;
 
 			}
 		}
@@ -1130,7 +1154,6 @@ sub abort_current_mode {
 sub clear_item_from_canvas {
 	my $self = shift;
 	my $item = shift;
-	my $delete = shift;
 
 	if ($item) {
 		my @items_to_delete;
@@ -1151,34 +1174,163 @@ sub clear_item_from_canvas {
 		}
 
 		foreach (@items_to_delete) {
-				if($delete){
-					eval{
-						my $bigparent = $_->get_parent;
-						$bigparent->remove_child( $bigparent->find_child($_) );
-					};
-				}else{
-					eval{
-						$_->set('visibility' => 'GOO_CANVAS_ITEM_HIDDEN');
-					};
-				}
-		}
-
-		if($delete){
-			#clear from session hash >> parent
-			delete $self->{_items}{$parent};
-
-			#clear from session hash >> item
-			delete $self->{_items}{$item};
+			eval{
+				$self->store_to_xdo_stack($_, 'delete', 'undo');
+				$_->set('visibility' => 'GOO_CANVAS_ITEM_HIDDEN');
+				$self->handle_rects('hide', $_);
+				$self->handle_embedded('hide', $_);
+			};
 		}
 	}
 	
-	if($delete){
-		$self->{_last_item}        = undef;
-		$self->{_current_item}     = undef;
-		$self->{_current_new_item} = undef;	
-	}
+	$self->{_last_item}        = undef;
+	$self->{_current_item}     = undef;
+	$self->{_current_new_item} = undef;	
 
 	return TRUE;
+}
+
+sub store_to_xdo_stack {
+	my $self = shift;
+	my $item = shift;
+	my $action = shift;
+	my $xdo = shift;
+	
+	return FALSE unless $item; 
+	
+	my %do_info = ();
+	#general properties for ellipse, rectangle, image, text
+	if($item->isa('Goo::Canvas::Rect')){	
+		%do_info = (
+			item => $self->{_items}{$item},
+			action => $action,
+			x => $self->{_items}{$item}->get('x'),
+			y => $self->{_items}{$item}->get('y'),
+			width => $self->{_items}{$item}->get('width'),
+			height => $self->{_items}{$item}->get('height'),
+		);
+	}
+
+	#add polyline specific properties to hash
+	if($item->isa('Goo::Canvas::Polyline')){
+		%do_info = (
+			item => $self->{_items}{$item},
+			action => $action,
+			points => $self->{_items}{$item}->get('points'),
+		);
+	}
+	
+	if($xdo eq 'undo'){
+		push @{ $self->{_undo} }, \%do_info; 		
+	}elsif($xdo eq 'redo'){
+		push @{ $self->{_redo} }, \%do_info; 
+	}
+
+	#disable undo/redo actions at startup
+	$self->{_uimanager}->get_widget("/MenuBar/Edit/Undo")->set_sensitive(scalar @{ $self->{_undo} }) if defined $self->{_undo};
+	$self->{_uimanager}->get_widget("/MenuBar/Edit/Redo")->set_sensitive(scalar @{ $self->{_redo} }) if defined $self->{_redo};
+	
+	return TRUE;	
+}
+
+sub undo {
+	my $self = shift;
+
+	my $undo = pop @{ $self->{_undo} };
+
+	my $item = $undo->{item};
+	my $action = $undo->{action};
+
+	#store to redo stack
+	$self->store_to_xdo_stack($item, $action, 'redo'); 
+
+	$self->deactivate_all;
+	
+	#finally undo the last event
+	if($action eq 'move'){
+		$self->{_items}{$item}->set(
+			'x' => $undo->{x},
+			'y' => $undo->{y}	
+		);
+		$self->handle_rects( 'update', $self->{_items}{$item} );
+		$self->handle_embedded( 'update', $self->{_items}{$item} );
+		$self->{_current_item} = $item;	
+	}elsif($action eq 'resize'){
+		$self->{_items}{$item}->set(
+			'x' => $undo->{x},
+			'y' => $undo->{y},
+			'width' => 	$undo->{width},
+			'height' => $undo->{height},
+		);
+		$self->handle_rects( 'update', $self->{_items}{$item} );
+		$self->handle_embedded( 'update', $self->{_items}{$item} );		
+		$self->{_current_item} = $item;	
+	}elsif($action eq 'delete'){
+		$self->{_items}{$item}->set('visibility' => 'GOO_CANVAS_ITEM_VISIBLE');
+		$self->handle_rects( 'update', $self->{_items}{$item} );
+		$self->handle_embedded( 'update', $self->{_items}{$item} );
+		$self->{_current_item} = $item;		
+	}elsif($action eq 'create'){
+		$self->{_items}{$item}->set('visibility' => 'GOO_CANVAS_ITEM_HIDDEN');
+		$self->handle_rects( 'hide', $self->{_items}{$item} );
+		$self->handle_embedded( 'hide', $self->{_items}{$item} );		
+	}
+	
+	#disable undo/redo actions at startup
+	$self->{_uimanager}->get_widget("/MenuBar/Edit/Undo")->set_sensitive(scalar @{ $self->{_undo} }) if defined $self->{_undo};
+	$self->{_uimanager}->get_widget("/MenuBar/Edit/Redo")->set_sensitive(scalar @{ $self->{_redo} }) if defined $self->{_redo};	
+	
+	return TRUE;	
+}
+
+sub redo {
+	my $self = shift;
+
+	my $redo = pop @{ $self->{_redo} };
+
+	my $item = $redo->{item};
+	my $action = $redo->{action};
+
+	#store to undo stack
+	$self->store_to_xdo_stack($item, $action, 'undo'); 
+
+	$self->deactivate_all;
+
+	#finally undo the last event
+	if($action eq 'move'){
+		$self->{_items}{$item}->set(
+			'x' => $redo->{x},
+			'y' => $redo->{y}	
+		);
+		$self->handle_rects( 'update', $self->{_items}{$item} );
+		$self->handle_embedded( 'update', $self->{_items}{$item} );
+		$self->{_current_item} = $item;	
+	}elsif($action eq 'resize'){
+		$self->{_items}{$item}->set(
+			'x' => $redo->{x},
+			'y' => $redo->{y},
+			'width' => 	$redo->{width},
+			'height' => $redo->{height},
+		);
+		$self->handle_rects( 'update', $self->{_items}{$item} );
+		$self->handle_embedded( 'update', $self->{_items}{$item} );		
+		$self->{_current_item} = $item;	
+	}elsif($action eq 'delete'){
+		$self->{_items}{$item}->set('visibility' => 'GOO_CANVAS_ITEM_HIDDEN');
+		$self->handle_rects( 'hide', $self->{_items}{$item} );
+		$self->handle_embedded( 'hide', $self->{_items}{$item} );
+		$self->{_current_item} = $item;		
+	}elsif($action eq 'create'){
+		$self->{_items}{$item}->set('visibility' => 'GOO_CANVAS_ITEM_VISIBLE');
+		$self->handle_rects( 'update', $self->{_items}{$item} );
+		$self->handle_embedded( 'update', $self->{_items}{$item} );		
+	}
+
+	#disable undo/redo actions at startup
+	$self->{_uimanager}->get_widget("/MenuBar/Edit/Undo")->set_sensitive(scalar @{ $self->{_undo} }) if defined $self->{_undo};
+	$self->{_uimanager}->get_widget("/MenuBar/Edit/Redo")->set_sensitive(scalar @{ $self->{_redo} }) if defined $self->{_redo};	
+	
+	return TRUE;	
 }
 
 sub event_item_on_button_press {
@@ -1221,7 +1373,7 @@ sub event_item_on_button_press {
 
 			return TRUE if $item == $self->{_canvas_bg};
 
-			$self->clear_item_from_canvas($item, TRUE);
+			$self->clear_item_from_canvas($item);
 
 			$self->{_canvas}->window->set_cursor($cursor);
 
@@ -1239,6 +1391,9 @@ sub event_item_on_button_press {
 					$item->{dragging} = TRUE;
 
 					$cursor = Gtk2::Gdk::Cursor->new('fleur');
+					
+					#add to undo stack
+					$self->store_to_xdo_stack($self->{_current_item} , 'move', 'undo');
 
 					#resizing shape
 				} else {
@@ -1248,6 +1403,9 @@ sub event_item_on_button_press {
 					$item->{resizing} = TRUE;
 
 					$cursor = undef;
+
+					#add to undo stack
+					$self->store_to_xdo_stack($self->{_current_item} , 'resize', 'undo');
 
 				}
 
@@ -1264,6 +1422,9 @@ sub event_item_on_button_press {
 				$item->{drag_x}   = $ev->x;
 				$item->{drag_y}   = $ev->y;
 				$item->{dragging} = TRUE;
+
+				#add to undo stack
+				$self->store_to_xdo_stack($self->{_current_item} , 'move', 'undo');
 
 				$cursor = undef;
 
@@ -1432,7 +1593,7 @@ sub ret_item_menu {
 
 	$remove_item->signal_connect(
 		'activate' => sub {
-			$self->clear_item_from_canvas($item, TRUE);
+			$self->clear_item_from_canvas($item);
 		}
 	);
 
@@ -1775,6 +1936,8 @@ sub handle_embedded {
 
 	if ( $action eq 'update' ) {
 
+		my $visibilty = 'visible';
+
 		#embedded ellipse
 		if ( exists $self->{_items}{$item}{ellipse} ) {
 
@@ -1787,6 +1950,7 @@ sub handle_embedded {
 					+ $self->{_items}{$item}->get('width')
 					- $self->{_items}{$item}{ellipse}->get('center-x'),
 				'radius-y' => $item->get('y') + $self->{_items}{$item}->get('height') - $self->{_items}{$item}{ellipse}->get('center-y'),
+				'visibility' => $visibilty,
 			);
 
 		} elsif ( exists $self->{_items}{$item}{text} ) {
@@ -1794,6 +1958,7 @@ sub handle_embedded {
 				'x'     => $self->{_items}{$item}->get('x'),
 				'y'     => $self->{_items}{$item}->get('y'),
 				'width' => $self->{_items}{$item}->get('width'),
+				'visibility' => $visibilty,
 			);
 		} elsif ( exists $self->{_items}{$item}{line} ) {
 			
@@ -1803,8 +1968,9 @@ sub handle_embedded {
 					[$self->{_items}{$item}->get('x'),
 					$self->{_items}{$item}->get('y')+$self->{_items}{$item}->get('height'),
 					$self->{_items}{$item}->get('x')+$self->{_items}{$item}->get('width'),
-					$self->{_items}{$item}->get('y')] 
-					)
+					$self->{_items}{$item}->get('y')]), 
+					'visibility' => $visibilty,
+					
 				);						
 			}else{
 				$self->{_items}{$item}{line}->set(
@@ -1812,8 +1978,8 @@ sub handle_embedded {
 					[$self->{_items}{$item}->get('x'),
 					$self->{_items}{$item}->get('y'),
 					$self->{_items}{$item}->get('x')+$self->{_items}{$item}->get('width'),
-					$self->{_items}{$item}->get('y')+$self->{_items}{$item}->get('height')] 
-					)
+					$self->{_items}{$item}->get('y')+$self->{_items}{$item}->get('height')]),
+					'visibility' => $visibilty,
 				);					
 			}
 
@@ -1825,7 +1991,8 @@ sub handle_embedded {
 					'x'      => int $self->{_items}{$item}->get('x'),
 					'y'      => int $self->{_items}{$item}->get('y'),
 					'width'  => $self->{_items}{$item}->get('width'),
-					'height' => $self->{_items}{$item}->get('height')
+					'height' => $self->{_items}{$item}->get('height'),
+					'visibility' => $visibilty,
 				);			
 
 			}else{
@@ -1835,12 +2002,36 @@ sub handle_embedded {
 					'y'      => int $self->{_items}{$item}->get('y'),
 					'width'  => $self->{_items}{$item}->get('width'),
 					'height' => $self->{_items}{$item}->get('height'),
-					'pixbuf' => $self->{_items}{$item}{orig_pixbuf}->scale_simple( $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'), 'nearest' )
+					'pixbuf' => $self->{_items}{$item}{orig_pixbuf}->scale_simple( $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'), 'nearest' ),
+					'visibility' => $visibilty,
 				);	
 
 			}
 
 		}
+	}elsif( $action eq 'hide' ) {
+
+		my $visibilty = 'hidden';
+
+		#ellipse => hide rectangle as well
+		if ( exists $self->{_items}{$item}{ellipse} ) {
+			$self->{_items}{$item}{ellipse}->set( 'visibility' => $visibilty );
+		}
+
+		#text => hide rectangle as well
+		if ( exists $self->{_items}{$item}{text} ) {
+			$self->{_items}{$item}{text}->set( 'visibility' => $visibilty );
+		}
+
+		#image => hide rectangle as well
+		if ( exists $self->{_items}{$item}{image} ) {
+			$self->{_items}{$item}{image}->set( 'visibility' => $visibilty );
+		}
+
+		#line => hide rectangle as well
+		if ( exists $self->{_items}{$item}{line} ) {
+			$self->{_items}{$item}{line}->set( 'visibility' => $visibilty );
+		}		
 
 	}elsif( $action eq 'mirror' ) {
 		if ( exists $self->{_items}{$item}{line} ) {
@@ -1890,168 +2081,145 @@ sub handle_rects {
 
 			my $pattern = $self->create_color( 'green', 0.3 );
 
-			$self->{_items}{$item}{top_middle} = Goo::Canvas::Rect->new(
+			$self->{_items}{$item}{'top-side'} = Goo::Canvas::Rect->new(
 				$root, $middle_h, $top, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
 			);
 
-			$self->{_items}{$item}{top_left} = Goo::Canvas::Rect->new(
+			$self->{_items}{$item}{'top-left-corner'} = Goo::Canvas::Rect->new(
 				$root, $left, $top, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
 			);
 
-			$self->{_items}{$item}{top_right} = Goo::Canvas::Rect->new(
+			$self->{_items}{$item}{'top-right-corner'} = Goo::Canvas::Rect->new(
 				$root, $right, $top, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
 			);
 
-			$self->{_items}{$item}{bottom_middle} = Goo::Canvas::Rect->new(
+			$self->{_items}{$item}{'bottom-side'} = Goo::Canvas::Rect->new(
 				$root, $middle_h, $bottom, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
 			);
 
-			$self->{_items}{$item}{bottom_left} = Goo::Canvas::Rect->new(
+			$self->{_items}{$item}{'bottom-left-corner'} = Goo::Canvas::Rect->new(
 				$root, $left, $bottom, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
 			);
 
-			$self->{_items}{$item}{bottom_right} = Goo::Canvas::Rect->new(
+			$self->{_items}{$item}{'bottom-right-corner'} = Goo::Canvas::Rect->new(
 				$root, $right, $bottom, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
 			);
 
-			$self->{_items}{$item}{middle_left} = Goo::Canvas::Rect->new(
+			$self->{_items}{$item}{'left-side'} = Goo::Canvas::Rect->new(
 				$root, $left - 8, $middle_v, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
 			);
 
-			$self->{_items}{$item}{middle_right} = Goo::Canvas::Rect->new(
+			$self->{_items}{$item}{'right-side'} = Goo::Canvas::Rect->new(
 				$root, $right, $middle_v, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 1
 			);
 
-			$self->setup_item_signals( $self->{_items}{$item}{top_middle} );
-			$self->setup_item_signals( $self->{_items}{$item}{top_left} );
-			$self->setup_item_signals( $self->{_items}{$item}{top_right} );
-			$self->setup_item_signals( $self->{_items}{$item}{bottom_middle} );
-			$self->setup_item_signals( $self->{_items}{$item}{bottom_left} );
-			$self->setup_item_signals( $self->{_items}{$item}{bottom_right} );
-			$self->setup_item_signals( $self->{_items}{$item}{middle_left} );
-			$self->setup_item_signals( $self->{_items}{$item}{middle_right} );
-			$self->setup_item_signals_extra( $self->{_items}{$item}{top_middle} );
-			$self->setup_item_signals_extra( $self->{_items}{$item}{top_left} );
-			$self->setup_item_signals_extra( $self->{_items}{$item}{top_right} );
-			$self->setup_item_signals_extra( $self->{_items}{$item}{bottom_middle} );
-			$self->setup_item_signals_extra( $self->{_items}{$item}{bottom_left} );
-			$self->setup_item_signals_extra( $self->{_items}{$item}{bottom_right} );
-			$self->setup_item_signals_extra( $self->{_items}{$item}{middle_left} );
-			$self->setup_item_signals_extra( $self->{_items}{$item}{middle_right} );
+			$self->setup_item_signals( $self->{_items}{$item}{'top-side'} );
+			$self->setup_item_signals( $self->{_items}{$item}{'top-left-corner'} );
+			$self->setup_item_signals( $self->{_items}{$item}{'top-right-corner'} );
+			$self->setup_item_signals( $self->{_items}{$item}{'bottom-side'} );
+			$self->setup_item_signals( $self->{_items}{$item}{'bottom-left-corner'} );
+			$self->setup_item_signals( $self->{_items}{$item}{'bottom-right-corner'} );
+			$self->setup_item_signals( $self->{_items}{$item}{'left-side'} );
+			$self->setup_item_signals( $self->{_items}{$item}{'right-side'} );
+			$self->setup_item_signals_extra( $self->{_items}{$item}{'top-side'} );
+			$self->setup_item_signals_extra( $self->{_items}{$item}{'top-left-corner'} );
+			$self->setup_item_signals_extra( $self->{_items}{$item}{'top-right-corner'} );
+			$self->setup_item_signals_extra( $self->{_items}{$item}{'bottom-side'} );
+			$self->setup_item_signals_extra( $self->{_items}{$item}{'bottom-left-corner'} );
+			$self->setup_item_signals_extra( $self->{_items}{$item}{'bottom-right-corner'} );
+			$self->setup_item_signals_extra( $self->{_items}{$item}{'left-side'} );
+			$self->setup_item_signals_extra( $self->{_items}{$item}{'right-side'} );
 
 		} elsif ( $action eq 'update' || $action eq 'hide' ) {
 
 			my $visibilty = 'visible';
-			if ( $action eq 'hide' ) {
-				$visibilty = 'hidden';
+			$visibilty = 'hidden' if $action eq 'hide';
 
-				#ellipse => hide rectangle as well
-				if ( exists $self->{_items}{$item}{ellipse} ) {
-					$self->{_items}{$item}->set( 'visibility' => 'invisible' );
-				}
-
-				#text => hide rectangle as well
-				if ( exists $self->{_items}{$item}{text} ) {
-					$self->{_items}{$item}->set( 'visibility' => 'invisible' );
-				}
-
-				if ( exists $self->{_items}{$item}{image} ) {
-					$self->{_items}{$item}->set( 'visibility' => 'invisible' );
-				}
-
-				if ( exists $self->{_items}{$item}{line} ) {
-					$self->{_items}{$item}->set( 'visibility' => 'invisible' );
-				}
-
-			} else {
-
-				#ellipse => hide rectangle as well
-				if ( exists $self->{_items}{$item}{ellipse} ) {
-					$self->{_items}{$item}->set( 'visibility' => $visibilty );
-				}
-
-				#text => hide rectangle as well
-				if ( exists $self->{_items}{$item}{text} ) {
-					$self->{_items}{$item}->set( 'visibility' => $visibilty );
-				}
-
-				#image => hide rectangle as well
-				if ( exists $self->{_items}{$item}{image} ) {
-					$self->{_items}{$item}->set( 'visibility' => $visibilty );
-				}
-
-				#line => hide rectangle as well
-				if ( exists $self->{_items}{$item}{line} ) {
-					$self->{_items}{$item}->set( 'visibility' => $visibilty );
-				}
-
+			#ellipse => hide rectangle as well
+			if ( exists $self->{_items}{$item}{ellipse} ) {
+				$self->{_items}{$item}->set( 'visibility' => $visibilty );
 			}
 
-			$self->{_items}{$item}{top_middle}->set(
+			#text => hide rectangle as well
+			if ( exists $self->{_items}{$item}{text} ) {
+				$self->{_items}{$item}->set( 'visibility' => $visibilty );
+			}
+
+			#image => hide rectangle as well
+			if ( exists $self->{_items}{$item}{image} ) {
+				$self->{_items}{$item}->set( 'visibility' => $visibilty );
+			}
+
+			#line => hide rectangle as well
+			if ( exists $self->{_items}{$item}{line} ) {
+				$self->{_items}{$item}->set( 'visibility' => $visibilty );
+			}
+
+			$self->{_items}{$item}{'top-side'}->set(
 				'x'          => $middle_h - 4,
 				'y'          => $top - 8,
 				'visibility' => $visibilty,
 			);
-			$self->{_items}{$item}{top_left}->set(
+			$self->{_items}{$item}{'top-left-corner'}->set(
 				'x'          => $left - 8,
 				'y'          => $top - 8,
 				'visibility' => $visibilty,
 			);
 
-			$self->{_items}{$item}{top_right}->set(
+			$self->{_items}{$item}{'top-right-corner'}->set(
 				'x'          => $right,
 				'y'          => $top - 8,
 				'visibility' => $visibilty,
 			);
 
-			$self->{_items}{$item}{bottom_middle}->set(
+			$self->{_items}{$item}{'bottom-side'}->set(
 				'x'          => $middle_h - 4,
 				'y'          => $bottom,
 				'visibility' => $visibilty,
 			);
 
-			$self->{_items}{$item}{bottom_left}->set(
+			$self->{_items}{$item}{'bottom-left-corner'}->set(
 				'x'          => $left - 8,
 				'y'          => $bottom,
 				'visibility' => $visibilty,
 			);
 
-			$self->{_items}{$item}{bottom_right}->set(
+			$self->{_items}{$item}{'bottom-right-corner'}->set(
 				'x'          => $right,
 				'y'          => $bottom,
 				'visibility' => $visibilty,
 			);
 
-			$self->{_items}{$item}{middle_left}->set(
+			$self->{_items}{$item}{'left-side'}->set(
 				'x'          => $left - 8,
 				'y'          => $middle_v - 4,
 				'visibility' => $visibilty,
 			);
-			$self->{_items}{$item}{middle_right}->set(
+			$self->{_items}{$item}{'right-side'}->set(
 				'x'          => $right,
 				'y'          => $middle_v - 4,
 				'visibility' => $visibilty,
@@ -2059,25 +2227,25 @@ sub handle_rects {
 
 		} elsif ( $action eq 'raise' ) {
 
-			$self->{_items}{$item}{top_middle}->raise;
-			$self->{_items}{$item}{top_left}->raise;
-			$self->{_items}{$item}{top_right}->raise;
-			$self->{_items}{$item}{bottom_middle}->raise;
-			$self->{_items}{$item}{bottom_left}->raise;
-			$self->{_items}{$item}{bottom_right}->raise;
-			$self->{_items}{$item}{middle_left}->raise;
-			$self->{_items}{$item}{middle_right}->raise;
+			$self->{_items}{$item}{'top-side'}->raise;
+			$self->{_items}{$item}{'top-left-corner'}->raise;
+			$self->{_items}{$item}{'top-right-corner'}->raise;
+			$self->{_items}{$item}{'bottom-side'}->raise;
+			$self->{_items}{$item}{'bottom-left-corner'}->raise;
+			$self->{_items}{$item}{'bottom-right-corner'}->raise;
+			$self->{_items}{$item}{'left-side'}->raise;
+			$self->{_items}{$item}{'right-side'}->raise;
 
 		} elsif ( $action eq 'lower' ) {
 
-			$self->{_items}{$item}{top_middle}->lower;
-			$self->{_items}{$item}{top_left}->lower;
-			$self->{_items}{$item}{top_right}->lower;
-			$self->{_items}{$item}{bottom_middle}->lower;
-			$self->{_items}{$item}{bottom_left}->lower;
-			$self->{_items}{$item}{bottom_right}->lower;
-			$self->{_items}{$item}{middle_left}->lower;
-			$self->{_items}{$item}{middle_right}->lower;
+			$self->{_items}{$item}{'top-side'}->lower;
+			$self->{_items}{$item}{'top-left-corner'}->lower;
+			$self->{_items}{$item}{'top-right-corner'}->lower;
+			$self->{_items}{$item}{'bottom-side'}->lower;
+			$self->{_items}{$item}{'bottom-left-corner'}->lower;
+			$self->{_items}{$item}{'bottom-right-corner'}->lower;
+			$self->{_items}{$item}{'left-side'}->lower;
+			$self->{_items}{$item}{'right-side'}->lower;
 
 		}
 	}
@@ -2208,45 +2376,9 @@ sub event_item_on_enter_notify {
 			$self->handle_rects( 'update', $curr_item );
 
 			foreach ( keys %{ $self->{_items}{$curr_item} } ) {
-
 				if ( $item == $self->{_items}{$curr_item}{$_} ) {
-
-					if ( $_ =~ /top.*left/ ) {
-
-						$cursor = Gtk2::Gdk::Cursor->new('top-left-corner');
-
-					} elsif ( $_ =~ /top.*middle/ ) {
-
-						$cursor = Gtk2::Gdk::Cursor->new('top-side');
-
-					} elsif ( $_ =~ /top.*right/ ) {
-
-						$cursor = Gtk2::Gdk::Cursor->new('top-right-corner');
-
-					} elsif ( $_ =~ /middle.*left/ ) {
-
-						$cursor = Gtk2::Gdk::Cursor->new('left-side');
-
-					} elsif ( $_ =~ /middle.*right/ ) {
-
-						$cursor = Gtk2::Gdk::Cursor->new('right-side');
-
-					} elsif ( $_ =~ /bottom.*left/ ) {
-
-						$cursor = Gtk2::Gdk::Cursor->new('bottom-left-corner');
-
-					} elsif ( $_ =~ /bottom.*middle/ ) {
-
-						$cursor = Gtk2::Gdk::Cursor->new('bottom-side');
-
-					} elsif ( $_ =~ /bottom.*right/ ) {
-
-						$cursor = Gtk2::Gdk::Cursor->new('bottom-right-corner');
-
-					}
-
+					$cursor = Gtk2::Gdk::Cursor->new($_);
 				}
-
 			}    #end determine cursor
 
 		}
@@ -2366,10 +2498,12 @@ sub setup_uimanager {
 	my @default_actions = ( [ "File", undef, $d->get("_File") ], [ "Edit", undef, $d->get("_Edit") ], [ "View", undef, $d->get("_View") ] );
 
 	my @menu_actions = (
+		[ "Undo", 'gtk-undo', undef, "<control>Z", undef, sub { $self->undo } ],
+		[ "Redo", 'gtk-redo', undef, "<control>Y", undef, sub { $self->redo } ],
 		[ "Copy", 'gtk-copy', undef, "<control>C", undef, sub { $self->{_cut} = FALSE; $self->{_current_copy_item} = $self->{_current_item}; } ],
-		[ "Cut", 'gtk-cut', undef, "<control>X", undef, sub { $self->{_cut} = TRUE; $self->{_current_copy_item} = $self->{_current_item}; $self->clear_item_from_canvas( $self->{_current_copy_item}, FALSE ); } ],
+		[ "Cut", 'gtk-cut', undef, "<control>X", undef, sub { $self->{_cut} = TRUE; $self->{_current_copy_item} = $self->{_current_item}; $self->clear_item_from_canvas( $self->{_current_copy_item}); } ],
 		[ "Paste", 'gtk-paste', undef, "<control>V", undef, sub { $self->paste_item($self->{_current_copy_item}, $self->{_cut} ); $self->{_cut} = FALSE; } ],
-		[ "Delete", 'gtk-delete', undef, "Delete", undef, sub { $self->clear_item_from_canvas( $self->{_current_item}, TRUE ); } ],
+		[ "Delete", 'gtk-delete', undef, "Delete", undef, sub { $self->clear_item_from_canvas( $self->{_current_item}); } ],
 		[ "Stop", 'gtk-stop', undef, "Escape", undef, sub { $self->abort_current_mode } ]
 
 	);
@@ -2439,6 +2573,9 @@ sub setup_uimanager {
       <menuitem action = 'Close'/>
     </menu>
     <menu action = 'Edit'>
+      <menuitem action = 'Undo'/>
+      <menuitem action = 'Redo'/>
+	  <separator/>
       <menuitem action = 'Copy'/>
       <menuitem action = 'Cut'/>
       <menuitem action = 'Paste'/>
@@ -2696,6 +2833,8 @@ sub paste_item {
 	#cut instead of copy
 	my $delete_after = shift;
 
+	print $item."\n";
+
 	return FALSE unless $item;
 	
 	my $child = $self->get_child_item($item);
@@ -2722,7 +2861,7 @@ sub paste_item {
 
 	#cut instead of copy
 	if($delete_after){
-		$self->clear_item_from_canvas($item, TRUE);
+		$self->clear_item_from_canvas($item);
 		$self->{_current_item} = undef;
 		$self->{_current_copy_item} = undef;
 	}
@@ -2775,6 +2914,9 @@ sub create_polyline {
 
 	$self->setup_item_signals( $self->{_items}{$item} );
 	$self->setup_item_signals_extra( $self->{_items}{$item} );
+
+	#add to undo stack
+	$self->store_to_xdo_stack($item , 'create', 'undo');
 
 	return TRUE;
 
@@ -2843,6 +2985,9 @@ sub create_image {
 		$self->handle_rects( 'hide', $item );
 		
 	}	
+
+	#add to undo stack
+	$self->store_to_xdo_stack($item , 'create', 'undo');
 	
 	return TRUE;	
 }
@@ -2907,6 +3052,9 @@ sub create_text{
 
 	$self->setup_item_signals( $self->{_items}{$item} );
 	$self->setup_item_signals_extra( $self->{_items}{$item} );
+
+	#add to undo stack
+	$self->store_to_xdo_stack($item , 'create', 'undo');
 	
 	return TRUE;
 	
@@ -2970,6 +3118,9 @@ sub create_line {
 
 	$self->setup_item_signals( $self->{_items}{$item} );
 	$self->setup_item_signals_extra( $self->{_items}{$item} );
+
+	#add to undo stack
+	$self->store_to_xdo_stack($item , 'create', 'undo');
 	
 	return TRUE;
 
@@ -3034,6 +3185,9 @@ sub create_ellipse {
 
 	$self->setup_item_signals( $self->{_items}{$item} );
 	$self->setup_item_signals_extra( $self->{_items}{$item} );
+
+	#add to undo stack
+	$self->store_to_xdo_stack($item , 'create', 'undo');
 	
 	return TRUE;
 
@@ -3082,6 +3236,9 @@ sub create_rectangle {
 
 	$self->setup_item_signals( $self->{_items}{$item} );
 	$self->setup_item_signals_extra( $self->{_items}{$item} );
+
+	#add to undo stack
+	$self->store_to_xdo_stack($item , 'create', 'undo');
 
 	return TRUE;
 }
