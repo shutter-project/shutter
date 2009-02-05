@@ -760,16 +760,14 @@ sub event_item_on_motion_notify {
 
 	#update statusbar
 	$self->{_drawing_statusbar}->push( -1, int( $ev->x ) . " x " . int( $ev->y ) );
-
-	my ( $x, $y, $width, $height, $depth ) = $self->{_canvas}->window->get_geometry;
-
+	
 	#autoscroll if enabled
 	if (   $self->{_autoscroll}
 		&& $self->{_current_mode_descr} ne "clear"
 		&& $ev->state >= 'button1-mask' )
 	{
 
-		#~ my ( $x, $y, $width, $height, $depth ) = $self->{_canvas}->window->get_geometry;
+		my ( $x, $y, $width, $height, $depth ) = $self->{_canvas}->window->get_geometry;
 
 		my $scale = $self->{_canvas}->get_scale;
 
@@ -875,6 +873,7 @@ sub event_item_on_motion_notify {
 		#new item is already on the canvas with small initial size
 		#drawing is like resizing, so set up tool for resizing
 		my $item = $self->{_current_new_item};
+		$self->{_current_new_item} = undef;
 		$self->set_drawing_action(0);
 		$self->change_drawing_tool_cb(10);
 		$self->{_current_item} = $item;
@@ -1016,41 +1015,29 @@ sub event_item_on_motion_notify {
 				$item->{res_x} = $ev->x;
 				$item->{res_y} = $ev->y;
 
-				my $min_w = 0;
-				my $min_h = 0;
-
-				#be careful when resizing images
-				if ( exists $self->{_items}{$curr_item}{image} ) {
-					$min_w = 20;
-					$min_h = 20;
-				}
-
 				#when width or height are too small we switch to opposite rectangle and do the resizing in this way
 				if ( $new_width < 0 || $new_height < 0) {
 					$self->{_canvas}->pointer_ungrab($item, $ev->time);
-					my $oppo = $self->get_opposite_rect($item, $curr_item, $new_width, $new_height);
+					my $oppo = $self->get_opposite_rect($item, $curr_item, $new_width, $new_height);				
 					$self->{_items}{$curr_item}{$oppo}->{res_x}    = $ev->x;
 					$self->{_items}{$curr_item}{$oppo}->{res_y}    = $ev->y;
 					$self->{_items}{$curr_item}{$oppo}->{resizing} = TRUE;
 					$self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], Gtk2::Gdk::Cursor->new($oppo), $ev->time );
 					$self->handle_embedded( 'mirror', $curr_item );
+					$new_width = 0 if $new_width < 0;
+					$new_height = 0 if $new_height < 0;
 				}
 
-				#only do something when min sizes are met
-				if ( $new_width >= $min_w && $new_height >= $min_h ) {
+				$self->{_items}{$curr_item}->set(
+					'x'      => $new_x,
+					'y'      => $new_y,
+					'width'  => $new_width,
+					'height' => $new_height,
+				);
 
-					$self->{_items}{$curr_item}->set(
-						'x'      => $new_x,
-						'y'      => $new_y,
-						'width'  => abs $new_width,
-						'height' => abs $new_height,
-					);
-
-					$self->handle_rects( 'update', $curr_item );
-					$self->handle_embedded( 'update', $curr_item );
-									
-				}
-
+				$self->handle_rects( 'update', $curr_item );
+				$self->handle_embedded( 'update', $curr_item );
+					
 			}
 		}
 	}
@@ -1195,20 +1182,42 @@ sub store_to_xdo_stack {
 	my $item = shift;
 	my $action = shift;
 	my $xdo = shift;
-	
+
 	return FALSE unless $item; 
 	
 	my %do_info = ();
 	#general properties for ellipse, rectangle, image, text
-	if($item->isa('Goo::Canvas::Rect')){	
+	if($item->isa('Goo::Canvas::Rect')){
+
+		my $stroke_pattern = $self->create_color( $self->{_items}{$item}{stroke_color}, $self->{_items}{$item}{stroke_color_alpha} ) if exists $self->{_items}{$item}{stroke_color};
+		my $fill_pattern   = $self->create_color( $self->{_items}{$item}{fill_color},   $self->{_items}{$item}{fill_color_alpha} ) if exists $self->{_items}{$item}{fill_color};
+		my $line_width = $self->{_items}{$item}->get('line-width');
+
+		#rectangle props
 		%do_info = (
-			item => $self->{_items}{$item},
-			action => $action,
-			x => $self->{_items}{$item}->get('x'),
-			y => $self->{_items}{$item}->get('y'),
-			width => $self->{_items}{$item}->get('width'),
-			height => $self->{_items}{$item}->get('height'),
+			'item' => $self->{_items}{$item},
+			'action' => $action,
+			'x' => $self->{_items}{$item}->get('x'),
+			'y' => $self->{_items}{$item}->get('y'),
+			'width' => $self->{_items}{$item}->get('width'),
+			'height' => $self->{_items}{$item}->get('height'),
+			'fill-pattern' => $fill_pattern,
+			'stroke-pattern' => $stroke_pattern,
+			'line-width' => $line_width,
 		);
+
+		if ( exists $self->{_items}{$item}{ellipse} ) {
+
+		}elsif ( exists $self->{_items}{$item}{text} ) {
+
+		}elsif ( exists $self->{_items}{$item}{image} ) {
+
+		}elsif ( exists $self->{_items}{$item}{line} ) {
+		
+		}else{
+		
+		}			
+		
 	}
 
 	#add polyline specific properties to hash
@@ -1238,8 +1247,8 @@ sub undo {
 
 	my $undo = pop @{ $self->{_undo} };
 
-	my $item = $undo->{item};
-	my $action = $undo->{action};
+	my $item = $undo->{'item'};
+	my $action = $undo->{'action'};
 
 	#store to redo stack
 	$self->store_to_xdo_stack($item, $action, 'redo'); 
@@ -1247,20 +1256,15 @@ sub undo {
 	$self->deactivate_all;
 	
 	#finally undo the last event
-	if($action eq 'move'){
+	if($action eq 'modify'){
 		$self->{_items}{$item}->set(
-			'x' => $undo->{x},
-			'y' => $undo->{y}	
-		);
-		$self->handle_rects( 'update', $self->{_items}{$item} );
-		$self->handle_embedded( 'update', $self->{_items}{$item} );
-		$self->{_current_item} = $item;	
-	}elsif($action eq 'resize'){
-		$self->{_items}{$item}->set(
-			'x' => $undo->{x},
-			'y' => $undo->{y},
-			'width' => 	$undo->{width},
-			'height' => $undo->{height},
+			'x' => $undo->{'x'},
+			'y' => $undo->{'y'},
+			'width' => 	$undo->{'width'},
+			'height' => $undo->{'height'},
+			'fill-pattern' => $undo->{'fill-pattern'},
+			'stroke-pattern' => $undo->{'stroke-pattern'},
+			'line-width' => $undo->{'line-width'},	
 		);
 		$self->handle_rects( 'update', $self->{_items}{$item} );
 		$self->handle_embedded( 'update', $self->{_items}{$item} );		
@@ -1288,8 +1292,8 @@ sub redo {
 
 	my $redo = pop @{ $self->{_redo} };
 
-	my $item = $redo->{item};
-	my $action = $redo->{action};
+	my $item = $redo->{'item'};
+	my $action = $redo->{'action'};
 
 	#store to undo stack
 	$self->store_to_xdo_stack($item, $action, 'undo'); 
@@ -1297,20 +1301,15 @@ sub redo {
 	$self->deactivate_all;
 
 	#finally undo the last event
-	if($action eq 'move'){
+	if($action eq 'modify'){
 		$self->{_items}{$item}->set(
-			'x' => $redo->{x},
-			'y' => $redo->{y}	
-		);
-		$self->handle_rects( 'update', $self->{_items}{$item} );
-		$self->handle_embedded( 'update', $self->{_items}{$item} );
-		$self->{_current_item} = $item;	
-	}elsif($action eq 'resize'){
-		$self->{_items}{$item}->set(
-			'x' => $redo->{x},
-			'y' => $redo->{y},
-			'width' => 	$redo->{width},
-			'height' => $redo->{height},
+			'x' => $redo->{'x'},
+			'y' => $redo->{'y'},
+			'width' => 	$redo->{'width'},
+			'height' => $redo->{'height'},
+			'fill-pattern' => $redo->{'fill-pattern'},
+			'stroke-pattern' => $redo->{'stroke-pattern'},
+			'line-width' => $redo->{'line-width'},			
 		);
 		$self->handle_rects( 'update', $self->{_items}{$item} );
 		$self->handle_embedded( 'update', $self->{_items}{$item} );		
@@ -1393,7 +1392,7 @@ sub event_item_on_button_press {
 					$cursor = Gtk2::Gdk::Cursor->new('fleur');
 					
 					#add to undo stack
-					$self->store_to_xdo_stack($self->{_current_item} , 'move', 'undo');
+					$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
 
 					#resizing shape
 				} else {
@@ -1405,7 +1404,7 @@ sub event_item_on_button_press {
 					$cursor = undef;
 
 					#add to undo stack
-					$self->store_to_xdo_stack($self->{_current_item} , 'resize', 'undo');
+					$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
 
 				}
 
@@ -1424,7 +1423,7 @@ sub event_item_on_button_press {
 				$item->{dragging} = TRUE;
 
 				#add to undo stack
-				$self->store_to_xdo_stack($self->{_current_item} , 'move', 'undo');
+				$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
 
 				$cursor = undef;
 
@@ -1790,6 +1789,9 @@ sub ret_item_menu {
 			my $prop_dialog_res = $prop_dialog->run;
 			if ( $prop_dialog_res eq 'apply' ) {
 
+				#add to undo stack
+				$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
+
 				#apply rect or ellipse options
 				if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
 
@@ -1997,15 +1999,28 @@ sub handle_embedded {
 
 			}else{
 
-				$self->{_items}{$item}{image}->set(
-					'x'      => int $self->{_items}{$item}->get('x'),
-					'y'      => int $self->{_items}{$item}->get('y'),
-					'width'  => $self->{_items}{$item}->get('width'),
-					'height' => $self->{_items}{$item}->get('height'),
-					'pixbuf' => $self->{_items}{$item}{orig_pixbuf}->scale_simple( $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'), 'nearest' ),
-					'visibility' => $visibilty,
-				);	
-
+				#be careful when resizing images
+				#don't do anything when width or height are too small
+				if($self->{_items}{$item}->get('width') > 5 && $self->{_items}{$item}->get('height') > 5){
+					$self->{_items}{$item}{image}->set(
+						'x'      => int $self->{_items}{$item}->get('x'),
+						'y'      => int $self->{_items}{$item}->get('y'),
+						'width'  => $self->{_items}{$item}->get('width'),
+						'height' => $self->{_items}{$item}->get('height'),
+						'pixbuf' => $self->{_items}{$item}{orig_pixbuf}->scale_simple( $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'), 'nearest' ),
+						'visibility' => $visibilty,
+					);			
+				}else{
+					$self->{_items}{$item}{image}->set(
+						'x'      => int $self->{_items}{$item}->get('x'),
+						'y'      => int $self->{_items}{$item}->get('y'),
+						'width'  => $self->{_items}{$item}->get('width'),
+						'height' => $self->{_items}{$item}->get('height'),
+						'pixbuf' => undef,
+						'visibility' => $visibilty,
+					);						
+				}
+	
 			}
 
 		}
@@ -2291,12 +2306,10 @@ sub event_item_on_button_release {
 			&& $nitem != $self->{_canvas_bg} )
 		{
 
-			my $copy = $self->{_items}{$nitem}{orig_pixbuf}->copy;
-
 			if ( $nitem->get('width') < 10 ) {
 				$self->{_items}{$nitem}{image}->set(
-					'width'  => $copy->get_width,
-					'pixbuf' => $copy
+					'width'  => $self->{_items}{$nitem}{orig_pixbuf}->get_width,
+					'pixbuf' => $self->{_items}{$nitem}{orig_pixbuf}->copy
 				);
 
 			}
@@ -2760,8 +2773,17 @@ sub import_from_session {
 	foreach my $key ( sort keys %import_hash ) {
 
 		#create pixbufs
-		my $small_image        = Gtk2::Image->new_from_stock( 'gtk-new', 'menu' );
-		my $small_image_button = Gtk2::Image->new_from_stock( 'gtk-new', 'menu' );
+		#~ my $small_image        = Gtk2::Image->new_from_stock( 'gtk-new', 'menu' );
+		#~ my $small_image_button = Gtk2::Image->new_from_stock( 'gtk-new', 'menu' );
+		my $small_image        = Gtk2::Image->new_from_pixbuf( 
+			Gtk2::Gdk::Pixbuf->new_from_file_at_scale($import_hash{$key}->{'long'}, 
+			Gtk2::IconSize->lookup ('menu'), TRUE)
+		);
+		my $small_image_button       = Gtk2::Image->new_from_pixbuf( 
+			Gtk2::Gdk::Pixbuf->new_from_file_at_scale($import_hash{$key}->{'long'}, 
+			Gtk2::IconSize->lookup ('menu'), TRUE)
+		);
+	
 		my $orig_pixbuf        = Gtk2::Gdk::Pixbuf->new_from_file( $import_hash{$key}->{'long'} );
 
 		my $screen_menu_item = Gtk2::ImageMenuItem->new_with_label( $import_hash{$key}->{'short'} );
@@ -2806,23 +2828,24 @@ sub set_drawing_action {
 sub change_cursor_to_current_pixbuf {
 	my $self = shift;
 
+	$self->{_current_mode_descr} = "image";
+
 	#define own icons
 	my $dicons = $self->{_shutter_common}->get_root . "/share/shutter/resources/icons/drawing_tool";
-	my $cursor = undef;
-
-	$self->{_current_mode_descr} = "image";
-	my $copy = $self->{_current_pixbuf}->copy;
-	if ( $copy->get_width < 200 && $copy->get_height < 200 ) {
-		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default, $copy, undef, undef );
-
-	} else {
+	my $cursor = undef; 
+	
+	#very big image usually don't work as a cursor (no error though??)
+	if($self->{_current_pixbuf}->get_width < 1000 && $self->{_current_pixbuf}->get_height < 1000 ){
+		my $cpixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($self->{_current_pixbuf_filename}, Gtk2::Gdk::Display->get_default->get_maximal_cursor_size, TRUE);
+		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default, $cpixbuf, undef, undef );
+	}else{
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
-			Gtk2::Gdk::Display->get_default,
-			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-image.svg"),
-			Gtk2::IconSize->lookup('menu')
-		);
+				Gtk2::Gdk::Display->get_default,
+				Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-image.svg"),
+				Gtk2::IconSize->lookup('menu')
+		);		
 	}
-
+	
 	return $cursor;
 }
 
@@ -2892,6 +2915,9 @@ sub create_polyline {
 		$transform = $self->{_items}{$copy_item}->get('transform');
 		$line_width = $self->{_items}{$copy_item}->get('line_width');
 	}
+
+    my @stipple_data = (255, 255, 255, 255,  255, 255, 255, 255,   255, 255, 255, 255,  255, 255, 255, 255);
+    $stroke_pattern = $self->create_stipple('black', \@stipple_data);
 		
 	my $item = Goo::Canvas::Polyline->new_line(
 		$self->{_canvas}->get_root_item, $points[0],$points[1],$points[2],$points[3],
@@ -2932,7 +2958,7 @@ sub create_image {
 
 	#use event coordinates
 	if ($ev) {
-		@dimensions = ( $ev->x, $ev->y, $self->{_current_pixbuf}->get_width, $self->{_current_pixbuf}->get_height );
+		@dimensions = ( $ev->x, $ev->y, 2, 2 );
 	#use source item coordinates
 	} elsif ($copy_item) {
 		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $self->{_items}{$copy_item}->get('width'), $self->{_items}{$copy_item}->get('height'));
@@ -3068,6 +3094,7 @@ sub create_line {
 	my @dimensions = ( 0, 0, 0, 0 );
 	my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
 	my $line_width = $self->{_line_width};
+	my $mirrored = FALSE;
 
 	#use event coordinates and selected color
 	if ($ev) {
@@ -3077,6 +3104,7 @@ sub create_line {
 		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
 		$stroke_pattern = $self->create_color( $self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha} );
 		$line_width = $self->{_items}{$copy_item}{line}->get('line-width');
+		$mirrored = $self->{_items}{$copy_item}{mirrored};
 	}
 
 	my $pattern = $self->create_alpha;
@@ -3090,18 +3118,22 @@ sub create_line {
 
 	$self->{_current_new_item} = $item;
 	$self->{_items}{$item} = $item;
-		
+
 	$self->{_items}{$item}{line} = Goo::Canvas::Polyline->new_line(
-		$self->{_canvas}->get_root_item, $item->get('x'), $item->get('y'), $item->get('x') + $item->get('width'),
+		$self->{_canvas}->get_root_item, 
+		$item->get('x'), 
+		$item->get('y'), 
+		$item->get('x') + $item->get('width'),
 		$item->get('y') + $item->get('height'),
 		'stroke-pattern' => $stroke_pattern,
 		'line-width'     => $line_width,
 		'line-cap'       => 'CAIRO_LINE_CAP_ROUND',
 		'line-join'      => 'CAIRO_LINE_JOIN_ROUND'
-	);
+	);				
 
 	$self->{_current_new_item} = $item;
 	$self->{_items}{$item} = $item;
+	$self->{_items}{$item}{mirrored} = $mirrored;
 
 	$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
 	$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
