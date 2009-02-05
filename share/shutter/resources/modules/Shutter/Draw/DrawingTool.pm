@@ -384,12 +384,20 @@ sub change_drawing_tool_cb {
 			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-text.png"),
 			Gtk2::IconSize->lookup('menu')
 		);
-
 	} elsif ( $self->{_current_mode} == 70 ) {
+
+		$self->{_current_mode_descr} = "censor";
+		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
+			Gtk2::Gdk::Display->get_default,
+			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-censor.png"),
+			Gtk2::IconSize->lookup('menu')
+		);
+
+	} elsif ( $self->{_current_mode} == 80 ) {
 
 		$self->{_current_mode_descr} = "clear";
 
-	} elsif ( $self->{_current_mode} == 80 ) {
+	} elsif ( $self->{_current_mode} == 90 ) {
 
 		$self->{_current_mode_descr} = "clear_all";
 
@@ -838,7 +846,7 @@ sub event_item_on_motion_notify {
 		}
 
 		#freehand line
-	} elsif ( $self->{_current_mode_descr} eq "freehand" && $ev->state >= 'button1-mask' ) {
+	} elsif ( ($self->{_current_mode_descr} eq "freehand" || $self->{_current_mode_descr} eq "censor") && $ev->state >= 'button1-mask' ) {
 
 		my $item = $self->{_current_new_item};
 
@@ -1442,6 +1450,11 @@ sub event_item_on_button_press {
 			} elsif ( $self->{_current_mode_descr} eq "line" ) {
 
 				$self->create_line( $ev, undef );
+				
+				#Censor
+			} elsif ( $self->{_current_mode_descr} eq "censor" ) {
+
+				$self->create_censor( $ev, undef );
 
 				#RECTANGLES
 			} elsif ( $self->{_current_mode_descr} eq "rect" ) {
@@ -2303,6 +2316,7 @@ sub event_item_on_button_release {
 
 		} elsif ( $nitem->isa('Goo::Canvas::Image')
 			&& $self->{_current_mode_descr} ne "freehand"
+			&& $self->{_current_mode_descr} ne "censor"
 			&& $nitem != $self->{_canvas_bg} )
 		{
 
@@ -2506,6 +2520,7 @@ sub setup_uimanager {
 	$self->{_factory}->add( 'shutter-rectangle', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-rectangle.png") ) );
 	$self->{_factory}->add( 'shutter-line', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-line.png") ) );
 	$self->{_factory}->add( 'shutter-text',      Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-text.png") ) );
+	$self->{_factory}->add( 'shutter-censor',      Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-censor.png") ) );
 	$self->{_factory}->add_default();
 
 	my @default_actions = ( [ "File", undef, $d->get("_File") ], [ "Edit", undef, $d->get("_Edit") ], [ "View", undef, $d->get("_View") ] );
@@ -2536,13 +2551,14 @@ sub setup_uimanager {
 
 	my @toolbar_drawing_actions = (
 		[ "Select",  'shutter-pointer',   undef, undef, $d->get("Select item to move or resize it"),    10 ],
-		[ "Freehand",    'shutter-freehand',  undef, undef, $d->get("Draw a line using the freehand tool"), 20 ],
+		[ "Freehand",    'shutter-freehand',  undef, undef, $d->get("Draw a freehand line"), 20 ],
 		[ "Line",    'shutter-line', undef, undef, $d->get("Draw a straight line"),                    30 ],
 		[ "Rect",    'shutter-rectangle', undef, undef, $d->get("Draw a rectangle"),                    40 ],
 		[ "Ellipse", 'shutter-ellipse',   undef, undef, $d->get("Draw a ellipse"),                      50 ],
 		[ "Text",    'shutter-text',      undef, undef, $d->get("Add some text to the screenshot"),     60 ],
-		[ "Clear",   'shutter-eraser',    undef, undef, $d->get("Delete objects"),                      70 ],
-		[ "ClearAll",'gtk-clear',  	 undef, undef, $d->get("Delete all objects"),                  80 ]
+		[ "Censor",    'shutter-censor',      undef, undef, $d->get("Censor portions of your screenshot to hide private data"),     70 ],
+		[ "Clear",   'shutter-eraser',    undef, undef, $d->get("Delete objects"),                      80 ],
+		[ "ClearAll",'gtk-clear',  	 undef, undef, $d->get("Delete all objects"),                  90 ]
 	);
 
 	my $uimanager = Gtk2::UIManager->new();
@@ -2620,6 +2636,7 @@ sub setup_uimanager {
     <toolitem action='Rect'/>
     <toolitem action='Ellipse'/>
     <toolitem action='Text'/>
+    <toolitem action='Censor'/>
     <separator/>
     <toolitem action='Clear'/>
     <toolitem action='ClearAll'/>
@@ -2868,9 +2885,12 @@ sub paste_item {
 	}elsif ( $item->isa('Goo::Canvas::Polyline') && !$child ){
 		print "Creating Polyline...\n";
 		$self->create_polyline( undef, $item );
-	}elsif ( $child->isa('Goo::Canvas::Polyline') ){
+	}elsif ( $child->isa('Goo::Canvas::Polyline') && exists $self->{_items}{$item}{stroke_color} ){
 		print "Creating Line...\n";
 		$self->create_line( undef, $item );
+	}elsif ( $child->isa('Goo::Canvas::Polyline') ){
+		print "Creating Censor...\n";
+		$self->create_censor( undef, $item );
 	}elsif ( $child->isa('Goo::Canvas::Ellipse') ){
 		print "Creating Ellipse...\n";
 		$self->create_ellipse( undef, $item);
@@ -2916,9 +2936,6 @@ sub create_polyline {
 		$line_width = $self->{_items}{$copy_item}->get('line_width');
 	}
 
-    my @stipple_data = (255, 255, 255, 255,  255, 255, 255, 255,   255, 255, 255, 255,  255, 255, 255, 255);
-    $stroke_pattern = $self->create_stipple('black', \@stipple_data);
-		
 	my $item = Goo::Canvas::Polyline->new_line(
 		$self->{_canvas}->get_root_item, $points[0],$points[1],$points[2],$points[3],
 		'stroke-pattern' => $stroke_pattern,
@@ -2948,6 +2965,53 @@ sub create_polyline {
 
 }
 
+sub create_censor {
+	my $self      = shift;
+	my $ev        = shift;
+	my $copy_item = shift;
+
+	my @points = ();
+	my $transform;
+	
+	#use event coordinates
+	if ($ev) {
+		@points = ( $ev->x, $ev->y, $ev->x, $ev->y );
+	#use source item coordinates
+	} elsif ($copy_item) {
+		foreach(@{$self->{_items}{$copy_item}{points}}){
+			push @points, $_ + 20;
+		}
+		$transform = $self->{_items}{$copy_item}->get('transform');
+	}
+
+    my @stipple_data = (255, 255, 255, 255,  255, 255, 255, 255,   255, 255, 255, 255,  255, 255, 255, 255);
+   	my $stroke_pattern = $self->create_stipple('black', \@stipple_data);
+		
+	my $item = Goo::Canvas::Polyline->new_line(
+		$self->{_canvas}->get_root_item, $points[0],$points[1],$points[2],$points[3],
+		'stroke-pattern' => $stroke_pattern,
+		'line-width'     => 14,
+		'line-cap'       => 'CAIRO_LINE_CAP_ROUND',
+		'line-join'      => 'CAIRO_LINE_JOIN_ROUND'
+	);
+
+	$self->{_current_new_item} = $item;
+	$self->{_items}{$item} = $item;
+
+	#need at least 2 points
+	push @{ $self->{_items}{$item}{'points'} }, @points;
+	$self->{_items}{$item}->set( points => Goo::Canvas::Points->new( $self->{_items}{$item}{'points'} ) );	
+	$self->{_items}{$item}->set( transform => $transform) if $transform;
+
+	$self->setup_item_signals( $self->{_items}{$item} );
+	$self->setup_item_signals_extra( $self->{_items}{$item} );
+
+	#add to undo stack
+	$self->store_to_xdo_stack($item , 'create', 'undo');
+
+	return TRUE;
+
+}
 
 sub create_image {
 	my $self      = shift;
