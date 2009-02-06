@@ -881,7 +881,7 @@ sub event_item_on_motion_notify {
 		#new item is already on the canvas with small initial size
 		#drawing is like resizing, so set up tool for resizing
 		my $item = $self->{_current_new_item};
-		$self->{_current_new_item} = undef;
+		#~ $self->{_current_new_item} = undef;
 		$self->set_drawing_action(0);
 		$self->change_drawing_tool_cb(10);
 		$self->{_current_item} = $item;
@@ -2292,6 +2292,7 @@ sub event_item_on_button_release {
 	#maybe the user just wanted to place an rect or an object on the canvas
 	#and clicked on it without describing an rectangular area
 	my $nitem = $self->{_current_new_item};
+
 	if ($nitem) {
 
 		#set minimum sizes
@@ -2300,33 +2301,22 @@ sub event_item_on_button_release {
 			#real shape
 			if ( exists $self->{_items}{$nitem} ) {
 
-				$nitem->set( 'width'  => 100 ) if ( $nitem->get('width') < 10 );
-				$nitem->set( 'height' => 100 ) if ( $nitem->get('height') < 10 );
+				if (exists $self->{_items}{$nitem}{image}){
+					
+					$self->{_items}{$nitem}->set(
+						'width' => $self->{_items}{$nitem}{orig_pixbuf}->get_width,
+						'height' => $self->{_items}{$nitem}{orig_pixbuf}->get_height
+					);
+			
+				}else{
+
+					$nitem->set( 'width'  => 100 ) if ( $nitem->get('width') < 10 );
+					$nitem->set( 'height' => 100 ) if ( $nitem->get('height') < 10 );
+					
+				}
 
 			}
 
-		} elsif ( $nitem->isa('Goo::Canvas::Ellipse') ) {
-
-			$nitem->set( 'x-radius' => 50 ) if ( $nitem->get('x-radius') < 5 );
-			$nitem->set( 'y-radius' => 50 ) if ( $nitem->get('y-radius') < 5 );
-
-		} elsif ( $nitem->isa('Goo::Canvas::Text') ) {
-
-			$nitem->set( 'width' => 100 ) if ( $nitem->get('width') < 10 );
-
-		} elsif ( $nitem->isa('Goo::Canvas::Image')
-			&& $self->{_current_mode_descr} ne "freehand"
-			&& $self->{_current_mode_descr} ne "censor"
-			&& $nitem != $self->{_canvas_bg} )
-		{
-
-			if ( $nitem->get('width') < 10 ) {
-				$self->{_items}{$nitem}{image}->set(
-					'width'  => $self->{_items}{$nitem}{orig_pixbuf}->get_width,
-					'pixbuf' => $self->{_items}{$nitem}{orig_pixbuf}->copy
-				);
-
-			}
 		}
 
 		$self->handle_rects( 'update', $nitem );
@@ -2337,7 +2327,6 @@ sub event_item_on_button_release {
 	#unset action flags
 	$item->{dragging} = FALSE;
 	$item->{resizing} = FALSE;
-
 
 	#because of performance reason we load the current image new from file when
 	#the current action is over => button-release
@@ -3195,8 +3184,6 @@ sub create_line {
 		'line-join'      => 'CAIRO_LINE_JOIN_ROUND'
 	);				
 
-	$self->{_current_new_item} = $item;
-	$self->{_items}{$item} = $item;
 	$self->{_items}{$item}{mirrored} = $mirrored;
 
 	$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};

@@ -4260,11 +4260,13 @@ sub fct_create_thumbnail_and_fileinfos {
 		$session_screens{$key}->{'height'} = $session_screens{$key}->{'orig'}->get_height;
 
 		#use different algos for image sizes...
-		if ( $session_screens{$key}->{'orig'}->get_width + $session_screens{$key}->{'orig'}->get_height > 5000 ) {
-			$session_screens{$key}->{'thumb'} = $session_screens{$key}->{'orig'}->scale_simple( Gtk2::IconSize->lookup('menu'), 'nearest' );
-		} else {
-			$session_screens{$key}->{'thumb'} = $session_screens{$key}->{'orig'}->scale_simple( Gtk2::IconSize->lookup('menu'), 'tiles' );
-		}
+		#~ if ( $session_screens{$key}->{'orig'}->get_width + $session_screens{$key}->{'orig'}->get_height > 5000 ) {
+		$session_screens{$key}->{'thumb'}      =  
+			Gtk2::Gdk::Pixbuf->new_from_file_at_scale($session_screens{$key}->{'long'}, 
+			Gtk2::IconSize->lookup ('menu'), TRUE);
+		#~ } else {
+			#~ $session_screens{$key}->{'thumb'} = $session_screens{$key}->{'orig'}->scale_simple( Gtk2::IconSize->lookup('menu'), 'tiles' );
+
 
 	};
 
