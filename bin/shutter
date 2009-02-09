@@ -207,6 +207,7 @@ $notebook = &fct_create_session_notebook;
 
 #STATUSBAR
 my $statusbar = Gtk2::Statusbar->new;
+$statusbar->set_homogeneous (FALSE);
 
 #arrange settings in notebook
 my $notebook_settings = Gtk2::Notebook->new;
@@ -2324,6 +2325,10 @@ sub fct_integrate_screenshot_in_notebook {
 	my $uri    = shift;
 	my $pixbuf = shift;
 
+	#check parameters
+	return FALSE unless $uri;
+	return FALSE unless $uri->exists;
+
 	#append a page to notebook using with label == filename
 	my ( $second, $minute, $hour ) = localtime();
 	my $theTime = "$hour:$minute:$second";
@@ -2354,9 +2359,6 @@ sub fct_integrate_screenshot_in_notebook {
 	$notebook->set_current_page($new_index);
 
 	if ( &fct_update_tab( $key, $pixbuf, $uri ) ) {
-
-		#build hash of screenshots during session
-		#$session_screens{$key}->{'long'} = $uri->get_path;
 
 		#set image
 		$session_screens{$key}->{'image'}->set_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} ) );
@@ -3137,12 +3139,12 @@ sub fct_open_files {
 
 	my $num_files = scalar(@new_files);
 	my $count     = 0;
-	foreach (@new_files) {
+	foreach my $new_file (@new_files) {
 
 		#refresh the progressbar
 		$count++;
 		$open_progress->set_fraction( $count / $num_files );
-		$open_progress->set_text($_);
+		$open_progress->set_text($new_file);
 
 		#refresh tray icon
 		if ( $icon && $icon->isa('Gtk2::StatusIcon') ) {
@@ -3153,7 +3155,9 @@ sub fct_open_files {
 		&fct_update_gui;
 
 		#do the real work
-		&fct_integrate_screenshot_in_notebook($_);
+		if(&fct_integrate_screenshot_in_notebook( Gnome2::VFS::URI->new ($new_file), undef )){
+			&dlg_status_message( 1, $new_file . " " . $d->get("loaded") );	
+		}
 	}
 	$open_dialog->response('ok');
 
@@ -3775,6 +3779,8 @@ sub fct_update_first_tab {
 	#create thumbails for iconview
 	foreach my $key ( sort keys %session_screens ) {
 
+		next unless $session_screens{$key}->{'uri'}->exists;
+
 		#try to generate a new thumbnail
 		my $pixbuf;
 		eval { $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $session_screens{$key}->{'long'}, Gtk2::IconSize->lookup('dialog'), TRUE ); };
@@ -3920,28 +3926,28 @@ sub fct_update_tab {
 
 	} else {
 
-		eval {
-			$session_screens{$key}->{'thumb'}
-				= Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$shutter_root/share/shutter/resources/icons/Image-missing.svg",
-				Gtk2::IconSize->lookup('menu'), TRUE );
-
-			$session_screens{$key}->{'orig'} = Gtk2::Gdk::Pixbuf->new_from_file("$shutter_root/share/shutter/resources/icons/Image-missing.svg");
-
-			#do not show an image
-			$session_screens{$key}->{'image'}->clear;
-
-			#..and do not watch for changes anymore
-			$session_screens{$key}->{'image'}->signal_handler_disconnect( $session_screens{$key}->{'image_handler'} );
-
-			$session_screens{$key}->{'tab_icon'}->set_from_pixbuf( $session_screens{$key}->{'thumb'} );
-		};
-		if ($@) {
-
-			#we handle no case here ;-)
-			$shutter_dialog->dlg_error_message( $@, $d->get("Failed") );
-
-			return FALSE;
-		}
+		#~ eval {
+			#~ $session_screens{$key}->{'thumb'}
+				#~ = Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$shutter_root/share/shutter/resources/icons/Image-missing.svg",
+				#~ Gtk2::IconSize->lookup('menu'), TRUE );
+#~ 
+			#~ $session_screens{$key}->{'orig'} = Gtk2::Gdk::Pixbuf->new_from_file("$shutter_root/share/shutter/resources/icons/Image-missing.svg");
+#~ 
+			#~ #do not show an image
+			#~ $session_screens{$key}->{'image'}->clear;
+#~ 
+			#~ #..and do not watch for changes anymore
+			#~ $session_screens{$key}->{'image'}->signal_handler_disconnect( $session_screens{$key}->{'image_handler'} );
+#~ 
+			#~ $session_screens{$key}->{'tab_icon'}->set_from_pixbuf( $session_screens{$key}->{'thumb'} );
+		#~ };
+		#~ if ($@) {
+#~ 
+			#~ #we handle no case here ;-)
+			#~ $shutter_dialog->dlg_error_message( $@, $d->get("Failed") );
+#~ 
+			#~ return FALSE;
+		#~ }
 
 		return FALSE;
 
@@ -4231,22 +4237,22 @@ sub fct_create_thumbnail_and_fileinfos {
 		$session_screens{$key}->{'filetype'} =~ s/.*\.//ig;
 
 		#volume infos
-		my $volume_monitor = Gnome2::VFS->get_volume_monitor();
-		my $volume         = $volume_monitor->get_volume_for_path( $session_screens{$key}->{'folder'} );
-		$session_screens{$key}->{'volume_device_type'}     = $volume->get_device_type;
-		$session_screens{$key}->{'volume_device_path'}     = $volume->get_device_path;
-		$session_screens{$key}->{'volume_filesystem_type'} = $volume->get_filesystem_type;
-		$session_screens{$key}->{'volume_volume_type'}     = $volume->get_volume_type;
-		$session_screens{$key}->{'volume_activation_uri'}  = $volume->get_activation_uri;
-		$session_screens{$key}->{'volume_display_name'}    = $volume->get_display_name;
-		$session_screens{$key}->{'volume_handled_trash'}   = $volume->handles_trash;
+		#~ my $volume_monitor = Gnome2::VFS->get_volume_monitor();
+		#~ my $volume         = $volume_monitor->get_volume_for_path( $session_screens{$key}->{'folder'} );
+		#~ $session_screens{$key}->{'volume_device_type'}     = $volume->get_device_type;
+		#~ $session_screens{$key}->{'volume_device_path'}     = $volume->get_device_path;
+		#~ $session_screens{$key}->{'volume_filesystem_type'} = $volume->get_filesystem_type;
+		#~ $session_screens{$key}->{'volume_volume_type'}     = $volume->get_volume_type;
+		#~ $session_screens{$key}->{'volume_activation_uri'}  = $volume->get_activation_uri;
+		#~ $session_screens{$key}->{'volume_display_name'}    = $volume->get_display_name;
+		#~ $session_screens{$key}->{'volume_handled_trash'}   = $volume->handles_trash;
 
 		#just the name
 		$session_screens{$key}->{'name'} = fileparse( $session_screens{$key}->{'long'}, '\..*' );
 
 		$session_screens{$key}->{'fileinfo'}  = $session_screens{$key}->{'uri'}->get_file_info('default');
 		$session_screens{$key}->{'size'}      = $session_screens{$key}->{'fileinfo'}->{'size'};
-		$session_screens{$key}->{'mime_type'} = Gnome2::VFS->get_mime_type( $session_screens{$key}->{'uri'}->to_string );
+		$session_screens{$key}->{'mime_type'} = Gnome2::VFS->get_mime_type_for_name( $session_screens{$key}->{'uri'}->to_string );
 
 		#maybe we have a pixbuf already (e.g. after taking a screenshot)
 		unless ($pixbuf) {
@@ -4259,14 +4265,9 @@ sub fct_create_thumbnail_and_fileinfos {
 		$session_screens{$key}->{'width'}  = $session_screens{$key}->{'orig'}->get_width;
 		$session_screens{$key}->{'height'} = $session_screens{$key}->{'orig'}->get_height;
 
-		#use different algos for image sizes...
-		#~ if ( $session_screens{$key}->{'orig'}->get_width + $session_screens{$key}->{'orig'}->get_height > 5000 ) {
 		$session_screens{$key}->{'thumb'}      =  
 			Gtk2::Gdk::Pixbuf->new_from_file_at_scale($session_screens{$key}->{'long'}, 
 			Gtk2::IconSize->lookup ('menu'), TRUE);
-		#~ } else {
-			#~ $session_screens{$key}->{'thumb'} = $session_screens{$key}->{'orig'}->scale_simple( Gtk2::IconSize->lookup('menu'), 'tiles' );
-
 
 	};
 
@@ -4275,11 +4276,40 @@ sub fct_create_thumbnail_and_fileinfos {
 		#we only handle one case here:
 		#file was deleted in filesystem and we got informed about that...
 		if ( $session_screens{$key}->{'deleted'} == TRUE ) {
-			$shutter_dialog->dlg_error_message(
-				$d->get("Maybe it was deleted by another person or process") . ".",
-				sprintf( $d->get("Image %s was not found"), "'" . $session_screens{$key}->{'uri'}->to_string . "'" ),
-				'gtk-discard', 'gtk-save-as'
+			
+			my $response = $shutter_dialog->dlg_question_message(
+				$d->get("Try to resave the file?"),
+				sprintf( $d->get("Image %s was not found on disk"), "'" . $session_screens{$key}->{'long'} . "'" ),
+				'gtk-discard', 'gtk-save'
 			);
+			
+			#handle different responses
+			if($response == 10){
+						
+				#delete page and hash entry
+				$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
+				delete $session_screens{$key};
+
+				&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("deleted") )
+				if defined( $session_screens{$key}->{'long'} );
+				
+			}elsif($response == 20){
+						
+				#save it
+				if ( $session_screens{$key}->{'filetype'} =~ /jpeg/ ) {
+					$session_screens{$key}->{'orig'}->save( $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'}, quality => '100' );
+				} elsif ( $session_screens{$key}->{'filetype'} =~ /png/ ) {
+					$session_screens{$key}->{'orig'}->save( $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'}, compression => '9' );
+				} else {
+					$session_screens{$key}->{'orig'}->save( $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'} );
+				}				
+			
+				#setup a new filemonitor, so we get noticed if the file changed
+				&fct_add_file_monitor($key);
+
+				&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $shutter_common->get_gettext->get("saved"));
+
+			}
 
 			#all other cases are unknown => show "real" error
 		} else {
@@ -5154,8 +5184,22 @@ sub fct_init_framework_versions {
 #--------------------------------------
 
 sub dlg_status_message {
-	my ( $index, $status_text ) = @_;
+	my $index = shift;
+	my $status_text = shift;
+	
+	$statusbar->pop(1);
+	Glib::Source->remove ($session_start_screen{'first_page'}->{'statusbar_timer'}) if defined $session_start_screen{'first_page'}->{'statusbar_timer'};
 	$statusbar->push( $index, $status_text );
+
+	#...and remove it after 4 seconds
+	$session_start_screen{'first_page'}->{'statusbar_timer'} = Glib::Timeout->add(
+		5000,
+		sub {
+			$statusbar->pop(1);
+			return FALSE;
+		}
+	);
+	
 	return TRUE;
 }
 

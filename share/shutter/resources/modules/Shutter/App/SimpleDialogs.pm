@@ -110,9 +110,11 @@ sub dlg_error_message {
 	my $button_text_extra1 = shift;
 	my $button_text_extra2 = shift;
 	my $button_text_extra3 = shift;
+	my $button_text_extra4 = shift;
 	my $button_widget_extra1 = shift;
 	my $button_widget_extra2 = shift;
 	my $button_widget_extra3 = shift;
+	my $button_widget_extra4 = shift;
 	
 	my $error_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef );
 
@@ -122,14 +124,15 @@ sub dlg_error_message {
 
 	$error_dialog->set( 'secondary-text' => $dlg_error_message );
 
-	$error_dialog->add_button( 'gtk-ok', 0 );
 	$error_dialog->add_button( $button_text_extra1, 10 ) if $button_text_extra1;
 	$error_dialog->add_button( $button_text_extra2, 20 ) if $button_text_extra2;
 	$error_dialog->add_button( $button_text_extra3, 30 ) if $button_text_extra3;
+	$error_dialog->add_button( $button_text_extra3, 40 ) if $button_text_extra3;
 
 	$error_dialog->add_action_widget( $button_widget_extra1, 40 ) if $button_widget_extra1;
 	$error_dialog->add_action_widget( $button_widget_extra2, 50 ) if $button_widget_extra2;
 	$error_dialog->add_action_widget( $button_widget_extra3, 60 ) if $button_widget_extra3;
+	$error_dialog->add_action_widget( $button_widget_extra3, 70 ) if $button_widget_extra3;
 
 	$error_dialog->show_all;
 

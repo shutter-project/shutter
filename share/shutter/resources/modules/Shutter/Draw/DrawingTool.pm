@@ -2779,8 +2779,6 @@ sub import_from_session {
 	foreach my $key ( sort keys %import_hash ) {
 
 		#create pixbufs
-		#~ my $small_image        = Gtk2::Image->new_from_stock( 'gtk-new', 'menu' );
-		#~ my $small_image_button = Gtk2::Image->new_from_stock( 'gtk-new', 'menu' );
 		my $small_image        = Gtk2::Image->new_from_pixbuf( 
 			Gtk2::Gdk::Pixbuf->new_from_file_at_scale($import_hash{$key}->{'long'}, 
 			Gtk2::IconSize->lookup ('menu'), TRUE)
