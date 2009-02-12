@@ -124,6 +124,7 @@ sub create_menu {
 	$self->{_menu_edit}->append( $self->{_menuitem_copy} );
 
 	$self->{_menuitem_trash} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("Move to Dele_ted Items folder") );
+	$self->{_menuitem_trash}->add_accelerator( "activate", $accel_group, Gtk2::Accelerator->parse("Delete"), qw/visible/ );
 	$self->{_menuitem_trash}->set_image( Gtk2::Image->new_from_icon_name( 'gnome-stock-trash', 'menu' ) );
 	$self->{_menuitem_trash}->set_sensitive(FALSE);
 	$self->{_menu_edit}->append( $self->{_menuitem_trash} );
@@ -152,6 +153,7 @@ sub create_menu {
 	$self->{_menu_actions}->append( $self->{_menuitem_reopen} );
 
 	$self->{_menuitem_rename} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("_Rename") );
+	$self->{_menuitem_rename}->add_accelerator( "activate", $accel_group, Gtk2::Accelerator->parse("F2"), qw/visible/ );
 	$self->{_menuitem_rename}->set_image( Gtk2::Image->new_from_stock( 'gtk-edit', 'menu' ) );
 	$self->{_menuitem_rename}->set_sensitive(FALSE);
 	$self->{_menu_actions}->append( $self->{_menuitem_rename} );
@@ -159,6 +161,7 @@ sub create_menu {
 	$self->{_menu_actions}->append( Gtk2::SeparatorMenuItem->new );
 
 	$self->{_menuitem_upload} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("_Upload") );
+	$self->{_menuitem_upload}->add_accelerator( "activate", $accel_group, Gtk2::Accelerator->parse("<Control>U"), qw/visible/ );
 	$self->{_menuitem_upload}->set_image( Gtk2::Image->new_from_stock( 'gtk-network', 'menu' ) );
 	$self->{_menuitem_upload}->set_sensitive(FALSE);
 	$self->{_menu_actions}->append( $self->{_menuitem_upload} );
@@ -166,6 +169,7 @@ sub create_menu {
 	$self->{_menu_actions}->append( Gtk2::SeparatorMenuItem->new );
 
 	$self->{_menuitem_draw} = Gtk2::ImageMenuItem->new_from_stock( 'gtk-edit' );
+	$self->{_menuitem_draw}->add_accelerator( "activate", $accel_group, Gtk2::Accelerator->parse("<Control>E"), qw/visible/ );
 	$self->{_menuitem_draw}->set_image(
 		Gtk2::Image->new_from_pixbuf(
 			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/draw.svg", Gtk2::IconSize->lookup('menu') )
@@ -176,6 +180,7 @@ sub create_menu {
 	$self->{_menu_actions}->append( $self->{_menuitem_draw} );
 
 	$self->{_menuitem_plugin} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("Execute a _plugin") );
+	$self->{_menuitem_plugin}->add_accelerator( "activate", $accel_group, Gtk2::Accelerator->parse("<Control><Shift>P"), qw/visible/ );
 	$self->{_menuitem_plugin}->set_image( Gtk2::Image->new_from_stock( 'gtk-execute', 'menu' ) );
 	$self->{_menuitem_plugin}->set_sensitive(FALSE);
 	$self->{_menu_actions}->append( $self->{_menuitem_plugin} );

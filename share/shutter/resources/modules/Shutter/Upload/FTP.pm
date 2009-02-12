@@ -39,7 +39,7 @@ sub new {
 
 	my $self = {
 		_debug_cparam    => shift,
-		_gscrot_root     => shift,
+		_shutter_root     => shift,
 		_gettext_object  => shift,
 		_main_gtk_window => shift,
 		_mode            => shift    #active or passive

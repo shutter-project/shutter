@@ -40,7 +40,7 @@ sub new {
 	my $self = {
 		_host            => shift,
 		_debug_cparam    => shift,
-		_gscrot_root     => shift,
+		_shutter_root     => shift,
 		_gettext_object  => shift,
 		_main_gtk_window => shift,
 		_ua              => shift
@@ -202,7 +202,7 @@ sub create_tab {
 	$upload_hbox->pack_start(
 		Gtk2::Image->new_from_pixbuf(
 			Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
-				"$self->{_gscrot_root}/share/gscrot/resources/icons/logo-imagebanana.png",
+				"$self->{_shutter_root}/share/shutter/resources/icons/logo-imagebanana.png",
 				100, 100, TRUE
 			)
 		),

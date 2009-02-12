@@ -158,7 +158,7 @@ sub new {
 	$self->{_status} = undef;
 	$self->{_gettext_object} = undef;
 	$self->{_main_gtk_window} = undef;
-	$self->{_gscrot_root} = undef;
+	$self->{_shutter_root} = undef;
 
 	$self->{_notebook} = Gtk2::Notebook->new;
 	$self->{_notebook}->set( homogeneous => 1 );
@@ -391,7 +391,7 @@ sub create_tab {
 	my $upload_vbox  = Gtk2::VBox->new( FALSE, 0 );
 	my $label_status = Gtk2::Label->new( $self->{_gettext_object}->get("Upload status:") . " " . status_message($self->{_status}) );
 
-	$upload_hbox->pack_start( Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$self->{_gscrot_root}/share/gscrot/resources/icons/logo-imageshack.png", 100, 100, TRUE ) ), TRUE, TRUE, 0 );
+	$upload_hbox->pack_start( Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$self->{_shutter_root}/share/shutter/resources/icons/logo-imageshack.png", 100, 100, TRUE ) ), TRUE, TRUE, 0 );
 	$upload_hbox->pack_start( $label_status, TRUE, TRUE, 0 );
 
 	my $entry_direct = Gtk2::Entry->new();
@@ -402,7 +402,7 @@ sub create_tab {
 	my $label_hotweb = Gtk2::Label->new( $self->{_gettext_object}->get("Hotlink for websites") );
 
 	$entry_direct->set_text("$self->{_url}");
-	$entry_hotweb->set_text("<a href=\"http:\/\/imageshack.us\"><img src=\"$self->{_url}\" border=\"0\" alt=\"Image Hosted by ImageShack.us\"\/><\/a><br\/>By <a href=\"https:\/\/launchpad.net\/gscrot\">GScrot<\/a>");
+	$entry_hotweb->set_text("<a href=\"http:\/\/imageshack.us\"><img src=\"$self->{_url}\" border=\"0\" alt=\"Image Hosted by ImageShack.us\"\/><\/a><br\/>By <a href=\"https:\/\/launchpad.net\/shutter\">GScrot<\/a>");
 	$upload_vbox->pack_start( $upload_hbox, TRUE, TRUE, 10 );
 
 	if ($self->{_url_thumb}) {
@@ -507,7 +507,7 @@ sub show_all {
 }
 
 sub show {
-	my ( $self, $host, $username, $filename, $url, $url_thumb, $status, $d, $window, $gscrot_root ) = @_;
+	my ( $self, $host, $username, $filename, $url, $url_thumb, $status, $d, $window, $shutter_root ) = @_;
 
 	$self->{_host} = $host;
 	$self->{_username} = $username;
@@ -517,7 +517,7 @@ sub show {
 	$self->{_status} = $status;
 	$self->{_gettext_object} = $d;
 	$self->{_main_gtk_window} = $window;
-	$self->{_gscrot_root} = $gscrot_root;
+	$self->{_shutter_root} = $shutter_root;
 
 	$self->{_notebook}->append_page( $self->create_tab(), $self->{_filename} );
 	

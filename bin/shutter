@@ -207,7 +207,6 @@ $notebook = &fct_create_session_notebook;
 
 #STATUSBAR
 my $statusbar = Gtk2::Statusbar->new;
-$statusbar->set_homogeneous (FALSE);
 
 #arrange settings in notebook
 my $notebook_settings = Gtk2::Notebook->new;
@@ -4102,14 +4101,13 @@ sub fct_get_next_filename {
 	#create new uri
 	my $new_uri = Gnome2::VFS::URI->new("$folder/$filename_value.$filetype_value");
 
-	print "Checking new uri: " . $new_uri->to_string . "\n";
 	if ( $new_uri->exists ) {
 		my $count             = 1;
 		my $existing_filename = $filename_value;
 		while ( $new_uri->exists ) {
 			$filename_value = $existing_filename . "(" . sprintf( "%03d", $count++ ) . ")";
-			$new_uri        = $folder;
-			$new_uri        = $new_uri->append_string("$filename_value.$filetype_value");
+			$new_uri = Gnome2::VFS::URI->new($folder);
+			$new_uri    = $new_uri->append_string("$filename_value.$filetype_value");
 			print "Checking new uri: " . $new_uri->to_string . "\n";
 		}
 	}
@@ -4288,10 +4286,11 @@ sub fct_create_thumbnail_and_fileinfos {
 						
 				#delete page and hash entry
 				$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
-				delete $session_screens{$key};
-
+				
 				&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("deleted") )
 				if defined( $session_screens{$key}->{'long'} );
+
+				delete $session_screens{$key};	
 				
 			}elsif($response == 20){
 						
@@ -5272,11 +5271,11 @@ sub dlg_rename {
 							"The image already exists in %s. Replacing it will overwrite its contents.", "'$session_screens{$key}->{'folder'}'"
 						)
 					),
+					$d->get( sprintf( "An image named %s already exists. Do you want to replace it?", "'" . $new_uri->extract_short_name . "'" ) ),
 					'gtk-cancel',
 					undef, undef,
 					$replace_btn,
-					undef, undef,
-					$d->get( sprintf( "An image named %s already exists. Do you want to replace it?", "'" . $new_uri->extract_short_name . "'" ) )
+					undef, undef
 				);
 
 				#rename == replace_btn was hit
@@ -5464,56 +5463,71 @@ sub dlg_upload {
 	my $renderer_username = Gtk2::CellRendererText->new;
 	$hosting->pack_start( $renderer_username, FALSE );
 	$hosting->add_attribute( $renderer_username, text => 3 );
-	$hosting->signal_connect(
-		'changed' => sub {
-
-			my $model        = $hosting->get_model();
-			my $hosting_iter = $hosting->get_active_iter();
-
-			if ($hosting_iter) {
-				my $hosting_host     = $model->get_value( $hosting_iter, 0 );
-				my $hosting_username = $model->get_value( $hosting_iter, 1 );
-				if ( $hosting_host =~ /imageshack/i ) {
-					$hosting_image->set_from_pixbuf(
-						Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$shutter_root/share/shutter/resources/icons/logo-imageshack.png", 200, 200, TRUE )
-					);
-				} elsif ( $hosting_host =~ /imagebanana/i ) {
-					$hosting_image->set_from_pixbuf(
-						Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$shutter_root/share/shutter/resources/icons/logo-imagebanana.png", 200, 200, TRUE )
-					);
-				} elsif ( $hosting_host =~ /ubuntu-pics/i ) {
-					$hosting_image->set_from_pixbuf(
-						Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$shutter_root/share/shutter/resources/icons/logo-ubuntu-pics.png", 200, 200, TRUE )
-					);
-				}
-
-			}
-		},
-		'changed'
-	);
+	#~ $hosting->signal_connect(
+		#~ 'changed' => sub {
+#~ 
+			#~ my $model        = $hosting->get_model();
+			#~ my $hosting_iter = $hosting->get_active_iter();
+#~ 
+			#~ if ($hosting_iter) {
+				#~ my $hosting_host     = $model->get_value( $hosting_iter, 0 );
+				#~ my $hosting_username = $model->get_value( $hosting_iter, 1 );
+				#~ if ( $hosting_host =~ /imageshack/i ) {
+					#~ $hosting_image->set_from_pixbuf(
+						#~ Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$shutter_root/share/shutter/resources/icons/logo-imageshack.png", 200, 200, TRUE )
+					#~ );
+				#~ } elsif ( $hosting_host =~ /imagebanana/i ) {
+					#~ $hosting_image->set_from_pixbuf(
+						#~ Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$shutter_root/share/shutter/resources/icons/logo-imagebanana.png", 200, 200, TRUE )
+					#~ );
+				#~ } elsif ( $hosting_host =~ /ubuntu-pics/i ) {
+					#~ $hosting_image->set_from_pixbuf(
+						#~ Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$shutter_root/share/shutter/resources/icons/logo-ubuntu-pics.png", 200, 200, TRUE )
+					#~ );
+				#~ }
+#~ 
+			#~ }
+		#~ },
+		#~ 'changed'
+	#~ );
 
 	$hosting->set_active(0);
 
-	#image hoster settings
-	my $hosting_hbox1 = Gtk2::HBox->new( TRUE,  5 );
-	my $hosting_hbox2 = Gtk2::HBox->new( FALSE, 5 );
-	$hosting_hbox2->set_border_width(10);
-	$hosting_hbox1->pack_start_defaults( Gtk2::Label->new( $d->get("Choose account") ) );
-	$hosting_hbox1->pack_start_defaults($hosting);
-	$hosting_hbox2->pack_start_defaults($hosting_image);
+	#public hosting settings
+	my $pub_hbox1 = Gtk2::HBox->new( FALSE, 12 );
+	my $pub_hbox2 = Gtk2::HBox->new( FALSE, 12 );
+	my $pub_vbox1 = Gtk2::VBox->new( FALSE, 12 );
+	$pub_hbox2->set_border_width(12);
+	$pub_hbox1->set_border_width(12);
+	$pub_hbox2->set_border_width(12);
+	$pub_vbox1->set_border_width(12);
+	$pub_hbox1->pack_start( Gtk2::Label->new( $d->get("Choose account"). ":" ), FALSE, FALSE, 6 );
+	$pub_hbox1->pack_start_defaults($hosting);
+	#~ $pub_hbox2->pack_start_defaults($hosting_image);
+	$pub_vbox1->pack_start($pub_hbox1, FALSE, FALSE, 6);
+	#~ $pub_vbox1->pack_start($pub_hbox2, FALSE, FALSE, 6);
+
+	#places settings
+	my $pl_hbox1 = Gtk2::HBox->new( FALSE, 12 );
+	my $pl_vbox1 = Gtk2::VBox->new( FALSE, 12 );
+ 	$pl_hbox1->set_border_width(12);
+ 	$pl_vbox1->set_border_width(12);
+	my $places_fc = Gtk2::FileChooserButton->new ("Shutter - " . $shutter_common->get_gettext->get("Choose folder"), 'select-folder');	
+	$pl_hbox1->pack_start( Gtk2::Label->new( $d->get("Choose folder"). ":" ), FALSE, FALSE, 6 );
+	$pl_hbox1->pack_start_defaults($places_fc);
+	$pl_vbox1->pack_start($pl_hbox1, FALSE, FALSE, 6);
 
 	#ftp settings
 	#we are using the same widgets as in the settings and populate
 	#them with saved values when possible
-
-	my $ftp_hbox1_dlg = Gtk2::HBox->new( TRUE, 0 );
-	my $ftp_hbox2_dlg = Gtk2::HBox->new( TRUE, 0 );
-	my $ftp_hbox3_dlg = Gtk2::HBox->new( TRUE, 0 );
-	my $ftp_hbox4_dlg = Gtk2::HBox->new( TRUE, 0 );
+	my $ftp_hbox1_dlg = Gtk2::HBox->new( FALSE, 0 );
+	my $ftp_hbox2_dlg = Gtk2::HBox->new( FALSE, 0 );
+	my $ftp_hbox3_dlg = Gtk2::HBox->new( FALSE, 0 );
+	my $ftp_hbox4_dlg = Gtk2::HBox->new( FALSE, 0 );
 
 	#uri
-	my $ftp_entry_label_dlg = Gtk2::Label->new( $d->get("URI") );
-	$ftp_hbox1_dlg->pack_start( $ftp_entry_label_dlg, TRUE, TRUE, 10 );
+	my $ftp_entry_label_dlg = Gtk2::Label->new( $d->get("URI") . ":");
+	$ftp_hbox1_dlg->pack_start( $ftp_entry_label_dlg, FALSE, TRUE, 10 );
 	my $ftp_remote_entry_dlg = Gtk2::Entry->new;
 	$ftp_remote_entry_dlg->set_text( $ftp_remote_entry->get_text );
 
@@ -5524,8 +5538,8 @@ sub dlg_upload {
 	$ftp_hbox1_dlg->pack_start( $ftp_remote_entry_dlg, TRUE, TRUE, 10 );
 
 	#connection mode
-	my $ftp_mode_label_dlg = Gtk2::Label->new( $d->get("Connection mode") );
-	$ftp_hbox2_dlg->pack_start( $ftp_mode_label_dlg, TRUE, TRUE, 10 );
+	my $ftp_mode_label_dlg = Gtk2::Label->new( $d->get("Connection mode") . ":");
+	$ftp_hbox2_dlg->pack_start( $ftp_mode_label_dlg, FALSE, TRUE, 10 );
 	my $ftp_mode_combo_dlg = Gtk2::ComboBox->new_text;
 	$ftp_mode_combo_dlg->insert_text( 0, $d->get("Active mode") );
 	$ftp_mode_combo_dlg->insert_text( 1, $d->get("Passive mode") );
@@ -5538,8 +5552,8 @@ sub dlg_upload {
 	$ftp_hbox2_dlg->pack_start( $ftp_mode_combo_dlg, TRUE, TRUE, 10 );
 
 	#username
-	my $ftp_username_label_dlg = Gtk2::Label->new( $d->get("Username") );
-	$ftp_hbox3_dlg->pack_start( $ftp_username_label_dlg, TRUE, TRUE, 10 );
+	my $ftp_username_label_dlg = Gtk2::Label->new( $d->get("Username") . ":");
+	$ftp_hbox3_dlg->pack_start( $ftp_username_label_dlg, FALSE, TRUE, 10 );
 	my $ftp_username_entry_dlg = Gtk2::Entry->new;
 	$ftp_username_entry_dlg->set_text( $ftp_username_entry->get_text );
 
@@ -5550,8 +5564,8 @@ sub dlg_upload {
 	$ftp_hbox3_dlg->pack_start( $ftp_username_entry_dlg, TRUE, TRUE, 10 );
 
 	#password
-	my $ftp_password_label_dlg = Gtk2::Label->new( $d->get("Password") );
-	$ftp_hbox4_dlg->pack_start( $ftp_password_label_dlg, TRUE, TRUE, 10 );
+	my $ftp_password_label_dlg = Gtk2::Label->new( $d->get("Password") . ":");
+	$ftp_hbox4_dlg->pack_start( $ftp_password_label_dlg, FALSE, TRUE, 10 );
 	my $ftp_password_entry_dlg = Gtk2::Entry->new;
 	$ftp_password_entry_dlg->set_invisible_char("*");
 	$ftp_password_entry_dlg->set_visibility(FALSE);
@@ -5563,49 +5577,34 @@ sub dlg_upload {
 
 	$ftp_hbox4_dlg->pack_start( $ftp_password_entry_dlg, TRUE, TRUE, 10 );
 
-	my $ftp_vbox_dlg = Gtk2::VBox->new( TRUE, 0 );
-	$ftp_vbox_dlg->pack_start( $ftp_hbox1_dlg, FALSE, TRUE, 1 );
-	$ftp_vbox_dlg->pack_start( $ftp_hbox2_dlg, FALSE, TRUE, 1 );
-	$ftp_vbox_dlg->pack_start( $ftp_hbox3_dlg, FALSE, TRUE, 1 );
-	$ftp_vbox_dlg->pack_start( $ftp_hbox4_dlg, FALSE, TRUE, 1 );
+	my $ftp_vbox_dlg = Gtk2::VBox->new( FALSE, 0 );
+	$ftp_vbox_dlg->pack_start( $ftp_hbox1_dlg, FALSE, TRUE, 3 );
+	$ftp_vbox_dlg->pack_start( $ftp_hbox2_dlg, FALSE, TRUE, 3 );
+	$ftp_vbox_dlg->pack_start( $ftp_hbox3_dlg, FALSE, TRUE, 3 );
+	$ftp_vbox_dlg->pack_start( $ftp_hbox4_dlg, FALSE, TRUE, 3 );
 
-	#default setting
-	$hosting->set_sensitive(TRUE);
-	$ftp_remote_entry_dlg->set_sensitive(FALSE);
-	$ftp_mode_combo_dlg->set_sensitive(FALSE);
-	$ftp_username_entry_dlg->set_sensitive(FALSE);
-	$ftp_password_entry_dlg->set_sensitive(FALSE);
+	#all labels = one size
+	$ftp_entry_label_dlg->set_alignment( 0, 0.5 );
+	$ftp_mode_label_dlg->set_alignment( 0, 0.5 );
+	$ftp_username_label_dlg->set_alignment( 0, 0.5 );
+	$ftp_password_label_dlg->set_alignment( 0, 0.5 );
 
-	#handle radiobuttons
-	my $radio_imagehoster = Gtk2::RadioButton->new( undef, $d->get("Upload file to hosting-site") );
-	$radio_imagehoster->signal_connect(
-		'clicked' => sub {
-			$hosting->set_sensitive(TRUE);
-			$ftp_remote_entry_dlg->set_sensitive(FALSE);
-			$ftp_mode_combo_dlg->set_sensitive(FALSE);
-			$ftp_username_entry_dlg->set_sensitive(FALSE);
-			$ftp_password_entry_dlg->set_sensitive(FALSE);
-		}
-	);
+	my $sg_ftp_dlg = Gtk2::SizeGroup->new('horizontal');
+	$sg_ftp_dlg->add_widget($ftp_entry_label_dlg);
+	$sg_ftp_dlg->add_widget($ftp_mode_label_dlg);
+	$sg_ftp_dlg->add_widget($ftp_username_label_dlg);
+	$sg_ftp_dlg->add_widget($ftp_password_label_dlg);
 
-	my $radio_ftp = Gtk2::RadioButton->new( $radio_imagehoster, $d->get("Upload file via FTP") );
-	$radio_ftp->signal_connect(
-		'clicked' => sub {
-			$hosting->set_sensitive(FALSE);
-			$ftp_remote_entry_dlg->set_sensitive(TRUE);
-			$ftp_mode_combo_dlg->set_sensitive(TRUE);
-			$ftp_username_entry_dlg->set_sensitive(TRUE);
-			$ftp_password_entry_dlg->set_sensitive(TRUE);
-		}
-	);
+	#setup notebook
+	my $unotebook = Gtk2::Notebook->new;
+	$unotebook->set( homogeneous  => TRUE );
+	$unotebook->set( 'scrollable' => TRUE );
 
-	#final packing
-	$hosting_dialog->vbox->add($radio_imagehoster);
-	$hosting_dialog->vbox->add($hosting_hbox1);
-	$hosting_dialog->vbox->add($hosting_hbox2);
+	$unotebook->append_page($pub_vbox1, $d->get("Public hosting"));
+	$unotebook->append_page($ftp_vbox_dlg, "FTP");
+	$unotebook->append_page($pl_vbox1, $d->get("Places"));
 
-	$hosting_dialog->vbox->add($radio_ftp);
-	$hosting_dialog->vbox->add($ftp_vbox_dlg);
+	$hosting_dialog->vbox->add($unotebook);
 
 	my $hosting_progress = Gtk2::ProgressBar->new;
 	$hosting_progress->set_no_show_all(TRUE);
@@ -5632,8 +5631,8 @@ UPDIALOG: while ($hosting_dialog) {
 		#start upload
 		if ( $hosting_response eq "accept" ) {
 
-			#imagehosting
-			if ( $radio_imagehoster->get_active ) {
+			#public hosting
+			if ( $unotebook->get_current_page == 0 ) {
 				my $model            = $hosting->get_model();
 				my $hosting_iter     = $hosting->get_active_iter();
 				my $hosting_host     = $model->get_value( $hosting_iter, 0 );
@@ -5768,7 +5767,7 @@ UPDIALOG: while ($hosting_dialog) {
 				}
 
 				#ftp
-			} elsif ( $radio_ftp->get_active ) {
+			} elsif ( $unotebook->get_current_page == 1 ) {
 
 				#create upload object
 				my $uploader = Shutter::Upload::FTP->new( $shutter_common->get_debug, $shutter_root, $d, $window, $ftp_mode_combo_dlg->get_active );
@@ -5778,7 +5777,7 @@ UPDIALOG: while ($hosting_dialog) {
 				$hosting_progress->set_fraction(0);
 
 				#start upload
-				foreach my $file (@files_to_upload) {
+				foreach my $file (sort @files_to_upload) {
 
 					#need to login?
 					my $upload_response;
@@ -5840,6 +5839,65 @@ UPDIALOG: while ($hosting_dialog) {
 					$counter++;
 				}    #end foreach
 				$uploader->quit;
+			
+			
+			#places using Gnone-VFS
+			} elsif ( $unotebook->get_current_page == 2 ) {
+		
+				my $counter = 1;
+				$hosting_progress->set_fraction(0);
+
+				#start upload
+				foreach my $file (sort @files_to_upload) {
+					
+					$hosting_progress->set_text($file);
+					
+					#update gui
+					&fct_update_gui;
+
+					my $source_uri = Gnome2::VFS::URI->new ($file);
+					my $target_uri = Gnome2::VFS::URI->new ($places_fc->get_filename);
+					$target_uri = $target_uri->append_file_name($source_uri->extract_short_name);
+
+					print $source_uri->to_string . " - " . $target_uri->to_string."\n";
+					my $result;
+					unless($target_uri->exists){
+						$result = Gnome2::VFS::Xfer->uri ($source_uri, $target_uri, 'default', 'abort', 'replace', sub{ return TRUE });
+					}else{
+						$result = 'error-file-exists';	
+					}
+
+					if($result eq 'ok'){
+					
+						#everything is fine here
+						&dlg_status_message( 1, $file . " " . $d->get("uploaded") );
+						
+					}else{
+
+						my $response = $shutter_dialog->dlg_error_message( Gnome2::VFS->result_to_string ($result), $d->get("Failed"), $d->get("Skip all"), $d->get("Skip"),
+							'gtk-redo' );
+
+						#10 == skip all, 20 == skip, 30 == redo, else == cancel
+						if ( $response == 10 ) {
+							last;
+						} elsif ( $response == 20 ) {
+							next;
+						} elsif ( $response == 30 ) {
+							redo;
+						} else {
+							next UPDIALOG;
+						}					
+		
+					}
+
+					$hosting_progress->set_fraction( $counter / @files_to_upload );
+
+					#update gui
+					&fct_update_gui;
+					$counter++;
+													
+				}
+				
 			}
 
 			$hosting_dialog->destroy();

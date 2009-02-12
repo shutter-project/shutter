@@ -133,16 +133,11 @@ sub create_toolbar {
 	if ( system("which gnome-web-photo") == 0 ) {
 		$tooltips->set_tip( $self->{_web}, $d->get("Take a screenshot of a website") );
 		$self->{_web}->set_arrow_tooltip( Gtk2::Tooltips->new, $d->get("Set up a connection timeout (seconds)"), 'arrow' );
+		$self->{_web}->set_sensitive(TRUE);
 	} else {
 		$tooltips->set_tip( $self->{_web}, $d->get("gnome-web-photo needs to be installed for this feature") );
 		$self->{_web}->set_arrow_tooltip( $tooltips, $d->get("gnome-web-photo needs to be installed for this feature"), 'arrow' );
-
-		#gnome web photo is optional, don't enable it when gnome-web-photo is not in PATH
-		if ( system("which gnome-web-photo") == 0 ) {
-			$self->{_web}->set_sensitive(TRUE);
-		} else {
-			$self->{_web}->set_sensitive(FALSE);
-		}
+		$self->{_web}->set_sensitive(FALSE);
 	}
 
 	#--------------------------------------

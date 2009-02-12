@@ -44,7 +44,7 @@ sub new {
 	my $class = shift;
 
 	#constructor
-	my $self = { _gscrot_root => shift };
+	my $self = { _shutter_root => shift };
 
 	#vars
 	$self->{_debug_cparam}           = FALSE;
@@ -56,9 +56,9 @@ sub new {
 
 	#gettext init
 	setlocale( LC_MESSAGES, "" );
-	$self->{_gettext_object} = Locale::gettext->domain("gscrot");
-	$self->{_gettext_object}->dir( $self->{_gscrot_root} . "/share/locale" );
-	$ENV{'GSCROT_INTL'} = $self->{_gscrot_root} . "/share/locale";
+	$self->{_gettext_object} = Locale::gettext->domain("shutter");
+	$self->{_gettext_object}->dir( $self->{_shutter_root} . "/share/locale" );
+	$ENV{'GSCROT_INTL'} = $self->{_shutter_root} . "/share/locale";
 
 	#tooltips
 	$self->{_tooltips} = Gtk2::Tooltips->new;
@@ -70,7 +70,7 @@ sub new {
 #getter / setter
 sub get_root {
 	my $self = shift;
-	return $self->{_gscrot_root};
+	return $self->{_shutter_root};
 }
 
 sub get_gettext {

@@ -20,10 +20,6 @@ binary-indep: build
 	dh_installdocs
 	dh_installchangelogs
 
-	#Copy the notifier file
-	find ./tools -maxdepth 1 -mindepth 1 -iname 'update-notifier*' -print0 | \
-		xargs -0 -r -i cp {} debian/$(PACKAGE)/var/lib/update-notifier/user.d/
-
 	#Copy the packages's files.
 	find . -maxdepth 1 -mindepth 1 -not -name debian -not -name tools -not -iname '.*' -print0 | \
 		xargs -0 -r -i cp -a {} debian/$(PACKAGE)/usr/

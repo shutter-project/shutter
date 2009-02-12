@@ -110,11 +110,9 @@ sub dlg_error_message {
 	my $button_text_extra1 = shift;
 	my $button_text_extra2 = shift;
 	my $button_text_extra3 = shift;
-	my $button_text_extra4 = shift;
 	my $button_widget_extra1 = shift;
 	my $button_widget_extra2 = shift;
 	my $button_widget_extra3 = shift;
-	my $button_widget_extra4 = shift;
 	
 	my $error_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef );
 
@@ -124,15 +122,14 @@ sub dlg_error_message {
 
 	$error_dialog->set( 'secondary-text' => $dlg_error_message );
 
+	$error_dialog->add_button( 'gtk-cancel', 0 );
 	$error_dialog->add_button( $button_text_extra1, 10 ) if $button_text_extra1;
 	$error_dialog->add_button( $button_text_extra2, 20 ) if $button_text_extra2;
 	$error_dialog->add_button( $button_text_extra3, 30 ) if $button_text_extra3;
-	$error_dialog->add_button( $button_text_extra3, 40 ) if $button_text_extra3;
 
 	$error_dialog->add_action_widget( $button_widget_extra1, 40 ) if $button_widget_extra1;
 	$error_dialog->add_action_widget( $button_widget_extra2, 50 ) if $button_widget_extra2;
 	$error_dialog->add_action_widget( $button_widget_extra3, 60 ) if $button_widget_extra3;
-	$error_dialog->add_action_widget( $button_widget_extra3, 70 ) if $button_widget_extra3;
 
 	$error_dialog->show_all;
 
@@ -140,6 +137,42 @@ sub dlg_error_message {
 
 	$error_dialog->destroy();
 	return $error_response;
+}
+
+sub dlg_warning_message {
+	my $self = shift;
+	my $dlg_warning_message = shift;
+	my $dlg_warning_header = shift;
+	my $button_text_extra1 = shift;
+	my $button_text_extra2 = shift;
+	my $button_text_extra3 = shift;
+	my $button_widget_extra1 = shift;
+	my $button_widget_extra2 = shift;
+	my $button_widget_extra3 = shift;
+	
+	my $warning_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef );
+
+	$warning_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-dialog-warning', 'dialog' ) );
+
+	$warning_dialog->set( 'text' => $dlg_warning_header );
+
+	$warning_dialog->set( 'secondary-text' => $dlg_warning_message );
+
+	$warning_dialog->add_button( 'gtk-cancel', 0 );
+	$warning_dialog->add_button( $button_text_extra1, 10 ) if $button_text_extra1;
+	$warning_dialog->add_button( $button_text_extra2, 20 ) if $button_text_extra2;
+	$warning_dialog->add_button( $button_text_extra3, 30 ) if $button_text_extra3;
+
+	$warning_dialog->add_action_widget( $button_widget_extra1, 40 ) if $button_widget_extra1;
+	$warning_dialog->add_action_widget( $button_widget_extra2, 50 ) if $button_widget_extra2;
+	$warning_dialog->add_action_widget( $button_widget_extra3, 60 ) if $button_widget_extra3;
+
+	$warning_dialog->show_all;
+
+	my $warning_response = $warning_dialog->run;
+
+	$warning_dialog->destroy();
+	return $warning_response;
 }
 
 1;
