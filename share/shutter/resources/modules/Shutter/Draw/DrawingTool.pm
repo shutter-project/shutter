@@ -163,8 +163,8 @@ sub show {
 	my $drawing_hbox       = Gtk2::HBox->new( FALSE, 0 );
 
 	#disable undo/redo actions at startup
-	$self->{_uimanager}->get_widget("/MenuBar/Edit/Undo")->set_sensitive(FALSE);
-	$self->{_uimanager}->get_widget("/MenuBar/Edit/Redo")->set_sensitive(FALSE);
+	#~ $self->{_uimanager}->get_widget("/MenuBar/Edit/Undo")->set_sensitive(FALSE);
+	#~ $self->{_uimanager}->get_widget("/MenuBar/Edit/Redo")->set_sensitive(FALSE);
 
 	#create a table for placing the ruler and scrolle window
 	my $table = new Gtk2::Table( 3, 2, FALSE );
@@ -309,7 +309,7 @@ sub setup_bottom_hbox {
 	#image button
 	my $image_label = Gtk2::Label->new( $d->get("Insert image") . ":" );
 	my $image_btn = Gtk2::MenuToolButton->new( undef, undef );
-	$image_btn->set_menu( $self->ret_objects_menu($image_btn) );
+	$image_btn->set_menu( $self->ret_objects_menu($image_btn, 'init') );
 
 	$image_btn->signal_connect( 'show-menu' => sub { my ($widget) = @_; $self->ret_objects_menu($widget) } );
 	$image_btn->signal_connect(
@@ -1186,158 +1186,158 @@ sub clear_item_from_canvas {
 }
 
 sub store_to_xdo_stack {
-	my $self = shift;
-	my $item = shift;
-	my $action = shift;
-	my $xdo = shift;
-
-	return FALSE unless $item; 
-	
-	my %do_info = ();
-	#general properties for ellipse, rectangle, image, text
-	if($item->isa('Goo::Canvas::Rect')){
-
-		my $stroke_pattern = $self->create_color( $self->{_items}{$item}{stroke_color}, $self->{_items}{$item}{stroke_color_alpha} ) if exists $self->{_items}{$item}{stroke_color};
-		my $fill_pattern   = $self->create_color( $self->{_items}{$item}{fill_color},   $self->{_items}{$item}{fill_color_alpha} ) if exists $self->{_items}{$item}{fill_color};
-		my $line_width = $self->{_items}{$item}->get('line-width');
-
-		#rectangle props
-		%do_info = (
-			'item' => $self->{_items}{$item},
-			'action' => $action,
-			'x' => $self->{_items}{$item}->get('x'),
-			'y' => $self->{_items}{$item}->get('y'),
-			'width' => $self->{_items}{$item}->get('width'),
-			'height' => $self->{_items}{$item}->get('height'),
-			'fill-pattern' => $fill_pattern,
-			'stroke-pattern' => $stroke_pattern,
-			'line-width' => $line_width,
-		);
-
-		if ( exists $self->{_items}{$item}{ellipse} ) {
-
-		}elsif ( exists $self->{_items}{$item}{text} ) {
-
-		}elsif ( exists $self->{_items}{$item}{image} ) {
-
-		}elsif ( exists $self->{_items}{$item}{line} ) {
-		
-		}else{
-		
-		}			
-		
-	}
-
-	#add polyline specific properties to hash
-	if($item->isa('Goo::Canvas::Polyline')){
-		%do_info = (
-			item => $self->{_items}{$item},
-			action => $action,
-			points => $self->{_items}{$item}->get('points'),
-		);
-	}
-	
-	if($xdo eq 'undo'){
-		push @{ $self->{_undo} }, \%do_info; 		
-	}elsif($xdo eq 'redo'){
-		push @{ $self->{_redo} }, \%do_info; 
-	}
-
-	#disable undo/redo actions at startup
-	$self->{_uimanager}->get_widget("/MenuBar/Edit/Undo")->set_sensitive(scalar @{ $self->{_undo} }) if defined $self->{_undo};
-	$self->{_uimanager}->get_widget("/MenuBar/Edit/Redo")->set_sensitive(scalar @{ $self->{_redo} }) if defined $self->{_redo};
-	
-	return TRUE;	
+	#~ my $self = shift;
+	#~ my $item = shift;
+	#~ my $action = shift;
+	#~ my $xdo = shift;
+#~ 
+	#~ return FALSE unless $item; 
+	#~ 
+	#~ my %do_info = ();
+	#~ #general properties for ellipse, rectangle, image, text
+	#~ if($item->isa('Goo::Canvas::Rect')){
+#~ 
+		#~ my $stroke_pattern = $self->create_color( $self->{_items}{$item}{stroke_color}, $self->{_items}{$item}{stroke_color_alpha} ) if exists $self->{_items}{$item}{stroke_color};
+		#~ my $fill_pattern   = $self->create_color( $self->{_items}{$item}{fill_color},   $self->{_items}{$item}{fill_color_alpha} ) if exists $self->{_items}{$item}{fill_color};
+		#~ my $line_width = $self->{_items}{$item}->get('line-width');
+#~ 
+		#~ #rectangle props
+		#~ %do_info = (
+			#~ 'item' => $self->{_items}{$item},
+			#~ 'action' => $action,
+			#~ 'x' => $self->{_items}{$item}->get('x'),
+			#~ 'y' => $self->{_items}{$item}->get('y'),
+			#~ 'width' => $self->{_items}{$item}->get('width'),
+			#~ 'height' => $self->{_items}{$item}->get('height'),
+			#~ 'fill-pattern' => $fill_pattern,
+			#~ 'stroke-pattern' => $stroke_pattern,
+			#~ 'line-width' => $line_width,
+		#~ );
+#~ 
+		#~ if ( exists $self->{_items}{$item}{ellipse} ) {
+#~ 
+		#~ }elsif ( exists $self->{_items}{$item}{text} ) {
+#~ 
+		#~ }elsif ( exists $self->{_items}{$item}{image} ) {
+#~ 
+		#~ }elsif ( exists $self->{_items}{$item}{line} ) {
+		#~ 
+		#~ }else{
+		#~ 
+		#~ }			
+		#~ 
+	#~ }
+#~ 
+	#~ #add polyline specific properties to hash
+	#~ if($item->isa('Goo::Canvas::Polyline')){
+		#~ %do_info = (
+			#~ item => $self->{_items}{$item},
+			#~ action => $action,
+			#~ points => $self->{_items}{$item}->get('points'),
+		#~ );
+	#~ }
+	#~ 
+	#~ if($xdo eq 'undo'){
+		#~ push @{ $self->{_undo} }, \%do_info; 		
+	#~ }elsif($xdo eq 'redo'){
+		#~ push @{ $self->{_redo} }, \%do_info; 
+	#~ }
+#~ 
+	#~ #disable undo/redo actions at startup
+	#~ $self->{_uimanager}->get_widget("/MenuBar/Edit/Undo")->set_sensitive(scalar @{ $self->{_undo} }) if defined $self->{_undo};
+	#~ $self->{_uimanager}->get_widget("/MenuBar/Edit/Redo")->set_sensitive(scalar @{ $self->{_redo} }) if defined $self->{_redo};
+	#~ 
+	#~ return TRUE;	
 }
 
 sub undo {
-	my $self = shift;
-
-	my $undo = pop @{ $self->{_undo} };
-
-	my $item = $undo->{'item'};
-	my $action = $undo->{'action'};
-
-	#store to redo stack
-	$self->store_to_xdo_stack($item, $action, 'redo'); 
-
-	$self->deactivate_all;
-	
-	#finally undo the last event
-	if($action eq 'modify'){
-		$self->{_items}{$item}->set(
-			'x' => $undo->{'x'},
-			'y' => $undo->{'y'},
-			'width' => 	$undo->{'width'},
-			'height' => $undo->{'height'},
-			'fill-pattern' => $undo->{'fill-pattern'},
-			'stroke-pattern' => $undo->{'stroke-pattern'},
-			'line-width' => $undo->{'line-width'},	
-		);
-		$self->handle_rects( 'update', $self->{_items}{$item} );
-		$self->handle_embedded( 'update', $self->{_items}{$item} );		
-		$self->{_current_item} = $item;	
-	}elsif($action eq 'delete'){
-		$self->{_items}{$item}->set('visibility' => 'GOO_CANVAS_ITEM_VISIBLE');
-		$self->handle_rects( 'update', $self->{_items}{$item} );
-		$self->handle_embedded( 'update', $self->{_items}{$item} );
-		$self->{_current_item} = $item;		
-	}elsif($action eq 'create'){
-		$self->{_items}{$item}->set('visibility' => 'GOO_CANVAS_ITEM_HIDDEN');
-		$self->handle_rects( 'hide', $self->{_items}{$item} );
-		$self->handle_embedded( 'hide', $self->{_items}{$item} );		
-	}
-	
-	#disable undo/redo actions at startup
-	$self->{_uimanager}->get_widget("/MenuBar/Edit/Undo")->set_sensitive(scalar @{ $self->{_undo} }) if defined $self->{_undo};
-	$self->{_uimanager}->get_widget("/MenuBar/Edit/Redo")->set_sensitive(scalar @{ $self->{_redo} }) if defined $self->{_redo};	
-	
-	return TRUE;	
+	#~ my $self = shift;
+#~ 
+	#~ my $undo = pop @{ $self->{_undo} };
+#~ 
+	#~ my $item = $undo->{'item'};
+	#~ my $action = $undo->{'action'};
+#~ 
+	#~ #store to redo stack
+	#~ $self->store_to_xdo_stack($item, $action, 'redo'); 
+#~ 
+	#~ $self->deactivate_all;
+	#~ 
+	#~ #finally undo the last event
+	#~ if($action eq 'modify'){
+		#~ $self->{_items}{$item}->set(
+			#~ 'x' => $undo->{'x'},
+			#~ 'y' => $undo->{'y'},
+			#~ 'width' => 	$undo->{'width'},
+			#~ 'height' => $undo->{'height'},
+			#~ 'fill-pattern' => $undo->{'fill-pattern'},
+			#~ 'stroke-pattern' => $undo->{'stroke-pattern'},
+			#~ 'line-width' => $undo->{'line-width'},	
+		#~ );
+		#~ $self->handle_rects( 'update', $self->{_items}{$item} );
+		#~ $self->handle_embedded( 'update', $self->{_items}{$item} );		
+		#~ $self->{_current_item} = $item;	
+	#~ }elsif($action eq 'delete'){
+		#~ $self->{_items}{$item}->set('visibility' => 'GOO_CANVAS_ITEM_VISIBLE');
+		#~ $self->handle_rects( 'update', $self->{_items}{$item} );
+		#~ $self->handle_embedded( 'update', $self->{_items}{$item} );
+		#~ $self->{_current_item} = $item;		
+	#~ }elsif($action eq 'create'){
+		#~ $self->{_items}{$item}->set('visibility' => 'GOO_CANVAS_ITEM_HIDDEN');
+		#~ $self->handle_rects( 'hide', $self->{_items}{$item} );
+		#~ $self->handle_embedded( 'hide', $self->{_items}{$item} );		
+	#~ }
+	#~ 
+	#~ #disable undo/redo actions at startup
+	#~ $self->{_uimanager}->get_widget("/MenuBar/Edit/Undo")->set_sensitive(scalar @{ $self->{_undo} }) if defined $self->{_undo};
+	#~ $self->{_uimanager}->get_widget("/MenuBar/Edit/Redo")->set_sensitive(scalar @{ $self->{_redo} }) if defined $self->{_redo};	
+	#~ 
+	#~ return TRUE;	
 }
 
 sub redo {
-	my $self = shift;
-
-	my $redo = pop @{ $self->{_redo} };
-
-	my $item = $redo->{'item'};
-	my $action = $redo->{'action'};
-
-	#store to undo stack
-	$self->store_to_xdo_stack($item, $action, 'undo'); 
-
-	$self->deactivate_all;
-
-	#finally undo the last event
-	if($action eq 'modify'){
-		$self->{_items}{$item}->set(
-			'x' => $redo->{'x'},
-			'y' => $redo->{'y'},
-			'width' => 	$redo->{'width'},
-			'height' => $redo->{'height'},
-			'fill-pattern' => $redo->{'fill-pattern'},
-			'stroke-pattern' => $redo->{'stroke-pattern'},
-			'line-width' => $redo->{'line-width'},			
-		);
-		$self->handle_rects( 'update', $self->{_items}{$item} );
-		$self->handle_embedded( 'update', $self->{_items}{$item} );		
-		$self->{_current_item} = $item;	
-	}elsif($action eq 'delete'){
-		$self->{_items}{$item}->set('visibility' => 'GOO_CANVAS_ITEM_HIDDEN');
-		$self->handle_rects( 'hide', $self->{_items}{$item} );
-		$self->handle_embedded( 'hide', $self->{_items}{$item} );
-		$self->{_current_item} = $item;		
-	}elsif($action eq 'create'){
-		$self->{_items}{$item}->set('visibility' => 'GOO_CANVAS_ITEM_VISIBLE');
-		$self->handle_rects( 'update', $self->{_items}{$item} );
-		$self->handle_embedded( 'update', $self->{_items}{$item} );		
-	}
-
-	#disable undo/redo actions at startup
-	$self->{_uimanager}->get_widget("/MenuBar/Edit/Undo")->set_sensitive(scalar @{ $self->{_undo} }) if defined $self->{_undo};
-	$self->{_uimanager}->get_widget("/MenuBar/Edit/Redo")->set_sensitive(scalar @{ $self->{_redo} }) if defined $self->{_redo};	
-	
-	return TRUE;	
+	#~ my $self = shift;
+#~ 
+	#~ my $redo = pop @{ $self->{_redo} };
+#~ 
+	#~ my $item = $redo->{'item'};
+	#~ my $action = $redo->{'action'};
+#~ 
+	#~ #store to undo stack
+	#~ $self->store_to_xdo_stack($item, $action, 'undo'); 
+#~ 
+	#~ $self->deactivate_all;
+#~ 
+	#~ #finally undo the last event
+	#~ if($action eq 'modify'){
+		#~ $self->{_items}{$item}->set(
+			#~ 'x' => $redo->{'x'},
+			#~ 'y' => $redo->{'y'},
+			#~ 'width' => 	$redo->{'width'},
+			#~ 'height' => $redo->{'height'},
+			#~ 'fill-pattern' => $redo->{'fill-pattern'},
+			#~ 'stroke-pattern' => $redo->{'stroke-pattern'},
+			#~ 'line-width' => $redo->{'line-width'},			
+		#~ );
+		#~ $self->handle_rects( 'update', $self->{_items}{$item} );
+		#~ $self->handle_embedded( 'update', $self->{_items}{$item} );		
+		#~ $self->{_current_item} = $item;	
+	#~ }elsif($action eq 'delete'){
+		#~ $self->{_items}{$item}->set('visibility' => 'GOO_CANVAS_ITEM_HIDDEN');
+		#~ $self->handle_rects( 'hide', $self->{_items}{$item} );
+		#~ $self->handle_embedded( 'hide', $self->{_items}{$item} );
+		#~ $self->{_current_item} = $item;		
+	#~ }elsif($action eq 'create'){
+		#~ $self->{_items}{$item}->set('visibility' => 'GOO_CANVAS_ITEM_VISIBLE');
+		#~ $self->handle_rects( 'update', $self->{_items}{$item} );
+		#~ $self->handle_embedded( 'update', $self->{_items}{$item} );		
+	#~ }
+#~ 
+	#~ #disable undo/redo actions at startup
+	#~ $self->{_uimanager}->get_widget("/MenuBar/Edit/Undo")->set_sensitive(scalar @{ $self->{_undo} }) if defined $self->{_undo};
+	#~ $self->{_uimanager}->get_widget("/MenuBar/Edit/Redo")->set_sensitive(scalar @{ $self->{_redo} }) if defined $self->{_redo};	
+	#~ 
+	#~ return TRUE;	
 }
 
 sub event_item_on_button_press {
@@ -2476,11 +2476,10 @@ sub create_color {
 	my $color_name = shift;
 	my $alpha      = shift;
 
-	return FALSE unless $color_name;
-	return FALSE unless $alpha;
+	return FALSE unless defined $color_name;
+	return FALSE unless defined $alpha;
 
 	my $color;
-
 	#if it is a color, we do not need to parse it
 	unless ( $color_name->isa('Gtk2::Gdk::Color') ) {
 		$color = Gtk2::Gdk::Color->parse($color_name);
@@ -2582,6 +2581,10 @@ sub setup_uimanager {
 	$uimanager->insert_action_group( $toolbar_group,         0 );
 	$uimanager->insert_action_group( $toolbar_drawing_group, 0 );
 
+      #~ <menuitem action = 'Undo'/>
+      #~ <menuitem action = 'Redo'/>
+	  #~ <separator/>
+
 	my $ui_info = "
 <ui>
   <menubar name = 'MenuBar'>
@@ -2591,9 +2594,7 @@ sub setup_uimanager {
       <menuitem action = 'Close'/>
     </menu>
     <menu action = 'Edit'>
-      <menuitem action = 'Undo'/>
-      <menuitem action = 'Redo'/>
-	  <separator/>
+
       <menuitem action = 'Copy'/>
       <menuitem action = 'Cut'/>
       <menuitem action = 'Paste'/>
@@ -2644,6 +2645,7 @@ sub setup_uimanager {
 sub ret_objects_menu {
 	my $self   = shift;
 	my $button = shift;
+	my $step = shift;
 
 	my $menu_objects = Gtk2::Menu->new;
 
@@ -2660,10 +2662,9 @@ sub ret_objects_menu {
 		eval {
 
 			#create pixbufs
-			my $small_image = Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $filename, Gtk2::IconSize->lookup('menu'), TRUE ) );
-			my $small_image_button
-				= Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $filename, Gtk2::IconSize->lookup('menu'), TRUE ) );
 			my $orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($filename);
+			my $small_image = Gtk2::Image->new_from_pixbuf( $orig_pixbuf->scale_simple (Gtk2::IconSize->lookup('menu'), 'bilinear') );
+			my $small_image_button = Gtk2::Image->new_from_pixbuf( $orig_pixbuf->scale_simple (Gtk2::IconSize->lookup('menu'), 'bilinear') );
 
 			#create items
 			my $new_item = Gtk2::ImageMenuItem->new_with_label($short);
@@ -2674,6 +2675,11 @@ sub ret_objects_menu {
 				$button->set_icon_widget($small_image_button);
 				$self->{_current_pixbuf} = $orig_pixbuf->copy;
 				$self->{_current_pixbuf_filename} = $filename;
+				if ($step eq 'init'){
+					$button->show_all;
+					$menu_objects->show_all;
+					return $menu_objects;	
+				}
 			}
 
 			$new_item->signal_connect(

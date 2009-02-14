@@ -227,27 +227,21 @@ sub create_menu {
 
 	$self->{_menuitem_question} = Gtk2::ImageMenuItem->new( $d->get("Get Help Online ...") );
 	$self->{_menuitem_question}->set_image(
-		Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/lpi-help.png", Gtk2::IconSize->lookup('menu') )
-		)
+		Gtk2::Image->new_from_icon_name( 'lpi-help', 'menu' )
 	);
 
 	$self->{_menu_help}->append( $self->{_menuitem_question} );
 
 	$self->{_menuitem_translate} = Gtk2::ImageMenuItem->new( $d->get("Translate this Application ...") );
 	$self->{_menuitem_translate}->set_image(
-		Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/lpi-translate.png", Gtk2::IconSize->lookup('menu') )
-		)
+		Gtk2::Image->new_from_icon_name( 'lpi-translate', 'menu' )
 	);
 
 	$self->{_menu_help}->append( $self->{_menuitem_translate} );
 
 	$self->{_menuitem_bug} = Gtk2::ImageMenuItem->new( $d->get("Report a Problem") );
 	$self->{_menuitem_bug}->set_image(
-		Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/lpi-bug.png", Gtk2::IconSize->lookup('menu') )
-		)
+		Gtk2::Image->new_from_icon_name( 'lpi-bug', 'menu' )
 	);
 
 	$self->{_menu_help}->append( $self->{_menuitem_bug} );

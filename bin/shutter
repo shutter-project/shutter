@@ -4172,10 +4172,13 @@ sub fct_check_installed_plugins {
 					#check if plugin can handle png and/or jpeg
 					$plugins{$_}->{'pixbuf_jpeg'} = 'gtk-no';
 					$plugins{$_}->{'pixbuf_png'}  = 'gtk-no';
+					$plugins{$_}->{'pixbuf_bmp'}  = 'gtk-no';
 					$plugins{$_}->{'pixbuf_jpeg'} = 'gtk-yes'
 						if ( $plugins{$_}->{'ext'} =~ /jpeg/ );
 					$plugins{$_}->{'pixbuf_png'} = 'gtk-yes'
 						if ( $plugins{$_}->{'ext'} =~ /png/ );
+					$plugins{$_}->{'pixbuf_bmp'} = 'gtk-yes'
+						if ( $plugins{$_}->{'ext'} =~ /bmp/ );
 
 					#pixbuf
 					$plugins{$_}->{'pixbuf'} = $plugins{$_}->{'binary'} . ".png"
@@ -4791,7 +4794,7 @@ sub fct_load_accounts_tree {
 sub fct_load_plugin_tree {
 
 	$effects_model = Gtk2::ListStore->new(
-		'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String',
+		'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String',
 		'Glib::String',      'Glib::String', 'Glib::String'
 	);
 	foreach ( sort keys %plugins ) {
@@ -4800,10 +4803,13 @@ sub fct_load_plugin_tree {
 			#check if plugin can handle png and/or jpeg
 			$plugins{$_}->{'pixbuf_jpeg'} = 'gtk-no';
 			$plugins{$_}->{'pixbuf_png'}  = 'gtk-no';
+			$plugins{$_}->{'pixbuf_bmp'}  = 'gtk-no';
 			$plugins{$_}->{'pixbuf_jpeg'} = 'gtk-yes'
 				if ( $plugins{$_}->{'ext'} =~ /jpeg/ );
 			$plugins{$_}->{'pixbuf_png'} = 'gtk-yes'
 				if ( $plugins{$_}->{'ext'} =~ /png/ );
+			$plugins{$_}->{'pixbuf_bmp'} = 'gtk-yes'
+				if ( $plugins{$_}->{'ext'} =~ /bmp/ );
 
 			#pixbuf
 			$plugins{$_}->{'pixbuf'} = $plugins{$_}->{'binary'} . ".png"
@@ -4821,10 +4827,12 @@ sub fct_load_plugin_tree {
 			}
 
 			$effects_model->set(
-				$effects_model->append,     0, $plugins{$_}->{'pixbuf_object'}, 1, $plugins{$_}->{'name'},       2,
-				$plugins{$_}->{'category'}, 3, $plugins{$_}->{'pixbuf_jpeg'},   4, $plugins{$_}->{'pixbuf_png'}, 5,
-				$plugins{$_}->{'tooltip'},  6, $plugins{$_}->{'lang'},          7, $plugins{$_}->{'binary'},     8,
-				$_,
+				$effects_model->append,     
+				0, $plugins{$_}->{'pixbuf_object'}, 1, $plugins{$_}->{'name'},
+				2, $plugins{$_}->{'category'}, 3, $plugins{$_}->{'pixbuf_jpeg'},   
+				4, $plugins{$_}->{'pixbuf_png'}, 5, $plugins{$_}->{'pixbuf_bmp'},
+				6, $plugins{$_}->{'tooltip'},  7, $plugins{$_}->{'lang'},
+				8, $plugins{$_}->{'binary'}, 9, $_,
 			);
 		} else {
 			print "\nWARNING: Plugin $_ is not configured properly, ignoring\n";
@@ -4964,7 +4972,7 @@ sub fct_set_model_plugins {
 	}
 
 	#icon
-	$effects_tree->set_tooltip_column(5)
+	$effects_tree->set_tooltip_column(6)
 		if Gtk2->CHECK_VERSION( 2, 11, 0 );
 	my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
 	$tv_clmn_pix_text->set_resizable(TRUE);
@@ -5011,6 +5019,15 @@ sub fct_set_model_plugins {
 	$tv_clmn_png_text->set_attributes( $renderer_png_effects, stock_id => 4 );
 	$effects_tree->append_column($tv_clmn_png_text);
 
+	#bmp
+	my $tv_clmn_bmp_text = Gtk2::TreeViewColumn->new;
+	$tv_clmn_bmp_text->set_resizable(TRUE);
+	$tv_clmn_bmp_text->set_title("bmp");
+	my $renderer_bmp_effects = Gtk2::CellRendererPixbuf->new;
+	$tv_clmn_bmp_text->pack_start( $renderer_bmp_effects, FALSE );
+	$tv_clmn_bmp_text->set_attributes( $renderer_bmp_effects, stock_id => 5 );
+	$effects_tree->append_column($tv_clmn_bmp_text);
+
 	#tooltip column
 	unless ( Gtk2->CHECK_VERSION( 2, 12, 0 ) ) {
 		my $tv_clmn_descr_text = Gtk2::TreeViewColumn->new;
@@ -5018,7 +5035,7 @@ sub fct_set_model_plugins {
 		$tv_clmn_descr_text->set_title( $d->get("Description") );
 		my $renderer_descr_effects = Gtk2::CellRendererText->new;
 		$tv_clmn_descr_text->pack_start( $renderer_descr_effects, FALSE );
-		$tv_clmn_descr_text->set_attributes( $renderer_descr_effects, text => 5 );
+		$tv_clmn_descr_text->set_attributes( $renderer_descr_effects, text => 6 );
 		$effects_tree->append_column($tv_clmn_descr_text);
 	}
 
@@ -5028,7 +5045,7 @@ sub fct_set_model_plugins {
 	$tv_clmn_lang_text->set_title( $d->get("Language") );
 	my $renderer_lang_effects = Gtk2::CellRendererText->new;
 	$tv_clmn_lang_text->pack_start( $renderer_lang_effects, FALSE );
-	$tv_clmn_lang_text->set_attributes( $renderer_lang_effects, text => 6 );
+	$tv_clmn_lang_text->set_attributes( $renderer_lang_effects, text => 7 );
 	$effects_tree->append_column($tv_clmn_lang_text);
 
 	#path
@@ -5037,7 +5054,7 @@ sub fct_set_model_plugins {
 	$tv_clmn_path_text->set_title( $d->get("Path") );
 	my $renderer_path_effects = Gtk2::CellRendererText->new;
 	$tv_clmn_path_text->pack_start( $renderer_path_effects, FALSE );
-	$tv_clmn_path_text->set_attributes( $renderer_path_effects, text => 7 );
+	$tv_clmn_path_text->set_attributes( $renderer_path_effects, text => 8 );
 	$effects_tree->append_column($tv_clmn_path_text);
 
 	return TRUE;
@@ -5265,10 +5282,10 @@ sub dlg_rename {
 				my $replace_btn = Gtk2::Button->new_with_mnemonic( $d->get("_Replace") );
 				$replace_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'button' ) );
 
-				my $response = $shutter_dialog->dlg_question_message(
+				my $response = $shutter_dialog->dlg_warning_message(
 					$d->get(
 						sprintf(
-							"The image already exists in %s. Replacing it will overwrite its contents.", "'$session_screens{$key}->{'folder'}'"
+							"The image already exists in %s. Replacing it will overwrite its contents.", "'" . $new_uri->extract_dirname . "'"
 						)
 					),
 					$d->get( sprintf( "An image named %s already exists. Do you want to replace it?", "'" . $new_uri->extract_short_name . "'" ) ),
@@ -5326,22 +5343,25 @@ sub dlg_plugin {
 	$plugin_dialog->set_default_response('accept');
 	my $model = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String' );
 
-	foreach ( sort keys %plugins ) {
+	foreach my $pkey ( sort keys %plugins ) {
 
-		#TODO hier müssen die neuen Mime types hinzugefügt werden
-		#		next
-		#			unless $plugins{$_}->{'ext'} =~ /$session_screens{$key}->{'filetype'}/;
-		if ( $plugins{$_}->{'binary'} ne "" ) {
+		#check if plugin allows current filetype
+		my $nfiles_ok += scalar grep($plugins{$pkey}->{'ext'} =~ /$session_screens{$_}->{'filetype'}/, @file_to_plugin_keys);
+		next if scalar @file_to_plugin_keys > $nfiles_ok;
+		
+		if ( $plugins{$pkey}->{'binary'} ne "" ) {
 
 			$model->set(
-				$model->append,           0, $plugins{$_}->{'pixbuf_object'}, 1, $plugins{$_}->{'name'},    2,
-				$plugins{$_}->{'binary'}, 3, $plugins{$_}->{'lang'},          4, $plugins{$_}->{'tooltip'}, 5,
-				$_
+				$model->append,           0, $plugins{$pkey}->{'pixbuf_object'}, 1, $plugins{$pkey}->{'name'},    2,
+				$plugins{$pkey}->{'binary'}, 3, $plugins{$pkey}->{'lang'},          4, $plugins{$pkey}->{'tooltip'}, 5,
+				$pkey
 			);
 		} else {
-			print "WARNING: Program $_ is not configured properly, ignoring\n";
+			print "WARNING: Program $pkey is not configured properly, ignoring\n";
 		}
+	
 	}
+	
 	my $plugin_label       = Gtk2::Label->new( $d->get("Plugin") . ":" );
 	my $plugin_label_blank = Gtk2::Label->new();
 	my $plugin             = Gtk2::ComboBox->new($model);
@@ -5513,6 +5533,7 @@ sub dlg_upload {
  	$pl_hbox1->set_border_width(12);
  	$pl_vbox1->set_border_width(12);
 	my $places_fc = Gtk2::FileChooserButton->new ("Shutter - " . $shutter_common->get_gettext->get("Choose folder"), 'select-folder');	
+	$places_fc->set('local-only' => FALSE);
 	$pl_hbox1->pack_start( Gtk2::Label->new( $d->get("Choose folder"). ":" ), FALSE, FALSE, 6 );
 	$pl_hbox1->pack_start_defaults($places_fc);
 	$pl_vbox1->pack_start($pl_hbox1, FALSE, FALSE, 6);
@@ -5856,7 +5877,7 @@ UPDIALOG: while ($hosting_dialog) {
 					&fct_update_gui;
 
 					my $source_uri = Gnome2::VFS::URI->new ($file);
-					my $target_uri = Gnome2::VFS::URI->new ($places_fc->get_filename);
+					my $target_uri = Gnome2::VFS::URI->new ($places_fc->get_uri);
 					$target_uri = $target_uri->append_file_name($source_uri->extract_short_name);
 
 					print $source_uri->to_string . " - " . $target_uri->to_string."\n";
@@ -5871,11 +5892,45 @@ UPDIALOG: while ($hosting_dialog) {
 					
 						#everything is fine here
 						&dlg_status_message( 1, $file . " " . $d->get("uploaded") );
+					
+					}elsif($result eq 'error-file-exists'){
+
+						#ask the user to replace the image
+						#replace button
+						my $replace_btn = Gtk2::Button->new_with_mnemonic( $d->get("_Replace") );
+						$replace_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'button' ) );
+
+						my $response = $shutter_dialog->dlg_warning_message(
+							$d->get(
+								sprintf(
+									"The image already exists in %s. Replacing it will overwrite its contents.", "'" . $target_uri->extract_dirname ."'"
+								)
+							),
+							$d->get( sprintf( "An image named %s already exists. Do you want to replace it?", "'" . $target_uri->extract_short_name . "'" ) ),
+							$d->get("Skip all"), $d->get("Skip"),
+							undef,
+							$replace_btn,
+							undef, undef
+						);
+
+						#10 == skip all, 20 == skip, 40 == replace, else == cancel
+						if ( $response == 10 ) {
+							last;
+						} elsif ( $response == 20 ) {
+							next;
+						} elsif ( $response == 40 ) {
+							$result = Gnome2::VFS::Xfer->uri ($source_uri, $target_uri, 'default', 'abort', 'replace', sub{ return TRUE });
+						} 
 						
 					}else{
 
-						my $response = $shutter_dialog->dlg_error_message( Gnome2::VFS->result_to_string ($result), $d->get("Failed"), $d->get("Skip all"), $d->get("Skip"),
-							'gtk-redo' );
+						my $response = $shutter_dialog->dlg_warning_message( 
+							$d->get( sprintf( "Error while copying the image %s.", "'" . $target_uri->extract_short_name . "'" ) ),
+							$d->get( sprintf( "There was an error copying the image into %s.", "'" . $target_uri->extract_dirname . "'" ) ),
+							$d->get("Skip all"), 
+							$d->get("Skip"),
+							'gtk-redo' 
+						);
 
 						#10 == skip all, 20 == skip, 30 == redo, else == cancel
 						if ( $response == 10 ) {
