@@ -82,7 +82,10 @@ sub login {
 
 	#check uri and return if anything is missing
 	unless ( $self->{_host} && $self->{_port} ) {
-		return $self->{_gettext_object}->get("Illegal URI!") . "\n" . "<<ftp://host:port/path>>";
+		return (
+		$self->{_gettext_object}->get("Illegal URI."),
+		"<<ftp://host:port/path>>",
+		undef);
 	}
 
 	#store parms as object vars
@@ -99,17 +102,20 @@ sub login {
 		Port    => $self->{_port},
 		Timeout => 10
 		)
-		or return $self->{_gettext_object}->get("Connection error!") . "\n"
-		. $self->{_gettext_object}->get("Please check your connectivity and try again.") . "\n>> "
-		. $@;
+		or return (
+			$self->{_gettext_object}->get("Connection error."),
+			$self->{_gettext_object}->get("Please check your connectivity and try again."),
+			$@);
 
 	#TRY TO LOGIN WITH GIVEN CREDENTIALS
 	$self->{_ftp}->login( $self->{_username}, $self->{_password} )
-		or return $self->{_gettext_object}->get("Login failed!") . "\n"
-		. $self->{_gettext_object}->get("Please check your credentials and try again.");
+		or return (
+			sprintf ($self->{_gettext_object}->get("Login with username %s failed."), "'".$self->{_username}."'"),
+			$self->{_gettext_object}->get("Please check your credentials and try again."),
+			undef);
 
 	#THERE ARE NO ERRORS WHEN ROUTINE RETURNS AT THIS POINT
-	return FALSE;
+	return (FALSE);
 }
 
 sub upload {
@@ -122,17 +128,24 @@ sub upload {
 
 	#CHANGE WORKING DIRECTORY USING CWD COMMAND
 	$self->{_ftp}->cwd( $self->{_path} )
-		or return $self->{_gettext_object}->get("Cannot change working directory!") . "\n>>"
-		. $self->{_ftp}->message;
+		or return (
+			$self->{_gettext_object}->get("Failed"),
+			$self->{_gettext_object}->get("Cannot change working directory."),
+			$self->{_ftp}->message
+			);
 
 	$self->{_ftp}->binary;
 
 	#UPLOAD FILE
 	$self->{_ftp}->put( $self->{_filename} )
-		or return $self->{_gettext_object}->get("Upload failed!") . "\n>>" . $self->{_ftp}->message;
+		or return (
+			$self->{_gettext_object}->get("Failed"),
+			$self->{_gettext_object}->get("Command 'put' failed."), 
+			$self->{_ftp}->message
+		);
 
 	#THERE ARE NO ERRORS WHEN ROUTINE RETURNS AT THIS POINT
-	return FALSE;
+	return (FALSE);
 }
 
 sub quit {
@@ -142,7 +155,7 @@ sub quit {
 	$self->{_ftp}->quit;
 
 	#THERE ARE NO ERRORS WHEN ROUTINE RETURNS AT THIS POINT
-	return FALSE;
+	return (FALSE);
 }
 
 1;

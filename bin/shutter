@@ -3778,6 +3778,7 @@ sub fct_update_first_tab {
 	#create thumbails for iconview
 	foreach my $key ( sort keys %session_screens ) {
 
+		next unless $session_screens{$key}->{'uri'};
 		next unless $session_screens{$key}->{'uri'}->exists;
 
 		#try to generate a new thumbnail
@@ -4257,7 +4258,7 @@ sub fct_create_thumbnail_and_fileinfos {
 
 		#maybe we have a pixbuf already (e.g. after taking a screenshot)
 		unless ($pixbuf) {
-			$session_screens{$key}->{'orig'} = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} );
+			$session_screens{$key}->{'orig'} = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} );		
 		} else {
 			$session_screens{$key}->{'orig'} = $pixbuf;
 		}
@@ -4276,7 +4277,7 @@ sub fct_create_thumbnail_and_fileinfos {
 
 		#we only handle one case here:
 		#file was deleted in filesystem and we got informed about that...
-		if ( $session_screens{$key}->{'deleted'} == TRUE ) {
+		if ( defined $session_screens{$key}->{'deleted'} && $session_screens{$key}->{'deleted'} == TRUE ) {
 			
 			my $response = $shutter_dialog->dlg_question_message(
 				$d->get("Try to resave the file?"),
@@ -4316,6 +4317,14 @@ sub fct_create_thumbnail_and_fileinfos {
 			#all other cases are unknown => show "real" error
 		} else {
 			$shutter_dialog->dlg_error_message( $@, $d->get("Failed") );
+			
+			#delete page and hash entry
+			if($session_screens{$key}->{'tab_child'}){
+				$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
+			}
+			
+			delete $session_screens{$key};			
+		
 		}
 
 		return FALSE;
@@ -5523,9 +5532,7 @@ sub dlg_upload {
 	$pub_vbox1->set_border_width(12);
 	$pub_hbox1->pack_start( Gtk2::Label->new( $d->get("Choose account"). ":" ), FALSE, FALSE, 6 );
 	$pub_hbox1->pack_start_defaults($hosting);
-	#~ $pub_hbox2->pack_start_defaults($hosting_image);
 	$pub_vbox1->pack_start($pub_hbox1, FALSE, FALSE, 6);
-	#~ $pub_vbox1->pack_start($pub_hbox2, FALSE, FALSE, 6);
 
 	#places settings
 	my $pl_hbox1 = Gtk2::HBox->new( FALSE, 12 );
@@ -5748,7 +5755,9 @@ UPDIALOG: while ($hosting_dialog) {
 							my $response = $shutter_dialog->dlg_error_message(
 								$d->get("Please check your connectivity and try again."),
 								$d->get("Connection error!"),
-								$d->get("Skip all"), $d->get("Skip"), 'gtk-redo'
+								$d->get("Skip all"), 
+								$d->get("Skip"), 
+								'gtk-redo'
 							);
 
 							#10 == skip all, 20 == skip, else == cancel
@@ -5769,7 +5778,9 @@ UPDIALOG: while ($hosting_dialog) {
 							my $response = $shutter_dialog->dlg_error_message(
 								$d->get("Please check your connectivity and try again."),
 								$d->get("Connection error!"),
-								$d->get("Skip all"), $d->get("Skip"), 'gtk-redo'
+								$d->get("Skip all"), 
+								$d->get("Skip"), 
+								'gtk-redo'
 							);
 
 							#10 == skip all, 20 == skip, else == cancel
@@ -5801,24 +5812,28 @@ UPDIALOG: while ($hosting_dialog) {
 				foreach my $file (sort @files_to_upload) {
 
 					#need to login?
-					my $upload_response;
+					my @upload_response;
 					unless ($login) {
 
 						eval { $uploader->quit; };
 
-						$upload_response = $uploader->login( $ftp_remote_entry_dlg->get_text, $ftp_username_entry_dlg->get_text,
+						@upload_response = $uploader->login( $ftp_remote_entry_dlg->get_text, $ftp_username_entry_dlg->get_text,
 							$ftp_password_entry_dlg->get_text );
 
-						if ($upload_response) {
+						if ($upload_response[0]) {
 
 							#we already get translated error messaged back
-							my $response = $shutter_dialog->dlg_error_message( $upload_response, $d->get("Failed") );
+							my $response = $shutter_dialog->dlg_error_message( 
+								$upload_response[1], 
+								$upload_response[0],
+								undef, undef, undef,
+								undef, undef, undef,
+								$upload_response[2]
+							);
 							next UPDIALOG;
 						} else {
 							$login = TRUE;
 						}
-
-						$hosting_progress->set_text($upload_response);
 
 					}
 
@@ -5826,18 +5841,24 @@ UPDIALOG: while ($hosting_dialog) {
 
 					#update gui
 					&fct_update_gui;
-					$upload_response = $uploader->upload( $shutter_hfunct->switch_home_in_file($file) );
-
+					@upload_response = $uploader->upload( $shutter_hfunct->switch_home_in_file($file) );
+				
 					#upload returns FALSE if there is no error
-					unless ($upload_response) {
-
+					unless ($upload_response[0]) {
 						#everything is fine here
 						&dlg_status_message( 1, $file . " " . $d->get("uploaded") );
 					} else {
 
 						#we already get translated error messaged back
-						my $response = $shutter_dialog->dlg_error_message( $upload_response, $d->get("Failed"), $d->get("Skip all"), $d->get("Skip"),
-							'gtk-redo' );
+						my $response = $shutter_dialog->dlg_error_message( 
+							$upload_response[1], 
+							$upload_response[0],
+							$d->get("Skip all"), 
+							$d->get("Skip"),
+							'gtk-redo',
+							undef, undef, undef,
+							$upload_response[2]
+						);
 
 						#10 == skip all, 20 == skip, 30 == redo, else == cancel
 						if ( $response == 10 ) {
@@ -5900,10 +5921,17 @@ UPDIALOG: while ($hosting_dialog) {
 						my $replace_btn = Gtk2::Button->new_with_mnemonic( $d->get("_Replace") );
 						$replace_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'button' ) );
 
+						my $target_path=undef;
+						if($target_uri->is_local){
+							$target_path = Gnome2::VFS->unescape_string_for_display ($target_uri->extract_dirname);
+						}else{								
+							$target_path = Gnome2::VFS->unescape_string_for_display ($target_uri->get_scheme."://".$target_uri->get_host_name.$target_uri->extract_dirname);
+						}
+
 						my $response = $shutter_dialog->dlg_warning_message(
 							$d->get(
 								sprintf(
-									"The image already exists in %s. Replacing it will overwrite its contents.", "'" . $target_uri->extract_dirname ."'"
+									"The image already exists in %s. Replacing it will overwrite its contents.", "'" . $target_path ."'"
 								)
 							),
 							$d->get( sprintf( "An image named %s already exists. Do you want to replace it?", "'" . $target_uri->extract_short_name . "'" ) ),
@@ -5924,12 +5952,23 @@ UPDIALOG: while ($hosting_dialog) {
 						
 					}else{
 
+						my $target_path=undef;
+						if($target_uri->is_local){
+							$target_path = Gnome2::VFS->unescape_string_for_display ($target_uri->extract_dirname);
+						}else{								
+							$target_path = Gnome2::VFS->unescape_string_for_display ($target_uri->get_scheme."://".$target_uri->get_host_name.$target_uri->extract_dirname);
+						}
+
 						my $response = $shutter_dialog->dlg_warning_message( 
 							$d->get( sprintf( "Error while copying the image %s.", "'" . $target_uri->extract_short_name . "'" ) ),
-							$d->get( sprintf( "There was an error copying the image into %s.", "'" . $target_uri->extract_dirname . "'" ) ),
+							$d->get( sprintf( "There was an error copying the image into %s.", "'" . $target_path . "'" ) ),
 							$d->get("Skip all"), 
 							$d->get("Skip"),
-							'gtk-redo' 
+							'gtk-redo',
+							undef,
+							undef,
+							undef,
+							Gnome2::VFS->result_to_string ($result)
 						);
 
 						#10 == skip all, 20 == skip, 30 == redo, else == cancel

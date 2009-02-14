@@ -70,14 +70,15 @@ sub dlg_info_message {
 
 sub dlg_question_message {
 	my $self = shift;
-	my $dlg_question_message = shift;
-	my $dlg_question_header = shift;
-	my $button_text_extra1 = shift;
-	my $button_text_extra2 = shift;
-	my $button_text_extra3 = shift;
-	my $button_widget_extra1 = shift;
-	my $button_widget_extra2 = shift;
-	my $button_widget_extra3 = shift;
+	my $dlg_question_message 	= shift;
+	my $dlg_question_header 	= shift;
+	my $button_text_extra1 		= shift;
+	my $button_text_extra2 		= shift;
+	my $button_text_extra3 		= shift;
+	my $button_widget_extra1 	= shift;
+	my $button_widget_extra2 	= shift;
+	my $button_widget_extra3 	= shift;
+	my $detail_message 			= shift;
 
 	my $question_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef );
 
@@ -95,6 +96,18 @@ sub dlg_question_message {
 	$question_dialog->add_action_widget( $button_widget_extra2, 50 ) if $button_widget_extra2;
 	$question_dialog->add_action_widget( $button_widget_extra3, 60 ) if $button_widget_extra3;
 
+	#show a detailed message (use expander to show it)
+	if($detail_message){
+		my $expander = Gtk2::Expander->new_with_mnemonic ('Show more _details');	
+		my $detail_label = Gtk2::Label->new($detail_message);
+		$detail_label->set_alignment( 0, 0.5 );
+		$expander->add($detail_label);
+		my $detail_hbox = Gtk2::HBox->new();
+		$detail_hbox->pack_start(Gtk2::Label->new, FALSE, FALSE, 12);
+		$detail_hbox->pack_start_defaults($expander);
+		$question_dialog->vbox->add($detail_hbox);
+	}
+
 	$question_dialog->show_all;
 
 	my $question_response = $question_dialog->run;
@@ -105,14 +118,15 @@ sub dlg_question_message {
 
 sub dlg_error_message {
 	my $self = shift;
-	my $dlg_error_message = shift;
-	my $dlg_error_header = shift;
-	my $button_text_extra1 = shift;
-	my $button_text_extra2 = shift;
-	my $button_text_extra3 = shift;
-	my $button_widget_extra1 = shift;
-	my $button_widget_extra2 = shift;
-	my $button_widget_extra3 = shift;
+	my $dlg_error_message 		= shift;
+	my $dlg_error_header 		= shift;
+	my $button_text_extra1 		= shift;
+	my $button_text_extra2 		= shift;
+	my $button_text_extra3 		= shift;
+	my $button_widget_extra1 	= shift;
+	my $button_widget_extra2 	= shift;
+	my $button_widget_extra3 	= shift;
+	my $detail_message 			= shift;
 	
 	my $error_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef );
 
@@ -131,6 +145,18 @@ sub dlg_error_message {
 	$error_dialog->add_action_widget( $button_widget_extra2, 50 ) if $button_widget_extra2;
 	$error_dialog->add_action_widget( $button_widget_extra3, 60 ) if $button_widget_extra3;
 
+	#show a detailed message (use expander to show it)
+	if($detail_message){
+		my $expander = Gtk2::Expander->new_with_mnemonic ('Show more _details');	
+		my $detail_label = Gtk2::Label->new($detail_message);
+		$detail_label->set_alignment( 0, 0.5 );
+		$expander->add($detail_label);
+		my $detail_hbox = Gtk2::HBox->new();
+		$detail_hbox->pack_start(Gtk2::Label->new, FALSE, FALSE, 12);
+		$detail_hbox->pack_start_defaults($expander);
+		$error_dialog->vbox->add($detail_hbox);
+	}
+
 	$error_dialog->show_all;
 
 	my $error_response = $error_dialog->run;
@@ -141,14 +167,15 @@ sub dlg_error_message {
 
 sub dlg_warning_message {
 	my $self = shift;
-	my $dlg_warning_message = shift;
-	my $dlg_warning_header = shift;
-	my $button_text_extra1 = shift;
-	my $button_text_extra2 = shift;
-	my $button_text_extra3 = shift;
-	my $button_widget_extra1 = shift;
-	my $button_widget_extra2 = shift;
-	my $button_widget_extra3 = shift;
+	my $dlg_warning_message 	= shift;
+	my $dlg_warning_header 		= shift;
+	my $button_text_extra1 		= shift;
+	my $button_text_extra2 		= shift;
+	my $button_text_extra3 		= shift;
+	my $button_widget_extra1 	= shift;
+	my $button_widget_extra2 	= shift;
+	my $button_widget_extra3 	= shift;
+	my $detail_message 			= shift;
 	
 	my $warning_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef );
 
@@ -166,6 +193,18 @@ sub dlg_warning_message {
 	$warning_dialog->add_action_widget( $button_widget_extra1, 40 ) if $button_widget_extra1;
 	$warning_dialog->add_action_widget( $button_widget_extra2, 50 ) if $button_widget_extra2;
 	$warning_dialog->add_action_widget( $button_widget_extra3, 60 ) if $button_widget_extra3;
+
+	#show a detailed message (use expander to show it)
+	if($detail_message){
+		my $expander = Gtk2::Expander->new_with_mnemonic ('Show more _details');	
+		my $detail_label = Gtk2::Label->new($detail_message);
+		$detail_label->set_alignment( 0, 0.5 );
+		$expander->add($detail_label);
+		my $detail_hbox = Gtk2::HBox->new();
+		$detail_hbox->pack_start(Gtk2::Label->new, FALSE, FALSE, 12);
+		$detail_hbox->pack_start_defaults($expander);
+		$warning_dialog->vbox->add($detail_hbox);
+	}
 
 	$warning_dialog->show_all;
 
