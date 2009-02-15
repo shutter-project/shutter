@@ -699,16 +699,53 @@ sub save {
 	$loader->close;
 	my $pixbuf = $loader->get_pixbuf;
 
-	if($self->{_filetype} =~ /jpeg/){
-		$pixbuf->save( $self->{_filename}, $self->{_filetype}, quality => '100' );		
-	}elsif($self->{_filetype} =~ /png/){
-		$pixbuf->save( $self->{_filename}, $self->{_filetype}, compression => '9' );		
-	}else{		
-		$pixbuf->save( $self->{_filename}, $self->{_filetype});		
-	}
+	return $self->save_pixbuf_to_file($pixbuf, $self->{_filename}, $self->{_filetype});
 
-	return TRUE;
 }
+
+sub save_pixbuf_to_file{
+	my $self = shift;
+	my $pixbuf = shift;
+	my $filename = shift;
+	my $filetype = shift;
+	my $quality = shift;
+
+	my $d = $self->{_shutter_common}->get_gettext;
+
+	eval {	
+		if ( $filetype =~ /jpeg/ ) {
+			$quality = '100' unless $quality;
+			$pixbuf->save( $filename, $filetype, quality => $quality );
+		} elsif ( $filetype =~ /png/ ) {
+			$quality = '9' unless $quality;
+			$pixbuf->save( $filename, $filetype, compression => $quality );
+		} elsif ( $filetype =~ /bmp/ ) {
+			$pixbuf->save( $filename, $filetype );
+		} else  {
+			$pixbuf->save( $filename, $filetype );			
+		}
+	};
+	if ($@) {
+
+		#parse filename
+		my ( $name, $folder, $type ) = fileparse( $filename, '\..*' );
+
+		#we already get translated error messaged back
+		my $response = $self->{_dialogs}->dlg_error_message( 
+			$d->get( sprintf( "Error while saving the image %s.", "'" . $name . "'" ) ),
+			$d->get( sprintf( "There was an error saving the image to %s.", "'" . $folder . "'" ) ),		
+			undef, undef, undef,
+			undef, undef, undef,
+			$@->message
+		);
+		return FALSE;
+
+	}
+	
+	return TRUE;
+	
+}
+
 
 #ITEM SIGNALS
 sub setup_item_signals {

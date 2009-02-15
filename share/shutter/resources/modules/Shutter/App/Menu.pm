@@ -148,7 +148,8 @@ sub create_menu {
 	#actions
 	$self->{_menu_actions} = Gtk2::Menu->new();
 
-	$self->{_menuitem_reopen} = Gtk2::ImageMenuItem->new_from_stock( 'gtk-open' );
+	$self->{_menuitem_reopen} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("_Open with ...") );
+	$self->{_menuitem_reopen}->set_image( Gtk2::Image->new_from_stock( 'gtk-open', 'menu' ) );
 	$self->{_menuitem_reopen}->set_sensitive(FALSE);
 	$self->{_menu_actions}->append( $self->{_menuitem_reopen} );
 
