@@ -1623,8 +1623,8 @@ sub evt_take_screenshot {
 			$screenshot_thumbnail = Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $screenshot_name, $twidth, $theight, TRUE );
 
 			#save path of thumbnail
-			my $name = fileparse( $uri->get_path, '\..*' );
-			$screenshot_thumbnail_name = $uri->get_dirname . "/$name-$thumbnail_ending.$filetype_value";
+			my ($name, $folder, $ext) = fileparse( $uri->get_path, '\..*' );
+			$screenshot_thumbnail_name = $folder . "/$name-$thumbnail_ending.$filetype_value";
 
 			#parse wild cards
 			$screenshot_thumbnail_name =~ s/\$w/$twidth/g;
@@ -1644,7 +1644,7 @@ sub evt_take_screenshot {
 		my $new_key_screenshot = &fct_integrate_screenshot_in_notebook( $uri, $screenshot );
 
 		#thumbnail as well if present
-		my $new_key_screenshot_thumbnail = &fct_integrate_screenshot_in_notebook( Gnome2::VFS::URI->new($screenshot_thumbnail_name), $screenshot )
+		my $new_key_screenshot_thumbnail = &fct_integrate_screenshot_in_notebook( Gnome2::VFS::URI->new($screenshot_thumbnail_name), $screenshot_thumbnail )
 			if $thumbnail_active->get_active;
 
 		#autocopy to clipboard if configured
@@ -2424,6 +2424,7 @@ sub fct_add_file_monitor {
 				unless ( $session_screens{$key}->{'created'} ) {
 					print $session_screens{$key}->{'uri'}->to_string . " - " . $event . "\n";
 					$session_screens{$key}->{'changed'} = TRUE;
+					sleep 2;
 					&fct_update_tab($key);
 					&fct_update_first_tab;
 				} else {
@@ -3807,6 +3808,8 @@ sub fct_update_first_tab {
 	$session_start_screen{'first_page'}->{'view'}->unselect_all;
 	$session_start_screen{'first_page'}->{'model'}->clear;
 
+	print "Updating first tab\n";
+
 	#create thumbails for iconview
 	foreach my $key ( sort keys %session_screens ) {
 
@@ -3814,7 +3817,10 @@ sub fct_update_first_tab {
 
 		#try to generate a new thumbnail
 		my $pixbuf;
-		eval { $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $session_screens{$key}->{'long'}, Gtk2::IconSize->lookup('dialog'), TRUE ); };
+		eval {
+			$pixbuf = $session_screens{$key}->{'orig'}->scale_simple(Gtk2::IconSize->lookup ('dialog'), 'nearest'); 
+			#~ $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $session_screens{$key}->{'long'}, Gtk2::IconSize->lookup('dialog'), TRUE ); };
+		};
 		if ($@) {
 			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$shutter_root/share/shutter/resources/icons/Image-missing.svg",
 				Gtk2::IconSize->lookup('dialog'), TRUE );
@@ -3884,19 +3890,27 @@ sub fct_save_pixbuf_to_file{
 	my $filetype = shift;
 	my $quality = shift;
 
-	eval {	
-		if ( $filetype =~ /jpeg/ ) {
-			$quality = '100' unless $quality;
+	
+	if ( $filetype =~ /jpeg/ ) {
+		$quality = '100' unless $quality;
+		#~ eval {	
 			$pixbuf->save( $filename, $filetype, quality => $quality );
-		} elsif ( $filetype =~ /png/ ) {
-			$quality = '9' unless $quality;
+		#~ };
+	} elsif ( $filetype =~ /png/ ) {
+		$quality = '9' unless $quality;
+		#~ eval {	
 			$pixbuf->save( $filename, $filetype, compression => $quality );
-		} elsif ( $filetype =~ /bmp/ ) {
+		#~ };
+	} elsif ( $filetype =~ /bmp/ ) {
+		#~ eval {	
 			$pixbuf->save( $filename, $filetype );
-		} else  {
+		#~ };
+	} else  {
+		#~ eval {	
 			$pixbuf->save( $filename, $filetype );			
-		}
-	};
+		#~ };
+	}
+
 	if ($@) {
 
 		#parse filename
@@ -3951,74 +3965,41 @@ sub fct_update_tab {
 	#update fileinfos
 	if ( &fct_create_thumbnail_and_fileinfos( $key, $pixbuf, $uri ) ) {
 
-		eval {
+	#update tab icon - maybe pic changed due to use of plugin or drawing tool
+	$session_screens{$key}->{'tab_icon'}->set_from_pixbuf( $session_screens{$key}->{'thumb'} );
 
-			#update tab icon - maybe pic changed due to use of plugin or drawing tool
-			$session_screens{$key}->{'tab_icon'}->set_from_pixbuf( $session_screens{$key}->{'thumb'} );
+	$session_screens{$key}->{'filename_label'}->set_text( $session_screens{$key}->{'uri'}->extract_short_name );
+	$tooltips->set_tip( $session_screens{$key}->{'filename_label'}, $session_screens{$key}->{'uri'}->to_string );
 
-			$session_screens{$key}->{'filename_label'}->set_text( $session_screens{$key}->{'uri'}->extract_short_name );
-			$tooltips->set_tip( $session_screens{$key}->{'filename_label'}, $session_screens{$key}->{'uri'}->to_string );
+	$session_screens{$key}->{'folder_label'}->set_text( $session_screens{$key}->{'uri'}->extract_dirname );
+	$tooltips->set_tip( $session_screens{$key}->{'folder_label'}, $session_screens{$key}->{'uri'}->extract_dirname );
 
-			$session_screens{$key}->{'folder_label'}->set_text( $session_screens{$key}->{'uri'}->extract_dirname );
-			$tooltips->set_tip( $session_screens{$key}->{'folder_label'}, $session_screens{$key}->{'uri'}->extract_dirname );
+	$session_screens{$key}->{'mime_type_label'}->set_text( $session_screens{$key}->{'mime_type'} );
 
-			$session_screens{$key}->{'mime_type_label'}->set_text( $session_screens{$key}->{'mime_type'} );
+	$session_screens{$key}->{'size_label'}->set_text( Gnome2::VFS->format_file_size_for_display( $session_screens{$key}->{'size'} ) );
 
-			$session_screens{$key}->{'size_label'}->set_text( Gnome2::VFS->format_file_size_for_display( $session_screens{$key}->{'size'} ) );
+	$session_screens{$key}->{'geometry_label'}->set_text( $session_screens{$key}->{'width'} . "x" . $session_screens{$key}->{'height'} );
 
-			$session_screens{$key}->{'geometry_label'}->set_text( $session_screens{$key}->{'width'} . "x" . $session_screens{$key}->{'height'} );
-		};
-		if ($@) {
+	eval {
+		if ( $session_screens{$key}->{'image'}->get_pixbuf )
+		{
+			$session_screens{$key}->{'image'}->{'current_width'}  = $session_screens{$key}->{'orig'}->get_width;
+			$session_screens{$key}->{'image'}->{'current_height'} = $session_screens{$key}->{'orig'}->get_height;
+			$session_screens{$key}->{'image'}->{'aspect_ratio'}
+				= $session_screens{$key}->{'image'}->{'current_width'} / $session_screens{$key}->{'image'}->{'current_height'};
 
-			#we handle no case here ;-)
-			$shutter_dialog->dlg_error_message( $@, $d->get("Failed") );
-
-			return FALSE;
+			$session_screens{$key}->{'image'}->signal_emit( 'expose-event', Gtk2::Gdk::Event->new('expose') );
 		}
+	};
+	if ($@) {
 
-		eval {
-			if ( $session_screens{$key}->{'image'}->get_pixbuf )
-			{
-				$session_screens{$key}->{'image'}->{'current_width'}  = $session_screens{$key}->{'image'}->get_pixbuf->get_width;
-				$session_screens{$key}->{'image'}->{'current_height'} = $session_screens{$key}->{'image'}->get_pixbuf->get_height;
-				$session_screens{$key}->{'image'}->{'aspect_ratio'}
-					= $session_screens{$key}->{'image'}->{'current_width'} / $session_screens{$key}->{'image'}->{'current_height'};
+		#we handle no case here ;-)
+		$shutter_dialog->dlg_error_message( $@, $d->get("Failed") );
 
-				$session_screens{$key}->{'image'}->signal_emit( 'expose-event', Gtk2::Gdk::Event->new('expose') );
-			}
-		};
-		if ($@) {
-
-			#we handle no case here ;-)
-			$shutter_dialog->dlg_error_message( $@, $d->get("Failed") );
-
-			return FALSE;
-		}
+		return FALSE;
+	}
 
 	} else {
-
-		#~ eval {
-			#~ $session_screens{$key}->{'thumb'}
-				#~ = Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$shutter_root/share/shutter/resources/icons/Image-missing.svg",
-				#~ Gtk2::IconSize->lookup('menu'), TRUE );
-#~ 
-			#~ $session_screens{$key}->{'orig'} = Gtk2::Gdk::Pixbuf->new_from_file("$shutter_root/share/shutter/resources/icons/Image-missing.svg");
-#~ 
-			#~ #do not show an image
-			#~ $session_screens{$key}->{'image'}->clear;
-#~ 
-			#~ #..and do not watch for changes anymore
-			#~ $session_screens{$key}->{'image'}->signal_handler_disconnect( $session_screens{$key}->{'image_handler'} );
-#~ 
-			#~ $session_screens{$key}->{'tab_icon'}->set_from_pixbuf( $session_screens{$key}->{'thumb'} );
-		#~ };
-		#~ if ($@) {
-#~ 
-			#~ #we handle no case here ;-)
-			#~ $shutter_dialog->dlg_error_message( $@, $d->get("Failed") );
-#~ 
-			#~ return FALSE;
-		#~ }
 
 		return FALSE;
 
@@ -4312,7 +4293,7 @@ sub fct_create_thumbnail_and_fileinfos {
 
 	print "Updating fileinfos for key: $key\n";
 
-	eval {
+
 
 		$session_screens{$key}->{'uri'}      = $uri if $uri;
 		$session_screens{$key}->{'short'}    = $session_screens{$key}->{'uri'}->extract_short_name;
@@ -4321,17 +4302,6 @@ sub fct_create_thumbnail_and_fileinfos {
 		$session_screens{$key}->{'filetype'} = $session_screens{$key}->{'short'};
 		$session_screens{$key}->{'filetype'} =~ s/.*\.//ig;
 
-		#volume infos
-		#~ my $volume_monitor = Gnome2::VFS->get_volume_monitor();
-		#~ my $volume         = $volume_monitor->get_volume_for_path( $session_screens{$key}->{'folder'} );
-		#~ $session_screens{$key}->{'volume_device_type'}     = $volume->get_device_type;
-		#~ $session_screens{$key}->{'volume_device_path'}     = $volume->get_device_path;
-		#~ $session_screens{$key}->{'volume_filesystem_type'} = $volume->get_filesystem_type;
-		#~ $session_screens{$key}->{'volume_volume_type'}     = $volume->get_volume_type;
-		#~ $session_screens{$key}->{'volume_activation_uri'}  = $volume->get_activation_uri;
-		#~ $session_screens{$key}->{'volume_display_name'}    = $volume->get_display_name;
-		#~ $session_screens{$key}->{'volume_handled_trash'}   = $volume->handles_trash;
-
 		#just the name
 		$session_screens{$key}->{'name'} = fileparse( $session_screens{$key}->{'long'}, '\..*' );
 
@@ -4339,6 +4309,8 @@ sub fct_create_thumbnail_and_fileinfos {
 		$session_screens{$key}->{'size'}      = $session_screens{$key}->{'fileinfo'}->{'size'};
 		$session_screens{$key}->{'mime_type'} = Gnome2::VFS->get_mime_type_for_name( $session_screens{$key}->{'uri'}->to_string );
 
+	eval {
+		
 		#maybe we have a pixbuf already (e.g. after taking a screenshot)
 		unless ($pixbuf) {
 			$session_screens{$key}->{'orig'} = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} );		
@@ -4350,9 +4322,11 @@ sub fct_create_thumbnail_and_fileinfos {
 		$session_screens{$key}->{'width'}  = $session_screens{$key}->{'orig'}->get_width;
 		$session_screens{$key}->{'height'} = $session_screens{$key}->{'orig'}->get_height;
 
-		$session_screens{$key}->{'thumb'}      =  
-			Gtk2::Gdk::Pixbuf->new_from_file_at_scale($session_screens{$key}->{'long'}, 
-			Gtk2::IconSize->lookup ('menu'), TRUE);
+		#~ $session_screens{$key}->{'thumb'}      =  
+			#~ Gtk2::Gdk::Pixbuf->new_from_file_at_scale($session_screens{$key}->{'long'}, 
+			#~ Gtk2::IconSize->lookup ('menu'), TRUE);
+
+		$session_screens{$key}->{'thumb'} = $session_screens{$key}->{'orig'}->scale_simple(Gtk2::IconSize->lookup ('menu'), 'nearest');
 
 	};
 
@@ -6017,7 +5991,9 @@ UPDIALOG: while ($hosting_dialog) {
 					print $source_uri->to_string . " - " . $target_uri->to_string."\n";
 					my $result;
 					unless($target_uri->exists){
-						$result = Gnome2::VFS::Xfer->uri ($source_uri, $target_uri, 'default', 'abort', 'replace', sub{ return TRUE });
+						#~ $target_uri->set_password ('mkemper');
+						#~ $target_uri->set_user_name ('vandervaart');
+						$result = Gnome2::VFS::Xfer->uri ($source_uri, $target_uri, 'default', 'abort', 'replace', sub{ print Dumper @_; return TRUE });
 					}else{
 						$result = 'error-file-exists';	
 					}
