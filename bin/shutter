@@ -2133,7 +2133,8 @@ sub evt_save_as {
 			my $filename = $fs->get_filename;
 
 			my $choosen_format = $combobox_save_as_type->get_active_text;
-			$choosen_format =~ s/\-.*//;    #get png or jpeg
+			$choosen_format =~ s/ \-.*//;    #get png or jpeg
+			print $choosen_format . "\n";
 
 			unless ( $filename =~ /.*\.$choosen_format$/ ) {
 				$filename =~ s/\..*$/\.$choosen_format/;
@@ -2161,21 +2162,64 @@ sub evt_save_as {
 	if ( $fs_resp eq "accept" ) {
 		my $filename = $fs->get_filename;
 
+		#parse filename
+		my ( $short, $folder, $ext ) = fileparse( $filename, '\..*' );
+
 		#handle file format
 		my $choosen_format = $combobox_save_as_type->get_active_text;
-		$choosen_format =~ s/.*\- //;    #get png or jpeg
+		$choosen_format =~ s/ \-.*//;    #get png or jpeg
 
 		unless ( $filename =~ /.*\.$choosen_format$/ ) {
 			$filename .= "." . $choosen_format;
 		}
 
 		unless ( $shutter_hfunct->file_exists($filename) ) {
-			&fct_imagemagick_perform( "save", $session_screens{$key}->{'long'}, $filename );
+			&fct_save_pixbuf_to_file($session_screens{$key}->{'orig'}, $filename, $choosen_format);
+			#~ &fct_imagemagick_perform( "save", $session_screens{$key}->{'long'}, $filename );
+
+			$session_screens{$key}->{'handle'}->cancel;
+			&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($filename) );
+
+			#setup a new filemonitor, so we get noticed if the file changed
+			&fct_add_file_monitor($key);
+
+			&dlg_status_message( 1, "$session_screens{ $key }->{ 'short' } " . $d->get("saved") );
+
 		} else {
 
-			if ( $shutter_dialog->dlg_question_message( $filename . "\n\n" . $d->get("File already exists.\nDo you want to overwrite it?") ) ) {
-				&fct_imagemagick_perform( "save", $session_screens{$key}->{'long'}, $filename );
-				&fct_create_thumbnail_and_fileinfos( $key, undef, Gnome2::VFS::URI->new( $session_screens{$key}->{'long'} ) );
+			#ask the user to replace the image
+			#replace button
+			my $replace_btn = Gtk2::Button->new_with_mnemonic( $d->get("_Replace") );
+			$replace_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'button' ) );
+
+			my $response = $shutter_dialog->dlg_warning_message(
+				$d->get(
+					sprintf(
+						"The image already exists in %s. Replacing it will overwrite its contents.", "'" . $folder . "'"
+					)
+				),
+				$d->get( sprintf( "An image named %s already exists. Do you want to replace it?", "'" . $short . "'" ) ),
+				undef, undef, undef,
+				$replace_btn, undef, undef
+			);
+
+			if ( $response == 40 ) {
+				&fct_save_pixbuf_to_file($session_screens{$key}->{'orig'}, $filename, $choosen_format);
+
+				$session_screens{$key}->{'handle'}->cancel;
+				&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($filename) );
+
+				#setup a new filemonitor, so we get noticed if the file changed
+				&fct_add_file_monitor($key);
+
+				#maybe file is in session as well, need to set the handler again ;-)
+				foreach my $searchkey ( keys %session_screens ) {
+					next if $key eq $searchkey;
+					if ( $session_screens{$searchkey}->{'long'} eq $filename ) {
+						$session_screens{$searchkey}->{'changed'} = TRUE;
+						&fct_update_tab($searchkey);
+					}
+				}	
 
 				&dlg_status_message( 1, "$session_screens{ $key }->{ 'short' } " . $d->get("saved") );
 
@@ -2185,13 +2229,6 @@ sub evt_save_as {
 			$fs->destroy();
 			return FALSE;
 		}
-
-		&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($filename) );
-
-		#setup a new filemonitor, so we get noticed if the file changed
-		&fct_add_file_monitor($key);
-
-		&dlg_status_message( 1, "$session_screens{ $key }->{ 'short' } " . $d->get("saved") );
 
 		$fs->destroy();
 		return TRUE;
