@@ -5626,7 +5626,7 @@ sub dlg_upload {
 	my $pl_vbox1 = Gtk2::VBox->new( FALSE, 12 );
  	$pl_hbox1->set_border_width(12);
  	$pl_vbox1->set_border_width(12);
-	my $places_fc = Gtk2::FileChooserButton->new ("Shutter - " . $shutter_common->get_gettext->get("Choose folder"), 'select-folder');	
+	my $places_fc = Gtk2::FileChooserButton->new_with_backend ("Shutter - " . $shutter_common->get_gettext->get("Choose folder"), 'select-folder', 'gnome-vfs');	
 	$places_fc->set('local-only' => FALSE);
 	$pl_hbox1->pack_start( Gtk2::Label->new( $d->get("Choose folder"). ":" ), FALSE, FALSE, 6 );
 	$pl_hbox1->pack_start_defaults($places_fc);
@@ -5986,14 +5986,18 @@ UPDIALOG: while ($hosting_dialog) {
 
 					my $source_uri = Gnome2::VFS::URI->new ($file);
 					my $target_uri = Gnome2::VFS::URI->new ($places_fc->get_uri);
+					#~ my $target_filename_uri = Gnome2::VFS::URI->new ($places_fc->get_filename);
 					$target_uri = $target_uri->append_file_name($source_uri->extract_short_name);
+					#~ $target_filename_uri = $target_filename_uri->append_file_name($source_uri->extract_short_name);
 
 					print $source_uri->to_string . " - " . $target_uri->to_string."\n";
+					#~ print $source_uri->to_string . " - " . Gnome2::VFS->get_local_path_from_uri($target_filename_uri->to_string)."\n";
 					my $result;
 					unless($target_uri->exists){
-						#~ $target_uri->set_password ('mkemper');
-						#~ $target_uri->set_user_name ('vandervaart');
-						$result = Gnome2::VFS::Xfer->uri ($source_uri, $target_uri, 'default', 'abort', 'replace', sub{ print Dumper @_; return TRUE });
+						#~ $target_uri->set_user_name ('web214');
+						#~ $target_uri->set_password ('jKC7Bvty');
+						$result = Gnome2::VFS::Xfer->uri ($source_uri, $target_uri, 'default', 'query', 'replace', sub{ print Dumper @_; return sub { print "test\n";} });
+						#~ $result = Gnome2::VFS->move ($source_uri->to_string, Gnome2::VFS->get_local_path_from_uri($target_filename_uri->to_string), FALSE);
 					}else{
 						$result = 'error-file-exists';	
 					}
