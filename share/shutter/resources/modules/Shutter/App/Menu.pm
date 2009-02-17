@@ -131,7 +131,7 @@ sub create_menu {
 
 	$self->{_menu_edit}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_quicks} = Gtk2::MenuItem->new_with_label( $d->get("Quick select") );
+	$self->{_menuitem_quicks} = Gtk2::MenuItem->new_with_mnemonic( $d->get("_Quick select") );
 	$self->{_menu_edit}->append( $self->{_menuitem_quicks} );
 
 	$self->{_menu_edit}->append( Gtk2::SeparatorMenuItem->new );
@@ -161,7 +161,7 @@ sub create_menu {
 
 	$self->{_menu_actions}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_upload} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("_Upload") );
+	$self->{_menuitem_upload} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("_Upload / Export") );
 	$self->{_menuitem_upload}->add_accelerator( "activate", $accel_group, Gtk2::Accelerator->parse("<Control>U"), qw/visible/ );
 	$self->{_menuitem_upload}->set_image( Gtk2::Image->new_from_stock( 'gtk-network', 'menu' ) );
 	$self->{_menuitem_upload}->set_sensitive(FALSE);

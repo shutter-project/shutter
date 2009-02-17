@@ -28,8 +28,17 @@ use utf8;
 use strict;
 use warnings;
 
+#Gnome2 libraries
+use Gnome2;
+
+#Use AuthenticationManager to handle user credentials easily
+Gnome2::AuthenticationManager->init;
+
 #GConf - used for metacity keybindings
 use Gnome2::GConf;
+
+#GnomeVFS
+use Gnome2::VFS '-init';
 
 #Image operations
 use Image::Magick();
@@ -40,9 +49,6 @@ use File::Basename;
 use File::MimeInfo::Applications;
 use File::Temp qw/ tempfile tempdir /;
 use IO::File;
-
-#GnomeVFS
-use Gnome2::VFS '-init';
 
 #Gtk2
 use Gtk2 '-init';
@@ -3893,22 +3899,14 @@ sub fct_save_pixbuf_to_file{
 	
 	if ( $filetype =~ /jpeg/ ) {
 		$quality = '100' unless $quality;
-		#~ eval {	
-			$pixbuf->save( $filename, $filetype, quality => $quality );
-		#~ };
+		$pixbuf->save( $filename, $filetype, quality => $quality );
 	} elsif ( $filetype =~ /png/ ) {
 		$quality = '9' unless $quality;
-		#~ eval {	
-			$pixbuf->save( $filename, $filetype, compression => $quality );
-		#~ };
-	} elsif ( $filetype =~ /bmp/ ) {
-		#~ eval {	
-			$pixbuf->save( $filename, $filetype );
-		#~ };
-	} else  {
-		#~ eval {	
-			$pixbuf->save( $filename, $filetype );			
-		#~ };
+		$pixbuf->save( $filename, $filetype, compression => $quality );
+	} elsif ( $filetype =~ /bmp/ ) {	
+		$pixbuf->save( $filename, $filetype );
+	} else  {	
+		$pixbuf->save( $filename, $filetype );			
 	}
 
 	if ($@) {
@@ -5996,7 +5994,7 @@ UPDIALOG: while ($hosting_dialog) {
 					unless($target_uri->exists){
 						#~ $target_uri->set_user_name ('web214');
 						#~ $target_uri->set_password ('jKC7Bvty');
-						$result = Gnome2::VFS::Xfer->uri ($source_uri, $target_uri, 'default', 'query', 'replace', sub{ print Dumper @_; return sub { print "test\n";} });
+						$result = Gnome2::VFS::Xfer->uri ($source_uri, $target_uri, 'default', 'abort', 'replace', sub{ print Dumper @_; return sub { print "test\n";} });
 						#~ $result = Gnome2::VFS->move ($source_uri->to_string, Gnome2::VFS->get_local_path_from_uri($target_filename_uri->to_string), FALSE);
 					}else{
 						$result = 'error-file-exists';	
