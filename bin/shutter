@@ -2122,16 +2122,14 @@ sub evt_save_as {
 	#the user can decide to save in jpeg, png or bmp format
 	my $counter = 0;
 	foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
-		if ( $_->{name} eq "jpeg" || $_->{name} eq "png" || $_->{name} eq "bmp" ){
-			$combobox_save_as_type->insert_text( $counter, $_->{name} . " - " . $_->{description} );
-			#set active when mime_type is matching
-			#loop because multiple mime types are registered for fome file formats
-			foreach my $mime (@{$_->{mime_types}}){
-				$combobox_save_as_type->set_active($counter)
-					if $mime eq $session_screens{$key}->{'mime_type'};		
-			}
-			$counter++;
+		$combobox_save_as_type->insert_text( $counter, $_->{name} . " - " . $_->{description} );
+		#set active when mime_type is matching
+		#loop because multiple mime types are registered for fome file formats
+		foreach my $mime (@{$_->{mime_types}}){
+			$combobox_save_as_type->set_active($counter)
+				if $mime eq $session_screens{$key}->{'mime_type'};		
 		}
+		$counter++;
 	}
 
 	$combobox_save_as_type->signal_connect(
@@ -2139,7 +2137,7 @@ sub evt_save_as {
 			my $filename = $fs->get_filename;
 
 			my $choosen_format = $combobox_save_as_type->get_active_text;
-			$choosen_format =~ s/ \-.*//;    #get png or jpeg
+			$choosen_format =~ s/ \-.*//;    #get png or jpeg for example
 			print $choosen_format . "\n";
 
 			unless ( $filename =~ /.*\.$choosen_format$/ ) {
@@ -2173,24 +2171,29 @@ sub evt_save_as {
 
 		#handle file format
 		my $choosen_format = $combobox_save_as_type->get_active_text;
-		$choosen_format =~ s/ \-.*//;    #get png or jpeg
+		$choosen_format =~ s/ \-.*//;    #get png or jpeg for example
 
 		unless ( $filename =~ /.*\.$choosen_format$/ ) {
 			$filename .= "." . $choosen_format;
 		}
 
 		unless ( $shutter_hfunct->file_exists($filename) ) {
-			&fct_save_pixbuf_to_file($session_screens{$key}->{'orig'}, $filename, $choosen_format);
-			#~ &fct_imagemagick_perform( "save", $session_screens{$key}->{'long'}, $filename );
+			#save as (pixbuf, new_filename, filetype, quality - auto here, old_filename)
+			if(&fct_save_pixbuf_to_file($session_screens{$key}->{'orig'}, $filename, $choosen_format, undef, $session_screens{$key}->{'long'})){
 
-			$session_screens{$key}->{'handle'}->cancel;
-			&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($filename) );
+				$session_screens{$key}->{'handle'}->cancel;
+				if(&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($filename) )){
+					#setup a new filemonitor, so we get noticed if the file changed
+					&fct_add_file_monitor($key);
 
-			#setup a new filemonitor, so we get noticed if the file changed
-			&fct_add_file_monitor($key);
-
-			&dlg_status_message( 1, "$session_screens{ $key }->{ 'short' } " . $d->get("saved") );
-
+					&dlg_status_message( 1, "$session_screens{ $key }->{ 'short' } " . $d->get("saved") );
+				}else {
+					$fs->destroy();
+					return FALSE;
+				}
+				
+			}
+			
 		} else {
 
 			#ask the user to replace the image
@@ -2204,30 +2207,36 @@ sub evt_save_as {
 						"The image already exists in %s. Replacing it will overwrite its contents.", "'" . $folder . "'"
 					)
 				),
-				$d->get( sprintf( "An image named %s already exists. Do you want to replace it?", "'" . $short . "'" ) ),
+				$d->get( sprintf( "An image named %s already exists. Do you want to replace it?", "'" . $short.$ext . "'" ) ),
 				undef, undef, undef,
 				$replace_btn, undef, undef
 			);
 
 			if ( $response == 40 ) {
-				&fct_save_pixbuf_to_file($session_screens{$key}->{'orig'}, $filename, $choosen_format);
+				if(&fct_save_pixbuf_to_file($session_screens{$key}->{'orig'}, $filename, $choosen_format, undef, $session_screens{$key}->{'long'})){
+					$session_screens{$key}->{'handle'}->cancel;
+					if(&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($filename) )){
 
-				$session_screens{$key}->{'handle'}->cancel;
-				&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($filename) );
+						#setup a new filemonitor, so we get noticed if the file changed
+						&fct_add_file_monitor($key);
 
-				#setup a new filemonitor, so we get noticed if the file changed
-				&fct_add_file_monitor($key);
+						#maybe file is in session as well, need to set the handler again ;-)
+						foreach my $searchkey ( keys %session_screens ) {
+							next if $key eq $searchkey;
+							if ( $session_screens{$searchkey}->{'long'} eq $filename ) {
+								$session_screens{$searchkey}->{'changed'} = TRUE;
+								&fct_update_tab($searchkey);
+							}
+						}	
 
-				#maybe file is in session as well, need to set the handler again ;-)
-				foreach my $searchkey ( keys %session_screens ) {
-					next if $key eq $searchkey;
-					if ( $session_screens{$searchkey}->{'long'} eq $filename ) {
-						$session_screens{$searchkey}->{'changed'} = TRUE;
-						&fct_update_tab($searchkey);
+						&dlg_status_message( 1, "$session_screens{ $key }->{ 'short' } " . $d->get("saved") );					
+
+					}else {
+						$fs->destroy();
+						return FALSE;
 					}
-				}	
 
-				&dlg_status_message( 1, "$session_screens{ $key }->{ 'short' } " . $d->get("saved") );
+				}	
 
 				$fs->destroy();
 				return TRUE;
@@ -2241,7 +2250,7 @@ sub evt_save_as {
 	} else {
 		$fs->destroy();
 		return FALSE;
-	}
+	}	
 }
 
 sub evt_save_profile {
@@ -2391,7 +2400,8 @@ sub fct_integrate_screenshot_in_notebook {
 		&fct_add_file_monitor($key);
 	}
 
-	&fct_update_first_tab;
+	#is this really needed here??
+	#~ &fct_update_first_tab;
 
 	return $key;
 }
@@ -2432,7 +2442,6 @@ sub fct_add_file_monitor {
 					$session_screens{$key}->{'changed'} = TRUE;
 					sleep 2;
 					&fct_update_tab($key);
-					&fct_update_first_tab;
 				} else {
 					$session_screens{$key}->{'created'} = FALSE;
 				}
@@ -2446,9 +2455,13 @@ sub fct_add_file_monitor {
 		},
 		$key
 	);
-
-	#TODO - hier nochmal ran...
-	print "Added File Monitor: " . Gnome2::VFS->result_to_string($result) . "\n";
+	
+	#show error dialog when installing the file
+	#monitor failed
+	unless ($result eq 'ok'){
+		$shutter_dialog->dlg_error_message( Gnome2::VFS->result_to_string($result), $d->get("Failed") );		
+		return FALSE;
+	}
 
 	return TRUE;
 }
@@ -2785,14 +2798,12 @@ sub fct_save_settings {
 		$settings{'plugins'}->{$plugin_key}->{'name_plugin'} = $plugins{$plugin_key}->{'name'};
 		$settings{'plugins'}->{$plugin_key}->{'category'}    = $plugins{$plugin_key}->{'category'};
 		$settings{'plugins'}->{$plugin_key}->{'tooltip'}     = $plugins{$plugin_key}->{'tooltip'};
-		$settings{'plugins'}->{$plugin_key}->{'ext'}         = $plugins{$plugin_key}->{'ext'};
 		$settings{'plugins'}->{$plugin_key}->{'lang'}        = $plugins{$plugin_key}->{'lang'};
 		utf8::encode $settings{'plugins'}->{$plugin_key}->{'name'};
 		utf8::encode $settings{'plugins'}->{$plugin_key}->{'binary'};
 		utf8::encode $settings{'plugins'}->{$plugin_key}->{'name_plugin'};
 		utf8::encode $settings{'plugins'}->{$plugin_key}->{'category'};
 		utf8::encode $settings{'plugins'}->{$plugin_key}->{'tooltip'};
-		utf8::encode $settings{'plugins'}->{$plugin_key}->{'ext'};
 		utf8::encode $settings{'plugins'}->{$plugin_key}->{'lang'};
 	}
 
@@ -3038,13 +3049,11 @@ sub fct_load_settings {
 				utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'name_plugin'};
 				utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'category'};
 				utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'tooltip'};
-				utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'ext'};
 				utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'lang'};
 				$plugins{$plugin_key}->{'binary'}   = $settings_xml->{'plugins'}->{$plugin_key}->{'binary'};
 				$plugins{$plugin_key}->{'name'}     = $settings_xml->{'plugins'}->{$plugin_key}->{'name_plugin'};
 				$plugins{$plugin_key}->{'category'} = $settings_xml->{'plugins'}->{$plugin_key}->{'category'};
 				$plugins{$plugin_key}->{'tooltip'}  = $settings_xml->{'plugins'}->{$plugin_key}->{'tooltip'};
-				$plugins{$plugin_key}->{'ext'}      = $settings_xml->{'plugins'}->{$plugin_key}->{'ext'};
 				$plugins{$plugin_key}->{'lang'}     = $settings_xml->{'plugins'}->{$plugin_key}->{'lang'};
 			} else {
 				next;
@@ -3819,6 +3828,10 @@ sub fct_update_first_tab {
 	#create thumbails for iconview
 	foreach my $key ( sort keys %session_screens ) {
 
+		unless($session_screens{$key}->{'uri'}){
+			#TO DO something went wrong here
+			next;		
+		}
 		next unless $session_screens{$key}->{'uri'}->exists;
 
 		#try to generate a new thumbnail
@@ -3895,32 +3908,55 @@ sub fct_save_pixbuf_to_file{
 	my $filename = shift;
 	my $filetype = shift;
 	my $quality = shift;
+	my $old_filename = shift;
 
-	
-	if ( $filetype =~ /jpeg/ ) {
+	print "Saving file $filename, $filetype, $quality, $old_filename\n" if $shutter_common->get_debug;
+
+	#we have two main ways of saving file
+	#when possible we try to use all supported formats of the gdk-pixbuf libs
+	#currently this is bmp, jpeg, png and ico (ico is not useful here)
+	my $imagemagick_result = 0;
+	if ( $filetype eq 'jpeg' ) {
 		$quality = '100' unless $quality;
-		$pixbuf->save( $filename, $filetype, quality => $quality );
-	} elsif ( $filetype =~ /png/ ) {
+		eval{
+			$pixbuf->save( $filename, $filetype, quality => $quality );
+		};
+	} elsif ( $filetype eq 'png' ) {
 		$quality = '9' unless $quality;
-		$pixbuf->save( $filename, $filetype, compression => $quality );
-	} elsif ( $filetype =~ /bmp/ ) {	
-		$pixbuf->save( $filename, $filetype );
+		eval{
+			$pixbuf->save( $filename, $filetype, compression => $quality );
+		};
+	} elsif ( $filetype eq 'bmp' ) {	
+		eval{
+			$pixbuf->save( $filename, $filetype );
+		};
 	} else  {	
-		$pixbuf->save( $filename, $filetype );			
+		$imagemagick_result = &fct_imagemagick_perform( "save", $old_filename, $filename );
 	}
-
-	if ($@) {
+	
+	#handle possible error messages
+	#we use eval to test the pixbuf methods 
+	#and error messages provided 
+	#by the imagemagick libs
+	if ($@ || $imagemagick_result) {
 
 		#parse filename
 		my ( $name, $folder, $type ) = fileparse( $filename, '\..*' );
 
-		#we already get translated error messaged back
+		my $detailed_message = 'Unknown error';
+		if($@){
+			$detailed_message = $@->message;
+		}elsif($imagemagick_result){
+			$detailed_message = $imagemagick_result;
+		}
+
+		#nice error dialog, more detailed messages are shown with a gtk2 expander
 		my $response = $shutter_dialog->dlg_error_message( 
-			$d->get( sprintf( "Error while saving the image %s.", "'" . $name . "'" ) ),
+			$d->get( sprintf( "Error while saving the image %s.", "'" . $name.$type . "'" ) ),
 			$d->get( sprintf( "There was an error saving the image to %s.", "'" . $folder . "'" ) ),		
 			undef, undef, undef,
 			undef, undef, undef,
-			$@->message
+			$detailed_message
 		);
 		return FALSE;
 
@@ -3963,45 +3999,47 @@ sub fct_update_tab {
 	#update fileinfos
 	if ( &fct_create_thumbnail_and_fileinfos( $key, $pixbuf, $uri ) ) {
 
-	#update tab icon - maybe pic changed due to use of plugin or drawing tool
-	$session_screens{$key}->{'tab_icon'}->set_from_pixbuf( $session_screens{$key}->{'thumb'} );
+		#update tab icon - maybe pic changed due to use of plugin or drawing tool
+		$session_screens{$key}->{'tab_icon'}->set_from_pixbuf( $session_screens{$key}->{'thumb'} );
 
-	$session_screens{$key}->{'filename_label'}->set_text( $session_screens{$key}->{'uri'}->extract_short_name );
-	$tooltips->set_tip( $session_screens{$key}->{'filename_label'}, $session_screens{$key}->{'uri'}->to_string );
+		$session_screens{$key}->{'filename_label'}->set_text( $session_screens{$key}->{'uri'}->extract_short_name );
+		$tooltips->set_tip( $session_screens{$key}->{'filename_label'}, $session_screens{$key}->{'uri'}->to_string );
 
-	$session_screens{$key}->{'folder_label'}->set_text( $session_screens{$key}->{'uri'}->extract_dirname );
-	$tooltips->set_tip( $session_screens{$key}->{'folder_label'}, $session_screens{$key}->{'uri'}->extract_dirname );
+		$session_screens{$key}->{'folder_label'}->set_text( $session_screens{$key}->{'uri'}->extract_dirname );
+		$tooltips->set_tip( $session_screens{$key}->{'folder_label'}, $session_screens{$key}->{'uri'}->extract_dirname );
 
-	$session_screens{$key}->{'mime_type_label'}->set_text( $session_screens{$key}->{'mime_type'} );
+		$session_screens{$key}->{'mime_type_label'}->set_text( $session_screens{$key}->{'mime_type'} );
 
-	$session_screens{$key}->{'size_label'}->set_text( Gnome2::VFS->format_file_size_for_display( $session_screens{$key}->{'size'} ) );
+		$session_screens{$key}->{'size_label'}->set_text( Gnome2::VFS->format_file_size_for_display( $session_screens{$key}->{'size'} ) );
 
-	$session_screens{$key}->{'geometry_label'}->set_text( $session_screens{$key}->{'width'} . "x" . $session_screens{$key}->{'height'} );
+		$session_screens{$key}->{'geometry_label'}->set_text( $session_screens{$key}->{'width'} . "x" . $session_screens{$key}->{'height'} );
 
-	eval {
-		if ( $session_screens{$key}->{'image'}->get_pixbuf )
-		{
-			$session_screens{$key}->{'image'}->{'current_width'}  = $session_screens{$key}->{'orig'}->get_width;
-			$session_screens{$key}->{'image'}->{'current_height'} = $session_screens{$key}->{'orig'}->get_height;
-			$session_screens{$key}->{'image'}->{'aspect_ratio'}
-				= $session_screens{$key}->{'image'}->{'current_width'} / $session_screens{$key}->{'image'}->{'current_height'};
+		eval {
+			if ( $session_screens{$key}->{'image'}->get_pixbuf )
+			{
+				$session_screens{$key}->{'image'}->{'current_width'}  = $session_screens{$key}->{'orig'}->get_width;
+				$session_screens{$key}->{'image'}->{'current_height'} = $session_screens{$key}->{'orig'}->get_height;
+				$session_screens{$key}->{'image'}->{'aspect_ratio'}
+					= $session_screens{$key}->{'image'}->{'current_width'} / $session_screens{$key}->{'image'}->{'current_height'};
 
-			$session_screens{$key}->{'image'}->signal_emit( 'expose-event', Gtk2::Gdk::Event->new('expose') );
+				$session_screens{$key}->{'image'}->signal_emit( 'expose-event', Gtk2::Gdk::Event->new('expose') );
+			}
+		};
+		if ($@) {
+
+			#we handle no case here ;-)
+			$shutter_dialog->dlg_error_message( $@, $d->get("Failed") );
+
+			return FALSE;
 		}
-	};
-	if ($@) {
-
-		#we handle no case here ;-)
-		$shutter_dialog->dlg_error_message( $@, $d->get("Failed") );
-
-		return FALSE;
-	}
 
 	} else {
 
 		return FALSE;
 
 	}
+
+	&fct_update_first_tab;
 
 	return TRUE;
 }
@@ -4017,18 +4055,26 @@ sub fct_get_latest_tab_key {
 
 sub fct_imagemagick_perform {
 	my ( $function, $file, $data ) = @_;
-	my $image = Image::Magick->new;
+	my $image 	= Image::Magick->new;
+	my $result 	= undef;
 	$file = $shutter_hfunct->switch_home_in_file($file);
-	$image->ReadImage($file);
+	
+	$result = $image->ReadImage($file);
+  	$result =~ /(\d+)/;
+  	return $result if ($1);
 
 	if ( $function eq "reduce_colors" ) {
 		$data =~ /.*\(([0-9]*).*\)/;
 		$image->Quantize( colors => 2**$1 );
-		$image->WriteImage( filename => $file );
+		$result = $image->WriteImage( filename => $file );
+  		$result =~ /(\d+)/;
+		return $result if ($1);
 	} elsif ( $function eq "save" ) {
-		$image->WriteImage( filename => $data );
+		$result = $image->WriteImage( filename => $data );
+  		$result =~ /(\d+)/;
+		return $result if ($1);
 	}
-	return TRUE;
+	return FALSE;
 }
 
 sub fct_check_installed_programs {
@@ -4197,7 +4243,6 @@ sub fct_check_installed_plugins {
 						&& $plugins{$_}->{'name'}
 						&& $plugins{$_}->{'category'}
 						&& $plugins{$_}->{'tooltip'}
-						&& $plugins{$_}->{'ext'}
 						&& $plugins{$_}->{'lang'} )
 					{
 
@@ -4215,9 +4260,6 @@ sub fct_check_installed_plugins {
 						#tooltip
 						$plugins{$_}->{'tooltip'} = &fct_plugin_get_info( $plugins{$_}->{'binary'}, 'tip' );
 
-						#extensions
-						$plugins{$_}->{'ext'} = &fct_plugin_get_info( $plugins{$_}->{'binary'}, 'ext' );
-
 						#language (shell, perl etc.)
 						$plugins{$_}->{'lang'} = &fct_plugin_get_info( $plugins{$_}->{'binary'}, 'lang' );
 
@@ -4229,19 +4271,7 @@ sub fct_check_installed_plugins {
 					chomp( $plugins{$_}->{'name'} );
 					chomp( $plugins{$_}->{'category'} );
 					chomp( $plugins{$_}->{'tooltip'} );
-					chomp( $plugins{$_}->{'ext'} );
 					chomp( $plugins{$_}->{'lang'} );
-
-					#check if plugin can handle png and/or jpeg
-					$plugins{$_}->{'pixbuf_jpeg'} = 'gtk-no';
-					$plugins{$_}->{'pixbuf_png'}  = 'gtk-no';
-					$plugins{$_}->{'pixbuf_bmp'}  = 'gtk-no';
-					$plugins{$_}->{'pixbuf_jpeg'} = 'gtk-yes'
-						if ( $plugins{$_}->{'ext'} =~ /jpeg/ );
-					$plugins{$_}->{'pixbuf_png'} = 'gtk-yes'
-						if ( $plugins{$_}->{'ext'} =~ /png/ );
-					$plugins{$_}->{'pixbuf_bmp'} = 'gtk-yes'
-						if ( $plugins{$_}->{'ext'} =~ /bmp/ );
 
 					#pixbuf
 					$plugins{$_}->{'pixbuf'} = $plugins{$_}->{'binary'} . ".png"
@@ -4290,8 +4320,6 @@ sub fct_create_thumbnail_and_fileinfos {
 	my $uri    = shift;
 
 	print "Updating fileinfos for key: $key\n";
-
-
 
 		$session_screens{$key}->{'uri'}      = $uri if $uri;
 		$session_screens{$key}->{'short'}    = $session_screens{$key}->{'uri'}->extract_short_name;
@@ -4864,23 +4892,12 @@ sub fct_load_accounts_tree {
 sub fct_load_plugin_tree {
 
 	$effects_model = Gtk2::ListStore->new(
-		'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String',
-		'Glib::String',      'Glib::String', 'Glib::String'
+		'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String', 
+		'Glib::String', 'Glib::String', 'Glib::String', 
+		'Glib::String',
 	);
 	foreach ( sort keys %plugins ) {
 		if ( $plugins{$_}->{'binary'} ) {
-
-			#check if plugin can handle png and/or jpeg
-			$plugins{$_}->{'pixbuf_jpeg'} = 'gtk-no';
-			$plugins{$_}->{'pixbuf_png'}  = 'gtk-no';
-			$plugins{$_}->{'pixbuf_bmp'}  = 'gtk-no';
-			
-			$plugins{$_}->{'pixbuf_jpeg'} = 'gtk-yes'
-				if ( $plugins{$_}->{'ext'} =~ /jpeg/ );
-			$plugins{$_}->{'pixbuf_png'} = 'gtk-yes'
-				if ( $plugins{$_}->{'ext'} =~ /png/ );
-			$plugins{$_}->{'pixbuf_bmp'} = 'gtk-yes'
-				if ( $plugins{$_}->{'ext'} =~ /bmp/ );
 
 			#pixbuf
 			$plugins{$_}->{'pixbuf'} = $plugins{$_}->{'binary'} . ".png"
@@ -4900,10 +4917,8 @@ sub fct_load_plugin_tree {
 			$effects_model->set(
 				$effects_model->append,     
 				0, $plugins{$_}->{'pixbuf_object'}, 1, $plugins{$_}->{'name'},
-				2, $plugins{$_}->{'category'}, 3, $plugins{$_}->{'pixbuf_jpeg'},   
-				4, $plugins{$_}->{'pixbuf_png'}, 5, $plugins{$_}->{'pixbuf_bmp'},
-				6, $plugins{$_}->{'tooltip'},  7, $plugins{$_}->{'lang'},
-				8, $plugins{$_}->{'binary'}, 9, $_,
+				2, $plugins{$_}->{'category'}, 3, $plugins{$_}->{'tooltip'},  
+				4, $plugins{$_}->{'lang'}, 5, $plugins{$_}->{'binary'}, 6, $_,
 			);
 		} else {
 			print "\nWARNING: Plugin $_ is not configured properly, ignoring\n";
@@ -5043,7 +5058,7 @@ sub fct_set_model_plugins {
 	}
 
 	#icon
-	$effects_tree->set_tooltip_column(6)
+	$effects_tree->set_tooltip_column(3)
 		if Gtk2->CHECK_VERSION( 2, 11, 0 );
 	my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
 	$tv_clmn_pix_text->set_resizable(TRUE);
@@ -5072,33 +5087,6 @@ sub fct_set_model_plugins {
 	$tv_clmn_category_text->set_attributes( $renderer_category_effects, text => 2 );
 	$effects_tree->append_column($tv_clmn_category_text);
 
-	#jpeg
-	my $tv_clmn_jpeg_text = Gtk2::TreeViewColumn->new;
-	$tv_clmn_jpeg_text->set_resizable(TRUE);
-	$tv_clmn_jpeg_text->set_title("jpeg");
-	my $renderer_jpeg_effects = Gtk2::CellRendererPixbuf->new;
-	$tv_clmn_jpeg_text->pack_start( $renderer_jpeg_effects, FALSE );
-	$tv_clmn_jpeg_text->set_attributes( $renderer_jpeg_effects, stock_id => 3 );
-	$effects_tree->append_column($tv_clmn_jpeg_text);
-
-	#png
-	my $tv_clmn_png_text = Gtk2::TreeViewColumn->new;
-	$tv_clmn_png_text->set_resizable(TRUE);
-	$tv_clmn_png_text->set_title("png");
-	my $renderer_png_effects = Gtk2::CellRendererPixbuf->new;
-	$tv_clmn_png_text->pack_start( $renderer_png_effects, FALSE );
-	$tv_clmn_png_text->set_attributes( $renderer_png_effects, stock_id => 4 );
-	$effects_tree->append_column($tv_clmn_png_text);
-
-	#bmp
-	my $tv_clmn_bmp_text = Gtk2::TreeViewColumn->new;
-	$tv_clmn_bmp_text->set_resizable(TRUE);
-	$tv_clmn_bmp_text->set_title("bmp");
-	my $renderer_bmp_effects = Gtk2::CellRendererPixbuf->new;
-	$tv_clmn_bmp_text->pack_start( $renderer_bmp_effects, FALSE );
-	$tv_clmn_bmp_text->set_attributes( $renderer_bmp_effects, stock_id => 5 );
-	$effects_tree->append_column($tv_clmn_bmp_text);
-
 	#tooltip column
 	unless ( Gtk2->CHECK_VERSION( 2, 12, 0 ) ) {
 		my $tv_clmn_descr_text = Gtk2::TreeViewColumn->new;
@@ -5106,7 +5094,7 @@ sub fct_set_model_plugins {
 		$tv_clmn_descr_text->set_title( $d->get("Description") );
 		my $renderer_descr_effects = Gtk2::CellRendererText->new;
 		$tv_clmn_descr_text->pack_start( $renderer_descr_effects, FALSE );
-		$tv_clmn_descr_text->set_attributes( $renderer_descr_effects, text => 6 );
+		$tv_clmn_descr_text->set_attributes( $renderer_descr_effects, text => 3 );
 		$effects_tree->append_column($tv_clmn_descr_text);
 	}
 
@@ -5116,7 +5104,7 @@ sub fct_set_model_plugins {
 	$tv_clmn_lang_text->set_title( $d->get("Language") );
 	my $renderer_lang_effects = Gtk2::CellRendererText->new;
 	$tv_clmn_lang_text->pack_start( $renderer_lang_effects, FALSE );
-	$tv_clmn_lang_text->set_attributes( $renderer_lang_effects, text => 7 );
+	$tv_clmn_lang_text->set_attributes( $renderer_lang_effects, text => 4 );
 	$effects_tree->append_column($tv_clmn_lang_text);
 
 	#path
@@ -5125,7 +5113,7 @@ sub fct_set_model_plugins {
 	$tv_clmn_path_text->set_title( $d->get("Path") );
 	my $renderer_path_effects = Gtk2::CellRendererText->new;
 	$tv_clmn_path_text->pack_start( $renderer_path_effects, FALSE );
-	$tv_clmn_path_text->set_attributes( $renderer_path_effects, text => 8 );
+	$tv_clmn_path_text->set_attributes( $renderer_path_effects, text => 5 );
 	$effects_tree->append_column($tv_clmn_path_text);
 
 	return TRUE;
@@ -5415,8 +5403,8 @@ sub dlg_plugin {
 	foreach my $pkey ( sort keys %plugins ) {
 
 		#check if plugin allows current filetype
-		my $nfiles_ok += scalar grep($plugins{$pkey}->{'ext'} =~ /$session_screens{$_}->{'mime_type'}/, @file_to_plugin_keys);
-		next if scalar @file_to_plugin_keys > $nfiles_ok;
+		#~ my $nfiles_ok += scalar grep($plugins{$pkey}->{'ext'} =~ /$session_screens{$_}->{'mime_type'}/, @file_to_plugin_keys);
+		#~ next if scalar @file_to_plugin_keys > $nfiles_ok;
 		
 		if ( $plugins{$pkey}->{'binary'} ne "" ) {
 
@@ -5984,18 +5972,12 @@ UPDIALOG: while ($hosting_dialog) {
 
 					my $source_uri = Gnome2::VFS::URI->new ($file);
 					my $target_uri = Gnome2::VFS::URI->new ($places_fc->get_uri);
-					#~ my $target_filename_uri = Gnome2::VFS::URI->new ($places_fc->get_filename);
 					$target_uri = $target_uri->append_file_name($source_uri->extract_short_name);
-					#~ $target_filename_uri = $target_filename_uri->append_file_name($source_uri->extract_short_name);
 
 					print $source_uri->to_string . " - " . $target_uri->to_string."\n";
-					#~ print $source_uri->to_string . " - " . Gnome2::VFS->get_local_path_from_uri($target_filename_uri->to_string)."\n";
 					my $result;
 					unless($target_uri->exists){
-						#~ $target_uri->set_user_name ('web214');
-						#~ $target_uri->set_password ('jKC7Bvty');
 						$result = Gnome2::VFS::Xfer->uri ($source_uri, $target_uri, 'default', 'abort', 'replace', sub{ print Dumper @_; return sub { print "test\n";} });
-						#~ $result = Gnome2::VFS->move ($source_uri->to_string, Gnome2::VFS->get_local_path_from_uri($target_filename_uri->to_string), FALSE);
 					}else{
 						$result = 'error-file-exists';	
 					}
