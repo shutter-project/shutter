@@ -83,7 +83,7 @@ sub new {
 	#font
 	$self->{_font} = 'Sans Italic 16';
 
-	#help variables
+	#some globals
 	$self->{_last_item}               = undef;
 	$self->{_current_item}            = undef;
 	$self->{_current_new_item}        = undef;
@@ -309,9 +309,9 @@ sub setup_bottom_hbox {
 	#image button
 	my $image_label = Gtk2::Label->new( $d->get("Insert image") . ":" );
 	my $image_btn = Gtk2::MenuToolButton->new( undef, undef );
-	$image_btn->set_menu( $self->ret_objects_menu($image_btn, 'init') );
+	$image_btn->set_menu( $self->ret_objects_menu($image_btn) );
 
-	$image_btn->signal_connect( 'show-menu' => sub { my ($widget) = @_; $self->ret_objects_menu($widget) } );
+	#~ $image_btn->signal_connect( 'show-menu' => sub { my ($widget) = @_; $self->ret_objects_menu($widget, 'noinit') } );
 	$image_btn->signal_connect(
 		'clicked' => sub {
 			$self->{_canvas}->window->set_cursor($self->change_cursor_to_current_pixbuf());
@@ -325,6 +325,63 @@ sub setup_bottom_hbox {
 	$drawing_bottom_hbox->pack_start( $image_btn,   FALSE, FALSE, 5 );
 
 	return $drawing_bottom_hbox;
+}
+
+sub push_to_statusbar {
+	my $self = shift;
+	my $x = shift;
+	my $y = shift;
+	my $action = shift || 'none';
+
+	my $d = $self->{_shutter_common}->get_gettext;
+
+	my $status_text = int( $x ) . " x " . int( $y );
+		
+	if ( $self->{_current_mode} == 10 ) {
+
+		if($action eq 'resize'){
+			$status_text .= " ".$d->get("Click-Drag to scale (try Control to scale uniformly)");	
+		}
+		
+	} elsif ( $self->{_current_mode} == 20 ) {
+
+		$status_text .= " ".$d->get("Click to paint (try Control or Shift for a straight line)");
+		
+	} elsif ( $self->{_current_mode} == 30 ) {
+
+		$status_text .= " ".$d->get("Click-Drag to create a new straight line");
+
+	} elsif ( $self->{_current_mode} == 40 ) {
+
+		$status_text .= " ".$d->get("Click-Drag to create a new rectandle");
+
+	} elsif ( $self->{_current_mode} == 50 ) {
+
+		$status_text .= " ".$d->get("Click-Drag to create a new ellipse");
+
+	} elsif ( $self->{_current_mode} == 60 ) {
+
+		$status_text .= " ".$d->get("Click-Drag to add a new text area");
+
+	} elsif ( $self->{_current_mode} == 70 ) {
+
+		$status_text .= " ".$d->get("Click to censor (try Control or Shift for a straight line)");
+
+	} elsif ( $self->{_current_mode} == 80 ) {
+
+		$status_text .= " ".$d->get("Select an object to delete it from the canvas");
+
+	} elsif ( $self->{_current_mode} == 90 ) {
+
+		$status_text .= " ".$d->get("Delete all objects");
+
+	} 	
+
+	#update statusbar
+	$self->{_drawing_statusbar}->push( 0, $status_text );
+	
+	return TRUE;		
+
 }
 
 sub change_drawing_tool_cb {
@@ -699,53 +756,11 @@ sub save {
 	$loader->close;
 	my $pixbuf = $loader->get_pixbuf;
 
-	return $self->save_pixbuf_to_file($pixbuf, $self->{_filename}, $self->{_filetype});
+	#save pixbuf to file
+	my $pixbuf_save = Shutter::Pixbuf::Save->new( $self->{_shutter_common}, $self->{_drawing_window} );
+	return $pixbuf_save->save_pixbuf_to_file($pixbuf, $self->{_filename}, $self->{_filename}, $self->{_filetype});
 
 }
-
-sub save_pixbuf_to_file{
-	my $self = shift;
-	my $pixbuf = shift;
-	my $filename = shift;
-	my $filetype = shift;
-	my $quality = shift;
-
-	my $d = $self->{_shutter_common}->get_gettext;
-
-	eval {	
-		if ( $filetype =~ /jpeg/ ) {
-			$quality = '100' unless $quality;
-			$pixbuf->save( $filename, $filetype, quality => $quality );
-		} elsif ( $filetype =~ /png/ ) {
-			$quality = '9' unless $quality;
-			$pixbuf->save( $filename, $filetype, compression => $quality );
-		} elsif ( $filetype =~ /bmp/ ) {
-			$pixbuf->save( $filename, $filetype );
-		} else  {
-			$pixbuf->save( $filename, $filetype );			
-		}
-	};
-	if ($@) {
-
-		#parse filename
-		my ( $name, $folder, $type ) = fileparse( $filename, '\..*' );
-
-		#we already get translated error messaged back
-		my $response = $self->{_dialogs}->dlg_error_message( 
-			$d->get( sprintf( "Error while saving the image %s.", "'" . $name . "'" ) ),
-			$d->get( sprintf( "There was an error saving the image to %s.", "'" . $folder . "'" ) ),		
-			undef, undef, undef,
-			undef, undef, undef,
-			$@->message
-		);
-		return FALSE;
-
-	}
-	
-	return TRUE;
-	
-}
-
 
 #ITEM SIGNALS
 sub setup_item_signals {
@@ -802,9 +817,6 @@ sub event_item_on_motion_notify {
 	my ( $self, $item, $target, $ev ) = @_;
 
 	$self->adjust_rulers($ev);
-
-	#update statusbar
-	$self->{_drawing_statusbar}->push( -1, int( $ev->x ) . " x " . int( $ev->y ) );
 	
 	#autoscroll if enabled
 	if (   $self->{_autoscroll}
@@ -929,6 +941,8 @@ sub event_item_on_motion_notify {
 
 	#resizing
 	} elsif ( $item->{resizing} && $ev->state >= 'button1-mask' ) {
+
+		$self->{_current_mode_descr} = "resize";
 
 		my $curr_item = $self->{_current_item};
 		my $cursor = undef;
@@ -1085,6 +1099,25 @@ sub event_item_on_motion_notify {
 					
 			}
 		}
+		
+	}else {
+
+		if (   $item->isa('Goo::Canvas::Rect') ) {
+
+			#embedded item?
+			my $parent = $self->get_parent_item($item);
+			$item = $parent if $parent;
+
+			#resizing shape
+			unless ( exists $self->{_items}{$item} ) {
+				$self->push_to_statusbar( int( $ev->x ), int( $ev->y ), 'resize' );	
+			}else{
+				$self->push_to_statusbar( int( $ev->x ), int( $ev->y ) );				
+			}
+		}else{
+			$self->push_to_statusbar( int( $ev->x ), int( $ev->y ) );	
+		}
+
 	}
 
 	return TRUE;
@@ -1417,11 +1450,17 @@ sub event_item_on_button_press {
 
 			return TRUE if $item == $self->{_canvas_bg};
 
-			$self->clear_item_from_canvas($item);
+			#only real shapes can be deleted
+			#don't delete resize boxes or boundaries
+			if ( exists $self->{_items}{$item} ) {
+
+				$self->clear_item_from_canvas($item);
+					
+			}
 
 			$self->{_canvas}->window->set_cursor($cursor);
 
-			#MOVE AND SELECT
+		#MOVE AND SELECT
 		} elsif ( $self->{_current_mode_descr} eq "select" ) {
 
 			#			return TRUE if $item == $self->{_canvas_bg};
@@ -1552,7 +1591,7 @@ sub event_item_on_button_press {
 			|| $item->isa('Goo::Canvas::Polyline') )
 		{
 
-			print "Jaaa\n";
+			return TRUE if $item == $self->{_canvas_bg};
 
 			#embedded item?
 			my $parent = $self->get_parent_item($item);
@@ -2340,6 +2379,12 @@ sub event_item_on_button_release {
 
 				if (exists $self->{_items}{$nitem}{image}){
 					
+					#~ my ($maxw, $maxh) = Gtk2::Gdk::Display->get_default->get_maximal_cursor_size;
+					#~ $self->{_items}{$nitem}->set(
+						#~ 'width' => $maxw,
+						#~ 'height' => $maxh
+					#~ );
+
 					$self->{_items}{$nitem}->set(
 						'width' => $self->{_items}{$nitem}{orig_pixbuf}->get_width,
 						'height' => $self->{_items}{$nitem}{orig_pixbuf}->get_height
@@ -2413,10 +2458,28 @@ sub event_item_on_enter_notify {
 
 			$cursor = Gtk2::Gdk::Cursor->new('fleur');
 
+			#set cursor
+			if ( $self->{_current_mode_descr} eq "select" ) {
+				$self->{_canvas}->window->set_cursor($cursor);
+			} elsif ( $self->{_current_mode_descr} eq "clear" ) {
+				my $dicons = $self->{_shutter_common}->get_root . "/share/shutter/resources/icons/drawing_tool";
+				$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
+					Gtk2::Gdk::Display->get_default,
+					Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-eraser.png"),
+					Gtk2::IconSize->lookup('menu')
+				);
+				$self->{_canvas}->window->set_cursor($cursor);
+			}
+
 			#resizing shape
 		} else {
-			my $pattern = $self->create_color( 'red', 0.5 );
-			$item->set( 'fill-pattern' => $pattern );
+			
+			#don't change color when an action is already taking place
+			#e.g. resizing
+			if ( $self->{_current_mode_descr} eq "select" ) {
+				my $pattern = $self->create_color( 'red', 0.5 );
+				$item->set( 'fill-pattern' => $pattern );
+			}
 
 			#activate correct item if not activated yet
 			my $curr_item = $self->{_current_new_item} || $self->{_current_item};
@@ -2428,25 +2491,15 @@ sub event_item_on_enter_notify {
 			$self->handle_rects( 'hide',   $self->{_last_item} );
 			$self->handle_rects( 'update', $curr_item );
 
-			foreach ( keys %{ $self->{_items}{$curr_item} } ) {
-				if ( $item == $self->{_items}{$curr_item}{$_} ) {
-					$cursor = Gtk2::Gdk::Cursor->new($_);
-				}
-			}    #end determine cursor
+			if ( $self->{_current_mode_descr} eq "select" ) {
+				foreach ( keys %{ $self->{_items}{$curr_item} } ) {
+					if ( $item == $self->{_items}{$curr_item}{$_} ) {
+						$cursor = Gtk2::Gdk::Cursor->new($_);
+						$self->{_canvas}->window->set_cursor($cursor);
+					}
+				}    #end determine cursor
+			}
 
-		}
-
-		#set cursor
-		if ( $self->{_current_mode_descr} eq "select" ) {
-			$self->{_canvas}->window->set_cursor($cursor);
-		} elsif ( $self->{_current_mode_descr} eq "clear" ) {
-			my $dicons = $self->{_shutter_common}->get_root . "/share/shutter/resources/icons/drawing_tool";
-			$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
-				Gtk2::Gdk::Display->get_default,
-				Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-eraser.png"),
-				Gtk2::IconSize->lookup('menu')
-			);
-			$self->{_canvas}->window->set_cursor($cursor);
 		}
 
 	}
@@ -2682,7 +2735,6 @@ sub setup_uimanager {
 sub ret_objects_menu {
 	my $self   = shift;
 	my $button = shift;
-	my $step = shift;
 
 	my $menu_objects = Gtk2::Menu->new;
 
@@ -2696,46 +2748,35 @@ sub ret_objects_menu {
 		#parse filename
 		my ( $short, $folder, $type ) = fileparse( $filename, '\..*' );
 
-		eval {
+		#create pixbufs
+		my $orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($filename);
+		my $small_image = Gtk2::Image->new_from_pixbuf( $orig_pixbuf->scale_down_pixbuf (Gtk2::IconSize->lookup('menu')));
+		my $small_image_button = Gtk2::Image->new_from_pixbuf( $orig_pixbuf->scale_down_pixbuf (Gtk2::IconSize->lookup('menu')));
 
-			#create pixbufs
-			my $orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($filename);
-			my $small_image = Gtk2::Image->new_from_pixbuf( $orig_pixbuf->scale_simple (Gtk2::IconSize->lookup('menu'), 'bilinear') );
-			my $small_image_button = Gtk2::Image->new_from_pixbuf( $orig_pixbuf->scale_simple (Gtk2::IconSize->lookup('menu'), 'bilinear') );
+		#create items
+		my $new_item = Gtk2::ImageMenuItem->new_with_label($short);
+		$new_item->set_image($small_image);
 
-			#create items
-			my $new_item = Gtk2::ImageMenuItem->new_with_label($short);
-			$new_item->set_image($small_image);
+		#~ &fct_load_pixbuf_async ($small_image, $filename, $new_item);
 
-			#init
-			unless ( $button->get_icon_widget ) {
-				$button->set_icon_widget($small_image_button);
+		#init
+		unless ( $button->get_icon_widget ) {
+			$button->set_icon_widget($small_image_button);
+			$self->{_current_pixbuf} = $orig_pixbuf->copy;
+			$self->{_current_pixbuf_filename} = $filename;
+		}
+
+		$new_item->signal_connect(
+			'activate' => sub {
 				$self->{_current_pixbuf} = $orig_pixbuf->copy;
 				$self->{_current_pixbuf_filename} = $filename;
-				if ($step eq 'init'){
-					$button->show_all;
-					$menu_objects->show_all;
-					return $menu_objects;	
-				}
+				$button->set_icon_widget($small_image_button);
+				$button->show_all;
+				$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
 			}
+		);
 
-			$new_item->signal_connect(
-				'activate' => sub {
-					$self->{_current_pixbuf} = $orig_pixbuf->copy;
-					$self->{_current_pixbuf_filename} = $filename;
-					$button->set_icon_widget($small_image_button);
-					$button->show_all;
-					$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
-				}
-			);
-
-			$menu_objects->append($new_item);
-
-		};
-		if ($@) {
-			warn "ERROR: $_ : $@ \n\n";
-			next;
-		}
+		$menu_objects->append($new_item);
 
 	}
 
@@ -2811,6 +2852,85 @@ sub ret_objects_menu {
 
 	return $menu_objects;
 }
+
+#~ sub fct_load_pixbuf_async {
+#~ 
+	#~ print Dumper @_;
+#~ 
+#~ 
+	#~ my $image = shift;
+	#~ my $filename = shift;
+	#~ my $menu_item = shift;
+	#~ 
+	#~ my $loader = Gtk2::Gdk::PixbufLoader->new;
+	#~ my $handle = Gnome2::VFS::Async->open_uri (Gnome2::VFS::URI->new ($filename), 'read', 10, \&fct_open_async, $loader);	
+#~ 
+	#~ $loader->signal_connect('closed' => sub{
+		#~ print "closed\n";
+		#~ $image->set_from_pixbuf($loader->get_pixbuf);
+		#~ $menu_item->set_image($image);
+		#~ $image->show_all;
+		#~ $menu_item->show_all;
+#~ 
+	#~ });
+	#~ $loader->signal_connect('area-updated' => sub{
+		#~ print "updated\n";
+		#~ $image->set_from_pixbuf($loader->get_pixbuf);
+		#~ $image->show_all;
+		#~ $menu_item->set_image($image);
+		#~ $menu_item->show_all;
+#~ 
+	#~ });		
+	#~ 
+#~ }
+#~ 
+#~ sub fct_open_async {
+#~ 
+	#~ print Dumper @_;
+#~ 
+	#~ my $handle = shift;
+	#~ my $result = shift;
+	#~ my $loader = shift;
+	#~ 
+	#~ if($result eq 'ok'){
+		#~ $handle->read (10000, \&fct_read_async, $loader); 
+	#~ }else{
+		#~ print "Error!\n";
+		#~ $handle->close(\&fct_close_async, $loader);	
+#~ 
+	#~ }
+#~ }
+#~ 
+#~ sub fct_read_async {
+#~ 
+	#~ print Dumper @_;
+#~ 
+	#~ my $handle = shift;
+	#~ my $result = shift;
+	#~ my $buffer = shift;
+	#~ my $size = shift;
+	#~ my $size2 = shift;
+	#~ my $loader = shift;
+#~ 
+	#~ if($result eq 'ok'){
+		#~ $loader->write($buffer);
+		#~ $handle->read(10000, \&fct_read_async, $loader);	
+	#~ }else{
+		#~ $handle->close(\&fct_close_async, $loader);	
+	#~ }
+#~ }
+#~ 
+#~ sub fct_close_async {
+#~ 
+	#~ print Dumper @_;
+#~ 
+	#~ my $handle = shift;
+	#~ my $result = shift;
+	#~ my $loader = shift;
+	#~ 
+	#~ $loader->close;
+#~ 
+#~ }
 
 sub import_from_session {
 	my $self                 = shift;
@@ -2903,32 +3023,32 @@ sub paste_item {
 	#cut instead of copy
 	my $delete_after = shift;
 
-	print $item."\n";
+	#~ print $item."\n";
 
 	return FALSE unless $item;
 	
 	my $child = $self->get_child_item($item);
 	
 	if ( $item->isa('Goo::Canvas::Rect') && !$child ) {
-		print "Creating Rectangle...\n";
+		#~ print "Creating Rectangle...\n";
 		$self->create_rectangle( undef, $item );
 	}elsif ( $item->isa('Goo::Canvas::Polyline') && !$child ){
-		print "Creating Polyline...\n";
+		#~ print "Creating Polyline...\n";
 		$self->create_polyline( undef, $item );
 	}elsif ( $child->isa('Goo::Canvas::Polyline') && exists $self->{_items}{$item}{stroke_color} ){
-		print "Creating Line...\n";
+		#~ print "Creating Line...\n";
 		$self->create_line( undef, $item );
 	}elsif ( $child->isa('Goo::Canvas::Polyline') ){
-		print "Creating Censor...\n";
+		#~ print "Creating Censor...\n";
 		$self->create_censor( undef, $item );
 	}elsif ( $child->isa('Goo::Canvas::Ellipse') ){
-		print "Creating Ellipse...\n";
+		#~ print "Creating Ellipse...\n";
 		$self->create_ellipse( undef, $item);
 	}elsif ( $child->isa('Goo::Canvas::Text') ){
-		print "Creating Text...\n";
+		#~ print "Creating Text...\n";
 		$self->create_text( undef, $item );
 	}elsif ( $child->isa('Goo::Canvas::Image') ){
-		print "Creating Image...\n";
+		#~ print "Creating Image...\n";
 		$self->create_image( undef, $item );
 	}	
 

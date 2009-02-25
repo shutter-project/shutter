@@ -131,6 +131,13 @@ sub create_menu {
 
 	$self->{_menu_edit}->append( Gtk2::SeparatorMenuItem->new );
 
+	$self->{_menuitem_select_all} = Gtk2::ImageMenuItem->new_from_stock('gtk-select-all');
+	$self->{_menuitem_select_all}->add_accelerator( "activate", $accel_group, Gtk2::Accelerator->parse("<Control>A"), qw/visible/ );
+	$self->{_menuitem_select_all}->set_sensitive(FALSE);
+	$self->{_menu_edit}->append( $self->{_menuitem_select_all} );
+
+	$self->{_menu_edit}->append( Gtk2::SeparatorMenuItem->new );
+
 	$self->{_menuitem_quicks} = Gtk2::MenuItem->new_with_mnemonic( $d->get("_Quick select") );
 	$self->{_menu_edit}->append( $self->{_menuitem_quicks} );
 
