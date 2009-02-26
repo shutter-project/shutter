@@ -169,67 +169,94 @@ sub select_advanced {
 	$select_window->add($view);
 	$select_window->move( $self->{_root}->{x}, $self->{_root}->{y} );
 	$select_window->set_default_size( $self->{_root}->{w}, $self->{_root}->{h} );
+	$select_window->show_all;
 
-	Gtk2::Gdk->keyboard_grab( $self->{_root}, 0, Gtk2->get_current_event_time );
+	#all screen events are send to shutter
+	my $grab_counter = 0;
+	while ( !Gtk2::Gdk->pointer_is_grabbed && $grab_counter < 100 ) {
+		Gtk2::Gdk->pointer_grab(
+			$select_window->window,
+			1,
+			[   qw/
+					pointer-motion-mask
+					button-press-mask
+					button1-motion-mask
+					button-release-mask/
+			],
+			undef,
+			undef,
+			Gtk2->get_current_event_time
+		);
+		Gtk2::Gdk->keyboard_grab( $select_window->window, 1, Gtk2->get_current_event_time );
+		$grab_counter++;
+	}
 
-	Gtk2::Gdk::Event->handler_set(
-		sub {
-			my ( $event, $data ) = @_;
-			return 0 unless defined $event;
+	if ( Gtk2::Gdk->pointer_is_grabbed ) {
 
-			#quit on escape
-			if ( $event->type eq 'key-press' ) {
-				if ( $event->keyval == $Gtk2::Gdk::Keysyms{Escape} ) {
-					$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
-					$select_window->destroy;
-					Gtk2::Gdk->flush;
-				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Return} ) {
-					$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
-					$select_window->destroy;
-					Gtk2::Gdk->flush;
-					my $selection = $selector->get_selection;
+		Gtk2::Gdk::Event->handler_set(
+			sub {
+				my ( $event, $data ) = @_;
+				return 0 unless defined $event;
 
-					if ($selection) {
-						sleep 1 if $self->{_delay} < 1;
-						$output
-							= $self->get_pixbuf_from_drawable( $self->{_root}, $selection->x,
-							$selection->y, $selection->width, $selection->height,
-							$self->{_include_cursor},
-							$self->{_delay} );
-					} else {
-						$output = 0;
+				#quit on escape
+				if ( $event->type eq 'key-press' ) {
+					if ( $event->keyval == $Gtk2::Gdk::Keysyms{Escape} ) {
+						$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
+						$select_window->destroy;
+						Gtk2::Gdk->flush;
+					} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Return} ) {
+						$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
+						$select_window->destroy;
+						Gtk2::Gdk->flush;
+						my $selection = $selector->get_selection;
+
+						if ($selection) {
+							sleep 1 if $self->{_delay} < 1;
+							$output
+								= $self->get_pixbuf_from_drawable( $self->{_root}, $selection->x,
+								$selection->y, $selection->width, $selection->height,
+								$self->{_include_cursor},
+								$self->{_delay} );
+						} else {
+							$output = 0;
+						}
 					}
+				} else {
+					Gtk2->main_do_event($event);
 				}
-			} else {
-				Gtk2->main_do_event($event);
 			}
-		}
-	);
+		);
 
-	$select_window->show_all();
-	$select_window->window->set_type_hint('dock');
+		$select_window->show_all();
+		$select_window->window->set_type_hint('dock');
 
-	#see docs
-	#http://library.gnome.org/devel/gtk/stable/GtkWindow.html
-	#asks the window manager to move window to the given position.
-	#Window managers are free to ignore this;
-	#most window managers ignore requests for initial window positions
-	#(instead using a user-defined placement algorithm) and
-	#honor requests after the window has already been shown.
-	$select_window->move( $self->{_root}->{x}, $self->{_root}->{y} );
-	$select_window->set_size_request( $self->{_root}->{w}, $self->{_root}->{h} );
+		#see docs
+		#http://library.gnome.org/devel/gtk/stable/GtkWindow.html
+		#asks the window manager to move window to the given position.
+		#Window managers are free to ignore this;
+		#most window managers ignore requests for initial window positions
+		#(instead using a user-defined placement algorithm) and
+		#honor requests after the window has already been shown.
+		$select_window->move( $self->{_root}->{x}, $self->{_root}->{y} );
+		$select_window->set_size_request( $self->{_root}->{w}, $self->{_root}->{h} );
 
-	$select_window->window->move_resize(
-		$self->{_root}->{x},
-		$self->{_root}->{y},
-		$self->{_root}->{w},
-		$self->{_root}->{h}
-	);
+		$select_window->window->move_resize(
+			$self->{_root}->{x},
+			$self->{_root}->{y},
+			$self->{_root}->{w},
+			$self->{_root}->{h}
+		);
 
-	#finally focus it
-	$select_window->window->focus(time);
+		#finally focus it
+		$select_window->window->focus(time);
 
-	Gtk2->main();
+		Gtk2->main();
+
+	}else{
+		$output = 0;
+		$select_window->destroy;
+		$self->ungrab_pointer_and_keyboard( TRUE, TRUE, TRUE );		
+	}
 
 	return $output;
 }

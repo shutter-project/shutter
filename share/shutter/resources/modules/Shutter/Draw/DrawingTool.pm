@@ -140,8 +140,24 @@ sub show {
 	$self->load_settings;
 
 	#load file
-	$self->{_drawing_pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file( $self->{_filename} );
-
+	eval{
+		$self->{_drawing_pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file( $self->{_filename} );
+	};
+	if($@){
+		my $response = $self->{_dialogs}->dlg_error_message( 
+			$d->get( sprintf( "Error while opening image %s.", "'" . $filename . "'" ) ),
+			$d->get( "There was an error opening the file." ),
+			undef, undef, undef,
+			undef, undef, undef,
+			$@
+		);
+		
+		$self->{_drawing_window}->destroy if $self->{_drawing_window};
+		Gtk2->main_quit();
+		return FALSE;		
+	
+	}
+	
 	#create canvas
 	$self->{_canvas} = Goo::Canvas->new();
 	my $gray = Gtk2::Gdk::Color->parse('gray');
@@ -2749,34 +2765,49 @@ sub ret_objects_menu {
 		my ( $short, $folder, $type ) = fileparse( $filename, '\..*' );
 
 		#create pixbufs
-		my $orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($filename);
-		my $small_image = Gtk2::Image->new_from_pixbuf( $orig_pixbuf->scale_down_pixbuf (Gtk2::IconSize->lookup('menu')));
-		my $small_image_button = Gtk2::Image->new_from_pixbuf( $orig_pixbuf->scale_down_pixbuf (Gtk2::IconSize->lookup('menu')));
+		my $orig_pixbuf;
+		eval{
+			$orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($filename);		
+		};
+		unless($@){
 
-		#create items
-		my $new_item = Gtk2::ImageMenuItem->new_with_label($short);
-		$new_item->set_image($small_image);
+			my $small_image = Gtk2::Image->new_from_pixbuf( $orig_pixbuf->scale_down_pixbuf (Gtk2::IconSize->lookup('menu')));
+			my $small_image_button = Gtk2::Image->new_from_pixbuf( $orig_pixbuf->scale_down_pixbuf (Gtk2::IconSize->lookup('menu')));
 
-		#~ &fct_load_pixbuf_async ($small_image, $filename, $new_item);
+			#create items
+			my $new_item = Gtk2::ImageMenuItem->new_with_label($short);
+			$new_item->set_image($small_image);
 
-		#init
-		unless ( $button->get_icon_widget ) {
-			$button->set_icon_widget($small_image_button);
-			$self->{_current_pixbuf} = $orig_pixbuf->copy;
-			$self->{_current_pixbuf_filename} = $filename;
-		}
+			#~ &fct_load_pixbuf_async ($small_image, $filename, $new_item);
 
-		$new_item->signal_connect(
-			'activate' => sub {
+			#init
+			unless ( $button->get_icon_widget ) {
+				$button->set_icon_widget($small_image_button);
 				$self->{_current_pixbuf} = $orig_pixbuf->copy;
 				$self->{_current_pixbuf_filename} = $filename;
-				$button->set_icon_widget($small_image_button);
-				$button->show_all;
-				$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
 			}
-		);
 
-		$menu_objects->append($new_item);
+			$new_item->signal_connect(
+				'activate' => sub {
+					$self->{_current_pixbuf} = $orig_pixbuf->copy;
+					$self->{_current_pixbuf_filename} = $filename;
+					$button->set_icon_widget($small_image_button);
+					$button->show_all;
+					$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
+				}
+			);
+
+			$menu_objects->append($new_item);
+			
+		}else{
+			my $response = $self->{_dialogs}->dlg_error_message( 
+				$d->get( sprintf( "Error while opening image %s.", "'" . $filename . "'" ) ),
+				$d->get( "There was an error opening the file." ),
+				undef, undef, undef,
+				undef, undef, undef,
+				$@
+			);		
+		} 
 
 	}
 
@@ -2829,14 +2860,28 @@ sub ret_objects_menu {
 				#create pixbufs
 				my $small_image        = Gtk2::Image->new_from_stock( 'gtk-new', 'menu' );
 				my $small_image_button = Gtk2::Image->new_from_stock( 'gtk-new', 'menu' );
-				my $orig_pixbuf        = Gtk2::Gdk::Pixbuf->new_from_file($new_file);
-
-				$self->{_current_pixbuf}          = $orig_pixbuf->copy;
-				$self->{_current_pixbuf_filename} = $new_file;
-				$button->set_icon_widget($small_image_button);
-				$button->show_all;
-				$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
-
+				
+				my $orig_pixbuf;
+				eval{
+					$orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($new_file);	
+				};
+				#check if there is any error while loading this file
+				unless($@){
+					$self->{_current_pixbuf}          = $orig_pixbuf->copy;
+					$self->{_current_pixbuf_filename} = $new_file;
+					$button->set_icon_widget($small_image_button);
+					$button->show_all;
+					$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
+				}else{
+					my $response = $self->{_dialogs}->dlg_error_message( 
+						$d->get( sprintf( "Error while opening image %s.", "'" . $new_file. "'" ) ),
+						$d->get( "There was an error opening the file." ),
+						undef, undef, undef,
+						undef, undef, undef,
+						$@
+					);											
+				}
+				
 				$fs->destroy();
 			} else {
 				$fs->destroy();

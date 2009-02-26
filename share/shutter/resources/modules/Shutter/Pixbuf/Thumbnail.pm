@@ -72,7 +72,12 @@ sub get_thumbnail {
 		}		
 	}
 
-	return $pixbuf->scale_simple ($pixbuf->get_width*$rfactor, $pixbuf->get_height*$rfactor, 'bilinear');	
+	my $dest_width 	= $pixbuf->get_width*$rfactor; 
+	my $dest_height = $pixbuf->get_height*$rfactor;
+	$dest_width = 1 if $dest_width < 1;
+	$dest_height = 1 if $dest_height < 1;
+
+	return $pixbuf->scale_simple ($dest_width, $dest_height, 'bilinear');	
 	
 }
 

@@ -100,6 +100,8 @@ sub dlg_question_message {
 	if($detail_message){
 		my $expander = Gtk2::Expander->new_with_mnemonic ('Show more _details');	
 		my $detail_label = Gtk2::Label->new($detail_message);
+		$detail_label->set_width_chars (50);
+		$detail_label->set_line_wrap (TRUE);
 		$detail_label->set_alignment( 0, 0.5 );
 		$expander->add($detail_label);
 		my $detail_hbox = Gtk2::HBox->new();
@@ -149,6 +151,8 @@ sub dlg_error_message {
 	if($detail_message){
 		my $expander = Gtk2::Expander->new_with_mnemonic ('Show more _details');	
 		my $detail_label = Gtk2::Label->new($detail_message);
+		$detail_label->set_width_chars (50);
+		$detail_label->set_line_wrap (TRUE);
 		$detail_label->set_alignment( 0, 0.5 );
 		$expander->add($detail_label);
 		my $detail_hbox = Gtk2::HBox->new();
@@ -198,6 +202,8 @@ sub dlg_warning_message {
 	if($detail_message){
 		my $expander = Gtk2::Expander->new_with_mnemonic ('Show more _details');	
 		my $detail_label = Gtk2::Label->new($detail_message);
+		$detail_label->set_width_chars (50);
+		$detail_label->set_line_wrap (TRUE);
 		$detail_label->set_alignment( 0, 0.5 );
 		$expander->add($detail_label);
 		my $detail_hbox = Gtk2::HBox->new();
