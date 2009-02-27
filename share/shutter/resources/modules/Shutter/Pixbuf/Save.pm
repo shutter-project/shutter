@@ -138,13 +138,13 @@ sub use_imagemagick_to_save {
 	
 	#read file and evaluate result
 	$result = $image->ReadImage($file);
-  	$result =~ /(\d+)/;
-  	return $result if ($1);
+	warn "$result" if $result;      # print the error message
+  	return $result if $result;
 
 	#write file and evaluate result
 	$result = $image->WriteImage( filename => $new_file );
-  	$result =~ /(\d+)/;
-	return $result if ($1);
+	warn "$result" if $result;      # print the error message
+  	return $result if $result;
 	
 	return FALSE;
 }

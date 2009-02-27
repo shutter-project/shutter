@@ -31,8 +31,8 @@ my $language = " ";
 my $time = time;
 
 #create file
-system("touch ./gscrot_plugins_bash_perl.pot");
-system("touch ./gscrot_plugins_bash_bash.pot");
+system("touch ./shutter-plugins-perl.pot");
+system("touch ./shutter-plugins-bash.pot");
 
 #read files to translate
 open( LIST, "./to_translate_bash" ) or die $!;
@@ -79,10 +79,10 @@ foreach my $file (@translate_files) {
 	close FILE_TMP or die $!;
 
 	if ( $language eq "--language=Perl" ) {
-		system("xgettext ./translate_tmp $language -j -o ./gscrot_plugins_bash_perl.pot");
+		system("xgettext ./translate_tmp $language -j -o ./shutter-plugins-perl.pot");
 	} else {
 		system(
-			"bash --dump-po-strings ./translate_tmp | xgettext -L PO -j -o ./gscrot_plugins_bash_bash.pot - "
+			"bash --dump-po-strings ./translate_tmp | xgettext -L PO -j -o ./shutter-plugins-bash.pot - "
 		);
 	}
 	unlink("./translate_tmp");
@@ -92,9 +92,10 @@ foreach my $file (@translate_files) {
 
 #concatenate the files
 system(
-	"msgcat ./gscrot_plugins_bash_bash.pot ./gscrot_plugins_bash_perl.pot > ./gscrot_plugins_bash_$time.pot"
+	"msgcat ./shutter-plugins-bash.pot ./shutter-plugins-perl.pot > ./shutter-plugins-$time.pot"
 );
 
 #delete temp files
-unlink("./gscrot_plugins_bash_perl.pot");
-unlink("./gscrot_plugins_bash_bash.pot");
+unlink("./shutter-plugins-perl.pot");
+unlink("./shutter-plugins-bash.pot");
+

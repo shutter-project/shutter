@@ -154,12 +154,7 @@ sub create_menu {
 	#end edit
 	
 	#actions
-	#maybe lib is not installed
-	eval { require Goo::Canvas };
-	if ($@) {
-		$self->{_menuitem_draw}->set_sensitive(FALSE);
-	}
-
+	
 	$self->{_menuitem_actions} = Gtk2::MenuItem->new_with_mnemonic( $d->get("_Screenshot") );
 	#~ $self->{_menuitem_actions}->set_submenu( $self->{_menu_actions} );
 	$self->{_menuitem_actions}->set_submenu( $self->fct_ret_actions_menu( $accel_group, $d, $shutter_root ) );
@@ -168,6 +163,7 @@ sub create_menu {
 	#end actions
 	
 	#session
+	
 	$self->{_menu_session} = Gtk2::Menu->new();
 
 	$self->{_menuitem_back} = Gtk2::ImageMenuItem->new_from_stock('gtk-go-back');
@@ -193,7 +189,9 @@ sub create_menu {
 	$self->{_menubar}->append( $self->{_menuitem_session} );
 
 	#end session
+	
 	#help
+	
 	$self->{_menu_help} = Gtk2::Menu->new();
 
 	$self->{_menuitem_question} = Gtk2::ImageMenuItem->new( $d->get("Get Help Online ...") );

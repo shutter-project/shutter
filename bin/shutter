@@ -80,7 +80,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 3;
-use constant REV                	=> "Rev.364";
+use constant REV                	=> "Rev.365";
 use constant PPA_VERSION         	=> "ppa4";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.70";
@@ -684,15 +684,14 @@ $scale_box->pack_start( $scale,       TRUE,  TRUE, 0 );
 my $combobox_type = Gtk2::ComboBox->new_text;
 my ( $int_png, $int_jpeg, $int_bmp ) = ( 0, 0, 0 );
 my $format_counter = 0;
+
 foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
 	if (   $_->{name} eq "jpeg"
 		|| $_->{name} eq "png"
 		|| $_->{name} eq "bmp" )
 	{
 		$combobox_type->append_text( $_->{name} . " - " . $_->{description} );
-
-		$format_counter++;
-
+		
 		#a little ugly here, maybe the values are in alternative order on several machine...
 		#just remember the number when appending, so we can set png as default for example
 		if ( $_->{name} eq "jpeg" ) {
@@ -702,18 +701,37 @@ foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
 		} elsif ( $_->{name} eq "bmp" ) {
 			$int_bmp = $format_counter;
 		}
+
+		$format_counter++;
+
 	}
 }
 $combobox_type->signal_connect( 'changed' => \&evt_value_changed, 'type_changed' );
 
 if ( defined $settings_xml->{'general'}->{'filetype'} ) {
-	$combobox_type->set_active( $settings_xml->{'general'}->{'filetype'} );
+	
+	#migration from gscrot to shutter
+	#maybe we can drop this in future releases
+	# 0 := jpeg
+	# 1 := png
+	unless(defined $settings_xml->{'general'}->{'app_version'}){
+		if($settings_xml->{'general'}->{'filetype'} == 0){
+			$combobox_type->set_active($int_jpeg);			
+		}elsif($settings_xml->{'general'}->{'filetype'} == 1){
+			$combobox_type->set_active($int_png);		
+		}
+	
+	#shutter
+	}else{
+		$combobox_type->set_active($settings_xml->{'general'}->{'filetype'});	
+	}
+
 } else {
 
 	#we will try to set a default value in this order
 	foreach ( @{ [ $int_png, $int_jpeg, $int_bmp ] } ) {
 		if ( $_ > 0 ) {
-			$combobox_type->set_active( $_ - 1 );
+			$combobox_type->set_active( $_ );
 			last;
 		}
 	}
@@ -1888,14 +1906,14 @@ sub evt_about {
 	}	
 	close(GPL);
 	
-	my $all_trans = "";	
-	open( TRANSCREDITS, "$shutter_root/share/shutter/resources/credits/trans" )
-		or die $!;
-	while(my $trans = <TRANSCREDITS>){
-		utf8::decode $trans;
-		$all_trans .= $trans;	
-	}
-	close(TRANSCREDITS);
+	#~ my $all_trans = "";	
+	#~ open( TRANSCREDITS, "$shutter_root/share/shutter/resources/credits/trans" )
+		#~ or die $!;
+	#~ while(my $trans = <TRANSCREDITS>){
+		#~ utf8::decode $trans;
+		#~ $all_trans .= $trans;	
+	#~ }
+	#~ close(TRANSCREDITS);
 
 	my $all_dev = "";
 	open( DEVCREDITS, "$shutter_root/share/shutter/resources/credits/dev" )
@@ -1931,7 +1949,8 @@ sub evt_about {
 	$about->set_email_hook( sub { $shutter_hfunct->gnome_open_mail(@_) } );
 	$about->set_authors( $all_dev );
 	$about->set_artists( $all_art );
-	$about->set_translator_credits($all_trans);
+	#~ $about->set_translator_credits($all_trans);
+	$about->set_translator_credits($d->get("translator-credits"));
 	$about->set_copyright($all_hint);
 	$about->set_license($all_gpl);
 	$about->set_comments(SHUTTER_VERSION_FULL);
@@ -2052,13 +2071,16 @@ sub evt_iconview_button_press {
 			$menuitem->set_sensitive(TRUE);
 			if($menuitem->get_name eq 'item-reopen'){
 				$menuitem->set_submenu(&fct_ret_program_menu);
-				#~ $menuitem->signal_connect( 'select', sub { my $widget = shift; $widget->set_submenu(&fct_ret_program_menu($key)) } );				
 			}elsif($menuitem->get_name eq 'item-rename'){
 				$menuitem->signal_connect( 'activate', \&fct_rename);				
 			}elsif($menuitem->get_name eq 'item-upload'){
 				$menuitem->signal_connect( 'activate', \&fct_upload);			
 			}elsif($menuitem->get_name eq 'item-draw'){
-				$menuitem->signal_connect( 'activate', \&fct_draw);			
+				$menuitem->signal_connect( 'activate', \&fct_draw);	
+				#maybe lib is not installed
+				unless ($goocanvas) {
+					$menuitem->set_sensitive(FALSE);
+				}		
 			}elsif($menuitem->get_name eq 'item-plugin'){
 				$menuitem->signal_connect( 'activate', \&fct_plugin);				
 			}	
@@ -2096,6 +2118,11 @@ sub fct_update_menu {
 	$shutter_menu->{_menuitem_rename}->set_sensitive($n_items);
 	$shutter_menu->{_menuitem_upload}->set_sensitive($n_items);
 	$shutter_menu->{_menuitem_draw}->set_sensitive($n_items);
+	#maybe lib is not installed
+	unless ($goocanvas) {
+		$shutter_menu->{_menuitem_draw}->set_sensitive(FALSE);
+	}		
+
 	$shutter_menu->{_menuitem_plugin}->set_sensitive($n_items);
 	$shutter_menu->{_menuitem_save_as}->set_sensitive($n_items);
 	$shutter_menu->{_menuitem_pagesetup}->set_sensitive($n_items);
@@ -3790,7 +3817,7 @@ sub fct_open_with_program {
 
 	if ($exec_call) {
 		foreach ( split /;/, $exec_call ) {
-			print Dumper $_ . " &";
+			print Dumper $_ . " &" if $shutter_common->get_debug;
 			system( $_ . " &" );
 		}
 
@@ -4209,20 +4236,16 @@ sub fct_imagemagick_perform {
 	$file = $shutter_hfunct->switch_home_in_file($file);
 	
 	$result = $image->ReadImage($file);
-  	$result =~ /(\d+)/;
-  	return $result if ($1);
+	warn "$result" if $result;      # print the error message
+  	return $result if $result;
 
 	if ( $function eq "reduce_colors" ) {
-		$data =~ /.*\(([0-9]*).*\)/;
 		$image->Quantize( colors => 2**$1 );
 		$result = $image->WriteImage( filename => $file );
-  		$result =~ /(\d+)/;
-		return $result if ($1);
-	} elsif ( $function eq "save" ) {
-		$result = $image->WriteImage( filename => $data );
-  		$result =~ /(\d+)/;
-		return $result if ($1);
-	}
+		warn "$result" if $result;      # print the error message
+  		return $result if $result;
+	} 
+	
 	return FALSE;
 }
 

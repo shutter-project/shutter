@@ -7,19 +7,25 @@
 ../bin/shutter
 
 #modules
-../share/shutter/resources/modules/Shutter/App/Common.pm
-../share/shutter/resources/modules/Shutter/App/HelperFunctions.pm
-../share/shutter/resources/modules/Shutter/App/SimpleDialogs.pm
+../share/shutter/resources/modules/Shutter/Upload/FTP.pm
 ../share/shutter/resources/modules/Shutter/Upload/ImageShack.pm
 ../share/shutter/resources/modules/Shutter/Upload/UbuntuPics.pm
 ../share/shutter/resources/modules/Shutter/Upload/ImageBanana.pm
-../share/shutter/resources/modules/Shutter/Upload/FTP.pm
-../share/shutter/resources/modules/Shutter/Draw/DrawingTool.pm
+../share/shutter/resources/modules/Shutter/Pixbuf/Save.pm
+../share/shutter/resources/modules/Shutter/Pixbuf/Thumbnail.pm
 ../share/shutter/resources/modules/Shutter/Screenshot/Window.pm
 ../share/shutter/resources/modules/Shutter/Screenshot/SelectorSimple.pm
-../share/shutter/resources/modules/Shutter/Screenshot/SelectorAdvanced.pm
 ../share/shutter/resources/modules/Shutter/Screenshot/Main.pm
 ../share/shutter/resources/modules/Shutter/Screenshot/Web.pm
+../share/shutter/resources/modules/Shutter/Screenshot/SelectorAdvanced.pm
 ../share/shutter/resources/modules/Shutter/Screenshot/Workspace.pm
+../share/shutter/resources/modules/Shutter/Draw/DrawingTool.pm
+../share/shutter/resources/modules/Shutter/App/Menu.pm
+../share/shutter/resources/modules/Shutter/App/Common.pm
+../share/shutter/resources/modules/Shutter/App/Toolbar.pm
+../share/shutter/resources/modules/Shutter/App/HelperFunctions.pm
+../share/shutter/resources/modules/Shutter/App/SimpleDialogs.pm
+../share/shutter/resources/modules/File/Copy/Recursive.pm
+../share/shutter/resources/modules/Proc/Simple.pm
 
 #End of Listing
