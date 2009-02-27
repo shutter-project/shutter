@@ -145,8 +145,8 @@ sub show {
 	};
 	if($@){
 		my $response = $self->{_dialogs}->dlg_error_message( 
-			$d->get( sprintf( "Error while opening image %s.", "'" . $filename . "'" ) ),
-			$d->get( "There was an error opening the file." ),
+			sprintf( $d->get("Error while opening image %s."), "'" . $filename . "'"),
+			$d->get( "There was an error opening the image." ),
 			undef, undef, undef,
 			undef, undef, undef,
 			$@
@@ -369,7 +369,7 @@ sub push_to_statusbar {
 
 	} elsif ( $self->{_current_mode} == 40 ) {
 
-		$status_text .= " ".$d->get("Click-Drag to create a new rectandle");
+		$status_text .= " ".$d->get("Click-Drag to create a new rectangle");
 
 	} elsif ( $self->{_current_mode} == 50 ) {
 
@@ -2801,8 +2801,8 @@ sub ret_objects_menu {
 			
 		}else{
 			my $response = $self->{_dialogs}->dlg_error_message( 
-				$d->get( sprintf( "Error while opening image %s.", "'" . $filename . "'" ) ),
-				$d->get( "There was an error opening the file." ),
+				sprintf( $d->get("Error while opening image %s."), "'" . $filename . "'" ),
+				$d->get( "There was an error opening the image." ),
 				undef, undef, undef,
 				undef, undef, undef,
 				$@
@@ -2874,8 +2874,8 @@ sub ret_objects_menu {
 					$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
 				}else{
 					my $response = $self->{_dialogs}->dlg_error_message( 
-						$d->get( sprintf( "Error while opening image %s.", "'" . $new_file. "'" ) ),
-						$d->get( "There was an error opening the file." ),
+						sprintf( $d->get("Error while opening image %s."), "'" . $new_file. "'"),
+						$d->get( "There was an error opening the image." ),
 						undef, undef, undef,
 						undef, undef, undef,
 						$@

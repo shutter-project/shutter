@@ -80,7 +80,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 3;
-use constant REV                	=> "Rev.365";
+use constant REV                	=> "Rev.366";
 use constant PPA_VERSION         	=> "ppa4";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.70";
@@ -639,7 +639,7 @@ my $filename = Gtk2::Entry->new;
 if ( defined $settings_xml->{'general'}->{'filename'} ) {
 	$filename->set_text( $settings_xml->{'general'}->{'filename'} );
 } else {
-	$filename->set_text("screenshot_\%NN");
+	$filename->set_text("screenshot_\%NNN");
 }
 my $filename_label = Gtk2::Label->new( $shutter_common->get_gettext->get("Filename") . ":" );
 $tooltips->set_tip(
@@ -884,7 +884,7 @@ if ( defined $settings_xml->{'general'}->{'autohide'} ) {
 } else {
 	$hide_active->set_active(TRUE);
 }
-$tooltips->set_tip( $hide_active, $shutter_common->get_gettext->get("Automatically hide Shutter Window when taking a screenshot") );
+$tooltips->set_tip( $hide_active, $shutter_common->get_gettext->get("Autohide Shutter Window when taking a screenshot") );
 $autocopy_active->signal_connect(
 	'toggled' => \&evt_behavior_handle,
 	'autocopy_toggled'
@@ -2436,6 +2436,11 @@ sub fct_integrate_screenshot_in_notebook {
 		$session_screens{$key}->{'image'}->{'aspect_ratio'}
 			= $session_screens{$key}->{'image'}->{'current_width'} / $session_screens{$key}->{'image'}->{'current_height'};
 
+		#and finally set the signal handler to handle expose-events
+		#dynamically resize the preview image for each tab 
+		$session_screens{$key}->{'image_handler'} = $session_screens{$key}->{'image'}->signal_connect( 'expose-event', \&fct_resize_thumb, $key );
+
+
 		#setup a filemonitor, so we get noticed if the file changed
 		&fct_add_file_monitor($key);
 	}
@@ -2596,7 +2601,7 @@ sub fct_create_tab {
 		#		$session_screens{$key}->{'image_handler'} = $session_screens{$key}->{'image'}->signal_connect( 'expose-event', \&fct_resize_thumb, $key );
 
 		$session_screens{$key}->{'image'} = Gtk2::Image->new();
-		$session_screens{$key}->{'image_handler'} = $session_screens{$key}->{'image'}->signal_connect( 'expose-event', \&fct_resize_thumb, $key );
+		#~ $session_screens{$key}->{'image_handler'} = $session_screens{$key}->{'image'}->signal_connect( 'expose-event', \&fct_resize_thumb, $key );
 
 		#packing
 		my $tab_infos_sizegroup = Gtk2::SizeGroup->new('vertical');
@@ -3264,7 +3269,7 @@ sub fct_open_files {
 
 		#do the real work
 		if(&fct_integrate_screenshot_in_notebook( Gnome2::VFS::URI->new ($new_file), undef )){
-			&dlg_status_message( 1, $new_file . " " . $d->get("loaded") );	
+			&dlg_status_message( 1, $new_file . " " . $d->get("opened") );	
 		}
 	}
 	$open_dialog->response('ok');
@@ -4093,12 +4098,8 @@ sub fct_save_as {
 				$replace_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'button' ) );
 
 				my $response = $shutter_dialog->dlg_warning_message(
-					$d->get(
-						sprintf(
-							"The image already exists in %s. Replacing it will overwrite its contents.", "'" . $folder . "'"
-						)
-					),
-					$d->get( sprintf( "An image named %s already exists. Do you want to replace it?", "'" . $short.$ext . "'" ) ),
+					sprintf( $d->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $folder . "'"),
+					sprintf( $d->get( "An image named %s already exists. Do you want to replace it?"), "'" . $short.$ext . "'" ),
 					undef, undef, undef,
 					$replace_btn, undef, undef
 				);
@@ -4328,7 +4329,7 @@ sub fct_get_next_filename {
 		unless ($result eq 'ok'){
 			
 			my $response = $shutter_dialog->dlg_error_message( 
-				$d->get( sprintf( "Error while opening directory %s.", "'" . $folder. "'" ) ),
+				sprintf( $d->get( "Error while opening directory %s."), "'" . $folder. "'" ),
 				$d->get( "There was an error determining the filename." ),
 				undef, undef, undef,
 				undef, undef, undef,
@@ -4617,21 +4618,6 @@ sub fct_create_thumbnail_and_fileinfos {
 				#recognized otherwise
 				$session_screens{$key}->{'mtime'} = 0;
 				next;
-
-				my $response = $shutter_dialog->dlg_error_message( 
-					$d->get( sprintf( "Error while opening image %s.", "'" . $session_screens{$key}->{'long'} . "'" ) ),
-					$d->get( "There was an error opening the file." ),
-					undef, undef, undef,
-					undef, undef, undef,
-					$@
-				);	
-		
-				#delete page and hash entry
-				if($session_screens{$key}->{'tab_child'}){
-					$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
-				}
-				
-				delete $session_screens{$key};			
 			
 			}
 
@@ -4642,6 +4628,22 @@ sub fct_create_thumbnail_and_fileinfos {
 			return TRUE;	
 		}
 	}
+
+	#could not load the file => show an error message
+	my $response = $shutter_dialog->dlg_error_message( 
+		sprintf ( $d->get(  "Error while opening image %s." ), "'" . $session_screens{$key}->{'long'} . "'" ) ,
+		$d->get( "There was an error opening the image." ),
+		undef, undef, undef,
+		undef, undef, undef,
+		$@
+	);	
+
+	#delete page and hash entry
+	if($session_screens{$key}->{'tab_child'}){
+		$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
+	}
+	
+	delete $session_screens{$key};	
 	
 	return FALSE;
 	
@@ -5524,7 +5526,7 @@ sub dlg_rename {
 
 	$input_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-dialog-question', 'dialog' ) );
 
-	$input_dialog->set( 'text' => $d->get( sprintf( "Rename image %s", "'$session_screens{$key}->{'short'}'" ) ) );
+	$input_dialog->set( 'text' => sprintf( $d->get( "Rename image %s"), "'$session_screens{$key}->{'short'}'" ) );
 
 	$input_dialog->set( 'secondary-text' => $d->get("New filename") . ": " );
 
@@ -5581,12 +5583,8 @@ sub dlg_rename {
 				$replace_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'button' ) );
 
 				my $response = $shutter_dialog->dlg_warning_message(
-					$d->get(
-						sprintf(
-							"The image already exists in %s. Replacing it will overwrite its contents.", "'" . $new_uri->extract_dirname . "'"
-						)
-					),
-					$d->get( sprintf( "An image named %s already exists. Do you want to replace it?", "'" . $new_uri->extract_short_name . "'" ) ),
+					sprintf( $d->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $new_uri->extract_dirname . "'"),
+					sprintf( $d->get( "An image named %s already exists. Do you want to replace it?"), "'" . $new_uri->extract_short_name . "'"),
 					undef, undef, undef,
 					$replace_btn, undef, undef
 				);
@@ -6250,12 +6248,8 @@ UPDIALOG: while ($hosting_dialog) {
 						}
 
 						my $response = $shutter_dialog->dlg_warning_message(
-							$d->get(
-								sprintf(
-									"The image already exists in %s. Replacing it will overwrite its contents.", "'" . $target_path ."'"
-								)
-							),
-							$d->get( sprintf( "An image named %s already exists. Do you want to replace it?", "'" . $target_uri->extract_short_name . "'" ) ),
+							sprintf( $d->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $target_path ."'"),
+							sprintf( $d->get(  "An image named %s already exists. Do you want to replace it?"), "'" . $target_uri->extract_short_name . "'" ),
 							$d->get("Skip all"), $d->get("Skip"),
 							undef,
 							$replace_btn,
@@ -6345,8 +6339,8 @@ sub dlg_upload_error_message_gnome_vfs {
 	}
 
 	my $response = $shutter_dialog->dlg_warning_message( 
-		$d->get( sprintf( "Error while copying the image %s.", "'" . $target_uri->extract_short_name . "'" ) ),
-		$d->get( sprintf( "There was an error copying the image into %s.", "'" . $target_path . "'" ) ),
+		sprintf( $d->get(  "Error while copying the image %s."), "'" . $target_uri->extract_short_name . "'"),
+		sprintf( $d->get(  "There was an error copying the image into %s."), "'" . $target_path . "'" ),
 		$d->get("Skip all"), 
 		$d->get("Skip"),
 		'gtk-redo',
@@ -6580,7 +6574,7 @@ sub dlg_profile_name {
 
 			my $response = $shutter_dialog->dlg_warning_message(
 				$d->get("Replacing it will overwrite its contents."),
-				$d->get( sprintf( "A profile named %s already exists. Do you want to replace it?", "'" . $entered_name . "'" ) ),
+				sprintf( $d->get("A profile named %s already exists. Do you want to replace it?"), "'" . $entered_name . "'"),
 				undef, undef, undef,
 				$replace_btn, undef, undef
 			);

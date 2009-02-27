@@ -110,8 +110,8 @@ sub save_pixbuf_to_file {
 
 		#nice error dialog, more detailed messages are shown with a gtk2 expander
 		my $response = $self->{_dialog}->dlg_error_message( 
-			$d->get( sprintf( "Error while saving the image %s.", "'" . $name.$type . "'" ) ),
-			$d->get( sprintf( "There was an error saving the image to %s.", "'" . $folder . "'" ) ),		
+			sprintf( $d->get("Error while saving the image %s."), "'" . $name.$type . "'"),
+			sprintf( $d->get("There was an error saving the image to %s."), "'" . $folder . "'"),		
 			undef, undef, undef,
 			undef, undef, undef,
 			$detailed_message
