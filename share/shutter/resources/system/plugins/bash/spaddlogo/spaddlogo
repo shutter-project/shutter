@@ -7,7 +7,7 @@ TEXTDOMAIN=shutter-plugins
 TEXTDOMAINDIR=$SHUTTER_INTL
 PLUGIN_NAME=$"Shutter branding"
 PLUGIN_SORT=$"effect"
-PLUGIN_TIP=$"polaroid whith Shutter logo and the name of the picture as subtitle"
+PLUGIN_TIP=$"polaroid with Shutter logo and the name of the picture as subtitle"
 PLUGIN_EXT="image/png"
 
 if [[ "${1}" = "name" ]];then

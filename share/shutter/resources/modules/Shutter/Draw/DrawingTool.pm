@@ -131,8 +131,9 @@ sub show {
 		$self->{_drawing_window}->set_default_size( $self->{_root}->{w} - 100, $self->{_root}->{h} - 100 );
 	}
 
-	#dialogs
+	#dialogs and thumbnail generator
 	$self->{_dialogs} = Shutter::App::SimpleDialogs->new( $self->{_drawing_window} );
+	$self->{_thumbs}  = Shutter::Pixbuf::Thumbnail->new( $self->{_shutter_common} );
 
 	$self->{_uimanager} = $self->setup_uimanager();
 
@@ -1580,7 +1581,7 @@ sub event_item_on_button_press {
 			if ( exists $self->{_items}{$item} ) {
 
 				my $child = $self->get_child_item($item);
-				print $child."\n";
+				#~ print $child."\n";
 				if ($child) {
 					$item = $child;
 				} else {
@@ -2772,7 +2773,8 @@ sub ret_objects_menu {
 		unless($@){
 
 			my $small_image = Gtk2::Image->new_from_pixbuf( $orig_pixbuf->scale_down_pixbuf (Gtk2::IconSize->lookup('menu')));
-			my $small_image_button = Gtk2::Image->new_from_pixbuf( $orig_pixbuf->scale_down_pixbuf (Gtk2::IconSize->lookup('menu')));
+			#~ my $small_image_button = Gtk2::Image->new_from_pixbuf( $orig_pixbuf->scale_down_pixbuf (Gtk2::IconSize->lookup('menu')));
+			my $small_image_button = Gtk2::Image->new_from_pixbuf( $small_image->get_pixbuf );
 
 			#create items
 			my $new_item = Gtk2::ImageMenuItem->new_with_label($short);
@@ -2982,40 +2984,58 @@ sub import_from_session {
 	my $button               = shift;
 	my $menu_session_objects = Gtk2::Menu->new;
 
+	my $d = $self->{_shutter_common}->get_gettext;
+
 	my %import_hash = %{ $self->{_import_hash} };
 
 	foreach my $key ( sort keys %import_hash ) {
 
-		#create pixbufs
-		my $small_image        = Gtk2::Image->new_from_pixbuf( 
-			Gtk2::Gdk::Pixbuf->new_from_file_at_scale($import_hash{$key}->{'long'}, 
-			Gtk2::IconSize->lookup ('menu'), TRUE)
-		);
-		my $small_image_button       = Gtk2::Image->new_from_pixbuf( 
-			Gtk2::Gdk::Pixbuf->new_from_file_at_scale($import_hash{$key}->{'long'}, 
-			Gtk2::IconSize->lookup ('menu'), TRUE)
-		);
-	
-		my $orig_pixbuf        = Gtk2::Gdk::Pixbuf->new_from_file( $import_hash{$key}->{'long'} );
+		my $orig_pixbuf;
+		eval{
+			$orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $import_hash{$key}->{'long'} );
+		};
+		unless($@){
 
-		my $screen_menu_item = Gtk2::ImageMenuItem->new_with_label( $import_hash{$key}->{'short'} );
-		$screen_menu_item->set_image($small_image);
+			#try to generate a new thumbnail
+			my $thumb = $self->{_thumbs}->get_thumbnail(
+				$import_hash{$key}->{'uri'}->to_string,
+				$import_hash{$key}->{'mime_type'},
+				$import_hash{$key}->{'mtime'},
+				0.2
+			);			
 
-		#set sensitive == FALSE if image eq current file
-		$screen_menu_item->set_sensitive(FALSE)
-			if $import_hash{$key}->{'long'} eq $self->{_filename};
+			my $small_image = Gtk2::Image->new_from_pixbuf( $thumb );
+			#~ my $small_image_button = Gtk2::Image->new_from_pixbuf( $orig_pixbuf->scale_down_pixbuf (Gtk2::IconSize->lookup('menu')));
+			my $small_image_button = Gtk2::Image->new_from_pixbuf( $small_image->get_pixbuf );
 
-		$screen_menu_item->signal_connect(
-			'activate' => sub {
-				$self->{_current_pixbuf}          = $orig_pixbuf->copy;
-				$self->{_current_pixbuf_filename} = $import_hash{$key}->{'long'};
-				$button->set_icon_widget($small_image_button);
-				$button->show_all;
-				$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
-			}
-		);
+			my $screen_menu_item = Gtk2::ImageMenuItem->new_with_label( $import_hash{$key}->{'short'} );
+			$screen_menu_item->set_image($small_image);
 
-		$menu_session_objects->append($screen_menu_item);
+			#set sensitive == FALSE if image eq current file
+			$screen_menu_item->set_sensitive(FALSE)
+				if $import_hash{$key}->{'long'} eq $self->{_filename};
+
+			$screen_menu_item->signal_connect(
+				'activate' => sub {
+					$self->{_current_pixbuf}          = $orig_pixbuf->copy;
+					$self->{_current_pixbuf_filename} = $import_hash{$key}->{'long'};
+					$button->set_icon_widget($small_image_button);
+					$button->show_all;
+					$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
+				}
+			);
+
+			$menu_session_objects->append($screen_menu_item);
+
+		}else{
+			my $response = $self->{_dialogs}->dlg_error_message( 
+				sprintf( $d->get("Error while opening image %s."), "'" . $import_hash{$key}->{'long'} . "'" ),
+				$d->get( "There was an error opening the image." ),
+				undef, undef, undef,
+				undef, undef, undef,
+				$@
+			);				
+		}
 
 	}
 
