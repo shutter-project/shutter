@@ -80,7 +80,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.374";
+use constant REV                	=> "Rev.375";
 use constant PPA_VERSION         	=> "ppa4";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.70";
@@ -3580,6 +3580,7 @@ sub fct_update_gui {
 	while ( Gtk2->events_pending ) {
 		Gtk2->main_iteration;
 	}
+	Gtk2::Gdk->flush;
 
 	return TRUE;
 }
@@ -6174,9 +6175,10 @@ UPDIALOG: while ($hosting_dialog) {
 					$hosting_progress->set_fraction(0);
 					foreach my $file ( sort @files_to_upload ) {
 						$hosting_progress->set_text($file);
-
+						
 						#update gui
 						&fct_update_gui;
+						
 						my %upload_response = $uploader->upload( $shutter_hfunct->switch_home_in_file($file), $hosting_username, $hosting_password );
 
 						if ( is_success( $upload_response{'status'} ) ) {
