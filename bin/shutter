@@ -80,7 +80,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.369";
+use constant REV                	=> "Rev.372";
 use constant PPA_VERSION         	=> "ppa4";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.70";
@@ -641,6 +641,33 @@ if ( defined $settings_xml->{'general'}->{'filename'} ) {
 } else {
 	$filename->set_text("screenshot_\%NNN");
 }
+
+#do some input validation
+#here are all invalid char codes
+my @invalid_codes = (47,92,63,42,58,124,34,60,62,44,120,59,35,38);
+my $filename_hint = Gtk2::Label->new;
+$filename->signal_connect('key-press-event' => sub {
+	my $filename 	= shift;
+	my $event 		= shift;
+	
+	my $input = Gtk2::Gdk->keyval_to_unicode ($event->keyval); 
+	
+	#invalid input
+	#~ print $input."\n";
+	if(grep($input == $_, @invalid_codes)){
+		my $char = chr($input);
+		$char = '&amp;' if $char eq '&';
+		$filename_hint->set_markup("<span size='small'>" . 
+										sprintf($d->get("Reserved character %s is not allowed to be in a filename.") , "'".$char."'") 
+										. "</span>");	
+		return TRUE;
+	}else{
+		#clear possible message when valid char is entered
+		$filename_hint->set_markup("<span size='small'></span>");						
+		return FALSE;
+	}
+});
+
 my $filename_label = Gtk2::Label->new( $shutter_common->get_gettext->get("Filename") . ":" );
 $tooltips->set_tip(
 	$filename,
@@ -1177,6 +1204,7 @@ $file_frame->add($file_vbox);
 
 $save_vbox->pack_start( $filename_box, TRUE,  TRUE, 3 );
 $save_vbox->pack_start( $saveDir_box,  FALSE, TRUE, 3 );
+$save_vbox->pack_start( $filename_hint, TRUE,  TRUE, 3 );
 $save_frame->add($save_vbox);
 
 #all labels = one size
@@ -1987,11 +2015,9 @@ sub evt_show_systray {
 	#left button (mouse)
 	if ( $_[1]->button == 1 ) {
 		if ( $window->visible ) {
-			$window->hide;
-			$is_in_tray = TRUE;
+			&fct_control_main_window (TRUE, 'hide');
 		} else {
-			$window->show_all;
-			$is_in_tray = FALSE;
+			&fct_control_main_window (TRUE, 'show');
 		}
 	}
 
@@ -2040,13 +2066,9 @@ sub evt_activate_systray_statusicon {
 	}
 
 	if ( $window->visible ) {
-		$window->iconify;
-		$window->hide;
-		$is_in_tray = TRUE;
+		&fct_control_main_window (TRUE, 'hide');
 	} else {
-		$window->deiconify;
-		$window->show_all;
-		$is_in_tray = FALSE;
+		&fct_control_main_window (TRUE, 'show');
 	}
 
 	return TRUE;
@@ -2547,6 +2569,8 @@ sub fct_control_main_window {
 	$shutter_tool->{_section}->set_sensitive($set);
 	$shutter_tool->{_web}->set_sensitive($set) if ($gnome_web_photo);
 
+	my $wm_name = Gtk2::Gdk::Screen->get_default->get_window_manager_name;
+
 	#hide or show window
 	if($mode eq 'show'){
 
@@ -2555,7 +2579,7 @@ sub fct_control_main_window {
 		$window->show_all;
 
 		#move window to saved position
-		$window->move( $old_x, $old_y );
+		$window->move( $old_x, $old_y ) if (defined $old_x && defined $old_y);
 
 		$window->present;
 		$is_in_tray = FALSE;
@@ -2564,7 +2588,12 @@ sub fct_control_main_window {
 
 		$window->iconify;
 		$window->hide;
-		usleep 100000;
+		#wait longer when running compiz
+		if($wm_name =~ /compiz/){
+			usleep 200000;
+		}else{
+			usleep 100000;	
+		}
 		Gtk2::Gdk->flush;
 		$is_in_tray = TRUE;
 		
@@ -3676,6 +3705,8 @@ sub fct_draw {
 		my $drawing_tool = Shutter::Draw::DrawingTool->new($shutter_common);
 		$drawing_tool->show( $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'}, \%session_screens );		
 	}
+
+	&fct_control_main_window (TRUE, 'show');
 
 	return TRUE;
 }
@@ -5589,7 +5620,7 @@ sub dlg_rename {
 		$new_filename->set_activates_default(TRUE);
 		
 		#here are all invalid char codes
-		my @invalid_codes = (47,92,63,37,42,58,124,34,60,62,44,120,59);
+		my @invalid_codes = (47,92,63,37,42,58,124,34,60,62,44,120,59,35,38);
 		$new_filename->signal_connect('key-press-event' => sub {
 			my $new_filename 	= shift;
 			my $event 			= shift;
@@ -5599,8 +5630,10 @@ sub dlg_rename {
 			#invalid input
 			#~ print $input."\n";
 			if(grep($input == $_, @invalid_codes)){
+				my $char = chr($input);
+				$char = '&amp;' if $char eq '&';
 				$new_filename_hint->set_markup("<span size='small'>" . 
-												sprintf($d->get("Reserved character %s is not allowed to be in a filename.") , "'".chr($input)."'") 
+												sprintf($d->get("Reserved character %s is not allowed to be in a filename.") , "'".$char."'") 
 												. "</span>");	
 				return TRUE;
 			}else{

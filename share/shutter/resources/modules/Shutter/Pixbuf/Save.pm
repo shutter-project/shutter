@@ -32,6 +32,9 @@ use Gtk2;
 use POSIX qw/setlocale strftime/;
 use Locale::gettext;
 
+#fileparse
+use File::Basename;
+
 #Image operations
 use Image::Magick();
 
@@ -109,7 +112,7 @@ sub save_pixbuf_to_file {
 		}
 
 		#nice error dialog, more detailed messages are shown with a gtk2 expander
-		my $response = $self->{_dialog}->dlg_error_message( 
+		my $response = $self->{_dialogs}->dlg_error_message( 
 			sprintf( $d->get("Error while saving the image %s."), "'" . $name.$type . "'"),
 			sprintf( $d->get("There was an error saving the image to %s."), "'" . $folder . "'"),		
 			undef, undef, undef,

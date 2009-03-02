@@ -167,8 +167,6 @@ sub select_advanced {
 	$select_window->set_skip_pager_hint(TRUE);
 	$select_window->set_keep_above(TRUE);
 	$select_window->add($view);
-	$select_window->move( $self->{_root}->{x}, $self->{_root}->{y} );
-	$select_window->set_default_size( $self->{_root}->{w}, $self->{_root}->{h} );
 	$select_window->show_all;
 
 	#all screen events are send to shutter
@@ -227,6 +225,8 @@ sub select_advanced {
 			}
 		);
 
+		$select_window->move( $self->{_root}->{x}, $self->{_root}->{y} );
+		$select_window->set_default_size( $self->{_root}->{w}, $self->{_root}->{h} );
 		$select_window->show_all();
 		$select_window->window->set_type_hint('dock');
 

@@ -79,17 +79,17 @@ sub switch_home_in_file {
 sub usage {
 	my $self = shift;
 
-	print "gscrot [options]\n";
+	print "shutter [options]\n";
 	print "Available options:\n\n"
 		. "Capture:\n"
-		. "--full (starts gscrot and takes a full screen screenshot directly)\n"
-		. "--selection (starts gscrot in selection mode)\n"
-		. "--window (starts gscrot in window selection mode)\n"
-		. "--section (starts gscrot in section selection mode)\n\n"
+		. "--full (starts shutter and takes a full screen screenshot directly)\n"
+		. "--selection (starts shutter in selection mode)\n"
+		. "--window (starts shutter in window selection mode)\n"
+		. "--section (starts shutter in section selection mode)\n\n"
 		.
 
 		"Application:\n"
-		. "--min_at_startup (starts gscrot minimized to tray)\n"
+		. "--min_at_startup (starts shutter minimized to tray)\n"
 		. "--clear_cache (clears cache, e.g. installed plugins, at startup)\n"
 		. "--debug (prints a lot of debugging information to STDOUT)\n"
 		. "--disable_systray (disable systray icon)\n"
