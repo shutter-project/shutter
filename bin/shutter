@@ -1690,8 +1690,27 @@ sub evt_take_screenshot {
 		my $swidth  = $screenshot->get_width;
 		my $sheight = $screenshot->get_height;
 
-		$screenshot_name =~ s/\$w/$swidth/g;
-		$screenshot_name =~ s/\$h/$sheight/g;
+		$screenshot_name =~ s/\%24w/$swidth/g;
+		$screenshot_name =~ s/\%24h/$sheight/g;
+
+		#update uri after parsing as well, so we can check if file exists for example
+		$uri = Gnome2::VFS::URI->new ($screenshot_name);
+		#maybe the uri already exists, so we have to append some digits (e.g. testfile01(0002).png)
+		if ( $uri->exists ) {
+			my $count             = 1;
+			my $filename_value = fileparse( $uri->get_path, '\..*' );
+			my $existing_filename = $filename_value;
+			while ( $uri->exists ) {
+				$filename_value = $existing_filename . "(" . sprintf( "%03d", $count++ ) . ")";
+				$uri 	= Gnome2::VFS::URI->new($folder);
+				$uri    = $uri->append_string("$filename_value.$filetype_value");
+				print "Checking new uri after parsing: " . $uri->to_string . "\n" if $shutter_common->get_debug;
+			}
+		}
+		
+		#we have to update the path again
+		$screenshot_name = $uri->get_path();
+
 		print "Trying to save file to $screenshot_name\n"
 			if $shutter_common->get_debug;
 
@@ -1726,8 +1745,9 @@ sub evt_take_screenshot {
 			$screenshot_thumbnail_name = $folder . "/$name-$thumbnail_ending.$filetype_value";
 
 			#parse wild cards
-			$screenshot_thumbnail_name =~ s/\$w/$twidth/g;
-			$screenshot_thumbnail_name =~ s/\$h/$theight/g;
+			$screenshot_thumbnail_name =~ s/\%24w/$twidth/g;
+			$screenshot_thumbnail_name =~ s/\%24h/$theight/g;
+
 			print "Trying to save file to $screenshot_thumbnail_name\n"
 				if $shutter_common->get_debug;
 
