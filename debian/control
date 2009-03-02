@@ -9,9 +9,9 @@ Homepage: https://launchpad.net/shutter
 Package: shutter
 Architecture: all
 Depends: libglib-perl, libgtk2-perl, liblocale-gettext-perl, librsvg2-common, libxml-simple-perl, libfile-mimeinfo-perl, libfile-remove-perl, libwww-mechanize-perl, libwww-perl, libgnome2-perl, libgnome2-gconf-perl, libgnome2-wnck-perl, libgnome2-vfs-perl, imagemagick, perlmagick, libgtk2-imageview-perl, libx11-protocol-perl, libgtk2-trayicon-perl, libgoo-canvas-perl, gnome-web-photo
-Replaces: gscrot-plugins-bash, gscrot
+Replaces: gscrot, gscrot-plugins-bash
 Provides: gscrot, gscrot-plugins-bash
-Conflicts: gscrot-plugins-bash, gscrot
+Conflicts: gscrot, gscrot-plugins-bash
 Description: Feature-rich screenshot application
  Shutter is a feature-rich screenshot program.
  You can take a screenshot of a specific area, window, 
