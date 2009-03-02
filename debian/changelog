@@ -1,9 +1,48 @@
 shutter (0.70~ppa4) jaunty; urgency=low
-
-  * fixed bugs
+  * General changes
+    Rebranding from GScrot to Shutter
+    Exports to and opens all file formats supported by gdk-pixbuf
+	Added native printing support (instead of gtklp)
+	Watch opened files via GnomeVFS File Monitor to monitor changes 
+    Integration of GNOME Virtual File System and GNOME authentication manager for user's security credentials (LP: #310780)
+	Respect non-rectangular windows (XSHAPE) when using metacity (LP: #260771)
+	Use themeable icons wherever its is possible
+	Use systemwide MIME Information instead of config file
+	Move screenshots to trash instead of deleting them (LP: #313003)
+	Faster thumbail creation and caching (improves gui startup when a lot of files are in last session)
+	Improved Dialogs (e.g. Settings Dialog)
+	Show context menu for each file in session tab (right click)
+  * Gui improvements
+    Show current profile in statusbar (LP: #279271)
+	Second toolbar removed (LP: #311626)
+	Progress bars (LP: #310299)
+	-- LP: #311627
+	-- LP: #312966
+	-- LP: #313346
+	-- LP: #326758
+  * Drawing Tool
+    Scale uniformly (LP: #310708)
+	Added standard actions (copy, cut, paste, delete) (LP: #313343)
+	Added censor tool to hide private data (LP: #317659)
+	-- LP: #310717
+	-- LP: #310721
+	-- LP: #311574
+	-- LP: #311576
+	-- LP: #311577
+	-- LP: #311580
+  * Miscellaneous
+    Shutter shows up in GNOME add/remove (LP: #322388)
+	Repository is not signed (thanks to the LP Team) (LP: #312681)
+  * Plugins
+    New hard shadow plugin (thanks to Tualatrix) (LP: #331914)		
+  * Fixed bugs
+    -- LP: #303090
+	-- LP: #313761
+	-- LP: #316917
+	-- LP: #336120
   * updated translations
 
- -- Mario Kemper <mario.kemper@googlemail.com>  Thu, 26 Feb 2009 20:54:34 +0100
+ -- Mario Kemper <mario.kemper@googlemail.com>  Sat, 28 Feb 2009 22:01:16 +0100
  
 gscrot (0.64~ppa12) jaunty; urgency=low
 

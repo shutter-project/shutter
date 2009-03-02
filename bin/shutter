@@ -80,7 +80,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 3;
-use constant REV                	=> "Rev.366";
+use constant REV                	=> "Rev.367";
 use constant PPA_VERSION         	=> "ppa4";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.70";
@@ -2458,6 +2458,9 @@ sub fct_add_file_monitor {
 	$session_screens{$key}->{'deleted'} = FALSE;
 	$session_screens{$key}->{'created'} = FALSE;
 
+	#reset mtime
+	$session_screens{$key}->{'mtime'} = 0;
+
 	my $result;
 	( $result, $session_screens{$key}->{'handle'} ) = Gnome2::VFS::Monitor->add(
 		$session_screens{$key}->{'uri'}->to_string,
@@ -3590,6 +3593,8 @@ sub fct_rename {
 
 	my $key = &fct_get_current_file(undef);
 
+	my @rename_array;
+
 	#single file
 	if ($key) {
 
@@ -3597,9 +3602,8 @@ sub fct_rename {
 
 		print "Renaming of file " . $session_screens{$key}->{'long'} . " started\n"
 			if $shutter_common->get_debug;
-		&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("renamed") )
-			if &dlg_rename($key);
-
+		push (@rename_array, $key);
+	
 	} else {
 		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
 			sub {
@@ -3607,15 +3611,16 @@ sub fct_rename {
 				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
 				if ( defined $iter ) {
 					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
-					&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("renamed") )
-						if &dlg_rename($key);
+					push (@rename_array, $key);
 				}
 			},
 			undef
 		);
 	}
 
-	&fct_update_first_tab;
+	&dlg_rename(@rename_array);
+
+	&fct_update_first_tab;	
 
 	return TRUE;
 }
@@ -3624,13 +3629,13 @@ sub fct_draw {
 
 	my $key = &fct_get_current_file(undef);
 
+	my @draw_array;
+
 	#single file
 	if ($key) {
 
 		return FALSE unless &fct_screenshot_exists($key);
-
-		my $drawing_tool = Shutter::Draw::DrawingTool->new($shutter_common);
-		$drawing_tool->show( $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'}, \%session_screens );
+		push (@draw_array, $key);
 
 	} else {
 		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
@@ -3639,13 +3644,19 @@ sub fct_draw {
 				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
 				if ( defined $iter ) {
 					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
-					my $drawing_tool = Shutter::Draw::DrawingTool->new($shutter_common);
-					$drawing_tool->show( $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'}, \%session_screens );
+					push (@draw_array, $key);
 				}
 			},
 			undef
 		);
 	}
+
+	#open drawing tool
+	foreach my $key (@draw_array){
+		my $drawing_tool = Shutter::Draw::DrawingTool->new($shutter_common);
+		$drawing_tool->show( $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'}, \%session_screens );		
+	}
+
 	return TRUE;
 }
 
@@ -3923,6 +3934,8 @@ sub fct_update_first_tab {
 	#create thumbails for iconview
 	foreach my $key ( sort keys %session_screens ) {
 
+		print "Updating $key in session\n" if $shutter_common->get_debug;
+
 		next unless $session_screens{$key}->{'uri'};
 		next unless $session_screens{$key}->{'uri'}->exists;
 
@@ -3933,9 +3946,14 @@ sub fct_update_first_tab {
 			$session_screens{$key}->{'mtime'},
 			0.5
 		);
-
+		
+		print "Thumb retrieved\n" if $shutter_common->get_debug;
+			
 		$session_start_screen{'first_page'}->{'model'}
 			->set( $session_start_screen{'first_page'}->{'model'}->append, 0, $pixbuf, 1, $session_screens{$key}->{'short'}, 2, $key );
+	
+		print "Added to session $key\n" if $shutter_common->get_debug;
+	
 	}
 
 	$session_start_screen{'first_page'}->{'view'}->set_model( $session_start_screen{'first_page'}->{'model'} );
@@ -4511,7 +4529,7 @@ sub fct_create_thumbnail_and_fileinfos {
 		#does the file exist?
 		if($session_screens{$key}->{'fileinfo'}->{'mtime'}){
 			
-			#maybe we need no update	
+			#maybe we need no update
 			return TRUE if $session_screens{$key}->{'fileinfo'}->{'mtime'} == $session_screens{$key}->{'mtime'};
 
 			print "Updating fileinfos for key: $key\n" if $shutter_common->get_debug;
@@ -4526,7 +4544,9 @@ sub fct_create_thumbnail_and_fileinfos {
 			$session_screens{$key}->{'filetype'} =~ s/.*\.//ig;
 
 			#just the name
-			$session_screens{$key}->{'name'} = fileparse( $session_screens{$key}->{'long'}, '\..*' );
+			#~ $session_screens{$key}->{'name'} = fileparse( $session_screens{$key}->{'long'}, '\..*' );
+			$session_screens{$key}->{'name'} = $session_screens{$key}->{'short'};
+			$session_screens{$key}->{'name'} =~ s/\.$session_screens{$key}->{'filetype'}//g;
 
 			#mime type
 			$session_screens{$key}->{'mime_type'} = Gnome2::VFS->get_mime_type_for_name( $session_screens{$key}->{'uri'}->to_string );
@@ -5520,107 +5540,204 @@ sub dlg_status_message {
 }
 
 sub dlg_rename {
-	my ($key) = @_;
+	my (@file_to_rename_keys) = @_;
 
-	my $input_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/], 'other', 'none', undef );
+	foreach my $key (@file_to_rename_keys){
 
-	$input_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-dialog-question', 'dialog' ) );
+		my $input_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/], 'other', 'none', undef );
 
-	$input_dialog->set( 'text' => sprintf( $d->get( "Rename image %s"), "'$session_screens{$key}->{'short'}'" ) );
+		$input_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-dialog-question', 'dialog' ) );
 
-	$input_dialog->set( 'secondary-text' => $d->get("New filename") . ": " );
+		$input_dialog->set( 'text' => sprintf( $d->get( "Rename image %s"), "'$session_screens{$key}->{'short'}'" ) );
 
-	#rename button
-	my $rename_btn = Gtk2::Button->new_with_mnemonic( $d->get("_Rename") );
-	$rename_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'button' ) );
-	$rename_btn->can_default(TRUE);
+		$input_dialog->set( 'secondary-text' => $d->get("New filename") . ": " );
 
-	$input_dialog->add_button( 'gtk-cancel', 10 );
-	$input_dialog->add_action_widget( $rename_btn, 20 );
+		#rename button
+		my $rename_btn = Gtk2::Button->new_with_mnemonic( $d->get("_Rename") );
+		$rename_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'button' ) );
+		$rename_btn->can_default(TRUE);
 
-	$input_dialog->set_default_response(20);
+		$input_dialog->add_button( 'gtk-cancel', 10 );
+		$input_dialog->add_action_widget( $rename_btn, 20 );
 
-	my $new_filename_hbox = Gtk2::HBox->new();
-	my $new_filename      = Gtk2::Entry->new();
-	$new_filename->set_activates_default(TRUE);
+		$input_dialog->set_default_response(20);
 
-	#show just the name of the image
-	$new_filename->set_text( $session_screens{$key}->{'name'} );
-
-	$new_filename_hbox->pack_start_defaults($new_filename);
-	$input_dialog->vbox->add($new_filename_hbox);
-	$input_dialog->show_all;
-
-	#run dialog
-	my $input_response = $input_dialog->run;
-
-	#handle user responses here
-	if ( $input_response == 20 ) {
-
-		my $new_name = $new_filename->get_text;
-		$new_name = $session_screens{$key}->{'folder'} . "/" . $new_name . "." . $session_screens{$key}->{'filetype'};
-		my $new_uri = Gnome2::VFS::URI->new($new_name);
-
-		#filenames eq? -> nothing to do here
-		unless ( $session_screens{$key}->{'long'} eq $new_name ) {
-
-			#does the "renamed" file already exists?
-			unless ( $shutter_hfunct->file_exists($new_name) ) {
-
-				#ok => rename it
-				$session_screens{$key}->{'handle'}->cancel;
-				rename( $session_screens{$key}->{'long'}, $new_name );
-				&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($new_name) );
-
-				#setup a new filemonitor, so we get noticed if the file changed
-				&fct_add_file_monitor($key);
-
-			} else {
-
-				#ask the user to replace the image
-				#replace button
-				my $replace_btn = Gtk2::Button->new_with_mnemonic( $d->get("_Replace") );
-				$replace_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'button' ) );
-
-				my $response = $shutter_dialog->dlg_warning_message(
-					sprintf( $d->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $new_uri->extract_dirname . "'"),
-					sprintf( $d->get( "An image named %s already exists. Do you want to replace it?"), "'" . $new_uri->extract_short_name . "'"),
-					undef, undef, undef,
-					$replace_btn, undef, undef
-				);
-
-				#rename == replace_btn was hit
-				if ( $response == 40 ) {
-
-					$session_screens{$key}->{'handle'}->cancel;
-					rename( $session_screens{$key}->{'long'}, $new_name );
-					&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($new_name) );
-
-					#setup a new filemonitor, so we get noticed if the file changed
-					&fct_add_file_monitor($key);
-
-					#maybe file is in session as well, need to set the handler again ;-)
-					foreach my $searchkey ( keys %session_screens ) {
-						next if $key eq $searchkey;
-						if ( $session_screens{$searchkey}->{'long'} eq $new_name ) {
-							$session_screens{$searchkey}->{'changed'} = TRUE;
-							&fct_update_tab($searchkey);
-						}
-					}
-					$input_dialog->destroy();
-					return TRUE;
-				}
-				$input_dialog->destroy();
-				return FALSE;
+		my $new_filename_vbox = Gtk2::VBox->new();
+		my $new_filename_hint = Gtk2::Label->new();
+		my $new_filename      = Gtk2::Entry->new();
+		$new_filename->set_activates_default(TRUE);
+		
+		#here are all invalid char codes
+		my @invalid_codes = (47,92,63,37,42,58,124,34,60,62,44,120,59);
+		$new_filename->signal_connect('key-press-event' => sub {
+			my $new_filename 	= shift;
+			my $event 			= shift;
+			
+			my $input = Gtk2::Gdk->keyval_to_unicode ($event->keyval); 
+			
+			#invalid input
+			#~ print $input."\n";
+			if(grep($input == $_, @invalid_codes)){
+				$new_filename_hint->set_markup("<span size='small'>" . 
+												sprintf($d->get("Reserved character %s is not allowed to be in a filename.") , "'".chr($input)."'") 
+												. "</span>");	
+				return TRUE;
 			}
+							
+			return FALSE;
+		});
 
+		#enable/disable rename button
+		#e.g. if no text is in entry
+		$new_filename->signal_connect('changed' => sub {
+			if(length($new_filename->get_text)){
+				$rename_btn->set_sensitive(TRUE);	
+			}else{
+				$rename_btn->set_sensitive(FALSE);
+			}
+			return TRUE;
+		});
+
+		#show just the name of the image
+		$new_filename->set_text( $session_screens{$key}->{'name'} );
+		if(length($new_filename->get_text)){
+			$rename_btn->set_sensitive(TRUE);	
+		}else{
+			$rename_btn->set_sensitive(FALSE);
 		}
+
+		$new_filename_vbox->pack_start_defaults($new_filename);
+		$new_filename_vbox->pack_start_defaults($new_filename_hint);
+		$input_dialog->vbox->add($new_filename_vbox);
+		$input_dialog->show_all;
+
+		#run dialog
+		my $input_response = $input_dialog->run;
+
+		#handle user responses here
+		if ( $input_response == 20 ) {
+
+			my $new_name = $new_filename->get_text;
+			$new_name = $session_screens{$key}->{'folder'} . "/" . $new_name . "." . $session_screens{$key}->{'filetype'};
+
+			#create uris for following action (e.g. update tab, move etc.)
+			my $new_uri = Gnome2::VFS::URI->new($new_name);
+			my $old_uri = $session_screens{$key}->{'uri'};
+
+			if($new_uri){
+
+				#filenames eq? -> nothing to do here
+				unless ( $session_screens{$key}->{'long'} eq $new_name ) {
+
+					#does the "renamed" file already exists?
+					unless ( $shutter_hfunct->file_exists($new_name) ) {
+
+						#ok => rename it
+						$session_screens{$key}->{'handle'}->cancel;
+						my $result = $old_uri->move ($new_uri, TRUE);
+						if ($result eq 'ok'){
+					
+							&fct_update_tab( $key, undef, $new_uri );
+
+							#setup a new filemonitor, so we get noticed if the file changed
+							&fct_add_file_monitor($key);	
+
+							&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("renamed") );
+
+						}else{
+
+							my $response = $shutter_dialog->dlg_error_message(
+								sprintf( $d->get(  "Error while renaming the image %s."), "'" . $old_uri->extract_short_name . "'"),
+								sprintf( $d->get(  "There was an error renaming the image to %s."), "'" . $new_uri->extract_short_name . "'" ),
+								undef, undef, undef,
+								undef, undef, undef,
+								Gnome2::VFS->result_to_string ($result)
+							);	
+					
+						}
+
+					} else {
+
+						#ask the user to replace the image
+						#replace button
+						my $replace_btn = Gtk2::Button->new_with_mnemonic( $d->get("_Replace") );
+						$replace_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'button' ) );
+
+						my $response = $shutter_dialog->dlg_warning_message(
+							sprintf( $d->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $new_uri->extract_dirname . "'"),
+							sprintf( $d->get( "An image named %s already exists. Do you want to replace it?"), "'" . $new_uri->extract_short_name . "'"),
+							undef, undef, undef,
+							$replace_btn, undef, undef
+						);
+
+						#rename == replace_btn was hit
+						if ( $response == 40 ) {
+
+							#ok => rename it
+							$session_screens{$key}->{'handle'}->cancel;
+							my $result = $old_uri->move ($new_uri, TRUE);
+							if ($result eq 'ok'){
+						
+								&fct_update_tab( $key, undef, $new_uri );
+
+								#setup a new filemonitor, so we get noticed if the file changed
+								&fct_add_file_monitor($key);	
+
+								&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("renamed") );
+
+							}else{
+
+								my $response = $shutter_dialog->dlg_error_message(
+									sprintf( $d->get(  "Error while renaming the image %s."), "'" . $old_uri->extract_short_name . "'"),
+									sprintf( $d->get(  "There was an error renaming the image to %s."), "'" . $new_uri->extract_short_name . "'" ),
+									undef, undef, undef,
+									undef, undef, undef,
+									Gnome2::VFS->result_to_string ($result)
+								);	
+						
+							}
+
+							#maybe file is in session as well, need to set the handler again ;-)
+							foreach my $searchkey ( keys %session_screens ) {
+								next if $key eq $searchkey;
+								if ( $session_screens{$searchkey}->{'long'} eq $new_name ) {
+									$session_screens{$key}->{'handle'}->cancel;
+									&fct_update_tab($searchkey, undef, $new_uri);
+									#setup a new filemonitor, so we get noticed if the file changed
+									&fct_add_file_monitor($key);
+									$session_screens{$searchkey}->{'changed'} = TRUE;									
+								}
+							}
+							$input_dialog->destroy();
+							next;
+						}
+						$input_dialog->destroy();
+						next;
+					}
+
+				}
+
+			}else{
+
+				#uri object could not be created
+				#=> uri illegal
+				my $response = $shutter_dialog->dlg_error_message(
+					sprintf( $d->get(  "Error while renaming the image %s."), "'" . $old_uri->extract_short_name . "'"),
+					sprintf( $d->get(  "There was an error renaming the image to %s."), "'" . $new_name . "'" ),
+					undef, undef, undef,
+					undef, undef, undef,
+					$d->get("Invalid Filename")
+				);			
+				
+			}
+		
+		}
+
 		$input_dialog->destroy();
-		return TRUE;
-	} else {
-		$input_dialog->destroy();
-		return FALSE;
+		next;
+
 	}
+	
 }
 
 sub dlg_plugin {
@@ -6249,7 +6366,7 @@ UPDIALOG: while ($hosting_dialog) {
 
 						my $response = $shutter_dialog->dlg_warning_message(
 							sprintf( $d->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $target_path ."'"),
-							sprintf( $d->get(  "An image named %s already exists. Do you want to replace it?"), "'" . $target_uri->extract_short_name . "'" ),
+							sprintf( $d->get("An image named %s already exists. Do you want to replace it?"), "'" . $target_uri->extract_short_name . "'" ),
 							$d->get("Skip all"), $d->get("Skip"),
 							undef,
 							$replace_btn,
