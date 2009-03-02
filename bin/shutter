@@ -80,7 +80,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.372";
+use constant REV                	=> "Rev.373";
 use constant PPA_VERSION         	=> "ppa4";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.70";
@@ -2250,7 +2250,14 @@ sub evt_open {
 
 	foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
 		my $filter = Gtk2::FileFilter->new;
+		
+		#add all known formats to the dialog
+		#but filter out some special ones like svg
+		#FIXME write in SVG via cairo?
+		next if ($_->{name} =~ /svg/);
+			
 		$filter->set_name( $_->{name} . " - " . $_->{description} );
+		
 		foreach ( @{ $_->{extensions} } ) {
 			$filter->add_pattern( "*." . uc $_ );
 			$filter_all->add_pattern( "*." . uc $_ );
@@ -4090,7 +4097,13 @@ sub fct_save_as {
 		#the user can decide to save in jpeg, png or bmp format
 		my $counter = 0;
 		foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
-			$combobox_save_as_type->insert_text( $counter, $_->{name} . " - " . $_->{description} );
+			
+			#add all known formats to the dialog
+			#but filter out some special ones like svg
+			#FIXME write in SVG via cairo?
+			$combobox_save_as_type->insert_text( $counter, $_->{name} . " - " . $_->{description} )
+			unless ($_->{name} =~ /svg/);
+			
 			#set active when mime_type is matching
 			#loop because multiple mime types are registered for fome file formats
 			foreach my $mime (@{$_->{mime_types}}){
