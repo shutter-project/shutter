@@ -86,7 +86,13 @@ sub create_menu {
 
 	$self->{_menu_file}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_pagesetup} = Gtk2::ImageMenuItem->new_from_stock('gtk-page-setup');
+	#~ $self->{_menuitem_pagesetup} = Gtk2::ImageMenuItem->new_from_stock('gtk-page-setup');
+	#~ $self->{_menu_file}->append( $self->{_menuitem_pagesetup} );
+
+	$self->{_menuitem_pagesetup} = Gtk2::ImageMenuItem->new( $d->get("Page Set_up") );
+	$self->{_menuitem_pagesetup}->set_image(
+		Gtk2::Image->new_from_icon_name( 'document-page-setup', 'menu' )
+	);
 	$self->{_menu_file}->append( $self->{_menuitem_pagesetup} );
 
 	$self->{_menuitem_print} = Gtk2::ImageMenuItem->new_from_stock('gtk-print');
