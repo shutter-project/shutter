@@ -32,8 +32,9 @@ use Gtk2;
 use POSIX qw/setlocale strftime/;
 use Locale::gettext;
 
-#fileparse
+#fileparse and tempfile
 use File::Basename;
+use File::Temp qw/ tempfile tempdir /;
 
 #Image operations
 use Image::Magick();
@@ -91,8 +92,14 @@ sub save_pixbuf_to_file {
 		eval{
 			$pixbuf->save( $filename, $filetype );
 		};
-	} else  {	
-		$imagemagick_result = $self->use_imagemagick_to_save($old_filename, $filename );
+	} else  {
+		#save pixbuf to tempfile
+		my ( $tmpfh, $tmpfilename ) = tempfile();
+		if($pixbuf){
+			$pixbuf->save( $tmpfilename, 'png', compression => '9' );
+		}
+		#and convert filetype with imagemagick
+		$imagemagick_result = $self->use_imagemagick_to_save($tmpfilename, $filename );
 	}
 	
 	#handle possible error messages
@@ -139,15 +146,21 @@ sub use_imagemagick_to_save {
 	my $image 	= Image::Magick->new;
 	my $result 	= undef;
 	
+	#~ print "Try to Read\n";
+	
 	#read file and evaluate result
 	$result = $image->ReadImage($file);
 	warn "$result" if $result;      # print the error message
   	return $result if $result;
 
+	#~ print "Try to Write\n";
+
 	#write file and evaluate result
 	$result = $image->WriteImage( filename => $new_file );
 	warn "$result" if $result;      # print the error message
   	return $result if $result;
+	
+	#~ print "Finish\n";
 	
 	return FALSE;
 }

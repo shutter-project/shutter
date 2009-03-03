@@ -80,8 +80,8 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.378";
-use constant PPA_VERSION         	=> "ppa5";
+use constant REV                	=> "Rev.379";
+use constant PPA_VERSION         	=> "ppa6";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.70";
 use constant SHUTTER_VERSION_FULL 	=> REV . " - " . PPA_VERSION;
@@ -2508,7 +2508,7 @@ sub fct_add_file_monitor {
 	$session_screens{$key}->{'created'} = FALSE;
 
 	#reset mtime
-	$session_screens{$key}->{'mtime'} = 0;
+	$session_screens{$key}->{'mtime'} = -1;
 
 	my $result;
 	( $result, $session_screens{$key}->{'handle'} ) = Gnome2::VFS::Monitor->add(
@@ -4120,7 +4120,7 @@ sub fct_save_as {
 
 				my $choosen_format = $combobox_save_as_type->get_active_text;
 				$choosen_format =~ s/ \-.*//;    #get png or jpeg for example
-				print $choosen_format . "\n";
+				#~ print $choosen_format . "\n";
 
 				unless ( $filename =~ /.*\.$choosen_format$/ ) {
 					$filename =~ s/\..*$/\.$choosen_format/;
@@ -4577,7 +4577,7 @@ sub fct_create_thumbnail_and_fileinfos {
 	my $uri    = shift;
 
 	$session_screens{$key}->{'uri'}      = $uri if $uri;
-	$session_screens{$key}->{'mtime'} 	 = 0 unless $session_screens{$key}->{'mtime'};
+	$session_screens{$key}->{'mtime'} 	 = -1 unless $session_screens{$key}->{'mtime'};
 
 	#anything wrong?	
 	return FALSE unless $session_screens{$key}->{'uri'};
