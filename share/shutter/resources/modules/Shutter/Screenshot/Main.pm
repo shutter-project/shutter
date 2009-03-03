@@ -26,10 +26,8 @@ package Shutter::Screenshot::Main;
 #--------------------------------------
 use utf8;
 use strict;
-use X11::Protocol;
 use Gnome2::Wnck;
 use Image::Magick;
-
 
 #define constants
 #--------------------------------------
@@ -47,11 +45,7 @@ sub new {
 				 _include_cursor => shift,
 				 _delay          => shift,
 			   };
-	
-	#x11
-	$self->{_x11} = X11::Protocol->new( $ENV{ 'DISPLAY' } );
-	$self->{_x11}{ext_shape} = $self->{_x11}->init_extension('SHAPE');
-	
+			
 	#root window
 	$self->{ _root } = Gtk2::Gdk->get_default_root_window;
 	(

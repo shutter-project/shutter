@@ -40,19 +40,21 @@ use constant FALSE => 0;
 sub new {
 	my $class = shift;
 
-	#call constructor of super class (gscrot_common, include_cursor, delay)
+	#call constructor of super class (shutter_common, include_cursor, delay)
 	my $self = $class->SUPER::new( shift, shift, shift );
 
-	$self->{_include_border} = shift;
-	$self->{_xid}  = shift;    #only used by window_by_xid, undef this when selecting a window
-	$self->{_mode} = shift;
-	$self->{_main_gtk_window} = shift;
-	$self->{_is_in_tray}      = shift;
+	#get params
+	$self->{_x11} 				= shift;
+	$self->{_include_border} 	= shift;
+	$self->{_xid}  				= shift;    #only used by window_by_xid, undef this when selecting a window
+	$self->{_mode} 				= shift;
+	$self->{_is_in_tray}      	= shift;
+
+	#main window
+	$self->{_main_gtk_window} = $self->{_gc}->get_mainwindow;
 
 	#only used by window_select
 	$self->{_children} = {};
-
-	#info window
 
 	bless $self, $class;
 	return $self;

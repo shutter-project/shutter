@@ -55,6 +55,9 @@ use Gtk2 '-init';
 use Gtk2::Gdk::Keysyms;
 use Gtk2::Pango;
 
+#X11
+use X11::Protocol;
+
 #Gettext and filename parsing
 use POSIX qw/setlocale strftime/;
 use Locale::gettext;
@@ -79,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.383";
+use constant REV                	=> "Rev.385";
 use constant PPA_VERSION         	=> "ppa6";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.70";
@@ -169,6 +172,10 @@ my $pagesetup = undef;
 
 #Tooltips
 my $tooltips = $shutter_common->get_tooltips;
+
+#X11 protocol and XSHAPE ext
+my $x11 = X11::Protocol->new( $ENV{ 'DISPLAY' } );
+$x11->{ext_shape} = $x11->init_extension('SHAPE');
 
 #optional components
 #--------------------------------------
@@ -1608,8 +1615,8 @@ sub evt_take_screenshot {
 
 		my $screenshooter = Shutter::Screenshot::Window->new(
 			$shutter_common, $combobox_cursor->get_active,
-			$delay_value, $combobox_border->get_active,
-			undef, $data, $window, $is_in_tray
+			$delay_value, $x11, $combobox_border->get_active,
+			undef, $data, $is_in_tray
 		);
 		$screenshot = $screenshooter->window_select();
 		undef $screenshooter;
@@ -1658,7 +1665,7 @@ sub evt_take_screenshot {
 			return FALSE;
 		}
 		my $screenshooter
-			= Shutter::Screenshot::Window->new( $shutter_common, $combobox_cursor->get_active, $delay_value, $combobox_border->get_active, $xid );
+			= Shutter::Screenshot::Window->new( $shutter_common, $combobox_cursor->get_active, $delay_value, $x11, $combobox_border->get_active, $xid );
 		$screenshot = $screenshooter->window_by_xid();
 		undef $screenshooter;
 
@@ -2608,6 +2615,9 @@ sub fct_control_main_window {
 		}else{
 			usleep 100000;	
 		}
+		while ( Gtk2->events_pending ) {
+			Gtk2->main_iteration;
+		}		
 		Gtk2::Gdk->flush;
 		$is_in_tray = TRUE;
 		
