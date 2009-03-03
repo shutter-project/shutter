@@ -47,7 +47,6 @@ use Image::Magick();
 use File::Copy;
 use File::Path qw/ rmtree /;
 use File::Basename;
-use File::MimeInfo::Applications;
 use File::Temp qw/ tempfile tempdir /;
 use IO::File;
 
@@ -80,7 +79,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.380";
+use constant REV                	=> "Rev.381";
 use constant PPA_VERSION         	=> "ppa6";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.70";
@@ -107,6 +106,9 @@ require Proc::Simple;
 
 #Perl extension for recursively copying files and directories (Thanks to Daniel Muey)
 require File::Copy::Recursive;
+
+#Find programs to open a file by mimetype
+require File::MimeInfo::Applications;
 
 #shutter app classes
 require Shutter::App::Common;
@@ -3209,7 +3211,7 @@ sub fct_get_program_model {
 	my $icontheme = Gtk2::IconTheme->get_for_screen( Gtk2::Gdk::Screen->get_default );
 
 	#FIXME - use png as default mime type (is this clever enough?)
-	my ( $default, @apps ) = mime_applications('image/png');
+	my ( $default, @apps ) = File::MimeInfo::Applications::mime_applications('image/png');
 
 	foreach (@apps) {
 		my $program_item = Gtk2::ImageMenuItem->new_with_label();
@@ -3992,6 +3994,7 @@ sub fct_execute_plugin {
 }
 
 sub fct_update_first_tab {
+
 	$session_start_screen{'first_page'}->{'view'}->unselect_all;
 	$session_start_screen{'first_page'}->{'model'}->clear;
 
@@ -5115,7 +5118,7 @@ sub fct_ret_program_menu {
 	#constructed by the deprecated application registry
 	return $menu_programs unless exists $session_screens{$key}->{'mime_type'};
 
-	my ( $default, @apps ) = mime_applications( $session_screens{$key}->{'mime_type'} );
+	my ( $default, @apps ) = File::MimeInfo::Applications::mime_applications( $session_screens{$key}->{'mime_type'} );
 	foreach my $app (@apps) {
 
 		my $program_item = Gtk2::ImageMenuItem->new_with_label( $app->Name );
