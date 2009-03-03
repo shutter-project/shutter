@@ -146,21 +146,28 @@ sub use_imagemagick_to_save {
 	my $image 	= Image::Magick->new;
 	my $result 	= undef;
 	
-	#~ print "Try to Read\n";
-	
 	#read file and evaluate result
 	$result = $image->ReadImage($file);
-	warn "$result" if $result;      # print the error message
-  	return $result if $result;
-
-	#~ print "Try to Write\n";
+	# print the error message
+	if($result){
+		#destroy object
+		undef $image;
+		warn "$result";      
+		return $result;
+	}
 
 	#write file and evaluate result
 	$result = $image->WriteImage( filename => $new_file );
-	warn "$result" if $result;      # print the error message
-  	return $result if $result;
-	
-	#~ print "Finish\n";
+	# print the error message
+	if($result){
+		#destroy object
+		undef $image;
+		warn "$result";      
+		return $result;
+	}
+
+	#destroy object
+	undef $image;
 	
 	return FALSE;
 }

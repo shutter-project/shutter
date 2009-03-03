@@ -80,7 +80,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.379";
+use constant REV                	=> "Rev.380";
 use constant PPA_VERSION         	=> "ppa6";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.70";
@@ -1590,6 +1590,7 @@ sub evt_take_screenshot {
 			undef, undef, $current_monitor_active->get_active
 		);
 		$screenshot = $screenshooter->workspace();
+		undef $screenshooter;
 
 		#window
 	} elsif ( $data eq "window"
@@ -1609,6 +1610,7 @@ sub evt_take_screenshot {
 			undef, $data, $window, $is_in_tray
 		);
 		$screenshot = $screenshooter->window_select();
+		undef $screenshooter;
 
 		#selection
 	} elsif ( $data eq "select" || $data eq "tray_select" ) {
@@ -1620,6 +1622,7 @@ sub evt_take_screenshot {
 		if ( $tool_advanced->get_active ) {
 			my $screenshooter = Shutter::Screenshot::SelectorAdvanced->new( $shutter_common, $combobox_cursor->get_active, $delay_value );
 			$screenshot = $screenshooter->select_advanced();
+			undef $screenshooter;
 
 		} else {
 			my $zoom_size_factor = 1;
@@ -1628,6 +1631,7 @@ sub evt_take_screenshot {
 			my $screenshooter = Shutter::Screenshot::SelectorSimple->new( $shutter_common, $combobox_cursor->get_active,
 				$delay_value, $zoom_size_factor, $zoom_active->get_active );
 			$screenshot = $screenshooter->select_simple();
+			undef $screenshooter;
 		}
 
 		#web
@@ -1654,6 +1658,7 @@ sub evt_take_screenshot {
 		my $screenshooter
 			= Shutter::Screenshot::Window->new( $shutter_common, $combobox_cursor->get_active, $delay_value, $combobox_border->get_active, $xid );
 		$screenshot = $screenshooter->window_by_xid();
+		undef $screenshooter;
 
 	} elsif ( $data =~ /^shutter_wrksp_direct/ ) {
 
@@ -3469,6 +3474,8 @@ sub fct_delete {
 				if ( defined $iter ) {
 					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
 					$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
+					
+					#~ $session_screens{$key}->{'tab_child'}->destroy;
 
 					if ( $session_screens{$key}->{'uri'}->exists ) {
 
@@ -4320,16 +4327,29 @@ sub fct_imagemagick_perform {
 	$file = $shutter_hfunct->switch_home_in_file($file);
 	
 	$result = $image->ReadImage($file);
-	warn "$result" if $result;      # print the error message
-  	return $result if $result;
+	# print the error message
+	if($result){
+		#destroy object
+		undef $image;
+		warn "$result";      
+  		return $result;
+	}
 
 	if ( $function eq "reduce_colors" ) {
 		$image->Quantize( colors => 2**$1 );
 		$result = $image->WriteImage( filename => $file );
-		warn "$result" if $result;      # print the error message
-  		return $result if $result;
+		# print the error message
+		if($result){
+			#destroy object
+			undef $image;
+			warn "$result";      
+			return $result;
+		}
 	} 
 	
+	#destroy object
+	undef $image;
+
 	return FALSE;
 }
 
