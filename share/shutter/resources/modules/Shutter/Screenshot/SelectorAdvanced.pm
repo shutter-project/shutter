@@ -43,13 +43,25 @@ sub new {
 	#call constructor of super class (gscrot_common, include_cursor, delay)
 	my $self = $class->SUPER::new( shift, shift, shift );
 
+	#FIXME
+	#get them as params 
+	#because there is a leak when 
+	#we declare them each time
+	my $v = shift;
+	my $s= shift;
+	
+	$self->{_view} = $$v;
+	$self->{_selector} = $$s;
+	
+	
+
 	bless $self, $class;
 	return $self;
 }
 
 sub select_advanced {
 	my $self = shift;
-
+	
 	#return value
 	my $output = 5;
 
@@ -143,35 +155,35 @@ sub select_advanced {
 		$self->{_root}->{h}
 	);
 
-	my $view          = Gtk2::ImageView->new;
-	my $selector      = Gtk2::ImageView::Tool::Selector->new($view);
-	my $selector_init = TRUE;
+	#~ my $self->{_view}          = Gtk2::ImageView->new;
+	#~ my $self->{_selector}      = Gtk2::ImageView::Tool::Selector->new($self->{_view});
+	$self->{_selector_init} = TRUE;
 
 	#hide help text when selector is invoked
-	my $selector_handler = $selector->signal_connect(
+	$self->{_selector_handler} = $self->{_selector}->signal_connect(
 		'selection-changed' => sub {
-			if ($selector_init) {
-				$view->set_pixbuf( $clean_pixbuf, FALSE );
-				$selector_init = FALSE;
+			if ($self->{_selector_init}) {
+				$self->{_view}->set_pixbuf( $clean_pixbuf, FALSE );
+				$self->{_selector_init} = FALSE;
 			}
 		}
 	);
 
-	$view->set_pixbuf($root_pixbuf);
+	$self->{_view}->set_pixbuf($root_pixbuf);
 
-	$view->set_tool($selector);
+	#~ $self->{_view}->set_tool($self->{_selector});
 
 	my $select_window = Gtk2::Window->new('toplevel');
 	$select_window->set_decorated(FALSE);
 	$select_window->set_skip_taskbar_hint(TRUE);
 	$select_window->set_skip_pager_hint(TRUE);
 	$select_window->set_keep_above(TRUE);
-	$select_window->add($view);
+	$select_window->add($self->{_view});
 	$select_window->show_all;
 
 	#all screen events are send to shutter
 	my $grab_counter = 0;
-	while ( !Gtk2::Gdk->pointer_is_grabbed && $grab_counter < 100 ) {
+	while ( !Gtk2::Gdk->pointer_is_grabbed && $grab_counter < 400 ) {
 		Gtk2::Gdk->pointer_grab(
 			$select_window->window,
 			1,
@@ -200,13 +212,15 @@ sub select_advanced {
 				if ( $event->type eq 'key-press' ) {
 					if ( $event->keyval == $Gtk2::Gdk::Keysyms{Escape} ) {
 						$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
+						$self->{_selector}->signal_handler_disconnect ($self->{_selector_handler});
 						$select_window->destroy;
 						Gtk2::Gdk->flush;
 					} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Return} ) {
 						$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
+						$self->{_selector}->signal_handler_disconnect ($self->{_selector_handler});
 						$select_window->destroy;
 						Gtk2::Gdk->flush;
-						my $selection = $selector->get_selection;
+						my $selection = $self->{_selector}->get_selection;
 
 						if ($selection) {
 							sleep 1 if $self->{_delay} < 1;
@@ -254,6 +268,7 @@ sub select_advanced {
 
 	}else{
 		$output = 0;
+		$self->{_selector}->signal_handler_disconnect ($self->{_selector_handler});
 		$select_window->destroy;
 		$self->ungrab_pointer_and_keyboard( TRUE, TRUE, TRUE );		
 	}

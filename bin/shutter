@@ -82,8 +82,8 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.387";
-use constant PPA_VERSION         	=> "ppa8";
+use constant REV                	=> "Rev.388";
+use constant PPA_VERSION         	=> "ppa9";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.70";
 use constant SHUTTER_VERSION_FULL 	=> REV . " - " . PPA_VERSION;
@@ -185,6 +185,15 @@ my $goocanvas       = TRUE;
 &fct_init_optional;
 
 #--------------------------------------
+
+#Gtk2::ImageView and Selector for advanced selection tool
+my $view;
+my $selector;
+if($gtkimageview){
+	$view     = Gtk2::ImageView->new;
+	$selector = Gtk2::ImageView::Tool::Selector->new($view);
+	$view->set_tool($selector);
+}
 
 #data structures
 #--------------------------------------
@@ -1629,7 +1638,8 @@ sub evt_take_screenshot {
 			return FALSE;
 		}
 		if ( $tool_advanced->get_active ) {
-			my $screenshooter = Shutter::Screenshot::SelectorAdvanced->new( $shutter_common, $combobox_cursor->get_active, $delay_value );
+					
+			my $screenshooter = Shutter::Screenshot::SelectorAdvanced->new( $shutter_common, $combobox_cursor->get_active, $delay_value, \$view, \$selector );
 			$screenshot = $screenshooter->select_advanced();
 			undef $screenshooter;
 
@@ -3075,8 +3085,22 @@ sub fct_load_settings {
 
 			if ( $data eq 'profile_load' ) {
 
-				#general settings
-				$combobox_type->set_active( $settings_xml->{'general'}->{'filetype'} );
+				#migration from gscrot to shutter
+				#maybe we can drop this in future releases
+				# 0 := jpeg
+				# 1 := png
+				unless(defined $settings_xml->{'general'}->{'app_version'}){
+					if($settings_xml->{'general'}->{'filetype'} == 0){
+						$combobox_type->set_active($int_jpeg);			
+					}elsif($settings_xml->{'general'}->{'filetype'} == 1){
+						$combobox_type->set_active($int_png);		
+					}
+				
+				#shutter
+				}else{
+					$combobox_type->set_active($settings_xml->{'general'}->{'filetype'});	
+				}
+
 				$scale->set_value( $settings_xml->{'general'}->{'quality'} );
 				utf8::decode $settings_xml->{'general'}->{'filename'};
 				$filename->set_text( $settings_xml->{'general'}->{'filename'} );
