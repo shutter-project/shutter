@@ -82,8 +82,8 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.389";
-use constant PPA_VERSION         	=> "ppa10";
+use constant REV                	=> "Rev.390";
+use constant PPA_VERSION         	=> "ppa11";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.70";
 use constant SHUTTER_VERSION_FULL 	=> REV . " - " . PPA_VERSION;
@@ -2560,20 +2560,20 @@ sub fct_add_file_monitor {
 
 			} elsif ( $event eq 'changed' ) {
 
-				#some files receive an CREATED event followed by CHANGED event
-				#we don't do anything in this case to avoid unneeded work
-				unless ( $session_screens{$key}->{'created'} ) {
+				#some files receive an CREATED event followed by CHANGED event (not used anymore)
+				#we don't do anything in this case to avoid unneeded work (not used anymore)
+				#~ unless ( $session_screens{$key}->{'created'} ) {
 					print $session_screens{$key}->{'uri'}->to_string . " - " . $event . "\n" if $shutter_common->get_debug;
 					$session_screens{$key}->{'changed'} = TRUE;
 					&fct_update_tab($key);
 					&fct_update_first_tab;
-				} else {
-					$session_screens{$key}->{'created'} = FALSE;
-				}
+				#~ } else {
+					#~ $session_screens{$key}->{'created'} = FALSE;
+				#~ }
 
 				#mark file when CREATED - see above
-			} elsif ( $event eq 'created' ) {
-				$session_screens{$key}->{'created'} = TRUE;
+			#~ } elsif ( $event eq 'created' ) {
+				#~ $session_screens{$key}->{'created'} = TRUE;
 			}
 
 			return TRUE;
@@ -2796,33 +2796,35 @@ sub fct_resize_thumb {
 	if ( defined $widget ) {
 		my $image = $session_screens{$key}->{'image'};
 		my $orig  = $session_screens{$key}->{'orig'};
+		
+		if(defined $image){
+			my $pixbuf = $image->get_pixbuf;
 
-		my $pixbuf = $image->get_pixbuf;
+			my $old_width  = $image->{'current_width'};
+			my $old_height = $image->{'current_height'};
+			$image->{'current_height'} = $widget->allocation->height - 60;
+			$image->{'current_width'}  = $image->{'current_height'} * $image->{'aspect_ratio'};
 
-		my $old_width  = $image->{'current_width'};
-		my $old_height = $image->{'current_height'};
-		$image->{'current_height'} = $widget->allocation->height - 60;
-		$image->{'current_width'}  = $image->{'current_height'} * $image->{'aspect_ratio'};
+			my $decr = 10;
+			while ($image->{'current_width'} >= $widget->allocation->width - 50
+				|| $image->{'current_height'} >= $widget->allocation->height - 50 )
+			{
+				$image->{'current_height'} -= $decr;
+				$image->{'current_width'} = $image->{'current_height'} * $image->{'aspect_ratio'};
+			}
 
-		my $decr = 10;
-		while ($image->{'current_width'} >= $widget->allocation->width - 50
-			|| $image->{'current_height'} >= $widget->allocation->height - 50 )
-		{
-			$image->{'current_height'} -= $decr;
-			$image->{'current_width'} = $image->{'current_height'} * $image->{'aspect_ratio'};
-		}
+			return FALSE if $image->{'current_width'} < 10 || $image->{'current_height'} < 10;
 
-		return FALSE if $image->{'current_width'} < 10 || $image->{'current_height'} < 10;
+			if (   $old_width != $image->{'current_width'}
+				|| $session_screens{$key}->{'changed'} == TRUE
+				|| $session_screens{$key}->{'deleted'} == TRUE )
+			{
 
-		if (   $old_width != $image->{'current_width'}
-			|| $session_screens{$key}->{'changed'} == TRUE
-			|| $session_screens{$key}->{'deleted'} == TRUE )
-		{
+				my $scaled = $orig->scale_simple( $image->{'current_width'}, $image->{'current_height'}, 'tiles' );
+				$image->set_from_pixbuf($scaled);
+				$session_screens{$key}->{'changed'} = FALSE;
 
-			my $scaled = $orig->scale_simple( $image->{'current_width'}, $image->{'current_height'}, 'tiles' );
-			$image->set_from_pixbuf($scaled);
-			$session_screens{$key}->{'changed'} = FALSE;
-
+			}
 		}
 	}
 	return FALSE;
@@ -3485,7 +3487,10 @@ sub fct_delete {
 		if ( $session_screens{$key}->{'uri'}->exists ) {
 
 			#cancel handle
-			$session_screens{$key}->{'handle'}->cancel;
+			if ( exists $session_screens{$key}->{'handle'} ) {
+				
+				$session_screens{$key}->{'handle'}->cancel;
+			}
 
 			#find trash directory
 			my $trash_uri = Gnome2::VFS->find_directory( Gnome2::VFS::URI->new( $ENV{'HOME'} ), 'trash', TRUE, TRUE, 755 );
@@ -3520,7 +3525,10 @@ sub fct_delete {
 					if ( $session_screens{$key}->{'uri'}->exists ) {
 
 						#cancel handle
-						$session_screens{$key}->{'handle'}->cancel;
+						if ( exists $session_screens{$key}->{'handle'} ) {
+							
+							$session_screens{$key}->{'handle'}->cancel;
+						}
 
 						#find trash directory
 						my $trash_uri = Gnome2::VFS->find_directory( Gnome2::VFS::URI->new( $ENV{'HOME'} ), 'trash', TRUE, TRUE, 755 );
@@ -4043,9 +4051,11 @@ sub fct_update_first_tab {
 
 		print "Updating $key in session\n" if $shutter_common->get_debug;
 
-		next unless $session_screens{$key}->{'uri'};
-		next unless $session_screens{$key}->{'uri'}->exists;
-
+		unless(defined $session_screens{$key}->{'uri'}){
+			&fct_update_tab($key);
+			last;
+		}	
+		
 		#try to generate a new thumbnail
 		my $pixbuf = $shutter_thumb->get_thumbnail(
 			$session_screens{$key}->{'uri'}->to_string,
@@ -4060,7 +4070,7 @@ sub fct_update_first_tab {
 			->set( $session_start_screen{'first_page'}->{'model'}->append, 0, $pixbuf, 1, $session_screens{$key}->{'short'}, 2, $key );
 	
 		print "Added to session $key\n" if $shutter_common->get_debug;
-	
+
 	}
 
 	$session_start_screen{'first_page'}->{'view'}->set_model( $session_start_screen{'first_page'}->{'model'} );
@@ -4211,7 +4221,11 @@ sub fct_save_as {
 				#save as (pixbuf, new_filename, filetype, quality - auto here, old_filename)
 				if($shutter_pix->save_pixbuf_to_file($session_screens{$key}->{'orig'}, $filename, $session_screens{$key}->{'long'}, $choosen_format)){
 
-					$session_screens{$key}->{'handle'}->cancel;
+					#cancel handle
+					if ( exists $session_screens{$key}->{'handle'} ) {
+						
+						$session_screens{$key}->{'handle'}->cancel;
+					}
 					if(&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($filename) )){
 						#setup a new filemonitor, so we get noticed if the file changed
 						&fct_add_file_monitor($key);
@@ -4237,7 +4251,13 @@ sub fct_save_as {
 
 				if ( $response == 40 ) {
 					if($shutter_pix->save_pixbuf_to_file($session_screens{$key}->{'orig'}, $filename, $session_screens{$key}->{'long'}, $choosen_format)){
-						$session_screens{$key}->{'handle'}->cancel;
+
+						#cancel handle
+						if ( exists $session_screens{$key}->{'handle'} ) {
+							
+							$session_screens{$key}->{'handle'}->cancel;
+						}
+
 						if(&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($filename) )){
 
 							#setup a new filemonitor, so we get noticed if the file changed
@@ -4329,6 +4349,8 @@ sub fct_update_tab {
 				$session_screens{$key}->{'image'}->{'aspect_ratio'}
 					= $session_screens{$key}->{'image'}->{'current_width'} / $session_screens{$key}->{'image'}->{'current_height'};
 
+				print "Manually signal_emit for $key \n" if $shutter_common->get_debug;
+
 				$session_screens{$key}->{'image'}->signal_emit( 'expose-event', Gtk2::Gdk::Event->new('expose') );
 			}
 		};
@@ -4341,6 +4363,22 @@ sub fct_update_tab {
 		}
 
 	} else {
+
+		#could not load the file => show an error message
+		my $response = $shutter_dialog->dlg_error_message( 
+			sprintf ( $d->get(  "Error while opening image %s." ), "'" . $session_screens{$key}->{'long'} . "'" ) ,
+			$d->get( "There was an error opening the image." ),
+			undef, undef, undef,
+			undef, undef, undef,
+			$@
+		);	
+
+		#delete page and hash entry
+		if($session_screens{$key}->{'tab_child'}){
+			$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
+		}
+		
+		delete $session_screens{$key};	
 
 		return FALSE;
 
@@ -4654,10 +4692,10 @@ sub fct_create_thumbnail_and_fileinfos {
 		$session_screens{$key}->{'fileinfo'}  = $session_screens{$key}->{'uri'}->get_file_info('default');
 
 		#does the file exist?
-		if($session_screens{$key}->{'fileinfo'}->{'mtime'}){
+		if($session_screens{$key}->{'uri'}->exists){
 			
 			#maybe we need no update
-			return TRUE if $session_screens{$key}->{'fileinfo'}->{'mtime'} == $session_screens{$key}->{'mtime'};
+			#~ return TRUE if $session_screens{$key}->{'fileinfo'}->{'mtime'} == $session_screens{$key}->{'mtime'};
 
 			print "Updating fileinfos for key: $key\n" if $shutter_common->get_debug;
 
@@ -4742,6 +4780,12 @@ sub fct_create_thumbnail_and_fileinfos {
 					#resave failed, so we delete the screenshot	
 					}else{
 
+						#cancel handle
+						if ( exists $session_screens{$key}->{'handle'} ) {
+							
+							$session_screens{$key}->{'handle'}->cancel;
+						}
+
 						#delete page and hash entry
 						if($session_screens{$key}->{'tab_child'}){
 							$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
@@ -4763,7 +4807,7 @@ sub fct_create_thumbnail_and_fileinfos {
 				#we need to reset the modification time
 				#because the change would not be 
 				#recognized otherwise
-				$session_screens{$key}->{'mtime'} = 0;
+				$session_screens{$key}->{'mtime'} = -1;
 				next;
 			
 			}
@@ -5764,7 +5808,13 @@ sub dlg_rename {
 					unless ( $shutter_hfunct->file_exists($new_name) ) {
 
 						#ok => rename it
-						$session_screens{$key}->{'handle'}->cancel;
+
+						#cancel handle
+						if ( exists $session_screens{$key}->{'handle'} ) {
+							
+							$session_screens{$key}->{'handle'}->cancel;
+						}
+
 						my $result = $old_uri->move ($new_uri, TRUE);
 						if ($result eq 'ok'){
 					
@@ -5805,10 +5855,16 @@ sub dlg_rename {
 						if ( $response == 40 ) {
 
 							#ok => rename it
-							$session_screens{$key}->{'handle'}->cancel;
+
+							#cancel handle
+							if ( exists $session_screens{$key}->{'handle'} ) {
+								
+								$session_screens{$key}->{'handle'}->cancel;
+							}
+
 							my $result = $old_uri->move ($new_uri, TRUE);
 							if ($result eq 'ok'){
-						
+				
 								&fct_update_tab( $key, undef, $new_uri );
 
 								#setup a new filemonitor, so we get noticed if the file changed
@@ -5832,11 +5888,17 @@ sub dlg_rename {
 							foreach my $searchkey ( keys %session_screens ) {
 								next if $key eq $searchkey;
 								if ( $session_screens{$searchkey}->{'long'} eq $new_name ) {
-									$session_screens{$key}->{'handle'}->cancel;
+									#cancel handle
+									if ( exists $session_screens{$searchkey}->{'handle'} ) {
+										
+										$session_screens{$searchkey}->{'handle'}->cancel;
+									}
+
 									&fct_update_tab($searchkey, undef, $new_uri);
+
 									#setup a new filemonitor, so we get noticed if the file changed
-									&fct_add_file_monitor($key);
-									$session_screens{$searchkey}->{'changed'} = TRUE;									
+									&fct_add_file_monitor($searchkey);	
+							
 								}
 							}
 							$input_dialog->destroy();
