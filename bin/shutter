@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.391";
+use constant REV                	=> "Rev.392";
 use constant PPA_VERSION         	=> "ppa11";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.70";
@@ -6854,16 +6854,42 @@ sub dlg_profile_name {
 
 	$profile_dialog->set_default_response(20);
 
-	my $new_profile_name_hbox = Gtk2::HBox->new();
+	my $new_profile_name_vbox = Gtk2::VBox->new();
+	my $new_profile_name_hint = Gtk2::Label->new();	
 	my $new_profile_name      = Gtk2::Entry->new();
 	$new_profile_name->set_activates_default(TRUE);
+
+	#here are all invalid char codes
+	my @invalid_codes = (47,92,63,37,42,58,124,34,60,62,44,59,35,38);
+	$new_profile_name->signal_connect('key-press-event' => sub {
+		my $new_profile_name 	= shift;
+		my $event 			= shift;
+		
+		my $input = Gtk2::Gdk->keyval_to_unicode ($event->keyval); 
+		
+		#invalid input
+		#~ print $input."\n";
+		if(grep($input == $_, @invalid_codes)){
+			my $char = chr($input);
+			$char = '&amp;' if $char eq '&';
+			$new_profile_name_hint->set_markup("<span size='small'>" . 
+											sprintf($d->get("Reserved character %s is not allowed to be in a filename.") , "'".$char."'") 
+											. "</span>");	
+			return TRUE;
+		}else{
+			#clear possible message when valid char is entered
+			$new_profile_name_hint->set_markup("<span size='small'></span>");						
+			return FALSE;
+		}
+	});
 
 	#show name of current profile
 	$new_profile_name->set_text( $curr_profile_name)
 		if defined $curr_profile_name;
 
-	$new_profile_name_hbox->pack_start_defaults($new_profile_name);
-	$profile_dialog->vbox->add($new_profile_name_hbox);
+	$new_profile_name_vbox->pack_start_defaults($new_profile_name);
+	$new_profile_name_vbox->pack_start_defaults($new_profile_name_hint);
+	$profile_dialog->vbox->add($new_profile_name_vbox);
 	$profile_dialog->show_all;
 
 	#run dialog
