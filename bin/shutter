@@ -82,8 +82,8 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.388";
-use constant PPA_VERSION         	=> "ppa9";
+use constant REV                	=> "Rev.389";
+use constant PPA_VERSION         	=> "ppa10";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.70";
 use constant SHUTTER_VERSION_FULL 	=> REV . " - " . PPA_VERSION;
@@ -770,6 +770,11 @@ if ( defined $settings_xml->{'general'}->{'filetype'} ) {
 	}else{
 		$combobox_type->set_active($settings_xml->{'general'}->{'filetype'});	
 	}
+	
+	#set saved quality/compression value if there is one
+	if(defined $settings_xml->{'general'}->{'quality'}){
+		$scale->set_value( $settings_xml->{'general'}->{'quality'} );		
+	} 
 
 } else {
 
@@ -2512,7 +2517,6 @@ sub fct_integrate_screenshot_in_notebook {
 		#and finally set the signal handler to handle expose-events
 		#dynamically resize the preview image for each tab 
 		$session_screens{$key}->{'image_handler'} = $session_screens{$key}->{'image'}->signal_connect( 'expose-event', \&fct_resize_thumb, $key );
-
 
 		#setup a filemonitor, so we get noticed if the file changed
 		&fct_add_file_monitor($key);
