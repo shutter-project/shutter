@@ -116,7 +116,13 @@ sub get_shape {
 	my $xid = shift;
 	my $orig = shift;
 
+	print "Calculating window shape\n" if $self->{_gc}->get_debug;
+
 	my ($ordering, @r) = $self->{_x11}->ShapeGetRectangles($self->find_wm_window($xid), 'Bounding');
+	
+	#do nothing if there are no
+	#shape rectangles (or only one)
+	return $orig if scalar @r <= 1;
 							
 	#create a region from the bounding rectangles
 	my $bregion = Gtk2::Gdk::Region->new;					
@@ -196,10 +202,8 @@ sub window_by_xid {
 		$self->{_delay} );
 
 	#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
-	unless (Gtk2::Gdk::Screen->get_default->get_window_manager_name =~ /compiz/){
-		if($self->{_x11}{ext_shape}){
-			$output = $self->get_shape($self->{_xid}, $output);				
-		}
+	if($self->{_x11}{ext_shape}){
+		$output = $self->get_shape($self->{_xid}, $output);				
 	}
 
 	return $output;
@@ -342,17 +346,15 @@ sub window_select {
 						);						 
 						
 						#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
-						unless (Gtk2::Gdk::Screen->get_default->get_window_manager_name =~ /compiz/){
-							if($self->{_x11}{ext_shape}){
-								my $xid = $self->{_children}{ 'curr_win' }{ 'gdk_window' }->get_xid;
-								#do not try this for child windows
-								foreach my $win ($self->{_wnck_screen}->get_windows){
-									if($win->get_xid == $xid){
-										$output = $self->get_shape($xid, $output);				
-									}
+						if($self->{_x11}{ext_shape}){
+							my $xid = $self->{_children}{ 'curr_win' }{ 'gdk_window' }->get_xid;
+							#do not try this for child windows
+							foreach my $win ($self->{_wnck_screen}->get_windows){
+								if($win->get_xid == $xid){
+									$output = $self->get_shape($xid, $output);				
 								}
 							}
-						}	
+						}
 
 					} else {
 						$output = 0;

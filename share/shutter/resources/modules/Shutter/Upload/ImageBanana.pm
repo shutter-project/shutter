@@ -126,6 +126,13 @@ sub upload {
 	$self->{_http_status} = $self->{_mech}->status();
 	if ( is_success( $self->{_http_status} ) ) {
 		my $html_file = $self->{_mech}->content;
+
+		#error??
+		if ( $html_file =~ /Upload Error/ ) {
+			$self->{_links}{'status'} = 'unknown';
+			return %{ $self->{_links} };
+		}
+
 		$html_file = $self->switch_html_entities($html_file);
 
 		my @link_array;

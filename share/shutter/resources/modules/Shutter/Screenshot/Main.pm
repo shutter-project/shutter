@@ -64,8 +64,17 @@ sub new {
 	#gdk screen
 	$self->{_gdk_screen} = Gtk2::Gdk::Screen->get_default;	
 	
-	#window_manager_name
-	$self->{_wm_manager_name} = Gtk2::Gdk::Screen->get_default->get_window_manager_name;
+	#we determine the wm name but on older
+	#version of libwnck (or the bindings)
+	#the needed method is not available
+	#in this case we use gdk to do it
+	#
+	#this leads to a known problem when switching
+	#the wm => wm_name will still remain the old one
+	$self->{_wm_manager_name} = $self->{_gdk_screen}->get_window_manager_name;
+	if($self->{_wnck_screen}->can('get_window_manager_name')){
+		$self->{_wm_manager_name} = $self->{_wnck_screen}->get_window_manager_name;
+	}
 
 	#workspaces
 	$self->{_workspaces} = ();

@@ -82,10 +82,10 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.392";
-use constant PPA_VERSION         	=> "ppa11";
+use constant REV                	=> "Rev.393";
+use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
-use constant SHUTTER_VERSION      	=> "v0.70";
+use constant SHUTTER_VERSION      	=> "v0.70.1";
 use constant SHUTTER_VERSION_FULL 	=> REV . " - " . PPA_VERSION;
 
 #--------------------------------------
@@ -289,7 +289,6 @@ $shutter_menu->{_menuitem_select_all}->signal_connect( 'activate', \&fct_select_
 $shutter_menu->{_menuitem_settings}->signal_connect( 'activate', \&evt_show_settings, 'exp_settings_menu' );
 
 $shutter_menu->{_menuitem_reopen}->set_submenu(&fct_ret_program_menu);
-$shutter_menu->{_menuitem_reopen}->signal_connect( 'select', sub { my $widget = shift; $widget->set_submenu(&fct_ret_program_menu) } );
 $shutter_menu->{_menuitem_rename}->signal_connect( 'activate', \&fct_rename );
 $shutter_menu->{_menuitem_upload}->signal_connect( 'activate', \&fct_upload );
 $shutter_menu->{_menuitem_draw}->signal_connect( 'activate', \&fct_draw );
@@ -1752,16 +1751,23 @@ sub evt_take_screenshot {
 
 		#update uri after parsing as well, so we can check if file exists for example
 		$uri = Gnome2::VFS::URI->new ($screenshot_name);
+		
 		#maybe the uri already exists, so we have to append some digits (e.g. testfile01(0002).png)
-		if ( $uri->exists ) {
-			my $count             = 1;
-			my $filename_value = fileparse( $uri->get_path, '\..*' );
-			my $existing_filename = $filename_value;
-			while ( $uri->exists ) {
-				$filename_value = $existing_filename . "(" . sprintf( "%03d", $count++ ) . ")";
-				$uri 	= Gnome2::VFS::URI->new($folder);
-				$uri    = $uri->append_string("$filename_value.$filetype_value");
-				print "Checking new uri after parsing: " . $uri->to_string . "\n" if $shutter_common->get_debug;
+		#we don't do this when taking a web screenshot,
+		#because gnome-web-photo creates the file immediately
+		#we would save two files in this case 
+		#because the new file would always "exist"
+		if($data ne "web" && $data ne "tray_web"){
+			if ( $uri->exists ) {
+				my $count             = 1;
+				my $filename_value = fileparse( $uri->get_path, '\..*' );
+				my $existing_filename = $filename_value;
+				while ( $uri->exists ) {
+					$filename_value = $existing_filename . "(" . sprintf( "%03d", $count++ ) . ")";
+					$uri 	= Gnome2::VFS::URI->new($folder);
+					$uri    = $uri->append_string("$filename_value.$filetype_value");
+					print "Checking new uri after parsing: " . $uri->to_string . "\n" if $shutter_common->get_debug;
+				}
 			}
 		}
 		
@@ -2180,6 +2186,9 @@ sub fct_update_menu {
 	my $n_items = shift;
 
 	$shutter_menu->{_menuitem_reopen}->set_sensitive($n_items);
+	if($n_items){
+		$shutter_menu->{_menuitem_reopen}->set_submenu(&fct_ret_program_menu);		
+	}
 	$shutter_menu->{_menuitem_rename}->set_sensitive($n_items);
 	$shutter_menu->{_menuitem_upload}->set_sensitive($n_items);
 	$shutter_menu->{_menuitem_draw}->set_sensitive($n_items);
@@ -2472,7 +2481,7 @@ sub fct_integrate_screenshot_in_notebook {
 
 	#append a page to notebook using with label == filename
 	my ( $second, $minute, $hour ) = localtime();
-	my $theTime = "$hour:$minute:$second";
+	my $theTime = sprintf("%02d:%02d:%02d", $hour, $minute, $second);
 	my $key     = "[" . &fct_get_latest_tab_key . "] - $theTime";
 
 	#setup tab label (thumb, preview etc.)
@@ -2598,8 +2607,21 @@ sub fct_control_main_window {
 	$shutter_tool->{_section}->set_sensitive($set);
 	$shutter_tool->{_web}->set_sensitive($set) if ($gnome_web_photo);
 
-	my $wm_name = Gtk2::Gdk::Screen->get_default->get_window_manager_name;
+	my $screen = Gnome2::Wnck::Screen->get_default;
+	$screen->force_update();
 
+	#we determine the wm name but on older
+	#version of libwnck (or the bindings)
+	#the needed method is not available
+	#in this case we use gdk to do it
+	#
+	#this leads to a known problem when switching
+	#the wm => wm_name will still remain the old one
+	my $wm_name = Gtk2::Gdk::Screen->get_default->get_window_manager_name;
+	if($screen->can('get_window_manager_name')){
+		$wm_name = $screen->get_window_manager_name;
+	}
+	
 	#hide or show window
 	if($mode eq 'show'){
 
@@ -3004,8 +3026,6 @@ sub fct_save_settings {
 		utf8::encode $accounts{$_}->{'password'};
 		utf8::encode $accounts{$_}->{'username'};
 		utf8::encode $accounts{$_}->{'register_text'};
-		$accounts{$_}->{'password'} = ""
-			if $accounts{$_}->{'host'} =~ /imageshack/i;
 	}
 
 	eval {
@@ -3186,7 +3206,7 @@ sub fct_load_settings {
 			#we store the version info, so we know if there was a new version installed
 			#when starting new version we clear the cache on first startup
 			if (defined $settings_xml->{'general'}->{'app_version'}){
-				if(SHUTTER_VERSION . PPA_VERSION . REV gt $settings_xml->{'general'}->{'app_version'}){
+				if(SHUTTER_VERSION . PPA_VERSION . REV ne $settings_xml->{'general'}->{'app_version'}){
 					$shutter_common->set_clear_cache(TRUE);
 				}	
 			}else{
@@ -4052,9 +4072,13 @@ sub fct_update_first_tab {
 		print "Updating $key in session\n" if $shutter_common->get_debug;
 
 		unless(defined $session_screens{$key}->{'uri'}){
-			&fct_update_tab($key);
-			last;
-		}	
+				&fct_update_tab($key);
+				last;				
+		}else{
+			unless($session_screens{$key}->{'uri'}->exists){
+				next;
+			}			
+		}
 		
 		#try to generate a new thumbnail
 		my $pixbuf = $shutter_thumb->get_thumbnail(
@@ -4853,7 +4877,17 @@ sub fct_ret_workspace_menu {
 	my $screen = Gnome2::Wnck::Screen->get_default;
 	$screen->force_update();
 
+	#we determine the wm name but on older
+	#version of libwnck (or the bindings)
+	#the needed method is not available
+	#in this case we use gdk to do it
+	#
+	#this leads to a known problem when switching
+	#the wm => wm_name will still remain the old one
 	my $wm_name = Gtk2::Gdk::Screen->get_default->get_window_manager_name;
+	if($screen->can('get_window_manager_name')){
+		$wm_name = $screen->get_window_manager_name;
+	}
 
 	my $active_workspace = $screen->get_active_workspace;
 
@@ -5362,22 +5396,6 @@ sub fct_set_model_accounts {
 	my $renderer_username_accounts = Gtk2::CellRendererText->new;
 	$renderer_username_accounts->set( editable => TRUE );
 	$renderer_username_accounts->signal_connect(
-		'editing-started' => sub {
-			my ( $cell, $cell_editable, $text_path, $model ) = @_;
-			my $path = Gtk2::TreePath->new_from_string($text_path);
-			my $iter = $model->get_iter($path);
-			if ( $model->get_value( $iter, 0 ) =~ /imageshack/i ) {
-				$shutter_dialog->dlg_info_message(
-					$d->get(
-						"If you have registered with imageshack.us, you should have received an email with a link similar to\n\nhttp://reg.imageshack.us/setlogin.php?login=SOME_IDENTIFIER\n\nYou should pass either that link as the username or only the user_id (SOME_IDENTIFIER)\n\nYou do not have to provide a password."
-					),
-					"Imageshack info"
-				);
-			}
-		},
-		$accounts_model
-	);
-	$renderer_username_accounts->signal_connect(
 		'edited' => sub {
 			my ( $cell, $text_path, $new_text, $model ) = @_;
 			my $path = Gtk2::TreePath->new_from_string($text_path);
@@ -5386,21 +5404,11 @@ sub fct_set_model_accounts {
 			#save entered username to the hash
 			$accounts{ $model->get_value( $iter, 0 ) }->{'username'} = $new_text;
 
-			if ( $model->get_value( $iter, 0 ) =~ /imageshack/i ) {
-
-				#we catch the user-id when url is entered
-				if ( $new_text =~ /^http.*login=(.*)/ ) {
-					$new_text = $1;
-				}
-
-				#imageshack does not need a password
-				$accounts{ $model->get_value( $iter, 0 ) }->{'password'} = $new_text;
-			}
-
 			$model->set( $iter, 1, $new_text );
 		},
 		$accounts_model
 	);
+	
 	my $tv_clmn_username_text = Gtk2::TreeViewColumn->new_with_attributes( $d->get("Username"), $renderer_username_accounts, text => 1 );
 	$tv_clmn_username_text->set_max_width(100);
 	$accounts_tree->append_column($tv_clmn_username_text);
@@ -5411,25 +5419,9 @@ sub fct_set_model_accounts {
 	$tv_clmn_password_text->set_title( $d->get("Password") );
 	my $renderer_password_accounts = Gtk2::CellRendererText->new;
 	$renderer_password_accounts->set( editable => TRUE );
-	$renderer_password_accounts->signal_connect(
-		'editing-started' => sub {
-			my ( $cell, $cell_editable, $text_path, $model ) = @_;
-			my $path = Gtk2::TreePath->new_from_string($text_path);
-			my $iter = $model->get_iter($path);
-			if ( $model->get_value( $iter, 0 ) =~ /imageshack/i ) {
-				$shutter_dialog->dlg_info_message(
-					$d->get(
-						"If you have registered with imageshack.us, you should have received an email with a link similar to\n\nhttp://reg.imageshack.us/setlogin.php?login=SOME_IDENTIFIER\n\nYou should pass either that link as the username or only the user_id (SOME_IDENTIFIER)\n\nYou do not have to provide a password."
-					),
-					"Imageshack info"
-				);
-			}
-		},
-		$accounts_model
-	);
 
 	$renderer_password_accounts->signal_connect(
-		edited => sub {
+		'edited' => sub {
 			my ( $cell, $text_path, $new_text, $model ) = @_;
 			my $path        = Gtk2::TreePath->new_from_string($text_path);
 			my $iter        = $model->get_iter($path);
@@ -5438,12 +5430,9 @@ sub fct_set_model_accounts {
 			for ( my $i = 1; $i <= length($new_text); $i++ ) {
 				$hidden_text .= '*';
 			}
-			unless ( $model->get_value( $iter, 0 ) =~ /imageshack/i ) {
-				$accounts{ $model->get_value( $iter, 0 ) }->{'password'} = $new_text;    #save entered password to the hash
-				$model->set( $iter, 2, $hidden_text );
-			} else {
-				$model->set( $iter, 2, "" );
-			}
+			
+			$accounts{ $model->get_value( $iter, 0 ) }->{'password'} = $new_text;    #save entered password to the hash
+			$model->set( $iter, 2, $hidden_text );
 		},
 		$accounts_model
 	);
@@ -6096,11 +6085,8 @@ sub dlg_upload {
 		}
 
 		$model->set( $model->append, 0, $accounts{$_}->{'host'}, 1, $accounts{$_}->{'username'}, 2, $accounts{$_}->{'password'}, 3, $short_username )
-			if (
-			( $_ =~ /imageshack/i && $accounts{$_}->{'username'} ne "" )
-			|| (   $accounts{$_}->{'username'} ne ""
-				&& $accounts{$_}->{'password'} ne "" )
-			);
+			if ($accounts{$_}->{'username'} ne "" && $accounts{$_}->{'password'} ne "" );			
+		
 		$model->set( $model->append, 0, $accounts{$_}->{'host'}, 1, $d->get("Guest"), 2, "", 3, $d->get("Guest") );
 	}
 
@@ -6353,14 +6339,17 @@ UPDIALOG: while ($hosting_dialog) {
 					$uploader->show_all;
 				} elsif ( $hosting_host eq "imageshack.us" ) {
 					my $ishack = Shutter::Upload::ImageShack->new();
-
+					
+					#clear possible cookie (is this really needed here?)
+					$ishack->logout;
+										
 					#upload
 					my $counter = 1;
 					$hosting_progress->set_fraction(0);
 					foreach my $file (@files_to_upload) {
 
 						#login
-						eval { $ishack->login($hosting_username); };
+						eval { $ishack->login($hosting_username, $hosting_password); };
 						if ($@) {
 							my $response = $shutter_dialog->dlg_error_message( $d->get("Please check your credentials and try again."),
 								$d->get("Login failed!") );

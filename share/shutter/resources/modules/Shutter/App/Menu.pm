@@ -60,6 +60,10 @@ sub create_menu {
 	my $accel_group = Gtk2::AccelGroup->new;
 	$window->add_accel_group($accel_group);
 
+	#icontheme to determine if icons exist or not
+	#in some cases we deliver fallback icons
+	$self->{_icontheme} = Gtk2::IconTheme->new;
+
 	$self->{_menubar} = Gtk2::MenuBar->new();
 
 	#file
@@ -201,23 +205,47 @@ sub create_menu {
 	$self->{_menu_help} = Gtk2::Menu->new();
 
 	$self->{_menuitem_question} = Gtk2::ImageMenuItem->new( $d->get("Get Help Online ...") );
-	$self->{_menuitem_question}->set_image(
-		Gtk2::Image->new_from_icon_name( 'lpi-help', 'menu' )
-	);
+	if($self->{_icontheme}->has_icon('lpi-help')){
+		$self->{_menuitem_question}->set_image(
+			Gtk2::Image->new_from_icon_name( 'lpi-help', 'menu' )		
+		);		
+	}else{
+		$self->{_menuitem_question}->set_image(
+			Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/lpi-help.png", Gtk2::IconSize->lookup('menu') )
+			)		
+		);		
+	}
 
 	$self->{_menu_help}->append( $self->{_menuitem_question} );
 
 	$self->{_menuitem_translate} = Gtk2::ImageMenuItem->new( $d->get("Translate this Application ...") );
-	$self->{_menuitem_translate}->set_image(
-		Gtk2::Image->new_from_icon_name( 'lpi-translate', 'menu' )
-	);
+	if($self->{_icontheme}->has_icon('lpi-translate')){
+		$self->{_menuitem_translate}->set_image(
+			Gtk2::Image->new_from_icon_name( 'lpi-translate', 'menu' )		
+		);		
+	}else{
+		$self->{_menuitem_translate}->set_image(
+			Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/lpi-translate.png", Gtk2::IconSize->lookup('menu') )
+			)		
+		);		
+	}
 
 	$self->{_menu_help}->append( $self->{_menuitem_translate} );
 
 	$self->{_menuitem_bug} = Gtk2::ImageMenuItem->new( $d->get("Report a Problem") );
-	$self->{_menuitem_bug}->set_image(
-		Gtk2::Image->new_from_icon_name( 'lpi-bug', 'menu' )
-	);
+	if($self->{_icontheme}->has_icon('lpi-bug')){
+		$self->{_menuitem_bug}->set_image(
+			Gtk2::Image->new_from_icon_name( 'lpi-bug', 'menu' )		
+		);		
+	}else{
+		$self->{_menuitem_bug}->set_image(
+			Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/lpi-bug.png", Gtk2::IconSize->lookup('menu') )
+			)		
+		);		
+	}
 
 	$self->{_menu_help}->append( $self->{_menuitem_bug} );
 

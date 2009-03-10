@@ -127,6 +127,12 @@ sub upload {
 	$self->{_http_status} = $self->{_mech}->status();
 	if ( is_success( $self->{_http_status} ) ) {
 		my $html_file = $self->{_mech}->content;
+		
+		#error??
+		if ( $html_file =~ /Es wurde keine Datei hochgeladen/ ) {
+			$self->{_links}{'status'} = 'unknown';
+			return %{ $self->{_links} };
+		}
 
 		$html_file =~ /id="thumb1" value='(.*)' onclick/g;
 		$self->{_links}{'thumb1'} = $self->switch_html_entities($1);

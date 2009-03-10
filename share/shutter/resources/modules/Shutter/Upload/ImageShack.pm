@@ -66,6 +66,10 @@ use LWP::UserAgent;
 use HTTP::Response;
 use HTTP::Request::Common;
 use HTTP::Status;
+use HTTP::Cookies;
+
+use Data::Dumper;
+
 
 #define constants
 #--------------------------------------
@@ -83,7 +87,7 @@ our $VERSION = '0.03';
 $VERSION = eval $VERSION;
 
 our $url   = 'http://imageshack.us';
-our $uri   = 'transload.php';
+our $uri   = 'transloader.php';
 our $agent = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)'; #nice "fake"
 
 =head2 Method Summary
@@ -136,20 +140,13 @@ sub new {
 		$self->ua($ua);
 	}
 
+	$self->ua->cookie_jar(HTTP::Cookies->new(file => "$ENV{HOME}/.cookies.txt"));
+
 	if(defined($attrs{'bar'})){
 		$self->{'bar'} = $attrs{'bar'};
 	}
 
-	if(defined($attrs{'login'})){
-		my $login = $attrs{'login'};
-		if($login =~/login=([0-9a-f]+)/i){
-			$login=$1;
-		}
-
-		$self->login($login);
-	}
-
-	#FOLLOWING ATTS ADDED BY GSCROT TEAM - quick and dirty - maybe fixme
+	#FOLLOWING ATTS ADDED BY SHUTTER TEAM - quick and dirty - maybe fixme
 	$self->{_host} = undef;
 	$self->{_username} = undef;
 	$self->{_filename} = undef;
@@ -286,17 +283,16 @@ sub host{
 		'Content_Type' => 'form-data',
 		'Content' => [%params]
 	);
-
-	if(defined($self->login)){
-		push @params, 'Cookie' =>"myimages=".$self->login;
-	}
 	
 	my $req = HTTP::Request::Common::POST(@params);
+	push @{ $self->ua->requests_redirectable }, 'POST';
 	my $rsp = $self->ua->request($req);
 
 	if($rsp->is_success){
 		my $txt = $rsp->content;
-		if($txt =~ m{<\s*input\s+[^>]+\s+value\s*=\s*"([^"]+)"[^>]+>\s*</\s*td\s*>\s*<\s*td[^>]*>\s*Direct\s+link\s+to\s+image}ism){
+		#~ if($txt =~ m{<\s*input\s+[^>]+\s+value\s*=\s*"([^"]+)"[^>]+>\s*</\s*td\s*>\s*<\s*td[^>]*>\s*Direct\s+link\s+to\s+image}ism){
+		# Changed by "Oleg Fiksel" <fleg@lavabit.com>
+		if($txt =~ /Direct.+?href=['"]*([^'"]+)['"]*/ism){
 			$self->hosted($1);
 			if($txt =~/thumbnail for/i){
 				my $uri = $self->hosted();
@@ -354,7 +350,37 @@ Returns or sets the user_id.
 
 =cut
 
-*login = $gen_method->('login');
+sub login{
+	my $self 		= shift;
+	my $username 	= shift;
+	my $password 	= shift;
+
+	$self->{_username} = $username;
+	$self->{_password} = $password;
+
+	#Login authentication
+	#anonym. authentication with empty password
+	if($self->{_username} ne '' && $self->{_password} ne ''){
+		my %authparams = (
+			'username' => $self->{_username},
+			'password' => $self->{_password},
+		);
+		my @authparams = (
+			"$url/auth.php",
+			'Content_Type' => 'form-data',
+			'Content' => [%authparams]
+		);
+		my $authreq = HTTP::Request::Common::POST(@authparams);
+		push @{ $self->ua->requests_redirectable }, 'POST';
+		my $authrsp = $self->ua->request($authreq);
+		unless($authrsp->is_success && $authrsp->content eq 'OK'){		
+			#XXX debug
+			croak($authrsp->status_line."[".$authrsp->as_string."]");
+		}
+	}
+	return $self;
+}
+
 
 =item logout
 
@@ -365,7 +391,8 @@ Resets user_id. From now on images won't be associated with any user.
 sub logout{
 	my $self = shift @_;
 
-	$self->login(undef);
+	$self->ua->cookie_jar->clear;
+
 	return $self;
 }
 
@@ -402,7 +429,7 @@ sub create_tab {
 	my $label_hotweb = Gtk2::Label->new( $self->{_gettext_object}->get("Hotlink for websites") );
 
 	$entry_direct->set_text("$self->{_url}");
-	$entry_hotweb->set_text("<a href=\"http:\/\/imageshack.us\"><img src=\"$self->{_url}\" border=\"0\" alt=\"Image Hosted by ImageShack.us\"\/><\/a><br\/>By <a href=\"https:\/\/launchpad.net\/shutter\">GScrot<\/a>");
+	$entry_hotweb->set_text("<a href=\"http:\/\/imageshack.us\"><img src=\"$self->{_url}\" border=\"0\" alt=\"Image Hosted by ImageShack.us\"\/><\/a><br\/>By <a href=\"https:\/\/launchpad.net\/shutter\">Shutter<\/a>");
 	$upload_vbox->pack_start( $upload_hbox, TRUE, TRUE, 10 );
 
 	if ($self->{_url_thumb}) {
