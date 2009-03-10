@@ -82,8 +82,8 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.396";
-use constant PPA_VERSION         	=> "ppa1";
+use constant REV                	=> "Rev.397";
+use constant PPA_VERSION         	=> "ppa2";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.70.1";
 use constant SHUTTER_VERSION_FULL 	=> REV . " - " . PPA_VERSION;
@@ -96,6 +96,15 @@ $Bin =~ m/(.*)\//;
 my $shutter_root = $1;
 my $shutter_path = $Bin . "/shutter";
 $ENV{'SHUTTER_ROOT'} = $shutter_root;    #used by some plugins
+
+#--------------------------------------
+
+#check optional components
+#--------------------------------------
+my $gnome_web_photo = TRUE;
+my $gtkimageview    = TRUE;
+my $goocanvas       = TRUE;
+&fct_init_optional;
 
 #--------------------------------------
 
@@ -125,7 +134,9 @@ require Shutter::Pixbuf::Save;
 require Shutter::Pixbuf::Thumbnail;
 
 #drawing classes
-require Shutter::Draw::DrawingTool;
+if($goocanvas){
+	require Shutter::Draw::DrawingTool;
+}
 
 #screenshot classes
 require Shutter::Screenshot::SelectorAdvanced;
@@ -176,15 +187,6 @@ my $tooltips = $shutter_common->get_tooltips;
 #X11 protocol and XSHAPE ext
 my $x11 = X11::Protocol->new( $ENV{ 'DISPLAY' } );
 $x11->{ext_shape} = $x11->init_extension('SHAPE');
-
-#optional components
-#--------------------------------------
-my $gnome_web_photo = TRUE;
-my $gtkimageview    = TRUE;
-my $goocanvas       = TRUE;
-&fct_init_optional;
-
-#--------------------------------------
 
 #Gtk2::ImageView and Selector for advanced selection tool
 my $view;
