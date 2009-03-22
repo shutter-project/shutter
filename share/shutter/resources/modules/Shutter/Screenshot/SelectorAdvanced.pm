@@ -268,9 +268,7 @@ sub select_advanced {
 
 	}else{
 		$output = 0;
-		$self->{_selector}->signal_handler_disconnect ($self->{_selector_handler});
 		$select_window->destroy;
-		$self->ungrab_pointer_and_keyboard( TRUE, TRUE, TRUE );		
 	}
 
 	return $output;

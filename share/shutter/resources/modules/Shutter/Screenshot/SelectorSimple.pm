@@ -128,7 +128,7 @@ sub select_simple {
 	$gc->set_rgb_fg_color($white);
 	$gc->set_subwindow('include-inferiors');
 	$gc->set_function('xor');
-	$gc->set_exposures(TRUE);
+	$gc->set_exposures(FALSE);
 
 	#all screen events are send to shutter
 	my $grab_counter = 0;

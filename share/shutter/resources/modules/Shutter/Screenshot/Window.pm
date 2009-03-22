@@ -401,7 +401,6 @@ sub window_select {
 									$self->{_wnck_screen}->get_active_workspace
 								)
 								&& $window_region->point_in( $event->x, $event->y )
-								&& ( ( $xp + $widthp ) * ( $yp + $heightp ) <= $min_x * $min_y )
 								)
 							{
 								print "Parent X: $xp, Y: $yp, Width: $widthp, Height: $heightp\n"

@@ -92,6 +92,17 @@ sub save_pixbuf_to_file {
 		eval{
 			$pixbuf->save( $filename, $filetype );
 		};
+	} elsif ( $filetype eq 'svg' ) {	
+		
+    	my $surface = Cairo::SvgSurface->create($filename, $pixbuf->get_width, $pixbuf->get_height);
+    	my $cr = Cairo::Context->create($surface);
+		Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $pixbuf, 0, 0 );
+		$cr->paint;
+		$cr->show_page;
+		
+		undef $surface;
+		undef $cr;
+	
 	} else  {
 		#save pixbuf to tempfile
 		my ( $tmpfh, $tmpfilename ) = tempfile();

@@ -82,10 +82,10 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.397";
-use constant PPA_VERSION         	=> "ppa2";
+use constant REV                	=> "Rev.398";
+use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
-use constant SHUTTER_VERSION      	=> "v0.70.1";
+use constant SHUTTER_VERSION      	=> "v0.70.2";
 use constant SHUTTER_VERSION_FULL 	=> REV . " - " . PPA_VERSION;
 
 #--------------------------------------
@@ -155,8 +155,7 @@ require Shutter::Upload::FTP;
 
 #main window
 #--------------------------------------
-my $window = Gtk2::Window->new('toplevel');
-
+my $window 	= Gtk2::Window->new('toplevel');
 #--------------------------------------
 
 #create app objects
@@ -1516,73 +1515,12 @@ sub evt_value_changed {
 sub evt_take_screenshot {
 	my ( $widget, $data, $folder_from_config ) = @_;
 
-	#disable signal-handler
-	$SIG{USR1}  = 'IGNORE';
-	$SIG{USR2}  = 'IGNORE';
-	$SIG{RTMIN} = 'IGNORE';
-	$SIG{RTMAX} = 'IGNORE';
-
-	my $quality_value             = $scale->get_value();
-	my $delay_value               = undef;
-	my $thumbnail_value           = $thumbnail->get_value;
-	my $progname_value            = undef;
-	my $filename_value            = undef;
-	my $filetype_value            = undef;
-	my $folder                    = undef;
-	my $screenshot                = undef;
-	my $screenshot_name           = undef;
-	my $screenshot_thumbnail      = undef;
-	my $screenshot_thumbnail_name = undef;
-	my $thumbnail_ending          = "thumb";
-	print "\n$data was emitted by widget $widget\n"
-		if $shutter_common->get_debug;
-	
 	#get xid if any window was selected from the submenu...
 	my $selfcapture = FALSE;
 	if ( $data =~ /^shutter_window_direct(.*)/ ) {
 		my $xid = $1;
 		$selfcapture = TRUE if $xid == $window->window->XID;
 	}
-
-	#determine current file type (name - description)
-	$combobox_type->get_active_text =~ /(.*) -/;
-	$filetype_value = $1;
-	unless ($filetype_value) {
-		$shutter_dialog->dlg_error_message( $shutter_common->get_gettext->get("No valid filetype specified"), $d->get("Failed") );
-		&fct_control_main_window( TRUE, 'show' );
-		return FALSE;
-	}
-
-	#determine folder to save
-	$folder = $saveDir_button->get_filename || $folder_from_config;
-	utf8::decode $folder;
-
-	if ( $delay_active->get_active ) {
-		$delay_value = $delay->get_value;
-	} else {
-		$delay_value = 0;
-	}
-
-	#prepare filename, parse wild-cards
-	$filename_value = $filename->get_text();
-	utf8::decode $filename_value;
-	$filename_value = strftime $filename_value , localtime;
-
-	#get next filename (auto increment using a wild card or manually)
-	my $uri = &fct_get_next_filename( $filename_value, $folder, $filetype_value );
-
-	#no valid filename was determined, exit here
-	unless($uri){
-		my $response = $shutter_dialog->dlg_error_message( 
-			$d->get( "There was an error determining the filename." ),
-			$d->get("Failed") 
-		);		
-		&fct_control_main_window( TRUE, 'show' );
-		return FALSE;
-	}
-
-	#save current position of main window
-	my ( $old_x, $old_y ) = $window->get_position;
 
 	#hide mainwindow
 	if (   $hide_active->get_active
@@ -1591,275 +1529,21 @@ sub evt_take_screenshot {
 		&& !$selfcapture )
 	{
 		&fct_control_main_window(FALSE, 'hide');
-	}
+	}else{
 
-	#fullscreen screenshot
-	if ( $data eq "raw" || $data eq "tray_raw" ) {
-		my $wnck_screen = Gnome2::Wnck::Screen->get_default;
-		unless ( $filename_value =~ /[a-zA-Z0-9]+/
-			&& defined($folder)
-			&& defined($filetype_value) )
-		{
-			$shutter_dialog->dlg_error_message( 
-				$shutter_common->get_gettext->get("No valid filename specified"), 
-				$d->get("Failed") 
-			);
-			&fct_control_main_window( TRUE, 'show', $old_x, $old_y );
-			return FALSE;
-		}
-
-		my $screenshooter = Shutter::Screenshot::Workspace->new(
-			$shutter_common, $combobox_cursor->get_active,
-			$delay_value, $wnck_screen->get_active_workspace,
-			undef, undef, $current_monitor_active->get_active
-		);
-		$screenshot = $screenshooter->workspace();
-		undef $screenshooter;
-
-		#window
-	} elsif ( $data eq "window"
-		|| $data eq "tray_window"
-		|| $data eq "section"
-		|| $data eq "tray_section" )
-	{
-		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
-			$shutter_dialog->dlg_error_message( $shutter_common->get_gettext->get("No valid filename specified"), $d->get("Failed") );
-			&fct_control_main_window( TRUE, 'show', $old_x, $old_y );
-			return FALSE;
-		}
-
-		my $screenshooter = Shutter::Screenshot::Window->new(
-			$shutter_common, $combobox_cursor->get_active,
-			$delay_value, $x11, $combobox_border->get_active,
-			undef, $data, $is_in_tray
-		);
-		$screenshot = $screenshooter->window_select();
-		undef $screenshooter;
-
-		#selection
-	} elsif ( $data eq "select" || $data eq "tray_select" ) {
-		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
-			$shutter_dialog->dlg_error_message( $shutter_common->get_gettext->get("No valid filename specified"), $d->get("Failed") );
-			&fct_control_main_window( TRUE, 'show', $old_x, $old_y );
-			return FALSE;
-		}
-		if ( $tool_advanced->get_active ) {
-					
-			my $screenshooter = Shutter::Screenshot::SelectorAdvanced->new( $shutter_common, $combobox_cursor->get_active, $delay_value, \$view, \$selector );
-			$screenshot = $screenshooter->select_advanced();
-			undef $screenshooter;
-
-		} else {
-			my $zoom_size_factor = 1;
-			$zoom_size_factor = 2 if ( $zoom_size2->get_active );
-			$zoom_size_factor = 3 if ( $zoom_size3->get_active );
-			my $screenshooter = Shutter::Screenshot::SelectorSimple->new( $shutter_common, $combobox_cursor->get_active,
-				$delay_value, $zoom_size_factor, $zoom_active->get_active );
-			$screenshot = $screenshooter->select_simple();
-			undef $screenshooter;
-		}
-
-		#web
-	} elsif ( $data eq "web" || $data eq "tray_web" ) {
-
-		$screenshot = &dlg_website( $uri->get_path(), $filetype_value, $quality_value );
-		if ( $screenshot != 5 ) {
-			eval { $screenshot->isa('Image::Magick'); };
-			if ($@) {
-				$shutter_dialog->dlg_error_message( $shutter_common->get_gettext->get("Unable to capture website"), $d->get("Failed") );
-				&dlg_status_message( 1, $shutter_common->get_gettext->get("Unable to capture website"), $d->get("Failed") );
-				&fct_control_main_window( TRUE, 'show', $old_x, $old_y );
-				return FALSE;
-			}
-		}
-	} elsif ( $data =~ /^shutter_window_direct(.*)/ ) {
-		my $xid = $1;
-		print "Selected xid: $xid\n" if $shutter_common->get_debug;
-		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
-			$shutter_dialog->dlg_error_message( $shutter_common->get_gettext->get("No valid filename specified"), $d->get("Failed") );
-			&fct_control_main_window( TRUE, 'show', $old_x, $old_y );
-			return FALSE;
-		}
-		my $screenshooter
-			= Shutter::Screenshot::Window->new( $shutter_common, $combobox_cursor->get_active, $delay_value, $x11, $combobox_border->get_active, $xid );
-		$screenshot = $screenshooter->window_by_xid();
-		undef $screenshooter;
-
-	} elsif ( $data =~ /^shutter_wrksp_direct/ ) {
-
-		#we need to handle different wm, e.g. metacity, compiz here
-		my $selected_workspace = undef;
-		my $vpx                = undef;
-		my $vpy                = undef;
-
-		#compiz
-		if ( $data =~ /compiz(\d*)x(\d*)/ ) {
-			$vpx = $1;
-			$vpy = $2;
-			print "Sel. Viewport: $vpx, $vpy\n" if $shutter_common->get_debug;
-
-			#metacity etc.
-		} elsif ( $data =~ /shutter_wrksp_direct(.*)/ ) {
-			$selected_workspace = $1;
-			print "Sel. Workspace: $selected_workspace\n"
-				if $shutter_common->get_debug;
-		}
-
-		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
-			$shutter_dialog->dlg_error_message( $shutter_common->get_gettext->get("No valid filename specified"), $d->get("Failed") );
-			&fct_control_main_window( TRUE, 'show', $old_x, $old_y );
-			return FALSE;
-		}
-		my $screenshooter = Shutter::Screenshot::Workspace->new( $shutter_common, $combobox_cursor->get_active,
-			$delay_value, $selected_workspace, $vpx, $vpy, $current_monitor_active->get_active );
-		$screenshot = $screenshooter->workspace();
-
-	}
-
-	#screenshot was taken at this stage...
-	#start postprocessing here
-
-	#...successfully???
-	unless ($screenshot) {
-			
-		#show error dialog
-		my $response = $shutter_dialog->dlg_error_message( 
-			$d->get( "Maybe mouse pointer could not be grabbed or the selected area is invalid." ),
-			$d->get( "Error while taking the screenshot" )
-		);
-			
-		&dlg_status_message( 1, $shutter_common->get_gettext->get("Screenshot failed!") );
-		&fct_control_main_window( TRUE, 'show', $old_x, $old_y );
-		return FALSE;
-	} else {
-
-		#user aborted screenshot
-		if ( $screenshot == 5 ) {
-			&dlg_status_message( 1, $shutter_common->get_gettext->get("Capture aborted by user") );
-			&fct_control_main_window( TRUE, 'show', $old_x, $old_y );
-			return FALSE;
-		}
-
-		#we have to use the path (e.g. /home/username/file1.png)
-		#so we can save the screenshot_properly
-		$screenshot_name = $uri->get_path();
-
-		#parse wild cards
-		my $swidth  = $screenshot->get_width;
-		my $sheight = $screenshot->get_height;
-
-		$screenshot_name =~ s/\%24w/$swidth/g;
-		$screenshot_name =~ s/\%24h/$sheight/g;
-
-		#update uri after parsing as well, so we can check if file exists for example
-		$uri = Gnome2::VFS::URI->new ($screenshot_name);
+		#save current position of main window
+		( $window->{x}, $window->{y} ) = $window->get_position;
 		
-		#maybe the uri already exists, so we have to append some digits (e.g. testfile01(0002).png)
-		#we don't do this when taking a web screenshot,
-		#because gnome-web-photo creates the file immediately
-		#we would save two files in this case 
-		#because the new file would always "exist"
-		if($data ne "web" && $data ne "tray_web"){
-			if ( $uri->exists ) {
-				my $count             = 1;
-				my $filename_value = fileparse( $uri->get_path, '\..*' );
-				my $existing_filename = $filename_value;
-				while ( $uri->exists ) {
-					$filename_value = $existing_filename . "(" . sprintf( "%03d", $count++ ) . ")";
-					$uri 	= Gnome2::VFS::URI->new($folder);
-					$uri    = $uri->append_string("$filename_value.$filetype_value");
-					print "Checking new uri after parsing: " . $uri->to_string . "\n" if $shutter_common->get_debug;
-				}
-			}
-		}
-		
-		#we have to update the path again
-		$screenshot_name = $uri->get_path();
-
-		print "Trying to save file to $screenshot_name\n"
-			if $shutter_common->get_debug;
-
-		#finally save pixbuf
-		unless ($shutter_pix->save_pixbuf_to_file($screenshot, $screenshot_name, $screenshot_name, $filetype_value, $quality_value)){
-			&fct_control_main_window( TRUE, 'show', $old_x, $old_y );
-			return FALSE;			
-		}
-
-	}    #end screenshot successfull
-	if ( $uri->exists ) {
-
-		#quantize
-		if ( $im_colors_active->get_active ) {
-			my $im_colors_value = $combobox_im_colors->get_active_text();
-			$im_colors_value =~ /.*\(([0-9]*).*\)/;
-			&fct_imagemagick_perform( 'reduce_colors', $screenshot_name, $im_colors_value );
-		}
-
-		#generate the thumbnail
-		if ( $thumbnail_active->get_active ) {
-
-			#calculate size
-			my $twidth  = int( $screenshot->get_width *  ( $thumbnail_value / 100 ) );
-			my $theight = int( $screenshot->get_height * ( $thumbnail_value / 100 ) );
-
-			#create thumbail
-			$screenshot_thumbnail = Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $screenshot_name, $twidth, $theight, TRUE );
-
-			#save path of thumbnail
-			my ($name, $folder, $ext) = fileparse( $uri->get_path, '\..*' );
-			$screenshot_thumbnail_name = $folder . "/$name-$thumbnail_ending.$filetype_value";
-
-			#parse wild cards
-			$screenshot_thumbnail_name =~ s/\%24w/$twidth/g;
-			$screenshot_thumbnail_name =~ s/\%24h/$theight/g;
-
-			print "Trying to save file to $screenshot_thumbnail_name\n"
-				if $shutter_common->get_debug;
-
-			#finally save pixbuf
-			unless($shutter_pix->save_pixbuf_to_file($screenshot_thumbnail, $screenshot_thumbnail_name, $screenshot_thumbnail_name, $filetype_value, $quality_value)){
-				&fct_control_main_window( TRUE, 'show', $old_x, $old_y );
-				return FALSE;			
-			}
-
-		}
-
-		#integrate it into the notebook
-		my $new_key_screenshot = &fct_integrate_screenshot_in_notebook( $uri, $screenshot );
-
-		#thumbnail as well if present
-		my $new_key_screenshot_thumbnail = &fct_integrate_screenshot_in_notebook( Gnome2::VFS::URI->new($screenshot_thumbnail_name), $screenshot_thumbnail )
-			if $thumbnail_active->get_active;
-
-		#autocopy to clipboard if configured
-		if ( $autocopy_active->get_active() ) {
-			$clipboard->set_image($screenshot);
-		}
-
-		#open screenshot with configured program
-		if ( $progname_active->get_active ) {
-			my $model         = $progname->get_model();
-			my $progname_iter = $progname->get_active_iter();
-			if ($progname_iter) {
-				$progname_value = $model->get_value( $progname_iter, 2 );
-			}
-			&fct_open_with_program($progname_value);
-		}
-		print "screenshot successfully saved to $screenshot_name!\n"
-			if $shutter_common->get_debug;
-		&dlg_status_message( 1, "$session_screens{$new_key_screenshot}->{'short'} " . $shutter_common->get_gettext->get("saved") );
-	} else {
-		#show error dialog
-		my $response = $shutter_dialog->dlg_error_message( 
-			$d->get( "Maybe mouse pointer could not be grabbed or the selected area is invalid." ),
-			$d->get( "Error while taking the screenshot" )
-		);
-		&dlg_status_message( 1, $shutter_common->get_gettext->get("Screenshot failed!") );
 	}
+	
+	#A short timeout to give the server a chance to
+	#redraw the area that was obscured by our dialog.
 
-	&fct_control_main_window( TRUE, 'show', $old_x, $old_y );
-
-	return TRUE;
+	Glib::Timeout->add (200, sub{
+		&fct_take_screenshot($widget, $data, $folder_from_config);
+		return FALSE;	
+	}, undef);
+	
 }
 
 sub evt_behavior_handle {
@@ -1901,28 +1585,6 @@ sub evt_notebook_switch {
 
 	}
 
-	#	foreach my $key ( keys %session_screens ) {
-	#		eval {
-	#
-	#			#		$session_screens{$key}->{'handle'}->cancel;
-	#			$session_screens{$key}->{'image'}->clear;
-	#		};
-	#	}
-
-	#	my $calc_num = 0;
-	#	my ($wwidth, $wheight) = $window->get_size;
-	#	foreach my $key ( keys %session_screens ) {
-	#		if($session_screens{$key}->{'tab_label'}->window){
-	#			my $alloc = $session_screens{$key}->{'tab_label'}->allocation;
-	#			print "$wwidth / $alloc->width \n";
-	#			$calc_num = int($wwidth / $alloc->width);
-	#			last;
-	#		}
-	#	}
-	#
-	#	print $calc_num."\n";
-
-	#	$notebook->reorder_child ($session_start_screen{'first_page'}->{'tab_child'}, $int-1);
 	return TRUE;
 }
 
@@ -2096,7 +1758,7 @@ sub evt_activate_systray_statusicon {
 		print "\n$data was emitted by widget $widget\n";
 	}
 
-	if ( $window->visible ) {
+	unless ( $is_in_tray ) {
 		&fct_control_main_window (TRUE, 'hide');
 	} else {
 		&fct_control_main_window (TRUE, 'show');
@@ -2285,11 +1947,7 @@ sub evt_open {
 	foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
 		my $filter = Gtk2::FileFilter->new;
 		
-		#add all known formats to the dialog
-		#but filter out some special ones like svg
-		#FIXME write in SVG via cairo?
-		next if ($_->{name} =~ /svg/);
-			
+		#add all known formats to the dialog			
 		$filter->set_name( $_->{name} . " - " . $_->{description} );
 		
 		foreach ( @{ $_->{extensions} } ) {
@@ -2468,7 +2126,7 @@ sub fct_create_session_notebook {
 	my $new_index = $notebook->append_page( fct_create_tab( "", TRUE ), $hbox_first_label );
 	$session_start_screen{'first_page'}->{'tab_child'} = $notebook->get_nth_page($new_index);
 
-	$notebook->signal_connect( 'switch-page' => \&evt_notebook_switch );
+	$notebook->signal_connect_after( 'switch-page' => \&evt_notebook_switch );
 
 	return $notebook;
 }
@@ -2490,7 +2148,7 @@ sub fct_integrate_screenshot_in_notebook {
 	my $hbox_tab_label = Gtk2::HBox->new( FALSE, 0 );
 	my $close_icon = Gtk2::Image->new_from_icon_name( 'gtk-close', 'menu' );
 
-	$session_screens{$key}->{'tab_icon'} = Gtk2::Image->new_from_pixbuf( $session_screens{$key}->{'thumb'} );
+	$session_screens{$key}->{'tab_icon'} = Gtk2::Image->new;
 
 	#setup tab label
 	my $tab_close_button = Gtk2::Button->new;
@@ -2525,6 +2183,10 @@ sub fct_integrate_screenshot_in_notebook {
 
 		#setup a filemonitor, so we get noticed if the file changed
 		&fct_add_file_monitor($key);
+		
+		#update menu
+		&fct_update_menu(TRUE);
+		
 	}
 
 	#is this really needed here??
@@ -2599,8 +2261,6 @@ sub fct_add_file_monitor {
 sub fct_control_main_window {
 	my $set = shift;
 	my $mode = shift;
-	my $old_x = shift;
-	my $old_y = shift;
 
 	#set all buttons insensitive/sensitive
 	$shutter_tool->{_select}->set_sensitive($set);
@@ -2608,34 +2268,16 @@ sub fct_control_main_window {
 	$shutter_tool->{_window}->set_sensitive($set);
 	$shutter_tool->{_section}->set_sensitive($set);
 	$shutter_tool->{_web}->set_sensitive($set) if ($gnome_web_photo);
-
-	my $screen = Gnome2::Wnck::Screen->get_default;
-	$screen->force_update();
-
-	#we determine the wm name but on older
-	#version of libwnck (or the bindings)
-	#the needed method is not available
-	#in this case we use gdk to do it
-	#
-	#this leads to a known problem when switching
-	#the wm => wm_name will still remain the old one
-	my $wm_name = Gtk2::Gdk::Screen->get_default->get_window_manager_name;
-	if($screen->can('get_window_manager_name')){
-		$wm_name = $screen->get_window_manager_name;
-	}
 	
 	#hide or show window
 	if($mode eq 'show'){
 
-		#focus window after taking a screenshot
-		$window->deiconify;
 		$window->show_all;
-
-		#move window to saved position
-		$window->move( $old_x, $old_y ) if (defined $old_x && defined $old_y);
-
 		$window->present;
 		$is_in_tray = FALSE;
+
+		#move window to saved position
+		$window->move( $window->{x}, $window->{y} ) if (defined $window->{x} && defined $window->{y});
 
 		#attach signal-handler again
 		$SIG{USR1}  = sub { &evt_take_screenshot( 'global_keybinding', 'raw' ) };
@@ -2645,18 +2287,11 @@ sub fct_control_main_window {
 			
 	}elsif($mode eq 'hide'){
 
-		$window->iconify;
+		#save current position of main window
+		( $window->{x}, $window->{y} ) = $window->get_position;
+
 		$window->hide;
-		#wait longer when running compiz
-		if($wm_name =~ /compiz/){
-			usleep 200000;
-		}else{
-			usleep 100000;	
-		}
-		while ( Gtk2->events_pending ) {
-			Gtk2->main_iteration;
-		}		
-		Gtk2::Gdk->flush;
+		
 		$is_in_tray = TRUE;
 		
 	}
@@ -3796,6 +3431,336 @@ sub fct_draw {
 	return TRUE;
 }
 
+sub fct_take_screenshot {
+	my ( $widget, $data, $folder_from_config ) = @_;
+
+	#disable signal-handler
+	$SIG{USR1}  = 'IGNORE';
+	$SIG{USR2}  = 'IGNORE';
+	$SIG{RTMIN} = 'IGNORE';
+	$SIG{RTMAX} = 'IGNORE';
+
+	my $quality_value             = $scale->get_value();
+	my $delay_value               = undef;
+	my $thumbnail_value           = $thumbnail->get_value;
+	my $progname_value            = undef;
+	my $filename_value            = undef;
+	my $filetype_value            = undef;
+	my $folder                    = undef;
+	my $screenshot                = undef;
+	my $screenshot_name           = undef;
+	my $screenshot_thumbnail      = undef;
+	my $screenshot_thumbnail_name = undef;
+	my $thumbnail_ending          = "thumb";
+	print "\n$data was emitted by widget $widget\n"
+		if $shutter_common->get_debug;
+	
+	#determine current file type (name - description)
+	$combobox_type->get_active_text =~ /(.*) -/;
+	$filetype_value = $1;
+	unless ($filetype_value) {
+		$shutter_dialog->dlg_error_message( $shutter_common->get_gettext->get("No valid filetype specified"), $d->get("Failed") );
+		&fct_control_main_window( TRUE, 'show' );
+		return FALSE;
+	}
+
+	#determine folder to save
+	$folder = $saveDir_button->get_filename || $folder_from_config;
+	utf8::decode $folder;
+
+	if ( $delay_active->get_active ) {
+		$delay_value = $delay->get_value;
+	} else {
+		$delay_value = 0;
+	}
+
+	#prepare filename, parse wild-cards
+	$filename_value = $filename->get_text();
+	utf8::decode $filename_value;
+	$filename_value = strftime $filename_value , localtime;
+
+	#get next filename (auto increment using a wild card or manually)
+	my $uri = &fct_get_next_filename( $filename_value, $folder, $filetype_value );
+
+	#no valid filename was determined, exit here
+	unless($uri){
+		my $response = $shutter_dialog->dlg_error_message( 
+			$d->get( "There was an error determining the filename." ),
+			$d->get("Failed") 
+		);		
+		&fct_control_main_window( TRUE, 'show' );
+		return FALSE;
+	}
+
+	#fullscreen screenshot
+	if ( $data eq "raw" || $data eq "tray_raw" ) {
+		my $wnck_screen = Gnome2::Wnck::Screen->get_default;
+		unless ( $filename_value =~ /[a-zA-Z0-9]+/
+			&& defined($folder)
+			&& defined($filetype_value) )
+		{
+			$shutter_dialog->dlg_error_message( 
+				$shutter_common->get_gettext->get("No valid filename specified"), 
+				$d->get("Failed") 
+			);
+			&fct_control_main_window( TRUE, 'show');
+			return FALSE;
+		}
+
+		my $screenshooter = Shutter::Screenshot::Workspace->new(
+			$shutter_common, $combobox_cursor->get_active,
+			$delay_value, $wnck_screen->get_active_workspace,
+			undef, undef, $current_monitor_active->get_active
+		);
+		$screenshot = $screenshooter->workspace();
+		undef $screenshooter;
+
+		#window
+	} elsif ( $data eq "window"
+		|| $data eq "tray_window"
+		|| $data eq "section"
+		|| $data eq "tray_section" )
+	{
+		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
+			$shutter_dialog->dlg_error_message( $shutter_common->get_gettext->get("No valid filename specified"), $d->get("Failed") );
+			&fct_control_main_window( TRUE, 'show');
+			return FALSE;
+		}
+
+		my $screenshooter = Shutter::Screenshot::Window->new(
+			$shutter_common, $combobox_cursor->get_active,
+			$delay_value, $x11, $combobox_border->get_active,
+			undef, $data, $is_in_tray
+		);
+		$screenshot = $screenshooter->window_select();
+		undef $screenshooter;
+
+		#selection
+	} elsif ( $data eq "select" || $data eq "tray_select" ) {
+		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
+			$shutter_dialog->dlg_error_message( $shutter_common->get_gettext->get("No valid filename specified"), $d->get("Failed") );
+			&fct_control_main_window( TRUE, 'show');
+			return FALSE;
+		}
+		if ( $tool_advanced->get_active ) {
+					
+			my $screenshooter = Shutter::Screenshot::SelectorAdvanced->new( $shutter_common, $combobox_cursor->get_active, $delay_value, \$view, \$selector );
+			$screenshot = $screenshooter->select_advanced();
+			undef $screenshooter;
+
+		} else {
+			my $zoom_size_factor = 1;
+			$zoom_size_factor = 2 if ( $zoom_size2->get_active );
+			$zoom_size_factor = 3 if ( $zoom_size3->get_active );
+			my $screenshooter = Shutter::Screenshot::SelectorSimple->new( $shutter_common, $combobox_cursor->get_active,
+				$delay_value, $zoom_size_factor, $zoom_active->get_active );
+			$screenshot = $screenshooter->select_simple();
+			undef $screenshooter;
+		}
+
+		#web
+	} elsif ( $data eq "web" || $data eq "tray_web" ) {
+
+		$screenshot = &dlg_website( $uri->get_path(), $filetype_value, $quality_value );
+		if ( $screenshot != 5 ) {
+			eval { $screenshot->isa('Image::Magick'); };
+			if ($@) {
+				$shutter_dialog->dlg_error_message( $shutter_common->get_gettext->get("Unable to capture website"), $d->get("Failed") );
+				&dlg_status_message( 1, $shutter_common->get_gettext->get("Unable to capture website"), $d->get("Failed") );
+				&fct_control_main_window( TRUE, 'show');
+				return FALSE;
+			}
+		}
+	} elsif ( $data =~ /^shutter_window_direct(.*)/ ) {
+		my $xid = $1;
+		print "Selected xid: $xid\n" if $shutter_common->get_debug;
+		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
+			$shutter_dialog->dlg_error_message( $shutter_common->get_gettext->get("No valid filename specified"), $d->get("Failed") );
+			&fct_control_main_window( TRUE, 'show');
+			return FALSE;
+		}
+		my $screenshooter
+			= Shutter::Screenshot::Window->new( $shutter_common, $combobox_cursor->get_active, $delay_value, $x11, $combobox_border->get_active, $xid );
+		$screenshot = $screenshooter->window_by_xid();
+		undef $screenshooter;
+
+	} elsif ( $data =~ /^shutter_wrksp_direct/ ) {
+
+		#we need to handle different wm, e.g. metacity, compiz here
+		my $selected_workspace = undef;
+		my $vpx                = undef;
+		my $vpy                = undef;
+
+		#compiz
+		if ( $data =~ /compiz(\d*)x(\d*)/ ) {
+			$vpx = $1;
+			$vpy = $2;
+			print "Sel. Viewport: $vpx, $vpy\n" if $shutter_common->get_debug;
+
+			#metacity etc.
+		} elsif ( $data =~ /shutter_wrksp_direct(.*)/ ) {
+			$selected_workspace = $1;
+			print "Sel. Workspace: $selected_workspace\n"
+				if $shutter_common->get_debug;
+		}
+
+		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
+			$shutter_dialog->dlg_error_message( $shutter_common->get_gettext->get("No valid filename specified"), $d->get("Failed") );
+			&fct_control_main_window( TRUE, 'show');
+			return FALSE;
+		}
+		my $screenshooter = Shutter::Screenshot::Workspace->new( $shutter_common, $combobox_cursor->get_active,
+			$delay_value, $selected_workspace, $vpx, $vpy, $current_monitor_active->get_active );
+		$screenshot = $screenshooter->workspace();
+
+	}
+
+	#screenshot was taken at this stage...
+	#start postprocessing here
+
+	#...successfully???
+	unless ($screenshot) {
+			
+		#show error dialog
+		my $response = $shutter_dialog->dlg_error_message( 
+			$d->get( "Maybe mouse pointer could not be grabbed or the selected area is invalid." ),
+			$d->get( "Error while taking the screenshot" )
+		);
+			
+		&dlg_status_message( 1, $shutter_common->get_gettext->get("Screenshot failed!") );
+		&fct_control_main_window( TRUE, 'show');
+		return FALSE;
+	} else {
+
+		#user aborted screenshot
+		if ( $screenshot == 5 ) {
+			&dlg_status_message( 1, $shutter_common->get_gettext->get("Capture aborted by user") );
+			&fct_control_main_window( TRUE, 'show');
+			return FALSE;
+		}
+
+		#we have to use the path (e.g. /home/username/file1.png)
+		#so we can save the screenshot_properly
+		$screenshot_name = $uri->get_path();
+
+		#parse wild cards
+		my $swidth  = $screenshot->get_width;
+		my $sheight = $screenshot->get_height;
+
+		$screenshot_name =~ s/\%24w/$swidth/g;
+		$screenshot_name =~ s/\%24h/$sheight/g;
+
+		#update uri after parsing as well, so we can check if file exists for example
+		$uri = Gnome2::VFS::URI->new ($screenshot_name);
+		
+		#maybe the uri already exists, so we have to append some digits (e.g. testfile01(0002).png)
+		#we don't do this when taking a web screenshot,
+		#because gnome-web-photo creates the file immediately
+		#we would save two files in this case 
+		#because the new file would always "exist"
+		if($data ne "web" && $data ne "tray_web"){
+			if ( $uri->exists ) {
+				my $count             = 1;
+				my $filename_value = fileparse( $uri->get_path, '\..*' );
+				my $existing_filename = $filename_value;
+				while ( $uri->exists ) {
+					$filename_value = $existing_filename . "(" . sprintf( "%03d", $count++ ) . ")";
+					$uri 	= Gnome2::VFS::URI->new($folder);
+					$uri    = $uri->append_string("$filename_value.$filetype_value");
+					print "Checking new uri after parsing: " . $uri->to_string . "\n" if $shutter_common->get_debug;
+				}
+			}
+		}
+		
+		#we have to update the path again
+		$screenshot_name = $uri->get_path();
+
+		print "Trying to save file to $screenshot_name\n"
+			if $shutter_common->get_debug;
+
+		#finally save pixbuf
+		unless ($shutter_pix->save_pixbuf_to_file($screenshot, $screenshot_name, $screenshot_name, $filetype_value, $quality_value)){
+			&fct_control_main_window( TRUE, 'show');
+			return FALSE;			
+		}
+
+	}    #end screenshot successfull
+	if ( $uri->exists ) {
+
+		#quantize
+		if ( $im_colors_active->get_active ) {
+			my $im_colors_value = $combobox_im_colors->get_active_text();
+			$im_colors_value =~ /.*\(([0-9]*).*\)/;
+			&fct_imagemagick_perform( 'reduce_colors', $screenshot_name, $im_colors_value );
+		}
+
+		#generate the thumbnail
+		if ( $thumbnail_active->get_active ) {
+
+			#calculate size
+			my $twidth  = int( $screenshot->get_width *  ( $thumbnail_value / 100 ) );
+			my $theight = int( $screenshot->get_height * ( $thumbnail_value / 100 ) );
+
+			#create thumbail
+			$screenshot_thumbnail = Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $screenshot_name, $twidth, $theight, TRUE );
+
+			#save path of thumbnail
+			my ($name, $folder, $ext) = fileparse( $uri->get_path, '\..*' );
+			$screenshot_thumbnail_name = $folder . "/$name-$thumbnail_ending.$filetype_value";
+
+			#parse wild cards
+			$screenshot_thumbnail_name =~ s/\%24w/$twidth/g;
+			$screenshot_thumbnail_name =~ s/\%24h/$theight/g;
+
+			print "Trying to save file to $screenshot_thumbnail_name\n"
+				if $shutter_common->get_debug;
+
+			#finally save pixbuf
+			unless($shutter_pix->save_pixbuf_to_file($screenshot_thumbnail, $screenshot_thumbnail_name, $screenshot_thumbnail_name, $filetype_value, $quality_value)){
+				&fct_control_main_window( TRUE, 'show');
+				return FALSE;			
+			}
+
+		}
+
+		#integrate it into the notebook
+		my $new_key_screenshot = &fct_integrate_screenshot_in_notebook( $uri, $screenshot );
+
+		#thumbnail as well if present
+		my $new_key_screenshot_thumbnail = &fct_integrate_screenshot_in_notebook( Gnome2::VFS::URI->new($screenshot_thumbnail_name), $screenshot_thumbnail )
+			if $thumbnail_active->get_active;
+
+		#autocopy to clipboard if configured
+		if ( $autocopy_active->get_active() ) {
+			$clipboard->set_image($screenshot);
+		}
+
+		#open screenshot with configured program
+		if ( $progname_active->get_active ) {
+			my $model         = $progname->get_model();
+			my $progname_iter = $progname->get_active_iter();
+			if ($progname_iter) {
+				$progname_value = $model->get_value( $progname_iter, 2 );
+			}
+			&fct_open_with_program($progname_value);
+		}
+		print "screenshot successfully saved to $screenshot_name!\n"
+			if $shutter_common->get_debug;
+		&dlg_status_message( 1, "$session_screens{$new_key_screenshot}->{'short'} " . $shutter_common->get_gettext->get("saved") );
+	} else {
+		#show error dialog
+		my $response = $shutter_dialog->dlg_error_message( 
+			$d->get( "Maybe mouse pointer could not be grabbed or the selected area is invalid." ),
+			$d->get( "Error while taking the screenshot" )
+		);
+		&dlg_status_message( 1, $shutter_common->get_gettext->get("Screenshot failed!") );
+	}
+
+	&fct_control_main_window( TRUE, 'show');
+
+	return TRUE;
+}
+
 sub fct_upload {
 
 	my $key = &fct_get_current_file(undef);
@@ -4113,13 +4078,6 @@ sub fct_update_first_tab {
 	$session_start_screen{'first_page'}->{'size_counter'}
 		->set_text( $d->get("Total size") . ": " . Gnome2::VFS->format_file_size_for_display($total_size) );
 
-	#if size == 0 => no screenshot in session( handle menu entries properly )
-	if ( $shutter_menu->{_menuitem_close_all} ) {
-
-		#enable/disable menu entry when we are in the session tab and selection changes
-		&fct_update_menu($total_size);
-	}
-
 	#handle session information
 	if ( $filename && $saveDir_button && $combobox_settings_profiles ) {
 
@@ -4181,21 +4139,31 @@ sub fct_save_as {
 		#add supported formats to combobox
 		#the user can decide to save in jpeg, png or bmp format
 		my $counter = 0;
+		my $png_counter = undef;
 		foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
 			
 			#add all known formats to the dialog
-			#but filter out some special ones like svg
-			#FIXME write in SVG via cairo?
-			$combobox_save_as_type->insert_text( $counter, $_->{name} . " - " . $_->{description} )
-			unless ($_->{name} =~ /svg/);
+			$combobox_save_as_type->insert_text( $counter, $_->{name} . " - " . $_->{description} );
 			
 			#set active when mime_type is matching
 			#loop because multiple mime types are registered for fome file formats
 			foreach my $mime (@{$_->{mime_types}}){
 				$combobox_save_as_type->set_active($counter)
 					if $mime eq $session_screens{$key}->{'mime_type'};		
+				
+				#save png_counter as well as fallback
+				$png_counter = $counter if $mime eq 'image/png';
 			}
 			$counter++;
+		}
+		
+		#something went wrong here
+		#filetype was not detected automatically
+		#set to png as default
+		unless($combobox_save_as_type->get_active_text){
+			if(defined $png_counter){
+				$combobox_save_as_type->set_active($png_counter);
+			}	
 		}
 
 		$combobox_save_as_type->signal_connect(
@@ -4800,6 +4768,8 @@ sub fct_create_thumbnail_and_fileinfos {
 
 						&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $shutter_common->get_gettext->get("saved"));
 					
+						return TRUE;
+					
 					#resave failed, so we delete the screenshot	
 					}else{
 
@@ -5207,7 +5177,10 @@ sub fct_ret_program_menu {
 	unless ($key) {
 
 		#no iconview ??
-		return $menu_programs unless $session_start_screen{'first_page'}->{'view'};
+		unless ($session_start_screen{'first_page'}->{'view'}){
+			$shutter_menu->{_menuitem_reopen}->set_sensitive(FALSE);
+			return $menu_programs; 
+		}
 		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
 			sub {
 				my ( $view, $path ) = @_;
@@ -5220,7 +5193,10 @@ sub fct_ret_program_menu {
 	}
 
 	#still no key? => leave sub
-	return $menu_programs unless $key;
+	unless( $key ){
+		$shutter_menu->{_menuitem_reopen}->set_sensitive(FALSE);
+		return $menu_programs;		
+	}
 
 	#	my $mime_type = Gnome2::VFS::Mime::Type->new ($session_screens{$key}->{'mime_type'});
 	#	my @apps = $mime_type->get_all_applications_for_uri( $session_screens{$key}->{'uri'} );
@@ -5231,9 +5207,17 @@ sub fct_ret_program_menu {
 	#Cannot call gnome_vfs_mime_application_get_icon
 	#with a GNOMEVFSMimeApplication structure
 	#constructed by the deprecated application registry
-	return $menu_programs unless exists $session_screens{$key}->{'mime_type'};
+	unless (exists $session_screens{$key}->{'mime_type'}){
+		$shutter_menu->{_menuitem_reopen}->set_sensitive(FALSE);
+		return $menu_programs;	
+	}
 
 	my ( $default, @apps ) = File::MimeInfo::Applications::mime_applications( $session_screens{$key}->{'mime_type'} );
+	unless (scalar @apps){
+		$shutter_menu->{_menuitem_reopen}->set_sensitive(FALSE);
+		return $menu_programs;			
+	}
+
 	foreach my $app (@apps) {
 
 		my $program_item = Gtk2::ImageMenuItem->new_with_label( $app->Name );

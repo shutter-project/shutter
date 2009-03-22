@@ -183,6 +183,13 @@ sub show {
 	#~ $self->{_uimanager}->get_widget("/MenuBar/Edit/Undo")->set_sensitive(FALSE);
 	#~ $self->{_uimanager}->get_widget("/MenuBar/Edit/Redo")->set_sensitive(FALSE);
 
+	#do show these actions because the user would be confused
+	#to see multiple shortcuts to handle zooming
+	#controlequal is used for english keyboard layouts for example
+	$self->{_uimanager}->get_action("/MenuBar/View/ControlEqual")->set_visible(FALSE);
+	$self->{_uimanager}->get_action("/MenuBar/View/ControlKpAdd")->set_visible(FALSE);
+	$self->{_uimanager}->get_action("/MenuBar/View/ControlKpSub")->set_visible(FALSE);
+
 	#create a table for placing the ruler and scrolle window
 	my $table = new Gtk2::Table( 3, 2, FALSE );
 
@@ -1630,7 +1637,12 @@ sub event_item_on_button_press {
 
 		}
 
-	}
+	#zooming using the mouse wheel
+	#~ } elsif ( $ev->button == 4  ) {
+		#~ $self->zoom_in_cb;		
+	#~ } elsif ( $ev->button == 5  ) {
+		#~ $self->zoom_out_cb;
+	}		
 
 	return TRUE;
 }
@@ -2640,7 +2652,10 @@ sub setup_uimanager {
 		[ "Close", 'gtk-close', undef, "<control>Q", undef, sub { $self->quit(TRUE) } ],
 		[ "Save",       'gtk-save',     undef, "<control>S",     undef, sub { $self->save(), $self->quit(FALSE) } ],
 		[ "ZoomIn",     'gtk-zoom-in',  undef, "<control>plus",  undef, sub { $self->zoom_in_cb($self) } ],
+		[ "ControlEqual",  'gtk-zoom-in',  undef, "<control>equal",  undef, sub { $self->zoom_in_cb($self) } ],
+		[ "ControlKpAdd",  'gtk-zoom-in',  undef, "<control>KP_Add",  undef, sub { $self->zoom_in_cb($self) } ],
 		[ "ZoomOut",    'gtk-zoom-out', undef, "<control>minus", undef, sub { $self->zoom_out_cb($self) } ],
+		[ "ControlKpSub",    'gtk-zoom-out', undef, "<control>KP_Subtract", undef, sub { $self->zoom_out_cb($self) } ],
 		[ "ZoomNormal", 'gtk-zoom-100', undef, "<control>0",     undef, sub { $self->zoom_normal_cb($self) } ]
 	);
 
@@ -2712,8 +2727,11 @@ sub setup_uimanager {
       <menuitem action = 'Autoscroll'/>
     </menu>
     <menu action = 'View'>
+      <menuitem action = 'ControlEqual'/>	
+      <menuitem action = 'ControlKpAdd'/>	
       <menuitem action = 'ZoomIn'/>
       <menuitem action = 'ZoomOut'/>
+      <menuitem action = 'ControlKpSub'/>		  
       <menuitem action = 'ZoomNormal'/>
     </menu>
   </menubar>

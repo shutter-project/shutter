@@ -1,3 +1,20 @@
+shutter (0.70.2~ppa1) jaunty; urgency=low
+
+  * fixed bugs
+    -- LP: #339139
+       [Shutter selects incorrect target window]
+    -- LP: #340855 + LP: #340864
+       [fixed save-as function]	
+    -- LP: #340856
+       [main window is partly visible on screenshots]
+    -- LP: #340990
+       [Shutter crashes when xserver grab fails]
+    -- LP: #341459
+       [Ctrl+ + doesn't zoom in drawing area]
+  * updated translations
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Sun, 22 Mar 2009 21:00:55 +0100  
+
 shutter (0.70.1~ppa2) jaunty; urgency=low
 
   * fixed bugs
