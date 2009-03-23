@@ -82,8 +82,8 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.400";
-use constant PPA_VERSION         	=> "ppa2";
+use constant REV                	=> "Rev.401";
+use constant PPA_VERSION         	=> "ppa3";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.70.2";
 use constant SHUTTER_VERSION_FULL 	=> REV . " - " . PPA_VERSION;
@@ -289,7 +289,7 @@ $shutter_menu->{_menuitem_trash}->signal_connect( 'activate', \&fct_delete );
 $shutter_menu->{_menuitem_select_all}->signal_connect( 'activate', \&fct_select_all );
 $shutter_menu->{_menuitem_settings}->signal_connect( 'activate', \&evt_show_settings, 'exp_settings_menu' );
 
-$shutter_menu->{_menuitem_reopen}->set_submenu(&fct_ret_program_menu);
+$shutter_menu->{_menu_actions}->signal_connect( 'focus', sub { $shutter_menu->{_menuitem_reopen}->set_submenu(&fct_ret_program_menu); });
 $shutter_menu->{_menuitem_rename}->signal_connect( 'activate', \&fct_rename );
 $shutter_menu->{_menuitem_upload}->signal_connect( 'activate', \&fct_upload );
 $shutter_menu->{_menuitem_draw}->signal_connect( 'activate', \&fct_draw );
@@ -1838,11 +1838,11 @@ sub evt_iconview_button_press {
 sub evt_iconview_sel_changed {
 	my ( $iconview, $data ) = @_;
 
-	my @sel_items = $iconview->get_selected_items;
-
+	my @sel_items = $iconview->get_selected_items;	
+	
 	#enable/disable menu entry when we are in the session tab and selection changes
 	&fct_update_menu( scalar @sel_items );
-
+		
 	return TRUE;
 }
 
@@ -1850,9 +1850,6 @@ sub fct_update_menu {
 	my $n_items = shift;
 
 	$shutter_menu->{_menuitem_reopen}->set_sensitive($n_items);
-	if($n_items){
-		$shutter_menu->{_menuitem_reopen}->set_submenu(&fct_ret_program_menu);		
-	}
 	$shutter_menu->{_menuitem_rename}->set_sensitive($n_items);
 	$shutter_menu->{_menuitem_upload}->set_sensitive($n_items);
 	$shutter_menu->{_menuitem_draw}->set_sensitive($n_items);
@@ -2183,10 +2180,7 @@ sub fct_integrate_screenshot_in_notebook {
 
 		#setup a filemonitor, so we get noticed if the file changed
 		&fct_add_file_monitor($key);
-		
-		#update menu
-		&fct_update_menu(TRUE);
-		
+				
 	}
 
 	#is this really needed here??
