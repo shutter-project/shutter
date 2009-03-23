@@ -256,6 +256,14 @@ sub window_select {
 		my $drawable        = undef;
 		my $window_selected = FALSE;
 		$self->{_children}{'last_win'}{'gdk_window'} = 0;
+		my $active_workspace = $self->{_wnck_screen}->get_active_workspace;
+
+		#something went wrong here, no active workspace detected
+		unless ( $active_workspace ) {
+			$self->ungrab_pointer_and_keyboard( FALSE, FALSE, FALSE );
+			$output = 0;
+			return $output;
+		}
 
 		Gtk2::Gdk::Event->handler_set(
 			sub {
@@ -398,7 +406,7 @@ sub window_select {
 							print "determine if window fits on screen...\n"
 								if $self->{_gc}->get_debug;
 							if ($curr_window->is_visible_on_workspace(
-									$self->{_wnck_screen}->get_active_workspace
+									$active_workspace
 								)
 								&& $window_region->point_in( $event->x, $event->y )
 								)

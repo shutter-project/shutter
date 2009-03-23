@@ -82,8 +82,8 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.399";
-use constant PPA_VERSION         	=> "ppa1";
+use constant REV                	=> "Rev.400";
+use constant PPA_VERSION         	=> "ppa2";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.70.2";
 use constant SHUTTER_VERSION_FULL 	=> REV . " - " . PPA_VERSION;
@@ -4862,7 +4862,7 @@ sub fct_ret_workspace_menu {
 	}
 
 	my $active_workspace = $screen->get_active_workspace;
-
+	
 	#we need to handle different window managers here because there are some different models related
 	#to workspaces and viewports
 	#	compiz uses "one workspace" - "multiple viewports" model for example
@@ -4870,7 +4870,7 @@ sub fct_ret_workspace_menu {
 	#we will try to handle them by name
 
 	#compiz
-	if ( $wm_name =~ /compiz/ ) {
+	if ( $wm_name =~ /compiz/ && $active_workspace) {
 
 		#calculate viewports with size of workspace
 		my $vpx = $active_workspace->get_viewport_x;
@@ -4922,7 +4922,7 @@ sub fct_ret_workspace_menu {
 				"shutter_wrksp_direct" . $space->get_number
 			);
 			$menu_wrksp->append($wrkspace_item);
-			if ( $active_workspace->get_number == $space->get_number ) {
+			if ($active_workspace && $active_workspace->get_number == $space->get_number ) {
 				$wrkspace_item->set_sensitive(FALSE);
 			}
 		}
@@ -4971,9 +4971,11 @@ sub fct_ret_window_menu {
 	my $screen = Gnome2::Wnck::Screen->get_default;
 	$screen->force_update();
 
+	my $active_workspace = $screen->get_active_workspace;
+
 	my $menu_windows = Gtk2::Menu->new;
 	foreach my $win ( $screen->get_windows ) {
-		if ( $win->is_visible_on_workspace( $screen->get_active_workspace ) ) {
+		if ($active_workspace && $win->is_visible_on_workspace( $active_workspace ) ) {
 			my $window_item = Gtk2::ImageMenuItem->new_with_label( $win->get_name );
 			$window_item->set_image( Gtk2::Image->new_from_pixbuf( $win->get_mini_icon ) );
 			$window_item->signal_connect(

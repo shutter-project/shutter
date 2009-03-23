@@ -58,6 +58,10 @@ sub workspace {
 	my $wrksp_changed = FALSE;
 
 	my $active_workspace = $self->{_wnck_screen}->get_active_workspace;
+	
+	#do we have a workspace??
+	return 0 unless $active_workspace;
+	
 	$self->{_wsp_name} = $active_workspace->get_name;
 	utf8::encode $self->{_wsp_name};
 	my $active_vpx = $active_workspace->get_viewport_x;
