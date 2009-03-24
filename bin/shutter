@@ -82,8 +82,8 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.401";
-use constant PPA_VERSION         	=> "ppa3";
+use constant REV                	=> "Rev.402";
+use constant PPA_VERSION         	=> "ppa4";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.70.2";
 use constant SHUTTER_VERSION_FULL 	=> REV . " - " . PPA_VERSION;
@@ -2379,7 +2379,7 @@ sub fct_create_tab {
 			$notebook->get_n_pages . " " . $d->nget( "screenshot during this session", "screenshots during this session", $notebook->get_n_pages ) );
 
 		$session_start_screen{'first_page'}->{'size_counter'}
-			= Gtk2::Label->new( $d->get("Total size") . ": " . Gnome2::VFS->format_file_size_for_display(0) );
+			= Gtk2::Label->new( $d->get("Total size") . ": " . $shutter_hfunct->utf8_decode( Gnome2::VFS->format_file_size_for_display(0) ) );
 
 		$vbox_all->pack_start( $stats_label,                                                FALSE, TRUE, 1 );
 		$vbox_all->pack_start( $session_start_screen{'first_page'}->{'statistics_counter'}, FALSE, TRUE, 1 );
@@ -4070,7 +4070,7 @@ sub fct_update_first_tab {
 		$total_size += $session_screens{$_}->{'size'};
 	}
 	$session_start_screen{'first_page'}->{'size_counter'}
-		->set_text( $d->get("Total size") . ": " . Gnome2::VFS->format_file_size_for_display($total_size) );
+		->set_text( $d->get("Total size") . ": " . $shutter_hfunct->utf8_decode( Gnome2::VFS->format_file_size_for_display($total_size) ) );
 
 	#handle session information
 	if ( $filename && $saveDir_button && $combobox_settings_profiles ) {
@@ -4325,7 +4325,7 @@ sub fct_update_tab {
 
 		$session_screens{$key}->{'mime_type_label'}->set_text( $session_screens{$key}->{'mime_type'} );
 
-		$session_screens{$key}->{'size_label'}->set_text( Gnome2::VFS->format_file_size_for_display( $session_screens{$key}->{'size'} ) );
+		$session_screens{$key}->{'size_label'}->set_text( $shutter_hfunct->utf8_decode( Gnome2::VFS->format_file_size_for_display( $session_screens{$key}->{'size'} ) ) );
 
 		$session_screens{$key}->{'geometry_label'}->set_text( $session_screens{$key}->{'width'} . "x" . $session_screens{$key}->{'height'} );
 

@@ -76,6 +76,16 @@ sub switch_home_in_file {
 	return $filename;
 }
 
+sub utf8_decode {
+	my $self 	= shift;
+	my $string	= shift;
+	
+	#see https://bugs.launchpad.net/shutter/+bug/347821
+	utf8::decode $string;
+	
+	return $string;
+}
+
 sub usage {
 	my $self = shift;
 

@@ -1,4 +1,4 @@
-shutter (0.70.2~ppa3) jaunty; urgency=low
+shutter (0.70.2~ppa4) jaunty; urgency=low
 
   * fixed bugs
     -- LP: #339139
@@ -11,9 +11,11 @@ shutter (0.70.2~ppa3) jaunty; urgency=low
        [Shutter crashes when xserver grab fails]
     -- LP: #341459
        [Ctrl+ + doesn't zoom in drawing area]
+    -- LP: #347821
+       [decode filesize properly]
   * updated translations
 
- -- Mario Kemper <mario.kemper@googlemail.com>  Mon, 23 Mar 2009 21:23:30 +0100  
+ -- Mario Kemper <mario.kemper@googlemail.com>  Tue, 24 Mar 2009 21:41:37 +0100
 
 shutter (0.70.1~ppa2) jaunty; urgency=low
 
