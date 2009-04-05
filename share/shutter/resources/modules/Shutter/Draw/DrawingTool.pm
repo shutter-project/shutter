@@ -242,6 +242,10 @@ sub show {
 	#save start time to show in close dialog
 	$self->{_start_time} = time;
 
+	#init current tool
+	$self->set_drawing_action(int($self->{_current_mode}/10));
+	$self->change_drawing_tool_cb($self->{_current_mode});
+
 	Gtk2->main;
 
 	return TRUE;
@@ -338,7 +342,7 @@ sub setup_bottom_hbox {
 	#~ $image_btn->signal_connect( 'show-menu' => sub { my ($widget) = @_; $self->ret_objects_menu($widget, 'noinit') } );
 	$image_btn->signal_connect(
 		'clicked' => sub {
-			$self->{_canvas}->window->set_cursor($self->change_cursor_to_current_pixbuf());
+			$self->{_canvas}->window->set_cursor($self->change_cursor_to_current_pixbuf);
 		}
 	);
 
@@ -671,8 +675,7 @@ sub load_settings {
 			
 			#current mode
 			if($settings_xml->{'drawing'}->{'mode'}){
-				$self->set_drawing_action($settings_xml->{'drawing'}->{'mode'} % 10);
-				$self->change_drawing_tool_cb($settings_xml->{'drawing'}->{'mode'});
+				$self->{_current_mode} = $settings_xml->{'drawing'}->{'mode'};
 			}
 					
 			#autoscroll
@@ -939,7 +942,8 @@ sub event_item_on_motion_notify {
 		}
 		$self->{_items}{$item}->set( points => Goo::Canvas::Points->new( $self->{_items}{$item}{'points'} ) );
 
-		#items
+		#new item is already on the canvas with small initial size
+		#drawing is like resizing, so set up for resizing
 	} elsif (
 		(      $self->{_current_mode_descr} eq "rect"
 			|| $self->{_current_mode_descr} eq "line"
@@ -948,22 +952,17 @@ sub event_item_on_motion_notify {
 			|| $self->{_current_mode_descr} eq "image"
 		)
 		&& $ev->state >= 'button1-mask'
+		&& !$item->{resizing} #if item is not in resize mode already
 		)
 	{
-
-		#new item is already on the canvas with small initial size
-		#drawing is like resizing, so set up tool for resizing
 		my $item = $self->{_current_new_item};
-		#~ $self->{_current_new_item} = undef;
-		$self->set_drawing_action(0);
-		$self->change_drawing_tool_cb(10);
 		$self->{_current_item} = $item;
 		$self->{_items}{$item}{'bottom-right-corner'}->{res_x}    = $ev->x;
 		$self->{_items}{$item}{'bottom-right-corner'}->{res_y}    = $ev->y;
 		$self->{_items}{$item}{'bottom-right-corner'}->{resizing} = TRUE;
 		$self->{_canvas}->pointer_grab( $self->{_items}{$item}{'bottom-right-corner'}, [ 'pointer-motion-mask', 'button-release-mask' ], Gtk2::Gdk::Cursor->new('bottom-right-corner'), $ev->time );
 
-	#resizing
+	#item is resizing mode already
 	} elsif ( $item->{resizing} && $ev->state >= 'button1-mask' ) {
 
 		$self->{_current_mode_descr} = "resize";
@@ -1234,8 +1233,8 @@ sub get_child_item {
 sub abort_current_mode {
 	my $self = shift;
 
-	$self->set_drawing_action(0);
-	$self->change_drawing_tool_cb(10);
+	$self->set_drawing_action(int($self->{_current_mode}/10));
+	$self->change_drawing_tool_cb($self->{_current_mode});
 
 	return TRUE;
 }	
@@ -1461,7 +1460,9 @@ sub event_item_on_button_press {
 
 		}
 	} else {
+		
 		$self->deactivate_all;
+	
 	}
 
 	if ( $ev->button == 1 && $valid ) {
@@ -1473,6 +1474,10 @@ sub event_item_on_button_press {
 		if ( $self->{_current_mode_descr} eq "clear" ) {
 
 			return TRUE if $item == $self->{_canvas_bg};
+
+			#embedded item?
+			my $parent = $self->get_parent_item($item);
+			$item = $parent if $parent;
 
 			#only real shapes can be deleted
 			#don't delete resize boxes or boundaries
@@ -2459,16 +2464,16 @@ sub event_item_on_button_release {
 			'pixbuf' => $copy
 		);
 	}	
-			
-	$self->set_drawing_action(0);
-	$self->change_drawing_tool_cb(10);
 
+	$self->set_drawing_action(int($self->{_current_mode}/10));
+	$self->change_drawing_tool_cb($self->{_current_mode});
+			
 	return TRUE;
 }
 
 sub event_item_on_enter_notify {
 	my ( $self, $item, $target, $ev ) = @_;
-
+	
 	if (   $item->isa('Goo::Canvas::Rect')
 		|| $item->isa('Goo::Canvas::Ellipse')
 		|| $item->isa('Goo::Canvas::Text')
@@ -2484,7 +2489,7 @@ sub event_item_on_enter_notify {
 
 		#real shape
 		if ( exists $self->{_items}{$item} ) {
-
+			
 			$cursor = Gtk2::Gdk::Cursor->new('fleur');
 
 			#set cursor
@@ -3069,6 +3074,10 @@ sub set_drawing_action {
 	my $toolbar = $self->{_uimanager}->get_widget("/ToolBarDrawing");
 	for ( my $i = 0; $i < $toolbar->get_n_items; $i++ ) {
 		my $item       = $toolbar->get_nth_item($i);
+		
+		#skip separators
+		#we only want to activate tools
+		next if $item->isa('Gtk2::SeparatorToolItem');
 		my $item_index = $toolbar->get_item_index($item);
 		$item->set_active(TRUE) if $item_index == $index;
 	}
