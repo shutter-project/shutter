@@ -164,10 +164,20 @@ sub show {
 	my $gray = Gtk2::Gdk::Color->parse('gray');
 	$self->{_canvas}->set( 'background-color' => sprintf( "#%04x%04x%04x", $gray->red, $gray->green, $gray->blue ) );
 
-	$self->{_canvas}->set_bounds( 0, 0, $self->{_drawing_pixbuf}->get_width, $self->{_drawing_pixbuf}->get_height );
-	my $root = $self->{_canvas}->get_root_item;
+	#create rectangle to resize the background
+	$self->{_canvas_bg_rect} = Goo::Canvas::Rect->new(
+		$self->{_canvas}->get_root_item, 0, 0, $self->{_drawing_pixbuf}->get_width, $self->{_drawing_pixbuf}->get_height,
+		'fill-pattern' => $self->create_color('gray', 1.0),
+		'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
+		'line-width'   => 1,
+		'stroke-color' => 'black',
+	);	
 
-	$self->{_canvas_bg} = Goo::Canvas::Image->new( $root, $self->{_drawing_pixbuf}, 0, 0 );
+	$self->handle_bg_rects( 'create' );
+	$self->handle_bg_rects( 'update' );
+
+	#create canvas background (:= screenshot)
+	$self->{_canvas_bg} = Goo::Canvas::Image->new( $self->{_canvas}->get_root_item, $self->{_drawing_pixbuf}, 0, 0 );
 	$self->setup_item_signals( $self->{_canvas_bg} );
 
 	#packing
@@ -531,7 +541,6 @@ sub zoom_normal_cb {
 sub adjust_rulers {
 	my $self = shift;
 	my $ev   = shift;
-	my $item = shift;
 	my ( $hlower, $hupper, $hposition, $hmax_size ) = $self->{_hruler}->get_range;
 	my ( $vlower, $vupper, $vposition, $vmax_size ) = $self->{_vruler}->get_range;
 
@@ -766,12 +775,12 @@ sub save {
 
 	#make sure not to save the bounding rectangles
 	$self->deactivate_all;
+	$self->handle_bg_rects('hide');
 
 	my $surface = Cairo::ImageSurface->create( 'argb32', $self->{_canvas_bg}->get('width'), $self->{_canvas_bg}->get('height') );
 
 	my $cr   = Cairo::Context->create($surface);
-	my $root = $self->{_canvas}->get_root_item;
-	$root->paint( $cr, $self->{_canvas_bg}->get_bounds, 1 );
+	$self->{_canvas}->get_root_item->paint( $cr, $self->{_canvas_bg}->get_bounds, 1 );
 
 	my $loader = Gtk2::Gdk::PixbufLoader->new;
 	$surface->write_to_png_stream(
@@ -967,161 +976,210 @@ sub event_item_on_motion_notify {
 
 		$self->{_current_mode_descr} = "resize";
 
-		my $curr_item = $self->{_current_item};
-		my $cursor = undef;
+			#canvas resizing shape
+		if ( $self->{_canvas_bg_rect}{'right-side'} == $item ) {
 
-		#calculate aspect ratio (resizing when control is pressed)
-		my $ratio = 1;
-		$ratio = $self->{_items}{$curr_item}->get('width')/$self->{_items}{$curr_item}->get('height') if $self->{_items}{$curr_item}->get('height') != 0;
+			my $new_width = $self->{_canvas_bg_rect}->get('width') +  ( $ev->x - $item->{res_x} );
 
-		foreach ( keys %{ $self->{_items}{$curr_item} } ) {
+			unless ( $new_width < 0 ) {
 
-			#fancy resizing using our little resize boxes
-			if ( $item == $self->{_items}{$curr_item}{$_} ) {
-
-				my $new_x      = 0;
-				my $new_y      = 0;
-				my $new_width  = 0;
-				my $new_height = 0;
-
-				if ( $_ eq 'top-left-corner' ) {
-					
-					$cursor = $_;
-					
-					if($ev->state >= 'control-mask'){
-						$new_x = $self->{_items}{$curr_item}->get('x') + ($ev->y - $item->{res_y}) * $ratio;
-						$new_y = $self->{_items}{$curr_item}->get('y') + ($ev->y - $item->{res_y});						
-						$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
-						$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
-					}else{
-						$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
-						$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};						
-						$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
-						$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
-					}
-
-				} elsif ( $_ eq 'top-side' ) {
-
-					$cursor = $_;
-
-					$new_x = $self->{_items}{$curr_item}->get('x');
-					$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};
-
-					$new_width = $self->{_items}{$curr_item}->get('width');
-					$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
+				$self->{_canvas_bg_rect}->set(
+					'width'  => $new_width,
+				);
 				
-				} elsif ( $_ eq 'top-right-corner' ) {
+				$self->handle_bg_rects('update');			
+
+			}
+	
+		} elsif ( $self->{_canvas_bg_rect}{'bottom-side'} == $item ) {
+
+			my $new_height = $self->{_canvas_bg_rect}->get('height') + ( $ev->y - $item->{res_y} );
+	
+			unless ( $new_height < 0 ) {
+						
+				$self->{_canvas_bg_rect}->set(
+					'height'  => $new_height,
+				);
+				
+				$self->handle_bg_rects('update');
+		
+			}
+		
+		} elsif ( $self->{_canvas_bg_rect}{'bottom-right-corner'} == $item ) {			
+
+			my $new_width = $self->{_canvas_bg_rect}->get('width') +  ( $ev->x - $item->{res_x} );
+			my $new_height = $self->{_canvas_bg_rect}->get('height') + ( $ev->y - $item->{res_y} );
+
+			unless ( $new_width < 0 || $new_height < 0) {		
+			
+				$self->{_canvas_bg_rect}->set(
+					'width'  => $new_width,
+					'height'  => $new_height,
+				);
+				
+				$self->handle_bg_rects('update');
+
+			}
+			
+			#item resizing shape
+		}else {
+			
+			my $curr_item = $self->{_current_item};
+			my $cursor = undef;
+
+			#calculate aspect ratio (resizing when control is pressed)
+			my $ratio = 1;
+			$ratio = $self->{_items}{$curr_item}->get('width')/$self->{_items}{$curr_item}->get('height') if $self->{_items}{$curr_item}->get('height') != 0;
+
+			foreach ( keys %{ $self->{_items}{$curr_item} } ) {
+
+				#fancy resizing using our little resize boxes
+				if ( $item == $self->{_items}{$curr_item}{$_} ) {
+
+					my $new_x      = 0;
+					my $new_y      = 0;
+					my $new_width  = 0;
+					my $new_height = 0;
+
+					if ( $_ eq 'top-left-corner' ) {
+						
+						$cursor = $_;
+						
+						if($ev->state >= 'control-mask'){
+							$new_x = $self->{_items}{$curr_item}->get('x') + ($ev->y - $item->{res_y}) * $ratio;
+							$new_y = $self->{_items}{$curr_item}->get('y') + ($ev->y - $item->{res_y});						
+							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
+							$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
+						}else{
+							$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
+							$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};						
+							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
+							$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
+						}
+
+					} elsif ( $_ eq 'top-side' ) {
 
 						$cursor = $_;
 
 						$new_x = $self->{_items}{$curr_item}->get('x');
 						$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};
 
-					if($ev->state >= 'control-mask'){
-						$new_width  = $self->{_items}{$curr_item}->get('width') - ( $ev->y - $item->{res_y} ) * $ratio;
-						$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );		
-					}else{
-						$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x - $item->{res_x} );
-						$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );					
-					}
+						$new_width = $self->{_items}{$curr_item}->get('width');
+						$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
+					
+					} elsif ( $_ eq 'top-right-corner' ) {
 
-				} elsif ( $_ eq 'left-side' ) {
+							$cursor = $_;
 
-					$cursor = $_;
+							$new_x = $self->{_items}{$curr_item}->get('x');
+							$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};
 
-					$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
-					$new_y = $self->{_items}{$curr_item}->get('y');
+						if($ev->state >= 'control-mask'){
+							$new_width  = $self->{_items}{$curr_item}->get('width') - ( $ev->y - $item->{res_y} ) * $ratio;
+							$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );		
+						}else{
+							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x - $item->{res_x} );
+							$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );					
+						}
 
-					$new_width = $self->{_items}{$curr_item}->get('width') + ( $self->{_items}{$curr_item}->get('x') - $new_x );
-					$new_height = $self->{_items}{$curr_item}->get('height');
+					} elsif ( $_ eq 'left-side' ) {
 
-				} elsif ( $_ eq 'right-side' ) {
+						$cursor = $_;
 
-					$cursor = $_;
-	
-					$new_x = $self->{_items}{$curr_item}->get('x');
-					$new_y = $self->{_items}{$curr_item}->get('y');
-
-					$new_width = $self->{_items}{$curr_item}->get('width') + ( $ev->x - $item->{res_x} );
-					$new_height = $self->{_items}{$curr_item}->get('height');
-
-				} elsif ( $_ eq 'bottom-left-corner' ) {
-
-					$cursor = $_;
-
-					if($ev->state >= 'control-mask'){
-						$new_x = $self->{_items}{$curr_item}->get('x') - $ev->y + $item->{res_y};
-						$new_y = $self->{_items}{$curr_item}->get('y');
-						
-						$new_width  = $self->{_items}{$curr_item}->get('width') + ( $self->{_items}{$curr_item}->get('x') - $new_x );
-						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} ) / $ratio;
-					}else{
 						$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
 						$new_y = $self->{_items}{$curr_item}->get('y');
 
-						$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
-						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );					
+						$new_width = $self->{_items}{$curr_item}->get('width') + ( $self->{_items}{$curr_item}->get('x') - $new_x );
+						$new_height = $self->{_items}{$curr_item}->get('height');
+
+					} elsif ( $_ eq 'right-side' ) {
+
+						$cursor = $_;
+		
+						$new_x = $self->{_items}{$curr_item}->get('x');
+						$new_y = $self->{_items}{$curr_item}->get('y');
+
+						$new_width = $self->{_items}{$curr_item}->get('width') + ( $ev->x - $item->{res_x} );
+						$new_height = $self->{_items}{$curr_item}->get('height');
+
+					} elsif ( $_ eq 'bottom-left-corner' ) {
+
+						$cursor = $_;
+
+						if($ev->state >= 'control-mask'){
+							$new_x = $self->{_items}{$curr_item}->get('x') - $ev->y + $item->{res_y};
+							$new_y = $self->{_items}{$curr_item}->get('y');
+							
+							$new_width  = $self->{_items}{$curr_item}->get('width') + ( $self->{_items}{$curr_item}->get('x') - $new_x );
+							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} ) / $ratio;
+						}else{
+							$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
+							$new_y = $self->{_items}{$curr_item}->get('y');
+
+							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
+							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );					
+						}
+
+					} elsif ( $_ eq 'bottom-side' ) {
+
+						$cursor = $_;
+
+						$new_x = $self->{_items}{$curr_item}->get('x');
+						$new_y = $self->{_items}{$curr_item}->get('y');
+
+						$new_width = $self->{_items}{$curr_item}->get('width');
+						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );
+
+					} elsif ( $_ eq 'bottom-right-corner' ) {
+
+						$cursor = $_;
+
+						$new_x = $self->{_items}{$curr_item}->get('x');
+						$new_y = $self->{_items}{$curr_item}->get('y');
+
+						if($ev->state >= 'control-mask'){
+							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->y - $item->{res_y} ) * $ratio;
+							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );						
+						}else{
+							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x - $item->{res_x} );
+							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );					
+						}
+
+
 					}
 
-				} elsif ( $_ eq 'bottom-side' ) {
+					#set cursor
+					$self->{_canvas}->window->set_cursor( Gtk2::Gdk::Cursor->new($cursor) );
 
-					$cursor = $_;
-
-					$new_x = $self->{_items}{$curr_item}->get('x');
-					$new_y = $self->{_items}{$curr_item}->get('y');
-
-					$new_width = $self->{_items}{$curr_item}->get('width');
-					$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );
-
-				} elsif ( $_ eq 'bottom-right-corner' ) {
-
-					$cursor = $_;
-
-					$new_x = $self->{_items}{$curr_item}->get('x');
-					$new_y = $self->{_items}{$curr_item}->get('y');
-
-					if($ev->state >= 'control-mask'){
-						$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->y - $item->{res_y} ) * $ratio;
-						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );						
-					}else{
-						$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x - $item->{res_x} );
-						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );					
+					#when width or height are too small we switch to opposite rectangle and do the resizing in this way
+					if ( $new_width < 0 || $new_height < 0) {
+						$self->{_canvas}->pointer_ungrab($item, $ev->time);
+						my $oppo = $self->get_opposite_rect($item, $curr_item, $new_width, $new_height);				
+						$self->{_items}{$curr_item}{$oppo}->{res_x}    = $ev->x;
+						$self->{_items}{$curr_item}{$oppo}->{res_y}    = $ev->y;
+						$self->{_items}{$curr_item}{$oppo}->{resizing} = TRUE;
+						$self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], Gtk2::Gdk::Cursor->new($oppo), $ev->time );
+						$self->handle_embedded( 'mirror', $curr_item );
+						$new_width = 0 if $new_width < 0;
+						$new_height = 0 if $new_height < 0;
 					}
 
+					$self->{_items}{$curr_item}->set(
+						'x'      => $new_x,
+						'y'      => $new_y,
+						'width'  => $new_width,
+						'height' => $new_height,
+					);
 
+					$self->handle_rects( 'update', $curr_item );
+					$self->handle_embedded( 'update', $curr_item );
+						
 				}
-
-				#set cursor
-				$self->{_canvas}->window->set_cursor( Gtk2::Gdk::Cursor->new($cursor) );
-
-				$item->{res_x} = $ev->x;
-				$item->{res_y} = $ev->y;
-
-				#when width or height are too small we switch to opposite rectangle and do the resizing in this way
-				if ( $new_width < 0 || $new_height < 0) {
-					$self->{_canvas}->pointer_ungrab($item, $ev->time);
-					my $oppo = $self->get_opposite_rect($item, $curr_item, $new_width, $new_height);				
-					$self->{_items}{$curr_item}{$oppo}->{res_x}    = $ev->x;
-					$self->{_items}{$curr_item}{$oppo}->{res_y}    = $ev->y;
-					$self->{_items}{$curr_item}{$oppo}->{resizing} = TRUE;
-					$self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], Gtk2::Gdk::Cursor->new($oppo), $ev->time );
-					$self->handle_embedded( 'mirror', $curr_item );
-					$new_width = 0 if $new_width < 0;
-					$new_height = 0 if $new_height < 0;
-				}
-
-				$self->{_items}{$curr_item}->set(
-					'x'      => $new_x,
-					'y'      => $new_y,
-					'width'  => $new_width,
-					'height' => $new_height,
-				);
-
-				$self->handle_rects( 'update', $curr_item );
-				$self->handle_embedded( 'update', $curr_item );
-					
 			}
 		}
+
+		$item->{res_x} = $ev->x;
+		$item->{res_y} = $ev->y;
 		
 	}else {
 
@@ -2184,6 +2242,103 @@ sub handle_embedded {
 	return TRUE;
 }
 
+sub handle_bg_rects {
+	my $self   = shift;
+	my $action = shift;
+
+	my $middle_h = $self->{_canvas_bg_rect}->get('x') + $self->{_canvas_bg_rect}->get('width') / 2 ;
+
+	my $middle_v = $self->{_canvas_bg_rect}->get('y') + $self->{_canvas_bg_rect}->get('height') / 2 ;
+
+	my $bottom = $self->{_canvas_bg_rect}->get('y') + $self->{_canvas_bg_rect}->get('height');
+
+	my $top = $self->{_canvas_bg_rect}->get('y');
+
+	my $left = $self->{_canvas_bg_rect}->get('x');
+
+	my $right = $self->{_canvas_bg_rect}->get('x') + $self->{_canvas_bg_rect}->get('width');
+	
+	if ( $action eq 'create' ) {
+
+		my $pattern = $self->create_color( 'green', 0.3 );
+
+		$self->{_canvas_bg_rect}{'bottom-side'} = Goo::Canvas::Rect->new(
+			$self->{_canvas}->get_root_item, $middle_h, $bottom, 8, 8,
+			'fill-pattern' => $pattern,
+			'line-width'   => 1
+		);
+
+		$self->{_canvas_bg_rect}{'bottom-right-corner'} = Goo::Canvas::Rect->new(
+			$self->{_canvas}->get_root_item, $right, $bottom, 8, 8,
+			'fill-pattern' => $pattern,
+			'line-width'   => 1
+		);
+
+		$self->{_canvas_bg_rect}{'right-side'} = Goo::Canvas::Rect->new(
+			$self->{_canvas}->get_root_item, $right, $middle_v, 8, 8,
+			'fill-pattern' => $pattern,
+			'line-width'   => 1
+		);
+
+		$self->setup_item_signals( $self->{_canvas_bg_rect}{'bottom-side'} );
+		$self->setup_item_signals( $self->{_canvas_bg_rect}{'bottom-right-corner'} );
+		$self->setup_item_signals( $self->{_canvas_bg_rect}{'right-side'} );
+		$self->setup_item_signals_extra( $self->{_canvas_bg_rect}{'bottom-side'} );
+		$self->setup_item_signals_extra( $self->{_canvas_bg_rect}{'bottom-right-corner'} );
+		$self->setup_item_signals_extra( $self->{_canvas_bg_rect}{'right-side'} );
+
+	}elsif($action eq 'hide'){
+
+		my $visibilty = 'hidden';
+
+		foreach ( keys %{ $self->{_canvas_bg_rect} } ) {
+			$self->{_canvas_bg_rect}{$_}->set(
+				'visibility' => $visibilty,
+			);
+		}    #end determine rect
+
+		$self->{_canvas_bg_rect}->set(
+			'visibility' => $visibilty,
+		);
+
+	}elsif($action eq 'update'){
+
+		#update the canvas bounds as well
+		$self->{_canvas}->set_bounds( 0, 0, $self->{_canvas_bg_rect}->get('width')+10, $self->{_canvas_bg_rect}->get('height')+10);
+		if($self->{_canvas_bg}){
+			$self->{_canvas_bg}->set(
+				'width' => $self->{_canvas_bg_rect}->get('width'),
+				'height' => $self->{_canvas_bg_rect}->get('height'),
+			);
+		}
+			
+		my $visibilty = 'visible';
+		
+		$self->{_canvas_bg_rect}{'bottom-side'}->set(
+			'x'          => $middle_h - 4,
+			'y'          => $bottom,
+			'visibility' => $visibilty,
+		);
+
+		$self->{_canvas_bg_rect}{'bottom-right-corner'}->set(
+			'x'          => $right,
+			'y'          => $bottom,
+			'visibility' => $visibilty,
+		);
+
+		$self->{_canvas_bg_rect}{'right-side'}->set(
+			'x'          => $right,
+			'y'          => $middle_v - 4,
+			'visibility' => $visibilty,
+		);
+
+	}elsif($action eq 'raise'){
+		#~ $self->{_canvas_bg_rect}{'bottom-side'}->raise;
+		#~ $self->{_canvas_bg_rect}{'bottom-right-corner'}->raise;
+		#~ $self->{_canvas_bg_rect}{'right-side'}->raise;			
+	}
+}
+
 sub handle_rects {
 	my $self   = shift;
 	my $action = shift;
@@ -2198,6 +2353,7 @@ sub handle_rects {
 	#do we have a blessed reference?
 	eval { $self->{_items}{$item}->can('isa'); };
 	if ($@) {
+		print $@;
 		return FALSE;
 	}
 
@@ -2504,6 +2660,25 @@ sub event_item_on_enter_notify {
 				);
 				$self->{_canvas}->window->set_cursor($cursor);
 			}
+
+			#canvas resizing shape
+		} elsif (  $self->{_canvas_bg_rect}{'right-side'} == $item
+				|| $self->{_canvas_bg_rect}{'bottom-side'} == $item
+				|| $self->{_canvas_bg_rect}{'bottom-right-corner'} == $item ) 
+		{
+
+			if ( $self->{_current_mode_descr} eq "select" ) {
+
+				my $pattern = $self->create_color( 'red', 0.5 );
+				$item->set( 'fill-pattern' => $pattern );
+
+				foreach ( keys %{ $self->{_canvas_bg_rect} } ) {
+					if ( $item == $self->{_canvas_bg_rect}{$_} ) {
+						my $cursor = Gtk2::Gdk::Cursor->new($_);
+						$self->{_canvas}->window->set_cursor($cursor);
+					}
+				}    #end determine cursor
+			}		
 
 			#resizing shape
 		} else {
