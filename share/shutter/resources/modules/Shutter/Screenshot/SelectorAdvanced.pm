@@ -174,6 +174,7 @@ sub select_advanced {
 	#~ $self->{_view}->set_tool($self->{_selector});
 
 	my $select_window = Gtk2::Window->new('toplevel');
+	$select_window->set_type_hint('dock');
 	$select_window->set_decorated(FALSE);
 	$select_window->set_skip_taskbar_hint(TRUE);
 	$select_window->set_skip_pager_hint(TRUE);
@@ -242,7 +243,6 @@ sub select_advanced {
 		$select_window->move( $self->{_root}->{x}, $self->{_root}->{y} );
 		$select_window->set_default_size( $self->{_root}->{w}, $self->{_root}->{h} );
 		$select_window->show_all();
-		$select_window->window->set_type_hint('dock');
 
 		#see docs
 		#http://library.gnome.org/devel/gtk/stable/GtkWindow.html
