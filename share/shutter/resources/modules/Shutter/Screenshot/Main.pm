@@ -150,15 +150,33 @@ sub get_pixbuf_from_drawable {
 
 	#get the pixbuf from drawable and save the file
 	#maybe window is partially not on the screen
-	$width -= $x + $width - $self->{ _root }->{ w }
-		if ( $x + $width > $self->{ _root }->{ w } );
-	$height -= $y + $height - $self->{ _root }->{ h }
-		if ( $y + $height > $self->{ _root }->{ h } );
+	my $l_cropped = FALSE;
+	my $r_cropped = FALSE;
+	my $t_cropped = FALSE;
+	my $b_cropped = FALSE;
+	
+	#right
+	if ( $x + $width > $self->{ _root }->{ w } ) {
+		$r_cropped = $x + $width - $self->{ _root }->{ w };
+		$width -= $x + $width - $self->{ _root }->{ w };
+	}
+	
+	#bottom
+	if ( $y + $height > $self->{ _root }->{ h } ) {
+		$b_cropped = $y + $height - $self->{ _root }->{ h };
+		$height -= $y + $height - $self->{ _root }->{ h };
+	}
+	
+	#left
 	if ( $x < $self->{ _root }->{ x } ) {
+		$l_cropped = $self->{ _root }->{ x } - $x;
 		$width = $width + $x;
 		$x     = 0;
 	}
+	
+	#top
 	if ( $y < $self->{ _root }->{ y } ) {
+		$t_cropped = $self->{ _root }->{ y } - $y;
 		$height = $height + $y;
 		$y      = 0;
 	}
@@ -171,7 +189,7 @@ sub get_pixbuf_from_drawable {
 	$pixbuf = $self->include_cursor( $x, $y, $width, $height, $drawable, $pixbuf )
 		if $self->{_include_cursor};
 
-	return $pixbuf;
+	return ($pixbuf, $l_cropped, $r_cropped, $t_cropped, $b_cropped);
 }
 
 #code ported and borrowed from gnome-screenshot

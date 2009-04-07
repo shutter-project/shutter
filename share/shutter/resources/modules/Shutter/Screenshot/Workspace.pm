@@ -93,13 +93,13 @@ sub workspace {
 
 	my $output = undef;
 	if ( $self->{_current_monitor_only} ) {
-		$output = $self->get_pixbuf_from_drawable(
+		($output) = $self->get_pixbuf_from_drawable(
 			$self->get_root_and_current_monitor_geometry,
 			$self->{_include_cursor},
 			$self->{_delay}
 		);
 	} else {
-		$output = $self->get_pixbuf_from_drawable(
+		($output) = $self->get_pixbuf_from_drawable(
 			$self->get_root_and_geometry,
 			$self->{_include_cursor},
 			$self->{_delay}

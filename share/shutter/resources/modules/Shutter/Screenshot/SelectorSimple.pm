@@ -196,7 +196,7 @@ sub select_simple {
 							->draw_rectangle( $gc, 0, $rect_x, $rect_y, $rect_w, $rect_h );
 						Gtk2::Gdk->flush;
 
-						$output = $self->get_pixbuf_from_drawable(
+						($output) = $self->get_pixbuf_from_drawable(
 							$self->{_root}, $rect_x, $rect_y,
 							$rect_w + 1,
 							$rect_h + 1,

@@ -225,8 +225,7 @@ sub select_advanced {
 
 						if ($selection) {
 							sleep 1 if $self->{_delay} < 1;
-							$output
-								= $self->get_pixbuf_from_drawable( $self->{_root}, $selection->x,
+							($output) = $self->get_pixbuf_from_drawable( $self->{_root}, $selection->x,
 								$selection->y, $selection->width, $selection->height,
 								$self->{_include_cursor},
 								$self->{_delay} );

@@ -112,9 +112,15 @@ sub query_children {
 }
 
 sub get_shape {
-	my $self = shift;
-	my $xid = shift;
-	my $orig = shift;
+	my $self 		= shift;
+	my $xid 		= shift;
+	my $orig 		= shift;
+	my $l_cropped 	= shift;
+	my $r_cropped 	= shift;
+	my $t_cropped 	= shift;
+	my $b_cropped 	= shift;
+
+	print "$l_cropped, $r_cropped, $t_cropped, $b_cropped cropped\n" if $self->{_gc}->get_debug;
 
 	print "Calculating window shape\n" if $self->{_gc}->get_debug;
 
@@ -128,6 +134,13 @@ sub get_shape {
 	my $bregion = Gtk2::Gdk::Region->new;					
 	foreach my $r (@r){
 		my @rect =  @{$r};
+		
+		#adjust rectanged if window is only partially visible
+		if($l_cropped){
+			$rect[2] -= $l_cropped - $rect[0]; 
+			$rect[0] = 0;
+		}
+		
 		print "Current $rect[0],$rect[1],$rect[2],$rect[3]\n" if $self->{_gc}->get_debug;
 		$bregion->union_with_rect(Gtk2::Gdk::Rectangle->new ($rect[0],$rect[1],$rect[2],$rect[3]));	
 	}
@@ -140,7 +153,7 @@ sub get_shape {
 	#copy all rectangles of bounding region to the target pixbuf
 	foreach my $r($bregion->get_rectangles){
 		print $r->x." ".$r->y." ".$r->width." ".$r->height."\n" if $self->{_gc}->get_debug;
-
+		
 		next if($r->x > $orig->get_width);
 		next if($r->y > $orig->get_height);
 
@@ -197,13 +210,13 @@ sub window_by_xid {
 	Gtk2::Gdk->flush;
 	sleep 1 if $self->{_delay} < 1;
 
-	my $output = $self->get_pixbuf_from_drawable( $self->{_root}, $xp, $yp, $widthp, $heightp,
+	my ($output, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_pixbuf_from_drawable( $self->{_root}, $xp, $yp, $widthp, $heightp,
 		$self->{_include_cursor},
 		$self->{_delay} );
 
 	#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
-	if($self->{_x11}{ext_shape}){
-		$output = $self->get_shape($self->{_xid}, $output);				
+	if($self->{_x11}{ext_shape} && $self->{_include_border}){
+		$output = $self->get_shape($self->{_xid}, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);				
 	}
 
 	return $output;
@@ -343,7 +356,7 @@ sub window_select {
 						Gtk2::Gdk->flush;
 						sleep 1 if $self->{_delay} < 1;
 						
-						$output = $self->get_pixbuf_from_drawable(
+						my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_pixbuf_from_drawable(
 							$self->{_root},
 							$self->{_children}{'curr_win'}{'x'},
 							$self->{_children}{'curr_win'}{'y'},
@@ -351,15 +364,19 @@ sub window_select {
 							$self->{_children}{'curr_win'}{'height'},
 							$self->{_include_cursor},
 							$self->{_delay}
-						);						 
+						);
+						
+						#save return value to current $output variable 
+						#-> ugly but fastest and safest solution now
+						$output = $output_new;						 
 						
 						#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
-						if($self->{_x11}{ext_shape}){
+						if($self->{_x11}{ext_shape} && $self->{_include_border}){
 							my $xid = $self->{_children}{ 'curr_win' }{ 'gdk_window' }->get_xid;
 							#do not try this for child windows
 							foreach my $win ($self->{_wnck_screen}->get_windows){
 								if($win->get_xid == $xid){
-									$output = $self->get_shape($xid, $output);				
+									$output = $self->get_shape($xid, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);				
 								}
 							}
 						}
