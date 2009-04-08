@@ -180,6 +180,8 @@ sub show {
 	$self->{_canvas_bg} = Goo::Canvas::Image->new( $self->{_canvas}->get_root_item, $self->{_drawing_pixbuf}, 0, 0 );
 	$self->setup_item_signals( $self->{_canvas_bg} );
 
+	$self->handle_bg_rects( 'raise' );
+
 	#packing
 	$self->{_scrolled_window} = Gtk2::ScrolledWindow->new;
 	$self->{_scrolled_window}->set_policy( 'automatic', 'automatic' );
@@ -379,6 +381,8 @@ sub push_to_statusbar {
 
 		if($action eq 'resize'){
 			$status_text .= " ".$d->get("Click-Drag to scale (try Control to scale uniformly)");	
+		}elsif($action eq 'canvas_resize'){
+			$status_text .= " ".$d->get("Click-Drag to resize the canvas");				
 		}
 		
 	} elsif ( $self->{_current_mode} == 20 ) {
@@ -541,24 +545,33 @@ sub zoom_normal_cb {
 sub adjust_rulers {
 	my $self = shift;
 	my $ev   = shift;
-	my ( $hlower, $hupper, $hposition, $hmax_size ) = $self->{_hruler}->get_range;
-	my ( $vlower, $vupper, $vposition, $vmax_size ) = $self->{_vruler}->get_range;
+	
+	if($ev && $self->{_canvas}->get_scale == 1){
+		$self->{_hruler}->signal_emit('motion-notify-event', $ev);
+		$self->{_vruler}->signal_emit('motion-notify-event', $ev);
+	}else{
 
-	my $s = $self->{_canvas}->get_scale;
+		my ( $hlower, $hupper, $hposition, $hmax_size ) = $self->{_hruler}->get_range;
+		my ( $vlower, $vupper, $vposition, $vmax_size ) = $self->{_vruler}->get_range;
 
-	my ( $x, $y, $width, $height, $depth ) = $self->{_canvas}->window->get_geometry;
-	my $ha = $self->{_scrolled_window}->get_hadjustment->value / $s;
-	my $va = $self->{_scrolled_window}->get_vadjustment->value / $s;
+		my $s = $self->{_canvas}->get_scale;
 
-	my $xpos = 0;
-	my $ypos = 0;
-	if ($ev) {
-		$xpos = $ev->x;
-		$ypos = $ev->y;
+		my ( $x, $y, $width, $height, $depth ) = $self->{_canvas}->window->get_geometry;
+		my $ha = $self->{_scrolled_window}->get_hadjustment->value / $s;
+		my $va = $self->{_scrolled_window}->get_vadjustment->value / $s;
+
+		my $xpos = 0;
+		my $ypos = 0;
+		if ($ev) {
+			$xpos = $ev->x;
+			$ypos = $ev->y;
+		}
+
+		$self->{_hruler}->set_range( $ha, $ha + $width / $s,  $xpos, $hmax_size );
+		$self->{_vruler}->set_range( $va, $va + $height / $s, $ypos, $vmax_size );
+		
 	}
 
-	$self->{_hruler}->set_range( $ha, $ha + $width / $s,  $xpos, $hmax_size );
-	$self->{_vruler}->set_range( $va, $va + $height / $s, $ypos, $vmax_size );
 	return TRUE;
 }
 
@@ -1185,15 +1198,24 @@ sub event_item_on_motion_notify {
 
 		if (   $item->isa('Goo::Canvas::Rect') ) {
 
-			#embedded item?
+				#embedded item?
 			my $parent = $self->get_parent_item($item);
 			$item = $parent if $parent;
 
-			#resizing shape
-			unless ( exists $self->{_items}{$item} ) {
-				$self->push_to_statusbar( int( $ev->x ), int( $ev->y ), 'resize' );	
+				#shape
+			if ( exists $self->{_items}{$item} ) {
+				$self->push_to_statusbar( int( $ev->x ), int( $ev->y ) );
+			
+				#canvas resizing shape
+			} elsif (  $self->{_canvas_bg_rect}{'right-side'} == $item
+					|| $self->{_canvas_bg_rect}{'bottom-side'} == $item
+					|| $self->{_canvas_bg_rect}{'bottom-right-corner'} == $item ) 
+			{
+				$self->push_to_statusbar( int( $ev->x ), int( $ev->y ), 'canvas_resize' );		
+			
+				#resizing shape
 			}else{
-				$self->push_to_statusbar( int( $ev->x ), int( $ev->y ) );				
+				$self->push_to_statusbar( int( $ev->x ), int( $ev->y ), 'resize' );					
 			}
 		}else{
 			$self->push_to_statusbar( int( $ev->x ), int( $ev->y ) );	
@@ -2260,7 +2282,7 @@ sub handle_bg_rects {
 	
 	if ( $action eq 'create' ) {
 
-		my $pattern = $self->create_color( 'green', 0.3 );
+		my $pattern = $self->create_color( 'black', 0.3 );
 
 		$self->{_canvas_bg_rect}{'bottom-side'} = Goo::Canvas::Rect->new(
 			$self->{_canvas}->get_root_item, $middle_h, $bottom, 8, 8,
@@ -2304,38 +2326,29 @@ sub handle_bg_rects {
 	}elsif($action eq 'update'){
 
 		#update the canvas bounds as well
-		$self->{_canvas}->set_bounds( 0, 0, $self->{_canvas_bg_rect}->get('width')+10, $self->{_canvas_bg_rect}->get('height')+10);
-		if($self->{_canvas_bg}){
-			$self->{_canvas_bg}->set(
-				'width' => $self->{_canvas_bg_rect}->get('width'),
-				'height' => $self->{_canvas_bg_rect}->get('height'),
-			);
-		}
+		$self->{_canvas}->set_bounds(0, 0, $self->{_canvas_bg_rect}->get('width'), $self->{_canvas_bg_rect}->get('height'));
 			
-		my $visibilty = 'visible';
-		
 		$self->{_canvas_bg_rect}{'bottom-side'}->set(
-			'x'          => $middle_h - 4,
-			'y'          => $bottom,
-			'visibility' => $visibilty,
+			'x'          => $middle_h - 8,
+			'y'          => $bottom - 8,
 		);
 
 		$self->{_canvas_bg_rect}{'bottom-right-corner'}->set(
-			'x'          => $right,
-			'y'          => $bottom,
-			'visibility' => $visibilty,
+			'x'          => $right - 8,
+			'y'          => $bottom - 8,
 		);
 
 		$self->{_canvas_bg_rect}{'right-side'}->set(
-			'x'          => $right,
-			'y'          => $middle_v - 4,
-			'visibility' => $visibilty,
+			'x'          => $right - 8,
+			'y'          => $middle_v - 8,
 		);
 
+		$self->handle_bg_rects('raise');
+
 	}elsif($action eq 'raise'){
-		#~ $self->{_canvas_bg_rect}{'bottom-side'}->raise;
-		#~ $self->{_canvas_bg_rect}{'bottom-right-corner'}->raise;
-		#~ $self->{_canvas_bg_rect}{'right-side'}->raise;			
+		$self->{_canvas_bg_rect}{'bottom-side'}->raise;
+		$self->{_canvas_bg_rect}{'bottom-right-corner'}->raise;
+		$self->{_canvas_bg_rect}{'right-side'}->raise;			
 	}
 }
 
@@ -2519,6 +2532,8 @@ sub handle_rects {
 				'visibility' => $visibilty,
 			);
 
+			$self->handle_bg_rects('raise');
+
 		} elsif ( $action eq 'raise' ) {
 
 			$self->{_items}{$item}{'top-side'}->raise;
@@ -2669,7 +2684,7 @@ sub event_item_on_enter_notify {
 
 			if ( $self->{_current_mode_descr} eq "select" ) {
 
-				my $pattern = $self->create_color( 'red', 0.5 );
+				my $pattern = $self->create_color( 'black', 1.0 );
 				$item->set( 'fill-pattern' => $pattern );
 
 				foreach ( keys %{ $self->{_canvas_bg_rect} } ) {
@@ -2732,6 +2747,15 @@ sub event_item_on_leave_notify {
 
 		#real shape
 		if ( exists $self->{_items}{$item} ) {
+
+			#canvas resizing shape
+		} elsif (  $self->{_canvas_bg_rect}{'right-side'} == $item
+				|| $self->{_canvas_bg_rect}{'bottom-side'} == $item
+				|| $self->{_canvas_bg_rect}{'bottom-right-corner'} == $item ) 
+		{
+
+			my $pattern = $self->create_color( 'black', 0.3 );
+			$item->set( 'fill-pattern' => $pattern );
 
 			#resizing shape
 		} else {
