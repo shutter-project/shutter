@@ -172,6 +172,7 @@ sub show {
 		'line-width'   => 1,
 		'stroke-color' => 'black',
 	);	
+	$self->setup_item_signals( $self->{_canvas_bg_rect} );
 
 	$self->handle_bg_rects( 'create' );
 	$self->handle_bg_rects( 'update' );
@@ -1534,11 +1535,11 @@ sub event_item_on_button_press {
 	my $d      = $self->{_shutter_common}->get_gettext;
 	my $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
 
-	my $valid = FALSE;
-	$valid = TRUE if $self->{_canvas}->get_item_at( $ev->x, $ev->y, TRUE );
+	#~ my $valid = FALSE;
+	#~ $valid = TRUE if $self->{_canvas}->get_item_at( $ev->x, $ev->y, TRUE );
 
 	#activate item
-	if ( $valid && $self->{_current_mode_descr} eq "select") {
+	if ($self->{_current_mode_descr} eq "select") {
 
 		#embedded item?
 		my $parent = $self->get_parent_item($item);
@@ -1560,7 +1561,7 @@ sub event_item_on_button_press {
 	
 	}
 
-	if ( $ev->type eq 'button-press' && $ev->button == 1 && $valid ) {
+	if ( $ev->type eq 'button-press' && $ev->button == 1 ) {
 
 		my $root   = $self->{_canvas}->get_root_item;
 
@@ -1677,10 +1678,10 @@ sub event_item_on_button_press {
 
 			}
 		}
-	} elsif ( $ev->button == 2 && $valid && $self->{_current_mode_descr} eq "select") {
+	} elsif ( $ev->button == 2 && $self->{_current_mode_descr} eq "select") {
 
 		#right click => show context menu, double-click => show properties directly 
-	} elsif ( ($ev->type eq '2button-press' || $ev->button == 3) && $valid && $self->{_current_mode_descr} eq "select") {
+	} elsif ( ($ev->type eq '2button-press' || $ev->button == 3) && $self->{_current_mode_descr} eq "select") {
 
 		$self->{_canvas}->pointer_ungrab( $item, $ev->time );
 
