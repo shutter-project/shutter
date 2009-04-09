@@ -187,6 +187,9 @@ sub show {
 	$self->{_scrolled_window}->set_policy( 'automatic', 'automatic' );
 	$self->{_scrolled_window}->add( $self->{_canvas} );
 
+	$self->{_hscroll_hid} = $self->{_scrolled_window}->get_hscrollbar->signal_connect('value-changed' => sub { $self->adjust_rulers} );
+	$self->{_vscroll_hid} = $self->{_scrolled_window}->get_vscrollbar->signal_connect('value-changed' => sub { $self->adjust_rulers} );
+	
 	my $drawing_vbox       = Gtk2::VBox->new( FALSE, 0 );
 	my $drawing_inner_vbox = Gtk2::VBox->new( FALSE, 0 );
 	my $drawing_hbox       = Gtk2::HBox->new( FALSE, 0 );
@@ -545,30 +548,36 @@ sub zoom_normal_cb {
 sub adjust_rulers {
 	my $self = shift;
 	my $ev   = shift;
+
+	my $s = $self->{_canvas}->get_scale;
+
+	my ( $hlower, $hupper, $hposition, $hmax_size ) = $self->{_hruler}->get_range;
+	my ( $vlower, $vupper, $vposition, $vmax_size ) = $self->{_vruler}->get_range;
+		
+	if($ev){
+		
+		my $copy_event = $ev->copy;
+		
+		#modify event to respect scrollbars and canvas scale
+		$copy_event->x( ($copy_event->x - $hlower) * $s);
+		$copy_event->y( ($copy_event->y - $vlower) * $s);	
+
+		$self->{_hruler}->signal_emit('motion-notify-event', $copy_event);
+		$self->{_vruler}->signal_emit('motion-notify-event', $copy_event);
 	
-	if($ev && $self->{_canvas}->get_scale == 1){
-		$self->{_hruler}->signal_emit('motion-notify-event', $ev);
-		$self->{_vruler}->signal_emit('motion-notify-event', $ev);
 	}else{
 
-		my ( $hlower, $hupper, $hposition, $hmax_size ) = $self->{_hruler}->get_range;
-		my ( $vlower, $vupper, $vposition, $vmax_size ) = $self->{_vruler}->get_range;
+		#modify rulers (e.g. done when scrolling or zooming)
+		if($self->{_hruler} && $self->{_hruler}){
 
-		my $s = $self->{_canvas}->get_scale;
+			my ( $x, $y, $width, $height, $depth ) = $self->{_canvas}->window->get_geometry;
+			my $ha = $self->{_scrolled_window}->get_hadjustment->value / $s;
+			my $va = $self->{_scrolled_window}->get_vadjustment->value / $s;
 
-		my ( $x, $y, $width, $height, $depth ) = $self->{_canvas}->window->get_geometry;
-		my $ha = $self->{_scrolled_window}->get_hadjustment->value / $s;
-		my $va = $self->{_scrolled_window}->get_vadjustment->value / $s;
+			$self->{_hruler}->set_range( $ha, $ha + $width  / $s, 0, $hmax_size );
+			$self->{_vruler}->set_range( $va, $va + $height / $s, 0, $vmax_size );
 
-		my $xpos = 0;
-		my $ypos = 0;
-		if ($ev) {
-			$xpos = $ev->x;
-			$ypos = $ev->y;
 		}
-
-		$self->{_hruler}->set_range( $ha, $ha + $width / $s,  $xpos, $hmax_size );
-		$self->{_vruler}->set_range( $va, $va + $height / $s, $ypos, $vmax_size );
 		
 	}
 
@@ -872,48 +881,49 @@ sub event_item_on_motion_notify {
 		&& $self->{_current_mode_descr} ne "clear"
 		&& $ev->state >= 'button1-mask' )
 	{
-
+		
 		my ( $x, $y, $width, $height, $depth ) = $self->{_canvas}->window->get_geometry;
-
-		my $scale = $self->{_canvas}->get_scale;
+		my $s  = $self->{_canvas}->get_scale;
+		my $ha = $self->{_scrolled_window}->get_hadjustment->value;
+		my $va = $self->{_scrolled_window}->get_vadjustment->value;
 
 		#autoscroll >> down and right
-		if (   $ev->x > ( $self->{_scrolled_window}->get_hadjustment->value / $scale + $width / $scale - 100 / $scale )
-			&& $ev->y > ( $self->{_scrolled_window}->get_vadjustment->value / $scale + $height / $scale - 100 / $scale ) )
+		if (   $ev->x > ( $ha / $s + $width / $s - 100 / $s )
+			&& $ev->y > ( $va / $s + $height / $s - 100 / $s ) )
 		{
 			$self->{_canvas}->scroll_to(
-				$self->{_scrolled_window}->get_hadjustment->value / $scale + 10 / $scale,
-				$self->{_scrolled_window}->get_vadjustment->value / $scale + 10 / $scale
+				$ha / $s + 10 / $s,
+				$va / $s + 10 / $s
 			);
-		} elsif ( $ev->x > ( $self->{_scrolled_window}->get_hadjustment->value / $scale + $width / $scale - 100 / $scale ) ) {
+		} elsif ( $ev->x > ( $ha / $s + $width / $s - 100 / $s ) ) {
 			$self->{_canvas}->scroll_to(
-				$self->{_scrolled_window}->get_hadjustment->value / $scale + 10 / $scale,
-				$self->{_scrolled_window}->get_vadjustment->value / $scale
+				$ha / $s + 10 / $s,
+				$va / $s
 			);
-		} elsif ( $ev->y > ( $self->{_scrolled_window}->get_vadjustment->value / $scale + $height / $scale - 100 / $scale ) ) {
+		} elsif ( $ev->y > ( $va / $s + $height / $s - 100 / $s ) ) {
 			$self->{_canvas}->scroll_to(
-				$self->{_scrolled_window}->get_hadjustment->value / $scale,
-				$self->{_scrolled_window}->get_vadjustment->value / $scale + 10 / $scale
+				$ha / $s,
+				$va / $s + 10 / $s
 			);
 		}
 
 		#autoscroll >> up and left
-		if (   $ev->x < ( $self->{_scrolled_window}->get_hadjustment->value / $scale + 100 / $scale )
-			&& $ev->y < ( $self->{_scrolled_window}->get_vadjustment->value / $scale + 100 / $scale ) )
+		if (   $ev->x < ( $ha / $s + 100 / $s )
+			&& $ev->y < ( $va / $s + 100 / $s ) )
 		{
 			$self->{_canvas}->scroll_to(
-				$self->{_scrolled_window}->get_hadjustment->value / $scale - 10 / $scale,
-				$self->{_scrolled_window}->get_vadjustment->value / $scale - 10 / $scale
+				$ha / $s - 10 / $s,
+				$va / $s - 10 / $s
 			);
-		} elsif ( $ev->x < ( $self->{_scrolled_window}->get_hadjustment->value / $scale + 100 / $scale ) ) {
+		} elsif ( $ev->x < ( $ha / $s + 100 / $s ) ) {
 			$self->{_canvas}->scroll_to(
-				$self->{_scrolled_window}->get_hadjustment->value / $scale - 10 / $scale,
-				$self->{_scrolled_window}->get_vadjustment->value / $scale
+				$ha / $s - 10 / $s,
+				$va / $s
 			);
-		} elsif ( $ev->y < ( $self->{_scrolled_window}->get_vadjustment->value / $scale + 100 / $scale ) ) {
+		} elsif ( $ev->y < ( $va / $s + 100 / $s ) ) {
 			$self->{_canvas}->scroll_to(
-				$self->{_scrolled_window}->get_hadjustment->value / $scale,
-				$self->{_scrolled_window}->get_vadjustment->value / $scale - 10 / $scale
+				$ha / $s,
+				$va / $s - 10 / $s
 			);
 		}
 	}
@@ -948,7 +958,6 @@ sub event_item_on_motion_notify {
 
 		my $item = $self->{_current_new_item};
 
-		
 		if($ev->state >= 'control-mask'){
 			my $last_point = pop @{ $self->{_items}{$item}{'points'} };
 			$last_point = $ev->y unless $last_point;
@@ -977,7 +986,9 @@ sub event_item_on_motion_notify {
 		&& !$item->{resizing} #if item is not in resize mode already
 		)
 	{
+
 		my $item = $self->{_current_new_item};
+		$self->{_current_new_item} = undef;
 		$self->{_current_item} = $item;
 		$self->{_items}{$item}{'bottom-right-corner'}->{res_x}    = $ev->x;
 		$self->{_items}{$item}{'bottom-right-corner'}->{res_y}    = $ev->y;
@@ -1158,14 +1169,18 @@ sub event_item_on_motion_notify {
 							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );					
 						}
 
-
 					}
 
 					#set cursor
 					$self->{_canvas}->window->set_cursor( Gtk2::Gdk::Cursor->new($cursor) );
 
 					#when width or height are too small we switch to opposite rectangle and do the resizing in this way
-					if ( $new_width < 0 || $new_height < 0) {
+					if($ev->state >= 'control-mask' && $new_width < 1 && $new_height < 1){
+						$new_x = $self->{_items}{$curr_item}->get('x');
+						$new_y = $self->{_items}{$curr_item}->get('y');
+						$new_width = $self->{_items}{$curr_item}->get('width');
+						$new_height = $self->{_items}{$curr_item}->get('height');
+					}elsif ( $new_width < 0 || $new_height < 0) {
 						$self->{_canvas}->pointer_ungrab($item, $ev->time);
 						my $oppo = $self->get_opposite_rect($item, $curr_item, $new_width, $new_height);				
 						$self->{_items}{$curr_item}{$oppo}->{res_x}    = $ev->x;
@@ -2582,6 +2597,7 @@ sub event_item_on_button_release {
 			#real shape
 			if ( exists $self->{_items}{$nitem} ) {
 
+				#images
 				if (exists $self->{_items}{$nitem}{image}){
 					
 					#~ my ($maxw, $maxh) = Gtk2::Gdk::Display->get_default->get_maximal_cursor_size;
@@ -2595,6 +2611,7 @@ sub event_item_on_button_release {
 						'height' => $self->{_items}{$nitem}{orig_pixbuf}->get_height
 					);
 			
+				#all other objects
 				}else{
 
 					$nitem->set( 'width'  => 100 ) if ( $nitem->get('width') < 10 );
@@ -2638,7 +2655,7 @@ sub event_item_on_button_release {
 
 	$self->set_drawing_action(int($self->{_current_mode}/10));
 	$self->change_drawing_tool_cb($self->{_current_mode});
-			
+		
 	return TRUE;
 }
 
