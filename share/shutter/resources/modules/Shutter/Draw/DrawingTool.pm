@@ -1538,7 +1538,7 @@ sub event_item_on_button_press {
 	$valid = TRUE if $self->{_canvas}->get_item_at( $ev->x, $ev->y, TRUE );
 
 	#activate item
-	if ( $valid && $self->{_current_mode_descr} eq "select" ) {
+	if ( $valid && $self->{_current_mode_descr} eq "select") {
 
 		#embedded item?
 		my $parent = $self->get_parent_item($item);
@@ -1560,10 +1560,9 @@ sub event_item_on_button_press {
 	
 	}
 
-	if ( $ev->button == 1 && $valid ) {
+	if ( $ev->type eq 'button-press' && $ev->button == 1 && $valid ) {
 
-		my $canvas = $item->get_canvas;
-		my $root   = $canvas->get_root_item;
+		my $root   = $self->{_canvas}->get_root_item;
 
 		#CLEAR
 		if ( $self->{_current_mode_descr} eq "clear" ) {
@@ -1637,7 +1636,7 @@ sub event_item_on_button_press {
 
 			}
 
-			$canvas->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ], $cursor, $ev->time );
+			$self->{_canvas}->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ], $cursor, $ev->time );
 
 		} else {
 
@@ -1678,10 +1677,12 @@ sub event_item_on_button_press {
 
 			}
 		}
-	} elsif ( $ev->button == 2 && $valid ) {
+	} elsif ( $ev->button == 2 && $valid && $self->{_current_mode_descr} eq "select") {
 
-		#right click => show context menu
-	} elsif ( $ev->button == 3 && $valid ) {
+		#right click => show context menu, double-click => show properties directly 
+	} elsif ( ($ev->type eq '2button-press' || $ev->button == 3) && $valid && $self->{_current_mode_descr} eq "select") {
+
+		$self->{_canvas}->pointer_ungrab( $item, $ev->time );
 
 		if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Polyline') ) {
 
@@ -1692,20 +1693,26 @@ sub event_item_on_button_press {
 				if ($child) {
 					$item = $child;
 				} else {
+					
+					if( $ev->type eq '2button-press' ) {
+						
+						$self->show_item_properties($item);
+						
+					}elsif( $ev->type eq 'button-press' ){
+						
+						my $item_menu = $self->ret_item_menu($item);
 
-					my $item_menu = $self->ret_item_menu($item);
-
-					$item_menu->popup(
-						undef,    # parent menu shell
-						undef,    # parent menu item
-						undef,    # menu pos func
-						undef,    # data
-						$ev->button,
-						$ev->time
-					);
-
+						$item_menu->popup(
+							undef,    # parent menu shell
+							undef,    # parent menu item
+							undef,    # menu pos func
+							undef,    # data
+							$ev->button,
+							$ev->time
+						);
+												
+					}				
 				}
-
 			}
 		}
 
@@ -1723,18 +1730,25 @@ sub event_item_on_button_press {
 			#real shape
 			if ( exists $self->{_items}{$parent} ) {
 
-				my $item_menu = $self->ret_item_menu( $item, $parent );
+				if( $ev->type eq '2button-press' ) {
 
-				$item_menu->popup(
-					undef,    # parent menu shell
-					undef,    # parent menu item
-					undef,    # menu pos func
-					undef,    # data
-					$ev->button,
-					$ev->time
-				);
+					$self->show_item_properties($item, $parent);
+
+				}elsif( $ev->type eq 'button-press' ){
+
+					my $item_menu = $self->ret_item_menu( $item, $parent );
+
+					$item_menu->popup(
+						undef,    # parent menu shell
+						undef,    # parent menu item
+						undef,    # menu pos func
+						undef,    # data
+						$ev->button,
+						$ev->time
+					);
+				
+				}
 			}
-
 		}
 
 	#zooming using the mouse wheel
@@ -1751,14 +1765,6 @@ sub ret_item_menu {
 	my $self   = shift;
 	my $item   = shift;
 	my $parent = shift;
-
-	#determine key for item hash
-	my $key = undef;
-	if ( exists $self->{_items}{$item} ) {
-		$key = $item;
-	} else {
-		$key = $parent;
-	}
 
 	my $d      = $self->{_shutter_common}->get_gettext;
 	my $dicons = $self->{_shutter_common}->get_root . "/share/shutter/resources/icons/drawing_tool";
@@ -1810,7 +1816,7 @@ sub ret_item_menu {
 
 	$remove_item->signal_connect(
 		'activate' => sub {
-			$self->clear_item_from_canvas($item);
+			$self->clear_item_from_canvas($item, $parent);
 		}
 	);
 
@@ -1824,264 +1830,7 @@ sub ret_item_menu {
 	$prop_item->signal_connect(
 		'activate' => sub {
 
-			#create dialog
-			my $prop_dialog = Gtk2::Dialog->new(
-				$d->get("Preferences"),
-				$self->{_drawing_window},
-				[qw/modal destroy-with-parent/],
-				'gtk-cancel' => 'cancel',
-				'gtk-apply'  => 'apply'
-			);
-
-			$prop_dialog->set_default_response('apply');
-
-			#RECT OR ELLIPSE
-			my $line_spin;
-			my $fill_color;
-			my $stroke_color;
-			if (   $item->isa('Goo::Canvas::Rect')
-				|| $item->isa('Goo::Canvas::Ellipse')
-				|| $item->isa('Goo::Canvas::Polyline') )
-			{
-
-				my $general_vbox = Gtk2::VBox->new( FALSE, 5 );
-
-				my $label_general = Gtk2::Label->new;
-				$label_general->set_markup( $d->get("<i>Main</i>") );
-				my $frame_general = Gtk2::Frame->new();
-				$frame_general->set_label_widget($label_general);
-				$frame_general->set_border_width(5);
-				$prop_dialog->vbox->add($frame_general);
-
-				#line_width
-				my $line_hbox = Gtk2::HBox->new( TRUE, 5 );
-				$line_hbox->set_border_width(5);
-				my $linew_label = Gtk2::Label->new( $d->get("Line width") );
-				$line_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
-
-				$line_spin->set_value( $item->get('line-width') );
-
-				$line_hbox->pack_start_defaults($linew_label);
-				$line_hbox->pack_start_defaults($line_spin);
-				$general_vbox->pack_start( $line_hbox, FALSE, FALSE, 0 );
-
-				if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
-
-					#fill color
-					my $fill_color_hbox = Gtk2::HBox->new( TRUE, 5 );
-					$fill_color_hbox->set_border_width(5);
-					my $fill_color_label = Gtk2::Label->new( $d->get("Fill color") );
-					$fill_color = Gtk2::ColorButton->new();
-
-					$fill_color->set_color( $self->{_items}{$key}{fill_color} );
-					$fill_color->set_alpha( int( $self->{_items}{$key}{fill_color_alpha} * 65535 ) );
-					$fill_color->set_use_alpha(TRUE);
-					$fill_color->set_title( $d->get("Choose fill color") );
-
-					$fill_color_hbox->pack_start_defaults($fill_color_label);
-					$fill_color_hbox->pack_start_defaults($fill_color);
-					$general_vbox->pack_start( $fill_color_hbox, FALSE, FALSE, 0 );
-				}
-
-				#stroke color
-				my $stroke_color_hbox = Gtk2::HBox->new( TRUE, 5 );
-				$stroke_color_hbox->set_border_width(5);
-				my $stroke_color_label = Gtk2::Label->new( $d->get("Stroke color") );
-				$stroke_color = Gtk2::ColorButton->new();
-
-				$stroke_color->set_color( $self->{_items}{$key}{stroke_color} );
-				$stroke_color->set_alpha( int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
-				$stroke_color->set_use_alpha(TRUE);
-				$stroke_color->set_title( $d->get("Choose stroke color") );
-
-				$stroke_color_hbox->pack_start_defaults($stroke_color_label);
-				$stroke_color_hbox->pack_start_defaults($stroke_color);
-				$general_vbox->pack_start( $stroke_color_hbox, FALSE, FALSE, 0 );
-
-				$frame_general->add($general_vbox);
-
-			}
-
-			#TEXT
-			my $font_btn;
-			my $text;
-			my $textview;
-			my $font_color;
-			if ( $item->isa('Goo::Canvas::Text') ) {
-
-				my $text_vbox = Gtk2::VBox->new( FALSE, 5 );
-
-				my $label_text = Gtk2::Label->new;
-				$label_text->set_markup( $d->get("<i>Text</i>") );
-				my $frame_text = Gtk2::Frame->new();
-				$frame_text->set_label_widget($label_text);
-				$frame_text->set_border_width(5);
-				$prop_dialog->vbox->add($frame_text);
-
-				#font button
-				my $font_hbox = Gtk2::HBox->new( TRUE, 5 );
-				$font_hbox->set_border_width(5);
-				my $font_label = Gtk2::Label->new( $d->get("Font") );
-				$font_btn = Gtk2::FontButton->new();
-
-				#determine font description from string
-				my ( $attr_list, $text_raw, $accel_char ) = Gtk2::Pango->parse_markup( $item->get('text') );
-				my $font_desc = Gtk2::Pango::FontDescription->from_string( $self->{_font} );
-
-				#FIXME, maybe the pango version installed is too old
-				eval {
-					$attr_list->filter(
-						sub {
-							my $attr = shift;
-							$font_desc = $attr->copy->desc
-								if $attr->isa('Gtk2::Pango::AttrFontDesc');
-							return TRUE;
-						},
-					);
-				};
-				if ($@) {
-					print "\nERROR: Pango Markup could not be parsed:\n$@";
-				}
-
-				$font_hbox->pack_start_defaults($font_label);
-				$font_hbox->pack_start_defaults($font_btn);
-				$text_vbox->pack_start( $font_hbox, FALSE, FALSE, 0 );
-
-				#font color
-				my $font_color_hbox = Gtk2::HBox->new( TRUE, 5 );
-				$font_color_hbox->set_border_width(5);
-				my $font_color_label = Gtk2::Label->new( $d->get("Font color") );
-				$font_color = Gtk2::ColorButton->new();
-				$font_color->set_use_alpha(TRUE);
-
-				$font_color->set_alpha( int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
-				$font_color->set_color( $self->{_items}{$key}{stroke_color} );
-				$font_color->set_title( $d->get("Choose font color") );
-
-				$font_color_hbox->pack_start_defaults($font_color_label);
-				$font_color_hbox->pack_start_defaults($font_color);
-
-				$text_vbox->pack_start( $font_color_hbox, FALSE, FALSE, 0 );
-
-				#initial buffer
-				my $text = Gtk2::TextBuffer->new;
-				$text->set_text($text_raw);
-
-				#textview
-				my $textview_hbox = Gtk2::HBox->new( FALSE, 5 );
-				$textview_hbox->set_border_width(5);
-				$textview = Gtk2::TextView->new_with_buffer($text);
-				$textview->set_size_request( 150, 200 );
-				$textview_hbox->pack_start_defaults($textview);
-
-				$text_vbox->pack_start_defaults($textview_hbox);
-
-				#apply changes directly
-				$font_btn->signal_connect(
-					'font-set' => sub {
-
-						$self->modify_text_in_properties( $font_btn, $textview, $font_color, $item );
-
-					}
-				);
-
-				$font_color->signal_connect(
-					'color-set' => sub {
-
-						$self->modify_text_in_properties( $font_btn, $textview, $font_color, $item );
-
-					}
-				);
-
-				#apply current font settings to button
-				$font_btn->set_font_name( $font_desc->to_string );
-
-				#FIXME >> why do we have to invoke this manually??
-				$font_btn->signal_emit('font-set');
-
-				$frame_text->add($text_vbox);
-			}
-
-			#run dialog
-			$prop_dialog->show_all;
-			my $prop_dialog_res = $prop_dialog->run;
-			if ( $prop_dialog_res eq 'apply' ) {
-
-				#add to undo stack
-				$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
-
-				#apply rect or ellipse options
-				if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
-
-					my $fill_pattern   = $self->create_color( $fill_color->get_color,   $fill_color->get_alpha / 65535 );
-					my $stroke_pattern = $self->create_color( $stroke_color->get_color, $stroke_color->get_alpha / 65535 );
-					$item->set(
-						'line-width'     => $line_spin->get_value,
-						'fill-pattern'   => $fill_pattern,
-						'stroke-pattern' => $stroke_pattern
-					);
-
-					#save color and opacity as well
-					$self->{_items}{$key}{fill_color}         = $fill_color->get_color;
-					$self->{_items}{$key}{fill_color_alpha}   = $fill_color->get_alpha / 65535;
-					$self->{_items}{$key}{stroke_color}       = $stroke_color->get_color;
-					$self->{_items}{$key}{stroke_color_alpha} = $stroke_color->get_alpha / 65535;
-				}
-
-				#apply polyline options
-				if ( $item->isa('Goo::Canvas::Polyline') ) {
-					my $stroke_pattern = $self->create_color( $stroke_color->get_color, $stroke_color->get_alpha / 65535 );
-					$item->set(
-						'line-width'     => $line_spin->get_value,
-						'stroke-pattern' => $stroke_pattern
-					);
-
-					#save color and opacity as well
-					$self->{_items}{$key}{stroke_color}       = $stroke_color->get_color;
-					$self->{_items}{$key}{stroke_color_alpha} = $stroke_color->get_alpha / 65535;
-				}
-
-				#apply text options
-				if ( $item->isa('Goo::Canvas::Text') ) {
-					my $font_descr = Gtk2::Pango::FontDescription->from_string( $font_btn->get_font_name );
-
-					my $new_text
-						= $textview->get_buffer->get_text( $textview->get_buffer->get_start_iter, $textview->get_buffer->get_end_iter, FALSE )
-						|| "New Text...";
-
-					my $fill_pattern = $self->create_color( $font_color->get_color, $font_color->get_alpha / 65535 );
-
-					$item->set(
-						'text'         => "<span font_desc=' " . $font_descr->to_string . " ' >" . $new_text . "</span>",
-						'use-markup'   => TRUE,
-						'fill-pattern' => $fill_pattern
-					);
-
-					#adjust rectangle to display text properly
-					my $no_lines  = $textview->get_buffer->get_line_count;
-					my $font_size = $font_descr->get_size / 1024;
-
-					if ( ( $no_lines * $font_size ) + $parent->get('height') > ( $self->{_drawing_pixbuf}->get_height - 50 ) ) {
-						$parent->set( 'height' => ( $self->{_drawing_pixbuf}->get_height - $parent->get('height') ) );
-					} else {
-						$parent->set( 'height' => $no_lines * $font_size + $no_lines * 20 );
-					}
-
-					$self->handle_rects( 'update', $parent );
-					$self->handle_embedded( 'update', $parent );
-
-					#save color and opacity as well
-					$self->{_items}{$key}{stroke_color}       = $font_color->get_color;
-					$self->{_items}{$key}{stroke_color_alpha} = $font_color->get_alpha / 65535;
-
-				}
-				$prop_dialog->destroy;
-				return TRUE;
-			} else {
-
-				$prop_dialog->destroy;
-				return FALSE;
-			}
+			$self->show_item_properties($item, $parent);
 
 		}
 	);
@@ -2091,6 +1840,288 @@ sub ret_item_menu {
 	$menu_item->show_all;
 
 	return $menu_item;
+}
+
+sub show_item_properties {
+	my $self = shift;
+	my $item = shift;
+	my $parent = shift;
+
+	#some items don't have properties - skip them
+	#freehand and censor
+	return FALSE if $item->isa('Goo::Canvas::Polyline') && !defined $parent;
+	#image
+	return FALSE if $item->isa('Goo::Canvas::Image');
+
+	#determine key for item hash
+	my $key = undef;
+	if ( exists $self->{_items}{$item} ) {
+		$key = $item;
+	} else {
+		$key = $parent;
+	}
+
+	my $d      = $self->{_shutter_common}->get_gettext;
+
+	#create dialog
+	my $prop_dialog = Gtk2::Dialog->new(
+		$d->get("Preferences"),
+		$self->{_drawing_window},
+		[qw/modal destroy-with-parent/],
+		'gtk-cancel' => 'cancel',
+		'gtk-apply'  => 'apply'
+	);
+
+	$prop_dialog->set_default_response('apply');
+
+	#RECT OR ELLIPSE
+	my $line_spin;
+	my $fill_color;
+	my $stroke_color;
+	if (   $item->isa('Goo::Canvas::Rect')
+		|| $item->isa('Goo::Canvas::Ellipse')
+		|| $item->isa('Goo::Canvas::Polyline') )
+	{
+
+		my $general_vbox = Gtk2::VBox->new( FALSE, 5 );
+
+		my $label_general = Gtk2::Label->new;
+		$label_general->set_markup( $d->get("<i>Main</i>") );
+		my $frame_general = Gtk2::Frame->new();
+		$frame_general->set_label_widget($label_general);
+		$frame_general->set_border_width(5);
+		$prop_dialog->vbox->add($frame_general);
+
+		#line_width
+		my $line_hbox = Gtk2::HBox->new( TRUE, 5 );
+		$line_hbox->set_border_width(5);
+		my $linew_label = Gtk2::Label->new( $d->get("Line width") );
+		$line_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
+
+		$line_spin->set_value( $item->get('line-width') );
+
+		$line_hbox->pack_start_defaults($linew_label);
+		$line_hbox->pack_start_defaults($line_spin);
+		$general_vbox->pack_start( $line_hbox, FALSE, FALSE, 0 );
+
+		if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
+
+			#fill color
+			my $fill_color_hbox = Gtk2::HBox->new( TRUE, 5 );
+			$fill_color_hbox->set_border_width(5);
+			my $fill_color_label = Gtk2::Label->new( $d->get("Fill color") );
+			$fill_color = Gtk2::ColorButton->new();
+
+			$fill_color->set_color( $self->{_items}{$key}{fill_color} );
+			$fill_color->set_alpha( int( $self->{_items}{$key}{fill_color_alpha} * 65535 ) );
+			$fill_color->set_use_alpha(TRUE);
+			$fill_color->set_title( $d->get("Choose fill color") );
+
+			$fill_color_hbox->pack_start_defaults($fill_color_label);
+			$fill_color_hbox->pack_start_defaults($fill_color);
+			$general_vbox->pack_start( $fill_color_hbox, FALSE, FALSE, 0 );
+		}
+
+		#stroke color
+		my $stroke_color_hbox = Gtk2::HBox->new( TRUE, 5 );
+		$stroke_color_hbox->set_border_width(5);
+		my $stroke_color_label = Gtk2::Label->new( $d->get("Stroke color") );
+		$stroke_color = Gtk2::ColorButton->new();
+
+		$stroke_color->set_color( $self->{_items}{$key}{stroke_color} );
+		$stroke_color->set_alpha( int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
+		$stroke_color->set_use_alpha(TRUE);
+		$stroke_color->set_title( $d->get("Choose stroke color") );
+
+		$stroke_color_hbox->pack_start_defaults($stroke_color_label);
+		$stroke_color_hbox->pack_start_defaults($stroke_color);
+		$general_vbox->pack_start( $stroke_color_hbox, FALSE, FALSE, 0 );
+
+		$frame_general->add($general_vbox);
+
+	}
+
+	#TEXT
+	my $font_btn;
+	my $text;
+	my $textview;
+	my $font_color;
+	if ( $item->isa('Goo::Canvas::Text') ) {
+
+		my $text_vbox = Gtk2::VBox->new( FALSE, 5 );
+
+		my $label_text = Gtk2::Label->new;
+		$label_text->set_markup( $d->get("<i>Text</i>") );
+		my $frame_text = Gtk2::Frame->new();
+		$frame_text->set_label_widget($label_text);
+		$frame_text->set_border_width(5);
+		$prop_dialog->vbox->add($frame_text);
+
+		#font button
+		my $font_hbox = Gtk2::HBox->new( TRUE, 5 );
+		$font_hbox->set_border_width(5);
+		my $font_label = Gtk2::Label->new( $d->get("Font") );
+		$font_btn = Gtk2::FontButton->new();
+
+		#determine font description from string
+		my ( $attr_list, $text_raw, $accel_char ) = Gtk2::Pango->parse_markup( $item->get('text') );
+		my $font_desc = Gtk2::Pango::FontDescription->from_string( $self->{_font} );
+
+		#FIXME, maybe the pango version installed is too old
+		eval {
+			$attr_list->filter(
+				sub {
+					my $attr = shift;
+					$font_desc = $attr->copy->desc
+						if $attr->isa('Gtk2::Pango::AttrFontDesc');
+					return TRUE;
+				},
+			);
+		};
+		if ($@) {
+			print "\nERROR: Pango Markup could not be parsed:\n$@";
+		}
+
+		$font_hbox->pack_start_defaults($font_label);
+		$font_hbox->pack_start_defaults($font_btn);
+		$text_vbox->pack_start( $font_hbox, FALSE, FALSE, 0 );
+
+		#font color
+		my $font_color_hbox = Gtk2::HBox->new( TRUE, 5 );
+		$font_color_hbox->set_border_width(5);
+		my $font_color_label = Gtk2::Label->new( $d->get("Font color") );
+		$font_color = Gtk2::ColorButton->new();
+		$font_color->set_use_alpha(TRUE);
+
+		$font_color->set_alpha( int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
+		$font_color->set_color( $self->{_items}{$key}{stroke_color} );
+		$font_color->set_title( $d->get("Choose font color") );
+
+		$font_color_hbox->pack_start_defaults($font_color_label);
+		$font_color_hbox->pack_start_defaults($font_color);
+
+		$text_vbox->pack_start( $font_color_hbox, FALSE, FALSE, 0 );
+
+		#initial buffer
+		my $text = Gtk2::TextBuffer->new;
+		$text->set_text($text_raw);
+
+		#textview
+		my $textview_hbox = Gtk2::HBox->new( FALSE, 5 );
+		$textview_hbox->set_border_width(5);
+		$textview = Gtk2::TextView->new_with_buffer($text);
+		$textview->set_size_request( 150, 200 );
+		$textview_hbox->pack_start_defaults($textview);
+
+		$text_vbox->pack_start_defaults($textview_hbox);
+
+		#apply changes directly
+		$font_btn->signal_connect(
+			'font-set' => sub {
+
+				$self->modify_text_in_properties( $font_btn, $textview, $font_color, $item );
+
+			}
+		);
+
+		$font_color->signal_connect(
+			'color-set' => sub {
+
+				$self->modify_text_in_properties( $font_btn, $textview, $font_color, $item );
+
+			}
+		);
+
+		#apply current font settings to button
+		$font_btn->set_font_name( $font_desc->to_string );
+
+		#FIXME >> why do we have to invoke this manually??
+		$font_btn->signal_emit('font-set');
+
+		$frame_text->add($text_vbox);
+	}
+
+	#run dialog
+	$prop_dialog->show_all;
+	my $prop_dialog_res = $prop_dialog->run;
+	if ( $prop_dialog_res eq 'apply' ) {
+
+		#add to undo stack
+		$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
+
+		#apply rect or ellipse options
+		if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
+
+			my $fill_pattern   = $self->create_color( $fill_color->get_color,   $fill_color->get_alpha / 65535 );
+			my $stroke_pattern = $self->create_color( $stroke_color->get_color, $stroke_color->get_alpha / 65535 );
+			$item->set(
+				'line-width'     => $line_spin->get_value,
+				'fill-pattern'   => $fill_pattern,
+				'stroke-pattern' => $stroke_pattern
+			);
+
+			#save color and opacity as well
+			$self->{_items}{$key}{fill_color}         = $fill_color->get_color;
+			$self->{_items}{$key}{fill_color_alpha}   = $fill_color->get_alpha / 65535;
+			$self->{_items}{$key}{stroke_color}       = $stroke_color->get_color;
+			$self->{_items}{$key}{stroke_color_alpha} = $stroke_color->get_alpha / 65535;
+		}
+
+		#apply polyline options
+		if ( $item->isa('Goo::Canvas::Polyline') ) {
+			my $stroke_pattern = $self->create_color( $stroke_color->get_color, $stroke_color->get_alpha / 65535 );
+			$item->set(
+				'line-width'     => $line_spin->get_value,
+				'stroke-pattern' => $stroke_pattern
+			);
+
+			#save color and opacity as well
+			$self->{_items}{$key}{stroke_color}       = $stroke_color->get_color;
+			$self->{_items}{$key}{stroke_color_alpha} = $stroke_color->get_alpha / 65535;
+		}
+
+		#apply text options
+		if ( $item->isa('Goo::Canvas::Text') ) {
+			my $font_descr = Gtk2::Pango::FontDescription->from_string( $font_btn->get_font_name );
+
+			my $new_text
+				= $textview->get_buffer->get_text( $textview->get_buffer->get_start_iter, $textview->get_buffer->get_end_iter, FALSE )
+				|| "New Text...";
+
+			my $fill_pattern = $self->create_color( $font_color->get_color, $font_color->get_alpha / 65535 );
+
+			$item->set(
+				'text'         => "<span font_desc=' " . $font_descr->to_string . " ' >" . $new_text . "</span>",
+				'use-markup'   => TRUE,
+				'fill-pattern' => $fill_pattern
+			);
+
+			#adjust rectangle to display text properly
+			my $no_lines  = $textview->get_buffer->get_line_count;
+			my $font_size = $font_descr->get_size / 1024;
+
+			if ( ( $no_lines * $font_size ) + $parent->get('height') > ( $self->{_drawing_pixbuf}->get_height - 50 ) ) {
+				$parent->set( 'height' => ( $self->{_drawing_pixbuf}->get_height - $parent->get('height') ) );
+			} else {
+				$parent->set( 'height' => $no_lines * $font_size + $no_lines * 20 );
+			}
+
+			$self->handle_rects( 'update', $parent );
+			$self->handle_embedded( 'update', $parent );
+
+			#save color and opacity as well
+			$self->{_items}{$key}{stroke_color}       = $font_color->get_color;
+			$self->{_items}{$key}{stroke_color_alpha} = $font_color->get_alpha / 65535;
+
+		}
+		$prop_dialog->destroy;
+		return TRUE;
+	} else {
+
+		$prop_dialog->destroy;
+		return FALSE;
+	}
+	
 }
 
 sub modify_text_in_properties {
