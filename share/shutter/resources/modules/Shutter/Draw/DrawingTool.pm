@@ -2381,7 +2381,7 @@ sub handle_rects {
 	#do we have a blessed reference?
 	eval { $self->{_items}{$item}->can('isa'); };
 	if ($@) {
-		print $@;
+		#~ print $@;
 		return FALSE;
 	}
 
@@ -2607,15 +2607,21 @@ sub event_item_on_button_release {
 					#~ );
 
 					$self->{_items}{$nitem}->set(
+						'x' => $ev->x - $self->{_items}{$nitem}{orig_pixbuf}->get_width,
+						'y' => $ev->y - $self->{_items}{$nitem}{orig_pixbuf}->get_height,
 						'width' => $self->{_items}{$nitem}{orig_pixbuf}->get_width,
-						'height' => $self->{_items}{$nitem}{orig_pixbuf}->get_height
+						'height' => $self->{_items}{$nitem}{orig_pixbuf}->get_height,
 					);
 			
 				#all other objects
 				}else{
-
-					$nitem->set( 'width'  => 100 ) if ( $nitem->get('width') < 10 );
-					$nitem->set( 'height' => 100 ) if ( $nitem->get('height') < 10 );
+					
+					$nitem->set( 
+						'x'  		=> $ev->x - 100, 
+						'y' 		=> $ev->y - 100, 			
+						'width' 	=> 100,
+						'height' 	=> 100,
+					);
 					
 				}
 
@@ -3508,7 +3514,14 @@ sub create_image {
 	}
 	
 	$self->{_items}{$item}{image}
-		= Goo::Canvas::Image->new( $self->{_canvas}->get_root_item, $self->{_items}{$item}{orig_pixbuf}, $item->get('x'), $item->get('y') );
+		= Goo::Canvas::Image->new( 
+		$self->{_canvas}->get_root_item, 
+		$self->{_items}{$item}{orig_pixbuf}, 
+		$item->get('x'), 
+		$item->get('y'),
+		'width' => 2,
+		'height' => 2,
+	);
 
 	#create rectangles
 	$self->handle_rects( 'create', $item );
@@ -3583,6 +3596,7 @@ sub create_text{
 		'use-markup'   => TRUE,
 		'fill-pattern' => $stroke_pattern,
 		'line-width'   => $line_width,
+		'visibility' => 'hidden'
 	);
 
 	$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
