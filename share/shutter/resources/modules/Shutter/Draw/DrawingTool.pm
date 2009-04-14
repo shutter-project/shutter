@@ -119,9 +119,9 @@ sub show {
 	( $self->{_root}->{x}, $self->{_root}->{y} ) = $self->{_root}->get_origin;
 
 	$self->{_drawing_window} = Gtk2::Window->new('toplevel');
-	$self->{_drawing_window}->set_title( "shutter DrawingTool - " . $self->{_filename} );
+	$self->{_drawing_window}->set_title( "Shutter DrawingTool - " . $self->{_filename} );
 	$self->{_drawing_window}->set_position('center');
-	$self->{_drawing_window}->set_modal(0);
+	$self->{_drawing_window}->set_modal(1);
 	$self->{_drawing_window}->signal_connect( 'delete_event', sub { return $self->quit(TRUE) } );
 
 	#adjust toplevel window size
@@ -279,83 +279,156 @@ sub setup_bottom_hbox {
 
 	#fill color
 	my $fill_color_label = Gtk2::Label->new( $d->get("Fill color") . ":" );
-	my $fill_color       = Gtk2::ColorButton->new();
-	$fill_color->set_color( $self->{_fill_color} );
-	$fill_color->set_alpha( int( $self->{_fill_color_alpha} * 65636 ) );
-	$fill_color->set_use_alpha(TRUE);
-	$fill_color->set_title( $d->get("Choose fill color") );
-	$fill_color->signal_connect(
-		'color-set' => sub {
-			$self->{_fill_color}       = $fill_color->get_color;
-			$self->{_fill_color_alpha} = $fill_color->get_alpha / 65636;
-		}
-	);
+	$self->{_fill_color_w}       = Gtk2::ColorButton->new();
+	$self->{_fill_color_w}->set_color( $self->{_fill_color} );
+	$self->{_fill_color_w}->set_alpha( int( $self->{_fill_color_alpha} * 65636 ) );
+	$self->{_fill_color_w}->set_use_alpha(TRUE);
+	$self->{_fill_color_w}->set_title( $d->get("Choose fill color") );
 
 	$tooltips->set_tip( $fill_color_label, $d->get("Adjust fill color and opacity") );
-	$tooltips->set_tip( $fill_color,       $d->get("Adjust fill color and opacity") );
+	$tooltips->set_tip( $self->{_fill_color_w}, $d->get("Adjust fill color and opacity") );
 
 	$drawing_bottom_hbox->pack_start( $fill_color_label, FALSE, FALSE, 5 );
-	$drawing_bottom_hbox->pack_start( $fill_color,       FALSE, FALSE, 5 );
+	$drawing_bottom_hbox->pack_start( $self->{_fill_color_w}, FALSE, FALSE, 5 );
 
 	#stroke color
 	my $stroke_color_label = Gtk2::Label->new( $d->get("Stroke color") . ":" );
-	my $stroke_color       = Gtk2::ColorButton->new();
-	$stroke_color->set_color( $self->{_stroke_color} );
-	$stroke_color->set_alpha( int( $self->{_stroke_color_alpha} * 65535 ) );
-	$stroke_color->set_use_alpha(TRUE);
-	$stroke_color->set_title( $d->get("Choose stroke color") );
-	$stroke_color->signal_connect(
-		'color-set' => sub {
-			$self->{_stroke_color}       = $stroke_color->get_color;
-			$self->{_stroke_color_alpha} = $stroke_color->get_alpha / 65535;
-		}
-	);
+	$self->{_stroke_color_w} = Gtk2::ColorButton->new();
+	$self->{_stroke_color_w}->set_color( $self->{_stroke_color} );
+	$self->{_stroke_color_w}->set_alpha( int( $self->{_stroke_color_alpha} * 65535 ) );
+	$self->{_stroke_color_w}->set_use_alpha(TRUE);
+	$self->{_stroke_color_w}->set_title( $d->get("Choose stroke color") );
 
 	$tooltips->set_tip( $stroke_color_label, $d->get("Adjust stroke color and opacity") );
-	$tooltips->set_tip( $stroke_color,       $d->get("Adjust stroke color and opacity") );
+	$tooltips->set_tip( $self->{_stroke_color_w}, $d->get("Adjust stroke color and opacity") );
 
 	$drawing_bottom_hbox->pack_start( $stroke_color_label, FALSE, FALSE, 5 );
-	$drawing_bottom_hbox->pack_start( $stroke_color,       FALSE, FALSE, 5 );
+	$drawing_bottom_hbox->pack_start( $self->{_stroke_color_w}, FALSE, FALSE, 5 );
 
 	#line_width
 	my $linew_label = Gtk2::Label->new( $d->get("Line width") . ":" );
-	my $line_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
-	$line_spin->set_value( $self->{_line_width} );
-	$line_spin->signal_connect(
-		'value-changed' => sub {
-			$self->{_line_width} = $line_spin->get_value;
-		}
-	);
+	$self->{_line_spin_w} = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
+	$self->{_line_spin_w}->set_value( $self->{_line_width} );
 
 	$tooltips->set_tip( $linew_label, $d->get("Adjust line width") );
-	$tooltips->set_tip( $line_spin,   $d->get("Adjust line width") );
+	$tooltips->set_tip( $self->{_line_spin_w},   $d->get("Adjust line width") );
 
 	$drawing_bottom_hbox->pack_start( $linew_label, FALSE, FALSE, 5 );
-	$drawing_bottom_hbox->pack_start( $line_spin,   FALSE, FALSE, 5 );
+	$drawing_bottom_hbox->pack_start( $self->{_line_spin_w},   FALSE, FALSE, 5 );
 
 	#font button
 	my $font_label = Gtk2::Label->new( $d->get("Font") . ":" );
-	my $font_btn   = Gtk2::FontButton->new();
-	$font_btn->set_font_name( $self->{_font} );
-	$font_btn->signal_connect(
-		'font-set' => sub {
-			my $font_descr = Gtk2::Pango::FontDescription->from_string( $font_btn->get_font_name );
-			$self->{_font} = $font_descr->to_string;
-		}
-	);
+	$self->{_font_btn_w} = Gtk2::FontButton->new();
+	$self->{_font_btn_w}->set_font_name( $self->{_font} );
 
 	$tooltips->set_tip( $font_label, $d->get("Select font family and size") );
-	$tooltips->set_tip( $font_btn,   $d->get("Select font family and size") );
+	$tooltips->set_tip( $self->{_font_btn_w}, $d->get("Select font family and size") );
 
 	$drawing_bottom_hbox->pack_start( $font_label, FALSE, FALSE, 5 );
-	$drawing_bottom_hbox->pack_start( $font_btn,   FALSE, FALSE, 5 );
+	$drawing_bottom_hbox->pack_start( $self->{_font_btn_w}, FALSE, FALSE, 5 );
 
 	#image button
 	my $image_label = Gtk2::Label->new( $d->get("Insert image") . ":" );
 	my $image_btn = Gtk2::MenuToolButton->new( undef, undef );
 	$image_btn->set_menu( $self->ret_objects_menu($image_btn) );
 
-	#~ $image_btn->signal_connect( 'show-menu' => sub { my ($widget) = @_; $self->ret_objects_menu($widget, 'noinit') } );
+	#handle property changes 
+	#changes are applied directly to the current item
+	$self->{_line_spin_wh} = $self->{_line_spin_w}->signal_connect(
+		'value-changed' => sub {
+			$self->{_line_width} = $self->{_line_spin_w}->get_value;
+
+			if($self->{_current_item}){
+				#apply all changes directly
+				my $item 	= $self->{_current_item};
+				if(my $child = $self->get_child_item($item)){
+					$item = $child;
+				}
+				my $parent 	= $self->get_parent_item($item);
+				#determine key for item hash
+				my $key = $self->get_item_key($item, $parent);
+
+				$self->apply_properties($item, $parent, $key, $self->{_fill_color_w}, 
+										$self->{_stroke_color_w}, $self->{_line_spin_w}, 
+										$self->{_stroke_color_w}, $self->{_font_btn_w});
+										
+			}
+
+		}
+	);
+	
+	$self->{_stroke_color_wh} = $self->{_stroke_color_w}->signal_connect(
+		'color-set' => sub {
+			$self->{_stroke_color}       = $self->{_stroke_color_w}->get_color;
+			$self->{_stroke_color_alpha} = $self->{_stroke_color_w}->get_alpha / 65535;
+
+			if($self->{_current_item}){
+				#apply all changes directly
+				my $item 	= $self->{_current_item};
+				if(my $child = $self->get_child_item($item)){
+					$item = $child;
+				}
+				my $parent 	= $self->get_parent_item($item);
+				#determine key for item hash
+				my $key = $self->get_item_key($item, $parent);
+
+				$self->apply_properties($item, $parent, $key, $self->{_fill_color_w}, 
+										$self->{_stroke_color_w}, $self->{_line_spin_w}, 
+										$self->{_stroke_color_w}, $self->{_font_btn_w});
+										
+			}	
+
+		}
+	);
+	
+	$self->{_fill_color_wh} = $self->{_fill_color_w}->signal_connect(
+		'color-set' => sub {
+			$self->{_fill_color}       = $self->{_fill_color_w}->get_color;
+			$self->{_fill_color_alpha} = $self->{_fill_color_w}->get_alpha / 65636;
+
+			if($self->{_current_item}){
+				#apply all changes directly
+				my $item 	= $self->{_current_item};
+				if(my $child = $self->get_child_item($item)){
+					$item = $child;
+				}
+				my $parent 	= $self->get_parent_item($item);
+				#determine key for item hash
+				my $key = $self->get_item_key($item, $parent);
+
+				$self->apply_properties($item, $parent, $key, $self->{_fill_color_w}, 
+										$self->{_stroke_color_w}, $self->{_line_spin_w}, 
+										$self->{_stroke_color_w}, $self->{_font_btn_w});
+										
+			}
+		
+		}
+	);
+	
+	$self->{_font_btn_wh} = $self->{_font_btn_w}->signal_connect(
+		'font-set' => sub {
+			my $font_descr = Gtk2::Pango::FontDescription->from_string( $self->{_font_btn_w}->get_font_name );
+			$self->{_font} = $font_descr->to_string;
+
+			if($self->{_current_item}){
+				#apply all changes directly
+				my $item 	= $self->{_current_item};
+				if(my $child = $self->get_child_item($item)){
+					$item = $child;
+				}
+				my $parent 	= $self->get_parent_item($item);
+				#determine key for item hash
+				my $key = $self->get_item_key($item, $parent);
+
+				$self->apply_properties($item, $parent, $key, $self->{_fill_color_w}, 
+										$self->{_stroke_color_w}, $self->{_line_spin_w}, 
+										$self->{_stroke_color_w}, $self->{_font_btn_w});
+										
+			}	
+
+		}
+	);
+	
 	$image_btn->signal_connect(
 		'clicked' => sub {
 			$self->{_canvas}->window->set_cursor($self->change_cursor_to_current_pixbuf);
@@ -549,6 +622,7 @@ sub zoom_normal_cb {
 sub adjust_rulers {
 	my $self = shift;
 	my $ev   = shift;
+	my $item = shift;
 
 	my $s = $self->{_canvas}->get_scale;
 
@@ -556,12 +630,12 @@ sub adjust_rulers {
 	my ( $vlower, $vupper, $vposition, $vmax_size ) = $self->{_vruler}->get_range;
 		
 	if($ev){
-		
+						
 		my $copy_event = $ev->copy;
-		
+			
 		#modify event to respect scrollbars and canvas scale
-		$copy_event->x( ($copy_event->x - $hlower) * $s);
-		$copy_event->y( ($copy_event->y - $vlower) * $s);	
+		$copy_event->x( ($copy_event->x_root - $hlower) * $s);
+		$copy_event->y( ($copy_event->y_root - $vlower) * $s);	
 
 		$self->{_hruler}->signal_emit('motion-notify-event', $copy_event);
 		$self->{_vruler}->signal_emit('motion-notify-event', $copy_event);
@@ -875,7 +949,7 @@ sub setup_item_signals_extra {
 sub event_item_on_motion_notify {
 	my ( $self, $item, $target, $ev ) = @_;
 
-	$self->adjust_rulers($ev);
+	$self->adjust_rulers($ev, $item);
 	
 	#autoscroll if enabled
 	if (   $self->{_autoscroll}
@@ -973,7 +1047,7 @@ sub event_item_on_motion_notify {
 			push @{ $self->{_items}{$item}{'points'} }, $ev->x, $ev->y;		
 		}
 		$self->{_items}{$item}->set( points => Goo::Canvas::Points->new( $self->{_items}{$item}{'points'} ) );
-
+		
 		#new item is already on the canvas with small initial size
 		#drawing is like resizing, so set up for resizing
 	} elsif (
@@ -1529,6 +1603,93 @@ sub redo {
 	#~ return TRUE;	
 }
 
+sub activate_item {
+	my $self = shift;
+	my $item = shift;
+
+	#block 'value-change' handlers for widgets
+	#so we do not apply the changes twice
+	$self->{_line_spin_w}->signal_handler_block ($self->{_line_spin_wh});
+	$self->{_stroke_color_w}->signal_handler_block ($self->{_stroke_color_wh});
+	$self->{_fill_color_w}->signal_handler_block ($self->{_fill_color_wh});
+	$self->{_font_btn_w}->signal_handler_block ($self->{_font_btn_wh});
+
+	#apply all changes directly
+	my $item 	= $self->{_current_item};
+	if(my $child = $self->get_child_item($item)){
+		$item = $child;
+	}
+	my $parent 	= $self->get_parent_item($item);
+	#determine key for item hash
+	my $key = $self->get_item_key($item, $parent);
+
+	if (   $item->isa('Goo::Canvas::Rect')
+		|| $item->isa('Goo::Canvas::Ellipse')
+		|| $item->isa('Goo::Canvas::Polyline') )
+	{
+				
+		#line width
+		$self->{_line_spin_w}->set_value( $item->get('line-width') );
+			
+		#stroke color
+		$self->{_stroke_color_w}->set_color( $self->{_items}{$key}{stroke_color} );
+		$self->{_stroke_color_w}->set_alpha( int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
+
+		if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
+	
+			#fill color
+			$self->{_fill_color_w}->set_color( $self->{_items}{$key}{fill_color} );
+			$self->{_fill_color_w}->set_alpha( int( $self->{_items}{$key}{fill_color_alpha} * 65535 ) );
+	
+		}
+
+	}elsif ( $item->isa('Goo::Canvas::Text') ) {
+
+		#determine font description from string
+		my ( $attr_list, $text_raw, $accel_char ) = Gtk2::Pango->parse_markup( $item->get('text') );
+		my $font_desc = Gtk2::Pango::FontDescription->from_string( $self->{_font} );
+
+		#FIXME, maybe the pango version installed is too old
+		eval {
+			$attr_list->filter(
+				sub {
+					my $attr = shift;
+					$font_desc = $attr->copy->desc
+						if $attr->isa('Gtk2::Pango::AttrFontDesc');
+					return TRUE;
+				},
+			);
+		};
+		if ($@) {
+			print "\nERROR: Pango Markup could not be parsed:\n$@";
+		}
+
+		#font color
+		$self->{_stroke_color_w}->set_color( $self->{_items}{$key}{stroke_color} );
+		$self->{_stroke_color_w}->set_alpha( int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
+
+		#apply current font settings to button
+		$self->{_font_btn_w}->set_font_name( $font_desc->to_string );
+		
+	}
+
+	#update global values
+	$self->{_line_width} 			= $self->{_line_spin_w}->get_value;	
+	$self->{_stroke_color}       	= $self->{_stroke_color_w}->get_color;
+	$self->{_stroke_color_alpha} 	= $self->{_stroke_color_w}->get_alpha / 65535;		
+	$self->{_fill_color}       		= $self->{_fill_color_w}->get_color;
+	$self->{_fill_color_alpha} 		= $self->{_fill_color_w}->get_alpha / 65636;
+	my $font_descr = Gtk2::Pango::FontDescription->from_string( $self->{_font_btn_w}->get_font_name );
+	$self->{_font} = $font_descr->to_string;
+
+	#unblock 'value-change' handlers for widgets
+	$self->{_line_spin_w}->signal_handler_unblock ($self->{_line_spin_wh});
+	$self->{_stroke_color_w}->signal_handler_unblock ($self->{_stroke_color_wh});
+	$self->{_fill_color_w}->signal_handler_unblock ($self->{_fill_color_wh});
+	$self->{_font_btn_w}->signal_handler_unblock ($self->{_font_btn_wh});
+
+}
+
 sub event_item_on_button_press {
 	my ( $self, $item, $target, $ev ) = @_;
 
@@ -1553,6 +1714,10 @@ sub event_item_on_button_press {
 			$self->{_current_new_item} = undef;
 			$self->handle_rects( 'hide',   $self->{_last_item} );
 			$self->handle_rects( 'update', $self->{_current_item} );
+			
+			#apply item properties to widgets
+			#line width, fill color, stroke color etc.
+			$self->activate_item($self->{_current_item});
 
 		}
 	} else {
@@ -1843,10 +2008,21 @@ sub ret_item_menu {
 	return $menu_item;
 }
 
+sub get_item_key {
+	my $self 	= shift;
+	my $item 	= shift;
+	my $parent 	= shift;
+	if ( exists $self->{_items}{$item} ) {
+		return $item;
+	} else {
+		return $parent;
+	}
+}
+
 sub show_item_properties {
-	my $self = shift;
-	my $item = shift;
-	my $parent = shift;
+	my $self 	= shift;
+	my $item 	= shift;
+	my $parent 	= shift;
 
 	#some items don't have properties - skip them
 	#freehand and censor
@@ -1855,14 +2031,9 @@ sub show_item_properties {
 	return FALSE if $item->isa('Goo::Canvas::Image');
 
 	#determine key for item hash
-	my $key = undef;
-	if ( exists $self->{_items}{$item} ) {
-		$key = $item;
-	} else {
-		$key = $parent;
-	}
+	my $key = $self->get_item_key($item, $parent);
 
-	my $d      = $self->{_shutter_common}->get_gettext;
+	my $d = $self->{_shutter_common}->get_gettext;
 
 	#create dialog
 	my $prop_dialog = Gtk2::Dialog->new(
@@ -2047,74 +2218,14 @@ sub show_item_properties {
 	my $prop_dialog_res = $prop_dialog->run;
 	if ( $prop_dialog_res eq 'apply' ) {
 
-		#add to undo stack
-		$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
+		$self->apply_properties($item, $parent, $key, $fill_color, 
+								$stroke_color, $line_spin, $font_color,
+								$font_btn, $textview);
 
-		#apply rect or ellipse options
-		if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
-
-			my $fill_pattern   = $self->create_color( $fill_color->get_color,   $fill_color->get_alpha / 65535 );
-			my $stroke_pattern = $self->create_color( $stroke_color->get_color, $stroke_color->get_alpha / 65535 );
-			$item->set(
-				'line-width'     => $line_spin->get_value,
-				'fill-pattern'   => $fill_pattern,
-				'stroke-pattern' => $stroke_pattern
-			);
-
-			#save color and opacity as well
-			$self->{_items}{$key}{fill_color}         = $fill_color->get_color;
-			$self->{_items}{$key}{fill_color_alpha}   = $fill_color->get_alpha / 65535;
-			$self->{_items}{$key}{stroke_color}       = $stroke_color->get_color;
-			$self->{_items}{$key}{stroke_color_alpha} = $stroke_color->get_alpha / 65535;
-		}
-
-		#apply polyline options
-		if ( $item->isa('Goo::Canvas::Polyline') ) {
-			my $stroke_pattern = $self->create_color( $stroke_color->get_color, $stroke_color->get_alpha / 65535 );
-			$item->set(
-				'line-width'     => $line_spin->get_value,
-				'stroke-pattern' => $stroke_pattern
-			);
-
-			#save color and opacity as well
-			$self->{_items}{$key}{stroke_color}       = $stroke_color->get_color;
-			$self->{_items}{$key}{stroke_color_alpha} = $stroke_color->get_alpha / 65535;
-		}
-
-		#apply text options
-		if ( $item->isa('Goo::Canvas::Text') ) {
-			my $font_descr = Gtk2::Pango::FontDescription->from_string( $font_btn->get_font_name );
-
-			my $new_text
-				= $textview->get_buffer->get_text( $textview->get_buffer->get_start_iter, $textview->get_buffer->get_end_iter, FALSE )
-				|| "New Text...";
-
-			my $fill_pattern = $self->create_color( $font_color->get_color, $font_color->get_alpha / 65535 );
-
-			$item->set(
-				'text'         => "<span font_desc=' " . $font_descr->to_string . " ' >" . $new_text . "</span>",
-				'use-markup'   => TRUE,
-				'fill-pattern' => $fill_pattern
-			);
-
-			#adjust rectangle to display text properly
-			my $no_lines  = $textview->get_buffer->get_line_count;
-			my $font_size = $font_descr->get_size / 1024;
-
-			if ( ( $no_lines * $font_size ) + $parent->get('height') > ( $self->{_drawing_pixbuf}->get_height - 50 ) ) {
-				$parent->set( 'height' => ( $self->{_drawing_pixbuf}->get_height - $parent->get('height') ) );
-			} else {
-				$parent->set( 'height' => $no_lines * $font_size + $no_lines * 20 );
-			}
-
-			$self->handle_rects( 'update', $parent );
-			$self->handle_embedded( 'update', $parent );
-
-			#save color and opacity as well
-			$self->{_items}{$key}{stroke_color}       = $font_color->get_color;
-			$self->{_items}{$key}{stroke_color_alpha} = $font_color->get_alpha / 65535;
-
-		}
+		#apply item properties to widgets
+		#line width, fill color, stroke color etc.
+		$self->activate_item($self->{_current_item});
+		
 		$prop_dialog->destroy;
 		return TRUE;
 	} else {
@@ -2123,6 +2234,96 @@ sub show_item_properties {
 		return FALSE;
 	}
 	
+}
+
+sub apply_properties {
+	my $self 		= shift;
+	my $item 		= shift;
+	my $parent 		= shift;
+	my $key 		= shift;
+	my $fill_color 	= shift;
+	my $stroke_color= shift;
+	my $line_spin 	= shift;
+	my $font_color 	= shift;
+	my $font_btn 	= shift;
+	my $textview 	= shift;
+
+	#add to undo stack
+	$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
+
+	#apply rect or ellipse options
+	if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
+
+		my $fill_pattern   = $self->create_color( $fill_color->get_color,   $fill_color->get_alpha / 65535 );
+		my $stroke_pattern = $self->create_color( $stroke_color->get_color, $stroke_color->get_alpha / 65535 );
+		$item->set(
+			'line-width'     => $line_spin->get_value,
+			'fill-pattern'   => $fill_pattern,
+			'stroke-pattern' => $stroke_pattern
+		);
+
+		#save color and opacity as well
+		$self->{_items}{$key}{fill_color}         = $fill_color->get_color;
+		$self->{_items}{$key}{fill_color_alpha}   = $fill_color->get_alpha / 65535;
+		$self->{_items}{$key}{stroke_color}       = $stroke_color->get_color;
+		$self->{_items}{$key}{stroke_color_alpha} = $stroke_color->get_alpha / 65535;
+	}
+
+	#apply polyline options
+	if ( $item->isa('Goo::Canvas::Polyline') ) {
+		my $stroke_pattern = $self->create_color( $stroke_color->get_color, $stroke_color->get_alpha / 65535 );
+		$item->set(
+			'line-width'     => $line_spin->get_value,
+			'stroke-pattern' => $stroke_pattern
+		);
+
+		#save color and opacity as well
+		$self->{_items}{$key}{stroke_color}       = $stroke_color->get_color;
+		$self->{_items}{$key}{stroke_color_alpha} = $stroke_color->get_alpha / 65535;
+	}
+
+	#apply text options
+	if ( $item->isa('Goo::Canvas::Text') ) {
+		my $font_descr = Gtk2::Pango::FontDescription->from_string( $font_btn->get_font_name );
+
+		my $fill_pattern = $self->create_color( $font_color->get_color, $font_color->get_alpha / 65535 );
+		
+		my $new_text = undef;
+		if($textview){
+			$new_text
+				= $textview->get_buffer->get_text( $textview->get_buffer->get_start_iter, $textview->get_buffer->get_end_iter, FALSE )
+				|| "New Text...";
+		}else{
+			#determine font description and text from string
+			my ( $attr_list, $text_raw, $accel_char ) = Gtk2::Pango->parse_markup( $item->get('text') );
+			$new_text = $text_raw;	
+		}
+
+		$item->set(
+			'text'         => "<span font_desc=' " . $font_descr->to_string . " ' >" . $new_text . "</span>",
+			'use-markup'   => TRUE,
+			'fill-pattern' => $fill_pattern
+		);
+
+		#adjust rectangle to display text properly
+		#~ my $no_lines  = $textview->get_buffer->get_line_count;
+		#~ my $font_size = $font_descr->get_size / 1024;
+#~ 
+		#~ if ( ( $no_lines * $font_size ) + $parent->get('height') > ( $self->{_drawing_pixbuf}->get_height - 50 ) ) {
+			#~ $parent->set( 'height' => ( $self->{_drawing_pixbuf}->get_height - $parent->get('height') ) );
+		#~ } else {
+			#~ $parent->set( 'height' => $no_lines * $font_size + $no_lines * 20 );
+		#~ }
+
+		$self->handle_rects( 'update', $parent );
+		$self->handle_embedded( 'update', $parent );
+
+		#save color and opacity as well
+		$self->{_items}{$key}{stroke_color}       = $font_color->get_color;
+		$self->{_items}{$key}{stroke_color_alpha} = $font_color->get_alpha / 65535;
+
+	}
+		
 }
 
 sub modify_text_in_properties {

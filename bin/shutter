@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.412";
+use constant REV                	=> "Rev.413";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -1647,15 +1647,6 @@ sub evt_about {
 	}	
 	close(GPL);
 	
-	#~ my $all_trans = "";	
-	#~ open( TRANSCREDITS, "$shutter_root/share/shutter/resources/credits/trans" )
-		#~ or die $!;
-	#~ while(my $trans = <TRANSCREDITS>){
-		#~ utf8::decode $trans;
-		#~ $all_trans .= $trans;	
-	#~ }
-	#~ close(TRANSCREDITS);
-
 	my $all_dev = "";
 	open( DEVCREDITS, "$shutter_root/share/shutter/resources/credits/dev" )
 		or die $!;
@@ -1690,7 +1681,6 @@ sub evt_about {
 	$about->set_email_hook( sub { $shutter_hfunct->gnome_open_mail(@_) } );
 	$about->set_authors( $all_dev );
 	$about->set_artists( $all_art );
-	#~ $about->set_translator_credits($all_trans);
 	$about->set_translator_credits($d->get("translator-credits"));
 	$about->set_copyright($all_hint);
 	$about->set_license($all_gpl);
