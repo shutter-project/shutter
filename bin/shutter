@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.411";
+use constant REV                	=> "Rev.412";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -3526,7 +3526,7 @@ sub fct_take_screenshot {
 			$delay_value, $x11, $combobox_border->get_active,
 			undef, $data, $is_in_tray
 		);
-		$screenshot = $screenshooter->window_select();
+		$screenshot = $screenshooter->window();
 		undef $screenshooter;
 
 		#selection
