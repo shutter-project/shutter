@@ -279,7 +279,7 @@ sub setup_bottom_hbox {
 
 	#fill color
 	my $fill_color_label = Gtk2::Label->new( $d->get("Fill color") . ":" );
-	$self->{_fill_color_w}       = Gtk2::ColorButton->new();
+	$self->{_fill_color_w} = Gtk2::ColorButton->new();
 	$self->{_fill_color_w}->set_color( $self->{_fill_color} );
 	$self->{_fill_color_w}->set_alpha( int( $self->{_fill_color_alpha} * 65636 ) );
 	$self->{_fill_color_w}->set_use_alpha(TRUE);
@@ -462,39 +462,39 @@ sub push_to_statusbar {
 			$status_text .= " ".$d->get("Click-Drag to resize the canvas");				
 		}
 		
-	} elsif ( $self->{_current_mode} == 20 ) {
+	} elsif ( $self->{_current_mode} == 20 || $self->{_current_mode} == 30) {
 
 		$status_text .= " ".$d->get("Click to paint (try Control or Shift for a straight line)");
 		
-	} elsif ( $self->{_current_mode} == 30 ) {
+	} elsif ( $self->{_current_mode} == 40 ) {
 
 		$status_text .= " ".$d->get("Click-Drag to create a new straight line");
 
-	} elsif ( $self->{_current_mode} == 40 ) {
+	} elsif ( $self->{_current_mode} == 50 ) {
 
 		$status_text .= " ".$d->get("Click-Drag to create a new arrow");
 
-	} elsif ( $self->{_current_mode} == 50 ) {
+	} elsif ( $self->{_current_mode} == 60 ) {
 
 		$status_text .= " ".$d->get("Click-Drag to create a new rectangle");
 
-	} elsif ( $self->{_current_mode} == 60 ) {
+	} elsif ( $self->{_current_mode} == 70 ) {
 
 		$status_text .= " ".$d->get("Click-Drag to create a new ellipse");
 
-	} elsif ( $self->{_current_mode} == 70 ) {
+	} elsif ( $self->{_current_mode} == 80 ) {
 
 		$status_text .= " ".$d->get("Click-Drag to add a new text area");
 
-	} elsif ( $self->{_current_mode} == 80 ) {
+	} elsif ( $self->{_current_mode} == 90 ) {
 
 		$status_text .= " ".$d->get("Click to censor (try Control or Shift for a straight line)");
 
-	} elsif ( $self->{_current_mode} == 90 ) {
+	} elsif ( $self->{_current_mode} == 100 ) {
 
 		$status_text .= " ".$d->get("Select an object to delete it from the canvas");
 
-	} elsif ( $self->{_current_mode} == 100 ) {
+	} elsif ( $self->{_current_mode} == 110 ) {
 
 		$status_text .= " ".$d->get("Delete all objects");
 
@@ -528,8 +528,13 @@ sub change_drawing_tool_cb {
 
 		$self->{_current_mode_descr} = "freehand";
 		$cursor = Gtk2::Gdk::Cursor->new('pencil');
-
+	
 	} elsif ( $self->{_current_mode} == 30 ) {
+
+		$self->{_current_mode_descr} = "highlighter";
+		$cursor = Gtk2::Gdk::Cursor->new('dotbox');
+
+	} elsif ( $self->{_current_mode} == 40 ) {
 
 		$self->{_current_mode_descr} = "line";
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
@@ -538,7 +543,7 @@ sub change_drawing_tool_cb {
 			Gtk2::IconSize->lookup('menu')
 		);
 
-	} elsif ( $self->{_current_mode} == 40 ) {
+	} elsif ( $self->{_current_mode} == 50 ) {
 
 		$self->{_current_mode_descr} = "arrow";
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
@@ -547,7 +552,7 @@ sub change_drawing_tool_cb {
 			Gtk2::IconSize->lookup('menu')
 		);
 
-	} elsif ( $self->{_current_mode} == 50 ) {
+	} elsif ( $self->{_current_mode} == 60 ) {
 
 		$self->{_current_mode_descr} = "rect";
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
@@ -556,7 +561,7 @@ sub change_drawing_tool_cb {
 			Gtk2::IconSize->lookup('menu')
 		);
 
-	} elsif ( $self->{_current_mode} == 60 ) {
+	} elsif ( $self->{_current_mode} == 70 ) {
 
 		$self->{_current_mode_descr} = "ellipse";
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
@@ -565,7 +570,7 @@ sub change_drawing_tool_cb {
 			Gtk2::IconSize->lookup('menu')
 		);
 
-	} elsif ( $self->{_current_mode} == 70 ) {
+	} elsif ( $self->{_current_mode} == 80 ) {
 
 		$self->{_current_mode_descr} = "text";
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
@@ -573,7 +578,7 @@ sub change_drawing_tool_cb {
 			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-text.png"),
 			Gtk2::IconSize->lookup('menu')
 		);
-	} elsif ( $self->{_current_mode} == 80 ) {
+	} elsif ( $self->{_current_mode} == 90 ) {
 
 		$self->{_current_mode_descr} = "censor";
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
@@ -582,11 +587,11 @@ sub change_drawing_tool_cb {
 			Gtk2::IconSize->lookup('menu')
 		);
 
-	} elsif ( $self->{_current_mode} == 90 ) {
+	} elsif ( $self->{_current_mode} == 100 ) {
 
 		$self->{_current_mode_descr} = "clear";
 
-	} elsif ( $self->{_current_mode} == 100 ) {
+	} elsif ( $self->{_current_mode} == 110 ) {
 
 		$self->{_current_mode_descr} = "clear_all";
 
@@ -1042,7 +1047,7 @@ sub event_item_on_motion_notify {
 		}
 
 		#freehand line
-	} elsif ( ($self->{_current_mode_descr} eq "freehand" || $self->{_current_mode_descr} eq "censor") && $ev->state >= 'button1-mask' ) {
+	} elsif ( ($self->{_current_mode_descr} eq "freehand" || $self->{_current_mode_descr} eq "highlighter" ||$self->{_current_mode_descr} eq "censor") && $ev->state >= 'button1-mask' ) {
 
 		my $item = $self->{_current_new_item};
 
@@ -1823,10 +1828,15 @@ sub event_item_on_button_press {
 
 		} else {
 
-			#FREEHAND
+				#freehand
 			if ( $self->{_current_mode_descr} eq "freehand" ) {
 
-				$self->create_polyline( $ev, undef );
+				$self->create_polyline( $ev, undef, FALSE );
+
+				#highlighter
+			} elsif ( $self->{_current_mode_descr} eq "highlighter" ) {
+
+				$self->create_polyline( $ev, undef, TRUE );
 
 				#Line
 			} elsif ( $self->{_current_mode_descr} eq "line" ) {
@@ -2430,7 +2440,7 @@ sub apply_properties {
 		$self->{_items}{$key}{arrow_length} 	= $self->{_items}{$key}{line}->get('arrow-length');
 		$self->{_items}{$key}{arrow_tip_length} = $self->{_items}{$key}{line}->get('arrow-tip-length');
 
-	#apply polyline options (freehand) 
+	#apply polyline options (freehand, highlighter) 
 	}elsif ( $item->isa('Goo::Canvas::Polyline') 
 		&& defined $self->{_items}{$key}{stroke_color}) 
 	{
@@ -3275,6 +3285,7 @@ sub setup_uimanager {
 	$self->{_factory}->add( 'shutter-ellipse',   Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-ellipse.png") ) );
 	$self->{_factory}->add( 'shutter-eraser',    Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-eraser.png") ) );
 	$self->{_factory}->add( 'shutter-freehand',  Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-freehand.png") ) );
+	$self->{_factory}->add( 'shutter-highlighter',  Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-highlighter.png") ) );
 	$self->{_factory}->add( 'shutter-pointer',   Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-pointer.png") ) );
 	$self->{_factory}->add( 'shutter-rectangle', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-rectangle.png") ) );
 	$self->{_factory}->add( 'shutter-line', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-line.png") ) );
@@ -3315,14 +3326,15 @@ sub setup_uimanager {
 	my @toolbar_drawing_actions = (
 		[ "Select",  'shutter-pointer',   undef, undef, $d->get("Select item to move or resize it"),    10 ],
 		[ "Freehand",    'shutter-freehand',  undef, undef, $d->get("Draw a freehand line"), 20 ],
-		[ "Line",    'shutter-line', undef, undef, $d->get("Draw a straight line"),                    30 ],
-		[ "Arrow",    'shutter-arrow', undef, undef, $d->get("Draw an arrow"),                    40 ],
-		[ "Rect",    'shutter-rectangle', undef, undef, $d->get("Draw a rectangle"),                    50 ],
-		[ "Ellipse", 'shutter-ellipse',   undef, undef, $d->get("Draw a ellipse"),                      60 ],
-		[ "Text",    'shutter-text',      undef, undef, $d->get("Add some text to the screenshot"),     70 ],
-		[ "Censor",    'shutter-censor',      undef, undef, $d->get("Censor portions of your screenshot to hide private data"),     80 ],
-		[ "Clear",   'shutter-eraser',    undef, undef, $d->get("Delete objects"),                      90 ],
-		[ "ClearAll",'gtk-clear',  	 undef, undef, $d->get("Delete all objects"),                  100 ]
+		[ "Highlighter",    'shutter-highlighter',  undef, undef, $d->get("Highlighter"), 30 ],
+		[ "Line",    'shutter-line', undef, undef, $d->get("Draw a straight line"),                    40 ],
+		[ "Arrow",    'shutter-arrow', undef, undef, $d->get("Draw an arrow"),                    50 ],
+		[ "Rect",    'shutter-rectangle', undef, undef, $d->get("Draw a rectangle"),                    60 ],
+		[ "Ellipse", 'shutter-ellipse',   undef, undef, $d->get("Draw a ellipse"),                      70 ],
+		[ "Text",    'shutter-text',      undef, undef, $d->get("Add some text to the screenshot"),     80 ],
+		[ "Censor",    'shutter-censor',      undef, undef, $d->get("Censor portions of your screenshot to hide private data"),     90 ],
+		[ "Clear",   'shutter-eraser',    undef, undef, $d->get("Delete objects"),                      100 ],
+		[ "ClearAll",'gtk-clear',  	 undef, undef, $d->get("Delete all objects"),                  110 ]
 	);
 
 	my $uimanager = Gtk2::UIManager->new();
@@ -3401,6 +3413,7 @@ sub setup_uimanager {
     <toolitem action='Select'/>
     <separator/>
     <toolitem action='Freehand'/>
+    <toolitem action='Highlighter'/>
     <toolitem action='Line'/>
     <toolitem action='Arrow'/>
     <toolitem action='Rect'/>
@@ -3805,9 +3818,13 @@ sub paste_item {
 }	
 
 sub create_polyline {
-	my $self      = shift;
-	my $ev        = shift;
-	my $copy_item = shift;
+	my $self      	= shift;
+	my $ev        	= shift;
+	my $copy_item 	= shift;
+	
+	#this is a highlighter? 
+	#we need different default values in this case
+	my $highlighter = shift;
 
 	my @points = ();
 	my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
@@ -3828,14 +3845,25 @@ sub create_polyline {
 		$line_width = $self->{_items}{$copy_item}->get('line_width');
 	}
 
-	my $item = Goo::Canvas::Polyline->new_line(
-		$self->{_canvas}->get_root_item, $points[0],$points[1],$points[2],$points[3],
-		'stroke-pattern' => $stroke_pattern,
-		'line-width'     => $line_width,
-		'line-cap'       => 'CAIRO_LINE_CAP_ROUND',
-		'line-join'      => 'CAIRO_LINE_JOIN_ROUND'
-	);
-
+	my $item = undef;
+	if($highlighter){
+		$item = Goo::Canvas::Polyline->new_line(
+			$self->{_canvas}->get_root_item, $points[0],$points[1],$points[2],$points[3],
+			'stroke-pattern' => $self->create_color( Gtk2::Gdk::Color->parse('#FFFF00'), 0.5 ),
+			'line-width'     => 18,
+			'line-cap'       => 'CAIRO_LINE_CAP_ROUND',
+			'line-join'      => 'CAIRO_LINE_JOIN_ROUND'
+		);		
+	}else{
+		$item = Goo::Canvas::Polyline->new_line(
+			$self->{_canvas}->get_root_item, $points[0],$points[1],$points[2],$points[3],
+			'stroke-pattern' => $stroke_pattern,
+			'line-width'     => $line_width,
+			'line-cap'       => 'CAIRO_LINE_CAP_ROUND',
+			'line-join'      => 'CAIRO_LINE_JOIN_ROUND'
+		);		
+	}
+	 
 	$self->{_current_new_item} = $item;
 	$self->{_items}{$item} = $item;
 
@@ -3844,8 +3872,13 @@ sub create_polyline {
 	$self->{_items}{$item}->set( points => Goo::Canvas::Points->new( $self->{_items}{$item}{'points'} ) );	
 	$self->{_items}{$item}->set( transform => $transform) if $transform;
 
-	$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
-	$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
+	if($highlighter){
+		$self->{_items}{$item}{stroke_color}       = Gtk2::Gdk::Color->parse('#FFFF00');
+		$self->{_items}{$item}{stroke_color_alpha} = 0.5;
+	}else{
+		$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
+		$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};		
+	}
 
 	$self->setup_item_signals( $self->{_items}{$item} );
 	$self->setup_item_signals_extra( $self->{_items}{$item} );
