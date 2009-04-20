@@ -472,25 +472,29 @@ sub push_to_statusbar {
 
 	} elsif ( $self->{_current_mode} == 40 ) {
 
-		$status_text .= " ".$d->get("Click-Drag to create a new rectangle");
+		$status_text .= " ".$d->get("Click-Drag to create a new arrow");
 
 	} elsif ( $self->{_current_mode} == 50 ) {
 
-		$status_text .= " ".$d->get("Click-Drag to create a new ellipse");
+		$status_text .= " ".$d->get("Click-Drag to create a new rectangle");
 
 	} elsif ( $self->{_current_mode} == 60 ) {
 
-		$status_text .= " ".$d->get("Click-Drag to add a new text area");
+		$status_text .= " ".$d->get("Click-Drag to create a new ellipse");
 
 	} elsif ( $self->{_current_mode} == 70 ) {
 
-		$status_text .= " ".$d->get("Click to censor (try Control or Shift for a straight line)");
+		$status_text .= " ".$d->get("Click-Drag to add a new text area");
 
 	} elsif ( $self->{_current_mode} == 80 ) {
 
-		$status_text .= " ".$d->get("Select an object to delete it from the canvas");
+		$status_text .= " ".$d->get("Click to censor (try Control or Shift for a straight line)");
 
 	} elsif ( $self->{_current_mode} == 90 ) {
+
+		$status_text .= " ".$d->get("Select an object to delete it from the canvas");
+
+	} elsif ( $self->{_current_mode} == 100 ) {
 
 		$status_text .= " ".$d->get("Delete all objects");
 
@@ -536,6 +540,15 @@ sub change_drawing_tool_cb {
 
 	} elsif ( $self->{_current_mode} == 40 ) {
 
+		$self->{_current_mode_descr} = "arrow";
+		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
+			Gtk2::Gdk::Display->get_default,
+			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-arrow.png"),
+			Gtk2::IconSize->lookup('menu')
+		);
+
+	} elsif ( $self->{_current_mode} == 50 ) {
+
 		$self->{_current_mode_descr} = "rect";
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
 			Gtk2::Gdk::Display->get_default,
@@ -543,7 +556,7 @@ sub change_drawing_tool_cb {
 			Gtk2::IconSize->lookup('menu')
 		);
 
-	} elsif ( $self->{_current_mode} == 50 ) {
+	} elsif ( $self->{_current_mode} == 60 ) {
 
 		$self->{_current_mode_descr} = "ellipse";
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
@@ -552,7 +565,7 @@ sub change_drawing_tool_cb {
 			Gtk2::IconSize->lookup('menu')
 		);
 
-	} elsif ( $self->{_current_mode} == 60 ) {
+	} elsif ( $self->{_current_mode} == 70 ) {
 
 		$self->{_current_mode_descr} = "text";
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
@@ -560,7 +573,7 @@ sub change_drawing_tool_cb {
 			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-text.png"),
 			Gtk2::IconSize->lookup('menu')
 		);
-	} elsif ( $self->{_current_mode} == 70 ) {
+	} elsif ( $self->{_current_mode} == 80 ) {
 
 		$self->{_current_mode_descr} = "censor";
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
@@ -569,11 +582,11 @@ sub change_drawing_tool_cb {
 			Gtk2::IconSize->lookup('menu')
 		);
 
-	} elsif ( $self->{_current_mode} == 80 ) {
+	} elsif ( $self->{_current_mode} == 90 ) {
 
 		$self->{_current_mode_descr} = "clear";
 
-	} elsif ( $self->{_current_mode} == 90 ) {
+	} elsif ( $self->{_current_mode} == 100 ) {
 
 		$self->{_current_mode_descr} = "clear_all";
 
@@ -963,19 +976,19 @@ sub event_item_on_motion_notify {
 		my $va = $self->{_scrolled_window}->get_vadjustment->value;
 
 		#autoscroll >> down and right
-		if (   $ev->x > ( $ha / $s + $width / $s - 100 / $s )
-			&& $ev->y > ( $va / $s + $height / $s - 100 / $s ) )
+		if (   $ev->x_root > ( $ha / $s + $width / $s - 100 / $s )
+			&& $ev->y_root > ( $va / $s + $height / $s - 100 / $s ) )
 		{
 			$self->{_canvas}->scroll_to(
 				$ha / $s + 10 / $s,
 				$va / $s + 10 / $s
 			);
-		} elsif ( $ev->x > ( $ha / $s + $width / $s - 100 / $s ) ) {
+		} elsif ( $ev->x_root > ( $ha / $s + $width / $s - 100 / $s ) ) {
 			$self->{_canvas}->scroll_to(
 				$ha / $s + 10 / $s,
 				$va / $s
 			);
-		} elsif ( $ev->y > ( $va / $s + $height / $s - 100 / $s ) ) {
+		} elsif ( $ev->y_root > ( $va / $s + $height / $s - 100 / $s ) ) {
 			$self->{_canvas}->scroll_to(
 				$ha / $s,
 				$va / $s + 10 / $s
@@ -983,19 +996,19 @@ sub event_item_on_motion_notify {
 		}
 
 		#autoscroll >> up and left
-		if (   $ev->x < ( $ha / $s + 100 / $s )
-			&& $ev->y < ( $va / $s + 100 / $s ) )
+		if (   $ev->x_root < ( $ha / $s + 100 / $s )
+			&& $ev->y_root < ( $va / $s + 100 / $s ) )
 		{
 			$self->{_canvas}->scroll_to(
 				$ha / $s - 10 / $s,
 				$va / $s - 10 / $s
 			);
-		} elsif ( $ev->x < ( $ha / $s + 100 / $s ) ) {
+		} elsif ( $ev->x_root < ( $ha / $s + 100 / $s ) ) {
 			$self->{_canvas}->scroll_to(
 				$ha / $s - 10 / $s,
 				$va / $s
 			);
-		} elsif ( $ev->y < ( $va / $s + 100 / $s ) ) {
+		} elsif ( $ev->y_root < ( $va / $s + 100 / $s ) ) {
 			$self->{_canvas}->scroll_to(
 				$ha / $s,
 				$va / $s - 10 / $s
@@ -1008,16 +1021,16 @@ sub event_item_on_motion_notify {
 
 		if ( $item->isa('Goo::Canvas::Rect') ) {
 
-			my $new_x = $self->{_items}{$item}->get('x') + $ev->x - $item->{drag_x};
-			my $new_y = $self->{_items}{$item}->get('y') + $ev->y - $item->{drag_y};
+			my $new_x = $self->{_items}{$item}->get('x') + $ev->x_root - $item->{drag_x};
+			my $new_y = $self->{_items}{$item}->get('y') + $ev->y_root - $item->{drag_y};
 
 			$self->{_items}{$item}->set(
 				'x' => $new_x,
 				'y' => $new_y,
 			);
 
-			$item->{drag_x} = $ev->x;
-			$item->{drag_y} = $ev->y;
+			$item->{drag_x} = $ev->x_root;
+			$item->{drag_y} = $ev->y_root;
 
 			$self->handle_rects( 'update', $item );
 			$self->handle_embedded( 'update', $item );
@@ -1035,16 +1048,16 @@ sub event_item_on_motion_notify {
 
 		if($ev->state >= 'control-mask'){
 			my $last_point = pop @{ $self->{_items}{$item}{'points'} };
-			$last_point = $ev->y unless $last_point;
-			push @{ $self->{_items}{$item}{'points'} }, $last_point, $ev->x, $last_point;
+			$last_point = $ev->y_root unless $last_point;
+			push @{ $self->{_items}{$item}{'points'} }, $last_point, $ev->x_root, $last_point;
 		}elsif($ev->state >= 'shift-mask'){
 			my $last_point_y = pop @{ $self->{_items}{$item}{'points'} };
 			my $last_point_x = pop @{ $self->{_items}{$item}{'points'} };
-			$last_point_x = $ev->x unless $last_point_x;
-			$last_point_y = $ev->y unless $last_point_y;
-			push @{ $self->{_items}{$item}{'points'} }, $last_point_x, $last_point_y, $last_point_x, $ev->y;		
+			$last_point_x = $ev->x_root unless $last_point_x;
+			$last_point_y = $ev->y_root unless $last_point_y;
+			push @{ $self->{_items}{$item}{'points'} }, $last_point_x, $last_point_y, $last_point_x, $ev->y_root;		
 		}else{
-			push @{ $self->{_items}{$item}{'points'} }, $ev->x, $ev->y;		
+			push @{ $self->{_items}{$item}{'points'} }, $ev->x_root, $ev->y_root;		
 		}
 		$self->{_items}{$item}->set( points => Goo::Canvas::Points->new( $self->{_items}{$item}{'points'} ) );
 		
@@ -1053,6 +1066,7 @@ sub event_item_on_motion_notify {
 	} elsif (
 		(      $self->{_current_mode_descr} eq "rect"
 			|| $self->{_current_mode_descr} eq "line"
+			|| $self->{_current_mode_descr} eq "arrow"
 			|| $self->{_current_mode_descr} eq "ellipse"
 			|| $self->{_current_mode_descr} eq "text"
 			|| $self->{_current_mode_descr} eq "image"
@@ -1065,8 +1079,8 @@ sub event_item_on_motion_notify {
 		my $item = $self->{_current_new_item};
 		$self->{_current_new_item} = undef;
 		$self->{_current_item} = $item;
-		$self->{_items}{$item}{'bottom-right-corner'}->{res_x}    = $ev->x;
-		$self->{_items}{$item}{'bottom-right-corner'}->{res_y}    = $ev->y;
+		$self->{_items}{$item}{'bottom-right-corner'}->{res_x}    = $ev->x_root;
+		$self->{_items}{$item}{'bottom-right-corner'}->{res_y}    = $ev->y_root;
 		$self->{_items}{$item}{'bottom-right-corner'}->{resizing} = TRUE;
 		$self->{_canvas}->pointer_grab( $self->{_items}{$item}{'bottom-right-corner'}, [ 'pointer-motion-mask', 'button-release-mask' ], Gtk2::Gdk::Cursor->new('bottom-right-corner'), $ev->time );
 
@@ -1078,7 +1092,7 @@ sub event_item_on_motion_notify {
 			#canvas resizing shape
 		if ( $self->{_canvas_bg_rect}{'right-side'} == $item ) {
 
-			my $new_width = $self->{_canvas_bg_rect}->get('width') +  ( $ev->x - $item->{res_x} );
+			my $new_width = $self->{_canvas_bg_rect}->get('width') +  ( $ev->x_root - $item->{res_x} );
 
 			unless ( $new_width < 0 ) {
 
@@ -1092,7 +1106,7 @@ sub event_item_on_motion_notify {
 	
 		} elsif ( $self->{_canvas_bg_rect}{'bottom-side'} == $item ) {
 
-			my $new_height = $self->{_canvas_bg_rect}->get('height') + ( $ev->y - $item->{res_y} );
+			my $new_height = $self->{_canvas_bg_rect}->get('height') + ( $ev->y_root - $item->{res_y} );
 	
 			unless ( $new_height < 0 ) {
 						
@@ -1106,8 +1120,8 @@ sub event_item_on_motion_notify {
 		
 		} elsif ( $self->{_canvas_bg_rect}{'bottom-right-corner'} == $item ) {			
 
-			my $new_width = $self->{_canvas_bg_rect}->get('width') +  ( $ev->x - $item->{res_x} );
-			my $new_height = $self->{_canvas_bg_rect}->get('height') + ( $ev->y - $item->{res_y} );
+			my $new_width = $self->{_canvas_bg_rect}->get('width') +  ( $ev->x_root - $item->{res_x} );
+			my $new_height = $self->{_canvas_bg_rect}->get('height') + ( $ev->y_root - $item->{res_y} );
 
 			unless ( $new_width < 0 || $new_height < 0) {		
 			
@@ -1145,13 +1159,13 @@ sub event_item_on_motion_notify {
 						$cursor = $_;
 						
 						if($ev->state >= 'control-mask'){
-							$new_x = $self->{_items}{$curr_item}->get('x') + ($ev->y - $item->{res_y}) * $ratio;
-							$new_y = $self->{_items}{$curr_item}->get('y') + ($ev->y - $item->{res_y});						
+							$new_x = $self->{_items}{$curr_item}->get('x') + ($ev->y_root - $item->{res_y}) * $ratio;
+							$new_y = $self->{_items}{$curr_item}->get('y') + ($ev->y_root - $item->{res_y});						
 							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
 							$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
 						}else{
-							$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
-							$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};						
+							$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x_root - $item->{res_x};
+							$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y_root - $item->{res_y};						
 							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
 							$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
 						}
@@ -1161,7 +1175,7 @@ sub event_item_on_motion_notify {
 						$cursor = $_;
 
 						$new_x = $self->{_items}{$curr_item}->get('x');
-						$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};
+						$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y_root - $item->{res_y};
 
 						$new_width = $self->{_items}{$curr_item}->get('width');
 						$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
@@ -1171,13 +1185,13 @@ sub event_item_on_motion_notify {
 							$cursor = $_;
 
 							$new_x = $self->{_items}{$curr_item}->get('x');
-							$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};
+							$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y_root - $item->{res_y};
 
 						if($ev->state >= 'control-mask'){
-							$new_width  = $self->{_items}{$curr_item}->get('width') - ( $ev->y - $item->{res_y} ) * $ratio;
+							$new_width  = $self->{_items}{$curr_item}->get('width') - ( $ev->y_root - $item->{res_y} ) * $ratio;
 							$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );		
 						}else{
-							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x - $item->{res_x} );
+							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x_root - $item->{res_x} );
 							$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );					
 						}
 
@@ -1185,7 +1199,7 @@ sub event_item_on_motion_notify {
 
 						$cursor = $_;
 
-						$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
+						$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x_root - $item->{res_x};
 						$new_y = $self->{_items}{$curr_item}->get('y');
 
 						$new_width = $self->{_items}{$curr_item}->get('width') + ( $self->{_items}{$curr_item}->get('x') - $new_x );
@@ -1198,7 +1212,7 @@ sub event_item_on_motion_notify {
 						$new_x = $self->{_items}{$curr_item}->get('x');
 						$new_y = $self->{_items}{$curr_item}->get('y');
 
-						$new_width = $self->{_items}{$curr_item}->get('width') + ( $ev->x - $item->{res_x} );
+						$new_width = $self->{_items}{$curr_item}->get('width') + ( $ev->x_root - $item->{res_x} );
 						$new_height = $self->{_items}{$curr_item}->get('height');
 
 					} elsif ( $_ eq 'bottom-left-corner' ) {
@@ -1206,17 +1220,17 @@ sub event_item_on_motion_notify {
 						$cursor = $_;
 
 						if($ev->state >= 'control-mask'){
-							$new_x = $self->{_items}{$curr_item}->get('x') - $ev->y + $item->{res_y};
+							$new_x = $self->{_items}{$curr_item}->get('x') - $ev->y_root + $item->{res_y};
 							$new_y = $self->{_items}{$curr_item}->get('y');
 							
 							$new_width  = $self->{_items}{$curr_item}->get('width') + ( $self->{_items}{$curr_item}->get('x') - $new_x );
-							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} ) / $ratio;
+							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y_root - $item->{res_y} ) / $ratio;
 						}else{
-							$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
+							$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x_root - $item->{res_x};
 							$new_y = $self->{_items}{$curr_item}->get('y');
 
 							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
-							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );					
+							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y_root - $item->{res_y} );					
 						}
 
 					} elsif ( $_ eq 'bottom-side' ) {
@@ -1227,7 +1241,7 @@ sub event_item_on_motion_notify {
 						$new_y = $self->{_items}{$curr_item}->get('y');
 
 						$new_width = $self->{_items}{$curr_item}->get('width');
-						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );
+						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y_root - $item->{res_y} );
 
 					} elsif ( $_ eq 'bottom-right-corner' ) {
 
@@ -1237,18 +1251,18 @@ sub event_item_on_motion_notify {
 						$new_y = $self->{_items}{$curr_item}->get('y');
 
 						if($ev->state >= 'control-mask'){
-							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->y - $item->{res_y} ) * $ratio;
-							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );						
+							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->y_root - $item->{res_y} ) * $ratio;
+							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y_root - $item->{res_y} );						
 						}else{
-							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x - $item->{res_x} );
-							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );					
+							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x_root - $item->{res_x} );
+							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y_root - $item->{res_y} );					
 						}
 
 					}
 
 					#set cursor
 					$self->{_canvas}->window->set_cursor( Gtk2::Gdk::Cursor->new($cursor) );
-
+					
 					#when width or height are too small we switch to opposite rectangle and do the resizing in this way
 					if($ev->state >= 'control-mask' && $new_width < 1 && $new_height < 1){
 						$new_x = $self->{_items}{$curr_item}->get('x');
@@ -1258,12 +1272,12 @@ sub event_item_on_motion_notify {
 					}elsif ( $new_width < 0 || $new_height < 0) {
 						$self->{_canvas}->pointer_ungrab($item, $ev->time);
 						my $oppo = $self->get_opposite_rect($item, $curr_item, $new_width, $new_height);				
-						$self->{_items}{$curr_item}{$oppo}->{res_x}    = $ev->x;
-						$self->{_items}{$curr_item}{$oppo}->{res_y}    = $ev->y;
+						$self->{_items}{$curr_item}{$oppo}->{res_x}    = $ev->x_root;
+						$self->{_items}{$curr_item}{$oppo}->{res_y}    = $ev->y_root;
 						$self->{_items}{$curr_item}{$oppo}->{resizing} = TRUE;
 						$self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], Gtk2::Gdk::Cursor->new($oppo), $ev->time );
-						$self->handle_embedded( 'mirror', $curr_item );
-						$new_width = 0 if $new_width < 0;
+						$self->handle_embedded( 'mirror', $curr_item, $new_width, $new_height);
+						$new_width  = 0 if $new_width < 0;
 						$new_height = 0 if $new_height < 0;
 					}
 
@@ -1281,8 +1295,8 @@ sub event_item_on_motion_notify {
 			}
 		}
 
-		$item->{res_x} = $ev->x;
-		$item->{res_y} = $ev->y;
+		$item->{res_x} = $ev->x_root;
+		$item->{res_y} = $ev->y_root;
 		
 	}else {
 
@@ -1294,21 +1308,21 @@ sub event_item_on_motion_notify {
 
 				#shape
 			if ( exists $self->{_items}{$item} ) {
-				$self->push_to_statusbar( int( $ev->x ), int( $ev->y ) );
+				$self->push_to_statusbar( int( $ev->x_root ), int( $ev->y_root ) );
 			
 				#canvas resizing shape
 			} elsif (  $self->{_canvas_bg_rect}{'right-side'} == $item
 					|| $self->{_canvas_bg_rect}{'bottom-side'} == $item
 					|| $self->{_canvas_bg_rect}{'bottom-right-corner'} == $item ) 
 			{
-				$self->push_to_statusbar( int( $ev->x ), int( $ev->y ), 'canvas_resize' );		
+				$self->push_to_statusbar( int( $ev->x_root ), int( $ev->y_root ), 'canvas_resize' );		
 			
 				#resizing shape
 			}else{
-				$self->push_to_statusbar( int( $ev->x ), int( $ev->y ), 'resize' );					
+				$self->push_to_statusbar( int( $ev->x_root ), int( $ev->y_root ), 'resize' );					
 			}
 		}else{
-			$self->push_to_statusbar( int( $ev->x ), int( $ev->y ) );	
+			$self->push_to_statusbar( int( $ev->x_root ), int( $ev->y_root ) );	
 		}
 
 	}
@@ -1632,9 +1646,12 @@ sub activate_item {
 		$self->{_line_spin_w}->set_value( $item->get('line-width') );
 			
 		#stroke color
-		$self->{_stroke_color_w}->set_color( $self->{_items}{$key}{stroke_color} );
-		$self->{_stroke_color_w}->set_alpha( int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
-
+		#some items, e.g. censor tool, do not have a color - skip them
+		if($self->{_items}{$key}{stroke_color}){
+			$self->{_stroke_color_w}->set_color( $self->{_items}{$key}{stroke_color} );
+			$self->{_stroke_color_w}->set_alpha( int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
+		}
+	
 		if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
 	
 			#fill color
@@ -1680,7 +1697,7 @@ sub activate_item {
 	$self->{_fill_color}       		= $self->{_fill_color_w}->get_color;
 	$self->{_fill_color_alpha} 		= $self->{_fill_color_w}->get_alpha / 65636;
 	my $font_descr = Gtk2::Pango::FontDescription->from_string( $self->{_font_btn_w}->get_font_name );
-	$self->{_font} = $font_descr->to_string;
+	$self->{_font} 					= $font_descr->to_string;
 
 	#unblock 'value-change' handlers for widgets
 	$self->{_line_spin_w}->signal_handler_unblock ($self->{_line_spin_wh});
@@ -1758,8 +1775,8 @@ sub event_item_on_button_press {
 
 				#real shape
 				if ( exists $self->{_items}{$item} ) {
-					$item->{drag_x}   = $ev->x;
-					$item->{drag_y}   = $ev->y;
+					$item->{drag_x}   = $ev->x_root;
+					$item->{drag_y}   = $ev->y_root;
 					$item->{dragging} = TRUE;
 
 					$cursor = Gtk2::Gdk::Cursor->new('fleur');
@@ -1770,8 +1787,8 @@ sub event_item_on_button_press {
 					#resizing shape
 				} else {
 
-					$item->{res_x}    = $ev->x;
-					$item->{res_y}    = $ev->y;
+					$item->{res_x}    = $ev->x_root;
+					$item->{res_y}    = $ev->y_root;
 					$item->{resizing} = TRUE;
 
 					$cursor = undef;
@@ -1815,6 +1832,11 @@ sub event_item_on_button_press {
 			} elsif ( $self->{_current_mode_descr} eq "line" ) {
 
 				$self->create_line( $ev, undef );
+
+				#Arrow
+			} elsif ( $self->{_current_mode_descr} eq "arrow" ) {
+
+				$self->create_line( $ev, undef, TRUE, FALSE );
 				
 				#Censor
 			} elsif ( $self->{_current_mode_descr} eq "censor" ) {
@@ -1884,12 +1906,12 @@ sub event_item_on_button_press {
 
 		if (   $item->isa('Goo::Canvas::Ellipse')
 			|| $item->isa('Goo::Canvas::Text')
-			|| $item->isa('Goo::Canvas::Image') 
+			|| $item->isa('Goo::Canvas::Image')
 			|| $item->isa('Goo::Canvas::Polyline') )
 		{
 
 			return TRUE if $item == $self->{_canvas_bg};
-
+			
 			#embedded item?
 			my $parent = $self->get_parent_item($item);
 
@@ -1970,6 +1992,7 @@ sub ret_item_menu {
 				$self->handle_rects( 'lower', $item );
 			}
 			$self->{_canvas_bg}->lower;
+			$self->{_canvas_bg_rect}->lower;
 		}
 	);
 
@@ -1992,7 +2015,10 @@ sub ret_item_menu {
 
 	#properties
 	my $prop_item = Gtk2::ImageMenuItem->new_from_stock('gtk-properties');
-	$prop_item->set_sensitive(FALSE) if $item->isa('Goo::Canvas::Image');
+	
+	#some items do not have properties, e.g. images or censor
+	$prop_item->set_sensitive(FALSE) if $item->isa('Goo::Canvas::Image') || !exists($self->{_items}{$item}{stroke_color});
+	
 	$prop_item->signal_connect(
 		'activate' => sub {
 
@@ -2024,12 +2050,6 @@ sub show_item_properties {
 	my $item 	= shift;
 	my $parent 	= shift;
 
-	#some items don't have properties - skip them
-	#freehand and censor
-	return FALSE if $item->isa('Goo::Canvas::Polyline') && !defined $parent;
-	#image
-	return FALSE if $item->isa('Goo::Canvas::Image');
-
 	#determine key for item hash
 	my $key = $self->get_item_key($item, $parent);
 
@@ -2046,10 +2066,10 @@ sub show_item_properties {
 
 	$prop_dialog->set_default_response('apply');
 
-	#RECT OR ELLIPSE
-	my $line_spin;
-	my $fill_color;
-	my $stroke_color;
+	#RECT OR ELLIPSE OR POLYLINE
+	my $line_spin 		= undef;
+	my $fill_color 		= undef;
+	my $stroke_color 	= undef;
 	if (   $item->isa('Goo::Canvas::Rect')
 		|| $item->isa('Goo::Canvas::Ellipse')
 		|| $item->isa('Goo::Canvas::Polyline') )
@@ -2092,25 +2112,107 @@ sub show_item_properties {
 			$fill_color_hbox->pack_start_defaults($fill_color_label);
 			$fill_color_hbox->pack_start_defaults($fill_color);
 			$general_vbox->pack_start( $fill_color_hbox, FALSE, FALSE, 0 );
+			
 		}
 
-		#stroke color
-		my $stroke_color_hbox = Gtk2::HBox->new( TRUE, 5 );
-		$stroke_color_hbox->set_border_width(5);
-		my $stroke_color_label = Gtk2::Label->new( $d->get("Stroke color") );
-		$stroke_color = Gtk2::ColorButton->new();
+		#some items, e.g. censor tool, do not have a color - skip them
+		if($self->{_items}{$key}{stroke_color}){
+			#stroke color
+			my $stroke_color_hbox = Gtk2::HBox->new( TRUE, 5 );
+			$stroke_color_hbox->set_border_width(5);
+			my $stroke_color_label = Gtk2::Label->new( $d->get("Stroke color") );
+			$stroke_color = Gtk2::ColorButton->new();
 
-		$stroke_color->set_color( $self->{_items}{$key}{stroke_color} );
-		$stroke_color->set_alpha( int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
-		$stroke_color->set_use_alpha(TRUE);
-		$stroke_color->set_title( $d->get("Choose stroke color") );
+			$stroke_color->set_color( $self->{_items}{$key}{stroke_color} );
+			$stroke_color->set_alpha( int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
+			$stroke_color->set_use_alpha(TRUE);
+			$stroke_color->set_title( $d->get("Choose stroke color") );
 
-		$stroke_color_hbox->pack_start_defaults($stroke_color_label);
-		$stroke_color_hbox->pack_start_defaults($stroke_color);
-		$general_vbox->pack_start( $stroke_color_hbox, FALSE, FALSE, 0 );
+			$stroke_color_hbox->pack_start_defaults($stroke_color_label);
+			$stroke_color_hbox->pack_start_defaults($stroke_color);
+			$general_vbox->pack_start( $stroke_color_hbox, FALSE, FALSE, 0 );
+		}
 
 		$frame_general->add($general_vbox);
 
+	}
+
+	#ARROW
+	my $end_arrow 		= undef;
+	my $start_arrow 	= undef;	
+	my $arrow_spin 		= undef;
+	my $arrowl_spin 	= undef;
+	my $arrowt_spin 	= undef;
+	if ($item->isa('Goo::Canvas::Polyline') 
+		&& defined $self->{_items}{$key}{end_arrow} 
+		&& defined $self->{_items}{$key}{start_arrow})
+	{
+		my $arrow_vbox = Gtk2::VBox->new( FALSE, 5 );
+
+		my $label_arrow = Gtk2::Label->new;
+		$label_arrow->set_markup( $d->get("<i>Arrow</i>") );
+		my $frame_arrow = Gtk2::Frame->new();
+		$frame_arrow->set_label_widget($label_arrow);
+		$frame_arrow->set_border_width(5);
+		$prop_dialog->vbox->add($frame_arrow);
+
+		#arrow_width
+		my $arrow_hbox = Gtk2::HBox->new( TRUE, 5 );
+		$arrow_hbox->set_border_width(5);
+		my $arroww_label = Gtk2::Label->new( $d->get("Width") );
+		$arrow_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
+
+		$arrow_spin->set_value( $item->get('arrow-width') );
+
+		$arrow_hbox->pack_start_defaults($arroww_label);
+		$arrow_hbox->pack_start_defaults($arrow_spin);
+		$arrow_vbox->pack_start( $arrow_hbox, FALSE, FALSE, 0 );
+
+		#arrow_length
+		my $arrowl_hbox = Gtk2::HBox->new( TRUE, 5 );
+		$arrowl_hbox->set_border_width(5);
+		my $arrowl_label = Gtk2::Label->new( $d->get("Length") );
+		$arrowl_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
+
+		$arrowl_spin->set_value( $item->get('arrow-length') );
+
+		$arrowl_hbox->pack_start_defaults($arrowl_label);
+		$arrowl_hbox->pack_start_defaults($arrowl_spin);
+		$arrow_vbox->pack_start( $arrowl_hbox, FALSE, FALSE, 0 );
+
+		#arrow_tip_length
+		my $arrowt_hbox = Gtk2::HBox->new( TRUE, 5 );
+		$arrowt_hbox->set_border_width(5);
+		my $arrowt_label = Gtk2::Label->new( $d->get("Tip length") );
+		$arrowt_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
+
+		$arrowt_spin->set_value( $item->get('arrow-tip-length') );
+
+		$arrowt_hbox->pack_start_defaults($arrowt_label);
+		$arrowt_hbox->pack_start_defaults($arrowt_spin);
+		$arrow_vbox->pack_start( $arrowt_hbox, FALSE, FALSE, 0 );
+	
+		#checkboxes for start and end arrows
+		$end_arrow   = Gtk2::CheckButton->new ($d->get("Display an arrow at the end of the line"));
+		$end_arrow->set_active($self->{_items}{$key}{end_arrow});
+		$start_arrow = Gtk2::CheckButton->new ($d->get("Display an arrow at the start of the line"));
+		$start_arrow->set_active($self->{_items}{$key}{start_arrow});
+
+		my $end_arrow_hbox = Gtk2::HBox->new( TRUE, 5 );
+		$end_arrow_hbox->set_border_width(5);
+		
+		my $start_arrow_hbox = Gtk2::HBox->new( TRUE, 5 );
+		$start_arrow_hbox->set_border_width(5);
+		
+		$end_arrow_hbox->pack_start_defaults($end_arrow);
+		$start_arrow_hbox->pack_start_defaults($start_arrow);
+
+		$arrow_vbox->pack_start( $start_arrow_hbox, FALSE, FALSE, 0 );
+		$arrow_vbox->pack_start( $end_arrow_hbox, FALSE, FALSE, 0 );
+		
+		#final packing
+		$frame_arrow->add($arrow_vbox);
+			
 	}
 
 	#TEXT
@@ -2218,9 +2320,10 @@ sub show_item_properties {
 	my $prop_dialog_res = $prop_dialog->run;
 	if ( $prop_dialog_res eq 'apply' ) {
 
-		$self->apply_properties($item, $parent, $key, $fill_color, 
-								$stroke_color, $line_spin, $font_color,
-								$font_btn, $textview);
+		$self->apply_properties($item, $parent, $key, 
+								$fill_color, $stroke_color, $line_spin, 
+								$font_color, $font_btn, $textview, 
+								$end_arrow , $start_arrow, $arrow_spin, $arrowl_spin, $arrowt_spin);
 
 		#apply item properties to widgets
 		#line width, fill color, stroke color etc.
@@ -2238,16 +2341,29 @@ sub show_item_properties {
 
 sub apply_properties {
 	my $self 		= shift;
+	
+	#item related infos
 	my $item 		= shift;
 	my $parent 		= shift;
 	my $key 		= shift;
+	
+	#general properties
 	my $fill_color 	= shift;
 	my $stroke_color= shift;
 	my $line_spin 	= shift;
+	
+	#only text
 	my $font_color 	= shift;
 	my $font_btn 	= shift;
 	my $textview 	= shift;
-
+	
+	#only arrow
+	my $end_arrow   = shift;
+	my $start_arrow = shift;	
+	my $arrow_spin 	= shift;
+	my $arrowl_spin = shift;
+	my $arrowt_spin = shift;
+	
 	#add to undo stack
 	$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
 
@@ -2269,12 +2385,59 @@ sub apply_properties {
 		$self->{_items}{$key}{stroke_color_alpha} = $stroke_color->get_alpha / 65535;
 	}
 
-	#apply polyline options
-	if ( $item->isa('Goo::Canvas::Polyline') ) {
+	#apply polyline options (arrow) 
+	if ($item->isa('Goo::Canvas::Polyline') 
+		&& defined $self->{_items}{$key}{end_arrow} 
+		&& defined $self->{_items}{$key}{start_arrow})
+	{
+
+		my $stroke_pattern = $self->create_color( $stroke_color->get_color, $stroke_color->get_alpha / 65535 );
+
+		#these values are only available in the item menu
+		if(	   defined $arrowl_spin 
+			&& defined $arrow_spin 
+			&& defined $arrowt_spin 
+			&& defined $end_arrow 
+			&& defined $start_arrow)
+		{
+			$item->set(
+				'line-width'     	=> $line_spin->get_value,
+				'stroke-pattern' 	=> $stroke_pattern,
+				'end-arrow' 	 	=> $end_arrow->get_active,
+				'start-arrow' 	 	=> $start_arrow->get_active,
+				'arrow-length'	 	=> $arrowl_spin->get_value,
+				'arrow-width'	 	=> $arrow_spin->get_value,
+				'arrow-tip-length'	=> $arrowt_spin->get_value,		
+			);
+						
+		}else{
+			$item->set(
+				'line-width'     	=> $line_spin->get_value,
+				'stroke-pattern' 	=> $stroke_pattern,	
+				'end-arrow' 	 	=> $self->{_items}{$key}{line}->get('end-arrow'),
+				'start-arrow' 	 	=> $self->{_items}{$key}{line}->get('start-arrow'),
+			);			
+		}
+
+		#save color and opacity as well
+		$self->{_items}{$key}{stroke_color}       = $stroke_color->get_color;
+		$self->{_items}{$key}{stroke_color_alpha} = $stroke_color->get_alpha / 65535;		
+
+		#save arrow specific properties
+		$self->{_items}{$key}{end_arrow} 		= $self->{_items}{$key}{line}->get('end-arrow');
+		$self->{_items}{$key}{start_arrow} 		= $self->{_items}{$key}{line}->get('start-arrow');
+		$self->{_items}{$key}{arrow_width} 		= $self->{_items}{$key}{line}->get('arrow-width');
+		$self->{_items}{$key}{arrow_length} 	= $self->{_items}{$key}{line}->get('arrow-length');
+		$self->{_items}{$key}{arrow_tip_length} = $self->{_items}{$key}{line}->get('arrow-tip-length');
+
+	#apply polyline options (freehand) 
+	}elsif ( $item->isa('Goo::Canvas::Polyline') 
+		&& defined $self->{_items}{$key}{stroke_color}) 
+	{
 		my $stroke_pattern = $self->create_color( $stroke_color->get_color, $stroke_color->get_alpha / 65535 );
 		$item->set(
 			'line-width'     => $line_spin->get_value,
-			'stroke-pattern' => $stroke_pattern
+			'stroke-pattern' => $stroke_pattern,
 		);
 
 		#save color and opacity as well
@@ -2380,10 +2543,12 @@ sub deactivate_all {
 	return TRUE;
 }
 
-sub handle_embedded {
-	my $self   = shift;
-	my $action = shift;
-	my $item   = shift;
+sub handle_embedded {	
+	my $self   		= shift;
+	my $action 		= shift;
+	my $item   		= shift;
+	my $new_width 	= shift;
+	my $new_height 	= shift;
 
 	return FALSE unless ( $item && exists $self->{_items}{$item} );
 
@@ -2414,28 +2579,47 @@ sub handle_embedded {
 				'visibility' => $visibilty,
 			);
 		} elsif ( exists $self->{_items}{$item}{line} ) {
-			
-			if($self->{_items}{$item}{mirrored}){
-				$self->{_items}{$item}{line}->set(
-					'points' => Goo::Canvas::Points->new( 
-					[$self->{_items}{$item}->get('x'),
-					$self->{_items}{$item}->get('y')+$self->{_items}{$item}->get('height'),
-					$self->{_items}{$item}->get('x')+$self->{_items}{$item}->get('width'),
-					$self->{_items}{$item}->get('y')]), 
-					'visibility' => $visibilty,
-					
-				);						
-			}else{
-				$self->{_items}{$item}{line}->set(
-					'points' => Goo::Canvas::Points->new( 
-					[$self->{_items}{$item}->get('x'),
-					$self->{_items}{$item}->get('y'),
-					$self->{_items}{$item}->get('x')+$self->{_items}{$item}->get('width'),
-					$self->{_items}{$item}->get('y')+$self->{_items}{$item}->get('height')]),
-					'visibility' => $visibilty,
-				);					
-			}
-
+		
+				#handle possible arrows properly
+				#arrow is always and end-arrow
+				if($self->{_items}{$item}{mirrored_w} < 0 && $self->{_items}{$item}{mirrored_h} < 0){		
+					$self->{_items}{$item}{line}->set(
+						'points' => Goo::Canvas::Points->new( 
+						[$self->{_items}{$item}->get('x')+$self->{_items}{$item}->get('width'),
+						$self->{_items}{$item}->get('y')+$self->{_items}{$item}->get('height'),
+						$self->{_items}{$item}->get('x'),
+						$self->{_items}{$item}->get('y')]), 
+						'visibility'  => $visibilty	
+					);
+				}elsif($self->{_items}{$item}{mirrored_w} < 0){			
+					$self->{_items}{$item}{line}->set(
+						'points' => Goo::Canvas::Points->new( 
+						[$self->{_items}{$item}->get('x')+$self->{_items}{$item}->get('width'),
+						$self->{_items}{$item}->get('y'),
+						$self->{_items}{$item}->get('x'),
+						$self->{_items}{$item}->get('y')+$self->{_items}{$item}->get('height')]), 
+						'visibility'  => $visibilty	
+					);
+				}elsif($self->{_items}{$item}{mirrored_h} < 0){
+					$self->{_items}{$item}{line}->set(
+						'points' => Goo::Canvas::Points->new( 
+						[$self->{_items}{$item}->get('x'),
+						$self->{_items}{$item}->get('y')+$self->{_items}{$item}->get('height'),
+						$self->{_items}{$item}->get('x')+$self->{_items}{$item}->get('width'),
+						$self->{_items}{$item}->get('y')]), 
+						'visibility'  => $visibilty	
+					);
+				}else{
+					$self->{_items}{$item}{line}->set(
+						'points' => Goo::Canvas::Points->new( 
+						[$self->{_items}{$item}->get('x'),
+						$self->{_items}{$item}->get('y'),
+						$self->{_items}{$item}->get('x')+$self->{_items}{$item}->get('width'),
+						$self->{_items}{$item}->get('y')+$self->{_items}{$item}->get('height')]),
+						'visibility' => $visibilty
+					);							
+				}	
+		
 		} elsif ( exists $self->{_items}{$item}{image} ) {
 
 			if($self->{_items}{$item}->get('width') == $self->{_items}{$item}{image}->get('width') && $self->{_items}{$item}->get('height') == $self->{_items}{$item}{image}->get('height')){
@@ -2500,11 +2684,19 @@ sub handle_embedded {
 		}		
 
 	}elsif( $action eq 'mirror' ) {
-		if ( exists $self->{_items}{$item}{line} ) {
-			if ($self->{_items}{$item}{mirrored}){
-				$self->{_items}{$item}{mirrored} = FALSE;
-			}else{
-				$self->{_items}{$item}{mirrored} = TRUE;	
+		if ( exists $self->{_items}{$item}{line} ) {				
+			#width
+			if ($new_width < 0 && $self->{_items}{$item}{mirrored_w} >= 0){
+				$self->{_items}{$item}{mirrored_w} = $new_width;
+			}elsif($new_width < 0 && $self->{_items}{$item}{mirrored_w} < 0){
+				$self->{_items}{$item}{mirrored_w} = 0;				
+			}
+			
+			#height
+			if ($new_height < 0 && $self->{_items}{$item}{mirrored_h} >= 0){
+				$self->{_items}{$item}{mirrored_h} = $new_height;
+			}elsif($new_height < 0 && $self->{_items}{$item}{mirrored_h} < 0){
+				$self->{_items}{$item}{mirrored_h} = 0;
 			}
 		}
 	}
@@ -2840,8 +3032,8 @@ sub event_item_on_button_release {
 					#~ );
 
 					$self->{_items}{$nitem}->set(
-						'x' => $ev->x - $self->{_items}{$nitem}{orig_pixbuf}->get_width,
-						'y' => $ev->y - $self->{_items}{$nitem}{orig_pixbuf}->get_height,
+						'x' => $ev->x_root - $self->{_items}{$nitem}{orig_pixbuf}->get_width,
+						'y' => $ev->y_root - $self->{_items}{$nitem}{orig_pixbuf}->get_height,
 						'width' => $self->{_items}{$nitem}{orig_pixbuf}->get_width,
 						'height' => $self->{_items}{$nitem}{orig_pixbuf}->get_height,
 					);
@@ -2850,8 +3042,8 @@ sub event_item_on_button_release {
 				}else{
 					
 					$nitem->set( 
-						'x'  		=> $ev->x - 100, 
-						'y' 		=> $ev->y - 100, 			
+						'x'  		=> $ev->x_root - 100, 
+						'y' 		=> $ev->y_root - 100, 			
 						'width' 	=> 100,
 						'height' 	=> 100,
 					);
@@ -3086,6 +3278,7 @@ sub setup_uimanager {
 	$self->{_factory}->add( 'shutter-pointer',   Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-pointer.png") ) );
 	$self->{_factory}->add( 'shutter-rectangle', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-rectangle.png") ) );
 	$self->{_factory}->add( 'shutter-line', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-line.png") ) );
+	$self->{_factory}->add( 'shutter-arrow', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-arrow.png") ) );
 	$self->{_factory}->add( 'shutter-text',      Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-text.png") ) );
 	$self->{_factory}->add( 'shutter-censor',      Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-censor.png") ) );
 	$self->{_factory}->add_default();
@@ -3123,12 +3316,13 @@ sub setup_uimanager {
 		[ "Select",  'shutter-pointer',   undef, undef, $d->get("Select item to move or resize it"),    10 ],
 		[ "Freehand",    'shutter-freehand',  undef, undef, $d->get("Draw a freehand line"), 20 ],
 		[ "Line",    'shutter-line', undef, undef, $d->get("Draw a straight line"),                    30 ],
-		[ "Rect",    'shutter-rectangle', undef, undef, $d->get("Draw a rectangle"),                    40 ],
-		[ "Ellipse", 'shutter-ellipse',   undef, undef, $d->get("Draw a ellipse"),                      50 ],
-		[ "Text",    'shutter-text',      undef, undef, $d->get("Add some text to the screenshot"),     60 ],
-		[ "Censor",    'shutter-censor',      undef, undef, $d->get("Censor portions of your screenshot to hide private data"),     70 ],
-		[ "Clear",   'shutter-eraser',    undef, undef, $d->get("Delete objects"),                      80 ],
-		[ "ClearAll",'gtk-clear',  	 undef, undef, $d->get("Delete all objects"),                  90 ]
+		[ "Arrow",    'shutter-arrow', undef, undef, $d->get("Draw an arrow"),                    40 ],
+		[ "Rect",    'shutter-rectangle', undef, undef, $d->get("Draw a rectangle"),                    50 ],
+		[ "Ellipse", 'shutter-ellipse',   undef, undef, $d->get("Draw a ellipse"),                      60 ],
+		[ "Text",    'shutter-text',      undef, undef, $d->get("Add some text to the screenshot"),     70 ],
+		[ "Censor",    'shutter-censor',      undef, undef, $d->get("Censor portions of your screenshot to hide private data"),     80 ],
+		[ "Clear",   'shutter-eraser',    undef, undef, $d->get("Delete objects"),                      90 ],
+		[ "ClearAll",'gtk-clear',  	 undef, undef, $d->get("Delete all objects"),                  100 ]
 	);
 
 	my $uimanager = Gtk2::UIManager->new();
@@ -3208,6 +3402,7 @@ sub setup_uimanager {
     <separator/>
     <toolitem action='Freehand'/>
     <toolitem action='Line'/>
+    <toolitem action='Arrow'/>
     <toolitem action='Rect'/>
     <toolitem action='Ellipse'/>
     <toolitem action='Text'/>
@@ -3621,7 +3816,7 @@ sub create_polyline {
 	
 	#use event coordinates
 	if ($ev) {
-		@points = ( $ev->x, $ev->y, $ev->x, $ev->y );
+		@points = ( $ev->x_root, $ev->y_root, $ev->x_root, $ev->y_root );
 	#use source item coordinates
 	} elsif ($copy_item) {
 		foreach(@{$self->{_items}{$copy_item}{points}}){
@@ -3672,7 +3867,7 @@ sub create_censor {
 	
 	#use event coordinates
 	if ($ev) {
-		@points = ( $ev->x, $ev->y, $ev->x, $ev->y );
+		@points = ( $ev->x_root, $ev->y_root, $ev->x_root, $ev->y_root );
 	#use source item coordinates
 	} elsif ($copy_item) {
 		foreach(@{$self->{_items}{$copy_item}{points}}){
@@ -3719,7 +3914,7 @@ sub create_image {
 
 	#use event coordinates
 	if ($ev) {
-		@dimensions = ( $ev->x, $ev->y, 2, 2 );
+		@dimensions = ( $ev->x_root, $ev->y_root, 2, 2 );
 	#use source item coordinates
 	} elsif ($copy_item) {
 		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $self->{_items}{$copy_item}->get('width'), $self->{_items}{$copy_item}->get('height'));
@@ -3798,7 +3993,7 @@ sub create_text{
 
 	#use event coordinates and selected color
 	if ($ev) {
-		@dimensions = ( $ev->x, $ev->y, 2, 2 );
+		@dimensions = ( $ev->x_root, $ev->y_root, 2, 2 );
 		#use source item coordinates and item color
 	} elsif ($copy_item) {
 		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
@@ -3856,24 +4051,39 @@ sub create_text{
 }	
 
 sub create_line {
-	my $self      = shift;
-	my $ev        = shift;
-	my $copy_item = shift;
+	my $self      			= shift;
+	my $ev        			= shift;
+	my $copy_item 			= shift;
+	my $end_arrow 			= shift;
+	my $start_arrow 		= shift;
 	
 	my @dimensions = ( 0, 0, 0, 0 );
 	my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
 	my $line_width = $self->{_line_width};
-	my $mirrored = FALSE;
-
+	my $mirrored_w = 0;
+	my $mirrored_h = 0;
+	
+	#default values
+	my $arrow_width 		= 4;
+	my $arrow_length 		= 5;
+	my $arrow_tip_length 	= 4;
+	
 	#use event coordinates and selected color
 	if ($ev) {
-		@dimensions = ( $ev->x, $ev->y, 2, 2 );
+		@dimensions = ( $ev->x_root, $ev->y_root, 2, 2 );
 		#use source item coordinates and item color
 	} elsif ($copy_item) {
-		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
-		$stroke_pattern = $self->create_color( $self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha} );
-		$line_width = $self->{_items}{$copy_item}{line}->get('line-width');
-		$mirrored = $self->{_items}{$copy_item}{mirrored};
+		@dimensions 		= ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
+		$stroke_pattern 	= $self->create_color( $self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha} );
+		$line_width  		= $self->{_items}{$copy_item}{line}->get('line-width');
+		$mirrored_w  		= $self->{_items}{$copy_item}{mirrored_w};
+		$mirrored_h  		= $self->{_items}{$copy_item}{mirrored_h};
+		#arrow specific properties
+		$end_arrow   		= $self->{_items}{$copy_item}{end_arrow};
+		$start_arrow 		= $self->{_items}{$copy_item}{start_arrow};
+		$arrow_width 		= $self->{_items}{$copy_item}{arrow_width};
+		$arrow_length 		= $self->{_items}{$copy_item}{arrow_length};
+		$arrow_tip_length 	= $self->{_items}{$copy_item}{arrow_tip_length};
 	}
 
 	my $pattern = $self->create_alpha;
@@ -3894,13 +4104,28 @@ sub create_line {
 		$item->get('y'), 
 		$item->get('x') + $item->get('width'),
 		$item->get('y') + $item->get('height'),
-		'stroke-pattern' => $stroke_pattern,
-		'line-width'     => $line_width,
-		'line-cap'       => 'CAIRO_LINE_CAP_ROUND',
-		'line-join'      => 'CAIRO_LINE_JOIN_ROUND'
+		'stroke-pattern' 	=> $stroke_pattern,
+		'line-width'     	=> $line_width,
+		'line-cap'       	=> 'CAIRO_LINE_CAP_ROUND',
+		'line-join'      	=> 'CAIRO_LINE_JOIN_ROUND',
+		'end-arrow'      	=> $end_arrow,		
+		'start-arrow'    	=> $start_arrow,
+		'arrow-length'	 	=> $arrow_length,
+		'arrow-width'	 	=> $arrow_width,
+		'arrow-tip-length'	=> $arrow_tip_length,						
 	);				
+	
+	if(defined $end_arrow || defined $start_arrow){
+		#save arrow specific properties
+		$self->{_items}{$item}{end_arrow} 			= $self->{_items}{$item}{line}->get('end-arrow');
+		$self->{_items}{$item}{start_arrow} 		= $self->{_items}{$item}{line}->get('start-arrow');
+		$self->{_items}{$item}{arrow_width} 		= $self->{_items}{$item}{line}->get('arrow-width');
+		$self->{_items}{$item}{arrow_length} 		= $self->{_items}{$item}{line}->get('arrow-length');
+		$self->{_items}{$item}{arrow_tip_length}	= $self->{_items}{$item}{line}->get('arrow-tip-length');
+	}
 
-	$self->{_items}{$item}{mirrored} = $mirrored;
+	$self->{_items}{$item}{mirrored_w} = $mirrored_w;
+	$self->{_items}{$item}{mirrored_h} = $mirrored_h;
 
 	$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
 	$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
@@ -3937,7 +4162,7 @@ sub create_ellipse {
 
 	#use event coordinates and selected color
 	if ($ev) {
-		@dimensions = ( $ev->x, $ev->y, 2, 2 );
+		@dimensions = ( $ev->x_root, $ev->y_root, 2, 2 );
 		#use source item coordinates and item color
 	} elsif ($copy_item) {
 		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
@@ -4005,7 +4230,7 @@ sub create_rectangle {
 
 	#use event coordinates and selected color
 	if ($ev) {
-		@dimensions = ( $ev->x, $ev->y, 2, 2 );
+		@dimensions = ( $ev->x_root, $ev->y_root, 2, 2 );
 
 		#use source item coordinates and item color
 	} elsif ($copy_item) {
