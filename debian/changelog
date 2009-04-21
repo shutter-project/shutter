@@ -15,6 +15,10 @@ shutter (0.80~ppa1) jaunty; urgency=low
        [check window border option when calculating shape]
     -- LP: #353824
        [fix advanced selection tool when using compiz]
+    -- LP: #353830
+       [do not capture the zoom window when using the simple selection]
+    -- LP: #363708
+       [lines of selected area get captured sometimes]
   * Drawing Tool
     -- LP: #310704
        [object property changes don't take immediate effect]

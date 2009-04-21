@@ -60,12 +60,15 @@ sub select_simple {
 
 	#define zoom window
 	my $zoom_window = Gtk2::Window->new('toplevel');
+	$zoom_window->set_type_hint('dock');
 	$zoom_window->set_decorated(FALSE);
 	$zoom_window->set_skip_taskbar_hint(TRUE);
+	$zoom_window->set_skip_pager_hint(TRUE);	
 	$zoom_window->set_keep_above(TRUE);
-	my ( $zoom_window_width, $zoom_window_height ) = $zoom_window->get_size;
-	my ( $zoom_window_x,     $zoom_window_y )      = $zoom_window->get_position;
-	my $zoom_window_init = TRUE;
+	
+	#check pos and geometry of the zoom window and move it if needed
+	my ( $zw, $zh ) = $zoom_window->get_size;
+	my ( $zx, $zy ) = $zoom_window->get_position;
 
 	#pack canvas to a scrolled window
 	my $scwin = Gtk2::ScrolledWindow->new();
@@ -139,7 +142,7 @@ sub select_simple {
 
 	#all screen events are send to shutter
 	my $grab_counter = 0;
-	while ( !Gtk2::Gdk->pointer_is_grabbed && $grab_counter < 100 ) {
+	while ( !Gtk2::Gdk->pointer_is_grabbed && $grab_counter < 400 ) {
 		Gtk2::Gdk->pointer_grab(
 			$self->{_root},
 			0,
@@ -153,14 +156,15 @@ sub select_simple {
 			$shutter_cursor,
 			Gtk2->get_current_event_time
 		);
-		Gtk2::Gdk->keyboard_grab( $self->{_root}, 0, Gtk2->get_current_event_time );
+		Gtk2::Gdk->keyboard_grab( $self->{_root}, 1, Gtk2->get_current_event_time );
 		$grab_counter++;
 	}
 
 	if ( Gtk2::Gdk->pointer_is_grabbed ) {
-		Gtk2::Gdk::X11->grab_server unless $self->{_zoom_active};
+		
+		#~ Gtk2::Gdk::X11->grab_server unless $self->{_zoom_active};
 		my ( $rx, $ry, $rw, $rh, $rect_x, $rect_y, $rect_w, $rect_h ) = ( 0, 0, 0, 0, 0, 0, 0, 0 );
-		my ( $btn_pressed, $last_selected_window ) = ( 0, 0 );
+		my $btn_pressed = 0;
 		my %smallest_coords = ();
 		my $drawable        = undef;
 		Gtk2::Gdk::Event->handler_set(
@@ -181,7 +185,7 @@ sub select_simple {
 						$zoom_window->destroy;
 						Gtk2::Gdk->flush;
 
-						$self->ungrab_pointer_and_keyboard( !$self->{_zoom_active}, TRUE, TRUE );
+						$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
 
 					}
 				} elsif ( $event->type eq 'button-release' ) {
@@ -194,7 +198,7 @@ sub select_simple {
 					$zoom_window->destroy;
 					Gtk2::Gdk->flush;
 
-					$self->ungrab_pointer_and_keyboard( !$self->{_zoom_active}, TRUE, TRUE );
+					$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
 
 					if ( $rect_w > 1 ) {
 
@@ -239,35 +243,60 @@ sub select_simple {
 					$xlabel->set_text( "X: " . $event->x );
 					$ylabel->set_text( "Y: " . $event->y );
 
-					#check pos and geometry of the zoom window and move it if needed
-					( $zoom_window_width, $zoom_window_height ) = $zoom_window->get_size;
-					( $zoom_window_x,     $zoom_window_y )      = $zoom_window->get_position;
-
-					if ((      ( $event->x >= $zoom_window_x - 150 )
-							&& ( $event->x <= ( $zoom_window_x + $zoom_window_width + 150 ) )
-						)
-						&& (   ( $event->y >= $zoom_window_y - 150 )
-							&& ( $event->y <= ( $zoom_window_y + $zoom_window_height + 150 ) ) )
-						)
-					{
-
-						if ($zoom_window_init) {
-							$zoom_window->move( $self->{_root}->{x}, $self->{_root}->{y} );
-							$zoom_window_init = FALSE;
-						} else {
-							$zoom_window->move( 0, $self->{_root}->{h} - $zoom_window_height );
-							$zoom_window_init = TRUE;
+					if($self->{_zoom_active}){
+						#check pos and geometry of the zoom window and move it if needed
+						( $zw, $zh ) = $zoom_window->get_size;
+						( $zx, $zy ) = $zoom_window->get_position;
+		
+						my $sregion = undef;
+						if ( $rect_w > 1 ) {
+							$sregion = Gtk2::Gdk::Region->rectangle (Gtk2::Gdk::Rectangle->new ($rect_x - 150, $rect_y - 150, $rect_x + $rect_w + 150, $rect_y + $rect_h + 150));
+						}else{
+							$sregion = Gtk2::Gdk::Region->rectangle (Gtk2::Gdk::Rectangle->new ($event->x - 150, $event->y - 150, 150, 150));						
 						}
-					}
 					
-					#move cursor on the canvas...
-					$cursor_item->set(
-						x      => $event->x - 10,
-						y      => $event->y - 10,
-					);
+						my $otype = $sregion->rect_in(Gtk2::Gdk::Rectangle->new ($zx - 150, $zy - 150, $zx + $zw + 150, $zy + $zh + 150));					
+						if($otype eq 'in' || $otype eq 'part' || !$zoom_window->visible){
+											
+							my $moved = FALSE;
+							#possible positions if we need to move the zoom window
+							my @pos = (
+								Gtk2::Gdk::Rectangle->new ($self->{_root}->{x}, $self->{_root}->{y}, 0, 0),
+								Gtk2::Gdk::Rectangle->new (0, $self->{_root}->{h} - $zh, 0, 0),
+								Gtk2::Gdk::Rectangle->new ($self->{_root}->{w} - $zw, $self->{_root}->{y}, 0, 0),
+								Gtk2::Gdk::Rectangle->new ($self->{_root}->{w} - $zw, $self->{_root}->{h} - $zh, 0, 0)
+							);
 
-					#...scroll to centered position (*5 because of zoom factor)
-					$canvas->scroll_to( $event->x * 5, $event->y * 5 );
+							foreach(@pos){
+								
+								my $otypet = $sregion->rect_in(Gtk2::Gdk::Rectangle->new ($_->x - 150, $_->y - 150, $_->x + $zw + 150, $_->y + $zh + 150));					
+								if($otypet eq 'out'){
+									$zoom_window->move($_->x, $_->y);
+									$zoom_window->show_all;
+									$moved = TRUE;
+									last;
+								}
+							
+							}
+							
+							#if window could not be moved without covering the selection area
+							unless ($moved) {
+								$moved = FALSE;
+								$zoom_window->hide_all;
+							}
+						
+						}
+				
+						#move cursor on the canvas...
+						$cursor_item->set(
+							x      => $event->x - 10,
+							y      => $event->y - 10,
+						);
+
+						#...scroll to centered position (*5 because of zoom factor)
+						$canvas->scroll_to( $event->x * 5, $event->y * 5 );
+					}
+		
 					if ($btn_pressed) {
 
 						#redraw last rect to clear it
