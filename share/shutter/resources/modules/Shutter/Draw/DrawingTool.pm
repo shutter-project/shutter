@@ -71,25 +71,33 @@ sub new {
 	#autoscroll option, disabled by default
 	$self->{_autoscroll} = FALSE;
 
-	#drawing colors
+	#drawing colors and line width
+	#general - shown in the bottom hbox
 	$self->{_fill_color}         = Gtk2::Gdk::Color->parse('#0000ff');
 	$self->{_fill_color_alpha}   = 0.25;
 	$self->{_stroke_color}       = Gtk2::Gdk::Color->parse('#000000');
 	$self->{_stroke_color_alpha} = 1;
+	$self->{_line_width} 		 = 3;
+	$self->{_font} 				 = 'Sans Italic 16';
 
-	#line_width
-	$self->{_line_width} = 3;
-
-	#font
-	$self->{_font} = 'Sans Italic 16';
+	#remember drawing colors, line width and font settings
+	#maybe we have to restore them
+	$self->{_last_fill_color}         = Gtk2::Gdk::Color->parse('#0000ff');
+	$self->{_last_fill_color_alpha}   = 0.25;
+	$self->{_last_stroke_color}       = Gtk2::Gdk::Color->parse('#000000');
+	$self->{_last_stroke_color_alpha} = 1;
+	$self->{_last_line_width} 		  = 3;
+	$self->{_last_font} 			  = 'Sans Italic 16';
 
 	#some globals
 	$self->{_last_item}               = undef;
 	$self->{_current_item}            = undef;
 	$self->{_current_new_item}        = undef;
 	$self->{_current_copy_item}       = undef;
+	$self->{_last_mode}            	  = 10;
 	$self->{_current_mode}            = 10;
 	$self->{_current_mode_descr}      = "select";
+	$self->{_last_mode_descr}         = "select";
 	$self->{_current_pixbuf}          = undef;
 	$self->{_current_pixbuf_filename} = undef;
 	$self->{_cut}					  = FALSE;
@@ -262,6 +270,19 @@ sub show {
 	$self->set_drawing_action(int($self->{_current_mode}/10));
 	$self->change_drawing_tool_cb($self->{_current_mode});
 
+	#remember drawing colors, line width and font settings
+	#maybe we have to restore them
+	$self->{_last_fill_color}         = $self->{_fill_color_w}->get_color;
+	$self->{_last_fill_color_alpha}   = $self->{_fill_color_w}->get_alpha;
+	$self->{_last_stroke_color}       = $self->{_stroke_color_w}->get_color;
+	$self->{_last_stroke_color_alpha} = $self->{_stroke_color_w}->get_alpha;
+	$self->{_last_line_width} 		  = $self->{_line_spin_w}->get_value;
+	$self->{_last_font} 			  = $self->{_font_btn_w}->get_font_name;
+
+	#remember the last mode as well
+	$self->{_last_mode}            	  = $self->{_current_mode};
+	$self->{_last_mode_descr}         = $self->{_current_mode_descr};	
+
 	Gtk2->main;
 
 	return TRUE;
@@ -307,7 +328,7 @@ sub setup_bottom_hbox {
 
 	#line_width
 	my $linew_label = Gtk2::Label->new( $d->get("Line width") . ":" );
-	$self->{_line_spin_w} = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
+	$self->{_line_spin_w} = Gtk2::SpinButton->new_with_range( 0.5, 20, 0.1 );
 	$self->{_line_spin_w}->set_value( $self->{_line_width} );
 
 	$tooltips->set_tip( $linew_label, $d->get("Adjust line width") );
@@ -519,6 +540,13 @@ sub change_drawing_tool_cb {
 	#define own icons
 	my $dicons = $self->{_shutter_common}->get_root . "/share/shutter/resources/icons/drawing_tool";
 	my $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
+
+	#tool is switched from "highlighter" OR censor to something else (excluding select tool)
+	if($self->{_current_mode} != 30 && $self->{_current_mode} != 90 && $self->{_current_mode} != 10){
+	
+		$self->restore_drawing_properties;
+	
+	}
 
 	if ( $self->{_current_mode} == 10 ) {
 
@@ -816,7 +844,7 @@ sub load_settings {
 			$self->{_line_width} = $settings_xml->{'drawing'}->{'line_width'};
 
 			#font
-			$self->{_font} = $settings_xml->{'drawing'}->{'font'};
+			$self->{_font} = $settings_xml->{'drawing'}->{'font'};				
 		};
 		if ($@) {
 			warn "ERROR: Settings of DrawingTool could not be restored: $@ - ignoring\n";
@@ -827,6 +855,10 @@ sub load_settings {
 
 sub save_settings {
 	my $self = shift;
+
+	#to avoid saving the properties of the highlighter
+	#this does not make any sense
+	$self->restore_drawing_properties;
 
 	#settings file
 	my $settingsfile = "$ENV{ HOME }/.shutter/drawingtool.xml";
@@ -1049,8 +1081,20 @@ sub event_item_on_motion_notify {
 		#freehand line
 	} elsif ( ($self->{_current_mode_descr} eq "freehand" || $self->{_current_mode_descr} eq "highlighter" ||$self->{_current_mode_descr} eq "censor") && $ev->state >= 'button1-mask' ) {
 
-		my $item = $self->{_current_new_item};
-
+		#mark as active item
+		my $item = undef;
+		if($self->{_current_new_item}){
+			$item = $self->{_current_new_item};
+			$self->{_current_new_item} = undef;
+			$self->{_current_item} = $item;
+			
+			#apply item properties to widgets
+			#line width, fill color, stroke color etc.
+			$self->set_and_save_drawing_properties($item, FALSE);
+		}else{
+			$item = $self->{_current_item};	
+		}
+		
 		if($ev->state >= 'control-mask'){
 			my $last_point = pop @{ $self->{_items}{$item}{'points'} };
 			$last_point = $ev->y_root unless $last_point;
@@ -1084,6 +1128,11 @@ sub event_item_on_motion_notify {
 		my $item = $self->{_current_new_item};
 		$self->{_current_new_item} = undef;
 		$self->{_current_item} = $item;
+	
+		#apply item properties to widgets / or only save it
+		#line width, fill color, stroke color etc.
+		$self->set_and_save_drawing_properties($self->{_current_item}, TRUE);	
+		
 		$self->{_items}{$item}{'bottom-right-corner'}->{res_x}    = $ev->x_root;
 		$self->{_items}{$item}{'bottom-right-corner'}->{res_y}    = $ev->y_root;
 		$self->{_items}{$item}{'bottom-right-corner'}->{resizing} = TRUE;
@@ -1622,25 +1671,48 @@ sub redo {
 	#~ return TRUE;	
 }
 
-sub activate_item {
-	my $self = shift;
-	my $item = shift;
+sub set_and_save_drawing_properties {
+	my $self 	= shift;
+	my $item 	= shift;
+	
+	my $save_only = shift;
 
+	#determine key for item hash
+	if(my $child = $self->get_child_item($item)){
+		$item = $child;
+	}
+	my $parent 	= $self->get_parent_item($item);
+	my $key = $self->get_item_key($item, $parent);
+
+	#we do not remember the properties for some tools
+	if($self->{_items}{$key}{type} ne "highlighter" && 
+	   $self->{_items}{$key}{type} ne "highlighter" && 
+	   $self->{_items}{$key}{type} ne "image")
+	{
+				
+		#remember drawing colors, line width and font settings
+		#maybe we have to restore them
+		$self->{_last_fill_color}         = $self->{_fill_color_w}->get_color;
+		$self->{_last_fill_color_alpha}   = $self->{_fill_color_w}->get_alpha;
+		$self->{_last_stroke_color}       = $self->{_stroke_color_w}->get_color;
+		$self->{_last_stroke_color_alpha} = $self->{_stroke_color_w}->get_alpha;
+		$self->{_last_line_width} 		  = $self->{_line_spin_w}->get_value;
+		$self->{_last_font} 			  = $self->{_font_btn_w}->get_font_name;
+
+		#remember the last mode as well
+		$self->{_last_mode}            	  = $self->{_current_mode};
+		$self->{_last_mode_descr}         = $self->{_current_mode_descr};
+
+	}
+	
+	return TRUE if $save_only;
+	
 	#block 'value-change' handlers for widgets
 	#so we do not apply the changes twice
 	$self->{_line_spin_w}->signal_handler_block ($self->{_line_spin_wh});
 	$self->{_stroke_color_w}->signal_handler_block ($self->{_stroke_color_wh});
 	$self->{_fill_color_w}->signal_handler_block ($self->{_fill_color_wh});
 	$self->{_font_btn_w}->signal_handler_block ($self->{_font_btn_wh});
-
-	#apply all changes directly
-	my $item 	= $self->{_current_item};
-	if(my $child = $self->get_child_item($item)){
-		$item = $child;
-	}
-	my $parent 	= $self->get_parent_item($item);
-	#determine key for item hash
-	my $key = $self->get_item_key($item, $parent);
 
 	if (   $item->isa('Goo::Canvas::Rect')
 		|| $item->isa('Goo::Canvas::Ellipse')
@@ -1712,6 +1784,44 @@ sub activate_item {
 
 }
 
+sub restore_drawing_properties {
+	my $self = shift;
+
+	#saved properties available?
+	return FALSE unless defined $self->{_last_fill_color};
+
+	#block 'value-change' handlers for widgets
+	#so we do not apply the changes twice
+	$self->{_line_spin_w}->signal_handler_block ($self->{_line_spin_wh});
+	$self->{_stroke_color_w}->signal_handler_block ($self->{_stroke_color_wh});
+	$self->{_fill_color_w}->signal_handler_block ($self->{_fill_color_wh});
+	$self->{_font_btn_w}->signal_handler_block ($self->{_font_btn_wh});
+
+	#restore them
+	$self->{_fill_color_w}->set_color($self->{_last_fill_color});
+	$self->{_fill_color_w}->set_alpha($self->{_last_fill_color_alpha});
+	$self->{_stroke_color_w}->set_color($self->{_last_stroke_color});
+	$self->{_stroke_color_w}->set_alpha($self->{_last_stroke_color_alpha});
+	$self->{_line_spin_w}->set_value($self->{_last_line_width});
+	$self->{_font_btn_w}->set_font_name($self->{_last_font});	
+	
+	#update global values
+	$self->{_line_width} 			= $self->{_line_spin_w}->get_value;	
+	$self->{_stroke_color}       	= $self->{_stroke_color_w}->get_color;
+	$self->{_stroke_color_alpha} 	= $self->{_stroke_color_w}->get_alpha / 65535;		
+	$self->{_fill_color}       		= $self->{_fill_color_w}->get_color;
+	$self->{_fill_color_alpha} 		= $self->{_fill_color_w}->get_alpha / 65636;
+	my $font_descr = Gtk2::Pango::FontDescription->from_string( $self->{_font_btn_w}->get_font_name );
+	$self->{_font} 					= $font_descr->to_string;
+		
+	#unblock 'value-change' handlers for widgets
+	$self->{_line_spin_w}->signal_handler_unblock ($self->{_line_spin_wh});
+	$self->{_stroke_color_w}->signal_handler_unblock ($self->{_stroke_color_wh});
+	$self->{_fill_color_w}->signal_handler_unblock ($self->{_fill_color_wh});
+	$self->{_font_btn_w}->signal_handler_unblock ($self->{_font_btn_wh});
+	
+}
+
 sub event_item_on_button_press {
 	my ( $self, $item, $target, $ev ) = @_;
 
@@ -1739,7 +1849,7 @@ sub event_item_on_button_press {
 			
 			#apply item properties to widgets
 			#line width, fill color, stroke color etc.
-			$self->activate_item($self->{_current_item});
+			$self->set_and_save_drawing_properties($self->{_current_item}, FALSE);
 
 		}
 	} else {
@@ -1879,74 +1989,37 @@ sub event_item_on_button_press {
 
 		#right click => show context menu, double-click => show properties directly 
 	} elsif ( ($ev->type eq '2button-press' || $ev->button == 3) && $self->{_current_mode_descr} eq "select") {
-
+		
+		#no menu for background and image
+		return TRUE if ($item == $self->{_canvas_bg} || $item == $self->{_canvas_bg_rect});
+	
 		$self->{_canvas}->pointer_ungrab( $item, $ev->time );
 
-		if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Polyline') ) {
-
-			if ( exists $self->{_items}{$item} ) {
-
-				my $child = $self->get_child_item($item);
-				#~ print $child."\n";
-				if ($child) {
-					$item = $child;
-				} else {
-					
-					if( $ev->type eq '2button-press' ) {
-						
-						$self->show_item_properties($item);
-						
-					}elsif( $ev->type eq 'button-press' ){
-						
-						my $item_menu = $self->ret_item_menu($item);
-
-						$item_menu->popup(
-							undef,    # parent menu shell
-							undef,    # parent menu item
-							undef,    # menu pos func
-							undef,    # data
-							$ev->button,
-							$ev->time
-						);
-												
-					}				
-				}
-			}
+		#determine key for item hash
+		if(my $child = $self->get_child_item($item)){
+			$item = $child;
 		}
+		my $parent 	= $self->get_parent_item($item);
+		my $key = $self->get_item_key($item, $parent);
 
-		if (   $item->isa('Goo::Canvas::Ellipse')
-			|| $item->isa('Goo::Canvas::Text')
-			|| $item->isa('Goo::Canvas::Image')
-			|| $item->isa('Goo::Canvas::Polyline') )
-		{
-
-			return TRUE if $item == $self->{_canvas_bg};
-			
-			#embedded item?
-			my $parent = $self->get_parent_item($item);
-
-			#real shape
-			if ( exists $self->{_items}{$parent} ) {
-
-				if( $ev->type eq '2button-press' ) {
-
-					$self->show_item_properties($item, $parent);
-
-				}elsif( $ev->type eq 'button-press' ){
-
-					my $item_menu = $self->ret_item_menu( $item, $parent );
-
-					$item_menu->popup(
-						undef,    # parent menu shell
-						undef,    # parent menu item
-						undef,    # menu pos func
-						undef,    # data
-						$ev->button,
-						$ev->time
-					);
+		if ( exists $self->{_items}{$key} ) {		
+			if( $ev->type eq '2button-press' ) {
 				
-				}
-			}
+				$self->show_item_properties($item, $parent);
+				
+			}elsif( $ev->type eq 'button-press' ){
+				
+				my $item_menu = $self->ret_item_menu($item, $parent);
+
+				$item_menu->popup(
+					undef,    # parent menu shell
+					undef,    # parent menu item
+					undef,    # menu pos func
+					undef,    # data
+					$ev->button,
+					$ev->time
+				);								
+			}				
 		}
 
 	#zooming using the mouse wheel
@@ -2098,7 +2171,7 @@ sub show_item_properties {
 		my $line_hbox = Gtk2::HBox->new( TRUE, 5 );
 		$line_hbox->set_border_width(5);
 		my $linew_label = Gtk2::Label->new( $d->get("Line width") );
-		$line_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
+		$line_spin = Gtk2::SpinButton->new_with_range( 0.5, 20, 0.1 );
 
 		$line_spin->set_value( $item->get('line-width') );
 
@@ -2337,7 +2410,7 @@ sub show_item_properties {
 
 		#apply item properties to widgets
 		#line width, fill color, stroke color etc.
-		$self->activate_item($self->{_current_item});
+		$self->set_and_save_drawing_properties($self->{_current_item}, FALSE);
 		
 		$prop_dialog->destroy;
 		return TRUE;
@@ -2373,6 +2446,25 @@ sub apply_properties {
 	my $arrow_spin 	= shift;
 	my $arrowl_spin = shift;
 	my $arrowt_spin = shift;
+
+	#remember drawing colors, line width and font settings
+	#maybe we have to restore them
+	if($self->{_items}{$key}{type} ne "highlighter" && 
+	   $self->{_items}{$key}{type} ne "censor")
+	{
+				
+		$self->{_last_fill_color}         = $self->{_fill_color_w}->get_color;
+		$self->{_last_fill_color_alpha}   = $self->{_fill_color_w}->get_alpha;
+		$self->{_last_stroke_color}       = $self->{_stroke_color_w}->get_color;
+		$self->{_last_stroke_color_alpha} = $self->{_stroke_color_w}->get_alpha;
+		$self->{_last_line_width} 		  = $self->{_line_spin_w}->get_value;
+		$self->{_last_font} 			  = $self->{_font_btn_w}->get_font_name;
+
+		#remember the last mode as well
+		$self->{_last_mode}            	  = $self->{_current_mode};
+		$self->{_last_mode_descr}         = $self->{_current_mode_descr};
+
+	}
 	
 	#add to undo stack
 	$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
@@ -3361,7 +3453,7 @@ sub setup_uimanager {
 
 	# Setup the drawing group.
 	my $toolbar_drawing_group = Gtk2::ActionGroup->new("drawing");
-	$toolbar_drawing_group->add_radio_actions( \@toolbar_drawing_actions, 10, sub { my $action = shift; $self->change_drawing_tool_cb($action); } );
+	$toolbar_drawing_group->add_radio_actions( \@toolbar_drawing_actions, 10, sub { my $action = shift; $self->deactivate_all; $self->change_drawing_tool_cb($action); } );
 
 	$uimanager->insert_action_group( $default_group,         0 );
 	$uimanager->insert_action_group( $menu_group,            0 );
@@ -3873,9 +3965,13 @@ sub create_polyline {
 	$self->{_items}{$item}->set( transform => $transform) if $transform;
 
 	if($highlighter){
+		#set type flag
+		$self->{_items}{$item}{type} = 'highlighter';		
 		$self->{_items}{$item}{stroke_color}       = Gtk2::Gdk::Color->parse('#FFFF00');
 		$self->{_items}{$item}{stroke_color_alpha} = 0.5;
 	}else{
+		#set type flag
+		$self->{_items}{$item}{type} = 'freehand';
 		$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
 		$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};		
 	}
@@ -3922,6 +4018,9 @@ sub create_censor {
 
 	$self->{_current_new_item} = $item;
 	$self->{_items}{$item} = $item;
+
+	#set type flag
+	$self->{_items}{$item}{type} = 'censor';
 
 	#need at least 2 points
 	push @{ $self->{_items}{$item}{'points'} }, @points;
@@ -3983,6 +4082,9 @@ sub create_image {
 		'width' => 2,
 		'height' => 2,
 	);
+
+	#set type flag
+	$self->{_items}{$item}{type} = 'image';
 
 	#create rectangles
 	$self->handle_rects( 'create', $item );
@@ -4059,6 +4161,9 @@ sub create_text{
 		'line-width'   => $line_width,
 		'visibility' => 'hidden'
 	);
+
+	#set type flag
+	$self->{_items}{$item}{type} = 'text';
 
 	$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
 	$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
@@ -4157,6 +4262,9 @@ sub create_line {
 		$self->{_items}{$item}{arrow_tip_length}	= $self->{_items}{$item}{line}->get('arrow-tip-length');
 	}
 
+	#set type flag
+	$self->{_items}{$item}{type} = 'line';
+
 	$self->{_items}{$item}{mirrored_w} = $mirrored_w;
 	$self->{_items}{$item}{mirrored_h} = $mirrored_h;
 
@@ -4224,6 +4332,9 @@ sub create_ellipse {
 		'line-width'     => $line_width,
 	);
 
+	#set type flag
+	$self->{_items}{$item}{type} = 'ellipse';
+
 	#save color and opacity as well
 	$self->{_items}{$item}{fill_color}         = $self->{_fill_color};
 	$self->{_items}{$item}{fill_color_alpha}   = $self->{_fill_color_alpha};
@@ -4282,6 +4393,9 @@ sub create_rectangle {
 
 	$self->{_current_new_item} = $item;
 	$self->{_items}{$item} = $item;
+
+	#set type flag
+	$self->{_items}{$item}{type} = 'rectangle';
 
 	$self->{_items}{$item}{fill_color}         = $self->{_fill_color};
 	$self->{_items}{$item}{fill_color_alpha}   = $self->{_fill_color_alpha};

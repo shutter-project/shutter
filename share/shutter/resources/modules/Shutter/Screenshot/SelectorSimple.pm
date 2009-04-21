@@ -58,9 +58,6 @@ sub select_simple {
 	#return value
 	my $output = 5;
 
-	my $root_item   = undef;
-	my $cursor_item = undef;
-
 	#define zoom window
 	my $zoom_window = Gtk2::Window->new('toplevel');
 	$zoom_window->set_decorated(FALSE);
@@ -99,8 +96,15 @@ sub select_simple {
 	#do some packing
 	$zoom_window->add($zoom_vbox);
 	$zoom_window->move( $self->{_root}->{x}, $self->{_root}->{y} );
-	$root_item->destroy if defined($root_item);
-	$root_item = Gnome2::Canvas::Item->new(
+	
+	#define shutter cursor
+	my $shutter_cursor_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file(
+		$self->{_gc}->get_root . "/share/shutter/resources/icons/shutter_cursor.png" );
+	my $shutter_cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default,
+		$shutter_cursor_pixbuf, 10, 10 );	
+	
+	#create root...
+	my $root_item = Gnome2::Canvas::Item->new(
 		$canvas_root,
 		"Gnome2::Canvas::Pixbuf",
 		x      => 0,
@@ -112,11 +116,14 @@ sub select_simple {
 		),
 	);
 
-	#define shutter cursor
-	my $shutter_cursor_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file(
-		$self->{_gc}->get_root . "/share/shutter/resources/icons/shutter_cursor.png" );
-	my $shutter_cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default,
-		$shutter_cursor_pixbuf, 10, 10 );
+	#...and cursor icon
+	my $cursor_item = Gnome2::Canvas::Item->new(
+		$canvas_root,
+		"Gnome2::Canvas::Pixbuf",
+		x      => 0,
+		y      => 0,
+		pixbuf => $shutter_cursor_pixbuf,
+	);
 
 	#define graphics context
 	my $white = Gtk2::Gdk::Color->new( 65535, 65535, 65535 );
@@ -195,7 +202,8 @@ sub select_simple {
 						$self->{_root}
 							->draw_rectangle( $gc, 0, $rect_x, $rect_y, $rect_w, $rect_h );
 						Gtk2::Gdk->flush;
-
+						
+						sleep 1 if $self->{_delay} < 1;
 						($output) = $self->get_pixbuf_from_drawable(
 							$self->{_root}, $rect_x, $rect_y,
 							$rect_w + 1,
@@ -203,7 +211,7 @@ sub select_simple {
 							$self->{_include_cursor},
 							$self->{_delay}
 						);
-
+							
 					} else {
 						$output = 0;
 					}
@@ -251,15 +259,11 @@ sub select_simple {
 							$zoom_window_init = TRUE;
 						}
 					}
-
-					#~ #draw cursor on the canvas...
-					$cursor_item->destroy if defined($cursor_item);
-					$cursor_item = Gnome2::Canvas::Item->new(
-						$canvas_root,
-						"Gnome2::Canvas::Pixbuf",
+					
+					#move cursor on the canvas...
+					$cursor_item->set(
 						x      => $event->x - 10,
 						y      => $event->y - 10,
-						pixbuf => $shutter_cursor_pixbuf,
 					);
 
 					#...scroll to centered position (*5 because of zoom factor)

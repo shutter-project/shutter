@@ -212,11 +212,14 @@ sub select_advanced {
 				#quit on escape
 				if ( $event->type eq 'key-press' ) {
 					if ( $event->keyval == $Gtk2::Gdk::Keysyms{Escape} ) {
+						
 						$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
 						$self->{_selector}->signal_handler_disconnect ($self->{_selector_handler});
 						$select_window->destroy;
 						Gtk2::Gdk->flush;
+					
 					} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Return} ) {
+						
 						$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
 						$self->{_selector}->signal_handler_disconnect ($self->{_selector_handler});
 						$select_window->destroy;
@@ -233,6 +236,7 @@ sub select_advanced {
 							$output = 0;
 						}
 					}
+				
 				} else {
 					Gtk2->main_do_event($event);
 				}

@@ -2,7 +2,9 @@ shutter (0.80~ppa1) jaunty; urgency=low
 
   * New features
     -- Added arrow shape to Drawing Tool
-  * fixed bugs
+    -- Added highlighter/marker to Drawing Tool
+    -- Resize the canvas
+  * Fixed bugs
     -- LP: #312221
        [Item is drawn in bottom-right point of the cursor]
     -- LP: #336122
@@ -14,15 +16,21 @@ shutter (0.80~ppa1) jaunty; urgency=low
     -- LP: #353824
        [fix advanced selection tool when using compiz]
   * Drawing Tool
+    -- LP: #310704
+       [object property changes don't take immediate effect]
     -- LP: #311578
        [resize canvas]
     -- LP: #318452
        [save and restore last used tool]
     -- LP: #338809
        [keep tool focus after one usage]
+    -- LP: #360254
+       [added highlighter/marker]
+    -- LP: #364815
+       [added arrow shape]
   * updated translations
 
- -- Mario Kemper <mario.kemper@googlemail.com>  Mon, 20 Apr 2009 02:04:06 +0200
+ -- Mario Kemper <mario.kemper@googlemail.com>  Tue, 21 Apr 2009 22:01:27 +0200
 
 shutter (0.70.2~ppa4) jaunty; urgency=low
 
