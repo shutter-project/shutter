@@ -211,6 +211,10 @@ sub select_advanced {
 
 				#quit on escape
 				if ( $event->type eq 'key-press' ) {
+
+					my $s = $self->{_selector}->get_selection;
+					
+					#abort screenshot				
 					if ( $event->keyval == $Gtk2::Gdk::Keysyms{Escape} ) {
 						
 						$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
@@ -218,18 +222,56 @@ sub select_advanced {
 						$select_window->destroy;
 						Gtk2::Gdk->flush;
 					
+					#move / resize selector
+					} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Up} && $s) {
+						
+						if ($event->state >= 'control-mask'){
+							$s->height($s->height-1);
+						}else{	
+							$s->y($s->y-1);
+						}
+						$self->{_selector}->set_selection($s);
+						
+					} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Down} && $s) {
+
+						if ($event->state >= 'control-mask'){
+							$s->height($s->height+1);
+						}else{	
+							$s->y($s->y+1);
+						}
+						$self->{_selector}->set_selection($s);
+						
+					} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Left} && $s) {
+
+						if ($event->state >= 'control-mask'){
+							$s->width($s->width-1);
+						}else{	
+							$s->x($s->x-1);
+						}
+						$self->{_selector}->set_selection($s);
+						
+					} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Right} && $s) {	
+
+						if ($event->state >= 'control-mask'){
+							$s->width($s->width+1);
+						}else{
+							$s->x($s->x+1);
+						}
+						$self->{_selector}->set_selection($s);
+											
+					#take screenshot
 					} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Return} ) {
 						
 						$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
 						$self->{_selector}->signal_handler_disconnect ($self->{_selector_handler});
 						$select_window->destroy;
 						Gtk2::Gdk->flush;
-						my $selection = $self->{_selector}->get_selection;
-
-						if ($selection) {
+						
+						if ($s) {
 							sleep 1 if $self->{_delay} < 1;
-							($output) = $self->get_pixbuf_from_drawable( $self->{_root}, $selection->x,
-								$selection->y, $selection->width, $selection->height,
+							($output) = $self->get_pixbuf_from_drawable( 
+								$self->{_root}, 
+								$s->x, $s->y, $s->width, $s->height,
 								$self->{_include_cursor},
 								$self->{_delay} );
 						} else {

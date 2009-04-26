@@ -4,7 +4,7 @@ shutter (0.80~ppa1) jaunty; urgency=low
     -- Added arrow shape to Drawing Tool
     -- Added highlighter/marker to Drawing Tool
     -- Resize the canvas
-  * Fixed bugs
+  * Fixed bugs / minor improvements
     -- LP: #312221
        [Item is drawn in bottom-right point of the cursor]
     -- LP: #336122
@@ -19,6 +19,8 @@ shutter (0.80~ppa1) jaunty; urgency=low
        [do not capture the zoom window when using the simple selection]
     -- LP: #363708
        [lines of selected area get captured sometimes]
+    -- LP: #366695
+       [control advanced selection tool with arrow keys]
   * Drawing Tool
     -- LP: #310704
        [object property changes don't take immediate effect]
