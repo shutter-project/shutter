@@ -58,6 +58,8 @@ sub dlg_info_message {
 	my $info_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/],
 		'info', 'ok', $dlg_info_message );
 
+	$info_dialog->set_title("Shutter");
+
 	$info_dialog->set( 'text' => $dlg_info_header );
 
 	$info_dialog->set( 'secondary-text' => $dlg_info_message );
@@ -81,6 +83,8 @@ sub dlg_question_message {
 	my $detail_message 			= shift;
 
 	my $question_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef );
+
+	$question_dialog->set_title("Shutter");
 
 	$question_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-dialog-question', 'dialog' ) );
 
@@ -132,6 +136,8 @@ sub dlg_error_message {
 	
 	my $error_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef );
 
+	$error_dialog->set_title("Shutter");
+
 	$error_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-dialog-error', 'dialog' ) );
 
 	$error_dialog->set( 'text' => $dlg_error_header );
@@ -182,6 +188,8 @@ sub dlg_warning_message {
 	my $detail_message 			= shift;
 	
 	my $warning_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef );
+
+	$warning_dialog->set_title("Shutter");
 
 	$warning_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-dialog-warning', 'dialog' ) );
 

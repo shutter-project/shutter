@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.422";
+use constant REV                	=> "Rev.423";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -1884,15 +1884,12 @@ sub evt_show_settings {
 
 	$settings_dialog->show_all;
 	my $settings_dialog_response = $settings_dialog->run;
+	
+	&fct_post_settings($settings_dialog);	
+	
 	if ( $settings_dialog_response eq "close" ) {
-
-		&fct_post_settings($settings_dialog);
-
 		return TRUE;
 	} else {
-
-		&fct_post_settings($settings_dialog);
-
 		return FALSE;
 	}
 }
@@ -5675,6 +5672,8 @@ sub dlg_rename {
 
 		my $input_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/], 'other', 'none', undef );
 
+		$input_dialog->set_title("Rename");
+
 		$input_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-dialog-question', 'dialog' ) );
 
 		$input_dialog->set( 'text' => sprintf( $d->get( "Rename image %s"), "'$session_screens{$key}->{'short'}'" ) );
@@ -5903,6 +5902,8 @@ sub dlg_plugin {
 		'gtk-execute' => 'accept'
 	);
 	$plugin_dialog->set_default_response('accept');
+	$plugin_dialog->set_size_request(300, -1);
+	
 	my $model = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String' );
 
 	foreach my $pkey ( sort keys %plugins ) {
@@ -5925,15 +5926,29 @@ sub dlg_plugin {
 	}
 	
 	my $plugin_label       = Gtk2::Label->new( $d->get("Plugin") . ":" );
-	my $plugin_label_blank = Gtk2::Label->new();
 	my $plugin             = Gtk2::ComboBox->new($model);
-	my $plugin_descr       = Gtk2::Label->new;
-	$plugin_descr->set_line_wrap(TRUE);
-	$plugin_descr->set_width_chars(30);
-	$plugin_descr->set_padding( 10, 10 );
+	
+	#plugin description
+	my $plugin_descr       = Gtk2::TextBuffer->new;
+	my $plugin_descr_view  = Gtk2::TextView->new_with_buffer($plugin_descr);
+	$plugin_descr_view->set_sensitive(FALSE);
+	$plugin_descr_view->set_wrap_mode ('word');
+	my $textview_hbox = Gtk2::HBox->new( FALSE, 5 );
+	$textview_hbox->set_border_width(8);
+	$textview_hbox->pack_start_defaults($plugin_descr_view);
+
+	my $plugin_descr_label = Gtk2::Label->new();
+	$plugin_descr_label->set_markup( "<b>" . $d->get("Description") . "</b>" );
+	my $plugin_descr_frame = Gtk2::Frame->new();
+	$plugin_descr_frame->set_label_widget($plugin_descr_label);
+	$plugin_descr_frame->set_shadow_type ('none');
+	$plugin_descr_frame->add($textview_hbox);
+
+	#plugin image
 	my $plugin_image       = Gtk2::Image->new;
-	my $plugin_descr_frame = Gtk2::Frame->new( $d->get("Description") );
-	$plugin_descr_frame->add($plugin_descr);
+		
+	#packing
+	my $plugin_vbox1 = Gtk2::VBox->new( FALSE, 5 );
 	my $plugin_hbox1 = Gtk2::HBox->new( FALSE, 5 );
 	my $plugin_hbox2 = Gtk2::HBox->new( FALSE, 5 );
 	$plugin_hbox2->set_border_width(10);
@@ -5973,8 +5988,10 @@ sub dlg_plugin {
 	$plugin_hbox2->pack_start_defaults($plugin_image);
 	$plugin_hbox2->pack_start_defaults($plugin_descr_frame);
 
-	$plugin_dialog->vbox->add($plugin_hbox1);
-	$plugin_dialog->vbox->add($plugin_hbox2);
+	$plugin_vbox1->pack_start( $plugin_hbox1, FALSE, TRUE, 1 );
+	$plugin_vbox1->pack_start( $plugin_hbox2, TRUE,  TRUE, 1 );
+
+	$plugin_dialog->vbox->add($plugin_vbox1);
 
 	my $plugin_progress = Gtk2::ProgressBar->new;
 	$plugin_progress->set_no_show_all(TRUE);
@@ -6650,6 +6667,8 @@ sub dlg_website {
 
 	my $website_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/], 'other', 'none', undef );
 
+	$website_dialog->set_title("Shutter");
+
 	$website_dialog->set( 'text' => $d->get("Take a screenshot of a website") );
 
 	$website_dialog->set( 'secondary-text' => $d->get("URL to capture") . ": " );
@@ -6803,6 +6822,8 @@ sub dlg_profile_name {
 	my ( $curr_profile_name, $combobox_settings_profiles ) = @_;
 
 	my $profile_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/], 'other', 'none', undef );
+
+	$profile_dialog->set_title("Shutter");
 
 	$profile_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-dialog-question', 'dialog' ) );
 
