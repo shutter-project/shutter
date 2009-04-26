@@ -38,7 +38,7 @@ my $d = Locale::gettext->domain("shutter-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
 binmode( STDOUT, ":utf8" );
-#gscrot will ask for some infos - no need of changing anything
+#shutter will ask for some infos - no need of changing anything
 if ( $ARGV[0] eq "name" ) {
 	print $d->get("negate");
 	exit;
@@ -49,10 +49,6 @@ elsif ( $ARGV[0] eq "sort" ) {
 }
 elsif ( $ARGV[0] eq "tip" ) {
 	print $d->get("replace every pixel with its complementary color");
-	exit;
-}
-elsif ( $ARGV[0] eq "ext" ) {
-	print "image/png;image/bmp;image/jpeg";
 	exit;
 }
 elsif ( $ARGV[0] eq "lang" ) {
