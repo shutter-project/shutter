@@ -202,10 +202,13 @@ sub fct_imagemagick_polaroid {
 		my ( $tmpfh, $tmpfilename ) = tempfile();
 		my $convert_output = undef;
 		if ( $use_caption ) {
+			my $text = $caption_entry->get_text;
+			$text = quotemeta $text;
+				
 			$convert_output =
-				system(   "convert -caption '"
-						. $caption_entry->get_text
-						. "' '$filename' -pointsize "
+				system(   "convert -caption "
+						. $text
+						. " '$filename' -pointsize "
 						. $pointsize_sbutton->get_value
 						. " -gravity "
 						. $gravity_combo->get_active_text
@@ -231,10 +234,13 @@ sub fct_imagemagick_polaroid {
 		my ( $tmpfh, $tmpfilename ) = tempfile();
 		my $convert_output = undef;
 		if ( $use_caption ) {
+			my $text = $caption_entry->get_text;
+			$text = quotemeta $text;
+				
 			$convert_output =
-				system(   "convert -caption '"
-						. $caption_entry->get_text
-						. "' '$filename' -pointsize "
+				system(   "convert -caption "
+						. $text
+						. " '$filename' -pointsize "
 						. $pointsize_sbutton->get_value
 						. " -gravity "
 						. $gravity_combo->get_active_text
