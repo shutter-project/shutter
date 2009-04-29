@@ -94,10 +94,10 @@ sub new {
 	$self->{_current_item}            = undef;
 	$self->{_current_new_item}        = undef;
 	$self->{_current_copy_item}       = undef;
-	$self->{_last_mode}            	  = 10;
+	$self->{_last_mode}            	  = undef;
 	$self->{_current_mode}            = 10;
 	$self->{_current_mode_descr}      = "select";
-	$self->{_last_mode_descr}         = "select";
+	$self->{_last_mode_descr}         = undef;
 	$self->{_current_pixbuf}          = undef;
 	$self->{_current_pixbuf_filename} = undef;
 	$self->{_cut}					  = FALSE;
@@ -273,15 +273,15 @@ sub show {
 	#remember drawing colors, line width and font settings
 	#maybe we have to restore them
 	$self->{_last_fill_color}         = $self->{_fill_color_w}->get_color;
-	$self->{_last_fill_color_alpha}   = $self->{_fill_color_w}->get_alpha;
+	$self->{_last_fill_color_alpha}   = $self->{_fill_color_w}->get_alpha / 65535;
 	$self->{_last_stroke_color}       = $self->{_stroke_color_w}->get_color;
-	$self->{_last_stroke_color_alpha} = $self->{_stroke_color_w}->get_alpha;
+	$self->{_last_stroke_color_alpha} = $self->{_stroke_color_w}->get_alpha / 65535;
 	$self->{_last_line_width} 		  = $self->{_line_spin_w}->get_value;
 	$self->{_last_font} 			  = $self->{_font_btn_w}->get_font_name;
 
 	#remember the last mode as well
-	$self->{_last_mode}            	  = $self->{_current_mode};
-	$self->{_last_mode_descr}         = $self->{_current_mode_descr};	
+	$self->{_last_mode}            	  = undef;
+	$self->{_last_mode_descr}         = undef;	
 
 	Gtk2->main;
 
@@ -513,9 +513,13 @@ sub push_to_statusbar {
 
 	} elsif ( $self->{_current_mode} == 100 ) {
 
-		$status_text .= " ".$d->get("Select an object to delete it from the canvas");
+		$status_text .= " ".$d->get("Click to add an auto-increment shape");
 
 	} elsif ( $self->{_current_mode} == 110 ) {
+
+		$status_text .= " ".$d->get("Select an object to delete it from the canvas");
+
+	} elsif ( $self->{_current_mode} == 120 ) {
 
 		$status_text .= " ".$d->get("Delete all objects");
 
@@ -606,6 +610,7 @@ sub change_drawing_tool_cb {
 			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-text.png"),
 			Gtk2::IconSize->lookup('menu')
 		);
+
 	} elsif ( $self->{_current_mode} == 90 ) {
 
 		$self->{_current_mode_descr} = "censor";
@@ -617,9 +622,18 @@ sub change_drawing_tool_cb {
 
 	} elsif ( $self->{_current_mode} == 100 ) {
 
-		$self->{_current_mode_descr} = "clear";
+		$self->{_current_mode_descr} = "number";
+		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
+			Gtk2::Gdk::Display->get_default,
+			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-number.png"),
+			Gtk2::IconSize->lookup('menu')
+		);
 
 	} elsif ( $self->{_current_mode} == 110 ) {
+
+		$self->{_current_mode_descr} = "clear";
+
+	} elsif ( $self->{_current_mode} == 120 ) {
 
 		$self->{_current_mode_descr} = "clear_all";
 
@@ -839,12 +853,11 @@ sub load_settings {
 			$self->{_fill_color_alpha}   = $settings_xml->{'drawing'}->{'fill_color_alpha'};
 			$self->{_stroke_color}       = Gtk2::Gdk::Color->parse( $settings_xml->{'drawing'}->{'stroke_color'} );
 			$self->{_stroke_color_alpha} = $settings_xml->{'drawing'}->{'stroke_color_alpha'};
-
 			#line_width
 			$self->{_line_width} = $settings_xml->{'drawing'}->{'line_width'};
-
 			#font
-			$self->{_font} = $settings_xml->{'drawing'}->{'font'};				
+			$self->{_font} = $settings_xml->{'drawing'}->{'font'};	
+			
 		};
 		if ($@) {
 			warn "ERROR: Settings of DrawingTool could not be restored: $@ - ignoring\n";
@@ -1096,17 +1109,23 @@ sub event_item_on_motion_notify {
 		}
 		
 		if($ev->state >= 'control-mask'){
+			
 			my $last_point = pop @{ $self->{_items}{$item}{'points'} };
 			$last_point = $ev->y_root unless $last_point;
 			push @{ $self->{_items}{$item}{'points'} }, $last_point, $ev->x_root, $last_point;
+		
 		}elsif($ev->state >= 'shift-mask'){
+		
 			my $last_point_y = pop @{ $self->{_items}{$item}{'points'} };
 			my $last_point_x = pop @{ $self->{_items}{$item}{'points'} };
 			$last_point_x = $ev->x_root unless $last_point_x;
 			$last_point_y = $ev->y_root unless $last_point_y;
 			push @{ $self->{_items}{$item}{'points'} }, $last_point_x, $last_point_y, $last_point_x, $ev->y_root;		
+		
 		}else{
+		
 			push @{ $self->{_items}{$item}{'points'} }, $ev->x_root, $ev->y_root;		
+		
 		}
 		$self->{_items}{$item}->set( points => Goo::Canvas::Points->new( $self->{_items}{$item}{'points'} ) );
 		
@@ -1119,6 +1138,7 @@ sub event_item_on_motion_notify {
 			|| $self->{_current_mode_descr} eq "ellipse"
 			|| $self->{_current_mode_descr} eq "text"
 			|| $self->{_current_mode_descr} eq "image"
+			|| $self->{_current_mode_descr} eq "number"
 		)
 		&& $ev->state >= 'button1-mask'
 		&& !$item->{resizing} #if item is not in resize mode already
@@ -1454,14 +1474,35 @@ sub get_parent_item {
 	return $parent;
 }
 
+sub get_highest_auto_digit {
+	my $self = shift;
+	
+	my $number = 0;
+	foreach ( keys %{ $self->{_items} } ) {
+
+		my $item = $self->{_items}{$_};
+		
+		#numbered shape
+		if ( exists $self->{_items}{$item}{text} 
+			&& $self->{_items}{$item}{text}->get('visibility') ne 'hidden' ) {
+			$number = $self->{_items}{$item}{text}{digit} if $self->{_items}{$item}{text}{digit} > $number;
+		}		
+	
+	}
+
+	return $number;
+}
+
 sub get_child_item {
 	my $self = shift;
 	my $item = shift;
 
 	my $child = undef;
 
-	$child = $self->{_items}{$item}{ellipse} if exists $self->{_items}{$item}{ellipse};
+	#notice (special shapes like numbered ellipse do deliver ellipse here => NOT text!)
+	#therefore the order matters
 	$child = $self->{_items}{$item}{text}    if exists $self->{_items}{$item}{text};
+	$child = $self->{_items}{$item}{ellipse} if exists $self->{_items}{$item}{ellipse};
 	$child = $self->{_items}{$item}{image}   if exists $self->{_items}{$item}{image};
 	$child = $self->{_items}{$item}{line}   if exists $self->{_items}{$item}{line};
 
@@ -1686,16 +1727,15 @@ sub set_and_save_drawing_properties {
 
 	#we do not remember the properties for some tools
 	if($self->{_items}{$key}{type} ne "highlighter" && 
-	   $self->{_items}{$key}{type} ne "highlighter" && 
 	   $self->{_items}{$key}{type} ne "image")
 	{
 				
 		#remember drawing colors, line width and font settings
 		#maybe we have to restore them
 		$self->{_last_fill_color}         = $self->{_fill_color_w}->get_color;
-		$self->{_last_fill_color_alpha}   = $self->{_fill_color_w}->get_alpha;
+		$self->{_last_fill_color_alpha}   = $self->{_fill_color_w}->get_alpha / 65535;
 		$self->{_last_stroke_color}       = $self->{_stroke_color_w}->get_color;
-		$self->{_last_stroke_color_alpha} = $self->{_stroke_color_w}->get_alpha;
+		$self->{_last_stroke_color_alpha} = $self->{_stroke_color_w}->get_alpha / 65535;
 		$self->{_last_line_width} 		  = $self->{_line_spin_w}->get_value;
 		$self->{_last_font} 			  = $self->{_font_btn_w}->get_font_name;
 
@@ -1734,7 +1774,32 @@ sub set_and_save_drawing_properties {
 			#fill color
 			$self->{_fill_color_w}->set_color( $self->{_items}{$key}{fill_color} );
 			$self->{_fill_color_w}->set_alpha( int( $self->{_items}{$key}{fill_color_alpha} * 65535 ) );
-	
+			
+			#numbered shapes
+			if(exists($self->{_items}{$key}{text})){
+				#determine font description from string
+				my ( $attr_list, $text_raw, $accel_char ) = Gtk2::Pango->parse_markup( $self->{_items}{$key}{text}->get('text') );
+				my $font_desc = Gtk2::Pango::FontDescription->from_string( $self->{_font} );
+
+				#FIXME, maybe the pango version installed is too old
+				eval {
+					$attr_list->filter(
+						sub {
+							my $attr = shift;
+							$font_desc = $attr->copy->desc
+								if $attr->isa('Gtk2::Pango::AttrFontDesc');
+							return TRUE;
+						},
+					);
+				};
+				if ($@) {
+					print "\nERROR: Pango Markup could not be parsed:\n$@";
+				}
+
+				#apply current font settings to button
+				$self->{_font_btn_w}->set_font_name( $font_desc->to_string );
+				
+			}
 		}
 
 	}elsif ( $item->isa('Goo::Canvas::Text') ) {
@@ -1790,6 +1855,9 @@ sub restore_drawing_properties {
 	#saved properties available?
 	return FALSE unless defined $self->{_last_fill_color};
 
+	#anything done until now?
+	return FALSE unless defined $self->{_last_mode};
+
 	#block 'value-change' handlers for widgets
 	#so we do not apply the changes twice
 	$self->{_line_spin_w}->signal_handler_block ($self->{_line_spin_wh});
@@ -1799,9 +1867,9 @@ sub restore_drawing_properties {
 
 	#restore them
 	$self->{_fill_color_w}->set_color($self->{_last_fill_color});
-	$self->{_fill_color_w}->set_alpha($self->{_last_fill_color_alpha});
+	$self->{_fill_color_w}->set_alpha( int($self->{_last_fill_color_alpha} * 65535) );
 	$self->{_stroke_color_w}->set_color($self->{_last_stroke_color});
-	$self->{_stroke_color_w}->set_alpha($self->{_last_stroke_color_alpha});
+	$self->{_stroke_color_w}->set_alpha( int($self->{_last_stroke_color_alpha} * 65535) );
 	$self->{_line_spin_w}->set_value($self->{_last_line_width});
 	$self->{_font_btn_w}->set_font_name($self->{_last_font});	
 	
@@ -1962,6 +2030,11 @@ sub event_item_on_button_press {
 			} elsif ( $self->{_current_mode_descr} eq "censor" ) {
 
 				$self->create_censor( $ev, undef );
+				
+				#Number
+			} elsif ( $self->{_current_mode_descr} eq "number" ) {
+
+				$self->create_ellipse( $ev, undef, TRUE );
 
 				#RECTANGLES
 			} elsif ( $self->{_current_mode_descr} eq "rect" ) {
@@ -2153,72 +2226,9 @@ sub show_item_properties {
 	my $line_spin 		= undef;
 	my $fill_color 		= undef;
 	my $stroke_color 	= undef;
-	if (   $item->isa('Goo::Canvas::Rect')
-		|| $item->isa('Goo::Canvas::Ellipse')
-		|| $item->isa('Goo::Canvas::Polyline') )
-	{
 
-		my $general_vbox = Gtk2::VBox->new( FALSE, 5 );
-
-		my $label_general = Gtk2::Label->new;
-		$label_general->set_markup( $d->get("<i>Main</i>") );
-		my $frame_general = Gtk2::Frame->new();
-		$frame_general->set_label_widget($label_general);
-		$frame_general->set_border_width(5);
-		$prop_dialog->vbox->add($frame_general);
-
-		#line_width
-		my $line_hbox = Gtk2::HBox->new( TRUE, 5 );
-		$line_hbox->set_border_width(5);
-		my $linew_label = Gtk2::Label->new( $d->get("Line width") );
-		$line_spin = Gtk2::SpinButton->new_with_range( 0.5, 20, 0.1 );
-
-		$line_spin->set_value( $item->get('line-width') );
-
-		$line_hbox->pack_start_defaults($linew_label);
-		$line_hbox->pack_start_defaults($line_spin);
-		$general_vbox->pack_start( $line_hbox, FALSE, FALSE, 0 );
-
-		if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
-
-			#fill color
-			my $fill_color_hbox = Gtk2::HBox->new( TRUE, 5 );
-			$fill_color_hbox->set_border_width(5);
-			my $fill_color_label = Gtk2::Label->new( $d->get("Fill color") );
-			$fill_color = Gtk2::ColorButton->new();
-
-			$fill_color->set_color( $self->{_items}{$key}{fill_color} );
-			$fill_color->set_alpha( int( $self->{_items}{$key}{fill_color_alpha} * 65535 ) );
-			$fill_color->set_use_alpha(TRUE);
-			$fill_color->set_title( $d->get("Choose fill color") );
-
-			$fill_color_hbox->pack_start_defaults($fill_color_label);
-			$fill_color_hbox->pack_start_defaults($fill_color);
-			$general_vbox->pack_start( $fill_color_hbox, FALSE, FALSE, 0 );
-			
-		}
-
-		#some items, e.g. censor tool, do not have a color - skip them
-		if($self->{_items}{$key}{stroke_color}){
-			#stroke color
-			my $stroke_color_hbox = Gtk2::HBox->new( TRUE, 5 );
-			$stroke_color_hbox->set_border_width(5);
-			my $stroke_color_label = Gtk2::Label->new( $d->get("Stroke color") );
-			$stroke_color = Gtk2::ColorButton->new();
-
-			$stroke_color->set_color( $self->{_items}{$key}{stroke_color} );
-			$stroke_color->set_alpha( int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
-			$stroke_color->set_use_alpha(TRUE);
-			$stroke_color->set_title( $d->get("Choose stroke color") );
-
-			$stroke_color_hbox->pack_start_defaults($stroke_color_label);
-			$stroke_color_hbox->pack_start_defaults($stroke_color);
-			$general_vbox->pack_start( $stroke_color_hbox, FALSE, FALSE, 0 );
-		}
-
-		$frame_general->add($general_vbox);
-
-	}
+	#NUMBERED ELLIPSE
+	my $number_spin 	= undef;
 
 	#ARROW
 	my $end_arrow 		= undef;
@@ -2226,6 +2236,14 @@ sub show_item_properties {
 	my $arrow_spin 		= undef;
 	my $arrowl_spin 	= undef;
 	my $arrowt_spin 	= undef;
+
+	#TEXT
+	my $font_btn;
+	my $text;
+	my $textview;
+	my $font_color;
+
+	#ARROW item
 	if ($item->isa('Goo::Canvas::Polyline') 
 		&& defined $self->{_items}{$key}{end_arrow} 
 		&& defined $self->{_items}{$key}{start_arrow})
@@ -2295,15 +2313,10 @@ sub show_item_properties {
 		
 		#final packing
 		$frame_arrow->add($arrow_vbox);
-			
-	}
 
-	#TEXT
-	my $font_btn;
-	my $text;
-	my $textview;
-	my $font_color;
-	if ( $item->isa('Goo::Canvas::Text') ) {
+	#simple TEXT item (no numbered ellipse)
+	}elsif ( $item->isa('Goo::Canvas::Text')
+		&& !defined $self->{_items}{$key}{ellipse} ) {
 
 		my $text_vbox = Gtk2::VBox->new( FALSE, 5 );
 
@@ -2396,6 +2409,101 @@ sub show_item_properties {
 		$font_btn->signal_emit('font-set');
 
 		$frame_text->add($text_vbox);
+
+	#RECT OR ELLIPSE OR POLYLINE
+	}elsif (   $item->isa('Goo::Canvas::Rect')
+		|| $item->isa('Goo::Canvas::Ellipse')
+		|| $item->isa('Goo::Canvas::Polyline') )
+	{
+
+		my $general_vbox = Gtk2::VBox->new( FALSE, 5 );
+
+		my $label_general = Gtk2::Label->new;
+		$label_general->set_markup( $d->get("<i>Main</i>") );
+		my $frame_general = Gtk2::Frame->new();
+		$frame_general->set_label_widget($label_general);
+		$frame_general->set_border_width(5);
+		$prop_dialog->vbox->add($frame_general);
+
+		#line_width
+		my $line_hbox = Gtk2::HBox->new( TRUE, 5 );
+		$line_hbox->set_border_width(5);
+		my $linew_label = Gtk2::Label->new( $d->get("Line width") );
+		$line_spin = Gtk2::SpinButton->new_with_range( 0.5, 20, 0.1 );
+
+		$line_spin->set_value( $item->get('line-width') );
+
+		$line_hbox->pack_start_defaults($linew_label);
+		$line_hbox->pack_start_defaults($line_spin);
+		$general_vbox->pack_start( $line_hbox, FALSE, FALSE, 0 );
+
+		if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
+
+			#fill color
+			my $fill_color_hbox = Gtk2::HBox->new( TRUE, 5 );
+			$fill_color_hbox->set_border_width(5);
+			my $fill_color_label = Gtk2::Label->new( $d->get("Fill color") );
+			$fill_color = Gtk2::ColorButton->new();
+
+			$fill_color->set_color( $self->{_items}{$key}{fill_color} );
+			$fill_color->set_alpha( int( $self->{_items}{$key}{fill_color_alpha} * 65535 ) );
+			$fill_color->set_use_alpha(TRUE);
+			$fill_color->set_title( $d->get("Choose fill color") );
+
+			$fill_color_hbox->pack_start_defaults($fill_color_label);
+			$fill_color_hbox->pack_start_defaults($fill_color);
+			$general_vbox->pack_start( $fill_color_hbox, FALSE, FALSE, 0 );
+			
+		}
+
+		#some items, e.g. censor tool, do not have a color - skip them
+		if($self->{_items}{$key}{stroke_color}){
+			#stroke color
+			my $stroke_color_hbox = Gtk2::HBox->new( TRUE, 5 );
+			$stroke_color_hbox->set_border_width(5);
+			my $stroke_color_label = Gtk2::Label->new( $d->get("Stroke color") );
+			$stroke_color = Gtk2::ColorButton->new();
+
+			$stroke_color->set_color( $self->{_items}{$key}{stroke_color} );
+			$stroke_color->set_alpha( int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
+			$stroke_color->set_use_alpha(TRUE);
+			$stroke_color->set_title( $d->get("Choose stroke color") );
+
+			$stroke_color_hbox->pack_start_defaults($stroke_color_label);
+			$stroke_color_hbox->pack_start_defaults($stroke_color);
+			$general_vbox->pack_start( $stroke_color_hbox, FALSE, FALSE, 0 );
+		}
+
+		$frame_general->add($general_vbox);
+
+		#special shapes like numbered ellipse
+		if(defined $self->{_items}{$key}{text}){
+			
+			my $numbered_vbox = Gtk2::VBox->new( FALSE, 5 );
+			
+			my $label_numbered = Gtk2::Label->new;
+			$label_numbered->set_markup( $d->get("<i>Numbering</i>") );
+			my $frame_numbered = Gtk2::Frame->new();
+			$frame_numbered->set_label_widget($label_numbered);
+			$frame_numbered->set_border_width(5);
+			$prop_dialog->vbox->add($frame_numbered);
+
+			#line_width
+			my $number_hbox = Gtk2::HBox->new( TRUE, 5 );
+			$number_hbox->set_border_width(5);
+			my $numberw_label = Gtk2::Label->new( $d->get("Current value") );
+			$number_spin = Gtk2::SpinButton->new_with_range( 0, 999, 1 );
+
+			$number_spin->set_value( $self->{_items}{$key}{text}{digit} );
+
+			$number_hbox->pack_start_defaults($numberw_label);
+			$number_hbox->pack_start_defaults($number_spin);
+			$numbered_vbox->pack_start( $number_hbox, FALSE, FALSE, 0 );
+			
+			$frame_numbered->add($numbered_vbox);
+						
+		}
+
 	}
 
 	#run dialog
@@ -2406,7 +2514,8 @@ sub show_item_properties {
 		$self->apply_properties($item, $parent, $key, 
 								$fill_color, $stroke_color, $line_spin, 
 								$font_color, $font_btn, $textview, 
-								$end_arrow , $start_arrow, $arrow_spin, $arrowl_spin, $arrowt_spin);
+								$end_arrow , $start_arrow, $arrow_spin, $arrowl_spin, $arrowt_spin,
+								$number_spin);
 
 		#apply item properties to widgets
 		#line width, fill color, stroke color etc.
@@ -2446,6 +2555,9 @@ sub apply_properties {
 	my $arrow_spin 	= shift;
 	my $arrowl_spin = shift;
 	my $arrowt_spin = shift;
+	
+	#only numbered shapes
+	my $number_spin = shift;
 
 	#remember drawing colors, line width and font settings
 	#maybe we have to restore them
@@ -2454,9 +2566,9 @@ sub apply_properties {
 	{
 				
 		$self->{_last_fill_color}         = $self->{_fill_color_w}->get_color;
-		$self->{_last_fill_color_alpha}   = $self->{_fill_color_w}->get_alpha;
+		$self->{_last_fill_color_alpha}   = $self->{_fill_color_w}->get_alpha / 65535;
 		$self->{_last_stroke_color}       = $self->{_stroke_color_w}->get_color;
-		$self->{_last_stroke_color_alpha} = $self->{_stroke_color_w}->get_alpha;
+		$self->{_last_stroke_color_alpha} = $self->{_stroke_color_w}->get_alpha / 65535;
 		$self->{_last_line_width} 		  = $self->{_line_spin_w}->get_value;
 		$self->{_last_font} 			  = $self->{_font_btn_w}->get_font_name;
 
@@ -2479,6 +2591,31 @@ sub apply_properties {
 			'fill-pattern'   => $fill_pattern,
 			'stroke-pattern' => $stroke_pattern
 		);
+
+		#special shapes like numbered ellipse (digit changed)
+		if(defined $self->{_items}{$key}{text}){
+
+			#determine new or current digit
+			my $digit = undef;
+			if(defined $number_spin){
+				$digit = $number_spin->get_value;
+			}else{
+				$digit = $self->{_items}{$key}{text}{digit};	
+			}	
+
+			my $font_descr = Gtk2::Pango::FontDescription->from_string( $font_btn->get_font_name );
+			
+			print "<span font_desc=' " . $font_descr->to_string . " ' >" . $digit . "</span>\n";
+			
+			$self->{_items}{$key}{text}->set(
+				'text' => => "<span font_desc=' " . $font_descr->to_string . " ' >" . $digit . "</span>",
+			);	
+			
+			#save digit in hash as well (only item properties dialog)
+			if(defined $number_spin){
+				$self->{_items}{$key}{text}{digit} = $digit;
+			}
+		}	
 
 		#save color and opacity as well
 		$self->{_items}{$key}{fill_color}         = $fill_color->get_color;
@@ -2672,6 +2809,15 @@ sub handle_embedded {
 				'radius-y' => $item->get('y') + $self->{_items}{$item}->get('height') - $self->{_items}{$item}{ellipse}->get('center-y'),
 				'visibility' => $visibilty,
 			);
+			
+			#numbered ellipse
+			if ( exists $self->{_items}{$item}{text} ) {
+				$self->{_items}{$item}{text}->set(
+					'x'     => $self->{_items}{$item}{ellipse}->get('center-x'),
+					'y'     => $self->{_items}{$item}{ellipse}->get('center-y'),
+					'visibility' => $visibilty,
+				);				
+			}	
 
 		} elsif ( exists $self->{_items}{$item}{text} ) {
 			$self->{_items}{$item}{text}->set(
@@ -3118,6 +3264,14 @@ sub event_item_on_button_release {
 
 	if ($nitem) {
 
+		#mark as active item
+		$self->{_current_new_item} = undef;
+		$self->{_current_item} = $nitem;
+			
+		#apply item properties to widgets
+		#line width, fill color, stroke color etc.
+		$self->set_and_save_drawing_properties($nitem, FALSE);
+
 		#set minimum sizes
 		if ( $nitem->isa('Goo::Canvas::Rect') ) {
 
@@ -3144,10 +3298,10 @@ sub event_item_on_button_release {
 				}else{
 					
 					$nitem->set( 
-						'x'  		=> $ev->x_root - 100, 
-						'y' 		=> $ev->y_root - 100, 			
-						'width' 	=> 100,
-						'height' 	=> 100,
+						'x'  		=> $ev->x_root - 50, 
+						'y' 		=> $ev->y_root - 50, 			
+						'width' 	=> 50,
+						'height' 	=> 50,
 					);
 					
 				}
@@ -3374,16 +3528,17 @@ sub setup_uimanager {
 	my $dicons = $self->{_shutter_common}->get_root . "/share/shutter/resources/icons/drawing_tool";
 
 	$self->{_factory} = Gtk2::IconFactory->new();
-	$self->{_factory}->add( 'shutter-ellipse',   Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-ellipse.png") ) );
-	$self->{_factory}->add( 'shutter-eraser',    Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-eraser.png") ) );
-	$self->{_factory}->add( 'shutter-freehand',  Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-freehand.png") ) );
-	$self->{_factory}->add( 'shutter-highlighter',  Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-highlighter.png") ) );
-	$self->{_factory}->add( 'shutter-pointer',   Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-pointer.png") ) );
+	$self->{_factory}->add( 'shutter-ellipse', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-ellipse.png") ) );
+	$self->{_factory}->add( 'shutter-eraser', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-eraser.png") ) );
+	$self->{_factory}->add( 'shutter-freehand', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-freehand.png") ) );
+	$self->{_factory}->add( 'shutter-highlighter', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-highlighter.png") ) );
+	$self->{_factory}->add( 'shutter-pointer', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-pointer.png") ) );
 	$self->{_factory}->add( 'shutter-rectangle', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-rectangle.png") ) );
 	$self->{_factory}->add( 'shutter-line', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-line.png") ) );
 	$self->{_factory}->add( 'shutter-arrow', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-arrow.png") ) );
-	$self->{_factory}->add( 'shutter-text',      Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-text.png") ) );
-	$self->{_factory}->add( 'shutter-censor',      Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-censor.png") ) );
+	$self->{_factory}->add( 'shutter-text', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-text.png") ) );
+	$self->{_factory}->add( 'shutter-censor', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-censor.png") ) );
+	$self->{_factory}->add( 'shutter-number', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-number.png") ) );
 	$self->{_factory}->add_default();
 
 	my @default_actions = ( [ "File", undef, $d->get("_File") ], [ "Edit", undef, $d->get("_Edit") ], [ "View", undef, $d->get("_View") ] );
@@ -3416,17 +3571,18 @@ sub setup_uimanager {
 	);
 
 	my @toolbar_drawing_actions = (
-		[ "Select",  'shutter-pointer',   undef, undef, $d->get("Select item to move or resize it"),    10 ],
-		[ "Freehand",    'shutter-freehand',  undef, undef, $d->get("Draw a freehand line"), 20 ],
-		[ "Highlighter",    'shutter-highlighter',  undef, undef, $d->get("Highlighter"), 30 ],
+		[ "Select",  'shutter-pointer', undef, undef, $d->get("Select item to move or resize it"),    10 ],
+		[ "Freehand",    'shutter-freehand', undef, undef, $d->get("Draw a freehand line"), 20 ],
+		[ "Highlighter",    'shutter-highlighter', undef, undef, $d->get("Highlighter"), 30 ],
 		[ "Line",    'shutter-line', undef, undef, $d->get("Draw a straight line"),                    40 ],
 		[ "Arrow",    'shutter-arrow', undef, undef, $d->get("Draw an arrow"),                    50 ],
 		[ "Rect",    'shutter-rectangle', undef, undef, $d->get("Draw a rectangle"),                    60 ],
-		[ "Ellipse", 'shutter-ellipse',   undef, undef, $d->get("Draw a ellipse"),                      70 ],
-		[ "Text",    'shutter-text',      undef, undef, $d->get("Add some text to the screenshot"),     80 ],
-		[ "Censor",    'shutter-censor',      undef, undef, $d->get("Censor portions of your screenshot to hide private data"),     90 ],
-		[ "Clear",   'shutter-eraser',    undef, undef, $d->get("Delete objects"),                      100 ],
-		[ "ClearAll",'gtk-clear',  	 undef, undef, $d->get("Delete all objects"),                  110 ]
+		[ "Ellipse", 'shutter-ellipse', undef, undef, $d->get("Draw a ellipse"),                      70 ],
+		[ "Text",    'shutter-text', undef, undef, $d->get("Add some text to the screenshot"),     80 ],
+		[ "Censor",    'shutter-censor', undef, undef, $d->get("Censor portions of your screenshot to hide private data"),     90 ],
+		[ "Number",    'shutter-number', undef, undef, $d->get("Add an auto-increment shape to the screenshot"),     100 ],
+		[ "Clear",   'shutter-eraser', undef, undef, $d->get("Delete objects"),                      110 ],
+		[ "ClearAll",'gtk-clear', undef, undef, $d->get("Delete all objects"),                  120 ]
 	);
 
 	my $uimanager = Gtk2::UIManager->new();
@@ -3512,6 +3668,7 @@ sub setup_uimanager {
     <toolitem action='Ellipse'/>
     <toolitem action='Text'/>
     <toolitem action='Censor'/>
+    <toolitem action='Number'/>
     <separator/>
     <toolitem action='Clear'/>
     <toolitem action='ClearAll'/>
@@ -4291,7 +4448,7 @@ sub create_line {
 
 }
 
-sub create_ellipse {
+sub create_number {
 	my $self      = shift;
 	my $ev        = shift;
 	my $copy_item = shift;
@@ -4309,7 +4466,92 @@ sub create_ellipse {
 		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
 		$stroke_pattern = $self->create_color( $self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha} );
 		$fill_pattern   = $self->create_color( $self->{_items}{$copy_item}{fill_color},   $self->{_items}{$copy_item}{fill_color_alpha} );
+		$line_width = $self->{_items}{$copy_item}{number}->get('line-width');
+	}
+
+	my $pattern = $self->create_alpha;
+	my $item    = Goo::Canvas::Rect->new(
+		$self->{_canvas}->get_root_item, @dimensions,
+		'fill-pattern' => $pattern,
+		'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
+		'line-width'   => 1,
+		'stroke-color' => 'gray',
+	);
+
+	$self->{_current_new_item} = $item;
+	$self->{_items}{$item} = $item;
+
+	$self->{_items}{$item}{number} = Goo::Canvas::Ellipse->new(
+		$self->{_canvas}->get_root_item, $item->get('x'), $item->get('y'), $item->get('width'),
+		$item->get('height'),
+		'fill-pattern'   => $fill_pattern,
+		'stroke-pattern' => $stroke_pattern,
+		'line-width'     => $line_width,
+	);
+
+	$self->{_items}{$item}{text} = Goo::Canvas::Text->new(
+		$self->{_canvas}->get_root_item, "<span font_desc='" . $self->{_font} . "' >1</span>",
+		$item->get('x'),
+		$item->get('y'), $item->get('width'),
+		'center',
+		'use-markup'   => TRUE,
+		'fill-pattern' => $stroke_pattern,
+		'line-width'   => $line_width,
+	);
+
+	#set type flag
+	$self->{_items}{$item}{type} = 'number';
+
+	#save color and opacity as well
+	$self->{_items}{$item}{fill_color}         = $self->{_fill_color};
+	$self->{_items}{$item}{fill_color_alpha}   = $self->{_fill_color_alpha};
+	$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
+	$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
+
+	#create rectangles
+	$self->handle_rects( 'create', $item );
+	if ($copy_item){	
+		$self->handle_embedded('update', $item); 
+		$self->handle_rects('hide', $item); 	
+	}
+
+	$self->setup_item_signals( $self->{_items}{$item}{number} );
+	$self->setup_item_signals_extra( $self->{_items}{$item}{number} );
+
+	$self->setup_item_signals( $self->{_items}{$item}{text} );
+	$self->setup_item_signals_extra( $self->{_items}{$item}{text} );
+
+	$self->setup_item_signals( $self->{_items}{$item} );
+	$self->setup_item_signals_extra( $self->{_items}{$item} );
+
+	#add to undo stack
+	$self->store_to_xdo_stack($item , 'create', 'undo');
+	
+	return TRUE;
+
+}
+
+sub create_ellipse {
+	my $self      = shift;
+	my $ev        = shift;
+	my $copy_item = shift;
+	my $numbered  = shift;
+
+	my @dimensions = ( 0, 0, 0, 0 );
+	my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
+	my $fill_pattern   = $self->create_color( $self->{_fill_color},   $self->{_fill_color_alpha} );
+	my $line_width = $self->{_line_width};
+
+	#use event coordinates and selected color
+	if ($ev) {
+		@dimensions = ( $ev->x_root, $ev->y_root, 2, 2 );
+		#use source item coordinates and item color
+	} elsif ($copy_item) {
+		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
+		$stroke_pattern = $self->create_color( $self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha} );
+		$fill_pattern   = $self->create_color( $self->{_items}{$copy_item}{fill_color},   $self->{_items}{$copy_item}{fill_color_alpha} );
 		$line_width = $self->{_items}{$copy_item}{ellipse}->get('line-width');
+		$numbered = TRUE if exists $self->{_items}{$copy_item}{text};
 	}
 
 	my $pattern = $self->create_alpha;
@@ -4332,8 +4574,32 @@ sub create_ellipse {
 		'line-width'     => $line_width,
 	);
 
-	#set type flag
-	$self->{_items}{$item}{type} = 'ellipse';
+	#numbered ellipse
+	if($numbered){
+		
+		my $number = $self->get_highest_auto_digit();
+		$number++;
+		
+		$self->{_items}{$item}{text} = Goo::Canvas::Text->new(
+			$self->{_canvas}->get_root_item, "<span font_desc='" . $self->{_font} . "' >".$number."</span>",
+			0, 0, 0,
+			'GTK_ANCHOR_CENTER',
+			'use-markup'   => TRUE,
+			'fill-pattern' => $stroke_pattern,
+			'line-width'   => $line_width,
+			'visibility' => 'hidden'
+		);
+		
+		#save used number
+		$self->{_items}{$item}{text}{digit} = $number;
+		
+		#set type flag
+		$self->{_items}{$item}{type} = 'number';
+						
+	}else{
+		#set type flag
+		$self->{_items}{$item}{type} = 'ellipse';		
+	}
 
 	#save color and opacity as well
 	$self->{_items}{$item}{fill_color}         = $self->{_fill_color};
@@ -4346,6 +4612,11 @@ sub create_ellipse {
 	if ($copy_item){	
 		$self->handle_embedded('update', $item); 
 		$self->handle_rects('hide', $item); 	
+	}
+
+	if($numbered){
+		$self->setup_item_signals( $self->{_items}{$item}{text} );
+		$self->setup_item_signals_extra( $self->{_items}{$item}{text} );
 	}
 
 	$self->setup_item_signals( $self->{_items}{$item}{ellipse} );
