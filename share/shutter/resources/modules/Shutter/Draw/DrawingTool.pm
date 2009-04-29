@@ -1512,8 +1512,8 @@ sub get_child_item {
 sub abort_current_mode {
 	my $self = shift;
 
-	$self->set_drawing_action(int($self->{_current_mode}/10));
-	$self->change_drawing_tool_cb($self->{_current_mode});
+	$self->set_drawing_action(0);
+	$self->change_drawing_tool_cb(10);
 
 	return TRUE;
 }	
@@ -1726,8 +1726,10 @@ sub set_and_save_drawing_properties {
 	my $key = $self->get_item_key($item, $parent);
 
 	#we do not remember the properties for some tools
+	#and don't remember them when just selecting items with the cursor
 	if($self->{_items}{$key}{type} ne "highlighter" && 
-	   $self->{_items}{$key}{type} ne "image")
+	   $self->{_items}{$key}{type} ne "image" &&
+	   $self->{_current_mode} != 10 )
 	{
 				
 		#remember drawing colors, line width and font settings
@@ -1872,7 +1874,7 @@ sub restore_drawing_properties {
 	$self->{_stroke_color_w}->set_alpha( int($self->{_last_stroke_color_alpha} * 65535) );
 	$self->{_line_spin_w}->set_value($self->{_last_line_width});
 	$self->{_font_btn_w}->set_font_name($self->{_last_font});	
-	
+
 	#update global values
 	$self->{_line_width} 			= $self->{_line_spin_w}->get_value;	
 	$self->{_stroke_color}       	= $self->{_stroke_color_w}->get_color;
@@ -1909,16 +1911,19 @@ sub event_item_on_button_press {
 		#real shape
 		if ( exists $self->{_items}{$item} ) {
 
-			$self->{_last_item}        = $self->{_current_item};
-			$self->{_current_item}     = $item;
-			$self->{_current_new_item} = undef;
-			$self->handle_rects( 'hide',   $self->{_last_item} );
-			$self->handle_rects( 'update', $self->{_current_item} );
-			
-			#apply item properties to widgets
-			#line width, fill color, stroke color etc.
-			$self->set_and_save_drawing_properties($self->{_current_item}, FALSE);
+			unless ($item == $self->{_current_item}){
 
+				$self->{_last_item}        = $self->{_current_item};		
+				$self->{_current_item} 	   = $item;
+				$self->{_current_new_item} = undef;
+				$self->handle_rects( 'update', $self->{_current_item} );
+				$self->handle_rects( 'hide',   $self->{_last_item} );
+		
+				#apply item properties to widgets
+				#line width, fill color, stroke color etc.
+				$self->set_and_save_drawing_properties($self->{_current_item}, FALSE);
+		
+			}
 		}
 	} else {
 		
@@ -2078,11 +2083,11 @@ sub event_item_on_button_press {
 		if ( exists $self->{_items}{$key} ) {		
 			if( $ev->type eq '2button-press' ) {
 				
-				$self->show_item_properties($item, $parent);
+				$self->show_item_properties($item, $parent, $key);
 				
 			}elsif( $ev->type eq 'button-press' ){
 				
-				my $item_menu = $self->ret_item_menu($item, $parent);
+				my $item_menu = $self->ret_item_menu($item, $parent, $key);
 
 				$item_menu->popup(
 					undef,    # parent menu shell
@@ -2109,6 +2114,7 @@ sub ret_item_menu {
 	my $self   = shift;
 	my $item   = shift;
 	my $parent = shift;
+	my $key	   = shift;
 
 	my $d      = $self->{_shutter_common}->get_gettext;
 	my $dicons = $self->{_shutter_common}->get_root . "/share/shutter/resources/icons/drawing_tool";
@@ -2173,12 +2179,12 @@ sub ret_item_menu {
 	my $prop_item = Gtk2::ImageMenuItem->new_from_stock('gtk-properties');
 	
 	#some items do not have properties, e.g. images or censor
-	$prop_item->set_sensitive(FALSE) if $item->isa('Goo::Canvas::Image') || !exists($self->{_items}{$item}{stroke_color});
+	$prop_item->set_sensitive(FALSE) if $item->isa('Goo::Canvas::Image') || !exists($self->{_items}{$key}{stroke_color});
 	
 	$prop_item->signal_connect(
 		'activate' => sub {
 
-			$self->show_item_properties($item, $parent);
+			$self->show_item_properties($item, $parent, $key);
 
 		}
 	);
@@ -2205,9 +2211,7 @@ sub show_item_properties {
 	my $self 	= shift;
 	my $item 	= shift;
 	my $parent 	= shift;
-
-	#determine key for item hash
-	my $key = $self->get_item_key($item, $parent);
+	my $key 	= shift;
 
 	my $d = $self->{_shutter_common}->get_gettext;
 
@@ -2242,6 +2246,135 @@ sub show_item_properties {
 	my $text;
 	my $textview;
 	my $font_color;
+
+	#RECT OR ELLIPSE OR POLYLINE
+	#GENERAL SETTINGS	
+	if (   $item->isa('Goo::Canvas::Rect')
+		|| $item->isa('Goo::Canvas::Ellipse')
+		|| $item->isa('Goo::Canvas::Polyline') )
+	{
+
+		my $general_vbox = Gtk2::VBox->new( FALSE, 5 );
+
+		my $label_general = Gtk2::Label->new;
+		$label_general->set_markup( $d->get("<i>Main</i>") );
+		my $frame_general = Gtk2::Frame->new();
+		$frame_general->set_label_widget($label_general);
+		$frame_general->set_border_width(5);
+		$prop_dialog->vbox->add($frame_general);
+
+		#line_width
+		my $line_hbox = Gtk2::HBox->new( TRUE, 5 );
+		$line_hbox->set_border_width(5);
+		my $linew_label = Gtk2::Label->new( $d->get("Line width") );
+		$line_spin = Gtk2::SpinButton->new_with_range( 0.5, 20, 0.1 );
+
+		$line_spin->set_value( $item->get('line-width') );
+
+		$line_hbox->pack_start_defaults($linew_label);
+		$line_hbox->pack_start_defaults($line_spin);
+		$general_vbox->pack_start( $line_hbox, FALSE, FALSE, 0 );
+
+		if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
+
+			#fill color
+			my $fill_color_hbox = Gtk2::HBox->new( TRUE, 5 );
+			$fill_color_hbox->set_border_width(5);
+			my $fill_color_label = Gtk2::Label->new( $d->get("Fill color") );
+			$fill_color = Gtk2::ColorButton->new();
+
+			$fill_color->set_color( $self->{_items}{$key}{fill_color} );
+			$fill_color->set_alpha( int( $self->{_items}{$key}{fill_color_alpha} * 65535 ) );
+			$fill_color->set_use_alpha(TRUE);
+			$fill_color->set_title( $d->get("Choose fill color") );
+
+			$fill_color_hbox->pack_start_defaults($fill_color_label);
+			$fill_color_hbox->pack_start_defaults($fill_color);
+			$general_vbox->pack_start( $fill_color_hbox, FALSE, FALSE, 0 );
+			
+		}
+
+		#some items, e.g. censor tool, do not have a color - skip them
+		if($self->{_items}{$key}{stroke_color}){
+			#stroke color
+			my $stroke_color_hbox = Gtk2::HBox->new( TRUE, 5 );
+			$stroke_color_hbox->set_border_width(5);
+			my $stroke_color_label = Gtk2::Label->new( $d->get("Stroke color") );
+			$stroke_color = Gtk2::ColorButton->new();
+
+			$stroke_color->set_color( $self->{_items}{$key}{stroke_color} );
+			$stroke_color->set_alpha( int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
+			$stroke_color->set_use_alpha(TRUE);
+			$stroke_color->set_title( $d->get("Choose stroke color") );
+
+			$stroke_color_hbox->pack_start_defaults($stroke_color_label);
+			$stroke_color_hbox->pack_start_defaults($stroke_color);
+			$general_vbox->pack_start( $stroke_color_hbox, FALSE, FALSE, 0 );
+		}
+
+		$frame_general->add($general_vbox);
+
+		#special shapes like numbered ellipse
+		if(defined $self->{_items}{$key}{text}){
+			
+			my $numbered_vbox = Gtk2::VBox->new( FALSE, 5 );
+			
+			my $label_numbered = Gtk2::Label->new;
+			$label_numbered->set_markup( $d->get("<i>Numbering</i>") );
+			my $frame_numbered = Gtk2::Frame->new();
+			$frame_numbered->set_label_widget($label_numbered);
+			$frame_numbered->set_border_width(5);
+			$prop_dialog->vbox->add($frame_numbered);
+
+			#current digit
+			my $number_hbox = Gtk2::HBox->new( TRUE, 5 );
+			$number_hbox->set_border_width(5);
+			my $numberw_label = Gtk2::Label->new( $d->get("Current value") );
+			$number_spin = Gtk2::SpinButton->new_with_range( 0, 999, 1 );
+
+			$number_spin->set_value( $self->{_items}{$key}{text}{digit} );
+
+			$number_hbox->pack_start_defaults($numberw_label);
+			$number_hbox->pack_start_defaults($number_spin);
+			$numbered_vbox->pack_start( $number_hbox, FALSE, FALSE, 0 );
+
+			#font button
+			my $font_hbox = Gtk2::HBox->new( TRUE, 5 );
+			$font_hbox->set_border_width(5);
+			my $font_label = Gtk2::Label->new( $d->get("Font") );
+			$font_btn = Gtk2::FontButton->new();
+
+			#determine font description from string
+			my ( $attr_list, $text_raw, $accel_char ) = Gtk2::Pango->parse_markup( $self->{_items}{$key}{text}->get('text') );
+			my $font_desc = Gtk2::Pango::FontDescription->from_string( $self->{_font} );
+
+			#FIXME, maybe the pango version installed is too old
+			eval {
+				$attr_list->filter(
+					sub {
+						my $attr = shift;
+						$font_desc = $attr->copy->desc
+							if $attr->isa('Gtk2::Pango::AttrFontDesc');
+						return TRUE;
+					},
+				);
+			};
+			if ($@) {
+				print "\nERROR: Pango Markup could not be parsed:\n$@";
+			}
+
+			#apply current font settings to button
+			$font_btn->set_font_name( $font_desc->to_string );
+
+			$font_hbox->pack_start_defaults($font_label);
+			$font_hbox->pack_start_defaults($font_btn);
+			$numbered_vbox->pack_start( $font_hbox, FALSE, FALSE, 0 );
+			
+			$frame_numbered->add($numbered_vbox);
+						
+		}
+
+	}
 
 	#ARROW item
 	if ($item->isa('Goo::Canvas::Polyline') 
@@ -2410,100 +2543,6 @@ sub show_item_properties {
 
 		$frame_text->add($text_vbox);
 
-	#RECT OR ELLIPSE OR POLYLINE
-	}elsif (   $item->isa('Goo::Canvas::Rect')
-		|| $item->isa('Goo::Canvas::Ellipse')
-		|| $item->isa('Goo::Canvas::Polyline') )
-	{
-
-		my $general_vbox = Gtk2::VBox->new( FALSE, 5 );
-
-		my $label_general = Gtk2::Label->new;
-		$label_general->set_markup( $d->get("<i>Main</i>") );
-		my $frame_general = Gtk2::Frame->new();
-		$frame_general->set_label_widget($label_general);
-		$frame_general->set_border_width(5);
-		$prop_dialog->vbox->add($frame_general);
-
-		#line_width
-		my $line_hbox = Gtk2::HBox->new( TRUE, 5 );
-		$line_hbox->set_border_width(5);
-		my $linew_label = Gtk2::Label->new( $d->get("Line width") );
-		$line_spin = Gtk2::SpinButton->new_with_range( 0.5, 20, 0.1 );
-
-		$line_spin->set_value( $item->get('line-width') );
-
-		$line_hbox->pack_start_defaults($linew_label);
-		$line_hbox->pack_start_defaults($line_spin);
-		$general_vbox->pack_start( $line_hbox, FALSE, FALSE, 0 );
-
-		if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
-
-			#fill color
-			my $fill_color_hbox = Gtk2::HBox->new( TRUE, 5 );
-			$fill_color_hbox->set_border_width(5);
-			my $fill_color_label = Gtk2::Label->new( $d->get("Fill color") );
-			$fill_color = Gtk2::ColorButton->new();
-
-			$fill_color->set_color( $self->{_items}{$key}{fill_color} );
-			$fill_color->set_alpha( int( $self->{_items}{$key}{fill_color_alpha} * 65535 ) );
-			$fill_color->set_use_alpha(TRUE);
-			$fill_color->set_title( $d->get("Choose fill color") );
-
-			$fill_color_hbox->pack_start_defaults($fill_color_label);
-			$fill_color_hbox->pack_start_defaults($fill_color);
-			$general_vbox->pack_start( $fill_color_hbox, FALSE, FALSE, 0 );
-			
-		}
-
-		#some items, e.g. censor tool, do not have a color - skip them
-		if($self->{_items}{$key}{stroke_color}){
-			#stroke color
-			my $stroke_color_hbox = Gtk2::HBox->new( TRUE, 5 );
-			$stroke_color_hbox->set_border_width(5);
-			my $stroke_color_label = Gtk2::Label->new( $d->get("Stroke color") );
-			$stroke_color = Gtk2::ColorButton->new();
-
-			$stroke_color->set_color( $self->{_items}{$key}{stroke_color} );
-			$stroke_color->set_alpha( int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
-			$stroke_color->set_use_alpha(TRUE);
-			$stroke_color->set_title( $d->get("Choose stroke color") );
-
-			$stroke_color_hbox->pack_start_defaults($stroke_color_label);
-			$stroke_color_hbox->pack_start_defaults($stroke_color);
-			$general_vbox->pack_start( $stroke_color_hbox, FALSE, FALSE, 0 );
-		}
-
-		$frame_general->add($general_vbox);
-
-		#special shapes like numbered ellipse
-		if(defined $self->{_items}{$key}{text}){
-			
-			my $numbered_vbox = Gtk2::VBox->new( FALSE, 5 );
-			
-			my $label_numbered = Gtk2::Label->new;
-			$label_numbered->set_markup( $d->get("<i>Numbering</i>") );
-			my $frame_numbered = Gtk2::Frame->new();
-			$frame_numbered->set_label_widget($label_numbered);
-			$frame_numbered->set_border_width(5);
-			$prop_dialog->vbox->add($frame_numbered);
-
-			#line_width
-			my $number_hbox = Gtk2::HBox->new( TRUE, 5 );
-			$number_hbox->set_border_width(5);
-			my $numberw_label = Gtk2::Label->new( $d->get("Current value") );
-			$number_spin = Gtk2::SpinButton->new_with_range( 0, 999, 1 );
-
-			$number_spin->set_value( $self->{_items}{$key}{text}{digit} );
-
-			$number_hbox->pack_start_defaults($numberw_label);
-			$number_hbox->pack_start_defaults($number_spin);
-			$numbered_vbox->pack_start( $number_hbox, FALSE, FALSE, 0 );
-			
-			$frame_numbered->add($numbered_vbox);
-						
-		}
-
 	}
 
 	#run dialog
@@ -2520,7 +2559,10 @@ sub show_item_properties {
 		#apply item properties to widgets
 		#line width, fill color, stroke color etc.
 		$self->set_and_save_drawing_properties($self->{_current_item}, FALSE);
-		
+
+		#FIXME - we need to save the changed values in this case
+		$self->set_and_save_drawing_properties($self->{_current_item}, TRUE);
+
 		$prop_dialog->destroy;
 		return TRUE;
 	} else {
@@ -2602,19 +2644,28 @@ sub apply_properties {
 			}else{
 				$digit = $self->{_items}{$key}{text}{digit};	
 			}	
-
-			my $font_descr = Gtk2::Pango::FontDescription->from_string( $font_btn->get_font_name );
 			
-			print "<span font_desc=' " . $font_descr->to_string . " ' >" . $digit . "</span>\n";
+			my $fill_pattern = undef;
+			if(defined $font_color){
+				$fill_pattern = $self->create_color( $font_color->get_color, $font_color->get_alpha / 65535 );
+			}elsif(defined $stroke_color){
+				$fill_pattern = $self->create_color( $stroke_color->get_color, $stroke_color->get_alpha / 65535 );				
+			}
 			
+			my $font_descr = Gtk2::Pango::FontDescription->from_string( $font_btn->get_font_name );	
 			$self->{_items}{$key}{text}->set(
-				'text' => => "<span font_desc=' " . $font_descr->to_string . " ' >" . $digit . "</span>",
+				'text' => "<span font_desc=' " . $font_descr->to_string . " ' >" . $digit . "</span>",
+				'fill-pattern' => $fill_pattern,
 			);	
 			
 			#save digit in hash as well (only item properties dialog)
 			if(defined $number_spin){
 				$self->{_items}{$key}{text}{digit} = $digit;
 			}
+		
+			$self->handle_rects( 'update', $parent );
+			$self->handle_embedded( 'update', $parent );
+		
 		}	
 
 		#save color and opacity as well
