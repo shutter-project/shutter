@@ -1339,11 +1339,14 @@ sub event_item_on_motion_notify {
 					
 					#when width or height are too small we switch to opposite rectangle and do the resizing in this way
 					if($ev->state >= 'control-mask' && $new_width < 1 && $new_height < 1){
+					
 						$new_x = $self->{_items}{$curr_item}->get('x');
 						$new_y = $self->{_items}{$curr_item}->get('y');
 						$new_width = $self->{_items}{$curr_item}->get('width');
 						$new_height = $self->{_items}{$curr_item}->get('height');
+					
 					}elsif ( $new_width < 0 || $new_height < 0) {
+						
 						$self->{_canvas}->pointer_ungrab($item, $ev->time);
 						my $oppo = $self->get_opposite_rect($item, $curr_item, $new_width, $new_height);				
 						$self->{_items}{$curr_item}{$oppo}->{res_x}    = $ev->x_root;
@@ -1351,8 +1354,17 @@ sub event_item_on_motion_notify {
 						$self->{_items}{$curr_item}{$oppo}->{resizing} = TRUE;
 						$self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], Gtk2::Gdk::Cursor->new($oppo), $ev->time );
 						$self->handle_embedded( 'mirror', $curr_item, $new_width, $new_height);
-						$new_width  = 0 if $new_width < 0;
-						$new_height = 0 if $new_height < 0;
+						
+						#adjust new values
+						if ($new_width < 0){
+							$new_x += $new_width;
+							$new_width = abs($new_width);
+						}
+						if ($new_height < 0){
+							$new_y += $new_height;
+							$new_height = abs($new_height);
+						}
+
 					}
 
 					$self->{_items}{$curr_item}->set(
