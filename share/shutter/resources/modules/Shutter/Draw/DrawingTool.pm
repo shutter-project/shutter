@@ -1222,6 +1222,8 @@ sub event_item_on_motion_notify {
 
 				#fancy resizing using our little resize boxes
 				if ( $item == $self->{_items}{$curr_item}{$_} ) {
+					
+					$cursor = $_;
 
 					my $new_x      = 0;
 					my $new_y      = 0;
@@ -1229,8 +1231,6 @@ sub event_item_on_motion_notify {
 					my $new_height = 0;
 
 					if ( $_ eq 'top-left-corner' ) {
-						
-						$cursor = $_;
 						
 						if($ev->state >= 'control-mask'){
 							$new_x = $self->{_items}{$curr_item}->get('x') + ($ev->y_root - $item->{res_y}) * $ratio;
@@ -1246,8 +1246,6 @@ sub event_item_on_motion_notify {
 
 					} elsif ( $_ eq 'top-side' ) {
 
-						$cursor = $_;
-
 						$new_x = $self->{_items}{$curr_item}->get('x');
 						$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y_root - $item->{res_y};
 
@@ -1255,8 +1253,6 @@ sub event_item_on_motion_notify {
 						$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
 					
 					} elsif ( $_ eq 'top-right-corner' ) {
-
-							$cursor = $_;
 
 							$new_x = $self->{_items}{$curr_item}->get('x');
 							$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y_root - $item->{res_y};
@@ -1271,8 +1267,6 @@ sub event_item_on_motion_notify {
 
 					} elsif ( $_ eq 'left-side' ) {
 
-						$cursor = $_;
-
 						$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x_root - $item->{res_x};
 						$new_y = $self->{_items}{$curr_item}->get('y');
 
@@ -1280,8 +1274,6 @@ sub event_item_on_motion_notify {
 						$new_height = $self->{_items}{$curr_item}->get('height');
 
 					} elsif ( $_ eq 'right-side' ) {
-
-						$cursor = $_;
 		
 						$new_x = $self->{_items}{$curr_item}->get('x');
 						$new_y = $self->{_items}{$curr_item}->get('y');
@@ -1290,8 +1282,6 @@ sub event_item_on_motion_notify {
 						$new_height = $self->{_items}{$curr_item}->get('height');
 
 					} elsif ( $_ eq 'bottom-left-corner' ) {
-
-						$cursor = $_;
 
 						if($ev->state >= 'control-mask'){
 							$new_x = $self->{_items}{$curr_item}->get('x') - $ev->y_root + $item->{res_y};
@@ -1309,8 +1299,6 @@ sub event_item_on_motion_notify {
 
 					} elsif ( $_ eq 'bottom-side' ) {
 
-						$cursor = $_;
-
 						$new_x = $self->{_items}{$curr_item}->get('x');
 						$new_y = $self->{_items}{$curr_item}->get('y');
 
@@ -1318,8 +1306,6 @@ sub event_item_on_motion_notify {
 						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y_root - $item->{res_y} );
 
 					} elsif ( $_ eq 'bottom-right-corner' ) {
-
-						$cursor = $_;
 
 						$new_x = $self->{_items}{$curr_item}->get('x');
 						$new_y = $self->{_items}{$curr_item}->get('y');
@@ -1355,7 +1341,7 @@ sub event_item_on_motion_notify {
 						$self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], Gtk2::Gdk::Cursor->new($oppo), $ev->time );
 						$self->handle_embedded( 'mirror', $curr_item, $new_width, $new_height);
 						
-						#adjust new values
+						#adjust new values						
 						if ($new_width < 0){
 							$new_x += $new_width;
 							$new_width = abs($new_width);
@@ -1430,6 +1416,7 @@ sub get_opposite_rect {
 
 			if ( $_ eq 'top-left-corner' ) {
 			
+				return 'bottom-right-corner' if $width < 0 && $height < 0;
 				return 'top-right-corner' if $width < 0;	
 				return 'bottom-left-corner' if $height < 0;
 				
@@ -1439,6 +1426,7 @@ sub get_opposite_rect {
 	
 			} elsif ( $_ eq 'top-right-corner' ) {
 
+				return 'bottom-left-corner' if $width < 0 && $height < 0;
 				return 'top-left-corner' if $width < 0;	
 				return 'bottom-right-corner' if $height < 0;
 
@@ -1452,6 +1440,7 @@ sub get_opposite_rect {
 
 			} elsif ( $_ eq 'bottom-left-corner' ) {
 
+				return 'top-right-corner' if $width < 0 && $height < 0;
 				return 'bottom-right-corner' if $width < 0;	
 				return 'top-left-corner' if $height < 0;
 
@@ -1460,7 +1449,8 @@ sub get_opposite_rect {
 				return 'top-side';
 
 			} elsif ( $_ eq 'bottom-right-corner' ) {
-				
+
+				return 'top-left-corner' if $width < 0 && $height < 0;				
 				return 'bottom-left-corner' if $width < 0;	
 				return 'top-right-corner' if $height < 0;
 
