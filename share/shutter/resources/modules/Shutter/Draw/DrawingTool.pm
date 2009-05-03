@@ -2084,6 +2084,9 @@ sub event_item_on_button_press {
 
 		if ( exists $self->{_items}{$key} ) {		
 			if( $ev->type eq '2button-press' ) {
+
+				#some items do not have properties, e.g. images or censor
+				return FALSE if $item->isa('Goo::Canvas::Image') || !exists($self->{_items}{$key}{stroke_color});
 				
 				$self->show_item_properties($item, $parent, $key);
 				
@@ -2659,6 +2662,21 @@ sub apply_properties {
 				'text' => "<span font_desc=' " . $font_descr->to_string . " ' >" . $digit . "</span>",
 				'fill-pattern' => $fill_pattern,
 			);	
+
+			#adjust parent rectangle
+			my $tb = $self->{_items}{$key}{text}->get_bounds;
+	
+			#keep ratio = 1
+			my $qs = abs($tb->x1 - $tb->x2);
+			$qs = abs($tb->y1 - $tb->y2) if abs($tb->y1 - $tb->y2) > abs($tb->x1 - $tb->x2); 
+			
+			#add line width of parent ellipse
+			$qs += $self->{_items}{$key}{ellipse}->get('line-width')+5;
+			
+			$parent->set( 		
+				'width' 	=> $qs,
+				'height' 	=> $qs,
+			);	
 			
 			#save digit in hash as well (only item properties dialog)
 			if(defined $number_spin){
@@ -2760,15 +2778,9 @@ sub apply_properties {
 			'fill-pattern' => $fill_pattern
 		);
 
-		#adjust rectangle to display text properly
-		#~ my $no_lines  = $textview->get_buffer->get_line_count;
-		#~ my $font_size = $font_descr->get_size / 1024;
-#~ 
-		#~ if ( ( $no_lines * $font_size ) + $parent->get('height') > ( $self->{_drawing_pixbuf}->get_height - 50 ) ) {
-			#~ $parent->set( 'height' => ( $self->{_drawing_pixbuf}->get_height - $parent->get('height') ) );
-		#~ } else {
-			#~ $parent->set( 'height' => $no_lines * $font_size + $no_lines * 20 );
-		#~ }
+		#adjust parent rectangle
+		my $tb = $item->get_bounds;
+		$parent->set( 'height' => abs($tb->y1 - $tb->y2));
 
 		$self->handle_rects( 'update', $parent );
 		$self->handle_embedded( 'update', $parent );
@@ -3346,6 +3358,40 @@ sub event_item_on_button_release {
 						'width' => $self->{_items}{$nitem}{orig_pixbuf}->get_width,
 						'height' => $self->{_items}{$nitem}{orig_pixbuf}->get_height,
 					);
+
+				#texts
+				}elsif (exists $self->{_items}{$nitem}{text}){
+
+					#adjust parent rectangle
+					my $tb = $self->{_items}{$nitem}{text}->get_bounds;
+					
+					#numbered ellipse?
+					if(exists $self->{_items}{$nitem}{ellipse}){			
+						
+						#keep ratio = 1
+						my $qs = abs($tb->x1 - $tb->x2);
+						$qs = abs($tb->y1 - $tb->y2) if abs($tb->y1 - $tb->y2) > abs($tb->x1 - $tb->x2); 
+
+						#add line width of parent ellipse
+						$qs += $self->{_items}{$nitem}{ellipse}->get('line-width')+5;
+						
+						$nitem->set( 
+							'x'  		=> $ev->x_root - 50, 
+							'y' 		=> $ev->y_root - 50, 			
+							'width' 	=> $qs,
+							'height' 	=> $qs,
+						);
+					
+					}else{
+					
+						$nitem->set( 
+							'x'  		=> $ev->x_root - 50, 
+							'y' 		=> $ev->y_root - 50, 			
+							'width' 	=> abs($tb->x1 - $tb->x2),
+							'height' 	=> abs($tb->y1 - $tb->y2),
+						);						
+					
+					}
 			
 				#all other objects
 				}else{
@@ -4663,8 +4709,28 @@ sub create_ellipse {
 	#create rectangles
 	$self->handle_rects( 'create', $item );
 	if ($copy_item){	
+
+		#adjust parent rectangle		
+		if($numbered){
+
+			my $tb = $self->{_items}{$item}{text}->get_bounds;
+							
+			#keep ratio = 1
+			my $qs = abs($tb->x1 - $tb->x2);
+			$qs = abs($tb->y1 - $tb->y2) if abs($tb->y1 - $tb->y2) > abs($tb->x1 - $tb->x2); 
+
+			#add line width of parent ellipse
+			$qs += $self->{_items}{$item}{ellipse}->get('line-width')+5;
+			
+			$self->{_items}{$item}->set( 		
+				'width' 	=> $qs,
+				'height' 	=> $qs,
+			);
+		}
+
 		$self->handle_embedded('update', $item); 
 		$self->handle_rects('hide', $item); 	
+
 	}
 
 	if($numbered){

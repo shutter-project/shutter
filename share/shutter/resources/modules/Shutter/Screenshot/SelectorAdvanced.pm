@@ -53,8 +53,6 @@ sub new {
 	$self->{_view} = $$v;
 	$self->{_selector} = $$s;
 	
-	
-
 	bless $self, $class;
 	return $self;
 }

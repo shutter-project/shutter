@@ -3,6 +3,7 @@ shutter (0.80~ppa1) jaunty; urgency=low
   * New features
     -- Added arrow shape to Drawing Tool
     -- Added highlighter/marker to Drawing Tool
+    -- Added numbered tags to Drawing Tool
     -- Resize the canvas
     -- New watermark plugin
   * Fixed bugs / minor improvements
@@ -37,6 +38,8 @@ shutter (0.80~ppa1) jaunty; urgency=low
        [object property changes don't take immediate effect]
     -- LP: #311578
        [resize canvas]
+    -- LP: #312405
+       [added numbered tags]
     -- LP: #318452
        [save and restore last used tool]
     -- LP: #338809
@@ -50,7 +53,7 @@ shutter (0.80~ppa1) jaunty; urgency=low
        [new watermark plugin]
   * updated translations
 
- -- Mario Kemper <mario.kemper@googlemail.com>  Sun, 26 Apr 2009 23:24:28 +0200
+ -- Mario Kemper <mario.kemper@googlemail.com>  Mon, 04 May 2009 00:08:06 +0200
 
 shutter (0.70.2~ppa4) jaunty; urgency=low
 
