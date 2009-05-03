@@ -72,12 +72,26 @@ $plug->signal_connect( destroy => sub { Gtk2->main_quit } );
 my $width_preview  = 0;
 my $height_preview = 0;
 
-#configure buttons and other needed controls
-my $caption_frame = Gtk2::Frame->new( $d->get( "Caption:" ) );
+#tooltips
+my $tooltips = Gtk2::Tooltips->new;
 
+#configure buttons and other needed controls
 my $caption_label = Gtk2::Label->new( $d->get( "Text:" ) );
 my $caption_entry = Gtk2::Entry->new();
 $caption_entry->set_text( "© %Y $ENV{ 'USER' }" );
+
+$tooltips->set_tip(
+	$caption_label,
+	$d->get(
+		"There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time"
+	)
+);
+$tooltips->set_tip(
+	$caption_entry,
+	$d->get(
+		"There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time"
+	)
+);
 
 my $pointsize_label = Gtk2::Label->new( $d->get( "Font size:" ) );
 my $pointsize_sbutton = Gtk2::SpinButton->new_with_range( 1, 200, 1 );
@@ -114,7 +128,6 @@ $refresh_btn->signal_connect( 'clicked', \&fct_imagemagick_watermark,
 my $preview =
 	Gtk2::Image->new_from_pixbuf(
 	   Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $filename, 300, 300, TRUE ) );
-
 
 my $save_btn = Gtk2::Button->new_from_stock( 'gtk-save' );
 $save_btn->signal_connect( 'clicked', \&fct_imagemagick_watermark, 'save' );

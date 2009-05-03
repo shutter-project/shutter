@@ -78,12 +78,26 @@ $plug->signal_connect( destroy => sub { Gtk2->main_quit } );
 my $width_preview  = 0;
 my $height_preview = 0;
 
-#configure buttons and other needed controls
-my $caption_frame = Gtk2::Frame->new( $d->get( "Caption:" ) );
+#tooltips
+my $tooltips = Gtk2::Tooltips->new;
 
+#configure buttons and other needed controls
 my $caption_label = Gtk2::Label->new( $d->get( "Text:" ) );
 my $caption_entry = Gtk2::Entry->new();
 $caption_entry->set_text( "%c - $filename" );
+
+$tooltips->set_tip(
+	$caption_label,
+	$d->get(
+		"There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time"
+	)
+);
+$tooltips->set_tip(
+	$caption_entry,
+	$d->get(
+		"There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time"
+	)
+);
 
 my $pointsize_label = Gtk2::Label->new( $d->get( "Font size:" ) );
 my $pointsize_sbutton = Gtk2::SpinButton->new_with_range( 1, 200, 1 );
@@ -106,6 +120,13 @@ my $angle_label = Gtk2::Label->new( $d->get( "Rotation:" ) );
 my $angle_sbutton = Gtk2::SpinButton->new_with_range( -90, 90, 1 );
 $angle_sbutton->set_value( -5 );
 
+my $stroke_color_label = Gtk2::Label->new( $d->get("Stroke color"). ":" );
+my $stroke_color = Gtk2::ColorButton->new();
+$stroke_color->set_color( Gtk2::Gdk::Color->parse('black') );
+$stroke_color->set_alpha( int( 1.0 * 65535 ) );
+$stroke_color->set_use_alpha(TRUE);
+$stroke_color->set_title( $d->get("Choose stroke color") );
+
 my $refresh_btn = Gtk2::Button->new_from_stock( 'gtk-refresh' );
 $refresh_btn->signal_connect( 'clicked', \&fct_imagemagick_polaroid,
 							  'refresh' );
@@ -127,6 +148,7 @@ my $hbox1      = Gtk2::HBox->new( FALSE, 10 );
 my $hbox2      = Gtk2::HBox->new( FALSE, 10 );
 my $hbox3      = Gtk2::HBox->new( FALSE, 10 );
 my $hbox4      = Gtk2::HBox->new( FALSE, 10 );
+my $hbox5      = Gtk2::HBox->new( FALSE, 10 );
 
 my $hbox_row1 = Gtk2::HBox->new( TRUE, 10 );
 my $hbox_row2 = Gtk2::HBox->new( TRUE, 10 );
@@ -149,11 +171,15 @@ if ( $use_caption ) {
 	$hbox4->pack_start( $angle_label,   FALSE, TRUE, 5 );
 	$hbox4->pack_start( $angle_sbutton, TRUE,  TRUE, 5 );
 
+	$hbox5->pack_start( $stroke_color_label, FALSE, TRUE, 5 );
+	$hbox5->pack_start( $stroke_color, FALSE, TRUE, 5 );
+
 	$hbox_row1->pack_start_defaults( $hbox1 );
 	$hbox_row1->pack_start_defaults( $hbox2 );
 
 	$hbox_row2->pack_start_defaults( $hbox3 );
 	$hbox_row2->pack_start_defaults( $hbox4 );
+	$hbox_row2->pack_start_defaults( $hbox5 );
 
 	$vbox_param->pack_start( $hbox_row1, TRUE, TRUE, 5 );
 
@@ -226,11 +252,15 @@ sub apply_effect {
 		utf8::decode $text;
 		$text = strftime $text, localtime;
 		$text = quotemeta $text;
+
+		my $color = $stroke_color->get_color;
 			
 		$convert_output =
 			system(   "convert -caption "
 					. $text
-					. " '$filename' -pointsize "
+					. " -fill '"
+					. sprintf( "#%04x%04x%04x%04x", $color->red, $color->green, $color->blue, $stroke_color->get_alpha )
+					. "' '$filename' -pointsize "
 					. $pointsize_sbutton->get_value
 					. " -gravity "
 					. $gravity_combo->get_active_text
