@@ -207,13 +207,6 @@ sub show {
 	#~ $self->{_uimanager}->get_widget("/MenuBar/Edit/Undo")->set_sensitive(FALSE);
 	#~ $self->{_uimanager}->get_widget("/MenuBar/Edit/Redo")->set_sensitive(FALSE);
 
-	#do show these actions because the user would be confused
-	#to see multiple shortcuts to handle zooming
-	#controlequal is used for english keyboard layouts for example
-	$self->{_uimanager}->get_action("/MenuBar/View/ControlEqual")->set_visible(FALSE);
-	$self->{_uimanager}->get_action("/MenuBar/View/ControlKpAdd")->set_visible(FALSE);
-	$self->{_uimanager}->get_action("/MenuBar/View/ControlKpSub")->set_visible(FALSE);
-
 	#create a table for placing the ruler and scrolle window
 	my $table = new Gtk2::Table( 3, 2, FALSE );
 
@@ -282,6 +275,13 @@ sub show {
 	#remember the last mode as well
 	$self->{_last_mode}            	  = undef;
 	$self->{_last_mode_descr}         = undef;	
+
+	#do show these actions because the user would be confused
+	#to see multiple shortcuts to handle zooming
+	#controlequal is used for english keyboard layouts for example
+	$self->{_uimanager}->get_action("/MenuBar/View/ControlEqual")->set_visible(FALSE);
+	$self->{_uimanager}->get_action("/MenuBar/View/ControlKpAdd")->set_visible(FALSE);
+	$self->{_uimanager}->get_action("/MenuBar/View/ControlKpSub")->set_visible(FALSE);
 
 	Gtk2->main;
 
