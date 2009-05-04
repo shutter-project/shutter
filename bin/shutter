@@ -68,6 +68,9 @@ use HTTP::Status;
 #load and save settings
 use XML::Simple;
 
+#DBus message system
+use Net::DBus qw/dbus_string/;
+
 #timing issues
 use Time::HiRes qw/usleep/;
 
@@ -82,7 +85,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.432";
+use constant REV                	=> "Rev.433";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -837,7 +840,6 @@ $tooltips->set_tip(
 	)
 );
 my $capture_sel_key = Gtk2::Entry->new;
-
 if ( defined $settings_xml->{'general'}->{'capture_sel_key'} ) {
 	$capture_sel_key->set_text( $settings_xml->{'general'}->{'capture_sel_key'} );
 } else {
@@ -885,15 +887,8 @@ $keybinding_mode_box->pack_start( $combobox_keybinding_mode, TRUE,  TRUE,  0 );
 
 #keybindings
 my $keybinding_active = Gtk2::CheckButton->new;
-$keybinding_active->signal_connect(
-	'toggled' => \&evt_behavior_handle,
-	'keybinding_toggled'
-);
 my $keybinding_sel_active = Gtk2::CheckButton->new;
-$keybinding_sel_active->signal_connect(
-	'toggled' => \&evt_behavior_handle,
-	'keybinding_sel_toggled'
-);
+
 $key_box->pack_start( $capture_label, FALSE, TRUE, 12 );
 $key_box2->pack_start( $keybinding_active, FALSE, FALSE, 0 );
 $key_box2->pack_start( $capture_key,       TRUE,  TRUE,  0 );
@@ -903,6 +898,25 @@ $key_sel_box2->pack_start( $keybinding_sel_active, FALSE, FALSE, 0 );
 $key_sel_box2->pack_start( $capture_sel_key,       TRUE,  TRUE,  0 );
 $key_sel_box->pack_start( $key_sel_box2, TRUE, TRUE, 0 );
 $keybinding_active->set_active(TRUE);
+
+#add signal handlers BEFORE settings are restored
+$capture_key->signal_connect(
+	'focus-out-event' => sub { &evt_behavior_handle($capture_key, 'keybinding_toggled'); return FALSE; }
+);
+
+$capture_sel_key->signal_connect(
+	'focus-out-event' => sub { &evt_behavior_handle($capture_sel_key, 'keybinding_sel_toggled'); return FALSE; }
+);
+
+$keybinding_active->signal_connect(
+	'toggled' => \&evt_behavior_handle,
+	'keybinding_toggled'
+);
+
+$keybinding_sel_active->signal_connect(
+	'toggled' => \&evt_behavior_handle,
+	'keybinding_sel_toggled'
+);
 
 if ( defined $settings_xml->{'general'}->{'keybinding'} ) {
 	$keybinding_active->set_active( $settings_xml->{'general'}->{'keybinding'} );
@@ -915,6 +929,7 @@ if ( defined $settings_xml->{'general'}->{'keybinding_sel'} ) {
 } else {
 	$keybinding_sel_active->set_active(FALSE);
 }
+
 my $hide_active           = Gtk2::CheckButton->new_with_label( $shutter_common->get_gettext->get("Autohide Shutter Window when taking a screenshot") );
 my $autocopy_active       = Gtk2::CheckButton->new_with_label( $shutter_common->get_gettext->get("Automatically copy screenshot to clipboard") );
 my $close_at_close_active = Gtk2::CheckButton->new_with_label( $shutter_common->get_gettext->get("Minimize to tray when closing main window") );
@@ -924,49 +939,60 @@ $behavior_hbox2->pack_start( $autocopy_active,       FALSE, TRUE, 12 );
 $behavior_hbox3->pack_start( $close_at_close_active, FALSE, TRUE, 12 );
 $behavior_hbox4->pack_start( $save_at_close_active,  FALSE, TRUE, 12 );
 
-$hide_active->signal_connect(
-	'toggled' => \&evt_behavior_handle,
-	'hide_toggled'
-);
-
 if ( defined $settings_xml->{'general'}->{'autohide'} ) {
 	$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
 } else {
 	$hide_active->set_active(TRUE);
 }
+
+#add signal handlers after setting the saved / default values
+#~ $hide_active->signal_connect(
+	#~ 'toggled' => \&evt_behavior_handle,
+	#~ 'hide_toggled'
+#~ );
+
 $tooltips->set_tip( $hide_active, $shutter_common->get_gettext->get("Autohide Shutter Window when taking a screenshot") );
-$autocopy_active->signal_connect(
-	'toggled' => \&evt_behavior_handle,
-	'autocopy_toggled'
-);
 
 if ( defined $settings_xml->{'general'}->{'autocopy'} ) {
 	$autocopy_active->set_active( $settings_xml->{'general'}->{'autocopy'} );
 } else {
 	$autocopy_active->set_active(TRUE);
 }
+
+#add signal handlers after setting the saved / default values
+#~ $autocopy_active->signal_connect(
+	#~ 'toggled' => \&evt_behavior_handle,
+	#~ 'autocopy_toggled'
+#~ );
+
 $tooltips->set_tip( $autocopy_active, $shutter_common->get_gettext->get("Automatically copy screenshot to clipboard") );
-$close_at_close_active->signal_connect(
-	'toggled' => \&evt_behavior_handle,
-	'close_at_close_toggled'
-);
 
 if ( defined $settings_xml->{'general'}->{'close_at_close'} ) {
 	$close_at_close_active->set_active( $settings_xml->{'general'}->{'close_at_close'} );
 } else {
 	$close_at_close_active->set_active(TRUE);
 }
+
+#add signal handlers after setting the saved / default values
+#~ $close_at_close_active->signal_connect(
+	#~ 'toggled' => \&evt_behavior_handle,
+	#~ 'close_at_close_toggled'
+#~ );
+
 $tooltips->set_tip( $close_at_close_active, $shutter_common->get_gettext->get("Minimize to tray when closing main window") );
-$save_at_close_active->signal_connect(
-	'toggled' => \&evt_behavior_handle,
-	'save_at_close_toggled'
-);
 
 if ( defined $settings_xml->{'general'}->{'save_at_close'} ) {
 	$save_at_close_active->set_active( $settings_xml->{'general'}->{'save_at_close'} );
 } else {
 	$save_at_close_active->set_active(TRUE);
 }
+
+#add signal handlers after setting the saved / default values
+#~ $save_at_close_active->signal_connect(
+	#~ 'toggled' => \&evt_behavior_handle,
+	#~ 'save_at_close_toggled'
+#~ );
+
 $tooltips->set_tip( $save_at_close_active, $shutter_common->get_gettext->get("Save settings automatically when exiting Shutter") );
 
 #end - behavior
@@ -1538,7 +1564,6 @@ sub evt_take_screenshot {
 	
 	#A short timeout to give the server a chance to
 	#redraw the area that was obscured by our dialog.
-
 	Glib::Timeout->add (200, sub{
 		&fct_take_screenshot($widget, $data, $folder_from_config);
 		return FALSE;	
@@ -1558,6 +1583,7 @@ sub evt_behavior_handle {
 		} else {
 			$capture_key->set_sensitive(FALSE);
 		}
+		
 	}
 
 	#checkbox for "keybinding_sel" -> entry active/inactive
@@ -1570,8 +1596,8 @@ sub evt_behavior_handle {
 			$combobox_keybinding_mode->set_sensitive(FALSE);
 		}
 	}
-
-	&fct_save_bindings();
+	
+	&fct_save_bindings($capture_key->get_text, $capture_sel_key->get_text);
 
 	return TRUE;
 }
@@ -2658,57 +2684,124 @@ sub fct_save_settings {
 }
 
 sub fct_save_bindings {
+	my $key 	= shift;
+	my $skey 	= shift;
+	
+	#COMPIZ VIA DBus	
+	my $bus		= undef;
+	my $compiz 	= undef;
+	my $cs 		= undef;
+	my $cs_k  	= undef;
+	my $cws     = undef;
+	my $cws_k  	= undef;
+	
+	eval{
+		$bus = Net::DBus->find;
+		
+		#Get a handle to the compiz service
+		$compiz = $bus->get_service("org.freedesktop.compiz");
 
+		# Get the relevant objects object
+		$cs = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/command_screenshot",
+									 "org.freedesktop.compiz");
+		
+		$cs_k = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/run_command_screenshot_key",
+									 "org.freedesktop.compiz");
+
+		$cws = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/command_window_screenshot",
+									 "org.freedesktop.compiz");
+		
+		$cws_k = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/run_command_window_screenshot_key",
+									 "org.freedesktop.compiz");
+	};
+	if($@){
+		warn "WARNING: DBus connection to org.freedesktop.compiz failed --> setting keyboard shortcuts may not work when using compiz\n\n";
+		warn $@ . "\n\n";
+	}
+
+	#GCONF
 	my $client        = Gnome2::GConf::Client->get_default;
 	my $shortcut_full = "/apps/metacity/global_keybindings/run_command_screenshot";
 	my $shortcut_sel  = "/apps/metacity/global_keybindings/run_command_window_screenshot";
 	my $command_full  = "/apps/metacity/keybinding_commands/command_screenshot";
 	my $command_sel   = "/apps/metacity/keybinding_commands/command_window_screenshot";
 
-	#set gconf values
-	if ( $keybinding_active->get_active() ) {
-		$client->set( $command_full, { type => 'string', value => "$shutter_path --full", } );
-		$client->set(
-			$shortcut_full,
-			{   type  => 'string',
-				value => $capture_key->get_text(),
+	eval{
+		#set values
+		if ( $keybinding_active->get_active() ) {
+			
+			$client->set( $command_full, { type => 'string', value => "$shutter_path --full" } );
+			$client->set( $shortcut_full, { type  => 'string', value => $key } );
+			
+			#compiz if available
+			if(defined $cs && defined $cs_k){
+				$cs->set(dbus_string "$shutter_path --full");
+				
+				#currently not needed because keys are copied from gconf
+				#~ $cs_k->set(dbus_string $key);
 			}
-		);
-	} else {
-		$client->set( $command_full,  { type => 'string', value => 'gnome-screenshot', } );
-		$client->set( $shortcut_full, { type => 'string', value => 'Print', } );
-	}
-	if ( $keybinding_sel_active->get_active() ) {
-		my $mode = undef;
-		if ( $combobox_keybinding_mode->get_active() == 0 ) {
-			$mode = "--selection";
-		} elsif ( $combobox_keybinding_mode->get_active() == 1 ) {
-			$mode = "--window";
-		} elsif ( $combobox_keybinding_mode->get_active() == 2 ) {
-			$mode = "--section";
+			
 		} else {
-			$mode = "--window";
+			
+			$client->set( $command_full,  { type => 'string', value => 'gnome-screenshot', } );
+			$client->set( $shortcut_full, { type => 'string', value => 'Print', } );
+
+			#compiz if available
+			if(defined $cs && defined $cs_k){
+				$cs->set(dbus_string 'gnome-screenshot');
+				
+				#currently not needed because keys are copied from gconf
+				#~ $cs_k->set(dbus_string 'Print');
+			}	
+
 		}
-		$client->set(
-			$command_sel,
-			{   type  => 'string',
-				value => "$shutter_path $mode",
+		
+		if ( $keybinding_sel_active->get_active() ) {
+			
+			my $mode = undef;
+			if ( $combobox_keybinding_mode->get_active() == 0 ) {
+				$mode = "--selection";
+			} elsif ( $combobox_keybinding_mode->get_active() == 1 ) {
+				$mode = "--window";
+			} elsif ( $combobox_keybinding_mode->get_active() == 2 ) {
+				$mode = "--section";
+			} else {
+				$mode = "--window";
 			}
-		);
-		$client->set(
-			$shortcut_sel,
-			{   type  => 'string',
-				value => $capture_sel_key->get_text(),
+			
+			$client->set( $command_sel, { type  => 'string', value => "$shutter_path $mode" } );
+			$client->set( $shortcut_sel, { type  => 'string', value => $skey } );
+			
+			#compiz if available
+			if(defined $cws && defined $cws_k){
+				$cws->set(dbus_string "$shutter_path $mode");
+				
+				#currently not needed because keys are copied from gconf
+				#~ $cws_k->set(dbus_string $skey);
 			}
-		);
-	} else {
-		$client->set(
-			$command_sel,
-			{   type  => 'string',
-				value => 'gnome-screenshot --window',
-			}
-		);
-		$client->set( $shortcut_sel, { type => 'string', value => '<Alt>Print', } );
+
+		} else {
+			
+			$client->set( $command_sel, { type  => 'string', value => 'gnome-screenshot --window' } );
+			$client->set( $shortcut_sel, { type => 'string', value => '<Alt>Print' } );
+			
+			#compiz if available
+			if(defined $cws && defined $cws_k){
+				$cws->set(dbus_string 'gnome-screenshot --window');
+
+				#currently not needed because keys are copied from gconf
+				#~ $cws_k->set(dbus_string '<Alt>Print');
+			}	
+			
+		}
+
+	};
+	if($@){
+		#show error message
+		#~ my $response = $shutter_dialog->dlg_error_message( 
+			#~ $@,
+			#~ $d->get(  "There was an error configuring the keybindings." )
+		#~ );				
 	}
 
 	return TRUE;
