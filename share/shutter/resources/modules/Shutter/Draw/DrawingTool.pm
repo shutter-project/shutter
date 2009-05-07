@@ -521,6 +521,16 @@ sub setup_right_vbox_c {
 	my $xw_label = Gtk2::Label->new( $d->get("X") . ":" );
 	$self->{_x_spin_w} = Gtk2::SpinButton->new_with_range( 0, $pixbuf->get_width, 1 );
 	$self->{_x_spin_w}->set_value( 0 );
+	$self->{_x_spin_w_handler} = $self->{_x_spin_w}->signal_connect(
+		'value-changed' => sub {
+			$self->{_selector}->set_selection(
+				Gtk2::Gdk::Rectangle->new(
+				$self->{_x_spin_w}->get_value, $self->{_y_spin_w}->get_value,
+				$self->{_width_spin_w}->get_value, $self->{_height_spin_w}->get_value
+				)
+			);
+		}
+	);
 
 	my $xw_hbox = Gtk2::HBox->new( FALSE, 5 );
 	$xw_hbox->pack_start( $xw_label, FALSE, FALSE, 5 );
@@ -530,6 +540,16 @@ sub setup_right_vbox_c {
 	my $yw_label = Gtk2::Label->new( $d->get("Y") . ":" );
 	$self->{_y_spin_w} = Gtk2::SpinButton->new_with_range( 0, $pixbuf->get_height, 1 );
 	$self->{_y_spin_w}->set_value( 0 );
+	$self->{_y_spin_w_handler} = $self->{_y_spin_w}->signal_connect(
+		'value-changed' => sub {
+			$self->{_selector}->set_selection(
+				Gtk2::Gdk::Rectangle->new(
+				$self->{_x_spin_w}->get_value, $self->{_y_spin_w}->get_value,
+				$self->{_width_spin_w}->get_value, $self->{_height_spin_w}->get_value
+				)
+			);
+		}
+	);
 
 	my $yw_hbox = Gtk2::HBox->new( FALSE, 5 );
 	$yw_hbox->pack_start( $yw_label, FALSE, FALSE, 5 );
@@ -539,6 +559,16 @@ sub setup_right_vbox_c {
 	my $widthw_label = Gtk2::Label->new( $d->get("Width") . ":" );
 	$self->{_width_spin_w} = Gtk2::SpinButton->new_with_range( 0, $pixbuf->get_width, 1 );
 	$self->{_width_spin_w}->set_value( 0 );
+	$self->{_width_spin_w_handler} = $self->{_width_spin_w}->signal_connect(
+		'value-changed' => sub {
+			$self->{_selector}->set_selection(
+				Gtk2::Gdk::Rectangle->new(
+				$self->{_x_spin_w}->get_value, $self->{_y_spin_w}->get_value,
+				$self->{_width_spin_w}->get_value, $self->{_height_spin_w}->get_value
+				)
+			);
+		}
+	);
 
 	my $ww_hbox = Gtk2::HBox->new( FALSE, 5 );
 	$ww_hbox->pack_start( $widthw_label, FALSE, FALSE, 5 );
@@ -548,6 +578,16 @@ sub setup_right_vbox_c {
 	my $heightw_label = Gtk2::Label->new( $d->get("Height") . ":" );
 	$self->{_height_spin_w} = Gtk2::SpinButton->new_with_range( 0, $pixbuf->get_height, 1 );
 	$self->{_height_spin_w}->set_value( 0 );
+	$self->{_height_spin_w_handler} = $self->{_height_spin_w}->signal_connect(
+		'value-changed' => sub {
+			$self->{_selector}->set_selection(
+				Gtk2::Gdk::Rectangle->new(
+				$self->{_x_spin_w}->get_value, $self->{_y_spin_w}->get_value,
+				$self->{_width_spin_w}->get_value, $self->{_height_spin_w}->get_value
+				)
+			);
+		}
+	);
 
 	my $hw_hbox = Gtk2::HBox->new( FALSE, 5 );
 	$hw_hbox->pack_start( $heightw_label, FALSE, FALSE, 5 );
@@ -556,22 +596,7 @@ sub setup_right_vbox_c {
 	#the above values are changed when the selection is changed
 	$self->{_selector_handler} = $self->{_selector}->signal_connect(
 		'selection-changed' => sub {
-			my $s = $self->{_selector}->get_selection;
-			
-			if ($s) {
-				$self->{_x_spin_w}->set_value( $s->x );
-				$self->{_x_spin_w}->set_range( 0, $pixbuf->get_width - $s->width );
-				
-				$self->{_y_spin_w}->set_value( $s->y );
-				$self->{_y_spin_w}->set_range( 0, $pixbuf->get_height - $s->height );
-				
-				$self->{_width_spin_w}->set_value( $s->width );
-				$self->{_width_spin_w}->set_value( $s->width );
-				
-				$self->{_height_spin_w}->set_value( $s->height );				
-				$self->{_height_spin_w}->set_value( $s->height );				
-			}
-			
+			$self->adjust_crop_values($pixbuf);
 		}
 	);
 	
@@ -671,6 +696,43 @@ sub setup_right_vbox_c {
 
 	return $crop_frame;
 }	
+
+sub adjust_crop_values{
+	my $self 	= shift;
+	my $pixbuf 	= shift;
+
+	#block 'value-change' handlers for widgets
+	#so we do not apply the changes twice
+	$self->{_x_spin_w}->signal_handler_block ($self->{_x_spin_w_handler});
+	$self->{_y_spin_w}->signal_handler_block ($self->{_y_spin_w_handler});
+	$self->{_width_spin_w}->signal_handler_block ($self->{_width_spin_w_handler});
+	$self->{_height_spin_w}->signal_handler_block ($self->{_height_spin_w_handler});
+	
+	my $s = $self->{_selector}->get_selection;
+
+	if ($s) {
+		$self->{_x_spin_w}->set_value( $s->x );
+		$self->{_x_spin_w}->set_range( 0, $pixbuf->get_width - $s->width );
+		
+		$self->{_y_spin_w}->set_value( $s->y );
+		$self->{_y_spin_w}->set_range( 0, $pixbuf->get_height - $s->height );
+		
+		$self->{_width_spin_w}->set_value( $s->width );
+		$self->{_width_spin_w}->set_range( 0, $pixbuf->get_width - $s->x );
+		
+		$self->{_height_spin_w}->set_value( $s->height );				
+		$self->{_height_spin_w}->set_range( 0, $pixbuf->get_height - $s->y );			
+	}	
+
+	#unblock 'value-change' handlers for widgets
+	$self->{_x_spin_w}->signal_handler_unblock ($self->{_x_spin_w_handler});
+	$self->{_y_spin_w}->signal_handler_unblock ($self->{_y_spin_w_handler});
+	$self->{_width_spin_w}->signal_handler_unblock ($self->{_width_spin_w_handler});
+	$self->{_height_spin_w}->signal_handler_unblock ($self->{_height_spin_w_handler});
+	
+	return TRUE;
+
+}
 
 sub push_to_statusbar {
 	my $self = shift;
@@ -1046,6 +1108,8 @@ sub quit {
 		$warn_dialog->destroy;
 
 	}
+	
+	$self->{_selector}->signal_handler_disconnect ($self->{_selector_handler});
 	$self->{_drawing_window}->destroy if $self->{_drawing_window};
 	Gtk2->main_quit();
 
@@ -1650,8 +1714,8 @@ sub event_item_on_motion_notify {
 			my $parent = $self->get_parent_item($item);
 			$item = $parent if $parent;
 
-				#shape
-			if ( exists $self->{_items}{$item} ) {
+				#shape or canvas background (resizeable rectangle)
+			if ( exists $self->{_items}{$item} or $item == $self->{_canvas_bg_rect}) {
 				$self->push_to_statusbar( int( $ev->x_root ), int( $ev->y_root ) );
 			
 				#canvas resizing shape
@@ -1663,6 +1727,7 @@ sub event_item_on_motion_notify {
 			
 				#resizing shape
 			}else{
+								
 				$self->push_to_statusbar( int( $ev->x_root ), int( $ev->y_root ), 'resize' );					
 			}
 		}else{
@@ -2213,6 +2278,7 @@ sub event_item_on_button_press {
 		if ( $self->{_current_mode_descr} eq "clear" ) {
 
 			return TRUE if $item == $self->{_canvas_bg};
+			return TRUE if $item == $self->{_canvas_bg_rect};
 
 			#embedded item?
 			my $parent = $self->get_parent_item($item);
@@ -2235,6 +2301,8 @@ sub event_item_on_button_press {
 
 			if ( $item->isa('Goo::Canvas::Rect') ) {
 
+				return TRUE if $item == $self->{_canvas_bg_rect};
+			
 				#real shape
 				if ( exists $self->{_items}{$item} ) {
 					$item->{drag_x}   = $ev->x_root;
@@ -3382,6 +3450,7 @@ sub handle_bg_rects {
 		}
 
 		foreach ( keys %{ $self->{_canvas_bg_rect} } ) {
+			print $self->{_canvas_bg_rect}{$_}."\n";
 			$self->{_canvas_bg_rect}{$_}->set(
 				'visibility' => $visibilty,
 			);
