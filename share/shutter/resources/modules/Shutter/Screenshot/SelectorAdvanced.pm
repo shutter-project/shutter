@@ -40,7 +40,7 @@ use constant FALSE => 0;
 sub new {
 	my $class = shift;
 
-	#call constructor of super class (gscrot_common, include_cursor, delay)
+	#call constructor of super class (shutter_common, include_cursor, delay)
 	my $self = $class->SUPER::new( shift, shift, shift );
 
 	#FIXME

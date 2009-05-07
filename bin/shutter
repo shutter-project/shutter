@@ -85,7 +85,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.434";
+use constant REV                	=> "Rev.435";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -3496,7 +3496,7 @@ sub fct_draw {
 
 	#open drawing tool
 	foreach my $key (@draw_array){
-		my $drawing_tool = Shutter::Draw::DrawingTool->new($shutter_common);
+		my $drawing_tool = Shutter::Draw::DrawingTool->new($shutter_common, \$view, \$selector);
 		$drawing_tool->show( $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'}, \%session_screens );		
 	}
 

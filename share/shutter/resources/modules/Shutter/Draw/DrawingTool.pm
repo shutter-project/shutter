@@ -48,6 +48,17 @@ sub new {
 
 	my $self = { _shutter_common => shift };
 
+	#FIXME
+	#get them as params 
+	#because there is a leak when 
+	#we declare them each time
+	my $v = shift;
+	my $s= shift;
+	
+	#view and selector (cropping tool)
+	$self->{_view} = $$v;
+	$self->{_selector} = $$s;
+
 	#file
 	$self->{_filename}    = undef;
 	$self->{_filetype}    = undef;
@@ -121,7 +132,8 @@ sub show {
 
 	my $d = $self->{_shutter_common}->get_gettext;
 
-	#root window
+	#MAIN WINDOW
+	#-------------------------------------------------
 	$self->{_root} = Gtk2::Gdk->get_default_root_window;
 	( $self->{_root}->{x}, $self->{_root}->{y}, $self->{_root}->{w}, $self->{_root}->{h} ) = $self->{_root}->get_geometry;
 	( $self->{_root}->{x}, $self->{_root}->{y} ) = $self->{_root}->get_origin;
@@ -167,7 +179,8 @@ sub show {
 	
 	}
 	
-	#create canvas
+	#CANVAS
+	#-------------------------------------------------
 	$self->{_canvas} = Goo::Canvas->new();
 	my $gray = Gtk2::Gdk::Color->parse('gray');
 	$self->{_canvas}->set( 'background-color' => sprintf( "#%04x%04x%04x", $gray->red, $gray->green, $gray->blue ) );
@@ -191,36 +204,38 @@ sub show {
 
 	$self->handle_bg_rects( 'raise' );
 
-	#packing
-	$self->{_scrolled_window} = Gtk2::ScrolledWindow->new;
-	$self->{_scrolled_window}->set_policy( 'automatic', 'automatic' );
-	$self->{_scrolled_window}->add( $self->{_canvas} );
-
-	$self->{_hscroll_hid} = $self->{_scrolled_window}->get_hscrollbar->signal_connect('value-changed' => sub { $self->adjust_rulers} );
-	$self->{_vscroll_hid} = $self->{_scrolled_window}->get_vscrollbar->signal_connect('value-changed' => sub { $self->adjust_rulers} );
-	
-	my $drawing_vbox       = Gtk2::VBox->new( FALSE, 0 );
-	my $drawing_inner_vbox = Gtk2::VBox->new( FALSE, 0 );
-	my $drawing_hbox       = Gtk2::HBox->new( FALSE, 0 );
+	#PACKING
+	#-------------------------------------------------
+	$self->{_drawing_vbox}         = Gtk2::VBox->new( FALSE, 0 );
+	$self->{_drawing_inner_vbox}   = Gtk2::VBox->new( FALSE, 0 );
+	$self->{_drawing_inner_vbox_c} = Gtk2::VBox->new( FALSE, 0 );
+	$self->{_drawing_hbox}         = Gtk2::HBox->new( FALSE, 0 );
+	$self->{_drawing_hbox_c}         = Gtk2::HBox->new( FALSE, 0 );
 
 	#disable undo/redo actions at startup
 	#~ $self->{_uimanager}->get_widget("/MenuBar/Edit/Undo")->set_sensitive(FALSE);
 	#~ $self->{_uimanager}->get_widget("/MenuBar/Edit/Redo")->set_sensitive(FALSE);
 
-	#create a table for placing the ruler and scrolle window
-	my $table = new Gtk2::Table( 3, 2, FALSE );
-
-	$self->{_drawing_window}->add($drawing_vbox);
+	$self->{_drawing_window}->add($self->{_drawing_vbox});
 
 	my $menubar = $self->{_uimanager}->get_widget("/MenuBar");
-	$drawing_vbox->pack_start( $menubar, FALSE, FALSE, 0 );
+	$self->{_drawing_vbox}->pack_start( $menubar, FALSE, FALSE, 0 );
 
 	my $toolbar_drawing = $self->{_uimanager}->get_widget("/ToolBarDrawing");
 	$toolbar_drawing->set_orientation('vertical');
 	$toolbar_drawing->set_style('icons');
 	$toolbar_drawing->set_icon_size('menu');
 	$toolbar_drawing->set_show_arrow(FALSE);
-	$drawing_hbox->pack_start( $toolbar_drawing, FALSE, FALSE, 0 );
+	$self->{_drawing_hbox}->pack_start( $toolbar_drawing, FALSE, FALSE, 0 );
+
+	#DRAWING TOOL CONTAINER
+	#-------------------------------------------------
+	#scrolled window for the canvas
+	$self->{_scrolled_window} = Gtk2::ScrolledWindow->new;
+	$self->{_scrolled_window}->set_policy( 'automatic', 'automatic' );
+	$self->{_scrolled_window}->add( $self->{_canvas} );
+	$self->{_hscroll_hid} = $self->{_scrolled_window}->get_hscrollbar->signal_connect('value-changed' => sub { $self->adjust_rulers} );
+	$self->{_vscroll_hid} = $self->{_scrolled_window}->get_vscrollbar->signal_connect('value-changed' => sub { $self->adjust_rulers} );
 
 	#vruler
 	$self->{_vruler} = Gtk2::VRuler->new;
@@ -232,26 +247,48 @@ sub show {
 	$self->{_hruler}->set_metric('pixels');
 	$self->{_hruler}->set_range( 0, $self->{_drawing_pixbuf}->get_width, 0, $self->{_drawing_pixbuf}->get_width );
 
+	#create a table for placing the ruler and scrolle window
+	$self->{_table} = new Gtk2::Table( 3, 2, FALSE );
 	#attach scrolled window and rulers to the table
-	$table->attach( $self->{_scrolled_window}, 1, 2, 1, 2, [ 'expand', 'fill' ], [ 'expand', 'fill' ], 0, 0 );
+	$self->{_table}->attach( $self->{_scrolled_window}, 1, 2, 1, 2, [ 'expand', 'fill' ], [ 'expand', 'fill' ], 0, 0 );
+	$self->{_table}->attach( $self->{_hruler}, 1, 2, 0, 1, [ 'expand', 'shrink', 'fill' ], [], 0, 0 );
+	$self->{_table}->attach( $self->{_vruler}, 0, 1, 1, 2, [], [ 'fill', 'expand', 'shrink' ], 0, 0 );
 
-	$table->attach( $self->{_hruler}, 1, 2, 0, 1, [ 'expand', 'shrink', 'fill' ], [], 0, 0 );
-	$table->attach( $self->{_vruler}, 0, 1, 1, 2, [], [ 'fill', 'expand', 'shrink' ], 0, 0 );
+	$self->{_bhbox} = $self->setup_bottom_hbox;	
+	$self->{_drawing_inner_vbox}->pack_start( $self->{_table}, TRUE, TRUE,  0 );
+	$self->{_drawing_inner_vbox}->pack_start( $self->{_bhbox}, FALSE, TRUE, 0 );
+	
+	#CROPPING TOOL CONTAINER
+	#-------------------------------------------------
+	#scrolled window for the cropping tool
+	$self->{_scrolled_window_c} = Gtk2::ScrolledWindow->new;
+	$self->{_scrolled_window_c}->set_policy( 'automatic', 'automatic' );
+	$self->{_scrolled_window_c}->add( $self->{_view} );
+	
+	$self->{_rframe_c} = $self->setup_right_vbox_c;	#be careful => frame is returned
+	$self->{_drawing_hbox_c}->pack_start( $self->{_scrolled_window_c}, TRUE, TRUE, 0 );
+	$self->{_drawing_hbox_c}->pack_start( $self->{_rframe_c}, FALSE, FALSE, 3 );
 
-	$drawing_inner_vbox->pack_start( $table,                   TRUE,  TRUE, 0 );
-	$drawing_inner_vbox->pack_start( $self->setup_bottom_hbox, FALSE, TRUE, 0 );
-	$drawing_hbox->pack_start( $drawing_inner_vbox, TRUE, TRUE, 0 );
+	$self->{_drawing_inner_vbox_c}->pack_start( $self->{_drawing_hbox_c}, TRUE, TRUE, 0 );
 
-	my $toolbar = $self->{_uimanager}->get_widget("/ToolBar");
-	$drawing_vbox->pack_start( $self->{_uimanager}->get_widget("/ToolBar"), FALSE, FALSE, 0 );
 
-	$drawing_vbox->pack_start( $drawing_hbox, TRUE, TRUE, 0 );
+	#MAIN CONTAINER
+	#-------------------------------------------------	
+	#pack both containers to the main hbox
+	$self->{_drawing_hbox}->pack_start( $self->{_drawing_inner_vbox},   TRUE, TRUE,  0 );
+	$self->{_drawing_hbox}->pack_start( $self->{_drawing_inner_vbox_c},   TRUE, TRUE,  0 );
+	
+	$self->{_drawing_vbox}->pack_start( $self->{_uimanager}->get_widget("/ToolBar"), FALSE, FALSE, 0 );
+	$self->{_drawing_vbox}->pack_start( $self->{_drawing_hbox}, TRUE, TRUE, 0 );
 
 	$self->{_drawing_statusbar} = Gtk2::Statusbar->new;
-	$drawing_vbox->pack_start( $self->{_drawing_statusbar}, FALSE, FALSE, 0 );
+	$self->{_drawing_vbox}->pack_start( $self->{_drawing_statusbar}, FALSE, FALSE, 0 );
 
 	$self->{_drawing_window}->show_all();
 
+	
+	#STARTUP PROCEDURE
+	#-------------------------------------------------	
 	$self->{_drawing_window}->window->focus(time);
 
 	$self->adjust_rulers;
@@ -465,6 +502,176 @@ sub setup_bottom_hbox {
 	return $drawing_bottom_hbox;
 }
 
+sub setup_right_vbox_c {
+	my $self = shift;
+
+	#define own icons
+	my $dicons = $self->{_shutter_common}->get_root . "/share/shutter/resources/icons/drawing_tool";
+	my $d = $self->{_shutter_common}->get_gettext;
+
+	#Tooltips
+	my $tooltips = $self->{_shutter_common}->get_tooltips;
+
+	my $cropping_bottom_vbox = Gtk2::VBox->new( FALSE, 5 );
+
+	#get current pixbuf
+	my $pixbuf = $self->{_view}->get_pixbuf || $self->{_drawing_pixbuf};
+
+	#X
+	my $xw_label = Gtk2::Label->new( $d->get("X") . ":" );
+	$self->{_x_spin_w} = Gtk2::SpinButton->new_with_range( 0, $pixbuf->get_width, 1 );
+	$self->{_x_spin_w}->set_value( 0 );
+
+	my $xw_hbox = Gtk2::HBox->new( FALSE, 5 );
+	$xw_hbox->pack_start( $xw_label, FALSE, FALSE, 5 );
+	$xw_hbox->pack_start( $self->{_x_spin_w}, FALSE, FALSE, 5 );
+
+	#y
+	my $yw_label = Gtk2::Label->new( $d->get("Y") . ":" );
+	$self->{_y_spin_w} = Gtk2::SpinButton->new_with_range( 0, $pixbuf->get_height, 1 );
+	$self->{_y_spin_w}->set_value( 0 );
+
+	my $yw_hbox = Gtk2::HBox->new( FALSE, 5 );
+	$yw_hbox->pack_start( $yw_label, FALSE, FALSE, 5 );
+	$yw_hbox->pack_start( $self->{_y_spin_w}, FALSE, FALSE, 5 );
+
+	#width
+	my $widthw_label = Gtk2::Label->new( $d->get("Width") . ":" );
+	$self->{_width_spin_w} = Gtk2::SpinButton->new_with_range( 0, $pixbuf->get_width, 1 );
+	$self->{_width_spin_w}->set_value( 0 );
+
+	my $ww_hbox = Gtk2::HBox->new( FALSE, 5 );
+	$ww_hbox->pack_start( $widthw_label, FALSE, FALSE, 5 );
+	$ww_hbox->pack_start( $self->{_width_spin_w}, FALSE, FALSE, 5 );
+
+	#height
+	my $heightw_label = Gtk2::Label->new( $d->get("Height") . ":" );
+	$self->{_height_spin_w} = Gtk2::SpinButton->new_with_range( 0, $pixbuf->get_height, 1 );
+	$self->{_height_spin_w}->set_value( 0 );
+
+	my $hw_hbox = Gtk2::HBox->new( FALSE, 5 );
+	$hw_hbox->pack_start( $heightw_label, FALSE, FALSE, 5 );
+	$hw_hbox->pack_start( $self->{_height_spin_w}, FALSE, FALSE, 5 );
+
+	#the above values are changed when the selection is changed
+	$self->{_selector_handler} = $self->{_selector}->signal_connect(
+		'selection-changed' => sub {
+			my $s = $self->{_selector}->get_selection;
+			
+			if ($s) {
+				$self->{_x_spin_w}->set_value( $s->x );
+				$self->{_x_spin_w}->set_range( 0, $pixbuf->get_width - $s->width );
+				
+				$self->{_y_spin_w}->set_value( $s->y );
+				$self->{_y_spin_w}->set_range( 0, $pixbuf->get_height - $s->height );
+				
+				$self->{_width_spin_w}->set_value( $s->width );
+				$self->{_width_spin_w}->set_value( $s->width );
+				
+				$self->{_height_spin_w}->set_value( $s->height );				
+				$self->{_height_spin_w}->set_value( $s->height );				
+			}
+			
+		}
+	);
+	
+	#cancel button
+	my $crop_c = Gtk2::Button->new_from_stock ('gtk-cancel');
+	$crop_c->signal_connect('clicked' => sub { $self->abort_current_mode} );
+
+	#crop button
+	my $crop_ok = Gtk2::Button->new_with_label ($d->get("Crop"));
+	$crop_ok->set_image( Gtk2::Image->new_from_file("$dicons/transform-crop.png") );
+	$crop_ok->signal_connect('clicked' => sub { 
+		
+		my $s = $self->{_selector}->get_selection;
+		my $p = $self->{_view}->get_pixbuf;
+		
+		if ($s && $p) {
+			
+			#create new pixbuf
+			#create temp pixbuf because selected area might be bigger than
+			#source pixbuf (screenshot) => canvas area is resizeable
+			my $temp = Gtk2::Gdk::Pixbuf->new ($self->{_drawing_pixbuf}->get_colorspace, TRUE, $self->{_drawing_pixbuf}->get_bits_per_sample,  $p->get_width, $p->get_height);		
+			#whole pixbuf is transparent
+			$temp->fill('0x00000000');
+			
+			#copy source image to temp pixbuf (temp pixbuf's size == $self->{_view}->get_pixbuf)			
+			$self->{_drawing_pixbuf}->copy_area(0, 0, $self->{_drawing_pixbuf}->get_width, $self->{_drawing_pixbuf}->get_height, $temp, 0, 0);
+			
+			#and create a new subpixbuf from the temp pixbuf
+			my $new_p = $temp->new_subpixbuf ($s->x, $s->y, $s->width, $s->height);
+			$self->{_drawing_pixbuf} = $new_p->copy;
+			
+			#update bounds and bg_rects
+			$self->{_canvas_bg_rect}->set('width' => $s->width, 'height' => $s->height);
+			$self->handle_bg_rects( 'update' );
+			
+			#update canvas and show the new pixbuf
+			$self->{_canvas_bg}->set('pixbuf' => $new_p);
+			
+			#now move all items, 
+			#so they are in the right position
+			$self->move_all($s->x, $s->y);
+			
+			#adjust stack order
+			$self->{_canvas_bg}->lower;
+			$self->{_canvas_bg_rect}->lower;
+			$self->handle_bg_rects( 'raise' );
+			
+		} else {
+			#nothing here right now
+		}
+				
+		#finally reset mode to select tool
+		$self->abort_current_mode;
+		
+		}
+	);
+
+	#put buttons in a separated box
+	#all buttons = one size
+	my $sg_butt = Gtk2::SizeGroup->new('vertical');
+	$sg_butt->add_widget($crop_c);
+	$sg_butt->add_widget($crop_ok);
+
+	my $cropping_bottom_vbox_b = Gtk2::VBox->new( FALSE, 5 );
+	$cropping_bottom_vbox_b->pack_start( $crop_c, FALSE, FALSE, 0 );
+	$cropping_bottom_vbox_b->pack_start( $crop_ok, FALSE, FALSE, 0 );
+
+	#final_packing
+	#all labels = one size
+	$xw_label->set_alignment( 0, 0.5 );
+	$yw_label->set_alignment( 0, 0.5 );
+	$widthw_label->set_alignment( 0, 0.5 );
+	$heightw_label->set_alignment( 0, 0.5 );
+
+	my $sg_main = Gtk2::SizeGroup->new('horizontal');
+	$sg_main->add_widget($xw_label);
+	$sg_main->add_widget($yw_label);
+	$sg_main->add_widget($widthw_label);
+	$sg_main->add_widget($heightw_label);
+
+	$cropping_bottom_vbox->pack_start( $xw_hbox, FALSE, FALSE, 3 );
+	$cropping_bottom_vbox->pack_start( $yw_hbox, FALSE, FALSE, 3 );
+	$cropping_bottom_vbox->pack_start( $ww_hbox, FALSE, FALSE, 3 );
+	$cropping_bottom_vbox->pack_start( $hw_hbox, FALSE, FALSE, 3 );
+	$cropping_bottom_vbox->pack_start( $cropping_bottom_vbox_b, TRUE, TRUE, 3 );	
+
+	#nice frame as well
+	my $crop_frame_label = Gtk2::Label->new;
+	$crop_frame_label->set_markup( "<b>" . $d->get("Selection") . "</b>" );
+
+	my $crop_frame = Gtk2::Frame->new();
+	$crop_frame->set_border_width(5);
+	$crop_frame->set_label_widget($crop_frame_label);
+	$crop_frame->set_shadow_type('none');
+
+	$crop_frame->add($cropping_bottom_vbox);
+
+	return $crop_frame;
+}	
+
 sub push_to_statusbar {
 	my $self = shift;
 	my $x = shift;
@@ -517,9 +724,13 @@ sub push_to_statusbar {
 
 	} elsif ( $self->{_current_mode} == 110 ) {
 
-		$status_text .= " ".$d->get("Select an object to delete it from the canvas");
+		#nothing to do here....
 
 	} elsif ( $self->{_current_mode} == 120 ) {
+
+		$status_text .= " ".$d->get("Select an object to delete it from the canvas");
+
+	} elsif ( $self->{_current_mode} == 130 ) {
 
 		$status_text .= " ".$d->get("Delete all objects");
 
@@ -550,6 +761,20 @@ sub change_drawing_tool_cb {
 	
 		$self->restore_drawing_properties;
 	
+	}
+	
+	#show drawing tool widgets
+	if($self->{_current_mode} != 110){
+
+		#show drawing tool widgets
+		$self->{_table}->show_all;
+		$self->{_bhbox}->show_all;
+
+		$self->{_drawing_inner_vbox}->show_all;	
+
+		#hide cropping tool		
+		$self->{_drawing_inner_vbox_c}->hide_all;	
+
 	}
 
 	if ( $self->{_current_mode} == 10 ) {
@@ -631,9 +856,23 @@ sub change_drawing_tool_cb {
 
 	} elsif ( $self->{_current_mode} == 110 ) {
 
-		$self->{_current_mode_descr} = "clear";
+		$self->{_current_mode_descr} = "crop";
+		
+		#show cropping tool		
+		$self->{_view}->set_pixbuf($self->save(TRUE));
+		$self->{_view}->set_zoom(1);
+		$self->{_view}->show_all;
+
+		$self->{_drawing_inner_vbox_c}->show_all;	
+
+		#hide drawing tool widgets
+		$self->{_drawing_inner_vbox}->hide_all;
 
 	} elsif ( $self->{_current_mode} == 120 ) {
+
+		$self->{_current_mode_descr} = "clear";
+
+	} elsif ( $self->{_current_mode} == 130 ) {
 
 		$self->{_current_mode_descr} = "clear_all";
 
@@ -646,7 +885,7 @@ sub change_drawing_tool_cb {
 
 	} 
 
-	if($self->{_canvas}){
+	if($self->{_canvas} && $self->{_canvas}->window){
 		$self->{_canvas}->window->set_cursor($cursor);
 	}
 
@@ -655,27 +894,45 @@ sub change_drawing_tool_cb {
 
 sub zoom_in_cb {
 	my $self = shift;
-	$self->{_canvas}->set_scale( $self->{_canvas}->get_scale + 0.25 );
-	$self->adjust_rulers;
+	
+	if($self->{_current_mode_descr} ne "crop"){
+		$self->{_canvas}->set_scale( $self->{_canvas}->get_scale + 0.25 );
+		$self->adjust_rulers;
+	}else{
+		$self->{_view}->zoom_in;		
+	}
+
 	return TRUE;
 }
 
 sub zoom_out_cb {
 	my $self      = shift;
-	my $new_scale = $self->{_canvas}->get_scale - 0.25;
-	if ( $new_scale < 0.25 ) {
-		$self->{_canvas}->set_scale(0.25);
-	} else {
-		$self->{_canvas}->set_scale($new_scale);
+	
+	if($self->{_current_mode_descr} ne "crop"){
+		my $new_scale = $self->{_canvas}->get_scale - 0.25;
+		if ( $new_scale < 0.25 ) {
+			$self->{_canvas}->set_scale(0.25);
+		} else {
+			$self->{_canvas}->set_scale($new_scale);
+		}
+		$self->adjust_rulers;
+	}else{
+		$self->{_view}->zoom_out;
 	}
-	$self->adjust_rulers;
+
 	return TRUE;
 }
 
 sub zoom_normal_cb {
 	my $self = shift;
-	$self->{_canvas}->set_scale(1);
-	$self->adjust_rulers;
+	
+	if($self->{_current_mode_descr} ne "crop"){
+		$self->{_canvas}->set_scale(1);
+		$self->adjust_rulers;
+	}else{
+		$self->{_view}->set_zoom(1);	
+	}
+	
 	return TRUE;
 }
 
@@ -890,7 +1147,14 @@ sub save_settings {
 		$settings{'drawing'}->{'height'} = $h;
 		
 		#current action
-		$settings{'drawing'}->{'mode'} = $self->{_current_mode}; 
+		#but don't save the crop tool as last action
+		#as it would be confusing to open the drawing tool 
+		#with crop tool enabled
+		if($self->{_current_mode_descr} ne "crop"){
+			$settings{'drawing'}->{'mode'} = $self->{_current_mode}; 
+		}else{
+			$settings{'drawing'}->{'mode'} = 10;
+		}
 
 		#autoscroll
 		my $autoscroll_toggle = $self->{_uimanager}->get_widget("/MenuBar/Edit/Autoscroll");
@@ -923,7 +1187,8 @@ sub save_settings {
 }
 
 sub save {
-	my $self = shift;
+	my $self 		= shift;
+	my $save_to_mem = shift;
 
 	#we are closing the drawing tool as well after saving the changes
 	#so save changes to a file in the shutter folder
@@ -937,10 +1202,10 @@ sub save {
 	$self->deactivate_all;
 	$self->handle_bg_rects('hide');
 
-	my $surface = Cairo::ImageSurface->create( 'argb32', $self->{_canvas_bg}->get('width'), $self->{_canvas_bg}->get('height') );
+	my $surface = Cairo::ImageSurface->create( 'argb32', $self->{_canvas_bg_rect}->get('width'), $self->{_canvas_bg_rect}->get('height') );
 
 	my $cr   = Cairo::Context->create($surface);
-	$self->{_canvas}->get_root_item->paint( $cr, $self->{_canvas_bg}->get_bounds, 1 );
+	$self->{_canvas}->get_root_item->paint( $cr, $self->{_canvas_bg_rect}->get_bounds, 1 );
 
 	my $loader = Gtk2::Gdk::PixbufLoader->new;
 	$surface->write_to_png_stream(
@@ -952,6 +1217,13 @@ sub save {
 	$loader->close;
 	my $pixbuf = $loader->get_pixbuf;
 
+	#just return pixbuf
+	if ($save_to_mem){
+		#make sure we show the rectangles again
+		$self->handle_bg_rects('show');
+		return $pixbuf ;
+	}
+	
 	#save pixbuf to file
 	my $pixbuf_save = Shutter::Pixbuf::Save->new( $self->{_shutter_common}, $self->{_drawing_window} );
 	return $pixbuf_save->save_pixbuf_to_file($pixbuf, $self->{_filename}, $self->{_filename}, $self->{_filetype});
@@ -2819,6 +3091,44 @@ sub modify_text_in_properties {
 	return TRUE;
 }
 
+sub move_all {
+	my $self	= shift;
+	my $x 		= shift;
+	my $y		= shift;
+
+	foreach ( keys %{ $self->{_items} } ) {	
+		
+		my $item = $self->{_items}{$_};
+
+		#embedded item?
+		my $parent = $self->get_parent_item($item);
+		$item = $parent if $parent;
+
+		#real shape
+		if ( exists $self->{_items}{$item} ) {
+
+			if ( $item->isa('Goo::Canvas::Rect') ) {
+				
+				$item->set(
+					'x' => $item->get('x')-$x, 
+					'y' => $item->get('y')-$y,
+				);  
+
+				$self->handle_rects( 'update', $item );
+				$self->handle_embedded( 'update', $item );
+
+			#freehand line for example
+			} else {
+				
+				$item->translate( -$x, -$y );
+			
+			}
+		}
+	}
+	
+	return TRUE;
+}
+
 sub deactivate_all {
 	my $self    = shift;
 	my $exclude = shift;
@@ -3062,9 +3372,14 @@ sub handle_bg_rects {
 		$self->setup_item_signals_extra( $self->{_canvas_bg_rect}{'bottom-right-corner'} );
 		$self->setup_item_signals_extra( $self->{_canvas_bg_rect}{'right-side'} );
 
-	}elsif($action eq 'hide'){
+	}elsif($action eq 'hide' || $action eq 'show'){
 
-		my $visibilty = 'hidden';
+		my $visibilty = undef; 
+		if($action eq 'hide'){
+			$visibilty = 'hidden';
+		}elsif($action eq 'show'){
+			$visibilty = 'visible';
+		}
 
 		foreach ( keys %{ $self->{_canvas_bg_rect} } ) {
 			$self->{_canvas_bg_rect}{$_}->set(
@@ -3638,6 +3953,7 @@ sub setup_uimanager {
 	$self->{_factory}->add( 'shutter-text', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-text.png") ) );
 	$self->{_factory}->add( 'shutter-censor', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-censor.png") ) );
 	$self->{_factory}->add( 'shutter-number', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-number.png") ) );
+	$self->{_factory}->add( 'shutter-crop', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/transform-crop.png") ) );
 	$self->{_factory}->add_default();
 
 	my @default_actions = ( [ "File", undef, $d->get("_File") ], [ "Edit", undef, $d->get("_Edit") ], [ "View", undef, $d->get("_View") ] );
@@ -3670,18 +3986,19 @@ sub setup_uimanager {
 	);
 
 	my @toolbar_drawing_actions = (
-		[ "Select",  'shutter-pointer', undef, undef, $d->get("Select item to move or resize it"),    10 ],
+		[ "Select",  'shutter-pointer', undef, undef, $d->get("Select item to move or resize it"), 10 ],
 		[ "Freehand",    'shutter-freehand', undef, undef, $d->get("Draw a freehand line"), 20 ],
 		[ "Highlighter",    'shutter-highlighter', undef, undef, $d->get("Highlighter"), 30 ],
-		[ "Line",    'shutter-line', undef, undef, $d->get("Draw a straight line"),                    40 ],
-		[ "Arrow",    'shutter-arrow', undef, undef, $d->get("Draw an arrow"),                    50 ],
-		[ "Rect",    'shutter-rectangle', undef, undef, $d->get("Draw a rectangle"),                    60 ],
-		[ "Ellipse", 'shutter-ellipse', undef, undef, $d->get("Draw a ellipse"),                      70 ],
-		[ "Text",    'shutter-text', undef, undef, $d->get("Add some text to the screenshot"),     80 ],
-		[ "Censor",    'shutter-censor', undef, undef, $d->get("Censor portions of your screenshot to hide private data"),     90 ],
-		[ "Number",    'shutter-number', undef, undef, $d->get("Add an auto-increment shape to the screenshot"),     100 ],
-		[ "Clear",   'shutter-eraser', undef, undef, $d->get("Delete objects"),                      110 ],
-		[ "ClearAll",'gtk-clear', undef, undef, $d->get("Delete all objects"),                  120 ]
+		[ "Line",    'shutter-line', undef, undef, $d->get("Draw a straight line"), 40 ],
+		[ "Arrow",    'shutter-arrow', undef, undef, $d->get("Draw an arrow"), 50 ],
+		[ "Rect",    'shutter-rectangle', undef, undef, $d->get("Draw a rectangle"), 60 ],
+		[ "Ellipse", 'shutter-ellipse', undef, undef, $d->get("Draw a ellipse"), 70 ],
+		[ "Text",    'shutter-text', undef, undef, $d->get("Add some text to the screenshot"), 80 ],
+		[ "Censor",    'shutter-censor', undef, undef, $d->get("Censor portions of your screenshot to hide private data"), 90 ],
+		[ "Number",    'shutter-number', undef, undef, $d->get("Add an auto-increment shape to the screenshot"), 100 ],
+		[ "Crop",    'shutter-crop', undef, undef, $d->get("Crop your screenshot"), 110 ],
+		[ "Clear",   'shutter-eraser', undef, undef, $d->get("Delete objects"), 120 ],
+		[ "ClearAll",'gtk-clear', undef, undef, $d->get("Delete all objects"), 130 ]
 	);
 
 	my $uimanager = Gtk2::UIManager->new();
@@ -3768,6 +4085,8 @@ sub setup_uimanager {
     <toolitem action='Text'/>
     <toolitem action='Censor'/>
     <toolitem action='Number'/>
+    <separator/>
+	<toolitem action='Crop'/>
     <separator/>
     <toolitem action='Clear'/>
     <toolitem action='ClearAll'/>
