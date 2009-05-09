@@ -1,0 +1,285 @@
+#! /usr/bin/env perl
+
+###################################################
+#
+#  Copyright (C) 2008, 2009 Mario Kemper <mario.kemper@googlemail.com> and Shutter Team
+#
+#  This file is part of Shutter.
+#
+#  Shutter is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Shutter is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Shutter; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+###################################################
+
+use utf8;
+use strict;
+use warnings;
+use Gtk2 '-init';
+use Image::Magick;
+use POSIX qw/setlocale strftime/;
+use Locale::gettext;
+use Glib qw/TRUE FALSE/;
+use FindBin '$Bin';    #path where plugin is located
+use File::Temp qw/ tempfile tempdir /;
+
+#configure gettext using ENV Variable (setup during shutter start)
+setlocale( LC_MESSAGES, "" );
+my $d = Locale::gettext->domain("shutter-plugins");
+$d->dir( $ENV{'SHUTTER_INTL'} );
+
+binmode( STDOUT, ":utf8" );
+#shutter will ask for some infos - no need of changing anything
+if ( $ARGV[ 0 ] eq "name" ) {
+	print $d->get( "barrel distortion" );
+	exit;
+} elsif ( $ARGV[ 0 ] eq "sort" ) {
+	print $d->get( "effect" );
+	exit;
+} elsif ( $ARGV[ 0 ] eq "tip" ) {
+	print $d->get(
+		"apply a distortion effect to your screenshot"
+	);
+	exit;
+} elsif ( $ARGV[ 0 ] eq "lang" ) {
+	print "perl";
+	exit;
+}
+
+#these variables are passed to the plugin
+my $socket_id = $ARGV[ 0 ];
+my $filename  = $ARGV[ 1 ];
+my $width     = $ARGV[ 2 ];
+my $height    = $ARGV[ 3 ];
+my $filetype  = $ARGV[ 4 ];
+
+my $plug = Gtk2::Plug->new( $socket_id );
+$plug->set_border_width( 10 );
+
+$plug->signal_connect( destroy => sub { Gtk2->main_quit } );
+
+#tooltips
+my $tooltips = Gtk2::Tooltips->new;
+
+#configure buttons and other needed controls
+my $c1_label = Gtk2::Label->new( $d->get( "A:" ) );
+my $c1_sbutton = Gtk2::SpinButton->new_with_range( -1, 1, 0.1 );
+$c1_sbutton->set_value( 0.2 );
+
+my $c2_label = Gtk2::Label->new( $d->get( "B:" ) );
+my $c2_sbutton = Gtk2::SpinButton->new_with_range( -1, 1, 0.1 );
+$c2_sbutton->set_value( 0 );
+
+my $c3_label = Gtk2::Label->new( $d->get( "C:" ) );
+my $c3_sbutton = Gtk2::SpinButton->new_with_range( -1, 1, 0.1 );
+$c3_sbutton->set_value( 0 );
+
+my $c4_label = Gtk2::Label->new( $d->get( "D:" ) );
+my $c4_sbutton = Gtk2::SpinButton->new_with_range( -1, 1, 0.1 );
+$c4_sbutton->set_value( 1.0 );
+
+$tooltips->set_tip(
+	$c1_label,
+	$d->get(
+		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
+	)
+);
+
+$tooltips->set_tip(
+	$c1_sbutton,
+	$d->get(
+		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
+	)
+);
+
+$tooltips->set_tip(
+	$c2_label,
+	$d->get(
+		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
+	)
+);
+
+$tooltips->set_tip(
+	$c2_sbutton,
+	$d->get(
+		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
+	)
+);
+
+$tooltips->set_tip(
+	$c3_label,
+	$d->get(
+		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
+	)
+);
+
+$tooltips->set_tip(
+	$c3_sbutton,
+	$d->get(
+		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
+	)
+);
+
+$tooltips->set_tip(
+	$c4_label,
+	$d->get(
+		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
+	)
+);
+
+$tooltips->set_tip(
+	$c4_sbutton,
+	$d->get(
+		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
+	)
+);
+
+my $back_color_label = Gtk2::Label->new( $d->get("Background color"). ":" );
+my $back_color = Gtk2::ColorButton->new();
+$back_color->set_color( Gtk2::Gdk::Color->parse('gray') );
+$back_color->set_alpha( int( 0.5 * 65535 ) );
+$back_color->set_use_alpha(TRUE);
+$back_color->set_title( $d->get("Choose background color") );
+
+my $refresh_btn = Gtk2::Button->new_from_stock( 'gtk-refresh' );
+$refresh_btn->signal_connect( 'clicked', \&fct_imagemagick_bardistortion,
+							  'refresh' );
+
+my $preview =
+	Gtk2::Image->new_from_pixbuf(
+	   Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $filename, 300, 300, TRUE ) );
+
+my $save_btn = Gtk2::Button->new_from_stock( 'gtk-save' );
+$save_btn->signal_connect( 'clicked', \&fct_imagemagick_bardistortion, 'save' );
+
+my $cancel_btn = Gtk2::Button->new_from_stock( 'gtk-cancel' );
+$cancel_btn->signal_connect( 'clicked' => sub { Gtk2->main_quit }, 'cancel' );
+
+#define the gui layout
+my $vbox_param = Gtk2::VBox->new( TRUE,  10 );
+my $hbox1      = Gtk2::HBox->new( FALSE, 10 );
+my $hbox2      = Gtk2::HBox->new( FALSE, 10 );
+my $hbox3      = Gtk2::HBox->new( FALSE, 10 );
+my $hbox4      = Gtk2::HBox->new( FALSE, 10 );
+my $hbox5      = Gtk2::HBox->new( FALSE, 10 );
+
+my $hbox_row1 = Gtk2::HBox->new( TRUE, 10 );
+my $hbox_row2 = Gtk2::HBox->new( TRUE, 10 );
+
+my $hbox_btn  = Gtk2::HBox->new( TRUE,  10 );
+my $vbox_btn  = Gtk2::VBox->new( FALSE, 10 );
+my $vbox_main = Gtk2::VBox->new( FALSE, 10 );
+
+#packing
+$hbox1->pack_start( $c1_label, FALSE, TRUE, 5 );
+$hbox1->pack_start( $c1_sbutton, TRUE,  TRUE, 5 );
+
+$hbox2->pack_start( $c2_label, FALSE, TRUE, 5 );
+$hbox2->pack_start( $c2_sbutton, TRUE,  TRUE, 5 );
+
+$hbox3->pack_start( $c3_label, FALSE, TRUE, 5 );
+$hbox3->pack_start( $c3_sbutton, TRUE,  TRUE, 5 );
+
+$hbox4->pack_start( $c4_label, FALSE, TRUE, 5 );
+$hbox4->pack_start( $c4_sbutton, TRUE,  TRUE, 5 );
+
+$hbox5->pack_start( $back_color_label, FALSE, TRUE, 5 );
+$hbox5->pack_start( $back_color, TRUE,  TRUE, 5 );
+
+$hbox_row1->pack_start_defaults( $hbox1 );
+$hbox_row1->pack_start_defaults( $hbox2 );
+$hbox_row1->pack_start_defaults( $hbox3 );
+$hbox_row1->pack_start_defaults( $hbox4 );
+
+$hbox_row2->pack_start_defaults( $hbox5 );
+
+$vbox_param->pack_start( $hbox_row1, TRUE, TRUE, 5 );
+$vbox_param->pack_start( $hbox_row2, TRUE, TRUE, 5 );
+
+$vbox_main->pack_start( $vbox_param, FALSE, TRUE, 5 );
+$vbox_main->pack_start( $preview,     TRUE, TRUE, 5 );
+$vbox_main->pack_start( $refresh_btn, TRUE, TRUE, 5 );
+
+$hbox_btn->pack_start( $cancel_btn, TRUE, TRUE, 5 );
+$hbox_btn->pack_start( $save_btn,   TRUE, TRUE, 5 );
+
+$vbox_main->pack_start( $hbox_btn,  TRUE, TRUE, 5 );
+
+$plug->add( $vbox_main );
+
+$plug->show_all;
+
+#generate first preview
+&fct_imagemagick_bardistortion( undef, 'refresh' );
+
+#lets'start
+Gtk2->main;
+
+####define your functions here
+
+
+sub fct_imagemagick_bardistortion {
+	my ( $widget, $data ) = @_;
+
+	my $image = Image::Magick->new;
+
+	my $tmpfilename = &apply_effect();
+
+	if ( $data eq 'save' ) {
+
+		$image->ReadImage( $tmpfilename );
+		$image->WriteImage( filename => $filename );
+
+		Gtk2->main_quit;
+		return TRUE;
+	} else {
+		
+		$preview->set_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
+									$tmpfilename, 300, 300, TRUE)
+								 );
+
+		return TRUE;
+	}
+}
+
+sub apply_effect {	
+	
+	#create tempfile
+	my ( $tmpfh, $tmpfilename ) = tempfile();
+
+	my $color = $back_color->get_color;
+
+	#execute imagemagick command		
+	my $convert_output =
+			system(   "convert"
+					. " -virtual-pixel Background -background '"
+					. sprintf( "#%04x%04x%04x%04x", $color->red, $color->green, $color->blue, $back_color->get_alpha )
+					. "' -distort Barrel '"
+					. $c1_sbutton->get_value
+					. " "
+					. $c2_sbutton->get_value
+					. " "
+					. $c3_sbutton->get_value
+					. " "
+					. $c4_sbutton->get_value														
+					. "' '$filename'"
+					. " $tmpfilename" );
+				
+	return $tmpfilename;
+	
+}
+
+####define your functions here
+
+1;
+

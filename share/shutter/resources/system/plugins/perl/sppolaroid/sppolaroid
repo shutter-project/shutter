@@ -74,10 +74,6 @@ $plug->set_border_width( 10 );
 
 $plug->signal_connect( destroy => sub { Gtk2->main_quit } );
 
-#variables used in this plugin
-my $width_preview  = 0;
-my $height_preview = 0;
-
 #tooltips
 my $tooltips = Gtk2::Tooltips->new;
 
