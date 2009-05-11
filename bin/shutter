@@ -44,11 +44,11 @@ use Gnome2::VFS '-init';
 use Image::Magick();
 
 #File operations
-use File::Copy;
+use File::Copy();
 use File::Path qw/ rmtree /;
-use File::Basename;
+use File::Basename qw / fileparse /;
 use File::Temp qw/ tempfile tempdir /;
-use IO::File;
+use IO::File();
 
 #Gtk2
 use Gtk2 '-init';
@@ -56,11 +56,11 @@ use Gtk2::Gdk::Keysyms;
 use Gtk2::Pango;
 
 #X11
-use X11::Protocol;
+use X11::Protocol();
 
 #Gettext and filename parsing
 use POSIX qw/setlocale strftime/;
-use Locale::gettext;
+use Locale::gettext();
 
 #handle upload responses properly
 use HTTP::Status;
@@ -72,7 +72,7 @@ use XML::Simple;
 use Net::DBus qw/dbus_string/;
 
 #timing issues
-use Time::HiRes qw/usleep/;
+use Time::HiRes qw/time usleep/;
 
 #internal use
 use FindBin '$Bin';
@@ -85,7 +85,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.439";
+use constant REV                	=> "Rev.440";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -591,11 +591,11 @@ if ( defined $settings_xml->{'general'}->{'delay'} ) {
 	$delay->set_value(0);
 }
 my $delay_active = Gtk2::CheckButton->new;
+$delay_active->set_active(TRUE);
 $delay_active->signal_connect(
 	'toggled' => \&evt_value_changed,
 	'delay_toggled'
 );
-$delay_active->set_active(TRUE);
 
 if ( defined $settings_xml->{'general'}->{'delay_active'} ) {
 	$delay_active->set_active( $settings_xml->{'general'}->{'delay_active'} );
@@ -629,11 +629,11 @@ if ( defined $settings_xml->{'general'}->{'thumbnail'} ) {
 	$thumbnail->set_value(50);
 }
 my $thumbnail_active = Gtk2::CheckButton->new;
+$thumbnail_active->set_active(TRUE);
 $thumbnail_active->signal_connect(
 	'toggled' => \&evt_value_changed,
 	'thumbnail_toggled'
 );
-$thumbnail_active->set_active(TRUE);
 
 if ( defined $settings_xml->{'general'}->{'thumbnail_active'} ) {
 	$thumbnail_active->set_active( $settings_xml->{'general'}->{'thumbnail_active'} );
@@ -1051,7 +1051,7 @@ $combobox_im_colors->insert_text( 1, $shutter_common->get_gettext->get("64 color
 $combobox_im_colors->insert_text( 2, $shutter_common->get_gettext->get("256 colors  - (8bit) ") );
 $combobox_im_colors->signal_connect(
 	'changed' => \&evt_value_changed,
-	'border_changed'
+	'im_colors_changed'
 );
 
 if ( defined $settings_xml->{'general'}->{'im_colors'} ) {
@@ -1059,18 +1059,20 @@ if ( defined $settings_xml->{'general'}->{'im_colors'} ) {
 } else {
 	$combobox_im_colors->set_active(2);
 }
+
 my $im_colors_active = Gtk2::CheckButton->new;
+$im_colors_active->set_active(TRUE);
 $im_colors_active->signal_connect(
 	'toggled' => \&evt_value_changed,
 	'im_colors_toggled'
 );
-$im_colors_active->set_active(TRUE);
 
 if ( defined $settings_xml->{'general'}->{'im_colors_active'} ) {
 	$im_colors_active->set_active( $settings_xml->{'general'}->{'im_colors_active'} );
 } else {
 	$im_colors_active->set_active(FALSE);
 }
+
 my $im_colors_label = Gtk2::Label->new( $shutter_common->get_gettext->get("Reduce colors") . ":" );
 $tooltips->set_tip( $combobox_im_colors, $shutter_common->get_gettext->get("Automatically reduce colors \nafter taking a screenshot") );
 $tooltips->set_tip( $im_colors_active,   $shutter_common->get_gettext->get("Automatically reduce colors \nafter taking a screenshot") );
@@ -1098,6 +1100,7 @@ if ( defined $settings_xml->{'general'}->{'border'} ) {
 } else {
 	$combobox_border->set_active(TRUE);
 }
+
 my $border_label = Gtk2::Label->new( $shutter_common->get_gettext->get("Window border") . ":" );
 $tooltips->set_tip( $combobox_border, $shutter_common->get_gettext->get("Include wm border when selecting a window") );
 $tooltips->set_tip( $border_label,    $shutter_common->get_gettext->get("Include wm border when selecting a window") );

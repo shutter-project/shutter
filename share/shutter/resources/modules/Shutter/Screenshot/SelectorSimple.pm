@@ -24,6 +24,7 @@ package Shutter::Screenshot::SelectorSimple;
 
 #modules
 #--------------------------------------
+use SelfLoader;
 use utf8;
 use strict;
 use Gnome2::Canvas;
@@ -51,6 +52,10 @@ sub new {
 	bless $self, $class;
 	return $self;
 }
+
+1;
+
+__DATA__
 
 sub select_simple {
 	my $self = shift;

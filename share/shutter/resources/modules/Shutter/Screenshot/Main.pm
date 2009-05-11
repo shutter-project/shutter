@@ -36,7 +36,6 @@ use constant FALSE => 0;
 
 #--------------------------------------
 
-##################public subs##################
 sub new {
 	my $class = shift;
 	

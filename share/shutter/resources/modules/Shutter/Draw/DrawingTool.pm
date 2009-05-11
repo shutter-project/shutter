@@ -24,6 +24,7 @@ package Shutter::Draw::DrawingTool;
 
 #modules
 #--------------------------------------
+use SelfLoader;
 use utf8;
 use strict;
 use Exporter;
@@ -119,6 +120,10 @@ sub new {
 
 	return $self;
 }
+
+1;
+
+__DATA__
 
 sub show {
 	my $self        = shift;
@@ -5193,3 +5198,4 @@ sub create_rectangle {
 }
 
 1;
+

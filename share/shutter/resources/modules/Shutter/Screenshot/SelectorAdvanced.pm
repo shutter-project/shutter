@@ -24,6 +24,7 @@ package Shutter::Screenshot::SelectorAdvanced;
 
 #modules
 #--------------------------------------
+use SelfLoader;
 use utf8;
 use strict;
 use Shutter::Screenshot::Main;
@@ -56,6 +57,10 @@ sub new {
 	bless $self, $class;
 	return $self;
 }
+
+1;
+
+__DATA__
 
 sub select_advanced {
 	my $self = shift;
@@ -106,7 +111,7 @@ sub select_advanced {
 	$layout->set_wrap('word');
 
 	#create font family and determine size
-	my $size = int( $mon1->width * 0.02 );
+	my $size = int( $mon1->width * 0.015 );
 	$layout->set_font_description( Gtk2::Pango::FontDescription->from_string("Sans $size") );
 	my $text
 		= $d->get(

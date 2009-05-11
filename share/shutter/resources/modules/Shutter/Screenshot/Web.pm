@@ -24,6 +24,7 @@ package Shutter::Screenshot::Web;
 
 #modules
 #--------------------------------------
+use SelfLoader;
 use utf8;
 use strict;
 use Image::Magick;
@@ -35,7 +36,6 @@ use constant FALSE => 0;
 
 #--------------------------------------
 
-##################public subs##################
 sub new {
 	my $class = shift;
 	
@@ -50,6 +50,10 @@ sub new {
 	bless $self, $class;
 	return $self;
 }
+
+1;
+
+__DATA__
 
 sub web {
 	my $self = shift;

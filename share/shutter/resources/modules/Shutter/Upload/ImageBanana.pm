@@ -22,6 +22,7 @@
 
 package Shutter::Upload::ImageBanana;
 
+use SelfLoader;
 use utf8;
 use strict;
 use WWW::Mechanize;
@@ -64,6 +65,10 @@ sub new {
 	bless $self, $class;
 	return $self;
 }
+
+1;
+
+__DATA__
 
 sub upload {
 	my ( $self, $upload_filename, $username, $password ) = @_;
