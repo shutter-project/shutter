@@ -41,6 +41,14 @@ use POSIX qw/setlocale/;
 use Locale::gettext;
 use Glib qw/TRUE FALSE/;
 use FindBin '$Bin';    #path where plugin is located
+use File::Temp qw/ tempfile tempdir /;
+use Time::HiRes qw/usleep/;
+
+require lib;
+import lib $ENV{'SHUTTER_ROOT'}."/share/shutter/resources/modules";
+
+#proc (Thanks to Michael Schilli)
+require Proc::Simple;
 
 #configure gettext using ENV Variable (setup during shutter start)
 setlocale( LC_MESSAGES, "" );
@@ -96,21 +104,32 @@ my $sepia_tone = Gtk2::HScale->new_with_range( 10, 100, 1 );
 $sepia_tone->set_value_pos('right');
 $sepia_tone->set_value(80);
 
-my $refresh_btn = Gtk2::Button->new_from_stock('gtk-refresh');
-$refresh_btn->signal_connect( 'clicked', \&fct_imagemagick_sepia, 'refresh' );
-
+#we define two Gtk2::Image widgets
+#to store the screenshot
+#and a throbber that is shown while the changes are processed
 my $preview =
-  Gtk2::Image->new_from_pixbuf(
-	Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $filename, 200, 200, TRUE ) );
+	Gtk2::Image->new_from_pixbuf(
+	   Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $filename, 300, 300, TRUE ) );
 
-#set width and height of preview image
-$width_preview  = $preview->get_pixbuf->get_width;
-$height_preview = $preview->get_pixbuf->get_height;
+my $preview_throb =
+	Gtk2::Image->new_from_file( $ENV{'SHUTTER_ROOT'}."/share/shutter/resources/icons/throbber.gif" );
 
-my $save_btn = Gtk2::Button->new_from_stock('gtk-save');
+my $sg = Gtk2::SizeGroup->new ('both');
+$sg->set ('ignore-hidden' => FALSE);
+$sg->add_widget($preview);
+$sg->add_widget($preview_throb);
+
+
+#we define three Gtk2::Button widgets
+#to refresh, save and cancel the plugin's work
+my $refresh_btn = Gtk2::Button->new_from_stock( 'gtk-refresh' );
+$refresh_btn->signal_connect( 'clicked', \&fct_imagemagick_sepia,
+							  'refresh' );
+
+my $save_btn = Gtk2::Button->new_from_stock( 'gtk-save' );
 $save_btn->signal_connect( 'clicked', \&fct_imagemagick_sepia, 'save' );
 
-my $cancel_btn = Gtk2::Button->new_from_stock('gtk-cancel');
+my $cancel_btn = Gtk2::Button->new_from_stock( 'gtk-cancel' );
 $cancel_btn->signal_connect( 'clicked' => sub { Gtk2->main_quit }, 'cancel' );
 
 #packing
@@ -120,8 +139,9 @@ $hbox->pack_start( $sepia_tone,  TRUE,  TRUE, 0 );
 $hbox_btn->pack_start( $cancel_btn, TRUE, TRUE, 0 );
 $hbox_btn->pack_start( $save_btn,   TRUE, TRUE, 0 );
 
-$vbox_main->pack_start( $hbox,        TRUE, TRUE, 0 );
-$vbox_main->pack_start( $preview,     TRUE, TRUE, 0 );
+$vbox_main->pack_start( $hbox, TRUE, TRUE, 0 );
+$vbox_main->pack_start( $preview, TRUE, TRUE, 0 );
+$vbox_main->pack_start( $preview_throb, TRUE, TRUE, 0 );
 $vbox_main->pack_start( $refresh_btn, TRUE, TRUE, 0 );
 $vbox_main->pack_start( $hbox_btn,    TRUE, TRUE, 0 );
 
@@ -129,8 +149,21 @@ $plug->add($vbox_main);
 
 $plug->show_all;
 
-#generate first preview
-&fct_imagemagick_sepia( undef, 'refresh' );
+#hide the preview widget at startup 
+$preview->hide_all;
+
+#create tempfile
+my ( $tmpfh, $tmpfilename ) = tempfile();
+#png format
+$tmpfilename .= ".png";
+
+#generate first preview at startup
+Glib::Idle->add (
+	sub{
+		&fct_imagemagick_sepia( undef, 'refresh' );
+		return FALSE;	
+	}, 
+undef);
 
 #lets'start
 Gtk2->main;
@@ -145,12 +178,30 @@ sub value_changed {
 sub fct_imagemagick_sepia {
 	my ( $widget, $data ) = @_;
 
-	my $image = Image::Magick->new;
+	$save_btn->set_sensitive(FALSE);
+	$preview->hide_all;
+	$preview_throb->show_all;
+
+	#we fork a child process
+	#to do the work
+	my $process = Proc::Simple->new;
+	$process->start(
+		sub {
+			&apply_effect();
+			POSIX::_exit(0);
+		}
+	);
+
+	#so we can update the gui
+	while ( $process->poll ) {
+		&fct_update_gui;
+		usleep 100000;
+	}
 
 	if ( $data eq 'save' ) {
 
-		$image->ReadImage($filename);
-		$image->SepiaTone( ( $sepia_tone->get_value / 100 ) * ( 2**16 ) );
+		my $image = Image::Magick->new;
+		$image->ReadImage($tmpfilename);
 		$image->WriteImage( filename => $filename );
 
 		Gtk2->main_quit;
@@ -158,27 +209,47 @@ sub fct_imagemagick_sepia {
 	}
 	else {
 
-		$image->ReadImage($filename);
-		$image->SepiaTone( ( $sepia_tone->get_value / 100 ) * ( 2**16 ) );
+		$preview->set_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
+									$tmpfilename, 300, 300, TRUE)
+								 );
 
-		$preview->set_from_pixbuf(
-			&fct_imagemagick_to_pixbuf( $image->ImageToBlob() ) );
+		$save_btn->set_sensitive(TRUE);
+		$preview->show_all;
+		$preview_throb->hide_all;
 
 		return TRUE;
 	}
 }
 
-sub fct_imagemagick_to_pixbuf {
-	my ($blob) = @_;
-	my $pixbufloader = Gtk2::Gdk::PixbufLoader->new;
-	$pixbufloader->set_size( $width_preview, $height_preview );
-	$pixbufloader->write($blob);
-	$pixbufloader->close;
-	my $pixbuf = $pixbufloader->get_pixbuf;
+sub apply_effect {	
 
-	return $pixbuf;
+	my $image = Image::Magick->new;
+	$image->ReadImage($filename);
+	$image->SepiaTone( ( $sepia_tone->get_value / 100 ) * ( 2**16 ) );
+	$image->WriteImage( filename => $tmpfilename );
+	
+}	
+
+#~ sub fct_imagemagick_to_pixbuf {
+	#~ my ($blob) = @_;
+	#~ my $pixbufloader = Gtk2::Gdk::PixbufLoader->new;
+	#~ $pixbufloader->set_size( $width_preview, $height_preview );
+	#~ $pixbufloader->write($blob);
+	#~ $pixbufloader->close;
+	#~ my $pixbuf = $pixbufloader->get_pixbuf;
+#~ 
+	#~ return $pixbuf;
+#~ }
+
+sub fct_update_gui {
+
+	while ( Gtk2->events_pending ) {
+		Gtk2->main_iteration;
+	}
+	Gtk2::Gdk->flush;
+
+	return TRUE;
 }
-####define your functions here
 
 1;
 

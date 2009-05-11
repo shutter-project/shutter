@@ -7,38 +7,10 @@ shutter (0.80~ppa1) jaunty; urgency=low
     -- Resize the canvas
     -- New watermark plugin
     -- New distortion plugin
-  * Fixed bugs / minor improvements
-    -- LP: #312221
-       [Item is drawn in bottom-right point of the cursor]
-    -- LP: #336122
-       [Ctrl+resize in editor moves the shape]
-    -- LP: #340503
-       [Show item properties on double-click]
-    -- LP: #348595
-       [keybindings don't work in ubuntu jaunty when using compiz]
-    -- LP: #353819
-       [check window border option when calculating shape]
-    -- LP: #353824
-       [fix advanced selection tool when using compiz]
-    -- LP: #353830
-       [do not capture the zoom window when using the simple selection]
-    -- LP: #363708
-       [lines of selected area get captured sometimes]
-    -- LP: #364165
-       [dialogs should set the window title]
-    -- LP: #365365
-       [polaroid plugin text doesn't allow apostrophes]
-    -- LP: #366695
-       [control advanced selection tool with arrow keys]
-    -- LP: #367513
-       [desktop entry contains deprecated encoding key]
-    -- LP: #370359
-       [Watermark plugin doesn't say the allowed syntax]
-    -- LP: #370367
-       [DrawingTool -> View has multiple same options]
+    -- New 3D rotate plugin
   * Drawing Tool
     -- LP: #310704
-       [object property changes don't take immediate effect]
+       [object property changes should take immediate effect]
     -- LP: #311578
        [resize canvas]
     -- LP: #312405
@@ -56,9 +28,42 @@ shutter (0.80~ppa1) jaunty; urgency=low
        [new watermark plugin]
     -- LP: #374192
        [new distortion plugin]
+    -- LP: #375069
+       [new 3D rotate plugin]
+  * Fixed bugs / minor improvements
+    -- LP: #312221
+       [Item is drawn in bottom-right point of the cursor]
+    -- LP: #336122
+       [Ctrl+resize in editor moves the shape]
+    -- LP: #340503
+       [Show item properties on double-click]
+    -- LP: #348595
+       [keybindings don't work in ubuntu jaunty when using compiz]
+    -- LP: #353819
+       [check window border option when calculating shape]
+    -- LP: #353824
+       [fix advanced selection tool when using compiz]
+    -- LP: #353830
+       [do not capture the zoom window when using the simple selection]
+    -- LP: #363708
+       [lines of selected area get captured sometimes]
+    -- LP: #340635
+       [Preview in plugin dialogs takes too long]
+    -- LP: #364165
+       [dialogs should set the window title]
+    -- LP: #365365
+       [polaroid plugin text doesn't allow apostrophes]
+    -- LP: #366695
+       [control advanced selection tool with arrow keys]
+    -- LP: #367513
+       [desktop entry contains deprecated encoding key]
+    -- LP: #370359
+       [Watermark plugin doesn't say the allowed syntax]
+    -- LP: #370367
+       [DrawingTool -> View has multiple same options]
   * updated translations
 
- -- Mario Kemper <mario.kemper@googlemail.com>  Sat, 09 May 2009 19:36:03 +0200
+ -- Mario Kemper <mario.kemper@googlemail.com>  Mon, 11 May 2009 21:15:33 +0200  
 
 shutter (0.70.2~ppa4) jaunty; urgency=low
 

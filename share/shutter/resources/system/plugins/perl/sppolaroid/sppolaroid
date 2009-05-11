@@ -32,6 +32,13 @@ use Locale::gettext;
 use Glib qw/TRUE FALSE/;
 use FindBin '$Bin';    #path where plugin is located
 use File::Temp qw/ tempfile tempdir /;
+use Time::HiRes qw/usleep/;
+
+require lib;
+import lib $ENV{'SHUTTER_ROOT'}."/share/shutter/resources/modules";
+
+#proc (Thanks to Michael Schilli)
+require Proc::Simple;
 
 #configure gettext using ENV Variable (setup during shutter start)
 setlocale( LC_MESSAGES, "" );
@@ -123,14 +130,27 @@ $stroke_color->set_alpha( int( 1.0 * 65535 ) );
 $stroke_color->set_use_alpha(TRUE);
 $stroke_color->set_title( $d->get("Choose stroke color") );
 
-my $refresh_btn = Gtk2::Button->new_from_stock( 'gtk-refresh' );
-$refresh_btn->signal_connect( 'clicked', \&fct_imagemagick_polaroid,
-							  'refresh' );
-
+#we define two Gtk2::Image widgets
+#to store the screenshot
+#and a throbber that is shown while the changes are processed
 my $preview =
 	Gtk2::Image->new_from_pixbuf(
 	   Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $filename, 300, 300, TRUE ) );
 
+my $preview_throb =
+	Gtk2::Image->new_from_file( $ENV{'SHUTTER_ROOT'}."/share/shutter/resources/icons/throbber.gif" );
+
+my $sg = Gtk2::SizeGroup->new ('both');
+$sg->set ('ignore-hidden' => FALSE);
+$sg->add_widget($preview);
+$sg->add_widget($preview_throb);
+
+
+#we define three Gtk2::Button widgets
+#to refresh, save and cancel the plugin's work
+my $refresh_btn = Gtk2::Button->new_from_stock( 'gtk-refresh' );
+$refresh_btn->signal_connect( 'clicked', \&fct_imagemagick_polaroid,
+							  'refresh' );
 
 my $save_btn = Gtk2::Button->new_from_stock( 'gtk-save' );
 $save_btn->signal_connect( 'clicked', \&fct_imagemagick_polaroid, 'save' );
@@ -191,7 +211,8 @@ $vbox_param->pack_start( $hbox_row2, TRUE, TRUE, 5 );
 
 $vbox_main->pack_start( $vbox_param, FALSE, TRUE, 5 );
 
-$vbox_main->pack_start( $preview,     TRUE, TRUE, 5 );
+$vbox_main->pack_start( $preview, TRUE, TRUE, 5 );
+$vbox_main->pack_start( $preview_throb, TRUE, TRUE, 5 );
 $vbox_main->pack_start( $refresh_btn, TRUE, TRUE, 5 );
 
 $hbox_btn->pack_start( $cancel_btn, TRUE, TRUE, 5 );
@@ -202,8 +223,21 @@ $plug->add( $vbox_main );
 
 $plug->show_all;
 
-#generate first preview
-&fct_imagemagick_polaroid( undef, 'refresh' );
+#hide the preview widget at startup 
+$preview->hide_all;
+
+#create tempfile
+my ( $tmpfh, $tmpfilename ) = tempfile();
+#png format
+$tmpfilename .= ".png";
+
+#generate first preview at startup
+Glib::Idle->add (
+	sub{
+		&fct_imagemagick_polaroid( undef, 'refresh' );
+		return FALSE;	
+	}, 
+undef);
 
 #lets'start
 Gtk2->main;
@@ -214,12 +248,29 @@ Gtk2->main;
 sub fct_imagemagick_polaroid {
 	my ( $widget, $data ) = @_;
 
-	my $image = Image::Magick->new;
+	$save_btn->set_sensitive(FALSE);
+	$preview->hide_all;
+	$preview_throb->show_all;
+
+	#we fork a child process
+	#to do the work
+	my $process = Proc::Simple->new;
+	$process->start(
+		sub {
+			&apply_effect();
+			POSIX::_exit(0);
+		}
+	);
+
+	#so we can update the gui
+	while ( $process->poll ) {
+		&fct_update_gui;
+		usleep 100000;
+	}
 
 	if ( $data eq 'save' ) {
 
-		my $tmpfilename = &apply_effect();
-
+		my $image = Image::Magick->new;
 		$image->ReadImage( $tmpfilename );
 		$image->WriteImage( filename => $filename );
 
@@ -227,20 +278,23 @@ sub fct_imagemagick_polaroid {
 		return TRUE;
 	} else {
 
-		my $tmpfilename = &apply_effect();
-		
+	
 		$preview->set_from_pixbuf(
 								   Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
 													$tmpfilename, 300, 300, TRUE
 																			)
 								 );
 
+		$save_btn->set_sensitive(TRUE);
+		$preview->show_all;
+		$preview_throb->hide_all;
+
 		return TRUE;
 	}
 }
 
 sub apply_effect {
-	my ( $tmpfh, $tmpfilename ) = tempfile();
+
 	my $convert_output = undef;
 	if ( $use_caption ) {
 
@@ -274,6 +328,16 @@ sub apply_effect {
 	}
 	
 	return $tmpfilename;	
+}
+
+sub fct_update_gui {
+
+	while ( Gtk2->events_pending ) {
+		Gtk2->main_iteration;
+	}
+	Gtk2::Gdk->flush;
+
+	return TRUE;
 }
 
 1;

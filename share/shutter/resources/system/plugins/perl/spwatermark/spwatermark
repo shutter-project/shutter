@@ -32,6 +32,13 @@ use Locale::gettext;
 use Glib qw/TRUE FALSE/;
 use FindBin '$Bin';    #path where plugin is located
 use File::Temp qw/ tempfile tempdir /;
+use Time::HiRes qw/usleep/;
+
+require lib;
+import lib $ENV{'SHUTTER_ROOT'}."/share/shutter/resources/modules";
+
+#proc (Thanks to Michael Schilli)
+require Proc::Simple;
 
 #configure gettext using ENV Variable (setup during shutter start)
 setlocale( LC_MESSAGES, "" );
@@ -91,7 +98,7 @@ $tooltips->set_tip(
 
 my $pointsize_label = Gtk2::Label->new( $d->get( "Font size:" ) );
 my $pointsize_sbutton = Gtk2::SpinButton->new_with_range( 1, 200, 1 );
-$pointsize_sbutton->set_value( 30 );
+$pointsize_sbutton->set_value( int ($width * 0.1) );
 
 my $gravity_label = Gtk2::Label->new( $d->get( "Gravity:" ) );
 my $gravity_combo = Gtk2::ComboBox->new_text;
@@ -117,13 +124,26 @@ $stroke_color->set_alpha( int( 0.5 * 65535 ) );
 $stroke_color->set_use_alpha(TRUE);
 $stroke_color->set_title( $d->get("Choose stroke color") );
 
-my $refresh_btn = Gtk2::Button->new_from_stock( 'gtk-refresh' );
-$refresh_btn->signal_connect( 'clicked', \&fct_imagemagick_watermark,
-							  'refresh' );
-
+#we define two Gtk2::Image widgets
+#to store the screenshot
+#and a throbber that is shown while the changes are processed
 my $preview =
 	Gtk2::Image->new_from_pixbuf(
 	   Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $filename, 300, 300, TRUE ) );
+
+my $preview_throb =
+	Gtk2::Image->new_from_file( $ENV{'SHUTTER_ROOT'}."/share/shutter/resources/icons/throbber.gif" );
+
+my $sg = Gtk2::SizeGroup->new ('both');
+$sg->set ('ignore-hidden' => FALSE);
+$sg->add_widget($preview);
+$sg->add_widget($preview_throb);
+
+#we define three Gtk2::Button widgets
+#to refresh, save and cancel the plugin's work
+my $refresh_btn = Gtk2::Button->new_from_stock( 'gtk-refresh' );
+$refresh_btn->signal_connect( 'clicked', \&fct_imagemagick_watermark,
+							  'refresh' );
 
 my $save_btn = Gtk2::Button->new_from_stock( 'gtk-save' );
 $save_btn->signal_connect( 'clicked', \&fct_imagemagick_watermark, 'save' );
@@ -173,7 +193,8 @@ $vbox_param->pack_start( $hbox_row1, TRUE, TRUE, 5 );
 $vbox_param->pack_start( $hbox_row2, TRUE, TRUE, 5 );
 
 $vbox_main->pack_start( $vbox_param, FALSE, TRUE, 5 );
-$vbox_main->pack_start( $preview,     TRUE, TRUE, 5 );
+$vbox_main->pack_start( $preview, TRUE, TRUE, 5 );
+$vbox_main->pack_start( $preview_throb, TRUE, TRUE, 5 );
 $vbox_main->pack_start( $refresh_btn, TRUE, TRUE, 5 );
 
 $hbox_btn->pack_start( $cancel_btn, TRUE, TRUE, 5 );
@@ -185,24 +206,57 @@ $plug->add( $vbox_main );
 
 $plug->show_all;
 
-#generate first preview
-&fct_imagemagick_watermark( undef, 'refresh' );
+#hide the preview widget at startup 
+$preview->hide_all;
+
+#create tempfile
+my ( $tmpfh, $tmpfilename ) = tempfile();
+#png format
+$tmpfilename .= ".png";
+my ( $tmpfh2, $tmpfilename2 ) = tempfile();
+#png format
+$tmpfilename2 .= ".png";
+
+#generate first preview at startup
+Glib::Idle->add (
+	sub{
+		&fct_imagemagick_watermark( undef, 'refresh' );
+		return FALSE;	
+	}, 
+undef);
 
 #lets'start
 Gtk2->main;
-
-####define your functions here
 
 
 sub fct_imagemagick_watermark {
 	my ( $widget, $data ) = @_;
 
-	my $image = Image::Magick->new;
+	$save_btn->set_sensitive(FALSE);
+	$preview->hide_all;
+	$preview_throb->show_all;
+
+	#we fork a child process
+	#to do the work
+	my $process = Proc::Simple->new;
+	$process->start(
+		sub {
+			&apply_effect();
+			POSIX::_exit(0);
+		}
+	);
+
+	#so we can update the gui
+	while ( $process->poll ) {
+		&fct_update_gui;
+		usleep 100000;
+	}
 
 	my $tmpfilename = &apply_effect();
 
 	if ( $data eq 'save' ) {
 
+		my $image = Image::Magick->new;
 		$image->ReadImage( $tmpfilename );
 		$image->WriteImage( filename => $filename );
 
@@ -214,14 +268,15 @@ sub fct_imagemagick_watermark {
 									$tmpfilename, 300, 300, TRUE)
 								 );
 
+		$save_btn->set_sensitive(TRUE);
+		$preview->show_all;
+		$preview_throb->hide_all;
+
 		return TRUE;
 	}
 }
 
 sub apply_effect {	
-	#create tempfile
-	my ( $tmpfh, $tmpfilename ) = tempfile();
-	my ( $tmpfh2, $tmpfilename2 ) = tempfile();
 
 	my $text = $caption_entry->get_text;
 	utf8::decode $text;
@@ -246,9 +301,9 @@ sub apply_effect {
 					. $angle_sbutton->get_value
 					. " label:"
 					. $text
-					. " $tmpfilename.png" );
+					. " $tmpfilename" );
 					
-    my $composite_output = system("composite $tmpfilename.png"		
+    my $composite_output = system("composite $tmpfilename"		
 						. " -gravity "
 						. $gravity_combo->get_active_text
 						. " '$filename'"
@@ -257,7 +312,15 @@ sub apply_effect {
 	return $tmpfilename2;
 }
 
-####define your functions here
+sub fct_update_gui {
+
+	while ( Gtk2->events_pending ) {
+		Gtk2->main_iteration;
+	}
+	Gtk2::Gdk->flush;
+
+	return TRUE;
+}
 
 1;
 

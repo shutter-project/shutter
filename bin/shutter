@@ -85,14 +85,13 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.438";
+use constant REV                	=> "Rev.439";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
 use constant SHUTTER_VERSION_FULL 	=> REV . " - " . PPA_VERSION;
 
 #--------------------------------------
-
 
 #configure path settings
 #--------------------------------------
@@ -2607,24 +2606,30 @@ sub fct_save_settings {
 	$settings{'general'}->{'ftp_password'} = $ftp_password_entry->get_text();
 
 	#plugins
-	foreach my $plugin_key ( sort keys %plugins ) {
+	foreach my $plugin_key ( sort keys %plugins ) {	
 		$settings{'plugins'}->{$plugin_key}->{'name'}        = $plugin_key;
 		$settings{'plugins'}->{$plugin_key}->{'binary'}      = $plugins{$plugin_key}->{'binary'};
 		$settings{'plugins'}->{$plugin_key}->{'name_plugin'} = $plugins{$plugin_key}->{'name'};
 		$settings{'plugins'}->{$plugin_key}->{'category'}    = $plugins{$plugin_key}->{'category'};
+		
+		#keep newlines => switch them to <![CDATA[<br>]]> tags
+		#the load routine does it the other way round
+		$plugins{$plugin_key}->{'tooltip'} =~ s/\n/\<\!\[CDATA\[\<br\>\]\]\>/g;
 		$settings{'plugins'}->{$plugin_key}->{'tooltip'}     = $plugins{$plugin_key}->{'tooltip'};
 		$settings{'plugins'}->{$plugin_key}->{'lang'}        = $plugins{$plugin_key}->{'lang'};
+		$settings{'plugins'}->{$plugin_key}->{'recent'}      = $plugins{$plugin_key}->{'recent'} if defined $plugins{$plugin_key}->{'recent'};
 		utf8::encode $settings{'plugins'}->{$plugin_key}->{'name'};
 		utf8::encode $settings{'plugins'}->{$plugin_key}->{'binary'};
 		utf8::encode $settings{'plugins'}->{$plugin_key}->{'name_plugin'};
 		utf8::encode $settings{'plugins'}->{$plugin_key}->{'category'};
 		utf8::encode $settings{'plugins'}->{$plugin_key}->{'tooltip'};
 		utf8::encode $settings{'plugins'}->{$plugin_key}->{'lang'};
+		
 	}
 
 	#settings
 	eval {
-		XMLout( \%settings, OutputFile => $fh_setting );
+		XMLout( \%settings, OutputFile => $fh_setting);
 		$fh_setting->close();
 		&dlg_status_message( 1, $d->get("Settings saved successfully!") );
 	};
@@ -2696,29 +2701,29 @@ sub fct_save_bindings {
 	my $cws     = undef;
 	my $cws_k  	= undef;
 	
-	eval{
-		$bus = Net::DBus->find;
-		
-		#Get a handle to the compiz service
-		$compiz = $bus->get_service("org.freedesktop.compiz");
-
-		# Get the relevant objects object
-		$cs = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/command_screenshot",
-									 "org.freedesktop.compiz");
-		
-		$cs_k = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/run_command_screenshot_key",
-									 "org.freedesktop.compiz");
-
-		$cws = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/command_window_screenshot",
-									 "org.freedesktop.compiz");
-		
-		$cws_k = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/run_command_window_screenshot_key",
-									 "org.freedesktop.compiz");
-	};
-	if($@){
-		warn "WARNING: DBus connection to org.freedesktop.compiz failed --> setting keyboard shortcuts may not work when using compiz\n\n";
-		warn $@ . "\n\n";
-	}
+	#~ eval{
+		#~ $bus = Net::DBus->find;
+		#~ 
+		#~ #Get a handle to the compiz service
+		#~ $compiz = $bus->get_service("org.freedesktop.compiz");
+#~ 
+		#~ # Get the relevant objects object
+		#~ $cs = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/command_screenshot",
+									 #~ "org.freedesktop.compiz");
+		#~ 
+		#~ $cs_k = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/run_command_screenshot_key",
+									 #~ "org.freedesktop.compiz");
+#~ 
+		#~ $cws = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/command_window_screenshot",
+									 #~ "org.freedesktop.compiz");
+		#~ 
+		#~ $cws_k = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/run_command_window_screenshot_key",
+									 #~ "org.freedesktop.compiz");
+	#~ };
+	#~ if($@){
+		#~ warn "WARNING: DBus connection to org.freedesktop.compiz failed --> setting keyboard shortcuts may not work when using compiz\n\n";
+		#~ warn $@ . "\n\n";
+	#~ }
 
 	#GCONF
 	my $client        = Gnome2::GConf::Client->get_default;
@@ -2735,12 +2740,12 @@ sub fct_save_bindings {
 			$client->set( $shortcut_full, { type  => 'string', value => $key } );
 			
 			#compiz if available
-			if(defined $cs && defined $cs_k){
-				$cs->set(dbus_string "$shutter_path --full");
-				
-				#currently not needed because keys are copied from gconf
+			#~ if(defined $cs && defined $cs_k){
+				#~ $cs->set(dbus_string "$shutter_path --full");
+				#~ 
+				#~ #currently not needed because keys are copied from gconf
 				#~ $cs_k->set(dbus_string $key);
-			}
+			#~ }
 			
 		} else {
 			
@@ -2748,12 +2753,12 @@ sub fct_save_bindings {
 			$client->set( $shortcut_full, { type => 'string', value => 'Print', } );
 
 			#compiz if available
-			if(defined $cs && defined $cs_k){
-				$cs->set(dbus_string 'gnome-screenshot');
-				
-				#currently not needed because keys are copied from gconf
+			#~ if(defined $cs && defined $cs_k){
+				#~ $cs->set(dbus_string 'gnome-screenshot');
+				#~ 
+				#~ #currently not needed because keys are copied from gconf
 				#~ $cs_k->set(dbus_string 'Print');
-			}	
+			#~ }	
 
 		}
 		
@@ -2774,12 +2779,12 @@ sub fct_save_bindings {
 			$client->set( $shortcut_sel, { type  => 'string', value => $skey } );
 			
 			#compiz if available
-			if(defined $cws && defined $cws_k){
-				$cws->set(dbus_string "$shutter_path $mode");
-				
-				#currently not needed because keys are copied from gconf
+			#~ if(defined $cws && defined $cws_k){
+				#~ $cws->set(dbus_string "$shutter_path $mode");
+				#~ 
+				#~ #currently not needed because keys are copied from gconf
 				#~ $cws_k->set(dbus_string $skey);
-			}
+			#~ }
 
 		} else {
 			
@@ -2787,12 +2792,12 @@ sub fct_save_bindings {
 			$client->set( $shortcut_sel, { type => 'string', value => '<Alt>Print' } );
 			
 			#compiz if available
-			if(defined $cws && defined $cws_k){
-				$cws->set(dbus_string 'gnome-screenshot --window');
-
-				#currently not needed because keys are copied from gconf
+			#~ if(defined $cws && defined $cws_k){
+				#~ $cws->set(dbus_string 'gnome-screenshot --window');
+#~ 
+				#~ #currently not needed because keys are copied from gconf
 				#~ $cws_k->set(dbus_string '<Alt>Print');
-			}	
+			#~ }	
 			
 		}
 
@@ -2950,6 +2955,10 @@ sub fct_load_settings {
 
 			#check if plugin still exists in filesystem
 			if ( $shutter_hfunct->file_exists( $settings_xml->{'plugins'}->{$plugin_key}->{'binary'} ) ) {
+				
+				#restore newlines <![CDATA[<br>]]> tags => \n
+				$settings_xml->{'plugins'}->{$plugin_key}->{'tooltip'} =~ s/\<\!\[CDATA\[\<br\>\]\]\>/\n/g;
+				
 				utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'name_plugin'};
 				utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'category'};
 				utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'tooltip'};
@@ -2959,10 +2968,12 @@ sub fct_load_settings {
 				$plugins{$plugin_key}->{'category'} = $settings_xml->{'plugins'}->{$plugin_key}->{'category'};
 				$plugins{$plugin_key}->{'tooltip'}  = $settings_xml->{'plugins'}->{$plugin_key}->{'tooltip'};
 				$plugins{$plugin_key}->{'lang'}     = $settings_xml->{'plugins'}->{$plugin_key}->{'lang'};
+				$plugins{$plugin_key}->{'recent'}   = $settings_xml->{'plugins'}->{$plugin_key}->{'recent'};
 			} else {
 				next;
 			}
 		}
+	
 	}
 
 	#maybe there are new plugins...
@@ -4032,6 +4043,7 @@ sub fct_execute_plugin {
 
 		#initiate the socket to draw the contents of the plugin to our dialog
 		my $plugin_socket = Gtk2::Dialog->new( $plugin_name, $window, [qw/modal destroy-with-parent/] );
+		$plugin_socket->set_resizable(FALSE);
 		$plugin_socket->set_has_separator(FALSE); 
 		my $socket = Gtk2::Socket->new;
 		$plugin_socket->vbox->add($socket);
@@ -4058,6 +4070,8 @@ sub fct_execute_plugin {
 		}
 		$plugin_socket->show_all;
 		$plugin_socket->run;
+
+		waitpid($pid, 0);
 
 		&dlg_status_message( 1, $d->get("Successfully executed plugin") . ": " . $plugin_name );
 
@@ -5996,10 +6010,14 @@ sub dlg_plugin {
 		'gtk-execute' => 'accept'
 	);
 	$plugin_dialog->set_default_response('accept');
-	$plugin_dialog->set_size_request(300, -1);
+	$plugin_dialog->set_size_request(350, -1);
 	
 	my $model = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String' );
 
+	#temp variables to restore the
+	#recent plugin
+	my $recent_time = 0;
+	my $iter_lastex_plugin = undef;
 	foreach my $pkey ( sort keys %plugins ) {
 
 		#check if plugin allows current filetype
@@ -6008,11 +6026,27 @@ sub dlg_plugin {
 		
 		if ( $plugins{$pkey}->{'binary'} ne "" ) {
 
+			my $new_iter = $model->append;
 			$model->set(
-				$model->append,           0, $plugins{$pkey}->{'pixbuf_object'}, 1, $plugins{$pkey}->{'name'},    2,
+				$new_iter, 0, $plugins{$pkey}->{'pixbuf_object'}, 1, $plugins{$pkey}->{'name'},    2,
 				$plugins{$pkey}->{'binary'}, 3, $plugins{$pkey}->{'lang'},          4, $plugins{$pkey}->{'tooltip'}, 5,
 				$pkey
 			);
+			
+			#initialize $iter_lastex_plugin
+			#with first new iter
+			$iter_lastex_plugin = $new_iter unless defined $iter_lastex_plugin;
+			
+			#restore the recent plugin
+			#($plugins{$plugin_key}->{'recent'} is a timestamp)
+			#
+			#we keep the new_iter in mind
+			if (defined $plugins{$pkey}->{'recent'} && 
+				$plugins{$pkey}->{'recent'} > $recent_time){
+				$iter_lastex_plugin = $new_iter;
+				$recent_time = $plugins{$pkey}->{'recent'};
+			}
+
 		} else {
 			print "WARNING: Program $pkey is not configured properly, ignoring\n";
 		}
@@ -6047,6 +6081,13 @@ sub dlg_plugin {
 	my $plugin_hbox2 = Gtk2::HBox->new( FALSE, 5 );
 	$plugin_hbox2->set_border_width(10);
 
+	#what plugin is selected?
+	my $plugin_pixbuf = undef;
+	my $plugin_name   = undef;
+	my $plugin_value  = undef;
+	my $plugin_lang   = undef;
+	my $plugin_tip    = undef;
+	my $plugin_key    = undef;
 	$plugin->signal_connect(
 		'changed' => sub {
 
@@ -6054,12 +6095,12 @@ sub dlg_plugin {
 			my $plugin_iter = $plugin->get_active_iter();
 
 			if ($plugin_iter) {
-				my $plugin_pixbuf = $model->get_value( $plugin_iter, 0 );
-				my $plugin_name   = $model->get_value( $plugin_iter, 1 );
-				my $plugin_value  = $model->get_value( $plugin_iter, 2 );
-				my $plugin_lang   = $model->get_value( $plugin_iter, 3 );
-				my $plugin_tip    = $model->get_value( $plugin_iter, 4 );
-				my $plugin_key    = $model->get_value( $plugin_iter, 5 );
+				$plugin_pixbuf = $model->get_value( $plugin_iter, 0 );
+				$plugin_name   = $model->get_value( $plugin_iter, 1 );
+				$plugin_value  = $model->get_value( $plugin_iter, 2 );
+				$plugin_lang   = $model->get_value( $plugin_iter, 3 );
+				$plugin_tip    = $model->get_value( $plugin_iter, 4 );
+				$plugin_key    = $model->get_value( $plugin_iter, 5 );
 
 				$plugin_descr->set_text($plugin_tip);
 				if ( $shutter_hfunct->file_exists( $plugins{$plugin_key}->{'pixbuf'} ) ) {
@@ -6069,13 +6110,16 @@ sub dlg_plugin {
 		},
 		'changed'
 	);
+	
 	my $renderer_pix = Gtk2::CellRendererPixbuf->new;
 	$plugin->pack_start( $renderer_pix, FALSE );
 	$plugin->add_attribute( $renderer_pix, pixbuf => 0 );
 	my $renderer_text = Gtk2::CellRendererText->new;
 	$plugin->pack_start( $renderer_text, FALSE );
 	$plugin->add_attribute( $renderer_text, text => 1 );
-	$plugin->set_active(0);
+	
+	#we try to activate the last executed plugin if that's possible
+	$plugin->set_active_iter($iter_lastex_plugin);
 
 	$plugin_hbox1->pack_start_defaults($plugin);
 
@@ -6099,16 +6143,15 @@ sub dlg_plugin {
 
 	if ( $plugin_response eq "accept" ) {
 		
-		#what plugin was selected?
-		my $model        = $plugin->get_model();
-		my $plugin_iter  = $plugin->get_active_iter();
-		my $plugin_value = $model->get_value( $plugin_iter, 2 );
-		my $plugin_name  = $model->get_value( $plugin_iter, 1 );
-		my $plugin_lang  = $model->get_value( $plugin_iter, 3 );
+		#anything wrong with the selected plugin?
 		unless ( $plugin_value =~ /[a-zA-Z0-9]+/ ) {
 			$shutter_dialog->dlg_error_message( $d->get("No plugin specified"), $d->get("Failed") );
 			return FALSE;
 		}
+
+		#we save the last execution time
+		#and try to preselect it when the plugin dialog is executed again
+		$plugins{$plugin_key}->{'recent'} = time;
 
 		#disable all widgets
 		foreach my $dialog_child ($plugin_dialog->vbox->get_children){

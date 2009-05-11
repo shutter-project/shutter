@@ -22,6 +22,16 @@
 #
 ###################################################
 
+###################################################
+#
+#  Based on a script by Fred Weinhaus
+#
+#  Fred Weinhaus and http://www.fmwconcepts.com/imagemagick/index.html
+#
+#  http://www.fmwconcepts.com/imagemagick/3Drotate/index.php
+#
+###################################################
+
 use utf8;
 use strict;
 use warnings;
@@ -48,14 +58,14 @@ $d->dir( $ENV{'SHUTTER_INTL'} );
 binmode( STDOUT, ":utf8" );
 #shutter will ask for some infos - no need of changing anything
 if ( $ARGV[ 0 ] eq "name" ) {
-	print $d->get( "barrel distortion" );
+	print $d->get( "3D rotate" );
 	exit;
 } elsif ( $ARGV[ 0 ] eq "sort" ) {
 	print $d->get( "effect" );
 	exit;
 } elsif ( $ARGV[ 0 ] eq "tip" ) {
 	print $d->get(
-		"apply a distortion effect to your screenshot"
+		"applies a perspective distortion to an image\n\nBased on a script by Fred Weinhaus\n\nhttp://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 	);
 	exit;
 } elsif ( $ARGV[ 0 ] eq "lang" ) {
@@ -79,76 +89,136 @@ $plug->signal_connect( destroy => sub { Gtk2->main_quit } );
 my $tooltips = Gtk2::Tooltips->new;
 
 #configure buttons and other needed controls
-my $c1_label = Gtk2::Label->new( $d->get( "A:" ) );
-my $c1_sbutton = Gtk2::SpinButton->new_with_range( -1, 1, 0.1 );
-$c1_sbutton->set_value( 0.2 );
-
-my $c2_label = Gtk2::Label->new( $d->get( "B:" ) );
-my $c2_sbutton = Gtk2::SpinButton->new_with_range( -1, 1, 0.1 );
-$c2_sbutton->set_value( 0 );
-
-my $c3_label = Gtk2::Label->new( $d->get( "C:" ) );
-my $c3_sbutton = Gtk2::SpinButton->new_with_range( -1, 1, 0.1 );
-$c3_sbutton->set_value( 0 );
-
-my $c4_label = Gtk2::Label->new( $d->get( "D:" ) );
-my $c4_sbutton = Gtk2::SpinButton->new_with_range( -1, 1, 0.1 );
-$c4_sbutton->set_value( 1.0 );
+my $pan_label = Gtk2::Label->new( "Pan:" );
+my $pan_sbutton = Gtk2::SpinButton->new_with_range( -180, 180, 1 );
+$pan_sbutton->set_value( 40 );
 
 $tooltips->set_tip(
-	$c1_label,
+	$pan_label,
 	$d->get(
-		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
+		"Rotation about image vertical centerline"
 	)
 );
 
 $tooltips->set_tip(
-	$c1_sbutton,
+	$pan_sbutton,
 	$d->get(
-		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
+		"Rotation about image vertical centerline"
+	)
+);
+
+my $tilt_label = Gtk2::Label->new( "Tilt:" );
+my $tilt_sbutton = Gtk2::SpinButton->new_with_range( -180, 180, 1 );
+$tilt_sbutton->set_value( 0 );
+
+$tooltips->set_tip(
+	$tilt_label,
+	$d->get(
+		"Rotation about image horizontal centerline"
 	)
 );
 
 $tooltips->set_tip(
-	$c2_label,
+	$tilt_sbutton,
 	$d->get(
-		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
+		"Rotation about image horizontal centerline"
+	)
+);
+
+my $roll_label = Gtk2::Label->new( "Roll:" );
+my $roll_sbutton = Gtk2::SpinButton->new_with_range( -180, 180, 1 );
+$roll_sbutton->set_value( 0 );
+
+$tooltips->set_tip(
+	$roll_label,
+	$d->get(
+		"Rotation about the image center"
 	)
 );
 
 $tooltips->set_tip(
-	$c2_sbutton,
+	$roll_sbutton,
 	$d->get(
-		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
+		"Rotation about the image center"
+	)
+);
+
+my $pef_label = Gtk2::Label->new( "Pef:" );
+my $pef_sbutton = Gtk2::SpinButton->new_with_range( 0, 3.19, 0.01 );
+$pef_sbutton->set_value( 1 );
+
+$tooltips->set_tip(
+	$pef_label,
+	$d->get(
+		"Perspective exaggeration factor"
 	)
 );
 
 $tooltips->set_tip(
-	$c3_label,
+	$pef_sbutton,
 	$d->get(
-		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
+		"Perspective exaggeration factor"
+	)
+);
+
+my $zoom_label = Gtk2::Label->new( "Zoom:" );
+my $zoom_sbutton = Gtk2::SpinButton->new_with_range( -10, 10, 0.10 );
+$zoom_sbutton->set_value( -1.5 );
+
+$tooltips->set_tip(
+	$zoom_label,
+	$d->get(
+		"Output zoom factor; where value > 1 means zoom in and < 1 means zoom out"
 	)
 );
 
 $tooltips->set_tip(
-	$c3_sbutton,
+	$zoom_sbutton,
 	$d->get(
-		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
+		"Output zoom factor; where value > 1 means zoom in and < 1 means zoom out"
+	)
+);
+
+#AUTO can be either c, zc or out. 
+#If auto is c, then the resulting perspective of the input image will have its bounding 
+#box centered in the output image whose size will be the same as the input image. 
+#
+#If auto is zc, then the resulting perspective of the input image will have its bounding box 
+#zoomed to fill its largest dimension to match the size of the the input image 
+#and the other dimension will be centered in the output. 
+#
+#If auto is out, then the output image will be made as large or as small as needed 
+#to just fill out the transformed input image
+my $auto_label = Gtk2::Label->new( $d->get( "Auto:" ) );
+my $auto_combo = Gtk2::ComboBox->new_text;
+$auto_combo->insert_text( 0, "off" );
+$auto_combo->insert_text( 1, "c" );
+$auto_combo->insert_text( 2, "zc" );
+$auto_combo->insert_text( 3, "out" );
+
+#if auto is zc or auto is out => zoom is ignored
+$auto_combo->signal_connect('changed' => sub {
+	my $state = $auto_combo->get_active_text;
+	if($state eq "zc" or $state eq "out"){
+		$zoom_sbutton->set_sensitive(FALSE);	
+	}else{
+		$zoom_sbutton->set_sensitive(TRUE);		
+	}
+});
+
+$auto_combo->set_active( 1 );
+
+$tooltips->set_tip(
+	$auto_label,
+	$d->get(
+		"off - No automatic adjustment\n\nc - Center bounding box in output\n\nzc - Zoom to fill and center bounding box in output\n\nout - Creates an output image of size needed to hold the transformed image"
 	)
 );
 
 $tooltips->set_tip(
-	$c4_label,
+	$auto_combo,
 	$d->get(
-		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
-	)
-);
-
-$tooltips->set_tip(
-	$c4_sbutton,
-	$d->get(
-		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
-	)
+		"off - No automatic adjustment\n\nc - Center bounding box in output\n\nzc - Zoom to fill and center bounding box in output\n\nout - Creates an output image of size needed to hold the transformed image"	)
 );
 
 my $back_color_label = Gtk2::Label->new( $d->get("Background color"). ":" );
@@ -158,14 +228,23 @@ $back_color->set_alpha( int( 0 * 65535 ) );
 $back_color->set_use_alpha(TRUE);
 $back_color->set_title( $d->get("Choose background color") );
 
+my $sky_color_label = Gtk2::Label->new( $d->get("Sky color"). ":" );
+my $sky_color = Gtk2::ColorButton->new();
+$sky_color->set_color( Gtk2::Gdk::Color->parse('blue') );
+$sky_color->set_alpha( int( 0.9 * 65535 ) );
+$sky_color->set_use_alpha(TRUE);
+$sky_color->set_title( $d->get("Choose sky color") );
+
 #all labels on the left side 
 #need to have the same size
 my $sgl = Gtk2::SizeGroup->new ('both');
 $sgl->set ('ignore-hidden' => FALSE);
-$sgl->add_widget($c1_label);
-$sgl->add_widget($c2_label);
-$sgl->add_widget($c3_label);
-$sgl->add_widget($c4_label);
+$sgl->add_widget($pan_label);
+$sgl->add_widget($roll_label);
+$sgl->add_widget($tilt_label);
+$sgl->add_widget($pef_label);
+$sgl->add_widget($auto_label);
+$sgl->add_widget($zoom_label);
 
 #we define two Gtk2::Image widgets
 #to store the screenshot
@@ -186,15 +265,14 @@ $sg->add_widget($preview_throb);
 #we define three Gtk2::Button widgets
 #to refresh, save and cancel the plugin's work
 my $refresh_btn = Gtk2::Button->new_from_stock( 'gtk-refresh' );
-$refresh_btn->signal_connect( 'clicked', \&fct_imagemagick_bardistortion,
+$refresh_btn->signal_connect( 'clicked', \&fct_imagemagick_3Drotate,
 							  'refresh' );
 
 my $save_btn = Gtk2::Button->new_from_stock( 'gtk-save' );
-$save_btn->signal_connect( 'clicked', \&fct_imagemagick_bardistortion, 'save' );
+$save_btn->signal_connect( 'clicked', \&fct_imagemagick_3Drotate, 'save' );
 
 my $cancel_btn = Gtk2::Button->new_from_stock( 'gtk-cancel' );
 $cancel_btn->signal_connect( 'clicked' => sub { Gtk2->main_quit }, 'cancel' );
-
 
 #define the gui layout
 my $hbox1      = Gtk2::HBox->new( FALSE, 8 );
@@ -202,9 +280,12 @@ my $hbox2      = Gtk2::HBox->new( FALSE, 8 );
 my $hbox3      = Gtk2::HBox->new( FALSE, 8 );
 my $hbox4      = Gtk2::HBox->new( FALSE, 8 );
 my $hbox5      = Gtk2::HBox->new( FALSE, 8 );
+my $hbox6      = Gtk2::HBox->new( FALSE, 8 );
+my $hbox7      = Gtk2::HBox->new( FALSE, 8 );
+my $hbox8      = Gtk2::HBox->new( FALSE, 8 );
 
 my $hbox_row1 = Gtk2::HBox->new( TRUE, 8 );
-my $hbox_row2 = Gtk2::HBox->new( FALSE, 8 );
+my $hbox_row2 = Gtk2::HBox->new( TRUE, 8 );
 
 my $vbox_param = Gtk2::VBox->new( FALSE,  8 );
 my $vbox_left = Gtk2::VBox->new( FALSE, 8 );
@@ -215,29 +296,41 @@ my $vbox_btn  = Gtk2::VBox->new( FALSE, 8 );
 my $vbox_main = Gtk2::VBox->new( FALSE, 8 );
 
 #packing
-$hbox1->pack_start( $c1_label, FALSE, TRUE, 5 );
-$hbox1->pack_start( $c1_sbutton, TRUE,  TRUE, 5 );
+$hbox1->pack_start( $pan_label, FALSE, TRUE, 5 );
+$hbox1->pack_start( $pan_sbutton, TRUE,  TRUE, 5 );
 
-$hbox2->pack_start( $c2_label, FALSE, TRUE, 5 );
-$hbox2->pack_start( $c2_sbutton, TRUE,  TRUE, 5 );
+$hbox2->pack_start( $tilt_label, FALSE, TRUE, 5 );
+$hbox2->pack_start( $tilt_sbutton, TRUE,  TRUE, 5 );
 
-$hbox3->pack_start( $c3_label, FALSE, TRUE, 5 );
-$hbox3->pack_start( $c3_sbutton, TRUE,  TRUE, 5 );
+$hbox3->pack_start( $roll_label, FALSE, TRUE, 5 );
+$hbox3->pack_start( $roll_sbutton, TRUE,  TRUE, 5 );
 
-$hbox4->pack_start( $c4_label, FALSE, TRUE, 5 );
-$hbox4->pack_start( $c4_sbutton, TRUE,  TRUE, 5 );
+$hbox4->pack_start( $pef_label, FALSE, TRUE, 5 );
+$hbox4->pack_start( $pef_sbutton, TRUE,  TRUE, 5 );
 
-$hbox5->pack_start( $back_color_label, FALSE, TRUE, 5 );
-$hbox5->pack_start( $back_color, TRUE,  TRUE, 5 );
+$hbox5->pack_start( $auto_label, FALSE, TRUE, 5 );
+$hbox5->pack_start( $auto_combo, TRUE,  TRUE, 5 );
+
+$hbox6->pack_start( $zoom_label, FALSE, TRUE, 5 );
+$hbox6->pack_start( $zoom_sbutton, TRUE,  TRUE, 5 );
+
+$hbox7->pack_start( $back_color_label, FALSE, TRUE, 5 );
+$hbox7->pack_start( $back_color, TRUE,  TRUE, 5 );
+
+$hbox8->pack_start( $sky_color_label, FALSE, TRUE, 5 );
+$hbox8->pack_start( $sky_color, TRUE,  TRUE, 5 );
 
 #row 1
-$hbox_row1->pack_start_defaults( $hbox5 );
+$hbox_row1->pack_start_defaults( $hbox7 );
+$hbox_row1->pack_start_defaults( $hbox8 );
 
 #controls on the left side
 $vbox_left->pack_start_defaults( $hbox1 );
 $vbox_left->pack_start_defaults( $hbox2 );
 $vbox_left->pack_start_defaults( $hbox3 );
 $vbox_left->pack_start_defaults( $hbox4 );
+$vbox_left->pack_start_defaults( $hbox5 );
+$vbox_left->pack_start_defaults( $hbox6 );
 
 #preview
 $vbox_right->pack_start_defaults( $preview );
@@ -273,7 +366,7 @@ $tmpfilename .= ".png";
 #generate first preview at startup
 Glib::Idle->add (
 	sub{
-		&fct_imagemagick_bardistortion( undef, 'refresh' );
+		&fct_imagemagick_3Drotate( undef, 'refresh' );
 		return FALSE;	
 	}, 
 undef);
@@ -281,7 +374,8 @@ undef);
 #lets'start
 Gtk2->main;
 
-sub fct_imagemagick_bardistortion {
+
+sub fct_imagemagick_3Drotate {
 	my ( $widget, $data ) = @_;
 
 	$save_btn->set_sensitive(FALSE);
@@ -309,7 +403,7 @@ sub fct_imagemagick_bardistortion {
 		my $image = Image::Magick->new;
 		$image->ReadImage( $tmpfilename );
 		$image->WriteImage( filename => $filename );
-
+		
 		Gtk2->main_quit;
 		return TRUE;
 	} else {
@@ -328,21 +422,31 @@ sub fct_imagemagick_bardistortion {
 
 sub apply_effect {	
 
-	my $color = $back_color->get_color;
+	my $bcolor = $back_color->get_color;
+	my $scolor = $sky_color->get_color;
 
+	#auto value
+	my $auto = "";
+	$auto = " auto=".$auto_combo->get_active_text if $auto_combo->get_active_text ne "off";
+	
 	#execute imagemagick command		
 	my $convert_output =
-			system(   "convert"
-					. " -virtual-pixel Background -background '"
-					. sprintf( "#%04x%04x%04x%04x", $color->red, $color->green, $color->blue, $back_color->get_alpha )
-					. "' -distort Barrel '"
-					. $c1_sbutton->get_value
-					. " "
-					. $c2_sbutton->get_value
-					. " "
-					. $c3_sbutton->get_value
-					. " "
-					. $c4_sbutton->get_value														
+			system(   $Bin."/3Drotate"
+					. " pan="
+					. $pan_sbutton->get_value
+					. " tilt="
+					. $tilt_sbutton->get_value
+					. " roll="
+					. $roll_sbutton->get_value
+					. " pef="
+					. $pef_sbutton->get_value										
+					. " zoom="
+					. $zoom_sbutton->get_value
+					. $auto
+					. " bgcolor='"
+					. sprintf( "#%04x%04x%04x%04x", $bcolor->red, $bcolor->green, $bcolor->blue, $back_color->get_alpha )
+					. "' skycolor='"
+					. sprintf( "#%04x%04x%04x%04x", $scolor->red, $scolor->green, $scolor->blue, $sky_color->get_alpha )													
 					. "' '$filename'"
 					. " $tmpfilename" );
 				
