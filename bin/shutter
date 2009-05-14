@@ -85,7 +85,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.443";
+use constant REV                	=> "Rev.444";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -424,6 +424,13 @@ if ( defined $settings_xml->{'general'}->{'last_profile'} ) {
 		$settings_xml = &fct_load_settings( "start", "start", $settings_xml->{'general'}->{'last_profile_name'} );
 	}
 }
+
+#--------------------------------------
+
+#check plugins
+#--------------------------------------
+
+&fct_check_installed_plugins;
 
 #--------------------------------------
 
@@ -2938,72 +2945,68 @@ sub fct_load_settings {
 				$ftp_mode_combo->set_active( $settings_xml->{'general'}->{'ftp_mode'} );
 				$ftp_username_entry->set_text( $settings_xml->{'general'}->{'ftp_username'} );
 				$ftp_password_entry->set_text( $settings_xml->{'general'}->{'ftp_password'} );
-			}
 
-			#we store the version info, so we know if there was a new version installed
-			#when starting new version we clear the cache on first startup
-			if (defined $settings_xml->{'general'}->{'app_version'}){
-				if(SHUTTER_VERSION . PPA_VERSION . REV ne $settings_xml->{'general'}->{'app_version'}){
-					$shutter_common->set_clear_cache(TRUE);
-				}	
+				#load account data from profile
+				&fct_load_accounts($profilename);
+				if ( defined $accounts_tree ) {
+					&fct_load_accounts_tree;
+					$accounts_tree->set_model($accounts_model);
+					&fct_set_model_accounts($accounts_tree);
+				}
+
+			#endif profile load
 			}else{
-				$shutter_common->set_clear_cache(TRUE);
-			}
+							
+				#we store the version info, so we know if there was a new version installed
+				#when starting new version we clear the cache on first startup
+				if (defined $settings_xml->{'general'}->{'app_version'}){
+					if(SHUTTER_VERSION . PPA_VERSION . REV ne $settings_xml->{'general'}->{'app_version'}){
+						$shutter_common->set_clear_cache(TRUE);
+					}	
+				}else{
+					$shutter_common->set_clear_cache(TRUE);
+				}
 
-			#load account data
-			&fct_load_accounts($profilename);
-			if ( defined $accounts_tree ) {
-				&fct_load_accounts_tree;
-				$accounts_tree->set_model($accounts_model);
-				&fct_set_model_accounts($accounts_tree);
-			}
+				#get plugins from cache unless param is set to ignore it
+				if ( !$shutter_common->get_clear_cache ) {
 
-			&dlg_status_message( 1, $d->get("Settings loaded successfully") );
-			}
+					foreach my $plugin_key ( sort keys %{ $settings_xml->{'plugins'} } ) {
+						utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'binary'};
 
-	};
-	if ($@) {
-		$shutter_dialog->dlg_error_message( $@, $d->get("Settings could not be restored!") );
-		unlink $settingsfile;
-	}
+						#check if plugin still exists in filesystem
+						if ( $shutter_hfunct->file_exists( $settings_xml->{'plugins'}->{$plugin_key}->{'binary'} ) ) {
+							
+							#restore newlines <![CDATA[<br>]]> tags => \n
+							$settings_xml->{'plugins'}->{$plugin_key}->{'tooltip'} =~ s/\<\!\[CDATA\[\<br\>\]\]\>/\n/g;
+							
+							utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'name_plugin'};
+							utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'category'};
+							utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'tooltip'};
+							utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'lang'};
+							$plugins{$plugin_key}->{'binary'}   = $settings_xml->{'plugins'}->{$plugin_key}->{'binary'};
+							$plugins{$plugin_key}->{'name'}     = $settings_xml->{'plugins'}->{$plugin_key}->{'name_plugin'};
+							$plugins{$plugin_key}->{'category'} = $settings_xml->{'plugins'}->{$plugin_key}->{'category'};
+							$plugins{$plugin_key}->{'tooltip'}  = $settings_xml->{'plugins'}->{$plugin_key}->{'tooltip'};
+							$plugins{$plugin_key}->{'lang'}     = $settings_xml->{'plugins'}->{$plugin_key}->{'lang'};
+							$plugins{$plugin_key}->{'recent'}   = $settings_xml->{'plugins'}->{$plugin_key}->{'recent'};
+						} else {
+							next;
+						}
+					}
 
-	#get plugins from cache unless param is set to ignore it
-	if ( !$shutter_common->get_clear_cache ) {
+				}
 
-		foreach my $plugin_key ( sort keys %{ $settings_xml->{'plugins'} } ) {
-			utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'binary'};
+			} 
 
-			#check if plugin still exists in filesystem
-			if ( $shutter_hfunct->file_exists( $settings_xml->{'plugins'}->{$plugin_key}->{'binary'} ) ) {
-				
-				#restore newlines <![CDATA[<br>]]> tags => \n
-				$settings_xml->{'plugins'}->{$plugin_key}->{'tooltip'} =~ s/\<\!\[CDATA\[\<br\>\]\]\>/\n/g;
-				
-				utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'name_plugin'};
-				utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'category'};
-				utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'tooltip'};
-				utf8::decode $settings_xml->{'plugins'}->{$plugin_key}->{'lang'};
-				$plugins{$plugin_key}->{'binary'}   = $settings_xml->{'plugins'}->{$plugin_key}->{'binary'};
-				$plugins{$plugin_key}->{'name'}     = $settings_xml->{'plugins'}->{$plugin_key}->{'name_plugin'};
-				$plugins{$plugin_key}->{'category'} = $settings_xml->{'plugins'}->{$plugin_key}->{'category'};
-				$plugins{$plugin_key}->{'tooltip'}  = $settings_xml->{'plugins'}->{$plugin_key}->{'tooltip'};
-				$plugins{$plugin_key}->{'lang'}     = $settings_xml->{'plugins'}->{$plugin_key}->{'lang'};
-				$plugins{$plugin_key}->{'recent'}   = $settings_xml->{'plugins'}->{$plugin_key}->{'recent'};
-			} else {
-				next;
-			}
-		}
-	
-	}
+		};
+		if ($@) {
+			$shutter_dialog->dlg_error_message( $@, $d->get("Settings could not be restored!") );
+			unlink $settingsfile;
+		}else{
+			&dlg_status_message( 1, $d->get("Settings loaded successfully") );				
+		}			
 
-	#maybe there are new plugins...
-	&fct_check_installed_plugins;
-
-	if ( defined $effects_tree ) {
-		&fct_load_plugin_tree;
-		$effects_tree->set_model($effects_model);
-		&fct_set_model_plugins($effects_tree);
-	}
+	} #endif file exists
 
 	return $settings_xml;
 }
@@ -4681,8 +4684,14 @@ sub fct_get_next_filename {
 }
 
 sub fct_check_installed_plugins {
-
+	
 	my @plugin_paths = ( "$shutter_root/share/shutter/resources/system/plugins/*/*", "$ENV{'HOME'}/.shutter/plugins/*/*" );
+
+	#fallback icon
+	# maybe the plugin 
+	# does not provide a custom icon
+	my $fb_pixbuf_path 	= "$shutter_root/share/shutter/resources/icons/executable.svg";
+	my $fb_pixbuf		= Gtk2::Gdk::Pixbuf->new_from_file_at_size( $fb_pixbuf_path, Gtk2::IconSize->lookup('menu') );
 
 	foreach my $plugin_path (@plugin_paths) {
 		my @plugins = glob($plugin_path);
@@ -4692,63 +4701,73 @@ sub fct_check_installed_plugins {
 
 				#parse filename
 				my ( $name, $folder, $type ) = fileparse( $dir_name, '\..*' );
-
+				
+				#file exists
 				if ( $shutter_hfunct->file_exists("$dir_name/$name") ) {
 
-					unless ( $plugins{$_}->{'binary'}
-						&& $plugins{$_}->{'name'}
-						&& $plugins{$_}->{'category'}
-						&& $plugins{$_}->{'tooltip'}
-						&& $plugins{$_}->{'lang'} )
-					{
+					#file is executable
+					if ( $shutter_hfunct->file_executable("$dir_name/$name") ) {
 
-						print "\nINFO: new plugin information detected - $dir_name/$name\n";
+						unless ( $plugins{$_}->{'binary'}
+							&& $plugins{$_}->{'name'}
+							&& $plugins{$_}->{'category'}
+							&& $plugins{$_}->{'tooltip'}
+							&& $plugins{$_}->{'lang'} )
+						{
 
-						#path to executable
-						$plugins{$_}->{'binary'} = "$dir_name/$name";
+							print "\nINFO: new plugin information detected - $dir_name/$name\n";
 
-						#name
-						$plugins{$_}->{'name'} = &fct_plugin_get_info( $plugins{$_}->{'binary'}, 'name' );
+							#path to executable
+							$plugins{$_}->{'binary'} = "$dir_name/$name";
 
-						#category
-						$plugins{$_}->{'category'} = &fct_plugin_get_info( $plugins{$_}->{'binary'}, 'sort' );
+							#name
+							$plugins{$_}->{'name'} = &fct_plugin_get_info( $plugins{$_}->{'binary'}, 'name' );
 
-						#tooltip
-						$plugins{$_}->{'tooltip'} = &fct_plugin_get_info( $plugins{$_}->{'binary'}, 'tip' );
+							#category
+							$plugins{$_}->{'category'} = &fct_plugin_get_info( $plugins{$_}->{'binary'}, 'sort' );
 
-						#language (shell, perl etc.)
-						$plugins{$_}->{'lang'} = &fct_plugin_get_info( $plugins{$_}->{'binary'}, 'lang' );
+							#tooltip
+							$plugins{$_}->{'tooltip'} = &fct_plugin_get_info( $plugins{$_}->{'binary'}, 'tip' );
 
-					}
+							#language (shell, perl etc.)
+							$plugins{$_}->{'lang'} = &fct_plugin_get_info( $plugins{$_}->{'binary'}, 'lang' );
 
-					$plugins{$_}->{'lang'} = "shell"
-						if $plugins{$_}->{'lang'} eq "";
+						}
 
-					chomp( $plugins{$_}->{'name'} );
-					chomp( $plugins{$_}->{'category'} );
-					chomp( $plugins{$_}->{'tooltip'} );
-					chomp( $plugins{$_}->{'lang'} );
+						$plugins{$_}->{'lang'} = "shell"
+							if $plugins{$_}->{'lang'} eq "";
 
-					#pixbuf
-					$plugins{$_}->{'pixbuf'} = $plugins{$_}->{'binary'} . ".png"
-						if ( $shutter_hfunct->file_exists( $plugins{$_}->{'binary'} . ".png" ) );
-					$plugins{$_}->{'pixbuf'} = $plugins{$_}->{'binary'} . ".svg"
-						if ( $shutter_hfunct->file_exists( $plugins{$_}->{'binary'} . ".svg" ) );
+						chomp( $plugins{$_}->{'name'} );
+						chomp( $plugins{$_}->{'category'} );
+						chomp( $plugins{$_}->{'tooltip'} );
+						chomp( $plugins{$_}->{'lang'} );
 
-					if ( $shutter_hfunct->file_exists( $plugins{$_}->{'pixbuf'} ) ) {
-						$plugins{$_}->{'pixbuf_object'}
-							= Gtk2::Gdk::Pixbuf->new_from_file_at_size( $plugins{$_}->{'pixbuf'}, Gtk2::IconSize->lookup('menu') );
-					} else {
-						$plugins{$_}->{'pixbuf'} = "$shutter_root/share/shutter/resources/icons/executable.svg";
-						$plugins{$_}->{'pixbuf_object'}
-							= Gtk2::Gdk::Pixbuf->new_from_file_at_size( $plugins{$_}->{'pixbuf'}, Gtk2::IconSize->lookup('menu') );
-					}
-					if ( $shutter_common->get_debug ) {
-						print "$plugins{$_}->{'name'} - $plugins{$_}->{'binary'}\n";
-					}
+						#pixbuf
+						$plugins{$_}->{'pixbuf'} = $plugins{$_}->{'binary'} . ".png"
+							if ( $shutter_hfunct->file_exists( $plugins{$_}->{'binary'} . ".png" ) );
+						$plugins{$_}->{'pixbuf'} = $plugins{$_}->{'binary'} . ".svg"
+							if ( $shutter_hfunct->file_exists( $plugins{$_}->{'binary'} . ".svg" ) );
+
+						if ( $shutter_hfunct->file_exists( $plugins{$_}->{'pixbuf'} ) ) {
+							$plugins{$_}->{'pixbuf_object'}
+								= Gtk2::Gdk::Pixbuf->new_from_file_at_size( $plugins{$_}->{'pixbuf'}, Gtk2::IconSize->lookup('menu') );
+						} else {
+							$plugins{$_}->{'pixbuf'} 		= $fb_pixbuf_path;
+							$plugins{$_}->{'pixbuf_object'} = $fb_pixbuf;
+						}
+						if ( $shutter_common->get_debug ) {
+							print "$plugins{$_}->{'name'} - $plugins{$_}->{'binary'}\n";
+						}
+						
+					}else{
+						print "\nERROR: plugin exists but is not executable - $dir_name/$name\n";
+						delete $plugins{$_};
+					} #endif plugin is executable
+					
 				} else {
 					delete $plugins{$_};
-				}    #endif binary exists
+				}    #endif plugin exists
+			
 			}
 		}
 	}
@@ -5444,21 +5463,6 @@ sub fct_load_plugin_tree {
 	foreach ( sort keys %plugins ) {
 		if ( $plugins{$_}->{'binary'} ) {
 
-			#pixbuf
-			$plugins{$_}->{'pixbuf'} = $plugins{$_}->{'binary'} . ".png"
-				if ( $shutter_hfunct->file_exists( $plugins{$_}->{'binary'} . ".png" ) );
-			$plugins{$_}->{'pixbuf'} = $plugins{$_}->{'binary'} . ".svg"
-				if ( $shutter_hfunct->file_exists( $plugins{$_}->{'binary'} . ".svg" ) );
-
-			if ( $shutter_hfunct->file_exists( $plugins{$_}->{'pixbuf'} ) ) {
-				$plugins{$_}->{'pixbuf_object'}
-					= Gtk2::Gdk::Pixbuf->new_from_file_at_size( $plugins{$_}->{'pixbuf'}, Gtk2::IconSize->lookup('menu') );
-			} else {
-				$plugins{$_}->{'pixbuf'} = "$shutter_root/share/shutter/resources/icons/executable.svg";
-				$plugins{$_}->{'pixbuf_object'}
-					= Gtk2::Gdk::Pixbuf->new_from_file_at_size( $plugins{$_}->{'pixbuf'}, Gtk2::IconSize->lookup('menu') );
-			}
-
 			$effects_model->set(
 				$effects_model->append,     
 				0, $plugins{$_}->{'pixbuf_object'}, 1, $plugins{$_}->{'name'},
@@ -5549,7 +5553,7 @@ sub fct_set_model_accounts {
 	return TRUE;
 }
 
-sub fct_set_model_plugins {
+sub fct_set_model_plugins {	
 	my $effects_tree = $_[0];
 
 	my @columns = $effects_tree->get_columns;

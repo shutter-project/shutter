@@ -70,6 +70,14 @@ sub file_exists {
 	return FALSE;
 }
 
+sub file_executable {
+	my ( $self, $filename ) = @_;
+	return FALSE unless $filename;
+	$filename = $self->switch_home_in_file($filename);
+	return TRUE if ( -x $filename );
+	return FALSE;
+}
+
 sub switch_home_in_file {
 	my ( $self, $filename ) = @_;
 	$filename =~ s/^~/$ENV{ HOME }/;    #switch ~ in path to /home/username
