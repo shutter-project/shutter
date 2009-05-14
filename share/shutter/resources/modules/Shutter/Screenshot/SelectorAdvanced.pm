@@ -47,13 +47,11 @@ sub new {
 	#FIXME
 	#get them as params 
 	#because there is a leak when 
-	#we declare them each time
-	my $v = shift;
-	my $s= shift;
-	
-	$self->{_view} = $$v;
-	$self->{_selector} = $$s;
-	
+	#we declare them each time	
+	$self->{_view} 		= shift;
+	$self->{_selector} 	= shift;
+	$self->{_dragger} 	= shift;
+
 	bless $self, $class;
 	return $self;
 }
@@ -112,12 +110,12 @@ sub select_advanced {
 
 	#create font family and determine size
 	my $size = int( $mon1->width * 0.015 );
-	$layout->set_font_description( Gtk2::Pango::FontDescription->from_string("Sans $size") );
+	my $size2 = int( $mon1->width * 0.010 );
 	my $text
 		= $d->get(
 		"Draw a rectangular area using the mouse. To take a screenshot, press the Enter key. Press Esc to quit."
 		);
-	$layout->set_markup("<span foreground='#FFFFFF'>$text</span>");
+	$layout->set_markup("<span font_desc=\"Sans $size\" foreground=\"#FFFFFF\">$text</span>\n<span font_desc=\"Sans $size2\" foreground=\"#FFFFFF\">maybe some more text</span>");
 
 	#draw the rectangle
 	$cr->set_source_rgba( 0, 0, 0, 0.8 );
@@ -172,24 +170,34 @@ sub select_advanced {
 		}
 	);
 
+	#handle zoom events
+	#ignore zoom values smaller 1
+	$self->{_view_zoom_handler} = $self->{_view}->signal_connect(
+		'zoom-changed' => sub {
+			if($self->{_view}->get_zoom < 1){
+				$self->{_view}->set_zoom(1);	
+			}
+		}
+	);
+
 	$self->{_view}->set_pixbuf($root_pixbuf);
 
 	#~ $self->{_view}->set_tool($self->{_selector});
 
-	my $select_window = Gtk2::Window->new('toplevel');
-	$select_window->set_type_hint('dock');
-	$select_window->set_decorated(FALSE);
-	$select_window->set_skip_taskbar_hint(TRUE);
-	$select_window->set_skip_pager_hint(TRUE);
-	$select_window->set_keep_above(TRUE);
-	$select_window->add($self->{_view});
-	$select_window->show_all;
+	$self->{_select_window} = Gtk2::Window->new('toplevel');
+	$self->{_select_window}->set_type_hint('dock');
+	$self->{_select_window}->set_decorated(FALSE);
+	$self->{_select_window}->set_skip_taskbar_hint(TRUE);
+	$self->{_select_window}->set_skip_pager_hint(TRUE);
+	$self->{_select_window}->set_keep_above(TRUE);
+	$self->{_select_window}->add($self->{_view});
+	$self->{_select_window}->show_all;
 
 	#all screen events are send to shutter
 	my $grab_counter = 0;
 	while ( !Gtk2::Gdk->pointer_is_grabbed && $grab_counter < 400 ) {
 		Gtk2::Gdk->pointer_grab(
-			$select_window->window,
+			$self->{_select_window}->window,
 			1,
 			[   qw/
 					pointer-motion-mask
@@ -201,7 +209,7 @@ sub select_advanced {
 			undef,
 			Gtk2->get_current_event_time
 		);
-		Gtk2::Gdk->keyboard_grab( $select_window->window, 1, Gtk2->get_current_event_time );
+		Gtk2::Gdk->keyboard_grab( $self->{_select_window}->window, 1, Gtk2->get_current_event_time );
 		$grab_counter++;
 	}
 
@@ -212,85 +220,114 @@ sub select_advanced {
 				my ( $event, $data ) = @_;
 				return 0 unless defined $event;
 
-				#quit on escape
-				if ( $event->type eq 'key-press' ) {
+				my $s = $self->{_selector}->get_selection;				
+								
+				#handle button-press
+				if ( $event->type eq 'button-press') {		
 
-					my $s = $self->{_selector}->get_selection;
+
+					#see docs
+					#http://library.gnome.org/devel/gdk/stable/gdk-Events.html
+					#
+					#GDK_2BUTTON_PRESS
+					#a mouse button has been double-clicked 
+					#(clicked twice within a short period of time). 
+					#Note that each click also generates a GDK_BUTTON_PRESS event.
+					#
+					#we peek the next event to check it is a GDK_2BUTTON_PRESS 			
+					my $ev1 = Gtk2::Gdk::Event->peek;
+									
+					if(defined $ev1){
+						if($ev1->type eq '2button-press'){
+
+							#left mouse button
+							if($ev1->button == 1){			
+								$output = $self->take_screenshot($s, $output);
+							}
+
+						}else{
+							Gtk2->main_do_event($event);
+							Gtk2->main_do_event($ev1);
+						}
+					}else{
+						Gtk2->main_do_event($event);	
+					}
+					
+				#handle key-press
+				}elsif ( $event->type eq 'key-press' ) {
 					
 					#abort screenshot				
 					if ( $event->keyval == $Gtk2::Gdk::Keysyms{Escape} ) {
-						
-						$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
-						$self->{_selector}->signal_handler_disconnect ($self->{_selector_handler});
-						$select_window->destroy;
-						Gtk2::Gdk->flush;
+												
+						$self->quit;
 					
 					#move / resize selector
 					} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Up} && $s) {
 						
 						if ($event->state >= 'control-mask'){
 							$s->height($s->height-1);
-						}else{	
+							$self->{_selector}->set_selection($s);							
+						}elsif ($event->state >= 'mod1-mask'){	
 							$s->y($s->y-1);
+							$self->{_selector}->set_selection($s);
+						}else{
+							Gtk2->main_do_event($event);
 						}
-						$self->{_selector}->set_selection($s);
 						
 					} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Down} && $s) {
 
 						if ($event->state >= 'control-mask'){
 							$s->height($s->height+1);
-						}else{	
+							$self->{_selector}->set_selection($s);						
+						}elsif ($event->state >= 'mod1-mask'){	
 							$s->y($s->y+1);
+							$self->{_selector}->set_selection($s);
+						}else{
+							Gtk2->main_do_event($event);
 						}
-						$self->{_selector}->set_selection($s);
 						
 					} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Left} && $s) {
 
 						if ($event->state >= 'control-mask'){
 							$s->width($s->width-1);
-						}else{	
+							$self->{_selector}->set_selection($s);
+						}elsif ($event->state >= 'mod1-mask'){	
 							$s->x($s->x-1);
+							$self->{_selector}->set_selection($s);
+						}else{
+							Gtk2->main_do_event($event);
 						}
-						$self->{_selector}->set_selection($s);
 						
 					} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Right} && $s) {	
 
 						if ($event->state >= 'control-mask'){
 							$s->width($s->width+1);
-						}else{
+							$self->{_selector}->set_selection($s);
+						}elsif ($event->state >= 'mod1-mask'){	
 							$s->x($s->x+1);
+							$self->{_selector}->set_selection($s);
+						}else{
+							Gtk2->main_do_event($event);
 						}
-						$self->{_selector}->set_selection($s);
-											
+													
 					#take screenshot
-					} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Return} ) {
+					} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Return}) {
 						
-						$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
-						$self->{_selector}->signal_handler_disconnect ($self->{_selector_handler});
-						$select_window->destroy;
-						Gtk2::Gdk->flush;
-						
-						if ($s) {
-							sleep 1 if $self->{_delay} < 1;
-							($output) = $self->get_pixbuf_from_drawable( 
-								$self->{_root}, 
-								$s->x, $s->y, $s->width, $s->height,
-								$self->{_include_cursor},
-								$self->{_delay} );
-						} else {
-							$output = 0;
-						}
+						$output = $self->take_screenshot($s, $output);
+										
+					}else{
+						Gtk2->main_do_event($event);
 					}
 				
-				} else {
-					Gtk2->main_do_event($event);
-				}
+				}else{
+						Gtk2->main_do_event($event);		
+				}	
 			}
 		);
 
-		$select_window->move( $self->{_root}->{x}, $self->{_root}->{y} );
-		$select_window->set_default_size( $self->{_root}->{w}, $self->{_root}->{h} );
-		$select_window->show_all();
+		$self->{_select_window}->move( $self->{_root}->{x}, $self->{_root}->{y} );
+		$self->{_select_window}->set_default_size( $self->{_root}->{w}, $self->{_root}->{h} );
+		$self->{_select_window}->show_all();
 
 		#see docs
 		#http://library.gnome.org/devel/gtk/stable/GtkWindow.html
@@ -299,10 +336,10 @@ sub select_advanced {
 		#most window managers ignore requests for initial window positions
 		#(instead using a user-defined placement algorithm) and
 		#honor requests after the window has already been shown.
-		$select_window->move( $self->{_root}->{x}, $self->{_root}->{y} );
-		$select_window->set_size_request( $self->{_root}->{w}, $self->{_root}->{h} );
+		$self->{_select_window}->move( $self->{_root}->{x}+100, $self->{_root}->{y}+100 );
+		$self->{_select_window}->set_size_request( $self->{_root}->{w}, $self->{_root}->{h} );
 
-		$select_window->window->move_resize(
+		$self->{_select_window}->window->move_resize(
 			$self->{_root}->{x},
 			$self->{_root}->{y},
 			$self->{_root}->{w},
@@ -310,16 +347,50 @@ sub select_advanced {
 		);
 
 		#finally focus it
-		$select_window->window->focus(time);
+		$self->{_select_window}->window->focus(time);
 
 		Gtk2->main();
 
 	}else{
 		$output = 0;
-		$select_window->destroy;
+		$self->{_select_window}->destroy;
 	}
 
 	return $output;
+}
+
+sub take_screenshot {
+	my $self 			= shift;
+	my $s				= shift;
+	my $output 			= shift;
+
+	$self->quit;
+
+	if ($s) {
+		sleep 1 if $self->{_delay} < 1;
+		($output) = $self->get_pixbuf_from_drawable( 
+			$self->{_root}, 
+			$s->x, $s->y, $s->width, $s->height,
+			$self->{_include_cursor},
+			$self->{_delay} );
+	} else {
+		$output = 0;
+	}
+	
+	return $output;	
+	
+}
+
+sub quit {
+	
+	my $self = shift;
+	
+	$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
+	$self->{_selector}->signal_handler_disconnect ($self->{_selector_handler});
+	$self->{_view}->signal_handler_disconnect ($self->{_view_zoom_handler});
+	$self->{_select_window}->destroy;
+	Gtk2::Gdk->flush;
+	
 }
 
 1;

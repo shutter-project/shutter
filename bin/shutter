@@ -85,7 +85,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.440";
+use constant REV                	=> "Rev.441";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -193,10 +193,27 @@ $x11->{ext_shape} = $x11->init_extension('SHAPE');
 #Gtk2::ImageView and Selector for advanced selection tool
 my $view;
 my $selector;
+my $dragger;
+my $nav;
 if($gtkimageview){
 	$view     = Gtk2::ImageView->new;
+	$view->set_interpolation ('tiles');
+	$nav = Gtk2::ImageView::Nav::new($view);
 	$selector = Gtk2::ImageView::Tool::Selector->new($view);
+	$dragger = Gtk2::ImageView::Tool::Dragger->new($view);
 	$view->set_tool($selector);
+}
+
+#Gtk2::ImageView and Selector for drawing tool
+my $view_d;
+my $selector_d;
+my $dragger_d;
+if($goocanvas){
+	$view_d     = Gtk2::ImageView->new;
+	$view_d->set_interpolation ('tiles');	
+	$selector_d = Gtk2::ImageView::Tool::Selector->new($view_d);
+	$dragger_d = Gtk2::ImageView::Tool::Dragger->new($view_d);
+	$view_d->set_tool($selector_d);
 }
 
 #data structures
@@ -3511,7 +3528,7 @@ sub fct_draw {
 
 	#open drawing tool
 	foreach my $key (@draw_array){
-		my $drawing_tool = Shutter::Draw::DrawingTool->new($shutter_common, \$view, \$selector);
+		my $drawing_tool = Shutter::Draw::DrawingTool->new($shutter_common, $view_d, $selector_d, $dragger_d);
 		$drawing_tool->show( $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'}, \%session_screens );		
 	}
 
@@ -3633,7 +3650,7 @@ sub fct_take_screenshot {
 		}
 		if ( $tool_advanced->get_active ) {
 					
-			my $screenshooter = Shutter::Screenshot::SelectorAdvanced->new( $shutter_common, $combobox_cursor->get_active, $delay_value, \$view, \$selector );
+			my $screenshooter = Shutter::Screenshot::SelectorAdvanced->new( $shutter_common, $combobox_cursor->get_active, $delay_value, $view, $selector, $dragger, $nav );
 			$screenshot = $screenshooter->select_advanced();
 			undef $screenshooter;
 

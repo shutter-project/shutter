@@ -52,13 +52,10 @@ sub new {
 	#FIXME
 	#get them as params 
 	#because there is a leak when 
-	#we declare them each time
-	my $v = shift;
-	my $s= shift;
-	
-	#view and selector (cropping tool)
-	$self->{_view} = $$v;
-	$self->{_selector} = $$s;
+	#we declare them each time	
+	$self->{_view} 		= shift;
+	$self->{_selector} 	= shift;
+	$self->{_dragger} 	= shift;
 
 	#file
 	$self->{_filename}    = undef;
@@ -266,16 +263,12 @@ sub show {
 	#CROPPING TOOL CONTAINER
 	#-------------------------------------------------
 	#scrolled window for the cropping tool
-	$self->{_scrolled_window_c} = Gtk2::ScrolledWindow->new;
-	$self->{_scrolled_window_c}->set_policy( 'automatic', 'automatic' );
-	$self->{_scrolled_window_c}->add( $self->{_view} );
-	
+	$self->{_scrolled_window_c} = Gtk2::ImageView::ScrollWin->new ($self->{_view});	
 	$self->{_rframe_c} = $self->setup_right_vbox_c;	#be careful => frame is returned
 	$self->{_drawing_hbox_c}->pack_start( $self->{_scrolled_window_c}, TRUE, TRUE, 0 );
 	$self->{_drawing_hbox_c}->pack_start( $self->{_rframe_c}, FALSE, FALSE, 3 );
 
 	$self->{_drawing_inner_vbox_c}->pack_start( $self->{_drawing_hbox_c}, TRUE, TRUE, 0 );
-
 
 	#MAIN CONTAINER
 	#-------------------------------------------------	
