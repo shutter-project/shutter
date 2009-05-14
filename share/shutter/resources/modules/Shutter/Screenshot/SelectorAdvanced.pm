@@ -56,9 +56,9 @@ sub new {
 	return $self;
 }
 
-1;
-
-__DATA__
+#~ 1;
+#~ 
+#~ __DATA__
 
 sub select_advanced {
 	my $self = shift;
@@ -102,6 +102,11 @@ sub select_advanced {
 		. $mon1->height . "\n"
 		if $self->{_gc}->get_debug;
 
+	#obtain current colors from the main window
+    my $style = $self->{_gc}->get_mainwindow->get_style;
+	my $sel_bg = $style->bg('selected');
+	my $sel_tx = $style->text('selected');
+
 	#create cairo context und layout
 	my $cr     = Gtk2::Gdk::Cairo::Context->create($root_pixmap);
 	my $layout = Gtk2::Pango::Cairo::create_layout($cr);
@@ -115,10 +120,10 @@ sub select_advanced {
 		= $d->get(
 		"Draw a rectangular area using the mouse. To take a screenshot, press the Enter key. Press Esc to quit."
 		);
-	$layout->set_markup("<span font_desc=\"Sans $size\" foreground=\"#FFFFFF\">$text</span>\n<span font_desc=\"Sans $size2\" foreground=\"#FFFFFF\">maybe some more text</span>");
+	$layout->set_markup("<span font_desc=\"Sans $size\" foreground=\"#FFFFFF\">$text</span>\n<span font_desc=\"Sans $size2\" foreground=\"#FFFFFF\">sample text</span>");
 
 	#draw the rectangle
-	$cr->set_source_rgba( 0, 0, 0, 0.8 );
+	$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.85 );
 
 	my ( $lw, $lh ) = $layout->get_pixel_size;
 
@@ -140,7 +145,7 @@ sub select_advanced {
 	$cr->fill;
 
 	#...and place the text above
-	$cr->set_source_rgb( 0.0, 0.0, 1.0 );
+	$cr->set_source_rgba( $sel_tx->red / 257 / 255, $sel_tx->green / 257 / 255, $sel_tx->blue / 257 / 255, 0.8 );
 	$cr->set_operator('over');
 	$cr->move_to( $x + $size, $y + $size );
 
