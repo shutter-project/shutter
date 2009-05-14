@@ -56,9 +56,9 @@ sub new {
 	return $self;
 }
 
-#~ 1;
-#~ 
-#~ __DATA__
+1;
+
+__DATA__
 
 sub select_advanced {
 	my $self = shift;
@@ -102,17 +102,18 @@ sub select_advanced {
 		. $mon1->height . "\n"
 		if $self->{_gc}->get_debug;
 
-	#obtain current colors from the main window
-    my $style = $self->{_gc}->get_mainwindow->get_style;
-	my $sel_bg = $style->bg('selected');
-	my $sel_tx = $style->text('selected');
+	#obtain current colors and font_desc from the main window
+    my $style 		= $self->{_gc}->get_mainwindow->get_style;
+	my $sel_bg 		= $style->bg('selected');
+	my $sel_tx 		= $style->text('selected');
+	my $font_fam 	= $style->font_desc->get_family;
 
 	#create cairo context und layout
 	my $cr     = Gtk2::Gdk::Cairo::Context->create($root_pixmap);
 	my $layout = Gtk2::Pango::Cairo::create_layout($cr);
 	$layout->set_width( int( $mon1->width / 2 ) * Gtk2::Pango->scale );
 	$layout->set_wrap('word');
-
+	
 	#create font family and determine size
 	my $size = int( $mon1->width * 0.015 );
 	my $size2 = int( $mon1->width * 0.010 );
@@ -120,7 +121,7 @@ sub select_advanced {
 		= $d->get(
 		"Draw a rectangular area using the mouse. To take a screenshot, press the Enter key. Press Esc to quit."
 		);
-	$layout->set_markup("<span font_desc=\"Sans $size\" foreground=\"#FFFFFF\">$text</span>\n<span font_desc=\"Sans $size2\" foreground=\"#FFFFFF\">sample text</span>");
+	$layout->set_markup("<span font_desc=\"$font_fam $size\" foreground=\"#FFFFFF\">$text</span>\n<span font_desc=\"$font_fam $size2\" foreground=\"#FFFFFF\">sample text</span>");
 
 	#draw the rectangle
 	$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.85 );
