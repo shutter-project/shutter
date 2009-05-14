@@ -56,9 +56,9 @@ sub new {
 	return $self;
 }
 
-1;
-
-__DATA__
+#~ 1;
+#~ 
+#~ __DATA__
 
 sub select_advanced {
 	my $self = shift;
@@ -112,16 +112,24 @@ sub select_advanced {
 	my $cr     = Gtk2::Gdk::Cairo::Context->create($root_pixmap);
 	my $layout = Gtk2::Pango::Cairo::create_layout($cr);
 	$layout->set_width( int( $mon1->width / 2 ) * Gtk2::Pango->scale );
+	$layout->set_justify(TRUE);
+	$layout->set_alignment('center');
 	$layout->set_wrap('word');
 	
-	#create font family and determine size
-	my $size = int( $mon1->width * 0.015 );
-	my $size2 = int( $mon1->width * 0.010 );
+	#determine font-size
+	my $size = int( $mon1->width * 0.014 );
+	my $size2 = int( $mon1->width * 0.009 );
+	
 	my $text
 		= $d->get(
 		"Draw a rectangular area using the mouse. To take a screenshot, press the Enter key. Press Esc to quit."
 		);
-	$layout->set_markup("<span font_desc=\"$font_fam $size\" foreground=\"#FFFFFF\">$text</span>\n<span font_desc=\"$font_fam $size2\" foreground=\"#FFFFFF\">sample text</span>");
+
+	my $sec_text
+		= $d->get(
+		"ctrl + scrollwheel = zoom in/out\ncursor keys + alt = move selection\ncursor keys + ctrl = resize selection"
+		);
+	$layout->set_markup("<span font_desc=\"$font_fam $size\" foreground=\"#FFFFFF\">$text</span>\n\n<span font_desc=\"$font_fam $size2\" foreground=\"#FFFFFF\">$sec_text</span>");
 
 	#draw the rectangle
 	$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.85 );
@@ -132,7 +140,7 @@ sub select_advanced {
 	my $h = $lh + $size * 2;
 	my $x = int( ( $mon1->width - $w ) / 2 ) + $mon1->x;
 	my $y = int( ( $mon1->height - $h ) / 2 ) + $mon1->y;
-	my $r = 30;
+	my $r = 40;
 
 	$cr->move_to( $x + $r, $y );
 	$cr->line_to( $x + $w - $r, $y );
