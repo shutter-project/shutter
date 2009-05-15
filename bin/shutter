@@ -85,7 +85,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.446";
+use constant REV                	=> "Rev.447";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -1847,7 +1847,7 @@ sub evt_iconview_button_press {
 
 		foreach my $menuitem ($item_menu->get_children){
 			$menuitem->set_sensitive(TRUE);
-			if($menuitem->get_name eq 'item-reopen'){
+			if($menuitem->get_name eq 'item-reopen-list'){
 				$menuitem->set_submenu(&fct_ret_program_menu);
 			}elsif($menuitem->get_name eq 'item-rename'){
 				$menuitem->signal_connect( 'activate', \&fct_rename);				
@@ -5328,29 +5328,77 @@ sub fct_ret_program_menu {
 		return $menu_programs;		
 	}
 
-	#	my $mime_type = Gnome2::VFS::Mime::Type->new ($session_screens{$key}->{'mime_type'});
-	#	my @apps = $mime_type->get_all_applications_for_uri( $session_screens{$key}->{'uri'} );
-
-	#FIXME
-	#cannot get icon with GnomeVFS
-	#libgnomevfs-WARNING **:
-	#Cannot call gnome_vfs_mime_application_get_icon
-	#with a GNOMEVFSMimeApplication structure
-	#constructed by the deprecated application registry
+	#no valid hash entry?
 	unless (exists $session_screens{$key}->{'mime_type'}){
 		$shutter_menu->{_menuitem_reopen}->set_sensitive(FALSE);
 		return $menu_programs;	
 	}
 
+	#determine apps registered with that mime type	
 	my ( $default, @apps ) = File::MimeInfo::Applications::mime_applications( $session_screens{$key}->{'mime_type'} );
+	
+	#no app determined!
 	unless (scalar @apps){
 		$shutter_menu->{_menuitem_reopen}->set_sensitive(FALSE);
 		return $menu_programs;			
 	}
 
+	#FIXME - why is default always undef??
+	#no default app determined!
+	unless ($default){
+		#try gnome-vfs method
+		eval{
+			my $mime_type = Gnome2::VFS::Mime::Type->new ($session_screens{$key}->{'mime_type'});
+			$default = $mime_type->get_default_application;			
+		};
+		if($@){
+			print "\nWARNING: $@\n";
+			$default = undef;
+		}
+		unless ($default){
+			$shutter_menu->{_menuitem_reopen_default}->visible(FALSE);
+		}else{
+			#populate default by looping through the apps
+			eval{
+				foreach my $app (@apps) {
+					my $desktop_file_path = $app->{'file'};
+					my $desktop_id = $default->{'id'};
+					if($desktop_file_path =~ m/$desktop_id$/){
+						$default = $app;
+						last;	
+					}	
+				}
+			};
+			if($@){
+				print "\nWARNING: $@\n";
+				$default = undef;
+				$shutter_menu->{_menuitem_reopen_default}->visible(FALSE);
+			}						
+		}
+	}
+	
 	foreach my $app (@apps) {
 
-		my $program_item = Gtk2::ImageMenuItem->new_with_label( $app->Name );
+		my $program_item = undef; 
+		
+		#default app
+		if($default && $app == $default){
+			$program_item = $shutter_menu->{_menuitem_reopen_default};
+			$shutter_menu->{_menuitem_reopen_default}->set_sensitive(TRUE);
+			
+			#change label of the default app entry
+			$shutter_menu->{_menuitem_reopen_default}->foreach (sub {
+				if($_[0] =~ /Gtk2::AccelLabel/){
+					$_[0]->set_label(sprintf( $d->get("_Open with %s"), "'".$app->Name."'"));
+				}
+			});	
+				
+		#other apps			
+		}else{
+			$program_item = Gtk2::ImageMenuItem->new_with_label( $app->Name );			
+			$menu_programs->append($program_item);
+		}
+
 		if ( $icontheme->has_icon( $app->Icon ) ) {
 			my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
 			my $icon_pixbuf = $icontheme->load_icon( $app->Icon, $ih, 'generic-fallback' );
@@ -5361,10 +5409,9 @@ sub fct_ret_program_menu {
 				&fct_open_with_program($app);
 			}
 		);
-
-		$menu_programs->append($program_item);
-	}
-
+		
+	}	
+	
 	$menu_programs->show_all;
 	return $menu_programs;
 }
