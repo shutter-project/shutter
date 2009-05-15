@@ -56,9 +56,9 @@ sub new {
 	return $self;
 }
 
-#~ 1;
-#~ 
-#~ __DATA__
+1;
+
+__DATA__
 
 sub select_advanced {
 	my $self = shift;
@@ -107,18 +107,20 @@ sub select_advanced {
 	my $sel_bg 		= $style->bg('selected');
 	my $sel_tx 		= $style->text('selected');
 	my $font_fam 	= $style->font_desc->get_family;
-
+	my $font_size 	= $style->font_desc->get_size;
+	
 	#create cairo context und layout
 	my $cr     = Gtk2::Gdk::Cairo::Context->create($root_pixmap);
 	my $layout = Gtk2::Pango::Cairo::create_layout($cr);
 	$layout->set_width( int( $mon1->width / 2 ) * Gtk2::Pango->scale );
-	$layout->set_justify(TRUE);
-	$layout->set_alignment('center');
+	$layout->set_alignment('left');
 	$layout->set_wrap('word');
 	
 	#determine font-size
 	my $size = int( $mon1->width * 0.014 );
-	my $size2 = int( $mon1->width * 0.009 );
+	my $size2 = int( $mon1->width * 0.007 );
+	#~ my $size = int ( $font_size / Gtk2::Pango->scale * 2.8 );
+	#~ my $size2 = int ( $font_size / Gtk2::Pango->scale * 1.4 );
 	
 	my $text
 		= $d->get(
@@ -129,7 +131,12 @@ sub select_advanced {
 		= $d->get(
 		"ctrl + scrollwheel = zoom in/out\ncursor keys + alt = move selection\ncursor keys + ctrl = resize selection"
 		);
-	$layout->set_markup("<span font_desc=\"$font_fam $size\" foreground=\"#FFFFFF\">$text</span>\n\n<span font_desc=\"$font_fam $size2\" foreground=\"#FFFFFF\">$sec_text</span>");
+		
+	#use this one for white font-color	
+	$layout->set_markup("<span font_desc=\"$font_fam $size\" foreground=\"#FFFFFF\">$text</span>\n\n<span font_desc=\"$font_fam $size2\" weight=\"bold\" foreground=\"#FFFFFF\">$sec_text</span>");
+	
+	#use this one for theme font-color - looks not too good sometimes ;-)
+	#~ $layout->set_markup("<span foreground='".$sel_tx->to_string."' font_desc=\"$font_fam $size\">$text</span>\n\n<span font_desc=\"$font_fam $size2\" weight=\"bold\" foreground='".$sel_tx->to_string."'>$sec_text</span>");
 
 	#draw the rectangle
 	$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.85 );
@@ -153,11 +160,9 @@ sub select_advanced {
 	$cr->curve_to( $x, $y, $x, $y, $x + $r, $y );
 	$cr->fill;
 
-	#...and place the text above
-	$cr->set_source_rgba( $sel_tx->red / 257 / 255, $sel_tx->green / 257 / 255, $sel_tx->blue / 257 / 255, 0.8 );
-	$cr->set_operator('over');
 	$cr->move_to( $x + $size, $y + $size );
-
+	
+	#draw the pango layout
 	Gtk2::Pango::Cairo::show_layout( $cr, $layout );
 
 	#keep a clean copy of the pixbuf and show it
