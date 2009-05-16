@@ -85,7 +85,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.451";
+use constant REV                	=> "Rev.452";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -1635,12 +1635,15 @@ sub evt_behavior_handle {
 
 sub evt_notebook_switch {
 	my ( $widget, $pointer, $int ) = @_;
-	if ( $shutter_menu->{_menubar} ) {
 
-		#enable/disable menu entry when we are in the session tab and selection changes
-		&fct_update_menu($int);
-
+	#unselect all items in session tab
+	#when we move away
+	if($int == 0){
+		$session_start_screen{'first_page'}->{'view'}->unselect_all;
 	}
+
+	#enable/disable menu entry when we switch tabs		
+	&fct_update_menu($int);
 
 	return TRUE;
 }
@@ -1843,32 +1846,9 @@ sub evt_iconview_button_press {
 	
 	if($path){
 		#select item
-		$view->select_path ($path);
-		my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
-		my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );		
+		$view->select_path ($path);		
 
-		my $item_menu = $shutter_menu->fct_ret_actions_menu(undef, $d, $shutter_root);
-
-		foreach my $menuitem ($item_menu->get_children){
-			$menuitem->set_sensitive(TRUE);
-			if($menuitem->get_name eq 'item-reopen-list'){
-				$menuitem->set_submenu(&fct_ret_program_menu);
-			}elsif($menuitem->get_name eq 'item-rename'){
-				$menuitem->signal_connect( 'activate', \&fct_rename);				
-			}elsif($menuitem->get_name eq 'item-upload'){
-				$menuitem->signal_connect( 'activate', \&fct_upload);			
-			}elsif($menuitem->get_name eq 'item-draw'){
-				$menuitem->signal_connect( 'activate', \&fct_draw);	
-				#maybe lib is not installed
-				unless ($goocanvas) {
-					$menuitem->set_sensitive(FALSE);
-				}		
-			}elsif($menuitem->get_name eq 'item-plugin'){
-				$menuitem->signal_connect( 'activate', \&fct_plugin);				
-			}	
-		}
-
-		$item_menu->popup(
+		$shutter_menu->{_menu_actions}->popup(
 			undef,    # parent menu shell
 			undef,    # parent menu item
 			undef,    # menu pos func
@@ -1876,7 +1856,7 @@ sub evt_iconview_button_press {
 			$ev->button,
 			$ev->time
 		);
-
+		
 	}
 	
 	return TRUE;
@@ -1884,6 +1864,13 @@ sub evt_iconview_button_press {
 
 sub evt_iconview_sel_changed {
 	my ( $iconview, $data ) = @_;
+
+	#we don't handle selection changes 
+	#if we are not in the session tab
+	if (&fct_get_current_file(undef)){
+	
+		return FALSE; 		
+	}
 
 	my @sel_items = $iconview->get_selected_items;	
 	
@@ -1896,6 +1883,7 @@ sub evt_iconview_sel_changed {
 sub fct_update_menu {
 	my $n_items = shift;
 
+	$shutter_menu->{_menuitem_reopen_default}->visible($n_items);
 	$shutter_menu->{_menuitem_reopen_default}->set_sensitive($n_items);
 	$shutter_menu->{_menuitem_reopen}->set_sensitive($n_items);
 	$shutter_menu->{_menuitem_rename}->set_sensitive($n_items);
@@ -2169,7 +2157,7 @@ sub fct_create_session_notebook {
 	my $new_index = $notebook->append_page( fct_create_tab( "", TRUE ), $hbox_first_label );
 	$session_start_screen{'first_page'}->{'tab_child'} = $notebook->get_nth_page($new_index);
 
-	$notebook->signal_connect_after( 'switch-page' => \&evt_notebook_switch );
+	$notebook->signal_connect( 'switch-page' => \&evt_notebook_switch );
 
 	return $notebook;
 }
@@ -4407,22 +4395,23 @@ sub fct_save_as {
 sub fct_get_current_file {
 	my $index = shift;
 
-	my $curr_page;
+	my $curr_page = undef;
 	if ($index) {
 		$curr_page = $notebook->get_nth_page($index);
 	} else {
 		$curr_page = $notebook->get_nth_page( $notebook->get_current_page );
 	}
+
 	my $key = undef;
-	foreach ( keys %session_screens ) {
-		next unless ( exists $session_screens{$_}->{'tab_child'} );
-		next unless ($curr_page);
-		if ( $session_screens{$_}->{'tab_child'} == $curr_page ) {
-			$key = $_;
+	if($curr_page){
+		foreach ( keys %session_screens ) {
+			next unless ( exists $session_screens{$_}->{'tab_child'} );
+			if ( $session_screens{$_}->{'tab_child'} == $curr_page ) {
+				$key = $_;
+				last;
+			}
 		}
 	}
-	
-	
 	
 	return $key;
 }
@@ -5347,7 +5336,7 @@ sub fct_ret_program_menu {
 	#take $key (mime) directly
 	my $key = &fct_get_current_file(undef);
 
-	#FIXME - different mime times
+	#FIXME - different mime types
 	#have different apps registered
 	#we should restrict the offeres apps
 	#by comparing the selected
@@ -5356,12 +5345,6 @@ sub fct_ret_program_menu {
 	#
 	#search selected files for mime...
 	unless ($key) {
-
-		#no iconview ??
-		unless ($session_start_screen{'first_page'}->{'view'}){
-			$shutter_menu->{_menuitem_reopen}->set_sensitive(FALSE);
-			return $menu_programs; 
-		}
 		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
 			sub {
 				my ( $view, $path ) = @_;
@@ -5375,12 +5358,14 @@ sub fct_ret_program_menu {
 
 	#still no key? => leave sub
 	unless( $key ){
+		$shutter_menu->{_menuitem_reopen_default}->visible(FALSE);
 		$shutter_menu->{_menuitem_reopen}->set_sensitive(FALSE);
 		return $menu_programs;		
 	}
 
 	#no valid hash entry?
 	unless (exists $session_screens{$key}->{'mime_type'}){
+		$shutter_menu->{_menuitem_reopen_default}->visible(FALSE);
 		$shutter_menu->{_menuitem_reopen}->set_sensitive(FALSE);
 		return $menu_programs;	
 	}
@@ -5390,6 +5375,7 @@ sub fct_ret_program_menu {
 	
 	#no app determined!
 	unless (scalar @apps){
+		$shutter_menu->{_menuitem_reopen_default}->visible(FALSE);
 		$shutter_menu->{_menuitem_reopen}->set_sensitive(FALSE);
 		return $menu_programs;			
 	}
@@ -5435,8 +5421,10 @@ sub fct_ret_program_menu {
 		#default app
 		if($default && $app == $default){
 			$program_item = $shutter_menu->{_menuitem_reopen_default};
-			$shutter_menu->{_menuitem_reopen_default}->set_sensitive(TRUE);
 			
+			$shutter_menu->{_menuitem_reopen_default}->show;
+			$shutter_menu->{_menuitem_reopen_default}->set_sensitive(TRUE);
+
 			#change label of the default app entry
 			$shutter_menu->{_menuitem_reopen_default}->foreach (sub {
 				if($_[0] =~ /Gtk2::AccelLabel/){

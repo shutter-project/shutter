@@ -334,7 +334,7 @@ sub fct_ret_actions_menu{
 	$self->{_menu_actions} = Gtk2::Menu->new();
 
 	$self->{_menuitem_reopen_default} = Gtk2::ImageMenuItem->new_with_mnemonic( 
-			sprintf( $d->get("_Open with %s"), "'<appname>'"),
+			sprintf( $d->get("_Open with %s"), ""),
  		);
 	$self->{_menuitem_reopen_default}->set_image( Gtk2::Image->new_from_stock( 'gtk-open', 'menu' ) );
 	$self->{_menuitem_reopen_default}->set_sensitive(FALSE);
