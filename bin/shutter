@@ -85,7 +85,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.447";
+use constant REV                	=> "Rev.448";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -1892,10 +1892,12 @@ sub evt_iconview_sel_changed {
 sub fct_update_menu {
 	my $n_items = shift;
 
+	$shutter_menu->{_menuitem_reopen_default}->set_sensitive($n_items);
 	$shutter_menu->{_menuitem_reopen}->set_sensitive($n_items);
 	$shutter_menu->{_menuitem_rename}->set_sensitive($n_items);
 	$shutter_menu->{_menuitem_upload}->set_sensitive($n_items);
 	$shutter_menu->{_menuitem_draw}->set_sensitive($n_items);
+	
 	#maybe lib is not installed
 	unless ($goocanvas) {
 		$shutter_menu->{_menuitem_draw}->set_sensitive(FALSE);
@@ -3103,6 +3105,8 @@ sub fct_open_files {
 	return FALSE if scalar(@new_files) < 1;
 
 	my $open_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/], 'info', 'close', $d->get("Loading files") );
+
+	$open_dialog->set_title("Shutter");
 
 	$open_dialog->set( 'secondary-text' => $d->get("Please wait while your selected files\nare being integrated into Shutter") . "." );
 
@@ -4684,6 +4688,25 @@ sub fct_get_next_filename {
 }
 
 sub fct_check_installed_plugins {
+
+	my $plugin_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/], 'info', 'close', $d->get("Updating plugin information") );
+	$plugin_dialog->{destroyed} = FALSE;
+
+	$plugin_dialog->set_title("Shutter");
+	
+	$plugin_dialog->set( 'secondary-text' => $d->get("Please wait while Shutter updates the plugin information") . "." );
+
+	$plugin_dialog->signal_connect( response => sub { $plugin_dialog->{destroyed} = TRUE; $_[0]->destroy; } );
+	
+	$plugin_dialog->set_resizable(TRUE);
+
+	my $plugin_progress = Gtk2::ProgressBar->new;
+	$plugin_progress->set_no_show_all(TRUE);
+	$plugin_progress->set_ellipsize('middle');
+	$plugin_progress->set_orientation('left-to-right');
+	$plugin_progress->set_fraction(0);
+
+	$plugin_dialog->vbox->add($plugin_progress);
 	
 	my @plugin_paths = ( "$shutter_root/share/shutter/resources/system/plugins/*/*", "$ENV{'HOME'}/.shutter/plugins/*/*" );
 
@@ -4708,12 +4731,19 @@ sub fct_check_installed_plugins {
 					#file is executable
 					if ( $shutter_hfunct->file_executable("$dir_name/$name") ) {
 
+						#new plugin information?
 						unless ( $plugins{$_}->{'binary'}
 							&& $plugins{$_}->{'name'}
 							&& $plugins{$_}->{'category'}
 							&& $plugins{$_}->{'tooltip'}
 							&& $plugins{$_}->{'lang'} )
 						{
+														
+							#show dialog and progress bar
+							if(!$plugin_dialog->window && !$plugin_dialog->{destroyed}){
+								$plugin_progress->show;
+								$plugin_dialog->show_all;
+							}
 
 							print "\nINFO: new plugin information detected - $dir_name/$name\n";
 
@@ -4731,6 +4761,13 @@ sub fct_check_installed_plugins {
 
 							#language (shell, perl etc.)
 							$plugins{$_}->{'lang'} = &fct_plugin_get_info( $plugins{$_}->{'binary'}, 'lang' );
+
+							#refresh the progressbar
+							$plugin_progress->pulse;
+							$plugin_progress->set_text($plugins{$_}->{'binary'});
+
+							#refresh gui
+							&fct_update_gui;
 
 						}
 
@@ -4771,6 +4808,9 @@ sub fct_check_installed_plugins {
 			}
 		}
 	}
+
+	#destroys the plugin dialog
+	$plugin_dialog->response('ok');
 
 	return TRUE;
 }
@@ -5303,6 +5343,13 @@ sub fct_ret_program_menu {
 	#take $key (mime) directly
 	my $key = &fct_get_current_file(undef);
 
+	#FIXME - different mime times
+	#have different apps registered
+	#we should restrict the offeres apps
+	#by comparing the selected
+	#
+	#currently we just take the last selected file into account
+	#
 	#search selected files for mime...
 	unless ($key) {
 
