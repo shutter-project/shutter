@@ -36,6 +36,7 @@ shutter (0.80~ppa1) jaunty; urgency=low
   * Fixed bugs / minor improvements
     -- Show progress dialog when updating plugin information
     -- Show default application in separate menu item
+    -- Use File::HomeDir instead of $ENV{ 'HOME' }
     -- LP: #312221
        [Item is drawn in bottom-right point of the cursor]
     -- LP: #336122

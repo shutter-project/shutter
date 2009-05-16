@@ -85,7 +85,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.448";
+use constant REV                	=> "Rev.449";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -124,6 +124,10 @@ require File::Copy::Recursive;
 
 #Find programs to open a file by mimetype
 require File::MimeInfo::Applications;
+
+#Find your home and other directories, on any platform
+require File::HomeDir;
+$ENV{ 'HOME' } = File::HomeDir->my_home;
 
 #shutter app classes
 require Shutter::App::Common;
