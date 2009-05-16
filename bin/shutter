@@ -85,7 +85,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.449";
+use constant REV                	=> "Rev.450";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -835,7 +835,7 @@ my $saveDir_button = Gtk2::FileChooserButton->new( "Shutter - " . $shutter_commo
 if ( defined $settings_xml->{'general'}->{'folder'} ) {
 	$saveDir_button->set_filename( $settings_xml->{'general'}->{'folder'} );
 } else {
-	$saveDir_button->set_filename( $ENV{'HOME'} );
+	$saveDir_button->set_filename( File::HomeDir->my_pictures );
 }
 
 $tooltips->set_tip( $saveDir_button, $shutter_common->get_gettext->get("Your screenshots will be saved\nto this directory") );
