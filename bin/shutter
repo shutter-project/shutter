@@ -85,7 +85,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.450";
+use constant REV                	=> "Rev.451";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -1668,15 +1668,15 @@ sub evt_delete_window {
 }
 
 sub evt_bug {
-	$shutter_hfunct->gnome_open( undef, "https://bugs.launchpad.net/shutter", undef );
+	$shutter_hfunct->xdg_open( undef, "https://bugs.launchpad.net/shutter", undef );
 }
 
 sub evt_question {
-	$shutter_hfunct->gnome_open( undef, "https://answers.launchpad.net/shutter", undef );
+	$shutter_hfunct->xdg_open( undef, "https://answers.launchpad.net/shutter", undef );
 }
 
 sub evt_translate {
-	$shutter_hfunct->gnome_open( undef, "https://translations.launchpad.net/shutter", undef );
+	$shutter_hfunct->xdg_open( undef, "https://translations.launchpad.net/shutter", undef );
 }
 
 sub evt_about {
@@ -1732,10 +1732,10 @@ sub evt_about {
 		$about->set_name(SHUTTER_NAME);
 	}
 	$about->set_version(SHUTTER_VERSION);
-	$about->set_url_hook( sub { $shutter_hfunct->gnome_open(@_) } );
+	$about->set_url_hook( sub { $shutter_hfunct->xdg_open(@_) } );
 	$about->set_website_label("Shutter-Website");
 	$about->set_website($website);
-	$about->set_email_hook( sub { $shutter_hfunct->gnome_open_mail(@_) } );
+	$about->set_email_hook( sub { $shutter_hfunct->xdg_open_mail(@_) } );
 	$about->set_authors( $all_dev );
 	$about->set_artists( $all_art );
 	$about->set_translator_credits($d->get("translator-credits"));
@@ -1829,7 +1829,7 @@ sub evt_accounts {
 		my $model         = $tree->get_model();
 		my $account_iter  = $model->get_iter($path);
 		my $account_value = $model->get_value( $account_iter, 3 );
-		$shutter_hfunct->gnome_open( undef, $account_value, undef );
+		$shutter_hfunct->xdg_open( undef, $account_value, undef );
 	}
 	return TRUE;
 }

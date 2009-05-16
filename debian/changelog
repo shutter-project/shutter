@@ -37,6 +37,7 @@ shutter (0.80~ppa1) jaunty; urgency=low
     -- Show progress dialog when updating plugin information
     -- Show default application in separate menu item
     -- Use File::HomeDir instead of $ENV{ 'HOME' }
+    -- Use xdg-open instead of gnome-open
     -- LP: #312221
        [Item is drawn in bottom-right point of the cursor]
     -- LP: #336122

@@ -50,15 +50,15 @@ sub new {
 	return $self;
 }
 
-sub gnome_open {
+sub xdg_open {
 	my ( $self, $dialog, $link, $user_data ) = @_;
-	system("gnome-open $link");
+	system("xdg-open $link");
 	return TRUE;
 }
 
-sub gnome_open_mail {
+sub xdg_open_mail {
 	my ( $self, $dialog, $mail, $user_data ) = @_;
-	system("gnome-open mailto:$mail");
+	system("xdg-open mailto:$mail");
 	return TRUE;
 }
 
