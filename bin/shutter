@@ -85,7 +85,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.452";
+use constant REV                	=> "Rev.453";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -1837,6 +1837,28 @@ sub evt_accounts {
 	return TRUE;
 }
 
+sub evt_tab_button_press {
+	my $ev_box	= shift;
+	my $ev 		= shift;
+	my $key 	= shift;
+
+	#right button
+	if($key && $ev->button == 3){
+
+		$shutter_menu->{_menu_actions}->popup(
+			undef,    # parent menu shell
+			undef,    # parent menu item
+			undef,    # menu pos func
+			undef,    # data
+			$ev->button,
+			$ev->time
+		);
+		
+	}
+	
+	return TRUE;
+}
+
 sub evt_iconview_button_press {
 	my $ev_box	= shift;
 	my $ev 		= shift;
@@ -2332,6 +2354,7 @@ sub fct_create_tab {
 
 	my $vbox            = Gtk2::VBox->new( FALSE, 0 );
 	my $vbox_tab        = Gtk2::VBox->new( FALSE, 0 );
+	my $vbox_tab_event  = Gtk2::EventBox->new;
 	my $hbox_tab        = Gtk2::HBox->new( FALSE, 0 );
 	my $vbox_all        = Gtk2::VBox->new( FALSE, 0 );
 	my $hbox_all        = Gtk2::HBox->new( FALSE, 0 );
@@ -2405,6 +2428,16 @@ sub fct_create_tab {
 
 		$vbox_tab->pack_start( $hbox_tab_file, TRUE, TRUE, 0 );
 
+		$vbox->pack_start_defaults($vbox_tab);
+		
+		#pack vbox into an event box so we can listen
+		#to various key and button events
+		$vbox_tab_event->add($vbox);
+		$vbox_tab_event->show_all;
+		$vbox_tab_event->signal_connect('button-press-event', \&evt_tab_button_press, $key);
+		
+		return $vbox_tab_event;
+
 	} else {
 		my $stats_label = Gtk2::Label->new;
 		$stats_label->set_markup( "<b>" . $d->get("Statistic") . "</b>" );
@@ -2463,16 +2496,17 @@ sub fct_create_tab {
 		#add an event box to show a context menu on right-click
 		my $view_event = Gtk2::EventBox->new;
 		$view_event->add($scrolled_window_view);
-		$view_event->signal_connect( 'button-press-event',    \&evt_iconview_button_press, $view );
+		$view_event->signal_connect( 'button-press-event', \&evt_iconview_button_press, $view );
 
 		$vbox_tab->pack_start( $view_event, TRUE, TRUE, 0 );
 
+		$vbox->pack_start_defaults($vbox_tab);
+		$vbox->show_all;
+
+		return $vbox;
+
 	}
 
-	$vbox->pack_start_defaults($vbox_tab);
-	$vbox->show_all;
-
-	return $vbox;
 }
 
 sub fct_resize_thumb {
@@ -5400,7 +5434,7 @@ sub fct_ret_program_menu {
 				foreach my $app (@apps) {
 					my $desktop_file_path = $app->{'file'};
 					my $desktop_id = $default->{'id'};
-					if($desktop_file_path =~ m/$desktop_id$/){
+					if($desktop_file_path =~ m/$desktop_id/){
 						$default = $app;
 						last;	
 					}	

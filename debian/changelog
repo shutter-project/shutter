@@ -36,6 +36,7 @@ shutter (0.80~ppa1) jaunty; urgency=low
   * Fixed bugs / minor improvements
     -- Show progress dialog when updating plugin information
     -- Show default application in separate menu item
+    -- Show screenshot menu on right-button click in each tab
     -- Use File::HomeDir instead of $ENV{ 'HOME' }
     -- Use xdg-open instead of gnome-open
     -- LP: #312221
