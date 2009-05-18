@@ -40,9 +40,6 @@ use Gnome2::GConf;
 #GnomeVFS
 use Gnome2::VFS '-init';
 
-#Image operations
-use Image::Magick();
-
 #File operations
 use File::Copy();
 use File::Path qw/ rmtree /;
@@ -59,7 +56,7 @@ use Gtk2::Pango;
 use X11::Protocol();
 
 #Gettext and filename parsing
-use POSIX qw/setlocale strftime/;
+use POSIX qw/ setlocale strftime /;
 use Locale::gettext();
 
 #handle upload responses properly
@@ -69,10 +66,10 @@ use HTTP::Status;
 use XML::Simple;
 
 #DBus message system
-use Net::DBus qw/dbus_string/;
+use Net::DBus qw/ dbus_string /;
 
 #timing issues
-use Time::HiRes qw/time usleep/;
+use Time::HiRes qw/ time usleep /;
 
 #internal use
 use FindBin '$Bin';
@@ -85,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.455";
+use constant REV                	=> "Rev.456";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -97,10 +94,10 @@ use constant SHUTTER_VERSION_FULL 	=> REV . " - " . PPA_VERSION;
 #--------------------------------------
 my $shutter_root = undef;
 if($ENV{PAR_TEMP}){
-	$shutter_root = $ENV{PAR_TEMP}."/inc"
+	$shutter_root = $ENV{PAR_TEMP}."/inc";
 }else{
 	$Bin =~ m/(.*)\//;
-	$shutter_root = $1
+	$shutter_root = $1;
 }
 
 my $shutter_path = $Bin . "/shutter";
@@ -132,6 +129,7 @@ require File::Copy::Recursive;
 require File::MimeInfo::Applications;
 
 #Find your home and other directories, on any platform
+require File::HomeDir::Unix;
 require File::HomeDir;
 $ENV{ 'HOME' } = File::HomeDir->my_home;
 
@@ -1916,6 +1914,7 @@ sub fct_update_menu {
 	$shutter_menu->{_menuitem_reopen}->set_sensitive($n_items);
 	$shutter_menu->{_menuitem_rename}->set_sensitive($n_items);
 	$shutter_menu->{_menuitem_upload}->set_sensitive($n_items);
+	
 	$shutter_menu->{_menuitem_draw}->set_sensitive($n_items);
 	
 	#maybe lib is not installed
@@ -5775,20 +5774,37 @@ sub fct_set_model_plugins {
 sub fct_init_optional {
 
 	print "INFO: searching for optional components...\n\n";
-	#~ if ( system("which gnome-web-photo") == 0 ) {
-		#~ print "SUCCESS: gnome-web-photo is installed on your system!\n\n";
-	#~ } else {
-		#~ warn "WARNING: gnome-web-photo is missing --> screenshots of websites will be disabled!\n\n";
-		#~ $gnome_web_photo = FALSE;
-	#~ }
+	
+	#imagemagick/perlmagick
+	if ( system("which convert") == 0 ) {
+		print "SUCCESS: imagemagick is installed on your system!\n\n";
+	} else {
+		die "ERROR: imagemagick is missing --> aborting!\n\n";
+	}
+	eval { require Image::Magick };
+	if ($@) {
+		die "ERROR: Image::Magick/perlmagick is missing --> aborting!\n\n";
+	}
+
+	#gnome-web-photo
+	if ( system("which gnome-web-photo") == 0 ) {
+		print "SUCCESS: gnome-web-photo is installed on your system!\n\n";
+	} else {
+		warn "WARNING: gnome-web-photo is missing --> screenshots of websites will be disabled!\n\n";
+		$gnome_web_photo = FALSE;
+	}
+
+	#gtkimageview
 	eval { require Gtk2::ImageView };
 	if ($@) {
-		warn "WARNING: Gtk2::ImageView is missing --> advanced seletion tool will be disabled!\n\n";
+		warn "WARNING: Gtk2::ImageView/libgtkimageview is missing --> advanced seletion tool will be disabled!\n\n";
 		$gtkimageview = FALSE;
 	}
+	
+	#goocanvas
 	eval { require Goo::Canvas };
 	if ($@) {
-		warn "WARNING: Goo::Canvas is missing --> drawing tool will be disabled!\n\n";
+		warn "WARNING: Goo::Canvas/libgoocanvas is missing --> drawing tool will be disabled!\n\n";
 		$goocanvas = FALSE;
 	}
 
