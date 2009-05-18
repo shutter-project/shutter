@@ -54,8 +54,8 @@ FILE="${1}"
 
 convert "$FILE" "$FILE.pdf"  
 
-if [[ -e /usr/bin/gnome-open ]];then
-	gnome-open "$FILE.pdf"
+if [[ -e /usr/bin/xdg-open ]];then
+	/usr/bin/xdg-open "$FILE.pdf"
 fi
  
 exit 0

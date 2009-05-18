@@ -54,6 +54,8 @@ GEO="${2}x${3}"
 PIECE="$SHUTTER_ROOT/share/shutter/resources/system/plugins/bash/spjigsaw2/spjigsaw_2.png"
 JIGSAW="$SHUTTER_ROOT/share/shutter/resources/system/plugins/bash/spjigsaw2/jigsaw"
 
+chmod +x ${JIGSAW}
+
 convert "${PIECE}" -resize "${GEO}" \
 -background none /tmp/jigsaw_cnr_tmpl.png
 

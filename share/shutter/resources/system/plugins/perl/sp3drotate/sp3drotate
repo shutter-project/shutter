@@ -428,6 +428,15 @@ sub apply_effect {
 	#auto value
 	my $auto = "";
 	$auto = " auto=".$auto_combo->get_active_text if $auto_combo->get_active_text ne "off";
+
+	#check if script is executable
+	unless ( -x $Bin."/3Drotate"){
+		my $changed = chmod(0755, $Bin."/3Drotate");
+		unless($changed){
+			print "\nERROR: $Bin./3Drotate is not executable\n";
+			Gtk2->main_quit;
+		}
+	}
 	
 	#execute imagemagick command		
 	my $convert_output =

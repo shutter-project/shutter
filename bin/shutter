@@ -95,8 +95,14 @@ use constant SHUTTER_VERSION_FULL 	=> REV . " - " . PPA_VERSION;
 
 #configure path settings
 #--------------------------------------
-$Bin =~ m/(.*)\//;
-my $shutter_root = $1;
+my $shutter_root = undef;
+if($ENV{PAR_TEMP}){
+	$shutter_root = $ENV{PAR_TEMP}."/inc"
+}else{
+	$Bin =~ m/(.*)\//;
+	$shutter_root = $1
+}
+
 my $shutter_path = $Bin . "/shutter";
 $ENV{'SHUTTER_ROOT'} = $shutter_root;    #used by some plugins
 
@@ -4824,8 +4830,11 @@ sub fct_check_installed_plugins {
 						}
 						
 					}else{
-						print "\nERROR: plugin exists but is not executable - $dir_name/$name\n";
-						delete $plugins{$_};
+						my $changed = chmod(0755, "$dir_name/$name");
+						unless($changed){
+							print "\nERROR: plugin exists but is not executable - $dir_name/$name\n";
+							delete $plugins{$_};
+						}
 					} #endif plugin is executable
 					
 				} else {
@@ -5582,6 +5591,25 @@ sub fct_load_plugin_tree {
 	);
 	foreach ( sort keys %plugins ) {
 		if ( $plugins{$_}->{'binary'} ) {
+		
+			#we need to update the pixbuf of the plugins again in some cases
+			#
+			#pixbufs are not cached and therefore not checked at startup if
+			#the cached plugin is not in the plugin path
+			#(maybe changed the installation dir)
+			unless($plugins{$_}->{'pixbuf'} || $plugins{$_}->{'pixbuf_object'}){
+				$plugins{$_}->{'pixbuf'} = $plugins{$_}->{'binary'} . ".png"
+					if ( $shutter_hfunct->file_exists( $plugins{$_}->{'binary'} . ".png" ) );
+				$plugins{$_}->{'pixbuf'} = $plugins{$_}->{'binary'} . ".svg"
+					if ( $shutter_hfunct->file_exists( $plugins{$_}->{'binary'} . ".svg" ) );
+		
+				if ( $shutter_hfunct->file_exists( $plugins{$_}->{'pixbuf'} ) ) {
+					$plugins{$_}->{'pixbuf_object'}= Gtk2::Gdk::Pixbuf->new_from_file_at_size( $plugins{$_}->{'pixbuf'}, Gtk2::IconSize->lookup('menu') );
+				} else {
+					$plugins{$_}->{'pixbuf'} = "$shutter_root/share/shutter/resources/icons/executable.svg";
+					$plugins{$_}->{'pixbuf_object'}= Gtk2::Gdk::Pixbuf->new_from_file_at_size( $plugins{$_}->{'pixbuf'}, Gtk2::IconSize->lookup('menu') );
+				}
+			}
 
 			$effects_model->set(
 				$effects_model->append,     
@@ -5747,12 +5775,12 @@ sub fct_set_model_plugins {
 sub fct_init_optional {
 
 	print "INFO: searching for optional components...\n\n";
-	if ( system("which gnome-web-photo") == 0 ) {
-		print "SUCCESS: gnome-web-photo is installed on your system!\n\n";
-	} else {
-		warn "WARNING: gnome-web-photo is missing --> screenshots of websites will be disabled!\n\n";
-		$gnome_web_photo = FALSE;
-	}
+	#~ if ( system("which gnome-web-photo") == 0 ) {
+		#~ print "SUCCESS: gnome-web-photo is installed on your system!\n\n";
+	#~ } else {
+		#~ warn "WARNING: gnome-web-photo is missing --> screenshots of websites will be disabled!\n\n";
+		#~ $gnome_web_photo = FALSE;
+	#~ }
 	eval { require Gtk2::ImageView };
 	if ($@) {
 		warn "WARNING: Gtk2::ImageView is missing --> advanced seletion tool will be disabled!\n\n";
