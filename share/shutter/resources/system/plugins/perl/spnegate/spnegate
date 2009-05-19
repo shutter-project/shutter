@@ -26,18 +26,13 @@ use utf8;
 use strict;
 use warnings;
 use Gtk2 '-init';
+use Image::Magick;
 use POSIX qw/setlocale/;
 use Locale::gettext;
 use Glib qw/TRUE FALSE/;
 use FindBin '$Bin';    #path where plugin is located
 use File::Temp qw/ tempfile tempdir /;
 use Time::HiRes qw/usleep/;
-
-if($ENV{PAR_TEMP}){
-	push @INC, $ENV{'SHUTTER_ROOT'}."/lib";
-}
-
-require Image::Magick;
 
 require lib;
 import lib $ENV{'SHUTTER_ROOT'}."/share/shutter/resources/modules";

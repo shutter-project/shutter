@@ -71,8 +71,10 @@ use Net::DBus qw/ dbus_string /;
 #timing issues
 use Time::HiRes qw/ time usleep /;
 
-#internal use
+#Locate directory of original perl script
 use FindBin '$Bin';
+
+#stringified perl data structures, suitable for both printing and eval
 use Data::Dumper;
 
 #--------------------------------------
@@ -82,7 +84,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.456";
+use constant REV                	=> "Rev.457";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -105,15 +107,6 @@ $ENV{'SHUTTER_ROOT'} = $shutter_root;    #used by some plugins
 
 #--------------------------------------
 
-#check optional components
-#--------------------------------------
-my $gnome_web_photo = TRUE;
-my $gtkimageview    = TRUE;
-my $goocanvas       = TRUE;
-&fct_init_optional;
-
-#--------------------------------------
-
 #load modules at custom path at runtime
 #--------------------------------------
 require lib;
@@ -121,6 +114,9 @@ import lib "$shutter_root/share/shutter/resources/modules";
 
 #proc (Thanks to Michael Schilli)
 require Proc::Simple;
+
+#File::Which - Portable implementation of the `which' utility
+require File::Which;
 
 #Perl extension for recursively copying files and directories (Thanks to Daniel Muey)
 require File::Copy::Recursive;
@@ -133,7 +129,21 @@ require File::HomeDir::Unix;
 require File::HomeDir;
 $ENV{ 'HOME' } = File::HomeDir->my_home;
 
-#shutter app classes
+#--------------------------------------
+
+#check optional components
+#--------------------------------------
+my $gnome_web_photo = TRUE;
+my $gtkimageview    = TRUE;
+my $goocanvas       = TRUE;
+&fct_init_optional;
+
+#--------------------------------------
+
+#load shutter's modules
+#--------------------------------------
+
+#app classes
 require Shutter::App::Common;
 require Shutter::App::SimpleDialogs;
 require Shutter::App::HelperFunctions;
@@ -145,7 +155,7 @@ require Shutter::Pixbuf::Save;
 require Shutter::Pixbuf::Thumbnail;
 
 #drawing classes
-if($goocanvas){
+if($goocanvas and $gtkimageview){
 	require Shutter::Draw::DrawingTool;
 }
 
@@ -216,7 +226,7 @@ if($gtkimageview){
 my $view_d;
 my $selector_d;
 my $dragger_d;
-if($goocanvas){
+if($goocanvas and $gtkimageview){
 	$view_d     = Gtk2::ImageView->new;
 	$view_d->set_interpolation ('tiles');	
 	$selector_d = Gtk2::ImageView::Tool::Selector->new($view_d);
@@ -1918,7 +1928,7 @@ sub fct_update_menu {
 	$shutter_menu->{_menuitem_draw}->set_sensitive($n_items);
 	
 	#maybe lib is not installed
-	unless ($goocanvas) {
+	unless ($goocanvas and $gtkimageview) {
 		$shutter_menu->{_menuitem_draw}->set_sensitive(FALSE);
 	}		
 
@@ -4119,7 +4129,7 @@ sub fct_execute_plugin {
 		if ( $pid < 0 ) {
 			$shutter_dialog->dlg_error_message( $d->get("Could not execute plugin") . ": " . $plugin_name, $d->get("Failed") );
 		}
-		if ( $pid == 0 ) {
+		if ( $pid == 0 ) {		
 			exec(
 				sprintf(
 					"$^X $plugin_value %d '$session_screens{$key}->{'long'}' $session_screens{$key}->{'width'} $session_screens{$key}->{'height'} $session_screens{$key}->{'filetype'}\n",
@@ -4855,7 +4865,7 @@ sub fct_plugin_get_info {
 
 	my $plugin_info = `$plugin $info`;
 	utf8::decode $plugin_info;
-
+	
 	return $plugin_info;
 }
 
@@ -5776,7 +5786,7 @@ sub fct_init_optional {
 	print "INFO: searching for optional components...\n\n";
 	
 	#imagemagick/perlmagick
-	if ( system("which convert") == 0 ) {
+	if ( File::Which::which('convert') ) {
 		print "SUCCESS: imagemagick is installed on your system!\n\n";
 	} else {
 		die "ERROR: imagemagick is missing --> aborting!\n\n";
@@ -5787,7 +5797,7 @@ sub fct_init_optional {
 	}
 
 	#gnome-web-photo
-	if ( system("which gnome-web-photo") == 0 ) {
+	if ( File::Which::which('gnome-web-photo') ) {
 		print "SUCCESS: gnome-web-photo is installed on your system!\n\n";
 	} else {
 		warn "WARNING: gnome-web-photo is missing --> screenshots of websites will be disabled!\n\n";
@@ -5797,7 +5807,7 @@ sub fct_init_optional {
 	#gtkimageview
 	eval { require Gtk2::ImageView };
 	if ($@) {
-		warn "WARNING: Gtk2::ImageView/libgtkimageview is missing --> advanced seletion tool will be disabled!\n\n";
+		warn "WARNING: Gtk2::ImageView/libgtkimageview is missing --> advanced seletion tool and drawing tool will be disabled!\n\n";
 		$gtkimageview = FALSE;
 	}
 	
