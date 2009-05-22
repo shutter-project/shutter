@@ -84,7 +84,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.457";
+use constant REV                	=> "Rev.458";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -2239,7 +2239,8 @@ sub fct_integrate_screenshot_in_notebook {
 	if ( &fct_update_tab( $key, $pixbuf, $uri ) ) {
 
 		#set image
-		$session_screens{$key}->{'image'}->set_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} ) );
+		#~ $session_screens{$key}->{'image'}->set_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} ) );
+		$session_screens{$key}->{'image'}->set_from_pixbuf( $session_screens{$key}->{'orig'}->copy );
 		$session_screens{$key}->{'image'}->{'current_width'}  = $session_screens{$key}->{'image'}->get_pixbuf->get_width;
 		$session_screens{$key}->{'image'}->{'current_height'} = $session_screens{$key}->{'image'}->get_pixbuf->get_height;
 		$session_screens{$key}->{'image'}->{'aspect_ratio'}
@@ -3316,6 +3317,20 @@ sub fct_delete {
 		&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("deleted") )
 			if defined( $session_screens{$key}->{'long'} );
 
+		#very, very defensive cleanup
+		#currently i don't know if that makes any sense?		
+		#~ foreach(keys %{$session_screens{$key}}){
+			#~ eval { 
+				#~ if($session_screens{$key}->{$_}->can('isa')){
+					#~ print "Destroying: ".$_."\n" if $session_screens{$key}->{$_}->isa('Glib::Object');
+					#~ $session_screens{$key}->{$_}->destroy;
+				#~ }
+			#~ };
+			#~ delete $session_screens{$key}->{$_};
+		#~ }
+
+		#~ print Dumper $session_screens{$key};
+
 		delete $session_screens{$key};                             # delete from hash
 
 		$window->show_all unless $is_in_tray;
@@ -3406,6 +3421,19 @@ sub fct_remove {
 		$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
 		&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
 			if defined( $session_screens{$key}->{'long'} );
+
+		#very, very defensive cleanup
+		#currently i don't know if that makes any sense?		
+		#~ foreach(keys %{$session_screens{$key}}){
+			#~ eval { 
+				#~ if($session_screens{$key}->{$_}->can('isa')){
+					#~ print "Destroying: ".$_."\n" if $session_screens{$key}->{$_}->isa('Glib::Object');
+					#~ $session_screens{$key}->{$_}->destroy;
+				#~ }
+			#~ };
+			#~ delete $session_screens{$key}->{$_};
+		#~ }
+
 		delete( $session_screens{$key} );                                                          # delete from hash
 
 		$window->show_all unless $is_in_tray;

@@ -50,6 +50,11 @@ sub new {
 	return $self;
 }
 
+#~ sub DESTROY {
+    #~ my $self = shift;
+    #~ print "$self dying at\n";
+#~ } 
+
 sub get_thumbnail {
 	my $self = shift;
 	my $text_uri = shift;
@@ -77,7 +82,7 @@ sub get_thumbnail {
 	$dest_width = 1 if $dest_width < 1;
 	$dest_height = 1 if $dest_height < 1;
 
-	return $pixbuf->scale_simple ($dest_width, $dest_height, 'bilinear');	
+	return $pixbuf->scale_simple ($dest_width, $dest_height, 'tiles');	
 	
 }
 

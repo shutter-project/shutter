@@ -53,6 +53,11 @@ sub new {
 	return $self;
 }
 
+#~ sub DESTROY {
+    #~ my $self = shift;
+    #~ print "$self dying at\n";
+#~ } 
+
 1;
 
 __DATA__

@@ -118,19 +118,21 @@ sub new {
 	return $self;
 }
 
+#~ sub DESTROY {
+    #~ my $self = shift;
+    #~ print "$self dying at\n";
+#~ } 
+
 1;
 
 __DATA__
 
 sub show {
-	my $self        = shift;
-	my $filename    = shift;
-	my $filetype    = shift;
-	my $import_hash = shift;
+	my $self        	  = shift;
 
-	$self->{_filename}    = $filename;
-	$self->{_filetype}    = $filetype;
-	$self->{_import_hash} = $import_hash;
+	$self->{_filename}    = shift;
+	$self->{_filetype}    = shift;
+	$self->{_import_hash} = shift;
 
 	my $d = $self->{_shutter_common}->get_gettext;
 
@@ -168,7 +170,7 @@ sub show {
 	};
 	if($@){
 		my $response = $self->{_dialogs}->dlg_error_message( 
-			sprintf( $d->get("Error while opening image %s."), "'" . $filename . "'"),
+			sprintf( $d->get("Error while opening image %s."), "'" . $self->{_filename} . "'"),
 			$d->get( "There was an error opening the image." ),
 			undef, undef, undef,
 			undef, undef, undef,
@@ -176,7 +178,6 @@ sub show {
 		);
 		
 		$self->{_drawing_window}->destroy if $self->{_drawing_window};
-		Gtk2->main_quit();
 		return FALSE;		
 	
 	}
@@ -1044,8 +1045,7 @@ sub quit {
 
 	my ( $name, $folder, $type ) = fileparse( $self->{_filename}, '\..*' );
 
-	#we are closing the drawing tool as well after saving the changes
-	#so save changes to a file in the shutter folder
+	#save settings to a file in the shutter folder
 	#is there already a .shutter folder?
 	mkdir("$ENV{ 'HOME' }/.shutter")
 		unless ( -d "$ENV{ 'HOME' }/.shutter" );
@@ -1107,8 +1107,19 @@ sub quit {
 
 	}
 	
-	$self->{_selector}->signal_handler_disconnect ($self->{_selector_handler});
+	if($self->{_selector_handler}){	
+		$self->{_selector}->signal_handler_disconnect ($self->{_selector_handler});
+	}
 	$self->{_drawing_window}->destroy if $self->{_drawing_window};
+
+	#delete hash entries to avoid any
+	#possible circularity
+	#
+	#this would lead to a memory leak
+	foreach ( keys %{ $self } ) {
+		delete $self->{$_};
+	}	
+
 	Gtk2->main_quit();
 
 	return FALSE;
@@ -1251,14 +1262,6 @@ sub save_settings {
 sub save {
 	my $self 		= shift;
 	my $save_to_mem = shift;
-
-	#we are closing the drawing tool as well after saving the changes
-	#so save changes to a file in the shutter folder
-	#is there already a .shutter folder?
-	mkdir("$ENV{ 'HOME' }/.shutter")
-		unless ( -d "$ENV{ 'HOME' }/.shutter" );
-
-	$self->save_settings;
 
 	#make sure not to save the bounding rectangles
 	$self->deactivate_all;
