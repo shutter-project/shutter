@@ -105,7 +105,7 @@ sub save_pixbuf_to_file {
 	
 	} else  {
 		#save pixbuf to tempfile
-		my ( $tmpfh, $tmpfilename ) = tempfile();
+		my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
 		if($pixbuf){
 			$pixbuf->save( $tmpfilename, 'png', compression => '9' );
 		}

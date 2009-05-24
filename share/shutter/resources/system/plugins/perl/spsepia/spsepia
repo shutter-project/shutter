@@ -152,7 +152,7 @@ $plug->show_all;
 $preview->hide_all;
 
 #create tempfile
-my ( $tmpfh, $tmpfilename ) = tempfile();
+my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
 #png format
 $tmpfilename .= ".png";
 

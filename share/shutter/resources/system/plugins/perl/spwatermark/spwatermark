@@ -210,10 +210,10 @@ $plug->show_all;
 $preview->hide_all;
 
 #create tempfile
-my ( $tmpfh, $tmpfilename ) = tempfile();
+my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
 #png format
 $tmpfilename .= ".png";
-my ( $tmpfh2, $tmpfilename2 ) = tempfile();
+my ( $tmpfh2, $tmpfilename2 ) = tempfile(UNLINK => 1);
 #png format
 $tmpfilename2 .= ".png";
 

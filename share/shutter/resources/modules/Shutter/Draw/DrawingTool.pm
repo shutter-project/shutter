@@ -123,9 +123,9 @@ sub new {
     #~ print "$self dying at\n";
 #~ } 
 
-1;
-
-__DATA__
+#~ 1;
+#~ 
+#~ __DATA__
 
 sub show {
 	my $self        	  = shift;
