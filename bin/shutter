@@ -25,8 +25,8 @@
 #modules
 #--------------------------------------
 use utf8;
-use strict;
-use warnings;
+#~ use strict;
+#~ use warnings;
 
 #Gnome2 libraries
 use Gnome2;
@@ -84,7 +84,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.461";
+use constant REV                	=> "Rev.462";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -260,7 +260,7 @@ my %session_start_screen;
 #main window gui
 #--------------------------------------
 $window->set_title(SHUTTER_NAME);
-$window->set_default_icon( Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$shutter_root/share/pixmaps/shutter.svg", 100, 100, TRUE ) );
+$window->set_default_icon_from_file( "$shutter_root/share/pixmaps/shutter.svg" );
 $window->signal_connect( 'delete-event' => \&evt_delete_window );
 $window->set_border_width(0);
 $window->set_resizable(TRUE);
