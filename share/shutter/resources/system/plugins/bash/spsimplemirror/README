@@ -1,0 +1,37 @@
+###############################
+#                             #  
+#  Shutter Reflektionsplugin  #
+#                             #
+###############################
+
+Das Reflektionsplugin für Shutter versieht einen Screenshot mit einem Reflektionseffekt. 
+Das Plugin steht unter der GPL (http://www.gnu.org/licenses/gpl.html).
+
+===== AUTHOR =====
+
+Stephan Tetzel, stephan@zefanjas.de
+
+===== INSTALLATION ======
+
+Zuerst muss folgender Ordner angelegt werden.
+
+    $ sudo mkdir /usr/share/shutter/resources/system/plugins/bash/spsimplemirror
+
+In das Verzeichnis 'spmirror' müssen nun die beiden Dateien 'spsimplemirror' und 
+'spsimplemirror.svg' kopiert werden. 
+
+Das Plugin muss noch ausführbar gemacht werden.
+
+    $ sudo chmod +x /usr/share/shutter/resources/system/plugins/bash/spmirror/spsimplemirror
+
+Danach Shutter neu starten damit das Plugin in der Plugin-Liste erscheint.
+
+===== Changes ======
+
+- v0.2
+    - fester Abstand von der Reflektionsebene (10px)
+    - feste Bildgröße (+128px)
+    - kein Rand mehr
+
+- v0.1
+    - erstes Release
