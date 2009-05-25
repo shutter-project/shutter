@@ -52,16 +52,12 @@ HEIGHT="${3}"
 #FILEYTPE="${4}"
 #GEO="${2}x${3}"
 
-ABSTAND=$(echo "scale=0; $HEIGHT / 0.909" | bc -l)
-YAABSTAND=$(echo "scale=0; $HEIGHT / 0.769" | bc -l)
-
 convert "${FILE}" -flip unten.png
-convert "${FILE}" -bordercolor white -border 50x50 oben.png
 convert  xc:"#9E9E9E" -size "${WIDTH}"x512 xc:black -size "${WIDTH}"x128 gradient:"#9E9E9E"-black +swap -append overlap.png
 composite overlap.png unten.png -compose CopyOpacity unten.png
-convert oben.png unten.png -extent $((${WIDTH}+100))x$(($YAABSTAND)) -background white -geometry +50+$(($ABSTAND)) -composite "${FILE}"
+convert "${FILE}" unten.png -extent $((${WIDTH}))x$(($HEIGHT+128)) -background none -geometry +0+$(($HEIGHT+10)) -composite "${FILE}"
 
 #cleanup
-rm unten.png oben.png overlap.png
+rm unten.png overlap.png
 
 exit 0
