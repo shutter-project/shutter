@@ -123,9 +123,9 @@ sub new {
     #~ print "$self dying at\n";
 #~ } 
 
-#~ 1;
-#~ 
-#~ __DATA__
+1;
+
+__DATA__
 
 sub show {
 	my $self        	  = shift;
@@ -134,7 +134,11 @@ sub show {
 	$self->{_filetype}    = shift;
 	$self->{_import_hash} = shift;
 
-	my $d = $self->{_shutter_common}->get_gettext;
+	#gettext
+	$self->{_d} = $self->{_shutter_common}->get_gettext;
+	
+	#define own icons
+	$self->{_dicons} = $self->{_shutter_common}->get_root . "/share/shutter/resources/icons/drawing_tool";
 
 	#MAIN WINDOW
 	#-------------------------------------------------
@@ -170,8 +174,8 @@ sub show {
 	};
 	if($@){
 		my $response = $self->{_dialogs}->dlg_error_message( 
-			sprintf( $d->get("Error while opening image %s."), "'" . $self->{_filename} . "'"),
-			$d->get( "There was an error opening the image." ),
+			sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $self->{_filename} . "'"),
+			$self->{_d}->get( "There was an error opening the image." ),
 			undef, undef, undef,
 			undef, undef, undef,
 			$@
@@ -297,7 +301,6 @@ sub show {
 
 	#init current tool
 	$self->set_drawing_action(int($self->{_current_mode}/10));
-	$self->change_drawing_tool_cb($self->{_current_mode});
 
 	#remember drawing colors, line width and font settings
 	#maybe we have to restore them
@@ -327,7 +330,7 @@ sub show {
 sub setup_bottom_hbox {
 	my $self = shift;
 
-	my $d = $self->{_shutter_common}->get_gettext;
+	
 
 	#Tooltips
 	my $tooltips = $self->{_shutter_common}->get_tooltips;
@@ -335,57 +338,57 @@ sub setup_bottom_hbox {
 	my $drawing_bottom_hbox = Gtk2::HBox->new( FALSE, 5 );
 
 	#fill color
-	my $fill_color_label = Gtk2::Label->new( $d->get("Fill color") . ":" );
+	my $fill_color_label = Gtk2::Label->new( $self->{_d}->get("Fill color") . ":" );
 	$self->{_fill_color_w} = Gtk2::ColorButton->new();
 	$self->{_fill_color_w}->set_color( $self->{_fill_color} );
 	$self->{_fill_color_w}->set_alpha( int( $self->{_fill_color_alpha} * 65636 ) );
 	$self->{_fill_color_w}->set_use_alpha(TRUE);
-	$self->{_fill_color_w}->set_title( $d->get("Choose fill color") );
+	$self->{_fill_color_w}->set_title( $self->{_d}->get("Choose fill color") );
 
-	$tooltips->set_tip( $fill_color_label, $d->get("Adjust fill color and opacity") );
-	$tooltips->set_tip( $self->{_fill_color_w}, $d->get("Adjust fill color and opacity") );
+	$tooltips->set_tip( $fill_color_label, $self->{_d}->get("Adjust fill color and opacity") );
+	$tooltips->set_tip( $self->{_fill_color_w}, $self->{_d}->get("Adjust fill color and opacity") );
 
 	$drawing_bottom_hbox->pack_start( $fill_color_label, FALSE, FALSE, 5 );
 	$drawing_bottom_hbox->pack_start( $self->{_fill_color_w}, FALSE, FALSE, 5 );
 
 	#stroke color
-	my $stroke_color_label = Gtk2::Label->new( $d->get("Stroke color") . ":" );
+	my $stroke_color_label = Gtk2::Label->new( $self->{_d}->get("Stroke color") . ":" );
 	$self->{_stroke_color_w} = Gtk2::ColorButton->new();
 	$self->{_stroke_color_w}->set_color( $self->{_stroke_color} );
 	$self->{_stroke_color_w}->set_alpha( int( $self->{_stroke_color_alpha} * 65535 ) );
 	$self->{_stroke_color_w}->set_use_alpha(TRUE);
-	$self->{_stroke_color_w}->set_title( $d->get("Choose stroke color") );
+	$self->{_stroke_color_w}->set_title( $self->{_d}->get("Choose stroke color") );
 
-	$tooltips->set_tip( $stroke_color_label, $d->get("Adjust stroke color and opacity") );
-	$tooltips->set_tip( $self->{_stroke_color_w}, $d->get("Adjust stroke color and opacity") );
+	$tooltips->set_tip( $stroke_color_label, $self->{_d}->get("Adjust stroke color and opacity") );
+	$tooltips->set_tip( $self->{_stroke_color_w}, $self->{_d}->get("Adjust stroke color and opacity") );
 
 	$drawing_bottom_hbox->pack_start( $stroke_color_label, FALSE, FALSE, 5 );
 	$drawing_bottom_hbox->pack_start( $self->{_stroke_color_w}, FALSE, FALSE, 5 );
 
 	#line_width
-	my $linew_label = Gtk2::Label->new( $d->get("Line width") . ":" );
+	my $linew_label = Gtk2::Label->new( $self->{_d}->get("Line width") . ":" );
 	$self->{_line_spin_w} = Gtk2::SpinButton->new_with_range( 0.5, 20, 0.1 );
 	$self->{_line_spin_w}->set_value( $self->{_line_width} );
 
-	$tooltips->set_tip( $linew_label, $d->get("Adjust line width") );
-	$tooltips->set_tip( $self->{_line_spin_w},   $d->get("Adjust line width") );
+	$tooltips->set_tip( $linew_label, $self->{_d}->get("Adjust line width") );
+	$tooltips->set_tip( $self->{_line_spin_w},   $self->{_d}->get("Adjust line width") );
 
 	$drawing_bottom_hbox->pack_start( $linew_label, FALSE, FALSE, 5 );
 	$drawing_bottom_hbox->pack_start( $self->{_line_spin_w},   FALSE, FALSE, 5 );
 
 	#font button
-	my $font_label = Gtk2::Label->new( $d->get("Font") . ":" );
+	my $font_label = Gtk2::Label->new( $self->{_d}->get("Font") . ":" );
 	$self->{_font_btn_w} = Gtk2::FontButton->new();
 	$self->{_font_btn_w}->set_font_name( $self->{_font} );
 
-	$tooltips->set_tip( $font_label, $d->get("Select font family and size") );
-	$tooltips->set_tip( $self->{_font_btn_w}, $d->get("Select font family and size") );
+	$tooltips->set_tip( $font_label, $self->{_d}->get("Select font family and size") );
+	$tooltips->set_tip( $self->{_font_btn_w}, $self->{_d}->get("Select font family and size") );
 
 	$drawing_bottom_hbox->pack_start( $font_label, FALSE, FALSE, 5 );
 	$drawing_bottom_hbox->pack_start( $self->{_font_btn_w}, FALSE, FALSE, 5 );
 
 	#image button
-	my $image_label = Gtk2::Label->new( $d->get("Insert image") . ":" );
+	my $image_label = Gtk2::Label->new( $self->{_d}->get("Insert image") . ":" );
 	my $image_btn = Gtk2::MenuToolButton->new( undef, undef );
 	$image_btn->set_menu( $self->ret_objects_menu($image_btn) );
 
@@ -492,8 +495,8 @@ sub setup_bottom_hbox {
 		}
 	);
 
-	$tooltips->set_tip( $image_label, $d->get("Insert an arbitrary object or file") );
-	$tooltips->set_tip( $image_btn,   $d->get("Insert an arbitrary object or file") );
+	$tooltips->set_tip( $image_label, $self->{_d}->get("Insert an arbitrary object or file") );
+	$tooltips->set_tip( $image_btn,   $self->{_d}->get("Insert an arbitrary object or file") );
 
 	$drawing_bottom_hbox->pack_start( $image_label, FALSE, FALSE, 5 );
 	$drawing_bottom_hbox->pack_start( $image_btn,   FALSE, FALSE, 5 );
@@ -504,10 +507,6 @@ sub setup_bottom_hbox {
 sub setup_right_vbox_c {
 	my $self = shift;
 
-	#define own icons
-	my $dicons = $self->{_shutter_common}->get_root . "/share/shutter/resources/icons/drawing_tool";
-	my $d = $self->{_shutter_common}->get_gettext;
-
 	#Tooltips
 	my $tooltips = $self->{_shutter_common}->get_tooltips;
 
@@ -517,7 +516,7 @@ sub setup_right_vbox_c {
 	my $pixbuf = $self->{_view}->get_pixbuf || $self->{_drawing_pixbuf};
 
 	#X
-	my $xw_label = Gtk2::Label->new( $d->get("X") . ":" );
+	my $xw_label = Gtk2::Label->new( $self->{_d}->get("X") . ":" );
 	$self->{_x_spin_w} = Gtk2::SpinButton->new_with_range( 0, $pixbuf->get_width, 1 );
 	$self->{_x_spin_w}->set_value( 0 );
 	$self->{_x_spin_w_handler} = $self->{_x_spin_w}->signal_connect(
@@ -536,7 +535,7 @@ sub setup_right_vbox_c {
 	$xw_hbox->pack_start( $self->{_x_spin_w}, FALSE, FALSE, 5 );
 
 	#y
-	my $yw_label = Gtk2::Label->new( $d->get("Y") . ":" );
+	my $yw_label = Gtk2::Label->new( $self->{_d}->get("Y") . ":" );
 	$self->{_y_spin_w} = Gtk2::SpinButton->new_with_range( 0, $pixbuf->get_height, 1 );
 	$self->{_y_spin_w}->set_value( 0 );
 	$self->{_y_spin_w_handler} = $self->{_y_spin_w}->signal_connect(
@@ -555,7 +554,7 @@ sub setup_right_vbox_c {
 	$yw_hbox->pack_start( $self->{_y_spin_w}, FALSE, FALSE, 5 );
 
 	#width
-	my $widthw_label = Gtk2::Label->new( $d->get("Width") . ":" );
+	my $widthw_label = Gtk2::Label->new( $self->{_d}->get("Width") . ":" );
 	$self->{_width_spin_w} = Gtk2::SpinButton->new_with_range( 0, $pixbuf->get_width, 1 );
 	$self->{_width_spin_w}->set_value( 0 );
 	$self->{_width_spin_w_handler} = $self->{_width_spin_w}->signal_connect(
@@ -574,7 +573,7 @@ sub setup_right_vbox_c {
 	$ww_hbox->pack_start( $self->{_width_spin_w}, FALSE, FALSE, 5 );
 
 	#height
-	my $heightw_label = Gtk2::Label->new( $d->get("Height") . ":" );
+	my $heightw_label = Gtk2::Label->new( $self->{_d}->get("Height") . ":" );
 	$self->{_height_spin_w} = Gtk2::SpinButton->new_with_range( 0, $pixbuf->get_height, 1 );
 	$self->{_height_spin_w}->set_value( 0 );
 	$self->{_height_spin_w_handler} = $self->{_height_spin_w}->signal_connect(
@@ -604,8 +603,8 @@ sub setup_right_vbox_c {
 	$crop_c->signal_connect('clicked' => sub { $self->abort_current_mode} );
 
 	#crop button
-	my $crop_ok = Gtk2::Button->new_with_label ($d->get("Crop"));
-	$crop_ok->set_image( Gtk2::Image->new_from_file("$dicons/transform-crop.png") );
+	my $crop_ok = Gtk2::Button->new_with_label ($self->{_d}->get("Crop"));
+	$crop_ok->set_image( Gtk2::Image->new_from_file($self->{_dicons}.'/transform-crop.png') );
 	$crop_ok->signal_connect('clicked' => sub { 
 		
 		my $s = $self->{_selector}->get_selection;
@@ -684,7 +683,7 @@ sub setup_right_vbox_c {
 
 	#nice frame as well
 	my $crop_frame_label = Gtk2::Label->new;
-	$crop_frame_label->set_markup( "<b>" . $d->get("Selection") . "</b>" );
+	$crop_frame_label->set_markup( "<b>" . $self->{_d}->get("Selection") . "</b>" );
 
 	my $crop_frame = Gtk2::Frame->new();
 	$crop_frame->set_border_width(5);
@@ -739,49 +738,49 @@ sub push_to_statusbar {
 	my $y = shift;
 	my $action = shift || 'none';
 
-	my $d = $self->{_shutter_common}->get_gettext;
+	
 
 	my $status_text = int( $x ) . " x " . int( $y );
 		
 	if ( $self->{_current_mode} == 10 ) {
 
 		if($action eq 'resize'){
-			$status_text .= " ".$d->get("Click-Drag to scale (try Control to scale uniformly)");	
+			$status_text .= " ".$self->{_d}->get("Click-Drag to scale (try Control to scale uniformly)");	
 		}elsif($action eq 'canvas_resize'){
-			$status_text .= " ".$d->get("Click-Drag to resize the canvas");				
+			$status_text .= " ".$self->{_d}->get("Click-Drag to resize the canvas");				
 		}
 		
 	} elsif ( $self->{_current_mode} == 20 || $self->{_current_mode} == 30) {
 
-		$status_text .= " ".$d->get("Click to paint (try Control or Shift for a straight line)");
+		$status_text .= " ".$self->{_d}->get("Click to paint (try Control or Shift for a straight line)");
 		
 	} elsif ( $self->{_current_mode} == 40 ) {
 
-		$status_text .= " ".$d->get("Click-Drag to create a new straight line");
+		$status_text .= " ".$self->{_d}->get("Click-Drag to create a new straight line");
 
 	} elsif ( $self->{_current_mode} == 50 ) {
 
-		$status_text .= " ".$d->get("Click-Drag to create a new arrow");
+		$status_text .= " ".$self->{_d}->get("Click-Drag to create a new arrow");
 
 	} elsif ( $self->{_current_mode} == 60 ) {
 
-		$status_text .= " ".$d->get("Click-Drag to create a new rectangle");
+		$status_text .= " ".$self->{_d}->get("Click-Drag to create a new rectangle");
 
 	} elsif ( $self->{_current_mode} == 70 ) {
 
-		$status_text .= " ".$d->get("Click-Drag to create a new ellipse");
+		$status_text .= " ".$self->{_d}->get("Click-Drag to create a new ellipse");
 
 	} elsif ( $self->{_current_mode} == 80 ) {
 
-		$status_text .= " ".$d->get("Click-Drag to add a new text area");
+		$status_text .= " ".$self->{_d}->get("Click-Drag to add a new text area");
 
 	} elsif ( $self->{_current_mode} == 90 ) {
 
-		$status_text .= " ".$d->get("Click to censor (try Control or Shift for a straight line)");
+		$status_text .= " ".$self->{_d}->get("Click to censor (try Control or Shift for a straight line)");
 
 	} elsif ( $self->{_current_mode} == 100 ) {
 
-		$status_text .= " ".$d->get("Click to add an auto-increment shape");
+		$status_text .= " ".$self->{_d}->get("Click to add an auto-increment shape");
 
 	} elsif ( $self->{_current_mode} == 110 ) {
 
@@ -789,11 +788,11 @@ sub push_to_statusbar {
 
 	} elsif ( $self->{_current_mode} == 120 ) {
 
-		$status_text .= " ".$d->get("Select an object to delete it from the canvas");
+		$status_text .= " ".$self->{_d}->get("Select an object to delete it from the canvas");
 
 	} elsif ( $self->{_current_mode} == 130 ) {
 
-		$status_text .= " ".$d->get("Delete all objects");
+		$status_text .= " ".$self->{_d}->get("Delete all objects");
 
 	} 	
 
@@ -808,13 +807,13 @@ sub change_drawing_tool_cb {
 	my $self   = shift;
 	my $action = shift;
 
+	print "change_drawing_tool_cb\n";
+
 	eval { $self->{_current_mode} = $action->get_current_value; };
 	if ($@) {
 		$self->{_current_mode} = $action;
 	}
 
-	#define own icons
-	my $dicons = $self->{_shutter_common}->get_root . "/share/shutter/resources/icons/drawing_tool";
 	my $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
 
 	#tool is switched from "highlighter" OR censor to something else (excluding select tool)
@@ -857,7 +856,7 @@ sub change_drawing_tool_cb {
 		$self->{_current_mode_descr} = "line";
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
 			Gtk2::Gdk::Display->get_default,
-			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-line.png"),
+			Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-line.png'),
 			Gtk2::IconSize->lookup('menu')
 		);
 
@@ -866,7 +865,7 @@ sub change_drawing_tool_cb {
 		$self->{_current_mode_descr} = "arrow";
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
 			Gtk2::Gdk::Display->get_default,
-			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-arrow.png"),
+			Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-arrow.png'),
 			Gtk2::IconSize->lookup('menu')
 		);
 
@@ -875,7 +874,7 @@ sub change_drawing_tool_cb {
 		$self->{_current_mode_descr} = "rect";
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
 			Gtk2::Gdk::Display->get_default,
-			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-rectangle.png"),
+			Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-rectangle.png'),
 			Gtk2::IconSize->lookup('menu')
 		);
 
@@ -884,7 +883,7 @@ sub change_drawing_tool_cb {
 		$self->{_current_mode_descr} = "ellipse";
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
 			Gtk2::Gdk::Display->get_default,
-			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-ellipse.png"),
+			Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-ellipse.png'),
 			Gtk2::IconSize->lookup('menu')
 		);
 
@@ -893,7 +892,7 @@ sub change_drawing_tool_cb {
 		$self->{_current_mode_descr} = "text";
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
 			Gtk2::Gdk::Display->get_default,
-			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-text.png"),
+			Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-text.png'),
 			Gtk2::IconSize->lookup('menu')
 		);
 
@@ -902,7 +901,7 @@ sub change_drawing_tool_cb {
 		$self->{_current_mode_descr} = "censor";
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
 			Gtk2::Gdk::Display->get_default,
-			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-censor.png"),
+			Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-censor.png'),
 			Gtk2::IconSize->lookup('menu')
 		);
 
@@ -911,7 +910,7 @@ sub change_drawing_tool_cb {
 		$self->{_current_mode_descr} = "number";
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
 			Gtk2::Gdk::Display->get_default,
-			Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-number.png"),
+			Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-number.png'),
 			Gtk2::IconSize->lookup('menu')
 		);
 
@@ -941,8 +940,7 @@ sub change_drawing_tool_cb {
 			$self->clear_item_from_canvas($self->{_items}{$_});	
 		}
 		
-		$self->set_drawing_action(0);
-		$self->change_drawing_tool_cb(10);
+		$self->set_drawing_action(1);
 
 	} 
 
@@ -1041,7 +1039,7 @@ sub quit {
 	my $self         = shift;
 	my $show_warning = shift;
 
-	my $d = $self->{_shutter_common}->get_gettext;
+	
 
 	my ( $name, $folder, $type ) = fileparse( $self->{_filename}, '\..*' );
 
@@ -1058,7 +1056,7 @@ sub quit {
 		my $warn_dialog = Gtk2::MessageDialog->new( $self->{_drawing_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef );
 
 		#set question text
-		$warn_dialog->set( 'text' => sprintf( $d->get("Save the changes to image %s before closing?"), "'$name$type'" ) );
+		$warn_dialog->set( 'text' => sprintf( $self->{_d}->get("Save the changes to image %s before closing?"), "'$name$type'" ) );
 
 		#set text...
 		$self->update_warning_text($warn_dialog);
@@ -1074,10 +1072,10 @@ sub quit {
 
 		$warn_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-save', 'dialog' ) );
 
-		$warn_dialog->set( 'title' => $d->get("Close") . " " . $name . $type );
+		$warn_dialog->set( 'title' => $self->{_d}->get("Close") . " " . $name . $type );
 
 		#don't save button
-		my $dsave_btn = Gtk2::Button->new_with_mnemonic( $d->get("Do_n't save") );
+		my $dsave_btn = Gtk2::Button->new_with_mnemonic( $self->{_d}->get("Do_n't save") );
 		$dsave_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-delete', 'button' ) );
 
 		#cancel button
@@ -1129,13 +1127,13 @@ sub update_warning_text {
 	my $self        = shift;
 	my $warn_dialog = shift;
 
-	my $d = $self->{_shutter_common}->get_gettext;
+	
 
 	my $minutes = int( ( time - $self->{_start_time} ) / 60 );
 	$minutes = 1 if $minutes == 0;
 	$warn_dialog->set(
 		'secondary-text' => sprintf(
-			$d->nget(
+			$self->{_d}->nget(
 				"If you don't save the image, changes from the last minute will be lost",
 				"If you don't save the image, changes from the last %d minutes will be lost",
 				$minutes
@@ -1158,7 +1156,7 @@ sub load_settings {
 	my $settings_xml;
 	if ( $shutter_hfunct->file_exists($settingsfile) ) {
 		eval {
-			$settings_xml = XMLin($settingsfile);
+			$settings_xml = XMLin( IO::File->new($settingsfile) );
 	
 			#window size and position
 			if($settings_xml->{'drawing'}->{'x'} && $settings_xml->{'drawing'}->{'y'}){
@@ -1805,10 +1803,10 @@ sub get_parent_item {
 
 	my $parent = undef;
 	foreach ( keys %{ $self->{_items} } ) {
-		$parent = $self->{_items}{$_} if $self->{_items}{$_}{ellipse} == $item;
-		$parent = $self->{_items}{$_} if $self->{_items}{$_}{text} == $item;
-		$parent = $self->{_items}{$_} if $self->{_items}{$_}{image} == $item;
-		$parent = $self->{_items}{$_} if $self->{_items}{$_}{line} == $item;
+		$parent = $self->{_items}{$_} if exists $self->{_items}{$_}{ellipse} && $self->{_items}{$_}{ellipse} == $item;
+		$parent = $self->{_items}{$_} if exists $self->{_items}{$_}{text} && $self->{_items}{$_}{text} == $item;
+		$parent = $self->{_items}{$_} if exists $self->{_items}{$_}{image} && $self->{_items}{$_}{image} == $item;
+		$parent = $self->{_items}{$_} if exists $self->{_items}{$_}{line} && $self->{_items}{$_}{line} == $item;
 	}
 
 	return $parent;
@@ -1841,10 +1839,12 @@ sub get_child_item {
 
 	#notice (special shapes like numbered ellipse do deliver ellipse here => NOT text!)
 	#therefore the order matters
-	$child = $self->{_items}{$item}{text}    if exists $self->{_items}{$item}{text};
-	$child = $self->{_items}{$item}{ellipse} if exists $self->{_items}{$item}{ellipse};
-	$child = $self->{_items}{$item}{image}   if exists $self->{_items}{$item}{image};
-	$child = $self->{_items}{$item}{line}   if exists $self->{_items}{$item}{line};
+	if (exists $self->{_items}{$item}){
+		$child = $self->{_items}{$item}{text}    if exists $self->{_items}{$item}{text};
+		$child = $self->{_items}{$item}{ellipse} if exists $self->{_items}{$item}{ellipse};
+		$child = $self->{_items}{$item}{image}   if exists $self->{_items}{$item}{image};
+		$child = $self->{_items}{$item}{line}    if exists $self->{_items}{$item}{line};
+	}
 
 	return $child;
 }
@@ -1852,8 +1852,9 @@ sub get_child_item {
 sub abort_current_mode {
 	my $self = shift;
 
-	$self->set_drawing_action(0);
-	$self->change_drawing_tool_cb(10);
+	print "abort_current_mode\n";
+
+	$self->set_drawing_action(1);
 
 	return TRUE;
 }	
@@ -1861,6 +1862,8 @@ sub abort_current_mode {
 sub clear_item_from_canvas {
 	my $self = shift;
 	my $item = shift;
+
+	print "clear_item_from_canvas\n";
 
 	if ($item) {
 		my @items_to_delete;
@@ -2058,6 +2061,8 @@ sub set_and_save_drawing_properties {
 	
 	my $save_only = shift;
 
+	print "set_and_save_drawing_properties\n";
+
 	#determine key for item hash
 	if(my $child = $self->get_child_item($item)){
 		$item = $child;
@@ -2200,6 +2205,8 @@ sub restore_drawing_properties {
 	#anything done until now?
 	return FALSE unless defined $self->{_last_mode};
 
+	print "restore_drawing_properties\n";
+
 	#block 'value-change' handlers for widgets
 	#so we do not apply the changes twice
 	$self->{_line_spin_w}->signal_handler_block ($self->{_line_spin_wh});
@@ -2235,14 +2242,13 @@ sub restore_drawing_properties {
 sub event_item_on_button_press {
 	my ( $self, $item, $target, $ev ) = @_;
 
-	my $d      = $self->{_shutter_common}->get_gettext;
 	my $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
 
-	#~ my $valid = FALSE;
-	#~ $valid = TRUE if $self->{_canvas}->get_item_at( $ev->x, $ev->y, TRUE );
-
 	#activate item
-	if ($self->{_current_mode_descr} eq "select") {
+	#if it is not activated yet
+	#
+	#single click
+	if ($ev->type eq 'button-press' && $self->{_current_mode_descr} eq "select") {
 
 		#embedded item?
 		my $parent = $self->get_parent_item($item);
@@ -2264,13 +2270,17 @@ sub event_item_on_button_press {
 				$self->set_and_save_drawing_properties($self->{_current_item}, FALSE);
 		
 			}
+			
+			#no item selected, deactivate all items and leave sub
+		}elsif($item == $self->{_canvas_bg} || $item == $self->{_canvas_bg_rect}){
+				
+			$self->deactivate_all;
+			return FALSE;
+			
 		}
-	} else {
-		
-		$self->deactivate_all;
+	} 
 	
-	}
-
+	#left mouse click to drag, resize, create or delelte items
 	if ( $ev->type eq 'button-press' && $ev->button == 1 ) {
 
 		my $root   = $self->{_canvas}->get_root_item;
@@ -2298,13 +2308,13 @@ sub event_item_on_button_press {
 		#MOVE AND SELECT
 		} elsif ( $self->{_current_mode_descr} eq "select" ) {
 
-			#			return TRUE if $item == $self->{_canvas_bg};
 
 			if ( $item->isa('Goo::Canvas::Rect') ) {
-
+				
+					#don't_move the bounding rectangle
 				return TRUE if $item == $self->{_canvas_bg_rect};
 			
-				#real shape
+					#real shape => move 
 				if ( exists $self->{_items}{$item} ) {
 					$item->{drag_x}   = $ev->x_root;
 					$item->{drag_y}   = $ev->y_root;
@@ -2315,7 +2325,7 @@ sub event_item_on_button_press {
 					#add to undo stack
 					$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
 
-					#resizing shape
+					#resizing shape => resize
 				} else {
 
 					$item->{res_x}    = $ev->x_root;
@@ -2328,17 +2338,11 @@ sub event_item_on_button_press {
 					$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
 
 				}
-
+			
+			#no rectangle, e.g. polyline
 			} else {
 
-				#click on background => deactivate all selected items
-				if ( $item == $self->{_canvas_bg} ) {
-
-					$self->deactivate_all;
-
-				}
-
-				#no rect and no background, just move it ...
+				#no rect, just move it ...
 				$item->{drag_x}   = $ev->x;
 				$item->{drag_y}   = $ev->y;
 				$item->{dragging} = TRUE;
@@ -2352,6 +2356,7 @@ sub event_item_on_button_press {
 
 			$self->{_canvas}->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ], $cursor, $ev->time );
 
+		#CREATE	
 		} else {
 
 				#freehand
@@ -2406,7 +2411,6 @@ sub event_item_on_button_press {
 
 			}
 		}
-	} elsif ( $ev->button == 2 && $self->{_current_mode_descr} eq "select") {
 
 		#right click => show context menu, double-click => show properties directly 
 	} elsif ( ($ev->type eq '2button-press' || $ev->button == 3) && $self->{_current_mode_descr} eq "select") {
@@ -2423,7 +2427,8 @@ sub event_item_on_button_press {
 		my $parent 	= $self->get_parent_item($item);
 		my $key = $self->get_item_key($item, $parent);
 
-		if ( exists $self->{_items}{$key} ) {		
+		#real shape
+		if ( exists $self->{_items}{$key} ) {
 			if( $ev->type eq '2button-press' ) {
 
 				#some items do not have properties, e.g. images or censor
@@ -2432,7 +2437,7 @@ sub event_item_on_button_press {
 				$self->show_item_properties($item, $parent, $key);
 				
 			}elsif( $ev->type eq 'button-press' ){
-				
+								
 				my $item_menu = $self->ret_item_menu($item, $parent, $key);
 
 				$item_menu->popup(
@@ -2446,11 +2451,6 @@ sub event_item_on_button_press {
 			}				
 		}
 
-	#zooming using the mouse wheel
-	#~ } elsif ( $ev->button == 4  ) {
-		#~ $self->zoom_in_cb;		
-	#~ } elsif ( $ev->button == 5  ) {
-		#~ $self->zoom_out_cb;
 	}		
 
 	return TRUE;
@@ -2462,15 +2462,14 @@ sub ret_item_menu {
 	my $parent = shift;
 	my $key	   = shift;
 
-	my $d      = $self->{_shutter_common}->get_gettext;
-	my $dicons = $self->{_shutter_common}->get_root . "/share/shutter/resources/icons/drawing_tool";
+	print "ret_item_menu\n";
 
 	my $menu_item = Gtk2::Menu->new;
 
 	#raise
-	my $raise_item = Gtk2::ImageMenuItem->new( $d->get("Raise") );
+	my $raise_item = Gtk2::ImageMenuItem->new( $self->{_d}->get("Raise") );
 	$raise_item->set_image(
-		Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$dicons/draw-raise.png", Gtk2::IconSize->lookup('menu') ) ) );
+		Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_size( $self->{_dicons}.'/draw-raise.png', Gtk2::IconSize->lookup('menu') ) ) );
 	$raise_item->signal_connect(
 		'activate' => sub {
 			$item->raise;
@@ -2486,9 +2485,9 @@ sub ret_item_menu {
 	$menu_item->append($raise_item);
 
 	#lower
-	my $lower_item = Gtk2::ImageMenuItem->new( $d->get("Lower") );
+	my $lower_item = Gtk2::ImageMenuItem->new( $self->{_d}->get("Lower") );
 	$lower_item->set_image(
-		Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$dicons/draw-lower.png", Gtk2::IconSize->lookup('menu') ) ) );
+		Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_size( $self->{_dicons}.'/draw-lower.png', Gtk2::IconSize->lookup('menu') ) ) );
 
 	$lower_item->signal_connect(
 		'activate' => sub {
@@ -2548,7 +2547,7 @@ sub get_item_key {
 	my $parent 	= shift;
 	if ( exists $self->{_items}{$item} ) {
 		return $item;
-	} else {
+	}else{
 		return $parent;
 	}
 }
@@ -2559,11 +2558,11 @@ sub show_item_properties {
 	my $parent 	= shift;
 	my $key 	= shift;
 
-	my $d = $self->{_shutter_common}->get_gettext;
+	print "show_item_properties\n";
 
 	#create dialog
 	my $prop_dialog = Gtk2::Dialog->new(
-		$d->get("Preferences"),
+		$self->{_d}->get("Preferences"),
 		$self->{_drawing_window},
 		[qw/modal destroy-with-parent/],
 		'gtk-cancel' => 'cancel',
@@ -2603,7 +2602,7 @@ sub show_item_properties {
 		my $general_vbox = Gtk2::VBox->new( FALSE, 5 );
 
 		my $label_general = Gtk2::Label->new;
-		$label_general->set_markup( $d->get("<i>Main</i>") );
+		$label_general->set_markup( $self->{_d}->get("<i>Main</i>") );
 		my $frame_general = Gtk2::Frame->new();
 		$frame_general->set_label_widget($label_general);
 		$frame_general->set_border_width(5);
@@ -2612,7 +2611,7 @@ sub show_item_properties {
 		#line_width
 		my $line_hbox = Gtk2::HBox->new( TRUE, 5 );
 		$line_hbox->set_border_width(5);
-		my $linew_label = Gtk2::Label->new( $d->get("Line width") );
+		my $linew_label = Gtk2::Label->new( $self->{_d}->get("Line width") );
 		$line_spin = Gtk2::SpinButton->new_with_range( 0.5, 20, 0.1 );
 
 		$line_spin->set_value( $item->get('line-width') );
@@ -2626,13 +2625,13 @@ sub show_item_properties {
 			#fill color
 			my $fill_color_hbox = Gtk2::HBox->new( TRUE, 5 );
 			$fill_color_hbox->set_border_width(5);
-			my $fill_color_label = Gtk2::Label->new( $d->get("Fill color") );
+			my $fill_color_label = Gtk2::Label->new( $self->{_d}->get("Fill color") );
 			$fill_color = Gtk2::ColorButton->new();
 
 			$fill_color->set_color( $self->{_items}{$key}{fill_color} );
 			$fill_color->set_alpha( int( $self->{_items}{$key}{fill_color_alpha} * 65535 ) );
 			$fill_color->set_use_alpha(TRUE);
-			$fill_color->set_title( $d->get("Choose fill color") );
+			$fill_color->set_title( $self->{_d}->get("Choose fill color") );
 
 			$fill_color_hbox->pack_start_defaults($fill_color_label);
 			$fill_color_hbox->pack_start_defaults($fill_color);
@@ -2645,13 +2644,13 @@ sub show_item_properties {
 			#stroke color
 			my $stroke_color_hbox = Gtk2::HBox->new( TRUE, 5 );
 			$stroke_color_hbox->set_border_width(5);
-			my $stroke_color_label = Gtk2::Label->new( $d->get("Stroke color") );
+			my $stroke_color_label = Gtk2::Label->new( $self->{_d}->get("Stroke color") );
 			$stroke_color = Gtk2::ColorButton->new();
 
 			$stroke_color->set_color( $self->{_items}{$key}{stroke_color} );
 			$stroke_color->set_alpha( int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
 			$stroke_color->set_use_alpha(TRUE);
-			$stroke_color->set_title( $d->get("Choose stroke color") );
+			$stroke_color->set_title( $self->{_d}->get("Choose stroke color") );
 
 			$stroke_color_hbox->pack_start_defaults($stroke_color_label);
 			$stroke_color_hbox->pack_start_defaults($stroke_color);
@@ -2666,7 +2665,7 @@ sub show_item_properties {
 			my $numbered_vbox = Gtk2::VBox->new( FALSE, 5 );
 			
 			my $label_numbered = Gtk2::Label->new;
-			$label_numbered->set_markup( $d->get("<i>Numbering</i>") );
+			$label_numbered->set_markup( $self->{_d}->get("<i>Numbering</i>") );
 			my $frame_numbered = Gtk2::Frame->new();
 			$frame_numbered->set_label_widget($label_numbered);
 			$frame_numbered->set_border_width(5);
@@ -2675,7 +2674,7 @@ sub show_item_properties {
 			#current digit
 			my $number_hbox = Gtk2::HBox->new( TRUE, 5 );
 			$number_hbox->set_border_width(5);
-			my $numberw_label = Gtk2::Label->new( $d->get("Current value") );
+			my $numberw_label = Gtk2::Label->new( $self->{_d}->get("Current value") );
 			$number_spin = Gtk2::SpinButton->new_with_range( 0, 999, 1 );
 
 			$number_spin->set_value( $self->{_items}{$key}{text}{digit} );
@@ -2687,7 +2686,7 @@ sub show_item_properties {
 			#font button
 			my $font_hbox = Gtk2::HBox->new( TRUE, 5 );
 			$font_hbox->set_border_width(5);
-			my $font_label = Gtk2::Label->new( $d->get("Font") );
+			my $font_label = Gtk2::Label->new( $self->{_d}->get("Font") );
 			$font_btn = Gtk2::FontButton->new();
 
 			#determine font description from string
@@ -2730,7 +2729,7 @@ sub show_item_properties {
 		my $arrow_vbox = Gtk2::VBox->new( FALSE, 5 );
 
 		my $label_arrow = Gtk2::Label->new;
-		$label_arrow->set_markup( $d->get("<i>Arrow</i>") );
+		$label_arrow->set_markup( $self->{_d}->get("<i>Arrow</i>") );
 		my $frame_arrow = Gtk2::Frame->new();
 		$frame_arrow->set_label_widget($label_arrow);
 		$frame_arrow->set_border_width(5);
@@ -2739,7 +2738,7 @@ sub show_item_properties {
 		#arrow_width
 		my $arrow_hbox = Gtk2::HBox->new( TRUE, 5 );
 		$arrow_hbox->set_border_width(5);
-		my $arroww_label = Gtk2::Label->new( $d->get("Width") );
+		my $arroww_label = Gtk2::Label->new( $self->{_d}->get("Width") );
 		$arrow_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
 
 		$arrow_spin->set_value( $item->get('arrow-width') );
@@ -2751,7 +2750,7 @@ sub show_item_properties {
 		#arrow_length
 		my $arrowl_hbox = Gtk2::HBox->new( TRUE, 5 );
 		$arrowl_hbox->set_border_width(5);
-		my $arrowl_label = Gtk2::Label->new( $d->get("Length") );
+		my $arrowl_label = Gtk2::Label->new( $self->{_d}->get("Length") );
 		$arrowl_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
 
 		$arrowl_spin->set_value( $item->get('arrow-length') );
@@ -2763,7 +2762,7 @@ sub show_item_properties {
 		#arrow_tip_length
 		my $arrowt_hbox = Gtk2::HBox->new( TRUE, 5 );
 		$arrowt_hbox->set_border_width(5);
-		my $arrowt_label = Gtk2::Label->new( $d->get("Tip length") );
+		my $arrowt_label = Gtk2::Label->new( $self->{_d}->get("Tip length") );
 		$arrowt_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
 
 		$arrowt_spin->set_value( $item->get('arrow-tip-length') );
@@ -2773,9 +2772,9 @@ sub show_item_properties {
 		$arrow_vbox->pack_start( $arrowt_hbox, FALSE, FALSE, 0 );
 	
 		#checkboxes for start and end arrows
-		$end_arrow   = Gtk2::CheckButton->new ($d->get("Display an arrow at the end of the line"));
+		$end_arrow   = Gtk2::CheckButton->new ($self->{_d}->get("Display an arrow at the end of the line"));
 		$end_arrow->set_active($self->{_items}{$key}{end_arrow});
-		$start_arrow = Gtk2::CheckButton->new ($d->get("Display an arrow at the start of the line"));
+		$start_arrow = Gtk2::CheckButton->new ($self->{_d}->get("Display an arrow at the start of the line"));
 		$start_arrow->set_active($self->{_items}{$key}{start_arrow});
 
 		my $end_arrow_hbox = Gtk2::HBox->new( TRUE, 5 );
@@ -2800,7 +2799,7 @@ sub show_item_properties {
 		my $text_vbox = Gtk2::VBox->new( FALSE, 5 );
 
 		my $label_text = Gtk2::Label->new;
-		$label_text->set_markup( $d->get("<i>Text</i>") );
+		$label_text->set_markup( $self->{_d}->get("<i>Text</i>") );
 		my $frame_text = Gtk2::Frame->new();
 		$frame_text->set_label_widget($label_text);
 		$frame_text->set_border_width(5);
@@ -2809,7 +2808,7 @@ sub show_item_properties {
 		#font button
 		my $font_hbox = Gtk2::HBox->new( TRUE, 5 );
 		$font_hbox->set_border_width(5);
-		my $font_label = Gtk2::Label->new( $d->get("Font") );
+		my $font_label = Gtk2::Label->new( $self->{_d}->get("Font") );
 		$font_btn = Gtk2::FontButton->new();
 
 		#determine font description from string
@@ -2838,13 +2837,13 @@ sub show_item_properties {
 		#font color
 		my $font_color_hbox = Gtk2::HBox->new( TRUE, 5 );
 		$font_color_hbox->set_border_width(5);
-		my $font_color_label = Gtk2::Label->new( $d->get("Font color") );
+		my $font_color_label = Gtk2::Label->new( $self->{_d}->get("Font color") );
 		$font_color = Gtk2::ColorButton->new();
 		$font_color->set_use_alpha(TRUE);
 
 		$font_color->set_alpha( int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
 		$font_color->set_color( $self->{_items}{$key}{stroke_color} );
-		$font_color->set_title( $d->get("Choose font color") );
+		$font_color->set_title( $self->{_d}->get("Choose font color") );
 
 		$font_color_hbox->pack_start_defaults($font_color_label);
 		$font_color_hbox->pack_start_defaults($font_color);
@@ -2921,6 +2920,8 @@ sub show_item_properties {
 
 sub apply_properties {
 	my $self 		= shift;
+
+	print "apply_properties\n";
 	
 	#item related infos
 	my $item 		= shift;
@@ -3202,6 +3203,8 @@ sub deactivate_all {
 	my $self    = shift;
 	my $exclude = shift;
 
+	print "deactivate_all\n";
+
 	foreach ( keys %{ $self->{_items} } ) {
 
 		my $item = $self->{_items}{$_};
@@ -3451,7 +3454,6 @@ sub handle_bg_rects {
 		}
 
 		foreach ( keys %{ $self->{_canvas_bg_rect} } ) {
-			print $self->{_canvas_bg_rect}{$_}."\n";
 			$self->{_canvas_bg_rect}{$_}->set(
 				'visibility' => $visibilty,
 			);
@@ -3504,12 +3506,12 @@ sub handle_rects {
 	#do we have a blessed reference?
 	eval { $self->{_items}{$item}->can('isa'); };
 	if ($@) {
-		#~ print $@;
+		print $@;
 		return FALSE;
 	}
 
 	if ( $self->{_items}{$item}->isa('Goo::Canvas::Rect') ) {
-
+		
 		my $middle_h = $self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width') / 2 ;
 
 		my $middle_v = $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height') / 2 ;
@@ -3705,8 +3707,6 @@ sub event_item_on_button_release {
 	my $canvas = $item->get_canvas;
 	$canvas->pointer_ungrab( $item, $ev->time );
 
-	my $d = $self->{_shutter_common}->get_gettext;
-
 	#we handle some minimum sizes here if the new items are too small
 	#maybe the user just wanted to place an rect or an object on the canvas
 	#and clicked on it without describing an rectangular area
@@ -3800,8 +3800,8 @@ sub event_item_on_button_release {
 	}
 
 	#unset action flags
-	$item->{dragging} = FALSE;
-	$item->{resizing} = FALSE;
+	$item->{dragging} = FALSE if exists $item->{dragging};
+	$item->{resizing} = FALSE if exists $item->{resizing};
 
 	#because of performance reason we load the current image new from file when
 	#the current action is over => button-release
@@ -3825,7 +3825,6 @@ sub event_item_on_button_release {
 	}	
 
 	$self->set_drawing_action(int($self->{_current_mode}/10));
-	$self->change_drawing_tool_cb($self->{_current_mode});
 		
 	return TRUE;
 }
@@ -3855,10 +3854,9 @@ sub event_item_on_enter_notify {
 			if ( $self->{_current_mode_descr} eq "select" ) {
 				$self->{_canvas}->window->set_cursor($cursor);
 			} elsif ( $self->{_current_mode_descr} eq "clear" ) {
-				my $dicons = $self->{_shutter_common}->get_root . "/share/shutter/resources/icons/drawing_tool";
 				$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
 					Gtk2::Gdk::Display->get_default,
-					Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-eraser.png"),
+					Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-eraser.png'),
 					Gtk2::IconSize->lookup('menu')
 				);
 				$self->{_canvas}->window->set_cursor($cursor);
@@ -4006,27 +4004,23 @@ sub create_color {
 #ui related stuff
 sub setup_uimanager {
 	my $self = shift;
-	my $d    = $self->{_shutter_common}->get_gettext;
-
-	#define own icons
-	my $dicons = $self->{_shutter_common}->get_root . "/share/shutter/resources/icons/drawing_tool";
 
 	$self->{_factory} = Gtk2::IconFactory->new();
-	$self->{_factory}->add( 'shutter-ellipse', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-ellipse.png") ) );
-	$self->{_factory}->add( 'shutter-eraser', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-eraser.png") ) );
-	$self->{_factory}->add( 'shutter-freehand', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-freehand.png") ) );
-	$self->{_factory}->add( 'shutter-highlighter', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-highlighter.png") ) );
-	$self->{_factory}->add( 'shutter-pointer', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-pointer.png") ) );
-	$self->{_factory}->add( 'shutter-rectangle', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-rectangle.png") ) );
-	$self->{_factory}->add( 'shutter-line', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-line.png") ) );
-	$self->{_factory}->add( 'shutter-arrow', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-arrow.png") ) );
-	$self->{_factory}->add( 'shutter-text', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-text.png") ) );
-	$self->{_factory}->add( 'shutter-censor', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-censor.png") ) );
-	$self->{_factory}->add( 'shutter-number', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-number.png") ) );
-	$self->{_factory}->add( 'shutter-crop', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file("$dicons/transform-crop.png") ) );
+	$self->{_factory}->add( 'shutter-ellipse', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-ellipse.png') ) );
+	$self->{_factory}->add( 'shutter-eraser', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-eraser.png') ) );
+	$self->{_factory}->add( 'shutter-freehand', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-freehand.png') ) );
+	$self->{_factory}->add( 'shutter-highlighter', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-highlighter.png') ) );
+	$self->{_factory}->add( 'shutter-pointer', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-pointer.png') ) );
+	$self->{_factory}->add( 'shutter-rectangle', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-rectangle.png') ) );
+	$self->{_factory}->add( 'shutter-line', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-line.png') ) );
+	$self->{_factory}->add( 'shutter-arrow', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-arrow.png') ) );
+	$self->{_factory}->add( 'shutter-text', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-text.png') ) );
+	$self->{_factory}->add( 'shutter-censor', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-censor.png') ) );
+	$self->{_factory}->add( 'shutter-number', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-number.png') ) );
+	$self->{_factory}->add( 'shutter-crop', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/transform-crop.png') ) );
 	$self->{_factory}->add_default();
 
-	my @default_actions = ( [ "File", undef, $d->get("_File") ], [ "Edit", undef, $d->get("_Edit") ], [ "View", undef, $d->get("_View") ] );
+	my @default_actions = ( [ "File", undef, $self->{_d}->get("_File") ], [ "Edit", undef, $self->{_d}->get("_Edit") ], [ "View", undef, $self->{_d}->get("_View") ] );
 
 	my @menu_actions = (
 		[ "Undo", 'gtk-undo', undef, "<control>Z", undef, sub { $self->undo } ],
@@ -4040,7 +4034,7 @@ sub setup_uimanager {
 	);
 
 	my @menu_toggle_actions = (
-		[   "Autoscroll", undef, $d->get("Automatic scrolling"), undef, undef, sub { my $widget = shift; $self->{_autoscroll} = $widget->get_active; }
+		[   "Autoscroll", undef, $self->{_d}->get("Automatic scrolling"), undef, undef, sub { my $widget = shift; $self->{_autoscroll} = $widget->get_active; }
 		]
 	);
 
@@ -4056,19 +4050,19 @@ sub setup_uimanager {
 	);
 
 	my @toolbar_drawing_actions = (
-		[ "Select",  'shutter-pointer', undef, undef, $d->get("Select item to move or resize it"), 10 ],
-		[ "Freehand",    'shutter-freehand', undef, undef, $d->get("Draw a freehand line"), 20 ],
-		[ "Highlighter",    'shutter-highlighter', undef, undef, $d->get("Highlighter"), 30 ],
-		[ "Line",    'shutter-line', undef, undef, $d->get("Draw a straight line"), 40 ],
-		[ "Arrow",    'shutter-arrow', undef, undef, $d->get("Draw an arrow"), 50 ],
-		[ "Rect",    'shutter-rectangle', undef, undef, $d->get("Draw a rectangle"), 60 ],
-		[ "Ellipse", 'shutter-ellipse', undef, undef, $d->get("Draw a ellipse"), 70 ],
-		[ "Text",    'shutter-text', undef, undef, $d->get("Add some text to the screenshot"), 80 ],
-		[ "Censor",    'shutter-censor', undef, undef, $d->get("Censor portions of your screenshot to hide private data"), 90 ],
-		[ "Number",    'shutter-number', undef, undef, $d->get("Add an auto-increment shape to the screenshot"), 100 ],
-		[ "Crop",    'shutter-crop', undef, undef, $d->get("Crop your screenshot"), 110 ],
-		[ "Clear",   'shutter-eraser', undef, undef, $d->get("Delete objects"), 120 ],
-		[ "ClearAll",'gtk-clear', undef, undef, $d->get("Delete all objects"), 130 ]
+		[ "Select",  'shutter-pointer', undef, undef, $self->{_d}->get("Select item to move or resize it"), 10 ],
+		[ "Freehand",    'shutter-freehand', undef, undef, $self->{_d}->get("Draw a freehand line"), 20 ],
+		[ "Highlighter",    'shutter-highlighter', undef, undef, $self->{_d}->get("Highlighter"), 30 ],
+		[ "Line",    'shutter-line', undef, undef, $self->{_d}->get("Draw a straight line"), 40 ],
+		[ "Arrow",    'shutter-arrow', undef, undef, $self->{_d}->get("Draw an arrow"), 50 ],
+		[ "Rect",    'shutter-rectangle', undef, undef, $self->{_d}->get("Draw a rectangle"), 60 ],
+		[ "Ellipse", 'shutter-ellipse', undef, undef, $self->{_d}->get("Draw a ellipse"), 70 ],
+		[ "Text",    'shutter-text', undef, undef, $self->{_d}->get("Add some text to the screenshot"), 80 ],
+		[ "Censor",    'shutter-censor', undef, undef, $self->{_d}->get("Censor portions of your screenshot to hide private data"), 90 ],
+		[ "Number",    'shutter-number', undef, undef, $self->{_d}->get("Add an auto-increment shape to the screenshot"), 100 ],
+		[ "Crop",    'shutter-crop', undef, undef, $self->{_d}->get("Crop your screenshot"), 110 ],
+		[ "Clear",   'shutter-eraser', undef, undef, $self->{_d}->get("Delete objects"), 120 ],
+		[ "ClearAll",'gtk-clear', undef, undef, $self->{_d}->get("Delete all objects"), 130 ]
 	);
 
 	my $uimanager = Gtk2::UIManager->new();
@@ -4095,7 +4089,7 @@ sub setup_uimanager {
 
 	# Setup the drawing group.
 	my $toolbar_drawing_group = Gtk2::ActionGroup->new("drawing");
-	$toolbar_drawing_group->add_radio_actions( \@toolbar_drawing_actions, 10, sub { my $action = shift; $self->deactivate_all; $self->change_drawing_tool_cb($action); } );
+	$toolbar_drawing_group->add_radio_actions( \@toolbar_drawing_actions, 10, sub { my $action = shift; $self->change_drawing_tool_cb($action); } );
 
 	$uimanager->insert_action_group( $default_group,         0 );
 	$uimanager->insert_action_group( $menu_group,            0 );
@@ -4178,8 +4172,6 @@ sub ret_objects_menu {
 
 	my $menu_objects = Gtk2::Menu->new;
 
-	my $d = $self->{_shutter_common}->get_gettext;
-
 	my $dobjects = $self->{_shutter_common}->get_root . "/share/shutter/resources/icons/drawing_tool/objects";
 
 	my @objects = glob("$dobjects/*");
@@ -4226,8 +4218,8 @@ sub ret_objects_menu {
 			
 		}else{
 			my $response = $self->{_dialogs}->dlg_error_message( 
-				sprintf( $d->get("Error while opening image %s."), "'" . $filename . "'" ),
-				$d->get( "There was an error opening the image." ),
+				sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $filename . "'" ),
+				$self->{_d}->get( "There was an error opening the image." ),
 				undef, undef, undef,
 				undef, undef, undef,
 				$@
@@ -4239,18 +4231,18 @@ sub ret_objects_menu {
 	$menu_objects->append( Gtk2::SeparatorMenuItem->new );
 
 	#objects from session
-	my $session_menu_item = Gtk2::MenuItem->new_with_label( $d->get("Import from session...") );
+	my $session_menu_item = Gtk2::MenuItem->new_with_label( $self->{_d}->get("Import from session...") );
 	$session_menu_item->set_submenu( $self->import_from_session($button) );
 
 	$menu_objects->append($session_menu_item);
 
 	#objects from filesystem
-	my $filesystem_menu_item = Gtk2::MenuItem->new_with_label( $d->get("Import from filesystem...") );
+	my $filesystem_menu_item = Gtk2::MenuItem->new_with_label( $self->{_d}->get("Import from filesystem...") );
 	$filesystem_menu_item->signal_connect(
 		'activate' => sub {
 
 			my $fs = Gtk2::FileChooserDialog->new(
-				$d->get("Choose file to open"), $self->{_drawing_window}, 'open',
+				$self->{_d}->get("Choose file to open"), $self->{_drawing_window}, 'open',
 				'gtk-cancel' => 'reject',
 				'gtk-open'   => 'accept'
 			);
@@ -4258,7 +4250,7 @@ sub ret_objects_menu {
 			$fs->set_select_multiple(FALSE);
 
 			my $filter_all = Gtk2::FileFilter->new;
-			$filter_all->set_name( $d->get("All compatible image formats") );
+			$filter_all->set_name( $self->{_d}->get("All compatible image formats") );
 			$fs->add_filter($filter_all);
 
 			foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
@@ -4299,8 +4291,8 @@ sub ret_objects_menu {
 					$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
 				}else{
 					my $response = $self->{_dialogs}->dlg_error_message( 
-						sprintf( $d->get("Error while opening image %s."), "'" . $new_file. "'"),
-						$d->get( "There was an error opening the image." ),
+						sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $new_file. "'"),
+						$self->{_d}->get( "There was an error opening the image." ),
 						undef, undef, undef,
 						undef, undef, undef,
 						$@
@@ -4407,8 +4399,6 @@ sub import_from_session {
 	my $button               = shift;
 	my $menu_session_objects = Gtk2::Menu->new;
 
-	my $d = $self->{_shutter_common}->get_gettext;
-
 	my %import_hash = %{ $self->{_import_hash} };
 
 	foreach my $key ( sort keys %import_hash ) {
@@ -4452,8 +4442,8 @@ sub import_from_session {
 
 		}else{
 			my $response = $self->{_dialogs}->dlg_error_message( 
-				sprintf( $d->get("Error while opening image %s."), "'" . $import_hash{$key}->{'long'} . "'" ),
-				$d->get( "There was an error opening the image." ),
+				sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $import_hash{$key}->{'long'} . "'" ),
+				$self->{_d}->get( "There was an error opening the image." ),
 				undef, undef, undef,
 				undef, undef, undef,
 				$@
@@ -4471,15 +4461,28 @@ sub set_drawing_action {
 	my $self  = shift;
 	my $index = shift;
 
+	print "set_drawing_action\n";
+	
+	my $item_index = 0;
 	my $toolbar = $self->{_uimanager}->get_widget("/ToolBarDrawing");
 	for ( my $i = 0; $i < $toolbar->get_n_items; $i++ ) {
-		my $item       = $toolbar->get_nth_item($i);
+		my $item = $toolbar->get_nth_item($i);
 		
 		#skip separators
 		#we only want to activate tools
 		next if $item->isa('Gtk2::SeparatorToolItem');
-		my $item_index = $toolbar->get_item_index($item);
-		$item->set_active(TRUE) if $item_index == $index;
+
+		#add 1 to item index
+		$item_index++;
+		
+		if ($item_index == $index){
+			if($item->get_active){
+				$self->change_drawing_tool_cb($item_index*10);
+			}else{
+				$item->set_active(TRUE);				
+			}
+			last;
+		}
 	}
 
 }
@@ -4487,10 +4490,10 @@ sub set_drawing_action {
 sub change_cursor_to_current_pixbuf {
 	my $self = shift;
 
+	print "change_cursor_to_current_pixbuf\n";
+
 	$self->{_current_mode_descr} = "image";
 
-	#define own icons
-	my $dicons = $self->{_shutter_common}->get_root . "/share/shutter/resources/icons/drawing_tool";
 	my $cursor = undef; 
 	
 	#very big image usually don't work as a cursor (no error though??)
@@ -4500,7 +4503,7 @@ sub change_cursor_to_current_pixbuf {
 	}else{
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
 				Gtk2::Gdk::Display->get_default,
-				Gtk2::Gdk::Pixbuf->new_from_file("$dicons/draw-image.svg"),
+				Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-image.svg'),
 				Gtk2::IconSize->lookup('menu')
 		);		
 	}

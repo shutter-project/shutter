@@ -25,8 +25,8 @@
 #modules
 #--------------------------------------
 use utf8;
-#~ use strict;
-#~ use warnings;
+use strict;
+use warnings;
 
 #Gnome2 libraries
 use Gnome2;
@@ -84,7 +84,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.462";
+use constant REV                	=> "Rev.463";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -236,13 +236,11 @@ if($goocanvas and $gtkimageview){
 
 #data structures
 #--------------------------------------
-my %gm_programs;    #hash to store program infos
 my %plugins;        #hash to store plugin infos
 my %accounts;       #hash to store account infos
 my %settings;       #hash to store settings
 &fct_init;
 &fct_init_framework_versions;
-&fct_check_installed_programs;
 &fct_load_accounts;
 
 #--------------------------------------
@@ -5358,7 +5356,18 @@ sub fct_ret_program_menu {
 	}
 
 	#determine apps registered with that mime type	
-	my ( $default, @apps ) = File::MimeInfo::Applications::mime_applications( $session_screens{$key}->{'mime_type'} );
+	my ( $mdefault, @mapps ) = File::MimeInfo::Applications::mime_applications( $session_screens{$key}->{'mime_type'} );
+		
+	#currently we use the above statement for the icon only
+	#because of the following error
+	#
+	#libgnomevfs-WARNING **: 
+	#Cannot call gnome_vfs_mime_application_get_icon 
+	#with a GNOMEVFSMimeApplication structure constructed 
+	#by the deprecated application registry 
+	my $mime_type = Gnome2::VFS::Mime::Type->new ($session_screens{$key}->{'mime_type'});
+	my @apps = $mime_type->get_all_applications_for_uri ($session_screens{$key}->{'uri'}->to_string);
+	my $default = $mime_type->get_default_application;	
 	
 	#no app determined!
 	unless (scalar @apps){
@@ -5370,35 +5379,7 @@ sub fct_ret_program_menu {
 	#FIXME - why is default always undef??
 	#no default app determined!
 	unless ($default){
-		#try gnome-vfs method
-		eval{
-			my $mime_type = Gnome2::VFS::Mime::Type->new ($session_screens{$key}->{'mime_type'});
-			$default = $mime_type->get_default_application;			
-		};
-		if($@){
-			print "\nWARNING: $@\n";
-			$default = undef;
-		}
-		unless ($default){
-			$shutter_menu->{_menuitem_reopen_default}->visible(FALSE);
-		}else{
-			#populate default by looping through the apps
-			eval{
-				foreach my $app (@apps) {
-					my $desktop_file_path = $app->{'file'};
-					my $desktop_id = $default->{'id'};
-					if($desktop_file_path =~ m/$desktop_id/){
-						$default = $app;
-						last;	
-					}	
-				}
-			};
-			if($@){
-				print "\nWARNING: $@\n";
-				$default = undef;
-				$shutter_menu->{_menuitem_reopen_default}->visible(FALSE);
-			}						
-		}
+		$shutter_menu->{_menuitem_reopen_default}->visible(FALSE);					
 	}
 	
 	foreach my $app (@apps) {
@@ -5406,7 +5387,7 @@ sub fct_ret_program_menu {
 		my $program_item = undef; 
 		
 		#default app
-		if($default && $app == $default){
+		if($default && $app->{'command'} eq $default->{'command'}){
 			$program_item = $shutter_menu->{_menuitem_reopen_default};
 			
 			$shutter_menu->{_menuitem_reopen_default}->show;
@@ -5415,24 +5396,34 @@ sub fct_ret_program_menu {
 			#change label of the default app entry
 			$shutter_menu->{_menuitem_reopen_default}->foreach (sub {
 				if($_[0] =~ /Gtk2::AccelLabel/){
-					$_[0]->set_label(sprintf( $d->get("_Open with %s"), "'".$app->Name."'"));
+					$_[0]->set_label(sprintf( $d->get("_Open with %s"), "'".$app->{'name'}."'"));
 				}
 			});	
 				
 		#other apps			
 		}else{
-			$program_item = Gtk2::ImageMenuItem->new_with_label( $app->Name );			
+			$program_item = Gtk2::ImageMenuItem->new_with_label( $app->{'name'} );			
 			$menu_programs->append($program_item);
 		}
 
-		if ( $icontheme->has_icon( $app->Icon ) ) {
+		#find icon and app
+		#we use File::DesktopEntry instead of the Gnome one
+		#for opening files
+		my $oapp = undef; 
+		foreach my $mapp (@mapps){
+			if($mapp->{'file'} =~ m/$app->{'id'}/){
+				$oapp = $mapp;
+				last;	
+			}	
+		}
+		if ( $icontheme->has_icon( $oapp->Icon ) ) {
 			my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
-			my $icon_pixbuf = $icontheme->load_icon( $app->Icon, $ih, 'generic-fallback' );
+			my $icon_pixbuf = $icontheme->load_icon( $oapp->Icon, $ih, 'generic-fallback' );
 			$program_item->set_image( Gtk2::Image->new_from_pixbuf($icon_pixbuf) );
 		}
 		$program_item->signal_connect(
 			'activate' => sub {
-				&fct_open_with_program($app);
+				&fct_open_with_program($oapp);
 			}
 		);
 		

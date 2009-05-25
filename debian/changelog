@@ -4,6 +4,7 @@ shutter (0.80~ppa1) jaunty; urgency=low
     -- Added arrow shape to Drawing Tool
     -- Added highlighter/marker to Drawing Tool
     -- Added numbered tags to Drawing Tool
+    -- Added crop tool to Drawing Tool
     -- Resize the canvas
     -- New watermark plugin
     -- New reflection plugin
@@ -18,6 +19,8 @@ shutter (0.80~ppa1) jaunty; urgency=low
        [added numbered tags]
     -- LP: #318452
        [save and restore last used tool]
+    -- LP: #322811
+       [Add crop tool to drawing tool]
     -- LP: #338809
        [keep tool focus after one usage]
     -- LP: #360254
@@ -71,9 +74,10 @@ shutter (0.80~ppa1) jaunty; urgency=low
        [Watermark plugin doesn't say the allowed syntax]
     -- LP: #370367
        [DrawingTool -> View has multiple same options]
+  * code cleanup
   * updated translations
 
- -- Mario Kemper <mario.kemper@googlemail.com>  Sun, 17 May 2009 00:34:05 +0200 
+ -- Mario Kemper <mario.kemper@googlemail.com>  Mon, 25 May 2009 13:24:45 +0200 
 
 shutter (0.70.2~ppa4) jaunty; urgency=low
 
