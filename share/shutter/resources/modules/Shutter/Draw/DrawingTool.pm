@@ -1939,15 +1939,23 @@ sub store_to_xdo_stack {
 		
 		}			
 		
-	}
+	#polyline specific properties to hash
+	}elsif($item->isa('Goo::Canvas::Polyline')){
 
-	#add polyline specific properties to hash
-	if($item->isa('Goo::Canvas::Polyline')){
+		my $stroke_pattern = $self->create_color( $self->{_items}{$item}{stroke_color}, $self->{_items}{$item}{stroke_color_alpha} );
+		my $transform = $self->{_items}{$item}->get('transform');
+		my $line_width = $self->{_items}{$item}->get('line-width');
+		my $points = $self->{_items}{$item}->get('points');	
+		
 		%do_info = (
-			item => $self->{_items}{$item},
-			action => $action,
-			points => $self->{_items}{$item}->get('points'),
+			'item'   => $self->{_items}{$item},
+			'action' => $action,
+			'points' => $points,
+			'stroke-pattern' => $stroke_pattern,
+			'line-width' => $line_width,
+			'transform' => $transform,
 		);
+	
 	}
 	
 	if($xdo eq 'undo'){
@@ -1963,43 +1971,87 @@ sub store_to_xdo_stack {
 	return TRUE;	
 }
 
-sub undo {
+sub xdo {
 	my $self = shift;
+	my $xdo  = shift;
 
-	my $undo = pop @{ $self->{_undo} };
+	my $do = undef; 
+	if($xdo eq 'undo'){
+		$do	= pop @{ $self->{_undo} };		
+	}elsif($xdo eq 'redo'){
+		$do	= pop @{ $self->{_redo} };		
+	}
 
-	my $item = $undo->{'item'};
-	my $action = $undo->{'action'};
+	my $item = $do->{'item'};
+	my $action = $do->{'action'};
 
-	#store to redo stack
-	$self->store_to_xdo_stack($item, $action, 'redo'); 
-
-	$self->deactivate_all;
+	if($xdo eq 'undo'){
+		#store to redo stack
+		$self->store_to_xdo_stack($item, $action, 'redo'); 	
+	}elsif($xdo eq 'redo'){
+		#store to undo stack
+		$self->store_to_xdo_stack($item, $action, 'undo'); 
+	}
 	
 	#finally undo the last event
 	if($action eq 'modify'){
-		$self->{_items}{$item}->set(
-			'x' => $undo->{'x'},
-			'y' => $undo->{'y'},
-			'width' => 	$undo->{'width'},
-			'height' => $undo->{'height'},
-			'fill-pattern' => $undo->{'fill-pattern'},
-			'stroke-pattern' => $undo->{'stroke-pattern'},
-			'line-width' => $undo->{'line-width'},	
-		);
+
+		if($item->isa('Goo::Canvas::Rect')){
+			
+			$self->{_items}{$item}->set(
+				'x' => $do->{'x'},
+				'y' => $do->{'y'},
+				'width' => 	$do->{'width'},
+				'height' => $do->{'height'},
+				'fill-pattern' => $do->{'fill-pattern'},
+				'stroke-pattern' => $do->{'stroke-pattern'},
+				'line-width' => $do->{'line-width'},	
+			);
+			
+		#polyline specific properties
+		}elsif($item->isa('Goo::Canvas::Polyline')){
+			
+			$self->{_items}{$item}->set(
+				'stroke-pattern' => $do->{'stroke-pattern'},
+				'line-width' 	 => $do->{'line-width'},	
+				'points' 		 => $do->{'points'},
+				'transform'		 => $do->{'transform'},
+			);
+			
+		}		
+		
 		$self->handle_rects( 'update', $self->{_items}{$item} );
 		$self->handle_embedded( 'update', $self->{_items}{$item} );		
 		$self->{_current_item} = $item;	
-	}elsif($action eq 'delete'){
-		$self->{_items}{$item}->set('visibility' => 'GOO_CANVAS_ITEM_VISIBLE');
-		$self->handle_rects( 'update', $self->{_items}{$item} );
-		$self->handle_embedded( 'update', $self->{_items}{$item} );
-		$self->{_current_item} = $item;		
-	}elsif($action eq 'create'){
-		$self->{_items}{$item}->set('visibility' => 'GOO_CANVAS_ITEM_HIDDEN');
-		$self->handle_rects( 'hide', $self->{_items}{$item} );
-		$self->handle_embedded( 'hide', $self->{_items}{$item} );		
+		
+	}elsif($action eq 'delete' || $action eq 'create'){
+	
+		#simply switch visibility flag
+		if($self->{_items}{$item}->get('visibility') eq 'GOO_CANVAS_ITEM_VISIBLE'){
+		
+			$self->{_items}{$item}->set('visibility' => 'GOO_CANVAS_ITEM_HIDDEN');
+			$self->handle_rects( 'hide', $self->{_items}{$item} );
+			$self->handle_embedded( 'hide', $self->{_items}{$item} );
+			$self->deactivate_all;
+		
+		}else{
+		
+			$self->{_items}{$item}->set('visibility' => 'GOO_CANVAS_ITEM_VISIBLE');			
+			
+			#activate item
+			$self->{_last_item}        = $self->{_current_item};		
+			$self->{_current_item} 	   = $item;
+			$self->{_current_new_item} = undef;
+
+			$self->handle_rects( 'update', $self->{_items}{$item} );
+			$self->handle_embedded( 'update', $self->{_items}{$item} );
+		
+		}
 	}
+	
+	#apply item properties to widgets
+	#line width, fill color, stroke color etc.
+	$self->set_and_save_drawing_properties($self->{_current_item}, FALSE);	
 	
 	#disable undo/redo actions at startup
 	$self->{_uimanager}->get_widget("/MenuBar/Edit/Undo")->set_sensitive(scalar @{ $self->{_undo} }) if defined $self->{_undo};
@@ -2009,55 +2061,60 @@ sub undo {
 }
 
 sub redo {
-	my $self = shift;
-
-	my $redo = pop @{ $self->{_redo} };
-
-	my $item = $redo->{'item'};
-	my $action = $redo->{'action'};
-
-	#store to undo stack
-	$self->store_to_xdo_stack($item, $action, 'undo'); 
-
-	$self->deactivate_all;
-
-	#finally undo the last event
-	if($action eq 'modify'){
-		$self->{_items}{$item}->set(
-			'x' => $redo->{'x'},
-			'y' => $redo->{'y'},
-			'width' => 	$redo->{'width'},
-			'height' => $redo->{'height'},
-			'fill-pattern' => $redo->{'fill-pattern'},
-			'stroke-pattern' => $redo->{'stroke-pattern'},
-			'line-width' => $redo->{'line-width'},			
-		);
-		$self->handle_rects( 'update', $self->{_items}{$item} );
-		$self->handle_embedded( 'update', $self->{_items}{$item} );		
-		$self->{_current_item} = $item;	
-	}elsif($action eq 'delete'){
-		$self->{_items}{$item}->set('visibility' => 'GOO_CANVAS_ITEM_HIDDEN');
-		$self->handle_rects( 'hide', $self->{_items}{$item} );
-		$self->handle_embedded( 'hide', $self->{_items}{$item} );
-		$self->{_current_item} = $item;		
-	}elsif($action eq 'create'){
-		$self->{_items}{$item}->set('visibility' => 'GOO_CANVAS_ITEM_VISIBLE');
-		$self->handle_rects( 'update', $self->{_items}{$item} );
-		$self->handle_embedded( 'update', $self->{_items}{$item} );		
-	}
-
-	#disable undo/redo actions at startup
-	$self->{_uimanager}->get_widget("/MenuBar/Edit/Undo")->set_sensitive(scalar @{ $self->{_undo} }) if defined $self->{_undo};
-	$self->{_uimanager}->get_widget("/MenuBar/Edit/Redo")->set_sensitive(scalar @{ $self->{_redo} }) if defined $self->{_redo};	
-	
-	return TRUE;	
+	#~ my $self = shift;
+#~ 
+	#~ my $redo = pop @{ $self->{_redo} };
+#~ 
+	#~ my $item = $redo->{'item'};
+	#~ my $action = $redo->{'action'};
+#~ 
+	#~ #store to undo stack
+	#~ $self->store_to_xdo_stack($item, $action, 'undo'); 
+#~ 
+	#~ $self->deactivate_all;
+#~ 
+	#~ #finally undo the last event
+	#~ if($action eq 'modify'){
+		#~ $self->{_items}{$item}->set(
+			#~ 'x' => $redo->{'x'},
+			#~ 'y' => $redo->{'y'},
+			#~ 'width' => 	$redo->{'width'},
+			#~ 'height' => $redo->{'height'},
+			#~ 'fill-pattern' => $redo->{'fill-pattern'},
+			#~ 'stroke-pattern' => $redo->{'stroke-pattern'},
+			#~ 'line-width' => $redo->{'line-width'},			
+		#~ );
+		#~ $self->handle_rects( 'update', $self->{_items}{$item} );
+		#~ $self->handle_embedded( 'update', $self->{_items}{$item} );		
+		#~ $self->{_current_item} = $item;	
+	#~ }elsif($action eq 'delete'){
+	#~ 
+		#~ $self->{_items}{$item}->set('visibility' => 'GOO_CANVAS_ITEM_HIDDEN');
+		#~ $self->handle_rects( 'hide', $self->{_items}{$item} );
+		#~ $self->handle_embedded( 'hide', $self->{_items}{$item} );
+		#~ $self->{_current_item} = $item;		
+	#~ 
+	#~ }elsif($action eq 'create'){
+	#~ 
+		#~ $self->{_items}{$item}->set('visibility' => 'GOO_CANVAS_ITEM_VISIBLE');
+		#~ $self->handle_rects( 'update', $self->{_items}{$item} );
+		#~ $self->handle_embedded( 'update', $self->{_items}{$item} );		
+	#~ 
+	#~ }
+#~ 
+	#~ #disable undo/redo actions at startup
+	#~ $self->{_uimanager}->get_widget("/MenuBar/Edit/Undo")->set_sensitive(scalar @{ $self->{_undo} }) if defined $self->{_undo};
+	#~ $self->{_uimanager}->get_widget("/MenuBar/Edit/Redo")->set_sensitive(scalar @{ $self->{_redo} }) if defined $self->{_redo};	
+	#~ 
+	#~ return TRUE;	
 }
 
 sub set_and_save_drawing_properties {
-	my $self 	= shift;
-	my $item 	= shift;
-	
+	my $self 	  = shift;
+	my $item 	  = shift;
 	my $save_only = shift;
+
+	return FALSE unless $item;
 
 	print "set_and_save_drawing_properties\n";
 
@@ -4018,36 +4075,33 @@ sub setup_uimanager {
 	$self->{_factory}->add( 'shutter-crop', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/transform-crop.png') ) );
 	$self->{_factory}->add_default();
 
-	my @default_actions = ( [ "File", undef, $self->{_d}->get("_File") ], [ "Edit", undef, $self->{_d}->get("_Edit") ], [ "View", undef, $self->{_d}->get("_View") ] );
-
-	my @menu_actions = (
-		[ "Undo", 'gtk-undo', undef, "<control>Z", undef, sub { $self->undo } ],
-		[ "Redo", 'gtk-redo', undef, "<control>Y", undef, sub { $self->redo } ],
+	my @main_actions = (
+		[ "File", undef, $self->{_d}->get("_File") ], 
+		[ "Edit", undef, $self->{_d}->get("_Edit") ], 
+		[ "View", undef, $self->{_d}->get("_View") ],
+		[ "Undo", 'gtk-undo', undef, "<control>Z", undef, sub { $self->xdo('undo') } ],
+		[ "Redo", 'gtk-redo', undef, "<control>Y", undef, sub { $self->xdo('redo') } ],
 		[ "Copy", 'gtk-copy', undef, "<control>C", undef, sub { $self->{_cut} = FALSE; $self->{_current_copy_item} = $self->{_current_item}; } ],
 		[ "Cut", 'gtk-cut', undef, "<control>X", undef, sub { $self->{_cut} = TRUE; $self->{_current_copy_item} = $self->{_current_item}; $self->clear_item_from_canvas( $self->{_current_copy_item}); } ],
 		[ "Paste", 'gtk-paste', undef, "<control>V", undef, sub { $self->paste_item($self->{_current_copy_item}, $self->{_cut} ); $self->{_cut} = FALSE; } ],
 		[ "Delete", 'gtk-delete', undef, "Delete", undef, sub { $self->clear_item_from_canvas( $self->{_current_item}); } ],
-		[ "Stop", 'gtk-stop', undef, "Escape", undef, sub { $self->abort_current_mode } ]
-
-	);
-
-	my @menu_toggle_actions = (
-		[   "Autoscroll", undef, $self->{_d}->get("Automatic scrolling"), undef, undef, sub { my $widget = shift; $self->{_autoscroll} = $widget->get_active; }
-		]
-	);
-
-	my @toolbar_actions = (
+		[ "Stop", 'gtk-stop', undef, "Escape", undef, sub { $self->abort_current_mode } ],
 		[ "Close", 'gtk-close', undef, "<control>Q", undef, sub { $self->quit(TRUE) } ],
-		[ "Save",       'gtk-save',     undef, "<control>S",     undef, sub { $self->save(), $self->quit(FALSE) } ],
-		[ "ZoomIn",     'gtk-zoom-in',  undef, "<control>plus",  undef, sub { $self->zoom_in_cb($self) } ],
-		[ "ControlEqual",  'gtk-zoom-in',  undef, "<control>equal",  undef, sub { $self->zoom_in_cb($self) } ],
-		[ "ControlKpAdd",  'gtk-zoom-in',  undef, "<control>KP_Add",  undef, sub { $self->zoom_in_cb($self) } ],
+		[ "Save",       'gtk-save',     undef, "<control>S", undef, sub { $self->save(), $self->quit(FALSE) } ],
+		[ "ZoomIn",     'gtk-zoom-in',  undef, "<control>plus", undef, sub { $self->zoom_in_cb($self) } ],
+		[ "ControlEqual",  'gtk-zoom-in',  undef, "<control>equal", undef, sub { $self->zoom_in_cb($self) } ],
+		[ "ControlKpAdd",  'gtk-zoom-in',  undef, "<control>KP_Add", undef, sub { $self->zoom_in_cb($self) } ],
 		[ "ZoomOut",    'gtk-zoom-out', undef, "<control>minus", undef, sub { $self->zoom_out_cb($self) } ],
 		[ "ControlKpSub",    'gtk-zoom-out', undef, "<control>KP_Subtract", undef, sub { $self->zoom_out_cb($self) } ],
-		[ "ZoomNormal", 'gtk-zoom-100', undef, "<control>0",     undef, sub { $self->zoom_normal_cb($self) } ]
+		[ "ZoomNormal", 'gtk-zoom-100', undef, "<control>0", undef, sub { $self->zoom_normal_cb($self) } ],
 	);
 
-	my @toolbar_drawing_actions = (
+	my @toggle_actions = (
+		[ "Autoscroll", undef, $self->{_d}->get("Automatic scrolling"), undef, undef, sub { my $widget = shift; $self->{_autoscroll} = $widget->get_active; } ],
+		[ "Fullscreen", 'gtk-fullscreen', undef, "F11", undef, sub { my $action = shift; if($action->get_active){ $self->{_drawing_window}->fullscreen }else{ $self->{_drawing_window}->unfullscreen } } ]
+	);
+
+	my @drawing_actions = (
 		[ "Select",  'shutter-pointer', undef, undef, $self->{_d}->get("Select item to move or resize it"), 10 ],
 		[ "Freehand",    'shutter-freehand', undef, undef, $self->{_d}->get("Draw a freehand line"), 20 ],
 		[ "Highlighter",    'shutter-highlighter', undef, undef, $self->{_d}->get("Highlighter"), 30 ],
@@ -4069,89 +4123,89 @@ sub setup_uimanager {
 	my $accelgroup = $uimanager->get_accel_group;
 	$self->{_drawing_window}->add_accel_group($accelgroup);
 
-	# Setup the default group.
-	my $default_group = Gtk2::ActionGroup->new("default");
-	$default_group->add_actions( \@default_actions );
-
-	# Setup the menu group.
-	my $menu_group = Gtk2::ActionGroup->new("menu");
-	$menu_group->add_actions( \@menu_actions );
+	# Setup the main group.
+	my $main_group = Gtk2::ActionGroup->new("main");
+	$main_group->add_actions( \@main_actions );
 
 	#setup the menu toggle group
-	my $menu_toggle_group = Gtk2::ActionGroup->new("menu_toggle");
-	$menu_toggle_group->add_toggle_actions( \@menu_toggle_actions );
-
-	# Setup the toolbar group.
-	my $toolbar_group = Gtk2::ActionGroup->new("toolbar");
-	$toolbar_group->add_actions( \@toolbar_actions );
+	my $toggle_group = Gtk2::ActionGroup->new("toggle");
+	$toggle_group->add_toggle_actions( \@toggle_actions );
 
 	# Setup the drawing group.
-	my $toolbar_drawing_group = Gtk2::ActionGroup->new("drawing");
-	$toolbar_drawing_group->add_radio_actions( \@toolbar_drawing_actions, 10, sub { my $action = shift; $self->change_drawing_tool_cb($action); } );
+	my $drawing_group = Gtk2::ActionGroup->new("drawing");
+	$drawing_group->add_radio_actions( \@drawing_actions, 10, sub { my $action = shift; $self->change_drawing_tool_cb($action); } );
 
-	$uimanager->insert_action_group( $default_group,         0 );
-	$uimanager->insert_action_group( $menu_group,            0 );
-	$uimanager->insert_action_group( $menu_toggle_group,     0 );
-	$uimanager->insert_action_group( $toolbar_group,         0 );
-	$uimanager->insert_action_group( $toolbar_drawing_group, 0 );
+	$uimanager->insert_action_group( $main_group, 0 );
+	$uimanager->insert_action_group( $toggle_group, 0 );
+	$uimanager->insert_action_group( $drawing_group, 0 );
 
 	my $ui_info = "
-<ui>
-  <menubar name = 'MenuBar'>
-    <menu action = 'File'>
-      <menuitem action = 'Save'/>
-      <separator/>
-      <menuitem action = 'Close'/>
-    </menu>
-    <menu action = 'Edit'>
-      <menuitem action = 'Undo'/>
-      <menuitem action = 'Redo'/>
-	  <separator/>
-      <menuitem action = 'Copy'/>
-      <menuitem action = 'Cut'/>
-      <menuitem action = 'Paste'/>
-      <menuitem action = 'Delete'/>
-      <separator/>
-      <menuitem action = 'Stop'/>
-      <separator/>
-      <menuitem action = 'Autoscroll'/>
-    </menu>
-    <menu action = 'View'>
-      <menuitem action = 'ControlEqual'/>	
-      <menuitem action = 'ControlKpAdd'/>	
-      <menuitem action = 'ZoomIn'/>
-      <menuitem action = 'ZoomOut'/>
-      <menuitem action = 'ControlKpSub'/>		  
-      <menuitem action = 'ZoomNormal'/>
-    </menu>
-  </menubar>
-  <toolbar name = 'ToolBar'>
-    <toolitem action='Close'/>
-    <toolitem action='Save'/>
-    <separator/>
-    <toolitem action='ZoomIn'/>
-    <toolitem action='ZoomOut'/>
-    <toolitem action='ZoomNormal'/>
-  </toolbar>
-  <toolbar name = 'ToolBarDrawing'>
-    <toolitem action='Select'/>
-    <separator/>
-    <toolitem action='Freehand'/>
-    <toolitem action='Highlighter'/>
-    <toolitem action='Line'/>
-    <toolitem action='Arrow'/>
-    <toolitem action='Rect'/>
-    <toolitem action='Ellipse'/>
-    <toolitem action='Text'/>
-    <toolitem action='Censor'/>
-    <toolitem action='Number'/>
-    <separator/>
-	<toolitem action='Crop'/>
-    <separator/>
-    <toolitem action='Clear'/>
-    <toolitem action='ClearAll'/>
-  </toolbar>  
-</ui>";
+	<ui>
+	  <menubar name = 'MenuBar'>
+		<menu action = 'File'>
+		  <menuitem action = 'Save'/>
+		  <separator/>
+		  <menuitem action = 'Close'/>
+		</menu>
+		<menu action = 'Edit'>
+		  <menuitem action = 'Undo'/>
+		  <menuitem action = 'Redo'/>
+		  <separator/>
+		  <menuitem action = 'Copy'/>
+		  <menuitem action = 'Cut'/>
+		  <menuitem action = 'Paste'/>
+		  <menuitem action = 'Delete'/>
+		  <separator/>
+		  <menuitem action = 'Stop'/>
+		  <separator/>
+		  <menuitem action = 'Autoscroll'/>
+		</menu>
+		<menu action = 'View'>
+		  <menuitem action = 'ControlEqual'/>	
+		  <menuitem action = 'ControlKpAdd'/>	
+		  <menuitem action = 'ZoomIn'/>
+		  <menuitem action = 'ZoomOut'/>
+		  <menuitem action = 'ControlKpSub'/>		  
+		  <menuitem action = 'ZoomNormal'/>
+		  <separator/>
+		  <menuitem action = 'Fullscreen'/>
+		</menu>
+	  </menubar>
+	  <toolbar name = 'ToolBar'>
+		<toolitem action='Close'/>
+		<toolitem action='Save'/>
+		<separator/>
+		<toolitem action='ZoomIn'/>
+		<toolitem action='ZoomOut'/>
+		<toolitem action='ZoomNormal'/>
+		<separator/>
+		<toolitem action='Undo'/>
+		<toolitem action='Redo'/>
+		<separator/>
+		<toolitem action='Copy'/>
+		<toolitem action='Cut'/>
+		<toolitem action='Paste'/>
+		<toolitem action='Delete'/>		
+	  </toolbar>
+	  <toolbar name = 'ToolBarDrawing'>
+		<toolitem action='Select'/>
+		<separator/>
+		<toolitem action='Freehand'/>
+		<toolitem action='Highlighter'/>
+		<toolitem action='Line'/>
+		<toolitem action='Arrow'/>
+		<toolitem action='Rect'/>
+		<toolitem action='Ellipse'/>
+		<toolitem action='Text'/>
+		<toolitem action='Censor'/>
+		<toolitem action='Number'/>
+		<separator/>
+		<toolitem action='Crop'/>
+		<separator/>
+		<toolitem action='Clear'/>
+		<toolitem action='ClearAll'/>
+	  </toolbar>  
+	</ui>";
 
 	eval { $uimanager->add_ui_from_string($ui_info) };
 
@@ -4587,8 +4641,9 @@ sub create_polyline {
 			$self->{_canvas}->get_root_item, $points[0],$points[1],$points[2],$points[3],
 			'stroke-pattern' => $self->create_color( Gtk2::Gdk::Color->parse('#FFFF00'), 0.5 ),
 			'line-width'     => 18,
-			'line-cap'       => 'CAIRO_LINE_CAP_ROUND',
-			'line-join'      => 'CAIRO_LINE_JOIN_ROUND'
+			'fill-rule'		 => 'CAIRO_FILL_RULE_EVEN_ODD',
+			'line-cap'       => 'CAIRO_LINE_CAP_BUTT',
+			'line-join'      => 'CAIRO_LINE_JOIN_MITER',
 		);		
 	}else{
 		$item = Goo::Canvas::Polyline->new_line(
