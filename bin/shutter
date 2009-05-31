@@ -47,10 +47,14 @@ use File::Basename qw / fileparse /;
 use File::Temp qw/ tempfile tempdir /;
 use IO::File();
 
-#Gtk2
+#Gtk2 and Gtk2::ImageView
 use Gtk2 '-init';
 use Gtk2::Gdk::Keysyms;
 use Gtk2::Pango;
+use Gtk2::ImageView;
+
+#Imagemagick bindings
+use Image::Magick;
 
 #X11
 use X11::Protocol();
@@ -77,8 +81,6 @@ use FindBin '$Bin';
 #stringified perl data structures, suitable for both printing and eval
 use Data::Dumper;
 
-use Devel::Size qw(size total_size);
-
 
 #--------------------------------------
 
@@ -87,7 +89,7 @@ use Devel::Size qw(size total_size);
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.468";
+use constant REV                	=> "Rev.470";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -137,9 +139,8 @@ $ENV{ 'HOME' } = File::HomeDir->my_home;
 #check optional components
 #--------------------------------------
 my $gnome_web_photo = TRUE;
-my $gtkimageview    = TRUE;
 my $goocanvas       = TRUE;
-&fct_init_optional;
+&fct_init_depend;
 
 #--------------------------------------
 
@@ -158,7 +159,7 @@ require Shutter::Pixbuf::Save;
 require Shutter::Pixbuf::Thumbnail;
 
 #drawing classes
-if($goocanvas and $gtkimageview){
+if($goocanvas){
 	require Shutter::Draw::DrawingTool;
 }
 
@@ -216,20 +217,18 @@ my $view;
 my $selector;
 my $dragger;
 my $nav;
-if($gtkimageview){
-	$view     = Gtk2::ImageView->new;
-	$view->set_interpolation ('tiles');
-	$nav = Gtk2::ImageView::Nav::new($view);
-	$selector = Gtk2::ImageView::Tool::Selector->new($view);
-	$dragger = Gtk2::ImageView::Tool::Dragger->new($view);
-	$view->set_tool($selector);
-}
+$view     = Gtk2::ImageView->new;
+$view->set_interpolation ('tiles');
+$nav = Gtk2::ImageView::Nav::new($view);
+$selector = Gtk2::ImageView::Tool::Selector->new($view);
+$dragger = Gtk2::ImageView::Tool::Dragger->new($view);
+$view->set_tool($selector);
 
 #Gtk2::ImageView and Selector for drawing tool
 my $view_d;
 my $selector_d;
 my $dragger_d;
-if($goocanvas and $gtkimageview){
+if($goocanvas){
 	$view_d     = Gtk2::ImageView->new;
 	$view_d->set_interpolation ('tiles');	
 	$selector_d = Gtk2::ImageView::Tool::Selector->new($view_d);
@@ -1983,7 +1982,7 @@ sub fct_update_actions {
 	$shutter_menu->{_menuitem_draw}->set_sensitive($n_items);
 	
 	#maybe lib is not installed
-	unless ($goocanvas and $gtkimageview) {
+	unless ($goocanvas) {
 		$shutter_menu->{_menuitem_draw}->set_sensitive(FALSE);
 	}		
 
@@ -5425,18 +5424,8 @@ sub fct_ret_sel_menu {
 		$advanced_settings->set_sensitive(FALSE);
 	}
 
-	#check if Gtk2::ImageView is supported
-	if ($gtkimageview) {
-		$tooltips->set_tip( $tool_advanced,
-			$d->get("The advanced selection tool allows you to enlarge/shrink or move your selected area\nuntil you finally take the screenshot.") );
-	} else {
-		$tool_advanced->set_sensitive(FALSE);
-		$tooltips->set_tip( $tool_advanced, $d->get("Gtk2::ImageView needs to be installed for this feature") );
-
-		#needs to be enabled by default now
-		$tool_simple->set_active(TRUE);
-		$advanced_settings->set_sensitive(TRUE);
-	}
+	$tooltips->set_tip( $tool_advanced,
+		$d->get("The advanced selection tool allows you to enlarge/shrink or move your selected area\nuntil you finally take the screenshot.") );
 
 	$tooltips->set_tip( $tool_simple,
 		$d->get("The simple selection tool is the fastest way of taking a screenshot.\nIt provides an optional zoom window for precise shots.") );
@@ -5839,36 +5828,21 @@ sub fct_set_model_plugins {
 	return TRUE;
 }
 
-sub fct_init_optional {
+sub fct_init_depend {
 
-	print "INFO: searching for optional components...\n\n";
+	print "\nINFO: checking installed components...\n\n";
 	
 	#imagemagick/perlmagick
-	if ( File::Which::which('convert') ) {
-		print "SUCCESS: imagemagick is installed on your system!\n\n";
-	} else {
+	unless ( File::Which::which('convert') ) {
 		die "ERROR: imagemagick is missing --> aborting!\n\n";
-	}
-	eval { require Image::Magick };
-	if ($@) {
-		die "ERROR: Image::Magick/perlmagick is missing --> aborting!\n\n";
 	}
 
 	#gnome-web-photo
-	if ( File::Which::which('gnome-web-photo') ) {
-		print "SUCCESS: gnome-web-photo is installed on your system!\n\n";
-	} else {
+	unless ( File::Which::which('gnome-web-photo') ) {
 		warn "WARNING: gnome-web-photo is missing --> screenshots of websites will be disabled!\n\n";
 		$gnome_web_photo = FALSE;
 	}
 
-	#gtkimageview
-	eval { require Gtk2::ImageView };
-	if ($@) {
-		warn "WARNING: Gtk2::ImageView/libgtkimageview is missing --> advanced seletion tool and drawing tool will be disabled!\n\n";
-		$gtkimageview = FALSE;
-	}
-	
 	#goocanvas
 	eval { require Goo::Canvas };
 	if ($@) {
