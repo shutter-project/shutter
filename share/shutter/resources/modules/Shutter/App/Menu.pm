@@ -68,24 +68,27 @@ sub create_menu {
 
 	#file
 	$self->{_menu_file}     = Gtk2::Menu->new();
-	$self->{_menuitem_file} = Gtk2::MenuItem->new_with_mnemonic( $d->get("_File") );
+	$self->{_menuitem_file} = Gtk2::MenuItem->new_with_mnemonic( $d->get('_File') );
 
 	$self->{_menuitem_new} = Gtk2::ImageMenuItem->new_from_stock('gtk-new');
-	$self->{_menuitem_new}->add_accelerator( "activate", $accel_group, Gtk2::Accelerator->parse("<Control>N"), qw/visible/ );
+	$self->{_menuitem_new}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>N'), qw/visible/ );
 	$self->{_menuitem_new}->set_submenu( $self->fct_ret_new_menu( $accel_group, $d, $shutter_root ) );
 	$self->{_menu_file}->append( $self->{_menuitem_new} );
 
 	$self->{_menu_file}->append( Gtk2::SeparatorMenuItem->new );
 
 	$self->{_menuitem_open} = Gtk2::ImageMenuItem->new_from_stock('gtk-open');
-	$self->{_menuitem_open}->add_accelerator( "activate", $accel_group, Gtk2::Accelerator->parse("<Control>O"), qw/visible/ );
+	$self->{_menuitem_open}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>O'), qw/visible/ );
 	$self->{_menu_file}->append( $self->{_menuitem_open} );
+
+	$self->{_menuitem_recent} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Recent _Files') );
+	$self->{_menu_file}->append( $self->{_menuitem_recent} );
 
 	$self->{_menu_file}->append( Gtk2::SeparatorMenuItem->new );
 
 	$self->{_menuitem_save_as} = Gtk2::ImageMenuItem->new_from_stock('gtk-save-as');
 	$self->{_menuitem_save_as}->set_sensitive(FALSE);
-	$self->{_menuitem_save_as}->add_accelerator( "activate", $accel_group, Gtk2::Accelerator->parse("<Shift><Control>S"), qw/visible/ );
+	$self->{_menuitem_save_as}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Shift><Control>S'), qw/visible/ );
 	$self->{_menu_file}->append( $self->{_menuitem_save_as} );
 
 	$self->{_menu_file}->append( Gtk2::SeparatorMenuItem->new );
@@ -93,48 +96,55 @@ sub create_menu {
 	#~ $self->{_menuitem_pagesetup} = Gtk2::ImageMenuItem->new_from_stock('gtk-page-setup');
 	#~ $self->{_menu_file}->append( $self->{_menuitem_pagesetup} );
 
-	$self->{_menuitem_pagesetup} = Gtk2::ImageMenuItem->new( $d->get("Page Set_up") );
+	$self->{_menuitem_pagesetup} = Gtk2::ImageMenuItem->new( $d->get('Page Set_up') );
 	$self->{_menuitem_pagesetup}->set_image(
 		Gtk2::Image->new_from_icon_name( 'document-page-setup', 'menu' )
 	);
 	$self->{_menu_file}->append( $self->{_menuitem_pagesetup} );
 
 	$self->{_menuitem_print} = Gtk2::ImageMenuItem->new_from_stock('gtk-print');
-	$self->{_menuitem_print}->add_accelerator( "activate", $accel_group, Gtk2::Accelerator->parse("<Control>P"), qw/visible/ );
+	$self->{_menuitem_print}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>P'), qw/visible/ );
 	$self->{_menu_file}->append( $self->{_menuitem_print} );
 
 	$self->{_menu_file}->append( Gtk2::SeparatorMenuItem->new );
 
 	$self->{_menuitem_close} = Gtk2::ImageMenuItem->new_from_stock('gtk-close');
 	$self->{_menuitem_close}->set_sensitive(FALSE);
-	$self->{_menuitem_close}->add_accelerator( "activate", $accel_group, Gtk2::Accelerator->parse("<Control>W"), qw/visible/ );
+	$self->{_menuitem_close}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>W'), qw/visible/ );
 	$self->{_menu_file}->append( $self->{_menuitem_close} );
 
-	$self->{_menuitem_close_all} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("C_lose all") );
+	$self->{_menuitem_close_all} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('C_lose all') );
 	$self->{_menuitem_close_all}->set_image( Gtk2::Image->new_from_stock( 'gtk-close', 'menu' ) );
-	$self->{_menuitem_close_all}->add_accelerator( "activate", $accel_group, Gtk2::Accelerator->parse("<Shift><Control>W"), qw/visible/ );
+	$self->{_menuitem_close_all}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Shift><Control>W'), qw/visible/ );
 	$self->{_menu_file}->append( $self->{_menuitem_close_all} );
 
 	$self->{_menu_file}->append( Gtk2::SeparatorMenuItem->new );
 
 	$self->{_menuitem_quit} = Gtk2::ImageMenuItem->new_from_stock('gtk-quit');
-	$self->{_menuitem_quit}->add_accelerator( "activate", $accel_group, Gtk2::Accelerator->parse("<Control>Q"), qw/visible/ );
+	$self->{_menuitem_quit}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>Q'), qw/visible/ );
 	$self->{_menu_file}->append( $self->{_menuitem_quit} );
 
 	$self->{_menuitem_file}->set_submenu( $self->{_menu_file} );
 	$self->{_menubar}->append( $self->{_menuitem_file} );
 
 	#end file
+
 	#edit
 	$self->{_menu_edit} = Gtk2::Menu->new();
 
 	$self->{_menuitem_copy} = Gtk2::ImageMenuItem->new_from_stock('gtk-copy');
-	$self->{_menuitem_copy}->add_accelerator( "activate", $accel_group, Gtk2::Accelerator->parse("<Control>C"), qw/visible/ );
+	$self->{_menuitem_copy}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>C'), qw/visible/ );
 	$self->{_menuitem_copy}->set_sensitive(FALSE);
 	$self->{_menu_edit}->append( $self->{_menuitem_copy} );
 
-	$self->{_menuitem_trash} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("Move to Dele_ted Items folder") );
-	$self->{_menuitem_trash}->add_accelerator( "activate", $accel_group, Gtk2::Accelerator->parse("Delete"), qw/visible/ );
+	$self->{_menuitem_copy_filename} = Gtk2::ImageMenuItem->new_from_stock('gtk-copy');
+	$self->{_menuitem_copy_filename}->get_child->set_text( $d->get('Copy filename') );	
+	$self->{_menuitem_copy_filename}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control><Shift>C'), qw/visible/ );
+	$self->{_menuitem_copy_filename}->set_sensitive(FALSE);
+	$self->{_menu_edit}->append( $self->{_menuitem_copy_filename} );
+
+	$self->{_menuitem_trash} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Move to Dele_ted Items folder') );
+	$self->{_menuitem_trash}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('Delete'), qw/visible/ );
 	$self->{_menuitem_trash}->set_image( Gtk2::Image->new_from_icon_name( 'gnome-stock-trash', 'menu' ) );
 	$self->{_menuitem_trash}->set_sensitive(FALSE);
 	$self->{_menu_edit}->append( $self->{_menuitem_trash} );
@@ -142,31 +152,67 @@ sub create_menu {
 	$self->{_menu_edit}->append( Gtk2::SeparatorMenuItem->new );
 
 	$self->{_menuitem_select_all} = Gtk2::ImageMenuItem->new_from_stock('gtk-select-all');
-	$self->{_menuitem_select_all}->add_accelerator( "activate", $accel_group, Gtk2::Accelerator->parse("<Control>A"), qw/visible/ );
+	$self->{_menuitem_select_all}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>A'), qw/visible/ );
 	$self->{_menuitem_select_all}->set_sensitive(FALSE);
 	$self->{_menu_edit}->append( $self->{_menuitem_select_all} );
 
 	$self->{_menu_edit}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_quicks} = Gtk2::MenuItem->new_with_mnemonic( $d->get("_Quick select") );
+	$self->{_menuitem_quicks} = Gtk2::MenuItem->new_with_mnemonic( $d->get('_Quick select') );
 	$self->{_menu_edit}->append( $self->{_menuitem_quicks} );
 
 	$self->{_menu_edit}->append( Gtk2::SeparatorMenuItem->new );
 
 	$self->{_menuitem_settings} = Gtk2::ImageMenuItem->new_from_stock('gtk-preferences');
-	$self->{_menuitem_settings}->add_accelerator( "activate", $accel_group, $Gtk2::Gdk::Keysyms{P}, qw/mod1-mask/, qw/visible/ );
+	$self->{_menuitem_settings}->add_accelerator( 'activate', $accel_group, $Gtk2::Gdk::Keysyms{P}, qw/mod1-mask/, qw/visible/ );
 	$self->{_menu_edit}->append( $self->{_menuitem_settings} );
 
-	$self->{_menuitem_edit} = Gtk2::MenuItem->new_with_mnemonic( $d->get("_Edit") );
+	$self->{_menuitem_edit} = Gtk2::MenuItem->new_with_mnemonic( $d->get('_Edit') );
 	$self->{_menuitem_edit}->set_submenu( $self->{_menu_edit} );
 	$self->{_menubar}->append( $self->{_menuitem_edit} );
 
 	#end edit
+
+	#view
+	$self->{_menu_view} = Gtk2::Menu->new();
+
+	$self->{_menuitem_zoom_in} = Gtk2::ImageMenuItem->new_from_stock('gtk-zoom-in');
+	$self->{_menuitem_zoom_in}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<control>plus'), qw/visible/ );
+	#~ $self->{_menuitem_zoom_in}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<control>1'), qw/visible/ );
+	$self->{_menuitem_zoom_in}->set_sensitive(FALSE);
+	$self->{_menu_view}->append( $self->{_menuitem_zoom_in} );
+
+	$self->{_menuitem_zoom_out} = Gtk2::ImageMenuItem->new_from_stock('gtk-zoom-out');
+	$self->{_menuitem_zoom_out}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<control>minus'), qw/visible/ );
+	$self->{_menuitem_zoom_out}->set_sensitive(FALSE);
+	$self->{_menu_view}->append( $self->{_menuitem_zoom_out} );
+
+	$self->{_menuitem_zoom_100} = Gtk2::ImageMenuItem->new_from_stock('gtk-zoom-100');
+	$self->{_menuitem_zoom_100}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<control>0'), qw/visible/ );
+	$self->{_menuitem_zoom_100}->set_sensitive(FALSE);
+	$self->{_menu_view}->append( $self->{_menuitem_zoom_100} );
+
+	$self->{_menuitem_zoom_best} = Gtk2::ImageMenuItem->new_from_stock('gtk-zoom-fit');
+	$self->{_menuitem_zoom_best}->set_sensitive(FALSE);
+	$self->{_menu_view}->append( $self->{_menuitem_zoom_best} );
+
+	$self->{_menu_view}->append( Gtk2::SeparatorMenuItem->new );
+
+	#create an image item from stock to reuse the translated text
+	$self->{_menuitem_fullscreen_image} = Gtk2::ImageMenuItem->new_from_stock('gtk-fullscreen');
+	$self->{_menuitem_fullscreen} = Gtk2::CheckMenuItem->new_with_label($self->{_menuitem_fullscreen_image}->get_child->get_text);
+	$self->{_menuitem_fullscreen}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('F11'), qw/visible/ );
+	$self->{_menu_view}->append( $self->{_menuitem_fullscreen} );
+
+	$self->{_menuitem_view} = Gtk2::MenuItem->new_with_mnemonic( $d->get('_View') );
+	$self->{_menuitem_view}->set_submenu( $self->{_menu_view} );
+	$self->{_menubar}->append( $self->{_menuitem_view} );
+
+	#end view
 	
 	#actions
 	
-	$self->{_menuitem_actions} = Gtk2::MenuItem->new_with_mnemonic( $d->get("_Screenshot") );
-	#~ $self->{_menuitem_actions}->set_submenu( $self->{_menu_actions} );
+	$self->{_menuitem_actions} = Gtk2::MenuItem->new_with_mnemonic( $d->get('_Screenshot') );
 	$self->{_menuitem_actions}->set_submenu( $self->fct_ret_actions_menu( $accel_group, $d, $shutter_root ) );
 	$self->{_menubar}->append( $self->{_menuitem_actions} );
 
@@ -177,24 +223,24 @@ sub create_menu {
 	$self->{_menu_session} = Gtk2::Menu->new();
 
 	$self->{_menuitem_back} = Gtk2::ImageMenuItem->new_from_stock('gtk-go-back');
-	$self->{_menuitem_back}->add_accelerator( "activate", $accel_group, $Gtk2::Gdk::Keysyms{Left}, qw/mod1-mask/, qw/visible/ );
+	$self->{_menuitem_back}->add_accelerator( 'activate', $accel_group, $Gtk2::Gdk::Keysyms{Left}, qw/mod1-mask/, qw/visible/ );
 	$self->{_menu_session}->append( $self->{_menuitem_back} );
 
 	$self->{_menuitem_forward} = Gtk2::ImageMenuItem->new_from_stock('gtk-go-forward');
-	$self->{_menuitem_forward}->add_accelerator( "activate", $accel_group, $Gtk2::Gdk::Keysyms{Right}, qw/mod1-mask/, qw/visible/ );
+	$self->{_menuitem_forward}->add_accelerator( 'activate', $accel_group, $Gtk2::Gdk::Keysyms{Right}, qw/mod1-mask/, qw/visible/ );
 	$self->{_menu_session}->append( $self->{_menuitem_forward} );
 
 	$self->{_menu_session}->append( Gtk2::SeparatorMenuItem->new );
 
 	$self->{_menuitem_first} = Gtk2::ImageMenuItem->new_from_stock('gtk-goto-first');
-	$self->{_menuitem_first}->add_accelerator( "activate", $accel_group, $Gtk2::Gdk::Keysyms{Home}, qw/mod1-mask/, qw/visible/ );
+	$self->{_menuitem_first}->add_accelerator( 'activate', $accel_group, $Gtk2::Gdk::Keysyms{Home}, qw/mod1-mask/, qw/visible/ );
 	$self->{_menu_session}->append( $self->{_menuitem_first} );
 
 	$self->{_menuitem_last} = Gtk2::ImageMenuItem->new_from_stock('gtk-goto-last');
-	$self->{_menuitem_last}->add_accelerator( "activate", $accel_group, $Gtk2::Gdk::Keysyms{End}, qw/mod1-mask/, qw/visible/ );
+	$self->{_menuitem_last}->add_accelerator( 'activate', $accel_group, $Gtk2::Gdk::Keysyms{End}, qw/mod1-mask/, qw/visible/ );
 	$self->{_menu_session}->append( $self->{_menuitem_last} );
 
-	$self->{_menuitem_session} = Gtk2::MenuItem->new_with_mnemonic( $d->get("_Go") );
+	$self->{_menuitem_session} = Gtk2::MenuItem->new_with_mnemonic( $d->get('_Go') );
 	$self->{_menuitem_session}->set_submenu( $self->{_menu_session} );
 	$self->{_menubar}->append( $self->{_menuitem_session} );
 
@@ -204,7 +250,7 @@ sub create_menu {
 	
 	$self->{_menu_help} = Gtk2::Menu->new();
 
-	$self->{_menuitem_question} = Gtk2::ImageMenuItem->new( $d->get("Get Help Online ...") );
+	$self->{_menuitem_question} = Gtk2::ImageMenuItem->new( $d->get('Get Help Online ...') );
 	if($self->{_icontheme}->has_icon('lpi-help')){
 		$self->{_menuitem_question}->set_image(
 			Gtk2::Image->new_from_icon_name( 'lpi-help', 'menu' )		
@@ -219,7 +265,7 @@ sub create_menu {
 
 	$self->{_menu_help}->append( $self->{_menuitem_question} );
 
-	$self->{_menuitem_translate} = Gtk2::ImageMenuItem->new( $d->get("Translate this Application ...") );
+	$self->{_menuitem_translate} = Gtk2::ImageMenuItem->new( $d->get('Translate this Application ...') );
 	if($self->{_icontheme}->has_icon('lpi-translate')){
 		$self->{_menuitem_translate}->set_image(
 			Gtk2::Image->new_from_icon_name( 'lpi-translate', 'menu' )		
@@ -234,7 +280,7 @@ sub create_menu {
 
 	$self->{_menu_help}->append( $self->{_menuitem_translate} );
 
-	$self->{_menuitem_bug} = Gtk2::ImageMenuItem->new( $d->get("Report a Problem") );
+	$self->{_menuitem_bug} = Gtk2::ImageMenuItem->new( $d->get('Report a Problem') );
 	if($self->{_icontheme}->has_icon('lpi-bug')){
 		$self->{_menuitem_bug}->set_image(
 			Gtk2::Image->new_from_icon_name( 'lpi-bug', 'menu' )		
@@ -252,10 +298,10 @@ sub create_menu {
 	$self->{_menu_help}->append( Gtk2::SeparatorMenuItem->new );
 
 	$self->{_menuitem_about} = Gtk2::ImageMenuItem->new_from_stock('gtk-about');
-	$self->{_menuitem_about}->add_accelerator( "activate", $accel_group, $Gtk2::Gdk::Keysyms{I}, qw/control-mask/, qw/visible/ );
+	$self->{_menuitem_about}->add_accelerator( 'activate', $accel_group, $Gtk2::Gdk::Keysyms{I}, qw/control-mask/, qw/visible/ );
 	$self->{_menu_help}->append( $self->{_menuitem_about} );
 
-	$self->{_menuitem_help} = Gtk2::MenuItem->new_with_mnemonic( $d->get("_Help") );
+	$self->{_menuitem_help} = Gtk2::MenuItem->new_with_mnemonic( $d->get('_Help') );
 	$self->{_menuitem_help}->set_submenu( $self->{_menu_help} );
 
 	$self->{_menubar}->append( $self->{_menuitem_help} );
@@ -270,7 +316,7 @@ sub fct_ret_new_menu {
 	my $shutter_root = shift;
 
 	$self->{_menu_new}           = Gtk2::Menu->new;
-	$self->{_menuitem_selection} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("_Selection") );
+	$self->{_menuitem_selection} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Selection') );
 	$self->{_menuitem_selection}->set_image(
 		Gtk2::Image->new_from_pixbuf(
 			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/selection.svg", Gtk2::IconSize->lookup('menu') )
@@ -280,7 +326,7 @@ sub fct_ret_new_menu {
 
 	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_full} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("_Full Screen") );
+	$self->{_menuitem_full} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Full Screen') );
 	$self->{_menuitem_full}->set_image(
 		Gtk2::Image->new_from_pixbuf(
 			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/fullscreen.svg", Gtk2::IconSize->lookup('menu') )
@@ -290,7 +336,7 @@ sub fct_ret_new_menu {
 
 	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_window} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("W_indow") );
+	$self->{_menuitem_window} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('W_indow') );
 	$self->{_menuitem_window}->set_image(
 		Gtk2::Image->new_from_pixbuf(
 			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/sel_window.svg", Gtk2::IconSize->lookup('menu') )
@@ -298,7 +344,7 @@ sub fct_ret_new_menu {
 	);
 	$self->{_menu_new}->append( $self->{_menuitem_window} );
 
-	$self->{_menuitem_section} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("Se_ction") );
+	$self->{_menuitem_section} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Se_ction') );
 	$self->{_menuitem_section}->set_image(
 		Gtk2::Image->new_from_pixbuf(
 			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
@@ -311,7 +357,7 @@ sub fct_ret_new_menu {
 
 	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_web} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("_Web") );
+	$self->{_menuitem_web} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Web') );
 
 	$self->{_menuitem_web}->set_image(
 		Gtk2::Image->new_from_pixbuf(
@@ -334,21 +380,21 @@ sub fct_ret_actions_menu{
 	$self->{_menu_actions} = Gtk2::Menu->new();
 
 	$self->{_menuitem_reopen_default} = Gtk2::ImageMenuItem->new_with_mnemonic( 
-			sprintf( $d->get("_Open with %s"), ""),
+			sprintf( $d->get('_Open with %s'), ''),
  		);
 	$self->{_menuitem_reopen_default}->set_image( Gtk2::Image->new_from_stock( 'gtk-open', 'menu' ) );
 	$self->{_menuitem_reopen_default}->set_sensitive(FALSE);
 	$self->{_menuitem_reopen_default}->set_name('item-reopen-default');
 	$self->{_menu_actions}->append( $self->{_menuitem_reopen_default} );
 
-	$self->{_menuitem_reopen} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("_Open with") );
+	$self->{_menuitem_reopen} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Open with') );
 	$self->{_menuitem_reopen}->set_image( Gtk2::Image->new_from_stock( 'gtk-open', 'menu' ) );
 	$self->{_menuitem_reopen}->set_sensitive(FALSE);
 	$self->{_menuitem_reopen}->set_name('item-reopen-list');
 	$self->{_menu_actions}->append( $self->{_menuitem_reopen} );
 
-	$self->{_menuitem_rename} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("_Rename") );
-	$self->{_menuitem_rename}->add_accelerator( "activate", $accel_group, Gtk2::Accelerator->parse("F2"), qw/visible/ ) if $accel_group;
+	$self->{_menuitem_rename} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Rename') );
+	$self->{_menuitem_rename}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('F2'), qw/visible/ ) if $accel_group;
 	$self->{_menuitem_rename}->set_image( Gtk2::Image->new_from_stock( 'gtk-edit', 'menu' ) );
 	$self->{_menuitem_rename}->set_sensitive(FALSE);
 	$self->{_menuitem_rename}->set_name('item-rename');
@@ -356,8 +402,8 @@ sub fct_ret_actions_menu{
 
 	$self->{_menu_actions}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_upload} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("_Upload / Export") );
-	$self->{_menuitem_upload}->add_accelerator( "activate", $accel_group, Gtk2::Accelerator->parse("<Control>U"), qw/visible/ ) if $accel_group;
+	$self->{_menuitem_upload} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Upload / Export') );
+	$self->{_menuitem_upload}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>U'), qw/visible/ ) if $accel_group;
 	$self->{_menuitem_upload}->set_image( Gtk2::Image->new_from_stock( 'gtk-network', 'menu' ) );
 	$self->{_menuitem_upload}->set_sensitive(FALSE);
 	$self->{_menuitem_upload}->set_name('item-upload');
@@ -366,7 +412,7 @@ sub fct_ret_actions_menu{
 	$self->{_menu_actions}->append( Gtk2::SeparatorMenuItem->new );
 
 	$self->{_menuitem_draw} = Gtk2::ImageMenuItem->new_from_stock( 'gtk-edit' );
-	$self->{_menuitem_draw}->add_accelerator( "activate", $accel_group, Gtk2::Accelerator->parse("<Control>E"), qw/visible/ ) if $accel_group;
+	$self->{_menuitem_draw}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>E'), qw/visible/ ) if $accel_group;
 	$self->{_menuitem_draw}->set_image(
 		Gtk2::Image->new_from_pixbuf(
 			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/draw.svg", Gtk2::IconSize->lookup('menu') )
@@ -377,8 +423,8 @@ sub fct_ret_actions_menu{
 	$self->{_menuitem_draw}->set_name('item-draw');
 	$self->{_menu_actions}->append( $self->{_menuitem_draw} );
 
-	$self->{_menuitem_plugin} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get("Execute a _plugin") );
-	$self->{_menuitem_plugin}->add_accelerator( "activate", $accel_group, Gtk2::Accelerator->parse("<Control><Shift>P"), qw/visible/ ) if $accel_group;
+	$self->{_menuitem_plugin} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Execute a _plugin') );
+	$self->{_menuitem_plugin}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control><Shift>P'), qw/visible/ ) if $accel_group;
 	$self->{_menuitem_plugin}->set_image( Gtk2::Image->new_from_stock( 'gtk-execute', 'menu' ) );
 	$self->{_menuitem_plugin}->set_sensitive(FALSE);
 	$self->{_menuitem_plugin}->set_name('item-plugin');

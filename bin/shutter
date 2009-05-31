@@ -77,6 +77,9 @@ use FindBin '$Bin';
 #stringified perl data structures, suitable for both printing and eval
 use Data::Dumper;
 
+use Devel::Size qw(size total_size);
+
+
 #--------------------------------------
 
 #define constants
@@ -84,7 +87,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.467";
+use constant REV                	=> "Rev.468";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -300,6 +303,18 @@ $window->add($vbox);
 $vbox->pack_start( $shutter_menu->create_menu, FALSE, TRUE, 0 );
 
 $shutter_menu->{_menuitem_open}->signal_connect( 'activate', \&evt_open, 'menu_open' );
+
+#recent manager and menu entry
+my $rmanager = Gtk2::RecentManager->new;
+$shutter_menu->{_menu_recent} = Gtk2::RecentChooserMenu->new_for_manager($rmanager); 
+$shutter_menu->{_menu_recent}->set_sort_type('mru');
+$shutter_menu->{_menu_recent}->set_local_only (TRUE);
+my $recentfilter = Gtk2::RecentFilter->new;
+$recentfilter->add_pixbuf_formats;
+$shutter_menu->{_menu_recent}->add_filter ($recentfilter);
+$shutter_menu->{_menu_recent}->signal_connect('item-activated' => \&evt_open);	
+$shutter_menu->{_menuitem_recent}->set_submenu($shutter_menu->{_menu_recent});	
+
 $shutter_menu->{_menuitem_selection}->signal_connect( 'activate', \&evt_take_screenshot, 'select' );
 $shutter_menu->{_menuitem_full}->signal_connect( 'activate', \&evt_take_screenshot, 'raw' );
 $shutter_menu->{_menuitem_window}->signal_connect( 'activate', \&evt_take_screenshot, 'window' );
@@ -320,10 +335,17 @@ $shutter_menu->{_menuitem_close}->signal_connect( 'activate', sub { &fct_remove(
 $shutter_menu->{_menuitem_close_all}->signal_connect( 'activate', sub { &fct_remove_all(); }, 'menu_close_all' );
 $shutter_menu->{_menuitem_quit}->signal_connect( 'activate', \&evt_delete_window, 'menu_quit' );
 
-$shutter_menu->{_menuitem_copy}->signal_connect( 'activate', \&fct_clipboard );
+$shutter_menu->{_menuitem_copy}->signal_connect( 'activate', \&fct_clipboard, 'image' );
+$shutter_menu->{_menuitem_copy_filename}->signal_connect( 'activate', \&fct_clipboard, 'text' );
 $shutter_menu->{_menuitem_trash}->signal_connect( 'activate', \&fct_delete );
 $shutter_menu->{_menuitem_select_all}->signal_connect( 'activate', \&fct_select_all );
 $shutter_menu->{_menuitem_settings}->signal_connect( 'activate', \&evt_show_settings, 'exp_settings_menu' );
+
+$shutter_menu->{_menuitem_zoom_in}->signal_connect( 'activate', \&fct_zoom_in );
+$shutter_menu->{_menuitem_zoom_out}->signal_connect( 'activate', \&fct_zoom_out );
+$shutter_menu->{_menuitem_zoom_100}->signal_connect( 'activate', \&fct_zoom_100 );
+$shutter_menu->{_menuitem_zoom_best}->signal_connect( 'activate', \&fct_zoom_best );
+$shutter_menu->{_menuitem_fullscreen}->signal_connect( 'toggled', \&fct_fullscreen );
 
 $shutter_menu->{_menu_actions}->signal_connect( 'focus', sub { $shutter_menu->{_menuitem_reopen}->set_submenu(&fct_ret_program_menu); });
 $shutter_menu->{_menuitem_rename}->signal_connect( 'activate', \&fct_rename );
@@ -486,6 +508,12 @@ if ( $gnome_web_photo ) {
 	$shutter_tool->{_web}->set_arrow_tooltip( $tooltips, $d->get("gnome-web-photo needs to be installed for this feature"), 'arrow' );
 	$shutter_tool->{_web}->set_sensitive(FALSE);
 }
+
+$shutter_tool->{_edit}->signal_connect( 'clicked' => \&fct_draw );
+$shutter_tool->{_edit}->set_sensitive(FALSE);
+	
+$shutter_tool->{_upload}->signal_connect( 'clicked' => \&fct_upload );
+$shutter_tool->{_upload}->set_sensitive(FALSE);
 
 #--------------------------------------
 
@@ -1608,7 +1636,7 @@ sub evt_take_screenshot {
 	
 	#A short timeout to give the server a chance to
 	#redraw the area that was obscured by our dialog.
-	Glib::Timeout->add (200, sub{
+	Glib::Timeout->add (400, sub{
 		&fct_take_screenshot($widget, $data, $folder_from_config);
 		return FALSE;	
 	}, undef);
@@ -1649,6 +1677,27 @@ sub evt_behavior_handle {
 sub evt_notebook_switch {
 	my ( $widget, $pointer, $int ) = @_;
 
+	my $key = &fct_get_file_by_index($int);
+	if($key){
+		foreach (keys %session_screens){
+			if ($_ eq $key){
+				if($session_screens{$key}->{'long'}){
+					eval{
+						$session_screens{$_}->{'image'}->set_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} ));								
+					}
+				}
+				next;
+			}
+			eval{
+				$session_screens{$_}->{'image'}->set_pixbuf(undef);
+			};
+			if($@){
+				delete $session_screens{$_};
+				next;	
+			}
+		}
+	}	
+
 	#unselect all items in session tab
 	#when we move away
 	if($int == 0){
@@ -1656,7 +1705,7 @@ sub evt_notebook_switch {
 	}
 
 	#enable/disable menu entry when we switch tabs		
-	&fct_update_menu($int);
+	&fct_update_actions($int);
 
 	return TRUE;
 }
@@ -1910,14 +1959,21 @@ sub evt_iconview_sel_changed {
 	my @sel_items = $iconview->get_selected_items;	
 	
 	#enable/disable menu entry when we are in the session tab and selection changes
-	&fct_update_menu( scalar @sel_items );
+	&fct_update_actions( scalar @sel_items );
 		
 	return TRUE;
 }
 
-sub fct_update_menu {
+sub fct_update_actions {
 	my $n_items = shift;
 
+	#TOOLBAR
+	#--------------------------------------
+	$shutter_tool->{_edit}->set_sensitive($n_items);
+	$shutter_tool->{_upload}->set_sensitive($n_items);
+
+	#MENU
+	#--------------------------------------
 	$shutter_menu->{_menuitem_reopen_default}->visible($n_items);
 	$shutter_menu->{_menuitem_reopen_default}->set_sensitive($n_items);
 	$shutter_menu->{_menuitem_reopen}->set_sensitive($n_items);
@@ -1938,7 +1994,12 @@ sub fct_update_menu {
 	$shutter_menu->{_menuitem_close}->set_sensitive($n_items);
 	$shutter_menu->{_menuitem_trash}->set_sensitive($n_items);
 	$shutter_menu->{_menuitem_copy}->set_sensitive($n_items);
-	
+	$shutter_menu->{_menuitem_copy_filename}->set_sensitive($n_items);
+	$shutter_menu->{_menuitem_zoom_in}->set_sensitive($n_items);
+	$shutter_menu->{_menuitem_zoom_out}->set_sensitive($n_items);
+	$shutter_menu->{_menuitem_zoom_100}->set_sensitive($n_items);
+	$shutter_menu->{_menuitem_zoom_best}->set_sensitive($n_items);
+		
 	#count items in iconview ($n_items := selected items)
 	my $n_all_items=0;
 	$session_start_screen{'first_page'}->{'model'}->foreach ( sub{
@@ -1999,47 +2060,55 @@ sub evt_open {
 	print "\n$data was emitted by widget $widget\n"
 		if $shutter_common->get_debug;
 
-	my $fs = Gtk2::FileChooserDialog->new(
-		$shutter_common->get_gettext->get("Choose file to open"), $window,
-		'open',
-		'gtk-cancel' => 'reject',
-		'gtk-open'   => 'accept'
-	);
-	$fs->set_select_multiple(TRUE);
+	#do we need to open a filechooserdialog?
+	#maybe we open a recently opened file that is 
+	#selected via menu
+	my @new_files;	
+	unless($widget =~ /Gtk2::RecentChooserMenu/){
+		my $fs = Gtk2::FileChooserDialog->new(
+			$shutter_common->get_gettext->get("Choose file to open"), $window,
+			'open',
+			'gtk-cancel' => 'reject',
+			'gtk-open'   => 'accept'
+		);
+		$fs->set_select_multiple(TRUE);
 
-	my $filter_all = Gtk2::FileFilter->new;
-	$filter_all->set_name( $shutter_common->get_gettext->get("All compatible image formats") );
-	$fs->add_filter($filter_all);
+		my $filter_all = Gtk2::FileFilter->new;
+		$filter_all->set_name( $shutter_common->get_gettext->get("All compatible image formats") );
+		$fs->add_filter($filter_all);
 
-	foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
-		my $filter = Gtk2::FileFilter->new;
-		
-		#add all known formats to the dialog			
-		$filter->set_name( $_->{name} . " - " . $_->{description} );
-		
-		foreach ( @{ $_->{extensions} } ) {
-			$filter->add_pattern( "*." . uc $_ );
-			$filter_all->add_pattern( "*." . uc $_ );
-			$filter->add_pattern( "*." . $_ );
-			$filter_all->add_pattern( "*." . $_ );
+		foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
+			my $filter = Gtk2::FileFilter->new;
+			
+			#add all known formats to the dialog			
+			$filter->set_name( $_->{name} . " - " . $_->{description} );
+			
+			foreach ( @{ $_->{extensions} } ) {
+				$filter->add_pattern( "*." . uc $_ );
+				$filter_all->add_pattern( "*." . uc $_ );
+				$filter->add_pattern( "*." . $_ );
+				$filter_all->add_pattern( "*." . $_ );
+			}
+			$fs->add_filter($filter);
 		}
-		$fs->add_filter($filter);
-	}
 
-	my $key = &fct_get_current_file;
-	if ($key) {
-		$fs->set_filename( $session_screens{$key}->{'folder'} );
-	} elsif ( $ENV{'HOME'} ) {
-		$fs->set_filename( $saveDir_button->get_filename() );
-	}
-	my $fs_resp = $fs->run;
+		my $key = &fct_get_current_file;
+		if ($key) {
+			$fs->set_filename( $session_screens{$key}->{'folder'} );
+		} elsif ( $ENV{'HOME'} ) {
+			$fs->set_filename( $saveDir_button->get_filename() );
+		}
+		my $fs_resp = $fs->run;
 
-	my @new_files;
-	if ( $fs_resp eq "accept" ) {
-		@new_files = $fs->get_filenames;
-		$fs->destroy();
-	} else {
-		$fs->destroy();
+		if ( $fs_resp eq "accept" ) {
+			@new_files = $fs->get_filenames;
+			$fs->destroy();
+		} else {
+			$fs->destroy();
+		}
+
+	}else{
+		push @new_files, $widget->get_current_uri;
 	}
 
 	#call function to open files - with progress bar etc.
@@ -2199,12 +2268,17 @@ sub fct_create_session_notebook {
 }
 
 sub fct_integrate_screenshot_in_notebook {
-	my $uri    = shift;
-	my $pixbuf = shift;
+	my ($uri, $pixbuf) = @_;
 
 	#check parameters
 	return FALSE unless $uri;
-	return FALSE unless $uri->exists;
+	unless ($uri->exists){
+		&dlg_status_message( 1, $uri->to_string . " " . $d->get("not found") );		
+		return FALSE;
+	}
+
+	#add to recentmanager
+	$rmanager->add_item($uri->to_string);
 
 	#append a page to notebook using with label == filename
 	my ( $second, $minute, $hour ) = localtime();
@@ -2378,8 +2452,9 @@ sub fct_create_tab {
 		$geometry_label->set_markup( "<b>" . $d->get("Geometry") . "</b>" );
 		$session_screens{$key}->{'geometry_label'} = Gtk2::Label->new();
 
-		#empty at first, we adjust the image during expose-events
-		$session_screens{$key}->{'image'} = Gtk2::Image->new();
+		#empty at first
+		$session_screens{$key}->{'image'} = Gtk2::ImageView->new();
+		my $image_sw = Gtk2::ImageView::ScrollWin->new($session_screens{$key}->{'image'});
 		
 		#packing
 		my $tab_infos_sizegroup = Gtk2::SizeGroup->new('vertical');
@@ -2400,7 +2475,7 @@ sub fct_create_tab {
 		$vbox_fileinfos->pack_start( $geometry_label,                             FALSE, TRUE, 10 );
 		$vbox_fileinfos->pack_start( $session_screens{$key}->{'geometry_label'},  FALSE, TRUE, 2 );
 
-		$hbox_tab_file->pack_start( $session_screens{$key}->{'image'}, TRUE,  TRUE, 10 );
+		$hbox_tab_file->pack_start( $image_sw, TRUE,  TRUE, 10 );
 		$hbox_tab_file->pack_start( $vbox_fileinfos,                   FALSE, TRUE, 1 );
 		$hbox_tab_file->pack_start( $vbox_fileinfos2,                  FALSE, TRUE, 1 );
 
@@ -2447,9 +2522,9 @@ sub fct_create_tab {
 
 		#create iconview for session
 		my $viewmodel = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String' );
-		foreach ( keys %session_screens ) {
-			$viewmodel->set( $viewmodel->append, 0, $session_screens{$_}->{'thumb'}, 1, $session_screens{$_}->{'short'}, 2, $_ );
-		}
+		#~ foreach ( keys %session_screens ) {
+			#~ $viewmodel->set( $viewmodel->append, 0, $session_screens{$_}->{'thumb'}, 1, $session_screens{$_}->{'short'}, 2, $_ );
+		#~ }
 		my $view = Gtk2::IconView->new_with_model($viewmodel);
 		$view->set_orientation('horizontal');
 		$view->set_pixbuf_column(0);
@@ -2488,11 +2563,18 @@ sub fct_create_tab {
 }
 
 sub fct_resize_thumb {
-	my ( $image, $event, $pixbuf ) = @_;
+	my ( $image, $event, $pixbuf_ref ) = @_;
 
-	print "\n$event was emitted by widget $image\n" if $shutter_common->get_debug;
+print Dumper @_;
+
+	print "\n$event was emitted by widget $image\n";# if $shutter_common->get_debug;
 
 	my $key = &fct_get_current_file;
+	
+	#dereference the pixbuf object	
+	my $pixbuf = $$pixbuf_ref;	
+	
+	print Dumper $pixbuf_ref;
 		
 	if(defined $image && defined $pixbuf){
 
@@ -3146,7 +3228,8 @@ sub fct_open_files {
 		&fct_update_gui;
 
 		#do the real work
-		if(&fct_integrate_screenshot_in_notebook( Gnome2::VFS::URI->new ($new_file), undef )){
+		my $new_uri = Gnome2::VFS::URI->new ($new_file);
+		if(&fct_integrate_screenshot_in_notebook( $new_uri, undef )){
 			&dlg_status_message( 1, $new_file . " " . $d->get("opened") );	
 		}
 	}
@@ -3277,8 +3360,12 @@ sub fct_delete {
 		&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("deleted") )
 			if defined( $session_screens{$key}->{'long'} );
 
-		#very, very defensive cleanup
-		#currently i don't know if that makes any sense?		
+		if(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
+			$session_start_screen{'first_page'}->{'model'}->remove( $session_screens{$key}->{'iter'} );
+		}
+
+		#~ #very, very defensive cleanup
+		#~ #currently i don't know if that makes any sense?		
 		#~ foreach(keys %{$session_screens{$key}}){
 			#~ eval { 
 				#~ if($session_screens{$key}->{$_}->can('isa')){
@@ -3289,15 +3376,14 @@ sub fct_delete {
 			#~ delete $session_screens{$key}->{$_};
 		#~ }
 
-		#~ $session_screens{$key} = ();
-	
-		delete $session_screens{$key};                             # delete from hash
+		delete $session_screens{$key};
 
 		$window->show_all unless $is_in_tray;
 
 		#session tab
 	} else {
 
+		my @to_delete;
 		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
 			sub {
 				my ( $view, $path ) = @_;
@@ -3306,8 +3392,6 @@ sub fct_delete {
 					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
 					$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
 					
-					#~ $session_screens{$key}->{'tab_child'}->destroy;
-
 					if ( $session_screens{$key}->{'uri'}->exists ) {
 
 						#cancel handle
@@ -3325,14 +3409,26 @@ sub fct_delete {
 
 					}
 
-					delete $session_screens{$key};
-
-					&dlg_status_message( 1, $d->get("Selected screenshots deleted") );
+					#copy to array
+					#we delete the files from hash and model 
+					#when exiting the sub 
+					push @to_delete, $key; 
 
 				}
 			},
 			undef
 		);
+		
+		#delete from hash and model
+		foreach my $key (@to_delete){
+			if(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
+				$session_start_screen{'first_page'}->{'model'}->remove( $session_screens{$key}->{'iter'} );
+			}
+
+			delete $session_screens{$key};
+		}
+
+		&dlg_status_message( 1, $d->get("Selected screenshots deleted") );
 
 		$window->show_all unless $is_in_tray;
 
@@ -3353,6 +3449,11 @@ sub fct_remove_all {
 		}
 
 		$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
+
+		if(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
+			$session_start_screen{'first_page'}->{'model'}->remove( $session_screens{$key}->{'iter'} );
+		}
+
 		delete( $session_screens{$key} );
 	}
 
@@ -3382,11 +3483,17 @@ sub fct_remove {
 		&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
 			if defined( $session_screens{$key}->{'long'} );
 
+		if(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
+			$session_start_screen{'first_page'}->{'model'}->remove( $session_screens{$key}->{'iter'} );
+		}
+
 		delete( $session_screens{$key} );                                                          # delete from hash
 
 		$window->show_all unless $is_in_tray;
 
 	} else {
+		
+		my @to_remove;
 		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
 			sub {
 				my ( $view, $path ) = @_;
@@ -3401,13 +3508,28 @@ sub fct_remove {
 					}
 
 					$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
-					delete( $session_screens{$key} );
+
+					#copy to array
+					#we remove the files from hash and model 
+					#when exiting the sub 
+					push @to_remove, $key; 
+
 				}
 			},
 			undef
 		);
 
-		&dlg_status_message( 1, $d->get("All screenshots removed") );
+		#delete from hash and model
+		foreach my $key (@to_remove){
+			if(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
+				$session_start_screen{'first_page'}->{'model'}->remove( $session_screens{$key}->{'iter'} );
+			}
+
+			delete $session_screens{$key};
+		}
+
+		&dlg_status_message( 1, $d->get("Selected screenshots removed") );
+
 		$window->show_all unless $is_in_tray;
 
 	}
@@ -3428,6 +3550,7 @@ sub fct_update_gui {
 }
 
 sub fct_clipboard {
+	my ($widget, $mode) = @_;
 
 	my $key = &fct_get_current_file;
 
@@ -3436,8 +3559,13 @@ sub fct_clipboard {
 
 		return FALSE unless &fct_screenshot_exists($key);
 
-		my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} );
-		$clipboard->set_image( $pixbuf );
+		if($mode eq 'image'){
+			my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} );
+			$clipboard->set_image( $pixbuf );
+		}else{
+			$clipboard->set_text( $session_screens{$key}->{'long'} );	
+		}
+			
 		&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("copied to clipboard") );
 
 	}
@@ -3885,6 +4013,9 @@ sub fct_take_screenshot {
 
 	&fct_control_main_window( TRUE, 'show');
 
+	undef $screenshot;
+	undef $screenshot_thumbnail;
+
 	return TRUE;
 }
 
@@ -4158,43 +4289,8 @@ sub fct_execute_plugin {
 
 sub fct_update_first_tab {
 
-	$session_start_screen{'first_page'}->{'view'}->unselect_all;
-	$session_start_screen{'first_page'}->{'model'}->clear;
-
-	print "Updating first tab\n" if $shutter_common->get_debug;
-
-	#create thumbails for iconview
-	foreach my $key ( sort keys %session_screens ) {
-
-		print "Updating $key in session\n" if $shutter_common->get_debug;
-
-		unless(defined $session_screens{$key}->{'uri'}){
-				delete( $session_screens{$key} );    
-				next;				
-		}else{
-			unless($session_screens{$key}->{'uri'}->exists){
-				next;
-			}			
-		}
-		
-		#try to generate a new thumbnail
-		my $pixbuf = $shutter_thumb->get_thumbnail(
-			$session_screens{$key}->{'uri'}->to_string,
-			$session_screens{$key}->{'mime_type'},
-			$session_screens{$key}->{'mtime'},
-			0.5
-		);
-		
-		print "Thumb retrieved\n" if $shutter_common->get_debug;
-			
-		$session_start_screen{'first_page'}->{'model'}
-			->set( $session_start_screen{'first_page'}->{'model'}->append, 0, $pixbuf, 1, $session_screens{$key}->{'short'}, 2, $key );
-	
-		print "Added to session $key\n" if $shutter_common->get_debug;
-
-	}
-
-	$session_start_screen{'first_page'}->{'view'}->set_model( $session_start_screen{'first_page'}->{'model'} );
+	#FILE INFOS
+	#--------------------------------------			
 	$session_start_screen{'first_page'}->{'statistics_counter'}->set_text(
 		scalar( keys(%session_screens) ) . " "
 			. $d->nget( "screenshot during this session", "screenshots during this session", scalar( keys(%session_screens) ) ) );
@@ -4208,7 +4304,8 @@ sub fct_update_first_tab {
 	$session_start_screen{'first_page'}->{'size_counter'}
 		->set_text( $d->get("Total size") . ": " . $shutter_hfunct->utf8_decode( Gnome2::VFS->format_file_size_for_display($total_size) ) );
 
-	#handle session information
+	#SESSION AND SETTINGS INFO
+	#--------------------------------------		
 	if ( $filename && $saveDir_button && $combobox_settings_profiles ) {
 
 		if ( $combobox_settings_profiles->get_active_text ) {
@@ -4416,6 +4513,29 @@ sub fct_save_as {
 		
 }
 
+sub fct_get_file_by_index {
+	my $index = shift;
+	
+	return unless $index;
+
+	#get current page
+    my $curr_page = $notebook->get_nth_page( $index );
+
+	my $key = undef;
+	#and loop through hash to find the corresponding key
+	if($curr_page){
+		foreach ( keys %session_screens ) {
+			next unless ( exists $session_screens{$_}->{'tab_child'} );
+			if ( $session_screens{$_}->{'tab_child'} == $curr_page ) {
+				$key = $_;
+				last;
+			}
+		}
+	}
+	
+	return $key;
+}
+
 sub fct_get_current_file {
 
 	#get current page
@@ -4521,31 +4641,14 @@ sub fct_update_tab {
 				$session_screens{$key}->{'width'}  = $pixbuf->get_width;
 				$session_screens{$key}->{'height'} = $pixbuf->get_height;
 				
-				#setting pixbuf as thumbnail
-				$session_screens{$key}->{'image'}->set_from_pixbuf( $pixbuf );
+				#setting pixbuf if tab is currently visible
+				$session_screens{$key}->{'image'}->set_pixbuf( $pixbuf );
 				
 				#create tempfile
 				#maybe we have to restore the file later
 				my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
 				$session_screens{$key}->{'temp'} = $tmpfilename;
 				cp($session_screens{$key}->{'long'}, $session_screens{$key}->{'temp'});
-
-				$session_screens{$key}->{'image'}->{'orig_width'}  = $pixbuf->get_width;
-				$session_screens{$key}->{'image'}->{'orig_height'} = $pixbuf->get_height;				
-				$session_screens{$key}->{'image'}->{'current_width'}  = $session_screens{$key}->{'image'}->{'orig_width'};
-				$session_screens{$key}->{'image'}->{'current_height'} = $session_screens{$key}->{'image'}->{'orig_height'};
-				$session_screens{$key}->{'image'}->{'aspect_ratio'}
-					= $session_screens{$key}->{'image'}->{'current_width'} / $session_screens{$key}->{'image'}->{'current_height'};
-
-				print "Installing event handler for $key \n" if $shutter_common->get_debug;
-
-				#disconnect old handler
-				if(defined $session_screens{$key}->{'image_handler'}){
-					$session_screens{$key}->{'image'}->signal_handler_disconnect($session_screens{$key}->{'image_handler'});
-				}
-
-				#and set new one
-				$session_screens{$key}->{'image_handler'} = $session_screens{$key}->{'image'}->signal_connect( 'expose-event', \&fct_resize_thumb, $pixbuf );
 
 				#update tab icon - and other GUI Elements
 				my $thumb = $shutter_thumb->get_thumbnail(
@@ -4567,6 +4670,23 @@ sub fct_update_tab {
 				$session_screens{$key}->{'size_label'}->set_text( $shutter_hfunct->utf8_decode( Gnome2::VFS->format_file_size_for_display( $session_screens{$key}->{'size'} ) ) );
 
 				$session_screens{$key}->{'geometry_label'}->set_text( $session_screens{$key}->{'width'} . "x" . $session_screens{$key}->{'height'} );
+
+				#UPDATE FIRST TAB - VIEW
+				#--------------------------------------				
+				#update view icon
+				my $thumb_view = $shutter_thumb->get_thumbnail(
+					$session_screens{$key}->{'uri'}->to_string,
+					$session_screens{$key}->{'mime_type'},
+					$session_screens{$key}->{'mtime'},
+					0.5
+				);
+
+				unless(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
+					$session_screens{$key}->{'iter'} = $session_start_screen{'first_page'}->{'model'}->append;
+					$session_start_screen{'first_page'}->{'model'}->set( $session_screens{$key}->{'iter'}, 0, $thumb_view, 1, $session_screens{$key}->{'short'}, 2, $key );
+				}else{
+					$session_start_screen{'first_page'}->{'model'}->set( $session_screens{$key}->{'iter'}, 0, $thumb_view, 1, $session_screens{$key}->{'short'}, 2, $key );					
+				}
 
 				&fct_update_first_tab;
 				return TRUE;
@@ -4594,6 +4714,10 @@ sub fct_update_tab {
 				&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
 					if defined( $session_screens{$key}->{'long'} );
 
+				if(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
+					$session_start_screen{'first_page'}->{'model'}->remove( $session_screens{$key}->{'iter'} );
+				}
+
 				delete( $session_screens{$key} );    
 				
 			}elsif($response == 20){
@@ -4616,6 +4740,10 @@ sub fct_update_tab {
 					$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
 					&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
 						if defined( $session_screens{$key}->{'long'} );
+
+					if(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
+						$session_start_screen{'first_page'}->{'model'}->remove( $session_screens{$key}->{'iter'} );
+					}
 
 					delete( $session_screens{$key} );    				
 
@@ -4641,6 +4769,10 @@ sub fct_update_tab {
 	$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
 	&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
 		if defined( $session_screens{$key}->{'long'} );
+
+	if(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
+		$session_start_screen{'first_page'}->{'model'}->remove( $session_screens{$key}->{'iter'} );
+	}
 
 	delete( $session_screens{$key} );    
 	
@@ -6958,6 +7090,7 @@ sub dlg_website {
 	my $website = Gtk2::Entry->new;
 	$website->set_text("http://");
 	$website->set_activates_default(TRUE);
+
 	my $clipboard_string = $clipboard->wait_for_text;
 	print "Content of clipboard is: $clipboard_string\n"
 		if $shutter_common->get_debug;
@@ -7172,6 +7305,47 @@ sub dlg_profile_name {
 		$profile_dialog->destroy();
 		return FALSE;
 	}
+}
+
+sub fct_zoom_in {
+	my $key = &fct_get_current_file;
+	if($key){
+		$session_screens{$key}->{'image'}->zoom_in;	
+	}
+}
+
+sub fct_zoom_out {
+	my $key = &fct_get_current_file;
+	if($key){
+		$session_screens{$key}->{'image'}->zoom_out;		
+	}	
+}
+
+sub fct_zoom_100 {
+	my $key = &fct_get_current_file;
+	if($key){
+		$session_screens{$key}->{'image'}->set_zoom(1);			
+	}	
+}
+
+sub fct_zoom_best {
+	my $key = &fct_get_current_file;
+	if($key){
+		$session_screens{$key}->{'image'}->set_fitting(TRUE);			
+	}	
+}
+
+sub fct_fullscreen {
+	my ($widget) = @_;
+	
+	my $key = &fct_get_current_file;
+	if($key){
+		if($widget->get_active){
+			$window->fullscreen;			
+		}else{
+			$window->unfullscreen;	
+		}
+	}	
 }
 
 #--------------------------------------

@@ -258,6 +258,7 @@ sub draw_rectangle {
 	my $y		= shift;
 	my $width	= shift;
 	my $height	= shift;
+	my $event   = shift;
 
 	#draw rect if needed
 	if ( $self->{_c}{'lw'}{'gdk_window'} ne $self->{_c}{'cw'}{'gdk_window'} ) {
@@ -431,7 +432,8 @@ sub select_window {
 		$self->{_c}{'cw'}{'x'} - 3,
 		$self->{_c}{'cw'}{'y'} - 3,
 		$self->{_c}{'cw'}{'width'} + 5,
-		$self->{_c}{'cw'}{'height'} + 5
+		$self->{_c}{'cw'}{'height'} + 5,
+		$event
 	);	
 }
 
@@ -452,11 +454,13 @@ sub window {
 
 	#define graphics context
 	my $gc = Gtk2::Gdk::GC->new( $self->{_root}, undef );
-	$gc->set_line_attributes( 5, 'solid', 'round', 'round' );
-	$gc->set_rgb_bg_color(Gtk2::Gdk::Color->new( 0, 0, 0 ));
+	$gc->set_line_attributes( 5, 'solid', 'butt', 'round' );
+	$gc->set_rgb_bg_color(Gtk2::Gdk::Color->new( 0, 0, 0));
 	$gc->set_rgb_fg_color(Gtk2::Gdk::Color->new( 65535, 65535, 65535 ));
 	$gc->set_subwindow('include-inferiors');
+	$gc->set_fill('stippled');
 	$gc->set_function('xor');
+	$gc->set_exposures (FALSE);
 
 	my $grab_counter = 0;
 	while ( !Gtk2::Gdk->pointer_is_grabbed && $grab_counter < 100 ) {

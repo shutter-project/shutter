@@ -139,16 +139,14 @@ sub select_simple {
 	);
 
 	#define graphics context
-	my $white = Gtk2::Gdk::Color->new( 65535, 65535, 65535 );
-	my $black = Gtk2::Gdk::Color->new( 0,     0,     0 );
 	my $gc = Gtk2::Gdk::GC->new( $self->{_root}, undef );
-	$gc->set_line_attributes( 1, 'double-dash', 'round', 'round' );
-
-	$gc->set_rgb_bg_color($black);
-	$gc->set_rgb_fg_color($white);
+	$gc->set_line_attributes( 1, 'double-dash', 'butt', 'round' );
+	$gc->set_rgb_bg_color(Gtk2::Gdk::Color->new( 0, 0, 0));
+	$gc->set_rgb_fg_color(Gtk2::Gdk::Color->new( 65535, 65535, 65535 ));
 	$gc->set_subwindow('include-inferiors');
 	$gc->set_function('xor');
 	$gc->set_exposures(FALSE);
+	$gc->set_fill('stippled');	
 
 	#all screen events are send to shutter
 	my $grab_counter = 0;

@@ -131,22 +131,22 @@ sub create_toolbar {
 
 	#--------------------------------------
 
-	#~ #button edit
-	#~ #--------------------------------------
-	#~ my $image_edit = Gtk2::Image->new_from_pixbuf
-		#~ (
-			#~ Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/draw.svg", Gtk2::IconSize->lookup('large-toolbar') )
-		#~ );
-	#~ $self->{_edit} = Gtk2::ToolButton->new( $image_edit, $d->get("Edit") );
-#~ 
-	#~ #--------------------------------------	
-	#~ 
-	#~ #button upload
-	#~ #--------------------------------------
-	#~ my $image_upload = Gtk2::Image->new_from_stock( 'gtk-network', 'large-toolbar' );
-	#~ $self->{_upload} = Gtk2::ToolButton->new( $image_upload, $d->get("Upload / export") );
-#~ 
-	#~ #--------------------------------------	
+	#button edit
+	#--------------------------------------
+	my $image_edit = Gtk2::Image->new_from_pixbuf
+		(
+			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/draw.svg", Gtk2::IconSize->lookup('large-toolbar') )
+		);
+	$self->{_edit} = Gtk2::ToolButton->new( $image_edit, $d->get("Edit") );
+
+	#--------------------------------------	
+	
+	#button upload
+	#--------------------------------------
+	my $image_upload = Gtk2::Image->new_from_stock( 'gtk-network', 'large-toolbar' );
+	$self->{_upload} = Gtk2::ToolButton->new( $image_upload, $d->get("Upload / Export") );
+
+	#--------------------------------------	
 
 	#create the toolbar
 	$self->{_toolbar} = Gtk2::Toolbar->new;
@@ -162,8 +162,8 @@ sub create_toolbar {
 	$self->{_toolbar}->insert( Gtk2::SeparatorToolItem->new, -1 );
 	$self->{_toolbar}->insert( $self->{_web},                -1 );
 	$self->{_toolbar}->insert( Gtk2::SeparatorToolItem->new, -1 );
-	#~ $self->{_toolbar}->insert( $self->{_edit},               -1 );
-	#~ $self->{_toolbar}->insert( $self->{_upload},             -1 );
+	$self->{_toolbar}->insert( $self->{_edit},               -1 );
+	$self->{_toolbar}->insert( $self->{_upload},             -1 );
 	$self->{_toolbar}->set_size_request( 450, -1 );
 
 	return $self->{_toolbar};
