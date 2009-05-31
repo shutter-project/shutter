@@ -60,9 +60,8 @@ sub create_menu {
 	my $accel_group = Gtk2::AccelGroup->new;
 	$window->add_accel_group($accel_group);
 
-	#icontheme to determine if icons exist or not
-	#in some cases we deliver fallback icons
-	$self->{_icontheme} = Gtk2::IconTheme->new;
+	#Icontheme
+	my $icontheme = $self->{_common}->get_theme;
 
 	$self->{_menubar} = Gtk2::MenuBar->new();
 
@@ -153,7 +152,6 @@ sub create_menu {
 
 	$self->{_menuitem_select_all} = Gtk2::ImageMenuItem->new_from_stock('gtk-select-all');
 	$self->{_menuitem_select_all}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>A'), qw/visible/ );
-	$self->{_menuitem_select_all}->set_sensitive(FALSE);
 	$self->{_menu_edit}->append( $self->{_menuitem_select_all} );
 
 	$self->{_menu_edit}->append( Gtk2::SeparatorMenuItem->new );
@@ -251,7 +249,7 @@ sub create_menu {
 	$self->{_menu_help} = Gtk2::Menu->new();
 
 	$self->{_menuitem_question} = Gtk2::ImageMenuItem->new( $d->get('Get Help Online ...') );
-	if($self->{_icontheme}->has_icon('lpi-help')){
+	if($icontheme->has_icon('lpi-help')){
 		$self->{_menuitem_question}->set_image(
 			Gtk2::Image->new_from_icon_name( 'lpi-help', 'menu' )		
 		);		
@@ -266,7 +264,7 @@ sub create_menu {
 	$self->{_menu_help}->append( $self->{_menuitem_question} );
 
 	$self->{_menuitem_translate} = Gtk2::ImageMenuItem->new( $d->get('Translate this Application ...') );
-	if($self->{_icontheme}->has_icon('lpi-translate')){
+	if($icontheme->has_icon('lpi-translate')){
 		$self->{_menuitem_translate}->set_image(
 			Gtk2::Image->new_from_icon_name( 'lpi-translate', 'menu' )		
 		);		
@@ -281,7 +279,7 @@ sub create_menu {
 	$self->{_menu_help}->append( $self->{_menuitem_translate} );
 
 	$self->{_menuitem_bug} = Gtk2::ImageMenuItem->new( $d->get('Report a Problem') );
-	if($self->{_icontheme}->has_icon('lpi-bug')){
+	if($icontheme->has_icon('lpi-bug')){
 		$self->{_menuitem_bug}->set_image(
 			Gtk2::Image->new_from_icon_name( 'lpi-bug', 'menu' )		
 		);		
@@ -315,55 +313,76 @@ sub fct_ret_new_menu {
 	my $d           = shift;
 	my $shutter_root = shift;
 
+	#Icontheme
+	my $icontheme = $self->{_common}->get_theme;
+
 	$self->{_menu_new}           = Gtk2::Menu->new;
+	
+	#selection
 	$self->{_menuitem_selection} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Selection') );
-	$self->{_menuitem_selection}->set_image(
-		Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/selection.svg", Gtk2::IconSize->lookup('menu') )
-		)
-	);
+	if($icontheme->has_icon('applications-accessories')){
+		$self->{_menuitem_selection}->set_image(
+			Gtk2::Image->new_from_icon_name( 'applications-accessories', 'menu' )	
+		);
+	}else{
+		$self->{_menuitem_selection}->set_image(
+			Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/selection.svg", Gtk2::IconSize->lookup('menu') )
+			)
+		);
+	}
 	$self->{_menu_new}->append( $self->{_menuitem_selection} );
 
 	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_full} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Full Screen') );
-	$self->{_menuitem_full}->set_image(
-		Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/fullscreen.svg", Gtk2::IconSize->lookup('menu') )
-		)
-	);
+	#full screen
+	$self->{_menuitem_full} = Gtk2::ImageMenuItem->new_from_stock( 'gtk-fullscreen' );
 	$self->{_menu_new}->append( $self->{_menuitem_full} );
 
 	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
 
+	#window
 	$self->{_menuitem_window} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('W_indow') );
-	$self->{_menuitem_window}->set_image(
-		Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/sel_window.svg", Gtk2::IconSize->lookup('menu') )
-		)
-	);
+	if($icontheme->has_icon('preferences-system-windows')){
+		$self->{_menuitem_window}->set_image( Gtk2::Image->new_from_icon_name( 'preferences-system-windows', 'menu' ) );	
+	}else{
+		$self->{_menuitem_window}->set_image(
+			Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/sel_window.svg", Gtk2::IconSize->lookup('menu') )
+			)
+		);
+	}
 	$self->{_menu_new}->append( $self->{_menuitem_window} );
 
+	#section
 	$self->{_menuitem_section} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Se_ction') );
-	$self->{_menuitem_section}->set_image(
-		Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-				"$shutter_root/share/shutter/resources/icons/sel_window_section.svg",
-				Gtk2::IconSize->lookup('menu')
+	if($icontheme->has_icon('gdm-xnest')){
+		$self->{_menuitem_section}->set_image( Gtk2::Image->new_from_icon_name( 'gdm-xnest', 'menu' ) );		
+	}else{
+		$self->{_menuitem_section}->set_image(
+			Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+					"$shutter_root/share/shutter/resources/icons/sel_window_section.svg",
+					Gtk2::IconSize->lookup('menu')
+				)
 			)
-		)
-	);
+		);
+	}
 	$self->{_menu_new}->append( $self->{_menuitem_section} );
 
 	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
 
+	#web
 	$self->{_menuitem_web} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Web') );
-
-	$self->{_menuitem_web}->set_image(
-		Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/web_image.svg", Gtk2::IconSize->lookup('menu') )
-		)
-	);
+	if($icontheme->has_icon('applications-internet')){
+		$self->{_menuitem_web}->set_image( Gtk2::Image->new_from_icon_name( 'applications-internet', 'menu' ) );		
+	}else{
+		$self->{_menuitem_web}->set_image(
+			Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/web_image.svg", Gtk2::IconSize->lookup('menu') )
+			)
+		);
+	}
 	$self->{_menu_new}->append( $self->{_menuitem_web} );
 
 	$self->{_menu_new}->show_all;

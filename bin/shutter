@@ -81,7 +81,6 @@ use FindBin '$Bin';
 #stringified perl data structures, suitable for both printing and eval
 use Data::Dumper;
 
-
 #--------------------------------------
 
 #define constants
@@ -89,12 +88,11 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.470";
+use constant REV                	=> "Rev.471";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
 use constant SHUTTER_VERSION_FULL 	=> REV . " - " . PPA_VERSION;
-
 
 #--------------------------------------
 
@@ -205,6 +203,9 @@ my $d = $shutter_common->get_gettext;
 
 #Page Setup
 my $pagesetup = undef;
+
+#Icontheme
+my $icontheme = $shutter_common->get_theme;
 
 #Tooltips
 my $tooltips = $shutter_common->get_tooltips;
@@ -2000,15 +2001,6 @@ sub fct_update_actions {
 	$shutter_menu->{_menuitem_zoom_100}->set_sensitive($n_items);
 	$shutter_menu->{_menuitem_zoom_best}->set_sensitive($n_items);
 		
-	#count items in iconview ($n_items := selected items)
-	my $n_all_items=0;
-	$session_start_screen{'first_page'}->{'model'}->foreach ( sub{
-		$n_all_items++;
-	});
-	
-	$shutter_menu->{_menuitem_select_all}->set_sensitive($n_all_items);
-	$shutter_menu->{_menuitem_close_all}->set_sensitive($n_all_items);
-	
 	return TRUE;
 }
 
@@ -2420,7 +2412,6 @@ sub fct_create_tab {
 	my $hbox_all        = Gtk2::HBox->new( FALSE, 0 );
 	my $vbox_all2       = Gtk2::VBox->new( FALSE, 0 );
 	my $vbox_fileinfos  = Gtk2::VBox->new( FALSE, 0 );
-	my $vbox_fileinfos2 = Gtk2::VBox->new( FALSE, 0 );
 	my $hbox_tab_file   = Gtk2::HBox->new( FALSE, 0 );
 
 	#keep number (1 = single tab, 2 = session tab) for translation
@@ -2475,9 +2466,8 @@ sub fct_create_tab {
 		$vbox_fileinfos->pack_start( $geometry_label,                             FALSE, TRUE, 10 );
 		$vbox_fileinfos->pack_start( $session_screens{$key}->{'geometry_label'},  FALSE, TRUE, 2 );
 
-		$hbox_tab_file->pack_start( $image_sw, TRUE,  TRUE, 10 );
-		$hbox_tab_file->pack_start( $vbox_fileinfos,                   FALSE, TRUE, 1 );
-		$hbox_tab_file->pack_start( $vbox_fileinfos2,                  FALSE, TRUE, 1 );
+		$hbox_tab_file->pack_start( $image_sw, TRUE,  TRUE, 0 );
+		$hbox_tab_file->pack_start( $vbox_fileinfos,                   FALSE, TRUE, 10 );
 
 		$vbox_tab->pack_start( $hbox_tab_file, TRUE, TRUE, 0 );
 
@@ -5271,66 +5261,92 @@ sub fct_ret_window_menu {
 sub fct_ret_tray_menu {
 
 	my $tray_menu       = Gtk2::Menu->new();
-	my $menuitem_select = Gtk2::ImageMenuItem->new( $d->get("Selection") );
-	$menuitem_select->set_image(
-		Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/selection.svg", Gtk2::IconSize->lookup('menu') )
-		)
-	);
+	
+	#selection
+	my $menuitem_select = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Selection') );
+	if($icontheme->has_icon('applications-accessories')){
+		$menuitem_select->set_image(
+			Gtk2::Image->new_from_icon_name( 'applications-accessories', 'menu' )	
+		);
+	}else{
+		$menuitem_select->set_image(
+			Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/selection.svg", Gtk2::IconSize->lookup('menu') )
+			)
+		);
+	}
 	$menuitem_select->signal_connect(
 		activate => \&evt_take_screenshot,
 		'tray_select'
 	);
-	my $menuitem_raw = Gtk2::ImageMenuItem->new( $d->get("Full Screen") );
-	$menuitem_raw->set_image(
-		Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/fullscreen.svg", Gtk2::IconSize->lookup('menu') )
-		)
-	);
+	
+	#full screen
+	my $menuitem_raw = Gtk2::ImageMenuItem->new_from_stock( 'gtk-fullscreen' );
 	$menuitem_raw->signal_connect(
 		activate => \&evt_take_screenshot,
 		'tray_raw'
 	);
-	my $menuitem_window = Gtk2::ImageMenuItem->new( $d->get("Window") );
-	$menuitem_window->set_image(
-		Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/sel_window.svg", Gtk2::IconSize->lookup('menu') )
-		)
-	);
+	
+	#window
+	my $menuitem_window = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('W_indow') );
+	if($icontheme->has_icon('preferences-system-windows')){
+		$menuitem_window->set_image( Gtk2::Image->new_from_icon_name( 'preferences-system-windows', 'menu' ) );	
+	}else{
+		$menuitem_window->set_image(
+			Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/sel_window.svg", Gtk2::IconSize->lookup('menu') )
+			)
+		);
+	}
 	$menuitem_window->signal_connect(
 		activate => \&evt_take_screenshot,
 		'tray_window'
 	);
-	my $menuitem_window_sect = Gtk2::ImageMenuItem->new( $d->get("Section") );
-	$menuitem_window_sect->set_image(
-		Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-				"$shutter_root/share/shutter/resources/icons/sel_window_section.svg",
-				Gtk2::IconSize->lookup('menu')
+	
+	#section
+	my $menuitem_window_sect = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Se_ction') );
+	if($icontheme->has_icon('gdm-xnest')){
+		$menuitem_window_sect->set_image( Gtk2::Image->new_from_icon_name( 'gdm-xnest', 'menu' ) );	
+	}else{
+		$menuitem_window_sect->set_image(
+			Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+					"$shutter_root/share/shutter/resources/icons/sel_window_section.svg",
+					Gtk2::IconSize->lookup('menu')
+				)
 			)
-		)
-	);
+		);
+	}
 	$menuitem_window_sect->signal_connect(
 		activate => \&evt_take_screenshot,
 		'tray_section'
 	);
-	my $menuitem_web = Gtk2::ImageMenuItem->new( $d->get("Web") );
+	
+	#web
+	my $menuitem_web = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Web') );
 	$menuitem_web->set_sensitive($gnome_web_photo);
-	$menuitem_web->set_image(
-		Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/web_image.svg", Gtk2::IconSize->lookup('menu') )
-		)
-	);
+	if($icontheme->has_icon('applications-internet')){
+		$menuitem_web->set_image( Gtk2::Image->new_from_icon_name( 'applications-internet', 'menu' ) );		
+	}else{
+		$menuitem_web->set_image(
+			Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/web_image.svg", Gtk2::IconSize->lookup('menu') )
+			)
+		);
+	}
 	$menuitem_web->signal_connect(
 		activate => \&evt_take_screenshot,
 		'tray_web'
 	);
-	my $menuitem_info = Gtk2::ImageMenuItem->new( $d->get("Info") );
-	$menuitem_info->set_image( Gtk2::Image->new_from_icon_name( 'gtk-about', 'menu' ) );
+	
+	#info
+	my $menuitem_info = Gtk2::ImageMenuItem->new_from_stock( 'gtk-about' );
 	$menuitem_info->signal_connect( "activate", \&evt_about, $window );
-	my $menuitem_quit = Gtk2::ImageMenuItem->new( $d->get("Quit") );
-	$menuitem_quit->set_image( Gtk2::Image->new_from_icon_name( 'gtk-quit', 'menu' ) );
+	
+	#quit
+	my $menuitem_quit = Gtk2::ImageMenuItem->new_from_stock( 'gtk-quit' );
 	$menuitem_quit->signal_connect( "activate", \&evt_delete_window, 'menu_quit' );
+	
 	$tray_menu->append($menuitem_select);
 	$tray_menu->append( Gtk2::SeparatorMenuItem->new );
 	$tray_menu->append($menuitem_raw);
@@ -6013,7 +6029,7 @@ sub dlg_rename {
 
 		$input_dialog->set_title("Rename");
 
-		$input_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-dialog-question', 'dialog' ) );
+		$input_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-save-as', 'dialog' ) );
 
 		$input_dialog->set( 'text' => sprintf( $d->get( "Rename image %s"), "'$session_screens{$key}->{'short'}'" ) );
 
@@ -7041,11 +7057,16 @@ sub dlg_website {
 
 	$website_dialog->set( 'secondary-text' => $d->get("URL to capture") . ": " );
 
-	$website_dialog->set(
-		'image' => Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/web_image.svg", Gtk2::IconSize->lookup('dialog') )
-		)
-	);
+	if($icontheme->has_icon('applications-internet')){
+		$website_dialog->set(
+			'image' => Gtk2::Image->new_from_icon_name( 'applications-internet', 'dialog' ) );		
+	}else{
+		$website_dialog->set(
+			'image' => Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/web_image.svg", Gtk2::IconSize->lookup('dialog') )
+			)
+		);
+	}
 
 	#cancel button
 	my $cancel_btn = Gtk2::Button->new_from_stock('gtk-cancel');
@@ -7313,14 +7334,11 @@ sub fct_zoom_best {
 sub fct_fullscreen {
 	my ($widget) = @_;
 	
-	my $key = &fct_get_current_file;
-	if($key){
-		if($widget->get_active){
-			$window->fullscreen;			
-		}else{
-			$window->unfullscreen;	
-		}
-	}	
+	if($widget->get_active){
+		$window->fullscreen;			
+	}else{
+		$window->unfullscreen;	
+	}
 }
 
 #--------------------------------------

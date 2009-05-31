@@ -32,6 +32,12 @@ shutter (0.80~ppa1) jaunty; urgency=low
        [added arrow shape]
     -- LP: #380790
        [Fullscreen mode]
+  * User Interface
+    -- Show screenshot menu on right-button click in each tab
+    -- Show default application in separate menu item
+    -- Show progress dialog when updating plugin information
+    -- LP: #338528
+       [use icon theme and toolbar style wherever it is possible]
   * Plugins
     -- LP: #264622
        [new watermark plugin]
@@ -42,9 +48,6 @@ shutter (0.80~ppa1) jaunty; urgency=low
     -- LP: #375069
        [new 3D rotate plugin]
   * Fixed bugs / minor improvements
-    -- Show progress dialog when updating plugin information
-    -- Show default application in separate menu item
-    -- Show screenshot menu on right-button click in each tab
     -- Use File::HomeDir instead of $ENV{ 'HOME' }
     -- Use xdg-open instead of gnome-open
     -- LP: #312221

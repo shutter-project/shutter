@@ -59,14 +59,22 @@ sub create_toolbar {
 
 	#Tooltips
 	my $tooltips = $self->{_common}->get_tooltips;
+	
+	#Icontheme
+	my $icontheme = $self->{_common}->get_theme;
 
 	#button selection
 	#--------------------------------------
-	my $image_select = Gtk2::Image->new_from_pixbuf(
-		Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-			"$shutter_root/share/shutter/resources/icons/selection.svg", Gtk2::IconSize->lookup('large-toolbar')
-		)
-	);
+	my $image_select;
+	if($icontheme->has_icon('applications-accessories')){
+		$image_select = Gtk2::Image->new_from_icon_name( 'applications-accessories', 'large-toolbar' );		
+	}else{
+		$image_select = Gtk2::Image->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+				"$shutter_root/share/shutter/resources/icons/selection.svg", Gtk2::IconSize->lookup('large-toolbar')
+			)
+		);
+	}	
 	$self->{_select} = Gtk2::MenuToolButton->new( $image_select, $d->get("Selection") );
 
 	$tooltips->set_tip( $self->{_select}, $d->get("Draw a rectangular capture area with your mouse\nto select a specified screen area") );
@@ -77,12 +85,7 @@ sub create_toolbar {
 
 	#button full screen
 	#--------------------------------------
-	my $image_raw = Gtk2::Image->new_from_pixbuf(
-		Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-			"$shutter_root/share/shutter/resources/icons/fullscreen.svg",
-			Gtk2::IconSize->lookup('large-toolbar')
-		)
-	);
+	my $image_raw = Gtk2::Image->new_from_stock('gtk-fullscreen', 'large-toolbar');
 	$self->{_full} = Gtk2::MenuToolButton->new( $image_raw, $d->get("Full Screen") );
 
 	$tooltips->set_tip( $self->{_full}, $d->get("Take a screenshot of your whole desktop") );
@@ -92,12 +95,17 @@ sub create_toolbar {
 
 	#button window
 	#--------------------------------------
-	my $image_window = Gtk2::Image->new_from_pixbuf(
-		Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-			"$shutter_root/share/shutter/resources/icons/sel_window.svg",
-			Gtk2::IconSize->lookup('large-toolbar')
-		)
-	);
+	my $image_window;
+	if($icontheme->has_icon('preferences-system-windows')){
+		$image_window = Gtk2::Image->new_from_icon_name( 'preferences-system-windows', 'large-toolbar' );		
+	}else{
+		$image_window = Gtk2::Image->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+				"$shutter_root/share/shutter/resources/icons/sel_window.svg",
+				Gtk2::IconSize->lookup('large-toolbar')
+			)
+		);
+	}
 	$self->{_window} = Gtk2::MenuToolButton->new( $image_window, $d->get("Window") );
 
 	$tooltips->set_tip( $self->{_window}, $d->get("Select a window with your mouse") );
@@ -107,12 +115,17 @@ sub create_toolbar {
 
 	#button section
 	#--------------------------------------
-	my $image_window_sect = Gtk2::Image->new_from_pixbuf(
-		Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-			"$shutter_root/share/shutter/resources/icons/sel_window_section.svg",
-			Gtk2::IconSize->lookup('large-toolbar')
-		)
-	);
+	my $image_window_sect;
+	if($icontheme->has_icon('gdm-xnest')){
+		$image_window_sect = Gtk2::Image->new_from_icon_name( 'gdm-xnest', 'large-toolbar' );		
+	}else{
+		$image_window_sect = Gtk2::Image->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+				"$shutter_root/share/shutter/resources/icons/sel_window_section.svg",
+				Gtk2::IconSize->lookup('large-toolbar')
+			)
+		);
+	}
 	$self->{_section} = Gtk2::ToolButton->new( $image_window_sect, $d->get("Section") );
 
 	$tooltips->set_tip( $self->{_section},
@@ -122,21 +135,31 @@ sub create_toolbar {
 
 	#button web
 	#--------------------------------------
-	my $image_web = Gtk2::Image->new_from_pixbuf(
-		Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-			"$shutter_root/share/shutter/resources/icons/web_image.svg", Gtk2::IconSize->lookup('large-toolbar')
-		)
-	);
+	my $image_web;
+	if($icontheme->has_icon('applications-internet')){
+		$image_web = Gtk2::Image->new_from_icon_name( 'applications-internet', 'large-toolbar' );		
+	}else{
+		$image_web = Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+				"$shutter_root/share/shutter/resources/icons/web_image.svg", Gtk2::IconSize->lookup('large-toolbar')
+			)
+		);
+	}
 	$self->{_web} = Gtk2::MenuToolButton->new( $image_web, $d->get("Web") );
 
 	#--------------------------------------
 
 	#button edit
 	#--------------------------------------
-	my $image_edit = Gtk2::Image->new_from_pixbuf
-		(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/draw.svg", Gtk2::IconSize->lookup('large-toolbar') )
+	my $image_edit;
+	if($icontheme->has_icon('applications-graphics')){
+		$image_edit = Gtk2::Image->new_from_icon_name( 'applications-graphics', 'large-toolbar' );		
+	}else{
+		$image_edit = Gtk2::Image->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file_at_size( 
+			"$shutter_root/share/shutter/resources/icons/draw.svg", Gtk2::IconSize->lookup('large-toolbar') )
 		);
+	}	
 	$self->{_edit} = Gtk2::ToolButton->new( $image_edit, $d->get("Edit") );
 
 	#--------------------------------------	
@@ -151,7 +174,6 @@ sub create_toolbar {
 	#create the toolbar
 	$self->{_toolbar} = Gtk2::Toolbar->new;
 	$self->{_toolbar}->set_show_arrow(TRUE);
-	$self->{_toolbar}->set_style('both');
 	$self->{_toolbar}->set_icon_size('large-toolbar');
 	$self->{_toolbar}->insert( $self->{_select},             -1 );
 	$self->{_toolbar}->insert( Gtk2::SeparatorToolItem->new, -1 );

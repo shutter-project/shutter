@@ -63,6 +63,10 @@ sub new {
 	#tooltips
 	$self->{_tooltips} = Gtk2::Tooltips->new;
 
+	#icontheme to determine if icons exist or not
+	#in some cases we deliver fallback icons
+	$self->{_icontheme} = Gtk2::IconTheme->get_default;
+
 	bless $self, $class;
 	return $self;
 }
@@ -84,6 +88,11 @@ sub set_gettext {
 		$self->{_gettext_object} = shift;
 	}
 	return $self->{_gettext_object};
+}
+
+sub get_theme {
+	my $self = shift;
+	return $self->{_icontheme};
 }
 
 sub get_tooltips {
