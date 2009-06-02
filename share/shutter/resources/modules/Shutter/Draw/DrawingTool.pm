@@ -1910,7 +1910,7 @@ sub clear_item_from_canvas {
 		foreach (@items_to_delete) {
 			eval{
 				$self->store_to_xdo_stack($_, 'delete', 'undo');
-				$_->set('visibility' => 'GOO_CANVAS_ITEM_HIDDEN');
+				$_->set('visibility' => 'hidden');
 				$self->handle_rects('hide', $_);
 				$self->handle_embedded('hide', $_);
 			};
@@ -2068,12 +2068,15 @@ sub xdo {
 	return FALSE unless $item;
 	return FALSE unless $action;
 
+	my $reverse_action = 'modify';
+	$reverse_action = 'delete' if $action eq 'create';
+	$reverse_action = 'create' if $action eq 'delete';
 	if($xdo eq 'undo'){
 		#store to redo stack
-		$self->store_to_xdo_stack($item, $action, 'redo'); 	
+		$self->store_to_xdo_stack($item, $reverse_action, 'redo'); 	
 	}elsif($xdo eq 'redo'){
 		#store to undo stack
-		$self->store_to_xdo_stack($item, $action, 'undo'); 
+		$self->store_to_xdo_stack($item, $reverse_action, 'undo'); 
 	}
 	
 	#finally undo the last event
@@ -2200,29 +2203,18 @@ sub xdo {
 		$self->handle_embedded( 'update', $self->{_items}{$item} );		
 		$self->{_current_item} = $item;	
 		
-	}elsif($action eq 'delete' || $action eq 'create'){
-	
-		#simply switch visibility flag
-		if($self->{_items}{$item}->get('visibility') eq 'visible'){
+	}elsif($action eq 'delete'){ 
 
+			$self->{_items}{$item}->set('visibility' => 'visible');
+			$self->handle_embedded( 'update', $self->{_items}{$item} );	
+	
+	}elsif($action eq 'create'){
+	
 			$self->{_items}{$item}->set('visibility' => 'hidden');
 			$self->handle_embedded( 'hide', $self->{_items}{$item} );
-			
-		}else{
-		
-			$self->{_items}{$item}->set('visibility' => 'visible');			
-			
-			#activate item
-			$self->{_last_item}        = $self->{_current_item};		
-			$self->{_current_item} 	   = $item;
-			$self->{_current_new_item} = undef;
 
-			$self->handle_rects( 'update', $self->{_items}{$item} );
-			$self->handle_embedded( 'update', $self->{_items}{$item} );
-		
-		}
 	}
-	
+		
 	#apply item properties to widgets
 	#line width, fill color, stroke color etc.
 	$self->set_and_save_drawing_properties($self->{_current_item}, FALSE);	
