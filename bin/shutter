@@ -88,7 +88,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.471";
+use constant REV                	=> "Rev.472";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -2423,12 +2423,16 @@ sub fct_create_tab {
 		$filename_label->set_markup( "<b>" . $d->get("Filename") . "</b>" );
 		$session_screens{$key}->{'filename_label'} = Gtk2::Label->new();
 		$session_screens{$key}->{'filename_label'}->set_line_wrap(TRUE);
+		$session_screens{$key}->{'filename_label'}->set_line_wrap_mode ('char');
+		$session_screens{$key}->{'filename_label'}->set_width_chars (20);
 		$session_screens{$key}->{'filename_label'}->set_single_line_mode(FALSE);
 
 		my $folder_label = Gtk2::Label->new;
 		$folder_label->set_markup( "<b>" . $d->get("Directory") . "</b>" );
 		$session_screens{$key}->{'folder_label'} = Gtk2::Label->new();
 		$session_screens{$key}->{'folder_label'}->set_line_wrap(TRUE);
+		$session_screens{$key}->{'folder_label'}->set_line_wrap_mode ('char');
+		$session_screens{$key}->{'folder_label'}->set_width_chars (20);
 		$session_screens{$key}->{'folder_label'}->set_single_line_mode(FALSE);
 
 		my $mime_type_label = Gtk2::Label->new;
@@ -2448,12 +2452,24 @@ sub fct_create_tab {
 		my $image_sw = Gtk2::ImageView::ScrollWin->new($session_screens{$key}->{'image'});
 		
 		#packing
-		my $tab_infos_sizegroup = Gtk2::SizeGroup->new('vertical');
-		$tab_infos_sizegroup->add_widget( $session_screens{$key}->{'filename_label'} );
-		$tab_infos_sizegroup->add_widget( $session_screens{$key}->{'folder_label'} );
-		$tab_infos_sizegroup->add_widget( $session_screens{$key}->{'size_label'} );
-		$tab_infos_sizegroup->add_widget( $session_screens{$key}->{'mime_type_label'} );
-		$tab_infos_sizegroup->add_widget( $session_screens{$key}->{'geometry_label'} );
+		#~ my $tab_infos_sizegroup = Gtk2::SizeGroup->new('vertical');
+		#~ $tab_infos_sizegroup->add_widget( $session_screens{$key}->{'filename_label'} );
+		#~ $tab_infos_sizegroup->add_widget( $session_screens{$key}->{'folder_label'} );
+		#~ $tab_infos_sizegroup->add_widget( $session_screens{$key}->{'size_label'} );
+		#~ $tab_infos_sizegroup->add_widget( $session_screens{$key}->{'mime_type_label'} );
+		#~ $tab_infos_sizegroup->add_widget( $session_screens{$key}->{'geometry_label'} );
+
+		#~ $session_screens{$key}->{'filename_label'}->set_alignment( 0, 0.5 );
+		#~ $session_screens{$key}->{'folder_label'}->set_alignment( 0, 0.5 );
+		#~ $session_screens{$key}->{'mime_type_label'}->set_alignment( 0, 0.5 );
+		#~ $session_screens{$key}->{'size_label'}->set_alignment( 0, 0.5 );
+		#~ $session_screens{$key}->{'geometry_label'}->set_alignment( 0, 0.5 );
+
+		#~ $filename_label->set_alignment( 0, 0.5 );
+		#~ $folder_label->set_alignment( 0, 0.5 );
+		#~ $mime_type_label->set_alignment( 0, 0.5 );
+		#~ $size_label->set_alignment( 0, 0.5 );
+		#~ $geometry_label->set_alignment( 0, 0.5 );
 
 		$vbox_fileinfos->pack_start( $filename_label,                             FALSE, TRUE, 5 );
 		$vbox_fileinfos->pack_start( $session_screens{$key}->{'filename_label'},  FALSE, TRUE, 2 );
@@ -2466,10 +2482,15 @@ sub fct_create_tab {
 		$vbox_fileinfos->pack_start( $geometry_label,                             FALSE, TRUE, 10 );
 		$vbox_fileinfos->pack_start( $session_screens{$key}->{'geometry_label'},  FALSE, TRUE, 2 );
 
-		$hbox_tab_file->pack_start( $image_sw, TRUE,  TRUE, 0 );
-		$hbox_tab_file->pack_start( $vbox_fileinfos,                   FALSE, TRUE, 10 );
+		#~ $hbox_tab_file->pack_start( $image_sw, TRUE,  TRUE, 0 );
+		#~ $hbox_tab_file->pack_start( $vbox_fileinfos,                   FALSE, TRUE, 10 );
 
-		$vbox_tab->pack_start( $hbox_tab_file, TRUE, TRUE, 0 );
+		my $vpaned = Gtk2::HPaned->new;
+		$vpaned->add2($image_sw);
+		$vpaned->add1($vbox_fileinfos);
+
+		#~ $vbox_tab->pack_start( $hbox_tab_file, TRUE, TRUE, 0 );
+		$vbox_tab->pack_start( $vpaned, TRUE, TRUE, 0 );
 
 		$vbox->pack_start_defaults($vbox_tab);
 		
@@ -7084,8 +7105,48 @@ sub dlg_website {
 	my $website_hbox2 = Gtk2::HBox->new();
 
 	my $website = Gtk2::Entry->new;
-	$website->set_text("http://");
+	$website->set_text("http://www.");
 	$website->set_activates_default(TRUE);
+	
+	#try to use Google::Search for autocompletion
+	my $api_key = "ABQIAAAA1MzQeGgjv24cQH6It97vbhQ7KJkd-ijgFr7toX7MFGWAtZ4alhQBHxiKkuXsCsTQklemxTfVOgjxGg";
+	my $referer = "http://shutter-project.org";
+	my $web_compl = Gtk2::EntryCompletion->new;
+	$web_compl->set_popup_completion (TRUE);
+	$web_compl->set_text_column (0);
+	my $model = Gtk2::ListStore->new( 'Glib::String' );
+	$web_compl->set_model($model);
+
+	eval{
+		require Google::Search;	
+	};
+	unless($@){
+		$website->set_completion ($web_compl);
+		$website->signal_connect('changed' => sub{
+
+				#generate first preview at startup
+				Glib::Idle->add (
+					sub{
+						
+						#clear model for each search	
+						$model->clear;
+						
+						my $search = Google::Search->Web( q => $website->get_text, key => $api_key, referer => $referer);
+						my $result = $search->first;
+						
+						#append first 3 results to model
+						#we take 3 because of performace reasons here
+						while ($result) {
+							last if $result->number == 3;
+							$model->set( $model->append, 0, $result->uri );
+							$result = $result->next;
+						}
+						
+					});	
+		
+			return FALSE;	
+		});
+	}
 
 	my $clipboard_string = $clipboard->wait_for_text;
 	print "Content of clipboard is: $clipboard_string\n"

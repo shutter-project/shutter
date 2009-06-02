@@ -396,6 +396,9 @@ sub fct_ret_actions_menu{
 	my $d           = shift;
 	my $shutter_root = shift;
 	
+	#Icontheme
+	my $icontheme = $self->{_common}->get_theme;
+	
 	$self->{_menu_actions} = Gtk2::Menu->new();
 
 	$self->{_menuitem_reopen_default} = Gtk2::ImageMenuItem->new_with_mnemonic( 
@@ -432,11 +435,15 @@ sub fct_ret_actions_menu{
 
 	$self->{_menuitem_draw} = Gtk2::ImageMenuItem->new_from_stock( 'gtk-edit' );
 	$self->{_menuitem_draw}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>E'), qw/visible/ ) if $accel_group;
-	$self->{_menuitem_draw}->set_image(
-		Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/draw.svg", Gtk2::IconSize->lookup('menu') )
-		)
-	);
+	if($icontheme->has_icon('applications-graphics')){
+		$self->{_menuitem_draw}->set_image( Gtk2::Image->new_from_icon_name( 'applications-graphics', 'menu' ) );		
+	}else{
+		$self->{_menuitem_draw}->set_image(
+			Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/draw.svg", Gtk2::IconSize->lookup('menu') )
+			)
+		);
+	}
 	
 	$self->{_menuitem_draw}->set_sensitive(FALSE);
 	$self->{_menuitem_draw}->set_name('item-draw');

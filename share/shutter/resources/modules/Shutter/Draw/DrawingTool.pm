@@ -1443,6 +1443,10 @@ sub event_item_on_motion_notify {
 			#apply item properties to widgets
 			#line width, fill color, stroke color etc.
 			$self->set_and_save_drawing_properties($item, FALSE);
+
+			#add to undo stack
+			$self->store_to_xdo_stack($self->{_current_item} , 'create', 'undo');
+
 		}else{
 			$item = $self->{_current_item};	
 		}
@@ -1467,7 +1471,7 @@ sub event_item_on_motion_notify {
 		
 		}
 		$self->{_items}{$item}->set( points => Goo::Canvas::Points->new( $self->{_items}{$item}{'points'} ) );
-		
+
 		#new item is already on the canvas with small initial size
 		#drawing is like resizing, so set up for resizing
 	} elsif (
@@ -1563,7 +1567,9 @@ sub event_item_on_motion_notify {
 			$ratio = $self->{_items}{$curr_item}->get('width')/$self->{_items}{$curr_item}->get('height') if $self->{_items}{$curr_item}->get('height') != 0;
 
 			foreach ( keys %{ $self->{_items}{$curr_item} } ) {
-
+				
+				next if $_ eq 'type';
+				
 				#fancy resizing using our little resize boxes
 				if ( $item == $self->{_items}{$curr_item}{$_} ) {
 					
@@ -1848,7 +1854,7 @@ sub get_child_item {
 
 	#notice (special shapes like numbered ellipse do deliver ellipse here => NOT text!)
 	#therefore the order matters
-	if (exists $self->{_items}{$item}){
+	if (defined $item && exists $self->{_items}{$item}){
 		$child = $self->{_items}{$item}{text}    if exists $self->{_items}{$item}{text};
 		$child = $self->{_items}{$item}{ellipse} if exists $self->{_items}{$item}{ellipse};
 		$child = $self->{_items}{$item}{image}   if exists $self->{_items}{$item}{image};
@@ -1916,13 +1922,15 @@ sub store_to_xdo_stack {
 	my ($self, $item, $action, $xdo) = @_;
 
 	return FALSE unless $item; 
+
+	print "xdo - $item\n";
 	
 	my %do_info = ();
 	#general properties for ellipse, rectangle, image, text
 	if($item->isa('Goo::Canvas::Rect')){
 
 		my $stroke_pattern = $self->create_color( $self->{_items}{$item}{stroke_color}, $self->{_items}{$item}{stroke_color_alpha} ) if exists $self->{_items}{$item}{stroke_color};
-		my $fill_pattern   = $self->create_color( $self->{_items}{$item}{fill_color},   $self->{_items}{$item}{fill_color_alpha} ) if exists $self->{_items}{$item}{fill_color};
+		my $fill_pattern   = $self->create_color( $self->{_items}{$item}{fill_color}, $self->{_items}{$item}{fill_color_alpha} ) if exists $self->{_items}{$item}{fill_color};
 		my $line_width = $self->{_items}{$item}->get('line-width');
 
 		#rectangle props
@@ -1998,6 +2006,9 @@ sub xdo {
 
 	my $item = $do->{'item'};
 	my $action = $do->{'action'};
+
+	return FALSE unless $item;
+	return FALSE unless $action;
 
 	if($xdo eq 'undo'){
 		#store to redo stack
@@ -3224,12 +3235,14 @@ sub move_all {
 
 sub deactivate_all {
 	my $self    = shift;
-	my $exclude = shift;
+	my $exclude = shift || 0;
 
 	print "deactivate_all\n";
 
 	foreach ( keys %{ $self->{_items} } ) {
-
+		
+		next if $_ eq 'type';
+		
 		my $item = $self->{_items}{$_};
 
 		next if $item == $exclude;
@@ -3839,15 +3852,28 @@ sub event_item_on_button_release {
 	if ( $child && $child->isa('Goo::Canvas::Image') ){
 		my $parent = $self->get_parent_item($child);
 		
-		my $copy = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($self->{_items}{$parent}{orig_pixbuf_filename},$self->{_items}{$parent}->get('width'), $self->{_items}{$parent}->get('height'), FALSE);
-				
-		$self->{_items}{$parent}{image}->set(
-			'x'      => int $self->{_items}{$parent}->get('x'),
-			'y'      => int $self->{_items}{$parent}->get('y'),
-			'width'  => $self->{_items}{$parent}->get('width'),
-			'height' => $self->{_items}{$parent}->get('height'),
-			'pixbuf' => $copy
-		);
+		my $copy = undef;
+		eval{
+			$copy = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($self->{_items}{$parent}{orig_pixbuf_filename},$self->{_items}{$parent}->get('width'), $self->{_items}{$parent}->get('height'), FALSE);
+		};
+		unless($@){		
+			$self->{_items}{$parent}{image}->set(
+				'x'      => int $self->{_items}{$parent}->get('x'),
+				'y'      => int $self->{_items}{$parent}->get('y'),
+				'width'  => $self->{_items}{$parent}->get('width'),
+				'height' => $self->{_items}{$parent}->get('height'),
+				'pixbuf' => $copy
+			);
+		}else{
+			my $response = $self->{_dialogs}->dlg_error_message( 
+				sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $self->{_items}{$parent}{orig_pixbuf_filename} . "'"),
+				$self->{_d}->get( "There was an error opening the image." ),
+				undef, undef, undef,
+				undef, undef, undef,
+				$@
+			);
+			$self->abort_current_mode;											
+		}	
 	}	
 
 	$self->set_drawing_action(int($self->{_current_mode}/10));
@@ -3929,6 +3955,7 @@ sub event_item_on_enter_notify {
 
 			if ( $self->{_current_mode_descr} eq "select" ) {
 				foreach ( keys %{ $self->{_items}{$curr_item} } ) {
+					next if $_ eq 'type';
 					if ( $item == $self->{_items}{$curr_item}{$_} ) {
 						$cursor = Gtk2::Gdk::Cursor->new($_);
 						$self->{_canvas}->window->set_cursor($cursor);
@@ -4209,14 +4236,11 @@ sub ret_objects_menu {
 		unless($@){
 
 			my $small_image = Gtk2::Image->new_from_pixbuf( $orig_pixbuf->scale_down_pixbuf (Gtk2::IconSize->lookup('menu')));
-			#~ my $small_image_button = Gtk2::Image->new_from_pixbuf( $orig_pixbuf->scale_down_pixbuf (Gtk2::IconSize->lookup('menu')));
 			my $small_image_button = Gtk2::Image->new_from_pixbuf( $small_image->get_pixbuf );
 
 			#create items
 			my $new_item = Gtk2::ImageMenuItem->new_with_label($short);
 			$new_item->set_image($small_image);
-
-			#~ &fct_load_pixbuf_async ($small_image, $filename, $new_item);
 
 			#init
 			unless ( $button->get_icon_widget ) {
@@ -4244,7 +4268,8 @@ sub ret_objects_menu {
 				undef, undef, undef,
 				undef, undef, undef,
 				$@
-			);		
+			);
+			$self->abort_current_mode;		
 		} 
 
 	}
@@ -4301,11 +4326,10 @@ sub ret_objects_menu {
 				
 				my $orig_pixbuf;
 				eval{
-					$orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($new_file);	
+					$self->{_current_pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($new_file);	
 				};
 				#check if there is any error while loading this file
 				unless($@){
-					$self->{_current_pixbuf}          = $orig_pixbuf->copy;
 					$self->{_current_pixbuf_filename} = $new_file;
 					$button->set_icon_widget($small_image_button);
 					$button->show_all;
@@ -4317,7 +4341,8 @@ sub ret_objects_menu {
 						undef, undef, undef,
 						undef, undef, undef,
 						$@
-					);											
+					);
+					$self->abort_current_mode;											
 				}
 				
 				$fs->destroy();
@@ -4424,53 +4449,48 @@ sub import_from_session {
 
 	foreach my $key ( sort keys %import_hash ) {
 
-		my $orig_pixbuf;
-		eval{
-			$orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $import_hash{$key}->{'long'} );
-		};
-		unless($@){
+		#try to generate a new thumbnail
+		my $thumb = $self->{_thumbs}->get_thumbnail(
+			$import_hash{$key}->{'uri'}->to_string,
+			$import_hash{$key}->{'mime_type'},
+			$import_hash{$key}->{'mtime'},
+			0.2
+		);			
 
-			#try to generate a new thumbnail
-			my $thumb = $self->{_thumbs}->get_thumbnail(
-				$import_hash{$key}->{'uri'}->to_string,
-				$import_hash{$key}->{'mime_type'},
-				$import_hash{$key}->{'mtime'},
-				0.2
-			);			
+		my $small_image = Gtk2::Image->new_from_pixbuf( $thumb );
+		my $small_image_button = Gtk2::Image->new_from_pixbuf( $small_image->get_pixbuf );
 
-			my $small_image = Gtk2::Image->new_from_pixbuf( $thumb );
-			#~ my $small_image_button = Gtk2::Image->new_from_pixbuf( $orig_pixbuf->scale_down_pixbuf (Gtk2::IconSize->lookup('menu')));
-			my $small_image_button = Gtk2::Image->new_from_pixbuf( $small_image->get_pixbuf );
+		my $screen_menu_item = Gtk2::ImageMenuItem->new_with_label( $import_hash{$key}->{'short'} );
+		$screen_menu_item->set_image($small_image);
 
-			my $screen_menu_item = Gtk2::ImageMenuItem->new_with_label( $import_hash{$key}->{'short'} );
-			$screen_menu_item->set_image($small_image);
+		#set sensitive == FALSE if image eq current file
+		$screen_menu_item->set_sensitive(FALSE)
+			if $import_hash{$key}->{'long'} eq $self->{_filename};
 
-			#set sensitive == FALSE if image eq current file
-			$screen_menu_item->set_sensitive(FALSE)
-				if $import_hash{$key}->{'long'} eq $self->{_filename};
-
-			$screen_menu_item->signal_connect(
-				'activate' => sub {
-					$self->{_current_pixbuf}          = $orig_pixbuf->copy;
-					$self->{_current_pixbuf_filename} = $import_hash{$key}->{'long'};
-					$button->set_icon_widget($small_image_button);
-					$button->show_all;
-					$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
+		$screen_menu_item->signal_connect(
+			'activate' => sub {
+				eval{
+					$self->{_current_pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file( $import_hash{$key}->{'long'} );
+				};
+				unless($@){
+						$self->{_current_pixbuf_filename} = $import_hash{$key}->{'long'};
+						$button->set_icon_widget($small_image_button);
+						$button->show_all;
+						$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
+				}else{
+					my $response = $self->{_dialogs}->dlg_error_message( 
+						sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $import_hash{$key}->{'long'} . "'" ),
+						$self->{_d}->get( "There was an error opening the image." ),
+						undef, undef, undef,
+						undef, undef, undef,
+						$@
+					);
+					$self->abort_current_mode;				
 				}
-			);
+			}
+		);
 
-			$menu_session_objects->append($screen_menu_item);
-
-		}else{
-			my $response = $self->{_dialogs}->dlg_error_message( 
-				sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $import_hash{$key}->{'long'} . "'" ),
-				$self->{_d}->get( "There was an error opening the image." ),
-				undef, undef, undef,
-				undef, undef, undef,
-				$@
-			);				
-		}
-
+		$menu_session_objects->append($screen_menu_item);
 	}
 
 	$menu_session_objects->show_all;
@@ -4519,8 +4539,20 @@ sub change_cursor_to_current_pixbuf {
 	
 	#very big image usually don't work as a cursor (no error though??)
 	if($self->{_current_pixbuf}->get_width < 1000 && $self->{_current_pixbuf}->get_height < 1000 ){
-		my $cpixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($self->{_current_pixbuf_filename}, Gtk2::Gdk::Display->get_default->get_maximal_cursor_size, TRUE);
-		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default, $cpixbuf, undef, undef );
+		eval{
+			my $cpixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($self->{_current_pixbuf_filename}, Gtk2::Gdk::Display->get_default->get_maximal_cursor_size, TRUE);
+			$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default, $cpixbuf, undef, undef );
+		};				
+		if($@){
+			my $response = $self->{_dialogs}->dlg_error_message( 
+				sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $self->{_current_pixbuf_filename} . "'" ),
+				$self->{_d}->get( "There was an error opening the image." ),
+				undef, undef, undef,
+				undef, undef, undef,
+				$@
+			);
+			$self->abort_current_mode;		
+		}
 	}else{
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
 				Gtk2::Gdk::Display->get_default,
