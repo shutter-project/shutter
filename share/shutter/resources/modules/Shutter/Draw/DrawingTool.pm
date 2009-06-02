@@ -1947,12 +1947,17 @@ sub store_to_xdo_stack {
 		my $arrow_width		= undef; 
 		my $arrow_length	= undef;
 		my $tip_length		= undef;
+		
+		#text
+		my $text			= undef;
 
 		if ( exists $self->{_items}{$item}{ellipse} ) {
 			
 			$line_width = $self->{_items}{$item}{ellipse}->get('line-width');
 			
 		}elsif ( exists $self->{_items}{$item}{text} ) {
+
+			$text = $self->{_items}{$item}{text}->get('text');
 
 		}elsif ( exists $self->{_items}{$item}{image} ) {
 
@@ -1997,7 +2002,8 @@ sub store_to_xdo_stack {
 			'start-arrow'    	=> $start_arrow,
 			'arrow-length'	 	=> $arrow_length,
 			'arrow-width'	 	=> $arrow_width,
-			'arrow-tip-length'	=> $tip_length,				
+			'arrow-tip-length'	=> $tip_length,	
+			'text'				=> $text,			
 		);
 
 	#polyline specific properties to hash
@@ -2088,6 +2094,7 @@ sub xdo {
 
 			}elsif ( exists $self->{_items}{$item}{text} ) {
 
+				$text = $self->{_items}{$item}{text}->set('text' => $do->{'text'});
 
 				#restore color and opacity as well
 				$self->{_items}{$item}{stroke_color}       = $do->{'stroke_color'};
