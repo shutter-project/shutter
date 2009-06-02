@@ -1950,10 +1950,19 @@ sub store_to_xdo_stack {
 		
 		#text
 		my $text			= undef;
+		
+		#numbered ellipse
+		my $digit			= undef;
 
 		if ( exists $self->{_items}{$item}{ellipse} ) {
 			
 			$line_width = $self->{_items}{$item}{ellipse}->get('line-width');
+			
+			#numbered ellipse
+			if ( exists $self->{_items}{$item}{text} ) {
+				$text 	= $self->{_items}{$item}{text}->get('text');
+				$digit 	= $self->{_items}{$item}{text}{digit};
+			}
 			
 		}elsif ( exists $self->{_items}{$item}{text} ) {
 
@@ -2003,7 +2012,8 @@ sub store_to_xdo_stack {
 			'arrow-length'	 	=> $arrow_length,
 			'arrow-width'	 	=> $arrow_width,
 			'arrow-tip-length'	=> $tip_length,	
-			'text'				=> $text,			
+			'text'				=> $text,
+			'digit'				=> $digit,			
 		);
 
 	#polyline specific properties to hash
@@ -2081,10 +2091,19 @@ sub xdo {
 			if ( exists $self->{_items}{$item}{ellipse} ) {
 
 				$self->{_items}{$item}{ellipse}->set(
-					'fill-pattern' => $do->{'fill-pattern'},
-					'stroke-pattern' => $do->{'stroke-pattern'},
-					'line-width' => $do->{'line-width'},	
+					'fill-pattern' 		=> $do->{'fill-pattern'},
+					'stroke-pattern' 	=> $do->{'stroke-pattern'},
+					'line-width' 		=> $do->{'line-width'},	
 				);
+				
+				#numbered ellipse
+				if ( exists $self->{_items}{$item}{text} ) {
+					$self->{_items}{$item}{text}->set(
+						'text' 				=> $do->{'text'},
+						'fill-pattern' 		=> $do->{'stroke-pattern'},
+					);
+					$self->{_items}{$item}{text}{digit} = $do->{'digit'};
+				}
 
 				#restore color and opacity as well
 				$self->{_items}{$item}{fill_color}         = $do->{'fill_color'};
@@ -2094,7 +2113,10 @@ sub xdo {
 
 			}elsif ( exists $self->{_items}{$item}{text} ) {
 
-				$text = $self->{_items}{$item}{text}->set('text' => $do->{'text'});
+				$self->{_items}{$item}{text}->set(
+					'text' 				=> $do->{'text'},
+					'fill-pattern' 		=> $do->{'stroke-pattern'},
+				);
 
 				#restore color and opacity as well
 				$self->{_items}{$item}{stroke_color}       = $do->{'stroke_color'};
@@ -2132,9 +2154,9 @@ sub xdo {
 			}else{
 
 				$self->{_items}{$item}->set(
-					'fill-pattern' => $do->{'fill-pattern'},
-					'stroke-pattern' => $do->{'stroke-pattern'},
-					'line-width' => $do->{'line-width'},	
+					'fill-pattern' 		=> $do->{'fill-pattern'},
+					'stroke-pattern' 	=> $do->{'stroke-pattern'},
+					'line-width' 		=> $do->{'line-width'},	
 				);
 
 				#restore color and opacity as well
@@ -2149,12 +2171,28 @@ sub xdo {
 		#polyline specific properties
 		}elsif($item->isa('Goo::Canvas::Polyline')){
 			
-			$self->{_items}{$item}->set(
-				'stroke-pattern' => $do->{'stroke-pattern'},
-				'line-width' 	 => $do->{'line-width'},	
-				'points' 		 => $do->{'points'},
-				'transform'		 => $do->{'transform'},
-			);
+			#if pattern exists
+			#e.g. censor tool does not have a pattern
+			if($do->{'stroke-pattern'}){
+					
+				$self->{_items}{$item}->set(
+					'stroke-pattern' => $do->{'stroke-pattern'},
+					'line-width' 	 => $do->{'line-width'},	
+					'points' 		 => $do->{'points'},
+					'transform'		 => $do->{'transform'},
+				);
+
+				$self->{_items}{$item}{stroke_color}       = $do->{'stroke_color'};
+				$self->{_items}{$item}{stroke_color_alpha} = $do->{'stroke_color_alpha'};	
+				
+			}else{
+
+				$self->{_items}{$item}->set(
+					'line-width' 	 => $do->{'line-width'},	
+					'points' 		 => $do->{'points'},
+					'transform'		 => $do->{'transform'},
+				);
+			}	
 			
 		}		
 		
@@ -2167,8 +2205,6 @@ sub xdo {
 		#simply switch visibility flag
 		if($self->{_items}{$item}->get('visibility') eq 'visible'){
 
-			$self->deactivate_all;
-		
 			$self->{_items}{$item}->set('visibility' => 'hidden');
 			$self->handle_embedded( 'hide', $self->{_items}{$item} );
 			
@@ -2197,6 +2233,8 @@ sub xdo {
 
 	$self->{_uimanager}->get_widget("/ToolBar/Undo")->set_sensitive(scalar @{ $self->{_undo} }) if defined $self->{_undo};
 	$self->{_uimanager}->get_widget("/ToolBar/Redo")->set_sensitive(scalar @{ $self->{_redo} }) if defined $self->{_redo};	
+
+	$self->deactivate_all;
 	
 	return TRUE;	
 }
@@ -2404,7 +2442,7 @@ sub event_item_on_button_press {
 		#real shape
 		if ( exists $self->{_items}{$item} ) {
 
-			unless ($item == $self->{_current_item}){
+			unless (defined $self->{_current_item} && $item == $self->{_current_item}){
 
 				$self->{_last_item}        = $self->{_current_item};		
 				$self->{_current_item} 	   = $item;
@@ -2429,6 +2467,8 @@ sub event_item_on_button_press {
 	
 	#left mouse click to drag, resize, create or delelte items
 	if ( $ev->type eq 'button-press' && $ev->button == 1 ) {
+
+		$self->deactivate_all;
 
 		my $root   = $self->{_canvas}->get_root_item;
 
@@ -4623,7 +4663,7 @@ sub set_drawing_action {
 	my $index = shift;
 
 	print "set_drawing_action\n";
-	
+		
 	my $item_index = 0;
 	my $toolbar = $self->{_uimanager}->get_widget("/ToolBarDrawing");
 	for ( my $i = 0; $i < $toolbar->get_n_items; $i++ ) {
