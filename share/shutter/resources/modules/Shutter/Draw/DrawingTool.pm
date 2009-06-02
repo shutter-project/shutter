@@ -1430,6 +1430,12 @@ sub event_item_on_motion_notify {
 				unless $item == $self->{_canvas_bg};
 		}
 
+		#add to undo stack
+		if($item->{dragging_start}){
+			$self->store_to_xdo_stack($item, 'modify', 'undo');
+			$item->{dragging_start} = FALSE;
+		}
+
 		#freehand line
 	} elsif ( ($self->{_current_mode_descr} eq "freehand" || $self->{_current_mode_descr} eq "highlighter" ||$self->{_current_mode_descr} eq "censor") && $ev->state >= 'button1-mask' ) {
 
@@ -1932,32 +1938,68 @@ sub store_to_xdo_stack {
 		my $stroke_pattern = $self->create_color( $self->{_items}{$item}{stroke_color}, $self->{_items}{$item}{stroke_color_alpha} ) if exists $self->{_items}{$item}{stroke_color};
 		my $fill_pattern   = $self->create_color( $self->{_items}{$item}{fill_color}, $self->{_items}{$item}{fill_color_alpha} ) if exists $self->{_items}{$item}{fill_color};
 		my $line_width = $self->{_items}{$item}->get('line-width');
-
-		#rectangle props
-		%do_info = (
-			'item' => $self->{_items}{$item},
-			'action' => $action,
-			'x' => $self->{_items}{$item}->get('x'),
-			'y' => $self->{_items}{$item}->get('y'),
-			'width' => $self->{_items}{$item}->get('width'),
-			'height' => $self->{_items}{$item}->get('height'),
-			'fill-pattern' => $fill_pattern,
-			'stroke-pattern' => $stroke_pattern,
-			'line-width' => $line_width,
-		);
+		
+		#line
+		my $mirrored_w 		= undef;
+		my $mirrored_h 		= undef;
+		my $end_arrow		= undef;
+		my $start_arrow		= undef; 
+		my $arrow_width		= undef; 
+		my $arrow_length	= undef;
+		my $tip_length		= undef;
 
 		if ( exists $self->{_items}{$item}{ellipse} ) {
-
+			
+			$line_width = $self->{_items}{$item}{ellipse}->get('line-width');
+			
 		}elsif ( exists $self->{_items}{$item}{text} ) {
 
 		}elsif ( exists $self->{_items}{$item}{image} ) {
 
 		}elsif ( exists $self->{_items}{$item}{line} ) {
+			
+			#line width
+			$line_width = $self->{_items}{$item}{line}->get('line-width');		
+			
+			#arrow properties
+			$end_arrow 		= $self->{_items}{$item}{line}->get('end-arrow');
+			$start_arrow 	= $self->{_items}{$item}{line}->get('start-arrow');
+			$arrow_width 	= $self->{_items}{$item}{line}->get('arrow-width');
+			$arrow_length 	= $self->{_items}{$item}{line}->get('arrow-length');
+			$tip_length		= $self->{_items}{$item}{line}->get('arrow-tip-length');
+			
+			#mirror flag
+			$mirrored_w = $self->{_items}{$item}{mirrored_w};
+			$mirrored_h = $self->{_items}{$item}{mirrored_h};
 		
 		}else{
 		
-		}			
-		
+		}
+
+		#item props
+		%do_info = (
+			'item' 				=> $self->{_items}{$item},
+			'action' 			=> $action,
+			'x' 				=> $self->{_items}{$item}->get('x'),
+			'y' 				=> $self->{_items}{$item}->get('y'),
+			'width' 			=> $self->{_items}{$item}->get('width'),
+			'height' 			=> $self->{_items}{$item}->get('height'),
+			'stroke_color'		=> $self->{_items}{$item}{stroke_color},
+			'stroke_color_alpha'=> $self->{_items}{$item}{stroke_color_alpha},
+			'fill_color'		=> $self->{_items}{$item}{fill_color},
+			'fill_color_alpha'	=> $self->{_items}{$item}{fill_color_alpha},
+			'fill-pattern' 		=> $fill_pattern,
+			'stroke-pattern' 	=> $stroke_pattern,
+			'line-width' 		=> $line_width,
+			'mirrored_w' 		=> $mirrored_w,
+			'mirrored_h' 		=> $mirrored_h,
+			'end-arrow'      	=> $end_arrow,		
+			'start-arrow'    	=> $start_arrow,
+			'arrow-length'	 	=> $arrow_length,
+			'arrow-width'	 	=> $arrow_width,
+			'arrow-tip-length'	=> $tip_length,				
+		);
+
 	#polyline specific properties to hash
 	}elsif($item->isa('Goo::Canvas::Polyline')){
 
@@ -2022,16 +2064,80 @@ sub xdo {
 	if($action eq 'modify'){
 
 		if($item->isa('Goo::Canvas::Rect')){
+
+				$self->{_items}{$item}->set(
+					'x' => $do->{'x'},
+					'y' => $do->{'y'},
+					'width' => 	$do->{'width'},
+					'height' => $do->{'height'},
+				);	
 			
-			$self->{_items}{$item}->set(
-				'x' => $do->{'x'},
-				'y' => $do->{'y'},
-				'width' => 	$do->{'width'},
-				'height' => $do->{'height'},
-				'fill-pattern' => $do->{'fill-pattern'},
-				'stroke-pattern' => $do->{'stroke-pattern'},
-				'line-width' => $do->{'line-width'},	
-			);
+			if ( exists $self->{_items}{$item}{ellipse} ) {
+
+				$self->{_items}{$item}{ellipse}->set(
+					'fill-pattern' => $do->{'fill-pattern'},
+					'stroke-pattern' => $do->{'stroke-pattern'},
+					'line-width' => $do->{'line-width'},	
+				);
+
+				#restore color and opacity as well
+				$self->{_items}{$item}{fill_color}         = $do->{'fill_color'};
+				$self->{_items}{$item}{fill_color_alpha}   = $do->{'fill_color_alpha'};
+				$self->{_items}{$item}{stroke_color}       = $do->{'stroke_color'};
+				$self->{_items}{$item}{stroke_color_alpha} = $do->{'stroke_color_alpha'};
+
+			}elsif ( exists $self->{_items}{$item}{text} ) {
+
+
+				#restore color and opacity as well
+				$self->{_items}{$item}{stroke_color}       = $do->{'stroke_color'};
+				$self->{_items}{$item}{stroke_color_alpha} = $do->{'stroke_color_alpha'};
+
+			}elsif ( exists $self->{_items}{$item}{image} ) {
+
+			}elsif ( exists $self->{_items}{$item}{line} ) {
+
+			   	#save arrow specific properties
+			   	$self->{_items}{$item}{end_arrow} 			= $do->{'end-arrow'};
+			   	$self->{_items}{$item}{start_arrow} 		= $do->{'start-arrow'};
+			   	$self->{_items}{$item}{arrow_width} 		= $do->{'arrow-width'};
+			   	$self->{_items}{$item}{arrow_length} 		= $do->{'arrow-length'};
+			   	$self->{_items}{$item}{arrow_tip_length}	= $do->{'arrow-tip-length'};
+
+				$self->{_items}{$item}{line}->set(
+					'fill-pattern' 		=> $do->{'fill-pattern'},
+					'stroke-pattern' 	=> $do->{'stroke-pattern'},
+					'line-width' 		=> $do->{'line-width'},
+					'end-arrow'      	=> $self->{_items}{$item}{end_arrow}, 
+					'start-arrow'    	=> $self->{_items}{$item}{start_arrow},
+					'arrow-length'	 	=> $self->{_items}{$item}{arrow_length},
+					'arrow-width'	 	=> $self->{_items}{$item}{arrow_width}, 
+					'arrow-tip-length'	=> $self->{_items}{$item}{arrow_tip_length},		
+				);
+
+				$self->{_items}{$item}{mirrored_w} = $do->{'mirrored_w'} if exists $do->{'mirrored_w'};
+				$self->{_items}{$item}{mirrored_h} = $do->{'mirrored_h'} if exists $do->{'mirrored_h'};
+
+				#restore color and opacity as well
+				$self->{_items}{$item}{stroke_color}       = $do->{'stroke_color'};
+				$self->{_items}{$item}{stroke_color_alpha} = $do->{'stroke_color_alpha'};
+			
+			}else{
+
+				$self->{_items}{$item}->set(
+					'fill-pattern' => $do->{'fill-pattern'},
+					'stroke-pattern' => $do->{'stroke-pattern'},
+					'line-width' => $do->{'line-width'},	
+				);
+
+				#restore color and opacity as well
+				$self->{_items}{$item}{fill_color}         = $do->{'fill_color'};
+				$self->{_items}{$item}{fill_color_alpha}   = $do->{'fill_color_alpha'};
+				$self->{_items}{$item}{stroke_color}       = $do->{'stroke_color'};
+				$self->{_items}{$item}{stroke_color_alpha} = $do->{'stroke_color_alpha'};
+			
+			}
+						
 			
 		#polyline specific properties
 		}elsif($item->isa('Goo::Canvas::Polyline')){
@@ -2350,21 +2456,23 @@ sub event_item_on_button_press {
 			
 					#real shape => move 
 				if ( exists $self->{_items}{$item} ) {
-					$item->{drag_x}   = $ev->x_root;
-					$item->{drag_y}   = $ev->y_root;
-					$item->{dragging} = TRUE;
+					$item->{drag_x}  		= $ev->x_root;
+					$item->{drag_y}  		= $ev->y_root;
+					$item->{dragging} 		= TRUE;
+					$item->{dragging_start} = TRUE;
 
 					$cursor = Gtk2::Gdk::Cursor->new('fleur');
 					
 					#add to undo stack
-					$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
+					#~ $self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
 
 					#resizing shape => resize
 				} else {
 
-					$item->{res_x}    = $ev->x_root;
-					$item->{res_y}    = $ev->y_root;
-					$item->{resizing} = TRUE;
+					$item->{res_x}    		= $ev->x_root;
+					$item->{res_y}    		= $ev->y_root;
+					$item->{resizing}		= TRUE;
+					#~ $item->{resizing_start} = TRUE;
 
 					$cursor = undef;
 
@@ -2377,12 +2485,13 @@ sub event_item_on_button_press {
 			} else {
 
 				#no rect, just move it ...
-				$item->{drag_x}   = $ev->x;
-				$item->{drag_y}   = $ev->y;
-				$item->{dragging} = TRUE;
+				$item->{drag_x}   		= $ev->x;
+				$item->{drag_y}   		= $ev->y;
+				$item->{dragging} 		= TRUE;
+				$item->{dragging_start} = TRUE;
 
 				#add to undo stack
-				$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
+				#~ $self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
 
 				$cursor = undef;
 
@@ -3311,6 +3420,8 @@ sub handle_embedded {
 			);
 		} elsif ( exists $self->{_items}{$item}{line} ) {
 		
+				print $self->{_items}{$item}{mirrored_w} ." - ". $self->{_items}{$item}{mirrored_h} ."\n";
+		
 				#handle possible arrows properly
 				#arrow is always and end-arrow
 				if($self->{_items}{$item}{mirrored_w} < 0 && $self->{_items}{$item}{mirrored_h} < 0){		
@@ -3839,8 +3950,10 @@ sub event_item_on_button_release {
 	}
 
 	#unset action flags
-	$item->{dragging} = FALSE if exists $item->{dragging};
-	$item->{resizing} = FALSE if exists $item->{resizing};
+	$item->{dragging} 		= FALSE if exists $item->{dragging};
+	$item->{dragging_start} = FALSE if exists $item->{dragging_start};
+	$item->{resizing} 		= FALSE if exists $item->{resizing};
+	#~ $item->{resizing_start} = FALSE if exists $item->{resizing_start};
 
 	#because of performance reason we load the current image new from file when
 	#the current action is over => button-release
