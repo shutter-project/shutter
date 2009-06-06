@@ -571,7 +571,17 @@ sub window {
 							$self->{_include_cursor},
 							$self->{_delay}
 						);
-						
+									
+						#~ my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_scrollable_from_drawable(
+							#~ $self->{_root},
+							#~ $self->{_c}{'cw'}{'x'},
+							#~ $self->{_c}{'cw'}{'y'},
+							#~ $self->{_c}{'cw'}{'width'},
+							#~ $self->{_c}{'cw'}{'height'},
+							#~ $self->{_include_cursor},
+							#~ $self->{_delay}
+						#~ );
+
 						#save return value to current $output variable 
 						#-> ugly but fastest and safest solution now
 						$output = $output_new;						 
@@ -586,6 +596,8 @@ sub window {
 								}
 							}
 						}
+
+
 
 					} else {
 						$output = 0;

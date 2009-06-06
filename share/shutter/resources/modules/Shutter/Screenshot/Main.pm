@@ -28,6 +28,7 @@ use utf8;
 use strict;
 use Gnome2::Wnck;
 use Image::Magick;
+use File::Temp qw/ tempfile tempdir /;
 
 #define constants
 #--------------------------------------
@@ -140,6 +141,64 @@ sub ungrab_pointer_and_keyboard {
 	return TRUE unless Gtk2::Gdk->pointer_is_grabbed;
 	return FALSE;
 }
+
+#~ sub get_scrollable_from_drawable {
+	#~ my ( $self, $drawable, $x, $y, $width, $height, $cursor, $sleep ) = @_;
+#~ 
+	#~ #save pixbuf to file
+	#~ my $pixbuf_save = Shutter::Pixbuf::Save->new( $self->{_gc}, $self->{_gc}->get_mainwindow );
+#~ 
+	#~ my @steps;
+	#~ while(1){
+#~ 
+		#~ #create tempfile
+		#~ my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
+		#~ 
+		#~ my ($pixbuf, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_pixbuf_from_drawable($drawable, $x, $y, $width, $height, FALSE, 1);
+		#~ $pixbuf_save->save_pixbuf_to_file($pixbuf, $tmpfilename, $tmpfilename, 'miff');
+	#~ 
+		#~ push @steps, $tmpfilename;		
+		#~ 
+		#~ my $curr_index = scalar @steps;
+		#~ if($curr_index > 1){
+#~ 
+			#~ my $compare = `compare -metric PSNR $steps[$curr_index-2] $steps[$curr_index-1] null: 2>&1`;
+			#~ if ($compare =~ /inf/){
+				#~ print "Finish\n";
+				#~ last; 
+			#~ }
+		#~ }else{
+			#~ my $line_size = 67;
+			#~ $y += $height - $line_size;
+			#~ $height = $line_size;	
+		#~ }
+		#~ 
+		#~ #cursor can only be on the first page
+		#~ $self->{_include_cursor} = FALSE;
+		#~ 
+		#~ #next scroll step
+		#~ my $xdo = `xdotool click 5`;
+		#~ 
+	#~ }
+	#~ 
+	#~ my $append_cmd = 'convert';
+	#~ foreach(@steps){
+		#~ $append_cmd	.= " $_";
+	#~ }
+#~ 
+	#~ #create tempfile
+	#~ my ( $tmpfh_fin, $tmpfilename_fin ) = tempfile(UNLINK => 1);
+	#~ $append_cmd .= " -append $tmpfilename_fin";
+	#~ 
+	#~ print $append_cmd."\n";
+	#~ 
+	#~ my $append_res = `$append_cmd`;
+	#~ 
+	#~ my $app_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($tmpfilename_fin);
+	#~ print $app_pixbuf."\n";
+	#~ return ($app_pixbuf, 0, 0, 0, 0);
+		#~ 
+#~ }	
 
 sub get_pixbuf_from_drawable {
 	my ( $self, $drawable, $x, $y, $width, $height, $cursor, $sleep ) = @_;

@@ -88,7 +88,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.477";
+use constant REV                	=> "Rev.478";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -468,7 +468,6 @@ if ( defined $settings_xml->{'general'}->{'last_profile'} ) {
 
 #check plugins
 #--------------------------------------
-
 &fct_check_installed_plugins;
 
 #--------------------------------------
@@ -946,10 +945,10 @@ $tooltips->set_tip(
 		"Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
 	)
 );
-$combobox_keybinding_mode->signal_connect(
-	'changed' => \&evt_behavior_handle,
-	'keybinding_sel_toggled'
-);
+#~ $combobox_keybinding_mode->signal_connect(
+	#~ 'changed' => \&evt_behavior_handle,
+	#~ 'keybinding_sel_toggled'
+#~ );
 
 $keybinding_mode_box->pack_start( Gtk2::Label->new,          FALSE, FALSE, 0 );
 $keybinding_mode_box->pack_start( $combobox_keybinding_mode, TRUE,  TRUE,  0 );
@@ -969,14 +968,14 @@ $key_sel_box->pack_start( $key_sel_box2, TRUE, TRUE, 0 );
 $keybinding_active->set_active(TRUE);
 
 #add signal handlers BEFORE settings are restored
-$capture_key->signal_connect(
-	'focus-out-event' => sub { &evt_behavior_handle($capture_key, 'keybinding_toggled'); return FALSE; }
-);
-
-$capture_sel_key->signal_connect(
-	'focus-out-event' => sub { &evt_behavior_handle($capture_sel_key, 'keybinding_sel_toggled'); return FALSE; }
-);
-
+#~ $capture_key->signal_connect(
+	#~ 'focus-out-event' => sub { &evt_behavior_handle($capture_key, 'keybinding_toggled'); return FALSE; }
+#~ );
+#~ 
+#~ $capture_sel_key->signal_connect(
+	#~ 'focus-out-event' => sub { &evt_behavior_handle($capture_sel_key, 'keybinding_sel_toggled'); return FALSE; }
+#~ );
+#~ 
 $keybinding_active->signal_connect(
 	'toggled' => \&evt_behavior_handle,
 	'keybinding_toggled'
@@ -1002,11 +1001,11 @@ if ( defined $settings_xml->{'general'}->{'keybinding_sel'} ) {
 my $hide_active           = Gtk2::CheckButton->new_with_label( $shutter_common->get_gettext->get("Autohide Shutter Window when taking a screenshot") );
 my $autocopy_active       = Gtk2::CheckButton->new_with_label( $shutter_common->get_gettext->get("Automatically copy screenshot to clipboard") );
 my $close_at_close_active = Gtk2::CheckButton->new_with_label( $shutter_common->get_gettext->get("Minimize to tray when closing main window") );
-my $save_at_close_active  = Gtk2::CheckButton->new_with_label( $shutter_common->get_gettext->get("Save settings when exiting") );
+#~ my $save_at_close_active  = Gtk2::CheckButton->new_with_label( $shutter_common->get_gettext->get("Save settings when exiting") );
 $behavior_hbox1->pack_start( $hide_active,           FALSE, TRUE, 12 );
 $behavior_hbox2->pack_start( $autocopy_active,       FALSE, TRUE, 12 );
 $behavior_hbox3->pack_start( $close_at_close_active, FALSE, TRUE, 12 );
-$behavior_hbox4->pack_start( $save_at_close_active,  FALSE, TRUE, 12 );
+#~ $behavior_hbox4->pack_start( $save_at_close_active,  FALSE, TRUE, 12 );
 
 if ( defined $settings_xml->{'general'}->{'autohide'} ) {
 	$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
@@ -1050,11 +1049,11 @@ if ( defined $settings_xml->{'general'}->{'close_at_close'} ) {
 
 $tooltips->set_tip( $close_at_close_active, $shutter_common->get_gettext->get("Minimize to tray when closing main window") );
 
-if ( defined $settings_xml->{'general'}->{'save_at_close'} ) {
-	$save_at_close_active->set_active( $settings_xml->{'general'}->{'save_at_close'} );
-} else {
-	$save_at_close_active->set_active(TRUE);
-}
+#~ if ( defined $settings_xml->{'general'}->{'save_at_close'} ) {
+	#~ $save_at_close_active->set_active( $settings_xml->{'general'}->{'save_at_close'} );
+#~ } else {
+	#~ $save_at_close_active->set_active(TRUE);
+#~ }
 
 #add signal handlers after setting the saved / default values
 #~ $save_at_close_active->signal_connect(
@@ -1062,7 +1061,7 @@ if ( defined $settings_xml->{'general'}->{'save_at_close'} ) {
 	#~ 'save_at_close_toggled'
 #~ );
 
-$tooltips->set_tip( $save_at_close_active, $shutter_common->get_gettext->get("Save settings automatically when exiting Shutter") );
+#~ $tooltips->set_tip( $save_at_close_active, $shutter_common->get_gettext->get("Save settings automatically when exiting Shutter") );
 
 #end - behavior
 #--------------------------------------
@@ -1106,7 +1105,7 @@ $tooltips->set_tip( $progname_active, $shutter_common->get_gettext->get("Open yo
 $tooltips->set_tip( $progname_label,  $shutter_common->get_gettext->get("Open your screenshot\nwith this program after capturing") );
 $progname_box->pack_start( $progname_label, FALSE, TRUE, 12 );
 $progname_box2->pack_start( $progname_active, FALSE, TRUE, 0 );
-$progname_box2->pack_start( $progname,        TRUE,  TRUE, 0 );
+$progname_box2->pack_start( $progname, TRUE, TRUE, 0 );
 $progname_box->pack_start( $progname_box2, TRUE, TRUE, 0 );
 
 #end - program
@@ -1669,9 +1668,7 @@ sub evt_behavior_handle {
 			$combobox_keybinding_mode->set_sensitive(FALSE);
 		}
 	}
-	
-	&fct_save_bindings($capture_key->get_text, $capture_sel_key->get_text);
-
+		
 	return TRUE;
 }
 
@@ -1680,23 +1677,32 @@ sub evt_notebook_switch {
 
 	my $key = &fct_get_file_by_index($int);
 	if($key){
-		foreach (keys %session_screens){
-			if ($_ eq $key){
-				if($session_screens{$key}->{'long'}){
-					eval{
-						$session_screens{$_}->{'image'}->set_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} ));								
+
+		#do this when idle
+		Glib::Idle->add (
+		sub{
+
+			foreach (keys %session_screens){
+				if ($_ eq $key){
+					if($session_screens{$key}->{'long'}){
+						eval{
+							$session_screens{$_}->{'image'}->set_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} ));								
+						}
 					}
+					next;
 				}
-				next;
+				eval{
+					$session_screens{$_}->{'image'}->set_pixbuf(undef);
+				};
+				if($@){
+					delete $session_screens{$_};
+					next;	
+				}
 			}
-			eval{
-				$session_screens{$_}->{'image'}->set_pixbuf(undef);
-			};
-			if($@){
-				delete $session_screens{$_};
-				next;	
-			}
-		}
+
+			return FALSE;
+		});			
+		
 	}	
 
 	#unselect all items in session tab
@@ -1722,12 +1728,11 @@ sub evt_delete_window {
 		return TRUE;
 	}
 
-	if ( $save_at_close_active->get_active ) {
-		$window->hide;
-		&fct_save_settings(undef);
-		&fct_save_settings( $combobox_settings_profiles->get_active_text )
-			if $combobox_settings_profiles->get_active != -1;
-	}
+	#hide window and save settings
+	$window->hide;
+	&fct_save_settings(undef);
+	&fct_save_settings( $combobox_settings_profiles->get_active_text ) 
+		if $combobox_settings_profiles->get_active != -1;
 
 	Gtk2->main_quit;
 	return FALSE;
@@ -2039,6 +2044,11 @@ sub fct_post_settings {
 	}
 
 	$settings_dialog->hide();
+	
+	#save directly
+	&fct_save_settings(undef);
+	&fct_save_settings( $combobox_settings_profiles->get_active_text ) 
+		if $combobox_settings_profiles->get_active != -1;
 	
 	#we need to update the first tab here
 	#because the profile might have changed
@@ -2573,53 +2583,6 @@ sub fct_create_tab {
 
 }
 
-sub fct_resize_thumb {
-	my ( $image, $event, $pixbuf_ref ) = @_;
-
-print Dumper @_;
-
-	print "\n$event was emitted by widget $image\n";# if $shutter_common->get_debug;
-
-	my $key = &fct_get_current_file;
-	
-	#dereference the pixbuf object	
-	my $pixbuf = $$pixbuf_ref;	
-	
-	print Dumper $pixbuf_ref;
-		
-	if(defined $image && defined $pixbuf){
-
-		my $old_width  = $image->{'current_width'};
-		my $old_height = $image->{'current_height'};
-		
-		$image->{'current_height'} = $image->allocation->height - 60;
-		$image->{'current_width'}  = $image->{'current_height'} * $image->{'aspect_ratio'};
-
-		my $decr = 10;
-		while ($image->{'current_width'} >= $image->allocation->width - 50
-			|| $image->{'current_height'} >= $image->allocation->height - 50 )
-		{
-			$image->{'current_height'} -= $decr;
-			$image->{'current_width'} = $image->{'current_height'} * $image->{'aspect_ratio'};
-		}
-
-		return FALSE if $image->{'current_width'} < 10 || $image->{'current_height'} < 10;
-
-		if (   $old_width != $image->{'current_width'}
-			|| $session_screens{$key}->{'changed'} == TRUE
-			|| $session_screens{$key}->{'deleted'} == TRUE )
-		{
-
-			my $scaled = $pixbuf->scale_simple( $image->{'current_width'}, $image->{'current_height'}, 'tiles' );
-			$image->set_from_pixbuf($scaled);
-			$session_screens{$key}->{'changed'} = FALSE;
-
-		}
-	}
-		
-	return FALSE;
-}
-
 sub fct_save_settings {
 	my ($profilename) = @_;
 
@@ -2716,7 +2679,7 @@ sub fct_save_settings {
 	$settings{'general'}->{'autohide'}         = $hide_active->get_active();
 	$settings{'general'}->{'autocopy'}         = $autocopy_active->get_active();
 	$settings{'general'}->{'close_at_close'}   = $close_at_close_active->get_active();
-	$settings{'general'}->{'save_at_close'}    = $save_at_close_active->get_active();
+	#~ $settings{'general'}->{'save_at_close'}    = $save_at_close_active->get_active();
 	$settings{'general'}->{'keybinding'}       = $keybinding_active->get_active();
 	$settings{'general'}->{'keybinding_sel'}   = $keybinding_sel_active->get_active();
 	$settings{'general'}->{'keybinding_mode'}  = $combobox_keybinding_mode->get_active();
@@ -2809,6 +2772,9 @@ sub fct_save_settings {
 	if ($@) {
 		$shutter_dialog->dlg_error_message( $@, $d->get("Account-settings could not be saved!") );
 	}
+
+	#keybindings
+	&fct_save_bindings($capture_key->get_text, $capture_sel_key->get_text);	
 
 	return TRUE;
 }
@@ -3028,7 +2994,7 @@ sub fct_load_settings {
 				$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
 				$autocopy_active->set_active( $settings_xml->{'general'}->{'autocopy'} );
 				$close_at_close_active->set_active( $settings_xml->{'general'}->{'close_at_close'} );
-				$save_at_close_active->set_active( $settings_xml->{'general'}->{'save_at_close'} );
+				#~ $save_at_close_active->set_active( $settings_xml->{'general'}->{'save_at_close'} );
 
 				#keybindings
 				$keybinding_active->set_active( $settings_xml->{'general'}->{'keybinding'} );
@@ -3306,7 +3272,9 @@ sub fct_load_session {
 			&fct_update_gui;
 
 			#do the real work
-			&fct_integrate_screenshot_in_notebook( Gnome2::VFS::URI->new( ${$session_xml}{$_}{'filename'} ), undef );
+			my $new_uri = Gnome2::VFS::URI->new( ${$session_xml}{$_}{'filename'} );
+			&fct_integrate_screenshot_in_notebook( $new_uri, undef );
+
 		}
 		$restore_dialog->response('ok');
 
@@ -4647,59 +4615,68 @@ sub fct_update_tab {
 				next;
 			
 			}else{
-						
-				#get dimensions - using the pixbuf
-				$session_screens{$key}->{'width'}  = $pixbuf->get_width;
-				$session_screens{$key}->{'height'} = $pixbuf->get_height;
-				
-				#setting pixbuf if tab is currently visible
+
+				#setting pixbuf
 				$session_screens{$key}->{'image'}->set_pixbuf( $pixbuf );
 				
-				#create tempfile
-				#maybe we have to restore the file later
-				my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
-				$session_screens{$key}->{'temp'} = $tmpfilename;
-				cp($session_screens{$key}->{'long'}, $session_screens{$key}->{'temp'});
+				#UPDATE INFOS WHEN IDLE
+				#--------------------------------------		
+				Glib::Idle->add (sub{
 
-				#update tab icon - and other GUI Elements
-				my $thumb = $shutter_thumb->get_thumbnail(
-					$session_screens{$key}->{'uri'}->to_string,
-					$session_screens{$key}->{'mime_type'},
-					$session_screens{$key}->{'mtime'},
-					0.2
-				);
-				$session_screens{$key}->{'tab_icon'}->set_from_pixbuf( $thumb );
+					#get dimensions - using the pixbuf
+					$session_screens{$key}->{'width'}  = $pixbuf->get_width;
+					$session_screens{$key}->{'height'} = $pixbuf->get_height;
 
-				$session_screens{$key}->{'filename_label'}->set_text( $session_screens{$key}->{'uri'}->extract_short_name );
-				$tooltips->set_tip( $session_screens{$key}->{'filename_label'}, $session_screens{$key}->{'uri'}->to_string );
+					#create tempfilem
+					#maybe we have to restore the file later
+					my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
+					$session_screens{$key}->{'temp'} = $tmpfilename;				
+					cp($session_screens{$key}->{'long'}, $session_screens{$key}->{'temp'});						
 
-				$session_screens{$key}->{'folder_label'}->set_text( $session_screens{$key}->{'uri'}->extract_dirname );
-				$tooltips->set_tip( $session_screens{$key}->{'folder_label'}, $session_screens{$key}->{'uri'}->extract_dirname );
+					#update tab icon - and other GUI Elements
+					my $thumb = $shutter_thumb->get_thumbnail(
+						$session_screens{$key}->{'uri'}->to_string,
+						$session_screens{$key}->{'mime_type'},
+						$session_screens{$key}->{'mtime'},
+						0.2
+					);
+					$session_screens{$key}->{'tab_icon'}->set_from_pixbuf( $thumb );
 
-				$session_screens{$key}->{'mime_type_label'}->set_text( $session_screens{$key}->{'mime_type'} );
+					$session_screens{$key}->{'filename_label'}->set_text( $session_screens{$key}->{'uri'}->extract_short_name );
+					$tooltips->set_tip( $session_screens{$key}->{'filename_label'}, $session_screens{$key}->{'uri'}->to_string );
 
-				$session_screens{$key}->{'size_label'}->set_text( $shutter_hfunct->utf8_decode( Gnome2::VFS->format_file_size_for_display( $session_screens{$key}->{'size'} ) ) );
+					$session_screens{$key}->{'folder_label'}->set_text( $session_screens{$key}->{'uri'}->extract_dirname );
+					$tooltips->set_tip( $session_screens{$key}->{'folder_label'}, $session_screens{$key}->{'uri'}->extract_dirname );
 
-				$session_screens{$key}->{'geometry_label'}->set_text( $session_screens{$key}->{'width'} . "x" . $session_screens{$key}->{'height'} );
+					$session_screens{$key}->{'mime_type_label'}->set_text( $session_screens{$key}->{'mime_type'} );
 
-				#UPDATE FIRST TAB - VIEW
-				#--------------------------------------				
-				#update view icon
-				my $thumb_view = $shutter_thumb->get_thumbnail(
-					$session_screens{$key}->{'uri'}->to_string,
-					$session_screens{$key}->{'mime_type'},
-					$session_screens{$key}->{'mtime'},
-					0.5
-				);
+					$session_screens{$key}->{'size_label'}->set_text( $shutter_hfunct->utf8_decode( Gnome2::VFS->format_file_size_for_display( $session_screens{$key}->{'size'} ) ) );
 
-				unless(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
-					$session_screens{$key}->{'iter'} = $session_start_screen{'first_page'}->{'model'}->append;
-					$session_start_screen{'first_page'}->{'model'}->set( $session_screens{$key}->{'iter'}, 0, $thumb_view, 1, $session_screens{$key}->{'short'}, 2, $key );
-				}else{
-					$session_start_screen{'first_page'}->{'model'}->set( $session_screens{$key}->{'iter'}, 0, $thumb_view, 1, $session_screens{$key}->{'short'}, 2, $key );					
-				}
+					$session_screens{$key}->{'geometry_label'}->set_text( $session_screens{$key}->{'width'} . "x" . $session_screens{$key}->{'height'} );
 
-				&fct_update_first_tab;
+					#UPDATE FIRST TAB - VIEW
+					#--------------------------------------				
+
+					#update view icon
+					my $thumb_view = $shutter_thumb->get_thumbnail(
+						$session_screens{$key}->{'uri'}->to_string,
+						$session_screens{$key}->{'mime_type'},
+						$session_screens{$key}->{'mtime'},
+						0.5
+					);
+
+					unless(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
+						$session_screens{$key}->{'iter'} = $session_start_screen{'first_page'}->{'model'}->append;
+						$session_start_screen{'first_page'}->{'model'}->set( $session_screens{$key}->{'iter'}, 0, $thumb_view, 1, $session_screens{$key}->{'short'}, 2, $key );
+					}else{
+						$session_start_screen{'first_page'}->{'model'}->set( $session_screens{$key}->{'iter'}, 0, $thumb_view, 1, $session_screens{$key}->{'short'}, 2, $key );					
+					}
+
+					&fct_update_first_tab;
+
+					return FALSE;
+				});
+
 				return TRUE;
 						
 			}
@@ -7124,7 +7101,7 @@ sub dlg_website {
 		$website->set_completion ($web_compl);
 		$website->signal_connect('changed' => sub{
 
-				#generate first preview at startup
+				#search when idle
 				Glib::Idle->add (
 					sub{
 						
@@ -7142,6 +7119,7 @@ sub dlg_website {
 							$result = $result->next;
 						}
 						
+						return FALSE;
 					});	
 		
 			return FALSE;	

@@ -2204,13 +2204,20 @@ sub xdo {
 		$self->{_current_item} = $item;	
 		
 	}elsif($action eq 'delete'){ 
+			
+			#mark as current
+			$self->{_last_item}        = $self->{_current_item};		
+			$self->{_current_item} 	   = $item;
+			$self->{_current_new_item} = undef;
 
 			$self->{_items}{$item}->set('visibility' => 'visible');
+			$self->handle_rects( 'update', $self->{_items}{$item} );
 			$self->handle_embedded( 'update', $self->{_items}{$item} );	
 	
 	}elsif($action eq 'create'){
 	
 			$self->{_items}{$item}->set('visibility' => 'hidden');
+			$self->handle_rects( 'hide', $self->{_items}{$item} );
 			$self->handle_embedded( 'hide', $self->{_items}{$item} );
 
 	}
@@ -2459,8 +2466,6 @@ sub event_item_on_button_press {
 	
 	#left mouse click to drag, resize, create or delelte items
 	if ( $ev->type eq 'button-press' && $ev->button == 1 ) {
-
-		$self->deactivate_all;
 
 		my $root   = $self->{_canvas}->get_root_item;
 
@@ -4380,49 +4385,56 @@ sub ret_objects_menu {
 		#parse filename
 		my ( $short, $folder, $type ) = fileparse( $filename, '\..*' );
 
-		#create pixbufs
-		my $orig_pixbuf;
-		eval{
-			$orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($filename);		
-		};
-		unless($@){
+		#init item with filename first
+		my $new_item = Gtk2::ImageMenuItem->new_with_label($short);
+		$menu_objects->append($new_item);
 
-			my $small_image = Gtk2::Image->new_from_pixbuf( $orig_pixbuf->scale_down_pixbuf (Gtk2::IconSize->lookup('menu')));
-			my $small_image_button = Gtk2::Image->new_from_pixbuf( $small_image->get_pixbuf );
+		Glib::Idle->add (sub{
+					
+			#create pixbufs
+			my $orig_pixbuf;
+			eval{
+				$orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($filename);		
+			};
+			unless($@){
 
-			#create items
-			my $new_item = Gtk2::ImageMenuItem->new_with_label($short);
-			$new_item->set_image($small_image);
+				my $small_image = Gtk2::Image->new_from_pixbuf( $orig_pixbuf->scale_down_pixbuf (Gtk2::IconSize->lookup('menu')));
+				$new_item->set_image($small_image);
 
-			#init
-			unless ( $button->get_icon_widget ) {
-				$button->set_icon_widget($small_image_button);
-				$self->{_current_pixbuf} = $orig_pixbuf->copy;
-				$self->{_current_pixbuf_filename} = $filename;
-			}
-
-			$new_item->signal_connect(
-				'activate' => sub {
+				#init
+				unless ( $button->get_icon_widget ) {
+					$button->set_icon_widget(Gtk2::Image->new_from_pixbuf($small_image->get_pixbuf));
 					$self->{_current_pixbuf} = $orig_pixbuf->copy;
 					$self->{_current_pixbuf_filename} = $filename;
-					$button->set_icon_widget($small_image_button);
 					$button->show_all;
-					$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
 				}
-			);
 
-			$menu_objects->append($new_item);
-			
-		}else{
-			my $response = $self->{_dialogs}->dlg_error_message( 
-				sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $filename . "'" ),
-				$self->{_d}->get( "There was an error opening the image." ),
-				undef, undef, undef,
-				undef, undef, undef,
-				$@
-			);
-			$self->abort_current_mode;		
-		} 
+				$new_item->signal_connect(
+					'activate' => sub {
+						
+						my ($item) = @_;
+						
+						$self->{_current_pixbuf} = $orig_pixbuf->copy;
+						$self->{_current_pixbuf_filename} = $filename;
+						$button->set_icon_widget($item->get_image->get_pixbuf);
+						$button->show_all;
+						$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
+					}
+				);
+
+			}else{
+				my $response = $self->{_dialogs}->dlg_error_message( 
+					sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $filename . "'" ),
+					$self->{_d}->get( "There was an error opening the image." ),
+					undef, undef, undef,
+					undef, undef, undef,
+					$@
+				);
+				$self->abort_current_mode;		
+			} 
+
+			return FALSE;
+		});
 
 	}
 
@@ -4601,19 +4613,25 @@ sub import_from_session {
 
 	foreach my $key ( sort keys %import_hash ) {
 
-		#try to generate a new thumbnail
-		my $thumb = $self->{_thumbs}->get_thumbnail(
-			$import_hash{$key}->{'uri'}->to_string,
-			$import_hash{$key}->{'mime_type'},
-			$import_hash{$key}->{'mtime'},
-			0.2
-		);			
-
-		my $small_image = Gtk2::Image->new_from_pixbuf( $thumb );
-		my $small_image_button = Gtk2::Image->new_from_pixbuf( $small_image->get_pixbuf );
-
+		#init item with filename
 		my $screen_menu_item = Gtk2::ImageMenuItem->new_with_label( $import_hash{$key}->{'short'} );
-		$screen_menu_item->set_image($small_image);
+
+		#generate thumbnail when idle
+		Glib::Idle->add (sub{
+
+			#try to generate a new thumbnail
+			my $thumb = $self->{_thumbs}->get_thumbnail(
+				$import_hash{$key}->{'uri'}->to_string,
+				$import_hash{$key}->{'mime_type'},
+				$import_hash{$key}->{'mtime'},
+				0.2
+			);			
+
+			my $small_image = Gtk2::Image->new_from_pixbuf( $thumb );
+			$screen_menu_item->set_image($small_image);
+
+			return FALSE;
+		});
 
 		#set sensitive == FALSE if image eq current file
 		$screen_menu_item->set_sensitive(FALSE)
@@ -4621,12 +4639,15 @@ sub import_from_session {
 
 		$screen_menu_item->signal_connect(
 			'activate' => sub {
+				
+				my ($screen_menu_item) = @_;
+				
 				eval{
 					$self->{_current_pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file( $import_hash{$key}->{'long'} );
 				};
 				unless($@){
 						$self->{_current_pixbuf_filename} = $import_hash{$key}->{'long'};
-						$button->set_icon_widget($small_image_button);
+						$button->set_icon_widget(Gtk2::Image->new_from_pixbuf( $screen_menu_item->get_image->get_pixbuf ));
 						$button->show_all;
 						$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
 				}else{
