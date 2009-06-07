@@ -285,24 +285,6 @@ sub fct_imagemagick_bardistortion {
 	my ( $widget, $data ) = @_;
 
 	$save_btn->set_sensitive(FALSE);
-	$preview->hide_all;
-	$preview_throb->show_all;
-
-	#we fork a child process
-	#to do the work
-	my $process = Proc::Simple->new;
-	$process->start(
-		sub {
-			&apply_effect();
-			POSIX::_exit(0);
-		}
-	);
-
-	#so we can update the gui
-	while ( $process->poll ) {
-		&fct_update_gui;
-		usleep 100000;
-	}
 
 	if ( $data eq 'save' ) {
 
@@ -313,6 +295,25 @@ sub fct_imagemagick_bardistortion {
 		Gtk2->main_quit;
 		return TRUE;
 	} else {
+
+		$preview->hide_all;
+		$preview_throb->show_all;
+
+		#we fork a child process
+		#to do the work
+		my $process = Proc::Simple->new;
+		$process->start(
+			sub {
+				&apply_effect();
+				POSIX::_exit(0);
+			}
+		);
+
+		#so we can update the gui
+		while ( $process->poll ) {
+			&fct_update_gui;
+			usleep 100000;
+		}
 		
 		$preview->set_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
 									$tmpfilename, 300, 300, TRUE)
