@@ -88,7 +88,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.478";
+use constant REV                	=> "Rev.479";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -498,7 +498,7 @@ $shutter_tool->{_section}->signal_connect( 'clicked' => \&evt_take_screenshot, '
 #gnome web photo is optional, don't enable it when gnome-web-photo is not in PATH
 if ( $gnome_web_photo ) {
 	$tooltips->set_tip( $shutter_tool->{_web}, $d->get("Take a screenshot of a website") );
-	$shutter_tool->{_web}->set_arrow_tooltip( Gtk2::Tooltips->new, $d->get("Set up a connection timeout (seconds)"), 'arrow' );
+	$shutter_tool->{_web}->set_arrow_tooltip( Gtk2::Tooltips->new, $d->get("The timeout in seconds, or 0 to disable timeout"), 'arrow' );
 	$shutter_tool->{_web}->set_sensitive(TRUE);
 	$shutter_tool->{_web}->signal_connect( 'clicked' => \&evt_take_screenshot, 'web' );
 	$shutter_tool->{_web}->set_menu(&fct_ret_web_menu);
@@ -5570,14 +5570,27 @@ sub fct_ret_program_menu {
 }
 
 sub fct_ret_web_menu {
+	
 	my $menu_web = Gtk2::Menu->new;
-	my $timeout1 = Gtk2::RadioMenuItem->new( undef, $d->get("Timeout") . ": 5" );
-	my $timeout2 = Gtk2::RadioMenuItem->new( $timeout1, $d->get("Timeout") . ": 10" );
-	my $timeout3 = Gtk2::RadioMenuItem->new( $timeout1, $d->get("Timeout") . ": 15" );
+	
+	my $timeout0 = Gtk2::RadioMenuItem->new( undef, $d->get("Timeout") . ": 0" );
+	my $timeout1 = Gtk2::RadioMenuItem->new( $timeout0, $d->get("Timeout") . ": 10" );
+	my $timeout2 = Gtk2::RadioMenuItem->new( $timeout0, $d->get("Timeout") . ": 30" );
+	my $timeout3 = Gtk2::RadioMenuItem->new( $timeout0, $d->get("Timeout") . ": 60" );
+	my $timeout4 = Gtk2::RadioMenuItem->new( $timeout0, $d->get("Timeout") . ": 120" );
+
+	$tooltips->set_tip( $timeout0, $d->get("The timeout in seconds, or 0 to disable timeout" ));
+	$tooltips->set_tip( $timeout1, $d->get("The timeout in seconds, or 0 to disable timeout" ));
+	$tooltips->set_tip( $timeout2, $d->get("The timeout in seconds, or 0 to disable timeout" ));
+	$tooltips->set_tip( $timeout3, $d->get("The timeout in seconds, or 0 to disable timeout" ));
+	$tooltips->set_tip( $timeout4, $d->get("The timeout in seconds, or 0 to disable timeout" ));
+	
 	$timeout2->set_active(TRUE);
+	$menu_web->append($timeout0);
 	$menu_web->append($timeout1);
 	$menu_web->append($timeout2);
 	$menu_web->append($timeout3);
+	$menu_web->append($timeout4);
 
 	if ( defined $settings_xml->{'general'}->{'web_timeout'} ) {
 
