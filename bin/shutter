@@ -88,7 +88,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.481";
+use constant REV                	=> "Rev.482";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -1068,11 +1068,15 @@ $tooltips->set_tip( $close_at_close_active, $shutter_common->get_gettext->get("M
 
 #program
 #--------------------------------------
-my $model        = &fct_get_program_model;
-my $progname     = Gtk2::ComboBox->new($model);
+my $model		= &fct_get_program_model;
+my $progname	= Gtk2::ComboBox->new($model);
+
+#add pixbuf renderer for icon
 my $renderer_pix = Gtk2::CellRendererPixbuf->new;
 $progname->pack_start( $renderer_pix, FALSE );
 $progname->add_attribute( $renderer_pix, pixbuf => 0 );
+
+#add text renderer for app name
 my $renderer_text = Gtk2::CellRendererText->new;
 $progname->pack_start( $renderer_text, FALSE );
 $progname->add_attribute( $renderer_text, text => 1 );
@@ -3081,17 +3085,38 @@ sub fct_get_program_model {
 	my $icontheme = Gtk2::IconTheme->get_for_screen( Gtk2::Gdk::Screen->get_default );
 
 	#FIXME - use png as default mime type (is this clever enough?)
-	my ( $default, @apps ) = File::MimeInfo::Applications::mime_applications('image/png');
+	my ( $default, @mapps ) = File::MimeInfo::Applications::mime_applications('image/png');
+	
+	#currently we use the above statement for the icon only
+	#because of the following error
+	#
+	#libgnomevfs-WARNING **: 
+	#Cannot call gnome_vfs_mime_application_get_icon 
+	#with a GNOMEVFSMimeApplication structure constructed 
+	#by the deprecated application registry 
+	my $mime_type = Gnome2::VFS::Mime::Type->new ('image/png');
+	my @apps = $mime_type->get_all_applications();
+	
+	#no app determined!
+	unless (scalar @apps && scalar @mapps){
+		return $model;			
+	}
 
-	foreach (@apps) {
-		my $program_item = Gtk2::ImageMenuItem->new_with_label();
-		my $icon_pixbuf;
-		if ( $icontheme->has_icon( $_->Icon ) ) {
-			my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
-			$icon_pixbuf = $icontheme->load_icon( $_->Icon, $ih, 'generic-fallback' );
-			$program_item->set_image( Gtk2::Image->new_from_pixbuf($icon_pixbuf) );
+	#find icon and app
+	#we use File::DesktopEntry instead of the Gnome one
+	#for opening files
+	foreach my $mapp (@mapps){
+		foreach my $app (@apps){
+			if($mapp->{'file'} =~ m/$app->{'id'}/){
+				my $icon_pixbuf;
+				if ( $icontheme->has_icon( $mapp->Icon ) ) {
+					my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
+					$icon_pixbuf = $icontheme->load_icon( $mapp->Icon, $ih, 'generic-fallback' );
+				}
+				$model->set( $model->append, 0, $icon_pixbuf, 1, $app->{'name'}, 2, $mapp );
+				last;
+			}	
 		}
-		$model->set( $model->append, 0, $icon_pixbuf, 1, $_->Name, 2, $_ );
 	}
 
 	return $model;
@@ -3680,7 +3705,6 @@ sub fct_take_screenshot {
 	my $quality_value             = $scale->get_value();
 	my $delay_value               = undef;
 	my $thumbnail_value           = $thumbnail->get_value;
-	my $progname_value            = undef;
 	my $filename_value            = undef;
 	my $filetype_value            = undef;
 	my $folder                    = undef;
@@ -3972,12 +3996,15 @@ sub fct_take_screenshot {
 
 		#open screenshot with configured program
 		if ( $progname_active->get_active ) {
-			my $model         = $progname->get_model();
-			my $progname_iter = $progname->get_active_iter();
+			my $progname_value 	= undef;
+			my $appname_value  	= undef;
+			my $model         	= $progname->get_model();
+			my $progname_iter 	= $progname->get_active_iter();
 			if ($progname_iter) {
 				$progname_value = $model->get_value( $progname_iter, 2 );
+				$appname_value 	= $model->get_value( $progname_iter, 1 );
 			}
-			&fct_open_with_program($progname_value);
+			&fct_open_with_program($progname_value, $appname_value);
 		}
 		print "screenshot successfully saved to $screenshot_name!\n"
 			if $shutter_common->get_debug;
@@ -4107,22 +4134,20 @@ sub fct_print {
 }
 
 sub fct_open_with_program {
-	my $dentry = shift;
+	my $dentry 		= shift;
+	my $trans_name 	= shift;
+
+	#no program set - exit
+	return FALSE unless $dentry;
+
+	#trans_name is optional here,
+	#we use the name of the desktop entry if 
+	#trans_name is not present
+	my $name = $trans_name || $dentry->Name;
 
 	my $key = &fct_get_current_file;
 
-	#no program set - take default from settings
-	unless ($dentry) {
-		my $model         = $progname->get_model();
-		my $progname_iter = $progname->get_active_iter();
-
-		if ($progname_iter) {
-			$dentry = $model->get_value( $progname_iter, 2 );
-		}
-	}
-
 	my $exec_call;
-
 	#single file
 	if ($key) {
 
@@ -4135,7 +4160,7 @@ sub fct_open_with_program {
 			$exec_call = $dentry->parse_Exec( $session_screens{$key}->{'long'} );
 		}
 
-		&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("opened with") . " " . $dentry->Name );
+		&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("opened with") . " " . $name );
 
 		#session tab
 	} else {
@@ -4160,13 +4185,12 @@ sub fct_open_with_program {
 		if ( @open_files > 0 ) {
 			if ( $dentry->wants_list ) {
 				$exec_call = $dentry->parse_Exec(@open_files);
-				&dlg_status_message( 1, $d->get("Opened all files with") . " " . $dentry->Name );
 			} else {
 				foreach my $file (@open_files) {
 					$exec_call .= $dentry->parse_Exec($file) . ";";
 				}
 			}
-
+			&dlg_status_message( 1, $d->get("Opened all files with") . " " . $name );
 		}
 	}
 
@@ -5507,7 +5531,7 @@ sub fct_ret_program_menu {
 	my $default = $mime_type->get_default_application;	
 	
 	#no app determined!
-	unless (scalar @apps){
+	unless (scalar @apps && scalar @mapps){
 		$shutter_menu->{_menuitem_reopen_default}->visible(FALSE);
 		$shutter_menu->{_menuitem_reopen}->set_sensitive(FALSE);
 		return $menu_programs;			
@@ -5553,6 +5577,14 @@ sub fct_ret_program_menu {
 				last;	
 			}	
 		}
+	
+		#no match found!
+		unless ($oapp){
+			$shutter_menu->{_menuitem_reopen_default}->visible(FALSE);
+			$shutter_menu->{_menuitem_reopen}->set_sensitive(FALSE);
+			return $menu_programs;			
+		}		
+		
 		if ( $icontheme->has_icon( $oapp->Icon ) ) {
 			my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
 			my $icon_pixbuf = $icontheme->load_icon( $oapp->Icon, $ih, 'generic-fallback' );
@@ -5560,7 +5592,7 @@ sub fct_ret_program_menu {
 		}
 		$program_item->signal_connect(
 			'activate' => sub {
-				&fct_open_with_program($oapp);
+				&fct_open_with_program($oapp, $app->{'name'});
 			}
 		);
 		
