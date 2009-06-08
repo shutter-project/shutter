@@ -190,8 +190,38 @@ sub show {
 	#CANVAS
 	#-------------------------------------------------
 	$self->{_canvas} = Goo::Canvas->new();
+	
+	#...with gray as background color
+	#..and.. 
+	#'redraw-when-scrolled' to reduce the flicker of static items
 	my $gray = Gtk2::Gdk::Color->parse('gray');
-	$self->{_canvas}->set( 'background-color' => sprintf( "#%04x%04x%04x", $gray->red, $gray->green, $gray->blue ) );
+	$self->{_canvas}->set( 
+		'redraw-when-scrolled' 	=> TRUE, 
+		'background-color' 		=> sprintf( "#%04x%04x%04x", $gray->red, $gray->green, $gray->blue ) 
+	);
+	
+	#and attach scroll event
+	#to imitate scroll behavior of
+	#Gtk2::ImageView widget Ctrl+Mouse Wheel
+	$self->{_canvas}->signal_connect(
+		'scroll-event' =>
+		sub {
+			my ( $canvas, $ev ) = @_;
+
+			my $alloc = $self->{_canvas}->allocation;			
+			my $scale = $canvas->get_scale;
+						
+			if ($ev->state >= 'control-mask' && $ev->direction eq 'up' ) {
+				$self->zoom_in_cb;
+				$canvas->scroll_to(int($ev->x - $alloc->width / 2 ) / $scale, int($ev->y - $alloc->height / 2 ) / $scale);
+				return TRUE;
+			}elsif ( $ev->state >= 'control-mask' && $ev->direction eq 'down' ) {
+				$self->zoom_out_cb;
+				return TRUE;
+			}
+			return FALSE;		
+		}
+	);
 
 	#create rectangle to resize the background
 	$self->{_canvas_bg_rect} = Goo::Canvas::Rect->new(
@@ -207,7 +237,12 @@ sub show {
 	$self->handle_bg_rects( 'update' );
 
 	#create canvas background (:= screenshot)
-	$self->{_canvas_bg} = Goo::Canvas::Image->new( $self->{_canvas}->get_root_item, $self->{_drawing_pixbuf}, 0, 0 );
+	$self->{_canvas_bg} = Goo::Canvas::Image->new( 
+		$self->{_canvas}->get_root_item, 
+		$self->{_drawing_pixbuf}, 
+		0, 0,
+		'antialias' => 'none' 
+	);
 	$self->setup_item_signals( $self->{_canvas_bg} );
 
 	$self->handle_bg_rects( 'raise' );
@@ -247,7 +282,7 @@ sub show {
 	$self->{_scrolled_window}->add( $self->{_canvas} );
 	$self->{_hscroll_hid} = $self->{_scrolled_window}->get_hscrollbar->signal_connect('value-changed' => sub { $self->adjust_rulers} );
 	$self->{_vscroll_hid} = $self->{_scrolled_window}->get_vscrollbar->signal_connect('value-changed' => sub { $self->adjust_rulers} );
-
+	
 	#vruler
 	$self->{_vruler} = Gtk2::VRuler->new;
 	$self->{_vruler}->set_metric('pixels');
@@ -260,6 +295,7 @@ sub show {
 
 	#create a table for placing the ruler and scrolle window
 	$self->{_table} = new Gtk2::Table( 3, 2, FALSE );
+	
 	#attach scrolled window and rulers to the table
 	$self->{_table}->attach( $self->{_scrolled_window}, 1, 2, 1, 2, [ 'expand', 'fill' ], [ 'expand', 'fill' ], 0, 0 );
 	$self->{_table}->attach( $self->{_hruler}, 1, 2, 0, 1, [ 'expand', 'shrink', 'fill' ], [], 0, 0 );
@@ -957,8 +993,8 @@ sub zoom_in_cb {
 	my $self = shift;
 	
 	if($self->{_current_mode_descr} ne "crop"){
-		$self->{_canvas}->set_scale( $self->{_canvas}->get_scale + 0.25 );
-		$self->adjust_rulers;
+		$self->{_canvas}->set_scale( $self->{_canvas}->get_scale + 0.1 );
+		#~ $self->adjust_rulers;
 	}else{
 		$self->{_view}->zoom_in;		
 	}
@@ -970,13 +1006,13 @@ sub zoom_out_cb {
 	my $self      = shift;
 	
 	if($self->{_current_mode_descr} ne "crop"){
-		my $new_scale = $self->{_canvas}->get_scale - 0.25;
+		my $new_scale = $self->{_canvas}->get_scale - 0.1;
 		if ( $new_scale < 0.25 ) {
 			$self->{_canvas}->set_scale(0.25);
 		} else {
 			$self->{_canvas}->set_scale($new_scale);
 		}
-		$self->adjust_rulers;
+		#~ $self->adjust_rulers;
 	}else{
 		$self->{_view}->zoom_out;
 	}
@@ -989,7 +1025,7 @@ sub zoom_normal_cb {
 	
 	if($self->{_current_mode_descr} ne "crop"){
 		$self->{_canvas}->set_scale(1);
-		$self->adjust_rulers;
+		#~ $self->adjust_rulers;
 	}else{
 		$self->{_view}->set_zoom(1);	
 	}
@@ -4416,7 +4452,7 @@ sub ret_objects_menu {
 						
 						$self->{_current_pixbuf} = $orig_pixbuf->copy;
 						$self->{_current_pixbuf_filename} = $filename;
-						$button->set_icon_widget($item->get_image->get_pixbuf);
+						$button->set_icon_widget($item->get_image);
 						$button->show_all;
 						$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
 					}
@@ -4483,19 +4519,14 @@ sub ret_objects_menu {
 			my $new_file;
 			if ( $fs_resp eq "accept" ) {
 				$new_file = $fs->get_filenames;
-
-				#create pixbufs
-				my $small_image        = Gtk2::Image->new_from_stock( 'gtk-new', 'menu' );
-				my $small_image_button = Gtk2::Image->new_from_stock( 'gtk-new', 'menu' );
-				
-				my $orig_pixbuf;
+			
 				eval{
 					$self->{_current_pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($new_file);	
 				};
 				#check if there is any error while loading this file
 				unless($@){
 					$self->{_current_pixbuf_filename} = $new_file;
-					$button->set_icon_widget($small_image_button);
+					$button->set_icon_widget(Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size($self->{_dicons}.'/draw-image.svg', Gtk2::IconSize->lookup('menu'))));
 					$button->show_all;
 					$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
 				}else{
@@ -4827,7 +4858,7 @@ sub create_polyline {
 			'stroke-pattern' => $stroke_pattern,
 			'line-width'     => $line_width,
 			'line-cap'       => 'CAIRO_LINE_CAP_ROUND',
-			'line-join'      => 'CAIRO_LINE_JOIN_ROUND'
+			'line-join'      => 'CAIRO_LINE_JOIN_ROUND',
 		);		
 	}
 	 
