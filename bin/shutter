@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.483";
+use constant REV                	=> "Rev.484";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -1618,7 +1618,8 @@ sub evt_take_screenshot {
 
 	#hide mainwindow
 	if (   $hide_active->get_active
-		&& ( $data ne "web" && $data ne "tray_web" )
+		&& $data ne "web" 
+		&& $data ne "tray_web"
 		&& !$is_in_tray
 		&& !$selfcapture )
 	{
@@ -1629,10 +1630,16 @@ sub evt_take_screenshot {
 		( $window->{x}, $window->{y} ) = $window->get_position;
 		
 	}
-	
+
 	#A short timeout to give the server a chance to
 	#redraw the area that was obscured by our dialog.
-	Glib::Timeout->add (400, sub{
+	my $timeout = 400;
+	if ( $data eq "web" || $data eq "tray_web" ){
+		$timeout = 0;		
+	}
+	
+	#see timeout description above
+	Glib::Timeout->add ($timeout, sub{
 		&fct_take_screenshot($widget, $data, $folder_from_config);
 		return FALSE;	
 	}, undef);
@@ -7123,19 +7130,20 @@ sub dlg_website {
 	$website->set_text("http://www.");
 	$website->set_activates_default(TRUE);
 	
-	#try to use Google::Search for autocompletion
-	my $api_key = "ABQIAAAA1MzQeGgjv24cQH6It97vbhQ7KJkd-ijgFr7toX7MFGWAtZ4alhQBHxiKkuXsCsTQklemxTfVOgjxGg";
-	my $referer = "http://shutter-project.org";
-	my $web_compl = Gtk2::EntryCompletion->new;
-	$web_compl->set_popup_completion (TRUE);
-	$web_compl->set_text_column (0);
-	my $model = Gtk2::ListStore->new( 'Glib::String' );
-	$web_compl->set_model($model);
-
 	eval{
 		require Google::Search;	
 	};
 	unless($@){
+
+		#try to use Google::Search for autocompletion
+		my $api_key = "ABQIAAAA1MzQeGgjv24cQH6It97vbhQ7KJkd-ijgFr7toX7MFGWAtZ4alhQBHxiKkuXsCsTQklemxTfVOgjxGg";
+		my $referer = "http://shutter-project.org";
+		my $web_compl = Gtk2::EntryCompletion->new;
+		$web_compl->set_popup_completion (TRUE);
+		$web_compl->set_text_column (0);
+		my $model = Gtk2::ListStore->new( 'Glib::String' );
+		$web_compl->set_model($model);
+
 		$website->set_completion ($web_compl);
 		$website->signal_connect('changed' => sub{
 

@@ -993,7 +993,7 @@ sub zoom_in_cb {
 	my $self = shift;
 	
 	if($self->{_current_mode_descr} ne "crop"){
-		$self->{_canvas}->set_scale( $self->{_canvas}->get_scale + 0.1 );
+		$self->{_canvas}->set_scale( $self->{_canvas}->get_scale + 0.2 );
 		#~ $self->adjust_rulers;
 	}else{
 		$self->{_view}->zoom_in;		
@@ -1006,9 +1006,9 @@ sub zoom_out_cb {
 	my $self      = shift;
 	
 	if($self->{_current_mode_descr} ne "crop"){
-		my $new_scale = $self->{_canvas}->get_scale - 0.1;
-		if ( $new_scale < 0.25 ) {
-			$self->{_canvas}->set_scale(0.25);
+		my $new_scale = $self->{_canvas}->get_scale - 0.2;
+		if ( $new_scale < 0.2 ) {
+			$self->{_canvas}->set_scale(0.2);
 		} else {
 			$self->{_canvas}->set_scale($new_scale);
 		}
@@ -1609,8 +1609,8 @@ sub event_item_on_motion_notify {
 			$ratio = $self->{_items}{$curr_item}->get('width')/$self->{_items}{$curr_item}->get('height') if $self->{_items}{$curr_item}->get('height') != 0;
 
 			foreach ( keys %{ $self->{_items}{$curr_item} } ) {
-				
-				next if $_ eq 'type';
+
+				next unless $_ =~ m/(corner|side)/;
 				
 				#fancy resizing using our little resize boxes
 				if ( $item == $self->{_items}{$curr_item}{$_} ) {
@@ -1969,7 +1969,7 @@ sub store_to_xdo_stack {
 	
 	my %do_info = ();
 	#general properties for ellipse, rectangle, image, text
-	if($item->isa('Goo::Canvas::Rect')){
+	if($item->isa('Goo::Canvas::Rect') && $item != $self->{_canvas_bg_rect}){
 
 		my $stroke_pattern = $self->create_color( $self->{_items}{$item}{stroke_color}, $self->{_items}{$item}{stroke_color_alpha} ) if exists $self->{_items}{$item}{stroke_color};
 		my $fill_pattern   = $self->create_color( $self->{_items}{$item}{fill_color}, $self->{_items}{$item}{fill_color_alpha} ) if exists $self->{_items}{$item}{fill_color};
@@ -2052,6 +2052,18 @@ sub store_to_xdo_stack {
 			'digit'				=> $digit,			
 		);
 
+	}elsif($item->isa('Goo::Canvas::Rect') && $item == $self->{_canvas_bg_rect}){
+
+		#canvas_bg_rect properties
+		%do_info = (
+			'item' 				=> $self->{_canvas_bg_rect},
+			'action' 			=> $action,
+			'x' 				=> $self->{_canvas_bg_rect}->get('x'),
+			'y' 				=> $self->{_canvas_bg_rect}->get('y'),
+			'width' 			=> $self->{_canvas_bg_rect}->get('width'),
+			'height' 			=> $self->{_canvas_bg_rect}->get('height'),	
+		);
+
 	#polyline specific properties to hash
 	}elsif($item->isa('Goo::Canvas::Polyline')){
 
@@ -2118,7 +2130,7 @@ sub xdo {
 	#finally undo the last event
 	if($action eq 'modify'){
 
-		if($item->isa('Goo::Canvas::Rect')){
+		if($item->isa('Goo::Canvas::Rect') && $item != $self->{_canvas_bg_rect}){
 
 				$self->{_items}{$item}->set(
 					'x' => $do->{'x'},
@@ -2205,7 +2217,15 @@ sub xdo {
 				$self->{_items}{$item}{stroke_color_alpha} = $do->{'stroke_color_alpha'};
 			
 			}
-						
+
+		}elsif($item->isa('Goo::Canvas::Rect') && $item == $self->{_canvas_bg_rect}){
+			
+			$self->{_canvas_bg_rect}->set(
+				'x' => $do->{'x'},
+				'y' => $do->{'y'},
+				'width' => 	$do->{'width'},
+				'height' => $do->{'height'},
+			);										
 			
 		#polyline specific properties
 		}elsif($item->isa('Goo::Canvas::Polyline')){
@@ -2234,10 +2254,23 @@ sub xdo {
 			}	
 			
 		}		
+
+		#handle resize rectangles and embedded objects
+		if ($self->{_canvas_bg_rect}{'right-side'}){
+
+			$self->handle_bg_rects( 'update', $self->{_canvas_bg_rect} );		
 		
-		$self->handle_rects( 'update', $self->{_items}{$item} );
-		$self->handle_embedded( 'update', $self->{_items}{$item} );		
-		$self->{_current_item} = $item;	
+		}else{
+
+			$self->handle_rects( 'update', $self->{_items}{$item} );
+			$self->handle_embedded( 'update', $self->{_items}{$item} );		
+			$self->{_current_item} = $item;	
+
+			#apply item properties to widgets
+			#line width, fill color, stroke color etc.
+			$self->set_and_save_drawing_properties($self->{_current_item}, FALSE);	
+					
+		}
 		
 	}elsif($action eq 'delete'){ 
 			
@@ -2257,11 +2290,7 @@ sub xdo {
 			$self->handle_embedded( 'hide', $self->{_items}{$item} );
 
 	}
-		
-	#apply item properties to widgets
-	#line width, fill color, stroke color etc.
-	$self->set_and_save_drawing_properties($self->{_current_item}, FALSE);	
-	
+			
 	#disable undo/redo actions
 	$self->{_uimanager}->get_widget("/MenuBar/Edit/Undo")->set_sensitive(scalar @{ $self->{_undo} }) if defined $self->{_undo};
 	$self->{_uimanager}->get_widget("/MenuBar/Edit/Redo")->set_sensitive(scalar @{ $self->{_redo} }) if defined $self->{_redo};	
@@ -2528,7 +2557,6 @@ sub event_item_on_button_press {
 		#MOVE AND SELECT
 		} elsif ( $self->{_current_mode_descr} eq "select" ) {
 
-
 			if ( $item->isa('Goo::Canvas::Rect') ) {
 				
 					#don't_move the bounding rectangle
@@ -2543,21 +2571,30 @@ sub event_item_on_button_press {
 
 					$cursor = Gtk2::Gdk::Cursor->new('fleur');
 					
-					#add to undo stack
-					#~ $self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
-
 					#resizing shape => resize
 				} else {
 
 					$item->{res_x}    		= $ev->x_root;
 					$item->{res_y}    		= $ev->y_root;
 					$item->{resizing}		= TRUE;
-					#~ $item->{resizing_start} = TRUE;
 
 					$cursor = undef;
+					
+					#resizing the canvas_bg_rect
+					if ($self->{_canvas_bg_rect}{'right-side'} == $item
+						|| $self->{_canvas_bg_rect}{'bottom-side'} == $item
+						|| $self->{_canvas_bg_rect}{'bottom-right-corner'} == $item ){
 
-					#add to undo stack
-					$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
+						#add to undo stack
+						$self->store_to_xdo_stack($self->{_canvas_bg_rect} , 'modify', 'undo');								
+					
+					#other resizing rectangles
+					}else{
+
+						#add to undo stack
+						$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
+				
+					}
 
 				}
 			
@@ -2581,6 +2618,8 @@ sub event_item_on_button_press {
 
 		#CREATE	
 		} else {
+
+			$self->deactivate_all;
 
 				#freehand
 			if ( $self->{_current_mode_descr} eq "freehand" ) {
@@ -2649,6 +2688,9 @@ sub event_item_on_button_press {
 		}
 		my $parent 	= $self->get_parent_item($item);
 		my $key = $self->get_item_key($item, $parent);
+
+		#no real shape, maybe resizing rectangle of bg_rect
+		return TRUE unless $key;
 
 		#real shape
 		if ( exists $self->{_items}{$key} ) {
@@ -3430,8 +3472,6 @@ sub deactivate_all {
 
 	foreach ( keys %{ $self->{_items} } ) {
 		
-		next if $_ eq 'type';
-		
 		my $item = $self->{_items}{$_};
 
 		next if $item == $exclude;
@@ -3499,8 +3539,6 @@ sub handle_embedded {
 				'visibility' => $visibilty,
 			);
 		} elsif ( exists $self->{_items}{$item}{line} ) {
-		
-				print $self->{_items}{$item}{mirrored_w} ." - ". $self->{_items}{$item}{mirrored_h} ."\n";
 		
 				#handle possible arrows properly
 				#arrow is always and end-arrow
@@ -4148,7 +4186,7 @@ sub event_item_on_enter_notify {
 
 			if ( $self->{_current_mode_descr} eq "select" ) {
 				foreach ( keys %{ $self->{_items}{$curr_item} } ) {
-					next if $_ eq 'type';
+					next unless $_ =~ m/(corner|side)/;
 					if ( $item == $self->{_items}{$curr_item}{$_} ) {
 						$cursor = Gtk2::Gdk::Cursor->new($_);
 						$self->{_canvas}->window->set_cursor($cursor);
@@ -4745,7 +4783,7 @@ sub change_cursor_to_current_pixbuf {
 	if($self->{_current_pixbuf}->get_width < 1000 && $self->{_current_pixbuf}->get_height < 1000 ){
 		eval{
 			my $cpixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($self->{_current_pixbuf_filename}, Gtk2::Gdk::Display->get_default->get_maximal_cursor_size, TRUE);
-			$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default, $cpixbuf, undef, undef );
+			$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default, $cpixbuf, 0, 0 );
 		};				
 		if($@){
 			my $response = $self->{_dialogs}->dlg_error_message( 
