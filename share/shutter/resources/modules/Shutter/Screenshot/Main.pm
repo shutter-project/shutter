@@ -26,7 +26,6 @@ package Shutter::Screenshot::Main;
 #--------------------------------------
 use utf8;
 use strict;
-use Gnome2::Wnck;
 use Image::Magick;
 use File::Temp qw/ tempfile tempdir /;
 

@@ -45,7 +45,6 @@ sub new {
 	my $self = $class->SUPER::new( shift, shift, shift );
 
 	#get params
-	$self->{_x11} 				= shift;
 	$self->{_include_border} 	= shift;
 	$self->{_xid}  				= shift;    #only used by window_by_xid, undef this when selecting a window
 	$self->{_mode} 				= shift;
@@ -68,6 +67,7 @@ sub new {
     #~ my $self = shift;
     #~ print "$self dying at\n";
 #~ } 
+#~ 
 
 1;
 
@@ -407,7 +407,7 @@ sub select_window {
 	my $event				= shift;
 	my $active_workspace	= shift;
 	my $gc					= shift;
-		
+			
 	#root window size is minimum at startup
 	$self->{_min_size} = $self->{_root}->{w} * $self->{_root}->{h};
 
@@ -439,6 +439,12 @@ sub select_window {
 
 sub window {
 	my $self = shift;
+
+	require X11::Protocol;
+
+	#X11 protocol and XSHAPE ext
+	$self->{_x11} 			= X11::Protocol->new( $ENV{ 'DISPLAY' } );
+	$self->{_x11}{ext_shape}= $self->{_x11}->init_extension('SHAPE');
 
 	#return value
 	my $output = 5;

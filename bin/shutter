@@ -30,15 +30,12 @@ use warnings;
 
 #Gnome2 libraries
 use Gnome2;
+use Gnome2::GConf;
+use Gnome2::Wnck;
+use Gnome2::VFS '-init';
 
 #Use AuthenticationManager to handle user credentials easily
 Gnome2::AuthenticationManager->init;
-
-#GConf - used for metacity keybindings
-use Gnome2::GConf;
-
-#GnomeVFS
-use Gnome2::VFS '-init';
 
 #File operations
 use File::Copy "cp";
@@ -55,9 +52,6 @@ use Gtk2::ImageView;
 
 #Imagemagick bindings
 use Image::Magick;
-
-#X11
-use X11::Protocol();
 
 #Gettext and filename parsing
 use POSIX qw/ setlocale strftime /;
@@ -88,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.482";
+use constant REV                	=> "Rev.483";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -210,10 +204,6 @@ my $icontheme = $shutter_common->get_theme;
 #Tooltips
 my $tooltips = $shutter_common->get_tooltips;
 
-#X11 protocol and XSHAPE ext
-my $x11 = X11::Protocol->new( $ENV{ 'DISPLAY' } );
-$x11->{ext_shape} = $x11->init_extension('SHAPE');
-
 #Gtk2::ImageView and Selector for advanced selection tool
 my $view;
 my $selector;
@@ -267,10 +257,7 @@ $window->signal_connect( 'delete-event' => \&evt_delete_window );
 $window->set_border_width(0);
 $window->set_resizable(TRUE);
 $window->set_focus_on_map(TRUE);
-
-$window->set_position('center');
 $window->set_default_size( 650, 500 );
-$window->set_size_request( -1, 450 );
 
 #TRAY ICON
 my $icon                 = undef;
@@ -370,34 +357,40 @@ $shutter_menu->{_menuitem_about}->signal_connect( 'activate', \&evt_about, $wind
 #command line param set to disable tray icon?
 unless ( $shutter_common->get_disable_systray ) {
 
-	if ( Gtk2->CHECK_VERSION( 2, 10, 0 ) ) {
-		$icon = Gtk2::StatusIcon->new();
-		$icon->set_from_file("$shutter_root/share/pixmaps/shutter.svg");
-		$icon->set_visible(1);
-		$icon->signal_connect(
-			'popup-menu' => sub { &evt_show_systray_statusicon; },
-			$icon
-		);
-		$icon->signal_connect(
-			'activate' => sub {
-				&evt_activate_systray_statusicon;
-				$icon;
-			},
-			$icon
-		);
-		$icon->set_tooltip( SHUTTER_NAME . " " . SHUTTER_VERSION );
-	} else {
-		require Gtk2::TrayIcon;
-		$icon = Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/pixmaps/shutter.svg", 24, 24 ) );
-		my $eventbox = Gtk2::EventBox->new;
-		$eventbox->add($icon);
-		my $tray = Gtk2::TrayIcon->new('shutter TrayIcon');
-		$tray->add($eventbox);
-		$tooltips->set_tip( $tray, SHUTTER_NAME . " " . SHUTTER_VERSION );
-		$eventbox->signal_connect( 'button_release_event', \&evt_show_systray );
-		$tray->show_all;
-	}
+	#do this when idle
+	Glib::Idle->add (
+	sub{
 
+		if ( Gtk2->CHECK_VERSION( 2, 10, 0 ) ) {
+			$icon = Gtk2::StatusIcon->new();
+			$icon->set_from_file("$shutter_root/share/pixmaps/shutter.svg");
+			$icon->set_visible(1);
+			$icon->signal_connect(
+				'popup-menu' => sub { &evt_show_systray_statusicon; },
+				$icon
+			);
+			$icon->signal_connect(
+				'activate' => sub {
+					&evt_activate_systray_statusicon;
+					$icon;
+				},
+				$icon
+			);
+			$icon->set_tooltip( SHUTTER_NAME . " " . SHUTTER_VERSION );
+		} else {
+			require Gtk2::TrayIcon;
+			$icon = Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/pixmaps/shutter.svg", 24, 24 ) );
+			my $eventbox = Gtk2::EventBox->new;
+			$eventbox->add($icon);
+			my $tray = Gtk2::TrayIcon->new('shutter TrayIcon');
+			$tray->add($eventbox);
+			$tooltips->set_tip( $tray, SHUTTER_NAME . " " . SHUTTER_VERSION );
+			$eventbox->signal_connect( 'button_release_event', \&evt_show_systray );
+			$tray->show_all;
+		}
+		
+		return FALSE;
+	});
 }
 
 #--------------------------------------
@@ -525,8 +518,7 @@ my @current_profiles;
 my $current_index = 0;
 foreach ( sort @saved_profiles ) {
 	utf8::decode $_;
-	next
-		if $_ =~ /\_accounts.xml/;    #accounts file - we are looking for "real" profiles
+	next if $_ =~ /\_accounts.xml/;    #accounts file - we are looking for "real" profiles
 	$_ =~ /.*\/(.*)\.xml/;            #get profiles name
 	my $last_profile_name = $1;
 	$combobox_settings_profiles->append_text($last_profile_name);
@@ -3789,9 +3781,8 @@ sub fct_take_screenshot {
 		}
 
 		my $screenshooter = Shutter::Screenshot::Window->new(
-			$shutter_common, $combobox_cursor->get_active,
-			$delay_value, $x11, $combobox_border->get_active,
-			undef, $data, $is_in_tray
+			$shutter_common, $combobox_cursor->get_active, $delay_value, 
+			$combobox_border->get_active, undef, $data, $is_in_tray
 		);
 		$screenshot = $screenshooter->window();
 
@@ -3839,8 +3830,9 @@ sub fct_take_screenshot {
 			&fct_control_main_window( TRUE, 'show');
 			return FALSE;
 		}
-		my $screenshooter
-			= Shutter::Screenshot::Window->new( $shutter_common, $combobox_cursor->get_active, $delay_value, $x11, $combobox_border->get_active, $xid );
+		my $screenshooter = Shutter::Screenshot::Window->new( 
+				$shutter_common, $combobox_cursor->get_active, $delay_value, 
+				$combobox_border->get_active, $xid, $data, $is_in_tray );
 		$screenshot = $screenshooter->window_by_xid();
 
 	} elsif ( $data =~ /^shutter_wrksp_direct/ ) {
