@@ -54,29 +54,29 @@ sub new {
 	#get them as params 
 	#because there is a leak when 
 	#we declare them each time	
-	$self->{_view} 		= shift;
-	$self->{_selector} 	= shift;
-	$self->{_dragger} 	= shift;
+	$self->{_view} 			= shift;
+	$self->{_selector} 		= shift;
+	$self->{_dragger} 		= shift;
 
 	#file
-	$self->{_filename}    = undef;
-	$self->{_filetype}    = undef;
-	$self->{_import_hash} = undef;
+	$self->{_filename}    	= undef;
+	$self->{_filetype}    	= undef;
+	$self->{_import_hash} 	= undef;
 
 	#ui
-	$self->{_uimanager} = undef;
-	$self->{_factory}   = undef;
+	$self->{_uimanager} 	= undef;
+	$self->{_factory}  		= undef;
 
 	#canvas
-	$self->{_canvas}     = undef;
+	$self->{_canvas}     	= undef;
 	
 	#all items are stored here
-	$self->{_items} = undef;
+	$self->{_items} 		= undef;
 	$self->{_items_history} = undef;
 	
 	#undo and redo stacks
-	$self->{_undo}      = undef;
-	$self->{_redo}      = undef;
+	$self->{_undo}      	= undef;
+	$self->{_redo}      	= undef;
 	
 	#autoscroll option, disabled by default
 	$self->{_autoscroll} = FALSE;
@@ -124,9 +124,9 @@ sub new {
     #~ print "$self dying at\n";
 #~ } 
 
-1;
-
-__DATA__
+#~ 1;
+#~ 
+#~ __DATA__
 
 sub show {
 	my $self        	  = shift;
@@ -196,8 +196,8 @@ sub show {
 	#'redraw-when-scrolled' to reduce the flicker of static items
 	my $gray = Gtk2::Gdk::Color->parse('gray');
 	$self->{_canvas}->set( 
-		'redraw-when-scrolled' 	=> TRUE, 
-		'background-color' 		=> sprintf( "#%04x%04x%04x", $gray->red, $gray->green, $gray->blue ) 
+		'redraw-when-scrolled' 	=> TRUE,
+		'background-color' 		=> sprintf( "#%04x%04x%04x", $gray->red, $gray->green, $gray->blue ), 
 	);
 	
 	#and attach scroll event
@@ -241,7 +241,6 @@ sub show {
 		$self->{_canvas}->get_root_item, 
 		$self->{_drawing_pixbuf}, 
 		0, 0,
-		'antialias' => 'none' 
 	);
 	$self->setup_item_signals( $self->{_canvas_bg} );
 
@@ -2237,7 +2236,6 @@ sub xdo {
 				'width' 	=> $do->{'drawing_pixbuf'}->get_width, 
 				'height' 	=> $do->{'drawing_pixbuf'}->get_height,
 			);
-			$self->handle_bg_rects( 'update' );
 
 			#update canvas and show the new pixbuf
 			$self->{_canvas_bg}->set('pixbuf' => $do->{'drawing_pixbuf'});
@@ -2249,8 +2247,6 @@ sub xdo {
 			$self->{_canvas_bg}->lower;
 			$self->{_canvas_bg_rect}->lower;
 			$self->handle_bg_rects( 'raise' );	
-
-
 
 		}elsif($item->isa('Goo::Canvas::Rect') && $item == $self->{_canvas_bg_rect}){
 			
@@ -2290,7 +2286,7 @@ sub xdo {
 		}		
 
 		#handle resize rectangles and embedded objects
-		if ($self->{_canvas_bg_rect}{'right-side'}){
+		if ($item == $self->{_canvas_bg_rect} || $item == $self->{_canvas_bg}){
 
 			$self->handle_bg_rects( 'update', $self->{_canvas_bg_rect} );		
 		
@@ -3476,6 +3472,9 @@ sub move_all {
 		#real shape
 		if ( exists $self->{_items}{$item} ) {
 
+			#add to undo stack
+			$self->store_to_xdo_stack($item , 'modify', 'undo');
+
 			if ( $item->isa('Goo::Canvas::Rect') ) {
 				
 				$item->set(
@@ -3491,7 +3490,8 @@ sub move_all {
 				
 				$item->translate( -$x, -$y );
 			
-			}
+			}			
+		
 		}
 	}
 	
@@ -3721,19 +3721,22 @@ sub handle_bg_rects {
 		$self->{_canvas_bg_rect}{'bottom-side'} = Goo::Canvas::Rect->new(
 			$self->{_canvas}->get_root_item, $middle_h, $bottom, 8, 8,
 			'fill-pattern' => $pattern,
-			'line-width'   => 1
+			'line-width'   => 1,
+			'antialias'    => 'none',
 		);
 
 		$self->{_canvas_bg_rect}{'bottom-right-corner'} = Goo::Canvas::Rect->new(
 			$self->{_canvas}->get_root_item, $right, $bottom, 8, 8,
 			'fill-pattern' => $pattern,
-			'line-width'   => 1
+			'line-width'   => 1,
+			'antialias'    => 'none',
 		);
 
 		$self->{_canvas_bg_rect}{'right-side'} = Goo::Canvas::Rect->new(
 			$self->{_canvas}->get_root_item, $right, $middle_v, 8, 8,
 			'fill-pattern' => $pattern,
-			'line-width'   => 1
+			'line-width'   => 1,
+			'antialias'    => 'none',
 		);
 
 		$self->setup_item_signals( $self->{_canvas_bg_rect}{'bottom-side'} );
@@ -3831,56 +3834,64 @@ sub handle_rects {
 				$root, $middle_h, $top, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
-				'line-width'   => 1
+				'line-width'   => 1,
+				'antialias'    => 'none',
 			);
 
 			$self->{_items}{$item}{'top-left-corner'} = Goo::Canvas::Rect->new(
 				$root, $left, $top, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
-				'line-width'   => 1
+				'line-width'   => 1,
+				'antialias'    => 'none',
 			);
 
 			$self->{_items}{$item}{'top-right-corner'} = Goo::Canvas::Rect->new(
 				$root, $right, $top, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
-				'line-width'   => 1
+				'line-width'   => 1,
+				'antialias'    => 'none',
 			);
 
 			$self->{_items}{$item}{'bottom-side'} = Goo::Canvas::Rect->new(
 				$root, $middle_h, $bottom, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
-				'line-width'   => 1
+				'line-width'   => 1,
+				'antialias'    => 'none',
 			);
 
 			$self->{_items}{$item}{'bottom-left-corner'} = Goo::Canvas::Rect->new(
 				$root, $left, $bottom, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
-				'line-width'   => 1
+				'line-width'   => 1,
+				'antialias'    => 'none',
 			);
 
 			$self->{_items}{$item}{'bottom-right-corner'} = Goo::Canvas::Rect->new(
 				$root, $right, $bottom, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
-				'line-width'   => 1
+				'line-width'   => 1,
+				'antialias'    => 'none',
 			);
 
 			$self->{_items}{$item}{'left-side'} = Goo::Canvas::Rect->new(
 				$root, $left - 8, $middle_v, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
-				'line-width'   => 1
+				'line-width'   => 1,
+				'antialias'    => 'none',
 			);
 
 			$self->{_items}{$item}{'right-side'} = Goo::Canvas::Rect->new(
 				$root, $right, $middle_v, 8, 8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
-				'line-width'   => 1
+				'line-width'   => 1,
+				'antialias'    => 'none',
 			);
 
 			$self->setup_item_signals( $self->{_items}{$item}{'top-side'} );
@@ -4628,85 +4639,6 @@ sub ret_objects_menu {
 	return $menu_objects;
 }
 
-#~ sub fct_load_pixbuf_async {
-#~ 
-	#~ print Dumper @_;
-#~ 
-#~ 
-	#~ my $image = shift;
-	#~ my $filename = shift;
-	#~ my $menu_item = shift;
-	#~ 
-	#~ my $loader = Gtk2::Gdk::PixbufLoader->new;
-	#~ my $handle = Gnome2::VFS::Async->open_uri (Gnome2::VFS::URI->new ($filename), 'read', 10, \&fct_open_async, $loader);	
-#~ 
-	#~ $loader->signal_connect('closed' => sub{
-		#~ print "closed\n";
-		#~ $image->set_from_pixbuf($loader->get_pixbuf);
-		#~ $menu_item->set_image($image);
-		#~ $image->show_all;
-		#~ $menu_item->show_all;
-#~ 
-	#~ });
-	#~ $loader->signal_connect('area-updated' => sub{
-		#~ print "updated\n";
-		#~ $image->set_from_pixbuf($loader->get_pixbuf);
-		#~ $image->show_all;
-		#~ $menu_item->set_image($image);
-		#~ $menu_item->show_all;
-#~ 
-	#~ });		
-	#~ 
-#~ }
-#~ 
-#~ sub fct_open_async {
-#~ 
-	#~ print Dumper @_;
-#~ 
-	#~ my $handle = shift;
-	#~ my $result = shift;
-	#~ my $loader = shift;
-	#~ 
-	#~ if($result eq 'ok'){
-		#~ $handle->read (10000, \&fct_read_async, $loader); 
-	#~ }else{
-		#~ print "Error!\n";
-		#~ $handle->close(\&fct_close_async, $loader);	
-#~ 
-	#~ }
-#~ }
-#~ 
-#~ sub fct_read_async {
-#~ 
-	#~ print Dumper @_;
-#~ 
-	#~ my $handle = shift;
-	#~ my $result = shift;
-	#~ my $buffer = shift;
-	#~ my $size = shift;
-	#~ my $size2 = shift;
-	#~ my $loader = shift;
-#~ 
-	#~ if($result eq 'ok'){
-		#~ $loader->write($buffer);
-		#~ $handle->read(10000, \&fct_read_async, $loader);	
-	#~ }else{
-		#~ $handle->close(\&fct_close_async, $loader);	
-	#~ }
-#~ }
-#~ 
-#~ sub fct_close_async {
-#~ 
-	#~ print Dumper @_;
-#~ 
-	#~ my $handle = shift;
-	#~ my $result = shift;
-	#~ my $loader = shift;
-	#~ 
-	#~ $loader->close;
-#~ 
-#~ }
-
 sub import_from_session {
 	my $self                 = shift;
 	my $button               = shift;
@@ -4817,7 +4749,7 @@ sub change_cursor_to_current_pixbuf {
 	if($self->{_current_pixbuf}->get_width < 1000 && $self->{_current_pixbuf}->get_height < 1000 ){
 		eval{
 			my $cpixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($self->{_current_pixbuf_filename}, Gtk2::Gdk::Display->get_default->get_maximal_cursor_size, TRUE);
-			$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default, $cpixbuf, 0, 0 );
+			$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default, $cpixbuf, undef, undef );
 		};				
 		if($@){
 			my $response = $self->{_dialogs}->dlg_error_message( 
@@ -4990,7 +4922,7 @@ sub create_censor {
 		'stroke-pattern' => $stroke_pattern,
 		'line-width'     => 14,
 		'line-cap'       => 'CAIRO_LINE_CAP_ROUND',
-		'line-join'      => 'CAIRO_LINE_JOIN_ROUND'
+		'line-join'      => 'CAIRO_LINE_JOIN_ROUND',
 	);
 
 	$self->{_current_new_item} = $item;
@@ -5035,6 +4967,7 @@ sub create_image {
 		'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
 		'line-width'   => 1,
 		'stroke-color' => 'gray',
+		'antialias'    => 'none',
 	);
 
 	$self->{_current_new_item} = $item;
@@ -5119,6 +5052,7 @@ sub create_text{
 		'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
 		'line-width'   => 1,
 		'stroke-color' => 'gray',
+		'antialias'    => 'none',
 	);
 
 	$self->{_current_new_item} = $item;
@@ -5129,10 +5063,10 @@ sub create_text{
 		$item->get('x'),
 		$item->get('y'), $item->get('width'),
 		'nw',
-		'use-markup'   => TRUE,
-		'fill-pattern' => $stroke_pattern,
-		'line-width'   => $line_width,
-		'visibility' => 'hidden'
+		'use-markup'   	=> TRUE,
+		'fill-pattern' 	=> $stroke_pattern,
+		'line-width'   	=> $line_width,
+		'visibility' 	=> 'hidden',
 	);
 
 	#set type flag
@@ -5203,6 +5137,7 @@ sub create_line {
 		'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
 		'line-width'   => 1,
 		'stroke-color' => 'gray',
+		'antialias'    => 'none',
 	);
 
 	$self->{_current_new_item} = $item;
@@ -5222,7 +5157,7 @@ sub create_line {
 		'start-arrow'    	=> $start_arrow,
 		'arrow-length'	 	=> $arrow_length,
 		'arrow-width'	 	=> $arrow_width,
-		'arrow-tip-length'	=> $arrow_tip_length,						
+		'arrow-tip-length'	=> $arrow_tip_length,					
 	);				
 	
 	if(defined $end_arrow || defined $start_arrow){
@@ -5290,6 +5225,7 @@ sub create_number {
 		'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
 		'line-width'   => 1,
 		'stroke-color' => 'gray',
+		'antialias'    => 'none',
 	);
 
 	$self->{_current_new_item} = $item;
@@ -5374,6 +5310,7 @@ sub create_ellipse {
 		'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
 		'line-width'   => 1,
 		'stroke-color' => 'gray',
+		'antialias'    => 'none',
 	);
 
 	$self->{_current_new_item} = $item;
@@ -5492,6 +5429,7 @@ sub create_rectangle {
 		'fill-pattern'   => $fill_pattern,
 		'stroke-pattern' => $stroke_pattern,
 		'line-width'     => $line_width,
+		'antialias'      => 'none',
 	);
 
 	$self->{_current_new_item} = $item;

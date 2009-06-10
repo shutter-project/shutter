@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.485";
+use constant REV                	=> "Rev.486";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -5517,7 +5517,7 @@ sub fct_ret_program_menu {
 
 	#determine apps registered with that mime type	
 	my ( $mdefault, @mapps ) = File::MimeInfo::Applications::mime_applications( $session_screens{$key}->{'mime_type'} );
-		
+			
 	#currently we use the above statement for the icon only
 	#because of the following error
 	#
@@ -5577,23 +5577,23 @@ sub fct_ret_program_menu {
 			}	
 		}
 	
-		#no match found!
-		unless ($oapp){
-			$shutter_menu->{_menuitem_reopen_default}->visible(FALSE);
-			$shutter_menu->{_menuitem_reopen}->set_sensitive(FALSE);
-			return $menu_programs;			
-		}		
-		
-		if ( $icontheme->has_icon( $oapp->Icon ) ) {
-			my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
-			my $icon_pixbuf = $icontheme->load_icon( $oapp->Icon, $ih, 'generic-fallback' );
-			$program_item->set_image( Gtk2::Image->new_from_pixbuf($icon_pixbuf) );
-		}
-		$program_item->signal_connect(
-			'activate' => sub {
-				&fct_open_with_program($oapp, $app->{'name'});
+		#match found!
+		if ($oapp){
+			if ( $icontheme->has_icon( $oapp->Icon ) ) {
+				my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
+				my $icon_pixbuf = $icontheme->load_icon( $oapp->Icon, $ih, 'generic-fallback' );
+				$program_item->set_image( Gtk2::Image->new_from_pixbuf($icon_pixbuf) );
 			}
-		);
+			$program_item->signal_connect(
+				'activate' => sub {
+					&fct_open_with_program($oapp, $app->{'name'});
+				}
+			);
+			
+		#no match found -> destroy current menu entry		
+		}else{
+			$program_item->destroy;
+		}		
 		
 	}	
 	
