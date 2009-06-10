@@ -124,9 +124,9 @@ sub new {
     #~ print "$self dying at\n";
 #~ } 
 
-#~ 1;
-#~ 
-#~ __DATA__
+1;
+
+__DATA__
 
 sub show {
 	my $self        	  = shift;
@@ -649,14 +649,17 @@ sub setup_right_vbox_c {
 		my $p = $self->{_view}->get_pixbuf;
 		
 		if ($s && $p) {
+
+			#add to undo stack
+			$self->store_to_xdo_stack($self->{_canvas_bg}, 'modify', 'undo');	
 			
 			#create new pixbuf
 			#create temp pixbuf because selected area might be bigger than
 			#source pixbuf (screenshot) => canvas area is resizeable
-			my $temp = Gtk2::Gdk::Pixbuf->new ($self->{_drawing_pixbuf}->get_colorspace, TRUE, $self->{_drawing_pixbuf}->get_bits_per_sample,  $p->get_width, $p->get_height);		
+			my $temp = Gtk2::Gdk::Pixbuf->new ($self->{_drawing_pixbuf}->get_colorspace, TRUE, 8,  $p->get_width, $p->get_height);		
 			#whole pixbuf is transparent
 			$temp->fill('0x00000000');
-			
+		
 			#copy source image to temp pixbuf (temp pixbuf's size == $self->{_view}->get_pixbuf)			
 			$self->{_drawing_pixbuf}->copy_area(0, 0, $self->{_drawing_pixbuf}->get_width, $self->{_drawing_pixbuf}->get_height, $temp, 0, 0);
 			
@@ -2052,6 +2055,15 @@ sub store_to_xdo_stack {
 			'digit'				=> $digit,			
 		);
 
+	}elsif($item->isa('Goo::Canvas::Image') && $item == $self->{_canvas_bg}){
+
+		#canvas_bg_image properties
+		%do_info = (
+			'item' 				=> $self->{_canvas_bg},
+			'action' 			=> $action,
+			'drawing_pixbuf'	=> $self->{_drawing_pixbuf},	
+		);
+
 	}elsif($item->isa('Goo::Canvas::Rect') && $item == $self->{_canvas_bg_rect}){
 
 		#canvas_bg_rect properties
@@ -2218,6 +2230,28 @@ sub xdo {
 			
 			}
 
+		}elsif($item->isa('Goo::Canvas::Image') && $item == $self->{_canvas_bg}){
+
+			#update bounds and bg_rects
+			$self->{_canvas_bg_rect}->set(
+				'width' 	=> $do->{'drawing_pixbuf'}->get_width, 
+				'height' 	=> $do->{'drawing_pixbuf'}->get_height,
+			);
+			$self->handle_bg_rects( 'update' );
+
+			#update canvas and show the new pixbuf
+			$self->{_canvas_bg}->set('pixbuf' => $do->{'drawing_pixbuf'});
+			
+			#save new pixbuf in var
+			$self->{_drawing_pixbuf} = $do->{'drawing_pixbuf'}->copy;
+						
+			#adjust stack order
+			$self->{_canvas_bg}->lower;
+			$self->{_canvas_bg_rect}->lower;
+			$self->handle_bg_rects( 'raise' );	
+
+
+
 		}elsif($item->isa('Goo::Canvas::Rect') && $item == $self->{_canvas_bg_rect}){
 			
 			$self->{_canvas_bg_rect}->set(
@@ -2225,8 +2259,8 @@ sub xdo {
 				'y' => $do->{'y'},
 				'width' => 	$do->{'width'},
 				'height' => $do->{'height'},
-			);										
-			
+			);
+						
 		#polyline specific properties
 		}elsif($item->isa('Goo::Canvas::Polyline')){
 			
