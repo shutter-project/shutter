@@ -1,11 +1,12 @@
 shutter (0.80~ppa1) jaunty; urgency=low
 
   * New features
+    -- Undo/Redo functionality in Drawing Tool
     -- Added arrow shape to Drawing Tool
     -- Added highlighter/marker to Drawing Tool
     -- Added numbered tags to Drawing Tool
     -- Added crop tool to Drawing Tool
-    -- Resize the canvas
+    -- Functionality to resize the canvas
     -- Zoomable image preview
     -- New 'Copy filename' action
     -- Added access to 'Recent files'
@@ -20,6 +21,8 @@ shutter (0.80~ppa1) jaunty; urgency=low
        [resize canvas]
     -- LP: #312405
        [added numbered tags]
+    -- LP: #312965
+       [Drawing tool should have an Undo feature]
     -- LP: #318452
        [save and restore last used tool]
     -- LP: #322811
@@ -89,7 +92,7 @@ shutter (0.80~ppa1) jaunty; urgency=low
   * code cleanup
   * updated translations
 
- -- Mario Kemper <mario.kemper@googlemail.com>  Sat, 06 Jun 2009 21:53:43 +0200
+ -- Mario Kemper <mario.kemper@googlemail.com>  Fri, 12 Jun 2009 01:53:03 +0200
 
 shutter (0.70.2~ppa4) jaunty; urgency=low
 

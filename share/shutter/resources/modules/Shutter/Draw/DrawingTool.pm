@@ -90,6 +90,11 @@ sub new {
 	$self->{_line_width} 		 = 3;
 	$self->{_font} 				 = 'Sans Italic 16';
 
+	#obtain current colors and font_desc from the main window
+    $self->{_style}              = $self->{_shutter_common}->get_mainwindow->get_style;
+	$self->{_style_bg}	         = $self->{_style}->bg('selected');
+	$self->{_style_tx}           = $self->{_style}->text('selected');
+
 	#remember drawing colors, line width and font settings
 	#maybe we have to restore them
 	$self->{_last_fill_color}         = Gtk2::Gdk::Color->parse('#0000ff');
@@ -125,9 +130,9 @@ sub new {
     #~ print "$self dying at\n";
 #~ } 
 
-#~ 1;
-#~ 
-#~ __DATA__
+1;
+
+__DATA__
 
 sub show {
 	my $self        	  = shift;
@@ -353,9 +358,9 @@ sub show {
 	$self->{_last_line_width} 		  = $self->{_line_spin_w}->get_value;
 	$self->{_last_font} 			  = $self->{_font_btn_w}->get_font_name;
 
-	#remember the last mode as well
-	$self->{_last_mode}            	  = undef;
-	$self->{_last_mode_descr}         = undef;	
+	#init last mode
+	$self->{_last_mode}            	  = 0;
+	$self->{_last_mode_descr}         = '';	
 
 	#do show these actions because the user would be confused
 	#to see multiple shortcuts to handle zooming
@@ -678,7 +683,7 @@ sub setup_right_vbox_c {
 			
 			#now move all items, 
 			#so they are in the right position
-			print $s->x ." - ".$s->y."\n";
+			#~ print $s->x ." - ".$s->y."\n";
 			$self->move_all($s->x, $s->y);
 			
 			#adjust stack order
@@ -851,7 +856,7 @@ sub change_drawing_tool_cb {
 	my $self   = shift;
 	my $action = shift;
 
-	print "change_drawing_tool_cb\n";
+	#~ print "change_drawing_tool_cb\n";
 
 	eval { $self->{_current_mode} = $action->get_current_value; };
 	if ($@) {
@@ -1528,7 +1533,7 @@ sub event_item_on_motion_notify {
 		)
 	{
 
-		print "start resizing\n";
+		#~ print "start resizing\n";
 
 		my $item = $self->{_current_new_item};
 		$self->{_current_new_item} = undef;
@@ -1549,7 +1554,7 @@ sub event_item_on_motion_notify {
 	#item is resizing mode already
 	} elsif ( $item->{resizing} && $ev->state >= 'button1-mask' ) {
 
-		print "resizing\n";
+		#~ print "resizing\n";
 
 		$self->{_current_mode_descr} = "resize";
 
@@ -1931,7 +1936,7 @@ sub abort_current_mode {
 		$self->{_canvas}->pointer_ungrab( $self->{_current_item}, time );
 	}
 
-	print "abort_current_mode\n";
+	#~ print "abort_current_mode\n";
 
 	$self->set_drawing_action(1);
 
@@ -1941,7 +1946,7 @@ sub abort_current_mode {
 sub clear_item_from_canvas {
 	my ($self, $item) = @_;
 
-	print "clear_item_from_canvas\n";
+	#~ print "clear_item_from_canvas\n";
 
 	if ($item) {
 		
@@ -1970,7 +1975,7 @@ sub store_to_xdo_stack {
 
 	return FALSE unless $item; 
 
-	print "xdo - $item\n";
+	#~ print "xdo - $item\n";
 	
 	my %do_info = ();
 	#general properties for ellipse, rectangle, image, text
@@ -2104,6 +2109,13 @@ sub store_to_xdo_stack {
 		);
 	
 	}
+
+	#reset undo when creating new item after redo
+	if($action eq 'create'){
+		while (defined $self->{_redo} && scalar @{ $self->{_redo} } > 0){
+			shift @{ $self->{_redo} };	
+		}	
+	}	
 	
 	if($xdo eq 'undo'){
 		push @{ $self->{_undo} }, \%do_info; 		
@@ -2145,8 +2157,10 @@ sub xdo {
 	}	
 
 	my $reverse_action = 'modify';
-	$reverse_action = 'delete' if $action eq 'create';
-	$reverse_action = 'create' if $action eq 'delete';
+	$reverse_action = 'delete_xdo' if $action eq 'create';
+	$reverse_action = 'create_xdo' if $action eq 'delete';
+	$reverse_action = 'delete_xdo' if $action eq 'create_xdo';
+	$reverse_action = 'create_xdo' if $action eq 'delete_xdo';
 	if($xdo eq 'undo'){
 		#store to redo stack
 		$self->store_to_xdo_stack($item, $reverse_action, 'redo', $opt1); 	
@@ -2333,7 +2347,7 @@ sub xdo {
 					
 		}
 		
-	}elsif($action eq 'delete'){ 
+	}elsif($action eq 'delete' || $action eq 'delete_xdo'){ 
 			
 			#mark as current
 			$self->{_last_item}        = $self->{_current_item};		
@@ -2344,7 +2358,7 @@ sub xdo {
 			$self->handle_rects( 'update', $self->{_items}{$item} );
 			$self->handle_embedded( 'update', $self->{_items}{$item} );	
 	
-	}elsif($action eq 'create'){
+	}elsif($action eq 'create' || $action eq 'create_xdo'){
 	
 			$self->{_items}{$item}->set('visibility' => 'hidden');
 			$self->handle_rects( 'hide', $self->{_items}{$item} );
@@ -2371,7 +2385,7 @@ sub set_and_save_drawing_properties {
 
 	return FALSE unless $item;
 
-	print "set_and_save_drawing_properties\n";
+	#~ print "set_and_save_drawing_properties\n";
 
 	#determine key for item hash
 	if(my $child = $self->get_child_item($item)){
@@ -2515,7 +2529,7 @@ sub restore_drawing_properties {
 	#anything done until now?
 	return FALSE unless defined $self->{_last_mode};
 
-	print "restore_drawing_properties\n";
+	#~ print "restore_drawing_properties\n";
 
 	#block 'value-change' handlers for widgets
 	#so we do not apply the changes twice
@@ -2552,7 +2566,7 @@ sub restore_drawing_properties {
 sub event_item_on_button_press {
 	my ( $self, $item, $target, $ev ) = @_;
 
-	print "button-press\n";
+	#~ print "button-press\n";
 
 	#canvas is busy now...
 	$self->{_busy} = TRUE;
@@ -2793,7 +2807,7 @@ sub ret_item_menu {
 	my $parent = shift;
 	my $key	   = shift;
 
-	print "ret_item_menu\n";
+	#~ print "ret_item_menu\n";
 
 	my $menu_item = Gtk2::Menu->new;
 
@@ -2884,7 +2898,7 @@ sub get_item_key {
 sub show_item_properties {
 	my ($self, $item, $parent, $key) = @_;
 
-	print "show_item_properties\n";
+	#~ print "show_item_properties\n";
 
 	#create dialog
 	my $prop_dialog = Gtk2::Dialog->new(
@@ -3275,7 +3289,7 @@ sub apply_properties {
 	
 	) = @_;
 
-	print "apply_properties\n";
+	#~ print "apply_properties\n";
 
 	#remember drawing colors, line width and font settings
 	#maybe we have to restore them
@@ -3543,7 +3557,7 @@ sub deactivate_all {
 	my $self    = shift;
 	my $exclude = shift || 0;
 
-	print "deactivate_all\n";
+	#~ print "deactivate_all\n";
 
 	foreach ( keys %{ $self->{_items} } ) {
 		
@@ -3752,7 +3766,7 @@ sub handle_bg_rects {
 	
 	if ( $action eq 'create' ) {
 
-		my $pattern = $self->create_color( 'black', 0.3 );
+		my $pattern = $self->create_color( $self->{_style_bg}, 1 );
 
 		$self->{_canvas_bg_rect}{'bottom-side'} = Goo::Canvas::Rect->new(
 			$self->{_canvas}->get_root_item, $middle_h, $bottom, 8, 8,
@@ -3840,11 +3854,11 @@ sub handle_rects {
 	my $root = $self->{_canvas}->get_root_item;
 
 	#do we have a blessed reference?
-	eval { $self->{_items}{$item}->can('isa'); };
-	if ($@) {
-		print $@;
-		return FALSE;
-	}
+	#~ eval { $self->{_items}{$item}->can('isa'); };
+	#~ if ($@) {
+		#~ print $@;
+		#~ return FALSE;
+	#~ }
 
 	if ( $self->{_items}{$item}->isa('Goo::Canvas::Rect') ) {
 		
@@ -3862,70 +3876,70 @@ sub handle_rects {
 
 		if ( $action eq 'create' ) {
 
-			my $pattern = $self->create_color( 'green', 0.3 );
+			my $pattern  = $self->create_color( $self->{_style_bg}, 1 );
 
 			$self->{_items}{$item}{'top-side'} = Goo::Canvas::Rect->new(
 				$root, $middle_h, $top, 8, 8,
-				'fill-pattern' => $pattern,
-				'visibility'   => 'hidden',
-				'line-width'   => 1,
-				'antialias'    => 'none',
+				'fill-pattern'   => $pattern,
+				'visibility'     => 'hidden',
+				'line-width'     => 0.5,
 			);
-
+	
 			$self->{_items}{$item}{'top-left-corner'} = Goo::Canvas::Rect->new(
 				$root, $left, $top, 8, 8,
-				'fill-pattern' => $pattern,
-				'visibility'   => 'hidden',
-				'line-width'   => 1,
-				'antialias'    => 'none',
+				'fill-pattern'   => $pattern,
+				'visibility'     => 'hidden',
+				'line-width'     => 0.5,
+				'radius-x'	     => 8,
+				'radius-y'	     => 8,
 			);
 
 			$self->{_items}{$item}{'top-right-corner'} = Goo::Canvas::Rect->new(
 				$root, $right, $top, 8, 8,
-				'fill-pattern' => $pattern,
-				'visibility'   => 'hidden',
-				'line-width'   => 1,
-				'antialias'    => 'none',
+				'fill-pattern'   => $pattern,
+				'visibility'     => 'hidden',
+				'line-width'     => 0.5,
+				'radius-x'	     => 8,
+				'radius-y'	     => 8,
 			);
 
 			$self->{_items}{$item}{'bottom-side'} = Goo::Canvas::Rect->new(
 				$root, $middle_h, $bottom, 8, 8,
-				'fill-pattern' => $pattern,
-				'visibility'   => 'hidden',
-				'line-width'   => 1,
-				'antialias'    => 'none',
+				'fill-pattern'   => $pattern,
+				'visibility'     => 'hidden',
+				'line-width'     => 0.5,
 			);
 
 			$self->{_items}{$item}{'bottom-left-corner'} = Goo::Canvas::Rect->new(
 				$root, $left, $bottom, 8, 8,
-				'fill-pattern' => $pattern,
-				'visibility'   => 'hidden',
-				'line-width'   => 1,
-				'antialias'    => 'none',
+				'fill-pattern'   => $pattern,
+				'visibility'     => 'hidden',
+				'line-width'     => 0.5,
+				'radius-x'	     => 8,
+				'radius-y'	     => 8,
 			);
 
 			$self->{_items}{$item}{'bottom-right-corner'} = Goo::Canvas::Rect->new(
 				$root, $right, $bottom, 8, 8,
-				'fill-pattern' => $pattern,
-				'visibility'   => 'hidden',
-				'line-width'   => 1,
-				'antialias'    => 'none',
+				'fill-pattern'   => $pattern,
+				'visibility'     => 'hidden',
+				'line-width'     => 0.5,
+				'radius-x'	     => 8,
+				'radius-y'	     => 8,
 			);
 
 			$self->{_items}{$item}{'left-side'} = Goo::Canvas::Rect->new(
 				$root, $left - 8, $middle_v, 8, 8,
-				'fill-pattern' => $pattern,
-				'visibility'   => 'hidden',
-				'line-width'   => 1,
-				'antialias'    => 'none',
+				'fill-pattern'   => $pattern,
+				'visibility'     => 'hidden',
+				'line-width'     => 0.5,
 			);
 
 			$self->{_items}{$item}{'right-side'} = Goo::Canvas::Rect->new(
 				$root, $right, $middle_v, 8, 8,
-				'fill-pattern' => $pattern,
-				'visibility'   => 'hidden',
-				'line-width'   => 1,
-				'antialias'    => 'none',
+				'fill-pattern'   => $pattern,
+				'visibility'     => 'hidden',
+				'line-width'     => 0.5,
 			);
 
 			$self->setup_item_signals( $self->{_items}{$item}{'top-side'} );
@@ -3949,6 +3963,8 @@ sub handle_rects {
 
 			my $visibilty = 'visible';
 			$visibilty = 'hidden' if $action eq 'hide';
+
+			my $lw = $item->get('line-width');
 
 			#ellipse => hide rectangle as well
 			if ( exists $self->{_items}{$item}{ellipse} ) {
@@ -4016,7 +4032,7 @@ sub handle_rects {
 				'visibility' => $visibilty,
 			);
 
-			$self->handle_bg_rects('raise');
+			#~ $self->handle_bg_rects('raise');
 
 		} elsif ( $action eq 'raise' ) {
 
@@ -4237,13 +4253,11 @@ sub event_item_on_enter_notify {
 
 			if ( $self->{_current_mode_descr} eq "select" ) {
 
-				my $pattern = $self->create_color( 'black', 1.0 );
-				$item->set( 'fill-pattern' => $pattern );
-
 				foreach ( keys %{ $self->{_canvas_bg_rect} } ) {
 					if ( $item == $self->{_canvas_bg_rect}{$_} ) {
 						my $cursor = Gtk2::Gdk::Cursor->new($_);
 						$self->{_canvas}->window->set_cursor($cursor);
+						last;
 					}
 				}    #end determine cursor
 			}		
@@ -4251,13 +4265,6 @@ sub event_item_on_enter_notify {
 			#resizing shape
 		} else {
 			
-			#don't change color when an action is already taking place
-			#e.g. resizing
-			if ( $self->{_current_mode_descr} eq "select" ) {
-				my $pattern = $self->create_color( 'red', 0.5 );
-				$item->set( 'fill-pattern' => $pattern );
-			}
-
 			#activate correct item if not activated yet
 			my $curr_item = $self->{_current_new_item} || $self->{_current_item};
 
@@ -4274,12 +4281,11 @@ sub event_item_on_enter_notify {
 					if ( $item == $self->{_items}{$curr_item}{$_} ) {
 						$cursor = Gtk2::Gdk::Cursor->new($_);
 						$self->{_canvas}->window->set_cursor($cursor);
+						last;
 					}
 				}    #end determine cursor
 			}
-
 		}
-
 	}
 
 	return TRUE;
@@ -4287,36 +4293,6 @@ sub event_item_on_enter_notify {
 
 sub event_item_on_leave_notify {
 	my ( $self, $item, $target, $ev ) = @_;
-
-	if (   $item->isa('Goo::Canvas::Rect')
-		|| $item->isa('Goo::Canvas::Ellipse')
-		|| $item->isa('Goo::Canvas::Text')
-		|| $item->isa('Goo::Canvas::Image')
-		|| $item->isa('Goo::Canvas::Polyline') )
-	{
-
-		#embedded item?
-		my $parent = $self->get_parent_item($item);
-		$item = $parent if $parent;
-
-		#real shape
-		if ( exists $self->{_items}{$item} ) {
-
-			#canvas resizing shape
-		} elsif (  $self->{_canvas_bg_rect}{'right-side'} == $item
-				|| $self->{_canvas_bg_rect}{'bottom-side'} == $item
-				|| $self->{_canvas_bg_rect}{'bottom-right-corner'} == $item ) 
-		{
-
-			my $pattern = $self->create_color( 'black', 0.3 );
-			$item->set( 'fill-pattern' => $pattern );
-
-			#resizing shape
-		} else {
-			my $pattern = $self->create_color( 'green', 0.3 );
-			$item->set( 'fill-pattern' => $pattern );
-		}
-	}
 
 	my $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
 	$self->{_canvas}->window->set_cursor($cursor)
@@ -4412,8 +4388,28 @@ sub setup_uimanager {
 	);
 
 	my @toggle_actions = (
-		[ "Autoscroll", undef, $self->{_d}->get("Automatic scrolling"), undef, undef, sub { my $widget = shift; $self->{_autoscroll} = $widget->get_active; } ],
-		[ "Fullscreen", 'gtk-fullscreen', undef, "F11", undef, sub { my $action = shift; if($action->get_active){ $self->{_drawing_window}->fullscreen }else{ $self->{_drawing_window}->unfullscreen } } ]
+		[ "Autoscroll", undef, $self->{_d}->get("Automatic scrolling"), undef, undef, 
+			sub { 
+				my $widget = shift; 
+				
+				if($widget->get_active){ 
+					$self->{_autoscroll} = TRUE;
+				}else{ 
+					$self->{_autoscroll} = FALSE;
+				} 	
+			} 
+		],
+		[ "Fullscreen", 'gtk-fullscreen', undef, "F11", undef, 
+			sub { 
+				my $action = shift; 
+				
+				if($action->get_active){ 
+					$self->{_drawing_window}->fullscreen 
+				}else{ 
+					$self->{_drawing_window}->unfullscreen 
+				} 
+			} 	
+		],
 	);
 
 	my @drawing_actions = (
@@ -4751,7 +4747,7 @@ sub set_drawing_action {
 	my $self  = shift;
 	my $index = shift;
 
-	print "set_drawing_action\n";
+	#~ print "set_drawing_action\n";
 		
 	my $item_index = 0;
 	my $toolbar = $self->{_uimanager}->get_widget("/ToolBarDrawing");
@@ -4780,7 +4776,7 @@ sub set_drawing_action {
 sub change_cursor_to_current_pixbuf {
 	my $self = shift;
 
-	print "change_cursor_to_current_pixbuf\n";
+	#~ print "change_cursor_to_current_pixbuf\n";
 
 	$self->{_current_mode_descr} = "image";
 
@@ -5433,16 +5429,16 @@ sub create_rectangle {
 	my $ev        = shift;
 	my $copy_item = shift;
 
-	my @dimensions = ( 0, 0, 0, 0 );
+	my @dimensions     = ( 0, 0, 0, 0 );
 	my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
-	my $fill_pattern   = $self->create_color( $self->{_fill_color},   $self->{_fill_color_alpha} );
-	my $line_width = $self->{_line_width};
+	my $fill_pattern   = $self->create_color( $self->{_fill_color}, $self->{_fill_color_alpha} );
+	my $line_width     = $self->{_line_width};
 
 	#use event coordinates and selected color
 	if ($ev) {
 		@dimensions = ( $ev->x_root, $ev->y_root, 2, 2 );
 
-		#use source item coordinates and item color
+	#use source item coordinates and item color
 	} elsif ($copy_item) {
 		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
 		$stroke_pattern = $self->create_color( $self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha} );
