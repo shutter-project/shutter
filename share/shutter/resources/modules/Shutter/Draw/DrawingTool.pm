@@ -197,6 +197,7 @@ sub show {
 	my $gray = Gtk2::Gdk::Color->parse('gray');
 	$self->{_canvas}->set( 
 		'redraw-when-scrolled' 	=> TRUE,
+		'automatic-bounds' 		=> FALSE,
 		'background-color' 		=> sprintf( "#%04x%04x%04x", $gray->red, $gray->green, $gray->blue ), 
 	);
 	
@@ -5019,8 +5020,6 @@ sub create_image {
 		
 	}	
 
-	
-	
 	return TRUE;	
 }
 

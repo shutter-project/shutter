@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.486";
+use constant REV                	=> "Rev.487";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -3086,7 +3086,7 @@ sub fct_get_program_model {
 	#FIXME - use png as default mime type (is this clever enough?)
 	my ( $default, @mapps ) = File::MimeInfo::Applications::mime_applications('image/png');
 	
-	#currently we use the above statement for the icon only
+	#currently we use File::MimeInfo::Applications and Gnome2::VFS::Mime::Type
 	#because of the following error
 	#
 	#libgnomevfs-WARNING **: 
@@ -3106,6 +3106,13 @@ sub fct_get_program_model {
 	#for opening files
 	foreach my $mapp (@mapps){
 		foreach my $app (@apps){
+			#FIXME - kde apps do not support the freedesktop standards (.desktop files)
+			#we simply cut the kde* / kde4* substring here
+			#is it possible to get the wrong app if there 
+			#is the kde3 and the kde4 version of an app installed?
+			#
+			#I think so ;-)
+			$app->{'id'} =~ s/^(kde4|kde)-//g;
 			if($mapp->{'file'} =~ m/$app->{'id'}/){
 				my $icon_pixbuf;
 				if ( $icontheme->has_icon( $mapp->Icon ) ) {
@@ -5516,9 +5523,9 @@ sub fct_ret_program_menu {
 	}
 
 	#determine apps registered with that mime type	
-	my ( $mdefault, @mapps ) = File::MimeInfo::Applications::mime_applications( $session_screens{$key}->{'mime_type'} );
-			
-	#currently we use the above statement for the icon only
+	my ( $default, @mapps ) = File::MimeInfo::Applications::mime_applications( $session_screens{$key}->{'mime_type'} );
+	
+	#currently we use File::MimeInfo::Applications and Gnome2::VFS::Mime::Type
 	#because of the following error
 	#
 	#libgnomevfs-WARNING **: 
@@ -5526,9 +5533,8 @@ sub fct_ret_program_menu {
 	#with a GNOMEVFSMimeApplication structure constructed 
 	#by the deprecated application registry 
 	my $mime_type = Gnome2::VFS::Mime::Type->new ($session_screens{$key}->{'mime_type'});
-	my @apps = $mime_type->get_all_applications_for_uri ($session_screens{$key}->{'uri'}->to_string);
-	my $default = $mime_type->get_default_application;	
-	
+	my @apps = $mime_type->get_all_applications;
+
 	#no app determined!
 	unless (scalar @apps && scalar @mapps){
 		$shutter_menu->{_menuitem_reopen_default}->visible(FALSE);
@@ -5536,19 +5542,36 @@ sub fct_ret_program_menu {
 		return $menu_programs;			
 	}
 
-	#FIXME - why is default always undef??
 	#no default app determined!
 	unless ($default){
 		$shutter_menu->{_menuitem_reopen_default}->visible(FALSE);					
 	}
 	
 	foreach my $app (@apps) {
+		
+		#FIXME - kde apps do not support the freedesktop standards (.desktop files)
+		#we simply cut the kde* / kde4* substring here
+		#is it possible to get the wrong app if there 
+		#is the kde3 and the kde4 version of an app installed?
+		#
+		#I think so ;-)
+		$app->{'id'} =~ s/^(kde4|kde)-//g;
 
 		my $program_item = undef; 
 		
 		#default app
-		if($default && $app->{'command'} eq $default->{'command'}){
+		if($default && $default->{'file'} =~ m/$app->{'id'}/){
+			
+			#remove old handler
+			#strange things happen when we do not remove it
+			if(exists $shutter_menu->{_menuitem_reopen_default}{hid} 
+				&& $shutter_menu->{_menuitem_reopen_default}->signal_handler_is_connected($shutter_menu->{_menuitem_reopen_default}{hid}))
+			{
+				$shutter_menu->{_menuitem_reopen_default}->signal_handler_disconnect($shutter_menu->{_menuitem_reopen_default}{hid});
+			}
+			
 			$program_item = $shutter_menu->{_menuitem_reopen_default};
+			$program_item->{'default'} = TRUE;
 			
 			$shutter_menu->{_menuitem_reopen_default}->show;
 			$shutter_menu->{_menuitem_reopen_default}->set_sensitive(TRUE);
@@ -5557,6 +5580,7 @@ sub fct_ret_program_menu {
 			$shutter_menu->{_menuitem_reopen_default}->foreach (sub {
 				if($_[0] =~ /Gtk2::AccelLabel/){
 					$_[0]->set_label(sprintf( $d->get("_Open with %s"), "'".$app->{'name'}."'"));
+					return undef;
 				}
 			});	
 				
@@ -5584,11 +5608,16 @@ sub fct_ret_program_menu {
 				my $icon_pixbuf = $icontheme->load_icon( $oapp->Icon, $ih, 'generic-fallback' );
 				$program_item->set_image( Gtk2::Image->new_from_pixbuf($icon_pixbuf) );
 			}
-			$program_item->signal_connect(
+			my $hid = $program_item->signal_connect(
 				'activate' => sub {
+					print "jajaja\n";
 					&fct_open_with_program($oapp, $app->{'name'});
 				}
 			);
+			
+			#save hid when default app
+			#to remove the handler next time we open the menu
+			$shutter_menu->{_menuitem_reopen_default}{hid} = $hid if $program_item->{'default'};
 			
 		#no match found -> destroy current menu entry		
 		}else{

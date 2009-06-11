@@ -83,29 +83,70 @@ sub mime_applications_set_custom {
 
 sub _default {
 	my $mimetype = shift;
-	my $file = data_home(qw/applications defaults.list/);
-	return undef unless -f $file && -r _;
+
+	#changed by mkemper - e.g. we need to look at the mimeapps.list file as well
+		
+	#first check defaults.list in data_home
+	#then mimeapps.list in data_home
+	#then defaults.list in data_files directory
+	my @files = (	data_home(qw/applications defaults.list/), 
+					data_home(qw/applications mimeapps.list/), 
+					data_files(qw/applications defaults.list/)
+				);  
+
+	my $desktop_file = undef;	
+	foreach my $file (@files){
+		unless (-f $file && -r $file){
+			next;
+		}else{
+			$desktop_file = _find_file_in_file($mimetype, $file);
+		}
+		last if $desktop_file;	
+	}
+		
+	return $desktop_file;
+}
+
+sub _find_file_in_file {
+	my ($mimetype, $file) = @_;
 	
 	$Carp::CarpLevel++;
 	my @list = _read_list($mimetype, $file);
-	my $desktop_file = _find_file(reverse @list);
+	my $desktop_file = _find_file(@list);
 	$Carp::CarpLevel--;
-
+	
 	return $desktop_file;
-}
+}	
 
 sub _others {
 	my $mimetype = shift;
 	
 	$Carp::CarpLevel++;
 	my (@list, @done);
-	for my $dir (data_dirs('applications')) {
+	my @dirs = data_dirs('applications');
+	
+	#use kde* dirs as well, not a freedesktop standard
+	push @dirs, '/usr/share/applications/kde4';
+	push @dirs, '/usr/share/applications/kde';
+	
+	for my $dir (@dirs) {
 		my $cache = File::Spec->catfile($dir, 'mimeinfo.cache');
 		next if grep {$_ eq $cache} @done;
 		push @done, $cache;
 		next unless -f $cache and -r _;
 		for (_read_list($mimetype, $cache)) {
-			my $file = File::Spec->catfile($dir, $_);
+			my $name = $_;
+			
+			my $file = File::Spec->catfile($dir, $name);
+			unless (-f $file and -r $file){ 
+				#check all dirs
+				#mainly for the kde apps
+				foreach my $d (@dirs){
+					$name =~ s/^(kde4|kde)-//g;
+					$file = File::Spec->catfile($d, $name);
+					last if (-f $file and -r $file);				
+				}
+			}
 			next unless -f $file and -r _;
 			push @list, File::DesktopEntry->new($file);
 		}
@@ -117,6 +158,10 @@ sub _others {
 
 sub _read_list { # read list with "mime/type=foo.desktop;bar.desktop" format
 	my ($mimetype, $file) = @_;
+	
+	#added by mkemper
+	$mimetype = quotemeta $mimetype;
+	
 	my @list;
 	open LIST, '<', $file or croak "Could not read file: $file";
 	while (<LIST>) {
