@@ -100,7 +100,8 @@ sub new {
 	$self->{_last_font} 			  = 'Sans Italic 16';
 
 	#some status variables
-	$self->{_last_item}               = undef;
+	$self->{_busy}	                  = undef;
+	$self->{_last_item} 	          = undef;
 	$self->{_current_item}            = undef;
 	$self->{_current_new_item}        = undef;
 	$self->{_current_copy_item}       = undef;
@@ -111,7 +112,7 @@ sub new {
 	$self->{_current_pixbuf}          = undef;
 	$self->{_current_pixbuf_filename} = undef;
 	$self->{_cut}					  = FALSE;
-
+	
 	$self->{_start_time} = undef;
 
 	bless $self, $class;
@@ -1039,19 +1040,17 @@ sub zoom_normal_cb {
 }
 
 sub adjust_rulers {
-	my $self = shift;
-	my $ev   = shift;
-	my $item = shift;
-
+	my ($self, $ev, $item) = @_;
+	
 	my $s = $self->{_canvas}->get_scale;
 
 	my ( $hlower, $hupper, $hposition, $hmax_size ) = $self->{_hruler}->get_range;
 	my ( $vlower, $vupper, $vposition, $vmax_size ) = $self->{_vruler}->get_range;
 		
 	if($ev){
-						
+		
 		my $copy_event = $ev->copy;
-			
+						
 		#modify event to respect scrollbars and canvas scale
 		$copy_event->x( ($copy_event->x_root - $hlower) * $s);
 		$copy_event->y( ($copy_event->y_root - $vlower) * $s);	
@@ -1079,10 +1078,7 @@ sub adjust_rulers {
 }
 
 sub quit {
-	my $self         = shift;
-	my $show_warning = shift;
-
-	
+	my ($self, $show_warning) = @_;
 
 	my ( $name, $folder, $type ) = fileparse( $self->{_filename}, '\..*' );
 
@@ -1167,10 +1163,7 @@ sub quit {
 }
 
 sub update_warning_text {
-	my $self        = shift;
-	my $warn_dialog = shift;
-
-	
+	my ($self, $warn_dialog) = @_;
 
 	my $minutes = int( ( time - $self->{_start_time} ) / 60 );
 	$minutes = 1 if $minutes == 0;
@@ -1535,6 +1528,8 @@ sub event_item_on_motion_notify {
 		)
 	{
 
+		print "start resizing\n";
+
 		my $item = $self->{_current_new_item};
 		$self->{_current_new_item} = undef;
 		$self->{_current_item} = $item;
@@ -1553,6 +1548,8 @@ sub event_item_on_motion_notify {
 
 	#item is resizing mode already
 	} elsif ( $item->{resizing} && $ev->state >= 'button1-mask' ) {
+
+		print "resizing\n";
 
 		$self->{_current_mode_descr} = "resize";
 
@@ -1613,6 +1610,11 @@ sub event_item_on_motion_notify {
 			my $ratio = 1;
 			$ratio = $self->{_items}{$curr_item}->get('width')/$self->{_items}{$curr_item}->get('height') if $self->{_items}{$curr_item}->get('height') != 0;
 
+			my $new_x      = 0;
+			my $new_y      = 0;
+			my $new_width  = 0;
+			my $new_height = 0;
+
 			foreach ( keys %{ $self->{_items}{$curr_item} } ) {
 
 				next unless $_ =~ m/(corner|side)/;
@@ -1622,12 +1624,32 @@ sub event_item_on_motion_notify {
 					
 					$cursor = $_;
 
-					my $new_x      = 0;
-					my $new_y      = 0;
-					my $new_width  = 0;
-					my $new_height = 0;
+					if ( $_ eq 'bottom-side' ) {
 
-					if ( $_ eq 'top-left-corner' ) {
+						$new_x = $self->{_items}{$curr_item}->get('x');
+						$new_y = $self->{_items}{$curr_item}->get('y');
+
+						$new_width = $self->{_items}{$curr_item}->get('width');
+						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y_root - $item->{res_y} );
+
+						last;
+
+					} elsif ( $_ eq 'bottom-right-corner' ) {
+
+						$new_x = $self->{_items}{$curr_item}->get('x');
+						$new_y = $self->{_items}{$curr_item}->get('y');
+
+						if($ev->state >= 'control-mask'){
+							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->y_root - $item->{res_y} ) * $ratio;
+							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y_root - $item->{res_y} );						
+						}else{
+							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x_root - $item->{res_x} );
+							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y_root - $item->{res_y} );					
+						}
+						
+						last;
+
+					}elsif ( $_ eq 'top-left-corner' ) {
 						
 						if($ev->state >= 'control-mask'){
 							$new_x = $self->{_items}{$curr_item}->get('x') + ($ev->y_root - $item->{res_y}) * $ratio;
@@ -1640,6 +1662,8 @@ sub event_item_on_motion_notify {
 							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
 							$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
 						}
+						
+						last;
 
 					} elsif ( $_ eq 'top-side' ) {
 
@@ -1648,6 +1672,8 @@ sub event_item_on_motion_notify {
 
 						$new_width = $self->{_items}{$curr_item}->get('width');
 						$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
+					
+						last;
 					
 					} elsif ( $_ eq 'top-right-corner' ) {
 
@@ -1661,6 +1687,8 @@ sub event_item_on_motion_notify {
 							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x_root - $item->{res_x} );
 							$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );					
 						}
+						
+						last;
 
 					} elsif ( $_ eq 'left-side' ) {
 
@@ -1670,6 +1698,8 @@ sub event_item_on_motion_notify {
 						$new_width = $self->{_items}{$curr_item}->get('width') + ( $self->{_items}{$curr_item}->get('x') - $new_x );
 						$new_height = $self->{_items}{$curr_item}->get('height');
 
+						last;
+
 					} elsif ( $_ eq 'right-side' ) {
 		
 						$new_x = $self->{_items}{$curr_item}->get('x');
@@ -1678,6 +1708,8 @@ sub event_item_on_motion_notify {
 						$new_width = $self->{_items}{$curr_item}->get('width') + ( $ev->x_root - $item->{res_x} );
 						$new_height = $self->{_items}{$curr_item}->get('height');
 
+						last;
+		
 					} elsif ( $_ eq 'bottom-left-corner' ) {
 
 						if($ev->state >= 'control-mask'){
@@ -1693,75 +1725,58 @@ sub event_item_on_motion_notify {
 							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
 							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y_root - $item->{res_y} );					
 						}
-
-					} elsif ( $_ eq 'bottom-side' ) {
-
-						$new_x = $self->{_items}{$curr_item}->get('x');
-						$new_y = $self->{_items}{$curr_item}->get('y');
-
-						$new_width = $self->{_items}{$curr_item}->get('width');
-						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y_root - $item->{res_y} );
-
-					} elsif ( $_ eq 'bottom-right-corner' ) {
-
-						$new_x = $self->{_items}{$curr_item}->get('x');
-						$new_y = $self->{_items}{$curr_item}->get('y');
-
-						if($ev->state >= 'control-mask'){
-							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->y_root - $item->{res_y} ) * $ratio;
-							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y_root - $item->{res_y} );						
-						}else{
-							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x_root - $item->{res_x} );
-							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y_root - $item->{res_y} );					
-						}
-
+						
+						last;
+													
 					}
-
-					#set cursor
-					$self->{_canvas}->window->set_cursor( Gtk2::Gdk::Cursor->new($cursor) );
-					
-					#when width or height are too small we switch to opposite rectangle and do the resizing in this way
-					if($ev->state >= 'control-mask' && $new_width < 1 && $new_height < 1){
-					
-						$new_x = $self->{_items}{$curr_item}->get('x');
-						$new_y = $self->{_items}{$curr_item}->get('y');
-						$new_width = $self->{_items}{$curr_item}->get('width');
-						$new_height = $self->{_items}{$curr_item}->get('height');
-					
-					}elsif ( $new_width < 0 || $new_height < 0) {
-						
-						$self->{_canvas}->pointer_ungrab($item, $ev->time);
-						my $oppo = $self->get_opposite_rect($item, $curr_item, $new_width, $new_height);				
-						$self->{_items}{$curr_item}{$oppo}->{res_x}    = $ev->x_root;
-						$self->{_items}{$curr_item}{$oppo}->{res_y}    = $ev->y_root;
-						$self->{_items}{$curr_item}{$oppo}->{resizing} = TRUE;
-						$self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], Gtk2::Gdk::Cursor->new($oppo), $ev->time );
-						$self->handle_embedded( 'mirror', $curr_item, $new_width, $new_height);
-						
-						#adjust new values						
-						if ($new_width < 0){
-							$new_x += $new_width;
-							$new_width = abs($new_width);
-						}
-						if ($new_height < 0){
-							$new_y += $new_height;
-							$new_height = abs($new_height);
-						}
-
-					}
-
-					$self->{_items}{$curr_item}->set(
-						'x'      => $new_x,
-						'y'      => $new_y,
-						'width'  => $new_width,
-						'height' => $new_height,
-					);
-
-					$self->handle_rects( 'update', $curr_item );
-					$self->handle_embedded( 'update', $curr_item );
-						
 				}
 			}
+
+			#set cursor
+			$self->{_canvas}->window->set_cursor( Gtk2::Gdk::Cursor->new($cursor) );
+			
+			#when width or height are too small we switch to opposite rectangle and do the resizing in this way
+			if($ev->state >= 'control-mask' && $new_width < 1 && $new_height < 1){
+			
+				$new_x = $self->{_items}{$curr_item}->get('x');
+				$new_y = $self->{_items}{$curr_item}->get('y');
+				$new_width = $self->{_items}{$curr_item}->get('width');
+				$new_height = $self->{_items}{$curr_item}->get('height');
+			
+			}elsif ( $new_width < 0 || $new_height < 0) {
+				
+				$self->{_canvas}->pointer_ungrab($item, $ev->time);
+				my $oppo = $self->get_opposite_rect($item, $curr_item, $new_width, $new_height);				
+				$self->{_items}{$curr_item}{$oppo}->{res_x}    = $ev->x_root;
+				$self->{_items}{$curr_item}{$oppo}->{res_y}    = $ev->y_root;
+				$self->{_items}{$curr_item}{$oppo}->{resizing} = TRUE;
+				$self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], Gtk2::Gdk::Cursor->new($oppo), $ev->time );
+				$self->handle_embedded( 'mirror', $curr_item, $new_width, $new_height);
+				
+				#adjust new values						
+				if ($new_width < 0){
+					$new_x += $new_width;
+					$new_width = abs($new_width);
+				}
+				if ($new_height < 0){
+					$new_y += $new_height;
+					$new_height = abs($new_height);
+				}
+
+			}
+			
+			#apply new values...
+			$self->{_items}{$curr_item}->set(
+				'x'      => $new_x,
+				'y'      => $new_y,
+				'width'  => $new_width,
+				'height' => $new_height,
+			);
+			
+			#and update rectangles and embedded items
+			$self->handle_rects( 'update', $curr_item );
+			$self->handle_embedded( 'update', $curr_item );
+				
 		}
 
 		$item->{res_x} = $ev->x_root;
@@ -1860,8 +1875,7 @@ sub get_opposite_rect {
 }
 
 sub get_parent_item {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $item) = @_;
 
 	my $parent = undef;
 	foreach ( keys %{ $self->{_items} } ) {
@@ -1875,7 +1889,7 @@ sub get_parent_item {
 }
 
 sub get_highest_auto_digit {
-	my $self = shift;
+	my ($self) = @_;
 	
 	my $number = 0;
 	foreach ( keys %{ $self->{_items} } ) {
@@ -1894,8 +1908,7 @@ sub get_highest_auto_digit {
 }
 
 sub get_child_item {
-	my $self = shift;
-	my $item = shift;
+	my ($self, $item) = @_;
 
 	my $child = undef;
 
@@ -1931,31 +1944,16 @@ sub clear_item_from_canvas {
 	print "clear_item_from_canvas\n";
 
 	if ($item) {
-		my @items_to_delete;
-		push @items_to_delete, $item;
-
+		
 		#maybe there is a parent item to delete?
 		my $parent = $self->get_parent_item($item);
+		$item = $parent if $parent;
 
-		if ($parent) {
-			push @items_to_delete, $parent;
-			foreach ( keys %{ $self->{_items}{$parent} } ) {
-				push @items_to_delete, $self->{_items}{$parent}{$_};
-			}
-		} else {
-			foreach ( keys %{ $self->{_items}{$item} } ) {
-				push @items_to_delete, $self->{_items}{$item}{$_};
-			}
-		}
+		$self->store_to_xdo_stack($item, 'delete', 'undo');
+		$item->set('visibility' => 'hidden');
+		$self->handle_rects('hide', $item);
+		$self->handle_embedded('hide', $item);
 
-		foreach (@items_to_delete) {
-			eval{
-				$self->store_to_xdo_stack($_, 'delete', 'undo');
-				$_->set('visibility' => 'hidden');
-				$self->handle_rects('hide', $_);
-				$self->handle_embedded('hide', $_);
-			};
-		}
 	}
 	
 	$self->{_last_item}        = undef;
@@ -2554,6 +2552,11 @@ sub restore_drawing_properties {
 sub event_item_on_button_press {
 	my ( $self, $item, $target, $ev ) = @_;
 
+	print "button-press\n";
+
+	#canvas is busy now...
+	$self->{_busy} = TRUE;
+
 	my $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
 
 	#activate item
@@ -2870,9 +2873,7 @@ sub ret_item_menu {
 }
 
 sub get_item_key {
-	my $self 	= shift;
-	my $item 	= shift;
-	my $parent 	= shift;
+	my ($self, $item, $parent) = @_;
 	if ( exists $self->{_items}{$item} ) {
 		return $item;
 	}else{
@@ -2881,10 +2882,7 @@ sub get_item_key {
 }
 
 sub show_item_properties {
-	my $self 	= shift;
-	my $item 	= shift;
-	my $parent 	= shift;
-	my $key 	= shift;
+	my ($self, $item, $parent, $key) = @_;
 
 	print "show_item_properties\n";
 
@@ -3247,34 +3245,37 @@ sub show_item_properties {
 }
 
 sub apply_properties {
-	my $self 		= shift;
-
-	print "apply_properties\n";
+	my (
+	$self,
 	
 	#item related infos
-	my $item 		= shift;
-	my $parent 		= shift;
-	my $key 		= shift;
+	$item,
+	$parent,
+	$key,
 	
 	#general properties
-	my $fill_color 	= shift;
-	my $stroke_color= shift;
-	my $line_spin 	= shift;
+	$fill_color,
+	$stroke_color,
+	$line_spin,
 	
 	#only text
-	my $font_color 	= shift;
-	my $font_btn 	= shift;
-	my $textview 	= shift;
+	$font_color,
+	$font_btn,
+	$textview,
 	
 	#only arrow
-	my $end_arrow   = shift;
-	my $start_arrow = shift;	
-	my $arrow_spin 	= shift;
-	my $arrowl_spin = shift;
-	my $arrowt_spin = shift;
+	$end_arrow,
+	$start_arrow,	
+	$arrow_spin,
+	$arrowl_spin,
+	$arrowt_spin,
 	
 	#only numbered shapes
-	my $number_spin = shift;
+	$number_spin
+	
+	) = @_;
+
+	print "apply_properties\n";
 
 	#remember drawing colors, line width and font settings
 	#maybe we have to restore them
@@ -3490,9 +3491,7 @@ sub modify_text_in_properties {
 }
 
 sub move_all {
-	my $self	= shift;
-	my $x 		= shift;
-	my $y		= shift;
+	my ($self, $x, $y) = @_;
 
 	foreach ( keys %{ $self->{_items} } ) {	
 		
@@ -3505,18 +3504,24 @@ sub move_all {
 		#real shape
 		if ( exists $self->{_items}{$item} ) {
 
-			#add to undo stack
-			#~ $self->store_to_xdo_stack($item , 'modify', 'undo');
-
 			if ( $item->isa('Goo::Canvas::Rect') ) {
 				
 				$item->set(
 					'x' => $item->get('x')-$x, 
 					'y' => $item->get('y')-$y,
 				);  
-
-				$self->handle_rects( 'update', $item );
-				$self->handle_embedded( 'update', $item );
+				
+				my $child = $self->get_child_item($item);
+				$child = $item unless $child;
+				
+				#it item is hidden, keep the status
+				if($child->get('visibility') eq 'hidden'){
+					$self->handle_rects( 'hide', $item );
+					$self->handle_embedded( 'hide', $item );						
+				}else{
+					$self->handle_rects( 'update', $item );
+					$self->handle_embedded( 'update', $item );					
+				}		
 
 			#freehand line for example
 			} else {
@@ -3527,6 +3532,9 @@ sub move_all {
 		
 		}
 	}
+	
+	#deactivate all after move
+	$self->deactivate_all;
 	
 	return TRUE;
 }
@@ -3562,11 +3570,7 @@ sub deactivate_all {
 }
 
 sub handle_embedded {	
-	my $self   		= shift;
-	my $action 		= shift;
-	my $item   		= shift;
-	my $new_width 	= shift;
-	my $new_height 	= shift;
+	my ($self, $action, $item, $new_width, $new_height) = @_;
 
 	return FALSE unless ( $item && exists $self->{_items}{$item} );
 
@@ -3732,20 +3736,19 @@ sub handle_embedded {
 }
 
 sub handle_bg_rects {
-	my $self   = shift;
-	my $action = shift;
+	my ($self, $action) = @_;
 
-	my $middle_h = $self->{_canvas_bg_rect}->get('x') + $self->{_canvas_bg_rect}->get('width') / 2 ;
-
-	my $middle_v = $self->{_canvas_bg_rect}->get('y') + $self->{_canvas_bg_rect}->get('height') / 2 ;
-
-	my $bottom = $self->{_canvas_bg_rect}->get('y') + $self->{_canvas_bg_rect}->get('height');
-
-	my $top = $self->{_canvas_bg_rect}->get('y');
-
-	my $left = $self->{_canvas_bg_rect}->get('x');
-
-	my $right = $self->{_canvas_bg_rect}->get('x') + $self->{_canvas_bg_rect}->get('width');
+	my $x 			= $self->{_canvas_bg_rect}->get('x');
+	my $y 			= $self->{_canvas_bg_rect}->get('y');
+	my $width 		= $self->{_canvas_bg_rect}->get('width');
+	my $height 		= $self->{_canvas_bg_rect}->get('height');
+	
+	my $middle_h 	= $x + $width / 2 ;
+	my $middle_v 	= $y + $height / 2 ;
+	my $bottom 		= $y + $height;
+	my $top 		= $y;
+	my $left 		= $x;
+	my $right 		= $x + $width;
 	
 	if ( $action eq 'create' ) {
 
@@ -3828,9 +3831,7 @@ sub handle_bg_rects {
 }
 
 sub handle_rects {
-	my $self   = shift;
-	my $action = shift;
-	my $item   = shift;
+	my ($self, $action, $item) = @_;
 
 	return FALSE unless $item;
 	return FALSE unless exists $self->{_items}{$item};
@@ -3847,17 +3848,17 @@ sub handle_rects {
 
 	if ( $self->{_items}{$item}->isa('Goo::Canvas::Rect') ) {
 		
-		my $middle_h = $self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width') / 2 ;
-
-		my $middle_v = $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height') / 2 ;
-
-		my $bottom = $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height');
-
-		my $top = $self->{_items}{$item}->get('y');
-
-		my $left = $self->{_items}{$item}->get('x');
-
-		my $right = $self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width');
+		my $x 			= $self->{_items}{$item}->get('x');
+		my $y 			= $self->{_items}{$item}->get('y');
+		my $width 		= $self->{_items}{$item}->get('width');
+		my $height 		= $self->{_items}{$item}->get('height');
+		
+		my $middle_h 	= $x + $width / 2 ;
+		my $middle_v 	= $y + $height / 2 ;
+		my $bottom 		= $y + $height;
+		my $top 		= $y;
+		my $left 		= $x;
+		my $right 		= $x + $width;
 
 		if ( $action eq 'create' ) {
 
@@ -4047,8 +4048,11 @@ sub handle_rects {
 
 sub event_item_on_button_release {
 	my ( $self, $item, $target, $ev ) = @_;
-	my $canvas = $item->get_canvas;
-	$canvas->pointer_ungrab( $item, $ev->time );
+
+	$self->{_canvas}->pointer_ungrab( $item, $ev->time );
+
+	#canvas is idle now...
+	$self->{_busy} = FALSE;
 
 	#we handle some minimum sizes here if the new items are too small
 	#maybe the user just wanted to place an rect or an object on the canvas
@@ -4193,6 +4197,8 @@ sub event_item_on_button_release {
 sub event_item_on_enter_notify {
 	my ( $self, $item, $target, $ev ) = @_;
 	
+	return TRUE if $self->{_busy};
+	
 	if (   $item->isa('Goo::Canvas::Rect')
 		|| $item->isa('Goo::Canvas::Ellipse')
 		|| $item->isa('Goo::Canvas::Text')
@@ -4322,6 +4328,7 @@ sub event_item_on_leave_notify {
 
 sub create_stipple {
 	my $self = shift;
+	
 	our @stipples;
 	my ( $color_name, $stipple_data ) = @_;
 	my $color = Gtk2::Gdk::Color->parse($color_name);
@@ -4333,6 +4340,7 @@ sub create_stipple {
 	my $surface = Cairo::ImageSurface->create_for_data( $stipple_str, 'argb32', 2, 2, 8 );
 	my $pattern = Cairo::SurfacePattern->create($surface);
 	$pattern->set_extend('repeat');
+
 	return Goo::Cairo::Pattern->new($pattern);
 }
 
@@ -4818,27 +4826,28 @@ sub paste_item {
 	
 	my $child = $self->get_child_item($item);
 	
+	my $new_item = undef;
 	if ( $item->isa('Goo::Canvas::Rect') && !$child ) {
 		#~ print "Creating Rectangle...\n";
-		$self->create_rectangle( undef, $item );
+		$new_item = $self->create_rectangle( undef, $item );
 	}elsif ( $item->isa('Goo::Canvas::Polyline') && !$child ){
 		#~ print "Creating Polyline...\n";
-		$self->create_polyline( undef, $item );
+		$new_item = $self->create_polyline( undef, $item );
 	}elsif ( $child->isa('Goo::Canvas::Polyline') && exists $self->{_items}{$item}{stroke_color} ){
 		#~ print "Creating Line...\n";
-		$self->create_line( undef, $item );
+		$new_item = $self->create_line( undef, $item );
 	}elsif ( $child->isa('Goo::Canvas::Polyline') ){
 		#~ print "Creating Censor...\n";
-		$self->create_censor( undef, $item );
+		$new_item = $self->create_censor( undef, $item );
 	}elsif ( $child->isa('Goo::Canvas::Ellipse') ){
 		#~ print "Creating Ellipse...\n";
-		$self->create_ellipse( undef, $item);
+		$new_item = $self->create_ellipse( undef, $item);
 	}elsif ( $child->isa('Goo::Canvas::Text') ){
 		#~ print "Creating Text...\n";
-		$self->create_text( undef, $item );
+		$new_item = $self->create_text( undef, $item );
 	}elsif ( $child->isa('Goo::Canvas::Image') ){
 		#~ print "Creating Image...\n";
-		$self->create_image( undef, $item );
+		$new_item = $self->create_image( undef, $item );
 	}	
 
 	#cut instead of copy
@@ -4847,6 +4856,9 @@ sub paste_item {
 		$self->{_current_item} = undef;
 		$self->{_current_copy_item} = undef;
 	}
+
+	#add to undo stack
+	$self->store_to_xdo_stack($new_item , 'create', 'undo');
 
 	return TRUE;
 }	
@@ -4899,7 +4911,7 @@ sub create_polyline {
 		);		
 	}
 	 
-	$self->{_current_new_item} = $item;
+	$self->{_current_new_item} = $item unless($copy_item);
 	$self->{_items}{$item} = $item;
 
 	#need at least 2 points
@@ -4922,10 +4934,7 @@ sub create_polyline {
 	$self->setup_item_signals( $self->{_items}{$item} );
 	$self->setup_item_signals_extra( $self->{_items}{$item} );
 
-	
-
-	return TRUE;
-
+	return $item;
 }
 
 sub create_censor {
@@ -4958,7 +4967,7 @@ sub create_censor {
 		'line-join'      => 'CAIRO_LINE_JOIN_ROUND',
 	);
 
-	$self->{_current_new_item} = $item;
+	$self->{_current_new_item} = $item unless($copy_item);
 	$self->{_items}{$item} = $item;
 
 	#set type flag
@@ -4973,9 +4982,7 @@ sub create_censor {
 	$self->setup_item_signals_extra( $self->{_items}{$item} );
 
 	
-
-	return TRUE;
-
+	return $item;
 }
 
 sub create_image {
@@ -5003,7 +5010,7 @@ sub create_image {
 		'antialias'    => 'none',
 	);
 
-	$self->{_current_new_item} = $item;
+	$self->{_current_new_item} = $item unless($copy_item);
 	$self->{_items}{$item} = $item;
 
 
@@ -5052,7 +5059,7 @@ sub create_image {
 		
 	}	
 
-	return TRUE;	
+	return $item;	
 }
 
 sub create_text{
@@ -5086,7 +5093,7 @@ sub create_text{
 		'antialias'    => 'none',
 	);
 
-	$self->{_current_new_item} = $item;
+	$self->{_current_new_item} = $item unless($copy_item);
 	$self->{_items}{$item} = $item;
 
 	$self->{_items}{$item}{text} = Goo::Canvas::Text->new(
@@ -5119,10 +5126,7 @@ sub create_text{
 	$self->setup_item_signals( $self->{_items}{$item} );
 	$self->setup_item_signals_extra( $self->{_items}{$item} );
 
-	
-	
-	return TRUE;
-	
+	return $item;
 }	
 
 sub create_line {
@@ -5171,7 +5175,7 @@ sub create_line {
 		'antialias'    => 'none',
 	);
 
-	$self->{_current_new_item} = $item;
+	$self->{_current_new_item} = $item unless($copy_item);
 	$self->{_items}{$item} = $item;
 
 	$self->{_items}{$item}{line} = Goo::Canvas::Polyline->new_line(
@@ -5221,11 +5225,8 @@ sub create_line {
 
 	$self->setup_item_signals( $self->{_items}{$item} );
 	$self->setup_item_signals_extra( $self->{_items}{$item} );
-
 	
-	
-	return TRUE;
-
+	return $item;
 }
 
 sub create_number {
@@ -5259,7 +5260,7 @@ sub create_number {
 		'antialias'    => 'none',
 	);
 
-	$self->{_current_new_item} = $item;
+	$self->{_current_new_item} = $item unless($copy_item);
 	$self->{_items}{$item} = $item;
 
 	$self->{_items}{$item}{number} = Goo::Canvas::Ellipse->new(
@@ -5305,10 +5306,7 @@ sub create_number {
 	$self->setup_item_signals( $self->{_items}{$item} );
 	$self->setup_item_signals_extra( $self->{_items}{$item} );
 
-	
-	
-	return TRUE;
-
+	return $item;
 }
 
 sub create_ellipse {
@@ -5344,7 +5342,7 @@ sub create_ellipse {
 		'antialias'    => 'none',
 	);
 
-	$self->{_current_new_item} = $item;
+	$self->{_current_new_item} = $item unless($copy_item);
 	$self->{_items}{$item} = $item;
 
 	$self->{_items}{$item}{ellipse} = Goo::Canvas::Ellipse->new(
@@ -5426,10 +5424,7 @@ sub create_ellipse {
 	$self->setup_item_signals( $self->{_items}{$item} );
 	$self->setup_item_signals_extra( $self->{_items}{$item} );
 
-	
-	
-	return TRUE;
-
+	return $item;
 }
 
 
@@ -5462,8 +5457,8 @@ sub create_rectangle {
 		'line-width'     => $line_width,
 		'antialias'      => 'none',
 	);
-
-	$self->{_current_new_item} = $item;
+	
+	$self->{_current_new_item} = $item unless($copy_item);
 	$self->{_items}{$item} = $item;
 
 	#set type flag
@@ -5480,9 +5475,7 @@ sub create_rectangle {
 	$self->setup_item_signals( $self->{_items}{$item} );
 	$self->setup_item_signals_extra( $self->{_items}{$item} );
 
-	
-
-	return TRUE;
+	return $item;
 }
 
 1;

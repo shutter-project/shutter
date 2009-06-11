@@ -73,9 +73,9 @@ sub new {
 #~ } 
 #~ 
 
-#~ 1;
-#~ 
-#~ __DATA__
+1;
+
+__DATA__
 
 sub find_wm_window {
 	my $self = shift;
