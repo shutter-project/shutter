@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.488";
+use constant REV                	=> "Rev.489";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -1637,13 +1637,12 @@ sub evt_take_screenshot {
 	if ( $data eq "web" || $data eq "tray_web" ){
 		$timeout = 0;		
 	}
-	
 	#see timeout description above
 	Glib::Timeout->add ($timeout, sub{
 		&fct_take_screenshot($widget, $data, $folder_from_config);
 		return FALSE;	
-	}, undef);
-	
+	});
+
 }
 
 sub evt_behavior_handle {

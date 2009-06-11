@@ -198,6 +198,7 @@ sub show {
 	$self->{_canvas}->set( 
 		'redraw-when-scrolled' 	=> TRUE,
 		'automatic-bounds' 		=> FALSE,
+		'bounds-from-origin' 	=> FALSE,
 		'background-color' 		=> sprintf( "#%04x%04x%04x", $gray->red, $gray->green, $gray->blue ), 
 	);
 	
@@ -651,7 +652,7 @@ sub setup_right_vbox_c {
 		if ($s && $p) {
 
 			#add to undo stack
-			$self->store_to_xdo_stack($self->{_canvas_bg}, 'modify', 'undo');	
+			$self->store_to_xdo_stack($self->{_canvas_bg}, 'modify', 'undo', $s);	
 			
 			#create new pixbuf
 			#create temp pixbuf because selected area might be bigger than
@@ -676,6 +677,7 @@ sub setup_right_vbox_c {
 			
 			#now move all items, 
 			#so they are in the right position
+			print $s->x ." - ".$s->y."\n";
 			$self->move_all($s->x, $s->y);
 			
 			#adjust stack order
@@ -1964,7 +1966,9 @@ sub clear_item_from_canvas {
 }
 
 sub store_to_xdo_stack {
-	my ($self, $item, $action, $xdo) = @_;
+	#opt1 is currently only used when cropping the image
+	#it stores the selection
+	my ($self, $item, $action, $xdo, $opt1) = @_;
 
 	return FALSE unless $item; 
 
@@ -2052,16 +2056,22 @@ sub store_to_xdo_stack {
 			'arrow-width'	 	=> $arrow_width,
 			'arrow-tip-length'	=> $tip_length,	
 			'text'				=> $text,
-			'digit'				=> $digit,			
+			'digit'				=> $digit,
+			'opt1'				=> $opt1,			
 		);
 
 	}elsif($item->isa('Goo::Canvas::Image') && $item == $self->{_canvas_bg}){
 
-		#canvas_bg_image properties
+		#canvas_bg_image and bg_rect properties
 		%do_info = (
 			'item' 				=> $self->{_canvas_bg},
 			'action' 			=> $action,
-			'drawing_pixbuf'	=> $self->{_drawing_pixbuf},	
+			'drawing_pixbuf'	=> $self->{_drawing_pixbuf},
+			'x' 				=> $self->{_canvas_bg_rect}->get('x'),
+			'y' 				=> $self->{_canvas_bg_rect}->get('y'),
+			'width' 			=> $self->{_canvas_bg_rect}->get('width'),
+			'height' 			=> $self->{_canvas_bg_rect}->get('height'),
+			'opt1'				=> $opt1,					
 		);
 
 	}elsif($item->isa('Goo::Canvas::Rect') && $item == $self->{_canvas_bg_rect}){
@@ -2073,7 +2083,8 @@ sub store_to_xdo_stack {
 			'x' 				=> $self->{_canvas_bg_rect}->get('x'),
 			'y' 				=> $self->{_canvas_bg_rect}->get('y'),
 			'width' 			=> $self->{_canvas_bg_rect}->get('width'),
-			'height' 			=> $self->{_canvas_bg_rect}->get('height'),	
+			'height' 			=> $self->{_canvas_bg_rect}->get('height'),
+			'opt1'				=> $opt1,	
 		);
 
 	#polyline specific properties to hash
@@ -2085,12 +2096,13 @@ sub store_to_xdo_stack {
 		my $points = $self->{_items}{$item}->get('points');	
 		
 		%do_info = (
-			'item'   => $self->{_items}{$item},
-			'action' => $action,
-			'points' => $points,
-			'stroke-pattern' => $stroke_pattern,
-			'line-width' => $line_width,
-			'transform' => $transform,
+			'item'   			=> $self->{_items}{$item},
+			'action' 			=> $action,
+			'points' 			=> $points,
+			'stroke-pattern' 	=> $stroke_pattern,
+			'line-width' 		=> $line_width,
+			'transform' 		=> $transform,
+			'opt1'				=> $opt1,
 		);
 	
 	}
@@ -2122,21 +2134,27 @@ sub xdo {
 		$do	= pop @{ $self->{_redo} };		
 	}
 
-	my $item = $do->{'item'};
-	my $action = $do->{'action'};
+	my $item 	= $do->{'item'};
+	my $action 	= $do->{'action'};
+	my $opt1 	= $do->{'opt1'};
 
 	return FALSE unless $item;
 	return FALSE unless $action;
+
+	if($item->isa('Goo::Canvas::Image') && $item == $self->{_canvas_bg}){
+		$opt1->x($do->{'opt1'}->x*-1) ; 
+		$opt1->y($do->{'opt1'}->y*-1) ; 
+	}	
 
 	my $reverse_action = 'modify';
 	$reverse_action = 'delete' if $action eq 'create';
 	$reverse_action = 'create' if $action eq 'delete';
 	if($xdo eq 'undo'){
 		#store to redo stack
-		$self->store_to_xdo_stack($item, $reverse_action, 'redo'); 	
+		$self->store_to_xdo_stack($item, $reverse_action, 'redo', $opt1); 	
 	}elsif($xdo eq 'redo'){
 		#store to undo stack
-		$self->store_to_xdo_stack($item, $reverse_action, 'undo'); 
+		$self->store_to_xdo_stack($item, $reverse_action, 'undo', $opt1); 
 	}
 	
 	#finally undo the last event
@@ -2232,17 +2250,31 @@ sub xdo {
 
 		}elsif($item->isa('Goo::Canvas::Image') && $item == $self->{_canvas_bg}){
 
+			my $new_w = $do->{'drawing_pixbuf'}->get_width;
+			my $new_h = $do->{'drawing_pixbuf'}->get_height;
+			
 			#update bounds and bg_rects
 			$self->{_canvas_bg_rect}->set(
-				'width' 	=> $do->{'drawing_pixbuf'}->get_width, 
-				'height' 	=> $do->{'drawing_pixbuf'}->get_height,
+				'width' 	=> $new_w, 
+				'height' 	=> $new_h,
 			);
+
+			#we need to move the shapes
+			$self->move_all($opt1->x, $opt1->y);
 
 			#update canvas and show the new pixbuf
 			$self->{_canvas_bg}->set('pixbuf' => $do->{'drawing_pixbuf'});
-			
+						
 			#save new pixbuf in var
 			$self->{_drawing_pixbuf} = $do->{'drawing_pixbuf'}->copy;
+
+			#update bounds and bg_rects
+			$self->{_canvas_bg_rect}->set(
+				'x' => $do->{'x'},
+				'y' => $do->{'y'},
+				'width' => 	$do->{'width'},
+				'height' => $do->{'height'},
+			);
 						
 			#adjust stack order
 			$self->{_canvas_bg}->lower;
@@ -3474,7 +3506,7 @@ sub move_all {
 		if ( exists $self->{_items}{$item} ) {
 
 			#add to undo stack
-			$self->store_to_xdo_stack($item , 'modify', 'undo');
+			#~ $self->store_to_xdo_stack($item , 'modify', 'undo');
 
 			if ( $item->isa('Goo::Canvas::Rect') ) {
 				

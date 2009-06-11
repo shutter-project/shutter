@@ -58,6 +58,10 @@ sub new {
 	$self->{_ws} 		= undef;
 	$self->{_drawable} 	= undef;	
 	$self->{_min_size}  = undef;
+	
+	#clear last rect or not
+	#we need to switch in some cases
+	$self->{_no_clear}	= undef;
 
 	bless $self, $class;
 	return $self;
@@ -69,9 +73,9 @@ sub new {
 #~ } 
 #~ 
 
-1;
-
-__DATA__
+#~ 1;
+#~ 
+#~ __DATA__
 
 sub find_wm_window {
 	my $self = shift;
@@ -185,9 +189,9 @@ sub get_window_size {
 	my ( $xp, $yp, $wp, $hp ) = $wnck_window->get_geometry;
 	if ($border) {
 
-		#find wm_window
-		my $wm_window = Gtk2::Gdk::Window->foreign_new( $self->find_wm_window( $wnck_window->get_xid ) );
-		$gdk_window = $wm_window if $wm_window;
+		#~ #find wm_window
+		#~ my $wm_window = Gtk2::Gdk::Window->foreign_new( $self->find_wm_window( $wnck_window->get_xid ) );
+		#~ $gdk_window = $wm_window if $wm_window;
 
 		#get_size of it
 		my ( $xp2, $yp2, $wp2, $hp2 ) = $gdk_window->get_geometry;
@@ -259,12 +263,24 @@ sub draw_rectangle {
 	my $width	= shift;
 	my $height	= shift;
 	my $event   = shift;
+	my $clear   = shift;
 
 	#draw rect if needed
 	if ( $self->{_c}{'lw'}{'gdk_window'} ne $self->{_c}{'cw'}{'gdk_window'} ) {
 
-		#clear last rectangle
-		$self->clear_last_rectangle($gc);
+		#we do not clear the last rect in all cases, e.g.
+		#when the first child is selected
+		if ( defined $self->{_no_clear} ){ 
+			unless($self->{_no_clear}) {
+				#clear last rectangle
+				$self->clear_last_rectangle($gc);
+			}else{
+				$self->{_no_clear} = FALSE;
+			}
+		}else{
+			#clear last rectangle
+			$self->clear_last_rectangle($gc);	
+		}	
 
 		#draw new rectangle for current window
 		if ( $self->{_c}{'cw'}{'gdk_window'} ) {
@@ -396,7 +412,6 @@ sub find_current_child_window {
 
 sub focus_selected_window {
 	my $self = shift;
-	
 	$self->{_c}{'lw'}{'gdk_window'}->focus(time);
 	Gtk2::Gdk->flush;
 	$self->{_ws} = $self->{_c}{'cw'}{'gdk_window'};	
@@ -422,7 +437,10 @@ sub select_window {
 		&& $self->{_ws} ) {
 
 		$self->find_current_child_window($event);
-
+		
+		#switch no_clear to TRUE when first child is selected
+		$self->{_no_clear} = TRUE unless defined $self->{_no_clear};
+		
 	}    #endif search for children
 
 	#draw new rectangle for current window
@@ -433,8 +451,10 @@ sub select_window {
 		$self->{_c}{'cw'}{'y'} - 3,
 		$self->{_c}{'cw'}{'width'} + 5,
 		$self->{_c}{'cw'}{'height'} + 5,
-		$event
-	);	
+		$event,
+		$self->{_no_clear},
+	);
+	
 }
 
 sub window {
@@ -549,7 +569,10 @@ sub window {
 							$self->{_c}{'lw'}{'gdk_window'}->XWINDOW,
 							$self->{_c}{'lw'}{'gdk_window'}->XWINDOW
 						);
-
+						
+						#clear the last rectangle
+						$self->clear_last_rectangle($gc);
+						
 						#focus selected window (maybe it is hidden)
 						$self->focus_selected_window;
 
