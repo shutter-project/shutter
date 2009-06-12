@@ -48,8 +48,12 @@ foreach $file (@translate_files) {
 		chomp;
 		next if $_ =~ /^\#/;
 		next if $_ =~ /^__END/;
+		next if $_ =~ /^__DATA__/;
+		next if $_ =~ /^1;/;
 		$_ =~ s/\$d->get/gettext/ig;
 		$_ =~ s/\$d->nget/ngettext/ig;
+		$_ =~ s/\$self->\{\_d}->get/gettext/ig;
+		$_ =~ s/\$self->\{\_d}->nget/ngettext/ig;
 		$_ =~ s/\$self->\{\_gettext\_object\}->get/gettext/ig;
 		$_ =~ s/\$self->\{\_gettext\_object\}->nget/ngettext/ig;
 		$_ =~ s/\$shutter\_common->get\_gettext->get/gettext/ig;

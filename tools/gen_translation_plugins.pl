@@ -51,6 +51,7 @@ foreach my $file (@translate_files) {
 	}
 	next unless ( -T $file );    #textfile??
 	next if ( $file =~ /\.svg/ );    #svg file??
+	next if ( $file =~ /README/ );    #README file??
 
 	open( FILE, $file ) or die $! . " :$file";
 	if ( $file =~ /bash/ ) {
