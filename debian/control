@@ -8,7 +8,7 @@ Homepage: https://launchpad.net/shutter
 
 Package: shutter
 Architecture: all
-Depends: libglib-perl, libgtk2-perl, liblocale-gettext-perl, librsvg2-common, libxml-simple-perl, libwww-mechanize-perl, libwww-perl, libnet-dbus-perl, libgnome2-perl, libgnome2-gconf-perl, libgnome2-wnck-perl, libgnome2-vfs-perl, imagemagick, perlmagick, libgtk2-imageview-perl, libx11-protocol-perl, libgtk2-trayicon-perl, libgoo-canvas-perl, gnome-web-photo, xdg-utils
+Depends: libglib-perl, libgtk2-perl, liblocale-gettext-perl, librsvg2-common, libxml-simple-perl, libwww-mechanize-perl, libwww-perl, libgnome2-perl, libgnome2-gconf-perl, libgnome2-wnck-perl, libgnome2-vfs-perl, imagemagick, perlmagick, libgtk2-imageview-perl, libx11-protocol-perl, libgtk2-trayicon-perl, libgoo-canvas-perl, gnome-web-photo, xdg-utils
 Provides: gscrot, gscrot-plugins-bash
 Replaces: gscrot (<< 0.65), gscrot-plugins-bash
 Conflicts: gscrot (<< 0.65), gscrot-plugins-bash
