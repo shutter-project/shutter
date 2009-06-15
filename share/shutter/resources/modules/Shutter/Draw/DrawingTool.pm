@@ -130,9 +130,9 @@ sub new {
     #~ print "$self dying at\n";
 #~ } 
 
-1;
-
-__DATA__
+#~ 1;
+#~ 
+#~ __DATA__
 
 sub show {
 	my $self        	  = shift;
@@ -4902,9 +4902,9 @@ sub create_polyline {
 			$self->{_canvas}->get_root_item, $points[0],$points[1],$points[2],$points[3],
 			'stroke-pattern' => $self->create_color( Gtk2::Gdk::Color->parse('#FFFF00'), 0.5 ),
 			'line-width'     => 18,
-			'fill-rule'		 => 'CAIRO_FILL_RULE_EVEN_ODD',
-			'line-cap'       => 'CAIRO_LINE_CAP_BUTT',
-			'line-join'      => 'CAIRO_LINE_JOIN_MITER',
+			'fill-rule'      => 'CAIRO_FILL_RULE_EVEN_ODD',
+			'line-cap'       => 'CAIRO_LINE_CAP_SQUARE',
+			'line-join'      => 'CAIRO_LINE_JOIN_BEVEL',	
 		);		
 	}else{
 		$item = Goo::Canvas::Polyline->new_line(
