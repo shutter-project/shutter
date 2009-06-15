@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.509";
+use constant REV                	=> "Rev.510";
 use constant PPA_VERSION         	=> "ppa2";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -5596,6 +5596,7 @@ sub fct_ret_program_menu {
 		$shutter_menu->{_menuitem_reopen_default}->visible(FALSE);					
 	}
 	
+	my $default_matched = FALSE;
 	foreach my $app (@apps) {
 		
 		#FIXME - kde apps do not support the freedesktop standards (.desktop files)
@@ -5610,6 +5611,9 @@ sub fct_ret_program_menu {
 		
 		#default app
 		if($default && $default->{'file'} =~ m/$app->{'id'}/){
+			
+			#set flag
+			$default_matched = TRUE;
 			
 			#remove old handler
 			#strange things happen when we do not remove it
@@ -5676,6 +5680,16 @@ sub fct_ret_program_menu {
 		}		
 		
 	}	
+	
+	#no default app matched!
+	unless($default_matched){
+		$shutter_menu->{_menuitem_reopen_default}->visible(FALSE);	
+	}
+	
+	#menu does not contain any item
+	unless($menu_programs->get_children){
+		$shutter_menu->{_menuitem_reopen}->set_sensitive(FALSE);
+	}
 	
 	$menu_programs->show_all;
 	return $menu_programs;

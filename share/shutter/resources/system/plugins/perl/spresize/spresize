@@ -179,6 +179,9 @@ sub fct_imagemagick_resize {
 		$height_btn->get_value, undef );
 
 	$image->WriteImage( filename => $filename );
+	
+	undef $image;
+	
 	Gtk2->main_quit;
 	return TRUE;
 }

@@ -26,6 +26,8 @@ package Shutter::Pixbuf::Thumbnail;
 #--------------------------------------
 use utf8;
 use strict;
+use warnings;
+
 use Gtk2;
 
 #Gettext and filename parsing

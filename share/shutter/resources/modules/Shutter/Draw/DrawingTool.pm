@@ -25,9 +25,13 @@ package Shutter::Draw::DrawingTool;
 #modules
 #--------------------------------------
 use SelfLoader;
+
 use utf8;
 use strict;
 use warnings;
+
+use Gtk2;
+
 use Exporter;
 use Goo::Canvas;
 use File::Basename;

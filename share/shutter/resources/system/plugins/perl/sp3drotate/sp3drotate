@@ -360,7 +360,7 @@ $plug->show_all;
 $preview->hide_all;
 
 #create tempfile
-my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
+my ( $tmpfh, $tmpfilename ) = tempfile();
 #png format
 $tmpfilename .= ".png";
 
@@ -386,6 +386,9 @@ sub fct_imagemagick_3Drotate {
 		my $image = Image::Magick->new;
 		$image->ReadImage( $tmpfilename );
 		$image->WriteImage( filename => $filename );
+
+		#delete temp files
+		unlink $tmpfilename;
 		
 		Gtk2->main_quit;
 		return TRUE;

@@ -26,6 +26,8 @@ package Shutter::Pixbuf::Save;
 #--------------------------------------
 use utf8;
 use strict;
+use warnings;
+
 use Gtk2;
 
 #Gettext and filename parsing
@@ -35,9 +37,6 @@ use Locale::gettext;
 #fileparse and tempfile
 use File::Basename;
 use File::Temp qw/ tempfile tempdir /;
-
-#Image operations
-use Image::Magick();
 
 #define constants
 #--------------------------------------
@@ -105,12 +104,14 @@ sub save_pixbuf_to_file {
 	
 	} else  {
 		#save pixbuf to tempfile
-		my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
+		my ( $tmpfh, $tmpfilename ) = tempfile();
+		$tmpfilename .= '.png';
 		if($pixbuf){
 			$pixbuf->save( $tmpfilename, 'png', compression => '9' );
 		}
 		#and convert filetype with imagemagick
-		$imagemagick_result = $self->use_imagemagick_to_save($tmpfilename, $filename );
+		$imagemagick_result = $self->use_imagemagick_to_save($tmpfilename, $filename);
+		unlink $tmpfilename;
 	}
 	
 	#handle possible error messages
@@ -153,34 +154,10 @@ sub use_imagemagick_to_save {
 	my $file = shift;
 	my $new_file = shift;
 	
-	#create imagemagick object and result variable
-	my $image 	= Image::Magick->new;
-	my $result 	= undef;
-	
-	#read file and evaluate result
-	$result = $image->ReadImage($file);
-	# print the error message
-	if($result){
-		#destroy object
-		undef $image;
-		warn "$result";      
-		return $result;
-	}
-
-	#write file and evaluate result
-	$result = $image->WriteImage( filename => $new_file );
-	# print the error message
-	if($result){
-		#destroy object
-		undef $image;
-		warn "$result";      
-		return $result;
-	}
-
-	#destroy object
-	undef $image;
-	
+	my $result = `convert $file $new_file`;
+		
 	return FALSE;
 }
 
 1;
+

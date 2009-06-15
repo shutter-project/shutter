@@ -210,10 +210,10 @@ $plug->show_all;
 $preview->hide_all;
 
 #create tempfile
-my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
+my ( $tmpfh, $tmpfilename ) = tempfile();
 #png format
 $tmpfilename .= ".png";
-my ( $tmpfh2, $tmpfilename2 ) = tempfile(UNLINK => 1);
+my ( $tmpfh2, $tmpfilename2 ) = tempfile();
 #png format
 $tmpfilename2 .= ".png";
 
@@ -241,6 +241,10 @@ sub fct_imagemagick_watermark {
 		my $image = Image::Magick->new;
 		$image->ReadImage( $tmpfilename );
 		$image->WriteImage( filename => $filename );
+		
+		#delete temp files
+		unlink $tmpfilename;
+		unlink $tmpfilename2;
 
 		Gtk2->main_quit;
 		return TRUE;
