@@ -130,9 +130,9 @@ sub new {
     #~ print "$self dying at\n";
 #~ } 
 
-#~ 1;
-#~ 
-#~ __DATA__
+1;
+
+__DATA__
 
 sub show {
 	my $self        	  = shift;
@@ -4142,15 +4142,15 @@ sub event_item_on_button_release {
 				#texts
 				}elsif (exists $self->{_items}{$nitem}{text}){
 
-					#adjust parent rectangle
-					my $tb = $self->{_items}{$nitem}{text}->get_bounds;
-									
-					$nitem->set( 
-						'x'  		=> $ev->x_root - 50, 
-						'y' 		=> $ev->y_root - 50, 			
-						'width' 	=> abs($tb->x1 - $tb->x2),
-						'height' 	=> abs($tb->y1 - $tb->y2),
-					);				
+					#~ #adjust parent rectangle
+					#~ my $tb = $self->{_items}{$nitem}{text}->get_bounds;
+									#~ 
+					#~ $nitem->set( 
+						#~ 'x'  		=> $ev->x_root - 50, 
+						#~ 'y' 		=> $ev->y_root - 50, 			
+						#~ 'width' 	=> abs($tb->x1 - $tb->x2),
+						#~ 'height' 	=> abs($tb->y1 - $tb->y2),
+					#~ );				
 			
 				#all other objects
 				}else{
@@ -5076,7 +5076,7 @@ sub create_text{
 
 	my @dimensions = ( 0, 0, 0, 0 );
 	my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
-	my $text = 'New Text...';
+	my $text = $self->{_d}->get('New text...');
 	my $line_width = $self->{_line_width};
 
 	#use event coordinates and selected color
@@ -5106,13 +5106,39 @@ sub create_text{
 	$self->{_items}{$item}{text} = Goo::Canvas::Text->new(
 		$self->{_canvas}->get_root_item, "<span font_desc='" . $self->{_font} . "' >".$text."</span>",
 		$item->get('x'),
-		$item->get('y'), $item->get('width'),
+		$item->get('y'), 
+		0,
 		'nw',
 		'use-markup'   	=> TRUE,
 		'fill-pattern' 	=> $stroke_pattern,
 		'line-width'   	=> $line_width,
-		'visibility' 	=> 'hidden',
 	);
+
+	#adjust parent rectangle
+	my $tb = $self->{_items}{$item}{text}->get_bounds;
+	my $w  = abs($tb->x1 - $tb->x2);
+	my $h  = abs($tb->y1 - $tb->y2);
+	
+	if($copy_item){				
+		$self->{_items}{$item}->set( 
+			'x'  		=> $self->{_items}{$item}->get('x') + 20, 
+			'y' 		=> $self->{_items}{$item}->get('y') + 20, 			
+			'width' 	=> $w,
+			'height' 	=> $h,
+			'visibility' => 'hidden',
+		);
+	}else{
+		$self->{_items}{$item}->set( 
+			'x'  		=> $ev->x_root - $w, 
+			'y' 		=> $ev->y_root - $h, 			
+			'width' 	=> $w,
+			'height' 	=> $h,
+			'visibility' => 'hidden',
+		);		
+	}	
+
+	#update text
+	$self->handle_embedded('update', $item); 
 
 	#set type flag
 	$self->{_items}{$item}{type} = 'text';
@@ -5122,8 +5148,7 @@ sub create_text{
 
 	#create rectangles
 	$self->handle_rects( 'create', $item );
-	if ($copy_item){	
-		$self->handle_embedded('update', $item); 
+	if ($copy_item){			
 		$self->handle_rects('hide', $item); 	
 	}
 
