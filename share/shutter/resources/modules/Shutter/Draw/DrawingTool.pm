@@ -1534,8 +1534,11 @@ sub event_item_on_motion_notify {
 	{
 
 		#~ print "start resizing\n";
-
+	
 		my $item = $self->{_current_new_item};
+
+		return FALSE unless $item;
+
 		$self->{_current_new_item} = undef;
 		$self->{_current_item} = $item;
 	
@@ -3986,6 +3989,12 @@ sub handle_rects {
 				$self->{_items}{$item}->set( 'visibility' => $visibilty );
 			}
 
+			#just to make sure the update routines are not
+			#called in wrong order
+			#we test the first value, if this is ok
+			#we believe all other resize rects are ok as well
+			return FALSE unless defined $self->{_items}{$item}{'top-side'};
+	
 			$self->{_items}{$item}{'top-side'}->set(
 				'x'          => $middle_h - 4,
 				'y'          => $top - 8,
@@ -4116,19 +4125,19 @@ sub event_item_on_button_release {
 					#numbered ellipse?
 					if(exists $self->{_items}{$nitem}{ellipse}){			
 						
-						#keep ratio = 1
-						my $qs = abs($tb->x1 - $tb->x2);
-						$qs = abs($tb->y1 - $tb->y2) if abs($tb->y1 - $tb->y2) > abs($tb->x1 - $tb->x2); 
-
-						#add line width of parent ellipse
-						$qs += $self->{_items}{$nitem}{ellipse}->get('line-width')+5;
-						
-						$nitem->set( 
-							'x'  		=> $ev->x_root - 50, 
-							'y' 		=> $ev->y_root - 50, 			
-							'width' 	=> $qs,
-							'height' 	=> $qs,
-						);
+						#~ #keep ratio = 1
+						#~ my $qs = abs($tb->x1 - $tb->x2);
+						#~ $qs = abs($tb->y1 - $tb->y2) if abs($tb->y1 - $tb->y2) > abs($tb->x1 - $tb->x2); 
+#~ 
+						#~ #add line width of parent ellipse
+						#~ $qs += $self->{_items}{$nitem}{ellipse}->get('line-width')+5;
+						#~ 
+						#~ $nitem->set( 
+							#~ 'x'  		=> $ev->x_root - 50, 
+							#~ 'y' 		=> $ev->y_root - 50, 			
+							#~ 'width' 	=> $qs,
+							#~ 'height' 	=> $qs,
+						#~ );
 					
 					}else{
 					
@@ -5225,86 +5234,6 @@ sub create_line {
 	return $item;
 }
 
-sub create_number {
-	my $self      = shift;
-	my $ev        = shift;
-	my $copy_item = shift;
-
-	my @dimensions = ( 0, 0, 0, 0 );
-	my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
-	my $fill_pattern   = $self->create_color( $self->{_fill_color},   $self->{_fill_color_alpha} );
-	my $line_width = $self->{_line_width};
-
-	#use event coordinates and selected color
-	if ($ev) {
-		@dimensions = ( $ev->x_root, $ev->y_root, 2, 2 );
-		#use source item coordinates and item color
-	} elsif ($copy_item) {
-		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
-		$stroke_pattern = $self->create_color( $self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha} );
-		$fill_pattern   = $self->create_color( $self->{_items}{$copy_item}{fill_color},   $self->{_items}{$copy_item}{fill_color_alpha} );
-		$line_width = $self->{_items}{$copy_item}{number}->get('line-width');
-	}
-
-	my $pattern = $self->create_alpha;
-	my $item    = Goo::Canvas::Rect->new(
-		$self->{_canvas}->get_root_item, @dimensions,
-		'fill-pattern' => $pattern,
-		'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
-		'line-width'   => 1,
-		'stroke-color' => 'gray',
-		'antialias'    => 'none',
-	);
-
-	$self->{_current_new_item} = $item unless($copy_item);
-	$self->{_items}{$item} = $item;
-
-	$self->{_items}{$item}{number} = Goo::Canvas::Ellipse->new(
-		$self->{_canvas}->get_root_item, $item->get('x'), $item->get('y'), $item->get('width'),
-		$item->get('height'),
-		'fill-pattern'   => $fill_pattern,
-		'stroke-pattern' => $stroke_pattern,
-		'line-width'     => $line_width,
-	);
-
-	$self->{_items}{$item}{text} = Goo::Canvas::Text->new(
-		$self->{_canvas}->get_root_item, "<span font_desc='" . $self->{_font} . "' >1</span>",
-		$item->get('x'),
-		$item->get('y'), $item->get('width'),
-		'center',
-		'use-markup'   => TRUE,
-		'fill-pattern' => $stroke_pattern,
-		'line-width'   => $line_width,
-	);
-
-	#set type flag
-	$self->{_items}{$item}{type} = 'number';
-
-	#save color and opacity as well
-	$self->{_items}{$item}{fill_color}         = $self->{_fill_color};
-	$self->{_items}{$item}{fill_color_alpha}   = $self->{_fill_color_alpha};
-	$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
-	$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
-
-	#create rectangles
-	$self->handle_rects( 'create', $item );
-	if ($copy_item){	
-		$self->handle_embedded('update', $item); 
-		$self->handle_rects('hide', $item); 	
-	}
-
-	$self->setup_item_signals( $self->{_items}{$item}{number} );
-	$self->setup_item_signals_extra( $self->{_items}{$item}{number} );
-
-	$self->setup_item_signals( $self->{_items}{$item}{text} );
-	$self->setup_item_signals_extra( $self->{_items}{$item}{text} );
-
-	$self->setup_item_signals( $self->{_items}{$item} );
-	$self->setup_item_signals_extra( $self->{_items}{$item} );
-
-	return $item;
-}
-
 sub create_ellipse {
 	my $self      = shift;
 	my $ev        = shift;
@@ -5319,7 +5248,7 @@ sub create_ellipse {
 	#use event coordinates and selected color
 	if ($ev) {
 		@dimensions = ( $ev->x_root, $ev->y_root, 2, 2 );
-		#use source item coordinates and item color
+	#use source item coordinates and item color
 	} elsif ($copy_item) {
 		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
 		$stroke_pattern = $self->create_color( $self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha} );
@@ -5357,12 +5286,13 @@ sub create_ellipse {
 		
 		$self->{_items}{$item}{text} = Goo::Canvas::Text->new(
 			$self->{_canvas}->get_root_item, "<span font_desc='" . $self->{_font} . "' >".$number."</span>",
-			0, 0, 0,
+			$self->{_items}{$item}{ellipse}->get('center-x'),
+			$self->{_items}{$item}{ellipse}->get('center-y'),
+			0,
 			'GTK_ANCHOR_CENTER',
 			'use-markup'   => TRUE,
 			'fill-pattern' => $stroke_pattern,
 			'line-width'   => $line_width,
-			'visibility' => 'hidden'
 		);
 		
 		#save used number
@@ -5370,6 +5300,36 @@ sub create_ellipse {
 		
 		#set type flag
 		$self->{_items}{$item}{type} = 'number';
+
+		#adjust parent rectangle if numbered ellipse		
+		my $tb = $self->{_items}{$item}{text}->get_bounds;
+						
+		#keep ratio = 1
+		my $qs = abs($tb->x1 - $tb->x2);
+		$qs = abs($tb->y1 - $tb->y2) if abs($tb->y1 - $tb->y2) > abs($tb->x1 - $tb->x2); 
+
+		#add line width of parent ellipse
+		$qs += $self->{_items}{$item}{ellipse}->get('line-width')+5;
+		
+		if($copy_item){
+			$self->{_items}{$item}->set(
+				'x'  		 => $self->{_items}{$item}->get('x') + 20,
+				'y' 		 => $self->{_items}{$item}->get('y') + 20,
+				'width' 	 => $qs,
+				'height' 	 => $qs,
+				'visibility' => 'hidden',
+			);
+		}else{
+			$self->{_items}{$item}->set(
+				'x'  		 => $self->{_items}{$item}->get('x') - $qs,
+				'y' 		 => $self->{_items}{$item}->get('y') - $qs,
+				'width' 	 => $qs,
+				'height' 	 => $qs,
+				'visibility' => 'hidden',
+			);			
+		}
+
+		$self->handle_embedded('update', $item); 
 						
 	}else{
 		#set type flag
@@ -5385,28 +5345,8 @@ sub create_ellipse {
 	#create rectangles
 	$self->handle_rects( 'create', $item );
 	if ($copy_item){	
-
-		#adjust parent rectangle		
-		if($numbered){
-
-			my $tb = $self->{_items}{$item}{text}->get_bounds;
-							
-			#keep ratio = 1
-			my $qs = abs($tb->x1 - $tb->x2);
-			$qs = abs($tb->y1 - $tb->y2) if abs($tb->y1 - $tb->y2) > abs($tb->x1 - $tb->x2); 
-
-			#add line width of parent ellipse
-			$qs += $self->{_items}{$item}{ellipse}->get('line-width')+5;
-			
-			$self->{_items}{$item}->set( 		
-				'width' 	=> $qs,
-				'height' 	=> $qs,
-			);
-		}
-
 		$self->handle_embedded('update', $item); 
 		$self->handle_rects('hide', $item); 	
-
 	}
 
 	if($numbered){
