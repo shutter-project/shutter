@@ -837,10 +837,6 @@ sub push_to_statusbar {
 
 	} elsif ( $self->{_current_mode} == 120 ) {
 
-		$status_text .= " ".$self->{_d}->get("Select an object to delete it from the canvas");
-
-	} elsif ( $self->{_current_mode} == 130 ) {
-
 		$status_text .= " ".$self->{_d}->get("Delete all objects");
 
 	} 	
@@ -978,10 +974,6 @@ sub change_drawing_tool_cb {
 		$self->{_drawing_inner_vbox}->hide_all;
 
 	} elsif ( $self->{_current_mode} == 120 ) {
-
-		$self->{_current_mode_descr} = "clear";
-
-	} elsif ( $self->{_current_mode} == 130 ) {
 
 		$self->{_current_mode_descr} = "clear_all";
 
@@ -1415,7 +1407,6 @@ sub event_item_on_motion_notify {
 	
 	#autoscroll if enabled
 	if (   $self->{_autoscroll}
-		&& $self->{_current_mode_descr} ne "clear"
 		&& $ev->state >= 'button1-mask' )
 	{
 		
@@ -2660,28 +2651,8 @@ sub event_item_on_button_press {
 
 		my $root   = $self->{_canvas}->get_root_item;
 
-		#CLEAR
-		if ( $self->{_current_mode_descr} eq "clear" ) {
-
-			return TRUE if $item == $self->{_canvas_bg};
-			return TRUE if $item == $self->{_canvas_bg_rect};
-
-			#embedded item?
-			my $parent = $self->get_parent_item($item);
-			$item = $parent if $parent;
-
-			#only real shapes can be deleted
-			#don't delete resize boxes or boundaries
-			if ( exists $self->{_items}{$item} ) {
-
-				$self->clear_item_from_canvas($item);
-					
-			}
-
-			$self->{_canvas}->window->set_cursor($cursor);
-
 		#MOVE AND SELECT
-		} elsif ( $self->{_current_mode_descr} eq "select" ) {
+		if ( $self->{_current_mode_descr} eq "select" ) {
 
 			if ( $item->isa('Goo::Canvas::Rect') ) {
 				
@@ -4264,16 +4235,9 @@ sub event_item_on_enter_notify {
 			#set cursor
 			if ( $self->{_current_mode_descr} eq "select" ) {
 				$self->{_canvas}->window->set_cursor($cursor);
-			} elsif ( $self->{_current_mode_descr} eq "clear" ) {
-				$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
-					Gtk2::Gdk::Display->get_default,
-					Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-eraser.png'),
-					Gtk2::IconSize->lookup('menu')
-				);
-				$self->{_canvas}->window->set_cursor($cursor);
-			}
-
-			#canvas resizing shape
+			} 
+			
+		#canvas resizing shape
 		} elsif (  $self->{_canvas_bg_rect}{'right-side'} == $item
 				|| $self->{_canvas_bg_rect}{'bottom-side'} == $item
 				|| $self->{_canvas_bg_rect}{'bottom-right-corner'} == $item ) 
@@ -4322,10 +4286,9 @@ sub event_item_on_enter_notify {
 sub event_item_on_leave_notify {
 	my ( $self, $item, $target, $ev ) = @_;
 
-	my $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
-	$self->{_canvas}->window->set_cursor($cursor)
-		if ( $self->{_current_mode_descr} eq "select"
-		|| $self->{_current_mode_descr} eq "clear" );
+	if ( $self->{_current_mode_descr} eq "select" ){
+		$self->{_canvas}->window->set_cursor(Gtk2::Gdk::Cursor->new('left-ptr'));
+	}
 
 	return TRUE;
 }
@@ -4452,8 +4415,7 @@ sub setup_uimanager {
 		[ "Censor",    'shutter-censor', undef, undef, $self->{_d}->get("Censor portions of your screenshot to hide private data"), 90 ],
 		[ "Number",    'shutter-number', undef, undef, $self->{_d}->get("Add an auto-increment shape to the screenshot"), 100 ],
 		[ "Crop",    'shutter-crop', undef, undef, $self->{_d}->get("Crop your screenshot"), 110 ],
-		[ "Clear",   'shutter-eraser', undef, undef, $self->{_d}->get("Delete objects"), 120 ],
-		[ "ClearAll",'gtk-clear', undef, undef, $self->{_d}->get("Delete all objects"), 130 ]
+		[ "ClearAll",'gtk-clear', undef, undef, $self->{_d}->get("Delete all objects"), 120 ]
 	);
 
 	my $uimanager = Gtk2::UIManager->new();
@@ -4541,7 +4503,6 @@ sub setup_uimanager {
 		<separator/>
 		<toolitem action='Crop'/>
 		<separator/>
-		<toolitem action='Clear'/>
 		<toolitem action='ClearAll'/>
 	  </toolbar>  
 	</ui>";
