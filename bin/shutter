@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.502";
+use constant REV                	=> "Rev.503";
 use constant PPA_VERSION         	=> "ppa1";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -1908,12 +1908,10 @@ sub evt_accounts {
 }
 
 sub evt_tab_button_press {
-	my $ev_box	= shift;
-	my $ev 		= shift;
-	my $key 	= shift;
-
-	#right button
-	if($key && $ev->button == 3){
+	my ($ev_box, $ev, $key) = @_;
+	
+	#right click
+	if($key && $ev->button == 3 && $ev->type eq 'button-press'){
 
 		$shutter_menu->{_menu_actions}->popup(
 			undef,    # parent menu shell
@@ -2462,8 +2460,18 @@ sub fct_create_tab {
 		#empty at first
 		$session_screens{$key}->{'image'} = Gtk2::ImageView->new();
 		$session_screens{$key}->{'image'}->set_interpolation ('tiles');	
-		my $image_sw = Gtk2::ImageView::ScrollWin->new($session_screens{$key}->{'image'});
+		$session_screens{$key}->{'image'} ->signal_connect('button-press-event', sub{
+			my ($widget, $ev) = @_;
+			if($ev->button == 1 && $ev->type eq '2button-press'){
+				&fct_zoom_best;	
+				return TRUE;
+			}else{
+				return FALSE;	
+			}					
+		});
 		
+		my $image_sw = Gtk2::ImageView::ScrollWin->new($session_screens{$key}->{'image'});
+
 		#packing
 		#~ my $tab_infos_sizegroup = Gtk2::SizeGroup->new('vertical');
 		#~ $tab_infos_sizegroup->add_widget( $session_screens{$key}->{'filename_label'} );
