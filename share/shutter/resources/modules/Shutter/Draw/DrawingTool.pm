@@ -2220,6 +2220,28 @@ sub xdo {
 
 			}elsif ( exists $self->{_items}{$item}{image} ) {
 
+				my $copy = undef;
+				eval{
+					$copy = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($self->{_items}{$item}{orig_pixbuf_filename},$self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'), FALSE);
+				};
+				unless($@){		
+					$self->{_items}{$item}{image}->set(
+						'x'      => int $self->{_items}{$item}->get('x'),
+						'y'      => int $self->{_items}{$item}->get('y'),
+						'width'  => $self->{_items}{$item}->get('width'),
+						'height' => $self->{_items}{$item}->get('height'),
+						'pixbuf' => $copy
+					);
+				}else{
+					my $response = $self->{_dialogs}->dlg_error_message( 
+						sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $self->{_items}{$item}{orig_pixbuf_filename} . "'"),
+						$self->{_d}->get( "There was an error opening the image." ),
+						undef, undef, undef,
+						undef, undef, undef,
+						$@
+					);
+				}	
+
 			}elsif ( exists $self->{_items}{$item}{line} ) {
 
 			   	#save arrow specific properties
@@ -3675,8 +3697,6 @@ sub handle_embedded {
 				$self->{_items}{$item}{image}->set(
 					'x'      => int $self->{_items}{$item}->get('x'),
 					'y'      => int $self->{_items}{$item}->get('y'),
-					'width'  => $self->{_items}{$item}->get('width'),
-					'height' => $self->{_items}{$item}->get('height'),
 					'visibility' => $visibilty,
 				);			
 
