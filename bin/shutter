@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.506";
+use constant REV                	=> "Rev.507";
 use constant PPA_VERSION         	=> "ppa2";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -2694,12 +2694,20 @@ sub fct_save_settings {
 	$settings{'general'}->{'capture_key'}      = $capture_key->get_text();
 	$settings{'general'}->{'capture_sel_key'}  = $capture_sel_key->get_text();
 
+	utf8::encode $settings{'general'}->{'capture_key'} ;
+	utf8::encode $settings{'general'}->{'capture_sel_key'};
+
 	#ftp upload
 	$settings{'general'}->{'ftp_uri'}      = $ftp_remote_entry->get_text();
 	$settings{'general'}->{'ftp_mode'}     = $ftp_mode_combo->get_active();
 	$settings{'general'}->{'ftp_username'} = $ftp_username_entry->get_text();
 	$settings{'general'}->{'ftp_password'} = $ftp_password_entry->get_text();
-
+	
+	utf8::encode $settings{'general'}->{'ftp_uri'};
+	utf8::encode $settings{'general'}->{'ftp_mode'};
+	utf8::encode $settings{'general'}->{'ftp_username'};
+	utf8::encode $settings{'general'}->{'ftp_password'};
+	
 	#plugins
 	foreach my $plugin_key ( sort keys %plugins ) {	
 		$settings{'plugins'}->{$plugin_key}->{'name'}        = $plugin_key;
@@ -2709,8 +2717,9 @@ sub fct_save_settings {
 		
 		#keep newlines => switch them to <![CDATA[<br>]]> tags
 		#the load routine does it the other way round
-		$plugins{$plugin_key}->{'tooltip'} =~ s/\n/\<\!\[CDATA\[\<br\>\]\]\>/g;
-		$settings{'plugins'}->{$plugin_key}->{'tooltip'}     = $plugins{$plugin_key}->{'tooltip'};
+		my $temp_tooltip = $plugins{$plugin_key}->{'tooltip'};
+		$temp_tooltip =~ s/\n/\<\!\[CDATA\[\<br\>\]\]\>/g;
+		$settings{'plugins'}->{$plugin_key}->{'tooltip'}     = $temp_tooltip;
 		$settings{'plugins'}->{$plugin_key}->{'lang'}        = $plugins{$plugin_key}->{'lang'};
 		$settings{'plugins'}->{$plugin_key}->{'recent'}      = $plugins{$plugin_key}->{'recent'} if defined $plugins{$plugin_key}->{'recent'};
 		utf8::encode $settings{'plugins'}->{$plugin_key}->{'name'};
@@ -2767,14 +2776,18 @@ sub fct_save_settings {
 	open my $fh_accounts, '>', $accountsfile
 		or $shutter_dialog->dlg_error_message( $!, $d->get("Account-settings could not be saved!") );
 
+	my %clean_accounts;
 	foreach ( keys %accounts ) {
-		utf8::encode $accounts{$_}->{'password'};
-		utf8::encode $accounts{$_}->{'username'};
-		utf8::encode $accounts{$_}->{'register_text'};
+		$clean_accounts{$_}->{'host'} 			= $accounts{$_}->{'host'};
+		$clean_accounts{$_}->{'password'} 		= $accounts{$_}->{'password'};
+		$clean_accounts{$_}->{'username'} 		= $accounts{$_}->{'username'};
+		utf8::encode $clean_accounts{$_}->{'host'};
+		utf8::encode $clean_accounts{$_}->{'password'};
+		utf8::encode $clean_accounts{$_}->{'username'};
 	}
 
 	eval {
-		XMLout( \%accounts, OutputFile => $fh_accounts );
+		XMLout( \%clean_accounts, OutputFile => $fh_accounts );
 		$fh_accounts->close();
 	};
 	if ($@) {
@@ -3007,11 +3020,20 @@ sub fct_load_settings {
 				#keybindings
 				$keybinding_active->set_active( $settings_xml->{'general'}->{'keybinding'} );
 				$keybinding_sel_active->set_active( $settings_xml->{'general'}->{'keybinding_sel'} );
+
+				utf8::decode $settings_xml->{'general'}->{'capture_key'};
+				utf8::decode $settings_xml->{'general'}->{'capture_sel_key'};
+				
 				$capture_key->set_text( $settings_xml->{'general'}->{'capture_key'} );
 				$capture_sel_key->set_text( $settings_xml->{'general'}->{'capture_sel_key'} );
 				$combobox_keybinding_mode->set_active( $settings_xml->{'general'}->{'keybinding_mode'} );
 
 				#ftp_upload
+				utf8::decode $settings_xml->{'general'}->{'ftp_uri'};
+				utf8::decode $settings_xml->{'general'}->{'ftp_mode'};
+				utf8::decode $settings_xml->{'general'}->{'ftp_username'};
+				utf8::decode $settings_xml->{'general'}->{'ftp_password'};
+				
 				$ftp_remote_entry->set_text( $settings_xml->{'general'}->{'ftp_uri'} );
 				$ftp_mode_combo->set_active( $settings_xml->{'general'}->{'ftp_mode'} );
 				$ftp_username_entry->set_text( $settings_xml->{'general'}->{'ftp_username'} );
@@ -3190,6 +3212,7 @@ sub fct_load_accounts {
 	$accounts{'imagebanana.com'}->{register} = "http://www.imagebanana.com/myib/registrieren/";
 
 	foreach ( keys %accounts ) {
+		utf8::decode $accounts{$_}->{'host'};
 		utf8::decode $accounts{$_}->{'username'};
 		utf8::decode $accounts{$_}->{'password'};
 		$accounts{$_}->{'register_color'} = "blue";
