@@ -156,7 +156,7 @@ sub create_menu {
 
 	$self->{_menu_edit}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_quicks} = Gtk2::MenuItem->new_with_mnemonic( $d->get('_Quick select') );
+	$self->{_menuitem_quicks} = Gtk2::MenuItem->new_with_mnemonic( $d->get('_Quick profile select') );
 	$self->{_menu_edit}->append( $self->{_menuitem_quicks} );
 
 	$self->{_menu_edit}->append( Gtk2::SeparatorMenuItem->new );
