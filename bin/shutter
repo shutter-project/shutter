@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.507";
+use constant REV                	=> "Rev.508";
 use constant PPA_VERSION         	=> "ppa2";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -240,10 +240,15 @@ my %settings;       #hash to store settings
 #--------------------------------------
 
 #signal-handler
-$SIG{RTMIN} = sub { &evt_take_screenshot( 'global_keybinding', 'select' ) };
-$SIG{USR1}  = sub { &evt_take_screenshot( 'global_keybinding', 'raw' ) };
-$SIG{USR2}  = sub { &evt_take_screenshot( 'global_keybinding', 'window' ) };
-$SIG{RTMAX} = sub { &evt_take_screenshot( 'global_keybinding', 'section' ) };
+$SIG{RTMIN}  = sub { &evt_take_screenshot( 'global_keybinding', 'select' ) };
+$SIG{USR1}   = sub { &evt_take_screenshot( 'global_keybinding', 'raw' ) };
+$SIG{USR2}   = sub { &evt_take_screenshot( 'global_keybinding', 'window' ) };
+$SIG{RTMAX}  = sub { &evt_take_screenshot( 'global_keybinding', 'section' ) };
+
+#shutdown Shutter carefully when INT or TERM are detected
+# => save settings
+$SIG{INT}    = sub { &evt_delete_window( '', 'quit' ) };
+$SIG{TERM}   = sub { &evt_delete_window( '', 'quit' ) };
 
 #hash of screenshots during session
 my %session_screens;
@@ -321,7 +326,7 @@ $shutter_menu->{_menuitem_print}->signal_connect( 'activate', \&fct_print, 'menu
 $shutter_menu->{_menuitem_pagesetup}->signal_connect( 'activate', \&evt_page_setup, 'menu_pagesetup' );
 $shutter_menu->{_menuitem_close}->signal_connect( 'activate', sub { &fct_remove(undef); }, 'menu_close' );
 $shutter_menu->{_menuitem_close_all}->signal_connect( 'activate', sub { &fct_remove_all(); }, 'menu_close_all' );
-$shutter_menu->{_menuitem_quit}->signal_connect( 'activate', \&evt_delete_window, 'menu_quit' );
+$shutter_menu->{_menuitem_quit}->signal_connect( 'activate', \&evt_delete_window, 'quit' );
 
 $shutter_menu->{_menuitem_copy}->signal_connect( 'activate', \&fct_clipboard, 'image' );
 $shutter_menu->{_menuitem_copy_filename}->signal_connect( 'activate', \&fct_clipboard, 'text' );
@@ -1724,7 +1729,7 @@ sub evt_delete_window {
 	print "\n$data was emitted by widget $widget\n"
 		if $shutter_common->get_debug;
 
-	if ( $data ne "menu_quit" && $close_at_close_active->get_active ) {
+	if ( $data ne "quit" && $close_at_close_active->get_active ) {
 		$window->hide;
 		$is_in_tray = TRUE;
 		return TRUE;
@@ -5418,7 +5423,7 @@ sub fct_ret_tray_menu {
 	
 	#quit
 	my $menuitem_quit = Gtk2::ImageMenuItem->new_from_stock( 'gtk-quit' );
-	$menuitem_quit->signal_connect( "activate", \&evt_delete_window, 'menu_quit' );
+	$menuitem_quit->signal_connect( "activate", \&evt_delete_window, 'quit' );
 	
 	$tray_menu->append($menuitem_select);
 	$tray_menu->append( Gtk2::SeparatorMenuItem->new );
