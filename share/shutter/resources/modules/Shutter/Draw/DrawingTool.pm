@@ -130,9 +130,9 @@ sub new {
     #~ print "$self dying at\n";
 #~ } 
 
-1;
-
-__DATA__
+#~ 1;
+#~ 
+#~ __DATA__
 
 sub show {
 	my $self        	  = shift;
@@ -3490,7 +3490,10 @@ sub apply_properties {
 
 		#adjust parent rectangle
 		my $tb = $item->get_bounds;
-		$parent->set( 'height' => abs($tb->y1 - $tb->y2));
+		$parent->set( 		
+			'width' 	=> abs($tb->x1 - $tb->x2),
+			'height' 	=> abs($tb->y1 - $tb->y2),
+		);		
 
 		$self->handle_rects( 'update', $parent );
 		$self->handle_embedded( 'update', $parent );
@@ -4141,34 +4144,13 @@ sub event_item_on_button_release {
 
 					#adjust parent rectangle
 					my $tb = $self->{_items}{$nitem}{text}->get_bounds;
-					
-					#numbered ellipse?
-					if(exists $self->{_items}{$nitem}{ellipse}){			
-						
-						#~ #keep ratio = 1
-						#~ my $qs = abs($tb->x1 - $tb->x2);
-						#~ $qs = abs($tb->y1 - $tb->y2) if abs($tb->y1 - $tb->y2) > abs($tb->x1 - $tb->x2); 
-#~ 
-						#~ #add line width of parent ellipse
-						#~ $qs += $self->{_items}{$nitem}{ellipse}->get('line-width')+5;
-						#~ 
-						#~ $nitem->set( 
-							#~ 'x'  		=> $ev->x_root - 50, 
-							#~ 'y' 		=> $ev->y_root - 50, 			
-							#~ 'width' 	=> $qs,
-							#~ 'height' 	=> $qs,
-						#~ );
-					
-					}else{
-					
-						$nitem->set( 
-							'x'  		=> $ev->x_root - 50, 
-							'y' 		=> $ev->y_root - 50, 			
-							'width' 	=> abs($tb->x1 - $tb->x2),
-							'height' 	=> abs($tb->y1 - $tb->y2),
-						);						
-					
-					}
+									
+					$nitem->set( 
+						'x'  		=> $ev->x_root - 50, 
+						'y' 		=> $ev->y_root - 50, 			
+						'width' 	=> abs($tb->x1 - $tb->x2),
+						'height' 	=> abs($tb->y1 - $tb->y2),
+					);				
 			
 				#all other objects
 				}else{
