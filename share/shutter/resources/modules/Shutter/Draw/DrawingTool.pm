@@ -130,9 +130,9 @@ sub new {
     #~ print "$self dying at\n";
 #~ } 
 
-#~ 1;
-#~ 
-#~ __DATA__
+1;
+
+__DATA__
 
 sub show {
 	my $self        	  = shift;
@@ -648,7 +648,7 @@ sub setup_right_vbox_c {
 	$crop_c->signal_connect('clicked' => sub { $self->abort_current_mode} );
 
 	#crop button
-	my $crop_ok = Gtk2::Button->new_with_label ($self->{_d}->get("Crop"));
+	my $crop_ok = Gtk2::Button->new_with_mnemonic ($self->{_d}->get("_Crop"));
 	$crop_ok->set_image( Gtk2::Image->new_from_file($self->{_dicons}.'/transform-crop.png') );
 	$crop_ok->signal_connect('clicked' => sub { 
 		
