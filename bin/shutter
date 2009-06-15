@@ -82,8 +82,8 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.503";
-use constant PPA_VERSION         	=> "ppa1";
+use constant REV                	=> "Rev.504";
+use constant PPA_VERSION         	=> "ppa2";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
 use constant SHUTTER_VERSION_FULL 	=> REV . " - " . PPA_VERSION;
@@ -543,7 +543,7 @@ if ( !$combobox_settings_profiles->get_active_text ) {
 }
 
 #populate quick selector as well
-$shutter_menu->{_menuitem_quicks}->set_submenu( fct_ret_profile_menu( $combobox_settings_profiles, \@current_profiles ) );
+&fct_update_quick_profile_selector($combobox_settings_profiles, \@current_profiles);
 
 my $button_profile_save = Gtk2::Button->new;
 $button_profile_save->signal_connect(
@@ -2186,9 +2186,9 @@ sub evt_save_profile {
 
 			#unshift to array as well
 			unshift( @{$current_profiles_ref}, $new_profile_name );
+		
+			&fct_update_quick_profile_selector($combobox_settings_profiles, $current_profiles_ref);
 
-			#populate quick selector as well
-			$shutter_menu->{_menuitem_quicks}->set_submenu( fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );
 		}
 		&fct_save_settings($new_profile_name);
 	}
@@ -2213,9 +2213,8 @@ sub evt_delete_profile {
 			#remove from array as well
 			splice( @{$current_profiles_ref}, $active_index, 1 );
 
-			#populate quick selector as well
-			$shutter_menu->{_menuitem_quicks}->set_submenu( fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );
-
+			&fct_update_quick_profile_selector($combobox_settings_profiles, $current_profiles_ref);
+			
 			&dlg_status_message( 1, $d->get("Profile deleted") );
 		} else {
 			$shutter_dialog->dlg_error_message( $d->get("Profile could not be deleted"), $d->get("Failed") );
@@ -2232,9 +2231,7 @@ sub evt_apply_profile {
 		$settings_xml = &fct_load_settings( undef, 'profile_load', $combobox_settings_profiles->get_active_text );
 		$current_profile_indx = $combobox_settings_profiles->get_active;
 
-		#populate quick selector as well
-		$shutter_menu->{_menuitem_quicks}->set_submenu( fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );
-		
+		&fct_update_quick_profile_selector($combobox_settings_profiles, $current_profiles_ref);	
 	}
 	
 	&fct_update_first_tab();
@@ -4574,6 +4571,20 @@ sub fct_get_current_file {
 	}
 	
 	return $key;
+}
+
+sub fct_update_quick_profile_selector {
+	my ($combobox_settings_profiles, $current_profiles_ref) = @_;
+
+	#populate quick selector as well
+	if(scalar @{$current_profiles_ref} > 0){
+		$shutter_menu->{_menuitem_quicks}->set_sensitive(TRUE);
+		$shutter_menu->{_menuitem_quicks}->set_submenu( fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );
+	}else{
+		$shutter_menu->{_menuitem_quicks}->remove_submenu;
+		$shutter_menu->{_menuitem_quicks}->set_sensitive(FALSE);
+	}	
+	return TRUE;
 }
 
 sub fct_update_tab {

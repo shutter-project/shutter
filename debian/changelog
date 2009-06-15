@@ -1,4 +1,4 @@
-shutter (0.80~ppa1) karmic; urgency=low
+shutter (0.80~ppa2) karmic; urgency=low
 
   * New features
     -- Undo/Redo functionality in Drawing Tool
@@ -89,10 +89,12 @@ shutter (0.80~ppa1) karmic; urgency=low
        [DrawingTool -> View has multiple same options]
     -- LP: #384352
        [Save settings to file when closing preferences dialog]
+    -- LP: #386769
+       [quick profile selector is even sensitive when empty]
   * code cleanup
   * updated translations
 
- -- Mario Kemper <mario.kemper@googlemail.com>  Fri, 12 Jun 2009 01:53:03 +0200
+ -- Mario Kemper <mario.kemper@googlemail.com>  Mon, 15 Jun 2009 14:20:23 +0200
 
 shutter (0.70.2~ppa4) jaunty; urgency=low
 
