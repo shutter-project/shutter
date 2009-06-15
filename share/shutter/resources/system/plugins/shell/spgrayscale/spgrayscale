@@ -2,7 +2,7 @@
 
 ###################################################
 #
-#  Copyright (C) 2009 Stephan Tetzel <zefanja@freenet.de> and Shutter Team
+#  Copyright (C) 2008, 2009 Mario Kemper <mario.kemper@googlemail.com> and Shutter Team
 #
 #  This file is part of Shutter.
 #
@@ -24,10 +24,10 @@
 
 TEXTDOMAIN=shutter-plugins
 TEXTDOMAINDIR=$SHUTTER_INTL
-PLUGIN_NAME=$"reflection"
+PLUGIN_NAME=$"grayscale"
 PLUGIN_SORT=$"effect"
-PLUGIN_TIP=$"applies a simple reflection effect"
-PLUGIN_EXT="image/png"
+PLUGIN_TIP=$"256 color grayscale"
+PLUGIN_EXT="image/png;image/bmp;image/jpeg"
 
 if [[ "${1}" = "name" ]];then
    	echo "${PLUGIN_NAME}"
@@ -41,23 +41,15 @@ elif [[ "${1}" = "tip" ]];then
 elif [[ "${1}" = "ext" ]];then
     echo "${PLUGIN_EXT}"
     exit 0
-elif [[ "${1}" = "lang" ]];then
-    echo "shell"
-    exit 0
 fi
 
 FILE="${1}"
-WIDTH="${2}"
-HEIGHT="${3}"
+#WIDTH="${2}"
+#HEIGHT="${3}"
 #FILEYTPE="${4}"
+INTL_PATH="${5}"
 #GEO="${2}x${3}"
 
-convert "${FILE}" -flip unten.png
-convert  xc:"#9E9E9E" -size "${WIDTH}"x512 xc:black -size "${WIDTH}"x128 gradient:"#9E9E9E"-black +swap -append overlap.png
-composite overlap.png unten.png -compose CopyOpacity unten.png
-convert "${FILE}" unten.png -extent $((${WIDTH}))x$(($HEIGHT+128)) -background none -geometry +0+$(($HEIGHT+10)) -composite "${FILE}"
-
-#cleanup
-rm unten.png overlap.png
-
+convert "${FILE}" -colorspace Gray "${FILE}"
+          
 exit 0

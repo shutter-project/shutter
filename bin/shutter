@@ -40,7 +40,7 @@ Gnome2::AuthenticationManager->init;
 #File operations
 use File::Copy "cp";
 use File::Path qw/ rmtree /;
-use File::Basename qw / fileparse /;
+use File::Basename qw / fileparse dirname /;
 use File::Temp qw/ tempfile tempdir /;
 use IO::File();
 
@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.510";
+use constant REV                	=> "Rev.511";
 use constant PPA_VERSION         	=> "ppa2";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -5112,7 +5112,10 @@ sub fct_check_installed_plugins {
 							$plugins{$_}->{'tooltip'} = &fct_plugin_get_info( $plugins{$_}->{'binary'}, 'tip' );
 
 							#language (shell, perl etc.)
-							$plugins{$_}->{'lang'} = &fct_plugin_get_info( $plugins{$_}->{'binary'}, 'lang' );
+							#=> directory name
+							my $folder_name = dirname($dir_name);
+							$folder_name =~ /.*\/(.*)/;
+							$plugins{$_}->{'lang'} = $1;
 
 							#refresh the progressbar
 							$plugin_progress->pulse;

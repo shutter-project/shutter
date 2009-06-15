@@ -24,9 +24,9 @@
 
 TEXTDOMAIN=shutter-plugins
 TEXTDOMAINDIR=$SHUTTER_INTL
-PLUGIN_NAME=$"torned paper"
+PLUGIN_NAME=$"soft edges"
 PLUGIN_SORT=$"effect"
-PLUGIN_TIP=$"generates a torned-border"
+PLUGIN_TIP=$"add soft edges around the picture"
 PLUGIN_EXT="image/png"
 
 if [[ "${1}" = "name" ]];then
@@ -41,29 +41,16 @@ elif [[ "${1}" = "tip" ]];then
 elif [[ "${1}" = "ext" ]];then
     echo "${PLUGIN_EXT}"
     exit 0
-elif [[ "${1}" = "lang" ]];then
-    echo "shell"
-    exit 0
 fi
 
 FILE="${1}"
-#~ WIDTH="${2}"
-#~ HEIGHT="${3}"
+#WIDTH="${2}"
+#HEIGHT="${3}"
 #FILEYTPE="${4}"
 #GEO="${2}x${3}"
 
-# Generate torned effect
-
-convert "${FILE}" \( +clone -threshold -1 -virtual-pixel black \
--spread 10 -blur 0x3 -threshold 50% -spread 1 -blur 0x.7 \) \
-+matte -compose Copy_Opacity -composite "${FILE}"
-
-
-# Add hard shadow
-
-convert "${FILE}" \( +clone -background black  -shadow 80x3+5+5 \) \
-+swap -background none -mosaic +repage "${FILE}"
-
+convert  "${FILE}" -matte -virtual-pixel transparent -channel A \
+-blur 0x8  -evaluate subtract 50%  -evaluate multiply 2.001 \
+"${FILE}"
+             
 exit 0
-
- 

@@ -24,10 +24,10 @@
 
 TEXTDOMAIN=shutter-plugins
 TEXTDOMAINDIR=$SHUTTER_INTL
-PLUGIN_NAME=$"jigsaw piece 2"
+PLUGIN_NAME=$"sunk border"
 PLUGIN_SORT=$"effect"
-PLUGIN_TIP=$"cut a jigsaw piece out of the picture"
-PLUGIN_EXT="image/png"
+PLUGIN_TIP=$"sunk a rectangular 3d-border"
+PLUGIN_EXT="image/png;image/bmp;image/jpeg"
 
 if [[ "${1}" = "name" ]];then
    	echo "${PLUGIN_NAME}"
@@ -41,33 +41,24 @@ elif [[ "${1}" = "tip" ]];then
 elif [[ "${1}" = "ext" ]];then
     echo "${PLUGIN_EXT}"
     exit 0
-elif [[ "${1}" = "lang" ]];then
-    echo "shell"
-    exit 0
 fi
 
 FILE="${1}"
 WIDTH="${2}"
 HEIGHT="${3}"
-FILEYTPE="${4}"
-GEO="${2}x${3}"
-PIECE="$SHUTTER_ROOT/share/shutter/resources/system/plugins/bash/spjigsaw2/spjigsaw_2.png"
-JIGSAW="$SHUTTER_ROOT/share/shutter/resources/system/plugins/bash/spjigsaw2/jigsaw"
+#FILEYTPE="${4}"
+#GEO="${2}x${3}"
 
-chmod +x ${JIGSAW}
+BORDER_SCALE=60
+MIN_BORDER=4
 
-convert "${PIECE}" -resize "${GEO}" \
--background none /tmp/jigsaw_cnr_tmpl.png
+let BORDER=(${WIDTH}+${HEIGHT})/${BORDER_SCALE}
 
-${JIGSAW} -t 3 -s  -r 10 \
-"${FILE}" /tmp/jigsaw_cnr_tmpl.png "${FILE}"
+if [[ ${BORDER} -le ${MIN_BORDER} ]];then
+    BORDER=${MIN_BORDER}
+fi
 
-NEW_GEO=$(identify -format %wx%h "${FILE}")
-
-convert "${FILE}" -gravity center -crop ${NEW_GEO} +repage \
+convert "${FILE}" +raise ${BORDER}x${BORDER} \
 "${FILE}"
-
-rm -f /tmp/jigsaw_cnr_tmpl.png
-
-
+       
 exit 0

@@ -24,9 +24,9 @@
 
 TEXTDOMAIN=shutter-plugins
 TEXTDOMAINDIR=$SHUTTER_INTL
-PLUGIN_NAME=$"sunk border"
+PLUGIN_NAME=$"offset"
 PLUGIN_SORT=$"effect"
-PLUGIN_TIP=$"sunk a rectangular 3d-border"
+PLUGIN_TIP=$"give the picture an offset with itself as background"
 PLUGIN_EXT="image/png;image/bmp;image/jpeg"
 
 if [[ "${1}" = "name" ]];then
@@ -41,27 +41,17 @@ elif [[ "${1}" = "tip" ]];then
 elif [[ "${1}" = "ext" ]];then
     echo "${PLUGIN_EXT}"
     exit 0
-elif [[ "${1}" = "lang" ]];then
-    echo "shell"
-    exit 0
 fi
 
 FILE="${1}"
-WIDTH="${2}"
-HEIGHT="${3}"
+#WIDTH="${2}"
+#HEIGHT="${3}"
 #FILEYTPE="${4}"
 #GEO="${2}x${3}"
 
-BORDER_SCALE=60
-MIN_BORDER=4
+convert "${FILE}" \
+\( -clone 0 -resize 130% -fill white -colorize 40% \) \
+\( -clone 0 -bordercolor black -border 1x1 \) \
+-delete 0 -gravity center -composite  "${FILE}"
 
-let BORDER=(${WIDTH}+${HEIGHT})/${BORDER_SCALE}
-
-if [[ ${BORDER} -le ${MIN_BORDER} ]];then
-    BORDER=${MIN_BORDER}
-fi
-
-convert "${FILE}" +raise ${BORDER}x${BORDER} \
-"${FILE}"
-       
 exit 0

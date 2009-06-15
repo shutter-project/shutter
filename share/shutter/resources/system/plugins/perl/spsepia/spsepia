@@ -68,10 +68,6 @@ elsif ( $ARGV[0] eq "tip" ) {
 	print $d->get("sepia tone coloring");
 	exit;
 }
-elsif ( $ARGV[0] eq "lang" ) {
-	print "perl";
-	exit;
-}
 
 #these variables are passed to the plugin
 my $socket_id = $ARGV[0];

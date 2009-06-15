@@ -2,7 +2,7 @@
 
 ###################################################
 #
-#  Copyright (C) 2008, 2009 Mario Kemper <mario.kemper@googlemail.com> and Shutter Team
+#  Copyright (C) 2008, 2009 TualatriX <tualatrix@gmail.com>
 #
 #  This file is part of Shutter.
 #
@@ -24,10 +24,10 @@
 
 TEXTDOMAIN=shutter-plugins
 TEXTDOMAINDIR=$SHUTTER_INTL
-PLUGIN_NAME=$"offset"
+PLUGIN_NAME=$"hard shadow"
 PLUGIN_SORT=$"effect"
-PLUGIN_TIP=$"give the picture an offset with itself as background"
-PLUGIN_EXT="image/png;image/bmp;image/jpeg"
+PLUGIN_TIP=$"a black hard shadow on transparent background"
+PLUGIN_EXT="image/png"
 
 if [[ "${1}" = "name" ]];then
    	echo "${PLUGIN_NAME}"
@@ -41,9 +41,6 @@ elif [[ "${1}" = "tip" ]];then
 elif [[ "${1}" = "ext" ]];then
     echo "${PLUGIN_EXT}"
     exit 0
-elif [[ "${1}" = "lang" ]];then
-    echo "shell"
-    exit 0
 fi
 
 FILE="${1}"
@@ -52,9 +49,9 @@ FILE="${1}"
 #FILEYTPE="${4}"
 #GEO="${2}x${3}"
 
-convert "${FILE}" \
-\( -clone 0 -resize 130% -fill white -colorize 40% \) \
-\( -clone 0 -bordercolor black -border 1x1 \) \
--delete 0 -gravity center -composite  "${FILE}"
+convert "${FILE}" -gravity northwest -background 'rgba(255,255,255,0)' -splice 10x10 \
+\( +clone -background gray -shadow 80x3-1-1 \) +swap -background none -mosaic +repage \
+\( +clone -background gray -shadow 80x3+5+5 \) +swap -background none -mosaic +repage "${FILE}"
 
+       
 exit 0

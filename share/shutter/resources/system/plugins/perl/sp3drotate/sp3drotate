@@ -69,9 +69,6 @@ if ( $ARGV[ 0 ] eq "name" ) {
 		"applies a perspective distortion to an image\n\nBased on a script by Fred Weinhaus\n\nhttp://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 	);
 	exit;
-} elsif ( $ARGV[ 0 ] eq "lang" ) {
-	print "perl";
-	exit;
 }
 
 #these variables are passed to the plugin

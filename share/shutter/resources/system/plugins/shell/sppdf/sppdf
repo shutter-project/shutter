@@ -24,9 +24,9 @@
 
 TEXTDOMAIN=shutter-plugins
 TEXTDOMAINDIR=$SHUTTER_INTL
-PLUGIN_NAME=$"grayscale"
-PLUGIN_SORT=$"effect"
-PLUGIN_TIP=$"256 color grayscale"
+PLUGIN_NAME=$"pdf export" 
+PLUGIN_SORT=$"tool" 
+PLUGIN_TIP=$"export your screenshot to pdf" 
 PLUGIN_EXT="image/png;image/bmp;image/jpeg"
 
 if [[ "${1}" = "name" ]];then
@@ -41,18 +41,18 @@ elif [[ "${1}" = "tip" ]];then
 elif [[ "${1}" = "ext" ]];then
     echo "${PLUGIN_EXT}"
     exit 0
-elif [[ "${1}" = "lang" ]];then
-    echo "shell"
-    exit 0
 fi
 
 FILE="${1}"
 #WIDTH="${2}"
 #HEIGHT="${3}"
 #FILEYTPE="${4}"
-INTL_PATH="${5}"
 #GEO="${2}x${3}"
 
-convert "${FILE}" -colorspace Gray "${FILE}"
-          
+convert "$FILE" "$FILE.pdf"  
+
+if [[ -e /usr/bin/xdg-open ]];then
+	/usr/bin/xdg-open "$FILE.pdf"
+fi
+ 
 exit 0

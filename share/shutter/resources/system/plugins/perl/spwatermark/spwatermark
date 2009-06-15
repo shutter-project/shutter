@@ -58,9 +58,6 @@ if ( $ARGV[ 0 ] eq "name" ) {
 		"add a custom text watermark to your screenshot"
 	);
 	exit;
-} elsif ( $ARGV[ 0 ] eq "lang" ) {
-	print "perl";
-	exit;
 }
 
 #these variables are passed to the plugin

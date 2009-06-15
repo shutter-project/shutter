@@ -58,9 +58,6 @@ if ( $ARGV[ 0 ] eq "name" ) {
 		"make your screenshot look like a polaroid photo, add a caption, and even rotate it a little"
 	);
 	exit;
-} elsif ( $ARGV[ 0 ] eq "lang" ) {
-	print "perl";
-	exit;
 }
 
 #these variables are passed to the plugin
