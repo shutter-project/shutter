@@ -1304,7 +1304,22 @@ sub save {
 
 	#make sure not to save the bounding rectangles
 	$self->deactivate_all;
+
+	#hide line and change background color, e.g. for saving
 	$self->handle_bg_rects('hide');
+
+	#image format supports transparency or not
+	#we need to support more formats here I think
+	if($self->{_filetype} eq 'jpeg' || $self->{_filetype} eq 'bmp'){	
+		$self->{_canvas_bg_rect}->set(
+			'fill-pattern' 	=> $self->create_color('white', 1.0),
+			'line-width' 	=> 0,
+		);
+	}else{
+		$self->{_canvas_bg_rect}->set(
+			'visibility' => 'hidden',
+		);		
+	}
 
 	my $surface = Cairo::ImageSurface->create( 'argb32', $self->{_canvas_bg_rect}->get('width'), $self->{_canvas_bg_rect}->get('height') );
 	#~ my $surface = Cairo::SvgSurface->create( '/home/mario/Desktop/test.svg', $self->{_canvas_bg_rect}->get('width'), $self->{_canvas_bg_rect}->get('height') );
@@ -1325,7 +1340,13 @@ sub save {
 
 	#just return pixbuf
 	if ($save_to_mem){
-		#make sure we show the rectangles again
+		#update the canvas_rect again
+		$self->{_canvas_bg_rect}->set(
+			'fill-pattern' 	=> $self->create_color('gray', 1.0),
+			'line-width' 	=> 1,
+			'visibility' 	=> 'visible',
+			
+		);		
 		$self->handle_bg_rects('show');
 		return $pixbuf ;
 	}
@@ -3836,10 +3857,6 @@ sub handle_bg_rects {
 				'visibility' => $visibilty,
 			);
 		}    #end determine rect
-
-		$self->{_canvas_bg_rect}->set(
-			'visibility' => $visibilty,
-		);
 
 	}elsif($action eq 'update'){
 
