@@ -159,7 +159,7 @@ $tooltips->set_tip(
 	)
 );
 
-my $zoom_label = Gtk2::Label->new( "Zoom:" );
+my $zoom_label = Gtk2::Label->new( $d->get("Zoom:") );
 my $zoom_sbutton = Gtk2::SpinButton->new_with_range( -10, 10, 0.10 );
 $zoom_sbutton->set_value( -1.5 );
 
