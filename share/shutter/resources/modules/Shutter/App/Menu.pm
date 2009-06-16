@@ -137,7 +137,7 @@ sub create_menu {
 	$self->{_menu_edit}->append( $self->{_menuitem_copy} );
 
 	$self->{_menuitem_copy_filename} = Gtk2::ImageMenuItem->new_from_stock('gtk-copy');
-	$self->{_menuitem_copy_filename}->get_child->set_text( $d->get('Copy filename') );	
+	$self->{_menuitem_copy_filename}->get_child->set_text_with_mnemonic( $d->get('Copy _filename') );	
 	$self->{_menuitem_copy_filename}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control><Shift>C'), qw/visible/ );
 	$self->{_menuitem_copy_filename}->set_sensitive(FALSE);
 	$self->{_menu_edit}->append( $self->{_menuitem_copy_filename} );
@@ -409,7 +409,7 @@ sub fct_ret_actions_menu{
 	$self->{_menuitem_reopen_default}->set_name('item-reopen-default');
 	$self->{_menu_actions}->append( $self->{_menuitem_reopen_default} );
 
-	$self->{_menuitem_reopen} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Open with') );
+	$self->{_menuitem_reopen} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Open wit_h') );
 	$self->{_menuitem_reopen}->set_image( Gtk2::Image->new_from_stock( 'gtk-open', 'menu' ) );
 	$self->{_menuitem_reopen}->set_sensitive(FALSE);
 	$self->{_menuitem_reopen}->set_name('item-reopen-list');
