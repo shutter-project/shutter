@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.519";
+use constant REV                	=> "Rev.520";
 use constant PPA_VERSION         	=> "ppa2";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -262,7 +262,7 @@ $window->signal_connect( 'delete-event' => \&evt_delete_window );
 $window->set_border_width(0);
 $window->set_resizable(TRUE);
 $window->set_focus_on_map(TRUE);
-$window->set_default_size( 650, 500 );
+$window->set_default_size( 680, 500 );
 
 #TRAY ICON
 my $icon                 = undef;
@@ -472,9 +472,11 @@ if ( defined $settings_xml->{'general'}->{'last_profile'} ) {
 
 #attach signal handlers to subroutines and pack toolbar
 #--------------------------------------
-my $handlebox = Gtk2::HandleBox->new;
-$handlebox->add( $shutter_tool->create_toolbar );
-$vbox->pack_start( $handlebox, FALSE, TRUE, 0 );
+#~ my $handlebox = Gtk2::HandleBox->new;
+#~ $handlebox->add( $shutter_tool->create_toolbar );
+#~ $vbox->pack_start( $handlebox, FALSE, TRUE, 0 );
+
+$vbox->pack_start( $shutter_tool->create_toolbar, FALSE, TRUE, 0 );
 
 my ( $tool_advanced, $tool_simple ) = undef;
 my $zoom_active = undef;
