@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.513";
+use constant REV                	=> "Rev.514";
 use constant PPA_VERSION         	=> "ppa2";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -2473,7 +2473,8 @@ sub fct_create_tab {
 		});
 		
 		my $image_sw = Gtk2::ImageView::ScrollWin->new($session_screens{$key}->{'image'});
-
+		$image_sw->set_size_request(50, -1);
+		
 		#packing
 		#~ my $tab_infos_sizegroup = Gtk2::SizeGroup->new('vertical');
 		#~ $tab_infos_sizegroup->add_widget( $session_screens{$key}->{'filename_label'} );
@@ -2508,12 +2509,12 @@ sub fct_create_tab {
 		#~ $hbox_tab_file->pack_start( $image_sw, TRUE,  TRUE, 0 );
 		#~ $hbox_tab_file->pack_start( $vbox_fileinfos,                   FALSE, TRUE, 10 );
 
-		my $vpaned = Gtk2::HPaned->new;
-		$vpaned->add2($image_sw);
-		$vpaned->add1($vbox_fileinfos);
+		my $hpaned = Gtk2::HPaned->new;
+		$hpaned->add1($vbox_fileinfos);
+		$hpaned->pack2($image_sw, TRUE, FALSE);
 
 		#~ $vbox_tab->pack_start( $hbox_tab_file, TRUE, TRUE, 0 );
-		$vbox_tab->pack_start( $vpaned, TRUE, TRUE, 0 );
+		$vbox_tab->pack_start( $hpaned, TRUE, TRUE, 0 );
 
 		$vbox->pack_start_defaults($vbox_tab);
 		
