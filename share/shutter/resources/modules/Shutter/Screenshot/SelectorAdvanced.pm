@@ -333,6 +333,42 @@ sub select_advanced {
 						}else{
 							Gtk2->main_do_event($event);
 						}
+					
+					#zoom in
+					} elsif ( 
+						$event->keyval == $Gtk2::Gdk::Keysyms{KP_Add} ||
+						$event->keyval == $Gtk2::Gdk::Keysyms{plus} ||
+						$event->keyval == $Gtk2::Gdk::Keysyms{equal}		
+					) {	
+
+						if ($event->state >= 'control-mask'){
+							$self->{_view}->zoom_in;
+						}else{
+							Gtk2->main_do_event($event);
+						}
+
+					#zoom out
+					} elsif ( 
+						$event->keyval == $Gtk2::Gdk::Keysyms{KP_Subtract} ||
+						$event->keyval == $Gtk2::Gdk::Keysyms{minus}		
+					) {	
+
+						if ($event->state >= 'control-mask'){
+							$self->{_view}->zoom_out;
+						}else{
+							Gtk2->main_do_event($event);
+						}
+
+					#zoom normal
+					} elsif ( 
+						$event->keyval == $Gtk2::Gdk::Keysyms{0}	
+					) {	
+
+						if ($event->state >= 'control-mask'){
+							$self->{_view}->set_zoom(1);
+						}else{
+							Gtk2->main_do_event($event);
+						}
 													
 					#take screenshot
 					} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Return}) {

@@ -176,12 +176,14 @@ sub create_menu {
 
 	$self->{_menuitem_zoom_in} = Gtk2::ImageMenuItem->new_from_stock('gtk-zoom-in');
 	$self->{_menuitem_zoom_in}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<control>plus'), qw/visible/ );
-	#~ $self->{_menuitem_zoom_in}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<control>1'), qw/visible/ );
+	$self->{_menuitem_zoom_in}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<control>equal'), qw/visible/ );
+	$self->{_menuitem_zoom_in}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<control>KP_Add'), qw/visible/ );
 	$self->{_menuitem_zoom_in}->set_sensitive(FALSE);
 	$self->{_menu_view}->append( $self->{_menuitem_zoom_in} );
 
 	$self->{_menuitem_zoom_out} = Gtk2::ImageMenuItem->new_from_stock('gtk-zoom-out');
 	$self->{_menuitem_zoom_out}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<control>minus'), qw/visible/ );
+	$self->{_menuitem_zoom_out}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<control>KP_Subtract'), qw/visible/ );
 	$self->{_menuitem_zoom_out}->set_sensitive(FALSE);
 	$self->{_menu_view}->append( $self->{_menuitem_zoom_out} );
 
