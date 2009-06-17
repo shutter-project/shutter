@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.523";
+use constant REV                	=> "Rev.524";
 use constant PPA_VERSION         	=> "ppa2";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -3305,7 +3305,7 @@ sub fct_load_session {
 
 		$restore_dialog->set( 'text' => $d->get("Restoring session") );
 
-		$restore_dialog->set( 'secondary-text' => $d->get("Please wait while your saved session\nis being restored") . "." );
+		$restore_dialog->set( 'secondary-text' => $d->get("Please wait while your saved session is being restored") . "." );
 
 		$restore_dialog->signal_connect( response => sub { $_[0]->destroy } );
 
