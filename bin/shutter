@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.522";
+use constant REV                	=> "Rev.523";
 use constant PPA_VERSION         	=> "ppa2";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -2388,12 +2388,12 @@ sub fct_control_main_window {
 	#hide or show window
 	if($mode eq 'show'){
 
+		#move window to saved position
+		$window->move( $window->{x}, $window->{y} ) if (defined $window->{x} && defined $window->{y});
+
 		$window->show_all;
 		$window->present;
 		$is_in_tray = FALSE;
-
-		#move window to saved position
-		$window->move( $window->{x}, $window->{y} ) if (defined $window->{x} && defined $window->{y});
 
 		#attach signal-handler again
 		$SIG{USR1}  = sub { &evt_take_screenshot( 'global_keybinding', 'raw' ) };
