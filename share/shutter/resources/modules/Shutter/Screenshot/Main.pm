@@ -249,38 +249,66 @@ sub get_pixbuf_from_drawable {
 	return ($pixbuf, $l_cropped, $r_cropped, $t_cropped, $b_cropped);
 }
 
-#code ported and borrowed from gnome-screenshot
+#code ported and partially borrowed from gnome-screenshot, Thanks guys!
 sub include_cursor {
 
 	my ( $self, $xp, $yp, $widthp, $heightp, $gdk_window, $pixbuf ) = @_;
 
-	my $cursor =
-		Gtk2::Gdk::Cursor->new_for_display( Gtk2::Gdk::Display->get_default,
-											'GDK_LEFT_PTR' );
 
-#	my $cursor_pixbuf =
-#		$x->XFixesGetCursorImage( Gtk2::Gdk::Display->get_default );
+	#~ require lib;
+	#~ import lib $self->{_gc}->get_root."/share/shutter/resources/modules";
+	#~ 
+	#~ require X11::Protocol;
+#~ 
+	#~ #X11 protocol and XSHAPE ext
+	#~ $self->{_x11} 			 = X11::Protocol->new( $ENV{ 'DISPLAY' } );
+	#~ $self->{_x11}{ext_xfixes}= $self->{_x11}->init_extension('XFIXES');
+	#~ 
+	#~ $self->{_x11}->GetCursorImage();
+
+	my $cursor = Gtk2::Gdk::Cursor->new( 'GDK_LEFT_PTR' );
 
 	my $cursor_pixbuf = $cursor->get_image;
-
+	
 	if ( $cursor_pixbuf ) {
 		my ( $window_at_pointer, $x, $y, $mask ) = $gdk_window->get_pointer;
+	
+		#screenshot dimensions saved in a rect (global x, y)
+		my $scshot  = Gtk2::Gdk::Rectangle->new( $xp, $yp, $widthp, $heightp );
+		
+		#see 'man xcursor' for a detailed description
+		#of these values
+		my $xhot = $cursor_pixbuf->get_option('x_hot');
+		my $yhot = $cursor_pixbuf->get_option('y_hot');
 
-		my $r1 = Gtk2::Gdk::Rectangle->new( $xp, $yp, $widthp, $heightp );
-		my $r2 = Gtk2::Gdk::Rectangle->new( $x, $y, $cursor_pixbuf->get_width,
-											$cursor_pixbuf->get_height );
+		#cursor dimensions (global x, y and width and height of the pixbuf)
+		my $cursor = Gtk2::Gdk::Rectangle->new( $x, $y, $cursor_pixbuf->get_width, $cursor_pixbuf->get_height );
+		
+		#is the cursor visible in the current screenshot?
+		#(do the rects intersect?)
+		if ( $cursor = $scshot->intersect( $cursor ) ) {
+			
+			#calculate dest_x, dest_y
+			#be careful here when subtracting xhot and yhot,
+			#because negative values are not allowed when 
+			#using composite
+			#
+			#example: moving the cursor to the coords 0, 0
+			#would lead to an error
+			my $dest_x = $x - $xp - $xhot;
+			my $dest_y = $y - $yp - $yhot;
+			$dest_x = 0 if $dest_x < 0;
+			$dest_y = 0 if $dest_y < 0;
 
-		if ( $r2 = $r1->intersect( $r2 ) ) {
-
-			my $dest_y = $r2->y - $yp - 4;
-			$dest_y = 0 if ( $dest_y < 0 );
 			$cursor_pixbuf->composite(
-									   $pixbuf,      $r2->x - $xp,
-									   $dest_y,      $r2->width,
-									   $r2->height,  $x - 6 - $xp,
-									   $y - 4 - $yp, 1.0,
-									   1.0,          'bilinear',
-									   255
+									   $pixbuf, 
+									   $dest_x,
+									   $dest_y, 
+									   $cursor->width + $xhot,
+									   $cursor->height + $yhot, 
+									   $x - $xp - $xhot,
+									   $y - $yp - $yhot, 
+									   1.0, 1.0, 'bilinear', 255
 									 );
 		}
 	}
