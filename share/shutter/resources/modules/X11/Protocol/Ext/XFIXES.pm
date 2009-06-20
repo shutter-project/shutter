@@ -29,8 +29,6 @@ use Carp;
 use strict;
 use vars '$VERSION';
 
-use Data::Dumper;
-
 $VERSION = 0.01;
 
 sub new
@@ -41,14 +39,13 @@ sub new
     #Request
 	#GetCursorImage
 	# 
-	#->
 	#
-	#x:			INT16
-	#y:			INT16
-	#width:			CARD16
+	#x:					INT16
+	#y:					INT16
+	#width:				CARD16
 	#height:			CARD16
-	#x-hot:			CARD16
-	#y-hot:			CARD16
+	#x-hot:				CARD16
+	#y-hot:				CARD16
 	#cursor-serial:		CARD32
 	#cursor-image:		LISTofCARD32
 
@@ -66,16 +63,15 @@ sub new
 	#pre-multiplied with the alpha component.
     $x->{'ext_request'}{$request_num} = 
       [	  
-			["GetCursorImage",
-				sub {
-					my($self) = shift;
-	    			return "";
-				}, 
-				sub {
-					my($self) = shift;
-					
-					return "Test";
-			}],
+		["XFixesQueryVersion", sub {
+			my($self) = shift;
+			return pack("LL", 1, 0); #we support/need only version 1.0
+		}, sub {
+	    	my($self) = shift;
+	     	my($data) = @_;
+	     	my($major,$minor) = unpack("xxxxxxxxLLxxxxxxxxxxxxxxxx",$data);
+	     	return($major,$minor);
+		}]
       ];
 	  
     my($i);
@@ -83,7 +79,10 @@ sub new
 	$x->{'ext_request_num'}{$x->{'ext_request'}{$request_num}[$i][0]} =
 	  [$request_num, $i];
     }
-
+	($self->{'major'}, $self->{'minor'}) = $x->req('XFixesQueryVersion');
+	
+	print $self->{'major'}." - ".$self->{'minor'}."\n";
+	
     return bless $self, $pkg;
 }
 

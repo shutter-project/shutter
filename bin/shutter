@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.524";
+use constant REV                	=> "Rev.526";
 use constant PPA_VERSION         	=> "ppa2";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -3140,6 +3140,9 @@ sub fct_get_program_model {
 	#for opening files
 	foreach my $mapp (@mapps){
 		foreach my $app (@apps){
+			
+			$app->{'name'} = $shutter_hfunct->utf8_decode($app->{'name'});
+			
 			#FIXME - kde apps do not support the freedesktop standards (.desktop files)
 			#we simply cut the kde* / kde4* substring here
 			#is it possible to get the wrong app if there 
@@ -5604,6 +5607,8 @@ sub fct_ret_program_menu {
 	
 	my $default_matched = FALSE;
 	foreach my $app (@apps) {
+		
+		$app->{'name'} = $shutter_hfunct->utf8_decode($app->{'name'});
 		
 		#FIXME - kde apps do not support the freedesktop standards (.desktop files)
 		#we simply cut the kde* / kde4* substring here

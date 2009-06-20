@@ -249,22 +249,19 @@ sub get_pixbuf_from_drawable {
 	return ($pixbuf, $l_cropped, $r_cropped, $t_cropped, $b_cropped);
 }
 
-#code ported and partially borrowed from gnome-screenshot, Thanks guys!
+#code ported and partially borrowed from gnome-screenshot
 sub include_cursor {
 
 	my ( $self, $xp, $yp, $widthp, $heightp, $gdk_window, $pixbuf ) = @_;
-
 
 	#~ require lib;
 	#~ import lib $self->{_gc}->get_root."/share/shutter/resources/modules";
 	#~ 
 	#~ require X11::Protocol;
-#~ 
+
 	#~ #X11 protocol and XSHAPE ext
-	#~ $self->{_x11} 			 = X11::Protocol->new( $ENV{ 'DISPLAY' } );
-	#~ $self->{_x11}{ext_xfixes}= $self->{_x11}->init_extension('XFIXES');
-	#~ 
-	#~ $self->{_x11}->GetCursorImage();
+	#~ $self->{_x11} 			  = X11::Protocol->new( $ENV{ 'DISPLAY' } );
+	#~ $self->{_x11}{ext_xfixes} = $self->{_x11}->init_extension('XFIXES');
 
 	my $cursor = Gtk2::Gdk::Cursor->new( 'GDK_LEFT_PTR' );
 
