@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.526";
+use constant REV                	=> "Rev.527";
 use constant PPA_VERSION         	=> "ppa2";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -262,7 +262,7 @@ $window->signal_connect( 'delete-event' => \&evt_delete_window );
 $window->set_border_width(0);
 $window->set_resizable(TRUE);
 $window->set_focus_on_map(TRUE);
-$window->set_default_size( 680, 500 );
+$window->set_default_size( -1, 500 );
 
 #TRAY ICON
 my $icon                 = undef;
@@ -1499,11 +1499,9 @@ $vbox->pack_start( $status_hbox, FALSE, FALSE, 0 );
 #start minimized?
 #--------------------------------------
 unless ( $shutter_common->get_min ) {
-	$window->show_all;
-	$is_in_tray = FALSE;
+	&fct_control_main_window (TRUE, 'show');
 } else {
-	$window->hide;
-	$is_in_tray = TRUE;
+	&fct_control_main_window (TRUE, 'hide');
 }
 
 #update the first tab on startup
@@ -2400,6 +2398,14 @@ sub fct_control_main_window {
 		$SIG{USR2}  = sub { &evt_take_screenshot( 'global_keybinding', 'window' ) };
 		$SIG{RTMIN} = sub { &evt_take_screenshot( 'global_keybinding', 'select' ) };
 		$SIG{RTMAX} = sub { &evt_take_screenshot( 'global_keybinding', 'section' ) };
+		
+		#toolbar->set_show_arrow is FALSE at startup
+		#to automatically adjust the main window width
+		#we change the setting to TRUE if it is still false, 
+		#so the window/toolbar is resizable again
+		unless($shutter_tool->{_toolbar}->get_show_arrow){
+			$shutter_tool->{_toolbar}->set_show_arrow(TRUE);
+		}
 			
 	}elsif($mode eq 'hide'){
 

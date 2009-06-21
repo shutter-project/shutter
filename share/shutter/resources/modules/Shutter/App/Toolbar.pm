@@ -173,8 +173,7 @@ sub create_toolbar {
 
 	#create the toolbar
 	$self->{_toolbar} = Gtk2::Toolbar->new;
-	$self->{_toolbar}->set_show_arrow(TRUE);
-	$self->{_toolbar}->set_icon_size('large-toolbar');
+	$self->{_toolbar}->set_show_arrow(FALSE);
 	$self->{_toolbar}->insert( $self->{_select},             -1 );
 	$self->{_toolbar}->insert( Gtk2::SeparatorToolItem->new, -1 );
 	$self->{_toolbar}->insert( $self->{_full},               -1 );
@@ -186,7 +185,6 @@ sub create_toolbar {
 	$self->{_toolbar}->insert( Gtk2::SeparatorToolItem->new, -1 );
 	$self->{_toolbar}->insert( $self->{_edit},               -1 );
 	$self->{_toolbar}->insert( $self->{_upload},             -1 );
-	$self->{_toolbar}->set_size_request( 450, -1 );
 
 	return $self->{_toolbar};
 }
