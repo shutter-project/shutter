@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.527";
+use constant REV                	=> "Rev.528";
 use constant PPA_VERSION         	=> "ppa2";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
@@ -6594,7 +6594,7 @@ sub dlg_upload {
 
 	return FALSE if @files_to_upload < 1;
 
-	my $dlg_header = $d->get("Upload");
+	my $dlg_header = $d->get("Upload / Export");
 	my $hosting_dialog = Gtk2::Dialog->new( $dlg_header, $window, [qw/modal destroy-with-parent/] );
 
 	my $cancel_button = $hosting_dialog->add_button( 'gtk-cancel',       'reject' );
@@ -6761,11 +6761,26 @@ sub dlg_upload {
 	#setup notebook
 	my $unotebook = Gtk2::Notebook->new;
 	$unotebook->set( homogeneous  => TRUE );
-	$unotebook->set( 'scrollable' => TRUE );
-
+	
 	$unotebook->append_page($pub_vbox1, $d->get("Public hosting"));
 	$unotebook->append_page($ftp_vbox_dlg, "FTP");
 	$unotebook->append_page($pl_vbox1, $d->get("Places"));
+	
+	$unotebook->signal_connect( 'switch-page' => sub {
+		my ( $unotebook, $pointer, $int ) = @_;
+		
+		my $hbox = $upload_button->get_child->get_child;
+		foreach($hbox->get_children){
+			if($int == 2 && $_ =~ /Gtk2::Label/){
+				$_->set_text_with_mnemonic($d->get("_Export"));
+				last;
+			}elsif($_ =~ /Gtk2::Label/){
+				$_->set_text_with_mnemonic($d->get("_Upload"));
+				last;
+			}
+		}
+		
+	} );
 
 	$hosting_dialog->vbox->add($unotebook);
 
