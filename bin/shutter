@@ -82,11 +82,9 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.529";
-use constant PPA_VERSION         	=> "ppa3";
+use constant REV                	=> "Rev.530";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
-use constant SHUTTER_VERSION_FULL 	=> REV . " - " . PPA_VERSION;
 
 #--------------------------------------
 
@@ -1819,7 +1817,7 @@ sub evt_about {
 	$about->set_translator_credits($d->get("translator-credits"));
 	$about->set_copyright($all_hint);
 	$about->set_license($all_gpl);
-	$about->set_comments(SHUTTER_VERSION_FULL);
+	$about->set_comments(REV);
 	$about->show_all;
 	$about->signal_connect( 'response' => sub { $about->destroy } );
 }
@@ -2630,7 +2628,7 @@ sub fct_save_settings {
 
 	#we store the version info, so we know if there was a new version installed
 	#when starting new version we clear the cache on first startup
-	$settings{'general'}->{'app_version'} = SHUTTER_VERSION . PPA_VERSION . REV;
+	$settings{'general'}->{'app_version'} = SHUTTER_VERSION . REV;
 
 	$settings{'general'}->{'last_profile'}      = $combobox_settings_profiles->get_active;
 	$settings{'general'}->{'last_profile_name'} = $combobox_settings_profiles->get_active_text
@@ -3067,7 +3065,7 @@ sub fct_load_settings {
 				#we store the version info, so we know if there was a new version installed
 				#when starting new version we clear the cache on first startup
 				if (defined $settings_xml->{'general'}->{'app_version'}){
-					if(SHUTTER_VERSION . PPA_VERSION . REV ne $settings_xml->{'general'}->{'app_version'}){
+					if(SHUTTER_VERSION . REV ne $settings_xml->{'general'}->{'app_version'}){
 						$shutter_common->set_clear_cache(TRUE);
 					}	
 				}else{
