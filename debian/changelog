@@ -1,4 +1,4 @@
-shutter (0.80~ppa2) karmic; urgency=low
+shutter (0.80~ppa3) karmic; urgency=low
 
   * New features
     -- Undo/Redo functionality in Drawing Tool
@@ -103,10 +103,12 @@ shutter (0.80~ppa2) karmic; urgency=low
        [Text of '3D rotate' plugin is malformated]
     -- LP: #386769
        [quick profile selector is even sensitive when empty]
+    -- LP: #389837
+       [Invalid chars in japanese translation]
   * code cleanup
   * updated translations
 
- -- Mario Kemper <mario.kemper@googlemail.com>  Wed, 17 Jun 2009 00:36:47 +0200
+ -- Mario Kemper <mario.kemper@googlemail.com>  Mon, 22 Jun 2009 01:03:14 +0200
 
 shutter (0.70.2~ppa4) jaunty; urgency=low
 
