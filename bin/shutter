@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.530";
+use constant REV                	=> "Rev.531";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
 
@@ -2465,11 +2465,31 @@ sub fct_create_tab {
 		$geometry_label->set_markup( "<b>" . $d->get("Geometry") . "</b>" );
 		$session_screens{$key}->{'geometry_label'} = Gtk2::Label->new();
 
-		#empty at first
+		#Gtk2::ImageView - empty at first
 		$session_screens{$key}->{'image'} = Gtk2::ImageView->new();
 		$session_screens{$key}->{'image'}->set_interpolation ('tiles');	
-		$session_screens{$key}->{'image'} ->signal_connect('button-press-event', sub{
-			my ($widget, $ev) = @_;
+		
+		#Gtk2::ImageView::ScrollWin
+		my $image_sw = Gtk2::ImageView::ScrollWin->new($session_screens{$key}->{'image'});
+		$image_sw->set_size_request(50, -1);
+
+		#WORKAROUND
+		#upstream bug
+		#http://trac.bjourne.webfactional.com/ticket/21						
+		#left  => zoom in
+		#right => zoom out
+		$session_screens{$key}->{'image'}->signal_connect('scroll-event', sub{
+			my ($view, $ev) = @_;		
+			if($ev->direction eq 'left'){
+				$ev->direction('up');
+			}elsif($ev->direction eq 'right'){
+				$ev->direction('down');
+			}
+			return FALSE;
+		});
+		
+		$session_screens{$key}->{'image'}->signal_connect('button-press-event', sub{
+			my ($view, $ev) = @_;
 			if($ev->button == 1 && $ev->type eq '2button-press'){
 				&fct_zoom_best;	
 				return TRUE;
@@ -2477,9 +2497,6 @@ sub fct_create_tab {
 				return FALSE;	
 			}					
 		});
-		
-		my $image_sw = Gtk2::ImageView::ScrollWin->new($session_screens{$key}->{'image'});
-		$image_sw->set_size_request(50, -1);
 		
 		#packing
 		#~ my $tab_infos_sizegroup = Gtk2::SizeGroup->new('vertical');

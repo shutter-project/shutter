@@ -62,6 +62,21 @@ sub new {
 	$self->{_selector} 		= shift;
 	$self->{_dragger} 		= shift;
 
+	#WORKAROUND
+	#upstream bug
+	#http://trac.bjourne.webfactional.com/ticket/21						
+	#left  => zoom in
+	#right => zoom out
+	$self->{_view}->signal_connect('scroll-event', sub{
+		my ($view, $ev) = @_;		
+		if($ev->direction eq 'left'){
+			$ev->direction('up');
+		}elsif($ev->direction eq 'right'){
+			$ev->direction('down');
+		}
+		return FALSE;
+	});
+
 	#file
 	$self->{_filename}    	= undef;
 	$self->{_filetype}    	= undef;
@@ -223,11 +238,11 @@ sub show {
 			my $alloc = $self->{_canvas}->allocation;			
 			my $scale = $canvas->get_scale;
 						
-			if ($ev->state >= 'control-mask' && $ev->direction eq 'up' ) {
+			if ($ev->state >= 'control-mask' && ($ev->direction eq 'up' || $ev->direction eq 'left') ) {
 				$self->zoom_in_cb;
 				$canvas->scroll_to(int($ev->x - $alloc->width / 2 ) / $scale, int($ev->y - $alloc->height / 2 ) / $scale);
 				return TRUE;
-			}elsif ( $ev->state >= 'control-mask' && $ev->direction eq 'down' ) {
+			}elsif ( $ev->state >= 'control-mask' && ($ev->direction eq 'down' || $ev->direction eq 'right') ) {
 				$self->zoom_out_cb;
 				return TRUE;
 			}

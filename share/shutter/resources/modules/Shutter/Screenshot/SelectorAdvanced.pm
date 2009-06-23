@@ -52,6 +52,21 @@ sub new {
 	$self->{_selector} 	= shift;
 	$self->{_dragger} 	= shift;
 
+	#WORKAROUND
+	#upstream bug
+	#http://trac.bjourne.webfactional.com/ticket/21						
+	#left  => zoom in
+	#right => zoom out
+	$self->{_view}->signal_connect('scroll-event', sub{
+		my ($view, $ev) = @_;		
+		if($ev->direction eq 'left'){
+			$ev->direction('up');
+		}elsif($ev->direction eq 'right'){
+			$ev->direction('down');
+		}
+		return FALSE;
+	});
+
 	bless $self, $class;
 	return $self;
 }
