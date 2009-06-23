@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.531";
+use constant REV                	=> "Rev.532";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
 
@@ -107,6 +107,9 @@ $ENV{'SHUTTER_ROOT'} = $shutter_root;    #used by some plugins
 #--------------------------------------
 require lib;
 import lib "$shutter_root/share/shutter/resources/modules";
+
+#Sort::Naturally - sort lexically, but sort numeral parts numerically
+require Sort::Naturally;
 
 #proc (Thanks to Michael Schilli)
 require Proc::Simple;
@@ -1634,18 +1637,16 @@ sub evt_take_screenshot {
 		
 	}
 
-	#A short timeout to give the server a chance to
-	#redraw the area that was obscured by our dialog.
-	my $timeout = 400;
 	if ( $data eq "web" || $data eq "tray_web" ){
-		$timeout = 0;		
-	}
-	#see timeout description above
-	Glib::Timeout->add ($timeout, sub{
 		&fct_take_screenshot($widget, $data, $folder_from_config);
-		return FALSE;	
-	});
-
+	}else{
+		#A short timeout to give the server a chance to
+		#redraw the area that was obscured by our dialog.
+		Glib::Timeout->add (400, sub{
+			&fct_take_screenshot($widget, $data, $folder_from_config);
+			return FALSE;	
+		});		
+	}
 }
 
 sub evt_behavior_handle {
@@ -2756,8 +2757,7 @@ sub fct_save_settings {
 		utf8::encode $settings{'plugins'}->{$plugin_key}->{'name_plugin'};
 		utf8::encode $settings{'plugins'}->{$plugin_key}->{'category'};
 		utf8::encode $settings{'plugins'}->{$plugin_key}->{'tooltip'};
-		utf8::encode $settings{'plugins'}->{$plugin_key}->{'lang'};
-		
+		utf8::encode $settings{'plugins'}->{$plugin_key}->{'lang'};	
 	}
 
 	#settings
@@ -2777,7 +2777,7 @@ sub fct_save_settings {
 	#we need to clean the hashkeys, so they become parseable
 	my %clean_files;
 	my $counter = 0;
-	foreach ( sort keys %session_screens ) {
+	foreach ( Sort::Naturally::nsort(keys %session_screens) ) {
 
 		next unless exists $session_screens{$_}->{'long'};
 
