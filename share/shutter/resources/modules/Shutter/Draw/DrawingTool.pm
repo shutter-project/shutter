@@ -2853,11 +2853,12 @@ sub ret_item_menu {
 		Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_size( $self->{_dicons}.'/draw-raise.png', Gtk2::IconSize->lookup('menu') ) ) );
 	$raise_item->signal_connect(
 		'activate' => sub {
-			$item->raise;
 			if ($parent) {
+				$item->raise;
 				$parent->raise;
 				$self->handle_rects( 'raise', $parent );
 			} else {
+				$item->raise;
 				$self->handle_rects( 'raise', $item );
 			}
 		}
@@ -2872,12 +2873,13 @@ sub ret_item_menu {
 
 	$lower_item->signal_connect(
 		'activate' => sub {
-			$item->lower;
 			if ($parent) {
-				$parent->lower;
 				$self->handle_rects( 'lower', $parent );
+				$parent->lower;
+				$item->lower;
 			} else {
 				$self->handle_rects( 'lower', $item );
+				$item->lower;
 			}
 			$self->{_canvas_bg}->lower;
 			$self->{_canvas_bg_rect}->lower;
