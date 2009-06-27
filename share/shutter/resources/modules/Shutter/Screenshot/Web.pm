@@ -27,7 +27,7 @@ package Shutter::Screenshot::Web;
 use SelfLoader;
 use utf8;
 use strict;
-use Image::Magick;
+use warnings;
 
 #define constants
 #--------------------------------------

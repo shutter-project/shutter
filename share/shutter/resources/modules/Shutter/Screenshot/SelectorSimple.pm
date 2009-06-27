@@ -27,6 +27,8 @@ package Shutter::Screenshot::SelectorSimple;
 use SelfLoader;
 use utf8;
 use strict;
+use warnings;
+
 use Gnome2::Canvas;
 use Shutter::Screenshot::Main;
 use Data::Dumper;
@@ -112,7 +114,7 @@ sub select_simple {
 	
 	#define shutter cursor
 	my $shutter_cursor_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file(
-		$self->{_gc}->get_root . "/share/shutter/resources/icons/shutter_cursor.png" );
+		$self->{_sc}->get_root . "/share/shutter/resources/icons/shutter_cursor.png" );
 	my $shutter_cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default,
 		$shutter_cursor_pixbuf, 10, 10 );	
 	
@@ -170,84 +172,73 @@ sub select_simple {
 
 	if ( Gtk2::Gdk->pointer_is_grabbed ) {
 		
-		#~ Gtk2::Gdk::X11->grab_server unless $self->{_zoom_active};
 		my ( $rx, $ry, $rw, $rh, $rect_x, $rect_y, $rect_w, $rect_h ) = ( 0, 0, 0, 0, 0, 0, 0, 0 );
 		my $btn_pressed = 0;
-		my %smallest_coords = ();
-		my $drawable        = undef;
+		my $drawable	= undef;
+		
 		Gtk2::Gdk::Event->handler_set(
 			sub {
 				my ( $event, $data ) = @_;
-				return 0 unless defined $event;
+				return FALSE unless defined $event;
 
 				#quit on escape
 				if ( $event->type eq 'key-press' ) {
 					if ( $event->keyval == $Gtk2::Gdk::Keysyms{Escape} ) {
 						if ( $rect_w > 1 ) {
-
 							#clear the last rectangle
-							$self->{_root}
-								->draw_rectangle( $gc, 0, $rect_x, $rect_y, $rect_w, $rect_h );
+							$self->{_root}->draw_rectangle( $gc, 0, $rect_x, $rect_y, $rect_w, $rect_h );
 						}
-
-						$zoom_window->destroy;
-						Gtk2::Gdk->flush;
-
-						$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
+						
+						$self->quit($zoom_window);
 
 					}
+					
+				#take screenshot when button is released	
 				} elsif ( $event->type eq 'button-release' ) {
 					print "Type: " . $event->type . "\n"
 						if ( defined $event && $self->{_debug_cparam} );
-					print "Trying to clear a rectangle ($rect_x, $rect_y, $rect_w, $rect_h)\n"
-						if $self->{_debug_cparam};
-
-					#capture is finished, delete zoom
-					$zoom_window->destroy;
-					Gtk2::Gdk->flush;
-
-					$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
-
+					
+					#selection valid?
 					if ( $rect_w > 1 ) {
 
 						#clear the last rectangle
 						$self->{_root}
 							->draw_rectangle( $gc, 0, $rect_x, $rect_y, $rect_w, $rect_h );
 						Gtk2::Gdk->flush;
+
+						#hide zoom_window and disable Event Handler
+						$zoom_window->hide;
+						$self->ungrab_pointer_and_keyboard( FALSE, TRUE, FALSE );
 						
-						sleep 1 if $self->{_delay} < 1;
-						($output) = $self->get_pixbuf_from_drawable(
-							$self->{_root}, $rect_x, $rect_y,
-							$rect_w + 1,
-							$rect_h + 1,
-							$self->{_include_cursor},
-							$self->{_delay}
-						);
-							
+						#A short timeout to give the server a chance to
+						#redraw the area that was obscured by our zoom window
+						Glib::Timeout->add (400, sub{
+							($output) = $self->get_pixbuf_from_drawable( $self->{_root}, $rect_x+1, $rect_y+1, $rect_w-1, $rect_h-1);
+							$self->quit($zoom_window);
+							return FALSE;	
+						});	
+						
+					#return error	
 					} else {
 						$output = 0;
+						$self->quit($zoom_window);
 					}
+					
 				} elsif ( $event->type eq 'button-press' ) {
 					print "Type: " . $event->type . "\n"
 						if ( defined $event && $self->{_debug_cparam} );
+					
 					$btn_pressed = 1;
-					if ( defined $smallest_coords{'last_win'} ) {
-						$self->{_root}->draw_rectangle(
-							$gc,
-							0,
-							$smallest_coords{'last_win'}->{'x'},
-							$smallest_coords{'last_win'}->{'y'},
-							$smallest_coords{'last_win'}->{'width'},
-							$smallest_coords{'last_win'}->{'height'}
-						);
-					}
 
 					#rectangle starts here...
 					$rx = $event->x;
 					$ry = $event->y;
+					
 				} elsif ( $event->type eq 'motion-notify' ) {
 					print "Type: " . $event->type . "\n"
 						if ( defined $event && $self->{_debug_cparam} );
+					
+					#update label in zoom_window
 					$xlabel->set_text( "X: " . $event->x );
 					$ylabel->set_text( "Y: " . $event->y );
 
@@ -317,6 +308,8 @@ sub select_simple {
 								->draw_rectangle( $gc, 0, $rect_x, $rect_y, $rect_w, $rect_h );
 
 						}
+						
+						#calculate dimensions of rect
 						$rect_x = $rx;
 						$rect_y = $ry;
 						$rect_w = $event->x - $rect_x;
@@ -330,8 +323,9 @@ sub select_simple {
 							$rect_h = 0 - $rect_h;
 						}
 
-						my $print_w = $rect_w + 1;
-						my $print_h = $rect_h + 1;
+						#update zoom_window text
+						my $print_w = $rect_w - 1;
+						my $print_h = $rect_h - 1;
 						$rect->set_text( $print_w . " x " . $print_h );
 
 						#draw new rect to the root window
@@ -345,23 +339,37 @@ sub select_simple {
 
 						}
 					}
+					
 				} else {
 					Gtk2->main_do_event($event);
 				}
-			},
-			'rect'
+			}
 		);
+		
 		$zoom_window->show_all if $self->{_zoom_active};
 		Gtk2->main;
-	} else {    #pointer not grabbed
+		
+	#pointer not grabbed
+	} else {    
+		
 		$zoom_window->destroy;
 		Gtk2::Gdk->flush;
-
-		$self->ungrab_pointer_and_keyboard( FALSE, FALSE, FALSE );
-
+		$self->ungrab_pointer_and_keyboard( FALSE, FALSE, FALSE );	
 		$output = 0;
+	
 	}
+	
 	return $output;
+}
+
+sub quit {
+	my $self 		= shift;
+	my $zoom_window = shift;
+	
+	$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
+	$zoom_window->destroy;
+	Gtk2::Gdk->flush;
+	
 }
 
 1;

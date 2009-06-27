@@ -27,6 +27,8 @@ package Shutter::Screenshot::Workspace;
 use SelfLoader;
 use utf8;
 use strict;
+use warnings;
+
 use Shutter::Screenshot::Main;
 use Data::Dumper;
 our @ISA = qw(Shutter::Screenshot::Main);
@@ -69,8 +71,8 @@ sub workspace {
 
 	my $active_workspace = $self->{_wnck_screen}->get_active_workspace;
 	
-	#do we have a workspace??
-	return 0 unless $active_workspace;
+	#valid workspace?
+	return TRUE unless $active_workspace;
 	
 	$self->{_wsp_name} = $active_workspace->get_name;
 	utf8::encode $self->{_wsp_name};
@@ -96,7 +98,9 @@ sub workspace {
 		$wrksp_changed = TRUE;
 	}
 
-	#mh...just sleep until workspace is changed (fixme?)
+	#we need a minimum delay of 1 second
+	#to give the server a chance to
+	#redraw after switching workspaces
 	if ( $self->{_delay} < 2 && $wrksp_changed ) {
 		$self->{_delay} = 1;
 	}
@@ -104,23 +108,18 @@ sub workspace {
 	my $output = undef;
 	if ( $self->{_current_monitor_only} ) {
 		($output) = $self->get_pixbuf_from_drawable(
-			$self->get_root_and_current_monitor_geometry,
-			$self->{_include_cursor},
-			$self->{_delay}
-		);
+						$self->get_root_and_current_monitor_geometry
+					);
 	} else {
 		($output) = $self->get_pixbuf_from_drawable(
-			$self->get_root_and_geometry,
-			$self->{_include_cursor},
-			$self->{_delay}
-		);
+						$self->get_root_and_geometry
+					);
 	}
 
 	#metacity etc
 	if ( $self->{_selected_workspace} ) {
 		$active_workspace->activate(time) if $wrksp_changed;
-
-		#compiz
+	#compiz
 	} else {
 		$self->{_wnck_screen}->move_viewport( $active_vpx, $active_vpy );
 	}

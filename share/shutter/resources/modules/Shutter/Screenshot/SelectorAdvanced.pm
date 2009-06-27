@@ -27,6 +27,8 @@ package Shutter::Screenshot::SelectorAdvanced;
 use SelfLoader;
 use utf8;
 use strict;
+use warnings;
+
 use Shutter::Screenshot::Main;
 use Data::Dumper;
 our @ISA = qw(Shutter::Screenshot::Main);
@@ -86,7 +88,7 @@ sub select_advanced {
 	#return value
 	my $output = 5;
 
-	my $d = $self->{_gc}->get_gettext;
+	my $d = $self->{_sc}->get_gettext;
 
 	my $root_pixbuf = Gtk2::Gdk::Pixbuf->get_from_drawable(
 		$self->{_root}, undef, 0, 0, 0, 0,
@@ -120,10 +122,10 @@ sub select_advanced {
 		. $mon1->y . " - "
 		. $mon1->width . " - "
 		. $mon1->height . "\n"
-		if $self->{_gc}->get_debug;
+		if $self->{_sc}->get_debug;
 
 	#obtain current colors and font_desc from the main window
-    my $style 		= $self->{_gc}->get_mainwindow->get_style;
+    my $style 		= $self->{_sc}->get_mainwindow->get_style;
 	my $sel_bg 		= $style->bg('selected');
 	my $sel_tx 		= $style->text('selected');
 	my $font_fam 	= $style->font_desc->get_family;
@@ -264,7 +266,6 @@ sub select_advanced {
 				#handle button-press
 				if ( $event->type eq 'button-press') {		
 
-
 					#see docs
 					#http://library.gnome.org/devel/gdk/stable/gdk-Events.html
 					#
@@ -280,8 +281,18 @@ sub select_advanced {
 						if($ev1->type eq '2button-press'){
 
 							#left mouse button
-							if($ev1->button == 1){			
-								$output = $self->take_screenshot($s, $output);
+							if($ev1->button == 1){
+								
+								$self->{_select_window}->hide;
+								
+								#A short timeout to give the server a chance to
+								#redraw the area that was obscured by our dialog.
+								Glib::Timeout->add (400, sub{
+									$output = $self->take_screenshot($s);
+									$self->quit;
+									return FALSE;	
+								});					
+								
 							}
 
 						}else{
@@ -388,7 +399,15 @@ sub select_advanced {
 					#take screenshot
 					} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Return}) {
 						
-						$output = $self->take_screenshot($s, $output);
+						$self->{_select_window}->hide;
+						
+						#A short timeout to give the server a chance to
+						#redraw the area that was obscured by our dialog.
+						Glib::Timeout->add (400, sub{
+							$output = $self->take_screenshot($s);
+							$self->quit;
+							return FALSE;	
+						});		
 										
 					}else{
 						Gtk2->main_do_event($event);
@@ -400,7 +419,6 @@ sub select_advanced {
 			}
 		);
 
-		$self->{_select_window}->move( $self->{_root}->{x}, $self->{_root}->{y} );
 		$self->{_select_window}->set_default_size( $self->{_root}->{w}, $self->{_root}->{h} );
 		$self->{_select_window}->show_all();
 
@@ -411,9 +429,6 @@ sub select_advanced {
 		#most window managers ignore requests for initial window positions
 		#(instead using a user-defined placement algorithm) and
 		#honor requests after the window has already been shown.
-		$self->{_select_window}->move( $self->{_root}->{x}+100, $self->{_root}->{y}+100 );
-		$self->{_select_window}->set_size_request( $self->{_root}->{w}, $self->{_root}->{h} );
-
 		$self->{_select_window}->window->move_resize(
 			$self->{_root}->{x},
 			$self->{_root}->{y},
@@ -437,27 +452,18 @@ sub select_advanced {
 sub take_screenshot {
 	my $self 			= shift;
 	my $s				= shift;
-	my $output 			= shift;
-
-	$self->quit;
-
+	
+	my $output;
 	if ($s) {
-		sleep 1 if $self->{_delay} < 1;
-		($output) = $self->get_pixbuf_from_drawable( 
-			$self->{_root}, 
-			$s->x, $s->y, $s->width, $s->height,
-			$self->{_include_cursor},
-			$self->{_delay} );
+		($output) = $self->get_pixbuf_from_drawable( $self->{_root}, $s->x, $s->y, $s->width, $s->height);
 	} else {
 		$output = 0;
 	}
 	
-	return $output;	
-	
+	return $output;		
 }
 
 sub quit {
-	
 	my $self = shift;
 	
 	$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );

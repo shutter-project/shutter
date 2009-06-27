@@ -27,6 +27,8 @@ package Shutter::Screenshot::Window;
 use SelfLoader;
 use utf8;
 use strict;
+use warnings;
+
 use Shutter::Screenshot::Main;
 use Data::Dumper;
 our @ISA = qw(Shutter::Screenshot::Main);
@@ -50,8 +52,14 @@ sub new {
 	$self->{_mode} 				= shift;
 	$self->{_is_in_tray}      	= shift;
 
+	#X11 protocol and XSHAPE ext
+	require X11::Protocol;
+
+	$self->{_x11} 			= X11::Protocol->new( $ENV{ 'DISPLAY' } );
+	$self->{_x11}{ext_shape}= $self->{_x11}->init_extension('SHAPE');
+
 	#main window
-	$self->{_main_gtk_window} = $self->{_gc}->get_mainwindow;
+	$self->{_main_gtk_window} = $self->{_sc}->get_mainwindow;
 
 	#only used by window_select
 	$self->{_c} 		= {};
@@ -137,9 +145,9 @@ sub get_shape {
 	my $t_cropped 	= shift;
 	my $b_cropped 	= shift;
 
-	print "$l_cropped, $r_cropped, $t_cropped, $b_cropped cropped\n" if $self->{_gc}->get_debug;
+	print "$l_cropped, $r_cropped, $t_cropped, $b_cropped cropped\n" if $self->{_sc}->get_debug;
 
-	print "Calculating window shape\n" if $self->{_gc}->get_debug;
+	print "Calculating window shape\n" if $self->{_sc}->get_debug;
 
 	my ($ordering, @r) = $self->{_x11}->ShapeGetRectangles($self->find_wm_window($xid), 'Bounding');
 	
@@ -152,13 +160,13 @@ sub get_shape {
 	foreach my $r (@r){
 		my @rect =  @{$r};
 		
-		#adjust rectanged if window is only partially visible
+		#adjust rectangle if window is only partially visible
 		if($l_cropped){
 			$rect[2] -= $l_cropped - $rect[0]; 
 			$rect[0] = 0;
 		}
 		
-		print "Current $rect[0],$rect[1],$rect[2],$rect[3]\n" if $self->{_gc}->get_debug;
+		print "Current $rect[0],$rect[1],$rect[2],$rect[3]\n" if $self->{_sc}->get_debug;
 		$bregion->union_with_rect(Gtk2::Gdk::Rectangle->new ($rect[0],$rect[1],$rect[2],$rect[3]));	
 	}
 
@@ -169,7 +177,7 @@ sub get_shape {
 	
 	#copy all rectangles of bounding region to the target pixbuf
 	foreach my $r($bregion->get_rectangles){
-		print $r->x." ".$r->y." ".$r->width." ".$r->height."\n" if $self->{_gc}->get_debug;
+		print $r->x." ".$r->y." ".$r->width." ".$r->height."\n" if $self->{_sc}->get_debug;
 		
 		next if($r->x > $orig->get_width);
 		next if($r->y > $orig->get_height);
@@ -216,25 +224,35 @@ sub window_by_xid {
 	my $gdk_window  = Gtk2::Gdk::Window->foreign_new( $self->{_xid} );
 	my $wnck_window = Gnome2::Wnck::Window->get( $self->{_xid} );
 
-	my ( $xp, $yp, $wp, $hp )
-		= $self->get_window_size( $wnck_window, $gdk_window, $self->{_include_border} );
+	my ( $xp, $yp, $wp, $hp ) = $self->get_window_size( $wnck_window, $gdk_window, $self->{_include_border} );
 
 	#focus selected window (maybe it is hidden)
 	$gdk_window->focus(time);
 	Gtk2::Gdk->flush;
-	sleep 1 if $self->{_delay} < 1;
 
-	my ($output, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_pixbuf_from_drawable( $self->{_root}, $xp, $yp, $wp, $hp,
-		$self->{_include_cursor},
-		$self->{_delay} );
+	my $output;
+	#A short timeout to give the server a chance to
+	#redraw the area
+	Glib::Timeout->add (400, sub{
+		
+		my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_pixbuf_from_drawable( $self->{_root}, $xp, $yp, $wp, $hp);
 
-	#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
-	if($self->{_x11}{ext_shape} && $self->{_include_border}){
-		$output = $self->get_shape($self->{_xid}, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);				
-	}
+		#save return value to current $output variable 
+		#-> ugly but fastest and safest solution now
+		$output = $output_new;	
+
+		#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
+		if($self->{_x11}{ext_shape} && $self->{_include_border}){
+			$output = $self->get_shape($self->{_xid}, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);				
+		}
+
+		$self->quit;
+		return FALSE;	
+	});	
+
+	Gtk2->main();
 
 	return $output;
-
 }
 
 sub clear_last_rectangle {
@@ -319,14 +337,14 @@ sub find_current_parent_window {
 	#get all the windows
 	my @wnck_windows = $self->{_wnck_screen}->get_windows;
 	
-	print "Searching for window...\n" if $self->{_gc}->get_debug;
+	print "Searching for window...\n" if $self->{_sc}->get_debug;
 	
 	foreach my $cwdow (@wnck_windows) {
 		$self->{_drawable} = Gtk2::Gdk::Window->foreign_new( $cwdow->get_xid );
 		next unless defined $self->{_drawable};
 
 		print "Do not detect shutter main window...\n"
-			if $self->{_gc}->get_debug;
+			if $self->{_sc}->get_debug;
 
 		#do not detect shutter window when it is hidden
 		if (   $self->{_main_gtk_window}->window
@@ -338,16 +356,16 @@ sub find_current_parent_window {
 			= $self->get_window_size( $cwdow, $self->{_drawable},
 			$self->{_include_border} );
 
-		print "Create region of window...\n" if $self->{_gc}->get_debug;
+		print "Create region of window...\n" if $self->{_sc}->get_debug;
 		my $wr = Gtk2::Gdk::Region->rectangle(
 			Gtk2::Gdk::Rectangle->new( $xp, $yp, $wp, $hp ) );
 
-		print "Determine if window fits on screen... ".$event->x ." - ". $event->y."\n" if $self->{_gc}->get_debug;
+		print "Determine if window fits on screen... ".$event->x ." - ". $event->y."\n" if $self->{_sc}->get_debug;
 		if ($cwdow->is_visible_on_workspace($active_workspace)
 			&& $wr->point_in( $event->x, $event->y )
 			&& $wp * $hp <= $self->{_min_size}) {
 			print "Parent X: $xp, Y: $yp, Width: $wp, Height: $hp\n"
-				if $self->{_gc}->get_debug;
+				if $self->{_sc}->get_debug;
 			$self->{_c}{'cw'}{'window'}     = $cwdow;
 			$self->{_c}{'cw'}{'gdk_window'} = $self->{_drawable};
 			$self->{_c}{'cw'}{'x'}          = $xp;
@@ -367,14 +385,14 @@ sub find_current_child_window {
 	my $event 	= shift;
 
 	print "Searching for children now...\n"
-		if $self->{_gc}->get_debug;
+		if $self->{_sc}->get_debug;
 
 	#selected window is parent
 	my $cp = $self->{_ws}->XWINDOW;
 	foreach my $cc ( keys %{ $self->{_c}{$cp} } ) {
 		next unless defined $cc;
 		print "Child Current Event x: " . $event->x . ", y: " . $event->y . "\n"
-			if $self->{_gc}->get_debug;
+			if $self->{_sc}->get_debug;
 
 		my $sr = Gtk2::Gdk::Region->rectangle(
 			Gtk2::Gdk::Rectangle->new(
@@ -408,13 +426,6 @@ sub find_current_child_window {
 				
 		}
 	}
-}
-
-sub focus_selected_window {
-	my $self = shift;
-	$self->{_c}{'lw'}{'gdk_window'}->focus(time);
-	Gtk2::Gdk->flush;
-	$self->{_ws} = $self->{_c}{'cw'}{'gdk_window'};	
 }
 
 sub select_window {
@@ -459,12 +470,6 @@ sub select_window {
 
 sub window {
 	my $self = shift;
-
-	require X11::Protocol;
-
-	#X11 protocol and XSHAPE ext
-	$self->{_x11} 			= X11::Protocol->new( $ENV{ 'DISPLAY' } );
-	$self->{_x11}{ext_shape}= $self->{_x11}->init_extension('SHAPE');
 
 	#return value
 	my $output = 5;
@@ -535,21 +540,21 @@ sub window {
 						#clear the last rectangle
 						$self->clear_last_rectangle($gc);
 
-						$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
+						$self->quit;
 
 						$output = 5;
 					}
 					
 				} elsif ( $event->type eq 'button-press' ) {
 					print "Type: " . $event->type . "\n"
-						if ( defined $event && $self->{_gc}->get_debug );			
+						if ( defined $event && $self->{_sc}->get_debug );			
 
 					#user selects window or section
 					$self->select_window($event, $active_workspace, $gc);
 								
 				} elsif ( $event->type eq 'button-release' ) {
 					print "Type: " . $event->type . "\n"
-						if ( defined $event && $self->{_gc}->get_debug );
+						if ( defined $event && $self->{_sc}->get_debug );
 
 					#looking for a section of a window?
 					#keep current window in mind and search for children
@@ -559,8 +564,8 @@ sub window {
 						
 						#something went wrong here, no window on screen detected
 						unless ( $self->{_c}{'lw'}{'gdk_window'} ) {
-							$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
-							$output = "";
+							$self->quit;
+							$output = 0;
 							return $output;
 						}
 
@@ -574,12 +579,14 @@ sub window {
 						$self->clear_last_rectangle($gc);
 						
 						#focus selected window (maybe it is hidden)
-						$self->focus_selected_window;
-
+						$self->{_c}{'lw'}{'gdk_window'}->focus(time);
+						Gtk2::Gdk->flush;
+						
+						#mark as selected parent window
+						$self->{_ws} = $self->{_c}{'cw'}{'gdk_window'};	
+						
 						return TRUE;
 					}
-
-					$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
 
 					#clear the last rectangle
 					if ( defined $self->{_c}{'lw'} && $self->{_c}{'lw'}{'gdk_window'} ) {
@@ -589,18 +596,43 @@ sub window {
 						#focus selected window (maybe it is hidden)
 						$self->{_c}{'lw'}{'gdk_window'}->focus(time);
 						Gtk2::Gdk->flush;
-						sleep 1 if $self->{_delay} < 1;
+
+						#disable Event Handler
+						$self->ungrab_pointer_and_keyboard( FALSE, TRUE, FALSE );
 						
-						my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_pixbuf_from_drawable(
-							$self->{_root},
-							$self->{_c}{'cw'}{'x'},
-							$self->{_c}{'cw'}{'y'},
-							$self->{_c}{'cw'}{'width'},
-							$self->{_c}{'cw'}{'height'},
-							$self->{_include_cursor},
-							$self->{_delay}
-						);
-									
+						#A short timeout to give the server a chance to
+						#redraw the area
+						Glib::Timeout->add (400, sub{
+							
+							my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = 
+								$self->get_pixbuf_from_drawable(
+									$self->{_root},
+									$self->{_c}{'cw'}{'x'},
+									$self->{_c}{'cw'}{'y'},
+									$self->{_c}{'cw'}{'width'},
+									$self->{_c}{'cw'}{'height'}
+								);
+
+							#save return value to current $output variable 
+							#-> ugly but fastest and safest solution now
+							$output = $output_new;						 
+							
+							#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
+							if($self->{_x11}{ext_shape} && $self->{_include_border}){
+								my $xid = $self->{_c}{ 'cw' }{ 'gdk_window' }->get_xid;
+								#do not try this for child windows
+								foreach my $win ($self->{_wnck_screen}->get_windows){
+									if($win->get_xid == $xid){
+										$output = $self->get_shape($xid, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);				
+										last;
+									}
+								}
+							}
+
+							$self->quit;
+							return FALSE;	
+						});	
+															
 						#~ my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_scrollable_from_drawable(
 							#~ $self->{_root},
 							#~ $self->{_c}{'cw'}{'x'},
@@ -610,30 +642,15 @@ sub window {
 							#~ $self->{_include_cursor},
 							#~ $self->{_delay}
 						#~ );
-
-						#save return value to current $output variable 
-						#-> ugly but fastest and safest solution now
-						$output = $output_new;						 
-						
-						#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
-						if($self->{_x11}{ext_shape} && $self->{_include_border}){
-							my $xid = $self->{_c}{ 'cw' }{ 'gdk_window' }->get_xid;
-							#do not try this for child windows
-							foreach my $win ($self->{_wnck_screen}->get_windows){
-								if($win->get_xid == $xid){
-									$output = $self->get_shape($xid, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);				
-								}
-							}
-						}
-
-
-
+					
+					#return error	
 					} else {
 						$output = 0;
+						$self->quit;
 					}
 				} elsif ( $event->type eq 'motion-notify' ) {
 					print "Type: " . $event->type . "\n"
-						if ( defined $event && $self->{_gc}->get_debug );
+						if ( defined $event && $self->{_sc}->get_debug );
 					
 					#user selects window or section
 					$self->select_window($event, $active_workspace, $gc);
@@ -641,16 +658,26 @@ sub window {
 				} else {
 					Gtk2->main_do_event($event);
 				}
-			},
-			'window'
+			}
 		);
+		
 		Gtk2->main;
-	} else {    #pointer not grabbed
+		
+	#pointer not grabbed	
+	} else {    
 
 		$self->ungrab_pointer_and_keyboard( FALSE, FALSE, FALSE );
 		$output = 0;
 	}
 	return $output;
+}
+
+sub quit {
+	my $self = shift;
+	
+	$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
+	Gtk2::Gdk->flush;
+	
 }
 
 1;

@@ -26,7 +26,8 @@ package Shutter::Screenshot::Main;
 #--------------------------------------
 use utf8;
 use strict;
-use Image::Magick;
+use warnings;
+
 use File::Temp qw/ tempfile tempdir /;
 
 #define constants
@@ -40,7 +41,7 @@ sub new {
 	my $class = shift;
 	
 	my $self = {
-				 _gc  => shift,
+				 _sc  => shift,
 				 _include_cursor => shift,
 				 _delay          => shift,
 			   };
@@ -102,7 +103,7 @@ sub get_root_and_geometry {
 
 sub get_root_and_current_monitor_geometry {
 	my $self = shift;
-	my $mainwindow = $self->{_gc}->get_mainwindow->window || $self->{_root};
+	my $mainwindow = $self->{_sc}->get_mainwindow->window || $self->{_root};
 	my $mon1       = $self->{_gdk_screen}
 		->get_monitor_geometry( $self->{_gdk_screen}->get_monitor_at_window($mainwindow) );
 	return ($self->{_root}, $mon1->x, $mon1->y, $mon1->width, $mon1->height);
@@ -110,21 +111,10 @@ sub get_root_and_current_monitor_geometry {
 
 sub get_current_monitor {
 	my $self = shift;
-	my $mainwindow = $self->{_gc}->get_mainwindow->window || $self->{_root};
+	my $mainwindow = $self->{_sc}->get_mainwindow->window || $self->{_root};
 	my $mon1       = $self->{_gdk_screen}
 		->get_monitor_geometry( $self->{_gdk_screen}->get_monitor_at_window($mainwindow) );
 	return ($mon1);
-}
-
-sub imagemagick_to_pixbuf {
-	my ( $self, $blob, $width, $height ) = @_;
-	my $pixbufloader = Gtk2::Gdk::PixbufLoader->new;
-	$pixbufloader->set_size( $width, $height );
-	$pixbufloader->write( $blob );
-	$pixbufloader->close;
-	my $pixbuf = $pixbufloader->get_pixbuf;
-
-	return $pixbuf;
 }
 
 sub ungrab_pointer_and_keyboard {
@@ -145,7 +135,7 @@ sub ungrab_pointer_and_keyboard {
 	#~ my ( $self, $drawable, $x, $y, $width, $height, $cursor, $sleep ) = @_;
 #~ 
 	#~ #save pixbuf to file
-	#~ my $pixbuf_save = Shutter::Pixbuf::Save->new( $self->{_gc}, $self->{_gc}->get_mainwindow );
+	#~ my $pixbuf_save = Shutter::Pixbuf::Save->new( $self->{_sc}, $self->{_sc}->get_mainwindow );
 #~ 
 	#~ my @steps;
 	#~ while(1){
@@ -200,51 +190,57 @@ sub ungrab_pointer_and_keyboard {
 #~ }	
 
 sub get_pixbuf_from_drawable {
-	my ( $self, $drawable, $x, $y, $width, $height, $cursor, $sleep ) = @_;
+	my ( $self, $drawable, $x, $y, $width, $height ) = @_;
 
-	#sleep if there is any delay
-	sleep $sleep if $sleep;
+	my ($pixbuf, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = (0, 0, 0, 0, 0);
 
-	#get the pixbuf from drawable and save the file
-	#maybe window is partially not on the screen
-	my $l_cropped = FALSE;
-	my $r_cropped = FALSE;
-	my $t_cropped = FALSE;
-	my $b_cropped = FALSE;
-	
-	#right
-	if ( $x + $width > $self->{ _root }->{ w } ) {
-		$r_cropped = $x + $width - $self->{ _root }->{ w };
-		$width -= $x + $width - $self->{ _root }->{ w };
-	}
-	
-	#bottom
-	if ( $y + $height > $self->{ _root }->{ h } ) {
-		$b_cropped = $y + $height - $self->{ _root }->{ h };
-		$height -= $y + $height - $self->{ _root }->{ h };
-	}
-	
-	#left
-	if ( $x < $self->{ _root }->{ x } ) {
-		$l_cropped = $self->{ _root }->{ x } - $x;
-		$width = $width + $x;
-		$x     = 0;
-	}
-	
-	#top
-	if ( $y < $self->{ _root }->{ y } ) {
-		$t_cropped = $self->{ _root }->{ y } - $y;
-		$height = $height + $y;
-		$y      = 0;
-	}
+	#Add a timeout if there is any delay
+	Glib::Timeout->add ($self->{_delay}*1000, sub{	
 
-	#get the pixbuf from drawable and save the file
-	my $pixbuf =
-		Gtk2::Gdk::Pixbuf->get_from_drawable( $drawable, undef, $x, $y, 0, 0,
-											  $width, $height );
+		#get the pixbuf from drawable and save the file
+		#
+		#maybe window is partially not on the screen
+		
+		#right
+		if ( $x + $width > $self->{ _root }->{ w } ) {
+			$r_cropped = $x + $width - $self->{ _root }->{ w };
+			$width -= $x + $width - $self->{ _root }->{ w };
+		}
+		
+		#bottom
+		if ( $y + $height > $self->{ _root }->{ h } ) {
+			$b_cropped = $y + $height - $self->{ _root }->{ h };
+			$height -= $y + $height - $self->{ _root }->{ h };
+		}
+		
+		#left
+		if ( $x < $self->{ _root }->{ x } ) {
+			$l_cropped = $self->{ _root }->{ x } - $x;
+			$width = $width + $x;
+			$x     = 0;
+		}
+		
+		#top
+		if ( $y < $self->{ _root }->{ y } ) {
+			$t_cropped = $self->{ _root }->{ y } - $y;
+			$height = $height + $y;
+			$y      = 0;
+		}
 
-	$pixbuf = $self->include_cursor( $x, $y, $width, $height, $drawable, $pixbuf )
-		if $self->{_include_cursor};
+		#get the pixbuf from drawable and save the file
+		$pixbuf = Gtk2::Gdk::Pixbuf->get_from_drawable( 
+												$drawable, undef, 
+												$x, $y, 0, 0,
+												$width, $height );
+
+		$pixbuf = $self->include_cursor( $x, $y, $width, $height, $drawable, $pixbuf )
+			if $self->{_include_cursor};
+
+		Gtk2->main_quit;
+		return FALSE;	
+	});	
+
+	Gtk2->main();
 
 	return ($pixbuf, $l_cropped, $r_cropped, $t_cropped, $b_cropped);
 }
@@ -255,7 +251,7 @@ sub include_cursor {
 	my ( $self, $xp, $yp, $widthp, $heightp, $gdk_window, $pixbuf ) = @_;
 
 	#~ require lib;
-	#~ import lib $self->{_gc}->get_root."/share/shutter/resources/modules";
+	#~ import lib $self->{_sc}->get_root."/share/shutter/resources/modules";
 	#~ 
 	#~ require X11::Protocol;
 
