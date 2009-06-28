@@ -2190,11 +2190,27 @@ sub xdo {
 		$opt1->y($do->{'opt1'}->y*-1) ; 
 	}	
 
+	#create reverse action
 	my $reverse_action = 'modify';
-	$reverse_action = 'delete_xdo' if $action eq 'create';
-	$reverse_action = 'create_xdo' if $action eq 'delete';
-	$reverse_action = 'delete_xdo' if $action eq 'create_xdo';
-	$reverse_action = 'create_xdo' if $action eq 'delete_xdo';
+	if ($action eq 'raise'){
+		$reverse_action = 'lower_xdo';
+	}elsif ($action eq 'raise_xdo'){
+		$reverse_action = 'lower_xdo';
+	}elsif($action eq 'lower'){
+		$reverse_action = 'raise_xdo';
+	}elsif($action eq 'lower_xdo'){
+		$reverse_action = 'raise_xdo';
+	}elsif($action eq 'create'){
+		$reverse_action = 'delete_xdo';
+	}elsif($action eq 'delete'){
+		$reverse_action = 'create_xdo';
+	}elsif($action eq 'create_xdo'){
+		$reverse_action = 'delete_xdo';
+	}elsif($action eq 'delete_xdo'){
+		$reverse_action = 'create_xdo';
+	}
+	
+	#undo or redo?
 	if($xdo eq 'undo'){
 		#store to redo stack
 		$self->store_to_xdo_stack($item, $reverse_action, 'redo', $opt1); 	
@@ -2401,6 +2417,32 @@ sub xdo {
 			#line width, fill color, stroke color etc.
 			$self->set_and_save_drawing_properties($self->{_current_item}, FALSE);	
 					
+		}
+
+	}elsif($action eq 'raise' || $action eq 'raise_xdo'){ 
+			
+		my $child = $self->get_child_item($item);
+		if ($child) {
+			$self->handle_rects( 'lower', $item );
+			$child->lower;
+			$item->lower;
+		} else {
+			$self->handle_rects( 'lower', $item );
+			$item->lower;
+		}
+		$self->{_canvas_bg}->lower;
+		$self->{_canvas_bg_rect}->lower;
+	
+	}elsif($action eq 'lower' || $action eq 'lower_xdo'){ 
+
+		my $child = $self->get_child_item($item);
+		if ($child) {
+			$child->raise;
+			$item->raise;
+			$self->handle_rects( 'raise', $item );
+		} else {
+			$item->raise;
+			$self->handle_rects( 'raise', $item );
 		}
 		
 	}elsif($action eq 'delete' || $action eq 'delete_xdo'){ 
@@ -2854,10 +2896,14 @@ sub ret_item_menu {
 	$raise_item->signal_connect(
 		'activate' => sub {
 			if ($parent) {
-				$item->raise;
+				#add to undo stack
+				$self->store_to_xdo_stack($parent, 'raise', 'undo');
 				$parent->raise;
+				$item->raise;
 				$self->handle_rects( 'raise', $parent );
 			} else {
+				#add to undo stack
+				$self->store_to_xdo_stack($item, 'raise', 'undo');
 				$item->raise;
 				$self->handle_rects( 'raise', $item );
 			}
@@ -2872,12 +2918,16 @@ sub ret_item_menu {
 		Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_size( $self->{_dicons}.'/draw-lower.png', Gtk2::IconSize->lookup('menu') ) ) );
 
 	$lower_item->signal_connect(
-		'activate' => sub {
+		'activate' => sub {			
 			if ($parent) {
+				#add to undo stack
+				$self->store_to_xdo_stack($parent, 'lower', 'undo');
 				$self->handle_rects( 'lower', $parent );
-				$parent->lower;
 				$item->lower;
+				$parent->lower;
 			} else {
+				#add to undo stack
+				$self->store_to_xdo_stack($item, 'lower', 'undo');
 				$self->handle_rects( 'lower', $item );
 				$item->lower;
 			}
