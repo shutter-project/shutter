@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.535";
+use constant REV                	=> "Rev.536";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
 
@@ -3889,16 +3889,25 @@ sub fct_take_screenshot {
 	} elsif ( $data eq "web" || $data eq "tray_web" ) {
 
 		$screenshot = &dlg_website( $uri->get_path(), $filetype_value, $quality_value );
-		if ( $screenshot != 5 ) {
-			eval { $screenshot->isa('Image::Magick'); };
-			if ($@) {
-				$shutter_dialog->dlg_error_message( $shutter_common->get_gettext->get("Unable to capture website"), $d->get("Failed") );
+		if ( $screenshot && $screenshot =~ /[a-zA-Z]/ ) {
+			#error if $screenshot is not a Gtk2::Gdk::Pixbuf
+			unless($screenshot->isa('Gtk2::Gdk::Pixbuf')){
+				$shutter_dialog->dlg_error_message( $shutter_common->get_gettext->get("Unable to capture website"), 
+													$d->get("Failed"),
+													undef, undef,
+													undef, undef,
+													undef, undef,
+													$screenshot );
 				&dlg_status_message( 1, $shutter_common->get_gettext->get("Unable to capture website"), $d->get("Failed") );
 				&fct_control_main_window( TRUE, 'show');
 				return FALSE;
 			}
+		}else{
+			$screenshot = 5;	
 		}
+		
 	} elsif ( $data =~ /^shutter_window_direct(.*)/ ) {
+		
 		my $xid = $1;
 		print "Selected xid: $xid\n" if $shutter_common->get_debug;
 		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
@@ -7230,8 +7239,13 @@ sub dlg_upload_error_message {
 sub dlg_website {
 	my ( $filename, $filetype_value, $quality_value ) = @_;
 
-	my $screenshot  = 5;
+	my $screenshot  = undef;
 	my $web_process = Proc::Simple->new;
+	
+	#redirect outputs
+	my ( $tmpfh_stdout, $tmpfilename_stdout ) = tempfile(UNLINK => 1);
+	my ( $tmpfh_stderr, $tmpfilename_sterr ) = tempfile(UNLINK => 1);
+  	$web_process->redirect_output ($tmpfilename_stdout, $tmpfilename_sterr);
 
 	my $website_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/], 'other', 'none', undef );
 
@@ -7271,47 +7285,47 @@ sub dlg_website {
 	$website->set_text("http://www.");
 	$website->set_activates_default(TRUE);
 	
-	eval{
-		require Google::Search;	
-	};
-	unless($@){
-
-		#try to use Google::Search for autocompletion
-		my $api_key = "ABQIAAAA1MzQeGgjv24cQH6It97vbhQ7KJkd-ijgFr7toX7MFGWAtZ4alhQBHxiKkuXsCsTQklemxTfVOgjxGg";
-		my $referer = "http://shutter-project.org";
-		my $web_compl = Gtk2::EntryCompletion->new;
-		$web_compl->set_popup_completion (TRUE);
-		$web_compl->set_text_column (0);
-		my $model = Gtk2::ListStore->new( 'Glib::String' );
-		$web_compl->set_model($model);
-
-		$website->set_completion ($web_compl);
-		$website->signal_connect('changed' => sub{
-
-				#search when idle
-				Glib::Idle->add (
-					sub{
-						
-						#clear model for each search	
-						$model->clear;
-						
-						my $search = Google::Search->Web( q => $website->get_text, key => $api_key, referer => $referer);
-						my $result = $search->first;
-						
-						#append first 3 results to model
-						#we take 3 because of performace reasons here
-						while ($result) {
-							last if $result->number == 3;
-							$model->set( $model->append, 0, $result->uri );
-							$result = $result->next;
-						}
-						
-						return FALSE;
-					});	
-		
-			return FALSE;	
-		});
-	}
+	#~ eval{
+		#~ require Google::Search;	
+	#~ };
+	#~ unless($@){
+#~ 
+		#~ #try to use Google::Search for autocompletion
+		#~ my $api_key = "ABQIAAAA1MzQeGgjv24cQH6It97vbhQ7KJkd-ijgFr7toX7MFGWAtZ4alhQBHxiKkuXsCsTQklemxTfVOgjxGg";
+		#~ my $referer = "http://shutter-project.org";
+		#~ my $web_compl = Gtk2::EntryCompletion->new;
+		#~ $web_compl->set_popup_completion (TRUE);
+		#~ $web_compl->set_text_column (0);
+		#~ my $model = Gtk2::ListStore->new( 'Glib::String' );
+		#~ $web_compl->set_model($model);
+#~ 
+		#~ $website->set_completion ($web_compl);
+		#~ $website->signal_connect('changed' => sub{
+#~ 
+				#~ #search when idle
+				#~ Glib::Idle->add (
+					#~ sub{
+						#~ 
+						#~ #clear model for each search	
+						#~ $model->clear;
+						#~ 
+						#~ my $search = Google::Search->Web( q => $website->get_text, key => $api_key, referer => $referer);
+						#~ my $result = $search->first;
+						#~ 
+						#~ #append first 3 results to model
+						#~ #we take 3 because of performace reasons here
+						#~ while ($result) {
+							#~ last if $result->number == 3;
+							#~ $model->set( $model->append, 0, $result->uri );
+							#~ $result = $result->next;
+						#~ }
+						#~ 
+						#~ return FALSE;
+					#~ });	
+		#~ 
+			#~ return FALSE;	
+		#~ });
+	#~ }
 
 	my $clipboard_string = $clipboard->wait_for_text;
 	print "Content of clipboard is: $clipboard_string\n"
@@ -7384,12 +7398,10 @@ sub dlg_website {
 
 		$cancel_btn->signal_connect(
 			'clicked' => sub {
-				if ( $web_process->kill() ) {
-
-					#delete file if process was cancelled
-					unlink("$filename");
-					$website_dialog->destroy();
-				}
+				#kill process, delete file and destroy dialog
+				$web_process->kill('SIGKILL');				
+				unlink("$filename");
+				$website_dialog->destroy();
 			}
 		);
 
@@ -7405,6 +7417,7 @@ sub dlg_website {
 		$cancel_btn->set_sensitive(FALSE);
 		&fct_update_gui;
 
+		#exit status == OK
 		if ( $web_process->exit_status() == 0 ) {
 
 			$website_progress->set_fraction( 2 / 3 );
@@ -7412,16 +7425,31 @@ sub dlg_website {
 
 			eval { $screenshot = Gtk2::Gdk::Pixbuf->new_from_file($filename) };
 			if ($@) {
-
-				#error when loading file
-				$screenshot = 0;
+				#reading stdout from file
+				while (<$tmpfh_stdout>){
+					$screenshot .= $_;	
+				}
+				#reading stderr from file
+				while (<$tmpfh_stderr>){
+					$screenshot .= $_;	
+				}
 				unlink($filename);
 				$website_dialog->destroy();
 			}
 
 			$website_progress->set_fraction( 3 / 3 );
 			&fct_update_gui;
-
+	
+		#exit status == FAIL
+		}else{
+			#reading stdout from file
+			while (<$tmpfh_stdout>){
+				$screenshot .= $_;	
+			}
+			#reading stderr from file
+			while (<$tmpfh_stderr>){
+				$screenshot .= $_;	
+			}
 		}
 
 		$website_dialog->destroy();

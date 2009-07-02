@@ -63,7 +63,7 @@ __DATA__
 sub web {
 	my $self = shift;
 	
-	my $output = `gnome-web-photo --timeout=$self->{_timeout} --mode=photo --format=$self->{_format} -q $self->{_quality} '$self->{_url}' '$self->{_dest_filename}'`;
+	system("gnome-web-photo --timeout=$self->{_timeout} --mode=photo --format=$self->{_format} -q $self->{_quality} '$self->{_url}' '$self->{_dest_filename}'");
 	
 	return TRUE;
 }
