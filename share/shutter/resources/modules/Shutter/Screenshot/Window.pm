@@ -389,6 +389,7 @@ sub find_current_child_window {
 
 	#selected window is parent
 	my $cp = $self->{_ws}->XWINDOW;
+	
 	foreach my $cc ( keys %{ $self->{_c}{$cp} } ) {
 		next unless defined $cc;
 		print "Child Current Event x: " . $event->x . ", y: " . $event->y . "\n"
@@ -449,9 +450,29 @@ sub select_window {
 
 		$self->find_current_child_window($event);
 		
-		#switch no_clear to TRUE when first child is selected
-		$self->{_no_clear} = TRUE unless defined $self->{_no_clear};
-		
+		#First child is selected
+		unless(defined $self->{_no_clear}){
+			#switch no_clear to TRUE
+			$self->{_no_clear} = TRUE;
+			
+			#some parent windows do not have child windows
+			#e.g. apps like virtualbox or openoffice
+			#in this special case we want to keep the first drawn
+			#rectangle to indicate that capturing focus is still the
+			#parent window
+			#
+			#without doing this we would remove the first rectangle and
+			#never show any new rectangle until the user presses the mouse button again
+			#because the parent window does not even have a single child window
+			#
+			#(undefing the last window hash value is a little trick here,
+			#please look at the `draw_rectangle` method for further info why 
+			#this is working)
+			if($self->{_c}{'cw'}{'gdk_window'} eq $self->{_ws}){
+				$self->{_c}{'lw'}{'gdk_window'} = undef;
+			}
+		}
+			
 	}    #endif search for children
 
 	#draw new rectangle for current window
@@ -590,7 +611,7 @@ sub window {
 
 					#clear the last rectangle
 					if ( defined $self->{_c}{'lw'} && $self->{_c}{'lw'}{'gdk_window'} ) {
-	
+						
 						$self->clear_last_rectangle($gc);
 
 						#focus selected window (maybe it is hidden)

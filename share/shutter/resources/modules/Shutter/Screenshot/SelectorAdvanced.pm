@@ -287,7 +287,7 @@ sub select_advanced {
 								
 								#A short timeout to give the server a chance to
 								#redraw the area that was obscured by our dialog.
-								Glib::Timeout->add (400, sub{
+								Glib::Timeout->add (600, sub{
 									$output = $self->take_screenshot($s);
 									$self->quit;
 									return FALSE;	
@@ -403,7 +403,7 @@ sub select_advanced {
 						
 						#A short timeout to give the server a chance to
 						#redraw the area that was obscured by our dialog.
-						Glib::Timeout->add (400, sub{
+						Glib::Timeout->add (600, sub{
 							$output = $self->take_screenshot($s);
 							$self->quit;
 							return FALSE;	
