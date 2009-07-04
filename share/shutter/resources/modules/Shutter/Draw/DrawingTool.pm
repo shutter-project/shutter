@@ -216,12 +216,19 @@ sub show {
 	#-------------------------------------------------
 	$self->{_canvas} = Goo::Canvas->new();
 	
-	#...with gray as background color
-	#..and.. 
 	#'redraw-when-scrolled' to reduce the flicker of static items
-	my $gray = Gtk2::Gdk::Color->parse('gray');
+	#
+	#this property is not available in older versions
+	#it was added to goocanvas on Mon Nov 17 10:28:07 2008 UTC
+	#http://svn.gnome.org/viewvc/goocanvas?view=revision&revision=28	
+	if($self->{_canvas}->find_property ('redraw-when-scrolled')){
+		$self->{_canvas}->set( 
+			'redraw-when-scrolled' 	=> TRUE
+		);		
+	}
+
+	my $gray = Gtk2::Gdk::Color->parse('gray');	
 	$self->{_canvas}->set( 
-		'redraw-when-scrolled' 	=> TRUE,
 		'automatic-bounds' 		=> FALSE,
 		'bounds-from-origin' 	=> FALSE,
 		'background-color' 		=> sprintf( "#%04x%04x%04x", $gray->red, $gray->green, $gray->blue ), 
@@ -4458,7 +4465,18 @@ sub setup_uimanager {
 					$self->{_autoscroll} = TRUE;
 				}else{ 
 					$self->{_autoscroll} = FALSE;
-				} 	
+				}
+
+				#'redraw-when-scrolled' to reduce the flicker of static items
+				#
+				#this property is not available in older versions
+				#it was added to goocanvas on Mon Nov 17 10:28:07 2008 UTC
+				#http://svn.gnome.org/viewvc/goocanvas?view=revision&revision=28	
+				if($self->{_canvas}->find_property ('redraw-when-scrolled')){
+					$self->{_canvas}->set( 
+						'redraw-when-scrolled' 	=> !$self->{_autoscroll}
+					);		
+				}							 	
 			} 
 		],
 		[ "Fullscreen", 'gtk-fullscreen', undef, "F11", undef, 

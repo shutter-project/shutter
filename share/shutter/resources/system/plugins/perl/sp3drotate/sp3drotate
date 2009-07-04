@@ -45,29 +45,32 @@ use File::Temp qw/ tempfile tempdir /;
 use Time::HiRes qw/usleep/;
 use Data::Dumper;
 
+#load modules at custom path at runtime
+#--------------------------------------
 require lib;
 import lib $ENV{'SHUTTER_ROOT'}."/share/shutter/resources/modules";
 
 #proc (Thanks to Michael Schilli)
 require Proc::Simple;
 
+#load shutter's modules
+#--------------------------------------
+require Shutter::App::SimpleDialogs;
+
 #configure gettext using ENV Variable (setup during shutter start)
 setlocale( LC_MESSAGES, "" );
 my $d = Locale::gettext->domain("shutter-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
+#shutter will ask for some infos
+my %plugin_info = 	( 	'name'	=> $d->get( "3D rotate" ),
+						'sort'	=> $d->get( "effect" ),
+						'tip'	=> $d->get("applies a perspective distortion to an image\n\nBased on a script by Fred Weinhaus\n\nhttp://www.fmwconcepts.com/imagemagick/3Drotate/index.php"),
+					);
+
 binmode( STDOUT, ":utf8" );
-#shutter will ask for some infos - no need of changing anything
-if ( $ARGV[ 0 ] eq "name" ) {
-	print $d->get( "3D rotate" );
-	exit;
-} elsif ( $ARGV[ 0 ] eq "sort" ) {
-	print $d->get( "effect" );
-	exit;
-} elsif ( $ARGV[ 0 ] eq "tip" ) {
-	print $d->get(
-		"applies a perspective distortion to an image\n\nBased on a script by Fred Weinhaus\n\nhttp://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
-	);
+if ( exists $plugin_info{$ARGV[ 0 ]} ) {
+	print $plugin_info{$ARGV[ 0 ]};
 	exit;
 }
 
@@ -79,6 +82,9 @@ my $height    = $ARGV[ 3 ];
 my $filetype  = $ARGV[ 4 ];
 
 my $plug = Gtk2::Plug->new( $socket_id );
+eval{
+	$plug->set_default_icon_from_file( $ENV{'SHUTTER_ICON'} );
+};
 $plug->set_border_width( 10 );
 
 $plug->signal_connect( destroy => sub { Gtk2->main_quit } );
@@ -270,7 +276,7 @@ my $save_btn = Gtk2::Button->new_from_stock( 'gtk-save' );
 $save_btn->signal_connect( 'clicked', \&fct_imagemagick_3Drotate, 'save' );
 
 my $cancel_btn = Gtk2::Button->new_from_stock( 'gtk-cancel' );
-$cancel_btn->signal_connect( 'clicked' => sub { Gtk2->main_quit }, 'cancel' );
+$cancel_btn->signal_connect( 'clicked' => sub { Gtk2->main_quit; exit 2; }, 'cancel' );
 
 #define the gui layout
 my $hbox1      = Gtk2::HBox->new( FALSE, 8 );
@@ -361,6 +367,13 @@ my ( $tmpfh, $tmpfilename ) = tempfile();
 #png format
 $tmpfilename .= ".png";
 
+#we fork a child process to do the work
+my $process = Proc::Simple->new;
+#create tempfiles for subprocess outputs
+my ( $tmpfh_stdout, $tmpfilename_stdout ) = tempfile(UNLINK => 1);
+my ( $tmpfh_stderr, $tmpfilename_sterr ) = tempfile(UNLINK => 1);
+$process->redirect_output ($tmpfilename_stdout, $tmpfilename_sterr);
+
 #generate first preview at startup
 Glib::Idle->add (
 	sub{
@@ -394,9 +407,6 @@ sub fct_imagemagick_3Drotate {
 		$preview->hide_all;
 		$preview_throb->show_all;
 
-		#we fork a child process
-		#to do the work
-		my $process = Proc::Simple->new;
 		$process->start(
 			sub {
 				&apply_effect();
@@ -410,9 +420,41 @@ sub fct_imagemagick_3Drotate {
 			usleep 100000;
 		}
 		
-		$preview->set_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
-									$tmpfilename, 300, 300, TRUE)
-								 );
+		eval{
+			$preview->set_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
+										$tmpfilename, 300, 300, TRUE)
+								 	 );
+		};
+		#error -> read output from tempfiles
+		if($@){		
+			#store error here
+			my $error_string = "Plugin error:\n";
+			
+			#reading stdout from file
+			while (<$tmpfh_stdout>){
+				$error_string .= $_;	
+			}
+			#reading stderr from file
+			while (<$tmpfh_stderr>){
+				$error_string .= $_;	
+			}
+			
+			#show error message
+			my $shutter_dialog = Shutter::App::SimpleDialogs->new($plug);
+			$shutter_dialog->dlg_error_message( 
+				sprintf ( $d->get(  "Error while executing plugin %s." ), "'" . $plugin_info{'name'} . "'" ) ,
+				$d->get( "There was an error executing the plugin." ),
+				undef, undef, undef,
+				undef, undef, undef,
+				$error_string
+			);
+			
+			#delete temp files
+			unlink $tmpfilename;
+
+			Gtk2->main_quit;
+			exit 1;	
+		}
 
 		$save_btn->set_sensitive(TRUE);
 		$preview->show_all;
@@ -441,27 +483,24 @@ sub apply_effect {
 	}
 	
 	#execute imagemagick command		
-	my $convert_output =
-			system(   $Bin."/3Drotate"
-					. " pan="
-					. $pan_sbutton->get_value
-					. " tilt="
-					. $tilt_sbutton->get_value
-					. " roll="
-					. $roll_sbutton->get_value
-					. " pef="
-					. $pef_sbutton->get_value										
-					. " zoom="
-					. $zoom_sbutton->get_value
-					. $auto
-					. " bgcolor='"
-					. sprintf( "#%04x%04x%04x%04x", $bcolor->red, $bcolor->green, $bcolor->blue, $back_color->get_alpha )
-					. "' skycolor='"
-					. sprintf( "#%04x%04x%04x%04x", $scolor->red, $scolor->green, $scolor->blue, $sky_color->get_alpha )													
-					. "' '$filename'"
-					. " $tmpfilename" );
-				
-	return $tmpfilename;
+	system(   $Bin."/3Drotate"
+			. " pan="
+			. $pan_sbutton->get_value
+			. " tilt="
+			. $tilt_sbutton->get_value
+			. " roll="
+			. $roll_sbutton->get_value
+			. " pef="
+			. $pef_sbutton->get_value										
+			. " zoom="
+			. $zoom_sbutton->get_value
+			. $auto
+			. " bgcolor='"
+			. sprintf( "#%04x%04x%04x%04x", $bcolor->red, $bcolor->green, $bcolor->blue, $back_color->get_alpha )
+			. "' skycolor='"
+			. sprintf( "#%04x%04x%04x%04x", $scolor->red, $scolor->green, $scolor->blue, $sky_color->get_alpha )													
+			. "' '$filename'"
+			. " $tmpfilename" );
 	
 }
 

@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.537";
+use constant REV                	=> "Rev.538";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
 
@@ -206,15 +206,11 @@ my $icontheme = $shutter_common->get_theme;
 my $tooltips = $shutter_common->get_tooltips;
 
 #Gtk2::ImageView and Selector for advanced selection tool
-my $view;
-my $selector;
-my $dragger;
-my $nav;
-$view     = Gtk2::ImageView->new;
+my $view 		= Gtk2::ImageView->new;
+my $nav 		= Gtk2::ImageView::Nav::new($view);
+my $selector 	= Gtk2::ImageView::Tool::Selector->new($view);
+my $dragger 	= Gtk2::ImageView::Tool::Dragger->new($view);
 $view->set_interpolation ('tiles');
-$nav = Gtk2::ImageView::Nav::new($view);
-$selector = Gtk2::ImageView::Tool::Selector->new($view);
-$dragger = Gtk2::ImageView::Tool::Dragger->new($view);
 $view->set_tool($selector);
 
 #Gtk2::ImageView and Selector for drawing tool
@@ -223,9 +219,9 @@ my $selector_d;
 my $dragger_d;
 if($goocanvas){
 	$view_d     = Gtk2::ImageView->new;
-	$view_d->set_interpolation ('tiles');	
 	$selector_d = Gtk2::ImageView::Tool::Selector->new($view_d);
-	$dragger_d = Gtk2::ImageView::Tool::Dragger->new($view_d);
+	$dragger_d 	= Gtk2::ImageView::Tool::Dragger->new($view_d);
+	$view_d->set_interpolation ('tiles');	
 	$view_d->set_tool($selector_d);
 }
 
@@ -4310,6 +4306,7 @@ sub fct_execute_plugin {
 			}
 		);
 		printf( "\n", $socket->get_id );
+		
 		my $pid = fork;
 		if ( $pid < 0 ) {
 			$shutter_dialog->dlg_error_message( $d->get("Could not execute plugin") . ": " . $plugin_name, $d->get("Failed") );
@@ -4325,9 +4322,14 @@ sub fct_execute_plugin {
 		$plugin_socket->run;
 
 		waitpid($pid, 0);
-
-		&dlg_status_message( 1, $d->get("Successfully executed plugin") . ": " . $plugin_name );
-
+				
+		#check exit code
+		if($? == 0){
+			&dlg_status_message( 1, $d->get("Successfully executed plugin") . ": " . $plugin_name );
+		}elsif($? / 256 == 1 ){
+			&dlg_status_message( 1, $d->get("Could not execute plugin") . ": " . $plugin_name );
+		}
+		
 		#...if not => simple execute the plugin via system (e.g. shell plugins)
 	} else {
 

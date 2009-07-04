@@ -58,7 +58,10 @@ sub new {
 	setlocale( LC_MESSAGES, "" );
 	$self->{_gettext_object} = Locale::gettext->domain("shutter");
 	$self->{_gettext_object}->dir( $self->{_shutter_root} . "/share/locale" );
+	
+	#ENV needed by some plugins
 	$ENV{'SHUTTER_INTL'} = $self->{_shutter_root} . "/share/locale";
+	$ENV{'SHUTTER_ICON'} = $self->{_shutter_root} . "/share/pixmaps/shutter.svg";
 
 	#tooltips
 	$self->{_tooltips} = Gtk2::Tooltips->new;
