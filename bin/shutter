@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.539";
+use constant REV                	=> "Rev.540";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
 
@@ -3956,10 +3956,10 @@ sub fct_take_screenshot {
 		#show error dialog
 		my $response = $shutter_dialog->dlg_error_message( 
 			$d->get( "Maybe mouse pointer could not be grabbed or the selected area is invalid." ),
-			$d->get( "Error while taking the screenshot" )
+			$d->get( "Error while taking the screenshot." )
 		);
 			
-		&dlg_status_message( 1, $shutter_common->get_gettext->get("Screenshot failed!") );
+		&dlg_status_message( 1, $shutter_common->get_gettext->get("Error while taking the screenshot.") );
 		&fct_control_main_window( TRUE, 'show');
 		return FALSE;
 	} else {
@@ -4086,9 +4086,9 @@ sub fct_take_screenshot {
 		#show error dialog
 		my $response = $shutter_dialog->dlg_error_message( 
 			$d->get( "Maybe mouse pointer could not be grabbed or the selected area is invalid." ),
-			$d->get( "Error while taking the screenshot" )
+			$d->get( "Error while taking the screenshot." )
 		);
-		&dlg_status_message( 1, $shutter_common->get_gettext->get("Screenshot failed!") );
+		&dlg_status_message( 1, $shutter_common->get_gettext->get("Error while taking the screenshot.") );
 	}
 
 	&fct_control_main_window( TRUE, 'show');
