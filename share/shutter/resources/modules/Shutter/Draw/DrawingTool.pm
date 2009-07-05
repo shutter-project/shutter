@@ -90,6 +90,7 @@ sub new {
 	$self->{_canvas}     	= undef;
 	
 	#all items are stored here
+	$self->{_uid}	    	= time;
 	$self->{_items} 		= undef;
 	$self->{_items_history} = undef;
 	
@@ -888,7 +889,11 @@ sub change_drawing_tool_cb {
 	my $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
 
 	#tool is switched from "highlighter" OR censor to something else (excluding select tool)
-	if($self->{_current_mode} != 30 && $self->{_current_mode} != 90 && $self->{_current_mode} != 10){
+	if( $self->{_current_mode} != 10  &&
+		$self->{_current_mode} != 30  && 
+		$self->{_current_mode} != 90  && 
+		$self->{_current_mode} != 110 &&
+		$self->{_current_mode} != 120 ){
 	
 		$self->restore_drawing_properties;
 	
@@ -1003,12 +1008,20 @@ sub change_drawing_tool_cb {
 
 		$self->{_current_mode_descr} = "clear_all";
 
-		foreach(keys %{$self->{_items}}){
-			$self->clear_item_from_canvas($self->{_items}{$_});	
+		#store items to delete in temporary hash
+		#sort them uid
+		my %time_hash;
+		foreach (keys %{$self->{_items}}){
+			$time_hash{$self->{_items}{$_}{uid}} = $self->{_items}{$_};  	
 		}
 		
-		$self->set_drawing_action(1);
-
+		#delete items
+		foreach (sort keys %time_hash){
+			$self->clear_item_from_canvas($time_hash{$_});
+		}
+		
+		#~ $self->set_drawing_action(1);
+		
 	} 
 
 	if($self->{_canvas} && $self->{_canvas}->window){
@@ -1989,22 +2002,31 @@ sub clear_item_from_canvas {
 
 	#~ print "clear_item_from_canvas\n";
 
+	$self->{_last_item}        = undef;
+	$self->{_current_item}     = undef;
+	$self->{_current_new_item} = undef;	
+
 	if ($item) {
 		
 		#maybe there is a parent item to delete?
 		my $parent = $self->get_parent_item($item);
 		$item = $parent if $parent;
-
+		
+		#get child
+		my $child = $self->get_child_item($item);
+		
+		#only delete if not already deleted (hidden)
+		return FALSE if($child && $child->get('visibility') eq 'hidden');
+		#~ print "1st passed\n";
+		return FALSE if(!$child && $item->get('visibility') eq 'hidden');
+		#~ print "2nd passed\n";
+		
 		$self->store_to_xdo_stack($item, 'delete', 'undo');
 		$item->set('visibility' => 'hidden');
 		$self->handle_rects('hide', $item);
 		$self->handle_embedded('hide', $item);
-
+		
 	}
-	
-	$self->{_last_item}        = undef;
-	$self->{_current_item}     = undef;
-	$self->{_current_new_item} = undef;	
 
 	return TRUE;
 }
@@ -2952,7 +2974,7 @@ sub ret_item_menu {
 
 	$remove_item->signal_connect(
 		'activate' => sub {
-			$self->clear_item_from_canvas($item, $parent);
+			$self->clear_item_from_canvas($item);
 		}
 	);
 
@@ -4442,9 +4464,9 @@ sub setup_uimanager {
 		[ "Undo", 'gtk-undo', undef, "<control>Z", undef, sub { $self->abort_current_mode; $self->xdo('undo'); } ],
 		[ "Redo", 'gtk-redo', undef, "<control>Y", undef, sub { $self->abort_current_mode; $self->xdo('redo'); } ],
 		[ "Copy", 'gtk-copy', undef, "<control>C", undef, sub { $self->{_cut} = FALSE; $self->{_current_copy_item} = $self->{_current_item}; } ],
-		[ "Cut", 'gtk-cut', undef, "<control>X", undef, sub { $self->{_cut} = TRUE; $self->{_current_copy_item} = $self->{_current_item}; $self->clear_item_from_canvas( $self->{_current_copy_item}); } ],
+		[ "Cut", 'gtk-cut', undef, "<control>X", undef, sub { $self->{_cut} = TRUE; $self->{_current_copy_item} = $self->{_current_item}; $self->clear_item_from_canvas( $self->{_current_copy_item} ); } ],
 		[ "Paste", 'gtk-paste', undef, "<control>V", undef, sub { $self->paste_item($self->{_current_copy_item}, $self->{_cut} ); $self->{_cut} = FALSE; } ],
-		[ "Delete", 'gtk-delete', undef, "Delete", undef, sub { $self->clear_item_from_canvas( $self->{_current_item}); } ],
+		[ "Delete", 'gtk-delete', undef, "Delete", undef, sub { $self->clear_item_from_canvas( $self->{_current_item} ); } ],
 		[ "Stop", 'gtk-stop', undef, "Escape", undef, sub { $self->abort_current_mode } ],
 		[ "Close", 'gtk-close', undef, "<control>Q", undef, sub { $self->quit(TRUE) } ],
 		[ "Save",       'gtk-save',     undef, "<control>S", undef, sub { $self->save(), $self->quit(FALSE) } ],
@@ -4995,12 +5017,14 @@ sub create_polyline {
 
 	if($highlighter){
 		#set type flag
-		$self->{_items}{$item}{type} = 'highlighter';		
+		$self->{_items}{$item}{type} = 'highlighter';
+		$self->{_items}{$item}{uid} = $self->{_uid}++;	
 		$self->{_items}{$item}{stroke_color}       = Gtk2::Gdk::Color->parse('#FFFF00');
 		$self->{_items}{$item}{stroke_color_alpha} = 0.5;
 	}else{
 		#set type flag
 		$self->{_items}{$item}{type} = 'freehand';
+		$self->{_items}{$item}{uid} = $self->{_uid}++;
 		$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
 		$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};		
 	}
@@ -5046,6 +5070,7 @@ sub create_censor {
 
 	#set type flag
 	$self->{_items}{$item}{type} = 'censor';
+	$self->{_items}{$item}{uid} = $self->{_uid}++;
 
 	#need at least 2 points
 	push @{ $self->{_items}{$item}{'points'} }, @points;
@@ -5108,6 +5133,7 @@ sub create_image {
 
 	#set type flag
 	$self->{_items}{$item}{type} = 'image';
+	$self->{_items}{$item}{uid} = $self->{_uid}++;	
 
 	#create rectangles
 	$self->handle_rects( 'create', $item );
@@ -5209,6 +5235,7 @@ sub create_text{
 
 	#set type flag
 	$self->{_items}{$item}{type} = 'text';
+	$self->{_items}{$item}{uid} = $self->{_uid}++;
 
 	$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
 	$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
@@ -5305,6 +5332,7 @@ sub create_line {
 
 	#set type flag
 	$self->{_items}{$item}{type} = 'line';
+	$self->{_items}{$item}{uid} = $self->{_uid}++;
 
 	$self->{_items}{$item}{mirrored_w} = $mirrored_w;
 	$self->{_items}{$item}{mirrored_h} = $mirrored_h;
@@ -5394,6 +5422,7 @@ sub create_ellipse {
 		
 		#set type flag
 		$self->{_items}{$item}{type} = 'number';
+		$self->{_items}{$item}{uid} = $self->{_uid}++;
 
 		#adjust parent rectangle if numbered ellipse		
 		my $tb = $self->{_items}{$item}{text}->get_bounds;
@@ -5428,6 +5457,7 @@ sub create_ellipse {
 	}else{
 		#set type flag
 		$self->{_items}{$item}{type} = 'ellipse';		
+		$self->{_items}{$item}{uid} = $self->{_uid}++;
 	}
 
 	#save color and opacity as well
@@ -5493,6 +5523,7 @@ sub create_rectangle {
 
 	#set type flag
 	$self->{_items}{$item}{type} = 'rectangle';
+	$self->{_items}{$item}{uid} = $self->{_uid}++;
 
 	$self->{_items}{$item}{fill_color}         = $self->{_fill_color};
 	$self->{_items}{$item}{fill_color_alpha}   = $self->{_fill_color_alpha};
