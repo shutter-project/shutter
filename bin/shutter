@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.540";
+use constant REV                	=> "Rev.541";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80";
 
@@ -3887,7 +3887,7 @@ sub fct_take_screenshot {
 		$screenshot = &dlg_website( $uri->get_path(), $filetype_value, $quality_value );
 		if ( $screenshot && $screenshot =~ /[a-zA-Z]/ ) {
 			#error if $screenshot is not a Gtk2::Gdk::Pixbuf
-			unless($screenshot->isa('Gtk2::Gdk::Pixbuf')){
+			unless($screenshot =~ /Gtk2::Gdk::Pixbuf/){
 				$shutter_dialog->dlg_error_message( $shutter_common->get_gettext->get("Unable to capture website"), 
 													$d->get("Failed"),
 													undef, undef,
