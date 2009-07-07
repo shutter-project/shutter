@@ -48,8 +48,8 @@ WIDTH="${2}"
 HEIGHT="${3}"
 FILEYTPE="${4}"
 GEO="${2}x${3}"
-PIECE="$SHUTTER_ROOT/share/shutter/resources/system/plugins/bash/spjigsaw2/spjigsaw_2.png"
-JIGSAW="$SHUTTER_ROOT/share/shutter/resources/system/plugins/bash/spjigsaw2/jigsaw"
+PIECE="$SHUTTER_ROOT/share/shutter/resources/system/plugins/shell/spjigsaw2/spjigsaw_2.png"
+JIGSAW="$SHUTTER_ROOT/share/shutter/resources/system/plugins/shell/spjigsaw2/jigsaw"
 
 chmod +x ${JIGSAW}
 

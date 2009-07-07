@@ -49,8 +49,8 @@ HEIGHT="${3}"
 FILEYTPE="${4}"
 GEO="${2}x${3}"
 NAME=$(basename ${FILE})
-PIECE="$SHUTTER_ROOT/share/shutter/resources/system/plugins/bash/spjigsaw1/spjigsaw_1.png"
-JIGSAW="$SHUTTER_ROOT/share/shutter/resources/system/plugins/bash/spjigsaw1/jigsaw"
+PIECE="$SHUTTER_ROOT/share/shutter/resources/system/plugins/shell/spjigsaw1/spjigsaw_1.png"
+JIGSAW="$SHUTTER_ROOT/share/shutter/resources/system/plugins/shell/spjigsaw1/jigsaw"
 
 chmod +x ${JIGSAW}
 

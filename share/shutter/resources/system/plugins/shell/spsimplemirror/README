@@ -15,14 +15,14 @@ Stephan Tetzel, stephan@zefanjas.de
 
 Zuerst muss folgender Ordner angelegt werden.
 
-    $ sudo mkdir /usr/share/shutter/resources/system/plugins/bash/spsimplemirror
+    $ sudo mkdir /usr/share/shutter/resources/system/plugins/shell/spsimplemirror
 
 In das Verzeichnis 'spmirror' müssen nun die beiden Dateien 'spsimplemirror' und 
 'spsimplemirror.svg' kopiert werden. 
 
 Das Plugin muss noch ausführbar gemacht werden.
 
-    $ sudo chmod +x /usr/share/shutter/resources/system/plugins/bash/spmirror/spsimplemirror
+    $ sudo chmod +x /usr/share/shutter/resources/system/plugins/shell/spmirror/spsimplemirror
 
 Danach Shutter neu starten damit das Plugin in der Plugin-Liste erscheint.
 
