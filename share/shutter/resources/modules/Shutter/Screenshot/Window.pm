@@ -165,6 +165,10 @@ sub get_shape {
 			$rect[2] -= $l_cropped - $rect[0]; 
 			$rect[0] = 0;
 		}
+		if($t_cropped){
+			$rect[3] -= $t_cropped - $rect[1]; 
+			$rect[1] = 0;
+		}
 		
 		print "Current $rect[0],$rect[1],$rect[2],$rect[3]\n" if $self->{_sc}->get_debug;
 		$bregion->union_with_rect(Gtk2::Gdk::Rectangle->new ($rect[0],$rect[1],$rect[2],$rect[3]));	
