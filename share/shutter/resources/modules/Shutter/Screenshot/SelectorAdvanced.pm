@@ -288,7 +288,7 @@ sub select_advanced {
 								#A short timeout to give the server a chance to
 								#redraw the area that was obscured by our dialog.
 								Glib::Timeout->add (600, sub{
-									$output = $self->take_screenshot($s);
+									$output = $self->take_screenshot($s, $clean_pixbuf);
 									$self->quit;
 									return FALSE;	
 								});					
@@ -404,7 +404,7 @@ sub select_advanced {
 						#A short timeout to give the server a chance to
 						#redraw the area that was obscured by our dialog.
 						Glib::Timeout->add (600, sub{
-							$output = $self->take_screenshot($s);
+							$output = $self->take_screenshot($s, $clean_pixbuf);
 							$self->quit;
 							return FALSE;	
 						});		
@@ -452,11 +452,20 @@ sub select_advanced {
 sub take_screenshot {
 	my $self 			= shift;
 	my $s				= shift;
+	my $clean_pixbuf	= shift;
 	
 	my $output;
-	if ($s) {
+	#no delay? then we take a subsection of the pixbuf in memory
+	if ($s && $clean_pixbuf && $self->{_delay} == 0) {
+		$output = $clean_pixbuf->new_subpixbuf($s->x, $s->y, $s->width, $s->height);
+	
+	#if there is a delay != 0 set, we have to wait and get a new pixbuf from the root window
+	}elsif ($s && $self->{_delay} != 0) {
 		($output) = $self->get_pixbuf_from_drawable( $self->{_root}, $s->x, $s->y, $s->width, $s->height);
+	
+	#section not valid
 	} else {
+		
 		$output = 0;
 	}
 	
