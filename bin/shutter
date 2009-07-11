@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.545";
+use constant REV                	=> "Rev.546";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80.1";
 
@@ -2383,10 +2383,15 @@ sub fct_control_main_window {
 
 		#move window to saved position
 		$window->move( $window->{x}, $window->{y} ) if (defined $window->{x} && defined $window->{y});
-
+		
+		#this is an unusual method for raising the window
+		#to the top within the stacking order (z-axis)
+		#but it works best here
 		$window->show_all;
-		$window->present;
 		$window->window->focus(time);
+		$window->present;
+				
+		#set flag
 		$is_in_tray = FALSE;
 
 		#attach signal-handler again
@@ -2402,7 +2407,7 @@ sub fct_control_main_window {
 		unless($shutter_tool->{_toolbar}->get_show_arrow){
 			$shutter_tool->{_toolbar}->set_show_arrow(TRUE);
 		}
-			
+	
 	}elsif($mode eq 'hide'){
 
 		#save current position of main window
@@ -2413,7 +2418,7 @@ sub fct_control_main_window {
 		$is_in_tray = TRUE;
 		
 	}
-
+	
 	return TRUE;
 }
 
@@ -3974,8 +3979,13 @@ sub fct_take_screenshot {
 
 		#we have to use the path (e.g. /home/username/file1.png)
 		#so we can save the screenshot_properly
-		$screenshot_name = $uri->get_path();
-
+		$screenshot_name = $uri->get_path;
+		#maybe / is set as uri (get_path returns undef)
+		#in this case nothing is returned when using get_path
+		#we use the directory name and the short name in this case
+		#(anyway - most users won't have permissions to write to /)
+		$screenshot_name = "/". $uri->extract_short_name unless $screenshot_name;
+		
 		#parse wild cards
 		my $swidth  = $screenshot->get_width;
 		my $sheight = $screenshot->get_height;
