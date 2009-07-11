@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.544";
+use constant REV                	=> "Rev.545";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80.1";
 
@@ -2386,6 +2386,7 @@ sub fct_control_main_window {
 
 		$window->show_all;
 		$window->present;
+		$window->window->focus(time);
 		$is_in_tray = FALSE;
 
 		#attach signal-handler again
@@ -5361,7 +5362,7 @@ sub fct_ret_window_menu {
 	my $active_workspace = $screen->get_active_workspace;
 
 	my $menu_windows = Gtk2::Menu->new;
-	foreach my $win ( $screen->get_windows ) {
+	foreach my $win ( $screen->get_windows_stacked ) {
 		if ($active_workspace && $win->is_visible_on_workspace( $active_workspace ) ) {
 			my $window_item = Gtk2::ImageMenuItem->new_with_label( $win->get_name );
 			$window_item->set_image( Gtk2::Image->new_from_pixbuf( $win->get_mini_icon ) );

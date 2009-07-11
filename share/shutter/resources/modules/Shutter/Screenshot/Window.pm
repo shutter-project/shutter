@@ -339,7 +339,7 @@ sub find_current_parent_window {
 	my $active_workspace 	= shift;
 
 	#get all the windows
-	my @wnck_windows = $self->{_wnck_screen}->get_windows;
+	my @wnck_windows = $self->{_wnck_screen}->get_windows_stacked;
 	
 	print "Searching for window...\n" if $self->{_sc}->get_debug;
 	
