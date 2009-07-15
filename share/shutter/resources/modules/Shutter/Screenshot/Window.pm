@@ -50,7 +50,7 @@ sub new {
 	$self->{_include_border} 	= shift;
 	$self->{_xid}  				= shift;    #only used by window_by_xid, undef this when selecting a window
 	$self->{_mode} 				= shift;
-	$self->{_is_in_tray}      	= shift;
+	$self->{_is_hidden}      	= shift;
 
 	#X11 protocol and XSHAPE ext
 	require X11::Protocol;
@@ -177,7 +177,7 @@ sub get_shape {
 	#create target pixbuf with dimensions if selected/current window
 	my $target = Gtk2::Gdk::Pixbuf->new ($orig->get_colorspace, TRUE, 8, $orig->get_width, $orig->get_height);
 	#whole pixbuf is transparent
-	$target->fill('0x00000000');
+	$target->fill(0x00000000);
 	
 	#copy all rectangles of bounding region to the target pixbuf
 	foreach my $r($bregion->get_rectangles){
@@ -352,7 +352,7 @@ sub find_current_parent_window {
 
 		#do not detect shutter window when it is hidden
 		if (   $self->{_main_gtk_window}->window
-			&& $self->{_is_in_tray} ) {
+			&& $self->{_is_hidden} ) {
 			next if ( $cwdow->get_xid == $self->{_main_gtk_window}->window->get_xid );
 		}
 

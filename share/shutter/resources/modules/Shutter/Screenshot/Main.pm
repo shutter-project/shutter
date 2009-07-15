@@ -111,10 +111,19 @@ sub get_root_and_current_monitor_geometry {
 
 sub get_current_monitor {
 	my $self = shift;
-	my $mainwindow = $self->{_sc}->get_mainwindow->window || $self->{_root};
-	my $mon1       = $self->{_gdk_screen}
-		->get_monitor_geometry( $self->{_gdk_screen}->get_monitor_at_window($mainwindow) );
-	return ($mon1);
+	my ( $window_at_pointer, $x, $y, $mask ) = $self->{_root}->get_pointer;
+	my $mon = $self->{_gdk_screen}
+		->get_monitor_geometry( $self->{_gdk_screen}->get_monitor_at_point ($x, $y));
+	return ($mon);
+}
+
+sub get_monitor_region {
+	my $self = shift;
+	my $region = Gtk2::Gdk::Region->new;
+	for(my $i = 0; $i < $self->{_gdk_screen}->get_n_monitors; $i++){
+		$region->union_with_rect ($self->{_gdk_screen}->get_monitor_geometry ($i));
+	}
+	return $region;
 }
 
 sub ungrab_pointer_and_keyboard {
@@ -190,7 +199,7 @@ sub ungrab_pointer_and_keyboard {
 #~ }	
 
 sub get_pixbuf_from_drawable {
-	my ( $self, $drawable, $x, $y, $width, $height ) = @_;
+	my ( $self, $drawable, $x, $y, $width, $height, $multi_monitor ) = @_;
 
 	my ($pixbuf, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = (0, 0, 0, 0, 0);
 
@@ -232,9 +241,34 @@ sub get_pixbuf_from_drawable {
 												$drawable, undef, 
 												$x, $y, 0, 0,
 												$width, $height );
+		
+		#include cursor
+		if($self->{_include_cursor}){
+			$pixbuf = $self->include_cursor( $x, $y, $width, $height, $drawable, $pixbuf );
+		}
 
-		$pixbuf = $self->include_cursor( $x, $y, $width, $height, $drawable, $pixbuf )
-			if $self->{_include_cursor};
+		#When there are multiple monitors with different resolutions, the visible area
+		#within the root window may not be rectangular (it may have an L-shape, for
+		#example). In that case, mask out the areas of the root window which would
+		#not be visible in the monitors, so that screenshot do not end up with content
+		#that the user won't ever see.
+ 		#
+		#comment copied from gnome-screenshot
+		#http://svn.gnome.org/viewvc/gnome-utils/trunk/gnome-screenshot/screenshot-utils.c?view=markup
+		if($multi_monitor){
+			#create target pixbuf with dimension of monitor layout
+			my $m_rect = $self->get_monitor_region->get_clipbox;
+			my $target = Gtk2::Gdk::Pixbuf->new ($pixbuf->get_colorspace, TRUE, 8, $m_rect->width, $m_rect->height);
+			
+			#whole pixbuf is transparent
+			$target->fill(0x00000000);
+			
+			#copy each rectangle
+			foreach my $r ($self->get_monitor_region->get_rectangles){
+				$pixbuf->copy_area ($r->x, $r->y, $r->width, $r->height, $target, $r->x, $r->y);
+			}
+			$pixbuf = $target->copy;			
+		}
 
 		Gtk2->main_quit;
 		return FALSE;	

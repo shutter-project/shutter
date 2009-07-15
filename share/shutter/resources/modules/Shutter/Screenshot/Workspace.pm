@@ -110,10 +110,16 @@ sub workspace {
 		($output) = $self->get_pixbuf_from_drawable(
 						$self->get_root_and_current_monitor_geometry
 					);
-	} else {
+	} elsif($self->{_gdk_screen}->get_n_monitors > 1) {
 		($output) = $self->get_pixbuf_from_drawable(
-						$self->get_root_and_geometry
-					);
+						$self->get_root_and_geometry,
+						TRUE
+					);					
+	}else{
+		($output) = $self->get_pixbuf_from_drawable(
+						$self->get_root_and_geometry,
+						FALSE
+					);			
 	}
 
 	#metacity etc

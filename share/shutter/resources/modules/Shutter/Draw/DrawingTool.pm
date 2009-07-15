@@ -692,7 +692,7 @@ sub setup_right_vbox_c {
 			#source pixbuf (screenshot) => canvas area is resizeable
 			my $temp = Gtk2::Gdk::Pixbuf->new ($self->{_drawing_pixbuf}->get_colorspace, TRUE, 8,  $p->get_width, $p->get_height);		
 			#whole pixbuf is transparent
-			$temp->fill('0x00000000');
+			$temp->fill(0x00000000);
 		
 			#copy source image to temp pixbuf (temp pixbuf's size == $self->{_view}->get_pixbuf)			
 			$self->{_drawing_pixbuf}->copy_area(0, 0, $self->{_drawing_pixbuf}->get_width, $self->{_drawing_pixbuf}->get_height, $temp, 0, 0);

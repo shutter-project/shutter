@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.548";
+use constant REV                	=> "Rev.549";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80.1";
 
@@ -264,7 +264,7 @@ $window->set_default_size( -1, 500 );
 #TRAY ICON
 my $icon                 = undef;
 my $current_profile_indx = 0;
-my $is_in_tray           = TRUE;
+my $is_hidden            = TRUE;
 
 #SESSION NOTEBOOK
 my $notebook = Gtk2::Notebook->new;
@@ -1622,7 +1622,7 @@ sub evt_take_screenshot {
 	if (   $hide_active->get_active
 		&& $data ne "web" 
 		&& $data ne "tray_web"
-		&& !$is_in_tray
+		&& !$is_hidden
 		&& !$selfcapture )
 	{
 		&fct_control_main_window(FALSE, 'hide');
@@ -1726,7 +1726,7 @@ sub evt_delete_window {
 
 	if ( $data ne "quit" && $close_at_close_active->get_active ) {
 		$window->hide;
-		$is_in_tray = TRUE;
+		$is_hidden = TRUE;
 		return TRUE;
 	}
 
@@ -1878,7 +1878,7 @@ sub evt_activate_systray_statusicon {
 		print "\n$data was emitted by widget $widget\n";
 	}
 
-	unless ( $is_in_tray ) {
+	unless ( $is_hidden ) {
 		&fct_control_main_window (TRUE, 'hide');
 	} else {
 		&fct_control_main_window (TRUE, 'show');
@@ -2387,12 +2387,14 @@ sub fct_control_main_window {
 		#this is an unusual method for raising the window
 		#to the top within the stacking order (z-axis)
 		#but it works best here
-		$window->show_all;
-		$window->window->focus(time);
-		$window->present;
+		if($is_hidden){
+			$window->show_all;
+			$window->window->focus(time) if defined $window->window;
+			$window->present;
+		}
 				
 		#set flag
-		$is_in_tray = FALSE;
+		$is_hidden = FALSE;
 
 		#attach signal-handler again
 		$SIG{USR1}  = sub { &evt_take_screenshot( 'global_keybinding', 'raw' ) };
@@ -2415,7 +2417,7 @@ sub fct_control_main_window {
 
 		$window->hide;
 		
-		$is_in_tray = TRUE;
+		$is_hidden = TRUE;
 		
 	}
 	
@@ -3453,7 +3455,7 @@ sub fct_delete {
 
 		delete $session_screens{$key};
 
-		$window->show_all unless $is_in_tray;
+		$window->show_all unless $is_hidden;
 
 		#session tab
 	} else {
@@ -3505,7 +3507,7 @@ sub fct_delete {
 
 		&dlg_status_message( 1, $d->get("Selected screenshots deleted") );
 
-		$window->show_all unless $is_in_tray;
+		$window->show_all unless $is_hidden;
 
 	}
 
@@ -3533,7 +3535,7 @@ sub fct_remove_all {
 	}
 
 	&dlg_status_message( 1, $d->get("All screenshots removed") );
-	$window->show_all unless $is_in_tray;
+	$window->show_all unless $is_hidden;
 
 	&fct_update_first_tab;
 
@@ -3564,7 +3566,7 @@ sub fct_remove {
 
 		delete( $session_screens{$key} );                                                          # delete from hash
 
-		$window->show_all unless $is_in_tray;
+		$window->show_all unless $is_hidden;
 
 	} else {
 		
@@ -3605,7 +3607,7 @@ sub fct_remove {
 
 		&dlg_status_message( 1, $d->get("Selected screenshots removed") );
 
-		$window->show_all unless $is_in_tray;
+		$window->show_all unless $is_hidden;
 
 	}
 
@@ -3860,7 +3862,7 @@ sub fct_take_screenshot {
 
 		my $screenshooter = Shutter::Screenshot::Window->new(
 			$shutter_common, $combobox_cursor->get_active, $delay_value, 
-			$combobox_border->get_active, undef, $data, $is_in_tray
+			$combobox_border->get_active, undef, $data, $is_hidden
 		);
 		$screenshot = $screenshooter->window();
 
@@ -3919,7 +3921,7 @@ sub fct_take_screenshot {
 		}
 		my $screenshooter = Shutter::Screenshot::Window->new( 
 				$shutter_common, $combobox_cursor->get_active, $delay_value, 
-				$combobox_border->get_active, $xid, $data, $is_in_tray );
+				$combobox_border->get_active, $xid, $data, $is_hidden );
 		$screenshot = $screenshooter->window_by_xid();
 
 	} elsif ( $data =~ /^shutter_wrksp_direct/ ) {
