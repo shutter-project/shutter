@@ -81,6 +81,9 @@ sub new {
 	$self->{_filename}    	= undef;
 	$self->{_filetype}    	= undef;
 	$self->{_import_hash} 	= undef;
+	
+	#custom cursors
+	$self->{_cursors} 		= undef;
 
 	#ui
 	$self->{_uimanager} 	= undef;
@@ -190,6 +193,21 @@ sub show {
 	$self->{_dialogs} = Shutter::App::SimpleDialogs->new( $self->{_drawing_window} );
 	$self->{_thumbs}  = Shutter::Pixbuf::Thumbnail->new( $self->{_shutter_common} );
 
+	#setup cursor-hash
+	#
+	#cursors borrowed from inkscape
+	#http://www.inkscape.org
+	my @cursors = glob($self->{_dicons}."/cursor/*");
+	foreach my $cursor_path (@cursors){
+		my ( $cname, $folder, $type ) = fileparse( $cursor_path, '\..*' );
+		$self->{_cursors}{$cname} = Gtk2::Gdk::Pixbuf->new_from_file($cursor_path);
+		#see 'man xcursor' for a detailed description
+		#of these values
+		$self->{_cursors}{$cname}{'x_hot'} = $self->{_cursors}{$cname}->get_option('x_hot');
+		$self->{_cursors}{$cname}{'y_hot'} = $self->{_cursors}{$cname}->get_option('y_hot');
+	}
+	
+	#setu ui
 	$self->{_uimanager} = $self->setup_uimanager();
 
 	#load settings
@@ -814,8 +832,6 @@ sub push_to_statusbar {
 	my $y = shift;
 	my $action = shift || 'none';
 
-	
-
 	my $status_text = int( $x ) . " x " . int( $y );
 		
 	if ( $self->{_current_mode} == 10 ) {
@@ -862,11 +878,7 @@ sub push_to_statusbar {
 
 		#nothing to do here....
 
-	} elsif ( $self->{_current_mode} == 120 ) {
-
-		$status_text .= " ".$self->{_d}->get("Delete all objects");
-
-	} 	
+	}
 
 	#update statusbar
 	$self->{_drawing_statusbar}->push( 0, $status_text );
@@ -892,8 +904,7 @@ sub change_drawing_tool_cb {
 	if( $self->{_current_mode} != 10  &&
 		$self->{_current_mode} != 30  && 
 		$self->{_current_mode} != 90  && 
-		$self->{_current_mode} != 110 &&
-		$self->{_current_mode} != 120 ){
+		$self->{_current_mode} != 110 ){
 	
 		$self->restore_drawing_properties;
 	
@@ -920,7 +931,6 @@ sub change_drawing_tool_cb {
 	} elsif ( $self->{_current_mode} == 20 ) {
 
 		$self->{_current_mode_descr} = "freehand";
-		$cursor = Gtk2::Gdk::Cursor->new('pencil');
 	
 	} elsif ( $self->{_current_mode} == 30 ) {
 
@@ -930,56 +940,26 @@ sub change_drawing_tool_cb {
 	} elsif ( $self->{_current_mode} == 40 ) {
 
 		$self->{_current_mode_descr} = "line";
-		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
-			Gtk2::Gdk::Display->get_default,
-			Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-line.png'),
-			Gtk2::IconSize->lookup('menu')
-		);
 
 	} elsif ( $self->{_current_mode} == 50 ) {
 
 		$self->{_current_mode_descr} = "arrow";
-		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
-			Gtk2::Gdk::Display->get_default,
-			Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-arrow.png'),
-			Gtk2::IconSize->lookup('menu')
-		);
 
 	} elsif ( $self->{_current_mode} == 60 ) {
 
 		$self->{_current_mode_descr} = "rect";
-		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
-			Gtk2::Gdk::Display->get_default,
-			Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-rectangle.png'),
-			Gtk2::IconSize->lookup('menu')
-		);
 
 	} elsif ( $self->{_current_mode} == 70 ) {
 
 		$self->{_current_mode_descr} = "ellipse";
-		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
-			Gtk2::Gdk::Display->get_default,
-			Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-ellipse.png'),
-			Gtk2::IconSize->lookup('menu')
-		);
 
 	} elsif ( $self->{_current_mode} == 80 ) {
 
 		$self->{_current_mode_descr} = "text";
-		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
-			Gtk2::Gdk::Display->get_default,
-			Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-text.png'),
-			Gtk2::IconSize->lookup('menu')
-		);
 
 	} elsif ( $self->{_current_mode} == 90 ) {
 
 		$self->{_current_mode_descr} = "censor";
-		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
-			Gtk2::Gdk::Display->get_default,
-			Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-censor.png'),
-			Gtk2::IconSize->lookup('menu')
-		);
 
 	} elsif ( $self->{_current_mode} == 100 ) {
 
@@ -1004,27 +984,19 @@ sub change_drawing_tool_cb {
 		#hide drawing tool widgets
 		$self->{_drawing_inner_vbox}->hide_all;
 
-	} elsif ( $self->{_current_mode} == 120 ) {
-
-		$self->{_current_mode_descr} = "clear_all";
-
-		#store items to delete in temporary hash
-		#sort them uid
-		my %time_hash;
-		foreach (keys %{$self->{_items}}){
-			$time_hash{$self->{_items}{$_}{uid}} = $self->{_items}{$_};  	
-		}
-		
-		#delete items
-		foreach (sort keys %time_hash){
-			$self->clear_item_from_canvas($time_hash{$_});
-		}
-		
-		#~ $self->set_drawing_action(1);
-		
-	} 
+	}
 
 	if($self->{_canvas} && $self->{_canvas}->window){
+		
+		if(exists $self->{_cursors}{$self->{_current_mode_descr}}){
+			$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
+				Gtk2::Gdk::Display->get_default,
+				$self->{_cursors}{$self->{_current_mode_descr}},
+				$self->{_cursors}{$self->{_current_mode_descr}}{'x_hot'},
+				$self->{_cursors}{$self->{_current_mode_descr}}{'y_hot'},
+			);
+		}
+
 		$self->{_canvas}->window->set_cursor($cursor);
 	}
 
@@ -1600,7 +1572,8 @@ sub event_item_on_motion_notify {
 		$self->{_items}{$item}{'bottom-right-corner'}->{res_x}    = $ev->x_root;
 		$self->{_items}{$item}{'bottom-right-corner'}->{res_y}    = $ev->y_root;
 		$self->{_items}{$item}{'bottom-right-corner'}->{resizing} = TRUE;
-		$self->{_canvas}->pointer_grab( $self->{_items}{$item}{'bottom-right-corner'}, [ 'pointer-motion-mask', 'button-release-mask' ], Gtk2::Gdk::Cursor->new('bottom-right-corner'), $ev->time );
+		#~ $self->{_canvas}->pointer_grab( $self->{_items}{$item}{'bottom-right-corner'}, [ 'pointer-motion-mask', 'button-release-mask' ], Gtk2::Gdk::Cursor->new('bottom-right-corner'), $ev->time );
+		$self->{_canvas}->pointer_grab( $self->{_items}{$item}{'bottom-right-corner'}, [ 'pointer-motion-mask', 'button-release-mask' ], undef, $ev->time );
 
 		#add to undo stack
 		$self->store_to_xdo_stack($self->{_current_item} , 'create', 'undo');
@@ -1661,7 +1634,7 @@ sub event_item_on_motion_notify {
 		}else {
 			
 			my $curr_item = $self->{_current_item};
-			my $cursor = undef;
+			#~ my $cursor = undef;
 
 			return FALSE unless $curr_item;
 
@@ -1681,7 +1654,7 @@ sub event_item_on_motion_notify {
 				#fancy resizing using our little resize boxes
 				if ( $item == $self->{_items}{$curr_item}{$_} ) {
 					
-					$cursor = $_;
+					#~ $cursor = $_;
 
 					if ( $_ eq 'bottom-side' ) {
 
@@ -1792,7 +1765,8 @@ sub event_item_on_motion_notify {
 			}
 
 			#set cursor
-			$self->{_canvas}->window->set_cursor( Gtk2::Gdk::Cursor->new($cursor) );
+			
+			#~ $self->{_canvas}->window->set_cursor( Gtk2::Gdk::Cursor->new($cursor) );
 			
 			#when width or height are too small we switch to opposite rectangle and do the resizing in this way
 			if($ev->state >= 'control-mask' && $new_width < 1 && $new_height < 1){
@@ -1809,7 +1783,8 @@ sub event_item_on_motion_notify {
 				$self->{_items}{$curr_item}{$oppo}->{res_x}    = $ev->x_root;
 				$self->{_items}{$curr_item}{$oppo}->{res_y}    = $ev->y_root;
 				$self->{_items}{$curr_item}{$oppo}->{resizing} = TRUE;
-				$self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], Gtk2::Gdk::Cursor->new($oppo), $ev->time );
+				$self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], undef, $ev->time );	
+				#~ $self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], Gtk2::Gdk::Cursor->new($oppo), $ev->time );				
 				$self->handle_embedded( 'mirror', $curr_item, $new_width, $new_height);
 				
 				#adjust new values						
@@ -4461,21 +4436,67 @@ sub setup_uimanager {
 		[ "File", undef, $self->{_d}->get("_File") ], 
 		[ "Edit", undef, $self->{_d}->get("_Edit") ], 
 		[ "View", undef, $self->{_d}->get("_View") ],
-		[ "Undo", 'gtk-undo', undef, "<control>Z", undef, sub { $self->abort_current_mode; $self->xdo('undo'); } ],
-		[ "Redo", 'gtk-redo', undef, "<control>Y", undef, sub { $self->abort_current_mode; $self->xdo('redo'); } ],
-		[ "Copy", 'gtk-copy', undef, "<control>C", undef, sub { $self->{_cut} = FALSE; $self->{_current_copy_item} = $self->{_current_item}; } ],
-		[ "Cut", 'gtk-cut', undef, "<control>X", undef, sub { $self->{_cut} = TRUE; $self->{_current_copy_item} = $self->{_current_item}; $self->clear_item_from_canvas( $self->{_current_copy_item} ); } ],
-		[ "Paste", 'gtk-paste', undef, "<control>V", undef, sub { $self->paste_item($self->{_current_copy_item}, $self->{_cut} ); $self->{_cut} = FALSE; } ],
-		[ "Delete", 'gtk-delete', undef, "Delete", undef, sub { $self->clear_item_from_canvas( $self->{_current_item} ); } ],
-		[ "Stop", 'gtk-stop', undef, "Escape", undef, sub { $self->abort_current_mode } ],
-		[ "Close", 'gtk-close', undef, "<control>Q", undef, sub { $self->quit(TRUE) } ],
-		[ "Save",       'gtk-save',     undef, "<control>S", undef, sub { $self->save(), $self->quit(FALSE) } ],
-		[ "ZoomIn",     'gtk-zoom-in',  undef, "<control>plus", undef, sub { $self->zoom_in_cb($self) } ],
-		[ "ControlEqual",  'gtk-zoom-in',  undef, "<control>equal", undef, sub { $self->zoom_in_cb($self) } ],
-		[ "ControlKpAdd",  'gtk-zoom-in',  undef, "<control>KP_Add", undef, sub { $self->zoom_in_cb($self) } ],
-		[ "ZoomOut",    'gtk-zoom-out', undef, "<control>minus", undef, sub { $self->zoom_out_cb($self) } ],
-		[ "ControlKpSub",    'gtk-zoom-out', undef, "<control>KP_Subtract", undef, sub { $self->zoom_out_cb($self) } ],
-		[ "ZoomNormal", 'gtk-zoom-100', undef, "<control>0", undef, sub { $self->zoom_normal_cb($self) } ],
+		[ "Undo", 'gtk-undo', undef, "<control>Z", undef, sub { 
+			$self->abort_current_mode; $self->xdo('undo'); 
+		} ],
+		[ "Redo", 'gtk-redo', undef, "<control>Y", undef, sub { 
+			$self->abort_current_mode; $self->xdo('redo'); 
+		} ],
+		[ "Copy", 'gtk-copy', undef, "<control>C", undef, sub { 
+			$self->{_cut} = FALSE; 
+			$self->{_current_copy_item} = $self->{_current_item}; 
+		} ],
+		[ "Cut", 'gtk-cut', undef, "<control>X", undef, sub { 
+			$self->{_cut} = TRUE; 
+			$self->{_current_copy_item} = $self->{_current_item}; 
+			$self->clear_item_from_canvas( $self->{_current_copy_item} ); 
+		} ],
+		[ "Paste", 'gtk-paste', undef, "<control>V", undef, sub { 
+			$self->paste_item($self->{_current_copy_item}, $self->{_cut} ); $self->{_cut} = FALSE; 
+		} ],
+		[ "Delete", 'gtk-delete', undef, "Delete", undef, sub { 
+			$self->clear_item_from_canvas( $self->{_current_item} ); 
+		} ],
+		[ "Clear", 'gtk-clear', undef, "<control>Delete", undef, sub { 
+			#store items to delete in temporary hash
+			#sort them uid
+			my %time_hash;
+			foreach (keys %{$self->{_items}}){
+				$time_hash{$self->{_items}{$_}{uid}} = $self->{_items}{$_};  	
+			}
+			
+			#delete items
+			foreach (sort keys %time_hash){
+				$self->clear_item_from_canvas($time_hash{$_});
+			}			
+		} ],
+		[ "Stop", 'gtk-stop', undef, "Escape", undef, sub { 
+			$self->abort_current_mode 
+		} ],
+		[ "Close", 'gtk-close', undef, "<control>Q", undef, sub { 
+			$self->quit(TRUE) 
+		} ],
+		[ "Save",       'gtk-save',     undef, "<control>S", undef, sub { 
+			$self->save(), $self->quit(FALSE) 
+		} ],
+		[ "ZoomIn",     'gtk-zoom-in',  undef, "<control>plus", undef, sub { 
+			$self->zoom_in_cb($self) 
+		} ],
+		[ "ControlEqual",  'gtk-zoom-in',  undef, "<control>equal", undef, sub { 
+			$self->zoom_in_cb($self) 
+		} ],
+		[ "ControlKpAdd",  'gtk-zoom-in',  undef, "<control>KP_Add", undef, sub { 
+			$self->zoom_in_cb($self) 
+		} ],
+		[ "ZoomOut",    'gtk-zoom-out', undef, "<control>minus", undef, sub { 
+			$self->zoom_out_cb($self) 
+		} ],
+		[ "ControlKpSub",    'gtk-zoom-out', undef, "<control>KP_Subtract", undef, sub { 
+			$self->zoom_out_cb($self) 
+		} ],
+		[ "ZoomNormal", 'gtk-zoom-100', undef, "<control>0", undef, sub { 
+			$self->zoom_normal_cb($self) 
+		} ],
 	);
 
 	my @toggle_actions = (
@@ -4525,8 +4546,7 @@ sub setup_uimanager {
 		[ "Text",    'shutter-text', undef, undef, $self->{_d}->get("Add some text to the screenshot"), 80 ],
 		[ "Censor",    'shutter-censor', undef, undef, $self->{_d}->get("Censor portions of your screenshot to hide private data"), 90 ],
 		[ "Number",    'shutter-number', undef, undef, $self->{_d}->get("Add an auto-increment shape to the screenshot"), 100 ],
-		[ "Crop",    'shutter-crop', undef, undef, $self->{_d}->get("Crop your screenshot"), 110 ],
-		[ "ClearAll",'gtk-clear', undef, undef, $self->{_d}->get("Delete all objects"), 120 ]
+		[ "Crop",    'shutter-crop', undef, undef, $self->{_d}->get("Crop your screenshot"), 110 ]
 	);
 
 	my $uimanager = Gtk2::UIManager->new();
@@ -4567,6 +4587,7 @@ sub setup_uimanager {
 		  <menuitem action = 'Cut'/>
 		  <menuitem action = 'Paste'/>
 		  <menuitem action = 'Delete'/>
+		  <menuitem action = 'Clear'/>			  
 		  <separator/>
 		  <menuitem action = 'Stop'/>
 		  <separator/>
@@ -4598,6 +4619,7 @@ sub setup_uimanager {
 		<toolitem action='Cut'/>
 		<toolitem action='Paste'/>
 		<toolitem action='Delete'/>		
+		<toolitem action='Clear'/>		
 	  </toolbar>
 	  <toolbar name = 'ToolBarDrawing'>
 		<toolitem action='Select'/>
@@ -4613,8 +4635,6 @@ sub setup_uimanager {
 		<toolitem action='Number'/>
 		<separator/>
 		<toolitem action='Crop'/>
-		<separator/>
-		<toolitem action='ClearAll'/>
 	  </toolbar>  
 	</ui>";
 
@@ -5093,7 +5113,7 @@ sub create_image {
 
 	#use event coordinates
 	if ($ev) {
-		@dimensions = ( $ev->x_root, $ev->y_root, 2, 2 );
+		@dimensions = ( $ev->x_root, $ev->y_root, 0, 0 );
 	#use source item coordinates
 	} elsif ($copy_item) {
 		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $self->{_items}{$copy_item}->get('width'), $self->{_items}{$copy_item}->get('height'));
@@ -5174,7 +5194,7 @@ sub create_text{
 
 	#use event coordinates and selected color
 	if ($ev) {
-		@dimensions = ( $ev->x_root, $ev->y_root, 2, 2 );
+		@dimensions = ( $ev->x_root, $ev->y_root, 0, 0 );
 		#use source item coordinates and item color
 	} elsif ($copy_item) {
 		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
@@ -5275,7 +5295,7 @@ sub create_line {
 	
 	#use event coordinates and selected color
 	if ($ev) {
-		@dimensions = ( $ev->x_root, $ev->y_root, 2, 2 );
+		@dimensions = ( $ev->x_root, $ev->y_root, 0, 0 );
 		#use source item coordinates and item color
 	} elsif ($copy_item) {
 		@dimensions 		= ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
@@ -5369,7 +5389,7 @@ sub create_ellipse {
 
 	#use event coordinates and selected color
 	if ($ev) {
-		@dimensions = ( $ev->x_root, $ev->y_root, 2, 2 );
+		@dimensions = ( $ev->x_root, $ev->y_root, 0, 0 );
 	#use source item coordinates and item color
 	} elsif ($copy_item) {
 		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
@@ -5500,7 +5520,7 @@ sub create_rectangle {
 
 	#use event coordinates and selected color
 	if ($ev) {
-		@dimensions = ( $ev->x_root, $ev->y_root, 2, 2 );
+		@dimensions = ( $ev->x_root, $ev->y_root, 0, 0 );
 
 	#use source item coordinates and item color
 	} elsif ($copy_item) {
