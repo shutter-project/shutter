@@ -964,11 +964,6 @@ sub change_drawing_tool_cb {
 	} elsif ( $self->{_current_mode} == 100 ) {
 
 		$self->{_current_mode_descr} = "number";
-		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
-			Gtk2::Gdk::Display->get_default,
-			Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-number.png'),
-			Gtk2::IconSize->lookup('menu')
-		);
 
 	} elsif ( $self->{_current_mode} == 110 ) {
 
