@@ -1557,8 +1557,9 @@ sub event_item_on_motion_notify {
 
 		return FALSE unless $item;
 
-		$self->{_current_new_item} = undef;
-		$self->{_current_item} = $item;
+		$self->{_current_new_item} 	= undef;
+		$self->{_last_item} 		= $item;
+		$self->{_current_item} 		= $item;
 	
 		#apply item properties to widgets / or only save it
 		#line width, fill color, stroke color etc.
@@ -1778,8 +1779,14 @@ sub event_item_on_motion_notify {
 				$self->{_items}{$curr_item}{$oppo}->{res_x}    = $ev->x_root;
 				$self->{_items}{$curr_item}{$oppo}->{res_y}    = $ev->y_root;
 				$self->{_items}{$curr_item}{$oppo}->{resizing} = TRUE;
-				$self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], undef, $ev->time );	
-				#~ $self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], Gtk2::Gdk::Cursor->new($oppo), $ev->time );				
+				
+				#don'change cursor if this item was just started
+				if($self->{_last_item} && $self->{_current_item} && $self->{_last_item} == $self->{_current_item}){
+					$self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], undef, $ev->time );	
+				}else{
+					$self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], Gtk2::Gdk::Cursor->new($oppo), $ev->time );				
+				}
+				
 				$self->handle_embedded( 'mirror', $curr_item, $new_width, $new_height);
 				
 				#adjust new values						
@@ -4168,8 +4175,7 @@ sub event_item_on_button_release {
 	if ($nitem) {
 
 		#mark as active item
-		$self->{_current_new_item} = undef;
-		$self->{_current_item} = $nitem;
+		$self->{_current_item} 		= $nitem;
 			
 		#apply item properties to widgets
 		#line width, fill color, stroke color etc.
@@ -4191,10 +4197,10 @@ sub event_item_on_button_release {
 					#~ );
 
 					$self->{_items}{$nitem}->set(
-						'x' => $ev->x_root - $self->{_items}{$nitem}{orig_pixbuf}->get_width,
-						'y' => $ev->y_root - $self->{_items}{$nitem}{orig_pixbuf}->get_height,
-						'width' => $self->{_items}{$nitem}{orig_pixbuf}->get_width,
-						'height' => $self->{_items}{$nitem}{orig_pixbuf}->get_height,
+						'x' 		=> $ev->x_root - int($self->{_items}{$nitem}{orig_pixbuf}->get_width  / 2),
+						'y' 		=> $ev->y_root - int($self->{_items}{$nitem}{orig_pixbuf}->get_height / 2),
+						'width' 	=> $self->{_items}{$nitem}{orig_pixbuf}->get_width,
+						'height' 	=> $self->{_items}{$nitem}{orig_pixbuf}->get_height,
 					);
 
 				#texts
@@ -4233,6 +4239,10 @@ sub event_item_on_button_release {
 		$self->store_to_xdo_stack($nitem , 'create', 'undo');		
 
 	}
+
+	#uncheck previous active items
+	$self->{_current_new_item} 	= undef;
+	$self->{_last_item}			= undef;
 
 	#unset action flags
 	$item->{dragging} 		= FALSE if exists $item->{dragging};
@@ -4327,16 +4337,7 @@ sub event_item_on_enter_notify {
 			#resizing shape
 		} else {
 			
-			#activate correct item if not activated yet
 			my $curr_item = $self->{_current_new_item} || $self->{_current_item};
-
-			$self->{_current_new_item} = undef;
-			$self->{_last_item}        = $curr_item;
-			$self->{_current_item}     = $curr_item;
-
-			$self->handle_rects( 'hide',   $self->{_last_item} );
-			$self->handle_rects( 'update', $curr_item );
-
 			if ( $self->{_current_mode_descr} eq "select" ) {
 				foreach ( keys %{ $self->{_items}{$curr_item} } ) {
 					next unless $_ =~ m/(corner|side)/;
@@ -4897,11 +4898,25 @@ sub change_cursor_to_current_pixbuf {
 
 	my $cursor = undef; 
 	
-	#very big image usually don't work as a cursor (no error though??)
-	if($self->{_current_pixbuf}->get_width < 1000 && $self->{_current_pixbuf}->get_height < 1000 ){
+	#very big images usually don't work as a cursor (no error though??)
+	my $pb_w = $self->{_current_pixbuf}->get_width;
+	my $pb_h = $self->{_current_pixbuf}->get_height;
+	
+	if($pb_w < 800 && $pb_h < 800){
 		eval{
-			my $cpixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($self->{_current_pixbuf_filename}, Gtk2::Gdk::Display->get_default->get_maximal_cursor_size, TRUE);
-			$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default, $cpixbuf, undef, undef );
+						
+			#maximum cursor size
+			my ($cw, $ch) = Gtk2::Gdk::Display->get_default->get_maximal_cursor_size;
+			
+			#images smaller than max cursor size? 
+			# => don't scale to a bigger size
+			if($cw > $pb_w || $ch > $pb_w){
+				$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default, $self->{_current_pixbuf}, int($pb_w / 2), int($pb_h / 2));				
+			}else{
+				my $cpixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($self->{_current_pixbuf_filename}, $cw, $ch, TRUE);	
+				$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default, $cpixbuf, int($cpixbuf->get_width / 2), int($cpixbuf->get_height / 2));
+			}
+			
 		};				
 		if($@){
 			my $response = $self->{_dialogs}->dlg_error_message( 
