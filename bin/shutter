@@ -82,7 +82,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.555";
+use constant REV                	=> "Rev.556";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80.1";
 
@@ -413,7 +413,6 @@ my $behavior_vbox       = Gtk2::VBox->new( FALSE, 0 );
 my $behavior_hbox1      = Gtk2::HBox->new( FALSE, 0 );
 my $behavior_hbox2      = Gtk2::HBox->new( FALSE, 0 );
 my $behavior_hbox3      = Gtk2::HBox->new( FALSE, 0 );
-my $behavior_hbox4      = Gtk2::HBox->new( FALSE, 0 );
 my $keybinding_vbox     = Gtk2::VBox->new( FALSE, 0 );
 my $keybinding_mode_box = Gtk2::HBox->new( TRUE,  0 );
 my $actions_vbox        = Gtk2::VBox->new( FALSE, 0 );
@@ -450,12 +449,12 @@ my $profiles_label = Gtk2::Label->new( $shutter_common->get_gettext->get("Profil
 
 #load settings
 #--------------------------------------
-my $settings_xml = &fct_load_settings( "start", "start" );
+my $settings_xml = &fct_load_settings( "start" );
 
 #load last profile
 if ( defined $settings_xml->{'general'}->{'last_profile'} ) {
 	if ( $settings_xml->{'general'}->{'last_profile'} != -1 ) {
-		$settings_xml = &fct_load_settings( "start", "start", $settings_xml->{'general'}->{'last_profile_name'} );
+		$settings_xml = &fct_load_settings("start", $settings_xml->{'general'}->{'last_profile_name'} );
 	}
 }
 
@@ -483,11 +482,25 @@ $shutter_tool->{_select}->signal_connect( 'clicked' => \&evt_take_screenshot, 's
 
 my $current_monitor_active = undef;
 $shutter_tool->{_full}->signal_connect( 'clicked' => \&evt_take_screenshot, 'raw' );
-$shutter_tool->{_full}->set_menu( &fct_ret_workspace_menu(TRUE) );
+
+#do this when idle
+Glib::Idle->add (
+sub{
+	$shutter_tool->{_full}->set_menu( &fct_ret_workspace_menu(TRUE) );	
+	return FALSE;
+});	
+
 $shutter_tool->{_full}->signal_connect( 'show-menu' => sub { &fct_ret_workspace_menu(FALSE) } );
 
 $shutter_tool->{_window}->signal_connect( 'clicked' => \&evt_take_screenshot, 'window' );
-$shutter_tool->{_window}->set_menu(&fct_ret_window_menu);
+
+#do this when idle
+Glib::Idle->add (
+sub{
+	$shutter_tool->{_window}->set_menu(&fct_ret_window_menu);	
+	return FALSE;
+});	
+
 $shutter_tool->{_window}->signal_connect( 'show-menu' => \&fct_ret_window_menu );
 
 $shutter_tool->{_section}->signal_connect( 'clicked' => \&evt_take_screenshot, 'section' );
@@ -517,10 +530,9 @@ $shutter_tool->{_upload}->set_sensitive(FALSE);
 #handle profiles
 #--------------------------------------
 my $combobox_settings_profiles = Gtk2::ComboBox->new_text;
-my @saved_profiles             = glob("$ENV{'HOME'}/.shutter/profiles/*.xml");
 my @current_profiles;
 my $current_index = 0;
-foreach ( sort @saved_profiles ) {
+foreach ( sort glob("$ENV{'HOME'}/.shutter/profiles/*.xml") ) {
 	utf8::decode $_;
 	next if $_ =~ /\_accounts.xml/;    #accounts file - we are looking for "real" profiles
 	$_ =~ /.*\/(.*)\.xml/;            #get profiles name
@@ -997,11 +1009,10 @@ if ( defined $settings_xml->{'general'}->{'keybinding_sel'} ) {
 my $hide_active           = Gtk2::CheckButton->new_with_label( $shutter_common->get_gettext->get("Autohide Shutter Window when taking a screenshot") );
 my $autocopy_active       = Gtk2::CheckButton->new_with_label( $shutter_common->get_gettext->get("Automatically copy screenshot to clipboard") );
 my $close_at_close_active = Gtk2::CheckButton->new_with_label( $shutter_common->get_gettext->get("Minimize to tray when closing main window") );
-#~ my $save_at_close_active  = Gtk2::CheckButton->new_with_label( $shutter_common->get_gettext->get("Save settings when exiting") );
+
 $behavior_hbox1->pack_start( $hide_active,           FALSE, TRUE, 12 );
 $behavior_hbox2->pack_start( $autocopy_active,       FALSE, TRUE, 12 );
 $behavior_hbox3->pack_start( $close_at_close_active, FALSE, TRUE, 12 );
-#~ $behavior_hbox4->pack_start( $save_at_close_active,  FALSE, TRUE, 12 );
 
 if ( defined $settings_xml->{'general'}->{'autohide'} ) {
 	$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
@@ -1384,7 +1395,6 @@ $label_behavior->set_markup( $shutter_common->get_gettext->get("Behavior") );
 $behavior_vbox->pack_start( $behavior_hbox1, TRUE, TRUE, 3 );
 $behavior_vbox->pack_start( $behavior_hbox2, TRUE, TRUE, 3 );
 $behavior_vbox->pack_start( $behavior_hbox3, TRUE, TRUE, 3 );
-$behavior_vbox->pack_start( $behavior_hbox4, TRUE, TRUE, 3 );
 $behavior_frame->add($behavior_vbox);
 
 $keybinding_vbox->pack_start( $key_box,             FALSE, TRUE, 3 );
@@ -2228,7 +2238,7 @@ sub evt_apply_profile {
 	my ( $widget, $combobox_settings_profiles, $current_profiles_ref ) = @_;
 
 	if ( $combobox_settings_profiles->get_active_text ) {
-		$settings_xml = &fct_load_settings( undef, 'profile_load', $combobox_settings_profiles->get_active_text );
+		$settings_xml = &fct_load_settings( 'profile_load', $combobox_settings_profiles->get_active_text );
 		$current_profile_indx = $combobox_settings_profiles->get_active;
 
 		&fct_update_quick_profile_selector($combobox_settings_profiles, $current_profiles_ref);	
@@ -2430,16 +2440,10 @@ sub fct_create_tab {
 	my $vbox            = Gtk2::VBox->new( FALSE, 0 );
 	my $vbox_tab        = Gtk2::VBox->new( FALSE, 0 );
 	my $vbox_tab_event  = Gtk2::EventBox->new;
-	my $hbox_tab        = Gtk2::HBox->new( FALSE, 0 );
 	my $vbox_all        = Gtk2::VBox->new( FALSE, 0 );
 	my $hbox_all        = Gtk2::HBox->new( FALSE, 0 );
 	my $vbox_all2       = Gtk2::VBox->new( FALSE, 0 );
 	my $vbox_fileinfos  = Gtk2::VBox->new( FALSE, 0 );
-	my $hbox_tab_file   = Gtk2::HBox->new( FALSE, 0 );
-
-	#keep number (1 = single tab, 2 = session tab) for translation
-	my $number = 1;
-	$number = 2 if $is_all;
 
 	unless ($is_all) {
 		my $filename_label = Gtk2::Label->new;
@@ -2534,14 +2538,10 @@ sub fct_create_tab {
 		$vbox_fileinfos->pack_start( $geometry_label,                             FALSE, TRUE, 10 );
 		$vbox_fileinfos->pack_start( $session_screens{$key}->{'geometry_label'},  FALSE, TRUE, 2 );
 
-		#~ $hbox_tab_file->pack_start( $image_sw, TRUE,  TRUE, 0 );
-		#~ $hbox_tab_file->pack_start( $vbox_fileinfos,                   FALSE, TRUE, 10 );
-
 		my $hpaned = Gtk2::HPaned->new;
 		$hpaned->add1($vbox_fileinfos);
 		$hpaned->pack2($image_sw, TRUE, FALSE);
 
-		#~ $vbox_tab->pack_start( $hbox_tab_file, TRUE, TRUE, 0 );
 		$vbox_tab->pack_start( $hpaned, TRUE, TRUE, 0 );
 
 		$vbox->pack_start_defaults($vbox_tab);
@@ -2584,21 +2584,15 @@ sub fct_create_tab {
 		$vbox_all2->pack_start_defaults( $session_start_screen{'first_page'}->{'folder_label'} );
 
 		#create iconview for session
-		my $viewmodel = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String' );
-		#~ foreach ( keys %session_screens ) {
-			#~ $viewmodel->set( $viewmodel->append, 0, $session_screens{$_}->{'thumb'}, 1, $session_screens{$_}->{'short'}, 2, $_ );
-		#~ }
-		my $view = Gtk2::IconView->new_with_model($viewmodel);
-		$view->set_orientation('horizontal');
-		$view->set_pixbuf_column(0);
-		$view->set_text_column(1);
-		$view->set_selection_mode('multiple');
-		$view->set_columns(0);
-		$view->signal_connect( 'selection-changed', \&evt_iconview_sel_changed,    'sel_changed' );
-		$view->signal_connect( 'item-activated',    \&evt_iconview_item_activated, 'item_activated' );
-
-		$session_start_screen{'first_page'}->{'view'}  = $view;
-		$session_start_screen{'first_page'}->{'model'} = $viewmodel;
+		$session_start_screen{'first_page'}->{'model'} = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String' );
+		$session_start_screen{'first_page'}->{'view'} = Gtk2::IconView->new_with_model($session_start_screen{'first_page'}->{'model'});
+		$session_start_screen{'first_page'}->{'view'}->set_orientation('horizontal');
+		$session_start_screen{'first_page'}->{'view'}->set_pixbuf_column(0);
+		$session_start_screen{'first_page'}->{'view'}->set_text_column(1);
+		$session_start_screen{'first_page'}->{'view'}->set_selection_mode('multiple');
+		$session_start_screen{'first_page'}->{'view'}->set_columns(0);
+		$session_start_screen{'first_page'}->{'view'}->signal_connect( 'selection-changed', \&evt_iconview_sel_changed,    'sel_changed' );
+		$session_start_screen{'first_page'}->{'view'}->signal_connect( 'item-activated',    \&evt_iconview_item_activated, 'item_activated' );
 
 		$hbox_all->pack_start_defaults($vbox_all);
 		$hbox_all->pack_start_defaults($vbox_all2);
@@ -2607,12 +2601,12 @@ sub fct_create_tab {
 		my $scrolled_window_view = Gtk2::ScrolledWindow->new;
 		$scrolled_window_view->set_policy( 'automatic', 'automatic' );
 		$scrolled_window_view->set_shadow_type('in');
-		$scrolled_window_view->add($view);
+		$scrolled_window_view->add($session_start_screen{'first_page'}->{'view'});
 
 		#add an event box to show a context menu on right-click
 		my $view_event = Gtk2::EventBox->new;
 		$view_event->add($scrolled_window_view);
-		$view_event->signal_connect( 'button-press-event', \&evt_iconview_button_press, $view );
+		$view_event->signal_connect( 'button-press-event', \&evt_iconview_button_press, $session_start_screen{'first_page'}->{'view'} );
 
 		$vbox_tab->pack_start( $view_event, TRUE, TRUE, 0 );
 
@@ -2958,7 +2952,7 @@ sub fct_save_bindings {
 }
 
 sub fct_load_settings {
-	my ( $widget, $data, $profilename ) = @_;
+	my ( $data, $profilename ) = @_;
 
 	#settings file
 	my $settingsfile = "$ENV{ HOME }/.shutter/settings.xml";
@@ -2982,7 +2976,6 @@ sub fct_load_settings {
 					}elsif($settings_xml->{'general'}->{'filetype'} == 1){
 						$combobox_type->set_active($int_png);		
 					}
-				
 				#shutter
 				}else{
 					$combobox_type->set_active($settings_xml->{'general'}->{'filetype'});	
