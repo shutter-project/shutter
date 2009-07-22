@@ -79,7 +79,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.557";
+use constant REV                	=> "Rev.558";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80.1";
 
@@ -2085,7 +2085,7 @@ sub evt_open {
 		my $filter_all = Gtk2::FileFilter->new;
 		$filter_all->set_name( $shutter_common->get_gettext->get("All compatible image formats") );
 		$fs->add_filter($filter_all);
-
+		
 		foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
 			my $filter = Gtk2::FileFilter->new;
 			
@@ -2100,12 +2100,15 @@ sub evt_open {
 			}
 			$fs->add_filter($filter);
 		}
+		
+		#set default filter
+		$fs->set_filter($filter_all);
 
 		my $key = &fct_get_current_file;
 		if ($key) {
-			$fs->set_filename( $session_screens{$key}->{'folder'} );
+			$fs->set_filename( $session_screens{$key}->{'long'} );
 		} elsif ( $ENV{'HOME'} ) {
-			$fs->set_filename( $saveDir_button->get_filename() );
+			$fs->set_current_folder( $saveDir_button->get_filename() );
 		}
 		my $fs_resp = $fs->run;
 
