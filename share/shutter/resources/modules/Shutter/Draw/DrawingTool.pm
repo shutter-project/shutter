@@ -37,6 +37,9 @@ use Goo::Canvas;
 use File::Basename;
 use Data::Dumper;
 
+#Sort::Naturally - sort lexically, but sort numeral parts numerically
+use Sort::Naturally;
+
 #load and save settings
 use XML::Simple;
 
@@ -4799,7 +4802,7 @@ sub import_from_session {
 
 	my %import_hash = %{ $self->{_import_hash} };
 
-	foreach my $key ( sort keys %import_hash ) {
+	foreach my $key ( Sort::Naturally::nsort(keys %import_hash) ) {
 
 		#init item with filename
 		my $screen_menu_item = Gtk2::ImageMenuItem->new_with_label( $import_hash{$key}->{'short'} );
