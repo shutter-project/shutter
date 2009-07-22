@@ -50,9 +50,6 @@ use Gtk2::Gdk::Keysyms;
 use Gtk2::Pango;
 use Gtk2::ImageView;
 
-#Imagemagick bindings
-use Image::Magick;
-
 #Gettext and filename parsing
 use POSIX qw/ setlocale strftime /;
 use Locale::gettext();
@@ -82,7 +79,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.556";
+use constant REV                	=> "Rev.557";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80.1";
 
@@ -4027,9 +4024,15 @@ sub fct_take_screenshot {
 
 		#quantize
 		if ( $im_colors_active->get_active ) {
-			my $im_colors_value = $combobox_im_colors->get_active_text();
-			$im_colors_value =~ /.*\(([0-9]*).*\)/;
-			&fct_imagemagick_perform( 'reduce_colors', $screenshot_name, $im_colors_value );
+			my $colors;
+			if($combobox_im_colors->get_active == 0){
+				$colors = 16;
+			}elsif($combobox_im_colors->get_active == 1){
+				$colors = 64;
+			}elsif($combobox_im_colors->get_active == 2){
+				$colors = 256;
+			}
+			&fct_imagemagick_perform( 'reduce_colors', $screenshot_name, $colors );
 		}
 
 		#generate the thumbnail
@@ -4904,35 +4907,14 @@ sub fct_get_latest_tab_key {
 
 sub fct_imagemagick_perform {
 	my ( $function, $file, $data ) = @_;
-	my $image 	= Image::Magick->new;
 	my $result 	= undef;
 	$file = $shutter_hfunct->switch_home_in_file($file);
 	
-	$result = $image->ReadImage($file);
-	# print the error message
-	if($result){
-		#destroy object
-		undef $image;
-		warn "$result";      
-  		return $result;
-	}
-
 	if ( $function eq "reduce_colors" ) {
-		$image->Quantize( colors => 2**$1 );
-		$result = $image->WriteImage( filename => $file );
-		# print the error message
-		if($result){
-			#destroy object
-			undef $image;
-			warn "$result";      
-			return $result;
-		}
+		$result = `convert $file -colors $data $file`;
 	} 
-	
-	#destroy object
-	undef $image;
 
-	return FALSE;
+	return $result;
 }
 
 sub fct_check_installed_programs {
