@@ -295,8 +295,14 @@ sub fct_imagemagick_watermark {
 				$error_string .= $_;	
 			}
 			
+			#get the parent window of the plug
+			require X11::Protocol;
+			my $x11 = X11::Protocol->new( $ENV{ 'DISPLAY' } );
+			
+			my $plugp = Gtk2::Gdk::Window->foreign_new( &find_wm_window( $x11, $plug->get_id ));
+			
 			#show error message
-			my $shutter_dialog = Shutter::App::SimpleDialogs->new($plug);
+			my $shutter_dialog = Shutter::App::SimpleDialogs->new($plug, $plugp);
 			$shutter_dialog->dlg_error_message( 
 				sprintf ( $d->get(  "Error while executing plugin %s." ), "'" . $plugin_info{'name'} . "'" ) ,
 				$d->get( "There was an error executing the plugin." ),
@@ -362,6 +368,18 @@ sub fct_update_gui {
 	Gtk2::Gdk->flush;
 
 	return TRUE;
+}
+
+sub find_wm_window {
+	my $x11  = shift;
+	my $xid  = shift;
+
+	do {
+		my ( $qroot, $qparent, @qkids ) = $x11->QueryTree($xid);
+		return undef unless ( $qroot || $qparent );
+		return $xid if ( $qroot == $qparent );
+		$xid = $qparent;
+	} while (TRUE);
 }
 
 1;

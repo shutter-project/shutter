@@ -234,6 +234,20 @@ sub select_advanced {
 	$self->{_select_window}->add($self->{_view});
 	$self->{_select_window}->show_all;
 
+	#see docs
+	#http://library.gnome.org/devel/gtk/stable/GtkWindow.html
+	#asks the window manager to move window to the given position.
+	#Window managers are free to ignore this;
+	#most window managers ignore requests for initial window positions
+	#(instead using a user-defined placement algorithm) and
+	#honor requests after the window has already been shown.
+	$self->{_select_window}->window->move_resize(
+		$self->{_root}->{x},
+		$self->{_root}->{y},
+		$self->{_root}->{w},
+		$self->{_root}->{h}
+	);
+
 	#all screen events are send to shutter
 	my $grab_counter = 0;
 	while ( !Gtk2::Gdk->pointer_is_grabbed && $grab_counter < 400 ) {
@@ -417,23 +431,6 @@ sub select_advanced {
 						Gtk2->main_do_event($event);		
 				}	
 			}
-		);
-
-		$self->{_select_window}->set_default_size( $self->{_root}->{w}, $self->{_root}->{h} );
-		$self->{_select_window}->show_all();
-
-		#see docs
-		#http://library.gnome.org/devel/gtk/stable/GtkWindow.html
-		#asks the window manager to move window to the given position.
-		#Window managers are free to ignore this;
-		#most window managers ignore requests for initial window positions
-		#(instead using a user-defined placement algorithm) and
-		#honor requests after the window has already been shown.
-		$self->{_select_window}->window->move_resize(
-			$self->{_root}->{x},
-			$self->{_root}->{y},
-			$self->{_root}->{w},
-			$self->{_root}->{h}
 		);
 
 		#finally focus it

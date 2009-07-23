@@ -46,7 +46,7 @@ sub new {
 	my $class = shift;
 
 	#constructor
-	my $self = { _window => shift };
+	my $self = { _window => shift, _gdk_window => shift };
 
 	bless $self, $class;
 	return $self;
@@ -65,6 +65,14 @@ sub dlg_info_message {
 	$info_dialog->set( 'text' => $dlg_info_header );
 
 	$info_dialog->set( 'secondary-text' => $dlg_info_message );
+
+	$info_dialog->show_all;
+
+	if(defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk2::Gdk::Window/){
+		$info_dialog->window->set_transient_for($self->{_gdk_window});
+	}else{
+		$info_dialog->set_transient_for($self->{_window});
+	}
 
 	my $info_response = $info_dialog->run;
 	$info_dialog->destroy() if ( $info_response eq "ok" );
@@ -117,6 +125,12 @@ sub dlg_question_message {
 	}
 
 	$question_dialog->show_all;
+
+	if(defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk2::Gdk::Window/){
+		$question_dialog->window->set_transient_for($self->{_gdk_window});
+	}else{
+		$question_dialog->set_transient_for($self->{_window});
+	}
 
 	my $question_response = $question_dialog->run;
 
@@ -171,6 +185,12 @@ sub dlg_error_message {
 
 	$error_dialog->show_all;
 
+	if(defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk2::Gdk::Window/){
+		$error_dialog->window->set_transient_for($self->{_gdk_window});
+	}else{
+		$error_dialog->set_transient_for($self->{_window});
+	}
+
 	my $error_response = $error_dialog->run;
 
 	$error_dialog->destroy();
@@ -223,6 +243,12 @@ sub dlg_warning_message {
 	}
 
 	$warning_dialog->show_all;
+
+	if(defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk2::Gdk::Window/){
+		$warning_dialog->window->set_transient_for($self->{_gdk_window});
+	}else{
+		$warning_dialog->set_transient_for($self->{_window});
+	}
 
 	my $warning_response = $warning_dialog->run;
 
