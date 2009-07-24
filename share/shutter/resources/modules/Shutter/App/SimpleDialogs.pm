@@ -75,8 +75,8 @@ sub dlg_info_message {
 	}
 
 	my $info_response = $info_dialog->run;
-	$info_dialog->destroy() if ( $info_response eq "ok" );
 	
+	$info_dialog->destroy();
 	return TRUE;
 }
 

@@ -79,7 +79,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.561";
+use constant REV                	=> "Rev.562";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80.1";
 
@@ -7387,6 +7387,15 @@ sub dlg_website {
 				$screenshooter->web();
 				POSIX::_exit(0);
 			}
+		);
+		
+		$website_dialog->signal_connect(
+			'delete-event' => sub{
+				#kill process, delete file and destroy dialog
+				$web_process->kill('SIGKILL');				
+				unlink("$filename");
+				$website_dialog->destroy();				
+			} 
 		);
 
 		$cancel_btn->signal_connect(
