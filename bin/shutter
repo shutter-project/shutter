@@ -79,7 +79,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.562";
+use constant REV                	=> "Rev.563";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80.1";
 
@@ -4290,7 +4290,6 @@ sub fct_open_with_program {
 }
 
 sub fct_execute_plugin {
-
 	my $arrayref = $_[1];
 	my ( $plugin_value, $plugin_name, $plugin_lang, $key, $plugin_dialog, $plugin_progress ) = @$arrayref;
 
@@ -4299,24 +4298,27 @@ sub fct_execute_plugin {
 	}
 
 	#if it is a native perl plugin, use a plug to integrate it properly
-	if ( $plugin_lang eq "perl" ) {
+	if ( $plugin_lang eq "perl" ) {		
+		#hide plugin dialog
 		$plugin_dialog->hide if defined $plugin_dialog;
 
+		#dialog to show the plugin
+		my $sdialog = Gtk2::Dialog->new( $plugin_name, $window, [qw/modal destroy-with-parent/] );
+		$sdialog->set_resizable(FALSE);
+		$sdialog->set_has_separator(FALSE); 
+		# Ensure that the dialog box is destroyed when the user responds.
+		$sdialog->signal_connect (response => sub { $_[0]->destroy });
+
 		#initiate the socket to draw the contents of the plugin to our dialog
-		my $plugin_socket = Gtk2::Dialog->new( $plugin_name, $window, [qw/modal destroy-with-parent/] );
-		$plugin_socket->set_resizable(FALSE);
-		$plugin_socket->set_has_separator(FALSE); 
 		my $socket = Gtk2::Socket->new;
-		$plugin_socket->vbox->add($socket);
+		$sdialog->vbox->add($socket);
 		$socket->signal_connect(
 			'plug-removed' => sub {
-				print STDERR "GtkPlug Disconnected\n"
-					if $shutter_common->get_debug;
-				$plugin_socket->destroy();
+				$sdialog->destroy();
 				return TRUE;
-				1;
 			}
 		);
+		
 		printf( "\n", $socket->get_id );
 		
 		my $pid = fork;
@@ -4330,11 +4332,12 @@ sub fct_execute_plugin {
 					$socket->get_id )
 			);
 		}
-		$plugin_socket->show_all;
-		$plugin_socket->run;
+				
+		$sdialog->show_all;
+		$sdialog->run;
 
 		waitpid($pid, 0);
-				
+			
 		#check exit code
 		if($? == 0){
 			&dlg_status_message( 1, $d->get("Successfully executed plugin") . ": " . $plugin_name );
@@ -4357,6 +4360,13 @@ sub fct_execute_plugin {
 				system("'$plugin_value' '$session_screens{$key}->{'long'}' '$session_screens{$key}->{'width'}' '$session_screens{$key}->{'height'}' '$session_screens{$key}->{'filetype'}' ");				
 				POSIX::_exit(0);
 			}
+		);
+		
+		#ignore delete-event during execute
+		$plugin_dialog->signal_connect(
+			'delete-event' => sub{
+				return TRUE;		
+			} 
 		);
 
 		#we are also able to show a little progress bar to give some feedback
@@ -6508,7 +6518,6 @@ sub dlg_plugin {
 	my $plugin_key    = undef;
 	$plugin->signal_connect(
 		'changed' => sub {
-
 			my $model       = $plugin->get_model();
 			my $plugin_iter = $plugin->get_active_iter();
 
@@ -6525,8 +6534,7 @@ sub dlg_plugin {
 					$plugin_image->set_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_size( $plugins{$plugin_key}->{'pixbuf'}, 100, 100 ) );
 				}
 			}
-		},
-		'changed'
+		}
 	);
 	
 	my $renderer_pix = Gtk2::CellRendererPixbuf->new;
@@ -6571,7 +6579,8 @@ sub dlg_plugin {
 		#and try to preselect it when the plugin dialog is executed again
 		$plugins{$plugin_key}->{'recent'} = time;
 
-		#disable all widgets
+		#disable buttons and combobox
+		$plugin->set_sensitive(FALSE);
 		foreach my $dialog_child ($plugin_dialog->vbox->get_children){
 			$dialog_child->set_sensitive(FALSE) if $dialog_child =~ /Button/;
 		}
