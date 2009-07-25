@@ -483,7 +483,13 @@ sub setup_bottom_hbox {
 	#image button
 	my $image_label = Gtk2::Label->new( $self->{_d}->get("Insert image") . ":" );
 	my $image_btn = Gtk2::MenuToolButton->new( undef, undef );
-	$image_btn->set_menu( $self->ret_objects_menu($image_btn) );
+
+	Glib::Idle->add (
+		sub {
+			$image_btn->set_menu( $self->ret_objects_menu($image_btn) );
+			return FALSE;
+		}
+	);
 
 	#handle property changes 
 	#changes are applied directly to the current item
@@ -4647,18 +4653,63 @@ sub setup_uimanager {
 }
 
 sub ret_objects_menu {
-	my $self   = shift;
-	my $button = shift;
+	my $self   		= shift;
+	my $button 		= shift;
+	my $directory	= shift;
 
 	my $menu_objects = Gtk2::Menu->new;
 
 	my $dobjects = $self->{_shutter_common}->get_root . "/share/shutter/resources/icons/drawing_tool/objects";
 
+	#append directory when called recursively
+	$dobjects .= "/$directory" if $directory;
+	
+	#first directory flag (see description above)
+	my $fd = TRUE;
+	
 	my @objects = glob("$dobjects/*");
-	foreach my $filename (@objects) {
+	foreach my $name ( sort { -d $a <=> -d $b } @objects) {
 
 		#parse filename
-		my ( $short, $folder, $type ) = fileparse( $filename, '\..*' );
+		my ( $short, $folder, $type ) = fileparse( $name, '\..*' );
+		
+		#if current object is a directory we call the current sub
+		#recursively
+		if(-d $name){
+			
+			#objects from each directory are sorted (files first)
+			#we display a separator when the first directory is listed
+			if($fd){
+				$menu_objects->append( Gtk2::SeparatorMenuItem->new );
+				$fd = FALSE;
+			}
+			
+			#objects from directory $name
+			my $subdir_item = Gtk2::ImageMenuItem->new_with_label( $short );
+			$subdir_item->set_image (Gtk2::Image->new_from_stock ('gtk-directory', 'menu'));
+			
+			#add empty menu first
+			my $menu_empty = Gtk2::Menu->new;
+			my $empty_item = Gtk2::MenuItem->new_with_label( $self->{_d}->get("No icon was found") );
+			$empty_item->set_sensitive(FALSE);
+			$menu_empty->append($empty_item);
+			$subdir_item->set_submenu( $menu_empty );
+			
+			#and populate later (performance)
+			$subdir_item->{'nid'} = $subdir_item->signal_connect('enter-notify-event' => sub {
+					$subdir_item->set_submenu( $self->ret_objects_menu($button, $short) );
+					return FALSE;
+				}
+			);
+			$subdir_item->signal_connect('leave-notify-event' => sub {
+					if($subdir_item->signal_handler_is_connected ($subdir_item->{'nid'})){
+						$subdir_item->signal_handler_disconnect($subdir_item->{'nid'});
+					}
+				}
+			);
+			$menu_objects->append($subdir_item);
+			next;
+		}
 
 		#init item with filename first
 		my $new_item = Gtk2::ImageMenuItem->new_with_label($short);
@@ -4669,7 +4720,7 @@ sub ret_objects_menu {
 			#create pixbufs
 			my $orig_pixbuf;
 			eval{
-				$orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($filename);		
+				$orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($name);		
 			};
 			unless($@){
 
@@ -4680,18 +4731,16 @@ sub ret_objects_menu {
 				unless ( $button->get_icon_widget ) {
 					$button->set_icon_widget(Gtk2::Image->new_from_pixbuf($small_image->get_pixbuf));
 					$self->{_current_pixbuf} = $orig_pixbuf->copy;
-					$self->{_current_pixbuf_filename} = $filename;
+					$self->{_current_pixbuf_filename} = $name;
 					$button->show_all;
 				}
 
 				$new_item->signal_connect(
-					'activate' => sub {
-						
+					'activate' => sub {					
 						my ($item) = @_;
-						
 						$self->{_current_pixbuf} = $orig_pixbuf->copy;
-						$self->{_current_pixbuf_filename} = $filename;
-						$button->set_icon_widget($item->get_image);
+						$self->{_current_pixbuf_filename} = $name;
+						$button->set_icon_widget(Gtk2::Image->new_from_pixbuf($small_image->get_pixbuf));
 						$button->show_all;
 						$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
 					}
@@ -4699,7 +4748,7 @@ sub ret_objects_menu {
 
 			}else{
 				my $response = $self->{_dialogs}->dlg_error_message( 
-					sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $filename . "'" ),
+					sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $name . "'" ),
 					$self->{_d}->get( "There was an error opening the image." ),
 					undef, undef, undef,
 					undef, undef, undef,
@@ -4712,87 +4761,214 @@ sub ret_objects_menu {
 		});
 
 	}
+	
+	#do not do that when called recursively
+	unless($directory){
 
-	$menu_objects->append( Gtk2::SeparatorMenuItem->new );
+		$menu_objects->append( Gtk2::SeparatorMenuItem->new );
 
-	#objects from session
-	my $session_menu_item = Gtk2::MenuItem->new_with_label( $self->{_d}->get("Import from session...") );
-	$session_menu_item->set_submenu( $self->import_from_session($button) );
-
-	$menu_objects->append($session_menu_item);
-
-	#objects from filesystem
-	my $filesystem_menu_item = Gtk2::MenuItem->new_with_label( $self->{_d}->get("Import from filesystem...") );
-	$filesystem_menu_item->signal_connect(
-		'activate' => sub {
-
-			my $fs = Gtk2::FileChooserDialog->new(
-				$self->{_d}->get("Choose file to open"), $self->{_drawing_window}, 'open',
-				'gtk-cancel' => 'reject',
-				'gtk-open'   => 'accept'
-			);
-
-			$fs->set_select_multiple(FALSE);
-
-			my $filter_all = Gtk2::FileFilter->new;
-			$filter_all->set_name( $self->{_d}->get("All compatible image formats") );
-			$fs->add_filter($filter_all);
-
-			foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
-				my $filter = Gtk2::FileFilter->new;
-				$filter->set_name( $_->{name} . " - " . $_->{description} );
-				foreach ( @{ $_->{extensions} } ) {
-					$filter->add_pattern( "*." . uc $_ );
-					$filter_all->add_pattern( "*." . uc $_ );
-					$filter->add_pattern( "*." . $_ );
-					$filter_all->add_pattern( "*." . $_ );
-				}
-				$fs->add_filter($filter);
-			}
-
-			if ( $ENV{'HOME'} ) {
-				$fs->set_current_folder( $ENV{'HOME'} );
-			}
-			my $fs_resp = $fs->run;
-
-			my $new_file;
-			if ( $fs_resp eq "accept" ) {
-				$new_file = $fs->get_filenames;
+		#objects from icontheme		
+		if (Gtk2->CHECK_VERSION( 2, 12, 0 )){
+			my $icontheme = Gtk2::IconTheme->get_default;
 			
-				eval{
-					$self->{_current_pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($new_file);	
-				};
-				#check if there is any error while loading this file
-				unless($@){
-					$self->{_current_pixbuf_filename} = $new_file;
-					$button->set_icon_widget(Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size($self->{_dicons}.'/draw-image.svg', Gtk2::IconSize->lookup('menu'))));
-					$button->show_all;
-					$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
-				}else{
-					my $response = $self->{_dialogs}->dlg_error_message( 
-						sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $new_file. "'"),
-						$self->{_d}->get( "There was an error opening the image." ),
-						undef, undef, undef,
-						undef, undef, undef,
-						$@
-					);
-					$self->abort_current_mode;											
-				}
-				
-				$fs->destroy();
-			} else {
-				$fs->destroy();
+			my $utheme_item = Gtk2::ImageMenuItem->new_with_label( $self->{_d}->get("Import from current theme...") );		
+			if($icontheme->has_icon('preferences-desktop-theme')){
+				$utheme_item->set_image(Gtk2::Image->new_from_icon_name( 'preferences-desktop-theme', 'menu' ));		
 			}
+			
+			$utheme_item->set_submenu( $self->import_from_utheme($icontheme, $button) );
+			
+			$menu_objects->append( $utheme_item );
 
+			$menu_objects->append( Gtk2::SeparatorMenuItem->new );
 		}
-	);
+		
+		#objects from session
+		my $session_menu_item = Gtk2::ImageMenuItem->new_with_label( $self->{_d}->get("Import from session...") );
+		$session_menu_item->set_image (Gtk2::Image->new_from_stock ('gtk-index', 'menu'));
+		$session_menu_item->set_submenu( $self->import_from_session($button) );
 
-	$menu_objects->append($filesystem_menu_item);
+		$menu_objects->append($session_menu_item);
+
+		#objects from filesystem
+		my $filesystem_menu_item = Gtk2::ImageMenuItem->new_with_label( $self->{_d}->get("Import from filesystem...") );
+		$filesystem_menu_item->set_image (Gtk2::Image->new_from_stock ('gtk-open', 'menu'));
+		$filesystem_menu_item->signal_connect(
+			'activate' => sub {
+
+				my $fs = Gtk2::FileChooserDialog->new(
+					$self->{_d}->get("Choose file to open"), $self->{_drawing_window}, 'open',
+					'gtk-cancel' => 'reject',
+					'gtk-open'   => 'accept'
+				);
+
+				$fs->set_select_multiple(FALSE);
+
+				my $filter_all = Gtk2::FileFilter->new;
+				$filter_all->set_name( $self->{_d}->get("All compatible image formats") );
+				$fs->add_filter($filter_all);
+
+				foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
+					my $filter = Gtk2::FileFilter->new;
+					$filter->set_name( $_->{name} . " - " . $_->{description} );
+					foreach ( @{ $_->{extensions} } ) {
+						$filter->add_pattern( "*." . uc $_ );
+						$filter_all->add_pattern( "*." . uc $_ );
+						$filter->add_pattern( "*." . $_ );
+						$filter_all->add_pattern( "*." . $_ );
+					}
+					$fs->add_filter($filter);
+				}
+
+				if ( $ENV{'HOME'} ) {
+					$fs->set_current_folder( $ENV{'HOME'} );
+				}
+				my $fs_resp = $fs->run;
+
+				my $new_file;
+				if ( $fs_resp eq "accept" ) {
+					$new_file = $fs->get_filenames;
+				
+					eval{
+						$self->{_current_pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($new_file);	
+					};
+					#check if there is any error while loading this file
+					unless($@){
+						$self->{_current_pixbuf_filename} = $new_file;
+						$button->set_icon_widget(Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size($self->{_dicons}.'/draw-image.svg', Gtk2::IconSize->lookup('menu'))));
+						$button->show_all;
+						$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
+					}else{
+						my $response = $self->{_dialogs}->dlg_error_message( 
+							sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $new_file. "'"),
+							$self->{_d}->get( "There was an error opening the image." ),
+							undef, undef, undef,
+							undef, undef, undef,
+							$@
+						);
+						$self->abort_current_mode;											
+					}
+					
+					$fs->destroy();
+				} else {
+					$fs->destroy();
+				}
+
+			}
+		);
+
+		$menu_objects->append($filesystem_menu_item);
+	
+	}
 
 	$button->show_all;
 	$menu_objects->show_all;
 
 	return $menu_objects;
+}
+
+sub import_from_utheme {
+	my $self 		= shift;
+	my $icontheme 	= shift;
+	my $button		= shift;
+
+	my $menu_ctxt = Gtk2::Menu->new;
+
+	foreach my $context (sort $icontheme->list_contexts){
+			
+		#objects from current theme (contexts)
+		my $utheme_ctxt = Gtk2::ImageMenuItem->new_with_label( $context );
+		$utheme_ctxt->set_image (Gtk2::Image->new_from_stock ('gtk-directory', 'menu'));
+		
+		#add empty menu first
+		my $menu_empty = Gtk2::Menu->new;
+		my $empty_item = Gtk2::MenuItem->new_with_label( $self->{_d}->get("No icon was found") );
+		$empty_item->set_sensitive(FALSE);
+		$menu_empty->append($empty_item);
+		$utheme_ctxt->set_submenu( $menu_empty );
+		
+		#and populate later (performance)
+		$utheme_ctxt->{'nid'} = $utheme_ctxt->signal_connect('enter-notify-event' => sub {
+				my $context_submenu = $self->import_from_utheme_ctxt($icontheme, $context, $button);
+				if($context_submenu->get_children){
+					$utheme_ctxt->set_submenu( $context_submenu );
+				}
+				return FALSE;
+			}
+		);
+		$utheme_ctxt->signal_connect('leave-notify-event' => sub {
+				if($utheme_ctxt->signal_handler_is_connected ($utheme_ctxt->{'nid'})){
+					$utheme_ctxt->signal_handler_disconnect($utheme_ctxt->{'nid'});
+				}
+			}
+		);
+		
+		$menu_ctxt->append($utheme_ctxt);
+
+	}
+
+	$menu_ctxt->show_all;
+
+	return $menu_ctxt;			
+}
+
+sub import_from_utheme_ctxt {
+	my $self 		= shift;
+	my $icontheme 	= shift;
+	my $context 	= shift;
+	my $button		= shift;
+	
+	my $menu_ctxt_items = Gtk2::Menu->new;
+
+	my @icons = $icontheme->list_icons($context);
+	foreach my $icon (sort @icons){
+		
+		#objects from current theme (icons for specific contexts)
+		my $utheme_ctxt_item = Gtk2::ImageMenuItem->new_with_label( $icon );
+
+		Glib::Idle->add (sub{
+			
+			my $size = Gtk2::IconSize->lookup('dialog');
+			
+			my $iconinfo = $icontheme->lookup_icon ($icon, $size, 'generic-fallback');
+			my $name = $iconinfo->get_filename;
+			
+			#create pixbufs
+			my $orig_pixbuf;
+			eval{
+				$orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($name);		
+			};
+			unless($@){
+				if($orig_pixbuf->get_width >= 16 && $orig_pixbuf->get_height >= 16){
+					my $small_image = Gtk2::Image->new_from_pixbuf( $orig_pixbuf->scale_down_pixbuf (Gtk2::IconSize->lookup('menu')));
+					$utheme_ctxt_item->set_image($small_image);
+
+					$utheme_ctxt_item->signal_connect(
+						'activate' => sub {					
+							my ($item) = @_;
+							$self->{_current_pixbuf} = $orig_pixbuf->copy;
+							$self->{_current_pixbuf_filename} = $name;
+							$button->set_icon_widget(Gtk2::Image->new_from_pixbuf($small_image->get_pixbuf));
+							$button->show_all;
+							$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
+						}
+					);
+				}else{
+					$utheme_ctxt_item->destroy;
+				}
+			}else{
+				$utheme_ctxt_item->destroy;
+			}
+		
+			return FALSE;
+		});
+		
+		$menu_ctxt_items->append($utheme_ctxt_item);	
+	}
+	
+	$menu_ctxt_items->show_all;
+
+	return $menu_ctxt_items;		
 }
 
 sub import_from_session {

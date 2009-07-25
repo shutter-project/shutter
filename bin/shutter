@@ -79,7 +79,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.563";
+use constant REV                	=> "Rev.564";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80.1";
 
@@ -6189,7 +6189,7 @@ sub dlg_status_message {
 	Glib::Source->remove ($session_start_screen{'first_page'}->{'statusbar_timer'}) if defined $session_start_screen{'first_page'}->{'statusbar_timer'};
 	$status1->push( $index, $status_text );
 
-	#...and remove it after 4 seconds
+	#...and remove it
 	$session_start_screen{'first_page'}->{'statusbar_timer'} = Glib::Timeout->add(
 		5000,
 		sub {
