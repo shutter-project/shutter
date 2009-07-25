@@ -3800,7 +3800,6 @@ sub handle_embedded {
 						'y'      => int $self->{_items}{$item}->get('y'),
 						'width'  => $self->{_items}{$item}->get('width'),
 						'height' => $self->{_items}{$item}->get('height'),
-						'pixbuf' => undef,
 						'visibility' => $visibilty,
 					);						
 				}
