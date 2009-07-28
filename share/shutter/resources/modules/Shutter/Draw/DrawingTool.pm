@@ -1254,51 +1254,52 @@ sub save_settings {
 	#settings file
 	my $settingsfile = "$ENV{ HOME }/.shutter/drawingtool.xml";
 
+	#hash to store settings
+	my %settings;
+
+	#window size and position
+	my ($w, $h) = $self->{_drawing_window}->get_size;
+	my ($x, $y) = $self->{_drawing_window}->get_position;
+	$settings{'drawing'}->{'x'} = $x;
+	$settings{'drawing'}->{'y'} = $y;
+	$settings{'drawing'}->{'width'} = $w;
+	$settings{'drawing'}->{'height'} = $h;
+	
+	#current action
+	#but don't save the crop tool as last action
+	#as it would be confusing to open the drawing tool 
+	#with crop tool enabled
+	if($self->{_current_mode_descr} ne "crop"){
+		$settings{'drawing'}->{'mode'} = $self->{_current_mode}; 
+	}else{
+		$settings{'drawing'}->{'mode'} = 10;
+	}
+
+	#autoscroll
+	my $autoscroll_toggle = $self->{_uimanager}->get_widget("/MenuBar/Edit/Autoscroll");
+	$settings{'drawing'}->{'autoscroll'} = $autoscroll_toggle->get_active();
+
+	#drawing colors
+	$settings{'drawing'}->{'fill_color'}
+		= sprintf( "#%04x%04x%04x", $self->{_fill_color}->red, $self->{_fill_color}->green, $self->{_fill_color}->blue );
+	$settings{'drawing'}->{'fill_color_alpha'} = $self->{_fill_color_alpha};
+	$settings{'drawing'}->{'stroke_color'}
+		= sprintf( "#%04x%04x%04x", $self->{_stroke_color}->red, $self->{_stroke_color}->green, $self->{_stroke_color}->blue );
+	$settings{'drawing'}->{'stroke_color_alpha'} = $self->{_stroke_color_alpha};
+
+	#line_width
+	$settings{'drawing'}->{'line_width'} = $self->{_line_width};
+
+	#font
+	$settings{'drawing'}->{'font'} = $self->{_font};
+
 	eval {
-		open( SETTFILE, ">$settingsfile" );
 
-		my %settings;    #hash to store settings
-
-		#window size and position
-		my ($w, $h) = $self->{_drawing_window}->get_size;
-		my ($x, $y) = $self->{_drawing_window}->get_position;
-		$settings{'drawing'}->{'x'} = $x;
-		$settings{'drawing'}->{'y'} = $y;
-		$settings{'drawing'}->{'width'} = $w;
-		$settings{'drawing'}->{'height'} = $h;
-		
-		#current action
-		#but don't save the crop tool as last action
-		#as it would be confusing to open the drawing tool 
-		#with crop tool enabled
-		if($self->{_current_mode_descr} ne "crop"){
-			$settings{'drawing'}->{'mode'} = $self->{_current_mode}; 
-		}else{
-			$settings{'drawing'}->{'mode'} = 10;
-		}
-
-		#autoscroll
-		my $autoscroll_toggle = $self->{_uimanager}->get_widget("/MenuBar/Edit/Autoscroll");
-		$settings{'drawing'}->{'autoscroll'} = $autoscroll_toggle->get_active();
-
-		#drawing colors
-		$settings{'drawing'}->{'fill_color'}
-			= sprintf( "#%04x%04x%04x", $self->{_fill_color}->red, $self->{_fill_color}->green, $self->{_fill_color}->blue );
-		$settings{'drawing'}->{'fill_color_alpha'} = $self->{_fill_color_alpha};
-		$settings{'drawing'}->{'stroke_color'}
-			= sprintf( "#%04x%04x%04x", $self->{_stroke_color}->red, $self->{_stroke_color}->green, $self->{_stroke_color}->blue );
-		$settings{'drawing'}->{'stroke_color_alpha'} = $self->{_stroke_color_alpha};
-
-		#line_width
-		$settings{'drawing'}->{'line_width'} = $self->{_line_width};
-
-		#font
-		$settings{'drawing'}->{'font'} = $self->{_font};
-
-		#settings
+		#save to file
+		open( SETTFILE, ">$settingsfile" ) or die $!;
 		print SETTFILE XMLout( \%settings );
-
-		close(SETTFILE);
+		close(SETTFILE) or die $!;
+		
 	};
 	if ($@) {
 		warn "ERROR: Settings of DrawingTool could not be saved: $@ - ignoring\n";

@@ -59,6 +59,9 @@ my $width     = $ARGV[2];
 my $height    = $ARGV[3];
 my $filetype  = $ARGV[4];
 
+#decode filename
+utf8::decode $filename;
+
 my $plug = Gtk2::Plug->new($socket_id);
 $plug->set_border_width(10);
 

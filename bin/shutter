@@ -38,7 +38,7 @@ use Gnome2::VFS '-init';
 Gnome2::AuthenticationManager->init;
 
 #File operations
-use File::Copy "cp";
+use File::Copy qw/ cp mv /;
 use File::Path qw/ rmtree /;
 use File::Glob qw/ glob /;
 use File::Basename qw / fileparse dirname /;
@@ -80,7 +80,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.569";
+use constant REV                	=> "Rev.570";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80.1";
 
@@ -360,9 +360,10 @@ unless ( $shutter_common->get_disable_systray ) {
 	#do this when idle
 	Glib::Idle->add (
 	sub{
-
+		
 		if ( Gtk2->CHECK_VERSION( 2, 10, 0 ) ) {
 			$icon = Gtk2::StatusIcon->new();
+			
 			$icon->set_from_file("$shutter_root/share/pixmaps/shutter.svg");
 			$icon->set_visible(1);
 			$icon->signal_connect(
@@ -380,8 +381,10 @@ unless ( $shutter_common->get_disable_systray ) {
 		} else {
 			require Gtk2::TrayIcon;
 			$icon = Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/pixmaps/shutter.svg", 24, 24 ) );
+			
 			my $eventbox = Gtk2::EventBox->new;
 			$eventbox->add($icon);
+			
 			my $tray = Gtk2::TrayIcon->new('shutter TrayIcon');
 			$tray->add($eventbox);
 			$tooltips->set_tip( $tray, SHUTTER_NAME . " " . SHUTTER_VERSION );
@@ -2381,13 +2384,17 @@ sub fct_add_file_monitor {
 sub fct_control_main_window {
 	my $set = shift;
 	my $mode = shift;
-
+	
 	#set all buttons insensitive/sensitive
-	$shutter_tool->{_select}->set_sensitive($set);
-	$shutter_tool->{_full}->set_sensitive($set);
-	$shutter_tool->{_window}->set_sensitive($set);
-	$shutter_tool->{_section}->set_sensitive($set);
-	$shutter_tool->{_web}->set_sensitive($set) if ($gnome_web_photo);
+	if($shutter_tool->{_select}){
+		$shutter_tool->{_select}->set_sensitive($set);
+		$shutter_tool->{_full}->set_sensitive($set);
+		$shutter_tool->{_window}->set_sensitive($set);
+		$shutter_tool->{_section}->set_sensitive($set);
+		$shutter_tool->{_web}->set_sensitive($set) if ($gnome_web_photo);
+	}else{
+		return FALSE;	
+	}
 	
 	#hide or show window
 	if($mode eq 'show'){
@@ -2417,8 +2424,10 @@ sub fct_control_main_window {
 		#to automatically adjust the main window width
 		#we change the setting to TRUE if it is still false, 
 		#so the window/toolbar is resizable again
-		unless($shutter_tool->{_toolbar}->get_show_arrow){
-			$shutter_tool->{_toolbar}->set_show_arrow(TRUE);
+		if($shutter_tool->{_toolbar}){
+			unless($shutter_tool->{_toolbar}->get_show_arrow){
+				$shutter_tool->{_toolbar}->set_show_arrow(TRUE);
+			}
 		}
 	
 	}elsif($mode eq 'hide'){
@@ -2640,28 +2649,17 @@ sub fct_save_settings {
 			if ( $profilename ne "" );
 	}
 
-	open my $fh_setting, '>', $settingsfile
-		or $shutter_dialog->dlg_error_message( $!, $d->get("Settings could not be saved!") );
-
 	#we store the version info, so we know if there was a new version installed
 	#when starting new version we clear the cache on first startup
 	$settings{'general'}->{'app_version'} = SHUTTER_VERSION . REV;
 
 	$settings{'general'}->{'last_profile'}      = $combobox_settings_profiles->get_active;
-	$settings{'general'}->{'last_profile_name'} = $combobox_settings_profiles->get_active_text
-		|| "";
-
-	utf8::encode $settings{'general'}->{'last_profile_name'};
+	$settings{'general'}->{'last_profile_name'} = $combobox_settings_profiles->get_active_text || "";
 
 	$settings{'general'}->{'filetype'} = $combobox_type->get_active;
 	$settings{'general'}->{'quality'}  = $scale->get_value();
 	$settings{'general'}->{'filename'} = $filename->get_text();
-
-	utf8::encode $settings{'general'}->{'filename'};
-
 	$settings{'general'}->{'folder'} = $saveDir_button->get_filename();
-
-	utf8::encode $settings{'general'}->{'folder'};
 
 	#wrksp -> submenu
 	$settings{'general'}->{'current_monitor_active'} = $current_monitor_active->get_active;
@@ -2701,7 +2699,6 @@ sub fct_save_settings {
 	if ( defined $progname_iter ) {
 		my $progname_value = $model->get_value( $progname_iter, 1 );
 		$settings{'general'}->{'prog'} = $progname_value;
-		utf8::encode $settings{'general'}->{'prog'};
 	}
 
 	$settings{'general'}->{'prog_active'}      = $progname_active->get_active();
@@ -2723,19 +2720,11 @@ sub fct_save_settings {
 	$settings{'general'}->{'capture_key'}      = $capture_key->get_text();
 	$settings{'general'}->{'capture_sel_key'}  = $capture_sel_key->get_text();
 
-	utf8::encode $settings{'general'}->{'capture_key'} ;
-	utf8::encode $settings{'general'}->{'capture_sel_key'};
-
 	#ftp upload
 	$settings{'general'}->{'ftp_uri'}      = $ftp_remote_entry->get_text();
 	$settings{'general'}->{'ftp_mode'}     = $ftp_mode_combo->get_active();
 	$settings{'general'}->{'ftp_username'} = $ftp_username_entry->get_text();
 	$settings{'general'}->{'ftp_password'} = $ftp_password_entry->get_text();
-	
-	utf8::encode $settings{'general'}->{'ftp_uri'};
-	utf8::encode $settings{'general'}->{'ftp_mode'};
-	utf8::encode $settings{'general'}->{'ftp_username'};
-	utf8::encode $settings{'general'}->{'ftp_password'};
 	
 	#plugins
 	foreach my $plugin_key ( sort keys %plugins ) {	
@@ -2751,27 +2740,20 @@ sub fct_save_settings {
 		$settings{'plugins'}->{$plugin_key}->{'tooltip'}     = $temp_tooltip;
 		$settings{'plugins'}->{$plugin_key}->{'lang'}        = $plugins{$plugin_key}->{'lang'};
 		$settings{'plugins'}->{$plugin_key}->{'recent'}      = $plugins{$plugin_key}->{'recent'} if defined $plugins{$plugin_key}->{'recent'};
-		utf8::encode $settings{'plugins'}->{$plugin_key}->{'name'};
-		utf8::encode $settings{'plugins'}->{$plugin_key}->{'binary'};
-		utf8::encode $settings{'plugins'}->{$plugin_key}->{'name_plugin'};
-		utf8::encode $settings{'plugins'}->{$plugin_key}->{'category'};
-		utf8::encode $settings{'plugins'}->{$plugin_key}->{'tooltip'};
-		utf8::encode $settings{'plugins'}->{$plugin_key}->{'lang'};	
 	}
 
 	#settings
 	eval {
-		XMLout( \%settings, OutputFile => $fh_setting);
-		$fh_setting->close();
-		&dlg_status_message( 1, $d->get("Settings saved successfully!") );
+		my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
+		XMLout( \%settings, OutputFile => $tmpfilename);
+		#and finally move the file
+		mv($tmpfilename, $settingsfile);
 	};
 	if ($@) {
 		$shutter_dialog->dlg_error_message( $@, $d->get("Settings could not be saved!") );
+	}else{
+		&dlg_status_message( 1, $d->get("Settings saved successfully!") );
 	}
-
-	#session
-	open my $fh_session, '>', $sessionfile
-		or $shutter_dialog->dlg_error_message( $!, $d->get("Session could not be saved!") );
 
 	#we need to clean the hashkeys, so they become parseable
 	my %clean_files;
@@ -2780,43 +2762,38 @@ sub fct_save_settings {
 
 		next unless exists $session_screens{$_}->{'long'};
 
-		#encode filename
-		my $utf8_filename = $session_screens{$_}->{'long'};
-		utf8::encode $utf8_filename;
-
 		#8 leading zeros to counter
 		$counter = sprintf( "%08d", $counter );
 		if ( $shutter_hfunct->file_exists( $session_screens{$_}->{'long'} ) ) {
-			$clean_files{ "file" . $counter }{'filename'} = $utf8_filename;
+			$clean_files{ "file" . $counter }{'filename'} = $session_screens{$_}->{'long'};
 			$counter++;
 		}
 	}
-
+	
+	#session
 	eval {
-		XMLout( \%clean_files, OutputFile => $fh_session );
-		$fh_session->close();
+		my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);	
+		XMLout( \%clean_files, OutputFile => $tmpfilename );
+		#and finally move the file
+		mv($tmpfilename, $sessionfile);
 	};
 	if ($@) {
 		$shutter_dialog->dlg_error_message( $@, $d->get("Session could not be saved!") );
 	}
 
 	#accounts
-	open my $fh_accounts, '>', $accountsfile
-		or $shutter_dialog->dlg_error_message( $!, $d->get("Account-settings could not be saved!") );
-
 	my %clean_accounts;
 	foreach ( keys %accounts ) {
 		$clean_accounts{$_}->{'host'} 			= $accounts{$_}->{'host'};
 		$clean_accounts{$_}->{'password'} 		= $accounts{$_}->{'password'};
 		$clean_accounts{$_}->{'username'} 		= $accounts{$_}->{'username'};
-		utf8::encode $clean_accounts{$_}->{'host'};
-		utf8::encode $clean_accounts{$_}->{'password'};
-		utf8::encode $clean_accounts{$_}->{'username'};
 	}
 
 	eval {
-		XMLout( \%clean_accounts, OutputFile => $fh_accounts );
-		$fh_accounts->close();
+		my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);	
+		XMLout( \%clean_accounts, OutputFile => $tmpfilename );
+		#and finally move the file
+		mv($tmpfilename, $accountsfile);
 	};
 	if ($@) {
 		$shutter_dialog->dlg_error_message( $@, $d->get("Account-settings could not be saved!") );
@@ -2832,13 +2809,13 @@ sub fct_save_bindings {
 	my $key 	= shift;
 	my $skey 	= shift;
 	
-	#COMPIZ VIA DBus	
-	my $bus		= undef;
-	my $compiz 	= undef;
-	my $cs 		= undef;
-	my $cs_k  	= undef;
-	my $cws     = undef;
-	my $cws_k  	= undef;
+	#~ #COMPIZ VIA DBus	
+	#~ my $bus		= undef;
+	#~ my $compiz 	= undef;
+	#~ my $cs 		= undef;
+	#~ my $cs_k  	= undef;
+	#~ my $cws     = undef;
+	#~ my $cws_k  	= undef;
 	
 	#~ eval{
 		#~ $bus = Net::DBus->find;
@@ -3372,7 +3349,7 @@ sub fct_load_session {
 
 		#refresh tray icon
 		if ( $icon && $icon->isa('Gtk2::StatusIcon') ) {
-			$icon->set_blinking(FALSE);
+			$icon->set_blinking(FALSE);			
 		}
 
 	};
@@ -4762,7 +4739,7 @@ sub fct_update_tab {
 					$session_screens{$key}->{'width'}  = $pixbuf->get_width;
 					$session_screens{$key}->{'height'} = $pixbuf->get_height;
 
-					#create tempfilem
+					#create tempfile
 					#maybe we have to restore the file later
 					my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
 					$session_screens{$key}->{'temp'} = $tmpfilename;				
@@ -4937,7 +4914,6 @@ sub fct_check_installed_programs {
 		my $progname_value;
 		if ( defined $progname_iter ) {
 			$progname_value = $model->get_value( $progname_iter, 1 );
-			utf8::encode $progname_value;
 		}
 
 		#rebuild model with new hash of installed programs...
