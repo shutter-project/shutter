@@ -157,9 +157,9 @@ sub new {
     #~ print "$self dying at\n";
 #~ } 
 
-#~ 1;
-#~ 
-#~ __DATA__
+1;
+
+__DATA__
 
 sub show {
 	my $self        	  = shift;
@@ -1101,8 +1101,6 @@ sub quit {
 	mkdir("$ENV{ 'HOME' }/.shutter")
 		unless ( -d "$ENV{ 'HOME' }/.shutter" );
 
-	$self->save_settings;
-
 	if ( $show_warning && scalar( keys %{ $self->{_items} } ) > 0 ) {
 
 		#warn the user if there are any unsaved changes
@@ -1157,6 +1155,8 @@ sub quit {
 		$warn_dialog->destroy;
 
 	}
+	
+	$self->save_settings;
 	
 	if($self->{_selector_handler}){	
 		$self->{_selector}->signal_handler_disconnect ($self->{_selector_handler});
@@ -1359,7 +1359,7 @@ sub save {
 		$self->handle_bg_rects('show');
 		return $pixbuf ;
 	}
-	
+		
 	#save pixbuf to file
 	my $pixbuf_save = Shutter::Pixbuf::Save->new( $self->{_shutter_common}, $self->{_drawing_window} );
 	return $pixbuf_save->save_pixbuf_to_file($pixbuf, $self->{_filename}, $self->{_filename}, $self->{_filetype});

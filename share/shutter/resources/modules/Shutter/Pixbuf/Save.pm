@@ -76,7 +76,7 @@ sub save_pixbuf_to_file {
 	#we have two main ways of saving file
 	#when possible we try to use all supported formats of the gdk-pixbuf libs
 	#currently this is bmp, jpeg, png and ico (ico is not useful here)
-	my $imagemagick_result = 0;
+	my $imagemagick_result = undef;
 	if ( $filetype eq 'jpeg' ) {
 		$quality = '100' unless $quality;
 		eval{
@@ -154,9 +154,9 @@ sub use_imagemagick_to_save {
 	my $file = shift;
 	my $new_file = shift;
 	
-	my $result = `convert $file $new_file`;
+	my $result = `convert $file $new_file 2>&1`;
 		
-	return FALSE;
+	return $result;
 }
 
 1;
