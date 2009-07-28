@@ -154,6 +154,10 @@ sub use_imagemagick_to_save {
 	my $file = shift;
 	my $new_file = shift;
 	
+	#escape filenames first
+	$file = quotemeta $file;
+	$new_file = quotemeta $new_file;
+	
 	my $result = `convert $file $new_file 2>&1`;
 		
 	return $result;
