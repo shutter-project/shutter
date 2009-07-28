@@ -80,7 +80,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.568";
+use constant REV                	=> "Rev.569";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80.1";
 
@@ -4507,14 +4507,10 @@ sub fct_save_as {
 				$choosen_format =~ s/ \-.*//;    #get png or jpeg for example
 				#~ print $choosen_format . "\n";
 
-				unless ( $filename =~ /.*\.$choosen_format$/ ) {
-					$filename =~ s/\..*$/\.$choosen_format/;
-				}
-
 				#parse filename
 				my ( $short, $folder, $ext ) = fileparse( $filename, '\..*' );
 
-				$fs->set_current_name( $short . $ext );
+				$fs->set_current_name( $short . "." . $choosen_format );
 			}
 		);
 
@@ -4540,9 +4536,7 @@ sub fct_save_as {
 			my $choosen_format = $combobox_save_as_type->get_active_text;
 			$choosen_format =~ s/ \-.*//;    #get png or jpeg for example
 
-			unless ( $filename =~ /.*\.$choosen_format$/ ) {
-				$filename .= "." . $choosen_format;
-			}
+			$filename = $folder . $short . "." . $choosen_format;
 
 			unless ( $shutter_hfunct->file_exists($filename) ) {
 				#save as (pixbuf, new_filename, filetype, quality - auto here, old_filename)
