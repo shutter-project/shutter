@@ -80,7 +80,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.572";
+use constant REV                	=> "Rev.573";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80.1";
 
@@ -341,10 +341,23 @@ $shutter_menu->{_menuitem_upload}->signal_connect( 'activate', \&fct_upload );
 $shutter_menu->{_menuitem_draw}->signal_connect( 'activate', \&fct_draw );
 $shutter_menu->{_menuitem_plugin}->signal_connect( 'activate', \&fct_plugin );
 
-$shutter_menu->{_menuitem_back}->signal_connect( 'activate', \&evt_navigate, 'previous' );
-$shutter_menu->{_menuitem_forward}->signal_connect( 'activate', \&evt_navigate, 'forward' );
-$shutter_menu->{_menuitem_first}->signal_connect( 'activate', \&evt_navigate, 'first' );
-$shutter_menu->{_menuitem_last}->signal_connect( 'activate', \&evt_navigate, 'last' );
+$shutter_menu->{_menuitem_back}->signal_connect( 'activate' => sub {
+		$notebook->prev_page;
+	}
+);
+$shutter_menu->{_menuitem_forward}->signal_connect( 'activate' => sub{
+		$notebook->next_page;
+	}
+);
+$shutter_menu->{_menuitem_first}->signal_connect( 'activate' => sub {
+		$notebook->set_current_page(0);
+	}
+);
+$shutter_menu->{_menuitem_last}->signal_connect( 'activate' => sub {
+		$notebook->set_current_page( $notebook->get_n_pages - 1 );
+	}
+);
+	
 $shutter_menu->{_menuitem_question}->signal_connect( 'activate', \&evt_question, $window );
 $shutter_menu->{_menuitem_translate}->signal_connect( 'activate', \&evt_translate, $window );
 $shutter_menu->{_menuitem_bug}->signal_connect( 'activate', \&evt_bug, $window );
@@ -406,7 +419,6 @@ my $hbox_settings       = Gtk2::HBox->new( FALSE, 12 );
 my $vbox_basic          = Gtk2::VBox->new( FALSE, 12 );
 my $vbox_extras         = Gtk2::VBox->new( FALSE, 12 );
 my $vbox_behavior       = Gtk2::VBox->new( FALSE, 12 );
-my $vbox_plugins        = Gtk2::VBox->new( FALSE, 12 );
 my $vbox_accounts       = Gtk2::VBox->new( FALSE, 12 );
 my $file_vbox           = Gtk2::VBox->new( FALSE, 0 );
 my $save_vbox           = Gtk2::VBox->new( FALSE, 0 );
@@ -1102,6 +1114,7 @@ if ( $progname->get_active == -1 ) {
 }
 
 my $progname_active = Gtk2::CheckButton->new;
+$progname_active->set_active(TRUE);
 $progname_active->signal_connect(
 	'toggled' => \&evt_value_changed,
 	'progname_toggled'
@@ -1308,21 +1321,6 @@ $ftp_hbox4->pack_start( $ftp_password_entry, TRUE,  TRUE, 0 );
 
 #--------------------------------------
 
-#plugins
-#--------------------------------------
-my $effects_model = undef;
-&fct_load_plugin_tree;
-
-my $effects_tree = Gtk2::TreeView->new_with_model($effects_model);
-$effects_tree->signal_connect(
-	'row-activated' => \&evt_plugins,
-	'row_activated'
-);
-
-&fct_set_model_plugins($effects_tree);
-
-#--------------------------------------
-
 #packing
 #--------------------------------------
 
@@ -1450,26 +1448,35 @@ $vbox_accounts->pack_start( $ftp_frame,      FALSE, TRUE, 3 );
 $vbox_accounts->set_border_width(5);
 
 #append pages to notebook
-my $notebook_settings_first  = $notebook_settings->append_page( $vbox_basic,    $label_basic );
-my $notebook_settings_second = $notebook_settings->append_page( $vbox_extras,   $label_extras );
-my $notebook_settings_third  = $notebook_settings->append_page( $vbox_behavior, $label_behavior );
-my $notebook_settings_fourth = $notebook_settings->append_page( $vbox_accounts, $label_accounts );
+$notebook_settings->append_page( $vbox_basic,    $label_basic );
+$notebook_settings->append_page( $vbox_extras,   $label_extras );
+$notebook_settings->append_page( $vbox_behavior, $label_behavior );
+$notebook_settings->append_page( $vbox_accounts, $label_accounts );
 
 #plugins
 if ( keys(%plugins) > 0 ) {
+
+	my $effects_tree = Gtk2::TreeView->new_with_model(&fct_load_plugin_tree);
+	&fct_set_model_plugins($effects_tree);	
+	
 	my $scrolled_plugins_window = Gtk2::ScrolledWindow->new;
 	$scrolled_plugins_window->set_policy( 'automatic', 'automatic' );
 	$scrolled_plugins_window->set_shadow_type('in');
 	$scrolled_plugins_window->add($effects_tree);
+	
 	my $label_plugins = Gtk2::Label->new;
 	$label_plugins->set_markup( $shutter_common->get_gettext->get("Plugins") );
+	
 	my $label_treeview = Gtk2::Label->new( $shutter_common->get_gettext->get("The following plugins are installed") );
 	$label_treeview->set_alignment( 0, 0.5 );
 	$effects_vbox->pack_start( $label_treeview,          FALSE, TRUE, 1 );
 	$effects_vbox->pack_start( $scrolled_plugins_window, TRUE,  TRUE, 1 );
-	$vbox_plugins->pack_start( $effects_vbox,            TRUE,  TRUE, 1 );
+	
+	my $vbox_plugins = Gtk2::VBox->new( FALSE, 12 );
 	$vbox_plugins->set_border_width(5);
-	my $notebook_settings_fifth = $notebook_settings->append_page( $vbox_plugins, $label_plugins );
+	$vbox_plugins->pack_start( $effects_vbox,            TRUE,  TRUE, 1 );
+	
+	$notebook_settings->append_page( $vbox_plugins, $label_plugins );
 }
 
 #profiles
@@ -1537,22 +1544,6 @@ Gtk2->main;
 
 #events
 #--------------------------------------
-sub evt_navigate {
-	my ( $widget, $data ) = @_;
-	print "\n$data was emitted by widget $widget\n"
-		if $shutter_common->get_debug;
-	if ( $data eq "first" ) {
-		$notebook->set_current_page(0);
-	} elsif ( $data eq "last" ) {
-		$notebook->set_current_page( $notebook->get_n_pages - 1 );
-	} elsif ( $data eq "previous" ) {
-		$notebook->prev_page;
-	} elsif ( $data eq "forward" ) {
-		$notebook->next_page;
-	}
-	return 1;
-}
-
 sub evt_value_changed {
 	my ( $widget, $data ) = @_;
 	print "\n$data was emitted by widget $widget\n"
@@ -1895,13 +1886,6 @@ sub evt_activate_systray_statusicon {
 		&fct_control_main_window (TRUE, 'show');
 	}
 
-	return TRUE;
-}
-
-sub evt_plugins {
-	my ( $tree, $path, $column ) = @_;
-
-	#nothing to do here right now...
 	return TRUE;
 }
 
@@ -5817,7 +5801,7 @@ sub fct_load_accounts_tree {
 
 sub fct_load_plugin_tree {
 
-	$effects_model = Gtk2::ListStore->new(
+	my $effects_model = Gtk2::ListStore->new(
 		'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String', 
 		'Glib::String', 'Glib::String', 'Glib::String', 
 		'Glib::String',
@@ -5856,7 +5840,7 @@ sub fct_load_plugin_tree {
 		}
 	}
 
-	return TRUE;
+	return $effects_model;
 }
 
 sub fct_set_model_accounts {
@@ -5937,10 +5921,10 @@ sub fct_set_model_accounts {
 sub fct_set_model_plugins {	
 	my $effects_tree = $_[0];
 
-	my @columns = $effects_tree->get_columns;
-	foreach (@columns) {
-		$effects_tree->remove_column($_);
-	}
+	#~ my @columns = $effects_tree->get_columns;
+	#~ foreach (@columns) {
+		#~ $effects_tree->remove_column($_);
+	#~ }
 
 	#icon
 	$effects_tree->set_tooltip_column(3)
