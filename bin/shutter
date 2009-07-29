@@ -3147,13 +3147,19 @@ sub fct_get_program_model {
 			#I think so ;-)
 			$app->{'id'} =~ s/^(kde4|kde)-//g;
 			if($mapp->{'file'} =~ m/$app->{'id'}/){
-				my $icon_name = $mapp->Icon;
-				#cut image formats
-				$icon_name =~ s/(.png|.svg|.gif|.jpeg|.jpg)//g;				
 				my $icon_pixbuf;
-				if ( $icontheme->has_icon( $icon_name ) ) {
-					my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
-					$icon_pixbuf = $icontheme->load_icon( $icon_name, $ih, 'generic-fallback' );
+				my $icon_name = $mapp->Icon;
+				if($icon_name){
+					#cut image formats
+					$icon_name =~ s/(.png|.svg|.gif|.jpeg|.jpg)//g;				
+					if ( $icontheme->has_icon( $icon_name ) ) {
+						my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
+						$icon_pixbuf = $icontheme->load_icon( $icon_name, $ih, 'generic-fallback' );
+					}else{
+						$icon_pixbuf = undef;	
+					}
+				}else{
+					$icon_pixbuf = undef;
 				}
 				$model->set( $model->append, 0, $icon_pixbuf, 1, $app->{'name'}, 2, $mapp );
 				last;
@@ -5672,12 +5678,14 @@ sub fct_ret_program_menu {
 		#match found!
 		if ($oapp){
 			my $icon_name = $oapp->Icon;
-			#cut image formats
-			$icon_name =~ s/(.png|.svg|.gif|.jpeg|.jpg)//g;
-			if ( $icontheme->has_icon( $icon_name ) ) {
-				my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
-				my $icon_pixbuf = $icontheme->load_icon( $icon_name, $ih, 'generic-fallback' );
-				$program_item->set_image( Gtk2::Image->new_from_pixbuf($icon_pixbuf) );
+			if($icon_name){
+				#cut image formats
+				$icon_name =~ s/(.png|.svg|.gif|.jpeg|.jpg)//g;
+				if ( $icontheme->has_icon( $icon_name ) ) {
+					my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
+					my $icon_pixbuf = $icontheme->load_icon( $icon_name, $ih, 'generic-fallback' );
+					$program_item->set_image( Gtk2::Image->new_from_pixbuf($icon_pixbuf) );
+				}
 			}
 			my $hid = $program_item->signal_connect(
 				'activate' => sub {
