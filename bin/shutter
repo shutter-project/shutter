@@ -80,7 +80,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.574";
+use constant REV                	=> "Rev.575";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80.1";
 
@@ -276,7 +276,7 @@ my $status2 = Gtk2::Statusbar->new;
 #arrange settings in notebook
 my $notebook_settings = Gtk2::Notebook->new;
 my $settings_dialog   = Gtk2::Dialog->new(
-	SHUTTER_NAME . " - " . $shutter_common->get_gettext->get("Preferences"),
+	SHUTTER_NAME . " - " . $d->get("Preferences"),
 	$window,
 	[qw/modal destroy-with-parent/],
 	'gtk-close' => 'close'
@@ -458,7 +458,7 @@ my $key_sel_box2        = Gtk2::HBox->new( FALSE, 0 );
 my $border_box          = Gtk2::HBox->new( FALSE, 0 );
 my $cursor_box          = Gtk2::HBox->new( FALSE, 0 );
 
-my $profiles_label = Gtk2::Label->new( $shutter_common->get_gettext->get("Profile") . ":" );
+my $profiles_label = Gtk2::Label->new( $d->get("Profile") . ":" );
 
 #load settings
 #--------------------------------------
@@ -563,7 +563,7 @@ foreach ( sort glob("$ENV{'HOME'}/.shutter/profiles/*.xml") ) {
 	push( @current_profiles, $last_profile_name );
 	$current_index++;
 }
-$tooltips->set_tip( $combobox_settings_profiles, $shutter_common->get_gettext->get("Choose a profile") );
+$tooltips->set_tip( $combobox_settings_profiles, $d->get("Choose a profile") );
 
 #set 0 if nothing is selected yet
 if ( !$combobox_settings_profiles->get_active_text ) {
@@ -582,7 +582,7 @@ $button_profile_save->signal_connect(
 	}
 );
 $button_profile_save->set_image( Gtk2::Image->new_from_stock( 'gtk-save', 'button' ) );
-$tooltips->set_tip( $button_profile_save, $shutter_common->get_gettext->get("Save configuration as profile") );
+$tooltips->set_tip( $button_profile_save, $d->get("Save configuration as profile") );
 
 my $button_profile_delete = Gtk2::Button->new;
 $button_profile_delete->signal_connect(
@@ -592,7 +592,7 @@ $button_profile_delete->signal_connect(
 	}
 );
 $button_profile_delete->set_image( Gtk2::Image->new_from_stock( 'gtk-delete', 'button' ) );
-$tooltips->set_tip( $button_profile_delete, $shutter_common->get_gettext->get("Delete profile") );
+$tooltips->set_tip( $button_profile_delete, $d->get("Delete profile") );
 my $button_profile_apply = Gtk2::Button->new;
 $button_profile_apply->signal_connect(
 	'clicked' => sub {
@@ -601,7 +601,7 @@ $button_profile_apply->signal_connect(
 	}
 );
 $button_profile_apply->set_image( Gtk2::Image->new_from_stock( 'gtk-apply', 'button' ) );
-$tooltips->set_tip( $button_profile_apply, $shutter_common->get_gettext->get("Set profile for current configuration") );
+$tooltips->set_tip( $button_profile_apply, $d->get("Set profile for current configuration") );
 
 #--------------------------------------
 
@@ -609,56 +609,56 @@ $tooltips->set_tip( $button_profile_apply, $shutter_common->get_gettext->get("Se
 #frames and label for settings dialog
 #--------------------------------------
 my $file_frame_label = Gtk2::Label->new;
-$file_frame_label->set_markup( "<b>" . $shutter_common->get_gettext->get("Image format") . "</b>" );
+$file_frame_label->set_markup( "<b>" . $d->get("Image format") . "</b>" );
 
 my $file_frame = Gtk2::Frame->new();
 $file_frame->set_label_widget($file_frame_label);
 $file_frame->set_shadow_type('none');
 
 my $save_frame_label = Gtk2::Label->new;
-$save_frame_label->set_markup( "<b>" . $shutter_common->get_gettext->get("Save") . "</b>" );
+$save_frame_label->set_markup( "<b>" . $d->get("Save") . "</b>" );
 
 my $save_frame = Gtk2::Frame->new();
 $save_frame->set_label_widget($save_frame_label);
 $save_frame->set_shadow_type('none');
 
 my $behavior_frame_label = Gtk2::Label->new;
-$behavior_frame_label->set_markup( "<b>" . $shutter_common->get_gettext->get("Behavior") . "</b>" );
+$behavior_frame_label->set_markup( "<b>" . $d->get("Behavior") . "</b>" );
 
 my $behavior_frame = Gtk2::Frame->new();
 $behavior_frame->set_label_widget($behavior_frame_label);
 $behavior_frame->set_shadow_type('none');
 
 my $keybinding_frame_label = Gtk2::Label->new;
-$keybinding_frame_label->set_markup( "<b>" . $shutter_common->get_gettext->get("Gnome-Keybinding") . "</b>" );
+$keybinding_frame_label->set_markup( "<b>" . $d->get("Gnome-Keybinding") . "</b>" );
 
 my $keybinding_frame = Gtk2::Frame->new();
 $keybinding_frame->set_label_widget($keybinding_frame_label);
 $keybinding_frame->set_shadow_type('none');
 
 my $actions_frame_label = Gtk2::Label->new;
-$actions_frame_label->set_markup( "<b>" . $shutter_common->get_gettext->get("Actions") . "</b>" );
+$actions_frame_label->set_markup( "<b>" . $d->get("Actions") . "</b>" );
 
 my $actions_frame = Gtk2::Frame->new();
 $actions_frame->set_label_widget($actions_frame_label);
 $actions_frame->set_shadow_type('none');
 
 my $capture_frame_label = Gtk2::Label->new;
-$capture_frame_label->set_markup( "<b>" . $shutter_common->get_gettext->get("Capture") . "</b>" );
+$capture_frame_label->set_markup( "<b>" . $d->get("Capture") . "</b>" );
 
 my $capture_frame = Gtk2::Frame->new();
 $capture_frame->set_label_widget($capture_frame_label);
 $capture_frame->set_shadow_type('none');
 
 my $accounts_frame_label = Gtk2::Label->new;
-$accounts_frame_label->set_markup( "<b>" . $shutter_common->get_gettext->get("Accounts") . "</b>" );
+$accounts_frame_label->set_markup( "<b>" . $d->get("Accounts") . "</b>" );
 
 my $accounts_frame = Gtk2::Frame->new();
 $accounts_frame->set_label_widget($accounts_frame_label);
 $accounts_frame->set_shadow_type('none');
 
 my $ftp_frame_label = Gtk2::Label->new;
-$ftp_frame_label->set_markup( "<b>" . $shutter_common->get_gettext->get("File Transfer Protocol (FTP)") . "</b>" );
+$ftp_frame_label->set_markup( "<b>" . $d->get("File Transfer Protocol (FTP)") . "</b>" );
 
 my $ftp_frame = Gtk2::Frame->new();
 $ftp_frame->set_label_widget($ftp_frame_label);
@@ -666,7 +666,7 @@ $ftp_frame->set_shadow_type('none');
 
 #delay
 #--------------------------------------
-my $delay_label = Gtk2::Label->new( $shutter_common->get_gettext->get("Delay") . ":" );
+my $delay_label = Gtk2::Label->new( $d->get("Delay") . ":" );
 my $delay = Gtk2::HScale->new_with_range( 1, 10, 1 );
 $delay->signal_connect(
 	'value-changed' => \&evt_value_changed,
@@ -691,9 +691,9 @@ if ( defined $settings_xml->{'general'}->{'delay_active'} ) {
 } else {
 	$delay_active->set_active(FALSE);
 }
-$tooltips->set_tip( $delay,        $shutter_common->get_gettext->get("Wait n seconds before taking a screenshot") );
-$tooltips->set_tip( $delay_active, $shutter_common->get_gettext->get("Wait n seconds before taking a screenshot") );
-$tooltips->set_tip( $delay_label,  $shutter_common->get_gettext->get("Wait n seconds before taking a screenshot") );
+$tooltips->set_tip( $delay,        $d->get("Wait n seconds before taking a screenshot") );
+$tooltips->set_tip( $delay_active, $d->get("Wait n seconds before taking a screenshot") );
+$tooltips->set_tip( $delay_label,  $d->get("Wait n seconds before taking a screenshot") );
 $delay_box->pack_start( $delay_label, FALSE, TRUE, 12 );
 $delay_box2->pack_start( $delay_active, FALSE, FALSE, 0 );
 $delay_box2->pack_start( $delay,        TRUE,  TRUE,  0 );
@@ -704,7 +704,7 @@ $delay_box->pack_start( $delay_box2, TRUE, TRUE, 0 );
 
 #thumbnail
 #--------------------------------------
-my $thumbnail_label = Gtk2::Label->new( $shutter_common->get_gettext->get("Thumbnail") . ":" );
+my $thumbnail_label = Gtk2::Label->new( $d->get("Thumbnail") . ":" );
 my $thumbnail = Gtk2::HScale->new_with_range( 1, 100, 1 );
 $thumbnail->signal_connect(
 	'value-changed' => \&evt_value_changed,
@@ -730,11 +730,11 @@ if ( defined $settings_xml->{'general'}->{'thumbnail_active'} ) {
 	$thumbnail_active->set_active(FALSE);
 }
 $tooltips->set_tip( $thumbnail,
-	$shutter_common->get_gettext->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be") );
+	$d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be") );
 $tooltips->set_tip( $thumbnail_active,
-	$shutter_common->get_gettext->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be") );
+	$d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be") );
 $tooltips->set_tip( $thumbnail_label,
-	$shutter_common->get_gettext->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be") );
+	$d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be") );
 $thumbnail_box->pack_start( $thumbnail_label, FALSE, TRUE, 12 );
 $thumbnail_box2->pack_start( $thumbnail_active, FALSE, FALSE, 0 );
 $thumbnail_box2->pack_start( $thumbnail,        TRUE,  TRUE,  0 );
@@ -778,16 +778,16 @@ $filename->signal_connect('key-press-event' => sub {
 	}
 });
 
-my $filename_label = Gtk2::Label->new( $shutter_common->get_gettext->get("Filename") . ":" );
+my $filename_label = Gtk2::Label->new( $d->get("Filename") . ":" );
 $tooltips->set_tip(
 	$filename,
-	$shutter_common->get_gettext->get(
+	$d->get(
 		"There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time\n\$w = width\n\$h = height\n%NN = counter"
 	)
 );
 $tooltips->set_tip(
 	$filename_label,
-	$shutter_common->get_gettext->get(
+	$d->get(
 		"There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time\n\$w = width\n\$h = height\n%NN = counter"
 	)
 );
@@ -801,7 +801,7 @@ $filename_box->pack_start( $filename,       TRUE,  TRUE, 0 );
 #filetype and scale
 #--------------------------------------
 my $scale = Gtk2::HScale->new_with_range( 0, 9, 1 );
-my $scale_label = Gtk2::Label->new( $shutter_common->get_gettext->get("Compression") . ":" );
+my $scale_label = Gtk2::Label->new( $d->get("Compression") . ":" );
 $scale->set_value_pos('right');
 $scale->set_value(1);
 
@@ -811,9 +811,9 @@ if ( defined $settings_xml->{'general'}->{'quality'} ) {
 }
 
 $tooltips->set_tip( $scale,
-	$shutter_common->get_gettext->get("Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)") );
+	$d->get("Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)") );
 $tooltips->set_tip( $scale_label,
-	$shutter_common->get_gettext->get("Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)") );
+	$d->get("Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)") );
 $scale_box->pack_start( $scale_label, FALSE, TRUE, 12 );
 $scale_box->pack_start( $scale,       TRUE,  TRUE, 0 );
 
@@ -880,9 +880,9 @@ if ( defined $settings_xml->{'general'}->{'filetype'} ) {
 
 }
 
-my $filetype_label = Gtk2::Label->new( $shutter_common->get_gettext->get("Image format") . ":" );
-$tooltips->set_tip( $combobox_type,  $shutter_common->get_gettext->get("Select a file format") );
-$tooltips->set_tip( $filetype_label, $shutter_common->get_gettext->get("Select a file format") );
+my $filetype_label = Gtk2::Label->new( $d->get("Image format") . ":" );
+$tooltips->set_tip( $combobox_type,  $d->get("Select a file format") );
+$tooltips->set_tip( $filetype_label, $d->get("Select a file format") );
 $filetype_box->pack_start( $filetype_label, FALSE, TRUE, 12 );
 $filetype_box->pack_start( $combobox_type,  TRUE,  TRUE, 0 );
 
@@ -891,16 +891,16 @@ $filetype_box->pack_start( $combobox_type,  TRUE,  TRUE, 0 );
 
 #saveDir
 #--------------------------------------
-my $saveDir_label = Gtk2::Label->new( $shutter_common->get_gettext->get("Directory") . ":" );
-my $saveDir_button = Gtk2::FileChooserButton->new( "Shutter - " . $shutter_common->get_gettext->get("Choose folder"), 'select-folder' );
+my $saveDir_label = Gtk2::Label->new( $d->get("Directory") . ":" );
+my $saveDir_button = Gtk2::FileChooserButton->new( "Shutter - " . $d->get("Choose folder"), 'select-folder' );
 if ( defined $settings_xml->{'general'}->{'folder'} ) {
 	$saveDir_button->set_filename( $settings_xml->{'general'}->{'folder'} );
 } else {
 	$saveDir_button->set_filename( File::HomeDir->my_pictures );
 }
 
-$tooltips->set_tip( $saveDir_button, $shutter_common->get_gettext->get("Your screenshots will be saved\nto this directory") );
-$tooltips->set_tip( $saveDir_label,  $shutter_common->get_gettext->get("Your screenshots will be saved\nto this directory") );
+$tooltips->set_tip( $saveDir_button, $d->get("Your screenshots will be saved\nto this directory") );
+$tooltips->set_tip( $saveDir_label,  $d->get("Your screenshots will be saved\nto this directory") );
 $saveDir_box->pack_start( $saveDir_label,  FALSE, TRUE, 12 );
 $saveDir_box->pack_start( $saveDir_button, TRUE,  TRUE, 0 );
 
@@ -915,16 +915,16 @@ if ( defined $settings_xml->{'general'}->{'capture_key'} ) {
 } else {
 	$capture_key->set_text("Print");
 }
-my $capture_label = Gtk2::Label->new( $shutter_common->get_gettext->get("Capture") . ":" );
+my $capture_label = Gtk2::Label->new( $d->get("Capture") . ":" );
 $tooltips->set_tip(
 	$capture_key,
-	$shutter_common->get_gettext->get(
+	$d->get(
 		"Configure global keybinding for capture\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
 	)
 );
 $tooltips->set_tip(
 	$capture_label,
-	$shutter_common->get_gettext->get(
+	$d->get(
 		"Configure global keybinding for capture\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
 	)
 );
@@ -935,25 +935,25 @@ if ( defined $settings_xml->{'general'}->{'capture_sel_key'} ) {
 	$capture_sel_key->set_text("<Alt>Print");
 }
 
-my $capture_sel_label = Gtk2::Label->new( $shutter_common->get_gettext->get("Capture with selection") . ":" );
+my $capture_sel_label = Gtk2::Label->new( $d->get("Capture with selection") . ":" );
 $tooltips->set_tip(
 	$capture_sel_key,
-	$shutter_common->get_gettext->get(
+	$d->get(
 		"Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
 	)
 );
 $tooltips->set_tip(
 	$capture_sel_label,
-	$shutter_common->get_gettext->get(
+	$d->get(
 		"Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
 	)
 );
 
 #keybinding_mode
 my $combobox_keybinding_mode = Gtk2::ComboBox->new_text;
-$combobox_keybinding_mode->insert_text( 0, $shutter_common->get_gettext->get("Selection") );
-$combobox_keybinding_mode->insert_text( 1, $shutter_common->get_gettext->get("Window") );
-$combobox_keybinding_mode->insert_text( 2, $shutter_common->get_gettext->get("Section") );
+$combobox_keybinding_mode->insert_text( 0, $d->get("Selection") );
+$combobox_keybinding_mode->insert_text( 1, $d->get("Window") );
+$combobox_keybinding_mode->insert_text( 2, $d->get("Section") );
 
 if ( defined $settings_xml->{'general'}->{'keybinding_mode'} ) {
 	$combobox_keybinding_mode->set_active( $settings_xml->{'general'}->{'keybinding_mode'} );
@@ -962,7 +962,7 @@ if ( defined $settings_xml->{'general'}->{'keybinding_mode'} ) {
 }
 $tooltips->set_tip(
 	$combobox_keybinding_mode,
-	$shutter_common->get_gettext->get(
+	$d->get(
 		"Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
 	)
 );
@@ -1019,9 +1019,9 @@ if ( defined $settings_xml->{'general'}->{'keybinding_sel'} ) {
 	$keybinding_sel_active->set_active(FALSE);
 }
 
-my $hide_active           = Gtk2::CheckButton->new_with_label( $shutter_common->get_gettext->get("Autohide Shutter Window when taking a screenshot") );
-my $autocopy_active       = Gtk2::CheckButton->new_with_label( $shutter_common->get_gettext->get("Automatically copy screenshot to clipboard") );
-my $close_at_close_active = Gtk2::CheckButton->new_with_label( $shutter_common->get_gettext->get("Minimize to tray when closing main window") );
+my $hide_active           = Gtk2::CheckButton->new_with_label( $d->get("Autohide Shutter Window when taking a screenshot") );
+my $autocopy_active       = Gtk2::CheckButton->new_with_label( $d->get("Automatically copy screenshot to clipboard") );
+my $close_at_close_active = Gtk2::CheckButton->new_with_label( $d->get("Minimize to tray when closing main window") );
 
 $behavior_hbox1->pack_start( $hide_active,           FALSE, TRUE, 12 );
 $behavior_hbox2->pack_start( $autocopy_active,       FALSE, TRUE, 12 );
@@ -1039,7 +1039,7 @@ if ( defined $settings_xml->{'general'}->{'autohide'} ) {
 	#~ 'hide_toggled'
 #~ );
 
-$tooltips->set_tip( $hide_active, $shutter_common->get_gettext->get("Autohide Shutter Window when taking a screenshot") );
+$tooltips->set_tip( $hide_active, $d->get("Autohide Shutter Window when taking a screenshot") );
 
 if ( defined $settings_xml->{'general'}->{'autocopy'} ) {
 	$autocopy_active->set_active( $settings_xml->{'general'}->{'autocopy'} );
@@ -1053,7 +1053,7 @@ if ( defined $settings_xml->{'general'}->{'autocopy'} ) {
 	#~ 'autocopy_toggled'
 #~ );
 
-$tooltips->set_tip( $autocopy_active, $shutter_common->get_gettext->get("Automatically copy screenshot to clipboard") );
+$tooltips->set_tip( $autocopy_active, $d->get("Automatically copy screenshot to clipboard") );
 
 if ( defined $settings_xml->{'general'}->{'close_at_close'} ) {
 	$close_at_close_active->set_active( $settings_xml->{'general'}->{'close_at_close'} );
@@ -1067,7 +1067,7 @@ if ( defined $settings_xml->{'general'}->{'close_at_close'} ) {
 	#~ 'close_at_close_toggled'
 #~ );
 
-$tooltips->set_tip( $close_at_close_active, $shutter_common->get_gettext->get("Minimize to tray when closing main window") );
+$tooltips->set_tip( $close_at_close_active, $d->get("Minimize to tray when closing main window") );
 
 #~ if ( defined $settings_xml->{'general'}->{'save_at_close'} ) {
 	#~ $save_at_close_active->set_active( $settings_xml->{'general'}->{'save_at_close'} );
@@ -1081,7 +1081,7 @@ $tooltips->set_tip( $close_at_close_active, $shutter_common->get_gettext->get("M
 	#~ 'save_at_close_toggled'
 #~ );
 
-#~ $tooltips->set_tip( $save_at_close_active, $shutter_common->get_gettext->get("Save settings automatically when exiting Shutter") );
+#~ $tooltips->set_tip( $save_at_close_active, $d->get("Save settings automatically when exiting Shutter") );
 
 #end - behavior
 #--------------------------------------
@@ -1124,10 +1124,10 @@ if ( defined $settings_xml->{'general'}->{'prog_active'} ) {
 } else {
 	$progname_active->set_active(FALSE);
 }
-my $progname_label = Gtk2::Label->new( $shutter_common->get_gettext->get("Open with") . ":" );
-$tooltips->set_tip( $progname,        $shutter_common->get_gettext->get("Open your screenshot\nwith this program after capturing") );
-$tooltips->set_tip( $progname_active, $shutter_common->get_gettext->get("Open your screenshot\nwith this program after capturing") );
-$tooltips->set_tip( $progname_label,  $shutter_common->get_gettext->get("Open your screenshot\nwith this program after capturing") );
+my $progname_label = Gtk2::Label->new( $d->get("Open with") . ":" );
+$tooltips->set_tip( $progname,        $d->get("Open your screenshot\nwith this program after capturing") );
+$tooltips->set_tip( $progname_active, $d->get("Open your screenshot\nwith this program after capturing") );
+$tooltips->set_tip( $progname_label,  $d->get("Open your screenshot\nwith this program after capturing") );
 $progname_box->pack_start( $progname_label, FALSE, TRUE, 12 );
 $progname_box2->pack_start( $progname_active, FALSE, TRUE, 0 );
 $progname_box2->pack_start( $progname, TRUE, TRUE, 0 );
@@ -1139,9 +1139,9 @@ $progname_box->pack_start( $progname_box2, TRUE, TRUE, 0 );
 #im_colors
 #--------------------------------------
 my $combobox_im_colors = Gtk2::ComboBox->new_text;
-$combobox_im_colors->insert_text( 0, $shutter_common->get_gettext->get("16 colors   - (4bit) ") );
-$combobox_im_colors->insert_text( 1, $shutter_common->get_gettext->get("64 colors   - (6bit) ") );
-$combobox_im_colors->insert_text( 2, $shutter_common->get_gettext->get("256 colors  - (8bit) ") );
+$combobox_im_colors->insert_text( 0, $d->get("16 colors   - (4bit) ") );
+$combobox_im_colors->insert_text( 1, $d->get("64 colors   - (6bit) ") );
+$combobox_im_colors->insert_text( 2, $d->get("256 colors  - (8bit) ") );
 $combobox_im_colors->signal_connect(
 	'changed' => \&evt_value_changed,
 	'im_colors_changed'
@@ -1166,10 +1166,10 @@ if ( defined $settings_xml->{'general'}->{'im_colors_active'} ) {
 	$im_colors_active->set_active(FALSE);
 }
 
-my $im_colors_label = Gtk2::Label->new( $shutter_common->get_gettext->get("Reduce colors") . ":" );
-$tooltips->set_tip( $combobox_im_colors, $shutter_common->get_gettext->get("Automatically reduce colors \nafter taking a screenshot") );
-$tooltips->set_tip( $im_colors_active,   $shutter_common->get_gettext->get("Automatically reduce colors \nafter taking a screenshot") );
-$tooltips->set_tip( $im_colors_label,    $shutter_common->get_gettext->get("Automatically reduce colors \nafter taking a screenshot") );
+my $im_colors_label = Gtk2::Label->new( $d->get("Reduce colors") . ":" );
+$tooltips->set_tip( $combobox_im_colors, $d->get("Automatically reduce colors \nafter taking a screenshot") );
+$tooltips->set_tip( $im_colors_active,   $d->get("Automatically reduce colors \nafter taking a screenshot") );
+$tooltips->set_tip( $im_colors_label,    $d->get("Automatically reduce colors \nafter taking a screenshot") );
 $im_colors_box->pack_start( $im_colors_label, FALSE, TRUE, 12 );
 $im_colors_box2->pack_start( $im_colors_active,   FALSE, TRUE, 0 );
 $im_colors_box2->pack_start( $combobox_im_colors, TRUE,  TRUE, 0 );
@@ -1181,8 +1181,8 @@ $im_colors_box->pack_start( $im_colors_box2, TRUE, TRUE, 0 );
 #border
 #--------------------------------------
 my $combobox_border = Gtk2::ComboBox->new_text;
-$combobox_border->insert_text( 1, $shutter_common->get_gettext->get("activate") );
-$combobox_border->insert_text( 0, $shutter_common->get_gettext->get("deactivate") );
+$combobox_border->insert_text( 1, $d->get("activate") );
+$combobox_border->insert_text( 0, $d->get("deactivate") );
 $combobox_border->signal_connect(
 	'changed' => \&evt_value_changed,
 	'border_changed'
@@ -1194,9 +1194,9 @@ if ( defined $settings_xml->{'general'}->{'border'} ) {
 	$combobox_border->set_active(TRUE);
 }
 
-my $border_label = Gtk2::Label->new( $shutter_common->get_gettext->get("Window border") . ":" );
-$tooltips->set_tip( $combobox_border, $shutter_common->get_gettext->get("Include wm border when selecting a window") );
-$tooltips->set_tip( $border_label,    $shutter_common->get_gettext->get("Include wm border when selecting a window") );
+my $border_label = Gtk2::Label->new( $d->get("Window border") . ":" );
+$tooltips->set_tip( $combobox_border, $d->get("Include wm border when selecting a window") );
+$tooltips->set_tip( $border_label,    $d->get("Include wm border when selecting a window") );
 $border_box->pack_start( $border_label,    FALSE, TRUE, 12 );
 $border_box->pack_start( $combobox_border, TRUE,  TRUE, 0 );
 
@@ -1206,8 +1206,8 @@ $border_box->pack_start( $combobox_border, TRUE,  TRUE, 0 );
 #cursor
 #--------------------------------------
 my $combobox_cursor = Gtk2::ComboBox->new_text;
-$combobox_cursor->insert_text( 1, $shutter_common->get_gettext->get("activate") );
-$combobox_cursor->insert_text( 0, $shutter_common->get_gettext->get("deactivate") );
+$combobox_cursor->insert_text( 1, $d->get("activate") );
+$combobox_cursor->insert_text( 0, $d->get("deactivate") );
 $combobox_cursor->signal_connect(
 	'changed' => \&evt_value_changed,
 	'cursor_changed'
@@ -1218,9 +1218,9 @@ if ( defined $settings_xml->{'general'}->{'cursor'} ) {
 } else {
 	$combobox_cursor->set_active(0);
 }
-my $cursor_label = Gtk2::Label->new( $shutter_common->get_gettext->get("Include cursor") . ":" );
-$tooltips->set_tip( $combobox_cursor, $shutter_common->get_gettext->get("Include cursor when taking a screenshot") );
-$tooltips->set_tip( $cursor_label,    $shutter_common->get_gettext->get("Include cursor when taking a screenshot") );
+my $cursor_label = Gtk2::Label->new( $d->get("Include cursor") . ":" );
+$tooltips->set_tip( $combobox_cursor, $d->get("Include cursor when taking a screenshot") );
+$tooltips->set_tip( $cursor_label,    $d->get("Include cursor when taking a screenshot") );
 $cursor_box->pack_start( $cursor_label,    FALSE, TRUE, 12 );
 $cursor_box->pack_start( $combobox_cursor, TRUE,  TRUE, 0 );
 
@@ -1235,7 +1235,7 @@ my $accounts_model = undef;
 my $accounts_tree = Gtk2::TreeView->new_with_model($accounts_model);
 $tooltips->set_tip(
 	$accounts_tree,
-	$shutter_common->get_gettext->get(
+	$d->get(
 		"Entering your Accounts for specific hosting-sites is optional. If entered it will give you the same benefits as the upload on the website. If you leave these fields empty you will be able to upload to the specific hosting-partner as a guest."
 	)
 );
@@ -1248,7 +1248,7 @@ $accounts_tree->signal_connect(
 &fct_set_model_accounts($accounts_tree);
 
 #ftp uri
-my $ftp_entry_label = Gtk2::Label->new( $shutter_common->get_gettext->get("URI") . ":" );
+my $ftp_entry_label = Gtk2::Label->new( $d->get("URI") . ":" );
 
 my $ftp_remote_entry = Gtk2::Entry->new;
 if ( defined $settings_xml->{'general'}->{'ftp_uri'} ) {
@@ -1257,34 +1257,34 @@ if ( defined $settings_xml->{'general'}->{'ftp_uri'} ) {
 	$ftp_remote_entry->set_text("ftp://host:port/path");
 }
 
-$tooltips->set_tip( $ftp_entry_label, $shutter_common->get_gettext->get("URI\nExample: ftp://host:port/path") );
+$tooltips->set_tip( $ftp_entry_label, $d->get("URI\nExample: ftp://host:port/path") );
 
-$tooltips->set_tip( $ftp_remote_entry, $shutter_common->get_gettext->get("URI\nExample: ftp://host:port/path") );
+$tooltips->set_tip( $ftp_remote_entry, $d->get("URI\nExample: ftp://host:port/path") );
 
 $ftp_hbox1->pack_start( $ftp_entry_label,  FALSE, TRUE, 12 );
 $ftp_hbox1->pack_start( $ftp_remote_entry, TRUE,  TRUE, 0 );
 
 #connection mode
-my $ftp_mode_label = Gtk2::Label->new( $shutter_common->get_gettext->get("Connection mode") . ":" );
+my $ftp_mode_label = Gtk2::Label->new( $d->get("Connection mode") . ":" );
 
 my $ftp_mode_combo = Gtk2::ComboBox->new_text;
-$ftp_mode_combo->insert_text( 0, $shutter_common->get_gettext->get("Active mode") );
-$ftp_mode_combo->insert_text( 1, $shutter_common->get_gettext->get("Passive mode") );
+$ftp_mode_combo->insert_text( 0, $d->get("Active mode") );
+$ftp_mode_combo->insert_text( 1, $d->get("Passive mode") );
 if ( defined $settings_xml->{'general'}->{'ftp_mode'} ) {
 	$ftp_mode_combo->set_active( $settings_xml->{'general'}->{'ftp_mode'} );
 } else {
 	$ftp_mode_combo->set_active(0);
 }
 
-$tooltips->set_tip( $ftp_mode_label, $shutter_common->get_gettext->get("Connection mode") );
+$tooltips->set_tip( $ftp_mode_label, $d->get("Connection mode") );
 
-$tooltips->set_tip( $ftp_mode_combo, $shutter_common->get_gettext->get("Connection mode") );
+$tooltips->set_tip( $ftp_mode_combo, $d->get("Connection mode") );
 
 $ftp_hbox2->pack_start( $ftp_mode_label, FALSE, TRUE, 12 );
 $ftp_hbox2->pack_start( $ftp_mode_combo, TRUE,  TRUE, 0 );
 
 #username
-my $ftp_username_label = Gtk2::Label->new( $shutter_common->get_gettext->get("Username") . ":" );
+my $ftp_username_label = Gtk2::Label->new( $d->get("Username") . ":" );
 
 my $ftp_username_entry = Gtk2::Entry->new;
 if ( defined $settings_xml->{'general'}->{'ftp_username'} ) {
@@ -1293,15 +1293,15 @@ if ( defined $settings_xml->{'general'}->{'ftp_username'} ) {
 	$ftp_username_entry->set_text("");
 }
 
-$tooltips->set_tip( $ftp_username_label, $shutter_common->get_gettext->get("Username") );
+$tooltips->set_tip( $ftp_username_label, $d->get("Username") );
 
-$tooltips->set_tip( $ftp_username_entry, $shutter_common->get_gettext->get("Username") );
+$tooltips->set_tip( $ftp_username_entry, $d->get("Username") );
 
 $ftp_hbox3->pack_start( $ftp_username_label, FALSE, TRUE, 12 );
 $ftp_hbox3->pack_start( $ftp_username_entry, TRUE,  TRUE, 0 );
 
 #password
-my $ftp_password_label = Gtk2::Label->new( $shutter_common->get_gettext->get("Password") . ":" );
+my $ftp_password_label = Gtk2::Label->new( $d->get("Password") . ":" );
 
 my $ftp_password_entry = Gtk2::Entry->new;
 $ftp_password_entry->set_invisible_char("*");
@@ -1312,9 +1312,9 @@ if ( defined $settings_xml->{'general'}->{'ftp_password'} ) {
 	$ftp_password_entry->set_text("");
 }
 
-$tooltips->set_tip( $ftp_password_label, $shutter_common->get_gettext->get("Password") );
+$tooltips->set_tip( $ftp_password_label, $d->get("Password") );
 
-$tooltips->set_tip( $ftp_password_entry, $shutter_common->get_gettext->get("Password") );
+$tooltips->set_tip( $ftp_password_entry, $d->get("Password") );
 
 $ftp_hbox4->pack_start( $ftp_password_label, FALSE, TRUE, 12 );
 $ftp_hbox4->pack_start( $ftp_password_entry, TRUE,  TRUE, 0 );
@@ -1326,7 +1326,7 @@ $ftp_hbox4->pack_start( $ftp_password_entry, TRUE,  TRUE, 0 );
 
 #settings main tab
 my $label_basic = Gtk2::Label->new;
-$label_basic->set_markup( $shutter_common->get_gettext->get("Main") );
+$label_basic->set_markup( $d->get("Main") );
 
 $file_vbox->pack_start( $scale_box,    TRUE,  TRUE, 3 );
 $file_vbox->pack_start( $filetype_box, FALSE, TRUE, 3 );
@@ -1355,7 +1355,7 @@ $vbox_basic->set_border_width(5);
 
 #settings advanced tab
 my $label_extras = Gtk2::Label->new;
-$label_extras->set_markup( $shutter_common->get_gettext->get("Advanced") );
+$label_extras->set_markup( $d->get("Advanced") );
 
 $actions_vbox->pack_start( $progname_box,  FALSE, TRUE, 3 );
 $actions_vbox->pack_start( $im_colors_box, FALSE, TRUE, 3 );
@@ -1389,7 +1389,7 @@ $vbox_extras->set_border_width(5);
 
 #settings behavior tab
 my $label_behavior = Gtk2::Label->new;
-$label_behavior->set_markup( $shutter_common->get_gettext->get("Behavior") );
+$label_behavior->set_markup( $d->get("Behavior") );
 
 $behavior_vbox->pack_start( $behavior_hbox1, TRUE, TRUE, 3 );
 $behavior_vbox->pack_start( $behavior_hbox2, TRUE, TRUE, 3 );
@@ -1415,7 +1415,7 @@ $vbox_behavior->set_border_width(5);
 
 #settings upload tab
 my $label_accounts = Gtk2::Label->new;
-$label_accounts->set_markup( $shutter_common->get_gettext->get("Upload") );
+$label_accounts->set_markup( $d->get("Upload") );
 
 my $scrolled_accounts_window = Gtk2::ScrolledWindow->new;
 $scrolled_accounts_window->set_policy( 'automatic', 'automatic' );
@@ -1465,9 +1465,9 @@ if ( keys(%plugins) > 0 ) {
 	$scrolled_plugins_window->add($effects_tree);
 	
 	my $label_plugins = Gtk2::Label->new;
-	$label_plugins->set_markup( $shutter_common->get_gettext->get("Plugins") );
+	$label_plugins->set_markup( $d->get("Plugins") );
 	
-	my $label_treeview = Gtk2::Label->new( $shutter_common->get_gettext->get("The following plugins are installed") );
+	my $label_treeview = Gtk2::Label->new( $d->get("The following plugins are installed") );
 	$label_treeview->set_alignment( 0, 0.5 );
 	$effects_vbox->pack_start( $label_treeview,          FALSE, TRUE, 1 );
 	$effects_vbox->pack_start( $scrolled_plugins_window, TRUE,  TRUE, 1 );
@@ -1594,13 +1594,13 @@ sub evt_value_changed {
 			$scale_label->set_sensitive(TRUE);
 			$scale->set_range( 1, 100 );
 			$scale->set_value(90);
-			$scale_label->set_text( $shutter_common->get_gettext->get("Quality") . ":" );
+			$scale_label->set_text( $d->get("Quality") . ":" );
 		} elsif ( $combobox_type->get_active_text =~ /png/ ) {
 			$scale->set_sensitive(TRUE);
 			$scale_label->set_sensitive(TRUE);
 			$scale->set_range( 0, 9 );
 			$scale->set_value(9);
-			$scale_label->set_text( $shutter_common->get_gettext->get("Compression") . ":" );
+			$scale_label->set_text( $d->get("Compression") . ":" );
 		} else {
 			$scale->set_sensitive(FALSE);
 			$scale_label->set_sensitive(FALSE);
@@ -1893,7 +1893,7 @@ sub evt_accounts {
 	my ( $tree, $path, $column ) = @_;
 
 	#open browser if register url is clicked
-	if ( $column->get_title eq $shutter_common->get_gettext->get("Register") ) {
+	if ( $column->get_title eq $d->get("Register") ) {
 		my $model         = $tree->get_model();
 		my $account_iter  = $model->get_iter($path);
 		my $account_value = $model->get_value( $account_iter, 3 );
@@ -2063,7 +2063,7 @@ sub evt_open {
 	my @new_files;	
 	unless($widget =~ /Gtk2::RecentChooserMenu/){
 		my $fs = Gtk2::FileChooserDialog->new(
-			$shutter_common->get_gettext->get("Choose file to open"), $window,
+			$d->get("Choose file to open"), $window,
 			'open',
 			'gtk-cancel' => 'reject',
 			'gtk-open'   => 'accept'
@@ -2071,7 +2071,7 @@ sub evt_open {
 		$fs->set_select_multiple(TRUE);
 
 		my $filter_all = Gtk2::FileFilter->new;
-		$filter_all->set_name( $shutter_common->get_gettext->get("All compatible image formats") );
+		$filter_all->set_name( $d->get("All compatible image formats") );
 		$fs->add_filter($filter_all);
 		
 		foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
@@ -3248,12 +3248,14 @@ sub fct_open_files {
 
 	my $num_files = scalar(@new_files);
 	my $count     = 0;
-	foreach my $new_file (@new_files) {
+	foreach (@new_files) {
+
+		my $new_uri = Gnome2::VFS::URI->new ($shutter_hfunct->utf8_decode(Gnome2::VFS->unescape_string($_)));
 
 		#refresh the progressbar
 		$count++;
 		$open_progress->set_fraction( $count / $num_files );
-		$open_progress->set_text($new_file);
+		$open_progress->set_text($new_uri->to_string);
 
 		#refresh tray icon
 		if ( $icon && $icon->isa('Gtk2::StatusIcon') ) {
@@ -3264,9 +3266,8 @@ sub fct_open_files {
 		&fct_update_gui;
 
 		#do the real work
-		my $new_uri = Gnome2::VFS::URI->new ($new_file);
 		if(&fct_integrate_screenshot_in_notebook( $new_uri, undef )){
-			&dlg_status_message( 1, $new_file . " " . $d->get("opened") );	
+			&dlg_status_message( 1, $new_uri->to_string . " " . $d->get("opened") );	
 		}
 	}
 	$open_dialog->response('ok');
@@ -3753,7 +3754,7 @@ sub fct_take_screenshot {
 	$combobox_type->get_active_text =~ /(.*) -/;
 	$filetype_value = $1;
 	unless ($filetype_value) {
-		$shutter_dialog->dlg_error_message( $shutter_common->get_gettext->get("No valid filetype specified"), $d->get("Failed") );
+		$shutter_dialog->dlg_error_message( $d->get("No valid filetype specified"), $d->get("Failed") );
 		&fct_control_main_window( TRUE, 'show' );
 		return FALSE;
 	}
@@ -3794,7 +3795,7 @@ sub fct_take_screenshot {
 			&& defined($filetype_value) )
 		{
 			$shutter_dialog->dlg_error_message( 
-				$shutter_common->get_gettext->get("No valid filename specified"), 
+				$d->get("No valid filename specified"), 
 				$d->get("Failed") 
 			);
 			&fct_control_main_window( TRUE, 'show');
@@ -3816,7 +3817,7 @@ sub fct_take_screenshot {
 		|| $data eq "tray_section" )
 	{
 		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
-			$shutter_dialog->dlg_error_message( $shutter_common->get_gettext->get("No valid filename specified"), $d->get("Failed") );
+			$shutter_dialog->dlg_error_message( $d->get("No valid filename specified"), $d->get("Failed") );
 			&fct_control_main_window( TRUE, 'show');
 			return FALSE;
 		}
@@ -3830,7 +3831,7 @@ sub fct_take_screenshot {
 		#selection
 	} elsif ( $data eq "select" || $data eq "tray_select" ) {
 		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
-			$shutter_dialog->dlg_error_message( $shutter_common->get_gettext->get("No valid filename specified"), $d->get("Failed") );
+			$shutter_dialog->dlg_error_message( $d->get("No valid filename specified"), $d->get("Failed") );
 			&fct_control_main_window( TRUE, 'show');
 			return FALSE;
 		}
@@ -3857,13 +3858,13 @@ sub fct_take_screenshot {
 		if ( $screenshot && $screenshot =~ /[a-zA-Z]/ ) {
 			#error if $screenshot is not a Gtk2::Gdk::Pixbuf
 			unless($screenshot =~ /Gtk2::Gdk::Pixbuf/){
-				$shutter_dialog->dlg_error_message( $shutter_common->get_gettext->get("Unable to capture website"), 
+				$shutter_dialog->dlg_error_message( $d->get("Unable to capture website"), 
 													$d->get("Failed"),
 													undef, undef,
 													undef, undef,
 													undef, undef,
 													$screenshot );
-				&dlg_status_message( 1, $shutter_common->get_gettext->get("Unable to capture website"), $d->get("Failed") );
+				&dlg_status_message( 1, $d->get("Unable to capture website"), $d->get("Failed") );
 				&fct_control_main_window( TRUE, 'show');
 				return FALSE;
 			}
@@ -3876,7 +3877,7 @@ sub fct_take_screenshot {
 		my $xid = $1;
 		print "Selected xid: $xid\n" if $shutter_common->get_debug;
 		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
-			$shutter_dialog->dlg_error_message( $shutter_common->get_gettext->get("No valid filename specified"), $d->get("Failed") );
+			$shutter_dialog->dlg_error_message( $d->get("No valid filename specified"), $d->get("Failed") );
 			&fct_control_main_window( TRUE, 'show');
 			return FALSE;
 		}
@@ -3906,7 +3907,7 @@ sub fct_take_screenshot {
 		}
 
 		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
-			$shutter_dialog->dlg_error_message( $shutter_common->get_gettext->get("No valid filename specified"), $d->get("Failed") );
+			$shutter_dialog->dlg_error_message( $d->get("No valid filename specified"), $d->get("Failed") );
 			&fct_control_main_window( TRUE, 'show');
 			return FALSE;
 		}
@@ -3928,14 +3929,14 @@ sub fct_take_screenshot {
 			$d->get( "Error while taking the screenshot." )
 		);
 			
-		&dlg_status_message( 1, $shutter_common->get_gettext->get("Error while taking the screenshot.") );
+		&dlg_status_message( 1, $d->get("Error while taking the screenshot.") );
 		&fct_control_main_window( TRUE, 'show');
 		return FALSE;
 	} else {
 
 		#user aborted screenshot
 		if ( $screenshot == 5 ) {
-			&dlg_status_message( 1, $shutter_common->get_gettext->get("Capture aborted by user") );
+			&dlg_status_message( 1, $d->get("Capture aborted by user") );
 			&fct_control_main_window( TRUE, 'show');
 			return FALSE;
 		}
@@ -4061,14 +4062,14 @@ sub fct_take_screenshot {
 		}
 		print "screenshot successfully saved to $screenshot_name!\n"
 			if $shutter_common->get_debug;
-		&dlg_status_message( 1, "$session_screens{$new_key_screenshot}->{'short'} " . $shutter_common->get_gettext->get("saved") );
+		&dlg_status_message( 1, "$session_screens{$new_key_screenshot}->{'short'} " . $d->get("saved") );
 	} else {
 		#show error dialog
 		my $response = $shutter_dialog->dlg_error_message( 
 			$d->get( "Maybe mouse pointer could not be grabbed or the selected area is invalid." ),
 			$d->get( "Error while taking the screenshot." )
 		);
-		&dlg_status_message( 1, $shutter_common->get_gettext->get("Error while taking the screenshot.") );
+		&dlg_status_message( 1, $d->get("Error while taking the screenshot.") );
 	}
 
 	&fct_control_main_window( TRUE, 'show');
@@ -4819,7 +4820,7 @@ sub fct_update_tab {
 					#setup a new filemonitor, so we get noticed if the file changed
 					&fct_add_file_monitor($key);
 
-					&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $shutter_common->get_gettext->get("saved"));
+					&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("saved"));
 				
 					&fct_update_first_tab;
 					return TRUE;
@@ -6663,7 +6664,7 @@ sub dlg_upload {
 	my $pl_vbox1 = Gtk2::VBox->new( FALSE, 12 );
  	$pl_hbox1->set_border_width(12);
  	$pl_vbox1->set_border_width(12);
-	my $places_fc = Gtk2::FileChooserButton->new_with_backend ("Shutter - " . $shutter_common->get_gettext->get("Choose folder"), 'select-folder', 'gnome-vfs');	
+	my $places_fc = Gtk2::FileChooserButton->new_with_backend ("Shutter - " . $d->get("Choose folder"), 'select-folder', 'gnome-vfs');	
 	$places_fc->set('local-only' => FALSE);
 	$pl_hbox1->pack_start( Gtk2::Label->new( $d->get("Choose folder"). ":" ), FALSE, FALSE, 6 );
 	$pl_hbox1->pack_start_defaults($places_fc);
