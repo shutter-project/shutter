@@ -4707,12 +4707,22 @@ sub import_from_filesystem {
 			$subdir_item->{'nid'} = $subdir_item->signal_connect('activate' => sub {
 					$subdir_item->set_image(Gtk2::Image->new_from_file($self->{_icons}."/throbber_16x16.gif"));
 					my $submenu = $self->import_from_filesystem($button, $subdir_item, $dobjects . "/$short");
+					
 					if($submenu->get_children){
+					
 						$subdir_item->set_submenu( $submenu );
+					
+					}else{
+						
+						$subdir_item->set_image (Gtk2::Image->new_from_stock ('gtk-directory', 'menu'));		
+					
 					}
+					
 					return TRUE;
 				}
 			);
+			
+			#diconnect handler when this event occurs
 			$subdir_item->signal_connect('leave-notify-event' => sub {
 					if($subdir_item->signal_handler_is_connected ($subdir_item->{'nid'})){
 						$subdir_item->signal_handler_disconnect($subdir_item->{'nid'});
@@ -4729,7 +4739,6 @@ sub import_from_filesystem {
 		
 		#init item with filename first
 		my $new_item = Gtk2::ImageMenuItem->new_with_label($short);
-		$new_item->set_image(Gtk2::Image->new_from_file($self->{_icons}."/throbber_16x16.gif"));
 		$menu_objects->append($new_item);
 		
 		#sfsdc
@@ -4738,6 +4747,7 @@ sub import_from_filesystem {
 	}
 	
 	#do not do that when called recursively
+	#top level call
 	unless($directory){
 
 		$menu_objects->append( Gtk2::SeparatorMenuItem->new );
@@ -4762,6 +4772,9 @@ sub import_from_filesystem {
 		my $session_menu_item = Gtk2::ImageMenuItem->new_with_label( $self->{_d}->get("Import from session...") );
 		$session_menu_item->set_image (Gtk2::Image->new_from_stock ('gtk-index', 'menu'));
 		$session_menu_item->set_submenu( $self->import_from_session($button) );
+
+		#gen thumbnails in an idle callback
+		$self->gen_thumbnail_on_idle('gtk-index', $session_menu_item, $button, TRUE, $session_menu_item->get_submenu->get_children);	
 
 		$menu_objects->append($session_menu_item);
 
@@ -4839,75 +4852,9 @@ sub import_from_filesystem {
 	$button->show_all;
 	$menu_objects->show_all;
 
-	my @menu_items = $menu_objects->get_children;
-	
 	#generate thumbnails in an idle callback
-	my $next_item = 0;
-	Glib::Idle->add(sub{
-		
-		#get next item
-		my $new_item = $menu_items[$next_item];
-		
-		#no valid item - stop the idle handler				
-		unless ($new_item){						
-			$parent->set_image (Gtk2::Image->new_from_stock ('gtk-directory', 'menu')) if $parent;
-			return FALSE;
-		}
-		
-		my $name = $new_item->{'name'};
-
-		#no valid item - stop the idle handler	
-		unless ($name){						
-			$parent->set_image (Gtk2::Image->new_from_stock ('gtk-directory', 'menu')) if $parent;
-			return FALSE;
-		}
-		
-		#increment counter
-		$next_item++;
+	$self->gen_thumbnail_on_idle('gtk-directory', $parent, $button, FALSE, $menu_objects->get_children);
 			
-		#create pixbufs
-		my $orig_pixbuf;
-		eval{
-			$orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($name);		
-		};
-		unless($@){
-
-			my $small_image = Gtk2::Image->new_from_pixbuf( $orig_pixbuf->scale_down_pixbuf (Gtk2::IconSize->lookup('menu')));
-			$new_item->set_image($small_image);
-
-			#init
-			unless ( $button->get_icon_widget ) {
-				$button->set_icon_widget(Gtk2::Image->new_from_pixbuf($small_image->get_pixbuf));
-				$self->{_current_pixbuf} = $orig_pixbuf->copy;
-				$self->{_current_pixbuf_filename} = $name;
-				$button->show_all;
-			}
-
-			$new_item->signal_connect(
-				'activate' => sub {					
-					my ($item) = @_;
-					$self->{_current_pixbuf} = $orig_pixbuf->copy;
-					$self->{_current_pixbuf_filename} = $name;
-					$button->set_icon_widget(Gtk2::Image->new_from_pixbuf($small_image->get_pixbuf));
-					$button->show_all;
-					$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
-				}
-			);
-
-		}else{
-			my $response = $self->{_dialogs}->dlg_error_message( 
-				sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $name . "'" ),
-				$self->{_d}->get( "There was an error opening the image." ),
-				undef, undef, undef,
-				undef, undef, undef,
-				$@
-			);
-			$self->abort_current_mode;		
-		} 
-
-		return TRUE;
-	});
-
 	return $menu_objects;
 }
 
@@ -4938,70 +4885,17 @@ sub import_from_utheme {
 			$utheme_ctxt->set_image(Gtk2::Image->new_from_file($self->{_icons}."/throbber_16x16.gif"));				
 			my $context_submenu = $self->import_from_utheme_ctxt($icontheme, $context, $button);
 			
-			if(@menu_items = $context_submenu->get_children){
+			if($context_submenu->get_children){
 				
-				#set submenu
 				$utheme_ctxt->set_submenu( $context_submenu );
+		
+				#gen thumbnails in an idle callback
+				$self->gen_thumbnail_on_idle('gtk-directory', $utheme_ctxt, $button, TRUE, $utheme_ctxt->get_submenu->get_children);
 			
-				#generate thumbnails in an idle callback
-				my $next_item = 0;
-				Glib::Idle->add(sub{
-					
-					#get next item
-					my $utheme_ctxt_item = $menu_items[$next_item];
-					
-					#no valid item - stop the idle handler				
-					unless ($utheme_ctxt_item){						
-						$utheme_ctxt->set_image (Gtk2::Image->new_from_stock ('gtk-directory', 'menu'));
-						return FALSE;
-					}
-					
-					my $name = $utheme_ctxt_item->{'name'};
-
-					#no valid item - stop the idle handler	
-					unless ($name){						
-						$utheme_ctxt->set_image (Gtk2::Image->new_from_stock ('gtk-directory', 'menu'));
-						return FALSE;
-					}
-					
-					#increment counter
-					$next_item++;
-											
-					#create pixbufs
-					my $orig_pixbuf;
-					eval{
-						$orig_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($name);		
-					};
-					unless($@){
-						if($orig_pixbuf->get_width >= 16 && $orig_pixbuf->get_height >= 16){
-							my $small_image = Gtk2::Image->new_from_pixbuf( $orig_pixbuf->scale_down_pixbuf (Gtk2::IconSize->lookup('menu')));
-							$utheme_ctxt_item->set_image($small_image);
-
-							$utheme_ctxt_item->signal_connect(
-								'activate' => sub {					
-									my ($item) = @_;
-									$self->{_current_pixbuf} = $orig_pixbuf->copy;
-									$self->{_current_pixbuf_filename} = $name;
-									$button->set_icon_widget(Gtk2::Image->new_from_pixbuf($small_image->get_pixbuf));
-									$button->show_all;
-									$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
-								}
-							);
-						}else{
-							$utheme_ctxt_item->destroy;
-						}
-					}else{
-						$utheme_ctxt_item->destroy;
-					}
-					
-					return TRUE;
-				});#end idle callback		
-			
-			#submenu has no child
 			}else{
 				$utheme_ctxt->set_image (Gtk2::Image->new_from_stock ('gtk-directory', 'menu'));	
-			}
-			
+			}			
+						
 			return TRUE;
 		});
 		
@@ -5051,8 +4945,9 @@ sub import_from_utheme_ctxt {
 }
 
 sub import_from_session {
-	my $self                 = shift;
-	my $button               = shift;
+	my $self	= shift;
+	my $button  = shift;
+	
 	my $menu_session_objects = Gtk2::Menu->new;
 
 	my %import_hash = %{ $self->{_import_hash} };
@@ -5062,59 +4957,109 @@ sub import_from_session {
 		#init item with filename
 		my $screen_menu_item = Gtk2::ImageMenuItem->new_with_label( $import_hash{$key}->{'short'} );
 
-		#generate thumbnail when idle
-		Glib::Idle->add (sub{
-
-			#try to generate a new thumbnail
-			my $thumb = $self->{_thumbs}->get_thumbnail(
-				$import_hash{$key}->{'uri'}->to_string,
-				$import_hash{$key}->{'mime_type'},
-				$import_hash{$key}->{'mtime'},
-				0.2
-			);			
-
-			my $small_image = Gtk2::Image->new_from_pixbuf( $thumb );
-			$screen_menu_item->set_image($small_image);
-
-			return FALSE;
-		});
-
 		#set sensitive == FALSE if image eq current file
 		$screen_menu_item->set_sensitive(FALSE)
 			if $import_hash{$key}->{'long'} eq $self->{_filename};
-
-		$screen_menu_item->signal_connect(
-			'activate' => sub {
-				
-				my ($screen_menu_item) = @_;
-				
-				eval{
-					$self->{_current_pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file( $import_hash{$key}->{'long'} );
-				};
-				unless($@){
-						$self->{_current_pixbuf_filename} = $import_hash{$key}->{'long'};
-						$button->set_icon_widget(Gtk2::Image->new_from_pixbuf( $screen_menu_item->get_image->get_pixbuf ));
-						$button->show_all;
-						$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
-				}else{
-					my $response = $self->{_dialogs}->dlg_error_message( 
-						sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $import_hash{$key}->{'long'} . "'" ),
-						$self->{_d}->get( "There was an error opening the image." ),
-						undef, undef, undef,
-						undef, undef, undef,
-						$@
-					);
-					$self->abort_current_mode;				
-				}
-			}
-		);
-
+		
+		#save filename and attributes
+		$screen_menu_item->{'name'} 		= $import_hash{$key}->{'long'};
+		$screen_menu_item->{'mime_type'} 	= $import_hash{$key}->{'mime_type'};
+		$screen_menu_item->{'mtime'}		= $import_hash{$key}->{'mtime'};
+		$screen_menu_item->{'uri'} 			= $import_hash{$key}->{'uri'};
+	
 		$menu_session_objects->append($screen_menu_item);
 	}
 
 	$menu_session_objects->show_all;
 
 	return $menu_session_objects;
+}
+
+sub gen_thumbnail_on_idle {
+	my $self 		= shift;
+	my $stock		= shift;
+	my $parent		= shift;
+	my $button 		= shift;
+	my $no_init		= shift;
+	my @menu_items 	= @_;
+	
+	#generate thumbnails in an idle callback
+	my $next_item = 0;
+	Glib::Idle->add(sub{
+		
+		#get next item
+		my $child = $menu_items[$next_item];
+		
+		#no valid item - stop the idle handler				
+		unless ($child){						
+			$parent->set_image (Gtk2::Image->new_from_stock ($stock, 'menu')) if $parent;
+			return FALSE;
+		}
+		
+		my $name = $child->{'name'};
+
+		#no valid item - stop the idle handler	
+		unless ($name){						
+			$parent->set_image (Gtk2::Image->new_from_stock ($stock, 'menu')) if $parent;
+			return FALSE;
+		}
+		
+		#increment counter
+		$next_item++;
+								
+		#create thumbnail
+		my $small_image;
+		eval{
+			#if uri exists we generate a thumbnail
+			#with Shutter::Pixbuf::Thumbnail
+			if(exists $child->{'uri'}){
+				$small_image = Gtk2::Image->new_from_pixbuf( $self->{_thumbs}->get_thumbnail(
+					$child->{'uri'}->to_string,
+					$child->{'mime_type'},
+					$child->{'mtime'},
+					0.2
+				));					
+			}else{ 
+				my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file ($name);
+				#16x16 is minimum size
+				if($pixbuf->get_width >= 16 && $pixbuf->get_height >= 16){
+					$small_image = Gtk2::Image->new_from_pixbuf( 
+						$pixbuf->scale_down_pixbuf(Gtk2::IconSize->lookup('menu'))
+					);
+				}
+			}
+		};
+		unless($@){
+			if($small_image){
+				$child->set_image($small_image);
+
+				#init when toplevel
+				unless ($no_init) {
+					unless($button->get_icon_widget){
+						$button->set_icon_widget(Gtk2::Image->new_from_pixbuf($small_image->get_pixbuf));
+						$self->{_current_pixbuf_filename} = $name;
+						$button->show_all;
+					}
+				}
+
+				$child->signal_connect(
+					'activate' => sub {					
+						$self->{_current_pixbuf_filename} = $name;
+						$button->set_icon_widget(Gtk2::Image->new_from_pixbuf($small_image->get_pixbuf));
+						$button->show_all;
+						$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
+					}
+				);
+			}else{
+				$child->destroy;
+			}
+		}else{
+			$child->destroy;
+		}
+		
+		return TRUE;
+	});#end idle callback
+
 }
 
 sub set_drawing_action {
@@ -5155,6 +5100,22 @@ sub change_cursor_to_current_pixbuf {
 	$self->{_current_mode_descr} = "image";
 
 	my $cursor = undef; 
+	
+	#load file
+	eval{
+		$self->{_current_pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($self->{_current_pixbuf_filename});
+	};				
+	if($@){
+		my $response = $self->{_dialogs}->dlg_error_message( 
+			sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $self->{_current_pixbuf_filename} . "'" ),
+			$self->{_d}->get( "There was an error opening the image." ),
+			undef, undef, undef,
+			undef, undef, undef,
+			$@
+		);
+		$self->abort_current_mode;	
+		return FALSE;	
+	}
 	
 	#very big images usually don't work as a cursor (no error though??)
 	my $pb_w = $self->{_current_pixbuf}->get_width;

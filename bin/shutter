@@ -80,7 +80,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.576";
+use constant REV                	=> "Rev.577";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80.1";
 
@@ -3291,7 +3291,7 @@ sub fct_load_session {
 
 		return FALSE if scalar( keys %{$session_xml} ) < 1;
 
-		my $restore_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/], 'info', 'close', undef );
+		my $restore_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/], 'info', 'close', 'none' );
 
 		$restore_dialog->set( 'text' => $d->get("Restoring session") );
 
@@ -3336,13 +3336,14 @@ sub fct_load_session {
 			&fct_integrate_screenshot_in_notebook( $new_uri, undef );
 
 		}
+	
 		$restore_dialog->response('ok');
 
 		#refresh tray icon
 		if ( $icon && $icon->isa('Gtk2::StatusIcon') ) {
 			$icon->set_blinking(FALSE);			
 		}
-
+		
 	};
 	if ($@) {
 		$shutter_dialog->dlg_error_message( $@, $d->get("Session could not be restored!") );
