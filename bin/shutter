@@ -80,7 +80,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.578";
+use constant REV                	=> "Rev.579";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.80.1";
 
@@ -6404,6 +6404,7 @@ sub dlg_plugin {
 	);
 	$plugin_dialog->set_default_response('accept');
 	$plugin_dialog->set_size_request(350, -1);
+	$plugin_dialog->set_resizable(FALSE);
 	
 	my $model = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String' );
 

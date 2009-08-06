@@ -52,8 +52,6 @@ NAME=$(basename ${FILE})
 PIECE="$SHUTTER_ROOT/share/shutter/resources/system/plugins/shell/spjigsaw1/spjigsaw_1.png"
 JIGSAW="$SHUTTER_ROOT/share/shutter/resources/system/plugins/shell/spjigsaw1/jigsaw"
 
-chmod +x ${JIGSAW}
-
 convert "${PIECE}" -resize 50% -flip -flop -repage ${GEO} \
 -background black -flatten -flip -flop /tmp/jigsaw_1_tmpl.png
 
