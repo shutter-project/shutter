@@ -62,7 +62,7 @@ use HTTP::Status;
 use XML::Simple;
 
 #DBus message system
-#~ use Net::DBus qw/ dbus_string /;
+use Net::DBus qw/ dbus_string /;
 
 #timing issues
 use Time::HiRes qw/ time usleep /;
@@ -80,9 +80,9 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.579";
+use constant REV                	=> "Rev.580";
 use constant SHUTTER_NAME         	=> "Shutter";
-use constant SHUTTER_VERSION      	=> "v0.80.1";
+use constant SHUTTER_VERSION      	=> "v0.85 beta";
 
 #--------------------------------------
 
@@ -144,6 +144,7 @@ require Shutter::App::Common;
 require Shutter::App::SimpleDialogs;
 require Shutter::App::HelperFunctions;
 require Shutter::App::Menu;
+require Shutter::App::Notification;
 require Shutter::App::Toolbar;
 
 #pixbuf operations
@@ -179,10 +180,15 @@ my $window 	= Gtk2::Window->new('toplevel');
 #--------------------------------------
 my $shutter_common 	= Shutter::App::Common->new($shutter_root);
 $shutter_common->set_mainwindow($window);
+$shutter_common->set_notification_object(
+	Shutter::App::Notification->new(SHUTTER_NAME . " " . SHUTTER_VERSION)
+);
+
 my $shutter_hfunct 	= Shutter::App::HelperFunctions->new($shutter_common);
 my $shutter_menu   	= Shutter::App::Menu->new($shutter_common);
 my $shutter_tool   	= Shutter::App::Toolbar->new($shutter_common);
 my $shutter_dialog 	= Shutter::App::SimpleDialogs->new($window);
+
 my $shutter_pix 	= Shutter::Pixbuf::Save->new($shutter_common);
 my $shutter_thumb 	= Shutter::Pixbuf::Thumbnail->new($shutter_common);
 

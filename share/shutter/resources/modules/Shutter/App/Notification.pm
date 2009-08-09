@@ -1,0 +1,98 @@
+###################################################
+#
+#  Copyright (C) 2008, 2009 Mario Kemper <mario.kemper@googlemail.com> and Shutter Team
+#
+#  This file is part of Shutter.
+#
+#  Shutter is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Shutter is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Shutter; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+###################################################
+
+package Shutter::App::Notification;
+
+#modules
+#--------------------------------------
+use utf8;
+use strict;
+use warnings;
+
+use Net::DBus;
+
+#Gettext and filename parsing
+use POSIX qw/setlocale strftime/;
+use Locale::gettext;
+
+#define constants
+#--------------------------------------
+use constant TRUE  => 1;
+use constant FALSE => 0;
+
+#--------------------------------------
+
+sub new {
+	my $class = shift;
+
+	my $self = { _name => shift };
+
+	#Use notifications object
+	eval{
+		$self->{_notifications_service} = Net::DBus->session->get_service('org.freedesktop.Notifications');
+		$self->{_notifications_object} = $self->{_notifications_service}->get_object('/org/freedesktop/Notifications', 'org.freedesktop.Notifications');
+	};
+	if($@){
+		print "Warning: $@", "\n";	
+	}
+
+	bless $self, $class;
+	return $self;
+}
+
+sub show {
+	my $self 	= shift;
+	my $summary = shift;
+	my $body 	= shift;
+	my $nid		= shift || 0;
+
+	#notification
+	eval{
+		if(defined $self->{_notifications_object}){
+			$nid = $self->{_notifications_object}->Notify('Shutter', $nid, "gtk-dialog-info", $summary, $body, [], {}, -1);
+		}
+	};
+	if($@){
+		print "Warning: $@", "\n";		
+	}
+
+	return $nid;
+}
+
+sub close {
+	my $self 	= shift;
+	my $nid		= shift || 0;
+
+	#close notification
+	eval{
+		if(defined $self->{_notifications_object}){
+			$self->{_notifications_object}->CloseNotification($nid);
+		}
+	};
+	if($@){
+		print "Warning: $@", "\n";		
+	}
+
+	return TRUE;
+}
+
+1;

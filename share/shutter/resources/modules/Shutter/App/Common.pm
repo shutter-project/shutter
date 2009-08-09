@@ -66,6 +66,9 @@ sub new {
 	#tooltips
 	$self->{_tooltips} = Gtk2::Tooltips->new;
 
+	#notification object
+	$self->{_notification};
+
 	#icontheme to determine if icons exist or not
 	#in some cases we deliver fallback icons
 	$self->{_icontheme} = Gtk2::IconTheme->get_default;
@@ -109,6 +112,19 @@ sub set_tooltips {
 		$self->{_tooltips} = shift;
 	}
 	return $self->{_tooltips};
+}
+
+sub get_notification_object {
+	my $self = shift;
+	return $self->{_notification};
+}
+
+sub set_notification_object {
+	my $self = shift;
+	if (@_) {
+		$self->{_notification} = shift;
+	}
+	return $self->{_notification};
 }
 
 sub get_debug {
