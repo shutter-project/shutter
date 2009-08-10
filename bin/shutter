@@ -80,7 +80,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.582";
+use constant REV                	=> "Rev.583";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.8x experimental branch";
 
@@ -2330,36 +2330,40 @@ sub fct_add_file_monitor {
 	$session_screens{$key}->{'created'} = FALSE;
 
 	my $result;
-	( $result, $session_screens{$key}->{'handle'} ) = Gnome2::VFS::Monitor->add(
-		$session_screens{$key}->{'uri'}->to_string,
-		'file',
-		sub {
-			my $handle = shift;
-			my $file1  = shift;
-			my $file2  = shift;
-			my $event  = shift;
-			my $key    = shift;
+	if(defined $session_screens{$key}->{'uri'}){	
+		( $result, $session_screens{$key}->{'handle'} ) = Gnome2::VFS::Monitor->add(
+			$session_screens{$key}->{'uri'}->to_string,
+			'file',
+			sub {
+				my $handle = shift;
+				my $file1  = shift;
+				my $file2  = shift;
+				my $event  = shift;
+				my $key    = shift;
 
-			print $event. " - $key\n" if $shutter_common->get_debug;
+				print $event. " - $key\n" if $shutter_common->get_debug;
 
-			if ( $event eq 'deleted' ) {
+				if ( $event eq 'deleted' ) {
+					
+					$handle->cancel;
+					$session_screens{$key}->{'deleted'} = TRUE;
+					$session_screens{$key}->{'changed'} = TRUE;
+					&fct_update_tab($key);
+
+				} elsif ( $event eq 'changed' ) {
+
+					print $session_screens{$key}->{'uri'}->to_string . " - " . $event . "\n" if $shutter_common->get_debug;
+					$session_screens{$key}->{'changed'} = TRUE;
+					&fct_update_tab($key);
 				
-				$handle->cancel;
-				$session_screens{$key}->{'deleted'} = TRUE;
-				$session_screens{$key}->{'changed'} = TRUE;
-				&fct_update_tab($key);
+				}
 
-			} elsif ( $event eq 'changed' ) {
-
-				print $session_screens{$key}->{'uri'}->to_string . " - " . $event . "\n" if $shutter_common->get_debug;
-				$session_screens{$key}->{'changed'} = TRUE;
-				&fct_update_tab($key);
-			
-			}
-
-		},
-		$key
-	);
+			},
+			$key
+		);
+	}else{
+		$result = 'error-generic';	
+	}
 	
 	#show error dialog when installing the file
 	#monitor failed
@@ -3950,7 +3954,7 @@ sub fct_take_screenshot {
 
 		#we have to use the path (e.g. /home/username/file1.png)
 		#so we can save the screenshot_properly
-		$screenshot_name = $uri->get_path;
+		$screenshot_name = $shutter_hfunct->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path));
 		#maybe / is set as uri (get_path returns undef)
 		#in this case nothing is returned when using get_path
 		#we use the directory name and the short name in this case
@@ -3961,8 +3965,16 @@ sub fct_take_screenshot {
 		my $swidth  = $screenshot->get_width;
 		my $sheight = $screenshot->get_height;
 
-		$screenshot_name =~ s/\%24w/$swidth/g;
-		$screenshot_name =~ s/\%24h/$sheight/g;
+		$screenshot_name =~ s/\$w/$swidth/g;
+		$screenshot_name =~ s/\$h/$sheight/g;
+
+		#set name
+		#e.g. window or workspace name		
+		if(defined $screenshot->{'name'}){
+			$screenshot_name =~ s/\$name/$screenshot->{'name'}/g;		
+		}else{
+			$screenshot_name =~ s/\$name/unknown/g;	
+		}
 
 		#update uri after parsing as well, so we can check if file exists for example
 		$uri = Gnome2::VFS::URI->new ($screenshot_name);
@@ -4000,8 +4012,6 @@ sub fct_take_screenshot {
 
 	}    #end screenshot successfull
 	
-	print $uri->to_string, "\n";
-	
 	if ( $uri->exists ) {
 
 		#quantize
@@ -4028,12 +4038,12 @@ sub fct_take_screenshot {
 			$screenshot_thumbnail = Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $screenshot_name, $twidth, $theight, TRUE );
 
 			#save path of thumbnail
-			my ($name, $folder, $ext) = fileparse( $uri->get_path, '\..*' );
+			my ($name, $folder, $ext) = fileparse( $screenshot_name, '\..*' );
 			$screenshot_thumbnail_name = $folder . "/$name-$thumbnail_ending.$filetype_value";
 
 			#parse wild cards
-			$screenshot_thumbnail_name =~ s/\%24w/$twidth/g;
-			$screenshot_thumbnail_name =~ s/\%24h/$theight/g;
+			$screenshot_thumbnail_name =~ s/\$w/$twidth/g;
+			$screenshot_thumbnail_name =~ s/\$h/$theight/g;
 
 			print "Trying to save file to $screenshot_thumbnail_name\n"
 				if $shutter_common->get_debug;
@@ -4692,9 +4702,21 @@ sub fct_update_tab {
 			$session_screens{$key}->{'mtime'}    = $fileinfo->{'mtime'};
 			$session_screens{$key}->{'size'}     = $fileinfo->{'size'};
 
-			$session_screens{$key}->{'short'}    = $session_screens{$key}->{'uri'}->extract_short_name;
-			$session_screens{$key}->{'long'}     = $session_screens{$key}->{'uri'}->get_path;
-			$session_screens{$key}->{'folder'}   = $session_screens{$key}->{'uri'}->extract_dirname;
+			$session_screens{$key}->{'short'}    = $shutter_hfunct->utf8_decode(
+													Gnome2::VFS->unescape_string(
+														$session_screens{$key}->{'uri'}->extract_short_name
+														)
+													);
+			$session_screens{$key}->{'long'}     = $shutter_hfunct->utf8_decode(
+													Gnome2::VFS->unescape_string(
+														$session_screens{$key}->{'uri'}->get_path
+														)
+													);
+			$session_screens{$key}->{'folder'}   = $shutter_hfunct->utf8_decode(
+													Gnome2::VFS->unescape_string(
+														$session_screens{$key}->{'uri'}->extract_dirname
+														)
+													);
 			$session_screens{$key}->{'filetype'} = $session_screens{$key}->{'short'};
 			$session_screens{$key}->{'filetype'} =~ s/.*\.//ig;
 
@@ -4938,7 +4960,6 @@ sub fct_check_installed_programs {
 }
 
 sub fct_get_next_filename {
-
 	my ( $filename_value, $folder, $filetype_value ) = @_;
 
 	$filename_value =~ s/\\//g;
@@ -4962,9 +4983,38 @@ sub fct_get_next_filename {
 			}
 		}
 
+		#prepare filename
+		print "$n_counter Ns used in wild-card\n" if $shutter_common->get_debug;
+		my $marks = "";
+		my $i     = 0;
+
+		while ( $i < $n_counter ) {
+			$marks .= '\d';
+			$i++;
+		}
+
+		#switch %Ns to \d
+		$filename_value =~ s/\%N{1,}/$marks/g;
+
+		#construct regex
+		my $first = index( "$filename_value", '\d', 0 );
+		my $search_file_start 	= substr( $filename_value, 0, $first );
+		my $search_file_end 	= substr( $filename_value, $first+$n_counter*2, length($filename_value)-$first+$n_counter*2 );
+		
+		#store regex to string
+		my $search_pattern = qr/$search_file_start($marks)$search_file_end\.$filetype_value/;
+		
+		#shutter's custom wildcards are switched to reg.expressions in this search
+		#($w, $h, $name)
+		$search_pattern =~ s/\$w/\\d{1,}/g;
+		$search_pattern =~ s/\$h/\\d{1,}/g;
+		$search_pattern =~ s/\$name/.*/g;
+
+		print "Searching for files with pattern: $search_pattern\n"
+			if $shutter_common->get_debug;
+
 		#get_all files from directory
 		#we handle the listing with GnomeVFS to read remote dirs as well
-		my @files;
 		my ( $result, $uri_list ) = Gnome2::VFS::Directory->open( $folder, 'default' );
 
 		#could not open directory, show error message and return
@@ -4982,43 +5032,11 @@ sub fct_get_next_filename {
 
 		}
 
-		#prepare filename
-		print "$n_counter Ns used in wild-card\n" if $shutter_common->get_debug;
-		my $marks = "";
-		my $i     = 0;
-
-		while ( $i < $n_counter ) {
-			$marks .= '\d';
-			$i++;
-		}
-
-		$filename_value =~ s/\%N{1,}/$marks/g;
-
-		#~ my $search_file = $filename_value."\.".$filetype_value;
-		my $first = index( "$filename_value", '\d', 0 );
-		my $search_file_start 	= substr( $filename_value, 0, $first );
-		my $search_file_end 	= substr( $filename_value, $first+$n_counter*2, length($filename_value)-$first+$n_counter*2 );
-		print $search_file_start, " -start\n";
-		print $search_file_end, " -ende\n";
-		
-		#store regex to string
-		
-		my $search_pattern = qr/$search_file_start($marks)$search_file_end\.$filetype_value/;
-		
-		#shutter's custom wildcards are escaped in this search
-		#($w, $h, $name)
-		$search_pattern =~ s/\$w/\\d{1,}/g;
-		$search_pattern =~ s/\$h/\\d{1,}/g;
-		$search_pattern =~ s/\$name/.*/g;
-
 		#reading all files in current directory
 		my $next_count = 0;
 		while ( my ( $result, $file ) = $uri_list->read_next ) {
 			if ( $result eq 'ok' ) {
 				my $fileinfo = Gnome2::VFS::FileInfo->new($file);
-
-				print "Searching for files with pattern: $search_pattern\n"
-					if $shutter_common->get_debug;
 				
 				#does the current file match the pattern?
 				if ($fileinfo->{'name'} =~ $search_pattern){
@@ -5028,7 +5046,6 @@ sub fct_get_next_filename {
 						print "$next_count is currently greatest value...\n"
 							if $shutter_common->get_debug;						
 					}
-					push @files, $fileinfo->{'name'};
 				}
 			} elsif ( $result eq 'error-eof' ) {
 				$uri_list->close();
@@ -5039,36 +5056,16 @@ sub fct_get_next_filename {
 		}
 
 		$next_count = 0 unless $next_count =~ /^(\d+\.?\d*|\.\d+)$/;
-		$next_count = sprintf( "%0" . $n_counter . "d", $next_count + 1 );
+		unless(length($next_count + 1) > $n_counter){
+			$next_count = sprintf( "%0" . $n_counter . "d", $next_count + 1 );
+		}else{
+			$next_count = sprintf( "%0" . $n_counter . "d", $next_count);
+		}
 		$marks = quotemeta $marks;
+		
+		#switch placeholder to $next_count
 		$filename_value =~ s/$marks/$next_count/g;
 
-		@files = sort { $b cmp $a } @files;
-
-		if ( $shutter_common->get_debug ) {
-			print "All files in directory for this pattern:\n";
-			foreach (@files) {
-				print $_. " \n";
-			}
-		}
-
-		#~ #check pos of %NN
-		#~ $filename_value =~ s/\\d/d/g;
-		#~ my $pos = index( "$filename_value", '\d', 0 );
-		#~ my $next_count = 0;
-		#~ unless ( $pos == -1 ) {
-			#~ foreach (@files) {
-				#~ $next_count = substr( $_, $pos, $n_counter );
-				#~ next unless $next_count =~ /^(\d+\.?\d*|\.\d+)$/;
-				#~ print "Counter at position $pos - $next_count is currently greatest value...\n"
-					#~ if $shutter_common->get_debug;
-				#~ last;
-			#~ }
-		#~ }
-		#~ $next_count = 0 unless $next_count =~ /^(\d+\.?\d*|\.\d+)$/;
-		#~ $next_count = sprintf( "%0" . $n_counter . "d", $next_count + 1 );
-		#~ $marks = quotemeta $marks;
-		#~ $filename_value =~ s/$marks/$next_count/g;
 	}
 
 	#create new uri

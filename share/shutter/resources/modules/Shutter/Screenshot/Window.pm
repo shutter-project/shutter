@@ -81,9 +81,9 @@ sub new {
 #~ } 
 #~ 
 
-1;
-
-__DATA__
+#~ 1;
+#~ 
+#~ __DATA__
 
 sub find_wm_window {
 	my $self = shift;
@@ -244,6 +244,10 @@ sub window_by_xid {
 		#save return value to current $output variable 
 		#-> ugly but fastest and safest solution now
 		$output = $output_new;	
+
+		#set name of the captured window
+		#e.g. for use in wildcards
+		$output->{'name'} = $wnck_window->get_name;	
 
 		#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
 		if($self->{_x11}{ext_shape} && $self->{_include_border}){
@@ -640,8 +644,8 @@ sub window {
 
 							#save return value to current $output variable 
 							#-> ugly but fastest and safest solution now
-							$output = $output_new;						 
-							
+							$output = $output_new;
+														
 							#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
 							if($self->{_x11}{ext_shape} && $self->{_include_border}){
 								my $xid = $self->{_c}{ 'cw' }{ 'gdk_window' }->get_xid;
@@ -653,6 +657,10 @@ sub window {
 									}
 								}
 							}
+
+							#set name of the captured window
+							#e.g. for use in wildcards
+							$output->{'name'} = $self->{_c}{'cw'}{'window'}->get_name;	
 
 							$self->quit;
 							return FALSE;	
@@ -702,7 +710,6 @@ sub quit {
 	
 	$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
 	Gtk2::Gdk->flush;
-	
 }
 
 1;
