@@ -80,7 +80,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.581";
+use constant REV                	=> "Rev.582";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.8x experimental branch";
 
@@ -4961,16 +4961,6 @@ sub fct_get_next_filename {
 				last;
 			}
 		}
-		print "$n_counter Ns used in wild-card\n" if $shutter_common->get_debug;
-		my $marks = "";
-		my $i     = 0;
-
-		while ( $i < $n_counter ) {
-			$marks .= '(\d)';
-			$i++;
-		}
-
-		$filename_value =~ s/\%N{1,}/$marks/g;
 
 		#get_all files from directory
 		#we handle the listing with GnomeVFS to read remote dirs as well
@@ -4993,10 +4983,27 @@ sub fct_get_next_filename {
 		}
 
 		#prepare filename
-		my $search_file = $filename_value."\.".$filetype_value;
+		print "$n_counter Ns used in wild-card\n" if $shutter_common->get_debug;
+		my $marks = "";
+		my $i     = 0;
+
+		while ( $i < $n_counter ) {
+			$marks .= '\d';
+			$i++;
+		}
+
+		$filename_value =~ s/\%N{1,}/$marks/g;
+
+		#~ my $search_file = $filename_value."\.".$filetype_value;
+		my $first = index( "$filename_value", '\d', 0 );
+		my $search_file_start 	= substr( $filename_value, 0, $first );
+		my $search_file_end 	= substr( $filename_value, $first+$n_counter*2, length($filename_value)-$first+$n_counter*2 );
+		print $search_file_start, " -start\n";
+		print $search_file_end, " -ende\n";
 		
 		#store regex to string
-		my $search_pattern = qr/$search_file/;
+		
+		my $search_pattern = qr/$search_file_start($marks)$search_file_end\.$filetype_value/;
 		
 		#shutter's custom wildcards are escaped in this search
 		#($w, $h, $name)
@@ -5005,16 +5012,22 @@ sub fct_get_next_filename {
 		$search_pattern =~ s/\$name/.*/g;
 
 		#reading all files in current directory
+		my $next_count = 0;
 		while ( my ( $result, $file ) = $uri_list->read_next ) {
 			if ( $result eq 'ok' ) {
 				my $fileinfo = Gnome2::VFS::FileInfo->new($file);
 
-				#~ print "Searching for files with pattern: $search_pattern\n"
-					#~ if $shutter_common->get_debug;
+				print "Searching for files with pattern: $search_pattern\n"
+					if $shutter_common->get_debug;
 				
 				#does the current file match the pattern?
 				if ($fileinfo->{'name'} =~ $search_pattern){
-					print $1, " - \n";
+					my $curr_value = $1;
+					if($curr_value && $curr_value > $next_count){
+						$next_count = $curr_value;
+						print "$next_count is currently greatest value...\n"
+							if $shutter_common->get_debug;						
+					}
 					push @files, $fileinfo->{'name'};
 				}
 			} elsif ( $result eq 'error-eof' ) {
@@ -5025,6 +5038,11 @@ sub fct_get_next_filename {
 			}
 		}
 
+		$next_count = 0 unless $next_count =~ /^(\d+\.?\d*|\.\d+)$/;
+		$next_count = sprintf( "%0" . $n_counter . "d", $next_count + 1 );
+		$marks = quotemeta $marks;
+		$filename_value =~ s/$marks/$next_count/g;
+
 		@files = sort { $b cmp $a } @files;
 
 		if ( $shutter_common->get_debug ) {
@@ -5034,23 +5052,23 @@ sub fct_get_next_filename {
 			}
 		}
 
-		#check pos of %NN
+		#~ #check pos of %NN
 		#~ $filename_value =~ s/\\d/d/g;
-		my $pos = index( "$filename_value", '\d', 0 );
-		my $next_count = 0;
-		unless ( $pos == -1 ) {
-			foreach (@files) {
-				$next_count = substr( $_, $pos, $n_counter );
-				next unless $next_count =~ /^(\d+\.?\d*|\.\d+)$/;
-				print "Counter at position $pos - $next_count is currently greatest value...\n"
-					if $shutter_common->get_debug;
-				last;
-			}
-		}
-		$next_count = 0 unless $next_count =~ /^(\d+\.?\d*|\.\d+)$/;
-		$next_count = sprintf( "%0" . $n_counter . "d", $next_count + 1 );
-		$marks = quotemeta $marks;
-		$filename_value =~ s/$marks/$next_count/g;
+		#~ my $pos = index( "$filename_value", '\d', 0 );
+		#~ my $next_count = 0;
+		#~ unless ( $pos == -1 ) {
+			#~ foreach (@files) {
+				#~ $next_count = substr( $_, $pos, $n_counter );
+				#~ next unless $next_count =~ /^(\d+\.?\d*|\.\d+)$/;
+				#~ print "Counter at position $pos - $next_count is currently greatest value...\n"
+					#~ if $shutter_common->get_debug;
+				#~ last;
+			#~ }
+		#~ }
+		#~ $next_count = 0 unless $next_count =~ /^(\d+\.?\d*|\.\d+)$/;
+		#~ $next_count = sprintf( "%0" . $n_counter . "d", $next_count + 1 );
+		#~ $marks = quotemeta $marks;
+		#~ $filename_value =~ s/$marks/$next_count/g;
 	}
 
 	#create new uri
