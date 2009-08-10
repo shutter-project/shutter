@@ -143,7 +143,6 @@ sub save_pixbuf_to_file {
 	}
 	
 	return TRUE;
-	
 }
 
 #use imagemagick for all filetypes that are not

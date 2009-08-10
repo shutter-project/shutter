@@ -80,9 +80,9 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.580";
+use constant REV                	=> "Rev.581";
 use constant SHUTTER_NAME         	=> "Shutter";
-use constant SHUTTER_VERSION      	=> "v0.85 beta";
+use constant SHUTTER_VERSION      	=> "v0.8x experimental branch";
 
 #--------------------------------------
 
@@ -3987,7 +3987,7 @@ sub fct_take_screenshot {
 		}
 		
 		#we have to update the path again
-		$screenshot_name = $uri->get_path();
+		$screenshot_name = $shutter_hfunct->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path));
 
 		print "Trying to save file to $screenshot_name\n"
 			if $shutter_common->get_debug;
@@ -3999,6 +3999,9 @@ sub fct_take_screenshot {
 		}
 
 	}    #end screenshot successfull
+	
+	print $uri->to_string, "\n";
+	
 	if ( $uri->exists ) {
 
 		#quantize
@@ -4073,7 +4076,7 @@ sub fct_take_screenshot {
 	} else {
 		#show error dialog
 		my $response = $shutter_dialog->dlg_error_message( 
-			$d->get( "Maybe mouse pointer could not be grabbed or the selected area is invalid." ),
+			$d->get( "Maybe bbmouse pointer could not be grabbed or the selected area is invalid." ),
 			$d->get( "Error while taking the screenshot." )
 		);
 		&dlg_status_message( 1, $d->get("Error while taking the screenshot.") );
@@ -4944,12 +4947,14 @@ sub fct_get_next_filename {
 	if ( $filename_value =~ /\%N{1,}/ ) {
 
 		#how many Ns are used? (important for formatting)
-		my $pos_proc = index( $filename_value, "%", 0 );
-		my $n_counter = 0;
+		my $pos_proc 	= index( $filename_value, "%", 0 );
+		my $n_counter 	= 0;
+		my $last_pos 	= $pos_proc;
 		$pos_proc++;
 
 		while ( $pos_proc <= length($filename_value) ) {
-			if ( index( $filename_value, "N", $pos_proc ) != -1 ) {
+			$last_pos = index( $filename_value, "N", $pos_proc );
+			if ( $last_pos != -1 && ($last_pos - $pos_proc <= 1)) {
 				$n_counter++;
 				$pos_proc++;
 			} else {
@@ -4961,13 +4966,11 @@ sub fct_get_next_filename {
 		my $i     = 0;
 
 		while ( $i < $n_counter ) {
-			$marks .= '\d';
+			$marks .= '(\d)';
 			$i++;
 		}
 
 		$filename_value =~ s/\%N{1,}/$marks/g;
-		print "Searching for files with pattern: $filename_value.$filetype_value\n"
-			if $shutter_common->get_debug;
 
 		#get_all files from directory
 		#we handle the listing with GnomeVFS to read remote dirs as well
@@ -4989,12 +4992,31 @@ sub fct_get_next_filename {
 
 		}
 
+		#prepare filename
+		my $search_file = $filename_value."\.".$filetype_value;
+		
+		#store regex to string
+		my $search_pattern = qr/$search_file/;
+		
+		#shutter's custom wildcards are escaped in this search
+		#($w, $h, $name)
+		$search_pattern =~ s/\$w/\\d{1,}/g;
+		$search_pattern =~ s/\$h/\\d{1,}/g;
+		$search_pattern =~ s/\$name/.*/g;
+
 		#reading all files in current directory
 		while ( my ( $result, $file ) = $uri_list->read_next ) {
 			if ( $result eq 'ok' ) {
 				my $fileinfo = Gnome2::VFS::FileInfo->new($file);
-				my $search_pattern = $filename_value."\.".$filetype_value;
-				push @files, $fileinfo->{'name'} if $fileinfo->{'name'} =~ /$search_pattern/;
+
+				#~ print "Searching for files with pattern: $search_pattern\n"
+					#~ if $shutter_common->get_debug;
+				
+				#does the current file match the pattern?
+				if ($fileinfo->{'name'} =~ $search_pattern){
+					print $1, " - \n";
+					push @files, $fileinfo->{'name'};
+				}
 			} elsif ( $result eq 'error-eof' ) {
 				$uri_list->close();
 				last;
