@@ -80,7 +80,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.584";
+use constant REV                	=> "Rev.585";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.8x experimental branch";
 
@@ -3971,6 +3971,7 @@ sub fct_take_screenshot {
 		#set name
 		#e.g. window or workspace name		
 		if(defined $screenshot->{'name'}){
+			utf8::decode $screenshot->{'name'};
 			$screenshot_name =~ s/\$name/$screenshot->{'name'}/g;		
 		}else{
 			$screenshot_name =~ s/\$name/unknown/g;	
