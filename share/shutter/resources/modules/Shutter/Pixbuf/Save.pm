@@ -64,11 +64,31 @@ sub save_pixbuf_to_file {
 	my $self = shift;
 	my $pixbuf = shift;
 	my $filename = shift;
-	my $old_filename = shift;
 	my $filetype = shift;
 	my $quality = shift;
+
+
+			#~ my $short   = 
+													#~ Gnome2::VFS->unescape_string(
+														#~ $filename->extract_short_name
+														#~ )
+													#~ ;
+#~ 
+			#~ my $folder   = 
+													#~ Gnome2::VFS->unescape_string(
+														#~ $filename->extract_dirname
+														#~ )
+													#~ ;
+
+	#~ my $escaped = Gnome2::VFS->escape_string ($filename);
+	#~ $short =~ s/\//-/g;
+	#~ $screenshot_name = Gnome2::VFS->unescape_string($uri->get_path));
 	
-	print "Saving file $filename, $filetype, $quality, $old_filename\n" if $self->{_common}->get_debug;
+	#~ print $short, "\n";
+
+	#~ $filename = $folder."/".$short;
+
+	print "Saving file $filename, $filetype, $quality\n" if $self->{_common}->get_debug;
 
 	#gettext variable
 	my $d = $self->{_common}->get_gettext;
@@ -85,7 +105,7 @@ sub save_pixbuf_to_file {
 	} elsif ( $filetype eq 'png' ) {
 		$quality = '9' unless $quality;
 		eval{
-			$pixbuf->save( $filename, $filetype, compression => $quality );
+			$pixbuf->save( $filename, $filetype, "tEXt::Software" => "Shutter", compression => $quality );
 		};
 	} elsif ( $filetype eq 'bmp' ) {	
 		eval{
@@ -152,11 +172,11 @@ sub use_imagemagick_to_save {
 	my $self = shift;
 	my $file = shift;
 	my $new_file = shift;
-	
-	#escape filenames first
+
+	#escape filename first
 	$file = quotemeta $file;
 	$new_file = quotemeta $new_file;
-	
+		
 	my $result = `convert $file $new_file 2>&1`;
 		
 	return $result;

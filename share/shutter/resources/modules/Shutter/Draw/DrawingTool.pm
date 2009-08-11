@@ -1368,7 +1368,7 @@ sub save {
 		
 	#save pixbuf to file
 	my $pixbuf_save = Shutter::Pixbuf::Save->new( $self->{_shutter_common}, $self->{_drawing_window} );
-	return $pixbuf_save->save_pixbuf_to_file($pixbuf, $self->{_filename}, $self->{_filename}, $self->{_filetype});
+	return $pixbuf_save->save_pixbuf_to_file($pixbuf, $self->{_filename}, $self->{_filetype});
 
 }
 

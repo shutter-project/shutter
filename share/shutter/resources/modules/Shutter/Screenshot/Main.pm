@@ -153,7 +153,7 @@ sub ungrab_pointer_and_keyboard {
 		#~ my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
 		#~ 
 		#~ my ($pixbuf, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_pixbuf_from_drawable($drawable, $x, $y, $width, $height, FALSE, 1);
-		#~ $pixbuf_save->save_pixbuf_to_file($pixbuf, $tmpfilename, $tmpfilename, 'miff');
+		#~ $pixbuf_save->save_pixbuf_to_file($pixbuf, $tmpfilename, 'miff');
 	#~ 
 		#~ push @steps, $tmpfilename;		
 		#~ 

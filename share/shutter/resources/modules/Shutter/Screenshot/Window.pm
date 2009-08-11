@@ -245,14 +245,15 @@ sub window_by_xid {
 		#-> ugly but fastest and safest solution now
 		$output = $output_new;	
 
-		#set name of the captured window
-		#e.g. for use in wildcards
-		$output->{'name'} = $wnck_window->get_name;	
-
 		#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
 		if($self->{_x11}{ext_shape} && $self->{_include_border}){
 			$output = $self->get_shape($self->{_xid}, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);				
 		}
+
+		#set name of the captured window
+		#e.g. for use in wildcards
+		$output->{'name'} = $wnck_window->get_name;
+		$output->{'name'} =~ s/\//-/g;
 
 		$self->quit;
 		return FALSE;	
@@ -661,7 +662,8 @@ sub window {
 							#set name of the captured window
 							#e.g. for use in wildcards
 							$output->{'name'} = $self->{_c}{'cw'}{'window'}->get_name;	
-
+							$output->{'name'} =~ s/\//-/g;
+	
 							$self->quit;
 							return FALSE;	
 						});	

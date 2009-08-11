@@ -80,7 +80,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.583";
+use constant REV                	=> "Rev.584";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.8x experimental branch";
 
@@ -3987,7 +3987,7 @@ sub fct_take_screenshot {
 		if($data ne "web" && $data ne "tray_web"){
 			if ( $uri->exists ) {
 				my $count             = 1;
-				my $filename_value = fileparse( $uri->get_path, '\..*' );
+				my $filename_value = fileparse( $shutter_hfunct->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path)), '\..*' );
 				my $existing_filename = $filename_value;
 				while ( $uri->exists ) {
 					$filename_value = $existing_filename . "(" . sprintf( "%03d", $count++ ) . ")";
@@ -4005,7 +4005,7 @@ sub fct_take_screenshot {
 			if $shutter_common->get_debug;
 
 		#finally save pixbuf
-		unless ($shutter_pix->save_pixbuf_to_file($screenshot, $screenshot_name, $screenshot_name, $filetype_value, $quality_value)){
+		unless ($shutter_pix->save_pixbuf_to_file($screenshot, $screenshot_name, $filetype_value, $quality_value)){
 			&fct_control_main_window( TRUE, 'show');
 			return FALSE;			
 		}
@@ -4049,7 +4049,7 @@ sub fct_take_screenshot {
 				if $shutter_common->get_debug;
 
 			#finally save pixbuf
-			unless($shutter_pix->save_pixbuf_to_file($screenshot_thumbnail, $screenshot_thumbnail_name, $screenshot_thumbnail_name, $filetype_value, $quality_value)){
+			unless($shutter_pix->save_pixbuf_to_file($screenshot_thumbnail, $screenshot_thumbnail_name, $filetype_value, $quality_value)){
 				&fct_control_main_window( TRUE, 'show');
 				return FALSE;			
 			}
@@ -4529,7 +4529,7 @@ sub fct_save_as {
 			unless ( $shutter_hfunct->file_exists($filename) ) {
 				#save as (pixbuf, new_filename, filetype, quality - auto here, old_filename)
 				my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} );
-				if($shutter_pix->save_pixbuf_to_file($pixbuf, $filename, $session_screens{$key}->{'long'}, $choosen_format)){
+				if($shutter_pix->save_pixbuf_to_file($pixbuf, $filename, $choosen_format)){
 
 					#cancel handle
 					if ( exists $session_screens{$key}->{'handle'} ) {
@@ -4561,7 +4561,7 @@ sub fct_save_as {
 
 				if ( $response == 40 ) {
 					my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} );
-					if($shutter_pix->save_pixbuf_to_file($pixbuf, $filename, $session_screens{$key}->{'long'}, $choosen_format)){
+					if($shutter_pix->save_pixbuf_to_file($pixbuf, $filename, $choosen_format)){
 
 						#cancel handle
 						if ( exists $session_screens{$key}->{'handle'} ) {
@@ -4847,7 +4847,7 @@ sub fct_update_tab {
 				
 				#try to resave the file
 				my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'temp'} );
-				if($shutter_pix->save_pixbuf_to_file($pixbuf, $session_screens{$key}->{'long'}, $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'})){
+				if($shutter_pix->save_pixbuf_to_file($pixbuf, $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'})){
 
 					#setup a new filemonitor, so we get noticed if the file changed
 					&fct_add_file_monitor($key);
@@ -4998,17 +4998,20 @@ sub fct_get_next_filename {
 
 		#construct regex
 		my $first = index( "$filename_value", '\d', 0 );
-		my $search_file_start 	= substr( $filename_value, 0, $first );
-		my $search_file_end 	= substr( $filename_value, $first+$n_counter*2, length($filename_value)-$first+$n_counter*2 );
+		my $search_file_start 	= quotemeta substr( $filename_value, 0, $first );
+		my $search_file_end 	= quotemeta substr( $filename_value, $first+$n_counter*2, length($filename_value)-$first+$n_counter*2 );
 		
 		#store regex to string
 		my $search_pattern = qr/$search_file_start($marks)$search_file_end\.$filetype_value/;
+
+		print "Searching for files with pattern: $search_pattern\n"
+			if $shutter_common->get_debug;
 		
 		#shutter's custom wildcards are switched to reg.expressions in this search
 		#($w, $h, $name)
-		$search_pattern =~ s/\$w/\\d{1,}/g;
-		$search_pattern =~ s/\$h/\\d{1,}/g;
-		$search_pattern =~ s/\$name/.*/g;
+		$search_pattern =~ s/\\\$w/\\d{1,}/g;
+		$search_pattern =~ s/\\\$h/\\d{1,}/g;
+		$search_pattern =~ s/\\\$name/.{1,}/g;
 
 		print "Searching for files with pattern: $search_pattern\n"
 			if $shutter_common->get_debug;
