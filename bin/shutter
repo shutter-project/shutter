@@ -80,7 +80,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.586";
+use constant REV                	=> "Rev.587";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.8x experimental branch";
 
@@ -502,26 +502,19 @@ $st->{_select}->signal_connect( 'clicked' => \&evt_take_screenshot, 'select' );
 my $current_monitor_active = undef;
 $st->{_full}->signal_connect( 'clicked' => \&evt_take_screenshot, 'raw' );
 
-#do this when idle
+#init menus when idle
 Glib::Idle->add (
 sub{
 	$st->{_full}->set_menu( &fct_ret_workspace_menu(TRUE) );	
+	$st->{_window}->set_menu( &fct_ret_window_menu );	
 	return FALSE;
 });	
 
-$st->{_full}->signal_connect( 'show-menu' => sub { &fct_ret_workspace_menu(FALSE) } );
-
+#and attach signal handlers
+$st->{_full}->signal_connect( 'show-menu' => sub { $st->{_full}->set_menu( &fct_ret_workspace_menu(FALSE) ) } );
 $st->{_window}->signal_connect( 'clicked' => \&evt_take_screenshot, 'window' );
 
-#do this when idle
-Glib::Idle->add (
-sub{
-	$st->{_window}->set_menu(&fct_ret_window_menu);	
-	return FALSE;
-});	
-
-$st->{_window}->signal_connect( 'show-menu' => \&fct_ret_window_menu );
-
+$st->{_window}->signal_connect( 'show-menu' => sub { $st->{_window}->set_menu( &fct_ret_window_menu ) } );
 $st->{_section}->signal_connect( 'clicked' => \&evt_take_screenshot, 'section' );
 
 #gnome web photo is optional, don't enable it when gnome-web-photo is not in PATH
@@ -5361,7 +5354,6 @@ sub fct_ret_workspace_menu {
 		$current_monitor_active->set_sensitive(FALSE);
 	}
 
-	$st->{_full}->set_menu($menu_wrksp);
 	$menu_wrksp->show_all();
 	return $menu_wrksp;
 }
@@ -5384,14 +5376,14 @@ sub fct_ret_window_menu {
 			$menu_windows->append($window_item);
 		}
 	}
-	$st->{_window}->set_menu($menu_windows);
+
 	$menu_windows->show_all;
 	return $menu_windows;
 }
 
 sub fct_ret_tray_menu {
 
-	my $tray_menu       = Gtk2::Menu->new();
+	my $tray_menu = Gtk2::Menu->new();
 	
 	#selection
 	my $menuitem_select = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Selection') );

@@ -1522,7 +1522,12 @@ sub event_item_on_motion_notify {
 			
 			#apply item properties to widgets
 			#line width, fill color, stroke color etc.
-			$self->set_and_save_drawing_properties($item, FALSE);
+			#
+			#but do not save properties of the censor tool
+			#it does not have any custom settings
+			if($self->{_current_mode_descr} ne "censor"){
+				$self->set_and_save_drawing_properties($item, FALSE);
+			}
 
 			#add to undo stack
 			$self->store_to_xdo_stack($self->{_current_item} , 'create', 'undo');
