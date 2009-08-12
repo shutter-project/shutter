@@ -34,7 +34,7 @@ use Gtk2;
 
 use Exporter;
 use Goo::Canvas;
-use File::Basename qw / fileparse dirname /;
+use File::Basename qw/ fileparse dirname basename /;
 use File::Glob qw/ glob /;
 use Data::Dumper;
 
@@ -157,9 +157,9 @@ sub new {
     #~ print "$self dying at\n";
 #~ } 
 
-#~ 1;
-#~ 
-#~ __DATA__
+1;
+
+__DATA__
 
 sub show {
 	my $self        	  = shift;
@@ -204,7 +204,7 @@ sub show {
 	#http://www.inkscape.org
 	my @cursors = glob($self->{_dicons}."/cursor/*");
 	foreach my $cursor_path (@cursors){
-		my ( $cname, $folder, $type ) = fileparse( $cursor_path, '\..*' );
+		my ( $cname, $folder, $type ) = fileparse( $cursor_path, qr/\.[^.]*/ );
 		$self->{_cursors}{$cname} = Gtk2::Gdk::Pixbuf->new_from_file($cursor_path);
 		#see 'man xcursor' for a detailed description
 		#of these values
@@ -1094,7 +1094,7 @@ sub adjust_rulers {
 sub quit {
 	my ($self, $show_warning) = @_;
 
-	my ( $name, $folder, $type ) = fileparse( $self->{_filename}, '\..*' );
+	my ( $name, $folder, $type ) = fileparse( $self->{_filename}, qr/\.[^.]*/ );
 
 	#save settings to a file in the shutter folder
 	#is there already a .shutter folder?
@@ -4679,7 +4679,7 @@ sub import_from_filesystem {
 	foreach my $name ( sort { -d $a <=> -d $b } @objects) {
 				
 		#parse filename
-		my ( $short, $folder, $type ) = fileparse( $name, '\..*' );
+		my ( $short, $folder, $type ) = fileparse( $name, qr/\.[^.]*/ );
 		
 		#if current object is a directory we call the current sub
 		#recursively

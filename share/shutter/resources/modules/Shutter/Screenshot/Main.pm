@@ -219,28 +219,38 @@ sub get_pixbuf_from_drawable {
 								$nid);
 		$ttw--;
 		
-		#then controlled via timeout
-		Glib::Timeout->add (1000, sub{
-			$nid = $notify->show(	sprintf($d->nget("Screenshot will be taken in %s second", "Screenshot will be taken in %s seconds", $ttw) , $ttw), 
-									"",
-									$nid);
-			$ttw--;
-			if($ttw == 0){			
+		#delay is only 1 second
+		#do not show any further messages
+		if($ttw >= 1){
+			#then controlled via timeout
+			Glib::Timeout->add (1000, sub{
+				$nid = $notify->show(	sprintf($d->nget("Screenshot will be taken in %s second", "Screenshot will be taken in %s seconds", $ttw) , $ttw), 
+										"",
+										$nid);
+				$ttw--;
+				if($ttw == 0){			
+					
+					#close last message with a short delay (less than a second)
+					Glib::Timeout->add (500, sub{
+						$notify->close($nid);
+						return FALSE;	
+					});	
+					
+					return FALSE;
+					
+				}else{
+					
+					return TRUE;	
 				
-				#close last message with a short delay (less than a second)
-				Glib::Timeout->add (500, sub{
-					$notify->close($nid);
-					return FALSE;	
-				});	
-				
-				return FALSE;
-				
-			}else{
-				
-				return TRUE;	
-			
-			}	
-		});	
+				}	
+			});
+		}else{
+			#close last message with a short delay (less than a second)
+			Glib::Timeout->add (500, sub{
+				$notify->close($nid);
+				return FALSE;	
+			});				
+		}	
 	
 	}		
 

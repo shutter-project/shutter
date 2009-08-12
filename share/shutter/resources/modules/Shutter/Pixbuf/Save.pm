@@ -35,7 +35,7 @@ use POSIX qw/setlocale strftime/;
 use Locale::gettext;
 
 #fileparse and tempfile
-use File::Basename;
+use File::Basename qw/ fileparse dirname basename /;
 use File::Temp qw/ tempfile tempdir /;
 
 #define constants
@@ -141,7 +141,7 @@ sub save_pixbuf_to_file {
 	if ($@ || $imagemagick_result) {
 
 		#parse filename
-		my ( $name, $folder, $type ) = fileparse( $filename, '\..*' );
+		my ( $name, $folder, $type ) = fileparse( $filename, qr/\.[^.]*/ );
 
 		my $detailed_message = 'Unknown error';
 		if($@){

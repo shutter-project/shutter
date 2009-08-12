@@ -81,9 +81,9 @@ sub new {
 #~ } 
 #~ 
 
-#~ 1;
-#~ 
-#~ __DATA__
+1;
+
+__DATA__
 
 sub find_wm_window {
 	my $self = shift;
@@ -293,7 +293,8 @@ sub draw_rectangle {
 	my $clear   = shift;
 
 	#draw rect if needed
-	if ( $self->{_c}{'lw'}{'gdk_window'} ne $self->{_c}{'cw'}{'gdk_window'} ) {
+	if ( !defined $self->{_c}{'lw'}{'gdk_window'} || 
+		$self->{_c}{'lw'}{'gdk_window'} ne $self->{_c}{'cw'}{'gdk_window'} ) {
 
 		#we do not clear the last rect in all cases, e.g.
 		#when the first child is selected

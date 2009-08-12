@@ -74,8 +74,6 @@ sub workspace {
 	#valid workspace?
 	return TRUE unless $active_workspace;
 	
-	$self->{_wsp_name} = $active_workspace->get_name;
-	utf8::encode $self->{_wsp_name};
 	my $active_vpx = $active_workspace->get_viewport_x;
 	my $active_vpy = $active_workspace->get_viewport_y;
 
@@ -87,7 +85,6 @@ sub workspace {
 				&& $self->{_selected_workspace} != $active_workspace->get_number )
 			{
 				$space->activate(time);
-				$self->{_wsp_name} = $space->get_name;
 				$wrksp_changed = TRUE;
 			}
 		}
@@ -121,6 +118,11 @@ sub workspace {
 						FALSE
 					);			
 	}
+
+	#set name of the captured workspace
+	#e.g. for use in wildcards
+	$output->{'name'} = $self->{_wnck_screen}->get_active_workspace->get_name;
+	$output->{'name'} =~ s/\//-/g;
 
 	#metacity etc
 	if ( $self->{_selected_workspace} ) {
