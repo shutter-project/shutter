@@ -80,7 +80,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.588";
+use constant REV                	=> "Rev.589";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.8x experimental branch";
 
@@ -748,7 +748,7 @@ my $filename = Gtk2::Entry->new;
 if ( defined $settings_xml->{'general'}->{'filename'} ) {
 	$filename->set_text( $settings_xml->{'general'}->{'filename'} );
 } else {
-	$filename->set_text("screenshot_\%NNN");
+	$filename->set_text("\$name_\%NNN");
 }
 
 #do some input validation
@@ -781,13 +781,13 @@ my $filename_label = Gtk2::Label->new( $d->get("Filename") . ":" );
 $tooltips->set_tip(
 	$filename,
 	$d->get(
-		"There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time\n\$w = width\n\$h = height\n%NN = counter"
+		"There are several wildcards available, like\n%Y = year\n%m = month\n%d = day\n%T = time\n\$w = width\n\$h = height\n\$name = multi-purpose (e.g. window title)\n%NN = counter"
 	)
 );
 $tooltips->set_tip(
 	$filename_label,
 	$d->get(
-		"There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time\n\$w = width\n\$h = height\n%NN = counter"
+		"There are several wildcards available, like\n%Y = year\n%m = month\n%d = day\n%T = time\n\$w = width\n\$h = height\n\$name = multi-purpose (e.g. window title)\n%NN = counter"
 	)
 );
 $filename_box->pack_start( $filename_label, FALSE, TRUE, 12 );
