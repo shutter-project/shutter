@@ -80,7 +80,7 @@ use Data::Dumper;
 use constant TRUE                	=> 1;
 use constant FALSE               	=> 0;
 use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.587";
+use constant REV                	=> "Rev.588";
 use constant SHUTTER_NAME         	=> "Shutter";
 use constant SHUTTER_VERSION      	=> "v0.8x experimental branch";
 
@@ -3860,18 +3860,18 @@ sub fct_take_screenshot {
 
 		#web
 	} elsif ( $data eq "web" || $data eq "tray_web" ) {
-
+		
 		$screenshot = &dlg_website( $uri->get_path(), $filetype_value, $quality_value );
 		if ( $screenshot && $screenshot =~ /[a-zA-Z]/ ) {
 			#error if $screenshot is not a Gtk2::Gdk::Pixbuf
 			unless($screenshot =~ /Gtk2::Gdk::Pixbuf/){
 				$sd->dlg_error_message( $d->get("Unable to capture website"), 
-													$d->get("Failed"),
-													undef, undef,
-													undef, undef,
-													undef, undef,
-													$screenshot );
-				&dlg_status_message( 1, $d->get("Unable to capture website"), $d->get("Failed") );
+										$d->get( "Error while taking the screenshot." ),
+										undef, undef,
+										undef, undef,
+										undef, undef,
+										$screenshot );
+				&dlg_status_message( 1, $d->get("Unable to capture website") );
 				&fct_control_main_window( TRUE, 'show');
 				return FALSE;
 			}
@@ -7372,10 +7372,11 @@ sub dlg_website {
 
 		my $url      = $website->get_text;
 		my $hostname = $url;
-		$hostname =~ s/http:\/\///;
-
+		$hostname =~ s/^http:\/\/www\.//;
+		$hostname =~ s/^http:\/\///;
+		
 		if ( $hostname eq "" ) {
-			$sd->dlg_error_message( $d->get("No valid url entered"), $d->get("Failed") );
+			$sd->dlg_error_message( $d->get("No valid url entered"), $d->get( "Error while taking the screenshot." ) );
 			$website_dialog->destroy();
 			return $screenshot;
 		}
@@ -7393,7 +7394,7 @@ sub dlg_website {
 			}
 		}
 
-		my $screenshooter = Shutter::Screenshot::Web->new( $timeout, $filetype_value, $quality_value, $url, $filename );
+		my $screenshooter = Shutter::Screenshot::Web->new( $timeout, $filetype_value, 1024, $url, $filename );
 
 		Proc::Simple::debug(1) if $sc->get_debug;
 
@@ -7452,6 +7453,14 @@ sub dlg_website {
 				}
 				unlink($filename);
 				$website_dialog->destroy();
+			}else{
+
+				#set name of the captured window
+				#e.g. for use in wildcards
+				$screenshot->{'name'} = $url;
+				$screenshot->{'name'} =~ s/(http:\/\/|file:\/\/)//g;
+				$screenshot->{'name'} =~ s/\//-/g;
+					
 			}
 
 			$website_progress->set_fraction( 3 / 3 );

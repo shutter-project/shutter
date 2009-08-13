@@ -40,11 +40,11 @@ sub new {
 	my $class = shift;
 	
 	my $self = {
-				 _timeout => shift,
-				 _format  => shift,
-				 _quality  => shift,
-				 _url  => shift,
-				 _dest_filename => shift
+				 _timeout 		=> shift,
+				 _format  		=> shift,
+				 _width			=> shift,
+				 _url  			=> shift,
+				 _dest_filename => shift,
 			   };
 	
 	bless $self, $class;
@@ -63,7 +63,7 @@ __DATA__
 sub web {
 	my $self = shift;
 	
-	system("gnome-web-photo --timeout=$self->{_timeout} --mode=photo --format=$self->{_format} -q $self->{_quality} '$self->{_url}' '$self->{_dest_filename}'");
+	system("gnome-web-photo --timeout=$self->{_timeout} --mode=photo --format=$self->{_format} --width=$self->{_width} '$self->{_url}' '$self->{_dest_filename}'");
 	
 	return TRUE;
 }
