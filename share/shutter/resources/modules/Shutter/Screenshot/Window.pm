@@ -65,28 +65,78 @@ sub new {
 	$self->{_highlighter} = Gtk2::Window->new('popup');
 	$self->{_highlighter}->set_colormap($self->{_main_gtk_window}->get_screen->get_rgba_colormap);
 
+	$self->{_highlighter}->double_buffered (FALSE);
     $self->{_highlighter}->set_app_paintable(TRUE);
     $self->{_highlighter}->set_decorated(FALSE);
     $self->{_highlighter}->set_keep_above(TRUE);
     $self->{_highlighter}->set_accept_focus(FALSE);
     $self->{_highlighter}->set_sensitive(FALSE);
 	$self->{_highlighter}->signal_connect('expose-event' => sub{
-		if(defined $self->{_c}{'cw'}{'gdk_window'}){
+		if(defined $self->{_c}{'cw'}{'gdk_window'} && defined $self->{_c}{'cw'}{'window'}){
 			
-			my ($w, $h)		 = $self->{_highlighter}->get_size;
-			my $rectangle1 	 = Gtk2::Gdk::Rectangle->new (0, 0, $w, $h);
-			my $rectangle2 	 = Gtk2::Gdk::Rectangle->new (10, 10, $w-20, $h-20);
-			my $shape_region1 = Gtk2::Gdk::Region->rectangle ($rectangle1);
-			my $shape_region2 = Gtk2::Gdk::Region->rectangle ($rectangle2);
+			#window size
+			my ($w, $h) = $self->{_highlighter}->get_size;
+			
+			#create cairo context
+			my $cr = Gtk2::Gdk::Cairo::Context->create ($self->{_highlighter}->window);
+
+			my $layout = Gtk2::Pango::Cairo::create_layout($cr);
+			$layout->set_width( $w * Gtk2::Pango->scale );
+			$layout->set_alignment('center');
+			$layout->set_wrap('word');
+
+			#obtain current colors and font_desc from the main window
+		    my $style 		= $self->{_main_gtk_window}->get_style;
+			my $sel_bg 		= $style->bg('selected');
+			my $sel_tx 		= $style->text('selected');
+			my $font_fam 	= $style->font_desc->get_family;
+			my $font_size 	= $style->font_desc->get_size;
+
+			my $mon 	= $self->get_current_monitor;
+			my $size 	= int( $mon->width * 0.007 );
+			my $size2 	= int( $mon->width * 0.005 );
+
+			my $text = $self->{_c}{'cw'}{'window'}->get_name;
+			my $sec_text =  $self->{_c}{'cw'}{'width'}
+							. " x "
+							. $self->{_c}{'cw'}{'height'};
+
+			#white font-color	
+			$layout->set_markup("<span font_desc=\"$font_fam $size\" weight=\"bold\" foreground=\"#FFFFFF\">$text</span>\n<span font_desc=\"$font_fam $size2\" foreground=\"#FFFFFF\">$sec_text</span>");
+			
+			#fill window
+			$cr->set_operator('source');
+			$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.85 );
+			$cr->paint;
+			
+			#app icon
+			$cr->set_operator('over');
+			my $pixbuf = $self->{_c}{'cw'}{'window'}->get_icon;
+			Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $pixbuf, 3, 2 );
+			$cr->paint;
+
+			#create small frame
+			$cr->set_operator('over');
+			$cr->set_source_rgba( 0, 0, 0, 1 );
+			$cr->set_line_width(6);
+			$cr->rectangle (0, 0, $w, $h);
+			$cr->stroke;
+
+			#draw the pango layout
+			$cr->move_to( 0, 2 );
+			Gtk2::Pango::Cairo::show_layout( $cr, $layout );		
+			
+			#get layout size
+			my ( $lw, $lh ) = $layout->get_pixel_size;
+				
+			my $rectangle1 	 	= Gtk2::Gdk::Rectangle->new (0, 0, $w, $h);
+			my $rectangle2 	 	= Gtk2::Gdk::Rectangle->new (3, $lh+3, $w-6, $h-$lh-6);
+			my $shape_region1 	= Gtk2::Gdk::Region->rectangle ($rectangle1);
+			my $shape_region2 	= Gtk2::Gdk::Region->rectangle ($rectangle2);
 			$shape_region1->subtract($shape_region2);
 			$self->{_highlighter}->window->shape_combine_region ($shape_region1, 0, 0);
-			
-			my $cr = Gtk2::Gdk::Cairo::Context->create ($self->{_highlighter}->window);
-			$cr->set_operator('source');
-			$cr->set_source_rgba(1.0,0,0,0.5);
-			$cr->paint;		
-			print $self->{_c}{'cw'}{'window'}->get_name, "\n";
-			return TRUE;	
+					
+			return FALSE;	
 		}	
 	});
 
@@ -296,6 +346,8 @@ sub window_by_xid {
 sub clear_last_rectangle {
 	my $self 	= shift;
 	my $gc		= shift;
+	
+	$self->{_highlighter}->hide_all;
 	
 	#~ if ( $self->{_c}{'lw'}{'gdk_window'} ) {
 		#~ $self->{_root}->draw_rectangle(
@@ -748,6 +800,7 @@ sub quit {
 	my $self = shift;
 	
 	$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
+	$self->{_highlighter}->destroy;
 	Gtk2::Gdk->flush;
 }
 
