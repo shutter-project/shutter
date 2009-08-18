@@ -61,6 +61,35 @@ sub new {
 	#main window
 	$self->{_main_gtk_window} = $self->{_sc}->get_mainwindow;
 
+	#higlighter (borderless gtk window)
+	$self->{_highlighter} = Gtk2::Window->new('popup');
+	$self->{_highlighter}->set_colormap($self->{_main_gtk_window}->get_screen->get_rgba_colormap);
+
+    $self->{_highlighter}->set_app_paintable(TRUE);
+    $self->{_highlighter}->set_decorated(FALSE);
+    $self->{_highlighter}->set_keep_above(TRUE);
+    $self->{_highlighter}->set_accept_focus(FALSE);
+    $self->{_highlighter}->set_sensitive(FALSE);
+	$self->{_highlighter}->signal_connect('expose-event' => sub{
+		if(defined $self->{_c}{'cw'}{'gdk_window'}){
+			
+			my ($w, $h)		 = $self->{_highlighter}->get_size;
+			my $rectangle1 	 = Gtk2::Gdk::Rectangle->new (0, 0, $w, $h);
+			my $rectangle2 	 = Gtk2::Gdk::Rectangle->new (10, 10, $w-20, $h-20);
+			my $shape_region1 = Gtk2::Gdk::Region->rectangle ($rectangle1);
+			my $shape_region2 = Gtk2::Gdk::Region->rectangle ($rectangle2);
+			$shape_region1->subtract($shape_region2);
+			$self->{_highlighter}->window->shape_combine_region ($shape_region1, 0, 0);
+			
+			my $cr = Gtk2::Gdk::Cairo::Context->create ($self->{_highlighter}->window);
+			$cr->set_operator('source');
+			$cr->set_source_rgba(1.0,0,0,0.5);
+			$cr->paint;		
+			print $self->{_c}{'cw'}{'window'}->get_name, "\n";
+			return TRUE;	
+		}	
+	});
+
 	#only used by window_select
 	$self->{_c} 		= {};
 	$self->{_ws} 		= undef;
@@ -81,9 +110,9 @@ sub new {
 #~ } 
 #~ 
 
-1;
-
-__DATA__
+#~ 1;
+#~ 
+#~ __DATA__
 
 sub find_wm_window {
 	my $self = shift;
@@ -268,17 +297,17 @@ sub clear_last_rectangle {
 	my $self 	= shift;
 	my $gc		= shift;
 	
-	if ( $self->{_c}{'lw'}{'gdk_window'} ) {
-		$self->{_root}->draw_rectangle(
-			$gc,
-			0,
-			$self->{_c}{'lw'}{'x'},
-			$self->{_c}{'lw'}{'y'},
-			$self->{_c}{'lw'}{'width'},
-			$self->{_c}{'lw'}{'height'}
-		);
-		Gtk2::Gdk->flush;
-	}	
+	#~ if ( $self->{_c}{'lw'}{'gdk_window'} ) {
+		#~ $self->{_root}->draw_rectangle(
+			#~ $gc,
+			#~ 0,
+			#~ $self->{_c}{'lw'}{'x'},
+			#~ $self->{_c}{'lw'}{'y'},
+			#~ $self->{_c}{'lw'}{'width'},
+			#~ $self->{_c}{'lw'}{'height'}
+		#~ );
+		#~ Gtk2::Gdk->flush;
+	#~ }	
 }
 
 sub draw_rectangle {
@@ -296,31 +325,35 @@ sub draw_rectangle {
 	if ( !defined $self->{_c}{'lw'}{'gdk_window'} || 
 		$self->{_c}{'lw'}{'gdk_window'} ne $self->{_c}{'cw'}{'gdk_window'} ) {
 
-		#we do not clear the last rect in all cases, e.g.
-		#when the first child is selected
-		if ( defined $self->{_no_clear} ){ 
-			unless($self->{_no_clear}) {
-				#clear last rectangle
-				$self->clear_last_rectangle($gc);
-			}else{
-				$self->{_no_clear} = FALSE;
-			}
-		}else{
-			#clear last rectangle
-			$self->clear_last_rectangle($gc);	
-		}	
+		#~ #we do not clear the last rect in all cases, e.g.
+		#~ #when the first child is selected
+		#~ if ( defined $self->{_no_clear} ){ 
+			#~ unless($self->{_no_clear}) {
+				#~ #clear last rectangle
+				#~ $self->clear_last_rectangle($gc);
+			#~ }else{
+				#~ $self->{_no_clear} = FALSE;
+			#~ }
+		#~ }else{
+			#~ #clear last rectangle
+			#~ $self->clear_last_rectangle($gc);	
+		#~ }	
+#~ 
+		#~ #draw new rectangle for current window
+		#~ if ( $self->{_c}{'cw'}{'gdk_window'} ) {
+			#~ $self->{_root}->draw_rectangle(
+				#~ $gc,
+				#~ $filled,
+				#~ $x,
+				#~ $y,
+				#~ $width,
+				#~ $height
+			#~ );	
+		#~ }						
 
-		#draw new rectangle for current window
-		if ( $self->{_c}{'cw'}{'gdk_window'} ) {
-			$self->{_root}->draw_rectangle(
-				$gc,
-				$filled,
-				$x,
-				$y,
-				$width,
-				$height
-			);	
-		}						
+    	#Place window, and resize it, and set proper properties.
+    	$self->{_highlighter}->move($x, $y);
+    	$self->{_highlighter}->resize($width, $height);
 
 		#save last window geometry and objects
 		$self->{_c}{'lw'}{'window'}
@@ -556,6 +589,9 @@ sub window {
 		$self->{_c}{'cw'}{'y'}          = $self->{_root}->{y};
 		$self->{_c}{'cw'}{'width'}      = $self->{_root}->{w};
 		$self->{_c}{'cw'}{'height'}     = $self->{_root}->{h};
+
+		#show highlighter window
+		$self->{_highlighter}->show_all;
 		
 		Gtk2::Gdk::Event->handler_set(
 			sub {

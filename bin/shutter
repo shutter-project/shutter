@@ -55,14 +55,15 @@ use Gtk2::ImageView;
 use POSIX qw/ setlocale strftime /;
 use Locale::gettext();
 
-#handle upload responses properly
-use HTTP::Status;
-
 #load and save settings
 use XML::Simple;
 
 #DBus message system
 use Net::DBus qw/ dbus_string /;
+
+#Handy web browsing in a Perl object and HTTP Status code processing
+use WWW::Mechanize;
+use HTTP::Status;
 
 #timing issues
 use Time::HiRes qw/ time usleep /;
@@ -7279,6 +7280,7 @@ sub dlg_website {
 
 	#save button
 	my $execute_btn = Gtk2::Button->new_from_stock('gtk-execute');
+	$execute_btn->set_sensitive(FALSE);
 	$execute_btn->can_default(TRUE);
 
 	$website_dialog->add_action_widget( $cancel_btn,  'cancel' );
@@ -7290,8 +7292,19 @@ sub dlg_website {
 	my $website_hbox2 = Gtk2::HBox->new();
 
 	my $website = Gtk2::Entry->new;
-	$website->set_text("http://www.");
+	$website->set_text("http://");
 	$website->set_activates_default(TRUE);
+
+	#check if url is valid
+	my $vurl = qr/^((http(s?))\:\/\/)?(www.|[a-zA-Z].)[a-zA-Z0-9\-\.]+\.([a-zA-Z]+)(\:[0-9]+)*(\/($|[a-zA-Z0-9\.\,\;\?\'\\\+&amp;%\$#\=~_\-]+))*$/;
+	$website->signal_connect('key-release-event' => sub {
+		unless ( $website->get_text =~ /$vurl/) {
+			$execute_btn->set_sensitive(FALSE);
+		}else{
+			$execute_btn->set_sensitive(TRUE);
+		}
+		return FALSE;
+	});
 	
 	#~ eval{
 		#~ require Google::Search;	
@@ -7369,18 +7382,7 @@ sub dlg_website {
 		#show progress bar while executing gnome-web-photo
 		$website_progress->show;
 		&fct_update_gui;
-
-		my $url      = $website->get_text;
-		my $hostname = $url;
-		$hostname =~ s/^http:\/\/www\.//;
-		$hostname =~ s/^http:\/\///;
 		
-		if ( $hostname eq "" ) {
-			$sd->dlg_error_message( $d->get("No valid url entered"), $d->get( "Error while taking the screenshot." ) );
-			$website_dialog->destroy();
-			return $screenshot;
-		}
-
 		#determining timeout
 		my $web_menu = $st->{_web}->get_menu;
 		my @timeouts = $web_menu->get_children;
@@ -7394,7 +7396,8 @@ sub dlg_website {
 			}
 		}
 
-		my $screenshooter = Shutter::Screenshot::Web->new( $timeout, $filetype_value, 1024, $url, $filename );
+		my $url	= Gnome2::VFS::URI->new ($website->get_text);
+		my $screenshooter = Shutter::Screenshot::Web->new( $timeout, $filetype_value, 1024, $url->to_string, $filename );
 
 		Proc::Simple::debug(1) if $sc->get_debug;
 
@@ -7457,8 +7460,8 @@ sub dlg_website {
 
 				#set name of the captured window
 				#e.g. for use in wildcards
-				$screenshot->{'name'} = $url;
-				$screenshot->{'name'} =~ s/(http:\/\/|file:\/\/)//g;
+				$screenshot->{'name'} = $url->to_string;
+				$screenshot->{'name'} =~ s/(http:\/\/|https:\/\/|file:\/\/)//g;
 				$screenshot->{'name'} =~ s/\//-/g;
 					
 			}
