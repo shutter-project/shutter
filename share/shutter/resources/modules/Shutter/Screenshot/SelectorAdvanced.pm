@@ -225,8 +225,8 @@ sub select_advanced {
 
 	#~ $self->{_view}->set_tool($self->{_selector});
 
-	$self->{_select_window} = Gtk2::Window->new('toplevel');
-	$self->{_select_window}->set_type_hint('dock');
+	$self->{_select_window} = Gtk2::Window->new('popup');
+	#~ $self->{_select_window}->set_type_hint('dock');
 	$self->{_select_window}->set_decorated(FALSE);
 	$self->{_select_window}->set_skip_taskbar_hint(TRUE);
 	$self->{_select_window}->set_skip_pager_hint(TRUE);

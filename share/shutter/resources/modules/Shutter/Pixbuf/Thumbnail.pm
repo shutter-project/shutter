@@ -74,7 +74,9 @@ sub get_thumbnail {
 			 }else{
 				print "$text_uri thumbnail created\n" if $self->{_common}->get_debug;
 				$pixbuf = $factory->generate_thumbnail ($text_uri, $mtime);	 
-				$factory->save_thumbnail ($pixbuf, $text_uri, $mtime);
+				if($pixbuf){
+					$factory->save_thumbnail ($pixbuf, $text_uri, $mtime);
+				}
 			 }
 		}		
 	}

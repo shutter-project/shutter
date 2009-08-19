@@ -55,101 +55,115 @@ sub new {
 	#X11 protocol and XSHAPE ext
 	require X11::Protocol;
 
-	$self->{_x11} 			= X11::Protocol->new( $ENV{ 'DISPLAY' } );
-	$self->{_x11}{ext_shape}= $self->{_x11}->init_extension('SHAPE');
+	$self->{_x11} 				= X11::Protocol->new( $ENV{ 'DISPLAY' } );
+	$self->{_x11}{ext_shape}	= $self->{_x11}->init_extension('SHAPE');
 
 	#main window
-	$self->{_main_gtk_window} = $self->{_sc}->get_mainwindow;
+	$self->{_main_gtk_window} 	= $self->{_sc}->get_mainwindow;
 
-	#higlighter (borderless gtk window)
-	$self->{_highlighter} = Gtk2::Window->new('popup');
-	$self->{_highlighter}->set_colormap($self->{_main_gtk_window}->get_screen->get_rgba_colormap);
-
-	$self->{_highlighter}->double_buffered (FALSE);
-    $self->{_highlighter}->set_app_paintable(TRUE);
-    $self->{_highlighter}->set_decorated(FALSE);
-    $self->{_highlighter}->set_keep_above(TRUE);
-    $self->{_highlighter}->set_accept_focus(FALSE);
-    $self->{_highlighter}->set_sensitive(FALSE);
-	$self->{_highlighter}->signal_connect('expose-event' => sub{
-		if(defined $self->{_c}{'cw'}{'gdk_window'} && defined $self->{_c}{'cw'}{'window'}){
-			
-			#window size
-			my ($w, $h) = $self->{_highlighter}->get_size;
-			
-			#create cairo context
-			my $cr = Gtk2::Gdk::Cairo::Context->create ($self->{_highlighter}->window);
-
-			my $layout = Gtk2::Pango::Cairo::create_layout($cr);
-			$layout->set_width( $w * Gtk2::Pango->scale );
-			$layout->set_alignment('center');
-			$layout->set_wrap('word');
-
-			#obtain current colors and font_desc from the main window
-		    my $style 		= $self->{_main_gtk_window}->get_style;
-			my $sel_bg 		= $style->bg('selected');
-			my $sel_tx 		= $style->text('selected');
-			my $font_fam 	= $style->font_desc->get_family;
-			my $font_size 	= $style->font_desc->get_size;
-
-			my $mon 	= $self->get_current_monitor;
-			my $size 	= int( $mon->width * 0.007 );
-			my $size2 	= int( $mon->width * 0.005 );
-
-			my $text = $self->{_c}{'cw'}{'window'}->get_name;
-			my $sec_text =  $self->{_c}{'cw'}{'width'}
-							. " x "
-							. $self->{_c}{'cw'}{'height'};
-
-			#white font-color	
-			$layout->set_markup("<span font_desc=\"$font_fam $size\" weight=\"bold\" foreground=\"#FFFFFF\">$text</span>\n<span font_desc=\"$font_fam $size2\" foreground=\"#FFFFFF\">$sec_text</span>");
-			
-			#fill window
-			$cr->set_operator('source');
-			$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.85 );
-			$cr->paint;
-			
-			#app icon
-			$cr->set_operator('over');
-			my $pixbuf = $self->{_c}{'cw'}{'window'}->get_icon;
-			Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $pixbuf, 3, 2 );
-			$cr->paint;
-
-			#create small frame
-			$cr->set_operator('over');
-			$cr->set_source_rgba( 0, 0, 0, 1 );
-			$cr->set_line_width(6);
-			$cr->rectangle (0, 0, $w, $h);
-			$cr->stroke;
-
-			#draw the pango layout
-			$cr->move_to( 0, 2 );
-			Gtk2::Pango::Cairo::show_layout( $cr, $layout );		
-			
-			#get layout size
-			my ( $lw, $lh ) = $layout->get_pixel_size;
-				
-			my $rectangle1 	 	= Gtk2::Gdk::Rectangle->new (0, 0, $w, $h);
-			my $rectangle2 	 	= Gtk2::Gdk::Rectangle->new (3, $lh+3, $w-6, $h-$lh-6);
-			my $shape_region1 	= Gtk2::Gdk::Region->rectangle ($rectangle1);
-			my $shape_region2 	= Gtk2::Gdk::Region->rectangle ($rectangle2);
-			$shape_region1->subtract($shape_region2);
-			$self->{_highlighter}->window->shape_combine_region ($shape_region1, 0, 0);
-					
-			return FALSE;	
-		}	
-	});
-
-	#only used by window_select
-	$self->{_c} 		= {};
-	$self->{_ws} 		= undef;
-	$self->{_drawable} 	= undef;	
-	$self->{_min_size}  = undef;
+	#only used when selecting a window, undef this when selecting a window
+	unless(defined $self->{_xid}){
+		
+		#higlighter (borderless gtk window)
+		$self->{_highlighter} = Gtk2::Window->new('popup');
+		$self->{_highlighter}->set_colormap($self->{_main_gtk_window}->get_screen->get_rgba_colormap);
 	
-	#clear last rect or not
-	#we need to switch in some cases
-	$self->{_no_clear}	= undef;
+		$self->{_highlighter}->double_buffered (FALSE);
+	    $self->{_highlighter}->set_app_paintable(TRUE);
+	    $self->{_highlighter}->set_decorated(FALSE);
+		$self->{_highlighter}->set_skip_taskbar_hint(TRUE);
+		$self->{_highlighter}->set_skip_pager_hint(TRUE);	    
+	    $self->{_highlighter}->set_keep_above(TRUE);
+	    $self->{_highlighter}->set_accept_focus(FALSE);
+	    $self->{_highlighter}->set_sensitive(FALSE);
+		$self->{_highlighter}->signal_connect('expose-event' => sub{
+			if(defined $self->{_c}{'cw'}{'gdk_window'} && defined $self->{_c}{'cw'}{'window'}){
+												
+				#window size
+				my ($w, $h) = $self->{_highlighter}->get_size;
+				
+				#create cairo context
+				my $cr = Gtk2::Gdk::Cairo::Context->create ($self->{_highlighter}->window);
+					
+				#Parent window with text and icon
+				my ( $lw, $lh ) = (0,0);			
+				if($self->{_c}{'cw'}{'is_parent'}){
 
+					my $layout = Gtk2::Pango::Cairo::create_layout($cr);
+					$layout->set_width( $w * Gtk2::Pango->scale );
+					$layout->set_alignment('center');
+					$layout->set_wrap('word');
+		
+					#obtain current colors and font_desc from the main window
+				    my $style 		= $self->{_main_gtk_window}->get_style;
+					my $sel_bg 		= $style->bg('selected');
+					my $sel_tx 		= $style->text('selected');
+					my $font_fam 	= $style->font_desc->get_family;
+					my $font_size 	= $style->font_desc->get_size;
+		
+					my $mon 	= $self->get_current_monitor;
+					my $size 	= int( $mon->width * 0.007 );
+					my $size2 	= int( $mon->width * 0.005 );
+		
+					my $text = $self->{_c}{'cw'}{'window'}->get_name;
+					utf8::decode $text;
+					
+					my $sec_text =  $self->{_c}{'cw'}{'width'}
+									. " x "
+									. $self->{_c}{'cw'}{'height'};
+		
+					#white font-color	
+					$layout->set_markup("<span font_desc=\"$font_fam $size\" weight=\"bold\" foreground=\"#FFFFFF\">$text</span>\n<span font_desc=\"$font_fam $size2\" foreground=\"#FFFFFF\">$sec_text</span>");
+		
+
+					#fill window
+					$cr->set_operator('source');
+					$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.85 );
+					$cr->paint;
+					
+					#app icon
+					$cr->set_operator('over');
+					my $pixbuf = $self->{_c}{'cw'}{'window'}->get_icon;
+					Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $pixbuf, 3, 2 );
+					$cr->paint;
+
+					#create small black frame
+					$cr->set_source_rgb( 0, 0, 0 );
+					#~ $cr->set_line_width(6);
+					$cr->rectangle (0, 0, $w, $h);
+					$cr->stroke;
+	
+					#draw the pango layout
+					$cr->move_to( 0, 2 );
+					Gtk2::Pango::Cairo::show_layout( $cr, $layout );	
+
+					#get layout size
+					( $lw, $lh ) = $layout->get_pixel_size;
+					$lh = $pixbuf->get_height if $pixbuf->get_height > $lh;
+
+
+				#child window with small black frame
+				}else{
+					#fill window black
+					$cr->set_operator('source');
+					$cr->set_source_rgb( 0, 0, 0 );
+					$cr->paint;					
+				}
+				
+				#shape the window						
+				my $rectangle1 	 	= Gtk2::Gdk::Rectangle->new (0, 0, $w, $h);
+				my $rectangle2 	 	= Gtk2::Gdk::Rectangle->new (3, $lh+3, $w-6, $h-$lh-6);
+				my $shape_region1 	= Gtk2::Gdk::Region->rectangle ($rectangle1);
+				my $shape_region2 	= Gtk2::Gdk::Region->rectangle ($rectangle2);
+				$shape_region1->subtract($shape_region2);
+				$self->{_highlighter}->window->shape_combine_region ($shape_region1, 0, 0);
+						
+				return FALSE;	
+			}	
+		});
+		
+	}
+	
 	bless $self, $class;
 	return $self;
 }
@@ -160,9 +174,9 @@ sub new {
 #~ } 
 #~ 
 
-#~ 1;
-#~ 
-#~ __DATA__
+1;
+
+__DATA__
 
 sub find_wm_window {
 	my $self = shift;
@@ -343,85 +357,21 @@ sub window_by_xid {
 	return $output;
 }
 
-sub clear_last_rectangle {
+sub update_highlighter {
 	my $self 	= shift;
-	my $gc		= shift;
-	
-	$self->{_highlighter}->hide_all;
-	
-	#~ if ( $self->{_c}{'lw'}{'gdk_window'} ) {
-		#~ $self->{_root}->draw_rectangle(
-			#~ $gc,
-			#~ 0,
-			#~ $self->{_c}{'lw'}{'x'},
-			#~ $self->{_c}{'lw'}{'y'},
-			#~ $self->{_c}{'lw'}{'width'},
-			#~ $self->{_c}{'lw'}{'height'}
-		#~ );
-		#~ Gtk2::Gdk->flush;
-	#~ }	
-}
-
-sub draw_rectangle {
-	my $self 	= shift;
-	my $gc		= shift;
-	my $filled	= shift;
 	my $x		= shift;
 	my $y		= shift;
 	my $width	= shift;
 	my $height	= shift;
-	my $event   = shift;
-	my $clear   = shift;
 
-	#draw rect if needed
-	if ( !defined $self->{_c}{'lw'}{'gdk_window'} || 
-		$self->{_c}{'lw'}{'gdk_window'} ne $self->{_c}{'cw'}{'gdk_window'} ) {
+	#Place window and resize it
+	$self->{_highlighter}->move($x-3, $y-3);
+	$self->{_highlighter}->resize($width+6, $height+6);
 
-		#~ #we do not clear the last rect in all cases, e.g.
-		#~ #when the first child is selected
-		#~ if ( defined $self->{_no_clear} ){ 
-			#~ unless($self->{_no_clear}) {
-				#~ #clear last rectangle
-				#~ $self->clear_last_rectangle($gc);
-			#~ }else{
-				#~ $self->{_no_clear} = FALSE;
-			#~ }
-		#~ }else{
-			#~ #clear last rectangle
-			#~ $self->clear_last_rectangle($gc);	
-		#~ }	
-#~ 
-		#~ #draw new rectangle for current window
-		#~ if ( $self->{_c}{'cw'}{'gdk_window'} ) {
-			#~ $self->{_root}->draw_rectangle(
-				#~ $gc,
-				#~ $filled,
-				#~ $x,
-				#~ $y,
-				#~ $width,
-				#~ $height
-			#~ );	
-		#~ }						
+	#save last window objects
+	$self->{_c}{'lw'}{'window'} 	= $self->{_c}{'cw'}{'window'};
+	$self->{_c}{'lw'}{'gdk_window'} = $self->{_c}{'cw'}{'gdk_window'};
 
-    	#Place window, and resize it, and set proper properties.
-    	$self->{_highlighter}->move($x, $y);
-    	$self->{_highlighter}->resize($width, $height);
-
-		#save last window geometry and objects
-		$self->{_c}{'lw'}{'window'}
-			= $self->{_c}{'cw'}{'window'};
-		$self->{_c}{'lw'}{'gdk_window'}
-			= $self->{_c}{'cw'}{'gdk_window'};
-		$self->{_c}{'lw'}{'x'}
-			= $self->{_c}{'cw'}{'x'} - 3;
-		$self->{_c}{'lw'}{'y'}
-			= $self->{_c}{'cw'}{'y'} - 3;
-		$self->{_c}{'lw'}{'width'}
-			= $self->{_c}{'cw'}{'width'} + 5;
-		$self->{_c}{'lw'}{'height'}
-			= $self->{_c}{'cw'}{'height'} + 5;	
-	
-	}
 }
 
 sub find_current_parent_window {
@@ -435,8 +385,8 @@ sub find_current_parent_window {
 	print "Searching for window...\n" if $self->{_sc}->get_debug;
 	
 	foreach my $cwdow (@wnck_windows) {
-		$self->{_drawable} = Gtk2::Gdk::Window->foreign_new( $cwdow->get_xid );
-		next unless defined $self->{_drawable};
+		my $drawable = Gtk2::Gdk::Window->foreign_new( $cwdow->get_xid );
+		next unless defined $drawable;
 
 		print "Do not detect shutter main window...\n"
 			if $self->{_sc}->get_debug;
@@ -448,10 +398,11 @@ sub find_current_parent_window {
 		}
 
 		my ( $xp, $yp, $wp, $hp )
-			= $self->get_window_size( $cwdow, $self->{_drawable},
+			= $self->get_window_size( $cwdow, $drawable,
 			$self->{_include_border} );
 
 		print "Create region of window...\n" if $self->{_sc}->get_debug;
+		
 		my $wr = Gtk2::Gdk::Region->rectangle(
 			Gtk2::Gdk::Rectangle->new( $xp, $yp, $wp, $hp ) );
 
@@ -459,14 +410,17 @@ sub find_current_parent_window {
 		if ($cwdow->is_visible_on_workspace($active_workspace)
 			&& $wr->point_in( $event->x, $event->y )
 			&& $wp * $hp <= $self->{_min_size}) {
+			
 			print "Parent X: $xp, Y: $yp, Width: $wp, Height: $hp\n"
 				if $self->{_sc}->get_debug;
+			
 			$self->{_c}{'cw'}{'window'}     = $cwdow;
-			$self->{_c}{'cw'}{'gdk_window'} = $self->{_drawable};
+			$self->{_c}{'cw'}{'gdk_window'} = $drawable;
 			$self->{_c}{'cw'}{'x'}          = $xp;
 			$self->{_c}{'cw'}{'y'}          = $yp;
 			$self->{_c}{'cw'}{'width'}      = $wp;
 			$self->{_c}{'cw'}{'height'}     = $hp;
+			$self->{_c}{'cw'}{'is_parent'} 	= TRUE;
 			$self->{_min_size}				= $wp * $hp;
 
 		}
@@ -483,7 +437,7 @@ sub find_current_child_window {
 		if $self->{_sc}->get_debug;
 
 	#selected window is parent
-	my $cp = $self->{_ws}->XWINDOW;
+	my $cp = $self->{_c}{'ws'}->XWINDOW;
 	
 	foreach my $cc ( keys %{ $self->{_c}{$cp} } ) {
 		next unless defined $cc;
@@ -506,19 +460,13 @@ sub find_current_child_window {
 
 			)
 		{
-			$self->{_c}{'cw'}{'gdk_window'}
-				= $self->{_c}{$cp}{$cc}{'gdk_window'};
-			$self->{_c}{'cw'}{'x'}
-				= $self->{_c}{$cp}{$cc}{'x'};
-			$self->{_c}{'cw'}{'y'}
-				= $self->{_c}{$cp}{$cc}{'y'};
-			$self->{_c}{'cw'}{'width'}
-				= $self->{_c}{$cp}{$cc}{'width'};
-			$self->{_c}{'cw'}{'height'}
-				= $self->{_c}{$cp}{$cc}{'height'};
-			$self->{_min_size} 
-				= $self->{_c}{$cp}{$cc}{'width'} * 
-				  $self->{_c}{$cp}{$cc}{'height'};
+			$self->{_c}{'cw'}{'gdk_window'} = $self->{_c}{$cp}{$cc}{'gdk_window'};
+			$self->{_c}{'cw'}{'x'} 			= $self->{_c}{$cp}{$cc}{'x'};
+			$self->{_c}{'cw'}{'y'} 			= $self->{_c}{$cp}{$cc}{'y'};
+			$self->{_c}{'cw'}{'width'} 		= $self->{_c}{$cp}{$cc}{'width'};
+			$self->{_c}{'cw'}{'height'} 	= $self->{_c}{$cp}{$cc}{'height'};
+			$self->{_c}{'cw'}{'is_parent'} 	= FALSE;
+			$self->{_min_size} = $self->{_c}{$cp}{$cc}{'width'} * $self->{_c}{$cp}{$cc}{'height'};
 				
 		}
 	}
@@ -528,59 +476,34 @@ sub select_window {
 	my $self 				= shift;
 	my $event				= shift;
 	my $active_workspace	= shift;
-	my $gc					= shift;
-			
+
 	#root window size is minimum at startup
 	$self->{_min_size} = $self->{_root}->{w} * $self->{_root}->{h};
-
+			
 	#if there is no window already selected
-	unless ($self->{_ws}) {
+	unless ($self->{_c}{'ws'}) {
 
 		$self->find_current_parent_window($event, $active_workspace);
 
-		#window selected, search for children now
-	} elsif ( 
+	#parent window selected, search for children now
+	}elsif ( 
 		( $self->{_mode} eq "section" || $self->{_mode} eq "tray_section" ) 
-		&& $self->{_ws} ) {
+		&& $self->{_c}{'ws'} ) {
 
-		$self->find_current_child_window($event);
-		
-		#First child is selected
-		unless(defined $self->{_no_clear}){
-			#switch no_clear to TRUE
-			$self->{_no_clear} = TRUE;
-			
-			#some parent windows do not have child windows
-			#e.g. apps like virtualbox or openoffice
-			#in this special case we want to keep the first drawn
-			#rectangle to indicate that capturing focus is still the
-			#parent window
-			#
-			#without doing this we would remove the first rectangle and
-			#never show any new rectangle until the user presses the mouse button again
-			#because the parent window does not even have a single child window
-			#
-			#(undefing the last window hash value is a little trick here,
-			#please look at the `draw_rectangle` method for further info why 
-			#this is working)
-			if($self->{_c}{'cw'}{'gdk_window'} eq $self->{_ws}){
-				$self->{_c}{'lw'}{'gdk_window'} = undef;
-			}
-		}
-			
-	}    #endif search for children
+		$self->find_current_child_window($event);				
+	}
 
-	#draw new rectangle for current window
-	$self->draw_rectangle(
-		$gc,
-		0,
-		$self->{_c}{'cw'}{'x'} - 3,
-		$self->{_c}{'cw'}{'y'} - 3,
-		$self->{_c}{'cw'}{'width'} + 5,
-		$self->{_c}{'cw'}{'height'} + 5,
-		$event,
-		$self->{_no_clear},
-	);
+	#draw highlighter if needed
+	if ( $self->{_c}{'lw'}{'gdk_window'} ne $self->{_c}{'cw'}{'gdk_window'} ) {
+
+		$self->update_highlighter(
+			$self->{_c}{'cw'}{'x'},
+			$self->{_c}{'cw'}{'y'},
+			$self->{_c}{'cw'}{'width'},
+			$self->{_c}{'cw'}{'height'}
+		);
+	
+	}
 	
 }
 
@@ -598,16 +521,6 @@ sub window {
 		$output = 0;
 		return $output;
 	}
-
-	#define graphics context
-	my $gc = Gtk2::Gdk::GC->new( $self->{_root}, undef );
-	$gc->set_line_attributes( 5, 'solid', 'butt', 'round' );
-	$gc->set_rgb_bg_color(Gtk2::Gdk::Color->new( 0, 0, 0));
-	$gc->set_rgb_fg_color(Gtk2::Gdk::Color->new( 65535, 65535, 65535 ));
-	$gc->set_subwindow('include-inferiors');
-	$gc->set_fill('stippled');
-	$gc->set_function('xor');
-	$gc->set_exposures (FALSE);
 
 	my $grab_counter = 0;
 	while ( !Gtk2::Gdk->pointer_is_grabbed && $grab_counter < 100 ) {
@@ -631,7 +544,7 @@ sub window {
 
 		#init
 		$self->{_c} 					= ();
-		$self->{_drawable} 				= undef;
+		$self->{_c}{'ws'} 				= undef;	
 		$self->{_c}{'lw'}{'gdk_window'} = 0;
 
 		#root window size is minimum at startup
@@ -650,134 +563,116 @@ sub window {
 				my ( $event, $data ) = @_;
 				return FALSE unless defined $event;
 
-				#handle key events here
+				#KEY-PRESS
 				if ( $event->type eq 'key-press' ) {
 					next unless defined $event->keyval;
 					
 					if ( $event->keyval == $Gtk2::Gdk::Keysyms{Escape} ) {
 
-						#clear the last rectangle
-						$self->clear_last_rectangle($gc);
+						#destroy highlighter window
+						$self->{_highlighter}->destroy;
 
 						$self->quit;
 
 						$output = 5;
 					}
-					
+				
+				#BUTTON-PRESS	
 				} elsif ( $event->type eq 'button-press' ) {
 					print "Type: " . $event->type . "\n"
 						if ( defined $event && $self->{_sc}->get_debug );			
 
 					#user selects window or section
-					$self->select_window($event, $active_workspace, $gc);
-								
+					$self->select_window($event, $active_workspace);
+				
+				#BUTTON-RELEASE				
 				} elsif ( $event->type eq 'button-release' ) {
 					print "Type: " . $event->type . "\n"
 						if ( defined $event && $self->{_sc}->get_debug );
 
+					if ( defined $self->{_c}{'lw'} && $self->{_c}{'lw'}{'gdk_window'} ) {
+
+						#focus selected window (maybe it is hidden)
+						$self->{_c}{'lw'}{'gdk_window'}->focus(time);
+						Gtk2::Gdk->flush;						
+
+					#something went wrong here, no window on screen detected	
+					} else {
+						$output = 0;
+						$self->quit;
+						return $output;
+					}
+					
 					#looking for a section of a window?
 					#keep current window in mind and search for children
 					if ( ( $self->{_mode} eq "section" || $self->{_mode} eq "tray_section" )
-						&& !$self->{_ws} )
+						&& !$self->{_c}{'ws'} )
 					{
 						
-						#something went wrong here, no window on screen detected
-						unless ( $self->{_c}{'lw'}{'gdk_window'} ) {
-							$self->quit;
-							$output = 0;
-							return $output;
-						}
-
 						#query all child windows
 						$self->query_c(
 							$self->{_c}{'lw'}{'gdk_window'}->XWINDOW,
 							$self->{_c}{'lw'}{'gdk_window'}->XWINDOW
 						);
-						
-						#clear the last rectangle
-						$self->clear_last_rectangle($gc);
-						
-						#focus selected window (maybe it is hidden)
-						$self->{_c}{'lw'}{'gdk_window'}->focus(time);
-						Gtk2::Gdk->flush;
-						
+												
 						#mark as selected parent window
-						$self->{_ws} = $self->{_c}{'cw'}{'gdk_window'};	
+						$self->{_c}{'ws'} = $self->{_c}{'cw'}{'gdk_window'};	
 						
+						#we don't take the screenshot yet
 						return TRUE;
 					}
 
-					#clear the last rectangle
-					if ( defined $self->{_c}{'lw'} && $self->{_c}{'lw'}{'gdk_window'} ) {
+					#destroy highlighter window
+					$self->{_highlighter}->destroy;
+
+					#disable Event Handler
+					$self->ungrab_pointer_and_keyboard( FALSE, TRUE, FALSE );
+					
+					#A short timeout to give the server a chance to
+					#redraw the area
+					Glib::Timeout->add (400, sub{
 						
-						$self->clear_last_rectangle($gc);
+						my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = 
+							$self->get_pixbuf_from_drawable(
+								$self->{_root},
+								$self->{_c}{'cw'}{'x'},
+								$self->{_c}{'cw'}{'y'},
+								$self->{_c}{'cw'}{'width'},
+								$self->{_c}{'cw'}{'height'}
+							);
 
-						#focus selected window (maybe it is hidden)
-						$self->{_c}{'lw'}{'gdk_window'}->focus(time);
-						Gtk2::Gdk->flush;
-
-						#disable Event Handler
-						$self->ungrab_pointer_and_keyboard( FALSE, TRUE, FALSE );
-						
-						#A short timeout to give the server a chance to
-						#redraw the area
-						Glib::Timeout->add (400, sub{
-							
-							my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = 
-								$self->get_pixbuf_from_drawable(
-									$self->{_root},
-									$self->{_c}{'cw'}{'x'},
-									$self->{_c}{'cw'}{'y'},
-									$self->{_c}{'cw'}{'width'},
-									$self->{_c}{'cw'}{'height'}
-								);
-
-							#save return value to current $output variable 
-							#-> ugly but fastest and safest solution now
-							$output = $output_new;
-														
-							#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
-							if($self->{_x11}{ext_shape} && $self->{_include_border}){
-								my $xid = $self->{_c}{ 'cw' }{ 'gdk_window' }->get_xid;
-								#do not try this for child windows
-								foreach my $win ($self->{_wnck_screen}->get_windows){
-									if($win->get_xid == $xid){
-										$output = $self->get_shape($xid, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);				
-										last;
-									}
+						#save return value to current $output variable 
+						#-> ugly but fastest and safest solution now
+						$output = $output_new;
+													
+						#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
+						if($self->{_x11}{ext_shape} && $self->{_include_border}){
+							my $xid = $self->{_c}{ 'cw' }{ 'gdk_window' }->get_xid;
+							#do not try this for child windows
+							foreach my $win ($self->{_wnck_screen}->get_windows){
+								if($win->get_xid == $xid){
+									$output = $self->get_shape($xid, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);				
+									last;
 								}
 							}
+						}
 
-							#set name of the captured window
-							#e.g. for use in wildcards
-							$output->{'name'} = $self->{_c}{'cw'}{'window'}->get_name;	
-							$output->{'name'} =~ s/\//-/g;
-	
-							$self->quit;
-							return FALSE;	
-						});	
-															
-						#~ my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_scrollable_from_drawable(
-							#~ $self->{_root},
-							#~ $self->{_c}{'cw'}{'x'},
-							#~ $self->{_c}{'cw'}{'y'},
-							#~ $self->{_c}{'cw'}{'width'},
-							#~ $self->{_c}{'cw'}{'height'},
-							#~ $self->{_include_cursor},
-							#~ $self->{_delay}
-						#~ );
-					
-					#return error	
-					} else {
-						$output = 0;
+						#set name of the captured window
+						#e.g. for use in wildcards
+						$output->{'name'} = $self->{_c}{'cw'}{'window'}->get_name;	
+						$output->{'name'} =~ s/\//-/g;
+
 						$self->quit;
-					}
+						return FALSE;	
+					});	
+															
+				#MOTION-NOTIFY											
 				} elsif ( $event->type eq 'motion-notify' ) {
 					print "Type: " . $event->type . "\n"
 						if ( defined $event && $self->{_sc}->get_debug );
 					
 					#user selects window or section
-					$self->select_window($event, $active_workspace, $gc);
+					$self->select_window($event, $active_workspace);
 
 				} else {
 					Gtk2->main_do_event($event);
@@ -800,8 +695,8 @@ sub quit {
 	my $self = shift;
 	
 	$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
-	$self->{_highlighter}->destroy;
 	Gtk2::Gdk->flush;
+
 }
 
 1;
