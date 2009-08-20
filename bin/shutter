@@ -4762,19 +4762,15 @@ sub fct_update_tab {
 					my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
 					$session_screens{$key}->{'temp'} = $tmpfilename;				
 					cp($session_screens{$key}->{'long'}, $session_screens{$key}->{'temp'});						
-					
-					if($session_screens{$key}->{'width'}*$session_screens{$key}->{'height'} < 100000) {
-					
-						#update tab icon - and other GUI Elements
-						my $thumb = $sthumb->get_thumbnail(
-							$session_screens{$key}->{'uri'}->to_string,
-							$session_screens{$key}->{'mime_type'},
-							$session_screens{$key}->{'mtime'},
-							0.2
-						);
-						$session_screens{$key}->{'tab_icon'}->set_from_pixbuf( $thumb );
-
-					}
+										
+					#update tab icon - and other GUI Elements
+					my $thumb = $sthumb->get_thumbnail(
+						$session_screens{$key}->{'uri'}->to_string,
+						$session_screens{$key}->{'mime_type'},
+						$session_screens{$key}->{'mtime'},
+						0.2
+					);
+					$session_screens{$key}->{'tab_icon'}->set_from_pixbuf( $thumb );
 
 					$session_screens{$key}->{'filename_label'}->set_text( $session_screens{$key}->{'uri'}->extract_short_name );
 					$tooltips->set_tip( $session_screens{$key}->{'filename_label'}, $session_screens{$key}->{'uri'}->to_string );
