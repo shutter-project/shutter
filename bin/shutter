@@ -3858,7 +3858,7 @@ sub fct_take_screenshot {
 			$screenshot = $screenshooter->select_simple();
 
 		}
-
+		
 		#web
 	} elsif ( $data eq "web" || $data eq "tray_web" ) {
 		

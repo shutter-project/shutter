@@ -450,6 +450,8 @@ sub take_screenshot {
 	my $self 			= shift;
 	my $s				= shift;
 	my $clean_pixbuf	= shift;
+
+	my $d = $self->{_sc}->get_gettext;
 	
 	my $output;
 	#no delay? then we take a subsection of the pixbuf in memory
@@ -464,6 +466,11 @@ sub take_screenshot {
 	} else {
 		
 		$output = 0;
+	}
+
+	#we don't have a useful string for wildcards (e.g. $name)
+	if($output =~ /Gtk2/){
+		$output->{'name'} = $d->get("Selection");
 	}
 	
 	return $output;		

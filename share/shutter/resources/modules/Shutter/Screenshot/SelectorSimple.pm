@@ -214,6 +214,13 @@ sub select_simple {
 						#redraw the area that was obscured by our zoom window
 						Glib::Timeout->add (400, sub{
 							($output) = $self->get_pixbuf_from_drawable( $self->{_root}, $rect_x+1, $rect_y+1, $rect_w-1, $rect_h-1);
+							
+							#we don't have a useful string for wildcards (e.g. $name)
+							my $d = $self->{_sc}->get_gettext;
+							if($output =~ /Gtk2/){
+								$output->{'name'} = $d->get("Selection");
+							}
+							
 							$self->quit($zoom_window);
 							return FALSE;	
 						});	

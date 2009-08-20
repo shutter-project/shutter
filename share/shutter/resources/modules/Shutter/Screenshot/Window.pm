@@ -346,8 +346,10 @@ sub window_by_xid {
 
 		#set name of the captured window
 		#e.g. for use in wildcards
-		$output->{'name'} = $wnck_window->get_name;
-		$output->{'name'} =~ s/\//-/g;
+		if($output =~ /Gtk2/){
+			$output->{'name'} = $wnck_window->get_name;
+			$output->{'name'} =~ s/\//-/g;
+		}
 
 		$self->quit;
 		return FALSE;	
@@ -660,8 +662,10 @@ sub window {
 
 						#set name of the captured window
 						#e.g. for use in wildcards
-						$output->{'name'} = $self->{_c}{'cw'}{'window'}->get_name;	
-						$output->{'name'} =~ s/\//-/g;
+						if($output =~ /Gtk2/){
+							$output->{'name'} = $self->{_c}{'cw'}{'window'}->get_name;	
+							$output->{'name'} =~ s/\//-/g;
+						}
 
 						$self->quit;
 						return FALSE;	
