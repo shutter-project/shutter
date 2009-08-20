@@ -108,17 +108,18 @@ sub new {
 					my $text = $self->{_c}{'cw'}{'window'}->get_name;
 					utf8::decode $text;
 					
-					my $sec_text =  $self->{_c}{'cw'}{'width'}
-									. " x "
-									. $self->{_c}{'cw'}{'height'};
+					my $sec_text =  $self->{_c}{'cw'}{'width'} . "x" . $self->{_c}{'cw'}{'height'};
 		
 					#white font-color	
-					$layout->set_markup("<span font_desc=\"$font_fam $size\" weight=\"bold\" foreground=\"#FFFFFF\">$text</span>\n<span font_desc=\"$font_fam $size2\" foreground=\"#FFFFFF\">$sec_text</span>");
+					$layout->set_markup("<span font_desc=\"$font_fam $size\" weight=\"bold\" foreground=\"#FFFFFF\">$text</span><span font_desc=\"$font_fam $size2\" foreground=\"#FFFFFF\"> ($sec_text)</span>");
 		
-
 					#fill window
 					$cr->set_operator('source');
+					#~ my $lg = Cairo::LinearGradient->create (0, 50, 0, 0);
+					#~ $lg->add_color_stop_rgba(0, $sel_tx->red / 257 / 255, $sel_tx->green / 257 / 255, $sel_tx->blue / 257 / 255, 0.85);
+					#~ $lg->add_color_stop_rgba(1, $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.85);
 					$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.85 );
+					#~ $cr->set_source($lg);
 					$cr->paint;
 					
 					#app icon
@@ -140,7 +141,6 @@ sub new {
 					#get layout size
 					( $lw, $lh ) = $layout->get_pixel_size;
 					$lh = $pixbuf->get_height if $pixbuf->get_height > $lh;
-
 
 				#child window with small black frame
 				}else{
