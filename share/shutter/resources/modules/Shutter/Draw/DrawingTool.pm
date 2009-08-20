@@ -4971,6 +4971,7 @@ sub import_from_session {
 		$screen_menu_item->{'mime_type'} 	= $import_hash{$key}->{'mime_type'};
 		$screen_menu_item->{'mtime'}		= $import_hash{$key}->{'mtime'};
 		$screen_menu_item->{'uri'} 			= $import_hash{$key}->{'uri'};
+		$screen_menu_item->{'no_thumbnail'}	= $import_hash{$key}->{'no_thumbnail'};
 	
 		$menu_session_objects->append($screen_menu_item);
 	}
