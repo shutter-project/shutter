@@ -125,6 +125,7 @@ sub new {
 					#app icon
 					$cr->set_operator('over');
 					my $pixbuf = $self->{_c}{'cw'}{'window'}->get_icon;
+					#~ $pixbuf = $pixbuf->scale_simple($pixbuf->get_width*0.7, $pixbuf->get_height*0.7, 'bilinear');
 					Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $pixbuf, 3, 2 );
 					$cr->paint;
 
