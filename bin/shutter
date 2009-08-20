@@ -4757,20 +4757,34 @@ sub fct_update_tab {
 					$session_screens{$key}->{'width'}  = $pixbuf->get_width;
 					$session_screens{$key}->{'height'} = $pixbuf->get_height;
 
+					#generate thumbnail if file is not too large
+					#set flag
+					if(	$session_screens{$key}->{'width'} <= 10000 && $session_screens{$key}->{'height'} <= 10000 ){					
+						$session_screens{$key}->{'no_thumbnail'} = FALSE;
+					}else{
+						$session_screens{$key}->{'no_thumbnail'} = TRUE;	
+					}
+
 					#create tempfile
 					#maybe we have to restore the file later
 					my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
 					$session_screens{$key}->{'temp'} = $tmpfilename;				
-					cp($session_screens{$key}->{'long'}, $session_screens{$key}->{'temp'});						
-										
-					#update tab icon - and other GUI Elements
-					my $thumb = $sthumb->get_thumbnail(
-						$session_screens{$key}->{'uri'}->to_string,
-						$session_screens{$key}->{'mime_type'},
-						$session_screens{$key}->{'mtime'},
-						0.2
-					);
-					$session_screens{$key}->{'tab_icon'}->set_from_pixbuf( $thumb );
+					cp($session_screens{$key}->{'long'}, $session_screens{$key}->{'temp'});
+					
+					my $thumb;	
+					unless($session_screens{$key}->{'no_thumbnail'}){
+						#update tab icon - and other GUI Elements
+						$thumb = $sthumb->get_thumbnail(
+							$session_screens{$key}->{'uri'}->to_string,
+							$session_screens{$key}->{'mime_type'},
+							$session_screens{$key}->{'mtime'},
+							0.2
+						);
+						$session_screens{$key}->{'tab_icon'}->set_from_pixbuf( $thumb );
+					}else{
+						$thumb = Gtk2::Gdk::Pixbuf->new ('rgb', TRUE, 8, 5, 5);	
+						$thumb->fill(0x00000000);						
+					}
 
 					$session_screens{$key}->{'filename_label'}->set_text( $session_screens{$key}->{'uri'}->extract_short_name );
 					$tooltips->set_tip( $session_screens{$key}->{'filename_label'}, $session_screens{$key}->{'uri'}->to_string );
@@ -4787,13 +4801,19 @@ sub fct_update_tab {
 					#UPDATE FIRST TAB - VIEW
 					#--------------------------------------				
 
-					#update view icon
-					my $thumb_view = $sthumb->get_thumbnail(
-						$session_screens{$key}->{'uri'}->to_string,
-						$session_screens{$key}->{'mime_type'},
-						$session_screens{$key}->{'mtime'},
-						0.5
-					);
+					my $thumb_view;
+					unless($session_screens{$key}->{'no_thumbnail'}){
+						#update view icon
+						$thumb_view = $sthumb->get_thumbnail(
+							$session_screens{$key}->{'uri'}->to_string,
+							$session_screens{$key}->{'mime_type'},
+							$session_screens{$key}->{'mtime'},
+							0.5
+						);
+					}else{
+						$thumb_view = Gtk2::Gdk::Pixbuf->new ('rgb', TRUE, 8, 5, 5);	
+						$thumb_view->fill(0x00000000);	
+					}
 
 					unless(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
 						$session_screens{$key}->{'iter'} = $session_start_screen{'first_page'}->{'model'}->append;

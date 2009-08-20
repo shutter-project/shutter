@@ -157,9 +157,9 @@ sub new {
     #~ print "$self dying at\n";
 #~ } 
 
-1;
-
-__DATA__
+#~ 1;
+#~ 
+#~ __DATA__
 
 sub show {
 	my $self        	  = shift;
@@ -5018,12 +5018,20 @@ sub gen_thumbnail_on_idle {
 			#if uri exists we generate a thumbnail
 			#with Shutter::Pixbuf::Thumbnail
 			if(exists $child->{'uri'}){
-				$small_image = Gtk2::Image->new_from_pixbuf( $self->{_thumbs}->get_thumbnail(
-					$child->{'uri'}->to_string,
-					$child->{'mime_type'},
-					$child->{'mtime'},
-					0.2
-				));					
+				my $thumb;
+				unless($child->{'no_thumbnail'}){
+					$thumb = $self->{_thumbs}->get_thumbnail(
+						$child->{'uri'}->to_string,
+						$child->{'mime_type'},
+						$child->{'mtime'},
+						0.2
+					);
+				}else{
+					$thumb = Gtk2::Gdk::Pixbuf->new ('rgb', TRUE, 8, 5, 5);	
+					$thumb->fill(0x00000000);						
+				}
+				
+				$small_image = Gtk2::Image->new_from_pixbuf( $thumb );					
 			}else{ 
 				my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file ($name);
 				#16x16 is minimum size
