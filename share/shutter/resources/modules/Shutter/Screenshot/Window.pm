@@ -118,7 +118,7 @@ sub new {
 					#~ my $lg = Cairo::LinearGradient->create (0, 50, 0, 0);
 					#~ $lg->add_color_stop_rgba(0, $sel_tx->red / 257 / 255, $sel_tx->green / 257 / 255, $sel_tx->blue / 257 / 255, 0.85);
 					#~ $lg->add_color_stop_rgba(1, $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.85);
-					$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.85 );
+					$cr->set_source_rgb( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255 );
 					#~ $cr->set_source($lg);
 					$cr->paint;
 					
