@@ -67,27 +67,6 @@ sub save_pixbuf_to_file {
 	my $filetype = shift;
 	my $quality = shift;
 
-
-			#~ my $short   = 
-													#~ Gnome2::VFS->unescape_string(
-														#~ $filename->extract_short_name
-														#~ )
-													#~ ;
-#~ 
-			#~ my $folder   = 
-													#~ Gnome2::VFS->unescape_string(
-														#~ $filename->extract_dirname
-														#~ )
-													#~ ;
-
-	#~ my $escaped = Gnome2::VFS->escape_string ($filename);
-	#~ $short =~ s/\//-/g;
-	#~ $screenshot_name = Gnome2::VFS->unescape_string($uri->get_path));
-	
-	#~ print $short, "\n";
-
-	#~ $filename = $folder."/".$short;
-
 	print "Saving file $filename, $filetype, $quality\n" if $self->{_common}->get_debug;
 
 	#gettext variable
