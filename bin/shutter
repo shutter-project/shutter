@@ -3958,6 +3958,9 @@ sub fct_take_screenshot {
 		#(anyway - most users won't have permissions to write to /)
 		$screenshot_name = "/". $uri->extract_short_name unless $screenshot_name;
 		
+		print "Parsing wildcards for $screenshot_name\n"
+			if $sc->get_debug;		
+		
 		#parse wild cards
 		my $swidth  = $screenshot->get_width;
 		my $sheight = $screenshot->get_height;
@@ -3965,18 +3968,25 @@ sub fct_take_screenshot {
 		$screenshot_name =~ s/\$w/$swidth/g;
 		$screenshot_name =~ s/\$h/$sheight/g;
 
+		print "Parsed \$width and \$height: $screenshot_name\n"
+			if $sc->get_debug;
+
 		#set name
 		#e.g. window or workspace name		
 		if(defined $screenshot->{'name'}){
 			utf8::decode $screenshot->{'name'};
+			$screenshot->{'name'} =~ s/(\/|\#)/-/g;
 			$screenshot_name =~ s/\$name/$screenshot->{'name'}/g;		
 		}else{
 			$screenshot_name =~ s/\$name/unknown/g;	
 		}
 
+		print "Parsed \$name: $screenshot_name\n"
+			if $sc->get_debug;
+
 		#update uri after parsing as well, so we can check if file exists for example
 		$uri = Gnome2::VFS::URI->new ($screenshot_name);
-		
+				
 		#maybe the uri already exists, so we have to append some digits (e.g. testfile01(0002).png)
 		#we don't do this when taking a web screenshot,
 		#because gnome-web-photo creates the file immediately
@@ -3986,6 +3996,9 @@ sub fct_take_screenshot {
 			if ( $uri->exists ) {
 				my $count = 1;
 				my $new_filename = fileparse($shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path)), qr/\.[^.]*/);
+				
+				print "Checking if filename already exists: " . $new_filename . "\n" if $sc->get_debug;
+				
 				my $existing_filename = $new_filename;
 				while ( $uri->exists ) {
 					$new_filename = $existing_filename . "(" . sprintf( "%03d", $count++ ) . ")";
@@ -3995,7 +4008,7 @@ sub fct_take_screenshot {
 				}
 			}
 		}
-		
+				
 		#we have to update the path again
 		$screenshot_name = $shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path));
 
@@ -4084,7 +4097,7 @@ sub fct_take_screenshot {
 	} else {
 		#show error dialog
 		my $response = $sd->dlg_error_message( 
-			$d->get( "Maybe mouse pointer could not be grabbed or the selected area is invalid." ),
+			sprintf($d->get( "The filename %s could not be verified. Maybe it contains unsupported characters." ), "'" . $folder . "'"),
 			$d->get( "Error while taking the screenshot." )
 		);
 		&dlg_status_message( 1, $d->get("Error while taking the screenshot.") );
@@ -7482,7 +7495,6 @@ sub dlg_website {
 				#e.g. for use in wildcards
 				$screenshot->{'name'} = $url->to_string;
 				$screenshot->{'name'} =~ s/(http:\/\/|https:\/\/|file:\/\/)//g;
-				$screenshot->{'name'} =~ s/\//-/g;
 					
 			}
 

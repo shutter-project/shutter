@@ -123,7 +123,6 @@ sub workspace {
 	#e.g. for use in wildcards
 	if($output =~ /Gtk2/){
 		$output->{'name'} = $self->{_wnck_screen}->get_active_workspace->get_name;
-		$output->{'name'} =~ s/\//-/g;
 	}
 
 	#metacity etc
