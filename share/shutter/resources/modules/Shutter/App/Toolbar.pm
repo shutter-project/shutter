@@ -77,9 +77,8 @@ sub create_toolbar {
 	}	
 	$self->{_select} = Gtk2::MenuToolButton->new( $image_select, $d->get("Selection") );
 
-	$tooltips->set_tip( $self->{_select}, $d->get("Draw a rectangular capture area with your mouse\nto select a specified screen area") );
-
-	$self->{_select}->set_arrow_tooltip( $tooltips, $d->get("Choose selection tool"), 'arrow' );
+	$tooltips->set_tip( $self->{_select}, $d->get("Draw a rectangular capture area with your mouse\nto select a specified screen area"), '' );
+	$self->{_select}->set_arrow_tooltip( $tooltips, $d->get("Choose selection tool"), '' );
 
 	#--------------------------------------
 
@@ -89,7 +88,7 @@ sub create_toolbar {
 	$self->{_full} = Gtk2::MenuToolButton->new( $image_raw, $d->get("Full Screen") );
 
 	$tooltips->set_tip( $self->{_full}, $d->get("Take a screenshot of your whole desktop") );
-	$self->{_full}->set_arrow_tooltip( $tooltips, $d->get("Capture a specific workspace"), 'arrow' );
+	$self->{_full}->set_arrow_tooltip( $tooltips, $d->get("Capture a specific workspace"), '' );
 
 	#--------------------------------------
 
@@ -109,7 +108,7 @@ sub create_toolbar {
 	$self->{_window} = Gtk2::MenuToolButton->new( $image_window, $d->get("Window") );
 
 	$tooltips->set_tip( $self->{_window}, $d->get("Select a window with your mouse") );
-	$self->{_window}->set_arrow_tooltip( $tooltips, $d->get("Take a screenshot of a specific window"), 'arrow' );
+	$self->{_window}->set_arrow_tooltip( $tooltips, $d->get("Take a screenshot of a specific window"), '' );
 
 	#--------------------------------------
 
@@ -147,6 +146,9 @@ sub create_toolbar {
 	}
 	$self->{_web} = Gtk2::MenuToolButton->new( $image_web, $d->get("Web") );
 
+	$tooltips->set_tip( $self->{_web}, $d->get("Take a screenshot of a website") );
+	$self->{_web}->set_arrow_tooltip( $tooltips, $d->get("The timeout in seconds, or 0 to disable timeout"), '' );
+
 	#--------------------------------------
 
 	#button edit
@@ -162,12 +164,16 @@ sub create_toolbar {
 	}	
 	$self->{_edit} = Gtk2::ToolButton->new( $image_edit, $d->get("Edit") );
 
+	$tooltips->set_tip( $self->{_edit}, $d->get("Use the built-in editor to highlight important fragments of your screenshot or crop it to a desired size") );
+
 	#--------------------------------------	
 	
 	#button upload
 	#--------------------------------------
 	my $image_upload = Gtk2::Image->new_from_stock( 'gtk-network', 'large-toolbar' );
 	$self->{_upload} = Gtk2::ToolButton->new( $image_upload, $d->get("Upload / Export") );
+
+	$tooltips->set_tip( $self->{_upload}, $d->get("Upload your images to an image hosting service, FTP site or export them to an arbitrary folder") );
 
 	#--------------------------------------	
 

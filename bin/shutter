@@ -236,7 +236,7 @@ my %plugins;        #hash to store plugin infos
 my %accounts;       #hash to store account infos
 my %settings;       #hash to store settings
 &fct_init;
-&fct_init_framework_versions;
+&fct_init_debug_output if $sc->get_debug;
 &fct_load_accounts;
 
 #--------------------------------------
@@ -345,7 +345,15 @@ $sm->{_menuitem_fullscreen}->signal_connect( 'toggled', \&fct_fullscreen );
 $sm->{_menu_actions}->signal_connect( 'focus', sub { $sm->{_menuitem_reopen}->set_submenu(&fct_ret_program_menu); });
 $sm->{_menuitem_rename}->signal_connect( 'activate', \&fct_rename );
 $sm->{_menuitem_upload}->signal_connect( 'activate', \&fct_upload );
-$sm->{_menuitem_draw}->signal_connect( 'activate', \&fct_draw );
+
+#goocanvas is optional, don't enable it when not installed
+if ( $goocanvas ) {
+	$sm->{_menuitem_draw}->set_sensitive(TRUE);
+	$sm->{_menuitem_draw}->signal_connect( 'activate', \&fct_draw );
+}else{
+	$sm->{_menuitem_draw}->set_sensitive(FALSE);	
+}
+
 $sm->{_menuitem_plugin}->signal_connect( 'activate', \&fct_plugin );
 
 $sm->{_menuitem_back}->signal_connect( 'activate' => sub {
@@ -386,11 +394,11 @@ unless ( $sc->get_disable_systray ) {
 			
 			$icon->set_from_file("$shutter_root/share/pixmaps/shutter.svg");
 			$icon->set_visible(1);
-			$icon->signal_connect(
+			$icon->{'hid'} = $icon->signal_connect(
 				'popup-menu' => sub { &evt_show_systray_statusicon; },
 				$icon
 			);
-			$icon->signal_connect(
+			$icon->{'hid2'} = $icon->signal_connect(
 				'activate' => sub {
 					&evt_activate_systray_statusicon;
 					$icon;
@@ -408,7 +416,7 @@ unless ( $sc->get_disable_systray ) {
 			my $tray = Gtk2::TrayIcon->new('shutter TrayIcon');
 			$tray->add($eventbox);
 			$tooltips->set_tip( $tray, SHUTTER_NAME . " " . SHUTTER_VERSION );
-			$eventbox->signal_connect( 'button_release_event', \&evt_show_systray );
+			$icon->{'hid'} = $eventbox->signal_connect( 'button_release_event', \&evt_show_systray );
 			$tray->show_all;
 		}
 		
@@ -433,6 +441,7 @@ my $behavior_vbox       = Gtk2::VBox->new( FALSE, 0 );
 my $behavior_hbox1      = Gtk2::HBox->new( FALSE, 0 );
 my $behavior_hbox2      = Gtk2::HBox->new( FALSE, 0 );
 my $behavior_hbox3      = Gtk2::HBox->new( FALSE, 0 );
+my $behavior_hbox4      = Gtk2::HBox->new( FALSE, 0 );
 my $keybinding_vbox     = Gtk2::VBox->new( FALSE, 0 );
 my $keybinding_mode_box = Gtk2::HBox->new( TRUE,  0 );
 my $actions_vbox        = Gtk2::VBox->new( FALSE, 0 );
@@ -518,25 +527,30 @@ $st->{_window}->signal_connect( 'clicked' => \&evt_take_screenshot, 'window' );
 $st->{_window}->signal_connect( 'show-menu' => sub { $st->{_window}->set_menu( &fct_ret_window_menu ) } );
 $st->{_section}->signal_connect( 'clicked' => \&evt_take_screenshot, 'section' );
 
-#gnome web photo is optional, don't enable it when gnome-web-photo is not in PATH
+#gnome-web-photo is optional, don't enable it when gnome-web-photo is not in PATH
 if ( $gnome_web_photo ) {
-	$tooltips->set_tip( $st->{_web}, $d->get("Take a screenshot of a website") );
-	$st->{_web}->set_arrow_tooltip( Gtk2::Tooltips->new, $d->get("The timeout in seconds, or 0 to disable timeout"), 'arrow' );
 	$st->{_web}->set_sensitive(TRUE);
 	$st->{_web}->signal_connect( 'clicked' => \&evt_take_screenshot, 'web' );
 	$st->{_web}->set_menu(&fct_ret_web_menu);
 	$st->{_web}->signal_connect( 'show-menu' => \&fct_ret_web_menu );
 } else {
 	$tooltips->set_tip( $st->{_web}, $d->get("gnome-web-photo needs to be installed for this feature") );
-	$st->{_web}->set_arrow_tooltip( $tooltips, $d->get("gnome-web-photo needs to be installed for this feature"), 'arrow' );
+	$st->{_web}->set_arrow_tooltip( $tooltips, $d->get("gnome-web-photo needs to be installed for this feature"), '' );
 	$st->{_web}->set_sensitive(FALSE);
 }
 
-$st->{_edit}->signal_connect( 'clicked' => \&fct_draw );
-$st->{_edit}->set_sensitive(FALSE);
+#goocanvas is optional, don't enable it when not installed
+if ( $goocanvas ) {
+	$st->{_edit}->set_sensitive(TRUE);
+	$st->{_edit}->signal_connect( 'clicked' => \&fct_draw );
+}else{
+	$tooltips->set_tip( $st->{_edit}, $d->get("Goo::Canvas/libgoocanvas needs to be installed for this feature") );
+	$st->{_edit}->set_sensitive(FALSE);
+}
 	
 $st->{_upload}->signal_connect( 'clicked' => \&fct_upload );
 $st->{_upload}->set_sensitive(FALSE);
+
 
 #--------------------------------------
 
@@ -1019,13 +1033,15 @@ if ( defined $settings_xml->{'general'}->{'keybinding_sel'} ) {
 	$keybinding_sel_active->set_active(FALSE);
 }
 
-my $hide_active           = Gtk2::CheckButton->new_with_label( $d->get("Autohide Shutter Window when taking a screenshot") );
+my $hide_active           = Gtk2::CheckButton->new_with_label( $d->get("Autohide main window when taking a screenshot") );
+my $present_after_active  = Gtk2::CheckButton->new_with_label( $d->get("Present main window after taking a screenshot") );
 my $autocopy_active       = Gtk2::CheckButton->new_with_label( $d->get("Automatically copy screenshot to clipboard") );
 my $close_at_close_active = Gtk2::CheckButton->new_with_label( $d->get("Minimize to tray when closing main window") );
 
 $behavior_hbox1->pack_start( $hide_active,           FALSE, TRUE, 12 );
-$behavior_hbox2->pack_start( $autocopy_active,       FALSE, TRUE, 12 );
-$behavior_hbox3->pack_start( $close_at_close_active, FALSE, TRUE, 12 );
+$behavior_hbox2->pack_start( $present_after_active,  FALSE, TRUE, 12 );
+$behavior_hbox3->pack_start( $autocopy_active,       FALSE, TRUE, 12 );
+$behavior_hbox4->pack_start( $close_at_close_active, FALSE, TRUE, 12 );
 
 if ( defined $settings_xml->{'general'}->{'autohide'} ) {
 	$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
@@ -1033,25 +1049,21 @@ if ( defined $settings_xml->{'general'}->{'autohide'} ) {
 	$hide_active->set_active(TRUE);
 }
 
-#add signal handlers after setting the saved / default values
-#~ $hide_active->signal_connect(
-	#~ 'toggled' => \&evt_behavior_handle,
-	#~ 'hide_toggled'
-#~ );
+$tooltips->set_tip( $hide_active, $d->get("Autohide main window when taking a screenshot") );
 
-$tooltips->set_tip( $hide_active, $d->get("Autohide Shutter Window when taking a screenshot") );
+if ( defined $settings_xml->{'general'}->{'present_after'} ) {
+	$present_after_active->set_active( $settings_xml->{'general'}->{'present_after'} );
+} else {
+	$present_after_active->set_active(TRUE);
+}
+
+$tooltips->set_tip( $present_after_active, $d->get("Present main window after taking a screenshot") );
 
 if ( defined $settings_xml->{'general'}->{'autocopy'} ) {
 	$autocopy_active->set_active( $settings_xml->{'general'}->{'autocopy'} );
 } else {
 	$autocopy_active->set_active(TRUE);
 }
-
-#add signal handlers after setting the saved / default values
-#~ $autocopy_active->signal_connect(
-	#~ 'toggled' => \&evt_behavior_handle,
-	#~ 'autocopy_toggled'
-#~ );
 
 $tooltips->set_tip( $autocopy_active, $d->get("Automatically copy screenshot to clipboard") );
 
@@ -1061,27 +1073,7 @@ if ( defined $settings_xml->{'general'}->{'close_at_close'} ) {
 	$close_at_close_active->set_active(TRUE);
 }
 
-#add signal handlers after setting the saved / default values
-#~ $close_at_close_active->signal_connect(
-	#~ 'toggled' => \&evt_behavior_handle,
-	#~ 'close_at_close_toggled'
-#~ );
-
 $tooltips->set_tip( $close_at_close_active, $d->get("Minimize to tray when closing main window") );
-
-#~ if ( defined $settings_xml->{'general'}->{'save_at_close'} ) {
-	#~ $save_at_close_active->set_active( $settings_xml->{'general'}->{'save_at_close'} );
-#~ } else {
-	#~ $save_at_close_active->set_active(TRUE);
-#~ }
-
-#add signal handlers after setting the saved / default values
-#~ $save_at_close_active->signal_connect(
-	#~ 'toggled' => \&evt_behavior_handle,
-	#~ 'save_at_close_toggled'
-#~ );
-
-#~ $tooltips->set_tip( $save_at_close_active, $d->get("Save settings automatically when exiting Shutter") );
 
 #end - behavior
 #--------------------------------------
@@ -1394,6 +1386,7 @@ $label_behavior->set_markup( $d->get("Behavior") );
 $behavior_vbox->pack_start( $behavior_hbox1, TRUE, TRUE, 3 );
 $behavior_vbox->pack_start( $behavior_hbox2, TRUE, TRUE, 3 );
 $behavior_vbox->pack_start( $behavior_hbox3, TRUE, TRUE, 3 );
+$behavior_vbox->pack_start( $behavior_hbox4, TRUE, TRUE, 3 );
 $behavior_frame->add($behavior_vbox);
 
 $keybinding_vbox->pack_start( $key_box,             FALSE, TRUE, 3 );
@@ -1970,7 +1963,12 @@ sub fct_update_actions {
 
 	#TOOLBAR
 	#--------------------------------------
-	$st->{_edit}->set_sensitive($n_items);
+	
+	#goocanvas is optional, don't enable it when not installed
+	if($goocanvas) {
+		$st->{_edit}->set_sensitive($n_items);
+	}
+	
 	$st->{_upload}->set_sensitive($n_items);
 
 	#MENU
@@ -1980,12 +1978,10 @@ sub fct_update_actions {
 	$sm->{_menuitem_reopen}->set_sensitive($n_items);
 	$sm->{_menuitem_rename}->set_sensitive($n_items);
 	$sm->{_menuitem_upload}->set_sensitive($n_items);
-	
-	$sm->{_menuitem_draw}->set_sensitive($n_items);
-	
-	#maybe lib is not installed
-	unless ($goocanvas) {
-		$sm->{_menuitem_draw}->set_sensitive(FALSE);
+		
+	#goocanvas is optional, don't enable it when not installed
+	if ($goocanvas) {
+		$sm->{_menuitem_draw}->set_sensitive($n_items);
 	}		
 
 	$sm->{_menuitem_plugin}->set_sensitive($n_items);
@@ -2164,7 +2160,7 @@ sub evt_save_as {
 
 	}
 
-	&fct_save_as(@save_as_files);
+	&dlg_save_as(@save_as_files);
 
 	return TRUE;
 	
@@ -2369,9 +2365,50 @@ sub fct_add_file_monitor {
 	return TRUE;
 }
 
+sub fct_control_signals {
+	my $action = shift;
+	
+	if($action eq 'block'){
+	
+		#block signals
+		$SIG{USR1}  = 'IGNORE';
+		$SIG{USR2}  = 'IGNORE';
+		$SIG{RTMIN} = 'IGNORE';
+		$SIG{RTMAX} = 'IGNORE';
+	
+		#and block status icon handler
+		if ( $icon && $icon->isa('Gtk2::StatusIcon') ) {
+			$icon->signal_handler_block($icon->{'hid'});
+			$icon->signal_handler_block($icon->{'hid2'});
+		}elsif($icon){
+			$icon->signal_handler_block($icon->{'hid'});
+		}		
+
+	}elsif($action eq 'unblock'){
+
+		#attach signal-handler again
+		$SIG{USR1}  = sub { &evt_take_screenshot( 'global_keybinding', 'raw' ) };
+		$SIG{USR2}  = sub { &evt_take_screenshot( 'global_keybinding', 'window' ) };
+		$SIG{RTMIN} = sub { &evt_take_screenshot( 'global_keybinding', 'select' ) };
+		$SIG{RTMAX} = sub { &evt_take_screenshot( 'global_keybinding', 'section' ) };
+			
+		#and unblock status icon handler
+		if ( $icon && $icon->isa('Gtk2::StatusIcon') ) {
+			$icon->signal_handler_unblock($icon->{'hid'});
+			$icon->signal_handler_unblock($icon->{'hid2'});
+		}elsif($icon){
+			$icon->signal_handler_unblock($icon->{'hid'});
+		}	
+
+	}	
+	
+	return TRUE;
+}
+
 sub fct_control_main_window {
-	my $set = shift;
-	my $mode = shift;
+	my $set 			= shift;
+	my $mode 			= shift;
+	my $supress_show 	= shift || FALSE;
 	
 	#set all buttons insensitive/sensitive
 	if($st->{_select}){
@@ -2383,7 +2420,7 @@ sub fct_control_main_window {
 	}else{
 		return FALSE;	
 	}
-	
+
 	#hide or show window
 	if($mode eq 'show'){
 
@@ -2393,21 +2430,14 @@ sub fct_control_main_window {
 		#this is an unusual method for raising the window
 		#to the top within the stacking order (z-axis)
 		#but it works best here
-		if($is_hidden){
+		if($is_hidden && !$supress_show){
 			$window->show_all;
 			$window->window->focus(time) if defined $window->window;
 			$window->present;
+			#set flag
+			$is_hidden = FALSE;
 		}
 				
-		#set flag
-		$is_hidden = FALSE;
-
-		#attach signal-handler again
-		$SIG{USR1}  = sub { &evt_take_screenshot( 'global_keybinding', 'raw' ) };
-		$SIG{USR2}  = sub { &evt_take_screenshot( 'global_keybinding', 'window' ) };
-		$SIG{RTMIN} = sub { &evt_take_screenshot( 'global_keybinding', 'select' ) };
-		$SIG{RTMAX} = sub { &evt_take_screenshot( 'global_keybinding', 'section' ) };
-		
 		#toolbar->set_show_arrow is FALSE at startup
 		#to automatically adjust the main window width
 		#we change the setting to TRUE if it is still false, 
@@ -2699,6 +2729,7 @@ sub fct_save_settings {
 	$settings{'general'}->{'border'}           = $combobox_border->get_active();
 	$settings{'general'}->{'cursor'}           = $combobox_cursor->get_active();
 	$settings{'general'}->{'autohide'}         = $hide_active->get_active();
+	$settings{'general'}->{'present_after'}    = $present_after_active->get_active();
 	$settings{'general'}->{'autocopy'}         = $autocopy_active->get_active();
 	$settings{'general'}->{'close_at_close'}   = $close_at_close_active->get_active();
 	#~ $settings{'general'}->{'save_at_close'}    = $save_at_close_active->get_active();
@@ -3005,6 +3036,7 @@ sub fct_load_settings {
 
 				#behavior
 				$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
+				$present_after_active->set_active( $settings_xml->{'general'}->{'present_after'} );
 				$autocopy_active->set_active( $settings_xml->{'general'}->{'autocopy'} );
 				$close_at_close_active->set_active( $settings_xml->{'general'}->{'close_at_close'} );
 				#~ $save_at_close_active->set_active( $settings_xml->{'general'}->{'save_at_close'} );
@@ -3736,29 +3768,26 @@ sub fct_take_screenshot {
 	my ( $widget, $data, $folder_from_config ) = @_;
 
 	#disable signal-handler
-	$SIG{USR1}  = 'IGNORE';
-	$SIG{USR2}  = 'IGNORE';
-	$SIG{RTMIN} = 'IGNORE';
-	$SIG{RTMAX} = 'IGNORE';
+	&fct_control_signals('block');
 
-	my $quality_value             = $scale->get_value();
-	my $delay_value               = undef;
+	my $quality_value	= $scale->get_value();
+	my $delay_value     = undef;
 	
 	#filename
 	my $filename_value = $filename->get_text();
 	utf8::decode $filename_value;
 	
 	#filetype
-	my $filetype_value            = undef;
+	my $filetype_value 	   = undef;
 	
 	#folder to save
-	my $folder                    = $saveDir_button->get_filename || $folder_from_config;
+	my $folder             = $saveDir_button->get_filename || $folder_from_config;
 	utf8::decode $folder;
 	
 	#screenshot(pixbuf) and screenshot name
-	my $screenshot                = undef;
-	my $screenshot_name           = undef;
-	my $thumbnail_ending          = "thumb";
+	my $screenshot         = undef;
+	my $screenshot_name    = undef;
+	my $thumbnail_ending   = "thumb";
 	
 	print "\n$data was emitted by widget $widget\n"
 		if $sc->get_debug;
@@ -3798,51 +3827,28 @@ sub fct_take_screenshot {
 	#fullscreen screenshot
 	if ( $data eq "raw" || $data eq "tray_raw" ) {
 		my $wnck_screen = Gnome2::Wnck::Screen->get_default;
-		unless ( $filename_value =~ /[a-zA-Z0-9]+/
-			&& defined($folder)
-			&& defined($filetype_value) )
-		{
-			$sd->dlg_error_message( 
-				$d->get("No valid filename specified"), 
-				$d->get("Failed") 
-			);
-			&fct_control_main_window( TRUE, 'show');
-			return FALSE;
-		}
 
 		my $screenshooter = Shutter::Screenshot::Workspace->new(
 			$sc, $combobox_cursor->get_active,
 			$delay_value, $wnck_screen->get_active_workspace,
 			undef, undef, $current_monitor_active->get_active
 		);
+		
 		$screenshot = $screenshooter->workspace();
-		undef $screenshooter;
 
-		#window
-	} elsif ( $data eq "window"
-		|| $data eq "tray_window"
-		|| $data eq "section"
-		|| $data eq "tray_section" )
-	{
-		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
-			$sd->dlg_error_message( $d->get("No valid filename specified"), $d->get("Failed") );
-			&fct_control_main_window( TRUE, 'show');
-			return FALSE;
-		}
+	#window
+	} elsif ( $data eq "window" || $data eq "tray_window" || $data eq "section" || $data eq "tray_section" ) {
 
 		my $screenshooter = Shutter::Screenshot::Window->new(
 			$sc, $combobox_cursor->get_active, $delay_value, 
 			$combobox_border->get_active, undef, $data, $is_hidden
 		);
+		
 		$screenshot = $screenshooter->window();
 
-		#selection
+	#selection
 	} elsif ( $data eq "select" || $data eq "tray_select" ) {
-		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
-			$sd->dlg_error_message( $d->get("No valid filename specified"), $d->get("Failed") );
-			&fct_control_main_window( TRUE, 'show');
-			return FALSE;
-		}
+
 		if ( $tool_advanced->get_active ) {
 					
 			my $screenshooter = Shutter::Screenshot::SelectorAdvanced->new( $sc, $combobox_cursor->get_active, $delay_value, $view, $selector, $dragger, $nav );
@@ -3853,13 +3859,15 @@ sub fct_take_screenshot {
 			my $zoom_size_factor = 1;
 			$zoom_size_factor = 2 if ( $zoom_size2->get_active );
 			$zoom_size_factor = 3 if ( $zoom_size3->get_active );
+			
 			my $screenshooter = Shutter::Screenshot::SelectorSimple->new( $sc, $combobox_cursor->get_active,
 				$delay_value, $zoom_size_factor, $zoom_active->get_active );
+			
 			$screenshot = $screenshooter->select_simple();
 
 		}
 		
-		#web
+	#web
 	} elsif ( $data eq "web" || $data eq "tray_web" ) {
 		
 		$screenshot = &dlg_website( $uri->get_path(), $filetype_value, $quality_value );
@@ -3879,19 +3887,17 @@ sub fct_take_screenshot {
 		}else{
 			$screenshot = 5;	
 		}
-		
+	
+	#window by xid	
 	} elsif ( $data =~ /^shutter_window_direct(.*)/ ) {
 		
 		my $xid = $1;
 		print "Selected xid: $xid\n" if $sc->get_debug;
-		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
-			$sd->dlg_error_message( $d->get("No valid filename specified"), $d->get("Failed") );
-			&fct_control_main_window( TRUE, 'show');
-			return FALSE;
-		}
+
 		my $screenshooter = Shutter::Screenshot::Window->new( 
 				$sc, $combobox_cursor->get_active, $delay_value, 
 				$combobox_border->get_active, $xid, $data, $is_hidden );
+		
 		$screenshot = $screenshooter->window_by_xid();
 
 	} elsif ( $data =~ /^shutter_wrksp_direct/ ) {
@@ -3914,13 +3920,10 @@ sub fct_take_screenshot {
 				if $sc->get_debug;
 		}
 
-		unless ( $filename_value =~ /[a-zA-Z0-9]+/ ) {
-			$sd->dlg_error_message( $d->get("No valid filename specified"), $d->get("Failed") );
-			&fct_control_main_window( TRUE, 'show');
-			return FALSE;
-		}
+
 		my $screenshooter = Shutter::Screenshot::Workspace->new( $sc, $combobox_cursor->get_active,
 			$delay_value, $selected_workspace, $vpx, $vpy, $current_monitor_active->get_active );
+		
 		$screenshot = $screenshooter->workspace();
 
 	}
@@ -3945,7 +3948,8 @@ sub fct_take_screenshot {
 		#user aborted screenshot
 		if ( $screenshot == 5 ) {
 			&dlg_status_message( 1, $d->get("Capture aborted by user") );
-			&fct_control_main_window( TRUE, 'show');
+			&fct_control_signals('unblock');
+			&fct_control_main_window( TRUE, 'show', $present_after_active->get_active);
 			return FALSE;
 		}
 
@@ -4101,9 +4105,14 @@ sub fct_take_screenshot {
 			$d->get( "Error while taking the screenshot." )
 		);
 		&dlg_status_message( 1, $d->get("Error while taking the screenshot.") );
+		&fct_control_main_window( TRUE, 'show');
+		return FALSE;		
 	}
+	
+	#unblock signal handler
+	&fct_control_signals('unblock');
 
-	&fct_control_main_window( TRUE, 'show');
+	&fct_control_main_window( TRUE, 'show', $present_after_active->get_active);
 
 	return TRUE;
 }
@@ -4442,171 +4451,6 @@ sub fct_update_first_tab {
 	}
 
 	return TRUE;
-}
-
-sub fct_save_as {
-	my (@keys) = @_;
-	
-	foreach my $key (@keys){
-		
-		my $fs = Gtk2::FileChooserDialog->new(
-			$d->get("Choose a location to save to"),
-			$window, 'save',
-			'gtk-cancel' => 'reject',
-			'gtk-save'   => 'accept'
-		);
-
-		$fs->set_current_folder( $session_screens{$key}->{'folder'} );
-		$fs->set_current_name( $session_screens{$key}->{'short'} );
-
-		my $extra_hbox = Gtk2::HBox->new;
-
-		my $label_save_as_type = Gtk2::Label->new( $d->get("Image format") . ":" );
-
-		my $combobox_save_as_type = Gtk2::ComboBox->new_text;
-
-		#add supported formats to combobox
-		#the user can decide to save in jpeg, png or bmp format
-		my $counter = 0;
-		my $png_counter = undef;
-		foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
-			
-			#add all known formats to the dialog
-			$combobox_save_as_type->insert_text( $counter, $_->{name} . " - " . $_->{description} );
-			
-			#set active when mime_type is matching
-			#loop because multiple mime types are registered for fome file formats
-			foreach my $mime (@{$_->{mime_types}}){
-				$combobox_save_as_type->set_active($counter)
-					if $mime eq $session_screens{$key}->{'mime_type'};		
-				
-				#save png_counter as well as fallback
-				$png_counter = $counter if $mime eq 'image/png';
-			}
-			$counter++;
-		}
-		
-		#something went wrong here
-		#filetype was not detected automatically
-		#set to png as default
-		unless($combobox_save_as_type->get_active_text){
-			if(defined $png_counter){
-				$combobox_save_as_type->set_active($png_counter);
-			}	
-		}
-
-		$combobox_save_as_type->signal_connect(
-			'changed' => sub {
-				my $filename = $fs->get_filename;
-
-				my $choosen_format = $combobox_save_as_type->get_active_text;
-				$choosen_format =~ s/ \-.*//;    #get png or jpeg for example
-				#~ print $choosen_format . "\n";
-
-				#parse filename
-				my ( $short, $folder, $ext ) = fileparse( $filename, qr/\.[^.]*/ );
-
-				$fs->set_current_name( $short . "." . $choosen_format );
-			}
-		);
-
-		$extra_hbox->pack_start( $label_save_as_type,    FALSE, FALSE, 5 );
-		$extra_hbox->pack_start( $combobox_save_as_type, FALSE, FALSE, 5 );
-
-		my $align_save_as_type = Gtk2::Alignment->new( 1, 0, 0, 0 );
-
-		$align_save_as_type->add($extra_hbox);
-		$align_save_as_type->show_all;
-
-		$fs->set_extra_widget($align_save_as_type);
-
-		my $fs_resp = $fs->run;
-
-		if ( $fs_resp eq "accept" ) {
-			my $filename = $fs->get_filename;
-
-			#parse filename
-			my ( $short, $folder, $ext ) = fileparse( $filename, qr/\.[^.]*/ );
-
-			#handle file format
-			my $choosen_format = $combobox_save_as_type->get_active_text;
-			$choosen_format =~ s/ \-.*//;    #get png or jpeg for example
-
-			$filename = $folder . $short . "." . $choosen_format;
-
-			unless ( $shf->file_exists($filename) ) {
-				#save as (pixbuf, new_filename, filetype, quality - auto here, old_filename)
-				my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} );
-				if($sp->save_pixbuf_to_file($pixbuf, $filename, $choosen_format)){
-
-					#cancel handle
-					if ( exists $session_screens{$key}->{'handle'} ) {
-						
-						$session_screens{$key}->{'handle'}->cancel;
-					}
-					if(&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($filename) )){
-						#setup a new filemonitor, so we get noticed if the file changed
-						&fct_add_file_monitor($key);
-
-						&dlg_status_message( 1, "$session_screens{ $key }->{ 'long' } " . $d->get("saved") );
-					}
-					
-				}
-				
-			} else {
-
-				#ask the user to replace the image
-				#replace button
-				my $replace_btn = Gtk2::Button->new_with_mnemonic( $d->get("_Replace") );
-				$replace_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'button' ) );
-
-				my $response = $sd->dlg_warning_message(
-					sprintf( $d->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $folder . "'"),
-					sprintf( $d->get( "An image named %s already exists. Do you want to replace it?"), "'" . $short.$ext . "'" ),
-					undef, undef, undef,
-					$replace_btn, undef, undef
-				);
-
-				if ( $response == 40 ) {
-					my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} );
-					if($sp->save_pixbuf_to_file($pixbuf, $filename, $choosen_format)){
-
-						#cancel handle
-						if ( exists $session_screens{$key}->{'handle'} ) {
-							
-							$session_screens{$key}->{'handle'}->cancel;
-						}
-
-						if(&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($filename) )){
-
-							#setup a new filemonitor, so we get noticed if the file changed
-							&fct_add_file_monitor($key);
-
-							#maybe file is in session as well, need to set the handler again ;-)
-							foreach my $searchkey ( keys %session_screens ) {
-								next if $key eq $searchkey;
-								if ( $session_screens{$searchkey}->{'long'} eq $filename ) {
-									$session_screens{$searchkey}->{'changed'} = TRUE;
-									&fct_update_tab($searchkey);
-								}
-							}	
-
-							&dlg_status_message( 1, "$session_screens{ $key }->{ 'long' } " . $d->get("saved") );					
-
-						}
-
-					}	
-
-				}
-
-			}
-
-		} 	
-	
-		$fs->destroy();
-		
-	}
-		
 }
 
 sub fct_get_file_by_index {
@@ -6191,27 +6035,41 @@ sub fct_init {
 	return TRUE;
 }
 
-sub fct_init_framework_versions {
-	if ( $sc->get_debug ) {
-		print "\nINFO: gathering system information...";
-		print "\n";
-		printf "Glib %s \n", $Glib::VERSION;
-		printf "Gtk2 %s \n", $Gtk2::VERSION;
-		print "\n";
-
-		# The version info stuff appeared in 1.040.
-		print "Glib built for "
-			. join( ".", Glib->GET_VERSION_INFO )
-			. ", running with "
-			. join( ".", &Glib::major_version, &Glib::minor_version, &Glib::micro_version ) . "\n"
-			if $Glib::VERSION >= 1.040;
-		print "Gtk2 built for "
-			. join( ".", Gtk2->GET_VERSION_INFO )
-			. ", running with "
-			. join( ".", &Gtk2::major_version, &Gtk2::minor_version, &Gtk2::micro_version ) . "\n"
-			if $Gtk2::VERSION >= 1.040;
-		print "\n";
+sub fct_init_debug_output {
+	
+	print "\nINFO: gathering system information...";
+	print "\n";
+	print "\n";
+	
+	#kernel info
+	if ( File::Which::which('uname') ) {
+		print `uname -a`, "\n";
+	}	
+	
+	#issue
+	if ( -f '/etc/issue' ) {
+		if ( File::Which::which('cat') ) {
+			print `cat /etc/issue`, "\n";
+		}
 	}
+	
+	printf "Glib %s \n", $Glib::VERSION;
+	printf "Gtk2 %s \n", $Gtk2::VERSION;
+	print "\n";
+
+	# The version info stuff appeared in 1.040.
+	print "Glib built for "
+		. join( ".", Glib->GET_VERSION_INFO )
+		. ", running with "
+		. join( ".", &Glib::major_version, &Glib::minor_version, &Glib::micro_version ) . "\n"
+		if $Glib::VERSION >= 1.040;
+	print "Gtk2 built for "
+		. join( ".", Gtk2->GET_VERSION_INFO )
+		. ", running with "
+		. join( ".", &Gtk2::major_version, &Gtk2::minor_version, &Gtk2::micro_version ) . "\n"
+		if $Gtk2::VERSION >= 1.040;
+	print "\n";
+
 	return TRUE;
 }
 
@@ -6463,6 +6321,170 @@ sub dlg_rename {
 
 	}
 	
+}
+
+sub dlg_save_as {
+	my (@keys) = @_;
+	
+	foreach my $key (@keys){
+		
+		my $fs = Gtk2::FileChooserDialog->new(
+			$d->get("Choose a location to save to"),
+			$window, 'save',
+			'gtk-cancel' => 'reject',
+			'gtk-save'   => 'accept'
+		);
+
+		$fs->set_filename( $session_screens{$key}->{'long'} );
+
+		my $extra_hbox = Gtk2::HBox->new;
+
+		my $label_save_as_type = Gtk2::Label->new( $d->get("Image format") . ":" );
+
+		my $combobox_save_as_type = Gtk2::ComboBox->new_text;
+
+		#add supported formats to combobox
+		#the user can decide to save in jpeg, png or bmp format
+		my $counter = 0;
+		my $png_counter = undef;
+		foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
+			
+			#add all known formats to the dialog
+			$combobox_save_as_type->insert_text( $counter, $_->{name} . " - " . $_->{description} );
+			
+			#set active when mime_type is matching
+			#loop because multiple mime types are registered for fome file formats
+			foreach my $mime (@{$_->{mime_types}}){
+				$combobox_save_as_type->set_active($counter)
+					if $mime eq $session_screens{$key}->{'mime_type'};		
+				
+				#save png_counter as well as fallback
+				$png_counter = $counter if $mime eq 'image/png';
+			}
+			$counter++;
+		}
+		
+		#something went wrong here
+		#filetype was not detected automatically
+		#set to png as default
+		unless($combobox_save_as_type->get_active_text){
+			if(defined $png_counter){
+				$combobox_save_as_type->set_active($png_counter);
+			}	
+		}
+
+		$combobox_save_as_type->signal_connect(
+			'changed' => sub {
+				my $filename = $fs->get_filename;
+
+				my $choosen_format = $combobox_save_as_type->get_active_text;
+				$choosen_format =~ s/ \-.*//;    #get png or jpeg for example
+				#~ print $choosen_format . "\n";
+
+				#parse filename
+				my ( $short, $folder, $ext ) = fileparse( $filename, qr/\.[^.]*/ );
+
+				$fs->set_current_name( $short . "." . $choosen_format );
+			}
+		);
+
+		$extra_hbox->pack_start( $label_save_as_type,    FALSE, FALSE, 5 );
+		$extra_hbox->pack_start( $combobox_save_as_type, FALSE, FALSE, 5 );
+
+		my $align_save_as_type = Gtk2::Alignment->new( 1, 0, 0, 0 );
+
+		$align_save_as_type->add($extra_hbox);
+		$align_save_as_type->show_all;
+
+		$fs->set_extra_widget($align_save_as_type);
+
+		my $fs_resp = $fs->run;
+
+		if ( $fs_resp eq "accept" ) {
+			my $filename = $fs->get_filename;
+
+			#parse filename
+			my ( $short, $folder, $ext ) = fileparse( $filename, qr/\.[^.]*/ );
+
+			#handle file format
+			my $choosen_format = $combobox_save_as_type->get_active_text;
+			$choosen_format =~ s/ \-.*//;    #get png or jpeg for example
+
+			$filename = $folder . $short . "." . $choosen_format;
+
+			unless ( $shf->file_exists($filename) ) {
+				#save as (pixbuf, new_filename, filetype, quality - auto here, old_filename)
+				my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} );
+				if($sp->save_pixbuf_to_file($pixbuf, $filename, $choosen_format)){
+
+					#cancel handle
+					if ( exists $session_screens{$key}->{'handle'} ) {
+						
+						$session_screens{$key}->{'handle'}->cancel;
+					}
+					if(&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($filename) )){
+						#setup a new filemonitor, so we get noticed if the file changed
+						&fct_add_file_monitor($key);
+
+						&dlg_status_message( 1, "$session_screens{ $key }->{ 'long' } " . $d->get("saved") );
+					}
+					
+				}
+				
+			} else {
+
+				#ask the user to replace the image
+				#replace button
+				my $replace_btn = Gtk2::Button->new_with_mnemonic( $d->get("_Replace") );
+				$replace_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'button' ) );
+
+				my $response = $sd->dlg_warning_message(
+					sprintf( $d->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $folder . "'"),
+					sprintf( $d->get( "An image named %s already exists. Do you want to replace it?"), "'" . $short.$ext . "'" ),
+					undef, undef, undef,
+					$replace_btn, undef, undef
+				);
+
+				if ( $response == 40 ) {
+					my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} );
+					if($sp->save_pixbuf_to_file($pixbuf, $filename, $choosen_format)){
+
+						#cancel handle
+						if ( exists $session_screens{$key}->{'handle'} ) {
+							
+							$session_screens{$key}->{'handle'}->cancel;
+						}
+
+						if(&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($filename) )){
+
+							#setup a new filemonitor, so we get noticed if the file changed
+							&fct_add_file_monitor($key);
+
+							#maybe file is in session as well, need to set the handler again ;-)
+							foreach my $searchkey ( keys %session_screens ) {
+								next if $key eq $searchkey;
+								if ( $session_screens{$searchkey}->{'long'} eq $filename ) {
+									$session_screens{$searchkey}->{'changed'} = TRUE;
+									&fct_update_tab($searchkey);
+								}
+							}	
+
+							&dlg_status_message( 1, "$session_screens{ $key }->{ 'long' } " . $d->get("saved") );					
+
+						}
+
+					}	
+
+				}
+
+			}
+
+		} 	
+	
+		$fs->destroy();
+		
+	}
+		
 }
 
 sub dlg_plugin {
