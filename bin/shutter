@@ -268,6 +268,8 @@ $window->set_default_size( -1, 500 );
 
 #TRAY ICON
 my $icon                 = undef;
+my $icon_box			 = undef; #Gtk2::TrayIcon needs and Gtk2::EventBox 
+
 my $current_profile_indx = 0;
 my $is_hidden            = TRUE;
 
@@ -410,13 +412,13 @@ unless ( $sc->get_disable_systray ) {
 			require Gtk2::TrayIcon;
 			$icon = Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/pixmaps/shutter.svg", 24, 24 ) );
 			
-			my $eventbox = Gtk2::EventBox->new;
-			$eventbox->add($icon);
+			$icon_box = Gtk2::EventBox->new;
+			$icon_box->add($icon);
 			
-			my $tray = Gtk2::TrayIcon->new('shutter TrayIcon');
-			$tray->add($eventbox);
+			my $tray = Gtk2::TrayIcon->new('Shutter TrayIcon');
+			$tray->add($icon_box);
 			$tooltips->set_tip( $tray, SHUTTER_NAME . " " . SHUTTER_VERSION );
-			$icon->{'hid'} = $eventbox->signal_connect( 'button_release_event', \&evt_show_systray );
+			$icon_box->{'hid'} = $icon_box->signal_connect( 'button_release_event', \&evt_show_systray );
 			$tray->show_all;
 		}
 		
@@ -442,6 +444,7 @@ my $behavior_hbox1      = Gtk2::HBox->new( FALSE, 0 );
 my $behavior_hbox2      = Gtk2::HBox->new( FALSE, 0 );
 my $behavior_hbox3      = Gtk2::HBox->new( FALSE, 0 );
 my $behavior_hbox4      = Gtk2::HBox->new( FALSE, 0 );
+my $behavior_hbox5      = Gtk2::HBox->new( FALSE, 0 );
 my $keybinding_vbox     = Gtk2::VBox->new( FALSE, 0 );
 my $keybinding_mode_box = Gtk2::HBox->new( TRUE,  0 );
 my $actions_vbox        = Gtk2::VBox->new( FALSE, 0 );
@@ -1035,13 +1038,15 @@ if ( defined $settings_xml->{'general'}->{'keybinding_sel'} ) {
 
 my $hide_active           = Gtk2::CheckButton->new_with_label( $d->get("Autohide main window when taking a screenshot") );
 my $present_after_active  = Gtk2::CheckButton->new_with_label( $d->get("Present main window after taking a screenshot") );
+my $notify_after_active   = Gtk2::CheckButton->new_with_label( $d->get("Display pop-up notification after taking a screenshot") );
 my $autocopy_active       = Gtk2::CheckButton->new_with_label( $d->get("Automatically copy screenshot to clipboard") );
 my $close_at_close_active = Gtk2::CheckButton->new_with_label( $d->get("Minimize to tray when closing main window") );
 
 $behavior_hbox1->pack_start( $hide_active,           FALSE, TRUE, 12 );
 $behavior_hbox2->pack_start( $present_after_active,  FALSE, TRUE, 12 );
-$behavior_hbox3->pack_start( $autocopy_active,       FALSE, TRUE, 12 );
-$behavior_hbox4->pack_start( $close_at_close_active, FALSE, TRUE, 12 );
+$behavior_hbox3->pack_start( $notify_after_active,   FALSE, TRUE, 12 );
+$behavior_hbox4->pack_start( $autocopy_active,       FALSE, TRUE, 12 );
+$behavior_hbox5->pack_start( $close_at_close_active, FALSE, TRUE, 12 );
 
 if ( defined $settings_xml->{'general'}->{'autohide'} ) {
 	$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
@@ -1058,6 +1063,14 @@ if ( defined $settings_xml->{'general'}->{'present_after'} ) {
 }
 
 $tooltips->set_tip( $present_after_active, $d->get("Present main window after taking a screenshot") );
+
+if ( defined $settings_xml->{'general'}->{'notify_after'} ) {
+	$notify_after_active->set_active( $settings_xml->{'general'}->{'notify_after'} );
+} else {
+	$notify_after_active->set_active(TRUE);
+}
+
+$tooltips->set_tip( $notify_after_active, $d->get("Display pop-up notification after taking a screenshot") );
 
 if ( defined $settings_xml->{'general'}->{'autocopy'} ) {
 	$autocopy_active->set_active( $settings_xml->{'general'}->{'autocopy'} );
@@ -1387,6 +1400,7 @@ $behavior_vbox->pack_start( $behavior_hbox1, TRUE, TRUE, 3 );
 $behavior_vbox->pack_start( $behavior_hbox2, TRUE, TRUE, 3 );
 $behavior_vbox->pack_start( $behavior_hbox3, TRUE, TRUE, 3 );
 $behavior_vbox->pack_start( $behavior_hbox4, TRUE, TRUE, 3 );
+$behavior_vbox->pack_start( $behavior_hbox5, TRUE, TRUE, 3 );
 $behavior_frame->add($behavior_vbox);
 
 $keybinding_vbox->pack_start( $key_box,             FALSE, TRUE, 3 );
@@ -1517,8 +1531,7 @@ unless ( $sc->get_min ) {
 
 #load saved settings
 #--------------------------------------
-my $folder_to_save = $settings_xml->{'general'}->{'folder'}
-	|| $ENV{'HOME'};
+my $folder_to_save = $settings_xml->{'general'}->{'folder'} || $ENV{'HOME'};
 if ( $sc->get_start_with && $folder_to_save ) {
 	if ( $sc->get_start_with eq "raw" ) {
 		&evt_take_screenshot( 'global_keybinding', "raw", $folder_to_save );
@@ -1628,16 +1641,29 @@ sub evt_take_screenshot {
 		
 	}
 
+	#close last message displayed
+	my $notify 	= $sc->get_notification_object;
+	$notify->close;
+
+	#disable signal-handler
+	&fct_control_signals('block');
+
 	if ( $data eq "web" || $data eq "tray_web" ){
 		&fct_take_screenshot($widget, $data, $folder_from_config);
+		#unblock signal handler
+		&fct_control_signals('unblock');
 	}else{
 		#A short timeout to give the server a chance to
 		#redraw the area that was obscured by our dialog.
 		Glib::Timeout->add (400, sub{
 			&fct_take_screenshot($widget, $data, $folder_from_config);
+			#unblock signal handler
+			&fct_control_signals('unblock');
 			return FALSE;	
 		});		
 	}
+	
+	return TRUE;
 }
 
 sub evt_behavior_handle {
@@ -2378,10 +2404,16 @@ sub fct_control_signals {
 	
 		#and block status icon handler
 		if ( $icon && $icon->isa('Gtk2::StatusIcon') ) {
-			$icon->signal_handler_block($icon->{'hid'});
-			$icon->signal_handler_block($icon->{'hid2'});
+			if($icon->signal_handler_is_connected($icon->{'hid'})){
+				$icon->signal_handler_block($icon->{'hid'});
+			}
+			if($icon->signal_handler_is_connected($icon->{'hid2'})){
+				$icon->signal_handler_block($icon->{'hid2'});
+			}
 		}elsif($icon){
-			$icon->signal_handler_block($icon->{'hid'});
+			if($icon_box->signal_handler_is_connected($icon_box->{'hid'})){
+				$icon_box->signal_handler_block($icon_box->{'hid'});
+			}
 		}		
 
 	}elsif($action eq 'unblock'){
@@ -2394,10 +2426,16 @@ sub fct_control_signals {
 			
 		#and unblock status icon handler
 		if ( $icon && $icon->isa('Gtk2::StatusIcon') ) {
-			$icon->signal_handler_unblock($icon->{'hid'});
-			$icon->signal_handler_unblock($icon->{'hid2'});
+			if($icon->signal_handler_is_connected($icon->{'hid'})){
+				$icon->signal_handler_unblock($icon->{'hid'});
+			}
+			if($icon->signal_handler_is_connected($icon->{'hid2'})){
+				$icon->signal_handler_unblock($icon->{'hid2'});
+			}
 		}elsif($icon){
-			$icon->signal_handler_unblock($icon->{'hid'});
+			if($icon_box->signal_handler_is_connected($icon_box->{'hid'})){
+				$icon_box->signal_handler_unblock($icon_box->{'hid'});
+			}
 		}	
 
 	}	
@@ -2406,9 +2444,12 @@ sub fct_control_signals {
 }
 
 sub fct_control_main_window {
-	my $set 			= shift;
-	my $mode 			= shift;
-	my $supress_show 	= shift || FALSE;
+	my $set 	= shift;
+	my $mode 	= shift;
+	
+	#default value for present is TRUE
+	my $present = TRUE;
+	$present = shift if @_;
 	
 	#set all buttons insensitive/sensitive
 	if($st->{_select}){
@@ -2421,23 +2462,20 @@ sub fct_control_main_window {
 		return FALSE;	
 	}
 
-	#hide or show window
-	if($mode eq 'show'){
+	#this is an unusual method for raising the window
+	#to the top within the stacking order (z-axis)
+	#but it works best here
+	if($mode eq 'show' && $is_hidden && $present){
 
 		#move window to saved position
 		$window->move( $window->{x}, $window->{y} ) if (defined $window->{x} && defined $window->{y});
-		
-		#this is an unusual method for raising the window
-		#to the top within the stacking order (z-axis)
-		#but it works best here
-		if($is_hidden && !$supress_show){
-			$window->show_all;
-			$window->window->focus(time) if defined $window->window;
-			$window->present;
-			#set flag
-			$is_hidden = FALSE;
-		}
-				
+
+		$window->show_all;
+		$window->window->focus(time) if defined $window->window;
+		$window->present;
+		#set flag
+		$is_hidden = FALSE;
+
 		#toolbar->set_show_arrow is FALSE at startup
 		#to automatically adjust the main window width
 		#we change the setting to TRUE if it is still false, 
@@ -2447,7 +2485,7 @@ sub fct_control_main_window {
 				$st->{_toolbar}->set_show_arrow(TRUE);
 			}
 		}
-	
+
 	}elsif($mode eq 'hide'){
 
 		#save current position of main window
@@ -2730,6 +2768,7 @@ sub fct_save_settings {
 	$settings{'general'}->{'cursor'}           = $combobox_cursor->get_active();
 	$settings{'general'}->{'autohide'}         = $hide_active->get_active();
 	$settings{'general'}->{'present_after'}    = $present_after_active->get_active();
+	$settings{'general'}->{'notify_after'}     = $notify_after_active->get_active();
 	$settings{'general'}->{'autocopy'}         = $autocopy_active->get_active();
 	$settings{'general'}->{'close_at_close'}   = $close_at_close_active->get_active();
 	#~ $settings{'general'}->{'save_at_close'}    = $save_at_close_active->get_active();
@@ -3037,6 +3076,7 @@ sub fct_load_settings {
 				#behavior
 				$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
 				$present_after_active->set_active( $settings_xml->{'general'}->{'present_after'} );
+				$notify_after_active->set_active( $settings_xml->{'general'}->{'notify_after'} );
 				$autocopy_active->set_active( $settings_xml->{'general'}->{'autocopy'} );
 				$close_at_close_active->set_active( $settings_xml->{'general'}->{'close_at_close'} );
 				#~ $save_at_close_active->set_active( $settings_xml->{'general'}->{'save_at_close'} );
@@ -3767,8 +3807,8 @@ sub fct_draw {
 sub fct_take_screenshot {
 	my ( $widget, $data, $folder_from_config ) = @_;
 
-	#disable signal-handler
-	&fct_control_signals('block');
+	print "\n$data was emitted by widget $widget\n"
+		if $sc->get_debug;
 
 	my $quality_value	= $scale->get_value();
 	my $delay_value     = undef;
@@ -3948,7 +3988,6 @@ sub fct_take_screenshot {
 		#user aborted screenshot
 		if ( $screenshot == 5 ) {
 			&dlg_status_message( 1, $d->get("Capture aborted by user") );
-			&fct_control_signals('unblock');
 			&fct_control_main_window( TRUE, 'show', $present_after_active->get_active);
 			return FALSE;
 		}
@@ -4098,6 +4137,13 @@ sub fct_take_screenshot {
 		print "screenshot successfully saved to $screenshot_name!\n"
 			if $sc->get_debug;
 		&dlg_status_message( 1, "$session_screens{$new_key_screenshot}->{'short'} " . $d->get("saved") );
+		
+		#show pop-up notification
+		if($notify_after_active->get_active){
+			my $notify 	= $sc->get_notification_object;
+			$notify->show( $d->get("Screenshot saved"), $screenshot_name );
+		}
+
 	} else {
 		#show error dialog
 		my $response = $sd->dlg_error_message( 
@@ -4109,11 +4155,8 @@ sub fct_take_screenshot {
 		return FALSE;		
 	}
 	
-	#unblock signal handler
-	&fct_control_signals('unblock');
-
 	&fct_control_main_window( TRUE, 'show', $present_after_active->get_active);
-
+	
 	return TRUE;
 }
 

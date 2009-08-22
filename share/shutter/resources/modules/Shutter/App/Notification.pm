@@ -55,6 +55,9 @@ sub new {
 		print "Warning: $@", "\n";	
 	}
 
+	#last nid
+	$self->{_nid} = 0;
+
 	bless $self, $class;
 	return $self;
 }
@@ -63,24 +66,24 @@ sub show {
 	my $self 	= shift;
 	my $summary = shift;
 	my $body 	= shift;
-	my $nid		= shift || 0;
+	my $nid		= shift || $self->{_nid};
 
 	#notification
 	eval{
 		if(defined $self->{_notifications_object}){
-			$nid = $self->{_notifications_object}->Notify('Shutter', $nid, "gtk-dialog-info", $summary, $body, [], {}, -1);
+			$self->{_nid} = $self->{_notifications_object}->Notify('Shutter', $nid, "gtk-dialog-info", $summary, $body, [], {}, -1);
 		}
 	};
 	if($@){
 		print "Warning: $@", "\n";		
 	}
-
-	return $nid;
+	
+	return $self->{_nid};
 }
 
 sub close {
 	my $self 	= shift;
-	my $nid		= shift || 0;
+	my $nid		= shift || $self->{_nid};
 
 	#close notification
 	eval{

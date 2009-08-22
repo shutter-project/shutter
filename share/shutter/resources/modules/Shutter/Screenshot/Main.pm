@@ -208,15 +208,12 @@ sub get_pixbuf_from_drawable {
 	if($self->{_delay}){
 		my $notify 	= $self->{_sc}->get_notification_object;
 		my $ttw 	= $self->{_delay};
-		my $nid 	= 0;
 
 		#gettext
 		my $d = $self->{_sc}->get_gettext;
 
 		#first notification immediately
-		$nid = $notify->show(	sprintf($d->nget("Screenshot will be taken in %s second", "Screenshot will be taken in %s seconds", $ttw) , $ttw), 
-								"",
-								$nid);
+		$notify->show( sprintf($d->nget("Screenshot will be taken in %s second", "Screenshot will be taken in %s seconds", $ttw) , $ttw), "" );
 		$ttw--;
 		
 		#delay is only 1 second
@@ -224,15 +221,13 @@ sub get_pixbuf_from_drawable {
 		if($ttw >= 1){
 			#then controlled via timeout
 			Glib::Timeout->add (1000, sub{
-				$nid = $notify->show(	sprintf($d->nget("Screenshot will be taken in %s second", "Screenshot will be taken in %s seconds", $ttw) , $ttw), 
-										"",
-										$nid);
+				$notify->show( sprintf($d->nget("Screenshot will be taken in %s second", "Screenshot will be taken in %s seconds", $ttw) , $ttw), "" );
 				$ttw--;
 				if($ttw == 0){			
 					
 					#close last message with a short delay (less than a second)
 					Glib::Timeout->add (500, sub{
-						$notify->close($nid);
+						$notify->close;
 						return FALSE;	
 					});	
 					
@@ -247,7 +242,7 @@ sub get_pixbuf_from_drawable {
 		}else{
 			#close last message with a short delay (less than a second)
 			Glib::Timeout->add (500, sub{
-				$notify->close($nid);
+				$notify->close;
 				return FALSE;	
 			});				
 		}	
