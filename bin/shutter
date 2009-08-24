@@ -430,54 +430,73 @@ unless ( $sc->get_disable_systray ) {
 
 #settings
 #--------------------------------------
-
 my $vbox_settings       = Gtk2::VBox->new( FALSE, 12 );
 my $hbox_settings       = Gtk2::HBox->new( FALSE, 12 );
 my $vbox_basic          = Gtk2::VBox->new( FALSE, 12 );
 my $vbox_extras         = Gtk2::VBox->new( FALSE, 12 );
 my $vbox_behavior       = Gtk2::VBox->new( FALSE, 12 );
 my $vbox_accounts       = Gtk2::VBox->new( FALSE, 12 );
+
+#pofiles
+my $profiles_label 		= Gtk2::Label->new( $d->get("Profile") . ":" );
+my $profiles_box        = Gtk2::HBox->new( FALSE, 0 );
+
+#main
 my $file_vbox           = Gtk2::VBox->new( FALSE, 0 );
 my $save_vbox           = Gtk2::VBox->new( FALSE, 0 );
-my $behavior_vbox       = Gtk2::VBox->new( FALSE, 0 );
-my $behavior_hbox1      = Gtk2::HBox->new( FALSE, 0 );
-my $behavior_hbox2      = Gtk2::HBox->new( FALSE, 0 );
-my $behavior_hbox3      = Gtk2::HBox->new( FALSE, 0 );
-my $behavior_hbox4      = Gtk2::HBox->new( FALSE, 0 );
-my $behavior_hbox5      = Gtk2::HBox->new( FALSE, 0 );
-my $keybinding_vbox     = Gtk2::VBox->new( FALSE, 0 );
-my $keybinding_mode_box = Gtk2::HBox->new( TRUE,  0 );
-my $actions_vbox        = Gtk2::VBox->new( FALSE, 0 );
 my $capture_vbox        = Gtk2::VBox->new( FALSE, 0 );
-my $effects_vbox        = Gtk2::VBox->new( FALSE, 0 );
-my $accounts_hbox       = Gtk2::HBox->new( FALSE, 0 );
-my $accounts_vbox       = Gtk2::VBox->new( FALSE, 0 );
-my $ftp_hbox1           = Gtk2::HBox->new( FALSE, 0 );
-my $ftp_hbox2           = Gtk2::HBox->new( FALSE, 0 );
-my $ftp_hbox3           = Gtk2::HBox->new( FALSE, 0 );
-my $ftp_hbox4           = Gtk2::HBox->new( FALSE, 0 );
-my $ftp_vbox            = Gtk2::VBox->new( FALSE, 0 );
-my $profiles_box        = Gtk2::HBox->new( FALSE, 0 );
+
 my $scale_box           = Gtk2::HBox->new( FALSE, 0 );
+my $filetype_box        = Gtk2::HBox->new( FALSE, 0 );
+my $filename_box        = Gtk2::HBox->new( FALSE, 0 );
+my $saveDir_box         = Gtk2::HBox->new( FALSE, 0 );
+my $autocopy_box        = Gtk2::HBox->new( FALSE, 0 );
 my $delay_box           = Gtk2::HBox->new( FALSE, 0 );
 my $delay_box2          = Gtk2::HBox->new( FALSE, 0 );
-my $thumbnail_box       = Gtk2::HBox->new( FALSE, 0 );
-my $thumbnail_box2      = Gtk2::HBox->new( FALSE, 0 );
-my $filename_box        = Gtk2::HBox->new( FALSE, 0 );
+my $cursor_box          = Gtk2::HBox->new( FALSE, 0 );
+
+#advanced
+my $actions_vbox        = Gtk2::VBox->new( FALSE, 0 );
+my $window_capture_vbox = Gtk2::VBox->new( FALSE, 0 );
+my $web_capture_vbox    = Gtk2::VBox->new( FALSE, 0 );
+
 my $progname_box        = Gtk2::HBox->new( FALSE, 0 );
 my $progname_box2       = Gtk2::HBox->new( FALSE, 0 );
 my $im_colors_box       = Gtk2::HBox->new( FALSE, 0 );
 my $im_colors_box2      = Gtk2::HBox->new( FALSE, 0 );
-my $filetype_box        = Gtk2::HBox->new( FALSE, 0 );
-my $saveDir_box         = Gtk2::HBox->new( FALSE, 0 );
+my $thumbnail_box       = Gtk2::HBox->new( FALSE, 0 );
+my $thumbnail_box2      = Gtk2::HBox->new( FALSE, 0 );
+my $border_box          = Gtk2::HBox->new( FALSE, 0 );
+my $web_width_box       = Gtk2::HBox->new( FALSE, 0 );
+
+#behavior
+my $window_vbox       	= Gtk2::VBox->new( FALSE, 0 );
+my $notify_vbox       	= Gtk2::VBox->new( FALSE, 0 );
+my $keybinding_vbox     = Gtk2::VBox->new( FALSE, 0 );
+
+my $behavior_hbox1      = Gtk2::HBox->new( FALSE, 0 );
+my $behavior_hbox2      = Gtk2::HBox->new( FALSE, 0 );
+my $behavior_hbox3      = Gtk2::HBox->new( FALSE, 0 );
+my $behavior_hbox4      = Gtk2::HBox->new( FALSE, 0 );
+
+my $keybinding_mode_box = Gtk2::HBox->new( TRUE,  0 );
 my $key_box             = Gtk2::HBox->new( FALSE, 0 );
 my $key_box2            = Gtk2::HBox->new( FALSE, 0 );
 my $key_sel_box         = Gtk2::HBox->new( FALSE, 0 );
 my $key_sel_box2        = Gtk2::HBox->new( FALSE, 0 );
-my $border_box          = Gtk2::HBox->new( FALSE, 0 );
-my $cursor_box          = Gtk2::HBox->new( FALSE, 0 );
 
-my $profiles_label = Gtk2::Label->new( $d->get("Profile") . ":" );
+#upload
+my $accounts_vbox       = Gtk2::VBox->new( FALSE, 0 );
+my $ftp_vbox            = Gtk2::VBox->new( FALSE, 0 );
+
+my $accounts_hbox       = Gtk2::HBox->new( FALSE, 0 );
+my $ftp_hbox1           = Gtk2::HBox->new( FALSE, 0 );
+my $ftp_hbox2           = Gtk2::HBox->new( FALSE, 0 );
+my $ftp_hbox3           = Gtk2::HBox->new( FALSE, 0 );
+my $ftp_hbox4           = Gtk2::HBox->new( FALSE, 0 );
+
+#plugins
+my $effects_vbox        = Gtk2::VBox->new( FALSE, 0 );
 
 #load settings
 #--------------------------------------
@@ -639,12 +658,19 @@ my $save_frame = Gtk2::Frame->new();
 $save_frame->set_label_widget($save_frame_label);
 $save_frame->set_shadow_type('none');
 
-my $behavior_frame_label = Gtk2::Label->new;
-$behavior_frame_label->set_markup( "<b>" . $d->get("Behavior") . "</b>" );
+my $window_frame_label = Gtk2::Label->new;
+$window_frame_label->set_markup( "<b>" . $d->get("Window Preferences") . "</b>" );
 
-my $behavior_frame = Gtk2::Frame->new();
-$behavior_frame->set_label_widget($behavior_frame_label);
-$behavior_frame->set_shadow_type('none');
+my $window_frame = Gtk2::Frame->new();
+$window_frame->set_label_widget($window_frame_label);
+$window_frame->set_shadow_type('none');
+
+my $notify_frame_label = Gtk2::Label->new;
+$notify_frame_label->set_markup( "<b>" . $d->get("Notifications") . "</b>" );
+
+my $notify_frame = Gtk2::Frame->new();
+$notify_frame->set_label_widget($notify_frame_label);
+$notify_frame->set_shadow_type('none');
 
 my $keybinding_frame_label = Gtk2::Label->new;
 $keybinding_frame_label->set_markup( "<b>" . $d->get("Gnome-Keybinding") . "</b>" );
@@ -667,6 +693,20 @@ my $capture_frame = Gtk2::Frame->new();
 $capture_frame->set_label_widget($capture_frame_label);
 $capture_frame->set_shadow_type('none');
 
+my $window_capture_frame_label = Gtk2::Label->new;
+$window_capture_frame_label->set_markup( "<b>" . $d->get("Window Capture") . "</b>" );
+
+my $window_capture_frame = Gtk2::Frame->new();
+$window_capture_frame->set_label_widget($window_capture_frame_label);
+$window_capture_frame->set_shadow_type('none');
+
+my $web_capture_frame_label = Gtk2::Label->new;
+$web_capture_frame_label->set_markup( "<b>" . $d->get("Website Capture") . "</b>" );
+
+my $web_capture_frame = Gtk2::Frame->new();
+$web_capture_frame->set_label_widget($web_capture_frame_label);
+$web_capture_frame->set_shadow_type('none');
+
 my $accounts_frame_label = Gtk2::Label->new;
 $accounts_frame_label->set_markup( "<b>" . $d->get("Accounts") . "</b>" );
 
@@ -681,85 +721,6 @@ my $ftp_frame = Gtk2::Frame->new();
 $ftp_frame->set_label_widget($ftp_frame_label);
 $ftp_frame->set_shadow_type('none');
 
-#delay
-#--------------------------------------
-my $delay_label = Gtk2::Label->new( $d->get("Delay") . ":" );
-my $delay = Gtk2::HScale->new_with_range( 1, 10, 1 );
-$delay->signal_connect(
-	'value-changed' => \&evt_value_changed,
-	'delay_changed'
-);
-$delay->set_value_pos('right');
-
-if ( defined $settings_xml->{'general'}->{'delay'} ) {
-	$delay->set_value( $settings_xml->{'general'}->{'delay'} );
-} else {
-	$delay->set_value(0);
-}
-my $delay_active = Gtk2::CheckButton->new;
-$delay_active->set_active(TRUE);
-$delay_active->signal_connect(
-	'toggled' => \&evt_value_changed,
-	'delay_toggled'
-);
-
-if ( defined $settings_xml->{'general'}->{'delay_active'} ) {
-	$delay_active->set_active( $settings_xml->{'general'}->{'delay_active'} );
-} else {
-	$delay_active->set_active(FALSE);
-}
-$tooltips->set_tip( $delay,        $d->get("Wait n seconds before taking a screenshot") );
-$tooltips->set_tip( $delay_active, $d->get("Wait n seconds before taking a screenshot") );
-$tooltips->set_tip( $delay_label,  $d->get("Wait n seconds before taking a screenshot") );
-$delay_box->pack_start( $delay_label, FALSE, TRUE, 12 );
-$delay_box2->pack_start( $delay_active, FALSE, FALSE, 0 );
-$delay_box2->pack_start( $delay,        TRUE,  TRUE,  0 );
-$delay_box->pack_start( $delay_box2, TRUE, TRUE, 0 );
-
-#end - delay
-#--------------------------------------
-
-#thumbnail
-#--------------------------------------
-my $thumbnail_label = Gtk2::Label->new( $d->get("Thumbnail") . ":" );
-my $thumbnail = Gtk2::HScale->new_with_range( 1, 100, 1 );
-$thumbnail->signal_connect(
-	'value-changed' => \&evt_value_changed,
-	'thumbnail_changed'
-);
-$thumbnail->set_value_pos('right');
-
-if ( defined $settings_xml->{'general'}->{'thumbnail'} ) {
-	$thumbnail->set_value( $settings_xml->{'general'}->{'thumbnail'} );
-} else {
-	$thumbnail->set_value(50);
-}
-my $thumbnail_active = Gtk2::CheckButton->new;
-$thumbnail_active->set_active(TRUE);
-$thumbnail_active->signal_connect(
-	'toggled' => \&evt_value_changed,
-	'thumbnail_toggled'
-);
-
-if ( defined $settings_xml->{'general'}->{'thumbnail_active'} ) {
-	$thumbnail_active->set_active( $settings_xml->{'general'}->{'thumbnail_active'} );
-} else {
-	$thumbnail_active->set_active(FALSE);
-}
-$tooltips->set_tip( $thumbnail,
-	$d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be") );
-$tooltips->set_tip( $thumbnail_active,
-	$d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be") );
-$tooltips->set_tip( $thumbnail_label,
-	$d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be") );
-$thumbnail_box->pack_start( $thumbnail_label, FALSE, TRUE, 12 );
-$thumbnail_box2->pack_start( $thumbnail_active, FALSE, FALSE, 0 );
-$thumbnail_box2->pack_start( $thumbnail,        TRUE,  TRUE,  0 );
-$thumbnail_box->pack_start( $thumbnail_box2, TRUE, TRUE, 0 );
-
-#end - thumbnail
-#--------------------------------------
-
 #filename
 #--------------------------------------
 my $filename = Gtk2::Entry->new;
@@ -773,6 +734,7 @@ if ( defined $settings_xml->{'general'}->{'filename'} ) {
 #here are all invalid char codes
 my @invalid_codes = (47,92,63,42,58,124,34,60,62,44,59,35,38);
 my $filename_hint = Gtk2::Label->new;
+$filename_hint->set_no_show_all(TRUE);
 $filename->signal_connect('key-press-event' => sub {
 	my $filename 	= shift;
 	my $event 		= shift;
@@ -787,10 +749,13 @@ $filename->signal_connect('key-press-event' => sub {
 		$filename_hint->set_markup("<span size='small'>" . 
 										sprintf($d->get("Reserved character %s is not allowed to be in a filename.") , "'".$char."'") 
 										. "</span>");	
+		
+		$filename_hint->show;
 		return TRUE;
 	}else{
 		#clear possible message when valid char is entered
 		$filename_hint->set_markup("<span size='small'></span>");						
+		$filename_hint->hide;
 		return FALSE;
 	}
 });
@@ -924,153 +889,10 @@ $saveDir_box->pack_start( $saveDir_button, TRUE,  TRUE, 0 );
 #end - saveDir
 #--------------------------------------
 
-#behavior
+#autocopy
 #--------------------------------------
-my $capture_key = Gtk2::Entry->new;
-if ( defined $settings_xml->{'general'}->{'capture_key'} ) {
-	$capture_key->set_text( $settings_xml->{'general'}->{'capture_key'} );
-} else {
-	$capture_key->set_text("Print");
-}
-my $capture_label = Gtk2::Label->new( $d->get("Capture") . ":" );
-$tooltips->set_tip(
-	$capture_key,
-	$d->get(
-		"Configure global keybinding for capture\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
-	)
-);
-$tooltips->set_tip(
-	$capture_label,
-	$d->get(
-		"Configure global keybinding for capture\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
-	)
-);
-my $capture_sel_key = Gtk2::Entry->new;
-if ( defined $settings_xml->{'general'}->{'capture_sel_key'} ) {
-	$capture_sel_key->set_text( $settings_xml->{'general'}->{'capture_sel_key'} );
-} else {
-	$capture_sel_key->set_text("<Alt>Print");
-}
-
-my $capture_sel_label = Gtk2::Label->new( $d->get("Capture with selection") . ":" );
-$tooltips->set_tip(
-	$capture_sel_key,
-	$d->get(
-		"Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
-	)
-);
-$tooltips->set_tip(
-	$capture_sel_label,
-	$d->get(
-		"Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
-	)
-);
-
-#keybinding_mode
-my $combobox_keybinding_mode = Gtk2::ComboBox->new_text;
-$combobox_keybinding_mode->insert_text( 0, $d->get("Selection") );
-$combobox_keybinding_mode->insert_text( 1, $d->get("Window") );
-$combobox_keybinding_mode->insert_text( 2, $d->get("Section") );
-
-if ( defined $settings_xml->{'general'}->{'keybinding_mode'} ) {
-	$combobox_keybinding_mode->set_active( $settings_xml->{'general'}->{'keybinding_mode'} );
-} else {
-	$combobox_keybinding_mode->set_active(1);
-}
-$tooltips->set_tip(
-	$combobox_keybinding_mode,
-	$d->get(
-		"Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
-	)
-);
-#~ $combobox_keybinding_mode->signal_connect(
-	#~ 'changed' => \&evt_behavior_handle,
-	#~ 'keybinding_sel_toggled'
-#~ );
-
-$keybinding_mode_box->pack_start( Gtk2::Label->new,          FALSE, FALSE, 0 );
-$keybinding_mode_box->pack_start( $combobox_keybinding_mode, TRUE,  TRUE,  0 );
-
-#keybindings
-my $keybinding_active = Gtk2::CheckButton->new;
-my $keybinding_sel_active = Gtk2::CheckButton->new;
-
-$key_box->pack_start( $capture_label, FALSE, TRUE, 12 );
-$key_box2->pack_start( $keybinding_active, FALSE, FALSE, 0 );
-$key_box2->pack_start( $capture_key,       TRUE,  TRUE,  0 );
-$key_box->pack_start( $key_box2, TRUE, TRUE, 0 );
-$key_sel_box->pack_start( $capture_sel_label, FALSE, TRUE, 12 );
-$key_sel_box2->pack_start( $keybinding_sel_active, FALSE, FALSE, 0 );
-$key_sel_box2->pack_start( $capture_sel_key,       TRUE,  TRUE,  0 );
-$key_sel_box->pack_start( $key_sel_box2, TRUE, TRUE, 0 );
-$keybinding_active->set_active(TRUE);
-
-#add signal handlers BEFORE settings are restored
-#~ $capture_key->signal_connect(
-	#~ 'focus-out-event' => sub { &evt_behavior_handle($capture_key, 'keybinding_toggled'); return FALSE; }
-#~ );
-#~ 
-#~ $capture_sel_key->signal_connect(
-	#~ 'focus-out-event' => sub { &evt_behavior_handle($capture_sel_key, 'keybinding_sel_toggled'); return FALSE; }
-#~ );
-#~ 
-$keybinding_active->signal_connect(
-	'toggled' => \&evt_behavior_handle,
-	'keybinding_toggled'
-);
-
-$keybinding_sel_active->signal_connect(
-	'toggled' => \&evt_behavior_handle,
-	'keybinding_sel_toggled'
-);
-
-if ( defined $settings_xml->{'general'}->{'keybinding'} ) {
-	$keybinding_active->set_active( $settings_xml->{'general'}->{'keybinding'} );
-} else {
-	$keybinding_active->set_active(FALSE);
-}
-$keybinding_sel_active->set_active(TRUE);
-if ( defined $settings_xml->{'general'}->{'keybinding_sel'} ) {
-	$keybinding_sel_active->set_active( $settings_xml->{'general'}->{'keybinding_sel'} );
-} else {
-	$keybinding_sel_active->set_active(FALSE);
-}
-
-my $hide_active           = Gtk2::CheckButton->new_with_label( $d->get("Autohide main window when taking a screenshot") );
-my $present_after_active  = Gtk2::CheckButton->new_with_label( $d->get("Present main window after taking a screenshot") );
-my $notify_after_active   = Gtk2::CheckButton->new_with_label( $d->get("Display pop-up notification after taking a screenshot") );
 my $autocopy_active       = Gtk2::CheckButton->new_with_label( $d->get("Automatically copy screenshot to clipboard") );
-my $close_at_close_active = Gtk2::CheckButton->new_with_label( $d->get("Minimize to tray when closing main window") );
-
-$behavior_hbox1->pack_start( $hide_active,           FALSE, TRUE, 12 );
-$behavior_hbox2->pack_start( $present_after_active,  FALSE, TRUE, 12 );
-$behavior_hbox3->pack_start( $notify_after_active,   FALSE, TRUE, 12 );
-$behavior_hbox4->pack_start( $autocopy_active,       FALSE, TRUE, 12 );
-$behavior_hbox5->pack_start( $close_at_close_active, FALSE, TRUE, 12 );
-
-if ( defined $settings_xml->{'general'}->{'autohide'} ) {
-	$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
-} else {
-	$hide_active->set_active(TRUE);
-}
-
-$tooltips->set_tip( $hide_active, $d->get("Autohide main window when taking a screenshot") );
-
-if ( defined $settings_xml->{'general'}->{'present_after'} ) {
-	$present_after_active->set_active( $settings_xml->{'general'}->{'present_after'} );
-} else {
-	$present_after_active->set_active(TRUE);
-}
-
-$tooltips->set_tip( $present_after_active, $d->get("Present main window after taking a screenshot") );
-
-if ( defined $settings_xml->{'general'}->{'notify_after'} ) {
-	$notify_after_active->set_active( $settings_xml->{'general'}->{'notify_after'} );
-} else {
-	$notify_after_active->set_active(TRUE);
-}
-
-$tooltips->set_tip( $notify_after_active, $d->get("Display pop-up notification after taking a screenshot") );
+$autocopy_box->pack_start( $autocopy_active, FALSE, TRUE, 12 );
 
 if ( defined $settings_xml->{'general'}->{'autocopy'} ) {
 	$autocopy_active->set_active( $settings_xml->{'general'}->{'autocopy'} );
@@ -1080,15 +902,61 @@ if ( defined $settings_xml->{'general'}->{'autocopy'} ) {
 
 $tooltips->set_tip( $autocopy_active, $d->get("Automatically copy screenshot to clipboard") );
 
-if ( defined $settings_xml->{'general'}->{'close_at_close'} ) {
-	$close_at_close_active->set_active( $settings_xml->{'general'}->{'close_at_close'} );
+#end - autocopy
+#--------------------------------------
+
+#delay
+#--------------------------------------
+my $delay_label = Gtk2::Label->new( $d->get("Delay") . ":" );
+my $delay = Gtk2::HScale->new_with_range( 1, 20, 1 );
+$delay->signal_connect(
+	'value-changed' => \&evt_value_changed,
+	'delay_changed'
+);
+$delay->set_value_pos('right');
+
+if ( defined $settings_xml->{'general'}->{'delay'} ) {
+	$delay->set_value( $settings_xml->{'general'}->{'delay'} );
 } else {
-	$close_at_close_active->set_active(TRUE);
+	$delay->set_value(0);
+}
+my $delay_active = Gtk2::CheckButton->new;
+$delay_active->set_active(TRUE);
+$delay_active->signal_connect(
+	'toggled' => \&evt_value_changed,
+	'delay_toggled'
+);
+
+if ( defined $settings_xml->{'general'}->{'delay_active'} ) {
+	$delay_active->set_active( $settings_xml->{'general'}->{'delay_active'} );
+} else {
+	$delay_active->set_active(FALSE);
+}
+$tooltips->set_tip( $delay,        $d->get("Wait n seconds before taking a screenshot") );
+$tooltips->set_tip( $delay_active, $d->get("Wait n seconds before taking a screenshot") );
+$tooltips->set_tip( $delay_label,  $d->get("Wait n seconds before taking a screenshot") );
+$delay_box->pack_start( $delay_label, FALSE, TRUE, 12 );
+$delay_box2->pack_start( $delay_active, FALSE, FALSE, 0 );
+$delay_box2->pack_start( $delay,        TRUE,  TRUE,  0 );
+$delay_box->pack_start( $delay_box2, TRUE, TRUE, 0 );
+
+#end - delay
+#--------------------------------------
+
+#cursor
+#--------------------------------------
+my $cursor_active = Gtk2::CheckButton->new_with_label( $d->get("Include cursor when taking a screenshot") );
+$tooltips->set_tip( $cursor_active, $d->get("Include cursor when taking a screenshot") );
+
+$cursor_box->pack_start( $cursor_active,    FALSE, TRUE, 12 );
+
+if ( defined $settings_xml->{'general'}->{'cursor'} ) {
+	$cursor_active->set_active( $settings_xml->{'general'}->{'cursor'} );
+} else {
+	$cursor_active->set_active(TRUE);
 }
 
-$tooltips->set_tip( $close_at_close_active, $d->get("Minimize to tray when closing main window") );
-
-#end - behavior
+#end - cursor
 #--------------------------------------
 
 #program
@@ -1183,53 +1051,237 @@ $im_colors_box->pack_start( $im_colors_box2, TRUE, TRUE, 0 );
 #end - colors
 #--------------------------------------
 
-#border
+#thumbnail
 #--------------------------------------
-my $combobox_border = Gtk2::ComboBox->new_text;
-$combobox_border->insert_text( 1, $d->get("activate") );
-$combobox_border->insert_text( 0, $d->get("deactivate") );
-$combobox_border->signal_connect(
-	'changed' => \&evt_value_changed,
-	'border_changed'
+my $thumbnail_label = Gtk2::Label->new( $d->get("Thumbnail") . ":" );
+my $thumbnail = Gtk2::HScale->new_with_range( 1, 100, 1 );
+$thumbnail->signal_connect(
+	'value-changed' => \&evt_value_changed,
+	'thumbnail_changed'
+);
+$thumbnail->set_value_pos('right');
+
+if ( defined $settings_xml->{'general'}->{'thumbnail'} ) {
+	$thumbnail->set_value( $settings_xml->{'general'}->{'thumbnail'} );
+} else {
+	$thumbnail->set_value(50);
+}
+my $thumbnail_active = Gtk2::CheckButton->new;
+$thumbnail_active->set_active(TRUE);
+$thumbnail_active->signal_connect(
+	'toggled' => \&evt_value_changed,
+	'thumbnail_toggled'
 );
 
-if ( defined $settings_xml->{'general'}->{'border'} ) {
-	$combobox_border->set_active( $settings_xml->{'general'}->{'border'} );
+if ( defined $settings_xml->{'general'}->{'thumbnail_active'} ) {
+	$thumbnail_active->set_active( $settings_xml->{'general'}->{'thumbnail_active'} );
 } else {
-	$combobox_border->set_active(TRUE);
+	$thumbnail_active->set_active(FALSE);
 }
+$tooltips->set_tip( $thumbnail,
+	$d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be") );
+$tooltips->set_tip( $thumbnail_active,
+	$d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be") );
+$tooltips->set_tip( $thumbnail_label,
+	$d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be") );
+$thumbnail_box->pack_start( $thumbnail_label, FALSE, TRUE, 12 );
+$thumbnail_box2->pack_start( $thumbnail_active, FALSE, FALSE, 0 );
+$thumbnail_box2->pack_start( $thumbnail,        TRUE,  TRUE,  0 );
+$thumbnail_box->pack_start( $thumbnail_box2, TRUE, TRUE, 0 );
 
-my $border_label = Gtk2::Label->new( $d->get("Window border") . ":" );
-$tooltips->set_tip( $combobox_border, $d->get("Include wm border when selecting a window") );
-$tooltips->set_tip( $border_label,    $d->get("Include wm border when selecting a window") );
-$border_box->pack_start( $border_label,    FALSE, TRUE, 12 );
-$border_box->pack_start( $combobox_border, TRUE,  TRUE, 0 );
+#end - thumbnail
+#--------------------------------------
+
+#border
+#--------------------------------------
+my $border_active = Gtk2::CheckButton->new_with_label( $d->get("Include window decoration when capturing a window") );
+$tooltips->set_tip( $border_active, $d->get("Include window decoration when capturing a window") );
+
+$border_box->pack_start( $border_active,    FALSE, TRUE, 12 );
+
+if ( defined $settings_xml->{'general'}->{'border'} ) {
+	$border_active->set_active( $settings_xml->{'general'}->{'border'} );
+} else {
+	$border_active->set_active(TRUE);
+}
 
 #end - border
 #--------------------------------------
 
-#cursor
+#web width
 #--------------------------------------
-my $combobox_cursor = Gtk2::ComboBox->new_text;
-$combobox_cursor->insert_text( 1, $d->get("activate") );
-$combobox_cursor->insert_text( 0, $d->get("deactivate") );
-$combobox_cursor->signal_connect(
-	'changed' => \&evt_value_changed,
-	'cursor_changed'
+my $combobox_web_width = Gtk2::ComboBox->new_text;
+$combobox_web_width->insert_text( 0, "640 px" );
+$combobox_web_width->insert_text( 1, "800 px" );
+$combobox_web_width->insert_text( 2, "1024 px" );
+$combobox_web_width->insert_text( 3, "1152 px" );
+$combobox_web_width->insert_text( 4, "1280 px" );
+$combobox_web_width->insert_text( 5, "1366 px" );
+$combobox_web_width->insert_text( 6, "1440 px" );
+$combobox_web_width->insert_text( 7, "1600 px" );
+$combobox_web_width->insert_text( 8, "1680 px" );
+$combobox_web_width->insert_text( 9, "1920 px" );
+$combobox_web_width->insert_text( 10, "2048 px" );
+$combobox_web_width->insert_text( 11, "2560 px" );
+$combobox_web_width->insert_text( 12, "4096 px" );
+
+if ( defined $settings_xml->{'general'}->{'web_width'} ) {
+	$combobox_web_width->set_active( $settings_xml->{'general'}->{'web_width'} );
+} else {
+	$combobox_web_width->set_active(2);
+}
+my $web_width_label = Gtk2::Label->new( $d->get("Virtual browser width") . ":" );
+$tooltips->set_tip( $combobox_web_width, $d->get("Virtual browser width when taking a website screenshot") );
+$tooltips->set_tip( $web_width_label,    $d->get("Virtual browser width when taking a website screenshot") );
+$web_width_box->pack_start( $web_width_label,    FALSE, TRUE, 12 );
+$web_width_box->pack_start( $combobox_web_width, TRUE,  TRUE, 0 );
+
+#end - web width
+#--------------------------------------
+
+#behavior
+#--------------------------------------
+my $capture_key = Gtk2::Entry->new;
+if ( defined $settings_xml->{'general'}->{'capture_key'} ) {
+	$capture_key->set_text( $settings_xml->{'general'}->{'capture_key'} );
+} else {
+	$capture_key->set_text("Print");
+}
+my $capture_label = Gtk2::Label->new( $d->get("Capture") . ":" );
+$tooltips->set_tip(
+	$capture_key,
+	$d->get(
+		"Configure global keybinding for capture\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
+	)
+);
+$tooltips->set_tip(
+	$capture_label,
+	$d->get(
+		"Configure global keybinding for capture\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
+	)
+);
+my $capture_sel_key = Gtk2::Entry->new;
+if ( defined $settings_xml->{'general'}->{'capture_sel_key'} ) {
+	$capture_sel_key->set_text( $settings_xml->{'general'}->{'capture_sel_key'} );
+} else {
+	$capture_sel_key->set_text("<Alt>Print");
+}
+
+my $capture_sel_label = Gtk2::Label->new( $d->get("Capture with selection") . ":" );
+$tooltips->set_tip(
+	$capture_sel_key,
+	$d->get(
+		"Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
+	)
+);
+$tooltips->set_tip(
+	$capture_sel_label,
+	$d->get(
+		"Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
+	)
 );
 
-if ( defined $settings_xml->{'general'}->{'cursor'} ) {
-	$combobox_cursor->set_active( $settings_xml->{'general'}->{'cursor'} );
-} else {
-	$combobox_cursor->set_active(0);
-}
-my $cursor_label = Gtk2::Label->new( $d->get("Include cursor") . ":" );
-$tooltips->set_tip( $combobox_cursor, $d->get("Include cursor when taking a screenshot") );
-$tooltips->set_tip( $cursor_label,    $d->get("Include cursor when taking a screenshot") );
-$cursor_box->pack_start( $cursor_label,    FALSE, TRUE, 12 );
-$cursor_box->pack_start( $combobox_cursor, TRUE,  TRUE, 0 );
+#keybinding_mode
+my $combobox_keybinding_mode = Gtk2::ComboBox->new_text;
+$combobox_keybinding_mode->insert_text( 0, $d->get("Selection") );
+$combobox_keybinding_mode->insert_text( 1, $d->get("Window") );
+$combobox_keybinding_mode->insert_text( 2, $d->get("Section") );
 
-#end - cursor
+if ( defined $settings_xml->{'general'}->{'keybinding_mode'} ) {
+	$combobox_keybinding_mode->set_active( $settings_xml->{'general'}->{'keybinding_mode'} );
+} else {
+	$combobox_keybinding_mode->set_active(1);
+}
+$tooltips->set_tip(
+	$combobox_keybinding_mode,
+	$d->get(
+		"Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
+	)
+);
+
+$keybinding_mode_box->pack_start( Gtk2::Label->new,          FALSE, FALSE, 0 );
+$keybinding_mode_box->pack_start( $combobox_keybinding_mode, TRUE,  TRUE,  0 );
+
+#keybindings
+my $keybinding_active = Gtk2::CheckButton->new;
+my $keybinding_sel_active = Gtk2::CheckButton->new;
+
+$key_box->pack_start( $capture_label, FALSE, TRUE, 12 );
+$key_box2->pack_start( $keybinding_active, FALSE, FALSE, 0 );
+$key_box2->pack_start( $capture_key, TRUE,  TRUE,  0 );
+$key_box->pack_start( $key_box2, TRUE, TRUE, 0 );
+$key_sel_box->pack_start( $capture_sel_label, FALSE, TRUE, 12 );
+$key_sel_box2->pack_start( $keybinding_sel_active, FALSE, FALSE, 0 );
+$key_sel_box2->pack_start( $capture_sel_key,       TRUE,  TRUE,  0 );
+$key_sel_box->pack_start( $key_sel_box2, TRUE, TRUE, 0 );
+$keybinding_active->set_active(TRUE);
+
+#add signal handlers BEFORE settings are restored
+$keybinding_active->signal_connect(
+	'toggled' => \&evt_behavior_handle,
+	'keybinding_toggled'
+);
+
+$keybinding_sel_active->signal_connect(
+	'toggled' => \&evt_behavior_handle,
+	'keybinding_sel_toggled'
+);
+
+if ( defined $settings_xml->{'general'}->{'keybinding'} ) {
+	$keybinding_active->set_active( $settings_xml->{'general'}->{'keybinding'} );
+} else {
+	$keybinding_active->set_active(FALSE);
+}
+$keybinding_sel_active->set_active(TRUE);
+if ( defined $settings_xml->{'general'}->{'keybinding_sel'} ) {
+	$keybinding_sel_active->set_active( $settings_xml->{'general'}->{'keybinding_sel'} );
+} else {
+	$keybinding_sel_active->set_active(FALSE);
+}
+
+my $hide_active           = Gtk2::CheckButton->new_with_label( $d->get("Autohide main window when taking a screenshot") );
+my $present_after_active  = Gtk2::CheckButton->new_with_label( $d->get("Present main window after taking a screenshot") );
+my $notify_after_active   = Gtk2::CheckButton->new_with_label( $d->get("Display pop-up notification after taking a screenshot") );
+my $close_at_close_active = Gtk2::CheckButton->new_with_label( $d->get("Minimize to tray when closing main window") );
+
+$behavior_hbox1->pack_start( $hide_active,           FALSE, TRUE, 12 );
+$behavior_hbox2->pack_start( $present_after_active,  FALSE, TRUE, 12 );
+$behavior_hbox3->pack_start( $close_at_close_active, FALSE, TRUE, 12 );
+$behavior_hbox4->pack_start( $notify_after_active,   FALSE, TRUE, 12 );
+
+if ( defined $settings_xml->{'general'}->{'autohide'} ) {
+	$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
+} else {
+	$hide_active->set_active(TRUE);
+}
+
+$tooltips->set_tip( $hide_active, $d->get("Autohide main window when taking a screenshot") );
+
+if ( defined $settings_xml->{'general'}->{'present_after'} ) {
+	$present_after_active->set_active( $settings_xml->{'general'}->{'present_after'} );
+} else {
+	$present_after_active->set_active(TRUE);
+}
+
+$tooltips->set_tip( $present_after_active, $d->get("Present main window after taking a screenshot") );
+
+if ( defined $settings_xml->{'general'}->{'notify_after'} ) {
+	$notify_after_active->set_active( $settings_xml->{'general'}->{'notify_after'} );
+} else {
+	$notify_after_active->set_active(TRUE);
+}
+
+$tooltips->set_tip( $notify_after_active, $d->get("Display pop-up notification after taking a screenshot") );
+
+if ( defined $settings_xml->{'general'}->{'close_at_close'} ) {
+	$close_at_close_active->set_active( $settings_xml->{'general'}->{'close_at_close'} );
+} else {
+	$close_at_close_active->set_active(TRUE);
+}
+
+$tooltips->set_tip( $close_at_close_active, $d->get("Minimize to tray when closing main window") );
+
+#end - behavior
 #--------------------------------------
 
 #accounts
@@ -1340,22 +1392,30 @@ $file_frame->add($file_vbox);
 $save_vbox->pack_start( $filename_box, TRUE,  TRUE, 3 );
 $save_vbox->pack_start( $saveDir_box,  FALSE, TRUE, 3 );
 $save_vbox->pack_start( $filename_hint, TRUE,  TRUE, 3 );
+$save_vbox->pack_start( $autocopy_box, TRUE,  TRUE, 3 );
 $save_frame->add($save_vbox);
+
+$capture_vbox->pack_start( $cursor_box, FALSE, TRUE, 3 );
+$capture_vbox->pack_start( $delay_box,  TRUE, TRUE, 3 );
+$capture_frame->add($capture_vbox);
 
 #all labels = one size
 $scale_label->set_alignment( 0, 0.5 );
 $filetype_label->set_alignment( 0, 0.5 );
 $filename_label->set_alignment( 0, 0.5 );
 $saveDir_label->set_alignment( 0, 0.5 );
+$delay_label->set_alignment( 0, 0.5 );
 
 my $sg_main = Gtk2::SizeGroup->new('horizontal');
 $sg_main->add_widget($scale_label);
 $sg_main->add_widget($filetype_label);
 $sg_main->add_widget($filename_label);
 $sg_main->add_widget($saveDir_label);
+$sg_main->add_widget($delay_label);
 
 $vbox_basic->pack_start( $file_frame, FALSE, TRUE, 3 );
 $vbox_basic->pack_start( $save_frame, FALSE, TRUE, 3 );
+$vbox_basic->pack_start( $capture_frame, FALSE, TRUE, 3 );
 $vbox_basic->set_border_width(5);
 
 #settings advanced tab
@@ -1367,41 +1427,40 @@ $actions_vbox->pack_start( $im_colors_box, FALSE, TRUE, 3 );
 $actions_vbox->pack_start( $thumbnail_box, FALSE, TRUE, 3 );
 $actions_frame->add($actions_vbox);
 
-$capture_vbox->pack_start( $delay_box,  FALSE, TRUE, 3 );
-$capture_vbox->pack_start( $border_box, FALSE, TRUE, 3 );
-$capture_vbox->pack_start( $cursor_box, FALSE, TRUE, 3 );
-$capture_frame->add($capture_vbox);
+$window_capture_vbox->pack_start( $border_box, FALSE, TRUE, 3 );
+$window_capture_frame->add($window_capture_vbox);
+
+$web_capture_vbox->pack_start( $web_width_box, FALSE, TRUE, 3 );
+$web_capture_frame->add($web_capture_vbox);
 
 #all labels = one size
 $progname_label->set_alignment( 0, 0.5 );
 $im_colors_label->set_alignment( 0, 0.5 );
 $thumbnail_label->set_alignment( 0, 0.5 );
-$delay_label->set_alignment( 0, 0.5 );
-$border_label->set_alignment( 0, 0.5 );
-$cursor_label->set_alignment( 0, 0.5 );
+$web_width_label->set_alignment( 0, 0.5 );
 
 my $sg_adv = Gtk2::SizeGroup->new('horizontal');
 $sg_adv->add_widget($progname_label);
 $sg_adv->add_widget($im_colors_label);
 $sg_adv->add_widget($thumbnail_label);
-$sg_adv->add_widget($delay_label);
-$sg_adv->add_widget($border_label);
-$sg_adv->add_widget($cursor_label);
+$sg_adv->add_widget($web_width_label);
 
 $vbox_extras->pack_start( $actions_frame, FALSE, TRUE, 3 );
-$vbox_extras->pack_start( $capture_frame, FALSE, TRUE, 3 );
+$vbox_extras->pack_start( $window_capture_frame, FALSE, TRUE, 3 );
+$vbox_extras->pack_start( $web_capture_frame, FALSE, TRUE, 3 );
 $vbox_extras->set_border_width(5);
 
 #settings behavior tab
 my $label_behavior = Gtk2::Label->new;
 $label_behavior->set_markup( $d->get("Behavior") );
 
-$behavior_vbox->pack_start( $behavior_hbox1, TRUE, TRUE, 3 );
-$behavior_vbox->pack_start( $behavior_hbox2, TRUE, TRUE, 3 );
-$behavior_vbox->pack_start( $behavior_hbox3, TRUE, TRUE, 3 );
-$behavior_vbox->pack_start( $behavior_hbox4, TRUE, TRUE, 3 );
-$behavior_vbox->pack_start( $behavior_hbox5, TRUE, TRUE, 3 );
-$behavior_frame->add($behavior_vbox);
+$window_vbox->pack_start( $behavior_hbox1, TRUE, TRUE, 3 );
+$window_vbox->pack_start( $behavior_hbox2, TRUE, TRUE, 3 );
+$window_vbox->pack_start( $behavior_hbox3, TRUE, TRUE, 3 );
+$window_frame->add($window_vbox);
+
+$notify_vbox->pack_start( $behavior_hbox4, TRUE, TRUE, 3 );
+$notify_frame->add($notify_vbox);
 
 $keybinding_vbox->pack_start( $key_box,             FALSE, TRUE, 3 );
 $keybinding_vbox->pack_start( $key_sel_box,         FALSE, TRUE, 3 );
@@ -1416,7 +1475,8 @@ my $sg_behav = Gtk2::SizeGroup->new('horizontal');
 $sg_behav->add_widget($capture_label);
 $sg_behav->add_widget($capture_sel_label);
 
-$vbox_behavior->pack_start( $behavior_frame,   FALSE, TRUE, 3 );
+$vbox_behavior->pack_start( $window_frame,   FALSE, TRUE, 3 );
+$vbox_behavior->pack_start( $notify_frame,   FALSE, TRUE, 3 );
 $vbox_behavior->pack_start( $keybinding_frame, FALSE, TRUE, 3 );
 $vbox_behavior->set_border_width(5);
 
@@ -2712,10 +2772,15 @@ sub fct_save_settings {
 	$settings{'general'}->{'last_profile'}      = $combobox_settings_profiles->get_active;
 	$settings{'general'}->{'last_profile_name'} = $combobox_settings_profiles->get_active_text || "";
 
-	$settings{'general'}->{'filetype'} = $combobox_type->get_active;
-	$settings{'general'}->{'quality'}  = $scale->get_value();
-	$settings{'general'}->{'filename'} = $filename->get_text();
-	$settings{'general'}->{'folder'} = $saveDir_button->get_filename();
+	#main
+	$settings{'general'}->{'filetype'} 		= $combobox_type->get_active;
+	$settings{'general'}->{'quality'}  		= $scale->get_value();
+	$settings{'general'}->{'filename'} 		= $filename->get_text();
+	$settings{'general'}->{'folder'} 		= $saveDir_button->get_filename();
+	$settings{'general'}->{'autocopy'}  	= $autocopy_active->get_active();
+	$settings{'general'}->{'cursor'}		= $cursor_active->get_active();
+	$settings{'general'}->{'delay'}			= $delay->get_value();
+	$settings{'general'}->{'delay_active'}	= $delay_active->get_active();
 
 	#wrksp -> submenu
 	$settings{'general'}->{'current_monitor_active'} = $current_monitor_active->get_active;
@@ -2757,21 +2822,21 @@ sub fct_save_settings {
 		$settings{'general'}->{'prog'} = $progname_value;
 	}
 
+	#advanced
 	$settings{'general'}->{'prog_active'}      = $progname_active->get_active();
 	$settings{'general'}->{'im_colors'}        = $combobox_im_colors->get_active();
 	$settings{'general'}->{'im_colors_active'} = $im_colors_active->get_active();
-	$settings{'general'}->{'delay'}            = $delay->get_value();
-	$settings{'general'}->{'delay_active'}     = $delay_active->get_active();
 	$settings{'general'}->{'thumbnail'}        = $thumbnail->get_value();
 	$settings{'general'}->{'thumbnail_active'} = $thumbnail_active->get_active();
-	$settings{'general'}->{'border'}           = $combobox_border->get_active();
-	$settings{'general'}->{'cursor'}           = $combobox_cursor->get_active();
+	$settings{'general'}->{'border'}           = $border_active->get_active();
+	$settings{'general'}->{'web_width'}        = $combobox_web_width->get_active();
+
+	#behavior
 	$settings{'general'}->{'autohide'}         = $hide_active->get_active();
 	$settings{'general'}->{'present_after'}    = $present_after_active->get_active();
-	$settings{'general'}->{'notify_after'}     = $notify_after_active->get_active();
-	$settings{'general'}->{'autocopy'}         = $autocopy_active->get_active();
 	$settings{'general'}->{'close_at_close'}   = $close_at_close_active->get_active();
-	#~ $settings{'general'}->{'save_at_close'}    = $save_at_close_active->get_active();
+	$settings{'general'}->{'notify_after'}     = $notify_after_active->get_active();
+
 	$settings{'general'}->{'keybinding'}       = $keybinding_active->get_active();
 	$settings{'general'}->{'keybinding_sel'}   = $keybinding_sel_active->get_active();
 	$settings{'general'}->{'keybinding_mode'}  = $combobox_keybinding_mode->get_active();
@@ -3017,12 +3082,19 @@ sub fct_load_settings {
 					$combobox_type->set_active($settings_xml->{'general'}->{'filetype'});	
 				}
 
+				#main
 				$scale->set_value( $settings_xml->{'general'}->{'quality'} );
 				utf8::decode $settings_xml->{'general'}->{'filename'};
 				$filename->set_text( $settings_xml->{'general'}->{'filename'} );
 
 				utf8::decode $settings_xml->{'general'}->{'folder'};
 				$saveDir_button->set_filename( $settings_xml->{'general'}->{'folder'} );
+				
+				$autocopy_active->set_active( $settings_xml->{'general'}->{'autocopy'} );
+
+				$cursor_active->set_active( $settings_xml->{'general'}->{'cursor'} );
+				$delay->set_value( $settings_xml->{'general'}->{'delay'} );
+				$delay_active->set_active( $settings_xml->{'general'}->{'delay_active'} );
 
 				#FIXME
 				#this is a dirty hack to force the setting to be enabled in session tab
@@ -3064,22 +3136,21 @@ sub fct_load_settings {
 				utf8::decode $settings_xml->{'general'}->{'prog'};
 				$model->foreach( \&fct_iter_programs, $settings_xml->{'general'}->{'prog'} );
 				$progname_active->set_active( $settings_xml->{'general'}->{'prog_active'} );
+				
 				$im_colors_active->set_active( $settings_xml->{'general'}->{'im_colors_active'} );
 				$combobox_im_colors->set_active( $settings_xml->{'general'}->{'im_colors'} );
-				$delay->set_value( $settings_xml->{'general'}->{'delay'} );
-				$delay_active->set_active( $settings_xml->{'general'}->{'delay_active'} );
+				
 				$thumbnail->set_value( $settings_xml->{'general'}->{'thumbnail'} );
 				$thumbnail_active->set_active( $settings_xml->{'general'}->{'thumbnail_active'} );
-				$combobox_border->set_active( $settings_xml->{'general'}->{'border'} );
-				$combobox_cursor->set_active( $settings_xml->{'general'}->{'cursor'} );
+				
+				$border_active->set_active( $settings_xml->{'general'}->{'border'} );
+				$combobox_web_width->set_active( $settings_xml->{'general'}->{'web_width'} );
 
 				#behavior
 				$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
 				$present_after_active->set_active( $settings_xml->{'general'}->{'present_after'} );
 				$notify_after_active->set_active( $settings_xml->{'general'}->{'notify_after'} );
-				$autocopy_active->set_active( $settings_xml->{'general'}->{'autocopy'} );
 				$close_at_close_active->set_active( $settings_xml->{'general'}->{'close_at_close'} );
-				#~ $save_at_close_active->set_active( $settings_xml->{'general'}->{'save_at_close'} );
 
 				#keybindings
 				$keybinding_active->set_active( $settings_xml->{'general'}->{'keybinding'} );
@@ -3828,10 +3899,7 @@ sub fct_take_screenshot {
 	my $screenshot         = undef;
 	my $screenshot_name    = undef;
 	my $thumbnail_ending   = "thumb";
-	
-	print "\n$data was emitted by widget $widget\n"
-		if $sc->get_debug;
-	
+		
 	#determine current file type (name - description)
 	$combobox_type->get_active_text =~ /(.*) -/;
 	$filetype_value = $1;
@@ -3869,7 +3937,7 @@ sub fct_take_screenshot {
 		my $wnck_screen = Gnome2::Wnck::Screen->get_default;
 
 		my $screenshooter = Shutter::Screenshot::Workspace->new(
-			$sc, $combobox_cursor->get_active,
+			$sc, $cursor_active->get_active,
 			$delay_value, $wnck_screen->get_active_workspace,
 			undef, undef, $current_monitor_active->get_active
 		);
@@ -3880,8 +3948,8 @@ sub fct_take_screenshot {
 	} elsif ( $data eq "window" || $data eq "tray_window" || $data eq "section" || $data eq "tray_section" ) {
 
 		my $screenshooter = Shutter::Screenshot::Window->new(
-			$sc, $combobox_cursor->get_active, $delay_value, 
-			$combobox_border->get_active, undef, $data, $is_hidden
+			$sc, $cursor_active->get_active, $delay_value, 
+			$border_active->get_active, undef, $data, $is_hidden
 		);
 		
 		$screenshot = $screenshooter->window();
@@ -3891,7 +3959,7 @@ sub fct_take_screenshot {
 
 		if ( $tool_advanced->get_active ) {
 					
-			my $screenshooter = Shutter::Screenshot::SelectorAdvanced->new( $sc, $combobox_cursor->get_active, $delay_value, $view, $selector, $dragger, $nav );
+			my $screenshooter = Shutter::Screenshot::SelectorAdvanced->new( $sc, $cursor_active->get_active, $delay_value, $view, $selector, $dragger, $nav );
 			$screenshot = $screenshooter->select_advanced();
 
 		} else {
@@ -3900,7 +3968,7 @@ sub fct_take_screenshot {
 			$zoom_size_factor = 2 if ( $zoom_size2->get_active );
 			$zoom_size_factor = 3 if ( $zoom_size3->get_active );
 			
-			my $screenshooter = Shutter::Screenshot::SelectorSimple->new( $sc, $combobox_cursor->get_active,
+			my $screenshooter = Shutter::Screenshot::SelectorSimple->new( $sc, $cursor_active->get_active,
 				$delay_value, $zoom_size_factor, $zoom_active->get_active );
 			
 			$screenshot = $screenshooter->select_simple();
@@ -3910,7 +3978,15 @@ sub fct_take_screenshot {
 	#web
 	} elsif ( $data eq "web" || $data eq "tray_web" ) {
 		
-		$screenshot = &dlg_website( $uri->get_path(), $filetype_value, $quality_value );
+		my $website_width = 1024;
+		if($combobox_web_width->get_active_text =~ /(\d+)/){
+			$website_width = $1;
+		}
+
+		print "\nvirtual website width: $website_width\n"
+			if $sc->get_debug;
+		
+		$screenshot = &dlg_website( $uri->get_path(), $filetype_value, $quality_value, $website_width );
 		if ( $screenshot && $screenshot =~ /[a-zA-Z]/ ) {
 			#error if $screenshot is not a Gtk2::Gdk::Pixbuf
 			unless($screenshot =~ /Gtk2::Gdk::Pixbuf/){
@@ -3935,8 +4011,8 @@ sub fct_take_screenshot {
 		print "Selected xid: $xid\n" if $sc->get_debug;
 
 		my $screenshooter = Shutter::Screenshot::Window->new( 
-				$sc, $combobox_cursor->get_active, $delay_value, 
-				$combobox_border->get_active, $xid, $data, $is_hidden );
+				$sc, $cursor_active->get_active, $delay_value, 
+				$border_active->get_active, $xid, $data, $is_hidden );
 		
 		$screenshot = $screenshooter->window_by_xid();
 
@@ -3961,7 +4037,7 @@ sub fct_take_screenshot {
 		}
 
 
-		my $screenshooter = Shutter::Screenshot::Workspace->new( $sc, $combobox_cursor->get_active,
+		my $screenshooter = Shutter::Screenshot::Workspace->new( $sc, $cursor_active->get_active,
 			$delay_value, $selected_workspace, $vpx, $vpy, $current_monitor_active->get_active );
 		
 		$screenshot = $screenshooter->workspace();
@@ -7344,7 +7420,7 @@ sub dlg_upload_error_message {
 }
 
 sub dlg_website {
-	my ( $filename, $filetype_value, $quality_value ) = @_;
+	my ( $filename, $filetype_value, $quality_value, $website_width ) = @_;
 
 	my $screenshot  = undef;
 	my $web_process = Proc::Simple->new;
@@ -7495,7 +7571,7 @@ sub dlg_website {
 		}
 
 		my $url	= Gnome2::VFS::URI->new ($website->get_text);
-		my $screenshooter = Shutter::Screenshot::Web->new( $timeout, $filetype_value, 1024, $url->to_string, $filename );
+		my $screenshooter = Shutter::Screenshot::Web->new( $timeout, $filetype_value, $website_width, $url->to_string, $filename );
 
 		Proc::Simple::debug(1) if $sc->get_debug;
 
