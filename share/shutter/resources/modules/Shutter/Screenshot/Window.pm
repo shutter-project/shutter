@@ -111,15 +111,18 @@ sub new {
 				#window size and position
 				my ($w, $h) = $self->{_highlighter}->get_size;
 				my ($x, $y) = $self->{_highlighter}->get_position;
+
+				#app icon
+				my $icon = $self->{_c}{'cw'}{'window'}->get_icon;
 				
 				#create cairo context
 				my $cr = Gtk2::Gdk::Cairo::Context->create ($self->{_highlighter}->window);
 
 				#pango layout
 				my $layout = Gtk2::Pango::Cairo::create_layout($cr);
-				$layout->set_width( $w * Gtk2::Pango->scale );
+				$layout->set_width( ($w - $icon->get_width - $size * 3) * Gtk2::Pango->scale );
 				$layout->set_alignment('left');
-				$layout->set_wrap('word');
+				$layout->set_wrap('char');
 				
 				#set text
 				$layout->set_markup("<span font_desc=\"$font_fam $size\" weight=\"bold\" foreground=\"#FFFFFF\">$text</span><span font_desc=\"$font_fam $size2\" foreground=\"#FFFFFF\">$sec_text</span>");
@@ -127,8 +130,7 @@ sub new {
 				#get layout size
 				my ( $lw, $lh ) = $layout->get_pixel_size;
 				
-				#app icon
-				my $icon = $self->{_c}{'cw'}{'window'}->get_icon;
+				#adjust values
 				$lw += $icon->get_width;
 				$lh = $icon->get_height if $icon->get_height > $lh;
 				
@@ -218,14 +220,16 @@ sub new {
 
 					#Parent window with text and icon			
 					if($self->{_c}{'cw'}{'is_parent'}){	
-
-						#app icon
-						Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $icon, $xi + $size, $yi + $size );
-						$cr->paint;
 						
-						#draw the pango layout
-						$cr->move_to( $xi + $size*2 + $icon->get_width, $yi + $size );
-						Gtk2::Pango::Cairo::show_layout( $cr, $layout );	
+						if($lw <= $w && $lh <= $h){
+							#app icon
+							Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $icon, $xi + $size, $yi + $size );
+							$cr->paint;
+							
+							#draw the pango layout
+							$cr->move_to( $xi + $size*2 + $icon->get_width, $yi + $size );
+							Gtk2::Pango::Cairo::show_layout( $cr, $layout );
+						}	
 					
 					}
 									
@@ -238,7 +242,9 @@ sub new {
 					
 					#Parent window with text and icon			
 					if($self->{_c}{'cw'}{'is_parent'}){	
-						$shape_region2->subtract($shape_region3);
+						if($lw <= $w && $lh <= $h){
+							$shape_region2->subtract($shape_region3);
+						}
 					}	
 
 					$shape_region1->subtract($shape_region2);
