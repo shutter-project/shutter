@@ -76,137 +76,89 @@ sub new {
 	    $self->{_highlighter}->set_keep_above(TRUE);
 	    $self->{_highlighter}->set_accept_focus(FALSE);
 	    $self->{_highlighter}->set_sensitive(FALSE);
-		$self->{_highlighter_expose} = $self->{_highlighter}->signal_connect('expose-event' => sub{
+		$self->{_highlighter}->signal_connect('expose-event' => sub{
 			if(defined $self->{_c}{'cw'}{'gdk_window'} && defined $self->{_c}{'cw'}{'window'}){
-				
-				#~ print "yeaaaa", "\n";
-				
-				#remove old handler
-				if(defined $self->{_highlighter_anim}){
-					Glib::Source->remove($self->{_highlighter_anim});
-				}
-
-				return FALSE unless $self->{_highlighter}->window;
-
-				#obtain current colors and font_desc from the main window
-			    my $style 		= $self->{_main_gtk_window}->get_style;
-				my $sel_bg 		= $style->bg('selected');
-				my $sel_tx 		= $style->text('selected');
-				my $font_fam 	= $style->font_desc->get_family;
-				my $font_size 	= $style->font_desc->get_size;
-	
-				my $mon 	= $self->get_current_monitor;
-				my $size 	= int( $mon->width * 0.007 );
-				my $size2 	= int( $mon->width * 0.005 );
-	
-				my $text = $self->{_c}{'cw'}{'window'}->get_name;
-				utf8::decode $text;
-				
-				my $sec_text =  $self->{_c}{'cw'}{'width'} . "x" . $self->{_c}{'cw'}{'height'};
-
+												
 				#window size
 				my ($w, $h) = $self->{_highlighter}->get_size;
 				
 				#create cairo context
 				my $cr = Gtk2::Gdk::Cairo::Context->create ($self->{_highlighter}->window);
-				
-				#pango layout
-				my $layout = Gtk2::Pango::Cairo::create_layout($cr);
-				$layout->set_width( $w * Gtk2::Pango->scale );
-				$layout->set_alignment('center');
-				$layout->set_wrap('word');
-	
-				$layout->set_markup("<span font_desc=\"$font_fam $size\" weight=\"bold\" foreground=\"#FFFFFF\">$text</span><span font_desc=\"$font_fam $size2\" foreground=\"#FFFFFF\"> ($sec_text)</span>");
+					
+				#Parent window with text and icon
+				my ( $lw, $lh ) = (0,0);			
+				if($self->{_c}{'cw'}{'is_parent'}){
 
-				#get layout size
-				my ( $lw, $lh ) = $layout->get_pixel_size;
-				
-				my $counter = 0;
-				
-				$self->{_highlighter_anim} = Glib::Timeout->add (25, sub{
-					
-					return FALSE unless $self->{_highlighter}->window;
-					
-					$counter++;
-																
-					#Parent window with text and icon			
-					if($self->{_c}{'cw'}{'is_parent'}){
-	
-						#fill window
-						$cr->set_operator('source');
-						#~ my $lg = Cairo::LinearGradient->create (0, 50, 0, 0);
-						#~ $lg->add_color_stop_rgba(0, $sel_tx->red / 257 / 255, $sel_tx->green / 257 / 255, $sel_tx->blue / 257 / 255, $counter * 0.02);
-						#~ $lg->add_color_stop_rgba(1, $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, $counter * 0.02);
-						#~ $cr->set_source_rgb( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255 );
-						$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, $counter * 0.02 );
-						#~ $cr->set_source($lg);
-						$cr->paint;
-						
-						#app icon
-						$cr->set_operator('over');
-						my $pixbuf = $self->{_c}{'cw'}{'window'}->get_icon;
-						#~ $pixbuf = $pixbuf->scale_simple($pixbuf->get_width*4, $pixbuf->get_height*4, 'bilinear');
-						Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $pixbuf, int(($w-$pixbuf->get_width)/2), int(($h-$pixbuf->get_height)/2) );
-						$cr->paint;
-	
-						#create small black frame
-						$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.75 );
-						#~ $cr->set_line_width(6);
-						$cr->rectangle (0, 0, $w, $h);
-						$cr->stroke;
+					my $layout = Gtk2::Pango::Cairo::create_layout($cr);
+					$layout->set_width( $w * Gtk2::Pango->scale );
+					$layout->set_alignment('center');
+					$layout->set_wrap('word');
 		
-						#draw the pango layout
-						$cr->move_to( 0, 2 );
-						Gtk2::Pango::Cairo::show_layout( $cr, $layout );	
-	
-						#dkjmsdlkfjsdlkf
-						$lh = $pixbuf->get_height if $pixbuf->get_height > $lh;
-						
-						#~ $cr->clip;
-						
-						#shape the window						
-						#~ my $rectangle1 	 	= Gtk2::Gdk::Rectangle->new (0, 0, $w, $h);
-						#~ my $rectangle2 	 	= Gtk2::Gdk::Rectangle->new (3, $lh+3, $w-6, $h-$lh-6);
-						#~ my $shape_region1 	= Gtk2::Gdk::Region->rectangle ($rectangle1);
-						#~ my $shape_region2 	= Gtk2::Gdk::Region->rectangle ($rectangle2);
-						#~ $shape_region1->subtract($shape_region2);
-						#~ $self->{_highlighter}->window->shape_combine_region ($shape_region1, 0, 0);
-	
-					#child window with small black frame
-					}else{
-						#fill window black
-						$cr->set_operator('source');
-						$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, $counter * 0.02 );
-						$cr->paint;
-						
-						#shape the window						
-						#~ my $rectangle1 	 	= Gtk2::Gdk::Rectangle->new (0, 0, $w, $h);
-						#~ my $rectangle2 	 	= Gtk2::Gdk::Rectangle->new (3, 3, $w-6, $h-6);
-						#~ my $shape_region1 	= Gtk2::Gdk::Region->rectangle ($rectangle1);
-						#~ my $shape_region2 	= Gtk2::Gdk::Region->rectangle ($rectangle2);
-						#~ $shape_region1->subtract($shape_region2);
-						#~ $self->{_highlighter}->window->shape_combine_region ($shape_region1, 0, 0);
-						#~ return FALSE;					
-					}
-
-				#~ my $shape = $self->get_shape($self->{_c}{ 'cw' }{ 'gdk_window' }->get_xid, undef);
-				#~ if(defined $shape){
-					#~ $self->{_highlighter}->window->shape_combine_region ($shape, 3, 3);
-				#~ }
-									
-					#~ if($counter == 1){
-
-					#~ }
+					#obtain current colors and font_desc from the main window
+				    my $style 		= $self->{_main_gtk_window}->get_style;
+					my $sel_bg 		= $style->bg('selected');
+					my $sel_tx 		= $style->text('selected');
+					my $font_fam 	= $style->font_desc->get_family;
+					my $font_size 	= $style->font_desc->get_size;
+		
+					my $mon 	= $self->get_current_monitor;
+					my $size 	= int( $mon->width * 0.007 );
+					my $size2 	= int( $mon->width * 0.005 );
+		
+					my $text = $self->{_c}{'cw'}{'window'}->get_name;
+					utf8::decode $text;
 					
-					if($counter == 20){
-						return FALSE;
-					}else{
-						return TRUE;	
-					}
+					my $sec_text =  $self->{_c}{'cw'}{'width'} . "x" . $self->{_c}{'cw'}{'height'};
+		
+					#white font-color	
+					$layout->set_markup("<span font_desc=\"$font_fam $size\" weight=\"bold\" foreground=\"#FFFFFF\">$text</span><span font_desc=\"$font_fam $size2\" foreground=\"#FFFFFF\"> ($sec_text)</span>");
+		
+					#fill window
+					$cr->set_operator('source');
+					#~ my $lg = Cairo::LinearGradient->create (0, 50, 0, 0);
+					#~ $lg->add_color_stop_rgba(0, $sel_tx->red / 257 / 255, $sel_tx->green / 257 / 255, $sel_tx->blue / 257 / 255, 0.85);
+					#~ $lg->add_color_stop_rgba(1, $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.85);
+					$cr->set_source_rgb( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255 );
+					#~ $cr->set_source($lg);
+					$cr->paint;
+					
+					#app icon
+					$cr->set_operator('over');
+					my $pixbuf = $self->{_c}{'cw'}{'window'}->get_icon;
+					#~ $pixbuf = $pixbuf->scale_simple($pixbuf->get_width*0.7, $pixbuf->get_height*0.7, 'bilinear');
+					Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $pixbuf, 3, 2 );
+					$cr->paint;
+
+					#create small black frame
+					$cr->set_source_rgb( 0, 0, 0 );
+					#~ $cr->set_line_width(6);
+					$cr->rectangle (0, 0, $w, $h);
+					$cr->stroke;
 	
-					return FALSE;	
-				});	
+					#draw the pango layout
+					$cr->move_to( 0, 2 );
+					Gtk2::Pango::Cairo::show_layout( $cr, $layout );	
+
+					#get layout size
+					( $lw, $lh ) = $layout->get_pixel_size;
+					$lh = $pixbuf->get_height if $pixbuf->get_height > $lh;
+
+				#child window with small black frame
+				}else{
+					#fill window black
+					$cr->set_operator('source');
+					$cr->set_source_rgb( 0, 0, 0 );
+					$cr->paint;					
+				}
 				
+				#shape the window						
+				my $rectangle1 	 	= Gtk2::Gdk::Rectangle->new (0, 0, $w, $h);
+				my $rectangle2 	 	= Gtk2::Gdk::Rectangle->new (3, $lh+3, $w-6, $h-$lh-6);
+				my $shape_region1 	= Gtk2::Gdk::Region->rectangle ($rectangle1);
+				my $shape_region2 	= Gtk2::Gdk::Region->rectangle ($rectangle2);
+				$shape_region1->subtract($shape_region2);
+				$self->{_highlighter}->window->shape_combine_region ($shape_region1, 0, 0);
+						
 				return FALSE;	
 			}	
 		});
@@ -223,9 +175,9 @@ sub new {
 #~ } 
 #~ 
 
-#~ 1;
-#~ 
-#~ __DATA__
+1;
+
+__DATA__
 
 sub find_wm_window {
 	my $self = shift;
@@ -316,30 +268,25 @@ sub get_shape {
 		$bregion->union_with_rect(Gtk2::Gdk::Rectangle->new ($rect[0],$rect[1],$rect[2],$rect[3]));	
 	}
 
-	if(defined $orig){
-		#create target pixbuf with dimensions if selected/current window
-		my $target = Gtk2::Gdk::Pixbuf->new ($orig->get_colorspace, TRUE, 8, $orig->get_width, $orig->get_height);
-		#whole pixbuf is transparent
-		$target->fill(0x00000000);
-		
-		#copy all rectangles of bounding region to the target pixbuf
-		foreach my $r($bregion->get_rectangles){
-			print $r->x." ".$r->y." ".$r->width." ".$r->height."\n" if $self->{_sc}->get_debug;
-			
-			next if($r->x > $orig->get_width);
-			next if($r->y > $orig->get_height);
+	#create target pixbuf with dimensions if selected/current window
+	my $target = Gtk2::Gdk::Pixbuf->new ($orig->get_colorspace, TRUE, 8, $orig->get_width, $orig->get_height);
+	#whole pixbuf is transparent
+	$target->fill(0x00000000);
 	
-			$r->width($orig->get_width - $r->x) if($r->x+$r->width > $orig->get_width);
-			$r->height($orig->get_height - $r->y) if($r->y+$r->height > $orig->get_height);	
-			
-			$orig->copy_area ($r->x, $r->y, $r->width, $r->height, $target, $r->x, $r->y);		
-		}
+	#copy all rectangles of bounding region to the target pixbuf
+	foreach my $r($bregion->get_rectangles){
+		print $r->x." ".$r->y." ".$r->width." ".$r->height."\n" if $self->{_sc}->get_debug;
 		
-		return $target;
-	}else{
-		return $bregion;	
+		next if($r->x > $orig->get_width);
+		next if($r->y > $orig->get_height);
+
+		$r->width($orig->get_width - $r->x) if($r->x+$r->width > $orig->get_width);
+		$r->height($orig->get_height - $r->y) if($r->y+$r->height > $orig->get_height);	
+		
+		$orig->copy_area ($r->x, $r->y, $r->width, $r->height, $target, $r->x, $r->y);		
 	}
 	
+	return $target;
 }	
 
 sub get_window_size {
@@ -422,7 +369,6 @@ sub update_highlighter {
 	#Place window and resize it
 	$self->{_highlighter}->move($x-3, $y-3);
 	$self->{_highlighter}->resize($width+6, $height+6);
-	#~ $self->{_highlighter}->window->move_resize($x-3, $y-3, $width+6, $height+6);
 
 	#save last window objects
 	$self->{_c}{'lw'}{'window'} 	= $self->{_c}{'cw'}{'window'};
