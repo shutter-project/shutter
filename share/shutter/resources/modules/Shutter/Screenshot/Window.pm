@@ -64,9 +64,14 @@ sub new {
 	#only used when selecting a window, undef this when selecting a window
 	unless(defined $self->{_xid}){
 		
+		#check if compositing is available
+		my $compos = $self->{_main_gtk_window}->get_screen->is_composited;
+		
 		#higlighter (borderless gtk window)
 		$self->{_highlighter} = Gtk2::Window->new('popup');
-		$self->{_highlighter}->set_colormap($self->{_main_gtk_window}->get_screen->get_rgba_colormap);
+		if($compos){
+			$self->{_highlighter}->set_colormap($self->{_main_gtk_window}->get_screen->get_rgba_colormap);
+		}
 	
 		$self->{_highlighter}->double_buffered (FALSE);
 	    $self->{_highlighter}->set_app_paintable(TRUE);
@@ -115,7 +120,8 @@ sub new {
 				$layout->set_width( $w * Gtk2::Pango->scale );
 				$layout->set_alignment('left');
 				$layout->set_wrap('word');
-	
+				
+				#set text
 				$layout->set_markup("<span font_desc=\"$font_fam $size\" weight=\"bold\" foreground=\"#FFFFFF\">$text</span><span font_desc=\"$font_fam $size2\" foreground=\"#FFFFFF\">$sec_text</span>");
 
 				#get layout size
@@ -126,78 +132,119 @@ sub new {
 				$lw += $icon->get_width;
 				$lh = $icon->get_height if $icon->get_height > $lh;
 				
-				#calculate values for rounded rectangle
+				#calculate values for rounded/shaped rectangle
 				my $wi = $lw + $size * 3;
 				my $hi = $lh + $size * 2;
 				my $xi = int( ($w - $wi) / 2 );
 				my $yi = int( ($h - $hi) / 2 );
 				my $ri = 20;
 				
-				my $counter = 0;
-				$self->{_highlighter_anim} = Glib::Timeout->add (20, sub{
+				#two different ways - compositing or not
+				if($compos){
 					
-						return FALSE unless $self->{_highlighter}->window;
+					my $counter = 0;
+					$self->{_highlighter_anim} = Glib::Timeout->add (20, sub{
 						
-						#increase animation counter
-						$counter++;
-													
-						#fill window
-						$cr->set_operator('source');
-						$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, $counter * 0.02 );
-						$cr->paint;
-	
-						#Parent window with text and icon			
-						if($self->{_c}{'cw'}{'is_parent'}){						
+							return FALSE unless $self->{_highlighter}->window;
 							
-							$cr->set_operator('over');
-																					
-							#create small frame (window outlines)
-							$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.75 );
-							$cr->set_line_width(6);
-							$cr->rectangle (0, 0, $w, $h);
-							$cr->stroke;
-							
-							if($lw <= $w && $lh <= $h){
-							
-								#rounded rectangle to display the window name
-								$cr->move_to( $xi + $ri, $yi );
-								$cr->line_to( $xi + $wi - $ri, $yi );
-								$cr->curve_to( $xi + $wi, $yi, $xi + $wi, $yi, $xi + $wi, $yi + $ri );
-								$cr->line_to( $xi + $wi, $yi + $hi - $ri );
-								$cr->curve_to( $xi + $wi, $yi + $hi, $xi + $wi, $yi + $hi, $xi + $wi - $ri, $yi + $hi );
-								$cr->line_to( $xi + $ri, $yi + $hi );
-								$cr->curve_to( $xi, $yi + $hi, $xi, $yi + $hi, $xi, $yi + $hi - $ri );
-								$cr->line_to( $xi, $yi + $ri );
-								$cr->curve_to( $xi, $yi, $xi, $yi, $xi + $ri, $yi );
-								$cr->fill;	
-	
-								#app icon
-								Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $icon, $xi + $size, $yi + $size );
-								$cr->paint;
+							#increase animation counter
+							$counter++;
+														
+							#fill window
+							$cr->set_operator('source');
+							$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, $counter * 0.02 );
+							$cr->paint;
+		
+							#Parent window with text and icon			
+							if($self->{_c}{'cw'}{'is_parent'}){						
 								
-								#draw the pango layout
-								$cr->move_to( $xi + $size*2 + $icon->get_width, $yi + $size );
-								Gtk2::Pango::Cairo::show_layout( $cr, $layout );	
-
-							}
-
-						}else{
-							#create small frame
-							$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.75 );
-							$cr->set_line_width(6);
-							$cr->rectangle (0, 0, $w, $h);
-							$cr->stroke;	
-						}
-							
-					#quit animation	
-					if($counter == 15){
-						return FALSE;
-					}else{
-						return TRUE;	
-					}
+								$cr->set_operator('over');
+																						
+								#create small frame (window outlines)
+								$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.75 );
+								$cr->set_line_width(6);
+								$cr->rectangle (0, 0, $w, $h);
+								$cr->stroke;
+								
+								if($lw <= $w && $lh <= $h){
+								
+									#rounded rectangle to display the window name
+									$cr->move_to( $xi + $ri, $yi );
+									$cr->line_to( $xi + $wi - $ri, $yi );
+									$cr->curve_to( $xi + $wi, $yi, $xi + $wi, $yi, $xi + $wi, $yi + $ri );
+									$cr->line_to( $xi + $wi, $yi + $hi - $ri );
+									$cr->curve_to( $xi + $wi, $yi + $hi, $xi + $wi, $yi + $hi, $xi + $wi - $ri, $yi + $hi );
+									$cr->line_to( $xi + $ri, $yi + $hi );
+									$cr->curve_to( $xi, $yi + $hi, $xi, $yi + $hi, $xi, $yi + $hi - $ri );
+									$cr->line_to( $xi, $yi + $ri );
+									$cr->curve_to( $xi, $yi, $xi, $yi, $xi + $ri, $yi );
+									$cr->fill;	
+		
+									#app icon
+									Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $icon, $xi + $size, $yi + $size );
+									$cr->paint;
+									
+									#draw the pango layout
+									$cr->move_to( $xi + $size*2 + $icon->get_width, $yi + $size );
+									Gtk2::Pango::Cairo::show_layout( $cr, $layout );	
 	
-					return FALSE;	
-				});	
+								}
+	
+							}else{
+								#create small frame
+								$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.75 );
+								$cr->set_line_width(6);
+								$cr->rectangle (0, 0, $w, $h);
+								$cr->stroke;	
+							}
+								
+						#quit animation	
+						if($counter == 15){
+							return FALSE;
+						}else{
+							return TRUE;	
+						}
+		
+						return FALSE;	
+					});	
+				
+				#no compositing
+				}else{
+
+					#fill window
+					$cr->set_operator('over');
+					$cr->set_source_rgb( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255 );
+					$cr->paint;
+
+					#Parent window with text and icon			
+					if($self->{_c}{'cw'}{'is_parent'}){	
+
+						#app icon
+						Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $icon, $xi + $size, $yi + $size );
+						$cr->paint;
+						
+						#draw the pango layout
+						$cr->move_to( $xi + $size*2 + $icon->get_width, $yi + $size );
+						Gtk2::Pango::Cairo::show_layout( $cr, $layout );	
+					
+					}
+									
+					my $rectangle1 	 	= Gtk2::Gdk::Rectangle->new (0, 0, $w, $h);
+					my $rectangle2 	 	= Gtk2::Gdk::Rectangle->new (3, 3, $w-6, $h-6);
+					my $rectangle3 	 	= Gtk2::Gdk::Rectangle->new ($xi, $yi, $wi, $hi);
+					my $shape_region1 	= Gtk2::Gdk::Region->rectangle ($rectangle1);
+					my $shape_region2 	= Gtk2::Gdk::Region->rectangle ($rectangle2);
+					my $shape_region3 	= Gtk2::Gdk::Region->rectangle ($rectangle3);
+					
+					#Parent window with text and icon			
+					if($self->{_c}{'cw'}{'is_parent'}){	
+						$shape_region2->subtract($shape_region3);
+					}	
+
+					$shape_region1->subtract($shape_region2);
+					$self->{_highlighter}->window->shape_combine_region ($shape_region1, 0, 0);					
+						
+				}
 				
 				return FALSE;	
 			}	
@@ -608,7 +655,18 @@ sub window {
 		$self->{_c}{'cw'}{'width'}      = $self->{_root}->{w};
 		$self->{_c}{'cw'}{'height'}     = $self->{_root}->{h};
 
-		#show highlighter window
+		#get initial window under cursor
+		my ( $window_at_pointer, $initx, $inity, $mask ) = $self->{_root}->get_pointer;		
+		
+		#create event for current coordinates
+		my $initevent = Gtk2::Gdk::Event->new ('motion-notify');
+		$initevent->x($initx);
+		$initevent->y($inity);
+		
+		#and simulate mouse movement
+		$self->select_window($initevent, $active_workspace);
+
+		#show highlighter window at current cursor position		
 		$self->{_highlighter}->show_all;
 		
 		Gtk2::Gdk::Event->handler_set(
