@@ -90,28 +90,6 @@ sub select_advanced {
 
 	my $d = $self->{_sc}->get_gettext;
 
-	my $root_pixbuf = Gtk2::Gdk::Pixbuf->get_from_drawable(
-		$self->{_root}, undef, 0, 0, 0, 0,
-		$self->{_root}->{w},
-		$self->{_root}->{h}
-	);
-
-	my $root_pixmap = Gtk2::Gdk::Pixmap->new(
-		undef,
-		$self->{_root}->{w},
-		$self->{_root}->{h},
-		$self->{_root}->get_depth
-	);
-
-	my $gc = Gtk2::Gdk::GC->new($root_pixmap);
-
-	$root_pixmap->draw_pixbuf(
-		$gc, $root_pixbuf, 0, 0, 0, 0,
-		$self->{_root}->{w},
-		$self->{_root}->{h},
-		'none', 0, 0
-	);
-
 	#we display the tip only on the current monitor
 	#if we would use the root window we would display the next
 	#right in the middle of both screens, this is pretty ugly
@@ -132,7 +110,19 @@ sub select_advanced {
 	my $font_size 	= $style->font_desc->get_size;
 	
 	#create cairo context und layout
-	my $cr     = Gtk2::Gdk::Cairo::Context->create($root_pixmap);
+	my $surface = Cairo::ImageSurface->create( 'argb32', $self->{_root}->{w}, $self->{_root}->{h} );
+	my $cr   	= Cairo::Context->create($surface);
+
+	my $clean_pixbuf = Gtk2::Gdk::Pixbuf->get_from_drawable(
+		$self->{_root}, undef, 0, 0, 0, 0,
+		$self->{_root}->{w},
+		$self->{_root}->{h}
+	);
+
+	#set_source_pixbuf
+	Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $clean_pixbuf, 0, 0 );
+	$cr->paint;
+
 	my $layout = Gtk2::Pango::Cairo::create_layout($cr);
 	$layout->set_width( int( $mon1->width / 2 ) * Gtk2::Pango->scale );
 	$layout->set_alignment('left');
@@ -169,7 +159,7 @@ sub select_advanced {
 	my $h = $lh + $size * 2;
 	my $x = int( ( $mon1->width - $w ) / 2 ) + $mon1->x;
 	my $y = int( ( $mon1->height - $h ) / 2 ) + $mon1->y;
-	my $r = 40;
+	my $r = 20;
 
 	$cr->move_to( $x + $r, $y );
 	$cr->line_to( $x + $w - $r, $y );
@@ -187,15 +177,16 @@ sub select_advanced {
 	#draw the pango layout
 	Gtk2::Pango::Cairo::show_layout( $cr, $layout );
 
-	#keep a clean copy of the pixbuf and show it
-	#after pressing the mouse button
-	my $clean_pixbuf = $root_pixbuf->copy;
-
-	$root_pixbuf = Gtk2::Gdk::Pixbuf->get_from_drawable(
-		$root_pixmap, undef, 0, 0, 0, 0,
-		$self->{_root}->{w},
-		$self->{_root}->{h}
+	#write surface to pixbuf
+	my $loader = Gtk2::Gdk::PixbufLoader->new;
+	$surface->write_to_png_stream(
+		sub {
+			my ( $closure, $data ) = @_;
+			$loader->write($data);
+		}
 	);
+	$loader->close;
+	my $root_pixbuf = $loader->get_pixbuf;
 
 	#~ my $self->{_view}          = Gtk2::ImageView->new;
 	#~ my $self->{_selector}      = Gtk2::ImageView::Tool::Selector->new($self->{_view});
