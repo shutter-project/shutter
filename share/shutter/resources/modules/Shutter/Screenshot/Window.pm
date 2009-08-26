@@ -103,7 +103,7 @@ sub new {
 
 				return FALSE unless $self->{_highlighter}->window;
 	
-				my $text = $self->{_c}{'cw'}{'window'}->get_name;
+				my $text = Glib::Markup::escape_text ($self->{_c}{'cw'}{'window'}->get_name);
 				utf8::decode $text;
 				
 				my $sec_text =  "\n".$self->{_c}{'cw'}{'width'} . "x" . $self->{_c}{'cw'}{'height'};
@@ -558,8 +558,10 @@ sub find_current_child_window {
 				$self->{_c}{$cp}{$cc}{'height'}
 			)
 		);
-
-		if ( $sr->point_in( $event->x, $event->y ) &&
+		
+		if ( $sr->point_in( $event->x, $event->y ) && 
+			 $self->{_c}{$cp}{$cc}{'gdk_window'}->get_state ne 'withdrawn' &&
+			 $self->{_c}{$cp}{$cc}{'gdk_window'}->get_state ne 'iconified' &&
 			 $self->{_c}{$cp}{$cc}{'width'} * $self->{_c}{$cp}{$cc}{'height'} <= $self->{_min_size} ) {
 			
 			$self->{_c}{'cw'}{'gdk_window'} = $self->{_c}{$cp}{$cc}{'gdk_window'};
