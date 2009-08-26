@@ -350,7 +350,6 @@ $sm->{_menuitem_upload}->signal_connect( 'activate', \&fct_upload );
 
 #goocanvas is optional, don't enable it when not installed
 if ( $goocanvas ) {
-	$sm->{_menuitem_draw}->set_sensitive(TRUE);
 	$sm->{_menuitem_draw}->signal_connect( 'activate', \&fct_draw );
 }else{
 	$sm->{_menuitem_draw}->set_sensitive(FALSE);	
@@ -563,12 +562,11 @@ if ( $gnome_web_photo ) {
 
 #goocanvas is optional, don't enable it when not installed
 if ( $goocanvas ) {
-	$st->{_edit}->set_sensitive(TRUE);
 	$st->{_edit}->signal_connect( 'clicked' => \&fct_draw );
 }else{
 	$tooltips->set_tip( $st->{_edit}, $d->get("Goo::Canvas/libgoocanvas needs to be installed for this feature") );
-	$st->{_edit}->set_sensitive(FALSE);
 }
+$st->{_edit}->set_sensitive(FALSE);
 	
 $st->{_upload}->signal_connect( 'clicked' => \&fct_upload );
 $st->{_upload}->set_sensitive(FALSE);
@@ -2053,6 +2051,8 @@ sub fct_update_actions {
 	#goocanvas is optional, don't enable it when not installed
 	if($goocanvas) {
 		$st->{_edit}->set_sensitive($n_items);
+	}else{
+		$st->{_edit}->set_sensitive(FALSE);
 	}
 	
 	$st->{_upload}->set_sensitive($n_items);
@@ -2068,6 +2068,8 @@ sub fct_update_actions {
 	#goocanvas is optional, don't enable it when not installed
 	if ($goocanvas) {
 		$sm->{_menuitem_draw}->set_sensitive($n_items);
+	}else{
+		$sm->{_menuitem_draw}->set_sensitive(FALSE);
 	}		
 
 	$sm->{_menuitem_plugin}->set_sensitive($n_items);
