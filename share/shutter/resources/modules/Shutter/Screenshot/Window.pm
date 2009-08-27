@@ -103,6 +103,8 @@ sub new {
 
 				return FALSE unless $self->{_highlighter}->window;
 	
+				print $self->{_c}{'cw'}{'window'}->get_name, "\n" if $self->{_sc}->get_debug; 
+	
 				my $text = Glib::Markup::escape_text ($self->{_c}{'cw'}{'window'}->get_name);
 				utf8::decode $text;
 				
@@ -285,7 +287,7 @@ sub find_wm_window {
 }
 
 sub query_c {
-	my ( $self, $xwindow, $xparent, $depth, $limit ) = @_;
+	my ( $self, $xwindow, $xparent, $depth, $limit, $type_hint ) = @_;
 		
 	#reparenting depth (default is 4)
 	$depth = 0 unless defined $depth;
@@ -294,7 +296,12 @@ sub query_c {
 		return TRUE;
 	}
 	
+	$self->{_x11} 				= X11::Protocol->new( $ENV{ 'DISPLAY' } );
+	
 	my ( $qroot, $qparent, @qkids ) = $self->{_x11}->QueryTree($xwindow);
+	
+	undef $self->{_x11};
+	
 	foreach (@qkids) {
 
 		my $gdk_window = Gtk2::Gdk::Window->foreign_new($_);
@@ -303,6 +310,14 @@ sub query_c {
 			#window needs to be viewable and visible
 			next unless $gdk_window->is_visible;
 			next unless $gdk_window->is_viewable;
+
+			#check type_hint
+			my $curr_type_hint = $gdk_window->get_type_hint; 
+			if(defined $type_hint){ 
+				next unless $curr_type_hint =~ /$type_hint/;
+			}
+			
+			#~ print $curr_type_hint, " - passed \n";
 						
 			#min size
 			my ( $xp, $yp, $wp, $hp, $depthp ) = $gdk_window->get_geometry;
@@ -320,9 +335,23 @@ sub query_c {
 				$self->{_c}{$xparent}{$_}{'y'}          = $yp;
 				$self->{_c}{$xparent}{$_}{'width'}      = $wp;
 				$self->{_c}{$xparent}{$_}{'height'}     = $hp;
-			
+
+				print $gdk_window, " saved as child ",
+					  $xp, " - ",			 			
+					  $yp, " - ", 			
+					  $wp, " - ", 		
+					  $hp, " \n " if $self->{_sc}->get_debug; 
+				
 				#check next depth
-				$self->query_c( $gdk_window->XWINDOW, $xparent, $depth++, $limit );
+				$self->query_c( $gdk_window->XWINDOW, $xparent, $depth++, $limit, $type_hint );
+			}else{
+
+				print $gdk_window, " dupp ",
+					  $xp, " - ",			 			
+					  $yp, " - ", 			
+					  $wp, " - ", 		
+					  $hp, " \n " if $self->{_sc}->get_debug; 
+				
 			}		
 		}
 	}
@@ -429,7 +458,7 @@ sub window_by_xid {
 	my ( $xp, $yp, $wp, $hp ) = $self->get_window_size( $wnck_window, $gdk_window, $self->{_include_border} );
 
 	#focus selected window (maybe it is hidden)
-	$gdk_window->focus(time);
+	$gdk_window->focus(Gtk2->get_current_event_time);
 	Gtk2::Gdk->flush;
 
 	my $output;
@@ -470,10 +499,16 @@ sub update_highlighter {
 	my $width	= shift;
 	my $height	= shift;
 
+	#and show highlighter window at current cursor position		
+	$self->{_highlighter}->hide_all;
+
 	#Place window and resize it
 	$self->{_highlighter}->move($x-3, $y-3);
 	$self->{_highlighter}->resize($width+6, $height+6);
 	#~ $self->{_highlighter}->window->move_resize($x-3, $y-3, $width+6, $height+6);
+
+	#and show highlighter window at current cursor position		
+	$self->{_highlighter}->show_all;
 
 	#save last window objects
 	$self->{_c}{'lw'}{'window'} 	= $self->{_c}{'cw'}{'window'};
@@ -560,8 +595,6 @@ sub find_current_child_window {
 		);
 		
 		if ( $sr->point_in( $event->x, $event->y ) && 
-			 $self->{_c}{$cp}{$cc}{'gdk_window'}->get_state ne 'withdrawn' &&
-			 $self->{_c}{$cp}{$cc}{'gdk_window'}->get_state ne 'iconified' &&
 			 $self->{_c}{$cp}{$cc}{'width'} * $self->{_c}{$cp}{$cc}{'height'} <= $self->{_min_size} ) {
 			
 			$self->{_c}{'cw'}{'gdk_window'} = $self->{_c}{$cp}{$cc}{'gdk_window'};
@@ -603,7 +636,7 @@ sub select_window {
 	}
 
 	#draw highlighter if needed
-	if ( $self->{_c}{'lw'}{'gdk_window'} ne $self->{_c}{'cw'}{'gdk_window'} ) {
+	if ( Gtk2::Gdk->pointer_is_grabbed && ($self->{_c}{'lw'}{'gdk_window'} ne $self->{_c}{'cw'}{'gdk_window'}) ) {
 
 		$self->update_highlighter(
 			$self->{_c}{'cw'}{'x'},
@@ -676,9 +709,6 @@ sub window {
 
 		#simulate mouse movement
 		$self->select_window($initevent, $active_workspace);
-
-		#and show highlighter window at current cursor position		
-		$self->{_highlighter}->show_all;
 		
 		Gtk2::Gdk::Event->handler_set(
 			sub {
@@ -715,7 +745,7 @@ sub window {
 					if ( defined $self->{_c}{'lw'} && $self->{_c}{'lw'}{'gdk_window'} ) {
 
 						#focus selected window (maybe it is hidden)
-						$self->{_c}{'lw'}{'gdk_window'}->focus(time);
+						$self->{_c}{'lw'}{'gdk_window'}->focus(Gtk2->get_current_event_time);
 						Gtk2::Gdk->flush;						
 
 					#something went wrong here, no window on screen detected	
@@ -819,7 +849,8 @@ sub window {
 			$self->{_root}->XWINDOW,
 			$self->{_root}->XWINDOW,
 			undef,
-			1
+			1,
+			'menu',
 		);
 
 		#mark as selected parent window
@@ -834,8 +865,8 @@ sub window {
 
 			#query all child windows
 			$self->query_c(
-				$self->{_c}{'cw'}{'gdk_window'}->XWINDOW,
-				$self->{_c}{'cw'}{'gdk_window'}->XWINDOW,
+				$self->{_c}{ 'cw' }{ 'gdk_window' }->XWINDOW,
+				$self->{_c}{ 'cw' }{ 'gdk_window' }->XWINDOW,
 				undef,
 				4
 			);

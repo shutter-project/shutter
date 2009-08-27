@@ -1714,6 +1714,7 @@ sub evt_take_screenshot {
 		#A short timeout to give the server a chance to
 		#redraw the area that was obscured by our dialog.
 		Glib::Timeout->add (400, sub{
+		#~ Glib::Timeout->add (4000, sub{
 			&fct_take_screenshot($widget, $data, $folder_from_config);
 			#unblock signal handler
 			&fct_control_signals('unblock');
@@ -2533,7 +2534,7 @@ sub fct_control_main_window {
 		$window->move( $window->{x}, $window->{y} ) if (defined $window->{x} && defined $window->{y});
 
 		$window->show_all;
-		$window->window->focus(time) if defined $window->window;
+		$window->window->focus(Gtk2->get_current_event_time) if defined $window->window;
 		$window->present;
 		#set flag
 		$is_hidden = FALSE;

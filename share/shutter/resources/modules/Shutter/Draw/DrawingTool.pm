@@ -389,7 +389,7 @@ sub show {
 	
 	#STARTUP PROCEDURE
 	#-------------------------------------------------	
-	$self->{_drawing_window}->window->focus(time);
+	$self->{_drawing_window}->window->focus(Gtk2->get_current_event_time);
 
 	$self->adjust_rulers;
 

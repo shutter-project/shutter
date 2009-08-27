@@ -84,7 +84,7 @@ sub workspace {
 			if (   $self->{_selected_workspace} == $space->get_number
 				&& $self->{_selected_workspace} != $active_workspace->get_number )
 			{
-				$space->activate(time);
+				$space->activate(Gtk2->get_current_event_time);
 				$wrksp_changed = TRUE;
 			}
 		}
@@ -127,7 +127,7 @@ sub workspace {
 
 	#metacity etc
 	if ( $self->{_selected_workspace} ) {
-		$active_workspace->activate(time) if $wrksp_changed;
+		$active_workspace->activate(Gtk2->get_current_event_time) if $wrksp_changed;
 	#compiz
 	} else {
 		$self->{_wnck_screen}->move_viewport( $active_vpx, $active_vpy );

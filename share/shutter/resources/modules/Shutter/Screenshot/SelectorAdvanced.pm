@@ -425,7 +425,7 @@ sub select_advanced {
 		);
 
 		#finally focus it
-		$self->{_select_window}->window->focus(time);
+		$self->{_select_window}->window->focus(Gtk2->get_current_event_time);
 
 		Gtk2->main();
 
