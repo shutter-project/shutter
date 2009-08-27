@@ -295,22 +295,19 @@ sub query_c {
 	if ($depth >= $limit){
 		return TRUE;
 	}
-	
-	$self->{_x11} 				= X11::Protocol->new( $ENV{ 'DISPLAY' } );
-	
+		
 	my ( $qroot, $qparent, @qkids ) = $self->{_x11}->QueryTree($xwindow);
 	
-	undef $self->{_x11};
-	
-	foreach (@qkids) {
+	my $stack_level = 0;
+	foreach my $kid (reverse @qkids) {
 
-		my $gdk_window = Gtk2::Gdk::Window->foreign_new($_);
+		my $gdk_window = Gtk2::Gdk::Window->foreign_new($kid);
 		if ( defined $gdk_window ) {
 
 			#window needs to be viewable and visible
 			next unless $gdk_window->is_visible;
 			next unless $gdk_window->is_viewable;
-
+						
 			#check type_hint
 			my $curr_type_hint = $gdk_window->get_type_hint; 
 			if(defined $type_hint){ 
@@ -329,30 +326,30 @@ sub query_c {
 			foreach my $checkchild ( keys %{ $self->{_c}{$xparent} } ) {
 				$dub = TRUE if $self->{_c}{$xparent}{$checkchild}{'gdk_window'} == $gdk_window;
 			}
-			unless ( $dub == TRUE ) {
-				$self->{_c}{$xparent}{$_}{'gdk_window'} = $gdk_window;
-				$self->{_c}{$xparent}{$_}{'x'}          = $xp;
-				$self->{_c}{$xparent}{$_}{'y'}          = $yp;
-				$self->{_c}{$xparent}{$_}{'width'}      = $wp;
-				$self->{_c}{$xparent}{$_}{'height'}     = $hp;
+			unless ( $dub == TRUE ) {				
+				$self->{_c}{$xparent}{$kid}{'gdk_window'} = $gdk_window;
+				$self->{_c}{$xparent}{$kid}{'x'}          = $xp;
+				$self->{_c}{$xparent}{$kid}{'y'}          = $yp;
+				$self->{_c}{$xparent}{$kid}{'width'}      = $wp;
+				$self->{_c}{$xparent}{$kid}{'height'}     = $hp;
 
-				print $gdk_window, " saved as child ",
-					  $xp, " - ",			 			
-					  $yp, " - ", 			
-					  $wp, " - ", 		
-					  $hp, " \n " if $self->{_sc}->get_debug; 
+				#~ print $gdk_window, " saved as child ",
+					  #~ $xp, " - ",			 			
+					  #~ $yp, " - ", 			
+					  #~ $wp, " - ", 		
+					  #~ $hp, " \n ";
+				
+				$stack_level++;
+				
+				#when $limit is 1, we want the two topmost windows only
+				#e.g. one menu and a submenu
+				#~ print scalar keys %{$self->{_c}{$xparent}}, "\n";
+				#~ last if $limit == 1 && scalar keys %{$self->{_c}{$xparent}} >= 20;
+				#~ last if $limit == 1;# && scalar keys %{$self->{_c}{$xparent}} >= 20;
 				
 				#check next depth
 				$self->query_c( $gdk_window->XWINDOW, $xparent, $depth++, $limit, $type_hint );
-			}else{
-
-				print $gdk_window, " dupp ",
-					  $xp, " - ",			 			
-					  $yp, " - ", 			
-					  $wp, " - ", 		
-					  $hp, " \n " if $self->{_sc}->get_debug; 
-				
-			}		
+			}	
 		}
 	}
 	return TRUE;
@@ -580,7 +577,7 @@ sub find_current_child_window {
 	#selected window is parent
 	my $cp = $self->{_c}{'ws'}->XWINDOW;
 	
-	foreach my $cc ( keys %{ $self->{_c}{$cp} } ) {
+	foreach my $cc ( sort keys %{ $self->{_c}{$cp} } ) {
 		next unless defined $cc;
 		print "Child Current Event x: " . $event->x . ", y: " . $event->y . "\n"
 			if $self->{_sc}->get_debug;
@@ -609,7 +606,7 @@ sub find_current_child_window {
 				  $self->{_c}{'cw'}{'y'}, " - ", 			
 				  $self->{_c}{'cw'}{'width'}, " - ", 		
 				  $self->{_c}{'cw'}{'height'}, " \n " if $self->{_sc}->get_debug; 	
-		
+
 		}
 	}
 }
@@ -849,8 +846,7 @@ sub window {
 			$self->{_root}->XWINDOW,
 			$self->{_root}->XWINDOW,
 			undef,
-			1,
-			'menu',
+			1
 		);
 
 		#mark as selected parent window
