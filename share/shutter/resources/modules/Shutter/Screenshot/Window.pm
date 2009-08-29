@@ -48,9 +48,10 @@ sub new {
 
 	#get params
 	$self->{_include_border} 	= shift;
-	$self->{_xid}  				= shift;    #only used by window_by_xid, undef this when selecting a window
+	$self->{_xid}  				= shift;   #only used by window_by_xid, undef this when selecting a window
 	$self->{_mode} 				= shift;
 	$self->{_is_hidden}      	= shift;
+	$self->{_show_visible}      = shift;   #show user-visible windows only when selecting a window
 
 	#X11 protocol and XSHAPE ext
 	require X11::Protocol;
@@ -73,7 +74,7 @@ sub new {
 			$self->{_highlighter}->set_colormap($self->{_main_gtk_window}->get_screen->get_rgba_colormap);
 		}
 	
-		$self->{_highlighter}->double_buffered (FALSE);
+		$self->{_highlighter}->double_buffered(FALSE);
 	    $self->{_highlighter}->set_app_paintable(TRUE);
 	    $self->{_highlighter}->set_decorated(FALSE);
 		$self->{_highlighter}->set_skip_taskbar_hint(TRUE);
@@ -287,72 +288,72 @@ sub find_wm_window {
 }
 
 sub query_c {
-	my ( $self, $xwindow, $xparent, $depth, $limit, $type_hint ) = @_;
-		
-	#reparenting depth (default is 4)
-	$depth = 0 unless defined $depth;
-	$limit = 4 unless defined $limit;
-	if ($depth >= $limit){
-		return TRUE;
-	}
-		
-	my ( $qroot, $qparent, @qkids ) = $self->{_x11}->QueryTree($xwindow);
-	
-	my $stack_level = 0;
-	foreach my $kid (reverse @qkids) {
-
-		my $gdk_window = Gtk2::Gdk::Window->foreign_new($kid);
-		if ( defined $gdk_window ) {
-
-			#window needs to be viewable and visible
-			next unless $gdk_window->is_visible;
-			next unless $gdk_window->is_viewable;
-						
-			#check type_hint
-			my $curr_type_hint = $gdk_window->get_type_hint; 
-			if(defined $type_hint){ 
-				next unless $curr_type_hint =~ /$type_hint/;
-			}
-			
+	#~ my ( $self, $xwindow, $xparent, $depth, $limit, $type_hint ) = @_;
+		#~ 
+	#~ #reparenting depth (default is 4)
+	#~ $depth = 0 unless defined $depth;
+	#~ $limit = 4 unless defined $limit;
+	#~ if ($depth >= $limit){
+		#~ return TRUE;
+	#~ }
+		#~ 
+	#~ my ( $qroot, $qparent, @qkids ) = $self->{_x11}->QueryTree($xwindow);
+	#~ 
+	#~ my $stack_level = 0;
+	#~ foreach my $kid (reverse @qkids) {
+#~ 
+		#~ my $gdk_window = Gtk2::Gdk::Window->foreign_new($kid);
+		#~ if ( defined $gdk_window ) {
+#~ 
+			#~ #window needs to be viewable and visible
+			#~ next unless $gdk_window->is_visible;
+			#~ next unless $gdk_window->is_viewable;
+						#~ 
+			#~ #check type_hint
+			#~ my $curr_type_hint = $gdk_window->get_type_hint; 
+			#~ if(defined $type_hint){ 
+				#~ next unless $curr_type_hint =~ /$type_hint/;
+			#~ }
+			#~ 
 			#~ print $curr_type_hint, " - passed \n";
-						
-			#min size
-			my ( $xp, $yp, $wp, $hp, $depthp ) = $gdk_window->get_geometry;
-			( $xp, $yp ) = $gdk_window->get_origin;
-			next if ( $wp * $hp < 4 );
-
-			#check if $gdk_window is already in hash
-			my $dub = FALSE;
-			foreach my $checkchild ( keys %{ $self->{_c}{$xparent} } ) {
-				$dub = TRUE if $self->{_c}{$xparent}{$checkchild}{'gdk_window'} == $gdk_window;
-			}
-			unless ( $dub == TRUE ) {				
-				$self->{_c}{$xparent}{$kid}{'gdk_window'} = $gdk_window;
-				$self->{_c}{$xparent}{$kid}{'x'}          = $xp;
-				$self->{_c}{$xparent}{$kid}{'y'}          = $yp;
-				$self->{_c}{$xparent}{$kid}{'width'}      = $wp;
-				$self->{_c}{$xparent}{$kid}{'height'}     = $hp;
-
+						#~ 
+			#~ #min size
+			#~ my ( $xp, $yp, $wp, $hp, $depthp ) = $gdk_window->get_geometry;
+			#~ ( $xp, $yp ) = $gdk_window->get_origin;
+			#~ next if ( $wp * $hp < 4 );
+#~ 
+			#~ #check if $gdk_window is already in hash
+			#~ my $dub = FALSE;
+			#~ foreach my $checkchild ( keys %{ $self->{_c}{$xparent} } ) {
+				#~ $dub = TRUE if $self->{_c}{$xparent}{$checkchild}{'gdk_window'} == $gdk_window;
+			#~ }
+			#~ unless ( $dub == TRUE ) {				
+				#~ $self->{_c}{$xparent}{$kid}{'gdk_window'} = $gdk_window;
+				#~ $self->{_c}{$xparent}{$kid}{'x'}          = $xp;
+				#~ $self->{_c}{$xparent}{$kid}{'y'}          = $yp;
+				#~ $self->{_c}{$xparent}{$kid}{'width'}      = $wp;
+				#~ $self->{_c}{$xparent}{$kid}{'height'}     = $hp;
+#~ 
 				#~ print $gdk_window, " saved as child ",
 					  #~ $xp, " - ",			 			
 					  #~ $yp, " - ", 			
 					  #~ $wp, " - ", 		
 					  #~ $hp, " \n ";
-				
-				$stack_level++;
-				
-				#when $limit is 1, we want the two topmost windows only
-				#e.g. one menu and a submenu
+				#~ 
+				#~ $stack_level++;
+				#~ 
+				#~ #when $limit is 1, we want the two topmost windows only
+				#~ #e.g. one menu and a submenu
 				#~ print scalar keys %{$self->{_c}{$xparent}}, "\n";
 				#~ last if $limit == 1 && scalar keys %{$self->{_c}{$xparent}} >= 20;
 				#~ last if $limit == 1;# && scalar keys %{$self->{_c}{$xparent}} >= 20;
-				
-				#check next depth
-				$self->query_c( $gdk_window->XWINDOW, $xparent, $depth++, $limit, $type_hint );
-			}	
-		}
-	}
-	return TRUE;
+				#~ 
+				#~ #check next depth
+				#~ $self->query_c( $gdk_window->XWINDOW, $xparent, $depth++, $limit, $type_hint );
+			#~ }	
+		#~ }
+	#~ }
+	#~ return TRUE;
 }
 
 sub get_shape {
@@ -497,15 +498,14 @@ sub update_highlighter {
 	my $height	= shift;
 
 	#and show highlighter window at current cursor position		
-	$self->{_highlighter}->hide_all;
+	$self->{_highlighter}->hide;
 
 	#Place window and resize it
 	$self->{_highlighter}->move($x-3, $y-3);
 	$self->{_highlighter}->resize($width+6, $height+6);
-	#~ $self->{_highlighter}->window->move_resize($x-3, $y-3, $width+6, $height+6);
 
 	#and show highlighter window at current cursor position		
-	$self->{_highlighter}->show_all;
+	$self->{_highlighter}->show;
 
 	#save last window objects
 	$self->{_c}{'lw'}{'window'} 	= $self->{_c}{'cw'}{'window'};
@@ -518,97 +518,131 @@ sub find_current_parent_window {
 	my $event 				= shift;
 	my $active_workspace 	= shift;
 
-	#get all the windows
+	#get all toplevel windows
 	my @wnck_windows = $self->{_wnck_screen}->get_windows_stacked;
 	
-	print "Searching for window...\n" if $self->{_sc}->get_debug;
+	#show user-visible windows only when selecting a window
+	if(defined $self->{_show_visible} && $self->{_show_visible}){
+		@wnck_windows = reverse @wnck_windows;	
+	}
 	
 	foreach my $cwdow (@wnck_windows) {
 
 		my $drawable = Gtk2::Gdk::Window->foreign_new( $cwdow->get_xid );
-		next unless defined $drawable;
+		if(defined $drawable){
 
-		print "Do not detect shutter main window...\n"
-			if $self->{_sc}->get_debug;
-
-		#do not detect shutter window when it is hidden
-		if (   $self->{_main_gtk_window}->window
-			&& $self->{_is_hidden} ) {
-			next if ( $cwdow->get_xid == $self->{_main_gtk_window}->window->get_xid );
-		}
-
-		my ( $xp, $yp, $wp, $hp ) = $self->get_window_size( $cwdow, $drawable, $self->{_include_border} );
-
-		print "Create region of window...\n" if $self->{_sc}->get_debug;
-		
-		my $wr = Gtk2::Gdk::Region->rectangle(
-			Gtk2::Gdk::Rectangle->new( $xp, $yp, $wp, $hp ) );
-
-		print "Determine if window fits on screen... ".$event->x ." - ". $event->y."\n" if $self->{_sc}->get_debug;
-		if ($cwdow->is_visible_on_workspace($active_workspace)
-			&& $wr->point_in( $event->x, $event->y )
-			&& $wp * $hp <= $self->{_min_size}) {
+			#do not detect shutter window when it is hidden
+			if (   $self->{_main_gtk_window}->window && $self->{_is_hidden} ) {
+				next if ( $cwdow->get_xid == $self->{_main_gtk_window}->window->get_xid );
+			}
+	
+			my ( $xp, $yp, $wp, $hp ) = $self->get_window_size( $cwdow, $drawable, $self->{_include_border} );
+	
+			my $wr = Gtk2::Gdk::Region->rectangle(
+				Gtk2::Gdk::Rectangle->new( $xp, $yp, $wp, $hp ) );
+	
+			if ($cwdow->is_visible_on_workspace($active_workspace)
+				&& $wr->point_in( $event->x, $event->y )
+				&& $wp * $hp <= $self->{_min_size}) {
+				
+				$self->{_c}{'cw'}{'window'}     = $cwdow;
+				$self->{_c}{'cw'}{'gdk_window'} = $drawable;
+				$self->{_c}{'cw'}{'x'}          = $xp;
+				$self->{_c}{'cw'}{'y'}          = $yp;
+				$self->{_c}{'cw'}{'width'}      = $wp;
+				$self->{_c}{'cw'}{'height'}     = $hp;
+				$self->{_c}{'cw'}{'is_parent'} 	= TRUE;
+				$self->{_min_size}				= $wp * $hp;
+				
+				#show user-visible windows only when selecting a window
+				if(defined $self->{_show_visible} && $self->{_show_visible}){	
+					last;
+				}
+	
+			} #size and geometry check
 			
-			print "Parent X: $xp, Y: $yp, Width: $wp, Height: $hp\n"
-				if $self->{_sc}->get_debug;
-			
-			$self->{_c}{'cw'}{'window'}     = $cwdow;
-			$self->{_c}{'cw'}{'gdk_window'} = $drawable;
-			$self->{_c}{'cw'}{'x'}          = $xp;
-			$self->{_c}{'cw'}{'y'}          = $yp;
-			$self->{_c}{'cw'}{'width'}      = $wp;
-			$self->{_c}{'cw'}{'height'}     = $hp;
-			$self->{_c}{'cw'}{'is_parent'} 	= TRUE;
-			$self->{_min_size}				= $wp * $hp;
+		} #not defined gdk::window
 
-		}
-
-	}    #end if toplevel window loop	
+	} #end if toplevel window loop	
 			
+	return TRUE;		
 }
 
 sub find_current_child_window {
-	my $self 	= shift;
-	my $event 	= shift;
-
-	print "Searching for children now...\n"
-		if $self->{_sc}->get_debug;
-
-	#selected window is parent
-	my $cp = $self->{_c}{'ws'}->XWINDOW;
-	
-	foreach my $cc ( sort keys %{ $self->{_c}{$cp} } ) {
-		next unless defined $cc;
-		print "Child Current Event x: " . $event->x . ", y: " . $event->y . "\n"
-			if $self->{_sc}->get_debug;
-
-		my $sr = Gtk2::Gdk::Region->rectangle(
-			Gtk2::Gdk::Rectangle->new(
-				$self->{_c}{$cp}{$cc}{'x'},
-				$self->{_c}{$cp}{$cc}{'y'},
-				$self->{_c}{$cp}{$cc}{'width'},
-				$self->{_c}{$cp}{$cc}{'height'}
-			)
-		);
+	my ( $self, $event, $xwindow, $xparent, $depth, $limit, $type_hint ) = @_;
 		
-		if ( $sr->point_in( $event->x, $event->y ) && 
-			 $self->{_c}{$cp}{$cc}{'width'} * $self->{_c}{$cp}{$cc}{'height'} <= $self->{_min_size} ) {
+	#reparenting depth (4 seems to be a good value)
+	$depth = 0 unless defined $depth;
+	$limit = 0 unless defined $limit;
+	if ($depth > $limit){
+		return TRUE;
+	}
+	
+	my ( $qroot, $qparent, @qkids );
+	unless(defined $self->{_c}{'cw'}{$xwindow} && scalar @{$self->{_c}{'cw'}{$xwindow}}){	
+		
+		#query all child windows of xwindow
+		( $qroot, $qparent, @qkids ) = $self->{_x11}->QueryTree($xwindow);
+
+		#and save them, so we don't have to query them again
+		@{$self->{_c}{'cw'}{$xwindow}} = @qkids;
+
+	}else{
+		
+		#we can use the cached children information
+		@qkids = @{$self->{_c}{'cw'}{$xwindow}};
+	
+	}
+	
+	foreach my $kid (reverse @qkids) {
+
+		my $gdk_window = Gtk2::Gdk::Window->foreign_new($kid);
+			if ( defined $gdk_window ) {
+	
+			#check type_hint
+			if(defined $type_hint){ 
+				my $curr_type_hint = $gdk_window->get_type_hint;
+				next unless $curr_type_hint =~ /$type_hint/;
+			}
 			
-			$self->{_c}{'cw'}{'gdk_window'} = $self->{_c}{$cp}{$cc}{'gdk_window'};
-			$self->{_c}{'cw'}{'x'} 			= $self->{_c}{$cp}{$cc}{'x'};
-			$self->{_c}{'cw'}{'y'} 			= $self->{_c}{$cp}{$cc}{'y'};
-			$self->{_c}{'cw'}{'width'} 		= $self->{_c}{$cp}{$cc}{'width'};
-			$self->{_c}{'cw'}{'height'} 	= $self->{_c}{$cp}{$cc}{'height'};
-			$self->{_c}{'cw'}{'is_parent'} 	= FALSE;
-			$self->{_min_size} = $self->{_c}{$cp}{$cc}{'width'} * $self->{_c}{$cp}{$cc}{'height'};
-
-			print $self->{_c}{'cw'}{'x'}, " - ",			 			
-				  $self->{_c}{'cw'}{'y'}, " - ", 			
-				  $self->{_c}{'cw'}{'width'}, " - ", 		
-				  $self->{_c}{'cw'}{'height'}, " \n " if $self->{_sc}->get_debug; 	
-
+			#~ print $curr_type_hint, " - passed \n";
+						
+			#min size
+			my ( $xp, $yp, $wp, $hp, $depthp ) = $gdk_window->get_geometry;
+			( $xp, $yp ) = $gdk_window->get_origin;
+			next if ( $wp * $hp < 4 );
+	
+			my $sr = Gtk2::Gdk::Region->rectangle(
+				Gtk2::Gdk::Rectangle->new(
+					$xp, $yp, $wp, $hp
+				)
+			);
+			
+			if ( $sr->point_in( $event->x, $event->y ) && $wp * $hp <= $self->{_min_size} ) {
+				
+				$self->{_c}{'cw'}{'gdk_window'} = $gdk_window;
+				$self->{_c}{'cw'}{'x'} 			= $xp;
+				$self->{_c}{'cw'}{'y'} 			= $yp;
+				$self->{_c}{'cw'}{'width'} 		= $wp;
+				$self->{_c}{'cw'}{'height'} 	= $hp;
+				$self->{_c}{'cw'}{'is_parent'} 	= FALSE;
+				$self->{_min_size} = $wp * $hp;
+	
+				#~ print $self->{_c}{'cw'}{'x'}, " - ",			 			
+					  #~ $self->{_c}{'cw'}{'y'}, " - ", 			
+					  #~ $self->{_c}{'cw'}{'width'}, " - ", 		
+					  #~ $self->{_c}{'cw'}{'height'}, " \n " if $self->{_sc}->get_debug; 	
+	
+				#check next depth
+				$self->find_current_child_window( $event, $gdk_window->XWINDOW, $xparent, $depth++, $limit, $type_hint );
+				
+				last;
+				
+			}
 		}
 	}
+	
+	return TRUE;	
 }
 
 sub select_window {
@@ -629,7 +663,7 @@ sub select_window {
 		( $self->{_mode} eq "section" || $self->{_mode} eq "tray_section" || !Gtk2::Gdk->pointer_is_grabbed ) 
 		&& $self->{_c}{'ws'} ) {
 
-		$self->find_current_child_window($event);				
+		$self->find_current_child_window($event, $self->{_c}{'ws'}->XWINDOW, $self->{_c}{'ws'}->XWINDOW);				
 	}
 
 	#draw highlighter if needed
@@ -644,6 +678,7 @@ sub select_window {
 	
 	}
 	
+	return TRUE;
 }
 
 sub window {
@@ -702,6 +737,9 @@ sub window {
 	$initevent->x($initx);
 	$initevent->y($inity);
 	
+	#show highlighter window
+	$self->{_highlighter}->show_all;
+	
 	if ( Gtk2::Gdk->pointer_is_grabbed ) {
 
 		#simulate mouse movement
@@ -757,18 +795,12 @@ sub window {
 					if ( ( $self->{_mode} eq "section" || $self->{_mode} eq "tray_section" )
 						&& !$self->{_c}{'ws'} )
 					{
-						
-						#query all child windows
-						$self->query_c(
-							$self->{_c}{'lw'}{'gdk_window'}->XWINDOW,
-							$self->{_c}{'lw'}{'gdk_window'}->XWINDOW
-						);
-												
+																		
 						#mark as selected parent window
 						$self->{_c}{'ws'} = $self->{_c}{'cw'}{'gdk_window'};	
 
 						#and select current subwindow
-						$self->select_window($event, $active_workspace);
+						$self->select_window($event);
 						
 						#we don't take the screenshot yet
 						return TRUE;

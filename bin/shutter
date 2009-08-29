@@ -449,7 +449,8 @@ my $scale_box           = Gtk2::HBox->new( FALSE, 0 );
 my $filetype_box        = Gtk2::HBox->new( FALSE, 0 );
 my $filename_box        = Gtk2::HBox->new( FALSE, 0 );
 my $saveDir_box         = Gtk2::HBox->new( FALSE, 0 );
-my $autocopy_box        = Gtk2::HBox->new( FALSE, 0 );
+my $image_autocopy_box  = Gtk2::HBox->new( FALSE, 0 );
+my $fname_autocopy_box  = Gtk2::HBox->new( FALSE, 0 );
 my $delay_box           = Gtk2::HBox->new( FALSE, 0 );
 my $delay_box2          = Gtk2::HBox->new( FALSE, 0 );
 my $cursor_box          = Gtk2::HBox->new( FALSE, 0 );
@@ -466,6 +467,7 @@ my $im_colors_box2      = Gtk2::HBox->new( FALSE, 0 );
 my $thumbnail_box       = Gtk2::HBox->new( FALSE, 0 );
 my $thumbnail_box2      = Gtk2::HBox->new( FALSE, 0 );
 my $border_box          = Gtk2::HBox->new( FALSE, 0 );
+my $visible_windows_box = Gtk2::HBox->new( FALSE, 0 );
 my $web_width_box       = Gtk2::HBox->new( FALSE, 0 );
 
 #behavior
@@ -887,20 +889,36 @@ $saveDir_box->pack_start( $saveDir_button, TRUE,  TRUE, 0 );
 #end - saveDir
 #--------------------------------------
 
-#autocopy
+#image image_autocopy
 #--------------------------------------
-my $autocopy_active       = Gtk2::CheckButton->new_with_label( $d->get("Automatically copy screenshot to clipboard") );
-$autocopy_box->pack_start( $autocopy_active, FALSE, TRUE, 12 );
+my $image_autocopy_active = Gtk2::CheckButton->new_with_label( $d->get("Automatically copy screenshot to clipboard") );
+$image_autocopy_box->pack_start( $image_autocopy_active, FALSE, TRUE, 12 );
 
-if ( defined $settings_xml->{'general'}->{'autocopy'} ) {
-	$autocopy_active->set_active( $settings_xml->{'general'}->{'autocopy'} );
+if ( defined $settings_xml->{'general'}->{'image_autocopy'} ) {
+	$image_autocopy_active->set_active( $settings_xml->{'general'}->{'image_autocopy'} );
 } else {
-	$autocopy_active->set_active(TRUE);
+	$image_autocopy_active->set_active(TRUE);
 }
 
-$tooltips->set_tip( $autocopy_active, $d->get("Automatically copy screenshot to clipboard") );
+$tooltips->set_tip( $image_autocopy_active, $d->get("Automatically copy screenshot to clipboard") );
 
-#end - autocopy
+#end - image image_autocopy
+#--------------------------------------
+
+#filename image_autocopy
+#--------------------------------------
+my $fname_autocopy_active = Gtk2::CheckButton->new_with_label( $d->get("Automatically copy filename to clipboard") );
+$fname_autocopy_box->pack_start( $fname_autocopy_active, FALSE, TRUE, 12 );
+
+if ( defined $settings_xml->{'general'}->{'fname_autocopy'} ) {
+	$fname_autocopy_active->set_active( $settings_xml->{'general'}->{'fname_autocopy'} );
+} else {
+	$fname_autocopy_active->set_active(TRUE);
+}
+
+$tooltips->set_tip( $fname_autocopy_active, $d->get("Automatically copy filename to clipboard") );
+
+#end - filename image_autocopy
 #--------------------------------------
 
 #delay
@@ -1104,6 +1122,22 @@ if ( defined $settings_xml->{'general'}->{'border'} ) {
 }
 
 #end - border
+#--------------------------------------
+
+#visible windows only
+#--------------------------------------
+my $visible_windows_active = Gtk2::CheckButton->new_with_label( $d->get("Select only visible windows") );
+$tooltips->set_tip( $visible_windows_active, $d->get("Select only visible windows") );
+
+$visible_windows_box->pack_start( $visible_windows_active, FALSE, TRUE, 12 );
+
+if ( defined $settings_xml->{'general'}->{'visible_windows'} ) {
+	$visible_windows_active->set_active( $settings_xml->{'general'}->{'visible_windows'} );
+} else {
+	$visible_windows_active->set_active(FALSE);
+}
+
+#end - visible windows only
 #--------------------------------------
 
 #web width
@@ -1387,10 +1421,11 @@ $file_vbox->pack_start( $scale_box,    TRUE,  TRUE, 3 );
 $file_vbox->pack_start( $filetype_box, FALSE, TRUE, 3 );
 $file_frame->add($file_vbox);
 
-$save_vbox->pack_start( $filename_box, TRUE,  TRUE, 3 );
-$save_vbox->pack_start( $saveDir_box,  FALSE, TRUE, 3 );
-$save_vbox->pack_start( $filename_hint, TRUE,  TRUE, 3 );
-$save_vbox->pack_start( $autocopy_box, TRUE,  TRUE, 3 );
+$save_vbox->pack_start( $filename_box, TRUE, TRUE, 3 );
+$save_vbox->pack_start( $saveDir_box, FALSE, TRUE, 3 );
+$save_vbox->pack_start( $filename_hint, TRUE, TRUE, 3 );
+$save_vbox->pack_start( $fname_autocopy_box, TRUE, TRUE, 3 );
+$save_vbox->pack_start( $image_autocopy_box, TRUE, TRUE, 3 );
 $save_frame->add($save_vbox);
 
 $capture_vbox->pack_start( $cursor_box, FALSE, TRUE, 3 );
@@ -1426,6 +1461,7 @@ $actions_vbox->pack_start( $thumbnail_box, FALSE, TRUE, 3 );
 $actions_frame->add($actions_vbox);
 
 $window_capture_vbox->pack_start( $border_box, FALSE, TRUE, 3 );
+$window_capture_vbox->pack_start( $visible_windows_box, FALSE, TRUE, 3 );
 $window_capture_frame->add($window_capture_vbox);
 
 $web_capture_vbox->pack_start( $web_width_box, FALSE, TRUE, 3 );
@@ -2776,14 +2812,15 @@ sub fct_save_settings {
 	$settings{'general'}->{'last_profile_name'} = $combobox_settings_profiles->get_active_text || "";
 
 	#main
-	$settings{'general'}->{'filetype'} 		= $combobox_type->get_active;
-	$settings{'general'}->{'quality'}  		= $scale->get_value();
-	$settings{'general'}->{'filename'} 		= $filename->get_text();
-	$settings{'general'}->{'folder'} 		= $saveDir_button->get_filename();
-	$settings{'general'}->{'autocopy'}  	= $autocopy_active->get_active();
-	$settings{'general'}->{'cursor'}		= $cursor_active->get_active();
-	$settings{'general'}->{'delay'}			= $delay->get_value();
-	$settings{'general'}->{'delay_active'}	= $delay_active->get_active();
+	$settings{'general'}->{'filetype'} 		 = $combobox_type->get_active;
+	$settings{'general'}->{'quality'}  		 = $scale->get_value();
+	$settings{'general'}->{'filename'} 		 = $filename->get_text();
+	$settings{'general'}->{'folder'} 		 = $saveDir_button->get_filename();
+	$settings{'general'}->{'image_autocopy'} = $image_autocopy_active->get_active();
+	$settings{'general'}->{'fname_autocopy'} = $fname_autocopy_active->get_active();
+	$settings{'general'}->{'cursor'}		 = $cursor_active->get_active();
+	$settings{'general'}->{'delay'}			 = $delay->get_value();
+	$settings{'general'}->{'delay_active'}	 = $delay_active->get_active();
 
 	#wrksp -> submenu
 	$settings{'general'}->{'current_monitor_active'} = $current_monitor_active->get_active;
@@ -2832,6 +2869,7 @@ sub fct_save_settings {
 	$settings{'general'}->{'thumbnail'}        = $thumbnail->get_value();
 	$settings{'general'}->{'thumbnail_active'} = $thumbnail_active->get_active();
 	$settings{'general'}->{'border'}           = $border_active->get_active();
+	$settings{'general'}->{'visible_windows'}  = $visible_windows_active->get_active();
 	$settings{'general'}->{'web_width'}        = $combobox_web_width->get_active();
 
 	#behavior
@@ -3093,7 +3131,8 @@ sub fct_load_settings {
 				utf8::decode $settings_xml->{'general'}->{'folder'};
 				$saveDir_button->set_filename( $settings_xml->{'general'}->{'folder'} );
 				
-				$autocopy_active->set_active( $settings_xml->{'general'}->{'autocopy'} );
+				$image_autocopy_active->set_active( $settings_xml->{'general'}->{'image_autocopy'} );
+				$fname_autocopy_active->set_active( $settings_xml->{'general'}->{'fname_autocopy'} );
 
 				$cursor_active->set_active( $settings_xml->{'general'}->{'cursor'} );
 				$delay->set_value( $settings_xml->{'general'}->{'delay'} );
@@ -3147,6 +3186,7 @@ sub fct_load_settings {
 				$thumbnail_active->set_active( $settings_xml->{'general'}->{'thumbnail_active'} );
 				
 				$border_active->set_active( $settings_xml->{'general'}->{'border'} );
+				$visible_windows_active->set_active( $settings_xml->{'general'}->{'visible_windows'} );
 				$combobox_web_width->set_active( $settings_xml->{'general'}->{'web_width'} );
 
 				#behavior
@@ -3952,7 +3992,8 @@ sub fct_take_screenshot {
 
 		my $screenshooter = Shutter::Screenshot::Window->new(
 			$sc, $cursor_active->get_active, $delay_value, 
-			$border_active->get_active, undef, $data, $is_hidden
+			$border_active->get_active, undef, $data, $is_hidden, 
+			$visible_windows_active->get_active
 		);
 		
 		$screenshot = $screenshooter->window();
@@ -4198,9 +4239,14 @@ sub fct_take_screenshot {
 		my $new_key_screenshot_thumbnail = &fct_integrate_screenshot_in_notebook( Gnome2::VFS::URI->new($screenshot_thumbnail_name), $screenshot_thumbnail )
 			if $thumbnail_active->get_active;
 
-		#autocopy to clipboard if configured
-		if ( $autocopy_active->get_active() ) {
+		#image_autocopy to clipboard if configured
+		if ( $image_autocopy_active->get_active() ) {
 			$clipboard->set_image($screenshot);
+		}
+		
+		#filename autocopy to clipboard if configured
+		if ( $fname_autocopy_active->get_active() ) {
+			$clipboard->set_text($screenshot_name);
 		}
 
 		#open screenshot with configured program
