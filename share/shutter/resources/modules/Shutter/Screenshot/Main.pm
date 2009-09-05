@@ -199,7 +199,7 @@ sub ungrab_pointer_and_keyboard {
 #~ }	
 
 sub get_pixbuf_from_drawable {
-	my ( $self, $drawable, $x, $y, $width, $height, $multi_monitor ) = @_;
+	my ( $self, $drawable, $x, $y, $width, $height, $region ) = @_;
 
 	my ($pixbuf, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = (0, 0, 0, 0, 0);
 
@@ -293,25 +293,31 @@ sub get_pixbuf_from_drawable {
 			$pixbuf = $self->include_cursor( $x, $y, $width, $height, $drawable, $pixbuf );
 		}
 
-		#When there are multiple monitors with different resolutions, the visible area
-		#within the root window may not be rectangular (it may have an L-shape, for
-		#example). In that case, mask out the areas of the root window which would
-		#not be visible in the monitors, so that screenshot do not end up with content
-		#that the user won't ever see.
- 		#
-		#comment copied from gnome-screenshot
-		#http://svn.gnome.org/viewvc/gnome-utils/trunk/gnome-screenshot/screenshot-utils.c?view=markup
-		if($multi_monitor){
-			#create target pixbuf with dimension of monitor layout
-			my $m_rect = $self->get_monitor_region->get_clipbox;
-			my $target = Gtk2::Gdk::Pixbuf->new ($pixbuf->get_colorspace, TRUE, 8, $m_rect->width, $m_rect->height);
+		#region is optional
+		#it is used to handle multiple monitors (root window may not be rectangular)
+		#or to cut out the screen contents when capturing menus
+		if($region){
+			#get clipbox
+			my $clipbox = $region->get_clipbox;
+			
+			#create target pixbuf with dimension of clipbox
+			my $target = Gtk2::Gdk::Pixbuf->new ($pixbuf->get_colorspace, TRUE, 8, $clipbox->width, $clipbox->height);
 			
 			#whole pixbuf is transparent
 			$target->fill(0x00000000);
+
+			#determine low x and y
+			my $small_x = $self->{ _root }->{ w };
+			my $small_y = $self->{ _root }->{ h };
+			foreach my $r ($region->get_rectangles){
+				$small_x = $r->x if $r->x < $small_x; 
+				$small_y = $r->y if $r->y < $small_y; 
+			}
 			
 			#copy each rectangle
-			foreach my $r ($self->get_monitor_region->get_rectangles){
-				$pixbuf->copy_area ($r->x, $r->y, $r->width, $r->height, $target, $r->x, $r->y);
+			foreach my $r ($region->get_rectangles){
+				#~ print $r->x, " - ", $r->y, " - ", $r->width, " - ", $r->height, "\n";
+				$pixbuf->copy_area ($r->x - $small_x, $r->y - $small_y, $r->width, $r->height, $target, $r->x - $small_x, $r->y - $small_y);
 			}
 			$pixbuf = $target->copy;			
 		}

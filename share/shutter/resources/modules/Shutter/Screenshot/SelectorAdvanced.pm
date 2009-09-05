@@ -217,7 +217,7 @@ sub select_advanced {
 	#~ $self->{_view}->set_tool($self->{_selector});
 
 	$self->{_select_window} = Gtk2::Window->new('popup');
-	#~ $self->{_select_window}->set_type_hint('dock');
+	$self->{_select_window}->set_accept_focus(TRUE);
 	$self->{_select_window}->set_decorated(FALSE);
 	$self->{_select_window}->set_skip_taskbar_hint(TRUE);
 	$self->{_select_window}->set_skip_pager_hint(TRUE);
@@ -238,172 +238,29 @@ sub select_advanced {
 		$self->{_root}->{w},
 		$self->{_root}->{h}
 	);
+	
+	#event-handling	
+	$self->{_select_window}->signal_connect('event' =>
+		sub {
+			my ( $window, $event ) = @_;
+			return 0 unless defined $event;
 
-	#all screen events are send to shutter
-	my $grab_counter = 0;
-	while ( !Gtk2::Gdk->pointer_is_grabbed && $grab_counter < 400 ) {
-		Gtk2::Gdk->pointer_grab(
-			$self->{_select_window}->window,
-			1,
-			[   qw/
-					pointer-motion-mask
-					button-press-mask
-					button1-motion-mask
-					button-release-mask/
-			],
-			undef,
-			undef,
-			Gtk2->get_current_event_time
-		);
-		Gtk2::Gdk->keyboard_grab( $self->{_select_window}->window, 1, Gtk2->get_current_event_time );
-		$grab_counter++;
-	}
+			my $s = $self->{_selector}->get_selection;				
+			
+			print $event->type, "\n";
+							
+			#handle button-release event
+			#we simulate a 2button-press here
+			if ( $event->type eq 'button-release') {		
+				
+				unless(defined $self->{_dclick}){
 
-	if ( Gtk2::Gdk->pointer_is_grabbed ) {
+					$self->{_dclick} = $event->time;		
 
-		Gtk2::Gdk::Event->handler_set(
-			sub {
-				my ( $event, $data ) = @_;
-				return 0 unless defined $event;
+				}else{
 
-				my $s = $self->{_selector}->get_selection;				
-								
-				#handle button-press
-				if ( $event->type eq 'button-press') {		
-
-					#see docs
-					#http://library.gnome.org/devel/gdk/stable/gdk-Events.html
-					#
-					#GDK_2BUTTON_PRESS
-					#a mouse button has been double-clicked 
-					#(clicked twice within a short period of time). 
-					#Note that each click also generates a GDK_BUTTON_PRESS event.
-					#
-					#we peek the next event to check it is a GDK_2BUTTON_PRESS 			
-					my $ev1 = Gtk2::Gdk::Event->peek;
-									
-					if(defined $ev1){
-						if($ev1->type eq '2button-press'){
-
-							#left mouse button
-							if($ev1->button == 1){
-								
-								$self->{_select_window}->hide;
-								
-								#A short timeout to give the server a chance to
-								#redraw the area that was obscured by our dialog.
-								Glib::Timeout->add (600, sub{
-									$output = $self->take_screenshot($s, $clean_pixbuf);
-									$self->quit;
-									return FALSE;	
-								});					
-								
-							}
-
-						}else{
-							Gtk2->main_do_event($event);
-							Gtk2->main_do_event($ev1);
-						}
-					}else{
-						Gtk2->main_do_event($event);	
-					}
+					if($event->time - $self->{_dclick} <= 500){
 					
-				#handle key-press
-				}elsif ( $event->type eq 'key-press' ) {
-					
-					#abort screenshot				
-					if ( $event->keyval == $Gtk2::Gdk::Keysyms{Escape} ) {
-												
-						$self->quit;
-					
-					#move / resize selector
-					} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Up} && $s) {
-						
-						if ($event->state >= 'control-mask'){
-							$s->height($s->height-1);
-							$self->{_selector}->set_selection($s);							
-						}elsif ($event->state >= 'mod1-mask'){	
-							$s->y($s->y-1);
-							$self->{_selector}->set_selection($s);
-						}else{
-							Gtk2->main_do_event($event);
-						}
-						
-					} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Down} && $s) {
-
-						if ($event->state >= 'control-mask'){
-							$s->height($s->height+1);
-							$self->{_selector}->set_selection($s);						
-						}elsif ($event->state >= 'mod1-mask'){	
-							$s->y($s->y+1);
-							$self->{_selector}->set_selection($s);
-						}else{
-							Gtk2->main_do_event($event);
-						}
-						
-					} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Left} && $s) {
-
-						if ($event->state >= 'control-mask'){
-							$s->width($s->width-1);
-							$self->{_selector}->set_selection($s);
-						}elsif ($event->state >= 'mod1-mask'){	
-							$s->x($s->x-1);
-							$self->{_selector}->set_selection($s);
-						}else{
-							Gtk2->main_do_event($event);
-						}
-						
-					} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Right} && $s) {	
-
-						if ($event->state >= 'control-mask'){
-							$s->width($s->width+1);
-							$self->{_selector}->set_selection($s);
-						}elsif ($event->state >= 'mod1-mask'){	
-							$s->x($s->x+1);
-							$self->{_selector}->set_selection($s);
-						}else{
-							Gtk2->main_do_event($event);
-						}
-					
-					#zoom in
-					} elsif ( 
-						$event->keyval == $Gtk2::Gdk::Keysyms{KP_Add} ||
-						$event->keyval == $Gtk2::Gdk::Keysyms{plus} ||
-						$event->keyval == $Gtk2::Gdk::Keysyms{equal}		
-					) {	
-
-						if ($event->state >= 'control-mask'){
-							$self->{_view}->zoom_in;
-						}else{
-							Gtk2->main_do_event($event);
-						}
-
-					#zoom out
-					} elsif ( 
-						$event->keyval == $Gtk2::Gdk::Keysyms{KP_Subtract} ||
-						$event->keyval == $Gtk2::Gdk::Keysyms{minus}		
-					) {	
-
-						if ($event->state >= 'control-mask'){
-							$self->{_view}->zoom_out;
-						}else{
-							Gtk2->main_do_event($event);
-						}
-
-					#zoom normal
-					} elsif ( 
-						$event->keyval == $Gtk2::Gdk::Keysyms{0}	
-					) {	
-
-						if ($event->state >= 'control-mask'){
-							$self->{_view}->set_zoom(1);
-						}else{
-							Gtk2->main_do_event($event);
-						}
-													
-					#take screenshot
-					} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Return}) {
-						
 						$self->{_select_window}->hide;
 						
 						#A short timeout to give the server a chance to
@@ -412,27 +269,118 @@ sub select_advanced {
 							$output = $self->take_screenshot($s, $clean_pixbuf);
 							$self->quit;
 							return FALSE;	
-						});		
-										
+						});
+					
 					}else{
-						Gtk2->main_do_event($event);
+						
+						$self->{_dclick} = $event->time;
+					
+					}					
+
+				}
+												
+			#handle key-press
+			}elsif ( $event->type eq 'key-press' ) {
+				
+				#abort screenshot				
+				if ( $event->keyval == $Gtk2::Gdk::Keysyms{Escape} ) {
+											
+					$self->quit;
+				
+				#move / resize selector
+				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Up} && $s) {
+					
+					if ($event->state >= 'control-mask'){
+						$s->height($s->height-1);
+						$self->{_selector}->set_selection($s);							
+					}elsif ($event->state >= 'mod1-mask'){	
+						$s->y($s->y-1);
+						$self->{_selector}->set_selection($s);
+					}
+					
+				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Down} && $s) {
+
+					if ($event->state >= 'control-mask'){
+						$s->height($s->height+1);
+						$self->{_selector}->set_selection($s);						
+					}elsif ($event->state >= 'mod1-mask'){	
+						$s->y($s->y+1);
+						$self->{_selector}->set_selection($s);
+					}
+					
+				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Left} && $s) {
+
+					if ($event->state >= 'control-mask'){
+						$s->width($s->width-1);
+						$self->{_selector}->set_selection($s);
+					}elsif ($event->state >= 'mod1-mask'){	
+						$s->x($s->x-1);
+						$self->{_selector}->set_selection($s);
+					}
+					
+				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Right} && $s) {	
+
+					if ($event->state >= 'control-mask'){
+						$s->width($s->width+1);
+						$self->{_selector}->set_selection($s);
+					}elsif ($event->state >= 'mod1-mask'){	
+						$s->x($s->x+1);
+						$self->{_selector}->set_selection($s);
 					}
 				
-				}else{
-						Gtk2->main_do_event($event);		
-				}	
-			}
-		);
+				#zoom in
+				} elsif ( 
+					$event->keyval == $Gtk2::Gdk::Keysyms{KP_Add} ||
+					$event->keyval == $Gtk2::Gdk::Keysyms{plus} ||
+					$event->keyval == $Gtk2::Gdk::Keysyms{equal}		
+				) {	
 
-		#finally focus it
-		$self->{_select_window}->window->focus(Gtk2->get_current_event_time);
+					if ($event->state >= 'control-mask'){
+						$self->{_view}->zoom_in;
+					}
 
-		Gtk2->main();
+				#zoom out
+				} elsif ( 
+					$event->keyval == $Gtk2::Gdk::Keysyms{KP_Subtract} ||
+					$event->keyval == $Gtk2::Gdk::Keysyms{minus}		
+				) {	
 
-	}else{
-		$output = 0;
-		$self->{_select_window}->destroy;
-	}
+					if ($event->state >= 'control-mask'){
+						$self->{_view}->zoom_out;
+					}
+
+				#zoom normal
+				} elsif ( 
+					$event->keyval == $Gtk2::Gdk::Keysyms{0}	
+				) {	
+
+					if ($event->state >= 'control-mask'){
+						$self->{_view}->set_zoom(1);
+					}
+												
+				#take screenshot
+				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Return}) {
+					
+					$self->{_select_window}->hide;
+					
+					#A short timeout to give the server a chance to
+					#redraw the area that was obscured by our dialog.
+					Glib::Timeout->add (600, sub{
+						$output = $self->take_screenshot($s, $clean_pixbuf);
+						$self->quit;
+						return FALSE;	
+					});		
+									
+				}
+			}	
+		}
+	);
+	
+
+	#finally focus it
+	Gtk2::Gdk->keyboard_grab( $self->{_select_window}->window, 1, Gtk2->get_current_event_time );
+	
+	Gtk2->main();
 
 	return $output;
 }

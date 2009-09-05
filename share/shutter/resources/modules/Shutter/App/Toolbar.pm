@@ -132,6 +132,26 @@ sub create_toolbar {
 
 	#--------------------------------------
 
+	#button menu
+	#--------------------------------------
+	my $image_window_menu;
+	if($icontheme->has_icon('alacarte')){
+		$image_window_menu = Gtk2::Image->new_from_icon_name( 'alacarte', 'large-toolbar' );		
+	}else{
+		$image_window_menu = Gtk2::Image->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+				"$shutter_root/share/shutter/resources/icons/sel_window_menu.svg",
+				Gtk2::IconSize->lookup('large-toolbar')
+			)
+		);
+	}
+	$self->{_menu} = Gtk2::ToolButton->new( $image_window_menu, $d->get("Menu") );
+
+	$tooltips->set_tip( $self->{_menu},
+		$d->get( "Here is no text at the moment..." ) );
+
+	#--------------------------------------
+
 	#button web
 	#--------------------------------------
 	my $image_web;
@@ -186,6 +206,7 @@ sub create_toolbar {
 	$self->{_toolbar}->insert( Gtk2::SeparatorToolItem->new, -1 );
 	$self->{_toolbar}->insert( $self->{_window},             -1 );
 	$self->{_toolbar}->insert( $self->{_section},            -1 );
+	$self->{_toolbar}->insert( $self->{_menu},               -1 );
 	$self->{_toolbar}->insert( Gtk2::SeparatorToolItem->new, -1 );
 	$self->{_toolbar}->insert( $self->{_web},                -1 );
 	$self->{_toolbar}->insert( Gtk2::SeparatorToolItem->new, -1 );

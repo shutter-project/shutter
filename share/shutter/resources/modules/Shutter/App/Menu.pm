@@ -310,15 +310,15 @@ sub create_menu {
 }
 
 sub fct_ret_new_menu {
-	my $self        = shift;
-	my $accel_group = shift;
-	my $d           = shift;
+	my $self         = shift;
+	my $accel_group  = shift;
+	my $d            = shift;
 	my $shutter_root = shift;
 
 	#Icontheme
 	my $icontheme = $self->{_common}->get_theme;
 
-	$self->{_menu_new}           = Gtk2::Menu->new;
+	$self->{_menu_new} = Gtk2::Menu->new;
 	
 	#selection
 	$self->{_menuitem_selection} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Selection') );
@@ -371,6 +371,22 @@ sub fct_ret_new_menu {
 		);
 	}
 	$self->{_menu_new}->append( $self->{_menuitem_section} );
+
+	#menu
+	$self->{_menuitem_menu} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Menu') );
+	if($icontheme->has_icon('alacarte')){
+		$self->{_menuitem_menu}->set_image( Gtk2::Image->new_from_icon_name( 'alacarte', 'menu' ) );		
+	}else{
+		$self->{_menuitem_menu}->set_image(
+			Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+					"$shutter_root/share/shutter/resources/icons/sel_window_menu.svg",
+					Gtk2::IconSize->lookup('menu')
+				)
+			)
+		);
+	}
+	$self->{_menu_new}->append( $self->{_menuitem_menu} );
 
 	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
 

@@ -103,20 +103,24 @@ sub workspace {
 	}
 
 	my $output = undef;
-	if ( $self->{_current_monitor_only} ) {
+	if ( $self->{_current_monitor_only} || $self->{_gdk_screen}->get_n_monitors <= 1) {
 		($output) = $self->get_pixbuf_from_drawable(
 						$self->get_root_and_current_monitor_geometry
 					);
+
+	#When there are multiple monitors with different resolutions, the visible area
+	#within the root window may not be rectangular (it may have an L-shape, for
+	#example). In that case, mask out the areas of the root window which would
+	#not be visible in the monitors, so that screenshot do not end up with content
+	#that the user won't ever see.
+	#
+	#comment copied from gnome-screenshot
+	#http://svn.gnome.org/viewvc/gnome-utils/trunk/gnome-screenshot/screenshot-utils.c?view=markup					
 	} elsif($self->{_gdk_screen}->get_n_monitors > 1) {
 		($output) = $self->get_pixbuf_from_drawable(
 						$self->get_root_and_geometry,
-						TRUE
+						$self->get_monitor_region
 					);					
-	}else{
-		($output) = $self->get_pixbuf_from_drawable(
-						$self->get_root_and_geometry,
-						FALSE
-					);			
 	}
 
 	#set name of the captured workspace

@@ -316,6 +316,7 @@ $sm->{_menuitem_selection}->signal_connect( 'activate', \&evt_take_screenshot, '
 $sm->{_menuitem_full}->signal_connect( 'activate', \&evt_take_screenshot, 'raw' );
 $sm->{_menuitem_window}->signal_connect( 'activate', \&evt_take_screenshot, 'window' );
 $sm->{_menuitem_section}->signal_connect( 'activate', \&evt_take_screenshot, 'section' );
+$sm->{_menuitem_menu}->signal_connect( 'activate', \&evt_take_screenshot, 'menu' );
 
 #gnome web photo is optional, don't enable it when gnome-web-photo is not in PATH
 if($gnome_web_photo){
@@ -549,6 +550,7 @@ $st->{_window}->signal_connect( 'clicked' => \&evt_take_screenshot, 'window' );
 
 $st->{_window}->signal_connect( 'show-menu' => sub { $st->{_window}->set_menu( &fct_ret_window_menu ) } );
 $st->{_section}->signal_connect( 'clicked' => \&evt_take_screenshot, 'section' );
+$st->{_menu}->signal_connect( 'clicked' => \&evt_take_screenshot, 'menu' );
 
 #gnome-web-photo is optional, don't enable it when gnome-web-photo is not in PATH
 if ( $gnome_web_photo ) {
@@ -1747,15 +1749,69 @@ sub evt_take_screenshot {
 		#unblock signal handler
 		&fct_control_signals('unblock');
 	}else{
-		#A short timeout to give the server a chance to
-		#redraw the area that was obscured by our dialog.
-		Glib::Timeout->add (400, sub{
-		#~ Glib::Timeout->add (4000, sub{
-			&fct_take_screenshot($widget, $data, $folder_from_config);
-			#unblock signal handler
-			&fct_control_signals('unblock');
-			return FALSE;	
-		});		
+
+		if ( $data eq "menu" || $data eq "tray_menu" ){
+			#show notification messages
+			#displaying the countdown
+			if(7){
+				my $notify 	= $sc->get_notification_object;
+				my $ttw 	= 7;
+		
+				#first notification immediately
+				$notify->show( sprintf($d->nget("Screenshot will be taken in %s second", "Screenshot will be taken in %s seconds", $ttw) , $ttw), "" );
+				$ttw--;
+				
+				#delay is only 1 second
+				#do not show any further messages
+				if($ttw >= 1){
+					#then controlled via timeout
+					Glib::Timeout->add (1000, sub{
+						$notify->show( sprintf($d->nget("Screenshot will be taken in %s second", "Screenshot will be taken in %s seconds", $ttw) , $ttw), "" );
+						$ttw--;
+						if($ttw == 0){			
+							
+							#close last message with a short delay (less than a second)
+							Glib::Timeout->add (500, sub{
+								$notify->close;
+								return FALSE;	
+							});	
+							
+							return FALSE;
+							
+						}else{
+							
+							return TRUE;	
+						
+						}	
+					});
+				}else{
+					#close last message with a short delay (less than a second)
+					Glib::Timeout->add (500, sub{
+						$notify->close;
+						return FALSE;	
+					});				
+				}	
+			
+			}	
+			
+			#A short timeout to give the server a chance to
+			#redraw the area that was obscured by our dialog.
+			Glib::Timeout->add (7000, sub{
+				&fct_take_screenshot($widget, $data, $folder_from_config);
+				#unblock signal handler
+				&fct_control_signals('unblock');
+				return FALSE;	
+			});
+		}else{
+			#A short timeout to give the server a chance to
+			#redraw the area that was obscured by our dialog.
+			Glib::Timeout->add (400, sub{
+				&fct_take_screenshot($widget, $data, $folder_from_config);
+				#unblock signal handler
+				&fct_control_signals('unblock');
+				return FALSE;	
+			});			
+		}		
 	}
 	
 	return TRUE;
@@ -2556,6 +2612,7 @@ sub fct_control_main_window {
 		$st->{_full}->set_sensitive($set);
 		$st->{_window}->set_sensitive($set);
 		$st->{_section}->set_sensitive($set);
+		$st->{_menu}->set_sensitive($set);
 		$st->{_web}->set_sensitive($set) if ($gnome_web_photo);
 	}else{
 		return FALSE;	
@@ -3988,7 +4045,12 @@ sub fct_take_screenshot {
 		$screenshot = $screenshooter->workspace();
 
 	#window
-	} elsif ( $data eq "window" || $data eq "tray_window" || $data eq "section" || $data eq "tray_section" ) {
+	} elsif ( $data eq "window" || 
+			  $data eq "tray_window" || 
+			  $data eq "section" || 
+			  $data eq "tray_section" || 
+			  $data eq "menu" || 
+			  $data eq "tray_menu" ) {
 
 		my $screenshooter = Shutter::Screenshot::Window->new(
 			$sc, $cursor_active->get_active, $delay_value, 
@@ -4110,6 +4172,26 @@ sub fct_take_screenshot {
 			&dlg_status_message( 1, $d->get("Capture aborted by user") );
 			&fct_control_main_window( TRUE, 'show', $present_after_active->get_active);
 			return FALSE;
+
+		#no window with type xy detected
+		}elsif( $screenshot == 2 ) {
+			
+			my $type = undef;
+			if ( $data eq "menu" ||  $data eq "tray_menu" ) {
+				$type = $d->get( "menu" );
+			}elsif ( $data eq "tooltip" ||  $data eq "tray_tooltip" ) {
+				$type = $d->get( "tooltip" );
+			}
+
+			my $response = $sd->dlg_error_message( 
+				sprintf( $d->get( "No window with type %s detected." ), "'".$type."'"),
+				$d->get( "Error while taking the screenshot." )
+			);
+				
+			&dlg_status_message( 1, $d->get("Error while taking the screenshot.") );
+			&fct_control_main_window( TRUE, 'show');
+			return FALSE;
+		
 		}
 
 		#we have to use the path (e.g. /home/username/file1.png)
@@ -5490,6 +5572,25 @@ sub fct_ret_tray_menu {
 		activate => \&evt_take_screenshot,
 		'tray_section'
 	);
+
+	#menu
+	my $menuitem_window_menu = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Menu') );
+	if($icontheme->has_icon('alacarte')){
+		$menuitem_window_menu->set_image( Gtk2::Image->new_from_icon_name( 'alacarte', 'menu' ) );	
+	}else{
+		$menuitem_window_menu->set_image(
+			Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+					"$shutter_root/share/shutter/resources/icons/sel_window_menu.svg",
+					Gtk2::IconSize->lookup('menu')
+				)
+			)
+		);
+	}
+	$menuitem_window_menu->signal_connect(
+		activate => \&evt_take_screenshot,
+		'tray_menu'
+	);
 	
 	#web
 	my $menuitem_web = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Web') );
@@ -5522,6 +5623,7 @@ sub fct_ret_tray_menu {
 	$tray_menu->append( Gtk2::SeparatorMenuItem->new );
 	$tray_menu->append($menuitem_window);
 	$tray_menu->append($menuitem_window_sect);
+	$tray_menu->append($menuitem_window_menu);
 	$tray_menu->append( Gtk2::SeparatorMenuItem->new );
 	$tray_menu->append($menuitem_web);
 	$tray_menu->append( Gtk2::SeparatorMenuItem->new );

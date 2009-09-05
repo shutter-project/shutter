@@ -287,75 +287,6 @@ sub find_wm_window {
 	} while (TRUE);
 }
 
-sub query_c {
-	#~ my ( $self, $xwindow, $xparent, $depth, $limit, $type_hint ) = @_;
-		#~ 
-	#~ #reparenting depth (default is 4)
-	#~ $depth = 0 unless defined $depth;
-	#~ $limit = 4 unless defined $limit;
-	#~ if ($depth >= $limit){
-		#~ return TRUE;
-	#~ }
-		#~ 
-	#~ my ( $qroot, $qparent, @qkids ) = $self->{_x11}->QueryTree($xwindow);
-	#~ 
-	#~ my $stack_level = 0;
-	#~ foreach my $kid (reverse @qkids) {
-#~ 
-		#~ my $gdk_window = Gtk2::Gdk::Window->foreign_new($kid);
-		#~ if ( defined $gdk_window ) {
-#~ 
-			#~ #window needs to be viewable and visible
-			#~ next unless $gdk_window->is_visible;
-			#~ next unless $gdk_window->is_viewable;
-						#~ 
-			#~ #check type_hint
-			#~ my $curr_type_hint = $gdk_window->get_type_hint; 
-			#~ if(defined $type_hint){ 
-				#~ next unless $curr_type_hint =~ /$type_hint/;
-			#~ }
-			#~ 
-			#~ print $curr_type_hint, " - passed \n";
-						#~ 
-			#~ #min size
-			#~ my ( $xp, $yp, $wp, $hp, $depthp ) = $gdk_window->get_geometry;
-			#~ ( $xp, $yp ) = $gdk_window->get_origin;
-			#~ next if ( $wp * $hp < 4 );
-#~ 
-			#~ #check if $gdk_window is already in hash
-			#~ my $dub = FALSE;
-			#~ foreach my $checkchild ( keys %{ $self->{_c}{$xparent} } ) {
-				#~ $dub = TRUE if $self->{_c}{$xparent}{$checkchild}{'gdk_window'} == $gdk_window;
-			#~ }
-			#~ unless ( $dub == TRUE ) {				
-				#~ $self->{_c}{$xparent}{$kid}{'gdk_window'} = $gdk_window;
-				#~ $self->{_c}{$xparent}{$kid}{'x'}          = $xp;
-				#~ $self->{_c}{$xparent}{$kid}{'y'}          = $yp;
-				#~ $self->{_c}{$xparent}{$kid}{'width'}      = $wp;
-				#~ $self->{_c}{$xparent}{$kid}{'height'}     = $hp;
-#~ 
-				#~ print $gdk_window, " saved as child ",
-					  #~ $xp, " - ",			 			
-					  #~ $yp, " - ", 			
-					  #~ $wp, " - ", 		
-					  #~ $hp, " \n ";
-				#~ 
-				#~ $stack_level++;
-				#~ 
-				#~ #when $limit is 1, we want the two topmost windows only
-				#~ #e.g. one menu and a submenu
-				#~ print scalar keys %{$self->{_c}{$xparent}}, "\n";
-				#~ last if $limit == 1 && scalar keys %{$self->{_c}{$xparent}} >= 20;
-				#~ last if $limit == 1;# && scalar keys %{$self->{_c}{$xparent}} >= 20;
-				#~ 
-				#~ #check next depth
-				#~ $self->query_c( $gdk_window->XWINDOW, $xparent, $depth++, $limit, $type_hint );
-			#~ }	
-		#~ }
-	#~ }
-	#~ return TRUE;
-}
-
 sub get_shape {
 	my $self 		= shift;
 	my $xid 		= shift;
@@ -452,40 +383,44 @@ sub window_by_xid {
 
 	my $gdk_window  = Gtk2::Gdk::Window->foreign_new( $self->{_xid} );
 	my $wnck_window = Gnome2::Wnck::Window->get( $self->{_xid} );
-
-	my ( $xp, $yp, $wp, $hp ) = $self->get_window_size( $wnck_window, $gdk_window, $self->{_include_border} );
-
-	#focus selected window (maybe it is hidden)
-	$gdk_window->focus(Gtk2->get_current_event_time);
-	Gtk2::Gdk->flush;
-
-	my $output;
-	#A short timeout to give the server a chance to
-	#redraw the area
-	Glib::Timeout->add (400, sub{
-		
-		my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_pixbuf_from_drawable( $self->{_root}, $xp, $yp, $wp, $hp);
-
-		#save return value to current $output variable 
-		#-> ugly but fastest and safest solution now
-		$output = $output_new;	
-
-		#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
-		if($self->{_x11}{ext_shape} && $self->{_include_border}){
-			$output = $self->get_shape($self->{_xid}, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);				
-		}
-
-		#set name of the captured window
-		#e.g. for use in wildcards
-		if($output =~ /Gtk2/){
-			$output->{'name'} = $wnck_window->get_name;
-		}
-
-		$self->quit;
-		return FALSE;	
-	});	
-
-	Gtk2->main();
+	
+	my $output = 0;
+	if (defined $gdk_window && defined $wnck_window){
+	
+		my ( $xp, $yp, $wp, $hp ) = $self->get_window_size( $wnck_window, $gdk_window, $self->{_include_border} );
+	
+		#focus selected window (maybe it is hidden)
+		$gdk_window->focus(Gtk2->get_current_event_time);
+		Gtk2::Gdk->flush;
+	
+		#A short timeout to give the server a chance to
+		#redraw the area
+		Glib::Timeout->add (400, sub{
+			
+			my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_pixbuf_from_drawable( $self->{_root}, $xp, $yp, $wp, $hp);
+	
+			#save return value to current $output variable 
+			#-> ugly but fastest and safest solution now
+			$output = $output_new;	
+	
+			#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
+			if($self->{_x11}{ext_shape} && $self->{_include_border}){
+				$output = $self->get_shape($self->{_xid}, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);				
+			}
+	
+			#set name of the captured window
+			#e.g. for use in wildcards
+			if($output =~ /Gtk2/){
+				$output->{'name'} = $wnck_window->get_name;
+			}
+	
+			$self->quit;
+			return FALSE;	
+		});	
+	
+		Gtk2->main();
+	
+	}
 
 	return $output;
 }
@@ -571,7 +506,7 @@ sub find_current_parent_window {
 sub find_current_child_window {
 	my ( $self, $event, $xwindow, $xparent, $depth, $limit, $type_hint ) = @_;
 		
-	#reparenting depth (4 seems to be a good value)
+	#reparenting depth and recursion limit
 	$depth = 0 unless defined $depth;
 	$limit = 0 unless defined $limit;
 	if ($depth > $limit){
@@ -598,6 +533,10 @@ sub find_current_child_window {
 
 		my $gdk_window = Gtk2::Gdk::Window->foreign_new($kid);
 			if ( defined $gdk_window ) {
+	
+			#window needs to be viewable and visible
+			next unless $gdk_window->is_visible;
+			next unless $gdk_window->is_viewable;	
 	
 			#check type_hint
 			if(defined $type_hint){ 
@@ -636,9 +575,108 @@ sub find_current_child_window {
 				#check next depth
 				$self->find_current_child_window( $event, $gdk_window->XWINDOW, $xparent, $depth++, $limit, $type_hint );
 				
-				last;
+				#~ last;
 				
 			}
+		}
+	}
+	
+	return TRUE;	
+}
+
+sub find_active_window {
+	my $self = shift;
+
+	my $gdk_window = $self->{_gdk_screen}->get_active_window;
+
+	if ( defined $gdk_window ) {
+
+		my $wnck_window = Gnome2::Wnck::Window->get( $gdk_window->get_xid );
+		
+		if ( defined $wnck_window ) {
+						
+			#size
+			my ( $xp, $yp, $wp, $hp ) = $self->get_window_size( $wnck_window, $gdk_window, $self->{_include_border} );
+
+			$self->{_c}{'cw'}{'window'}     = $wnck_window;
+			$self->{_c}{'cw'}{'gdk_window'} = $gdk_window;
+			$self->{_c}{'cw'}{'x'} 			= $xp;
+			$self->{_c}{'cw'}{'y'} 			= $yp;
+			$self->{_c}{'cw'}{'width'} 		= $wp;
+			$self->{_c}{'cw'}{'height'} 	= $hp;
+			$self->{_c}{'cw'}{'is_parent'} 	= TRUE;
+	
+			#~ print $self->{_c}{'cw'}{'x'}, " - ",			 			
+				  #~ $self->{_c}{'cw'}{'y'}, " - ", 			
+				  #~ $self->{_c}{'cw'}{'width'}, " - ", 		
+				  #~ $self->{_c}{'cw'}{'height'}, " \n " if $self->{_sc}->get_debug; 
+		}		  				
+	}
+	
+	return TRUE;	
+}
+
+sub find_region_for_window_type {
+	my ( $self, $xwindow, $type_hint) = @_;
+
+	#XQueryTree - query window tree information
+	my ( $qroot, $qparent, @qkids ) = $self->{_x11}->QueryTree($xwindow);
+	
+	foreach my $kid (reverse @qkids) {
+				
+		my $gdk_window = Gtk2::Gdk::Window->foreign_new($kid);
+
+		if ( defined $gdk_window ) {
+
+			#check type_hint
+			my $curr_type_hint = $gdk_window->get_type_hint;
+			if(defined $type_hint){ 
+				next unless $curr_type_hint =~ /$type_hint/;
+			}
+
+			#XGetWindowAttributes, XGetGeometry, XWindowAttributes - get current
+			#window attribute or geometry and current window attributes structure
+			my @atts = $self->{_x11}->GetWindowAttributes($kid);
+			return unless @atts;
+			
+			#window needs to be viewable
+			return FALSE unless $atts[19] eq 'Viewable';
+							
+			#min size
+			my ( $xp, $yp, $wp, $hp, $depthp ) = $gdk_window->get_geometry;
+			( $xp, $yp ) = $gdk_window->get_origin;
+
+			#~ print $xp, " - ", $yp, " - ", $wp, " - ", $hp, "\n";
+			
+			#create region
+			my $sr = Gtk2::Gdk::Region->rectangle(
+				Gtk2::Gdk::Rectangle->new(
+					$xp, $yp, $wp, $hp
+				)
+			);
+			
+			#init region
+			unless(defined $self->{_c}{'cw'}{'window_region'}){
+				$self->{_c}{'cw'}{'window_region'} = Gtk2::Gdk::Region->new;
+				$self->{_c}{'cw'}{'window_region'}->union($sr);
+			}else{
+				$self->{_c}{'cw'}{'window_region'}->union($sr);				
+			}
+			
+			#store clipbox geometry
+			my $cbox = $self->{_c}{'cw'}{'window_region'}->get_clipbox;
+			
+			$self->{_c}{'cw'}{'gdk_window'} = $gdk_window;
+			$self->{_c}{'cw'}{'x'} 			= $cbox->x;
+			$self->{_c}{'cw'}{'y'} 			= $cbox->y;
+			$self->{_c}{'cw'}{'width'} 		= $cbox->width;
+			$self->{_c}{'cw'}{'height'} 	= $cbox->height;
+			$self->{_c}{'cw'}{'is_parent'} 	= FALSE;
+
+			#~ print $self->{_c}{'cw'}{'x'}, " - ",			 			
+				  #~ $self->{_c}{'cw'}{'y'}, " - ", 			
+				  #~ $self->{_c}{'cw'}{'width'}, " - ", 		
+				  #~ $self->{_c}{'cw'}{'height'}, " \n " if $self->{_sc}->get_debug; 				
 		}
 	}
 	
@@ -649,6 +687,11 @@ sub select_window {
 	my $self 				= shift;
 	my $event				= shift;
 	my $active_workspace	= shift;
+	
+	#select child window
+	my $depth				= shift; 
+	my $limit				= shift;
+	my $type_hint			= shift;
 
 	#root window size is minimum at startup
 	$self->{_min_size} = $self->{_root}->{w} * $self->{_root}->{h};
@@ -660,10 +703,14 @@ sub select_window {
 
 	#parent window selected/no grab, search for children now
 	}elsif ( 
-		( $self->{_mode} eq "section" || $self->{_mode} eq "tray_section" || !Gtk2::Gdk->pointer_is_grabbed ) 
-		&& $self->{_c}{'ws'} ) {
+		( $self->{_mode} eq "section" || $self->{_mode} eq "tray_section" ) && $self->{_c}{'ws'} ) {
 
-		$self->find_current_child_window($event, $self->{_c}{'ws'}->XWINDOW, $self->{_c}{'ws'}->XWINDOW);				
+		$self->find_current_child_window($event, 
+			$self->{_c}{'ws'}->XWINDOW, 
+			$self->{_c}{'ws'}->XWINDOW,
+			$depth,
+			$limit,
+			$type_hint);				
 	}
 
 	#draw highlighter if needed
@@ -696,22 +743,26 @@ sub window {
 		return $output;
 	}
 
-	my $grab_counter = 0;
-	while ( !Gtk2::Gdk->pointer_is_grabbed && $grab_counter < 100 ) {
-		Gtk2::Gdk->pointer_grab(
-			$self->{_root},
-			0,
-			[   qw/
-					pointer-motion-mask
-					button-press-mask
-					button-release-mask/
-			],
-			undef,
-			Gtk2::Gdk::Cursor->new('GDK_HAND2'),
-			Gtk2->get_current_event_time
-		);
-		Gtk2::Gdk->keyboard_grab( $self->{_root}, 0, Gtk2->get_current_event_time );
-		$grab_counter++;
+	#grab pointer and keyboard
+	#when mode is section or window 
+	unless($self->{_mode} eq "menu" || $self->{_mode} eq "tray_menu"){
+		my $grab_counter = 0;
+		while ( !Gtk2::Gdk->pointer_is_grabbed && $grab_counter < 100 ) {
+			Gtk2::Gdk->pointer_grab(
+				$self->{_root},
+				0,
+				[   qw/
+						pointer-motion-mask
+						button-press-mask
+						button-release-mask/
+				],
+				undef,
+				Gtk2::Gdk::Cursor->new('GDK_HAND2'),
+				Gtk2->get_current_event_time
+			);
+			Gtk2::Gdk->keyboard_grab( $self->{_root}, 0, Gtk2->get_current_event_time );
+			$grab_counter++;
+		}
 	}
 
 	#init
@@ -736,9 +787,6 @@ sub window {
 	$initevent->window($self->{_root});
 	$initevent->x($initx);
 	$initevent->y($inity);
-	
-	#show highlighter window
-	$self->{_highlighter}->show_all;
 	
 	if ( Gtk2::Gdk->pointer_is_grabbed ) {
 
@@ -843,7 +891,7 @@ sub window {
 
 						#set name of the captured window
 						#e.g. for use in wildcards
-						if($output =~ /Gtk2/){
+						if($output =~ /Gtk2/ && defined $self->{_c}{'cw'}{'window'}){
 							$output->{'name'} = $self->{_c}{'cw'}{'window'}->get_name;
 						}
 
@@ -873,58 +921,61 @@ sub window {
 		$self->ungrab_pointer_and_keyboard( FALSE, FALSE, FALSE );
 		$output = 0;
 
-		#query all child windows of root window (toplevel windows)
-		$self->query_c(
-			$self->{_root}->XWINDOW,
-			$self->{_root}->XWINDOW,
-			undef,
-			1
-		);
+		if ( ( $self->{_mode} eq "window" || $self->{_mode} eq "tray_window" ) ) {
 
-		#mark as selected parent window
-		$self->{_c}{'ws'} = $self->{_root};	
+			#and select current parent window
+			$self->find_active_window;
 
-		#and select current subwindow
-		$self->select_window($initevent, $active_workspace);
+		}elsif ( ( $self->{_mode} eq "menu" || $self->{_mode} eq "tray_menu" ) ) {
+
+			#and select current menu
+			$self->find_region_for_window_type( $self->{_root}->XWINDOW, 'menu' );
+
+			#no window with type_hint eq 'menu' detected
+			unless (defined $self->{_c}{'cw'}{'window_region'}){
+				return 2;	
+			}
+
+		}elsif ( ( $self->{_mode} eq "tooltip" || $self->{_mode} eq "tray_tooltip" ) ) {
+
+			#and select current tooltip
+			$self->find_region_for_window_type( $self->{_root}->XWINDOW, 'tooltip' );
+
+			#no window with type_hint eq 'tooltip' detected
+			unless (defined $self->{_c}{'cw'}{'window_region'}){
+				return 2;	
+			}
 
 		#looking for a section of a window?
 		#keep current window in mind and search for children
-		if ( ( $self->{_mode} eq "section" || $self->{_mode} eq "tray_section" ) ) {
+		}elsif ( ( $self->{_mode} eq "section" || $self->{_mode} eq "tray_section" ) ) {
 
-			#query all child windows
-			$self->query_c(
-				$self->{_c}{ 'cw' }{ 'gdk_window' }->XWINDOW,
-				$self->{_c}{ 'cw' }{ 'gdk_window' }->XWINDOW,
-				undef,
-				4
-			);
-												
 			#mark as selected parent window
-			$self->{_c}{'ws'} = $self->{_c}{'cw'}{'gdk_window'};	
+			$self->{_c}{'ws'} = $self->{_root};	
 
 			#and select current subwindow
-			$self->select_window($initevent, $active_workspace);
+			$self->select_window($initevent);
 		
 		}	
 
-		#A short timeout to give the server a chance to
-		#redraw the area
-		Glib::Timeout->add (400, sub{
-			
-			my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = 
-				$self->get_pixbuf_from_drawable(
-					$self->{_root},
-					$self->{_c}{'cw'}{'x'},
-					$self->{_c}{'cw'}{'y'},
-					$self->{_c}{'cw'}{'width'},
-					$self->{_c}{'cw'}{'height'}
-				);
-	
-			#save return value to current $output variable 
-			#-> ugly but fastest and safest solution now
-			$output = $output_new;
-										
-			#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
+		my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = 
+			$self->get_pixbuf_from_drawable(
+				$self->{_root},
+				$self->{_c}{'cw'}{'x'},
+				$self->{_c}{'cw'}{'y'},
+				$self->{_c}{'cw'}{'width'},
+				$self->{_c}{'cw'}{'height'},
+				$self->{_c}{'cw'}{'window_region'}
+			);
+
+		#save return value to current $output variable 
+		#-> ugly but fastest and safest solution now
+		$output = $output_new;
+
+		#respect rounded corners of wm decorations 
+		#(metacity for example - does not work with compiz currently)
+		#only if toplevel window was selected
+		if ( ( $self->{_mode} eq "window" || $self->{_mode} eq "tray_window" ) ) {
 			if($self->{_x11}{ext_shape} && $self->{_include_border}){
 				my $xid = $self->{_c}{ 'cw' }{ 'gdk_window' }->get_xid;
 				#do not try this for child windows
@@ -935,18 +986,37 @@ sub window {
 					}
 				}
 			}
-	
-			#set name of the captured window
-			#e.g. for use in wildcards
-			if($output =~ /Gtk2/){
-				#~ $output->{'name'} = $self->{_c}{'cw'}{'window'}->get_name;
-			}
-	
-			$self->quit;
-			return FALSE;	
-		});
+		}
+
+		#set name of the captured window
+		#e.g. for use in wildcards
+		my $d = $self->{_sc}->get_gettext;
 		
-		Gtk2->main;	
+		if ( ( $self->{_mode} eq "window" || $self->{_mode} eq "tray_window" ) ) {
+
+			if($output =~ /Gtk2/ && defined $self->{_c}{'cw'}{'window'}){
+				$output->{'name'} = $self->{_c}{'cw'}{'window'}->get_name;
+			}
+
+		}elsif ( ( $self->{_mode} eq "menu" || $self->{_mode} eq "tray_menu" ) ) {
+
+			if($output =~ /Gtk2/){
+				$output->{'name'} = $d->get( "menu" );
+			}
+
+		}elsif ( ( $self->{_mode} eq "tooltip" || $self->{_mode} eq "tray_tooltip" ) ) {
+
+			if($output =~ /Gtk2/){
+				$output->{'name'} = $d->get( "tooltip" );
+			}
+
+		}elsif ( ( $self->{_mode} eq "section" || $self->{_mode} eq "tray_section" ) ) {
+
+			if($output =~ /Gtk2/ && defined $self->{_c}{'cw'}{'window'}){
+				$output->{'name'} = $output->{'name'} = $self->{_c}{'cw'}{'window'}->get_name;
+			}
+		
+		}
 		
 	}
 	return $output;
