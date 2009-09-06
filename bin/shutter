@@ -459,6 +459,7 @@ my $cursor_box          = Gtk2::HBox->new( FALSE, 0 );
 #advanced
 my $actions_vbox        = Gtk2::VBox->new( FALSE, 0 );
 my $window_capture_vbox = Gtk2::VBox->new( FALSE, 0 );
+my $menu_capture_vbox   = Gtk2::VBox->new( FALSE, 0 );
 my $web_capture_vbox    = Gtk2::VBox->new( FALSE, 0 );
 
 my $progname_box        = Gtk2::HBox->new( FALSE, 0 );
@@ -469,6 +470,7 @@ my $thumbnail_box       = Gtk2::HBox->new( FALSE, 0 );
 my $thumbnail_box2      = Gtk2::HBox->new( FALSE, 0 );
 my $border_box          = Gtk2::HBox->new( FALSE, 0 );
 my $visible_windows_box = Gtk2::HBox->new( FALSE, 0 );
+my $menu_delay_box      = Gtk2::HBox->new( FALSE, 0 );
 my $web_width_box       = Gtk2::HBox->new( FALSE, 0 );
 
 #behavior
@@ -701,6 +703,13 @@ $window_capture_frame_label->set_markup( "<b>" . $d->get("Window Capture") . "</
 my $window_capture_frame = Gtk2::Frame->new();
 $window_capture_frame->set_label_widget($window_capture_frame_label);
 $window_capture_frame->set_shadow_type('none');
+
+my $menu_capture_frame_label = Gtk2::Label->new;
+$menu_capture_frame_label->set_markup( "<b>" . $d->get("Menu Capture") . "</b>" );
+
+my $menu_capture_frame = Gtk2::Frame->new();
+$menu_capture_frame->set_label_widget($menu_capture_frame_label);
+$menu_capture_frame->set_shadow_type('none');
 
 my $web_capture_frame_label = Gtk2::Label->new;
 $web_capture_frame_label->set_markup( "<b>" . $d->get("Website Capture") . "</b>" );
@@ -1142,6 +1151,30 @@ if ( defined $settings_xml->{'general'}->{'visible_windows'} ) {
 #end - visible windows only
 #--------------------------------------
 
+#menu capture delay
+#--------------------------------------
+my $menu_delay = Gtk2::HScale->new_with_range( 1, 20, 1 );
+$menu_delay->signal_connect(
+	'value-changed' => \&evt_value_changed,
+	'menu_delay_changed'
+);
+$menu_delay->set_value_pos('right');
+
+if ( defined $settings_xml->{'general'}->{'menu_delay'} ) {
+	$menu_delay->set_value( $settings_xml->{'general'}->{'menu_delay'} );
+} else {
+	$menu_delay->set_value(10);
+}
+
+my $menu_delay_label = Gtk2::Label->new( $d->get("Menu Capture Delay") . ":" );
+$tooltips->set_tip( $menu_delay,        $d->get("Capture menu after a delay of n seconds") );
+$tooltips->set_tip( $menu_delay_label,  $d->get("Capture menu after a delay of n seconds") );
+$menu_delay_box->pack_start	( $menu_delay_label, FALSE, TRUE, 12 );
+$menu_delay_box->pack_start	( $menu_delay, TRUE, TRUE, 0 );
+
+#end - menu capture delay
+#--------------------------------------
+
 #web width
 #--------------------------------------
 my $combobox_web_width = Gtk2::ComboBox->new_text;
@@ -1466,6 +1499,9 @@ $window_capture_vbox->pack_start( $border_box, FALSE, TRUE, 3 );
 $window_capture_vbox->pack_start( $visible_windows_box, FALSE, TRUE, 3 );
 $window_capture_frame->add($window_capture_vbox);
 
+$menu_capture_vbox->pack_start( $menu_delay_box, TRUE, TRUE, 3 );
+$menu_capture_frame->add($menu_capture_vbox);
+
 $web_capture_vbox->pack_start( $web_width_box, FALSE, TRUE, 3 );
 $web_capture_frame->add($web_capture_vbox);
 
@@ -1473,16 +1509,19 @@ $web_capture_frame->add($web_capture_vbox);
 $progname_label->set_alignment( 0, 0.5 );
 $im_colors_label->set_alignment( 0, 0.5 );
 $thumbnail_label->set_alignment( 0, 0.5 );
+$menu_delay_label->set_alignment( 0, 0.5 );
 $web_width_label->set_alignment( 0, 0.5 );
 
 my $sg_adv = Gtk2::SizeGroup->new('horizontal');
 $sg_adv->add_widget($progname_label);
 $sg_adv->add_widget($im_colors_label);
 $sg_adv->add_widget($thumbnail_label);
+$sg_adv->add_widget($menu_delay_label);
 $sg_adv->add_widget($web_width_label);
 
 $vbox_extras->pack_start( $actions_frame, FALSE, TRUE, 3 );
 $vbox_extras->pack_start( $window_capture_frame, FALSE, TRUE, 3 );
+$vbox_extras->pack_start( $menu_capture_frame, FALSE, TRUE, 3 );
 $vbox_extras->pack_start( $web_capture_frame, FALSE, TRUE, 3 );
 $vbox_extras->set_border_width(5);
 
@@ -1750,53 +1789,58 @@ sub evt_take_screenshot {
 		&fct_control_signals('unblock');
 	}else{
 
-		if ( $data eq "menu" || $data eq "tray_menu" ){
+		if ( $data eq "menu" || 
+			 $data eq "tray_menu" ||
+			 $data eq "tooltip" ||
+			 $data eq "tray_tooltip" ){
+							 
 			#show notification messages
 			#displaying the countdown
-			if(7){
-				my $notify 	= $sc->get_notification_object;
-				my $ttw 	= 7;
-		
-				#first notification immediately
-				$notify->show( sprintf($d->nget("Screenshot will be taken in %s second", "Screenshot will be taken in %s seconds", $ttw) , $ttw), "" );
-				$ttw--;
-				
-				#delay is only 1 second
-				#do not show any further messages
-				if($ttw >= 1){
-					#then controlled via timeout
-					Glib::Timeout->add (1000, sub{
-						$notify->show( sprintf($d->nget("Screenshot will be taken in %s second", "Screenshot will be taken in %s seconds", $ttw) , $ttw), "" );
-						$ttw--;
-						if($ttw == 0){			
-							
-							#close last message with a short delay (less than a second)
-							Glib::Timeout->add (500, sub{
-								$notify->close;
-								return FALSE;	
-							});	
-							
-							return FALSE;
-							
-						}else{
-							
-							return TRUE;	
-						
-						}	
-					});
-				}else{
-					#close last message with a short delay (less than a second)
-					Glib::Timeout->add (500, sub{
-						$notify->close;
-						return FALSE;	
-					});				
-				}	
+			my $notify 	= $sc->get_notification_object;
+			my $ttw 	= $menu_delay->get_value;
+	
+			#first notification immediately
+			$notify->show( sprintf($d->nget("Screenshot will be taken in %s second", "Screenshot will be taken in %s seconds", $ttw) , $ttw), 
+						   $d->get("Please open the desired menu") 
+						 );
+			$ttw--;
 			
+			#delay is only 1 second
+			#do not show any further messages
+			if($ttw >= 1){
+				#then controlled via timeout
+				Glib::Timeout->add (1000, sub{
+					$notify->show( sprintf($d->nget("Screenshot will be taken in %s second", "Screenshot will be taken in %s seconds", $ttw) , $ttw), 
+								   $d->get("Please open the desired menu") 
+								 );
+					$ttw--;
+					if($ttw == 0){			
+						
+						#close last message with a short delay (less than a second)
+						Glib::Timeout->add (500, sub{
+							$notify->close;
+							return FALSE;	
+						});	
+						
+						return FALSE;
+						
+					}else{
+						
+						return TRUE;	
+					
+					}	
+				});
+			}else{
+				#close last message with a short delay (less than a second)
+				Glib::Timeout->add (500, sub{
+					$notify->close;
+					return FALSE;	
+				});				
 			}	
 			
 			#A short timeout to give the server a chance to
 			#redraw the area that was obscured by our dialog.
-			Glib::Timeout->add (7000, sub{
+			Glib::Timeout->add ($menu_delay->get_value * 1000, sub{
 				&fct_take_screenshot($widget, $data, $folder_from_config);
 				#unblock signal handler
 				&fct_control_signals('unblock');
@@ -2927,6 +2971,7 @@ sub fct_save_settings {
 	$settings{'general'}->{'thumbnail_active'} = $thumbnail_active->get_active();
 	$settings{'general'}->{'border'}           = $border_active->get_active();
 	$settings{'general'}->{'visible_windows'}  = $visible_windows_active->get_active();
+	$settings{'general'}->{'menu_delay'}  	   = $menu_delay->get_value();
 	$settings{'general'}->{'web_width'}        = $combobox_web_width->get_active();
 
 	#behavior
@@ -3244,6 +3289,7 @@ sub fct_load_settings {
 				
 				$border_active->set_active( $settings_xml->{'general'}->{'border'} );
 				$visible_windows_active->set_active( $settings_xml->{'general'}->{'visible_windows'} );
+				$menu_delay->set_value( $settings_xml->{'general'}->{'menu_delay'} );
 				$combobox_web_width->set_active( $settings_xml->{'general'}->{'web_width'} );
 
 				#behavior
@@ -4171,6 +4217,18 @@ sub fct_take_screenshot {
 		if ( $screenshot == 5 ) {
 			&dlg_status_message( 1, $d->get("Capture aborted by user") );
 			&fct_control_main_window( TRUE, 'show', $present_after_active->get_active);
+			return FALSE;
+
+		#keyboard could not be grabbed
+		}elsif( $screenshot == 1 ) {
+
+			my $response = $sd->dlg_error_message( 
+				$d->get( "Keyboard could not be grabbed." ),
+				$d->get( "Error while taking the screenshot." )
+			);
+				
+			&dlg_status_message( 1, $d->get("Error while taking the screenshot.") );
+			&fct_control_main_window( TRUE, 'show');
 			return FALSE;
 
 		#no window with type xy detected

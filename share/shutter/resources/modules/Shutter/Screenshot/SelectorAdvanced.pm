@@ -217,7 +217,6 @@ sub select_advanced {
 	#~ $self->{_view}->set_tool($self->{_selector});
 
 	$self->{_select_window} = Gtk2::Window->new('popup');
-	$self->{_select_window}->set_accept_focus(TRUE);
 	$self->{_select_window}->set_decorated(FALSE);
 	$self->{_select_window}->set_skip_taskbar_hint(TRUE);
 	$self->{_select_window}->set_skip_pager_hint(TRUE);
@@ -247,7 +246,7 @@ sub select_advanced {
 
 			my $s = $self->{_selector}->get_selection;				
 			
-			print $event->type, "\n";
+			#~ print $event->type, "\n";
 							
 			#handle button-release event
 			#we simulate a 2button-press here
@@ -376,11 +375,15 @@ sub select_advanced {
 		}
 	);
 	
-
 	#finally focus it
-	Gtk2::Gdk->keyboard_grab( $self->{_select_window}->window, 1, Gtk2->get_current_event_time );
+	my $status = Gtk2::Gdk->keyboard_grab( $self->{_select_window}->window, 0, Gtk2->get_current_event_time );
 	
-	Gtk2->main();
+	if($status eq 'success'){	
+		Gtk2->main();
+	}else{
+		$output = 1;
+		$self->{_select_window}->destroy;
+	}
 
 	return $output;
 }
@@ -418,7 +421,7 @@ sub take_screenshot {
 sub quit {
 	my $self = shift;
 	
-	$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
+	$self->ungrab_pointer_and_keyboard( FALSE, FALSE, TRUE );
 	$self->{_selector}->signal_handler_disconnect ($self->{_selector_handler});
 	$self->{_view}->signal_handler_disconnect ($self->{_view_zoom_handler});
 	$self->{_select_window}->destroy;
