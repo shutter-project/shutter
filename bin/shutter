@@ -61,8 +61,7 @@ use XML::Simple;
 #DBus message system
 use Net::DBus qw/ dbus_string /;
 
-#Handy web browsing in a Perl object and HTTP Status code processing
-use WWW::Mechanize;
+#HTTP Status code processing
 use HTTP::Status;
 
 #timing issues
@@ -181,9 +180,7 @@ my $window 	= Gtk2::Window->new('toplevel');
 #--------------------------------------
 my $sc 		= Shutter::App::Common->new($shutter_root);
 $sc->set_mainwindow($window);
-$sc->set_notification_object(
-	Shutter::App::Notification->new(SHUTTER_NAME . " " . SHUTTER_VERSION)
-);
+$sc->set_notification_object(Shutter::App::Notification->new(SHUTTER_NAME . " " . SHUTTER_VERSION));
 
 my $shf		= Shutter::App::HelperFunctions->new($sc);
 my $sm  	= Shutter::App::Menu->new($sc);
@@ -203,9 +200,6 @@ my $d = $sc->get_gettext;
 
 #Page Setup
 my $pagesetup = undef;
-
-#Icontheme
-my $icontheme = $sc->get_theme;
 
 #Tooltips
 my $tooltips = $sc->get_tooltips;
@@ -266,9 +260,10 @@ $window->set_resizable(TRUE);
 $window->set_focus_on_map(TRUE);
 $window->set_default_size( -1, 500 );
 
-#TRAY ICON
-my $icon                 = undef;
-my $icon_box			 = undef; #Gtk2::TrayIcon needs and Gtk2::EventBox 
+#TRAY ICON AND MENU
+my $tray                 = undef;
+my $tray_box			 = undef; #Gtk2::TrayIcon needs and Gtk2::EventBox 
+my $tray_menu			 = &fct_ret_tray_menu;
 
 my $current_profile_indx = 0;
 my $is_hidden            = TRUE;
@@ -333,11 +328,13 @@ $sm->{_menuitem_close}->signal_connect( 'activate', sub { &fct_remove(undef); },
 $sm->{_menuitem_close_all}->signal_connect( 'activate', sub { &fct_remove_all(); }, 'menu_close_all' );
 $sm->{_menuitem_quit}->signal_connect( 'activate', \&evt_delete_window, 'quit' );
 
+$sm->{_menuitem_undo}->signal_connect( 'activate', \&fct_undo );
+$sm->{_menuitem_redo}->signal_connect( 'activate', \&fct_redo );
 $sm->{_menuitem_copy}->signal_connect( 'activate', \&fct_clipboard, 'image' );
 $sm->{_menuitem_copy_filename}->signal_connect( 'activate', \&fct_clipboard, 'text' );
 $sm->{_menuitem_trash}->signal_connect( 'activate', \&fct_delete );
 $sm->{_menuitem_select_all}->signal_connect( 'activate', \&fct_select_all );
-$sm->{_menuitem_settings}->signal_connect( 'activate', \&evt_show_settings, 'exp_settings_menu' );
+$sm->{_menuitem_settings}->signal_connect( 'activate', \&evt_show_settings );
 
 $sm->{_menuitem_zoom_in}->signal_connect( 'activate', \&fct_zoom_in );
 $sm->{_menuitem_zoom_out}->signal_connect( 'activate', \&fct_zoom_out );
@@ -386,44 +383,37 @@ $sm->{_menuitem_about}->signal_connect( 'activate', \&evt_about, $window );
 #--------------------------------------
 #command line param set to disable tray icon?
 unless ( $sc->get_disable_systray ) {
+		
+	if ( Gtk2->CHECK_VERSION( 2, 10, 0 ) ) {
+		$tray = Gtk2::StatusIcon->new();
+		
+		$tray->set_from_file("$shutter_root/share/pixmaps/shutter.svg");
+		$tray->set_visible(1);
+		$tray->{'hid'} = $tray->signal_connect(
+			'popup-menu' => sub { &evt_show_systray_statusicon; },
+			$tray
+		);
+		$tray->{'hid2'} = $tray->signal_connect(
+			'activate' => sub {
+				&evt_activate_systray_statusicon;
+				$tray;
+			},
+			$tray
+		);
+	} else {
+		#eventbox with shutter logo
+		my $tray_image = Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/pixmaps/shutter.svg", 24, 24 ) );	
+		$tray_box = Gtk2::EventBox->new;
+		$tray_box->add($tray_image);
 
-	#do this when idle
-	Glib::Idle->add (
-	sub{
-		
-		if ( Gtk2->CHECK_VERSION( 2, 10, 0 ) ) {
-			$icon = Gtk2::StatusIcon->new();
-			
-			$icon->set_from_file("$shutter_root/share/pixmaps/shutter.svg");
-			$icon->set_visible(1);
-			$icon->{'hid'} = $icon->signal_connect(
-				'popup-menu' => sub { &evt_show_systray_statusicon; },
-				$icon
-			);
-			$icon->{'hid2'} = $icon->signal_connect(
-				'activate' => sub {
-					&evt_activate_systray_statusicon;
-					$icon;
-				},
-				$icon
-			);
-			$icon->set_tooltip( SHUTTER_NAME . " " . SHUTTER_VERSION );
-		} else {
-			require Gtk2::TrayIcon;
-			$icon = Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/pixmaps/shutter.svg", 24, 24 ) );
-			
-			$icon_box = Gtk2::EventBox->new;
-			$icon_box->add($icon);
-			
-			my $tray = Gtk2::TrayIcon->new('Shutter TrayIcon');
-			$tray->add($icon_box);
-			$tooltips->set_tip( $tray, SHUTTER_NAME . " " . SHUTTER_VERSION );
-			$icon_box->{'hid'} = $icon_box->signal_connect( 'button_release_event', \&evt_show_systray );
-			$tray->show_all;
-		}
-		
-		return FALSE;
-	});
+		#tray icon
+		require Gtk2::TrayIcon;		
+		$tray = Gtk2::TrayIcon->new('Shutter TrayIcon');
+		$tray->add($tray_box);
+		$tray_box->{'hid'} = $tray_box->signal_connect( 'button_release_event', \&evt_show_systray );
+		$tray->show_all;
+	}
+
 }
 
 #--------------------------------------
@@ -1662,7 +1652,7 @@ unless ( $sc->get_min ) {
 }
 
 #update the first tab on startup
-&fct_update_first_tab();
+&fct_update_first_tab_and_tray;
 
 #load saved settings
 #--------------------------------------
@@ -1901,26 +1891,41 @@ sub evt_notebook_switch {
 		sub{
 
 			foreach (keys %session_screens){
+				#set pixbuf for current item
 				if ($_ eq $key){
 					if($session_screens{$key}->{'long'}){
-						eval{
-							$session_screens{$_}->{'image'}->set_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} ));								
+						#do nothing if
+						#the view does already show a pixbuf
+						unless($session_screens{$_}->{'image'}->get_pixbuf){
+							#change window title
+							$window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
+							eval{
+								#~ print "setting ", $_, "\n";
+								$session_screens{$_}->{'image'}->set_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} ));								
+							}
 						}
 					}
 					next;
 				}
-				eval{
-					$session_screens{$_}->{'image'}->set_pixbuf(undef);
-				};
-				if($@){
-					delete $session_screens{$_};
-					next;	
+				#unset imageview for all other items
+				if($session_screens{$_}->{'image'}->get_pixbuf){
+					eval{
+						#~ print "unsetting ", $_, "\n";
+						$session_screens{$_}->{'image'}->set_pixbuf(undef);
+					};
+					if($@){
+						delete $session_screens{$_};
+						next;	
+					}
 				}
 			}
 
 			return FALSE;
 		});			
 		
+	}else{
+		#change window title
+		$window->set_title($d->get("Session")." - ".SHUTTER_NAME);		
 	}	
 
 	#unselect all items in session tab
@@ -1930,7 +1935,7 @@ sub evt_notebook_switch {
 	}
 
 	#enable/disable menu entry when we switch tabs		
-	&fct_update_actions($int);
+	&fct_update_actions($int, $key);
 
 	return TRUE;
 }
@@ -2053,8 +2058,6 @@ sub evt_show_systray {
 	#right button (mouse)
 	elsif ( $_[1]->button == 3 ) {
 
-		my $tray_menu = &fct_ret_tray_menu;
-
 		$tray_menu->popup(
 			undef,    # parent menu shell
 			undef,    # parent menu item
@@ -2068,18 +2071,16 @@ sub evt_show_systray {
 }
 
 sub evt_show_systray_statusicon {
-	my ( $widget, $button, $time, $icon ) = @_;
+	my ( $widget, $button, $time, $tray ) = @_;
 	if ( $sc->get_debug ) {
 		print "\n$button, $time was emitted by widget $widget\n";
 	}
-
-	my $tray_menu = &fct_ret_tray_menu;
 
 	$tray_menu->popup(
 		undef,    # parent menu shell
 		undef,    # parent menu item
 		sub {
-			return Gtk2::StatusIcon::position_menu( $tray_menu, 0, 0, $icon );
+			return Gtk2::StatusIcon::position_menu( $tray_menu, 0, 0, $tray );
 		},        # menu pos func
 		undef,    # data
 		$time ? $button : 0,
@@ -2089,7 +2090,7 @@ sub evt_show_systray_statusicon {
 }
 
 sub evt_activate_systray_statusicon {
-	my ( $widget, $data, $icon ) = @_;
+	my ( $widget, $data, $tray ) = @_;
 	if ( $sc->get_debug ) {
 		print "\n$data was emitted by widget $widget\n";
 	}
@@ -2162,7 +2163,7 @@ sub evt_iconview_button_press {
 }
 
 sub evt_iconview_sel_changed {
-	my ( $iconview, $data ) = @_;
+	my ( $trayview, $data ) = @_;
 
 	#we don't handle selection changes 
 	#if we are not in the session tab
@@ -2171,7 +2172,7 @@ sub evt_iconview_sel_changed {
 		return FALSE; 		
 	}
 
-	my @sel_items = $iconview->get_selected_items;	
+	my @sel_items = $trayview->get_selected_items;	
 	
 	#enable/disable menu entry when we are in the session tab and selection changes
 	&fct_update_actions( scalar @sel_items );
@@ -2181,6 +2182,7 @@ sub evt_iconview_sel_changed {
 
 sub fct_update_actions {
 	my $n_items = shift;
+	my $key 	= shift;
 
 	#TOOLBAR
 	#--------------------------------------
@@ -2196,6 +2198,24 @@ sub fct_update_actions {
 
 	#MENU
 	#--------------------------------------
+	#undo and redo
+	if(defined $key && $key){
+		if($n_items && defined @{$session_screens{$key}->{'undo'}} && scalar @{$session_screens{$key}->{'undo'}} > 1){
+			$sm->{_menuitem_undo}->set_sensitive(TRUE);			
+		}else{
+			$sm->{_menuitem_undo}->set_sensitive(FALSE);
+		}
+	}	
+
+	if(defined $key && $key){
+		if($n_items && defined @{$session_screens{$key}->{'redo'}} && scalar @{$session_screens{$key}->{'redo'}} > 0){
+			$sm->{_menuitem_redo}->set_sensitive(TRUE);			
+		}else{
+			$sm->{_menuitem_redo}->set_sensitive(FALSE);
+		}
+	}
+
+	#other items
 	$sm->{_menuitem_reopen_default}->visible($n_items);
 	$sm->{_menuitem_reopen_default}->set_sensitive($n_items);
 	$sm->{_menuitem_reopen}->set_sensitive($n_items);
@@ -2226,7 +2246,7 @@ sub fct_update_actions {
 }
 
 sub evt_iconview_item_activated {
-	my ( $iconview, $path, $data ) = @_;
+	my ( $trayview, $path, $data ) = @_;
 
 	my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
 	my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
@@ -2268,7 +2288,7 @@ sub fct_post_settings {
 	
 	#we need to update the first tab here
 	#because the profile might have changed
-	&fct_update_first_tab();
+	&fct_update_first_tab_and_tray;
 
 	return TRUE;
 }
@@ -2453,7 +2473,7 @@ sub evt_apply_profile {
 		&fct_update_quick_profile_selector($combobox_settings_profiles, $current_profiles_ref);	
 	}
 	
-	&fct_update_first_tab();
+	&fct_update_first_tab_and_tray;
 	
 	return TRUE;
 }
@@ -2602,16 +2622,16 @@ sub fct_control_signals {
 		$SIG{RTMAX} = 'IGNORE';
 	
 		#and block status icon handler
-		if ( $icon && $icon->isa('Gtk2::StatusIcon') ) {
-			if($icon->signal_handler_is_connected($icon->{'hid'})){
-				$icon->signal_handler_block($icon->{'hid'});
+		if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
+			if($tray->signal_handler_is_connected($tray->{'hid'})){
+				$tray->signal_handler_block($tray->{'hid'});
 			}
-			if($icon->signal_handler_is_connected($icon->{'hid2'})){
-				$icon->signal_handler_block($icon->{'hid2'});
+			if($tray->signal_handler_is_connected($tray->{'hid2'})){
+				$tray->signal_handler_block($tray->{'hid2'});
 			}
-		}elsif($icon){
-			if($icon_box->signal_handler_is_connected($icon_box->{'hid'})){
-				$icon_box->signal_handler_block($icon_box->{'hid'});
+		}elsif($tray){
+			if($tray_box->signal_handler_is_connected($tray_box->{'hid'})){
+				$tray_box->signal_handler_block($tray_box->{'hid'});
 			}
 		}		
 
@@ -2624,16 +2644,16 @@ sub fct_control_signals {
 		$SIG{RTMAX} = sub { &evt_take_screenshot( 'global_keybinding', 'section' ) };
 			
 		#and unblock status icon handler
-		if ( $icon && $icon->isa('Gtk2::StatusIcon') ) {
-			if($icon->signal_handler_is_connected($icon->{'hid'})){
-				$icon->signal_handler_unblock($icon->{'hid'});
+		if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
+			if($tray->signal_handler_is_connected($tray->{'hid'})){
+				$tray->signal_handler_unblock($tray->{'hid'});
 			}
-			if($icon->signal_handler_is_connected($icon->{'hid2'})){
-				$icon->signal_handler_unblock($icon->{'hid2'});
+			if($tray->signal_handler_is_connected($tray->{'hid2'})){
+				$tray->signal_handler_unblock($tray->{'hid2'});
 			}
-		}elsif($icon){
-			if($icon_box->signal_handler_is_connected($icon_box->{'hid'})){
-				$icon_box->signal_handler_unblock($icon_box->{'hid'});
+		}elsif($tray){
+			if($tray_box->signal_handler_is_connected($tray_box->{'hid'})){
+				$tray_box->signal_handler_unblock($tray_box->{'hid'});
 			}
 		}	
 
@@ -3388,7 +3408,7 @@ sub fct_load_settings {
 sub fct_get_program_model {
 	my $model = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::Scalar' );
 
-	my $icontheme = Gtk2::IconTheme->get_for_screen( Gtk2::Gdk::Screen->get_default );
+	my $traytheme = Gtk2::IconTheme->get_for_screen( Gtk2::Gdk::Screen->get_default );
 
 	#FIXME - use png as default mime type (is this clever enough?)
 	my ( $default, @mapps ) = File::MimeInfo::Applications::mime_applications('image/png');
@@ -3424,21 +3444,21 @@ sub fct_get_program_model {
 			#I think so ;-)
 			$app->{'id'} =~ s/^(kde4|kde)-//g;
 			if($mapp->{'file'} =~ m/$app->{'id'}/){
-				my $icon_pixbuf;
-				my $icon_name = $mapp->Icon;
-				if($icon_name){
+				my $tray_pixbuf;
+				my $tray_name = $mapp->Icon;
+				if($tray_name){
 					#cut image formats
-					$icon_name =~ s/(.png|.svg|.gif|.jpeg|.jpg)//g;				
-					if ( $icontheme->has_icon( $icon_name ) ) {
+					$tray_name =~ s/(.png|.svg|.gif|.jpeg|.jpg)//g;				
+					if ( $traytheme->has_icon( $tray_name ) ) {
 						my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
-						$icon_pixbuf = $icontheme->load_icon( $icon_name, $ih, 'generic-fallback' );
+						$tray_pixbuf = $traytheme->load_icon( $tray_name, $ih, 'generic-fallback' );
 					}else{
-						$icon_pixbuf = undef;	
+						$tray_pixbuf = undef;	
 					}
 				}else{
-					$icon_pixbuf = undef;
+					$tray_pixbuf = undef;
 				}
-				$model->set( $model->append, 0, $icon_pixbuf, 1, $app->{'name'}, 2, $mapp );
+				$model->set( $model->append, 0, $tray_pixbuf, 1, $app->{'name'}, 2, $mapp );
 				last;
 			}	
 		}
@@ -3551,8 +3571,8 @@ sub fct_open_files {
 		$open_progress->set_text($new_uri->to_string);
 
 		#refresh tray icon
-		if ( $icon && $icon->isa('Gtk2::StatusIcon') ) {
-			$icon->set_blinking(TRUE);
+		if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
+			$tray->set_blinking(TRUE);
 		}
 
 		#refresh gui
@@ -3566,8 +3586,8 @@ sub fct_open_files {
 	$open_dialog->response('ok');
 
 	#refresh tray icon
-	if ( $icon && $icon->isa('Gtk2::StatusIcon') ) {
-		$icon->set_blinking(FALSE);
+	if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
+		$tray->set_blinking(FALSE);
 	}
 
 	return TRUE;
@@ -3617,8 +3637,8 @@ sub fct_load_session {
 			$restore_progress->set_text( ${$session_xml}{$_}{'filename'} );
 
 			#refresh tray icon
-			if ( $icon && $icon->isa('Gtk2::StatusIcon') ) {
-				$icon->set_blinking(TRUE);
+			if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
+				$tray->set_blinking(TRUE);
 			}
 
 			#refresh gui
@@ -3633,8 +3653,8 @@ sub fct_load_session {
 		$restore_dialog->response('ok');
 
 		#refresh tray icon
-		if ( $icon && $icon->isa('Gtk2::StatusIcon') ) {
-			$icon->set_blinking(FALSE);			
+		if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
+			$tray->set_blinking(FALSE);			
 		}
 		
 	};
@@ -3644,8 +3664,8 @@ sub fct_load_session {
 		unlink $sessionfile;
 
 		#refresh tray icon
-		if ( $icon && $icon->isa('Gtk2::StatusIcon') ) {
-			$icon->set_blinking(FALSE);
+		if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
+			$tray->set_blinking(FALSE);
 		}
 
 	}
@@ -3767,7 +3787,7 @@ sub fct_delete {
 
 	}
 
-	&fct_update_first_tab;
+	&fct_update_first_tab_and_tray;
 
 	return TRUE;
 }
@@ -3793,7 +3813,7 @@ sub fct_remove_all {
 	&dlg_status_message( 1, $d->get("All screenshots removed") );
 	$window->show_all unless $is_hidden;
 
-	&fct_update_first_tab;
+	&fct_update_first_tab_and_tray;
 
 	return TRUE;
 }
@@ -3867,7 +3887,7 @@ sub fct_remove {
 
 	}
 
-	&fct_update_first_tab;
+	&fct_update_first_tab_and_tray;
 
 	return TRUE;
 }
@@ -3900,6 +3920,110 @@ sub fct_clipboard {
 		}
 			
 		&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("copied to clipboard") );
+
+	}
+	return TRUE;
+}
+
+sub fct_undo {
+
+	my $key = &fct_get_current_file;
+
+	#single file
+	if ($key) {
+
+		return FALSE unless &fct_screenshot_exists($key);
+
+		#push current version to redo
+		#(current version is always the last element in the array)
+		my $current_version = pop @{$session_screens{$key}->{'undo'}};
+		push @{$session_screens{$key}->{'redo'}}, $current_version;				
+
+		#and revert last version
+		my $last_version = pop @{$session_screens{$key}->{'undo'}};
+		if($last_version){
+
+			#cancel handle
+			if ( exists $session_screens{$key}->{'handle'} ) {
+				$session_screens{$key}->{'handle'}->cancel;
+			}
+
+			if (cp($last_version, $session_screens{$key}->{'long'})){
+		
+				&fct_update_tab( $key, undef, $session_screens{$key}->{'uri'} );
+
+				#setup a new filemonitor, so we get noticed if the file changed
+				&fct_add_file_monitor($key);	
+
+				&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("reverted") );
+			}else{
+
+				my $response = $sd->dlg_error_message(
+					sprintf( $d->get(  "Error while copying last version (%s)."), "'" . $last_version . "'"),
+					sprintf( $d->get(  "There was an error performing unddo on %s."), "'" . $session_screens{$key}->{'long'} . "'" ),
+					undef, undef, undef,
+					undef, undef, undef,
+					$@
+				);	
+				
+			}	
+
+		}else{
+
+			print "No last version found (undo)...", "\n";			
+		
+		}
+
+	}
+	return TRUE;
+}
+
+sub fct_redo {
+
+	my $key = &fct_get_current_file;
+
+	#single file
+	if ($key) {
+
+		return FALSE unless &fct_screenshot_exists($key);
+
+		#and revert last version
+		my $last_version = pop @{$session_screens{$key}->{'redo'}};
+		#~ push @{$session_screens{$key}->{'undo'}}, $last_version;
+			
+		if($last_version){
+
+			#cancel handle
+			if ( exists $session_screens{$key}->{'handle'} ) {
+				$session_screens{$key}->{'handle'}->cancel;
+			}
+
+			if (cp($last_version, $session_screens{$key}->{'long'})){
+		
+				&fct_update_tab( $key, undef, $session_screens{$key}->{'uri'} );
+
+				#setup a new filemonitor, so we get noticed if the file changed
+				&fct_add_file_monitor($key);	
+
+				&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("redo performed") );
+				
+			}else{
+
+				my $response = $sd->dlg_error_message(
+					sprintf( $d->get(  "Error while copying last version (%s)."), "'" . $last_version . "'"),
+					sprintf( $d->get(  "There was an error performing redo on %s."), "'" . $session_screens{$key}->{'long'} . "'" ),
+					undef, undef, undef,
+					undef, undef, undef,
+					$@
+				);	
+		
+			}
+
+		}else{
+			
+			print "No last version found (redo)...", "\n";			
+	
+		}
 
 	}
 	return TRUE;
@@ -4706,7 +4830,7 @@ sub fct_execute_plugin {
 	return TRUE;
 }
 
-sub fct_update_first_tab {
+sub fct_update_first_tab_and_tray {
 
 	#FILE INFOS
 	#--------------------------------------			
@@ -4722,6 +4846,20 @@ sub fct_update_first_tab {
 	}
 	$session_start_screen{'first_page'}->{'size_counter'}
 		->set_text( $d->get("Total size") . ": " . $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display($total_size) ) );
+
+	#FILE INFOS
+	#--------------------------------------	
+	if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
+		if($session_start_screen{'first_page'}->{'statistics_counter'}->get_text && $combobox_settings_profiles->get_active_text){
+			$tray->set_tooltip( $session_start_screen{'first_page'}->{'statistics_counter'}->get_text .
+								"\n\n".
+								$d->get("Current Profile") . ": " . $combobox_settings_profiles->get_active_text );
+		}else{
+			$tray->set_tooltip(SHUTTER_NAME . " " . SHUTTER_VERSION);	
+		}
+	} elsif ( $tray && $tray->isa('Gtk2::TrayIcon') ) {
+		$tooltips->set_tip( $tray, SHUTTER_NAME . " " . SHUTTER_VERSION );
+	}
 
 	#SESSION AND SETTINGS INFO
 	#--------------------------------------		
@@ -4809,9 +4947,27 @@ sub fct_update_quick_profile_selector {
 
 	#populate quick selector as well
 	if(scalar @{$current_profiles_ref} > 0){
-		$sm->{_menuitem_quicks}->set_sensitive(TRUE);
+		#tray menu
+		foreach($tray_menu->get_children){
+			if ($_->get_name eq 'quicks'){
+				$_->set_submenu( fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );
+				$_->set_submenu( fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );					
+				last;
+			}	
+		}
+		#and main menu
+		$sm->{_menuitem_quicks}->set_submenu( fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );
 		$sm->{_menuitem_quicks}->set_submenu( fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );
 	}else{
+		#tray menu
+		foreach($tray_menu->get_children){
+			if ($_->get_name eq 'quicks'){
+				$_->remove_submenu;
+				$_->set_sensitive(FALSE);
+				last;
+			}	
+		}		
+		#and main menu
 		$sm->{_menuitem_quicks}->remove_submenu;
 		$sm->{_menuitem_quicks}->set_sensitive(FALSE);
 	}	
@@ -4821,12 +4977,12 @@ sub fct_update_quick_profile_selector {
 sub fct_update_tab {
 
 	#mandatory
-	my $key = shift;
+	my $key 			= shift;
 	return FALSE unless $key;
 
 	#optional, e.g.used by fct_integrate...
-	my $pixbuf = shift;
-	my $uri    = shift;
+	my $pixbuf 			= shift;
+	my $uri    			= shift;
 
 	$session_screens{$key}->{'uri'}      = $uri if $uri;
 	$session_screens{$key}->{'mtime'} 	 = -1 unless $session_screens{$key}->{'mtime'};
@@ -4854,7 +5010,7 @@ sub fct_update_tab {
 				print "Updating fileinfos REJECTED for key: $key (not modified)\n" if $sc->get_debug;			
 				return TRUE;
 			}
-
+			
 			print "Updating fileinfos for key: $key\n" if $sc->get_debug;
 
 			#FILEINFO
@@ -4889,113 +5045,111 @@ sub fct_update_tab {
 
 			#THUMBNAIL
 			#--------------------------------------
-			eval {
-
-				#maybe we have a pixbuf already (e.g. after taking a screenshot)
-				unless ($pixbuf) {
+			#maybe we have a pixbuf already (e.g. after taking a screenshot)
+			unless ($pixbuf) {
+				eval {
 					$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} );		
+				};
+				if ($@) {
+					#increment error counter 
+					#and go to next try
+					$error_counter++;
+					sleep 1;
+					#we need to reset the modification time
+					#because the change would not be 
+					#recognized otherwise
+					$session_screens{$key}->{'mtime'} = -1;
+					next;
 				}
-
-			};
-			if ($@) {
-
-				#increment error counter 
-				#and go to next try
-				$error_counter++;
-				sleep 1;
-				#we need to reset the modification time
-				#because the change would not be 
-				#recognized otherwise
-				$session_screens{$key}->{'mtime'} = -1;
-				next;
-			
-			}else{
-
-				#setting pixbuf
-				$session_screens{$key}->{'image'}->set_pixbuf( $pixbuf );
-				
-				#UPDATE INFOS WHEN IDLE
-				#--------------------------------------		
-				Glib::Idle->add (sub{
-
-					#get dimensions - using the pixbuf
-					$session_screens{$key}->{'width'}  = $pixbuf->get_width;
-					$session_screens{$key}->{'height'} = $pixbuf->get_height;
-
-					#generate thumbnail if file is not too large
-					#set flag
-					if(	$session_screens{$key}->{'width'} <= 10000 && $session_screens{$key}->{'height'} <= 10000 ){					
-						$session_screens{$key}->{'no_thumbnail'} = FALSE;
-					}else{
-						$session_screens{$key}->{'no_thumbnail'} = TRUE;	
-					}
-
-					#create tempfile
-					#maybe we have to restore the file later
-					my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
-					$session_screens{$key}->{'temp'} = $tmpfilename;				
-					cp($session_screens{$key}->{'long'}, $session_screens{$key}->{'temp'});
-					
-					my $thumb;	
-					unless($session_screens{$key}->{'no_thumbnail'}){
-						#update tab icon - and other GUI Elements
-						$thumb = $sthumb->get_thumbnail(
-							$session_screens{$key}->{'uri'}->to_string,
-							$session_screens{$key}->{'mime_type'},
-							$session_screens{$key}->{'mtime'},
-							0.2
-						);
-						$session_screens{$key}->{'tab_icon'}->set_from_pixbuf( $thumb );
-					}else{
-						$thumb = Gtk2::Gdk::Pixbuf->new ('rgb', TRUE, 8, 5, 5);	
-						$thumb->fill(0x00000000);						
-					}
-
-					$session_screens{$key}->{'filename_label'}->set_text( $session_screens{$key}->{'uri'}->extract_short_name );
-					$tooltips->set_tip( $session_screens{$key}->{'filename_label'}, $session_screens{$key}->{'uri'}->to_string );
-
-					$session_screens{$key}->{'folder_label'}->set_text( $session_screens{$key}->{'uri'}->extract_dirname );
-					$tooltips->set_tip( $session_screens{$key}->{'folder_label'}, $session_screens{$key}->{'uri'}->extract_dirname );
-
-					$session_screens{$key}->{'mime_type_label'}->set_text( $session_screens{$key}->{'mime_type'} );
-
-					$session_screens{$key}->{'size_label'}->set_text( $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display( $session_screens{$key}->{'size'} ) ) );
-
-					$session_screens{$key}->{'geometry_label'}->set_text( $session_screens{$key}->{'width'} . "x" . $session_screens{$key}->{'height'} );
-
-					#UPDATE FIRST TAB - VIEW
-					#--------------------------------------				
-
-					my $thumb_view;
-					unless($session_screens{$key}->{'no_thumbnail'}){
-						#update view icon
-						$thumb_view = $sthumb->get_thumbnail(
-							$session_screens{$key}->{'uri'}->to_string,
-							$session_screens{$key}->{'mime_type'},
-							$session_screens{$key}->{'mtime'},
-							0.5
-						);
-					}else{
-						$thumb_view = Gtk2::Gdk::Pixbuf->new ('rgb', TRUE, 8, 5, 5);	
-						$thumb_view->fill(0x00000000);	
-					}
-
-					unless(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
-						$session_screens{$key}->{'iter'} = $session_start_screen{'first_page'}->{'model'}->append;
-						$session_start_screen{'first_page'}->{'model'}->set( $session_screens{$key}->{'iter'}, 0, $thumb_view, 1, $session_screens{$key}->{'short'}, 2, $key );
-					}else{
-						$session_start_screen{'first_page'}->{'model'}->set( $session_screens{$key}->{'iter'}, 0, $thumb_view, 1, $session_screens{$key}->{'short'}, 2, $key );					
-					}
-
-					&fct_update_first_tab;
-
-					return FALSE;
-				});
-
-				return TRUE;
-						
 			}
-		
+			
+			#setting pixbuf
+			$session_screens{$key}->{'image'}->set_pixbuf( $pixbuf );
+			
+			#UPDATE INFOS
+			#--------------------------------------		
+			#~ Glib::Idle->add (sub{
+
+			#get dimensions - using the pixbuf
+			$session_screens{$key}->{'width'}  = $pixbuf->get_width;
+			$session_screens{$key}->{'height'} = $pixbuf->get_height;
+
+			#generate thumbnail if file is not too large
+			#set flag
+			if(	$session_screens{$key}->{'width'} <= 10000 && $session_screens{$key}->{'height'} <= 10000 ){					
+				$session_screens{$key}->{'no_thumbnail'} = FALSE;
+			}else{
+				$session_screens{$key}->{'no_thumbnail'} = TRUE;	
+			}
+
+			#create tempfile
+			#maybe we have to restore the file later
+			my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
+			push @{$session_screens{$key}->{'undo'}}, $tmpfilename;				
+			cp($session_screens{$key}->{'long'}, $tmpfilename);
+			
+			my $thumb;	
+			unless($session_screens{$key}->{'no_thumbnail'}){
+				#update tab icon - and other GUI Elements
+				$thumb = $sthumb->get_thumbnail(
+					$session_screens{$key}->{'uri'}->to_string,
+					$session_screens{$key}->{'mime_type'},
+					$session_screens{$key}->{'mtime'},
+					0.2
+				);
+				$session_screens{$key}->{'tab_icon'}->set_from_pixbuf( $thumb );
+			}else{
+				$thumb = Gtk2::Gdk::Pixbuf->new ('rgb', TRUE, 8, 5, 5);	
+				$thumb->fill(0x00000000);						
+			}
+
+			$session_screens{$key}->{'filename_label'}->set_text( $session_screens{$key}->{'uri'}->extract_short_name );
+			$tooltips->set_tip( $session_screens{$key}->{'filename_label'}, $session_screens{$key}->{'uri'}->to_string );
+
+			$session_screens{$key}->{'folder_label'}->set_text( $session_screens{$key}->{'uri'}->extract_dirname );
+			$tooltips->set_tip( $session_screens{$key}->{'folder_label'}, $session_screens{$key}->{'uri'}->extract_dirname );
+
+			$session_screens{$key}->{'mime_type_label'}->set_text( $session_screens{$key}->{'mime_type'} );
+
+			$session_screens{$key}->{'size_label'}->set_text( $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display( $session_screens{$key}->{'size'} ) ) );
+
+			$session_screens{$key}->{'geometry_label'}->set_text( $session_screens{$key}->{'width'} . "x" . $session_screens{$key}->{'height'} );
+
+			#UPDATE FIRST TAB - VIEW
+			#--------------------------------------				
+
+			my $thumb_view;
+			unless($session_screens{$key}->{'no_thumbnail'}){
+				#update view icon
+				$thumb_view = $sthumb->get_thumbnail(
+					$session_screens{$key}->{'uri'}->to_string,
+					$session_screens{$key}->{'mime_type'},
+					$session_screens{$key}->{'mtime'},
+					0.5
+				);
+			}else{
+				$thumb_view = Gtk2::Gdk::Pixbuf->new ('rgb', TRUE, 8, 5, 5);	
+				$thumb_view->fill(0x00000000);	
+			}
+
+			unless(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
+				$session_screens{$key}->{'iter'} = $session_start_screen{'first_page'}->{'model'}->append;
+				$session_start_screen{'first_page'}->{'model'}->set( $session_screens{$key}->{'iter'}, 0, $thumb_view, 1, $session_screens{$key}->{'short'}, 2, $key );
+			}else{
+				$session_start_screen{'first_page'}->{'model'}->set( $session_screens{$key}->{'iter'}, 0, $thumb_view, 1, $session_screens{$key}->{'short'}, 2, $key );					
+			}
+			
+			#update first tab
+			&fct_update_first_tab_and_tray;
+
+			#update menu actions		
+			&fct_update_actions(1, $key);
+
+				#~ return FALSE;
+			#~ });
+
+			return TRUE;
+						
 		#file does not exist
 		}else{
 
@@ -5026,7 +5180,10 @@ sub fct_update_tab {
 			}elsif($response == 20){
 				
 				#try to resave the file
-				my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'temp'} );
+				#(current version is always the last element in the array)
+				my $current_version = pop @{$session_screens{$key}->{'undo'}};
+				
+				my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $current_version );
 				if($sp->save_pixbuf_to_file($pixbuf, $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'})){
 
 					#setup a new filemonitor, so we get noticed if the file changed
@@ -5034,7 +5191,7 @@ sub fct_update_tab {
 
 					&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("saved"));
 				
-					&fct_update_first_tab;
+					&fct_update_first_tab_and_tray;
 					return TRUE;
 				
 				#resave failed => delete the screenshot	
@@ -5053,7 +5210,7 @@ sub fct_update_tab {
 				}	
 			}
 			
-			&fct_update_first_tab;
+			&fct_update_first_tab_and_tray;
 			return FALSE;
 
 		}	 
@@ -5079,7 +5236,7 @@ sub fct_update_tab {
 
 	delete( $session_screens{$key} );    
 	
-	&fct_update_first_tab;
+	&fct_update_first_tab_and_tray;
 	return FALSE;
 
 }
@@ -5568,12 +5725,14 @@ sub fct_ret_window_menu {
 }
 
 sub fct_ret_tray_menu {
+	
+	my $traytheme = $sc->get_theme;
 
-	my $tray_menu = Gtk2::Menu->new();
+	my $menu_tray = Gtk2::Menu->new();
 	
 	#selection
 	my $menuitem_select = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Selection') );
-	if($icontheme->has_icon('applications-accessories')){
+	if($traytheme->has_icon('applications-accessories')){
 		$menuitem_select->set_image(
 			Gtk2::Image->new_from_icon_name( 'applications-accessories', 'menu' )	
 		);
@@ -5598,7 +5757,7 @@ sub fct_ret_tray_menu {
 	
 	#window
 	my $menuitem_window = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('W_indow') );
-	if($icontheme->has_icon('preferences-system-windows')){
+	if($traytheme->has_icon('preferences-system-windows')){
 		$menuitem_window->set_image( Gtk2::Image->new_from_icon_name( 'preferences-system-windows', 'menu' ) );	
 	}else{
 		$menuitem_window->set_image(
@@ -5614,7 +5773,7 @@ sub fct_ret_tray_menu {
 	
 	#section
 	my $menuitem_window_sect = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Se_ction') );
-	if($icontheme->has_icon('gdm-xnest')){
+	if($traytheme->has_icon('gdm-xnest')){
 		$menuitem_window_sect->set_image( Gtk2::Image->new_from_icon_name( 'gdm-xnest', 'menu' ) );	
 	}else{
 		$menuitem_window_sect->set_image(
@@ -5633,7 +5792,7 @@ sub fct_ret_tray_menu {
 
 	#menu
 	my $menuitem_window_menu = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Menu') );
-	if($icontheme->has_icon('alacarte')){
+	if($traytheme->has_icon('alacarte')){
 		$menuitem_window_menu->set_image( Gtk2::Image->new_from_icon_name( 'alacarte', 'menu' ) );	
 	}else{
 		$menuitem_window_menu->set_image(
@@ -5653,7 +5812,7 @@ sub fct_ret_tray_menu {
 	#web
 	my $menuitem_web = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Web') );
 	$menuitem_web->set_sensitive($gnome_web_photo);
-	if($icontheme->has_icon('applications-internet')){
+	if($traytheme->has_icon('applications-internet')){
 		$menuitem_web->set_image( Gtk2::Image->new_from_icon_name( 'applications-internet', 'menu' ) );		
 	}else{
 		$menuitem_web->set_image(
@@ -5667,6 +5826,15 @@ sub fct_ret_tray_menu {
 		'tray_web'
 	);
 	
+	#preferences	
+	my $menuitem_settings = Gtk2::ImageMenuItem->new_from_stock( 'gtk-preferences' );
+	$menuitem_settings->signal_connect( "activate", \&evt_show_settings );
+
+	#quick profile selector
+	my $menuitem_quicks = Gtk2::MenuItem->new_with_mnemonic( $d->get('_Quick profile select') );
+	#set name to identify the item later - we use this in really rare cases
+	$menuitem_quicks->set_name('quicks');
+	
 	#info
 	my $menuitem_info = Gtk2::ImageMenuItem->new_from_stock( 'gtk-about' );
 	$menuitem_info->signal_connect( "activate", \&evt_about, $window );
@@ -5675,21 +5843,24 @@ sub fct_ret_tray_menu {
 	my $menuitem_quit = Gtk2::ImageMenuItem->new_from_stock( 'gtk-quit' );
 	$menuitem_quit->signal_connect( "activate", \&evt_delete_window, 'quit' );
 	
-	$tray_menu->append($menuitem_select);
-	$tray_menu->append( Gtk2::SeparatorMenuItem->new );
-	$tray_menu->append($menuitem_raw);
-	$tray_menu->append( Gtk2::SeparatorMenuItem->new );
-	$tray_menu->append($menuitem_window);
-	$tray_menu->append($menuitem_window_sect);
-	$tray_menu->append($menuitem_window_menu);
-	$tray_menu->append( Gtk2::SeparatorMenuItem->new );
-	$tray_menu->append($menuitem_web);
-	$tray_menu->append( Gtk2::SeparatorMenuItem->new );
-	$tray_menu->append($menuitem_info);
-	$tray_menu->append($menuitem_quit);
-	$tray_menu->show_all;
+	$menu_tray->append($menuitem_select);
+	$menu_tray->append( Gtk2::SeparatorMenuItem->new );
+	$menu_tray->append($menuitem_raw);
+	$menu_tray->append( Gtk2::SeparatorMenuItem->new );
+	$menu_tray->append($menuitem_window);
+	$menu_tray->append($menuitem_window_sect);
+	$menu_tray->append($menuitem_window_menu);
+	$menu_tray->append( Gtk2::SeparatorMenuItem->new );
+	$menu_tray->append($menuitem_web);
+	$menu_tray->append( Gtk2::SeparatorMenuItem->new );
+	$menu_tray->append( $menuitem_settings );
+	$menu_tray->append( $menuitem_quicks );
+	$menu_tray->append( Gtk2::SeparatorMenuItem->new );
+	$menu_tray->append($menuitem_info);
+	$menu_tray->append($menuitem_quit);
+	$menu_tray->show_all;
 
-	return $tray_menu;
+	return $menu_tray;
 }
 
 sub fct_ret_sel_menu {
@@ -5782,7 +5953,7 @@ sub fct_ret_sel_menu {
 }
 
 sub fct_ret_program_menu {
-	my $icontheme     = Gtk2::IconTheme->get_for_screen( Gtk2::Gdk::Screen->get_default );
+	my $traytheme     = Gtk2::IconTheme->get_for_screen( Gtk2::Gdk::Screen->get_default );
 	my $menu_programs = Gtk2::Menu->new;
 
 	#take $key (mime) directly
@@ -5909,14 +6080,14 @@ sub fct_ret_program_menu {
 	
 		#match found!
 		if ($oapp){
-			my $icon_name = $oapp->Icon;
-			if($icon_name){
+			my $tray_name = $oapp->Icon;
+			if($tray_name){
 				#cut image formats
-				$icon_name =~ s/(.png|.svg|.gif|.jpeg|.jpg)//g;
-				if ( $icontheme->has_icon( $icon_name ) ) {
+				$tray_name =~ s/(.png|.svg|.gif|.jpeg|.jpg)//g;
+				if ( $traytheme->has_icon( $tray_name ) ) {
 					my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
-					my $icon_pixbuf = $icontheme->load_icon( $icon_name, $ih, 'generic-fallback' );
-					$program_item->set_image( Gtk2::Image->new_from_pixbuf($icon_pixbuf) );
+					my $tray_pixbuf = $traytheme->load_icon( $tray_name, $ih, 'generic-fallback' );
+					$program_item->set_image( Gtk2::Image->new_from_pixbuf($tray_pixbuf) );
 				}
 			}
 			my $hid = $program_item->signal_connect(
@@ -6542,7 +6713,10 @@ sub dlg_rename {
 							&fct_add_file_monitor($key);	
 
 							&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("renamed") );
-
+							
+							#change window title
+							$window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
+							
 						}else{
 
 							my $response = $sd->dlg_error_message(
@@ -6589,6 +6763,9 @@ sub dlg_rename {
 								&fct_add_file_monitor($key);	
 
 								&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("renamed") );
+
+								#change window title
+								$window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
 
 							}else{
 
@@ -7647,7 +7824,7 @@ sub dlg_website {
 
 	$website_dialog->set( 'secondary-text' => $d->get("URL to capture") . ": " );
 
-	if($icontheme->has_icon('applications-internet')){
+	if($sc->get_theme->has_icon('applications-internet')){
 		$website_dialog->set(
 			'image' => Gtk2::Image->new_from_icon_name( 'applications-internet', 'dialog' ) );		
 	}else{
@@ -7661,8 +7838,9 @@ sub dlg_website {
 	#cancel button
 	my $cancel_btn = Gtk2::Button->new_from_stock('gtk-cancel');
 
-	#save button
-	my $execute_btn = Gtk2::Button->new_from_stock('gtk-execute');
+	#capture button
+	my $execute_btn = Gtk2::Button->new_with_mnemonic( $d->get("C_apture") );
+	$execute_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-execute', 'button' ) );
 	$execute_btn->set_sensitive(FALSE);
 	$execute_btn->can_default(TRUE);
 
