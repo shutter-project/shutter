@@ -182,7 +182,7 @@ sub show {
 	( $self->{_root}->{x}, $self->{_root}->{y} ) = $self->{_root}->get_origin;
 
 	$self->{_drawing_window} = Gtk2::Window->new('toplevel');
-	$self->{_drawing_window}->set_title( "Shutter DrawingTool - " . $self->{_filename} );
+	$self->{_drawing_window}->set_title( $self->{_filename} ." - Shutter DrawingTool" );
 	$self->{_drawing_window}->set_position('center');
 	$self->{_drawing_window}->set_modal(1);
 	$self->{_drawing_window}->signal_connect( 'delete_event', sub { return $self->quit(TRUE) } );

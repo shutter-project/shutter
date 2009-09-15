@@ -53,9 +53,9 @@ sub new {
 sub create_menu {
 	my $self = shift;
 
-	my $d           = $self->{_common}->get_gettext;
-	my $window      = $self->{_common}->get_mainwindow;
-	my $shutter_root = $self->{_common}->get_root;
+	my $d           	= $self->{_common}->get_gettext;
+	my $window      	= $self->{_common}->get_mainwindow;
+	my $shutter_root 	= $self->{_common}->get_root;
 
 	my $accel_group = Gtk2::AccelGroup->new;
 	$window->add_accel_group($accel_group);
@@ -130,6 +130,18 @@ sub create_menu {
 
 	#edit
 	$self->{_menu_edit} = Gtk2::Menu->new();
+
+	$self->{_menuitem_undo} = Gtk2::ImageMenuItem->new_from_stock('gtk-undo');
+	$self->{_menuitem_undo}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>Z'), qw/visible/ );
+	$self->{_menuitem_undo}->set_sensitive(FALSE);
+	$self->{_menu_edit}->append( $self->{_menuitem_undo} );
+
+	$self->{_menuitem_redo} = Gtk2::ImageMenuItem->new_from_stock('gtk-redo');
+	$self->{_menuitem_redo}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>Y'), qw/visible/ );
+	$self->{_menuitem_redo}->set_sensitive(FALSE);
+	$self->{_menu_edit}->append( $self->{_menuitem_redo} );
+
+	$self->{_menu_edit}->append( Gtk2::SeparatorMenuItem->new );
 
 	$self->{_menuitem_copy} = Gtk2::ImageMenuItem->new_from_stock('gtk-copy');
 	$self->{_menuitem_copy}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>C'), qw/visible/ );
