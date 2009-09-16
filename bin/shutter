@@ -2484,10 +2484,21 @@ sub evt_apply_profile {
 #--------------------------------------
 
 sub fct_create_session_notebook {
-
+	
 	$notebook->set( homogeneous  => TRUE );
 	$notebook->set( 'scrollable' => TRUE );
 
+	#enable dnd for it
+	$notebook->drag_dest_set('all', ['copy','private','default','move','link','ask']);
+	$notebook->signal_connect(drag_data_received => \&fct_drop_handler);
+	
+	my $target_list = Gtk2::TargetList->new();
+	my $atom1 = Gtk2::Gdk::Atom->new('text/uri-list');
+	$target_list->add($atom1, 0, 0);
+	
+	$notebook->drag_dest_set_target_list($target_list);
+	
+	#packing and first page
 	$notebook->set_size_request( 430, 320 );
 	my $hbox_first_label = Gtk2::HBox->new( FALSE, 0 );
 	my $thumb_first_icon = Gtk2::Image->new_from_stock( 'gtk-index', 'menu' );
@@ -3530,6 +3541,47 @@ sub fct_load_accounts {
 	}
 
 	return TRUE;
+}
+
+sub fct_drop_handler {
+	my ($self, $context, $x, $y, $selection, $info, $time) = @_;
+	my $type = $selection->target->name;
+	my $data = $selection->data;
+	return unless $type eq 'text/uri-list';
+
+	my @files = grep defined($_), split /[\r\n]+/, $data;
+	
+	my @valid_files;
+	foreach(@files){
+		my $mime_type = Gnome2::VFS->get_mime_type_for_name( $_ );
+		if($mime_type && &fct_check_valid_mime_type($mime_type)){
+			push @valid_files, $_;
+		}
+	}
+	
+	#open all valid files
+	if(@valid_files){
+		&fct_open_files(@valid_files);
+	}else{
+		$context->finish (0, 0, $time);	
+		return FALSE;
+	}
+	
+	$context->finish (1, 0, $time);
+	return TRUE;
+}
+
+sub fct_check_valid_mime_type {
+	my $mime_type = shift;
+
+	foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {		
+		foreach ( @{ $_->{mime_types} } ) {
+			return TRUE if $_ eq $mime_type;
+			last;
+		}
+	}
+	
+	return FALSE;
 }
 
 sub fct_open_files {
