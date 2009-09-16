@@ -58,26 +58,51 @@ sub new {
 #~ } 
 
 sub get_thumbnail {
-	my $self = shift;
-	my $text_uri = shift;
-	my $mime_type = shift;
-	my $mtime = shift;
-	my $rfactor = shift;
+	my $self 		= shift;
+	my $text_uri 	= shift;
+	my $mime_type 	= shift;
+	my $mtime 		= shift;
+	my $rfactor 	= shift;
+	my $force_new 	= shift;
 	
 	my $pixbuf;
 	my $factory = Gnome2::ThumbnailFactory->new ('normal');
 	if($factory->can_thumbnail($text_uri, $mime_type, $mtime)){
 		unless($factory->has_valid_failed_thumbnail ($text_uri, $mtime)){
-			 if(my $existing_thumb = $factory->lookup ($text_uri, $mtime)){
-				print "$text_uri thumbnail already exists\n" if $self->{_common}->get_debug;		
-				$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file ($existing_thumb);	 
-			 }else{
-				print "$text_uri thumbnail created\n" if $self->{_common}->get_debug;
+			#force new thumbnail
+			if($force_new){
+				print "$text_uri thumbnail creation forced\n" if $self->{_common}->get_debug;
 				$pixbuf = $factory->generate_thumbnail ($text_uri, $mtime);	 
 				if($pixbuf){
 					$factory->save_thumbnail ($pixbuf, $text_uri, $mtime);
-				}
-			 }
+				}else{
+					print "$text_uri thumbnail failed: $@\n" if $self->{_common}->get_debug;
+					$factory->create_failed_thumbnail ($text_uri, $mtime);
+				}			
+			#look for existing thumbnail	 
+			 }else{
+				#thumbnail exists
+				if(my $existing_thumb = $factory->lookup ($text_uri, $mtime)){
+					print "$text_uri thumbnail already exists\n" if $self->{_common}->get_debug;		
+					eval{
+						$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file ($existing_thumb);
+					};
+					if($@){
+						print "$text_uri thumbnail failed: $@\n" if $self->{_common}->get_debug;
+						$factory->create_failed_thumbnail ($text_uri, $mtime);
+					}
+				#generate new thumbnail		 
+				}else{
+					print "$text_uri thumbnail created\n" if $self->{_common}->get_debug;
+					$pixbuf = $factory->generate_thumbnail ($text_uri, $mtime);	 
+					if($pixbuf){
+						$factory->save_thumbnail ($pixbuf, $text_uri, $mtime);
+					}else{
+						print "$text_uri thumbnail failed: $@\n" if $self->{_common}->get_debug;
+						$factory->create_failed_thumbnail ($text_uri, $mtime);
+					}
+				} 				 
+			}	 
 		}		
 	}
 	

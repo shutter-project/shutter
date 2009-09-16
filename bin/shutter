@@ -3950,7 +3950,7 @@ sub fct_undo {
 
 			if (cp($last_version, $session_screens{$key}->{'long'})){
 		
-				&fct_update_tab( $key, undef, $session_screens{$key}->{'uri'} );
+				&fct_update_tab( $key, undef, $session_screens{$key}->{'uri'}, TRUE );
 
 				#setup a new filemonitor, so we get noticed if the file changed
 				&fct_add_file_monitor($key);	
@@ -4000,7 +4000,7 @@ sub fct_redo {
 
 			if (cp($last_version, $session_screens{$key}->{'long'})){
 		
-				&fct_update_tab( $key, undef, $session_screens{$key}->{'uri'} );
+				&fct_update_tab( $key, undef, $session_screens{$key}->{'uri'}, TRUE );
 
 				#setup a new filemonitor, so we get noticed if the file changed
 				&fct_add_file_monitor($key);	
@@ -4983,6 +4983,7 @@ sub fct_update_tab {
 	#optional, e.g.used by fct_integrate...
 	my $pixbuf 			= shift;
 	my $uri    			= shift;
+	my $force_thumb		= shift;
 
 	$session_screens{$key}->{'uri'}      = $uri if $uri;
 	$session_screens{$key}->{'mtime'} 	 = -1 unless $session_screens{$key}->{'mtime'};
@@ -5095,7 +5096,8 @@ sub fct_update_tab {
 					$session_screens{$key}->{'uri'}->to_string,
 					$session_screens{$key}->{'mime_type'},
 					$session_screens{$key}->{'mtime'},
-					0.2
+					0.2,
+					$force_thumb
 				);
 				$session_screens{$key}->{'tab_icon'}->set_from_pixbuf( $thumb );
 			}else{
