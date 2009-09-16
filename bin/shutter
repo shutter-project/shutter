@@ -802,7 +802,7 @@ $scale_box->pack_start( $scale,       TRUE,  TRUE, 0 );
 
 #add compatile, writeable file types
 my $combobox_type = Gtk2::ComboBox->new_text;
-my ( $int_png, $int_jpeg, $int_bmp ) = ( 0, 0, 0 );
+my ( $int_png, $int_jpeg, $int_bmp ) = ( -1, -1, -1 );
 my $format_counter = 0;
 
 foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
@@ -855,7 +855,7 @@ if ( defined $settings_xml->{'general'}->{'filetype'} ) {
 
 	#we will try to set a default value in this order
 	foreach ( @{ [ $int_png, $int_jpeg, $int_bmp ] } ) {
-		if ( $_ > 0 ) {
+		if ( $_ > -1 ) {
 			$combobox_type->set_active( $_ );
 			last;
 		}
