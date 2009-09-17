@@ -112,7 +112,7 @@ sub new {
 	#general - shown in the bottom hbox
 	$self->{_fill_color}         = Gtk2::Gdk::Color->parse('#0000ff');
 	$self->{_fill_color_alpha}   = 0.25;
-	$self->{_stroke_color}       = Gtk2::Gdk::Color->parse('#000000');
+	$self->{_stroke_color}       = Gtk2::Gdk::Color->parse('#ff0000');
 	$self->{_stroke_color_alpha} = 1;
 	$self->{_line_width} 		 = 3;
 	$self->{_font} 				 = 'Sans Italic 16';
@@ -126,7 +126,7 @@ sub new {
 	#maybe we have to restore them
 	$self->{_last_fill_color}         = Gtk2::Gdk::Color->parse('#0000ff');
 	$self->{_last_fill_color_alpha}   = 0.25;
-	$self->{_last_stroke_color}       = Gtk2::Gdk::Color->parse('#000000');
+	$self->{_last_stroke_color}       = Gtk2::Gdk::Color->parse('#ff0000');
 	$self->{_last_stroke_color_alpha} = 1;
 	$self->{_last_line_width} 		  = 3;
 	$self->{_last_font} 			  = 'Sans Italic 16';
