@@ -4951,17 +4951,15 @@ sub fct_update_info_and_tray {
 
 	#TRAY TOOLTIP
 	#--------------------------------------	
-	#~ if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
-		#~ if($session_start_screen{'first_page'}->{'statistics_counter'}->get_text && $combobox_settings_profiles->get_active_text){
-			#~ $tray->set_tooltip( $session_start_screen{'first_page'}->{'statistics_counter'}->get_text .
-								#~ "\n\n".
-								#~ $d->get("Current Profile") . ": " . $combobox_settings_profiles->get_active_text );
-		#~ }else{
-			#~ $tray->set_tooltip(SHUTTER_NAME . " " . SHUTTER_VERSION);	
-		#~ }
-	#~ } elsif ( $tray && $tray->isa('Gtk2::TrayIcon') ) {
-		#~ $tooltips->set_tip( $tray, SHUTTER_NAME . " " . SHUTTER_VERSION );
-	#~ }
+	if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
+		if($combobox_settings_profiles->get_active_text){
+			$tray->set_tooltip( $d->get("Current Profile") . ": " . $combobox_settings_profiles->get_active_text );
+		}else{
+			$tray->set_tooltip(SHUTTER_NAME . " " . SHUTTER_VERSION);	
+		}
+	} elsif ( $tray && $tray->isa('Gtk2::TrayIcon') ) {
+		$tooltips->set_tip( $tray, SHUTTER_NAME . " " . SHUTTER_VERSION );
+	}
 
 	#SESSION AND SETTINGS INFO
 	#--------------------------------------		
