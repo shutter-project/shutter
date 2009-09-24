@@ -400,6 +400,22 @@ sub fct_ret_new_menu {
 	}
 	$self->{_menu_new}->append( $self->{_menuitem_menu} );
 
+	#tooltip
+	$self->{_menuitem_tooltip} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Tooltip') );
+	#~ if($icontheme->has_icon('alacarte')){
+		#~ $self->{_menuitem_tooltip}->set_image( Gtk2::Image->new_from_icon_name( 'alacarte', 'menu' ) );		
+	#~ }else{
+		$self->{_menuitem_tooltip}->set_image(
+			Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+					"$shutter_root/share/shutter/resources/icons/sel_window_tooltip.svg",
+					Gtk2::IconSize->lookup('menu')
+				)
+			)
+		);
+	#~ }
+	$self->{_menu_new}->append( $self->{_menuitem_tooltip} );
+
 	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
 
 	#web

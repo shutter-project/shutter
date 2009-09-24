@@ -155,7 +155,27 @@ sub create_toolbar {
 	$self->{_menu} = Gtk2::ToolButton->new( $image_window_menu, $d->get("Menu") );
 
 	$tooltips->set_tip( $self->{_menu},
-		$d->get( "Here is no text at the moment..." ) );
+		$d->get( "Select a single menu or cascading menus from any application" ) );
+
+	#--------------------------------------
+
+	#button tooltip
+	#--------------------------------------
+	my $image_window_tooltip;
+	#~ if($icontheme->has_icon('alacarte')){
+		#~ $image_window_tooltip = Gtk2::Image->new_from_icon_name( 'alacarte', 'large-toolbar' );		
+	#~ }else{
+		$image_window_tooltip = Gtk2::Image->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+				"$shutter_root/share/shutter/resources/icons/sel_window_tooltip.svg",
+				Gtk2::IconSize->lookup('large-toolbar')
+			)
+		);
+	#~ }
+	$self->{_tooltip} = Gtk2::ToolButton->new( $image_window_tooltip, $d->get("Tooltip") );
+
+	$tooltips->set_tip( $self->{_tooltip},
+		$d->get( "Capture a tooltip" ) );
 
 	#--------------------------------------
 
@@ -215,6 +235,7 @@ sub create_toolbar {
 	$self->{_toolbar}->insert( $self->{_window},             -1 );
 	$self->{_toolbar}->insert( $self->{_section},            -1 );
 	$self->{_toolbar}->insert( $self->{_menu},               -1 );
+	$self->{_toolbar}->insert( $self->{_tooltip},            -1 );
 	$self->{_toolbar}->insert( Gtk2::SeparatorToolItem->new, -1 );
 	$self->{_toolbar}->insert( $self->{_web},                -1 );
 	$self->{_toolbar}->insert( Gtk2::SeparatorToolItem->new, -1 );

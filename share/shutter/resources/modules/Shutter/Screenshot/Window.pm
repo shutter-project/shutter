@@ -746,7 +746,7 @@ sub window {
 
 	#grab pointer and keyboard
 	#when mode is section or window 
-	unless($self->{_mode} eq "menu" || $self->{_mode} eq "tray_menu"){
+	unless($self->{_mode} eq "menu" || $self->{_mode} eq "tray_menu" || $self->{_mode} eq "tooltip" || $self->{_mode} eq "tray_tooltip"){
 		my $grab_counter = 0;
 		while ( !Gtk2::Gdk->pointer_is_grabbed && $grab_counter < 100 ) {
 			Gtk2::Gdk->pointer_grab(
@@ -918,7 +918,7 @@ sub window {
 		
 	#pointer not grabbed	
 	} else {    
-
+		
 		$self->ungrab_pointer_and_keyboard( FALSE, FALSE, FALSE );
 		$output = 0;
 
@@ -938,7 +938,7 @@ sub window {
 			}
 
 		}elsif ( ( $self->{_mode} eq "tooltip" || $self->{_mode} eq "tray_tooltip" ) ) {
-
+			
 			#and select current tooltip
 			$self->find_region_for_window_type( $self->{_root}->XWINDOW, 'tooltip' );
 
@@ -1002,13 +1002,13 @@ sub window {
 		}elsif ( ( $self->{_mode} eq "menu" || $self->{_mode} eq "tray_menu" ) ) {
 
 			if($output =~ /Gtk2/){
-				$output->{'name'} = $d->get( "menu" );
+				$output->{'name'} = $d->get( "Menu" );
 			}
 
 		}elsif ( ( $self->{_mode} eq "tooltip" || $self->{_mode} eq "tray_tooltip" ) ) {
 
 			if($output =~ /Gtk2/){
-				$output->{'name'} = $d->get( "tooltip" );
+				$output->{'name'} = $d->get( "Tooltip" );
 			}
 
 		}elsif ( ( $self->{_mode} eq "section" || $self->{_mode} eq "tray_section" ) ) {
