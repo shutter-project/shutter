@@ -4811,6 +4811,7 @@ sub import_from_filesystem {
 			
 			#objects from directory $name
 			my $subdir_item = Gtk2::ImageMenuItem->new_with_label( $short );
+			$subdir_item->set('always_show_image' => TRUE);
 			$subdir_item->set_image (Gtk2::Image->new_from_stock ('gtk-directory', 'menu'));
 		
 			#add empty menu first
@@ -4856,6 +4857,7 @@ sub import_from_filesystem {
 		
 		#init item with filename first
 		my $new_item = Gtk2::ImageMenuItem->new_with_label($short);
+		$new_item->set('always_show_image' => TRUE);
 		$menu_objects->append($new_item);
 		
 		#sfsdc
@@ -4874,6 +4876,7 @@ sub import_from_filesystem {
 			my $icontheme = Gtk2::IconTheme->get_default;
 			
 			my $utheme_item = Gtk2::ImageMenuItem->new_with_label( $self->{_d}->get("Import from current theme...") );		
+			$utheme_item->set('always_show_image' => TRUE);
 			if($icontheme->has_icon('preferences-desktop-theme')){
 				$utheme_item->set_image(Gtk2::Image->new_from_icon_name( 'preferences-desktop-theme', 'menu' ));		
 			}
@@ -4887,6 +4890,7 @@ sub import_from_filesystem {
 		
 		#objects from session
 		my $session_menu_item = Gtk2::ImageMenuItem->new_with_label( $self->{_d}->get("Import from session...") );
+		$session_menu_item->set('always_show_image' => TRUE);
 		$session_menu_item->set_image (Gtk2::Image->new_from_stock ('gtk-index', 'menu'));
 		$session_menu_item->set_submenu( $self->import_from_session($button) );
 
@@ -4897,6 +4901,7 @@ sub import_from_filesystem {
 
 		#objects from filesystem
 		my $filesystem_menu_item = Gtk2::ImageMenuItem->new_with_label( $self->{_d}->get("Import from filesystem...") );
+		$filesystem_menu_item->set('always_show_image' => TRUE);
 		$filesystem_menu_item->set_image (Gtk2::Image->new_from_stock ('gtk-open', 'menu'));
 		$filesystem_menu_item->signal_connect(
 			'activate' => sub {
@@ -4986,6 +4991,7 @@ sub import_from_utheme {
 					
 		#objects from current theme (contexts)
 		my $utheme_ctxt = Gtk2::ImageMenuItem->new_with_label( $context );
+		$utheme_ctxt->set('always_show_image' => TRUE);
 		$utheme_ctxt->set_image (Gtk2::Image->new_from_stock ('gtk-directory', 'menu'));
 			
 		#add empty menu first
@@ -5047,6 +5053,7 @@ sub import_from_utheme_ctxt {
 			
 		#objects from current theme (icons for specific contexts)
 		my $utheme_ctxt_item = Gtk2::ImageMenuItem->new_with_label( $icon );
+		$utheme_ctxt_item->set('always_show_image' => TRUE);
 		my $iconinfo = $icontheme->lookup_icon ($icon, $size, 'generic-fallback');
 		
 		#save filename and generate thumbnail later
@@ -5073,7 +5080,8 @@ sub import_from_session {
 
 		#init item with filename
 		my $screen_menu_item = Gtk2::ImageMenuItem->new_with_label( $import_hash{$key}->{'short'} );
-
+		$screen_menu_item->set('always_show_image' => TRUE);
+		
 		#set sensitive == FALSE if image eq current file
 		$screen_menu_item->set_sensitive(FALSE)
 			if $import_hash{$key}->{'long'} eq $self->{_filename};
