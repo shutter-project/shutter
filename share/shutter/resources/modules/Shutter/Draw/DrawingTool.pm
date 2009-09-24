@@ -240,6 +240,16 @@ sub show {
 	#-------------------------------------------------
 	$self->{_canvas} = Goo::Canvas->new();
 	
+	#enable dnd for it
+	$self->{_canvas}->drag_dest_set('all', ['copy','private','default','move','link','ask']);
+	$self->{_canvas}->signal_connect(drag_data_received => sub { $self->import_from_dnd(@_) } );
+	
+	my $target_list = Gtk2::TargetList->new();
+	my $atom1 = Gtk2::Gdk::Atom->new('text/uri-list');
+	$target_list->add($atom1, 0, 0);
+	
+	$self->{_canvas}->drag_dest_set_target_list($target_list);
+	
 	#'redraw-when-scrolled' to reduce the flicker of static items
 	#
 	#this property is not available in older versions
@@ -4216,7 +4226,7 @@ sub event_item_on_button_release {
 						#~ 'width' => $maxw,
 						#~ 'height' => $maxh
 					#~ );
-
+					
 					$self->{_items}{$nitem}->set(
 						'x' 		=> $ev->x_root - int($self->{_items}{$nitem}{orig_pixbuf}->get_width  / 2),
 						'y' 		=> $ev->y_root - int($self->{_items}{$nitem}{orig_pixbuf}->get_height / 2),
@@ -4662,6 +4672,108 @@ sub setup_uimanager {
 	}
 
 	return $uimanager;
+}
+
+sub import_from_dnd {
+	my ($self, $widget, $context, $x, $y, $selection, $info, $time) = @_;
+	my $type = $selection->target->name;
+	my $data = $selection->data;
+	return unless $type eq 'text/uri-list';
+
+	my @files = grep defined($_), split /[\r\n]+/, $data;
+	
+	my @valid_files;
+	foreach(@files){
+		my $mime_type = Gnome2::VFS->get_mime_type_for_name( $_ );
+		if($mime_type && $self->check_valid_mime_type($mime_type)){
+			push @valid_files, $_;
+		}
+	}
+	
+	#open all valid files
+	if(@valid_files){
+
+		#backup current pixbuf and filename
+		my $old_current 	= $self->{_current_pixbuf};
+		my $old_filename 	= $self->{_current_pixbuf_filename};		
+		
+		foreach (@valid_files){
+
+			#transform uri to path
+			my $new_uri 	= Gnome2::VFS::URI->new ($self->utf8_decode(Gnome2::VFS->unescape_string($_)));
+			my $new_file	= $self->utf8_decode(Gnome2::VFS->unescape_string($new_uri->get_path));
+						
+			eval{
+				$self->{_current_pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($new_file);	
+			};
+			#check if there is any error while loading this file
+			unless($@){
+				$self->{_current_pixbuf_filename} = $new_file;
+				
+				#construct an event and create a new image object
+				my $initevent = Gtk2::Gdk::Event->new ('motion-notify');
+				$initevent->set_time(Gtk2->get_current_event_time);
+				$initevent->window($self->{_drawing_window}->window);
+				$initevent->x($x);
+				$initevent->y($y);
+				
+				#new item
+				my $nitem = $self->create_image( $initevent, undef, TRUE );
+				
+				#add to undo stack
+				$self->store_to_xdo_stack($nitem , 'create', 'undo');
+								
+			}else{
+				my $response = $self->{_dialogs}->dlg_error_message( 
+					sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $new_file. "'"),
+					$self->{_d}->get( "There was an error opening the image." ),
+					undef, undef, undef,
+					undef, undef, undef,
+					$@
+				);
+				$self->abort_current_mode;											
+			}	
+		}
+
+		#restore saved values
+		$self->{_current_pixbuf} = $old_current;
+		$self->{_current_pixbuf_filename} = $old_filename;		
+
+		#uncheck previous active items
+		$self->{_current_new_item} 	= undef;
+		$self->{_last_item}			= undef;
+		
+	}else{
+		$context->finish (0, 0, $time);	
+		return FALSE;
+	}
+	
+	$context->finish (1, 0, $time);
+	return TRUE;
+}
+
+sub utf8_decode {
+	my $self 	= shift;
+	my $string	= shift;
+	
+	#see https://bugs.launchpad.net/shutter/+bug/347821
+	utf8::decode $string;
+	
+	return $string;
+}
+
+sub check_valid_mime_type {
+	my $self 		= shift;
+	my $mime_type 	= shift;
+
+	foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {		
+		foreach ( @{ $_->{mime_types} } ) {
+			return TRUE if $_ eq $mime_type;
+			last;
+		}
+	}
+	
+	return FALSE;
 }
 
 sub import_from_filesystem {
@@ -5348,15 +5460,27 @@ sub create_censor {
 }
 
 sub create_image {
-	my $self      = shift;
-	my $ev        = shift;
-	my $copy_item = shift;
+	my $self      				= shift;
+	my $ev        				= shift;
+	my $copy_item 				= shift;
+	my $force_orig_size_init 	= shift;
 
 	my @dimensions = ( 0, 0, 0, 0 );
-
+	
 	#use event coordinates
 	if ($ev) {
-		@dimensions = ( $ev->x_root, $ev->y_root, 0, 0 );
+		#we create the new image item
+		#and use the original image size
+		#dnd for example
+		if($force_orig_size_init){
+			@dimensions = ( $ev->x - int($self->{_current_pixbuf}->get_width  / 2),
+							$ev->y - int($self->{_current_pixbuf}->get_height / 2),
+							$self->{_current_pixbuf}->get_width,
+							$self->{_current_pixbuf}->get_height
+						  );
+		}else{
+			@dimensions = ( $ev->x_root, $ev->y_root, 0, 0 );
+		}		
 	#use source item coordinates
 	} elsif ($copy_item) {
 		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $self->{_items}{$copy_item}->get('width'), $self->{_items}{$copy_item}->get('height'));
@@ -5400,7 +5524,11 @@ sub create_image {
 
 	#create rectangles
 	$self->handle_rects( 'create', $item );
-	$self->handle_embedded('update', $item) if $copy_item;
+	
+	#show image directly when copy or dnd
+	if ($copy_item || $force_orig_size_init){
+		$self->handle_embedded('update', $item);
+	}
 
 	$self->setup_item_signals( $self->{_items}{$item}{image} );
 	$self->setup_item_signals_extra( $self->{_items}{$item}{image} );

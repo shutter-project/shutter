@@ -3545,7 +3545,7 @@ sub fct_load_accounts {
 }
 
 sub fct_drop_handler {
-	my ($self, $context, $x, $y, $selection, $info, $time) = @_;
+	my ($widget, $context, $x, $y, $selection, $info, $time) = @_;
 	my $type = $selection->target->name;
 	my $data = $selection->data;
 	return unless $type eq 'text/uri-list';
