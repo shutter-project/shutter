@@ -252,7 +252,6 @@ my %session_start_screen;
 
 #main window gui
 #--------------------------------------
-$window->set_title(SHUTTER_NAME);
 $window->set_default_icon_from_file( "$shutter_root/share/pixmaps/shutter.svg" );
 $window->signal_connect( 'delete-event' => \&evt_delete_window );
 $window->set_border_width(0);
@@ -1652,7 +1651,7 @@ unless ( $sc->get_min ) {
 }
 
 #update the first tab on startup
-&fct_update_first_tab_and_tray;
+&fct_update_info_and_tray();
 
 #load saved settings
 #--------------------------------------
@@ -1886,78 +1885,51 @@ sub evt_notebook_switch {
 	my $key = &fct_get_file_by_index($int);
 	if($key){
 
-		#do this when idle
-		#~ Glib::Idle->add (
-		#~ sub{
-
-			foreach (keys %session_screens){
-				#set pixbuf for current item
-				if ($_ eq $key){
-					if($session_screens{$key}->{'long'}){
-						
-						#change window title
-						$window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
-						
-						#and statusbar
-						$status1->push(1, $session_screens{$key}->{'width'} . 
-										  " x " . 
-										  $session_screens{$key}->{'height'} . 
-										  " " . 
-										  $d->get("pixels") .
-										  "  " .
-										  $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display( $session_screens{$key}->{'size'} ) ) 
-									   );
-										  						
-						#do nothing if
-						#the view does already show a pixbuf
-						unless($session_screens{$_}->{'image'}->get_pixbuf){
-							eval{
-								#~ print "setting ", $_, "\n";
-								$session_screens{$_}->{'image'}->set_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} ));								
-							}
+		foreach (keys %session_screens){
+			#set pixbuf for current item
+			if ($_ eq $key){
+				if($session_screens{$key}->{'long'}){
+					
+					&fct_update_info_and_tray($key);
+																  						
+					#do nothing if
+					#the view does already show a pixbuf
+					unless($session_screens{$_}->{'image'}->get_pixbuf){
+						eval{
+							#~ print "setting ", $_, "\n";
+							$session_screens{$_}->{'image'}->set_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} ));								
 						}
-						
 					}
-					next;
+					
 				}
-				#unset imageview for all other items
-				if($session_screens{$_}->{'image'}->get_pixbuf){
-					eval{
-						#~ print "unsetting ", $_, "\n";
-						$session_screens{$_}->{'image'}->set_pixbuf(undef);
-					};
-					if($@){
-						delete $session_screens{$_};
-						next;	
-					}
+				next;
+			}
+			#unset imageview for all other items
+			if($session_screens{$_}->{'image'}->get_pixbuf){
+				eval{
+					#~ print "unsetting ", $_, "\n";
+					$session_screens{$_}->{'image'}->set_pixbuf(undef);
+				};
+				if($@){
+					delete $session_screens{$_};
+					next;	
 				}
 			}
+		}
 
-			#~ return FALSE;
-		#~ });			
-		
 	}else{
-			
-		#change window title
-		$window->set_title($d->get("Session")." - ".SHUTTER_NAME);
-
-		#and statusbar		
-		$status1->push(1, sprintf( $d->nget( "%s screenshot", "%s screenshots", scalar( keys(%session_screens) ) ) , scalar( keys(%session_screens) ) ) .
-						  "  " .
-						  $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display(&fct_get_total_size_of_session) )
-					   );
-				
-	}	
+		&fct_update_info_and_tray("session");		
+	}
 
 	#unselect all items in session tab
 	#when we move away
 	if($int == 0){
 		$session_start_screen{'first_page'}->{'view'}->unselect_all;
 	}
-
+	
 	#enable/disable menu entry when we switch tabs		
 	&fct_update_actions($int, $key);
-
+	
 	return TRUE;
 }
 
@@ -2309,7 +2281,7 @@ sub fct_post_settings {
 	
 	#we need to update the first tab here
 	#because the profile might have changed
-	&fct_update_first_tab_and_tray;
+	&fct_update_info_and_tray();
 
 	return TRUE;
 }
@@ -2475,10 +2447,10 @@ sub evt_delete_profile {
 
 			&fct_update_quick_profile_selector($combobox_settings_profiles, $current_profiles_ref);
 			
-			&dlg_status_message( 1, $d->get("Profile deleted") );
+			&fct_show_status_message( 1, $d->get("Profile deleted") );
 		} else {
 			$sd->dlg_error_message( $d->get("Profile could not be deleted"), $d->get("Failed") );
-			&dlg_status_message( 1, $d->get("Profile could not be deleted") );
+			&fct_show_status_message( 1, $d->get("Profile could not be deleted") );
 		}
 	}
 	return TRUE;
@@ -2494,7 +2466,7 @@ sub evt_apply_profile {
 		&fct_update_quick_profile_selector($combobox_settings_profiles, $current_profiles_ref);	
 	}
 	
-	&fct_update_first_tab_and_tray;
+	&fct_update_info_and_tray();
 	
 	return TRUE;
 }
@@ -2543,7 +2515,7 @@ sub fct_integrate_screenshot_in_notebook {
 	#check parameters
 	return FALSE unless $uri;
 	unless ($uri->exists){
-		&dlg_status_message( 1, $uri->to_string . " " . $d->get("not found") );		
+		&fct_show_status_message( 1, $uri->to_string . " " . $d->get("not found") );		
 		return FALSE;
 	}
 
@@ -3078,7 +3050,7 @@ sub fct_save_settings {
 	if ($@) {
 		$sd->dlg_error_message( $@, $d->get("Settings could not be saved!") );
 	}else{
-		&dlg_status_message( 1, $d->get("Settings saved successfully!") );
+		&fct_show_status_message( 1, $d->get("Settings saved successfully!") );
 	}
 
 	#we need to clean the hashkeys, so they become parseable
@@ -3437,7 +3409,7 @@ sub fct_load_settings {
 			$sd->dlg_error_message( $@, $d->get("Settings could not be restored!") );
 			unlink $settingsfile;
 		}else{
-			&dlg_status_message( 1, $d->get("Settings loaded successfully") );				
+			&fct_show_status_message( 1, $d->get("Settings loaded successfully") );				
 		}			
 
 	} #endif file exists
@@ -3661,7 +3633,7 @@ sub fct_open_files {
 
 		#do the real work
 		if(&fct_integrate_screenshot_in_notebook( $new_uri, undef )){
-			&dlg_status_message( 1, $new_uri->to_string . " " . $d->get("opened") );	
+			&fct_show_status_message( 1, $new_uri->to_string . " " . $d->get("opened") );	
 		}
 	}
 	$open_dialog->response('ok');
@@ -3759,7 +3731,7 @@ sub fct_screenshot_exists {
 
 	#check if file still exists
 	unless ( $session_screens{$key}->{'uri'}->exists ) {
-		&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("not found") );
+		&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("not found") );
 
 		return FALSE;
 	}
@@ -3791,7 +3763,7 @@ sub fct_delete {
 		}
 
 		$notebook->remove_page( $notebook->get_current_page );    #delete tab
-		&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("deleted") )
+		&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("deleted") )
 			if defined( $session_screens{$key}->{'long'} );
 
 		if(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
@@ -3862,13 +3834,13 @@ sub fct_delete {
 			delete $session_screens{$key};
 		}
 
-		&dlg_status_message( 1, $d->get("Selected screenshots deleted") );
+		&fct_show_status_message( 1, $d->get("Selected screenshots deleted") );
 
 		$window->show_all unless $is_hidden;
 
 	}
 
-	&fct_update_first_tab_and_tray;
+	&fct_update_info_and_tray();
 
 	return TRUE;
 }
@@ -3891,10 +3863,10 @@ sub fct_remove_all {
 		delete( $session_screens{$key} );
 	}
 
-	&dlg_status_message( 1, $d->get("All screenshots removed") );
+	&fct_show_status_message( 1, $d->get("All screenshots removed") );
 	$window->show_all unless $is_hidden;
 
-	&fct_update_first_tab_and_tray;
+	&fct_update_info_and_tray();
 
 	return TRUE;
 }
@@ -3914,7 +3886,7 @@ sub fct_remove {
 		}
 
 		$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
-		&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
+		&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
 			if defined( $session_screens{$key}->{'long'} );
 
 		if(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
@@ -3962,13 +3934,13 @@ sub fct_remove {
 			delete $session_screens{$key};
 		}
 
-		&dlg_status_message( 1, $d->get("Selected screenshots removed") );
+		&fct_show_status_message( 1, $d->get("Selected screenshots removed") );
 
 		$window->show_all unless $is_hidden;
 
 	}
 
-	&fct_update_first_tab_and_tray;
+	&fct_update_info_and_tray();
 
 	return TRUE;
 }
@@ -4000,7 +3972,7 @@ sub fct_clipboard {
 			$clipboard->set_text( $session_screens{$key}->{'long'} );	
 		}
 			
-		&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("copied to clipboard") );
+		&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("copied to clipboard") );
 
 	}
 	return TRUE;
@@ -4036,7 +4008,7 @@ sub fct_undo {
 				#setup a new filemonitor, so we get noticed if the file changed
 				&fct_add_file_monitor($key);	
 
-				&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("reverted") );
+				&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("reverted") );
 			}else{
 
 				my $response = $sd->dlg_error_message(
@@ -4086,7 +4058,7 @@ sub fct_redo {
 				#setup a new filemonitor, so we get noticed if the file changed
 				&fct_add_file_monitor($key);	
 
-				&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("redo performed") );
+				&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("redo performed") );
 				
 			}else{
 
@@ -4353,7 +4325,7 @@ sub fct_take_screenshot {
 										undef, undef,
 										undef, undef,
 										$screenshot );
-				&dlg_status_message( 1, $d->get("Unable to capture website") );
+				&fct_show_status_message( 1, $d->get("Unable to capture website") );
 				&fct_control_main_window( TRUE, 'show');
 				return FALSE;
 			}
@@ -4413,14 +4385,14 @@ sub fct_take_screenshot {
 			$d->get( "Error while taking the screenshot." )
 		);
 			
-		&dlg_status_message( 1, $d->get("Error while taking the screenshot.") );
+		&fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
 		&fct_control_main_window( TRUE, 'show');
 		return FALSE;
 	} else {
 
 		#user aborted screenshot
 		if ( $screenshot == 5 ) {
-			&dlg_status_message( 1, $d->get("Capture aborted by user") );
+			&fct_show_status_message( 1, $d->get("Capture aborted by user") );
 			&fct_control_main_window( TRUE, 'show', $present_after_active->get_active);
 			return FALSE;
 
@@ -4432,7 +4404,7 @@ sub fct_take_screenshot {
 				$d->get( "Error while taking the screenshot." )
 			);
 				
-			&dlg_status_message( 1, $d->get("Error while taking the screenshot.") );
+			&fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
 			&fct_control_main_window( TRUE, 'show');
 			return FALSE;
 
@@ -4451,7 +4423,7 @@ sub fct_take_screenshot {
 				$d->get( "Error while taking the screenshot." )
 			);
 				
-			&dlg_status_message( 1, $d->get("Error while taking the screenshot.") );
+			&fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
 			&fct_control_main_window( TRUE, 'show');
 			return FALSE;
 		
@@ -4606,7 +4578,7 @@ sub fct_take_screenshot {
 		}
 		print "screenshot successfully saved to $screenshot_name!\n"
 			if $sc->get_debug;
-		&dlg_status_message( 1, "$session_screens{$new_key_screenshot}->{'short'} " . $d->get("saved") );
+		&fct_show_status_message( 1, "$session_screens{$new_key_screenshot}->{'short'} " . $d->get("saved") );
 		
 		#show pop-up notification
 		if($notify_after_active->get_active){
@@ -4620,7 +4592,7 @@ sub fct_take_screenshot {
 			sprintf($d->get( "The filename %s could not be verified. Maybe it contains unsupported characters." ), "'" . $folder . "'"),
 			$d->get( "Error while taking the screenshot." )
 		);
-		&dlg_status_message( 1, $d->get("Error while taking the screenshot.") );
+		&fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
 		&fct_control_main_window( TRUE, 'show');
 		return FALSE;		
 	}
@@ -4703,7 +4675,7 @@ sub fct_print {
 	$op->signal_connect(
 		'status-changed' => sub {
 			my $op = shift;
-			&dlg_status_message( 1, $op->get_status_string );
+			&fct_show_status_message( 1, $op->get_status_string );
 		}
 	);
 
@@ -4764,7 +4736,7 @@ sub fct_open_with_program {
 			$exec_call = $dentry->parse_Exec( $session_screens{$key}->{'long'} );
 		}
 
-		&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("opened with") . " " . $name );
+		&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("opened with") . " " . $name );
 
 		#session tab
 	} else {
@@ -4794,7 +4766,7 @@ sub fct_open_with_program {
 					$exec_call .= $dentry->parse_Exec($file) . ";";
 				}
 			}
-			&dlg_status_message( 1, $d->get("Opened all files with") . " " . $name );
+			&fct_show_status_message( 1, $d->get("Opened all files with") . " " . $name );
 		}
 	}
 
@@ -4859,9 +4831,9 @@ sub fct_execute_plugin {
 			
 		#check exit code
 		if($? == 0){
-			&dlg_status_message( 1, $d->get("Successfully executed plugin") . ": " . $plugin_name );
+			&fct_show_status_message( 1, $d->get("Successfully executed plugin") . ": " . $plugin_name );
 		}elsif($? / 256 == 1 ){
-			&dlg_status_message( 1, $d->get("Could not execute plugin") . ": " . $plugin_name );
+			&fct_show_status_message( 1, $d->get("Could not execute plugin") . ": " . $plugin_name );
 		}
 		
 		#...if not => simple execute the plugin via system (e.g. shell plugins)
@@ -4901,7 +4873,7 @@ sub fct_execute_plugin {
 
 		#finally show some status messages
 		if ( $plugin_process->exit_status() == 0 ) {
-			&dlg_status_message( 1, $d->get("Successfully executed plugin") . ": " . $plugin_name );
+			&fct_show_status_message( 1, $d->get("Successfully executed plugin") . ": " . $plugin_name );
 		}else{
 			$sd->dlg_error_message( $d->get("Could not execute plugin") . ": " . $plugin_name, $d->get("Failed") );
 		}
@@ -4911,33 +4883,73 @@ sub fct_execute_plugin {
 	return TRUE;
 }
 
-sub fct_update_first_tab_and_tray {
+sub fct_show_status_message {
+	my $index = shift;
+	my $status_text = shift;
+	
+	$status1->pop(1);
+	Glib::Source->remove ($session_start_screen{'first_page'}->{'statusbar_timer'}) if defined $session_start_screen{'first_page'}->{'statusbar_timer'};
+	$status1->push( $index, $status_text );
 
-	#SESSION INFOS
-	#--------------------------------------			
-	#~ $session_start_screen{'first_page'}->{'statistics_counter'}->set_text(
-		#~ scalar( keys(%session_screens) ) . " "
-			#~ . $d->nget( "screenshot during this session", "screenshots during this session", scalar( keys(%session_screens) ) ) );
-#~ 
-	#~ #handle total size in session
-	#~ my $total_size = 0;
-	#~ foreach ( keys %session_screens ) {
-		#~ next unless $session_screens{$_}->{'size'};
-		#~ $total_size += $session_screens{$_}->{'size'};
-	#~ }
-	#~ $session_start_screen{'first_page'}->{'size_counter'}
-		#~ ->set_text( $d->get("Total size") . ": " . $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display($total_size) ) );
+	#...and remove it
+	$session_start_screen{'first_page'}->{'statusbar_timer'} = Glib::Timeout->add(
+		3000,
+		sub {
+			$status1->pop(1);
+			#show file or session info again
+			&fct_update_info_and_tray();
+			return FALSE;
+		}
+	);
+	
+	return TRUE;
+}
 
-	#STATUSBAR
+sub fct_update_info_and_tray {
+	my $force_key = shift;
+	
+	my $key = undef;
+	if($force_key){
+		if($force_key eq "session"){
+			$key = undef;
+		}else{
+			$key = $force_key;
+		}			
+	}else{
+		$key = &fct_get_current_file;
+	}
+	
+	#STATUSBAR AND WINDOW TITLE
 	#--------------------------------------	
-	unless(&fct_get_current_file){		
+	#update statusbar when this image is current tab
+	if($key){
+		
+		#change window title
+		$window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
+		
+		$status1->push(1, $session_screens{$key}->{'width'} . 
+						  " x " . 
+						  $session_screens{$key}->{'height'} . 
+						  " " . 
+						  $d->get("pixels") .
+						  "  " .
+						  $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display( $session_screens{$key}->{'size'} ) ) 
+					   );
+
+	#session tab
+	}else{
+		
+		#change window title
+		$window->set_title($d->get("Session")." - ".SHUTTER_NAME);
+		
 		$status1->push(1, sprintf( $d->nget( "%s screenshot", "%s screenshots", scalar( keys(%session_screens) ) ) , scalar( keys(%session_screens) ) ) .
 						  "  " .
 						  $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display(&fct_get_total_size_of_session) )
 					   );
-	}			   
+					   		
+	}	
 
-	#TRAY INFOS
+	#TRAY TOOLTIP
 	#--------------------------------------	
 	#~ if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
 		#~ if($session_start_screen{'first_page'}->{'statistics_counter'}->get_text && $combobox_settings_profiles->get_active_text){
@@ -4956,34 +4968,11 @@ sub fct_update_first_tab_and_tray {
 	if ( $filename && $saveDir_button && $combobox_settings_profiles ) {
 
 		if ( $combobox_settings_profiles->get_active_text ) {
-			#~ #display text on label...
-			#~ $session_start_screen{'first_page'}->{'settings_label'}
-				#~ ->set_markup( "<b>" . $d->get("Current Preferences") . "</b>" . " (" . $combobox_settings_profiles->get_active_text . ")" );
-			#...and statusbar
 			$status2->push(1, $d->get("Current Profile") . ": " . $combobox_settings_profiles->get_active_text);
 		} else {
-			#~ $session_start_screen{'first_page'}->{'settings_label'}->set_markup( "<b>" . $d->get("Current Preferences") . "</b>" );
 			$status2->push(1, "");
 		}
 
-		#~ my $current_folder = $saveDir_button->get_filename;
-#~ 
-		#~ if ( $settings_xml->{'general'}->{'folder_force'} || !$current_folder ) {
-			#~ if ( exists $settings_xml->{'general'}->{'folder'} ) {
-				#~ $current_folder = $settings_xml->{'general'}->{'folder'};
-			#~ } else {
-				#~ $current_folder = $ENV{'HOME'};
-			#~ }
-			#~ $settings_xml->{'general'}->{'folder_force'} = FALSE;
-		#~ }
-#~ 
-		#~ if ( $filename->get_text ne "" ) {
-			#~ $session_start_screen{'first_page'}->{'filename_label'}->set_text( $d->get("Filename") . ": " . $filename->get_text );
-		#~ } else {
-			#~ $session_start_screen{'first_page'}->{'filename_label'}->set_text( $d->get("Filename") . ": -" );
-		#~ }
-#~ 
-		#~ $session_start_screen{'first_page'}->{'folder_label'}->set_text( $d->get("Directory") . ": " . $current_folder );
 	}
 
 	return TRUE;
@@ -5206,18 +5195,6 @@ sub fct_update_tab {
 				$thumb->fill(0x00000000);						
 			}
 
-			#update statusbar when this image is current tab
-			if($key eq &fct_get_current_file){
-				$status1->push(1, $session_screens{$key}->{'width'} . 
-								  " x " . 
-								  $session_screens{$key}->{'height'} . 
-								  " " . 
-								  $d->get("pixels") .
-								  "  " .
-								  $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display( $session_screens{$key}->{'size'} ) ) 
-							   );
-			}			   
-
 			#~ $session_screens{$key}->{'filename_label'}->set_text( $session_screens{$key}->{'uri'}->extract_short_name );
 			#~ $tooltips->set_tip( $session_screens{$key}->{'filename_label'}, $session_screens{$key}->{'uri'}->to_string );
 #~ 
@@ -5253,9 +5230,9 @@ sub fct_update_tab {
 			}else{
 				$session_start_screen{'first_page'}->{'model'}->set( $session_screens{$key}->{'iter'}, 0, $thumb_view, 1, $session_screens{$key}->{'short'}, 2, $key );					
 			}
-			
+						
 			#update first tab
-			&fct_update_first_tab_and_tray;
+			&fct_update_info_and_tray();
 
 			#update menu actions		
 			&fct_update_actions(1, $key);
@@ -5283,7 +5260,7 @@ sub fct_update_tab {
 			if($response == 10){
 
 				$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
-				&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
+				&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
 					if defined( $session_screens{$key}->{'long'} );
 
 				if(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
@@ -5304,16 +5281,16 @@ sub fct_update_tab {
 					#setup a new filemonitor, so we get noticed if the file changed
 					&fct_add_file_monitor($key);
 
-					&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("saved"));
+					&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("saved"));
 				
-					&fct_update_first_tab_and_tray;
+					&fct_update_info_and_tray();
 					return TRUE;
 				
 				#resave failed => delete the screenshot	
 				}else{
 
 					$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
-					&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
+					&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
 						if defined( $session_screens{$key}->{'long'} );
 
 					if(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
@@ -5325,7 +5302,7 @@ sub fct_update_tab {
 				}	
 			}
 			
-			&fct_update_first_tab_and_tray;
+			&fct_update_info_and_tray();
 			return FALSE;
 
 		}	 
@@ -5342,7 +5319,7 @@ sub fct_update_tab {
 	);	
 
 	$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
-	&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
+	&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
 		if defined( $session_screens{$key}->{'long'} );
 
 	if(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
@@ -5351,7 +5328,7 @@ sub fct_update_tab {
 
 	delete( $session_screens{$key} );    
 	
-	&fct_update_first_tab_and_tray;
+	&fct_update_info_and_tray();
 	return FALSE;
 
 }
@@ -6693,26 +6670,6 @@ sub fct_init_debug_output {
 #dialogs
 #--------------------------------------
 
-sub dlg_status_message {
-	#~ my $index = shift;
-	#~ my $status_text = shift;
-	#~ 
-	#~ $status1->pop(1);
-	#~ Glib::Source->remove ($session_start_screen{'first_page'}->{'statusbar_timer'}) if defined $session_start_screen{'first_page'}->{'statusbar_timer'};
-	#~ $status1->push( $index, $status_text );
-#~ 
-	#~ #...and remove it
-	#~ $session_start_screen{'first_page'}->{'statusbar_timer'} = Glib::Timeout->add(
-		#~ 5000,
-		#~ sub {
-			#~ $status1->pop(1);
-			#~ return FALSE;
-		#~ }
-	#~ );
-	#~ 
-	#~ return TRUE;
-}
-
 sub dlg_rename {
 	my (@file_to_rename_keys) = @_;
 
@@ -6828,7 +6785,7 @@ sub dlg_rename {
 							#setup a new filemonitor, so we get noticed if the file changed
 							&fct_add_file_monitor($key);	
 
-							&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("renamed") );
+							&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("renamed") );
 							
 							#change window title
 							$window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
@@ -6878,7 +6835,7 @@ sub dlg_rename {
 								#setup a new filemonitor, so we get noticed if the file changed
 								&fct_add_file_monitor($key);	
 
-								&dlg_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("renamed") );
+								&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("renamed") );
 
 								#change window title
 								$window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
@@ -7047,7 +7004,7 @@ sub dlg_save_as {
 						#setup a new filemonitor, so we get noticed if the file changed
 						&fct_add_file_monitor($key);
 
-						&dlg_status_message( 1, "$session_screens{ $key }->{ 'long' } " . $d->get("saved") );
+						&fct_show_status_message( 1, "$session_screens{ $key }->{ 'long' } " . $d->get("saved") );
 					}
 					
 				}
@@ -7090,7 +7047,7 @@ sub dlg_save_as {
 								}
 							}	
 
-							&dlg_status_message( 1, "$session_screens{ $key }->{ 'long' } " . $d->get("saved") );					
+							&fct_show_status_message( 1, "$session_screens{ $key }->{ 'long' } " . $d->get("saved") );					
 
 						}
 
@@ -7540,7 +7497,7 @@ UPDIALOG: while ($hosting_dialog) {
 
 						if ( is_success( $upload_response{'status'} ) ) {
 							$uploader->show;
-							&dlg_status_message( 1, $file . " " . $d->get("uploaded") );
+							&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
 						} else {
 							my $response = &dlg_upload_error_message( $upload_response{'status'}, $upload_response{'max_filesize'} );
 
@@ -7571,7 +7528,7 @@ UPDIALOG: while ($hosting_dialog) {
 
 						if ( is_success( $upload_response{'status'} ) ) {
 							$uploader->show;
-							&dlg_status_message( 1, $file . " " . $d->get("uploaded") );
+							&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
 						} else {
 							my $response = &dlg_upload_error_message( $upload_response{'status'}, $upload_response{'max_filesize'} );
 
@@ -7636,7 +7593,7 @@ UPDIALOG: while ($hosting_dialog) {
 
 						if ($url) {
 							$ishack->show( $hosting_host, $hosting_username, $file, $url, $thumb_url, RC_OK, $d, $window, $shutter_root );
-							&dlg_status_message( 1, $file . " " . $d->get("uploaded") );
+							&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
 						} else {
 							my $response = $sd->dlg_error_message(
 								$d->get("Please check your connectivity and try again."),
@@ -7709,7 +7666,7 @@ UPDIALOG: while ($hosting_dialog) {
 					#upload returns FALSE if there is no error
 					unless ($upload_response[0]) {
 						#everything is fine here
-						&dlg_status_message( 1, $file . " " . $d->get("uploaded") );
+						&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
 					} else {
 
 						#we already get translated error messaged back
@@ -7776,9 +7733,9 @@ UPDIALOG: while ($hosting_dialog) {
 					
 						#everything is fine here
 						if($target_uri->is_local){
-							&dlg_status_message( 1, $file . " " . $d->get("exported") );
+							&fct_show_status_message( 1, $file . " " . $d->get("exported") );
 						}else{
-							&dlg_status_message( 1, $file . " " . $d->get("uploaded") );
+							&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
 						}
 					
 					}elsif($result eq 'error-file-exists'){
@@ -7816,9 +7773,9 @@ UPDIALOG: while ($hosting_dialog) {
 							if($result eq 'ok'){	
 								#everything is fine here
 								if($target_uri->is_local){
-									&dlg_status_message( 1, $file . " " . $d->get("exported") );
+									&fct_show_status_message( 1, $file . " " . $d->get("exported") );
 								}else{
-									&dlg_status_message( 1, $file . " " . $d->get("uploaded") );
+									&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
 								}			
 							} else{
 
