@@ -4233,9 +4233,14 @@ sub fct_take_screenshot {
 	}
 
 	#delay
-	if ( $delay_active->get_active ) {
-		$delay_value = $delay->get_value;
-	} else {
+	#when capturing a menu or tooltip => disable delay (there is a dedicated delay property for this)
+	unless ( $data eq "menu" || $data eq "tray_menu" || $data eq "tooltip" || $data eq "tray_tooltip" ){
+		if ( $delay_active->get_active ) {
+			$delay_value = $delay->get_value;
+		} else {
+			$delay_value = 0;
+		}
+	}else{
 		$delay_value = 0;
 	}
 
