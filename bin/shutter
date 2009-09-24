@@ -1887,23 +1887,36 @@ sub evt_notebook_switch {
 	if($key){
 
 		#do this when idle
-		Glib::Idle->add (
-		sub{
+		#~ Glib::Idle->add (
+		#~ sub{
 
 			foreach (keys %session_screens){
 				#set pixbuf for current item
 				if ($_ eq $key){
 					if($session_screens{$key}->{'long'}){
+						
+						#change window title
+						$window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
+						
+						#and statusbar
+						$status1->push(1, $session_screens{$key}->{'width'} . 
+										  " x " . 
+										  $session_screens{$key}->{'height'} . 
+										  " " . 
+										  $d->get("pixels") .
+										  "  " .
+										  $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display( $session_screens{$key}->{'size'} ) ) 
+									   );
+										  						
 						#do nothing if
 						#the view does already show a pixbuf
 						unless($session_screens{$_}->{'image'}->get_pixbuf){
-							#change window title
-							$window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
 							eval{
 								#~ print "setting ", $_, "\n";
 								$session_screens{$_}->{'image'}->set_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} ));								
 							}
 						}
+						
 					}
 					next;
 				}
@@ -1920,12 +1933,20 @@ sub evt_notebook_switch {
 				}
 			}
 
-			return FALSE;
-		});			
+			#~ return FALSE;
+		#~ });			
 		
 	}else{
+			
 		#change window title
-		$window->set_title($d->get("Session")." - ".SHUTTER_NAME);		
+		$window->set_title($d->get("Session")." - ".SHUTTER_NAME);
+
+		#and statusbar		
+		$status1->push(1, sprintf( $d->nget( "%s screenshot", "%s screenshots", scalar( keys(%session_screens) ) ) , scalar( keys(%session_screens) ) ) .
+						  "  " .
+						  $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display(&fct_get_total_size_of_session) )
+					   );
+				
 	}	
 
 	#unselect all items in session tab
@@ -2737,39 +2758,39 @@ sub fct_create_tab {
 	my $vbox            = Gtk2::VBox->new( FALSE, 0 );
 	my $vbox_tab        = Gtk2::VBox->new( FALSE, 0 );
 	my $vbox_tab_event  = Gtk2::EventBox->new;
-	my $vbox_all        = Gtk2::VBox->new( FALSE, 0 );
-	my $hbox_all        = Gtk2::HBox->new( FALSE, 0 );
-	my $vbox_all2       = Gtk2::VBox->new( FALSE, 0 );
-	my $vbox_fileinfos  = Gtk2::VBox->new( FALSE, 0 );
+	#~ my $vbox_all        = Gtk2::VBox->new( FALSE, 0 );
+	#~ my $hbox_all        = Gtk2::HBox->new( FALSE, 0 );
+	#~ my $vbox_all2       = Gtk2::VBox->new( FALSE, 0 );
+	#~ my $vbox_fileinfos  = Gtk2::VBox->new( FALSE, 0 );
 
 	unless ($is_all) {
-		my $filename_label = Gtk2::Label->new;
-		$filename_label->set_markup( "<b>" . $d->get("Filename") . "</b>" );
-		$session_screens{$key}->{'filename_label'} = Gtk2::Label->new();
-		$session_screens{$key}->{'filename_label'}->set_line_wrap(TRUE);
-		$session_screens{$key}->{'filename_label'}->set_line_wrap_mode ('char');
-		$session_screens{$key}->{'filename_label'}->set_width_chars (20);
-		$session_screens{$key}->{'filename_label'}->set_single_line_mode(FALSE);
-
-		my $folder_label = Gtk2::Label->new;
-		$folder_label->set_markup( "<b>" . $d->get("Directory") . "</b>" );
-		$session_screens{$key}->{'folder_label'} = Gtk2::Label->new();
-		$session_screens{$key}->{'folder_label'}->set_line_wrap(TRUE);
-		$session_screens{$key}->{'folder_label'}->set_line_wrap_mode ('char');
-		$session_screens{$key}->{'folder_label'}->set_width_chars (20);
-		$session_screens{$key}->{'folder_label'}->set_single_line_mode(FALSE);
-
-		my $mime_type_label = Gtk2::Label->new;
-		$mime_type_label->set_markup( "<b>" . $d->get("Mime-Type") . "</b>" );
-		$session_screens{$key}->{'mime_type_label'} = Gtk2::Label->new();
-
-		my $size_label = Gtk2::Label->new;
-		$size_label->set_markup( "<b>" . $d->get("Filesize") . "</b>" );
-		$session_screens{$key}->{'size_label'} = Gtk2::Label->new();
-
-		my $geometry_label = Gtk2::Label->new;
-		$geometry_label->set_markup( "<b>" . $d->get("Geometry") . "</b>" );
-		$session_screens{$key}->{'geometry_label'} = Gtk2::Label->new();
+		#~ my $filename_label = Gtk2::Label->new;
+		#~ $filename_label->set_markup( "<b>" . $d->get("Filename") . "</b>" );
+		#~ $session_screens{$key}->{'filename_label'} = Gtk2::Label->new();
+		#~ $session_screens{$key}->{'filename_label'}->set_line_wrap(TRUE);
+		#~ $session_screens{$key}->{'filename_label'}->set_line_wrap_mode ('char');
+		#~ $session_screens{$key}->{'filename_label'}->set_width_chars (20);
+		#~ $session_screens{$key}->{'filename_label'}->set_single_line_mode(FALSE);
+#~ 
+		#~ my $folder_label = Gtk2::Label->new;
+		#~ $folder_label->set_markup( "<b>" . $d->get("Directory") . "</b>" );
+		#~ $session_screens{$key}->{'folder_label'} = Gtk2::Label->new();
+		#~ $session_screens{$key}->{'folder_label'}->set_line_wrap(TRUE);
+		#~ $session_screens{$key}->{'folder_label'}->set_line_wrap_mode ('char');
+		#~ $session_screens{$key}->{'folder_label'}->set_width_chars (20);
+		#~ $session_screens{$key}->{'folder_label'}->set_single_line_mode(FALSE);
+#~ 
+		#~ my $mime_type_label = Gtk2::Label->new;
+		#~ $mime_type_label->set_markup( "<b>" . $d->get("Mime-Type") . "</b>" );
+		#~ $session_screens{$key}->{'mime_type_label'} = Gtk2::Label->new();
+#~ 
+		#~ my $size_label = Gtk2::Label->new;
+		#~ $size_label->set_markup( "<b>" . $d->get("Filesize") . "</b>" );
+		#~ $session_screens{$key}->{'size_label'} = Gtk2::Label->new();
+#~ 
+		#~ my $geometry_label = Gtk2::Label->new;
+		#~ $geometry_label->set_markup( "<b>" . $d->get("Geometry") . "</b>" );
+		#~ $session_screens{$key}->{'geometry_label'} = Gtk2::Label->new();
 
 		#Gtk2::ImageView - empty at first
 		$session_screens{$key}->{'image'} = Gtk2::ImageView->new();
@@ -2824,20 +2845,21 @@ sub fct_create_tab {
 		#~ $size_label->set_alignment( 0, 0.5 );
 		#~ $geometry_label->set_alignment( 0, 0.5 );
 
-		$vbox_fileinfos->pack_start( $filename_label,                             FALSE, TRUE, 5 );
-		$vbox_fileinfos->pack_start( $session_screens{$key}->{'filename_label'},  FALSE, TRUE, 2 );
-		$vbox_fileinfos->pack_start( $folder_label,                               FALSE, TRUE, 5 );
-		$vbox_fileinfos->pack_start( $session_screens{$key}->{'folder_label'},    FALSE, TRUE, 2 );
-		$vbox_fileinfos->pack_start( $size_label,                                 FALSE, TRUE, 10 );
-		$vbox_fileinfos->pack_start( $session_screens{$key}->{'size_label'},      FALSE, TRUE, 2 );
-		$vbox_fileinfos->pack_start( $mime_type_label,                            FALSE, TRUE, 10 );
-		$vbox_fileinfos->pack_start( $session_screens{$key}->{'mime_type_label'}, FALSE, TRUE, 2 );
-		$vbox_fileinfos->pack_start( $geometry_label,                             FALSE, TRUE, 10 );
-		$vbox_fileinfos->pack_start( $session_screens{$key}->{'geometry_label'},  FALSE, TRUE, 2 );
+		#~ $vbox_fileinfos->pack_start( $filename_label,                             FALSE, TRUE, 5 );
+		#~ $vbox_fileinfos->pack_start( $session_screens{$key}->{'filename_label'},  FALSE, TRUE, 2 );
+		#~ $vbox_fileinfos->pack_start( $folder_label,                               FALSE, TRUE, 5 );
+		#~ $vbox_fileinfos->pack_start( $session_screens{$key}->{'folder_label'},    FALSE, TRUE, 2 );
+		#~ $vbox_fileinfos->pack_start( $size_label,                                 FALSE, TRUE, 10 );
+		#~ $vbox_fileinfos->pack_start( $session_screens{$key}->{'size_label'},      FALSE, TRUE, 2 );
+		#~ $vbox_fileinfos->pack_start( $mime_type_label,                            FALSE, TRUE, 10 );
+		#~ $vbox_fileinfos->pack_start( $session_screens{$key}->{'mime_type_label'}, FALSE, TRUE, 2 );
+		#~ $vbox_fileinfos->pack_start( $geometry_label,                             FALSE, TRUE, 10 );
+		#~ $vbox_fileinfos->pack_start( $session_screens{$key}->{'geometry_label'},  FALSE, TRUE, 2 );
 
 		my $hpaned = Gtk2::HPaned->new;
-		$hpaned->add1($vbox_fileinfos);
-		$hpaned->pack2($image_sw, TRUE, FALSE);
+		#~ $hpaned->add1($vbox_fileinfos);
+		$hpaned->add1($image_sw);
+		#~ $hpaned->pack2($image_sw, TRUE, FALSE);
 
 		$vbox_tab->pack_start( $hpaned, TRUE, TRUE, 0 );
 
@@ -2852,33 +2874,33 @@ sub fct_create_tab {
 		return $vbox_tab_event;
 
 	} else {
-		my $stats_label = Gtk2::Label->new;
-		$stats_label->set_markup( "<b>" . $d->get("Statistic") . "</b>" );
-
-		$session_start_screen{'first_page'}->{'statistics_counter'} = Gtk2::Label->new(
-			$notebook->get_n_pages . " " . $d->nget( "screenshot during this session", "screenshots during this session", $notebook->get_n_pages ) );
-
-		$session_start_screen{'first_page'}->{'size_counter'}
-			= Gtk2::Label->new( $d->get("Total size") . ": " . $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display(0) ) );
-
-		$vbox_all->pack_start( $stats_label,                                                FALSE, TRUE, 1 );
-		$vbox_all->pack_start( $session_start_screen{'first_page'}->{'statistics_counter'}, FALSE, TRUE, 1 );
-		$vbox_all->pack_start( $session_start_screen{'first_page'}->{'size_counter'},       FALSE, TRUE, 1 );
-
-		$session_start_screen{'first_page'}->{'settings_label'} = Gtk2::Label->new;
-		$session_start_screen{'first_page'}->{'settings_label'}->set_markup( "<b>" . $d->get("Current Preferences") . "</b>" );
-
-		$vbox_all2->pack_start_defaults( $session_start_screen{'first_page'}->{'settings_label'} );
-
-		$session_start_screen{'first_page'}->{'filename_label'} = Gtk2::Label->new( $d->get("Filename") . ": " );
-		$session_start_screen{'first_page'}->{'folder_label'}   = Gtk2::Label->new( $d->get("Directory") . ": " );
-
-		my $tab_all_sizegroup = Gtk2::SizeGroup->new('vertical');
-		$tab_all_sizegroup->add_widget( $session_start_screen{'first_page'}->{'filename_label'} );
-		$tab_all_sizegroup->add_widget( $session_start_screen{'first_page'}->{'folder_label'} );
-
-		$vbox_all2->pack_start_defaults( $session_start_screen{'first_page'}->{'filename_label'} );
-		$vbox_all2->pack_start_defaults( $session_start_screen{'first_page'}->{'folder_label'} );
+		#~ my $stats_label = Gtk2::Label->new;
+		#~ $stats_label->set_markup( "<b>" . $d->get("Statistic") . "</b>" );
+#~ 
+		#~ $session_start_screen{'first_page'}->{'statistics_counter'} = Gtk2::Label->new(
+			#~ $notebook->get_n_pages . " " . $d->nget( "screenshot during this session", "screenshots during this session", $notebook->get_n_pages ) );
+#~ 
+		#~ $session_start_screen{'first_page'}->{'size_counter'}
+			#~ = Gtk2::Label->new( $d->get("Total size") . ": " . $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display(0) ) );
+#~ 
+		#~ $vbox_all->pack_start( $stats_label,                                                FALSE, TRUE, 1 );
+		#~ $vbox_all->pack_start( $session_start_screen{'first_page'}->{'statistics_counter'}, FALSE, TRUE, 1 );
+		#~ $vbox_all->pack_start( $session_start_screen{'first_page'}->{'size_counter'},       FALSE, TRUE, 1 );
+#~ 
+		#~ $session_start_screen{'first_page'}->{'settings_label'} = Gtk2::Label->new;
+		#~ $session_start_screen{'first_page'}->{'settings_label'}->set_markup( "<b>" . $d->get("Current Preferences") . "</b>" );
+#~ 
+		#~ $vbox_all2->pack_start_defaults( $session_start_screen{'first_page'}->{'settings_label'} );
+#~ 
+		#~ $session_start_screen{'first_page'}->{'filename_label'} = Gtk2::Label->new( $d->get("Filename") . ": " );
+		#~ $session_start_screen{'first_page'}->{'folder_label'}   = Gtk2::Label->new( $d->get("Directory") . ": " );
+#~ 
+		#~ my $tab_all_sizegroup = Gtk2::SizeGroup->new('vertical');
+		#~ $tab_all_sizegroup->add_widget( $session_start_screen{'first_page'}->{'filename_label'} );
+		#~ $tab_all_sizegroup->add_widget( $session_start_screen{'first_page'}->{'folder_label'} );
+#~ 
+		#~ $vbox_all2->pack_start_defaults( $session_start_screen{'first_page'}->{'filename_label'} );
+		#~ $vbox_all2->pack_start_defaults( $session_start_screen{'first_page'}->{'folder_label'} );
 
 		#create iconview for session
 		$session_start_screen{'first_page'}->{'model'} = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String' );
@@ -2891,9 +2913,10 @@ sub fct_create_tab {
 		$session_start_screen{'first_page'}->{'view'}->signal_connect( 'selection-changed', \&evt_iconview_sel_changed,    'sel_changed' );
 		$session_start_screen{'first_page'}->{'view'}->signal_connect( 'item-activated',    \&evt_iconview_item_activated, 'item_activated' );
 
-		$hbox_all->pack_start_defaults($vbox_all);
-		$hbox_all->pack_start_defaults($vbox_all2);
-		$vbox_tab->pack_start( $hbox_all, FALSE, TRUE, 0 );
+		#~ $hbox_all->pack_start_defaults($vbox_all);
+		#~ $hbox_all->pack_start_defaults($vbox_all2);
+		#~ $vbox_tab->pack_start( $hbox_all, FALSE, TRUE, 0 );
+		#~ $vbox_tab->pack_start( $hbox_all, FALSE, TRUE, 0 );
 
 		my $scrolled_window_view = Gtk2::ScrolledWindow->new;
 		$scrolled_window_view->set_policy( 'automatic', 'automatic' );
@@ -4884,68 +4907,77 @@ sub fct_execute_plugin {
 
 sub fct_update_first_tab_and_tray {
 
-	#FILE INFOS
+	#SESSION INFOS
 	#--------------------------------------			
-	$session_start_screen{'first_page'}->{'statistics_counter'}->set_text(
-		scalar( keys(%session_screens) ) . " "
-			. $d->nget( "screenshot during this session", "screenshots during this session", scalar( keys(%session_screens) ) ) );
+	#~ $session_start_screen{'first_page'}->{'statistics_counter'}->set_text(
+		#~ scalar( keys(%session_screens) ) . " "
+			#~ . $d->nget( "screenshot during this session", "screenshots during this session", scalar( keys(%session_screens) ) ) );
+#~ 
+	#~ #handle total size in session
+	#~ my $total_size = 0;
+	#~ foreach ( keys %session_screens ) {
+		#~ next unless $session_screens{$_}->{'size'};
+		#~ $total_size += $session_screens{$_}->{'size'};
+	#~ }
+	#~ $session_start_screen{'first_page'}->{'size_counter'}
+		#~ ->set_text( $d->get("Total size") . ": " . $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display($total_size) ) );
 
-	#handle total size in session
-	my $total_size = 0;
-	foreach ( keys %session_screens ) {
-		next unless $session_screens{$_}->{'size'};
-		$total_size += $session_screens{$_}->{'size'};
-	}
-	$session_start_screen{'first_page'}->{'size_counter'}
-		->set_text( $d->get("Total size") . ": " . $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display($total_size) ) );
-
-	#FILE INFOS
+	#STATUSBAR
 	#--------------------------------------	
-	if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
-		if($session_start_screen{'first_page'}->{'statistics_counter'}->get_text && $combobox_settings_profiles->get_active_text){
-			$tray->set_tooltip( $session_start_screen{'first_page'}->{'statistics_counter'}->get_text .
-								"\n\n".
-								$d->get("Current Profile") . ": " . $combobox_settings_profiles->get_active_text );
-		}else{
-			$tray->set_tooltip(SHUTTER_NAME . " " . SHUTTER_VERSION);	
-		}
-	} elsif ( $tray && $tray->isa('Gtk2::TrayIcon') ) {
-		$tooltips->set_tip( $tray, SHUTTER_NAME . " " . SHUTTER_VERSION );
-	}
+	unless(&fct_get_current_file){		
+		$status1->push(1, sprintf( $d->nget( "%s screenshot", "%s screenshots", scalar( keys(%session_screens) ) ) , scalar( keys(%session_screens) ) ) .
+						  "  " .
+						  $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display(&fct_get_total_size_of_session) )
+					   );
+	}			   
+
+	#TRAY INFOS
+	#--------------------------------------	
+	#~ if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
+		#~ if($session_start_screen{'first_page'}->{'statistics_counter'}->get_text && $combobox_settings_profiles->get_active_text){
+			#~ $tray->set_tooltip( $session_start_screen{'first_page'}->{'statistics_counter'}->get_text .
+								#~ "\n\n".
+								#~ $d->get("Current Profile") . ": " . $combobox_settings_profiles->get_active_text );
+		#~ }else{
+			#~ $tray->set_tooltip(SHUTTER_NAME . " " . SHUTTER_VERSION);	
+		#~ }
+	#~ } elsif ( $tray && $tray->isa('Gtk2::TrayIcon') ) {
+		#~ $tooltips->set_tip( $tray, SHUTTER_NAME . " " . SHUTTER_VERSION );
+	#~ }
 
 	#SESSION AND SETTINGS INFO
 	#--------------------------------------		
 	if ( $filename && $saveDir_button && $combobox_settings_profiles ) {
 
 		if ( $combobox_settings_profiles->get_active_text ) {
-			#display text on label...
-			$session_start_screen{'first_page'}->{'settings_label'}
-				->set_markup( "<b>" . $d->get("Current Preferences") . "</b>" . " (" . $combobox_settings_profiles->get_active_text . ")" );
+			#~ #display text on label...
+			#~ $session_start_screen{'first_page'}->{'settings_label'}
+				#~ ->set_markup( "<b>" . $d->get("Current Preferences") . "</b>" . " (" . $combobox_settings_profiles->get_active_text . ")" );
 			#...and statusbar
 			$status2->push(1, $d->get("Current Profile") . ": " . $combobox_settings_profiles->get_active_text);
 		} else {
-			$session_start_screen{'first_page'}->{'settings_label'}->set_markup( "<b>" . $d->get("Current Preferences") . "</b>" );
+			#~ $session_start_screen{'first_page'}->{'settings_label'}->set_markup( "<b>" . $d->get("Current Preferences") . "</b>" );
 			$status2->push(1, "");
 		}
 
-		my $current_folder = $saveDir_button->get_filename;
-
-		if ( $settings_xml->{'general'}->{'folder_force'} || !$current_folder ) {
-			if ( exists $settings_xml->{'general'}->{'folder'} ) {
-				$current_folder = $settings_xml->{'general'}->{'folder'};
-			} else {
-				$current_folder = $ENV{'HOME'};
-			}
-			$settings_xml->{'general'}->{'folder_force'} = FALSE;
-		}
-
-		if ( $filename->get_text ne "" ) {
-			$session_start_screen{'first_page'}->{'filename_label'}->set_text( $d->get("Filename") . ": " . $filename->get_text );
-		} else {
-			$session_start_screen{'first_page'}->{'filename_label'}->set_text( $d->get("Filename") . ": -" );
-		}
-
-		$session_start_screen{'first_page'}->{'folder_label'}->set_text( $d->get("Directory") . ": " . $current_folder );
+		#~ my $current_folder = $saveDir_button->get_filename;
+#~ 
+		#~ if ( $settings_xml->{'general'}->{'folder_force'} || !$current_folder ) {
+			#~ if ( exists $settings_xml->{'general'}->{'folder'} ) {
+				#~ $current_folder = $settings_xml->{'general'}->{'folder'};
+			#~ } else {
+				#~ $current_folder = $ENV{'HOME'};
+			#~ }
+			#~ $settings_xml->{'general'}->{'folder_force'} = FALSE;
+		#~ }
+#~ 
+		#~ if ( $filename->get_text ne "" ) {
+			#~ $session_start_screen{'first_page'}->{'filename_label'}->set_text( $d->get("Filename") . ": " . $filename->get_text );
+		#~ } else {
+			#~ $session_start_screen{'first_page'}->{'filename_label'}->set_text( $d->get("Filename") . ": -" );
+		#~ }
+#~ 
+		#~ $session_start_screen{'first_page'}->{'folder_label'}->set_text( $d->get("Directory") . ": " . $current_folder );
 	}
 
 	return TRUE;
@@ -4972,6 +5004,15 @@ sub fct_get_file_by_index {
 	}
 	
 	return $key;
+}
+
+sub fct_get_total_size_of_session {
+	my $total_size = 0;
+	foreach ( keys %session_screens ) {
+		next unless $session_screens{$_}->{'size'};
+		$total_size += $session_screens{$_}->{'size'};
+	}
+	return $total_size;		
 }
 
 sub fct_get_current_file {
@@ -5157,17 +5198,29 @@ sub fct_update_tab {
 				$thumb->fill(0x00000000);						
 			}
 
-			$session_screens{$key}->{'filename_label'}->set_text( $session_screens{$key}->{'uri'}->extract_short_name );
-			$tooltips->set_tip( $session_screens{$key}->{'filename_label'}, $session_screens{$key}->{'uri'}->to_string );
+			#update statusbar when this image is current tab
+			if($key eq &fct_get_current_file){
+				$status1->push(1, $session_screens{$key}->{'width'} . 
+								  " x " . 
+								  $session_screens{$key}->{'height'} . 
+								  " " . 
+								  $d->get("pixels") .
+								  "  " .
+								  $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display( $session_screens{$key}->{'size'} ) ) 
+							   );
+			}			   
 
-			$session_screens{$key}->{'folder_label'}->set_text( $session_screens{$key}->{'uri'}->extract_dirname );
-			$tooltips->set_tip( $session_screens{$key}->{'folder_label'}, $session_screens{$key}->{'uri'}->extract_dirname );
-
-			$session_screens{$key}->{'mime_type_label'}->set_text( $session_screens{$key}->{'mime_type'} );
-
-			$session_screens{$key}->{'size_label'}->set_text( $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display( $session_screens{$key}->{'size'} ) ) );
-
-			$session_screens{$key}->{'geometry_label'}->set_text( $session_screens{$key}->{'width'} . "x" . $session_screens{$key}->{'height'} );
+			#~ $session_screens{$key}->{'filename_label'}->set_text( $session_screens{$key}->{'uri'}->extract_short_name );
+			#~ $tooltips->set_tip( $session_screens{$key}->{'filename_label'}, $session_screens{$key}->{'uri'}->to_string );
+#~ 
+			#~ $session_screens{$key}->{'folder_label'}->set_text( $session_screens{$key}->{'uri'}->extract_dirname );
+			#~ $tooltips->set_tip( $session_screens{$key}->{'folder_label'}, $session_screens{$key}->{'uri'}->extract_dirname );
+#~ 
+			#~ $session_screens{$key}->{'mime_type_label'}->set_text( $session_screens{$key}->{'mime_type'} );
+#~ 
+			#~ $session_screens{$key}->{'size_label'}->set_text( $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display( $session_screens{$key}->{'size'} ) ) );
+#~ 
+			#~ $session_screens{$key}->{'geometry_label'}->set_text( $session_screens{$key}->{'width'} . "x" . $session_screens{$key}->{'height'} );
 
 			#UPDATE FIRST TAB - VIEW
 			#--------------------------------------				
@@ -6632,23 +6685,23 @@ sub fct_init_debug_output {
 #--------------------------------------
 
 sub dlg_status_message {
-	my $index = shift;
-	my $status_text = shift;
-	
-	$status1->pop(1);
-	Glib::Source->remove ($session_start_screen{'first_page'}->{'statusbar_timer'}) if defined $session_start_screen{'first_page'}->{'statusbar_timer'};
-	$status1->push( $index, $status_text );
-
-	#...and remove it
-	$session_start_screen{'first_page'}->{'statusbar_timer'} = Glib::Timeout->add(
-		5000,
-		sub {
-			$status1->pop(1);
-			return FALSE;
-		}
-	);
-	
-	return TRUE;
+	#~ my $index = shift;
+	#~ my $status_text = shift;
+	#~ 
+	#~ $status1->pop(1);
+	#~ Glib::Source->remove ($session_start_screen{'first_page'}->{'statusbar_timer'}) if defined $session_start_screen{'first_page'}->{'statusbar_timer'};
+	#~ $status1->push( $index, $status_text );
+#~ 
+	#~ #...and remove it
+	#~ $session_start_screen{'first_page'}->{'statusbar_timer'} = Glib::Timeout->add(
+		#~ 5000,
+		#~ sub {
+			#~ $status1->pop(1);
+			#~ return FALSE;
+		#~ }
+	#~ );
+	#~ 
+	#~ return TRUE;
 }
 
 sub dlg_rename {
