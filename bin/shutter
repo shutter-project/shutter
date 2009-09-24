@@ -2506,7 +2506,7 @@ sub evt_apply_profile {
 
 sub fct_create_session_notebook {
 	
-	$notebook->set( homogeneous  => TRUE );
+	$notebook->set( 'homogeneous'  => TRUE );
 	$notebook->set( 'scrollable' => TRUE );
 
 	#enable dnd for it
@@ -2797,8 +2797,14 @@ sub fct_create_tab {
 		$session_screens{$key}->{'image'}->set_interpolation ('tiles');	
 		
 		#Gtk2::ImageView::ScrollWin
-		my $image_sw = Gtk2::ImageView::ScrollWin->new($session_screens{$key}->{'image'});
-		$image_sw->set_size_request(50, -1);
+		#~ my $image_sw = Gtk2::ImageView::ScrollWin->new($session_screens{$key}->{'image'});
+		#~ $image_sw->set_size_request(50, -1);
+		
+		#Gtk2::ImageView::ScrollWin packaged in a Gtk2::ScrolledWindow
+		my $scrolled_window_image = Gtk2::ScrolledWindow->new;
+		$scrolled_window_image->set_policy( 'automatic', 'automatic' );
+		#~ $scrolled_window_image->set_shadow_type('in');
+		$scrolled_window_image->add_with_viewport(Gtk2::ImageView::ScrollWin->new($session_screens{$key}->{'image'}));
 
 		#WORKAROUND
 		#upstream bug
@@ -2858,7 +2864,7 @@ sub fct_create_tab {
 
 		my $hpaned = Gtk2::HPaned->new;
 		#~ $hpaned->add1($vbox_fileinfos);
-		$hpaned->add1($image_sw);
+		$hpaned->add1($scrolled_window_image);
 		#~ $hpaned->pack2($image_sw, TRUE, FALSE);
 
 		$vbox_tab->pack_start( $hpaned, TRUE, TRUE, 0 );
@@ -2905,11 +2911,11 @@ sub fct_create_tab {
 		#create iconview for session
 		$session_start_screen{'first_page'}->{'model'} = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String' );
 		$session_start_screen{'first_page'}->{'view'} = Gtk2::IconView->new_with_model($session_start_screen{'first_page'}->{'model'});
-		$session_start_screen{'first_page'}->{'view'}->set_orientation('horizontal');
+		#~ $session_start_screen{'first_page'}->{'view'}->set_orientation('horizontal');
 		$session_start_screen{'first_page'}->{'view'}->set_pixbuf_column(0);
 		$session_start_screen{'first_page'}->{'view'}->set_text_column(1);
 		$session_start_screen{'first_page'}->{'view'}->set_selection_mode('multiple');
-		$session_start_screen{'first_page'}->{'view'}->set_columns(0);
+		#~ $session_start_screen{'first_page'}->{'view'}->set_columns(0);
 		$session_start_screen{'first_page'}->{'view'}->signal_connect( 'selection-changed', \&evt_iconview_sel_changed,    'sel_changed' );
 		$session_start_screen{'first_page'}->{'view'}->signal_connect( 'item-activated',    \&evt_iconview_item_activated, 'item_activated' );
 
@@ -5045,12 +5051,14 @@ sub fct_update_quick_profile_selector {
 			if ($_->get_name eq 'quicks'){
 				$_->set_submenu( fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );
 				$_->set_submenu( fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );					
+				$_->set_sensitive(TRUE);
 				last;
 			}	
 		}
 		#and main menu
 		$sm->{_menuitem_quicks}->set_submenu( fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );
 		$sm->{_menuitem_quicks}->set_submenu( fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );
+		$sm->{_menuitem_quicks}->set_sensitive(TRUE);
 	}else{
 		#tray menu
 		foreach($tray_menu->get_children){
@@ -5819,6 +5827,7 @@ sub fct_ret_window_menu {
 		if ($active_workspace && $win->is_visible_on_workspace( $active_workspace ) ) {
 			my $window_item = Gtk2::ImageMenuItem->new_with_label( $win->get_name );
 			$window_item->set_image( Gtk2::Image->new_from_pixbuf( $win->get_mini_icon ) );
+			$window_item->set('always_show_image' => TRUE);
 			$window_item->signal_connect(
 				'activate' => \&evt_take_screenshot,
 				"shutter_window_direct" . $win->get_xid

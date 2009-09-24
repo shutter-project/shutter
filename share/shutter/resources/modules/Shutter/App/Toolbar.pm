@@ -76,6 +76,11 @@ sub create_toolbar {
 		);
 	}	
 	$self->{_select} = Gtk2::MenuToolButton->new( $image_select, $d->get("Selection") );
+	#The GtkToolButton class uses this property to determine whether 
+	#to show or hide its label when the toolbar style is GTK_TOOLBAR_BOTH_HORIZ. 
+	#The result is that only tool buttons with the 
+	#"is_important" property set have labels, an effect known as "priority text"
+	$self->{_select}->set_is_important (TRUE);
 
 	$tooltips->set_tip( $self->{_select}, $d->get("Draw a rectangular capture area with your mouse\nto select a specified screen area"), '' );
 	$self->{_select}->set_arrow_tooltip( $tooltips, $d->get("Choose selection tool"), '' );
@@ -86,6 +91,7 @@ sub create_toolbar {
 	#--------------------------------------
 	my $image_raw = Gtk2::Image->new_from_stock('gtk-fullscreen', 'large-toolbar');
 	$self->{_full} = Gtk2::MenuToolButton->new( $image_raw, $d->get("Full Screen") );
+	$self->{_full}->set_is_important (TRUE);
 
 	$tooltips->set_tip( $self->{_full}, $d->get("Take a screenshot of your whole desktop") );
 	$self->{_full}->set_arrow_tooltip( $tooltips, $d->get("Capture a specific workspace"), '' );
@@ -106,6 +112,7 @@ sub create_toolbar {
 		);
 	}
 	$self->{_window} = Gtk2::MenuToolButton->new( $image_window, $d->get("Window") );
+	$self->{_window}->set_is_important (TRUE);
 
 	$tooltips->set_tip( $self->{_window}, $d->get("Select a window with your mouse") );
 	$self->{_window}->set_arrow_tooltip( $tooltips, $d->get("Take a screenshot of a specific window"), '' );
@@ -183,6 +190,7 @@ sub create_toolbar {
 		);
 	}	
 	$self->{_edit} = Gtk2::ToolButton->new( $image_edit, $d->get("Edit") );
+	$self->{_edit}->set_is_important (TRUE);
 
 	$tooltips->set_tip( $self->{_edit}, $d->get("Use the built-in editor to highlight important fragments of your screenshot or crop it to a desired size") );
 
