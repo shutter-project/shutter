@@ -1587,7 +1587,8 @@ $notebook_settings->append_page( $vbox_behavior, $label_behavior );
 $notebook_settings->append_page( $vbox_accounts, $label_accounts );
 
 #plugins
-if ( keys(%plugins) > 0 ) {
+#not used in a standalone environment
+if ( keys(%plugins) > 0 && !$ENV{PAR_TEMP} ) {
 
 	my $effects_tree = Gtk2::TreeView->new_with_model(&fct_load_plugin_tree);
 	&fct_set_model_plugins($effects_tree);	
