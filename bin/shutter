@@ -90,7 +90,7 @@ use constant SHUTTER_VERSION      	=> "v0.8x";
 #--------------------------------------
 my $shutter_root = undef;
 if($ENV{PAR_TEMP}){
-	$shutter_root = $ENV{PAR_TEMP}."/inc";
+	$shutter_root = $ENV{PAR_TEMP};
 }else{
 	$Bin =~ m/(.*)\//;
 	$shutter_root = $1;
@@ -6582,6 +6582,7 @@ sub fct_init {
 				#is there already a process of shutter running?
 				my @shutter_pids = `pidof -o $$ -x $shutter_path`;
 				foreach (@shutter_pids) {
+					next if /^$/;
 					kill RTMAX => $_;
 					die;
 				}
@@ -6592,6 +6593,7 @@ sub fct_init {
 				#is there already a process of shutter running?
 				my @shutter_pids = `pidof -o $$ -x $shutter_path`;
 				foreach (@shutter_pids) {
+					next if /^$/;
 					kill RTMIN => $_;
 					die;
 				}
@@ -6602,6 +6604,7 @@ sub fct_init {
 				#is there already a process of shutter running?
 				my @shutter_pids = `pidof -o $$ -x $shutter_path`;
 				foreach (@shutter_pids) {
+					next if /^$/;
 					kill USR2 => $_;
 					die;
 				}
@@ -6612,6 +6615,7 @@ sub fct_init {
 				#is there already a process of shutter running?
 				my @shutter_pids = `pidof -o $$ -x $shutter_path`;
 				foreach (@shutter_pids) {
+					next if /^$/;
 					kill USR1 => $_;
 					die;
 				}
