@@ -507,7 +507,10 @@ if ( defined $settings_xml->{'general'}->{'last_profile'} ) {
 
 #check plugins
 #--------------------------------------
-&fct_check_installed_plugins;
+#not used in a standalone environment
+unless($ENV{PAR_TEMP}){
+	&fct_check_installed_plugins;
+}
 
 #--------------------------------------
 
