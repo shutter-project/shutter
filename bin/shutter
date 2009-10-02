@@ -461,6 +461,7 @@ my $thumbnail_box2      = Gtk2::HBox->new( FALSE, 0 );
 my $border_box          = Gtk2::HBox->new( FALSE, 0 );
 my $visible_windows_box = Gtk2::HBox->new( FALSE, 0 );
 my $menu_delay_box      = Gtk2::HBox->new( FALSE, 0 );
+my $menu_delay_box2     = Gtk2::HBox->new( FALSE, 0 );
 my $web_width_box       = Gtk2::HBox->new( FALSE, 0 );
 
 #behavior
@@ -472,6 +473,7 @@ my $behavior_hbox1      = Gtk2::HBox->new( FALSE, 0 );
 my $behavior_hbox2      = Gtk2::HBox->new( FALSE, 0 );
 my $behavior_hbox3      = Gtk2::HBox->new( FALSE, 0 );
 my $behavior_hbox4      = Gtk2::HBox->new( FALSE, 0 );
+my $behavior_hbox5      = Gtk2::HBox->new( FALSE, 0 );
 
 my $keybinding_mode_box = Gtk2::HBox->new( TRUE,  0 );
 my $key_box             = Gtk2::HBox->new( FALSE, 0 );
@@ -802,7 +804,7 @@ $tooltips->set_tip( $scale,
 $tooltips->set_tip( $scale_label,
 	$d->get("Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)") );
 $scale_box->pack_start( $scale_label, FALSE, TRUE, 12 );
-$scale_box->pack_start( $scale,       TRUE,  TRUE, 0 );
+$scale_box->pack_start( $scale, TRUE, TRUE, 0 );
 
 #add compatile, writeable file types
 my $combobox_type = Gtk2::ComboBox->new_text;
@@ -929,12 +931,13 @@ $tooltips->set_tip( $fname_autocopy_active, $d->get("Automatically copy filename
 #delay
 #--------------------------------------
 my $delay_label = Gtk2::Label->new( $d->get("Delay") . ":" );
+my $delay_vlabel = Gtk2::Label->new;
 my $delay = Gtk2::HScale->new_with_range( 1, 20, 1 );
+$delay->set_draw_value(FALSE);
 $delay->signal_connect(
 	'value-changed' => \&evt_value_changed,
 	'delay_changed'
 );
-$delay->set_value_pos('right');
 
 if ( defined $settings_xml->{'general'}->{'delay'} ) {
 	$delay->set_value( $settings_xml->{'general'}->{'delay'} );
@@ -956,9 +959,11 @@ if ( defined $settings_xml->{'general'}->{'delay_active'} ) {
 $tooltips->set_tip( $delay,        $d->get("Wait n seconds before taking a screenshot") );
 $tooltips->set_tip( $delay_active, $d->get("Wait n seconds before taking a screenshot") );
 $tooltips->set_tip( $delay_label,  $d->get("Wait n seconds before taking a screenshot") );
+$tooltips->set_tip( $delay_vlabel, $d->get("Wait n seconds before taking a screenshot") );
 $delay_box->pack_start( $delay_label, FALSE, TRUE, 12 );
 $delay_box2->pack_start( $delay_active, FALSE, FALSE, 0 );
-$delay_box2->pack_start( $delay,        TRUE,  TRUE,  0 );
+$delay_box2->pack_start( $delay, TRUE, TRUE,  0 );
+$delay_box2->pack_start( $delay_vlabel, FALSE, TRUE, 2 );
 $delay_box->pack_start( $delay_box2, TRUE, TRUE, 0 );
 
 #end - delay
@@ -1147,12 +1152,14 @@ if ( defined $settings_xml->{'general'}->{'visible_windows'} ) {
 
 #menu capture delay
 #--------------------------------------
+my $menu_delay_label = Gtk2::Label->new( $d->get("Pre-Capture Delay") . ":" );
 my $menu_delay = Gtk2::HScale->new_with_range( 1, 20, 1 );
+my $menu_delay_vlabel = Gtk2::Label->new;
+$menu_delay->set_draw_value(FALSE);
 $menu_delay->signal_connect(
 	'value-changed' => \&evt_value_changed,
 	'menu_delay_changed'
 );
-$menu_delay->set_value_pos('right');
 
 if ( defined $settings_xml->{'general'}->{'menu_delay'} ) {
 	$menu_delay->set_value( $settings_xml->{'general'}->{'menu_delay'} );
@@ -1160,11 +1167,14 @@ if ( defined $settings_xml->{'general'}->{'menu_delay'} ) {
 	$menu_delay->set_value(10);
 }
 
-my $menu_delay_label = Gtk2::Label->new( $d->get("Pre-Capture Delay") . ":" );
 $tooltips->set_tip( $menu_delay,        $d->get("Capture menu/tooltip after a delay of n seconds") );
 $tooltips->set_tip( $menu_delay_label,  $d->get("Capture menu/tooltip after a delay of n seconds") );
-$menu_delay_box->pack_start	( $menu_delay_label, FALSE, TRUE, 12 );
-$menu_delay_box->pack_start	( $menu_delay, TRUE, TRUE, 0 );
+$tooltips->set_tip( $menu_delay_vlabel, $d->get("Capture menu/tooltip after a delay of n seconds") );
+
+$menu_delay_box->pack_start( $menu_delay_label, FALSE, TRUE, 12 );
+$menu_delay_box2->pack_start( $menu_delay, TRUE, TRUE,  0 );
+$menu_delay_box2->pack_start( $menu_delay_vlabel, FALSE, TRUE, 2 );
+$menu_delay_box->pack_start( $menu_delay_box2, TRUE, TRUE, 0 );
 
 #end - menu capture delay
 #--------------------------------------
@@ -1301,14 +1311,29 @@ if ( defined $settings_xml->{'general'}->{'keybinding_sel'} ) {
 }
 
 my $hide_active           = Gtk2::CheckButton->new_with_label( $d->get("Autohide main window when taking a screenshot") );
+$hide_active->signal_connect(
+	'toggled' => \&evt_value_changed,
+	'hide_toggled'
+);
+my $hide_time_label 	  = Gtk2::Label->new($d->get("Redraw Delay"). ":");
+my $hide_time_vlabel      = Gtk2::Label->new;
+my $hide_time			  = Gtk2::SpinButton->new_with_range (0, 1000, 100);
+$hide_time->signal_connect(
+	'value-changed' => \&evt_value_changed,
+	'hide_time_changed'
+);
+
 my $present_after_active  = Gtk2::CheckButton->new_with_label( $d->get("Present main window after taking a screenshot") );
 my $notify_after_active   = Gtk2::CheckButton->new_with_label( $d->get("Display pop-up notification after taking a screenshot") );
 my $close_at_close_active = Gtk2::CheckButton->new_with_label( $d->get("Minimize to tray when closing main window") );
 
 $behavior_hbox1->pack_start( $hide_active,           FALSE, TRUE, 12 );
-$behavior_hbox2->pack_start( $present_after_active,  FALSE, TRUE, 12 );
-$behavior_hbox3->pack_start( $close_at_close_active, FALSE, TRUE, 12 );
-$behavior_hbox4->pack_start( $notify_after_active,   FALSE, TRUE, 12 );
+$behavior_hbox2->pack_start( $hide_time_label,       FALSE, TRUE, 12 );
+$behavior_hbox2->pack_start( $hide_time,             FALSE, TRUE,  6 );
+$behavior_hbox2->pack_start( $hide_time_vlabel,      FALSE, TRUE,  0 );
+$behavior_hbox3->pack_start( $present_after_active,  FALSE, TRUE, 12 );
+$behavior_hbox4->pack_start( $close_at_close_active, FALSE, TRUE, 12 );
+$behavior_hbox5->pack_start( $notify_after_active,   FALSE, TRUE, 12 );
 
 if ( defined $settings_xml->{'general'}->{'autohide'} ) {
 	$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
@@ -1317,6 +1342,16 @@ if ( defined $settings_xml->{'general'}->{'autohide'} ) {
 }
 
 $tooltips->set_tip( $hide_active, $d->get("Autohide main window when taking a screenshot") );
+
+if ( defined $settings_xml->{'general'}->{'autohide_time'} ) {
+	$hide_time->set_value( $settings_xml->{'general'}->{'autohide_time'} );
+} else {
+	$hide_time->set_value(400);
+}
+
+$tooltips->set_tip( $hide_time_label, $d->get("blbl") );
+$tooltips->set_tip( $hide_time, $d->get("blbl") );
+$tooltips->set_tip( $hide_time_vlabel, $d->get("blblb") );
 
 if ( defined $settings_xml->{'general'}->{'present_after'} ) {
 	$present_after_active->set_active( $settings_xml->{'general'}->{'present_after'} );
@@ -1526,9 +1561,10 @@ $label_behavior->set_markup( $d->get("Behavior") );
 $window_vbox->pack_start( $behavior_hbox1, TRUE, TRUE, 3 );
 $window_vbox->pack_start( $behavior_hbox2, TRUE, TRUE, 3 );
 $window_vbox->pack_start( $behavior_hbox3, TRUE, TRUE, 3 );
+$window_vbox->pack_start( $behavior_hbox4, TRUE, TRUE, 3 );
 $window_frame->add($window_vbox);
 
-$notify_vbox->pack_start( $behavior_hbox4, TRUE, TRUE, 3 );
+$notify_vbox->pack_start( $behavior_hbox5, TRUE, TRUE, 3 );
 $notify_frame->add($notify_vbox);
 
 $keybinding_vbox->pack_start( $key_box,             FALSE, TRUE, 3 );
@@ -1712,6 +1748,30 @@ sub evt_value_changed {
 		} else {
 			$delay->set_sensitive(FALSE);
 		}
+	}
+
+	#checkbox for "hide" -> Redraw Delay active/inactive
+	if ( $data eq "hide_toggled" ) {
+		if ( $hide_active->get_active ) {
+			$hide_time->set_sensitive(TRUE);
+		} else {
+			$hide_time->set_sensitive(FALSE);
+		}
+	}
+
+	#value for "delay" -> update text
+	if ( $data eq "delay_changed" ) {
+		$delay_vlabel->set_text( sprintf($d->nget("%d second", "%d seconds", $delay->get_value) , $delay->get_value) ); 
+	}
+	
+	#value for "menu_delay" -> update text
+	if ( $data eq "menu_delay_changed" ) {
+		$menu_delay_vlabel->set_text( sprintf($d->nget("%d second", "%d seconds", $menu_delay->get_value) , $menu_delay->get_value) ); 
+	}
+	
+	#value for "hide_time" -> update text
+	if ( $data eq "hide_time_changed" ) {
+		$hide_time_vlabel->set_text( $d->nget("millisecond", "milliseconds", $hide_time->get_value) ); 
 	}
 
 	#checkbox for "thumbnail" -> HScale active/inactive
@@ -3021,6 +3081,7 @@ sub fct_save_settings {
 
 	#behavior
 	$settings{'general'}->{'autohide'}         = $hide_active->get_active();
+	$settings{'general'}->{'autohide_time'}    = $hide_time->get_value();
 	$settings{'general'}->{'present_after'}    = $present_after_active->get_active();
 	$settings{'general'}->{'close_at_close'}   = $close_at_close_active->get_active();
 	$settings{'general'}->{'notify_after'}     = $notify_after_active->get_active();
@@ -3339,6 +3400,7 @@ sub fct_load_settings {
 
 				#behavior
 				$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
+				$hide_time->set_value( $settings_xml->{'general'}->{'autohide_time'} );
 				$present_after_active->set_active( $settings_xml->{'general'}->{'present_after'} );
 				$notify_after_active->set_active( $settings_xml->{'general'}->{'notify_after'} );
 				$close_at_close_active->set_active( $settings_xml->{'general'}->{'close_at_close'} );
