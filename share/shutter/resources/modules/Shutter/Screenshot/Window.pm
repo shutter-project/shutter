@@ -575,8 +575,11 @@ sub find_current_child_window {
 					  #~ $self->{_c}{'cw'}{'height'}, " \n " if $self->{_sc}->get_debug; 	
 	
 				#check next depth
-				$self->find_current_child_window( $event, $gdk_window->XWINDOW, $xparent, $depth++, $limit, $type_hint );
-				
+				unless($gdk_window->XWINDOW == $xwindow){
+					$self->find_current_child_window( $event, $gdk_window->XWINDOW, $xparent, $depth++, $limit, $type_hint );
+				}else{
+					last;	
+				}
 				#~ last;
 				
 			}
@@ -1031,5 +1034,6 @@ sub quit {
 	Gtk2::Gdk->flush;
 
 }
+
 
 1;
