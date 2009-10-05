@@ -427,8 +427,7 @@ my $vbox_extras         = Gtk2::VBox->new( FALSE, 12 );
 my $vbox_behavior       = Gtk2::VBox->new( FALSE, 12 );
 my $vbox_accounts       = Gtk2::VBox->new( FALSE, 12 );
 
-#pofiles
-my $profiles_label 		= Gtk2::Label->new( $d->get("Profile") . ":" );
+#profiles
 my $profiles_box        = Gtk2::HBox->new( FALSE, 0 );
 
 #main
@@ -443,7 +442,6 @@ my $saveDir_box         = Gtk2::HBox->new( FALSE, 0 );
 my $image_autocopy_box  = Gtk2::HBox->new( FALSE, 0 );
 my $fname_autocopy_box  = Gtk2::HBox->new( FALSE, 0 );
 my $delay_box           = Gtk2::HBox->new( FALSE, 0 );
-my $delay_box2          = Gtk2::HBox->new( FALSE, 0 );
 my $cursor_box          = Gtk2::HBox->new( FALSE, 0 );
 
 #advanced
@@ -453,15 +451,11 @@ my $menu_capture_vbox   = Gtk2::VBox->new( FALSE, 0 );
 my $web_capture_vbox    = Gtk2::VBox->new( FALSE, 0 );
 
 my $progname_box        = Gtk2::HBox->new( FALSE, 0 );
-my $progname_box2       = Gtk2::HBox->new( FALSE, 0 );
 my $im_colors_box       = Gtk2::HBox->new( FALSE, 0 );
-my $im_colors_box2      = Gtk2::HBox->new( FALSE, 0 );
 my $thumbnail_box       = Gtk2::HBox->new( FALSE, 0 );
-my $thumbnail_box2      = Gtk2::HBox->new( FALSE, 0 );
 my $border_box          = Gtk2::HBox->new( FALSE, 0 );
 my $visible_windows_box = Gtk2::HBox->new( FALSE, 0 );
 my $menu_delay_box      = Gtk2::HBox->new( FALSE, 0 );
-my $menu_delay_box2     = Gtk2::HBox->new( FALSE, 0 );
 my $web_width_box       = Gtk2::HBox->new( FALSE, 0 );
 
 #behavior
@@ -478,9 +472,7 @@ my $behavior_hbox6      = Gtk2::HBox->new( FALSE, 0 );
 
 my $keybinding_mode_box = Gtk2::HBox->new( TRUE,  0 );
 my $key_box             = Gtk2::HBox->new( FALSE, 0 );
-my $key_box2            = Gtk2::HBox->new( FALSE, 0 );
 my $key_sel_box         = Gtk2::HBox->new( FALSE, 0 );
-my $key_sel_box2        = Gtk2::HBox->new( FALSE, 0 );
 
 #upload
 my $accounts_vbox       = Gtk2::VBox->new( FALSE, 0 );
@@ -931,7 +923,6 @@ $tooltips->set_tip( $fname_autocopy_active, $d->get("Automatically copy filename
 
 #delay
 #--------------------------------------
-my $delay_label = Gtk2::Label->new( $d->get("Delay") . ":" );
 my $delay_vlabel = Gtk2::Label->new;
 my $delay = Gtk2::SpinButton->new_with_range( 1, 99, 1 );
 $delay->signal_connect(
@@ -944,7 +935,8 @@ if ( defined $settings_xml->{'general'}->{'delay'} ) {
 } else {
 	$delay->set_value(0);
 }
-my $delay_active = Gtk2::CheckButton->new;
+
+my $delay_active = Gtk2::CheckButton->new_with_label( $d->get("Capture after a delay of") );
 $delay_active->set_active(TRUE);
 $delay_active->signal_connect(
 	'toggled' => \&evt_value_changed,
@@ -956,15 +948,14 @@ if ( defined $settings_xml->{'general'}->{'delay_active'} ) {
 } else {
 	$delay_active->set_active(FALSE);
 }
+
 $tooltips->set_tip( $delay,        $d->get("Wait n seconds before taking a screenshot") );
 $tooltips->set_tip( $delay_active, $d->get("Wait n seconds before taking a screenshot") );
-$tooltips->set_tip( $delay_label,  $d->get("Wait n seconds before taking a screenshot") );
 $tooltips->set_tip( $delay_vlabel, $d->get("Wait n seconds before taking a screenshot") );
-$delay_box->pack_start( $delay_label, FALSE, TRUE, 12 );
-$delay_box2->pack_start( $delay_active, FALSE, FALSE, 0 );
-$delay_box2->pack_start( $delay, TRUE, TRUE,  0 );
-$delay_box2->pack_start( $delay_vlabel, FALSE, TRUE, 2 );
-$delay_box->pack_start( $delay_box2, TRUE, TRUE, 0 );
+
+$delay_box->pack_start( $delay_active, FALSE, FALSE, 12 );
+$delay_box->pack_start( $delay, FALSE, FALSE,  0 );
+$delay_box->pack_start( $delay_vlabel, FALSE, FALSE, 2 );
 
 #end - delay
 #--------------------------------------
@@ -1028,9 +1019,8 @@ $tooltips->set_tip( $progname,        $d->get("Open your screenshot\nwith this p
 $tooltips->set_tip( $progname_active, $d->get("Open your screenshot\nwith this program after capturing") );
 $tooltips->set_tip( $progname_label,  $d->get("Open your screenshot\nwith this program after capturing") );
 $progname_box->pack_start( $progname_label, FALSE, TRUE, 12 );
-$progname_box2->pack_start( $progname_active, FALSE, TRUE, 0 );
-$progname_box2->pack_start( $progname, TRUE, TRUE, 0 );
-$progname_box->pack_start( $progname_box2, TRUE, TRUE, 0 );
+$progname_box->pack_start( $progname_active, FALSE, TRUE, 0 );
+$progname_box->pack_start( $progname, TRUE, TRUE, 0 );
 
 #end - program
 #--------------------------------------
@@ -1070,9 +1060,8 @@ $tooltips->set_tip( $combobox_im_colors, $d->get("Automatically reduce colors \n
 $tooltips->set_tip( $im_colors_active,   $d->get("Automatically reduce colors \nafter taking a screenshot") );
 $tooltips->set_tip( $im_colors_label,    $d->get("Automatically reduce colors \nafter taking a screenshot") );
 $im_colors_box->pack_start( $im_colors_label, FALSE, TRUE, 12 );
-$im_colors_box2->pack_start( $im_colors_active,   FALSE, TRUE, 0 );
-$im_colors_box2->pack_start( $combobox_im_colors, TRUE,  TRUE, 0 );
-$im_colors_box->pack_start( $im_colors_box2, TRUE, TRUE, 0 );
+$im_colors_box->pack_start( $im_colors_active,   FALSE, TRUE, 0 );
+$im_colors_box->pack_start( $combobox_im_colors, TRUE,  TRUE, 0 );
 
 #end - colors
 #--------------------------------------
@@ -1111,9 +1100,8 @@ $tooltips->set_tip( $thumbnail_active,
 $tooltips->set_tip( $thumbnail_label,
 	$d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be") );
 $thumbnail_box->pack_start( $thumbnail_label, FALSE, TRUE, 12 );
-$thumbnail_box2->pack_start( $thumbnail_active, FALSE, FALSE, 0 );
-$thumbnail_box2->pack_start( $thumbnail,        TRUE,  TRUE,  0 );
-$thumbnail_box->pack_start( $thumbnail_box2, TRUE, TRUE, 0 );
+$thumbnail_box->pack_start( $thumbnail_active, FALSE, FALSE, 0 );
+$thumbnail_box->pack_start( $thumbnail,        TRUE,  TRUE,  0 );
 
 #end - thumbnail
 #--------------------------------------
@@ -1171,9 +1159,8 @@ $tooltips->set_tip( $menu_delay_label,  $d->get("Capture menu/tooltip after a de
 $tooltips->set_tip( $menu_delay_vlabel, $d->get("Capture menu/tooltip after a delay of n seconds") );
 
 $menu_delay_box->pack_start( $menu_delay_label, FALSE, TRUE, 12 );
-$menu_delay_box2->pack_start( $menu_delay, TRUE, TRUE,  0 );
-$menu_delay_box2->pack_start( $menu_delay_vlabel, FALSE, TRUE, 2 );
-$menu_delay_box->pack_start( $menu_delay_box2, TRUE, TRUE, 0 );
+$menu_delay_box->pack_start( $menu_delay, FALSE, TRUE,  0 );
+$menu_delay_box->pack_start( $menu_delay_vlabel, FALSE, TRUE, 2 );
 
 #end - menu capture delay
 #--------------------------------------
@@ -1277,13 +1264,11 @@ my $keybinding_active = Gtk2::CheckButton->new;
 my $keybinding_sel_active = Gtk2::CheckButton->new;
 
 $key_box->pack_start( $capture_label, FALSE, TRUE, 12 );
-$key_box2->pack_start( $keybinding_active, FALSE, FALSE, 0 );
-$key_box2->pack_start( $capture_key, TRUE,  TRUE,  0 );
-$key_box->pack_start( $key_box2, TRUE, TRUE, 0 );
+$key_box->pack_start( $keybinding_active, FALSE, FALSE, 0 );
+$key_box->pack_start( $capture_key, TRUE,  TRUE,  0 );
 $key_sel_box->pack_start( $capture_sel_label, FALSE, TRUE, 12 );
-$key_sel_box2->pack_start( $keybinding_sel_active, FALSE, FALSE, 0 );
-$key_sel_box2->pack_start( $capture_sel_key,       TRUE,  TRUE,  0 );
-$key_sel_box->pack_start( $key_sel_box2, TRUE, TRUE, 0 );
+$key_sel_box->pack_start( $keybinding_sel_active, FALSE, FALSE, 0 );
+$key_sel_box->pack_start( $capture_sel_key,       TRUE,  TRUE,  0 );
 $keybinding_active->set_active(TRUE);
 
 #add signal handlers BEFORE settings are restored
@@ -1508,14 +1493,12 @@ $scale_label->set_alignment( 0, 0.5 );
 $filetype_label->set_alignment( 0, 0.5 );
 $filename_label->set_alignment( 0, 0.5 );
 $saveDir_label->set_alignment( 0, 0.5 );
-$delay_label->set_alignment( 0, 0.5 );
 
 my $sg_main = Gtk2::SizeGroup->new('horizontal');
 $sg_main->add_widget($scale_label);
 $sg_main->add_widget($filetype_label);
 $sg_main->add_widget($filename_label);
 $sg_main->add_widget($saveDir_label);
-$sg_main->add_widget($delay_label);
 
 $vbox_basic->pack_start( $file_frame, FALSE, TRUE, 3 );
 $vbox_basic->pack_start( $save_frame, FALSE, TRUE, 3 );
@@ -1663,7 +1646,7 @@ if ( keys(%plugins) > 0 && !$ENV{PAR_TEMP} ) {
 }
 
 #profiles
-$profiles_box->pack_start( $profiles_label,             FALSE, TRUE, 1 );
+$profiles_box->pack_start( Gtk2::Label->new( $d->get("Profile") . ":" ), FALSE, TRUE, 1 );
 $profiles_box->pack_start( $combobox_settings_profiles, TRUE,  TRUE, 6 );
 $profiles_box->pack_start( $button_profile_save,        FALSE, TRUE, 1 );
 $profiles_box->pack_start( $button_profile_delete,      FALSE, TRUE, 1 );
@@ -4342,7 +4325,7 @@ sub fct_take_screenshot {
 	#when capturing a menu or tooltip => disable delay (there is a dedicated delay property for this)
 	unless ( $data eq "menu" || $data eq "tray_menu" || $data eq "tooltip" || $data eq "tray_tooltip" ){
 		if ( $delay_active->get_active ) {
-			$delay_value = $delay->get_value;
+			$delay_value = int $delay->get_value;
 		} else {
 			$delay_value = 0;
 		}
@@ -4350,8 +4333,6 @@ sub fct_take_screenshot {
 		$delay_value = 0;
 	}
 	
-	print $delay_value, "\n";
-
 	#prepare filename, parse wild-cards
 	$filename_value = strftime $filename_value , localtime;
 

@@ -204,8 +204,6 @@ sub get_pixbuf_from_drawable {
 
 	my ($pixbuf, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = (0, 0, 0, 0, 0);
 
-	print $self->{_delay} ." - ". $self->{_notify_timeout}, "\n";
-
 	#show notification messages displaying the countdown
 	if($self->{_delay} && $self->{_notify_timeout}){
 		my $notify 	= $self->{_sc}->get_notification_object;
