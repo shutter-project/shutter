@@ -43,8 +43,8 @@ use constant FALSE => 0;
 sub new {
 	my $class = shift;
 
-	#call constructor of super class (shutter_common, include_cursor, delay)
-	my $self = $class->SUPER::new( shift, shift, shift );
+	#call constructor of super class (shutter_common, include_cursor, delay, notify_timeout)
+	my $self = $class->SUPER::new( shift, shift, shift, shift );
 
 	#get params
 	$self->{_include_border} 	= shift;
@@ -52,6 +52,7 @@ sub new {
 	$self->{_mode} 				= shift;
 	$self->{_is_hidden}      	= shift;
 	$self->{_show_visible}      = shift;   #show user-visible windows only when selecting a window
+	$self->{_hide_time}			= shift;   #a short timeout to give the server a chance to redraw the area that was obscured
 
 	#X11 protocol and XSHAPE ext
 	require X11::Protocol;
@@ -392,7 +393,7 @@ sub window_by_xid {
 	
 		#A short timeout to give the server a chance to
 		#redraw the area
-		Glib::Timeout->add (400, sub{
+		#~ Glib::Timeout->add ($self->{_hide_time}, sub{
 			
 			my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_pixbuf_from_drawable( $self->{_root}, $xp, $yp, $wp, $hp);
 	
@@ -411,11 +412,11 @@ sub window_by_xid {
 				$output->{'name'} = $wnck_window->get_name;
 			}
 	
-			$self->quit;
-			return FALSE;	
-		});	
-	
-		Gtk2->main();
+			#~ $self->quit;
+			#~ return FALSE;	
+		#~ });	
+	#~ 
+		#~ Gtk2->main();
 	
 	}
 
@@ -863,7 +864,7 @@ sub window {
 					
 					#A short timeout to give the server a chance to
 					#redraw the area
-					Glib::Timeout->add (400, sub{
+					Glib::Timeout->add ($self->{_hide_time}, sub{
 						
 						my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = 
 							$self->get_pixbuf_from_drawable(

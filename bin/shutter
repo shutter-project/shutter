@@ -474,6 +474,7 @@ my $behavior_hbox2      = Gtk2::HBox->new( FALSE, 0 );
 my $behavior_hbox3      = Gtk2::HBox->new( FALSE, 0 );
 my $behavior_hbox4      = Gtk2::HBox->new( FALSE, 0 );
 my $behavior_hbox5      = Gtk2::HBox->new( FALSE, 0 );
+my $behavior_hbox6      = Gtk2::HBox->new( FALSE, 0 );
 
 my $keybinding_mode_box = Gtk2::HBox->new( TRUE,  0 );
 my $key_box             = Gtk2::HBox->new( FALSE, 0 );
@@ -932,8 +933,7 @@ $tooltips->set_tip( $fname_autocopy_active, $d->get("Automatically copy filename
 #--------------------------------------
 my $delay_label = Gtk2::Label->new( $d->get("Delay") . ":" );
 my $delay_vlabel = Gtk2::Label->new;
-my $delay = Gtk2::HScale->new_with_range( 1, 20, 1 );
-$delay->set_draw_value(FALSE);
+my $delay = Gtk2::SpinButton->new_with_range( 1, 99, 1 );
 $delay->signal_connect(
 	'value-changed' => \&evt_value_changed,
 	'delay_changed'
@@ -1153,9 +1153,8 @@ if ( defined $settings_xml->{'general'}->{'visible_windows'} ) {
 #menu capture delay
 #--------------------------------------
 my $menu_delay_label = Gtk2::Label->new( $d->get("Pre-Capture Delay") . ":" );
-my $menu_delay = Gtk2::HScale->new_with_range( 1, 20, 1 );
+my $menu_delay = Gtk2::SpinButton->new_with_range( 1, 99, 1 );
 my $menu_delay_vlabel = Gtk2::Label->new;
-$menu_delay->set_draw_value(FALSE);
 $menu_delay->signal_connect(
 	'value-changed' => \&evt_value_changed,
 	'menu_delay_changed'
@@ -1311,29 +1310,29 @@ if ( defined $settings_xml->{'general'}->{'keybinding_sel'} ) {
 }
 
 my $hide_active           = Gtk2::CheckButton->new_with_label( $d->get("Autohide main window when taking a screenshot") );
-$hide_active->signal_connect(
-	'toggled' => \&evt_value_changed,
-	'hide_toggled'
-);
 my $hide_time_label 	  = Gtk2::Label->new($d->get("Redraw Delay"). ":");
 my $hide_time_vlabel      = Gtk2::Label->new;
-my $hide_time			  = Gtk2::SpinButton->new_with_range (0, 1000, 100);
+my $hide_time			  = Gtk2::SpinButton->new_with_range (0, 1000, 50);
 $hide_time->signal_connect(
 	'value-changed' => \&evt_value_changed,
 	'hide_time_changed'
 );
 
 my $present_after_active  = Gtk2::CheckButton->new_with_label( $d->get("Present main window after taking a screenshot") );
-my $notify_after_active   = Gtk2::CheckButton->new_with_label( $d->get("Display pop-up notification after taking a screenshot") );
 my $close_at_close_active = Gtk2::CheckButton->new_with_label( $d->get("Minimize to tray when closing main window") );
 
+my $notify_after_active   = Gtk2::CheckButton->new_with_label( $d->get("Display pop-up notification after taking a screenshot") );
+my $notify_timeout_active   = Gtk2::CheckButton->new_with_label( $d->get("Display pop-up notification when using a delay") );
+
 $behavior_hbox1->pack_start( $hide_active,           FALSE, TRUE, 12 );
-$behavior_hbox2->pack_start( $hide_time_label,       FALSE, TRUE, 12 );
-$behavior_hbox2->pack_start( $hide_time,             FALSE, TRUE,  6 );
-$behavior_hbox2->pack_start( $hide_time_vlabel,      FALSE, TRUE,  0 );
-$behavior_hbox3->pack_start( $present_after_active,  FALSE, TRUE, 12 );
-$behavior_hbox4->pack_start( $close_at_close_active, FALSE, TRUE, 12 );
+$behavior_hbox2->pack_start( $present_after_active,  FALSE, TRUE, 12 );
+$behavior_hbox3->pack_start( $close_at_close_active, FALSE, TRUE, 12 );
+$behavior_hbox4->pack_start( $hide_time_label,       FALSE, TRUE, 12 );
+$behavior_hbox4->pack_start( $hide_time,             FALSE, TRUE,  6 );
+$behavior_hbox4->pack_start( $hide_time_vlabel,      FALSE, TRUE,  0 );
 $behavior_hbox5->pack_start( $notify_after_active,   FALSE, TRUE, 12 );
+$behavior_hbox6->pack_start( $notify_timeout_active, FALSE, TRUE, 12 );
+
 
 if ( defined $settings_xml->{'general'}->{'autohide'} ) {
 	$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
@@ -1349,9 +1348,9 @@ if ( defined $settings_xml->{'general'}->{'autohide_time'} ) {
 	$hide_time->set_value(400);
 }
 
-$tooltips->set_tip( $hide_time_label, $d->get("blbl") );
-$tooltips->set_tip( $hide_time, $d->get("blbl") );
-$tooltips->set_tip( $hide_time_vlabel, $d->get("blblb") );
+$tooltips->set_tip( $hide_time_label, $d->get("Configure a short timeout to give the Xserver a chance to redraw areas that were obscured by Shutter's windows before taking a screenshot.") );
+$tooltips->set_tip( $hide_time, $d->get("Configure a short timeout to give the Xserver a chance to redraw areas that were obscured by Shutter's windows before taking a screenshot.") );
+$tooltips->set_tip( $hide_time_vlabel, $d->get("Configure a short timeout to give the Xserver a chance to redraw areas that were obscured by Shutter's windows before taking a screenshot.") );
 
 if ( defined $settings_xml->{'general'}->{'present_after'} ) {
 	$present_after_active->set_active( $settings_xml->{'general'}->{'present_after'} );
@@ -1368,6 +1367,14 @@ if ( defined $settings_xml->{'general'}->{'notify_after'} ) {
 }
 
 $tooltips->set_tip( $notify_after_active, $d->get("Display pop-up notification after taking a screenshot") );
+
+if ( defined $settings_xml->{'general'}->{'notify_timeout'} ) {
+	$notify_timeout_active->set_active( $settings_xml->{'general'}->{'notify_timeout'} );
+} else {
+	$notify_timeout_active->set_active(TRUE);
+}
+
+$tooltips->set_tip( $notify_timeout_active, $d->get("Display pop-up notification when using a delay") );
 
 if ( defined $settings_xml->{'general'}->{'close_at_close'} ) {
 	$close_at_close_active->set_active( $settings_xml->{'general'}->{'close_at_close'} );
@@ -1565,6 +1572,7 @@ $window_vbox->pack_start( $behavior_hbox4, TRUE, TRUE, 3 );
 $window_frame->add($window_vbox);
 
 $notify_vbox->pack_start( $behavior_hbox5, TRUE, TRUE, 3 );
+$notify_vbox->pack_start( $behavior_hbox6, TRUE, TRUE, 3 );
 $notify_frame->add($notify_vbox);
 
 $keybinding_vbox->pack_start( $key_box,             FALSE, TRUE, 3 );
@@ -1573,10 +1581,12 @@ $keybinding_vbox->pack_start( $keybinding_mode_box, FALSE, TRUE, 3 );
 $keybinding_frame->add($keybinding_vbox);
 
 #all labels = one size
+$hide_time_label->set_alignment( 0, 0.5 );
 $capture_label->set_alignment( 0, 0.5 );
 $capture_sel_label->set_alignment( 0, 0.5 );
 
 my $sg_behav = Gtk2::SizeGroup->new('horizontal');
+$sg_behav->add_widget($hide_time_label);
 $sg_behav->add_widget($capture_label);
 $sg_behav->add_widget($capture_sel_label);
 
@@ -1750,23 +1760,14 @@ sub evt_value_changed {
 		}
 	}
 
-	#checkbox for "hide" -> Redraw Delay active/inactive
-	if ( $data eq "hide_toggled" ) {
-		if ( $hide_active->get_active ) {
-			$hide_time->set_sensitive(TRUE);
-		} else {
-			$hide_time->set_sensitive(FALSE);
-		}
-	}
-
 	#value for "delay" -> update text
 	if ( $data eq "delay_changed" ) {
-		$delay_vlabel->set_text( sprintf($d->nget("%d second", "%d seconds", $delay->get_value) , $delay->get_value) ); 
+		$delay_vlabel->set_text($d->nget("second", "seconds", $delay->get_value) ); 
 	}
 	
 	#value for "menu_delay" -> update text
 	if ( $data eq "menu_delay_changed" ) {
-		$menu_delay_vlabel->set_text( sprintf($d->nget("%d second", "%d seconds", $menu_delay->get_value) , $menu_delay->get_value) ); 
+		$menu_delay_vlabel->set_text( $d->nget("second", "seconds", $menu_delay->get_value) ); 
 	}
 	
 	#value for "hide_time" -> update text
@@ -1854,49 +1855,50 @@ sub evt_take_screenshot {
 			$scd_text = $d->get("Please activate the tooltip you want to capture");
 		}	 
 			 
-		#show notification messages
-		#displaying the countdown
-		my $notify 	= $sc->get_notification_object;
-		my $ttw 	= $menu_delay->get_value;
-
-		#first notification immediately
-		$notify->show( sprintf($d->nget("Screenshot will be taken in %s second", "Screenshot will be taken in %s seconds", $ttw) , $ttw), 
-					   $scd_text
-					 );
-		$ttw--;
-		
-		#delay is only 1 second
-		#do not show any further messages
-		if($ttw >= 1){
-			#then controlled via timeout
-			Glib::Timeout->add (1000, sub{
-				$notify->show( sprintf($d->nget("Screenshot will be taken in %s second", "Screenshot will be taken in %s seconds", $ttw) , $ttw), 
-							   $scd_text 
-							 );
-				$ttw--;
-				if($ttw == 0){			
+		#show notification messages displaying the countdown
+		if($notify_timeout_active->get_active){
+			my $notify 	= $sc->get_notification_object;
+			my $ttw 	= $menu_delay->get_value;
+	
+			#first notification immediately
+			$notify->show( sprintf($d->nget("Screenshot will be taken in %s second", "Screenshot will be taken in %s seconds", $ttw) , $ttw), 
+						   $scd_text
+						 );
+			$ttw--;
+			
+			#delay is only 1 second
+			#do not show any further messages
+			if($ttw >= 1){
+				#then controlled via timeout
+				Glib::Timeout->add (1000, sub{
+					$notify->show( sprintf($d->nget("Screenshot will be taken in %s second", "Screenshot will be taken in %s seconds", $ttw) , $ttw), 
+								   $scd_text 
+								 );
+					$ttw--;
+					if($ttw == 0){			
+						
+						#close last message with a short delay (less than a second)
+						Glib::Timeout->add (500, sub{
+							$notify->close;
+							return FALSE;	
+						});	
+						
+						return FALSE;
+						
+					}else{
+						
+						return TRUE;	
 					
-					#close last message with a short delay (less than a second)
-					Glib::Timeout->add (500, sub{
-						$notify->close;
-						return FALSE;	
-					});	
-					
-					return FALSE;
-					
-				}else{
-					
-					return TRUE;	
-				
-				}	
-			});
-		}else{
-			#close last message with a short delay (less than a second)
-			Glib::Timeout->add (500, sub{
-				$notify->close;
-				return FALSE;	
-			});				
-		}	
+					}	
+				});
+			}else{
+				#close last message with a short delay (less than a second)
+				Glib::Timeout->add (500, sub{
+					$notify->close;
+					return FALSE;	
+				});				
+			}
+		}#notify not activated	
 		
 		#A short timeout to give the server a chance to
 		#redraw the area that was obscured by our dialog.
@@ -3089,6 +3091,7 @@ sub fct_save_settings {
 	$settings{'general'}->{'present_after'}    = $present_after_active->get_active();
 	$settings{'general'}->{'close_at_close'}   = $close_at_close_active->get_active();
 	$settings{'general'}->{'notify_after'}     = $notify_after_active->get_active();
+	$settings{'general'}->{'notify_timeout'}   = $notify_timeout_active->get_active();
 
 	$settings{'general'}->{'keybinding'}       = $keybinding_active->get_active();
 	$settings{'general'}->{'keybinding_sel'}   = $keybinding_sel_active->get_active();
@@ -3406,8 +3409,9 @@ sub fct_load_settings {
 				$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
 				$hide_time->set_value( $settings_xml->{'general'}->{'autohide_time'} );
 				$present_after_active->set_active( $settings_xml->{'general'}->{'present_after'} );
-				$notify_after_active->set_active( $settings_xml->{'general'}->{'notify_after'} );
 				$close_at_close_active->set_active( $settings_xml->{'general'}->{'close_at_close'} );
+				$notify_after_active->set_active( $settings_xml->{'general'}->{'notify_after'} );
+				$notify_timeout_active->set_active( $settings_xml->{'general'}->{'notify_timeout'} );
 
 				#keybindings
 				$keybinding_active->set_active( $settings_xml->{'general'}->{'keybinding'} );
@@ -4345,6 +4349,8 @@ sub fct_take_screenshot {
 	}else{
 		$delay_value = 0;
 	}
+	
+	print $delay_value, "\n";
 
 	#prepare filename, parse wild-cards
 	$filename_value = strftime $filename_value , localtime;
@@ -4368,7 +4374,7 @@ sub fct_take_screenshot {
 
 		my $screenshooter = Shutter::Screenshot::Workspace->new(
 			$sc, $cursor_active->get_active,
-			$delay_value, $wnck_screen->get_active_workspace,
+			$delay_value, $notify_timeout_active->get_active, $wnck_screen->get_active_workspace,
 			undef, undef, $current_monitor_active->get_active
 		);
 		
@@ -4385,9 +4391,9 @@ sub fct_take_screenshot {
 			  $data eq "tray_tooltip" ) {
 
 		my $screenshooter = Shutter::Screenshot::Window->new(
-			$sc, $cursor_active->get_active, $delay_value, 
+			$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active,
 			$border_active->get_active, undef, $data, $is_hidden, 
-			$visible_windows_active->get_active
+			$visible_windows_active->get_active, $hide_time->get_value
 		);
 		
 		$screenshot = $screenshooter->window();
@@ -4397,7 +4403,11 @@ sub fct_take_screenshot {
 
 		if ( $tool_advanced->get_active ) {
 					
-			my $screenshooter = Shutter::Screenshot::SelectorAdvanced->new( $sc, $cursor_active->get_active, $delay_value, $view, $selector, $dragger, $nav );
+			my $screenshooter = Shutter::Screenshot::SelectorAdvanced->new( 
+				$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active, 
+				$view, $selector, $dragger, $nav 
+			);
+			
 			$screenshot = $screenshooter->select_advanced();
 
 		} else {
@@ -4406,8 +4416,10 @@ sub fct_take_screenshot {
 			$zoom_size_factor = 2 if ( $zoom_size2->get_active );
 			$zoom_size_factor = 3 if ( $zoom_size3->get_active );
 			
-			my $screenshooter = Shutter::Screenshot::SelectorSimple->new( $sc, $cursor_active->get_active,
-				$delay_value, $zoom_size_factor, $zoom_active->get_active );
+			my $screenshooter = Shutter::Screenshot::SelectorSimple->new( 
+				$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active, 
+				$zoom_size_factor, $zoom_active->get_active, $hide_time->get_value 
+			);
 			
 			$screenshot = $screenshooter->select_simple();
 
@@ -4449,8 +4461,9 @@ sub fct_take_screenshot {
 		print "Selected xid: $xid\n" if $sc->get_debug;
 
 		my $screenshooter = Shutter::Screenshot::Window->new( 
-				$sc, $cursor_active->get_active, $delay_value, 
-				$border_active->get_active, $xid, $data, $is_hidden );
+			$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active, 
+			$border_active->get_active, $xid, $data, $is_hidden 
+		);
 		
 		$screenshot = $screenshooter->window_by_xid();
 
@@ -4475,8 +4488,10 @@ sub fct_take_screenshot {
 		}
 
 
-		my $screenshooter = Shutter::Screenshot::Workspace->new( $sc, $cursor_active->get_active,
-			$delay_value, $selected_workspace, $vpx, $vpy, $current_monitor_active->get_active );
+		my $screenshooter = Shutter::Screenshot::Workspace->new( 
+			$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active, 
+			$selected_workspace, $vpx, $vpy, $current_monitor_active->get_active 
+		);
 		
 		$screenshot = $screenshooter->workspace();
 

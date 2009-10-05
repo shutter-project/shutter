@@ -44,12 +44,13 @@ use constant FALSE => 0;
 sub new {
 	my $class = shift;
 
-	#call constructor of super class (shutter_common, include_cursor, delay)
-	my $self = $class->SUPER::new( shift, shift, shift );
+	#call constructor of super class (shutter_common, include_cursor, delay, notify_timeout)
+	my $self = $class->SUPER::new( shift, shift, shift, shift );
 
 	#subclass attributes
 	$self->{_zoom_size_factor} = shift;
 	$self->{_zoom_active}      = shift;
+	$self->{_hide_time}		   = shift;   #a short timeout to give the server a chance to redraw the area that was obscured	
 
 	bless $self, $class;
 	return $self;
@@ -212,7 +213,7 @@ sub select_simple {
 						
 						#A short timeout to give the server a chance to
 						#redraw the area that was obscured by our zoom window
-						Glib::Timeout->add (400, sub{
+						Glib::Timeout->add ($self->{_hide_time}, sub{
 							($output) = $self->get_pixbuf_from_drawable( $self->{_root}, $rect_x+1, $rect_y+1, $rect_w-1, $rect_h-1);
 							
 							#we don't have a useful string for wildcards (e.g. $name)

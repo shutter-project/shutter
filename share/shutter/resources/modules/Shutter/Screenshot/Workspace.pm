@@ -43,8 +43,8 @@ use constant FALSE => 0;
 sub new {
 	my $class = shift;
 
-	#call constructor of super class (shutter_common, include_cursor, delay)
-	my $self = $class->SUPER::new( shift, shift, shift );
+	#call constructor of super class (shutter_common, include_cursor, delay, notify_timeout)
+	my $self = $class->SUPER::new( shift, shift, shift, shift );
 
 	$self->{_selected_workspace}   = shift;
 	$self->{_vpx}                  = shift;
