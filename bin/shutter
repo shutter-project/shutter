@@ -1842,83 +1842,87 @@ sub evt_take_screenshot {
 		&fct_take_screenshot($widget, $data, $folder_from_config);
 		#unblock signal handler
 		&fct_control_signals('unblock');
-	}else{
-
-		if ( $data eq "menu" || 
+	}elsif ( $data eq "menu" || 
 			 $data eq "tray_menu" ||
 			 $data eq "tooltip" ||
 			 $data eq "tray_tooltip" ){
 				 
-			my $scd_text;
-			if ( $data eq "menu" || $data eq "tray_menu" ) {
-				$scd_text = $d->get("Please activate the menu you want to capture");
-			}elsif( $data eq "tooltip" || $data eq "tray_tooltip" ) {
-				$scd_text = $d->get("Please activate the tooltip you want to capture");
-			}	 
-				 
-			#show notification messages
-			#displaying the countdown
-			my $notify 	= $sc->get_notification_object;
-			my $ttw 	= $menu_delay->get_value;
-	
-			#first notification immediately
-			$notify->show( sprintf($d->nget("Screenshot will be taken in %s second", "Screenshot will be taken in %s seconds", $ttw) , $ttw), 
-						   $scd_text
-						 );
-			$ttw--;
-			
-			#delay is only 1 second
-			#do not show any further messages
-			if($ttw >= 1){
-				#then controlled via timeout
-				Glib::Timeout->add (1000, sub{
-					$notify->show( sprintf($d->nget("Screenshot will be taken in %s second", "Screenshot will be taken in %s seconds", $ttw) , $ttw), 
-								   $scd_text 
-								 );
-					$ttw--;
-					if($ttw == 0){			
-						
-						#close last message with a short delay (less than a second)
-						Glib::Timeout->add (500, sub{
-							$notify->close;
-							return FALSE;	
-						});	
-						
-						return FALSE;
-						
-					}else{
-						
-						return TRUE;	
+		my $scd_text;
+		if ( $data eq "menu" || $data eq "tray_menu" ) {
+			$scd_text = $d->get("Please activate the menu you want to capture");
+		}elsif( $data eq "tooltip" || $data eq "tray_tooltip" ) {
+			$scd_text = $d->get("Please activate the tooltip you want to capture");
+		}	 
+			 
+		#show notification messages
+		#displaying the countdown
+		my $notify 	= $sc->get_notification_object;
+		my $ttw 	= $menu_delay->get_value;
+
+		#first notification immediately
+		$notify->show( sprintf($d->nget("Screenshot will be taken in %s second", "Screenshot will be taken in %s seconds", $ttw) , $ttw), 
+					   $scd_text
+					 );
+		$ttw--;
+		
+		#delay is only 1 second
+		#do not show any further messages
+		if($ttw >= 1){
+			#then controlled via timeout
+			Glib::Timeout->add (1000, sub{
+				$notify->show( sprintf($d->nget("Screenshot will be taken in %s second", "Screenshot will be taken in %s seconds", $ttw) , $ttw), 
+							   $scd_text 
+							 );
+				$ttw--;
+				if($ttw == 0){			
 					
-					}	
-				});
-			}else{
-				#close last message with a short delay (less than a second)
-				Glib::Timeout->add (500, sub{
-					$notify->close;
-					return FALSE;	
-				});				
-			}	
-			
-			#A short timeout to give the server a chance to
-			#redraw the area that was obscured by our dialog.
-			Glib::Timeout->add ($menu_delay->get_value * 1000, sub{
+					#close last message with a short delay (less than a second)
+					Glib::Timeout->add (500, sub{
+						$notify->close;
+						return FALSE;	
+					});	
+					
+					return FALSE;
+					
+				}else{
+					
+					return TRUE;	
+				
+				}	
+			});
+		}else{
+			#close last message with a short delay (less than a second)
+			Glib::Timeout->add (500, sub{
+				$notify->close;
+				return FALSE;	
+			});				
+		}	
+		
+		#A short timeout to give the server a chance to
+		#redraw the area that was obscured by our dialog.
+		Glib::Timeout->add ($menu_delay->get_value * 1000, sub{
+			&fct_take_screenshot($widget, $data, $folder_from_config);
+			#unblock signal handler
+			&fct_control_signals('unblock');
+			return FALSE;	
+		});
+	}else{
+		#A short timeout to give the server a chance to
+		#redraw the area that was obscured by our dialog.
+		if($hide_active->get_active){
+			Glib::Timeout->add ($hide_time->get_value, sub{
 				&fct_take_screenshot($widget, $data, $folder_from_config);
 				#unblock signal handler
 				&fct_control_signals('unblock');
 				return FALSE;	
 			});
 		}else{
-			#A short timeout to give the server a chance to
-			#redraw the area that was obscured by our dialog.
-			Glib::Timeout->add (400, sub{
-				&fct_take_screenshot($widget, $data, $folder_from_config);
-				#unblock signal handler
-				&fct_control_signals('unblock');
-				return FALSE;	
-			});			
-		}		
-	}
+			&fct_take_screenshot($widget, $data, $folder_from_config);
+			#unblock signal handler
+			&fct_control_signals('unblock');			
+		}			
+	}		
+	
 	
 	return TRUE;
 }
@@ -3833,8 +3837,19 @@ sub fct_delete {
 
 			#move to trash
 			$trash_uri = $trash_uri->append_file_name( $session_screens{$key}->{'short'} );
-			$session_screens{$key}->{'uri'}->move( $trash_uri, TRUE ) if $session_screens{$key}->{'uri'}->exists;
-
+			#~ my $result = $session_screens{$key}->{'uri'}->move( $trash_uri, TRUE ) if $session_screens{$key}->{'uri'}->exists;
+			#move to trash (Xfer because the Trash might be on a different filesystem)
+			my $result = Gnome2::VFS::Xfer->uri ($session_screens{$key}->{'uri'}, $trash_uri, 'default', 'abort', 'replace', sub{ return TRUE });
+			unless ($result eq 'ok'){
+				$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), $d->get("Failed") );
+			}
+			
+			#and finally delete the file
+			$result = $session_screens{$key}->{'uri'}->unlink;
+			unless ($result eq 'ok'){
+				$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), $d->get("Failed") );
+			}			
+			
 		}
 
 		$notebook->remove_page( $notebook->get_current_page );    #delete tab
@@ -3886,7 +3901,19 @@ sub fct_delete {
 
 						#move to trash
 						$trash_uri = $trash_uri->append_file_name( $session_screens{$key}->{'short'} );
-						$session_screens{$key}->{'uri'}->move( $trash_uri, TRUE );
+						#~ $session_screens{$key}->{'uri'}->move( $trash_uri, TRUE );
+						#move to trash (Xfer because the Trash might be on a different filesystem)
+						my $result = Gnome2::VFS::Xfer->uri ($session_screens{$key}->{'uri'}, $trash_uri, 'default', 'abort', 'replace', sub{ return TRUE });
+						unless ($result eq 'ok'){
+							$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), $d->get("Failed") );
+						}
+						
+						#and finally delete the file
+						$result = $session_screens{$key}->{'uri'}->unlink;
+						unless ($result eq 'ok'){
+							$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), $d->get("Failed") );
+						}	
+
 
 					}
 
