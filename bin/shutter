@@ -272,9 +272,9 @@ my $notebook = Gtk2::Notebook->new;
 $notebook = &fct_create_session_notebook;
 
 #STATUSBAR
-my $status1 = Gtk2::Statusbar->new;
-$status1->set_size_request( 200, -1 );
-my $status2 = Gtk2::Statusbar->new;
+my $status = Gtk2::Statusbar->new;
+my $combobox_status_profiles_label = Gtk2::Label->new( $d->get("Profile") . ":" );
+my $combobox_status_profiles = Gtk2::ComboBox->new_text;
 
 #arrange settings in notebook
 my $notebook_settings = Gtk2::Notebook->new;
@@ -601,7 +601,7 @@ if ( !$combobox_settings_profiles->get_active_text ) {
 }
 
 #populate quick selector as well
-&fct_update_quick_profile_selector($combobox_settings_profiles, \@current_profiles);
+&fct_update_profile_selectors($combobox_settings_profiles, \@current_profiles);
 
 my $button_profile_save = Gtk2::Button->new;
 $button_profile_save->signal_connect(
@@ -1664,12 +1664,7 @@ $settings_dialog->set_default_response('apply');
 $vbox->pack_start( $notebook,  TRUE,  TRUE,  0 );
 
 #pack statusbar
-$status1->set_has_resize_grip (FALSE);
-$status2->set_has_resize_grip (TRUE);
-my $status_hbox = Gtk2::HBox->new( FALSE, 0 );
-$status_hbox->pack_start( $status1, TRUE, TRUE, 0 );
-$status_hbox->pack_start( $status2, TRUE, TRUE, 0 );
-$vbox->pack_start( $status_hbox, FALSE, FALSE, 0 );
+$vbox->pack_start( $status, FALSE, FALSE, 0 );
 
 #--------------------------------------
 
@@ -2480,7 +2475,7 @@ sub evt_save_profile {
 			#unshift to array as well
 			unshift( @{$current_profiles_ref}, $new_profile_name );
 		
-			&fct_update_quick_profile_selector($combobox_settings_profiles, $current_profiles_ref);
+			&fct_update_profile_selectors($combobox_settings_profiles, $current_profiles_ref);
 
 		}
 		&fct_save_settings($new_profile_name);
@@ -2506,7 +2501,7 @@ sub evt_delete_profile {
 			#remove from array as well
 			splice( @{$current_profiles_ref}, $active_index, 1 );
 
-			&fct_update_quick_profile_selector($combobox_settings_profiles, $current_profiles_ref);
+			&fct_update_profile_selectors($combobox_settings_profiles, $current_profiles_ref);
 			
 			&fct_show_status_message( 1, $d->get("Profile deleted") );
 		} else {
@@ -2523,11 +2518,14 @@ sub evt_apply_profile {
 	if ( $combobox_settings_profiles->get_active_text ) {
 		$settings_xml = &fct_load_settings( 'profile_load', $combobox_settings_profiles->get_active_text );
 		$current_profile_indx = $combobox_settings_profiles->get_active;
+		my $current_profile_text = $combobox_settings_profiles->get_active_text;
+				
+		&fct_update_profile_selectors($combobox_settings_profiles, $current_profiles_ref, $widget);	
 
-		&fct_update_quick_profile_selector($combobox_settings_profiles, $current_profiles_ref);	
+		&fct_update_info_and_tray();
+
+		&fct_show_status_message( 1, sprintf( $d->get("Profile %s loaded successfully"), "'" . $current_profile_text . "'") );
 	}
-	
-	&fct_update_info_and_tray();
 	
 	return TRUE;
 }
@@ -4997,15 +4995,15 @@ sub fct_show_status_message {
 	my $index = shift;
 	my $status_text = shift;
 	
-	$status1->pop(1);
+	$status->pop(1);
 	Glib::Source->remove ($session_start_screen{'first_page'}->{'statusbar_timer'}) if defined $session_start_screen{'first_page'}->{'statusbar_timer'};
-	$status1->push( $index, $status_text );
+	$status->push( $index, $status_text );
 
 	#...and remove it
 	$session_start_screen{'first_page'}->{'statusbar_timer'} = Glib::Timeout->add(
 		3000,
 		sub {
-			$status1->pop(1);
+			$status->pop(1);
 			#show file or session info again
 			&fct_update_info_and_tray();
 			return FALSE;
@@ -5037,7 +5035,7 @@ sub fct_update_info_and_tray {
 		#change window title
 		$window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
 		
-		$status1->push(1, $session_screens{$key}->{'width'} . 
+		$status->push(1, $session_screens{$key}->{'width'} . 
 						  " x " . 
 						  $session_screens{$key}->{'height'} . 
 						  " " . 
@@ -5052,7 +5050,7 @@ sub fct_update_info_and_tray {
 		#change window title
 		$window->set_title($d->get("Session")." - ".SHUTTER_NAME);
 		
-		$status1->push(1, sprintf( $d->nget( "%s screenshot", "%s screenshots", scalar( keys(%session_screens) ) ) , scalar( keys(%session_screens) ) ) .
+		$status->push(1, sprintf( $d->nget( "%s screenshot", "%s screenshots", scalar( keys(%session_screens) ) ) , scalar( keys(%session_screens) ) ) .
 						  "  " .
 						  $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display(&fct_get_total_size_of_session) )
 					   );
@@ -5073,15 +5071,15 @@ sub fct_update_info_and_tray {
 
 	#SESSION AND SETTINGS INFO
 	#--------------------------------------		
-	if ( $filename && $saveDir_button && $combobox_settings_profiles ) {
-
-		if ( $combobox_settings_profiles->get_active_text ) {
-			$status2->push(1, $d->get("Current Profile") . ": " . $combobox_settings_profiles->get_active_text);
-		} else {
-			$status2->push(1, "");
-		}
-
-	}
+	#~ if ( $combobox_settings_profiles ) {
+#~ 
+		#~ if ( $combobox_settings_profiles->get_active_text ) {
+			#~ $status2->push(1, $d->get("Current Profile") . ": " . $combobox_settings_profiles->get_active_text);
+		#~ } else {
+			#~ $status2->push(1, "");
+		#~ }
+#~ 
+	#~ }
 
 	return TRUE;
 }
@@ -5138,24 +5136,56 @@ sub fct_get_current_file {
 	return $key;
 }
 
-sub fct_update_quick_profile_selector {
-	my ($combobox_settings_profiles, $current_profiles_ref) = @_;
+sub fct_update_profile_selectors {
+	my ($combobox_settings_profiles, $current_profiles_ref, $recur_widget) = @_;
 
 	#populate quick selector as well
 	if(scalar @{$current_profiles_ref} > 0){
 		#tray menu
 		foreach($tray_menu->get_children){
 			if ($_->get_name eq 'quicks'){
-				$_->set_submenu( fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );
 				$_->set_submenu( fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );					
 				$_->set_sensitive(TRUE);
 				last;
 			}	
 		}
-		#and main menu
-		$sm->{_menuitem_quicks}->set_submenu( fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );
+				
+		#main menu
 		$sm->{_menuitem_quicks}->set_submenu( fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );
 		$sm->{_menuitem_quicks}->set_sensitive(TRUE);
+
+		#and statusbar
+		#FIXME - some explanation is missing here
+		unless($recur_widget && $recur_widget eq $combobox_status_profiles){
+			if(defined $combobox_status_profiles && defined $combobox_status_profiles_label){
+				$combobox_status_profiles_label->destroy;
+				$combobox_status_profiles->destroy;
+			}
+			
+			$combobox_status_profiles_label = Gtk2::Label->new( $d->get("Profile") . ":" );
+			$combobox_status_profiles = Gtk2::ComboBox->new_text;
+			$status->pack_start( $combobox_status_profiles_label, FALSE, FALSE, 0 );
+			$status->pack_start( $combobox_status_profiles, FALSE, FALSE, 0 );
+			
+			foreach my $profile ( @{$current_profiles_ref} ) {
+				$combobox_status_profiles->append_text($profile);	
+			}			
+	
+			$combobox_status_profiles->set_active($combobox_settings_profiles->get_active);
+			
+			$combobox_status_profiles->signal_connect(
+				'changed' => sub {
+					my $widget = shift;
+				
+					$combobox_settings_profiles->set_active($widget->get_active);
+					&evt_apply_profile( $widget, $combobox_settings_profiles, $current_profiles_ref );
+	
+				}
+			);
+			
+			$status->show_all;
+		}
+
 	}else{
 		#tray menu
 		foreach($tray_menu->get_children){
@@ -5165,9 +5195,15 @@ sub fct_update_quick_profile_selector {
 				last;
 			}	
 		}		
-		#and main menu
+		#main menu
 		$sm->{_menuitem_quicks}->remove_submenu;
 		$sm->{_menuitem_quicks}->set_sensitive(FALSE);
+		
+		#and statusbar
+		if(defined $combobox_status_profiles && defined $combobox_status_profiles_label){
+			$combobox_status_profiles_label->destroy;
+			$combobox_status_profiles->destroy;
+		}
 	}	
 	return TRUE;
 }
