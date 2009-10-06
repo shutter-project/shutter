@@ -1801,13 +1801,12 @@ sub evt_take_screenshot {
 	}
 
 	#hide mainwindow
-	if (   $hide_active->get_active
-		&& $data ne "web" 
-		&& $data ne "tray_web"
+	if ( $hide_active->get_active && $data ne "web" && $data ne "tray_web"
 		&& !$is_hidden
-		&& !$selfcapture )
-	{
+		&& !$selfcapture ) {
+			
 		&fct_control_main_window(FALSE, 'hide');
+		
 	}else{
 
 		#save current position of main window
@@ -2679,7 +2678,10 @@ sub fct_add_file_monitor {
 sub fct_control_signals {
 	my $action = shift;
 	
+	my $sensitive = undef;
 	if($action eq 'block'){
+		
+		$sensitive = FALSE;
 	
 		#block signals
 		$SIG{USR1}  = 'IGNORE';
@@ -2703,6 +2705,8 @@ sub fct_control_signals {
 
 	}elsif($action eq 'unblock'){
 
+		$sensitive = TRUE;
+
 		#attach signal-handler again
 		$SIG{USR1}  = sub { &evt_take_screenshot( 'global_keybinding', 'raw' ) };
 		$SIG{USR2}  = sub { &evt_take_screenshot( 'global_keybinding', 'window' ) };
@@ -2725,6 +2729,27 @@ sub fct_control_signals {
 
 	}	
 	
+	#enable/disable controls
+	if($st->{_select} && $sm->{_menuitem_selection}){
+		#menu
+		$sm->{_menuitem_selection}->set_sensitive($sensitive);
+		$sm->{_menuitem_full}->set_sensitive($sensitive);
+		$sm->{_menuitem_window}->set_sensitive($sensitive);
+		$sm->{_menuitem_section}->set_sensitive($sensitive);
+		$sm->{_menuitem_menu}->set_sensitive($sensitive);
+		$sm->{_menuitem_tooltip}->set_sensitive($sensitive);
+		$sm->{_menuitem_web}->set_sensitive($sensitive) if ($gnome_web_photo);
+		
+		#toolbar
+		$st->{_select}->set_sensitive($sensitive);
+		$st->{_full}->set_sensitive($sensitive);
+		$st->{_window}->set_sensitive($sensitive);
+		$st->{_section}->set_sensitive($sensitive);
+		$st->{_menu}->set_sensitive($sensitive);
+		$st->{_tooltip}->set_sensitive($sensitive);
+		$st->{_web}->set_sensitive($sensitive) if ($gnome_web_photo);
+	}
+	
 	return TRUE;
 }
 
@@ -2737,16 +2762,16 @@ sub fct_control_main_window {
 	$present = shift if @_;
 	
 	#set all buttons insensitive/sensitive
-	if($st->{_select}){
-		$st->{_select}->set_sensitive($set);
-		$st->{_full}->set_sensitive($set);
-		$st->{_window}->set_sensitive($set);
-		$st->{_section}->set_sensitive($set);
-		$st->{_menu}->set_sensitive($set);
-		$st->{_web}->set_sensitive($set) if ($gnome_web_photo);
-	}else{
-		return FALSE;	
-	}
+	#~ if($st->{_select}){
+		#~ $st->{_select}->set_sensitive($set);
+		#~ $st->{_full}->set_sensitive($set);
+		#~ $st->{_window}->set_sensitive($set);
+		#~ $st->{_section}->set_sensitive($set);
+		#~ $st->{_menu}->set_sensitive($set);
+		#~ $st->{_web}->set_sensitive($set) if ($gnome_web_photo);
+	#~ }else{
+		#~ return FALSE;	
+	#~ }
 
 	#this is an unusual method for raising the window
 	#to the top within the stacking order (z-axis)
