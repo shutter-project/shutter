@@ -1680,9 +1680,9 @@ $vbox->pack_start( $status_hbox, FALSE, FALSE, 0 );
 #start minimized?
 #--------------------------------------
 unless ( $sc->get_min ) {
-	&fct_control_main_window (TRUE, 'show');
+	&fct_control_main_window ('show');
 } else {
-	&fct_control_main_window (TRUE, 'hide');
+	&fct_control_main_window ('hide');
 }
 
 #update the first tab on startup
@@ -1805,7 +1805,7 @@ sub evt_take_screenshot {
 		&& !$is_hidden
 		&& !$selfcapture ) {
 			
-		&fct_control_main_window(FALSE, 'hide');
+		&fct_control_main_window('hide');
 		
 	}else{
 
@@ -2103,9 +2103,9 @@ sub evt_show_systray {
 	#left button (mouse)
 	if ( $_[1]->button == 1 ) {
 		if ( $window->visible ) {
-			&fct_control_main_window (TRUE, 'hide');
+			&fct_control_main_window ('hide');
 		} else {
-			&fct_control_main_window (TRUE, 'show');
+			&fct_control_main_window ('show');
 		}
 	}
 
@@ -2150,9 +2150,9 @@ sub evt_activate_systray_statusicon {
 	}
 
 	unless ( $is_hidden ) {
-		&fct_control_main_window (TRUE, 'hide');
+		&fct_control_main_window ('hide');
 	} else {
-		&fct_control_main_window (TRUE, 'show');
+		&fct_control_main_window ('show');
 	}
 
 	return TRUE;
@@ -2754,25 +2754,12 @@ sub fct_control_signals {
 }
 
 sub fct_control_main_window {
-	my $set 	= shift;
 	my $mode 	= shift;
 	
 	#default value for present is TRUE
 	my $present = TRUE;
 	$present = shift if @_;
 	
-	#set all buttons insensitive/sensitive
-	#~ if($st->{_select}){
-		#~ $st->{_select}->set_sensitive($set);
-		#~ $st->{_full}->set_sensitive($set);
-		#~ $st->{_window}->set_sensitive($set);
-		#~ $st->{_section}->set_sensitive($set);
-		#~ $st->{_menu}->set_sensitive($set);
-		#~ $st->{_web}->set_sensitive($set) if ($gnome_web_photo);
-	#~ }else{
-		#~ return FALSE;	
-	#~ }
-
 	#this is an unusual method for raising the window
 	#to the top within the stacking order (z-axis)
 	#but it works best here
@@ -4307,7 +4294,7 @@ sub fct_draw {
 		$drawing_tool->show( $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'}, \%session_screens );		
 	}
 
-	&fct_control_main_window (TRUE, 'show');
+	&fct_control_main_window ('show');
 
 	return TRUE;
 }
@@ -4342,7 +4329,7 @@ sub fct_take_screenshot {
 	$filetype_value = $1;
 	unless ($filetype_value) {
 		$sd->dlg_error_message( $d->get("No valid filetype specified"), $d->get("Failed") );
-		&fct_control_main_window( TRUE, 'show' );
+		&fct_control_main_window ('show');
 		return FALSE;
 	}
 
@@ -4370,7 +4357,7 @@ sub fct_take_screenshot {
 			$d->get( "There was an error determining the filename." ),
 			$d->get("Failed") 
 		);		
-		&fct_control_main_window( TRUE, 'show' );
+		&fct_control_main_window ('show');
 		return FALSE;
 	}
 
@@ -4453,7 +4440,7 @@ sub fct_take_screenshot {
 										undef, undef,
 										$screenshot );
 				&fct_show_status_message( 1, $d->get("Unable to capture website") );
-				&fct_control_main_window( TRUE, 'show');
+				&fct_control_main_window ('show');
 				return FALSE;
 			}
 		}else{
@@ -4516,14 +4503,14 @@ sub fct_take_screenshot {
 		);
 			
 		&fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
-		&fct_control_main_window( TRUE, 'show');
+		&fct_control_main_window ('show');
 		return FALSE;
 	} else {
 
 		#user aborted screenshot
 		if ( $screenshot == 5 ) {
 			&fct_show_status_message( 1, $d->get("Capture aborted by user") );
-			&fct_control_main_window( TRUE, 'show', $present_after_active->get_active);
+			&fct_control_main_window('show', $present_after_active->get_active);
 			return FALSE;
 
 		#keyboard could not be grabbed
@@ -4535,7 +4522,7 @@ sub fct_take_screenshot {
 			);
 				
 			&fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
-			&fct_control_main_window( TRUE, 'show');
+			&fct_control_main_window ('show');
 			return FALSE;
 
 		#no window with type xy detected
@@ -4554,7 +4541,7 @@ sub fct_take_screenshot {
 			);
 				
 			&fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
-			&fct_control_main_window( TRUE, 'show');
+			&fct_control_main_window ('show');
 			return FALSE;
 		
 		}
@@ -4627,7 +4614,7 @@ sub fct_take_screenshot {
 
 		#finally save pixbuf
 		unless ($sp->save_pixbuf_to_file($screenshot, $screenshot_name, $filetype_value, $quality_value)){
-			&fct_control_main_window( TRUE, 'show');
+			&fct_control_main_window ('show');
 			return FALSE;			
 		}
 
@@ -4673,7 +4660,7 @@ sub fct_take_screenshot {
 
 			#finally save pixbuf
 			unless($sp->save_pixbuf_to_file($screenshot_thumbnail, $screenshot_thumbnail_name, $filetype_value, $quality_value)){
-				&fct_control_main_window( TRUE, 'show');
+				&fct_control_main_window ('show');
 				return FALSE;			
 			}
 
@@ -4723,11 +4710,11 @@ sub fct_take_screenshot {
 			$d->get( "Error while taking the screenshot." )
 		);
 		&fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
-		&fct_control_main_window( TRUE, 'show');
+		&fct_control_main_window ('show');
 		return FALSE;		
 	}
 	
-	&fct_control_main_window( TRUE, 'show', $present_after_active->get_active);
+	&fct_control_main_window('show', $present_after_active->get_active);
 	
 	return TRUE;
 }
