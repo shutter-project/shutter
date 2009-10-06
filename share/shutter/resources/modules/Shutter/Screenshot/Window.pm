@@ -109,6 +109,17 @@ sub new {
 			utf8::decode $text;
 			
 			my $sec_text =  "\n".$self->{_c}{'cw'}{'width'} . "x" . $self->{_c}{'cw'}{'height'};
+			
+			#warning if there are no subwindows
+			#when we are in section mode and 
+			#a toplevel window was already selected
+			if($self->{_c}{'ws'}){
+				my $xwindow = $self->{_c}{'ws'}->XWINDOW;				
+				if (scalar @{$self->{_c}{'cw'}{$xwindow}} <= 1){
+					$text = "WARNING";
+					$sec_text = "\nNo child windows detected";
+				}
+			}
 
 			#window size and position
 			my ($w, $h) = $self->{_highlighter}->get_size;
@@ -719,15 +730,18 @@ sub select_window {
 	}
 
 	#draw highlighter if needed
-	if ( Gtk2::Gdk->pointer_is_grabbed && ($self->{_c}{'lw'}{'gdk_window'} ne $self->{_c}{'cw'}{'gdk_window'}) ) {
-
+	if ( (Gtk2::Gdk->pointer_is_grabbed && ($self->{_c}{'lw'}{'gdk_window'} ne $self->{_c}{'cw'}{'gdk_window'})) || 
+		 (Gtk2::Gdk->pointer_is_grabbed && $self->{_c}{'ws_init'}) ) {
+			 
 		$self->update_highlighter(
 			$self->{_c}{'cw'}{'x'},
 			$self->{_c}{'cw'}{'y'},
 			$self->{_c}{'cw'}{'width'},
 			$self->{_c}{'cw'}{'height'}
 		);
-	
+		
+		#reset flag
+		$self->{_c}{'ws_init'} = FALSE;
 	}
 	
 	return TRUE;
@@ -773,6 +787,7 @@ sub window {
 	#init
 	$self->{_c} 					= ();
 	$self->{_c}{'ws'} 				= undef;	
+	$self->{_c}{'ws_init'} 			= FALSE;	
 	$self->{_c}{'lw'}{'gdk_window'} = 0;
 
 	#root window size is minimum at startup
@@ -850,7 +865,8 @@ sub window {
 					{
 																		
 						#mark as selected parent window
-						$self->{_c}{'ws'} = $self->{_c}{'cw'}{'gdk_window'};	
+						$self->{_c}{'ws'} = $self->{_c}{'cw'}{'gdk_window'};
+						$self->{_c}{'ws_init'} = TRUE;	
 
 						#and select current subwindow
 						$self->select_window($event);
