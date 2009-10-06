@@ -4109,12 +4109,13 @@ sub fct_undo {
 				#setup a new filemonitor, so we get noticed if the file changed
 				&fct_add_file_monitor($key);	
 
-				&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("reverted") );
+				&fct_show_status_message( 1, $d->get("Last action undone") );
+				
 			}else{
 
 				my $response = $sd->dlg_error_message(
 					sprintf( $d->get(  "Error while copying last version (%s)."), "'" . $last_version . "'"),
-					sprintf( $d->get(  "There was an error performing unddo on %s."), "'" . $session_screens{$key}->{'long'} . "'" ),
+					sprintf( $d->get(  "There was an error performing undo on %s."), "'" . $session_screens{$key}->{'long'} . "'" ),
 					undef, undef, undef,
 					undef, undef, undef,
 					$@
@@ -4122,10 +4123,6 @@ sub fct_undo {
 				
 			}	
 
-		}else{
-
-			print "No last version found (undo)...", "\n";			
-		
 		}
 
 	}
@@ -4159,7 +4156,7 @@ sub fct_redo {
 				#setup a new filemonitor, so we get noticed if the file changed
 				&fct_add_file_monitor($key);	
 
-				&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("redo performed") );
+				&fct_show_status_message( 1, $d->get("Last action redone") );
 				
 			}else{
 
@@ -4172,13 +4169,9 @@ sub fct_redo {
 				);	
 		
 			}
-
-		}else{
 			
-			print "No last version found (redo)...", "\n";			
-	
 		}
-
+		
 	}
 	return TRUE;
 }
