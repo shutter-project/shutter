@@ -93,7 +93,7 @@ sub new {
 
 		my $mon 	= $self->get_current_monitor;
 		my $size 	= int( $mon->width * 0.007 );
-		my $size2 	= int( $mon->width * 0.005 );
+		my $size2 	= int( $mon->width * 0.006 );
 
 		$self->{_highlighter_expose} = $self->{_highlighter}->signal_connect('expose-event' => sub{
 			#remove old handler
@@ -109,17 +109,6 @@ sub new {
 			utf8::decode $text;
 			
 			my $sec_text =  "\n".$self->{_c}{'cw'}{'width'} . "x" . $self->{_c}{'cw'}{'height'};
-			
-			#warning if there are no subwindows
-			#when we are in section mode and 
-			#a toplevel window was already selected
-			if($self->{_c}{'ws'}){
-				my $xwindow = $self->{_c}{'ws'}->XWINDOW;				
-				if (scalar @{$self->{_c}{'cw'}{$xwindow}} <= 1){
-					$text = "WARNING";
-					$sec_text = "\nNo child windows detected";
-				}
-			}
 
 			#window size and position
 			my ($w, $h) = $self->{_highlighter}->get_size;
@@ -128,6 +117,22 @@ sub new {
 			#app icon
 			my $icon = $self->{_c}{'cw'}{'window'}->get_icon;
 			
+			#warning if there are no subwindows
+			#when we are in section mode and 
+			#a toplevel window was already selected
+			if($self->{_c}{'ws'}){
+				my $xwindow = $self->{_c}{'ws'}->XWINDOW;				
+				if (scalar @{$self->{_c}{'cw'}{$xwindow}} <= 1){
+					#error icon
+					$icon = Gtk2::Widget::render_icon (Gtk2::Invisible->new, "gtk-dialog-error", 'dialog');
+					
+					#error message
+					my $d = $self->{_sc}->get_gettext;
+					$text = $d->get("No subwindow detected");
+					$sec_text = "\n".$d->get("Maybe this window is using client-side windows (or similar).\nShutter is not yet able to query the tree information of such windows.");
+				}
+			}
+	
 			#create cairo context
 			my $cr = Gtk2::Gdk::Cairo::Context->create ($self->{_highlighter}->window);
 
