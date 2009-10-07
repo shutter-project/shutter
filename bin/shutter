@@ -923,8 +923,20 @@ $tooltips->set_tip( $fname_autocopy_active, $d->get("Automatically copy filename
 
 #delay
 #--------------------------------------
-my $delay_vlabel = Gtk2::Label->new;
-my $delay = Gtk2::SpinButton->new_with_range( 1, 99, 1 );
+
+#delay statusbar
+my $delay_status_label = Gtk2::Label->new( $d->get("Delay") .":" );
+my $delay_status = Gtk2::SpinButton->new_with_range( 0, 99, 1 );
+my $delay_status_vlabel = Gtk2::Label->new( $d->nget("second", "seconds", $delay_status->get_value) );
+$delay_status->signal_connect(
+	'value-changed' => \&evt_value_changed,
+	'delay_status_changed'
+);
+
+#delay settings dialog
+my $delay_label = Gtk2::Label->new( $d->get("Capture after a delay of") );
+my $delay = Gtk2::SpinButton->new_with_range( 0, 99, 1 );
+my $delay_vlabel = Gtk2::Label->new( $d->nget("second", "seconds", $delay->get_value) );
 $delay->signal_connect(
 	'value-changed' => \&evt_value_changed,
 	'delay_changed'
@@ -936,24 +948,31 @@ if ( defined $settings_xml->{'general'}->{'delay'} ) {
 	$delay->set_value(0);
 }
 
-my $delay_active = Gtk2::CheckButton->new_with_label( $d->get("Capture after a delay of") );
-$delay_active->set_active(TRUE);
-$delay_active->signal_connect(
-	'toggled' => \&evt_value_changed,
-	'delay_toggled'
-);
+#~ my $delay_active = Gtk2::CheckButton->new_with_label( $d->get("Capture after a delay of") );
+#~ $delay_active->set_active(TRUE);
+#~ $delay_active->signal_connect(
+	#~ 'toggled' => \&evt_value_changed,
+	#~ 'delay_toggled'
+#~ );
 
-if ( defined $settings_xml->{'general'}->{'delay_active'} ) {
-	$delay_active->set_active( $settings_xml->{'general'}->{'delay_active'} );
-} else {
-	$delay_active->set_active(FALSE);
-}
+#~ if ( defined $settings_xml->{'general'}->{'delay_active'} ) {
+	#~ $delay_active->set_active( $settings_xml->{'general'}->{'delay_active'} );
+#~ } else {
+	#~ $delay_active->set_active(FALSE);
+#~ }
 
 $tooltips->set_tip( $delay,        $d->get("Wait n seconds before taking a screenshot") );
-$tooltips->set_tip( $delay_active, $d->get("Wait n seconds before taking a screenshot") );
+#~ $tooltips->set_tip( $delay_active, $d->get("Wait n seconds before taking a screenshot") );
+$tooltips->set_tip( $delay_label, $d->get("Wait n seconds before taking a screenshot") );
 $tooltips->set_tip( $delay_vlabel, $d->get("Wait n seconds before taking a screenshot") );
 
-$delay_box->pack_start( $delay_active, FALSE, FALSE, 12 );
+$tooltips->set_tip( $delay_status,        $d->get("Wait n seconds before taking a screenshot") );
+#~ $tooltips->set_tip( $delay_active, $d->get("Wait n seconds before taking a screenshot") );
+$tooltips->set_tip( $delay_status_label, $d->get("Wait n seconds before taking a screenshot") );
+$tooltips->set_tip( $delay_status_vlabel, $d->get("Wait n seconds before taking a screenshot") );
+
+#~ $delay_box->pack_start( $delay_active, FALSE, FALSE, 12 );
+$delay_box->pack_start( $delay_label, FALSE, FALSE, 12 );
 $delay_box->pack_start( $delay, FALSE, FALSE,  0 );
 $delay_box->pack_start( $delay_vlabel, FALSE, FALSE, 2 );
 
@@ -1664,6 +1683,12 @@ $settings_dialog->set_default_response('apply');
 $vbox->pack_start( $notebook,  TRUE,  TRUE,  0 );
 
 #pack statusbar
+$status->pack_start( $delay_status_label, FALSE, FALSE, 0 );
+$status->pack_start( $delay_status, FALSE, FALSE, 0 );
+#unsure here
+#~ $status->pack_start( $delay_status_vlabel, FALSE, TRUE, 0 );
+$status->pack_start( Gtk2::HSeparator->new , FALSE, FALSE, 6 );
+
 $vbox->pack_start( $status, FALSE, FALSE, 0 );
 
 #--------------------------------------
@@ -1729,18 +1754,25 @@ sub evt_value_changed {
 		}
 	}
 
-	#checkbox for "delay" -> HScale active/inactive
-	if ( $data eq "delay_toggled" ) {
-		if ( $delay_active->get_active ) {
-			$delay->set_sensitive(TRUE);
-		} else {
-			$delay->set_sensitive(FALSE);
-		}
-	}
+	#~ #checkbox for "delay" -> HScale active/inactive
+	#~ if ( $data eq "delay_toggled" ) {
+		#~ if ( $delay_active->get_active ) {
+			#~ $delay->set_sensitive(TRUE);
+		#~ } else {
+			#~ $delay->set_sensitive(FALSE);
+		#~ }
+	#~ }
 
 	#value for "delay" -> update text
 	if ( $data eq "delay_changed" ) {
-		$delay_vlabel->set_text($d->nget("second", "seconds", $delay->get_value) ); 
+		$delay_status->set_value($delay->get_value); 
+		$delay_vlabel->set_text($d->nget("second", "seconds", $delay->get_value) );
+	}
+
+	#value for "delay" -> update text
+	if ( $data eq "delay_status_changed" ) {
+		$delay->set_value($delay_status->get_value); 
+		$delay_status_vlabel->set_text($d->nget("second", "seconds", $delay_status->get_value) );
 	}
 	
 	#value for "menu_delay" -> update text
@@ -3025,7 +3057,7 @@ sub fct_save_settings {
 	$settings{'general'}->{'fname_autocopy'} = $fname_autocopy_active->get_active();
 	$settings{'general'}->{'cursor'}		 = $cursor_active->get_active();
 	$settings{'general'}->{'delay'}			 = $delay->get_value();
-	$settings{'general'}->{'delay_active'}	 = $delay_active->get_active();
+	#~ $settings{'general'}->{'delay_active'}	 = $delay_active->get_active();
 
 	#wrksp -> submenu
 	$settings{'general'}->{'current_monitor_active'} = $current_monitor_active->get_active;
@@ -3344,7 +3376,7 @@ sub fct_load_settings {
 
 				$cursor_active->set_active( $settings_xml->{'general'}->{'cursor'} );
 				$delay->set_value( $settings_xml->{'general'}->{'delay'} );
-				$delay_active->set_active( $settings_xml->{'general'}->{'delay_active'} );
+				#~ $delay_active->set_active( $settings_xml->{'general'}->{'delay_active'} );
 
 				#FIXME
 				#this is a dirty hack to force the setting to be enabled in session tab
@@ -4327,7 +4359,8 @@ sub fct_take_screenshot {
 	#delay
 	#when capturing a menu or tooltip => disable delay (there is a dedicated delay property for this)
 	unless ( $data eq "menu" || $data eq "tray_menu" || $data eq "tooltip" || $data eq "tray_tooltip" ){
-		if ( $delay_active->get_active ) {
+		#~ if ( $delay_active->get_active ) {
+		if ( $delay->get_value ) {
 			$delay_value = int $delay->get_value;
 		} else {
 			$delay_value = 0;
@@ -5069,8 +5102,11 @@ sub fct_update_info_and_tray {
 		$tooltips->set_tip( $tray, SHUTTER_NAME . " " . SHUTTER_VERSION );
 	}
 
-	#SESSION AND SETTINGS INFO
-	#--------------------------------------		
+	#STATUSBAR
+	#--------------------------------------
+	
+	
+			
 	#~ if ( $combobox_settings_profiles ) {
 #~ 
 		#~ if ( $combobox_settings_profiles->get_active_text ) {
@@ -5164,8 +5200,8 @@ sub fct_update_profile_selectors {
 			
 			$combobox_status_profiles_label = Gtk2::Label->new( $d->get("Profile") . ":" );
 			$combobox_status_profiles = Gtk2::ComboBox->new_text;
-			$status->pack_start( $combobox_status_profiles_label, FALSE, FALSE, 0 );
-			$status->pack_start( $combobox_status_profiles, FALSE, FALSE, 0 );
+			$status->pack_end( $combobox_status_profiles, FALSE, FALSE, 0 );
+			$status->pack_end( $combobox_status_profiles_label, FALSE, FALSE, 0 );
 			
 			foreach my $profile ( @{$current_profiles_ref} ) {
 				$combobox_status_profiles->append_text($profile);	
