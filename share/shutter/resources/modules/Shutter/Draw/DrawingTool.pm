@@ -36,6 +36,7 @@ use Exporter;
 use Goo::Canvas;
 use File::Basename qw/ fileparse dirname basename /;
 use File::Glob qw/ glob /;
+use File::Temp qw/ tempfile tempdir /;
 use Data::Dumper;
 
 #Sort::Naturally - sort lexically, but sort numeral parts numerically
@@ -80,6 +81,9 @@ sub new {
 		}
 		return FALSE;
 	});
+
+	#clipboard
+	$self->{_clipboard} 	= Gtk2::Clipboard->get( Gtk2::Gdk->SELECTION_CLIPBOARD );
 
 	#file
 	$self->{_filename}    	= undef;
@@ -4470,10 +4474,14 @@ sub setup_uimanager {
 			$self->abort_current_mode; $self->xdo('redo'); 
 		} ],
 		[ "Copy", 'gtk-copy', undef, "<control>C", undef, sub { 
+			#clear clipboard
+			$self->{_clipboard}->set_text("");
 			$self->{_cut} = FALSE; 
 			$self->{_current_copy_item} = $self->{_current_item}; 
 		} ],
 		[ "Cut", 'gtk-cut', undef, "<control>X", undef, sub { 
+			#clear clipboard
+			$self->{_clipboard}->set_text("");
 			$self->{_cut} = TRUE; 
 			$self->{_current_copy_item} = $self->{_current_item}; 
 			$self->clear_item_from_canvas( $self->{_current_copy_item} ); 
@@ -5295,50 +5303,95 @@ sub change_cursor_to_current_pixbuf {
 sub paste_item {
 	my $self = shift;
 	my $item = shift;
-	
 	#cut instead of copy
 	my $delete_after = shift;
-
-	#~ print $item."\n";
-
-	return FALSE unless $item;
 	
-	my $child = $self->get_child_item($item);
-	
-	my $new_item = undef;
-	if ( $item->isa('Goo::Canvas::Rect') && !$child ) {
-		#~ print "Creating Rectangle...\n";
-		$new_item = $self->create_rectangle( undef, $item );
-	}elsif ( $item->isa('Goo::Canvas::Polyline') && !$child ){
-		#~ print "Creating Polyline...\n";
-		$new_item = $self->create_polyline( undef, $item );
-	}elsif ( $child->isa('Goo::Canvas::Polyline') && exists $self->{_items}{$item}{stroke_color} ){
-		#~ print "Creating Line...\n";
-		$new_item = $self->create_line( undef, $item );
-	}elsif ( $child->isa('Goo::Canvas::Polyline') ){
-		#~ print "Creating Censor...\n";
-		$new_item = $self->create_censor( undef, $item );
-	}elsif ( $child->isa('Goo::Canvas::Ellipse') ){
-		#~ print "Creating Ellipse...\n";
-		$new_item = $self->create_ellipse( undef, $item);
-	}elsif ( $child->isa('Goo::Canvas::Text') ){
-		#~ print "Creating Text...\n";
-		$new_item = $self->create_text( undef, $item );
-	}elsif ( $child->isa('Goo::Canvas::Image') ){
-		#~ print "Creating Image...\n";
-		$new_item = $self->create_image( undef, $item );
-	}	
+	#import from system's clipboard
+	if(my $image = $self->{_clipboard}->wait_for_image){
 
-	#cut instead of copy
-	if($delete_after){
-		$self->clear_item_from_canvas($item);
-		$self->{_current_item} = undef;
-		$self->{_current_copy_item} = undef;
+		#backup current pixbuf and filename
+		my $old_current 	= $self->{_current_pixbuf};
+		my $old_filename 	= $self->{_current_pixbuf_filename};	
+				
+		#create tempfile
+		my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
+		
+		#save pixbuf to tempfile and integrate it
+		my $pixbuf_save = Shutter::Pixbuf::Save->new( $self->{_shutter_common}, $self->{_drawing_window} );
+		if($pixbuf_save->save_pixbuf_to_file($image, $tmpfilename, 'png')){
+			
+			#set pixbuf vars					
+			$self->{_current_pixbuf} = $image;	
+			$self->{_current_pixbuf_filename} = $tmpfilename;
+			
+			#construct an event and create a new image object
+			my $initevent = Gtk2::Gdk::Event->new ('motion-notify');
+			$initevent->set_time(Gtk2->get_current_event_time);
+			$initevent->window($self->{_drawing_window}->window);
+			
+			#calculate coordinates
+			$initevent->x(int ($self->{_canvas_bg_rect}->get('width') / 2));
+			$initevent->y(int ($self->{_canvas_bg_rect}->get('height') / 2));
+			
+			#new item
+			my $nitem = $self->create_image( $initevent, undef, TRUE );
+			
+			#add to undo stack
+			$self->store_to_xdo_stack($nitem , 'create', 'undo');
+								
+			#restore saved values
+			$self->{_current_pixbuf} = $old_current;
+			$self->{_current_pixbuf_filename} = $old_filename;		
+		
+			#uncheck
+			$self->{_current_new_item} 	= undef;
+			$self->{_current_item} 		= undef;
+			$self->{_current_copy_item} = undef;
+			$self->{_last_item}			= undef;
+					
+		}	
+		
+	#import from DrawingTool's clipboard			
+	}elsif(defined $item){
+
+		my $child = $self->get_child_item($item);
+		
+		my $new_item = undef;
+		if ( $item->isa('Goo::Canvas::Rect') && !$child ) {
+			#~ print "Creating Rectangle...\n";
+			$new_item = $self->create_rectangle( undef, $item );
+		}elsif ( $item->isa('Goo::Canvas::Polyline') && !$child ){
+			#~ print "Creating Polyline...\n";
+			$new_item = $self->create_polyline( undef, $item );
+		}elsif ( $child->isa('Goo::Canvas::Polyline') && exists $self->{_items}{$item}{stroke_color} ){
+			#~ print "Creating Line...\n";
+			$new_item = $self->create_line( undef, $item );
+		}elsif ( $child->isa('Goo::Canvas::Polyline') ){
+			#~ print "Creating Censor...\n";
+			$new_item = $self->create_censor( undef, $item );
+		}elsif ( $child->isa('Goo::Canvas::Ellipse') ){
+			#~ print "Creating Ellipse...\n";
+			$new_item = $self->create_ellipse( undef, $item);
+		}elsif ( $child->isa('Goo::Canvas::Text') ){
+			#~ print "Creating Text...\n";
+			$new_item = $self->create_text( undef, $item );
+		}elsif ( $child->isa('Goo::Canvas::Image') ){
+			#~ print "Creating Image...\n";
+			$new_item = $self->create_image( undef, $item );
+		}	
+	
+		#cut instead of copy
+		if($delete_after){
+			$self->clear_item_from_canvas($item);
+			$self->{_current_item} = undef;
+			$self->{_current_copy_item} = undef;
+		}
+	
+		#add to undo stack
+		$self->store_to_xdo_stack($new_item , 'create', 'undo');
+
 	}
-
-	#add to undo stack
-	$self->store_to_xdo_stack($new_item , 'create', 'undo');
-
+	
 	return TRUE;
 }	
 
