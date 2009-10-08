@@ -312,6 +312,7 @@ $sm->{_menuitem_window}->signal_connect( 'activate', \&evt_take_screenshot, 'win
 $sm->{_menuitem_section}->signal_connect( 'activate', \&evt_take_screenshot, 'section' );
 $sm->{_menuitem_menu}->signal_connect( 'activate', \&evt_take_screenshot, 'menu' );
 $sm->{_menuitem_tooltip}->signal_connect( 'activate', \&evt_take_screenshot, 'tooltip' );
+$sm->{_menuitem_iclipboard}->signal_connect( 'activate', \&fct_clipboard_import );
 
 #gnome web photo is optional, don't enable it when gnome-web-photo is not in PATH
 if($gnome_web_photo){
@@ -2769,6 +2770,7 @@ sub fct_control_signals {
 		$sm->{_menuitem_menu}->set_sensitive($sensitive);
 		$sm->{_menuitem_tooltip}->set_sensitive($sensitive);
 		$sm->{_menuitem_web}->set_sensitive($sensitive) if ($gnome_web_photo);
+		$sm->{_menuitem_iclipboard}->set_sensitive($sensitive);
 		
 		#toolbar
 		$st->{_select}->set_sensitive($sensitive);
@@ -4082,6 +4084,36 @@ sub fct_update_gui {
 		Gtk2->main_iteration;
 	}
 	Gtk2::Gdk->flush;
+
+	return TRUE;
+}
+
+sub fct_clipboard_import {
+
+	my $image = $clipboard->wait_for_image;
+	if(defined $image){
+				
+		#determine current file type (name - description)
+		$combobox_type->get_active_text =~ /(.*) -/;
+		my $filetype_value = $1;
+		unless ($filetype_value) {
+			$sd->dlg_error_message( $d->get("No valid filetype specified"), $d->get("Failed") );
+			&fct_control_main_window ('show');
+			return FALSE;
+		}
+
+		#create tempfile
+		my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
+		$tmpfilename .= ".".$filetype_value;
+		
+		#save pixbuf to tempfile and integrate it
+		if($sp->save_pixbuf_to_file($image, $tmpfilename, $filetype_value)){		
+			my $new_key = &fct_integrate_screenshot_in_notebook( Gnome2::VFS::URI->new($tmpfilename), $image );
+		}
+				
+	}else{
+		&fct_show_status_message( 1, $d->get("There is no image data in the clipboard to paste") );		
+	}
 
 	return TRUE;
 }

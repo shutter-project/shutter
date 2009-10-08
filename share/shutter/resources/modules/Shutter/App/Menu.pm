@@ -431,6 +431,14 @@ sub fct_ret_new_menu {
 	}
 	$self->{_menu_new}->append( $self->{_menuitem_web} );
 
+	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
+
+	#import from clipboard
+	$self->{_menuitem_iclipboard} = Gtk2::ImageMenuItem->new_from_stock('gtk-paste');
+	$self->{_menuitem_iclipboard}->get_child->set_text_with_mnemonic( $d->get('Import from clip_board') );
+	$self->{_menuitem_iclipboard}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control><Shift>V'), qw/visible/ );
+	$self->{_menu_new}->append( $self->{_menuitem_iclipboard} );
+
 	$self->{_menu_new}->show_all;
 
 	return $self->{_menu_new};
