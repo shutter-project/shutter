@@ -1974,8 +1974,7 @@ sub get_highest_auto_digit {
 		my $item = $self->{_items}{$_};
 		
 		#numbered shape
-		if ( exists $self->{_items}{$item}{text} 
-			&& $self->{_items}{$item}{text}->get('visibility') ne 'hidden' ) {
+		if ( exists $self->{_items}{$item} && $self->{_items}{$item}{type} eq 'number' && $self->{_items}{$item}{text}->get('visibility') ne 'hidden' ) {
 			$number = $self->{_items}{$item}{text}{digit} if $self->{_items}{$item}{text}{digit} > $number;
 		}		
 	
@@ -4247,15 +4246,19 @@ sub event_item_on_button_release {
 				#texts
 				}elsif (exists $self->{_items}{$nitem}{text}){
 
-					#~ #adjust parent rectangle
-					#~ my $tb = $self->{_items}{$nitem}{text}->get_bounds;
-									#~ 
-					#~ $nitem->set( 
-						#~ 'x'  		=> $ev->x_root - 50, 
-						#~ 'y' 		=> $ev->y_root - 50, 			
-						#~ 'width' 	=> abs($tb->x1 - $tb->x2),
-						#~ 'height' 	=> abs($tb->y1 - $tb->y2),
-					#~ );				
+					#~ if($self->{_items}{$nitem}{type} eq 'text'){
+	#~ 
+						#~ #adjust parent rectangle
+						#~ my $tb = $self->{_items}{$nitem}{text}->get_bounds;
+										#~ 
+						#~ $nitem->set( 
+							#~ 'x'  		=> $ev->x_root - int(abs($tb->x1 - $tb->x2) / 2), 
+							#~ 'y' 		=> $ev->y_root - int(abs($tb->y1 - $tb->y2) / 2), 			
+							#~ 'width' 	=> abs($tb->x1 - $tb->x2),
+							#~ 'height' 	=> abs($tb->y1 - $tb->y2),
+						#~ );
+					#~ 
+					#~ }				
 			
 				#all other objects
 				}else{
