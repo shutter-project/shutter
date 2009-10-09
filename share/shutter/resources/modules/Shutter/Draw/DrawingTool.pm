@@ -3594,6 +3594,7 @@ sub apply_properties {
 
 		$item->set(
 			'text'         => "<span font_desc=' " . $font_descr->to_string . " ' >" . $new_text . "</span>",
+			'width'		   => -1,
 			'use-markup'   => TRUE,
 			'fill-pattern' => $fill_pattern
 		);
@@ -5657,7 +5658,7 @@ sub create_text{
 		$self->{_canvas}->get_root_item, "<span font_desc='" . $self->{_font} . "' >".$text."</span>",
 		$item->get('x'),
 		$item->get('y'), 
-		0,
+		-1,
 		'nw',
 		'use-markup'   	=> TRUE,
 		'fill-pattern' 	=> $stroke_pattern,
@@ -5867,7 +5868,7 @@ sub create_ellipse {
 			$self->{_canvas}->get_root_item, "<span font_desc='" . $self->{_font} . "' >".$number."</span>",
 			$self->{_items}{$item}{ellipse}->get('center-x'),
 			$self->{_items}{$item}{ellipse}->get('center-y'),
-			0,
+			-1,
 			'GTK_ANCHOR_CENTER',
 			'use-markup'   => TRUE,
 			'fill-pattern' => $stroke_pattern,
