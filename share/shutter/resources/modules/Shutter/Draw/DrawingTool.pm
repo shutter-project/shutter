@@ -326,6 +326,11 @@ sub show {
 	$self->{_drawing_hbox}         = Gtk2::HBox->new( FALSE, 0 );
 	$self->{_drawing_hbox_c}         = Gtk2::HBox->new( FALSE, 0 );
 
+	#mark some actions as important
+	$self->{_uimanager}->get_widget("/ToolBar/Close")->set_is_important (TRUE);
+	$self->{_uimanager}->get_widget("/ToolBar/Save")->set_is_important (TRUE);
+	$self->{_uimanager}->get_widget("/ToolBar/Undo")->set_is_important (TRUE);
+
 	#disable undo/redo actions at startup
 	$self->{_uimanager}->get_widget("/MenuBar/Edit/Undo")->set_sensitive(FALSE);
 	$self->{_uimanager}->get_widget("/MenuBar/Edit/Redo")->set_sensitive(FALSE);
@@ -4467,32 +4472,32 @@ sub setup_uimanager {
 		[ "File", undef, $self->{_d}->get("_File") ], 
 		[ "Edit", undef, $self->{_d}->get("_Edit") ], 
 		[ "View", undef, $self->{_d}->get("_View") ],
-		[ "Undo", 'gtk-undo', undef, "<control>Z", undef, sub { 
+		[ "Undo", 'gtk-undo', undef, "<control>Z", $self->{_d}->get("Undo last action"), sub { 
 			$self->abort_current_mode; $self->xdo('undo'); 
 		} ],
-		[ "Redo", 'gtk-redo', undef, "<control>Y", undef, sub { 
+		[ "Redo", 'gtk-redo', undef, "<control>Y", $self->{_d}->get("Do again the last undone action"), sub { 
 			$self->abort_current_mode; $self->xdo('redo'); 
 		} ],
-		[ "Copy", 'gtk-copy', undef, "<control>C", undef, sub { 
+		[ "Copy", 'gtk-copy', undef, "<control>C", $self->{_d}->get("Copy selection to clipboard"), sub { 
 			#clear clipboard
 			$self->{_clipboard}->set_text("");
 			$self->{_cut} = FALSE; 
 			$self->{_current_copy_item} = $self->{_current_item}; 
 		} ],
-		[ "Cut", 'gtk-cut', undef, "<control>X", undef, sub { 
+		[ "Cut", 'gtk-cut', undef, "<control>X", $self->{_d}->get("Cut selection to clipboard"), sub { 
 			#clear clipboard
 			$self->{_clipboard}->set_text("");
 			$self->{_cut} = TRUE; 
 			$self->{_current_copy_item} = $self->{_current_item}; 
 			$self->clear_item_from_canvas( $self->{_current_copy_item} ); 
 		} ],
-		[ "Paste", 'gtk-paste', undef, "<control>V", undef, sub { 
+		[ "Paste", 'gtk-paste', undef, "<control>V", $self->{_d}->get("Paste objects from clipboard"), sub { 
 			$self->paste_item($self->{_current_copy_item}, $self->{_cut} ); $self->{_cut} = FALSE; 
 		} ],
-		[ "Delete", 'gtk-delete', undef, "Delete", undef, sub { 
+		[ "Delete", 'gtk-delete', undef, "Delete", $self->{_d}->get("Delete current object"), sub { 
 			$self->clear_item_from_canvas( $self->{_current_item} ); 
 		} ],
-		[ "Clear", 'gtk-clear', undef, "<control>Delete", undef, sub { 
+		[ "Clear", 'gtk-clear', undef, "<control>Delete", $self->{_d}->get("Clear canvas"), sub { 
 			#store items to delete in temporary hash
 			#sort them uid
 			my %time_hash;
@@ -4505,13 +4510,13 @@ sub setup_uimanager {
 				$self->clear_item_from_canvas($time_hash{$_});
 			}			
 		} ],
-		[ "Stop", 'gtk-stop', undef, "Escape", undef, sub { 
+		[ "Stop", 'gtk-stop', undef, "Escape", $self->{_d}->get("Abort current mode"), sub { 
 			$self->abort_current_mode 
 		} ],
-		[ "Close", 'gtk-close', undef, "<control>Q", undef, sub { 
+		[ "Close", 'gtk-close', undef, "<control>Q", $self->{_d}->get("Close this window"), sub { 
 			$self->quit(TRUE) 
 		} ],
-		[ "Save",       'gtk-save',     undef, "<control>S", undef, sub { 
+		[ "Save", 'gtk-save', undef, "<control>S", $self->{_d}->get("Save image"), sub { 
 			$self->save(), $self->quit(FALSE) 
 		} ],
 		[ "ZoomIn",     'gtk-zoom-in',  undef, "<control>plus", undef, sub { 
