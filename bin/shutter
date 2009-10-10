@@ -45,6 +45,9 @@ use File::Basename qw / fileparse dirname basename /;
 use File::Temp qw/ tempfile tempdir /;
 use IO::File();
 
+#A selection of general-utility list subroutines
+use List::Util qw/ max min /;
+
 #Gtk2 and Gtk2::ImageView
 use Gtk2 '-init';
 use Gtk2::Gdk::Keysyms;
@@ -4859,18 +4862,27 @@ sub fct_print {
 			my $pc  = shift;
 			my $int = shift;
 
-			#manip cairo context
+			#cairo context
 			my $cr = $pc->get_cairo_context;
 
-			#see if pixbuf fits on the printing area
+			#load pixbuf from file
 			my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $pages[$int] );
-			if ( $pc->get_width < $pixbuf->get_width || $pc->get_height < $pixbuf->get_height ) {
-				$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $pages[$int], $pc->get_width, $pc->get_height, TRUE );
+			
+			#~ my $pas = $pc->get_page_setup;
+			#~ my $dpi_x = $pixbuf->get_width / $pas->get_page_width('inch');
+			#~ my $dpi_y = $pixbuf->get_height / $pas->get_page_height('inch');
+			
+			#scale if image doesn't fit on page
+			my $scale_x = $pc->get_width / $pixbuf->get_width;
+			my $scale_y = $pc->get_height / $pixbuf->get_height;
+			if(min($scale_x, $scale_y) < 1){
+				$cr->scale(min($scale_x, $scale_y), min($scale_x, $scale_y));
 			}
-
+			
 			Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $pixbuf, 0, 0 );
 
 			$cr->paint;
+
 		}
 	);
 
