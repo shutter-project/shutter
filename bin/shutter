@@ -5190,14 +5190,16 @@ sub fct_update_info_and_tray {
 
 	#TRAY TOOLTIP
 	#--------------------------------------	
-	if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
-		if($combobox_settings_profiles->get_active_text){
-			$tray->set_tooltip( $d->get("Current profile") . ": " . $combobox_settings_profiles->get_active_text );
-		}else{
-			$tray->set_tooltip(SHUTTER_NAME . " " . SHUTTER_VERSION);	
+	if ( $combobox_settings_profiles ) {
+		if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
+			if($combobox_settings_profiles->get_active_text){
+				$tray->set_tooltip( $d->get("Current profile") . ": " . $combobox_settings_profiles->get_active_text );
+			}else{
+				$tray->set_tooltip(SHUTTER_NAME . " " . SHUTTER_VERSION);	
+			}
+		} elsif ( $tray && $tray->isa('Gtk2::TrayIcon') ) {
+			$tooltips->set_tip( $tray, SHUTTER_NAME . " " . SHUTTER_VERSION );
 		}
-	} elsif ( $tray && $tray->isa('Gtk2::TrayIcon') ) {
-		$tooltips->set_tip( $tray, SHUTTER_NAME . " " . SHUTTER_VERSION );
 	}
 
 	#STATUSBAR
@@ -8095,12 +8097,12 @@ UPDIALOG: while ($hosting_dialog) {
 
 								my $response = &dlg_upload_error_message_gnome_vfs($target_uri, $result);
 
-								#10 == skip all, 20 == skip, 30 == redo, else == cancel
+								#10 == skip all, 20 == skip, 40 == retry, else == cancel
 								if ( $response == 10 ) {
 									last;
 								} elsif ( $response == 20 ) {
 									next;
-								} elsif ( $response == 30 ) {
+								} elsif ( $response == 40 ) {
 									redo;
 								} else {
 									next UPDIALOG;
@@ -8113,12 +8115,12 @@ UPDIALOG: while ($hosting_dialog) {
 
 						my $response = &dlg_upload_error_message_gnome_vfs($target_uri, $result);
 
-						#10 == skip all, 20 == skip, 30 == redo, else == cancel
+						#10 == skip all, 20 == skip, 40 == retry, else == cancel
 						if ( $response == 10 ) {
 							last;
 						} elsif ( $response == 20 ) {
 							next;
-						} elsif ( $response == 30 ) {
+						} elsif ( $response == 40 ) {
 							redo;
 						} else {
 							next UPDIALOG;
@@ -8157,13 +8159,17 @@ sub dlg_upload_error_message_gnome_vfs {
 		$target_path = Gnome2::VFS->unescape_string_for_display ($target_uri->get_scheme."://".$target_uri->get_host_name.$target_uri->extract_dirname);
 	}
 
+	#retry button
+	my $retry_btn = Gtk2::Button->new_with_mnemonic( $d->get("_Retry") );
+	$retry_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-redo', 'button' ) );
+
 	my $response = $sd->dlg_warning_message( 
 		sprintf( $d->get(  "Error while copying the image %s."), "'" . $target_uri->extract_short_name . "'"),
 		sprintf( $d->get(  "There was an error copying the image into %s."), "'" . $target_path . "'" ),
 		$d->get("Skip all"), 
 		$d->get("Skip"),
-		'gtk-redo',
 		undef,
+		$retry_btn,
 		undef,
 		undef,
 		Gnome2::VFS->result_to_string ($result)
