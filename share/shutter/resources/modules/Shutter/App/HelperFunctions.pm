@@ -70,6 +70,15 @@ sub file_exists {
 	return FALSE;
 }
 
+sub uri_exists {
+	my ( $self, $filename ) = @_;
+	return FALSE unless $filename;
+	$filename = $self->switch_home_in_file($filename);
+	my $new_uri = Gnome2::VFS::URI->new($filename);
+	return TRUE if $new_uri->exists;
+	return FALSE;
+}
+
 sub file_executable {
 	my ( $self, $filename ) = @_;
 	return FALSE unless $filename;

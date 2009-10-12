@@ -232,11 +232,13 @@ if($goocanvas){
 my %plugins;        #hash to store plugin infos
 my %accounts;       #hash to store account infos
 my %settings;       #hash to store settings
+
+#init
+#--------------------------------------
+my @init_files; #array to store filenames (cmd arguments)
 &fct_init;
 &fct_init_debug_output if $sc->get_debug;
 &fct_load_accounts;
-
-#--------------------------------------
 
 #signal-handler
 $SIG{RTMIN}  = sub { &evt_take_screenshot( 'global_keybinding', 'select' ) };
@@ -1700,6 +1702,12 @@ $vbox->pack_start( $status, FALSE, FALSE, 0 );
 #restore session
 #--------------------------------------
 &fct_load_session;
+
+#open init files (cmd arguments)
+#--------------------------------------
+if(scalar @init_files > 0){
+	&fct_open_files(@init_files);
+}	
 
 #start minimized?
 #--------------------------------------
@@ -3559,6 +3567,9 @@ sub fct_get_program_model {
 	#for opening files
 	foreach my $mapp (@mapps){
 		foreach my $app (@apps){
+
+			#ignore Shutter's desktop entry
+			next if $app->{'id'} eq 'shutter.desktop';
 			
 			$app->{'name'} = $shf->utf8_decode($app->{'name'});
 			
@@ -3732,6 +3743,8 @@ sub fct_open_files {
 
 		my $new_uri = Gnome2::VFS::URI->new ($shf->utf8_decode(Gnome2::VFS->unescape_string($_)));
 
+		next if &fct_is_uri_in_session($new_uri, TRUE);
+
 		#refresh the progressbar
 		$count++;
 		$open_progress->set_fraction( $count / $num_files );
@@ -3758,6 +3771,28 @@ sub fct_open_files {
 	}
 
 	return TRUE;
+}
+
+sub fct_is_uri_in_session {
+	my $uri  = shift;
+	my $jump = shift;
+	
+	return FALSE unless $uri;
+	
+	foreach my $key ( keys %session_screens ) {
+		if ( exists $session_screens{$key}->{'uri'} ) {
+			if($uri->equal($session_screens{$key}->{'uri'})){
+				if ( exists $session_screens{$key}->{'tab_child'} ) {
+					if($jump){
+						$notebook->set_current_page($notebook->page_num($session_screens{$key}->{'tab_child'}));
+					}
+					return TRUE;
+				}	
+			}	
+		}
+	}
+	
+	return FALSE;	
 }
 
 sub fct_load_session {
@@ -6359,6 +6394,9 @@ sub fct_ret_program_menu {
 	my $default_matched = FALSE;
 	foreach my $app (@apps) {
 		
+		#ignore Shutter's desktop entry
+		next if $app->{'id'} eq 'shutter.desktop';
+		
 		$app->{'name'} = $shf->utf8_decode($app->{'name'});
 		
 		#FIXME - kde apps do not support the freedesktop standards (.desktop files)
@@ -6776,6 +6814,14 @@ sub fct_init {
 	#are there any command line params?
 	if ( @ARGV > 0 ) {
 		foreach my $arg (@ARGV) {
+			
+			#filename?
+			if ( $shf->file_exists($arg) || $shf->uri_exists($arg) ) {
+				#push filename to array, open when GUI is initialized
+				push @init_files, $arg;
+				next;
+			}	
+			
 			$arg =~ s/.{2}//;
 			if ( $arg eq "debug" ) {
 				$sc->set_debug(TRUE);
@@ -6831,14 +6877,15 @@ sub fct_init {
 					die;
 				}
 				$sc->set_start_with("raw");
-				$sc->set_min(TRUE);
+				$sc->set_min(TRUE);				
 			} else {
 				warn "ERROR: illegal command " . $arg . " \n\n";
 				$shf->usage;
 				exit;
 			}
 			print "INFO: command " . $arg . " recognized!\n\n";
-		}
+		} #end foreach $arg
+				
 	} else {
 		print "INFO: no command line parameters set...\n\n";
 	}
