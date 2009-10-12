@@ -3734,7 +3734,7 @@ sub fct_open_files {
 
 	$open_dialog->set_title("Shutter");
 
-	$open_dialog->set( 'secondary-text' => $d->get("Please wait while your selected files\nare being integrated into Shutter") . "." );
+	$open_dialog->set( 'secondary-text' => $d->get("Please wait while your selected files are being loaded into Shutter") . "." );
 
 	$open_dialog->signal_connect( response => sub { $_[0]->destroy } );
 
@@ -5050,7 +5050,7 @@ sub fct_execute_plugin {
 		
 		my $pid = fork;
 		if ( $pid < 0 ) {
-			$sd->dlg_error_message( $d->get("Could not execute plugin") . ": " . $plugin_name, $d->get("Failed") );
+			$sd->dlg_error_message( sprintf ( $d->get("Could not apply plugin %s"), $plugin_name ), $d->get("Failed") );
 		}
 		if ( $pid == 0 ) {		
 			exec(
@@ -5067,9 +5067,9 @@ sub fct_execute_plugin {
 			
 		#check exit code
 		if($? == 0){
-			&fct_show_status_message( 1, $d->get("Successfully executed plugin") . ": " . $plugin_name );
+			&fct_show_status_message( 1, sprintf ( $d->get("Successfully applied plugin %s"), $plugin_name ) );
 		}elsif($? / 256 == 1 ){
-			&fct_show_status_message( 1, $d->get("Could not execute plugin") . ": " . $plugin_name );
+			&fct_show_status_message( 1, sprintf ( $d->get("Could not apply plugin %s"), $plugin_name ) );
 		}
 		
 		#...if not => simple execute the plugin via system (e.g. shell plugins)
@@ -5109,9 +5109,9 @@ sub fct_execute_plugin {
 
 		#finally show some status messages
 		if ( $plugin_process->exit_status() == 0 ) {
-			&fct_show_status_message( 1, $d->get("Successfully executed plugin") . ": " . $plugin_name );
+			&fct_show_status_message( 1, sprintf ( $d->get("Successfully applied plugin %s"), $plugin_name ) );
 		}else{
-			$sd->dlg_error_message( $d->get("Could not execute plugin") . ": " . $plugin_name, $d->get("Failed") );
+			$sd->dlg_error_message( sprintf ( $d->get("Could not apply plugin %s"), $plugin_name ), $d->get("Failed") );
 		}
 
 	}
@@ -5189,7 +5189,7 @@ sub fct_update_info_and_tray {
 	#--------------------------------------	
 	if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
 		if($combobox_settings_profiles->get_active_text){
-			$tray->set_tooltip( $d->get("Current Profile") . ": " . $combobox_settings_profiles->get_active_text );
+			$tray->set_tooltip( $d->get("Current profile") . ": " . $combobox_settings_profiles->get_active_text );
 		}else{
 			$tray->set_tooltip(SHUTTER_NAME . " " . SHUTTER_VERSION);	
 		}

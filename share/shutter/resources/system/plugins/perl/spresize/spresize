@@ -40,15 +40,15 @@ $d->dir( $ENV{'SHUTTER_INTL'} );
 binmode( STDOUT, ":utf8" );
 #shutter will ask for some infos - no need of changing anything
 if ( $ARGV[0] eq "name" ) {
-	print $d->get("resize");
+	print $d->get("Resize");
 	exit;
 }
 elsif ( $ARGV[0] eq "sort" ) {
-	print $d->get("tool");
+	print $d->get("Tool");
 	exit;
 }
 elsif ( $ARGV[0] eq "tip" ) {
-	print $d->get("resize your screenshot");
+	print $d->get("Resize your screenshot");
 	exit;
 }
 

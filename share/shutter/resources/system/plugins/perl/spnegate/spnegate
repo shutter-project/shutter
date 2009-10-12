@@ -52,9 +52,9 @@ my $d = Locale::gettext->domain("shutter-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
 #shutter will ask for some infos
-my %plugin_info = 	( 	'name'	=> $d->get( "negate" ),
-						'sort'	=> $d->get( "effect" ),
-						'tip'	=> $d->get("replace every pixel with its complementary color"),
+my %plugin_info = 	( 	'name'	=> $d->get( "Negate" ),
+						'sort'	=> $d->get( "Effect" ),
+						'tip'	=> $d->get("Invert the colors of the image"),
 					);
 
 binmode( STDOUT, ":utf8" );

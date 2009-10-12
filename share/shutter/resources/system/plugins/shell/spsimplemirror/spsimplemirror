@@ -24,9 +24,9 @@
 
 TEXTDOMAIN=shutter-plugins
 TEXTDOMAINDIR=$SHUTTER_INTL
-PLUGIN_NAME=$"reflection"
-PLUGIN_SORT=$"effect"
-PLUGIN_TIP=$"applies a simple reflection effect"
+PLUGIN_NAME=$"Reflection"
+PLUGIN_SORT=$"Effect"
+PLUGIN_TIP=$"Applies a simple reflection effect"
 PLUGIN_EXT="image/png"
 
 if [[ "${1}" = "name" ]];then

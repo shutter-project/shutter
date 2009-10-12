@@ -24,9 +24,9 @@
 
 TEXTDOMAIN=shutter-plugins
 TEXTDOMAINDIR=$SHUTTER_INTL
-PLUGIN_NAME=$"sunk border"
-PLUGIN_SORT=$"effect"
-PLUGIN_TIP=$"sunk a rectangular 3d-border"
+PLUGIN_NAME=$"Sunk border"
+PLUGIN_SORT=$"Effect"
+PLUGIN_TIP=$"Add an inverted 3d border to the image"
 PLUGIN_EXT="image/png;image/bmp;image/jpeg"
 
 if [[ "${1}" = "name" ]];then

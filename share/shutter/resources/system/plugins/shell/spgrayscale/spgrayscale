@@ -24,9 +24,9 @@
 
 TEXTDOMAIN=shutter-plugins
 TEXTDOMAINDIR=$SHUTTER_INTL
-PLUGIN_NAME=$"grayscale"
-PLUGIN_SORT=$"effect"
-PLUGIN_TIP=$"256 color grayscale"
+PLUGIN_NAME=$"Grayscale"
+PLUGIN_SORT=$"Effect"
+PLUGIN_TIP=$"Turn the image into a grayscale image (256 shades)"
 PLUGIN_EXT="image/png;image/bmp;image/jpeg"
 
 if [[ "${1}" = "name" ]];then

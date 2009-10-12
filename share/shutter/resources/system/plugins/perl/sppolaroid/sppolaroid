@@ -52,9 +52,9 @@ my $d = Locale::gettext->domain("shutter-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
 #shutter will ask for some infos
-my %plugin_info = 	( 	'name'	=> $d->get( "polaroid" ),
-						'sort'	=> $d->get( "effect" ),
-						'tip'	=> $d->get("make your screenshot look like a polaroid photo, add a caption, and even rotate it a little"),
+my %plugin_info = 	( 	'name'	=> $d->get( "Polaroid" ),
+						'sort'	=> $d->get( "Effect" ),
+						'tip'	=> $d->get("Make your screenshot look like a polaroid photo, add a caption, and even rotate it a little"),
 					);
 
 binmode( STDOUT, ":utf8" );

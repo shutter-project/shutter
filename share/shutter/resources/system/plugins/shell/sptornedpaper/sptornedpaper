@@ -24,9 +24,9 @@
 
 TEXTDOMAIN=shutter-plugins
 TEXTDOMAINDIR=$SHUTTER_INTL
-PLUGIN_NAME=$"torned paper"
-PLUGIN_SORT=$"effect"
-PLUGIN_TIP=$"generates a torned-border"
+PLUGIN_NAME=$"Torned paper"
+PLUGIN_SORT=$"Effect"
+PLUGIN_TIP=$"Add a torn-like border to the image"
 PLUGIN_EXT="image/png"
 
 if [[ "${1}" = "name" ]];then

@@ -52,9 +52,9 @@ my $d = Locale::gettext->domain("shutter-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
 #shutter will ask for some infos
-my %plugin_info = 	( 	'name'	=> $d->get( "barrel distortion" ),
-						'sort'	=> $d->get( "effect" ),
-						'tip'	=> $d->get("apply a distortion effect to your screenshot"),
+my %plugin_info = 	( 	'name'	=> $d->get( "Barrel distortion" ),
+						'sort'	=> $d->get( "Effect" ),
+						'tip'	=> $d->get("Apply a distortion effect to your screenshot"),
 					);
 
 binmode( STDOUT, ":utf8" );

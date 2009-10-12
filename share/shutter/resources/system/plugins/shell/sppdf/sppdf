@@ -24,9 +24,9 @@
 
 TEXTDOMAIN=shutter-plugins
 TEXTDOMAINDIR=$SHUTTER_INTL
-PLUGIN_NAME=$"pdf export" 
-PLUGIN_SORT=$"tool" 
-PLUGIN_TIP=$"export your screenshot to pdf" 
+PLUGIN_NAME=$"PDF export" 
+PLUGIN_SORT=$"Tool" 
+PLUGIN_TIP=$"Save your screenshot as a PDF file"
 PLUGIN_EXT="image/png;image/bmp;image/jpeg"
 
 if [[ "${1}" = "name" ]];then
