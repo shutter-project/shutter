@@ -24,9 +24,9 @@
 
 TEXTDOMAIN=shutter-plugins
 TEXTDOMAINDIR=$SHUTTER_INTL
-PLUGIN_NAME=$"hard shadow"
-PLUGIN_SORT=$"effect"
-PLUGIN_TIP=$"a black hard shadow on transparent background"
+PLUGIN_NAME=$"Hard shadow"
+PLUGIN_SORT=$"Effect"
+PLUGIN_TIP=$"Add a shadow to the image on a transparent background"
 PLUGIN_EXT="image/png"
 
 if [[ "${1}" = "name" ]];then
