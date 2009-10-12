@@ -5050,7 +5050,7 @@ sub fct_execute_plugin {
 		
 		my $pid = fork;
 		if ( $pid < 0 ) {
-			$sd->dlg_error_message( sprintf ( $d->get("Could not apply plugin %s"), $plugin_name ), $d->get("Failed") );
+			$sd->dlg_error_message( sprintf ( $d->get("Could not apply plugin %s"), "'" . $plugin_name . "'" ), $d->get("Failed") );
 		}
 		if ( $pid == 0 ) {		
 			exec(
@@ -5067,9 +5067,9 @@ sub fct_execute_plugin {
 			
 		#check exit code
 		if($? == 0){
-			&fct_show_status_message( 1, sprintf ( $d->get("Successfully applied plugin %s"), $plugin_name ) );
+			&fct_show_status_message( 1, sprintf ( $d->get("Successfully applied plugin %s"), "'" . $plugin_name . "'" ) );
 		}elsif($? / 256 == 1 ){
-			&fct_show_status_message( 1, sprintf ( $d->get("Could not apply plugin %s"), $plugin_name ) );
+			&fct_show_status_message( 1, sprintf ( $d->get("Could not apply plugin %s"), "'" . $plugin_name . "'" ) );
 		}
 		
 		#...if not => simple execute the plugin via system (e.g. shell plugins)
@@ -5109,9 +5109,12 @@ sub fct_execute_plugin {
 
 		#finally show some status messages
 		if ( $plugin_process->exit_status() == 0 ) {
-			&fct_show_status_message( 1, sprintf ( $d->get("Successfully applied plugin %s"), $plugin_name ) );
+			&fct_show_status_message( 1, sprintf ( $d->get("Successfully applied plugin %s"), "'" . $plugin_name . "'" ) );
 		}else{
-			$sd->dlg_error_message( sprintf ( $d->get("Could not apply plugin %s"), $plugin_name ), $d->get("Failed") );
+			$sd->dlg_error_message( 
+				sprintf ( $d->get(  "Error while executing plugin %s." ), "'" . $plugin_name . "'" ) ,
+				$d->get( "There was an error executing the plugin." ),
+			);
 		}
 
 	}
