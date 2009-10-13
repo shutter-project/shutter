@@ -378,10 +378,10 @@ $sm->{_menuitem_last}->signal_connect( 'activate' => sub {
 	}
 );
 	
-$sm->{_menuitem_question}->signal_connect( 'activate', \&evt_question, $window );
-$sm->{_menuitem_translate}->signal_connect( 'activate', \&evt_translate, $window );
-$sm->{_menuitem_bug}->signal_connect( 'activate', \&evt_bug, $window );
-$sm->{_menuitem_about}->signal_connect( 'activate', \&evt_about, $window );
+$sm->{_menuitem_question}->signal_connect( 'activate', \&evt_question );
+$sm->{_menuitem_translate}->signal_connect( 'activate', \&evt_translate );
+$sm->{_menuitem_bug}->signal_connect( 'activate', \&evt_bug );
+$sm->{_menuitem_about}->signal_connect( 'activate', \&evt_about );
 
 #--------------------------------------
 
@@ -2067,11 +2067,6 @@ sub evt_translate {
 }
 
 sub evt_about {
-	my ( $widget, $data ) = @_;
-	if ( $sc->get_debug ) {
-		print "\n$data was emitted by widget $widget\n";
-	}
-	
 	#everything is stored in external files, so it is easier to maintain
 	my $all_hint = "";
 	open( GPL_HINT, "$shutter_root/share/shutter/resources/license/gplv3_hint" )
@@ -6229,7 +6224,7 @@ sub fct_ret_tray_menu {
 	
 	#info
 	my $menuitem_info = Gtk2::ImageMenuItem->new_from_stock( 'gtk-about' );
-	$menuitem_info->signal_connect( "activate", \&evt_about, $window );
+	$menuitem_info->signal_connect( "activate", \&evt_about );
 	
 	#quit
 	my $menuitem_quit = Gtk2::ImageMenuItem->new_from_stock( 'gtk-quit' );
