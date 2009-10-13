@@ -76,7 +76,8 @@ sub create_menu {
 
 	$self->{_menu_file}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_open} = Gtk2::ImageMenuItem->new_from_stock('gtk-open');
+	$self->{_menuitem_open} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Open...') );
+	$self->{_menuitem_open}->set_image( Gtk2::Image->new_from_stock( 'gtk-open', 'menu' ) );
 	$self->{_menuitem_open}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>O'), qw/visible/ );
 	$self->{_menu_file}->append( $self->{_menuitem_open} );
 
@@ -85,7 +86,8 @@ sub create_menu {
 
 	$self->{_menu_file}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_save_as} = Gtk2::ImageMenuItem->new_from_stock('gtk-save-as');
+	$self->{_menuitem_save_as} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Save _As...') );
+	$self->{_menuitem_save_as}->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'menu' ) );
 	$self->{_menuitem_save_as}->set_sensitive(FALSE);
 	$self->{_menuitem_save_as}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Shift><Control>S'), qw/visible/ );
 	$self->{_menu_file}->append( $self->{_menuitem_save_as} );
@@ -101,7 +103,8 @@ sub create_menu {
 	);
 	$self->{_menu_file}->append( $self->{_menuitem_pagesetup} );
 
-	$self->{_menuitem_print} = Gtk2::ImageMenuItem->new_from_stock('gtk-print');
+	$self->{_menuitem_print} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Print...') );
+	$self->{_menuitem_print}->set_image( Gtk2::Image->new_from_stock( 'gtk-print', 'menu' ) );
 	$self->{_menuitem_print}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>P'), qw/visible/ );
 	$self->{_menu_file}->append( $self->{_menuitem_print} );
 
@@ -154,7 +157,7 @@ sub create_menu {
 	$self->{_menuitem_copy_filename}->set_sensitive(FALSE);
 	$self->{_menu_edit}->append( $self->{_menuitem_copy_filename} );
 
-	$self->{_menuitem_trash} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Move to Dele_ted Items folder') );
+	$self->{_menuitem_trash} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Move to _Trash') );
 	$self->{_menuitem_trash}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('Delete'), qw/visible/ );
 	$self->{_menuitem_trash}->set_image( Gtk2::Image->new_from_icon_name( 'gnome-stock-trash', 'menu' ) );
 	$self->{_menuitem_trash}->set_sensitive(FALSE);
@@ -262,7 +265,7 @@ sub create_menu {
 	
 	$self->{_menu_help} = Gtk2::Menu->new();
 
-	$self->{_menuitem_question} = Gtk2::ImageMenuItem->new( $d->get('Get Help Online ...') );
+	$self->{_menuitem_question} = Gtk2::ImageMenuItem->new( $d->get('Get Help Online...') );
 	if($icontheme->has_icon('lpi-help')){
 		$self->{_menuitem_question}->set_image(
 			Gtk2::Image->new_from_icon_name( 'lpi-help', 'menu' )		
@@ -277,7 +280,7 @@ sub create_menu {
 
 	$self->{_menu_help}->append( $self->{_menuitem_question} );
 
-	$self->{_menuitem_translate} = Gtk2::ImageMenuItem->new( $d->get('Translate this Application ...') );
+	$self->{_menuitem_translate} = Gtk2::ImageMenuItem->new( $d->get('Translate this Application...') );
 	if($icontheme->has_icon('lpi-translate')){
 		$self->{_menuitem_translate}->set_image(
 			Gtk2::Image->new_from_icon_name( 'lpi-translate', 'menu' )		
@@ -469,7 +472,7 @@ sub fct_ret_actions_menu{
 	$self->{_menuitem_reopen}->set_name('item-reopen-list');
 	$self->{_menu_actions}->append( $self->{_menuitem_reopen} );
 
-	$self->{_menuitem_rename} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Rename') );
+	$self->{_menuitem_rename} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Rename...') );
 	$self->{_menuitem_rename}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('F2'), qw/visible/ ) if $accel_group;
 	$self->{_menuitem_rename}->set_image( Gtk2::Image->new_from_stock( 'gtk-edit', 'menu' ) );
 	$self->{_menuitem_rename}->set_sensitive(FALSE);
@@ -478,7 +481,7 @@ sub fct_ret_actions_menu{
 
 	$self->{_menu_actions}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_upload} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Upload / Export') );
+	$self->{_menuitem_upload} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Upload / Export...') );
 	$self->{_menuitem_upload}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>U'), qw/visible/ ) if $accel_group;
 	$self->{_menuitem_upload}->set_image( Gtk2::Image->new_from_stock( 'gtk-network', 'menu' ) );
 	$self->{_menuitem_upload}->set_sensitive(FALSE);
@@ -487,7 +490,8 @@ sub fct_ret_actions_menu{
 
 	$self->{_menu_actions}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_draw} = Gtk2::ImageMenuItem->new_from_stock( 'gtk-edit' );
+	$self->{_menuitem_draw} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Edit...') );
+	$self->{_menuitem_draw}->set_image( Gtk2::Image->new_from_stock( 'gtk-edit', 'menu' ) );
 	$self->{_menuitem_draw}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>E'), qw/visible/ ) if $accel_group;
 	if($icontheme->has_icon('applications-graphics')){
 		$self->{_menuitem_draw}->set_image( Gtk2::Image->new_from_icon_name( 'applications-graphics', 'menu' ) );		
@@ -503,7 +507,7 @@ sub fct_ret_actions_menu{
 	$self->{_menuitem_draw}->set_name('item-draw');
 	$self->{_menu_actions}->append( $self->{_menuitem_draw} );
 
-	$self->{_menuitem_plugin} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Execute a _plugin') );
+	$self->{_menuitem_plugin} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Run a _plugin...') );
 	$self->{_menuitem_plugin}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control><Shift>P'), qw/visible/ ) if $accel_group;
 	$self->{_menuitem_plugin}->set_image( Gtk2::Image->new_from_stock( 'gtk-execute', 'menu' ) );
 	$self->{_menuitem_plugin}->set_sensitive(FALSE);

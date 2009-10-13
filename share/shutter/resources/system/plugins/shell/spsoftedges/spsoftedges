@@ -24,9 +24,9 @@
 
 TEXTDOMAIN=shutter-plugins
 TEXTDOMAINDIR=$SHUTTER_INTL
-PLUGIN_NAME=$"Soft edges"
+PLUGIN_NAME=$"Soft Edges"
 PLUGIN_SORT=$"Effect"
-PLUGIN_TIP=$"Add soft edges around the picture"
+PLUGIN_TIP=$"Add soft edges around the image"
 PLUGIN_EXT="image/png"
 
 if [[ "${1}" = "name" ]];then

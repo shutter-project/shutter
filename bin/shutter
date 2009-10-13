@@ -6993,7 +6993,7 @@ sub dlg_rename {
 
 		my $input_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/], 'other', 'none', undef );
 
-		$input_dialog->set_title("Rename");
+		$input_dialog->set_title($d->get("Rename"));
 
 		$input_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-save-as', 'dialog' ) );
 
@@ -7384,17 +7384,19 @@ sub dlg_save_as {
 sub dlg_plugin {
 	my (@file_to_plugin_keys) = @_;
 
-	my $dlg_header    = $d->get("Choose a plugin");
-	my $plugin_dialog = Gtk2::Dialog->new(
-		$dlg_header,
-		$window,
-		[qw/modal destroy-with-parent/],
-		'gtk-cancel'  => 'reject',
-		'gtk-execute' => 'accept'
-	);
-	$plugin_dialog->set_default_response('accept');
+	my $plugin_dialog = Gtk2::Dialog->new( $d->get("Choose a plugin"), $window, [qw/modal destroy-with-parent/] );
 	$plugin_dialog->set_size_request(350, -1);
 	$plugin_dialog->set_resizable(FALSE);
+
+	#rename button
+	my $run_btn = Gtk2::Button->new_with_mnemonic( $d->get("_Run") );
+	$run_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-execute', 'button' ) );
+	$run_btn->can_default(TRUE);
+
+	$plugin_dialog->add_button( 'gtk-cancel', 10 );
+	$plugin_dialog->add_action_widget( $run_btn, 20 );
+
+	$plugin_dialog->set_default_response(20);
 	
 	my $model = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String' );
 
@@ -7523,7 +7525,7 @@ sub dlg_plugin {
 
 	my $plugin_response = $plugin_dialog->run;
 
-	if ( $plugin_response eq "accept" ) {
+	if ( $plugin_response == 20 ) {
 		
 		#anything wrong with the selected plugin?
 		unless ( $plugin_value =~ /[a-zA-Z0-9]+/ ) {
