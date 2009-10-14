@@ -2307,7 +2307,14 @@ sub fct_update_actions {
 
 	#MENU
 	#--------------------------------------
-	#undo and redo
+	
+	#file
+	$sm->{_menuitem_save_as}->set_sensitive($n_items);
+	$sm->{_menuitem_pagesetup}->set_sensitive($n_items);
+	$sm->{_menuitem_print}->set_sensitive($n_items);
+	$sm->{_menuitem_close}->set_sensitive($n_items);		
+
+	#edit
 	if(defined $key && $key){
 		if($n_items && defined @{$session_screens{$key}->{'undo'}} && scalar @{$session_screens{$key}->{'undo'}} > 1){
 			$sm->{_menuitem_undo}->set_sensitive(TRUE);			
@@ -2322,9 +2329,18 @@ sub fct_update_actions {
 		}else{
 			$sm->{_menuitem_redo}->set_sensitive(FALSE);
 		}
-	}
+	}	
+	$sm->{_menuitem_trash}->set_sensitive($n_items);
+	$sm->{_menuitem_copy}->set_sensitive($n_items);
+	$sm->{_menuitem_copy_filename}->set_sensitive($n_items);	
 
-	#other items
+	#view
+	$sm->{_menuitem_zoom_in}->set_sensitive($n_items);
+	$sm->{_menuitem_zoom_out}->set_sensitive($n_items);
+	$sm->{_menuitem_zoom_100}->set_sensitive($n_items);
+	$sm->{_menuitem_zoom_best}->set_sensitive($n_items);
+
+	#screenshot
 	$sm->{_menuitem_reopen_default}->visible($n_items);
 	$sm->{_menuitem_reopen_default}->set_sensitive($n_items);
 	$sm->{_menuitem_reopen}->set_sensitive($n_items);
@@ -2339,18 +2355,7 @@ sub fct_update_actions {
 	}		
 
 	$sm->{_menuitem_plugin}->set_sensitive($n_items);
-	$sm->{_menuitem_save_as}->set_sensitive($n_items);
-	$sm->{_menuitem_pagesetup}->set_sensitive($n_items);
-	$sm->{_menuitem_print}->set_sensitive($n_items);
-	$sm->{_menuitem_close}->set_sensitive($n_items);
-	$sm->{_menuitem_trash}->set_sensitive($n_items);
-	$sm->{_menuitem_copy}->set_sensitive($n_items);
-	$sm->{_menuitem_copy_filename}->set_sensitive($n_items);
-	$sm->{_menuitem_zoom_in}->set_sensitive($n_items);
-	$sm->{_menuitem_zoom_out}->set_sensitive($n_items);
-	$sm->{_menuitem_zoom_100}->set_sensitive($n_items);
-	$sm->{_menuitem_zoom_best}->set_sensitive($n_items);
-
+	
 	#right-click menu
 	$sm->{_menuitem_large_reopen_default}->visible($n_items);
 	$sm->{_menuitem_large_reopen_default}->set_sensitive($n_items);
@@ -6381,6 +6386,8 @@ sub fct_ret_sel_menu {
 }
 
 sub fct_ret_program_menu {
+	#FIXME - this whole sub is weird ;-)
+
 	my $traytheme     = Gtk2::IconTheme->get_for_screen( Gtk2::Gdk::Screen->get_default );
 	my $menu_programs = Gtk2::Menu->new;
 
@@ -6450,6 +6457,7 @@ sub fct_ret_program_menu {
 	#no default app determined!
 	unless ($default){
 		$sm->{_menuitem_reopen_default}->visible(FALSE);					
+		$sm->{_menuitem_large_reopen_default}->visible(FALSE);					
 	}
 	
 	my $default_matched = FALSE;
@@ -6469,6 +6477,7 @@ sub fct_ret_program_menu {
 		$app->{'id'} =~ s/^(kde4|kde)-//g;
 
 		my $program_item = undef; 
+		my $program_large_item = undef; 
 		
 		#default app
 		if($default && $default->{'file'} =~ m/$app->{'id'}/){
@@ -6484,14 +6493,35 @@ sub fct_ret_program_menu {
 				$sm->{_menuitem_reopen_default}->signal_handler_disconnect($sm->{_menuitem_reopen_default}{hid});
 			}
 			
+			#remove old handler from large menu
+			if(exists $sm->{_menuitem_large_reopen_default}{hid} 
+				&& $sm->{_menuitem_large_reopen_default}->signal_handler_is_connected($sm->{_menuitem_large_reopen_default}{hid}))
+			{
+				$sm->{_menuitem_large_reopen_default}->signal_handler_disconnect($sm->{_menuitem_large_reopen_default}{hid});
+			}
+			
 			$program_item = $sm->{_menuitem_reopen_default};
 			$program_item->{'default'} = TRUE;
 			
+			$program_large_item = $sm->{_menuitem_large_reopen_default};
+			$program_large_item->{'default'} = TRUE;
+			
 			$sm->{_menuitem_reopen_default}->show;
 			$sm->{_menuitem_reopen_default}->set_sensitive(TRUE);
+			
+			$sm->{_menuitem_large_reopen_default}->show;
+			$sm->{_menuitem_large_reopen_default}->set_sensitive(TRUE);
 
 			#change label of the default app entry
 			$sm->{_menuitem_reopen_default}->foreach (sub {
+				if($_[0] =~ /Gtk2::AccelLabel/){
+					$_[0]->set_label(sprintf( $d->get("_Open with %s"), "'".$app->{'name'}."'"));
+					return undef;
+				}
+			});	
+
+			#change label of the default app entry - large menu
+			$sm->{_menuitem_large_reopen_default}->foreach (sub {
 				if($_[0] =~ /Gtk2::AccelLabel/){
 					$_[0]->set_label(sprintf( $d->get("_Open with %s"), "'".$app->{'name'}."'"));
 					return undef;
@@ -6524,25 +6554,46 @@ sub fct_ret_program_menu {
 				if ( $traytheme->has_icon( $tray_name ) ) {
 					my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
 					my $tray_pixbuf = $traytheme->load_icon( $tray_name, $ih, 'generic-fallback' );
-					$program_item->set_image( Gtk2::Image->new_from_pixbuf($tray_pixbuf) );
+					
+					if($program_item){
+						$program_item->set_image( Gtk2::Image->new_from_pixbuf($tray_pixbuf) );
+					}
+					
+					if($program_large_item){
+						$program_large_item->set_image( Gtk2::Image->new_from_pixbuf($tray_pixbuf) );
+					}
 				}
 			}
-			my $hid = $program_item->signal_connect(
-				'activate' => sub {
-					&fct_open_with_program($oapp, $app->{'name'});
-				}
-			);
+			
+			my $hid;
+			if($program_item){
+				$hid = $program_item->signal_connect(
+					'activate' => sub {
+						&fct_open_with_program($oapp, $app->{'name'});
+					}
+				);
+			}
+			
+			my $hid_large;
+			if($program_large_item){
+				$hid_large = $program_large_item->signal_connect(
+					'activate' => sub {
+						&fct_open_with_program($oapp, $app->{'name'});
+					}
+				);
+			}
 			
 			#save hid when default app
 			#to remove the handler next time we open the menu
 			$sm->{_menuitem_reopen_default}{hid} = $hid if $program_item->{'default'};
+			$sm->{_menuitem_large_reopen_default}{hid} = $hid_large if $program_large_item->{'default'};
 			
 		#no match found -> destroy current menu entry		
 		}else{
 			$program_item->destroy;
 		}		
 		
-	}	
+	} #end foreach	
 	
 	#no default app matched!
 	unless($default_matched){

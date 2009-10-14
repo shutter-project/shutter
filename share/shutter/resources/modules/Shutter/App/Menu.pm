@@ -39,7 +39,6 @@ use constant FALSE => 0;
 
 #--------------------------------------
 
-##################public subs##################
 sub new {
 	my $class = shift;
 
@@ -54,20 +53,61 @@ sub create_menu {
 	my $self = shift;
 
 	my $d           	= $self->{_common}->get_gettext;
-	my $window      	= $self->{_common}->get_mainwindow;
 	my $shutter_root 	= $self->{_common}->get_root;
 
 	my $accel_group = Gtk2::AccelGroup->new;
-	$window->add_accel_group($accel_group);
+	$self->{_common}->get_mainwindow->add_accel_group($accel_group);
+
+	#MenuBar
+	$self->{_menubar} = Gtk2::MenuBar->new();
+
+	#file
+	$self->{_menuitem_file} = Gtk2::MenuItem->new_with_mnemonic( $d->get('_File') );
+	$self->{_menuitem_file}->set_submenu( $self->fct_ret_file_menu( $accel_group, $d, $shutter_root ) );
+	$self->{_menubar}->append( $self->{_menuitem_file} );
+
+	#edit
+	$self->{_menuitem_edit} = Gtk2::MenuItem->new_with_mnemonic( $d->get('_Edit') );
+	$self->{_menuitem_edit}->set_submenu( $self->fct_ret_edit_menu( $accel_group, $d, $shutter_root ) );
+	$self->{_menubar}->append( $self->{_menuitem_edit} );
+
+	#view
+	$self->{_menuitem_view} = Gtk2::MenuItem->new_with_mnemonic( $d->get('_View') );
+	$self->{_menuitem_view}->set_submenu( $self->fct_ret_view_menu( $accel_group, $d, $shutter_root ) );
+	$self->{_menubar}->append( $self->{_menuitem_view} );
+	
+	#actions	
+	$self->{_menuitem_actions} = Gtk2::MenuItem->new_with_mnemonic( $d->get('_Screenshot') );
+	$self->{_menuitem_actions}->set_submenu( $self->fct_ret_actions_menu( $accel_group, $d, $shutter_root ) );
+	$self->{_menubar}->append( $self->{_menuitem_actions} );
+	
+	#go-to	
+	$self->{_menuitem_session} = Gtk2::MenuItem->new_with_mnemonic( $d->get('_Go') );
+	$self->{_menuitem_session}->set_submenu( $self->fct_ret_session_menu( $accel_group, $d, $shutter_root ) );
+	$self->{_menubar}->append( $self->{_menuitem_session} );
+	
+	#help
+	$self->{_menuitem_help} = Gtk2::MenuItem->new_with_mnemonic( $d->get('_Help') );
+	$self->{_menuitem_help}->set_submenu( $self->fct_ret_help_menu( $accel_group, $d, $shutter_root ) );
+	$self->{_menubar}->append( $self->{_menuitem_help} );
+
+	#we provide a larger (more actions) menuitem actions as well
+	#this will not be added to any menu entries
+	$self->fct_ret_actions_menu_large( $accel_group, $d, $shutter_root );
+
+	return $self->{_menubar};
+}
+
+sub fct_ret_file_menu {
+	my $self         = shift;
+	my $accel_group  = shift;
+	my $d            = shift;
+	my $shutter_root = shift;
 
 	#Icontheme
 	my $icontheme = $self->{_common}->get_theme;
 
-	$self->{_menubar} = Gtk2::MenuBar->new();
-
-	#file
 	$self->{_menu_file}     = Gtk2::Menu->new();
-	$self->{_menuitem_file} = Gtk2::MenuItem->new_with_mnemonic( $d->get('_File') );
 
 	$self->{_menuitem_new} = Gtk2::ImageMenuItem->new_from_stock('gtk-new');
 	$self->{_menuitem_new}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>N'), qw/visible/ );
@@ -125,13 +165,20 @@ sub create_menu {
 	$self->{_menuitem_quit} = Gtk2::ImageMenuItem->new_from_stock('gtk-quit');
 	$self->{_menuitem_quit}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>Q'), qw/visible/ );
 	$self->{_menu_file}->append( $self->{_menuitem_quit} );
+	
+	return $self->{_menu_file};
+}
+	
 
-	$self->{_menuitem_file}->set_submenu( $self->{_menu_file} );
-	$self->{_menubar}->append( $self->{_menuitem_file} );
+sub fct_ret_edit_menu {
+	my $self         = shift;
+	my $accel_group  = shift;
+	my $d            = shift;
+	my $shutter_root = shift;
 
-	#end file
+	#Icontheme
+	my $icontheme = $self->{_common}->get_theme;
 
-	#edit
 	$self->{_menu_edit} = Gtk2::Menu->new();
 
 	$self->{_menuitem_undo} = Gtk2::ImageMenuItem->new_from_stock('gtk-undo');
@@ -180,13 +227,18 @@ sub create_menu {
 	$self->{_menuitem_settings}->add_accelerator( 'activate', $accel_group, $Gtk2::Gdk::Keysyms{P}, qw/mod1-mask/, qw/visible/ );
 	$self->{_menu_edit}->append( $self->{_menuitem_settings} );
 
-	$self->{_menuitem_edit} = Gtk2::MenuItem->new_with_mnemonic( $d->get('_Edit') );
-	$self->{_menuitem_edit}->set_submenu( $self->{_menu_edit} );
-	$self->{_menubar}->append( $self->{_menuitem_edit} );
+	return $self->{_menu_edit};
+}
 
-	#end edit
+sub fct_ret_view_menu {
+	my $self         = shift;
+	my $accel_group  = shift;
+	my $d            = shift;
+	my $shutter_root = shift;
 
-	#view
+	#Icontheme
+	my $icontheme = $self->{_common}->get_theme;
+
 	$self->{_menu_view} = Gtk2::Menu->new();
 
 	$self->{_menuitem_zoom_in} = Gtk2::ImageMenuItem->new_from_stock('gtk-zoom-in');
@@ -218,26 +270,19 @@ sub create_menu {
 	$self->{_menuitem_fullscreen} = Gtk2::CheckMenuItem->new_with_label($self->{_menuitem_fullscreen_image}->get_child->get_text);
 	$self->{_menuitem_fullscreen}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('F11'), qw/visible/ );
 	$self->{_menu_view}->append( $self->{_menuitem_fullscreen} );
-
-	$self->{_menuitem_view} = Gtk2::MenuItem->new_with_mnemonic( $d->get('_View') );
-	$self->{_menuitem_view}->set_submenu( $self->{_menu_view} );
-	$self->{_menubar}->append( $self->{_menuitem_view} );
-
-	#end view
 	
-	#actions
-	
-	$self->{_menuitem_actions} = Gtk2::MenuItem->new_with_mnemonic( $d->get('_Screenshot') );
-	$self->{_menuitem_actions}->set_submenu( $self->fct_ret_actions_menu( $accel_group, $d, $shutter_root ) );
-	$self->{_menubar}->append( $self->{_menuitem_actions} );
+	return $self->{_menu_view};
+}	
 
-	#FIXME
-	$self->fct_ret_actions_menu_large( $accel_group, $d, $shutter_root );
+sub fct_ret_session_menu {
+	my $self         = shift;
+	my $accel_group  = shift;
+	my $d            = shift;
+	my $shutter_root = shift;
 
-	#end actions
-	
-	#session
-	
+	#Icontheme
+	my $icontheme = $self->{_common}->get_theme;
+
 	$self->{_menu_session} = Gtk2::Menu->new();
 
 	$self->{_menuitem_back} = Gtk2::ImageMenuItem->new_from_stock('gtk-go-back');
@@ -257,15 +302,19 @@ sub create_menu {
 	$self->{_menuitem_last} = Gtk2::ImageMenuItem->new_from_stock('gtk-goto-last');
 	$self->{_menuitem_last}->add_accelerator( 'activate', $accel_group, $Gtk2::Gdk::Keysyms{End}, qw/mod1-mask/, qw/visible/ );
 	$self->{_menu_session}->append( $self->{_menuitem_last} );
-
-	$self->{_menuitem_session} = Gtk2::MenuItem->new_with_mnemonic( $d->get('_Go') );
-	$self->{_menuitem_session}->set_submenu( $self->{_menu_session} );
-	$self->{_menubar}->append( $self->{_menuitem_session} );
-
-	#end session
 	
-	#help
-	
+	return $self->{_menu_session};
+}	
+
+sub fct_ret_help_menu {
+	my $self         = shift;
+	my $accel_group  = shift;
+	my $d            = shift;
+	my $shutter_root = shift;
+
+	#Icontheme
+	my $icontheme = $self->{_common}->get_theme;
+
 	$self->{_menu_help} = Gtk2::Menu->new();
 
 	$self->{_menuitem_question} = Gtk2::ImageMenuItem->new( $d->get('Get Help Online...') );
@@ -319,13 +368,8 @@ sub create_menu {
 	$self->{_menuitem_about}->add_accelerator( 'activate', $accel_group, $Gtk2::Gdk::Keysyms{I}, qw/control-mask/, qw/visible/ );
 	$self->{_menu_help}->append( $self->{_menuitem_about} );
 
-	$self->{_menuitem_help} = Gtk2::MenuItem->new_with_mnemonic( $d->get('_Help') );
-	$self->{_menuitem_help}->set_submenu( $self->{_menu_help} );
-
-	$self->{_menubar}->append( $self->{_menuitem_help} );
-
-	return $self->{_menubar};
-}
+	return $self->{_menu_help};
+}	
 
 sub fct_ret_new_menu {
 	my $self         = shift;
