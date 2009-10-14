@@ -231,6 +231,9 @@ sub create_menu {
 	$self->{_menuitem_actions}->set_submenu( $self->fct_ret_actions_menu( $accel_group, $d, $shutter_root ) );
 	$self->{_menubar}->append( $self->{_menuitem_actions} );
 
+	#FIXME
+	$self->fct_ret_actions_menu_large( $accel_group, $d, $shutter_root );
+
 	#end actions
 	
 	#session
@@ -517,6 +520,94 @@ sub fct_ret_actions_menu{
 	$self->{_menu_actions}->show_all;
 	
 	return $self->{_menu_actions};
+	
+}
+
+sub fct_ret_actions_menu_large{
+	my $self        = shift;
+	my $accel_group = shift;
+	my $d           = shift;
+	my $shutter_root = shift;
+	
+	#Icontheme
+	my $icontheme = $self->{_common}->get_theme;
+	
+	$self->{_menu_large_actions} = Gtk2::Menu->new();
+
+	$self->{_menuitem_large_reopen_default} = Gtk2::ImageMenuItem->new_with_mnemonic( 
+			sprintf( $d->get('_Open with %s'), ''),
+ 		);
+	$self->{_menuitem_large_reopen_default}->set_image( Gtk2::Image->new_from_stock( 'gtk-open', 'menu' ) );
+	$self->{_menuitem_large_reopen_default}->set_sensitive(FALSE);
+	$self->{_menuitem_large_reopen_default}->set_name('item-large-reopen-default');
+	$self->{_menu_large_actions}->append( $self->{_menuitem_large_reopen_default} );
+
+	$self->{_menuitem_large_reopen} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Open wit_h') );
+	$self->{_menuitem_large_reopen}->set_image( Gtk2::Image->new_from_stock( 'gtk-open', 'menu' ) );
+	$self->{_menuitem_large_reopen}->set_sensitive(FALSE);
+	$self->{_menuitem_large_reopen}->set_name('item-large-reopen-list');
+	$self->{_menu_large_actions}->append( $self->{_menuitem_large_reopen} );
+
+	$self->{_menuitem_large_rename} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Rename...') );
+	$self->{_menuitem_large_rename}->set_image( Gtk2::Image->new_from_stock( 'gtk-edit', 'menu' ) );
+	$self->{_menuitem_large_rename}->set_sensitive(FALSE);
+	$self->{_menuitem_large_rename}->set_name('item-large-rename');
+	$self->{_menu_large_actions}->append( $self->{_menuitem_large_rename} );
+
+	$self->{_menu_large_actions}->append( Gtk2::SeparatorMenuItem->new );
+
+	$self->{_menuitem_large_upload} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Upload / Export...') );
+	$self->{_menuitem_large_upload}->set_image( Gtk2::Image->new_from_stock( 'gtk-network', 'menu' ) );
+	$self->{_menuitem_large_upload}->set_sensitive(FALSE);
+	$self->{_menuitem_large_upload}->set_name('item-large-upload');
+	$self->{_menu_large_actions}->append( $self->{_menuitem_large_upload} );
+
+	$self->{_menu_large_actions}->append( Gtk2::SeparatorMenuItem->new );
+
+	$self->{_menuitem_large_copy} = Gtk2::ImageMenuItem->new_from_stock('gtk-copy');
+	$self->{_menuitem_large_copy}->set_sensitive(FALSE);
+	$self->{_menuitem_large_copy}->set_name('item-large-copy');
+	$self->{_menu_large_actions}->append( $self->{_menuitem_large_copy} );
+
+	$self->{_menuitem_large_copy_filename} = Gtk2::ImageMenuItem->new_from_stock('gtk-copy');
+	$self->{_menuitem_large_copy_filename}->get_child->set_text_with_mnemonic( $d->get('Copy _filename') );	
+	$self->{_menuitem_large_copy_filename}->set_sensitive(FALSE);
+	$self->{_menuitem_large_copy_filename}->set_name('item-large-copy-filename');
+	$self->{_menu_large_actions}->append( $self->{_menuitem_large_copy_filename} );
+
+	$self->{_menuitem_large_trash} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Move to _Trash') );
+	$self->{_menuitem_large_trash}->set_image( Gtk2::Image->new_from_icon_name( 'gnome-stock-trash', 'menu' ) );
+	$self->{_menuitem_large_trash}->set_sensitive(FALSE);
+	$self->{_menuitem_large_trash}->set_name('item-large-trash');
+	$self->{_menu_large_actions}->append( $self->{_menuitem_large_trash} );
+
+	$self->{_menu_large_actions}->append( Gtk2::SeparatorMenuItem->new );
+
+	$self->{_menuitem_large_draw} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Edit...') );
+	$self->{_menuitem_large_draw}->set_image( Gtk2::Image->new_from_stock( 'gtk-edit', 'menu' ) );
+	if($icontheme->has_icon('applications-graphics')){
+		$self->{_menuitem_large_draw}->set_image( Gtk2::Image->new_from_icon_name( 'applications-graphics', 'menu' ) );		
+	}else{
+		$self->{_menuitem_large_draw}->set_image(
+			Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/draw.svg", Gtk2::IconSize->lookup('menu') )
+			)
+		);
+	}
+	
+	$self->{_menuitem_large_draw}->set_sensitive(FALSE);
+	$self->{_menuitem_large_draw}->set_name('item-large-draw');
+	$self->{_menu_large_actions}->append( $self->{_menuitem_large_draw} );
+
+	$self->{_menuitem_large_plugin} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Run a _plugin...') );
+	$self->{_menuitem_large_plugin}->set_image( Gtk2::Image->new_from_stock( 'gtk-execute', 'menu' ) );
+	$self->{_menuitem_large_plugin}->set_sensitive(FALSE);
+	$self->{_menuitem_large_plugin}->set_name('item-large-plugin');
+	$self->{_menu_large_actions}->append( $self->{_menuitem_large_plugin} );
+	
+	$self->{_menu_large_actions}->show_all;
+	
+	return $self->{_menu_large_actions};
 	
 }
 

@@ -348,8 +348,10 @@ $sm->{_menuitem_zoom_100}->signal_connect( 'activate', \&fct_zoom_100 );
 $sm->{_menuitem_zoom_best}->signal_connect( 'activate', \&fct_zoom_best );
 $sm->{_menuitem_fullscreen}->signal_connect( 'toggled', \&fct_fullscreen );
 
+#screenshot menu
 $sm->{_menu_actions}->signal_connect( 'focus', sub { $sm->{_menuitem_reopen}->set_submenu(&fct_ret_program_menu); });
 $sm->{_menuitem_rename}->signal_connect( 'activate', \&fct_rename );
+
 $sm->{_menuitem_upload}->signal_connect( 'activate', \&fct_upload );
 
 #goocanvas is optional, don't enable it when not installed
@@ -361,6 +363,24 @@ if ( $goocanvas ) {
 
 $sm->{_menuitem_plugin}->signal_connect( 'activate', \&fct_plugin );
 
+#large screenshot menu
+$sm->{_menu_large_actions}->signal_connect( 'focus', sub { $sm->{_menuitem_large_reopen}->set_submenu(&fct_ret_program_menu); });
+$sm->{_menuitem_large_rename}->signal_connect( 'activate', \&fct_rename );
+$sm->{_menuitem_large_copy}->signal_connect( 'activate', \&fct_clipboard, 'image' );
+$sm->{_menuitem_large_copy_filename}->signal_connect( 'activate', \&fct_clipboard, 'text' );
+$sm->{_menuitem_large_trash}->signal_connect( 'activate', \&fct_delete );
+$sm->{_menuitem_large_upload}->signal_connect( 'activate', \&fct_upload );
+
+#goocanvas is optional, don't enable it when not installed
+if ( $goocanvas ) {
+	$sm->{_menuitem_large_draw}->signal_connect( 'activate', \&fct_draw );
+}else{
+	$sm->{_menuitem_large_draw}->set_sensitive(FALSE);	
+}
+
+$sm->{_menuitem_large_plugin}->signal_connect( 'activate', \&fct_plugin );
+
+#go to menu
 $sm->{_menuitem_back}->signal_connect( 'activate' => sub {
 		$notebook->prev_page;
 	}
@@ -377,7 +397,8 @@ $sm->{_menuitem_last}->signal_connect( 'activate' => sub {
 		$notebook->set_current_page( $notebook->get_n_pages - 1 );
 	}
 );
-	
+
+#help	
 $sm->{_menuitem_question}->signal_connect( 'activate', \&evt_question );
 $sm->{_menuitem_translate}->signal_connect( 'activate', \&evt_translate );
 $sm->{_menuitem_bug}->signal_connect( 'activate', \&evt_bug );
@@ -2211,7 +2232,7 @@ sub evt_tab_button_press {
 	#right click
 	if($key && $ev->button == 3 && $ev->type eq 'button-press'){
 
-		$sm->{_menu_actions}->popup(
+		$sm->{_menu_large_actions}->popup(
 			undef,    # parent menu shell
 			undef,    # parent menu item
 			undef,    # menu pos func
@@ -2236,7 +2257,7 @@ sub evt_iconview_button_press {
 		#select item
 		$view->select_path ($path);		
 
-		$sm->{_menu_actions}->popup(
+		$sm->{_menu_large_actions}->popup(
 			undef,    # parent menu shell
 			undef,    # parent menu item
 			undef,    # menu pos func
@@ -2329,6 +2350,25 @@ sub fct_update_actions {
 	$sm->{_menuitem_zoom_out}->set_sensitive($n_items);
 	$sm->{_menuitem_zoom_100}->set_sensitive($n_items);
 	$sm->{_menuitem_zoom_best}->set_sensitive($n_items);
+
+	#right-click menu
+	$sm->{_menuitem_large_reopen_default}->visible($n_items);
+	$sm->{_menuitem_large_reopen_default}->set_sensitive($n_items);
+	$sm->{_menuitem_large_reopen}->set_sensitive($n_items);
+	$sm->{_menuitem_large_rename}->set_sensitive($n_items);
+	$sm->{_menuitem_large_trash}->set_sensitive($n_items);
+	$sm->{_menuitem_large_copy}->set_sensitive($n_items);
+	$sm->{_menuitem_large_copy_filename}->set_sensitive($n_items);
+	$sm->{_menuitem_large_upload}->set_sensitive($n_items);
+		
+	#goocanvas is optional, don't enable it when not installed
+	if ($goocanvas) {
+		$sm->{_menuitem_large_draw}->set_sensitive($n_items);
+	}else{
+		$sm->{_menuitem_large_draw}->set_sensitive(FALSE);
+	}		
+
+	$sm->{_menuitem_large_plugin}->set_sensitive($n_items);
 		
 	return TRUE;
 }
@@ -2618,19 +2658,19 @@ sub fct_integrate_screenshot_in_notebook {
 	}
 	
 	#check mime type
-	my $mime_type = Gnome2::VFS->get_mime_type_for_name( $uri->to_string );
-	unless ($mime_type && &fct_check_valid_mime_type($mime_type)){
-		#not a supported mime type
-		my $response = $sd->dlg_error_message( 
-			sprintf ( $d->get(  "Error while opening image %s." ), "'" . $uri->to_string . "'" ) ,
-			$d->get( "There was an error opening the image." ),
-			undef, undef, undef,
-			undef, undef, undef,
-			$d->get( "MimeType not supported." )
-		);
-		&fct_show_status_message( 1, $uri->to_string . " " . $d->get("not supported") );		
-		return FALSE;					
-	}
+	#~ my $mime_type = Gnome2::VFS->get_mime_type_for_name( $uri->to_string );
+	#~ unless ($mime_type && &fct_check_valid_mime_type($mime_type)){
+		#~ #not a supported mime type
+		#~ my $response = $sd->dlg_error_message( 
+			#~ sprintf ( $d->get(  "Error while opening image %s." ), "'" . $uri->to_string . "'" ) ,
+			#~ $d->get( "There was an error opening the image." ),
+			#~ undef, undef, undef,
+			#~ undef, undef, undef,
+			#~ $d->get( "MimeType not supported." )
+		#~ );
+		#~ &fct_show_status_message( 1, $uri->to_string . " " . $d->get("not supported") );		
+		#~ return FALSE;					
+	#~ }
 
 	#add to recentmanager
 	$rmanager->add_item($uri->to_string);
@@ -6370,14 +6410,18 @@ sub fct_ret_program_menu {
 	#still no key? => leave sub
 	unless( $key ){
 		$sm->{_menuitem_reopen_default}->visible(FALSE);
+		$sm->{_menuitem_large_reopen_default}->visible(FALSE);
 		$sm->{_menuitem_reopen}->set_sensitive(FALSE);
+		$sm->{_menuitem_large_reopen}->set_sensitive(FALSE);
 		return $menu_programs;		
 	}
 
 	#no valid hash entry?
 	unless (exists $session_screens{$key}->{'mime_type'}){
 		$sm->{_menuitem_reopen_default}->visible(FALSE);
+		$sm->{_menuitem_large_reopen_default}->visible(FALSE);
 		$sm->{_menuitem_reopen}->set_sensitive(FALSE);
+		$sm->{_menuitem_large_reopen}->set_sensitive(FALSE);
 		return $menu_programs;	
 	}
 
@@ -6397,7 +6441,9 @@ sub fct_ret_program_menu {
 	#no app determined!
 	unless (scalar @apps && scalar @mapps){
 		$sm->{_menuitem_reopen_default}->visible(FALSE);
+		$sm->{_menuitem_large_reopen_default}->visible(FALSE);
 		$sm->{_menuitem_reopen}->set_sensitive(FALSE);
+		$sm->{_menuitem_large_reopen}->set_sensitive(FALSE);
 		return $menu_programs;			
 	}
 
@@ -6501,11 +6547,13 @@ sub fct_ret_program_menu {
 	#no default app matched!
 	unless($default_matched){
 		$sm->{_menuitem_reopen_default}->visible(FALSE);	
+		$sm->{_menuitem_large_reopen_default}->visible(FALSE);	
 	}
 	
 	#menu does not contain any item
 	unless($menu_programs->get_children){
 		$sm->{_menuitem_reopen}->set_sensitive(FALSE);
+		$sm->{_menuitem_large_reopen}->set_sensitive(FALSE);
 	}
 	
 	$menu_programs->show_all;
