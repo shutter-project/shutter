@@ -451,6 +451,7 @@ my $vbox_settings       = Gtk2::VBox->new( FALSE, 12 );
 my $hbox_settings       = Gtk2::HBox->new( FALSE, 12 );
 my $vbox_basic          = Gtk2::VBox->new( FALSE, 12 );
 my $vbox_extras         = Gtk2::VBox->new( FALSE, 12 );
+my $vbox_imageview      = Gtk2::VBox->new( FALSE, 12 );
 my $vbox_behavior       = Gtk2::VBox->new( FALSE, 12 );
 my $vbox_accounts       = Gtk2::VBox->new( FALSE, 12 );
 
@@ -484,6 +485,12 @@ my $border_box          = Gtk2::HBox->new( FALSE, 0 );
 my $visible_windows_box = Gtk2::HBox->new( FALSE, 0 );
 my $menu_delay_box      = Gtk2::HBox->new( FALSE, 0 );
 my $web_width_box       = Gtk2::HBox->new( FALSE, 0 );
+
+#imageview
+my $transparent_vbox    = Gtk2::VBox->new( FALSE, 0 );
+my $imageview_hbox1     = Gtk2::HBox->new( FALSE, 0 );
+my $imageview_hbox2     = Gtk2::HBox->new( FALSE, 0 );
+my $imageview_hbox3     = Gtk2::HBox->new( FALSE, 0 );
 
 #behavior
 my $window_vbox       	= Gtk2::VBox->new( FALSE, 0 );
@@ -747,6 +754,13 @@ $ftp_frame_label->set_markup( "<b>" . $d->get("File Transfer Protocol (FTP)") . 
 my $ftp_frame = Gtk2::Frame->new();
 $ftp_frame->set_label_widget($ftp_frame_label);
 $ftp_frame->set_shadow_type('none');
+
+my $transparent_frame_label = Gtk2::Label->new;
+$transparent_frame_label->set_markup( "<b>" . $d->get("Transparent Parts") . "</b>" );
+
+my $transparent_frame = Gtk2::Frame->new();
+$transparent_frame->set_label_widget($transparent_frame_label);
+$transparent_frame->set_shadow_type('none');
 
 #filename
 #--------------------------------------
@@ -1242,6 +1256,65 @@ $web_width_box->pack_start( $combobox_web_width, TRUE,  TRUE, 0 );
 #end - web width
 #--------------------------------------
 
+#imageview
+#--------------------------------------
+my $trans_check  = Gtk2::RadioButton->new (undef, $d->get("As check pattern"));
+my $trans_custom = Gtk2::RadioButton->new ($trans_check, $d->get("As custom color:"));
+my $trans_custom_btn = Gtk2::ColorButton->new();
+$trans_custom_btn->set_color( Gtk2::Gdk::Color->parse('black') );
+$trans_custom_btn->set_use_alpha(FALSE);
+$trans_custom_btn->set_title( $d->get("Choose fill color") );
+
+my $trans_backg  = Gtk2::RadioButton->new ($trans_custom, $d->get("As background"));
+
+$imageview_hbox1->pack_start( $trans_check, FALSE, TRUE, 12 );
+$imageview_hbox2->pack_start( $trans_custom, FALSE, TRUE, 12 );
+$imageview_hbox2->pack_start( $trans_custom_btn, FALSE, TRUE, 0 );
+$imageview_hbox3->pack_start( $trans_backg, FALSE, TRUE, 12 );
+
+if ( defined $settings_xml->{'general'}->{'trans_check'} ) {
+	$trans_check->set_active( $settings_xml->{'general'}->{'trans_check'} );
+} else {
+	$trans_check->set_active(TRUE);
+}
+
+$tooltips->set_tip( $trans_check, $d->get("Displays any transparent parts of the image in a check pattern") );
+
+if ( defined $settings_xml->{'general'}->{'trans_custom'} ) {
+	$trans_custom->set_active( $settings_xml->{'general'}->{'trans_custom'} );
+} else {
+	$trans_custom->set_active(TRUE);
+}
+
+$tooltips->set_tip( $trans_custom, $d->get("Displays any transparent parts of the image in a solid color that you specify") );
+
+if ( defined $settings_xml->{'general'}->{'trans_backg'} ) {
+	$trans_backg->set_active( $settings_xml->{'general'}->{'trans_backg'} );
+} else {
+	$trans_backg->set_active(TRUE);
+}
+
+$tooltips->set_tip( $trans_backg, $d->get("Displays any transparent parts of the image in the background color of the application") );
+
+#connect signals after restoring the saved state
+$trans_check->signal_connect(
+	'toggled' => \&evt_value_changed,
+	'transp_toggled'
+);
+
+$trans_custom->signal_connect(
+	'toggled' => \&evt_value_changed,
+	'transp_toggled'
+);
+
+$trans_backg->signal_connect(
+	'toggled' => \&evt_value_changed,
+	'transp_toggled'
+);
+
+#end - imageview
+#--------------------------------------
+
 #behavior
 #--------------------------------------
 my $capture_key = Gtk2::Entry->new;
@@ -1352,8 +1425,8 @@ $hide_time->signal_connect(
 my $present_after_active  = Gtk2::CheckButton->new_with_label( $d->get("Present main window after taking a screenshot") );
 my $close_at_close_active = Gtk2::CheckButton->new_with_label( $d->get("Minimize to tray when closing main window") );
 
-my $notify_after_active   = Gtk2::CheckButton->new_with_label( $d->get("Display pop-up notification after taking a screenshot") );
-my $notify_timeout_active   = Gtk2::CheckButton->new_with_label( $d->get("Display pop-up notification when using a delay") );
+my $notify_after_active    = Gtk2::CheckButton->new_with_label( $d->get("Display pop-up notification after taking a screenshot") );
+my $notify_timeout_active  = Gtk2::CheckButton->new_with_label( $d->get("Display pop-up notification when using a delay") );
 
 $behavior_hbox1->pack_start( $hide_active,           FALSE, TRUE, 12 );
 $behavior_hbox2->pack_start( $present_after_active,  FALSE, TRUE, 12 );
@@ -1590,6 +1663,18 @@ $vbox_extras->pack_start( $menu_capture_frame, FALSE, TRUE, 3 );
 $vbox_extras->pack_start( $web_capture_frame, FALSE, TRUE, 3 );
 $vbox_extras->set_border_width(5);
 
+#settings image view tab
+my $label_imageview = Gtk2::Label->new;
+$label_imageview->set_markup( $d->get("Image View") );
+
+$transparent_vbox->pack_start( $imageview_hbox1, TRUE, TRUE, 3 );
+$transparent_vbox->pack_start( $imageview_hbox2, TRUE, TRUE, 3 );
+$transparent_vbox->pack_start( $imageview_hbox3, TRUE, TRUE, 3 );
+$transparent_frame->add($transparent_vbox);
+
+$vbox_imageview->pack_start( $transparent_frame, FALSE, TRUE, 3 );
+$vbox_imageview->set_border_width(5);
+
 #settings behavior tab
 my $label_behavior = Gtk2::Label->new;
 $label_behavior->set_markup( $d->get("Behavior") );
@@ -1659,8 +1744,9 @@ $vbox_accounts->pack_start( $ftp_frame,      FALSE, TRUE, 3 );
 $vbox_accounts->set_border_width(5);
 
 #append pages to notebook
-$notebook_settings->append_page( $vbox_basic,    $label_basic );
-$notebook_settings->append_page( $vbox_extras,   $label_extras );
+$notebook_settings->append_page( $vbox_basic, $label_basic );
+$notebook_settings->append_page( $vbox_extras, $label_extras );
+$notebook_settings->append_page( $vbox_imageview, $label_imageview );
 $notebook_settings->append_page( $vbox_behavior, $label_behavior );
 $notebook_settings->append_page( $vbox_accounts, $label_accounts );
 
@@ -1785,6 +1871,27 @@ sub evt_value_changed {
 		} else {
 			$combobox_im_colors->set_sensitive(FALSE);
 		}
+	}
+
+	#checkbox for "color depth" -> entry active/inactive
+	if ( $data eq "transp_toggled" ) {
+		my $mode  = 'grid';	
+		my $color = $trans_custom_btn->get_color;
+		my $color_string = sprintf( "0x%04x%04x%04x", $color->red, $color->green, $color->blue );
+
+		if ( $trans_custom->get_active ) {
+			$mode = 'color';
+		}elsif ( $trans_backg->get_active ) {		
+			$mode = 'background';
+		}
+		
+		#change all imageviews in session
+		foreach my $key (keys %session_screens){
+			if($session_screens{$key}->{'image'}){
+				$session_screens{$key}->{'image'}->set_transp($mode, $color_string);
+			}
+		}			
+		
 	}
 
 	#~ #checkbox for "delay" -> HScale active/inactive
