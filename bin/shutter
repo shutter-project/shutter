@@ -1272,28 +1272,16 @@ $imageview_hbox2->pack_start( $trans_custom, FALSE, TRUE, 12 );
 $imageview_hbox2->pack_start( $trans_custom_btn, FALSE, TRUE, 0 );
 $imageview_hbox3->pack_start( $trans_backg, FALSE, TRUE, 12 );
 
-if ( defined $settings_xml->{'general'}->{'trans_check'} ) {
+if ( defined $settings_xml->{'general'}->{'trans_check'} && defined $settings_xml->{'general'}->{'trans_custom'} && defined $settings_xml->{'general'}->{'trans_backg'}) {
 	$trans_check->set_active( $settings_xml->{'general'}->{'trans_check'} );
+	$trans_custom->set_active( $settings_xml->{'general'}->{'trans_custom'} );
+	$trans_backg->set_active( $settings_xml->{'general'}->{'trans_backg'} );
 } else {
 	$trans_check->set_active(TRUE);
 }
 
 $tooltips->set_tip( $trans_check, $d->get("Displays any transparent parts of the image in a check pattern") );
-
-if ( defined $settings_xml->{'general'}->{'trans_custom'} ) {
-	$trans_custom->set_active( $settings_xml->{'general'}->{'trans_custom'} );
-} else {
-	$trans_custom->set_active(TRUE);
-}
-
 $tooltips->set_tip( $trans_custom, $d->get("Displays any transparent parts of the image in a solid color that you specify") );
-
-if ( defined $settings_xml->{'general'}->{'trans_backg'} ) {
-	$trans_backg->set_active( $settings_xml->{'general'}->{'trans_backg'} );
-} else {
-	$trans_backg->set_active(TRUE);
-}
-
 $tooltips->set_tip( $trans_backg, $d->get("Displays any transparent parts of the image in the background color of the application") );
 
 #connect signals after restoring the saved state
@@ -1829,6 +1817,14 @@ unless ( $sc->get_min ) {
 	&fct_control_main_window ('hide');
 }
 
+#FIXME
+#this is an ugly fix when 'tranparent parts' is set to background
+#we don't get the corret background color until the main window is shown
+#so we change it now
+if($trans_backg->get_active){
+	&evt_value_changed (undef, 'transp_toggled');
+}
+
 #update the first tab on startup
 &fct_update_info_and_tray();
 
@@ -1880,22 +1876,29 @@ sub evt_value_changed {
 
 	#radiobuttons for "transparent parts"
 	if ( $data eq "transp_toggled" ) {
-		my $mode  = 'grid';	
+
+		#Sets how the view should draw transparent parts of images with an alpha channel		
 		my $color = $trans_custom_btn->get_color;
 		my $color_string = sprintf( "%02x%02x%02x", $color->red / 257, $color->green / 257, $color->blue / 257 );
 		
-		if ( $trans_custom->get_active ) {
+		my $mode;
+		if ( $trans_check->get_active ) {
+			$mode = 'grid';	
+		}elsif ( $trans_custom->get_active ) {
 			$mode = 'color';
 		}elsif ( $trans_backg->get_active ) {		
-			$mode = 'background';
+			$mode = 'color';
+			my $bg = $window->get_style->bg('normal');
+			$color_string = sprintf( "%02x%02x%02x", $bg->red / 257, $bg->green / 257, $bg->blue / 257 );			
 		}
-		
+
 		#change all imageviews in session
 		foreach my $key (keys %session_screens){
 			if($session_screens{$key}->{'image'}){
 				$session_screens{$key}->{'image'}->set_transp($mode, hex $color_string);
 			}
-		}				
+		}
+						
 	}
 
 	#~ #checkbox for "delay" -> HScale active/inactive
@@ -3052,19 +3055,23 @@ sub fct_create_tab {
 		$session_screens{$key}->{'image'}->set_interpolation ('tiles');
 		$session_screens{$key}->{'image'}->set_show_frame(FALSE);	
 
-		my $mode  = 'grid';	
+		#Sets how the view should draw transparent parts of images with an alpha channel		
 		my $color = $trans_custom_btn->get_color;
 		my $color_string = sprintf( "%02x%02x%02x", $color->red / 257, $color->green / 257, $color->blue / 257 );
 		
-		if ( $trans_custom->get_active ) {
+		my $mode;
+		if ( $trans_check->get_active ) {
+			$mode = 'grid';	
+		}elsif ( $trans_custom->get_active ) {
 			$mode = 'color';
 		}elsif ( $trans_backg->get_active ) {		
-			$mode = 'background';
+			$mode = 'color';
+			my $bg = $window->get_style->bg('normal');
+			$color_string = sprintf( "%02x%02x%02x", $bg->red / 257, $bg->green / 257, $bg->blue / 257 );			
 		}
-		
-		#Sets how the view should draw transparent parts of images with an alpha channel
-		$session_screens{$key}->{'image'}->set_transp($mode, hex $color_string);
 
+		$session_screens{$key}->{'image'}->set_transp($mode, hex $color_string);
+				
 		#Gtk2::ImageView::ScrollWin
 		#~ my $image_sw = Gtk2::ImageView::ScrollWin->new($session_screens{$key}->{'image'});
 		#~ $image_sw->set_size_request(50, -1);
@@ -3303,6 +3310,11 @@ sub fct_save_settings {
 	$settings{'general'}->{'visible_windows'}  = $visible_windows_active->get_active();
 	$settings{'general'}->{'menu_delay'}  	   = $menu_delay->get_value();
 	$settings{'general'}->{'web_width'}        = $combobox_web_width->get_active();
+
+	#imageview
+	$settings{'general'}->{'trans_check'}      = $trans_check->get_active();
+	$settings{'general'}->{'trans_custom'}     = $trans_custom->get_active();
+	$settings{'general'}->{'trans_backg'}      = $trans_backg->get_active();
 
 	#behavior
 	$settings{'general'}->{'autohide'}         = $hide_active->get_active();
@@ -3623,6 +3635,11 @@ sub fct_load_settings {
 				$visible_windows_active->set_active( $settings_xml->{'general'}->{'visible_windows'} );
 				$menu_delay->set_value( $settings_xml->{'general'}->{'menu_delay'} );
 				$combobox_web_width->set_active( $settings_xml->{'general'}->{'web_width'} );
+
+				#imageview
+				$trans_check->set_active( $settings_xml->{'general'}->{'trans_check'} );
+				$trans_custom->set_active( $settings_xml->{'general'}->{'trans_custom'} );
+				$trans_backg->set_active( $settings_xml->{'general'}->{'trans_backg'} );
 
 				#behavior
 				$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
