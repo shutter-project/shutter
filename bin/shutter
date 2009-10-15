@@ -1261,7 +1261,6 @@ $web_width_box->pack_start( $combobox_web_width, TRUE,  TRUE, 0 );
 my $trans_check  = Gtk2::RadioButton->new (undef, $d->get("As check pattern"));
 my $trans_custom = Gtk2::RadioButton->new ($trans_check, $d->get("As custom color:"));
 my $trans_custom_btn = Gtk2::ColorButton->new();
-$trans_custom_btn->set_color( Gtk2::Gdk::Color->parse('black') );
 $trans_custom_btn->set_use_alpha(FALSE);
 $trans_custom_btn->set_title( $d->get("Choose fill color") );
 
@@ -1271,6 +1270,12 @@ $imageview_hbox1->pack_start( $trans_check, FALSE, TRUE, 12 );
 $imageview_hbox2->pack_start( $trans_custom, FALSE, TRUE, 12 );
 $imageview_hbox2->pack_start( $trans_custom_btn, FALSE, TRUE, 0 );
 $imageview_hbox3->pack_start( $trans_backg, FALSE, TRUE, 12 );
+
+if ( defined $settings_xml->{'general'}->{'trans_custom_col'} ){
+	$trans_custom_btn->set_color(Gtk2::Gdk::Color->parse($settings_xml->{'general'}->{'trans_custom_col'}));
+} else {
+	$trans_custom_btn->set_color( Gtk2::Gdk::Color->parse('black') );		
+}	
 
 if ( defined $settings_xml->{'general'}->{'trans_check'} && defined $settings_xml->{'general'}->{'trans_custom'} && defined $settings_xml->{'general'}->{'trans_backg'}) {
 	$trans_check->set_active( $settings_xml->{'general'}->{'trans_check'} );
@@ -3314,6 +3319,8 @@ sub fct_save_settings {
 	#imageview
 	$settings{'general'}->{'trans_check'}      = $trans_check->get_active();
 	$settings{'general'}->{'trans_custom'}     = $trans_custom->get_active();
+	my $color = $trans_custom_btn->get_color;
+	$settings{'general'}->{'trans_custom_col'} = sprintf( "#%02x%02x%02x", $color->red / 257, $color->green / 257, $color->blue / 257 );
 	$settings{'general'}->{'trans_backg'}      = $trans_backg->get_active();
 
 	#behavior
@@ -3639,6 +3646,9 @@ sub fct_load_settings {
 				#imageview
 				$trans_check->set_active( $settings_xml->{'general'}->{'trans_check'} );
 				$trans_custom->set_active( $settings_xml->{'general'}->{'trans_custom'} );
+				if(defined $settings_xml->{'general'}->{'trans_custom_col'}){
+					$trans_custom_btn->set_color(Gtk2::Gdk::Color->parse($settings_xml->{'general'}->{'trans_custom_col'}));
+				}
 				$trans_backg->set_active( $settings_xml->{'general'}->{'trans_backg'} );
 
 				#behavior
