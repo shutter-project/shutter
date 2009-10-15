@@ -1307,6 +1307,11 @@ $trans_custom->signal_connect(
 	'transp_toggled'
 );
 
+$trans_custom_btn->signal_connect(
+	'color-set' => \&evt_value_changed,
+	'transp_toggled'
+);
+
 $trans_backg->signal_connect(
 	'toggled' => \&evt_value_changed,
 	'transp_toggled'
@@ -1873,12 +1878,12 @@ sub evt_value_changed {
 		}
 	}
 
-	#checkbox for "color depth" -> entry active/inactive
+	#radiobuttons for "transparent parts"
 	if ( $data eq "transp_toggled" ) {
 		my $mode  = 'grid';	
 		my $color = $trans_custom_btn->get_color;
-		my $color_string = sprintf( "0x%04x%04x%04x", $color->red, $color->green, $color->blue );
-
+		my $color_string = sprintf( "%02x%02x%02x", $color->red / 257, $color->green / 257, $color->blue / 257 );
+		
 		if ( $trans_custom->get_active ) {
 			$mode = 'color';
 		}elsif ( $trans_backg->get_active ) {		
@@ -1888,10 +1893,9 @@ sub evt_value_changed {
 		#change all imageviews in session
 		foreach my $key (keys %session_screens){
 			if($session_screens{$key}->{'image'}){
-				$session_screens{$key}->{'image'}->set_transp($mode, $color_string);
+				$session_screens{$key}->{'image'}->set_transp($mode, hex $color_string);
 			}
-		}			
-		
+		}				
 	}
 
 	#~ #checkbox for "delay" -> HScale active/inactive
@@ -3045,8 +3049,22 @@ sub fct_create_tab {
 
 		#Gtk2::ImageView - empty at first
 		$session_screens{$key}->{'image'} = Gtk2::ImageView->new();
-		$session_screens{$key}->{'image'}->set_interpolation ('tiles');	
+		$session_screens{$key}->{'image'}->set_interpolation ('tiles');
+		$session_screens{$key}->{'image'}->set_show_frame(FALSE);	
+
+		my $mode  = 'grid';	
+		my $color = $trans_custom_btn->get_color;
+		my $color_string = sprintf( "%02x%02x%02x", $color->red / 257, $color->green / 257, $color->blue / 257 );
 		
+		if ( $trans_custom->get_active ) {
+			$mode = 'color';
+		}elsif ( $trans_backg->get_active ) {		
+			$mode = 'background';
+		}
+		
+		#Sets how the view should draw transparent parts of images with an alpha channel
+		$session_screens{$key}->{'image'}->set_transp($mode, hex $color_string);
+
 		#Gtk2::ImageView::ScrollWin
 		#~ my $image_sw = Gtk2::ImageView::ScrollWin->new($session_screens{$key}->{'image'});
 		#~ $image_sw->set_size_request(50, -1);
