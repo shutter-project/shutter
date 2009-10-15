@@ -1737,7 +1737,7 @@ $sg_acc->add_widget($ftp_mode_label);
 $sg_acc->add_widget($ftp_username_label);
 $sg_acc->add_widget($ftp_password_label);
 
-$vbox_accounts->pack_start( $accounts_frame, FALSE, TRUE, 3 );
+$vbox_accounts->pack_start( $accounts_frame, TRUE, TRUE, 3 );
 $vbox_accounts->pack_start( $ftp_frame,      FALSE, TRUE, 3 );
 $vbox_accounts->set_border_width(5);
 
@@ -1786,7 +1786,7 @@ $vbox_settings->pack_start( $profiles_box,      FALSE, TRUE, 1 );
 $vbox_settings->pack_start( $notebook_settings, TRUE,  TRUE, 1 );
 
 #settings
-$hbox_settings->pack_start( $vbox_settings, FALSE, TRUE, 6 );
+$hbox_settings->pack_start( $vbox_settings, TRUE, TRUE, 6 );
 $settings_dialog->vbox->add($hbox_settings);
 $settings_dialog->set_default_response('apply');
 
@@ -3870,7 +3870,8 @@ sub fct_load_accounts {
 		utf8::decode $accounts{$_}->{'username'};
 		utf8::decode $accounts{$_}->{'password'};
 		$accounts{$_}->{'register_color'} = "blue";
-		$accounts{$_}->{'register_text'}  = $d->get("click me");
+		#~ $accounts{$_}->{'register_text'}  = $d->get("click me");
+		$accounts{$_}->{'register_text'}  = $accounts{$_}->{register};
 	}
 
 	return TRUE;
