@@ -4595,7 +4595,7 @@ sub fct_draw {
 		$drawing_tool->show( $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'}, \%session_screens );		
 	}
 
-	&fct_control_main_window ('show');
+	#~ &fct_control_main_window ('show');
 
 	return TRUE;
 }

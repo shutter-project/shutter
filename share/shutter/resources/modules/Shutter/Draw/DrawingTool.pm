@@ -188,7 +188,7 @@ sub show {
 	$self->{_drawing_window} = Gtk2::Window->new('toplevel');
 	$self->{_drawing_window}->set_title( $self->{_filename} ." - Shutter DrawingTool" );
 	$self->{_drawing_window}->set_position('center');
-	$self->{_drawing_window}->set_modal(1);
+	#~ $self->{_drawing_window}->set_modal(1);
 	$self->{_drawing_window}->signal_connect( 'delete_event', sub { return $self->quit(TRUE) } );
 
 	#adjust toplevel window size
@@ -1816,17 +1816,23 @@ sub event_item_on_motion_notify {
 			}elsif ( $new_width < 0 || $new_height < 0) {
 				
 				$self->{_canvas}->pointer_ungrab($item, $ev->time);
+				$self->{_canvas}->keyboard_ungrab($item, $ev->time);
+				
 				my $oppo = $self->get_opposite_rect($item, $curr_item, $new_width, $new_height);				
+				
 				$self->{_items}{$curr_item}{$oppo}->{res_x}    = $ev->x_root;
 				$self->{_items}{$curr_item}{$oppo}->{res_y}    = $ev->y_root;
 				$self->{_items}{$curr_item}{$oppo}->{resizing} = TRUE;
 				
-				#don'change cursor if this item was just started
-				if($self->{_last_item} && $self->{_current_item} && $self->{_last_item} == $self->{_current_item}){
-					$self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], undef, $ev->time );	
-				}else{
-					$self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], Gtk2::Gdk::Cursor->new($oppo), $ev->time );				
-				}
+				#~ #don'change cursor if this item was just started
+				#~ if($self->{_last_item} && $self->{_current_item} && $self->{_last_item} == $self->{_current_item}){
+					#~ $self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], undef, $ev->time );	
+				#~ }else{
+					#~ $self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], Gtk2::Gdk::Cursor->new($oppo), $ev->time );				
+				#~ }
+
+				$self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], undef, $ev->time );	
+
 				
 				$self->handle_embedded( 'mirror', $curr_item, $new_width, $new_height);
 				
@@ -1974,7 +1980,10 @@ sub get_highest_auto_digit {
 		my $item = $self->{_items}{$_};
 		
 		#numbered shape
-		if ( exists $self->{_items}{$item} && $self->{_items}{$item}{type} eq 'number' && $self->{_items}{$item}{text}->get('visibility') ne 'hidden' ) {
+		if ( exists $self->{_items}{$item} && 
+			 exists $self->{_items}{$item}{type} && 
+			 $self->{_items}{$item}{type} eq 'number' && 
+			 $self->{_items}{$item}{text}->get('visibility') ne 'hidden' ) {
 			$number = $self->{_items}{$item}{text}{digit} if $self->{_items}{$item}{text}{digit} > $number;
 		}		
 	
@@ -2004,7 +2013,8 @@ sub abort_current_mode {
 	my ($self) = @_;
 
 	if($self->{_current_item}){
-		$self->{_canvas}->pointer_ungrab( $self->{_current_item}, time );
+		$self->{_canvas}->pointer_ungrab( $self->{_current_item}, Gtk2->get_current_event_time );
+		$self->{_canvas}->keyboard_ungrab( $self->{_current_item}, Gtk2->get_current_event_time );
 	}
 
 	#~ print "abort_current_mode\n";
@@ -2721,7 +2731,8 @@ sub event_item_on_button_press {
 	#if it is not activated yet
 	#
 	#single click
-	if ($ev->type eq 'button-press' && $self->{_current_mode_descr} eq "select") {
+	#~ if ($ev->type eq 'button-press' && $self->{_current_mode_descr} eq "select") {
+	if ($ev->type eq 'button-press') {
 
 		#embedded item?
 		my $parent = $self->get_parent_item($item);
@@ -2744,11 +2755,10 @@ sub event_item_on_button_press {
 		
 			}
 			
-			#no item selected, deactivate all items and leave sub
+			#no item selected, deactivate all items
 		}elsif($item == $self->{_canvas_bg} || $item == $self->{_canvas_bg_rect}){
 				
 			$self->deactivate_all;
-			return FALSE;
 			
 		}
 	} 
@@ -2758,14 +2768,15 @@ sub event_item_on_button_press {
 
 		my $root   = $self->{_canvas}->get_root_item;
 
-		#MOVE AND SELECT
+		#MOVE
 		if ( $self->{_current_mode_descr} eq "select" ) {
 
+			#don't_move the bounding rectangle por the bg_image
+			return TRUE if $item == $self->{_canvas_bg_rect};
+			return TRUE if $item == $self->{_canvas_bg};
+
 			if ( $item->isa('Goo::Canvas::Rect') ) {
-				
-					#don't_move the bounding rectangle
-				return TRUE if $item == $self->{_canvas_bg_rect};
-			
+							
 					#real shape => move 
 				if ( exists $self->{_items}{$item} ) {
 					$item->{drag_x}  		= $ev->x_root;
@@ -2774,34 +2785,33 @@ sub event_item_on_button_press {
 					$item->{dragging_start} = TRUE;
 
 					$cursor = Gtk2::Gdk::Cursor->new('fleur');
-					
-					#resizing shape => resize
-				} else {
-
+				
+				#resizing shape => resize
+				}else {
 					$item->{res_x}    		= $ev->x_root;
 					$item->{res_y}    		= $ev->y_root;
 					$item->{resizing}		= TRUE;
-
+	
 					$cursor = undef;
 					
 					#resizing the canvas_bg_rect
 					if ($self->{_canvas_bg_rect}{'right-side'} == $item
 						|| $self->{_canvas_bg_rect}{'bottom-side'} == $item
 						|| $self->{_canvas_bg_rect}{'bottom-right-corner'} == $item ){
-
+	
 						#add to undo stack
 						$self->store_to_xdo_stack($self->{_canvas_bg_rect} , 'modify', 'undo');								
 					
 					#other resizing rectangles
 					}else{
-
+	
 						#add to undo stack
 						$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
 				
 					}
-
+					
 				}
-			
+				
 			#no rectangle, e.g. polyline
 			} else {
 
@@ -2819,72 +2829,108 @@ sub event_item_on_button_press {
 			}
 
 			$self->{_canvas}->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ], $cursor, $ev->time );
+		
+		#current mode not equal 'select'	
+		}else{
+		
+			#resizing shape => resize (no real shape)
+			if ( $item->isa('Goo::Canvas::Rect') && 
+				!exists $self->{_items}{$item} &&
+				$item != $self->{_canvas_bg_rect}) {
 
-		#CREATE	
-		} else {
+				$item->{res_x}    		= $ev->x_root;
+				$item->{res_y}    		= $ev->y_root;
+				$item->{resizing}		= TRUE;
 
-			$self->deactivate_all;
-
-				#freehand
-			if ( $self->{_current_mode_descr} eq "freehand" ) {
-
-				$self->create_polyline( $ev, undef, FALSE );
-
-				#highlighter
-			} elsif ( $self->{_current_mode_descr} eq "highlighter" ) {
-
-				$self->create_polyline( $ev, undef, TRUE );
-
-				#Line
-			} elsif ( $self->{_current_mode_descr} eq "line" ) {
-
-				$self->create_line( $ev, undef );
-
-				#Arrow
-			} elsif ( $self->{_current_mode_descr} eq "arrow" ) {
-
-				$self->create_line( $ev, undef, TRUE, FALSE );
+				$cursor = undef;
 				
-				#Censor
-			} elsif ( $self->{_current_mode_descr} eq "censor" ) {
+				#resizing the canvas_bg_rect
+				if ($self->{_canvas_bg_rect}{'right-side'} == $item
+					|| $self->{_canvas_bg_rect}{'bottom-side'} == $item
+					|| $self->{_canvas_bg_rect}{'bottom-right-corner'} == $item ){
 
-				$self->create_censor( $ev, undef );
+					#add to undo stack
+					$self->store_to_xdo_stack($self->{_canvas_bg_rect} , 'modify', 'undo');								
 				
-				#Number
-			} elsif ( $self->{_current_mode_descr} eq "number" ) {
+				#other resizing rectangles
+				}else{
 
-				$self->create_ellipse( $ev, undef, TRUE );
-
-				#RECTANGLES
-			} elsif ( $self->{_current_mode_descr} eq "rect" ) {
-
-				$self->create_rectangle( $ev, undef );
-
-				#ELLIPSE
-			} elsif ( $self->{_current_mode_descr} eq "ellipse" ) {
-
-				$self->create_ellipse( $ev, undef );
-
-				#TEXT
-			} elsif ( $self->{_current_mode_descr} eq "text" ) {
-
-				$self->create_text( $ev, undef );
-
-				#IMAGE
-			} elsif ( $self->{_current_mode_descr} eq "image" ) {
-
-				$self->create_image( $ev, undef );
-
-			}
-		}
-
-		#right click => show context menu, double-click => show properties directly 
-	} elsif ( ($ev->type eq '2button-press' || $ev->button == 3) && $self->{_current_mode_descr} eq "select") {
+					#add to undo stack
+					$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
+			
+				}
+				
+				$self->{_canvas}->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ], $cursor, $ev->time );
+			
+			#create new item
+			}else{
+				
+				$self->deactivate_all;
+	
+					#freehand
+				if ( $self->{_current_mode_descr} eq "freehand" ) {
+	
+					$self->create_polyline( $ev, undef, FALSE );
+	
+					#highlighter
+				} elsif ( $self->{_current_mode_descr} eq "highlighter" ) {
+	
+					$self->create_polyline( $ev, undef, TRUE );
+	
+					#Line
+				} elsif ( $self->{_current_mode_descr} eq "line" ) {
+	
+					$self->create_line( $ev, undef );
+	
+					#Arrow
+				} elsif ( $self->{_current_mode_descr} eq "arrow" ) {
+	
+					$self->create_line( $ev, undef, TRUE, FALSE );
+					
+					#Censor
+				} elsif ( $self->{_current_mode_descr} eq "censor" ) {
+	
+					$self->create_censor( $ev, undef );
+					
+					#Number
+				} elsif ( $self->{_current_mode_descr} eq "number" ) {
+	
+					$self->create_ellipse( $ev, undef, TRUE );
+	
+					#RECTANGLES
+				} elsif ( $self->{_current_mode_descr} eq "rect" ) {
+	
+					$self->create_rectangle( $ev, undef );
+	
+					#ELLIPSE
+				} elsif ( $self->{_current_mode_descr} eq "ellipse" ) {
+	
+					$self->create_ellipse( $ev, undef );
+	
+					#TEXT
+				} elsif ( $self->{_current_mode_descr} eq "text" ) {
+	
+					$self->create_text( $ev, undef );
+	
+					#IMAGE
+				} elsif ( $self->{_current_mode_descr} eq "image" ) {
+	
+					$self->create_image( $ev, undef );
+	
+				}
+				
+			}	
+			
+		}	
+					
+	#right click => show context menu, double-click => show properties directly 
+	} elsif ( $ev->type eq '2button-press' || $ev->button == 3) {
 		
 		#no menu for background and image
 		return TRUE if ($item == $self->{_canvas_bg} || $item == $self->{_canvas_bg_rect});
 	
 		$self->{_canvas}->pointer_ungrab( $item, $ev->time );
+		$self->{_canvas}->keyboard_ungrab( $item, $ev->time );
 
 		#determine key for item hash
 		if(my $child = $self->get_child_item($item)){
@@ -2898,14 +2944,14 @@ sub event_item_on_button_press {
 
 		#real shape
 		if ( exists $self->{_items}{$key} ) {
-			if( $ev->type eq '2button-press' ) {
+			if( $ev->type eq '2button-press' && $ev->button == 1) {
 
 				#some items do not have properties, e.g. images or censor
 				return FALSE if $item->isa('Goo::Canvas::Image') || !exists($self->{_items}{$key}{stroke_color});
 				
 				$self->show_item_properties($item, $parent, $key);
 				
-			}elsif( $ev->type eq 'button-press' ){
+			}elsif( $ev->type eq 'button-press' && $ev->button == 3){
 								
 				my $item_menu = $self->ret_item_menu($item, $parent, $key);
 
@@ -3042,7 +3088,6 @@ sub show_item_properties {
 		'gtk-cancel' => 'cancel',
 		'gtk-apply'  => 'apply'
 	);
-
 	$prop_dialog->set_default_response('apply');
 
 	#RECT OR ELLIPSE OR POLYLINE
@@ -3076,30 +3121,31 @@ sub show_item_properties {
 		my $general_vbox = Gtk2::VBox->new( FALSE, 5 );
 
 		my $label_general = Gtk2::Label->new;
-		$label_general->set_markup( $self->{_d}->get("<i>Main</i>") );
+		$label_general->set_markup( "<b>" . $self->{_d}->get("Main") . "</b>" );
 		my $frame_general = Gtk2::Frame->new();
 		$frame_general->set_label_widget($label_general);
+		$frame_general->set_shadow_type ('none');
 		$frame_general->set_border_width(5);
 		$prop_dialog->vbox->add($frame_general);
 
 		#line_width
-		my $line_hbox = Gtk2::HBox->new( TRUE, 5 );
+		my $line_hbox = Gtk2::HBox->new( FALSE, 5 );
 		$line_hbox->set_border_width(5);
-		my $linew_label = Gtk2::Label->new( $self->{_d}->get("Line width") );
+		my $linew_label = Gtk2::Label->new( $self->{_d}->get("Line width") . ":" );
 		$line_spin = Gtk2::SpinButton->new_with_range( 0.5, 20, 0.1 );
 
 		$line_spin->set_value( $item->get('line-width') );
 
-		$line_hbox->pack_start_defaults($linew_label);
-		$line_hbox->pack_start_defaults($line_spin);
+		$line_hbox->pack_start($linew_label, FALSE, TRUE, 12);
+		$line_hbox->pack_start($line_spin, TRUE, TRUE, 0);
 		$general_vbox->pack_start( $line_hbox, FALSE, FALSE, 0 );
 
 		if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
 
 			#fill color
-			my $fill_color_hbox = Gtk2::HBox->new( TRUE, 5 );
+			my $fill_color_hbox = Gtk2::HBox->new( FALSE, 5 );
 			$fill_color_hbox->set_border_width(5);
-			my $fill_color_label = Gtk2::Label->new( $self->{_d}->get("Fill color") );
+			my $fill_color_label = Gtk2::Label->new( $self->{_d}->get("Fill color") . ":" );
 			$fill_color = Gtk2::ColorButton->new();
 
 			$fill_color->set_color( $self->{_items}{$key}{fill_color} );
@@ -3107,8 +3153,8 @@ sub show_item_properties {
 			$fill_color->set_use_alpha(TRUE);
 			$fill_color->set_title( $self->{_d}->get("Choose fill color") );
 
-			$fill_color_hbox->pack_start_defaults($fill_color_label);
-			$fill_color_hbox->pack_start_defaults($fill_color);
+			$fill_color_hbox->pack_start($fill_color_label, FALSE, TRUE, 12);
+			$fill_color_hbox->pack_start($fill_color, TRUE, TRUE, 0);
 			$general_vbox->pack_start( $fill_color_hbox, FALSE, FALSE, 0 );
 			
 		}
@@ -3116,9 +3162,9 @@ sub show_item_properties {
 		#some items, e.g. censor tool, do not have a color - skip them
 		if($self->{_items}{$key}{stroke_color}){
 			#stroke color
-			my $stroke_color_hbox = Gtk2::HBox->new( TRUE, 5 );
+			my $stroke_color_hbox = Gtk2::HBox->new( FALSE, 5 );
 			$stroke_color_hbox->set_border_width(5);
-			my $stroke_color_label = Gtk2::Label->new( $self->{_d}->get("Stroke color") );
+			my $stroke_color_label = Gtk2::Label->new( $self->{_d}->get("Stroke color") . ":" );
 			$stroke_color = Gtk2::ColorButton->new();
 
 			$stroke_color->set_color( $self->{_items}{$key}{stroke_color} );
@@ -3126,8 +3172,8 @@ sub show_item_properties {
 			$stroke_color->set_use_alpha(TRUE);
 			$stroke_color->set_title( $self->{_d}->get("Choose stroke color") );
 
-			$stroke_color_hbox->pack_start_defaults($stroke_color_label);
-			$stroke_color_hbox->pack_start_defaults($stroke_color);
+			$stroke_color_hbox->pack_start($stroke_color_label, FALSE, TRUE, 12);
+			$stroke_color_hbox->pack_start($stroke_color, TRUE, TRUE, 0);
 			$general_vbox->pack_start( $stroke_color_hbox, FALSE, FALSE, 0 );
 		}
 
@@ -3139,28 +3185,29 @@ sub show_item_properties {
 			my $numbered_vbox = Gtk2::VBox->new( FALSE, 5 );
 			
 			my $label_numbered = Gtk2::Label->new;
-			$label_numbered->set_markup( $self->{_d}->get("<i>Numbering</i>") );
+			$label_numbered->set_markup( "<b>" . $self->{_d}->get("Numbering") . "</b>");
 			my $frame_numbered = Gtk2::Frame->new();
 			$frame_numbered->set_label_widget($label_numbered);
+			$frame_numbered->set_shadow_type ('none');
 			$frame_numbered->set_border_width(5);
 			$prop_dialog->vbox->add($frame_numbered);
 
 			#current digit
-			my $number_hbox = Gtk2::HBox->new( TRUE, 5 );
+			my $number_hbox = Gtk2::HBox->new( FALSE, 5 );
 			$number_hbox->set_border_width(5);
-			my $numberw_label = Gtk2::Label->new( $self->{_d}->get("Current value") );
+			my $numberw_label = Gtk2::Label->new( $self->{_d}->get("Current value") . ":" );
 			$number_spin = Gtk2::SpinButton->new_with_range( 0, 999, 1 );
 
 			$number_spin->set_value( $self->{_items}{$key}{text}{digit} );
 
-			$number_hbox->pack_start_defaults($numberw_label);
-			$number_hbox->pack_start_defaults($number_spin);
+			$number_hbox->pack_start($numberw_label, FALSE, TRUE, 12);
+			$number_hbox->pack_start($number_spin, TRUE, TRUE, 0);
 			$numbered_vbox->pack_start( $number_hbox, FALSE, FALSE, 0 );
 
 			#font button
-			my $font_hbox = Gtk2::HBox->new( TRUE, 5 );
+			my $font_hbox = Gtk2::HBox->new( FALSE, 5 );
 			$font_hbox->set_border_width(5);
-			my $font_label = Gtk2::Label->new( $self->{_d}->get("Font") );
+			my $font_label = Gtk2::Label->new( $self->{_d}->get("Font") . ":" );
 			$font_btn = Gtk2::FontButton->new();
 
 			#determine font description from string
@@ -3185,8 +3232,8 @@ sub show_item_properties {
 			#apply current font settings to button
 			$font_btn->set_font_name( $font_desc->to_string );
 
-			$font_hbox->pack_start_defaults($font_label);
-			$font_hbox->pack_start_defaults($font_btn);
+			$font_hbox->pack_start($font_label, FALSE, TRUE, 12);
+			$font_hbox->pack_start($font_btn, TRUE, TRUE, 0);
 			$numbered_vbox->pack_start( $font_hbox, FALSE, FALSE, 0 );
 			
 			$frame_numbered->add($numbered_vbox);
@@ -3203,46 +3250,47 @@ sub show_item_properties {
 		my $arrow_vbox = Gtk2::VBox->new( FALSE, 5 );
 
 		my $label_arrow = Gtk2::Label->new;
-		$label_arrow->set_markup( $self->{_d}->get("<i>Arrow</i>") );
+		$label_arrow->set_markup( "<b>" . $self->{_d}->get("Arrow") . "</b>" );
 		my $frame_arrow = Gtk2::Frame->new();
 		$frame_arrow->set_label_widget($label_arrow);
+		$frame_arrow->set_shadow_type ('none');
 		$frame_arrow->set_border_width(5);
 		$prop_dialog->vbox->add($frame_arrow);
 
 		#arrow_width
-		my $arrow_hbox = Gtk2::HBox->new( TRUE, 5 );
+		my $arrow_hbox = Gtk2::HBox->new( FALSE, 5 );
 		$arrow_hbox->set_border_width(5);
-		my $arroww_label = Gtk2::Label->new( $self->{_d}->get("Width") );
+		my $arroww_label = Gtk2::Label->new( $self->{_d}->get("Width") . ":" );
 		$arrow_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
 
 		$arrow_spin->set_value( $item->get('arrow-width') );
 
-		$arrow_hbox->pack_start_defaults($arroww_label);
-		$arrow_hbox->pack_start_defaults($arrow_spin);
+		$arrow_hbox->pack_start($arroww_label, FALSE, TRUE, 12);
+		$arrow_hbox->pack_start($arrow_spin, TRUE, TRUE, 0);
 		$arrow_vbox->pack_start( $arrow_hbox, FALSE, FALSE, 0 );
 
 		#arrow_length
-		my $arrowl_hbox = Gtk2::HBox->new( TRUE, 5 );
+		my $arrowl_hbox = Gtk2::HBox->new( FALSE, 5 );
 		$arrowl_hbox->set_border_width(5);
-		my $arrowl_label = Gtk2::Label->new( $self->{_d}->get("Length") );
+		my $arrowl_label = Gtk2::Label->new( $self->{_d}->get("Length") . ":" );
 		$arrowl_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
 
 		$arrowl_spin->set_value( $item->get('arrow-length') );
 
-		$arrowl_hbox->pack_start_defaults($arrowl_label);
-		$arrowl_hbox->pack_start_defaults($arrowl_spin);
+		$arrowl_hbox->pack_start($arrowl_label, FALSE, TRUE, 12);
+		$arrowl_hbox->pack_start($arrowl_spin, TRUE, TRUE, 0);
 		$arrow_vbox->pack_start( $arrowl_hbox, FALSE, FALSE, 0 );
 
 		#arrow_tip_length
-		my $arrowt_hbox = Gtk2::HBox->new( TRUE, 5 );
+		my $arrowt_hbox = Gtk2::HBox->new( FALSE, 5 );
 		$arrowt_hbox->set_border_width(5);
-		my $arrowt_label = Gtk2::Label->new( $self->{_d}->get("Tip length") );
+		my $arrowt_label = Gtk2::Label->new( $self->{_d}->get("Tip length") . ":" );
 		$arrowt_spin = Gtk2::SpinButton->new_with_range( 0.5, 10, 0.1 );
 
 		$arrowt_spin->set_value( $item->get('arrow-tip-length') );
 
-		$arrowt_hbox->pack_start_defaults($arrowt_label);
-		$arrowt_hbox->pack_start_defaults($arrowt_spin);
+		$arrowt_hbox->pack_start($arrowt_label, FALSE, TRUE, 12);
+		$arrowt_hbox->pack_start($arrowt_spin, TRUE, TRUE, 0);
 		$arrow_vbox->pack_start( $arrowt_hbox, FALSE, FALSE, 0 );
 	
 		#checkboxes for start and end arrows
@@ -3251,14 +3299,14 @@ sub show_item_properties {
 		$start_arrow = Gtk2::CheckButton->new ($self->{_d}->get("Display an arrow at the start of the line"));
 		$start_arrow->set_active($self->{_items}{$key}{start_arrow});
 
-		my $end_arrow_hbox = Gtk2::HBox->new( TRUE, 5 );
+		my $end_arrow_hbox = Gtk2::HBox->new( FALSE, 5 );
 		$end_arrow_hbox->set_border_width(5);
 		
-		my $start_arrow_hbox = Gtk2::HBox->new( TRUE, 5 );
+		my $start_arrow_hbox = Gtk2::HBox->new( FALSE, 5 );
 		$start_arrow_hbox->set_border_width(5);
 		
-		$end_arrow_hbox->pack_start_defaults($end_arrow);
-		$start_arrow_hbox->pack_start_defaults($start_arrow);
+		$end_arrow_hbox->pack_start($end_arrow, FALSE, TRUE, 12);
+		$start_arrow_hbox->pack_start($start_arrow, FALSE, TRUE, 12);
 
 		$arrow_vbox->pack_start( $start_arrow_hbox, FALSE, FALSE, 0 );
 		$arrow_vbox->pack_start( $end_arrow_hbox, FALSE, FALSE, 0 );
@@ -3273,16 +3321,17 @@ sub show_item_properties {
 		my $text_vbox = Gtk2::VBox->new( FALSE, 5 );
 
 		my $label_text = Gtk2::Label->new;
-		$label_text->set_markup( $self->{_d}->get("<i>Text</i>") );
+		$label_text->set_markup( "<b>" . $self->{_d}->get("Text") . "</b>" );
 		my $frame_text = Gtk2::Frame->new();
 		$frame_text->set_label_widget($label_text);
+		$frame_text->set_shadow_type ('none');
 		$frame_text->set_border_width(5);
 		$prop_dialog->vbox->add($frame_text);
 
 		#font button
-		my $font_hbox = Gtk2::HBox->new( TRUE, 5 );
+		my $font_hbox = Gtk2::HBox->new( FALSE, 5 );
 		$font_hbox->set_border_width(5);
-		my $font_label = Gtk2::Label->new( $self->{_d}->get("Font") );
+		my $font_label = Gtk2::Label->new( $self->{_d}->get("Font") . ":" );
 		$font_btn = Gtk2::FontButton->new();
 
 		#determine font description from string
@@ -3304,14 +3353,14 @@ sub show_item_properties {
 			print "\nERROR: Pango Markup could not be parsed:\n$@";
 		}
 
-		$font_hbox->pack_start_defaults($font_label);
-		$font_hbox->pack_start_defaults($font_btn);
+		$font_hbox->pack_start($font_label, FALSE, TRUE, 12);
+		$font_hbox->pack_start($font_btn, TRUE, TRUE, 0);
 		$text_vbox->pack_start( $font_hbox, FALSE, FALSE, 0 );
 
 		#font color
-		my $font_color_hbox = Gtk2::HBox->new( TRUE, 5 );
+		my $font_color_hbox = Gtk2::HBox->new( FALSE, 5 );
 		$font_color_hbox->set_border_width(5);
-		my $font_color_label = Gtk2::Label->new( $self->{_d}->get("Font color") );
+		my $font_color_label = Gtk2::Label->new( $self->{_d}->get("Font color") . ":" );
 		$font_color = Gtk2::ColorButton->new();
 		$font_color->set_use_alpha(TRUE);
 
@@ -3319,8 +3368,8 @@ sub show_item_properties {
 		$font_color->set_color( $self->{_items}{$key}{stroke_color} );
 		$font_color->set_title( $self->{_d}->get("Choose font color") );
 
-		$font_color_hbox->pack_start_defaults($font_color_label);
-		$font_color_hbox->pack_start_defaults($font_color);
+		$font_color_hbox->pack_start($font_color_label, FALSE, TRUE, 12);
+		$font_color_hbox->pack_start($font_color, TRUE, TRUE, 0);
 
 		$text_vbox->pack_start( $font_color_hbox, FALSE, FALSE, 0 );
 
@@ -3363,6 +3412,28 @@ sub show_item_properties {
 		$frame_text->add($text_vbox);
 
 	}
+
+	#layout adjustments
+	my $sg_prop = Gtk2::SizeGroup->new('horizontal');
+	foreach ($prop_dialog->get_children->get_children){
+		if($_->can('get_children')){
+			foreach ($_->get_children){
+				if($_->can('get_children')){
+					foreach ($_->get_children){
+						if($_->can('get_children')){
+							foreach ($_->get_children){
+								if ($_ =~ /Gtk2::Label/){
+									#~ print $_->get_text, "\n"; 
+									$_->set_alignment( 0, 0.5 );
+									$sg_prop->add_widget($_);
+								}
+							}		
+						}	
+					}		
+				}		
+			}
+		}
+	}	
 
 	#run dialog
 	$prop_dialog->show_all;
@@ -3907,21 +3978,18 @@ sub handle_bg_rects {
 			$self->{_canvas}->get_root_item, $middle_h, $bottom, 8, 8,
 			'fill-pattern' => $pattern,
 			'line-width'   => 1,
-			'antialias'    => 'none',
 		);
 
 		$self->{_canvas_bg_rect}{'bottom-right-corner'} = Goo::Canvas::Rect->new(
 			$self->{_canvas}->get_root_item, $right, $bottom, 8, 8,
 			'fill-pattern' => $pattern,
 			'line-width'   => 1,
-			'antialias'    => 'none',
 		);
 
 		$self->{_canvas_bg_rect}{'right-side'} = Goo::Canvas::Rect->new(
 			$self->{_canvas}->get_root_item, $right, $middle_v, 8, 8,
 			'fill-pattern' => $pattern,
 			'line-width'   => 1,
-			'antialias'    => 'none',
 		);
 
 		$self->setup_item_signals( $self->{_canvas_bg_rect}{'bottom-side'} );
@@ -4203,6 +4271,7 @@ sub event_item_on_button_release {
 	my ( $self, $item, $target, $ev ) = @_;
 
 	$self->{_canvas}->pointer_ungrab( $item, $ev->time );
+	$self->{_canvas}->keyboard_ungrab( $item, $ev->time );
 
 	#canvas is idle now...
 	$self->{_busy} = FALSE;
@@ -4334,68 +4403,68 @@ sub event_item_on_button_release {
 }
 
 sub event_item_on_enter_notify {
-	my ( $self, $item, $target, $ev ) = @_;
-	
-	return TRUE if $self->{_busy};
-	
-	if (   $item->isa('Goo::Canvas::Rect')
-		|| $item->isa('Goo::Canvas::Ellipse')
-		|| $item->isa('Goo::Canvas::Text')
-		|| $item->isa('Goo::Canvas::Image')
-		|| $item->isa('Goo::Canvas::Polyline') )
-	{
-
-		my $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
-
-		#embedded item?
-		my $parent = $self->get_parent_item($item);
-		$item = $parent if $parent;
-
-		#real shape
-		if ( exists $self->{_items}{$item} ) {
-			
-			$cursor = Gtk2::Gdk::Cursor->new('fleur');
-
-			#set cursor
-			if ( $self->{_current_mode_descr} eq "select" ) {
-				$self->{_canvas}->window->set_cursor($cursor);
-			} 
-			
-		#canvas resizing shape
-		} elsif (  $self->{_canvas_bg_rect}{'right-side'} == $item
-				|| $self->{_canvas_bg_rect}{'bottom-side'} == $item
-				|| $self->{_canvas_bg_rect}{'bottom-right-corner'} == $item ) 
-		{
-
-			if ( $self->{_current_mode_descr} eq "select" ) {
-
-				foreach ( keys %{ $self->{_canvas_bg_rect} } ) {
-					if ( $item == $self->{_canvas_bg_rect}{$_} ) {
-						my $cursor = Gtk2::Gdk::Cursor->new($_);
-						$self->{_canvas}->window->set_cursor($cursor);
-						last;
-					}
-				}    #end determine cursor
-			}		
-
-			#resizing shape
-		} else {
-			
-			my $curr_item = $self->{_current_new_item} || $self->{_current_item};
-			if ( $self->{_current_mode_descr} eq "select" ) {
-				foreach ( keys %{ $self->{_items}{$curr_item} } ) {
-					next unless $_ =~ m/(corner|side)/;
-					if ( $item == $self->{_items}{$curr_item}{$_} ) {
-						$cursor = Gtk2::Gdk::Cursor->new($_);
-						$self->{_canvas}->window->set_cursor($cursor);
-						last;
-					}
-				}    #end determine cursor
-			}
-		}
-	}
-
-	return TRUE;
+	#~ my ( $self, $item, $target, $ev ) = @_;
+	#~ 
+	#~ return TRUE if $self->{_busy};
+	#~ 
+	#~ if (   $item->isa('Goo::Canvas::Rect')
+		#~ || $item->isa('Goo::Canvas::Ellipse')
+		#~ || $item->isa('Goo::Canvas::Text')
+		#~ || $item->isa('Goo::Canvas::Image')
+		#~ || $item->isa('Goo::Canvas::Polyline') )
+	#~ {
+#~ 
+		#~ my $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
+#~ 
+		#~ #embedded item?
+		#~ my $parent = $self->get_parent_item($item);
+		#~ $item = $parent if $parent;
+#~ 
+		#~ #real shape
+		#~ if ( exists $self->{_items}{$item} ) {
+			#~ 
+			#~ $cursor = Gtk2::Gdk::Cursor->new('fleur');
+#~ 
+			#~ #set cursor
+			#~ if ( $self->{_current_mode_descr} eq "select" ) {
+				#~ $self->{_canvas}->window->set_cursor($cursor);
+			#~ } 
+			#~ 
+		#~ #canvas resizing shape
+		#~ } elsif (  $self->{_canvas_bg_rect}{'right-side'} == $item
+				#~ || $self->{_canvas_bg_rect}{'bottom-side'} == $item
+				#~ || $self->{_canvas_bg_rect}{'bottom-right-corner'} == $item ) 
+		#~ {
+#~ 
+			#~ if ( $self->{_current_mode_descr} eq "select" ) {
+#~ 
+				#~ foreach ( keys %{ $self->{_canvas_bg_rect} } ) {
+					#~ if ( $item == $self->{_canvas_bg_rect}{$_} ) {
+						#~ my $cursor = Gtk2::Gdk::Cursor->new($_);
+						#~ $self->{_canvas}->window->set_cursor($cursor);
+						#~ last;
+					#~ }
+				#~ }    #end determine cursor
+			#~ }		
+#~ 
+			#~ #resizing shape
+		#~ } else {
+			#~ 
+			#~ my $curr_item = $self->{_current_new_item} || $self->{_current_item};
+			#~ if ( $self->{_current_mode_descr} eq "select" ) {
+				#~ foreach ( keys %{ $self->{_items}{$curr_item} } ) {
+					#~ next unless $_ =~ m/(corner|side)/;
+					#~ if ( $item == $self->{_items}{$curr_item}{$_} ) {
+						#~ $cursor = Gtk2::Gdk::Cursor->new($_);
+						#~ $self->{_canvas}->window->set_cursor($cursor);
+						#~ last;
+					#~ }
+				#~ }    #end determine cursor
+			#~ }
+		#~ }
+	#~ }
+#~ 
+	#~ return TRUE;
 }
 
 sub event_item_on_leave_notify {
@@ -5563,7 +5632,6 @@ sub create_image {
 		'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
 		'line-width'   => 1,
 		'stroke-color' => 'gray',
-		'antialias'    => 'none',
 	);
 
 	$self->{_current_new_item} = $item unless($copy_item);
@@ -5651,7 +5719,6 @@ sub create_text{
 		'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
 		'line-width'   => 1,
 		'stroke-color' => 'gray',
-		'antialias'    => 'none',
 	);
 
 	$self->{_current_new_item} = $item unless($copy_item);
@@ -5759,7 +5826,6 @@ sub create_line {
 		'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
 		'line-width'   => 1,
 		'stroke-color' => 'gray',
-		'antialias'    => 'none',
 	);
 
 	$self->{_current_new_item} = $item unless($copy_item);
@@ -5847,7 +5913,6 @@ sub create_ellipse {
 		'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
 		'line-width'   => 1,
 		'stroke-color' => 'gray',
-		'antialias'    => 'none',
 	);
 
 	$self->{_current_new_item} = $item unless($copy_item);
@@ -5976,7 +6041,6 @@ sub create_rectangle {
 		'fill-pattern'   => $fill_pattern,
 		'stroke-pattern' => $stroke_pattern,
 		'line-width'     => $line_width,
-		'antialias'      => 'none',
 	);
 	
 	$self->{_current_new_item} = $item unless($copy_item);
