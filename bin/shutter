@@ -209,7 +209,6 @@ my $tooltips = $sc->get_tooltips;
 
 #Gtk2::ImageView and Selector for advanced selection tool
 my $view 		= Gtk2::ImageView->new;
-my $nav 		= Gtk2::ImageView::Nav::new($view);
 my $selector 	= Gtk2::ImageView::Tool::Selector->new($view);
 my $dragger 	= Gtk2::ImageView::Tool::Dragger->new($view);
 $view->set_interpolation ('tiles');
@@ -4700,8 +4699,9 @@ sub fct_take_screenshot {
 		if ( $tool_advanced->get_active ) {
 					
 			my $screenshooter = Shutter::Screenshot::SelectorAdvanced->new( 
-				$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active, 
-				$view, $selector, $dragger, $nav 
+				$sc, $cursor_active->get_active, 
+				$delay_value, $notify_timeout_active->get_active, $hide_time->get_value, 
+				$view, $selector, $dragger
 			);
 			
 			$screenshot = $screenshooter->select_advanced();

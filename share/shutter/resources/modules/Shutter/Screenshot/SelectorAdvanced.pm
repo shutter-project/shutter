@@ -46,6 +46,8 @@ sub new {
 	#call constructor of super class (shutter_common, include_cursor, delay, notify_timeout)
 	my $self = $class->SUPER::new( shift, shift, shift, shift );
 
+	$self->{_hide_time}	= shift;   #a short timeout to give the server a chance to redraw the area that was obscured
+
 	#FIXME
 	#get them as params 
 	#because there is a leak when 
@@ -53,7 +55,7 @@ sub new {
 	$self->{_view} 		= shift;
 	$self->{_selector} 	= shift;
 	$self->{_dragger} 	= shift;
-
+	
 	#WORKAROUND
 	#upstream bug
 	#http://trac.bjourne.webfactional.com/ticket/21						
@@ -186,11 +188,22 @@ sub select_advanced {
 		}
 	);
 	$loader->close;
-	my $root_pixbuf = $loader->get_pixbuf;
+	
+	#set pixbuf
+	$self->{_view}->set_pixbuf($loader->get_pixbuf);
 
-	#~ my $self->{_view}          = Gtk2::ImageView->new;
-	#~ my $self->{_selector}      = Gtk2::ImageView::Tool::Selector->new($self->{_view});
+	#window that contains the imageview widget
+	$self->{_select_window} = Gtk2::Window->new('popup');
+	$self->{_select_window}->set_decorated(FALSE);
+	$self->{_select_window}->set_skip_taskbar_hint(TRUE);
+	$self->{_select_window}->set_skip_pager_hint(TRUE);
+	$self->{_select_window}->set_keep_above(TRUE);
+	$self->{_select_window}->add($self->{_view});
+	$self->{_select_window}->show_all;
+
+	#init state flags
 	$self->{_selector_init} = TRUE;
+	$self->{_selector_init_zoom} = 0;
 
 	#hide help text when selector is invoked
 	$self->{_selector_handler} = $self->{_selector}->signal_connect(
@@ -198,6 +211,7 @@ sub select_advanced {
 			if ($self->{_selector_init}) {
 				$self->{_view}->set_pixbuf( $clean_pixbuf, FALSE );
 				$self->{_selector_init} = FALSE;
+				$self->{_selector_init_zoom}++;
 			}
 		}
 	);
@@ -209,20 +223,15 @@ sub select_advanced {
 			if($self->{_view}->get_zoom < 1){
 				$self->{_view}->set_zoom(1);	
 			}
+			#hide help text when zoomed
+			if ($self->{_selector_init_zoom} == 1) {
+				$self->{_view}->set_pixbuf( $clean_pixbuf, FALSE );
+				$self->{_selector_init} = FALSE;
+			}else{
+				$self->{_selector_init_zoom}++;
+			}			
 		}
 	);
-
-	$self->{_view}->set_pixbuf($root_pixbuf);
-
-	#~ $self->{_view}->set_tool($self->{_selector});
-
-	$self->{_select_window} = Gtk2::Window->new('popup');
-	$self->{_select_window}->set_decorated(FALSE);
-	$self->{_select_window}->set_skip_taskbar_hint(TRUE);
-	$self->{_select_window}->set_skip_pager_hint(TRUE);
-	$self->{_select_window}->set_keep_above(TRUE);
-	$self->{_select_window}->add($self->{_view});
-	$self->{_select_window}->show_all;
 
 	#see docs
 	#http://library.gnome.org/devel/gtk/stable/GtkWindow.html
@@ -264,7 +273,7 @@ sub select_advanced {
 						
 						#A short timeout to give the server a chance to
 						#redraw the area that was obscured by our dialog.
-						Glib::Timeout->add (600, sub{
+						Glib::Timeout->add ($self->{_hide_time}, sub{
 							$output = $self->take_screenshot($s, $clean_pixbuf);
 							$self->quit;
 							return FALSE;	
@@ -364,7 +373,7 @@ sub select_advanced {
 					
 					#A short timeout to give the server a chance to
 					#redraw the area that was obscured by our dialog.
-					Glib::Timeout->add (600, sub{
+					Glib::Timeout->add ($self->{_hide_time}, sub{
 						$output = $self->take_screenshot($s, $clean_pixbuf);
 						$self->quit;
 						return FALSE;	
