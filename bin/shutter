@@ -1021,8 +1021,19 @@ $delay_box->pack_start( $delay_vlabel, FALSE, FALSE, 2 );
 
 #cursor
 #--------------------------------------
+my $cursor_status_active = Gtk2::CheckButton->new_with_label( $d->get("Include Cursor") );
+$tooltips->set_tip( $cursor_status_active, $d->get("Include cursor when taking a screenshot") );
+$cursor_status_active->signal_connect(
+	'toggled' => \&evt_value_changed,
+	'cursor_status_toggled'
+);
+
 my $cursor_active = Gtk2::CheckButton->new_with_label( $d->get("Include cursor when taking a screenshot") );
 $tooltips->set_tip( $cursor_active, $d->get("Include cursor when taking a screenshot") );
+$cursor_active->signal_connect(
+	'toggled' => \&evt_value_changed,
+	'cursor_toggled'
+);
 
 $cursor_box->pack_start( $cursor_active,    FALSE, TRUE, 12 );
 
@@ -1793,10 +1804,11 @@ $settings_dialog->set_default_response('apply');
 $vbox->pack_start( $notebook,  TRUE,  TRUE,  0 );
 
 #pack statusbar
+$status->pack_start( $cursor_status_active, FALSE, FALSE, 0 );
+$status->pack_start( Gtk2::HSeparator->new , FALSE, FALSE, 6 );
+
 $status->pack_start( $delay_status_label, FALSE, FALSE, 0 );
 $status->pack_start( $delay_status, FALSE, FALSE, 0 );
-#unsure here
-#~ $status->pack_start( $delay_status_vlabel, FALSE, TRUE, 0 );
 $status->pack_start( Gtk2::HSeparator->new , FALSE, FALSE, 6 );
 
 $vbox->pack_start( $status, FALSE, FALSE, 0 );
@@ -1905,14 +1917,15 @@ sub evt_value_changed {
 						
 	}
 
-	#~ #checkbox for "delay" -> HScale active/inactive
-	#~ if ( $data eq "delay_toggled" ) {
-		#~ if ( $delay_active->get_active ) {
-			#~ $delay->set_sensitive(TRUE);
-		#~ } else {
-			#~ $delay->set_sensitive(FALSE);
-		#~ }
-	#~ }
+	#"cursor_status" toggled
+	if ( $data eq "cursor_status_toggled" ) {
+		$cursor_active->set_active($cursor_status_active->get_active); 
+	}
+
+	#"cursor" toggled
+	if ( $data eq "cursor_toggled" ) {
+		$cursor_status_active->set_active($cursor_active->get_active);
+	}
 
 	#value for "delay" -> update text
 	if ( $data eq "delay_changed" ) {
