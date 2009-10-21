@@ -5506,6 +5506,7 @@ sub fct_update_profile_selectors {
 			
 			$combobox_status_profiles_label = Gtk2::Label->new( $d->get("Profile") . ":" );
 			$combobox_status_profiles = Gtk2::ComboBox->new_text;
+			$status->pack_end( Gtk2::HSeparator->new , FALSE, FALSE, 6 );
 			$status->pack_end( $combobox_status_profiles, FALSE, FALSE, 0 );
 			$status->pack_end( $combobox_status_profiles_label, FALSE, FALSE, 0 );
 			
