@@ -408,6 +408,11 @@ sub take_screenshot {
 	#no delay? then we take a subsection of the pixbuf in memory
 	if ($s && $clean_pixbuf && $self->{_delay} == 0) {
 		$output = $clean_pixbuf->new_subpixbuf($s->x, $s->y, $s->width, $s->height);
+
+		#include cursor
+		if($self->{_include_cursor}){
+			$output = $self->include_cursor( $s->x, $s->y, $s->width, $s->height, $self->{_root}, $output);
+		}
 	
 	#if there is a delay != 0 set, we have to wait and get a new pixbuf from the root window
 	}elsif ($s && $self->{_delay} != 0) {
