@@ -4667,6 +4667,7 @@ sub setup_uimanager {
 	my @main_actions = (
 		[ "File", undef, $self->{_d}->get("_File") ], 
 		[ "Edit", undef, $self->{_d}->get("_Edit") ], 
+		[ "Tools", undef, $self->{_d}->get("_Tools") ], 
 		[ "View", undef, $self->{_d}->get("_View") ],
 		[ "Undo", 'gtk-undo', undef, "<control>Z", $self->{_d}->get("Undo last action"), sub { 
 			$self->abort_current_mode; $self->xdo('undo'); 
@@ -4768,21 +4769,21 @@ sub setup_uimanager {
 					$self->{_drawing_window}->unfullscreen 
 				} 
 			} 	
-		],
+		]
 	);
-
+		
 	my @drawing_actions = (
-		[ "Select",  'shutter-pointer', undef, undef, $self->{_d}->get("Select item to move or resize it"), 10 ],
-		[ "Freehand",    'shutter-freehand', undef, undef, $self->{_d}->get("Draw a freehand line"), 20 ],
-		[ "Highlighter",    'shutter-highlighter', undef, undef, $self->{_d}->get("Highlighter"), 30 ],
-		[ "Line",    'shutter-line', undef, undef, $self->{_d}->get("Draw a straight line"), 40 ],
-		[ "Arrow",    'shutter-arrow', undef, undef, $self->{_d}->get("Draw an arrow"), 50 ],
-		[ "Rect",    'shutter-rectangle', undef, undef, $self->{_d}->get("Draw a rectangle"), 60 ],
-		[ "Ellipse", 'shutter-ellipse', undef, undef, $self->{_d}->get("Draw a ellipse"), 70 ],
-		[ "Text",    'shutter-text', undef, undef, $self->{_d}->get("Add some text to the screenshot"), 80 ],
-		[ "Censor",    'shutter-censor', undef, undef, $self->{_d}->get("Censor portions of your screenshot to hide private data"), 90 ],
-		[ "Number",    'shutter-number', undef, undef, $self->{_d}->get("Add an auto-increment shape to the screenshot"), 100 ],
-		[ "Crop",    'shutter-crop', undef, undef, $self->{_d}->get("Crop your screenshot"), 110 ]
+		[ "Select", 'shutter-pointer', $self->{_d}->get("Select"), "<alt>0", $self->{_d}->get("Select item to move or resize it"), 10 ],
+		[ "Freehand", 'shutter-freehand', $self->{_d}->get("Freehand"), "<alt>1", $self->{_d}->get("Draw a freehand line"), 20 ],
+		[ "Highlighter", 'shutter-highlighter', $self->{_d}->get("Highlighter"), "<alt>2", $self->{_d}->get("Highlighter"), 30 ],
+		[ "Line", 'shutter-line', $self->{_d}->get("Line"), "<alt>3", $self->{_d}->get("Draw a straight line"), 40 ],
+		[ "Arrow", 'shutter-arrow', $self->{_d}->get("Arrow"), "<alt>4", $self->{_d}->get("Draw an arrow"), 50 ],
+		[ "Rect", 'shutter-rectangle', $self->{_d}->get("Rectangle"), "<alt>5", $self->{_d}->get("Draw a rectangle"), 60 ],
+		[ "Ellipse", 'shutter-ellipse', $self->{_d}->get("Ellipse"), "<alt>6", $self->{_d}->get("Draw a ellipse"), 70 ],
+		[ "Text", 'shutter-text', $self->{_d}->get("Text"), "<alt>7", $self->{_d}->get("Add some text to the screenshot"), 80 ],
+		[ "Censor", 'shutter-censor', $self->{_d}->get("Censor"), "<alt>8", $self->{_d}->get("Censor portions of your screenshot to hide private data"), 90 ],
+		[ "Number", 'shutter-number', $self->{_d}->get("Number"), "<alt>9", $self->{_d}->get("Add an auto-increment shape to the screenshot"), 100 ],
+		[ "Crop", 'shutter-crop', $self->{_d}->get("Crop"), "<alt>c", $self->{_d}->get("Crop your screenshot"), 110 ]
 	);
 
 	my $uimanager = Gtk2::UIManager->new();
@@ -4798,7 +4799,7 @@ sub setup_uimanager {
 	#setup the menu toggle group
 	my $toggle_group = Gtk2::ActionGroup->new("toggle");
 	$toggle_group->add_toggle_actions( \@toggle_actions );
-
+	
 	# Setup the drawing group.
 	my $drawing_group = Gtk2::ActionGroup->new("drawing");
 	$drawing_group->add_radio_actions( \@drawing_actions, 10, sub { my $action = shift; $self->change_drawing_tool_cb($action); } );
@@ -4828,6 +4829,21 @@ sub setup_uimanager {
 		  <menuitem action = 'Stop'/>
 		  <separator/>
 		  <menuitem action = 'Autoscroll'/>
+		</menu>
+		<menu action = 'Tools'>
+		  <menuitem action='Select'/>
+		  <separator/>
+	      <menuitem action='Freehand'/>
+		  <menuitem action='Highlighter'/>
+		  <menuitem action='Line'/>
+		  <menuitem action='Arrow'/>
+		  <menuitem action='Rect'/>
+		  <menuitem action='Ellipse'/>
+		  <menuitem action='Text'/>
+		  <menuitem action='Censor'/>
+		  <menuitem action='Number'/>
+		  <separator/>
+		  <menuitem action='Crop'/>
 		</menu>
 		<menu action = 'View'>
 		  <menuitem action = 'ControlEqual'/>	
