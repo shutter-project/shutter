@@ -937,7 +937,12 @@ sub change_drawing_tool_cb {
 		$self->{_current_mode} != 110 ){
 	
 		$self->restore_drawing_properties;
-	
+		
+	}elsif( $self->{_current_mode} == 30 ){
+		
+		$self->deactivate_all;
+		$self->restore_highlighter_properties;
+		
 	}
 	
 	#show drawing tool widgets
@@ -1455,7 +1460,7 @@ sub event_item_on_motion_notify {
 		my $ha = $self->{_scrolled_window}->get_hadjustment->value;
 		my $va = $self->{_scrolled_window}->get_vadjustment->value;
 
-		#autoscroll >> down and right
+		#autoscroll
 		if (   $ev->x_root > ( $ha / $s + $width / $s - 100 / $s )
 			&& $ev->y_root > ( $va / $s + $height / $s - 100 / $s ) )
 		{
@@ -1473,12 +1478,7 @@ sub event_item_on_motion_notify {
 				$ha / $s,
 				$va / $s + 10 / $s
 			);
-		}
-
-		#autoscroll >> up and left
-		if (   $ev->x_root < ( $ha / $s + 100 / $s )
-			&& $ev->y_root < ( $va / $s + 100 / $s ) )
-		{
+		}elsif (   $ev->x_root < ( $ha / $s + 100 / $s ) && $ev->y_root < ( $va / $s + 100 / $s ) ) {
 			$self->{_canvas}->scroll_to(
 				$ha / $s - 10 / $s,
 				$va / $s - 10 / $s
@@ -2672,6 +2672,38 @@ sub set_and_save_drawing_properties {
 
 }
 
+sub restore_highlighter_properties {
+	my $self = shift;
+
+	#block 'value-change' handlers for widgets
+	#so we do not apply the changes twice
+	$self->{_line_spin_w}->signal_handler_block ($self->{_line_spin_wh});
+	$self->{_stroke_color_w}->signal_handler_block ($self->{_stroke_color_wh});
+	$self->{_fill_color_w}->signal_handler_block ($self->{_fill_color_wh});
+	$self->{_font_btn_w}->signal_handler_block ($self->{_font_btn_wh});
+	
+	#highlighter
+	$self->{_fill_color_w}->set_color(Gtk2::Gdk::Color->parse('#00000000ffff'));
+	$self->{_fill_color_w}->set_alpha( int(0.234683756771191 * 65535) );
+	$self->{_stroke_color_w}->set_color(Gtk2::Gdk::Color->parse('#ffffffff0000'));
+	$self->{_stroke_color_w}->set_alpha( int(0.499992370489052 * 65535) );
+	$self->{_line_spin_w}->set_value(18);
+
+	#update global values
+	$self->{_line_width} 			= $self->{_line_spin_w}->get_value;	
+	$self->{_stroke_color}       	= $self->{_stroke_color_w}->get_color;
+	$self->{_stroke_color_alpha} 	= $self->{_stroke_color_w}->get_alpha / 65535;		
+	$self->{_fill_color}       		= $self->{_fill_color_w}->get_color;
+	$self->{_fill_color_alpha} 		= $self->{_fill_color_w}->get_alpha / 65636;
+
+	#unblock 'value-change' handlers for widgets
+	$self->{_line_spin_w}->signal_handler_unblock ($self->{_line_spin_wh});
+	$self->{_stroke_color_w}->signal_handler_unblock ($self->{_stroke_color_wh});
+	$self->{_fill_color_w}->signal_handler_unblock ($self->{_fill_color_wh});
+	$self->{_font_btn_w}->signal_handler_unblock ($self->{_font_btn_wh});
+	
+}	
+
 sub restore_drawing_properties {
 	my $self = shift;
 
@@ -2745,9 +2777,9 @@ sub event_item_on_button_press {
 				$self->handle_rects( 'update', $self->{_current_item} );
 				$self->handle_rects( 'hide',   $self->{_last_item} );
 		
-				#apply item properties to widgets
-				#line width, fill color, stroke color etc.
-				$self->set_and_save_drawing_properties($self->{_current_item}, FALSE);
+				#~ #apply item properties to widgets
+				#~ #line width, fill color, stroke color etc.
+				#~ $self->set_and_save_drawing_properties($self->{_current_item}, FALSE);
 		
 			}
 			
@@ -2946,6 +2978,8 @@ sub event_item_on_button_press {
 		if ( exists $self->{_items}{$key} ) {
 			if( $ev->type eq '2button-press' && 
 				$ev->button == 1 &&
+				$self->{_current_mode_descr} ne "text" &&
+				$self->{_current_mode_descr} ne "number" &&
 				$self->{_current_mode_descr} ne "freehand" && 
 				$self->{_current_mode_descr} ne "highlighter" && 
 				$self->{_current_mode_descr} ne "censor") {
@@ -4434,6 +4468,13 @@ sub event_item_on_button_release {
 			#add to undo stack
 			$self->store_to_xdo_stack($nitem , 'create', 'undo');		
 		}
+	
+	#no new item
+	#existing item selected
+	}else{
+		#apply item properties to widgets
+		#line width, fill color, stroke color etc.
+		$self->set_and_save_drawing_properties($self->{_current_item}, FALSE);	
 	}
 
 	#uncheck previous active items
