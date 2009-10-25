@@ -7167,7 +7167,13 @@ sub fct_init_depend {
 }
 
 sub fct_init {
-
+	
+	#is there already a process of shutter running?
+	my @shutter_pids = `pgrep -u $< -f $shutter_path`;
+	#~ foreach(@shutter_pids){
+		#~ print $_,"\n"	
+	#~ }
+	
 	#are there any command line params?
 	if ( @ARGV > 0 ) {
 		foreach my $arg (@ARGV) {
@@ -7192,10 +7198,8 @@ sub fct_init {
 			} elsif ( $arg eq "disable_systray" ) {
 				$sc->set_disable_systray(TRUE);
 			} elsif ( $arg eq "section" ) {
-
-				#is there already a process of shutter running?
-				my @shutter_pids = `pidof -o $$ -x $shutter_path`;
 				foreach (@shutter_pids) {
+					next if /$$/; #do not match own pid
 					next if /^$/;
 					kill RTMAX => $_;
 					die;
@@ -7203,10 +7207,8 @@ sub fct_init {
 				$sc->set_start_with("section");
 				$sc->set_min(TRUE);
 			} elsif ( $arg eq "selection" ) {
-
-				#is there already a process of shutter running?
-				my @shutter_pids = `pidof -o $$ -x $shutter_path`;
 				foreach (@shutter_pids) {
+					next if /$$/; #do not match own pid
 					next if /^$/;
 					kill RTMIN => $_;
 					die;
@@ -7214,10 +7216,8 @@ sub fct_init {
 				$sc->set_start_with("select");
 				$sc->set_min(TRUE);
 			} elsif ( $arg eq "window" ) {
-
-				#is there already a process of shutter running?
-				my @shutter_pids = `pidof -o $$ -x $shutter_path`;
 				foreach (@shutter_pids) {
+					next if /$$/; #do not match own pid
 					next if /^$/;
 					kill USR2 => $_;
 					die;
@@ -7225,10 +7225,8 @@ sub fct_init {
 				$sc->set_start_with("window");
 				$sc->set_min(TRUE);
 			} elsif ( $arg eq "full" ) {
-
-				#is there already a process of shutter running?
-				my @shutter_pids = `pidof -o $$ -x $shutter_path`;
 				foreach (@shutter_pids) {
+					next if /$$/; #do not match own pid
 					next if /^$/;
 					kill USR1 => $_;
 					die;
