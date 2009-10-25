@@ -1448,9 +1448,7 @@ sub event_item_on_motion_notify {
 	$self->adjust_rulers($ev, $item);
 	
 	#autoscroll if enabled
-	if (   $self->{_autoscroll}
-		&& $ev->state >= 'button1-mask' )
-	{
+	if ( $self->{_autoscroll} && ($ev->state >= 'button1-mask' || $ev->state >= 'button2-mask') ) {
 		
 		my ( $x, $y, $width, $height, $depth ) = $self->{_canvas}->window->get_geometry;
 		my $s  = $self->{_canvas}->get_scale;
@@ -1499,7 +1497,7 @@ sub event_item_on_motion_notify {
 	}
 
 	#move
-	if ( $item->{dragging} && $ev->state >= 'button1-mask' ) {
+	if ( $item->{dragging} && ($ev->state >= 'button1-mask' || $ev->state >= 'button2-mask') ) {
 
 		if ( $item->isa('Goo::Canvas::Rect') ) {
 
@@ -2729,9 +2727,7 @@ sub event_item_on_button_press {
 
 	#activate item
 	#if it is not activated yet
-	#
-	#single click
-	#~ if ($ev->type eq 'button-press' && $self->{_current_mode_descr} eq "select") {
+	# => single click
 	if ($ev->type eq 'button-press') {
 
 		#embedded item?
@@ -2764,12 +2760,12 @@ sub event_item_on_button_press {
 	} 
 	
 	#left mouse click to drag, resize, create or delelte items
-	if ( $ev->type eq 'button-press' && $ev->button == 1 ) {
+	if ( $ev->type eq 'button-press' && ($ev->button == 1 || $ev->button == 2) ) {
 
-		my $root   = $self->{_canvas}->get_root_item;
+		my $root = $self->{_canvas}->get_root_item;
 
 		#MOVE
-		if ( $self->{_current_mode_descr} eq "select" ) {
+		if ( $self->{_current_mode_descr} eq "select" || $ev->button == 2) {
 
 			#don't_move the bounding rectangle por the bg_image
 			return TRUE if $item == $self->{_canvas_bg_rect};
@@ -2777,7 +2773,7 @@ sub event_item_on_button_press {
 
 			if ( $item->isa('Goo::Canvas::Rect') ) {
 							
-					#real shape => move 
+				#real shape => move 
 				if ( exists $self->{_items}{$item} ) {
 					$item->{drag_x}  		= $ev->x_root;
 					$item->{drag_y}  		= $ev->y_root;
@@ -2830,13 +2826,17 @@ sub event_item_on_button_press {
 
 			$self->{_canvas}->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ], $cursor, $ev->time );
 		
-		#current mode not equal 'select'	
-		}else{
+		#current mode not equal 'select' and no polyline	
+		}elsif($ev->button == 1){
 		
 			#resizing shape => resize (no real shape)
+			#no polyline modes
 			if ( $item->isa('Goo::Canvas::Rect') && 
 				!exists $self->{_items}{$item} &&
-				$item != $self->{_canvas_bg_rect}) {
+				$item != $self->{_canvas_bg_rect} &&
+				$self->{_current_mode_descr} ne "freehand" && 
+				$self->{_current_mode_descr} ne "highlighter" && 
+				$self->{_current_mode_descr} ne "censor" ) {
 
 				$item->{res_x}    		= $ev->x_root;
 				$item->{res_y}    		= $ev->y_root;
@@ -2857,11 +2857,11 @@ sub event_item_on_button_press {
 
 					#add to undo stack
 					$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
-			
+					
 				}
 				
 				$self->{_canvas}->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ], $cursor, $ev->time );
-			
+
 			#create new item
 			}else{
 				
@@ -2944,7 +2944,11 @@ sub event_item_on_button_press {
 
 		#real shape
 		if ( exists $self->{_items}{$key} ) {
-			if( $ev->type eq '2button-press' && $ev->button == 1) {
+			if( $ev->type eq '2button-press' && 
+				$ev->button == 1 &&
+				$self->{_current_mode_descr} ne "freehand" && 
+				$self->{_current_mode_descr} ne "highlighter" && 
+				$self->{_current_mode_descr} ne "censor") {
 
 				#some items do not have properties, e.g. images or censor
 				return FALSE if $item->isa('Goo::Canvas::Image') || !exists($self->{_items}{$key}{stroke_color});
@@ -3910,6 +3914,36 @@ sub handle_embedded {
 			}
 
 		}
+	}elsif( $action eq 'delete' ) {
+
+		#ellipse
+		if ( exists $self->{_items}{$item}{ellipse} ) {
+			if(my $nint = $self->{_canvas}->get_root_item->find_child($self->{_items}{$item}{ellipse})){
+				$self->{_canvas}->get_root_item->remove_child($nint);
+			}
+		}
+
+		#text
+		if ( exists $self->{_items}{$item}{text} ) {
+			if(my $nint = $self->{_canvas}->get_root_item->find_child($self->{_items}{$item}{text})){
+				$self->{_canvas}->get_root_item->remove_child($nint);
+			}
+		}
+
+		#image
+		if ( exists $self->{_items}{$item}{image} ) {
+			if(my $nint = $self->{_canvas}->get_root_item->find_child($self->{_items}{$item}{image})){
+				$self->{_canvas}->get_root_item->remove_child($nint);
+			}
+		}
+
+		#line
+		if ( exists $self->{_items}{$item}{line} ) {
+			if(my $nint = $self->{_canvas}->get_root_item->find_child($self->{_items}{$item}{line})){
+				$self->{_canvas}->get_root_item->remove_child($nint);
+			}
+		}			
+					
 	}elsif( $action eq 'hide' ) {
 
 		my $visibilty = 'hidden';
@@ -4158,6 +4192,33 @@ sub handle_rects {
 			$self->setup_item_signals_extra( $self->{_items}{$item}{'left-side'} );
 			$self->setup_item_signals_extra( $self->{_items}{$item}{'right-side'} );
 
+		} elsif ( $action eq 'delete' ) {
+
+			if(my $nint = $self->{_canvas}->get_root_item->find_child($self->{_items}{$item}{'top-side'})){
+				$self->{_canvas}->get_root_item->remove_child($nint);
+			}			
+			if(my $nint = $self->{_canvas}->get_root_item->find_child($self->{_items}{$item}{'top-left-corner'})){
+				$self->{_canvas}->get_root_item->remove_child($nint);
+			}			
+			if(my $nint = $self->{_canvas}->get_root_item->find_child($self->{_items}{$item}{'top-right-corner'})){
+				$self->{_canvas}->get_root_item->remove_child($nint);
+			}			
+			if(my $nint = $self->{_canvas}->get_root_item->find_child($self->{_items}{$item}{'bottom-side'})){
+				$self->{_canvas}->get_root_item->remove_child($nint);
+			}			
+			if(my $nint = $self->{_canvas}->get_root_item->find_child($self->{_items}{$item}{'bottom-left-corner'})){
+				$self->{_canvas}->get_root_item->remove_child($nint);
+			}			
+			if(my $nint = $self->{_canvas}->get_root_item->find_child($self->{_items}{$item}{'bottom-right-corner'})){
+				$self->{_canvas}->get_root_item->remove_child($nint);
+			}			
+			if(my $nint = $self->{_canvas}->get_root_item->find_child($self->{_items}{$item}{'left-side'})){
+				$self->{_canvas}->get_root_item->remove_child($nint);
+			}			
+			if(my $nint = $self->{_canvas}->get_root_item->find_child($self->{_items}{$item}{'right-side'})){
+				$self->{_canvas}->get_root_item->remove_child($nint);
+			}			
+			
 		} elsif ( $action eq 'update' || $action eq 'hide' ) {
 
 			my $visibilty = 'visible';
@@ -4290,6 +4351,9 @@ sub event_item_on_button_release {
 		#line width, fill color, stroke color etc.
 		$self->set_and_save_drawing_properties($nitem, FALSE);
 
+		#flag if item has to be deleted directly
+		my $deleted = FALSE;
+
 		#set minimum sizes
 		if ( $nitem->isa('Goo::Canvas::Rect') ) {
 
@@ -4332,25 +4396,44 @@ sub event_item_on_button_release {
 				#all other objects
 				}else{
 					
-					$nitem->set( 
-						'x'  		=> $ev->x_root - 50, 
-						'y' 		=> $ev->y_root - 50, 			
-						'width' 	=> 50,
-						'height' 	=> 50,
-					);
+					#~ $nitem->set( 
+						#~ 'x'  		=> $ev->x_root - 50, 
+						#~ 'y' 		=> $ev->y_root - 50, 			
+						#~ 'width' 	=> 50,
+						#~ 'height' 	=> 50,
+					#~ );
+					
+					#delete
+					if(my $nint = $self->{_canvas}->get_root_item->find_child($nitem)){
+						$self->{_canvas}->get_root_item->remove_child($nint);
+						$deleted = TRUE;
+					}
 					
 				}
 
 			}
 
 		}
-
-		$self->handle_rects( 'update', $nitem );
-		$self->handle_embedded( 'update', $nitem );
 		
-		#add to undo stack
-		$self->store_to_xdo_stack($nitem , 'create', 'undo');		
-
+		if($deleted){
+			$self->handle_rects( 'delete', $nitem );
+			$self->handle_embedded( 'delete', $nitem );
+			if(my $oitem = $self->{_canvas}->get_item_at ($ev->x, $ev->y, TRUE)){
+				#turn into a button-press-event
+				my $initevent = Gtk2::Gdk::Event->new ('button-press');
+				$initevent->set_time(Gtk2->get_current_event_time);
+				$initevent->window($self->{_drawing_window}->window);
+				$initevent->x($ev->x);
+				$initevent->y($ev->y);
+				$self->event_item_on_button_press($oitem, undef, $initevent);
+			}			
+		}else{	
+			$self->handle_rects( 'update', $nitem );
+			$self->handle_embedded( 'update', $nitem );
+			
+			#add to undo stack
+			$self->store_to_xdo_stack($nitem , 'create', 'undo');		
+		}
 	}
 
 	#uncheck previous active items
@@ -4361,7 +4444,6 @@ sub event_item_on_button_release {
 	$item->{dragging} 		= FALSE if exists $item->{dragging};
 	$item->{dragging_start} = FALSE if exists $item->{dragging_start};
 	$item->{resizing} 		= FALSE if exists $item->{resizing};
-	#~ $item->{resizing_start} = FALSE if exists $item->{resizing_start};
 
 	#because of performance reason we load the current image new from file when
 	#the current action is over => button-release
@@ -5845,7 +5927,8 @@ sub create_line {
 		'start-arrow'    	=> $start_arrow,
 		'arrow-length'	 	=> $arrow_length,
 		'arrow-width'	 	=> $arrow_width,
-		'arrow-tip-length'	=> $arrow_tip_length,					
+		'arrow-tip-length'	=> $arrow_tip_length,
+		'visibility' 		=> 'hidden',					
 	);				
 	
 	if(defined $end_arrow || defined $start_arrow){

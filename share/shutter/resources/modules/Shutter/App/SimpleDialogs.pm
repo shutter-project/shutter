@@ -76,6 +76,9 @@ sub dlg_info_message {
 
 	my $info_response = $info_dialog->run;
 	
+	#-1 when response is an event, e.g. delete-event
+	$info_response = -1 if $info_response =~ /event/;
+	
 	$info_dialog->destroy();
 	return TRUE;
 }
@@ -133,6 +136,9 @@ sub dlg_question_message {
 	}
 
 	my $question_response = $question_dialog->run;
+
+	#-1 when response is an event, e.g. delete-event
+	$question_response = -1 if $question_response =~ /event/;
 
 	$question_dialog->destroy();
 	return $question_response;
@@ -193,6 +199,9 @@ sub dlg_error_message {
 
 	my $error_response = $error_dialog->run;
 
+	#-1 when response is an event, e.g. delete-event
+	$error_response = -1 if $error_response =~ /event/;
+
 	$error_dialog->destroy();
 	return $error_response;
 }
@@ -251,6 +260,9 @@ sub dlg_warning_message {
 	}
 
 	my $warning_response = $warning_dialog->run;
+
+	#-1 when response is an event, e.g. delete-event
+	$warning_response = -1 if $warning_response =~ /event/;
 
 	$warning_dialog->destroy();
 	return $warning_response;

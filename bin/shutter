@@ -80,12 +80,12 @@ use Data::Dumper;
 
 #define constants
 #--------------------------------------
-use constant TRUE                	=> 1;
-use constant FALSE               	=> 0;
-use constant MAX_ERROR 				=> 5;
-use constant REV                	=> "Rev.experimental branch";
-use constant SHUTTER_NAME         	=> "Shutter";
-use constant SHUTTER_VERSION      	=> "v0.8x";
+use constant TRUE				=> 1;
+use constant FALSE				=> 0;
+use constant MAX_ERROR 			=> 5;
+use constant REV         		=> "Rev.experimental branch";
+use constant SHUTTER_NAME		=> "Shutter";
+use constant SHUTTER_VERSION	=> "v0.8x";
 
 #--------------------------------------
 
@@ -330,14 +330,14 @@ $sm->{_menuitem_save_as}->signal_connect( 'activate', \&evt_save_as, 'menu_save_
 $sm->{_menuitem_print}->signal_connect( 'activate', \&fct_print, 'menu_print' );
 $sm->{_menuitem_pagesetup}->signal_connect( 'activate', \&evt_page_setup, 'menu_pagesetup' );
 $sm->{_menuitem_close}->signal_connect( 'activate', sub { &fct_remove(undef); }, 'menu_close' );
-$sm->{_menuitem_close_all}->signal_connect( 'activate', sub { &fct_remove_all(); }, 'menu_close_all' );
+$sm->{_menuitem_close_all}->signal_connect( 'activate', sub { &fct_select_all; &fct_remove(undef); }, 'menu_close_all' );
 $sm->{_menuitem_quit}->signal_connect( 'activate', \&evt_delete_window, 'quit' );
 
 $sm->{_menuitem_undo}->signal_connect( 'activate', \&fct_undo );
 $sm->{_menuitem_redo}->signal_connect( 'activate', \&fct_redo );
 $sm->{_menuitem_copy}->signal_connect( 'activate', \&fct_clipboard, 'image' );
 $sm->{_menuitem_copy_filename}->signal_connect( 'activate', \&fct_clipboard, 'text' );
-$sm->{_menuitem_trash}->signal_connect( 'activate', \&fct_delete );
+$sm->{_menuitem_trash}->signal_connect( 'activate', sub { &fct_delete(undef); } );
 $sm->{_menuitem_select_all}->signal_connect( 'activate', \&fct_select_all );
 $sm->{_menuitem_settings}->signal_connect( 'activate', \&evt_show_settings );
 
@@ -367,7 +367,7 @@ $sm->{_menu_large_actions}->signal_connect( 'focus', sub { $sm->{_menuitem_large
 $sm->{_menuitem_large_rename}->signal_connect( 'activate', \&fct_rename );
 $sm->{_menuitem_large_copy}->signal_connect( 'activate', \&fct_clipboard, 'image' );
 $sm->{_menuitem_large_copy_filename}->signal_connect( 'activate', \&fct_clipboard, 'text' );
-$sm->{_menuitem_large_trash}->signal_connect( 'activate', \&fct_delete );
+$sm->{_menuitem_large_trash}->signal_connect( 'activate', sub { &fct_delete(undef); } );
 $sm->{_menuitem_large_upload}->signal_connect( 'activate', \&fct_upload );
 
 #goocanvas is optional, don't enable it when not installed
@@ -452,6 +452,7 @@ my $vbox_basic          = Gtk2::VBox->new( FALSE, 12 );
 my $vbox_extras         = Gtk2::VBox->new( FALSE, 12 );
 my $vbox_imageview      = Gtk2::VBox->new( FALSE, 12 );
 my $vbox_behavior       = Gtk2::VBox->new( FALSE, 12 );
+my $vbox_keyboard       = Gtk2::VBox->new( FALSE, 12 );
 my $vbox_accounts       = Gtk2::VBox->new( FALSE, 12 );
 
 #profiles
@@ -494,6 +495,7 @@ my $imageview_hbox3     = Gtk2::HBox->new( FALSE, 0 );
 #behavior
 my $window_vbox       	= Gtk2::VBox->new( FALSE, 0 );
 my $notify_vbox       	= Gtk2::VBox->new( FALSE, 0 );
+my $trash_vbox       	= Gtk2::VBox->new( FALSE, 0 );
 my $keybinding_vbox     = Gtk2::VBox->new( FALSE, 0 );
 
 my $behavior_hbox1      = Gtk2::HBox->new( FALSE, 0 );
@@ -502,6 +504,8 @@ my $behavior_hbox3      = Gtk2::HBox->new( FALSE, 0 );
 my $behavior_hbox4      = Gtk2::HBox->new( FALSE, 0 );
 my $behavior_hbox5      = Gtk2::HBox->new( FALSE, 0 );
 my $behavior_hbox6      = Gtk2::HBox->new( FALSE, 0 );
+my $behavior_hbox7      = Gtk2::HBox->new( FALSE, 0 );
+my $behavior_hbox8      = Gtk2::HBox->new( FALSE, 0 );
 
 my $keybinding_mode_box = Gtk2::HBox->new( TRUE,  0 );
 my $key_box             = Gtk2::HBox->new( FALSE, 0 );
@@ -697,6 +701,13 @@ $notify_frame_label->set_markup( "<b>" . $d->get("Notifications") . "</b>" );
 my $notify_frame = Gtk2::Frame->new();
 $notify_frame->set_label_widget($notify_frame_label);
 $notify_frame->set_shadow_type('none');
+
+my $trash_frame_label = Gtk2::Label->new;
+$trash_frame_label->set_markup( "<b>" . $d->get("Trash") . "</b>" );
+
+my $trash_frame = Gtk2::Frame->new();
+$trash_frame->set_label_widget($trash_frame_label);
+$trash_frame->set_shadow_type('none');
 
 my $keybinding_frame_label = Gtk2::Label->new;
 $keybinding_frame_label->set_markup( "<b>" . $d->get("Gnome-Keybinding") . "</b>" );
@@ -1323,7 +1334,7 @@ $trans_backg->signal_connect(
 #end - imageview
 #--------------------------------------
 
-#behavior
+#keybindings
 #--------------------------------------
 my $capture_key = Gtk2::Entry->new;
 if ( defined $settings_xml->{'general'}->{'capture_key'} ) {
@@ -1386,7 +1397,6 @@ $tooltips->set_tip(
 $keybinding_mode_box->pack_start( Gtk2::Label->new,          FALSE, FALSE, 0 );
 $keybinding_mode_box->pack_start( $combobox_keybinding_mode, TRUE,  TRUE,  0 );
 
-#keybindings
 my $keybinding_active = Gtk2::CheckButton->new;
 my $keybinding_sel_active = Gtk2::CheckButton->new;
 
@@ -1420,7 +1430,11 @@ if ( defined $settings_xml->{'general'}->{'keybinding_sel'} ) {
 } else {
 	$keybinding_sel_active->set_active(FALSE);
 }
+#end - keybindings
+#--------------------------------------
 
+#behavior
+#--------------------------------------
 my $hide_active           = Gtk2::CheckButton->new_with_label( $d->get("Autohide main window when taking a screenshot") );
 my $hide_time_label 	  = Gtk2::Label->new($d->get("Redraw Delay"). ":");
 my $hide_time_vlabel      = Gtk2::Label->new;
@@ -1436,14 +1450,19 @@ my $close_at_close_active = Gtk2::CheckButton->new_with_label( $d->get("Minimize
 my $notify_after_active    = Gtk2::CheckButton->new_with_label( $d->get("Display pop-up notification after taking a screenshot") );
 my $notify_timeout_active  = Gtk2::CheckButton->new_with_label( $d->get("Display pop-up notification when using a delay") );
 
-$behavior_hbox1->pack_start( $hide_active,           FALSE, TRUE, 12 );
-$behavior_hbox2->pack_start( $present_after_active,  FALSE, TRUE, 12 );
-$behavior_hbox3->pack_start( $close_at_close_active, FALSE, TRUE, 12 );
-$behavior_hbox4->pack_start( $hide_time_label,       FALSE, TRUE, 12 );
-$behavior_hbox4->pack_start( $hide_time,             FALSE, TRUE,  6 );
-$behavior_hbox4->pack_start( $hide_time_vlabel,      FALSE, TRUE,  0 );
-$behavior_hbox5->pack_start( $notify_after_active,   FALSE, TRUE, 12 );
-$behavior_hbox6->pack_start( $notify_timeout_active, FALSE, TRUE, 12 );
+my $ask_on_delete_active    = Gtk2::CheckButton->new_with_label( $d->get("Ask before moving files to trash") );
+my $delete_on_close_active  = Gtk2::CheckButton->new_with_label( $d->get("Move file to trash when closing tab") );
+
+$behavior_hbox1->pack_start( $hide_active,            FALSE, TRUE, 12 );
+$behavior_hbox2->pack_start( $present_after_active,   FALSE, TRUE, 12 );
+$behavior_hbox3->pack_start( $close_at_close_active,  FALSE, TRUE, 12 );
+$behavior_hbox4->pack_start( $hide_time_label,        FALSE, TRUE, 12 );
+$behavior_hbox4->pack_start( $hide_time,              FALSE, TRUE,  6 );
+$behavior_hbox4->pack_start( $hide_time_vlabel,       FALSE, TRUE,  0 );
+$behavior_hbox5->pack_start( $notify_after_active,    FALSE, TRUE, 12 );
+$behavior_hbox6->pack_start( $notify_timeout_active,  FALSE, TRUE, 12 );
+$behavior_hbox7->pack_start( $ask_on_delete_active,   FALSE, TRUE, 12 );
+$behavior_hbox8->pack_start( $delete_on_close_active, FALSE, TRUE, 12 );
 
 
 if ( defined $settings_xml->{'general'}->{'autohide'} ) {
@@ -1495,6 +1514,22 @@ if ( defined $settings_xml->{'general'}->{'close_at_close'} ) {
 }
 
 $tooltips->set_tip( $close_at_close_active, $d->get("Minimize to tray when closing main window") );
+
+if ( defined $settings_xml->{'general'}->{'ask_on_delete'} ) {
+	$ask_on_delete_active->set_active( $settings_xml->{'general'}->{'ask_on_delete'} );
+} else {
+	$ask_on_delete_active->set_active(FALSE);
+}
+
+$tooltips->set_tip( $ask_on_delete_active, $d->get("Ask before moving files to trash") );
+
+if ( defined $settings_xml->{'general'}->{'delete_on_close'} ) {
+	$delete_on_close_active->set_active( $settings_xml->{'general'}->{'delete_on_close'} );
+} else {
+	$delete_on_close_active->set_active(FALSE);
+}
+
+$tooltips->set_tip( $delete_on_close_active, $d->get("Move file to trash when closing tab") );
 
 #end - behavior
 #--------------------------------------
@@ -1697,25 +1732,40 @@ $notify_vbox->pack_start( $behavior_hbox5, TRUE, TRUE, 3 );
 $notify_vbox->pack_start( $behavior_hbox6, TRUE, TRUE, 3 );
 $notify_frame->add($notify_vbox);
 
+$trash_vbox->pack_start( $behavior_hbox7, TRUE, TRUE, 3 );
+$trash_vbox->pack_start( $behavior_hbox8, TRUE, TRUE, 3 );
+$trash_frame->add($trash_vbox);
+
+#all labels = one size
+$hide_time_label->set_alignment( 0, 0.5 );
+
+my $sg_behav = Gtk2::SizeGroup->new('horizontal');
+$sg_behav->add_widget($hide_time_label);
+
+$vbox_behavior->pack_start( $window_frame, FALSE, TRUE, 3 );
+$vbox_behavior->pack_start( $notify_frame, FALSE, TRUE, 3 );
+$vbox_behavior->pack_start( $trash_frame, FALSE, TRUE, 3 );
+$vbox_behavior->set_border_width(5);
+
+#settings keyboard tab
+my $label_keyboard = Gtk2::Label->new;
+$label_keyboard->set_markup( $d->get("Keyboard") );
+
+#all labels = one size
+$capture_label->set_alignment( 0, 0.5 );
+$capture_sel_label->set_alignment( 0, 0.5 );
+
+my $sg_key = Gtk2::SizeGroup->new('horizontal');
+$sg_key->add_widget($capture_label);
+$sg_key->add_widget($capture_sel_label);
+
 $keybinding_vbox->pack_start( $key_box,             FALSE, TRUE, 3 );
 $keybinding_vbox->pack_start( $key_sel_box,         FALSE, TRUE, 3 );
 $keybinding_vbox->pack_start( $keybinding_mode_box, FALSE, TRUE, 3 );
 $keybinding_frame->add($keybinding_vbox);
 
-#all labels = one size
-$hide_time_label->set_alignment( 0, 0.5 );
-$capture_label->set_alignment( 0, 0.5 );
-$capture_sel_label->set_alignment( 0, 0.5 );
-
-my $sg_behav = Gtk2::SizeGroup->new('horizontal');
-$sg_behav->add_widget($hide_time_label);
-$sg_behav->add_widget($capture_label);
-$sg_behav->add_widget($capture_sel_label);
-
-$vbox_behavior->pack_start( $window_frame,   FALSE, TRUE, 3 );
-$vbox_behavior->pack_start( $notify_frame,   FALSE, TRUE, 3 );
-$vbox_behavior->pack_start( $keybinding_frame, FALSE, TRUE, 3 );
-$vbox_behavior->set_border_width(5);
+$vbox_keyboard->pack_start( $keybinding_frame, FALSE, TRUE, 3 );
+$vbox_keyboard->set_border_width(5);
 
 #settings upload tab
 my $label_accounts = Gtk2::Label->new;
@@ -1756,6 +1806,7 @@ $notebook_settings->append_page( $vbox_basic, $label_basic );
 $notebook_settings->append_page( $vbox_extras, $label_extras );
 $notebook_settings->append_page( $vbox_imageview, $label_imageview );
 $notebook_settings->append_page( $vbox_behavior, $label_behavior );
+$notebook_settings->append_page( $vbox_keyboard, $label_keyboard );
 $notebook_settings->append_page( $vbox_accounts, $label_accounts );
 
 #plugins
@@ -3342,7 +3393,10 @@ sub fct_save_settings {
 	$settings{'general'}->{'close_at_close'}   = $close_at_close_active->get_active();
 	$settings{'general'}->{'notify_after'}     = $notify_after_active->get_active();
 	$settings{'general'}->{'notify_timeout'}   = $notify_timeout_active->get_active();
+	$settings{'general'}->{'ask_on_delete'}    = $ask_on_delete_active->get_active();
+	$settings{'general'}->{'delete_on_close'}  = $delete_on_close_active->get_active();
 
+	#keybindings
 	$settings{'general'}->{'keybinding'}       = $keybinding_active->get_active();
 	$settings{'general'}->{'keybinding_sel'}   = $keybinding_sel_active->get_active();
 	$settings{'general'}->{'keybinding_mode'}  = $combobox_keybinding_mode->get_active();
@@ -3670,6 +3724,8 @@ sub fct_load_settings {
 				$close_at_close_active->set_active( $settings_xml->{'general'}->{'close_at_close'} );
 				$notify_after_active->set_active( $settings_xml->{'general'}->{'notify_after'} );
 				$notify_timeout_active->set_active( $settings_xml->{'general'}->{'notify_timeout'} );
+				$ask_on_delete_active->set_active( $settings_xml->{'general'}->{'ask_on_close'} );
+				$delete_on_close_active->set_active( $settings_xml->{'general'}->{'delete_on_close'} );
 
 				#keybindings
 				$keybinding_active->set_active( $settings_xml->{'general'}->{'keybinding'} );
@@ -4108,11 +4164,21 @@ sub fct_screenshot_exists {
 }
 
 sub fct_delete {
+	my $key = shift;
 
-	my $key = &fct_get_current_file;
+	$key = &fct_get_current_file unless $key;
 
 	#single file
 	if ($key) {
+		
+		if($ask_on_delete_active->get_active){
+			my $response = $sd->dlg_question_message(
+				"",
+				sprintf( $d->get("Are you sure you want to move %s to the trash?"), "'" . $session_screens{$key}->{'long'} . "'" ),
+				'gtk-cancel', $d->get("Move to _Trash"), 
+			);		
+			return FALSE unless $response == 20;
+		}	
 
 		if ( $session_screens{$key}->{'uri'}->exists ) {
 
@@ -4142,7 +4208,7 @@ sub fct_delete {
 			
 		}
 
-		$notebook->remove_page( $notebook->get_current_page );    #delete tab
+		$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
 		&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("deleted") )
 			if defined( $session_screens{$key}->{'long'} );
 
@@ -4150,24 +4216,39 @@ sub fct_delete {
 			$session_start_screen{'first_page'}->{'model'}->remove( $session_screens{$key}->{'iter'} );
 		}
 
-		#~ #very, very defensive cleanup
-		#~ #currently i don't know if that makes any sense?		
-		#~ foreach(keys %{$session_screens{$key}}){
-			#~ eval { 
-				#~ if($session_screens{$key}->{$_}->can('isa')){
-					#~ print "Destroying: ".$_."\n";# if $session_screens{$key}->{$_}->isa('Glib::Object');
-					#~ $session_screens{$key}->{$_}->free;
-				#~ }
-			#~ };
-			#~ delete $session_screens{$key}->{$_};
-		#~ }
-
 		delete $session_screens{$key};
 
 		$window->show_all unless $is_hidden;
 
 		#session tab
 	} else {
+
+		if($ask_on_delete_active->get_active){
+			
+			#any files selected?
+			my $selected = FALSE;
+			$session_start_screen{'first_page'}->{'view'}->selected_foreach(
+				sub {
+					my ( $view, $path ) = @_;
+					my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
+					if ( defined $iter ) {
+						$selected = TRUE;
+					}
+				}
+			);			
+			
+			if($selected){
+				my $response = $sd->dlg_question_message(
+					"",
+					$d->get("Are you sure you want to move the selected files to the trash?"),
+					'gtk-cancel', $d->get("Move to _Trash"), 
+					);		
+				return FALSE unless $response == 20;
+			}else{
+				&fct_show_status_message( 1, $d->get("No screenshots selected") );
+				return FALSE;				
+			}
+		}
 
 		my @to_delete;
 		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
@@ -4204,7 +4285,6 @@ sub fct_delete {
 							$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), $d->get("Failed") );
 						}	
 
-
 					}
 
 					#copy to array
@@ -4216,7 +4296,12 @@ sub fct_delete {
 			},
 			undef
 		);
-		
+
+		if(scalar @to_delete == 0){
+			&fct_show_status_message( 1, $d->get("No screenshots selected") );
+			return FALSE;
+		}
+				
 		#delete from hash and model
 		foreach my $key (@to_delete){
 			if(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
@@ -4237,32 +4322,6 @@ sub fct_delete {
 	return TRUE;
 }
 
-sub fct_remove_all {
-
-	foreach my $key ( keys %session_screens ) {
-		if ( exists $session_screens{$key}->{'handle'} ) {
-
-			#cancel handle
-			$session_screens{$key}->{'handle'}->cancel;
-		}
-
-		$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
-
-		if(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
-			$session_start_screen{'first_page'}->{'model'}->remove( $session_screens{$key}->{'iter'} );
-		}
-
-		delete( $session_screens{$key} );
-	}
-
-	&fct_show_status_message( 1, $d->get("All screenshots removed") );
-	$window->show_all unless $is_hidden;
-
-	&fct_update_info_and_tray();
-
-	return TRUE;
-}
-
 sub fct_remove {
 	my $key = shift;
 
@@ -4270,6 +4329,12 @@ sub fct_remove {
 
 	#single file
 	if ($key) {
+
+		#delete instead of remove
+		if($delete_on_close_active->get_active){
+			&fct_delete($key);
+			return FALSE;	
+		}
 
 		if ( exists $session_screens{$key}->{'handle'} ) {
 
@@ -4290,6 +4355,12 @@ sub fct_remove {
 		$window->show_all unless $is_hidden;
 
 	} else {
+
+		#delete instead of remove
+		if($delete_on_close_active->get_active){
+			&fct_delete(undef);
+			return FALSE;	
+		}
 		
 		my @to_remove;
 		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
@@ -4316,6 +4387,11 @@ sub fct_remove {
 			},
 			undef
 		);
+
+		if(scalar @to_remove == 0){
+			&fct_show_status_message( 1, $d->get("No screenshots selected") );
+			return FALSE;
+		}
 
 		#delete from hash and model
 		foreach my $key (@to_remove){
