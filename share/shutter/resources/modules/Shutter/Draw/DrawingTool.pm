@@ -119,7 +119,7 @@ sub new {
 	$self->{_stroke_color}       = Gtk2::Gdk::Color->parse('#ff0000');
 	$self->{_stroke_color_alpha} = 1;
 	$self->{_line_width} 		 = 3;
-	$self->{_font} 				 = 'Sans Italic 16';
+	$self->{_font} 				 = 'Sans Regular 16';
 
 	#obtain current colors and font_desc from the main window
     $self->{_style}              = $self->{_shutter_common}->get_mainwindow->get_style;
@@ -133,7 +133,7 @@ sub new {
 	$self->{_last_stroke_color}       = Gtk2::Gdk::Color->parse('#ff0000');
 	$self->{_last_stroke_color_alpha} = 1;
 	$self->{_last_line_width} 		  = 3;
-	$self->{_last_font} 			  = 'Sans Italic 16';
+	$self->{_last_font} 			  = 'Sans Regular 16';
 
 	#some status variables
 	$self->{_busy}	                  = undef;
