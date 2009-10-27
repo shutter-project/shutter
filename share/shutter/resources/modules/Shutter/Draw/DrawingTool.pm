@@ -3079,6 +3079,7 @@ sub ret_background_menu {
 	
 	#properties
 	my $prop_item = Gtk2::ImageMenuItem->new( $self->{_d}->get("Change Background Color...") );
+	$prop_item->set_image(Gtk2::Image->new_from_stock('gtk-select-color', 'menu'));
 	$prop_item->signal_connect(
 		'activate' => sub {
 			my $color_dialog = Gtk2::ColorSelectionDialog->new($self->{_d}->get("Choose fill color"));
@@ -3201,7 +3202,8 @@ sub ret_item_menu {
 	$menu_item->append( Gtk2::SeparatorMenuItem->new );
 
 	#properties
-	my $prop_item = Gtk2::ImageMenuItem->new_from_stock('gtk-properties');
+	my $prop_item = Gtk2::ImageMenuItem->new($self->{_d}->get("Edit Preferences..."));
+	$prop_item->set_image(Gtk2::Image->new_from_stock('gtk-properties', 'menu'));
 	
 	#some items do not have properties, e.g. images or censor
 	$prop_item->set_sensitive(FALSE) if $item->isa('Goo::Canvas::Image') || !exists($self->{_items}{$key}{stroke_color});
