@@ -188,7 +188,7 @@ sub show {
 	$self->{_drawing_window} = Gtk2::Window->new('toplevel');
 	$self->{_drawing_window}->set_title( $self->{_filename} ." - Shutter DrawingTool" );
 	$self->{_drawing_window}->set_position('center');
-	#~ $self->{_drawing_window}->set_modal(1);
+	$self->{_drawing_window}->set_modal(1);
 	$self->{_drawing_window}->signal_connect( 'delete_event', sub { return $self->quit(TRUE) } );
 
 	#adjust toplevel window size
@@ -225,6 +225,7 @@ sub show {
 	#load file
 	eval{
 		$self->{_drawing_pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file( $self->{_filename} );
+		#~ $self->{_drawing_pixbuf} = $self->{_drawing_pixbuf}->composite_color_simple($self->{_drawing_pixbuf}->get_width, $self->{_drawing_pixbuf}->get_height, 'bilinear', 255, 16, 6710886, 10066329);
 	};
 	if($@){
 		my $response = $self->{_dialogs}->dlg_error_message( 
@@ -236,8 +237,7 @@ sub show {
 		);
 		
 		$self->{_drawing_window}->destroy if $self->{_drawing_window};
-		return FALSE;		
-	
+		return FALSE;	
 	}
 	
 	#CANVAS
@@ -265,11 +265,11 @@ sub show {
 		);		
 	}
 
-	my $gray = Gtk2::Gdk::Color->parse('gray');	
+	#~ my $bg = Gtk2::Gdk::Color->parse('gray');	
 	$self->{_canvas}->set( 
 		'automatic-bounds' 		=> FALSE,
 		'bounds-from-origin' 	=> FALSE,
-		'background-color' 		=> sprintf( "#%04x%04x%04x", $gray->red, $gray->green, $gray->blue ), 
+		#~ 'background-color' 		=> sprintf( "#%04x%04x%04x", $bg->red, $bg->green, $bg->blue ), 
 	);
 	
 	#and attach scroll event
@@ -296,13 +296,16 @@ sub show {
 	);
 
 	#create rectangle to resize the background
+	my $bg_color = $self->create_color(Gtk2::Gdk::Color->parse('gray'), 1.0);
 	$self->{_canvas_bg_rect} = Goo::Canvas::Rect->new(
 		$self->{_canvas}->get_root_item, 0, 0, $self->{_drawing_pixbuf}->get_width, $self->{_drawing_pixbuf}->get_height,
-		'fill-pattern' => $self->create_color('gray', 1.0),
-		'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
-		'line-width'   => 1,
-		'stroke-color' => 'black',
-	);	
+		'fill-pattern' 		=> $bg_color,
+		'line-dash'    		=> Goo::Canvas::LineDash->new( [ 5, 5 ] ),
+		'line-width'   		=> 1,
+		'stroke-color' 		=> 'black',
+	);
+	#save color
+	$self->{_canvas_bg_rect}{fill_color} = Gtk2::Gdk::Color->parse('gray');	
 	$self->setup_item_signals( $self->{_canvas_bg_rect} );
 
 	$self->handle_bg_rects( 'create' );
@@ -631,7 +634,7 @@ sub setup_right_vbox_c {
 	my $tooltips = $self->{_shutter_common}->get_tooltips;
 
 	my $cropping_bottom_vbox = Gtk2::VBox->new( FALSE, 5 );
-
+	
 	#get current pixbuf
 	my $pixbuf = $self->{_view}->get_pixbuf || $self->{_drawing_pixbuf};
 
@@ -1007,6 +1010,11 @@ sub change_drawing_tool_cb {
 		#show cropping tool		
 		$self->{_view}->set_pixbuf($self->save(TRUE));
 		$self->{_view}->set_zoom(1);
+
+		#adjust transp color
+		my $color_string = sprintf( "%02x%02x%02x", $self->{_canvas_bg_rect}{fill_color}->red / 257, $self->{_canvas_bg_rect}{fill_color}->green / 257, $self->{_canvas_bg_rect}{fill_color}->blue / 257 );
+		$self->{_view}->set_transp('color', hex $color_string);
+
 		$self->{_view}->show_all;
 
 		$self->{_drawing_inner_vbox_c}->show_all;	
@@ -1347,17 +1355,62 @@ sub save {
 	#hide line and change background color, e.g. for saving
 	$self->handle_bg_rects('hide');
 
-	#image format supports transparency or not
-	#we need to support more formats here I think
-	if($self->{_filetype} eq 'jpeg' || $self->{_filetype} eq 'bmp'){	
-		$self->{_canvas_bg_rect}->set(
-			'fill-pattern' 	=> $self->create_color('white', 1.0),
-			'line-width' 	=> 0,
-		);
+	unless($save_to_mem){
+		#image format supports transparency or not
+		#we need to support more formats here I think
+		if($self->{_filetype} eq 'jpeg' || $self->{_filetype} eq 'bmp'){	
+			$self->{_canvas_bg_rect}->set(
+				'fill-pattern' 	=> $self->create_color($self->{_canvas_bg_rect}{fill_color}, 1.0),
+				'line-width' 	=> 0,
+			);
+		}elsif($self->{_canvas_bg_rect}{fill_color}->equal(Gtk2::Gdk::Color->parse('gray'))){
+			$self->{_canvas_bg_rect}->set(
+				'visibility' => 'hidden'
+			);	
+		}else{
+	
+			#ask the user if he wants to save the background color
+			my $bg_dialog = Gtk2::MessageDialog->new( $self->{_drawing_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef );
+	
+			#set attributes
+			$bg_dialog->set( 'text' => $self->{_d}->get("Do you want to save the changed background color?") );
+			$bg_dialog->set( 'secondary-text' => $self->{_d}->get("The background is likely to be transparent if you decide to ignore the background color.") );
+			$bg_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-save', 'dialog' ) );
+			$bg_dialog->set( 'title' => $self->{_d}->get("Save Background Color") );
+	
+			#ignore bg button
+			my $cancel_btn = Gtk2::Button->new_with_mnemonic( $self->{_d}->get("_Ignore Background Color") );
+	
+			#save bg button
+			my $bg_btn = Gtk2::Button->new_with_mnemonic( $self->{_d}->get("_Save Background Color") );
+			$bg_btn->can_default(TRUE);
+			
+			$bg_dialog->add_action_widget( $cancel_btn, 10 );
+			$bg_dialog->add_action_widget( $bg_btn,   20 );
+	
+			$bg_dialog->set_default_response(20);
+	
+			$bg_dialog->vbox->show_all;
+			
+			my $response = $bg_dialog->run;
+			if ( $response == 10 ) {
+				$self->{_canvas_bg_rect}->set(
+					'visibility' => 'hidden'
+				);	
+			} elsif ( $response == 20 ) {
+				$self->{_canvas_bg_rect}->set(
+					'fill-pattern' 	=> $self->create_color($self->{_canvas_bg_rect}{fill_color}, 1.0),
+					'line-width' 	=> 0,
+				);
+			}
+			
+			$bg_dialog->destroy;		
+				
+		}
 	}else{
 		$self->{_canvas_bg_rect}->set(
-			'visibility' => 'hidden',
-		);		
+			'visibility' => 'hidden'
+		);			
 	}
 
 	my $surface = Cairo::ImageSurface->create( 'argb32', $self->{_canvas_bg_rect}->get('width'), $self->{_canvas_bg_rect}->get('height') );
@@ -1381,7 +1434,7 @@ sub save {
 	if ($save_to_mem){
 		#update the canvas_rect again
 		$self->{_canvas_bg_rect}->set(
-			'fill-pattern' 	=> $self->create_color('gray', 1.0),
+			'fill-pattern' 	=> $self->create_color($self->{_canvas_bg_rect}{fill_color}, 1.0),
 			'line-width' 	=> 1,
 			'visibility' 	=> 'visible',
 			
@@ -2957,10 +3010,7 @@ sub event_item_on_button_press {
 					
 	#right click => show context menu, double-click => show properties directly 
 	} elsif ( $ev->type eq '2button-press' || $ev->button == 3) {
-		
-		#no menu for background and image
-		return TRUE if ($item == $self->{_canvas_bg} || $item == $self->{_canvas_bg_rect});
-	
+			
 		$self->{_canvas}->pointer_ungrab( $item, $ev->time );
 		$self->{_canvas}->keyboard_ungrab( $item, $ev->time );
 
@@ -2971,11 +3021,8 @@ sub event_item_on_button_press {
 		my $parent 	= $self->get_parent_item($item);
 		my $key = $self->get_item_key($item, $parent);
 
-		#no real shape, maybe resizing rectangle of bg_rect
-		return TRUE unless $key;
-
 		#real shape
-		if ( exists $self->{_items}{$key} ) {
+		if ( defined $key && exists $self->{_items}{$key} ) {
 			if( $ev->type eq '2button-press' && 
 				$ev->button == 1 &&
 				$self->{_current_mode_descr} ne "text" &&
@@ -3002,11 +3049,81 @@ sub event_item_on_button_press {
 					$ev->time
 				);								
 			}				
+		
+		}else{		
+			#background rectangle
+			if ($item == $self->{_canvas_bg_rect} || $item == $self->{_canvas_bg}){
+				my $bg_menu = $self->ret_background_menu($item);
+	
+				$bg_menu->popup(
+					undef,    # parent menu shell
+					undef,    # parent menu item
+					undef,    # menu pos func
+					undef,    # data
+					$ev->button,
+					$ev->time
+				);						
+			}
 		}
 
 	}		
 
 	return TRUE;
+}
+
+sub ret_background_menu {
+	my $self   = shift;
+	my $item   = shift;
+
+	my $menu_bg = Gtk2::Menu->new;
+	
+	#properties
+	my $prop_item = Gtk2::ImageMenuItem->new( $self->{_d}->get("Change Background Color...") );
+	$prop_item->signal_connect(
+		'activate' => sub {
+			my $color_dialog = Gtk2::ColorSelectionDialog->new($self->{_d}->get("Choose fill color"));
+			
+			#remove help button
+			$color_dialog->help_button->destroy;
+			
+			#add reset button
+			my $reset_btn = Gtk2::Button->new_with_mnemonic($self->{_d}->get("_Reset to Default"));
+			$color_dialog->add_action_widget( $reset_btn, 'reject' );
+			
+			my $col_sel = $color_dialog->colorsel;
+			$col_sel->set_current_color( $self->{_canvas_bg_rect}{fill_color} );
+			$col_sel->set_current_alpha(65535);
+			
+			$color_dialog->show_all;
+			
+			#run dialog
+			my $response = 'reject';
+			while($response eq 'reject'){
+				$response = $color_dialog->run;
+				if($response eq 'ok'){
+					#apply new color
+					my $new_fill_pattern = $self->create_color( $col_sel->get_current_color, 1.0 );
+					$self->{_canvas_bg_rect}->set('fill-pattern' => $new_fill_pattern);
+					$self->{_canvas_bg_rect}{fill_color} = $col_sel->get_current_color;
+					last;
+				}elsif($response eq 'reject'){
+					$col_sel->set_current_color( Gtk2::Gdk::Color->parse('gray') );
+					$col_sel->set_current_alpha(65535);
+				}else{
+					last;	
+				}
+			}
+							
+			$color_dialog->destroy;
+			
+		}
+	);
+	
+	$menu_bg->append($prop_item);
+
+	$menu_bg->show_all;
+
+	return $menu_bg;
 }
 
 sub ret_item_menu {
@@ -4077,9 +4194,11 @@ sub handle_bg_rects {
 		}
 
 		foreach ( keys %{ $self->{_canvas_bg_rect} } ) {
-			$self->{_canvas_bg_rect}{$_}->set(
-				'visibility' => $visibilty,
-			);
+			if($self->{_canvas_bg_rect}{$_}->can('set')){
+				$self->{_canvas_bg_rect}{$_}->set(
+					'visibility' => $visibilty,
+				);
+			}
 		}    #end determine rect
 
 	}elsif($action eq 'update'){
