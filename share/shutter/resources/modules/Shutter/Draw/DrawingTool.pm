@@ -940,12 +940,7 @@ sub change_drawing_tool_cb {
 		$self->{_current_mode} != 110 ){
 	
 		$self->restore_drawing_properties;
-		
-	}elsif( $self->{_current_mode} == 30 ){
-		
-		$self->deactivate_all;
-		$self->restore_highlighter_properties;
-		
+	
 	}
 	
 	#show drawing tool widgets
@@ -959,7 +954,18 @@ sub change_drawing_tool_cb {
 
 		#hide cropping tool		
 		$self->{_drawing_inner_vbox_c}->hide_all;	
+	
+	}
 
+	#enable controls again
+	#(switched back from censor tool)	
+	if($self->{_current_mode} != 90){
+
+		$self->{_fill_color_w}->set_sensitive(TRUE);
+		$self->{_stroke_color_w}->set_sensitive(TRUE);
+		$self->{_line_spin_w}->set_sensitive(TRUE);
+		$self->{_font_btn_w}->set_sensitive(TRUE);
+		
 	}
 
 	if ( $self->{_current_mode} == 10 ) {
@@ -974,6 +980,10 @@ sub change_drawing_tool_cb {
 
 		$self->{_current_mode_descr} = "highlighter";
 		$cursor = Gtk2::Gdk::Cursor->new('dotbox');
+		
+		#restore hard-coded highlighter properties
+		$self->deactivate_all;
+		$self->restore_highlighter_properties;
 
 	} elsif ( $self->{_current_mode} == 40 ) {
 
@@ -998,6 +1008,13 @@ sub change_drawing_tool_cb {
 	} elsif ( $self->{_current_mode} == 90 ) {
 
 		$self->{_current_mode_descr} = "censor";
+		
+		#disable controls, because they are not useful when using the
+		#censor tool
+		$self->{_fill_color_w}->set_sensitive(FALSE);
+		$self->{_stroke_color_w}->set_sensitive(FALSE);
+		$self->{_line_spin_w}->set_sensitive(FALSE);
+		$self->{_font_btn_w}->set_sensitive(FALSE);	
 
 	} elsif ( $self->{_current_mode} == 100 ) {
 
