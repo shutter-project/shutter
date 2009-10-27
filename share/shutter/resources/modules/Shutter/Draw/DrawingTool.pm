@@ -4558,7 +4558,9 @@ sub event_item_on_button_release {
 					
 					#delete
 					if(my $nint = $self->{_canvas}->get_root_item->find_child($nitem)){
+						#delete from canvas
 						$self->{_canvas}->get_root_item->remove_child($nint);
+						#mark as deleted
 						$deleted = TRUE;
 					}
 					
@@ -4569,8 +4571,14 @@ sub event_item_on_button_release {
 		}
 		
 		if($deleted){
+			
+			#delete child objects and resizing rectangles
 			$self->handle_rects( 'delete', $nitem );
 			$self->handle_embedded( 'delete', $nitem );
+			
+			#delete from hash
+			delete $self->{_items}{$nitem};
+			
 			if(my $oitem = $self->{_canvas}->get_item_at ($ev->x, $ev->y, TRUE)){
 				#turn into a button-press-event
 				my $initevent = Gtk2::Gdk::Event->new ('button-press');
