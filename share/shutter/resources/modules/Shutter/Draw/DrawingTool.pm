@@ -161,9 +161,9 @@ sub new {
     #~ print "$self dying at\n";
 #~ } 
 
-1;
-
-__DATA__
+#~ 1;
+#~ 
+#~ __DATA__
 
 sub show {
 	my $self        	  = shift;
@@ -2292,8 +2292,9 @@ sub store_to_xdo_stack {
 }
 
 sub xdo {
-	my $self = shift;
-	my $xdo  = shift;
+	my $self 			= shift;
+	my $xdo  			= shift;
+	my $block_reverse 	= shift;
 
 	my $do = undef; 
 	if($xdo eq 'undo'){
@@ -2335,12 +2336,14 @@ sub xdo {
 	}
 	
 	#undo or redo?
-	if($xdo eq 'undo'){
-		#store to redo stack
-		$self->store_to_xdo_stack($item, $reverse_action, 'redo', $opt1); 	
-	}elsif($xdo eq 'redo'){
-		#store to undo stack
-		$self->store_to_xdo_stack($item, $reverse_action, 'undo', $opt1); 
+	unless($block_reverse){
+		if($xdo eq 'undo'){
+			#store to redo stack
+			$self->store_to_xdo_stack($item, $reverse_action, 'redo', $opt1); 	
+		}elsif($xdo eq 'redo'){
+			#store to undo stack
+			$self->store_to_xdo_stack($item, $reverse_action, 'undo', $opt1); 
+		}
 	}
 	
 	#finally undo the last event
@@ -3260,9 +3263,9 @@ sub show_item_properties {
 		$self->{_drawing_window},
 		[qw/modal destroy-with-parent/],
 		'gtk-cancel' => 'cancel',
-		'gtk-apply'  => 'apply'
+		'gtk-ok'  => 'ok'
 	);
-	$prop_dialog->set_default_response('apply');
+	$prop_dialog->set_default_response('ok');
 
 	#RECT OR ELLIPSE OR POLYLINE
 	my $line_spin 		= undef;
@@ -3587,6 +3590,154 @@ sub show_item_properties {
 
 	}
 
+	#instant changes
+	my $store_count = 0;
+	if(defined $line_spin){
+		$line_spin->signal_connect(
+			'value-changed' => sub {
+				$self->apply_properties($item, $parent, $key, 
+								$fill_color, $stroke_color, $line_spin, 
+								$font_color, $font_btn, $textview, 
+								$end_arrow , $start_arrow, $arrow_spin, $arrowl_spin, $arrowt_spin,
+								$number_spin, $store_count);
+				$store_count++;				
+			}
+		);
+	}	
+	if(defined $fill_color){
+		$fill_color->signal_connect(
+			'color-set' => sub {
+				$self->apply_properties($item, $parent, $key, 
+								$fill_color, $stroke_color, $line_spin, 
+								$font_color, $font_btn, $textview, 
+								$end_arrow , $start_arrow, $arrow_spin, $arrowl_spin, $arrowt_spin,
+								$number_spin, $store_count);
+				$store_count++;
+			}
+		);
+	}
+	if(defined $stroke_color){		
+		$stroke_color->signal_connect(
+			'color-set' => sub {
+				$self->apply_properties($item, $parent, $key, 
+								$fill_color, $stroke_color, $line_spin, 
+								$font_color, $font_btn, $textview, 
+								$end_arrow , $start_arrow, $arrow_spin, $arrowl_spin, $arrowt_spin,
+								$number_spin, $store_count);
+				$store_count++;
+			}
+		);
+	}
+	if(defined $number_spin){	
+		$number_spin->signal_connect(
+			'value-changed' => sub {
+				$self->apply_properties($item, $parent, $key, 
+								$fill_color, $stroke_color, $line_spin, 
+								$font_color, $font_btn, $textview, 
+								$end_arrow , $start_arrow, $arrow_spin, $arrowl_spin, $arrowt_spin,
+								$number_spin, $store_count);
+				$store_count++;
+			}
+		);
+	}
+	if(defined $end_arrow){
+		$end_arrow->signal_connect(
+			'toggled' => sub {
+				$self->apply_properties($item, $parent, $key, 
+								$fill_color, $stroke_color, $line_spin, 
+								$font_color, $font_btn, $textview, 
+								$end_arrow , $start_arrow, $arrow_spin, $arrowl_spin, $arrowt_spin,
+								$number_spin, $store_count);
+				$store_count++;
+			}
+		);
+	}	
+	if(defined $start_arrow){
+		$start_arrow->signal_connect(
+			'toggled' => sub {
+				$self->apply_properties($item, $parent, $key, 
+								$fill_color, $stroke_color, $line_spin, 
+								$font_color, $font_btn, $textview, 
+								$end_arrow , $start_arrow, $arrow_spin, $arrowl_spin, $arrowt_spin,
+								$number_spin, $store_count);
+				$store_count++;
+			}
+		);
+	}
+	if(defined $arrow_spin){
+		$arrow_spin->signal_connect(
+			'value-changed' => sub {
+				$self->apply_properties($item, $parent, $key, 
+								$fill_color, $stroke_color, $line_spin, 
+								$font_color, $font_btn, $textview, 
+								$end_arrow , $start_arrow, $arrow_spin, $arrowl_spin, $arrowt_spin,
+								$number_spin, $store_count);
+				$store_count++;
+			}
+		);
+	}
+	if(defined $arrowl_spin){
+		$arrowl_spin->signal_connect(
+			'value-changed' => sub {
+				$self->apply_properties($item, $parent, $key, 
+								$fill_color, $stroke_color, $line_spin, 
+								$font_color, $font_btn, $textview, 
+								$end_arrow , $start_arrow, $arrow_spin, $arrowl_spin, $arrowt_spin,
+								$number_spin, $store_count);
+				$store_count++;
+			}
+		);
+	}
+	if(defined $arrowt_spin){
+		$arrowt_spin->signal_connect(
+			'value-changed' => sub {
+				$self->apply_properties($item, $parent, $key, 
+								$fill_color, $stroke_color, $line_spin, 
+								$font_color, $font_btn, $textview, 
+								$end_arrow , $start_arrow, $arrow_spin, $arrowl_spin, $arrowt_spin,
+								$number_spin, $store_count);
+				$store_count++;
+			}
+		);
+	}
+	if(defined $font_btn){
+		$font_btn->signal_connect(
+			'font-set' => sub {
+				$self->apply_properties($item, $parent, $key, 
+								$fill_color, $stroke_color, $line_spin, 
+								$font_color, $font_btn, $textview, 
+								$end_arrow , $start_arrow, $arrow_spin, $arrowl_spin, $arrowt_spin,
+								$number_spin, $store_count);
+				$store_count++;
+			}
+		);
+	}
+	if(defined $font_color){
+		$font_color->signal_connect(
+			'color-set' => sub {
+				$self->apply_properties($item, $parent, $key, 
+								$fill_color, $stroke_color, $line_spin, 
+								$font_color, $font_btn, $textview, 
+								$end_arrow , $start_arrow, $arrow_spin, $arrowl_spin, $arrowt_spin,
+								$number_spin, $store_count);
+				$store_count++;
+			}
+		);
+	}
+	if(defined $textview){
+		$textview->signal_connect(
+			'key-release-event' => sub {
+				$self->apply_properties($item, $parent, $key, 
+								$fill_color, $stroke_color, $line_spin, 
+								$font_color, $font_btn, $textview, 
+								$end_arrow , $start_arrow, $arrow_spin, $arrowl_spin, $arrowt_spin,
+								$number_spin, $store_count);
+								
+				$store_count++;
+			}
+		);
+	}
+
 	#layout adjustments
 	my $sg_prop = Gtk2::SizeGroup->new('horizontal');
 	foreach ($prop_dialog->get_children->get_children){
@@ -3612,13 +3763,13 @@ sub show_item_properties {
 	#run dialog
 	$prop_dialog->show_all;
 	my $prop_dialog_res = $prop_dialog->run;
-	if ( $prop_dialog_res eq 'apply' ) {
+	if ( $prop_dialog_res eq 'ok' ) {
 
 		$self->apply_properties($item, $parent, $key, 
 								$fill_color, $stroke_color, $line_spin, 
 								$font_color, $font_btn, $textview, 
 								$end_arrow , $start_arrow, $arrow_spin, $arrowl_spin, $arrowt_spin,
-								$number_spin);
+								$number_spin, $store_count);
 
 		#apply item properties to widgets
 		#line width, fill color, stroke color etc.
@@ -3631,6 +3782,10 @@ sub show_item_properties {
 		return TRUE;
 	} else {
 
+		if($store_count){
+			$self->xdo('undo', TRUE);	
+		}
+
 		$prop_dialog->destroy;
 		return FALSE;
 	}
@@ -3639,32 +3794,36 @@ sub show_item_properties {
 
 sub apply_properties {
 	my (
-	$self,
-	
-	#item related infos
-	$item,
-	$parent,
-	$key,
-	
-	#general properties
-	$fill_color,
-	$stroke_color,
-	$line_spin,
-	
-	#only text
-	$font_color,
-	$font_btn,
-	$textview,
-	
-	#only arrow
-	$end_arrow,
-	$start_arrow,	
-	$arrow_spin,
-	$arrowl_spin,
-	$arrowt_spin,
-	
-	#only numbered shapes
-	$number_spin
+
+		$self,
+		
+		#item related infos
+		$item,
+		$parent,
+		$key,
+		
+		#general properties
+		$fill_color,
+		$stroke_color,
+		$line_spin,
+		
+		#only text
+		$font_color,
+		$font_btn,
+		$textview,
+		
+		#only arrow
+		$end_arrow,
+		$start_arrow,	
+		$arrow_spin,
+		$arrowl_spin,
+		$arrowt_spin,
+		
+		#only numbered shapes
+		$number_spin,
+		
+		#DO NOT STORE THE CHANGES (UNDO/REDO)
+		$dont_store
 	
 	) = @_;
 
@@ -3690,7 +3849,10 @@ sub apply_properties {
 	}
 	
 	#add to undo stack
-	$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
+	unless($dont_store){
+		print "store\n";
+		$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
+	}
 
 	#apply rect or ellipse options
 	if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
