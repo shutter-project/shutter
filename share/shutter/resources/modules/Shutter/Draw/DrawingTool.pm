@@ -4818,7 +4818,7 @@ sub event_item_on_button_release {
 
 		#apply item properties to widgets
 		#line width, fill color, stroke color etc.
-		$self->set_and_save_drawing_properties($citem}, FALSE);	
+		$self->set_and_save_drawing_properties($citem, FALSE);	
 	}
 
 	#uncheck previous active items
