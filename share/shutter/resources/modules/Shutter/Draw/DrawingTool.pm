@@ -161,9 +161,9 @@ sub new {
     #~ print "$self dying at\n";
 #~ } 
 
-#~ 1;
-#~ 
-#~ __DATA__
+1;
+
+__DATA__
 
 sub show {
 	my $self        	  = shift;
@@ -1677,8 +1677,11 @@ sub event_item_on_motion_notify {
 		$self->{_items}{$item}{'bottom-right-corner'}->{res_x}    = $ev->x_root;
 		$self->{_items}{$item}{'bottom-right-corner'}->{res_y}    = $ev->y_root;
 		$self->{_items}{$item}{'bottom-right-corner'}->{resizing} = TRUE;
-		#~ $self->{_canvas}->pointer_grab( $self->{_items}{$item}{'bottom-right-corner'}, [ 'pointer-motion-mask', 'button-release-mask' ], Gtk2::Gdk::Cursor->new('bottom-right-corner'), $ev->time );
 		$self->{_canvas}->pointer_grab( $self->{_items}{$item}{'bottom-right-corner'}, [ 'pointer-motion-mask', 'button-release-mask' ], undef, $ev->time );
+
+		#and update rectangles and embedded items
+		#~ $self->handle_rects( 'update', $item );
+		#~ $self->handle_embedded( 'update', $item );
 
 		#add to undo stack
 		$self->store_to_xdo_stack($self->{_current_item} , 'create', 'undo');
@@ -2129,7 +2132,7 @@ sub clear_item_from_canvas {
 sub store_to_xdo_stack {
 	#opt1 is currently only used when cropping the image
 	#it stores the selection
-	my ($self, $item, $action, $xdo, $opt1) = @_;
+	my ($self, $item, $action, $xdo, $opt1, $source) = @_;
 
 	return FALSE unless $item; 
 
@@ -2269,11 +2272,13 @@ sub store_to_xdo_stack {
 	}
 
 	#reset undo when creating new item after redo
-	if($action eq 'create'){
+	if(defined $source && $source eq 'ui'){
+		#~ print "no clear\n";
+	}else{
 		while (defined $self->{_redo} && scalar @{ $self->{_redo} } > 0){
 			shift @{ $self->{_redo} };	
-		}	
-	}	
+		}		
+	}		
 	
 	if($xdo eq 'undo'){
 		push @{ $self->{_undo} }, \%do_info; 		
@@ -2294,6 +2299,7 @@ sub store_to_xdo_stack {
 sub xdo {
 	my $self 			= shift;
 	my $xdo  			= shift;
+	my $source			= shift;
 	my $block_reverse 	= shift;
 
 	my $do = undef; 
@@ -2339,10 +2345,10 @@ sub xdo {
 	unless($block_reverse){
 		if($xdo eq 'undo'){
 			#store to redo stack
-			$self->store_to_xdo_stack($item, $reverse_action, 'redo', $opt1); 	
+			$self->store_to_xdo_stack($item, $reverse_action, 'redo', $opt1, $source); 	
 		}elsif($xdo eq 'redo'){
 			#store to undo stack
-			$self->store_to_xdo_stack($item, $reverse_action, 'undo', $opt1); 
+			$self->store_to_xdo_stack($item, $reverse_action, 'undo', $opt1, $source); 
 		}
 	}
 	
@@ -3783,7 +3789,7 @@ sub show_item_properties {
 	} else {
 
 		if($store_count){
-			$self->xdo('undo', TRUE);	
+			$self->xdo('undo', undef, TRUE);	
 		}
 
 		$prop_dialog->destroy;
@@ -3850,7 +3856,6 @@ sub apply_properties {
 	
 	#add to undo stack
 	unless($dont_store){
-		print "store\n";
 		$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
 	}
 
@@ -4776,13 +4781,44 @@ sub event_item_on_button_release {
 			#add to undo stack
 			$self->store_to_xdo_stack($nitem , 'create', 'undo');		
 		}
-	
+
 	#no new item
-	#existing item selected
+	#existing item selected	
 	}else{
+		
+		#cleanup
+		#it may happen that items are created
+		#but resize mode is not activated immediately
+		#those items would not be visible on the canvas
+		#we delete them  here
+		my $citem = $self->{_current_item};
+		if ( $citem->isa('Goo::Canvas::Rect') ) {
+			if ( exists $self->{_items}{$citem} ) {
+				if(	$self->{_items}{$citem}{'bottom-right-corner'}->get('visibility') eq 'hidden' && 
+					$self->{_items}{$citem}->get('width') == 0 &&
+					$self->{_items}{$citem}->get('height') == 0 ) {
+					if(my $nint = $self->{_canvas}->get_root_item->find_child($citem)){
+						
+						$self->xdo('undo', undef, TRUE);	
+						
+						#delete from canvas
+						$self->{_canvas}->get_root_item->remove_child($nint);
+
+						#delete child objects and resizing rectangles
+						$self->handle_rects( 'delete', $citem );
+						$self->handle_embedded( 'delete', $citem );
+						
+						#delete from hash
+						delete $self->{_items}{$citem};
+
+					}					
+				}
+			}
+		}		
+
 		#apply item properties to widgets
 		#line width, fill color, stroke color etc.
-		$self->set_and_save_drawing_properties($self->{_current_item}, FALSE);	
+		$self->set_and_save_drawing_properties($citem}, FALSE);	
 	}
 
 	#uncheck previous active items
@@ -4978,10 +5014,10 @@ sub setup_uimanager {
 		[ "Tools", undef, $self->{_d}->get("_Tools") ], 
 		[ "View", undef, $self->{_d}->get("_View") ],
 		[ "Undo", 'gtk-undo', undef, "<control>Z", $self->{_d}->get("Undo last action"), sub { 
-			$self->abort_current_mode; $self->xdo('undo'); 
+			$self->abort_current_mode; $self->xdo('undo', 'ui'); 
 		} ],
 		[ "Redo", 'gtk-redo', undef, "<control>Y", $self->{_d}->get("Do again the last undone action"), sub { 
-			$self->abort_current_mode; $self->xdo('redo'); 
+			$self->abort_current_mode; $self->xdo('redo', 'ui'); 
 		} ],
 		[ "Copy", 'gtk-copy', undef, "<control>C", $self->{_d}->get("Copy selection to clipboard"), sub { 
 			#clear clipboard
