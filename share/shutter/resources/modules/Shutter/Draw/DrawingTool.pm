@@ -2625,6 +2625,8 @@ sub set_and_save_drawing_properties {
 	my $parent 	= $self->get_parent_item($item);
 	my $key = $self->get_item_key($item, $parent);
 
+	return FALSE unless $key;
+
 	#we do not remember the properties for some tools
 	#and don't remember them when just selecting items with the cursor
 	if($self->{_items}{$key}{type} ne "highlighter" && 
@@ -4792,7 +4794,7 @@ sub event_item_on_button_release {
 		#those items would not be visible on the canvas
 		#we delete them  here
 		my $citem = $self->{_current_item};
-		if ( $citem->isa('Goo::Canvas::Rect') ) {
+		if ( $citem && $citem->isa('Goo::Canvas::Rect') ) {
 			if ( exists $self->{_items}{$citem} ) {
 				if(	$self->{_items}{$citem}{'bottom-right-corner'}->get('visibility') eq 'hidden' && 
 					$self->{_items}{$citem}->get('width') == 0 &&
