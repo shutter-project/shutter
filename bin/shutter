@@ -449,7 +449,8 @@ unless ( $sc->get_disable_systray ) {
 my $vbox_settings       = Gtk2::VBox->new( FALSE, 12 );
 my $hbox_settings       = Gtk2::HBox->new( FALSE, 12 );
 my $vbox_basic          = Gtk2::VBox->new( FALSE, 12 );
-my $vbox_extras         = Gtk2::VBox->new( FALSE, 12 );
+my $vbox_advanced       = Gtk2::VBox->new( FALSE, 12 );
+my $vbox_actions        = Gtk2::VBox->new( FALSE, 12 );
 my $vbox_imageview      = Gtk2::VBox->new( FALSE, 12 );
 my $vbox_behavior       = Gtk2::VBox->new( FALSE, 12 );
 my $vbox_keyboard       = Gtk2::VBox->new( FALSE, 12 );
@@ -474,6 +475,7 @@ my $cursor_box          = Gtk2::HBox->new( FALSE, 0 );
 
 #advanced
 my $actions_vbox        = Gtk2::VBox->new( FALSE, 0 );
+my $sel_capture_vbox    = Gtk2::VBox->new( FALSE, 0 );
 my $asel_capture_vbox   = Gtk2::VBox->new( FALSE, 0 );
 my $window_capture_vbox = Gtk2::VBox->new( FALSE, 0 );
 my $menu_capture_vbox   = Gtk2::VBox->new( FALSE, 0 );
@@ -482,9 +484,10 @@ my $web_capture_vbox    = Gtk2::VBox->new( FALSE, 0 );
 my $progname_box        = Gtk2::HBox->new( FALSE, 0 );
 my $im_colors_box       = Gtk2::HBox->new( FALSE, 0 );
 my $thumbnail_box       = Gtk2::HBox->new( FALSE, 0 );
-my $border_box          = Gtk2::HBox->new( FALSE, 0 );
+my $zoom_box      		= Gtk2::HBox->new( FALSE, 0 );
 my $asel_isize_box      = Gtk2::HBox->new( FALSE, 0 );
 my $asel_isize_box2     = Gtk2::HBox->new( FALSE, 0 );
+my $border_box          = Gtk2::HBox->new( FALSE, 0 );
 my $visible_windows_box = Gtk2::HBox->new( FALSE, 0 );
 my $menu_delay_box      = Gtk2::HBox->new( FALSE, 0 );
 my $web_width_box       = Gtk2::HBox->new( FALSE, 0 );
@@ -558,8 +561,6 @@ unless($ENV{PAR_TEMP}){
 $vbox->pack_start( $st->create_toolbar, FALSE, TRUE, 0 );
 
 my ( $tool_advanced, $tool_simple ) = undef;
-my $zoom_active = undef;
-#~ my ( $zoom_size1, $zoom_size2, $zoom_size3 ) = undef;
 $st->{_select}->set_menu(&fct_ret_sel_menu);
 $st->{_select}->signal_connect( 'clicked' => \&evt_take_screenshot, 'select' );
 
@@ -732,6 +733,13 @@ $capture_frame_label->set_markup( "<b>" . $d->get("Capture") . "</b>" );
 my $capture_frame = Gtk2::Frame->new();
 $capture_frame->set_label_widget($capture_frame_label);
 $capture_frame->set_shadow_type('none');
+
+my $sel_capture_frame_label = Gtk2::Label->new;
+$sel_capture_frame_label->set_markup( "<b>" . $d->get("Selection Capture") . "</b>" );
+
+my $sel_capture_frame = Gtk2::Frame->new();
+$sel_capture_frame->set_label_widget($sel_capture_frame_label);
+$sel_capture_frame->set_shadow_type('none');
 
 my $asel_capture_frame_label = Gtk2::Label->new;
 $asel_capture_frame_label->set_markup( "<b>" . $d->get("Advanced Selection Capture") . "</b>" );
@@ -942,8 +950,8 @@ if ( defined $settings_xml->{'general'}->{'folder'} ) {
 	$saveDir_button->set_filename( File::HomeDir->my_pictures );
 }
 
-$tooltips->set_tip( $saveDir_button, $d->get("Your screenshots will be saved\nto this directory") );
-$tooltips->set_tip( $saveDir_label,  $d->get("Your screenshots will be saved\nto this directory") );
+$tooltips->set_tip( $saveDir_button, $d->get("Your screenshots will be saved to this directory") );
+$tooltips->set_tip( $saveDir_label,  $d->get("Your screenshots will be savedto this directory") );
 $saveDir_box->pack_start( $saveDir_label,  FALSE, TRUE, 12 );
 $saveDir_box->pack_start( $saveDir_button, TRUE,  TRUE, 0 );
 
@@ -1009,32 +1017,16 @@ if ( defined $settings_xml->{'general'}->{'delay'} ) {
 	$delay->set_value(0);
 }
 
-#~ my $delay_active = Gtk2::CheckButton->new_with_label( $d->get("Capture after a delay of") );
-#~ $delay_active->set_active(TRUE);
-#~ $delay_active->signal_connect(
-	#~ 'toggled' => \&evt_value_changed,
-	#~ 'delay_toggled'
-#~ );
-
-#~ if ( defined $settings_xml->{'general'}->{'delay_active'} ) {
-	#~ $delay_active->set_active( $settings_xml->{'general'}->{'delay_active'} );
-#~ } else {
-	#~ $delay_active->set_active(FALSE);
-#~ }
-
-$tooltips->set_tip( $delay,        $d->get("Wait n seconds before taking a screenshot") );
-#~ $tooltips->set_tip( $delay_active, $d->get("Wait n seconds before taking a screenshot") );
+$tooltips->set_tip( $delay, $d->get("Wait n seconds before taking a screenshot") );
 $tooltips->set_tip( $delay_label, $d->get("Wait n seconds before taking a screenshot") );
 $tooltips->set_tip( $delay_vlabel, $d->get("Wait n seconds before taking a screenshot") );
 
-$tooltips->set_tip( $delay_status,        $d->get("Wait n seconds before taking a screenshot") );
-#~ $tooltips->set_tip( $delay_active, $d->get("Wait n seconds before taking a screenshot") );
+$tooltips->set_tip( $delay_status, $d->get("Wait n seconds before taking a screenshot") );
 $tooltips->set_tip( $delay_status_label, $d->get("Wait n seconds before taking a screenshot") );
 $tooltips->set_tip( $delay_status_vlabel, $d->get("Wait n seconds before taking a screenshot") );
 
-#~ $delay_box->pack_start( $delay_active, FALSE, FALSE, 12 );
 $delay_box->pack_start( $delay_label, FALSE, FALSE, 12 );
-$delay_box->pack_start( $delay, FALSE, FALSE,  0 );
+$delay_box->pack_start( $delay, FALSE, FALSE, 0 );
 $delay_box->pack_start( $delay_vlabel, FALSE, FALSE, 2 );
 
 #end - delay
@@ -1106,9 +1098,9 @@ if ( defined $settings_xml->{'general'}->{'prog_active'} ) {
 	$progname_active->set_active(FALSE);
 }
 my $progname_label = Gtk2::Label->new( $d->get("Open with") . ":" );
-$tooltips->set_tip( $progname,        $d->get("Open your screenshot\nwith this program after capturing") );
-$tooltips->set_tip( $progname_active, $d->get("Open your screenshot\nwith this program after capturing") );
-$tooltips->set_tip( $progname_label,  $d->get("Open your screenshot\nwith this program after capturing") );
+$tooltips->set_tip( $progname,        $d->get("Open your screenshot with this program after capturing") );
+$tooltips->set_tip( $progname_active, $d->get("Open your screenshot with this program after capturing") );
+$tooltips->set_tip( $progname_label,  $d->get("Open your screenshot with this program after capturing") );
 $progname_box->pack_start( $progname_label, FALSE, TRUE, 12 );
 $progname_box->pack_start( $progname_active, FALSE, TRUE, 0 );
 $progname_box->pack_start( $progname, TRUE, TRUE, 0 );
@@ -1147,9 +1139,9 @@ if ( defined $settings_xml->{'general'}->{'im_colors_active'} ) {
 }
 
 my $im_colors_label = Gtk2::Label->new( $d->get("Reduce colors") . ":" );
-$tooltips->set_tip( $combobox_im_colors, $d->get("Automatically reduce colors \nafter taking a screenshot") );
-$tooltips->set_tip( $im_colors_active,   $d->get("Automatically reduce colors \nafter taking a screenshot") );
-$tooltips->set_tip( $im_colors_label,    $d->get("Automatically reduce colors \nafter taking a screenshot") );
+$tooltips->set_tip( $combobox_im_colors, $d->get("Automatically reduce colors after taking a screenshot") );
+$tooltips->set_tip( $im_colors_active,   $d->get("Automatically reduce colors after taking a screenshot") );
+$tooltips->set_tip( $im_colors_label,    $d->get("Automatically reduce colors after taking a screenshot") );
 $im_colors_box->pack_start( $im_colors_label, FALSE, TRUE, 12 );
 $im_colors_box->pack_start( $im_colors_active,   FALSE, TRUE, 0 );
 $im_colors_box->pack_start( $combobox_im_colors, TRUE,  TRUE, 0 );
@@ -1197,6 +1189,23 @@ $thumbnail_box->pack_start( $thumbnail,        TRUE,  TRUE,  0 );
 #end - thumbnail
 #--------------------------------------
 
+#zoom window
+#--------------------------------------
+my $zoom_active = Gtk2::CheckButton->new_with_label( $d->get("Enable zoom window") );
+
+if ( defined $settings_xml->{'general'}->{'zoom_active'} ) {
+	$zoom_active->set_active( $settings_xml->{'general'}->{'zoom_active'} );
+} else {
+	$zoom_active->set_active(TRUE);
+}
+
+$tooltips->set_tip( $zoom_active, $d->get("Enable zoom window") );
+
+$zoom_box->pack_start( $zoom_active, FALSE, TRUE, 12 );
+
+#end - zoom window
+#--------------------------------------
+
 #initial size for advanced selection tool
 #--------------------------------------
 my $asel_size_label1 = Gtk2::Label->new( $d->get("Start with selection size of") );
@@ -1210,11 +1219,26 @@ my $asel_size4 = Gtk2::SpinButton->new_with_range( 0, 10000, 1 );
 my $asel_size_vlabel1 = Gtk2::Label->new( $d->get("pixels") );
 my $asel_size_vlabel2 = Gtk2::Label->new( $d->get("pixels") );
 
-#~ if ( defined $settings_xml->{'general'}->{'visible_windows'} ) {
-	#~ $visible_windows_active->set_active( $settings_xml->{'general'}->{'visible_windows'} );
-#~ } else {
-	#~ $visible_windows_active->set_active(FALSE);
-#~ }
+if ( defined $settings_xml->{'general'}->{'asel_x'} ) {
+	$asel_size3->set_value($settings_xml->{'general'}->{'asel_x'});
+} else {
+	$asel_size3->set_value(0);
+}
+if ( defined $settings_xml->{'general'}->{'asel_y'} ) {
+	$asel_size4->set_value($settings_xml->{'general'}->{'asel_y'});
+} else {
+	$asel_size4->set_value(0);
+}
+if ( defined $settings_xml->{'general'}->{'asel_w'} ) {
+	$asel_size1->set_value($settings_xml->{'general'}->{'asel_w'});
+} else {
+	$asel_size1->set_value(0);
+}
+if ( defined $settings_xml->{'general'}->{'asel_h'} ) {
+	$asel_size2->set_value($settings_xml->{'general'}->{'asel_h'});
+} else {
+	$asel_size2->set_value(0);
+}
 
 $tooltips->set_tip( $asel_size_label1, $d->get("Start Advanced Selection Tool with a customized selection size") );
 $tooltips->set_tip( $asel_size_label2, $d->get("Start Advanced Selection Tool with a customized selection size") );
@@ -1246,7 +1270,7 @@ $asel_isize_box2->pack_start( $asel_size_vlabel2, FALSE, FALSE, 2 );
 my $border_active = Gtk2::CheckButton->new_with_label( $d->get("Include window decoration when capturing a window") );
 $tooltips->set_tip( $border_active, $d->get("Include window decoration when capturing a window") );
 
-$border_box->pack_start( $border_active,    FALSE, TRUE, 12 );
+$border_box->pack_start( $border_active, FALSE, TRUE, 12 );
 
 if ( defined $settings_xml->{'general'}->{'border'} ) {
 	$border_active->set_active( $settings_xml->{'general'}->{'border'} );
@@ -1275,9 +1299,10 @@ if ( defined $settings_xml->{'general'}->{'visible_windows'} ) {
 
 #menu capture delay
 #--------------------------------------
+#delay settings dialog
 my $menu_delay_label = Gtk2::Label->new( $d->get("Pre-Capture Delay") . ":" );
 my $menu_delay = Gtk2::SpinButton->new_with_range( 1, 99, 1 );
-my $menu_delay_vlabel = Gtk2::Label->new;
+my $menu_delay_vlabel = Gtk2::Label->new( $d->nget("second", "seconds", $delay->get_value) );
 $menu_delay->signal_connect(
 	'value-changed' => \&evt_value_changed,
 	'menu_delay_changed'
@@ -1302,31 +1327,34 @@ $menu_delay_box->pack_start( $menu_delay_vlabel, FALSE, TRUE, 2 );
 
 #web width
 #--------------------------------------
+my $web_width_label = Gtk2::Label->new( $d->get("Virtual browser width") . ":" );
 my $combobox_web_width = Gtk2::ComboBox->new_text;
-$combobox_web_width->insert_text( 0, "640 px" );
-$combobox_web_width->insert_text( 1, "800 px" );
-$combobox_web_width->insert_text( 2, "1024 px" );
-$combobox_web_width->insert_text( 3, "1152 px" );
-$combobox_web_width->insert_text( 4, "1280 px" );
-$combobox_web_width->insert_text( 5, "1366 px" );
-$combobox_web_width->insert_text( 6, "1440 px" );
-$combobox_web_width->insert_text( 7, "1600 px" );
-$combobox_web_width->insert_text( 8, "1680 px" );
-$combobox_web_width->insert_text( 9, "1920 px" );
-$combobox_web_width->insert_text( 10, "2048 px" );
-$combobox_web_width->insert_text( 11, "2560 px" );
-$combobox_web_width->insert_text( 12, "4096 px" );
+$combobox_web_width->insert_text( 0, "640" );
+$combobox_web_width->insert_text( 1, "800" );
+$combobox_web_width->insert_text( 2, "1024" );
+$combobox_web_width->insert_text( 3, "1152" );
+$combobox_web_width->insert_text( 4, "1280" );
+$combobox_web_width->insert_text( 5, "1366" );
+$combobox_web_width->insert_text( 6, "1440" );
+$combobox_web_width->insert_text( 7, "1600" );
+$combobox_web_width->insert_text( 8, "1680" );
+$combobox_web_width->insert_text( 9, "1920" );
+$combobox_web_width->insert_text( 10, "2048" );
+my $web_width_vlabel = Gtk2::Label->new( $d->get("pixels") );
 
 if ( defined $settings_xml->{'general'}->{'web_width'} ) {
 	$combobox_web_width->set_active( $settings_xml->{'general'}->{'web_width'} );
 } else {
 	$combobox_web_width->set_active(2);
 }
-my $web_width_label = Gtk2::Label->new( $d->get("Virtual browser width") . ":" );
-$tooltips->set_tip( $combobox_web_width, $d->get("Virtual browser width when taking a website screenshot") );
-$tooltips->set_tip( $web_width_label,    $d->get("Virtual browser width when taking a website screenshot") );
-$web_width_box->pack_start( $web_width_label,    FALSE, TRUE, 12 );
-$web_width_box->pack_start( $combobox_web_width, TRUE,  TRUE, 0 );
+
+$tooltips->set_tip( $web_width_label,		$d->get("Virtual browser width when taking a website screenshot") );
+$tooltips->set_tip( $combobox_web_width,	$d->get("Virtual browser width when taking a website screenshot") );
+$tooltips->set_tip( $web_width_vlabel,		$d->get("Virtual browser width when taking a website screenshot") );
+
+$web_width_box->pack_start( $web_width_label, FALSE, TRUE, 12 );
+$web_width_box->pack_start( $combobox_web_width, FALSE, TRUE,  0 );
+$web_width_box->pack_start( $web_width_vlabel, FALSE, TRUE, 2 );
 
 #end - web width
 #--------------------------------------
@@ -1548,7 +1576,7 @@ $tooltips->set_tip( $present_after_active, $d->get("Present main window after ta
 if ( defined $settings_xml->{'general'}->{'notify_after'} ) {
 	$notify_after_active->set_active( $settings_xml->{'general'}->{'notify_after'} );
 } else {
-	$notify_after_active->set_active(TRUE);
+	$notify_after_active->set_active(FALSE);
 }
 
 $tooltips->set_tip( $notify_after_active, $d->get("Display pop-up notification after taking a screenshot") );
@@ -1556,7 +1584,7 @@ $tooltips->set_tip( $notify_after_active, $d->get("Display pop-up notification a
 if ( defined $settings_xml->{'general'}->{'notify_timeout'} ) {
 	$notify_timeout_active->set_active( $settings_xml->{'general'}->{'notify_timeout'} );
 } else {
-	$notify_timeout_active->set_active(TRUE);
+	$notify_timeout_active->set_active(FALSE);
 }
 
 $tooltips->set_tip( $notify_timeout_active, $d->get("Display pop-up notification when using a delay") );
@@ -1721,14 +1749,34 @@ $vbox_basic->pack_start( $save_frame, FALSE, TRUE, 3 );
 $vbox_basic->pack_start( $capture_frame, FALSE, TRUE, 3 );
 $vbox_basic->set_border_width(5);
 
-#settings advanced tab
-my $label_extras = Gtk2::Label->new;
-$label_extras->set_markup( $d->get("Advanced") );
+#settings actions tab
+my $label_actions = Gtk2::Label->new;
+$label_actions->set_markup( $d->get("Actions") );
 
 $actions_vbox->pack_start( $progname_box,  FALSE, TRUE, 3 );
 $actions_vbox->pack_start( $im_colors_box, FALSE, TRUE, 3 );
 $actions_vbox->pack_start( $thumbnail_box, FALSE, TRUE, 3 );
 $actions_frame->add($actions_vbox);
+
+#all labels = one size
+$progname_label->set_alignment( 0, 0.5 );
+$im_colors_label->set_alignment( 0, 0.5 );
+$thumbnail_label->set_alignment( 0, 0.5 );
+
+my $sg_actions = Gtk2::SizeGroup->new('horizontal');
+$sg_actions->add_widget($progname_label);
+$sg_actions->add_widget($im_colors_label);
+$sg_actions->add_widget($thumbnail_label);
+
+$vbox_actions->pack_start( $actions_frame, FALSE, TRUE, 3 );
+$vbox_actions->set_border_width(5);
+
+#settings advanced tab
+my $label_advanced = Gtk2::Label->new;
+$label_advanced->set_markup( $d->get("Advanced") );
+
+$sel_capture_vbox->pack_start( $zoom_box, FALSE, TRUE, 3 );
+$sel_capture_frame->add($sel_capture_vbox);
 
 #align labels (asel)
 $asel_size_label3->set_alignment( 1, 0.5 );
@@ -1736,6 +1784,10 @@ $asel_size_label3->set_alignment( 1, 0.5 );
 my $sg_asel = Gtk2::SizeGroup->new('horizontal');
 $sg_asel->add_widget($asel_size_label1);
 $sg_asel->add_widget($asel_size_label3);
+
+my $sg_asel2 = Gtk2::SizeGroup->new('horizontal');
+$sg_asel2->add_widget($asel_size_label2);
+$sg_asel2->add_widget($asel_size_label4);
 
 $asel_capture_vbox->pack_start( $asel_isize_box, FALSE, TRUE, 3 );
 $asel_capture_vbox->pack_start( $asel_isize_box2, FALSE, TRUE, 3 );
@@ -1752,25 +1804,19 @@ $web_capture_vbox->pack_start( $web_width_box, FALSE, TRUE, 3 );
 $web_capture_frame->add($web_capture_vbox);
 
 #all labels = one size
-$progname_label->set_alignment( 0, 0.5 );
-$im_colors_label->set_alignment( 0, 0.5 );
-$thumbnail_label->set_alignment( 0, 0.5 );
 $menu_delay_label->set_alignment( 0, 0.5 );
 $web_width_label->set_alignment( 0, 0.5 );
 
 my $sg_adv = Gtk2::SizeGroup->new('horizontal');
-$sg_adv->add_widget($progname_label);
-$sg_adv->add_widget($im_colors_label);
-$sg_adv->add_widget($thumbnail_label);
 $sg_adv->add_widget($menu_delay_label);
 $sg_adv->add_widget($web_width_label);
 
-$vbox_extras->pack_start( $actions_frame, FALSE, TRUE, 3 );
-$vbox_extras->pack_start( $asel_capture_frame, FALSE, TRUE, 3 );
-$vbox_extras->pack_start( $window_capture_frame, FALSE, TRUE, 3 );
-$vbox_extras->pack_start( $menu_capture_frame, FALSE, TRUE, 3 );
-$vbox_extras->pack_start( $web_capture_frame, FALSE, TRUE, 3 );
-$vbox_extras->set_border_width(5);
+$vbox_advanced->pack_start( $sel_capture_frame, FALSE, TRUE, 3 );
+$vbox_advanced->pack_start( $asel_capture_frame, FALSE, TRUE, 3 );
+$vbox_advanced->pack_start( $window_capture_frame, FALSE, TRUE, 3 );
+$vbox_advanced->pack_start( $menu_capture_frame, FALSE, TRUE, 3 );
+$vbox_advanced->pack_start( $web_capture_frame, FALSE, TRUE, 3 );
+$vbox_advanced->set_border_width(5);
 
 #settings image view tab
 my $label_imageview = Gtk2::Label->new;
@@ -1869,7 +1915,8 @@ $vbox_accounts->set_border_width(5);
 
 #append pages to notebook
 $notebook_settings->append_page( $vbox_basic, $label_basic );
-$notebook_settings->append_page( $vbox_extras, $label_extras );
+$notebook_settings->append_page( $vbox_advanced, $label_advanced );
+$notebook_settings->append_page( $vbox_actions, $label_actions );
 $notebook_settings->append_page( $vbox_imageview, $label_imageview );
 $notebook_settings->append_page( $vbox_behavior, $label_behavior );
 $notebook_settings->append_page( $vbox_keyboard, $label_keyboard );
@@ -3402,14 +3449,6 @@ sub fct_save_settings {
 	$settings{'general'}->{'selection_tool'} = 2
 		if $tool_simple->get_active;
 
-	$settings{'general'}->{'zoom_active'} = $zoom_active->get_active();
-	#~ $settings{'general'}->{'zoom_size'}   = 1
-		#~ if ( $zoom_size1->get_active );
-	#~ $settings{'general'}->{'zoom_size'} = 2
-		#~ if ( $zoom_size2->get_active );
-	#~ $settings{'general'}->{'zoom_size'} = 3
-		#~ if ( $zoom_size3->get_active );
-
 	#determining timeout
 	if($gnome_web_photo){
 		my $web_menu = $st->{_web}->get_menu;
@@ -3434,12 +3473,19 @@ sub fct_save_settings {
 		$settings{'general'}->{'prog'} = $progname_value;
 	}
 
-	#advanced
+	#actions
 	$settings{'general'}->{'prog_active'}      = $progname_active->get_active();
 	$settings{'general'}->{'im_colors'}        = $combobox_im_colors->get_active();
 	$settings{'general'}->{'im_colors_active'} = $im_colors_active->get_active();
 	$settings{'general'}->{'thumbnail'}        = $thumbnail->get_value();
 	$settings{'general'}->{'thumbnail_active'} = $thumbnail_active->get_active();
+
+	#advanced
+	$settings{'general'}->{'zoom_active'} 	   = $zoom_active->get_active();
+	$settings{'general'}->{'asel_x'} 	   	   = $asel_size3->get_value();
+	$settings{'general'}->{'asel_y'} 	       = $asel_size4->get_value();
+	$settings{'general'}->{'asel_w'} 	       = $asel_size1->get_value();
+	$settings{'general'}->{'asel_h'} 	       = $asel_size2->get_value();
 	$settings{'general'}->{'border'}           = $border_active->get_active();
 	$settings{'general'}->{'visible_windows'}  = $visible_windows_active->get_active();
 	$settings{'general'}->{'menu_delay'}  	   = $menu_delay->get_value();
@@ -3721,7 +3767,6 @@ sub fct_load_settings {
 
 				$cursor_active->set_active( $settings_xml->{'general'}->{'cursor'} );
 				$delay->set_value( $settings_xml->{'general'}->{'delay'} );
-				#~ $delay_active->set_active( $settings_xml->{'general'}->{'delay_active'} );
 
 				#FIXME
 				#this is a dirty hack to force the setting to be enabled in session tab
@@ -3737,13 +3782,6 @@ sub fct_load_settings {
 					if $settings_xml->{'general'}->{'selection_tool'} == 1;
 				$tool_simple->set_active(TRUE)
 					if $settings_xml->{'general'}->{'selection_tool'} == 2;
-				$zoom_active->set_active( $settings_xml->{'general'}->{'zoom_active'} );
-				#~ $zoom_size1->set_active(TRUE)
-					#~ if $settings_xml->{'general'}->{'zoom_size'} == 1;
-				#~ $zoom_size2->set_active(TRUE)
-					#~ if $settings_xml->{'general'}->{'zoom_size'} == 2;
-				#~ $zoom_size3->set_active(TRUE)
-					#~ if $settings_xml->{'general'}->{'zoom_size'} == 3;
 
 				#determining timeout
 				my $web_menu = $st->{_web}->get_menu;
@@ -3758,7 +3796,7 @@ sub fct_load_settings {
 					}
 				}
 
-				#advanced settings
+				#action settings
 				my $model = $progname->get_model;
 				utf8::decode $settings_xml->{'general'}->{'prog'};
 				$model->foreach( \&fct_iter_programs, $settings_xml->{'general'}->{'prog'} );
@@ -3770,6 +3808,14 @@ sub fct_load_settings {
 				$thumbnail->set_value( $settings_xml->{'general'}->{'thumbnail'} );
 				$thumbnail_active->set_active( $settings_xml->{'general'}->{'thumbnail_active'} );
 				
+				#advanced settings
+				$zoom_active->set_active( $settings_xml->{'general'}->{'zoom_active'} );
+				
+		 	   	$asel_size3->set_value($settings_xml->{'general'}->{'asel_x'});
+	 	        $asel_size4->set_value($settings_xml->{'general'}->{'asel_y'});
+	 	        $asel_size1->set_value($settings_xml->{'general'}->{'asel_w'});
+	 	        $asel_size2->set_value($settings_xml->{'general'}->{'asel_h'});
+		
 				$border_active->set_active( $settings_xml->{'general'}->{'border'} );
 				$visible_windows_active->set_active( $settings_xml->{'general'}->{'visible_windows'} );
 				$menu_delay->set_value( $settings_xml->{'general'}->{'menu_delay'} );
@@ -4862,8 +4908,8 @@ sub fct_take_screenshot {
 				$delay_value, $notify_timeout_active->get_active, 
 				$zoom_active->get_active, $hide_time->get_value,
 				$view, $selector, $dragger,
-				$asel_size1->get_value, $asel_size2->get_value,
-				$asel_size3->get_value, $asel_size4->get_value
+				$asel_size3->get_value, $asel_size4->get_value,
+				$asel_size1->get_value, $asel_size2->get_value
 			);
 			
 			$screenshot = $screenshooter->select_advanced();
@@ -6614,33 +6660,6 @@ sub fct_ret_tray_menu {
 
 sub fct_ret_sel_menu {
 
-	#PREF MENU
-	my $menu_settings = Gtk2::Menu->new;
-	$zoom_active = Gtk2::CheckMenuItem->new_with_label( $d->get("Enable zoom window") );
-	if ( defined $settings_xml->{'general'}->{'zoom_active'} ) {
-		$zoom_active->set_active( $settings_xml->{'general'}->{'zoom_active'} );
-	} else {
-		$zoom_active->set_active(TRUE);
-	}
-
-	my $menu_size  = Gtk2::MenuItem->new_with_label( $d->get("Size of zoom window") );
-	my $menu_size2 = Gtk2::Menu->new;
-	#~ $zoom_size1 = Gtk2::RadioMenuItem->new( undef,       $d->get("Small") );
-	#~ $zoom_size2 = Gtk2::RadioMenuItem->new( $zoom_size1, $d->get("Medium") );
-	#~ $zoom_size3 = Gtk2::RadioMenuItem->new( $zoom_size1, $d->get("Large") );
-
-	#~ if ( defined $settings_xml->{'general'}->{'zoom_size'} ) {
-		#~ $zoom_size1->set_active(TRUE)
-			#~ if $settings_xml->{'general'}->{'zoom_size'} == 1;
-		#~ $zoom_size2->set_active(TRUE)
-			#~ if $settings_xml->{'general'}->{'zoom_size'} == 2;
-		#~ $zoom_size3->set_active(TRUE)
-			#~ if $settings_xml->{'general'}->{'zoom_size'} == 3;
-	#~ } else {
-		#~ $zoom_size1->set_active(TRUE);
-	#~ }
-
-	#TOP MENU
 	my $menu_sel = Gtk2::Menu->new;
 
 	#advanced tool
@@ -6649,46 +6668,8 @@ sub fct_ret_sel_menu {
 	#simple tool
 	$tool_simple = Gtk2::RadioMenuItem->new( $tool_advanced, $d->get("Simple selection tool") );
 
-	#and some more preferences
-	my $advanced_settings = Gtk2::MenuItem->new_with_label( $d->get("Preferences") );
-
 	$menu_sel->append($tool_advanced);
 	$menu_sel->append($tool_simple);
-	$menu_sel->append($advanced_settings);
-
-	#~ $menu_size->set_submenu($menu_size2);
-	#~ $menu_size2->append($zoom_size1);
-	#~ $menu_size2->append($zoom_size2);
-	#~ $menu_size2->append($zoom_size3);
-
-	$menu_settings->append($zoom_active);
-	#~ $menu_settings->append($menu_size);
-	$advanced_settings->set_submenu($menu_settings);
-
-	#~ $tool_simple->signal_connect(
-		#~ 'activate' => sub {
-			#~ my $widget = shift;
-			#~ if ( $widget->get_active ) {
-				#~ $advanced_settings->set_sensitive(TRUE);
-			#~ } else {
-				#~ $advanced_settings->set_sensitive(FALSE);
-			#~ }
-		#~ }
-	#~ );
-#~ 
-	#~ #set saved/default settings
-	#~ if ( defined $settings_xml->{'general'}->{'selection_tool'} ) {
-		#~ if ( $settings_xml->{'general'}->{'selection_tool'} == 1 ) {
-			#~ $tool_advanced->set_active(TRUE);
-			#~ $advanced_settings->set_sensitive(FALSE);
-		#~ } elsif ( $settings_xml->{'general'}->{'selection_tool'} == 2 ) {
-			#~ $tool_simple->set_active(TRUE);
-			#~ $advanced_settings->set_sensitive(TRUE);
-		#~ }
-	#~ } else {
-		#~ $tool_advanced->set_active(TRUE);
-		#~ $advanced_settings->set_sensitive(FALSE);
-	#~ }
 
 	$tooltips->set_tip( $tool_advanced,
 		$d->get("The advanced selection tool allows you to enlarge/shrink or move your selected area\nuntil you finally take the screenshot.") );

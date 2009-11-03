@@ -220,6 +220,7 @@ sub create_toolbar {
 	#--------------------------------------
 	my $image_upload = Gtk2::Image->new_from_stock( 'gtk-network', 'large-toolbar' );
 	$self->{_upload} = Gtk2::ToolButton->new( $image_upload, $d->get("Upload / Export") );
+	$self->{_upload}->set_is_important (TRUE);
 
 	$tooltips->set_tip( $self->{_upload}, $d->get("Upload your images to an image hosting service, FTP site or export them to an arbitrary folder") );
 
