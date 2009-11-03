@@ -474,6 +474,7 @@ my $cursor_box          = Gtk2::HBox->new( FALSE, 0 );
 
 #advanced
 my $actions_vbox        = Gtk2::VBox->new( FALSE, 0 );
+my $asel_capture_vbox   = Gtk2::VBox->new( FALSE, 0 );
 my $window_capture_vbox = Gtk2::VBox->new( FALSE, 0 );
 my $menu_capture_vbox   = Gtk2::VBox->new( FALSE, 0 );
 my $web_capture_vbox    = Gtk2::VBox->new( FALSE, 0 );
@@ -482,6 +483,8 @@ my $progname_box        = Gtk2::HBox->new( FALSE, 0 );
 my $im_colors_box       = Gtk2::HBox->new( FALSE, 0 );
 my $thumbnail_box       = Gtk2::HBox->new( FALSE, 0 );
 my $border_box          = Gtk2::HBox->new( FALSE, 0 );
+my $asel_isize_box      = Gtk2::HBox->new( FALSE, 0 );
+my $asel_isize_box2     = Gtk2::HBox->new( FALSE, 0 );
 my $visible_windows_box = Gtk2::HBox->new( FALSE, 0 );
 my $menu_delay_box      = Gtk2::HBox->new( FALSE, 0 );
 my $web_width_box       = Gtk2::HBox->new( FALSE, 0 );
@@ -556,7 +559,7 @@ $vbox->pack_start( $st->create_toolbar, FALSE, TRUE, 0 );
 
 my ( $tool_advanced, $tool_simple ) = undef;
 my $zoom_active = undef;
-my ( $zoom_size1, $zoom_size2, $zoom_size3 ) = undef;
+#~ my ( $zoom_size1, $zoom_size2, $zoom_size3 ) = undef;
 $st->{_select}->set_menu(&fct_ret_sel_menu);
 $st->{_select}->signal_connect( 'clicked' => \&evt_take_screenshot, 'select' );
 
@@ -729,6 +732,13 @@ $capture_frame_label->set_markup( "<b>" . $d->get("Capture") . "</b>" );
 my $capture_frame = Gtk2::Frame->new();
 $capture_frame->set_label_widget($capture_frame_label);
 $capture_frame->set_shadow_type('none');
+
+my $asel_capture_frame_label = Gtk2::Label->new;
+$asel_capture_frame_label->set_markup( "<b>" . $d->get("Advanced Selection Capture") . "</b>" );
+
+my $asel_capture_frame = Gtk2::Frame->new();
+$asel_capture_frame->set_label_widget($asel_capture_frame_label);
+$asel_capture_frame->set_shadow_type('none');
 
 my $window_capture_frame_label = Gtk2::Label->new;
 $window_capture_frame_label->set_markup( "<b>" . $d->get("Window Capture") . "</b>" );
@@ -1185,6 +1195,50 @@ $thumbnail_box->pack_start( $thumbnail_active, FALSE, FALSE, 0 );
 $thumbnail_box->pack_start( $thumbnail,        TRUE,  TRUE,  0 );
 
 #end - thumbnail
+#--------------------------------------
+
+#initial size for advanced selection tool
+#--------------------------------------
+my $asel_size_label1 = Gtk2::Label->new( $d->get("Start with selection size of") );
+my $asel_size_label2 = Gtk2::Label->new( "x" );
+my $asel_size_label3 = Gtk2::Label->new( $d->get("at") );
+my $asel_size_label4 = Gtk2::Label->new( "," );
+my $asel_size1 = Gtk2::SpinButton->new_with_range( 0, 10000, 1 );
+my $asel_size2 = Gtk2::SpinButton->new_with_range( 0, 10000, 1 );
+my $asel_size3 = Gtk2::SpinButton->new_with_range( 0, 10000, 1 );
+my $asel_size4 = Gtk2::SpinButton->new_with_range( 0, 10000, 1 );
+my $asel_size_vlabel1 = Gtk2::Label->new( $d->get("pixels") );
+my $asel_size_vlabel2 = Gtk2::Label->new( $d->get("pixels") );
+
+#~ if ( defined $settings_xml->{'general'}->{'visible_windows'} ) {
+	#~ $visible_windows_active->set_active( $settings_xml->{'general'}->{'visible_windows'} );
+#~ } else {
+	#~ $visible_windows_active->set_active(FALSE);
+#~ }
+
+$tooltips->set_tip( $asel_size_label1, $d->get("Start Advanced Selection Tool with a customized selection size") );
+$tooltips->set_tip( $asel_size_label2, $d->get("Start Advanced Selection Tool with a customized selection size") );
+$tooltips->set_tip( $asel_size_label3, $d->get("Start Advanced Selection Tool with a customized selection size") );
+$tooltips->set_tip( $asel_size_label4, $d->get("Start Advanced Selection Tool with a customized selection size") );
+$tooltips->set_tip( $asel_size1, $d->get("Start Advanced Selection Tool with a customized selection size") );
+$tooltips->set_tip( $asel_size2, $d->get("Start Advanced Selection Tool with a customized selection size") );
+$tooltips->set_tip( $asel_size3, $d->get("Start Advanced Selection Tool with a customized selection size") );
+$tooltips->set_tip( $asel_size4, $d->get("Start Advanced Selection Tool with a customized selection size") );
+$tooltips->set_tip( $asel_size_vlabel1, $d->get("Start Advanced Selection Tool with a customized selection size") );
+$tooltips->set_tip( $asel_size_vlabel2, $d->get("Start Advanced Selection Tool with a customized selection size") );
+
+$asel_isize_box->pack_start( $asel_size_label1, FALSE, FALSE, 12 );
+$asel_isize_box->pack_start( $asel_size1, FALSE, FALSE,  0 );
+$asel_isize_box->pack_start( $asel_size_label2, FALSE, FALSE,  0 );
+$asel_isize_box->pack_start( $asel_size2, FALSE, FALSE,  0 );
+$asel_isize_box->pack_start( $asel_size_vlabel1, FALSE, FALSE,  2 );
+$asel_isize_box2->pack_start( $asel_size_label3, FALSE, FALSE,  12 );
+$asel_isize_box2->pack_start( $asel_size3, FALSE, FALSE,  0 );
+$asel_isize_box2->pack_start( $asel_size_label4, FALSE, FALSE,  0 );
+$asel_isize_box2->pack_start( $asel_size4, FALSE, FALSE,  0 );
+$asel_isize_box2->pack_start( $asel_size_vlabel2, FALSE, FALSE, 2 );
+
+#end - initial size for advanced selection tool
 #--------------------------------------
 
 #border
@@ -1676,6 +1730,17 @@ $actions_vbox->pack_start( $im_colors_box, FALSE, TRUE, 3 );
 $actions_vbox->pack_start( $thumbnail_box, FALSE, TRUE, 3 );
 $actions_frame->add($actions_vbox);
 
+#align labels (asel)
+$asel_size_label3->set_alignment( 1, 0.5 );
+
+my $sg_asel = Gtk2::SizeGroup->new('horizontal');
+$sg_asel->add_widget($asel_size_label1);
+$sg_asel->add_widget($asel_size_label3);
+
+$asel_capture_vbox->pack_start( $asel_isize_box, FALSE, TRUE, 3 );
+$asel_capture_vbox->pack_start( $asel_isize_box2, FALSE, TRUE, 3 );
+$asel_capture_frame->add($asel_capture_vbox);
+
 $window_capture_vbox->pack_start( $border_box, FALSE, TRUE, 3 );
 $window_capture_vbox->pack_start( $visible_windows_box, FALSE, TRUE, 3 );
 $window_capture_frame->add($window_capture_vbox);
@@ -1701,6 +1766,7 @@ $sg_adv->add_widget($menu_delay_label);
 $sg_adv->add_widget($web_width_label);
 
 $vbox_extras->pack_start( $actions_frame, FALSE, TRUE, 3 );
+$vbox_extras->pack_start( $asel_capture_frame, FALSE, TRUE, 3 );
 $vbox_extras->pack_start( $window_capture_frame, FALSE, TRUE, 3 );
 $vbox_extras->pack_start( $menu_capture_frame, FALSE, TRUE, 3 );
 $vbox_extras->pack_start( $web_capture_frame, FALSE, TRUE, 3 );
@@ -3337,12 +3403,12 @@ sub fct_save_settings {
 		if $tool_simple->get_active;
 
 	$settings{'general'}->{'zoom_active'} = $zoom_active->get_active();
-	$settings{'general'}->{'zoom_size'}   = 1
-		if ( $zoom_size1->get_active );
-	$settings{'general'}->{'zoom_size'} = 2
-		if ( $zoom_size2->get_active );
-	$settings{'general'}->{'zoom_size'} = 3
-		if ( $zoom_size3->get_active );
+	#~ $settings{'general'}->{'zoom_size'}   = 1
+		#~ if ( $zoom_size1->get_active );
+	#~ $settings{'general'}->{'zoom_size'} = 2
+		#~ if ( $zoom_size2->get_active );
+	#~ $settings{'general'}->{'zoom_size'} = 3
+		#~ if ( $zoom_size3->get_active );
 
 	#determining timeout
 	if($gnome_web_photo){
@@ -3672,12 +3738,12 @@ sub fct_load_settings {
 				$tool_simple->set_active(TRUE)
 					if $settings_xml->{'general'}->{'selection_tool'} == 2;
 				$zoom_active->set_active( $settings_xml->{'general'}->{'zoom_active'} );
-				$zoom_size1->set_active(TRUE)
-					if $settings_xml->{'general'}->{'zoom_size'} == 1;
-				$zoom_size2->set_active(TRUE)
-					if $settings_xml->{'general'}->{'zoom_size'} == 2;
-				$zoom_size3->set_active(TRUE)
-					if $settings_xml->{'general'}->{'zoom_size'} == 3;
+				#~ $zoom_size1->set_active(TRUE)
+					#~ if $settings_xml->{'general'}->{'zoom_size'} == 1;
+				#~ $zoom_size2->set_active(TRUE)
+					#~ if $settings_xml->{'general'}->{'zoom_size'} == 2;
+				#~ $zoom_size3->set_active(TRUE)
+					#~ if $settings_xml->{'general'}->{'zoom_size'} == 3;
 
 				#determining timeout
 				my $web_menu = $st->{_web}->get_menu;
@@ -4786,24 +4852,31 @@ sub fct_take_screenshot {
 	} elsif ( $data eq "select" || $data eq "tray_select" ) {
 
 		if ( $tool_advanced->get_active ) {
+
+			#~ my $zoom_size_factor = 1;
+			#~ $zoom_size_factor = 2 if ( $zoom_size2->get_active );
+			#~ $zoom_size_factor = 3 if ( $zoom_size3->get_active );
 					
 			my $screenshooter = Shutter::Screenshot::SelectorAdvanced->new( 
 				$sc, $cursor_active->get_active, 
-				$delay_value, $notify_timeout_active->get_active, $hide_time->get_value, 
-				$view, $selector, $dragger
+				$delay_value, $notify_timeout_active->get_active, 
+				$zoom_active->get_active, $hide_time->get_value,
+				$view, $selector, $dragger,
+				$asel_size1->get_value, $asel_size2->get_value,
+				$asel_size3->get_value, $asel_size4->get_value
 			);
 			
 			$screenshot = $screenshooter->select_advanced();
 
 		} else {
 
-			my $zoom_size_factor = 1;
-			$zoom_size_factor = 2 if ( $zoom_size2->get_active );
-			$zoom_size_factor = 3 if ( $zoom_size3->get_active );
+			#~ my $zoom_size_factor = 1;
+			#~ $zoom_size_factor = 2 if ( $zoom_size2->get_active );
+			#~ $zoom_size_factor = 3 if ( $zoom_size3->get_active );
 			
 			my $screenshooter = Shutter::Screenshot::SelectorSimple->new( 
 				$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active, 
-				$zoom_size_factor, $zoom_active->get_active, $hide_time->get_value 
+				$zoom_active->get_active, $hide_time->get_value 
 			);
 			
 			$screenshot = $screenshooter->select_simple();
@@ -6552,20 +6625,20 @@ sub fct_ret_sel_menu {
 
 	my $menu_size  = Gtk2::MenuItem->new_with_label( $d->get("Size of zoom window") );
 	my $menu_size2 = Gtk2::Menu->new;
-	$zoom_size1 = Gtk2::RadioMenuItem->new( undef,       $d->get("Small") );
-	$zoom_size2 = Gtk2::RadioMenuItem->new( $zoom_size1, $d->get("Medium") );
-	$zoom_size3 = Gtk2::RadioMenuItem->new( $zoom_size1, $d->get("Large") );
+	#~ $zoom_size1 = Gtk2::RadioMenuItem->new( undef,       $d->get("Small") );
+	#~ $zoom_size2 = Gtk2::RadioMenuItem->new( $zoom_size1, $d->get("Medium") );
+	#~ $zoom_size3 = Gtk2::RadioMenuItem->new( $zoom_size1, $d->get("Large") );
 
-	if ( defined $settings_xml->{'general'}->{'zoom_size'} ) {
-		$zoom_size1->set_active(TRUE)
-			if $settings_xml->{'general'}->{'zoom_size'} == 1;
-		$zoom_size2->set_active(TRUE)
-			if $settings_xml->{'general'}->{'zoom_size'} == 2;
-		$zoom_size3->set_active(TRUE)
-			if $settings_xml->{'general'}->{'zoom_size'} == 3;
-	} else {
-		$zoom_size1->set_active(TRUE);
-	}
+	#~ if ( defined $settings_xml->{'general'}->{'zoom_size'} ) {
+		#~ $zoom_size1->set_active(TRUE)
+			#~ if $settings_xml->{'general'}->{'zoom_size'} == 1;
+		#~ $zoom_size2->set_active(TRUE)
+			#~ if $settings_xml->{'general'}->{'zoom_size'} == 2;
+		#~ $zoom_size3->set_active(TRUE)
+			#~ if $settings_xml->{'general'}->{'zoom_size'} == 3;
+	#~ } else {
+		#~ $zoom_size1->set_active(TRUE);
+	#~ }
 
 	#TOP MENU
 	my $menu_sel = Gtk2::Menu->new;
@@ -6583,39 +6656,39 @@ sub fct_ret_sel_menu {
 	$menu_sel->append($tool_simple);
 	$menu_sel->append($advanced_settings);
 
-	$menu_size->set_submenu($menu_size2);
-	$menu_size2->append($zoom_size1);
-	$menu_size2->append($zoom_size2);
-	$menu_size2->append($zoom_size3);
+	#~ $menu_size->set_submenu($menu_size2);
+	#~ $menu_size2->append($zoom_size1);
+	#~ $menu_size2->append($zoom_size2);
+	#~ $menu_size2->append($zoom_size3);
 
 	$menu_settings->append($zoom_active);
-	$menu_settings->append($menu_size);
+	#~ $menu_settings->append($menu_size);
 	$advanced_settings->set_submenu($menu_settings);
 
-	$tool_simple->signal_connect(
-		'activate' => sub {
-			my $widget = shift;
-			if ( $widget->get_active ) {
-				$advanced_settings->set_sensitive(TRUE);
-			} else {
-				$advanced_settings->set_sensitive(FALSE);
-			}
-		}
-	);
-
-	#set saved/default settings
-	if ( defined $settings_xml->{'general'}->{'selection_tool'} ) {
-		if ( $settings_xml->{'general'}->{'selection_tool'} == 1 ) {
-			$tool_advanced->set_active(TRUE);
-			$advanced_settings->set_sensitive(FALSE);
-		} elsif ( $settings_xml->{'general'}->{'selection_tool'} == 2 ) {
-			$tool_simple->set_active(TRUE);
-			$advanced_settings->set_sensitive(TRUE);
-		}
-	} else {
-		$tool_advanced->set_active(TRUE);
-		$advanced_settings->set_sensitive(FALSE);
-	}
+	#~ $tool_simple->signal_connect(
+		#~ 'activate' => sub {
+			#~ my $widget = shift;
+			#~ if ( $widget->get_active ) {
+				#~ $advanced_settings->set_sensitive(TRUE);
+			#~ } else {
+				#~ $advanced_settings->set_sensitive(FALSE);
+			#~ }
+		#~ }
+	#~ );
+#~ 
+	#~ #set saved/default settings
+	#~ if ( defined $settings_xml->{'general'}->{'selection_tool'} ) {
+		#~ if ( $settings_xml->{'general'}->{'selection_tool'} == 1 ) {
+			#~ $tool_advanced->set_active(TRUE);
+			#~ $advanced_settings->set_sensitive(FALSE);
+		#~ } elsif ( $settings_xml->{'general'}->{'selection_tool'} == 2 ) {
+			#~ $tool_simple->set_active(TRUE);
+			#~ $advanced_settings->set_sensitive(TRUE);
+		#~ }
+	#~ } else {
+		#~ $tool_advanced->set_active(TRUE);
+		#~ $advanced_settings->set_sensitive(FALSE);
+	#~ }
 
 	$tooltips->set_tip( $tool_advanced,
 		$d->get("The advanced selection tool allows you to enlarge/shrink or move your selected area\nuntil you finally take the screenshot.") );
