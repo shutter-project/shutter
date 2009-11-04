@@ -627,7 +627,7 @@ sub select_advanced {
 				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Return}) {
 					
 					$self->{_select_window}->hide;
-					$self->{zoom_window}->hide;
+					$self->{_zoom_window}->hide;
 					$self->{_prop_window}->hide;
 					
 					#A short timeout to give the server a chance to
