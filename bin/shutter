@@ -84,7 +84,7 @@ use constant TRUE				=> 1;
 use constant FALSE				=> 0;
 use constant MAX_ERROR 			=> 5;
 #~ use constant REV         		=> "Rev.experimental branch";
-use constant REV         		=> "Rev.689";
+use constant REV         		=> "Rev.690";
 use constant SHUTTER_NAME		=> "Shutter";
 #~ use constant SHUTTER_VERSION	=> "v0.8x";
 use constant SHUTTER_VERSION	=> "v0.85";
@@ -5145,7 +5145,7 @@ sub fct_take_screenshot {
 			}elsif($combobox_im_colors->get_active == 2){
 				$colors = 256;
 			}
-			&fct_imagemagick_perform( 'reduce_colors', $screenshot_name, $colors );
+			$screenshot = &fct_imagemagick_perform( 'reduce_colors', $screenshot_name, $colors );
 		}
 
 		#generate the thumbnail
@@ -6028,14 +6028,17 @@ sub fct_get_latest_tab_key {
 
 sub fct_imagemagick_perform {
 	my ( $function, $file, $data ) = @_;
+	
+	my $pixbuf  = undef;
 	my $result 	= undef;
 	$file = $shf->switch_home_in_file($file);
 	
 	if ( $function eq "reduce_colors" ) {
-		$result = `convert $file -colors $data $file`;
+		$result = `convert '$file' -colors $data '$file'`;
+		$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $file );
 	} 
-
-	return $result;
+	
+	return $pixbuf;
 }
 
 sub fct_check_installed_programs {
