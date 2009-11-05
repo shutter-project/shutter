@@ -84,7 +84,7 @@ use constant TRUE				=> 1;
 use constant FALSE				=> 0;
 use constant MAX_ERROR 			=> 5;
 #~ use constant REV         		=> "Rev.experimental branch";
-use constant REV         		=> "Rev.691";
+use constant REV         		=> "Rev.692";
 use constant SHUTTER_NAME		=> "Shutter";
 #~ use constant SHUTTER_VERSION	=> "v0.8x";
 use constant SHUTTER_VERSION	=> "v0.85";
@@ -475,17 +475,26 @@ my $fname_autocopy_box  = Gtk2::HBox->new( FALSE, 0 );
 my $delay_box           = Gtk2::HBox->new( FALSE, 0 );
 my $cursor_box          = Gtk2::HBox->new( FALSE, 0 );
 
-#advanced
-my $actions_vbox        = Gtk2::VBox->new( FALSE, 0 );
+#keybindings
 my $sel_capture_vbox    = Gtk2::VBox->new( FALSE, 0 );
 my $asel_capture_vbox   = Gtk2::VBox->new( FALSE, 0 );
-my $window_capture_vbox = Gtk2::VBox->new( FALSE, 0 );
-my $menu_capture_vbox   = Gtk2::VBox->new( FALSE, 0 );
-my $web_capture_vbox    = Gtk2::VBox->new( FALSE, 0 );
+
+my $keybinding_mode_box = Gtk2::HBox->new( TRUE,  0 );
+my $key_box             = Gtk2::HBox->new( FALSE, 0 );
+my $key_sel_box         = Gtk2::HBox->new( FALSE, 0 );
+
+#actions
+my $actions_vbox        = Gtk2::VBox->new( FALSE, 0 );
 
 my $progname_box        = Gtk2::HBox->new( FALSE, 0 );
 my $im_colors_box       = Gtk2::HBox->new( FALSE, 0 );
 my $thumbnail_box       = Gtk2::HBox->new( FALSE, 0 );
+
+#advanced
+my $window_capture_vbox = Gtk2::VBox->new( FALSE, 0 );
+my $menu_capture_vbox   = Gtk2::VBox->new( FALSE, 0 );
+my $web_capture_vbox    = Gtk2::VBox->new( FALSE, 0 );
+
 my $zoom_box      		= Gtk2::HBox->new( FALSE, 0 );
 my $asel_isize_box      = Gtk2::HBox->new( FALSE, 0 );
 my $asel_isize_box2     = Gtk2::HBox->new( FALSE, 0 );
@@ -514,10 +523,7 @@ my $behavior_hbox5      = Gtk2::HBox->new( FALSE, 0 );
 my $behavior_hbox6      = Gtk2::HBox->new( FALSE, 0 );
 my $behavior_hbox7      = Gtk2::HBox->new( FALSE, 0 );
 my $behavior_hbox8      = Gtk2::HBox->new( FALSE, 0 );
-
-my $keybinding_mode_box = Gtk2::HBox->new( TRUE,  0 );
-my $key_box             = Gtk2::HBox->new( FALSE, 0 );
-my $key_sel_box         = Gtk2::HBox->new( FALSE, 0 );
+my $behavior_hbox9      = Gtk2::HBox->new( FALSE, 0 );
 
 #upload
 my $accounts_vbox       = Gtk2::VBox->new( FALSE, 0 );
@@ -1533,6 +1539,7 @@ my $close_at_close_active = Gtk2::CheckButton->new_with_label( $d->get("Minimize
 
 my $notify_after_active    = Gtk2::CheckButton->new_with_label( $d->get("Display pop-up notification after taking a screenshot") );
 my $notify_timeout_active  = Gtk2::CheckButton->new_with_label( $d->get("Display pop-up notification when using a delay") );
+my $notify_ptimeout_active = Gtk2::CheckButton->new_with_label( $d->get("Display pop-up notification when using a pre-capture delay") );
 
 my $ask_on_delete_active    = Gtk2::CheckButton->new_with_label( $d->get("Ask before moving files to trash") );
 my $delete_on_close_active  = Gtk2::CheckButton->new_with_label( $d->get("Move file to trash when closing tab") );
@@ -1545,8 +1552,9 @@ $behavior_hbox4->pack_start( $hide_time,              FALSE, TRUE,  6 );
 $behavior_hbox4->pack_start( $hide_time_vlabel,       FALSE, TRUE,  0 );
 $behavior_hbox5->pack_start( $notify_after_active,    FALSE, TRUE, 12 );
 $behavior_hbox6->pack_start( $notify_timeout_active,  FALSE, TRUE, 12 );
-$behavior_hbox7->pack_start( $ask_on_delete_active,   FALSE, TRUE, 12 );
-$behavior_hbox8->pack_start( $delete_on_close_active, FALSE, TRUE, 12 );
+$behavior_hbox7->pack_start( $notify_ptimeout_active, FALSE, TRUE, 12 );
+$behavior_hbox8->pack_start( $ask_on_delete_active,   FALSE, TRUE, 12 );
+$behavior_hbox9->pack_start( $delete_on_close_active, FALSE, TRUE, 12 );
 
 
 if ( defined $settings_xml->{'general'}->{'autohide'} ) {
@@ -1590,6 +1598,15 @@ if ( defined $settings_xml->{'general'}->{'notify_timeout'} ) {
 }
 
 $tooltips->set_tip( $notify_timeout_active, $d->get("Display pop-up notification when using a delay") );
+
+if ( defined $settings_xml->{'general'}->{'notify_ptimeout'} ) {
+	$notify_ptimeout_active->set_active( $settings_xml->{'general'}->{'notify_ptimeout'} );
+} else {
+	$notify_ptimeout_active->set_active(TRUE);
+}
+
+$tooltips->set_tip( $notify_timeout_active, $d->get("Display pop-up notification when using a delay") );
+
 
 if ( defined $settings_xml->{'general'}->{'close_at_close'} ) {
 	$close_at_close_active->set_active( $settings_xml->{'general'}->{'close_at_close'} );
@@ -1844,10 +1861,11 @@ $window_frame->add($window_vbox);
 
 $notify_vbox->pack_start( $behavior_hbox5, TRUE, TRUE, 3 );
 $notify_vbox->pack_start( $behavior_hbox6, TRUE, TRUE, 3 );
+$notify_vbox->pack_start( $behavior_hbox7, TRUE, TRUE, 3 );
 $notify_frame->add($notify_vbox);
 
-$trash_vbox->pack_start( $behavior_hbox7, TRUE, TRUE, 3 );
 $trash_vbox->pack_start( $behavior_hbox8, TRUE, TRUE, 3 );
+$trash_vbox->pack_start( $behavior_hbox9, TRUE, TRUE, 3 );
 $trash_frame->add($trash_vbox);
 
 #all labels = one size
@@ -2195,7 +2213,7 @@ sub evt_take_screenshot {
 		}	 
 			 
 		#show notification messages displaying the countdown
-		if($notify_timeout_active->get_active){
+		if($notify_ptimeout_active->get_active){
 			my $notify 	= $sc->get_notification_object;
 			my $ttw 	= $menu_delay->get_value;
 	
@@ -3507,6 +3525,7 @@ sub fct_save_settings {
 	$settings{'general'}->{'close_at_close'}   = $close_at_close_active->get_active();
 	$settings{'general'}->{'notify_after'}     = $notify_after_active->get_active();
 	$settings{'general'}->{'notify_timeout'}   = $notify_timeout_active->get_active();
+	$settings{'general'}->{'notify_ptimeout'}  = $notify_ptimeout_active->get_active();
 	$settings{'general'}->{'ask_on_delete'}    = $ask_on_delete_active->get_active();
 	$settings{'general'}->{'delete_on_close'}  = $delete_on_close_active->get_active();
 
@@ -3838,6 +3857,7 @@ sub fct_load_settings {
 				$close_at_close_active->set_active( $settings_xml->{'general'}->{'close_at_close'} );
 				$notify_after_active->set_active( $settings_xml->{'general'}->{'notify_after'} );
 				$notify_timeout_active->set_active( $settings_xml->{'general'}->{'notify_timeout'} );
+				$notify_ptimeout_active->set_active( $settings_xml->{'general'}->{'notify_ptimeout'} );
 				$ask_on_delete_active->set_active( $settings_xml->{'general'}->{'ask_on_close'} );
 				$delete_on_close_active->set_active( $settings_xml->{'general'}->{'delete_on_close'} );
 
