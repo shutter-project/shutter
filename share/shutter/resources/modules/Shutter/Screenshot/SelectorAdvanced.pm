@@ -150,7 +150,7 @@ sub select_advanced {
 
 	my $sec_text
 		= $d->get(
-		"super/right-click = selection dialog on/off\nctrl + scrollwheel = zoom in/out\tspace = zoom window on/off\ncursor keys + alt = move selection\tcursor keys + ctrl = resize selection"
+		"shift/right-click = selection dialog on/off\nctrl + scrollwheel = zoom in/out\t\tspace = zoom window on/off\ncursor keys + alt = move selection\t\tcursor keys + ctrl = resize selection"
 		);
 
 	#use this one for white font-color	
@@ -531,7 +531,7 @@ sub select_advanced {
 					} 
 
 				#toggle prop dialog				
-				}elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Super_L} || $event->keyval == $Gtk2::Gdk::Keysyms{Super_R} ) {
+				}elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Shift_L} || $event->keyval == $Gtk2::Gdk::Keysyms{Shift_R} ) {
 					
 					if($self->{_prop_active}){
 						Gtk2::Gdk->keyboard_ungrab( Gtk2->get_current_event_time );
@@ -875,7 +875,7 @@ sub select_dialog {
 			} 
 	
 		#toggle prop dialog				
-		}elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Super_L} || $event->keyval == $Gtk2::Gdk::Keysyms{Super_R} ) {
+		}elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Shift_L} || $event->keyval == $Gtk2::Gdk::Keysyms{Shift_R} ) {
 			
 			if($self->{_prop_active}){
 				Gtk2::Gdk->keyboard_ungrab( Gtk2->get_current_event_time );

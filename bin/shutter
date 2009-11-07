@@ -84,7 +84,7 @@ use constant TRUE				=> 1;
 use constant FALSE				=> 0;
 use constant MAX_ERROR 			=> 5;
 #~ use constant REV         		=> "Rev.experimental branch";
-use constant REV         		=> "Rev.692";
+use constant REV         		=> "Rev.693";
 use constant SHUTTER_NAME		=> "Shutter";
 #~ use constant SHUTTER_VERSION	=> "v0.8x";
 use constant SHUTTER_VERSION	=> "v0.85";
@@ -959,7 +959,7 @@ if ( defined $settings_xml->{'general'}->{'folder'} ) {
 }
 
 $tooltips->set_tip( $saveDir_button, $d->get("Your screenshots will be saved to this directory") );
-$tooltips->set_tip( $saveDir_label,  $d->get("Your screenshots will be savedto this directory") );
+$tooltips->set_tip( $saveDir_label,  $d->get("Your screenshots will be saved to this directory") );
 $saveDir_box->pack_start( $saveDir_label,  FALSE, TRUE, 12 );
 $saveDir_box->pack_start( $saveDir_button, TRUE,  TRUE, 0 );
 
