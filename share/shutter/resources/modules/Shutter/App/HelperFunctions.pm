@@ -58,7 +58,13 @@ sub xdg_open {
 
 sub xdg_open_mail {
 	my ( $self, $dialog, $mail, $user_data ) = @_;
-	system("xdg-open mailto:$mail");
+	system("xdg-email $mail $user_data");
+	return TRUE;
+}
+
+sub nautilus_sendto {
+	my ( $self, $user_data ) = @_;
+	system("nautilus-sendto $user_data &");
 	return TRUE;
 }
 

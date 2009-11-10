@@ -141,12 +141,24 @@ sub fct_ret_file_menu {
 	$self->{_menuitem_pagesetup}->set_image(
 		Gtk2::Image->new_from_icon_name( 'document-page-setup', 'menu' )
 	);
+	$self->{_menuitem_pagesetup}->set_sensitive(FALSE);
 	$self->{_menu_file}->append( $self->{_menuitem_pagesetup} );
 
 	$self->{_menuitem_print} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Print...') );
 	$self->{_menuitem_print}->set_image( Gtk2::Image->new_from_stock( 'gtk-print', 'menu' ) );
 	$self->{_menuitem_print}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>P'), qw/visible/ );
+	$self->{_menuitem_print}->set_sensitive(FALSE);
 	$self->{_menu_file}->append( $self->{_menuitem_print} );
+
+	$self->{_menu_file}->append( Gtk2::SeparatorMenuItem->new );
+
+	$self->{_menuitem_email} = Gtk2::ImageMenuItem->new($d->get('Send by Email...'));
+	$self->{_menuitem_email}->set_image(
+		Gtk2::Image->new_from_icon_name( 'gnome-stock-mail-snd', 'menu' )
+	);
+	$self->{_menuitem_email}->set_sensitive(FALSE);
+	$self->{_menuitem_email}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Shift><Control>E'), qw/visible/ );
+	$self->{_menu_file}->append( $self->{_menuitem_email} );
 
 	$self->{_menu_file}->append( Gtk2::SeparatorMenuItem->new );
 
@@ -157,6 +169,7 @@ sub fct_ret_file_menu {
 
 	$self->{_menuitem_close_all} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('C_lose all') );
 	$self->{_menuitem_close_all}->set_image( Gtk2::Image->new_from_stock( 'gtk-close', 'menu' ) );
+	$self->{_menuitem_close_all}->set_sensitive(FALSE);
 	$self->{_menuitem_close_all}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Shift><Control>W'), qw/visible/ );
 	$self->{_menu_file}->append( $self->{_menuitem_close_all} );
 
@@ -528,6 +541,15 @@ sub fct_ret_actions_menu{
 
 	$self->{_menu_actions}->append( Gtk2::SeparatorMenuItem->new );
 
+	$self->{_menuitem_send} = Gtk2::ImageMenuItem->new($d->get('Send To...'));
+	$self->{_menuitem_send}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>S'), qw/visible/ );
+	$self->{_menuitem_send}->set_image(
+		Gtk2::Image->new_from_icon_name( 'document-send', 'menu' )
+	);
+	$self->{_menuitem_send}->set_sensitive(FALSE);
+	$self->{_menuitem_send}->set_name('item-send');
+	$self->{_menu_actions}->append( $self->{_menuitem_send} );
+
 	$self->{_menuitem_upload} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('E_xport...') );
 	$self->{_menuitem_upload}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>U'), qw/visible/ ) if $accel_group;
 	$self->{_menuitem_upload}->set_image( Gtk2::Image->new_from_stock( 'gtk-network', 'menu' ) );
@@ -599,6 +621,14 @@ sub fct_ret_actions_menu_large{
 	$self->{_menu_large_actions}->append( $self->{_menuitem_large_rename} );
 
 	$self->{_menu_large_actions}->append( Gtk2::SeparatorMenuItem->new );
+
+	$self->{_menuitem_large_send} = Gtk2::ImageMenuItem->new($d->get('Send To...'));
+	$self->{_menuitem_large_send}->set_image(
+		Gtk2::Image->new_from_icon_name( 'document-send', 'menu' )
+	);
+	$self->{_menuitem_send}->set_sensitive(FALSE);
+	$self->{_menuitem_send}->set_name('item-large-send');
+	$self->{_menu_large_actions}->append( $self->{_menuitem_large_send} );
 
 	$self->{_menuitem_large_upload} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('E_xport...') );
 	$self->{_menuitem_large_upload}->set_image( Gtk2::Image->new_from_stock( 'gtk-network', 'menu' ) );

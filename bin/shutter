@@ -41,7 +41,7 @@ Gnome2::AuthenticationManager->init;
 use File::Copy qw/ cp mv /;
 use File::Path qw/ rmtree /;
 use File::Glob qw/ glob /;
-use File::Basename qw / fileparse dirname basename /;
+use File::Basename qw/ fileparse dirname basename /;
 use File::Temp qw/ tempfile tempdir /;
 use IO::File();
 
@@ -84,7 +84,7 @@ use constant TRUE				=> 1;
 use constant FALSE				=> 0;
 use constant MAX_ERROR 			=> 5;
 #~ use constant REV         		=> "Rev.experimental branch";
-use constant REV         		=> "Rev.695";
+use constant REV         		=> "Rev.696";
 use constant SHUTTER_NAME		=> "Shutter";
 #~ use constant SHUTTER_VERSION	=> "v0.8x";
 use constant SHUTTER_VERSION	=> "v0.85";
@@ -136,6 +136,7 @@ $ENV{ 'HOME' } = File::HomeDir->my_home;
 #check optional components
 #--------------------------------------
 my $gnome_web_photo = TRUE;
+my $nautilus_sendto = TRUE;
 my $goocanvas       = TRUE;
 &fct_init_depend;
 
@@ -331,6 +332,7 @@ if($gnome_web_photo){
 $sm->{_menuitem_save_as}->signal_connect( 'activate', \&evt_save_as, 'menu_save_as' );
 $sm->{_menuitem_print}->signal_connect( 'activate', \&fct_print, 'menu_print' );
 $sm->{_menuitem_pagesetup}->signal_connect( 'activate', \&evt_page_setup, 'menu_pagesetup' );
+$sm->{_menuitem_email}->signal_connect( 'activate', \&fct_email, 'menu_email' );
 $sm->{_menuitem_close}->signal_connect( 'activate', sub { &fct_remove(undef); }, 'menu_close' );
 $sm->{_menuitem_close_all}->signal_connect( 'activate', sub { &fct_select_all; &fct_remove(undef); }, 'menu_close_all' );
 $sm->{_menuitem_quit}->signal_connect( 'activate', \&evt_delete_window, 'quit' );
@@ -352,8 +354,14 @@ $sm->{_menuitem_fullscreen}->signal_connect( 'toggled', \&fct_fullscreen );
 #screenshot menu
 $sm->{_menu_actions}->signal_connect( 'focus', sub { $sm->{_menuitem_reopen}->set_submenu(&fct_ret_program_menu); });
 $sm->{_menuitem_rename}->signal_connect( 'activate', \&fct_rename );
-
 $sm->{_menuitem_upload}->signal_connect( 'activate', \&fct_upload );
+
+#nautilus-sendto is optional, don't enable it when not installed
+if ( $nautilus_sendto ) {
+	$sm->{_menuitem_send}->signal_connect( 'activate', \&fct_send );	
+}else{
+	$sm->{_menuitem_send}->set_sensitive(FALSE);
+}	
 
 #goocanvas is optional, don't enable it when not installed
 if ( $goocanvas ) {
@@ -371,6 +379,13 @@ $sm->{_menuitem_large_copy}->signal_connect( 'activate', \&fct_clipboard, 'image
 $sm->{_menuitem_large_copy_filename}->signal_connect( 'activate', \&fct_clipboard, 'text' );
 $sm->{_menuitem_large_trash}->signal_connect( 'activate', sub { &fct_delete(undef); } );
 $sm->{_menuitem_large_upload}->signal_connect( 'activate', \&fct_upload );
+
+#nautilus-sendto is optional, don't enable it when not installed
+if ( $nautilus_sendto ) {
+	$sm->{_menuitem_large_send}->signal_connect( 'activate', \&fct_send );	
+}else{
+	$sm->{_menuitem_large_send}->set_sensitive(FALSE);
+}	
 
 #goocanvas is optional, don't enable it when not installed
 if ( $goocanvas ) {
@@ -2627,7 +2642,9 @@ sub fct_update_actions {
 	$sm->{_menuitem_save_as}->set_sensitive($n_items);
 	$sm->{_menuitem_pagesetup}->set_sensitive($n_items);
 	$sm->{_menuitem_print}->set_sensitive($n_items);
+	$sm->{_menuitem_email}->set_sensitive($n_items);
 	$sm->{_menuitem_close}->set_sensitive($n_items);		
+	$sm->{_menuitem_close_all}->set_sensitive($n_items);		
 
 	#edit
 	if(defined $key && $key){
@@ -2660,6 +2677,14 @@ sub fct_update_actions {
 	$sm->{_menuitem_reopen_default}->set_sensitive($n_items);
 	$sm->{_menuitem_reopen}->set_sensitive($n_items);
 	$sm->{_menuitem_rename}->set_sensitive($n_items);
+
+	#nautilus-sendto is optional, don't enable it when not installed
+	if ( $nautilus_sendto ) {
+		$sm->{_menuitem_send}->set_sensitive($n_items);	
+	}else{
+		$sm->{_menuitem_send}->set_sensitive(FALSE);
+	}	
+
 	$sm->{_menuitem_upload}->set_sensitive($n_items);
 		
 	#goocanvas is optional, don't enable it when not installed
@@ -2679,6 +2704,14 @@ sub fct_update_actions {
 	$sm->{_menuitem_large_trash}->set_sensitive($n_items);
 	$sm->{_menuitem_large_copy}->set_sensitive($n_items);
 	$sm->{_menuitem_large_copy_filename}->set_sensitive($n_items);
+
+	#nautilus-sendto is optional, don't enable it when not installed
+	if ( $nautilus_sendto ) {
+		$sm->{_menuitem_large_send}->set_sensitive($n_items);	
+	}else{
+		$sm->{_menuitem_large_send}->set_sensitive(FALSE);
+	}	
+
 	$sm->{_menuitem_large_upload}->set_sensitive($n_items);
 		
 	#goocanvas is optional, don't enable it when not installed
@@ -5286,6 +5319,68 @@ sub fct_upload {
 	return TRUE;
 }
 
+sub fct_send {
+
+	my $key = &fct_get_current_file;
+
+	my @files_to_send;
+	unless ($key) {
+		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
+			sub {
+				my ( $view, $path ) = @_;
+				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
+				if ( defined $iter ) {
+					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
+					push( @files_to_send, $session_screens{$key}->{'long'} );
+				}
+
+			}
+		);
+	} else {
+		push( @files_to_send, $session_screens{$key}->{'long'} );
+	}
+	
+	my $sendto_string = undef;
+	foreach my $sendto_filename ( @files_to_send ) {
+		$sendto_string .= "'$sendto_filename' "
+	}
+	
+	$shf->nautilus_sendto($sendto_string);
+	
+	return TRUE;
+}
+
+sub fct_email {
+
+	my $key = &fct_get_current_file;
+
+	my @files_to_email;
+	unless ($key) {
+		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
+			sub {
+				my ( $view, $path ) = @_;
+				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
+				if ( defined $iter ) {
+					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
+					push( @files_to_email, $session_screens{$key}->{'long'} );
+				}
+
+			}
+		);
+	} else {
+		push( @files_to_email, $session_screens{$key}->{'long'} );
+	}
+	
+	my $mail_string = undef;
+	foreach my $email_filename ( @files_to_email ) {
+		$mail_string .= "--attach '$email_filename' "
+	}
+	
+	$shf->xdg_open_mail(undef, undef, $mail_string);
+	
+	return TRUE;
+}
+
 sub fct_print {
 
 	my $key = &fct_get_current_file;
@@ -7233,6 +7328,11 @@ sub fct_init_depend {
 	unless ( File::Which::which('gnome-web-photo') ) {
 		warn "WARNING: gnome-web-photo is missing --> screenshots of websites will be disabled!\n\n";
 		$gnome_web_photo = FALSE;
+	}
+
+	#nautilus-sendto
+	unless ( File::Which::which('nautilus-sendto') ) {
+		$nautilus_sendto = FALSE;
 	}
 
 	#goocanvas
