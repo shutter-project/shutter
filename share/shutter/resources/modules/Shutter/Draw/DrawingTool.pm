@@ -4727,19 +4727,28 @@ sub event_item_on_button_release {
 				#texts
 				}elsif (exists $self->{_items}{$nitem}{text}){
 
-					#~ if($self->{_items}{$nitem}{type} eq 'text'){
-	#~ 
-						#~ #adjust parent rectangle
-						#~ my $tb = $self->{_items}{$nitem}{text}->get_bounds;
-										#~ 
-						#~ $nitem->set( 
-							#~ 'x'  		=> $ev->x_root - int(abs($tb->x1 - $tb->x2) / 2), 
-							#~ 'y' 		=> $ev->y_root - int(abs($tb->y1 - $tb->y2) / 2), 			
-							#~ 'width' 	=> abs($tb->x1 - $tb->x2),
-							#~ 'height' 	=> abs($tb->y1 - $tb->y2),
-						#~ );
-					#~ 
-					#~ }				
+					if($self->{_items}{$nitem}{type} eq 'text'){
+	
+						#adjust parent rectangle
+						my $tb = $self->{_items}{$nitem}{text}->get_bounds;
+										
+						$nitem->set( 
+							'x'  		=> $ev->x_root, 
+							'y' 		=> $ev->y_root, 			
+							'width' 	=> abs($tb->x1 - $tb->x2),
+							'height' 	=> abs($tb->y1 - $tb->y2),
+						);
+					
+					}elsif($self->{_items}{$nitem}{type} eq 'number'){
+
+						$self->{_items}{$nitem}->set(
+							'x' 		=> $ev->x_root - int($self->{_items}{$nitem}->get('width') / 2),
+							'y' 		=> $ev->y_root - int($self->{_items}{$nitem}->get('height') / 2),
+							'width' 	=> $self->{_items}{$nitem}->get('width'),
+							'height' 	=> $self->{_items}{$nitem}->get('height'),
+						);
+						
+					}					
 			
 				#all other objects
 				}else{
@@ -6251,7 +6260,7 @@ sub create_text{
 	}	
 
 	#update text
-	$self->handle_embedded('update', $item); 
+	$self->handle_embedded('hide', $item); 
 
 	#set type flag
 	$self->{_items}{$item}{type} = 'text';
@@ -6262,7 +6271,8 @@ sub create_text{
 
 	#create rectangles
 	$self->handle_rects( 'create', $item );
-	if ($copy_item){			
+	if ($copy_item){
+		$self->handle_embedded('update', $item); 			
 		$self->handle_rects('hide', $item); 	
 	}
 
@@ -6471,7 +6481,7 @@ sub create_ellipse {
 			);			
 		}
 
-		$self->handle_embedded('update', $item); 
+		$self->handle_embedded('hide', $item); 
 						
 	}else{
 		#set type flag
