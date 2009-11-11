@@ -1666,7 +1666,8 @@ sub event_item_on_motion_notify {
 
 		return FALSE unless $item;
 
-		$self->{_current_new_item} 	= undef;
+		$self->deactivate_all($item);
+
 		$self->{_last_item} 		= $item;
 		$self->{_current_item} 		= $item;
 	
@@ -2858,9 +2859,9 @@ sub event_item_on_button_press {
 				$self->handle_rects( 'update', $self->{_current_item} );
 				$self->handle_rects( 'hide',   $self->{_last_item} );
 		
-				#~ #apply item properties to widgets
-				#~ #line width, fill color, stroke color etc.
-				#~ $self->set_and_save_drawing_properties($self->{_current_item}, FALSE);
+				#apply item properties to widgets
+				#line width, fill color, stroke color etc.
+				$self->set_and_save_drawing_properties($self->{_current_item}, FALSE);
 		
 			}
 			
@@ -2978,15 +2979,19 @@ sub event_item_on_button_press {
 			#create new item
 			}else{
 				
-				$self->deactivate_all;
+				#~ $self->deactivate_all;
 	
 					#freehand
 				if ( $self->{_current_mode_descr} eq "freehand" ) {
-	
+					
+					$self->deactivate_all;
+					
 					$self->create_polyline( $ev, undef, FALSE );
 	
 					#highlighter
 				} elsif ( $self->{_current_mode_descr} eq "highlighter" ) {
+	
+					$self->deactivate_all;
 	
 					$self->create_polyline( $ev, undef, TRUE );
 	
@@ -3002,7 +3007,9 @@ sub event_item_on_button_press {
 					
 					#Censor
 				} elsif ( $self->{_current_mode_descr} eq "censor" ) {
-	
+					
+					$self->deactivate_all;
+					
 					$self->create_censor( $ev, undef );
 					
 					#Number
