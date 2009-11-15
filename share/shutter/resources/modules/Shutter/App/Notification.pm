@@ -75,7 +75,7 @@ sub show {
 		}
 	};
 	if($@){
-		print "Warning: $@", "\n";		
+		print "NotifyWarning: $@", "\n";		
 	}
 	
 	return $self->{_nid};
@@ -84,18 +84,21 @@ sub show {
 sub close {
 	my $self 	= shift;
 	my $nid		= shift || $self->{_nid};
-
+	
 	#close notification
-	eval{
-		if(defined $self->{_notifications_object}){
-			$self->{_notifications_object}->CloseNotification($nid);
+	if($nid){
+		eval{
+			if(defined $self->{_notifications_object}){
+				$self->{_notifications_object}->CloseNotification($nid);
+			}
+		};
+		if($@){
+			print "CloseNotificationWarning: $@", "\n";		
 		}
-	};
-	if($@){
-		print "Warning: $@", "\n";		
+		return TRUE;	
 	}
 
-	return TRUE;
+	return FALSE;
 }
 
 1;
