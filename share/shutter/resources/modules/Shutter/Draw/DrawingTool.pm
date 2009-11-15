@@ -137,14 +137,12 @@ sub new {
 
 	#some status variables
 	$self->{_busy}	                  = undef;
-	$self->{_last_item} 	          = undef;
 	$self->{_current_item}            = undef;
 	$self->{_current_new_item}        = undef;
 	$self->{_current_copy_item}       = undef;
-	$self->{_last_mode}            	  = undef;
+	$self->{_last_mode}            	  = 10;
 	$self->{_current_mode}            = 10;
 	$self->{_current_mode_descr}      = "select";
-	$self->{_last_mode_descr}         = undef;
 	$self->{_current_pixbuf}          = undef;
 	$self->{_current_pixbuf_filename} = undef;
 	$self->{_cut}					  = FALSE;
@@ -418,9 +416,6 @@ sub show {
 	#save start time to show in close dialog
 	$self->{_start_time} = time;
 
-	#init current tool
-	$self->set_drawing_action(int($self->{_current_mode}/10));
-
 	#remember drawing colors, line width and font settings
 	#maybe we have to restore them
 	$self->{_last_fill_color}         = $self->{_fill_color_w}->get_color;
@@ -431,8 +426,10 @@ sub show {
 	$self->{_last_font} 			  = $self->{_font_btn_w}->get_font_name;
 
 	#init last mode
-	$self->{_last_mode}            	  = 0;
-	$self->{_last_mode_descr}         = '';	
+	$self->{_last_mode} = 0;
+
+	#init current tool
+	$self->set_drawing_action(int($self->{_current_mode}/10));
 
 	#do show these actions because the user would be confused
 	#to see multiple shortcuts to handle zooming
@@ -934,7 +931,8 @@ sub change_drawing_tool_cb {
 	my $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
 
 	#tool is switched from "highlighter" OR censor to something else (excluding select tool)
-	if( $self->{_current_mode} != 10  &&
+	if( $self->{_current_mode} != $self->{_last_mode} && 
+		$self->{_current_mode} != 10  &&
 		$self->{_current_mode} != 30  && 
 		$self->{_current_mode} != 90  && 
 		$self->{_current_mode} != 110 ){
@@ -958,15 +956,11 @@ sub change_drawing_tool_cb {
 	}
 
 	#enable controls again
-	#(switched back from censor tool)	
-	if($self->{_current_mode} != 90){
-
-		$self->{_fill_color_w}->set_sensitive(TRUE);
-		$self->{_stroke_color_w}->set_sensitive(TRUE);
-		$self->{_line_spin_w}->set_sensitive(TRUE);
-		$self->{_font_btn_w}->set_sensitive(TRUE);
+	$self->{_fill_color_w}->set_sensitive(TRUE);
+	$self->{_stroke_color_w}->set_sensitive(TRUE);
+	$self->{_line_spin_w}->set_sensitive(TRUE);
+	$self->{_font_btn_w}->set_sensitive(TRUE);
 		
-	}
 
 	if ( $self->{_current_mode} == 10 ) {
 
@@ -975,35 +969,60 @@ sub change_drawing_tool_cb {
 	} elsif ( $self->{_current_mode} == 20 ) {
 
 		$self->{_current_mode_descr} = "freehand";
+
+		#disable controls, because they are not useful
+		$self->{_fill_color_w}->set_sensitive(FALSE);
+		$self->{_font_btn_w}->set_sensitive(FALSE);	
 	
 	} elsif ( $self->{_current_mode} == 30 ) {
 
 		$self->{_current_mode_descr} = "highlighter";
 		$cursor = Gtk2::Gdk::Cursor->new('dotbox');
+
+		#disable controls, because they are not useful
+		$self->{_fill_color_w}->set_sensitive(FALSE);
+		$self->{_font_btn_w}->set_sensitive(FALSE);	
 		
 		#restore hard-coded highlighter properties
-		$self->deactivate_all;
 		$self->restore_highlighter_properties;
 
 	} elsif ( $self->{_current_mode} == 40 ) {
 
 		$self->{_current_mode_descr} = "line";
 
+		#disable controls, because they are not useful
+		$self->{_fill_color_w}->set_sensitive(FALSE);
+		$self->{_font_btn_w}->set_sensitive(FALSE);	
+
 	} elsif ( $self->{_current_mode} == 50 ) {
 
 		$self->{_current_mode_descr} = "arrow";
+
+		#disable controls, because they are not useful
+		$self->{_fill_color_w}->set_sensitive(FALSE);
+		$self->{_font_btn_w}->set_sensitive(FALSE);	
 
 	} elsif ( $self->{_current_mode} == 60 ) {
 
 		$self->{_current_mode_descr} = "rect";
 
+		#disable controls, because they are not useful
+		$self->{_font_btn_w}->set_sensitive(FALSE);	
+
 	} elsif ( $self->{_current_mode} == 70 ) {
 
 		$self->{_current_mode_descr} = "ellipse";
 
+		#disable controls, because they are not useful
+		$self->{_font_btn_w}->set_sensitive(FALSE);	
+
 	} elsif ( $self->{_current_mode} == 80 ) {
 
 		$self->{_current_mode_descr} = "text";
+
+		#disable controls, because they are not useful
+		$self->{_fill_color_w}->set_sensitive(FALSE);
+		$self->{_line_spin_w}->set_sensitive(FALSE);
 
 	} elsif ( $self->{_current_mode} == 90 ) {
 
@@ -1281,14 +1300,14 @@ sub load_settings {
 			$autoscroll_toggle->set_active( $settings_xml->{'drawing'}->{'autoscroll'} );
 
 			#drawing colors
-			$self->{_fill_color}         = Gtk2::Gdk::Color->parse( $settings_xml->{'drawing'}->{'fill_color'} );
-			$self->{_fill_color_alpha}   = $settings_xml->{'drawing'}->{'fill_color_alpha'};
-			$self->{_stroke_color}       = Gtk2::Gdk::Color->parse( $settings_xml->{'drawing'}->{'stroke_color'} );
-			$self->{_stroke_color_alpha} = $settings_xml->{'drawing'}->{'stroke_color_alpha'};
+			$self->{_fill_color}         	= Gtk2::Gdk::Color->parse( $settings_xml->{'drawing'}->{'fill_color'} );
+			$self->{_fill_color_alpha}   	= $settings_xml->{'drawing'}->{'fill_color_alpha'};
+			$self->{_stroke_color}       	= Gtk2::Gdk::Color->parse( $settings_xml->{'drawing'}->{'stroke_color'} );
+			$self->{_stroke_color_alpha} 	= $settings_xml->{'drawing'}->{'stroke_color_alpha'};
 			#line_width
-			$self->{_line_width} = $settings_xml->{'drawing'}->{'line_width'};
+			$self->{_line_width} 			= $settings_xml->{'drawing'}->{'line_width'};
 			#font
-			$self->{_font} = $settings_xml->{'drawing'}->{'font'};	
+			$self->{_font} 					= $settings_xml->{'drawing'}->{'font'};	
 			
 		};
 		if ($@) {
@@ -1667,25 +1686,21 @@ sub event_item_on_motion_notify {
 		return FALSE unless $item;
 
 		$self->deactivate_all($item);
-
-		$self->{_last_item} 		= $item;
-		$self->{_current_item} 		= $item;
+		
+		#mark as active item
+		$self->{_current_item} 	= $item;
 	
 		#apply item properties to widgets / or only save it
 		#line width, fill color, stroke color etc.
-		$self->set_and_save_drawing_properties($self->{_current_item}, TRUE);	
+		$self->set_and_save_drawing_properties($item, TRUE);	
 		
 		$self->{_items}{$item}{'bottom-right-corner'}->{res_x}    = $ev->x_root;
 		$self->{_items}{$item}{'bottom-right-corner'}->{res_y}    = $ev->y_root;
 		$self->{_items}{$item}{'bottom-right-corner'}->{resizing} = TRUE;
 		$self->{_canvas}->pointer_grab( $self->{_items}{$item}{'bottom-right-corner'}, [ 'pointer-motion-mask', 'button-release-mask' ], undef, $ev->time );
 
-		#and update rectangles and embedded items
-		#~ $self->handle_rects( 'update', $item );
-		#~ $self->handle_embedded( 'update', $item );
-
 		#add to undo stack
-		$self->store_to_xdo_stack($self->{_current_item} , 'create', 'undo');
+		$self->store_to_xdo_stack($item , 'create', 'undo');
 
 	#item is resizing mode already
 	} elsif ( $item->{resizing} && $ev->state >= 'button1-mask' ) {
@@ -2101,7 +2116,6 @@ sub clear_item_from_canvas {
 
 	#~ print "clear_item_from_canvas\n";
 
-	$self->{_last_item}        = undef;
 	$self->{_current_item}     = undef;
 	$self->{_current_new_item} = undef;	
 
@@ -2582,7 +2596,6 @@ sub xdo {
 	}elsif($action eq 'delete' || $action eq 'delete_xdo'){ 
 			
 			#mark as current
-			$self->{_last_item}        = $self->{_current_item};		
 			$self->{_current_item} 	   = $item;
 			$self->{_current_new_item} = undef;
 
@@ -2617,7 +2630,7 @@ sub set_and_save_drawing_properties {
 
 	return FALSE unless $item;
 
-	#~ print "set_and_save_drawing_properties\n";
+	#~ print "set_and_save_drawing_properties1\n";
 
 	#determine key for item hash
 	if(my $child = $self->get_child_item($item)){
@@ -2628,12 +2641,16 @@ sub set_and_save_drawing_properties {
 
 	return FALSE unless $key;
 
+	#~ print "set_and_save_drawing_properties2\n";
+
 	#we do not remember the properties for some tools
 	#and don't remember them when just selecting items with the cursor
 	if($self->{_items}{$key}{type} ne "highlighter" && 
 	   $self->{_items}{$key}{type} ne "image" &&
 	   $self->{_current_mode} != 10 )
 	{
+		
+		#~ print "Ja, gespeichert!\n";
 				
 		#remember drawing colors, line width and font settings
 		#maybe we have to restore them
@@ -2646,8 +2663,7 @@ sub set_and_save_drawing_properties {
 
 		#remember the last mode as well
 		$self->{_last_mode}            	  = $self->{_current_mode};
-		$self->{_last_mode_descr}         = $self->{_current_mode_descr};
-
+	
 	}
 	
 	return TRUE if $save_only;
@@ -2670,6 +2686,9 @@ sub set_and_save_drawing_properties {
 		#stroke color
 		#some items, e.g. censor tool, do not have a color - skip them
 		if($self->{_items}{$key}{stroke_color}){
+			
+			#~ print $self->{_items}{$key}{stroke_color}->to_string, "\n";
+			
 			$self->{_stroke_color_w}->set_color( $self->{_items}{$key}{stroke_color} );
 			$self->{_stroke_color_w}->set_alpha( int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
 		}
@@ -2757,6 +2776,8 @@ sub set_and_save_drawing_properties {
 sub restore_highlighter_properties {
 	my $self = shift;
 
+	#~ print "restore_highlighter_properties\n";
+
 	#block 'value-change' handlers for widgets
 	#so we do not apply the changes twice
 	$self->{_line_spin_w}->signal_handler_block ($self->{_line_spin_wh});
@@ -2830,8 +2851,8 @@ sub restore_drawing_properties {
 }
 
 sub event_item_on_button_press {
-	my ( $self, $item, $target, $ev ) = @_;
-
+	my ( $self, $item, $target, $ev, $select ) = @_;
+	
 	#~ print "button-press\n";
 
 	#canvas is busy now...
@@ -2842,7 +2863,7 @@ sub event_item_on_button_press {
 	#activate item
 	#if it is not activated yet
 	# => single click
-	if ($ev->type eq 'button-press') {
+	if ($ev->type eq 'button-press' && ($self->{_current_mode_descr} eq "select" || $select || $ev->button == 2)) {
 
 		#embedded item?
 		my $parent = $self->get_parent_item($item);
@@ -2853,16 +2874,28 @@ sub event_item_on_button_press {
 
 			unless (defined $self->{_current_item} && $item == $self->{_current_item}){
 
-				$self->{_last_item}        = $self->{_current_item};		
-				$self->{_current_item} 	   = $item;
-				$self->{_current_new_item} = undef;
-				$self->handle_rects( 'update', $self->{_current_item} );
-				$self->handle_rects( 'hide',   $self->{_last_item} );
-		
-				#apply item properties to widgets
-				#line width, fill color, stroke color etc.
-				$self->set_and_save_drawing_properties($self->{_current_item}, FALSE);
-		
+				unless ($self->{_current_mode_descr} eq "number" || $self->{_current_mode_descr} eq "text"){
+					
+					#remember last item 
+					my $last_item = $self->{_current_item};		
+					
+					#mark as active item
+					$self->{_current_item} 	   = $item;
+					$self->{_current_new_item} = undef;
+					
+					$self->handle_rects( 'update', $self->{_current_item} );
+					$self->handle_rects( 'hide',   $last_item );
+			
+					#apply item properties to widgets
+					#line width, fill color, stroke color etc.
+					$self->set_and_save_drawing_properties($self->{_current_item}, FALSE);
+				
+				}else{
+				
+					$self->deactivate_all($self->{_current_item});	
+				
+				}
+				
 			}
 			
 			#no item selected, deactivate all items
@@ -2871,7 +2904,7 @@ sub event_item_on_button_press {
 			$self->deactivate_all;
 			
 		}
-	} 
+	}
 	
 	#left mouse click to drag, resize, create or delelte items
 	if ( $ev->type eq 'button-press' && ($ev->button == 1 || $ev->button == 2) ) {
@@ -2952,9 +2985,9 @@ sub event_item_on_button_press {
 				$self->{_current_mode_descr} ne "highlighter" && 
 				$self->{_current_mode_descr} ne "censor" ) {
 
-				$item->{res_x}    		= $ev->x_root;
-				$item->{res_y}    		= $ev->y_root;
-				$item->{resizing}		= TRUE;
+				$item->{res_x}    	= $ev->x_root;
+				$item->{res_y}    	= $ev->y_root;
+				$item->{resizing}	= TRUE;
 
 				$cursor = undef;
 				
@@ -2973,6 +3006,10 @@ sub event_item_on_button_press {
 					$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
 					
 				}
+				
+				#restore style pattern
+				my $pattern = $self->create_color( $self->{_style_bg}, 1 );
+				$item->set('fill-pattern' => $pattern);
 				
 				$self->{_canvas}->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ], $cursor, $ev->time );
 
@@ -3068,6 +3105,8 @@ sub event_item_on_button_press {
 
 				#some items do not have properties, e.g. images or censor
 				return FALSE if $item->isa('Goo::Canvas::Image') || !exists($self->{_items}{$key}{stroke_color});
+				
+				#~ print $item, $parent, $key, "\n";
 				
 				$self->show_item_properties($item, $parent, $key);
 				
@@ -3303,11 +3342,12 @@ sub show_item_properties {
 	my $textview;
 	my $font_color;
 
-	#RECT OR ELLIPSE OR POLYLINE
+	#RECT OR ELLIPSE OR NUMBER OR POLYLINE
 	#GENERAL SETTINGS	
 	if (   $item->isa('Goo::Canvas::Rect')
 		|| $item->isa('Goo::Canvas::Ellipse')
-		|| $item->isa('Goo::Canvas::Polyline') )
+		|| $item->isa('Goo::Canvas::Polyline')
+		|| ($item->isa('Goo::Canvas::Text') && defined $self->{_items}{$key}{ellipse}) )
 	{
 
 		my $general_vbox = Gtk2::VBox->new( FALSE, 5 );
@@ -3859,7 +3899,6 @@ sub apply_properties {
 
 		#remember the last mode as well
 		$self->{_last_mode}            	  = $self->{_current_mode};
-		$self->{_last_mode_descr}         = $self->{_current_mode_descr};
 
 	}
 	
@@ -4135,7 +4174,6 @@ sub deactivate_all {
 
 	}
 
-	$self->{_last_item}        = undef;
 	$self->{_current_item}     = undef;
 	$self->{_current_new_item} = undef;
 
@@ -4710,13 +4748,7 @@ sub event_item_on_button_release {
 
 				#images
 				if (exists $self->{_items}{$nitem}{image}){
-					
-					#~ my ($maxw, $maxh) = Gtk2::Gdk::Display->get_default->get_maximal_cursor_size;
-					#~ $self->{_items}{$nitem}->set(
-						#~ 'width' => $maxw,
-						#~ 'height' => $maxh
-					#~ );
-					
+										
 					$self->{_items}{$nitem}->set(
 						'x' 		=> $ev->x_root - int($self->{_items}{$nitem}{orig_pixbuf}->get_width  / 2),
 						'y' 		=> $ev->y_root - int($self->{_items}{$nitem}{orig_pixbuf}->get_height / 2),
@@ -4734,7 +4766,7 @@ sub event_item_on_button_release {
 										
 						$nitem->set( 
 							'x'  		=> $ev->x_root, 
-							'y' 		=> $ev->y_root, 			
+							'y' 		=> $ev->y_root - int(abs($tb->y1 - $tb->y2)/2), 			
 							'width' 	=> abs($tb->x1 - $tb->x2),
 							'height' 	=> abs($tb->y1 - $tb->y2),
 						);
@@ -4752,13 +4784,6 @@ sub event_item_on_button_release {
 			
 				#all other objects
 				}else{
-					
-					#~ $nitem->set( 
-						#~ 'x'  		=> $ev->x_root - 50, 
-						#~ 'y' 		=> $ev->y_root - 50, 			
-						#~ 'width' 	=> 50,
-						#~ 'height' 	=> 50,
-					#~ );
 					
 					#delete
 					if(my $nint = $self->{_canvas}->get_root_item->find_child($nitem)){
@@ -4783,6 +4808,9 @@ sub event_item_on_button_release {
 			#delete from hash
 			delete $self->{_items}{$nitem};
 			
+			#deactivate all
+			$self->deactivate_all;
+			
 			if(my $oitem = $self->{_canvas}->get_item_at ($ev->x, $ev->y, TRUE)){
 				#turn into a button-press-event
 				my $initevent = Gtk2::Gdk::Event->new ('button-press');
@@ -4790,9 +4818,12 @@ sub event_item_on_button_release {
 				$initevent->window($self->{_drawing_window}->window);
 				$initevent->x($ev->x);
 				$initevent->y($ev->y);
-				$self->event_item_on_button_press($oitem, undef, $initevent);
+				$self->event_item_on_button_press($oitem, undef, $initevent, TRUE);
 			}			
 		}else{	
+			
+			$self->deactivate_all;
+			
 			$self->handle_rects( 'update', $nitem );
 			$self->handle_embedded( 'update', $nitem );
 			
@@ -4812,9 +4843,7 @@ sub event_item_on_button_release {
 		my $citem = $self->{_current_item};
 		if ( $citem && $citem->isa('Goo::Canvas::Rect') ) {
 			if ( exists $self->{_items}{$citem} ) {
-				if(	$self->{_items}{$citem}{'bottom-right-corner'}->get('visibility') eq 'hidden' && 
-					$self->{_items}{$citem}->get('width') == 0 &&
-					$self->{_items}{$citem}->get('height') == 0 ) {
+				if(	$self->{_items}{$citem}->get('visibility') eq 'hidden' ) {					
 					if(my $nint = $self->{_canvas}->get_root_item->find_child($citem)){
 						
 						$self->xdo('undo', undef, TRUE);	
@@ -4832,6 +4861,7 @@ sub event_item_on_button_release {
 					}					
 				}
 			}
+			
 		}		
 
 		#apply item properties to widgets
@@ -4839,9 +4869,8 @@ sub event_item_on_button_release {
 		$self->set_and_save_drawing_properties($citem, FALSE);	
 	}
 
-	#uncheck previous active items
+	#uncheck previous active item
 	$self->{_current_new_item} 	= undef;
-	$self->{_last_item}			= undef;
 
 	#unset action flags
 	$item->{dragging} 		= FALSE if exists $item->{dragging};
@@ -4888,75 +4917,91 @@ sub event_item_on_button_release {
 }
 
 sub event_item_on_enter_notify {
-	#~ my ( $self, $item, $target, $ev ) = @_;
-	#~ 
-	#~ return TRUE if $self->{_busy};
-	#~ 
-	#~ if (   $item->isa('Goo::Canvas::Rect')
-		#~ || $item->isa('Goo::Canvas::Ellipse')
-		#~ || $item->isa('Goo::Canvas::Text')
-		#~ || $item->isa('Goo::Canvas::Image')
-		#~ || $item->isa('Goo::Canvas::Polyline') )
-	#~ {
-#~ 
-		#~ my $cursor = Gtk2::Gdk::Cursor->new('left-ptr');
-#~ 
-		#~ #embedded item?
-		#~ my $parent = $self->get_parent_item($item);
-		#~ $item = $parent if $parent;
-#~ 
-		#~ #real shape
-		#~ if ( exists $self->{_items}{$item} ) {
-			#~ 
-			#~ $cursor = Gtk2::Gdk::Cursor->new('fleur');
-#~ 
-			#~ #set cursor
-			#~ if ( $self->{_current_mode_descr} eq "select" ) {
-				#~ $self->{_canvas}->window->set_cursor($cursor);
-			#~ } 
-			#~ 
-		#~ #canvas resizing shape
-		#~ } elsif (  $self->{_canvas_bg_rect}{'right-side'} == $item
-				#~ || $self->{_canvas_bg_rect}{'bottom-side'} == $item
-				#~ || $self->{_canvas_bg_rect}{'bottom-right-corner'} == $item ) 
-		#~ {
-#~ 
-			#~ if ( $self->{_current_mode_descr} eq "select" ) {
-#~ 
-				#~ foreach ( keys %{ $self->{_canvas_bg_rect} } ) {
-					#~ if ( $item == $self->{_canvas_bg_rect}{$_} ) {
-						#~ my $cursor = Gtk2::Gdk::Cursor->new($_);
-						#~ $self->{_canvas}->window->set_cursor($cursor);
-						#~ last;
-					#~ }
-				#~ }    #end determine cursor
-			#~ }		
-#~ 
-			#~ #resizing shape
-		#~ } else {
-			#~ 
-			#~ my $curr_item = $self->{_current_new_item} || $self->{_current_item};
-			#~ if ( $self->{_current_mode_descr} eq "select" ) {
-				#~ foreach ( keys %{ $self->{_items}{$curr_item} } ) {
-					#~ next unless $_ =~ m/(corner|side)/;
-					#~ if ( $item == $self->{_items}{$curr_item}{$_} ) {
-						#~ $cursor = Gtk2::Gdk::Cursor->new($_);
-						#~ $self->{_canvas}->window->set_cursor($cursor);
-						#~ last;
-					#~ }
-				#~ }    #end determine cursor
-			#~ }
-		#~ }
-	#~ }
-#~ 
-	#~ return TRUE;
+	my ( $self, $item, $target, $ev ) = @_;
+	
+	return TRUE if $self->{_busy};
+	
+	if (   ($item->isa('Goo::Canvas::Rect')
+		|| $item->isa('Goo::Canvas::Ellipse')
+		|| $item->isa('Goo::Canvas::Text')
+		|| $item->isa('Goo::Canvas::Image')
+		|| $item->isa('Goo::Canvas::Polyline')) 
+		&& ($self->{_current_mode_descr} ne "freehand" && 
+			$self->{_current_mode_descr} ne "highlighter" && 
+			$self->{_current_mode_descr} ne "censor" ) 
+		
+		) {
+
+
+		#embedded item?
+		my $parent = $self->get_parent_item($item);
+		$item = $parent if $parent;
+
+		#real shape
+		if ( exists $self->{_items}{$item} ) {
+			
+			#nothing here yet
+			
+		#canvas resizing shape
+		} elsif (  $self->{_canvas_bg_rect}{'right-side'} == $item
+				|| $self->{_canvas_bg_rect}{'bottom-side'} == $item
+				|| $self->{_canvas_bg_rect}{'bottom-right-corner'} == $item ) {
+
+			my $pattern = $self->create_color( 'red', 1 );
+			$item->set('fill-pattern' => $pattern);					
+
+			#resizing shape
+		} else {
+			
+			my $pattern = $self->create_color( 'red', 1 );
+			$item->set('fill-pattern' => $pattern);
+		
+		}
+	}
+
+	return TRUE;
 }
 
 sub event_item_on_leave_notify {
 	my ( $self, $item, $target, $ev ) = @_;
 
-	if ( $self->{_current_mode_descr} eq "select" ){
-		$self->{_canvas}->window->set_cursor(Gtk2::Gdk::Cursor->new('left-ptr'));
+	return TRUE if $self->{_busy};
+	
+	if (   ($item->isa('Goo::Canvas::Rect')
+		|| $item->isa('Goo::Canvas::Ellipse')
+		|| $item->isa('Goo::Canvas::Text')
+		|| $item->isa('Goo::Canvas::Image')
+		|| $item->isa('Goo::Canvas::Polyline'))
+		&& ($self->{_current_mode_descr} ne "freehand" && 
+			$self->{_current_mode_descr} ne "highlighter" && 
+			$self->{_current_mode_descr} ne "censor" ) 
+		
+		) {
+
+		#embedded item?
+		my $parent = $self->get_parent_item($item);
+		$item = $parent if $parent;
+
+		#real shape
+		if ( exists $self->{_items}{$item} ) {
+			
+			#nothing here yet
+			
+		#canvas resizing shape
+		} elsif (  $self->{_canvas_bg_rect}{'right-side'} == $item
+				|| $self->{_canvas_bg_rect}{'bottom-side'} == $item
+				|| $self->{_canvas_bg_rect}{'bottom-right-corner'} == $item ) {
+
+			my $pattern = $self->create_color( $self->{_style_bg}, 1 );
+			$item->set('fill-pattern' => $pattern);					
+
+			#resizing shape
+		} else {
+			
+			my $pattern = $self->create_color( $self->{_style_bg}, 1 );
+			$item->set('fill-pattern' => $pattern);
+		
+		}
 	}
 
 	return TRUE;
@@ -5326,9 +5371,8 @@ sub import_from_dnd {
 		$self->{_current_pixbuf} = $old_current;
 		$self->{_current_pixbuf_filename} = $old_filename;		
 
-		#uncheck previous active items
+		#uncheck previous active item
 		$self->{_current_new_item} 	= undef;
-		$self->{_last_item}			= undef;
 		
 	}else{
 		$context->finish (0, 0, $time);	
@@ -5926,7 +5970,6 @@ sub paste_item {
 			$self->{_current_new_item} 	= undef;
 			$self->{_current_item} 		= undef;
 			$self->{_current_copy_item} = undef;
-			$self->{_last_item}			= undef;
 					
 		}	
 		
