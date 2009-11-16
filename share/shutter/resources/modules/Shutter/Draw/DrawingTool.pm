@@ -2953,6 +2953,10 @@ sub event_item_on_button_press {
 				
 					}
 					
+					#restore style pattern
+					my $pattern = $self->create_color( $self->{_style_bg}, 1 );
+					$item->set('fill-pattern' => $pattern);
+				
 				}
 				
 			#no rectangle, e.g. polyline
@@ -4730,9 +4734,6 @@ sub event_item_on_button_release {
 
 	if ($nitem) {
 
-		#mark as active item
-		$self->{_current_item} 		= $nitem;
-			
 		#apply item properties to widgets
 		#line width, fill color, stroke color etc.
 		$self->set_and_save_drawing_properties($nitem, FALSE);
@@ -4822,7 +4823,10 @@ sub event_item_on_button_release {
 			}			
 		}else{	
 			
-			$self->deactivate_all;
+			$self->deactivate_all($nitem);
+
+			#mark as active item
+			$self->{_current_item} = $nitem;
 			
 			$self->handle_rects( 'update', $nitem );
 			$self->handle_embedded( 'update', $nitem );
