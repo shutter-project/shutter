@@ -84,7 +84,7 @@ use constant TRUE				=> 1;
 use constant FALSE				=> 0;
 use constant MAX_ERROR 			=> 5;
 #~ use constant REV         		=> "Rev.experimental branch";
-use constant REV         		=> "Rev.705";
+use constant REV         		=> "Rev.706";
 use constant SHUTTER_NAME		=> "Shutter";
 #~ use constant SHUTTER_VERSION	=> "v0.8x";
 use constant SHUTTER_VERSION	=> "v0.85";
@@ -2647,21 +2647,18 @@ sub fct_update_actions {
 	$sm->{_menuitem_close_all}->set_sensitive($n_items);		
 
 	#edit
-	if(defined $key && $key){
-		if($n_items && defined @{$session_screens{$key}->{'undo'}} && scalar @{$session_screens{$key}->{'undo'}} > 1){
-			$sm->{_menuitem_undo}->set_sensitive(TRUE);			
-		}else{
-			$sm->{_menuitem_undo}->set_sensitive(FALSE);
-		}
-	}	
+	if($n_items && defined $key && defined @{$session_screens{$key}->{'undo'}} && scalar @{$session_screens{$key}->{'undo'}} > 1){
+		$sm->{_menuitem_undo}->set_sensitive(TRUE);			
+	}else{
+		$sm->{_menuitem_undo}->set_sensitive(FALSE);
+	}
 
-	if(defined $key && $key){
-		if($n_items && defined @{$session_screens{$key}->{'redo'}} && scalar @{$session_screens{$key}->{'redo'}} > 0){
-			$sm->{_menuitem_redo}->set_sensitive(TRUE);			
-		}else{
-			$sm->{_menuitem_redo}->set_sensitive(FALSE);
-		}
-	}	
+	if($n_items && defined $key && defined @{$session_screens{$key}->{'redo'}} && scalar @{$session_screens{$key}->{'redo'}} > 0){
+		$sm->{_menuitem_redo}->set_sensitive(TRUE);			
+	}else{
+		$sm->{_menuitem_redo}->set_sensitive(FALSE);
+	}
+		
 	$sm->{_menuitem_trash}->set_sensitive($n_items);
 	$sm->{_menuitem_copy}->set_sensitive($n_items);
 	$sm->{_menuitem_copy_filename}->set_sensitive($n_items);	
@@ -3492,7 +3489,6 @@ sub fct_save_settings {
 	$settings{'general'}->{'fname_autocopy'} = $fname_autocopy_active->get_active();
 	$settings{'general'}->{'cursor'}		 = $cursor_active->get_active();
 	$settings{'general'}->{'delay'}			 = $delay->get_value();
-	#~ $settings{'general'}->{'delay_active'}	 = $delay_active->get_active();
 
 	#wrksp -> submenu
 	$settings{'general'}->{'current_monitor_active'} = $current_monitor_active->get_active;
@@ -4383,6 +4379,9 @@ sub fct_delete {
 			$session_start_screen{'first_page'}->{'model'}->remove( $session_screens{$key}->{'iter'} );
 		}
 
+		#unlink undo and redo files
+		&fct_unlink_tempfiles($key);
+
 		delete $session_screens{$key};
 
 		$window->show_all unless $is_hidden;
@@ -4475,6 +4474,9 @@ sub fct_delete {
 				$session_start_screen{'first_page'}->{'model'}->remove( $session_screens{$key}->{'iter'} );
 			}
 
+			#unlink undo and redo files
+			&fct_unlink_tempfiles($key);
+
 			delete $session_screens{$key};
 		}
 
@@ -4517,7 +4519,10 @@ sub fct_remove {
 			$session_start_screen{'first_page'}->{'model'}->remove( $session_screens{$key}->{'iter'} );
 		}
 
-		delete( $session_screens{$key} );                                                          # delete from hash
+		#unlink undo and redo files
+		&fct_unlink_tempfiles($key);
+
+		delete $session_screens{$key};
 
 		$window->show_all unless $is_hidden;
 
@@ -4565,7 +4570,10 @@ sub fct_remove {
 			if(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
 				$session_start_screen{'first_page'}->{'model'}->remove( $session_screens{$key}->{'iter'} );
 			}
-
+			
+			#unlink undo and redo files
+			&fct_unlink_tempfiles($key);
+			
 			delete $session_screens{$key};
 		}
 
@@ -4643,6 +4651,20 @@ sub fct_clipboard {
 	return TRUE;
 }
 
+sub fct_unlink_tempfiles {
+	my $key = shift;
+	
+	foreach(@{$session_screens{$key}->{'undo'}}){
+		unlink $_;
+	}	
+
+	foreach(@{$session_screens{$key}->{'redo'}}){
+		unlink $_;
+	}	
+	
+	return TRUE;
+}
+
 sub fct_undo {
 
 	my $key = &fct_get_current_file;
@@ -4651,7 +4673,7 @@ sub fct_undo {
 	if ($key) {
 
 		return FALSE unless &fct_screenshot_exists($key);
-
+		
 		#push current version to redo
 		#(current version is always the last element in the array)
 		my $current_version = pop @{$session_screens{$key}->{'undo'}};
@@ -4668,12 +4690,15 @@ sub fct_undo {
 
 			if (cp($last_version, $session_screens{$key}->{'long'})){
 		
-				&fct_update_tab( $key, undef, $session_screens{$key}->{'uri'}, TRUE );
+				&fct_update_tab( $key, undef, $session_screens{$key}->{'uri'}, TRUE, 'gui' );
 
 				#setup a new filemonitor, so we get noticed if the file changed
 				&fct_add_file_monitor($key);	
 
 				&fct_show_status_message( 1, $d->get("Last action undone") );
+				
+				#delete last_version from filesystem
+				unlink $last_version;
 				
 			}else{
 
@@ -4715,12 +4740,15 @@ sub fct_redo {
 
 			if (cp($last_version, $session_screens{$key}->{'long'})){
 		
-				&fct_update_tab( $key, undef, $session_screens{$key}->{'uri'}, TRUE );
+				&fct_update_tab( $key, undef, $session_screens{$key}->{'uri'}, TRUE, 'gui' );
 
 				#setup a new filemonitor, so we get noticed if the file changed
 				&fct_add_file_monitor($key);	
 
 				&fct_show_status_message( 1, $d->get("Last action redone") );
+
+				#delete last_version from filesystem
+				unlink $last_version;
 				
 			}else{
 
@@ -5866,13 +5894,14 @@ sub fct_update_profile_selectors {
 sub fct_update_tab {
 
 	#mandatory
-	my $key 			= shift;
+	my $key = shift;
 	return FALSE unless $key;
 
 	#optional, e.g.used by fct_integrate...
 	my $pixbuf 			= shift;
 	my $uri    			= shift;
 	my $force_thumb		= shift;
+	my $xdo				= shift;
 
 	$session_screens{$key}->{'uri'}      = $uri if $uri;
 	$session_screens{$key}->{'mtime'} 	 = -1 unless $session_screens{$key}->{'mtime'};
@@ -5957,8 +5986,7 @@ sub fct_update_tab {
 			$session_screens{$key}->{'image'}->set_pixbuf( $pixbuf );
 			
 			#UPDATE INFOS
-			#--------------------------------------		
-			#~ Glib::Idle->add (sub{
+			#--------------------------------------
 
 			#get dimensions - using the pixbuf
 			$session_screens{$key}->{'width'}  = $pixbuf->get_width;
@@ -5975,8 +6003,42 @@ sub fct_update_tab {
 			#create tempfile
 			#maybe we have to restore the file later
 			my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
-			push @{$session_screens{$key}->{'undo'}}, $tmpfilename;				
-			cp($session_screens{$key}->{'long'}, $tmpfilename);
+
+			#UNDO / REDO
+			#--------------------------------------
+			
+			#blocked (e.g. renaming)
+			if(defined $xdo && $xdo eq 'block'){
+				
+				unlink $tmpfilename;
+			
+			#clear (e.g. save_as)
+			}elsif(defined $xdo && $xdo eq 'clear'){
+
+				while (defined $session_screens{$key}->{'undo'} && scalar @{ $session_screens{$key}->{'undo'} } > 0){
+					unlink shift @{ $session_screens{$key}->{'undo'} };	
+				}	
+				while (defined $session_screens{$key}->{'redo'} && scalar @{ $session_screens{$key}->{'redo'} } > 0){
+					unlink shift @{ $session_screens{$key}->{'redo'} };	
+				}	
+
+				push @{$session_screens{$key}->{'undo'}}, $tmpfilename;				
+				cp($session_screens{$key}->{'long'}, $tmpfilename);
+			
+			#push to undo	
+			}else{
+				
+				#clear redo unless triggered from gui (undo/redo buttons)
+				if(!defined $xdo){
+					while (defined $session_screens{$key}->{'redo'} && scalar @{ $session_screens{$key}->{'redo'} } > 0){
+						unlink shift @{ $session_screens{$key}->{'redo'} };	
+					}
+				}
+				
+				push @{$session_screens{$key}->{'undo'}}, $tmpfilename;				
+				cp($session_screens{$key}->{'long'}, $tmpfilename);				
+			
+			}
 			
 			my $thumb;	
 			unless($session_screens{$key}->{'no_thumbnail'}){
@@ -5993,18 +6055,6 @@ sub fct_update_tab {
 				$thumb = Gtk2::Gdk::Pixbuf->new ('rgb', TRUE, 8, 5, 5);	
 				$thumb->fill(0x00000000);						
 			}
-
-			#~ $session_screens{$key}->{'filename_label'}->set_text( $session_screens{$key}->{'uri'}->extract_short_name );
-			#~ $tooltips->set_tip( $session_screens{$key}->{'filename_label'}, $session_screens{$key}->{'uri'}->to_string );
-#~ 
-			#~ $session_screens{$key}->{'folder_label'}->set_text( $session_screens{$key}->{'uri'}->extract_dirname );
-			#~ $tooltips->set_tip( $session_screens{$key}->{'folder_label'}, $session_screens{$key}->{'uri'}->extract_dirname );
-#~ 
-			#~ $session_screens{$key}->{'mime_type_label'}->set_text( $session_screens{$key}->{'mime_type'} );
-#~ 
-			#~ $session_screens{$key}->{'size_label'}->set_text( $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display( $session_screens{$key}->{'size'} ) ) );
-#~ 
-			#~ $session_screens{$key}->{'geometry_label'}->set_text( $session_screens{$key}->{'width'} . "x" . $session_screens{$key}->{'height'} );
 
 			#UPDATE FIRST TAB - VIEW
 			#--------------------------------------				
@@ -6035,9 +6085,6 @@ sub fct_update_tab {
 
 			#update menu actions		
 			&fct_update_actions(1, $key);
-
-				#~ return FALSE;
-			#~ });
 
 			return TRUE;
 						
@@ -7610,7 +7657,7 @@ sub dlg_rename {
 						my $result = $old_uri->move ($new_uri, TRUE);
 						if ($result eq 'ok'){
 					
-							&fct_update_tab( $key, undef, $new_uri );
+							&fct_update_tab( $key, undef, $new_uri, FALSE, 'block' );
 
 							#setup a new filemonitor, so we get noticed if the file changed
 							&fct_add_file_monitor($key);	
@@ -7660,7 +7707,7 @@ sub dlg_rename {
 							my $result = $old_uri->move ($new_uri, TRUE);
 							if ($result eq 'ok'){
 				
-								&fct_update_tab( $key, undef, $new_uri );
+								&fct_update_tab( $key, undef, $new_uri, FALSE, 'block' );
 
 								#setup a new filemonitor, so we get noticed if the file changed
 								&fct_add_file_monitor($key);	
@@ -7692,7 +7739,7 @@ sub dlg_rename {
 										$session_screens{$searchkey}->{'handle'}->cancel;
 									}
 
-									&fct_update_tab($searchkey, undef, $new_uri);
+									&fct_update_tab($searchkey, undef, $new_uri, FALSE, 'block' );
 
 									#setup a new filemonitor, so we get noticed if the file changed
 									&fct_add_file_monitor($searchkey);	
@@ -7830,7 +7877,7 @@ sub dlg_save_as {
 						
 						$session_screens{$key}->{'handle'}->cancel;
 					}
-					if(&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($filename) )){
+					if(&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($filename), FALSE, 'clear' )){
 						#setup a new filemonitor, so we get noticed if the file changed
 						&fct_add_file_monitor($key);
 
@@ -7863,7 +7910,7 @@ sub dlg_save_as {
 							$session_screens{$key}->{'handle'}->cancel;
 						}
 
-						if(&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($filename) )){
+						if(&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($filename), FALSE, 'clear' )){
 
 							#setup a new filemonitor, so we get noticed if the file changed
 							&fct_add_file_monitor($key);
@@ -7873,7 +7920,7 @@ sub dlg_save_as {
 								next if $key eq $searchkey;
 								if ( $session_screens{$searchkey}->{'long'} eq $filename ) {
 									$session_screens{$searchkey}->{'changed'} = TRUE;
-									&fct_update_tab($searchkey);
+									&fct_update_tab($searchkey, undef, undef, FALSE, 'clear');
 								}
 							}	
 

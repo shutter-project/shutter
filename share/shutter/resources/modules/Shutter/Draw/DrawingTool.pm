@@ -2208,8 +2208,6 @@ sub store_to_xdo_stack {
 			$mirrored_w = $self->{_items}{$item}{mirrored_w};
 			$mirrored_h = $self->{_items}{$item}{mirrored_h};
 		
-		}else{
-		
 		}
 
 		#item props
@@ -2286,7 +2284,7 @@ sub store_to_xdo_stack {
 	
 	}
 
-	#reset undo when creating new item after redo
+	#reset redo
 	if(defined $source && $source eq 'ui'){
 		#~ print "no clear\n";
 	}else{
