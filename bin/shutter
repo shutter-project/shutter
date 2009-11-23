@@ -84,7 +84,7 @@ use constant TRUE				=> 1;
 use constant FALSE				=> 0;
 use constant MAX_ERROR 			=> 5;
 #~ use constant REV         		=> "Rev.experimental branch";
-use constant REV         		=> "Rev.707";
+use constant REV         		=> "Rev.708";
 use constant SHUTTER_NAME		=> "Shutter";
 #~ use constant SHUTTER_VERSION	=> "v0.8x";
 use constant SHUTTER_VERSION	=> "v0.85";
@@ -1999,7 +1999,35 @@ $hbox_settings->pack_start( $vbox_settings, TRUE, TRUE, 6 );
 $settings_dialog->vbox->add($hbox_settings);
 $settings_dialog->set_default_response('apply');
 
-#main app
+#~ #iconview
+#~ my $iconview = Gtk2::IconView->new_with_model($session_start_screen{'first_page'}->{'model'});
+#~ $iconview->set_item_width (150);
+#~ $iconview->set_pixbuf_column(0);
+#~ $iconview->set_text_column(1);
+#~ $iconview->set_selection_mode('multiple');
+#~ $iconview->signal_connect( 'selection-changed', \&evt_iconview_sel_changed );
+#~ $iconview->signal_connect( 'item-activated', \&evt_iconview_item_activated );
+#~ 
+#~ my $scrolled_window_view = Gtk2::ScrolledWindow->new;
+#~ $scrolled_window_view->set_policy( 'automatic', 'automatic' );
+#~ $scrolled_window_view->set_shadow_type('in');
+#~ $scrolled_window_view->add($iconview);
+#~ 
+#~ #add an event box to show a context menu on right-click
+#~ my $view_event = Gtk2::EventBox->new;
+#~ $view_event->add($scrolled_window_view);
+#~ $view_event->signal_connect( 'button-press-event', \&evt_iconview_button_press, $iconview );
+#~ 
+#~ 
+#~ #pack notebook and iconview into vpaned#
+#~ my $vpaned = Gtk2::VPaned->new;
+#~ $vpaned->add1($notebook);
+#~ $vpaned->add2($view_event);
+#~ 
+#~ #vpaned into vbox 
+#~ $vbox->pack_start( $vpaned, TRUE, TRUE, 0 );
+
+#notebook
 $vbox->pack_start( $notebook,  TRUE,  TRUE,  0 );
 
 #pack statusbar
@@ -2602,7 +2630,7 @@ sub evt_iconview_button_press {
 }
 
 sub evt_iconview_sel_changed {
-	my ( $trayview, $data ) = @_;
+	my ( $view, $data ) = @_;
 
 	#we don't handle selection changes 
 	#if we are not in the session tab
@@ -2611,7 +2639,7 @@ sub evt_iconview_sel_changed {
 		return FALSE; 		
 	}
 
-	my @sel_items = $trayview->get_selected_items;	
+	my @sel_items = $view->get_selected_items;	
 	
 	#enable/disable menu entry when we are in the session tab and selection changes
 	&fct_update_actions( scalar @sel_items );
@@ -2724,10 +2752,12 @@ sub fct_update_actions {
 }
 
 sub evt_iconview_item_activated {
-	my ( $trayview, $path, $data ) = @_;
-
-	my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
-	my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
+	my ( $view, $path, $data ) = @_;
+	
+	my $model = $view->get_model;
+	
+	my $iter = $model->get_iter($path);
+	my $key = $model->get_value( $iter, 2 );
 
 	$notebook->set_current_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
 
@@ -3250,39 +3280,8 @@ sub fct_create_tab {
 	my $vbox            = Gtk2::VBox->new( FALSE, 0 );
 	my $vbox_tab        = Gtk2::VBox->new( FALSE, 0 );
 	my $vbox_tab_event  = Gtk2::EventBox->new;
-	#~ my $vbox_all        = Gtk2::VBox->new( FALSE, 0 );
-	#~ my $hbox_all        = Gtk2::HBox->new( FALSE, 0 );
-	#~ my $vbox_all2       = Gtk2::VBox->new( FALSE, 0 );
-	#~ my $vbox_fileinfos  = Gtk2::VBox->new( FALSE, 0 );
 
 	unless ($is_all) {
-		#~ my $filename_label = Gtk2::Label->new;
-		#~ $filename_label->set_markup( "<b>" . $d->get("Filename") . "</b>" );
-		#~ $session_screens{$key}->{'filename_label'} = Gtk2::Label->new();
-		#~ $session_screens{$key}->{'filename_label'}->set_line_wrap(TRUE);
-		#~ $session_screens{$key}->{'filename_label'}->set_line_wrap_mode ('char');
-		#~ $session_screens{$key}->{'filename_label'}->set_width_chars (20);
-		#~ $session_screens{$key}->{'filename_label'}->set_single_line_mode(FALSE);
-#~ 
-		#~ my $folder_label = Gtk2::Label->new;
-		#~ $folder_label->set_markup( "<b>" . $d->get("Directory") . "</b>" );
-		#~ $session_screens{$key}->{'folder_label'} = Gtk2::Label->new();
-		#~ $session_screens{$key}->{'folder_label'}->set_line_wrap(TRUE);
-		#~ $session_screens{$key}->{'folder_label'}->set_line_wrap_mode ('char');
-		#~ $session_screens{$key}->{'folder_label'}->set_width_chars (20);
-		#~ $session_screens{$key}->{'folder_label'}->set_single_line_mode(FALSE);
-#~ 
-		#~ my $mime_type_label = Gtk2::Label->new;
-		#~ $mime_type_label->set_markup( "<b>" . $d->get("Mime-Type") . "</b>" );
-		#~ $session_screens{$key}->{'mime_type_label'} = Gtk2::Label->new();
-#~ 
-		#~ my $size_label = Gtk2::Label->new;
-		#~ $size_label->set_markup( "<b>" . $d->get("Filesize") . "</b>" );
-		#~ $session_screens{$key}->{'size_label'} = Gtk2::Label->new();
-#~ 
-		#~ my $geometry_label = Gtk2::Label->new;
-		#~ $geometry_label->set_markup( "<b>" . $d->get("Geometry") . "</b>" );
-		#~ $session_screens{$key}->{'geometry_label'} = Gtk2::Label->new();
 
 		#Gtk2::ImageView - empty at first
 		$session_screens{$key}->{'image'} = Gtk2::ImageView->new();
@@ -3305,11 +3304,7 @@ sub fct_create_tab {
 		}
 
 		$session_screens{$key}->{'image'}->set_transp($mode, hex $color_string);
-				
-		#Gtk2::ImageView::ScrollWin
-		#~ my $image_sw = Gtk2::ImageView::ScrollWin->new($session_screens{$key}->{'image'});
-		#~ $image_sw->set_size_request(50, -1);
-		
+					
 		#Gtk2::ImageView::ScrollWin packaged in a Gtk2::ScrolledWindow
 		my $scrolled_window_image = Gtk2::ScrolledWindow->new;
 		$scrolled_window_image->set_policy( 'automatic', 'automatic' );
@@ -3341,43 +3336,7 @@ sub fct_create_tab {
 			}					
 		});
 		
-		#packing
-		#~ my $tab_infos_sizegroup = Gtk2::SizeGroup->new('vertical');
-		#~ $tab_infos_sizegroup->add_widget( $session_screens{$key}->{'filename_label'} );
-		#~ $tab_infos_sizegroup->add_widget( $session_screens{$key}->{'folder_label'} );
-		#~ $tab_infos_sizegroup->add_widget( $session_screens{$key}->{'size_label'} );
-		#~ $tab_infos_sizegroup->add_widget( $session_screens{$key}->{'mime_type_label'} );
-		#~ $tab_infos_sizegroup->add_widget( $session_screens{$key}->{'geometry_label'} );
-
-		#~ $session_screens{$key}->{'filename_label'}->set_alignment( 0, 0.5 );
-		#~ $session_screens{$key}->{'folder_label'}->set_alignment( 0, 0.5 );
-		#~ $session_screens{$key}->{'mime_type_label'}->set_alignment( 0, 0.5 );
-		#~ $session_screens{$key}->{'size_label'}->set_alignment( 0, 0.5 );
-		#~ $session_screens{$key}->{'geometry_label'}->set_alignment( 0, 0.5 );
-
-		#~ $filename_label->set_alignment( 0, 0.5 );
-		#~ $folder_label->set_alignment( 0, 0.5 );
-		#~ $mime_type_label->set_alignment( 0, 0.5 );
-		#~ $size_label->set_alignment( 0, 0.5 );
-		#~ $geometry_label->set_alignment( 0, 0.5 );
-
-		#~ $vbox_fileinfos->pack_start( $filename_label,                             FALSE, TRUE, 5 );
-		#~ $vbox_fileinfos->pack_start( $session_screens{$key}->{'filename_label'},  FALSE, TRUE, 2 );
-		#~ $vbox_fileinfos->pack_start( $folder_label,                               FALSE, TRUE, 5 );
-		#~ $vbox_fileinfos->pack_start( $session_screens{$key}->{'folder_label'},    FALSE, TRUE, 2 );
-		#~ $vbox_fileinfos->pack_start( $size_label,                                 FALSE, TRUE, 10 );
-		#~ $vbox_fileinfos->pack_start( $session_screens{$key}->{'size_label'},      FALSE, TRUE, 2 );
-		#~ $vbox_fileinfos->pack_start( $mime_type_label,                            FALSE, TRUE, 10 );
-		#~ $vbox_fileinfos->pack_start( $session_screens{$key}->{'mime_type_label'}, FALSE, TRUE, 2 );
-		#~ $vbox_fileinfos->pack_start( $geometry_label,                             FALSE, TRUE, 10 );
-		#~ $vbox_fileinfos->pack_start( $session_screens{$key}->{'geometry_label'},  FALSE, TRUE, 2 );
-
-		my $hpaned = Gtk2::HPaned->new;
-		#~ $hpaned->add1($vbox_fileinfos);
-		$hpaned->add1($scrolled_window_image);
-		#~ $hpaned->pack2($image_sw, TRUE, FALSE);
-
-		$vbox_tab->pack_start( $hpaned, TRUE, TRUE, 0 );
+		$vbox_tab->pack_start( $scrolled_window_image, TRUE, TRUE, 0 );
 
 		$vbox->pack_start_defaults($vbox_tab);
 		
@@ -3390,33 +3349,6 @@ sub fct_create_tab {
 		return $vbox_tab_event;
 
 	} else {
-		#~ my $stats_label = Gtk2::Label->new;
-		#~ $stats_label->set_markup( "<b>" . $d->get("Statistic") . "</b>" );
-#~ 
-		#~ $session_start_screen{'first_page'}->{'statistics_counter'} = Gtk2::Label->new(
-			#~ $notebook->get_n_pages . " " . $d->nget( "screenshot during this session", "screenshots during this session", $notebook->get_n_pages ) );
-#~ 
-		#~ $session_start_screen{'first_page'}->{'size_counter'}
-			#~ = Gtk2::Label->new( $d->get("Total size") . ": " . $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display(0) ) );
-#~ 
-		#~ $vbox_all->pack_start( $stats_label,                                                FALSE, TRUE, 1 );
-		#~ $vbox_all->pack_start( $session_start_screen{'first_page'}->{'statistics_counter'}, FALSE, TRUE, 1 );
-		#~ $vbox_all->pack_start( $session_start_screen{'first_page'}->{'size_counter'},       FALSE, TRUE, 1 );
-#~ 
-		#~ $session_start_screen{'first_page'}->{'settings_label'} = Gtk2::Label->new;
-		#~ $session_start_screen{'first_page'}->{'settings_label'}->set_markup( "<b>" . $d->get("Current Preferences") . "</b>" );
-#~ 
-		#~ $vbox_all2->pack_start_defaults( $session_start_screen{'first_page'}->{'settings_label'} );
-#~ 
-		#~ $session_start_screen{'first_page'}->{'filename_label'} = Gtk2::Label->new( $d->get("Filename") . ": " );
-		#~ $session_start_screen{'first_page'}->{'folder_label'}   = Gtk2::Label->new( $d->get("Directory") . ": " );
-#~ 
-		#~ my $tab_all_sizegroup = Gtk2::SizeGroup->new('vertical');
-		#~ $tab_all_sizegroup->add_widget( $session_start_screen{'first_page'}->{'filename_label'} );
-		#~ $tab_all_sizegroup->add_widget( $session_start_screen{'first_page'}->{'folder_label'} );
-#~ 
-		#~ $vbox_all2->pack_start_defaults( $session_start_screen{'first_page'}->{'filename_label'} );
-		#~ $vbox_all2->pack_start_defaults( $session_start_screen{'first_page'}->{'folder_label'} );
 
 		#create iconview for session
 		$session_start_screen{'first_page'}->{'model'} = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String' );
@@ -3430,11 +3362,7 @@ sub fct_create_tab {
 		$session_start_screen{'first_page'}->{'view'}->signal_connect( 'selection-changed', \&evt_iconview_sel_changed,    'sel_changed' );
 		$session_start_screen{'first_page'}->{'view'}->signal_connect( 'item-activated',    \&evt_iconview_item_activated, 'item_activated' );
 
-		#~ $hbox_all->pack_start_defaults($vbox_all);
-		#~ $hbox_all->pack_start_defaults($vbox_all2);
-		#~ $vbox_tab->pack_start( $hbox_all, FALSE, TRUE, 0 );
-		#~ $vbox_tab->pack_start( $hbox_all, FALSE, TRUE, 0 );
-
+		#pack into scrolled window
 		my $scrolled_window_view = Gtk2::ScrolledWindow->new;
 		$scrolled_window_view->set_policy( 'automatic', 'automatic' );
 		$scrolled_window_view->set_shadow_type('in');
@@ -4636,21 +4564,69 @@ sub fct_clipboard {
 
 	my $key = &fct_get_current_file;
 
+	my @clipboard_array;
+
 	#single file
 	if ($key) {
 
 		return FALSE unless &fct_screenshot_exists($key);
+		push (@clipboard_array, $key);
 
-		if($mode eq 'image'){
-			my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} );
-			$clipboard->set_image( $pixbuf );
-		}else{
-			$clipboard->set_text( $session_screens{$key}->{'long'} );	
-		}
-			
-		&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("copied to clipboard") );
+	}else{
+
+		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
+			sub {
+				my ( $view, $path ) = @_;
+				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
+				if ( defined $iter ) {
+					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
+					push (@clipboard_array, $key);
+				}
+			},
+			undef
+		);
 
 	}
+
+	my $clipboard_string = undef;
+	my $clipboard_region = Gtk2::Gdk::Region->new;
+	my @pixbuf_array;
+	my @rects_array;
+	foreach my $key (@clipboard_array){
+
+		if($mode eq 'image'){
+			my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($session_screens{$key}->{'long'});
+			my $rect = Gtk2::Gdk::Rectangle->new($clipboard_region->get_clipbox->width, 0, $pixbuf->get_width, $pixbuf->get_height);
+			$clipboard_region->union_with_rect($rect);
+			push @pixbuf_array, $pixbuf;
+			push @rects_array, $rect;
+		}else{
+			$clipboard_string .= $session_screens{$key}->{'long'}."\n";	
+		}
+					
+	}
+	
+	if($clipboard_string){
+		chomp $clipboard_string;
+		$clipboard->set_text( $clipboard_string );		
+		&fct_show_status_message( 1, $d->get("Selected filenames copied to clipboard") );
+	}
+
+	if($clipboard_region->get_rectangles){
+		my $clipboard_image = Gtk2::Gdk::Pixbuf->new ('rgb', TRUE, 8, $clipboard_region->get_clipbox->width, $clipboard_region->get_clipbox->height);	
+		$clipboard_image->fill(0x00000000);
+		
+		#copy images to the blank pixbuf
+		my $rect_counter = 0;
+		foreach my $pixbuf (@pixbuf_array){
+			$pixbuf->copy_area (0, 0, $pixbuf->get_width, $pixbuf->get_height, $clipboard_image, $rects_array[$rect_counter]->x, 0);
+			$rect_counter++;
+		}
+				
+		$clipboard->set_image( $clipboard_image );
+		&fct_show_status_message( 1, $d->get("Selected images copied to clipboard") );		
+	}
+	
 	return TRUE;
 }
 
@@ -5750,21 +5726,6 @@ sub fct_update_info_and_tray {
 			$tooltips->set_tip( $tray, SHUTTER_NAME . " " . SHUTTER_VERSION );
 		}
 	}
-
-	#STATUSBAR
-	#--------------------------------------
-	
-	
-			
-	#~ if ( $combobox_settings_profiles ) {
-#~ 
-		#~ if ( $combobox_settings_profiles->get_active_text ) {
-			#~ $status2->push(1, $d->get("Current Profile") . ": " . $combobox_settings_profiles->get_active_text);
-		#~ } else {
-			#~ $status2->push(1, "");
-		#~ }
-#~ 
-	#~ }
 
 	return TRUE;
 }
