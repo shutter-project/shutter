@@ -84,7 +84,7 @@ use constant TRUE				=> 1;
 use constant FALSE				=> 0;
 use constant MAX_ERROR 			=> 5;
 #~ use constant REV         		=> "Rev.experimental branch";
-use constant REV         		=> "Rev.708";
+use constant REV         		=> "Rev.709";
 use constant SHUTTER_NAME		=> "Shutter";
 #~ use constant SHUTTER_VERSION	=> "v0.8x";
 use constant SHUTTER_VERSION	=> "v0.85";
@@ -983,7 +983,7 @@ $saveDir_box->pack_start( $saveDir_button, TRUE,  TRUE, 0 );
 
 #image image_autocopy
 #--------------------------------------
-my $image_autocopy_active = Gtk2::CheckButton->new_with_label( $d->get("Automatically copy screenshot to clipboard") );
+my $image_autocopy_active = Gtk2::RadioButton->new_with_label(undef, $d->get("Automatically copy screenshot to clipboard") );
 $image_autocopy_box->pack_start( $image_autocopy_active, FALSE, TRUE, 12 );
 
 if ( defined $settings_xml->{'general'}->{'image_autocopy'} ) {
@@ -999,13 +999,13 @@ $tooltips->set_tip( $image_autocopy_active, $d->get("Automatically copy screensh
 
 #filename image_autocopy
 #--------------------------------------
-my $fname_autocopy_active = Gtk2::CheckButton->new_with_label( $d->get("Automatically copy filename to clipboard") );
+my $fname_autocopy_active = Gtk2::RadioButton->new_with_label($image_autocopy_active, $d->get("Automatically copy filename to clipboard") );
 $fname_autocopy_box->pack_start( $fname_autocopy_active, FALSE, TRUE, 12 );
 
 if ( defined $settings_xml->{'general'}->{'fname_autocopy'} ) {
 	$fname_autocopy_active->set_active( $settings_xml->{'general'}->{'fname_autocopy'} );
 } else {
-	$fname_autocopy_active->set_active(TRUE);
+	$fname_autocopy_active->set_active(FALSE);
 }
 
 $tooltips->set_tip( $fname_autocopy_active, $d->get("Automatically copy filename to clipboard") );
