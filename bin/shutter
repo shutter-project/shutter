@@ -84,7 +84,7 @@ use constant TRUE				=> 1;
 use constant FALSE				=> 0;
 use constant MAX_ERROR 			=> 5;
 #~ use constant REV         		=> "Rev.experimental branch";
-use constant REV         		=> "Rev.709";
+use constant REV         		=> "Rev.710";
 use constant SHUTTER_NAME		=> "Shutter";
 #~ use constant SHUTTER_VERSION	=> "v0.8x";
 use constant SHUTTER_VERSION	=> "v0.85";
@@ -8773,13 +8773,14 @@ sub dlg_website {
 	my $website_hbox2 = Gtk2::HBox->new();
 
 	my $website = Gtk2::Entry->new;
-	$website->set_text("http://");
+	#~ $website->set_text("http://");
 	$website->set_activates_default(TRUE);
 
 	#check if url is valid
-	my $vurl = qr/^((http(s?))\:\/\/)?(www.|[a-zA-Z].)[a-zA-Z0-9\-\.]+\.([a-zA-Z]+)(\:[0-9]+)*(\/($|[a-zA-Z0-9\.\,\;\?\'\\\+&amp;%\$#\=~_\-]+))*$/;
+	#~ my $vurl = qr/^((http(s?))\:\/\/)?(www.|[a-zA-Z].)[a-zA-Z0-9\-\.]+\.([a-zA-Z]+)(\:[0-9]+)*(\/($|[a-zA-Z0-9\.\,\;\?\'\\\+&amp;%\$#\=~_\-]+))*$/;
 	$website->signal_connect('changed' => sub {
-		unless ( $website->get_text =~ /$vurl/) {
+		#~ unless ( $website->get_text =~ /$vurl/) {
+		unless ( $website->get_text ) {
 			$execute_btn->set_sensitive(FALSE);
 		}else{
 			$execute_btn->set_sensitive(TRUE);
@@ -8877,8 +8878,9 @@ sub dlg_website {
 			}
 		}
 
-		my $url	= Gnome2::VFS::URI->new ($website->get_text);
-		my $screenshooter = Shutter::Screenshot::Web->new( $timeout, $filetype_value, $website_width, $url->to_string, $filename );
+		my $url	= $website->get_text;
+		print "$timeout, $filetype_value, $website_width, ". $url. ", $filename\n" if $sc->get_debug;
+		my $screenshooter = Shutter::Screenshot::Web->new( $timeout, $filetype_value, $website_width, $url, $filename );
 
 		Proc::Simple::debug(1) if $sc->get_debug;
 
@@ -8941,7 +8943,7 @@ sub dlg_website {
 
 				#set name of the captured window
 				#e.g. for use in wildcards
-				$screenshot->{'name'} = $url->to_string;
+				$screenshot->{'name'} = $url;
 				$screenshot->{'name'} =~ s/(http:\/\/|https:\/\/|file:\/\/)//g;
 					
 			}
