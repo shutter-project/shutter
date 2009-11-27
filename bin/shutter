@@ -84,7 +84,7 @@ use constant TRUE				=> 1;
 use constant FALSE				=> 0;
 use constant MAX_ERROR 			=> 5;
 #~ use constant REV         		=> "Rev.experimental branch";
-use constant REV         		=> "Rev.711";
+use constant REV         		=> "Rev.712";
 use constant SHUTTER_NAME		=> "Shutter";
 #~ use constant SHUTTER_VERSION	=> "v0.8x";
 use constant SHUTTER_VERSION	=> "v0.85";
@@ -152,6 +152,9 @@ require Shutter::App::HelperFunctions;
 require Shutter::App::Menu;
 require Shutter::App::Notification;
 require Shutter::App::Toolbar;
+
+#region
+require Shutter::Geometry::Region;
 
 #pixbuf operations
 require Shutter::Pixbuf::Save;
@@ -4563,7 +4566,10 @@ sub fct_clipboard {
 	my ($widget, $mode) = @_;
 
 	my $key = &fct_get_current_file;
-
+	
+	#create shutter region object
+	my $sr = Shutter::Geometry::Region->new();
+	
 	my @clipboard_array;
 
 	#single file
@@ -4596,7 +4602,7 @@ sub fct_clipboard {
 
 		if($mode eq 'image'){
 			my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($session_screens{$key}->{'long'});
-			my $rect = Gtk2::Gdk::Rectangle->new($clipboard_region->get_clipbox->width, 0, $pixbuf->get_width, $pixbuf->get_height);
+			my $rect = Gtk2::Gdk::Rectangle->new($sr->get_clipbox($clipboard_region)->width, 0, $pixbuf->get_width, $pixbuf->get_height);
 			$clipboard_region->union_with_rect($rect);
 			push @pixbuf_array, $pixbuf;
 			push @rects_array, $rect;
@@ -4613,7 +4619,7 @@ sub fct_clipboard {
 	}
 
 	if($clipboard_region->get_rectangles){
-		my $clipboard_image = Gtk2::Gdk::Pixbuf->new ('rgb', TRUE, 8, $clipboard_region->get_clipbox->width, $clipboard_region->get_clipbox->height);	
+		my $clipboard_image = Gtk2::Gdk::Pixbuf->new ('rgb', TRUE, 8, $sr->get_clipbox($clipboard_region)->width, $sr->get_clipbox($clipboard_region)->height);	
 		$clipboard_image->fill(0x00000000);
 		
 		#copy images to the blank pixbuf

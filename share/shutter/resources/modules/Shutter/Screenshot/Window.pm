@@ -684,7 +684,8 @@ sub find_region_for_window_type {
 			}
 			
 			#store clipbox geometry
-			my $cbox = $self->{_c}{'cw'}{'window_region'}->get_clipbox;
+			#~ my $cbox = $self->{_c}{'cw'}{'window_region'}->get_clipbox;
+			my $cbox = $self->get_clipbox($self->{_c}{'cw'}{'window_region'});
 			
 			$self->{_c}{'cw'}{'gdk_window'} = $gdk_window;
 			$self->{_c}{'cw'}{'x'} 			= $cbox->x;
@@ -696,7 +697,7 @@ sub find_region_for_window_type {
 			#~ print $self->{_c}{'cw'}{'x'}, " - ",			 			
 				  #~ $self->{_c}{'cw'}{'y'}, " - ", 			
 				  #~ $self->{_c}{'cw'}{'width'}, " - ", 		
-				  #~ $self->{_c}{'cw'}{'height'}, " \n " if $self->{_sc}->get_debug; 				
+				  #~ $self->{_c}{'cw'}{'height'}, " \n "; 				
 		}
 	}
 	

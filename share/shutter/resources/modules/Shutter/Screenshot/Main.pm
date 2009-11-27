@@ -49,14 +49,15 @@ sub new {
 			
 	#root window
 	$self->{ _root } = Gtk2::Gdk->get_default_root_window;
-	(
-	   $self->{ _root }->{ x },
-	   $self->{ _root }->{ y },
-	   $self->{ _root }->{ w },
-	   $self->{ _root }->{ h }
-	) = $self->{ _root }->get_geometry;
-	( $self->{ _root }->{ x }, $self->{ _root }->{ y } ) =
-		$self->{ _root }->get_origin;
+	( $self->{ _root }->{ x }, $self->{ _root }->{ y }, $self->{ _root }->{ w }, $self->{ _root }->{ h } ) = $self->{ _root }->get_geometry;
+	( $self->{ _root }->{ x }, $self->{ _root }->{ y } ) = $self->{ _root }->get_origin;
+	
+	#import modules
+	require lib;
+	import lib $self->{_sc}->get_root."/share/shutter/resources/modules";
+
+	#shutter region module
+	require Shutter::Geometry::Region;
 
 	#wnck screen
 	$self->{_wnck_screen} = Gnome2::Wnck::Screen->get_default;
@@ -87,6 +88,16 @@ sub new {
 	bless $self, $class;
 	return $self;
 }
+
+sub get_clipbox {
+	my $self 	= shift;
+	my $region 	= shift;
+
+	#create shutter region object
+	my $sr = Shutter::Geometry::Region->new();
+	
+	return $sr->get_clipbox($region);
+}	
 
 sub update_workspaces {
 	my $self = shift;
@@ -298,7 +309,8 @@ sub get_pixbuf_from_drawable {
 		#or to cut out the screen contents when capturing menus
 		if($region){
 			#get clipbox
-			my $clipbox = $region->get_clipbox;
+			#~ my $clipbox = $region->get_clipbox;
+			my $clipbox = $self->get_clipbox($region);
 			
 			#create target pixbuf with dimension of clipbox
 			my $target = Gtk2::Gdk::Pixbuf->new ($pixbuf->get_colorspace, TRUE, 8, $clipbox->width, $clipbox->height);
