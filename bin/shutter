@@ -84,7 +84,7 @@ use constant TRUE				=> 1;
 use constant FALSE				=> 0;
 use constant MAX_ERROR 			=> 5;
 #~ use constant REV         		=> "Rev.experimental branch";
-use constant REV         		=> "Rev.712";
+use constant REV         		=> "Rev.713";
 use constant SHUTTER_NAME		=> "Shutter";
 #~ use constant SHUTTER_VERSION	=> "v0.8x";
 use constant SHUTTER_VERSION	=> "v0.85";
@@ -5008,7 +5008,7 @@ sub fct_take_screenshot {
 		print "\nvirtual website width: $website_width\n"
 			if $sc->get_debug;
 		
-		$screenshot = &dlg_website( $uri->get_path(), $filetype_value, $quality_value, $website_width );
+		$screenshot = &dlg_website( $filetype_value, $quality_value, $website_width );
 		if ( $screenshot && $screenshot =~ /[a-zA-Z]/ ) {
 			#error if $screenshot is not a Gtk2::Gdk::Pixbuf
 			unless($screenshot =~ /Gtk2::Gdk::Pixbuf/){
@@ -5164,11 +5164,6 @@ sub fct_take_screenshot {
 		$uri = Gnome2::VFS::URI->new ($screenshot_name);
 				
 		#maybe the uri already exists, so we have to append some digits (e.g. testfile01(0002).png)
-		#we don't do this when taking a web screenshot,
-		#because gnome-web-photo creates the file immediately
-		#we would save two files in this case 
-		#because the new file would always "exist"
-		if($data ne "web" && $data ne "tray_web"){
 			if ( $uri->exists ) {
 				my $count = 1;
 				my $new_filename = fileparse($shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path)), qr/\.[^.]*/);
@@ -5183,7 +5178,6 @@ sub fct_take_screenshot {
 					print "Checking new uri after parsing: " . $uri->to_string . "\n" if $sc->get_debug;
 				}
 			}
-		}
 				
 		#we have to update the path again
 		$screenshot_name = $shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path));
@@ -6091,6 +6085,7 @@ sub fct_update_tab {
 				#(current version is always the last element in the array)
 				my $current_version = pop @{$session_screens{$key}->{'undo'}};
 				
+				#needs to be evaluated - FIXME!
 				my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $current_version );
 				if($sp->save_pixbuf_to_file($pixbuf, $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'})){
 
@@ -8732,10 +8727,13 @@ sub dlg_upload_error_message {
 }
 
 sub dlg_website {
-	my ( $filename, $filetype_value, $quality_value, $website_width ) = @_;
+	my ( $filetype_value, $quality_value, $website_width ) = @_;
 
 	my $screenshot  = undef;
 	my $web_process = Proc::Simple->new;
+
+	#gwp result will be saved to tempfile
+	my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
 	
 	#redirect outputs
 	my ( $tmpfh_stdout, $tmpfilename_stdout ) = tempfile(UNLINK => 1);
@@ -8885,8 +8883,8 @@ sub dlg_website {
 		}
 
 		my $url	= $website->get_text;
-		print "$timeout, $filetype_value, $website_width, ". $url. ", $filename\n" if $sc->get_debug;
-		my $screenshooter = Shutter::Screenshot::Web->new( $timeout, $filetype_value, $website_width, $url, $filename );
+		print "$timeout, $filetype_value, $website_width, ". $url. ", $tmpfilename\n" if $sc->get_debug;
+		my $screenshooter = Shutter::Screenshot::Web->new( $timeout, $filetype_value, $website_width, $url, $tmpfilename );
 
 		Proc::Simple::debug(1) if $sc->get_debug;
 
@@ -8900,8 +8898,8 @@ sub dlg_website {
 		$website_dialog->signal_connect(
 			'delete-event' => sub{
 				#kill process, delete file and destroy dialog
-				$web_process->kill('SIGKILL');				
-				unlink("$filename");
+				$web_process->kill('SIGKILL');
+				unlink $tmpfilename, $tmpfilename_stdout, $tmpfilename_sterr;
 				$website_dialog->destroy();				
 			} 
 		);
@@ -8909,8 +8907,8 @@ sub dlg_website {
 		$cancel_btn->signal_connect(
 			'clicked' => sub {
 				#kill process, delete file and destroy dialog
-				$web_process->kill('SIGKILL');				
-				unlink("$filename");
+				$web_process->kill('SIGKILL');
+				unlink $tmpfilename, $tmpfilename_stdout, $tmpfilename_sterr;
 				$website_dialog->destroy();
 			}
 		);
@@ -8933,7 +8931,7 @@ sub dlg_website {
 			$website_progress->set_fraction( 2 / 3 );
 			&fct_update_gui;
 
-			eval { $screenshot = Gtk2::Gdk::Pixbuf->new_from_file($filename) };
+			eval { $screenshot = Gtk2::Gdk::Pixbuf->new_from_file($tmpfilename) };
 			if ($@) {
 				#reading stdout from file
 				while (<$tmpfh_stdout>){
@@ -8943,7 +8941,7 @@ sub dlg_website {
 				while (<$tmpfh_stderr>){
 					$screenshot .= $_;	
 				}
-				unlink($filename);
+				unlink $tmpfilename, $tmpfilename_stdout, $tmpfilename_sterr;
 				$website_dialog->destroy();
 			}else{
 
@@ -8969,10 +8967,12 @@ sub dlg_website {
 			}
 		}
 
+		unlink $tmpfilename, $tmpfilename_stdout, $tmpfilename_sterr;
 		$website_dialog->destroy();
 
 		return $screenshot;
 	} else {
+		unlink $tmpfilename, $tmpfilename_stdout, $tmpfilename_sterr;
 		$website_dialog->destroy();
 
 		return $screenshot;
