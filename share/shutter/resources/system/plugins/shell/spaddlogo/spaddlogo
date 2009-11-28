@@ -49,7 +49,7 @@ HEIGHT="${3}"
 FILEYTPE="${4}"
 INTL_PATH="${5}"
 GEO="${2}x${3}"
-SHORTNAME=$(basename ${1} .${4})
+SHORTNAME=$(basename "${1}")
 LOGO="$SHUTTER_ROOT/share/shutter/resources/system/plugins/shell/spaddlogo/shutter_branding.png"
 
 mogrify -resize 480x400\> \
@@ -60,11 +60,6 @@ mogrify -resize 480x400\> \
 
 convert "${FILE}" "${LOGO}" \
 -background none -mosaic +repage "${FILE}"
-
-mogrify  \
--bordercolor gray -border 1x1 \
--set comment "http://shutter-project.org" \
-"${FILE}"
 
 convert "${FILE}" \( +clone -background black  -shadow 80x3+5+5 \) \
 +swap -background none -mosaic +repage -rotate -4 \
