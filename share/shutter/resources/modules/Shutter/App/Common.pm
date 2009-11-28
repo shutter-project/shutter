@@ -61,7 +61,6 @@ sub new {
 	
 	#ENV needed by some plugins
 	$ENV{'SHUTTER_INTL'} = $self->{_shutter_root} . "/share/locale";
-	$ENV{'SHUTTER_ICON'} = $self->{_shutter_root} . "/share/pixmaps/shutter.svg";
 
 	#tooltips
 	$self->{_tooltips} = Gtk2::Tooltips->new;
@@ -72,6 +71,7 @@ sub new {
 	#icontheme to determine if icons exist or not
 	#in some cases we deliver fallback icons
 	$self->{_icontheme} = Gtk2::IconTheme->get_default;
+	$self->{_icontheme}->append_search_path($self->{_shutter_root} . "/share/icons");
 
 	bless $self, $class;
 	return $self;

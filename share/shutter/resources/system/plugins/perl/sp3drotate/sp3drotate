@@ -62,6 +62,11 @@ setlocale( LC_MESSAGES, "" );
 my $d = Locale::gettext->domain("shutter-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
+#icontheme to determine if icons exist or not
+#in some cases we deliver fallback icons
+my $icontheme = Gtk2::IconTheme->get_default;
+$icontheme->append_search_path($ENV{'SHUTTER_ROOT'} . "/share/icons");
+
 #shutter will ask for some infos
 my %plugin_info = 	( 	'name'	=> $d->get( "3D rotate" ),
 						'sort'	=> $d->get( "Effect" ),
@@ -85,9 +90,7 @@ my $filetype  = $ARGV[ 4 ];
 utf8::decode $filename;
 
 my $plug = Gtk2::Plug->new( $socket_id );
-eval{
-	$plug->set_default_icon_from_file( $ENV{'SHUTTER_ICON'} );
-};
+$plug->set_default_icon_name( 'shutter' );
 $plug->set_border_width( 10 );
 
 $plug->signal_connect( destroy => sub { Gtk2->main_quit } );

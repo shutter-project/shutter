@@ -84,7 +84,7 @@ use constant TRUE				=> 1;
 use constant FALSE				=> 0;
 use constant MAX_ERROR 			=> 5;
 #~ use constant REV         		=> "Rev.experimental branch";
-use constant REV         		=> "Rev.714";
+use constant REV         		=> "Rev.715";
 use constant SHUTTER_NAME		=> "Shutter";
 #~ use constant SHUTTER_VERSION	=> "v0.8x";
 use constant SHUTTER_VERSION	=> "v0.85";
@@ -262,7 +262,7 @@ my %session_start_screen;
 
 #main window gui
 #--------------------------------------
-$window->set_default_icon_from_file( "$shutter_root/share/pixmaps/shutter.svg" );
+$window->set_default_icon_name( "shutter" );
 $window->signal_connect( 'delete-event' => \&evt_delete_window );
 $window->set_border_width(0);
 $window->set_resizable(TRUE);
@@ -433,7 +433,7 @@ unless ( $sc->get_disable_systray ) {
 	if ( Gtk2->CHECK_VERSION( 2, 10, 0 ) ) {
 		$tray = Gtk2::StatusIcon->new();
 		
-		$tray->set_from_file("$shutter_root/share/pixmaps/shutter.svg");
+		$tray->set_from_icon_name("shutter");
 		$tray->set_visible(1);
 		$tray->{'hid'} = $tray->signal_connect(
 			'popup-menu' => sub { &evt_show_systray_statusicon; },
@@ -447,8 +447,10 @@ unless ( $sc->get_disable_systray ) {
 			$tray
 		);
 	} else {
+		
+		my $tray_image = Gtk2::Image->new_from_icon_name( 'shutter', 'large-toolbar' );
+		
 		#eventbox with shutter logo
-		my $tray_image = Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/pixmaps/shutter.svg", 24, 24 ) );	
 		$tray_box = Gtk2::EventBox->new;
 		$tray_box->add($tray_image);
 
@@ -2488,8 +2490,7 @@ sub evt_about {
 	
 	my $website = "http://shutter-project.org";
 	my $about   = Gtk2::AboutDialog->new;
-	my $logo    = Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$shutter_root/share/pixmaps/shutter.svg", 100, 100, TRUE );
-	$about->set_logo($logo);
+	$about->set_logo_icon_name('shutter');
 	if (Gtk2->CHECK_VERSION( 2, 12, 0 )){
 		$about->set_program_name(SHUTTER_NAME);
 	}else{

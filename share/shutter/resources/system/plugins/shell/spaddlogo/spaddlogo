@@ -49,7 +49,7 @@ HEIGHT="${3}"
 FILEYTPE="${4}"
 INTL_PATH="${5}"
 GEO="${2}x${3}"
-SHORTNAME=$(basename ${1} .png)
+SHORTNAME=$(basename ${1} .${4})
 LOGO="$SHUTTER_ROOT/share/shutter/resources/system/plugins/shell/spaddlogo/shutter_branding.png"
 
 mogrify -resize 480x400\> \
