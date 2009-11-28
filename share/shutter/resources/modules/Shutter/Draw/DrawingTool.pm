@@ -236,6 +236,11 @@ sub show {
 		
 		$self->{_drawing_window}->destroy if $self->{_drawing_window};
 		return FALSE;	
+	}else{
+		#save initial width and height to check if
+		#we have to show the save dialog when exiting the DrawingTool
+		$self->{_start_width}  = $self->{_drawing_pixbuf}->get_width;
+		$self->{_start_height} = $self->{_drawing_pixbuf}->get_height;		
 	}
 	
 	#CANVAS
@@ -1169,7 +1174,10 @@ sub quit {
 	mkdir("$ENV{ 'HOME' }/.shutter")
 		unless ( -d "$ENV{ 'HOME' }/.shutter" );
 
-	if ( $show_warning && scalar( keys %{ $self->{_items} } ) > 0 ) {
+	if ( $show_warning && 
+		 (scalar( keys %{ $self->{_items} } ) > 0 || 
+		  $self->{_start_width} != $self->{_drawing_pixbuf}->get_width || 
+		  $self->{_start_height} != $self->{_drawing_pixbuf}->get_height ) ) {
 
 		#warn the user if there are any unsaved changes
 		my $warn_dialog = Gtk2::MessageDialog->new( $self->{_drawing_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef );
