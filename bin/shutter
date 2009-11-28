@@ -84,7 +84,7 @@ use constant TRUE				=> 1;
 use constant FALSE				=> 0;
 use constant MAX_ERROR 			=> 5;
 #~ use constant REV         		=> "Rev.experimental branch";
-use constant REV         		=> "Rev.717";
+use constant REV         		=> "Rev.718";
 use constant SHUTTER_NAME		=> "Shutter";
 #~ use constant SHUTTER_VERSION	=> "v0.8x";
 use constant SHUTTER_VERSION	=> "v0.85.1";
@@ -5608,6 +5608,12 @@ sub fct_execute_plugin {
 		print
 			"$plugin_value $session_screens{$key}->{'long'} $session_screens{$key}->{'width'} $session_screens{$key}->{'height'} $session_screens{$key}->{'filetype'} submitted to plugin\n"
 			if $sc->get_debug;
+
+		#cancel handle, because file gets manipulated
+		#multiple times
+		if ( exists $session_screens{$key}->{'handle'} ) {
+			$session_screens{$key}->{'handle'}->cancel;
+		}
 		
 		#create a new process, so we are able to cancel the current operation
 		my $plugin_process = Proc::Simple->new;
@@ -5646,6 +5652,12 @@ sub fct_execute_plugin {
 				$d->get( "There was an error executing the plugin." ),
 			);
 		}
+		
+		#update session tab manually
+		&fct_update_tab( $key, undef, $session_screens{$key}->{'uri'} );
+
+		#setup a new filemonitor, so we get noticed if the file changed
+		&fct_add_file_monitor($key);	
 
 	}
 
