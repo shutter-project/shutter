@@ -84,7 +84,7 @@ use constant TRUE				=> 1;
 use constant FALSE				=> 0;
 use constant MAX_ERROR 			=> 5;
 #~ use constant REV         		=> "Rev.experimental branch";
-use constant REV         		=> "Rev.713";
+use constant REV         		=> "Rev.714";
 use constant SHUTTER_NAME		=> "Shutter";
 #~ use constant SHUTTER_VERSION	=> "v0.8x";
 use constant SHUTTER_VERSION	=> "v0.85";
@@ -4674,12 +4674,9 @@ sub fct_undo {
 			}
 
 			if (cp($last_version, $session_screens{$key}->{'long'})){
-		
+
 				&fct_update_tab( $key, undef, $session_screens{$key}->{'uri'}, TRUE, 'gui' );
-
-				#setup a new filemonitor, so we get noticed if the file changed
-				&fct_add_file_monitor($key);	
-
+		
 				&fct_show_status_message( 1, $d->get("Last action undone") );
 				
 				#delete last_version from filesystem
@@ -4694,8 +4691,13 @@ sub fct_undo {
 					undef, undef, undef,
 					$@
 				);	
+
+				&fct_update_tab( $key, undef, $session_screens{$key}->{'uri'}, TRUE, 'clear' );
 				
-			}	
+			}
+			
+			#setup a new filemonitor, so we get noticed if the file changed
+			&fct_add_file_monitor($key);		
 
 		}
 
@@ -4727,9 +4729,6 @@ sub fct_redo {
 		
 				&fct_update_tab( $key, undef, $session_screens{$key}->{'uri'}, TRUE, 'gui' );
 
-				#setup a new filemonitor, so we get noticed if the file changed
-				&fct_add_file_monitor($key);	
-
 				&fct_show_status_message( 1, $d->get("Last action redone") );
 
 				#delete last_version from filesystem
@@ -4743,9 +4742,14 @@ sub fct_redo {
 					undef, undef, undef,
 					undef, undef, undef,
 					$@
-				);	
+				);
+				
+				&fct_update_tab( $key, undef, $session_screens{$key}->{'uri'}, TRUE, 'clear' );		
 		
 			}
+			
+			#setup a new filemonitor, so we get noticed if the file changed
+			&fct_add_file_monitor($key);	
 			
 		}
 		
@@ -6085,8 +6089,36 @@ sub fct_update_tab {
 				#(current version is always the last element in the array)
 				my $current_version = pop @{$session_screens{$key}->{'undo'}};
 				
-				#needs to be evaluated - FIXME!
-				my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $current_version );
+				my $pixbuf;
+				eval{
+					$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $current_version );
+				};
+				#restoring the last version failed => delete the screenshot	
+				if($@){
+
+					$sd->dlg_error_message( 
+						sprintf( $d->get("Error while saving the image %s."), "'" . $session_screens{$key}->{'short'} . "'"),
+						sprintf( $d->get("There was an error saving the image to %s."), "'" . $session_screens{$key}->{'folder'} . "'"),		
+						undef, undef, undef,
+						undef, undef, undef,
+						$@
+					);
+
+					$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
+					&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
+						if defined( $session_screens{$key}->{'long'} );
+
+					if(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
+						$session_start_screen{'first_page'}->{'model'}->remove( $session_screens{$key}->{'iter'} );
+					}
+
+					delete( $session_screens{$key} );   
+
+					&fct_update_info_and_tray();
+					return FALSE;
+					
+				}
+					
 				if($sp->save_pixbuf_to_file($pixbuf, $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'})){
 
 					#setup a new filemonitor, so we get noticed if the file changed
