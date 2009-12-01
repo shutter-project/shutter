@@ -54,13 +54,16 @@ sub get_clipbox {
 	
 	#calculate clipbox
 	foreach my $rect ($region->get_rectangles){
+		#~ print $rect->x, " - ", $rect->y, " - ", $rect->width, " - ", $rect->height, "\n";
 		unless(defined $clip){
 			$clip = Gtk2::Gdk::Rectangle->new($rect->x, $rect->y, $rect->width, $rect->height);
 		}else{
 			if($rect->x < $clip->x){
+				$clip->width($clip->width+$clip->x);
 				$clip->x($rect->x);
 			}
 			if($rect->y < $clip->y){
+				$clip->height($clip->height+$clip->y);
 				$clip->y($rect->y);
 			}
 			if($rect->x + $rect->width > $clip->x + $clip->width){

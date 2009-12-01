@@ -312,6 +312,8 @@ sub get_pixbuf_from_drawable {
 			#~ my $clipbox = $region->get_clipbox;
 			my $clipbox = $self->get_clipbox($region);
 			
+			#~ print "Clipbox: ", $clipbox->width, " - ", $clipbox->height, "\n";
+			
 			#create target pixbuf with dimension of clipbox
 			my $target = Gtk2::Gdk::Pixbuf->new ($pixbuf->get_colorspace, TRUE, 8, $clipbox->width, $clipbox->height);
 			
