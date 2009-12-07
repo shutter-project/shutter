@@ -314,13 +314,28 @@ sub show {
 	$self->handle_bg_rects( 'create' );
 	$self->handle_bg_rects( 'update' );
 
-	#create canvas background (:= screenshot)
-	$self->{_canvas_bg} = Goo::Canvas::Image->new( 
-		$self->{_canvas}->get_root_item, 
-		$self->{_drawing_pixbuf}, 
-		0, 0,
-	);
-	$self->setup_item_signals( $self->{_canvas_bg} );
+	#~ #create canvas background (:= screenshot)
+	#~ $self->{_canvas_bg} = Goo::Canvas::Image->new( 
+		#~ $self->{_canvas}->get_root_item, 
+		#~ $self->{_drawing_pixbuf}, 
+		#~ 0, 0,
+	#~ );
+	#~ $self->setup_item_signals( $self->{_canvas_bg} );
+
+	#set variables
+	$self->{_current_pixbuf_filename} = $self->{_filename};
+	$self->{_current_pixbuf} = $self->{_drawing_pixbuf};
+		
+	#construct an event and create a new image object
+	my $initevent = Gtk2::Gdk::Event->new ('motion-notify');
+	$initevent->set_time(Gtk2->get_current_event_time);
+	$initevent->window($self->{_drawing_window}->window);
+	$initevent->x(int ($self->{_canvas_bg_rect}->get('width') / 2));
+	$initevent->y(int ($self->{_canvas_bg_rect}->get('height') / 2));
+
+	#new item
+	my $nitem = $self->create_image( $initevent, undef, TRUE);
+	$self->{_canvas_bg} = $self->{_items}{$nitem}{image};
 
 	$self->handle_bg_rects( 'raise' );
 
@@ -442,6 +457,9 @@ sub show {
 	$self->{_uimanager}->get_action("/MenuBar/View/ControlEqual")->set_visible(FALSE);
 	$self->{_uimanager}->get_action("/MenuBar/View/ControlKpAdd")->set_visible(FALSE);
 	$self->{_uimanager}->get_action("/MenuBar/View/ControlKpSub")->set_visible(FALSE);
+
+	#start with everything deactivated
+	$self->deactivate_all;
 
 	Gtk2->main;
 
@@ -2905,7 +2923,7 @@ sub event_item_on_button_press {
 			}
 			
 			#no item selected, deactivate all items
-		}elsif($item == $self->{_canvas_bg} || $item == $self->{_canvas_bg_rect}){
+		}elsif($item == $self->{_canvas_bg_rect}){
 				
 			$self->deactivate_all;
 			
@@ -2920,9 +2938,8 @@ sub event_item_on_button_press {
 		#MOVE
 		if ( $self->{_current_mode_descr} eq "select" || $ev->button == 2) {
 
-			#don't_move the bounding rectangle por the bg_image
+			#don't_move the bounding rectangle or the bg_image
 			return TRUE if $item == $self->{_canvas_bg_rect};
-			return TRUE if $item == $self->{_canvas_bg};
 
 			if ( $item->isa('Goo::Canvas::Rect') ) {
 							
@@ -3136,7 +3153,7 @@ sub event_item_on_button_press {
 		
 		}else{		
 			#background rectangle
-			if ($item == $self->{_canvas_bg_rect} || $item == $self->{_canvas_bg}){
+			if ($item == $self->{_canvas_bg_rect}){
 				my $bg_menu = $self->ret_background_menu($item);
 	
 				$bg_menu->popup(
