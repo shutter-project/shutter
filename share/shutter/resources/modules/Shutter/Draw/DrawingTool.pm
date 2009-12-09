@@ -1157,8 +1157,8 @@ sub adjust_rulers {
 		my $copy_event = $ev->copy;
 						
 		#modify event to respect scrollbars and canvas scale
-		$copy_event->x( ($copy_event->x_root - $hlower) * $s);
-		$copy_event->y( ($copy_event->y_root - $vlower) * $s);	
+		$copy_event->x( ($copy_event->x - $hlower) * $s);
+		$copy_event->y( ($copy_event->y - $vlower) * $s);	
 
 		$self->{_hruler}->signal_emit('motion-notify-event', $copy_event);
 		$self->{_vruler}->signal_emit('motion-notify-event', $copy_event);
@@ -1523,6 +1523,13 @@ sub setup_item_signals {
 		}
 	);
 	$item->signal_connect(
+		'key_press_event',
+		sub {
+			my ( $item, $target, $ev ) = @_;
+			$self->event_item_on_key_press( $item, $target, $ev );
+		}
+	);
+	$item->signal_connect(
 		'button_press_event',
 		sub {
 			my ( $item, $target, $ev ) = @_;
@@ -1576,34 +1583,34 @@ sub event_item_on_motion_notify {
 		my $va = $self->{_scrolled_window}->get_vadjustment->value;
 
 		#autoscroll
-		if (   $ev->x_root > ( $ha / $s + $width / $s - 100 / $s )
-			&& $ev->y_root > ( $va / $s + $height / $s - 100 / $s ) )
+		if (   $ev->x > ( $ha / $s + $width / $s - 100 / $s )
+			&& $ev->y > ( $va / $s + $height / $s - 100 / $s ) )
 		{
 			$self->{_canvas}->scroll_to(
 				$ha / $s + 10 / $s,
 				$va / $s + 10 / $s
 			);
-		} elsif ( $ev->x_root > ( $ha / $s + $width / $s - 100 / $s ) ) {
+		} elsif ( $ev->x > ( $ha / $s + $width / $s - 100 / $s ) ) {
 			$self->{_canvas}->scroll_to(
 				$ha / $s + 10 / $s,
 				$va / $s
 			);
-		} elsif ( $ev->y_root > ( $va / $s + $height / $s - 100 / $s ) ) {
+		} elsif ( $ev->y > ( $va / $s + $height / $s - 100 / $s ) ) {
 			$self->{_canvas}->scroll_to(
 				$ha / $s,
 				$va / $s + 10 / $s
 			);
-		}elsif (   $ev->x_root < ( $ha / $s + 100 / $s ) && $ev->y_root < ( $va / $s + 100 / $s ) ) {
+		}elsif (   $ev->x < ( $ha / $s + 100 / $s ) && $ev->y < ( $va / $s + 100 / $s ) ) {
 			$self->{_canvas}->scroll_to(
 				$ha / $s - 10 / $s,
 				$va / $s - 10 / $s
 			);
-		} elsif ( $ev->x_root < ( $ha / $s + 100 / $s ) ) {
+		} elsif ( $ev->x < ( $ha / $s + 100 / $s ) ) {
 			$self->{_canvas}->scroll_to(
 				$ha / $s - 10 / $s,
 				$va / $s
 			);
-		} elsif ( $ev->y_root < ( $va / $s + 100 / $s ) ) {
+		} elsif ( $ev->y < ( $va / $s + 100 / $s ) ) {
 			$self->{_canvas}->scroll_to(
 				$ha / $s,
 				$va / $s - 10 / $s
@@ -1616,24 +1623,24 @@ sub event_item_on_motion_notify {
 
 		if ( $item->isa('Goo::Canvas::Rect') ) {
 
-			my $new_x = $self->{_items}{$item}->get('x') + $ev->x_root - $item->{drag_x};
-			my $new_y = $self->{_items}{$item}->get('y') + $ev->y_root - $item->{drag_y};
+			my $new_x = $self->{_items}{$item}->get('x') + $ev->x - $item->{drag_x};
+			my $new_y = $self->{_items}{$item}->get('y') + $ev->y - $item->{drag_y};
 
 			$self->{_items}{$item}->set(
 				'x' => $new_x,
 				'y' => $new_y,
 			);
-
-			$item->{drag_x} = $ev->x_root;
-			$item->{drag_y} = $ev->y_root;
-
+			
+			$item->{drag_x} = $ev->x;
+			$item->{drag_y} = $ev->y;				
+			
 			$self->handle_rects( 'update', $item );
 			$self->handle_embedded( 'update', $item );
 
 		} else {
 
-			$item->translate( $ev->x - $item->{drag_x}, $ev->y - $item->{drag_y} )
-				unless $item == $self->{_canvas_bg};
+			$item->translate( $ev->x - $item->{drag_x}, $ev->y - $item->{drag_y} );	
+
 		}
 
 		#add to undo stack
@@ -1671,20 +1678,20 @@ sub event_item_on_motion_notify {
 		if($ev->state >= 'control-mask'){
 			
 			my $last_point = pop @{ $self->{_items}{$item}{'points'} };
-			$last_point = $ev->y_root unless $last_point;
-			push @{ $self->{_items}{$item}{'points'} }, $last_point, $ev->x_root, $last_point;
+			$last_point = $ev->y unless $last_point;
+			push @{ $self->{_items}{$item}{'points'} }, $last_point, $ev->x, $last_point;
 		
 		}elsif($ev->state >= 'shift-mask'){
 		
 			my $last_point_y = pop @{ $self->{_items}{$item}{'points'} };
 			my $last_point_x = pop @{ $self->{_items}{$item}{'points'} };
-			$last_point_x = $ev->x_root unless $last_point_x;
-			$last_point_y = $ev->y_root unless $last_point_y;
-			push @{ $self->{_items}{$item}{'points'} }, $last_point_x, $last_point_y, $last_point_x, $ev->y_root;		
+			$last_point_x = $ev->x unless $last_point_x;
+			$last_point_y = $ev->y unless $last_point_y;
+			push @{ $self->{_items}{$item}{'points'} }, $last_point_x, $last_point_y, $last_point_x, $ev->y;		
 		
 		}else{
 		
-			push @{ $self->{_items}{$item}{'points'} }, $ev->x_root, $ev->y_root;		
+			push @{ $self->{_items}{$item}{'points'} }, $ev->x, $ev->y;		
 		
 		}
 		$self->{_items}{$item}->set( points => Goo::Canvas::Points->new( $self->{_items}{$item}{'points'} ) );
@@ -1720,8 +1727,8 @@ sub event_item_on_motion_notify {
 		#line width, fill color, stroke color etc.
 		$self->set_and_save_drawing_properties($item, TRUE);	
 		
-		$self->{_items}{$item}{'bottom-right-corner'}->{res_x}    = $ev->x_root;
-		$self->{_items}{$item}{'bottom-right-corner'}->{res_y}    = $ev->y_root;
+		$self->{_items}{$item}{'bottom-right-corner'}->{res_x}    = $ev->x;
+		$self->{_items}{$item}{'bottom-right-corner'}->{res_y}    = $ev->y;
 		$self->{_items}{$item}{'bottom-right-corner'}->{resizing} = TRUE;
 		$self->{_canvas}->pointer_grab( $self->{_items}{$item}{'bottom-right-corner'}, [ 'pointer-motion-mask', 'button-release-mask' ], undef, $ev->time );
 
@@ -1738,7 +1745,7 @@ sub event_item_on_motion_notify {
 			#canvas resizing shape
 		if ( $self->{_canvas_bg_rect}{'right-side'} == $item ) {
 
-			my $new_width = $self->{_canvas_bg_rect}->get('width') +  ( $ev->x_root - $item->{res_x} );
+			my $new_width = $self->{_canvas_bg_rect}->get('width') +  ( $ev->x - $item->{res_x} );
 
 			unless ( $new_width < 0 ) {
 
@@ -1752,7 +1759,7 @@ sub event_item_on_motion_notify {
 	
 		} elsif ( $self->{_canvas_bg_rect}{'bottom-side'} == $item ) {
 
-			my $new_height = $self->{_canvas_bg_rect}->get('height') + ( $ev->y_root - $item->{res_y} );
+			my $new_height = $self->{_canvas_bg_rect}->get('height') + ( $ev->y - $item->{res_y} );
 	
 			unless ( $new_height < 0 ) {
 						
@@ -1766,8 +1773,8 @@ sub event_item_on_motion_notify {
 		
 		} elsif ( $self->{_canvas_bg_rect}{'bottom-right-corner'} == $item ) {			
 
-			my $new_width = $self->{_canvas_bg_rect}->get('width') +  ( $ev->x_root - $item->{res_x} );
-			my $new_height = $self->{_canvas_bg_rect}->get('height') + ( $ev->y_root - $item->{res_y} );
+			my $new_width = $self->{_canvas_bg_rect}->get('width') +  ( $ev->x - $item->{res_x} );
+			my $new_height = $self->{_canvas_bg_rect}->get('height') + ( $ev->y - $item->{res_y} );
 
 			unless ( $new_width < 0 || $new_height < 0) {		
 			
@@ -1812,7 +1819,7 @@ sub event_item_on_motion_notify {
 						$new_y = $self->{_items}{$curr_item}->get('y');
 
 						$new_width = $self->{_items}{$curr_item}->get('width');
-						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y_root - $item->{res_y} );
+						$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );
 
 						last;
 
@@ -1822,11 +1829,11 @@ sub event_item_on_motion_notify {
 						$new_y = $self->{_items}{$curr_item}->get('y');
 
 						if($ev->state >= 'control-mask'){
-							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->y_root - $item->{res_y} ) * $ratio;
-							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y_root - $item->{res_y} );						
+							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->y - $item->{res_y} ) * $ratio;
+							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );						
 						}else{
-							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x_root - $item->{res_x} );
-							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y_root - $item->{res_y} );					
+							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x - $item->{res_x} );
+							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );					
 						}
 						
 						last;
@@ -1834,13 +1841,13 @@ sub event_item_on_motion_notify {
 					}elsif ( $_ eq 'top-left-corner' ) {
 						
 						if($ev->state >= 'control-mask'){
-							$new_x = $self->{_items}{$curr_item}->get('x') + ($ev->y_root - $item->{res_y}) * $ratio;
-							$new_y = $self->{_items}{$curr_item}->get('y') + ($ev->y_root - $item->{res_y});						
+							$new_x = $self->{_items}{$curr_item}->get('x') + ($ev->y - $item->{res_y}) * $ratio;
+							$new_y = $self->{_items}{$curr_item}->get('y') + ($ev->y - $item->{res_y});						
 							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
 							$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
 						}else{
-							$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x_root - $item->{res_x};
-							$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y_root - $item->{res_y};						
+							$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
+							$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};						
 							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
 							$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
 						}
@@ -1850,7 +1857,7 @@ sub event_item_on_motion_notify {
 					} elsif ( $_ eq 'top-side' ) {
 
 						$new_x = $self->{_items}{$curr_item}->get('x');
-						$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y_root - $item->{res_y};
+						$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};
 
 						$new_width = $self->{_items}{$curr_item}->get('width');
 						$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );
@@ -1860,13 +1867,13 @@ sub event_item_on_motion_notify {
 					} elsif ( $_ eq 'top-right-corner' ) {
 
 							$new_x = $self->{_items}{$curr_item}->get('x');
-							$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y_root - $item->{res_y};
+							$new_y = $self->{_items}{$curr_item}->get('y') + $ev->y - $item->{res_y};
 
 						if($ev->state >= 'control-mask'){
-							$new_width  = $self->{_items}{$curr_item}->get('width') - ( $ev->y_root - $item->{res_y} ) * $ratio;
+							$new_width  = $self->{_items}{$curr_item}->get('width') - ( $ev->y - $item->{res_y} ) * $ratio;
 							$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );		
 						}else{
-							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x_root - $item->{res_x} );
+							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $ev->x - $item->{res_x} );
 							$new_height = $self->{_items}{$curr_item}->get('height') + ( $self->{_items}{$curr_item}->get('y') - $new_y );					
 						}
 						
@@ -1874,7 +1881,7 @@ sub event_item_on_motion_notify {
 
 					} elsif ( $_ eq 'left-side' ) {
 
-						$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x_root - $item->{res_x};
+						$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
 						$new_y = $self->{_items}{$curr_item}->get('y');
 
 						$new_width = $self->{_items}{$curr_item}->get('width') + ( $self->{_items}{$curr_item}->get('x') - $new_x );
@@ -1887,7 +1894,7 @@ sub event_item_on_motion_notify {
 						$new_x = $self->{_items}{$curr_item}->get('x');
 						$new_y = $self->{_items}{$curr_item}->get('y');
 
-						$new_width = $self->{_items}{$curr_item}->get('width') + ( $ev->x_root - $item->{res_x} );
+						$new_width = $self->{_items}{$curr_item}->get('width') + ( $ev->x - $item->{res_x} );
 						$new_height = $self->{_items}{$curr_item}->get('height');
 
 						last;
@@ -1895,17 +1902,17 @@ sub event_item_on_motion_notify {
 					} elsif ( $_ eq 'bottom-left-corner' ) {
 
 						if($ev->state >= 'control-mask'){
-							$new_x = $self->{_items}{$curr_item}->get('x') - $ev->y_root + $item->{res_y};
+							$new_x = $self->{_items}{$curr_item}->get('x') - $ev->y + $item->{res_y};
 							$new_y = $self->{_items}{$curr_item}->get('y');
 							
 							$new_width  = $self->{_items}{$curr_item}->get('width') + ( $self->{_items}{$curr_item}->get('x') - $new_x );
-							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y_root - $item->{res_y} ) / $ratio;
+							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} ) / $ratio;
 						}else{
-							$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x_root - $item->{res_x};
+							$new_x = $self->{_items}{$curr_item}->get('x') + $ev->x - $item->{res_x};
 							$new_y = $self->{_items}{$curr_item}->get('y');
 
 							$new_width  = $self->{_items}{$curr_item}->get('width') +  ( $self->{_items}{$curr_item}->get('x') - $new_x );
-							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y_root - $item->{res_y} );					
+							$new_height = $self->{_items}{$curr_item}->get('height') + ( $ev->y - $item->{res_y} );					
 						}
 						
 						last;
@@ -1933,8 +1940,8 @@ sub event_item_on_motion_notify {
 				
 				my $oppo = $self->get_opposite_rect($item, $curr_item, $new_width, $new_height);				
 				
-				$self->{_items}{$curr_item}{$oppo}->{res_x}    = $ev->x_root;
-				$self->{_items}{$curr_item}{$oppo}->{res_y}    = $ev->y_root;
+				$self->{_items}{$curr_item}{$oppo}->{res_x}    = $ev->x;
+				$self->{_items}{$curr_item}{$oppo}->{res_y}    = $ev->y;
 				$self->{_items}{$curr_item}{$oppo}->{resizing} = TRUE;
 				
 				#~ #don'change cursor if this item was just started
@@ -1975,8 +1982,8 @@ sub event_item_on_motion_notify {
 				
 		}
 
-		$item->{res_x} = $ev->x_root;
-		$item->{res_y} = $ev->y_root;
+		$item->{res_x} = $ev->x;
+		$item->{res_y} = $ev->y;
 		
 	}else {
 
@@ -1988,22 +1995,22 @@ sub event_item_on_motion_notify {
 
 				#shape or canvas background (resizeable rectangle)
 			if ( exists $self->{_items}{$item} or $item == $self->{_canvas_bg_rect}) {
-				$self->push_to_statusbar( int( $ev->x_root ), int( $ev->y_root ) );
+				$self->push_to_statusbar( int( $ev->x ), int( $ev->y ) );
 			
 				#canvas resizing shape
 			} elsif (  $self->{_canvas_bg_rect}{'right-side'} == $item
 					|| $self->{_canvas_bg_rect}{'bottom-side'} == $item
 					|| $self->{_canvas_bg_rect}{'bottom-right-corner'} == $item ) 
 			{
-				$self->push_to_statusbar( int( $ev->x_root ), int( $ev->y_root ), 'canvas_resize' );		
+				$self->push_to_statusbar( int( $ev->x ), int( $ev->y ), 'canvas_resize' );		
 			
 				#resizing shape
 			}else{
 								
-				$self->push_to_statusbar( int( $ev->x_root ), int( $ev->y_root ), 'resize' );					
+				$self->push_to_statusbar( int( $ev->x ), int( $ev->y ), 'resize' );					
 			}
 		}else{
-			$self->push_to_statusbar( int( $ev->x_root ), int( $ev->y_root ) );	
+			$self->push_to_statusbar( int( $ev->x ), int( $ev->y ) );	
 		}
 
 	}
@@ -2874,6 +2881,63 @@ sub restore_drawing_properties {
 	
 }
 
+sub event_item_on_key_press {
+	my ( $self, $item, $target, $ev ) = @_;
+	
+	if( $self->{_current_item} ){
+		
+		#current item
+		my $curr_item = $self->{_current_item};
+		
+		if(exists $self->{_items}{$curr_item}){
+		
+			#construct an motion-notify event
+			my $mevent = Gtk2::Gdk::Event->new ('motion-notify');
+			$mevent->set_state('button2-mask');
+			$mevent->set_time(Gtk2->get_current_event_time);
+			$mevent->window($self->{_drawing_window}->window);
+			
+			#get current x, y values
+			my $old_x = $self->{_items}{$curr_item}->get('x');
+			my $old_y = $self->{_items}{$curr_item}->get('y');
+						
+			#set item flags
+			$item->{drag_x}   			 = $old_x;
+			$item->{drag_y}   			 = $old_y;
+			$curr_item->{dragging} 		 = TRUE;
+			$curr_item->{dragging_start} = TRUE;
+							
+			#move with arrow keys
+			if($ev->keyval == $Gtk2::Gdk::Keysyms{Up}){
+				#~ print $ev->keyval," $old_x,$old_y-up\n";
+				$mevent->x($old_x);
+				$mevent->y($old_y-1);	
+			}elsif($ev->keyval == $Gtk2::Gdk::Keysyms{Down}){
+				#~ print $ev->keyval," $old_x,$old_y-down\n";
+				$mevent->x($old_x);
+				$mevent->y($old_y+1);			
+			}elsif($ev->keyval == $Gtk2::Gdk::Keysyms{Left}){
+				#~ print $ev->keyval," $old_x,$old_y-left\n";
+				$mevent->x($old_x-1);
+				$mevent->y($old_y);			
+			}elsif($ev->keyval == $Gtk2::Gdk::Keysyms{Right}){
+				#~ print $ev->keyval," $old_x,$old_y-right\n";
+				$mevent->x($old_x+1);
+				$mevent->y($old_y);			
+			}else{
+				return FALSE;
+			}	
+			
+			#finally call motion-notify handler
+			$self->event_item_on_motion_notify($curr_item, $target, $mevent );
+	
+		}
+		
+	}
+
+	return TRUE;
+}
+	
 sub event_item_on_button_press {
 	my ( $self, $item, $target, $ev, $select ) = @_;
 	
@@ -2933,8 +2997,6 @@ sub event_item_on_button_press {
 	#left mouse click to drag, resize, create or delelte items
 	if ( $ev->type eq 'button-press' && ($ev->button == 1 || $ev->button == 2) ) {
 
-		my $root = $self->{_canvas}->get_root_item;
-
 		#MOVE
 		if ( $self->{_current_mode_descr} eq "select" || $ev->button == 2) {
 
@@ -2945,8 +3007,8 @@ sub event_item_on_button_press {
 							
 				#real shape => move 
 				if ( exists $self->{_items}{$item} ) {
-					$item->{drag_x}  		= $ev->x_root;
-					$item->{drag_y}  		= $ev->y_root;
+					$item->{drag_x}  		= $ev->x;
+					$item->{drag_y}  		= $ev->y;
 					$item->{dragging} 		= TRUE;
 					$item->{dragging_start} = TRUE;
 
@@ -2954,8 +3016,8 @@ sub event_item_on_button_press {
 				
 				#resizing shape => resize
 				}else {
-					$item->{res_x}    		= $ev->x_root;
-					$item->{res_y}    		= $ev->y_root;
+					$item->{res_x}    		= $ev->x;
+					$item->{res_y}    		= $ev->y;
 					$item->{resizing}		= TRUE;
 	
 					$cursor = undef;
@@ -2999,6 +3061,8 @@ sub event_item_on_button_press {
 			}
 
 			$self->{_canvas}->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ], $cursor, $ev->time );
+			$self->{_canvas}->grab_focus($item);
+			$self->{_canvas}->keyboard_grab( $item, TRUE, $ev->time );
 		
 		#current mode not equal 'select' and no polyline	
 		}elsif($ev->button == 1){
@@ -3012,8 +3076,8 @@ sub event_item_on_button_press {
 				$self->{_current_mode_descr} ne "highlighter" && 
 				$self->{_current_mode_descr} ne "censor" ) {
 
-				$item->{res_x}    	= $ev->x_root;
-				$item->{res_y}    	= $ev->y_root;
+				$item->{res_x}    	= $ev->x;
+				$item->{res_y}    	= $ev->y;
 				$item->{resizing}	= TRUE;
 
 				$cursor = undef;
@@ -3039,6 +3103,8 @@ sub event_item_on_button_press {
 				$item->set('fill-pattern' => $pattern);
 				
 				$self->{_canvas}->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ], $cursor, $ev->time );
+				$self->{_canvas}->grab_focus($item);
+				$self->{_canvas}->keyboard_grab( $item, TRUE, $ev->time );
 
 			#create new item
 			}else{
@@ -3103,7 +3169,15 @@ sub event_item_on_button_press {
 	
 				}
 				
-			}	
+			}
+			
+			#grab new item
+			my $nitem = $self->{_current_new_item};		
+			if ($nitem &&  exists $self->{_items}{$nitem}) {
+				$self->{_canvas}->pointer_grab( $nitem, [ 'pointer-motion-mask', 'button-release-mask' ], $cursor, $ev->time );
+				$self->{_canvas}->grab_focus($nitem);
+				$self->{_canvas}->keyboard_grab( $nitem, TRUE, $ev->time );
+			}
 			
 		}	
 					
@@ -4774,8 +4848,8 @@ sub event_item_on_button_release {
 				if (exists $self->{_items}{$nitem}{image}){
 										
 					$self->{_items}{$nitem}->set(
-						'x' 		=> $ev->x_root - int($self->{_items}{$nitem}{orig_pixbuf}->get_width  / 2),
-						'y' 		=> $ev->y_root - int($self->{_items}{$nitem}{orig_pixbuf}->get_height / 2),
+						'x' 		=> $ev->x - int($self->{_items}{$nitem}{orig_pixbuf}->get_width  / 2),
+						'y' 		=> $ev->y - int($self->{_items}{$nitem}{orig_pixbuf}->get_height / 2),
 						'width' 	=> $self->{_items}{$nitem}{orig_pixbuf}->get_width,
 						'height' 	=> $self->{_items}{$nitem}{orig_pixbuf}->get_height,
 					);
@@ -4789,8 +4863,8 @@ sub event_item_on_button_release {
 						my $tb = $self->{_items}{$nitem}{text}->get_bounds;
 										
 						$nitem->set( 
-							'x'  		=> $ev->x_root, 
-							'y' 		=> $ev->y_root - int(abs($tb->y1 - $tb->y2)/2), 			
+							'x'  		=> $ev->x, 
+							'y' 		=> $ev->y - int(abs($tb->y1 - $tb->y2)/2), 			
 							'width' 	=> abs($tb->x1 - $tb->x2),
 							'height' 	=> abs($tb->y1 - $tb->y2),
 						);
@@ -4798,8 +4872,8 @@ sub event_item_on_button_release {
 					}elsif($self->{_items}{$nitem}{type} eq 'number'){
 
 						$self->{_items}{$nitem}->set(
-							'x' 		=> $ev->x_root - int($self->{_items}{$nitem}->get('width') / 2),
-							'y' 		=> $ev->y_root - int($self->{_items}{$nitem}->get('height') / 2),
+							'x' 		=> $ev->x - int($self->{_items}{$nitem}->get('width') / 2),
+							'y' 		=> $ev->y - int($self->{_items}{$nitem}->get('height') / 2),
 							'width' 	=> $self->{_items}{$nitem}->get('width'),
 							'height' 	=> $self->{_items}{$nitem}->get('height'),
 						);
@@ -5132,8 +5206,9 @@ sub setup_uimanager {
 			#store items to delete in temporary hash
 			#sort them uid
 			my %time_hash;
-			foreach (keys %{$self->{_items}}){
-				$time_hash{$self->{_items}{$_}{uid}} = $self->{_items}{$_};  	
+			foreach (keys %{$self->{_items}}){	
+				next if( exists $self->{_items}{$_}{image} && $self->{_items}{$_}{image} == $self->{_canvas_bg});
+				$time_hash{$self->{_items}{$_}{uid}} = $self->{_items}{$_}; 
 			}
 			
 			#delete items
@@ -6060,7 +6135,7 @@ sub create_polyline {
 	
 	#use event coordinates
 	if ($ev) {
-		@points = ( $ev->x_root, $ev->y_root, $ev->x_root, $ev->y_root );
+		@points = ( $ev->x, $ev->y, $ev->x, $ev->y );
 	#use source item coordinates
 	} elsif ($copy_item) {
 		foreach(@{$self->{_items}{$copy_item}{points}}){
@@ -6130,7 +6205,7 @@ sub create_censor {
 	
 	#use event coordinates
 	if ($ev) {
-		@points = ( $ev->x_root, $ev->y_root, $ev->x_root, $ev->y_root );
+		@points = ( $ev->x, $ev->y, $ev->x, $ev->y );
 	#use source item coordinates
 	} elsif ($copy_item) {
 		foreach(@{$self->{_items}{$copy_item}{points}}){
@@ -6189,7 +6264,7 @@ sub create_image {
 							$self->{_current_pixbuf}->get_height
 						  );
 		}else{
-			@dimensions = ( $ev->x_root, $ev->y_root, 0, 0 );
+			@dimensions = ( $ev->x, $ev->y, 0, 0 );
 		}		
 	#use source item coordinates
 	} elsif ($copy_item) {
@@ -6274,7 +6349,7 @@ sub create_text{
 
 	#use event coordinates and selected color
 	if ($ev) {
-		@dimensions = ( $ev->x_root, $ev->y_root, 0, 0 );
+		@dimensions = ( $ev->x, $ev->y, 0, 0 );
 		#use source item coordinates and item color
 	} elsif ($copy_item) {
 		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
@@ -6321,8 +6396,8 @@ sub create_text{
 		);
 	}else{
 		$self->{_items}{$item}->set( 
-			'x'  		=> $ev->x_root - $w, 
-			'y' 		=> $ev->y_root - $h, 			
+			'x'  		=> $ev->x - $w, 
+			'y' 		=> $ev->y - $h, 			
 			'width' 	=> $w,
 			'height' 	=> $h,
 			'visibility' => 'hidden',
@@ -6375,7 +6450,7 @@ sub create_line {
 	
 	#use event coordinates and selected color
 	if ($ev) {
-		@dimensions = ( $ev->x_root, $ev->y_root, 0, 0 );
+		@dimensions = ( $ev->x, $ev->y, 0, 0 );
 		#use source item coordinates and item color
 	} elsif ($copy_item) {
 		@dimensions 		= ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
@@ -6469,7 +6544,7 @@ sub create_ellipse {
 
 	#use event coordinates and selected color
 	if ($ev) {
-		@dimensions = ( $ev->x_root, $ev->y_root, 0, 0 );
+		@dimensions = ( $ev->x, $ev->y, 0, 0 );
 	#use source item coordinates and item color
 	} elsif ($copy_item) {
 		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
@@ -6599,7 +6674,7 @@ sub create_rectangle {
 
 	#use event coordinates and selected color
 	if ($ev) {
-		@dimensions = ( $ev->x_root, $ev->y_root, 0, 0 );
+		@dimensions = ( $ev->x, $ev->y, 0, 0 );
 
 	#use source item coordinates and item color
 	} elsif ($copy_item) {
