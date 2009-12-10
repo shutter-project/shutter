@@ -246,4 +246,66 @@ sub create_toolbar {
 	return $self->{_toolbar};
 }
 
+sub create_btoolbar {
+	my $self = shift;
+
+	my $d            = $self->{_common}->get_gettext;
+	my $window       = $self->{_common}->get_mainwindow;
+	my $shutter_root = $self->{_common}->get_root;
+
+	#Tooltips
+	my $tooltips = $self->{_common}->get_tooltips;
+	
+	#Icontheme
+	my $icontheme = $self->{_common}->get_theme;
+	
+	#expanding separator
+	#--------------------------------------	
+	my $expander_l = Gtk2::SeparatorToolItem->new;
+	$expander_l->set_expand(TRUE);
+	$expander_l->set_draw(FALSE);
+	
+	#--------------------------------------
+	
+	#button back
+	#--------------------------------------
+	my $image_back = Gtk2::Image->new_from_stock( 'gtk-go-back', 'large-toolbar' );
+	$self->{_back} = Gtk2::ToolButton->new( $image_back, '' );
+
+	#--------------------------------------	
+
+	#button home
+	#--------------------------------------
+	my $image_home = Gtk2::Image->new_from_stock( 'gtk-index', 'large-toolbar' );
+	$self->{_home} = Gtk2::ToolButton->new( $image_home, '' );
+
+	#--------------------------------------	
+	
+	#button forward
+	#--------------------------------------
+	my $image_forw = Gtk2::Image->new_from_stock( 'gtk-go-forward', 'large-toolbar' );
+	$self->{_forw} = Gtk2::ToolButton->new( $image_forw, '' );
+
+	#--------------------------------------	
+
+	#expanding separator
+	#--------------------------------------	
+	my $expander_r = Gtk2::SeparatorToolItem->new;
+	$expander_r->set_expand(TRUE);
+	$expander_r->set_draw(FALSE);
+	
+	#--------------------------------------
+	
+	#create the toolbar
+	$self->{_btoolbar} = Gtk2::Toolbar->new;
+	$self->{_btoolbar}->set_show_arrow(FALSE);
+	$self->{_btoolbar}->insert( $expander_l, -1 );
+	$self->{_btoolbar}->insert( $self->{_back}, -1 );
+	$self->{_btoolbar}->insert( $self->{_home}, -1 );
+	$self->{_btoolbar}->insert( $self->{_forw}, -1 );
+	$self->{_btoolbar}->insert( $expander_r, -1 );
+
+	return $self->{_btoolbar};
+}
+
 1;
