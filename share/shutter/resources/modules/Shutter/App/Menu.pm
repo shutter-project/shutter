@@ -254,6 +254,12 @@ sub fct_ret_view_menu {
 
 	$self->{_menu_view} = Gtk2::Menu->new();
 
+	$self->{_menuitem_btoolbar} = Gtk2::CheckMenuItem->new_with_mnemonic( $d->get('Show Navigation _Toolbar') );
+	$self->{_menuitem_btoolbar}->set_active(TRUE);
+	$self->{_menu_view}->append( $self->{_menuitem_btoolbar} );
+
+	$self->{_menu_view}->append( Gtk2::SeparatorMenuItem->new );
+
 	$self->{_menuitem_zoom_in} = Gtk2::ImageMenuItem->new_from_stock('gtk-zoom-in');
 	$self->{_menuitem_zoom_in}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<control>plus'), qw/visible/ );
 	$self->{_menuitem_zoom_in}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<control>equal'), qw/visible/ );

@@ -348,6 +348,7 @@ $sm->{_menuitem_trash}->signal_connect( 'activate', sub { &fct_delete(undef); } 
 $sm->{_menuitem_select_all}->signal_connect( 'activate', \&fct_select_all );
 $sm->{_menuitem_settings}->signal_connect( 'activate', \&evt_show_settings );
 
+$sm->{_menuitem_btoolbar}->signal_connect( 'toggled', \&fct_navigation_toolbar );
 $sm->{_menuitem_zoom_in}->signal_connect( 'activate', \&fct_zoom_in );
 $sm->{_menuitem_zoom_out}->signal_connect( 'activate', \&fct_zoom_out );
 $sm->{_menuitem_zoom_100}->signal_connect( 'activate', \&fct_zoom_100 );
@@ -2032,7 +2033,8 @@ $settings_dialog->set_default_response('apply');
 $vbox->pack_start( $notebook,  TRUE,  TRUE,  0 );
 
 #bottom toolbar
-$vbox->pack_start( $st->create_btoolbar, FALSE, TRUE, 0 );
+my $nav_toolbar = $st->create_btoolbar;
+$vbox->pack_start( $nav_toolbar, FALSE, TRUE, 0 );
 
 #signal handler
 $st->{_back}->signal_connect( 'clicked' => sub {
@@ -9191,6 +9193,18 @@ sub fct_fullscreen {
 		$window->fullscreen;			
 	}else{
 		$window->unfullscreen;	
+	}
+}
+
+sub fct_navigation_toolbar {
+	my ($widget) = @_;
+	
+	if($widget->get_active){
+		$nav_toolbar->visible(TRUE);
+		$nav_toolbar->show_all;			
+	}else{
+		$nav_toolbar->visible(FALSE);	
+		$nav_toolbar->hide_all;
 	}
 }
 
