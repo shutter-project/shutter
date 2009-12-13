@@ -336,6 +336,8 @@ sub show {
 	#new item
 	my $nitem = $self->create_image( $initevent, undef, TRUE);
 	$self->{_canvas_bg} = $self->{_items}{$nitem}{image};
+	#this item is locked at first
+	$self->{_items}{$nitem}{locked} = TRUE;
 
 	$self->handle_bg_rects( 'raise' );
 
@@ -1967,7 +1969,7 @@ sub event_item_on_motion_notify {
 				}
 
 			}
-			
+						
 			#apply new values...
 			$self->{_items}{$curr_item}->set(
 				'x'      => $new_x,
@@ -2964,23 +2966,31 @@ sub event_item_on_button_press {
 
 				unless ($self->{_current_mode_descr} eq "number" || $self->{_current_mode_descr} eq "text"){
 					
-					#remember last item 
-					my $last_item = $self->{_current_item};		
+					unless($self->{_items}{$item}{locked}){
 					
-					#mark as active item
-					$self->{_current_item} 	   = $item;
-					$self->{_current_new_item} = undef;
-					
-					$self->handle_rects( 'update', $self->{_current_item} );
-					$self->handle_rects( 'hide',   $last_item );
-			
-					#apply item properties to widgets
-					#line width, fill color, stroke color etc.
-					$self->set_and_save_drawing_properties($self->{_current_item}, FALSE);
+						#remember last item 
+						my $last_item = $self->{_current_item};		
+						
+						#mark as active item
+						$self->{_current_item} 	   = $item;
+						$self->{_current_new_item} = undef;
+						
+						$self->handle_rects( 'update', $self->{_current_item} );
+						$self->handle_rects( 'hide',   $last_item );
+				
+						#apply item properties to widgets
+						#line width, fill color, stroke color etc.
+						$self->set_and_save_drawing_properties($self->{_current_item}, FALSE);
+				
+					}else{
+						
+						$self->deactivate_all;
+						
+					}	
 				
 				}else{
 				
-					$self->deactivate_all($self->{_current_item});	
+					$self->deactivate_all($self->{_current_item});
 				
 				}
 				
@@ -3003,6 +3013,9 @@ sub event_item_on_button_press {
 			#don't_move the bounding rectangle or the bg_image
 			return TRUE if $item == $self->{_canvas_bg_rect};
 
+			#don't move locked item
+			return TRUE if (exists $self->{_items}{$item} && $self->{_items}{$item}{locked});
+			
 			if ( $item->isa('Goo::Canvas::Rect') ) {
 							
 				#real shape => move 
@@ -3182,7 +3195,7 @@ sub event_item_on_button_press {
 		}	
 					
 	#right click => show context menu, double-click => show properties directly 
-	} elsif ( $ev->type eq '2button-press' || $ev->button == 3) {
+	} elsif ($ev->type eq '2button-press' || $ev->button == 3) {
 			
 		$self->{_canvas}->pointer_ungrab( $item, $ev->time );
 		$self->{_canvas}->keyboard_ungrab( $item, $ev->time );
@@ -3375,6 +3388,35 @@ sub ret_item_menu {
 	$menu_item->append($remove_item);
 
 	$menu_item->append( Gtk2::SeparatorMenuItem->new );
+	
+	#add lock/unlock entry if item == background image
+	if($item == $self->{_canvas_bg}){
+		
+		my $lock_item = undef;
+		if(exists $self->{_items}{$key} && $self->{_items}{$key}{locked} == TRUE){		
+			$lock_item = Gtk2::ImageMenuItem->new_with_label( $self->{_d}->get("Unlock") );
+			$lock_item->set_image(Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_size( $self->{_dicons}.'/draw-unlocked.png', Gtk2::IconSize->lookup('menu') ) ) );		
+		}elsif(exists $self->{_items}{$key} && $self->{_items}{$key}{locked} == FALSE){
+			$lock_item = Gtk2::ImageMenuItem->new_with_label( $self->{_d}->get("Lock") );
+			$lock_item->set_image(Gtk2::Image->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_size( $self->{_dicons}.'/draw-locked.png', Gtk2::IconSize->lookup('menu') ) ) );
+		}
+
+		#handler
+		$lock_item->signal_connect('activate' => sub {
+						
+			if(exists $self->{_items}{$key} && $self->{_items}{$key}{locked} == FALSE){		
+				$self->{_items}{$key}{locked} = TRUE;
+				$self->deactivate_all;
+			}elsif(exists $self->{_items}{$key} && $self->{_items}{$key}{locked} == TRUE){
+				$self->{_items}{$key}{locked} = FALSE;
+			}
+			
+		});
+		
+		$menu_item->append($lock_item);
+		
+		$menu_item->append( Gtk2::SeparatorMenuItem->new );	
+	}
 
 	#properties
 	my $prop_item = Gtk2::ImageMenuItem->new($self->{_d}->get("Edit Preferences..."));
@@ -4582,7 +4624,18 @@ sub handle_rects {
 
 	if ( $self->{_items}{$item}->isa('Goo::Canvas::Rect') ) {
 		
-		my $x 			= $self->{_items}{$item}->get('x');
+		#~ my $line = $self->{_items}{$item}->get('line-width');
+		#~ if (exists $self->{_items}{$item}{ellipse}){
+			#~ $line = $self->{_items}{$item}{ellipse}->get('line-width');
+		#~ }elsif(exists $self->{_items}{$item}{line}){
+			#~ $line = $self->{_items}{$item}{line}->get('line-width');
+		#~ }
+
+	    #~ my $x 			= $self->{_items}{$item}->get('x') - $line / 2;
+		#~ my $y 			= $self->{_items}{$item}->get('y') - $line / 2;
+		#~ my $width 		= $self->{_items}{$item}->get('width') + $line;
+		#~ my $height 		= $self->{_items}{$item}->get('height') + $line;
+	    my $x 			= $self->{_items}{$item}->get('x');
 		my $y 			= $self->{_items}{$item}->get('y');
 		my $width 		= $self->{_items}{$item}->get('width');
 		my $height 		= $self->{_items}{$item}->get('height');
