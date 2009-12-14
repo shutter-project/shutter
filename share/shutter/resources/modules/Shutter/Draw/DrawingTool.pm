@@ -159,9 +159,9 @@ sub new {
     #~ print "$self dying at\n";
 #~ } 
 
-1;
-
-__DATA__
+#~ 1;
+#~ 
+#~ __DATA__
 
 sub show {
 	my $self        	  = shift;
@@ -2663,7 +2663,7 @@ sub set_and_save_drawing_properties {
 
 	return FALSE unless $item;
 
-	#~ print "set_and_save_drawing_properties1\n";
+	print "set_and_save_drawing_properties1\n";
 
 	#determine key for item hash
 	if(my $child = $self->get_child_item($item)){
@@ -2674,7 +2674,7 @@ sub set_and_save_drawing_properties {
 
 	return FALSE unless $key;
 
-	#~ print "set_and_save_drawing_properties2\n";
+	print "set_and_save_drawing_properties2\n";
 
 	#we do not remember the properties for some tools
 	#and don't remember them when just selecting items with the cursor
@@ -2683,8 +2683,6 @@ sub set_and_save_drawing_properties {
 	   $self->{_current_mode} != 10 )
 	{
 		
-		#~ print "Ja, gespeichert!\n";
-				
 		#remember drawing colors, line width and font settings
 		#maybe we have to restore them
 		$self->{_last_fill_color}         = $self->{_fill_color_w}->get_color;
@@ -2849,7 +2847,7 @@ sub restore_drawing_properties {
 	#anything done until now?
 	return FALSE unless defined $self->{_last_mode};
 
-	#~ print "restore_drawing_properties\n";
+	print "restore_drawing_properties\n";
 
 	#block 'value-change' handlers for widgets
 	#so we do not apply the changes twice
@@ -3183,6 +3181,10 @@ sub event_item_on_button_press {
 				}
 				
 			}
+			
+			return FALSE unless defined $self->{_current_new_item};
+			
+			print "created new item ",$self->{_current_new_item}, "\n";
 			
 			#grab new item
 			my $nitem = $self->{_current_new_item};		
@@ -4025,7 +4027,7 @@ sub apply_properties {
 	
 	) = @_;
 
-	#~ print "apply_properties\n";
+	print "apply_properties\n";
 
 	#remember drawing colors, line width and font settings
 	#maybe we have to restore them
@@ -4052,6 +4054,9 @@ sub apply_properties {
 
 	#apply rect or ellipse options
 	if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
+
+
+	print "apply_properties - rect, ellipse: $item\n";
 
 		my $fill_pattern   = $self->create_color( $fill_color->get_color,   $fill_color->get_alpha / 65535 );
 		my $stroke_pattern = $self->create_color( $stroke_color->get_color, $stroke_color->get_alpha / 65535 );
@@ -4959,10 +4964,17 @@ sub event_item_on_button_release {
 			#delete from hash
 			delete $self->{_items}{$nitem};
 			
+			print "item $nitem deleted at ",$ev->x,", ",$ev->y,"\n";
+			
 			#deactivate all
 			$self->deactivate_all;
 			
-			if(my $oitem = $self->{_canvas}->get_item_at ($ev->x, $ev->y, TRUE)){
+			if(my $oitem = $self->{_canvas}->get_item_at ($ev->x_root, $ev->y_root, TRUE)){
+				
+				print "item $oitem found at ",$ev->x,", ",$ev->y,"\n";
+				
+				return FALSE unless exists $self->{_items}{$oitem};
+				
 				#turn into a button-press-event
 				my $initevent = Gtk2::Gdk::Event->new ('button-press');
 				$initevent->set_time(Gtk2->get_current_event_time);
@@ -5073,7 +5085,7 @@ sub event_item_on_button_release {
 sub event_item_on_enter_notify {
 	my ( $self, $item, $target, $ev ) = @_;
 	
-	return TRUE if $self->{_busy};
+	#~ return TRUE if $self->{_busy};
 	
 	if (   ($item->isa('Goo::Canvas::Rect')
 		|| $item->isa('Goo::Canvas::Ellipse')
@@ -5085,7 +5097,6 @@ sub event_item_on_enter_notify {
 			$self->{_current_mode_descr} ne "censor" ) 
 		
 		) {
-
 
 		#embedded item?
 		my $parent = $self->get_parent_item($item);
