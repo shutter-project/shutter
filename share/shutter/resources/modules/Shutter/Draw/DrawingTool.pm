@@ -2902,8 +2902,8 @@ sub event_item_on_key_press {
 			my $old_y = $self->{_items}{$curr_item}->get('y');
 						
 			#set item flags
-			$item->{drag_x}   			 = $old_x;
-			$item->{drag_y}   			 = $old_y;
+			$curr_item->{drag_x}   		 = $old_x;
+			$curr_item->{drag_y}   		 = $old_y;
 			$curr_item->{dragging} 		 = TRUE;
 			$curr_item->{dragging_start} = TRUE;
 							
@@ -3089,7 +3089,6 @@ sub event_item_on_button_press {
 			#grab keyboard and pointer focus
 			$self->{_canvas}->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ], $cursor, $ev->time );
 			$self->{_canvas}->grab_focus($item);
-			$self->{_canvas}->keyboard_grab( $item, TRUE, $ev->time );
 
 		#current mode not equal 'select' and no polyline	
 		}elsif($ev->button == 1){
@@ -3134,13 +3133,10 @@ sub event_item_on_button_press {
 				#grab keyboard and pointer focus
 				$self->{_canvas}->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ], $cursor, $ev->time );
 				$self->{_canvas}->grab_focus($item);
-				$self->{_canvas}->keyboard_grab( $item, TRUE, $ev->time );
 				
 			#create new item
 			}else{
 				
-				#~ $self->deactivate_all;
-	
 					#freehand
 				if ( $self->{_current_mode_descr} eq "freehand" ) {
 					
@@ -3199,27 +3195,21 @@ sub event_item_on_button_press {
 	
 				}
 				
+				#grab keyboard focus
+				if(my $nitem = $self->{_current_new_item}){
+					print "grab keyboard focus for new item $nitem\n";
+					$self->{_canvas}->grab_focus($nitem);
+				}
+				
 			}
 						
-			print "created new item ",$self->{_current_new_item}, "\n";
-			
-			print "grab keyboard and pointer focus for new item $item\n";
-			
-			#grab new item
-			my $nitem = $self->{_current_new_item};		
-			if ($nitem &&  exists $self->{_items}{$nitem}) {
-				$self->{_canvas}->pointer_grab( $nitem, [ 'pointer-motion-mask', 'button-release-mask' ], $cursor, $ev->time );
-				$self->{_canvas}->grab_focus($nitem);
-				$self->{_canvas}->keyboard_grab( $nitem, TRUE, $ev->time );
-			}
-			
 		}	
 					
 	#right click => show context menu, double-click => show properties directly 
 	} elsif ($ev->type eq '2button-press' || $ev->button == 3) {
 			
-		#~ $self->{_canvas}->pointer_ungrab( $item, $ev->time );
-		#~ $self->{_canvas}->keyboard_ungrab( $item, $ev->time );
+		$self->{_canvas}->pointer_ungrab( $item, $ev->time );
+		$self->{_canvas}->keyboard_ungrab( $item, $ev->time );
 
 		#determine key for item hash
 		if(my $child = $self->get_child_item($item)){
@@ -4969,7 +4959,9 @@ sub event_item_on_button_release {
 					}
 					
 				}
-
+			
+				print "new item created: $item\n";
+			
 			}
 
 		}
@@ -4999,6 +4991,7 @@ sub event_item_on_button_release {
 				$initevent->x($ev->x);
 				$initevent->y($ev->y);
 				$self->event_item_on_button_press($oitem, undef, $initevent, TRUE);
+				$self->event_item_on_button_release($oitem, undef, $initevent);
 			}			
 		}else{	
 			
@@ -5011,7 +5004,8 @@ sub event_item_on_button_release {
 			$self->handle_embedded( 'update', $nitem );
 			
 			#add to undo stack
-			$self->store_to_xdo_stack($nitem , 'create', 'undo');		
+			$self->store_to_xdo_stack($nitem , 'create', 'undo');
+				
 		}
 
 	#no new item
