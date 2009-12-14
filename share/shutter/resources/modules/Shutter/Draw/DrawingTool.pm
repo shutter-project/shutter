@@ -3264,6 +3264,9 @@ sub event_item_on_button_press {
 				);						
 			}
 		}
+		
+		#canvas idle now
+		$self->{_busy} = FALSE;
 
 	}		
 
@@ -4063,9 +4066,6 @@ sub apply_properties {
 
 	#apply rect or ellipse options
 	if ( $item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') ) {
-
-
-	print "apply_properties - rect, ellipse: $item\n";
 
 		my $fill_pattern   = $self->create_color( $fill_color->get_color,   $fill_color->get_alpha / 65535 );
 		my $stroke_pattern = $self->create_color( $stroke_color->get_color, $stroke_color->get_alpha / 65535 );
