@@ -2940,8 +2940,8 @@ sub event_item_on_key_press {
 	
 sub event_item_on_button_press {
 	my ( $self, $item, $target, $ev, $select ) = @_;
-	
-	#~ print "button-press\n";
+
+	print "button-press\n";
 
 	#canvas is busy now...
 	$self->{_busy} = TRUE;
@@ -2951,7 +2951,7 @@ sub event_item_on_button_press {
 	#activate item
 	#if it is not activated yet
 	# => single click
-	if ($ev->type eq 'button-press' && ($self->{_current_mode_descr} eq "select" || $select || $ev->button == 2)) {
+	if ($ev->type eq 'button-press' && ($self->{_current_mode_descr} eq "select" || $select || $ev->button == 2 || $ev->button == 3)) {
 
 		#embedded item?
 		my $parent = $self->get_parent_item($item);
@@ -2966,29 +2966,40 @@ sub event_item_on_button_press {
 					
 					unless($self->{_items}{$item}{locked}){
 					
-						#remember last item 
+						#deactivate last item 
 						my $last_item = $self->{_current_item};		
+						if(defined $last_item){
+							print "deactivated item: $last_item\n";
+							$self->{_canvas}->pointer_ungrab( $last_item, $ev->time );
+							$self->{_canvas}->keyboard_ungrab( $last_item, $ev->time );
+							$self->handle_rects( 'hide', $last_item );
+						}
 						
 						#mark as active item
 						$self->{_current_item} 	   = $item;
 						$self->{_current_new_item} = undef;
 						
 						$self->handle_rects( 'update', $self->{_current_item} );
-						$self->handle_rects( 'hide',   $last_item );
-				
+
 						#apply item properties to widgets
 						#line width, fill color, stroke color etc.
 						$self->set_and_save_drawing_properties($self->{_current_item}, FALSE);
-				
+						
+						print "activated item: $item\n";
+												
 					}else{
 						
 						$self->deactivate_all;
+						
+						print "deactivate because $item is locked\n";
 						
 					}	
 				
 				}else{
 				
 					$self->deactivate_all($self->{_current_item});
+					
+					print "deactivate because $item is text or number\n";
 				
 				}
 				
@@ -2999,6 +3010,8 @@ sub event_item_on_button_press {
 				
 			$self->deactivate_all;
 			
+			print "deactivate because $item is background rectangle\n";
+			
 		}
 	}
 	
@@ -3006,7 +3019,7 @@ sub event_item_on_button_press {
 	if ( $ev->type eq 'button-press' && ($ev->button == 1 || $ev->button == 2) ) {
 
 		#MOVE
-		if ( $self->{_current_mode_descr} eq "select" || $ev->button == 2) {
+		if ( $self->{_current_mode_descr} eq "select" || $ev->button == 2 ) {
 
 			#don't_move the bounding rectangle or the bg_image
 			return TRUE if $item == $self->{_canvas_bg_rect};
@@ -3070,11 +3083,14 @@ sub event_item_on_button_press {
 				$cursor = undef;
 
 			}
-
+			
+			print "grab keyboard and pointer focus for $item\n";
+			
+			#grab keyboard and pointer focus
 			$self->{_canvas}->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ], $cursor, $ev->time );
 			$self->{_canvas}->grab_focus($item);
 			$self->{_canvas}->keyboard_grab( $item, TRUE, $ev->time );
-		
+
 		#current mode not equal 'select' and no polyline	
 		}elsif($ev->button == 1){
 		
@@ -3113,10 +3129,13 @@ sub event_item_on_button_press {
 				my $pattern = $self->create_color( $self->{_style_bg}, 1 );
 				$item->set('fill-pattern' => $pattern);
 				
+				print "grab keyboard and pointer focus for $item\n";
+				
+				#grab keyboard and pointer focus
 				$self->{_canvas}->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ], $cursor, $ev->time );
 				$self->{_canvas}->grab_focus($item);
 				$self->{_canvas}->keyboard_grab( $item, TRUE, $ev->time );
-
+				
 			#create new item
 			}else{
 				
@@ -3181,10 +3200,10 @@ sub event_item_on_button_press {
 				}
 				
 			}
-			
-			return FALSE unless defined $self->{_current_new_item};
-			
+						
 			print "created new item ",$self->{_current_new_item}, "\n";
+			
+			print "grab keyboard and pointer focus for new item $item\n";
 			
 			#grab new item
 			my $nitem = $self->{_current_new_item};		
@@ -3199,8 +3218,8 @@ sub event_item_on_button_press {
 	#right click => show context menu, double-click => show properties directly 
 	} elsif ($ev->type eq '2button-press' || $ev->button == 3) {
 			
-		$self->{_canvas}->pointer_ungrab( $item, $ev->time );
-		$self->{_canvas}->keyboard_ungrab( $item, $ev->time );
+		#~ $self->{_canvas}->pointer_ungrab( $item, $ev->time );
+		#~ $self->{_canvas}->keyboard_ungrab( $item, $ev->time );
 
 		#determine key for item hash
 		if(my $child = $self->get_child_item($item)){
@@ -4972,9 +4991,7 @@ sub event_item_on_button_release {
 			if(my $oitem = $self->{_canvas}->get_item_at ($ev->x_root, $ev->y_root, TRUE)){
 				
 				print "item $oitem found at ",$ev->x,", ",$ev->y,"\n";
-				
-				return FALSE unless exists $self->{_items}{$oitem};
-				
+								
 				#turn into a button-press-event
 				my $initevent = Gtk2::Gdk::Event->new ('button-press');
 				$initevent->set_time(Gtk2->get_current_event_time);
@@ -5085,7 +5102,7 @@ sub event_item_on_button_release {
 sub event_item_on_enter_notify {
 	my ( $self, $item, $target, $ev ) = @_;
 	
-	#~ return TRUE if $self->{_busy};
+	return TRUE if $self->{_busy};
 	
 	if (   ($item->isa('Goo::Canvas::Rect')
 		|| $item->isa('Goo::Canvas::Ellipse')
