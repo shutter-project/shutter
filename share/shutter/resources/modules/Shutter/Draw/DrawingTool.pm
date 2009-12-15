@@ -1577,7 +1577,8 @@ sub event_item_on_motion_notify {
 	$self->adjust_rulers($ev, $item);
 	
 	#autoscroll if enabled
-	if ( $self->{_autoscroll} && ($ev->state >= 'button1-mask' || $ev->state >= 'button2-mask') ) {
+	#as does not work when using the censor tool -> deactivate it
+	if ( $self->{_current_mode_descr} ne "censor" && $self->{_autoscroll} && ($ev->state >= 'button1-mask' || $ev->state >= 'button2-mask') ) {
 		
 		my ( $x, $y, $width, $height, $depth ) = $self->{_canvas}->window->get_geometry;
 		my $s  = $self->{_canvas}->get_scale;
@@ -6298,7 +6299,7 @@ sub create_censor {
 	my $item = Goo::Canvas::Polyline->new_line(
 		$self->{_canvas}->get_root_item, $points[0],$points[1],$points[2],$points[3],
 		#~ 'stroke-pattern' => $stroke_pattern,
-		'stroke-pixbuf'  => $self->get_pixbuf_from_canvas(),
+		'stroke-pixbuf'  => $self->get_pixelated_pixbuf_from_canvas(),
 		'line-width'     => 14,
 		'line-cap'       => 'CAIRO_LINE_CAP_ROUND',
 		'line-join'      => 'CAIRO_LINE_JOIN_ROUND',
@@ -6323,14 +6324,26 @@ sub create_censor {
 	return $item;
 }
 
-sub get_pixbuf_from_canvas {
-	my ($self, $item) = @_;
-	
-	my $surface = Cairo::ImageSurface->create( 'argb32', $self->{_canvas_bg_rect}->get('width'), $self->{_canvas_bg_rect}->get('height') );
-	
-	my $cr   = Cairo::Context->create($surface);
-	$self->{_canvas}->render( $cr, $self->{_canvas_bg_rect}->get_bounds, 1 );
+sub get_pixelated_pixbuf_from_canvas {
+	my ($self) = @_;
 
+	#create needed bounds - currently visible area
+	my ( $x, $y, $width, $height, $depth ) = $self->{_canvas}->window->get_geometry;
+	my $s  = $self->{_canvas}->get_scale;
+	my $ha = $self->{_scrolled_window}->get_hadjustment->value;
+	my $va = $self->{_scrolled_window}->get_vadjustment->value;
+	
+	my $bounds = Goo::Canvas::Bounds->new($ha / $s, $va / $s, $ha / $s + ($width+50) / $s, $va / $s + ($height+50) / $s);
+	
+	#create surface and cairo context
+	my $surface = Cairo::ImageSurface->create( 'argb32', $ha / $s + ($width+50) / $s, $va / $s + ($height+50) / $s );
+	my $cr = Cairo::Context->create($surface);
+	
+	#render the content and load it via Gtk2::Gdk::PixbufLoader
+	$self->{_canvas}->render( $cr, $bounds, 1 );
+	
+	#~ print "start loader\n";
+	
 	my $loader = Gtk2::Gdk::PixbufLoader->new;
 	$surface->write_to_png_stream(
 		sub {
@@ -6341,11 +6354,15 @@ sub get_pixbuf_from_canvas {
 	$loader->close;
 	my $pixbuf = $loader->get_pixbuf;
 	
+	#~ print "end loader ", $pixbuf->get_width, " - ", $pixbuf->get_height, " \n";
+
+	#~ print "start scale\n";
+	
+	#pixelate the pixbuf - simply scale it down and scale it up afterwards
 	$pixbuf = $pixbuf->scale_simple($pixbuf->get_width*0.1, $pixbuf->get_height*0.1, 'tiles');	
 	$pixbuf = $pixbuf->scale_simple($pixbuf->get_width*10, $pixbuf->get_height*10, 'tiles');	
-	#~ $pixbuf = $pixbuf->scale_simple($pixbuf->get_width*0.1, $pixbuf->get_height*0.1, 'tiles');	
-	#~ $pixbuf = $pixbuf->scale_simple($pixbuf->get_width*0.1, $pixbuf->get_height*0.1, 'hyper');	
-	#~ $pixbuf = $pixbuf->scale_simple($pixbuf->get_width*10, $pixbuf->get_height*10, 'hyper');	
+	
+	#~ print "end scale\n";
 													
 	return $pixbuf; 											
 }
