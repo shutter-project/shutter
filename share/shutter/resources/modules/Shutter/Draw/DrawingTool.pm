@@ -159,9 +159,9 @@ sub new {
     #~ print "$self dying at\n";
 #~ } 
 
-#~ 1;
-#~ 
-#~ __DATA__
+1;
+
+__DATA__
 
 sub show {
 	my $self        	  = shift;
@@ -1696,7 +1696,10 @@ sub event_item_on_motion_notify {
 			push @{ $self->{_items}{$item}{'points'} }, $ev->x, $ev->y;		
 		
 		}
-		$self->{_items}{$item}->set( points => Goo::Canvas::Points->new( $self->{_items}{$item}{'points'} ) );
+		
+		$self->{_items}{$item}->set( 
+			'points' => Goo::Canvas::Points->new( $self->{_items}{$item}{'points'} )
+		);
 
 		#new item is already on the canvas with small initial size
 		#drawing is like resizing, so set up for resizing
@@ -6289,12 +6292,13 @@ sub create_censor {
 		$transform = $self->{_items}{$copy_item}->get('transform');
 	}
 
-    my @stipple_data = (255, 255, 255, 255,  255, 255, 255, 255,   255, 255, 255, 255,  255, 255, 255, 255);
-   	my $stroke_pattern = $self->create_stipple('black', \@stipple_data);
+    #~ my @stipple_data = (255, 255, 255, 255,  255, 255, 255, 255,   255, 255, 255, 255,  255, 255, 255, 255);
+   	#~ my $stroke_pattern = $self->create_stipple('black', \@stipple_data);
 
 	my $item = Goo::Canvas::Polyline->new_line(
 		$self->{_canvas}->get_root_item, $points[0],$points[1],$points[2],$points[3],
-		'stroke-pattern' => $stroke_pattern,
+		#~ 'stroke-pattern' => $stroke_pattern,
+		'stroke-pixbuf'  => $self->get_pixbuf_from_canvas(),
 		'line-width'     => 14,
 		'line-cap'       => 'CAIRO_LINE_CAP_ROUND',
 		'line-join'      => 'CAIRO_LINE_JOIN_ROUND',
@@ -6317,6 +6321,33 @@ sub create_censor {
 
 	
 	return $item;
+}
+
+sub get_pixbuf_from_canvas {
+	my ($self, $item) = @_;
+	
+	my $surface = Cairo::ImageSurface->create( 'argb32', $self->{_canvas_bg_rect}->get('width'), $self->{_canvas_bg_rect}->get('height') );
+	
+	my $cr   = Cairo::Context->create($surface);
+	$self->{_canvas}->render( $cr, $self->{_canvas_bg_rect}->get_bounds, 1 );
+
+	my $loader = Gtk2::Gdk::PixbufLoader->new;
+	$surface->write_to_png_stream(
+		sub {
+			my ( $closure, $data ) = @_;
+			$loader->write($data);
+		}
+	);
+	$loader->close;
+	my $pixbuf = $loader->get_pixbuf;
+	
+	$pixbuf = $pixbuf->scale_simple($pixbuf->get_width*0.1, $pixbuf->get_height*0.1, 'tiles');	
+	$pixbuf = $pixbuf->scale_simple($pixbuf->get_width*10, $pixbuf->get_height*10, 'tiles');	
+	#~ $pixbuf = $pixbuf->scale_simple($pixbuf->get_width*0.1, $pixbuf->get_height*0.1, 'tiles');	
+	#~ $pixbuf = $pixbuf->scale_simple($pixbuf->get_width*0.1, $pixbuf->get_height*0.1, 'hyper');	
+	#~ $pixbuf = $pixbuf->scale_simple($pixbuf->get_width*10, $pixbuf->get_height*10, 'hyper');	
+													
+	return $pixbuf; 											
 }
 
 sub create_image {
