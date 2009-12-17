@@ -159,9 +159,9 @@ sub new {
     #~ print "$self dying at\n";
 #~ } 
 
-1;
-
-__DATA__
+#~ 1;
+#~ 
+#~ __DATA__
 
 sub show {
 	my $self        	  = shift;
@@ -223,7 +223,6 @@ sub show {
 	#load file
 	eval{
 		$self->{_drawing_pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file( $self->{_filename} );
-		#~ $self->{_drawing_pixbuf} = $self->{_drawing_pixbuf}->composite_color_simple($self->{_drawing_pixbuf}->get_width, $self->{_drawing_pixbuf}->get_height, 'bilinear', 255, 16, 6710886, 10066329);
 	};
 	if($@){
 		my $response = $self->{_dialogs}->dlg_error_message( 
@@ -927,9 +926,13 @@ sub push_to_statusbar {
 
 	} elsif ( $self->{_current_mode} == 100 ) {
 
-		$status_text .= " ".$self->{_d}->get("Click to add an auto-increment shape");
+		$status_text .= " ".$self->{_d}->get("Click-Drag to create a pixelized region");
 
 	} elsif ( $self->{_current_mode} == 110 ) {
+
+		$status_text .= " ".$self->{_d}->get("Click to add an auto-increment shape");
+
+	} elsif ( $self->{_current_mode} == 120 ) {
 
 		#nothing to do here....
 
@@ -960,14 +963,14 @@ sub change_drawing_tool_cb {
 		$self->{_current_mode} != 10  &&
 		$self->{_current_mode} != 30  && 
 		$self->{_current_mode} != 90  && 
-		$self->{_current_mode} != 110 ){
+		$self->{_current_mode} != 120 ){
 	
 		$self->restore_drawing_properties;
 	
 	}
 	
 	#show drawing tool widgets
-	if($self->{_current_mode} != 110){
+	if($self->{_current_mode} != 120){
 
 		#show drawing tool widgets
 		$self->{_table}->show_all;
@@ -1061,10 +1064,21 @@ sub change_drawing_tool_cb {
 		$self->{_font_btn_w}->set_sensitive(FALSE);	
 
 	} elsif ( $self->{_current_mode} == 100 ) {
+		
+		$self->{_current_mode_descr} = "pixelize";
+
+		#disable controls, because they are not useful when using the
+		#pixelize tool
+		$self->{_fill_color_w}->set_sensitive(FALSE);
+		$self->{_stroke_color_w}->set_sensitive(FALSE);
+		$self->{_line_spin_w}->set_sensitive(FALSE);
+		$self->{_font_btn_w}->set_sensitive(FALSE);	
+		
+	} elsif ( $self->{_current_mode} == 110 ) {
 
 		$self->{_current_mode_descr} = "number";
 
-	} elsif ( $self->{_current_mode} == 110 ) {
+	} elsif ( $self->{_current_mode} == 120 ) {
 
 		$self->{_current_mode_descr} = "crop";
 		
@@ -1711,6 +1725,7 @@ sub event_item_on_motion_notify {
 			|| $self->{_current_mode_descr} eq "ellipse"
 			|| $self->{_current_mode_descr} eq "text"
 			|| $self->{_current_mode_descr} eq "image"
+			|| $self->{_current_mode_descr} eq "pixelize"
 			|| $self->{_current_mode_descr} eq "number"
 		)
 		&& $ev->state >= 'button1-mask'
@@ -2091,6 +2106,7 @@ sub get_parent_item {
 		$parent = $self->{_items}{$_} if exists $self->{_items}{$_}{ellipse} && $self->{_items}{$_}{ellipse} == $item;
 		$parent = $self->{_items}{$_} if exists $self->{_items}{$_}{text} && $self->{_items}{$_}{text} == $item;
 		$parent = $self->{_items}{$_} if exists $self->{_items}{$_}{image} && $self->{_items}{$_}{image} == $item;
+		$parent = $self->{_items}{$_} if exists $self->{_items}{$_}{pixelize} && $self->{_items}{$_}{pixelize} == $item;
 		$parent = $self->{_items}{$_} if exists $self->{_items}{$_}{line} && $self->{_items}{$_}{line} == $item;
 	}
 
@@ -2126,10 +2142,11 @@ sub get_child_item {
 	#notice (special shapes like numbered ellipse do deliver ellipse here => NOT text!)
 	#therefore the order matters
 	if (defined $item && exists $self->{_items}{$item}){
-		$child = $self->{_items}{$item}{text}    if exists $self->{_items}{$item}{text};
-		$child = $self->{_items}{$item}{ellipse} if exists $self->{_items}{$item}{ellipse};
-		$child = $self->{_items}{$item}{image}   if exists $self->{_items}{$item}{image};
-		$child = $self->{_items}{$item}{line}    if exists $self->{_items}{$item}{line};
+		$child = $self->{_items}{$item}{text}    	if exists $self->{_items}{$item}{text};
+		$child = $self->{_items}{$item}{ellipse} 	if exists $self->{_items}{$item}{ellipse};
+		$child = $self->{_items}{$item}{image}   	if exists $self->{_items}{$item}{image};
+		$child = $self->{_items}{$item}{pixelize}   if exists $self->{_items}{$item}{pixelize};
+		$child = $self->{_items}{$item}{line}    	if exists $self->{_items}{$item}{line};
 	}
 
 	return $child;
@@ -2450,6 +2467,16 @@ sub xdo {
 				$self->{_items}{$item}{stroke_color}       = $do->{'stroke_color'};
 				$self->{_items}{$item}{stroke_color_alpha} = $do->{'stroke_color_alpha'};
 
+			}elsif ( exists $self->{_items}{$item}{pixelize} ) {
+
+				$self->{_items}{$item}{pixelize}->set(
+					'x'      => int $self->{_items}{$item}->get('x'),
+					'y'      => int $self->{_items}{$item}->get('y'),
+					'width'  => $self->{_items}{$item}->get('width'),
+					'height' => $self->{_items}{$item}->get('height'),
+					'pixbuf' => $self->get_pixelated_pixbuf_from_canvas($self->{_items}{$item}),
+				);
+		
 			}elsif ( exists $self->{_items}{$item}{image} ) {
 
 				my $copy = undef;
@@ -2588,14 +2615,14 @@ sub xdo {
 		}		
 
 		#handle resize rectangles and embedded objects
-		if ($item == $self->{_canvas_bg_rect} || $item == $self->{_canvas_bg}){
+		if ($item == $self->{_canvas_bg_rect}){
 
 			$self->handle_bg_rects( 'update', $self->{_canvas_bg_rect} );		
 		
 		}else{
 
 			$self->handle_rects( 'update', $self->{_items}{$item} );
-			$self->handle_embedded( 'update', $self->{_items}{$item} );		
+			$self->handle_embedded( 'update', $self->{_items}{$item}, undef, undef, TRUE );		
 			$self->{_current_item} = $item;	
 
 			#apply item properties to widgets
@@ -2638,8 +2665,8 @@ sub xdo {
 
 			$self->{_items}{$item}->set('visibility' => 'visible');
 			$self->handle_rects( 'update', $self->{_items}{$item} );
-			$self->handle_embedded( 'update', $self->{_items}{$item} );	
-	
+			$self->handle_embedded( 'update', $self->{_items}{$item}, undef, undef, TRUE );	
+			
 	}elsif($action eq 'create' || $action eq 'create_xdo'){
 	
 			$self->{_items}{$item}->set('visibility' => 'hidden');
@@ -2684,6 +2711,7 @@ sub set_and_save_drawing_properties {
 	#and don't remember them when just selecting items with the cursor
 	if($self->{_items}{$key}{type} ne "highlighter" && 
 	   $self->{_items}{$key}{type} ne "image" &&
+	   $self->{_items}{$key}{type} ne "pixelize" &&
 	   $self->{_current_mode} != 10 )
 	{
 		
@@ -2709,6 +2737,8 @@ sub set_and_save_drawing_properties {
 	$self->{_stroke_color_w}->signal_handler_block ($self->{_stroke_color_wh});
 	$self->{_fill_color_w}->signal_handler_block ($self->{_fill_color_wh});
 	$self->{_font_btn_w}->signal_handler_block ($self->{_font_btn_wh});
+
+	print "set_and_save_drawing_properties3\n";
 
 	if (   $item->isa('Goo::Canvas::Rect')
 		|| $item->isa('Goo::Canvas::Ellipse')
@@ -3196,6 +3226,11 @@ sub event_item_on_button_press {
 				} elsif ( $self->{_current_mode_descr} eq "image" ) {
 	
 					$self->create_image( $ev, undef );
+					
+					#PIXELIZE
+				} elsif ( $self->{_current_mode_descr} eq "pixelize" ) {
+	
+					$self->create_pixel_image( $ev, undef );
 	
 				}
 				
@@ -4342,13 +4377,13 @@ sub deactivate_all {
 }
 
 sub handle_embedded {	
-	my ($self, $action, $item, $new_width, $new_height) = @_;
+	my ($self, $action, $item, $new_width, $new_height, $force_show) = @_;
 
 	return FALSE unless ( $item && exists $self->{_items}{$item} );
 
 	if ( $action eq 'update' ) {
 
-		my $visibilty = 'visible';
+		my $visibility = 'visible';
 
 		#embedded ellipse
 		if ( exists $self->{_items}{$item}{ellipse} ) {
@@ -4362,7 +4397,7 @@ sub handle_embedded {
 					+ $self->{_items}{$item}->get('width')
 					- $self->{_items}{$item}{ellipse}->get('center-x'),
 				'radius-y' => $item->get('y') + $self->{_items}{$item}->get('height') - $self->{_items}{$item}{ellipse}->get('center-y'),
-				'visibility' => $visibilty,
+				'visibility' => $visibility,
 			);
 			
 			#numbered ellipse
@@ -4370,7 +4405,7 @@ sub handle_embedded {
 				$self->{_items}{$item}{text}->set(
 					'x'     => $self->{_items}{$item}{ellipse}->get('center-x'),
 					'y'     => $self->{_items}{$item}{ellipse}->get('center-y'),
-					'visibility' => $visibilty,
+					'visibility' => $visibility,
 				);				
 			}	
 
@@ -4379,7 +4414,7 @@ sub handle_embedded {
 				'x'     => $self->{_items}{$item}->get('x'),
 				'y'     => $self->{_items}{$item}->get('y'),
 				'width' => $self->{_items}{$item}->get('width'),
-				'visibility' => $visibilty,
+				'visibility' => $visibility,
 			);
 		} elsif ( exists $self->{_items}{$item}{line} ) {
 		
@@ -4392,7 +4427,7 @@ sub handle_embedded {
 						$self->{_items}{$item}->get('y')+$self->{_items}{$item}->get('height'),
 						$self->{_items}{$item}->get('x'),
 						$self->{_items}{$item}->get('y')]), 
-						'visibility'  => $visibilty	
+						'visibility'  => $visibility	
 					);
 				}elsif($self->{_items}{$item}{mirrored_w} < 0){			
 					$self->{_items}{$item}{line}->set(
@@ -4401,7 +4436,7 @@ sub handle_embedded {
 						$self->{_items}{$item}->get('y'),
 						$self->{_items}{$item}->get('x'),
 						$self->{_items}{$item}->get('y')+$self->{_items}{$item}->get('height')]), 
-						'visibility'  => $visibilty	
+						'visibility'  => $visibility	
 					);
 				}elsif($self->{_items}{$item}{mirrored_h} < 0){
 					$self->{_items}{$item}{line}->set(
@@ -4410,7 +4445,7 @@ sub handle_embedded {
 						$self->{_items}{$item}->get('y')+$self->{_items}{$item}->get('height'),
 						$self->{_items}{$item}->get('x')+$self->{_items}{$item}->get('width'),
 						$self->{_items}{$item}->get('y')]), 
-						'visibility'  => $visibilty	
+						'visibility'  => $visibility	
 					);
 				}else{
 					$self->{_items}{$item}{line}->set(
@@ -4419,9 +4454,21 @@ sub handle_embedded {
 						$self->{_items}{$item}->get('y'),
 						$self->{_items}{$item}->get('x')+$self->{_items}{$item}->get('width'),
 						$self->{_items}{$item}->get('y')+$self->{_items}{$item}->get('height')]),
-						'visibility' => $visibilty
+						'visibility' => $visibility
 					);							
 				}	
+
+		} elsif ( exists $self->{_items}{$item}{pixelize}) {
+				
+				if($force_show){
+					$self->{_items}{$item}{pixelize}->set(
+						'visibility' => $visibility,
+					);
+				}else{
+					$self->{_items}{$item}{pixelize}->set(
+						'visibility' => 'hidden',
+					);					
+				}				
 		
 		} elsif ( exists $self->{_items}{$item}{image} ) {
 
@@ -4430,7 +4477,7 @@ sub handle_embedded {
 				$self->{_items}{$item}{image}->set(
 					'x'      => int $self->{_items}{$item}->get('x'),
 					'y'      => int $self->{_items}{$item}->get('y'),
-					'visibility' => $visibilty,
+					'visibility' => $visibility,
 				);			
 
 			}else{
@@ -4444,7 +4491,7 @@ sub handle_embedded {
 						'width'  => $self->{_items}{$item}->get('width'),
 						'height' => $self->{_items}{$item}->get('height'),
 						'pixbuf' => $self->{_items}{$item}{orig_pixbuf}->scale_simple( $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'), 'nearest' ),
-						'visibility' => $visibilty,
+						'visibility' => $visibility,
 					);			
 				}else{
 					$self->{_items}{$item}{image}->set(
@@ -4452,7 +4499,7 @@ sub handle_embedded {
 						'y'      => int $self->{_items}{$item}->get('y'),
 						'width'  => $self->{_items}{$item}->get('width'),
 						'height' => $self->{_items}{$item}->get('height'),
-						'visibility' => $visibilty,
+						'visibility' => $visibility,
 					);						
 				}
 	
@@ -4491,26 +4538,31 @@ sub handle_embedded {
 					
 	}elsif( $action eq 'hide' ) {
 
-		my $visibilty = 'hidden';
+		my $visibility = 'hidden';
 
 		#ellipse => hide rectangle as well
 		if ( exists $self->{_items}{$item}{ellipse} ) {
-			$self->{_items}{$item}{ellipse}->set( 'visibility' => $visibilty );
+			$self->{_items}{$item}{ellipse}->set( 'visibility' => $visibility );
 		}
 
 		#text => hide rectangle as well
 		if ( exists $self->{_items}{$item}{text} ) {
-			$self->{_items}{$item}{text}->set( 'visibility' => $visibilty );
+			$self->{_items}{$item}{text}->set( 'visibility' => $visibility );
+		}
+
+		#pixelize => hide rectangle as well
+		if ( exists $self->{_items}{$item}{pixelize} ) {
+			$self->{_items}{$item}{pixelize}->set( 'visibility' => $visibility );
 		}
 
 		#image => hide rectangle as well
 		if ( exists $self->{_items}{$item}{image} ) {
-			$self->{_items}{$item}{image}->set( 'visibility' => $visibilty );
+			$self->{_items}{$item}{image}->set( 'visibility' => $visibility );
 		}
 
 		#line => hide rectangle as well
 		if ( exists $self->{_items}{$item}{line} ) {
-			$self->{_items}{$item}{line}->set( 'visibility' => $visibilty );
+			$self->{_items}{$item}{line}->set( 'visibility' => $visibility );
 		}		
 
 	}elsif( $action eq 'mirror' ) {
@@ -4580,17 +4632,17 @@ sub handle_bg_rects {
 
 	}elsif($action eq 'hide' || $action eq 'show'){
 
-		my $visibilty = undef; 
+		my $visibility = undef; 
 		if($action eq 'hide'){
-			$visibilty = 'hidden';
+			$visibility = 'hidden';
 		}elsif($action eq 'show'){
-			$visibilty = 'visible';
+			$visibility = 'visible';
 		}
 
 		foreach ( keys %{ $self->{_canvas_bg_rect} } ) {
 			if($self->{_canvas_bg_rect}{$_}->can('set')){
 				$self->{_canvas_bg_rect}{$_}->set(
-					'visibility' => $visibilty,
+					'visibility' => $visibility,
 				);
 			}
 		}    #end determine rect
@@ -4779,29 +4831,34 @@ sub handle_rects {
 			
 		} elsif ( $action eq 'update' || $action eq 'hide' ) {
 
-			my $visibilty = 'visible';
-			$visibilty = 'hidden' if $action eq 'hide';
+			my $visibility = 'visible';
+			$visibility = 'hidden' if $action eq 'hide';
 
 			my $lw = $item->get('line-width');
 
 			#ellipse => hide rectangle as well
 			if ( exists $self->{_items}{$item}{ellipse} ) {
-				$self->{_items}{$item}->set( 'visibility' => $visibilty );
+				$self->{_items}{$item}->set( 'visibility' => $visibility );
 			}
 
 			#text => hide rectangle as well
 			if ( exists $self->{_items}{$item}{text} ) {
-				$self->{_items}{$item}->set( 'visibility' => $visibilty );
+				$self->{_items}{$item}->set( 'visibility' => $visibility );
+			}
+
+			#pixelize => hide rectangle as well
+			if ( exists $self->{_items}{$item}{pixelize} ) {
+				$self->{_items}{$item}->set( 'visibility' => $visibility );
 			}
 
 			#image => hide rectangle as well
 			if ( exists $self->{_items}{$item}{image} ) {
-				$self->{_items}{$item}->set( 'visibility' => $visibilty );
+				$self->{_items}{$item}->set( 'visibility' => $visibility );
 			}
 
 			#line => hide rectangle as well
 			if ( exists $self->{_items}{$item}{line} ) {
-				$self->{_items}{$item}->set( 'visibility' => $visibilty );
+				$self->{_items}{$item}->set( 'visibility' => $visibility );
 			}
 
 			#just to make sure the update routines are not
@@ -4813,47 +4870,47 @@ sub handle_rects {
 			$self->{_items}{$item}{'top-side'}->set(
 				'x'          => $middle_h - 4,
 				'y'          => $top - 8,
-				'visibility' => $visibilty,
+				'visibility' => $visibility,
 			);
 			$self->{_items}{$item}{'top-left-corner'}->set(
 				'x'          => $left - 8,
 				'y'          => $top - 8,
-				'visibility' => $visibilty,
+				'visibility' => $visibility,
 			);
 
 			$self->{_items}{$item}{'top-right-corner'}->set(
 				'x'          => $right,
 				'y'          => $top - 8,
-				'visibility' => $visibilty,
+				'visibility' => $visibility,
 			);
 
 			$self->{_items}{$item}{'bottom-side'}->set(
 				'x'          => $middle_h - 4,
 				'y'          => $bottom,
-				'visibility' => $visibilty,
+				'visibility' => $visibility,
 			);
 
 			$self->{_items}{$item}{'bottom-left-corner'}->set(
 				'x'          => $left - 8,
 				'y'          => $bottom,
-				'visibility' => $visibilty,
+				'visibility' => $visibility,
 			);
 
 			$self->{_items}{$item}{'bottom-right-corner'}->set(
 				'x'          => $right,
 				'y'          => $bottom,
-				'visibility' => $visibilty,
+				'visibility' => $visibility,
 			);
 
 			$self->{_items}{$item}{'left-side'}->set(
 				'x'          => $left - 8,
 				'y'          => $middle_v - 4,
-				'visibility' => $visibilty,
+				'visibility' => $visibility,
 			);
 			$self->{_items}{$item}{'right-side'}->set(
 				'x'          => $right,
 				'y'          => $middle_v - 4,
-				'visibility' => $visibilty,
+				'visibility' => $visibility,
 			);
 
 			#~ $self->handle_bg_rects('raise');
@@ -5068,28 +5125,45 @@ sub event_item_on_button_release {
 	if ( $child && $child->isa('Goo::Canvas::Image') ){
 		my $parent = $self->get_parent_item($child);
 		
-		my $copy = undef;
-		eval{
-			$copy = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($self->{_items}{$parent}{orig_pixbuf_filename},$self->{_items}{$parent}->get('width'), $self->{_items}{$parent}->get('height'), FALSE);
-		};
-		unless($@){		
-			$self->{_items}{$parent}{image}->set(
+		if (exists $self->{_items}{$parent}{pixelize}){
+	
+			$self->{_items}{$parent}{pixelize}->set(
 				'x'      => int $self->{_items}{$parent}->get('x'),
 				'y'      => int $self->{_items}{$parent}->get('y'),
 				'width'  => $self->{_items}{$parent}->get('width'),
 				'height' => $self->{_items}{$parent}->get('height'),
-				'pixbuf' => $copy
+				'pixbuf' => $self->get_pixelated_pixbuf_from_canvas($self->{_items}{$parent}),
 			);
+		
+			$self->handle_embedded( 'update', $parent, undef, undef, TRUE );
+		
 		}else{
-			my $response = $self->{_dialogs}->dlg_error_message( 
-				sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $self->{_items}{$parent}{orig_pixbuf_filename} . "'"),
-				$self->{_d}->get( "There was an error opening the image." ),
-				undef, undef, undef,
-				undef, undef, undef,
-				$@
-			);
-			$self->abort_current_mode;											
-		}	
+
+			my $copy = undef;
+			eval{
+				$copy = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($self->{_items}{$parent}{orig_pixbuf_filename},$self->{_items}{$parent}->get('width'), $self->{_items}{$parent}->get('height'), FALSE);
+			};
+			unless($@){		
+				$self->{_items}{$parent}{image}->set(
+					'x'      => int $self->{_items}{$parent}->get('x'),
+					'y'      => int $self->{_items}{$parent}->get('y'),
+					'width'  => $self->{_items}{$parent}->get('width'),
+					'height' => $self->{_items}{$parent}->get('height'),
+					'pixbuf' => $copy,
+				);
+			}else{
+				my $response = $self->{_dialogs}->dlg_error_message( 
+					sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $self->{_items}{$parent}{orig_pixbuf_filename} . "'"),
+					$self->{_d}->get( "There was an error opening the image." ),
+					undef, undef, undef,
+					undef, undef, undef,
+					$@
+				);
+				$self->abort_current_mode;											
+			}
+			
+		}
+			
 	}	
 
 	$self->set_drawing_action(int($self->{_current_mode}/10));
@@ -5247,6 +5321,7 @@ sub setup_uimanager {
 	$self->{_factory}->add( 'shutter-arrow', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-arrow.png') ) );
 	$self->{_factory}->add( 'shutter-text', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-text.png') ) );
 	$self->{_factory}->add( 'shutter-censor', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-censor.png') ) );
+	$self->{_factory}->add( 'shutter-pixelize', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-pixelize.png') ) );
 	$self->{_factory}->add( 'shutter-number', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-number.png') ) );
 	$self->{_factory}->add( 'shutter-crop', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/transform-crop.png') ) );
 	$self->{_factory}->add_default();
@@ -5370,8 +5445,9 @@ sub setup_uimanager {
 		[ "Ellipse", 'shutter-ellipse', $self->{_d}->get("Ellipse"), "<alt>6", $self->{_d}->get("Draw a ellipse"), 70 ],
 		[ "Text", 'shutter-text', $self->{_d}->get("Text"), "<alt>7", $self->{_d}->get("Add some text to the screenshot"), 80 ],
 		[ "Censor", 'shutter-censor', $self->{_d}->get("Censor"), "<alt>8", $self->{_d}->get("Censor portions of your screenshot to hide private data"), 90 ],
-		[ "Number", 'shutter-number', $self->{_d}->get("Number"), "<alt>9", $self->{_d}->get("Add an auto-increment shape to the screenshot"), 100 ],
-		[ "Crop", 'shutter-crop', $self->{_d}->get("Crop"), "<alt>c", $self->{_d}->get("Crop your screenshot"), 110 ]
+		[ "Pixelize", 'shutter-pixelize', $self->{_d}->get("Pixelize"), "<alt><ctrl>8", $self->{_d}->get("Pixelize a selected areas of your screenshot to hide private data"), 100 ],
+		[ "Number", 'shutter-number', $self->{_d}->get("Number"), "<alt>9", $self->{_d}->get("Add an auto-increment shape to the screenshot"), 110 ],
+		[ "Crop", 'shutter-crop', $self->{_d}->get("Crop"), "<alt>c", $self->{_d}->get("Crop your screenshot"), 120 ]
 	);
 
 	my $uimanager = Gtk2::UIManager->new();
@@ -5429,6 +5505,7 @@ sub setup_uimanager {
 		  <menuitem action='Ellipse'/>
 		  <menuitem action='Text'/>
 		  <menuitem action='Censor'/>
+		  <menuitem action='Pixelize'/>
 		  <menuitem action='Number'/>
 		  <separator/>
 		  <menuitem action='Crop'/>
@@ -5472,6 +5549,7 @@ sub setup_uimanager {
 		<toolitem action='Ellipse'/>
 		<toolitem action='Text'/>
 		<toolitem action='Censor'/>
+		<toolitem action='Pixelize'/>
 		<toolitem action='Number'/>
 		<separator/>
 		<toolitem action='Crop'/>
@@ -6178,6 +6256,9 @@ sub paste_item {
 		}elsif ( $child->isa('Goo::Canvas::Text') ){
 			#~ print "Creating Text...\n";
 			$new_item = $self->create_text( undef, $item );
+		}elsif ( $child->isa('Goo::Canvas::Image') &&  exists $self->{_items}{$item}{pixelize} ){
+			#~ print "Creating Pixelize...\n";
+			$new_item = $self->create_pixel_image( undef, $item );
 		}elsif ( $child->isa('Goo::Canvas::Image') ){
 			#~ print "Creating Image...\n";
 			$new_item = $self->create_image( undef, $item );
@@ -6293,13 +6374,12 @@ sub create_censor {
 		$transform = $self->{_items}{$copy_item}->get('transform');
 	}
 
-    #~ my @stipple_data = (255, 255, 255, 255,  255, 255, 255, 255,   255, 255, 255, 255,  255, 255, 255, 255);
-   	#~ my $stroke_pattern = $self->create_stipple('black', \@stipple_data);
+    my @stipple_data = (255, 255, 255, 255,  255, 255, 255, 255,   255, 255, 255, 255,  255, 255, 255, 255);
+   	my $stroke_pattern = $self->create_stipple('black', \@stipple_data);
 
 	my $item = Goo::Canvas::Polyline->new_line(
 		$self->{_canvas}->get_root_item, $points[0],$points[1],$points[2],$points[3],
-		#~ 'stroke-pattern' => $stroke_pattern,
-		'stroke-pixbuf'  => $self->get_pixelated_pixbuf_from_canvas(),
+		'stroke-pattern' => $stroke_pattern,
 		'line-width'     => 14,
 		'line-cap'       => 'CAIRO_LINE_CAP_ROUND',
 		'line-join'      => 'CAIRO_LINE_JOIN_ROUND',
@@ -6325,23 +6405,26 @@ sub create_censor {
 }
 
 sub get_pixelated_pixbuf_from_canvas {
-	my ($self) = @_;
+	my ($self, $item) = @_;
 
-	#create needed bounds - currently visible area
-	my ( $x, $y, $width, $height, $depth ) = $self->{_canvas}->window->get_geometry;
-	my $s  = $self->{_canvas}->get_scale;
-	my $ha = $self->{_scrolled_window}->get_hadjustment->value;
-	my $va = $self->{_scrolled_window}->get_vadjustment->value;
-	
-	my $bounds = Goo::Canvas::Bounds->new($ha / $s, $va / $s, $ha / $s + ($width+50) / $s, $va / $s + ($height+50) / $s);
+	my $bounds = $item->get_bounds;
+	my $sw = $item->get('width');
+	my $sh = $item->get('height');
 	
 	#create surface and cairo context
-	my $surface = Cairo::ImageSurface->create( 'argb32', $ha / $s + ($width+50) / $s, $va / $s + ($height+50) / $s );
+	my $surface = Cairo::ImageSurface->create( 'argb32', $bounds->x1 + $sw, $bounds->y1 + $sh );
 	my $cr = Cairo::Context->create($surface);
+	
+	#hide rects and image
+	$self->handle_rects('hide', $item);
+	$self->handle_embedded('hide', $item);
 	
 	#render the content and load it via Gtk2::Gdk::PixbufLoader
 	$self->{_canvas}->render( $cr, $bounds, 1 );
-	
+
+	#show rects again
+	$self->handle_rects('update', $item);
+
 	#~ print "start loader\n";
 	
 	my $loader = Gtk2::Gdk::PixbufLoader->new;
@@ -6356,15 +6439,90 @@ sub get_pixelated_pixbuf_from_canvas {
 	
 	#~ print "end loader ", $pixbuf->get_width, " - ", $pixbuf->get_height, " \n";
 
+	my $target = Gtk2::Gdk::Pixbuf->new ($pixbuf->get_colorspace, TRUE, 8, $sw, $sh);
+	$pixbuf->copy_area ($bounds->x1, $bounds->y1, $sw, $sh, $target, 0, 0);
+
+	#~ $pixbuf->save("/home/mario/Desktop/test.png", "png");
+
 	#~ print "start scale\n";
 	
 	#pixelate the pixbuf - simply scale it down and scale it up afterwards
-	$pixbuf = $pixbuf->scale_simple($pixbuf->get_width*0.1, $pixbuf->get_height*0.1, 'tiles');	
-	$pixbuf = $pixbuf->scale_simple($pixbuf->get_width*10, $pixbuf->get_height*10, 'tiles');	
+	$target = $target->scale_simple($target->get_width*0.1, $target->get_height*0.1, 'tiles');	
+	$target = $target->scale_simple($sw, $sh, 'tiles');	
 	
 	#~ print "end scale\n";
 													
-	return $pixbuf; 											
+	return $target; 											
+}
+
+sub create_pixel_image {
+	my $self		= shift;
+	my $ev			= shift;
+	my $copy_item	= shift;
+
+	my @dimensions = ( 0, 0, 0, 0 );
+	
+	#use event coordinates and selected color
+	if ($ev) {
+		@dimensions = ( $ev->x, $ev->y, 0, 0 );
+	#use source item coordinates and item color
+	} elsif ($copy_item) {
+		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
+	}
+	
+	my $pattern = $self->create_alpha;
+	my $item    = Goo::Canvas::Rect->new(
+		$self->{_canvas}->get_root_item, @dimensions,
+		'fill-pattern' => $pattern,
+		'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
+		'line-width'   => 1,
+		'stroke-color' => 'gray',
+	);
+
+	$self->{_current_new_item} = $item unless($copy_item);
+	$self->{_items}{$item} = $item;
+
+	#blank pixbuf
+	my $blank = Gtk2::Gdk::Pixbuf->new ('rgb', TRUE, 8, 2, 2);
+	
+	#whole pixbuf is transparent
+	$blank->fill(0x00000000);
+	
+	$self->{_items}{$item}{pixelize} = Goo::Canvas::Image->new( 
+		$self->{_canvas}->get_root_item, 
+		$blank, 
+		$item->get('x'), 
+		$item->get('y'),
+		'width' => 2,
+		'height' => 2,
+	);
+
+	#set type flag
+	$self->{_items}{$item}{type} = 'pixelize';
+	$self->{_items}{$item}{uid} = $self->{_uid}++;	
+
+	#create rectangles
+	$self->handle_rects( 'create', $item );
+
+	if($copy_item){
+		$self->{_items}{$item}{pixelize}->set(
+			'x'      => int $self->{_items}{$item}->get('x'),
+			'y'      => int $self->{_items}{$item}->get('y'),
+			'width'  => $self->{_items}{$item}->get('width'),
+			'height' => $self->{_items}{$item}->get('height'),
+			'pixbuf' => $self->get_pixelated_pixbuf_from_canvas($self->{_items}{$item}),
+		);
+	
+		$self->handle_embedded( 'update', $item, undef, undef, TRUE );		
+	}
+
+	$self->setup_item_signals( $self->{_items}{$item}{pixelize} );
+	$self->setup_item_signals_extra( $self->{_items}{$item}{pixelize} );
+
+	$self->setup_item_signals( $self->{_items}{$item} );
+	$self->setup_item_signals_extra( $self->{_items}{$item} );
+
+	return $item;	
 }
 
 sub create_image {
