@@ -159,9 +159,9 @@ sub new {
     #~ print "$self dying at\n";
 #~ } 
 
-#~ 1;
-#~ 
-#~ __DATA__
+1;
+
+__DATA__
 
 sub show {
 	my $self        	  = shift;
@@ -2101,6 +2101,8 @@ sub get_opposite_rect {
 sub get_parent_item {
 	my ($self, $item) = @_;
 
+	return FALSE unless $item;
+
 	my $parent = undef;
 	foreach ( keys %{ $self->{_items} } ) {
 		$parent = $self->{_items}{$_} if exists $self->{_items}{$_}{ellipse} && $self->{_items}{$_}{ellipse} == $item;
@@ -2109,7 +2111,14 @@ sub get_parent_item {
 		$parent = $self->{_items}{$_} if exists $self->{_items}{$_}{pixelize} && $self->{_items}{$_}{pixelize} == $item;
 		$parent = $self->{_items}{$_} if exists $self->{_items}{$_}{line} && $self->{_items}{$_}{line} == $item;
 	}
-
+	
+	#debug
+	if($parent){
+		print "parent: $parent queried for item: $item\n";
+	}else{
+		print "no parent found for item: $item\n";	
+	}
+	
 	return $parent;
 }
 
@@ -2197,8 +2206,9 @@ sub get_pixelated_pixbuf_from_canvas {
 sub get_child_item {
 	my ($self, $item) = @_;
 
-	my $child = undef;
+	return FALSE unless $item;
 
+	my $child = undef;
 	#notice (special shapes like numbered ellipse do deliver ellipse here => NOT text!)
 	#therefore the order matters
 	if (defined $item && exists $self->{_items}{$item}){
@@ -2208,7 +2218,14 @@ sub get_child_item {
 		$child = $self->{_items}{$item}{pixelize}   if exists $self->{_items}{$item}{pixelize};
 		$child = $self->{_items}{$item}{line}    	if exists $self->{_items}{$item}{line};
 	}
-
+	
+	#debug
+	if($child){
+		print "child: $child queried for item: $item\n";
+	}else{
+		print "no child found for item: $item\n";	
+	}
+	
 	return $child;
 }
 
@@ -3097,6 +3114,10 @@ sub event_item_on_button_press {
 				
 				}
 				
+			}else{
+				
+				print "no activate because $item is already current item\n";
+			
 			}
 			
 			#no item selected, deactivate all items
@@ -3106,7 +3127,15 @@ sub event_item_on_button_press {
 			
 			print "deactivate because $item is background rectangle\n";
 			
+		}else{
+		
+			print "no activate because $item does not exist\n";
+			
 		}
+	}else{
+		
+		print "no activate action\n";
+		
 	}
 	
 	#left mouse click to drag, resize, create or delelte items
@@ -4582,6 +4611,13 @@ sub handle_embedded {
 			}
 		}
 
+		#pixelize
+		if ( exists $self->{_items}{$item}{pixelize} ) {
+			if(my $nint = $self->{_canvas}->get_root_item->find_child($self->{_items}{$item}{pixelize})){
+				$self->{_canvas}->get_root_item->remove_child($nint);
+			}
+		}
+
 		#image
 		if ( exists $self->{_items}{$item}{image} ) {
 			if(my $nint = $self->{_canvas}->get_root_item->find_child($self->{_items}{$item}{image})){
@@ -4738,33 +4774,19 @@ sub handle_bg_rects {
 
 sub handle_rects {
 	my ($self, $action, $item) = @_;
-
+	
+	print "entering handle_rects1\n";
+	
 	return FALSE unless $item;
 	return FALSE unless exists $self->{_items}{$item};
+
+	print "entering handle_rects2\n";
 
 	#get root item
 	my $root = $self->{_canvas}->get_root_item;
 
-	#do we have a blessed reference?
-	#~ eval { $self->{_items}{$item}->can('isa'); };
-	#~ if ($@) {
-		#~ print $@;
-		#~ return FALSE;
-	#~ }
-
 	if ( $self->{_items}{$item}->isa('Goo::Canvas::Rect') ) {
 		
-		#~ my $line = $self->{_items}{$item}->get('line-width');
-		#~ if (exists $self->{_items}{$item}{ellipse}){
-			#~ $line = $self->{_items}{$item}{ellipse}->get('line-width');
-		#~ }elsif(exists $self->{_items}{$item}{line}){
-			#~ $line = $self->{_items}{$item}{line}->get('line-width');
-		#~ }
-
-	    #~ my $x 			= $self->{_items}{$item}->get('x') - $line / 2;
-		#~ my $y 			= $self->{_items}{$item}->get('y') - $line / 2;
-		#~ my $width 		= $self->{_items}{$item}->get('width') + $line;
-		#~ my $height 		= $self->{_items}{$item}->get('height') + $line;
 	    my $x 			= $self->{_items}{$item}->get('x');
 		my $y 			= $self->{_items}{$item}->get('y');
 		my $width 		= $self->{_items}{$item}->get('width');
@@ -5077,6 +5099,9 @@ sub event_item_on_button_release {
 						$self->{_canvas}->get_root_item->remove_child($nint);
 						#mark as deleted
 						$deleted = TRUE;
+						
+						print "item $nitem marked as deleted at ",$ev->x,", ",$ev->y,"\n";
+						
 					}
 					
 				}
@@ -5113,6 +5138,9 @@ sub event_item_on_button_release {
 				$initevent->y($ev->y);
 				$self->event_item_on_button_press($oitem, undef, $initevent, TRUE);
 				$self->event_item_on_button_release($oitem, undef, $initevent);
+				
+				return FALSE;
+				
 			}			
 		}else{	
 			
@@ -5179,8 +5207,7 @@ sub event_item_on_button_release {
 	#the current action is over => button-release
 	#when resizing or moving the image we just scale the current image with low quality settings
 	#see handle_embedded
-	my $child = $self->get_child_item($self->{_current_new_item});
-	$child = $self->get_child_item($self->{_current_item}) unless $child;
+	my $child = $self->get_child_item($self->{_current_item});
 	
 	if ( $child && $child->isa('Goo::Canvas::Image') ){
 		my $parent = $self->get_parent_item($child);
@@ -5505,7 +5532,7 @@ sub setup_uimanager {
 		[ "Ellipse", 'shutter-ellipse', $self->{_d}->get("Ellipse"), "<alt>6", $self->{_d}->get("Draw a ellipse"), 70 ],
 		[ "Text", 'shutter-text', $self->{_d}->get("Text"), "<alt>7", $self->{_d}->get("Add some text to the screenshot"), 80 ],
 		[ "Censor", 'shutter-censor', $self->{_d}->get("Censor"), "<alt>8", $self->{_d}->get("Censor portions of your screenshot to hide private data"), 90 ],
-		[ "Pixelize", 'shutter-pixelize', $self->{_d}->get("Pixelize"), "<alt><ctrl>8", $self->{_d}->get("Pixelize a selected areas of your screenshot to hide private data"), 100 ],
+		[ "Pixelize", 'shutter-pixelize', $self->{_d}->get("Pixelize"), "<alt><ctrl>8", $self->{_d}->get("Pixelize selected areas of your screenshot to hide private data"), 100 ],
 		[ "Number", 'shutter-number', $self->{_d}->get("Number"), "<alt>9", $self->{_d}->get("Add an auto-increment shape to the screenshot"), 110 ],
 		[ "Crop", 'shutter-crop', $self->{_d}->get("Crop"), "<alt>c", $self->{_d}->get("Crop your screenshot"), 120 ]
 	);
