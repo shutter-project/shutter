@@ -2134,6 +2134,66 @@ sub get_highest_auto_digit {
 	return $number;
 }
 
+sub get_pixelated_pixbuf_from_canvas {
+	my ($self, $item) = @_;
+
+	my $bounds = $item->get_bounds;
+	my $sw = $item->get('width');
+	my $sh = $item->get('height');
+	
+	#create surface and cairo context
+	my $surface = Cairo::ImageSurface->create( 'argb32', $bounds->x1 + $sw, $bounds->y1 + $sh );
+	my $cr = Cairo::Context->create($surface);
+	
+	#hide rects and image
+	$self->handle_rects('hide', $item);
+	$self->handle_embedded('hide', $item);
+	
+	#render the content and load it via Gtk2::Gdk::PixbufLoader
+	$self->{_canvas}->render( $cr, $bounds, 1 );
+
+	#show rects again
+	$self->handle_rects('update', $item);
+
+	#~ print "start loader\n";
+	
+	my $loader = Gtk2::Gdk::PixbufLoader->new;
+	$surface->write_to_png_stream(
+		sub {
+			my ( $closure, $data ) = @_;
+			$loader->write($data);
+		}
+	);
+	$loader->close;
+	my $pixbuf = $loader->get_pixbuf;
+
+	#create target pixbuf
+	my $target = Gtk2::Gdk::Pixbuf->new ($pixbuf->get_colorspace, TRUE, 8, $sw, $sh);		
+	
+	#maybe rect is only partially on canvas
+	my ($sx, $sy) = ($bounds->x1, $bounds->y1);
+	my ($dx, $dy) = (0, 0);
+	if( $bounds->x1 < 0 ){
+		$sx = 0;
+		$dx = abs $bounds->x1;
+		$sw += $bounds->x1; 
+	}
+	if( $bounds->y1 < 0 ){
+		$sy = 0;
+		$dy = abs $bounds->y1;
+		$sh += $bounds->y1;		
+	}
+	
+	#copy area
+	$pixbuf->copy_area ($sx, $sy, $sw, $sh, $target, $dx, $dy);
+
+	#pixelate the pixbuf - simply scale it down and scale it up afterwards
+	$target = $target->scale_simple($target->get_width*0.1, $target->get_height*0.1, 'tiles');	
+	$target = $target->scale_simple($item->get('width'), $item->get('height'), 'tiles');	
+													
+	return $target; 											
+}
+
 sub get_child_item {
 	my ($self, $item) = @_;
 
@@ -6402,57 +6462,6 @@ sub create_censor {
 
 	
 	return $item;
-}
-
-sub get_pixelated_pixbuf_from_canvas {
-	my ($self, $item) = @_;
-
-	my $bounds = $item->get_bounds;
-	my $sw = $item->get('width');
-	my $sh = $item->get('height');
-	
-	#create surface and cairo context
-	my $surface = Cairo::ImageSurface->create( 'argb32', $bounds->x1 + $sw, $bounds->y1 + $sh );
-	my $cr = Cairo::Context->create($surface);
-	
-	#hide rects and image
-	$self->handle_rects('hide', $item);
-	$self->handle_embedded('hide', $item);
-	
-	#render the content and load it via Gtk2::Gdk::PixbufLoader
-	$self->{_canvas}->render( $cr, $bounds, 1 );
-
-	#show rects again
-	$self->handle_rects('update', $item);
-
-	#~ print "start loader\n";
-	
-	my $loader = Gtk2::Gdk::PixbufLoader->new;
-	$surface->write_to_png_stream(
-		sub {
-			my ( $closure, $data ) = @_;
-			$loader->write($data);
-		}
-	);
-	$loader->close;
-	my $pixbuf = $loader->get_pixbuf;
-	
-	#~ print "end loader ", $pixbuf->get_width, " - ", $pixbuf->get_height, " \n";
-
-	my $target = Gtk2::Gdk::Pixbuf->new ($pixbuf->get_colorspace, TRUE, 8, $sw, $sh);
-	$pixbuf->copy_area ($bounds->x1, $bounds->y1, $sw, $sh, $target, 0, 0);
-
-	#~ $pixbuf->save("/home/mario/Desktop/test.png", "png");
-
-	#~ print "start scale\n";
-	
-	#pixelate the pixbuf - simply scale it down and scale it up afterwards
-	$target = $target->scale_simple($target->get_width*0.1, $target->get_height*0.1, 'tiles');	
-	$target = $target->scale_simple($sw, $sh, 'tiles');	
-	
-	#~ print "end scale\n";
-													
-	return $target; 											
 }
 
 sub create_pixel_image {

@@ -3288,6 +3288,9 @@ sub fct_control_main_window {
 		if($st->{_toolbar}){
 			unless($st->{_toolbar}->get_show_arrow){
 				$st->{_toolbar}->set_show_arrow(TRUE);
+				#add a small margin
+				my ($rw, $rh) = $window->get_size;
+				$window->resize($rw+50, $rh);
 			}
 		}
 
