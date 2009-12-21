@@ -198,6 +198,12 @@ sub create_toolbar {
 
 	#--------------------------------------
 
+	#expanding separator
+	#--------------------------------------	
+	my $expander_r = Gtk2::SeparatorToolItem->new;
+	$expander_r->set_expand(TRUE);
+	$expander_r->set_draw(FALSE);
+
 	#button edit
 	#--------------------------------------
 	my $image_edit;
@@ -239,7 +245,8 @@ sub create_toolbar {
 	$self->{_toolbar}->insert( $self->{_tooltip},            -1 );
 	$self->{_toolbar}->insert( Gtk2::SeparatorToolItem->new, -1 );
 	$self->{_toolbar}->insert( $self->{_web},                -1 );
-	$self->{_toolbar}->insert( Gtk2::SeparatorToolItem->new, -1 );
+	#~ $self->{_toolbar}->insert( Gtk2::SeparatorToolItem->new, -1 );
+	$self->{_toolbar}->insert( $expander_r, 				 -1 );
 	$self->{_toolbar}->insert( $self->{_edit},               -1 );
 	$self->{_toolbar}->insert( $self->{_upload},             -1 );
 
