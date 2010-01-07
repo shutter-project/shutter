@@ -110,7 +110,6 @@ sub fct_ret_file_menu {
 	$self->{_menu_file}     = Gtk2::Menu->new();
 
 	$self->{_menuitem_new} = Gtk2::ImageMenuItem->new_from_stock('gtk-new');
-	$self->{_menuitem_new}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>N'), qw/visible/ );
 	$self->{_menuitem_new}->set_submenu( $self->fct_ret_new_menu( $accel_group, $d, $shutter_root ) );
 	$self->{_menu_file}->append( $self->{_menuitem_new} );
 
