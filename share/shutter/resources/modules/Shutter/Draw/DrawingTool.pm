@@ -938,8 +938,13 @@ sub push_to_statusbar {
 
 	}
 
-	#update statusbar
-	$self->{_drawing_statusbar}->push( 0, $status_text );
+	Glib::Idle->add (
+		sub{
+			#update statusbar
+			$self->{_drawing_statusbar}->push( 0, $status_text );			
+			return FALSE;
+		}
+	);	
 	
 	return TRUE;		
 
@@ -2110,14 +2115,17 @@ sub get_parent_item {
 		$parent = $self->{_items}{$_} if exists $self->{_items}{$_}{image} && $self->{_items}{$_}{image} == $item;
 		$parent = $self->{_items}{$_} if exists $self->{_items}{$_}{pixelize} && $self->{_items}{$_}{pixelize} == $item;
 		$parent = $self->{_items}{$_} if exists $self->{_items}{$_}{line} && $self->{_items}{$_}{line} == $item;
+		if(defined $parent){
+			last;
+		}
 	}
 	
-	#debug
-	if($parent){
-		print "parent: $parent queried for item: $item\n";
-	}else{
-		print "no parent found for item: $item\n";	
-	}
+	#~ #debug
+	#~ if($parent){
+		#~ print "parent: $parent queried for item: $item\n";
+	#~ }else{
+		#~ print "no parent found for item: $item\n";	
+	#~ }
 	
 	return $parent;
 }
@@ -2219,12 +2227,12 @@ sub get_child_item {
 		$child = $self->{_items}{$item}{line}    	if exists $self->{_items}{$item}{line};
 	}
 	
-	#debug
-	if($child){
-		print "child: $child queried for item: $item\n";
-	}else{
-		print "no child found for item: $item\n";	
-	}
+	#~ #debug
+	#~ if($child){
+		#~ print "child: $child queried for item: $item\n";
+	#~ }else{
+		#~ print "no child found for item: $item\n";	
+	#~ }
 	
 	return $child;
 }
@@ -2771,7 +2779,7 @@ sub set_and_save_drawing_properties {
 
 	return FALSE unless $item;
 
-	print "set_and_save_drawing_properties1\n";
+	#~ print "set_and_save_drawing_properties1\n";
 
 	#determine key for item hash
 	if(my $child = $self->get_child_item($item)){
@@ -2782,7 +2790,7 @@ sub set_and_save_drawing_properties {
 
 	return FALSE unless $key;
 
-	print "set_and_save_drawing_properties2\n";
+	#~ print "set_and_save_drawing_properties2\n";
 
 	#we do not remember the properties for some tools
 	#and don't remember them when just selecting items with the cursor
@@ -2815,7 +2823,7 @@ sub set_and_save_drawing_properties {
 	$self->{_fill_color_w}->signal_handler_block ($self->{_fill_color_wh});
 	$self->{_font_btn_w}->signal_handler_block ($self->{_font_btn_wh});
 
-	print "set_and_save_drawing_properties3\n";
+	#~ print "set_and_save_drawing_properties3\n";
 
 	if (   $item->isa('Goo::Canvas::Rect')
 		|| $item->isa('Goo::Canvas::Ellipse')
@@ -2958,7 +2966,7 @@ sub restore_drawing_properties {
 	#anything done until now?
 	return FALSE unless defined $self->{_last_mode};
 
-	print "restore_drawing_properties\n";
+	#~ print "restore_drawing_properties\n";
 
 	#block 'value-change' handlers for widgets
 	#so we do not apply the changes twice
@@ -3052,7 +3060,7 @@ sub event_item_on_key_press {
 sub event_item_on_button_press {
 	my ( $self, $item, $target, $ev, $select ) = @_;
 
-	print "button-press\n";
+	#~ print "button-press\n";
 
 	#canvas is busy now...
 	$self->{_busy} = TRUE;
@@ -3080,7 +3088,7 @@ sub event_item_on_button_press {
 						#deactivate last item 
 						my $last_item = $self->{_current_item};		
 						if(defined $last_item){
-							print "deactivated item: $last_item\n";
+							#~ print "deactivated item: $last_item\n";
 							$self->{_canvas}->pointer_ungrab( $last_item, $ev->time );
 							$self->{_canvas}->keyboard_ungrab( $last_item, $ev->time );
 							$self->handle_rects( 'hide', $last_item );
@@ -3096,13 +3104,13 @@ sub event_item_on_button_press {
 						#line width, fill color, stroke color etc.
 						$self->set_and_save_drawing_properties($self->{_current_item}, FALSE);
 						
-						print "activated item: $item\n";
+						#~ print "activated item: $item\n";
 												
 					}else{
 						
 						$self->deactivate_all;
 						
-						print "deactivate because $item is locked\n";
+						#~ print "deactivate because $item is locked\n";
 						
 					}	
 				
@@ -3110,13 +3118,13 @@ sub event_item_on_button_press {
 				
 					$self->deactivate_all($self->{_current_item});
 					
-					print "deactivate because $item is text or number\n";
+					#~ print "deactivate because $item is text or number\n";
 				
 				}
 				
 			}else{
 				
-				print "no activate because $item is already current item\n";
+				#~ print "no activate because $item is already current item\n";
 			
 			}
 			
@@ -3125,16 +3133,16 @@ sub event_item_on_button_press {
 				
 			$self->deactivate_all;
 			
-			print "deactivate because $item is background rectangle\n";
+			#~ print "deactivate because $item is background rectangle\n";
 			
 		}else{
 		
-			print "no activate because $item does not exist\n";
+			#~ print "no activate because $item does not exist\n";
 			
 		}
 	}else{
 		
-		print "no activate action\n";
+		#~ print "no activate action\n";
 		
 	}
 	
@@ -3207,7 +3215,7 @@ sub event_item_on_button_press {
 
 			}
 			
-			print "grab keyboard and pointer focus for $item\n";
+			#~ print "grab keyboard and pointer focus for $item\n";
 			
 			#grab keyboard and pointer focus
 			$self->{_canvas}->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ], $cursor, $ev->time );
@@ -3251,7 +3259,7 @@ sub event_item_on_button_press {
 				my $pattern = $self->create_color( $self->{_style_bg}, 1 );
 				$item->set('fill-pattern' => $pattern);
 				
-				print "grab keyboard and pointer focus for $item\n";
+				#~ print "grab keyboard and pointer focus for $item\n";
 				
 				#grab keyboard and pointer focus
 				$self->{_canvas}->pointer_grab( $item, [ 'pointer-motion-mask', 'button-release-mask' ], $cursor, $ev->time );
@@ -3325,7 +3333,7 @@ sub event_item_on_button_press {
 				
 				#grab keyboard focus
 				if(my $nitem = $self->{_current_new_item}){
-					print "grab keyboard focus for new item $nitem\n";
+					#~ print "grab keyboard focus for new item $nitem\n";
 					$self->{_canvas}->grab_focus($nitem);
 				}
 				
@@ -4167,7 +4175,7 @@ sub apply_properties {
 	
 	) = @_;
 
-	print "apply_properties\n";
+	#~ print "apply_properties\n";
 
 	#remember drawing colors, line width and font settings
 	#maybe we have to restore them
@@ -4775,12 +4783,12 @@ sub handle_bg_rects {
 sub handle_rects {
 	my ($self, $action, $item) = @_;
 	
-	print "entering handle_rects1\n";
+	#~ print "entering handle_rects1\n";
 	
 	return FALSE unless $item;
 	return FALSE unless exists $self->{_items}{$item};
 
-	print "entering handle_rects2\n";
+	#~ print "entering handle_rects2\n";
 
 	#get root item
 	my $root = $self->{_canvas}->get_root_item;
@@ -5100,13 +5108,13 @@ sub event_item_on_button_release {
 						#mark as deleted
 						$deleted = TRUE;
 						
-						print "item $nitem marked as deleted at ",$ev->x,", ",$ev->y,"\n";
+						#~ print "item $nitem marked as deleted at ",$ev->x,", ",$ev->y,"\n";
 						
 					}
 					
 				}
 			
-				print "new item created: $item\n";
+				#~ print "new item created: $item\n";
 			
 			}
 
@@ -5121,14 +5129,14 @@ sub event_item_on_button_release {
 			#delete from hash
 			delete $self->{_items}{$nitem};
 			
-			print "item $nitem deleted at ",$ev->x,", ",$ev->y,"\n";
+			#~ print "item $nitem deleted at ",$ev->x,", ",$ev->y,"\n";
 			
 			#deactivate all
 			$self->deactivate_all;
 			
 			if(my $oitem = $self->{_canvas}->get_item_at ($ev->x_root, $ev->y_root, TRUE)){
 				
-				print "item $oitem found at ",$ev->x,", ",$ev->y,"\n";
+				#~ print "item $oitem found at ",$ev->x,", ",$ev->y,"\n";
 								
 				#turn into a button-press-event
 				my $initevent = Gtk2::Gdk::Event->new ('button-press');
