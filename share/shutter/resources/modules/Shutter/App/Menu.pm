@@ -255,7 +255,7 @@ sub fct_ret_view_menu {
 	$self->{_menu_view} = Gtk2::Menu->new();
 
 	$self->{_menuitem_btoolbar} = Gtk2::CheckMenuItem->new_with_mnemonic( $d->get('Show Navigation _Toolbar') );
-	$self->{_menuitem_btoolbar}->set_active(TRUE);
+	$self->{_menuitem_btoolbar}->set_active(FALSE);
 	$self->{_menu_view}->append( $self->{_menuitem_btoolbar} );
 
 	$self->{_menu_view}->append( Gtk2::SeparatorMenuItem->new );

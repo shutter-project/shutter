@@ -2080,6 +2080,16 @@ unless ( $sc->get_min ) {
 	&fct_control_main_window ('hide');
 }
 
+#restore menu/toolbar settings
+#--------------------------------------
+if(defined $settings_xml->{'gui'}->{'btoolbar_active'}){
+	$sm->{_menuitem_btoolbar}->set_active($settings_xml->{'gui'}->{'btoolbar_active'});
+}else{
+	$sm->{_menuitem_btoolbar}->set_active(FALSE);	
+}	
+
+#--------------------------------------
+
 #FIXME
 #this is an ugly fix when 'tranparent parts' is set to background
 #we don't get the corret background color until the main window is shown
@@ -3445,6 +3455,9 @@ sub fct_save_settings {
 	$settings{'general'}->{'last_profile'}      = $combobox_settings_profiles->get_active;
 	$settings{'general'}->{'last_profile_name'} = $combobox_settings_profiles->get_active_text || "";
 
+	#menu
+	$settings{'gui'}->{'btoolbar_active'} = $sm->{_menuitem_btoolbar}->get_active();
+
 	#main
 	$settings{'general'}->{'filetype'} 		 = $combobox_type->get_active;
 	$settings{'general'}->{'quality'}  		 = $scale->get_value();
@@ -3768,6 +3781,9 @@ sub fct_load_settings {
 				}else{
 					$combobox_type->set_active($settings_xml->{'general'}->{'filetype'});	
 				}
+				
+				#menu
+				$sm->{_menuitem_btoolbar}->set_active($settings_xml->{'gui'}->{'btoolbar_active'});
 
 				#main
 				$scale->set_value( $settings_xml->{'general'}->{'quality'} );
@@ -3920,12 +3936,11 @@ sub fct_load_settings {
 							$plugins{$plugin_key}->{'tooltip'}  = $settings_xml->{'plugins'}->{$plugin_key}->{'tooltip'};
 							$plugins{$plugin_key}->{'lang'}     = $settings_xml->{'plugins'}->{$plugin_key}->{'lang'} || "shell";
 							$plugins{$plugin_key}->{'recent'}   = $settings_xml->{'plugins'}->{$plugin_key}->{'recent'};
-						} else {
-							next;
 						}
-					}
+						
+					}#endforeach
 
-				}
+				}#endif plugins from cache
 
 			} 
 
@@ -9203,11 +9218,15 @@ sub fct_navigation_toolbar {
 	my ($widget) = @_;
 	
 	if($widget->get_active){
-		$nav_toolbar->visible(TRUE);
-		$nav_toolbar->show_all;			
+		$nav_toolbar->show;
+		foreach($nav_toolbar->get_children){
+			$_->show_all;
+		}		
 	}else{
-		$nav_toolbar->visible(FALSE);	
-		$nav_toolbar->hide_all;
+		$nav_toolbar->hide;
+		foreach($nav_toolbar->get_children){
+			$_->hide_all;
+		}		
 	}
 }
 

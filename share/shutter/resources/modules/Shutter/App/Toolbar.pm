@@ -305,6 +305,7 @@ sub create_btoolbar {
 	
 	#create the toolbar
 	$self->{_btoolbar} = Gtk2::Toolbar->new;
+	$self->{_btoolbar}->set_no_show_all(TRUE);
 	$self->{_btoolbar}->set_show_arrow(FALSE);
 	$self->{_btoolbar}->insert( $expander_l, -1 );
 	$self->{_btoolbar}->insert( $self->{_back}, -1 );
