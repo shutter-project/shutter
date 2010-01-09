@@ -8938,7 +8938,7 @@ sub dlg_website {
 
 	my $clipboard_string = $clipboard->wait_for_text;
 	print "Content of clipboard is: $clipboard_string\n"
-		if $sc->get_debug;
+		if $sc->get_debug and defined $clipboard_string;
 
 	if ( defined $clipboard_string ) {
 		if (   $clipboard_string =~ /^http/

@@ -1,6 +1,6 @@
 ###################################################
 #
-#  Copyright (C) 2008, 2009, 2010 Mario Kemper <mario.kemper@googlemail.com> and Shutter Team
+#  Copyright (C) 2008, 2009 Mario Kemper <mario.kemper@googlemail.com> and Shutter Team
 #
 #  This file is part of Shutter.
 #
@@ -24,7 +24,6 @@ package Shutter::Screenshot::Web;
 
 #modules
 #--------------------------------------
-use SelfLoader;
 use utf8;
 use strict;
 use warnings;
@@ -55,10 +54,6 @@ sub new {
     #~ my $self = shift;
     #~ print "$self dying at\n";
 #~ } 
-
-1;
-
-__DATA__
 
 sub web {
 	my $self = shift;
