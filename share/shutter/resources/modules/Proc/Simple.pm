@@ -117,7 +117,7 @@ require Exporter;
 
 @ISA     = qw(Exporter AutoLoader);
 @EXPORT  = qw( );
-$VERSION = '1.23';
+$VERSION = '1.26';
 
 ######################################################################
 # Globals: Debug and the mysterious waitpid nohang constant.
@@ -466,7 +466,7 @@ sub pid {
 Returns the start time() of the forked process associated with
 this object
 
-  $pid = $proc->t0();
+  $t0 = $proc->t0();
 
 =cut
 
@@ -485,7 +485,7 @@ sub t0 {
 Returns the stop time() of the forked process associated with
 this object
 
-  return $proc->t1()
+  $t1 = $proc->t1();
 
 =cut
 
@@ -515,6 +515,10 @@ signal (SIGTERM if undefined).
 ######################################################################
 sub DESTROY {
     my $self = shift;
+
+    # Localize special variables so that the exit status from waitpid
+    # doesn't leak out, causing exit status to be incorrect.
+    local( $., $@, $!, $^E, $? );
 
     # Processes never started don't have to be cleaned up in
     # any special way.
@@ -597,6 +601,10 @@ sub wait {
 # Reaps processes, uses the magic WNOHANG constant
 ######################################################################
 sub THE_REAPER {
+
+    # Localize special variables so that the exit status from waitpid
+    # doesn't leak out, causing exit status to be incorrect.
+    local( $., $@, $!, $^E, $? );
 
     my $child;
     my $now = time();
@@ -722,6 +730,11 @@ repeatedly with the I<poll> routine after sending the signal.
 I'd recommend using perl 5.6.0 although it might also run with 5.003
 -- if you don't have it, this is the time to upgrade!
 
+LEGALESE
+Copyright 1996 by Mike Schilli, all rights reserved. This program is
+free software, you can redistribute it and/or modify it under the same
+terms as Perl itself.
+
 =head1 AUTHOR
 
 Michael Schilli <michael@perlmeister.com>
@@ -743,5 +756,7 @@ suggested the multi-arg start()-methods.
 Chip Capelik contributed a patch with the wait() method.
 
 Jeff Holt provided a patch for time tracking with t0() and t1().
+
+Brad Cavanagh fixed RT33440 (unreliable $?)
 
 =cut
