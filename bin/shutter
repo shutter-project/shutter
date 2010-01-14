@@ -522,6 +522,7 @@ my $asel_isize_box2     = Gtk2::HBox->new( FALSE, 0 );
 my $border_box          = Gtk2::HBox->new( FALSE, 0 );
 my $visible_windows_box = Gtk2::HBox->new( FALSE, 0 );
 my $menu_delay_box      = Gtk2::HBox->new( FALSE, 0 );
+my $menu_waround_box    = Gtk2::HBox->new( FALSE, 0 );
 my $web_width_box       = Gtk2::HBox->new( FALSE, 0 );
 
 #imageview
@@ -1350,6 +1351,22 @@ $menu_delay_box->pack_start( $menu_delay_vlabel, FALSE, TRUE, 2 );
 #end - menu capture delay
 #--------------------------------------
 
+#menu/tooltip workaround
+#--------------------------------------
+my $menu_waround_active = Gtk2::CheckButton->new_with_label( $d->get("Ignore possibly wrong type hints") );
+$tooltips->set_tip( $menu_waround_active, $d->get("The type hint constants specify hints for the window manager that indicate what type of function the window has. Sometimes these type hints are not correctly set. By enabling this option Shutter will not insist on the requested type hint.") );
+
+$menu_waround_box->pack_start( $menu_waround_active, FALSE, TRUE, 12 );
+
+if ( defined $settings_xml->{'general'}->{'menu_waround'} ) {
+	$menu_waround_active->set_active( $settings_xml->{'general'}->{'menu_waround'} );
+} else {
+	$menu_waround_active->set_active(TRUE);
+}
+
+#end - menu/tooltip workaround
+#--------------------------------------
+
 #web width
 #--------------------------------------
 my $web_width_label = Gtk2::Label->new( $d->get("Virtual browser width") . ":" );
@@ -1834,6 +1851,7 @@ $window_capture_vbox->pack_start( $visible_windows_box, FALSE, TRUE, 3 );
 $window_capture_frame->add($window_capture_vbox);
 
 $menu_capture_vbox->pack_start( $menu_delay_box, TRUE, TRUE, 3 );
+$menu_capture_vbox->pack_start( $menu_waround_box, TRUE, TRUE, 3 );
 $menu_capture_frame->add($menu_capture_vbox);
 
 $web_capture_vbox->pack_start( $web_width_box, FALSE, TRUE, 3 );
@@ -3516,6 +3534,7 @@ sub fct_save_settings {
 	$settings{'general'}->{'border'}           = $border_active->get_active();
 	$settings{'general'}->{'visible_windows'}  = $visible_windows_active->get_active();
 	$settings{'general'}->{'menu_delay'}  	   = $menu_delay->get_value();
+	$settings{'general'}->{'menu_waround'}     = $menu_waround_active->get_active();
 	$settings{'general'}->{'web_width'}        = $combobox_web_width->get_active();
 
 	#imageview
@@ -3849,6 +3868,7 @@ sub fct_load_settings {
 		
 				$border_active->set_active( $settings_xml->{'general'}->{'border'} );
 				$visible_windows_active->set_active( $settings_xml->{'general'}->{'visible_windows'} );
+				$menu_waround_active->set_active( $settings_xml->{'general'}->{'menu_waround'} );
 				$menu_delay->set_value( $settings_xml->{'general'}->{'menu_delay'} );
 				$combobox_web_width->set_active( $settings_xml->{'general'}->{'web_width'} );
 
@@ -5007,7 +5027,7 @@ sub fct_take_screenshot {
 		my $screenshooter = Shutter::Screenshot::Window->new(
 			$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active,
 			$border_active->get_active, undef, $data, $is_hidden, 
-			$visible_windows_active->get_active, $hide_time->get_value
+			$visible_windows_active->get_active, $hide_time->get_value, $menu_waround_active->get_active
 		);
 		
 		$screenshot = $screenshooter->window();

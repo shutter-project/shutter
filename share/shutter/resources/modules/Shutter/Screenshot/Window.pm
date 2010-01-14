@@ -53,6 +53,7 @@ sub new {
 	$self->{_is_hidden}      	= shift;
 	$self->{_show_visible}      = shift;   #show user-visible windows only when selecting a window
 	$self->{_hide_time}			= shift;   #a short timeout to give the server a chance to redraw the area that was obscured
+	$self->{_ignore_type}	    = shift;   #Ignore possibly wrong type hints
 
 	#X11 protocol and XSHAPE ext
 	require X11::Protocol;
@@ -959,7 +960,12 @@ sub window {
 
 			#no window with type_hint eq 'menu' detected
 			unless (defined $self->{_c}{'cw'}{'window_region'}){
-				return 2;	
+				if($self->{_ignore_type}){
+					warn "WARNING: No window with type hint 'menu' detected -> window type hint will be ignored, because workaround is enabled\n";
+					$self->find_region_for_window_type( $self->{_root}->XWINDOW );
+				}else{
+					return 2;
+				}
 			}
 
 		}elsif ( ( $self->{_mode} eq "tooltip" || $self->{_mode} eq "tray_tooltip" ) ) {
@@ -969,7 +975,12 @@ sub window {
 
 			#no window with type_hint eq 'tooltip' detected
 			unless (defined $self->{_c}{'cw'}{'window_region'}){
-				return 2;	
+				if($self->{_ignore_type}){
+					warn "WARNING: No window with type hint 'tooltip' detected -> window type hint will be ignored, because workaround is enabled\n";
+					$self->find_region_for_window_type( $self->{_root}->XWINDOW );
+				}else{
+					return 2;
+				}
 			}
 
 		#looking for a section of a window?
