@@ -881,11 +881,12 @@ sub adjust_crop_values{
 }
 
 sub push_to_statusbar {
-	my $self = shift;
-	my $x = shift;
-	my $y = shift;
-	my $action = shift || 'none';
+	my ($self, $x, $y, $action) = @_;
 
+	#init $action if not defined
+	$action = 'none' unless defined $action;
+	
+	#current event coordinates
 	my $status_text = int( $x ) . " x " . int( $y );
 		
 	if ( $self->{_current_mode} == 10 ) {
@@ -937,15 +938,10 @@ sub push_to_statusbar {
 		#nothing to do here....
 
 	}
-
-	Glib::Idle->add (
-		sub{
-			#update statusbar
-			$self->{_drawing_statusbar}->push( 0, $status_text );			
-			return FALSE;
-		}
-	);	
 	
+	#update statusbar
+	$self->{_drawing_statusbar}->push( 0, $status_text );			
+
 	return TRUE;		
 
 }
