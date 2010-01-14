@@ -3685,6 +3685,14 @@ sub fct_save_bindings {
 
 	#GCONF
 	my $client        = Gnome2::GConf::Client->get_default;
+
+	#global error handler function catch just the unchecked error
+	$client->set_error_handling('handle-unreturned');
+	$client->signal_connect(unreturned_error => sub {
+		my ($client, $error) = @_;
+		warn $error; # is a Glib::Error
+	});	
+	
 	my $shortcut_full = "/apps/metacity/global_keybindings/run_command_screenshot";
 	my $shortcut_sel  = "/apps/metacity/global_keybindings/run_command_window_screenshot";
 	my $command_full  = "/apps/metacity/keybinding_commands/command_screenshot";
