@@ -7479,22 +7479,7 @@ sub fct_init_depend {
 }
 
 sub fct_init {
-	
-	#is there already a process of shutter running?
-	my $command 	= "$^X $shutter_path";
-	my $commandf 	= "$^X $shutter_path --full";
-	my $commandw 	= "$^X $shutter_path --window";
-	my $commands 	= "$^X $shutter_path --selection";
-	my $commandse 	= "$^X $shutter_path --section";
-	my @shutter_pids = `pgrep -u $< -x -f '$command'`;
-	push @shutter_pids, `pgrep -u $< -x -f '$commandf'`;
-	push @shutter_pids, `pgrep -u $< -x -f '$commandw'`;
-	push @shutter_pids, `pgrep -u $< -x -f '$commands'`;
-	push @shutter_pids, `pgrep -u $< -x -f '$commandse'`;
-	#~ foreach(@shutter_pids){
-		#~ print $_,"\n"	
-	#~ }
-	
+		
 	#are there any command line params?
 	if ( @ARGV > 0 ) {
 		foreach my $arg (@ARGV) {
@@ -7519,7 +7504,7 @@ sub fct_init {
 			} elsif ( $arg eq "disable_systray" ) {
 				$sc->set_disable_systray(TRUE);
 			} elsif ( $arg eq "section" ) {
-				foreach (@shutter_pids) {
+				foreach (@{&fct_init_pgrep}) {
 					next if /$$/; #do not match own pid
 					next if /^$/;
 					kill RTMAX => $_;
@@ -7528,7 +7513,7 @@ sub fct_init {
 				$sc->set_start_with("section");
 				$sc->set_min(TRUE);
 			} elsif ( $arg eq "selection" ) {
-				foreach (@shutter_pids) {
+				foreach (@{&fct_init_pgrep}) {
 					next if /$$/; #do not match own pid
 					next if /^$/;
 					kill RTMIN => $_;
@@ -7537,7 +7522,7 @@ sub fct_init {
 				$sc->set_start_with("select");
 				$sc->set_min(TRUE);
 			} elsif ( $arg eq "window" ) {
-				foreach (@shutter_pids) {
+				foreach (@{&fct_init_pgrep}) {
 					next if /$$/; #do not match own pid
 					next if /^$/;
 					kill USR2 => $_;
@@ -7546,7 +7531,7 @@ sub fct_init {
 				$sc->set_start_with("window");
 				$sc->set_min(TRUE);
 			} elsif ( $arg eq "full" ) {
-				foreach (@shutter_pids) {
+				foreach (@{&fct_init_pgrep}) {
 					next if /$$/; #do not match own pid
 					next if /^$/;
 					kill USR1 => $_;
@@ -7597,6 +7582,41 @@ sub fct_init {
 		unless ( -d "$ENV{'HOME'}/.shutter/profiles" );
 
 	return TRUE;
+}
+
+sub fct_init_pgrep {
+
+	#is there already a process of shutter running?
+	#FIXME: this is very, very ugly
+	#this will be replaced by libunique as soon as possible
+	my $command 	 = "$^X $shutter_path";
+	my @shutter_pids = `pgrep -u $< -x -f '$command'`;
+	
+	#capture
+	my $commandf 	= "$^X $shutter_path --full";
+	my $commandw 	= "$^X $shutter_path --window";
+	my $commands 	= "$^X $shutter_path --selection";
+	my $commandse 	= "$^X $shutter_path --section";
+	push @shutter_pids, `pgrep -u $< -x -f '$commandf'`;
+	push @shutter_pids, `pgrep -u $< -x -f '$commandw'`;
+	push @shutter_pids, `pgrep -u $< -x -f '$commands'`;
+	push @shutter_pids, `pgrep -u $< -x -f '$commandse'`;
+	
+	#application
+	my $commandms 	= "$^X $shutter_path --min_at_startup";
+	my $commandcc 	= "$^X $shutter_path --clear_cache";
+	my $commandde 	= "$^X $shutter_path --debug";
+	my $commandds 	= "$^X $shutter_path --disable_systray";
+
+	push @shutter_pids, `pgrep -u $< -x -f '$commandms'`;
+	push @shutter_pids, `pgrep -u $< -x -f '$commandcc'`;
+	push @shutter_pids, `pgrep -u $< -x -f '$commandde'`;
+	push @shutter_pids, `pgrep -u $< -x -f '$commandds'`;
+	#~ foreach(@shutter_pids){
+		#~ print $_,"\n"	
+	#~ }
+	
+	return \@shutter_pids;
 }
 
 sub fct_init_debug_output {
