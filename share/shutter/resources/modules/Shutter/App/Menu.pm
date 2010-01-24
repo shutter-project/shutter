@@ -131,6 +131,16 @@ sub fct_ret_file_menu {
 	$self->{_menuitem_save_as}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Shift><Control>S'), qw/visible/ );
 	$self->{_menu_file}->append( $self->{_menuitem_save_as} );
 
+	#~ $self->{_menuitem_export_svg} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Export to SVG...') );
+	#~ $self->{_menuitem_export_svg}->set_sensitive(FALSE);
+	#~ $self->{_menuitem_export_svg}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Shift><Alt>S'), qw/visible/ );
+	#~ $self->{_menu_file}->append( $self->{_menuitem_export_svg} );
+
+	$self->{_menuitem_export_pdf} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('E_xport to PDF...') );
+	$self->{_menuitem_export_pdf}->set_sensitive(FALSE);
+	$self->{_menuitem_export_pdf}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Shift><Alt>P'), qw/visible/ );
+	$self->{_menu_file}->append( $self->{_menuitem_export_pdf} );
+
 	$self->{_menu_file}->append( Gtk2::SeparatorMenuItem->new );
 
 	#~ $self->{_menuitem_pagesetup} = Gtk2::ImageMenuItem->new_from_stock('gtk-page-setup');
@@ -151,7 +161,7 @@ sub fct_ret_file_menu {
 
 	$self->{_menu_file}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_email} = Gtk2::ImageMenuItem->new($d->get('Send by Email...'));
+	$self->{_menuitem_email} = Gtk2::ImageMenuItem->new($d->get('Send by E_mail...'));
 	$self->{_menuitem_email}->set_image(
 		Gtk2::Image->new_from_icon_name( 'gnome-stock-mail-snd', 'menu' )
 	);
@@ -211,7 +221,7 @@ sub fct_ret_edit_menu {
 	$self->{_menu_edit}->append( $self->{_menuitem_copy} );
 
 	$self->{_menuitem_copy_filename} = Gtk2::ImageMenuItem->new_from_stock('gtk-copy');
-	$self->{_menuitem_copy_filename}->get_child->set_text_with_mnemonic( $d->get('Copy _filename') );	
+	$self->{_menuitem_copy_filename}->get_child->set_text_with_mnemonic( $d->get('Copy _Filename') );	
 	$self->{_menuitem_copy_filename}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control><Shift>C'), qw/visible/ );
 	$self->{_menuitem_copy_filename}->set_sensitive(FALSE);
 	$self->{_menu_edit}->append( $self->{_menuitem_copy_filename} );
@@ -649,7 +659,7 @@ sub fct_ret_actions_menu_large{
 	$self->{_menu_large_actions}->append( $self->{_menuitem_large_copy} );
 
 	$self->{_menuitem_large_copy_filename} = Gtk2::ImageMenuItem->new_from_stock('gtk-copy');
-	$self->{_menuitem_large_copy_filename}->get_child->set_text_with_mnemonic( $d->get('Copy _filename') );	
+	$self->{_menuitem_large_copy_filename}->get_child->set_text_with_mnemonic( $d->get('Copy _Filename') );	
 	$self->{_menuitem_large_copy_filename}->set_sensitive(FALSE);
 	$self->{_menuitem_large_copy_filename}->set_name('item-large-copy-filename');
 	$self->{_menu_large_actions}->append( $self->{_menuitem_large_copy_filename} );
@@ -678,7 +688,7 @@ sub fct_ret_actions_menu_large{
 	$self->{_menuitem_large_draw}->set_name('item-large-draw');
 	$self->{_menu_large_actions}->append( $self->{_menuitem_large_draw} );
 
-	$self->{_menuitem_large_plugin} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Run a _plugin...') );
+	$self->{_menuitem_large_plugin} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Run a _Plugin...') );
 	$self->{_menuitem_large_plugin}->set_image( Gtk2::Image->new_from_stock( 'gtk-execute', 'menu' ) );
 	$self->{_menuitem_large_plugin}->set_sensitive(FALSE);
 	$self->{_menuitem_large_plugin}->set_name('item-large-plugin');

@@ -90,14 +90,29 @@ sub save_pixbuf_to_file {
 		eval{
 			$pixbuf->save( $filename, $filetype );
 		};
-	} elsif ( $filetype eq 'svg' ) {	
+	} elsif ( $filetype eq 'pdf' ) {	
 		
-    	my $surface = Cairo::SvgSurface->create($filename, $pixbuf->get_width, $pixbuf->get_height);
+		#0.8? => 72 / 90 dpi		
+    	my $surface = Cairo::PdfSurface->create($filename, $pixbuf->get_width * 0.8, $pixbuf->get_height * 0.8);
     	my $cr = Cairo::Context->create($surface);
+		$cr->scale(0.8, 0.8);
 		Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $pixbuf, 0, 0 );
 		$cr->paint;
 		$cr->show_page;
+				
+		undef $surface;
+		undef $cr;
+
+	} elsif ( $filetype eq 'svg' ) {	
 		
+		#0.8? => 72 / 90 dpi		
+    	my $surface = Cairo::SvgSurface->create($filename, $pixbuf->get_width * 0.8, $pixbuf->get_height * 0.8);
+    	my $cr = Cairo::Context->create($surface);
+		$cr->scale(0.8, 0.8);
+		Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $pixbuf, 0, 0 );
+		$cr->paint;
+		$cr->show_page;
+				
 		undef $surface;
 		undef $cr;
 	

@@ -333,6 +333,8 @@ if($gnome_web_photo){
 }
 
 $sm->{_menuitem_save_as}->signal_connect( 'activate', \&evt_save_as, 'menu_save_as' );
+#~ $sm->{_menuitem_export_svg}->signal_connect( 'activate', \&evt_save_as, 'menu_export_svg' );
+$sm->{_menuitem_export_pdf}->signal_connect( 'activate', \&evt_save_as, 'menu_export_pdf' );
 $sm->{_menuitem_print}->signal_connect( 'activate', \&fct_print, 'menu_print' );
 $sm->{_menuitem_pagesetup}->signal_connect( 'activate', \&evt_page_setup, 'menu_pagesetup' );
 $sm->{_menuitem_email}->signal_connect( 'activate', \&fct_email, 'menu_email' );
@@ -2715,6 +2717,8 @@ sub fct_update_actions {
 	
 	#file
 	$sm->{_menuitem_save_as}->set_sensitive($n_items);
+	#~ $sm->{_menuitem_export_svg}->set_sensitive($n_items);
+	$sm->{_menuitem_export_pdf}->set_sensitive($n_items);
 	$sm->{_menuitem_pagesetup}->set_sensitive($n_items);
 	$sm->{_menuitem_print}->set_sensitive($n_items);
 	$sm->{_menuitem_email}->set_sensitive($n_items);
@@ -2959,8 +2963,16 @@ sub evt_save_as {
 		);
 
 	}
+	
+	#determine requested filetype
+	my $rfiletype = undef;
+	if($data eq 'menu_export_svg'){
+		$rfiletype = 'svg';
+	}elsif($data eq 'menu_export_pdf'){
+		$rfiletype = 'pdf';
+	}
 
-	&dlg_save_as(@save_as_files);
+	&dlg_save_as(\@save_as_files, $rfiletype);
 
 	return TRUE;
 	
@@ -4939,7 +4951,7 @@ sub fct_draw {
 	#open drawing tool
 	foreach my $key (@draw_array){
 		my $drawing_tool = Shutter::Draw::DrawingTool->new($sc, $view_d, $selector_d, $dragger_d);
-		$drawing_tool->show( $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'}, \%session_screens );		
+		$drawing_tool->show( $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'}, $session_screens{$key}->{'mime_type'}, \%session_screens );		
 	}
 
 	#~ &fct_control_main_window ('show');
@@ -7894,7 +7906,10 @@ sub dlg_rename {
 }
 
 sub dlg_save_as {
-	my (@keys) = @_;
+	my $key_ref = shift;
+	my $rfiletype = shift;
+	
+	my @keys = @{$key_ref};
 	
 	foreach my $key (@keys){
 		
@@ -7914,24 +7929,43 @@ sub dlg_save_as {
 		my $combobox_save_as_type = Gtk2::ComboBox->new_text;
 
 		#add supported formats to combobox
-		#the user can decide to save in jpeg, png or bmp format
 		my $counter = 0;
 		my $png_counter = undef;
-		foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
+	
+		#add pdf support
+		if(defined $rfiletype && $rfiletype eq 'pdf') {
+	
+			$combobox_save_as_type->insert_text($counter, "pdf - Portable Document Format");
+			$combobox_save_as_type->set_active(0);
+		
+		#images
+		}else{
 			
-			#add all known formats to the dialog
-			$combobox_save_as_type->insert_text( $counter, $_->{name} . " - " . $_->{description} );
-			
-			#set active when mime_type is matching
-			#loop because multiple mime types are registered for fome file formats
-			foreach my $mime (@{$_->{mime_types}}){
-				$combobox_save_as_type->set_active($counter)
-					if $mime eq $session_screens{$key}->{'mime_type'};		
+			foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
 				
-				#save png_counter as well as fallback
-				$png_counter = $counter if $mime eq 'image/png';
+				#we don't want svg here - this is a dedicated action in the DrawingTool
+				next if !defined $rfiletype && $_->{name} =~ /svg/;
+				
+				#we have a requested filetype - nothing else will be offered
+				next if defined $rfiletype && $_->{name} ne $rfiletype;
+				
+				#add all known formats to the dialog
+				$combobox_save_as_type->insert_text( $counter, $_->{name} . " - " . $_->{description} );
+				
+				#set active when mime_type is matching
+				#loop because multiple mime types are registered for fome file formats
+				foreach my $mime (@{$_->{mime_types}}){
+					$combobox_save_as_type->set_active($counter)
+						if $mime eq $session_screens{$key}->{'mime_type'} || defined $rfiletype;		
+					
+					#save png_counter as well as fallback
+					$png_counter = $counter if $mime eq 'image/png';
+				}
+				
+				$counter++;
+				
 			}
-			$counter++;
+	
 		}
 		
 		#something went wrong here
@@ -7986,17 +8020,26 @@ sub dlg_save_as {
 				#save as (pixbuf, new_filename, filetype, quality - auto here, old_filename)
 				my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} );
 				if($sp->save_pixbuf_to_file($pixbuf, $filename, $choosen_format)){
-
-					#cancel handle
-					if ( exists $session_screens{$key}->{'handle'} ) {
-						
-						$session_screens{$key}->{'handle'}->cancel;
-					}
-					if(&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($filename), FALSE, 'clear' )){
-						#setup a new filemonitor, so we get noticed if the file changed
-						&fct_add_file_monitor($key);
-
-						&fct_show_status_message( 1, "$session_screens{ $key }->{ 'long' } " . $d->get("saved") );
+					
+					#do not try to update when exporting to pdf
+					unless (defined $rfiletype && $rfiletype eq 'pdf'){
+					
+						#cancel handle
+						if ( exists $session_screens{$key}->{'handle'} ) {
+							
+							$session_screens{$key}->{'handle'}->cancel;
+						}
+						if(&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($filename), FALSE, 'clear' )){
+							#setup a new filemonitor, so we get noticed if the file changed
+							&fct_add_file_monitor($key);
+	
+							&fct_show_status_message( 1, "$session_screens{ $key }->{ 'long' } " . $d->get("saved") );
+						}
+					
+					}else{
+						if($shf->file_exists($filename)){
+							&fct_show_status_message( 1, "$filename " . $d->get("saved") );
+						}
 					}
 					
 				}
@@ -8010,7 +8053,7 @@ sub dlg_save_as {
 
 				my $response = $sd->dlg_warning_message(
 					sprintf( $d->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $folder . "'"),
-					sprintf( $d->get( "An image named %s already exists. Do you want to replace it?"), "'" . $short.$ext . "'" ),
+					sprintf( $d->get( "An image named %s already exists. Do you want to replace it?"), "'" . $short.".".$choosen_format . "'" ),
 					undef, undef, undef,
 					$replace_btn, undef, undef
 				);
@@ -8019,28 +8062,37 @@ sub dlg_save_as {
 					my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} );
 					if($sp->save_pixbuf_to_file($pixbuf, $filename, $choosen_format)){
 
-						#cancel handle
-						if ( exists $session_screens{$key}->{'handle'} ) {
-							
-							$session_screens{$key}->{'handle'}->cancel;
-						}
+						#do not try to update when exporting to pdf
+						unless (defined $rfiletype && $rfiletype eq 'pdf'){
 
-						if(&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($filename), FALSE, 'clear' )){
-
-							#setup a new filemonitor, so we get noticed if the file changed
-							&fct_add_file_monitor($key);
-
-							#maybe file is in session as well, need to set the handler again ;-)
-							foreach my $searchkey ( keys %session_screens ) {
-								next if $key eq $searchkey;
-								if ( $session_screens{$searchkey}->{'long'} eq $filename ) {
-									$session_screens{$searchkey}->{'changed'} = TRUE;
-									&fct_update_tab($searchkey, undef, undef, FALSE, 'clear');
-								}
-							}	
-
-							&fct_show_status_message( 1, "$session_screens{ $key }->{ 'long' } " . $d->get("saved") );					
-
+							#cancel handle
+							if ( exists $session_screens{$key}->{'handle'} ) {
+								
+								$session_screens{$key}->{'handle'}->cancel;
+							}
+	
+							if(&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($filename), FALSE, 'clear' )){
+	
+								#setup a new filemonitor, so we get noticed if the file changed
+								&fct_add_file_monitor($key);
+	
+								#maybe file is in session as well, need to set the handler again ;-)
+								foreach my $searchkey ( keys %session_screens ) {
+									next if $key eq $searchkey;
+									if ( $session_screens{$searchkey}->{'long'} eq $filename ) {
+										$session_screens{$searchkey}->{'changed'} = TRUE;
+										&fct_update_tab($searchkey, undef, undef, FALSE, 'clear');
+									}
+								}	
+	
+								&fct_show_status_message( 1, "$session_screens{ $key }->{ 'long' } " . $d->get("saved") );					
+	
+							}
+						
+						}else{
+							if($shf->file_exists($filename)){
+								&fct_show_status_message( 1, "$filename " . $d->get("saved") );
+							}
 						}
 
 					}	

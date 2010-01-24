@@ -88,6 +88,7 @@ sub new {
 	#file
 	$self->{_filename}    	= undef;
 	$self->{_filetype}    	= undef;
+	$self->{_mimetype}    	= undef;
 	$self->{_import_hash} 	= undef;
 	
 	#custom cursors
@@ -168,6 +169,7 @@ sub show {
 
 	$self->{_filename}    = shift;
 	$self->{_filetype}    = shift;
+	$self->{_mimetype}    = shift;
 	$self->{_import_hash} = shift;
 
 	#gettext
@@ -1424,9 +1426,182 @@ sub save_settings {
 	return TRUE;
 }
 
+sub export_to_file {
+	my $self = shift;
+	my $rfiletype = shift;
+	
+	my $fs = Gtk2::FileChooserDialog->new(
+		$self->{_d}->get("Choose a location to save to"),
+		$self->{_drawing_window}, 'save',
+		'gtk-cancel' => 'reject',
+		'gtk-save'   => 'accept'
+	);
+	
+	$fs->set_filename( $self->{_filename} );	
+	
+	#change extension related to the requested filetype
+	if(defined $rfiletype){
+		my ( $short, $folder, $ext ) = fileparse( $self->{_filename}, qr/\.[^.]*/ );
+		$fs->set_current_name( $short . "." . $rfiletype );		
+	}
+
+	my $extra_hbox = Gtk2::HBox->new;
+
+	my $label_save_as_type = Gtk2::Label->new( $self->{_d}->get("Image format") . ":" );
+
+	my $combobox_save_as_type = Gtk2::ComboBox->new_text;
+
+	#add supported formats to combobox
+	my $counter = 0;
+	my $png_counter = undef;
+
+	#add pdf support
+	if(defined $rfiletype && $rfiletype eq 'pdf') {
+
+		$combobox_save_as_type->insert_text($counter, "pdf - Portable Document Format");
+		$combobox_save_as_type->set_active(0);
+	
+	#images
+	}else{
+		
+		foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
+			
+			#we don't want svg here - this is a dedicated action in the DrawingTool
+			next if !defined $rfiletype && $_->{name} =~ /svg/;
+			
+			#we have a requested filetype - nothing else will be offered
+			next if defined $rfiletype && $_->{name} ne $rfiletype;
+			
+			#add all known formats to the dialog
+			$combobox_save_as_type->insert_text( $counter, $_->{name} . " - " . $_->{description} );
+			
+			#set active when mime_type is matching
+			#loop because multiple mime types are registered for fome file formats
+			foreach my $mime (@{$_->{mime_types}}){
+				$combobox_save_as_type->set_active($counter)
+					if $mime eq $self->{'_mimetype'} || defined $rfiletype;		
+				
+				#save png_counter as well as fallback
+				$png_counter = $counter if $mime eq 'image/png';
+			}
+			
+			$counter++;
+			
+		}
+
+	}
+	
+	#something went wrong here
+	#filetype was not detected automatically
+	#set to png as default
+	unless($combobox_save_as_type->get_active_text){
+		if(defined $png_counter){
+			$combobox_save_as_type->set_active($png_counter);
+		}	
+	}
+
+	$combobox_save_as_type->signal_connect(
+		'changed' => sub {
+			my $filename = $fs->get_filename;
+
+			my $choosen_format = $combobox_save_as_type->get_active_text;
+			$choosen_format =~ s/ \-.*//;    #get png or jpeg for example
+			#~ print $choosen_format . "\n";
+
+			#parse filename
+			my ( $short, $folder, $ext ) = fileparse( $filename, qr/\.[^.]*/ );
+
+			$fs->set_current_name( $short . "." . $choosen_format );
+		}
+	);
+
+	$extra_hbox->pack_start( $label_save_as_type,    FALSE, FALSE, 5 );
+	$extra_hbox->pack_start( $combobox_save_as_type, FALSE, FALSE, 5 );
+
+	my $align_save_as_type = Gtk2::Alignment->new( 1, 0, 0, 0 );
+
+	$align_save_as_type->add($extra_hbox);
+	$align_save_as_type->show_all;
+
+	$fs->set_extra_widget($align_save_as_type);
+
+	my $fs_resp = $fs->run;
+
+	if ( $fs_resp eq "accept" ) {
+		my $filename = $fs->get_filename;
+
+		#parse filename
+		my ( $short, $folder, $ext ) = fileparse( $filename, qr/\.[^.]*/ );
+
+		#handle file format
+		my $choosen_format = $combobox_save_as_type->get_active_text;
+		$choosen_format =~ s/ \-.*//;    #get png or jpeg for example
+
+		$filename = $folder . $short . "." . $choosen_format;
+
+		my $shutter_hfunct = Shutter::App::HelperFunctions->new( $self->{_shutter_common} );
+
+		unless ( $shutter_hfunct->file_exists($filename) ) {
+
+			#save
+			$self->save(FALSE, $filename, $choosen_format);
+				
+		} else {
+
+			#ask the user to replace the image
+			#replace button
+			my $replace_btn = Gtk2::Button->new_with_mnemonic( $self->{_d}->get("_Replace") );
+			$replace_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'button' ) );
+
+			my $response = $self->{_dialogs}->dlg_warning_message(
+				sprintf( $self->{_d}->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $folder . "'"),
+				sprintf( $self->{_d}->get( "An image named %s already exists. Do you want to replace it?"), "'" . $short.".".$choosen_format . "'" ),
+				undef, undef, undef,
+				$replace_btn, undef, undef
+			);
+
+			if ( $response == 40 ) {
+				
+				#save
+				$self->save(FALSE, $filename, $choosen_format);
+	
+			}
+
+		}
+
+	} 	
+
+	$fs->destroy();
+		
+}
+
+sub export_to_svg {
+	my $self = shift;
+	
+	#here might be some more features in future releases of Shutter
+	
+	#just call the dialog
+	$self->export_to_file('svg');
+	
+	return TRUE;
+}
+
+sub export_to_pdf {
+	my $self = shift;
+	
+	#here might be some more features in future releases of Shutter
+	
+	#just call the dialog
+	$self->export_to_file('pdf');
+	
+	return TRUE;
+}
+
 sub save {
-	my $self 		= shift;
-	my $save_to_mem = shift;
+	my $self 		 = shift;
+	my $save_to_mem  = shift;
+	my $filename 	 = shift || $self->{_filename};
+	my $filetype 	 = shift || $self->{_filetype};
 
 	#make sure not to save the bounding rectangles
 	$self->deactivate_all;
@@ -1437,7 +1612,7 @@ sub save {
 	unless($save_to_mem){
 		#image format supports transparency or not
 		#we need to support more formats here I think
-		if($self->{_filetype} eq 'jpeg' || $self->{_filetype} eq 'bmp'){	
+		if($filetype eq 'jpeg' || $filetype eq 'bmp'){	
 			$self->{_canvas_bg_rect}->set(
 				'fill-pattern' 	=> $self->create_color($self->{_canvas_bg_rect}{fill_color}, 1.0),
 				'line-width' 	=> 0,
@@ -1491,40 +1666,59 @@ sub save {
 			'visibility' => 'hidden'
 		);			
 	}
-
-	my $surface = Cairo::ImageSurface->create( 'argb32', $self->{_canvas_bg_rect}->get('width'), $self->{_canvas_bg_rect}->get('height') );
-	#~ my $surface = Cairo::SvgSurface->create( '/home/mario/Desktop/test.svg', $self->{_canvas_bg_rect}->get('width'), $self->{_canvas_bg_rect}->get('height') );
 	
-	my $cr   = Cairo::Context->create($surface);
-	#~ $self->{_canvas}->get_root_item->paint( $cr, $self->{_canvas_bg_rect}->get_bounds, 1 );
-	$self->{_canvas}->render( $cr, $self->{_canvas_bg_rect}->get_bounds, 1 );
+	if($filetype eq 'svg'){
 
-	my $loader = Gtk2::Gdk::PixbufLoader->new;
-	$surface->write_to_png_stream(
-		sub {
-			my ( $closure, $data ) = @_;
-			$loader->write($data);
-		}
-	);
-	$loader->close;
-	my $pixbuf = $loader->get_pixbuf;
+		#0.8? => 72 / 90 dpi		
+    	my $surface = Cairo::SvgSurface->create($filename, $self->{_canvas_bg_rect}->get('width') * 0.8, $self->{_canvas_bg_rect}->get('height') * 0.8);
+    	my $cr = Cairo::Context->create($surface);
+		$cr->scale(0.8, 0.8);
+		$self->{_canvas}->render( $cr, $self->{_canvas_bg_rect}->get_bounds, 1 );
+		$cr->show_page;
+	
+	}elsif($filetype eq 'pdf'){
 
-	#just return pixbuf
-	if ($save_to_mem){
-		#update the canvas_rect again
-		$self->{_canvas_bg_rect}->set(
-			'fill-pattern' 	=> $self->create_color($self->{_canvas_bg_rect}{fill_color}, 1.0),
-			'line-width' 	=> 1,
-			'visibility' 	=> 'visible',
-			
-		);		
-		$self->handle_bg_rects('show');
-		return $pixbuf ;
-	}
+		#0.8? => 72 / 90 dpi		
+    	my $surface = Cairo::PdfSurface->create($filename, $self->{_canvas_bg_rect}->get('width') * 0.8, $self->{_canvas_bg_rect}->get('height') * 0.8);
+    	my $cr = Cairo::Context->create($surface);
+		$cr->scale(0.8, 0.8);
+		$self->{_canvas}->render( $cr, $self->{_canvas_bg_rect}->get_bounds, 1 );
+		$cr->show_page;
+	
+	}else{
 		
-	#save pixbuf to file
-	my $pixbuf_save = Shutter::Pixbuf::Save->new( $self->{_shutter_common}, $self->{_drawing_window} );
-	return $pixbuf_save->save_pixbuf_to_file($pixbuf, $self->{_filename}, $self->{_filetype});
+		my $surface = Cairo::ImageSurface->create( 'argb32', $self->{_canvas_bg_rect}->get('width'), $self->{_canvas_bg_rect}->get('height') );
+		my $cr = Cairo::Context->create($surface);
+		$self->{_canvas}->render( $cr, $self->{_canvas_bg_rect}->get_bounds, 1 );
+	
+		my $loader = Gtk2::Gdk::PixbufLoader->new;
+		$surface->write_to_png_stream(
+			sub {
+				my ( $closure, $data ) = @_;
+				$loader->write($data);
+			}
+		);
+		$loader->close;
+		my $pixbuf = $loader->get_pixbuf;
+	
+		#just return pixbuf
+		if ($save_to_mem){
+			#update the canvas_rect again
+			$self->{_canvas_bg_rect}->set(
+				'fill-pattern' 	=> $self->create_color($self->{_canvas_bg_rect}{fill_color}, 1.0),
+				'line-width' 	=> 1,
+				'visibility' 	=> 'visible',
+				
+			);		
+			$self->handle_bg_rects('show');
+			return $pixbuf ;
+		}
+			
+		#save pixbuf to file
+		my $pixbuf_save = Shutter::Pixbuf::Save->new( $self->{_shutter_common}, $self->{_drawing_window} );
+	    return $pixbuf_save->save_pixbuf_to_file($pixbuf, $filename, $filetype);	
+
+	}
 
 }
 
@@ -5415,6 +5609,8 @@ sub setup_uimanager {
 	$self->{_factory}->add( 'shutter-pixelize', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-pixelize.png') ) );
 	$self->{_factory}->add( 'shutter-number', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-number.png') ) );
 	$self->{_factory}->add( 'shutter-crop', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/transform-crop.png') ) );
+	#~ $self->{_factory}->add( 'shutter-mime-pdf', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/mime-pdf.svg') ) );
+	#~ $self->{_factory}->add( 'shutter-mime-svg', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/mime-svg.svg') ) );
 	$self->{_factory}->add_default();
 
 	my @main_actions = (
@@ -5470,7 +5666,16 @@ sub setup_uimanager {
 		[ "Save", 'gtk-save', undef, "<control>S", $self->{_d}->get("Save image"), sub { 
 			$self->save(), $self->quit(FALSE) 
 		} ],
-		[ "ZoomIn",     'gtk-zoom-in',  undef, "<control>plus", undef, sub { 
+		[ "ExportTo", 'gtk-save-as', $self->{_d}->get("Export to _File..."), "<Shift><Control>E", $self->{_d}->get("Export to File..."), sub { 
+			$self->export_to_file()
+		} ],
+		[ "ExportToSvg", undef, $self->{_d}->get("_Export to SVG..."), "<Shift><Alt>S", $self->{_d}->get("Export to SVG..."), sub { 
+			$self->export_to_svg()
+		} ],
+		[ "ExportToPdf", undef, $self->{_d}->get("E_xport to PDF..."), "<Shift><Alt>P", $self->{_d}->get("Export to PDF..."), sub { 
+			$self->export_to_pdf()
+		} ],
+		[ "ZoomIn", 'gtk-zoom-in',  undef, "<control>plus", undef, sub { 
 			$self->zoom_in_cb($self) 
 		} ],
 		[ "ControlEqual",  'gtk-zoom-in',  undef, "<control>equal", undef, sub { 
@@ -5568,6 +5773,9 @@ sub setup_uimanager {
 	  <menubar name = 'MenuBar'>
 		<menu action = 'File'>
 		  <menuitem action = 'Save'/>
+		  <menuitem action = 'ExportTo'/>
+		  <menuitem action = 'ExportToSvg'/>
+		  <menuitem action = 'ExportToPdf'/>
 		  <separator/>
 		  <menuitem action = 'Close'/>
 		</menu>
@@ -5615,6 +5823,7 @@ sub setup_uimanager {
 	  <toolbar name = 'ToolBar'>
 		<toolitem action='Close'/>
 		<toolitem action='Save'/>
+		<toolitem action='ExportTo'/>
 		<separator/>
 		<toolitem action='ZoomIn'/>
 		<toolitem action='ZoomOut'/>
