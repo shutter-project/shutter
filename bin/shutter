@@ -4119,16 +4119,20 @@ sub fct_get_program_model {
 			#I think so ;-)
 			$app->{'id'} =~ s/^(kde4|kde)-//g;
 			if($mapp->{'file'} =~ m/$app->{'id'}/){
-				my $tray_pixbuf;
+				my $tray_pixbuf = undef;
 				my $tray_name = $mapp->Icon;
 				if($tray_name){
 					#cut image formats
 					$tray_name =~ s/(.png|.svg|.gif|.jpeg|.jpg)//g;				
 					if ( $traytheme->has_icon( $tray_name ) ) {
 						my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
-						$tray_pixbuf = $traytheme->load_icon( $tray_name, $ih, 'generic-fallback' );
-					}else{
-						$tray_pixbuf = undef;	
+						eval{
+							$tray_pixbuf = $traytheme->load_icon( $tray_name, $ih, 'generic-fallback' );
+						};
+						if($@){
+							print "\nWARNING: Could not load icon $tray_name: $@\n";
+							$tray_pixbuf = undef;	
+						}						
 					}
 				}else{
 					$tray_pixbuf = undef;
@@ -7219,7 +7223,15 @@ sub fct_ret_program_menu {
 				$tray_name =~ s/(.png|.svg|.gif|.jpeg|.jpg)//g;
 				if ( $traytheme->has_icon( $tray_name ) ) {
 					my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
-					my $tray_pixbuf = $traytheme->load_icon( $tray_name, $ih, 'generic-fallback' );
+					
+					my $tray_pixbuf = undef;
+					eval{
+						$tray_pixbuf = $traytheme->load_icon( $tray_name, $ih, 'generic-fallback' );
+					};
+					if($@){
+						print "\nWARNING: Could not load icon $tray_name: $@\n";
+						$tray_pixbuf = undef;	
+					}	
 					
 					if($program_item){
 						$program_item->set_image( Gtk2::Image->new_from_pixbuf($tray_pixbuf) );
