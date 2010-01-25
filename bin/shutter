@@ -493,6 +493,8 @@ my $scale_box           = Gtk2::HBox->new( FALSE, 0 );
 my $filetype_box        = Gtk2::HBox->new( FALSE, 0 );
 my $filename_box        = Gtk2::HBox->new( FALSE, 0 );
 my $saveDir_box         = Gtk2::HBox->new( FALSE, 0 );
+my $save_ask_box        = Gtk2::HBox->new( FALSE, 0 );
+my $save_auto_box       = Gtk2::HBox->new( FALSE, 0 );
 my $image_autocopy_box  = Gtk2::HBox->new( FALSE, 0 );
 my $fname_autocopy_box  = Gtk2::HBox->new( FALSE, 0 );
 my $delay_box           = Gtk2::HBox->new( FALSE, 0 );
@@ -984,6 +986,43 @@ $saveDir_box->pack_start( $saveDir_label,  FALSE, TRUE, 12 );
 $saveDir_box->pack_start( $saveDir_button, TRUE,  TRUE, 0 );
 
 #end - saveDir
+#--------------------------------------
+
+#save options
+#--------------------------------------
+my $save_ask_active = Gtk2::RadioButton->new_with_label(undef, $d->get("Browse for save folder every time") );
+$save_ask_box->pack_start( $save_ask_active, FALSE, TRUE, 12 );
+
+$tooltips->set_tip( $save_ask_active, $d->get("Browse for save folder every time") );
+
+my $save_auto_active = Gtk2::RadioButton->new_with_label($save_ask_active, $d->get("Automatically save file") );
+$save_auto_box->pack_start( $save_auto_active, FALSE, TRUE, 12 );
+
+$tooltips->set_tip( $save_auto_active, $d->get("Automatically save file") );
+
+$save_ask_active->signal_connect(
+	'toggled' => \&evt_value_changed,
+	'save_toggled'
+);
+
+$save_auto_active->signal_connect(
+	'toggled' => \&evt_value_changed,
+	'save_toggled'
+);
+
+#default state
+$save_ask_active->set_active( FALSE );
+$save_auto_active->set_active( TRUE );
+
+if ( defined $settings_xml->{'general'}->{'save_auto'} ) {
+	$save_auto_active->set_active( $settings_xml->{'general'}->{'save_auto'} );
+}
+
+if ( defined $settings_xml->{'general'}->{'save_ask'} ) {
+	$save_ask_active->set_active( $settings_xml->{'general'}->{'save_ask'} );
+}
+
+#end - save options
 #--------------------------------------
 
 #image image_autocopy
@@ -1776,6 +1815,8 @@ $file_vbox->pack_start( $scale_box,    TRUE,  TRUE, 3 );
 $file_vbox->pack_start( $filetype_box, FALSE, TRUE, 3 );
 $file_frame->add($file_vbox);
 
+$save_vbox->pack_start( $save_ask_box, TRUE, TRUE, 3 );
+$save_vbox->pack_start( $save_auto_box, TRUE, TRUE, 3 );
 $save_vbox->pack_start( $filename_box, TRUE, TRUE, 3 );
 $save_vbox->pack_start( $saveDir_box, FALSE, TRUE, 3 );
 $save_vbox->pack_start( $filename_hint, TRUE, TRUE, 3 );
@@ -2192,6 +2233,15 @@ sub evt_value_changed {
 			}
 		}
 						
+	}
+
+	#"save" toggled
+	if ( $data eq "save_toggled" ) {
+		$filename_label->set_sensitive($save_auto_active->get_active); 
+		$filename->set_sensitive($save_auto_active->get_active); 
+		$saveDir_label->set_sensitive($save_auto_active->get_active); 
+		$saveDir_label->set_sensitive($save_auto_active->get_active); 
+		$saveDir_button->set_sensitive($save_auto_active->get_active); 
 	}
 
 	#"cursor_status" toggled
@@ -2870,6 +2920,29 @@ sub evt_open {
 		);
 		$fs->set_select_multiple(TRUE);
 
+		#preview widget
+		my $iprev = Gtk2::Image->new;
+		$fs->set_preview_widget($iprev);
+	
+		$fs->signal_connect(
+			'selection-changed' => sub {
+				if(my $pfilename = $fs->get_preview_filename){
+					my $pixbuf = undef;
+					eval{
+						$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale ($pfilename, 200, 200, TRUE);
+					};
+					if($@){
+						$fs->set_preview_widget_active(FALSE);
+					}else{
+						$fs->get_preview_widget->set_from_pixbuf($pixbuf);
+						$fs->set_preview_widget_active(TRUE)
+					}
+				}else{
+					$fs->set_preview_widget_active(FALSE);
+				}
+			}
+		);
+
 		my $filter_all = Gtk2::FileFilter->new;
 		$filter_all->set_name( $d->get("All compatible image formats") );
 		$fs->add_filter($filter_all);
@@ -2971,8 +3044,10 @@ sub evt_save_as {
 	}elsif($data eq 'menu_export_pdf'){
 		$rfiletype = 'pdf';
 	}
-
-	&dlg_save_as(\@save_as_files, $rfiletype);
+	
+	foreach (@save_as_files){
+		&dlg_save_as($_, $rfiletype);
+	}
 
 	return TRUE;
 	
@@ -3493,6 +3568,8 @@ sub fct_save_settings {
 	$settings{'general'}->{'quality'}  		 = $scale->get_value();
 	$settings{'general'}->{'filename'} 		 = $filename->get_text();
 	$settings{'general'}->{'folder'} 		 = $saveDir_button->get_filename();
+	$settings{'general'}->{'save_auto'}      = $save_auto_active->get_active();
+	$settings{'general'}->{'save_ask'}       = $save_ask_active->get_active();
 	$settings{'general'}->{'image_autocopy'} = $image_autocopy_active->get_active();
 	$settings{'general'}->{'fname_autocopy'} = $fname_autocopy_active->get_active();
 	$settings{'general'}->{'cursor'}		 = $cursor_active->get_active();
@@ -3831,6 +3908,9 @@ sub fct_load_settings {
 
 				utf8::decode $settings_xml->{'general'}->{'folder'};
 				$saveDir_button->set_filename( $settings_xml->{'general'}->{'folder'} );
+				
+				$save_auto_active->set_active( $settings_xml->{'general'}->{'save_auto'} );
+				$save_ask_active->set_active( $settings_xml->{'general'}->{'save_ask'} );
 				
 				$image_autocopy_active->set_active( $settings_xml->{'general'}->{'image_autocopy'} );
 				$fname_autocopy_active->set_active( $settings_xml->{'general'}->{'fname_autocopy'} );
@@ -5271,14 +5351,38 @@ sub fct_take_screenshot {
 				
 		#we have to update the path again
 		$screenshot_name = $shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path));
+		
+		#ask for filename and folder
+		if($save_ask_active->get_active){
 
-		print "Trying to save file to $screenshot_name\n"
-			if $sc->get_debug;
+			print "Asking for filename\n"
+				if $sc->get_debug;
 
-		#finally save pixbuf
-		unless ($sp->save_pixbuf_to_file($screenshot, $screenshot_name, $filetype_value, $quality_value)){
-			&fct_control_main_window ('show');
-			return FALSE;			
+			if($screenshot_name = &dlg_save_as(undef, undef, $screenshot_name, $screenshot, $quality_value)){
+				if($screenshot_name eq 'user_cancel'){
+					&fct_show_status_message( 1, $d->get("Capture aborted by user") );
+					&fct_control_main_window('show', $present_after_active->get_active);
+					return FALSE;		
+				}else{
+					#update uri after saving, so we can check if file exists for example
+					$uri = Gnome2::VFS::URI->new ($screenshot_name);					
+				}
+			}else{
+				&fct_control_main_window ('show');
+				return FALSE;					
+			}
+			
+		}else{	
+		
+			print "Trying to save file to $screenshot_name\n"
+				if $sc->get_debug;
+	
+			#finally save pixbuf
+			unless ($sp->save_pixbuf_to_file($screenshot, $screenshot_name, $filetype_value, $quality_value)){
+				&fct_control_main_window ('show');
+				return FALSE;			
+			}
+		
 		}
 
 	}    #end screenshot successfull
@@ -5369,7 +5473,7 @@ sub fct_take_screenshot {
 	} else {
 		#show error dialog
 		my $response = $sd->dlg_error_message( 
-			sprintf($d->get( "The filename %s could not be verified. Maybe it contains unsupported characters." ), "'" . $folder . "'"),
+			sprintf($d->get( "The filename %s could not be verified. Maybe it contains unsupported characters." ), "'" . $screenshot_name . "'"),
 			$d->get( "Error while taking the screenshot." )
 		);
 		&fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
@@ -7906,120 +8010,164 @@ sub dlg_rename {
 }
 
 sub dlg_save_as {
-	my $key_ref = shift;
+	#mandatory
+	my $key = shift;
+
+	#optional
 	my $rfiletype = shift;
+	my $rfilename = shift;
+	my $rpixbuf   = shift;
+	my $rquality  = shift;
 	
-	my @keys = @{$key_ref};
+	$rfilename = $session_screens{$key}->{'long'} if $key;
 	
-	foreach my $key (@keys){
-		
-		my $fs = Gtk2::FileChooserDialog->new(
-			$d->get("Choose a location to save to"),
-			$window, 'save',
-			'gtk-cancel' => 'reject',
-			'gtk-save'   => 'accept'
-		);
-
-		$fs->set_filename( $session_screens{$key}->{'long'} );
-
-		my $extra_hbox = Gtk2::HBox->new;
-
-		my $label_save_as_type = Gtk2::Label->new( $d->get("Image format") . ":" );
-
-		my $combobox_save_as_type = Gtk2::ComboBox->new_text;
-
-		#add supported formats to combobox
-		my $counter = 0;
-		my $png_counter = undef;
+	my $fs = Gtk2::FileChooserDialog->new(
+		$d->get("Choose a location to save to"),
+		$window, 'save',
+		'gtk-cancel' => 'reject',
+		'gtk-save'   => 'accept'
+	);
 	
-		#add pdf support
-		if(defined $rfiletype && $rfiletype eq 'pdf') {
-	
-			$combobox_save_as_type->insert_text($counter, "pdf - Portable Document Format");
-			$combobox_save_as_type->set_active(0);
-		
-		#images
-		}else{
-			
-			foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
-				
-				#we don't want svg here - this is a dedicated action in the DrawingTool
-				next if !defined $rfiletype && $_->{name} =~ /svg/;
-				
-				#we have a requested filetype - nothing else will be offered
-				next if defined $rfiletype && $_->{name} ne $rfiletype;
-				
-				#add all known formats to the dialog
-				$combobox_save_as_type->insert_text( $counter, $_->{name} . " - " . $_->{description} );
-				
-				#set active when mime_type is matching
-				#loop because multiple mime types are registered for fome file formats
-				foreach my $mime (@{$_->{mime_types}}){
-					$combobox_save_as_type->set_active($counter)
-						if $mime eq $session_screens{$key}->{'mime_type'} || defined $rfiletype;		
-					
-					#save png_counter as well as fallback
-					$png_counter = $counter if $mime eq 'image/png';
+	#file already exists
+	if($key){
+		$fs->set_filename( $rfilename );
+	#new file
+	}else{
+		#parse filename
+		my ( $rshort, $rfolder, $rext ) = fileparse( $rfilename, qr/\.[^.]*/ );
+		$fs->set_current_folder($rfolder);
+		$fs->set_current_name($rshort.$rext);
+	}
+
+	#preview widget
+	my $iprev = Gtk2::Image->new;
+	$fs->set_preview_widget($iprev);
+
+	$fs->signal_connect(
+		'selection-changed' => sub {
+			if(my $pfilename = $fs->get_preview_filename){
+				my $pixbuf = undef;
+				eval{
+					$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale ($pfilename, 200, 200, TRUE);
+				};
+				if($@){
+					$fs->set_preview_widget_active(FALSE);
+				}else{
+					$fs->get_preview_widget->set_from_pixbuf($pixbuf);
+					$fs->set_preview_widget_active(TRUE)
 				}
-				
-				$counter++;
-				
+			}else{
+				$fs->set_preview_widget_active(FALSE);
 			}
+		}
+	);
+
+	my $extra_hbox = Gtk2::HBox->new;
+
+	my $label_save_as_type = Gtk2::Label->new( $d->get("Image format") . ":" );
+
+	my $combobox_save_as_type = Gtk2::ComboBox->new_text;
+
+	#add supported formats to combobox
+	my $counter = 0;
+	my $png_counter = undef;
+
+	#add pdf support
+	if(defined $rfiletype && $rfiletype eq 'pdf') {
+
+		$combobox_save_as_type->insert_text($counter, "pdf - Portable Document Format");
+		$combobox_save_as_type->set_active(0);
 	
-		}
+	#images
+	}else{
 		
-		#something went wrong here
-		#filetype was not detected automatically
-		#set to png as default
-		unless($combobox_save_as_type->get_active_text){
-			if(defined $png_counter){
-				$combobox_save_as_type->set_active($png_counter);
-			}	
+		foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
+			
+			#we don't want svg here - this is a dedicated action in the DrawingTool
+			next if !defined $rfiletype && $_->{name} =~ /svg/;
+			
+			#we have a requested filetype - nothing else will be offered
+			next if defined $rfiletype && $_->{name} ne $rfiletype;
+			
+			#add all known formats to the dialog
+			$combobox_save_as_type->insert_text( $counter, $_->{name} . " - " . $_->{description} );
+			
+			#set active when mime_type is matching
+			#loop because multiple mime types are registered for fome file formats
+			foreach my $mime (@{$_->{mime_types}}){
+				$combobox_save_as_type->set_active($counter)
+					if ( ( defined $key && $mime eq $session_screens{$key}->{'mime_type'} ) || defined $rfiletype );		
+				
+				#save png_counter as well as fallback
+				$png_counter = $counter if $mime eq 'image/png';
+			}
+			
+			$counter++;
+			
 		}
 
-		$combobox_save_as_type->signal_connect(
-			'changed' => sub {
-				my $filename = $fs->get_filename;
+	}
+	
+	#something went wrong here
+	#filetype was not detected automatically
+	#set to png as default
+	unless($combobox_save_as_type->get_active_text){
+		if(defined $png_counter){
+			$combobox_save_as_type->set_active($png_counter);
+		}	
+	}
 
-				my $choosen_format = $combobox_save_as_type->get_active_text;
-				$choosen_format =~ s/ \-.*//;    #get png or jpeg for example
-				#~ print $choosen_format . "\n";
-
-				#parse filename
-				my ( $short, $folder, $ext ) = fileparse( $filename, qr/\.[^.]*/ );
-
-				$fs->set_current_name( $short . "." . $choosen_format );
-			}
-		);
-
-		$extra_hbox->pack_start( $label_save_as_type,    FALSE, FALSE, 5 );
-		$extra_hbox->pack_start( $combobox_save_as_type, FALSE, FALSE, 5 );
-
-		my $align_save_as_type = Gtk2::Alignment->new( 1, 0, 0, 0 );
-
-		$align_save_as_type->add($extra_hbox);
-		$align_save_as_type->show_all;
-
-		$fs->set_extra_widget($align_save_as_type);
-
-		my $fs_resp = $fs->run;
-
-		if ( $fs_resp eq "accept" ) {
+	$combobox_save_as_type->signal_connect(
+		'changed' => sub {
 			my $filename = $fs->get_filename;
+
+			my $choosen_format = $combobox_save_as_type->get_active_text;
+			$choosen_format =~ s/ \-.*//;    #get png or jpeg for example
+			#~ print $choosen_format . "\n";
 
 			#parse filename
 			my ( $short, $folder, $ext ) = fileparse( $filename, qr/\.[^.]*/ );
 
-			#handle file format
-			my $choosen_format = $combobox_save_as_type->get_active_text;
-			$choosen_format =~ s/ \-.*//;    #get png or jpeg for example
+			$fs->set_current_name( $short . "." . $choosen_format );
+		}
+	);
 
-			$filename = $folder . $short . "." . $choosen_format;
+	$extra_hbox->pack_start( $label_save_as_type,    FALSE, FALSE, 5 );
+	$extra_hbox->pack_start( $combobox_save_as_type, FALSE, FALSE, 5 );
 
-			unless ( $shf->file_exists($filename) ) {
-				#save as (pixbuf, new_filename, filetype, quality - auto here, old_filename)
-				my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} );
-				if($sp->save_pixbuf_to_file($pixbuf, $filename, $choosen_format)){
+	my $align_save_as_type = Gtk2::Alignment->new( 1, 0, 0, 0 );
+
+	$align_save_as_type->add($extra_hbox);
+	$align_save_as_type->show_all;
+
+	$fs->set_extra_widget($align_save_as_type);
+
+	my $fs_resp = $fs->run;
+
+	if ( $fs_resp eq "accept" ) {
+		my $filename = $fs->get_filename;
+
+		#parse filename
+		my ( $short, $folder, $ext ) = fileparse( $filename, qr/\.[^.]*/ );
+
+		#handle file format
+		my $choosen_format = $combobox_save_as_type->get_active_text;
+		$choosen_format =~ s/ \-.*//;    #get png or jpeg for example
+
+		$filename = $folder . $short . "." . $choosen_format;
+
+		unless ( $shf->file_exists($filename) ) {
+			#get pixbuf from param
+			my $pixbuf = $rpixbuf;
+			unless($pixbuf){
+				#or load pixbuf from existing file
+				$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $rfilename );
+			}
+			
+			#save as (pixbuf, new_filename, filetype, quality - auto here, old_filename)			
+			if($sp->save_pixbuf_to_file($pixbuf, $filename, $choosen_format, $rquality)){
+				
+				if($key){
 					
 					#do not try to update when exporting to pdf
 					unless (defined $rfiletype && $rfiletype eq 'pdf'){
@@ -8041,30 +8189,50 @@ sub dlg_save_as {
 							&fct_show_status_message( 1, "$filename " . $d->get("saved") );
 						}
 					}
-					
+				
 				}
 				
-			} else {
+				#successfully saved
+				$fs->destroy();
+				return $filename;
+				
+			}else{
 
-				#ask the user to replace the image
-				#replace button
-				my $replace_btn = Gtk2::Button->new_with_mnemonic( $d->get("_Replace") );
-				$replace_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'button' ) );
+				#error while saving
+				$fs->destroy();
+				return FALSE;
+				
+			}
+			
+		} else {
 
-				my $response = $sd->dlg_warning_message(
-					sprintf( $d->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $folder . "'"),
-					sprintf( $d->get( "An image named %s already exists. Do you want to replace it?"), "'" . $short.".".$choosen_format . "'" ),
-					undef, undef, undef,
-					$replace_btn, undef, undef
-				);
+			#ask the user to replace the image
+			#replace button
+			my $replace_btn = Gtk2::Button->new_with_mnemonic( $d->get("_Replace") );
+			$replace_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'button' ) );
 
-				if ( $response == 40 ) {
-					my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} );
-					if($sp->save_pixbuf_to_file($pixbuf, $filename, $choosen_format)){
+			my $response = $sd->dlg_warning_message(
+				sprintf( $d->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $folder . "'"),
+				sprintf( $d->get( "An image named %s already exists. Do you want to replace it?"), "'" . $short.".".$choosen_format . "'" ),
+				undef, undef, undef,
+				$replace_btn, undef, undef
+			);
 
+			if ( $response == 40 ) {
+				#get pixbuf from param
+				my $pixbuf = $rpixbuf;
+				unless($pixbuf){
+					#or load pixbuf from existing file
+					$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $rfilename );
+				}
+				
+				if($sp->save_pixbuf_to_file($pixbuf, $filename, $choosen_format, $rquality)){
+					
+					if($key){
+					
 						#do not try to update when exporting to pdf
 						unless (defined $rfiletype && $rfiletype eq 'pdf'){
-
+	
 							#cancel handle
 							if ( exists $session_screens{$key}->{'handle'} ) {
 								
@@ -8094,19 +8262,39 @@ sub dlg_save_as {
 								&fct_show_status_message( 1, "$filename " . $d->get("saved") );
 							}
 						}
+					
+					} #end if $key
 
-					}	
+					#successfully saved
+					$fs->destroy();
+					return $filename;
 
-				}
+				}else{
 
+					#error while saving
+					$fs->destroy();
+					return FALSE;
+					
+				}	
+
+			}else{
+
+				#user cancelled overwrite
+				$fs->destroy();
+				return 'user_cancel';
+				
 			}
 
-		} 	
-	
+		}
+
+	}else{
+		#user cancelled
 		$fs->destroy();
-		
-	}
-		
+		return 'user_cancel';		
+	} 	
+
+	$fs->destroy();
+			
 }
 
 sub dlg_plugin {

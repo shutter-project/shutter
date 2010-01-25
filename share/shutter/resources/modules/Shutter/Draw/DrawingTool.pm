@@ -1438,6 +1438,29 @@ sub export_to_file {
 	);
 	
 	$fs->set_filename( $self->{_filename} );	
+
+	#preview widget
+	my $iprev = Gtk2::Image->new;
+	$fs->set_preview_widget($iprev);
+
+	$fs->signal_connect(
+		'selection-changed' => sub {
+			if(my $pfilename = $fs->get_preview_filename){
+				my $pixbuf = undef;
+				eval{
+					$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale ($pfilename, 200, 200, TRUE);
+				};
+				if($@){
+					$fs->set_preview_widget_active(FALSE);
+				}else{
+					$fs->get_preview_widget->set_from_pixbuf($pixbuf);
+					$fs->set_preview_widget_active(TRUE)
+				}
+			}else{
+				$fs->set_preview_widget_active(FALSE);
+			}
+		}
+	);
 	
 	#change extension related to the requested filetype
 	if(defined $rfiletype){
@@ -6103,6 +6126,29 @@ sub import_from_filesystem {
 				);
 
 				$fs->set_select_multiple(FALSE);
+
+				#preview widget
+				my $iprev = Gtk2::Image->new;
+				$fs->set_preview_widget($iprev);
+			
+				$fs->signal_connect(
+					'selection-changed' => sub {
+						if(my $pfilename = $fs->get_preview_filename){
+							my $pixbuf = undef;
+							eval{
+								$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale ($pfilename, 200, 200, TRUE);
+							};
+							if($@){
+								$fs->set_preview_widget_active(FALSE);
+							}else{
+								$fs->get_preview_widget->set_from_pixbuf($pixbuf);
+								$fs->set_preview_widget_active(TRUE)
+							}
+						}else{
+							$fs->set_preview_widget_active(FALSE);
+						}
+					}
+				);
 
 				my $filter_all = Gtk2::FileFilter->new;
 				$filter_all->set_name( $self->{_d}->get("All compatible image formats") );
