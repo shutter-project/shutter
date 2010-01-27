@@ -2684,8 +2684,8 @@ sub xdo {
 	return FALSE unless $action;
 
 	if($item->isa('Goo::Canvas::Image') && $item == $self->{_canvas_bg}){
-		$opt1->x($do->{'opt1'}->x*-1) ; 
-		$opt1->y($do->{'opt1'}->y*-1) ; 
+		$opt1->x($do->{'opt1'}->x*-1); 
+		$opt1->y($do->{'opt1'}->y*-1); 
 	}	
 
 	#create reverse action
@@ -2776,7 +2776,9 @@ sub xdo {
 				);
 		
 			}elsif ( exists $self->{_items}{$item}{image} ) {
-
+				
+				#~ print "xdo image\n";
+				
 				my $copy = undef;
 				eval{
 					$copy = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($self->{_items}{$item}{orig_pixbuf_filename},$self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'), FALSE);
@@ -2844,18 +2846,11 @@ sub xdo {
 
 		}elsif($item->isa('Goo::Canvas::Image') && $item == $self->{_canvas_bg}){
 
+			#~ print "xdo canvas_bg\n";
+
 			my $new_w = $do->{'drawing_pixbuf'}->get_width;
 			my $new_h = $do->{'drawing_pixbuf'}->get_height;
 			
-			#update bounds and bg_rects
-			$self->{_canvas_bg_rect}->set(
-				'width' 	=> $new_w, 
-				'height' 	=> $new_h,
-			);
-
-			#we need to move the shapes
-			$self->move_all($opt1->x, $opt1->y);
-
 			#update canvas and show the new pixbuf
 			$self->{_canvas_bg}->set('pixbuf' => $do->{'drawing_pixbuf'});
 						
@@ -2869,13 +2864,13 @@ sub xdo {
 				'width' => 	$do->{'width'},
 				'height' => $do->{'height'},
 			);
-						
-			#adjust stack order
-			$self->{_canvas_bg}->lower;
-			$self->{_canvas_bg_rect}->lower;
-			$self->handle_bg_rects( 'raise' );	
 
+			#we need to move the shapes
+			$self->move_all($opt1->x, $opt1->y);
+						
 		}elsif($item->isa('Goo::Canvas::Rect') && $item == $self->{_canvas_bg_rect}){
+			
+			#~ print "xdo canvas_bg_rect\n";
 			
 			$self->{_canvas_bg_rect}->set(
 				'x' => $do->{'x'},
@@ -2913,21 +2908,29 @@ sub xdo {
 		}		
 
 		#handle resize rectangles and embedded objects
-		if ($item == $self->{_canvas_bg_rect}){
+		if ($item == $self->{_canvas_bg}){
+			
+			$self->handle_bg_rects( 'update', $self->{_canvas_bg_rect} );
+								
+		}elsif ($item == $self->{_canvas_bg_rect}){
 
 			$self->handle_bg_rects( 'update', $self->{_canvas_bg_rect} );		
 		
 		}else{
 
 			$self->handle_rects( 'update', $self->{_items}{$item} );
-			$self->handle_embedded( 'update', $self->{_items}{$item}, undef, undef, TRUE );		
-			$self->{_current_item} = $item;	
+			$self->handle_embedded( 'update', $self->{_items}{$item} );		
 
 			#apply item properties to widgets
 			#line width, fill color, stroke color etc.
 			$self->set_and_save_drawing_properties($self->{_current_item}, FALSE);	
 					
 		}
+		
+		#adjust stack order
+		$self->{_canvas_bg}->lower;
+		$self->{_canvas_bg_rect}->lower;
+		$self->handle_bg_rects( 'raise' );	
 
 	}elsif($action eq 'raise' || $action eq 'raise_xdo'){ 
 			
@@ -4638,7 +4641,43 @@ sub move_all {
 					$self->handle_embedded( 'hide', $item );						
 				}else{
 					$self->handle_rects( 'update', $item );
-					$self->handle_embedded( 'update', $item );					
+
+					#pixelizer is treated differently
+					if ( $child && $child->isa('Goo::Canvas::Image') ){
+						my $parent = $self->get_parent_item($child);
+						
+						if (exists $self->{_items}{$parent}{pixelize}){
+
+							Glib::Idle->add (
+								sub {
+									$self->{_items}{$parent}{pixelize}->set(
+										'x'      => int $self->{_items}{$parent}->get('x'),
+										'y'      => int $self->{_items}{$parent}->get('y'),
+										'width'  => $self->{_items}{$parent}->get('width'),
+										'height' => $self->{_items}{$parent}->get('height'),
+										'pixbuf' => $self->get_pixelated_pixbuf_from_canvas($self->{_items}{$parent}),
+									);
+								
+									$self->handle_embedded( 'update', $parent, undef, undef, TRUE );
+									
+									#deactivate all after move
+									$self->deactivate_all;
+									
+									return FALSE;
+								}
+							);
+							
+						}else{
+							
+							$self->handle_embedded( 'update', $item );	
+						
+						}			
+		
+					}else{
+					
+						$self->handle_embedded( 'update', $item );
+						
+					}					
 				}		
 
 			#freehand line for example
