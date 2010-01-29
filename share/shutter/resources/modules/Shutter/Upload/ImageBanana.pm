@@ -150,10 +150,10 @@ sub upload {
 		$self->{_links}{'thumb3'}    = $link_array[2];
 		$self->{_links}{'friends'}   = $link_array[3];
 		$self->{_links}{'popup'}     = $link_array[4];
-		$self->{_links}{'direct'}    = $link_array[5];
-		$self->{_links}{'hotweb'}    = $link_array[6];
-		$self->{_links}{'hotboard1'} = $link_array[7];
-		$self->{_links}{'hotboard2'} = $link_array[8];
+		$self->{_links}{'hotweb'}    = $link_array[5];
+		$self->{_links}{'hotboard1'} = $link_array[6];
+		$self->{_links}{'hotboard2'} = $link_array[7];
+		$self->{_links}{'direct'}    = $link_array[8];
 
 		if ( $self->{_debug_cparam} ) {
 			print "The following links were returned by http://www.imagebanana.com:\n";
