@@ -87,7 +87,7 @@ our $VERSION = '0.03';
 $VERSION = eval $VERSION;
 
 our $url   = 'http://imageshack.us';
-our $uri   = 'transloader.php';
+our $uri   = 'transload.php';
 our $agent = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)'; #nice "fake"
 
 =head2 Method Summary
@@ -290,18 +290,26 @@ sub host{
 
 	if($rsp->is_success){
 		my $txt = $rsp->content;
-		#~ if($txt =~ m{<\s*input\s+[^>]+\s+value\s*=\s*"([^"]+)"[^>]+>\s*</\s*td\s*>\s*<\s*td[^>]*>\s*Direct\s+link\s+to\s+image}ism){
-		# Changed by "Oleg Fiksel" <fleg@lavabit.com>
-		if($txt =~ /Direct.+?href=['"]*([^'"]+)['"]*/ism){
+	
+		if($txt =~ /link-directlink-click.+?value=['"]*([^'"]+)['"]*/ism){
 			$self->hosted($1);
-			if($txt =~/thumbnail for/i){
-				my $uri = $self->hosted();
-				$uri =~ s{\.([^\.]+)$}{\.th\.$1};
-				$self->hosted_thumb($uri);
+			
+			#short link
+			if($txt =~ /link-shortlink-click.+?value=['"]*([^'"]+)['"]*/ism){
+				$self->hosted_short($1);
 			}else{
-				#small images have no thumbnail
+				#no short link available
+				$self->hosted_short(undef);
+			}
+
+			#forum thumb link
+			if($txt =~ /thumb-forum-click.+?value=['"]*([^'"]+)['"]*/ism){
+				$self->hosted_thumb($1);
+			}else{
+				#no short link available
 				$self->hosted_thumb(undef);
 			}
+
 			return $self->hosted;
 		}else{
 			croak("direct link not found in. Maybe an error ocurred during upload. [".$rsp->as_string."]");
@@ -337,12 +345,21 @@ Returns the url of the last uploaded image.
 
 =item hosted_thumb
 
-Returns the url of the thumbnail last uploaded image.
+Returns the url of the forum thumbnail last uploaded image.
 Could be non existent for small images.
 
 =cut
 
 *hosted_thumb = $gen_method->('hosted_thumb');
+
+=item hosted_short
+
+Returns the url of the short link of last uploaded image.
+Could be non existent.
+
+=cut
+
+*hosted_short = $gen_method->('hosted_short');
 
 =item login
 
@@ -423,18 +440,21 @@ sub create_tab {
 
 	my $entry_direct = Gtk2::Entry->new();
 	my $entry_hotweb = Gtk2::Entry->new();
-	my $label_thumb1 = Gtk2::Label->new( $self->{_gettext_object}->get("Thumbnail for websites") );
-	my $label_thumb2 = Gtk2::Label->new( $self->{_gettext_object}->get("Thumbnail for forums") );
+	
+	#optional thumb and short
+	my $label_thumb1 = Gtk2::Label->new( $self->{_gettext_object}->get("Thumbnail for forums") );
+	my $label_short1 = Gtk2::Label->new( $self->{_gettext_object}->get("Short URL") );
+	
 	my $label_direct = Gtk2::Label->new( $self->{_gettext_object}->get("Direct link") );
 	my $label_hotweb = Gtk2::Label->new( $self->{_gettext_object}->get("Hotlink for websites") );
 
 	$entry_direct->set_text("$self->{_url}");
 	$entry_hotweb->set_text("<a href=\"http:\/\/imageshack.us\"><img src=\"$self->{_url}\" border=\"0\" alt=\"Image Hosted by ImageShack.us\"\/><\/a><br\/>By <a href=\"https:\/\/launchpad.net\/shutter\">Shutter<\/a>");
 	$upload_vbox->pack_start( $upload_hbox, TRUE, TRUE, 10 );
-
+	
+	#thumbnail
 	if ($self->{_url_thumb}) {
 		my $entry_thumb1 = Gtk2::Entry->new();
-		my $entry_thumb2 = Gtk2::Entry->new();
 
 		my $upload_copy1 = Gtk2::Button->new;
 		$tooltips->set_tip( $upload_copy1, $self->{_gettext_object}->get("Copy this code to clipboard") );
@@ -447,6 +467,18 @@ sub create_tab {
 			$entry_thumb1
 		);
 
+		$entry_thumb1->set_text($self->{_url_thumb});
+		$upload_hbox1->pack_start_defaults($label_thumb1);
+		$upload_hbox1->pack_start_defaults($entry_thumb1);
+		$upload_hbox2->pack_start_defaults($upload_hbox1);
+		$upload_hbox2->pack_start( $upload_copy1, FALSE, TRUE, 10 );
+
+	}
+	
+	#short link
+	if ($self->{_url_short}) {
+		my $entry_short1 = Gtk2::Entry->new();
+
 		my $upload_copy2 = Gtk2::Button->new;
 		$tooltips->set_tip( $upload_copy2, $self->{_gettext_object}->get("Copy this code to clipboard") );
 		$upload_copy2->set_image( Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
@@ -455,22 +487,17 @@ sub create_tab {
 				my ( $widget, $entry ) = @_;
 				$clipboard->set_text( $entry->get_text );
 			},
-			$entry_thumb2
+			$entry_short1
 		);
 
-		$entry_thumb1->set_text("<a href=\"$self->{_url}\"><img src=\"$self->{_url_thumb}\" border=\"0\" alt=\"Image Hosted by ImageShack.us\"\/><\/a>");
-		$entry_thumb2->set_text("\[url\=$self->{_url}\]\[img\]$self->{_url_thumb}\[\/img\]\[\/url\]");
-		$upload_hbox1->pack_start_defaults($label_thumb1);
-		$upload_hbox1->pack_start_defaults($entry_thumb1);
-		$upload_hbox2->pack_start_defaults($upload_hbox1);
-		$upload_hbox2->pack_start( $upload_copy1, FALSE, TRUE, 10 );
-		$upload_hbox3->pack_start_defaults($label_thumb2);
-		$upload_hbox3->pack_start_defaults($entry_thumb2);
+		$entry_short1->set_text($self->{_url_short});
+		$upload_hbox3->pack_start_defaults($label_short1);
+		$upload_hbox3->pack_start_defaults($entry_short1);
 		$upload_hbox4->pack_start_defaults($upload_hbox3);
 		$upload_hbox4->pack_start( $upload_copy2, FALSE, TRUE, 10 );
-
+		
 	}
-
+	
 	my $upload_copy3 = Gtk2::Button->new;
 	$tooltips->set_tip( $upload_copy3, $self->{_gettext_object}->get("Copy this code to clipboard") );
 	$upload_copy3->set_image( Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
@@ -534,13 +561,14 @@ sub show_all {
 }
 
 sub show {
-	my ( $self, $host, $username, $filename, $url, $url_thumb, $status, $d, $window, $shutter_root ) = @_;
+	my ( $self, $host, $username, $filename, $url, $url_thumb, $url_short, $status, $d, $window, $shutter_root ) = @_;
 
 	$self->{_host} = $host;
 	$self->{_username} = $username;
 	$self->{_filename} = $filename;
 	$self->{_url} = $url;
 	$self->{_url_thumb} = $url_thumb;
+	$self->{_url_short} = $url_short;
 	$self->{_status} = $status;
 	$self->{_gettext_object} = $d;
 	$self->{_main_gtk_window} = $window;
