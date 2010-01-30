@@ -5861,7 +5861,7 @@ sub fct_show_status_message {
 	my $index = shift;
 	my $status_text = shift;
 	
-	$status->pop(1);
+	$status->pop($index);
 	Glib::Source->remove ($session_start_screen{'first_page'}->{'statusbar_timer'}) if defined $session_start_screen{'first_page'}->{'statusbar_timer'};
 	$status->push( $index, $status_text );
 
@@ -5869,7 +5869,7 @@ sub fct_show_status_message {
 	$session_start_screen{'first_page'}->{'statusbar_timer'} = Glib::Timeout->add(
 		3000,
 		sub {
-			$status->pop(1);
+			$status->pop($index);
 			#show file or session info again
 			&fct_update_info_and_tray();
 			return FALSE;
@@ -8833,12 +8833,15 @@ UPDIALOG: while ($hosting_dialog) {
 							next UPDIALOG;
 						}
 
-						#get thumbnail url
+						#get short link
+						my $short_url = undef;
+						eval { $short_url = $ishack->hosted_short; };
+
 						my $thumb_url = undef;
 						eval { $thumb_url = $ishack->hosted_thumb; };
 
 						if ($url) {
-							$ishack->show( $hosting_host, $hosting_username, $file, $url, $thumb_url, RC_OK, $d, $window, $shutter_root );
+							$ishack->show( $hosting_host, $hosting_username, $file, $url, $thumb_url, $short_url, RC_OK, $d, $window, $shutter_root );
 							&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
 						} else {
 							my $response = $sd->dlg_error_message(
