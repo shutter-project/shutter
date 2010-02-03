@@ -57,7 +57,7 @@ use constant FALSE => 0;
 sub new {
 	my $class = shift;
 
-	my $self = { _shutter_common => shift };
+	my $self = { _sc => shift };
 
 	#FIXME
 	#get them as params 
@@ -123,7 +123,7 @@ sub new {
 	$self->{_font} 				 = 'Sans Regular 16';
 
 	#obtain current colors and font_desc from the main window
-    $self->{_style}              = $self->{_shutter_common}->get_mainwindow->get_style;
+    $self->{_style}              = $self->{_sc}->get_mainwindow->get_style;
 	$self->{_style_bg}	         = $self->{_style}->bg('selected');
 	$self->{_style_tx}           = $self->{_style}->text('selected');
 
@@ -173,11 +173,11 @@ sub show {
 	$self->{_import_hash} = shift;
 
 	#gettext
-	$self->{_d} = $self->{_shutter_common}->get_gettext;
+	$self->{_d} = $self->{_sc}->get_gettext;
 	
 	#define own icons
-	$self->{_dicons} = $self->{_shutter_common}->get_root . "/share/shutter/resources/icons/drawing_tool";
-	$self->{_icons} = $self->{_shutter_common}->get_root . "/share/shutter/resources/icons";
+	$self->{_dicons} = $self->{_sc}->get_root . "/share/shutter/resources/icons/drawing_tool";
+	$self->{_icons} = $self->{_sc}->get_root . "/share/shutter/resources/icons";
 
 	#MAIN WINDOW
 	#-------------------------------------------------
@@ -200,7 +200,7 @@ sub show {
 
 	#dialogs and thumbnail generator
 	$self->{_dialogs} = Shutter::App::SimpleDialogs->new( $self->{_drawing_window} );
-	$self->{_thumbs}  = Shutter::Pixbuf::Thumbnail->new( $self->{_shutter_common} );
+	$self->{_thumbs}  = Shutter::Pixbuf::Thumbnail->new( $self->{_sc} );
 
 	#setup cursor-hash
 	#
@@ -477,7 +477,7 @@ sub setup_bottom_hbox {
 	my $self = shift;
 
 	#Tooltips
-	my $tooltips = $self->{_shutter_common}->get_tooltips;
+	my $tooltips = $self->{_sc}->get_tooltips;
 
 	my $drawing_bottom_hbox = Gtk2::HBox->new( FALSE, 5 );
 
@@ -658,7 +658,7 @@ sub setup_right_vbox_c {
 	my $self = shift;
 
 	#Tooltips
-	my $tooltips = $self->{_shutter_common}->get_tooltips;
+	my $tooltips = $self->{_sc}->get_tooltips;
 
 	my $cropping_bottom_vbox = Gtk2::VBox->new( FALSE, 5 );
 	
@@ -1353,7 +1353,7 @@ sub update_warning_text {
 sub load_settings {
 	my $self = shift;
 
-	my $shutter_hfunct = Shutter::App::HelperFunctions->new( $self->{_shutter_common} );
+	my $shutter_hfunct = Shutter::App::HelperFunctions->new( $self->{_sc} );
 
 	#settings file
 	my $settingsfile = "$ENV{ HOME }/.shutter/drawingtool.xml";
@@ -1473,8 +1473,18 @@ sub export_to_file {
 		'gtk-cancel' => 'reject',
 		'gtk-save'   => 'accept'
 	);
-	
-	$fs->set_filename( $self->{_filename} );	
+
+	my $shutter_hfunct = Shutter::App::HelperFunctions->new( $self->{_sc} );
+
+	#go to recently used folder
+	if(defined $self->{_sc}->get_rusf && $shutter_hfunct->folder_exists($self->{_sc}->get_rusf)){
+		#parse filename
+		my ( $rshort, $rfolder, $rext ) = fileparse( $self->{_filename}, qr/\.[^.]*/ );
+		$fs->set_current_folder($self->{_sc}->get_rusf);
+		$fs->set_current_name($rshort.$rext);
+	}else{
+		$fs->set_filename( $self->{_filename} );
+	}
 
 	#preview widget
 	my $iprev = Gtk2::Image->new;
@@ -1593,13 +1603,16 @@ sub export_to_file {
 		#parse filename
 		my ( $short, $folder, $ext ) = fileparse( $filename, qr/\.[^.]*/ );
 
+		#keep selected folder in mind
+		$self->{_sc}->set_rusf($folder);
+
 		#handle file format
 		my $choosen_format = $combobox_save_as_type->get_active_text;
 		$choosen_format =~ s/ \-.*//;    #get png or jpeg for example
 
 		$filename = $folder . $short . "." . $choosen_format;
 
-		my $shutter_hfunct = Shutter::App::HelperFunctions->new( $self->{_shutter_common} );
+		my $shutter_hfunct = Shutter::App::HelperFunctions->new( $self->{_sc} );
 
 		unless ( $shutter_hfunct->file_exists($filename) ) {
 
@@ -1775,7 +1788,7 @@ sub save {
 		}
 			
 		#save pixbuf to file
-		my $pixbuf_save = Shutter::Pixbuf::Save->new( $self->{_shutter_common}, $self->{_drawing_window} );
+		my $pixbuf_save = Shutter::Pixbuf::Save->new( $self->{_sc}, $self->{_drawing_window} );
 	    return $pixbuf_save->save_pixbuf_to_file($pixbuf, $filename, $filetype);	
 
 	}
@@ -6122,7 +6135,7 @@ sub import_from_filesystem {
 
 	my $menu_objects = Gtk2::Menu->new;
 
-	my $dobjects = $directory || $self->{_shutter_common}->get_root . "/share/shutter/resources/icons/drawing_tool/objects";
+	my $dobjects = $directory || $self->{_sc}->get_root . "/share/shutter/resources/icons/drawing_tool/objects";
 	
 	#first directory flag (see description above)
 	my $fd = TRUE;
@@ -6668,7 +6681,7 @@ sub paste_item {
 		my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
 		
 		#save pixbuf to tempfile and integrate it
-		my $pixbuf_save = Shutter::Pixbuf::Save->new( $self->{_shutter_common}, $self->{_drawing_window} );
+		my $pixbuf_save = Shutter::Pixbuf::Save->new( $self->{_sc}, $self->{_drawing_window} );
 		if($pixbuf_save->save_pixbuf_to_file($image, $tmpfilename, 'png')){
 			
 			#set pixbuf vars					

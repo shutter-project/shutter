@@ -274,8 +274,9 @@ my $tray                 = undef;
 my $tray_box			 = undef; #Gtk2::TrayIcon needs and Gtk2::EventBox 
 my $tray_menu			 = &fct_ret_tray_menu;
 
-my $current_profile_indx = 0;
-my $is_hidden            = TRUE;
+#HELPERS
+my $current_profile_indx = 0; #current profile index
+my $is_hidden            = TRUE; #main window hidden flag
 
 #SESSION NOTEBOOK
 my $notebook = Gtk2::Notebook->new;
@@ -310,6 +311,7 @@ my $rmanager = Gtk2::RecentManager->new;
 $sm->{_menu_recent} = Gtk2::RecentChooserMenu->new_for_manager($rmanager); 
 $sm->{_menu_recent}->set_sort_type('mru');
 $sm->{_menu_recent}->set_local_only (TRUE);
+
 my $recentfilter = Gtk2::RecentFilter->new;
 $recentfilter->add_pixbuf_formats;
 $sm->{_menu_recent}->add_filter ($recentfilter);
@@ -8055,15 +8057,23 @@ sub dlg_save_as {
 		'gtk-save'   => 'accept'
 	);
 	
-	#file already exists
-	if($key){
-		$fs->set_filename( $rfilename );
-	#new file
-	}else{
+	#go to recently used folder
+	if(defined $sc->get_rusf && $shf->folder_exists($sc->get_rusf)){
 		#parse filename
 		my ( $rshort, $rfolder, $rext ) = fileparse( $rfilename, qr/\.[^.]*/ );
-		$fs->set_current_folder($rfolder);
+		$fs->set_current_folder($sc->get_rusf);
 		$fs->set_current_name($rshort.$rext);
+	}else{
+		#file already exists
+		if($key){
+			$fs->set_filename( $rfilename );
+		#new file
+		}else{
+			#parse filename
+			my ( $rshort, $rfolder, $rext ) = fileparse( $rfilename, qr/\.[^.]*/ );
+			$fs->set_current_folder($rfolder);
+			$fs->set_current_name($rshort.$rext);
+		}		
 	}
 
 	#preview widget
@@ -8176,7 +8186,10 @@ sub dlg_save_as {
 
 		#parse filename
 		my ( $short, $folder, $ext ) = fileparse( $filename, qr/\.[^.]*/ );
-
+		
+		#keep selected folder in mind
+		$sc->set_rusf($folder);
+		
 		#handle file format
 		my $choosen_format = $combobox_save_as_type->get_active_text;
 		$choosen_format =~ s/ \-.*//;    #get png or jpeg for example

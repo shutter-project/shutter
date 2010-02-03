@@ -76,6 +76,14 @@ sub file_exists {
 	return FALSE;
 }
 
+sub folder_exists {
+	my ( $self, $folder ) = @_;
+	return FALSE unless $folder;
+	$folder = $self->switch_home_in_file($folder);
+	return TRUE if ( -d $folder && -r $folder );
+	return FALSE;
+}
+
 sub uri_exists {
 	my ( $self, $filename ) = @_;
 	return FALSE unless $filename;

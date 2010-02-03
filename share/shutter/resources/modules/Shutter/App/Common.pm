@@ -73,6 +73,9 @@ sub new {
 	$self->{_icontheme} = Gtk2::IconTheme->get_default;
 	$self->{_icontheme}->append_search_path($self->{_shutter_root} . "/share/icons");
 
+	#recently used save folder
+	$self->{_rusf} = undef;
+
 	bless $self, $class;
 	return $self;
 }
@@ -125,6 +128,19 @@ sub set_notification_object {
 		$self->{_notification} = shift;
 	}
 	return $self->{_notification};
+}
+
+sub get_rusf {
+	my $self = shift;
+	return $self->{_rusf};
+}
+
+sub set_rusf {
+	my $self = shift;
+	if (@_) {
+		$self->{_rusf} = shift;
+	}
+	return $self->{_rusf};
 }
 
 sub get_debug {
