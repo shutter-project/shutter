@@ -76,6 +76,9 @@ sub new {
 	#recently used save folder
 	$self->{_rusf} = undef;
 
+	#recently used open folder
+	$self->{_ruof} = undef;
+
 	bless $self, $class;
 	return $self;
 }
@@ -141,6 +144,19 @@ sub set_rusf {
 		$self->{_rusf} = shift;
 	}
 	return $self->{_rusf};
+}
+
+sub get_ruof {
+	my $self = shift;
+	return $self->{_ruof};
+}
+
+sub set_ruof {
+	my $self = shift;
+	if (@_) {
+		$self->{_ruof} = shift;
+	}
+	return $self->{_ruof};
 }
 
 sub get_debug {
