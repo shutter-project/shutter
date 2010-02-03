@@ -358,7 +358,7 @@ sub get_shape {
 			if($r->x >= 0 && $r->x + $r->width <= $orig->get_width && $r->y >= 0 && $r->y + $r->height <= $orig->get_height){
 				$orig->copy_area ($r->x, $r->y, $r->width, $r->height, $target, $r->x, $r->y);		
 			}else{
-				warn "WARNING: There was an error while calclulating the window shape\n";
+				warn "WARNING: There was an error while calculating the window shape\n";
 				return $orig;
 			}
 		}
