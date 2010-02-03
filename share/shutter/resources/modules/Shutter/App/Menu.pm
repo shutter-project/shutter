@@ -412,16 +412,25 @@ sub fct_ret_new_menu {
 	
 	#selection
 	$self->{_menuitem_selection} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Selection') );
-	if($icontheme->has_icon('applications-accessories')){
-		$self->{_menuitem_selection}->set_image(
-			Gtk2::Image->new_from_icon_name( 'applications-accessories', 'menu' )	
-		);
-	}else{
-		$self->{_menuitem_selection}->set_image(
-			Gtk2::Image->new_from_pixbuf(
-				Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/selection.svg", Gtk2::IconSize->lookup('menu') )
-			)
-		);
+	
+	eval{
+		my $ccursor_pb = Gtk2::Gdk::Cursor->new('crosshair')->get_image->scale_simple(Gtk2::IconSize->lookup('menu'), 'bilinear');
+		$self->{_menuitem_selection}->set_image( 
+			Gtk2::Image->new_from_pixbuf($ccursor_pb)
+		);	
+	};
+	if($@){	
+		if($icontheme->has_icon('applications-accessories')){
+			$self->{_menuitem_selection}->set_image(
+				Gtk2::Image->new_from_icon_name( 'applications-accessories', 'menu' )	
+			);
+		}else{
+			$self->{_menuitem_selection}->set_image(
+				Gtk2::Image->new_from_pixbuf(
+					Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/selection.svg", Gtk2::IconSize->lookup('menu') )
+				)
+			);
+		}
 	}
 	$self->{_menu_new}->append( $self->{_menuitem_selection} );
 

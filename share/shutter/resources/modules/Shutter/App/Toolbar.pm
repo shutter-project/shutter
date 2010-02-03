@@ -66,15 +66,22 @@ sub create_toolbar {
 	#button selection
 	#--------------------------------------
 	my $image_select;
-	if($icontheme->has_icon('applications-accessories')){
-		$image_select = Gtk2::Image->new_from_icon_name( 'applications-accessories', 'large-toolbar' );		
-	}else{
-		$image_select = Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-				"$shutter_root/share/shutter/resources/icons/selection.svg", Gtk2::IconSize->lookup('large-toolbar')
-			)
-		);
-	}	
+	eval{
+		my $ccursor_pb = Gtk2::Gdk::Cursor->new('crosshair')->get_image->scale_simple(Gtk2::IconSize->lookup('large-toolbar'), 'bilinear');
+		$image_select = Gtk2::Image->new_from_pixbuf($ccursor_pb);
+	};
+	if($@){
+		if($icontheme->has_icon('applications-accessories')){
+			$image_select = Gtk2::Image->new_from_icon_name( 'applications-accessories', 'large-toolbar' );		
+		}else{
+			$image_select = Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+					"$shutter_root/share/shutter/resources/icons/selection.svg", Gtk2::IconSize->lookup('large-toolbar')
+				)
+			);
+		}
+	}
+		
 	$self->{_select} = Gtk2::MenuToolButton->new( $image_select, $d->get("Selection") );
 	#The GtkToolButton class uses this property to determine whether 
 	#to show or hide its label when the toolbar style is GTK_TOOLBAR_BOTH_HORIZ. 

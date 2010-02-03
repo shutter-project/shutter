@@ -6914,16 +6914,24 @@ sub fct_ret_tray_menu {
 	
 	#selection
 	my $menuitem_select = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Selection') );
-	if($traytheme->has_icon('applications-accessories')){
-		$menuitem_select->set_image(
-			Gtk2::Image->new_from_icon_name( 'applications-accessories', 'menu' )	
-		);
-	}else{
-		$menuitem_select->set_image(
-			Gtk2::Image->new_from_pixbuf(
-				Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/selection.svg", Gtk2::IconSize->lookup('menu') )
-			)
-		);
+	eval{
+		my $ccursor_pb = Gtk2::Gdk::Cursor->new('crosshair')->get_image->scale_simple(Gtk2::IconSize->lookup('menu'), 'bilinear');
+		$menuitem_select->set_image( 
+			Gtk2::Image->new_from_pixbuf($ccursor_pb)
+		);	
+	};
+	if($@){		
+		if($traytheme->has_icon('applications-accessories')){
+			$menuitem_select->set_image(
+				Gtk2::Image->new_from_icon_name( 'applications-accessories', 'menu' )	
+			);
+		}else{
+			$menuitem_select->set_image(
+				Gtk2::Image->new_from_pixbuf(
+					Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/selection.svg", Gtk2::IconSize->lookup('menu') )
+				)
+			);
+		}
 	}
 	$menuitem_select->signal_connect(
 		activate => \&evt_take_screenshot,
