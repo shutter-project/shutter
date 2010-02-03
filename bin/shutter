@@ -822,6 +822,8 @@ $transparent_frame->set_shadow_type('none');
 
 #filename
 #--------------------------------------
+my $filename_label = Gtk2::Label->new( $d->get("Filename") . ":" );
+
 my $filename = Gtk2::Entry->new;
 if ( defined $settings_xml->{'general'}->{'filename'} ) {
 	$filename->set_text( $settings_xml->{'general'}->{'filename'} );
@@ -859,19 +861,22 @@ $filename->signal_connect('key-press-event' => sub {
 	}
 });
 
-my $filename_label = Gtk2::Label->new( $d->get("Filename") . ":" );
-$tooltips->set_tip(
-	$filename,
-	$d->get(
-		"There are several wildcards available, like\n%Y = year\n%m = month\n%d = day\n%T = time\n\$w = width\n\$h = height\n\$name = multi-purpose (e.g. window title)\n%NN = counter"
-	)
-);
-$tooltips->set_tip(
-	$filename_label,
-	$d->get(
-		"There are several wildcards available, like\n%Y = year\n%m = month\n%d = day\n%T = time\n\$w = width\n\$h = height\n\$name = multi-purpose (e.g. window title)\n%NN = counter"
-	)
-);
+my $filename_tooltip_string = 	
+	$d->get("There are several wildcards available, like\n").
+	$d->get("%Y = year\n").
+	$d->get("%m = month\n").
+	$d->get("%d = day\n").
+	$d->get("%T = time\n").
+	$d->get("\$w = width\n").
+	$d->get("\$h = height\n").
+	$d->get("\$name = multi-purpose (e.g. window title)\n").
+	$d->get("\$nb_name = like \$name but without blanks in resulting strings\n").
+	$d->get("\$profile = name of current profile\n").
+	$d->get("%NN = counter");
+
+$tooltips->set_tip($filename, $filename_tooltip_string);
+$tooltips->set_tip($filename_label, $filename_tooltip_string);
+
 $filename_box->pack_start( $filename_label, FALSE, TRUE, 12 );
 $filename_box->pack_start( $filename,       TRUE,  TRUE, 0 );
 
@@ -5311,7 +5316,7 @@ sub fct_take_screenshot {
 		print "Parsing wildcards for $screenshot_name\n"
 			if $sc->get_debug;		
 		
-		#parse wild cards
+		#parse width and height
 		my $swidth  = $screenshot->get_width;
 		my $sheight = $screenshot->get_height;
 
@@ -5320,15 +5325,25 @@ sub fct_take_screenshot {
 
 		print "Parsed \$width and \$height: $screenshot_name\n"
 			if $sc->get_debug;
+			
+		#parse profile name
+		my $current_pname  = $combobox_settings_profiles->get_active_text;	
+		$screenshot_name =~ s/\$profile/$current_pname/g;
+
+		print "Parsed \$profile: $screenshot_name\n"
+			if $sc->get_debug;
 
 		#set name
 		#e.g. window or workspace name		
 		if(defined $screenshot->{'name'}){
 			utf8::decode $screenshot->{'name'};
 			$screenshot->{'name'} =~ s/(\/|\#)/-/g;
-			$screenshot_name =~ s/\$name/$screenshot->{'name'}/g;		
+			$screenshot_name =~ s/\$name/$screenshot->{'name'}/g;
+			#no blanks (special wildcard)
+			$screenshot->{'name'} =~ s/\ //g;
+			$screenshot_name =~ s/\$nb_name/$screenshot->{'name'}/g;				
 		}else{
-			$screenshot_name =~ s/\$name/unknown/g;	
+			$screenshot_name =~ s/(\$name|\$nb_name)/unknown/g;
 		}
 
 		print "Parsed \$name: $screenshot_name\n"
