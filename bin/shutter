@@ -83,8 +83,8 @@ use Data::Dumper;
 use constant TRUE				=> 1;
 use constant FALSE				=> 0;
 use constant MAX_ERROR 			=> 5;
-use constant REV         		=> "Rev.experimental branch";
-#~ use constant REV         		=> "Rev.725";
+use constant SHUTTER_REV        => "Rev.experimental branch";
+#~ use constant SHUTTER_REV         		=> "Rev.725";
 use constant SHUTTER_NAME		=> "Shutter";
 use constant SHUTTER_VERSION	=> "v0.86";
 #~ use constant SHUTTER_VERSION	=> "v0.85.1";
@@ -146,11 +146,13 @@ my $goocanvas       = TRUE;
 #--------------------------------------
 
 #app classes
+require Shutter::App::AboutDialog;
 require Shutter::App::Common;
 require Shutter::App::SimpleDialogs;
 require Shutter::App::HelperFunctions;
 require Shutter::App::Menu;
 require Shutter::App::Notification;
+require Shutter::App::ShutterNotification;
 require Shutter::App::Toolbar;
 
 #region
@@ -187,10 +189,7 @@ my $window 	= Gtk2::Window->new('toplevel');
 
 #create app objects
 #--------------------------------------
-my $sc 		= Shutter::App::Common->new($shutter_root);
-$sc->set_mainwindow($window);
-$sc->set_notification_object(Shutter::App::Notification->new(SHUTTER_NAME . " " . SHUTTER_VERSION));
-
+my $sc 		= Shutter::App::Common->new($shutter_root, $window, SHUTTER_NAME, SHUTTER_VERSION, SHUTTER_REV);
 my $shf		= Shutter::App::HelperFunctions->new($sc);
 my $sm  	= Shutter::App::Menu->new($sc);
 my $st  	= Shutter::App::Toolbar->new($sc);
@@ -2148,6 +2147,11 @@ unless ( $sc->get_min ) {
 	&fct_control_main_window ('hide');
 }
 
+#init notification system
+#--------------------------------------
+#~ $sc->set_notification_object(Shutter::App::Notification->new);
+$sc->set_notification_object(Shutter::App::ShutterNotification->new($sc));
+
 #restore menu/toolbar settings
 #--------------------------------------
 if(defined $settings_xml->{'gui'}->{'btoolbar_active'}){
@@ -2553,64 +2557,7 @@ sub evt_translate {
 }
 
 sub evt_about {
-	#everything is stored in external files, so it is easier to maintain
-	my $all_hint = "";
-	open( GPL_HINT, "$shutter_root/share/shutter/resources/license/gplv3_hint" )
-		or die $!;
-	while(my $hint = <GPL_HINT>){
-		utf8::decode $hint;
-		$all_hint .= $hint;	
-	}
-	close(GPL_HINT);
-	
-	my $all_gpl = "";
-	open( GPL, "$shutter_root/share/shutter/resources/license/gplv3" )
-		or die $!;
-	while(my $gpl = <GPL>){
-		utf8::decode $gpl;
-		$all_gpl .= $gpl;	
-	}	
-	close(GPL);
-	
-	my $all_dev = "";
-	open( DEVCREDITS, "$shutter_root/share/shutter/resources/credits/dev" )
-		or die $!;
-	while(my $dev = <DEVCREDITS>){
-		utf8::decode $dev;
-		$all_dev .= $dev;	
-	}
-	close(DEVCREDITS);
-
-	my $all_art = "";
-	open( ARTCREDITS, "$shutter_root/share/shutter/resources/credits/art" )
-		or die $!;
-	while(my $art = <ARTCREDITS>){
-		utf8::decode $art;
-		$all_art .= $art;	
-	}
-	close(ARTCREDITS);
-	
-	my $website = "http://shutter-project.org";
-	my $about   = Gtk2::AboutDialog->new;
-	$about->set_logo_icon_name('shutter');
-	if (Gtk2->CHECK_VERSION( 2, 12, 0 )){
-		$about->set_program_name(SHUTTER_NAME);
-	}else{
-		$about->set_name(SHUTTER_NAME);
-	}
-	$about->set_version(SHUTTER_VERSION);
-	$about->set_url_hook( sub { $shf->xdg_open(@_) } );
-	$about->set_website_label("Shutter-Website");
-	$about->set_website($website);
-	$about->set_email_hook( sub { $shf->xdg_open_mail(@_) } );
-	$about->set_authors( $all_dev );
-	$about->set_artists( $all_art );
-	$about->set_translator_credits($d->get("translator-credits"));
-	$about->set_copyright($all_hint);
-	$about->set_license($all_gpl);
-	$about->set_comments(REV);
-	$about->show_all;
-	$about->signal_connect( 'response' => sub { $about->destroy } );
+	Shutter::App::AboutDialog->new($sc)->show;
 }
 
 sub evt_show_systray {
@@ -3579,7 +3526,7 @@ sub fct_save_settings {
 
 	#we store the version info, so we know if there was a new version installed
 	#when starting new version we clear the cache on first startup
-	$settings{'general'}->{'app_version'} = SHUTTER_VERSION . REV;
+	$settings{'general'}->{'app_version'} = SHUTTER_VERSION . SHUTTER_REV;
 
 	$settings{'general'}->{'last_profile'}      = $combobox_settings_profiles->get_active;
 	$settings{'general'}->{'last_profile_name'} = $combobox_settings_profiles->get_active_text || "";
@@ -4051,7 +3998,7 @@ sub fct_load_settings {
 				#we store the version info, so we know if there was a new version installed
 				#when starting new version we clear the cache on first startup
 				if (defined $settings_xml->{'general'}->{'app_version'}){
-					if(SHUTTER_VERSION . REV ne $settings_xml->{'general'}->{'app_version'}){
+					if(SHUTTER_VERSION . SHUTTER_REV ne $settings_xml->{'general'}->{'app_version'}){
 						$sc->set_clear_cache(TRUE);
 					}	
 				}else{

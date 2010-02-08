@@ -44,7 +44,7 @@ sub new {
 	my $class = shift;
 
 	#constructor
-	my $self = { _shutter_root => shift };
+	my $self = { _shutter_root => shift, _mainwindow => shift, _appname => shift, _version => shift, _rev => shift };
 
 	#vars
 	$self->{_debug_cparam}           = FALSE;
@@ -52,7 +52,6 @@ sub new {
 	$self->{_min_cparam}             = FALSE;
 	$self->{_disable_systray_cparam} = FALSE;
 	$self->{_start_with}             = undef;
-	$self->{_mainwindow}             = undef;
 
 	#gettext init
 	setlocale( LC_MESSAGES, "" );
@@ -87,6 +86,21 @@ sub new {
 sub get_root {
 	my $self = shift;
 	return $self->{_shutter_root};
+}
+
+sub get_appname {
+	my $self = shift;
+	return $self->{_appname};
+}
+
+sub get_version {
+	my $self = shift;
+	return $self->{_version};
+}
+
+sub get_rev {
+	my $self = shift;
+	return $self->{_rev};
 }
 
 sub get_gettext {
@@ -235,6 +249,13 @@ sub set_start_with {
 		$self->{_start_with} = shift;
 	}
 	return $self->{_start_with};
+}
+
+sub get_current_monitor {
+	my $self = shift;
+	my ( $window_at_pointer, $x, $y, $mask ) = Gtk2::Gdk->get_default_root_window->get_pointer;
+	my $mon = Gtk2::Gdk::Screen->get_default->get_monitor_geometry( Gtk2::Gdk::Screen->get_default->get_monitor_at_point ($x, $y));
+	return ($mon);
 }
 
 1;
