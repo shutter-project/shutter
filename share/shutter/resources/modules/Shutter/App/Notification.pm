@@ -44,7 +44,7 @@ use constant FALSE => 0;
 sub new {
 	my $class = shift;
 
-	my $self = { _name => shift };
+	my $self = { };
 
 	#Use notifications object
 	eval{
