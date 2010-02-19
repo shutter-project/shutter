@@ -30,10 +30,8 @@ use warnings;
 
 use Gtk2;
 
-#define constants
-#--------------------------------------
-use constant TRUE  => 1;
-use constant FALSE => 0;
+#Glib
+use Glib qw/TRUE FALSE/; 
 
 sub new {
 	my $class = shift;

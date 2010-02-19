@@ -30,18 +30,12 @@ use warnings;
 
 use Gtk2;
 
-#Gettext and filename parsing
-use POSIX qw/setlocale strftime/;
-use Locale::gettext;
-
 #fileparse and tempfile
 use File::Basename qw/ fileparse dirname basename /;
 use File::Temp qw/ tempfile tempdir /;
 
-#define constants
-#--------------------------------------
-use constant TRUE  => 1;
-use constant FALSE => 0;
+#Glib
+use Glib qw/TRUE FALSE/; 
 
 #--------------------------------------
 

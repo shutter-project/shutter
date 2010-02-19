@@ -28,10 +28,8 @@ use strict;
 use Net::FTP;
 use URI::Split qw(uri_split);
 
-#define constants
-#--------------------------------------
-use constant TRUE  => 1;
-use constant FALSE => 0;
+#Glib
+use Glib qw/TRUE FALSE/; 
 
 #--------------------------------------
 

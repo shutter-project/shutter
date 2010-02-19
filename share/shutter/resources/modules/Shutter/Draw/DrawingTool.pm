@@ -45,12 +45,8 @@ use Sort::Naturally;
 #load and save settings
 use XML::Simple;
 
-#--------------------------------------
-
-#define constants
-#--------------------------------------
-use constant TRUE  => 1;
-use constant FALSE => 0;
+#Glib
+use Glib qw/TRUE FALSE/;
 
 #--------------------------------------
 
@@ -160,9 +156,9 @@ sub new {
     #~ print "$self dying at\n";
 #~ } 
 
-1;
-
-__DATA__
+#~ 1;
+#~ 
+#~ __DATA__
 
 sub show {
 	my $self        	  = shift;

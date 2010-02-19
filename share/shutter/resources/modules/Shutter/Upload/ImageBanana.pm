@@ -28,10 +28,8 @@ use strict;
 use WWW::Mechanize;
 use HTTP::Status;
 
-#define constants
-#--------------------------------------
-use constant TRUE  => 1;
-use constant FALSE => 0;
+#Glib
+use Glib qw/TRUE FALSE/; 
 
 #--------------------------------------
 

@@ -28,18 +28,11 @@ use utf8;
 use strict;
 use Gtk2;
 
-#Gettext and filename parsing
-use POSIX qw/setlocale strftime/;
-use Locale::gettext;
-
-#define constants
-#--------------------------------------
-use constant TRUE  => 1;
-use constant FALSE => 0;
+#Glib
+use Glib qw/TRUE FALSE/; 
 
 #--------------------------------------
 
-##################public subs##################
 sub new {
 	my $class = shift;
 

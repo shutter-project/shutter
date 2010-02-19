@@ -30,10 +30,8 @@ use warnings;
 
 use File::Temp qw/ tempfile tempdir /;
 
-#define constants
-#--------------------------------------
-use constant TRUE  => 1;
-use constant FALSE => 0;
+#Glib
+use Glib qw/TRUE FALSE/; 
 
 #--------------------------------------
 

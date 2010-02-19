@@ -70,11 +70,8 @@ use HTTP::Cookies;
 
 use Data::Dumper;
 
-
-#define constants
-#--------------------------------------
-use constant TRUE  => 1;
-use constant FALSE => 0;
+#Glib
+use Glib qw/TRUE FALSE/; 
 
 #--------------------------------------
 

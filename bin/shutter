@@ -37,6 +37,18 @@ use Gnome2::VFS '-init';
 #Use AuthenticationManager to handle user credentials easily
 Gnome2::AuthenticationManager->init;
 
+#Gtk2 and Gtk2::ImageView
+use Gtk2 '-init';
+use Gtk2::Gdk::Keysyms;
+use Gtk2::Pango;
+use Gtk2::ImageView;
+
+#Glib
+use Glib qw/TRUE FALSE/; 
+
+#filename parsing
+use POSIX qw/ strftime /;
+
 #File operations
 use File::Copy qw/ cp mv /;
 use File::Path qw/ rmtree /;
@@ -44,19 +56,6 @@ use File::Glob qw/ glob /;
 use File::Basename qw/ fileparse dirname basename /;
 use File::Temp qw/ tempfile tempdir /;
 use IO::File();
-
-#A selection of general-utility list subroutines
-use List::Util qw/ max min /;
-
-#Gtk2 and Gtk2::ImageView
-use Gtk2 '-init';
-use Gtk2::Gdk::Keysyms;
-use Gtk2::Pango;
-use Gtk2::ImageView;
-
-#Gettext and filename parsing
-use POSIX qw/ setlocale strftime /;
-use Locale::gettext();
 
 #load and save settings
 use XML::Simple;
@@ -80,8 +79,6 @@ use Data::Dumper;
 
 #define constants
 #--------------------------------------
-use constant TRUE				=> 1;
-use constant FALSE				=> 0;
 use constant MAX_ERROR 			=> 5;
 use constant SHUTTER_REV        => "Rev.experimental branch";
 #~ use constant SHUTTER_REV         		=> "Rev.725";

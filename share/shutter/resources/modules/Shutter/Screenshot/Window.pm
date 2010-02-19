@@ -33,10 +33,8 @@ use Shutter::Screenshot::Main;
 use Data::Dumper;
 our @ISA = qw(Shutter::Screenshot::Main);
 
-#define constants
-#--------------------------------------
-use constant TRUE  => 1;
-use constant FALSE => 0;
+#Glib
+use Glib qw/TRUE FALSE/; 
 
 #--------------------------------------
 
