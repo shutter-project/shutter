@@ -156,9 +156,9 @@ sub new {
     #~ print "$self dying at\n";
 #~ } 
 
-#~ 1;
-#~ 
-#~ __DATA__
+1;
+
+__DATA__
 
 sub show {
 	my $self        	  = shift;
@@ -996,6 +996,7 @@ sub change_drawing_tool_cb {
 		$self->{_current_mode} != 10  &&
 		$self->{_current_mode} != 30  && 
 		$self->{_current_mode} != 90  && 
+		$self->{_current_mode} != 100  && 
 		$self->{_current_mode} != 120 ){
 	
 		$self->restore_drawing_properties;
@@ -1045,7 +1046,7 @@ sub change_drawing_tool_cb {
 		$self->{_font_btn_w}->set_sensitive(FALSE);	
 		
 		#restore hard-coded highlighter properties
-		$self->restore_highlighter_properties;
+		$self->restore_fixed_properties($self->{_current_mode_descr});
 
 	} elsif ( $self->{_current_mode} == 40 ) {
 
@@ -1095,6 +1096,9 @@ sub change_drawing_tool_cb {
 		$self->{_stroke_color_w}->set_sensitive(FALSE);
 		$self->{_line_spin_w}->set_sensitive(FALSE);
 		$self->{_font_btn_w}->set_sensitive(FALSE);	
+
+		#restore hard-coded censor properties
+		$self->restore_fixed_properties($self->{_current_mode_descr});
 
 	} elsif ( $self->{_current_mode} == 100 ) {
 		
@@ -1206,8 +1210,8 @@ sub adjust_rulers {
 		my $copy_event = $ev->copy;
 						
 		#modify event to respect scrollbars and canvas scale
-		$copy_event->x( ($copy_event->x - $hlower) * $s);
-		$copy_event->y( ($copy_event->y - $vlower) * $s);	
+		$copy_event->x( ($copy_event->x_root - $hlower) * $s);
+		$copy_event->y( ($copy_event->y_root - $vlower) * $s);	
 
 		$self->{_hruler}->signal_emit('motion-notify-event', $copy_event);
 		$self->{_vruler}->signal_emit('motion-notify-event', $copy_event);
@@ -1940,15 +1944,6 @@ sub event_item_on_motion_notify {
 			$self->{_current_new_item} = undef;
 			$self->{_current_item} = $item;
 			
-			#apply item properties to widgets
-			#line width, fill color, stroke color etc.
-			#
-			#but do not save properties of the censor tool
-			#it does not have any custom settings
-			if($self->{_current_mode_descr} ne "censor"){
-				$self->set_and_save_drawing_properties($item, FALSE);
-			}
-
 			#add to undo stack
 			$self->store_to_xdo_stack($self->{_current_item} , 'create', 'undo');
 
@@ -2007,11 +2002,7 @@ sub event_item_on_motion_notify {
 		
 		#mark as active item
 		$self->{_current_item} 	= $item;
-	
-		#apply item properties to widgets / or only save it
-		#line width, fill color, stroke color etc.
-		$self->set_and_save_drawing_properties($item, TRUE);	
-		
+			
 		$self->{_items}{$item}{'bottom-right-corner'}->{res_x}    = $ev->x;
 		$self->{_items}{$item}{'bottom-right-corner'}->{res_y}    = $ev->y;
 		$self->{_items}{$item}{'bottom-right-corner'}->{resizing} = TRUE;
@@ -3104,6 +3095,7 @@ sub set_and_save_drawing_properties {
 	#we do not remember the properties for some tools
 	#and don't remember them when just selecting items with the cursor
 	if($self->{_items}{$key}{type} ne "highlighter" && 
+	   $self->{_items}{$key}{type} ne "censor" &&
 	   $self->{_items}{$key}{type} ne "image" &&
 	   $self->{_items}{$key}{type} ne "pixelize" &&
 	   $self->{_current_mode} != 10 )
@@ -3232,8 +3224,9 @@ sub set_and_save_drawing_properties {
 
 }
 
-sub restore_highlighter_properties {
+sub restore_fixed_properties {
 	my $self = shift;
+	my $mode = shift;
 
 	#~ print "restore_highlighter_properties\n";
 
@@ -3244,12 +3237,17 @@ sub restore_highlighter_properties {
 	$self->{_fill_color_w}->signal_handler_block ($self->{_fill_color_wh});
 	$self->{_font_btn_w}->signal_handler_block ($self->{_font_btn_wh});
 	
-	#highlighter
-	$self->{_fill_color_w}->set_color(Gtk2::Gdk::Color->parse('#00000000ffff'));
-	$self->{_fill_color_w}->set_alpha( int(0.234683756771191 * 65535) );
-	$self->{_stroke_color_w}->set_color(Gtk2::Gdk::Color->parse('#ffffffff0000'));
-	$self->{_stroke_color_w}->set_alpha( int(0.499992370489052 * 65535) );
-	$self->{_line_spin_w}->set_value(18);
+	if($mode eq "highlighter"){
+		#highlighter
+		$self->{_fill_color_w}->set_color(Gtk2::Gdk::Color->parse('#00000000ffff'));
+		$self->{_fill_color_w}->set_alpha( int(0.234683756771191 * 65535) );
+		$self->{_stroke_color_w}->set_color(Gtk2::Gdk::Color->parse('#ffffffff0000'));
+		$self->{_stroke_color_w}->set_alpha( int(0.499992370489052 * 65535) );
+		$self->{_line_spin_w}->set_value(18);
+	}elsif($mode eq "censor"){
+		#censor
+		$self->{_line_spin_w}->set_value(14);		
+	}
 
 	#update global values
 	$self->{_line_width} 			= $self->{_line_spin_w}->get_value;	
