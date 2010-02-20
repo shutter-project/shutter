@@ -46,6 +46,8 @@ require Proc::Simple;
 #--------------------------------------
 require Shutter::App::SimpleDialogs;
 
+#Set LC_NUMERIC to C to prevent decimal commas (or anything else)
+setlocale(LC_NUMERIC, "C");	
 #configure gettext using ENV Variable (setup during shutter start)
 setlocale( LC_MESSAGES, "" );
 my $d = Locale::gettext->domain("shutter-plugins");
