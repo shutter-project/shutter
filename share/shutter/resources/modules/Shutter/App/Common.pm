@@ -51,8 +51,10 @@ sub new {
 	$self->{_disable_systray_cparam} = FALSE;
 	$self->{_start_with}             = undef;
 
-	#gettext init
+	#Set LC_NUMERIC to C to prevent decimal commas (or anything else)
+	setlocale(LC_NUMERIC, "C");	
 	setlocale( LC_MESSAGES, "" );
+	#gettext init
 	$self->{_gettext_object} = Locale::gettext->domain("shutter");
 	$self->{_gettext_object}->dir( $self->{_shutter_root} . "/share/locale" );
 	
