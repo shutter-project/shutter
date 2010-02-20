@@ -27,7 +27,7 @@ use strict;
 use warnings;
 use Gtk2 '-init';
 use Image::Magick;
-use POSIX qw/setlocale/;
+use POSIX qw/setlocale strftime/;
 use Locale::gettext;
 use Glib qw/TRUE FALSE/;
 use FindBin '$Bin';    #path where plugin is located
