@@ -3003,7 +3003,7 @@ sub xdo {
 		}else{
 
 			$self->handle_rects( 'update', $self->{_items}{$item} );
-			$self->handle_embedded( 'update', $self->{_items}{$item} );		
+			$self->handle_embedded( 'update', $self->{_items}{$item}, undef, undef, TRUE );		
 
 			#apply item properties to widgets
 			#line width, fill color, stroke color etc.
