@@ -3531,6 +3531,10 @@ sub fct_save_settings {
 	#menu
 	$settings{'gui'}->{'btoolbar_active'} = $sm->{_menuitem_btoolbar}->get_active();
 
+	#recently used
+	$settings{'recent'}->{'ruu_tab'} 	= $sc->get_ruu_tab;
+	$settings{'recent'}->{'ruu_detail'} = $sc->get_ruu_detail;
+
 	#main
 	$settings{'general'}->{'filetype'} 		 = $combobox_type->get_active;
 	$settings{'general'}->{'quality'}  		 = $scale->get_value();
@@ -3865,10 +3869,7 @@ sub fct_load_settings {
 				}else{
 					$combobox_type->set_active($settings_xml->{'general'}->{'filetype'});	
 				}
-				
-				#menu
-				$sm->{_menuitem_btoolbar}->set_active($settings_xml->{'gui'}->{'btoolbar_active'});
-
+									
 				#main
 				$scale->set_value( $settings_xml->{'general'}->{'quality'} );
 				utf8::decode $settings_xml->{'general'}->{'filename'};
@@ -3991,6 +3992,10 @@ sub fct_load_settings {
 
 			#endif profile load
 			}else{
+
+				#recently used
+				$sc->set_ruu_tab($settings_xml->{'recent'}->{'ruu_tab'});
+				$sc->set_ruu_detail($settings_xml->{'recent'}->{'ruu_detail'});
 							
 				#we store the version info, so we know if there was a new version installed
 				#when starting new version we clear the cache on first startup
@@ -4030,8 +4035,8 @@ sub fct_load_settings {
 
 				}#endif plugins from cache
 
-			} 
-
+			}
+			
 		};
 		if ($@) {
 			$sd->dlg_error_message( $@, $d->get("Settings could not be restored!") );
@@ -8700,7 +8705,25 @@ sub dlg_upload {
 	$hosting_dialog->vbox->add($hosting_progress);
 
 	$hosting_dialog->show_all;
-UPDIALOG: while ($hosting_dialog) {
+	
+	#restore recently used upload tab
+	if(defined $sc->get_ruu_tab && $sc->get_ruu_tab){
+		$unotebook->set_current_page($sc->get_ruu_tab);
+	}
+	#and the relevant detail (folder, uploader etc.)
+	#hosting service
+	if(defined $sc->get_ruu_detail && $sc->get_ruu_detail){		
+		if($sc->get_ruu_tab == 0){
+			$hosting->set_active($sc->get_ruu_detail);
+		#export to folder	
+		}elsif($sc->get_ruu_tab == 2){
+			if(defined $sc->get_ruu_detail && $shf->folder_exists($sc->get_ruu_detail)){
+				$places_fc->set_current_folder( $sc->get_ruu_detail );
+			}	
+		}
+	}	
+	
+	UPDIALOG: while ($hosting_dialog) {
 
 		#initial state of dialog
 		$upload_button->set_sensitive(TRUE);
@@ -8949,7 +8972,7 @@ UPDIALOG: while ($hosting_dialog) {
 				$uploader->quit;
 			
 			
-			#places using Gnone-VFS
+			#places using Gnome-VFS
 			} elsif ( $unotebook->get_current_page == 2 ) {
 		
 				my $counter = 1;
@@ -9067,13 +9090,28 @@ UPDIALOG: while ($hosting_dialog) {
 				}
 				
 			}
-
+			
+			#save recently used upload tab
+			$sc->set_ruu_tab($unotebook->get_current_page);
+			#and the relevant detail (folder, uploader etc.)
+			#hosting service		
+			if($sc->get_ruu_tab == 0){
+				$sc->set_ruu_detail($hosting->get_active);
+			#export to folder	
+			}elsif($sc->get_ruu_tab == 2){
+				$sc->set_ruu_detail($places_fc->get_current_folder);
+			}else{
+				$sc->set_ruu_detail(0);
+			}
+			
 			$hosting_dialog->destroy();
 			return TRUE;
+		
+		# response != accept
 		} else {
 			$hosting_dialog->destroy();
 			return FALSE;
-		}    #if response == accept
+		}   
 
 	}    #dialog loop
 }

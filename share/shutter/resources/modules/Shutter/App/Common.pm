@@ -72,6 +72,10 @@ sub new {
 	$self->{_icontheme} = Gtk2::IconTheme->get_default;
 	$self->{_icontheme}->append_search_path($self->{_shutter_root} . "/share/icons");
 
+	#recently used upload tab and object
+	$self->{_ruu_tab} = 0;
+	$self->{_ruu_detail} = 0;
+
 	#recently used save folder
 	$self->{_rusf} = undef;
 
@@ -171,6 +175,32 @@ sub set_ruof {
 		$self->{_ruof} = shift;
 	}
 	return $self->{_ruof};
+}
+
+sub get_ruu_tab {
+	my $self = shift;
+	return $self->{_ruu_tab};
+}
+
+sub set_ruu_tab {
+	my $self = shift;
+	if (@_) {
+		$self->{_ruu_tab} = shift;
+	}
+	return $self->{_ruu_tab};
+}
+
+sub get_ruu_detail {
+	my $self = shift;
+	return $self->{_ruu_detail};
+}
+
+sub set_ruu_detail {
+	my $self = shift;
+	if (@_) {
+		$self->{_ruu_detail} = shift;
+	}
+	return $self->{_ruu_detail};
 }
 
 sub get_debug {
