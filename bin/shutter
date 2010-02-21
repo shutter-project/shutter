@@ -558,6 +558,7 @@ my $ftp_hbox1           = Gtk2::HBox->new( FALSE, 0 );
 my $ftp_hbox2           = Gtk2::HBox->new( FALSE, 0 );
 my $ftp_hbox3           = Gtk2::HBox->new( FALSE, 0 );
 my $ftp_hbox4           = Gtk2::HBox->new( FALSE, 0 );
+my $ftp_hbox5           = Gtk2::HBox->new( FALSE, 0 );
 
 #plugins
 my $effects_vbox        = Gtk2::VBox->new( FALSE, 0 );
@@ -1805,6 +1806,23 @@ $tooltips->set_tip( $ftp_password_entry, $d->get("Password") );
 $ftp_hbox4->pack_start( $ftp_password_label, FALSE, TRUE, 12 );
 $ftp_hbox4->pack_start( $ftp_password_entry, TRUE,  TRUE, 0 );
 
+#website url
+my $ftp_wurl_label = Gtk2::Label->new( $d->get("Website URL") . ":" );
+
+my $ftp_wurl_entry = Gtk2::Entry->new;
+if ( defined $settings_xml->{'general'}->{'ftp_wurl'} ) {
+	$ftp_wurl_entry->set_text( $settings_xml->{'general'}->{'ftp_wurl'} );
+} else {
+	$ftp_wurl_entry->set_text("http://example.com/screenshots");
+}
+
+$tooltips->set_tip( $ftp_wurl_label, $d->get("No text yet") );
+
+$tooltips->set_tip( $ftp_wurl_entry, $d->get("No text yet") );
+
+$ftp_hbox5->pack_start( $ftp_wurl_label,  FALSE, TRUE, 12 );
+$ftp_hbox5->pack_start( $ftp_wurl_entry, TRUE,  TRUE, 0 );
+
 #--------------------------------------
 
 #packing
@@ -1996,6 +2014,7 @@ $ftp_vbox->pack_start( $ftp_hbox1, FALSE, TRUE, 3 );
 $ftp_vbox->pack_start( $ftp_hbox2, FALSE, TRUE, 3 );
 $ftp_vbox->pack_start( $ftp_hbox3, FALSE, TRUE, 3 );
 $ftp_vbox->pack_start( $ftp_hbox4, FALSE, TRUE, 3 );
+$ftp_vbox->pack_start( $ftp_hbox5, FALSE, TRUE, 3 );
 $ftp_frame->add($ftp_vbox);
 
 #all labels = one size
@@ -2003,12 +2022,14 @@ $ftp_entry_label->set_alignment( 0, 0.5 );
 $ftp_mode_label->set_alignment( 0, 0.5 );
 $ftp_username_label->set_alignment( 0, 0.5 );
 $ftp_password_label->set_alignment( 0, 0.5 );
+$ftp_wurl_label->set_alignment( 0, 0.5 );
 
 my $sg_acc = Gtk2::SizeGroup->new('horizontal');
 $sg_acc->add_widget($ftp_entry_label);
 $sg_acc->add_widget($ftp_mode_label);
 $sg_acc->add_widget($ftp_username_label);
 $sg_acc->add_widget($ftp_password_label);
+$sg_acc->add_widget($ftp_wurl_label);
 
 $vbox_accounts->pack_start( $accounts_frame, TRUE, TRUE, 3 );
 $vbox_accounts->pack_start( $ftp_frame,      FALSE, TRUE, 3 );
@@ -3628,6 +3649,7 @@ sub fct_save_settings {
 	$settings{'general'}->{'ftp_mode'}     = $ftp_mode_combo->get_active();
 	$settings{'general'}->{'ftp_username'} = $ftp_username_entry->get_text();
 	$settings{'general'}->{'ftp_password'} = $ftp_password_entry->get_text();
+	$settings{'general'}->{'ftp_wurl'} 	   = $ftp_wurl_entry->get_text();
 	
 	#plugins
 	foreach my $plugin_key ( sort keys %plugins ) {	
@@ -3976,11 +3998,13 @@ sub fct_load_settings {
 				utf8::decode $settings_xml->{'general'}->{'ftp_mode'};
 				utf8::decode $settings_xml->{'general'}->{'ftp_username'};
 				utf8::decode $settings_xml->{'general'}->{'ftp_password'};
+				utf8::decode $settings_xml->{'general'}->{'ftp_wurl'};
 				
 				$ftp_remote_entry->set_text( $settings_xml->{'general'}->{'ftp_uri'} );
 				$ftp_mode_combo->set_active( $settings_xml->{'general'}->{'ftp_mode'} );
 				$ftp_username_entry->set_text( $settings_xml->{'general'}->{'ftp_username'} );
 				$ftp_password_entry->set_text( $settings_xml->{'general'}->{'ftp_password'} );
+				$ftp_wurl_entry->set_text( $settings_xml->{'general'}->{'ftp_wurl'} );
 
 				#load account data from profile
 				&fct_load_accounts($profilename);
@@ -5321,20 +5345,20 @@ sub fct_take_screenshot {
 		$uri = Gnome2::VFS::URI->new ($screenshot_name);
 				
 		#maybe the uri already exists, so we have to append some digits (e.g. testfile01(0002).png)
-			if ( $uri->exists ) {
-				my $count = 1;
-				my $new_filename = fileparse($shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path)), qr/\.[^.]*/);
-				
-				print "Checking if filename already exists: " . $new_filename . "\n" if $sc->get_debug;
-				
-				my $existing_filename = $new_filename;
-				while ( $uri->exists ) {
-					$new_filename = $existing_filename . "(" . sprintf( "%03d", $count++ ) . ")";
-					$uri 	= Gnome2::VFS::URI->new($folder);
-					$uri    = $uri->append_string("$new_filename.$filetype_value");
-					print "Checking new uri after parsing: " . $uri->to_string . "\n" if $sc->get_debug;
-				}
+		if ( $uri->exists ) {
+			my $count = 1;
+			my $new_filename = fileparse($shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path)), qr/\.[^.]*/);
+			
+			print "Checking if filename already exists: " . $new_filename . "\n" if $sc->get_debug;
+			
+			my $existing_filename = $new_filename;
+			while ( $uri->exists ) {
+				$new_filename = $existing_filename . "(" . sprintf( "%03d", $count++ ) . ")";
+				$uri 	= Gnome2::VFS::URI->new($folder);
+				$uri    = $uri->append_string("$new_filename.$filetype_value");
+				print "Checking new uri after parsing: " . $uri->to_string . "\n" if $sc->get_debug;
 			}
+		}
 				
 		#we have to update the path again
 		$screenshot_name = $shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path));
@@ -8601,6 +8625,7 @@ sub dlg_upload {
 	my $ftp_hbox2_dlg = Gtk2::HBox->new( FALSE, 0 );
 	my $ftp_hbox3_dlg = Gtk2::HBox->new( FALSE, 0 );
 	my $ftp_hbox4_dlg = Gtk2::HBox->new( FALSE, 0 );
+	my $ftp_hbox5_dlg = Gtk2::HBox->new( FALSE, 0 );
 
 	#uri
 	my $ftp_entry_label_dlg = Gtk2::Label->new( $d->get("URI") . ":");
@@ -8654,23 +8679,38 @@ sub dlg_upload {
 
 	$ftp_hbox4_dlg->pack_start( $ftp_password_entry_dlg, TRUE, TRUE, 10 );
 
+	#website url
+	my $ftp_wurl_label_dlg = Gtk2::Label->new( $d->get("Website URL") . ":");
+	$ftp_hbox5_dlg->pack_start( $ftp_wurl_label_dlg, FALSE, TRUE, 10 );
+	my $ftp_wurl_entry_dlg = Gtk2::Entry->new;
+	$ftp_wurl_entry_dlg->set_text( $ftp_wurl_entry->get_text );
+
+	$tooltips->set_tip( $ftp_wurl_label_dlg, $d->get("No text yet") );
+
+	$tooltips->set_tip( $ftp_wurl_entry_dlg, $d->get("No text yet") );
+
+	$ftp_hbox5_dlg->pack_start( $ftp_wurl_entry_dlg, TRUE, TRUE, 10 );
+
 	my $ftp_vbox_dlg = Gtk2::VBox->new( FALSE, 0 );
 	$ftp_vbox_dlg->pack_start( $ftp_hbox1_dlg, FALSE, TRUE, 3 );
 	$ftp_vbox_dlg->pack_start( $ftp_hbox2_dlg, FALSE, TRUE, 3 );
 	$ftp_vbox_dlg->pack_start( $ftp_hbox3_dlg, FALSE, TRUE, 3 );
 	$ftp_vbox_dlg->pack_start( $ftp_hbox4_dlg, FALSE, TRUE, 3 );
+	$ftp_vbox_dlg->pack_start( $ftp_hbox5_dlg, FALSE, TRUE, 3 );
 
 	#all labels = one size
 	$ftp_entry_label_dlg->set_alignment( 0, 0.5 );
 	$ftp_mode_label_dlg->set_alignment( 0, 0.5 );
 	$ftp_username_label_dlg->set_alignment( 0, 0.5 );
 	$ftp_password_label_dlg->set_alignment( 0, 0.5 );
+	$ftp_wurl_label_dlg->set_alignment( 0, 0.5 );
 
 	my $sg_ftp_dlg = Gtk2::SizeGroup->new('horizontal');
 	$sg_ftp_dlg->add_widget($ftp_entry_label_dlg);
 	$sg_ftp_dlg->add_widget($ftp_mode_label_dlg);
 	$sg_ftp_dlg->add_widget($ftp_username_label_dlg);
 	$sg_ftp_dlg->add_widget($ftp_password_label_dlg);
+	$sg_ftp_dlg->add_widget($ftp_wurl_label_dlg);
 
 	#setup notebook
 	my $unotebook = Gtk2::Notebook->new;
@@ -8934,8 +8974,20 @@ sub dlg_upload {
 				
 					#upload returns FALSE if there is no error
 					unless ($upload_response[0]) {
+					
 						#everything is fine here
 						&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
+						
+						#copy website url to clipboard
+						if($ftp_wurl_entry_dlg->get_text){
+							my $wuri = Gnome2::VFS::URI->new ($ftp_wurl_entry_dlg->get_text);
+							
+							my ( $short, $folder, $ext ) = fileparse( $file, qr/\.[^.]*/ );
+							$wuri = $wuri->append_file_name($short.$ext);										
+							$clipboard->set_text($wuri->to_string);
+							print "copied URI ", $wuri->to_string, " to clipboard\n" if $sc->get_debug;		
+						}
+					
 					} else {
 
 						#we already get translated error messaged back
