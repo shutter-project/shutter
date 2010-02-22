@@ -96,6 +96,7 @@ sub _default {
 
 	my $desktop_file = undef;	
 	foreach my $file (@files){
+		#~ print $file, "\n";
 		unless (-f $file && -r $file){
 			next;
 		}else{
@@ -125,19 +126,41 @@ sub _others {
 	my (@list, @done);
 	my @dirs = data_dirs('applications');
 	
+	#nautilus
+	push @dirs, data_home(qw/applications mimeapps.list/);
+	
 	#use kde* dirs as well, not a freedesktop standard
 	push @dirs, '/usr/share/applications/kde4';
 	push @dirs, '/usr/share/applications/kde';
 	
 	for my $dir (@dirs) {
+		#~ print $dir, "\n";
 		my $cache = File::Spec->catfile($dir, 'mimeinfo.cache');
+		
+		#modified by mkemper for nautilus
+		if($dir eq data_home(qw/applications mimeapps.list/)){
+			$cache = data_home(qw/applications mimeapps.list/);
+		}
+		
+		#~ print "nach dem cache\n";
 		next if grep {$_ eq $cache} @done;
+		#~ print "nach dem grep\n";
 		push @done, $cache;
 		next unless -f $cache and -r _;
+		#~ print "nach dem -f cache\n";
+		#~ print "read list $mimetype, $cache\n";
 		for (_read_list($mimetype, $cache)) {
 			my $name = $_;
-			
+			#~ print $name, " _others1\n";
+						
 			my $file = File::Spec->catfile($dir, $name);
+			
+			#modified by mkemper for nautilus
+			if($dir eq data_home(qw/applications mimeapps.list/)){
+				$file = data_files('applications', $name);
+			}
+			
+			#~ print $file, " _others2\n";			
 			unless (-f $file and -r $file){ 
 				#check all dirs
 				#mainly for the kde apps
@@ -148,7 +171,16 @@ sub _others {
 				}
 			}
 			next unless -f $file and -r _;
-			push @list, File::DesktopEntry->new($file);
+			#~ print "adding ", $file, " to list\n";
+			my $new_dentry = File::DesktopEntry->new($file);
+			my $already_in_list = 0;
+			foreach(@list){
+				if ($new_dentry->Name eq $_->Name){
+					$already_in_list = 1;
+					last;	
+				}
+			}	
+			push @list, $new_dentry unless $already_in_list;
 		}
 	}
 	$Carp::CarpLevel--;
@@ -169,7 +201,9 @@ sub _read_list { # read list with "mime/type=foo.desktop;bar.desktop" format
 		push @list, grep defined($_), split ';', $1;
 	}
 	close LIST;
-
+	
+	#~ foreach(@list){print "current entry $_\n"};
+	
 	return @list;
 }
 
@@ -200,6 +234,7 @@ sub _find_file {
 	my @list = shift;
 	for (@list) {
 		my $file = data_files('applications', $_);
+		#~ print $file, "\n";
 		return File::DesktopEntry->new($file) if $file;
 	}
 	return undef;

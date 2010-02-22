@@ -4091,6 +4091,19 @@ sub fct_get_program_model {
 	#by the deprecated application registry 
 	my $mime_type = Gnome2::VFS::Mime::Type->new ('image/png');
 	my @apps = $mime_type->get_all_applications();
+
+	#get some other apps that may be capable (e.g. browsers)
+	my $mime_type_fallback = Gnome2::VFS::Mime::Type->new ('text/html');
+	foreach ($mime_type_fallback->get_all_applications()){
+		my $already_in_list = FALSE;
+		foreach my $existing_app (@apps){
+			if($_->{'id'} eq $existing_app->{'id'}){
+				$already_in_list = TRUE;
+				last;
+			}
+		}
+		push @apps, $_ unless $already_in_list;
+	}
 	
 	#no app determined!
 	unless (scalar @apps && scalar @mapps){
@@ -4102,6 +4115,8 @@ sub fct_get_program_model {
 	#for opening files
 	foreach my $mapp (@mapps){
 		foreach my $app (@apps){
+
+			#~ print "checking ", $app->{'name'}, " for preferences\n";
 
 			#ignore Shutter's desktop entry
 			next if $app->{'id'} eq 'shutter.desktop';
@@ -7128,8 +7143,21 @@ sub fct_ret_program_menu {
 	#with a GNOMEVFSMimeApplication structure constructed 
 	#by the deprecated application registry 
 	my $mime_type = Gnome2::VFS::Mime::Type->new ($session_screens{$key}->{'mime_type'});
-	my @apps = $mime_type->get_all_applications;
+	my @apps = $mime_type->get_all_applications();
 
+	#get some other apps that may be capable (e.g. browsers)	
+	my $mime_type_fallback = Gnome2::VFS::Mime::Type->new ('text/html');
+	foreach ($mime_type_fallback->get_all_applications()){
+		my $already_in_list = FALSE;
+		foreach my $existing_app (@apps){
+			if($_->{'id'} eq $existing_app->{'id'}){
+				$already_in_list = TRUE;
+				last;
+			}
+		}
+		push @apps, $_ unless $already_in_list;
+	}
+	
 	#no app determined!
 	unless (scalar @apps && scalar @mapps){
 		$sm->{_menuitem_reopen_default}->visible(FALSE);
@@ -7147,6 +7175,8 @@ sub fct_ret_program_menu {
 	
 	my $default_matched = FALSE;
 	foreach my $app (@apps) {
+		
+		#~ print "checking ", $app->{'name'}, " for open with dialog\n";
 		
 		#ignore Shutter's desktop entry
 		next if $app->{'id'} eq 'shutter.desktop';
