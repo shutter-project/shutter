@@ -1,0 +1,363 @@
+#!/bin/bash
+#
+# Developed by Fred Weinhaus 2/6/2010 .......... revised 2/6/2010
+# 
+# USAGE: 3Dreflection [-r rotate] [-f fade] [-o opacity] [-e exaggerate] [-b bcolor] [-z zoom] [-s shadow] [-a altitude] [-u umbra] [-p penumbra] infile outfile
+# USAGE: 3Dreflection [-h or -help]
+# 
+# OPTIONS:
+# 
+# -r      rotate            perseptive rotation about left edge of image;
+#                           0<=integer<=90 deg; default=20
+# -f      fade              fade percent for mirror image; 0<=integer<=100;
+#                           default=40
+# -o      opacity           opacity percent applied to whole mirror image;
+#                           0<=integer<=100; default=100
+# -g      gap               gap between image and mirror in pixels; integer>=0;
+#                           default=0
+# -e      exaggerate        perspective exaggeration factor; 0<float<3; 
+#                           value of 1 is normal perspective; value of 0.5 
+#                           is close to orthographic; default=1
+# -b      bcolor            background color; any valid IM color 
+#                           specification; default=none for transparent
+# -z      zoom              zoom factor for output image; float>0; default=1
+# -s      shadow            enable shadow; on or off; default=off
+# -a      altitude          lighting altitude angle; 0<integer<90; default=80
+# -u      umbra             graylevel percent value for dark part of shadow; 
+#                           0<=integer<=100; default=60
+# -p      penumbra          extent in pixels of light outer part of shadow; 
+#                           integer>0; default=4
+# 
+###
+# 
+# NAME: 3DREFLECTION
+# 
+# PURPOSE: To add a fading reflection below an image and view it in perspective.
+# 
+# DESCRIPTION: 3DREFLECTION adds a fading reflection below an image and 
+# views it in perspective. An optional shadow may be added. Note that the 
+# optional shadow is not a formal perspective projection, but is simply an 
+# approximation. Therefore it may only look approximately correct and may 
+# get worse for larger rotations.
+# 
+# 
+# ARGUMENTS: 
+# 
+# -r rotate ... ROTATE is the perspective rotation about the left edge of 
+# the image. Values are integers between 0 and 90 deg. The default=20
+#
+# -f fade ... FADE is the percent fade to apply to the mirror image that 
+# is placed below the original image. Values are integers between 0 and 100. 
+# The default=40
+# 
+# -o opacity ... OPACITY is the base opacity percent for the mirror image 
+# as a whole before it is faded. Values are integers between 0 and 100. 
+# The default=100 (no extra transparency).
+# 
+# -g gap ... GAP is a gap in pixels between the image and mirrored version 
+# below it. Values are integers greater than or equal to zero. The default=0.
+# 
+# -e exaggerate ... EXAGGERATE is the perspective exaggeration factor. Values 
+# are floats larger than 0 and less than 3. A value of 1 is a nominal 
+# perspective view. A value of 0.5 is a near orthographic view. The default=1.
+# 
+# -b bcolor ... BCOLOR is the background color. Any valid IM color 
+# specification is allowed. The default=none is tranparent.
+# 
+# -z zoom ... ZOOM is the zoom factor for the output image. Values are 
+# floats greater than 0. Values larger than 1 will enlarge and values less 
+# than 1 will shrink the output. The default=1.
+# 
+# -s shadow ... SHADOW enables or disables the optional shadow. Values are: 
+# on or off. The default=off.
+# 
+# -a altitude ... ALTITUDE is the lighting altitude angle. Values are 
+# integers larger than 0 and less than 90 deg. The default=80.
+# 
+# -u umbra ... UMBRA is the graylevel percent of the dark innner main part 
+# of the shadow. Values are integers between 0 and 100. The default=60.
+# 
+# -p penumbra ... PENUMBRA is the extent in pixels of the lighter outer part 
+# of the shadow. Values are integers greater than or equal to 0. The default=4.
+# 
+# REQUIREMENTS: This script requires my 3Drotate script to function.
+# 
+# CAVEAT: No guarantee that this script will work on all platforms, 
+# nor that trapping of inconsistent parameters is complete and 
+# foolproof. Use At Your Own Risk. 
+# 
+######
+# 
+
+# set default values
+rotate=20				# perspective pan rotate rotation
+fade=40					# percent gradient fade for mirror image
+opacity=100				# percent for mirror image
+gap=0					# pixel gap between image and mirror
+exaggerate=1			# perspective exaggeration factor
+bcolor=none				# background color
+zoom=1					# zoom factor
+shadow="off"			# on or off
+altitude=80				# shadow altitude angle
+umbra=60				# shadow umbra graylevel
+penumbra=4				# shadow penumbra distance
+yoff=0					# shift center of perspective up or down
+angle=15				# shadow angle
+
+# set directory for temporary files
+dir="."    # suggestions are dir="." or dir="/tmp"
+
+# set up functions to report Usage and Usage with Description
+PROGNAME=`type $0 | awk '{print $3}'`  # search for executable on path
+PROGDIR=`dirname $PROGNAME`            # extract directory of program
+PROGNAME=`basename $PROGNAME`          # base name of program
+usage1() 
+	{
+	echo >&2 ""
+	echo >&2 "$PROGNAME:" "$@"
+	sed >&2 -n '/^###/q;  /^#/!q;  s/^#//;  s/^ //;  4,$p' "$PROGDIR/$PROGNAME"
+	}
+usage2() 
+	{
+	echo >&2 ""
+	echo >&2 "$PROGNAME:" "$@"
+	sed >&2 -n '/^######/q;  /^#/!q;  s/^#*//;  s/^ //;  4,$p' "$PROGDIR/$PROGNAME"
+	}
+
+
+# function to report error messages
+errMsg()
+	{
+	echo ""
+	echo $1
+	echo ""
+	usage1
+	exit 1
+	}
+
+
+# function to test for minus at start of value of second part of option 1 or 2
+checkMinus()
+	{
+	test=`echo "$1" | grep -c '^-.*$'`   # returns 1 if match; 0 otherwise
+    [ $test -eq 1 ] && errMsg "$errorMsg"
+	}
+
+# test for correct number of arguments and get values
+if [ $# -eq 0 ]
+	then
+	# help information
+   echo ""
+   usage2
+   exit 0
+elif [ $# -gt 24 ]
+	then
+	errMsg "--- TOO MANY ARGUMENTS WERE PROVIDED ---"
+else
+	while [ $# -gt 0 ]
+		do
+			# get parameter values
+			case "$1" in
+		  -h|-help)    # help information
+					   echo ""
+					   usage2
+					   exit 0
+					   ;;
+				-r)    # get rotate
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   errorMsg="--- INVALID ROTATE SPECIFICATION ---"
+					   checkMinus "$1"
+					   rotate=`expr "$1" : '\([0-9]*\)'`
+					   [ "$rotate" = "" ] && errMsg "--- ROTATE=$rotate MUST BE A NON-NEGATIVE INTEGER ---"
+					   rotatetestA=`echo "$rotate > 90" | bc`
+					   [ $rotatetestA -eq 1 ] && errMsg "--- ROTATE=$rotate MUST BE AN INTEGER BETWEEN 0 AND 90 ---"
+					   ;;
+				-f)    # get fade
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   errorMsg="--- INVALID FADE SPECIFICATION ---"
+					   checkMinus "$1"
+					   fade=`expr "$1" : '\([0-9]*\)'`
+					   [ "$fade" = "" ] && errMsg "--- FADE=$fade MUST BE A NON-NEGATIVE INTEGER ---"
+					   fadetestA=`echo "$fade > 100" | bc`
+					   [ $fadetestA -eq 1 ] && errMsg "--- FADE=$fade MUST BE AN INTEGER BETWEEN 0 AND 100 ---"
+					   ;;
+				-o)    # get opacity
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   errorMsg="--- INVALID OPACITY SPECIFICATION ---"
+					   checkMinus "$1"
+					   opacity=`expr "$1" : '\([0-9]*\)'`
+					   [ "$opacity" = "" ] && errMsg "--- OPACITY=$opacity MUST BE A NON-NEGATIVE INTEGER ---"
+					   opacitytestA=`echo "$opacity > 100" | bc`
+					   [ $opacitytestA -eq 1 ] && errMsg "--- OPACITY=$opacity MUST BE AN INTEGER BETWEEN 0 AND 100 ---"
+					   ;;
+				-g)    # get gap
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   errorMsg="--- INVALID GAP SPECIFICATION ---"
+					   checkMinus "$1"
+					   gap=`expr "$1" : '\([0-9]*\)'`
+					   [ "$gap" = "" ] && errMsg "--- GAP=$gap MUST BE A POSITIVE INTEGER VALUE (with no sign) ---"
+					   ;;
+				-e)    # get exaggerate
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   errorMsg="--- INVALID EXAGGERATE SPECIFICATION ---"
+					   checkMinus "$1"
+					   exaggerate=`expr "$1" : '\([.0-9]*\)'`
+					   [ "$exaggerate" = "" ] && errMsg "--- EXAGGERATE=$exaggerate MUST BE A NUMBER ---"
+					   exaggeratetestA=`echo "$exaggerate <= 0" | bc`
+					   exaggeratetestB=`echo "$exaggerate >= 3" | bc`
+					   [ $exaggeratetestA -eq 1 -o $exaggeratetestB -eq 1 ] && errMsg "--- EXAGGERATE=$exaggerate MUST BE A FLOAT LARGER THAN 0 AND SMALLER THAN 3 ---"
+					   ;;
+				-b)    # get bcolor
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   errorMsg="--- INVALID BCOLOR SPECIFICATION ---"
+					   checkMinus "$1"
+					   bcolor="$1"
+					   ;;
+				-z)    # get zoom
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   errorMsg="--- INVALID ZOOM SPECIFICATION ---"
+					   checkMinus "$1"
+					   zoom=`expr "$1" : '\([.0-9]*\)'`
+					   [ "$zoom" = "" ] && errMsg "--- ZOOM=$zoom MUST BE A NUMBER ---"
+					   zoomtestA=`echo "$zoom <= 0" | bc`
+					   [ $zoomtestA -eq 1 ] && errMsg "--- ZOOM=$zoom MUST BE A FLOAT LARGER THAN 0 ---"
+					   ;;
+				-s)    # get shadow
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   errorMsg="--- INVALID SHADOW SPECIFICATION ---"
+					   checkMinus "$1"
+					   shadow="$1"
+					   [ "$shadow" != "on" -a "$shadow" != "off" ] && errMsg "--- SHADOW=$shadow MUST BE EITHER ON OR OFF ---"
+					   ;;
+				-a)    # get altitude
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   errorMsg="--- INVALID ALTITUDE SPECIFICATION ---"
+					   checkMinus "$1"
+					   altitude=`expr "$1" : '\([0-9]*\)'`
+					   [ "$altitude" = "" ] && errMsg "--- ALTITUDE=$altitude MUST BE A NON-NEGATIVE INTEGER ---"
+					   altitudetestA=`echo "$altitude <= 0" | bc`
+					   altitudetestB=`echo "$altitude >= 100" | bc`
+					   [ $altitudetestA -eq 1 -o $altitudetestB -eq 1 ] && errMsg "--- ALTITUDE=$altitude MUST BE AN INTEGER BETWEEN 0 AND 100 ---"
+					   ;;
+				-u)    # get umbra
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   errorMsg="--- INVALID UMBRA SPECIFICATION ---"
+					   checkMinus "$1"
+					   umbra=`expr "$1" : '\([0-9]*\)'`
+					   [ "$umbra" = "" ] && errMsg "--- UMBRA=$umbra MUST BE A NON-NEGATIVE INTEGER ---"
+					   umbratestA=`echo "$umbra > 100" | bc`
+					   [ $umbratestA -eq 1 ] && errMsg "--- UMBRA=$umbra MUST BE AN INTEGER BETWEEN 0 AND 100 ---"
+					   ;;
+				-p)    # get penumbra
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   errorMsg="--- INVALID PENUMBRA SPECIFICATION ---"
+					   checkMinus "$1"
+					   penumbra=`expr "$1" : '\([0-9]*\)'`
+					   [ "$penumbra" = "" ] && errMsg "--- PENUMBRA=$penumbra MUST BE A NUMBER ---"
+					   penumbratestA=`echo "$penumbra <= 0" | bc`
+					   [ $penumbratestA -eq 1 ] && errMsg "--- PENUMBRA=$penumbra MUST BE AN INTEGER LARGER THAN 0 ---"
+					   ;;
+				 -)    # STDIN and end of arguments
+					   break
+					   ;;
+				-*)    # any other - argument
+					   errMsg "--- UNKNOWN OPTION ---"
+					   ;;
+		     	 *)    # end of arguments
+					   break
+					   ;;
+			esac
+			shift   # next option
+	done
+	#
+	# get infile and outfile
+	infile=$1
+	outfile=$2
+fi
+
+# test that infile provided
+[ "$infile" = "" ] && errMsg "NO INPUT FILE SPECIFIED"
+
+# test that outfile provided
+[ "$outfile" = "" ] && errMsg "NO OUTPUT FILE SPECIFIED"
+
+
+# setup temporary images and auto delete upon exit
+tmpA1="$dir/3Dreflect_1_$$.mpc"
+tmpB1="$dir/3Dreflect_1_$$.cache"
+tmpA2="$dir/3Dreflect_2_$$.mpc"
+tmpB2="$dir/3Dreflect_2_$$.cache"
+tmpA3="$dir/3Dreflect_3_$$.mpc"
+tmpB3="$dir/3Dreflect_3_$$.cache"
+trap "rm -f $tmpA1 $tmpB1 $tmpA2 $tmpB2 $tmpA3 $tmpB3; exit 0" 0
+trap "rm -f $tmpA1 $tmpB1 $tmpA2 $tmpB2 $tmpA3 $tmpB3; exit 1" 1 2 3 15
+
+# read the input image and filter image into the temp files and test validity.
+convert -quiet -regard-warnings "$infile" +repage "$tmpA1" ||
+	errMsg "--- FILE $infile DOES NOT EXIST OR IS NOT AN ORDINARY FILE, NOT READABLE OR HAS ZERO SIZE  ---"
+
+# get width and height of image and faded height
+ww=`convert $tmpA1 -ping -format "%w" info:`
+hh=`convert $tmpA1 -ping -format "%h" info:`
+hhr=`convert xc: -format "%[fx:$hh*$fade/100]" info:`
+xoff=`convert xc: -format "%[fx:-$ww/2]" info:`
+#echo "ww=$ww; hh=$hh; hhr=$hhr; xoff=$xoff"
+
+# append reflection and gap to image
+convert $tmpA1 \
+	\( -size ${ww}x${gap} xc:none \) \
+	\( -clone 0 -flip -crop ${ww}x${hhr}+0+0 +repage \) \
+	\( -clone 0 -alpha extract -flip -crop ${ww}x${hhr}+0+0 +repage \
+	-size ${ww}x${hhr} gradient: +level 0x${opacity}% \
+	-compose multiply -composite \) \
+	\( -clone 2 -clone 3 -alpha off -compose copy_opacity -composite \) \
+	-delete 2,3 -channel rgba -alpha on -append $tmpA2
+	
+# do 3D rotate
+"$PROGDIR/3Drotate" pan=$rotate pef=$exaggerate zoom=$zoom auto=out idx=$xoff idy=$yoff \
+	bgcolor=none skycolor=none $tmpA2 $tmpA3
+
+# add shadow
+if [ "$shadow" = "on" ]; then
+	# compute page offset for shadow image before layers merge
+	oheight=`convert $tmpA2 -ping -format "%h" info:`
+	length=`convert xc: -format "%[fx:$oheight/tan(pi*$altitude/180)]" info:`
+	width=`convert xc: -format "%[fx:$length*cos(pi*$angle/180)]" info:`
+	height=`convert xc: -format "%[fx:$length*sin(pi*$angle/180)]" info:`
+	height2=`convert xc: -format "%[fx:$height*$rotate/90]" info:`
+	xpage=`convert xc: -format "%[fx:$width]" info:`
+	ypage=`convert xc: -format "%[fx:round((100*$oheight/(100+$fade))-$height-$height2-$penumbra-$gap)]" info:`
+
+	# compute shadow
+	convert \( -size ${width}x${height2} xc:none -fill "gray($umbra%)" \
+		-draw "polygon 0,$height2 $width,$height2 $width,0" \) \
+		\( -size ${width}x${height} xc:none -fill "gray($umbra%)" \
+		-draw "polygon 0,0 $width,0 $width,$height" \) \
+		-append -channel rgba -bordercolor none -border ${penumbra} \
+		-blur ${penumbra}x65000 -gravity center -shave ${penumbra}x0 +repage \
+		$tmpA2
+
+	# merge shadow and image
+	convert -page +0+0 $tmpA3 \
+		-page -${xpage}+${ypage} $tmpA2 \
+		-background none -layers merge +repage $tmpA3
+fi
+
+if [ "$bcolor" != "none" ]; then
+	convert $tmpA3 -background $bcolor -flatten $outfile
+else
+	convert $tmpA3 $outfile
+fi
+
+exit 0
