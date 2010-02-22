@@ -1,0 +1,322 @@
+#!/bin/bash
+#
+# Developed by Fred Weinhaus 12/30/2008 .......... revised 1/13/2009
+# 
+# USAGE: bordereffects [-s size] [-d density] [-c curviness] [-g granularity] [-b bgcolor] [-p pad] [-r reseed] infile outfile
+# USAGE: bordereffects [-h or -help]
+# 
+# OPTIONS:
+# 
+# -s      size              size of border; integer>0; default=5
+# -d      density           density or frequency of detail; float>=1;
+#                           default=5
+# -c      curviness         curviness in border features; float>=0;
+#                           default=5
+# -g      granularity       pixelization size factor; integer>0; default=1
+# -b      bgcolor           background color; any valid IM color is allowed;
+#                           default=white
+# -p      pad               border pad or buffer; integer>=0; default=2
+# -r      reseed            forced seed value; integer>0; 
+#                           default will randomly change seed
+# 
+# 
+###
+# 
+# NAME: BORDEREFFECTS 
+# 
+# PURPOSE: To create various dispersion-like effects in the border of an image.
+# 
+# DESCRIPTION: BORDEREFFECTS creates various dispersion-like effects in the 
+# border of an image. Effects include a random grainly pattern, a smooth but 
+# curved outline and a detailed curvy pattern. The border effect will occur  
+# inside the image, so that the image size does not change.
+# 
+# 
+# ARGUMENTS: 
+# 
+# -s size ... SIZE is the size or dimension of the border region. It will 
+# be the same size all around the image. Values are integer greater than 0. 
+# The default is 5.
+# 
+# -d density ... DENSITY is the frequency of detail in the border. Values 
+# are floats greater than or equal to 1. The default=5.
+# 
+# -c curviness ... CURVINESS is the curviness in the border features. Larger 
+# values create more curviness. Values are floats greater than or equal to 0. 
+# The default=5.
+# 
+# -g granularity ... Granularity is the base grain size or pixelization size  
+# used to create the detail in the border. Values are integers greater than 0. 
+# The default is 1.
+# 
+# -b bgcolor ... BGCOLOR is the background color to use in the border. 
+# Any valid IM color may be used. The default is white.
+# 
+# -p pad ... PAD is the pad size of constant color around the perimeter of 
+# the border. Values are integers greater or equal to 0. The default=2.
+# 
+# -r reseed ... RESEED is forced seed value to use for randomization. This 
+# permits the pattern to be repeated. The default is to change the seed value 
+# randomly each time the script is run, thus causing somewhat different 
+# patterns each time the script is run.
+# 
+# Note that this script may be slow due to the use of -fx.
+# 
+# CAVEAT: No guarantee that this script will work on all platforms, 
+# nor that trapping of inconsistent parameters is complete and 
+# foolproof. Use At Your Own Risk. 
+# 
+######
+# 
+
+# set default values
+size=5					# size or amplitude of border (integer>0)
+density=5				# density or frequency of detail (float>=1)
+curviness=5 			# curviness in features (float>=0)
+granularity=1			# pixelization factor
+bgcolor="white"			# background color
+pad=2					# border pad or buffer
+reseed=""				# seed value
+
+# set directory for temporary files
+dir="."    # suggestions are dir="." or dir="/tmp"
+
+# set up functions to report Usage and Usage with Description
+PROGNAME=`type $0 | awk '{print $3}'`  # search for executable on path
+PROGDIR=`dirname $PROGNAME`            # extract directory of program
+PROGNAME=`basename $PROGNAME`          # base name of program
+usage1() 
+	{
+	echo >&2 ""
+	echo >&2 "$PROGNAME:" "$@"
+	sed >&2 -n '/^###/q;  /^#/!q;  s/^#//;  s/^ //;  4,$p' "$PROGDIR/$PROGNAME"
+	}
+usage2() 
+	{
+	echo >&2 ""
+	echo >&2 "$PROGNAME:" "$@"
+	sed >&2 -n '/^######/q;  /^#/!q;  s/^#*//;  s/^ //;  4,$p' "$PROGDIR/$PROGNAME"
+	}
+
+
+# function to report error messages
+errMsg()
+	{
+	echo ""
+	echo $1
+	echo ""
+	usage1
+	exit 1
+	}
+
+
+# function to test for minus at start of value of second part of option 1 or 2
+checkMinus()
+	{
+	test=`echo "$1" | grep -c '^-.*$'`   # returns 1 if match; 0 otherwise
+    [ $test -eq 1 ] && errMsg "$errorMsg"
+	}
+
+# test for correct number of arguments and get values
+if [ $# -eq 0 ]
+	then
+	# help information
+   echo ""
+   usage2
+   exit 0
+elif [ $# -gt 16 ]
+	then
+	errMsg "--- TOO MANY ARGUMENTS WERE PROVIDED ---"
+else
+	while [ $# -gt 0 ]
+		do
+			# get parameter values
+			case "$1" in
+		  -h|-help)    # help information
+					   echo ""
+					   usage2
+					   exit 0
+					   ;;
+				-s)    # get  size
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   errorMsg="--- INVALID SIZE SPECIFICATION ---"
+					   checkMinus "$1"
+					   size=`expr "$1" : '\([0-9]*\)'`
+					   [ "$size" = "" ] && errMsg "--- SIZE=$size MUST BE A NON-NEGATIVE INTEGER VALUE (with no sign) ---"
+					   test=`echo "$size < 1" | bc`
+					   [ $test -eq 1 ] && errMsg "--- SIZE=$size MUST BE A POSITIVE INTEGER GREATER THAN OR EQUAL TO 1 ---"
+					   ;;
+				-d)    # get density
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   errorMsg="--- INVALID DENSITY SPECIFICATION ---"
+					   checkMinus "$1"
+					   density=`expr "$1" : '\([.0-9]*\)'`
+					   [ "$density" = "" ] && errMsg "--- DENSITY=$density MUST BE A POSITIVE FLOATING POINT VALUE (with no sign) ---"
+					   test=`echo "$density < 1" | bc`
+					   [ $test -eq 1 ] && errMsg "--- DENSITY=$density MUST BE A POSITIVE FLOATING POINT VALUE GREATER THAN OR EQUAL TO 1.0 ---"
+					   ;;
+				-c)    # get curviness
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   errorMsg="--- INVALID CURVINESS SPECIFICATION ---"
+					   checkMinus "$1"
+					   curviness=`expr "$1" : '\([.0-9]*\)'`
+					   [ "$curviness" = "" ] && errMsg "--- CURVINESS=$density MUST BE A NON-NEGATIVE FLOATING POINT VALUE (with no sign) ---"
+					   ;;
+				-g)    # get granularity
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   errorMsg="--- INVALID GRANULARITY SPECIFICATION ---"
+					   checkMinus "$1"
+					   granularity=`expr "$1" : '\([.0-9]*\)'`
+					   [ "$granularity" = "" ] && errMsg "--- GRANULARITY=$granularity MUST BE A POSITIVE INTEGER (with no sign) ---"
+					   test=`echo "$granularity < 1" | bc`
+					   [ $test -eq 1 ] && errMsg "--- GRANULARITY=$granularity MUST BE A POSITIVE INTEGER GREATER THAN OR EQUAL TO 1 ---"
+					   ;;
+				-b)    # get  bgcolor
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   errorMsg="--- INVALID BACKGROUND COLOR SPECIFICATION ---"
+					   checkMinus "$1"
+					   bgcolor="$1"
+					   ;;
+				-p)    # get  pad
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   errorMsg="--- INVALID PAD SPECIFICATION ---"
+					   checkMinus "$1"
+					   pad=`expr "$1" : '\([0-9]*\)'`
+					   [ "$pad" = "" ] && errMsg "--- PAD=$pad MUST BE A NON-NEGATIVE INTEGER VALUE (with no sign) ---"
+					   ;;
+				-r)    # get  reseed
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   errorMsg="--- INVALID RESEED SPECIFICATION ---"
+					   checkMinus "$1"
+					   reseed=`expr "$1" : '\([0-9]*\)'`
+					   [ "$reseed" = "" ] && errMsg "--- RESEED=$reseed MUST BE A NON-NEGATIVE INTEGER VALUE (with no sign) ---"
+					   ;;
+				 -)    # STDIN and end of arguments
+					   break
+					   ;;
+				-*)    # any other - argument
+					   errMsg "--- UNKNOWN OPTION ---"
+					   ;;
+		     	 *)    # end of arguments
+					   break
+					   ;;
+			esac
+			shift   # next option
+	done
+	#
+	# get infile and outfile
+	infile=$1
+	outfile=$2
+fi
+
+# test that infile provided
+[ "$infile" = "" ] && errMsg "NO INPUT FILE SPECIFIED"
+
+# test that outfile provided
+[ "$outfile" = "" ] && errMsg "NO OUTPUT FILE SPECIFIED"
+
+# set directory for temporary files
+dir="."    # suggestions are dir="." or dir="/tmp"
+
+# set temporary file
+tmpA1="$dir/bordereffects_A_$$.mpc"
+tmpA2="$dir/bordereffects_A_$$.cache"
+tmp0="$dir/bordereffects_0_$$.miff"
+tmp1="$dir/bordereffects_1_$$.miff"
+tmp2="$dir/bordereffects_2_$$.miff"
+trap "rm -f $tmpA1 $tmpA2 $tmp0 $tmp1 $tmp2; exit 0" 0
+trap "rm -f $tmpA1 $tmpA2 $tmp0 $tmp1 $tmp2; exit 1" 1 2 3 15
+
+
+# test infile
+if convert -quiet -regard-warnings "$infile" +repage "$tmpA1"
+	then
+	: ' do nothing '
+else
+	errMsg "--- FILE $infile DOES NOT EXIST OR IS NOT AN ORDINARY FILE, NOT READABLE OR HAS ZERO SIZE ---"
+fi
+
+# get width and height of infile
+ww=`identify -ping -format "%w" $tmpA1`
+hh=`identify -ping -format "%h" $tmpA1`
+
+# subtract border=size+pad, then double it as size is really an amplitude
+newsize=`convert xc: -format "%[fx:$size+$pad]" info:`
+newsize2=`convert xc: -format "%[fx:2*$newsize]" info:`
+ww2=`convert xc: -format "%[fx:($ww-$newsize2)]" info:`
+hh2=`convert xc: -format "%[fx:($hh-$newsize2)]" info:`
+
+# create white image with black border
+convert -size ${ww2}x${hh2} xc:white \
+	-bordercolor black -border ${newsize}x${newsize} $tmp0
+
+# set up curviness via blurring
+if [ "$curviness" = "0" ]; then
+	blur=""
+else
+	blur="-blur 0x${curviness}"
+fi
+
+# set up seed
+if [ "$reseed" = "" ]; then
+	seed=""
+else
+	seed="-seed $reseed"
+fi
+
+if [ "$granularity" = "1" ]; then
+	scale=""
+else
+	# create pixelization pattern processing step
+	pct=`convert xc: -format "%[fx:100*$granularity]" info:`
+	ww3=`convert xc: -format "%[fx:ceil($ww/$granularity)]" info:`
+	hh3=`convert xc: -format "%[fx:ceil($hh/$granularity)]" info:`
+	scale="-crop ${ww3}x${hh3}+0+0 +repage -scale $pct% -gravity center -crop ${ww}x${hh}+0+0 +repage"
+fi
+
+
+# get im version
+im_version=`convert -list configure | \
+sed '/^LIB_VERSION_NUMBER /!d;  s//,/;  s/,/,0/g;  s/,0*\([0-9][0-9]\)/\1/g'`
+
+
+# create noise image with specified granularity
+convert -size ${ww}x${hh} xc: $seed +noise Random \
+	$scale \
+	$blur \
+	-colorspace gray -contrast-stretch 0% \
+    $tmp1
+
+# process black/white with noise image as displacement map
+if [ "$im_version" -ge "06040805" ]; then
+# create multi-image miff (sine tmpA1 cosine), then pass to composite -displace
+convert $tmp1 \
+	-channel R -evaluate sine $density \
+	-channel G -evaluate cosine $density \
+	-channel RG -separate $tmp0 +swap miff:- | \
+	composite - -displace ${size}x${size} $tmp2
+elif [ "$im_version" -ge "06040400" ]; then
+# use -fx to create multi-image miff (sine tmpA1 cosine), then pass to composite -displace
+convert $tmp1 \
+	-channel R -monitor -fx "0.5+0.5*sin(2*pi*u*$density)" \
+	-channel G -monitor -fx "0.5+0.5*cos(2*pi*u*$density)" \
+	-channel RG -separate $tmp0 +swap miff:- | \
+	composite - -displace ${size}x${size} $tmp2
+else
+convert $tmp0 $tmp1 -monitor \
+	-fx "xx=i+$size*sin($density*v*2*pi); yy=j+$size*cos($density*v*2*pi); u.p{xx,yy}" \
+	$tmp2
+fi
+
+
+# merge images
+convert \( -size ${ww}x${hh} xc:"$bgcolor" \) $tmpA1 $tmp2 \
+	-compose over -composite $outfile
+exit 0
