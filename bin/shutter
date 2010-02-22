@@ -979,9 +979,9 @@ $filetype_box->pack_start( $combobox_type,  TRUE,  TRUE, 0 );
 my $saveDir_label = Gtk2::Label->new( $d->get("Directory") . ":" );
 my $saveDir_button = Gtk2::FileChooserButton->new( "Shutter - " . $d->get("Choose folder"), 'select-folder' );
 if ( defined $settings_xml->{'general'}->{'folder'} ) {
-	$saveDir_button->set_filename( $settings_xml->{'general'}->{'folder'} );
+	$saveDir_button->set_current_folder( $settings_xml->{'general'}->{'folder'} );
 } else {
-	$saveDir_button->set_filename( File::HomeDir->my_pictures );
+	$saveDir_button->set_current_folder( File::HomeDir->my_pictures );
 }
 
 $tooltips->set_tip( $saveDir_button, $d->get("Your screenshots will be saved to this directory") );
@@ -2946,8 +2946,8 @@ sub evt_open {
 		}else{
 			if ($key) {
 				$fs->set_filename( $session_screens{$key}->{'long'} );
-			} elsif ( $saveDir_button->get_filename ) {
-				$fs->set_current_folder( $saveDir_button->get_filename );
+			} elsif ( $saveDir_button->get_current_folder ) {
+				$fs->set_current_folder( $saveDir_button->get_current_folder );
 			}else{
 				$fs->set_current_folder( $ENV{'HOME'} );
 			}
@@ -3560,7 +3560,7 @@ sub fct_save_settings {
 	$settings{'general'}->{'filetype'} 		 = $combobox_type->get_active;
 	$settings{'general'}->{'quality'}  		 = $scale->get_value();
 	$settings{'general'}->{'filename'} 		 = $filename->get_text();
-	$settings{'general'}->{'folder'} 		 = $saveDir_button->get_filename();
+	$settings{'general'}->{'folder'} 		 = $saveDir_button->get_current_folder();
 	$settings{'general'}->{'save_auto'}      = $save_auto_active->get_active();
 	$settings{'general'}->{'save_ask'}       = $save_ask_active->get_active();
 	$settings{'general'}->{'image_autocopy'} = $image_autocopy_active->get_active();
@@ -3898,7 +3898,7 @@ sub fct_load_settings {
 				$filename->set_text( $settings_xml->{'general'}->{'filename'} );
 
 				utf8::decode $settings_xml->{'general'}->{'folder'};
-				$saveDir_button->set_filename( $settings_xml->{'general'}->{'folder'} );
+				$saveDir_button->set_current_folder( $settings_xml->{'general'}->{'folder'} );
 				
 				$save_auto_active->set_active( $settings_xml->{'general'}->{'save_auto'} );
 				$save_ask_active->set_active( $settings_xml->{'general'}->{'save_ask'} );
@@ -5072,7 +5072,7 @@ sub fct_take_screenshot {
 	my $filetype_value 	   = undef;
 	
 	#folder to save
-	my $folder             = $saveDir_button->get_filename || $folder_from_config;
+	my $folder             = $saveDir_button->get_current_folder || $folder_from_config;
 	utf8::decode $folder;
 	
 	#screenshot(pixbuf) and screenshot name
