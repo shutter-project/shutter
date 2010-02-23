@@ -403,6 +403,14 @@ sub fct_ret_new_menu {
 	my $icontheme = $self->{_common}->get_theme;
 
 	$self->{_menu_new} = Gtk2::Menu->new;
+
+	#redo last capture
+	$self->{_menuitem_redoshot} = Gtk2::ImageMenuItem->new_from_stock('gtk-refresh');
+	$self->{_menuitem_redoshot}->get_child->set_text_with_mnemonic( $d->get('_Redo last capture') );
+	$self->{_menuitem_redoshot}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('F5'), qw/visible/ );
+	$self->{_menu_new}->append( $self->{_menuitem_redoshot} );
+
+	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
 	
 	#selection
 	$self->{_menuitem_selection} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Selection') );
@@ -559,7 +567,7 @@ sub fct_ret_actions_menu{
 
 	$self->{_menu_actions}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_send} = Gtk2::ImageMenuItem->new($d->get('Send To...'));
+	$self->{_menuitem_send} = Gtk2::ImageMenuItem->new($d->get('_Send To...'));
 	$self->{_menuitem_send}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>S'), qw/visible/ );
 	$self->{_menuitem_send}->set_image(
 		Gtk2::Image->new_from_icon_name( 'document-send', 'menu' )
@@ -600,6 +608,15 @@ sub fct_ret_actions_menu{
 	$self->{_menuitem_plugin}->set_sensitive(FALSE);
 	$self->{_menuitem_plugin}->set_name('item-plugin');
 	$self->{_menu_actions}->append( $self->{_menuitem_plugin} );
+
+	$self->{_menu_actions}->append( Gtk2::SeparatorMenuItem->new );
+
+	$self->{_menuitem_redoshot_this} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Redo _this screenshot') );
+	$self->{_menuitem_redoshot_this}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>F5'), qw/visible/ ) if $accel_group;
+	$self->{_menuitem_redoshot_this}->set_image( Gtk2::Image->new_from_stock( 'gtk-refresh', 'menu' ) );
+	#~ $self->{_menuitem_redoshot}->set_sensitive(FALSE);
+	$self->{_menuitem_redoshot_this}->set_name('item-redoshot');
+	$self->{_menu_actions}->append( $self->{_menuitem_redoshot_this} );
 	
 	$self->{_menu_actions}->show_all;
 	
@@ -696,6 +713,14 @@ sub fct_ret_actions_menu_large{
 	$self->{_menuitem_large_plugin}->set_sensitive(FALSE);
 	$self->{_menuitem_large_plugin}->set_name('item-large-plugin');
 	$self->{_menu_large_actions}->append( $self->{_menuitem_large_plugin} );
+
+	$self->{_menu_large_actions}->append( Gtk2::SeparatorMenuItem->new );
+
+	$self->{_menuitem_large_redoshot_this} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Redo _this screenshot') );
+	$self->{_menuitem_large_redoshot_this}->set_image( Gtk2::Image->new_from_stock( 'gtk-refresh', 'menu' ) );
+	#~ $self->{_menuitem_large_redoshot_this}->set_sensitive(FALSE);
+	$self->{_menuitem_large_redoshot_this}->set_name('item-large-redoshot');
+	$self->{_menu_large_actions}->append( $self->{_menuitem_large_redoshot_this} );
 	
 	$self->{_menu_large_actions}->show_all;
 	

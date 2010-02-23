@@ -314,6 +314,7 @@ $sm->{_menu_recent}->add_filter ($recentfilter);
 $sm->{_menu_recent}->signal_connect('item-activated' => \&evt_open);	
 $sm->{_menuitem_recent}->set_submenu($sm->{_menu_recent});	
 
+$sm->{_menuitem_redoshot}->signal_connect( 'activate', \&evt_take_screenshot, 'redoshot' );
 $sm->{_menuitem_selection}->signal_connect( 'activate', \&evt_take_screenshot, 'select' );
 $sm->{_menuitem_full}->signal_connect( 'activate', \&evt_take_screenshot, 'raw' );
 $sm->{_menuitem_window}->signal_connect( 'activate', \&evt_take_screenshot, 'window' );
@@ -375,6 +376,7 @@ if ( $goocanvas ) {
 }
 
 $sm->{_menuitem_plugin}->signal_connect( 'activate', \&fct_plugin );
+$sm->{_menuitem_redoshot_this}->signal_connect( 'activate', \&evt_take_screenshot, 'redoshot_this' );
 
 #large screenshot menu
 $sm->{_menu_large_actions}->signal_connect( 'focus', sub { $sm->{_menuitem_large_reopen}->set_submenu(&fct_ret_program_menu); });
@@ -399,6 +401,7 @@ if ( $goocanvas ) {
 }
 
 $sm->{_menuitem_large_plugin}->signal_connect( 'activate', \&fct_plugin );
+$sm->{_menuitem_large_redoshot_this}->signal_connect( 'activate', \&evt_take_screenshot, 'redoshot_this' );
 
 #go to menu
 $sm->{_menuitem_back}->signal_connect( 'activate' => sub {
@@ -612,6 +615,7 @@ $st->{_window}->signal_connect( 'show-menu' => sub { $st->{_window}->set_menu( &
 $st->{_section}->signal_connect( 'clicked' => \&evt_take_screenshot, 'section' );
 $st->{_menu}->signal_connect( 'clicked' => \&evt_take_screenshot, 'menu' );
 $st->{_tooltip}->signal_connect( 'clicked' => \&evt_take_screenshot, 'tooltip' );
+$st->{_redoshot}->signal_connect( 'clicked' => \&evt_take_screenshot, 'redoshot' );
 
 #gnome-web-photo is optional, don't enable it when gnome-web-photo is not in PATH
 if ( $gnome_web_photo ) {
@@ -7022,6 +7026,11 @@ sub fct_ret_tray_menu {
 		activate => \&evt_take_screenshot,
 		'tray_web'
 	);
+
+	#preferences	
+	my $menuitem_redoshot = Gtk2::ImageMenuItem->new_with_mnemonic ( $d->get('_Redo last capture') );
+	$menuitem_redoshot->set_image(Gtk2::Image->new_from_stock('gtk-refresh', 'menu'));
+	$menuitem_redoshot->signal_connect( 'activate', \&evt_take_screenshot, 'redoshot' );
 	
 	#preferences	
 	my $menuitem_settings = Gtk2::ImageMenuItem->new_from_stock( 'gtk-preferences' );
@@ -7039,7 +7048,9 @@ sub fct_ret_tray_menu {
 	#quit
 	my $menuitem_quit = Gtk2::ImageMenuItem->new_from_stock( 'gtk-quit' );
 	$menuitem_quit->signal_connect( "activate", \&evt_delete_window, 'quit' );
-	
+
+	$menu_tray->append($menuitem_redoshot);
+	$menu_tray->append( Gtk2::SeparatorMenuItem->new );	
 	$menu_tray->append($menuitem_select);
 	$menu_tray->append( Gtk2::SeparatorMenuItem->new );
 	$menu_tray->append($menuitem_raw);

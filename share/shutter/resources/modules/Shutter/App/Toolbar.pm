@@ -204,6 +204,16 @@ sub create_toolbar {
 	$expander_r->set_expand(TRUE);
 	$expander_r->set_draw(FALSE);
 
+	#button redoshot
+	#--------------------------------------
+	my $image_redoshot = Gtk2::Image->new_from_stock( 'gtk-refresh', 'large-toolbar' );
+	$self->{_redoshot} = Gtk2::ToolButton->new( $image_redoshot, $d->get("Redo last capture") );
+	$self->{_redoshot}->set_is_important (TRUE);
+
+	$tooltips->set_tip( $self->{_redoshot}, $d->get("Redo the last screenshot") );
+
+	#--------------------------------------	
+
 	#button edit
 	#--------------------------------------
 	my $image_edit;
@@ -247,6 +257,7 @@ sub create_toolbar {
 	$self->{_toolbar}->insert( $self->{_web},                -1 );
 	#~ $self->{_toolbar}->insert( Gtk2::SeparatorToolItem->new, -1 );
 	$self->{_toolbar}->insert( $expander_r, 				 -1 );
+	$self->{_toolbar}->insert( $self->{_redoshot},           -1 );
 	$self->{_toolbar}->insert( $self->{_edit},               -1 );
 	$self->{_toolbar}->insert( $self->{_upload},             -1 );
 
