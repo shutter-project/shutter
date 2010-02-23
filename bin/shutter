@@ -5249,7 +5249,6 @@ sub fct_take_screenshot {
 				if $sc->get_debug;
 		}
 
-
 		my $screenshooter = Shutter::Screenshot::Workspace->new( 
 			$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active, 
 			$selected_workspace, $vpx, $vpy, $current_monitor_active->get_active 
@@ -5257,6 +5256,16 @@ sub fct_take_screenshot {
 		
 		$screenshot = $screenshooter->workspace();
 
+	}else{
+		#show error dialog
+		my $response = $sd->dlg_error_message( 
+			$d->get( "Triggered invalid screenshot action." ),
+			$d->get( "Error while taking the screenshot." )
+		);
+			
+		&fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
+		&fct_control_main_window ('show');
+		return FALSE;		
 	}
 
 	#screenshot was taken at this stage...
