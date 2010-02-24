@@ -5081,6 +5081,7 @@ sub fct_take_screenshot {
 	
 	#screenshot(pixbuf) and screenshot name
 	my $screenshot         = undef;
+	my $screenshooter      = undef;
 	my $screenshot_name    = undef;
 	my $thumbnail_ending   = "thumb";
 		
@@ -5126,7 +5127,7 @@ sub fct_take_screenshot {
 	if ( $data eq "raw" || $data eq "tray_raw" ) {
 		my $wnck_screen = Gnome2::Wnck::Screen->get_default;
 
-		my $screenshooter = Shutter::Screenshot::Workspace->new(
+		$screenshooter = Shutter::Screenshot::Workspace->new(
 			$sc, $cursor_active->get_active,
 			$delay_value, $notify_timeout_active->get_active, $wnck_screen->get_active_workspace,
 			undef, undef, $current_monitor_active->get_active
@@ -5144,7 +5145,7 @@ sub fct_take_screenshot {
 			  $data eq "tooltip" || 
 			  $data eq "tray_tooltip" ) {
 
-		my $screenshooter = Shutter::Screenshot::Window->new(
+		$screenshooter = Shutter::Screenshot::Window->new(
 			$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active,
 			$border_active->get_active, undef, $data, $is_hidden, 
 			$visible_windows_active->get_active, $hide_time->get_value, $menu_waround_active->get_active
@@ -5161,7 +5162,7 @@ sub fct_take_screenshot {
 			#~ $zoom_size_factor = 2 if ( $zoom_size2->get_active );
 			#~ $zoom_size_factor = 3 if ( $zoom_size3->get_active );
 					
-			my $screenshooter = Shutter::Screenshot::SelectorAdvanced->new( 
+			$screenshooter = Shutter::Screenshot::SelectorAdvanced->new( 
 				$sc, $cursor_active->get_active, 
 				$delay_value, $notify_timeout_active->get_active, 
 				$zoom_active->get_active, $hide_time->get_value,
@@ -5178,7 +5179,7 @@ sub fct_take_screenshot {
 			#~ $zoom_size_factor = 2 if ( $zoom_size2->get_active );
 			#~ $zoom_size_factor = 3 if ( $zoom_size3->get_active );
 			
-			my $screenshooter = Shutter::Screenshot::SelectorSimple->new( 
+			$screenshooter = Shutter::Screenshot::SelectorSimple->new( 
 				$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active, 
 				$zoom_active->get_active, $hide_time->get_value 
 			);
@@ -5222,7 +5223,7 @@ sub fct_take_screenshot {
 		my $xid = $1;
 		print "Selected xid: $xid\n" if $sc->get_debug;
 
-		my $screenshooter = Shutter::Screenshot::Window->new( 
+		$screenshooter = Shutter::Screenshot::Window->new( 
 			$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active, 
 			$border_active->get_active, $xid, $data, $is_hidden 
 		);
@@ -5230,7 +5231,7 @@ sub fct_take_screenshot {
 		$screenshot = $screenshooter->window_by_xid();
 
 	} elsif ( $data =~ /^shutter_wrksp_direct/ ) {
-
+		
 		#we need to handle different wm, e.g. metacity, compiz here
 		my $selected_workspace = undef;
 		my $vpx                = undef;
@@ -5249,14 +5250,23 @@ sub fct_take_screenshot {
 				if $sc->get_debug;
 		}
 
-		my $screenshooter = Shutter::Screenshot::Workspace->new( 
+		$screenshooter = Shutter::Screenshot::Workspace->new( 
 			$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active, 
 			$selected_workspace, $vpx, $vpy, $current_monitor_active->get_active 
 		);
 		
 		$screenshot = $screenshooter->workspace();
 
-	}else{
+	} elsif ( $data eq "redoshot_this" ) {
+		
+		my $key = &fct_get_current_file;
+		if(defined $key && exists $session_screens{$key}->{'history'}){
+			$screenshot = $session_screens{$key}->{'history'}->redo_capture;
+		}else{
+			$screenshot = 3;	
+		}
+
+	} else {
 		#show error dialog
 		my $response = $sd->dlg_error_message( 
 			$d->get( "Triggered invalid screenshot action." ),
@@ -5315,6 +5325,18 @@ sub fct_take_screenshot {
 
 			my $response = $sd->dlg_error_message( 
 				sprintf( $d->get( "No window with type %s detected." ), "'".$type."'"),
+				$d->get( "Error while taking the screenshot." )
+			);
+				
+			&fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
+			&fct_control_main_window ('show');
+			return FALSE;
+
+		#no history object stored
+		}elsif( $screenshot == 3 ) {
+
+			my $response = $sd->dlg_error_message( 
+				$d->get( "There is no last capture that can be redone." ),
 				$d->get( "Error while taking the screenshot." )
 			);
 				
@@ -5478,6 +5500,9 @@ sub fct_take_screenshot {
 		#thumbnail as well if present
 		my $new_key_screenshot_thumbnail = &fct_integrate_screenshot_in_notebook( Gnome2::VFS::URI->new($screenshot_thumbnail_name), $screenshot_thumbnail )
 			if $thumbnail_active->get_active;
+
+		#FIXME!!!!!!!
+		$session_screens{$new_key_screenshot}->{'history'} = $screenshooter;
 
 		#image_autocopy to clipboard if configured
 		if ( $image_autocopy_active->get_active() ) {

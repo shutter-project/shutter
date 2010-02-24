@@ -31,6 +31,7 @@ use warnings;
 
 use Gnome2::Canvas;
 use Shutter::Screenshot::Main;
+use Shutter::Screenshot::History;
 use Data::Dumper;
 our @ISA = qw(Shutter::Screenshot::Main);
 
@@ -970,7 +971,6 @@ sub take_screenshot {
 	
 	#section not valid
 	} else {
-		
 		$output = 0;
 	}
 
@@ -979,8 +979,20 @@ sub take_screenshot {
 		$output->{'name'} = $d->get("Selection");
 	}
 	
+	#set history object
+	$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->{_root}, $s->x, $s->y, $s->width, $s->height);
+	
 	return $output;		
 }
+
+sub redo_capture {
+	my $self = shift;
+	my $output = 3;
+	if(defined $self->{_history}){
+		($output) = $self->get_pixbuf_from_drawable($self->{_history}->get_last_capture);
+	}
+	return $output;
+}	
 
 sub quit {
 	my $self = shift;
