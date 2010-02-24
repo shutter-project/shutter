@@ -287,6 +287,9 @@ sub select_simple {
 							if($output =~ /Gtk2/){
 								$output->{'name'} = $d->get("Selection");
 							}
+						
+							#set history object
+							$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->{_root}, $rect_x, $rect_y, $rect_w+1, $rect_h+1);
 							
 							$self->quit($zoom_window);
 							return FALSE;	
@@ -411,6 +414,15 @@ sub select_simple {
 	
 	return $output;
 }
+
+sub redo_capture {
+	my $self = shift;
+	my $output = 3;
+	if(defined $self->{_history}){
+		($output) = $self->get_pixbuf_from_drawable($self->{_history}->get_last_capture);
+	}
+	return $output;
+}	
 
 sub zoom_check_pos{
 	my $self 		= shift;

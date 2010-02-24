@@ -414,7 +414,7 @@ sub window_by_xid {
 		#redraw the area
 		#~ Glib::Timeout->add ($self->{_hide_time}, sub{
 			
-			my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_pixbuf_from_drawable( $self->{_root}, $xp, $yp, $wp, $hp);
+			my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_pixbuf_from_drawable($self->{_root}, $xp, $yp, $wp, $hp);
 	
 			#save return value to current $output variable 
 			#-> ugly but fastest and safest solution now
@@ -430,6 +430,9 @@ sub window_by_xid {
 			if($output =~ /Gtk2/){
 				$output->{'name'} = $wnck_window->get_name;
 			}
+
+			#set history object
+			$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->{_root}, $xp, $yp, $wp, $hp);
 	
 			#~ $self->quit;
 			#~ return FALSE;	
@@ -925,6 +928,15 @@ sub window {
 							$output->{'name'} = $self->{_c}{'cw'}{'window'}->get_name;
 						}
 
+						#set history object
+						$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, 
+								$self->{_root}, 
+								$self->{_c}{'cw'}{'x'}, 
+								$self->{_c}{'cw'}{'y'},
+								$self->{_c}{'cw'}{'width'},
+								$self->{_c}{'cw'}{'height'}
+						);
+
 						$self->quit;
 						return FALSE;	
 					});	
@@ -1057,10 +1069,30 @@ sub window {
 			}
 		
 		}
+
+		#set history object
+		$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, 
+			$self->{_root},
+			$self->{_c}{'cw'}{'x'},
+			$self->{_c}{'cw'}{'y'},
+			$self->{_c}{'cw'}{'width'},
+			$self->{_c}{'cw'}{'height'},
+			$self->{_c}{'cw'}{'window_region'}
+		);
 		
 	}
 	return $output;
 }
+
+sub redo_capture {
+	my $self = shift;
+	my $output = 3;
+	if(defined $self->{_history}){
+		($output) = $self->get_pixbuf_from_drawable($self->{_history}->get_last_capture);
+	}
+	return $output;
+}	
+
 
 sub quit {
 	my $self = shift;

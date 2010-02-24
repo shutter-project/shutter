@@ -5260,8 +5260,9 @@ sub fct_take_screenshot {
 	} elsif ( $data eq "redoshot_this" ) {
 		
 		my $key = &fct_get_current_file;
-		if(defined $key && exists $session_screens{$key}->{'history'}){
-			$screenshot = $session_screens{$key}->{'history'}->redo_capture;
+		if(defined $key && exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}){
+			$screenshooter = $session_screens{$key}->{'history'};
+			$screenshot = $screenshooter->redo_capture;
 		}else{
 			$screenshot = 3;	
 		}
