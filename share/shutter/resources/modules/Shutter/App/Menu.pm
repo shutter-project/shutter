@@ -657,7 +657,7 @@ sub fct_ret_actions_menu_large{
 
 	$self->{_menu_large_actions}->append( Gtk2::SeparatorMenuItem->new );
 
-	$self->{_menuitem_large_send} = Gtk2::ImageMenuItem->new($d->get('Send To...'));
+	$self->{_menuitem_large_send} = Gtk2::ImageMenuItem->new($d->get('_Send To...'));
 	$self->{_menuitem_large_send}->set_image(
 		Gtk2::Image->new_from_icon_name( 'document-send', 'menu' )
 	);

@@ -401,6 +401,8 @@ sub window_by_xid {
 	my $gdk_window  = Gtk2::Gdk::Window->foreign_new( $self->{_xid} );
 	my $wnck_window = Gnome2::Wnck::Window->get( $self->{_xid} );
 	
+	#~ print $self->{_xid}, " - ", $gdk_window, " - ", $wnck_window, "\n";
+	
 	my $output = 0;
 	if (defined $gdk_window && defined $wnck_window){
 	
@@ -432,7 +434,7 @@ sub window_by_xid {
 			}
 
 			#set history object
-			$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->{_root}, $xp, $yp, $wp, $hp);
+			$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->{_root}, $xp, $yp, $wp, $hp, undef, $self->{_xid});
 	
 			#~ $self->quit;
 			#~ return FALSE;	
@@ -934,7 +936,9 @@ sub window {
 								$self->{_c}{'cw'}{'x'}, 
 								$self->{_c}{'cw'}{'y'},
 								$self->{_c}{'cw'}{'width'},
-								$self->{_c}{'cw'}{'height'}
+								$self->{_c}{'cw'}{'height'},
+								undef,
+								$self->{_c}{'cw'}{'window'}->get_xid
 						);
 
 						$self->quit;
@@ -1077,7 +1081,8 @@ sub window {
 			$self->{_c}{'cw'}{'y'},
 			$self->{_c}{'cw'}{'width'},
 			$self->{_c}{'cw'}{'height'},
-			$self->{_c}{'cw'}{'window_region'}
+			$self->{_c}{'cw'}{'window_region'},
+			$self->{_c}{'cw'}{'window'}->get_xid
 		);
 		
 	}
@@ -1088,7 +1093,11 @@ sub redo_capture {
 	my $self = shift;
 	my $output = 3;
 	if(defined $self->{_history}){
-		($output) = $self->get_pixbuf_from_drawable($self->{_history}->get_last_capture);
+		my ($last_drawable, $lxp, $lyp, $lwp, $lhp, $lregion, $lxid) = $self->{_history}->get_last_capture;
+		$self->{_xid} = $lxid;
+		#~ print $self->{_xid}, "\n";
+		#~ ($output) = $self->get_pixbuf_from_drawable($self->{_history}->get_last_capture);
+		($output) = $self->window_by_xid;
 	}
 	return $output;
 }	

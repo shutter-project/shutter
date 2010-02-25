@@ -102,9 +102,13 @@ sub workspace {
 
 	my $output = undef;
 	if ( $self->{_current_monitor_only} || $self->{_gdk_screen}->get_n_monitors <= 1) {
+		
 		($output) = $self->get_pixbuf_from_drawable(
 						$self->get_root_and_current_monitor_geometry
 					);
+
+		#set history object
+		$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->get_root_and_current_monitor_geometry);
 
 	#When there are multiple monitors with different resolutions, the visible area
 	#within the root window may not be rectangular (it may have an L-shape, for
@@ -115,10 +119,14 @@ sub workspace {
 	#comment copied from gnome-screenshot
 	#http://svn.gnome.org/viewvc/gnome-utils/trunk/gnome-screenshot/screenshot-utils.c?view=markup					
 	} elsif($self->{_gdk_screen}->get_n_monitors > 1) {
+		
 		($output) = $self->get_pixbuf_from_drawable(
 						$self->get_root_and_geometry,
 						$self->get_monitor_region
-					);					
+					);
+		#set history object
+		$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->get_root_and_current_monitor_geometry, $self->get_monitor_region);										
+	
 	}
 
 	#set name of the captured workspace
@@ -137,5 +145,14 @@ sub workspace {
 
 	return $output;
 }
+
+sub redo_capture {
+	my $self = shift;
+	my $output = 3;
+	if(defined $self->{_history}){
+		($output) = $self->get_pixbuf_from_drawable($self->{_history}->get_last_capture);
+	}
+	return $output;
+}	
 
 1;
