@@ -408,6 +408,7 @@ sub fct_ret_new_menu {
 	$self->{_menuitem_redoshot} = Gtk2::ImageMenuItem->new_from_stock('gtk-refresh');
 	$self->{_menuitem_redoshot}->get_child->set_text_with_mnemonic( $d->get('_Redo last capture') );
 	$self->{_menuitem_redoshot}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('F5'), qw/visible/ );
+	$self->{_menuitem_redoshot}->set_sensitive(FALSE);
 	$self->{_menu_new}->append( $self->{_menuitem_redoshot} );
 
 	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );

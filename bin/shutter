@@ -597,6 +597,9 @@ unless($ENV{PAR_TEMP}){
 
 $vbox->pack_start( $st->create_toolbar, FALSE, TRUE, 0 );
 
+$st->{_redoshot}->signal_connect( 'clicked' => \&evt_take_screenshot, 'redoshot' );
+$st->{_redoshot}->set_sensitive(FALSE);
+
 my ( $tool_advanced, $tool_simple ) = undef;
 $st->{_select}->set_menu(&fct_ret_sel_menu);
 $st->{_select}->signal_connect( 'clicked' => \&evt_take_screenshot, 'select' );
@@ -616,7 +619,6 @@ $st->{_window}->signal_connect( 'show-menu' => sub { $st->{_window}->set_menu( &
 $st->{_section}->signal_connect( 'clicked' => \&evt_take_screenshot, 'section' );
 $st->{_menu}->signal_connect( 'clicked' => \&evt_take_screenshot, 'menu' );
 $st->{_tooltip}->signal_connect( 'clicked' => \&evt_take_screenshot, 'tooltip' );
-$st->{_redoshot}->signal_connect( 'clicked' => \&evt_take_screenshot, 'redoshot' );
 
 #gnome-web-photo is optional, don't enable it when gnome-web-photo is not in PATH
 if ( $gnome_web_photo ) {
@@ -2518,7 +2520,7 @@ sub evt_notebook_switch {
 				next;
 			}
 			#unset imageview for all other items
-			if($session_screens{$_}->{'image'}->get_pixbuf){
+			if(defined $session_screens{$_}->{'image'} && $session_screens{$_}->{'image'}->get_pixbuf){
 				eval{
 					#~ print "unsetting ", $_, "\n";
 					$session_screens{$_}->{'image'}->set_pixbuf(undef);
@@ -2540,7 +2542,7 @@ sub evt_notebook_switch {
 		$session_start_screen{'first_page'}->{'view'}->unselect_all;
 	}
 	
-	#enable/disable menu entry when we switch tabs		
+	#enable/disable menu entry when we switch tabs	
 	&fct_update_actions($int, $key);
 	
 	return TRUE;
@@ -2601,6 +2603,8 @@ sub evt_show_systray {
 	#right button (mouse)
 	elsif ( $_[1]->button == 3 ) {
 
+		$tray_menu = &fct_ret_tray_menu;
+
 		$tray_menu->popup(
 			undef,    # parent menu shell
 			undef,    # parent menu item
@@ -2618,6 +2622,8 @@ sub evt_show_systray_statusicon {
 	if ( $sc->get_debug ) {
 		print "\n$button, $time was emitted by widget $widget\n";
 	}
+
+	$tray_menu = &fct_ret_tray_menu;
 
 	$tray_menu->popup(
 		undef,    # parent menu shell
@@ -2718,9 +2724,45 @@ sub evt_iconview_sel_changed {
 	my @sel_items = $view->get_selected_items;	
 	
 	#enable/disable menu entry when we are in the session tab and selection changes
-	&fct_update_actions( scalar @sel_items );
+	if(scalar @sel_items == 1){
+		my $key = undef;
+		$session_start_screen{'first_page'}->{'view'}->selected_foreach(
+			sub {
+				my ( $view, $path ) = @_;
+				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
+				if ( defined $iter ) {
+					$key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
+				}
+			},
+			undef
+		);		
+		&fct_update_actions( scalar @sel_items, $key );
+	}else{
+		&fct_update_actions( scalar @sel_items );
+	}
 		
 	return TRUE;
+}
+
+sub fct_get_last_capture{
+	#determine last capture and return the relevant key
+	my $last_capture_tstamp = 0;
+	my $last_capture_key 	= 0;
+	foreach my $key (keys %session_screens){
+		#check if the file exists
+		#the file might be deleted
+		if(exists $session_screens{$key}->{'uri'} && $session_screens{$key}->{'uri'}->exists){
+			if(exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}){
+				if(exists $session_screens{$key}->{'history_timestamp'} && defined $session_screens{$key}->{'history_timestamp'}){
+					if($session_screens{$key}->{'history_timestamp'} > $last_capture_tstamp){
+						$last_capture_tstamp = $session_screens{$key}->{'history_timestamp'}; 
+						$last_capture_key = $key;
+					}
+				}
+			}
+		}	
+	}
+	return $last_capture_key;
 }
 
 sub fct_update_actions {
@@ -2729,6 +2771,9 @@ sub fct_update_actions {
 
 	#TOOLBAR
 	#--------------------------------------
+
+	#last capture
+	$st->{_redoshot}->set_sensitive(&fct_get_last_capture);
 	
 	#goocanvas is optional, don't enable it when not installed
 	if($goocanvas) {
@@ -2741,6 +2786,9 @@ sub fct_update_actions {
 
 	#MENU
 	#--------------------------------------
+	
+	#last capture
+	$sm->{_menuitem_redoshot}->set_sensitive($st->{_redoshot}->is_sensitive);
 	
 	#file
 	$sm->{_menuitem_save_as}->set_sensitive($n_items);
@@ -2798,6 +2846,13 @@ sub fct_update_actions {
 	}		
 
 	$sm->{_menuitem_plugin}->set_sensitive($n_items);
+
+	#redoshot_this
+	if(defined $key && exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}){
+		$sm->{_menuitem_redoshot_this}->set_sensitive($n_items);
+	}else{
+		$sm->{_menuitem_redoshot_this}->set_sensitive(FALSE);
+	}
 	
 	#right-click menu
 	$sm->{_menuitem_large_reopen_default}->visible($n_items);
@@ -2825,6 +2880,13 @@ sub fct_update_actions {
 	}		
 
 	$sm->{_menuitem_large_plugin}->set_sensitive($n_items);
+
+	#redoshot_this
+	if(defined $key && exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}){
+		$sm->{_menuitem_large_redoshot_this}->set_sensitive($n_items);
+	}else{
+		$sm->{_menuitem_large_redoshot_this}->set_sensitive(FALSE);
+	}
 		
 	return TRUE;
 }
@@ -3155,7 +3217,7 @@ sub fct_create_session_notebook {
 }
 
 sub fct_integrate_screenshot_in_notebook {
-	my ($uri, $pixbuf) = @_;
+	my ($uri, $pixbuf, $history) = @_;
 
 	#check parameters
 	return FALSE unless $uri;
@@ -3186,6 +3248,12 @@ sub fct_integrate_screenshot_in_notebook {
 	my ( $second, $minute, $hour ) = localtime();
 	my $theTime = sprintf("%02d:%02d:%02d", $hour, $minute, $second);
 	my $key     = "[" . &fct_get_latest_tab_key . "] - $theTime";
+
+	#store the history object
+	if(defined $history){
+		$session_screens{$key}->{'history'} = $history;	 
+		$session_screens{$key}->{'history_timestamp'} = time;	 
+	}
 
 	#setup tab label (thumb, preview etc.)
 	my $hbox_tab_label = Gtk2::HBox->new( FALSE, 0 );
@@ -3347,6 +3415,7 @@ sub fct_control_signals {
 	#enable/disable controls
 	if($st->{_select} && $sm->{_menuitem_selection}){
 		#menu
+		$sm->{_menuitem_redoshot}->set_sensitive($sensitive);
 		$sm->{_menuitem_selection}->set_sensitive($sensitive);
 		$sm->{_menuitem_full}->set_sensitive($sensitive);
 		$sm->{_menuitem_window}->set_sensitive($sensitive);
@@ -3363,6 +3432,7 @@ sub fct_control_signals {
 		$st->{_section}->set_sensitive($sensitive);
 		$st->{_menu}->set_sensitive($sensitive);
 		$st->{_tooltip}->set_sensitive($sensitive);
+		$st->{_redoshot}->set_sensitive($sensitive);
 		$st->{_web}->set_sensitive($sensitive) if ($gnome_web_photo);
 	}
 	
@@ -4319,7 +4389,7 @@ sub fct_open_files {
 		&fct_update_gui;
 
 		#do the real work
-		if(&fct_integrate_screenshot_in_notebook( $new_uri, undef )){
+		if(&fct_integrate_screenshot_in_notebook( $new_uri )){
 			&fct_show_status_message( 1, $new_uri->to_string . " " . $d->get("opened") );	
 		}
 	}
@@ -4408,7 +4478,7 @@ sub fct_load_session {
 
 			#do the real work
 			my $new_uri = Gnome2::VFS::URI->new( ${$session_xml}{$_}{'filename'} );
-			&fct_integrate_screenshot_in_notebook( $new_uri, undef );
+			&fct_integrate_screenshot_in_notebook( $new_uri );
 
 		}
 	
@@ -4441,7 +4511,6 @@ sub fct_screenshot_exists {
 	#check if file still exists
 	unless ( $session_screens{$key}->{'uri'}->exists ) {
 		&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("not found") );
-
 		return FALSE;
 	}
 	return TRUE;
@@ -5262,13 +5331,38 @@ sub fct_take_screenshot {
 		
 		$screenshot = $screenshooter->workspace();
 
-	} elsif ( $data eq "redoshot_this" ) {
-		
-		my $key = &fct_get_current_file;
+	} elsif ( $data eq "redoshot" ) {
+
+		my $key = &fct_get_last_capture;
 		if(defined $key && exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}){
 			$screenshooter = $session_screens{$key}->{'history'};
 			$screenshot = $screenshooter->redo_capture;
-		}else{
+		}else{			
+			$screenshot = 3;	
+		}		
+
+	} elsif ( $data eq "redoshot_this" ) {
+		
+		#get current screenshot (current notebook page)
+		my $key = &fct_get_current_file;
+		#or get the selected screenshot in the view
+		unless(defined $key){
+			$session_start_screen{'first_page'}->{'view'}->selected_foreach(
+				sub {
+					my ( $view, $path ) = @_;
+					my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
+					if ( defined $iter ) {
+						$key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
+					}
+				},
+				undef
+			);				
+		}
+		
+		if(defined $key && exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}){
+			$screenshooter = $session_screens{$key}->{'history'};
+			$screenshot = $screenshooter->redo_capture;
+		}else{			
 			$screenshot = 3;	
 		}
 
@@ -5513,14 +5607,11 @@ sub fct_take_screenshot {
 		}
 
 		#integrate it into the notebook
-		my $new_key_screenshot = &fct_integrate_screenshot_in_notebook( $uri, $screenshot );
+		my $new_key_screenshot = &fct_integrate_screenshot_in_notebook( $uri, $screenshot, $screenshooter );
 
 		#thumbnail as well if present
 		my $new_key_screenshot_thumbnail = &fct_integrate_screenshot_in_notebook( Gnome2::VFS::URI->new($screenshot_thumbnail_name), $screenshot_thumbnail )
 			if $thumbnail_active->get_active;
-
-		#FIXME!!!!!!!
-		$session_screens{$new_key_screenshot}->{'history'} = $screenshooter;
 
 		#image_autocopy to clipboard if configured
 		if ( $image_autocopy_active->get_active() ) {
@@ -6336,10 +6427,10 @@ sub fct_update_tab {
 			&fct_update_info_and_tray();
 
 			#update menu actions
-			my $current_key = &fct_get_current_file;
-			if(defined $current_key && $current_key eq $key){		
-				&fct_update_actions(1, $key);
-			}
+			#~ my $current_key = &fct_get_current_file;
+			#~ if(defined $current_key && $current_key eq $key){		
+				#~ &fct_update_actions(1, $key);
+			#~ }
 
 			return TRUE;
 						
@@ -7083,6 +7174,7 @@ sub fct_ret_tray_menu {
 	my $menuitem_redoshot = Gtk2::ImageMenuItem->new_with_mnemonic ( $d->get('_Redo last capture') );
 	$menuitem_redoshot->set_image(Gtk2::Image->new_from_stock('gtk-refresh', 'menu'));
 	$menuitem_redoshot->signal_connect( 'activate', \&evt_take_screenshot, 'redoshot' );
+	$menuitem_redoshot->set_sensitive(&fct_get_last_capture);
 	
 	#preferences	
 	my $menuitem_settings = Gtk2::ImageMenuItem->new_from_stock( 'gtk-preferences' );
@@ -7092,6 +7184,7 @@ sub fct_ret_tray_menu {
 	my $menuitem_quicks = Gtk2::MenuItem->new_with_mnemonic( $d->get('_Quick profile select') );
 	#set name to identify the item later - we use this in really rare cases
 	$menuitem_quicks->set_name('quicks');
+	$menuitem_quicks->set_sensitive(FALSE);
 	
 	#info
 	my $menuitem_info = Gtk2::ImageMenuItem->new_from_stock( 'gtk-about' );
