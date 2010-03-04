@@ -29,6 +29,7 @@ use strict;
 use warnings;
 
 use Shutter::Screenshot::Main;
+use Shutter::Screenshot::History;
 use Data::Dumper;
 our @ISA = qw(Shutter::Screenshot::Main);
 
@@ -102,9 +103,6 @@ sub workspace {
 						$self->get_root_and_current_monitor_geometry
 					);
 
-		#set history object
-		$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->get_root_and_current_monitor_geometry);
-
 	#When there are multiple monitors with different resolutions, the visible area
 	#within the root window may not be rectangular (it may have an L-shape, for
 	#example). In that case, mask out the areas of the root window which would
@@ -119,10 +117,11 @@ sub workspace {
 						$self->get_root_and_geometry,
 						$self->get_monitor_region
 					);
-		#set history object
-		$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->get_root_and_current_monitor_geometry, $self->get_monitor_region);										
-	
+										
 	}
+
+	#set history object
+	$self->{_history} = Shutter::Screenshot::History->new($self->{_sc});	
 
 	#set name of the captured workspace
 	#e.g. for use in wildcards
@@ -145,7 +144,7 @@ sub redo_capture {
 	my $self = shift;
 	my $output = 3;
 	if(defined $self->{_history}){
-		($output) = $self->get_pixbuf_from_drawable($self->{_history}->get_last_capture);
+		$output = $self->workspace();
 	}
 	return $output;
 }	

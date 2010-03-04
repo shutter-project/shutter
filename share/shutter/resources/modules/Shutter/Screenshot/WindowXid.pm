@@ -69,11 +69,11 @@ sub window_by_xid {
 	if (defined $gdk_window && defined $wnck_window){
 	
 		my ( $xp, $yp, $wp, $hp ) = $self->get_window_size( $wnck_window, $gdk_window, $self->{_include_border} );
-	
+
 		#focus selected window (maybe it is hidden)
 		$gdk_window->focus(Gtk2->get_current_event_time);
 		Gtk2::Gdk->flush;
-
+	
 		#A short timeout to give the server a chance to
 		#redraw the area
 		Glib::Timeout->add ($self->{_hide_time}, sub{
@@ -96,7 +96,7 @@ sub window_by_xid {
 			}
 	
 			#set history object
-			$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->{_root}, $xp, $yp, $wp, $hp, undef, $xid);
+			$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->{_root}, $xp, $yp, $wp, $hp, undef, $xid, $xid);
 
 			$self->quit;
 			return FALSE;	
@@ -104,6 +104,8 @@ sub window_by_xid {
 	
 		Gtk2->main();
 	
+	}else{	
+		$output = 4;	
 	}
 
 	return $output;
@@ -113,7 +115,7 @@ sub redo_capture {
 	my $self = shift;
 	my $output = 3;
 	if(defined $self->{_history}){
-		my ($last_drawable, $lxp, $lyp, $lwp, $lhp, $lregion, $wxid) = $self->{_history}->get_last_capture;
+		my ($last_drawable, $lxp, $lyp, $lwp, $lhp, $lregion, $wxid, $gxid) = $self->{_history}->get_last_capture;
 		($output) = $self->window_by_xid($wxid);
 	}
 	return $output;

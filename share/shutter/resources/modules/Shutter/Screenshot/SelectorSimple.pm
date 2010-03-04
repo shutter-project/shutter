@@ -30,6 +30,7 @@ use warnings;
 
 use Gnome2::Canvas;
 use Shutter::Screenshot::Main;
+use Shutter::Screenshot::History;
 use Data::Dumper;
 our @ISA = qw(Shutter::Screenshot::Main);
 

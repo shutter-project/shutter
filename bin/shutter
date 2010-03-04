@@ -5349,7 +5349,19 @@ sub fct_take_screenshot {
 			&fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
 			&fct_control_main_window ('show');
 			return FALSE;
-		
+
+		#window no longer available
+		}elsif( $screenshot == 4 ) {
+			
+			my $response = $sd->dlg_error_message( 
+				$d->get( "The window is no longer available." ),
+				$d->get( "Error while taking the screenshot." )
+			);
+				
+			&fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
+			&fct_control_main_window ('show');
+			return FALSE;			
+			
 		}
 
 		#we have to use the path (e.g. /home/username/file1.png)

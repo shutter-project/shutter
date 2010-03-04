@@ -28,6 +28,8 @@ use utf8;
 use strict;
 use warnings;
 
+use Shutter::Screenshot::History;
+
 #Glib
 use Glib qw/TRUE FALSE/; 
 
