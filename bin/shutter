@@ -170,6 +170,7 @@ require Shutter::Screenshot::SelectorSimple;
 require Shutter::Screenshot::Workspace;
 require Shutter::Screenshot::Web;
 require Shutter::Screenshot::Window;
+require Shutter::Screenshot::WindowXid;
 
 #upload classes
 require Shutter::Upload::ImageBanana;
@@ -5147,7 +5148,7 @@ sub fct_take_screenshot {
 
 		$screenshooter = Shutter::Screenshot::Window->new(
 			$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active,
-			$border_active->get_active, undef, $data, $is_hidden, 
+			$border_active->get_active, $data, $is_hidden, 
 			$visible_windows_active->get_active, $hide_time->get_value, $menu_waround_active->get_active
 		);
 		
@@ -5223,12 +5224,16 @@ sub fct_take_screenshot {
 		my $xid = $1;
 		print "Selected xid: $xid\n" if $sc->get_debug;
 
-		$screenshooter = Shutter::Screenshot::Window->new( 
-			$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active, 
-			$border_active->get_active, $xid, $data, $is_hidden 
+		$screenshooter = Shutter::Screenshot::WindowXid->new( 
+			$sc, 
+			$cursor_active->get_active, 
+			$delay_value, 
+			$notify_timeout_active->get_active, 
+			$border_active->get_active,
+			$hide_time->get_value,
 		);
 		
-		$screenshot = $screenshooter->window_by_xid();
+		$screenshot = $screenshooter->window_by_xid($xid);
 
 	} elsif ( $data =~ /^shutter_wrksp_direct/ ) {
 		

@@ -45,7 +45,8 @@ sub new {
 	$self->{_w}			= shift;
 	$self->{_h}			= shift;
 	$self->{_region}	= shift;	
-	$self->{_xid}		= shift;	
+	$self->{_wxid}		= shift;	
+	$self->{_gxid}		= shift;	
 
 	bless $self, $class;
 	return $self;
@@ -53,7 +54,7 @@ sub new {
 
 sub get_last_capture {
 	my $self = shift;
-	return ($self->{_drawable}, $self->{_x}, $self->{_y}, $self->{_w}, $self->{_h}, $self->{_region}, $self->{_xid});
+	return ($self->{_drawable}, $self->{_x}, $self->{_y}, $self->{_w}, $self->{_h}, $self->{_region}, $self->{_wxid}, $self->{_gxid});
 }
 
 sub set_last_capture {
@@ -65,11 +66,12 @@ sub set_last_capture {
 		$self->{_w}			= shift;
 		$self->{_h}			= shift;
 		$self->{_region}	= shift;	
-		$self->{_xid}		= shift;
+		$self->{_wxid}		= shift;
+		$self->{_gxid}		= shift;
 	}else{
 		warn "WARNING: Wrong number of arguments in Shutter::Screenshot::History::set_last_capture\n";
 	}
-	return ($self->{_drawable}, $self->{_x}, $self->{_y}, $self->{_w}, $self->{_h}, $self->{_region}, $self->{_xid});
+	return ($self->{_drawable}, $self->{_x}, $self->{_y}, $self->{_w}, $self->{_h}, $self->{_region}, $self->{_wxid}, $self->{_gxid});
 }
 
 1;

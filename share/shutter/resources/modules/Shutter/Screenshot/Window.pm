@@ -24,7 +24,6 @@ package Shutter::Screenshot::Window;
 
 #modules
 #--------------------------------------
-use SelfLoader;
 use utf8;
 use strict;
 use warnings;
@@ -34,6 +33,7 @@ use Data::Dumper;
 our @ISA = qw(Shutter::Screenshot::Main);
 
 #Glib
+use Gtk2;
 use Glib qw/TRUE FALSE/; 
 
 #--------------------------------------
@@ -46,7 +46,6 @@ sub new {
 
 	#get params
 	$self->{_include_border} 	= shift;
-	$self->{_xid}  				= shift;   #only used by window_by_xid, undef this when selecting a window
 	$self->{_mode} 				= shift;
 	$self->{_is_hidden}      	= shift;
 	$self->{_show_visible}      = shift;   #show user-visible windows only when selecting a window
@@ -62,8 +61,8 @@ sub new {
 	#main window
 	$self->{_main_gtk_window} 	= $self->{_sc}->get_mainwindow;
 
-	#only used when selecting a window, undef this when selecting a window
-	unless(defined $self->{_xid}){
+	#only used when selecting a window
+	if(defined $self->{_mode} && $self->{_mode} =~ m/(window|section)/ig){
 		
 		#check if compositing is available
 		my $compos = $self->{_main_gtk_window}->get_screen->is_composited;
@@ -283,10 +282,6 @@ sub new {
 #~ } 
 #~ 
 
-1;
-
-__DATA__
-
 sub find_wm_window {
 	my $self = shift;
 	my $xid  = shift;
@@ -393,58 +388,6 @@ sub get_window_size {
 	}
 
 	return ( $xp, $yp, $wp, $hp );
-}
-
-sub window_by_xid {
-	my $self = shift;
-
-	my $gdk_window  = Gtk2::Gdk::Window->foreign_new( $self->{_xid} );
-	my $wnck_window = Gnome2::Wnck::Window->get( $self->{_xid} );
-	
-	#~ print $self->{_xid}, " - ", $gdk_window, " - ", $wnck_window, "\n";
-	
-	my $output = 0;
-	if (defined $gdk_window && defined $wnck_window){
-	
-		my ( $xp, $yp, $wp, $hp ) = $self->get_window_size( $wnck_window, $gdk_window, $self->{_include_border} );
-	
-		#focus selected window (maybe it is hidden)
-		$gdk_window->focus(Gtk2->get_current_event_time);
-		Gtk2::Gdk->flush;
-	
-		#A short timeout to give the server a chance to
-		#redraw the area
-		#~ Glib::Timeout->add ($self->{_hide_time}, sub{
-			
-			my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_pixbuf_from_drawable($self->{_root}, $xp, $yp, $wp, $hp);
-	
-			#save return value to current $output variable 
-			#-> ugly but fastest and safest solution now
-			$output = $output_new;	
-	
-			#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
-			if($self->{_x11}{ext_shape} && $self->{_include_border}){
-				$output = $self->get_shape($self->{_xid}, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);				
-			}
-	
-			#set name of the captured window
-			#e.g. for use in wildcards
-			if($output =~ /Gtk2/){
-				$output->{'name'} = $wnck_window->get_name;
-			}
-
-			#set history object
-			$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->{_root}, $xp, $yp, $wp, $hp, undef, $self->{_xid});
-	
-			#~ $self->quit;
-			#~ return FALSE;	
-		#~ });	
-	#~ 
-		#~ Gtk2->main();
-	
-	}
-
-	return $output;
 }
 
 sub update_highlighter {
@@ -938,7 +881,8 @@ sub window {
 								$self->{_c}{'cw'}{'width'},
 								$self->{_c}{'cw'}{'height'},
 								undef,
-								$self->{_c}{'cw'}{'window'}->get_xid
+								$self->{_c}{'cw'}{'window'}->get_xid,
+								$self->{_c}{'cw'}{'gdk_window'}->get_xid
 						);
 
 						$self->quit;
@@ -1082,7 +1026,8 @@ sub window {
 			$self->{_c}{'cw'}{'width'},
 			$self->{_c}{'cw'}{'height'},
 			$self->{_c}{'cw'}{'window_region'},
-			$self->{_c}{'cw'}{'window'}->get_xid
+			$self->{_c}{'cw'}{'window'}->get_xid,
+			$self->{_c}{'cw'}{'gdk_window'}->get_xid
 		);
 		
 	}
@@ -1092,13 +1037,38 @@ sub window {
 sub redo_capture {
 	my $self = shift;
 	my $output = 3;
+	
 	if(defined $self->{_history}){
-		my ($last_drawable, $lxp, $lyp, $lwp, $lhp, $lregion, $lxid) = $self->{_history}->get_last_capture;
-		$self->{_xid} = $lxid;
-		#~ print $self->{_xid}, "\n";
-		#~ ($output) = $self->get_pixbuf_from_drawable($self->{_history}->get_last_capture);
-		($output) = $self->window_by_xid;
+		my ($last_drawable, $lxp, $lyp, $lwp, $lhp, $lregion, $wxid, $gxid) = $self->{_history}->get_last_capture;
+		my $gdk_window  = Gtk2::Gdk::Window->foreign_new( $gxid );
+		
+		if(defined $gdk_window){
+
+			#get_size of it
+			my ( $xp, $yp, $wp, $hp ) = $gdk_window->get_geometry;
+			( $xp, $yp ) = $gdk_window->get_origin;
+		
+			#focus selected window (maybe it is hidden)
+			$gdk_window->focus(Gtk2->get_current_event_time);
+			Gtk2::Gdk->flush;
+
+			#~ if(defined $self->{_mode} && $self->{_mode} =~ m/section/ig){
+				($output) = $self->get_pixbuf_from_drawable($self->{_root}, $xp, $yp, $wp, $hp);	
+			#~ }elsif(defined $self->{_mode} && $self->{_mode} =~ m/window/ig){
+				#~ ($output) = $self->get_pixbuf_from_drawable($self->{_history}->get_last_capture);
+				#~ ($output) = $self->window_by_xid;			
+			#~ }else{
+				#~ warn "WARNING: Unsupported mode\n";
+			#~ }
+				
+		}else{
+			warn "WARNING: Could not get window with id $gxid\n";
+		}
+
+	}else{
+		warn "WARNING: No history object\n";
 	}
+	
 	return $output;
 }	
 

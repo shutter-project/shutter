@@ -24,7 +24,6 @@ package Shutter::Screenshot::SelectorSimple;
 
 #modules
 #--------------------------------------
-use SelfLoader;
 use utf8;
 use strict;
 use warnings;
@@ -57,10 +56,6 @@ sub new {
     #~ my $self = shift;
     #~ print "$self dying at\n";
 #~ } 
-
-1;
-
-__DATA__
 
 sub select_simple {
 	my $self = shift;
