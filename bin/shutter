@@ -6897,7 +6897,7 @@ sub fct_ret_workspace_menu {
 	my $menu_wrksp = Gtk2::Menu->new;
 
 	my $screen = Gnome2::Wnck::Screen->get_default;
-	$screen->force_update();
+	#~ $screen->force_update();
 
 	#we determine the wm name but on older
 	#version of libwnck (or the bindings)
@@ -7019,7 +7019,7 @@ sub fct_ret_workspace_menu {
 
 sub fct_ret_window_menu {
 	my $screen = Gnome2::Wnck::Screen->get_default;
-	$screen->force_update();
+	#~ $screen->force_update();
 
 	my $active_workspace = $screen->get_active_workspace;
 
@@ -7171,7 +7171,7 @@ sub fct_ret_tray_menu {
 	);
 
 	#preferences	
-	my $menuitem_redoshot = Gtk2::ImageMenuItem->new_with_mnemonic ( $d->get('_Redo last capture') );
+	my $menuitem_redoshot = Gtk2::ImageMenuItem->new_with_mnemonic ( $d->get('_Redo last screenshot') );
 	$menuitem_redoshot->set_image(Gtk2::Image->new_from_stock('gtk-refresh', 'menu'));
 	$menuitem_redoshot->signal_connect( 'activate', \&evt_take_screenshot, 'redoshot' );
 	$menuitem_redoshot->set_sensitive(&fct_get_last_capture);
@@ -7387,7 +7387,7 @@ sub fct_ret_program_menu {
 			$sm->{_menuitem_reopen_default}->foreach (sub {
 				if($_[0] =~ /Gtk2::AccelLabel/){
 					$_[0]->set_label(sprintf( $d->get("_Open with %s"), "'".$app->{'name'}."'"));
-					return undef;
+					return;
 				}
 			});	
 
@@ -7395,7 +7395,7 @@ sub fct_ret_program_menu {
 			$sm->{_menuitem_large_reopen_default}->foreach (sub {
 				if($_[0] =~ /Gtk2::AccelLabel/){
 					$_[0]->set_label(sprintf( $d->get("_Open with %s"), "'".$app->{'name'}."'"));
-					return undef;
+					return;
 				}
 			});	
 				
@@ -9693,9 +9693,10 @@ sub dlg_profile_name {
 		if(grep($input == $_, @invalid_codes)){
 			my $char = chr($input);
 			$char = '&amp;' if $char eq '&';
-			$new_profile_name_hint->set_markup("<span size='small'>" . 
-											sprintf($d->get("Reserved character %s is not allowed to be in a filename.") , "'".$char."'") 
-											. "</span>");	
+			$new_profile_name_hint->set_markup(
+			"<span size='small'>" . 
+			sprintf($d->get("Reserved character %s is not allowed to be in a filename.") , "'".$char."'") .
+			"</span>");	
 			return TRUE;
 		}else{
 			#clear possible message when valid char is entered

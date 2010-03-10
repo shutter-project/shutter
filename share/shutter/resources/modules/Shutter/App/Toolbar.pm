@@ -59,10 +59,10 @@ sub create_toolbar {
 	#button redoshot
 	#--------------------------------------
 	my $image_redoshot = Gtk2::Image->new_from_stock( 'gtk-refresh', 'large-toolbar' );
-	$self->{_redoshot} = Gtk2::ToolButton->new( $image_redoshot, $d->get("Redo last capture") );
+	$self->{_redoshot} = Gtk2::ToolButton->new( $image_redoshot, $d->get("Redo") );
 	$self->{_redoshot}->set_is_important (TRUE);
 
-	$tooltips->set_tip( $self->{_redoshot}, $d->get("Redo the last screenshot") );
+	$tooltips->set_tip( $self->{_redoshot}, $d->get("Redo last screenshot") );
 
 	#--------------------------------------	
 

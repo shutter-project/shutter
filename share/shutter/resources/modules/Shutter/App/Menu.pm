@@ -406,7 +406,7 @@ sub fct_ret_new_menu {
 
 	#redo last capture
 	$self->{_menuitem_redoshot} = Gtk2::ImageMenuItem->new_from_stock('gtk-refresh');
-	$self->{_menuitem_redoshot}->get_child->set_text_with_mnemonic( $d->get('_Redo last capture') );
+	$self->{_menuitem_redoshot}->get_child->set_text_with_mnemonic( $d->get('_Redo last screenshot') );
 	$self->{_menuitem_redoshot}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('F5'), qw/visible/ );
 	$self->{_menuitem_redoshot}->set_sensitive(FALSE);
 	$self->{_menu_new}->append( $self->{_menuitem_redoshot} );
@@ -615,7 +615,7 @@ sub fct_ret_actions_menu{
 	$self->{_menuitem_redoshot_this} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Redo _this screenshot') );
 	$self->{_menuitem_redoshot_this}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>F5'), qw/visible/ ) if $accel_group;
 	$self->{_menuitem_redoshot_this}->set_image( Gtk2::Image->new_from_stock( 'gtk-refresh', 'menu' ) );
-	#~ $self->{_menuitem_redoshot}->set_sensitive(FALSE);
+	$self->{_menuitem_redoshot_this}->set_sensitive(FALSE);
 	$self->{_menuitem_redoshot_this}->set_name('item-redoshot');
 	$self->{_menu_actions}->append( $self->{_menuitem_redoshot_this} );
 	
@@ -719,7 +719,7 @@ sub fct_ret_actions_menu_large{
 
 	$self->{_menuitem_large_redoshot_this} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Redo _this screenshot') );
 	$self->{_menuitem_large_redoshot_this}->set_image( Gtk2::Image->new_from_stock( 'gtk-refresh', 'menu' ) );
-	#~ $self->{_menuitem_large_redoshot_this}->set_sensitive(FALSE);
+	$self->{_menuitem_large_redoshot_this}->set_sensitive(FALSE);
 	$self->{_menuitem_large_redoshot_this}->set_name('item-large-redoshot');
 	$self->{_menu_large_actions}->append( $self->{_menuitem_large_redoshot_this} );
 	
