@@ -497,6 +497,7 @@ my $filename_box        = Gtk2::HBox->new( FALSE, 0 );
 my $saveDir_box         = Gtk2::HBox->new( FALSE, 0 );
 my $save_ask_box        = Gtk2::HBox->new( FALSE, 0 );
 my $save_auto_box       = Gtk2::HBox->new( FALSE, 0 );
+my $no_autocopy_box  	= Gtk2::HBox->new( FALSE, 0 );
 my $image_autocopy_box  = Gtk2::HBox->new( FALSE, 0 );
 my $fname_autocopy_box  = Gtk2::HBox->new( FALSE, 0 );
 my $delay_box           = Gtk2::HBox->new( FALSE, 0 );
@@ -1036,7 +1037,7 @@ if ( defined $settings_xml->{'general'}->{'save_ask'} ) {
 #end - save options
 #--------------------------------------
 
-#image image_autocopy
+#image_autocopy
 #--------------------------------------
 my $image_autocopy_active = Gtk2::RadioButton->new_with_label(undef, $d->get("Automatically copy screenshot to clipboard") );
 $image_autocopy_box->pack_start( $image_autocopy_active, FALSE, TRUE, 12 );
@@ -1049,10 +1050,10 @@ if ( defined $settings_xml->{'general'}->{'image_autocopy'} ) {
 
 $tooltips->set_tip( $image_autocopy_active, $d->get("Automatically copy screenshot to clipboard") );
 
-#end - image image_autocopy
+#end - image_autocopy
 #--------------------------------------
 
-#filename image_autocopy
+#fname_autocopy
 #--------------------------------------
 my $fname_autocopy_active = Gtk2::RadioButton->new_with_label($image_autocopy_active, $d->get("Automatically copy filename to clipboard") );
 $fname_autocopy_box->pack_start( $fname_autocopy_active, FALSE, TRUE, 12 );
@@ -1065,7 +1066,23 @@ if ( defined $settings_xml->{'general'}->{'fname_autocopy'} ) {
 
 $tooltips->set_tip( $fname_autocopy_active, $d->get("Automatically copy filename to clipboard") );
 
-#end - filename image_autocopy
+#end - fname_autocopy
+#--------------------------------------
+
+#no_autocopy
+#--------------------------------------
+my $no_autocopy_active = Gtk2::RadioButton->new_with_label($image_autocopy_active, $d->get("Do not copy anything to clipboard") );
+$no_autocopy_box->pack_start( $no_autocopy_active, FALSE, TRUE, 12 );
+
+if ( defined $settings_xml->{'general'}->{'no_autocopy'} ) {
+	$no_autocopy_active->set_active( $settings_xml->{'general'}->{'no_autocopy'} );
+} else {
+	$no_autocopy_active->set_active(FALSE);
+}
+
+$tooltips->set_tip( $no_autocopy_active, $d->get("Do not copy anything to clipboard") );
+
+#end - no_autocopy
 #--------------------------------------
 
 #delay
@@ -1850,6 +1867,7 @@ $save_vbox->pack_start( $saveDir_box, FALSE, TRUE, 3 );
 $save_vbox->pack_start( $filename_hint, TRUE, TRUE, 3 );
 $save_vbox->pack_start( $fname_autocopy_box, TRUE, TRUE, 3 );
 $save_vbox->pack_start( $image_autocopy_box, TRUE, TRUE, 3 );
+$save_vbox->pack_start( $no_autocopy_box, TRUE, TRUE, 3 );
 $save_frame->add($save_vbox);
 
 $capture_vbox->pack_start( $cursor_box, FALSE, TRUE, 3 );
@@ -3640,6 +3658,7 @@ sub fct_save_settings {
 	$settings{'general'}->{'save_ask'}       = $save_ask_active->get_active();
 	$settings{'general'}->{'image_autocopy'} = $image_autocopy_active->get_active();
 	$settings{'general'}->{'fname_autocopy'} = $fname_autocopy_active->get_active();
+	$settings{'general'}->{'no_autocopy'} 	 = $no_autocopy_active->get_active();
 	$settings{'general'}->{'cursor'}		 = $cursor_active->get_active();
 	$settings{'general'}->{'delay'}			 = $delay->get_value();
 
@@ -3980,6 +3999,7 @@ sub fct_load_settings {
 				
 				$image_autocopy_active->set_active( $settings_xml->{'general'}->{'image_autocopy'} );
 				$fname_autocopy_active->set_active( $settings_xml->{'general'}->{'fname_autocopy'} );
+				$no_autocopy_active->set_active( $settings_xml->{'general'}->{'no_autocopy'} );
 
 				$cursor_active->set_active( $settings_xml->{'general'}->{'cursor'} );
 				$delay->set_value( $settings_xml->{'general'}->{'delay'} );
@@ -5612,15 +5632,20 @@ sub fct_take_screenshot {
 		#thumbnail as well if present
 		my $new_key_screenshot_thumbnail = &fct_integrate_screenshot_in_notebook( Gnome2::VFS::URI->new($screenshot_thumbnail_name), $screenshot_thumbnail )
 			if $thumbnail_active->get_active;
-
-		#image_autocopy to clipboard if configured
-		if ( $image_autocopy_active->get_active() ) {
-			$clipboard->set_image($screenshot);
-		}
 		
-		#filename autocopy to clipboard if configured
-		if ( $fname_autocopy_active->get_active() ) {
-			$clipboard->set_text($screenshot_name);
+		#copy to clipboard
+		if(!$no_autocopy_active->get_active()) {
+		
+			#image_autocopy to clipboard if configured
+			if ( $image_autocopy_active->get_active() ) {
+				$clipboard->set_image($screenshot);
+			}
+			
+			#filename autocopy to clipboard if configured
+			if ( $fname_autocopy_active->get_active() ) {
+				$clipboard->set_text($screenshot_name);
+			}
+
 		}
 
 		#open screenshot with configured program
