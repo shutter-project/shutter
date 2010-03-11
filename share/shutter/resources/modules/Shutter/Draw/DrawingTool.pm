@@ -24,8 +24,6 @@ package Shutter::Draw::DrawingTool;
 
 #modules
 #--------------------------------------
-use SelfLoader;
-
 use utf8;
 use strict;
 use warnings;
@@ -155,10 +153,6 @@ sub new {
     #~ my $self = shift;
     #~ print "$self dying at\n";
 #~ } 
-
-1;
-
-__DATA__
 
 sub show {
 	my $self        	  = shift;
@@ -432,7 +426,7 @@ sub show {
 	
 	#STARTUP PROCEDURE
 	#-------------------------------------------------	
-	#~ $self->{_drawing_window}->window->focus(Gtk2->get_current_event_time);
+	$self->{_drawing_window}->window->focus(Gtk2->get_current_event_time);
 
 	$self->adjust_rulers;
 
@@ -4218,11 +4212,25 @@ sub show_item_properties {
 
 		$text_vbox->pack_start_defaults($textview_hbox);
 
+		#use font checkbox
+		my $use_font  = Gtk2::CheckButton->new_with_label( $self->{_d}->get("Use selected font") );
+		$use_font->set_active(TRUE);
+
+		$text_vbox->pack_start_defaults($use_font);
+
 		#apply changes directly
+		$use_font->signal_connect(
+			'toggled' => sub {
+
+				$self->modify_text_in_properties( $font_btn, $textview, $font_color, $item, $use_font );
+
+			}
+		);
+
 		$font_btn->signal_connect(
 			'font-set' => sub {
 
-				$self->modify_text_in_properties( $font_btn, $textview, $font_color, $item );
+				$self->modify_text_in_properties( $font_btn, $textview, $font_color, $item, $use_font );
 
 			}
 		);
@@ -4230,7 +4238,7 @@ sub show_item_properties {
 		$font_color->signal_connect(
 			'color-set' => sub {
 
-				$self->modify_text_in_properties( $font_btn, $textview, $font_color, $item );
+				$self->modify_text_in_properties( $font_btn, $textview, $font_color, $item, $use_font );
 
 			}
 		);
@@ -4644,7 +4652,7 @@ sub apply_properties {
 		if($textview){
 			$new_text
 				= $textview->get_buffer->get_text( $textview->get_buffer->get_start_iter, $textview->get_buffer->get_end_iter, FALSE )
-				|| "New Text...";
+				|| $self->{_d}->get('New text...');
 		}else{
 			#determine font description and text from string
 			my ( $attr_list, $text_raw, $accel_char ) = Gtk2::Pango->parse_markup( $item->get('text') );
@@ -4682,10 +4690,17 @@ sub modify_text_in_properties {
 	my $textview   = shift;
 	my $font_color = shift;
 	my $item       = shift;
+	my $use_font   = shift;
 
 	my $font_descr = Gtk2::Pango::FontDescription->from_string( $font_btn->get_font_name );
 	my $texttag    = Gtk2::TextTag->new;
-	$texttag->set( 'font-desc' => $font_descr, 'foreground-gdk' => $font_color->get_color );
+	
+	if($use_font->get_active){
+		$texttag->set( 'font-desc' => $font_descr, 'foreground-gdk' => $font_color->get_color );
+	}else{
+		$texttag->set( 'foreground-gdk' => $font_color->get_color );
+	}
+	
 	my $texttagtable = Gtk2::TextTagTable->new;
 	$texttagtable->add($texttag);
 	my $text = Gtk2::TextBuffer->new($texttagtable);
@@ -5419,7 +5434,12 @@ sub event_item_on_button_release {
 				}elsif (exists $self->{_items}{$nitem}{text}){
 
 					if($self->{_items}{$nitem}{type} eq 'text'){
-	
+						
+						#clear text
+						$self->{_items}{$nitem}{text}->set(
+							'text' => "<span font_desc='" . $self->{_font} . "' ></span>"
+						);
+						
 						#adjust parent rectangle
 						my $tb = $self->{_items}{$nitem}{text}->get_bounds;
 										
@@ -5429,6 +5449,12 @@ sub event_item_on_button_release {
 							'width' 	=> abs($tb->x1 - $tb->x2),
 							'height' 	=> abs($tb->y1 - $tb->y2),
 						);
+						
+						#show property dialog directly
+						Glib::Idle->add(sub{	
+							$self->show_item_properties($self->{_items}{$nitem}{text}, $nitem, $nitem);
+							return FALSE;
+						});
 					
 					}elsif($self->{_items}{$nitem}{type} eq 'number'){
 
