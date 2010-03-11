@@ -2741,6 +2741,43 @@ sub store_to_xdo_stack {
 	return TRUE;	
 }
 
+sub xdo_remove {
+	my $self 	= shift;
+	my $xdo  	= shift;
+	my $item	= shift;	
+
+	my @indices;
+	my $counter = 0;
+	if($xdo eq 'undo'){
+		foreach my $do (@{ $self->{_undo} }){
+			push @indices, $counter if $item == $do->{'item'};
+			$counter++;
+		}		
+		#delete from array
+		foreach my $index (@indices){
+			splice(@{ $self->{_undo} }, $index, 1);
+		}
+	}elsif($xdo eq 'redo'){
+		foreach my $do (@{ $self->{_redo} }){
+			push @indices, $counter if $item == $do->{'item'};
+			$counter++;
+		}			
+		#delete from array
+		foreach my $index (@indices){
+			splice(@{ $self->{_redo} }, $index, 1);
+		}
+	}
+
+	#disable undo/redo actions
+	$self->{_uimanager}->get_widget("/MenuBar/Edit/Undo")->set_sensitive(scalar @{ $self->{_undo} }) if defined $self->{_undo};
+	$self->{_uimanager}->get_widget("/MenuBar/Edit/Redo")->set_sensitive(scalar @{ $self->{_redo} }) if defined $self->{_redo};	
+
+	$self->{_uimanager}->get_widget("/ToolBar/Undo")->set_sensitive(scalar @{ $self->{_undo} }) if defined $self->{_undo};
+	$self->{_uimanager}->get_widget("/ToolBar/Redo")->set_sensitive(scalar @{ $self->{_redo} }) if defined $self->{_redo};	
+
+	return TRUE;
+}
+
 sub xdo {
 	my $self 			= shift;
 	my $xdo  			= shift;
@@ -4652,7 +4689,7 @@ sub apply_properties {
 		if($textview){
 			$new_text
 				= $textview->get_buffer->get_text( $textview->get_buffer->get_start_iter, $textview->get_buffer->get_end_iter, FALSE )
-				|| $self->{_d}->get('New text...');
+				|| " ";
 		}else{
 			#determine font description and text from string
 			my ( $attr_list, $text_raw, $accel_char ) = Gtk2::Pango->parse_markup( $item->get('text') );
@@ -4660,7 +4697,7 @@ sub apply_properties {
 		}
 
 		$item->set(
-			'text'         => "<span font_desc=' " . $font_descr->to_string . " ' >" . $new_text . "</span>",
+			'text'         => "<span font_desc=' " . $font_descr->to_string . " ' >" . Glib::Markup::escape_text ($new_text) . "</span>",
 			'width'		   => -1,
 			'use-markup'   => TRUE,
 			'fill-pattern' => $fill_pattern
@@ -5452,7 +5489,20 @@ sub event_item_on_button_release {
 						
 						#show property dialog directly
 						Glib::Idle->add(sub{	
-							$self->show_item_properties($self->{_items}{$nitem}{text}, $nitem, $nitem);
+							unless($self->show_item_properties($self->{_items}{$nitem}{text}, $nitem, $nitem)){
+								if(my $nint = $self->{_canvas}->get_root_item->find_child($nitem)){
+									#delete canvas objects
+									$self->{_canvas}->get_root_item->remove_child($nint);
+									$self->handle_rects( 'delete', $nitem );
+									$self->handle_embedded( 'delete', $nitem );
+									#delete from hash
+									delete $self->{_items}{$nitem};
+									#delete all xdo emtries for this object
+									$self->xdo_remove('undo', $nitem);
+									$self->xdo_remove('redo', $nitem);
+									$self->deactivate_all;
+								}								
+							}
 							return FALSE;
 						});
 					
