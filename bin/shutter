@@ -2767,18 +2767,14 @@ sub fct_get_last_capture{
 	my $last_capture_tstamp = 0;
 	my $last_capture_key 	= 0;
 	foreach my $key (keys %session_screens){
-		#check if the file exists
-		#the file might be deleted
-		if(exists $session_screens{$key}->{'uri'} && $session_screens{$key}->{'uri'}->exists){
-			if(exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}){
-				if(exists $session_screens{$key}->{'history_timestamp'} && defined $session_screens{$key}->{'history_timestamp'}){
-					if($session_screens{$key}->{'history_timestamp'} > $last_capture_tstamp){
-						$last_capture_tstamp = $session_screens{$key}->{'history_timestamp'}; 
-						$last_capture_key = $key;
-					}
+		if(exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}){
+			if(exists $session_screens{$key}->{'history_timestamp'} && defined $session_screens{$key}->{'history_timestamp'}){
+				if($session_screens{$key}->{'history_timestamp'} > $last_capture_tstamp){
+					$last_capture_tstamp = $session_screens{$key}->{'history_timestamp'}; 
+					$last_capture_key = $key;
 				}
 			}
-		}	
+		}
 	}
 	return $last_capture_key;
 }
@@ -2787,124 +2783,129 @@ sub fct_update_actions {
 	my $n_items = shift;
 	my $key 	= shift;
 
-	#TOOLBAR
-	#--------------------------------------
+	Glib::Idle->add(sub{
 
-	#last capture
-	$st->{_redoshot}->set_sensitive(&fct_get_last_capture);
+		#TOOLBAR
+		#--------------------------------------
 	
-	#goocanvas is optional, don't enable it when not installed
-	if($goocanvas) {
-		$st->{_edit}->set_sensitive($n_items);
-	}else{
-		$st->{_edit}->set_sensitive(FALSE);
-	}
-	
-	$st->{_upload}->set_sensitive($n_items);
-
-	#MENU
-	#--------------------------------------
-	
-	#last capture
-	$sm->{_menuitem_redoshot}->set_sensitive($st->{_redoshot}->is_sensitive);
-	
-	#file
-	$sm->{_menuitem_save_as}->set_sensitive($n_items);
-	#~ $sm->{_menuitem_export_svg}->set_sensitive($n_items);
-	$sm->{_menuitem_export_pdf}->set_sensitive($n_items);
-	$sm->{_menuitem_pagesetup}->set_sensitive($n_items);
-	$sm->{_menuitem_print}->set_sensitive($n_items);
-	$sm->{_menuitem_email}->set_sensitive($n_items);
-	$sm->{_menuitem_close}->set_sensitive($n_items);		
-	$sm->{_menuitem_close_all}->set_sensitive($n_items);		
-
-	#edit
-	if($n_items && defined $key && defined @{$session_screens{$key}->{'undo'}} && scalar @{$session_screens{$key}->{'undo'}} > 1){
-		$sm->{_menuitem_undo}->set_sensitive(TRUE);			
-	}else{
-		$sm->{_menuitem_undo}->set_sensitive(FALSE);
-	}
-
-	if($n_items && defined $key && defined @{$session_screens{$key}->{'redo'}} && scalar @{$session_screens{$key}->{'redo'}} > 0){
-		$sm->{_menuitem_redo}->set_sensitive(TRUE);			
-	}else{
-		$sm->{_menuitem_redo}->set_sensitive(FALSE);
-	}
+		#last capture
+		$st->{_redoshot}->set_sensitive(&fct_get_last_capture);
 		
-	$sm->{_menuitem_trash}->set_sensitive($n_items);
-	$sm->{_menuitem_copy}->set_sensitive($n_items);
-	$sm->{_menuitem_copy_filename}->set_sensitive($n_items);	
-
-	#view
-	$sm->{_menuitem_zoom_in}->set_sensitive($n_items);
-	$sm->{_menuitem_zoom_out}->set_sensitive($n_items);
-	$sm->{_menuitem_zoom_100}->set_sensitive($n_items);
-	$sm->{_menuitem_zoom_best}->set_sensitive($n_items);
-
-	#screenshot
-	$sm->{_menuitem_reopen_default}->visible($n_items);
-	$sm->{_menuitem_reopen_default}->set_sensitive($n_items);
-	$sm->{_menuitem_reopen}->set_sensitive($n_items);
-	$sm->{_menuitem_rename}->set_sensitive($n_items);
-
-	#nautilus-sendto is optional, don't enable it when not installed
-	if ( $nautilus_sendto ) {
-		$sm->{_menuitem_send}->set_sensitive($n_items);	
-	}else{
-		$sm->{_menuitem_send}->set_sensitive(FALSE);
-	}	
-
-	$sm->{_menuitem_upload}->set_sensitive($n_items);
+		#goocanvas is optional, don't enable it when not installed
+		if($goocanvas) {
+			$st->{_edit}->set_sensitive($n_items);
+		}else{
+			$st->{_edit}->set_sensitive(FALSE);
+		}
 		
-	#goocanvas is optional, don't enable it when not installed
-	if ($goocanvas) {
-		$sm->{_menuitem_draw}->set_sensitive($n_items);
-	}else{
-		$sm->{_menuitem_draw}->set_sensitive(FALSE);
-	}		
-
-	$sm->{_menuitem_plugin}->set_sensitive($n_items);
-
-	#redoshot_this
-	if(defined $key && exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}){
-		$sm->{_menuitem_redoshot_this}->set_sensitive($n_items);
-	}else{
-		$sm->{_menuitem_redoshot_this}->set_sensitive(FALSE);
-	}
+		$st->{_upload}->set_sensitive($n_items);
 	
-	#right-click menu
-	$sm->{_menuitem_large_reopen_default}->visible($n_items);
-	$sm->{_menuitem_large_reopen_default}->set_sensitive($n_items);
-	$sm->{_menuitem_large_reopen}->set_sensitive($n_items);
-	$sm->{_menuitem_large_rename}->set_sensitive($n_items);
-	$sm->{_menuitem_large_trash}->set_sensitive($n_items);
-	$sm->{_menuitem_large_copy}->set_sensitive($n_items);
-	$sm->{_menuitem_large_copy_filename}->set_sensitive($n_items);
-
-	#nautilus-sendto is optional, don't enable it when not installed
-	if ( $nautilus_sendto ) {
-		$sm->{_menuitem_large_send}->set_sensitive($n_items);	
-	}else{
-		$sm->{_menuitem_large_send}->set_sensitive(FALSE);
-	}	
-
-	$sm->{_menuitem_large_upload}->set_sensitive($n_items);
+		#MENU
+		#--------------------------------------
 		
-	#goocanvas is optional, don't enable it when not installed
-	if ($goocanvas) {
-		$sm->{_menuitem_large_draw}->set_sensitive($n_items);
-	}else{
-		$sm->{_menuitem_large_draw}->set_sensitive(FALSE);
-	}		
-
-	$sm->{_menuitem_large_plugin}->set_sensitive($n_items);
-
-	#redoshot_this
-	if(defined $key && exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}){
-		$sm->{_menuitem_large_redoshot_this}->set_sensitive($n_items);
-	}else{
-		$sm->{_menuitem_large_redoshot_this}->set_sensitive(FALSE);
-	}
+		#last capture
+		$sm->{_menuitem_redoshot}->set_sensitive($st->{_redoshot}->is_sensitive);
+		
+		#file
+		$sm->{_menuitem_save_as}->set_sensitive($n_items);
+		#~ $sm->{_menuitem_export_svg}->set_sensitive($n_items);
+		$sm->{_menuitem_export_pdf}->set_sensitive($n_items);
+		$sm->{_menuitem_pagesetup}->set_sensitive($n_items);
+		$sm->{_menuitem_print}->set_sensitive($n_items);
+		$sm->{_menuitem_email}->set_sensitive($n_items);
+		$sm->{_menuitem_close}->set_sensitive($n_items);		
+		$sm->{_menuitem_close_all}->set_sensitive($n_items);		
+	
+		#edit
+		if($n_items && defined $key && defined @{$session_screens{$key}->{'undo'}} && scalar @{$session_screens{$key}->{'undo'}} > 1){
+			$sm->{_menuitem_undo}->set_sensitive(TRUE);			
+		}else{
+			$sm->{_menuitem_undo}->set_sensitive(FALSE);
+		}
+	
+		if($n_items && defined $key && defined @{$session_screens{$key}->{'redo'}} && scalar @{$session_screens{$key}->{'redo'}} > 0){
+			$sm->{_menuitem_redo}->set_sensitive(TRUE);			
+		}else{
+			$sm->{_menuitem_redo}->set_sensitive(FALSE);
+		}
+			
+		$sm->{_menuitem_trash}->set_sensitive($n_items);
+		$sm->{_menuitem_copy}->set_sensitive($n_items);
+		$sm->{_menuitem_copy_filename}->set_sensitive($n_items);	
+	
+		#view
+		$sm->{_menuitem_zoom_in}->set_sensitive($n_items);
+		$sm->{_menuitem_zoom_out}->set_sensitive($n_items);
+		$sm->{_menuitem_zoom_100}->set_sensitive($n_items);
+		$sm->{_menuitem_zoom_best}->set_sensitive($n_items);
+	
+		#screenshot
+		$sm->{_menuitem_reopen_default}->visible($n_items);
+		$sm->{_menuitem_reopen_default}->set_sensitive($n_items);
+		$sm->{_menuitem_reopen}->set_sensitive($n_items);
+		$sm->{_menuitem_rename}->set_sensitive($n_items);
+	
+		#nautilus-sendto is optional, don't enable it when not installed
+		if ( $nautilus_sendto ) {
+			$sm->{_menuitem_send}->set_sensitive($n_items);	
+		}else{
+			$sm->{_menuitem_send}->set_sensitive(FALSE);
+		}	
+	
+		$sm->{_menuitem_upload}->set_sensitive($n_items);
+			
+		#goocanvas is optional, don't enable it when not installed
+		if ($goocanvas) {
+			$sm->{_menuitem_draw}->set_sensitive($n_items);
+		}else{
+			$sm->{_menuitem_draw}->set_sensitive(FALSE);
+		}		
+	
+		$sm->{_menuitem_plugin}->set_sensitive($n_items);
+	
+		#redoshot_this
+		if(defined $key && exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}){
+			$sm->{_menuitem_redoshot_this}->set_sensitive($n_items);
+		}else{
+			$sm->{_menuitem_redoshot_this}->set_sensitive(FALSE);
+		}
+		
+		#right-click menu
+		$sm->{_menuitem_large_reopen_default}->visible($n_items);
+		$sm->{_menuitem_large_reopen_default}->set_sensitive($n_items);
+		$sm->{_menuitem_large_reopen}->set_sensitive($n_items);
+		$sm->{_menuitem_large_rename}->set_sensitive($n_items);
+		$sm->{_menuitem_large_trash}->set_sensitive($n_items);
+		$sm->{_menuitem_large_copy}->set_sensitive($n_items);
+		$sm->{_menuitem_large_copy_filename}->set_sensitive($n_items);
+	
+		#nautilus-sendto is optional, don't enable it when not installed
+		if ( $nautilus_sendto ) {
+			$sm->{_menuitem_large_send}->set_sensitive($n_items);	
+		}else{
+			$sm->{_menuitem_large_send}->set_sensitive(FALSE);
+		}	
+	
+		$sm->{_menuitem_large_upload}->set_sensitive($n_items);
+			
+		#goocanvas is optional, don't enable it when not installed
+		if ($goocanvas) {
+			$sm->{_menuitem_large_draw}->set_sensitive($n_items);
+		}else{
+			$sm->{_menuitem_large_draw}->set_sensitive(FALSE);
+		}		
+	
+		$sm->{_menuitem_large_plugin}->set_sensitive($n_items);
+	
+		#redoshot_this
+		if(defined $key && exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}){
+			$sm->{_menuitem_large_redoshot_this}->set_sensitive($n_items);
+		}else{
+			$sm->{_menuitem_large_redoshot_this}->set_sensitive(FALSE);
+		}
+	
+		return FALSE;
+	});
 		
 	return TRUE;
 }
@@ -3450,7 +3451,9 @@ sub fct_control_signals {
 		$st->{_section}->set_sensitive($sensitive);
 		$st->{_menu}->set_sensitive($sensitive);
 		$st->{_tooltip}->set_sensitive($sensitive);
-		$st->{_redoshot}->set_sensitive($sensitive);
+		if(&fct_get_last_capture){
+			$st->{_redoshot}->set_sensitive($sensitive);
+		}
 		$st->{_web}->set_sensitive($sensitive) if ($gnome_web_photo);
 	}
 	
@@ -4751,14 +4754,13 @@ sub fct_remove {
 				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
 				if ( defined $iter ) {
 					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
+					$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
 
 					if ( exists $session_screens{$key}->{'handle'} ) {
 
 						#cancel handle
 						$session_screens{$key}->{'handle'}->cancel;
 					}
-
-					$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
 
 					#copy to array
 					#we remove the files from hash and model 
