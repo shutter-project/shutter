@@ -171,6 +171,7 @@ require Shutter::Screenshot::Workspace;
 require Shutter::Screenshot::Web;
 require Shutter::Screenshot::Window;
 require Shutter::Screenshot::WindowXid;
+require Shutter::Screenshot::Error;
 
 #upload classes
 require Shutter::Upload::ImageBanana;
@@ -3269,7 +3270,7 @@ sub fct_integrate_screenshot_in_notebook {
 	my $key     = "[" . &fct_get_latest_tab_key . "] - $theTime";
 
 	#store the history object
-	if(defined $history){
+	if(defined $history && $history->get_history){
 		$session_screens{$key}->{'history'} = $history;	 
 		$session_screens{$key}->{'history_timestamp'} = time;	 
 	}
@@ -5290,24 +5291,22 @@ sub fct_take_screenshot {
 
 		print "\nvirtual website width: $website_width\n"
 			if $sc->get_debug;
-		
-		$screenshot = &dlg_website( $filetype_value, $quality_value, $website_width );
-		if ( $screenshot && $screenshot =~ /[a-zA-Z]/ ) {
-			#error if $screenshot is not a Gtk2::Gdk::Pixbuf
-			unless($screenshot =~ /Gtk2::Gdk::Pixbuf/){
-				$sd->dlg_error_message( $d->get("Unable to capture website"), 
-										$d->get( "Error while taking the screenshot." ),
-										undef, undef,
-										undef, undef,
-										undef, undef,
-										$screenshot );
-				&fct_show_status_message( 1, $d->get("Unable to capture website") );
-				&fct_control_main_window ('show');
-				return FALSE;
+
+		#determine timeout
+		my $web_menu = $st->{_web}->get_menu;
+		my @timeouts = $web_menu->get_children;
+		my $timeout  = undef;
+		foreach (@timeouts) {
+			if ( $_->get_active ) {
+				$timeout = $_->get_children->get_text;
+				$timeout =~ /([0-9]+)/;
+				$timeout = $1;
+				print $timeout. "\n" if $sc->get_debug;
 			}
-		}else{
-			$screenshot = 5;	
 		}
+		
+		$screenshooter = Shutter::Screenshot::Web->new($sc, $timeout, $filetype_value, $website_width);		 
+		$screenshot = $screenshooter->dlg_website();
 	
 	#window by xid	
 	} elsif ( $data =~ /^shutter_window_direct(.*)/ ) {
@@ -5384,8 +5383,6 @@ sub fct_take_screenshot {
 		if(defined $key && exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}){
 			$screenshooter = $session_screens{$key}->{'history'};
 			$screenshot = $screenshooter->redo_capture;
-		}else{			
-			$screenshot = 3;	
 		}
 
 	} else {
@@ -5404,81 +5401,15 @@ sub fct_take_screenshot {
 	#start postprocessing here
 
 	#...successfully???
-	unless ($screenshot) {
-			
-		#show error dialog
-		my $response = $sd->dlg_error_message( 
-			$d->get( "Maybe mouse pointer could not be grabbed or the selected area is invalid." ),
-			$d->get( "Error while taking the screenshot." )
-		);
-			
-		&fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
+	my $error = Shutter::Screenshot::Error->new($sc, $screenshot, $data);
+	if($error->is_error) {
+		
+		my ($response, $status_text) = $error->show_dialog($screenshooter->get_error_text);
+		&fct_show_status_message( 1, $status_text );
 		&fct_control_main_window ('show');
 		return FALSE;
+		
 	} else {
-
-		#user aborted screenshot
-		if ( $screenshot == 5 ) {
-			&fct_show_status_message( 1, $d->get("Capture aborted by user") );
-			&fct_control_main_window('show', $present_after_active->get_active);
-			return FALSE;
-
-		#keyboard could not be grabbed
-		}elsif( $screenshot == 1 ) {
-
-			my $response = $sd->dlg_error_message( 
-				$d->get( "Keyboard could not be grabbed." ),
-				$d->get( "Error while taking the screenshot." )
-			);
-				
-			&fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
-			&fct_control_main_window ('show');
-			return FALSE;
-
-		#no window with type xy detected
-		}elsif( $screenshot == 2 ) {
-			
-			my $type = undef;
-			if ( $data eq "menu" ||  $data eq "tray_menu" ) {
-				$type = $d->get( "menu" );
-			}elsif ( $data eq "tooltip" ||  $data eq "tray_tooltip" ) {
-				$type = $d->get( "tooltip" );
-			}
-
-			my $response = $sd->dlg_error_message( 
-				sprintf( $d->get( "No window with type %s detected." ), "'".$type."'"),
-				$d->get( "Error while taking the screenshot." )
-			);
-				
-			&fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
-			&fct_control_main_window ('show');
-			return FALSE;
-
-		#no history object stored
-		}elsif( $screenshot == 3 ) {
-
-			my $response = $sd->dlg_error_message( 
-				$d->get( "There is no last capture that can be redone." ),
-				$d->get( "Error while taking the screenshot." )
-			);
-				
-			&fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
-			&fct_control_main_window ('show');
-			return FALSE;
-
-		#window no longer available
-		}elsif( $screenshot == 4 ) {
-			
-			my $response = $sd->dlg_error_message( 
-				$d->get( "The window is no longer available." ),
-				$d->get( "Error while taking the screenshot." )
-			);
-				
-			&fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
-			&fct_control_main_window ('show');
-			return FALSE;			
-			
-		}
 
 		#we have to use the path (e.g. /home/username/file1.png)
 		#so we can save the screenshot_properly
@@ -5511,13 +5442,13 @@ sub fct_take_screenshot {
 
 		#set name
 		#e.g. window or workspace name		
-		if(defined $screenshot->{'name'}){
-			utf8::decode $screenshot->{'name'};
-			$screenshot->{'name'} =~ s/(\/|\#)/-/g;
-			$screenshot_name =~ s/\$name/$screenshot->{'name'}/g;
+		if(my $action_name = $screenshooter->get_action_name){
+			utf8::decode $action_name;
+			$action_name =~ s/(\/|\#)/-/g;
+			$screenshot_name =~ s/\$name/$action_name/g;
 			#no blanks (special wildcard)
-			$screenshot->{'name'} =~ s/\ //g;
-			$screenshot_name =~ s/\$nb_name/$screenshot->{'name'}/g;				
+			$action_name =~ s/\ //g;
+			$screenshot_name =~ s/\$nb_name/$action_name/g;				
 		}else{
 			$screenshot_name =~ s/(\$name|\$nb_name)/unknown/g;
 		}
@@ -9429,259 +9360,6 @@ sub dlg_upload_error_message {
 		);
 	}
 	return $response;
-}
-
-sub dlg_website {
-	my ( $filetype_value, $quality_value, $website_width ) = @_;
-
-	my $screenshot  = undef;
-	my $web_process = Proc::Simple->new;
-
-	#gwp result will be saved to tempfile
-	my ( $tmpfh, $tmpfilename ) = tempfile(UNLINK => 1);
-	
-	#redirect outputs
-	my ( $tmpfh_stdout, $tmpfilename_stdout ) = tempfile(UNLINK => 1);
-	my ( $tmpfh_stderr, $tmpfilename_sterr ) = tempfile(UNLINK => 1);
-  	$web_process->redirect_output ($tmpfilename_stdout, $tmpfilename_sterr);
-
-	my $website_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/], 'other', 'none', undef );
-
-	$website_dialog->set_title("Shutter");
-
-	$website_dialog->set( 'text' => $d->get("Take a screenshot of a website") );
-
-	$website_dialog->set( 'secondary-text' => $d->get("URL to capture") . ": " );
-
-	if($sc->get_theme->has_icon('applications-internet')){
-		$website_dialog->set(
-			'image' => Gtk2::Image->new_from_icon_name( 'applications-internet', 'dialog' ) );		
-	}else{
-		$website_dialog->set(
-			'image' => Gtk2::Image->new_from_pixbuf(
-				Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/web_image.svg", Gtk2::IconSize->lookup('dialog') )
-			)
-		);
-	}
-
-	#cancel button
-	my $cancel_btn = Gtk2::Button->new_from_stock('gtk-cancel');
-
-	#capture button
-	my $execute_btn = Gtk2::Button->new_with_mnemonic( $d->get("C_apture") );
-	$execute_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-execute', 'button' ) );
-	$execute_btn->set_sensitive(FALSE);
-	$execute_btn->can_default(TRUE);
-
-	$website_dialog->add_action_widget( $cancel_btn,  'cancel' );
-	$website_dialog->add_action_widget( $execute_btn, 'accept' );
-
-	$website_dialog->set_default_response('accept');
-
-	my $website_hbox  = Gtk2::HBox->new();
-	my $website_hbox2 = Gtk2::HBox->new();
-
-	my $website = Gtk2::Entry->new;
-	#~ $website->set_text("http://");
-	$website->set_activates_default(TRUE);
-
-	#check if url is valid
-	#~ my $vurl = qr/^((http(s?))\:\/\/)?(www.|[a-zA-Z].)[a-zA-Z0-9\-\.]+\.([a-zA-Z]+)(\:[0-9]+)*(\/($|[a-zA-Z0-9\.\,\;\?\'\\\+&amp;%\$#\=~_\-]+))*$/;
-	$website->signal_connect('changed' => sub {
-		#~ unless ( $website->get_text =~ /$vurl/) {
-		unless ( $website->get_text ) {
-			$execute_btn->set_sensitive(FALSE);
-		}else{
-			$execute_btn->set_sensitive(TRUE);
-		}
-		return FALSE;
-	});
-	
-	#~ eval{
-		#~ require Google::Search;	
-	#~ };
-	#~ unless($@){
-#~ 
-		#~ #try to use Google::Search for autocompletion
-		#~ my $api_key = "ABQIAAAA1MzQeGgjv24cQH6It97vbhQ7KJkd-ijgFr7toX7MFGWAtZ4alhQBHxiKkuXsCsTQklemxTfVOgjxGg";
-		#~ my $referer = "http://shutter-project.org";
-		#~ my $web_compl = Gtk2::EntryCompletion->new;
-		#~ $web_compl->set_popup_completion (TRUE);
-		#~ $web_compl->set_text_column (0);
-		#~ my $model = Gtk2::ListStore->new( 'Glib::String' );
-		#~ $web_compl->set_model($model);
-#~ 
-		#~ $website->set_completion ($web_compl);
-		#~ $website->signal_connect('changed' => sub{
-#~ 
-				#~ #search when idle
-				#~ Glib::Idle->add (
-					#~ sub{
-						#~ 
-						#~ #clear model for each search	
-						#~ $model->clear;
-						#~ 
-						#~ my $search = Google::Search->Web( q => $website->get_text, key => $api_key, referer => $referer);
-						#~ my $result = $search->first;
-						#~ 
-						#~ #append first 3 results to model
-						#~ #we take 3 because of performace reasons here
-						#~ while ($result) {
-							#~ last if $result->number == 3;
-							#~ $model->set( $model->append, 0, $result->uri );
-							#~ $result = $result->next;
-						#~ }
-						#~ 
-						#~ return FALSE;
-					#~ });	
-		#~ 
-			#~ return FALSE;	
-		#~ });
-	#~ }
-
-	my $clipboard_string = $clipboard->wait_for_text;
-	print "Content of clipboard is: $clipboard_string\n"
-		if $sc->get_debug and defined $clipboard_string;
-
-	if ( defined $clipboard_string ) {
-		if (   $clipboard_string =~ /^http/
-			|| $clipboard_string =~ /^file/
-			|| $clipboard_string =~ /^www\./ )
-		{
-			$website->set_text($clipboard_string);
-		}
-	}
-
-	$website_hbox->pack_start( $website, TRUE, TRUE, 12 );
-	$website_dialog->vbox->add($website_hbox);
-
-	my $website_progress = Gtk2::ProgressBar->new;
-	$website_progress->set_no_show_all(TRUE);
-	$website_progress->set_ellipsize('middle');
-	$website_progress->set_orientation('left-to-right');
-	$website_progress->set_fraction(0);
-	$website_hbox2->pack_start( $website_progress, TRUE, TRUE, 12 );
-	$website_dialog->vbox->add($website_hbox2);
-
-	$website_dialog->show_all;
-	my $website_response = $website_dialog->run;
-
-	if ( $website_response eq "accept" ) {
-
-		$execute_btn->set_sensitive(FALSE);
-
-		#show progress bar while executing gnome-web-photo
-		$website_progress->show;
-		&fct_update_gui;
-		
-		#determining timeout
-		my $web_menu = $st->{_web}->get_menu;
-		my @timeouts = $web_menu->get_children;
-		my $timeout  = undef;
-		foreach (@timeouts) {
-			if ( $_->get_active ) {
-				$timeout = $_->get_children->get_text;
-				$timeout =~ /([0-9]+)/;
-				$timeout = $1;
-				print $timeout. "\n" if $sc->get_debug;
-			}
-		}
-
-		my $url	= $website->get_text;
-		print "$timeout, $filetype_value, $website_width, ". $url. ", $tmpfilename\n" if $sc->get_debug;
-		my $screenshooter = Shutter::Screenshot::Web->new( $timeout, $filetype_value, $website_width, $url, $tmpfilename );
-
-		Proc::Simple::debug(1) if $sc->get_debug;
-
-		$web_process->start(
-			sub {
-				$screenshooter->web();
-				POSIX::_exit(0);
-			}
-		);
-		
-		$website_dialog->signal_connect(
-			'delete-event' => sub{
-				#kill process, delete file and destroy dialog
-				$web_process->kill('SIGKILL');
-				unlink $tmpfilename, $tmpfilename_stdout, $tmpfilename_sterr;
-				$website_dialog->destroy();				
-			} 
-		);
-
-		$cancel_btn->signal_connect(
-			'clicked' => sub {
-				#kill process, delete file and destroy dialog
-				$web_process->kill('SIGKILL');
-				unlink $tmpfilename, $tmpfilename_stdout, $tmpfilename_sterr;
-				$website_dialog->destroy();
-			}
-		);
-
-		while ( $web_process->poll ) {
-			$website_progress->pulse;
-			&fct_update_gui;
-			usleep 100000;
-		}
-
-		#we cannot kill the process anymore
-		#closing the dialog will confuse the user
-		#because the image will appear in the session later on
-		$cancel_btn->set_sensitive(FALSE);
-		&fct_update_gui;
-
-		#exit status == OK
-		if ( $web_process->exit_status() == 0 ) {
-
-			$website_progress->set_fraction( 2 / 3 );
-			&fct_update_gui;
-
-			eval { $screenshot = Gtk2::Gdk::Pixbuf->new_from_file($tmpfilename) };
-			if ($@) {
-				#reading stdout from file
-				while (<$tmpfh_stdout>){
-					$screenshot .= $_;	
-				}
-				#reading stderr from file
-				while (<$tmpfh_stderr>){
-					$screenshot .= $_;	
-				}
-				unlink $tmpfilename, $tmpfilename_stdout, $tmpfilename_sterr;
-				$website_dialog->destroy();
-			}else{
-
-				#set name of the captured window
-				#e.g. for use in wildcards
-				$screenshot->{'name'} = $url;
-				$screenshot->{'name'} =~ s/(http:\/\/|https:\/\/|file:\/\/)//g;
-					
-			}
-
-			$website_progress->set_fraction( 3 / 3 );
-			&fct_update_gui;
-	
-		#exit status == FAIL
-		}else{
-			#reading stdout from file
-			while (<$tmpfh_stdout>){
-				$screenshot .= $_;	
-			}
-			#reading stderr from file
-			while (<$tmpfh_stderr>){
-				$screenshot .= $_;	
-			}
-		}
-
-		unlink $tmpfilename, $tmpfilename_stdout, $tmpfilename_sterr;
-		$website_dialog->destroy();
-
-		return $screenshot;
-	} else {
-		unlink $tmpfilename, $tmpfilename_stdout, $tmpfilename_sterr;
-		$website_dialog->destroy();
-
-		return $screenshot;
-	}
 }
 
 sub dlg_profile_name {

@@ -126,7 +126,7 @@ sub workspace {
 	#set name of the captured workspace
 	#e.g. for use in wildcards
 	if($output =~ /Gtk2/){
-		$output->{'name'} = $self->{_wnck_screen}->get_active_workspace->get_name;
+		$self->{_action_name} = $self->{_wnck_screen}->get_active_workspace->get_name;
 	}
 
 	#metacity etc
@@ -148,5 +148,20 @@ sub redo_capture {
 	}
 	return $output;
 }	
+
+sub get_history {
+	my $self = shift;
+	return $self->{_history};
+}
+
+sub get_error_text {
+	my $self = shift;
+	return $self->{_error_text};
+}
+
+sub get_action_name {
+	my $self = shift;
+	return $self->{_action_name};
+}
 
 1;

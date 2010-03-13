@@ -709,6 +709,7 @@ sub window {
 	my $self = shift;
 
 	#return value
+	
 	my $output = 5;
 	
 	#current workspace
@@ -873,7 +874,7 @@ sub window {
 						#set name of the captured window
 						#e.g. for use in wildcards
 						if($output =~ /Gtk2/ && defined $self->{_c}{'cw'}{'window'}){
-							$output->{'name'} = $self->{_c}{'cw'}{'window'}->get_name;
+							$self->{_action_name} = $self->{_c}{'cw'}{'window'}->get_name;
 						}
 
 						#set history object
@@ -998,25 +999,25 @@ sub window {
 		if ( ( $self->{_mode} eq "window" || $self->{_mode} eq "tray_window" ) ) {
 
 			if($output =~ /Gtk2/ && defined $self->{_c}{'cw'}{'window'}){
-				$output->{'name'} = $self->{_c}{'cw'}{'window'}->get_name;
+				$self->{_action_name} = $self->{_c}{'cw'}{'window'}->get_name;
 			}
 
 		}elsif ( ( $self->{_mode} eq "section" || $self->{_mode} eq "tray_section" ) ) {
 
 			if($output =~ /Gtk2/ && defined $self->{_c}{'cw'}{'window'}){
-				$output->{'name'} = $output->{'name'} = $self->{_c}{'cw'}{'window'}->get_name;
+				$self->{_action_name} = $self->{_action_name} = $self->{_c}{'cw'}{'window'}->get_name;
 			}
 
 		}elsif ( ( $self->{_mode} eq "menu" || $self->{_mode} eq "tray_menu" ) ) {
 
 			if($output =~ /Gtk2/){
-				$output->{'name'} = $d->get( "Menu" );
+				$self->{_action_name} = $d->get( "Menu" );
 			}
 
 		}elsif ( ( $self->{_mode} eq "tooltip" || $self->{_mode} eq "tray_tooltip" ) ) {
 
 			if($output =~ /Gtk2/){
-				$output->{'name'} = $d->get( "Tooltip" );
+				$self->{_action_name} = $d->get( "Tooltip" );
 			}
 		
 		}
@@ -1037,15 +1038,15 @@ sub window {
 		
 		}else{
 
-			#set history object
-			$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, 
-				$self->{_root},
-				$self->{_c}{'cw'}{'x'},
-				$self->{_c}{'cw'}{'y'},
-				$self->{_c}{'cw'}{'width'},
-				$self->{_c}{'cw'}{'height'},
-				$self->{_c}{'cw'}{'window_region'},
-			);
+			#~ #set history object
+			#~ $self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, 
+				#~ $self->{_root},
+				#~ $self->{_c}{'cw'}{'x'},
+				#~ $self->{_c}{'cw'}{'y'},
+				#~ $self->{_c}{'cw'}{'width'},
+				#~ $self->{_c}{'cw'}{'height'},
+				#~ $self->{_c}{'cw'}{'window_region'},
+			#~ );
 			
 		}
 		
@@ -1122,6 +1123,20 @@ sub redo_capture {
 	return $output;
 }	
 
+sub get_history {
+	my $self = shift;
+	return $self->{_history};
+}
+
+sub get_error_text {
+	my $self = shift;
+	return $self->{_error_text};
+}
+
+sub get_action_name {
+	my $self = shift;
+	return $self->{_action_name};
+}
 
 sub quit {
 	my $self = shift;

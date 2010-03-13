@@ -32,7 +32,7 @@ use Shutter::Screenshot::Window;
 use Data::Dumper;
 our @ISA = qw(Shutter::Screenshot::Window);
 
-#Glib
+#Glib and Gtk2
 use Gtk2;
 use Glib qw/TRUE FALSE/; 
 
@@ -92,7 +92,7 @@ sub window_by_xid {
 			#set name of the captured window
 			#e.g. for use in wildcards
 			if($output =~ /Gtk2/){
-				$output->{'name'} = $wnck_window->get_name;
+				$self->{_action_name} = $wnck_window->get_name;
 			}
 	
 			#set history object
@@ -120,5 +120,20 @@ sub redo_capture {
 	}
 	return $output;
 }	
+
+sub get_history {
+	my $self = shift;
+	return $self->{_history};
+}
+
+sub get_error_text {
+	my $self = shift;
+	return $self->{_error_text};
+}
+
+sub get_action_name {
+	my $self = shift;
+	return $self->{_action_name};
+}
 
 1;

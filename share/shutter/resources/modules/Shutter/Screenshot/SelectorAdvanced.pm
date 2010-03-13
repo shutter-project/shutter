@@ -31,6 +31,7 @@ use warnings;
 use Gnome2::Canvas;
 use Shutter::Screenshot::Main;
 use Shutter::Screenshot::History;
+
 use Data::Dumper;
 our @ISA = qw(Shutter::Screenshot::Main);
 
@@ -971,11 +972,13 @@ sub take_screenshot {
 
 	#we don't have a useful string for wildcards (e.g. $name)
 	if($output =~ /Gtk2/){
-		$output->{'name'} = $d->get("Selection");
+		$self->{_action_name} = $d->get("Selection");
 	}
 	
 	#set history object
-	$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->{_root}, $s->x, $s->y, $s->width, $s->height);
+	if($s){
+		$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->{_root}, $s->x, $s->y, $s->width, $s->height);
+	}
 	
 	return $output;		
 }
@@ -988,6 +991,21 @@ sub redo_capture {
 	}
 	return $output;
 }	
+
+sub get_history {
+	my $self = shift;
+	return $self->{_history};
+}
+
+sub get_error_text {
+	my $self = shift;
+	return $self->{_error_text};
+}
+
+sub get_action_name {
+	my $self = shift;
+	return $self->{_action_name};
+}
 
 sub quit {
 	my $self = shift;

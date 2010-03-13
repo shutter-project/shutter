@@ -281,7 +281,7 @@ sub select_simple {
 							#we don't have a useful string for wildcards (e.g. $name)
 							my $d = $self->{_sc}->get_gettext;
 							if($output =~ /Gtk2/){
-								$output->{'name'} = $d->get("Selection");
+								$self->{_action_name} = $d->get("Selection");
 							}
 						
 							#set history object
@@ -419,6 +419,21 @@ sub redo_capture {
 	}
 	return $output;
 }	
+
+sub get_history {
+	my $self = shift;
+	return $self->{_history};
+}
+
+sub get_error_text {
+	my $self = shift;
+	return $self->{_error_text};
+}
+
+sub get_action_name {
+	my $self = shift;
+	return $self->{_action_name};
+}
 
 sub zoom_check_pos{
 	my $self 		= shift;
