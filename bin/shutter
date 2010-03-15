@@ -1858,9 +1858,9 @@ if ( defined $settings_xml->{'general'}->{'ftp_wurl'} ) {
 	$ftp_wurl_entry->set_text("http://example.com/screenshots");
 }
 
-$tooltips->set_tip( $ftp_wurl_label, $d->get("No text yet") );
+$tooltips->set_tip( $ftp_wurl_label, $d->get("Website URL") );
 
-$tooltips->set_tip( $ftp_wurl_entry, $d->get("No text yet") );
+$tooltips->set_tip( $ftp_wurl_entry, $d->get("Website URL") );
 
 $ftp_hbox5->pack_start( $ftp_wurl_label,  FALSE, TRUE, 12 );
 $ftp_hbox5->pack_start( $ftp_wurl_entry, TRUE,  TRUE, 0 );
@@ -8854,9 +8854,9 @@ sub dlg_upload {
 	my $ftp_wurl_entry_dlg = Gtk2::Entry->new;
 	$ftp_wurl_entry_dlg->set_text( $ftp_wurl_entry->get_text );
 
-	$tooltips->set_tip( $ftp_wurl_label_dlg, $d->get("No text yet") );
+	$tooltips->set_tip( $ftp_wurl_label_dlg, $d->get("Website URL") );
 
-	$tooltips->set_tip( $ftp_wurl_entry_dlg, $d->get("No text yet") );
+	$tooltips->set_tip( $ftp_wurl_entry_dlg, $d->get("Website URL") );
 
 	$ftp_hbox5_dlg->pack_start( $ftp_wurl_entry_dlg, TRUE, TRUE, 10 );
 
