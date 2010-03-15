@@ -5401,6 +5401,7 @@ sub fct_take_screenshot {
 	#start postprocessing here
 
 	#...successfully???
+	#~ print "$sc, $screenshot, $data\n";
 	my $error = Shutter::Screenshot::Error->new($sc, $screenshot, $data);
 	if($error->is_error) {
 		

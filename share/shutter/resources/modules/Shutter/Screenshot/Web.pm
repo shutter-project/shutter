@@ -70,6 +70,7 @@ sub web {
 
 sub dlg_website {
 	my $self = shift;
+	my $url  = shift;
 	
 	#gettext
 	my $d = $self->{_sc}->get_gettext;
@@ -191,13 +192,20 @@ sub dlg_website {
 	print "Content of clipboard is: $clipboard_string\n"
 		if $self->{_sc}->get_debug and defined $clipboard_string;
 
-	if ( defined $clipboard_string ) {
-		if (   $clipboard_string =~ /^http/
-			|| $clipboard_string =~ /^file/
-			|| $clipboard_string =~ /^www\./ )
-		{
-			$website->set_text($clipboard_string);
-		}
+	#set textbox to url
+	if(defined $url){
+		$website->set_text($url);
+		
+	#or paste clipboard content	
+	}else{
+		if ( defined $clipboard_string ) {
+			if (   $clipboard_string =~ /^http/
+				|| $clipboard_string =~ /^file/
+				|| $clipboard_string =~ /^www\./ )
+			{
+				$website->set_text($clipboard_string);
+			}
+		}		
 	}
 
 	$website_hbox->pack_start( $website, TRUE, TRUE, 12 );
@@ -212,8 +220,14 @@ sub dlg_website {
 	$website_dialog->vbox->add($website_hbox2);
 
 	$website_dialog->show_all;
-	my $website_response = $website_dialog->run;
-
+	
+	my $website_response = "accept";
+	if($url){
+		$website_dialog->response("accept");
+	}else{
+		$website_response = $website_dialog->run;
+	}
+	
 	if ( $website_response eq "accept" ) {
 
 		$execute_btn->set_sensitive(FALSE);
@@ -241,7 +255,9 @@ sub dlg_website {
 				#kill process, delete file and destroy dialog
 				$web_process->kill('SIGKILL');
 				unlink $tmpfilename, $tmpfilename_stdout, $tmpfilename_sterr;
-				$website_dialog->destroy();				
+				$website_dialog->destroy();
+				
+				$output = 5;				
 			} 
 		);
 
@@ -251,6 +267,8 @@ sub dlg_website {
 				$web_process->kill('SIGKILL');
 				unlink $tmpfilename, $tmpfilename_stdout, $tmpfilename_sterr;
 				$website_dialog->destroy();
+				
+				$output = 5;
 			}
 		);
 
@@ -290,6 +308,9 @@ sub dlg_website {
 				#e.g. for use in wildcards
 				$self->{_action_name} = $self->{_url};
 				$self->{_action_name} =~ s/(http:\/\/|https:\/\/|file:\/\/)//g;
+				
+				#set history object
+				$self->{_history} = Shutter::Screenshot::History->new($self->{_sc});
 					
 			}
 
@@ -340,7 +361,7 @@ sub redo_capture {
 	my $self = shift;
 	my $output = 3;
 	if(defined $self->{_history}){
-		$output = $self->web();
+		$output = $self->dlg_website($self->{_url});
 	}
 	return $output;
 }	
