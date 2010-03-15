@@ -545,15 +545,16 @@ my $notify_vbox       	= Gtk2::VBox->new( FALSE, 0 );
 my $trash_vbox       	= Gtk2::VBox->new( FALSE, 0 );
 my $keybinding_vbox     = Gtk2::VBox->new( FALSE, 0 );
 
-my $behavior_hbox1      = Gtk2::HBox->new( FALSE, 0 );
-my $behavior_hbox2      = Gtk2::HBox->new( FALSE, 0 );
-my $behavior_hbox3      = Gtk2::HBox->new( FALSE, 0 );
-my $behavior_hbox4      = Gtk2::HBox->new( FALSE, 0 );
-my $behavior_hbox5      = Gtk2::HBox->new( FALSE, 0 );
-my $behavior_hbox6      = Gtk2::HBox->new( FALSE, 0 );
-my $behavior_hbox7      = Gtk2::HBox->new( FALSE, 0 );
-my $behavior_hbox8      = Gtk2::HBox->new( FALSE, 0 );
-my $behavior_hbox9      = Gtk2::HBox->new( FALSE, 0 );
+my $hide_active_hbox    = Gtk2::HBox->new( FALSE, 0 );
+my $pafter_active_hbox  = Gtk2::HBox->new( FALSE, 0 );
+my $cac_hbox      		= Gtk2::HBox->new( FALSE, 0 );
+my $hide_time_hbox      = Gtk2::HBox->new( FALSE, 0 );
+my $na_active_hbox      = Gtk2::HBox->new( FALSE, 0 );
+my $nt_active_hbox      = Gtk2::HBox->new( FALSE, 0 );
+my $npt_active_hbox     = Gtk2::HBox->new( FALSE, 0 );
+my $ns_combo_hbox       = Gtk2::HBox->new( FALSE, 0 );
+my $aod_active_hbox     = Gtk2::HBox->new( FALSE, 0 );
+my $doc_active_hbox     = Gtk2::HBox->new( FALSE, 0 );
 
 #upload
 my $accounts_vbox       = Gtk2::VBox->new( FALSE, 0 );
@@ -1645,21 +1646,29 @@ my $notify_after_active    = Gtk2::CheckButton->new_with_label( $d->get("Display
 my $notify_timeout_active  = Gtk2::CheckButton->new_with_label( $d->get("Display pop-up notification when using a delay") );
 my $notify_ptimeout_active = Gtk2::CheckButton->new_with_label( $d->get("Display pop-up notification when using a pre-capture delay") );
 
+my $ns_label = Gtk2::Label->new( $d->get("Notification agent") . ":" );
+my $combobox_ns = Gtk2::ComboBox->new_text;
+$combobox_ns->append_text($d->get("Desktop Notifications"));
+$combobox_ns->append_text($d->get("Built-In Notifications"));
+
+$combobox_ns->signal_connect( 'changed' => \&evt_value_changed, 'ns_changed' );
+
 my $ask_on_delete_active    = Gtk2::CheckButton->new_with_label( $d->get("Ask before moving files to trash") );
 my $delete_on_close_active  = Gtk2::CheckButton->new_with_label( $d->get("Move file to trash when closing tab") );
 
-$behavior_hbox1->pack_start( $hide_active,            FALSE, TRUE, 12 );
-$behavior_hbox2->pack_start( $present_after_active,   FALSE, TRUE, 12 );
-$behavior_hbox3->pack_start( $close_at_close_active,  FALSE, TRUE, 12 );
-$behavior_hbox4->pack_start( $hide_time_label,        FALSE, TRUE, 12 );
-$behavior_hbox4->pack_start( $hide_time,              FALSE, TRUE,  6 );
-$behavior_hbox4->pack_start( $hide_time_vlabel,       FALSE, TRUE,  0 );
-$behavior_hbox5->pack_start( $notify_after_active,    FALSE, TRUE, 12 );
-$behavior_hbox6->pack_start( $notify_timeout_active,  FALSE, TRUE, 12 );
-$behavior_hbox7->pack_start( $notify_ptimeout_active, FALSE, TRUE, 12 );
-$behavior_hbox8->pack_start( $ask_on_delete_active,   FALSE, TRUE, 12 );
-$behavior_hbox9->pack_start( $delete_on_close_active, FALSE, TRUE, 12 );
-
+$hide_active_hbox->pack_start( $hide_active,            FALSE, TRUE, 12 );
+$pafter_active_hbox->pack_start( $present_after_active, FALSE, TRUE, 12 );
+$cac_hbox->pack_start( $close_at_close_active,          FALSE, TRUE, 12 );
+$hide_time_hbox->pack_start( $hide_time_label,          FALSE, TRUE, 12 );
+$hide_time_hbox->pack_start( $hide_time,                FALSE, TRUE,  6 );
+$hide_time_hbox->pack_start( $hide_time_vlabel,         FALSE, TRUE,  0 );
+$na_active_hbox->pack_start( $notify_after_active,      FALSE, TRUE, 12 );
+$nt_active_hbox->pack_start( $notify_timeout_active,    FALSE, TRUE, 12 );
+$npt_active_hbox->pack_start( $notify_ptimeout_active,  FALSE, TRUE, 12 );
+$ns_combo_hbox->pack_start( $ns_label,                  FALSE, TRUE, 12 );
+$ns_combo_hbox->pack_start( $combobox_ns,               FALSE, TRUE,  0 );
+$aod_active_hbox->pack_start( $ask_on_delete_active,    FALSE, TRUE, 12 );
+$doc_active_hbox->pack_start( $delete_on_close_active,  FALSE, TRUE, 12 );
 
 if ( defined $settings_xml->{'general'}->{'autohide'} ) {
 	$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
@@ -1690,7 +1699,7 @@ $tooltips->set_tip( $present_after_active, $d->get("Present main window after ta
 if ( defined $settings_xml->{'general'}->{'notify_after'} ) {
 	$notify_after_active->set_active( $settings_xml->{'general'}->{'notify_after'} );
 } else {
-	$notify_after_active->set_active(FALSE);
+	$notify_after_active->set_active(TRUE);
 }
 
 $tooltips->set_tip( $notify_after_active, $d->get("Display pop-up notification after taking a screenshot") );
@@ -1698,7 +1707,7 @@ $tooltips->set_tip( $notify_after_active, $d->get("Display pop-up notification a
 if ( defined $settings_xml->{'general'}->{'notify_timeout'} ) {
 	$notify_timeout_active->set_active( $settings_xml->{'general'}->{'notify_timeout'} );
 } else {
-	$notify_timeout_active->set_active(FALSE);
+	$notify_timeout_active->set_active(TRUE);
 }
 
 $tooltips->set_tip( $notify_timeout_active, $d->get("Display pop-up notification when using a delay") );
@@ -1711,6 +1720,14 @@ if ( defined $settings_xml->{'general'}->{'notify_ptimeout'} ) {
 
 $tooltips->set_tip( $notify_timeout_active, $d->get("Display pop-up notification when using a delay") );
 
+if ( defined $settings_xml->{'general'}->{'notify_agent'} ) {
+	$combobox_ns->set_active( $settings_xml->{'general'}->{'notify_agent'} );
+} else {
+	$combobox_ns->set_active(TRUE);
+}
+
+$tooltips->set_tip( $ns_label,		$d->get("You can either choose the system-wide desktop notifications (e.g. Ubuntu's Notify-OSD) or Shutter's built-in notification system") );
+$tooltips->set_tip( $combobox_ns,	$d->get("You can either choose the system-wide desktop notifications (e.g. Ubuntu's Notify-OSD) or Shutter's built-in notification system") );
 
 if ( defined $settings_xml->{'general'}->{'close_at_close'} ) {
 	$close_at_close_active->set_active( $settings_xml->{'general'}->{'close_at_close'} );
@@ -1978,19 +1995,20 @@ $vbox_imageview->set_border_width(5);
 my $label_behavior = Gtk2::Label->new;
 $label_behavior->set_markup( $d->get("Behavior") );
 
-$window_vbox->pack_start( $behavior_hbox1, TRUE, TRUE, 3 );
-$window_vbox->pack_start( $behavior_hbox2, TRUE, TRUE, 3 );
-$window_vbox->pack_start( $behavior_hbox3, TRUE, TRUE, 3 );
-$window_vbox->pack_start( $behavior_hbox4, TRUE, TRUE, 3 );
+$window_vbox->pack_start( $hide_active_hbox, TRUE, TRUE, 3 );
+$window_vbox->pack_start( $pafter_active_hbox, TRUE, TRUE, 3 );
+$window_vbox->pack_start( $cac_hbox, TRUE, TRUE, 3 );
+$window_vbox->pack_start( $hide_time_hbox, TRUE, TRUE, 3 );
 $window_frame->add($window_vbox);
 
-$notify_vbox->pack_start( $behavior_hbox5, TRUE, TRUE, 3 );
-$notify_vbox->pack_start( $behavior_hbox6, TRUE, TRUE, 3 );
-$notify_vbox->pack_start( $behavior_hbox7, TRUE, TRUE, 3 );
+$notify_vbox->pack_start( $na_active_hbox, TRUE, TRUE, 3 );
+$notify_vbox->pack_start( $nt_active_hbox, TRUE, TRUE, 3 );
+$notify_vbox->pack_start( $npt_active_hbox, TRUE, TRUE, 3 );
+$notify_vbox->pack_start( $ns_combo_hbox, TRUE, TRUE, 3 );
 $notify_frame->add($notify_vbox);
 
-$trash_vbox->pack_start( $behavior_hbox8, TRUE, TRUE, 3 );
-$trash_vbox->pack_start( $behavior_hbox9, TRUE, TRUE, 3 );
+$trash_vbox->pack_start( $aod_active_hbox, TRUE, TRUE, 3 );
+$trash_vbox->pack_start( $doc_active_hbox, TRUE, TRUE, 3 );
 $trash_frame->add($trash_vbox);
 
 #all labels = one size
@@ -2191,11 +2209,6 @@ unless ( $sc->get_min ) {
 	&fct_control_main_window ('hide');
 }
 
-#init notification system
-#--------------------------------------
-#~ $sc->set_notification_object(Shutter::App::Notification->new);
-$sc->set_notification_object(Shutter::App::ShutterNotification->new($sc));
-
 #restore menu/toolbar settings
 #--------------------------------------
 if(defined $settings_xml->{'gui'}->{'btoolbar_active'}){
@@ -2359,6 +2372,15 @@ sub evt_value_changed {
 			$scale_label->set_sensitive(FALSE);
 		}
 	}
+
+	#notify agent changed
+	if ( $data eq "ns_changed" ) {
+		if ( $combobox_ns->get_active == 0 ) {
+			$sc->set_notification_object(Shutter::App::Notification->new);		
+		} else {
+			$sc->set_notification_object(Shutter::App::ShutterNotification->new($sc));			
+		}
+	}	
 
 	return TRUE;
 }
@@ -3732,6 +3754,7 @@ sub fct_save_settings {
 	$settings{'general'}->{'notify_after'}     = $notify_after_active->get_active();
 	$settings{'general'}->{'notify_timeout'}   = $notify_timeout_active->get_active();
 	$settings{'general'}->{'notify_ptimeout'}  = $notify_ptimeout_active->get_active();
+	$settings{'general'}->{'notify_agent'}     = $combobox_ns->get_active();
 	$settings{'general'}->{'ask_on_delete'}    = $ask_on_delete_active->get_active();
 	$settings{'general'}->{'delete_on_close'}  = $delete_on_close_active->get_active();
 
@@ -4078,6 +4101,7 @@ sub fct_load_settings {
 				$notify_after_active->set_active( $settings_xml->{'general'}->{'notify_after'} );
 				$notify_timeout_active->set_active( $settings_xml->{'general'}->{'notify_timeout'} );
 				$notify_ptimeout_active->set_active( $settings_xml->{'general'}->{'notify_ptimeout'} );
+				$combobox_ns->set_active( $settings_xml->{'general'}->{'notify_agent'} );
 				$ask_on_delete_active->set_active( $settings_xml->{'general'}->{'ask_on_close'} );
 				$delete_on_close_active->set_active( $settings_xml->{'general'}->{'delete_on_close'} );
 

@@ -40,13 +40,14 @@ sub new {
 
 	#Use notifications object
 	eval{
+		
 		#notification window (borderless gtk window)
 		$self->{_notifications_window} = Gtk2::Window->new('popup');
 		if($self->{_sc}->get_mainwindow->get_screen->is_composited){
 			$self->{_notifications_window}->set_colormap($self->{_sc}->get_mainwindow->get_screen->get_rgba_colormap);
 		}
 	
-		$self->{_notifications_window}->double_buffered(FALSE);
+		#~ $self->{_notifications_window}->double_buffered(FALSE);
 	    $self->{_notifications_window}->set_app_paintable(TRUE);
 	    $self->{_notifications_window}->set_decorated(FALSE);
 		$self->{_notifications_window}->set_skip_taskbar_hint(TRUE);
@@ -58,8 +59,10 @@ sub new {
 		
 		#obtain current colors and font_desc from the main window
 	    my $style 		= $self->{_sc}->get_mainwindow->get_style;
-		my $sel_bg 		= $style->bg('selected');
-		my $sel_tx 		= $style->text('selected');
+		#~ my $sel_bg 		= $style->bg('selected');
+		my $sel_bg 		= Gtk2::Gdk::Color->parse('#131313');
+		#~ my $sel_tx 		= $style->text('selected');
+		my $sel_tx 		= Gtk2::Gdk::Color->parse('white');
 		my $font_fam 	= $style->font_desc->get_family;
 		my $font_size 	= $style->font_desc->get_size;
 
@@ -67,6 +70,20 @@ sub new {
 		my $size 	= int( $mon->width * 0.007 );
 		my $size2 	= int( $mon->width * 0.006 );
 
+		#shape the window
+		my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file  ($self->{_sc}->get_root . "/share/shutter/resources/icons/notify.svg");
+		my ($pixmap, $mask) = $pixbuf->render_pixmap_and_mask (1);
+		$self->{_notifications_window}->shape_combine_mask($mask, 0, 0);
+		
+		#add a widget to control size of the window
+		my $fixed = Gtk2::Fixed->new;
+		$fixed->set_size_request(250, 100);
+		$self->{_notifications_window}->add($fixed);
+		
+		#initial position
+		$self->{_notifications_window}->move($mon->x + $mon->width - 265, $mon->y + $mon->height - 140);
+		$self->{_notifications_window}->{'pos'} = 1;
+		
 		$self->{_notifications_window}->signal_connect('expose-event' => sub{
 			
 			return FALSE unless $self->{_notifications_window}->window;
@@ -94,28 +111,14 @@ sub new {
 			
 			if($self->{_sc}->get_mainwindow->get_screen->is_composited){
 				
-				$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.75 );
+				$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.9 );
 				$cr->paint;
-																						
-				#create small frame (window outlines)
-				$cr->set_operator('over');
-				$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 1 );
-				$cr->set_line_width(6);
-				$cr->rectangle (0, 0, $w, $h);
-				$cr->stroke;
-
+				
 			}else{
 				
 				$cr->set_source_rgb( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255 );
 				$cr->paint;
-																						
-				#create small frame (window outlines)
-				$cr->set_operator('over');
-				$cr->set_source_rgb( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255 );
-				$cr->set_line_width(6);
-				$cr->rectangle (0, 0, $w, $h);
-				$cr->stroke;
-
+				
 			}
 
 			#get layout size
@@ -123,7 +126,7 @@ sub new {
 			$cr->move_to( ($w - $lw) / 2, ($h - $lh) / 2 );
 			Gtk2::Pango::Cairo::show_layout( $cr, $layout );
 			
-			return FALSE;
+			return TRUE;
 		});	
 
 		$self->{_notifications_window}->signal_connect('enter-notify-event' => sub{
@@ -133,7 +136,14 @@ sub new {
 				Glib::Source->remove($self->{_enter_notify_timeout});
 			}
 			
-			$self->close(TRUE);
+			#~ $self->close(TRUE);
+			if($self->{_notifications_window}->{'pos'} == 1){
+				$self->{_notifications_window}->move($mon->x + $mon->width - 265, $mon->y + 40);
+				$self->{_notifications_window}->{'pos'} = 0;
+			}else{
+				$self->{_notifications_window}->move($mon->x + $mon->width - 265, $mon->y + $mon->height - 140);
+				$self->{_notifications_window}->{'pos'} = 1;
+			}
 			
 			$self->{_enter_notify_timeout} = Glib::Timeout->add (100, sub{
 				$self->show($self->{_summary}, $self->{_body});
@@ -166,14 +176,7 @@ sub show {
 	$self->{_summary} 	= shift;
 	$self->{_body}  	= shift;
 
-	my $mon = $self->{_sc}->get_current_monitor;
-	$self->{_notifications_window}->move($mon->x + $mon->width - 265, $mon->y + 15);
-	$self->{_notifications_window}->resize(250, 100);
-
-	#maybe show first
-	#~ unless(defined $self->{_notifications_window}->window){
-		$self->{_notifications_window}->show_all;
-	#~ }
+	$self->{_notifications_window}->show_all;
 
 	$self->{_notifications_window}->queue_draw;
 
