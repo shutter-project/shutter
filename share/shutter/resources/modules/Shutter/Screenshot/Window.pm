@@ -268,7 +268,7 @@ sub new {
 					
 			}
 			
-			return FALSE;	
+			return TRUE;	
 		});
 		
 	}
@@ -398,22 +398,33 @@ sub update_highlighter {
 	my $width	= shift;
 	my $height	= shift;
 
-	#and show highlighter window at current cursor position		
-	$self->{_highlighter}->hide;
-
+	#two different methods to hide the window before moving it
+	#(to avoid flicker)
+	if (Gtk2->CHECK_VERSION( 2, 12, 0 )) {
+		$self->{_highlighter}->set_opacity(0);	
+	}else{
+		$self->{_highlighter}->hide;	
+	}
+	
 	if(defined $self->{_c}{'cw'}{'gdk_window'} && defined $self->{_c}{'cw'}{'window'}){
 
 		#Place window and resize it
 		$self->{_highlighter}->move($x-3, $y-3);
 		$self->{_highlighter}->resize($width+6, $height+6);
-	
+		
 		#and show highlighter window at current cursor position		
 		$self->{_highlighter}->show;
+
+		if (Gtk2->CHECK_VERSION( 2, 12, 0 )) {
+			$self->{_notifications_timeout} = Glib::Timeout->add (100, sub{
+				$self->{_highlighter}->set_opacity(1);
+			});		
+		}
 	
 		#save last window objects
 		$self->{_c}{'lw'}{'window'} 	= $self->{_c}{'cw'}{'window'};
 		$self->{_c}{'lw'}{'gdk_window'} = $self->{_c}{'cw'}{'gdk_window'};
-
+			
 	}
 
 }
