@@ -104,7 +104,7 @@ sub new {
 			$layout->set_wrap('word');
 			
 			#set text
-			$layout->set_markup("<span font_desc=\"$font_fam $size\" weight=\"bold\" foreground=\"#FFFFFF\">".$self->{_summary}."</span><span font_desc=\"$font_fam $size2\" foreground=\"#FFFFFF\">\n".$self->{_body}."</span>");
+			$layout->set_markup("<span font_desc=\"$font_fam $size\" weight=\"bold\" foreground=\"#FFFFFF\">" . Glib::Markup::escape_text( $self->{_summary} ) . "</span><span font_desc=\"$font_fam $size2\" foreground=\"#FFFFFF\">\n" . Glib::Markup::escape_text( $self->{_body} ) . "</span>");
 			
 			#fill window
 			$cr->set_operator('source');
