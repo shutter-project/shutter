@@ -111,7 +111,7 @@ sub new {
 			
 			if($self->{_sc}->get_mainwindow->get_screen->is_composited){
 				
-				$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.9 );
+				$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.8 );
 				$cr->paint;
 				
 			}else{
