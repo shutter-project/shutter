@@ -101,7 +101,7 @@ $plug->signal_connect( destroy => sub { Gtk2->main_quit } );
 my $tooltips = Gtk2::Tooltips->new;
 
 #configure buttons and other needed controls
-my $size_label = Gtk2::Label->new( "Size:" );
+my $size_label = Gtk2::Label->new( $d->get("Size:") );
 my $size_sbutton = Gtk2::SpinButton->new_with_range( 1, 1000, 1 );
 $size_sbutton->set_value( 5 );
 
@@ -119,7 +119,7 @@ $tooltips->set_tip(
 	)
 );
 
-my $density_label = Gtk2::Label->new( "Density:" );
+my $density_label = Gtk2::Label->new( $d->get("Density:") );
 my $density_sbutton = Gtk2::SpinButton->new_with_range( 1, 10, 0.10 );
 $density_sbutton->set_value( 5 );
 
@@ -137,7 +137,7 @@ $tooltips->set_tip(
 	)
 );
 
-my $curviness_label = Gtk2::Label->new( "Curviness:" );
+my $curviness_label = Gtk2::Label->new( $d->get("Curviness:") );
 my $curviness_sbutton = Gtk2::SpinButton->new_with_range( 0, 10, 0.10 );
 $curviness_sbutton->set_value( 5 );
 
@@ -155,7 +155,7 @@ $tooltips->set_tip(
 	)
 );
 
-my $granularity_label = Gtk2::Label->new( "Granularity:" );
+my $granularity_label = Gtk2::Label->new( $d->get("Granularity:") );
 my $granularity_sbutton = Gtk2::SpinButton->new_with_range( 0, 10, 1 );
 $granularity_sbutton->set_value( 1 );
 
@@ -173,7 +173,7 @@ $tooltips->set_tip(
 	)
 );
 
-my $pad_label = Gtk2::Label->new( "Pad:" );
+my $pad_label = Gtk2::Label->new( $d->get("Pad:") );
 my $pad_sbutton = Gtk2::SpinButton->new_with_range( 0, 10, 1 );
 $pad_sbutton->set_value( 2 );
 

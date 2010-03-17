@@ -101,7 +101,7 @@ $plug->signal_connect( destroy => sub { Gtk2->main_quit } );
 my $tooltips = Gtk2::Tooltips->new;
 
 #configure buttons and other needed controls
-my $rotation_label = Gtk2::Label->new( "Rotation:" );
+my $rotation_label = Gtk2::Label->new( $d->get("Rotation:") );
 my $rotation_sbutton = Gtk2::SpinButton->new_with_range( -180, 180, 1 );
 $rotation_sbutton->set_value( 20 );
 
@@ -119,7 +119,7 @@ $tooltips->set_tip(
 	)
 );
 
-my $fade_label = Gtk2::Label->new( "Fade:" );
+my $fade_label = Gtk2::Label->new( $d->get("Fade:") );
 my $fade_sbutton = Gtk2::SpinButton->new_with_range( 0, 100, 1 );
 $fade_sbutton->set_value( 40 );
 
@@ -137,7 +137,7 @@ $tooltips->set_tip(
 	)
 );
 
-my $opacity_label = Gtk2::Label->new( "Opacity:" );
+my $opacity_label = Gtk2::Label->new( $d->get("Opacity:") );
 my $opacity_sbutton = Gtk2::SpinButton->new_with_range( 0, 100, 1 );
 $opacity_sbutton->set_value( 100 );
 
@@ -155,7 +155,7 @@ $tooltips->set_tip(
 	)
 );
 
-my $pef_label = Gtk2::Label->new( "Pef:" );
+my $pef_label = Gtk2::Label->new( $d->get("Pef:") );
 my $pef_sbutton = Gtk2::SpinButton->new_with_range( 0, 3, 0.01 );
 $pef_sbutton->set_value( 1 );
 
@@ -173,7 +173,7 @@ $tooltips->set_tip(
 	)
 );
 
-my $gap_label = Gtk2::Label->new( "Gap:" );
+my $gap_label = Gtk2::Label->new( $d->get("Gap:") );
 my $gap_sbutton = Gtk2::SpinButton->new_with_range( 0, 1000, 1 );
 $gap_sbutton->set_value( 0 );
 

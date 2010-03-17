@@ -155,7 +155,7 @@ $tooltips->set_tip(
 	)
 );
 
-my $pef_label = Gtk2::Label->new( "Pef:" );
+my $pef_label = Gtk2::Label->new( $d->get("Pef:") );
 my $pef_sbutton = Gtk2::SpinButton->new_with_range( 0, 3.19, 0.01 );
 $pef_sbutton->set_value( 1 );
 
