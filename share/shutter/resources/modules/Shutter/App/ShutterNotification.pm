@@ -31,6 +31,10 @@ use warnings;
 #Glib
 use Glib qw/TRUE FALSE/; 
 
+#Gtk2 and Pango
+use Gtk2;
+use Gtk2::Pango;
+
 #--------------------------------------
 
 sub new {
@@ -77,11 +81,11 @@ sub new {
 		
 		#add a widget to control size of the window
 		my $fixed = Gtk2::Fixed->new;
-		$fixed->set_size_request(250, 100);
+		$fixed->set_size_request(300, 80);
 		$self->{_notifications_window}->add($fixed);
 		
 		#initial position
-		$self->{_notifications_window}->move($mon->x + $mon->width - 265, $mon->y + $mon->height - 140);
+		$self->{_notifications_window}->move($mon->x + $mon->width - 315, $mon->y + $mon->height - 120);
 		$self->{_notifications_window}->{'pos'} = 1;
 		
 		$self->{_notifications_window}->signal_connect('expose-event' => sub{
@@ -100,6 +104,19 @@ sub new {
 			#pango layout
 			my $layout = Gtk2::Pango::Cairo::create_layout($cr);
 			$layout->set_width( ($w - $size * 3) * Gtk2::Pango->scale );
+			
+			if ( Gtk2::Pango->CHECK_VERSION( 1, 20, 0 ) ) {
+				$layout->set_height( ($h - $size * 3) * Gtk2::Pango->scale );
+			}else{
+				warn "WARNING: \$layout->set_height is not available - outdated Pango version\n";
+			}
+			
+			if ( Gtk2::Pango->CHECK_VERSION( 1, 6, 0 ) ) {
+				$layout->set_ellipsize ('middle');
+			}else{
+				warn "WARNING: \$layout->set_ellipsize is not available - outdated Pango version\n";
+			}
+			
 			$layout->set_alignment('left');
 			$layout->set_wrap('word');
 			
@@ -138,10 +155,10 @@ sub new {
 			
 			#~ $self->close(TRUE);
 			if($self->{_notifications_window}->{'pos'} == 1){
-				$self->{_notifications_window}->move($mon->x + $mon->width - 265, $mon->y + 40);
+				$self->{_notifications_window}->move($mon->x + $mon->width - 315, $mon->y + 40);
 				$self->{_notifications_window}->{'pos'} = 0;
 			}else{
-				$self->{_notifications_window}->move($mon->x + $mon->width - 265, $mon->y + $mon->height - 140);
+				$self->{_notifications_window}->move($mon->x + $mon->width - 315, $mon->y + $mon->height - 120);
 				$self->{_notifications_window}->{'pos'} = 1;
 			}
 			
