@@ -106,7 +106,7 @@ sub new {
 			$layout->set_width( ($w - $size * 3) * Gtk2::Pango->scale );
 			
 			if ( Gtk2::Pango->CHECK_VERSION( 1, 20, 0 ) ) {
-				$layout->set_height( ($h - $size * 3) * Gtk2::Pango->scale );
+				$layout->set_height( $h * Gtk2::Pango->scale );
 			}else{
 				warn "WARNING: \$layout->set_height is not available - outdated Pango version\n";
 			}
