@@ -6410,10 +6410,10 @@ sub fct_update_tab {
 			&fct_update_info_and_tray();
 
 			#update menu actions
-			#~ my $current_key = &fct_get_current_file;
-			#~ if(defined $current_key && $current_key eq $key){		
-				#~ &fct_update_actions(1, $key);
-			#~ }
+			my $current_key = &fct_get_current_file;
+			if(defined $current_key && $current_key eq $key){		
+				&fct_update_actions(1, $key);
+			}
 
 			return TRUE;
 						
