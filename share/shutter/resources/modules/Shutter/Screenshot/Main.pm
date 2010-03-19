@@ -292,10 +292,15 @@ sub get_pixbuf_from_drawable {
 		}
 
 		#get the pixbuf from drawable and save the file
-		$pixbuf = Gtk2::Gdk::Pixbuf->get_from_drawable( 
-												$drawable, undef, 
-												$x, $y, 0, 0,
-												$width, $height );
+		eval{
+			if($width > 0 && $height > 0){
+				$pixbuf = Gtk2::Gdk::Pixbuf->get_from_drawable( $drawable, undef, $x, $y, 0, 0, $width, $height );
+			}
+		};
+		if($@){
+			$pixbuf = 5;
+			return FALSE;
+		}
 		
 		#include cursor
 		if($self->{_include_cursor}){
