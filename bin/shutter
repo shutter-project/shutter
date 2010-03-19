@@ -5727,12 +5727,13 @@ sub fct_email {
 		push( @files_to_email, $session_screens{$key}->{'long'} );
 	}
 	
-	my $mail_string = undef;
-	foreach my $email_filename ( @files_to_email ) {
-		$mail_string .= "--attach '$email_filename' "
-	}
-	
-	$shf->xdg_open_mail(undef, undef, $mail_string);
+	#~ my $mail_string = undef;
+	#~ foreach my $email_filename ( @files_to_email ) {
+		#~ $mail_string .= "--attach '$email_filename' "
+	#~ }
+	#~ 
+	#~ $shf->xdg_open_mail(undef, undef, $mail_string);
+	$shf->xdg_open(undef, "'mailto:?attach=".join("&attach=",@files_to_email )."'");
 	
 	return TRUE;
 }
