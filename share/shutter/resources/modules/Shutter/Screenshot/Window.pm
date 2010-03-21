@@ -1049,20 +1049,25 @@ sub window {
 		
 		}else{
 
-			#~ #set history object
-			#~ $self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, 
-				#~ $self->{_root},
-				#~ $self->{_c}{'cw'}{'x'},
-				#~ $self->{_c}{'cw'}{'y'},
-				#~ $self->{_c}{'cw'}{'width'},
-				#~ $self->{_c}{'cw'}{'height'},
-				#~ $self->{_c}{'cw'}{'window_region'},
-			#~ );
+			#set history object
+			$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, 
+				$self->{_root},
+				$self->{_c}{'cw'}{'x'},
+				$self->{_c}{'cw'}{'y'},
+				$self->{_c}{'cw'}{'width'},
+				$self->{_c}{'cw'}{'height'},
+				$self->{_c}{'cw'}{'window_region'},
+			);
 			
 		}
 		
 	}
 	return $output;
+}
+
+sub get_mode {
+	my $self = shift;
+	return $self->{_mode};
 }
 
 sub redo_capture {

@@ -81,7 +81,7 @@ use Data::Dumper;
 #--------------------------------------
 use constant MAX_ERROR 			=> 5;
 #~ use constant SHUTTER_REV        => "Rev.experimental branch";
-use constant SHUTTER_REV        => "Rev.813";
+use constant SHUTTER_REV        => "Rev.815";
 use constant SHUTTER_NAME		=> "Shutter";
 use constant SHUTTER_VERSION	=> "v0.86";
 
@@ -2795,20 +2795,24 @@ sub evt_iconview_sel_changed {
 }
 
 sub fct_get_last_capture{
-	#determine last capture and return the relevant key
-	my $last_capture_tstamp = 0;
-	my $last_capture_key 	= 0;
-	foreach my $key (keys %session_screens){
-		if(exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}){
-			if(exists $session_screens{$key}->{'history_timestamp'} && defined $session_screens{$key}->{'history_timestamp'}){
-				if($session_screens{$key}->{'history_timestamp'} > $last_capture_tstamp){
-					$last_capture_tstamp = $session_screens{$key}->{'history_timestamp'}; 
-					$last_capture_key = $key;
-				}
-			}
-		}
+	#~ #determine last capture and return the relevant key
+	#~ my $last_capture_tstamp = 0;
+	#~ my $last_capture_key 	= 0;
+	#~ foreach my $key (keys %session_screens){
+		#~ if(exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}){
+			#~ if(exists $session_screens{$key}->{'history_timestamp'} && defined $session_screens{$key}->{'history_timestamp'}){
+				#~ if($session_screens{$key}->{'history_timestamp'} > $last_capture_tstamp){
+					#~ $last_capture_tstamp = $session_screens{$key}->{'history_timestamp'}; 
+					#~ $last_capture_key = $key;
+				#~ }
+			#~ }
+		#~ }
+	#~ }
+	#~ return $last_capture_key;
+	if(exists $session_start_screen{'first_page'}->{'history'} && defined $session_start_screen{'first_page'}->{'history'}){
+		return $session_start_screen{'first_page'}->{'history'};
 	}
-	return $last_capture_key;
+	return FALSE;
 }
 
 sub fct_update_actions {
@@ -3302,8 +3306,9 @@ sub fct_integrate_screenshot_in_notebook {
 
 	#store the history object
 	if(defined $history && $history->get_history){
-		$session_screens{$key}->{'history'} = $history;	 
-		$session_screens{$key}->{'history_timestamp'} = time;	 
+		$session_screens{$key}->{'history'} = $history;
+		$session_start_screen{'first_page'}->{'history'} = $history;	 
+		$session_screens{$key}->{'history_timestamp'} = time;
 	}
 
 	#setup tab label (thumb, preview etc.)
@@ -5388,13 +5393,36 @@ sub fct_take_screenshot {
 
 	} elsif ( $data eq "redoshot" ) {
 
-		my $key = &fct_get_last_capture;
-		if(defined $key && exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}){
-			$screenshooter = $session_screens{$key}->{'history'};
-			$screenshot = $screenshooter->redo_capture;
-		}else{			
-			$screenshot = 3;	
-		}		
+		#~ my $key = &fct_get_last_capture;
+		#~ if(defined $key && exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}){
+			#~ $screenshooter = $session_screens{$key}->{'history'};
+			#~ $screenshot = $screenshooter->redo_capture;
+		#~ }else{			
+			#~ $screenshot = 3;	
+		#~ }		
+
+		if($screenshooter = &fct_get_last_capture){
+			#we need to handle menu and tooltip in a special way
+			if($screenshooter->can('get_mode')){
+				if(my $mode = $screenshooter->get_mode){
+					if ( $mode eq "menu" || $mode eq "tray_menu" ) {
+						$st->{_menu}->signal_emit('clicked');
+						return FALSE;
+					}elsif ( $mode eq "tooltip" || $mode eq "tray_tooltip" ) {
+						$st->{_tooltip}->signal_emit('clicked');
+						return FALSE;
+					}else{
+						$screenshot = $screenshooter->redo_capture;	
+					}
+				}else{
+					$screenshot = 3;
+				}	
+			}else{
+				$screenshot = $screenshooter->redo_capture;
+			}			
+		}else{
+			$screenshot = 3;
+		}
 
 	} elsif ( $data eq "redoshot_this" ) {
 		
@@ -5416,7 +5444,26 @@ sub fct_take_screenshot {
 		
 		if(defined $key && exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}){
 			$screenshooter = $session_screens{$key}->{'history'};
-			$screenshot = $screenshooter->redo_capture;
+			#we need to handle menu and tooltip in a special way
+			if($screenshooter->can('get_mode')){
+				if(my $mode = $screenshooter->get_mode){
+					if ( $mode eq "menu" || $mode eq "tray_menu" ) {
+						$st->{_menu}->signal_emit('clicked');
+						return FALSE;
+					}elsif ( $mode eq "tooltip" || $mode eq "tray_tooltip" ) {
+						$st->{_tooltip}->signal_emit('clicked');
+						return FALSE;
+					}else{
+						$screenshot = $screenshooter->redo_capture;	
+					}
+				}else{
+					$screenshot = 3;
+				}	
+			}else{
+				$screenshot = $screenshooter->redo_capture;
+			}	
+		}else{
+			$screenshot = 3;
 		}
 
 	} else {
