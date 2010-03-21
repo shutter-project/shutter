@@ -281,6 +281,16 @@ $notebook = &fct_create_session_notebook;
 
 #STATUSBAR
 my $status = Gtk2::Statusbar->new;
+$status->set_name('main-window-statusbar');
+
+#customize the statusbar style
+Gtk2::Rc->parse_string ("
+	style 'statusbar-style' {
+		 GtkStatusbar::shadow-type = GTK_SHADOW_NONE
+	 }
+	 widget '*.main-window-statusbar' style 'statusbar-style'
+");
+    
 my $combobox_status_profiles_label = Gtk2::Label->new( $d->get("Profile") . ":" );
 my $combobox_status_profiles = Gtk2::ComboBox->new_text;
 
