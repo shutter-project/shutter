@@ -5414,8 +5414,9 @@ sub fct_take_screenshot {
 					}else{
 						$screenshot = $screenshooter->redo_capture;	
 					}
+				#window by xid
 				}else{
-					$screenshot = 3;
+					$screenshot = $screenshooter->redo_capture;
 				}	
 			}else{
 				$screenshot = $screenshooter->redo_capture;
@@ -5456,8 +5457,9 @@ sub fct_take_screenshot {
 					}else{
 						$screenshot = $screenshooter->redo_capture;	
 					}
+				#window by xid	
 				}else{
-					$screenshot = 3;
+					$screenshot = $screenshooter->redo_capture;
 				}	
 			}else{
 				$screenshot = $screenshooter->redo_capture;
