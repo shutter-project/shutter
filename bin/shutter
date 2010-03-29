@@ -5787,7 +5787,7 @@ sub fct_email {
 			}
 		);
 	} else {
-		push( @files_to_email, $session_screens{$key}->{'long'} );
+		push( @files_to_email, $session_screens{$key}->{'uri'}->to_string );
 	}
 	
 	#~ my $mail_string = undef;
@@ -5812,7 +5812,7 @@ sub fct_email {
 	my $mail_cmd = $1;
 	if(defined $mail_cmd && $mail_cmd =~ /thunderbird/){
 		#~ print $mail_cmd, "\n";
-		$shf->thunderbird_open($mail_cmd, "-compose attachment='".join(",",@files_to_email)."'");
+		$shf->thunderbird_open($mail_cmd, "-compose \"attachment='".join(",",@files_to_email)."'\"");
 	}else{
 		$shf->xdg_open(undef, "'mailto:?attach=".join("&attach=",@files_to_email )."'");		
 	}
