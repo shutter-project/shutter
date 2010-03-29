@@ -40,6 +40,13 @@ sub new {
 	#constructor
 	my $self = { _common => shift };
 
+	#import shutter dialogs
+	my $current_window = $self->{_common}->get_mainwindow;
+	$self->{_dialogs} = Shutter::App::SimpleDialogs->new( $current_window );
+
+	#gettext
+	$self->{_d} = $self->{_common}->get_gettext;
+
 	bless $self, $class;
 	return $self;
 }
@@ -47,19 +54,43 @@ sub new {
 sub xdg_open {
 	my ( $self, $dialog, $link, $user_data ) = @_;
 	system("xdg-open $link");
-	return TRUE;
+	if($?){
+		my $response = $self->{_dialogs}->dlg_error_message( 
+			sprintf( $self->{_d}->get("Error while executing %s."), "'xdg-open'"),
+			sprintf( $self->{_d}->get("There was an error executing %s."), "'xdg-open'"),		
+			undef, undef, undef,
+			undef, undef, undef,
+			sprintf( $self->{_d}->get("Exit Code: %d."), $? >> 8)
+		);
+	}		
 }
 
 sub xdg_open_mail {
 	my ( $self, $dialog, $mail, $user_data ) = @_;
 	system("xdg-email $mail $user_data");
-	return TRUE;
+	if($?){
+		my $response = $self->{_dialogs}->dlg_error_message( 
+			sprintf( $self->{_d}->get("Error while executing %s."), "'xdg-email'"),
+			sprintf( $self->{_d}->get("There was an error executing %s."), "'xdg-email'"),		
+			undef, undef, undef,
+			undef, undef, undef,
+			sprintf( $self->{_d}->get("Exit Code: %d."), $? >> 8)
+		);
+	}		
 }
 
 sub nautilus_sendto {
 	my ( $self, $user_data ) = @_;
 	system("nautilus-sendto $user_data &");
-	return TRUE;
+	if($?){
+		my $response = $self->{_dialogs}->dlg_error_message( 
+			sprintf( $self->{_d}->get("Error while executing %s."), "'nautilus-sendto'"),
+			sprintf( $self->{_d}->get("There was an error executing %s."), "'nautilus-sendto'"),		
+			undef, undef, undef,
+			undef, undef, undef,
+			sprintf( $self->{_d}->get("Exit Code: %d."), $? >> 8)
+		);
+	}	
 }
 
 sub file_exists {
