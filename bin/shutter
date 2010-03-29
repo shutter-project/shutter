@@ -5796,7 +5796,26 @@ sub fct_email {
 	#~ }
 	#~ 
 	#~ $shf->xdg_open_mail(undef, undef, $mail_string);
-	$shf->xdg_open(undef, "'mailto:?attach=".join("&attach=",@files_to_email )."'");
+
+	#GConf
+	my $client = Gnome2::GConf::Client->get_default;
+
+	#global error handler function catch just the unchecked error
+	$client->set_error_handling('handle-unreturned');
+	$client->signal_connect(unreturned_error => sub {
+		my ($client, $error) = @_;
+		warn $error; # is a Glib::Error
+	});
+	
+	#get mail client
+	$client->get("/desktop/gnome/url-handlers/mailto/command") =~ /^(.*) /;
+	my $mail_cmd = $1;
+	if(defined $mail_cmd && $mail_cmd =~ /thunderbird/){
+		#~ print $mail_cmd, "\n";
+		$shf->thunderbird_open($mail_cmd, "-compose attachment='".join(",",@files_to_email)."'");
+	}else{
+		$shf->xdg_open(undef, "'mailto:?attach=".join("&attach=",@files_to_email )."'");		
+	}
 	
 	return TRUE;
 }

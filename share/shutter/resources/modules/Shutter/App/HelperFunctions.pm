@@ -79,6 +79,21 @@ sub xdg_open_mail {
 	}		
 }
 
+sub thunderbird_open {
+	my ( $self, $tcmd, $user_data ) = @_;
+	system("$tcmd $user_data");
+	#~ print "$tcmd $user_data\n";
+	if($?){
+		my $response = $self->{_dialogs}->dlg_error_message( 
+			sprintf( $self->{_d}->get("Error while executing %s."), "'" . $tcmd . "'"),
+			sprintf( $self->{_d}->get("There was an error executing %s."), "'" . $tcmd . "'"),
+			undef, undef, undef,
+			undef, undef, undef,
+			sprintf( $self->{_d}->get("Exit Code: %d."), $? >> 8)
+		);
+	}	
+}
+
 sub nautilus_sendto {
 	my ( $self, $user_data ) = @_;
 	system("nautilus-sendto $user_data &");
