@@ -91,7 +91,7 @@ sub dlg_website {
 	#redirect outputs
 	my ( $tmpfh_stdout, $tmpfilename_stdout ) = tempfile(UNLINK => 1);
 	my ( $tmpfh_stderr, $tmpfilename_sterr ) = tempfile(UNLINK => 1);
-  	#~ $web_process->redirect_output ($tmpfilename_stdout, $tmpfilename_sterr);
+  	$web_process->redirect_output ($tmpfilename_stdout, $tmpfilename_sterr);
 
 	my $website_dialog = Gtk2::MessageDialog->new( $self->{_sc}->get_mainwindow, [qw/modal destroy-with-parent/], 'other', 'none', undef );
 
@@ -130,13 +130,10 @@ sub dlg_website {
 	my $website_hbox2 = Gtk2::HBox->new();
 
 	my $website = Gtk2::Entry->new;
-	#~ $website->set_text("http://");
 	$website->set_activates_default(TRUE);
 
 	#check if url is valid
-	#~ my $vurl = qr/^((http(s?))\:\/\/)?(www.|[a-zA-Z].)[a-zA-Z0-9\-\.]+\.([a-zA-Z]+)(\:[0-9]+)*(\/($|[a-zA-Z0-9\.\,\;\?\'\\\+&amp;%\$#\=~_\-]+))*$/;
 	$website->signal_connect('changed' => sub {
-		#~ unless ( $website->get_text =~ /$vurl/) {
 		unless ( $website->get_text ) {
 			$execute_btn->set_sensitive(FALSE);
 		}else{
@@ -145,48 +142,6 @@ sub dlg_website {
 		return FALSE;
 	});
 	
-	#~ eval{
-		#~ require Google::Search;	
-	#~ };
-	#~ unless($@){
-#~ 
-		#~ #try to use Google::Search for autocompletion
-		#~ my $api_key = "ABQIAAAA1MzQeGgjv24cQH6It97vbhQ7KJkd-ijgFr7toX7MFGWAtZ4alhQBHxiKkuXsCsTQklemxTfVOgjxGg";
-		#~ my $referer = "http://shutter-project.org";
-		#~ my $web_compl = Gtk2::EntryCompletion->new;
-		#~ $web_compl->set_popup_completion (TRUE);
-		#~ $web_compl->set_text_column (0);
-		#~ my $model = Gtk2::ListStore->new( 'Glib::String' );
-		#~ $web_compl->set_model($model);
-#~ 
-		#~ $website->set_completion ($web_compl);
-		#~ $website->signal_connect('changed' => sub{
-#~ 
-				#~ #search when idle
-				#~ Glib::Idle->add (
-					#~ sub{
-						#~ 
-						#~ #clear model for each search	
-						#~ $model->clear;
-						#~ 
-						#~ my $search = Google::Search->Web( q => $website->get_text, key => $api_key, referer => $referer);
-						#~ my $result = $search->first;
-						#~ 
-						#~ #append first 3 results to model
-						#~ #we take 3 because of performace reasons here
-						#~ while ($result) {
-							#~ last if $result->number == 3;
-							#~ $model->set( $model->append, 0, $result->uri );
-							#~ $result = $result->next;
-						#~ }
-						#~ 
-						#~ return FALSE;
-					#~ });	
-		#~ 
-			#~ return FALSE;	
-		#~ });
-	#~ }
-
 	my $clipboard = Gtk2::Clipboard->get( Gtk2::Gdk->SELECTION_CLIPBOARD );
 	my $clipboard_string = $clipboard->wait_for_text;
 	print "Content of clipboard is: $clipboard_string\n"
@@ -349,17 +304,15 @@ sub dlg_website {
 			}
 		}
 
-		#kill process, delete file and destroy dialog
+		#kill process, destroy dialog
 		$web_process->kill('SIGKILL');
-		#~ unlink $tmpfilename, $tmpfilename_stdout, $tmpfilename_sterr;
 		$website_dialog->destroy();
 
 		return $output;
 	} else {
 		
-		#kill process, delete file and destroy dialog
+		#kill process, destroy dialog
 		$web_process->kill('SIGKILL');
-		#~ unlink $tmpfilename, $tmpfilename_stdout, $tmpfilename_sterr;
 		$website_dialog->destroy();
 
 		return 5;
