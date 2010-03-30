@@ -42,7 +42,7 @@ sub new {
 	my $class = shift;
 
 	#constructor
-	my $self = { _shutter_root => shift, _mainwindow => shift, _appname => shift, _version => shift, _rev => shift };
+	my $self = { _shutter_root => shift, _mainwindow => shift, _appname => shift, _version => shift, _rev => shift, _pid => shift };
 
 	#vars
 	$self->{_debug_cparam}           = FALSE;
@@ -90,6 +90,19 @@ sub new {
 sub get_root {
 	my $self = shift;
 	return $self->{_shutter_root};
+}
+
+sub get_pid {
+	my $self = shift;
+	return $self->{_pid};
+}
+
+sub set_pid {
+	my $self = shift;
+	if (@_) {
+		$self->{_pid} = shift;
+	}
+	return $self->{_pid};
 }
 
 sub get_appname {

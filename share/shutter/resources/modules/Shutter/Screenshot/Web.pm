@@ -91,7 +91,7 @@ sub dlg_website {
 	#redirect outputs
 	my ( $tmpfh_stdout, $tmpfilename_stdout ) = tempfile(UNLINK => 1);
 	my ( $tmpfh_stderr, $tmpfilename_sterr ) = tempfile(UNLINK => 1);
-  	$web_process->redirect_output ($tmpfilename_stdout, $tmpfilename_sterr);
+  	#~ $web_process->redirect_output ($tmpfilename_stdout, $tmpfilename_sterr);
 
 	my $website_dialog = Gtk2::MessageDialog->new( $self->{_sc}->get_mainwindow, [qw/modal destroy-with-parent/], 'other', 'none', undef );
 
@@ -245,6 +245,32 @@ sub dlg_website {
 
 		$web_process->start(
 			sub {
+				#cleanup when catching TERM
+				$SIG{TERM}   = sub {
+					
+					#get all pids from pgrp
+					my $ppid = getpgrp($$);
+					my @cpids = `pgrep -g $ppid`;
+					
+					#any pids found?
+					if(scalar @cpids){
+						foreach (@cpids){
+							next if $_ == $$; #don't kill $web_process
+							next if $_ == $self->{_sc}->get_pid; #don't kill the main program
+							next unless $_ =~ /(\d+)/;
+							my $cpid = $1;
+							if($cpid){
+								my $nck = kill(9, $cpid);
+								warn "killed $nck pids\n" if $self->{_sc}->get_debug;
+							}
+						}
+					}else{
+						warn "WARNING: No pid found - cleaning aborted\n";
+					}
+					
+				};
+				
+				#start gnome-web-photo
 				$self->web();
 				POSIX::_exit(0);
 			}
@@ -252,22 +278,16 @@ sub dlg_website {
 		
 		$website_dialog->signal_connect(
 			'delete-event' => sub{
-				#kill process, delete file and destroy dialog
-				$web_process->kill('SIGKILL');
-				unlink $tmpfilename, $tmpfilename_stdout, $tmpfilename_sterr;
-				$website_dialog->destroy();
-				
+				#kill process
+				$web_process->kill;				
 				$output = 5;				
 			} 
 		);
 
 		$cancel_btn->signal_connect(
 			'clicked' => sub {
-				#kill process, delete file and destroy dialog
-				$web_process->kill('SIGKILL');
-				unlink $tmpfilename, $tmpfilename_stdout, $tmpfilename_sterr;
-				$website_dialog->destroy();
-				
+				#kill process
+				$web_process->kill;
 				$output = 5;
 			}
 		);
@@ -331,7 +351,7 @@ sub dlg_website {
 
 		#kill process, delete file and destroy dialog
 		$web_process->kill('SIGKILL');
-		unlink $tmpfilename, $tmpfilename_stdout, $tmpfilename_sterr;
+		#~ unlink $tmpfilename, $tmpfilename_stdout, $tmpfilename_sterr;
 		$website_dialog->destroy();
 
 		return $output;
@@ -339,7 +359,7 @@ sub dlg_website {
 		
 		#kill process, delete file and destroy dialog
 		$web_process->kill('SIGKILL');
-		unlink $tmpfilename, $tmpfilename_stdout, $tmpfilename_sterr;
+		#~ unlink $tmpfilename, $tmpfilename_stdout, $tmpfilename_sterr;
 		$website_dialog->destroy();
 
 		return 5;
