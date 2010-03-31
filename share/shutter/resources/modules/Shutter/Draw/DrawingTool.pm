@@ -6520,6 +6520,9 @@ sub import_from_session {
 
 	foreach my $key ( Sort::Naturally::nsort(keys %import_hash) ) {
 
+		next unless exists $import_hash{$key}->{'short'};
+		next unless defined $import_hash{$key}->{'short'};
+
 		#init item with filename
 		my $screen_menu_item = Gtk2::ImageMenuItem->new_with_label( $import_hash{$key}->{'short'} );
 		$screen_menu_item->set('always_show_image' => TRUE) if Gtk2->CHECK_VERSION( 2, 16, 0 );
