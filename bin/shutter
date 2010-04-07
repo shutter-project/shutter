@@ -83,10 +83,10 @@ use Data::Dumper;
 #define constants
 #--------------------------------------
 use constant MAX_ERROR 			=> 5;
-#~ use constant SHUTTER_REV        => "Rev.experimental branch";
-use constant SHUTTER_REV        => "Rev.828";
+use constant SHUTTER_REV        => "Rev.experimental branch";
+#~ use constant SHUTTER_REV        => "Rev.828";
 use constant SHUTTER_NAME		=> "Shutter";
-use constant SHUTTER_VERSION	=> "v0.86.1";
+use constant SHUTTER_VERSION	=> "v0.86.2";
 
 #--------------------------------------
 
@@ -7152,8 +7152,8 @@ sub fct_ret_tray_menu {
 	
 	#window
 	my $menuitem_window = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('W_indow') );
-	if($traytheme->has_icon('preferences-system-windows')){
-		$menuitem_window->set_image( Gtk2::Image->new_from_icon_name( 'preferences-system-windows', 'menu' ) );	
+	if($traytheme->has_icon('gnome-window-manager')){
+		$menuitem_window->set_image( Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'menu' ) );	
 	}else{
 		$menuitem_window->set_image(
 			Gtk2::Image->new_from_pixbuf(
@@ -7226,8 +7226,8 @@ sub fct_ret_tray_menu {
 	#web
 	my $menuitem_web = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Web') );
 	$menuitem_web->set_sensitive($gnome_web_photo);
-	if($traytheme->has_icon('applications-internet')){
-		$menuitem_web->set_image( Gtk2::Image->new_from_icon_name( 'applications-internet', 'menu' ) );		
+	if($traytheme->has_icon('web-browser')){
+		$menuitem_web->set_image( Gtk2::Image->new_from_icon_name( 'web-browser', 'menu' ) );		
 	}else{
 		$menuitem_web->set_image(
 			Gtk2::Image->new_from_pixbuf(

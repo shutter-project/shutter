@@ -447,8 +447,8 @@ sub fct_ret_new_menu {
 
 	#window
 	$self->{_menuitem_window} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('W_indow') );
-	if($icontheme->has_icon('preferences-system-windows')){
-		$self->{_menuitem_window}->set_image( Gtk2::Image->new_from_icon_name( 'preferences-system-windows', 'menu' ) );	
+	if($icontheme->has_icon('gnome-window-manager')){
+		$self->{_menuitem_window}->set_image( Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'menu' ) );	
 	}else{
 		$self->{_menuitem_window}->set_image(
 			Gtk2::Image->new_from_pixbuf(
@@ -510,8 +510,8 @@ sub fct_ret_new_menu {
 
 	#web
 	$self->{_menuitem_web} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Web') );
-	if($icontheme->has_icon('applications-internet')){
-		$self->{_menuitem_web}->set_image( Gtk2::Image->new_from_icon_name( 'applications-internet', 'menu' ) );		
+	if($icontheme->has_icon('web-browser')){
+		$self->{_menuitem_web}->set_image( Gtk2::Image->new_from_icon_name( 'web-browser', 'menu' ) );		
 	}else{
 		$self->{_menuitem_web}->set_image(
 			Gtk2::Image->new_from_pixbuf(

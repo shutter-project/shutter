@@ -111,8 +111,8 @@ sub create_toolbar {
 	#button window
 	#--------------------------------------
 	my $image_window;
-	if($icontheme->has_icon('preferences-system-windows')){
-		$image_window = Gtk2::Image->new_from_icon_name( 'preferences-system-windows', 'large-toolbar' );		
+	if($icontheme->has_icon('gnome-window-manager')){
+		$image_window = Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'large-toolbar' );		
 	}else{
 		$image_window = Gtk2::Image->new_from_pixbuf(
 			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
@@ -192,8 +192,8 @@ sub create_toolbar {
 	#button web
 	#--------------------------------------
 	my $image_web;
-	if($icontheme->has_icon('applications-internet')){
-		$image_web = Gtk2::Image->new_from_icon_name( 'applications-internet', 'large-toolbar' );		
+	if($icontheme->has_icon('web-browser')){
+		$image_web = Gtk2::Image->new_from_icon_name( 'web-browser', 'large-toolbar' );		
 	}else{
 		$image_web = Gtk2::Image->new_from_pixbuf(
 				Gtk2::Gdk::Pixbuf->new_from_file_at_size(

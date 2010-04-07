@@ -101,9 +101,9 @@ sub dlg_website {
 
 	$website_dialog->set( 'secondary-text' => $d->get("URL to capture") . ": " );
 
-	if($self->{_sc}->get_theme->has_icon('applications-internet')){
+	if($self->{_sc}->get_theme->has_icon('web-browser')){
 		$website_dialog->set(
-			'image' => Gtk2::Image->new_from_icon_name( 'applications-internet', 'dialog' ) );		
+			'image' => Gtk2::Image->new_from_icon_name( 'web-browser', 'dialog' ) );		
 	}else{
 		$website_dialog->set(
 			'image' => Gtk2::Image->new_from_pixbuf(
