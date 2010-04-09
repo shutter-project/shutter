@@ -5249,6 +5249,8 @@ sub fct_take_screenshot {
 	
 	#prepare filename, parse wild-cards
 	$filename_value = strftime $filename_value , localtime;
+	#remove "/" and "#"
+	$filename_value =~ s/(\/|\#)/-/g;
 
 	#get next filename (auto increment using a wild card or manually)
 	my $uri = &fct_get_next_filename( $filename_value, $folder, $filetype_value );
