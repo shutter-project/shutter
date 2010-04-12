@@ -2656,8 +2656,6 @@ sub evt_show_systray {
 	#right button (mouse)
 	elsif ( $_[1]->button == 3 ) {
 
-		$tray_menu = &fct_ret_tray_menu;
-
 		$tray_menu->popup(
 			undef,    # parent menu shell
 			undef,    # parent menu item
@@ -2666,6 +2664,7 @@ sub evt_show_systray {
 			$data->button,
 			$data->time
 		);
+		
 	}
 	return TRUE;
 }
@@ -2675,8 +2674,6 @@ sub evt_show_systray_statusicon {
 	if ( $sc->get_debug ) {
 		print "\n$button, $time was emitted by widget $widget\n";
 	}
-
-	$tray_menu = &fct_ret_tray_menu;
 
 	$tray_menu->popup(
 		undef,    # parent menu shell
@@ -2688,6 +2685,7 @@ sub evt_show_systray_statusicon {
 		$time ? $button : 0,
 		$time
 	);
+	
 	return TRUE;
 }
 
@@ -9514,7 +9512,7 @@ sub dlg_profile_name {
 	my @invalid_codes = (47,92,63,37,42,58,124,34,60,62,44,59,35,38);
 	$new_profile_name->signal_connect('key-press-event' => sub {
 		my $new_profile_name 	= shift;
-		my $event 			= shift;
+		my $event 				= shift;
 		
 		my $input = Gtk2::Gdk->keyval_to_unicode ($event->keyval); 
 		
@@ -9565,18 +9563,15 @@ sub dlg_profile_name {
 				$replace_btn, undef, undef
 			);
 
-			#rename == replace_btn was hit
-			if ( $response == 40 ) {
-				$profile_dialog->destroy();
-				return $new_profile_name->get_text;
-			} else {
+			#40 == replace_btn was hit
+			if ( $response != 40 ) {
 				$profile_dialog->destroy();
 				return FALSE;
 			}
 		}
 
 		$profile_dialog->destroy();
-		return $new_profile_name->get_text;
+		return $entered_name;
 	} else {
 		$profile_dialog->destroy();
 		return FALSE;
