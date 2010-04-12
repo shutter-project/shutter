@@ -3255,9 +3255,8 @@ sub fct_create_session_notebook {
 	$notebook->signal_connect(drag_data_received => \&fct_drop_handler);
 	
 	my $target_list = Gtk2::TargetList->new();
-	my $atom1 = Gtk2::Gdk::Atom->new('text/uri-list');
-	$target_list->add($atom1, 0, 0);
-	
+	my $atom_dest = Gtk2::Gdk::Atom->new('text/uri-list');
+	$target_list->add($atom_dest, 0, 0);
 	$notebook->drag_dest_set_target_list($target_list);
 	
 	#packing and first page
@@ -3613,7 +3612,14 @@ sub fct_create_tab {
 				return FALSE;	
 			}					
 		});
-		
+
+		#dnd
+		$session_screens{$key}->{'image'}->drag_source_set('button1-mask', ['copy'], {'target' => "text/uri-list", 'flags' => [], 'info' => 0});
+		$session_screens{$key}->{'image'}->signal_connect ('drag-data-get', sub{ 
+			my ($widget, $context, $data, $info, $time) = @_;
+			$data->set($data->target, 8, $session_screens{$key}->{'uri'}->to_string);
+		 });
+
 		$vbox_tab->pack_start( $scrolled_window_image, TRUE, TRUE, 0 );
 
 		$vbox->pack_start_defaults($vbox_tab);
@@ -3650,6 +3656,27 @@ sub fct_create_tab {
 		my $view_event = Gtk2::EventBox->new;
 		$view_event->add($scrolled_window_view);
 		$view_event->signal_connect( 'button-press-event', \&evt_iconview_button_press, $session_start_screen{'first_page'}->{'view'} );
+
+		#dnd
+		$session_start_screen{'first_page'}->{'view'}->enable_model_drag_source('button1-mask', ['copy'], {'target' => "text/uri-list", 'flags' => [], 'info' => 0});
+		$session_start_screen{'first_page'}->{'view'}->signal_connect ('drag-data-get', sub{ 
+			my ($widget, $context, $data, $info, $time) = @_;
+						
+			my $target_list;
+			$session_start_screen{'first_page'}->{'view'}->selected_foreach(
+				sub {
+					my ( $view, $path ) = @_;
+					my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
+					if ( defined $iter ) {
+						my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
+						$target_list .= $session_screens{$key}->{'uri'}->to_string." "; 
+					}
+				}
+			);
+			
+			$data->set($data->target, 8, $target_list);
+
+		 });
 
 		$vbox_tab->pack_start( $view_event, TRUE, TRUE, 0 );
 
