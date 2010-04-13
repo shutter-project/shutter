@@ -351,8 +351,8 @@ $sm->{_menuitem_export_pdf}->signal_connect( 'activate', \&evt_save_as, 'menu_ex
 $sm->{_menuitem_print}->signal_connect( 'activate', \&fct_print, 'menu_print' );
 $sm->{_menuitem_pagesetup}->signal_connect( 'activate', \&evt_page_setup, 'menu_pagesetup' );
 $sm->{_menuitem_email}->signal_connect( 'activate', \&fct_email, 'menu_email' );
-$sm->{_menuitem_close}->signal_connect( 'activate', sub { &fct_remove(undef); }, 'menu_close' );
-$sm->{_menuitem_close_all}->signal_connect( 'activate', sub { &fct_select_all; &fct_remove(undef); }, 'menu_close_all' );
+$sm->{_menuitem_close}->signal_connect( 'activate', sub { &fct_remove(undef, 'menu_close'); } );
+$sm->{_menuitem_close_all}->signal_connect( 'activate', sub { &fct_select_all; &fct_remove(undef, 'menu_close_all'); } );
 $sm->{_menuitem_quit}->signal_connect( 'activate', \&evt_delete_window, 'quit' );
 
 $sm->{_menuitem_undo}->signal_connect( 'activate', \&fct_undo );
@@ -4617,9 +4617,13 @@ sub fct_screenshot_exists {
 }
 
 sub fct_delete {
-	my $key = shift;
+	my $key 	= shift;
+	my $action 	= shift;
 
-	$key = &fct_get_current_file unless $key;
+	#close current tab (unless $key is provided or close_all)
+	unless(defined $action && $action eq 'menu_close_all'){
+		$key = &fct_get_current_file unless $key;
+	}
 
 	#single file
 	if ($key) {
@@ -4782,9 +4786,13 @@ sub fct_delete {
 }
 
 sub fct_remove {
-	my $key = shift;
+	my $key 	= shift;
+	my $action 	= shift;
 
-	$key = &fct_get_current_file unless $key;
+	#close current tab (unless $key is provided or close_all)
+	unless(defined $action && $action eq 'menu_close_all'){
+		$key = &fct_get_current_file unless $key;
+	}
 
 	#single file
 	if ($key) {
@@ -4820,7 +4828,7 @@ sub fct_remove {
 
 		#delete instead of remove
 		if($delete_on_close_active->get_active){
-			&fct_delete(undef);
+			&fct_delete(undef, 'menu_close_all');
 			return FALSE;	
 		}
 		
