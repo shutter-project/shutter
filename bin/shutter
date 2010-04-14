@@ -1486,13 +1486,13 @@ $web_width_box->pack_start( $web_width_vlabel, FALSE, TRUE, 2 );
 
 #imageview
 #--------------------------------------
-my $trans_check  = Gtk2::RadioButton->new (undef, $d->get("As check pattern"));
-my $trans_custom = Gtk2::RadioButton->new ($trans_check, $d->get("As custom color:"));
+my $trans_check  = Gtk2::RadioButton->new (undef, $d->get("Show as check pattern"));
+my $trans_custom = Gtk2::RadioButton->new ($trans_check, $d->get("Show as custom color:"));
 my $trans_custom_btn = Gtk2::ColorButton->new();
 $trans_custom_btn->set_use_alpha(FALSE);
 $trans_custom_btn->set_title( $d->get("Choose fill color") );
 
-my $trans_backg  = Gtk2::RadioButton->new ($trans_custom, $d->get("As background"));
+my $trans_backg  = Gtk2::RadioButton->new ($trans_custom, $d->get("Show as background"));
 
 $imageview_hbox1->pack_start( $trans_check, FALSE, TRUE, 12 );
 $imageview_hbox2->pack_start( $trans_custom, FALSE, TRUE, 12 );
