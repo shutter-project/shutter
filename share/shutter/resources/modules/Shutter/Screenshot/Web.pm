@@ -28,6 +28,8 @@ use utf8;
 use strict;
 use warnings;
 
+use Proc::Killfam;
+
 use File::Temp qw/ tempfile tempdir /;
 
 #timing issues
@@ -91,6 +93,7 @@ sub dlg_website {
 	#redirect outputs
 	my ( $tmpfh_stdout, $tmpfilename_stdout ) = tempfile(UNLINK => 1);
 	my ( $tmpfh_stderr, $tmpfilename_sterr ) = tempfile(UNLINK => 1);
+  	#~ $web_process->redirect_output ("$ENV{'HOME'}/shutter-debug-stdout.log", "$ENV{'HOME'}/shutter-debug-err.log");
   	$web_process->redirect_output ($tmpfilename_stdout, $tmpfilename_sterr);
 
 	my $website_dialog = Gtk2::MessageDialog->new( $self->{_sc}->get_mainwindow, [qw/modal destroy-with-parent/], 'other', 'none', undef );
@@ -199,32 +202,11 @@ sub dlg_website {
 		Proc::Simple::debug(1) if $self->{_sc}->get_debug;
 
 		$web_process->start(
-			sub {
+			sub {		
 				#cleanup when catching TERM
 				$SIG{TERM}   = sub {
-					
-					#get all pids from pgrp
-					my $ppid = getpgrp($$);
-					my @cpids = `pgrep -g $ppid`;
-					
-					#any pids found?
-					if(scalar @cpids){
-						foreach (@cpids){
-							next if $_ == $$; #don't kill $web_process
-							next if $_ == $self->{_sc}->get_pid; #don't kill the main program
-							next unless $_ =~ /(\d+)/;
-							my $cpid = $1;
-							if($cpid){
-								my $nck = kill(9, $cpid);
-								warn "killed $nck pids\n" if $self->{_sc}->get_debug;
-							}
-						}
-					}else{
-						warn "WARNING: No pid found - cleaning aborted\n";
-					}
-					
+					killfam 'TERM', $$;
 				};
-				
 				#start gnome-web-photo
 				$self->web();
 				POSIX::_exit(0);
