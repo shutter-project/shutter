@@ -595,15 +595,6 @@ if ( defined $settings_xml->{'general'}->{'last_profile'} ) {
 
 #--------------------------------------
 
-#check plugins
-#--------------------------------------
-#not used in a standalone environment
-unless($ENV{PAR_TEMP}){
-	&fct_check_installed_plugins;
-}
-
-#--------------------------------------
-
 #attach signal handlers to subroutines and pack toolbar
 #--------------------------------------
 #~ my $handlebox = Gtk2::HandleBox->new;
@@ -2203,6 +2194,16 @@ $vbox->pack_start( $status, FALSE, FALSE, 0 );
 
 #--------------------------------------
 
+#block signals while checking plugins / opening files
+&fct_control_signals('block');
+
+#check plugins
+#--------------------------------------
+#not used in a standalone environment
+unless($ENV{PAR_TEMP}){
+	&fct_check_installed_plugins;
+}
+
 #restore session
 #--------------------------------------
 &fct_load_session;
@@ -2211,7 +2212,10 @@ $vbox->pack_start( $status, FALSE, FALSE, 0 );
 #--------------------------------------
 if(scalar @init_files > 0){
 	&fct_open_files(@init_files);
-}	
+}
+	
+#unblock again
+&fct_control_signals('unblock');
 
 #start minimized?
 #--------------------------------------
