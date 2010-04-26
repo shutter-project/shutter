@@ -4236,6 +4236,7 @@ sub show_item_properties {
 		my $textview_hbox = Gtk2::HBox->new( FALSE, 5 );
 		$textview_hbox->set_border_width(5);
 		$textview = Gtk2::TextView->new_with_buffer($text);
+		$textview->can_focus(TRUE);
 		$textview->set_size_request( 150, 200 );
 		$textview_hbox->pack_start_defaults($textview);
 
@@ -4454,6 +4455,11 @@ sub show_item_properties {
 
 	#run dialog
 	$prop_dialog->show_all;
+	#textview grab focus to be able to edit
+	#immediately
+	if(defined $textview){
+		$textview->grab_focus;
+	}
 	my $prop_dialog_res = $prop_dialog->run;
 	if ( $prop_dialog_res eq 'ok' ) {
 
