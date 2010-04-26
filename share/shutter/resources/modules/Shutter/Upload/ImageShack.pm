@@ -287,8 +287,9 @@ sub host{
 
 	if($rsp->is_success){
 		my $txt = $rsp->content;
+		#~ print $txt, "\n";
 	
-		if($txt =~ /link-directlink-click.+?value=['"]*([^'"]+)['"]*/ism){
+		if($txt =~ /link-directlink-click.+>(.*)<\/textarea>.*link-widget-click/ism){
 			$self->hosted($1);
 			
 			#short link
@@ -300,7 +301,7 @@ sub host{
 			}
 
 			#forum thumb link
-			if($txt =~ /thumb-forum-click.+?value=['"]*([^'"]+)['"]*/ism){
+			if($txt =~ /thumb-forum-click.+>(.*)<\/textarea>.*thumb-alt-click/ism){
 				$self->hosted_thumb($1);
 			}else{
 				#no short link available
