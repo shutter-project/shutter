@@ -84,7 +84,7 @@ use Data::Dumper;
 #--------------------------------------
 use constant MAX_ERROR 			=> 5;
 #~ use constant SHUTTER_REV        => "Rev.experimental branch";
-use constant SHUTTER_REV        => "Rev.845";
+use constant SHUTTER_REV        => "Rev.846";
 use constant SHUTTER_NAME		=> "Shutter";
 use constant SHUTTER_VERSION	=> "v0.86.2";
 
@@ -3620,26 +3620,31 @@ sub fct_create_tab {
 		#dnd
 		$session_screens{$key}->{'image'}->drag_source_set('button1-mask', ['copy'], {'target' => "text/uri-list", 'flags' => [], 'info' => 0});
 		$session_screens{$key}->{'image'}->signal_connect ('drag-data-get', sub{ 
-			my ($widget, $context, $data, $info, $time) = @_;
-			
+			my ($widget, $context, $data, $info, $time) = @_;	
+			if(exists $session_screens{$key}->{'uri'} && defined $session_screens{$key}->{'uri'}){
+				$data->set($data->target, 8, $session_screens{$key}->{'uri'}->to_string);
+			}
+		 });
+		
+		#maybe we need to disable dnd to allow scrolling
+		$session_screens{$key}->{'image'}->signal_connect('expose-event', sub{
+			my ($view) = @_;
 			my $block_dnd = FALSE;
 			foreach ($scrolled_window_image->get_children){
 				if($_ =~ /Scrollbar/){
 					if($_->visible){
 						$block_dnd = TRUE;
+						last;
 					}
 				}
 			}
-			
-			unless($block_dnd){
-				if(exists $session_screens{$key}->{'uri'} && defined $session_screens{$key}->{'uri'}){
-					$data->set($data->target, 8, $session_screens{$key}->{'uri'}->to_string);
-				}
+			if($block_dnd){
+				$view->drag_source_unset;
 			}else{
-				return TRUE;	
-			}
-		 });
-
+				$view->drag_source_set('button1-mask', ['copy'], {'target' => "text/uri-list", 'flags' => [], 'info' => 0});
+			}	
+		});
+		
 		$vbox_tab->pack_start( $scrolled_window_image, TRUE, TRUE, 0 );
 
 		$vbox->pack_start_defaults($vbox_tab);
