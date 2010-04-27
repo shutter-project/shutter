@@ -84,7 +84,7 @@ use Data::Dumper;
 #--------------------------------------
 use constant MAX_ERROR 			=> 5;
 #~ use constant SHUTTER_REV        => "Rev.experimental branch";
-use constant SHUTTER_REV        => "Rev.846";
+use constant SHUTTER_REV        => "Rev.847";
 use constant SHUTTER_NAME		=> "Shutter";
 use constant SHUTTER_VERSION	=> "v0.86.2";
 
@@ -595,11 +595,15 @@ if ( defined $settings_xml->{'general'}->{'last_profile'} ) {
 
 #--------------------------------------
 
-#attach signal handlers to subroutines and pack toolbar
+#block signals while checking plugins / opening files
+&fct_control_signals('block');
+
+#check plugins
 #--------------------------------------
-#~ my $handlebox = Gtk2::HandleBox->new;
-#~ $handlebox->add( $st->create_toolbar );
-#~ $vbox->pack_start( $handlebox, FALSE, TRUE, 0 );
+#not used in a standalone environment
+unless($ENV{PAR_TEMP}){
+	&fct_check_installed_plugins;
+}
 
 $vbox->pack_start( $st->create_toolbar, FALSE, TRUE, 0 );
 
@@ -2194,16 +2198,6 @@ $vbox->pack_start( $status, FALSE, FALSE, 0 );
 
 #--------------------------------------
 
-#block signals while checking plugins / opening files
-&fct_control_signals('block');
-
-#check plugins
-#--------------------------------------
-#not used in a standalone environment
-unless($ENV{PAR_TEMP}){
-	&fct_check_installed_plugins;
-}
-
 #restore session
 #--------------------------------------
 &fct_load_session;
@@ -2214,7 +2208,7 @@ if(scalar @init_files > 0){
 	&fct_open_files(@init_files);
 }
 	
-#unblock again
+#unblock controls
 &fct_control_signals('unblock');
 
 #start minimized?
