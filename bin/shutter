@@ -2824,6 +2824,17 @@ sub fct_update_actions {
 		if(defined $key){
 			return FALSE unless exists $session_screens{$key};
 		}
+		
+		#TRAY
+		#--------------------------------------
+		
+		#last capture
+		foreach($tray_menu->get_children){
+			if ($_->get_name eq 'redoshot'){
+				$_->set_sensitive(&fct_get_last_capture);
+				last;
+			}	
+		}
 
 		#TOOLBAR
 		#--------------------------------------
@@ -7300,7 +7311,8 @@ sub fct_ret_tray_menu {
 	my $menuitem_redoshot = Gtk2::ImageMenuItem->new_with_mnemonic ( $d->get('_Redo last screenshot') );
 	$menuitem_redoshot->set_image(Gtk2::Image->new_from_stock('gtk-refresh', 'menu'));
 	$menuitem_redoshot->signal_connect( 'activate', \&evt_take_screenshot, 'redoshot' );
-	$menuitem_redoshot->set_sensitive(&fct_get_last_capture);
+	$menuitem_redoshot->set_name('redoshot');
+	$menuitem_redoshot->set_sensitive(FALSE);
 	
 	#preferences	
 	my $menuitem_settings = Gtk2::ImageMenuItem->new_from_stock( 'gtk-preferences' );
