@@ -3732,7 +3732,7 @@ sub fct_save_settings {
 
 	#we store the version info, so we know if there was a new version installed
 	#when starting new version we clear the cache on first startup
-	$settings{'general'}->{'app_version'} = SHUTTER_VERSION . SHUTTER_REV;
+	$settings{'general'}->{'app_version'} = $sc->get_version . $sc->get_rev;
 
 	$settings{'general'}->{'last_profile'}      = $combobox_settings_profiles->get_active;
 	$settings{'general'}->{'last_profile_name'} = $combobox_settings_profiles->get_active_text || "";
@@ -4216,7 +4216,7 @@ sub fct_load_settings {
 				#we store the version info, so we know if there was a new version installed
 				#when starting new version we clear the cache on first startup
 				if (defined $settings_xml->{'general'}->{'app_version'}){
-					if(SHUTTER_VERSION . SHUTTER_REV ne $settings_xml->{'general'}->{'app_version'}){
+					if($sc->get_version . $sc->get_rev ne $settings_xml->{'general'}->{'app_version'}){
 						$sc->set_clear_cache(TRUE);
 					}	
 				}else{
@@ -7916,8 +7916,6 @@ sub fct_set_model_plugins {
 
 sub fct_init_depend {
 
-	print "\nINFO: checking installed components...\n\n";
-	
 	#imagemagick/perlmagick
 	unless ( File::Which::which('convert') ) {
 		die "ERROR: imagemagick is missing --> aborting!\n\n";
@@ -7962,6 +7960,9 @@ sub fct_init {
 				$sc->set_debug(TRUE);
 			} elsif ( $arg eq "help" ) {
 				$shf->usage;
+				exit;
+			} elsif ( $arg eq "version" ) {
+				print $sc->get_version, " ", $sc->get_rev, "\n";
 				exit;
 			} elsif ( $arg eq "clear_cache" ) {
 				$sc->set_clear_cache(TRUE);
