@@ -251,7 +251,7 @@ sub host{
 		$params{'fileupload'}    = [$image];
 		$params{'MAX_FILE_SIZE'} = 3145728;
 		#XXX is this really necessary
-		$params{'url'} = 'paste image url here';
+		$params{'url'} = '';
 	}
 
 	if(defined($size)){
@@ -447,7 +447,7 @@ sub create_tab {
 	my $label_hotweb = Gtk2::Label->new( $self->{_gettext_object}->get("Hotlink for websites") );
 
 	$entry_direct->set_text("$self->{_url}");
-	$entry_hotweb->set_text("<a href=\"http:\/\/imageshack.us\"><img src=\"$self->{_url}\" border=\"0\" alt=\"Image Hosted by ImageShack.us\"\/><\/a><br\/>By <a href=\"https:\/\/launchpad.net\/shutter\">Shutter<\/a>");
+	$entry_hotweb->set_text("<a href=\"http:\/\/imageshack.us\"><img src=\"$self->{_url}\" border=\"0\" title=\"Image Hosted by ImageShack.us\" alt=\"Image Hosted by ImageShack.us\"\/><\/a><br\/>Uploaded with <a href=\"http:\/\/shutter-project.org\">Shutter<\/a>");
 	$upload_vbox->pack_start( $upload_hbox, TRUE, TRUE, 10 );
 	
 	#thumbnail
