@@ -64,7 +64,8 @@ use List::Util qw/ max min /;
 use XML::Simple;
 
 #DBus message system
-use Net::DBus qw/ dbus_string /;
+use Net::DBus qw/ dbus_string dbus_boolean /;
+use Net::DBus::GLib qw/ dbus_string dbus_boolean /;
 
 #HTTP Status code processing
 use HTTP::Status;
@@ -180,6 +181,7 @@ require Shutter::Upload::ImageBanana;
 require Shutter::Upload::UbuntuPics;
 require Shutter::Upload::ImageShack;
 require Shutter::Upload::FTP;
+require Shutter::Upload::UbuntuOne;
 
 #--------------------------------------
 
@@ -6801,6 +6803,7 @@ sub fct_get_next_filename {
 		#($w, $h, $name)
 		$search_pattern =~ s/\\\$w/\\d{1,}/g;
 		$search_pattern =~ s/\\\$h/\\d{1,}/g;
+		$search_pattern =~ s/\\\$profile/.{1,}/g;
 		$search_pattern =~ s/\\\$name/.{1,}/g;
 
 		print "Searching for files with pattern: $search_pattern\n"
@@ -8954,6 +8957,39 @@ sub dlg_upload {
 	$pl_hbox1->pack_start_defaults($places_fc);
 	$pl_vbox1->pack_start($pl_hbox1, FALSE, FALSE, 6);
 
+	#u1 settings
+	my $u1_vbox1 = Gtk2::VBox->new( FALSE, 12 );
+ 	$u1_vbox1->set_border_width(12);
+ 		
+	my $u1_hbox_fc = Gtk2::HBox->new( FALSE, 12 );
+ 	$u1_hbox_fc->set_border_width(12);
+	my $u1_hbox_hint = Gtk2::HBox->new( FALSE, 12 );
+ 	$u1_hbox_hint->set_border_width(12);
+	my $u1_hbox_st = Gtk2::HBox->new( FALSE, 12 );
+ 	$u1_hbox_st->set_border_width(12);
+
+	my $u1_label_fc = Gtk2::Label->new( $d->get("Choose folder:") );
+	my $u1_fc = Gtk2::FileChooserButton->new_with_backend ("Shutter - " . $d->get("Choose folder"), 'select-folder', 'gnome-vfs');	
+	$u1_fc->set('local-only' => FALSE);
+
+	my $u1_hint = Gtk2::Label->new();
+	
+	my $u1_label_status = Gtk2::Label->new( $d->get("Status:") );
+	my $u1_status = Gtk2::Label->new();
+	
+	$u1_hbox_fc->pack_start( $u1_label_fc, FALSE, FALSE, 6 );
+	$u1_hbox_fc->pack_start_defaults($u1_fc);
+
+	$u1_hbox_hint->pack_start( Gtk2::Label->new() , FALSE, FALSE, 6 );
+	$u1_hbox_hint->pack_start_defaults($u1_hint);
+	
+	$u1_hbox_st->pack_start( $u1_label_status, FALSE, FALSE, 6 );
+	$u1_hbox_st->pack_start_defaults($u1_status);
+	
+	$u1_vbox1->pack_start($u1_hbox_fc, FALSE, FALSE, 6);
+	$u1_vbox1->pack_start($u1_hbox_hint, FALSE, FALSE, 0);
+	$u1_vbox1->pack_start($u1_hbox_st, FALSE, FALSE, 0);
+
 	#ftp settings
 	#we are using the same widgets as in the settings and populate
 	#them with saved values when possible
@@ -9050,11 +9086,14 @@ sub dlg_upload {
 
 	#setup notebook
 	my $unotebook = Gtk2::Notebook->new;
-	$unotebook->set( homogeneous  => TRUE );
+	#~ $unotebook->set( homogeneous  => TRUE );
 	
 	$unotebook->append_page($pub_vbox1, $d->get("Public hosting"));
 	$unotebook->append_page($ftp_vbox_dlg, "FTP");
 	$unotebook->append_page($pl_vbox1, $d->get("Places"));
+	$unotebook->append_page($u1_vbox1, $d->get("Ubuntu One"));
+
+	my $u1 = undef;
 	
 	$unotebook->signal_connect( 'switch-page' => sub {
 		my ( $unotebook, $pointer, $int ) = @_;
@@ -9062,9 +9101,60 @@ sub dlg_upload {
 		my $hbox = $upload_button->get_child->get_child;
 		foreach($hbox->get_children){
 			if($int == 2 && $_ =~ /Gtk2::Label/){
+				$_->set_sensitive(TRUE);
 				$_->set_text_with_mnemonic($d->get("_Export"));
 				last;
+			}elsif($int == 3 && $_ =~ /Gtk2::Label/){
+
+				#~ unless(defined $u1){
+					
+					#disable button initially
+					#~ $upload_button->set_sensitive(FALSE);
+
+					$u1 = Shutter::Upload::UbuntuOne->new($sc);
+					$u1->connect_to_bus;
+					
+					if($u1->is_connected){
+						
+						#current status
+						my ($is_connected, $is_online, $text) = $u1->get_current_status;
+						$u1_status->set_text($text);
+						
+						#is current folder synced?
+						$u1_fc->signal_connect('current-folder-changed', sub {
+							my ($widget, $button) = @_;
+							#is current folder synced?
+							if($u1->is_synced_folder($u1_fc->get_current_folder)){
+								$u1_hint->set_markup("<span size='small'>" . 
+													sprintf($d->get("Folder %s is synchronized with Ubuntu One.\nThe selected file(s) will be copied to that folder before being published.") , "'".$u1_fc->get_current_folder."'") 
+													. "</span>");								
+								$button->set_sensitive(TRUE);													
+							}else{
+								$u1_hint->set_markup("<span size='small' color='red'>" . 
+													sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_current_folder."'") 
+													. "</span>");
+								$button->set_sensitive(FALSE);
+							}							
+						}, $_);
+
+						#emit first event manually
+						$u1_fc->signal_emit('current-folder-changed');
+						
+						my $sd_status = $u1->get_syncdaemon_status;
+						$sd_status->connect_to_signal('StatusChanged', sub {
+							my $status_ref = shift;
+							print Dumper $status_ref;
+							($is_connected, $is_online, $text) = $u1->get_current_status($status_ref);
+							$u1_status->set_text($text);
+						});
+					}
+				
+				#~ }
+				
+				$_->set_text_with_mnemonic($d->get("_Publish"));
+				last;
 			}elsif($_ =~ /Gtk2::Label/){
+				$_->set_sensitive(TRUE);
 				$_->set_text_with_mnemonic($d->get("_Upload"));
 				last;
 			}
@@ -9095,6 +9185,11 @@ sub dlg_upload {
 		}elsif($sc->get_ruu_tab == 2){
 			if(defined $sc->get_ruu_detail && $shf->folder_exists($sc->get_ruu_detail)){
 				$places_fc->set_current_folder( $sc->get_ruu_detail );
+			}	
+		#u1	
+		}elsif($sc->get_ruu_tab == 3){
+			if(defined $sc->get_ruu_detail && $shf->folder_exists($sc->get_ruu_detail)){
+				$u1_fc->set_current_folder( $sc->get_ruu_detail );
 			}	
 		}
 	}	
@@ -9359,9 +9454,8 @@ sub dlg_upload {
 				}    #end foreach
 				$uploader->quit;
 			
-			
-			#places using Gnome-VFS
-			} elsif ( $unotebook->get_current_page == 2 ) {
+			#xfer using Gnome-VFS - we use this for u1 as well
+			} elsif ( $unotebook->get_current_page == 2 || $unotebook->get_current_page == 3) {
 		
 				my $counter = 1;
 				$hosting_progress->set_fraction(0);
@@ -9389,10 +9483,35 @@ sub dlg_upload {
 					if($result eq 'ok'){
 					
 						#everything is fine here
-						if($target_uri->is_local){
-							&fct_show_status_message( 1, $file . " " . $d->get("exported") );
+						if($unotebook->get_current_page == 2){
+							if($target_uri->is_local){
+								&fct_show_status_message( 1, $file . " " . $d->get("exported") );
+							}else{
+								&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
+							}
+						#u1 - call publishing API
 						}else{
-							&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
+							&fct_show_status_message( 1, $file . " " . $d->get("moved") );
+							my $sd_public = $u1->get_syncdaemon_public;
+							my $sd_status = $u1->get_syncdaemon_status;
+							my $sd_fs = $u1->get_syncdaemon_fs;
+							
+							print Dumper $sd_fs->get_metadata($target_uri->to_string);
+							
+							#~ $sd_public->change_public_access();
+
+							$sd_status->connect_to_signal('UploadFinished', \&UploadFinished);
+
+							sub UploadFinished {
+							    print Dumper @_;			
+							}
+	
+							$sd_public->connect_to_signal('PublicAccessChanged', \&PublicAccessChanged);
+
+							sub PublicAccessChanged {
+								print Dumper @_;							
+							}
+							
 						}
 					
 					}elsif($result eq 'error-file-exists'){
@@ -9488,6 +9607,9 @@ sub dlg_upload {
 			#export to folder	
 			}elsif($sc->get_ruu_tab == 2){
 				$sc->set_ruu_detail($places_fc->get_current_folder);
+			#u1	
+			}elsif($sc->get_ruu_tab == 3){
+				$sc->set_ruu_detail($u1_fc->get_current_folder);
 			}else{
 				$sc->set_ruu_detail(0);
 			}

@@ -1,0 +1,237 @@
+###################################################
+#
+#  Copyright (C) 2008, 2009, 2010 Mario Kemper <mario.kemper@googlemail.com> and Shutter Team
+#
+#  This file is part of Shutter.
+#
+#  Shutter is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Shutter is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Shutter; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+###################################################
+
+package Shutter::Upload::UbuntuOne;
+
+use utf8;
+use strict;
+
+#DBus message system
+use Net::DBus::GLib qw/ dbus_string dbus_boolean /;
+
+#Glib
+use Glib qw/TRUE FALSE/;
+
+#--------------------------------------
+
+sub new {
+	my $class = shift;
+
+	my $self = {
+		_sc    => shift,
+	};
+	
+	bless $self, $class;
+	return $self;
+}
+
+sub connect_to_bus {
+	my $self = shift;
+	
+	eval{
+		$self->{_bus} = Net::DBus::GLib->session();
+		$self->{_service} = $self->{_bus}->get_service("com.ubuntuone.SyncDaemon");
+	};
+	if($@){
+		print "Warning: $@", "\n";
+		return ($@);
+	}
+	
+	return ($self->{_service});
+}
+
+sub get_syncdaemon {
+	my $self = shift;
+	return FALSE unless $self->is_connected;
+	unless(defined $self->{_sd}){
+		$self->{_sd} = $self->{_service}->get_object("/", "com.ubuntuone.SyncDaemon.SyncDaemon");
+	}
+	return $self->{_sd};
+}
+
+sub get_syncdaemon_fs {
+	my $self = shift;
+	return FALSE unless $self->is_connected;
+	unless(defined $self->{_sd_fs}){
+		$self->{_sd_fs} = $self->{_service}->get_object("/filesystem", "com.ubuntuone.SyncDaemon.FileSystem");
+	}
+	return $self->{_sd_fs};
+}
+
+sub get_syncdaemon_folders {
+	my $self = shift;
+	return FALSE unless $self->is_connected;
+	unless(defined $self->{_sd_folders}){
+		$self->{_sd_folders} = $self->{_service}->get_object("/folders", "com.ubuntuone.SyncDaemon.Folders");
+	}
+	return $self->{_sd_folders};
+}
+
+sub get_syncdaemon_shares {
+	my $self = shift;
+	return FALSE unless $self->is_connected;
+	unless(defined $self->{_sd_shares}){
+		$self->{_sd_shares} = $self->{_service}->get_object("/shares", "com.ubuntuone.SyncDaemon.Shares");
+	}
+	return $self->{_sd_shares};
+}
+
+sub get_syncdaemon_status {
+	my $self = shift;
+	return FALSE unless $self->is_connected;
+	unless(defined $self->{_sd_status}){
+		$self->{_sd_status} = $self->{_service}->get_object("/status", "com.ubuntuone.SyncDaemon.Status");
+	}
+	return $self->{_sd_status};
+}
+
+sub get_syncdaemon_public {
+	my $self = shift;
+	return FALSE unless $self->is_connected;
+	unless(defined $self->{_sd_public}){
+		$self->{_sd_public} = $self->{_service}->get_object("/publicfiles", "com.ubuntuone.SyncDaemon.PublicFiles");
+	}
+	return $self->{_sd_public};
+}
+
+sub is_connected {
+	my $self = shift;
+	return TRUE if defined $self->{_bus} && defined $self->{_service};
+	print "Warning: Not connected to bus, you need to call 'connect_to_bus' first", "\n";
+	return FALSE;
+}
+
+sub is_online {
+	my $self = shift;
+	return FALSE unless $self->is_connected;
+	my ($is_connected, $is_online, $text) = $self->get_current_status;
+	return TRUE if $is_connected && $is_online;
+	print "Warning: Not online, maybe your computer is not connected to a network", "\n";
+	return FALSE;
+}
+
+sub get_current_status {
+	my $self = shift;
+	my $status_ref = shift;
+
+	return FALSE unless $self->is_connected;
+
+	my %status;
+	if(defined $status_ref){
+		%status = %{$status_ref};
+	}else{
+		%status = %{$self->get_syncdaemon_status->current_status};
+	}
+	
+	#create human readable messages
+	my $d = $self->{_sc}->get_gettext;
+	my $text = $d->get("Disconnected");
+	if($status{is_connected}){
+		if($status{name} eq 'QUEUE_MANAGER' && $status{queues} eq 'IDLE'){
+			$text = $d->get("Synchronization complete");
+		}else{
+			$text = $d->get("Synchronization in progress...");
+		}
+	}
+	
+	return ($status{is_connected}, $status{is_online}, $text);
+}
+
+sub is_synced_folder {
+	my $self = shift;
+	my $folder = shift;
+	
+	return FALSE unless defined $folder;
+	return FALSE unless $self->is_connected;
+
+	my $sd_fs = $self->get_syncdaemon_fs($folder);
+	
+	my %meta;
+	eval{
+		%meta = %{$sd_fs->get_metadata($folder)};
+		print Dumper %meta;	
+	};
+	if($@){
+		return FALSE;
+	}
+	return $meta{is_dir};
+}
+
+
+#get rootdir
+
+#~ print Dumper $sd->get_rootdir();
+
+#filesystem
+#~ my $sd_fs = $service->get_object("/filesystem", "com.ubuntuone.SyncDaemon.FileSystem");
+
+#~ print Dumper $sd_fs->get_metadata($sd->get_rootdir()."/Auswahl_003.pdf");
+
+#~ my %meta = %{$sd_fs->get_metadata($sd->get_rootdir()."/Auswahl_003.pdf")};
+
+#~ print Dumper $sd_fs->get_metadata($sd->get_rootdir()."/WkhKsCKfJy.pdf");
+
+#folders
+#~ my $sd_folders = $service->get_object("/folders", "com.ubuntuone.SyncDaemon.Folders");
+
+#~ print Dumper $sd_folders->get_folders;
+
+#shares
+#~ my $sd_shares = $service->get_object("/shares", "com.ubuntuone.SyncDaemon.Shares");
+
+#~ print Dumper $sd_shares->get_shared();
+
+#status
+#~ my $sd_status = $service->get_object("/status", "com.ubuntuone.SyncDaemon.Status");
+
+#~ print Dumper $sd_status->waiting_content();
+
+#~ my $sd_public = $service->get_object("/publicfiles", "com.ubuntuone.SyncDaemon.PublicFiles");
+
+# Connect
+#~ $sd_status->connect_to_signal('UploadFinished', \&UploadFinished);
+
+# StatusChanged callback
+#~ sub UploadFinished {
+        #~ print Dumper @_;			
+#~ }
+
+# Connect
+#~ $sd_public->connect_to_signal('PublicAccessChanged', \&PublicAccessChanged);
+
+# StatusChanged callback
+#~ sub PublicAccessChanged {
+	#~ print Dumper @_;
+#~ 
+#~ }
+
+#~ $sd_status->connect_to_signal('StatusChanged', \&StatusChanged);
+#~ sub StatusChanged {
+	#~ print Dumper @_;
+#~ }
+
+#~ $sd_status->connect_to_signal('AccountChanged', \&AccountChanged);
+#~ sub AccountChanged {
+	#~ print Dumper @_;
+#~ }
+
+1;
