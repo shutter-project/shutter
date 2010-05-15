@@ -453,7 +453,7 @@ unless ( $sc->get_disable_systray ) {
 	if ( Gtk2->CHECK_VERSION( 2, 10, 0 ) ) {
 		$tray = Gtk2::StatusIcon->new();
 		
-		$tray->set_from_icon_name("shutter");
+		$tray->set_from_icon_name("shutter-panel");
 		$tray->set_visible(1);
 		$tray->{'hid'} = $tray->signal_connect(
 			'popup-menu' => sub { &evt_show_systray_statusicon; },
@@ -468,7 +468,7 @@ unless ( $sc->get_disable_systray ) {
 		);
 	} else {
 		
-		my $tray_image = Gtk2::Image->new_from_icon_name( 'shutter', 'large-toolbar' );
+		my $tray_image = Gtk2::Image->new_from_icon_name( 'shutter-panel', 'large-toolbar' );
 		
 		#eventbox with shutter logo
 		$tray_box = Gtk2::EventBox->new;
