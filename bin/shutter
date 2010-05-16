@@ -2816,6 +2816,18 @@ sub fct_get_last_capture{
 	return FALSE;
 }
 
+sub fct_get_upload_links {
+	my $key = shift;
+		
+	if(defined $key && exists $session_screens{$key}->{'links'}){
+		foreach my $link (keys %{$session_screens{$key}->{'links'}}){
+			print $session_screens{$key}->{'links'}->{$link}, "\n";
+		}
+	}
+
+	return FALSE;
+}
+
 sub fct_update_actions {
 	my $n_items = shift;
 	my $key 	= shift;
@@ -2897,6 +2909,9 @@ sub fct_update_actions {
 		$sm->{_menuitem_reopen_default}->set_sensitive($n_items);
 		$sm->{_menuitem_reopen}->set_sensitive($n_items);
 		$sm->{_menuitem_rename}->set_sensitive($n_items);
+		
+		#upload links
+		$sm->{_menuitem_links}->set_sensitive(&fct_get_upload_links($key));
 	
 		#nautilus-sendto is optional, don't enable it when not installed
 		if ( $nautilus_sendto ) {
@@ -2931,6 +2946,9 @@ sub fct_update_actions {
 		$sm->{_menuitem_large_trash}->set_sensitive($n_items);
 		$sm->{_menuitem_large_copy}->set_sensitive($n_items);
 		$sm->{_menuitem_large_copy_filename}->set_sensitive($n_items);
+
+		#upload links
+		$sm->{_menuitem_large_links}->set_sensitive(&fct_get_upload_links($key));
 	
 		#nautilus-sendto is optional, don't enable it when not installed
 		if ( $nautilus_sendto ) {
@@ -5788,7 +5806,7 @@ sub fct_upload {
 	if ($key) {
 
 		return FALSE unless &fct_screenshot_exists($key);
-		push( @upload_array, $session_screens{$key}->{'long'} );
+		push( @upload_array, $key );
 		&dlg_upload(@upload_array);
 
 		#session tab
@@ -5801,7 +5819,7 @@ sub fct_upload {
 				if ( defined $iter ) {
 					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
 					return FALSE unless &fct_screenshot_exists($key);
-					push( @upload_array, $session_screens{$key}->{'long'} );
+					push( @upload_array, $key );
 				}
 
 			},
@@ -6246,6 +6264,25 @@ sub fct_update_info_and_tray {
 	}
 
 	return TRUE;
+}
+
+sub fct_get_key_by_filename {
+	my $filename = shift;
+	
+	return unless $filename;
+
+	my $key = undef;
+	#and loop through hash to find the corresponding key
+	foreach ( keys %session_screens ) {
+		next unless exists $session_screens{$_}->{'long'};
+		print "compare ".$session_screens{$_}->{'long'}." - $filename\n";
+		if ( $session_screens{$_}->{'long'} eq $filename ) {
+			$key = $_;
+			last;
+		}
+	}
+	
+	return $key;
 }
 
 sub fct_get_file_by_index {
@@ -9105,11 +9142,8 @@ sub dlg_upload {
 				last;
 			}elsif($int == 3 && $_ =~ /Gtk2::Label/){
 
-				#~ unless(defined $u1){
+				unless(defined $u1){
 					
-					#disable button initially
-					#~ $upload_button->set_sensitive(FALSE);
-
 					$u1 = Shutter::Upload::UbuntuOne->new($sc);
 					$u1->connect_to_bus;
 					
@@ -9140,15 +9174,36 @@ sub dlg_upload {
 						$u1_fc->signal_emit('current-folder-changed');
 						
 						my $sd_status = $u1->get_syncdaemon_status;
+						my $sd_public = $u1->get_syncdaemon_public;
+						my $sd_fs     = $u1->get_syncdaemon_fs;
+						
 						$sd_status->connect_to_signal('StatusChanged', sub {
 							my $status_ref = shift;
-							print Dumper $status_ref;
+							#~ print Dumper $status_ref;
 							($is_connected, $is_online, $text) = $u1->get_current_status($status_ref);
 							$u1_status->set_text($text);
 						});
+
+						$sd_status->connect_to_signal('UploadFinished', sub {
+							my $file = shift;
+						    my %meta = %{$sd_fs->get_metadata($file)};
+						    $sd_public->change_public_access($meta{'share_id'}, $meta{'node_id'}, TRUE);
+						});
+						
+						$sd_public->connect_to_signal('PublicAccessChanged', sub {
+							my $meta_ref = shift;
+							my %meta = %{$meta_ref};
+							#find corresponding key
+							#~ if(my $key = &fct_get_key_by_filename($meta{'path'})){
+								&fct_show_status_message( 1, $shf->utf8_decode($meta{'path'}) . " " . sprintf($d->get("published at %s"), $meta{'public_url'}) );						
+								#~ $session_screens{$key}->{'links'}->{'ubuntu-one'} = $meta{'public_url'};
+								return FALSE;
+							#~ }
+						});
+						
 					}
 				
-				#~ }
+				}
 				
 				$_->set_text_with_mnemonic($d->get("_Publish"));
 				last;
@@ -9223,7 +9278,10 @@ sub dlg_upload {
 						= Shutter::Upload::UbuntuPics->new( $hosting_host, $sc->get_debug, $shutter_root, $d, $window, SHUTTER_VERSION );
 					my $counter = 1;
 					$hosting_progress->set_fraction(0);
-					foreach my $file ( sort @files_to_upload ) {
+					foreach my $key( sort @files_to_upload ) {
+						
+						my $file = $session_screens{$key}->{'long'};
+						
 						$hosting_progress->set_text($file);
 						
 						#update gui
@@ -9255,7 +9313,10 @@ sub dlg_upload {
 						= Shutter::Upload::ImageBanana->new( $hosting_host, $sc->get_debug, $shutter_root, $d, $window, SHUTTER_VERSION );
 					my $counter = 1;
 					$hosting_progress->set_fraction(0);
-					foreach my $file (@files_to_upload) {
+					foreach my $key (@files_to_upload) {
+						
+						my $file = $session_screens{$key}->{'long'};
+						
 						$hosting_progress->set_text($file);
 
 						#update gui
@@ -9290,7 +9351,9 @@ sub dlg_upload {
 					#upload
 					my $counter = 1;
 					$hosting_progress->set_fraction(0);
-					foreach my $file (@files_to_upload) {
+					foreach my $key (@files_to_upload) {
+						
+						my $file = $session_screens{$key}->{'long'};
 
 						#login
 						eval { $ishack->login($hosting_username, $hosting_password); };
@@ -9368,7 +9431,9 @@ sub dlg_upload {
 				$hosting_progress->set_fraction(0);
 
 				#start upload
-				foreach my $file (sort @files_to_upload) {
+				foreach my $key (sort @files_to_upload) {
+
+					my $file = $session_screens{$key}->{'long'};
 
 					#need to login?
 					my @upload_response;
@@ -9460,7 +9525,9 @@ sub dlg_upload {
 				$hosting_progress->set_fraction(0);
 
 				#start upload
-				foreach my $file (sort @files_to_upload) {
+				foreach my $key (sort @files_to_upload) {
+					
+					my $file = $session_screens{$key}->{'long'};
 					
 					$hosting_progress->set_text($file);
 					
@@ -9468,7 +9535,16 @@ sub dlg_upload {
 					&fct_update_gui;
 
 					my $source_uri = Gnome2::VFS::URI->new ($file);
-					my $target_uri = Gnome2::VFS::URI->new ($places_fc->get_uri);
+					
+					my $target_uri = undef;
+					#places
+					if($unotebook->get_current_page == 2){
+						$target_uri = Gnome2::VFS::URI->new ($places_fc->get_uri);
+					#u1
+					}else{
+						$target_uri = Gnome2::VFS::URI->new ($u1_fc->get_uri);
+					}
+					
 					$target_uri = $target_uri->append_file_name($source_uri->extract_short_name);
 
 					print $source_uri->to_string . " - " . $target_uri->to_string."\n" if $sc->get_debug;
@@ -9479,9 +9555,10 @@ sub dlg_upload {
 						$result = 'error-file-exists';	
 					}
 
+					#everything is fine here
 					if($result eq 'ok'){
 					
-						#everything is fine here
+						#places
 						if($unotebook->get_current_page == 2){
 							if($target_uri->is_local){
 								&fct_show_status_message( 1, $file . " " . $d->get("exported") );
@@ -9491,26 +9568,6 @@ sub dlg_upload {
 						#u1 - call publishing API
 						}else{
 							&fct_show_status_message( 1, $file . " " . $d->get("moved") );
-							my $sd_public = $u1->get_syncdaemon_public;
-							my $sd_status = $u1->get_syncdaemon_status;
-							my $sd_fs = $u1->get_syncdaemon_fs;
-							
-							print Dumper $sd_fs->get_metadata($target_uri->to_string);
-							
-							#~ $sd_public->change_public_access();
-
-							$sd_status->connect_to_signal('UploadFinished', \&UploadFinished);
-
-							sub UploadFinished {
-							    print Dumper @_;			
-							}
-	
-							$sd_public->connect_to_signal('PublicAccessChanged', \&PublicAccessChanged);
-
-							sub PublicAccessChanged {
-								print Dumper @_;							
-							}
-							
 						}
 					
 					}elsif($result eq 'error-file-exists'){
@@ -9546,12 +9603,19 @@ sub dlg_upload {
 							
 							#check result again
 							if($result eq 'ok'){	
-								#everything is fine here
-								if($target_uri->is_local){
-									&fct_show_status_message( 1, $file . " " . $d->get("exported") );
+
+								#places
+								if($unotebook->get_current_page == 2){
+									if($target_uri->is_local){
+										&fct_show_status_message( 1, $file . " " . $d->get("exported") );
+									}else{
+										&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
+									}
+								#u1
 								}else{
-									&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
-								}			
+									&fct_show_status_message( 1, $file . " " . $d->get("moved") );
+								}
+		
 							} else{
 
 								my $response = &dlg_upload_error_message_gnome_vfs($target_uri, $result);
