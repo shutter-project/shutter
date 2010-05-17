@@ -9162,7 +9162,7 @@ sub dlg_upload {
 			}elsif($int == 3 && $_ =~ /Gtk2::Label/){
 
 				unless(defined $u1){
-					
+										
 					$u1 = Shutter::Upload::UbuntuOne->new($sc);
 					$u1->connect_to_bus;
 					
@@ -9206,7 +9206,10 @@ sub dlg_upload {
 						$sd_status->connect_to_signal('UploadFinished', sub {
 							my $file = shift;
 						    my %meta = %{$sd_fs->get_metadata($file)};
-						    $sd_public->change_public_access($meta{'share_id'}, $meta{'node_id'}, TRUE);
+						    #find corresponding key
+							if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
+								$sd_public->change_public_access($meta{'share_id'}, $meta{'node_id'}, TRUE);
+							}
 						});
 						
 						$sd_public->connect_to_signal('PublicAccessChanged', sub {
@@ -9223,7 +9226,14 @@ sub dlg_upload {
 								#show as notification
 								my $notify 	= $sc->get_notification_object;
 								$notify->show( $d->get("Successfully published"), sprintf($d->get("The file %s was successfully published at %s1. The external link is now available in your clipboard."), $session_screens{$key}->{'long'}, $meta{'public_url'} ) );
-								return FALSE;
+								
+
+
+
+								#~ undef $sd_status;
+								#~ undef $sd_public; 
+								#~ undef $sd_fs;
+								#~ undef $u1;							
 							}
 						});
 						

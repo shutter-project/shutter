@@ -44,6 +44,11 @@ sub new {
 	return $self;
 }
 
+sub DESTROY {
+    my $self = shift;
+    print "$self dying at\n";
+} 
+
 sub connect_to_bus {
 	my $self = shift;
 	
