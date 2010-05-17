@@ -9215,25 +9215,31 @@ sub dlg_upload {
 						$sd_public->connect_to_signal('PublicAccessChanged', sub {
 							my $meta_ref = shift;
 							my %meta = %{$meta_ref};
+							print Dumper %meta;
 							#find corresponding key
 							if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
-								&fct_show_status_message( 1, $shf->utf8_decode($meta{'path'}) . " " . sprintf($d->get("published at %s"), $meta{'public_url'}) );						
+														
 								$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'puburl'} = $meta{'public_url'};
 								
-								#copy to clipboard
-								$clipboard->set_text($meta{'public_url'});
+								#changed to public
+								if($meta{'is_public'}){
+									#copy to clipboard
+									$clipboard->set_text($meta{'public_url'});
 								
-								#show as notification
-								my $notify 	= $sc->get_notification_object;
-								$notify->show( $d->get("Successfully published"), sprintf($d->get("The file %s was successfully published at %s1. The external link is now available in your clipboard."), $session_screens{$key}->{'long'}, $meta{'public_url'} ) );
+									#show as notification
+									my $notify 	= $sc->get_notification_object;
+									$notify->show( $d->get("Successfully published"), sprintf($d->get("The file %s was successfully published at %s1. The external link is now available in your clipboard."), $session_screens{$key}->{'long'}, $meta{'public_url'} ) );
 								
-
-
-
-								#~ undef $sd_status;
-								#~ undef $sd_public; 
-								#~ undef $sd_fs;
-								#~ undef $u1;							
+									&fct_show_status_message( 1, $shf->utf8_decode($meta{'path'}) . " " . sprintf($d->get("published at %s"), $meta{'public_url'}) );
+								#publishing stopped
+								}else{							
+									#show as notification
+									my $notify 	= $sc->get_notification_object;
+									$notify->show( $d->get("Unpublished"), sprintf($d->get("The file %s is no longer published. The external link is not available anymore."), $meta{'path'} ) );
+								
+									&fct_show_status_message( 1, $shf->utf8_decode( sprintf($d->get("The file %s is no longer published."), $meta{'path'})));									
+								}
+												
 							}
 						});
 						
