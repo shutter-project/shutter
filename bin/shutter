@@ -6285,6 +6285,25 @@ sub fct_get_key_by_filename {
 	return $key;
 }
 
+sub fct_get_key_by_pubfile {
+	my $filename = shift;
+	
+	return unless $filename;
+
+	my $key = undef;
+	#and loop through hash to find the corresponding key
+	foreach ( keys %session_screens ) {
+		next unless exists $session_screens{$_}->{'links'}->{'ubuntu-one'}->{'pubfile'};
+		print "compare ".$session_screens{$_}->{'links'}->{'ubuntu-one'}->{'pubfile'}." - $filename\n";
+		if ( $session_screens{$_}->{'links'}->{'ubuntu-one'}->{'pubfile'} eq $filename ) {
+			$key = $_;
+			last;
+		}
+	}
+	
+	return $key;
+}
+
 sub fct_get_file_by_index {
 	my $index = shift;
 	
@@ -9194,11 +9213,18 @@ sub dlg_upload {
 							my $meta_ref = shift;
 							my %meta = %{$meta_ref};
 							#find corresponding key
-							#~ if(my $key = &fct_get_key_by_filename($meta{'path'})){
+							if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
 								&fct_show_status_message( 1, $shf->utf8_decode($meta{'path'}) . " " . sprintf($d->get("published at %s"), $meta{'public_url'}) );						
-								#~ $session_screens{$key}->{'links'}->{'ubuntu-one'} = $meta{'public_url'};
+								$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'puburl'} = $meta{'public_url'};
+								
+								#copy to clipboard
+								$clipboard->set_text($meta{'public_url'});
+								
+								#show as notification
+								my $notify 	= $sc->get_notification_object;
+								$notify->show( $d->get("Successfully published"), sprintf($d->get("The file %s was successfully published at %s1. The external link is now available in your clipboard."), $session_screens{$key}->{'long'}, $meta{'public_url'} ) );
 								return FALSE;
-							#~ }
+							}
 						});
 						
 					}
@@ -9548,11 +9574,16 @@ sub dlg_upload {
 					$target_uri = $target_uri->append_file_name($source_uri->extract_short_name);
 
 					print $source_uri->to_string . " - " . $target_uri->to_string."\n" if $sc->get_debug;
+					
 					my $result;
-					unless($target_uri->exists){
-						$result = Gnome2::VFS::Xfer->uri ($source_uri, $target_uri, 'default', 'abort', 'replace', sub{ return TRUE });
+					unless($source_uri->equal($target_uri)){
+						unless($target_uri->exists){
+							$result = Gnome2::VFS::Xfer->uri ($source_uri, $target_uri, 'default', 'abort', 'replace', sub{ return TRUE });
+						}else{
+							$result = 'error-file-exists';	
+						}
 					}else{
-						$result = 'error-file-exists';	
+						$result = 'ok';
 					}
 
 					#everything is fine here
@@ -9567,7 +9598,8 @@ sub dlg_upload {
 							}
 						#u1 - call publishing API
 						}else{
-							&fct_show_status_message( 1, $file . " " . $d->get("moved") );
+							$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'pubfile'} = Gnome2::VFS->unescape_string_for_display($target_uri->get_path);
+							&fct_show_status_message( 1, sprintf($d->get("Publishing %s..."), $file) );
 						}
 					
 					}elsif($result eq 'error-file-exists'){
@@ -9613,7 +9645,8 @@ sub dlg_upload {
 									}
 								#u1
 								}else{
-									&fct_show_status_message( 1, $file . " " . $d->get("moved") );
+									$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'pubfile'} = Gnome2::VFS->unescape_string_for_display($target_uri->get_path);
+									&fct_show_status_message( 1, sprintf($d->get("Publishing %s..."), $file) );
 								}
 		
 							} else{
