@@ -179,6 +179,7 @@ require Shutter::Screenshot::Error;
 require Shutter::Upload::ImageBanana;
 require Shutter::Upload::UbuntuPics;
 require Shutter::Upload::ImageShack;
+require Shutter::Upload::Omploader;
 require Shutter::Upload::FTP;
 
 #--------------------------------------
@@ -4378,6 +4379,19 @@ sub fct_load_accounts {
 	}
 
 	$accounts{'ubuntu-pics.de'}->{register} = "http://www.ubuntu-pics.de/registrieren.html";
+
+# DO WE NEED THIS?
+	unless ( exists( $accounts_xml->{'omploader.org'} ) ) {
+		$accounts{'omploader.org'}->{host}     = "omploader.org";
+		$accounts{'omploader.org'}->{username} = "";
+		$accounts{'omploader.org'}->{password} = "";
+	} else {
+		$accounts{'omploader.org'}->{host}     = $accounts_xml->{'omploader.org'}->{host};
+		$accounts{'omploader.org'}->{username} = $accounts_xml->{'omploader.org'}->{username};
+		$accounts{'omploader.org'}->{password} = $accounts_xml->{'omploader.org'}->{password};
+	}
+
+	$accounts{'omploader.org'}->{register} = "http://www.omploader.org";
 
 	#account data, load defaults if nothing is set
 	unless ( exists( $accounts_xml->{'imageshack.us'} ) ) {
@@ -9174,6 +9188,37 @@ sub dlg_upload {
 						$counter++;
 					}
 					$uploader->show_all;
+				} elsif ( $hosting_host eq "omploader.org" ) {
+					my $uploader
+						= Shutter::Upload::Omploader->new( $hosting_host, $sc->get_debug, $shutter_root, $d, $window, SHUTTER_VERSION );
+					my $counter = 1;
+					$hosting_progress->set_fraction(0);
+					foreach my $file (@files_to_upload) {
+						$hosting_progress->set_text($file);
+
+						#update gui
+						&fct_update_gui;
+						my %upload_response = $uploader->upload( $shf->switch_home_in_file($file) );
+
+						if ( is_success( $upload_response{'status'} ) ) {
+							$uploader->show;
+							&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
+						} else {
+							my $response = &dlg_upload_error_message( $upload_response{'status'}, $upload_response{'max_filesize'} );
+
+							#10 == skip all, 20 == skip, else == cancel
+							last if $response == 10;
+							next if $response == 20;
+							redo if $response == 30;
+							next UPDIALOG;
+						}
+						$hosting_progress->set_fraction( $counter / @files_to_upload );
+
+						#update gui
+						&fct_update_gui;
+						$counter++;
+					}
+					$uploader->show_all;
 				} elsif ( $hosting_host eq "imageshack.us" ) {
 					my $ishack = Shutter::Upload::ImageShack->new();
 					
@@ -9206,7 +9251,7 @@ sub dlg_upload {
 								$d->get("Connection error!"),
 								$d->get("Skip all"), 
 								$d->get("Skip"), 
-								'gtk-redo'
+								$d->get("Retry")
 							);
 
 							#10 == skip all, 20 == skip, else == cancel
@@ -9232,7 +9277,7 @@ sub dlg_upload {
 								$d->get("Connection error!"),
 								$d->get("Skip all"), 
 								$d->get("Skip"), 
-								'gtk-redo'
+								$d->get("Retry")
 							);
 
 							#10 == skip all, 20 == skip, else == cancel
@@ -9319,7 +9364,7 @@ sub dlg_upload {
 							$upload_response[0],
 							$d->get("Skip all"), 
 							$d->get("Skip"),
-							'gtk-redo',
+							$d->get("Retry"),
 							undef, undef, undef,
 							$upload_response[2]
 						);
@@ -9535,7 +9580,7 @@ sub dlg_upload_error_message {
 		$response = $sd->dlg_error_message(
 			$d->get("Please check your connectivity and try again."),
 			$d->get("Connection error!") . " (" . $status . ")",
-			$d->get("Skip all"), $d->get("Skip"), 'gtk-redo'
+			$d->get("Skip all"), $d->get("Skip"), $d->get("Retry")
 		);
 	}
 	return $response;
