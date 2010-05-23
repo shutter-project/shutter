@@ -78,6 +78,9 @@ use FindBin '$Bin';
 #stringified perl data structures, suitable for both printing and eval
 use Data::Dumper;
 
+#md5 hash library
+use Digest::MD5  qw(md5_hex);
+
 #--------------------------------------
 
 #define constants
@@ -889,6 +892,7 @@ my $filename_tooltip_string =
 	$d->get("\$nb_name = like \$name but without blanks in resulting strings\n").
 	$d->get("\$profile = name of current profile\n").
 	$d->get("%NN = counter");
+	$d->get("\$R = random string");
 
 $tooltips->set_tip($filename, $filename_tooltip_string);
 $tooltips->set_tip($filename_label, $filename_tooltip_string);
@@ -6742,6 +6746,40 @@ sub fct_get_next_filename {
 	my ( $filename_value, $folder, $filetype_value ) = @_;
 
 	$filename_value =~ s/\\//g;
+	
+	#random number - should be earlier than %N reading, as $R is actually a part of date
+	if ( $filename_value =~ /\$R{1,}/ ) {
+		#how many Rs are used? (important for formatting)
+		my $pos_proc 	= index( $filename_value, "\$R", 0 );
+		my $r_counter 	= 0;
+		my $last_pos 	= $pos_proc;
+		$pos_proc++;
+
+		while ( $pos_proc <= length($filename_value) ) {
+			$last_pos = index( $filename_value, "R", $pos_proc );
+			if ( $last_pos != -1 && ($last_pos - $pos_proc <= 1)) {
+				$r_counter++;
+				$pos_proc++;
+			} else {
+				last;
+			}
+		}
+		
+		#prepare filename
+		print "---$r_counter Rs used in wild-card\n" if $sc->get_debug;
+		my $marks = "";
+		my $i     = 0;
+		
+		# Md5 will contain a salt (shutter) and a seconds since 1970
+		my $md5_data = "shutter".time;
+		my $md5_hash = md5_hex( $md5_data );
+		
+		# TODO: set random offset? I guess, current implementation is sufficient
+		$marks = substr($md5_hash,0,$r_counter);
+		
+		#switch $Rs to a part of the hash
+		$filename_value =~ s/\$R{1,}/$marks/g;
+	}
 
 	#auto increment
 	if ( $filename_value =~ /\%N{1,}/ ) {
