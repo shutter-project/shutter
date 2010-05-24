@@ -891,8 +891,8 @@ my $filename_tooltip_string =
 	$d->get("\$name = multi-purpose (e.g. window title)\n").
 	$d->get("\$nb_name = like \$name but without blanks in resulting strings\n").
 	$d->get("\$profile = name of current profile\n").
+	$d->get("\$R = random char (e.g. \$RRRR = ag4r)\n").
 	$d->get("%NN = counter");
-	$d->get("\$R = random string");
 
 $tooltips->set_tip($filename, $filename_tooltip_string);
 $tooltips->set_tip($filename_label, $filename_tooltip_string);
