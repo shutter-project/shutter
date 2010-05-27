@@ -63,23 +63,7 @@ sub select_simple {
 
 	#return value
 	my $output = 5;
-	
-	#~ #colors
-	#~ my $style 	= $self->{_sc}->get_mainwindow->get_style;
-	#~ my $sel_bg 	= $style->bg('selected');
-	#~ my $sel_tx 	= $style->text('selected');
-	#~ 
-	#~ #defined selection rectangle
-	#~ my $rect_window = Gtk2::Window->new('popup');
-	#~ $rect_window->double_buffered(FALSE);
-    #~ $rect_window->set_app_paintable(TRUE);
-    #~ $rect_window->set_decorated(FALSE);
-	#~ $rect_window->set_skip_taskbar_hint(TRUE);
-	#~ $rect_window->set_skip_pager_hint(TRUE);	    
-    #~ $rect_window->set_keep_above(TRUE);
-    #~ $rect_window->set_accept_focus(FALSE);
-    #~ $rect_window->set_sensitive(FALSE);
-    
+
 	#define zoom window
 	my $zoom_window = Gtk2::Window->new('popup');
 	$zoom_window->set_decorated(FALSE);
@@ -154,9 +138,6 @@ sub select_simple {
 	#starting point
 	my ( $window_at_pointer, $xinit, $yinit, $mask ) = $self->{_root}->get_pointer;
 	
-	#rectangle coordinates
-	my ( $rx, $ry, $rw, $rh, $rect_x, $rect_y, $rect_w, $rect_h ) = ( 0, 0, 0, 0, 0, 0, 0, 0 );
-
 	#move cursor on the canvas...
 	$cursor_item->set(
 		x      => $xinit - 10,
@@ -174,12 +155,9 @@ sub select_simple {
 	#define graphics context
 	my $gc = Gtk2::Gdk::GC->new( $self->{_root}, undef );
 	$gc->set_line_attributes( 1, 'double-dash', 'butt', 'round' );
-	$gc->set_rgb_bg_color(Gtk2::Gdk::Color->new( 0, 0, 0));
 	$gc->set_rgb_fg_color(Gtk2::Gdk::Color->new( 65535, 65535, 65535 ));
 	$gc->set_subwindow('include-inferiors');
 	$gc->set_function('xor');
-	$gc->set_exposures(FALSE);
-	$gc->set_fill('stippled');	
 
 	#all screen events are send to shutter
 	my $grab_counter = 0;
@@ -203,30 +181,11 @@ sub select_simple {
 
 	if ( Gtk2::Gdk->pointer_is_grabbed ) {
 		
-		my $btn_pressed = 0;
+      #button1 pressed
+      my $btn_pressed = 0;
 
-    	#~ $rect_window->signal_connect('expose-event' => sub{
-			#~ my $cr = Gtk2::Gdk::Cairo::Context->create ($rect_window->window);
-#~ 
-			#~ #fill window
-			#~ $cr->set_operator('over');
-			#~ $cr->set_source_rgb( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255 );
-			#~ $cr->paint;
-#~ 
-			#~ my ($w, $h) = $rect_window->get_size;
-			#~ my ($x, $y) = $rect_window->get_position;
-			#~ 
-			#~ #shape
-			#~ my $rectangle1 	 	= Gtk2::Gdk::Rectangle->new (0, 0, $w, $h);
-			#~ my $rectangle2 	 	= Gtk2::Gdk::Rectangle->new (3, 3, $w-6, $h-6);
-			#~ my $shape_region1 	= Gtk2::Gdk::Region->rectangle ($rectangle1);
-			#~ my $shape_region2 	= Gtk2::Gdk::Region->rectangle ($rectangle2);
-			#~ 
-			#~ $shape_region1->subtract($shape_region2);
-			#~ $rect_window->window->shape_combine_region ($shape_region1, 0, 0);
-				#~ 
-			#~ return TRUE;
-		#~ });
+      #rectangle coordinates
+      my ( $rx, $ry, $rect_x, $rect_y, $rect_w, $rect_h ) = ( 0, 0, 0, 0, 0, 0 );
 		
 		Gtk2::Gdk::Event->handler_set(
 			sub {
@@ -267,7 +226,6 @@ sub select_simple {
 
 						#clear the last rectangle
 						$self->{_root}->draw_rectangle( $gc, 0, $rect_x, $rect_y, $rect_w, $rect_h );
-						Gtk2::Gdk->flush;
 
 						#hide zoom_window and disable Event Handler
 						$zoom_window->hide;
@@ -342,13 +300,7 @@ sub select_simple {
 
 						#redraw last rect to clear it
 						if ( $rect_w > 0 ) {
-							print
-								"Trying to clear a rectangle ($rect_x, $rect_y, $rect_w, $rect_h)\n"
-								if $self->{_debug_cparam};
-
-							$self->{_root}
-								->draw_rectangle( $gc, 0, $rect_x, $rect_y, $rect_w, $rect_h );
-
+							$self->{_root}->draw_rectangle( $gc, 0, $rect_x, $rect_y, $rect_w, $rect_h );
 						}
 						
 						#calculate dimensions of rect
@@ -358,11 +310,11 @@ sub select_simple {
 						$rect_h = $event->y - $rect_y;
 						if ( $rect_w < 0 ) {
 							$rect_x += $rect_w;
-							$rect_w = 0 - $rect_w;
+							$rect_w = -$rect_w;
 						}
 						if ( $rect_h < 0 ) {
 							$rect_y += $rect_h;
-							$rect_h = 0 - $rect_h;
+							$rect_h = -$rect_h;
 						}
 
 						#update zoom_window text
@@ -370,12 +322,7 @@ sub select_simple {
 
 						#draw new rect to the root window
 						if ( $rect_w != 0 ) {
-							print "Trying to draw a rectangle ($rect_x, $rect_y, $rect_w, $rect_h)\n" if $self->{_debug_cparam};
-
-							$self->{_root}->draw_rectangle( $gc, 0, $rect_x, $rect_y, $rect_w, $rect_h );
-							#~ $rect_window->move($rect_x-3, $rect_y-3);
-							#~ $rect_window->resize($rect_w+6, $rect_h+6);	
-							
+							$self->{_root}->draw_rectangle( $gc, 0, $rect_x, $rect_y, $rect_w, $rect_h );							
 						}
 					}
 					
@@ -392,17 +339,13 @@ sub select_simple {
 			$zoom_window->window->set_override_redirect (TRUE);
 		}
 		
-		#~ #show rect window
-		#~ $rect_window->show_all;
-		#~ $rect_window->window->set_override_redirect (TRUE);
-
+      #Main Loop
 		Gtk2->main;
 		
 	#pointer not grabbed
 	} else {    
 		
 		$zoom_window->destroy;
-		#~ Gtk2::Gdk->flush;
 		$self->ungrab_pointer_and_keyboard( FALSE, FALSE, FALSE );	
 		$output = 0;
 	
@@ -498,7 +441,6 @@ sub quit {
 	
 	$self->ungrab_pointer_and_keyboard( FALSE, TRUE, TRUE );
 	$zoom_window->destroy;
-	
 }
 
 1;
