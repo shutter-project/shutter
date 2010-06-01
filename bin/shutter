@@ -234,6 +234,9 @@ if($goocanvas){
 	$view_d->set_tool($selector_d);
 }
 
+#UbuntuOne Client
+my $u1 = undef;
+
 #data structures
 #--------------------------------------
 my %plugins;        #hash to store plugin infos
@@ -9013,16 +9016,18 @@ sub dlg_upload {
  		
 	my $u1_hbox_fc = Gtk2::HBox->new( FALSE, 0 );
 	my $u1_hbox_hint = Gtk2::HBox->new( FALSE, 0 );
+	my $u1_hbox_hint2 = Gtk2::HBox->new( FALSE, 0 );
 	my $u1_hbox_st = Gtk2::HBox->new( FALSE, 0 );
 
-	my $u1_label_status = Gtk2::Label->new( $d->get("Status:") );
+	my $u1_label_status = Gtk2::Label->new( $d->get("Status"). ":" );
 	my $u1_status = Gtk2::Label->new();
 
-	my $u1_label_fc = Gtk2::Label->new( $d->get("Choose folder:") );
+	my $u1_label_fc = Gtk2::Label->new( $d->get("Choose folder"). ":" );
 	my $u1_fc = Gtk2::FileChooserButton->new_with_backend ("Shutter - " . $d->get("Choose folder"), 'select-folder', 'gnome-vfs');	
 	$u1_fc->set('local-only' => FALSE);
 
 	my $u1_hint = Gtk2::Label->new();
+	my $u1_hint2 = Gtk2::Label->new();
 
 	$u1_hbox_st->pack_start( $u1_label_status, FALSE, FALSE, 6 );
 	$u1_hbox_st->pack_start_defaults($u1_status);
@@ -9031,11 +9036,13 @@ sub dlg_upload {
 	$u1_hbox_fc->pack_start_defaults($u1_fc);
 
 	$u1_hbox_hint->pack_start($u1_hint, TRUE, TRUE, 6);
+	$u1_hbox_hint2->pack_start($u1_hint2, TRUE, TRUE, 6);
 
 	$u1_label_fc->set_alignment( 0, 0.5 );
 	$u1_label_status->set_alignment( 0, 0.5 );
 	$u1_status->set_alignment( 0, 0.5 );
 	$u1_hint->set_alignment( 0, 0.5 );
+	$u1_hint2->set_alignment( 0, 0.5 );
 
 	my $sg_u1 = Gtk2::SizeGroup->new('horizontal');
 	$sg_u1->add_widget($u1_label_fc);
@@ -9044,6 +9051,7 @@ sub dlg_upload {
 	$u1_vbox1->pack_start($u1_hbox_st, FALSE, FALSE, 3);
 	$u1_vbox1->pack_start($u1_hbox_fc, FALSE, FALSE, 3);
 	$u1_vbox1->pack_start($u1_hbox_hint, FALSE, FALSE, 3);
+	$u1_vbox1->pack_start($u1_hbox_hint2, FALSE, FALSE, 3);
 	
 	#ftp settings
 	#we are using the same widgets as in the settings and populate
@@ -9055,7 +9063,7 @@ sub dlg_upload {
 	my $ftp_hbox5_dlg = Gtk2::HBox->new( FALSE, 0 );
 
 	#uri
-	my $ftp_entry_label_dlg = Gtk2::Label->new( $d->get("URI") . ":");
+	my $ftp_entry_label_dlg = Gtk2::Label->new( $d->get("URI"). ":");
 	$ftp_hbox1_dlg->pack_start( $ftp_entry_label_dlg, FALSE, TRUE, 10 );
 	my $ftp_remote_entry_dlg = Gtk2::Entry->new;
 	$ftp_remote_entry_dlg->set_text( $ftp_remote_entry->get_text );
@@ -9148,8 +9156,6 @@ sub dlg_upload {
 	$unotebook->append_page($pl_vbox1, $d->get("Places"));
 	$unotebook->append_page($u1_vbox1, $d->get("Ubuntu One"));
 
-	my $u1 = undef;
-	
 	$unotebook->signal_connect( 'switch-page' => sub {
 		my ( $unotebook, $pointer, $int ) = @_;
 		
@@ -9160,90 +9166,89 @@ sub dlg_upload {
 				$_->set_text_with_mnemonic($d->get("_Export"));
 				last;
 			}elsif($int == 3 && $_ =~ /Gtk2::Label/){
-
-				unless(defined $u1){
-										
-					$u1 = Shutter::Upload::UbuntuOne->new($sc);
-					$u1->connect_to_bus;
 					
-					if($u1->is_connected){
-						
-						#current status
-						my ($is_connected, $is_online, $text) = $u1->get_current_status;
-						$u1_status->set_text($text);
-						
+				$u1 = Shutter::Upload::UbuntuOne->new($sc);
+				$u1->connect_to_bus;
+				
+				if($u1->is_connected){
+			
+					#current status
+					my ($is_connected, $is_online, $text) = $u1->get_current_status;
+					$u1_status->set_text($text);
+					
+					#is current folder synced?
+					$u1_fc->signal_connect('current-folder-changed', sub {
+						my ($widget, $button) = @_;
 						#is current folder synced?
-						$u1_fc->signal_connect('current-folder-changed', sub {
-							my ($widget, $button) = @_;
-							#is current folder synced?
-							if($u1->is_synced_folder($u1_fc->get_current_folder)){
-								$u1_hint->set_markup("<span size='small'>" . 
-													sprintf($d->get("Folder %s is synchronized with Ubuntu One.\nThe selected file(s) will be copied to that folder before being published.") , "'".$u1_fc->get_current_folder."'") 
-													. "</span>");								
-								$button->set_sensitive(TRUE);													
-							}else{
-								$u1_hint->set_markup("<span size='small' color='red'>" . 
-													sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_current_folder."'") 
-													. "</span>");
-								$button->set_sensitive(FALSE);
-							}							
-						}, $_);
-
-						#emit first event manually
-						$u1_fc->signal_emit('current-folder-changed');
-						
-						my $sd_status = $u1->get_syncdaemon_status;
-						my $sd_public = $u1->get_syncdaemon_public;
-						my $sd_fs     = $u1->get_syncdaemon_fs;
-						
-						$sd_status->connect_to_signal('StatusChanged', sub {
-							my $status_ref = shift;
-							#~ print Dumper $status_ref;
-							($is_connected, $is_online, $text) = $u1->get_current_status($status_ref);
-							$u1_status->set_text($text);
-						});
-
-						$sd_status->connect_to_signal('UploadFinished', sub {
-							my $file = shift;
-						    my %meta = %{$sd_fs->get_metadata($file)};
-						    #find corresponding key
-							if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
-								$sd_public->change_public_access($meta{'share_id'}, $meta{'node_id'}, TRUE);
+						if($u1->is_synced_folder($u1_fc->get_current_folder)){
+							$u1_hint->set_markup("<span size='small'>" . 
+												sprintf($d->nget("Folder %s is synchronized with Ubuntu One.\nThe selected file will be copied to that folder before being published.", "Folder %s is synchronized with Ubuntu One.\nThe selected files will be copied to that folder before being published.", scalar @files_to_upload) , "'".$u1_fc->get_current_folder."'") 
+												. "</span>");								
+							$u1_hint2->set_markup("<span size='small'>" . 
+												$d->nget("<b>Please note:</b> The selected file will be published in a background process.\nYou will be notified when the process is finished.", "<b>Please note:</b> The selected files will be published in a background process.\nYou will be notified when the process is finished.", scalar @files_to_upload)
+												. "</span>");	
+							$button->set_sensitive(TRUE);													
+						}else{
+							$u1_hint->set_markup("<span size='small' color='red'>" . 
+												sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_current_folder."'") 
+												. "</span>");
+							$button->set_sensitive(FALSE);
+						}							
+					}, $upload_button);
+				
+					#emit first event manually
+					$u1_fc->signal_emit('current-folder-changed');
+			
+					my $sd_status = $u1->get_syncdaemon_status;
+					my $sd_public = $u1->get_syncdaemon_public;
+					my $sd_fs     = $u1->get_syncdaemon_fs;
+					
+					$sd_status->connect_to_signal('StatusChanged', sub {
+						my $status_ref = shift;
+						#~ print Dumper $status_ref;
+						($is_connected, $is_online, $text) = $u1->get_current_status($status_ref);
+						$u1_status->set_text($text);
+					});
+				
+					$sd_status->connect_to_signal('UploadFinished', sub {
+						my $file = shift;
+					    my %meta = %{$sd_fs->get_metadata($file)};
+					    #find corresponding key
+						if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
+							$sd_public->change_public_access($meta{'share_id'}, $meta{'node_id'}, TRUE);
+						}
+					});
+					
+					$sd_public->connect_to_signal('PublicAccessChanged', sub {
+						my $meta_ref = shift;
+						my %meta = %{$meta_ref};
+						print Dumper %meta;
+						#find corresponding key
+						if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
+													
+							$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'puburl'} = $meta{'public_url'};
+							
+							#changed to public
+							if($meta{'is_public'}){
+								#copy to clipboard
+								$clipboard->set_text($meta{'public_url'});
+							
+								#show as notification
+								my $notify 	= $sc->get_notification_object;
+								$notify->show( $d->get("Successfully published"), sprintf($d->get("The file %s was successfully published at %s1. The external link is now available in your clipboard."), $session_screens{$key}->{'long'}, $meta{'public_url'} ) );
+							
+								&fct_show_status_message( 1, $shf->utf8_decode($meta{'path'}) . " " . sprintf($d->get("published at %s"), $meta{'public_url'}) );
+							#publishing stopped
+							}else{							
+								#show as notification
+								my $notify 	= $sc->get_notification_object;
+								$notify->show( $d->get("Unpublished"), sprintf($d->get("The file %s is no longer published. The external link is not available anymore."), $meta{'path'} ) );
+							
+								&fct_show_status_message( 1, $shf->utf8_decode( sprintf($d->get("The file %s is no longer published."), $meta{'path'})));									
 							}
-						});
-						
-						$sd_public->connect_to_signal('PublicAccessChanged', sub {
-							my $meta_ref = shift;
-							my %meta = %{$meta_ref};
-							print Dumper %meta;
-							#find corresponding key
-							if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
-														
-								$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'puburl'} = $meta{'public_url'};
-								
-								#changed to public
-								if($meta{'is_public'}){
-									#copy to clipboard
-									$clipboard->set_text($meta{'public_url'});
-								
-									#show as notification
-									my $notify 	= $sc->get_notification_object;
-									$notify->show( $d->get("Successfully published"), sprintf($d->get("The file %s was successfully published at %s1. The external link is now available in your clipboard."), $session_screens{$key}->{'long'}, $meta{'public_url'} ) );
-								
-									&fct_show_status_message( 1, $shf->utf8_decode($meta{'path'}) . " " . sprintf($d->get("published at %s"), $meta{'public_url'}) );
-								#publishing stopped
-								}else{							
-									#show as notification
-									my $notify 	= $sc->get_notification_object;
-									$notify->show( $d->get("Unpublished"), sprintf($d->get("The file %s is no longer published. The external link is not available anymore."), $meta{'path'} ) );
-								
-									&fct_show_status_message( 1, $shf->utf8_decode( sprintf($d->get("The file %s is no longer published."), $meta{'path'})));									
-								}
-												
-							}
-						});
-						
-					}
+											
+						}
+					});
 				
 				}
 				
