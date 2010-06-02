@@ -179,7 +179,6 @@ require Shutter::Screenshot::Error;
 require Shutter::Upload::ImageBanana;
 require Shutter::Upload::UbuntuPics;
 require Shutter::Upload::ImageShack;
-require Shutter::Upload::Omploader;
 require Shutter::Upload::FTP;
 
 #--------------------------------------
@@ -4379,19 +4378,6 @@ sub fct_load_accounts {
 	}
 
 	$accounts{'ubuntu-pics.de'}->{register} = "http://www.ubuntu-pics.de/registrieren.html";
-
-# DO WE NEED THIS?
-	unless ( exists( $accounts_xml->{'omploader.org'} ) ) {
-		$accounts{'omploader.org'}->{host}     = "omploader.org";
-		$accounts{'omploader.org'}->{username} = "";
-		$accounts{'omploader.org'}->{password} = "";
-	} else {
-		$accounts{'omploader.org'}->{host}     = $accounts_xml->{'omploader.org'}->{host};
-		$accounts{'omploader.org'}->{username} = $accounts_xml->{'omploader.org'}->{username};
-		$accounts{'omploader.org'}->{password} = $accounts_xml->{'omploader.org'}->{password};
-	}
-
-	$accounts{'omploader.org'}->{register} = "http://www.omploader.org";
 
 	#account data, load defaults if nothing is set
 	unless ( exists( $accounts_xml->{'imageshack.us'} ) ) {
