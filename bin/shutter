@@ -9174,37 +9174,6 @@ sub dlg_upload {
 						$counter++;
 					}
 					$uploader->show_all;
-				} elsif ( $hosting_host eq "omploader.org" ) {
-					my $uploader
-						= Shutter::Upload::Omploader->new( $hosting_host, $sc->get_debug, $shutter_root, $d, $window, SHUTTER_VERSION );
-					my $counter = 1;
-					$hosting_progress->set_fraction(0);
-					foreach my $file (@files_to_upload) {
-						$hosting_progress->set_text($file);
-
-						#update gui
-						&fct_update_gui;
-						my %upload_response = $uploader->upload( $shf->switch_home_in_file($file) );
-
-						if ( is_success( $upload_response{'status'} ) ) {
-							$uploader->show;
-							&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
-						} else {
-							my $response = &dlg_upload_error_message( $upload_response{'status'}, $upload_response{'max_filesize'} );
-
-							#10 == skip all, 20 == skip, else == cancel
-							last if $response == 10;
-							next if $response == 20;
-							redo if $response == 30;
-							next UPDIALOG;
-						}
-						$hosting_progress->set_fraction( $counter / @files_to_upload );
-
-						#update gui
-						&fct_update_gui;
-						$counter++;
-					}
-					$uploader->show_all;
 				} elsif ( $hosting_host eq "imageshack.us" ) {
 					my $ishack = Shutter::Upload::ImageShack->new();
 					
