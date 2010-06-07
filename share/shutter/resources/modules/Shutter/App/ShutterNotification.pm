@@ -52,17 +52,17 @@ sub new {
 		}
 	
 		#~ $self->{_notifications_window}->double_buffered(FALSE);
-	    $self->{_notifications_window}->set_app_paintable(TRUE);
-	    $self->{_notifications_window}->set_decorated(FALSE);
+      $self->{_notifications_window}->set_app_paintable(TRUE);
+      $self->{_notifications_window}->set_decorated(FALSE);
 		$self->{_notifications_window}->set_skip_taskbar_hint(TRUE);
 		$self->{_notifications_window}->set_skip_pager_hint(TRUE);	    
-	    $self->{_notifications_window}->set_keep_above(TRUE);
-	    $self->{_notifications_window}->set_accept_focus(FALSE);
+      $self->{_notifications_window}->set_keep_above(TRUE);
+      $self->{_notifications_window}->set_accept_focus(FALSE);
 	    #~ $self->{_notifications_window}->set_sensitive(FALSE);		
 		$self->{_notifications_window}->add_events('GDK_ENTER_NOTIFY_MASK');
 		
 		#obtain current colors and font_desc from the main window
-	    my $style 		= $self->{_sc}->get_mainwindow->get_style;
+      my $style 		= $self->{_sc}->get_mainwindow->get_style;
 		#~ my $sel_bg 		= $style->bg('selected');
 		my $sel_bg 		= Gtk2::Gdk::Color->parse('#131313');
 		#~ my $sel_tx 		= $style->text('selected');
@@ -71,8 +71,8 @@ sub new {
 		my $font_size 	= $style->font_desc->get_size;
 
 		my $mon 	= $self->{_sc}->get_current_monitor;
-		my $size 	= int( $mon->width * 0.007 );
-		my $size2 	= int( $mon->width * 0.006 );
+		my $size 	= 10;
+		my $size2 	= 8;
 
 		#shape the window
 		my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file  ($self->{_sc}->get_root . "/share/shutter/resources/icons/notify.svg");
@@ -103,7 +103,7 @@ sub new {
 	
 			#pango layout
 			my $layout = Gtk2::Pango::Cairo::create_layout($cr);
-			$layout->set_width( ($w - $size * 3) * Gtk2::Pango->scale );
+			$layout->set_width( ($w - $size * 2) * Gtk2::Pango->scale );
 			
 			if ( Gtk2::Pango->CHECK_VERSION( 1, 20, 0 ) ) {
 				$layout->set_height( $h * Gtk2::Pango->scale );
@@ -118,7 +118,7 @@ sub new {
 			}
 			
 			$layout->set_alignment('left');
-			$layout->set_wrap('word');
+			$layout->set_wrap('word-char');
 			
 			#set text
 			$layout->set_markup("<span font_desc=\"$font_fam $size\" weight=\"bold\" foreground=\"#FFFFFF\">" . Glib::Markup::escape_text( $self->{_summary} ) . "</span><span font_desc=\"$font_fam $size2\" foreground=\"#FFFFFF\">\n" . Glib::Markup::escape_text( $self->{_body} ) . "</span>");
@@ -128,8 +128,8 @@ sub new {
 			
 			if($self->{_sc}->get_mainwindow->get_screen->is_composited){
 				
-				$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.8 );
-				$cr->paint;
+				$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.9 );
+            $cr->paint;
 				
 			}else{
 				
