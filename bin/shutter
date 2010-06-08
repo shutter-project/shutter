@@ -6279,7 +6279,7 @@ sub fct_get_key_by_filename {
 	#and loop through hash to find the corresponding key
 	foreach ( keys %session_screens ) {
 		next unless exists $session_screens{$_}->{'long'};
-		print "compare ".$session_screens{$_}->{'long'}." - $filename\n";
+		#~ print "compare ".$session_screens{$_}->{'long'}." - $filename\n";
 		if ( $session_screens{$_}->{'long'} eq $filename ) {
 			$key = $_;
 			last;
@@ -8026,16 +8026,16 @@ sub fct_init_u1_watcher {
             
                #show as notification
                my $notify 	= $sc->get_notification_object;
-               $notify->show( $d->get("Successfully published"), sprintf($d->get("The file %s was successfully published at %s1. The external link is now available in your clipboard."), $session_screens{$key}->{'long'}, $meta{'public_url'} ) );
+               $notify->show( $d->get("Successfully published"), sprintf($d->get("The file %s was successfully published at %s1."), $session_screens{$key}->{'long'}, $meta{'public_url'} ) );
             
-               &fct_show_status_message( 1, $shf->utf8_decode($meta{'path'}) . " " . sprintf($d->get("published at %s"), $meta{'public_url'}) );
+               &fct_show_status_message( 1, $shf->utf8_decode(sprintf($d->get("%s published at %s"), $meta{'path'}, $meta{'public_url'})) );
             #publishing stopped
             }else{							
                #show as notification
                my $notify 	= $sc->get_notification_object;
                $notify->show( $d->get("Unpublished"), sprintf($d->get("The file %s is no longer published. The external link is not available anymore."), $meta{'path'} ) );
             
-               &fct_show_status_message( 1, $shf->utf8_decode( sprintf($d->get("The file %s is no longer published."), $meta{'path'})));									
+               &fct_show_status_message( 1, $shf->utf8_decode(sprintf($d->get("The file %s is no longer published."), $meta{'path'})) );									
             }
                         
          }
@@ -9316,11 +9316,9 @@ sub dlg_upload {
 			}	
 		}
 	}	
-	
-	UPDIALOG: while ($hosting_dialog) {
 
-		#DIALOG RUN
-		my $hosting_response = $hosting_dialog->run;
+	#DIALOG RUN
+	while (my $hosting_response = $hosting_dialog->run) {
 
 		#running state of dialog
 		$upload_button->set_sensitive(FALSE);
@@ -9363,7 +9361,7 @@ sub dlg_upload {
 							last if $response == 10;
 							next if $response == 20;
 							redo if $response == 30;
-							next UPDIALOG;
+							next;
 						}
 						$hosting_progress->set_fraction( $counter / @files_to_upload );
 
@@ -9397,7 +9395,7 @@ sub dlg_upload {
 							last if $response == 10;
 							next if $response == 20;
 							redo if $response == 30;
-							next UPDIALOG;
+							next;
 						}
 						$hosting_progress->set_fraction( $counter / @files_to_upload );
 
@@ -9425,7 +9423,7 @@ sub dlg_upload {
 							my $response = $sd->dlg_error_message( $d->get("Please check your credentials and try again."),
 								$d->get("Login failed!") );
 
-							next UPDIALOG;
+							next;
 						}
 
 						$hosting_progress->set_text($file);
@@ -9447,7 +9445,7 @@ sub dlg_upload {
 							last if $response == 10;
 							next if $response == 20;
 							redo if $response == 30;
-							next UPDIALOG;
+							next;
 						}
 
 						#get short link
@@ -9473,7 +9471,7 @@ sub dlg_upload {
 							last if $response == 10;
 							next if $response == 20;
 							redo if $response == 30;
-							next UPDIALOG;
+							next;
 						}
 						$hosting_progress->set_fraction( $counter / @files_to_upload );
 
@@ -9518,7 +9516,7 @@ sub dlg_upload {
 								undef, undef, undef,
 								$upload_response[2]
 							);
-							next UPDIALOG;
+							next;
 						} else {
 							$login = TRUE;
 						}
@@ -9570,7 +9568,7 @@ sub dlg_upload {
 							$login = FALSE;
 							redo;
 						} else {
-							next UPDIALOG;
+							next;
 						}
 
 					}
@@ -9579,7 +9577,7 @@ sub dlg_upload {
 					#update gui
 					&fct_update_gui;
 					$counter++;
-				}    #end foreach
+				} #end foreach
 				$uploader->quit;
 			
 			#xfer using Gnome-VFS - we use this for u1 as well
@@ -9611,8 +9609,6 @@ sub dlg_upload {
 					
 					$target_uri = $target_uri->append_file_name($source_uri->extract_short_name);
 
-					print $source_uri->to_string . " - " . $target_uri->to_string."\n" if $sc->get_debug;
-					
 					my $result;
 					unless($source_uri->equal($target_uri)){
 						unless($target_uri->exists){
@@ -9636,7 +9632,7 @@ sub dlg_upload {
 							}
 						#u1 - call publishing API
 						}else{
-							$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'pubfile'} = Gnome2::VFS->unescape_string_for_display($target_uri->get_path);
+							$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'pubfile'} = Gnome2::VFS->unescape_string($target_uri->get_path);
 							&fct_show_status_message( 1, sprintf($d->get("Publishing %s..."), $file) );
 						}
 					
@@ -9649,9 +9645,9 @@ sub dlg_upload {
 
 						my $target_path=undef;
 						if($target_uri->is_local){
-							$target_path = Gnome2::VFS->unescape_string_for_display ($target_uri->extract_dirname);
+							$target_path = $shf->utf8_decode(Gnome2::VFS->unescape_string($target_uri->extract_dirname));
 						}else{								
-							$target_path = Gnome2::VFS->unescape_string_for_display ($target_uri->get_scheme."://".$target_uri->get_host_name.$target_uri->extract_dirname);
+							$target_path = $shf->utf8_decode(Gnome2::VFS->unescape_string($target_uri->get_scheme."://".$target_uri->get_host_name.$target_uri->extract_dirname));
 						}
 
 						my $response = $sd->dlg_warning_message(
@@ -9683,7 +9679,7 @@ sub dlg_upload {
 									}
 								#u1
 								}else{
-									$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'pubfile'} = Gnome2::VFS->unescape_string_for_display($target_uri->get_path);
+									$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'pubfile'} = Gnome2::VFS->unescape_string($target_uri->get_path);
 									&fct_show_status_message( 1, sprintf($d->get("Publishing %s..."), $file) );
 								}
 		
@@ -9699,7 +9695,7 @@ sub dlg_upload {
 								} elsif ( $response == 40 ) {
 									redo;
 								} else {
-									next UPDIALOG;
+									next;
 								}										
 								
 							}
@@ -9717,7 +9713,7 @@ sub dlg_upload {
 						} elsif ( $response == 40 ) {
 							redo;
 						} else {
-							next UPDIALOG;
+							next;
 						}					
 		
 					}
@@ -9766,9 +9762,9 @@ sub dlg_upload_error_message_gnome_vfs {
 
 	my $target_path=undef;
 	if($target_uri->is_local){
-		$target_path = Gnome2::VFS->unescape_string_for_display ($target_uri->extract_dirname);
+		$target_path = $shf->utf8_decode(Gnome2::VFS->unescape_string($target_uri->extract_dirname));
 	}else{								
-		$target_path = Gnome2::VFS->unescape_string_for_display ($target_uri->get_scheme."://".$target_uri->get_host_name.$target_uri->extract_dirname);
+		$target_path = $shf->utf8_decode(Gnome2::VFS->unescape_string($target_uri->get_scheme."://".$target_uri->get_host_name.$target_uri->extract_dirname));
 	}
 
 	#retry button

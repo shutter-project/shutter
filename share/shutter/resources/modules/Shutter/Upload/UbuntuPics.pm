@@ -22,7 +22,6 @@
 
 package Shutter::Upload::UbuntuPics;
 
-use SelfLoader;
 use utf8;
 use strict;
 use WWW::Mechanize;
@@ -64,10 +63,6 @@ sub new {
 	return $self;
 }
 
-1;
-
-__DATA__
-
 sub upload {
 	my ( $self, $upload_filename, $username, $password ) = @_;
 
@@ -89,7 +84,13 @@ sub upload {
 	utf8::encode $username;
 	if ( $username ne "" && $password ne "" ) {
 
-		$self->{_mech}->get("http://www.ubuntu-pics.de/login.html");
+		eval{
+			$self->{_mech}->get("http://www.ubuntu-pics.de/login.html");
+		};
+		if($@){
+			$self->{_links}{'status'} = $@;
+			return %{ $self->{_links} };	
+		}
 		$self->{_http_status} = $self->{_mech}->status();
 		unless ( is_success( $self->{_http_status} ) ) {
 			$self->{_links}{'status'} = $self->{_http_status};
@@ -116,7 +117,13 @@ sub upload {
 		}
 	}
 
-	$self->{_mech}->get("http://www.ubuntu-pics.de/easy.html");
+	eval{
+		$self->{_mech}->get("http://www.ubuntu-pics.de/easy.html");
+	};
+	if($@){
+		$self->{_links}{'status'} = $@;
+		return %{ $self->{_links} };	
+	}
 	$self->{_http_status} = $self->{_mech}->status();
 	unless ( is_success( $self->{_http_status} ) ) {
 		$self->{_links}{'status'} = $self->{_http_status};
