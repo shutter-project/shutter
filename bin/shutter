@@ -65,7 +65,6 @@ use XML::Simple;
 
 #DBus message system
 use Net::DBus qw/ dbus_string dbus_boolean /;
-use Net::DBus::GLib qw/ dbus_string dbus_boolean /;
 
 #HTTP Status code processing
 use HTTP::Status;
@@ -138,6 +137,7 @@ $ENV{ 'HOME' } = File::HomeDir->my_home;
 my $gnome_web_photo = TRUE;
 my $nautilus_sendto = TRUE;
 my $goocanvas       = TRUE;
+my $ubuntuone       = TRUE;
 &fct_init_depend;
 
 #--------------------------------------
@@ -7995,6 +7995,8 @@ sub fct_set_model_plugins {
 
 sub fct_init_u1_watcher {
 
+   return FALSE unless $ubuntuone;
+
    my $u1 = Shutter::Upload::UbuntuOne->new($sc);
    $u1->connect_to_bus;
 				
@@ -8073,6 +8075,12 @@ sub fct_init_depend {
 	if ($@) {
 		warn "WARNING: Goo::Canvas/libgoocanvas is missing --> drawing tool will be disabled!\n\n";
 		$goocanvas = FALSE;
+	}
+
+   eval { require Net::DBus::GLib };
+	if ($@) {
+		warn "WARNING: Net::DBus::GLib is missing --> Ubuntu One support will be disabled!\n\n";
+		$ubuntuone = FALSE;
 	}
 
 	return TRUE;
@@ -9236,55 +9244,72 @@ sub dlg_upload {
       }
 
       if($int == 0 || $int == 1 || $int == 2){
+         
          $upload_button->set_sensitive(TRUE);
+      
       }elsif($int == 3){
-         $u1 = Shutter::Upload::UbuntuOne->new($sc);
-         my $con_result = $u1->connect_to_bus;
          
-         #set initial status
-         $u1_status->set_text($d->get("Disconnected"));
-         
-         if($u1->is_connected){
-      
-            #current status
-            my ($is_connected, $is_online, $text) = $u1->get_current_status;
-            $u1_status->set_text($text);
+         #ubuntuone enabled (libs installed)?
+         if($ubuntuone){
             
-            #is current folder synced?
-            $u1_fc->signal_connect('current-folder-changed', sub {
-               #is current folder synced?
-               if($u1->is_synced_folder($u1_fc->get_current_folder)){
-                  $u1_hint->set_markup("<span size='small'>" . 
-                                 sprintf($d->nget("Folder %s is synchronized with Ubuntu One.\nThe selected file will be copied to that folder before being published.", "Folder %s is synchronized with Ubuntu One.\nThe selected files will be copied to that folder before being published.", scalar @files_to_upload) , "'".$u1_fc->get_current_folder."'") 
-                                 . "</span>");								
-                  $u1_hint2->set_markup("<span size='small'>" . 
-                                 $d->nget("<b>Please note:</b> The selected file will be published in a background process.\nYou will be notified when the process is finished.", "<b>Please note:</b> The selected files will be published in a background process.\nYou will be notified when the process is finished.", scalar @files_to_upload)
-                                 . "</span>");	
-                  $upload_button->set_sensitive(TRUE);													
-               }else{
-                  $u1_hint->set_markup("<span size='small' color='red'>" . 
-                                 sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_current_folder."'") 
-                                 . "</span>");
-                  $upload_button->set_sensitive(FALSE);
-               }							
-            });
-         
-            #emit first event manually
-            $u1_fc->signal_emit('current-folder-changed');
-      
-            my $sd_status = $u1->get_syncdaemon_status;
+            #connect
+            $u1 = Shutter::Upload::UbuntuOne->new($sc);
+            my $con_result = $u1->connect_to_bus;
             
-            $sd_status->connect_to_signal('StatusChanged', sub {
-               my $status_ref = shift;
-               #~ print Dumper $status_ref;
-               ($is_connected, $is_online, $text) = $u1->get_current_status($status_ref);
+            #set initial status
+            $u1_status->set_text($d->get("Disconnected"));
+            
+            if($u1->is_connected){
+         
+               #current status
+               my ($is_connected, $is_online, $text) = $u1->get_current_status;
                $u1_status->set_text($text);
-            });
+               
+               #is current folder synced?
+               $u1_fc->signal_connect('current-folder-changed', sub {
+                  #is current folder synced?
+                  if($u1->is_synced_folder($u1_fc->get_current_folder)){
+                     $u1_hint->set_markup("<span size='small'>" . 
+                                    sprintf($d->nget("Folder %s is synchronized with Ubuntu One.\nThe selected file will be copied to that folder before being published.", "Folder %s is synchronized with Ubuntu One.\nThe selected files will be copied to that folder before being published.", scalar @files_to_upload) , "'".$u1_fc->get_current_folder."'") 
+                                    . "</span>");								
+                     $u1_hint2->set_markup("<span size='small'>" . 
+                                    $d->nget("<b>Please note:</b> The selected file will be published in a background process.\nYou will be notified when the process has finished.", "<b>Please note:</b> The selected files will be published in a background process.\nYou will be notified when the process has finished.", scalar @files_to_upload)
+                                    . "</span>");	
+                     $upload_button->set_sensitive(TRUE);													
+                  }else{
+                     $u1_hint->set_markup("<span size='small' color='red'>" . 
+                                    sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_current_folder."'") 
+                                    . "</span>");
+                     $upload_button->set_sensitive(FALSE);
+                  }							
+               });
+            
+               #emit first event manually
+               $u1_fc->signal_emit('current-folder-changed');
+         
+               my $sd_status = $u1->get_syncdaemon_status;
+               
+               $sd_status->connect_to_signal('StatusChanged', sub {
+                  my $status_ref = shift;
+                  #~ print Dumper $status_ref;
+                  ($is_connected, $is_online, $text) = $u1->get_current_status($status_ref);
+                  $u1_status->set_text($text);
+               });
+            
+            #not connected   
+            }else{
+               $u1_hint->set_markup("<span size='small' color='red'>" . $con_result . "</span>");
+               $upload_button->set_sensitive(FALSE);
+            }
+         
+         #ubuntuone enabled?
          }else{
-            $u1_hint->set_markup("<span size='small' color='red'>" . $con_result . "</span>");
+            $u1_status->set_text($d->get("Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature"));
             $upload_button->set_sensitive(FALSE);
+            $u1_fc->set_sensitive(FALSE);
          }
-      }
+         
+      }  
 		
 	} );
 
