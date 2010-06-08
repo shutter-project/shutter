@@ -84,10 +84,10 @@ use Data::Dumper;
 #define constants
 #--------------------------------------
 use constant MAX_ERROR 			=> 5;
-use constant SHUTTER_REV        => "Rev.experimental branch";
-#~ use constant SHUTTER_REV        => "Rev.847";
+#~ use constant SHUTTER_REV      => "Rev.experimental branch";
+use constant SHUTTER_REV      => "Rev.847";
 use constant SHUTTER_NAME		=> "Shutter";
-use constant SHUTTER_VERSION	=> "v0.86.3";
+use constant SHUTTER_VERSION	=> "v0.86.2";
 
 #--------------------------------------
 
@@ -3776,21 +3776,23 @@ sub fct_save_settings {
 	$settings{'gui'}->{'btoolbar_active'} = $sm->{_menuitem_btoolbar}->get_active();
 
 	#recently used
-	$settings{'recent'}->{'ruu_tab'} 	= $sc->get_ruu_tab;
-	$settings{'recent'}->{'ruu_detail'} = $sc->get_ruu_detail;
+	$settings{'recent'}->{'ruu_tab'}       = $sc->get_ruu_tab;
+	$settings{'recent'}->{'ruu_hosting'}   = $sc->get_ruu_hosting;
+	$settings{'recent'}->{'ruu_places'}    = $sc->get_ruu_places;
+	$settings{'recent'}->{'ruu_u1'}        = $sc->get_ruu_u1;
 
 	#main
-	$settings{'general'}->{'filetype'} 		 = $combobox_type->get_active;
-	$settings{'general'}->{'quality'}  		 = $scale->get_value();
-	$settings{'general'}->{'filename'} 		 = $filename->get_text();
-	$settings{'general'}->{'folder'} 		 = $saveDir_button->get_current_folder();
-	$settings{'general'}->{'save_auto'}      = $save_auto_active->get_active();
-	$settings{'general'}->{'save_ask'}       = $save_ask_active->get_active();
-	$settings{'general'}->{'image_autocopy'} = $image_autocopy_active->get_active();
-	$settings{'general'}->{'fname_autocopy'} = $fname_autocopy_active->get_active();
-	$settings{'general'}->{'no_autocopy'} 	 = $no_autocopy_active->get_active();
-	$settings{'general'}->{'cursor'}		 = $cursor_active->get_active();
-	$settings{'general'}->{'delay'}			 = $delay->get_value();
+	$settings{'general'}->{'filetype'} 		   = $combobox_type->get_active;
+	$settings{'general'}->{'quality'}  		   = $scale->get_value();
+	$settings{'general'}->{'filename'} 		   = $filename->get_text();
+	$settings{'general'}->{'folder'} 		   = $saveDir_button->get_current_folder();
+	$settings{'general'}->{'save_auto'}       = $save_auto_active->get_active();
+	$settings{'general'}->{'save_ask'}        = $save_ask_active->get_active();
+	$settings{'general'}->{'image_autocopy'}  = $image_autocopy_active->get_active();
+	$settings{'general'}->{'fname_autocopy'}  = $fname_autocopy_active->get_active();
+	$settings{'general'}->{'no_autocopy'} 	   = $no_autocopy_active->get_active();
+	$settings{'general'}->{'cursor'}		      = $cursor_active->get_active();
+	$settings{'general'}->{'delay'}			   = $delay->get_value();
 
 	#wrksp -> submenu
 	$settings{'general'}->{'current_monitor_active'} = $current_monitor_active->get_active;
@@ -4246,7 +4248,9 @@ sub fct_load_settings {
 
 				#recently used
 				$sc->set_ruu_tab($settings_xml->{'recent'}->{'ruu_tab'});
-				$sc->set_ruu_detail($settings_xml->{'recent'}->{'ruu_detail'});
+				$sc->set_ruu_hosting($settings_xml->{'recent'}->{'ruu_hosting'});
+				$sc->set_ruu_places($settings_xml->{'recent'}->{'ruu_places'});
+				$sc->set_ruu_u1($settings_xml->{'recent'}->{'ruu_u1'});
 							
 				#we store the version info, so we know if there was a new version installed
 				#when starting new version we clear the cache on first startup
@@ -8991,14 +8995,13 @@ sub dlg_upload {
 	my $dlg_header = $d->get("Upload / Export");
 	my $hosting_dialog = Gtk2::Dialog->new( $dlg_header, $window, [qw/modal destroy-with-parent/] );
 
-	my $cancel_button = $hosting_dialog->add_button( 'gtk-cancel',       'reject' );
+	my $close_button = $hosting_dialog->add_button( 'gtk-close', 'close' );
 	my $upload_button = $hosting_dialog->add_button( $d->get("_Upload"), 'accept' );
 	$upload_button->set_image( Gtk2::Image->new_from_stock( 'gtk-go-up', 'button' ) );
 	$hosting_dialog->set_default_response('accept');
 	my $model = Gtk2::ListStore->new( 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String' );
 
 	foreach ( keys %accounts ) {
-
 		#cut username so the dialog will not explode ;-)
 		my $short_username = $accounts{$_}->{'username'};
 		if ( length $accounts{$_}->{'username'} > 10 ) {
@@ -9300,33 +9303,26 @@ sub dlg_upload {
 		$unotebook->set_current_page($sc->get_ruu_tab);
 	}
 	#and the relevant detail (folder, uploader etc.)
-	#hosting service
-	if(defined $sc->get_ruu_detail && $sc->get_ruu_detail){		
-		if($sc->get_ruu_tab == 0){
-			$hosting->set_active($sc->get_ruu_detail);
-		#export to folder	
-		}elsif($sc->get_ruu_tab == 2){
-			if(defined $sc->get_ruu_detail && $shf->folder_exists($sc->get_ruu_detail)){
-				$places_fc->set_current_folder( $sc->get_ruu_detail );
-			}	
-		#u1	
-		}elsif($sc->get_ruu_tab == 3){
-			if(defined $sc->get_ruu_detail && $shf->folder_exists($sc->get_ruu_detail)){
-				$u1_fc->set_current_folder( $sc->get_ruu_detail );
-			}	
-		}
-	}	
+	if(defined $sc->get_ruu_hosting && $sc->get_ruu_hosting){		
+      $hosting->set_active($sc->get_ruu_hosting);
+   }
+   if(defined $sc->get_ruu_places && $shf->folder_exists($sc->get_ruu_places)){
+      $places_fc->set_current_folder($sc->get_ruu_places);
+   }	
+   if(defined $sc->get_ruu_u1 && $shf->folder_exists($sc->get_ruu_u1)){
+      $u1_fc->set_current_folder($sc->get_ruu_u1);
+   }
 
 	#DIALOG RUN
 	while (my $hosting_response = $hosting_dialog->run) {
 
-		#running state of dialog
-		$upload_button->set_sensitive(FALSE);
-		$cancel_button->set_sensitive(FALSE);
-		$hosting_progress->show;
-
 		#start upload
 		if ( $hosting_response eq "accept" ) {
+
+         #running state of dialog
+         $upload_button->set_sensitive(FALSE);
+         $close_button->set_sensitive(FALSE);
+         $hosting_progress->show;
 
 			#public hosting
 			if ( $unotebook->get_current_page == 0 ) {
@@ -9534,6 +9530,9 @@ sub dlg_upload {
 					
 						#everything is fine here
 						&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
+                  #show as notification
+                  my $notify 	= $sc->get_notification_object;
+                  $notify->show( $d->get("Successfully uploaded"), sprintf($d->get("The file %s was successfully uploaded."), $file ) );
 						
 						#copy website url to clipboard
 						if($ftp_wurl_entry_dlg->get_text){
@@ -9578,7 +9577,8 @@ sub dlg_upload {
 					&fct_update_gui;
 					$counter++;
 				} #end foreach
-				$uploader->quit;
+				
+            eval { $uploader->quit; };
 			
 			#xfer using Gnome-VFS - we use this for u1 as well
 			} elsif ( $unotebook->get_current_page == 2 || $unotebook->get_current_page == 3) {
@@ -9627,8 +9627,14 @@ sub dlg_upload {
 						if($unotebook->get_current_page == 2){
 							if($target_uri->is_local){
 								&fct_show_status_message( 1, $file . " " . $d->get("exported") );
+                        #show as notification
+                        my $notify 	= $sc->get_notification_object;
+                        $notify->show( $d->get("Successfully exported"), sprintf($d->get("The file %s was successfully exported."), $file ) );
 							}else{
 								&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
+                        #show as notification
+                        my $notify 	= $sc->get_notification_object;
+                        $notify->show( $d->get("Successfully uploaded"), sprintf($d->get("The file %s was successfully uploaded."), $file ) );
 							}
 						#u1 - call publishing API
 						}else{
@@ -9674,8 +9680,14 @@ sub dlg_upload {
 								if($unotebook->get_current_page == 2){
 									if($target_uri->is_local){
 										&fct_show_status_message( 1, $file . " " . $d->get("exported") );
+                              #show as notification
+                              my $notify 	= $sc->get_notification_object;
+                              $notify->show( $d->get("Successfully exported"), sprintf($d->get("The file %s was successfully exported."), $file ) );                             
 									}else{
 										&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
+                              #show as notification
+                              my $notify 	= $sc->get_notification_object;
+                              $notify->show( $d->get("Successfully uploaded"), sprintf($d->get("The file %s was successfully uploaded."), $file ) );                              
 									}
 								#u1
 								}else{
@@ -9727,27 +9739,21 @@ sub dlg_upload {
 				}
 				
 			}
-			
+
 			#save recently used upload tab
 			$sc->set_ruu_tab($unotebook->get_current_page);
 			#and the relevant detail (folder, uploader etc.)
 			#hosting service		
-			if($sc->get_ruu_tab == 0){
-				$sc->set_ruu_detail($hosting->get_active);
-			#export to folder	
-			}elsif($sc->get_ruu_tab == 2){
-				$sc->set_ruu_detail($places_fc->get_current_folder);
-			#u1	
-			}elsif($sc->get_ruu_tab == 3){
-				$sc->set_ruu_detail($u1_fc->get_current_folder);
-			}else{
-				$sc->set_ruu_detail(0);
-			}
+         $sc->set_ruu_hosting($hosting->get_active);
+			$sc->set_ruu_places($places_fc->get_current_folder);
+			$sc->set_ruu_u1($u1_fc->get_current_folder);
 			
-			$hosting_dialog->destroy();
-			return TRUE;
+         #set initial state of dialog
+         $upload_button->set_sensitive(TRUE);
+         $close_button->set_sensitive(TRUE);
+         $hosting_progress->hide;
 		
-		# response != accept
+		#response != accept
 		} else {
 			$hosting_dialog->destroy();
 			return FALSE;
@@ -9771,7 +9777,7 @@ sub dlg_upload_error_message_gnome_vfs {
 	my $retry_btn = Gtk2::Button->new_with_mnemonic( $d->get("_Retry") );
 	$retry_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-redo', 'button' ) );
 
-	my $response = $sd->dlg_warning_message( 
+	my $response = $sd->dlg_error_message( 
 		sprintf( $d->get(  "Error while copying the image %s."), "'" . $target_uri->extract_short_name . "'"),
 		sprintf( $d->get(  "There was an error copying the image into %s."), "'" . $target_path . "'" ),
 		$d->get("Skip all"), 
@@ -9792,15 +9798,25 @@ sub dlg_upload_error_message {
 
 	my $response;
 	if ( $status == 999 ) {
-		$response = $sd->dlg_error_message( $d->get("Please check your credentials and try again."), $d->get("Login failed!") );
+		$response = $sd->dlg_error_message( 
+         $d->get("Please check your credentials and try again."), 
+         $d->get("Error while login")
+      );
 	} elsif ( $status == 998 ) {
-		$response = $sd->dlg_error_message( $d->get("Maximum filesize reached!") . " ( $max_filesize )",
-			$d->get("Failed"), $d->get("Skip all"), $d->get("Skip") );
+		$response = $sd->dlg_error_message( 
+         $d->get("Maximum filesize reached"),
+			$d->get("Error while uploading"), 
+         $d->get("Skip all"), $d->get("Skip"), undef,
+         undef, undef, undef,
+         sprintf($d->get("Maximum filesize: %s"), $max_filesize)
+      );
 	} else {
 		$response = $sd->dlg_error_message(
 			$d->get("Please check your connectivity and try again."),
-			$d->get("Connection error!") . " (" . $status . ")",
-			$d->get("Skip all"), $d->get("Skip"), 'gtk-redo'
+			$d->get("Error while connecting"),
+			$d->get("Skip all"), $d->get("Skip"), 'gtk-redo',
+         undef, undef, undef,
+         $status
 		);
 	}
 	return $response;

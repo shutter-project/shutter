@@ -72,9 +72,12 @@ sub new {
 	$self->{_icontheme} = Gtk2::IconTheme->get_default;
 	$self->{_icontheme}->append_search_path($self->{_shutter_root} . "/share/icons");
 
-	#recently used upload tab and object
+	#recently used upload tab
 	$self->{_ruu_tab} = 0;
-	$self->{_ruu_detail} = 0;
+   #... and details
+	$self->{_ruu_hosting} = 0;
+	$self->{_ruu_places} = 0;
+	$self->{_ruu_u1} = 0;
 
 	#recently used save folder
 	$self->{_rusf} = undef;
@@ -203,17 +206,43 @@ sub set_ruu_tab {
 	return $self->{_ruu_tab};
 }
 
-sub get_ruu_detail {
+sub get_ruu_hosting {
 	my $self = shift;
-	return $self->{_ruu_detail};
+	return $self->{_ruu_hosting};
 }
 
-sub set_ruu_detail {
+sub get_ruu_places {
+	my $self = shift;
+	return $self->{_ruu_places};
+}
+
+sub get_ruu_u1 {
+	my $self = shift;
+	return $self->{_ruu_u1};
+}
+
+sub set_ruu_hosting {
 	my $self = shift;
 	if (@_) {
-		$self->{_ruu_detail} = shift;
+		$self->{_ruu_hosting} = shift;
 	}
-	return $self->{_ruu_detail};
+	return $self->{_ruu_hosting};
+}
+
+sub set_ruu_places {
+	my $self = shift;
+	if (@_) {
+		$self->{_ruu_places} = shift;
+	}
+	return $self->{_ruu_places};
+}
+
+sub set_ruu_u1 {
+	my $self = shift;
+	if (@_) {
+		$self->{_ruu_u1} = shift;
+	}
+	return $self->{_ruu_u1};
 }
 
 sub get_debug {
