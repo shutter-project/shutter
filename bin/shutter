@@ -9631,11 +9631,13 @@ sub dlg_upload {
 					}else{
 						$target_uri = Gnome2::VFS::URI->new ($u1_fc->get_uri);
 					}
-					
+                              					
 					$target_uri = $target_uri->append_file_name($source_uri->extract_short_name);
 
+               #~ print sprintf("%s und %s \n", $target_uri->to_string, $source_uri->to_string);
+
 					my $result;
-					unless($source_uri->equal($target_uri)){
+					unless(Gnome2::VFS->unescape_string($target_uri->to_string) eq Gnome2::VFS->unescape_string($source_uri->to_string)){
 						unless($target_uri->exists){
 							$result = Gnome2::VFS::Xfer->uri ($source_uri, $target_uri, 'default', 'abort', 'replace', sub{ return TRUE });
 						}else{
@@ -9647,7 +9649,6 @@ sub dlg_upload {
 
 					#everything is fine here
 					if($result eq 'ok'){
-					
 						#places
 						if($unotebook->get_current_page == 2){
 							if($target_uri->is_local){
@@ -9665,6 +9666,21 @@ sub dlg_upload {
 						}else{
 							$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'pubfile'} = Gnome2::VFS->unescape_string($target_uri->get_path);
 							&fct_show_status_message( 1, sprintf($d->get("Publishing %s..."), $file) );
+
+                     my $u1 = Shutter::Upload::UbuntuOne->new($sc);
+                     $u1->connect_to_bus;
+                           
+                     if($u1->is_connected){
+                        my $sd_public = $u1->get_syncdaemon_public;
+                        my $sd_fs     = $u1->get_syncdaemon_fs;
+                        my %meta = %{$sd_fs->get_metadata($file)};
+                        #call publishing api directly if the file is already uploaded
+                        #if not the file is uploaded first and publishing api is called afterwards (&fct_init_u1_watcher)
+                        if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
+                           $sd_public->change_public_access($meta{'share_id'}, $meta{'node_id'}, TRUE);
+                        }
+                     }   
+
 						}
 					
 					}elsif($result eq 'error-file-exists'){

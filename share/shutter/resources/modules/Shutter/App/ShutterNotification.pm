@@ -215,6 +215,8 @@ sub close {
 
 	$self->{_notifications_window}->hide_all;
 	
+   $self->{_notifications_window}->{'pos'} = undef;
+   
 	return 0;
 }
 

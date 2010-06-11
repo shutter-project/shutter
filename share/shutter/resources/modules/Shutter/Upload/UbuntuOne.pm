@@ -82,6 +82,15 @@ sub get_syncdaemon_fs {
 	return $self->{_sd_fs};
 }
 
+sub get_syncdaemon_events {
+	my $self = shift;
+	return FALSE unless $self->is_connected;
+	unless(defined $self->{_sd_ev}){
+		$self->{_sd_ev} = $self->{_service}->get_object("/events", "com.ubuntuone.SyncDaemon.Events");
+	}
+	return $self->{_sd_ev};
+}
+
 sub get_syncdaemon_folders {
 	my $self = shift;
 	return FALSE unless $self->is_connected;
