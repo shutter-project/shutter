@@ -6302,7 +6302,7 @@ sub fct_get_key_by_pubfile {
 	#and loop through hash to find the corresponding key
 	foreach ( keys %session_screens ) {
 		next unless exists $session_screens{$_}->{'links'}->{'ubuntu-one'}->{'pubfile'};
-		print "compare ".$session_screens{$_}->{'links'}->{'ubuntu-one'}->{'pubfile'}." - $filename\n";
+		#~ print "compare ".$session_screens{$_}->{'links'}->{'ubuntu-one'}->{'pubfile'}." - $filename\n";
 		if ( $session_screens{$_}->{'links'}->{'ubuntu-one'}->{'pubfile'} eq $filename ) {
 			$key = $_;
 			last;
