@@ -2820,16 +2820,42 @@ sub fct_get_last_capture{
 	return FALSE;
 }
 
-sub fct_get_upload_links {
+sub fct_ret_upload_links_menu {
 	my $key = shift;
-		
+	
+   my $traytheme = $sc->get_theme;
+   
+   my $menu_links = Gtk2::Menu->new;
+   
+   my $nmenu_entries = 0;
+   	
 	if(defined $key && exists $session_screens{$key}->{'links'}){
 		foreach my $link (keys %{$session_screens{$key}->{'links'}}){
-			print $session_screens{$key}->{'links'}->{$link}, "\n";
+			#~ print Dumper $session_screens{$key}->{'links'}->{$link}, "\n";
+
+         #create menu entry
+         my $menuitem_link = Gtk2::ImageMenuItem->new_with_mnemonic( $session_screens{$key}->{'links'}->{$link}->{'menuentry'} );
+         if(defined $session_screens{$key}->{'links'}->{$link}->{'menuimage'}){
+            if($traytheme->has_icon($session_screens{$key}->{'links'}->{$link}->{'menuimage'})){
+               $menuitem_link->set_image( Gtk2::Image->new_from_icon_name( $session_screens{$key}->{'links'}->{$link}->{'menuimage'}, 'menu' ) );	
+            }
+         }
+         $menuitem_link->signal_connect(
+            activate => sub {
+               $clipboard->set_text($session_screens{$key}->{'links'}->{$link}->{'puburl'});
+            }
+         );
+
+         $menu_links->append($menuitem_link);
+         
+         $nmenu_entries++;
+         
 		}
 	}
+   
+   $menu_links->show_all;
 
-	return FALSE;
+	return ($nmenu_entries,$menu_links);
 }
 
 sub fct_update_actions {
@@ -2915,7 +2941,13 @@ sub fct_update_actions {
 		$sm->{_menuitem_rename}->set_sensitive($n_items);
 		
 		#upload links
-		$sm->{_menuitem_links}->set_sensitive(&fct_get_upload_links($key));
+		#~ $sm->{_menuitem_links}->set_sensitive(&fct_get_upload_links($key));
+		#upload links
+      my ($nmenu_entries, $menu_links) = &fct_ret_upload_links_menu($key);
+		$sm->{_menuitem_links}->set_sensitive($nmenu_entries);
+      if($nmenu_entries){
+         $sm->{_menuitem_links}->set_submenu($menu_links);
+      }
 	
 		#nautilus-sendto is optional, don't enable it when not installed
 		if ( $nautilus_sendto ) {
@@ -2952,8 +2984,12 @@ sub fct_update_actions {
 		$sm->{_menuitem_large_copy_filename}->set_sensitive($n_items);
 
 		#upload links
-		$sm->{_menuitem_large_links}->set_sensitive(&fct_get_upload_links($key));
-	
+      my ($nmenu_entries_large, $menu_links_large) = &fct_ret_upload_links_menu($key);
+		$sm->{_menuitem_large_links}->set_sensitive($nmenu_entries_large);
+      if($nmenu_entries_large){
+         $sm->{_menuitem_large_links}->set_submenu($menu_links_large);
+      }
+
 		#nautilus-sendto is optional, don't enable it when not installed
 		if ( $nautilus_sendto ) {
 			$sm->{_menuitem_large_send}->set_sensitive($n_items);	
@@ -5817,6 +5853,10 @@ sub fct_upload {
 		push( @upload_array, $key );
 		&dlg_upload(@upload_array);
 
+      #update actions
+      #new public links might be available
+      &fct_update_actions(1, $key);
+
 		#session tab
 	} else {
 
@@ -6301,6 +6341,8 @@ sub fct_get_key_by_pubfile {
 	my $key = undef;
 	#and loop through hash to find the corresponding key
 	foreach ( keys %session_screens ) {
+		next unless exists $session_screens{$_}->{'links'};
+		next unless exists $session_screens{$_}->{'links'}->{'ubuntu-one'};
 		next unless exists $session_screens{$_}->{'links'}->{'ubuntu-one'}->{'pubfile'};
 		#~ print "compare ".$session_screens{$_}->{'links'}->{'ubuntu-one'}->{'pubfile'}." - $filename\n";
 		if ( $session_screens{$_}->{'links'}->{'ubuntu-one'}->{'pubfile'} eq $filename ) {
@@ -8023,7 +8065,9 @@ sub fct_init_u1_watcher {
          #find corresponding key
          if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
                               
-            $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'puburl'} = $meta{'public_url'};
+            $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'puburl'}     = $meta{'public_url'};
+            $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuentry'}  = $d->get("Copy Ubuntu One public URL");
+            $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuimage'}  = "ubuntuone";
             
             #changed to public
             if($meta{'is_public'}){
@@ -9673,11 +9717,16 @@ sub dlg_upload {
                      if($u1->is_connected){
                         my $sd_public = $u1->get_syncdaemon_public;
                         my $sd_fs     = $u1->get_syncdaemon_fs;
-                        my %meta = %{$sd_fs->get_metadata($file)};
-                        #call publishing api directly if the file is already uploaded
-                        #if not the file is uploaded first and publishing api is called afterwards (&fct_init_u1_watcher)
-                        if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
-                           $sd_public->change_public_access($meta{'share_id'}, $meta{'node_id'}, TRUE);
+                        my %meta;
+                        eval{
+                           %meta = %{$sd_fs->get_metadata($file)};
+                        };
+                        unless($@){
+                           #call publishing api directly if the file is already uploaded
+                           #if not the file is uploaded first and publishing api is called afterwards (&fct_init_u1_watcher)
+                           if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
+                              $sd_public->change_public_access($meta{'share_id'}, $meta{'node_id'}, TRUE);
+                           }
                         }
                      }   
 
