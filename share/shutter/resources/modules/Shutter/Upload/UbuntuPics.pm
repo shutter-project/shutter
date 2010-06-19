@@ -22,7 +22,6 @@
 
 package Shutter::Upload::UbuntuPics;
 
-use SelfLoader;
 use utf8;
 use strict;
 use WWW::Mechanize;
@@ -64,10 +63,6 @@ sub new {
 	return $self;
 }
 
-1;
-
-__DATA__
-
 sub upload {
 	my ( $self, $upload_filename, $username, $password ) = @_;
 
@@ -89,7 +84,13 @@ sub upload {
 	utf8::encode $username;
 	if ( $username ne "" && $password ne "" ) {
 
-		$self->{_mech}->get("http://www.ubuntu-pics.de/login.html");
+		eval{
+			$self->{_mech}->get("http://www.ubuntu-pics.de/login.html");
+		};
+		if($@){
+			$self->{_links}{'status'} = $@;
+			return %{ $self->{_links} };	
+		}
 		$self->{_http_status} = $self->{_mech}->status();
 		unless ( is_success( $self->{_http_status} ) ) {
 			$self->{_links}{'status'} = $self->{_http_status};
@@ -116,7 +117,13 @@ sub upload {
 		}
 	}
 
-	$self->{_mech}->get("http://www.ubuntu-pics.de/easy.html");
+	eval{
+		$self->{_mech}->get("http://www.ubuntu-pics.de/easy.html");
+	};
+	if($@){
+		$self->{_links}{'status'} = $@;
+		return %{ $self->{_links} };	
+	}
 	$self->{_http_status} = $self->{_mech}->status();
 	unless ( is_success( $self->{_http_status} ) ) {
 		$self->{_links}{'status'} = $self->{_http_status};
@@ -204,30 +211,30 @@ sub create_tab {
 		),
 		TRUE, TRUE, 0
 	);
-	$upload_hbox->pack_start( $label_status, TRUE, TRUE, 0 );
-	my $entry_thumb1     = Gtk2::Entry->new();
+	
+   $upload_hbox->pack_start( $label_status, TRUE, TRUE, 0 );
+	
+   my $entry_thumb1     = Gtk2::Entry->new();
 	my $entry_thumb2     = Gtk2::Entry->new();
 	my $entry_bbcode     = Gtk2::Entry->new();
 	my $entry_ubuntucode = Gtk2::Entry->new();
 	my $entry_direct     = Gtk2::Entry->new();
-	my $label_thumb1
-		= Gtk2::Label->new( $self->{_gettext_object}->get("Thumbnail for websites (with border)") );
-	my $label_thumb2 = Gtk2::Label->new(
-		$self->{_gettext_object}->get("Thumbnail for websites (without border)") );
-	my $label_bbcode = Gtk2::Label->new( $self->{_gettext_object}->get("Thumbnail for forums") );
-	my $label_ubuntucode
-		= Gtk2::Label->new( $self->{_gettext_object}->get("Thumbnail for Ubuntuusers.de forum") );
-	my $label_direct = Gtk2::Label->new( $self->{_gettext_object}->get("Direct link") );
-	$entry_thumb1->set_text( $self->{_links}{'thumb1'} );
+   
+	my $label_thumb1     = Gtk2::Label->new( $self->{_gettext_object}->get("Thumbnail for websites (with border)") );
+	my $label_thumb2     = Gtk2::Label->new( $self->{_gettext_object}->get("Thumbnail for websites (without border)") );
+	my $label_bbcode     = Gtk2::Label->new( $self->{_gettext_object}->get("Thumbnail for forums") );
+	my $label_ubuntucode = Gtk2::Label->new( $self->{_gettext_object}->get("Thumbnail for Ubuntuusers.de forum") );
+	my $label_direct     = Gtk2::Label->new( $self->{_gettext_object}->get("Direct link") );
+	
+   $entry_thumb1->set_text( $self->{_links}{'thumb1'} );
 	$entry_thumb2->set_text( $self->{_links}{'thumb2'} );
 	$entry_bbcode->set_text( $self->{_links}{'bbcode'} );
 	$entry_ubuntucode->set_text( $self->{_links}{'ubuntucode'} );
 	$entry_direct->set_text( $self->{_links}{'direct'} );
 
 	my $upload_copy1 = Gtk2::Button->new;
-	$tooltips->set_tip( $upload_copy1,
-		$self->{_gettext_object}->get("Copy this code to clipboard") );
-	$upload_copy1->set_image( Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
+	$tooltips->set_tip( $upload_copy1, $self->{_gettext_object}->get("Copy this code to clipboard") );
+   $upload_copy1->set_image( Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy1->signal_connect(
 		'clicked' => sub {
 			my ( $widget, $entry ) = @_;
@@ -237,8 +244,7 @@ sub create_tab {
 	);
 
 	my $upload_copy2 = Gtk2::Button->new;
-	$tooltips->set_tip( $upload_copy2,
-		$self->{_gettext_object}->get("Copy this code to clipboard") );
+	$tooltips->set_tip( $upload_copy2, $self->{_gettext_object}->get("Copy this code to clipboard") );
 	$upload_copy2->set_image( Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy2->signal_connect(
 		'clicked' => sub {
@@ -249,8 +255,7 @@ sub create_tab {
 	);
 
 	my $upload_copy3 = Gtk2::Button->new;
-	$tooltips->set_tip( $upload_copy3,
-		$self->{_gettext_object}->get("Copy this code to clipboard") );
+	$tooltips->set_tip( $upload_copy3, $self->{_gettext_object}->get("Copy this code to clipboard") );
 	$upload_copy3->set_image( Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy3->signal_connect(
 		'clicked' => sub {
@@ -259,9 +264,9 @@ sub create_tab {
 		},
 		$entry_bbcode
 	);
+   
 	my $upload_copy4 = Gtk2::Button->new;
-	$tooltips->set_tip( $upload_copy4,
-		$self->{_gettext_object}->get("Copy this code to clipboard") );
+	$tooltips->set_tip( $upload_copy4, $self->{_gettext_object}->get("Copy this code to clipboard") );
 	$upload_copy4->set_image( Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy4->signal_connect(
 		'clicked' => sub {
@@ -270,9 +275,9 @@ sub create_tab {
 		},
 		$entry_ubuntucode
 	);
+   
 	my $upload_copy5 = Gtk2::Button->new;
-	$tooltips->set_tip( $upload_copy5,
-		$self->{_gettext_object}->get("Copy this code to clipboard") );
+	$tooltips->set_tip( $upload_copy5, $self->{_gettext_object}->get("Copy this code to clipboard") );
 	$upload_copy5->set_image( Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
 	$upload_copy5->signal_connect(
 		'clicked' => sub {

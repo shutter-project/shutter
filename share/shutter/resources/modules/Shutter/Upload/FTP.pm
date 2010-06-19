@@ -22,7 +22,6 @@
 
 package Shutter::Upload::FTP;
 
-use SelfLoader;
 use utf8;
 use strict;
 use Net::FTP;
@@ -61,10 +60,6 @@ sub new {
 	bless $self, $class;
 	return $self;
 }
-
-1;
-
-__DATA__
 
 sub login {
 	my ( $self, $uri, $username, $password ) = @_;

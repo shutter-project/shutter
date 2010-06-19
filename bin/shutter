@@ -64,7 +64,7 @@ use List::Util qw/ max min /;
 use XML::Simple;
 
 #DBus message system
-use Net::DBus qw/ dbus_string /;
+use Net::DBus qw/ dbus_string dbus_boolean /;
 
 #HTTP Status code processing
 use HTTP::Status;
@@ -86,8 +86,8 @@ use Digest::MD5  qw(md5_hex);
 #define constants
 #--------------------------------------
 use constant MAX_ERROR 			=> 5;
-#~ use constant SHUTTER_REV        => "Rev.experimental branch";
-use constant SHUTTER_REV        => "Rev.847";
+#~ use constant SHUTTER_REV      => "Rev.experimental branch";
+use constant SHUTTER_REV      => "Rev.847";
 use constant SHUTTER_NAME		=> "Shutter";
 use constant SHUTTER_VERSION	=> "v0.86.2";
 
@@ -140,6 +140,7 @@ $ENV{ 'HOME' } = File::HomeDir->my_home;
 my $gnome_web_photo = TRUE;
 my $nautilus_sendto = TRUE;
 my $goocanvas       = TRUE;
+my $ubuntuone       = TRUE;
 &fct_init_depend;
 
 #--------------------------------------
@@ -183,6 +184,7 @@ require Shutter::Upload::ImageBanana;
 require Shutter::Upload::UbuntuPics;
 require Shutter::Upload::ImageShack;
 require Shutter::Upload::FTP;
+require Shutter::Upload::UbuntuOne;
 
 #--------------------------------------
 
@@ -234,6 +236,10 @@ if($goocanvas){
 	$view_d->set_interpolation ('tiles');	
 	$view_d->set_tool($selector_d);
 }
+
+#UbuntuOne Client
+my $u1 = undef;
+my $u1_watcher = &fct_init_u1_watcher;
 
 #data structures
 #--------------------------------------
@@ -454,7 +460,7 @@ unless ( $sc->get_disable_systray ) {
 	if ( Gtk2->CHECK_VERSION( 2, 10, 0 ) ) {
 		$tray = Gtk2::StatusIcon->new();
 		
-		$tray->set_from_icon_name("shutter");
+		$tray->set_from_icon_name("shutter-panel");
 		$tray->set_visible(1);
 		$tray->{'hid'} = $tray->signal_connect(
 			'popup-menu' => sub { &evt_show_systray_statusicon; },
@@ -469,7 +475,7 @@ unless ( $sc->get_disable_systray ) {
 		);
 	} else {
 		
-		my $tray_image = Gtk2::Image->new_from_icon_name( 'shutter', 'large-toolbar' );
+		my $tray_image = Gtk2::Image->new_from_icon_name( 'shutter-panel', 'large-toolbar' );
 		
 		#eventbox with shutter logo
 		$tray_box = Gtk2::EventBox->new;
@@ -2818,6 +2824,44 @@ sub fct_get_last_capture{
 	return FALSE;
 }
 
+sub fct_ret_upload_links_menu {
+	my $key = shift;
+	
+   my $traytheme = $sc->get_theme;
+   
+   my $menu_links = Gtk2::Menu->new;
+   
+   my $nmenu_entries = 0;
+   	
+	if(defined $key && exists $session_screens{$key}->{'links'}){
+		foreach my $link (keys %{$session_screens{$key}->{'links'}}){
+			#~ print Dumper $session_screens{$key}->{'links'}->{$link}, "\n";
+
+         #create menu entry
+         my $menuitem_link = Gtk2::ImageMenuItem->new_with_mnemonic( $session_screens{$key}->{'links'}->{$link}->{'menuentry'} );
+         if(defined $session_screens{$key}->{'links'}->{$link}->{'menuimage'}){
+            if($traytheme->has_icon($session_screens{$key}->{'links'}->{$link}->{'menuimage'})){
+               $menuitem_link->set_image( Gtk2::Image->new_from_icon_name( $session_screens{$key}->{'links'}->{$link}->{'menuimage'}, 'menu' ) );	
+            }
+         }
+         $menuitem_link->signal_connect(
+            activate => sub {
+               $clipboard->set_text($session_screens{$key}->{'links'}->{$link}->{'puburl'});
+            }
+         );
+
+         $menu_links->append($menuitem_link);
+         
+         $nmenu_entries++;
+         
+		}
+	}
+   
+   $menu_links->show_all;
+
+	return ($nmenu_entries,$menu_links);
+}
+
 sub fct_update_actions {
 	my $n_items = shift;
 	my $key 	= shift;
@@ -2827,6 +2871,17 @@ sub fct_update_actions {
 		#does the file still exist?
 		if(defined $key){
 			return FALSE unless exists $session_screens{$key};
+		}
+		
+		#TRAY
+		#--------------------------------------
+		
+		#last capture
+		foreach($tray_menu->get_children){
+			if ($_->get_name eq 'redoshot'){
+				$_->set_sensitive(&fct_get_last_capture);
+				last;
+			}	
 		}
 
 		#TOOLBAR
@@ -2888,6 +2943,15 @@ sub fct_update_actions {
 		$sm->{_menuitem_reopen_default}->set_sensitive($n_items);
 		$sm->{_menuitem_reopen}->set_sensitive($n_items);
 		$sm->{_menuitem_rename}->set_sensitive($n_items);
+		
+		#upload links
+		#~ $sm->{_menuitem_links}->set_sensitive(&fct_get_upload_links($key));
+		#upload links
+      my ($nmenu_entries, $menu_links) = &fct_ret_upload_links_menu($key);
+		$sm->{_menuitem_links}->set_sensitive($nmenu_entries);
+      if($nmenu_entries){
+         $sm->{_menuitem_links}->set_submenu($menu_links);
+      }
 	
 		#nautilus-sendto is optional, don't enable it when not installed
 		if ( $nautilus_sendto ) {
@@ -2922,7 +2986,14 @@ sub fct_update_actions {
 		$sm->{_menuitem_large_trash}->set_sensitive($n_items);
 		$sm->{_menuitem_large_copy}->set_sensitive($n_items);
 		$sm->{_menuitem_large_copy_filename}->set_sensitive($n_items);
-	
+
+		#upload links
+      my ($nmenu_entries_large, $menu_links_large) = &fct_ret_upload_links_menu($key);
+		$sm->{_menuitem_large_links}->set_sensitive($nmenu_entries_large);
+      if($nmenu_entries_large){
+         $sm->{_menuitem_large_links}->set_submenu($menu_links_large);
+      }
+
 		#nautilus-sendto is optional, don't enable it when not installed
 		if ( $nautilus_sendto ) {
 			$sm->{_menuitem_large_send}->set_sensitive($n_items);	
@@ -3736,7 +3807,7 @@ sub fct_save_settings {
 
 	#we store the version info, so we know if there was a new version installed
 	#when starting new version we clear the cache on first startup
-	$settings{'general'}->{'app_version'} = SHUTTER_VERSION . SHUTTER_REV;
+	$settings{'general'}->{'app_version'} = $sc->get_version . $sc->get_rev;
 
 	$settings{'general'}->{'last_profile'}      = $combobox_settings_profiles->get_active;
 	$settings{'general'}->{'last_profile_name'} = $combobox_settings_profiles->get_active_text || "";
@@ -3745,21 +3816,23 @@ sub fct_save_settings {
 	$settings{'gui'}->{'btoolbar_active'} = $sm->{_menuitem_btoolbar}->get_active();
 
 	#recently used
-	$settings{'recent'}->{'ruu_tab'} 	= $sc->get_ruu_tab;
-	$settings{'recent'}->{'ruu_detail'} = $sc->get_ruu_detail;
+	$settings{'recent'}->{'ruu_tab'}       = $sc->get_ruu_tab;
+	$settings{'recent'}->{'ruu_hosting'}   = $sc->get_ruu_hosting;
+	$settings{'recent'}->{'ruu_places'}    = $sc->get_ruu_places;
+	$settings{'recent'}->{'ruu_u1'}        = $sc->get_ruu_u1;
 
 	#main
-	$settings{'general'}->{'filetype'} 		 = $combobox_type->get_active;
-	$settings{'general'}->{'quality'}  		 = $scale->get_value();
-	$settings{'general'}->{'filename'} 		 = $filename->get_text();
-	$settings{'general'}->{'folder'} 		 = $saveDir_button->get_current_folder();
-	$settings{'general'}->{'save_auto'}      = $save_auto_active->get_active();
-	$settings{'general'}->{'save_ask'}       = $save_ask_active->get_active();
-	$settings{'general'}->{'image_autocopy'} = $image_autocopy_active->get_active();
-	$settings{'general'}->{'fname_autocopy'} = $fname_autocopy_active->get_active();
-	$settings{'general'}->{'no_autocopy'} 	 = $no_autocopy_active->get_active();
-	$settings{'general'}->{'cursor'}		 = $cursor_active->get_active();
-	$settings{'general'}->{'delay'}			 = $delay->get_value();
+	$settings{'general'}->{'filetype'} 		   = $combobox_type->get_active;
+	$settings{'general'}->{'quality'}  		   = $scale->get_value();
+	$settings{'general'}->{'filename'} 		   = $filename->get_text();
+	$settings{'general'}->{'folder'} 		   = $saveDir_button->get_current_folder();
+	$settings{'general'}->{'save_auto'}       = $save_auto_active->get_active();
+	$settings{'general'}->{'save_ask'}        = $save_ask_active->get_active();
+	$settings{'general'}->{'image_autocopy'}  = $image_autocopy_active->get_active();
+	$settings{'general'}->{'fname_autocopy'}  = $fname_autocopy_active->get_active();
+	$settings{'general'}->{'no_autocopy'} 	   = $no_autocopy_active->get_active();
+	$settings{'general'}->{'cursor'}		      = $cursor_active->get_active();
+	$settings{'general'}->{'delay'}			   = $delay->get_value();
 
 	#wrksp -> submenu
 	$settings{'general'}->{'current_monitor_active'} = $current_monitor_active->get_active;
@@ -4215,12 +4288,14 @@ sub fct_load_settings {
 
 				#recently used
 				$sc->set_ruu_tab($settings_xml->{'recent'}->{'ruu_tab'});
-				$sc->set_ruu_detail($settings_xml->{'recent'}->{'ruu_detail'});
+				$sc->set_ruu_hosting($settings_xml->{'recent'}->{'ruu_hosting'});
+				$sc->set_ruu_places($settings_xml->{'recent'}->{'ruu_places'});
+				$sc->set_ruu_u1($settings_xml->{'recent'}->{'ruu_u1'});
 							
 				#we store the version info, so we know if there was a new version installed
 				#when starting new version we clear the cache on first startup
 				if (defined $settings_xml->{'general'}->{'app_version'}){
-					if(SHUTTER_VERSION . SHUTTER_REV ne $settings_xml->{'general'}->{'app_version'}){
+					if($sc->get_version . $sc->get_rev ne $settings_xml->{'general'}->{'app_version'}){
 						$sc->set_clear_cache(TRUE);
 					}	
 				}else{
@@ -5779,8 +5854,12 @@ sub fct_upload {
 	if ($key) {
 
 		return FALSE unless &fct_screenshot_exists($key);
-		push( @upload_array, $session_screens{$key}->{'long'} );
+		push( @upload_array, $key );
 		&dlg_upload(@upload_array);
+
+      #update actions
+      #new public links might be available
+      &fct_update_actions(1, $key);
 
 		#session tab
 	} else {
@@ -5792,7 +5871,7 @@ sub fct_upload {
 				if ( defined $iter ) {
 					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
 					return FALSE unless &fct_screenshot_exists($key);
-					push( @upload_array, $session_screens{$key}->{'long'} );
+					push( @upload_array, $key );
 				}
 
 			},
@@ -6237,6 +6316,46 @@ sub fct_update_info_and_tray {
 	}
 
 	return TRUE;
+}
+
+sub fct_get_key_by_filename {
+	my $filename = shift;
+	
+	return unless $filename;
+
+	my $key = undef;
+	#and loop through hash to find the corresponding key
+	foreach ( keys %session_screens ) {
+		next unless exists $session_screens{$_}->{'long'};
+		#~ print "compare ".$session_screens{$_}->{'long'}." - $filename\n";
+		if ( $session_screens{$_}->{'long'} eq $filename ) {
+			$key = $_;
+			last;
+		}
+	}
+	
+	return $key;
+}
+
+sub fct_get_key_by_pubfile {
+	my $filename = shift;
+	
+	return unless $filename;
+
+	my $key = undef;
+	#and loop through hash to find the corresponding key
+	foreach ( keys %session_screens ) {
+		next unless exists $session_screens{$_}->{'links'};
+		next unless exists $session_screens{$_}->{'links'}->{'ubuntu-one'};
+		next unless exists $session_screens{$_}->{'links'}->{'ubuntu-one'}->{'pubfile'};
+		#~ print "compare ".$session_screens{$_}->{'links'}->{'ubuntu-one'}->{'pubfile'}." - $filename\n";
+		if ( $session_screens{$_}->{'links'}->{'ubuntu-one'}->{'pubfile'} eq $filename ) {
+			$key = $_;
+			last;
+		}
+	}
+	
+	return $key;
 }
 
 sub fct_get_file_by_index {
@@ -6828,6 +6947,7 @@ sub fct_get_next_filename {
 		#($w, $h, $name)
 		$search_pattern =~ s/\\\$w/\\d{1,}/g;
 		$search_pattern =~ s/\\\$h/\\d{1,}/g;
+		$search_pattern =~ s/\\\$profile/.{1,}/g;
 		$search_pattern =~ s/\\\$name/.{1,}/g;
 
 		print "Searching for files with pattern: $search_pattern\n"
@@ -7338,7 +7458,8 @@ sub fct_ret_tray_menu {
 	my $menuitem_redoshot = Gtk2::ImageMenuItem->new_with_mnemonic ( $d->get('_Redo last screenshot') );
 	$menuitem_redoshot->set_image(Gtk2::Image->new_from_stock('gtk-refresh', 'menu'));
 	$menuitem_redoshot->signal_connect( 'activate', \&evt_take_screenshot, 'redoshot' );
-	$menuitem_redoshot->set_sensitive(&fct_get_last_capture);
+	$menuitem_redoshot->set_name('redoshot');
+	$menuitem_redoshot->set_sensitive(FALSE);
 	
 	#preferences	
 	my $menuitem_settings = Gtk2::ImageMenuItem->new_from_stock( 'gtk-preferences' );
@@ -7952,10 +8073,69 @@ sub fct_set_model_plugins {
 	return TRUE;
 }
 
+sub fct_init_u1_watcher {
+
+   return FALSE unless $ubuntuone;
+
+   my $u1 = Shutter::Upload::UbuntuOne->new($sc);
+   $u1->connect_to_bus;
+				
+   if($u1->is_connected){
+      
+      my $sd_status = $u1->get_syncdaemon_status;
+      my $sd_public = $u1->get_syncdaemon_public;
+      my $sd_fs     = $u1->get_syncdaemon_fs;
+
+      $sd_status->connect_to_signal('UploadFinished', sub {
+         my $file = shift;
+         my %meta = %{$sd_fs->get_metadata($file)};
+         #~ print Dumper %meta;
+         #find corresponding key
+         if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
+            $sd_public->change_public_access($meta{'share_id'}, $meta{'node_id'}, TRUE);
+         }
+      });               
+      
+      $sd_public->connect_to_signal('PublicAccessChanged', sub {
+         my $meta_ref = shift;
+         my %meta = %{$meta_ref};
+         #~ print Dumper %meta;
+         #find corresponding key
+         if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
+                              
+            $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'puburl'}     = $meta{'public_url'};
+            $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuentry'}  = $d->get("Copy Ubuntu One public URL");
+            $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuimage'}  = "ubuntuone";
+            
+            #changed to public
+            if($meta{'is_public'}){
+               #copy to clipboard
+               $clipboard->set_text($meta{'public_url'});
+            
+               #show as notification
+               my $notify 	= $sc->get_notification_object;
+               $notify->show( $d->get("Successfully published"), sprintf($d->get("The file %s was successfully published at %s1."), $session_screens{$key}->{'long'}, $meta{'public_url'} ) );
+            
+               &fct_show_status_message( 1, $shf->utf8_decode(sprintf($d->get("%s published at %s"), $meta{'path'}, $meta{'public_url'})) );
+            #publishing stopped
+            }else{							
+               #show as notification
+               my $notify 	= $sc->get_notification_object;
+               $notify->show( $d->get("Unpublished"), sprintf($d->get("The file %s is no longer published. The external link is not available anymore."), $meta{'path'} ) );
+            
+               &fct_show_status_message( 1, $shf->utf8_decode(sprintf($d->get("The file %s is no longer published."), $meta{'path'})) );									
+            }
+                        
+         }
+      });
+   
+   }
+   
+   return $u1;
+}
+
 sub fct_init_depend {
 
-	print "\nINFO: checking installed components...\n\n";
-	
 	#imagemagick/perlmagick
 	unless ( File::Which::which('convert') ) {
 		die "ERROR: imagemagick is missing --> aborting!\n\n";
@@ -7979,6 +8159,12 @@ sub fct_init_depend {
 		$goocanvas = FALSE;
 	}
 
+   eval { require Net::DBus::GLib };
+	if ($@) {
+		warn "WARNING: Net::DBus::GLib is missing --> Ubuntu One support will be disabled!\n\n";
+		$ubuntuone = FALSE;
+	}
+
 	return TRUE;
 }
 
@@ -8000,6 +8186,9 @@ sub fct_init {
 				$sc->set_debug(TRUE);
 			} elsif ( $arg eq "help" ) {
 				$shf->usage;
+				exit;
+			} elsif ( $arg eq "version" ) {
+				print $sc->get_version, " ", $sc->get_rev, "\n";
 				exit;
 			} elsif ( $arg eq "clear_cache" ) {
 				$sc->set_clear_cache(TRUE);
@@ -8896,14 +9085,13 @@ sub dlg_upload {
 	my $dlg_header = $d->get("Upload / Export");
 	my $hosting_dialog = Gtk2::Dialog->new( $dlg_header, $window, [qw/modal destroy-with-parent/] );
 
-	my $cancel_button = $hosting_dialog->add_button( 'gtk-cancel',       'reject' );
+	my $close_button = $hosting_dialog->add_button( 'gtk-close', 'close' );
 	my $upload_button = $hosting_dialog->add_button( $d->get("_Upload"), 'accept' );
 	$upload_button->set_image( Gtk2::Image->new_from_stock( 'gtk-go-up', 'button' ) );
 	$hosting_dialog->set_default_response('accept');
 	my $model = Gtk2::ListStore->new( 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String' );
 
 	foreach ( keys %accounts ) {
-
 		#cut username so the dialog will not explode ;-)
 		my $short_username = $accounts{$_}->{'username'};
 		if ( length $accounts{$_}->{'username'} > 10 ) {
@@ -8957,28 +9145,65 @@ sub dlg_upload {
 	$hosting->set_active(0);
 
 	#public hosting settings
-	my $pub_hbox1 = Gtk2::HBox->new( FALSE, 12 );
-	my $pub_hbox2 = Gtk2::HBox->new( FALSE, 12 );
-	my $pub_vbox1 = Gtk2::VBox->new( FALSE, 12 );
-	$pub_hbox2->set_border_width(12);
-	$pub_hbox1->set_border_width(12);
-	$pub_hbox2->set_border_width(12);
-	$pub_vbox1->set_border_width(12);
+	my $pub_hbox1 = Gtk2::HBox->new( FALSE, 0 );
+	my $pub_hbox2 = Gtk2::HBox->new( FALSE, 0 );
+	my $pub_vbox1 = Gtk2::VBox->new( FALSE, 0 );
 	$pub_hbox1->pack_start( Gtk2::Label->new( $d->get("Choose account"). ":" ), FALSE, FALSE, 6 );
 	$pub_hbox1->pack_start_defaults($hosting);
-	$pub_vbox1->pack_start($pub_hbox1, FALSE, FALSE, 6);
+	$pub_vbox1->pack_start($pub_hbox1, FALSE, FALSE, 3);
 
 	#places settings
-	my $pl_hbox1 = Gtk2::HBox->new( FALSE, 12 );
-	my $pl_vbox1 = Gtk2::VBox->new( FALSE, 12 );
- 	$pl_hbox1->set_border_width(12);
- 	$pl_vbox1->set_border_width(12);
+	my $pl_hbox1 = Gtk2::HBox->new( FALSE, 0 );
+	my $pl_vbox1 = Gtk2::VBox->new( FALSE, 0 );
 	my $places_fc = Gtk2::FileChooserButton->new_with_backend ("Shutter - " . $d->get("Choose folder"), 'select-folder', 'gnome-vfs');	
 	$places_fc->set('local-only' => FALSE);
 	$pl_hbox1->pack_start( Gtk2::Label->new( $d->get("Choose folder"). ":" ), FALSE, FALSE, 6 );
 	$pl_hbox1->pack_start_defaults($places_fc);
-	$pl_vbox1->pack_start($pl_hbox1, FALSE, FALSE, 6);
+	$pl_vbox1->pack_start($pl_hbox1, FALSE, FALSE, 3);
 
+	#u1 settings
+	my $u1_vbox1 = Gtk2::VBox->new( FALSE, 0 );
+ 	$u1_vbox1->set_border_width(12);
+ 		
+	my $u1_hbox_fc = Gtk2::HBox->new( FALSE, 0 );
+	my $u1_hbox_hint = Gtk2::HBox->new( FALSE, 0 );
+	my $u1_hbox_hint2 = Gtk2::HBox->new( FALSE, 0 );
+	my $u1_hbox_st = Gtk2::HBox->new( FALSE, 0 );
+
+	my $u1_label_status = Gtk2::Label->new( $d->get("Status"). ":" );
+	my $u1_status = Gtk2::Label->new();
+
+	my $u1_label_fc = Gtk2::Label->new( $d->get("Choose folder"). ":" );
+	my $u1_fc = Gtk2::FileChooserButton->new_with_backend ("Shutter - " . $d->get("Choose folder"), 'select-folder', 'gnome-vfs');	
+	$u1_fc->set('local-only' => FALSE);
+
+	my $u1_hint = Gtk2::Label->new();
+	my $u1_hint2 = Gtk2::Label->new();
+
+	$u1_hbox_st->pack_start( $u1_label_status, FALSE, FALSE, 6 );
+	$u1_hbox_st->pack_start_defaults($u1_status);
+		
+	$u1_hbox_fc->pack_start( $u1_label_fc, FALSE, FALSE, 6 );
+	$u1_hbox_fc->pack_start_defaults($u1_fc);
+
+	$u1_hbox_hint->pack_start($u1_hint, TRUE, TRUE, 6);
+	$u1_hbox_hint2->pack_start($u1_hint2, TRUE, TRUE, 6);
+
+	$u1_label_fc->set_alignment( 0, 0.5 );
+	$u1_label_status->set_alignment( 0, 0.5 );
+	$u1_status->set_alignment( 0, 0.5 );
+	$u1_hint->set_alignment( 0, 0.5 );
+	$u1_hint2->set_alignment( 0, 0.5 );
+
+	my $sg_u1 = Gtk2::SizeGroup->new('horizontal');
+	$sg_u1->add_widget($u1_label_fc);
+	$sg_u1->add_widget($u1_label_status);
+		
+	$u1_vbox1->pack_start($u1_hbox_st, FALSE, FALSE, 3);
+	$u1_vbox1->pack_start($u1_hbox_fc, FALSE, FALSE, 3);
+	$u1_vbox1->pack_start($u1_hbox_hint, FALSE, FALSE, 3);
+	$u1_vbox1->pack_start($u1_hbox_hint2, FALSE, FALSE, 3);
+	
 	#ftp settings
 	#we are using the same widgets as in the settings and populate
 	#them with saved values when possible
@@ -8989,7 +9214,7 @@ sub dlg_upload {
 	my $ftp_hbox5_dlg = Gtk2::HBox->new( FALSE, 0 );
 
 	#uri
-	my $ftp_entry_label_dlg = Gtk2::Label->new( $d->get("URI") . ":");
+	my $ftp_entry_label_dlg = Gtk2::Label->new( $d->get("URI"). ":");
 	$ftp_hbox1_dlg->pack_start( $ftp_entry_label_dlg, FALSE, TRUE, 10 );
 	my $ftp_remote_entry_dlg = Gtk2::Entry->new;
 	$ftp_remote_entry_dlg->set_text( $ftp_remote_entry->get_text );
@@ -9075,25 +9300,98 @@ sub dlg_upload {
 
 	#setup notebook
 	my $unotebook = Gtk2::Notebook->new;
-	$unotebook->set( homogeneous  => TRUE );
+	#~ $unotebook->set( homogeneous  => TRUE );
 	
 	$unotebook->append_page($pub_vbox1, $d->get("Public hosting"));
 	$unotebook->append_page($ftp_vbox_dlg, "FTP");
 	$unotebook->append_page($pl_vbox1, $d->get("Places"));
-	
+	$unotebook->append_page($u1_vbox1, $d->get("Ubuntu One"));
+
 	$unotebook->signal_connect( 'switch-page' => sub {
 		my ( $unotebook, $pointer, $int ) = @_;
-		
+
+      #change label text
 		my $hbox = $upload_button->get_child->get_child;
-		foreach($hbox->get_children){
-			if($int == 2 && $_ =~ /Gtk2::Label/){
-				$_->set_text_with_mnemonic($d->get("_Export"));
-				last;
-			}elsif($_ =~ /Gtk2::Label/){
+		foreach($hbox->get_children){		
+			if(($int == 0 || $int == 1) && $_ =~ /Gtk2::Label/){
 				$_->set_text_with_mnemonic($d->get("_Upload"));
 				last;
-			}
-		}
+			}elsif($int == 2 && $_ =~ /Gtk2::Label/){
+				$_->set_text_with_mnemonic($d->get("_Export"));
+				last;
+			}elsif($int == 3 && $_ =~ /Gtk2::Label/){      
+				$_->set_text_with_mnemonic($d->get("_Publish"));
+				last;
+         }
+      }
+
+      if($int == 0 || $int == 1 || $int == 2){
+         
+         $upload_button->set_sensitive(TRUE);
+      
+      }elsif($int == 3){
+         
+         #ubuntuone enabled (libs installed)?
+         if($ubuntuone){
+            
+            #connect
+            $u1 = Shutter::Upload::UbuntuOne->new($sc);
+            my $con_result = $u1->connect_to_bus;
+            
+            #set initial status
+            $u1_status->set_text($d->get("Disconnected"));
+            
+            if($u1->is_connected){
+         
+               #current status
+               my ($is_connected, $is_online, $text) = $u1->get_current_status;
+               $u1_status->set_text($text);
+               
+               #is current folder synced?
+               $u1_fc->signal_connect('current-folder-changed', sub {
+                  #is current folder synced?
+                  if($u1->is_synced_folder($u1_fc->get_current_folder)){
+                     $u1_hint->set_markup("<span size='small'>" . 
+                                    sprintf($d->nget("Folder %s is synchronized with Ubuntu One.\nThe selected file will be copied to that folder before being published.", "Folder %s is synchronized with Ubuntu One.\nThe selected files will be copied to that folder before being published.", scalar @files_to_upload) , "'".$u1_fc->get_current_folder."'") 
+                                    . "</span>");								
+                     $u1_hint2->set_markup("<span size='small'>" . 
+                                    $d->nget("<b>Please note:</b> The selected file will be published in a background process.\nYou will be notified when the process has finished.", "<b>Please note:</b> The selected files will be published in a background process.\nYou will be notified when the process has finished.", scalar @files_to_upload)
+                                    . "</span>");	
+                     $upload_button->set_sensitive(TRUE);													
+                  }else{
+                     $u1_hint->set_markup("<span size='small' color='red'>" . 
+                                    sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_current_folder."'") 
+                                    . "</span>");
+                     $upload_button->set_sensitive(FALSE);
+                  }							
+               });
+            
+               #emit first event manually
+               $u1_fc->signal_emit('current-folder-changed');
+         
+               my $sd_status = $u1->get_syncdaemon_status;
+               
+               $sd_status->connect_to_signal('StatusChanged', sub {
+                  my $status_ref = shift;
+                  #~ print Dumper $status_ref;
+                  ($is_connected, $is_online, $text) = $u1->get_current_status($status_ref);
+                  $u1_status->set_text($text);
+               });
+            
+            #not connected   
+            }else{
+               $u1_hint->set_markup("<span size='small' color='red'>" . $con_result . "</span>");
+               $upload_button->set_sensitive(FALSE);
+            }
+         
+         #ubuntuone enabled?
+         }else{
+            $u1_status->set_text($d->get("Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature"));
+            $upload_button->set_sensitive(FALSE);
+            $u1_fc->set_sensitive(FALSE);
+         }
+         
+      }  
 		
 	} );
 
@@ -9112,35 +9410,26 @@ sub dlg_upload {
 		$unotebook->set_current_page($sc->get_ruu_tab);
 	}
 	#and the relevant detail (folder, uploader etc.)
-	#hosting service
-	if(defined $sc->get_ruu_detail && $sc->get_ruu_detail){		
-		if($sc->get_ruu_tab == 0){
-			$hosting->set_active($sc->get_ruu_detail);
-		#export to folder	
-		}elsif($sc->get_ruu_tab == 2){
-			if(defined $sc->get_ruu_detail && $shf->folder_exists($sc->get_ruu_detail)){
-				$places_fc->set_current_folder( $sc->get_ruu_detail );
-			}	
-		}
-	}	
-	
-	UPDIALOG: while ($hosting_dialog) {
+	if(defined $sc->get_ruu_hosting && $sc->get_ruu_hosting){		
+      $hosting->set_active($sc->get_ruu_hosting);
+   }
+   if(defined $sc->get_ruu_places && $shf->folder_exists($sc->get_ruu_places)){
+      $places_fc->set_current_folder($sc->get_ruu_places);
+   }	
+   if(defined $sc->get_ruu_u1 && $shf->folder_exists($sc->get_ruu_u1)){
+      $u1_fc->set_current_folder($sc->get_ruu_u1);
+   }
 
-		#initial state of dialog
-		$upload_button->set_sensitive(TRUE);
-		$cancel_button->set_sensitive(TRUE);
-		$hosting_progress->hide;
-
-		#DIALOG RUN
-		my $hosting_response = $hosting_dialog->run;
-
-		#running state of dialog
-		$upload_button->set_sensitive(FALSE);
-		$cancel_button->set_sensitive(FALSE);
-		$hosting_progress->show;
+	#DIALOG RUN
+	while (my $hosting_response = $hosting_dialog->run) {
 
 		#start upload
 		if ( $hosting_response eq "accept" ) {
+
+         #running state of dialog
+         $upload_button->set_sensitive(FALSE);
+         $close_button->set_sensitive(FALSE);
+         $hosting_progress->show;
 
 			#public hosting
 			if ( $unotebook->get_current_page == 0 ) {
@@ -9154,7 +9443,10 @@ sub dlg_upload {
 						= Shutter::Upload::UbuntuPics->new( $hosting_host, $sc->get_debug, $shutter_root, $d, $window, SHUTTER_VERSION );
 					my $counter = 1;
 					$hosting_progress->set_fraction(0);
-					foreach my $file ( sort @files_to_upload ) {
+					foreach my $key( sort @files_to_upload ) {
+						
+						my $file = $session_screens{$key}->{'long'};
+						
 						$hosting_progress->set_text($file);
 						
 						#update gui
@@ -9172,7 +9464,7 @@ sub dlg_upload {
 							last if $response == 10;
 							next if $response == 20;
 							redo if $response == 30;
-							next UPDIALOG;
+							next;
 						}
 						$hosting_progress->set_fraction( $counter / @files_to_upload );
 
@@ -9186,7 +9478,10 @@ sub dlg_upload {
 						= Shutter::Upload::ImageBanana->new( $hosting_host, $sc->get_debug, $shutter_root, $d, $window, SHUTTER_VERSION );
 					my $counter = 1;
 					$hosting_progress->set_fraction(0);
-					foreach my $file (@files_to_upload) {
+					foreach my $key (@files_to_upload) {
+						
+						my $file = $session_screens{$key}->{'long'};
+						
 						$hosting_progress->set_text($file);
 
 						#update gui
@@ -9203,7 +9498,7 @@ sub dlg_upload {
 							last if $response == 10;
 							next if $response == 20;
 							redo if $response == 30;
-							next UPDIALOG;
+							next;
 						}
 						$hosting_progress->set_fraction( $counter / @files_to_upload );
 
@@ -9221,7 +9516,9 @@ sub dlg_upload {
 					#upload
 					my $counter = 1;
 					$hosting_progress->set_fraction(0);
-					foreach my $file (@files_to_upload) {
+					foreach my $key (@files_to_upload) {
+						
+						my $file = $session_screens{$key}->{'long'};
 
 						#login
 						eval { $ishack->login($hosting_username, $hosting_password); };
@@ -9229,7 +9526,7 @@ sub dlg_upload {
 							my $response = $sd->dlg_error_message( $d->get("Please check your credentials and try again."),
 								$d->get("Login failed!") );
 
-							next UPDIALOG;
+							next;
 						}
 
 						$hosting_progress->set_text($file);
@@ -9251,7 +9548,7 @@ sub dlg_upload {
 							last if $response == 10;
 							next if $response == 20;
 							redo if $response == 30;
-							next UPDIALOG;
+							next;
 						}
 
 						#get short link
@@ -9277,7 +9574,7 @@ sub dlg_upload {
 							last if $response == 10;
 							next if $response == 20;
 							redo if $response == 30;
-							next UPDIALOG;
+							next;
 						}
 						$hosting_progress->set_fraction( $counter / @files_to_upload );
 
@@ -9299,7 +9596,9 @@ sub dlg_upload {
 				$hosting_progress->set_fraction(0);
 
 				#start upload
-				foreach my $file (sort @files_to_upload) {
+				foreach my $key (sort @files_to_upload) {
+
+					my $file = $session_screens{$key}->{'long'};
 
 					#need to login?
 					my @upload_response;
@@ -9320,7 +9619,7 @@ sub dlg_upload {
 								undef, undef, undef,
 								$upload_response[2]
 							);
-							next UPDIALOG;
+							next;
 						} else {
 							$login = TRUE;
 						}
@@ -9338,6 +9637,9 @@ sub dlg_upload {
 					
 						#everything is fine here
 						&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
+                  #show as notification
+                  my $notify 	= $sc->get_notification_object;
+                  $notify->show( $d->get("Successfully uploaded"), sprintf($d->get("The file %s was successfully uploaded."), $file ) );
 						
 						#copy website url to clipboard
 						if($ftp_wurl_entry_dlg->get_text){
@@ -9372,7 +9674,7 @@ sub dlg_upload {
 							$login = FALSE;
 							redo;
 						} else {
-							next UPDIALOG;
+							next;
 						}
 
 					}
@@ -9381,18 +9683,20 @@ sub dlg_upload {
 					#update gui
 					&fct_update_gui;
 					$counter++;
-				}    #end foreach
-				$uploader->quit;
+				} #end foreach
+				
+            eval { $uploader->quit; };
 			
-			
-			#places using Gnome-VFS
-			} elsif ( $unotebook->get_current_page == 2 ) {
+			#xfer using Gnome-VFS - we use this for u1 as well
+			} elsif ( $unotebook->get_current_page == 2 || $unotebook->get_current_page == 3) {
 		
 				my $counter = 1;
 				$hosting_progress->set_fraction(0);
 
 				#start upload
-				foreach my $file (sort @files_to_upload) {
+				foreach my $key (sort @files_to_upload) {
+					
+					my $file = $session_screens{$key}->{'long'};
 					
 					$hosting_progress->set_text($file);
 					
@@ -9400,24 +9704,70 @@ sub dlg_upload {
 					&fct_update_gui;
 
 					my $source_uri = Gnome2::VFS::URI->new ($file);
-					my $target_uri = Gnome2::VFS::URI->new ($places_fc->get_uri);
+					
+					my $target_uri = undef;
+					#places
+					if($unotebook->get_current_page == 2){
+						$target_uri = Gnome2::VFS::URI->new ($places_fc->get_uri);
+					#u1
+					}else{
+						$target_uri = Gnome2::VFS::URI->new ($u1_fc->get_uri);
+					}
+                              					
 					$target_uri = $target_uri->append_file_name($source_uri->extract_short_name);
 
-					print $source_uri->to_string . " - " . $target_uri->to_string."\n" if $sc->get_debug;
+               #~ print sprintf("%s und %s \n", $target_uri->to_string, $source_uri->to_string);
+
 					my $result;
-					unless($target_uri->exists){
-						$result = Gnome2::VFS::Xfer->uri ($source_uri, $target_uri, 'default', 'abort', 'replace', sub{ return TRUE });
+					unless(Gnome2::VFS->unescape_string($target_uri->to_string) eq Gnome2::VFS->unescape_string($source_uri->to_string)){
+						unless($target_uri->exists){
+							$result = Gnome2::VFS::Xfer->uri ($source_uri, $target_uri, 'default', 'abort', 'replace', sub{ return TRUE });
+						}else{
+							$result = 'error-file-exists';	
+						}
 					}else{
-						$result = 'error-file-exists';	
+						$result = 'ok';
 					}
 
+					#everything is fine here
 					if($result eq 'ok'){
-					
-						#everything is fine here
-						if($target_uri->is_local){
-							&fct_show_status_message( 1, $file . " " . $d->get("exported") );
+						#places
+						if($unotebook->get_current_page == 2){
+							if($target_uri->is_local){
+								&fct_show_status_message( 1, $file . " " . $d->get("exported") );
+                        #show as notification
+                        my $notify 	= $sc->get_notification_object;
+                        $notify->show( $d->get("Successfully exported"), sprintf($d->get("The file %s was successfully exported."), $file ) );
+							}else{
+								&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
+                        #show as notification
+                        my $notify 	= $sc->get_notification_object;
+                        $notify->show( $d->get("Successfully uploaded"), sprintf($d->get("The file %s was successfully uploaded."), $file ) );
+							}
+						#u1 - call publishing API
 						}else{
-							&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
+							$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'pubfile'} = Gnome2::VFS->unescape_string($target_uri->get_path);
+							&fct_show_status_message( 1, sprintf($d->get("Publishing %s..."), $file) );
+
+                     my $u1 = Shutter::Upload::UbuntuOne->new($sc);
+                     $u1->connect_to_bus;
+                           
+                     if($u1->is_connected){
+                        my $sd_public = $u1->get_syncdaemon_public;
+                        my $sd_fs     = $u1->get_syncdaemon_fs;
+                        my %meta;
+                        eval{
+                           %meta = %{$sd_fs->get_metadata($file)};
+                        };
+                        unless($@){
+                           #call publishing api directly if the file is already uploaded
+                           #if not the file is uploaded first and publishing api is called afterwards (&fct_init_u1_watcher)
+                           if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
+                              $sd_public->change_public_access($meta{'share_id'}, $meta{'node_id'}, TRUE);
+                           }
+                        }
+                     }   
+
 						}
 					
 					}elsif($result eq 'error-file-exists'){
@@ -9429,9 +9779,9 @@ sub dlg_upload {
 
 						my $target_path=undef;
 						if($target_uri->is_local){
-							$target_path = Gnome2::VFS->unescape_string_for_display ($target_uri->extract_dirname);
+							$target_path = $shf->utf8_decode(Gnome2::VFS->unescape_string($target_uri->extract_dirname));
 						}else{								
-							$target_path = Gnome2::VFS->unescape_string_for_display ($target_uri->get_scheme."://".$target_uri->get_host_name.$target_uri->extract_dirname);
+							$target_path = $shf->utf8_decode(Gnome2::VFS->unescape_string($target_uri->get_scheme."://".$target_uri->get_host_name.$target_uri->extract_dirname));
 						}
 
 						my $response = $sd->dlg_warning_message(
@@ -9453,12 +9803,26 @@ sub dlg_upload {
 							
 							#check result again
 							if($result eq 'ok'){	
-								#everything is fine here
-								if($target_uri->is_local){
-									&fct_show_status_message( 1, $file . " " . $d->get("exported") );
+
+								#places
+								if($unotebook->get_current_page == 2){
+									if($target_uri->is_local){
+										&fct_show_status_message( 1, $file . " " . $d->get("exported") );
+                              #show as notification
+                              my $notify 	= $sc->get_notification_object;
+                              $notify->show( $d->get("Successfully exported"), sprintf($d->get("The file %s was successfully exported."), $file ) );                             
+									}else{
+										&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
+                              #show as notification
+                              my $notify 	= $sc->get_notification_object;
+                              $notify->show( $d->get("Successfully uploaded"), sprintf($d->get("The file %s was successfully uploaded."), $file ) );                              
+									}
+								#u1
 								}else{
-									&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
-								}			
+									$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'pubfile'} = Gnome2::VFS->unescape_string($target_uri->get_path);
+									&fct_show_status_message( 1, sprintf($d->get("Publishing %s..."), $file) );
+								}
+		
 							} else{
 
 								my $response = &dlg_upload_error_message_gnome_vfs($target_uri, $result);
@@ -9471,7 +9835,7 @@ sub dlg_upload {
 								} elsif ( $response == 40 ) {
 									redo;
 								} else {
-									next UPDIALOG;
+									next;
 								}										
 								
 							}
@@ -9489,7 +9853,7 @@ sub dlg_upload {
 						} elsif ( $response == 40 ) {
 							redo;
 						} else {
-							next UPDIALOG;
+							next;
 						}					
 		
 					}
@@ -9503,24 +9867,21 @@ sub dlg_upload {
 				}
 				
 			}
-			
+
 			#save recently used upload tab
 			$sc->set_ruu_tab($unotebook->get_current_page);
 			#and the relevant detail (folder, uploader etc.)
 			#hosting service		
-			if($sc->get_ruu_tab == 0){
-				$sc->set_ruu_detail($hosting->get_active);
-			#export to folder	
-			}elsif($sc->get_ruu_tab == 2){
-				$sc->set_ruu_detail($places_fc->get_current_folder);
-			}else{
-				$sc->set_ruu_detail(0);
-			}
+         $sc->set_ruu_hosting($hosting->get_active);
+			$sc->set_ruu_places($places_fc->get_current_folder);
+			$sc->set_ruu_u1($u1_fc->get_current_folder);
 			
-			$hosting_dialog->destroy();
-			return TRUE;
+         #set initial state of dialog
+         $upload_button->set_sensitive(TRUE);
+         $close_button->set_sensitive(TRUE);
+         $hosting_progress->hide;
 		
-		# response != accept
+		#response != accept
 		} else {
 			$hosting_dialog->destroy();
 			return FALSE;
@@ -9535,16 +9896,16 @@ sub dlg_upload_error_message_gnome_vfs {
 
 	my $target_path=undef;
 	if($target_uri->is_local){
-		$target_path = Gnome2::VFS->unescape_string_for_display ($target_uri->extract_dirname);
+		$target_path = $shf->utf8_decode(Gnome2::VFS->unescape_string($target_uri->extract_dirname));
 	}else{								
-		$target_path = Gnome2::VFS->unescape_string_for_display ($target_uri->get_scheme."://".$target_uri->get_host_name.$target_uri->extract_dirname);
+		$target_path = $shf->utf8_decode(Gnome2::VFS->unescape_string($target_uri->get_scheme."://".$target_uri->get_host_name.$target_uri->extract_dirname));
 	}
 
 	#retry button
 	my $retry_btn = Gtk2::Button->new_with_mnemonic( $d->get("_Retry") );
 	$retry_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-redo', 'button' ) );
 
-	my $response = $sd->dlg_warning_message( 
+	my $response = $sd->dlg_error_message( 
 		sprintf( $d->get(  "Error while copying the image %s."), "'" . $target_uri->extract_short_name . "'"),
 		sprintf( $d->get(  "There was an error copying the image into %s."), "'" . $target_path . "'" ),
 		$d->get("Skip all"), 
@@ -9565,15 +9926,25 @@ sub dlg_upload_error_message {
 
 	my $response;
 	if ( $status == 999 ) {
-		$response = $sd->dlg_error_message( $d->get("Please check your credentials and try again."), $d->get("Login failed!") );
+		$response = $sd->dlg_error_message( 
+         $d->get("Please check your credentials and try again."), 
+         $d->get("Error while login")
+      );
 	} elsif ( $status == 998 ) {
-		$response = $sd->dlg_error_message( $d->get("Maximum filesize reached!") . " ( $max_filesize )",
-			$d->get("Failed"), $d->get("Skip all"), $d->get("Skip") );
+		$response = $sd->dlg_error_message( 
+         $d->get("Maximum filesize reached"),
+			$d->get("Error while uploading"), 
+         $d->get("Skip all"), $d->get("Skip"), undef,
+         undef, undef, undef,
+         sprintf($d->get("Maximum filesize: %s"), $max_filesize)
+      );
 	} else {
 		$response = $sd->dlg_error_message(
 			$d->get("Please check your connectivity and try again."),
-			$d->get("Connection error!") . " (" . $status . ")",
-			$d->get("Skip all"), $d->get("Skip"), 'gtk-redo'
+			$d->get("Error while connecting"),
+			$d->get("Skip all"), $d->get("Skip"), 'gtk-redo',
+         undef, undef, undef,
+         $status
 		);
 	}
 	return $response;

@@ -51,29 +51,14 @@ sub new {
 			$self->{_notifications_window}->set_colormap($self->{_sc}->get_mainwindow->get_screen->get_rgba_colormap);
 		}
 	
-		#~ $self->{_notifications_window}->double_buffered(FALSE);
-	    $self->{_notifications_window}->set_app_paintable(TRUE);
-	    $self->{_notifications_window}->set_decorated(FALSE);
+      $self->{_notifications_window}->set_app_paintable(TRUE);
+      $self->{_notifications_window}->set_decorated(FALSE);
 		$self->{_notifications_window}->set_skip_taskbar_hint(TRUE);
 		$self->{_notifications_window}->set_skip_pager_hint(TRUE);	    
-	    $self->{_notifications_window}->set_keep_above(TRUE);
-	    $self->{_notifications_window}->set_accept_focus(FALSE);
-	    #~ $self->{_notifications_window}->set_sensitive(FALSE);		
+      $self->{_notifications_window}->set_keep_above(TRUE);
+      $self->{_notifications_window}->set_accept_focus(FALSE);	
 		$self->{_notifications_window}->add_events('GDK_ENTER_NOTIFY_MASK');
 		
-		#obtain current colors and font_desc from the main window
-	    my $style 		= $self->{_sc}->get_mainwindow->get_style;
-		#~ my $sel_bg 		= $style->bg('selected');
-		my $sel_bg 		= Gtk2::Gdk::Color->parse('#131313');
-		#~ my $sel_tx 		= $style->text('selected');
-		my $sel_tx 		= Gtk2::Gdk::Color->parse('white');
-		my $font_fam 	= $style->font_desc->get_family;
-		my $font_size 	= $style->font_desc->get_size;
-
-		my $mon 	= $self->{_sc}->get_current_monitor;
-		my $size 	= int( $mon->width * 0.007 );
-		my $size2 	= int( $mon->width * 0.006 );
-
 		#shape the window
 		my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file  ($self->{_sc}->get_root . "/share/shutter/resources/icons/notify.svg");
 		my ($pixmap, $mask) = $pixbuf->render_pixmap_and_mask (1);
@@ -83,27 +68,39 @@ sub new {
 		my $fixed = Gtk2::Fixed->new;
 		$fixed->set_size_request(300, 80);
 		$self->{_notifications_window}->add($fixed);
-		
-		#initial position
-		$self->{_notifications_window}->move($mon->x + $mon->width - 315, $mon->y + $mon->height - 120);
-		$self->{_notifications_window}->{'pos'} = 1;
-		
+				
 		$self->{_notifications_window}->signal_connect('expose-event' => sub{
 			
 			return FALSE unless $self->{_notifications_window}->window;
 			
 			return FALSE unless $self->{_summary};
-			
+
+         #current monitor
+         my $mon 	= $self->{_sc}->get_current_monitor;
+
+         #initial position
+			unless(defined $self->{_notifications_window}->{'pos'}){
+				$self->{_notifications_window}->move($mon->x + $mon->width - 315, $mon->y + $mon->height - 120);
+				$self->{_notifications_window}->{'pos'} = 1;
+			}
+   		
 			#window size and position
 			my ($w, $h) = $self->{_notifications_window}->get_size;
 			my ($x, $y) = $self->{_notifications_window}->get_position;
-			
+
+         #obtain current colors and font_desc from the main window
+         my $style 		= $self->{_sc}->get_mainwindow->get_style;
+         my $sel_bg 		= Gtk2::Gdk::Color->parse('#131313');
+         my $sel_tx 		= Gtk2::Gdk::Color->parse('white');
+         my $font_fam 	= $style->font_desc->get_family;
+         my $font_size 	= $style->font_desc->get_size / Gtk2::Pango->scale;
+   			
 			#create cairo context
 			my $cr = Gtk2::Gdk::Cairo::Context->create ($self->{_notifications_window}->window);
 	
 			#pango layout
 			my $layout = Gtk2::Pango::Cairo::create_layout($cr);
-			$layout->set_width( ($w - $size * 3) * Gtk2::Pango->scale );
+			$layout->set_width( ($w - $font_size * 2) * Gtk2::Pango->scale );
 			
 			if ( Gtk2::Pango->CHECK_VERSION( 1, 20, 0 ) ) {
 				$layout->set_height( $h * Gtk2::Pango->scale );
@@ -118,18 +115,18 @@ sub new {
 			}
 			
 			$layout->set_alignment('left');
-			$layout->set_wrap('word');
+			$layout->set_wrap('word-char');
 			
 			#set text
-			$layout->set_markup("<span font_desc=\"$font_fam $size\" weight=\"bold\" foreground=\"#FFFFFF\">" . Glib::Markup::escape_text( $self->{_summary} ) . "</span><span font_desc=\"$font_fam $size2\" foreground=\"#FFFFFF\">\n" . Glib::Markup::escape_text( $self->{_body} ) . "</span>");
+			$layout->set_markup("<span font_desc=\"$font_fam $font_size\" weight=\"bold\" foreground=\"#FFFFFF\">" . Glib::Markup::escape_text( $self->{_summary} ) . "</span><span font_desc=\"$font_fam $font_size\" foreground=\"#FFFFFF\">\n" . Glib::Markup::escape_text( $self->{_body} ) . "</span>");
 			
 			#fill window
 			$cr->set_operator('source');
 			
 			if($self->{_sc}->get_mainwindow->get_screen->is_composited){
 				
-				$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.8 );
-				$cr->paint;
+				$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.9 );
+            $cr->paint;
 				
 			}else{
 				
@@ -152,9 +149,11 @@ sub new {
 			if(defined $self->{_enter_notify_timeout}){
 				Glib::Source->remove($self->{_enter_notify_timeout});
 			}
+
+         #current monitor
+         my $mon 	= $self->{_sc}->get_current_monitor;
 			
-			#~ $self->close(TRUE);
-			if($self->{_notifications_window}->{'pos'} == 1){
+			if(defined $self->{_notifications_window}->{'pos'} && $self->{_notifications_window}->{'pos'} == 1){
 				$self->{_notifications_window}->move($mon->x + $mon->width - 315, $mon->y + 40);
 				$self->{_notifications_window}->{'pos'} = 0;
 			}else{
@@ -182,7 +181,7 @@ sub new {
 }
 
 sub show {
-	my $self 			= shift;
+	my $self = shift;
 
 	#remove old handler
 	if(defined $self->{_notifications_timeout}){
@@ -190,7 +189,7 @@ sub show {
 	}
 	
 	#set body and summary
-	$self->{_summary} 	= shift;
+	$self->{_summary} = shift;
 	$self->{_body}  	= shift;
 
 	$self->{_notifications_window}->show_all;
@@ -216,6 +215,8 @@ sub close {
 
 	$self->{_notifications_window}->hide_all;
 	
+   $self->{_notifications_window}->{'pos'} = undef;
+   
 	return 0;
 }
 
