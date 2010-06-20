@@ -9541,7 +9541,7 @@ sub dlg_upload {
 								$d->get("Connection error!"),
 								$d->get("Skip all"), 
 								$d->get("Skip"), 
-								'gtk-redo'
+								$d->get("Retry")
 							);
 
 							#10 == skip all, 20 == skip, else == cancel
@@ -9567,7 +9567,7 @@ sub dlg_upload {
 								$d->get("Connection error!"),
 								$d->get("Skip all"), 
 								$d->get("Skip"), 
-								'gtk-redo'
+								$d->get("Retry")
 							);
 
 							#10 == skip all, 20 == skip, else == cancel
@@ -9659,7 +9659,7 @@ sub dlg_upload {
 							$upload_response[0],
 							$d->get("Skip all"), 
 							$d->get("Skip"),
-							'gtk-redo',
+							$d->get("Retry"),
 							undef, undef, undef,
 							$upload_response[2]
 						);
@@ -9942,7 +9942,7 @@ sub dlg_upload_error_message {
 		$response = $sd->dlg_error_message(
 			$d->get("Please check your connectivity and try again."),
 			$d->get("Error while connecting"),
-			$d->get("Skip all"), $d->get("Skip"), 'gtk-redo',
+			$d->get("Skip all"), $d->get("Skip"), $d->get("Retry"),
          undef, undef, undef,
          $status
 		);
