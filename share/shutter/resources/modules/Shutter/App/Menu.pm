@@ -584,7 +584,7 @@ sub fct_ret_actions_menu{
 	$self->{_menuitem_upload}->set_name('item-upload');
 	$self->{_menu_actions}->append( $self->{_menuitem_upload} );
 
-	$self->{_menuitem_links} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Upload Links') );
+	$self->{_menuitem_links} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Public URLs') );
 	$self->{_menuitem_links}->set_image( Gtk2::Image->new_from_stock( 'gtk-network', 'menu' ) );
 	$self->{_menuitem_links}->set_sensitive(FALSE);
 	$self->{_menuitem_links}->set_name('item-links');
@@ -678,7 +678,7 @@ sub fct_ret_actions_menu_large{
 	$self->{_menuitem_large_upload}->set_name('item-large-upload');
 	$self->{_menu_large_actions}->append( $self->{_menuitem_large_upload} );
 
-	$self->{_menuitem_large_links} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Upload Links') );
+	$self->{_menuitem_large_links} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Public URLs') );
 	$self->{_menuitem_large_links}->set_image( Gtk2::Image->new_from_stock( 'gtk-network', 'menu' ) );
 	$self->{_menuitem_large_links}->set_sensitive(FALSE);
 	$self->{_menuitem_large_links}->set_name('item-large-links');
