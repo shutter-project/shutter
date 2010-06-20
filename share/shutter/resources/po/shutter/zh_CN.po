@@ -1,0 +1,2487 @@
+# Simplified Chinese translation for shutter.
+# Copyright (C) 2009 Free Software Foundation, Inc.
+# This file is distributed under the same license as the shutter package.
+# Aron Xu <aronxu@gnome.org>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: gscrot\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2010-04-14 08:57+0200\n"
+"PO-Revision-Date: 2010-03-17 20:31+0000\n"
+"Last-Translator: Mario Kemper (Romario) <mario.kemper@googlemail.com>\n"
+"Language-Team: Simplified Chinese <i18n-zh@googlegroups.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Launchpad-Export-Date: 2010-06-20 09:00+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+
+#: translate_tmp.pl:204
+#: translate_tmp.pl:1852
+#: translate_tmp.pl:5963
+msgid "Profile"
+msgstr "配置文件"
+
+#: translate_tmp.pl:209
+#: translate_tmp.pl:3909
+msgid "Preferences"
+msgstr "首选项"
+
+#: translate_tmp.pl:506
+#: translate_tmp.pl:507
+msgid "gnome-web-photo needs to be installed for this feature"
+msgstr "该特性需要安装 gnome-web-photo"
+
+#: translate_tmp.pl:514
+msgid "Goo::Canvas/libgoocanvas needs to be installed for this feature"
+msgstr "使用本功能需安装 Goo::Canvas/libgoocanvas"
+
+#: translate_tmp.pl:544
+msgid "Choose a profile"
+msgstr "选择配置文件"
+
+#: translate_tmp.pl:561
+msgid "Save configuration as profile"
+msgstr "保存为配置文件"
+
+#: translate_tmp.pl:571
+msgid "Delete profile"
+msgstr "删除配置文件"
+
+#: translate_tmp.pl:580
+msgid "Set profile for current configuration"
+msgstr "应用当前的配置文件"
+
+#: translate_tmp.pl:585
+#: translate_tmp.pl:832
+#: translate_tmp.pl:8069
+#: translate_tmp.pl:1477
+msgid "Image format"
+msgstr "图片格式"
+
+#: translate_tmp.pl:592
+msgid "Save"
+msgstr "保存"
+
+#: translate_tmp.pl:599
+msgid "Window Preferences"
+msgstr "窗口首选项"
+
+#: translate_tmp.pl:606
+msgid "Notifications"
+msgstr "通知"
+
+#: translate_tmp.pl:613
+msgid "Trash"
+msgstr "回收站"
+
+#: translate_tmp.pl:620
+msgid "Gnome-Keybinding"
+msgstr "绑定 GNOME 快捷键"
+
+#: translate_tmp.pl:627
+#: translate_tmp.pl:1662
+msgid "Actions"
+msgstr "截取后动作"
+
+#: translate_tmp.pl:634
+#: translate_tmp.pl:1309
+msgid "Capture"
+msgstr "截取"
+
+#: translate_tmp.pl:641
+msgid "Selection Capture"
+msgstr "截取选区"
+
+#: translate_tmp.pl:648
+msgid "Advanced Selection Capture"
+msgstr "截取选区（高级）"
+
+#: translate_tmp.pl:655
+msgid "Window Capture"
+msgstr "捕获窗口"
+
+#: translate_tmp.pl:662
+msgid "Menu/Tooltip Capture"
+msgstr "截取菜单/提示"
+
+#: translate_tmp.pl:669
+msgid "Website Capture"
+msgstr "捕获网站"
+
+#: translate_tmp.pl:676
+msgid "Accounts"
+msgstr "帐户"
+
+#: translate_tmp.pl:683
+msgid "File Transfer Protocol (FTP)"
+msgstr "文件传递协议 (FTP)"
+
+#: translate_tmp.pl:690
+msgid "Transparent Parts"
+msgstr "透明部件"
+
+#: translate_tmp.pl:696
+msgid "Filename"
+msgstr "文件名"
+
+#: translate_tmp.pl:720
+#: translate_tmp.pl:7819
+#: translate_tmp.pl:9223
+#, perl-format
+msgid "Reserved character %s is not allowed to be in a filename."
+msgstr "保留字符 %s 不能用作文件名"
+
+#: translate_tmp.pl:734
+msgid "There are several wildcards available, like\n"
+msgstr "有几种通配符可用，如\n"
+
+#: translate_tmp.pl:735
+msgid "%Y = year\n"
+msgstr "%Y = 年\n"
+
+#: translate_tmp.pl:736
+msgid "%m = month\n"
+msgstr "%m = 月\n"
+
+#: translate_tmp.pl:737
+#, perl-format
+msgid "%d = day\n"
+msgstr "%d = 日\n"
+
+#: translate_tmp.pl:738
+msgid "%T = time\n"
+msgstr "%T = 时间\n"
+
+#: translate_tmp.pl:739
+msgid "$w = width\n"
+msgstr "$w = 宽\n"
+
+#: translate_tmp.pl:740
+msgid "$h = height\n"
+msgstr "$h = 高\n"
+
+#: translate_tmp.pl:741
+msgid "$name = multi-purpose (e.g. window title)\n"
+msgstr ""
+
+#: translate_tmp.pl:742
+msgid "$nb_name = like $name but without blanks in resulting strings\n"
+msgstr ""
+
+#: translate_tmp.pl:743
+msgid "$profile = name of current profile\n"
+msgstr ""
+
+#: translate_tmp.pl:744
+msgid "%NN = counter"
+msgstr ""
+
+#: translate_tmp.pl:755
+#: translate_tmp.pl:2051
+msgid "Compression"
+msgstr "压缩"
+
+#: translate_tmp.pl:764
+#: translate_tmp.pl:766
+msgid ""
+"Quality/Compression:\n"
+"High value means high size / high compression\n"
+"(depending on file format chosen)"
+msgstr ""
+"质量/压缩\n"
+"大值代表大文件体积/高压缩率\n"
+"(依所选文件格式决定)"
+
+#: translate_tmp.pl:833
+#: translate_tmp.pl:834
+msgid "Select a file format"
+msgstr "选择文件格式"
+
+#: translate_tmp.pl:839
+msgid "Directory"
+msgstr "文件夹"
+
+#: translate_tmp.pl:840
+#: translate_tmp.pl:8579
+#: translate_tmp.pl:8581
+msgid "Choose folder"
+msgstr "选择文件夹"
+
+#: translate_tmp.pl:847
+#: translate_tmp.pl:848
+msgid "Your screenshots will be saved to this directory"
+msgstr "截图将存入此目录"
+
+#: translate_tmp.pl:853
+#: translate_tmp.pl:856
+msgid "Browse for save folder every time"
+msgstr ""
+
+#: translate_tmp.pl:858
+#: translate_tmp.pl:861
+msgid "Automatically save file"
+msgstr "自动保存文件"
+
+#: translate_tmp.pl:885
+#: translate_tmp.pl:894
+msgid "Automatically copy screenshot to clipboard"
+msgstr "自动将抓取的屏幕快照复制到剪贴板"
+
+#: translate_tmp.pl:897
+#: translate_tmp.pl:906
+msgid "Automatically copy filename to clipboard"
+msgstr "自动复制文件名到剪贴板"
+
+#: translate_tmp.pl:909
+#: translate_tmp.pl:918
+msgid "Do not copy anything to clipboard"
+msgstr ""
+
+#: translate_tmp.pl:922
+msgid "Delay"
+msgstr "延时"
+
+#: translate_tmp.pl:924
+#: translate_tmp.pl:932
+#: translate_tmp.pl:1188
+#: translate_tmp.pl:2010
+#: translate_tmp.pl:2016
+#: translate_tmp.pl:2021
+msgid "second"
+msgid_plural "seconds"
+msgstr[0] "秒"
+
+#: translate_tmp.pl:930
+msgid "Capture after a delay of"
+msgstr "延迟抓取"
+
+#: translate_tmp.pl:944
+#: translate_tmp.pl:945
+#: translate_tmp.pl:946
+#: translate_tmp.pl:948
+#: translate_tmp.pl:949
+#: translate_tmp.pl:950
+msgid "Wait n seconds before taking a screenshot"
+msgstr "延迟 n 秒后抓图"
+
+#: translate_tmp.pl:957
+msgid "Include Cursor"
+msgstr "包括光标"
+
+#: translate_tmp.pl:958
+#: translate_tmp.pl:964
+#: translate_tmp.pl:965
+msgid "Include cursor when taking a screenshot"
+msgstr "当抓屏时包含光标"
+
+#: translate_tmp.pl:1012
+msgid "Open with"
+msgstr "用其他程序打开"
+
+#: translate_tmp.pl:1013
+#: translate_tmp.pl:1014
+#: translate_tmp.pl:1015
+msgid "Open your screenshot with this program after capturing"
+msgstr "截图后用本软件打开"
+
+#: translate_tmp.pl:1022
+msgid "16 colors   - (4bit) "
+msgstr "16 色 - (4位) "
+
+#: translate_tmp.pl:1023
+msgid "64 colors   - (6bit) "
+msgstr "64 色 - (6位) "
+
+#: translate_tmp.pl:1024
+msgid "256 colors  - (8bit) "
+msgstr "256 色 - (8位) "
+
+#: translate_tmp.pl:1049
+msgid "Reduce colors"
+msgstr "减少颜色数"
+
+#: translate_tmp.pl:1050
+#: translate_tmp.pl:1051
+#: translate_tmp.pl:1052
+msgid "Automatically reduce colors after taking a screenshot"
+msgstr "截图后自动降低色深"
+
+#: translate_tmp.pl:1058
+msgid "Thumbnail"
+msgstr "缩略图"
+
+#: translate_tmp.pl:1084
+#: translate_tmp.pl:1086
+#: translate_tmp.pl:1088
+msgid ""
+"Generate thumbnail too.\n"
+"select the percentage of the original size for the thumbnail to be"
+msgstr ""
+"同时生成缩略图。\n"
+"选择原始尺寸的百分比用于生成缩略图"
+
+#: translate_tmp.pl:1094
+#: translate_tmp.pl:1102
+msgid "Enable zoom window"
+msgstr "启用缩放窗口"
+
+#: translate_tmp.pl:1107
+msgid "Start with selection size of"
+msgstr "开始选定大小："
+
+#: translate_tmp.pl:1109
+msgid "at"
+msgstr "在"
+
+#: translate_tmp.pl:1115
+#: translate_tmp.pl:1116
+#: translate_tmp.pl:1234
+#: translate_tmp.pl:5850
+msgid "pixels"
+msgstr "像素"
+
+#: translate_tmp.pl:1139
+#: translate_tmp.pl:1140
+#: translate_tmp.pl:1141
+#: translate_tmp.pl:1142
+#: translate_tmp.pl:1143
+#: translate_tmp.pl:1144
+#: translate_tmp.pl:1145
+#: translate_tmp.pl:1146
+#: translate_tmp.pl:1147
+#: translate_tmp.pl:1148
+msgid "Start Advanced Selection Tool with a customized selection size"
+msgstr "用自定义的选择尺寸启动高级选择工具"
+
+#: translate_tmp.pl:1162
+#: translate_tmp.pl:1163
+msgid "Include window decoration when capturing a window"
+msgstr "当选取窗口时包含边框"
+
+#: translate_tmp.pl:1174
+#: translate_tmp.pl:1175
+msgid "Select only visible windows"
+msgstr "只选择可见窗口"
+
+#: translate_tmp.pl:1186
+msgid "Pre-Capture Delay"
+msgstr "截图前延迟"
+
+#: translate_tmp.pl:1200
+#: translate_tmp.pl:1201
+#: translate_tmp.pl:1202
+msgid "Capture menu/tooltip after a delay of n seconds"
+msgstr "延迟 n 秒后捕获菜单/弹出提示"
+
+#: translate_tmp.pl:1209
+msgid "Ignore possibly wrong type hints"
+msgstr ""
+
+#: translate_tmp.pl:1210
+msgid ""
+"The type hint constants specify hints for the window manager that indicate "
+"what type of function the window has. Sometimes these type hints are not "
+"correctly set. By enabling this option Shutter will not insist on the "
+"requested type hint."
+msgstr ""
+
+#: translate_tmp.pl:1221
+msgid "Virtual browser width"
+msgstr "虚拟浏览器宽度"
+
+#: translate_tmp.pl:1242
+#: translate_tmp.pl:1243
+#: translate_tmp.pl:1244
+msgid "Virtual browser width when taking a website screenshot"
+msgstr "为网站截图时的虚拟浏览器宽度"
+
+#: translate_tmp.pl:1251
+msgid "Show as check pattern"
+msgstr ""
+
+#: translate_tmp.pl:1252
+msgid "Show as custom color:"
+msgstr ""
+
+#: translate_tmp.pl:1255
+#: translate_tmp.pl:446
+#: translate_tmp.pl:3723
+#: translate_tmp.pl:3979
+msgid "Choose fill color"
+msgstr "选择填充颜色"
+
+#: translate_tmp.pl:1257
+msgid "Show as background"
+msgstr ""
+
+#: translate_tmp.pl:1278
+msgid "Displays any transparent parts of the image in a check pattern"
+msgstr "图像的透明部分显示为方格"
+
+#: translate_tmp.pl:1279
+msgid ""
+"Displays any transparent parts of the image in a solid color that you specify"
+msgstr "用指定颜色显示图像的透明部分"
+
+#: translate_tmp.pl:1280
+msgid ""
+"Displays any transparent parts of the image in the background color of the "
+"application"
+msgstr "用程序的背景色显示图像的透明部分"
+
+#: translate_tmp.pl:1313
+#: translate_tmp.pl:1319
+msgid ""
+"Configure global keybinding for capture\n"
+"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
+"fairly liberal and allows lower or upper case, and also abbreviations such "
+"as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
+"\"disabled\", then there will be no keybinding for this action. "
+msgstr ""
+"配置全局截图热键\n"
+"格式像 \"<Control>a\" 或者 \"<Shift><Alt>F1\"这样. 不区分大小写, 也可以像这样缩写 \"<Ctl>\" and "
+"\"<Ctrl>\". 如果你将选项设置成 \"disabled\", 那么这个动作将不会有热键. "
+
+#: translate_tmp.pl:1329
+msgid "Capture with selection"
+msgstr "选区截取"
+
+#: translate_tmp.pl:1333
+#: translate_tmp.pl:1339
+#: translate_tmp.pl:1356
+msgid ""
+"Configure global keybinding for capture with selection\n"
+"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
+"fairly liberal and allows lower or upper case, and also abbreviations such "
+"as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
+"\"disabled\", then there will be no keybinding for this action. "
+msgstr ""
+"配置选区截图的全局热键\n"
+"格式像 \"<Control>a\" 或者 \"<Shift><Alt>F1\"这样. 不区分大小写, 也可以像这样缩写 \"<Ctl>\" and "
+"\"<Ctrl>\". 如果你将选项设置成 \"disabled\", 那么这个动作将不会有热键. "
+
+#: translate_tmp.pl:1344
+#: translate_tmp.pl:255
+#: translate_tmp.pl:796
+#: translate_tmp.pl:63
+msgid "Selection"
+msgstr "截取选区"
+
+#: translate_tmp.pl:1345
+#: translate_tmp.pl:99
+msgid "Window"
+msgstr "截取窗口"
+
+#: translate_tmp.pl:1346
+#: translate_tmp.pl:120
+msgid "Section"
+msgstr "截取区域"
+
+#: translate_tmp.pl:1396
+#: translate_tmp.pl:1442
+msgid "Autohide main window when taking a screenshot"
+msgstr "截图时自动隐藏主窗口"
+
+#: translate_tmp.pl:1397
+msgid "Redraw Delay"
+msgstr "刷新延迟"
+
+#: translate_tmp.pl:1405
+#: translate_tmp.pl:1460
+msgid "Present main window after taking a screenshot"
+msgstr "截图后显示主窗口"
+
+#: translate_tmp.pl:1406
+#: translate_tmp.pl:1501
+msgid "Minimize to tray when closing main window"
+msgstr "关闭主窗口时最小化到托盘"
+
+#: translate_tmp.pl:1408
+#: translate_tmp.pl:1468
+msgid "Display pop-up notification after taking a screenshot"
+msgstr "截图后显示弹出通知"
+
+#: translate_tmp.pl:1409
+#: translate_tmp.pl:1476
+#: translate_tmp.pl:1484
+msgid "Display pop-up notification when using a delay"
+msgstr "使用延迟时显示弹出通知"
+
+#: translate_tmp.pl:1410
+msgid "Display pop-up notification when using a pre-capture delay"
+msgstr "使用截图前延迟时显示弹出通知"
+
+#: translate_tmp.pl:1412
+msgid "Notification agent"
+msgstr ""
+
+#: translate_tmp.pl:1414
+msgid "Desktop Notifications"
+msgstr ""
+
+#: translate_tmp.pl:1415
+msgid "Built-In Notifications"
+msgstr ""
+
+#: translate_tmp.pl:1419
+#: translate_tmp.pl:1509
+msgid "Ask before moving files to trash"
+msgstr "移动文件到回收站前先询问"
+
+#: translate_tmp.pl:1420
+#: translate_tmp.pl:1517
+msgid "Move file to trash when closing tab"
+msgstr "关闭标签页时将文件移动到回收站"
+
+#: translate_tmp.pl:1450
+#: translate_tmp.pl:1451
+#: translate_tmp.pl:1452
+msgid ""
+"Configure a short timeout to give the Xserver a chance to redraw areas that "
+"were obscured by Shutter's windows before taking a screenshot."
+msgstr "设置短暂的延迟，让Xserver有机会刷新截图前被 Shutter 窗口挡住的部分"
+
+#: translate_tmp.pl:1492
+#: translate_tmp.pl:1493
+msgid ""
+"You can either choose the system-wide desktop notifications (e.g. Ubuntu's "
+"Notify-OSD) or Shutter's built-in notification system"
+msgstr ""
+
+#: translate_tmp.pl:1527
+msgid ""
+"Entering your Accounts for specific hosting-sites is optional. If entered it "
+"will give you the same benefits as the upload on the website. If you leave "
+"these fields empty you will be able to upload to the specific hosting-"
+"partner as a guest."
+msgstr "为特定主机站点录入你的帐户是可选的。如果你将这些区域留空，你将能够以访客身份上传至特定的托管方。"
+
+#: translate_tmp.pl:1538
+#: translate_tmp.pl:8595
+msgid "URI"
+msgstr "链接"
+
+#: translate_tmp.pl:1547
+#: translate_tmp.pl:1549
+#: translate_tmp.pl:8600
+#: translate_tmp.pl:8602
+msgid ""
+"URI\n"
+"Example: ftp://host:port/path"
+msgstr ""
+"地址\n"
+"例如：ftp://host:port/path"
+
+#: translate_tmp.pl:1554
+#: translate_tmp.pl:1565
+#: translate_tmp.pl:1567
+#: translate_tmp.pl:8607
+#: translate_tmp.pl:8614
+#: translate_tmp.pl:8616
+msgid "Connection mode"
+msgstr "连接模式"
+
+#: translate_tmp.pl:1557
+#: translate_tmp.pl:8610
+msgid "Active mode"
+msgstr "主动模式"
+
+#: translate_tmp.pl:1558
+#: translate_tmp.pl:8611
+msgid "Passive mode"
+msgstr "被动模式"
+
+#: translate_tmp.pl:1572
+#: translate_tmp.pl:1581
+#: translate_tmp.pl:1583
+#: translate_tmp.pl:7450
+#: translate_tmp.pl:8621
+#: translate_tmp.pl:8626
+#: translate_tmp.pl:8628
+msgid "Username"
+msgstr "用户名"
+
+#: translate_tmp.pl:1588
+#: translate_tmp.pl:1599
+#: translate_tmp.pl:1601
+#: translate_tmp.pl:7457
+#: translate_tmp.pl:8633
+#: translate_tmp.pl:8640
+#: translate_tmp.pl:8642
+msgid "Password"
+msgstr "密码"
+
+#: translate_tmp.pl:1606
+#: translate_tmp.pl:1615
+#: translate_tmp.pl:1617
+#: translate_tmp.pl:8647
+#: translate_tmp.pl:8652
+#: translate_tmp.pl:8654
+msgid "Website URL"
+msgstr ""
+
+#: translate_tmp.pl:1625
+#: translate_tmp.pl:3949
+msgid "Main"
+msgstr "主要"
+
+#: translate_tmp.pl:1682
+msgid "Advanced"
+msgstr "高级"
+
+#: translate_tmp.pl:1727
+msgid "Image View"
+msgstr "图像视图"
+
+#: translate_tmp.pl:1738
+msgid "Behavior"
+msgstr "行为"
+
+#: translate_tmp.pl:1767
+msgid "Keyboard"
+msgstr "键盘"
+
+#: translate_tmp.pl:1785
+#: translate_tmp.pl:518
+#: translate_tmp.pl:302
+#: translate_tmp.pl:399
+msgid "Upload"
+msgstr "上传"
+
+#: translate_tmp.pl:1838
+msgid "Plugins"
+msgstr "插件"
+
+#: translate_tmp.pl:1840
+msgid "The following plugins are installed"
+msgstr "下列插件已安装"
+
+#: translate_tmp.pl:2026
+msgid "millisecond"
+msgid_plural "milliseconds"
+msgstr[0] "毫秒"
+
+#: translate_tmp.pl:2045
+msgid "Quality"
+msgstr "质量"
+
+#: translate_tmp.pl:2112
+msgid "Please activate the menu you want to capture"
+msgstr "请激活您想捕获的菜单"
+
+#: translate_tmp.pl:2114
+msgid "Please activate the tooltip you want to capture"
+msgstr "请激活您想捕获的弹出提示"
+
+#: translate_tmp.pl:2123
+#: translate_tmp.pl:2133
+#: translate_tmp.pl:193
+#: translate_tmp.pl:201
+#, perl-format
+msgid "Screenshot will be taken in %s second"
+msgid_plural "Screenshot will be taken in %s seconds"
+msgstr[0] "将在 %s 秒后截取图像"
+
+#: translate_tmp.pl:2381
+#: translate_tmp.pl:7484
+msgid "Register"
+msgstr "注册"
+
+#: translate_tmp.pl:2686
+#: translate_tmp.pl:6290
+msgid "Choose file to open"
+msgstr "选择要打开的文件"
+
+#: translate_tmp.pl:2717
+#: translate_tmp.pl:6321
+msgid "All compatible image formats"
+msgstr "所有兼容的图像格式"
+
+#: translate_tmp.pl:2886
+msgid "Profile deleted"
+msgstr "配置文件已删除"
+
+#: translate_tmp.pl:2888
+#: translate_tmp.pl:2889
+msgid "Profile could not be deleted"
+msgstr "配置文件不能被删除"
+
+#: translate_tmp.pl:2888
+#: translate_tmp.pl:3083
+#: translate_tmp.pl:4321
+#: translate_tmp.pl:4327
+#: translate_tmp.pl:4403
+#: translate_tmp.pl:4409
+#: translate_tmp.pl:4571
+#: translate_tmp.pl:4806
+#: translate_tmp.pl:4933
+#: translate_tmp.pl:4963
+#: translate_tmp.pl:5718
+#: translate_tmp.pl:8453
+#: translate_tmp.pl:9174
+#: translate_tmp.pl:110
+#: translate_tmp.pl:120
+msgid "Failed"
+msgstr "失败"
+
+#: translate_tmp.pl:2907
+#, perl-format
+msgid "Profile %s loaded successfully"
+msgstr "成功加载了配置文件 %s"
+
+#: translate_tmp.pl:2933
+#: translate_tmp.pl:5859
+msgid "Session"
+msgstr "会话"
+
+#: translate_tmp.pl:2952
+#: translate_tmp.pl:4277
+msgid "not found"
+msgstr "未找到"
+
+#: translate_tmp.pl:3518
+msgid "Settings could not be saved!"
+msgstr "无法保存设置"
+
+#: translate_tmp.pl:3520
+msgid "Settings saved successfully!"
+msgstr "已成功保存设置！"
+
+#: translate_tmp.pl:3546
+msgid "Session could not be saved!"
+msgstr "不能保存会话！"
+
+#: translate_tmp.pl:3564
+msgid "Account-settings could not be saved!"
+msgstr "帐户设置无法保存！"
+
+#: translate_tmp.pl:3905
+msgid "Settings could not be restored!"
+msgstr "不能还原设置！"
+
+#: translate_tmp.pl:3908
+msgid "Settings loaded successfully"
+msgstr "载入设置成功"
+
+#: translate_tmp.pl:4012
+msgid "Account-settings could not be restored!"
+msgstr "帐户信息不能储存！"
+
+#: translate_tmp.pl:4112
+msgid "Loading files"
+msgstr "正在载入文件"
+
+#: translate_tmp.pl:4116
+msgid "Please wait while your selected files are being loaded into Shutter"
+msgstr "所选文件正在载入 Shutter, 请稍候"
+
+#: translate_tmp.pl:4157
+msgid "opened"
+msgstr "已打开"
+
+#: translate_tmp.pl:4205
+msgid "Restoring session"
+msgstr "恢复会话"
+
+#: translate_tmp.pl:4207
+msgid "Please wait while your saved session is being restored"
+msgstr "正在恢复保存的会话，请等待"
+
+#: translate_tmp.pl:4258
+msgid "Session could not be restored!"
+msgstr "不能还原会话！"
+
+#: translate_tmp.pl:4298
+#, perl-format
+msgid "Are you sure you want to move %s to the trash?"
+msgstr "您确定要把 %s 移至回收站吗?"
+
+#: translate_tmp.pl:4299
+#: translate_tmp.pl:4368
+#: translate_tmp.pl:198
+#: translate_tmp.pl:663
+msgid "Move to _Trash"
+msgstr "移至回收站(_T)"
+
+#: translate_tmp.pl:4333
+msgid "deleted"
+msgstr "已删除"
+
+#: translate_tmp.pl:4367
+msgid "Are you sure you want to move the selected files to the trash?"
+msgstr "您确定要把所选文件移至回收站吗？"
+
+#: translate_tmp.pl:4372
+#: translate_tmp.pl:4425
+#: translate_tmp.pl:4525
+msgid "No screenshots selected"
+msgstr "没有选择截图"
+
+#: translate_tmp.pl:4441
+msgid "Selected screenshots deleted"
+msgstr "所选截图已删除"
+
+#: translate_tmp.pl:4477
+#: translate_tmp.pl:6228
+#: translate_tmp.pl:6259
+#: translate_tmp.pl:6287
+#: translate_tmp.pl:6316
+msgid "removed from session"
+msgstr "从会话中移除"
+
+#: translate_tmp.pl:4541
+msgid "Selected screenshots removed"
+msgstr "删除选中的截图"
+
+#: translate_tmp.pl:4571
+#: translate_tmp.pl:4933
+msgid "No valid filetype specified"
+msgstr "未指定有效文件类型"
+
+#: translate_tmp.pl:4586
+msgid "There is no image data in the clipboard to paste"
+msgstr "剪贴板中没有可粘贴的图像数据"
+
+#: translate_tmp.pl:4645
+msgid "Selected filenames copied to clipboard"
+msgstr "所选文件名已拷贝到剪贴板"
+
+#: translate_tmp.pl:4660
+msgid "Selected images copied to clipboard"
+msgstr "所选图像已拷贝到剪贴板"
+
+#: translate_tmp.pl:4707
+msgid "Last action undone"
+msgstr "撤销上一个操作"
+
+#: translate_tmp.pl:4715
+#: translate_tmp.pl:4767
+#, perl-format
+msgid "Error while copying last version (%s)."
+msgstr "拷贝上个版本(%s)时发生错误。"
+
+#: translate_tmp.pl:4716
+#, perl-format
+msgid "There was an error performing undo on %s."
+msgstr "执行撤销操作时发生了错误： %s"
+
+#: translate_tmp.pl:4759
+msgid "Last action redone"
+msgstr "重做上一个操作"
+
+#: translate_tmp.pl:4768
+#, perl-format
+msgid "There was an error performing redo on %s."
+msgstr "执行重做操作时发生了错误： %s"
+
+#: translate_tmp.pl:4806
+msgid "No plugin installed"
+msgstr "未安装插件"
+
+#: translate_tmp.pl:4962
+#: translate_tmp.pl:6454
+msgid "There was an error determining the filename."
+msgstr "确定文件名时发生错误。"
+
+#: translate_tmp.pl:5185
+msgid "Triggered invalid screenshot action."
+msgstr ""
+
+#: translate_tmp.pl:5186
+#: translate_tmp.pl:5189
+#: translate_tmp.pl:5403
+#: translate_tmp.pl:5405
+#: translate_tmp.pl:69
+#: translate_tmp.pl:77
+#: translate_tmp.pl:85
+#: translate_tmp.pl:100
+#: translate_tmp.pl:108
+#: translate_tmp.pl:116
+#: translate_tmp.pl:128
+msgid "Error while taking the screenshot."
+msgstr "屏幕截图时出错"
+
+#: translate_tmp.pl:5284
+#: translate_tmp.pl:122
+msgid "Capture aborted by user"
+msgstr "用户中止了截图"
+
+#: translate_tmp.pl:5391
+#: translate_tmp.pl:6278
+#: translate_tmp.pl:8189
+#: translate_tmp.pl:8194
+#: translate_tmp.pl:8261
+#: translate_tmp.pl:8267
+msgid "saved"
+msgstr "已保存"
+
+#: translate_tmp.pl:5396
+msgid "Screenshot saved"
+msgstr "截图已保存"
+
+#: translate_tmp.pl:5402
+#, perl-format
+msgid ""
+"The filename %s could not be verified. Maybe it contains unsupported "
+"characters."
+msgstr "不能验证文件名 %s。也许它包含不支持的字符。"
+
+#: translate_tmp.pl:5640
+msgid "opened with"
+msgstr "用其他程序打开"
+
+#: translate_tmp.pl:5670
+msgid "Opened all files with"
+msgstr "用应用程序打开所有文件"
+
+#: translate_tmp.pl:5718
+#: translate_tmp.pl:5737
+#, perl-format
+msgid "Could not apply plugin %s"
+msgstr "不能应用 %s 插件"
+
+#: translate_tmp.pl:5735
+#: translate_tmp.pl:5783
+#, perl-format
+msgid "Successfully applied plugin %s"
+msgstr "成功应用 %s 插件"
+
+#: translate_tmp.pl:5786
+#, perl-format
+msgid "Error while executing plugin %s."
+msgstr "运行插件 %s 出错。"
+
+#: translate_tmp.pl:5787
+msgid "There was an error executing the plugin."
+msgstr "运行插件时出现一个错误。"
+
+#: translate_tmp.pl:5861
+#, perl-format
+msgid "%s screenshot"
+msgid_plural "%s screenshots"
+msgstr[0] "%s 个截图"
+
+#: translate_tmp.pl:5873
+msgid "Current profile"
+msgstr "当前配置"
+
+#: translate_tmp.pl:6219
+msgid "Try to resave the file?"
+msgstr "尝试重新保存文件?"
+
+#: translate_tmp.pl:6220
+#, perl-format
+msgid "Image %s was not found on disk"
+msgstr "没有找到图像%s"
+
+#: translate_tmp.pl:6251
+#: translate_tmp.pl:116
+#, perl-format
+msgid "Error while saving the image %s."
+msgstr "保存图像%s时出错."
+
+#: translate_tmp.pl:6252
+#: translate_tmp.pl:117
+#, perl-format
+msgid "There was an error saving the image to %s."
+msgstr "保存图像到%s时发生错误."
+
+#: translate_tmp.pl:6308
+#: translate_tmp.pl:192
+#: translate_tmp.pl:2873
+#: translate_tmp.pl:5632
+#: translate_tmp.pl:6109
+#: translate_tmp.pl:6356
+#: translate_tmp.pl:6650
+#: translate_tmp.pl:6682
+#, perl-format
+msgid "Error while opening image %s."
+msgstr "打开图像%s时发生错误."
+
+#: translate_tmp.pl:6309
+#: translate_tmp.pl:193
+#: translate_tmp.pl:2874
+#: translate_tmp.pl:5633
+#: translate_tmp.pl:6110
+#: translate_tmp.pl:6357
+#: translate_tmp.pl:6651
+#: translate_tmp.pl:6683
+msgid "There was an error opening the image."
+msgstr "打开图像时发生一个错误."
+
+#: translate_tmp.pl:6453
+#, perl-format
+msgid "Error while opening directory %s."
+msgstr "打开目录%s时发生错误."
+
+#: translate_tmp.pl:6518
+msgid "Updating plugin information"
+msgstr "正在更新插件信息"
+
+#: translate_tmp.pl:6523
+msgid "Please wait while Shutter updates the plugin information"
+msgstr "正在更新插件信息，请等待"
+
+#: translate_tmp.pl:6760
+msgid "Limit to current monitor"
+msgstr "当前显示器的限制"
+
+#: translate_tmp.pl:6775
+#, perl-format
+msgid ""
+"This option is only useful when you are running a multi-monitor system (%d "
+"monitor detected).\n"
+"Enable it to capture only the current monitor."
+msgid_plural ""
+"This option is only useful when you are running a multi-monitor system (%d "
+"monitors detected).\n"
+"Enable it to capture only the current monitor."
+msgstr[0] ""
+"本选项只在当你有多个显示器的情况下有效(探测到%d个显示器).\n"
+"启用本选项将会截取当前显示器."
+
+#: translate_tmp.pl:6824
+#: translate_tmp.pl:392
+msgid "_Selection"
+msgstr "选区(_S)"
+
+#: translate_tmp.pl:6857
+#: translate_tmp.pl:424
+msgid "W_indow"
+msgstr "窗口(_I)"
+
+#: translate_tmp.pl:6873
+#: translate_tmp.pl:437
+msgid "Se_ction"
+msgstr "控件(_C)"
+
+#: translate_tmp.pl:6892
+#: translate_tmp.pl:453
+msgid "_Menu"
+msgstr "菜单(_M)"
+
+#: translate_tmp.pl:6911
+#: translate_tmp.pl:469
+msgid "_Tooltip"
+msgstr "工具提示(_T)"
+
+#: translate_tmp.pl:6930
+#: translate_tmp.pl:487
+msgid "_Web"
+msgstr "网页(_W)"
+
+#: translate_tmp.pl:6947
+#: translate_tmp.pl:384
+msgid "_Redo last screenshot"
+msgstr ""
+
+#: translate_tmp.pl:6957
+#: translate_tmp.pl:212
+msgid "_Quick profile select"
+msgstr "简要特性选择(_Q)"
+
+#: translate_tmp.pl:6998
+msgid "Advanced selection tool"
+msgstr "高级选取工具"
+
+#: translate_tmp.pl:7001
+msgid "Simple selection tool"
+msgstr "简单选取工具"
+
+#: translate_tmp.pl:7018
+msgid ""
+"The advanced selection tool allows you to enlarge/shrink or move your "
+"selected area\n"
+"until you finally take the screenshot."
+msgstr ""
+"高级选取工具允许你扩大/缩小或者移动你所选的区域，\n"
+"直到你最终执行截图。"
+
+#: translate_tmp.pl:7021
+msgid ""
+"The simple selection tool is the fastest way of taking a screenshot.\n"
+"It provides an optional zoom window for precise shots."
+msgstr ""
+"使用简单选取工具是最快的截图方式。\n"
+"它提供了一个便于精确截图的缩放选项窗口。"
+
+#: translate_tmp.pl:7173
+#: translate_tmp.pl:7181
+#: translate_tmp.pl:524
+#: translate_tmp.pl:615
+#, perl-format
+msgid "_Open with %s"
+msgstr "使用 %s 打开(_O)"
+
+#: translate_tmp.pl:7281
+#: translate_tmp.pl:7282
+#: translate_tmp.pl:7283
+#: translate_tmp.pl:7284
+#: translate_tmp.pl:7285
+msgid "Timeout"
+msgstr "超时"
+
+#: translate_tmp.pl:7287
+#: translate_tmp.pl:7288
+#: translate_tmp.pl:7289
+#: translate_tmp.pl:7290
+#: translate_tmp.pl:7291
+#: translate_tmp.pl:182
+msgid "The timeout in seconds, or 0 to disable timeout"
+msgstr "超时时间(秒),设置为0为禁止"
+
+#: translate_tmp.pl:7428
+msgid "Host"
+msgstr "主机"
+
+#: translate_tmp.pl:7507
+msgid "Icon"
+msgstr "图标"
+
+#: translate_tmp.pl:7516
+msgid "Name"
+msgstr "名称"
+
+#: translate_tmp.pl:7526
+msgid "Category"
+msgstr "分类"
+
+#: translate_tmp.pl:7536
+#: translate_tmp.pl:8376
+msgid "Description"
+msgstr "说明"
+
+#: translate_tmp.pl:7546
+msgid "Language"
+msgstr "语言"
+
+#: translate_tmp.pl:7555
+msgid "Path"
+msgstr "路径"
+
+#: translate_tmp.pl:7782
+msgid "Rename"
+msgstr "重命名"
+
+#: translate_tmp.pl:7786
+#, perl-format
+msgid "Rename image %s"
+msgstr "重命名图像%s"
+
+#: translate_tmp.pl:7788
+msgid "New filename"
+msgstr "新文件名"
+
+#: translate_tmp.pl:7791
+msgid "_Rename"
+msgstr "重命名(_R)"
+
+#: translate_tmp.pl:7890
+#: translate_tmp.pl:7940
+msgid "renamed"
+msgstr "已重命名"
+
+#: translate_tmp.pl:7898
+#: translate_tmp.pl:7948
+#: translate_tmp.pl:7988
+#, perl-format
+msgid "Error while renaming the image %s."
+msgstr "重命名图像%s时发生错误."
+
+#: translate_tmp.pl:7899
+#: translate_tmp.pl:7949
+#: translate_tmp.pl:7989
+#, perl-format
+msgid "There was an error renaming the image to %s."
+msgstr "将图像重命名为%s时发生一个错误."
+
+#: translate_tmp.pl:7911
+#: translate_tmp.pl:8216
+#: translate_tmp.pl:9030
+#: translate_tmp.pl:9253
+#: translate_tmp.pl:1583
+msgid "_Replace"
+msgstr "替换(_R)"
+
+#: translate_tmp.pl:7915
+#: translate_tmp.pl:8220
+#: translate_tmp.pl:9041
+#: translate_tmp.pl:1587
+#, perl-format
+msgid ""
+"The image already exists in %s. Replacing it will overwrite its contents."
+msgstr "图像已经存在于%s.将会覆盖."
+
+#: translate_tmp.pl:7916
+#: translate_tmp.pl:8221
+#: translate_tmp.pl:9042
+#: translate_tmp.pl:1588
+#, perl-format
+msgid "An image named %s already exists. Do you want to replace it?"
+msgstr "存在一个同名文件%s.是否覆盖?"
+
+#: translate_tmp.pl:7992
+msgid "Invalid Filename"
+msgstr "无效文件名."
+
+#: translate_tmp.pl:8019
+#: translate_tmp.pl:1428
+msgid "Choose a location to save to"
+msgstr "选择一个保存的位置"
+
+#: translate_tmp.pl:8308
+msgid "Choose a plugin"
+msgstr "选择一个插件"
+
+#: translate_tmp.pl:8313
+msgid "_Run"
+msgstr "运行(_R)"
+
+#: translate_tmp.pl:8363
+msgid "Plugin"
+msgstr "插件"
+
+#: translate_tmp.pl:8453
+msgid "No plugin specified"
+msgstr "没有指定插件"
+
+#: translate_tmp.pl:8502
+msgid "Upload / Export"
+msgstr "上传/导入"
+
+#: translate_tmp.pl:8506
+#: translate_tmp.pl:8696
+msgid "_Upload"
+msgstr "上传(_U)"
+
+#: translate_tmp.pl:8522
+msgid "Guest"
+msgstr "访客"
+
+#: translate_tmp.pl:8570
+msgid "Choose account"
+msgstr "选择一个帐户"
+
+#: translate_tmp.pl:8683
+msgid "Public hosting"
+msgstr "公共主机"
+
+#: translate_tmp.pl:8685
+msgid "Places"
+msgstr "位置"
+
+#: translate_tmp.pl:8693
+msgid "_Export"
+msgstr "导出(_E)"
+
+#: translate_tmp.pl:8770
+#: translate_tmp.pl:8801
+#: translate_tmp.pl:8869
+#: translate_tmp.pl:8943
+#: translate_tmp.pl:9023
+#: translate_tmp.pl:9063
+msgid "uploaded"
+msgstr "已上传"
+
+#: translate_tmp.pl:8832
+#: translate_tmp.pl:9171
+#: translate_tmp.pl:92
+msgid "Please check your credentials and try again."
+msgstr "清检查你的证书然后重试。"
+
+#: translate_tmp.pl:8833
+#: translate_tmp.pl:9171
+msgid "Login failed!"
+msgstr "登录失败！"
+
+#: translate_tmp.pl:8846
+#: translate_tmp.pl:8872
+#: translate_tmp.pl:9177
+#: translate_tmp.pl:85
+msgid "Please check your connectivity and try again."
+msgstr "请检查你的连接然后重试。"
+
+#: translate_tmp.pl:8847
+#: translate_tmp.pl:8873
+#: translate_tmp.pl:9178
+msgid "Connection error!"
+msgstr "连接错误！"
+
+#: translate_tmp.pl:8848
+#: translate_tmp.pl:8874
+#: translate_tmp.pl:8961
+#: translate_tmp.pl:9043
+#: translate_tmp.pl:9153
+#: translate_tmp.pl:9174
+#: translate_tmp.pl:9179
+msgid "Skip all"
+msgstr "跳过所有"
+
+#: translate_tmp.pl:8849
+#: translate_tmp.pl:8875
+#: translate_tmp.pl:8962
+#: translate_tmp.pl:9043
+#: translate_tmp.pl:9154
+#: translate_tmp.pl:9174
+#: translate_tmp.pl:9179
+msgid "Skip"
+msgstr "跳过"
+
+#: translate_tmp.pl:9021
+#: translate_tmp.pl:9061
+msgid "exported"
+msgstr "已导出"
+
+#: translate_tmp.pl:9147
+msgid "_Retry"
+msgstr "重试(_R)"
+
+#: translate_tmp.pl:9151
+#, perl-format
+msgid "Error while copying the image %s."
+msgstr "复制图像%s时发生错误."
+
+#: translate_tmp.pl:9152
+#, perl-format
+msgid "There was an error copying the image into %s."
+msgstr "复制图像到%s时发生错误."
+
+#: translate_tmp.pl:9173
+msgid "Maximum filesize reached!"
+msgstr "达到文件大小上限！"
+
+#: translate_tmp.pl:9194
+msgid "Save current preferences as new profile"
+msgstr "保存当前首选项到新配置文件"
+
+#: translate_tmp.pl:9196
+msgid "New profile name"
+msgstr "新配置文件名"
+
+#: translate_tmp.pl:9257
+msgid "Replacing it will overwrite its contents."
+msgstr "替换操作将覆盖原有内容。"
+
+#: translate_tmp.pl:9258
+#, perl-format
+msgid "A profile named %s already exists. Do you want to replace it?"
+msgstr "名为%s的配置文件名已经存在.是否覆盖?"
+
+#: translate_tmp.pl:64
+msgid "Illegal URI."
+msgstr "非法URL."
+
+#: translate_tmp.pl:84
+msgid "Connection error."
+msgstr "连接错误。"
+
+#: translate_tmp.pl:91
+#, perl-format
+msgid "Login with username %s failed."
+msgstr "以%s身份登录失败."
+
+#: translate_tmp.pl:111
+msgid "Cannot change working directory."
+msgstr "不能改变工作目录."
+
+#: translate_tmp.pl:121
+msgid "Command 'put' failed."
+msgstr "运行命令 put 失败。"
+
+#: translate_tmp.pl:408
+#: translate_tmp.pl:170
+#: translate_tmp.pl:184
+msgid "Upload status:"
+msgstr "上传状态"
+
+#: translate_tmp.pl:417
+#: translate_tmp.pl:192
+msgid "Thumbnail for forums"
+msgstr "用于论坛的缩略图"
+
+#: translate_tmp.pl:418
+msgid "Short URL"
+msgstr "短网址"
+
+#: translate_tmp.pl:420
+#: translate_tmp.pl:195
+#: translate_tmp.pl:356
+msgid "Direct link"
+msgstr "直接链接"
+
+#: translate_tmp.pl:421
+#: translate_tmp.pl:362
+msgid "Hotlink for websites"
+msgstr "网站防盗链图片"
+
+#: translate_tmp.pl:432
+#: translate_tmp.pl:455
+#: translate_tmp.pl:474
+#: translate_tmp.pl:485
+#: translate_tmp.pl:204
+#: translate_tmp.pl:216
+#: translate_tmp.pl:228
+#: translate_tmp.pl:239
+#: translate_tmp.pl:250
+#: translate_tmp.pl:219
+#: translate_tmp.pl:231
+#: translate_tmp.pl:243
+#: translate_tmp.pl:254
+#: translate_tmp.pl:265
+#: translate_tmp.pl:277
+#: translate_tmp.pl:289
+#: translate_tmp.pl:301
+#: translate_tmp.pl:313
+msgid "Copy this code to clipboard"
+msgstr "复制该代码到剪贴板"
+
+#: translate_tmp.pl:189
+msgid "Thumbnail for websites (with border)"
+msgstr "用于网站的缩略图(有边框)"
+
+#: translate_tmp.pl:191
+msgid "Thumbnail for websites (without border)"
+msgstr "用于网站的缩略图(无边框)"
+
+#: translate_tmp.pl:194
+msgid "Thumbnail for Ubuntuusers.de forum"
+msgstr "用于Ubuntuusers.de论坛的缩略图"
+
+#: translate_tmp.pl:326
+msgid "Thumbnail for websites"
+msgstr "用于网站的缩略图"
+
+#: translate_tmp.pl:332
+msgid "Thumbnail for boards (1)"
+msgstr "公告板缩略图 (1)"
+
+#: translate_tmp.pl:338
+msgid "Thumbnail for boards (2)"
+msgstr "公告板缩略图 (2)"
+
+#: translate_tmp.pl:344
+msgid "Show your friends"
+msgstr "发送给好友"
+
+#: translate_tmp.pl:350
+msgid "Popup for websites"
+msgstr "网站弹出窗口"
+
+#: translate_tmp.pl:368
+msgid "Hotlink for boards (1)"
+msgstr "公告板防盗链图片(1)"
+
+#: translate_tmp.pl:374
+msgid "Hotlink for boards (2)"
+msgstr "公告板防盗链图片(2)"
+
+#: translate_tmp.pl:104
+msgid "No subwindow detected"
+msgstr "没有检测到字窗口"
+
+#: translate_tmp.pl:105
+msgid ""
+"Maybe this window is using client-side windows (or similar).\n"
+"Shutter is not yet able to query the tree information of such windows."
+msgstr ""
+"该窗口使用的也许是客户端或类似窗口。\n"
+"Shutter 未能查询该类窗口的层次归属信息。"
+
+#: translate_tmp.pl:997
+#: translate_tmp.pl:140
+msgid "Menu"
+msgstr "菜单"
+
+#: translate_tmp.pl:1003
+#: translate_tmp.pl:160
+msgid "Tooltip"
+msgstr "工具提示"
+
+#: translate_tmp.pl:72
+#: translate_tmp.pl:181
+msgid "Take a screenshot of a website"
+msgstr "网站截图"
+
+#: translate_tmp.pl:74
+msgid "URL to capture"
+msgstr "要截取的URL"
+
+#: translate_tmp.pl:91
+msgid "C_apture"
+msgstr "截图(C_)"
+
+#: translate_tmp.pl:115
+msgid ""
+"Draw a rectangular area using the mouse. To take a screenshot, press the "
+"Enter key. Press Esc to quit."
+msgstr "用鼠标选定区域.回车键截取,ESC键位取消."
+
+#: translate_tmp.pl:120
+msgid ""
+"shift/right-click = selection dialog on/off\n"
+"ctrl + scrollwheel = zoom in/out\t\tspace = zoom window on/off\n"
+"cursor keys + alt = move selection\t\tcursor keys + ctrl = resize selection"
+msgstr ""
+"shift / 鼠标右键点击 = 选择对话框打开/关闭\n"
+"ctrl + 鼠标滚轮 = 放大/缩小\t\t空格键 = 打开/关闭缩放窗口\n"
+"光标键 + alt = 移动所选\t\t 光标键 + ctrl = 改变所选的大小"
+
+#: translate_tmp.pl:76
+msgid ""
+"Maybe mouse pointer could not be grabbed or the selected area is invalid."
+msgstr "无法捕获鼠标指针活所选区域无效。"
+
+#: translate_tmp.pl:84
+msgid "Keyboard could not be grabbed."
+msgstr "未能捕获键盘。"
+
+#: translate_tmp.pl:93
+msgid "menu"
+msgstr "菜单"
+
+#: translate_tmp.pl:95
+msgid "tooltip"
+msgstr "提示"
+
+#: translate_tmp.pl:99
+#, perl-format
+msgid "No window with type %s detected."
+msgstr "未发现 %s 类型的窗口。"
+
+#: translate_tmp.pl:107
+msgid "There is no last capture that can be redone."
+msgstr ""
+
+#: translate_tmp.pl:115
+msgid "The window is no longer available."
+msgstr ""
+
+#: translate_tmp.pl:127
+#: translate_tmp.pl:133
+msgid "Unable to capture website"
+msgstr "不能截取网站"
+
+#: translate_tmp.pl:441
+#: translate_tmp.pl:3973
+msgid "Fill color"
+msgstr "充填颜色"
+
+#: translate_tmp.pl:448
+#: translate_tmp.pl:449
+msgid "Adjust fill color and opacity"
+msgstr "调整填充颜色和透明度"
+
+#: translate_tmp.pl:455
+#: translate_tmp.pl:3992
+msgid "Stroke color"
+msgstr "勾描颜色"
+
+#: translate_tmp.pl:460
+#: translate_tmp.pl:3998
+msgid "Choose stroke color"
+msgstr "选择勾描颜色"
+
+#: translate_tmp.pl:462
+#: translate_tmp.pl:463
+msgid "Adjust stroke color and opacity"
+msgstr "调节勾描颜色和透明度"
+
+#: translate_tmp.pl:469
+#: translate_tmp.pl:3959
+msgid "Line width"
+msgstr "线条宽度"
+
+#: translate_tmp.pl:473
+#: translate_tmp.pl:474
+msgid "Adjust line width"
+msgstr "调节线条宽度"
+
+#: translate_tmp.pl:480
+#: translate_tmp.pl:4035
+#: translate_tmp.pl:4159
+msgid "Font"
+msgstr "字体"
+
+#: translate_tmp.pl:484
+#: translate_tmp.pl:485
+msgid "Select font family and size"
+msgstr "选择字体样式"
+
+#: translate_tmp.pl:491
+msgid "Insert image"
+msgstr "插入图像"
+
+#: translate_tmp.pl:604
+#: translate_tmp.pl:605
+msgid "Insert an arbitrary object or file"
+msgstr "插入任意对象或文件"
+
+#: translate_tmp.pl:625
+msgid "X"
+msgstr "X"
+
+#: translate_tmp.pl:644
+msgid "Y"
+msgstr "Y"
+
+#: translate_tmp.pl:663
+#: translate_tmp.pl:4088
+msgid "Width"
+msgstr "宽"
+
+#: translate_tmp.pl:682
+msgid "Height"
+msgstr "高"
+
+#: translate_tmp.pl:712
+msgid "_Crop"
+msgstr "剪裁(_C)"
+
+#: translate_tmp.pl:857
+msgid "Click-Drag to scale (try Control to scale uniformly)"
+msgstr "单击并拖动来缩放(按住 Ctrl 键均匀缩放)"
+
+#: translate_tmp.pl:859
+msgid "Click-Drag to resize the canvas"
+msgstr "单击并拖动来改变画布大小"
+
+#: translate_tmp.pl:864
+msgid "Click to paint (try Control or Shift for a straight line)"
+msgstr "单击来绘图(按住 Ctrl 或 Shift 键画直线)"
+
+#: translate_tmp.pl:868
+msgid "Click-Drag to create a new straight line"
+msgstr "单击并拖动来添加一条直线"
+
+#: translate_tmp.pl:872
+msgid "Click-Drag to create a new arrow"
+msgstr "单击并拖动来添加一个箭头"
+
+#: translate_tmp.pl:876
+msgid "Click-Drag to create a new rectangle"
+msgstr "拖拽以创建一个新的选区"
+
+#: translate_tmp.pl:880
+msgid "Click-Drag to create a new ellipse"
+msgstr "拖拽以创建一个新的圆圈"
+
+#: translate_tmp.pl:884
+msgid "Click-Drag to add a new text area"
+msgstr "拖拽以创建一个新的文字区"
+
+#: translate_tmp.pl:888
+msgid "Click to censor (try Control or Shift for a straight line)"
+msgstr "单击来控制压力(按住 Ctrl 或 Shift 键画直线)"
+
+#: translate_tmp.pl:892
+msgid "Click-Drag to create a pixelized region"
+msgstr ""
+
+#: translate_tmp.pl:896
+msgid "Click to add an auto-increment shape"
+msgstr "单击添加自动递增编号的形状"
+
+#: translate_tmp.pl:1214
+#, perl-format
+msgid "Save the changes to image %s before closing?"
+msgstr "关闭之前是否保存改变到图像%s?"
+
+#: translate_tmp.pl:1230
+msgid "Close"
+msgstr "关闭"
+
+#: translate_tmp.pl:1233
+msgid "Do_n't save"
+msgstr "不保存(_N)"
+
+#: translate_tmp.pl:1299
+#, perl-format
+msgid ""
+"If you don't save the image, changes from the last minute will be lost"
+msgid_plural ""
+"If you don't save the image, changes from the last %d minutes will be lost"
+msgstr[0] ""
+"如果没有保存图片，最后一分钟所做的更改会丢失\r\n"
+"如果没有保存图片，最后 %d 分钟所做的更改会丢失"
+
+#: translate_tmp.pl:1660
+msgid "Do you want to save the changed background color?"
+msgstr "您是否希望记录下修改过的背景颜色？"
+
+#: translate_tmp.pl:1661
+msgid ""
+"The background is likely to be transparent if you decide to ignore the "
+"background color."
+msgstr "如果您选择忽略背景颜色，背景将会是透明的。"
+
+#: translate_tmp.pl:1663
+msgid "Save Background Color"
+msgstr "保存背景颜色"
+
+#: translate_tmp.pl:1666
+msgid "_Ignore Background Color"
+msgstr "忽略背景颜色(_I)"
+
+#: translate_tmp.pl:1669
+msgid "_Save Background Color"
+msgstr "保存背景颜色(_S)"
+
+#: translate_tmp.pl:3719
+msgid "Change Background Color..."
+msgstr "正在修改背景颜色 ..."
+
+#: translate_tmp.pl:3729
+msgid "_Reset to Default"
+msgstr "重设为默认值(_R)"
+
+#: translate_tmp.pl:3779
+msgid "Raise"
+msgstr "提前"
+
+#: translate_tmp.pl:3802
+msgid "Lower"
+msgstr "降低"
+
+#: translate_tmp.pl:3847
+msgid "Unlock"
+msgstr ""
+
+#: translate_tmp.pl:3850
+msgid "Lock"
+msgstr ""
+
+#: translate_tmp.pl:3872
+msgid "Edit Preferences..."
+msgstr "首选项 ..."
+
+#: translate_tmp.pl:4013
+msgid "Numbering"
+msgstr "计数"
+
+#: translate_tmp.pl:4023
+msgid "Current value"
+msgstr "当前值"
+
+#: translate_tmp.pl:4078
+#: translate_tmp.pl:5929
+msgid "Arrow"
+msgstr "箭头"
+
+#: translate_tmp.pl:4100
+msgid "Length"
+msgstr "长度"
+
+#: translate_tmp.pl:4112
+msgid "Tip length"
+msgstr "顶端长度"
+
+#: translate_tmp.pl:4122
+msgid "Display an arrow at the end of the line"
+msgstr "线条尾部带箭头"
+
+#: translate_tmp.pl:4124
+msgid "Display an arrow at the start of the line"
+msgstr "线条头部带箭头"
+
+#: translate_tmp.pl:4149
+#: translate_tmp.pl:5932
+msgid "Text"
+msgstr "文本"
+
+#: translate_tmp.pl:4188
+msgid "Font color"
+msgstr "字体颜色"
+
+#: translate_tmp.pl:4194
+msgid "Choose font color"
+msgstr "选择字体颜色"
+
+#: translate_tmp.pl:4215
+msgid "Use selected font"
+msgstr "使用选中的字体"
+
+#: translate_tmp.pl:5807
+#: translate_tmp.pl:34
+msgid "_File"
+msgstr "文件(_F)"
+
+#: translate_tmp.pl:5808
+#: translate_tmp.pl:39
+msgid "_Edit"
+msgstr "编辑(_E)"
+
+#: translate_tmp.pl:5809
+msgid "_Tools"
+msgstr "工具(_T)"
+
+#: translate_tmp.pl:5810
+#: translate_tmp.pl:44
+msgid "_View"
+msgstr "查看(_V)"
+
+#: translate_tmp.pl:5811
+msgid "Undo last action"
+msgstr "撤销上一个操作"
+
+#: translate_tmp.pl:5814
+msgid "Do again the last undone action"
+msgstr "重做上一个撤销的操作"
+
+#: translate_tmp.pl:5817
+msgid "Copy selection to clipboard"
+msgstr "将选中内容复制到剪贴板"
+
+#: translate_tmp.pl:5823
+msgid "Cut selection to clipboard"
+msgstr "剪切选中内容到剪贴板"
+
+#: translate_tmp.pl:5830
+msgid "Paste objects from clipboard"
+msgstr "粘帖剪贴板中的内容"
+
+#: translate_tmp.pl:5833
+msgid "Delete current object"
+msgstr "删除当前对象"
+
+#: translate_tmp.pl:5836
+msgid "Clear canvas"
+msgstr "清空画布"
+
+#: translate_tmp.pl:5850
+msgid "Abort current mode"
+msgstr "取消当前状态"
+
+#: translate_tmp.pl:5853
+msgid "Close this window"
+msgstr "关闭此窗口"
+
+#: translate_tmp.pl:5856
+msgid "Save image"
+msgstr "保存图像"
+
+#: translate_tmp.pl:5859
+msgid "Export to _File..."
+msgstr ""
+
+#: translate_tmp.pl:5859
+msgid "Export to File..."
+msgstr "导出至文件..."
+
+#: translate_tmp.pl:5862
+msgid "_Export to SVG..."
+msgstr ""
+
+#: translate_tmp.pl:5862
+msgid "Export to SVG..."
+msgstr ""
+
+#: translate_tmp.pl:5865
+#: translate_tmp.pl:108
+msgid "E_xport to PDF..."
+msgstr ""
+
+#: translate_tmp.pl:5865
+msgid "Export to PDF..."
+msgstr ""
+
+#: translate_tmp.pl:5889
+msgid "Automatic scrolling"
+msgstr "自动滚动"
+
+#: translate_tmp.pl:5925
+msgid "Select"
+msgstr "选择"
+
+#: translate_tmp.pl:5925
+msgid "Select item to move or resize it"
+msgstr "选择项目以便移动或改变尺寸"
+
+#: translate_tmp.pl:5926
+msgid "Freehand"
+msgstr "手绘"
+
+#: translate_tmp.pl:5926
+msgid "Draw a freehand line"
+msgstr "画一条手绘线"
+
+#: translate_tmp.pl:5927
+msgid "Highlighter"
+msgstr "强光"
+
+#: translate_tmp.pl:5928
+msgid "Line"
+msgstr "直线"
+
+#: translate_tmp.pl:5928
+msgid "Draw a straight line"
+msgstr "画一条直线"
+
+#: translate_tmp.pl:5929
+msgid "Draw an arrow"
+msgstr "画箭头"
+
+#: translate_tmp.pl:5930
+msgid "Rectangle"
+msgstr "矩形区域"
+
+#: translate_tmp.pl:5930
+msgid "Draw a rectangle"
+msgstr "绘制矩形"
+
+#: translate_tmp.pl:5931
+msgid "Ellipse"
+msgstr "椭圆形区域"
+
+#: translate_tmp.pl:5931
+msgid "Draw a ellipse"
+msgstr "画一个椭圆"
+
+#: translate_tmp.pl:5932
+msgid "Add some text to the screenshot"
+msgstr "为截图添加文字"
+
+#: translate_tmp.pl:5933
+msgid "Censor"
+msgstr "遮蔽工具"
+
+#: translate_tmp.pl:5933
+msgid "Censor portions of your screenshot to hide private data"
+msgstr "删改截图的部分内容来隐藏私人数据"
+
+#: translate_tmp.pl:5934
+msgid "Pixelize"
+msgstr ""
+
+#: translate_tmp.pl:5934
+msgid "Pixelize selected areas of your screenshot to hide private data"
+msgstr ""
+
+#: translate_tmp.pl:5935
+msgid "Number"
+msgstr "递增编号"
+
+#: translate_tmp.pl:5935
+msgid "Add an auto-increment shape to the screenshot"
+msgstr "在截图上添加自动递增编号的形状"
+
+#: translate_tmp.pl:5936
+msgid "Crop"
+msgstr "剪裁"
+
+#: translate_tmp.pl:5936
+msgid "Crop your screenshot"
+msgstr "裁剪屏幕抓图"
+
+#: translate_tmp.pl:6199
+#: translate_tmp.pl:6402
+msgid "No icon was found"
+msgstr "找不到图标"
+
+#: translate_tmp.pl:6258
+msgid "Import from current theme..."
+msgstr "从当前主题导入..."
+
+#: translate_tmp.pl:6272
+msgid "Import from session..."
+msgstr "从会话导入..."
+
+#: translate_tmp.pl:6283
+msgid "Import from filesystem..."
+msgstr "从文件系统导入..."
+
+#: translate_tmp.pl:7093
+msgid "New text..."
+msgstr "添加文字..."
+
+#: translate_tmp.pl:79
+msgid "translator-credits"
+msgstr ""
+"Launchpad Contributions:\n"
+"  Aron Xu https://launchpad.net/~happyaron\n"
+"  Careone https://launchpad.net/~zzbusagain\n"
+"  G.S.Alex https://launchpad.net/~g.s.alex\n"
+"  Heling Yao https://launchpad.net/~hyao\n"
+"  Jonathan Ye https://launchpad.net/~microjo\n"
+"  LukaLuka https://launchpad.net/~lukaluka\n"
+"  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
+"  Tiger Soldier https://launchpad.net/~tigersoldi\n"
+"  TualatriX https://launchpad.net/~tualatrix\n"
+"  Xhacker Liu https://launchpad.net/~xhacker\n"
+"  bt4wang https://launchpad.net/~bt4wang\n"
+"  c_C https://launchpad.net/~midnacc\n"
+"  eth2net https://launchpad.net/~eth2net\n"
+"  fujianwzh https://launchpad.net/~wzh\n"
+"  kaiman https://launchpad.net/~kaigfm\n"
+"  lyman https://launchpad.net/~lyman\n"
+"  renewjoy https://launchpad.net/~rlj-linux\n"
+"  viumden https://launchpad.net/~viumden\n"
+"  冯超 https://launchpad.net/~rainofchaos"
+
+#: translate_tmp.pl:49
+msgid "_Screenshot"
+msgstr "截图(_S)"
+
+#: translate_tmp.pl:54
+msgid "_Go"
+msgstr "开始(_G)"
+
+#: translate_tmp.pl:59
+msgid "_Help"
+msgstr "帮助(_H)"
+
+#: translate_tmp.pl:87
+msgid "_Open..."
+msgstr "打开(_O)..."
+
+#: translate_tmp.pl:92
+msgid "Recent _Files"
+msgstr "最近打开的文件(_F)"
+
+#: translate_tmp.pl:97
+msgid "Save _As..."
+msgstr "另存为(_A)..."
+
+#: translate_tmp.pl:118
+msgid "Page Set_up"
+msgstr "页面设置(_U)"
+
+#: translate_tmp.pl:125
+msgid "_Print..."
+msgstr "打印(_P)..."
+
+#: translate_tmp.pl:133
+msgid "Send by E_mail..."
+msgstr ""
+
+#: translate_tmp.pl:148
+msgid "C_lose all"
+msgstr "全部关闭(_L)"
+
+#: translate_tmp.pl:193
+#: translate_tmp.pl:658
+msgid "Copy _Filename"
+msgstr "复制文件名(_F)"
+
+#: translate_tmp.pl:235
+msgid "Show Navigation _Toolbar"
+msgstr "显示导航工具栏(_T)"
+
+#: translate_tmp.pl:317
+msgid "Get Help Online..."
+msgstr "获取在线帮助..."
+
+#: translate_tmp.pl:332
+msgid "Translate this Application..."
+msgstr "翻译此程序..."
+
+#: translate_tmp.pl:347
+msgid "Report a Problem"
+msgstr "报告一个问题"
+
+#: translate_tmp.pl:503
+msgid "Import from clip_board"
+msgstr "从剪切板导入"
+
+#: translate_tmp.pl:531
+#: translate_tmp.pl:622
+msgid "Open wit_h"
+msgstr "打开方式(_H)"
+
+#: translate_tmp.pl:537
+#: translate_tmp.pl:628
+msgid "_Rename..."
+msgstr "重命名(_R)..."
+
+#: translate_tmp.pl:546
+#: translate_tmp.pl:636
+msgid "_Send To..."
+msgstr "发送至(_S)..."
+
+#: translate_tmp.pl:555
+#: translate_tmp.pl:644
+msgid "E_xport..."
+msgstr "导出(_X)"
+
+#: translate_tmp.pl:564
+#: translate_tmp.pl:671
+msgid "_Edit..."
+msgstr "编辑(_E)..."
+
+#: translate_tmp.pl:581
+msgid "Run a _plugin..."
+msgstr "运行一个插件(_p)"
+
+#: translate_tmp.pl:590
+#: translate_tmp.pl:695
+msgid "Redo _this screenshot"
+msgstr ""
+
+#: translate_tmp.pl:687
+msgid "Run a _Plugin..."
+msgstr "运行插件(_P)..."
+
+#: translate_tmp.pl:37
+msgid "Redo"
+msgstr "重做"
+
+#: translate_tmp.pl:40
+msgid "Redo last screenshot"
+msgstr ""
+
+#: translate_tmp.pl:70
+msgid ""
+"Draw a rectangular capture area with your mouse\n"
+"to select a specified screen area"
+msgstr "用鼠标画一个矩形选区来截取图像"
+
+#: translate_tmp.pl:71
+msgid "Choose selection tool"
+msgstr "选择一个选取工具"
+
+#: translate_tmp.pl:78
+msgid "Full Screen"
+msgstr "全屏幕"
+
+#: translate_tmp.pl:81
+msgid "Take a screenshot of your whole desktop"
+msgstr "截取整个桌面"
+
+#: translate_tmp.pl:82
+msgid "Capture a specific workspace"
+msgstr "截取选定的工作区"
+
+#: translate_tmp.pl:102
+msgid "Select a window with your mouse"
+msgstr "用你的鼠标选择一个窗口"
+
+#: translate_tmp.pl:103
+msgid "Take a screenshot of a specific window"
+msgstr "截取选定的窗口"
+
+#: translate_tmp.pl:123
+msgid ""
+"Captures only a section of the window. You will be able to select any child "
+"window by moving the mouse over it"
+msgstr "仅仅截取一个窗口的某个区域。你也可以移动鼠标选择想要的任意子窗体。"
+
+#: translate_tmp.pl:143
+msgid "Select a single menu or cascading menus from any application"
+msgstr "从任意程序中选择一个弹出菜单或者下拉菜单"
+
+#: translate_tmp.pl:163
+msgid "Capture a tooltip"
+msgstr "抓取一个工具提示"
+
+#: translate_tmp.pl:179
+msgid "Web"
+msgstr "截取网页"
+
+#: translate_tmp.pl:203
+msgid "Edit"
+msgstr "编辑"
+
+#: translate_tmp.pl:206
+msgid ""
+"Use the built-in editor to highlight important fragments of your screenshot "
+"or crop it to a desired size"
+msgstr "用内置编辑器可以突出显示截图的重要部分、或裁剪成希望的尺寸"
+
+#: translate_tmp.pl:213
+msgid "Export"
+msgstr "导出"
+
+#: translate_tmp.pl:216
+msgid ""
+"Upload your images to an image hosting service, FTP site or export them to "
+"an arbitrary folder"
+msgstr "将您的图像上传到图片托管服务器、FTP站点或者导出到任意的文件夹"
+
+#: translate_tmp.pl:33
+#: translate_tmp.pl:47
+#: translate_tmp.pl:62
+#: translate_tmp.pl:76
+#, perl-format
+msgid "Error while executing %s."
+msgstr ""
+
+#: translate_tmp.pl:34
+#: translate_tmp.pl:48
+#: translate_tmp.pl:63
+#: translate_tmp.pl:77
+#, perl-format
+msgid "There was an error executing %s."
+msgstr ""
+
+#: translate_tmp.pl:37
+#: translate_tmp.pl:51
+#: translate_tmp.pl:66
+#: translate_tmp.pl:80
+#, perl-format
+msgid "Exit Code: %d."
+msgstr ""
+
+#~ msgid "Quit"
+#~ msgstr "退出"
+
+#~ msgid "Info"
+#~ msgstr "信息"
+
+#~ msgid ""
+#~ "Your screenshots will be saved\n"
+#~ "to this directory"
+#~ msgstr ""
+#~ "你的屏幕截图会被保存\n"
+#~ "到这个文件夹"
+
+#~ msgid ""
+#~ "Open your screenshot\n"
+#~ "with this program after capturing"
+#~ msgstr ""
+#~ "截图后用这\n"
+#~ "个程序打开图片"
+
+#~ msgid "Save settings when exiting"
+#~ msgstr "退出时保存设置"
+
+#~ msgid "Window border"
+#~ msgstr "窗口边框"
+
+#~ msgid ""
+#~ "Automatically reduce colors \n"
+#~ "after taking a screenshot"
+#~ msgstr ""
+#~ "截图后自动\n"
+#~ "减少颜色数"
+
+#~ msgid "activate"
+#~ msgstr "可见"
+
+#~ msgid "deactivate"
+#~ msgstr "不可见"
+
+#~ msgid "Include wm border when selecting a window"
+#~ msgstr "选定窗口时包含窗口边框"
+
+#~ msgid "<i>Main</i>"
+#~ msgstr "<i>主要</i>"
+
+#~ msgid "No valid url entered"
+#~ msgstr "URL无效"
+
+#~ msgid "No valid filename specified"
+#~ msgstr "没有指定有效文件名"
+
+#~ msgid "Filesize"
+#~ msgstr "文件大小"
+
+#~ msgid "Mime-Type"
+#~ msgstr "媒体类型"
+
+#~ msgid "Statistic"
+#~ msgstr "统计数据"
+
+#~ msgid "screenshot during this session"
+#~ msgid_plural "screenshots during this session"
+#~ msgstr[0] "会话期间的截图"
+
+#~ msgid "All screenshots removed"
+#~ msgstr "已移除所有截图"
+
+#~ msgid "copied to clipboard"
+#~ msgstr "复制到剪贴板"
+
+#~ msgid "click me"
+#~ msgstr "点击我"
+
+#~ msgid "Successfully executed plugin"
+#~ msgstr "执行插件成功"
+
+#~ msgid "Could not execute plugin"
+#~ msgstr "无法执行插件"
+
+#~ msgid "Total size"
+#~ msgstr "总大小"
+
+#~ msgid "Geometry"
+#~ msgstr "窗口布局"
+
+#~ msgid "Screenshot failed!"
+#~ msgstr "截图失败！"
+
+#~ msgid "Translate this Application ..."
+#~ msgstr "翻译这个应用程序 ..."
+
+#~ msgid "Get Help Online ..."
+#~ msgstr "获取在线帮助 ..."
+
+#~ msgid "Include cursor"
+#~ msgstr "包含光标"
+
+#~ msgid "Size of zoom window"
+#~ msgstr "放大窗口的尺寸"
+
+#~ msgid "Large"
+#~ msgstr "大"
+
+#~ msgid "Medium"
+#~ msgstr "中"
+
+#~ msgid "Small"
+#~ msgstr "小"
+
+#~ msgid "Current Preferences"
+#~ msgstr "当前首选项"
+
+#~ msgid "Gtk2::ImageView needs to be installed for this feature"
+#~ msgstr "该特性需要安装 Gtk2::ImageView"
+
+#~ msgid "<i>Text</i>"
+#~ msgstr "<i>文本</i>"
+
+#~ msgid "Set up a connection timeout (seconds)"
+#~ msgstr "设置连接超时（秒）"
+
+#~ msgid ""
+#~ "There are several wild-cards available, like\n"
+#~ "%Y = year\n"
+#~ "%m = month\n"
+#~ "%d = day\n"
+#~ "%T = time\n"
+#~ "$w = width\n"
+#~ "$h = height\n"
+#~ "%NN = counter"
+#~ msgstr ""
+#~ "以下是可用的通配符\n"
+#~ "%Y = 年\n"
+#~ "%m = 月\n"
+#~ "%d = 日\n"
+#~ "%T = 时间\n"
+#~ "$w = 宽\n"
+#~ "$h = 高\n"
+#~ "%NN = 计数"
+
+#~ msgid "Autohide Shutter Window when taking a screenshot"
+#~ msgstr "截图时自动隐藏 Shutter 窗口"
+
+#~ msgid "Save settings automatically when exiting Shutter"
+#~ msgstr "退出 Shutter 是自动保存设置"
+
+#~ msgid ""
+#~ "Please wait while your saved session\n"
+#~ "is being restored"
+#~ msgstr ""
+#~ "请稍候，\n"
+#~ "正在从已存会话中恢复"
+
+#~ msgid "Error while taking the screenshot"
+#~ msgstr "截图时发生错误"
+
+#~ msgid "Current Profile"
+#~ msgstr "当前配置"
+
+#~ msgid ""
+#~ "Please wait while your selected files\n"
+#~ "are being integrated into Shutter"
+#~ msgstr ""
+#~ "请稍候，\n"
+#~ "正在将所选文件整合进 Shutter"
+
+#~ msgid "_Open with"
+#~ msgstr "打开用(_O)"
+
+#~ msgid "Delete objects"
+#~ msgstr "删除对象"
+
+#~ msgid "Delete all objects"
+#~ msgstr "删除全部对象"
+
+#~ msgid "_Upload / Export"
+#~ msgstr "上传或导出(_U)"
+
+#~ msgid "Execute a _plugin"
+#~ msgstr "执行一个插件(_P)"
+
+#~ msgid "Select an object to delete it from the canvas"
+#~ msgstr "选择一个对象将其从画布上删除"
+
+#~ msgid "_Full Screen"
+#~ msgstr "全屏(_F)"
+
+#~ msgid "Move to Dele_ted Items folder"
+#~ msgstr "移动到废纸篓(_T)"
+
+#~ msgid "_Quick select"
+#~ msgstr "快速选择(_Q)"
+
+#~ msgid ""
+#~ "If you have registered with imageshack.us, you should have received an email "
+#~ "with a link similar to\n"
+#~ "\n"
+#~ "http://reg.imageshack.us/setlogin.php?login=SOME_IDENTIFIER\n"
+#~ "\n"
+#~ "You should pass either that link as the username or only the user_id "
+#~ "(SOME_IDENTIFIER)\n"
+#~ "\n"
+#~ "You do not have to provide a password."
+#~ msgstr ""
+#~ "如果你已经在imageshack.us注册了，你会收到一封含有类似下面链接的email：\n"
+#~ "http://reg.imageshack.us/setlogin.php?login=SOME_IDENTIFIER\n"
+#~ "你应该给那个链接传递用户名或用户id参数（SOME_IDENTIFIER）\n"
+#~ "你不需要提供密码。"
+
+#~ msgid ""
+#~ "ctrl + scrollwheel = zoom in/out\n"
+#~ "cursor keys + alt = move selection\n"
+#~ "cursor keys + ctrl = resize selection"
+#~ msgstr ""
+#~ "ctrl + 鼠标滚轮 = 放大/缩小\n"
+#~ "方向键 + alt = 移动\n"
+#~ "方向键 + ctrl = 改变大小"
+
+#~ msgid "<i>Numbering</i>"
+#~ msgstr "<i>编号</i>"
+
+#~ msgid "<i>Arrow</i>"
+#~ msgstr "<i>箭头</i>"
+
+#~ msgid "Copy _filename"
+#~ msgstr "复制文件名(_F)"
+
+#~ msgid "As background"
+#~ msgstr "作为背景"
+
+#~ msgid ""
+#~ "There are several wildcards available, like\n"
+#~ "%Y = year\n"
+#~ "%m = month\n"
+#~ "%d = day\n"
+#~ "%T = time\n"
+#~ "$w = width\n"
+#~ "$h = height\n"
+#~ "$name = multi-purpose (e.g. window title)\n"
+#~ "%NN = counter"
+#~ msgstr ""
+#~ "有几种通配符可用：\n"
+#~ "%Y = 年\n"
+#~ "%m = 月\n"
+#~ "%d = 日\n"
+#~ "%T = 时间\n"
+#~ "$w = 宽\n"
+#~ "$h = 高\n"
+#~ "$name = 多用途（如窗口标题等）\n"
+#~ "%NN = 序号"
+
+#~ msgid "Send To..."
+#~ msgstr "发送至..."
+
+#~ msgid "Send by Email..."
+#~ msgstr "发送电子邮件"
+
+#~ msgid "As check pattern"
+#~ msgstr "以方格图案"
+
+#~ msgid "As custom color:"
+#~ msgstr "以定制颜色："

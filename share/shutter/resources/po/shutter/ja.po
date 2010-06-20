@@ -1,0 +1,2351 @@
+# Japanese translation for shutter
+# Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
+# This file is distributed under the same license as the shutter package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: shutter\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2010-04-14 08:57+0200\n"
+"PO-Revision-Date: 2010-04-26 17:03+0000\n"
+"Last-Translator: Akihiro Nishimura <nimu.zh3@zoho.com>\n"
+"Language-Team: Japanese\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Launchpad-Export-Date: 2010-06-20 09:00+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+"X-Poedit-Country: JAPAN\n"
+"X-Poedit-Language: Japanese\n"
+
+#: translate_tmp.pl:204
+#: translate_tmp.pl:1852
+#: translate_tmp.pl:5963
+msgid "Profile"
+msgstr "プロファイル"
+
+#: translate_tmp.pl:209
+#: translate_tmp.pl:3909
+msgid "Preferences"
+msgstr "設定"
+
+#: translate_tmp.pl:506
+#: translate_tmp.pl:507
+msgid "gnome-web-photo needs to be installed for this feature"
+msgstr "この機能は「gnome-web-photo」を追加インストールする必要があります"
+
+#: translate_tmp.pl:514
+msgid "Goo::Canvas/libgoocanvas needs to be installed for this feature"
+msgstr "この機能は Goo::Canvas/libgoocanvas を追加インストールする必要があります"
+
+#: translate_tmp.pl:544
+msgid "Choose a profile"
+msgstr "プロファイルの選択"
+
+#: translate_tmp.pl:561
+msgid "Save configuration as profile"
+msgstr "設定をプロファイルとして保存"
+
+#: translate_tmp.pl:571
+msgid "Delete profile"
+msgstr "プロファイルの削除"
+
+#: translate_tmp.pl:580
+msgid "Set profile for current configuration"
+msgstr "プロファイルを適用"
+
+#: translate_tmp.pl:585
+#: translate_tmp.pl:832
+#: translate_tmp.pl:8069
+#: translate_tmp.pl:1477
+msgid "Image format"
+msgstr "画像のフォーマット"
+
+#: translate_tmp.pl:592
+msgid "Save"
+msgstr "保存"
+
+#: translate_tmp.pl:599
+msgid "Window Preferences"
+msgstr "ウィンドウ設定"
+
+#: translate_tmp.pl:606
+msgid "Notifications"
+msgstr "通知"
+
+#: translate_tmp.pl:613
+msgid "Trash"
+msgstr "ゴミ箱"
+
+#: translate_tmp.pl:620
+msgid "Gnome-Keybinding"
+msgstr "Gnome キーボード・ショートカット"
+
+#: translate_tmp.pl:627
+#: translate_tmp.pl:1662
+msgid "Actions"
+msgstr "アクション"
+
+#: translate_tmp.pl:634
+#: translate_tmp.pl:1309
+msgid "Capture"
+msgstr "取得"
+
+#: translate_tmp.pl:641
+msgid "Selection Capture"
+msgstr "範囲選択のオプション"
+
+#: translate_tmp.pl:648
+msgid "Advanced Selection Capture"
+msgstr "範囲選択の高度なオプション"
+
+#: translate_tmp.pl:655
+msgid "Window Capture"
+msgstr "ウィンドウの取得"
+
+#: translate_tmp.pl:662
+msgid "Menu/Tooltip Capture"
+msgstr "メニュー/ツールチップの取得"
+
+#: translate_tmp.pl:669
+msgid "Website Capture"
+msgstr "ウェブページの取得"
+
+#: translate_tmp.pl:676
+msgid "Accounts"
+msgstr "アカウント"
+
+#: translate_tmp.pl:683
+msgid "File Transfer Protocol (FTP)"
+msgstr "ファイル転送のプロトコル(FTP)"
+
+#: translate_tmp.pl:690
+msgid "Transparent Parts"
+msgstr "透明な部分"
+
+#: translate_tmp.pl:696
+msgid "Filename"
+msgstr "ファイル名"
+
+#: translate_tmp.pl:720
+#: translate_tmp.pl:7819
+#: translate_tmp.pl:9223
+#, perl-format
+msgid "Reserved character %s is not allowed to be in a filename."
+msgstr "%sという文字はファイル名としては使用できません"
+
+#: translate_tmp.pl:734
+msgid "There are several wildcards available, like\n"
+msgstr ""
+
+#: translate_tmp.pl:735
+msgid "%Y = year\n"
+msgstr ""
+
+#: translate_tmp.pl:736
+msgid "%m = month\n"
+msgstr ""
+
+#: translate_tmp.pl:737
+#, perl-format
+msgid "%d = day\n"
+msgstr ""
+
+#: translate_tmp.pl:738
+msgid "%T = time\n"
+msgstr ""
+
+#: translate_tmp.pl:739
+msgid "$w = width\n"
+msgstr ""
+
+#: translate_tmp.pl:740
+msgid "$h = height\n"
+msgstr ""
+
+#: translate_tmp.pl:741
+msgid "$name = multi-purpose (e.g. window title)\n"
+msgstr ""
+
+#: translate_tmp.pl:742
+msgid "$nb_name = like $name but without blanks in resulting strings\n"
+msgstr ""
+
+#: translate_tmp.pl:743
+msgid "$profile = name of current profile\n"
+msgstr ""
+
+#: translate_tmp.pl:744
+msgid "%NN = counter"
+msgstr ""
+
+#: translate_tmp.pl:755
+#: translate_tmp.pl:2051
+msgid "Compression"
+msgstr "圧縮率"
+
+#: translate_tmp.pl:764
+#: translate_tmp.pl:766
+msgid ""
+"Quality/Compression:\n"
+"High value means high size / high compression\n"
+"(depending on file format chosen)"
+msgstr ""
+"品質/圧縮率:\n"
+"値が大きいほど高品質/高圧縮率になります\n"
+"(選択したフォーマットによります)"
+
+#: translate_tmp.pl:833
+#: translate_tmp.pl:834
+msgid "Select a file format"
+msgstr "画像のフォーマットを選択します"
+
+#: translate_tmp.pl:839
+msgid "Directory"
+msgstr "フォルダ"
+
+#: translate_tmp.pl:840
+#: translate_tmp.pl:8579
+#: translate_tmp.pl:8581
+msgid "Choose folder"
+msgstr "フォルダの選択"
+
+#: translate_tmp.pl:847
+#: translate_tmp.pl:848
+msgid "Your screenshots will be saved to this directory"
+msgstr "スクリーンショットはこのフォルダに保存されます"
+
+#: translate_tmp.pl:853
+#: translate_tmp.pl:856
+msgid "Browse for save folder every time"
+msgstr ""
+
+#: translate_tmp.pl:858
+#: translate_tmp.pl:861
+msgid "Automatically save file"
+msgstr ""
+
+#: translate_tmp.pl:885
+#: translate_tmp.pl:894
+msgid "Automatically copy screenshot to clipboard"
+msgstr "取得した画像を自動でクリップボードにコピーする"
+
+#: translate_tmp.pl:897
+#: translate_tmp.pl:906
+msgid "Automatically copy filename to clipboard"
+msgstr "取得した画像のファイル名を自動でクリップボードにコピーする"
+
+#: translate_tmp.pl:909
+#: translate_tmp.pl:918
+msgid "Do not copy anything to clipboard"
+msgstr ""
+
+#: translate_tmp.pl:922
+msgid "Delay"
+msgstr "取得するまでの待ち時間"
+
+#: translate_tmp.pl:924
+#: translate_tmp.pl:932
+#: translate_tmp.pl:1188
+#: translate_tmp.pl:2010
+#: translate_tmp.pl:2016
+#: translate_tmp.pl:2021
+msgid "second"
+msgid_plural "seconds"
+msgstr[0] "秒"
+
+#: translate_tmp.pl:930
+msgid "Capture after a delay of"
+msgstr "次の待ち時間後に取得:"
+
+#: translate_tmp.pl:944
+#: translate_tmp.pl:945
+#: translate_tmp.pl:946
+#: translate_tmp.pl:948
+#: translate_tmp.pl:949
+#: translate_tmp.pl:950
+msgid "Wait n seconds before taking a screenshot"
+msgstr "スクリーンショットの取得までの待ち時間(秒数)を設定します"
+
+#: translate_tmp.pl:957
+msgid "Include Cursor"
+msgstr "マウスのポインタを含める"
+
+#: translate_tmp.pl:958
+#: translate_tmp.pl:964
+#: translate_tmp.pl:965
+msgid "Include cursor when taking a screenshot"
+msgstr "スクリーンショットの取得時にマウスのポインタを含める"
+
+#: translate_tmp.pl:1012
+msgid "Open with"
+msgstr "取得後に開く"
+
+#: translate_tmp.pl:1013
+#: translate_tmp.pl:1014
+#: translate_tmp.pl:1015
+msgid "Open your screenshot with this program after capturing"
+msgstr "スクリーンショットを取得した後に、指定したアプリケーションで開きます"
+
+#: translate_tmp.pl:1022
+msgid "16 colors   - (4bit) "
+msgstr "16色 - (4ビット） "
+
+#: translate_tmp.pl:1023
+msgid "64 colors   - (6bit) "
+msgstr "64色 - (6ビット） "
+
+#: translate_tmp.pl:1024
+msgid "256 colors  - (8bit) "
+msgstr "256色 - (8ビット） "
+
+#: translate_tmp.pl:1049
+msgid "Reduce colors"
+msgstr "減色"
+
+#: translate_tmp.pl:1050
+#: translate_tmp.pl:1051
+#: translate_tmp.pl:1052
+msgid "Automatically reduce colors after taking a screenshot"
+msgstr "スクリーンショットを取得した後に、自動的に減色します"
+
+#: translate_tmp.pl:1058
+msgid "Thumbnail"
+msgstr "サムネイルを生成"
+
+#: translate_tmp.pl:1084
+#: translate_tmp.pl:1086
+#: translate_tmp.pl:1088
+msgid ""
+"Generate thumbnail too.\n"
+"select the percentage of the original size for the thumbnail to be"
+msgstr "スクリーンショットを取得した後に、自動的に生成するサムネイルのサイズ(縮小率)を指定します"
+
+#: translate_tmp.pl:1094
+#: translate_tmp.pl:1102
+msgid "Enable zoom window"
+msgstr "ウィンドウのズームを有効にする"
+
+#: translate_tmp.pl:1107
+msgid "Start with selection size of"
+msgstr "次の条件で選択を開始：サイズ"
+
+#: translate_tmp.pl:1109
+msgid "at"
+msgstr "位置"
+
+#: translate_tmp.pl:1115
+#: translate_tmp.pl:1116
+#: translate_tmp.pl:1234
+#: translate_tmp.pl:5850
+msgid "pixels"
+msgstr "ピクセル"
+
+#: translate_tmp.pl:1139
+#: translate_tmp.pl:1140
+#: translate_tmp.pl:1141
+#: translate_tmp.pl:1142
+#: translate_tmp.pl:1143
+#: translate_tmp.pl:1144
+#: translate_tmp.pl:1145
+#: translate_tmp.pl:1146
+#: translate_tmp.pl:1147
+#: translate_tmp.pl:1148
+msgid "Start Advanced Selection Tool with a customized selection size"
+msgstr "高度な選択ツールを指定したサイズで開始します"
+
+#: translate_tmp.pl:1162
+#: translate_tmp.pl:1163
+msgid "Include window decoration when capturing a window"
+msgstr "ウィンドウ選択時にウィンドウの装飾を含める"
+
+#: translate_tmp.pl:1174
+#: translate_tmp.pl:1175
+msgid "Select only visible windows"
+msgstr "表示されているウィンドウのみを対象にする"
+
+#: translate_tmp.pl:1186
+msgid "Pre-Capture Delay"
+msgstr "取得前の待ち時間"
+
+#: translate_tmp.pl:1200
+#: translate_tmp.pl:1201
+#: translate_tmp.pl:1202
+msgid "Capture menu/tooltip after a delay of n seconds"
+msgstr "メニュー/ツールチップを n 秒後に取得する"
+
+#: translate_tmp.pl:1209
+msgid "Ignore possibly wrong type hints"
+msgstr ""
+
+#: translate_tmp.pl:1210
+msgid ""
+"The type hint constants specify hints for the window manager that indicate "
+"what type of function the window has. Sometimes these type hints are not "
+"correctly set. By enabling this option Shutter will not insist on the "
+"requested type hint."
+msgstr ""
+
+#: translate_tmp.pl:1221
+msgid "Virtual browser width"
+msgstr "仮想ブラウザの横幅"
+
+#: translate_tmp.pl:1242
+#: translate_tmp.pl:1243
+#: translate_tmp.pl:1244
+msgid "Virtual browser width when taking a website screenshot"
+msgstr "ウェブページのスクリーンショットを取得する時の仮想ブラウザの横幅を指定します"
+
+#: translate_tmp.pl:1251
+msgid "Show as check pattern"
+msgstr ""
+
+#: translate_tmp.pl:1252
+msgid "Show as custom color:"
+msgstr ""
+
+#: translate_tmp.pl:1255
+#: translate_tmp.pl:446
+#: translate_tmp.pl:3723
+#: translate_tmp.pl:3979
+msgid "Choose fill color"
+msgstr "塗りつぶしの色の選択"
+
+#: translate_tmp.pl:1257
+msgid "Show as background"
+msgstr ""
+
+#: translate_tmp.pl:1278
+msgid "Displays any transparent parts of the image in a check pattern"
+msgstr "画像中の透明な部分を格子模様で表示します"
+
+#: translate_tmp.pl:1279
+msgid ""
+"Displays any transparent parts of the image in a solid color that you specify"
+msgstr "画像中の透明な部分を指定した色で表示します"
+
+#: translate_tmp.pl:1280
+msgid ""
+"Displays any transparent parts of the image in the background color of the "
+"application"
+msgstr "画像中の透明な部分を背景色で表示します"
+
+#: translate_tmp.pl:1313
+#: translate_tmp.pl:1319
+msgid ""
+"Configure global keybinding for capture\n"
+"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
+"fairly liberal and allows lower or upper case, and also abbreviations such "
+"as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
+"\"disabled\", then there will be no keybinding for this action. "
+msgstr ""
+"スクリーンショット取得用のキーボード・ショートカットを設定します\n"
+"書式は \"<Control>a\" や \"<Shift><Alt>F1\" のようになります。大文字でも小文字でも問題ありません。また "
+"\"<Ctl>\" や \"<Ctrl>\" といった短縮形も利用できまう。もし \"disabled\" "
+"と指定した場合は、キーボード・ショートカットは設定されません。 "
+
+#: translate_tmp.pl:1329
+msgid "Capture with selection"
+msgstr "範囲を選択して取得"
+
+#: translate_tmp.pl:1333
+#: translate_tmp.pl:1339
+#: translate_tmp.pl:1356
+msgid ""
+"Configure global keybinding for capture with selection\n"
+"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
+"fairly liberal and allows lower or upper case, and also abbreviations such "
+"as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
+"\"disabled\", then there will be no keybinding for this action. "
+msgstr ""
+"範囲を選択して取得する時のキーボード・ショートカットを設定します\n"
+"書式は \"<Control>a\" や \"<Shift><Alt>F1\" のようになります。大文字でも小文字でも問題ありません。また "
+"\"<Ctl>\" や \"<Ctrl>\" といった短縮形も利用できまう。もし \"disabled\" "
+"と指定した場合は、キーボード・ショートカットは設定されません。 "
+
+#: translate_tmp.pl:1344
+#: translate_tmp.pl:255
+#: translate_tmp.pl:796
+#: translate_tmp.pl:63
+msgid "Selection"
+msgstr "範囲を選択"
+
+#: translate_tmp.pl:1345
+#: translate_tmp.pl:99
+msgid "Window"
+msgstr "ウィンドウ"
+
+#: translate_tmp.pl:1346
+#: translate_tmp.pl:120
+msgid "Section"
+msgstr "セクション"
+
+#: translate_tmp.pl:1396
+#: translate_tmp.pl:1442
+msgid "Autohide main window when taking a screenshot"
+msgstr "取得時に Shutter のウィンドウを自動で隠す"
+
+#: translate_tmp.pl:1397
+msgid "Redraw Delay"
+msgstr "再描画の待ち時間"
+
+#: translate_tmp.pl:1405
+#: translate_tmp.pl:1460
+msgid "Present main window after taking a screenshot"
+msgstr "スクリーンショットの取得後に Shutter のウィンドウを残す"
+
+#: translate_tmp.pl:1406
+#: translate_tmp.pl:1501
+msgid "Minimize to tray when closing main window"
+msgstr "メインウィンドウを閉じたら通知エリアに最小化する"
+
+#: translate_tmp.pl:1408
+#: translate_tmp.pl:1468
+msgid "Display pop-up notification after taking a screenshot"
+msgstr "スクリーンショットを取得した後にポップアップ通知を表示する"
+
+#: translate_tmp.pl:1409
+#: translate_tmp.pl:1476
+#: translate_tmp.pl:1484
+msgid "Display pop-up notification when using a delay"
+msgstr "取得の待ち時間中にポップアップ通知を表示する"
+
+#: translate_tmp.pl:1410
+msgid "Display pop-up notification when using a pre-capture delay"
+msgstr "取得前の待ち時間中にポップアップ通知を表示する"
+
+#: translate_tmp.pl:1412
+msgid "Notification agent"
+msgstr ""
+
+#: translate_tmp.pl:1414
+msgid "Desktop Notifications"
+msgstr ""
+
+#: translate_tmp.pl:1415
+msgid "Built-In Notifications"
+msgstr ""
+
+#: translate_tmp.pl:1419
+#: translate_tmp.pl:1509
+msgid "Ask before moving files to trash"
+msgstr "ファイルをゴミ箱へ移動する前に確認する"
+
+#: translate_tmp.pl:1420
+#: translate_tmp.pl:1517
+msgid "Move file to trash when closing tab"
+msgstr "タブを閉じたらゴミ箱へ移動する"
+
+#: translate_tmp.pl:1450
+#: translate_tmp.pl:1451
+#: translate_tmp.pl:1452
+msgid ""
+"Configure a short timeout to give the Xserver a chance to redraw areas that "
+"were obscured by Shutter's windows before taking a screenshot."
+msgstr ""
+"スクリーンショットを取得する時に、Shutter のウィンドウで隠されたエリアを Xserver が描画できるように、短い待ち時間を設定します。"
+
+#: translate_tmp.pl:1492
+#: translate_tmp.pl:1493
+msgid ""
+"You can either choose the system-wide desktop notifications (e.g. Ubuntu's "
+"Notify-OSD) or Shutter's built-in notification system"
+msgstr ""
+
+#: translate_tmp.pl:1527
+msgid ""
+"Entering your Accounts for specific hosting-sites is optional. If entered it "
+"will give you the same benefits as the upload on the website. If you leave "
+"these fields empty you will be able to upload to the specific hosting-"
+"partner as a guest."
+msgstr ""
+"画像公開サイトのアカウントを指定すれば画像をアップロードできるようになります。フィールドを空欄のままにした場合、ゲストとしてアクセス可能となります"
+
+#: translate_tmp.pl:1538
+#: translate_tmp.pl:8595
+msgid "URI"
+msgstr "URI"
+
+#: translate_tmp.pl:1547
+#: translate_tmp.pl:1549
+#: translate_tmp.pl:8600
+#: translate_tmp.pl:8602
+msgid ""
+"URI\n"
+"Example: ftp://host:port/path"
+msgstr ""
+"URI\n"
+"例：ftp://host:port/path"
+
+#: translate_tmp.pl:1554
+#: translate_tmp.pl:1565
+#: translate_tmp.pl:1567
+#: translate_tmp.pl:8607
+#: translate_tmp.pl:8614
+#: translate_tmp.pl:8616
+msgid "Connection mode"
+msgstr "接続モード"
+
+#: translate_tmp.pl:1557
+#: translate_tmp.pl:8610
+msgid "Active mode"
+msgstr "アクティブモード"
+
+#: translate_tmp.pl:1558
+#: translate_tmp.pl:8611
+msgid "Passive mode"
+msgstr "パッシブモード"
+
+#: translate_tmp.pl:1572
+#: translate_tmp.pl:1581
+#: translate_tmp.pl:1583
+#: translate_tmp.pl:7450
+#: translate_tmp.pl:8621
+#: translate_tmp.pl:8626
+#: translate_tmp.pl:8628
+msgid "Username"
+msgstr "ユーザ名"
+
+#: translate_tmp.pl:1588
+#: translate_tmp.pl:1599
+#: translate_tmp.pl:1601
+#: translate_tmp.pl:7457
+#: translate_tmp.pl:8633
+#: translate_tmp.pl:8640
+#: translate_tmp.pl:8642
+msgid "Password"
+msgstr "パスワード"
+
+#: translate_tmp.pl:1606
+#: translate_tmp.pl:1615
+#: translate_tmp.pl:1617
+#: translate_tmp.pl:8647
+#: translate_tmp.pl:8652
+#: translate_tmp.pl:8654
+msgid "Website URL"
+msgstr ""
+
+#: translate_tmp.pl:1625
+#: translate_tmp.pl:3949
+msgid "Main"
+msgstr "メイン"
+
+#: translate_tmp.pl:1682
+msgid "Advanced"
+msgstr "詳細"
+
+#: translate_tmp.pl:1727
+msgid "Image View"
+msgstr "イメージ表示"
+
+#: translate_tmp.pl:1738
+msgid "Behavior"
+msgstr "動作"
+
+#: translate_tmp.pl:1767
+msgid "Keyboard"
+msgstr "キーボード"
+
+#: translate_tmp.pl:1785
+#: translate_tmp.pl:518
+#: translate_tmp.pl:302
+#: translate_tmp.pl:399
+msgid "Upload"
+msgstr "アップロード"
+
+#: translate_tmp.pl:1838
+msgid "Plugins"
+msgstr "プラグイン"
+
+#: translate_tmp.pl:1840
+msgid "The following plugins are installed"
+msgstr "次のプラグインがインストールされています"
+
+#: translate_tmp.pl:2026
+msgid "millisecond"
+msgid_plural "milliseconds"
+msgstr[0] "ミリ秒"
+
+#: translate_tmp.pl:2045
+msgid "Quality"
+msgstr "品質"
+
+#: translate_tmp.pl:2112
+msgid "Please activate the menu you want to capture"
+msgstr "取得したいメニューを表示してください"
+
+#: translate_tmp.pl:2114
+msgid "Please activate the tooltip you want to capture"
+msgstr "取得したいツールチップを表示してください"
+
+#: translate_tmp.pl:2123
+#: translate_tmp.pl:2133
+#: translate_tmp.pl:193
+#: translate_tmp.pl:201
+#, perl-format
+msgid "Screenshot will be taken in %s second"
+msgid_plural "Screenshot will be taken in %s seconds"
+msgstr[0] "スクリーンショットを %s 秒後に取得します"
+
+#: translate_tmp.pl:2381
+#: translate_tmp.pl:7484
+msgid "Register"
+msgstr "登録"
+
+#: translate_tmp.pl:2686
+#: translate_tmp.pl:6290
+msgid "Choose file to open"
+msgstr "開くファイルを選択"
+
+#: translate_tmp.pl:2717
+#: translate_tmp.pl:6321
+msgid "All compatible image formats"
+msgstr "互換性のある全画像フォーマット"
+
+#: translate_tmp.pl:2886
+msgid "Profile deleted"
+msgstr "プロファイルが削除されました"
+
+#: translate_tmp.pl:2888
+#: translate_tmp.pl:2889
+msgid "Profile could not be deleted"
+msgstr "プロファイルが削除できません"
+
+#: translate_tmp.pl:2888
+#: translate_tmp.pl:3083
+#: translate_tmp.pl:4321
+#: translate_tmp.pl:4327
+#: translate_tmp.pl:4403
+#: translate_tmp.pl:4409
+#: translate_tmp.pl:4571
+#: translate_tmp.pl:4806
+#: translate_tmp.pl:4933
+#: translate_tmp.pl:4963
+#: translate_tmp.pl:5718
+#: translate_tmp.pl:8453
+#: translate_tmp.pl:9174
+#: translate_tmp.pl:110
+#: translate_tmp.pl:120
+msgid "Failed"
+msgstr "失敗しました"
+
+#: translate_tmp.pl:2907
+#, perl-format
+msgid "Profile %s loaded successfully"
+msgstr "%s プロファイルが正しく読み込まれました"
+
+#: translate_tmp.pl:2933
+#: translate_tmp.pl:5859
+msgid "Session"
+msgstr "セッション"
+
+#: translate_tmp.pl:2952
+#: translate_tmp.pl:4277
+msgid "not found"
+msgstr "見つかりません"
+
+#: translate_tmp.pl:3518
+msgid "Settings could not be saved!"
+msgstr "設定を保存できません"
+
+#: translate_tmp.pl:3520
+msgid "Settings saved successfully!"
+msgstr "設定が正しく保存されました"
+
+#: translate_tmp.pl:3546
+msgid "Session could not be saved!"
+msgstr "セッションを保存できません"
+
+#: translate_tmp.pl:3564
+msgid "Account-settings could not be saved!"
+msgstr "アカウントの設定が保存できません"
+
+#: translate_tmp.pl:3905
+msgid "Settings could not be restored!"
+msgstr "設定が復元できません"
+
+#: translate_tmp.pl:3908
+msgid "Settings loaded successfully"
+msgstr "設定が正しく読み込まれました"
+
+#: translate_tmp.pl:4012
+msgid "Account-settings could not be restored!"
+msgstr "アカウント設定が復元できません"
+
+#: translate_tmp.pl:4112
+msgid "Loading files"
+msgstr "ファイルの読み込み"
+
+#: translate_tmp.pl:4116
+msgid "Please wait while your selected files are being loaded into Shutter"
+msgstr "選択したファイルが読み込まれるまでしばらくお待ちください"
+
+#: translate_tmp.pl:4157
+msgid "opened"
+msgstr "開いた"
+
+#: translate_tmp.pl:4205
+msgid "Restoring session"
+msgstr "セッションを復元中"
+
+#: translate_tmp.pl:4207
+msgid "Please wait while your saved session is being restored"
+msgstr ""
+"保存されたセッションを復元しています。\n"
+"しばらくお待ち下さい。"
+
+#: translate_tmp.pl:4258
+msgid "Session could not be restored!"
+msgstr "セッションが復元できません"
+
+#: translate_tmp.pl:4298
+#, perl-format
+msgid "Are you sure you want to move %s to the trash?"
+msgstr "本当に %s をゴミ箱へ移動しますか？"
+
+#: translate_tmp.pl:4299
+#: translate_tmp.pl:4368
+#: translate_tmp.pl:198
+#: translate_tmp.pl:663
+msgid "Move to _Trash"
+msgstr "ゴミ箱へ移動(_T)"
+
+#: translate_tmp.pl:4333
+msgid "deleted"
+msgstr "削除されました"
+
+#: translate_tmp.pl:4367
+msgid "Are you sure you want to move the selected files to the trash?"
+msgstr "本当に選択したファイルをゴミ箱へ移動しますか？"
+
+#: translate_tmp.pl:4372
+#: translate_tmp.pl:4425
+#: translate_tmp.pl:4525
+msgid "No screenshots selected"
+msgstr "スクリーンショットが選択されていません"
+
+#: translate_tmp.pl:4441
+msgid "Selected screenshots deleted"
+msgstr "選択したスクリーンショットが削除されました"
+
+#: translate_tmp.pl:4477
+#: translate_tmp.pl:6228
+#: translate_tmp.pl:6259
+#: translate_tmp.pl:6287
+#: translate_tmp.pl:6316
+msgid "removed from session"
+msgstr "セッションから削除"
+
+#: translate_tmp.pl:4541
+msgid "Selected screenshots removed"
+msgstr "選択されたスクリーンショットが削除されました"
+
+#: translate_tmp.pl:4571
+#: translate_tmp.pl:4933
+msgid "No valid filetype specified"
+msgstr "有効なファイル形式が指定されていません"
+
+#: translate_tmp.pl:4586
+msgid "There is no image data in the clipboard to paste"
+msgstr "クリップボードにイメージがコピーされていません"
+
+#: translate_tmp.pl:4645
+msgid "Selected filenames copied to clipboard"
+msgstr "選択したファイル名はクリップボードにコピーされました"
+
+#: translate_tmp.pl:4660
+msgid "Selected images copied to clipboard"
+msgstr "選択した画像はクリップボードにコピーされました"
+
+#: translate_tmp.pl:4707
+msgid "Last action undone"
+msgstr "最後のアクションを元に戻す"
+
+#: translate_tmp.pl:4715
+#: translate_tmp.pl:4767
+#, perl-format
+msgid "Error while copying last version (%s)."
+msgstr "最後のバージョン (%s) のコピー中にエラーが発生しました。"
+
+#: translate_tmp.pl:4716
+#, perl-format
+msgid "There was an error performing undo on %s."
+msgstr "%s への操作を元に戻している時にエラーが発生しました。"
+
+#: translate_tmp.pl:4759
+msgid "Last action redone"
+msgstr "最後のアクションをやり直す"
+
+#: translate_tmp.pl:4768
+#, perl-format
+msgid "There was an error performing redo on %s."
+msgstr "%s への操作をやり直ししている時にエラーが発生しました。"
+
+#: translate_tmp.pl:4806
+msgid "No plugin installed"
+msgstr "プラグインがインストールされていません"
+
+#: translate_tmp.pl:4962
+#: translate_tmp.pl:6454
+msgid "There was an error determining the filename."
+msgstr "ファイル名の指定時にエラーが起きました"
+
+#: translate_tmp.pl:5185
+msgid "Triggered invalid screenshot action."
+msgstr ""
+
+#: translate_tmp.pl:5186
+#: translate_tmp.pl:5189
+#: translate_tmp.pl:5403
+#: translate_tmp.pl:5405
+#: translate_tmp.pl:69
+#: translate_tmp.pl:77
+#: translate_tmp.pl:85
+#: translate_tmp.pl:100
+#: translate_tmp.pl:108
+#: translate_tmp.pl:116
+#: translate_tmp.pl:128
+msgid "Error while taking the screenshot."
+msgstr "スクリーンショットの取得中にエラーが発生しました。"
+
+#: translate_tmp.pl:5284
+#: translate_tmp.pl:122
+msgid "Capture aborted by user"
+msgstr "ユーザにより取得を中止しました"
+
+#: translate_tmp.pl:5391
+#: translate_tmp.pl:6278
+#: translate_tmp.pl:8189
+#: translate_tmp.pl:8194
+#: translate_tmp.pl:8261
+#: translate_tmp.pl:8267
+msgid "saved"
+msgstr "保存されました"
+
+#: translate_tmp.pl:5396
+msgid "Screenshot saved"
+msgstr "スクリーンショットを保存しました"
+
+#: translate_tmp.pl:5402
+#, perl-format
+msgid ""
+"The filename %s could not be verified. Maybe it contains unsupported "
+"characters."
+msgstr ""
+
+#: translate_tmp.pl:5640
+msgid "opened with"
+msgstr "・・・で開いた"
+
+#: translate_tmp.pl:5670
+msgid "Opened all files with"
+msgstr "全ファイルを・・・で開く"
+
+#: translate_tmp.pl:5718
+#: translate_tmp.pl:5737
+#, perl-format
+msgid "Could not apply plugin %s"
+msgstr "%s プラグインを適用できません"
+
+#: translate_tmp.pl:5735
+#: translate_tmp.pl:5783
+#, perl-format
+msgid "Successfully applied plugin %s"
+msgstr "%s プラグインの適用に成功しました"
+
+#: translate_tmp.pl:5786
+#, perl-format
+msgid "Error while executing plugin %s."
+msgstr "%s プラグインの実行中にエラー発生"
+
+#: translate_tmp.pl:5787
+msgid "There was an error executing the plugin."
+msgstr "プラグインの実行中にエラーが発生しました"
+
+#: translate_tmp.pl:5861
+#, perl-format
+msgid "%s screenshot"
+msgid_plural "%s screenshots"
+msgstr[0] "%s スクリーンショット"
+
+#: translate_tmp.pl:5873
+msgid "Current profile"
+msgstr "現在のプロファイル"
+
+#: translate_tmp.pl:6219
+msgid "Try to resave the file?"
+msgstr "ファイルを保存し直しますか?"
+
+#: translate_tmp.pl:6220
+#, perl-format
+msgid "Image %s was not found on disk"
+msgstr "%sという名称の画像はこのディスクには見つかりません"
+
+#: translate_tmp.pl:6251
+#: translate_tmp.pl:116
+#, perl-format
+msgid "Error while saving the image %s."
+msgstr "イメージ %s の保存中にエラーが発生しました。"
+
+#: translate_tmp.pl:6252
+#: translate_tmp.pl:117
+#, perl-format
+msgid "There was an error saving the image to %s."
+msgstr "イメージ %s の保存中にエラーが発生しました。"
+
+#: translate_tmp.pl:6308
+#: translate_tmp.pl:192
+#: translate_tmp.pl:2873
+#: translate_tmp.pl:5632
+#: translate_tmp.pl:6109
+#: translate_tmp.pl:6356
+#: translate_tmp.pl:6650
+#: translate_tmp.pl:6682
+#, perl-format
+msgid "Error while opening image %s."
+msgstr "%sを開く間にエラー発生"
+
+#: translate_tmp.pl:6309
+#: translate_tmp.pl:193
+#: translate_tmp.pl:2874
+#: translate_tmp.pl:5633
+#: translate_tmp.pl:6110
+#: translate_tmp.pl:6357
+#: translate_tmp.pl:6651
+#: translate_tmp.pl:6683
+msgid "There was an error opening the image."
+msgstr "画像を開く間にエラーが発生しました"
+
+#: translate_tmp.pl:6453
+#, perl-format
+msgid "Error while opening directory %s."
+msgstr "フォルダ %s を開く間にエラーが発生しました"
+
+#: translate_tmp.pl:6518
+msgid "Updating plugin information"
+msgstr "プラグイン情報を更新しています"
+
+#: translate_tmp.pl:6523
+msgid "Please wait while Shutter updates the plugin information"
+msgstr "プラグイン情報を更新する間、しばらくお待ちください"
+
+#: translate_tmp.pl:6760
+msgid "Limit to current monitor"
+msgstr "現在のモニタに限定"
+
+#: translate_tmp.pl:6775
+#, perl-format
+msgid ""
+"This option is only useful when you are running a multi-monitor system (%d "
+"monitor detected).\n"
+"Enable it to capture only the current monitor."
+msgid_plural ""
+"This option is only useful when you are running a multi-monitor system (%d "
+"monitors detected).\n"
+"Enable it to capture only the current monitor."
+msgstr[0] "このオプションは、マルチモニター(%d monitorが認識中)環境のみ有効です。現在のモニターのみの取得を有効化する"
+
+#: translate_tmp.pl:6824
+#: translate_tmp.pl:392
+msgid "_Selection"
+msgstr "範囲を選択(_S)"
+
+#: translate_tmp.pl:6857
+#: translate_tmp.pl:424
+msgid "W_indow"
+msgstr "ウィンドウ(_I)"
+
+#: translate_tmp.pl:6873
+#: translate_tmp.pl:437
+msgid "Se_ction"
+msgstr "セクション(_C)"
+
+#: translate_tmp.pl:6892
+#: translate_tmp.pl:453
+msgid "_Menu"
+msgstr "メニュー(_M)"
+
+#: translate_tmp.pl:6911
+#: translate_tmp.pl:469
+msgid "_Tooltip"
+msgstr "ツールチップ(_T)"
+
+#: translate_tmp.pl:6930
+#: translate_tmp.pl:487
+msgid "_Web"
+msgstr "ウェブ(_W)"
+
+#: translate_tmp.pl:6947
+#: translate_tmp.pl:384
+msgid "_Redo last screenshot"
+msgstr ""
+
+#: translate_tmp.pl:6957
+#: translate_tmp.pl:212
+msgid "_Quick profile select"
+msgstr "プロファイルの選択(_Q)"
+
+#: translate_tmp.pl:6998
+msgid "Advanced selection tool"
+msgstr "高度な選択ツール"
+
+#: translate_tmp.pl:7001
+msgid "Simple selection tool"
+msgstr "簡単な選択ツール"
+
+#: translate_tmp.pl:7018
+msgid ""
+"The advanced selection tool allows you to enlarge/shrink or move your "
+"selected area\n"
+"until you finally take the screenshot."
+msgstr ""
+"高度な選択ツールでは、スクリーンショットを取得する前に、選択範囲の拡大や縮小、\n"
+"移動が自由に行えます"
+
+#: translate_tmp.pl:7021
+msgid ""
+"The simple selection tool is the fastest way of taking a screenshot.\n"
+"It provides an optional zoom window for precise shots."
+msgstr ""
+"簡単な選択ツールは、最も早くスクリーンショットを取得できるツールです\n"
+"正確な範囲指定用のズームウィンドウも備わっています"
+
+#: translate_tmp.pl:7173
+#: translate_tmp.pl:7181
+#: translate_tmp.pl:524
+#: translate_tmp.pl:615
+#, perl-format
+msgid "_Open with %s"
+msgstr "%s で開く"
+
+#: translate_tmp.pl:7281
+#: translate_tmp.pl:7282
+#: translate_tmp.pl:7283
+#: translate_tmp.pl:7284
+#: translate_tmp.pl:7285
+msgid "Timeout"
+msgstr "タイムアウト"
+
+#: translate_tmp.pl:7287
+#: translate_tmp.pl:7288
+#: translate_tmp.pl:7289
+#: translate_tmp.pl:7290
+#: translate_tmp.pl:7291
+#: translate_tmp.pl:182
+msgid "The timeout in seconds, or 0 to disable timeout"
+msgstr ""
+"タイムアウトの秒数です\r\n"
+"0 を指定すると無効になります"
+
+#: translate_tmp.pl:7428
+msgid "Host"
+msgstr "ホスト"
+
+#: translate_tmp.pl:7507
+msgid "Icon"
+msgstr "アイコン"
+
+#: translate_tmp.pl:7516
+msgid "Name"
+msgstr "名前"
+
+#: translate_tmp.pl:7526
+msgid "Category"
+msgstr "カテゴリ"
+
+#: translate_tmp.pl:7536
+#: translate_tmp.pl:8376
+msgid "Description"
+msgstr "説明"
+
+#: translate_tmp.pl:7546
+msgid "Language"
+msgstr "言語"
+
+#: translate_tmp.pl:7555
+msgid "Path"
+msgstr "パス"
+
+#: translate_tmp.pl:7782
+msgid "Rename"
+msgstr "名前の変更"
+
+#: translate_tmp.pl:7786
+#, perl-format
+msgid "Rename image %s"
+msgstr "画像 %s の名前を変更します"
+
+#: translate_tmp.pl:7788
+msgid "New filename"
+msgstr "新しいファイル名"
+
+#: translate_tmp.pl:7791
+msgid "_Rename"
+msgstr "名前の変更(_R)"
+
+#: translate_tmp.pl:7890
+#: translate_tmp.pl:7940
+msgid "renamed"
+msgstr "名前を変更しました"
+
+#: translate_tmp.pl:7898
+#: translate_tmp.pl:7948
+#: translate_tmp.pl:7988
+#, perl-format
+msgid "Error while renaming the image %s."
+msgstr "イメージ %s の読み込み中にエラーが発生しました。"
+
+#: translate_tmp.pl:7899
+#: translate_tmp.pl:7949
+#: translate_tmp.pl:7989
+#, perl-format
+msgid "There was an error renaming the image to %s."
+msgstr "イメージ %s の読み込み中にエラーが発生しました。"
+
+#: translate_tmp.pl:7911
+#: translate_tmp.pl:8216
+#: translate_tmp.pl:9030
+#: translate_tmp.pl:9253
+#: translate_tmp.pl:1583
+msgid "_Replace"
+msgstr "置き換える(_R)"
+
+#: translate_tmp.pl:7915
+#: translate_tmp.pl:8220
+#: translate_tmp.pl:9041
+#: translate_tmp.pl:1587
+#, perl-format
+msgid ""
+"The image already exists in %s. Replacing it will overwrite its contents."
+msgstr "すでに画像が %s.にあります。この操作により画像は書き換えられます"
+
+#: translate_tmp.pl:7916
+#: translate_tmp.pl:8221
+#: translate_tmp.pl:9042
+#: translate_tmp.pl:1588
+#, perl-format
+msgid "An image named %s already exists. Do you want to replace it?"
+msgstr "%s　という名前の画像がすでに存在します。置き換えてもいいですか？"
+
+#: translate_tmp.pl:7992
+msgid "Invalid Filename"
+msgstr "不正なファイル名"
+
+#: translate_tmp.pl:8019
+#: translate_tmp.pl:1428
+msgid "Choose a location to save to"
+msgstr "保存場所を選択"
+
+#: translate_tmp.pl:8308
+msgid "Choose a plugin"
+msgstr "プラグインの選択"
+
+#: translate_tmp.pl:8313
+msgid "_Run"
+msgstr "実行(_R)"
+
+#: translate_tmp.pl:8363
+msgid "Plugin"
+msgstr "プラグイン"
+
+#: translate_tmp.pl:8453
+msgid "No plugin specified"
+msgstr "プラグインが指定されていません"
+
+#: translate_tmp.pl:8502
+msgid "Upload / Export"
+msgstr "アップロード/エクスポート"
+
+#: translate_tmp.pl:8506
+#: translate_tmp.pl:8696
+msgid "_Upload"
+msgstr "アップロード(_U)"
+
+#: translate_tmp.pl:8522
+msgid "Guest"
+msgstr "ゲスト"
+
+#: translate_tmp.pl:8570
+msgid "Choose account"
+msgstr "アカウントの選択"
+
+#: translate_tmp.pl:8683
+msgid "Public hosting"
+msgstr "画像ホスティングサイト"
+
+#: translate_tmp.pl:8685
+msgid "Places"
+msgstr "場所"
+
+#: translate_tmp.pl:8693
+msgid "_Export"
+msgstr "エクスポート(_E)"
+
+#: translate_tmp.pl:8770
+#: translate_tmp.pl:8801
+#: translate_tmp.pl:8869
+#: translate_tmp.pl:8943
+#: translate_tmp.pl:9023
+#: translate_tmp.pl:9063
+msgid "uploaded"
+msgstr "アップロードされました"
+
+#: translate_tmp.pl:8832
+#: translate_tmp.pl:9171
+#: translate_tmp.pl:92
+msgid "Please check your credentials and try again."
+msgstr "証明書を確認してから、もう一度試してください"
+
+#: translate_tmp.pl:8833
+#: translate_tmp.pl:9171
+msgid "Login failed!"
+msgstr "ログインに失敗しました"
+
+#: translate_tmp.pl:8846
+#: translate_tmp.pl:8872
+#: translate_tmp.pl:9177
+#: translate_tmp.pl:85
+msgid "Please check your connectivity and try again."
+msgstr ""
+
+#: translate_tmp.pl:8847
+#: translate_tmp.pl:8873
+#: translate_tmp.pl:9178
+msgid "Connection error!"
+msgstr "接続エラー！"
+
+#: translate_tmp.pl:8848
+#: translate_tmp.pl:8874
+#: translate_tmp.pl:8961
+#: translate_tmp.pl:9043
+#: translate_tmp.pl:9153
+#: translate_tmp.pl:9174
+#: translate_tmp.pl:9179
+msgid "Skip all"
+msgstr "すべてをスキップ"
+
+#: translate_tmp.pl:8849
+#: translate_tmp.pl:8875
+#: translate_tmp.pl:8962
+#: translate_tmp.pl:9043
+#: translate_tmp.pl:9154
+#: translate_tmp.pl:9174
+#: translate_tmp.pl:9179
+msgid "Skip"
+msgstr "スキップ"
+
+#: translate_tmp.pl:9021
+#: translate_tmp.pl:9061
+msgid "exported"
+msgstr ""
+
+#: translate_tmp.pl:9147
+msgid "_Retry"
+msgstr "再試行(_R)"
+
+#: translate_tmp.pl:9151
+#, perl-format
+msgid "Error while copying the image %s."
+msgstr "イメージ %s のコピー中にエラーが発生しました。"
+
+#: translate_tmp.pl:9152
+#, perl-format
+msgid "There was an error copying the image into %s."
+msgstr "イメージ %s のコピー中にエラーが発生しました。"
+
+#: translate_tmp.pl:9173
+msgid "Maximum filesize reached!"
+msgstr "ファイルサイズが最大値です!"
+
+#: translate_tmp.pl:9194
+msgid "Save current preferences as new profile"
+msgstr "現在の設定を新しいプロファイルとして保存します"
+
+#: translate_tmp.pl:9196
+msgid "New profile name"
+msgstr "新しいプロファイル名"
+
+#: translate_tmp.pl:9257
+msgid "Replacing it will overwrite its contents."
+msgstr ""
+
+#: translate_tmp.pl:9258
+#, perl-format
+msgid "A profile named %s already exists. Do you want to replace it?"
+msgstr "プロファイル %s は既に存在しています。上書きしますか?"
+
+#: translate_tmp.pl:64
+msgid "Illegal URI."
+msgstr "URI が間違っています。"
+
+#: translate_tmp.pl:84
+msgid "Connection error."
+msgstr "接続エラーです。"
+
+#: translate_tmp.pl:91
+#, perl-format
+msgid "Login with username %s failed."
+msgstr ""
+
+#: translate_tmp.pl:111
+msgid "Cannot change working directory."
+msgstr "作業ディレクトリを変更できません。"
+
+#: translate_tmp.pl:121
+msgid "Command 'put' failed."
+msgstr ""
+
+#: translate_tmp.pl:408
+#: translate_tmp.pl:170
+#: translate_tmp.pl:184
+msgid "Upload status:"
+msgstr ""
+
+#: translate_tmp.pl:417
+#: translate_tmp.pl:192
+msgid "Thumbnail for forums"
+msgstr "フォーラムのサムネイル"
+
+#: translate_tmp.pl:418
+msgid "Short URL"
+msgstr ""
+
+#: translate_tmp.pl:420
+#: translate_tmp.pl:195
+#: translate_tmp.pl:356
+msgid "Direct link"
+msgstr "ダイレクトリンク"
+
+#: translate_tmp.pl:421
+#: translate_tmp.pl:362
+msgid "Hotlink for websites"
+msgstr ""
+
+#: translate_tmp.pl:432
+#: translate_tmp.pl:455
+#: translate_tmp.pl:474
+#: translate_tmp.pl:485
+#: translate_tmp.pl:204
+#: translate_tmp.pl:216
+#: translate_tmp.pl:228
+#: translate_tmp.pl:239
+#: translate_tmp.pl:250
+#: translate_tmp.pl:219
+#: translate_tmp.pl:231
+#: translate_tmp.pl:243
+#: translate_tmp.pl:254
+#: translate_tmp.pl:265
+#: translate_tmp.pl:277
+#: translate_tmp.pl:289
+#: translate_tmp.pl:301
+#: translate_tmp.pl:313
+msgid "Copy this code to clipboard"
+msgstr ""
+
+#: translate_tmp.pl:189
+msgid "Thumbnail for websites (with border)"
+msgstr "ウェブページのサムネイル(縁有り)"
+
+#: translate_tmp.pl:191
+msgid "Thumbnail for websites (without border)"
+msgstr "ウェブページのサムネイル(縁無し)"
+
+#: translate_tmp.pl:194
+msgid "Thumbnail for Ubuntuusers.de forum"
+msgstr ""
+
+#: translate_tmp.pl:326
+msgid "Thumbnail for websites"
+msgstr "ウェブページのサムネイル"
+
+#: translate_tmp.pl:332
+msgid "Thumbnail for boards (1)"
+msgstr ""
+
+#: translate_tmp.pl:338
+msgid "Thumbnail for boards (2)"
+msgstr ""
+
+#: translate_tmp.pl:344
+msgid "Show your friends"
+msgstr ""
+
+#: translate_tmp.pl:350
+msgid "Popup for websites"
+msgstr ""
+
+#: translate_tmp.pl:368
+msgid "Hotlink for boards (1)"
+msgstr ""
+
+#: translate_tmp.pl:374
+msgid "Hotlink for boards (2)"
+msgstr ""
+
+#: translate_tmp.pl:104
+msgid "No subwindow detected"
+msgstr ""
+
+#: translate_tmp.pl:105
+msgid ""
+"Maybe this window is using client-side windows (or similar).\n"
+"Shutter is not yet able to query the tree information of such windows."
+msgstr ""
+"このウィンドウはクライアントサイド・ウィンドウ(もしくは類似のもの)を使用している可能性があります。\n"
+"Shutter はこのような種類のウィンドウのツリー情報を取得することができません。"
+
+#: translate_tmp.pl:997
+#: translate_tmp.pl:140
+msgid "Menu"
+msgstr "メニュー"
+
+#: translate_tmp.pl:1003
+#: translate_tmp.pl:160
+msgid "Tooltip"
+msgstr "ツールチップ"
+
+#: translate_tmp.pl:72
+#: translate_tmp.pl:181
+msgid "Take a screenshot of a website"
+msgstr "ウェブページのスクリーンショットを取得します"
+
+#: translate_tmp.pl:74
+msgid "URL to capture"
+msgstr "取得する URL"
+
+#: translate_tmp.pl:91
+msgid "C_apture"
+msgstr "取得(_A)"
+
+#: translate_tmp.pl:115
+msgid ""
+"Draw a rectangular area using the mouse. To take a screenshot, press the "
+"Enter key. Press Esc to quit."
+msgstr "マウスで選択範囲を指定してください。スクリーンショットを取得する場合はエンターキーを、終了する場合はエスケープキーを押してください。"
+
+#: translate_tmp.pl:120
+msgid ""
+"shift/right-click = selection dialog on/off\n"
+"ctrl + scrollwheel = zoom in/out\t\tspace = zoom window on/off\n"
+"cursor keys + alt = move selection\t\tcursor keys + ctrl = resize selection"
+msgstr ""
+"Shift/右クリック = 選択ダイアログをオン/オフ\n"
+"Ctrl + ホイールスクロール = ズームイン/アウト\tスペース = ズームウィンドウをオン/オフ\n"
+"カーソルキー + Alt = 選択範囲移動\t\tカーソルキー + Ctrl = 選択範囲をリサイズ"
+
+#: translate_tmp.pl:76
+msgid ""
+"Maybe mouse pointer could not be grabbed or the selected area is invalid."
+msgstr "恐らくマウスポインターがグラブできていないか、選択した範囲が有効ではありません"
+
+#: translate_tmp.pl:84
+msgid "Keyboard could not be grabbed."
+msgstr "キーボードがグラブできません"
+
+#: translate_tmp.pl:93
+msgid "menu"
+msgstr "メニュー"
+
+#: translate_tmp.pl:95
+msgid "tooltip"
+msgstr "ツールチップ"
+
+#: translate_tmp.pl:99
+#, perl-format
+msgid "No window with type %s detected."
+msgstr ""
+
+#: translate_tmp.pl:107
+msgid "There is no last capture that can be redone."
+msgstr ""
+
+#: translate_tmp.pl:115
+msgid "The window is no longer available."
+msgstr ""
+
+#: translate_tmp.pl:127
+#: translate_tmp.pl:133
+msgid "Unable to capture website"
+msgstr "ウェブサイトを取得できません"
+
+#: translate_tmp.pl:441
+#: translate_tmp.pl:3973
+msgid "Fill color"
+msgstr "塗りつぶしの色"
+
+#: translate_tmp.pl:448
+#: translate_tmp.pl:449
+msgid "Adjust fill color and opacity"
+msgstr "塗りつぶしの色と透明度を調整します"
+
+#: translate_tmp.pl:455
+#: translate_tmp.pl:3992
+msgid "Stroke color"
+msgstr "線の色"
+
+#: translate_tmp.pl:460
+#: translate_tmp.pl:3998
+msgid "Choose stroke color"
+msgstr "線の色の選択"
+
+#: translate_tmp.pl:462
+#: translate_tmp.pl:463
+msgid "Adjust stroke color and opacity"
+msgstr "線の色と透明度を調整します"
+
+#: translate_tmp.pl:469
+#: translate_tmp.pl:3959
+msgid "Line width"
+msgstr "線の太さ"
+
+#: translate_tmp.pl:473
+#: translate_tmp.pl:474
+msgid "Adjust line width"
+msgstr "線の太さを調整します"
+
+#: translate_tmp.pl:480
+#: translate_tmp.pl:4035
+#: translate_tmp.pl:4159
+msgid "Font"
+msgstr "フォント"
+
+#: translate_tmp.pl:484
+#: translate_tmp.pl:485
+msgid "Select font family and size"
+msgstr "フォントの種類とサイズを選択します"
+
+#: translate_tmp.pl:491
+msgid "Insert image"
+msgstr "イメージの挿入"
+
+#: translate_tmp.pl:604
+#: translate_tmp.pl:605
+msgid "Insert an arbitrary object or file"
+msgstr "一般的なオブジェクトやファイルを挿入します"
+
+#: translate_tmp.pl:625
+msgid "X"
+msgstr "X"
+
+#: translate_tmp.pl:644
+msgid "Y"
+msgstr "Y"
+
+#: translate_tmp.pl:663
+#: translate_tmp.pl:4088
+msgid "Width"
+msgstr "幅"
+
+#: translate_tmp.pl:682
+msgid "Height"
+msgstr "高さ"
+
+#: translate_tmp.pl:712
+msgid "_Crop"
+msgstr "切り抜き(_C)"
+
+#: translate_tmp.pl:857
+msgid "Click-Drag to scale (try Control to scale uniformly)"
+msgstr "クリック - ドラッグでサイズを変更します (比率を保つには Control 又は Shift キーが使えます)"
+
+#: translate_tmp.pl:859
+msgid "Click-Drag to resize the canvas"
+msgstr "クリック - ドラッグでキャンバスのサイズを変更します"
+
+#: translate_tmp.pl:864
+msgid "Click to paint (try Control or Shift for a straight line)"
+msgstr "クリックで描画します (直線を引くには Control 又は Shift キーが使えます)"
+
+#: translate_tmp.pl:868
+msgid "Click-Drag to create a new straight line"
+msgstr "クリック - ドラッグで直線を追加します"
+
+#: translate_tmp.pl:872
+msgid "Click-Drag to create a new arrow"
+msgstr "クリック - ドラッグで矢印を追加します"
+
+#: translate_tmp.pl:876
+msgid "Click-Drag to create a new rectangle"
+msgstr "クリック - ドラッグで矩形を追加します"
+
+#: translate_tmp.pl:880
+msgid "Click-Drag to create a new ellipse"
+msgstr "クリック - ドラッグで楕円を追加します"
+
+#: translate_tmp.pl:884
+msgid "Click-Drag to add a new text area"
+msgstr "クリックでテキストエリアを追加します"
+
+#: translate_tmp.pl:888
+msgid "Click to censor (try Control or Shift for a straight line)"
+msgstr "クリックで網かけします (直線を引くには Control 又は Shift キーが使えます)"
+
+#: translate_tmp.pl:892
+msgid "Click-Drag to create a pixelized region"
+msgstr ""
+
+#: translate_tmp.pl:896
+msgid "Click to add an auto-increment shape"
+msgstr "クリックで自動採番の図形を追加します"
+
+#: translate_tmp.pl:1214
+#, perl-format
+msgid "Save the changes to image %s before closing?"
+msgstr "閉じる前にイメージ %s で変更した内容を保存しますか？"
+
+#: translate_tmp.pl:1230
+msgid "Close"
+msgstr "閉じる"
+
+#: translate_tmp.pl:1233
+msgid "Do_n't save"
+msgstr "保存せずに閉じる(_N)"
+
+#: translate_tmp.pl:1299
+#, perl-format
+msgid ""
+"If you don't save the image, changes from the last minute will be lost"
+msgid_plural ""
+"If you don't save the image, changes from the last %d minutes will be lost"
+msgstr[0] "保存しないと、%d分前からの変更内容が完全に失われます。"
+
+#: translate_tmp.pl:1660
+msgid "Do you want to save the changed background color?"
+msgstr "変更下背景色を保存しますか？"
+
+#: translate_tmp.pl:1661
+msgid ""
+"The background is likely to be transparent if you decide to ignore the "
+"background color."
+msgstr ""
+
+#: translate_tmp.pl:1663
+msgid "Save Background Color"
+msgstr "背景色の保存"
+
+#: translate_tmp.pl:1666
+msgid "_Ignore Background Color"
+msgstr "背景色を無視する"
+
+#: translate_tmp.pl:1669
+msgid "_Save Background Color"
+msgstr "背景色を保存(_S)"
+
+#: translate_tmp.pl:3719
+msgid "Change Background Color..."
+msgstr "背景色の変更..."
+
+#: translate_tmp.pl:3729
+msgid "_Reset to Default"
+msgstr "デフォルト設定に戻す(_R)"
+
+#: translate_tmp.pl:3779
+msgid "Raise"
+msgstr "前面へ"
+
+#: translate_tmp.pl:3802
+msgid "Lower"
+msgstr "背面へ"
+
+#: translate_tmp.pl:3847
+msgid "Unlock"
+msgstr ""
+
+#: translate_tmp.pl:3850
+msgid "Lock"
+msgstr ""
+
+#: translate_tmp.pl:3872
+msgid "Edit Preferences..."
+msgstr "設定の編集..."
+
+#: translate_tmp.pl:4013
+msgid "Numbering"
+msgstr "採番"
+
+#: translate_tmp.pl:4023
+msgid "Current value"
+msgstr "現在の値"
+
+#: translate_tmp.pl:4078
+#: translate_tmp.pl:5929
+msgid "Arrow"
+msgstr "矢印"
+
+#: translate_tmp.pl:4100
+msgid "Length"
+msgstr "長さ"
+
+#: translate_tmp.pl:4112
+msgid "Tip length"
+msgstr "先端の幅"
+
+#: translate_tmp.pl:4122
+msgid "Display an arrow at the end of the line"
+msgstr "始端に矢印を表示"
+
+#: translate_tmp.pl:4124
+msgid "Display an arrow at the start of the line"
+msgstr "終端に矢印を表示"
+
+#: translate_tmp.pl:4149
+#: translate_tmp.pl:5932
+msgid "Text"
+msgstr "テキスト"
+
+#: translate_tmp.pl:4188
+msgid "Font color"
+msgstr "フォントの色"
+
+#: translate_tmp.pl:4194
+msgid "Choose font color"
+msgstr "フォントの色の選択"
+
+#: translate_tmp.pl:4215
+msgid "Use selected font"
+msgstr ""
+
+#: translate_tmp.pl:5807
+#: translate_tmp.pl:34
+msgid "_File"
+msgstr "ファイル(_F)"
+
+#: translate_tmp.pl:5808
+#: translate_tmp.pl:39
+msgid "_Edit"
+msgstr "編集(_E)"
+
+#: translate_tmp.pl:5809
+msgid "_Tools"
+msgstr "ツール(_T)"
+
+#: translate_tmp.pl:5810
+#: translate_tmp.pl:44
+msgid "_View"
+msgstr "表示(_V)"
+
+#: translate_tmp.pl:5811
+msgid "Undo last action"
+msgstr "最後の操作を元へ戻す"
+
+#: translate_tmp.pl:5814
+msgid "Do again the last undone action"
+msgstr "最後に戻した操作を再実行します"
+
+#: translate_tmp.pl:5817
+msgid "Copy selection to clipboard"
+msgstr "クリップボードにコピー"
+
+#: translate_tmp.pl:5823
+msgid "Cut selection to clipboard"
+msgstr "クリップボードヘ切り取り"
+
+#: translate_tmp.pl:5830
+msgid "Paste objects from clipboard"
+msgstr "クリップボードからオブジェクトを貼り付け"
+
+#: translate_tmp.pl:5833
+msgid "Delete current object"
+msgstr "現在のオブジェクトを削除"
+
+#: translate_tmp.pl:5836
+msgid "Clear canvas"
+msgstr "キャンバスをクリア"
+
+#: translate_tmp.pl:5850
+msgid "Abort current mode"
+msgstr "現在のモードを中断"
+
+#: translate_tmp.pl:5853
+msgid "Close this window"
+msgstr "このウィンドウを閉じます"
+
+#: translate_tmp.pl:5856
+msgid "Save image"
+msgstr "画像を保存します"
+
+#: translate_tmp.pl:5859
+msgid "Export to _File..."
+msgstr ""
+
+#: translate_tmp.pl:5859
+msgid "Export to File..."
+msgstr ""
+
+#: translate_tmp.pl:5862
+msgid "_Export to SVG..."
+msgstr "SVGとしてエクスポート(_E)..."
+
+#: translate_tmp.pl:5862
+msgid "Export to SVG..."
+msgstr "SVGとしてエクスポート..."
+
+#: translate_tmp.pl:5865
+#: translate_tmp.pl:108
+msgid "E_xport to PDF..."
+msgstr "PDFとしてエクスポート(_X)"
+
+#: translate_tmp.pl:5865
+msgid "Export to PDF..."
+msgstr ""
+
+#: translate_tmp.pl:5889
+msgid "Automatic scrolling"
+msgstr "自動スクロール"
+
+#: translate_tmp.pl:5925
+msgid "Select"
+msgstr "選択"
+
+#: translate_tmp.pl:5925
+msgid "Select item to move or resize it"
+msgstr "アイテムを選択します"
+
+#: translate_tmp.pl:5926
+msgid "Freehand"
+msgstr "自由曲線"
+
+#: translate_tmp.pl:5926
+msgid "Draw a freehand line"
+msgstr "自由曲線を描画します"
+
+#: translate_tmp.pl:5927
+msgid "Highlighter"
+msgstr "ハイライト表示"
+
+#: translate_tmp.pl:5928
+msgid "Line"
+msgstr "直線"
+
+#: translate_tmp.pl:5928
+msgid "Draw a straight line"
+msgstr "直線を描画します"
+
+#: translate_tmp.pl:5929
+msgid "Draw an arrow"
+msgstr "矢印を描画します"
+
+#: translate_tmp.pl:5930
+msgid "Rectangle"
+msgstr "矩形"
+
+#: translate_tmp.pl:5930
+msgid "Draw a rectangle"
+msgstr "矩形を描画します"
+
+#: translate_tmp.pl:5931
+msgid "Ellipse"
+msgstr "円"
+
+#: translate_tmp.pl:5931
+msgid "Draw a ellipse"
+msgstr "楕円を描画します"
+
+#: translate_tmp.pl:5932
+msgid "Add some text to the screenshot"
+msgstr "スクリーンショットにテキストを追加します"
+
+#: translate_tmp.pl:5933
+msgid "Censor"
+msgstr "網かけ"
+
+#: translate_tmp.pl:5933
+msgid "Censor portions of your screenshot to hide private data"
+msgstr "個人情報等を隠すために網かけします"
+
+#: translate_tmp.pl:5934
+msgid "Pixelize"
+msgstr ""
+
+#: translate_tmp.pl:5934
+msgid "Pixelize selected areas of your screenshot to hide private data"
+msgstr ""
+
+#: translate_tmp.pl:5935
+msgid "Number"
+msgstr "番号"
+
+#: translate_tmp.pl:5935
+msgid "Add an auto-increment shape to the screenshot"
+msgstr "自動採番の図形を追加します"
+
+#: translate_tmp.pl:5936
+msgid "Crop"
+msgstr "切り抜き"
+
+#: translate_tmp.pl:5936
+msgid "Crop your screenshot"
+msgstr "スクリーンショットを切り抜きます"
+
+#: translate_tmp.pl:6199
+#: translate_tmp.pl:6402
+msgid "No icon was found"
+msgstr "アイコンが見つかりません"
+
+#: translate_tmp.pl:6258
+msgid "Import from current theme..."
+msgstr "現在のテーマからインポート..."
+
+#: translate_tmp.pl:6272
+msgid "Import from session..."
+msgstr "現在のセッションからインポート..."
+
+#: translate_tmp.pl:6283
+msgid "Import from filesystem..."
+msgstr "ファイルからインポート..."
+
+#: translate_tmp.pl:7093
+msgid "New text..."
+msgstr "新しいテキスト..."
+
+#: translate_tmp.pl:79
+msgid "translator-credits"
+msgstr ""
+"Launchpad Contributions:\n"
+"  Akihiro Nishimura https://launchpad.net/~nimu-zh3\n"
+"  Kazutaka HARADA https://launchpad.net/~kazutaka\n"
+"  Kazutaka HARADA https://launchpad.net/~kazutaka802\n"
+"  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
+"  hidenosuke https://launchpad.net/~hidenosuke\n"
+"  u-bon https://launchpad.net/~viva-ubun2"
+
+#: translate_tmp.pl:49
+msgid "_Screenshot"
+msgstr "スクリーンショット(_S)"
+
+#: translate_tmp.pl:54
+msgid "_Go"
+msgstr "移動(_G)"
+
+#: translate_tmp.pl:59
+msgid "_Help"
+msgstr "ヘルプ(_H)"
+
+#: translate_tmp.pl:87
+msgid "_Open..."
+msgstr "開く(_O)..."
+
+#: translate_tmp.pl:92
+msgid "Recent _Files"
+msgstr "最近開いたファイル(_F)"
+
+#: translate_tmp.pl:97
+msgid "Save _As..."
+msgstr "名前を付けて保存(_A)..."
+
+#: translate_tmp.pl:118
+msgid "Page Set_up"
+msgstr "ページ設定(_U)"
+
+#: translate_tmp.pl:125
+msgid "_Print..."
+msgstr "印刷(_P)..."
+
+#: translate_tmp.pl:133
+msgid "Send by E_mail..."
+msgstr "メールで送信..."
+
+#: translate_tmp.pl:148
+msgid "C_lose all"
+msgstr "すべて閉じる(_L)"
+
+#: translate_tmp.pl:193
+#: translate_tmp.pl:658
+msgid "Copy _Filename"
+msgstr "ファイル名のコピー(_F)"
+
+#: translate_tmp.pl:235
+msgid "Show Navigation _Toolbar"
+msgstr ""
+
+#: translate_tmp.pl:317
+msgid "Get Help Online..."
+msgstr "オンラインで質問..."
+
+#: translate_tmp.pl:332
+msgid "Translate this Application..."
+msgstr "アプリケーションを翻訳..."
+
+#: translate_tmp.pl:347
+msgid "Report a Problem"
+msgstr "問題点を報告"
+
+#: translate_tmp.pl:503
+msgid "Import from clip_board"
+msgstr "クリップボードからインポート(_B)..."
+
+#: translate_tmp.pl:531
+#: translate_tmp.pl:622
+msgid "Open wit_h"
+msgstr "別のアプリで開く(_H)"
+
+#: translate_tmp.pl:537
+#: translate_tmp.pl:628
+msgid "_Rename..."
+msgstr "名前の変更(_R)..."
+
+#: translate_tmp.pl:546
+#: translate_tmp.pl:636
+msgid "_Send To..."
+msgstr ""
+
+#: translate_tmp.pl:555
+#: translate_tmp.pl:644
+msgid "E_xport..."
+msgstr "エクスポート(_E)..."
+
+#: translate_tmp.pl:564
+#: translate_tmp.pl:671
+msgid "_Edit..."
+msgstr "編集(_E)..."
+
+#: translate_tmp.pl:581
+msgid "Run a _plugin..."
+msgstr "プラグインの実行(_P)..."
+
+#: translate_tmp.pl:590
+#: translate_tmp.pl:695
+msgid "Redo _this screenshot"
+msgstr ""
+
+#: translate_tmp.pl:687
+msgid "Run a _Plugin..."
+msgstr "プラグインの実行(_P)"
+
+#: translate_tmp.pl:37
+msgid "Redo"
+msgstr ""
+
+#: translate_tmp.pl:40
+msgid "Redo last screenshot"
+msgstr ""
+
+#: translate_tmp.pl:70
+msgid ""
+"Draw a rectangular capture area with your mouse\n"
+"to select a specified screen area"
+msgstr ""
+"マウスで画面上に矩形を描画して、スクリーンショット\n"
+"を取得する範囲を選択します"
+
+#: translate_tmp.pl:71
+msgid "Choose selection tool"
+msgstr "選択ツールを選びます"
+
+#: translate_tmp.pl:78
+msgid "Full Screen"
+msgstr "デスクトップ全体"
+
+#: translate_tmp.pl:81
+msgid "Take a screenshot of your whole desktop"
+msgstr "デスクトップ全体のスクリーンショットを取得します"
+
+#: translate_tmp.pl:82
+msgid "Capture a specific workspace"
+msgstr "指定したワークスペースのスクリーンショットを取得します"
+
+#: translate_tmp.pl:102
+msgid "Select a window with your mouse"
+msgstr "マウスでウィンドウを選択してください"
+
+#: translate_tmp.pl:103
+msgid "Take a screenshot of a specific window"
+msgstr "指定したウィンドウのスクリーンショットを取得します"
+
+#: translate_tmp.pl:123
+msgid ""
+"Captures only a section of the window. You will be able to select any child "
+"window by moving the mouse over it"
+msgstr ""
+"ウィンドウの特定のセクションだけを取得します\n"
+"マウスのポインタを乗せることでセクションを選択できます"
+
+#: translate_tmp.pl:143
+msgid "Select a single menu or cascading menus from any application"
+msgstr "アプリケーションのメニュー/サブメニューを選択します"
+
+#: translate_tmp.pl:163
+msgid "Capture a tooltip"
+msgstr "ツールチップを取得"
+
+#: translate_tmp.pl:179
+msgid "Web"
+msgstr "ウェブ"
+
+#: translate_tmp.pl:203
+msgid "Edit"
+msgstr "編集"
+
+#: translate_tmp.pl:206
+msgid ""
+"Use the built-in editor to highlight important fragments of your screenshot "
+"or crop it to a desired size"
+msgstr "組込みのエディタを使ってスクリーンショットの重要な場所をハイライトしたり、希望のサイズに切り抜いたりします。"
+
+#: translate_tmp.pl:213
+msgid "Export"
+msgstr "エクスポート"
+
+#: translate_tmp.pl:216
+msgid ""
+"Upload your images to an image hosting service, FTP site or export them to "
+"an arbitrary folder"
+msgstr "画像をイメージホスティングサービスや FTP サイト、指定したフォルダにアップロードします"
+
+#: translate_tmp.pl:33
+#: translate_tmp.pl:47
+#: translate_tmp.pl:62
+#: translate_tmp.pl:76
+#, perl-format
+msgid "Error while executing %s."
+msgstr ""
+
+#: translate_tmp.pl:34
+#: translate_tmp.pl:48
+#: translate_tmp.pl:63
+#: translate_tmp.pl:77
+#, perl-format
+msgid "There was an error executing %s."
+msgstr ""
+
+#: translate_tmp.pl:37
+#: translate_tmp.pl:51
+#: translate_tmp.pl:66
+#: translate_tmp.pl:80
+#, perl-format
+msgid "Exit Code: %d."
+msgstr ""
+
+#~ msgid ""
+#~ "There are several wild-cards available, like\n"
+#~ "%Y = year\n"
+#~ "%m = month\n"
+#~ "%d = day\n"
+#~ "%T = time\n"
+#~ "$w = width\n"
+#~ "$h = height\n"
+#~ "%NN = counter"
+#~ msgstr "次のようなワイルドカードを使用できます"
+
+#~ msgid ""
+#~ "Your screenshots will be saved\n"
+#~ "to this directory"
+#~ msgstr "取得したスクリーンショットが保存されます"
+
+#~ msgid "Autohide Shutter Window when taking a screenshot"
+#~ msgstr "スクリーンショット取得の際にウィンドウを自動で隠す"
+
+#~ msgid ""
+#~ "Open your screenshot\n"
+#~ "with this program after capturing"
+#~ msgstr "画像をキャプチャ後、このプログラムでスクリーンショットを開く"
+
+#~ msgid ""
+#~ "Automatically reduce colors \n"
+#~ "after taking a screenshot"
+#~ msgstr "スクリーンショットの取得後、自動で減色する"
+
+#~ msgid "Include cursor"
+#~ msgstr "カーソルも含める"
+
+#~ msgid "Include wm border when selecting a window"
+#~ msgstr "ウィンドウ選択時にウィンドウマネージャの縁を含める"
+
+#~ msgid "No valid filename specified"
+#~ msgstr "有効なファイル名ではありません"
+
+#~ msgid "Error while taking the screenshot"
+#~ msgstr "スクリーンショットの取得時にエラーが起きました"
+
+#~ msgid "Screenshot failed!"
+#~ msgstr "スクリーンショットに失敗"
+
+#~ msgid "Filesize"
+#~ msgstr "ファイルサイズ"
+
+#~ msgid "Statistic"
+#~ msgstr "統計"
+
+#~ msgid "click me"
+#~ msgstr "ここをクリック！"
+
+#~ msgid "Current Preferences"
+#~ msgstr "現在の設定"
+
+#~ msgid ""
+#~ "Please wait while your saved session\n"
+#~ "is being restored"
+#~ msgstr "保存されているセッションが復元されるまでしばらくお待ちください"
+
+#~ msgid ""
+#~ "Please wait while your selected files\n"
+#~ "are being integrated into Shutter"
+#~ msgstr "選択したファイルがShutterに読み込まれるまでしばらくお待ちください"
+
+#~ msgid "All screenshots removed"
+#~ msgstr "全てのスクリーンショットが削除されました"
+
+#~ msgid "Current Profile"
+#~ msgstr "現在のプロファイル"
+
+#~ msgid "Successfully executed plugin"
+#~ msgstr "プラグインの実行に成功"
+
+#~ msgid "Could not execute plugin"
+#~ msgstr "プラグインを実行できません"
+
+#~ msgid "Size of zoom window"
+#~ msgstr "ウィンドウのズームサイズ"
+
+#~ msgid "Large"
+#~ msgstr "大"
+
+#~ msgid "Medium"
+#~ msgstr "中"
+
+#~ msgid "Small"
+#~ msgstr "小"
+
+#~ msgid "copied to clipboard"
+#~ msgstr "クリップボードにコピーしました"
+
+#~ msgid ""
+#~ "There are several wildcards available, like\n"
+#~ "%Y = year\n"
+#~ "%m = month\n"
+#~ "%d = day\n"
+#~ "%T = time\n"
+#~ "$w = width\n"
+#~ "$h = height\n"
+#~ "$name = multi-purpose (e.g. window title)\n"
+#~ "%NN = counter"
+#~ msgstr ""
+#~ "以下のようなワイルドカードが使用できます\n"
+#~ "%Y = 年\n"
+#~ "%m = 月\n"
+#~ "%d = 日\n"
+#~ "%T = 時間\n"
+#~ "$w = 幅\n"
+#~ "$h = 高さ\n"
+#~ "$name = 多目的 (例 ウィンドウタイトル)\n"
+#~ "%NN = 連番"
+
+#~ msgid "As check pattern"
+#~ msgstr "格子模様"
+
+#~ msgid "As custom color:"
+#~ msgstr "指定した色"
+
+#~ msgid "As background"
+#~ msgstr "背景色"
+
+#~ msgid "Send by Email..."
+#~ msgstr "メールで送る..."
+
+#~ msgid "Copy _filename"
+#~ msgstr "ファイル名をコピー(_F)"
+
+#~ msgid "Send To..."
+#~ msgstr "送る..."

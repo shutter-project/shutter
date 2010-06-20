@@ -1,0 +1,2552 @@
+# Russian translation for gscrot
+# Copyright (c) 2008 Rosetta Contributors and Canonical Ltd 2008
+# This file is distributed under the same license as the gscrot package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2008.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: gscrot\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2010-04-14 08:57+0200\n"
+"PO-Revision-Date: 2010-06-07 15:41+0000\n"
+"Last-Translator: Sergey Sedov <Unknown>\n"
+"Language-Team: Russian <ru@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Launchpad-Export-Date: 2010-06-20 09:00+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+
+#: translate_tmp.pl:204
+#: translate_tmp.pl:1852
+#: translate_tmp.pl:5963
+msgid "Profile"
+msgstr "Профиль"
+
+#: translate_tmp.pl:209
+#: translate_tmp.pl:3909
+msgid "Preferences"
+msgstr "Параметры"
+
+#: translate_tmp.pl:506
+#: translate_tmp.pl:507
+msgid "gnome-web-photo needs to be installed for this feature"
+msgstr "Для активации этой функции необходимо установить gnome-web-photo"
+
+#: translate_tmp.pl:514
+msgid "Goo::Canvas/libgoocanvas needs to be installed for this feature"
+msgstr ""
+"Для активации этой функции необходимо установить Goo::Canvas/libgoocanvas"
+
+#: translate_tmp.pl:544
+msgid "Choose a profile"
+msgstr "Выберите профиль"
+
+#: translate_tmp.pl:561
+msgid "Save configuration as profile"
+msgstr "Сохранить конфигурацию как профиль"
+
+#: translate_tmp.pl:571
+msgid "Delete profile"
+msgstr "Удалить профиль"
+
+#: translate_tmp.pl:580
+msgid "Set profile for current configuration"
+msgstr "Применить профиль к текущей конфигурации"
+
+#: translate_tmp.pl:585
+#: translate_tmp.pl:832
+#: translate_tmp.pl:8069
+#: translate_tmp.pl:1477
+msgid "Image format"
+msgstr "Формат изображения"
+
+#: translate_tmp.pl:592
+msgid "Save"
+msgstr "Сохранить"
+
+#: translate_tmp.pl:599
+msgid "Window Preferences"
+msgstr "Параметры окна"
+
+#: translate_tmp.pl:606
+msgid "Notifications"
+msgstr "Уведомления"
+
+#: translate_tmp.pl:613
+msgid "Trash"
+msgstr "Корзина"
+
+#: translate_tmp.pl:620
+msgid "Gnome-Keybinding"
+msgstr "Комбинация клавиш Gnome"
+
+#: translate_tmp.pl:627
+#: translate_tmp.pl:1662
+msgid "Actions"
+msgstr "Действия"
+
+#: translate_tmp.pl:634
+#: translate_tmp.pl:1309
+msgid "Capture"
+msgstr "Снимок"
+
+#: translate_tmp.pl:641
+msgid "Selection Capture"
+msgstr "Снимок с выбором"
+
+#: translate_tmp.pl:648
+msgid "Advanced Selection Capture"
+msgstr "Усовершенствованный инструмент выбора"
+
+#: translate_tmp.pl:655
+msgid "Window Capture"
+msgstr "Снимок окон"
+
+#: translate_tmp.pl:662
+msgid "Menu/Tooltip Capture"
+msgstr "Снимок меню и всплывающих подсказок"
+
+#: translate_tmp.pl:669
+msgid "Website Capture"
+msgstr "Снимок интернет-страниц"
+
+#: translate_tmp.pl:676
+msgid "Accounts"
+msgstr "Учётные записи"
+
+#: translate_tmp.pl:683
+msgid "File Transfer Protocol (FTP)"
+msgstr "Протокол передачи файлов (FTP)"
+
+#: translate_tmp.pl:690
+msgid "Transparent Parts"
+msgstr "Прозрачные области"
+
+#: translate_tmp.pl:696
+msgid "Filename"
+msgstr "Название файла"
+
+#: translate_tmp.pl:720
+#: translate_tmp.pl:7819
+#: translate_tmp.pl:9223
+#, perl-format
+msgid "Reserved character %s is not allowed to be in a filename."
+msgstr "Зарезервированный символ %s не может использоваться в имени файла"
+
+#: translate_tmp.pl:734
+msgid "There are several wildcards available, like\n"
+msgstr "Доступны различные шаблоны, такие как\n"
+
+#: translate_tmp.pl:735
+msgid "%Y = year\n"
+msgstr "%Y = год\n"
+
+#: translate_tmp.pl:736
+msgid "%m = month\n"
+msgstr "%m = месяц\n"
+
+#: translate_tmp.pl:737
+#, perl-format
+msgid "%d = day\n"
+msgstr "%d = день\n"
+
+#: translate_tmp.pl:738
+msgid "%T = time\n"
+msgstr "%T = время\n"
+
+#: translate_tmp.pl:739
+msgid "$w = width\n"
+msgstr "$w = ширина\n"
+
+#: translate_tmp.pl:740
+msgid "$h = height\n"
+msgstr "$h = высота\n"
+
+#: translate_tmp.pl:741
+msgid "$name = multi-purpose (e.g. window title)\n"
+msgstr "$name = универсальный шаблон (например заголовок окна)\n"
+
+#: translate_tmp.pl:742
+msgid "$nb_name = like $name but without blanks in resulting strings\n"
+msgstr "$nb_name = как $name, но без пробелов\n"
+
+#: translate_tmp.pl:743
+msgid "$profile = name of current profile\n"
+msgstr "$profile = название текущего профиля\n"
+
+#: translate_tmp.pl:744
+msgid "%NN = counter"
+msgstr "%NN = счётчик"
+
+#: translate_tmp.pl:755
+#: translate_tmp.pl:2051
+msgid "Compression"
+msgstr "Сжатие"
+
+#: translate_tmp.pl:764
+#: translate_tmp.pl:766
+msgid ""
+"Quality/Compression:\n"
+"High value means high size / high compression\n"
+"(depending on file format chosen)"
+msgstr ""
+"Качество/сжатие:\n"
+"Чем больше значение, тем больше размер/выше степень сжатия\n"
+"(в зависимости от выбранного формата файла)"
+
+#: translate_tmp.pl:833
+#: translate_tmp.pl:834
+msgid "Select a file format"
+msgstr "Выберите формат файла"
+
+#: translate_tmp.pl:839
+msgid "Directory"
+msgstr "Папка"
+
+#: translate_tmp.pl:840
+#: translate_tmp.pl:8579
+#: translate_tmp.pl:8581
+msgid "Choose folder"
+msgstr "Выберите папку"
+
+#: translate_tmp.pl:847
+#: translate_tmp.pl:848
+msgid "Your screenshots will be saved to this directory"
+msgstr "Снимки будут сохранены в этом каталоге"
+
+#: translate_tmp.pl:853
+#: translate_tmp.pl:856
+msgid "Browse for save folder every time"
+msgstr "Каждый раз спрашивать, куда сохранять"
+
+#: translate_tmp.pl:858
+#: translate_tmp.pl:861
+msgid "Automatically save file"
+msgstr "Автоматически сохранять файл"
+
+#: translate_tmp.pl:885
+#: translate_tmp.pl:894
+msgid "Automatically copy screenshot to clipboard"
+msgstr "Автоматически копировать снимок в буфер обмена"
+
+#: translate_tmp.pl:897
+#: translate_tmp.pl:906
+msgid "Automatically copy filename to clipboard"
+msgstr "Автоматически копировать имя файла в буфер обмена"
+
+#: translate_tmp.pl:909
+#: translate_tmp.pl:918
+msgid "Do not copy anything to clipboard"
+msgstr "Не копировать ничего в буфер обмена"
+
+#: translate_tmp.pl:922
+msgid "Delay"
+msgstr "Задержка"
+
+#: translate_tmp.pl:924
+#: translate_tmp.pl:932
+#: translate_tmp.pl:1188
+#: translate_tmp.pl:2010
+#: translate_tmp.pl:2016
+#: translate_tmp.pl:2021
+msgid "second"
+msgid_plural "seconds"
+msgstr[0] "секунда"
+msgstr[1] "секунды"
+msgstr[2] "секунд"
+
+#: translate_tmp.pl:930
+msgid "Capture after a delay of"
+msgstr "Задержка перед съемкой:"
+
+#: translate_tmp.pl:944
+#: translate_tmp.pl:945
+#: translate_tmp.pl:946
+#: translate_tmp.pl:948
+#: translate_tmp.pl:949
+#: translate_tmp.pl:950
+msgid "Wait n seconds before taking a screenshot"
+msgstr "Задержка в n секунд перед тем как делать снимок"
+
+#: translate_tmp.pl:957
+msgid "Include Cursor"
+msgstr "Захватывать курсор"
+
+#: translate_tmp.pl:958
+#: translate_tmp.pl:964
+#: translate_tmp.pl:965
+msgid "Include cursor when taking a screenshot"
+msgstr "Захватывать курсор при съемке"
+
+#: translate_tmp.pl:1012
+msgid "Open with"
+msgstr "Открыть с помощью"
+
+#: translate_tmp.pl:1013
+#: translate_tmp.pl:1014
+#: translate_tmp.pl:1015
+msgid "Open your screenshot with this program after capturing"
+msgstr "После съёмки открывать снимок этой программой"
+
+#: translate_tmp.pl:1022
+msgid "16 colors   - (4bit) "
+msgstr "16 цветов   - (4 бита) "
+
+#: translate_tmp.pl:1023
+msgid "64 colors   - (6bit) "
+msgstr "64 цвета   - (6 бит) "
+
+#: translate_tmp.pl:1024
+msgid "256 colors  - (8bit) "
+msgstr "256 цветов   - (8 бит) "
+
+#: translate_tmp.pl:1049
+msgid "Reduce colors"
+msgstr "Уменьшить количество цветов"
+
+#: translate_tmp.pl:1050
+#: translate_tmp.pl:1051
+#: translate_tmp.pl:1052
+msgid "Automatically reduce colors after taking a screenshot"
+msgstr "Автоматически уменьшить количество цветов после съемки"
+
+#: translate_tmp.pl:1058
+msgid "Thumbnail"
+msgstr "Эскиз"
+
+#: translate_tmp.pl:1084
+#: translate_tmp.pl:1086
+#: translate_tmp.pl:1088
+msgid ""
+"Generate thumbnail too.\n"
+"select the percentage of the original size for the thumbnail to be"
+msgstr ""
+"Создать эскиз изображения.\n"
+"Выберите размер эскиза в процентах от\n"
+"оригинального изображения"
+
+#: translate_tmp.pl:1094
+#: translate_tmp.pl:1102
+msgid "Enable zoom window"
+msgstr "Включить увеличительное окно"
+
+#: translate_tmp.pl:1107
+msgid "Start with selection size of"
+msgstr "Начальный размер прямоугольника выделения:"
+
+#: translate_tmp.pl:1109
+msgid "at"
+msgstr "Расположение:"
+
+#: translate_tmp.pl:1115
+#: translate_tmp.pl:1116
+#: translate_tmp.pl:1234
+#: translate_tmp.pl:5850
+msgid "pixels"
+msgstr "точек"
+
+#: translate_tmp.pl:1139
+#: translate_tmp.pl:1140
+#: translate_tmp.pl:1141
+#: translate_tmp.pl:1142
+#: translate_tmp.pl:1143
+#: translate_tmp.pl:1144
+#: translate_tmp.pl:1145
+#: translate_tmp.pl:1146
+#: translate_tmp.pl:1147
+#: translate_tmp.pl:1148
+msgid "Start Advanced Selection Tool with a customized selection size"
+msgstr ""
+"Запускать усовершенствованный инструмент выбора с индивидуальным размером "
+"выделения"
+
+#: translate_tmp.pl:1162
+#: translate_tmp.pl:1163
+msgid "Include window decoration when capturing a window"
+msgstr "Захватывать оформление окна при снимке отдельного окна"
+
+#: translate_tmp.pl:1174
+#: translate_tmp.pl:1175
+msgid "Select only visible windows"
+msgstr "Выбирать только видимые окна"
+
+#: translate_tmp.pl:1186
+msgid "Pre-Capture Delay"
+msgstr "Задержка перед съемкой"
+
+#: translate_tmp.pl:1200
+#: translate_tmp.pl:1201
+#: translate_tmp.pl:1202
+msgid "Capture menu/tooltip after a delay of n seconds"
+msgstr "Снимать меню или всплывающие подсказки с задержкой в n секунд"
+
+#: translate_tmp.pl:1209
+msgid "Ignore possibly wrong type hints"
+msgstr "Игнорировать возможно неправильные типы окна"
+
+#: translate_tmp.pl:1210
+msgid ""
+"The type hint constants specify hints for the window manager that indicate "
+"what type of function the window has. Sometimes these type hints are not "
+"correctly set. By enabling this option Shutter will not insist on the "
+"requested type hint."
+msgstr ""
+"Константы типов окна указывают типы окна для менеджера окон, которые "
+"показывают какой цели служит окно. Иногда эти типы установлены неправильно. "
+"Включив эту опцию, Shutter не будет привязываться к выбранному типу окна."
+
+#: translate_tmp.pl:1221
+msgid "Virtual browser width"
+msgstr "Ширина виртуального браузера"
+
+#: translate_tmp.pl:1242
+#: translate_tmp.pl:1243
+#: translate_tmp.pl:1244
+msgid "Virtual browser width when taking a website screenshot"
+msgstr "Ширина виртуального браузера при съемке веб-страниц"
+
+#: translate_tmp.pl:1251
+msgid "Show as check pattern"
+msgstr "Показывать в виде шахматных клеток"
+
+#: translate_tmp.pl:1252
+msgid "Show as custom color:"
+msgstr "Показывать выбранный цвет"
+
+#: translate_tmp.pl:1255
+#: translate_tmp.pl:446
+#: translate_tmp.pl:3723
+#: translate_tmp.pl:3979
+msgid "Choose fill color"
+msgstr "Выберите цвет заливки"
+
+#: translate_tmp.pl:1257
+msgid "Show as background"
+msgstr "Показывать как цвет фона"
+
+#: translate_tmp.pl:1278
+msgid "Displays any transparent parts of the image in a check pattern"
+msgstr "Заполняет все прозрачные области изображения узором в клеточку"
+
+#: translate_tmp.pl:1279
+msgid ""
+"Displays any transparent parts of the image in a solid color that you specify"
+msgstr ""
+"Заполняет все прозрачные области изображения сплошиой заливкой цвета вашего "
+"выбора"
+
+#: translate_tmp.pl:1280
+msgid ""
+"Displays any transparent parts of the image in the background color of the "
+"application"
+msgstr "Заполняет все прозрачные области изображения цветом фона приложения"
+
+#: translate_tmp.pl:1313
+#: translate_tmp.pl:1319
+msgid ""
+"Configure global keybinding for capture\n"
+"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
+"fairly liberal and allows lower or upper case, and also abbreviations such "
+"as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
+"\"disabled\", then there will be no keybinding for this action. "
+msgstr ""
+"Здесь Вы можете настроить сочетание клавиш для снимка всего экрана.\n"
+"Пример сочетания клавиш: \"<Control>a\" или \"<Shift><Alt>F1\". Регистр букв "
+"не играет роли, возможны также такие сокращения как \"<Ctl>\" и \"<Ctrl>\". "
+"Если Вы снимете галочку или вдадите \"disabled\", для этого действия не "
+"будет сочетания клавиш. "
+
+#: translate_tmp.pl:1329
+msgid "Capture with selection"
+msgstr "Снимок с выбором"
+
+#: translate_tmp.pl:1333
+#: translate_tmp.pl:1339
+#: translate_tmp.pl:1356
+msgid ""
+"Configure global keybinding for capture with selection\n"
+"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
+"fairly liberal and allows lower or upper case, and also abbreviations such "
+"as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
+"\"disabled\", then there will be no keybinding for this action. "
+msgstr ""
+"Здесь Вы можете настроить сочетание клавиш для снимка с выбором.\n"
+"Пример сочетания клавиш: \"<Control>a\" или \"<Shift><Alt>F1\". Регистр букв "
+"не играет роли, возможны также такие сокращения как \"<Ctl>\" и \"<Ctrl>\". "
+"Если Вы снимете галочку или вдадите \"disabled\", для этого действия не "
+"будет сочетания клавиш. "
+
+#: translate_tmp.pl:1344
+#: translate_tmp.pl:255
+#: translate_tmp.pl:796
+#: translate_tmp.pl:63
+msgid "Selection"
+msgstr "Выделение"
+
+#: translate_tmp.pl:1345
+#: translate_tmp.pl:99
+msgid "Window"
+msgstr "Окно"
+
+#: translate_tmp.pl:1346
+#: translate_tmp.pl:120
+msgid "Section"
+msgstr "Элемент окна"
+
+#: translate_tmp.pl:1396
+#: translate_tmp.pl:1442
+msgid "Autohide main window when taking a screenshot"
+msgstr "Скрывать главное окно во время съемки"
+
+#: translate_tmp.pl:1397
+msgid "Redraw Delay"
+msgstr "Задержка перерисовки"
+
+#: translate_tmp.pl:1405
+#: translate_tmp.pl:1460
+msgid "Present main window after taking a screenshot"
+msgstr "Показывать главное окно посли съемки"
+
+#: translate_tmp.pl:1406
+#: translate_tmp.pl:1501
+msgid "Minimize to tray when closing main window"
+msgstr "Сворачивать в область уведомления при закрытии главного окна"
+
+#: translate_tmp.pl:1408
+#: translate_tmp.pl:1468
+msgid "Display pop-up notification after taking a screenshot"
+msgstr "Показывать всплывающее сообщение после съемки"
+
+#: translate_tmp.pl:1409
+#: translate_tmp.pl:1476
+#: translate_tmp.pl:1484
+msgid "Display pop-up notification when using a delay"
+msgstr "Показывать всплывающее сообщение если включена задержка"
+
+#: translate_tmp.pl:1410
+msgid "Display pop-up notification when using a pre-capture delay"
+msgstr ""
+"Показывать всплывающее сообщение если включена задержка перед съемкой"
+
+#: translate_tmp.pl:1412
+msgid "Notification agent"
+msgstr "Агент уведомления"
+
+#: translate_tmp.pl:1414
+msgid "Desktop Notifications"
+msgstr "Всплывающие уведомления"
+
+#: translate_tmp.pl:1415
+msgid "Built-In Notifications"
+msgstr "Встроенные уведомления"
+
+#: translate_tmp.pl:1419
+#: translate_tmp.pl:1509
+msgid "Ask before moving files to trash"
+msgstr "Спрашивать перед тем как перемещать файлы в корзину"
+
+#: translate_tmp.pl:1420
+#: translate_tmp.pl:1517
+msgid "Move file to trash when closing tab"
+msgstr "Перемещать файлы в корзину при закрытии вкладки"
+
+#: translate_tmp.pl:1450
+#: translate_tmp.pl:1451
+#: translate_tmp.pl:1452
+msgid ""
+"Configure a short timeout to give the Xserver a chance to redraw areas that "
+"were obscured by Shutter's windows before taking a screenshot."
+msgstr ""
+"Настроить короткую задержку чтобы дать Х-серверу возможность перерисовать "
+"области, бывшие загороженными главным окном Shutter перед началом съемки."
+
+#: translate_tmp.pl:1492
+#: translate_tmp.pl:1493
+msgid ""
+"You can either choose the system-wide desktop notifications (e.g. Ubuntu's "
+"Notify-OSD) or Shutter's built-in notification system"
+msgstr ""
+"Вы можете выбрать между системными уведомлениями (например, уведомлениями от "
+"Ubuntu) или уведомлениями встроенными в Shutter"
+
+#: translate_tmp.pl:1527
+msgid ""
+"Entering your Accounts for specific hosting-sites is optional. If entered it "
+"will give you the same benefits as the upload on the website. If you leave "
+"these fields empty you will be able to upload to the specific hosting-"
+"partner as a guest."
+msgstr ""
+"Ввод учетных данных для страниц хостинга не обязателен. Если Вы введете "
+"данные, Вы получите те же возможности как и при загрузке на самой странице "
+"хостинга. Оставив эти поля пустыми, Вы сможете загружать снимки на страницы "
+"хостинга как гость."
+
+#: translate_tmp.pl:1538
+#: translate_tmp.pl:8595
+msgid "URI"
+msgstr "Адрес"
+
+#: translate_tmp.pl:1547
+#: translate_tmp.pl:1549
+#: translate_tmp.pl:8600
+#: translate_tmp.pl:8602
+msgid ""
+"URI\n"
+"Example: ftp://host:port/path"
+msgstr ""
+"Адрес\n"
+"Например: ftp://host:port/path"
+
+#: translate_tmp.pl:1554
+#: translate_tmp.pl:1565
+#: translate_tmp.pl:1567
+#: translate_tmp.pl:8607
+#: translate_tmp.pl:8614
+#: translate_tmp.pl:8616
+msgid "Connection mode"
+msgstr "Режим соединения"
+
+#: translate_tmp.pl:1557
+#: translate_tmp.pl:8610
+msgid "Active mode"
+msgstr "Активный режим"
+
+#: translate_tmp.pl:1558
+#: translate_tmp.pl:8611
+msgid "Passive mode"
+msgstr "Пассивный режим"
+
+#: translate_tmp.pl:1572
+#: translate_tmp.pl:1581
+#: translate_tmp.pl:1583
+#: translate_tmp.pl:7450
+#: translate_tmp.pl:8621
+#: translate_tmp.pl:8626
+#: translate_tmp.pl:8628
+msgid "Username"
+msgstr "Имя пользователя"
+
+#: translate_tmp.pl:1588
+#: translate_tmp.pl:1599
+#: translate_tmp.pl:1601
+#: translate_tmp.pl:7457
+#: translate_tmp.pl:8633
+#: translate_tmp.pl:8640
+#: translate_tmp.pl:8642
+msgid "Password"
+msgstr "Пароль"
+
+#: translate_tmp.pl:1606
+#: translate_tmp.pl:1615
+#: translate_tmp.pl:1617
+#: translate_tmp.pl:8647
+#: translate_tmp.pl:8652
+#: translate_tmp.pl:8654
+msgid "Website URL"
+msgstr "Адрес веб-сайта"
+
+#: translate_tmp.pl:1625
+#: translate_tmp.pl:3949
+msgid "Main"
+msgstr "Главные"
+
+#: translate_tmp.pl:1682
+msgid "Advanced"
+msgstr "Дополнительные"
+
+#: translate_tmp.pl:1727
+msgid "Image View"
+msgstr "Вид снимков"
+
+#: translate_tmp.pl:1738
+msgid "Behavior"
+msgstr "Поведение"
+
+#: translate_tmp.pl:1767
+msgid "Keyboard"
+msgstr "Клавиатура"
+
+#: translate_tmp.pl:1785
+#: translate_tmp.pl:518
+#: translate_tmp.pl:302
+#: translate_tmp.pl:399
+msgid "Upload"
+msgstr "Загрузка"
+
+#: translate_tmp.pl:1838
+msgid "Plugins"
+msgstr "Плагины"
+
+#: translate_tmp.pl:1840
+msgid "The following plugins are installed"
+msgstr "Установлены следующие плагины"
+
+#: translate_tmp.pl:2026
+msgid "millisecond"
+msgid_plural "milliseconds"
+msgstr[0] "миллисекунда"
+msgstr[1] "миллисекунды"
+msgstr[2] "миллисекунд"
+
+#: translate_tmp.pl:2045
+msgid "Quality"
+msgstr "Качество"
+
+#: translate_tmp.pl:2112
+msgid "Please activate the menu you want to capture"
+msgstr "Пожалуйста, активируйте меню которое вы хотите снять"
+
+#: translate_tmp.pl:2114
+msgid "Please activate the tooltip you want to capture"
+msgstr ""
+"Пожалуйста, активируйте всплывающую подсказку которую вы хотите снять"
+
+#: translate_tmp.pl:2123
+#: translate_tmp.pl:2133
+#: translate_tmp.pl:193
+#: translate_tmp.pl:201
+#, perl-format
+msgid "Screenshot will be taken in %s second"
+msgid_plural "Screenshot will be taken in %s seconds"
+msgstr[0] "Снимок будет сделан через %s секунду"
+msgstr[1] "Снимок будет сделан через %s секунды"
+msgstr[2] "Снимок будет сделан через %s секунд"
+
+#: translate_tmp.pl:2381
+#: translate_tmp.pl:7484
+msgid "Register"
+msgstr "Регистрация"
+
+#: translate_tmp.pl:2686
+#: translate_tmp.pl:6290
+msgid "Choose file to open"
+msgstr "Выберите файл"
+
+#: translate_tmp.pl:2717
+#: translate_tmp.pl:6321
+msgid "All compatible image formats"
+msgstr "Все совместимые форматы изображений"
+
+#: translate_tmp.pl:2886
+msgid "Profile deleted"
+msgstr "Профиль удален"
+
+#: translate_tmp.pl:2888
+#: translate_tmp.pl:2889
+msgid "Profile could not be deleted"
+msgstr "Не удалось удалить профиль"
+
+#: translate_tmp.pl:2888
+#: translate_tmp.pl:3083
+#: translate_tmp.pl:4321
+#: translate_tmp.pl:4327
+#: translate_tmp.pl:4403
+#: translate_tmp.pl:4409
+#: translate_tmp.pl:4571
+#: translate_tmp.pl:4806
+#: translate_tmp.pl:4933
+#: translate_tmp.pl:4963
+#: translate_tmp.pl:5718
+#: translate_tmp.pl:8453
+#: translate_tmp.pl:9174
+#: translate_tmp.pl:110
+#: translate_tmp.pl:120
+msgid "Failed"
+msgstr "Сбой"
+
+#: translate_tmp.pl:2907
+#, perl-format
+msgid "Profile %s loaded successfully"
+msgstr "Профиль %s успешно загружен"
+
+#: translate_tmp.pl:2933
+#: translate_tmp.pl:5859
+msgid "Session"
+msgstr "Сеанс"
+
+#: translate_tmp.pl:2952
+#: translate_tmp.pl:4277
+msgid "not found"
+msgstr "не найден"
+
+#: translate_tmp.pl:3518
+msgid "Settings could not be saved!"
+msgstr "Не удалось сохранить настройки!"
+
+#: translate_tmp.pl:3520
+msgid "Settings saved successfully!"
+msgstr "Настройки успешно сохранены!"
+
+#: translate_tmp.pl:3546
+msgid "Session could not be saved!"
+msgstr "Не удалось сохранить сеанс!"
+
+#: translate_tmp.pl:3564
+msgid "Account-settings could not be saved!"
+msgstr "Не удалось сохранить настройки учетной записи!"
+
+#: translate_tmp.pl:3905
+msgid "Settings could not be restored!"
+msgstr "Не удалось восстановить настройки"
+
+#: translate_tmp.pl:3908
+msgid "Settings loaded successfully"
+msgstr "Настройки успешно загружены"
+
+#: translate_tmp.pl:4012
+msgid "Account-settings could not be restored!"
+msgstr "Не удалось восстановить настройки учетной записи!"
+
+#: translate_tmp.pl:4112
+msgid "Loading files"
+msgstr "Загрузка файлов"
+
+#: translate_tmp.pl:4116
+msgid "Please wait while your selected files are being loaded into Shutter"
+msgstr ""
+"Пожалуйста, подождите пока выбранные вами\r\n"
+"файлы будут загружены в Shutter"
+
+#: translate_tmp.pl:4157
+msgid "opened"
+msgstr "открыт"
+
+#: translate_tmp.pl:4205
+msgid "Restoring session"
+msgstr "Восстановление сеанса"
+
+#: translate_tmp.pl:4207
+msgid "Please wait while your saved session is being restored"
+msgstr "Пожалуйста, подождите. Ваш сеанс восстанавливается."
+
+#: translate_tmp.pl:4258
+msgid "Session could not be restored!"
+msgstr "Не удалось восстановить сеанс!"
+
+#: translate_tmp.pl:4298
+#, perl-format
+msgid "Are you sure you want to move %s to the trash?"
+msgstr "Вы уверены, что хотите переместить %s в корзину?"
+
+#: translate_tmp.pl:4299
+#: translate_tmp.pl:4368
+#: translate_tmp.pl:198
+#: translate_tmp.pl:663
+msgid "Move to _Trash"
+msgstr "Переместить в _корзину"
+
+#: translate_tmp.pl:4333
+msgid "deleted"
+msgstr "удален"
+
+#: translate_tmp.pl:4367
+msgid "Are you sure you want to move the selected files to the trash?"
+msgstr "Вы уверены, что хотите переместить выбранные файлы в корзину?"
+
+#: translate_tmp.pl:4372
+#: translate_tmp.pl:4425
+#: translate_tmp.pl:4525
+msgid "No screenshots selected"
+msgstr "Не выбрано ни одного снимка"
+
+#: translate_tmp.pl:4441
+msgid "Selected screenshots deleted"
+msgstr "Выбранные снимки удалены"
+
+#: translate_tmp.pl:4477
+#: translate_tmp.pl:6228
+#: translate_tmp.pl:6259
+#: translate_tmp.pl:6287
+#: translate_tmp.pl:6316
+msgid "removed from session"
+msgstr "убран из сеанса"
+
+#: translate_tmp.pl:4541
+msgid "Selected screenshots removed"
+msgstr "Выделенные снимки были убранны"
+
+#: translate_tmp.pl:4571
+#: translate_tmp.pl:4933
+msgid "No valid filetype specified"
+msgstr "Не указан корректный тип файла"
+
+#: translate_tmp.pl:4586
+msgid "There is no image data in the clipboard to paste"
+msgstr ""
+"В буфере обмена нет данных изображения, которые можно было бы вставить"
+
+#: translate_tmp.pl:4645
+msgid "Selected filenames copied to clipboard"
+msgstr "Выбранные имена файлов скопированы в буфер обмена"
+
+#: translate_tmp.pl:4660
+msgid "Selected images copied to clipboard"
+msgstr "Выберите какие изображения скопировать в буфер обмена"
+
+#: translate_tmp.pl:4707
+msgid "Last action undone"
+msgstr "Последнее действие отменено"
+
+#: translate_tmp.pl:4715
+#: translate_tmp.pl:4767
+#, perl-format
+msgid "Error while copying last version (%s)."
+msgstr "Ошибка при копировании последней версии (%s)."
+
+#: translate_tmp.pl:4716
+#, perl-format
+msgid "There was an error performing undo on %s."
+msgstr "Возникла ошибка при отмене действия %s."
+
+#: translate_tmp.pl:4759
+msgid "Last action redone"
+msgstr "Последнее действие повторено"
+
+#: translate_tmp.pl:4768
+#, perl-format
+msgid "There was an error performing redo on %s."
+msgstr "Возникла ошибка при повторении действия %s."
+
+#: translate_tmp.pl:4806
+msgid "No plugin installed"
+msgstr "Нет установленных плагинов"
+
+#: translate_tmp.pl:4962
+#: translate_tmp.pl:6454
+msgid "There was an error determining the filename."
+msgstr "Ошибка при определении имени файла"
+
+#: translate_tmp.pl:5185
+msgid "Triggered invalid screenshot action."
+msgstr "Вызвана недопустимая операция."
+
+#: translate_tmp.pl:5186
+#: translate_tmp.pl:5189
+#: translate_tmp.pl:5403
+#: translate_tmp.pl:5405
+#: translate_tmp.pl:69
+#: translate_tmp.pl:77
+#: translate_tmp.pl:85
+#: translate_tmp.pl:100
+#: translate_tmp.pl:108
+#: translate_tmp.pl:116
+#: translate_tmp.pl:128
+msgid "Error while taking the screenshot."
+msgstr "Ошибка при создании снимка"
+
+#: translate_tmp.pl:5284
+#: translate_tmp.pl:122
+msgid "Capture aborted by user"
+msgstr "Взятие снимка отменено пользователем"
+
+#: translate_tmp.pl:5391
+#: translate_tmp.pl:6278
+#: translate_tmp.pl:8189
+#: translate_tmp.pl:8194
+#: translate_tmp.pl:8261
+#: translate_tmp.pl:8267
+msgid "saved"
+msgstr "сохранен"
+
+#: translate_tmp.pl:5396
+msgid "Screenshot saved"
+msgstr "Скриншот сохранен."
+
+#: translate_tmp.pl:5402
+#, perl-format
+msgid ""
+"The filename %s could not be verified. Maybe it contains unsupported "
+"characters."
+msgstr ""
+"Неподходящее имя файла %s. Возможно имя содержит неподдерживаемые символы."
+
+#: translate_tmp.pl:5640
+msgid "opened with"
+msgstr "открыт с помощью"
+
+#: translate_tmp.pl:5670
+msgid "Opened all files with"
+msgstr "Все файлы открыты с помощью"
+
+#: translate_tmp.pl:5718
+#: translate_tmp.pl:5737
+#, perl-format
+msgid "Could not apply plugin %s"
+msgstr "Невозможно применить плагин %s"
+
+#: translate_tmp.pl:5735
+#: translate_tmp.pl:5783
+#, perl-format
+msgid "Successfully applied plugin %s"
+msgstr "Успешно применен плагин %s"
+
+#: translate_tmp.pl:5786
+#, perl-format
+msgid "Error while executing plugin %s."
+msgstr "Ошибка выполнения плагина %s."
+
+#: translate_tmp.pl:5787
+msgid "There was an error executing the plugin."
+msgstr "Произошла ошибка при выполнении плагина."
+
+#: translate_tmp.pl:5861
+#, perl-format
+msgid "%s screenshot"
+msgid_plural "%s screenshots"
+msgstr[0] "%s снимок"
+msgstr[1] "%s снимка"
+msgstr[2] "%s снимков"
+
+#: translate_tmp.pl:5873
+msgid "Current profile"
+msgstr "Текущий профиль"
+
+#: translate_tmp.pl:6219
+msgid "Try to resave the file?"
+msgstr "Попробовать заново сохранить файл?"
+
+#: translate_tmp.pl:6220
+#, perl-format
+msgid "Image %s was not found on disk"
+msgstr "Изображение %s не найдено на диске"
+
+#: translate_tmp.pl:6251
+#: translate_tmp.pl:116
+#, perl-format
+msgid "Error while saving the image %s."
+msgstr "Ошибка при сохранении изображения %s."
+
+#: translate_tmp.pl:6252
+#: translate_tmp.pl:117
+#, perl-format
+msgid "There was an error saving the image to %s."
+msgstr "Произошла ошибка при сохранении изображения в %s."
+
+#: translate_tmp.pl:6308
+#: translate_tmp.pl:192
+#: translate_tmp.pl:2873
+#: translate_tmp.pl:5632
+#: translate_tmp.pl:6109
+#: translate_tmp.pl:6356
+#: translate_tmp.pl:6650
+#: translate_tmp.pl:6682
+#, perl-format
+msgid "Error while opening image %s."
+msgstr "Ошибка при открытии изображения %s."
+
+#: translate_tmp.pl:6309
+#: translate_tmp.pl:193
+#: translate_tmp.pl:2874
+#: translate_tmp.pl:5633
+#: translate_tmp.pl:6110
+#: translate_tmp.pl:6357
+#: translate_tmp.pl:6651
+#: translate_tmp.pl:6683
+msgid "There was an error opening the image."
+msgstr "Произошла ошибка при открытии изображения."
+
+#: translate_tmp.pl:6453
+#, perl-format
+msgid "Error while opening directory %s."
+msgstr "Ошибка при открытии папки %s."
+
+#: translate_tmp.pl:6518
+msgid "Updating plugin information"
+msgstr "Обновляем информацию плагинов"
+
+#: translate_tmp.pl:6523
+msgid "Please wait while Shutter updates the plugin information"
+msgstr "Пожалуйста, подождите. Shutter обновляет информацию о плагинах."
+
+#: translate_tmp.pl:6760
+msgid "Limit to current monitor"
+msgstr "Ограничить на данный монитор"
+
+#: translate_tmp.pl:6775
+#, perl-format
+msgid ""
+"This option is only useful when you are running a multi-monitor system (%d "
+"monitor detected).\n"
+"Enable it to capture only the current monitor."
+msgid_plural ""
+"This option is only useful when you are running a multi-monitor system (%d "
+"monitors detected).\n"
+"Enable it to capture only the current monitor."
+msgstr[0] ""
+"Эта опция полезна только если используются несколько мониторов (найден %d "
+"монитор).\n"
+"Включите ее чтобы снимать только данный монитор."
+msgstr[1] ""
+"Эта опция полезна только если используются несколько мониторов (найдено %d "
+"монитора).\n"
+"Включите ее чтобы снимать только данный монитор."
+msgstr[2] ""
+"Эта опция полезна только если используются несколько мониторов (найдено %d "
+"мониторов).\n"
+"Включите ее чтобы снимать только данный монитор."
+
+#: translate_tmp.pl:6824
+#: translate_tmp.pl:392
+msgid "_Selection"
+msgstr "_Выделение"
+
+#: translate_tmp.pl:6857
+#: translate_tmp.pl:424
+msgid "W_indow"
+msgstr "_Окно"
+
+#: translate_tmp.pl:6873
+#: translate_tmp.pl:437
+msgid "Se_ction"
+msgstr "_Элемент окна"
+
+#: translate_tmp.pl:6892
+#: translate_tmp.pl:453
+msgid "_Menu"
+msgstr "_Меню"
+
+#: translate_tmp.pl:6911
+#: translate_tmp.pl:469
+msgid "_Tooltip"
+msgstr "_Подсказка"
+
+#: translate_tmp.pl:6930
+#: translate_tmp.pl:487
+msgid "_Web"
+msgstr "_Интернет"
+
+#: translate_tmp.pl:6947
+#: translate_tmp.pl:384
+msgid "_Redo last screenshot"
+msgstr "_Восстановить последний снимок"
+
+#: translate_tmp.pl:6957
+#: translate_tmp.pl:212
+msgid "_Quick profile select"
+msgstr "_Быстрый выбор профиля"
+
+#: translate_tmp.pl:6998
+msgid "Advanced selection tool"
+msgstr "Усовершенствованный инструмент выбора"
+
+#: translate_tmp.pl:7001
+msgid "Simple selection tool"
+msgstr "Простой инструмент выбора"
+
+#: translate_tmp.pl:7018
+msgid ""
+"The advanced selection tool allows you to enlarge/shrink or move your "
+"selected area\n"
+"until you finally take the screenshot."
+msgstr ""
+"Усовершенствованный инструмент выбора позволяет увеличить или уменьшить\n"
+"выбранный участок перед тем как делать снимок."
+
+#: translate_tmp.pl:7021
+msgid ""
+"The simple selection tool is the fastest way of taking a screenshot.\n"
+"It provides an optional zoom window for precise shots."
+msgstr ""
+"С помощью простого инструмента выбора можно быстро сделать снимок.\n"
+"Имеется также опциональное увеличительное окно для точных снимков."
+
+#: translate_tmp.pl:7173
+#: translate_tmp.pl:7181
+#: translate_tmp.pl:524
+#: translate_tmp.pl:615
+#, perl-format
+msgid "_Open with %s"
+msgstr "_Открыть с %s"
+
+#: translate_tmp.pl:7281
+#: translate_tmp.pl:7282
+#: translate_tmp.pl:7283
+#: translate_tmp.pl:7284
+#: translate_tmp.pl:7285
+msgid "Timeout"
+msgstr "Задержка"
+
+#: translate_tmp.pl:7287
+#: translate_tmp.pl:7288
+#: translate_tmp.pl:7289
+#: translate_tmp.pl:7290
+#: translate_tmp.pl:7291
+#: translate_tmp.pl:182
+msgid "The timeout in seconds, or 0 to disable timeout"
+msgstr "Задержка в секундах, или 0 для отключения задержки"
+
+#: translate_tmp.pl:7428
+msgid "Host"
+msgstr "Хост"
+
+#: translate_tmp.pl:7507
+msgid "Icon"
+msgstr "Символ"
+
+#: translate_tmp.pl:7516
+msgid "Name"
+msgstr "Название"
+
+#: translate_tmp.pl:7526
+msgid "Category"
+msgstr "Категория"
+
+#: translate_tmp.pl:7536
+#: translate_tmp.pl:8376
+msgid "Description"
+msgstr "Описание"
+
+#: translate_tmp.pl:7546
+msgid "Language"
+msgstr "Язык"
+
+#: translate_tmp.pl:7555
+msgid "Path"
+msgstr "Путь"
+
+#: translate_tmp.pl:7782
+msgid "Rename"
+msgstr "Переименовать"
+
+#: translate_tmp.pl:7786
+#, perl-format
+msgid "Rename image %s"
+msgstr "Переименовать изображение %s"
+
+#: translate_tmp.pl:7788
+msgid "New filename"
+msgstr "Новое имя файла"
+
+#: translate_tmp.pl:7791
+msgid "_Rename"
+msgstr "_Переименовать"
+
+#: translate_tmp.pl:7890
+#: translate_tmp.pl:7940
+msgid "renamed"
+msgstr "переименован"
+
+#: translate_tmp.pl:7898
+#: translate_tmp.pl:7948
+#: translate_tmp.pl:7988
+#, perl-format
+msgid "Error while renaming the image %s."
+msgstr "Ошибка при переименовании изображения %s."
+
+#: translate_tmp.pl:7899
+#: translate_tmp.pl:7949
+#: translate_tmp.pl:7989
+#, perl-format
+msgid "There was an error renaming the image to %s."
+msgstr "Возникла ошибка при переименовании изображения в %s"
+
+#: translate_tmp.pl:7911
+#: translate_tmp.pl:8216
+#: translate_tmp.pl:9030
+#: translate_tmp.pl:9253
+#: translate_tmp.pl:1583
+msgid "_Replace"
+msgstr "_Заменить"
+
+#: translate_tmp.pl:7915
+#: translate_tmp.pl:8220
+#: translate_tmp.pl:9041
+#: translate_tmp.pl:1587
+#, perl-format
+msgid ""
+"The image already exists in %s. Replacing it will overwrite its contents."
+msgstr ""
+"Это изображение уже существует в %s. При замене старое изображение будет "
+"утеряно!"
+
+#: translate_tmp.pl:7916
+#: translate_tmp.pl:8221
+#: translate_tmp.pl:9042
+#: translate_tmp.pl:1588
+#, perl-format
+msgid "An image named %s already exists. Do you want to replace it?"
+msgstr "Изображение под именем %s уже существует. Заменить"
+
+#: translate_tmp.pl:7992
+msgid "Invalid Filename"
+msgstr "Недопустимое имя файла"
+
+#: translate_tmp.pl:8019
+#: translate_tmp.pl:1428
+msgid "Choose a location to save to"
+msgstr "Выберите куда сохранять файлы"
+
+#: translate_tmp.pl:8308
+msgid "Choose a plugin"
+msgstr "Выбор плагина"
+
+#: translate_tmp.pl:8313
+msgid "_Run"
+msgstr "_Выполнить"
+
+#: translate_tmp.pl:8363
+msgid "Plugin"
+msgstr "Плагин"
+
+#: translate_tmp.pl:8453
+msgid "No plugin specified"
+msgstr "Плагин не выбран"
+
+#: translate_tmp.pl:8502
+msgid "Upload / Export"
+msgstr "Загрузка / Экспорт"
+
+#: translate_tmp.pl:8506
+#: translate_tmp.pl:8696
+msgid "_Upload"
+msgstr "_Загрузить"
+
+#: translate_tmp.pl:8522
+msgid "Guest"
+msgstr "Гость"
+
+#: translate_tmp.pl:8570
+msgid "Choose account"
+msgstr "Учетная запись"
+
+#: translate_tmp.pl:8683
+msgid "Public hosting"
+msgstr "Публичный хостинг"
+
+#: translate_tmp.pl:8685
+msgid "Places"
+msgstr "Локально"
+
+#: translate_tmp.pl:8693
+msgid "_Export"
+msgstr "_Экспорт"
+
+#: translate_tmp.pl:8770
+#: translate_tmp.pl:8801
+#: translate_tmp.pl:8869
+#: translate_tmp.pl:8943
+#: translate_tmp.pl:9023
+#: translate_tmp.pl:9063
+msgid "uploaded"
+msgstr "загружен"
+
+#: translate_tmp.pl:8832
+#: translate_tmp.pl:9171
+#: translate_tmp.pl:92
+msgid "Please check your credentials and try again."
+msgstr "Пожалуйста, проверьте ваши данные и попробуйте еще раз."
+
+#: translate_tmp.pl:8833
+#: translate_tmp.pl:9171
+msgid "Login failed!"
+msgstr "Ошибка аутентификации."
+
+#: translate_tmp.pl:8846
+#: translate_tmp.pl:8872
+#: translate_tmp.pl:9177
+#: translate_tmp.pl:85
+msgid "Please check your connectivity and try again."
+msgstr "Проверьте соединение и попробуйте ещё раз"
+
+#: translate_tmp.pl:8847
+#: translate_tmp.pl:8873
+#: translate_tmp.pl:9178
+msgid "Connection error!"
+msgstr "Ошибка соединения!"
+
+#: translate_tmp.pl:8848
+#: translate_tmp.pl:8874
+#: translate_tmp.pl:8961
+#: translate_tmp.pl:9043
+#: translate_tmp.pl:9153
+#: translate_tmp.pl:9174
+#: translate_tmp.pl:9179
+msgid "Skip all"
+msgstr "Пропустить все"
+
+#: translate_tmp.pl:8849
+#: translate_tmp.pl:8875
+#: translate_tmp.pl:8962
+#: translate_tmp.pl:9043
+#: translate_tmp.pl:9154
+#: translate_tmp.pl:9174
+#: translate_tmp.pl:9179
+msgid "Skip"
+msgstr "Пропустить"
+
+#: translate_tmp.pl:9021
+#: translate_tmp.pl:9061
+msgid "exported"
+msgstr "экспортировано"
+
+#: translate_tmp.pl:9147
+msgid "_Retry"
+msgstr "_Повторить"
+
+#: translate_tmp.pl:9151
+#, perl-format
+msgid "Error while copying the image %s."
+msgstr "Ошибка при копировании изображения %s."
+
+#: translate_tmp.pl:9152
+#, perl-format
+msgid "There was an error copying the image into %s."
+msgstr "Произошла ошибка при копировании изображения в %s."
+
+#: translate_tmp.pl:9173
+msgid "Maximum filesize reached!"
+msgstr "Достигнут максимальный размер файла"
+
+#: translate_tmp.pl:9194
+msgid "Save current preferences as new profile"
+msgstr "Сохранить текущие настройки как новый профиль"
+
+#: translate_tmp.pl:9196
+msgid "New profile name"
+msgstr "Имя нового профиля"
+
+#: translate_tmp.pl:9257
+msgid "Replacing it will overwrite its contents."
+msgstr "Заменив его вы перезапишете его содержимое."
+
+#: translate_tmp.pl:9258
+#, perl-format
+msgid "A profile named %s already exists. Do you want to replace it?"
+msgstr "Профиль с именем %s уже существует. Заменить его?"
+
+#: translate_tmp.pl:64
+msgid "Illegal URI."
+msgstr "Недействительный URI."
+
+#: translate_tmp.pl:84
+msgid "Connection error."
+msgstr "Ошибка при соединении."
+
+#: translate_tmp.pl:91
+#, perl-format
+msgid "Login with username %s failed."
+msgstr "Вход под именем %s не удался."
+
+#: translate_tmp.pl:111
+msgid "Cannot change working directory."
+msgstr "Не удалось изменить текущий каталог."
+
+#: translate_tmp.pl:121
+msgid "Command 'put' failed."
+msgstr "Команда 'Вставить' не удалась."
+
+#: translate_tmp.pl:408
+#: translate_tmp.pl:170
+#: translate_tmp.pl:184
+msgid "Upload status:"
+msgstr "Статус загрузки:"
+
+#: translate_tmp.pl:417
+#: translate_tmp.pl:192
+msgid "Thumbnail for forums"
+msgstr "Эскиз для форумов"
+
+#: translate_tmp.pl:418
+msgid "Short URL"
+msgstr "Короткий URL"
+
+#: translate_tmp.pl:420
+#: translate_tmp.pl:195
+#: translate_tmp.pl:356
+msgid "Direct link"
+msgstr "Прямая ссылка"
+
+#: translate_tmp.pl:421
+#: translate_tmp.pl:362
+msgid "Hotlink for websites"
+msgstr "Ссылка в HTML"
+
+#: translate_tmp.pl:432
+#: translate_tmp.pl:455
+#: translate_tmp.pl:474
+#: translate_tmp.pl:485
+#: translate_tmp.pl:204
+#: translate_tmp.pl:216
+#: translate_tmp.pl:228
+#: translate_tmp.pl:239
+#: translate_tmp.pl:250
+#: translate_tmp.pl:219
+#: translate_tmp.pl:231
+#: translate_tmp.pl:243
+#: translate_tmp.pl:254
+#: translate_tmp.pl:265
+#: translate_tmp.pl:277
+#: translate_tmp.pl:289
+#: translate_tmp.pl:301
+#: translate_tmp.pl:313
+msgid "Copy this code to clipboard"
+msgstr "Скопировать код"
+
+#: translate_tmp.pl:189
+msgid "Thumbnail for websites (with border)"
+msgstr "Эскиз в HTML (с рамкой)"
+
+#: translate_tmp.pl:191
+msgid "Thumbnail for websites (without border)"
+msgstr "Эскиз в HTML (без рамки)"
+
+#: translate_tmp.pl:194
+msgid "Thumbnail for Ubuntuusers.de forum"
+msgstr "Эскиз для форума Ubuntuusers.de"
+
+#: translate_tmp.pl:326
+msgid "Thumbnail for websites"
+msgstr "Эскиз в HTML"
+
+#: translate_tmp.pl:332
+msgid "Thumbnail for boards (1)"
+msgstr "Эскиз для форумов (1)"
+
+#: translate_tmp.pl:338
+msgid "Thumbnail for boards (2)"
+msgstr "Эскиз для форумов (2)"
+
+#: translate_tmp.pl:344
+msgid "Show your friends"
+msgstr "Показать друзьям"
+
+#: translate_tmp.pl:350
+msgid "Popup for websites"
+msgstr "Всплывающее окно для сайтов"
+
+#: translate_tmp.pl:368
+msgid "Hotlink for boards (1)"
+msgstr "Ссылка для форумов (1)"
+
+#: translate_tmp.pl:374
+msgid "Hotlink for boards (2)"
+msgstr "Ссылка для форумов (2)"
+
+#: translate_tmp.pl:104
+msgid "No subwindow detected"
+msgstr "Дочернее окно не обнаружено"
+
+#: translate_tmp.pl:105
+msgid ""
+"Maybe this window is using client-side windows (or similar).\n"
+"Shutter is not yet able to query the tree information of such windows."
+msgstr ""
+"Возможно это приложение использует клиентские окна (или подобные).\n"
+"Shutter пока не может получать информацию из окон такого рода."
+
+#: translate_tmp.pl:997
+#: translate_tmp.pl:140
+msgid "Menu"
+msgstr "Меню"
+
+#: translate_tmp.pl:1003
+#: translate_tmp.pl:160
+msgid "Tooltip"
+msgstr "Подсказка"
+
+#: translate_tmp.pl:72
+#: translate_tmp.pl:181
+msgid "Take a screenshot of a website"
+msgstr "Сделать снимок веб-сайта"
+
+#: translate_tmp.pl:74
+msgid "URL to capture"
+msgstr "Адрес сайта"
+
+#: translate_tmp.pl:91
+msgid "C_apture"
+msgstr "_Захватить"
+
+#: translate_tmp.pl:115
+msgid ""
+"Draw a rectangular area using the mouse. To take a screenshot, press the "
+"Enter key. Press Esc to quit."
+msgstr ""
+"Выделите прямоугольный участок экрана мышкой. Для того, чтобы сделать снимок "
+"экрана нажмите на Enter или Esc для выхода."
+
+#: translate_tmp.pl:120
+msgid ""
+"shift/right-click = selection dialog on/off\n"
+"ctrl + scrollwheel = zoom in/out\t\tspace = zoom window on/off\n"
+"cursor keys + alt = move selection\t\tcursor keys + ctrl = resize selection"
+msgstr ""
+"shift/щелчок правой кнопкой мыши = включить/выключить диалог выбора\n"
+"ctrl + колесо прокрутки = приблизить/отдалить\t\tпробел = "
+"увеличить/уменьшить окно\n"
+"стрелки + alt = переместить выделение\t\tстрелки + ctrl = изменить размер "
+"выделенного участка"
+
+#: translate_tmp.pl:76
+msgid ""
+"Maybe mouse pointer could not be grabbed or the selected area is invalid."
+msgstr "Не удалось захватить курсор или выбранная область недействительна."
+
+#: translate_tmp.pl:84
+msgid "Keyboard could not be grabbed."
+msgstr "Невозможно перехатить клавиатуру."
+
+#: translate_tmp.pl:93
+msgid "menu"
+msgstr "меню"
+
+#: translate_tmp.pl:95
+msgid "tooltip"
+msgstr "подсказка"
+
+#: translate_tmp.pl:99
+#, perl-format
+msgid "No window with type %s detected."
+msgstr "Окно типа %s не обнаружено."
+
+#: translate_tmp.pl:107
+msgid "There is no last capture that can be redone."
+msgstr "Нет сделанных снимков - нечего повторять."
+
+#: translate_tmp.pl:115
+msgid "The window is no longer available."
+msgstr "Окно уже недоступно"
+
+#: translate_tmp.pl:127
+#: translate_tmp.pl:133
+msgid "Unable to capture website"
+msgstr "Невозможно сделать снимок сайта"
+
+#: translate_tmp.pl:441
+#: translate_tmp.pl:3973
+msgid "Fill color"
+msgstr "Цвет заливки"
+
+#: translate_tmp.pl:448
+#: translate_tmp.pl:449
+msgid "Adjust fill color and opacity"
+msgstr "Изменить цвет и прозрачность заливки"
+
+#: translate_tmp.pl:455
+#: translate_tmp.pl:3992
+msgid "Stroke color"
+msgstr "Цвет штриха"
+
+#: translate_tmp.pl:460
+#: translate_tmp.pl:3998
+msgid "Choose stroke color"
+msgstr "Выберите цвет штриха"
+
+#: translate_tmp.pl:462
+#: translate_tmp.pl:463
+msgid "Adjust stroke color and opacity"
+msgstr "Изменить цвет и прозрачность линий"
+
+#: translate_tmp.pl:469
+#: translate_tmp.pl:3959
+msgid "Line width"
+msgstr "Толщина штриха"
+
+#: translate_tmp.pl:473
+#: translate_tmp.pl:474
+msgid "Adjust line width"
+msgstr "Изменить толщину линий"
+
+#: translate_tmp.pl:480
+#: translate_tmp.pl:4035
+#: translate_tmp.pl:4159
+msgid "Font"
+msgstr "Шрифт"
+
+#: translate_tmp.pl:484
+#: translate_tmp.pl:485
+msgid "Select font family and size"
+msgstr "Изменить шрифт и его размер"
+
+#: translate_tmp.pl:491
+msgid "Insert image"
+msgstr "Вставить изображение"
+
+#: translate_tmp.pl:604
+#: translate_tmp.pl:605
+msgid "Insert an arbitrary object or file"
+msgstr "Вставить произвольный объект или файл"
+
+#: translate_tmp.pl:625
+msgid "X"
+msgstr "X"
+
+#: translate_tmp.pl:644
+msgid "Y"
+msgstr "Y"
+
+#: translate_tmp.pl:663
+#: translate_tmp.pl:4088
+msgid "Width"
+msgstr "Ширина"
+
+#: translate_tmp.pl:682
+msgid "Height"
+msgstr "Высота"
+
+#: translate_tmp.pl:712
+msgid "_Crop"
+msgstr "_Обрезать"
+
+#: translate_tmp.pl:857
+msgid "Click-Drag to scale (try Control to scale uniformly)"
+msgstr ""
+"Нажмите и потяните для изменения размера (используйте Ctrl для равномерного "
+"масштабирования)"
+
+#: translate_tmp.pl:859
+msgid "Click-Drag to resize the canvas"
+msgstr "Захватите мышью и тащите ограничители, чтобы изменить размер холста"
+
+#: translate_tmp.pl:864
+msgid "Click to paint (try Control or Shift for a straight line)"
+msgstr ""
+"Кликните на изображении (используйте Ctrl/Shift для рисования "
+"горизонтальной/вертикальной линии)"
+
+#: translate_tmp.pl:868
+msgid "Click-Drag to create a new straight line"
+msgstr "Нажмите и потяните для создания новой прямой линии"
+
+#: translate_tmp.pl:872
+msgid "Click-Drag to create a new arrow"
+msgstr "Нажмите и потяните, чтобы создать новую стрелку"
+
+#: translate_tmp.pl:876
+msgid "Click-Drag to create a new rectangle"
+msgstr "Нажмите и потяните для создания нового прямоугольника"
+
+#: translate_tmp.pl:880
+msgid "Click-Drag to create a new ellipse"
+msgstr "Нажмите и потяните для создания новой окружности"
+
+#: translate_tmp.pl:884
+msgid "Click-Drag to add a new text area"
+msgstr "Нажмите и потяните для создания нового текстового поля"
+
+#: translate_tmp.pl:888
+msgid "Click to censor (try Control or Shift for a straight line)"
+msgstr ""
+"Нажмите на знак цензуры (используйте Ctrl/Shift для рисования "
+"горизонтальной/вертикальной линии)"
+
+#: translate_tmp.pl:892
+msgid "Click-Drag to create a pixelized region"
+msgstr "Нажмите и потяните для того, чтобы размыть область"
+
+#: translate_tmp.pl:896
+msgid "Click to add an auto-increment shape"
+msgstr "Нажмите, чтобы добавить авторасширяющуюся форму"
+
+#: translate_tmp.pl:1214
+#, perl-format
+msgid "Save the changes to image %s before closing?"
+msgstr "Сохранить изменения изображения %s перед закрытием?"
+
+#: translate_tmp.pl:1230
+msgid "Close"
+msgstr "Закрыть"
+
+#: translate_tmp.pl:1233
+msgid "Do_n't save"
+msgstr "_Не сохранять"
+
+#: translate_tmp.pl:1299
+#, perl-format
+msgid ""
+"If you don't save the image, changes from the last minute will be lost"
+msgid_plural ""
+"If you don't save the image, changes from the last %d minutes will be lost"
+msgstr[0] ""
+"Если не сохранить изображение, изменения последней минуты будут потеряны"
+msgstr[1] ""
+"Если не сохранить изображение, изменения последних %d минут будут потеряны"
+msgstr[2] ""
+"Если не сохранить изображение, изменения последних %d минут будут потеряны"
+
+#: translate_tmp.pl:1660
+msgid "Do you want to save the changed background color?"
+msgstr "Записать новый цвет фона?"
+
+#: translate_tmp.pl:1661
+msgid ""
+"The background is likely to be transparent if you decide to ignore the "
+"background color."
+msgstr "Фон скорее всего будет прозрачным, если вы проигнорируете цвет фона."
+
+#: translate_tmp.pl:1663
+msgid "Save Background Color"
+msgstr "Сохранить цвет фона"
+
+#: translate_tmp.pl:1666
+msgid "_Ignore Background Color"
+msgstr "_Игнорировать цвет фона"
+
+#: translate_tmp.pl:1669
+msgid "_Save Background Color"
+msgstr "_Сохранить цвет фона"
+
+#: translate_tmp.pl:3719
+msgid "Change Background Color..."
+msgstr "Изменить цвет фона..."
+
+#: translate_tmp.pl:3729
+msgid "_Reset to Default"
+msgstr "_Сбросить до исходных"
+
+#: translate_tmp.pl:3779
+msgid "Raise"
+msgstr "Поднять"
+
+#: translate_tmp.pl:3802
+msgid "Lower"
+msgstr "Опустить"
+
+#: translate_tmp.pl:3847
+msgid "Unlock"
+msgstr "Разблокировать"
+
+#: translate_tmp.pl:3850
+msgid "Lock"
+msgstr "Заблокировать"
+
+#: translate_tmp.pl:3872
+msgid "Edit Preferences..."
+msgstr "Изменить настройки..."
+
+#: translate_tmp.pl:4013
+msgid "Numbering"
+msgstr "Нумерация"
+
+#: translate_tmp.pl:4023
+msgid "Current value"
+msgstr "Текущее значение"
+
+#: translate_tmp.pl:4078
+#: translate_tmp.pl:5929
+msgid "Arrow"
+msgstr "Стрелка"
+
+#: translate_tmp.pl:4100
+msgid "Length"
+msgstr "Длина"
+
+#: translate_tmp.pl:4112
+msgid "Tip length"
+msgstr "Длина кончика"
+
+#: translate_tmp.pl:4122
+msgid "Display an arrow at the end of the line"
+msgstr "Отобразить стрелку на конце линии"
+
+#: translate_tmp.pl:4124
+msgid "Display an arrow at the start of the line"
+msgstr "Отобразить стрелку в начале линии"
+
+#: translate_tmp.pl:4149
+#: translate_tmp.pl:5932
+msgid "Text"
+msgstr "Текст"
+
+#: translate_tmp.pl:4188
+msgid "Font color"
+msgstr "Цвет шрифта"
+
+#: translate_tmp.pl:4194
+msgid "Choose font color"
+msgstr "Выберите цвет шрифта"
+
+#: translate_tmp.pl:4215
+msgid "Use selected font"
+msgstr "Использовать выбранный шрифт"
+
+#: translate_tmp.pl:5807
+#: translate_tmp.pl:34
+msgid "_File"
+msgstr "_Файл"
+
+#: translate_tmp.pl:5808
+#: translate_tmp.pl:39
+msgid "_Edit"
+msgstr "_Правка"
+
+#: translate_tmp.pl:5809
+msgid "_Tools"
+msgstr "_Инструменты"
+
+#: translate_tmp.pl:5810
+#: translate_tmp.pl:44
+msgid "_View"
+msgstr "_Вид"
+
+#: translate_tmp.pl:5811
+msgid "Undo last action"
+msgstr "Отменить последнее действие"
+
+#: translate_tmp.pl:5814
+msgid "Do again the last undone action"
+msgstr "Повторить последнее отмененное действие"
+
+#: translate_tmp.pl:5817
+msgid "Copy selection to clipboard"
+msgstr "Скопировать выделение в буфер обмена"
+
+#: translate_tmp.pl:5823
+msgid "Cut selection to clipboard"
+msgstr "Вырезать выделение в буфер обмена"
+
+#: translate_tmp.pl:5830
+msgid "Paste objects from clipboard"
+msgstr "Вставить содержимое буфера обмена"
+
+#: translate_tmp.pl:5833
+msgid "Delete current object"
+msgstr "Удалить объект"
+
+#: translate_tmp.pl:5836
+msgid "Clear canvas"
+msgstr "Очистить холст"
+
+#: translate_tmp.pl:5850
+msgid "Abort current mode"
+msgstr "Прервать режим"
+
+#: translate_tmp.pl:5853
+msgid "Close this window"
+msgstr "Закрыть окно"
+
+#: translate_tmp.pl:5856
+msgid "Save image"
+msgstr "Сохранить изображение"
+
+#: translate_tmp.pl:5859
+msgid "Export to _File..."
+msgstr "Экспорт в _файл..."
+
+#: translate_tmp.pl:5859
+msgid "Export to File..."
+msgstr "Экспорт в файл..."
+
+#: translate_tmp.pl:5862
+msgid "_Export to SVG..."
+msgstr "_Экспорт в SVG..."
+
+#: translate_tmp.pl:5862
+msgid "Export to SVG..."
+msgstr "Экспорт в SVG"
+
+#: translate_tmp.pl:5865
+#: translate_tmp.pl:108
+msgid "E_xport to PDF..."
+msgstr "Э_кспорт в PDF..."
+
+#: translate_tmp.pl:5865
+msgid "Export to PDF..."
+msgstr "Экспорт в PDF"
+
+#: translate_tmp.pl:5889
+msgid "Automatic scrolling"
+msgstr "Автопрокрутка"
+
+#: translate_tmp.pl:5925
+msgid "Select"
+msgstr "Выбрать"
+
+#: translate_tmp.pl:5925
+msgid "Select item to move or resize it"
+msgstr "Выберите элемент, чтобы переместить его или изменить его размер"
+
+#: translate_tmp.pl:5926
+msgid "Freehand"
+msgstr "От руки"
+
+#: translate_tmp.pl:5926
+msgid "Draw a freehand line"
+msgstr "Нарисовать линию от руки"
+
+#: translate_tmp.pl:5927
+msgid "Highlighter"
+msgstr "Маркер"
+
+#: translate_tmp.pl:5928
+msgid "Line"
+msgstr "Линия"
+
+#: translate_tmp.pl:5928
+msgid "Draw a straight line"
+msgstr "Нарисовать прямую линию"
+
+#: translate_tmp.pl:5929
+msgid "Draw an arrow"
+msgstr "Нарисовать стрелку"
+
+#: translate_tmp.pl:5930
+msgid "Rectangle"
+msgstr "Прямоугольник"
+
+#: translate_tmp.pl:5930
+msgid "Draw a rectangle"
+msgstr "Нарисовать прямоугольник"
+
+#: translate_tmp.pl:5931
+msgid "Ellipse"
+msgstr "Овал"
+
+#: translate_tmp.pl:5931
+msgid "Draw a ellipse"
+msgstr "Нарисовать эллипс"
+
+#: translate_tmp.pl:5932
+msgid "Add some text to the screenshot"
+msgstr "Добавить к снимку текст"
+
+#: translate_tmp.pl:5933
+msgid "Censor"
+msgstr "Вымарать"
+
+#: translate_tmp.pl:5933
+msgid "Censor portions of your screenshot to hide private data"
+msgstr "Цензор для скрытия приватной информации на снимке"
+
+#: translate_tmp.pl:5934
+msgid "Pixelize"
+msgstr "Размыть"
+
+#: translate_tmp.pl:5934
+msgid "Pixelize selected areas of your screenshot to hide private data"
+msgstr ""
+"Размыть выбранное пространство снимка экрана для скрытия личных данных"
+
+#: translate_tmp.pl:5935
+msgid "Number"
+msgstr "Число"
+
+#: translate_tmp.pl:5935
+msgid "Add an auto-increment shape to the screenshot"
+msgstr "Добавить авторасширяющуюся форму к этому снимку"
+
+#: translate_tmp.pl:5936
+msgid "Crop"
+msgstr "Вырезать"
+
+#: translate_tmp.pl:5936
+msgid "Crop your screenshot"
+msgstr "Обрезать снимок"
+
+#: translate_tmp.pl:6199
+#: translate_tmp.pl:6402
+msgid "No icon was found"
+msgstr "Иконка не найдена"
+
+#: translate_tmp.pl:6258
+msgid "Import from current theme..."
+msgstr "Импортировать из текущей темы..."
+
+#: translate_tmp.pl:6272
+msgid "Import from session..."
+msgstr "Импортировать из сеанса..."
+
+#: translate_tmp.pl:6283
+msgid "Import from filesystem..."
+msgstr "Импортировать из файловой системы"
+
+#: translate_tmp.pl:7093
+msgid "New text..."
+msgstr "Новый текст..."
+
+#: translate_tmp.pl:79
+msgid "translator-credits"
+msgstr ""
+"Launchpad Contributions:\n"
+"  Andrei Dziahel https://launchpad.net/~develop7\n"
+"  Eugene Babiy https://launchpad.net/~eugene-babiy\n"
+"  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
+"  Nkolay Parukhin https://launchpad.net/~parukhin\n"
+"  Paul Philippov https://launchpad.net/~themactep\n"
+"  Photon https://launchpad.net/~michael-kogan\n"
+"  Sergey \"Shnatsel\" Davidoff https://launchpad.net/~shnatsel\n"
+"  Sergey Rebko https://launchpad.net/~arch1s\n"
+"  Sergey Sedov https://launchpad.net/~serg-sedov\n"
+"  Stanislav Savulchik https://launchpad.net/~larry-jef\n"
+"  Sukochev Roman (Leolik) https://launchpad.net/~leolik\n"
+"  Vadim Peretokin https://launchpad.net/~vperetokin\n"
+"  Vadim Rutkovsky https://launchpad.net/~roignac\n"
+"  Valentina Mukhamedzhanova https://launchpad.net/~umirra\n"
+"  segooon https://launchpad.net/~segooon\n"
+"  Алексей Капранов (Alex Kapranoff) https://launchpad.net/~kkapp"
+
+#: translate_tmp.pl:49
+msgid "_Screenshot"
+msgstr "С_нимок"
+
+#: translate_tmp.pl:54
+msgid "_Go"
+msgstr "Пе_реход"
+
+#: translate_tmp.pl:59
+msgid "_Help"
+msgstr "_Справка"
+
+#: translate_tmp.pl:87
+msgid "_Open..."
+msgstr "_Открыть..."
+
+#: translate_tmp.pl:92
+msgid "Recent _Files"
+msgstr "Нед_авние файлы"
+
+#: translate_tmp.pl:97
+msgid "Save _As..."
+msgstr "Сохранить _как..."
+
+#: translate_tmp.pl:118
+msgid "Page Set_up"
+msgstr "_Параметры страницы"
+
+#: translate_tmp.pl:125
+msgid "_Print..."
+msgstr "_Печать..."
+
+#: translate_tmp.pl:133
+msgid "Send by E_mail..."
+msgstr "Отправить по_чтой..."
+
+#: translate_tmp.pl:148
+msgid "C_lose all"
+msgstr "Закрыть _все"
+
+#: translate_tmp.pl:193
+#: translate_tmp.pl:658
+msgid "Copy _Filename"
+msgstr "Копировать _название файла"
+
+#: translate_tmp.pl:235
+msgid "Show Navigation _Toolbar"
+msgstr "Показывать _панель навигации"
+
+#: translate_tmp.pl:317
+msgid "Get Help Online..."
+msgstr "Справка в Сети..."
+
+#: translate_tmp.pl:332
+msgid "Translate this Application..."
+msgstr "Перевести это приложение..."
+
+#: translate_tmp.pl:347
+msgid "Report a Problem"
+msgstr "Сообщить об ошибке"
+
+#: translate_tmp.pl:503
+msgid "Import from clip_board"
+msgstr "Импортировать из _буфера обмена"
+
+#: translate_tmp.pl:531
+#: translate_tmp.pl:622
+msgid "Open wit_h"
+msgstr "О_ткрыть с помощью"
+
+#: translate_tmp.pl:537
+#: translate_tmp.pl:628
+msgid "_Rename..."
+msgstr "_Переименовать..."
+
+#: translate_tmp.pl:546
+#: translate_tmp.pl:636
+msgid "_Send To..."
+msgstr "_Отправить..."
+
+#: translate_tmp.pl:555
+#: translate_tmp.pl:644
+msgid "E_xport..."
+msgstr "_Экспортировать..."
+
+#: translate_tmp.pl:564
+#: translate_tmp.pl:671
+msgid "_Edit..."
+msgstr "_Изменить..."
+
+#: translate_tmp.pl:581
+msgid "Run a _plugin..."
+msgstr "Применить _плагин..."
+
+#: translate_tmp.pl:590
+#: translate_tmp.pl:695
+msgid "Redo _this screenshot"
+msgstr "Восстановить этот _снимок"
+
+#: translate_tmp.pl:687
+msgid "Run a _Plugin..."
+msgstr "Запустить _модуль"
+
+#: translate_tmp.pl:37
+msgid "Redo"
+msgstr "Повторить"
+
+#: translate_tmp.pl:40
+msgid "Redo last screenshot"
+msgstr "Повторить последний снимок"
+
+#: translate_tmp.pl:70
+msgid ""
+"Draw a rectangular capture area with your mouse\n"
+"to select a specified screen area"
+msgstr ""
+"Ограничить прямоугольную область\n"
+"на экране с помощью мышки"
+
+#: translate_tmp.pl:71
+msgid "Choose selection tool"
+msgstr "Выберите инструмент выделения"
+
+#: translate_tmp.pl:78
+msgid "Full Screen"
+msgstr "Полный экран"
+
+#: translate_tmp.pl:81
+msgid "Take a screenshot of your whole desktop"
+msgstr "Снять весь экран"
+
+#: translate_tmp.pl:82
+msgid "Capture a specific workspace"
+msgstr "Снимок определенного рабочего места"
+
+#: translate_tmp.pl:102
+msgid "Select a window with your mouse"
+msgstr "Выберите окно в с помощью мышки"
+
+#: translate_tmp.pl:103
+msgid "Take a screenshot of a specific window"
+msgstr "Сделать снимок определенного окна"
+
+#: translate_tmp.pl:123
+msgid ""
+"Captures only a section of the window. You will be able to select any child "
+"window by moving the mouse over it"
+msgstr ""
+"Снимок отдельного элемента окна. Вы можете выбрать любой элемент окна, "
+"подведя к нему курсор мыши."
+
+#: translate_tmp.pl:143
+msgid "Select a single menu or cascading menus from any application"
+msgstr "Выбрать одиночное или каскадное меню в приложении"
+
+#: translate_tmp.pl:163
+msgid "Capture a tooltip"
+msgstr "Захватить подсказку"
+
+#: translate_tmp.pl:179
+msgid "Web"
+msgstr "Интернет"
+
+#: translate_tmp.pl:203
+msgid "Edit"
+msgstr "Правка"
+
+#: translate_tmp.pl:206
+msgid ""
+"Use the built-in editor to highlight important fragments of your screenshot "
+"or crop it to a desired size"
+msgstr ""
+"Использовать встроенный редактор, чтобы выделить важные фрагменты или "
+"обрезать изображение до нужного размера."
+
+#: translate_tmp.pl:213
+msgid "Export"
+msgstr "Экспорт"
+
+#: translate_tmp.pl:216
+msgid ""
+"Upload your images to an image hosting service, FTP site or export them to "
+"an arbitrary folder"
+msgstr ""
+"Загрузить изображения на хостинг, FTP или переместить в заданную папку"
+
+#: translate_tmp.pl:33
+#: translate_tmp.pl:47
+#: translate_tmp.pl:62
+#: translate_tmp.pl:76
+#, perl-format
+msgid "Error while executing %s."
+msgstr "Ошибка во время выполнения %s."
+
+#: translate_tmp.pl:34
+#: translate_tmp.pl:48
+#: translate_tmp.pl:63
+#: translate_tmp.pl:77
+#, perl-format
+msgid "There was an error executing %s."
+msgstr "Произошла ошибка при выполнении %s."
+
+#: translate_tmp.pl:37
+#: translate_tmp.pl:51
+#: translate_tmp.pl:66
+#: translate_tmp.pl:80
+#, perl-format
+msgid "Exit Code: %d."
+msgstr "Код выхода: %d"
+
+#~ msgid "Quit"
+#~ msgstr "Выйти"
+
+#~ msgid "Info"
+#~ msgstr "О программе"
+
+#~ msgid ""
+#~ "Open your screenshot\n"
+#~ "with this program after capturing"
+#~ msgstr ""
+#~ "Открыть снимок следующей\n"
+#~ "программой после съемки"
+
+#~ msgid "activate"
+#~ msgstr "включить"
+
+#~ msgid "deactivate"
+#~ msgstr "выключить"
+
+#~ msgid "Window border"
+#~ msgstr "Рамка окна"
+
+#~ msgid "<i>Main</i>"
+#~ msgstr "<i>Главные</i>"
+
+#~ msgid "No valid filename specified"
+#~ msgstr "Заданное имя недопустимо"
+
+#~ msgid "No valid url entered"
+#~ msgstr "Заданная ссылка недопустима"
+
+#~ msgid "Mime-Type"
+#~ msgstr "MIME-тип"
+
+#~ msgid "Filesize"
+#~ msgstr "Размер файла"
+
+#~ msgid "Geometry"
+#~ msgstr "Разрешение"
+
+#~ msgid "Statistic"
+#~ msgstr "Статистика"
+
+#~ msgid "screenshot during this session"
+#~ msgid_plural "screenshots during this session"
+#~ msgstr[0] "снимок за этот сеанс"
+#~ msgstr[1] "снимка за этот сеанс"
+#~ msgstr[2] "снимков за этот сеанс"
+
+#~ msgid "copied to clipboard"
+#~ msgstr "скопирован в буфер обмена"
+
+#~ msgid "All screenshots removed"
+#~ msgstr "Все снимки убраны"
+
+#~ msgid "click me"
+#~ msgstr "Зарегистрироваться!"
+
+#~ msgid "Successfully executed plugin"
+#~ msgstr "Плагин успешно выполнен"
+
+#~ msgid "Could not execute plugin"
+#~ msgstr "Не удалось выполнить плагин"
+
+#~ msgid "Total size"
+#~ msgstr "Общий размер"
+
+#~ msgid "Include wm border when selecting a window"
+#~ msgstr "Учитывать рамку при выборе окна"
+
+#~ msgid "Large"
+#~ msgstr "Большой"
+
+#~ msgid "Medium"
+#~ msgstr "Средний"
+
+#~ msgid "Small"
+#~ msgstr "Маленький"
+
+#~ msgid "Size of zoom window"
+#~ msgstr "Размер увеличительного окна"
+
+#~ msgid "Include cursor"
+#~ msgstr "Захватывать курсор"
+
+#~ msgid "Get Help Online ..."
+#~ msgstr "Получить помощь в сети"
+
+#~ msgid "Current Preferences"
+#~ msgstr "Текущие настройки"
+
+#~ msgid "Gtk2::ImageView needs to be installed for this feature"
+#~ msgstr "Библиотека Gtk2::ImageView должна быть установлена для этой функции"
+
+#~ msgid "<i>Text</i>"
+#~ msgstr "<i>Текст</i>"
+
+#~ msgid ""
+#~ "Automatically reduce colors \n"
+#~ "after taking a screenshot"
+#~ msgstr ""
+#~ "Автоматически уменьшить \n"
+#~ "количество цветов после съемки"
+
+#~ msgid "Translate this Application ..."
+#~ msgstr "Перевести это приложение"
+
+#~ msgid "Autohide Shutter Window when taking a screenshot"
+#~ msgstr "Скрывать окно Shutter во время снимка"
+
+#~ msgid "Save settings automatically when exiting Shutter"
+#~ msgstr "Автоматически сохранять настройки при выходе"
+
+#~ msgid "Error while taking the screenshot"
+#~ msgstr "Ошибка во время снимка"
+
+#~ msgid "Current Profile"
+#~ msgstr "Текущий профиль"
+
+#~ msgid "_Full Screen"
+#~ msgstr "_Полный экран"
+
+#~ msgid "Delete all objects"
+#~ msgstr "Стереть все объекты"
+
+#~ msgid "Execute a _plugin"
+#~ msgstr "Выполнить _плагин"
+
+#~ msgid "_Open with"
+#~ msgstr "_Открыть с помощью"
+
+#~ msgid "_Upload / Export"
+#~ msgstr "_Загрузка / Экспорт"
+
+#~ msgid "Select an object to delete it from the canvas"
+#~ msgstr "Выберите объект, чтобы удалить его из холста"
+
+#~ msgid "Move to Dele_ted Items folder"
+#~ msgstr "_Удалить в Корзину"
+
+#~ msgid "_Quick select"
+#~ msgstr "_Быстрый выбор профиля"
+
+#~ msgid "Set up a connection timeout (seconds)"
+#~ msgstr "Установить таймаут подключения (в секундах)"
+
+#~ msgid ""
+#~ "Your screenshots will be saved\n"
+#~ "to this directory"
+#~ msgstr ""
+#~ "Ваши снимки будут сохранены\n"
+#~ "в эту папку"
+
+#~ msgid "Save settings when exiting"
+#~ msgstr "Сохранять настройки при выходе"
+
+#~ msgid "Screenshot failed!"
+#~ msgstr "Не удалось сделать снимок!"
+
+#~ msgid ""
+#~ "Please wait while your saved session\n"
+#~ "is being restored"
+#~ msgstr ""
+#~ "Пожалуйста, подождите пока сохраненный вами сеанс\n"
+#~ "будет восстановлен"
+
+#~ msgid ""
+#~ "Please wait while your selected files\n"
+#~ "are being integrated into Shutter"
+#~ msgstr ""
+#~ "Пожалуйста, подождите пока выбранные вами\n"
+#~ "файлы будут загружены в Shutter"
+
+#~ msgid ""
+#~ "If you have registered with imageshack.us, you should have received an email "
+#~ "with a link similar to\n"
+#~ "\n"
+#~ "http://reg.imageshack.us/setlogin.php?login=SOME_IDENTIFIER\n"
+#~ "\n"
+#~ "You should pass either that link as the username or only the user_id "
+#~ "(SOME_IDENTIFIER)\n"
+#~ "\n"
+#~ "You do not have to provide a password."
+#~ msgstr ""
+#~ "Если Вы зарегистрированны на imageshack.us, Вы должны были получить письмо с "
+#~ "ссылкой похожей на\n"
+#~ "http://reg.imageshack.us/setlogin.php?login=КАКОЙ_ЛИБО_ИДЕНТИФИКАТОР\n"
+#~ "Воспользуйтесь в качестве имени пользователя или этой ссылкой или этим "
+#~ "идентификатором ( КАКОЙ_ЛИБО_ИДЕНТИФИКАТОР). Пароль вдавать не нужно."
+
+#~ msgid ""
+#~ "ctrl + scrollwheel = zoom in/out\n"
+#~ "cursor keys + alt = move selection\n"
+#~ "cursor keys + ctrl = resize selection"
+#~ msgstr ""
+#~ "Ctrl + колесо прокрутки = увеличение/уменьшение\n"
+#~ "Alt + клавиши управления курсором = передвижение выделения\n"
+#~ "Ctrl + клавиши управления курсором = изменение размера выделения"
+
+#~ msgid "<i>Numbering</i>"
+#~ msgstr "<i>Нумерация</i>"
+
+#~ msgid "<i>Arrow</i>"
+#~ msgstr "<i>Стрелка</i>"
+
+#~ msgid "Copy _filename"
+#~ msgstr "Скопировать _имя файла"
+
+#~ msgid ""
+#~ "There are several wild-cards available, like\n"
+#~ "%Y = year\n"
+#~ "%m = month\n"
+#~ "%d = day\n"
+#~ "%T = time\n"
+#~ "$w = width\n"
+#~ "$h = height\n"
+#~ "%NN = counter"
+#~ msgstr ""
+#~ "Можно использовать такие шаблоны, как:\n"
+#~ "%Y = год\n"
+#~ "%m = месяц\n"
+#~ "%d = день\n"
+#~ "%T = время\n"
+#~ "$w = ширина\n"
+#~ "$h = высота\n"
+#~ "%NN = счётчик"
+
+#~ msgid ""
+#~ "There are several wildcards available, like\n"
+#~ "%Y = year\n"
+#~ "%m = month\n"
+#~ "%d = day\n"
+#~ "%T = time\n"
+#~ "$w = width\n"
+#~ "$h = height\n"
+#~ "$name = multi-purpose (e.g. window title)\n"
+#~ "%NN = counter"
+#~ msgstr ""
+#~ "Можно использовать такие шаблоны, как:\\n\n"
+#~ "%Y = год\\n\n"
+#~ "%m = месяц\\n\n"
+#~ "%d = день\\n\n"
+#~ "%T = время\\n\n"
+#~ "$w = ширина\\n\n"
+#~ "$h = высота\\n\n"
+#~ "$name = универсальный шаблон (например заголовок окна)\\n\n"
+#~ "%NN = счётчик"
+
+#~ msgid "As check pattern"
+#~ msgstr "Поле в клеточку"
+
+#~ msgid "As custom color:"
+#~ msgstr "Заливка индивидуальным цветом:"
+
+#~ msgid "As background"
+#~ msgstr "Фоном"
+
+#~ msgid "Send by Email..."
+#~ msgstr "Отправить почтой..."
+
+#~ msgid "Send To..."
+#~ msgstr "Отправить..."
