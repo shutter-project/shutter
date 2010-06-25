@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-04-14 08:57+0200\n"
+"POT-Creation-Date: 2010-06-20 14:59+0200\n"
 "PO-Revision-Date: 2010-03-16 00:40+0000\n"
 "Last-Translator: Mario Kemper (Romario) <mario.kemper@googlemail.com>\n"
 "Language-Team: Danish <da@li.org>\n"
@@ -15,177 +15,181 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2010-06-20 09:00+0000\n"
+"X-Launchpad-Export-Date: 2010-06-25 21:12+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
-#: translate_tmp.pl:204
-#: translate_tmp.pl:1852
-#: translate_tmp.pl:5963
+#: translate_tmp.pl:211
+#: translate_tmp.pl:1860
+#: translate_tmp.pl:6105
 msgid "Profile"
 msgstr "Profil"
 
-#: translate_tmp.pl:209
+#: translate_tmp.pl:216
 #: translate_tmp.pl:3909
 msgid "Preferences"
 msgstr "Præferencer"
 
-#: translate_tmp.pl:506
-#: translate_tmp.pl:507
+#: translate_tmp.pl:513
+#: translate_tmp.pl:514
 msgid "gnome-web-photo needs to be installed for this feature"
 msgstr "gnome-web-photo kræves installeret for denne egenskab"
 
-#: translate_tmp.pl:514
+#: translate_tmp.pl:521
 msgid "Goo::Canvas/libgoocanvas needs to be installed for this feature"
 msgstr "Goo::Canvas/libgoocanvas kræves installeret for denne egenskab"
 
-#: translate_tmp.pl:544
+#: translate_tmp.pl:551
 msgid "Choose a profile"
 msgstr "Vælg en profil"
 
-#: translate_tmp.pl:561
+#: translate_tmp.pl:568
 msgid "Save configuration as profile"
 msgstr "Gem konfiguration som profil"
 
-#: translate_tmp.pl:571
+#: translate_tmp.pl:578
 msgid "Delete profile"
 msgstr "Slet profil"
 
-#: translate_tmp.pl:580
+#: translate_tmp.pl:587
 msgid "Set profile for current configuration"
 msgstr "Sæt profil for nuværende konfiguration"
 
-#: translate_tmp.pl:585
-#: translate_tmp.pl:832
-#: translate_tmp.pl:8069
+#: translate_tmp.pl:592
+#: translate_tmp.pl:840
+#: translate_tmp.pl:8315
 #: translate_tmp.pl:1477
 msgid "Image format"
 msgstr "Billedformat"
 
-#: translate_tmp.pl:592
+#: translate_tmp.pl:599
 msgid "Save"
 msgstr "Gem"
 
-#: translate_tmp.pl:599
+#: translate_tmp.pl:606
 msgid "Window Preferences"
 msgstr "Indstillinger for vinduer"
 
-#: translate_tmp.pl:606
+#: translate_tmp.pl:613
 msgid "Notifications"
 msgstr "Påmindelser"
 
-#: translate_tmp.pl:613
+#: translate_tmp.pl:620
 msgid "Trash"
 msgstr "Flyt til papirkurven"
 
-#: translate_tmp.pl:620
+#: translate_tmp.pl:627
 msgid "Gnome-Keybinding"
 msgstr "Gnome-Genvejstast"
 
-#: translate_tmp.pl:627
-#: translate_tmp.pl:1662
+#: translate_tmp.pl:634
+#: translate_tmp.pl:1670
 msgid "Actions"
 msgstr "Handlinger"
 
-#: translate_tmp.pl:634
-#: translate_tmp.pl:1309
+#: translate_tmp.pl:641
+#: translate_tmp.pl:1317
 msgid "Capture"
 msgstr "Optag"
 
-#: translate_tmp.pl:641
+#: translate_tmp.pl:648
 msgid "Selection Capture"
 msgstr "Indfang markering"
 
-#: translate_tmp.pl:648
+#: translate_tmp.pl:655
 msgid "Advanced Selection Capture"
 msgstr "Avanceret indfangelse af markering"
 
-#: translate_tmp.pl:655
+#: translate_tmp.pl:662
 msgid "Window Capture"
 msgstr "Indfang vindue"
 
-#: translate_tmp.pl:662
+#: translate_tmp.pl:669
 msgid "Menu/Tooltip Capture"
 msgstr "Menu/Værktøjstip Indfang"
 
-#: translate_tmp.pl:669
+#: translate_tmp.pl:676
 msgid "Website Capture"
 msgstr "Indfang hjemmeside"
 
-#: translate_tmp.pl:676
+#: translate_tmp.pl:683
 msgid "Accounts"
 msgstr "Konti"
 
-#: translate_tmp.pl:683
+#: translate_tmp.pl:690
 msgid "File Transfer Protocol (FTP)"
 msgstr "Protokol for filoverførsel (FTP)"
 
-#: translate_tmp.pl:690
+#: translate_tmp.pl:697
 msgid "Transparent Parts"
 msgstr "Gennemsigtige dele"
 
-#: translate_tmp.pl:696
+#: translate_tmp.pl:703
 msgid "Filename"
 msgstr "Filnavn"
 
-#: translate_tmp.pl:720
-#: translate_tmp.pl:7819
-#: translate_tmp.pl:9223
+#: translate_tmp.pl:727
+#: translate_tmp.pl:8065
+#: translate_tmp.pl:9651
 #, perl-format
 msgid "Reserved character %s is not allowed to be in a filename."
 msgstr "Reserveret tegn %s er ikke tilladt i et filnavn."
 
-#: translate_tmp.pl:734
+#: translate_tmp.pl:741
 msgid "There are several wildcards available, like\n"
 msgstr ""
 
-#: translate_tmp.pl:735
+#: translate_tmp.pl:742
 msgid "%Y = year\n"
 msgstr ""
 
-#: translate_tmp.pl:736
+#: translate_tmp.pl:743
 msgid "%m = month\n"
 msgstr ""
 
-#: translate_tmp.pl:737
+#: translate_tmp.pl:744
 #, perl-format
 msgid "%d = day\n"
 msgstr ""
 
-#: translate_tmp.pl:738
+#: translate_tmp.pl:745
 msgid "%T = time\n"
 msgstr ""
 
-#: translate_tmp.pl:739
+#: translate_tmp.pl:746
 msgid "$w = width\n"
 msgstr ""
 
-#: translate_tmp.pl:740
+#: translate_tmp.pl:747
 msgid "$h = height\n"
 msgstr ""
 
-#: translate_tmp.pl:741
+#: translate_tmp.pl:748
 msgid "$name = multi-purpose (e.g. window title)\n"
 msgstr ""
 
-#: translate_tmp.pl:742
+#: translate_tmp.pl:749
 msgid "$nb_name = like $name but without blanks in resulting strings\n"
 msgstr ""
 
-#: translate_tmp.pl:743
+#: translate_tmp.pl:750
 msgid "$profile = name of current profile\n"
 msgstr ""
 
-#: translate_tmp.pl:744
+#: translate_tmp.pl:751
+msgid "$R = random char (e.g. $RRRR = ag4r)\n"
+msgstr ""
+
+#: translate_tmp.pl:752
 msgid "%NN = counter"
 msgstr ""
 
-#: translate_tmp.pl:755
-#: translate_tmp.pl:2051
+#: translate_tmp.pl:763
+#: translate_tmp.pl:2061
 msgid "Compression"
 msgstr "Komprimering"
 
-#: translate_tmp.pl:764
-#: translate_tmp.pl:766
+#: translate_tmp.pl:772
+#: translate_tmp.pl:774
 msgid ""
 "Quality/Compression:\n"
 "High value means high size / high compression\n"
@@ -195,128 +199,130 @@ msgstr ""
 "Høj værdi betyder stor størrelse / høj komprimering\n"
 "(kommer an på valgt format)"
 
-#: translate_tmp.pl:833
-#: translate_tmp.pl:834
+#: translate_tmp.pl:841
+#: translate_tmp.pl:842
 msgid "Select a file format"
 msgstr "Vælg et filformat"
 
-#: translate_tmp.pl:839
+#: translate_tmp.pl:847
 msgid "Directory"
 msgstr "Mappe"
 
-#: translate_tmp.pl:840
-#: translate_tmp.pl:8579
-#: translate_tmp.pl:8581
+#: translate_tmp.pl:848
+#: translate_tmp.pl:8818
+#: translate_tmp.pl:8820
+#: translate_tmp.pl:8836
+#: translate_tmp.pl:8837
 msgid "Choose folder"
 msgstr "Vælg mappe"
 
-#: translate_tmp.pl:847
-#: translate_tmp.pl:848
+#: translate_tmp.pl:855
+#: translate_tmp.pl:856
 msgid "Your screenshots will be saved to this directory"
 msgstr "Dine skærmbilleder gemmes i denne mappe"
 
-#: translate_tmp.pl:853
-#: translate_tmp.pl:856
+#: translate_tmp.pl:861
+#: translate_tmp.pl:864
 msgid "Browse for save folder every time"
 msgstr ""
 
-#: translate_tmp.pl:858
-#: translate_tmp.pl:861
+#: translate_tmp.pl:866
+#: translate_tmp.pl:869
 msgid "Automatically save file"
 msgstr ""
 
-#: translate_tmp.pl:885
-#: translate_tmp.pl:894
+#: translate_tmp.pl:893
+#: translate_tmp.pl:902
 msgid "Automatically copy screenshot to clipboard"
 msgstr "Kopier automatisk skærmbilledet til klippebordet"
 
-#: translate_tmp.pl:897
-#: translate_tmp.pl:906
+#: translate_tmp.pl:905
+#: translate_tmp.pl:914
 msgid "Automatically copy filename to clipboard"
 msgstr "Kopier automatisk filnavn til klippebord"
 
-#: translate_tmp.pl:909
-#: translate_tmp.pl:918
+#: translate_tmp.pl:917
+#: translate_tmp.pl:926
 msgid "Do not copy anything to clipboard"
 msgstr ""
 
-#: translate_tmp.pl:922
+#: translate_tmp.pl:930
 msgid "Delay"
 msgstr "Forsinkelse"
 
-#: translate_tmp.pl:924
 #: translate_tmp.pl:932
-#: translate_tmp.pl:1188
-#: translate_tmp.pl:2010
-#: translate_tmp.pl:2016
-#: translate_tmp.pl:2021
+#: translate_tmp.pl:940
+#: translate_tmp.pl:1196
+#: translate_tmp.pl:2020
+#: translate_tmp.pl:2026
+#: translate_tmp.pl:2031
 msgid "second"
 msgid_plural "seconds"
 msgstr[0] "sekund"
 msgstr[1] "sekunder"
 
-#: translate_tmp.pl:930
+#: translate_tmp.pl:938
 msgid "Capture after a delay of"
 msgstr "Indfang efter en forsinkelse på"
 
-#: translate_tmp.pl:944
-#: translate_tmp.pl:945
-#: translate_tmp.pl:946
-#: translate_tmp.pl:948
-#: translate_tmp.pl:949
-#: translate_tmp.pl:950
+#: translate_tmp.pl:952
+#: translate_tmp.pl:953
+#: translate_tmp.pl:954
+#: translate_tmp.pl:956
+#: translate_tmp.pl:957
+#: translate_tmp.pl:958
 msgid "Wait n seconds before taking a screenshot"
 msgstr "Vent n sekunder med at tage et skærmbillede"
 
-#: translate_tmp.pl:957
+#: translate_tmp.pl:965
 msgid "Include Cursor"
 msgstr "Medtag markør"
 
-#: translate_tmp.pl:958
-#: translate_tmp.pl:964
-#: translate_tmp.pl:965
+#: translate_tmp.pl:966
+#: translate_tmp.pl:972
+#: translate_tmp.pl:973
 msgid "Include cursor when taking a screenshot"
 msgstr "Inkludér markør når der tages skærmbillede"
 
-#: translate_tmp.pl:1012
+#: translate_tmp.pl:1020
 msgid "Open with"
 msgstr "Åbn med"
 
-#: translate_tmp.pl:1013
-#: translate_tmp.pl:1014
-#: translate_tmp.pl:1015
+#: translate_tmp.pl:1021
+#: translate_tmp.pl:1022
+#: translate_tmp.pl:1023
 msgid "Open your screenshot with this program after capturing"
 msgstr "Åben dit skærmbillede med dette program efter indfangelse"
 
-#: translate_tmp.pl:1022
+#: translate_tmp.pl:1030
 msgid "16 colors   - (4bit) "
 msgstr "16 farver - (4bit) "
 
-#: translate_tmp.pl:1023
+#: translate_tmp.pl:1031
 msgid "64 colors   - (6bit) "
 msgstr "64 farver - (6bit) "
 
-#: translate_tmp.pl:1024
+#: translate_tmp.pl:1032
 msgid "256 colors  - (8bit) "
 msgstr "256 farver (8bit) "
 
-#: translate_tmp.pl:1049
+#: translate_tmp.pl:1057
 msgid "Reduce colors"
 msgstr "Reducér farver"
 
-#: translate_tmp.pl:1050
-#: translate_tmp.pl:1051
-#: translate_tmp.pl:1052
+#: translate_tmp.pl:1058
+#: translate_tmp.pl:1059
+#: translate_tmp.pl:1060
 msgid "Automatically reduce colors after taking a screenshot"
 msgstr "Reducér farver automatisk efter skærmbillede er taget"
 
-#: translate_tmp.pl:1058
+#: translate_tmp.pl:1066
 msgid "Thumbnail"
 msgstr "Miniature"
 
-#: translate_tmp.pl:1084
-#: translate_tmp.pl:1086
-#: translate_tmp.pl:1088
+#: translate_tmp.pl:1092
+#: translate_tmp.pl:1094
+#: translate_tmp.pl:1096
 msgid ""
 "Generate thumbnail too.\n"
 "select the percentage of the original size for the thumbnail to be"
@@ -324,65 +330,65 @@ msgstr ""
 "Lav også miniaturen.\n"
 "Vælg procentdel som miniaturen skal udgøre af originalen"
 
-#: translate_tmp.pl:1094
 #: translate_tmp.pl:1102
+#: translate_tmp.pl:1110
 msgid "Enable zoom window"
 msgstr "Slå zoom-vindue til"
 
-#: translate_tmp.pl:1107
+#: translate_tmp.pl:1115
 msgid "Start with selection size of"
 msgstr "Start med størrelse af markering på"
 
-#: translate_tmp.pl:1109
+#: translate_tmp.pl:1117
 msgid "at"
 msgstr "ved"
 
-#: translate_tmp.pl:1115
-#: translate_tmp.pl:1116
-#: translate_tmp.pl:1234
-#: translate_tmp.pl:5850
+#: translate_tmp.pl:1123
+#: translate_tmp.pl:1124
+#: translate_tmp.pl:1242
+#: translate_tmp.pl:5952
 msgid "pixels"
 msgstr "billedpunkter"
 
-#: translate_tmp.pl:1139
-#: translate_tmp.pl:1140
-#: translate_tmp.pl:1141
-#: translate_tmp.pl:1142
-#: translate_tmp.pl:1143
-#: translate_tmp.pl:1144
-#: translate_tmp.pl:1145
-#: translate_tmp.pl:1146
 #: translate_tmp.pl:1147
 #: translate_tmp.pl:1148
+#: translate_tmp.pl:1149
+#: translate_tmp.pl:1150
+#: translate_tmp.pl:1151
+#: translate_tmp.pl:1152
+#: translate_tmp.pl:1153
+#: translate_tmp.pl:1154
+#: translate_tmp.pl:1155
+#: translate_tmp.pl:1156
 msgid "Start Advanced Selection Tool with a customized selection size"
 msgstr ""
 "Start avanceret markeringsværktøj med tilpasset størrelse af markering på"
 
-#: translate_tmp.pl:1162
-#: translate_tmp.pl:1163
+#: translate_tmp.pl:1170
+#: translate_tmp.pl:1171
 msgid "Include window decoration when capturing a window"
 msgstr "Medtag vinduesdekoration ved indfangelse af vindue"
 
-#: translate_tmp.pl:1174
-#: translate_tmp.pl:1175
+#: translate_tmp.pl:1182
+#: translate_tmp.pl:1183
 msgid "Select only visible windows"
 msgstr "Vælg alene synlige vinduer"
 
-#: translate_tmp.pl:1186
+#: translate_tmp.pl:1194
 msgid "Pre-Capture Delay"
 msgstr "Forud-optageforsinkelse"
 
-#: translate_tmp.pl:1200
-#: translate_tmp.pl:1201
-#: translate_tmp.pl:1202
+#: translate_tmp.pl:1208
+#: translate_tmp.pl:1209
+#: translate_tmp.pl:1210
 msgid "Capture menu/tooltip after a delay of n seconds"
 msgstr "Optag menu/værktøjstip efter en forsinkelse på n sekunder"
 
-#: translate_tmp.pl:1209
+#: translate_tmp.pl:1217
 msgid "Ignore possibly wrong type hints"
 msgstr ""
 
-#: translate_tmp.pl:1210
+#: translate_tmp.pl:1218
 msgid ""
 "The type hint constants specify hints for the window manager that indicate "
 "what type of function the window has. Sometimes these type hints are not "
@@ -390,54 +396,54 @@ msgid ""
 "requested type hint."
 msgstr ""
 
-#: translate_tmp.pl:1221
+#: translate_tmp.pl:1229
 msgid "Virtual browser width"
 msgstr "Virtuel browser bredde"
 
-#: translate_tmp.pl:1242
-#: translate_tmp.pl:1243
-#: translate_tmp.pl:1244
+#: translate_tmp.pl:1250
+#: translate_tmp.pl:1251
+#: translate_tmp.pl:1252
 msgid "Virtual browser width when taking a website screenshot"
 msgstr "Bredde på virtuel browser når skærmbillede tages af hjemmeside"
 
-#: translate_tmp.pl:1251
+#: translate_tmp.pl:1259
 msgid "Show as check pattern"
 msgstr ""
 
-#: translate_tmp.pl:1252
+#: translate_tmp.pl:1260
 msgid "Show as custom color:"
 msgstr ""
 
-#: translate_tmp.pl:1255
+#: translate_tmp.pl:1263
 #: translate_tmp.pl:446
 #: translate_tmp.pl:3723
 #: translate_tmp.pl:3979
 msgid "Choose fill color"
 msgstr "Vælg fyldfarve"
 
-#: translate_tmp.pl:1257
+#: translate_tmp.pl:1265
 msgid "Show as background"
 msgstr ""
 
-#: translate_tmp.pl:1278
+#: translate_tmp.pl:1286
 msgid "Displays any transparent parts of the image in a check pattern"
 msgstr "Viser enhver gennemsigtig del af billedet i et ternet mønster"
 
-#: translate_tmp.pl:1279
+#: translate_tmp.pl:1287
 msgid ""
 "Displays any transparent parts of the image in a solid color that you specify"
 msgstr ""
 "Viser enhver gennemsigtig del af billedet med en fast farve som du angiver"
 
-#: translate_tmp.pl:1280
+#: translate_tmp.pl:1288
 msgid ""
 "Displays any transparent parts of the image in the background color of the "
 "application"
 msgstr ""
 "Viser enhver gennemsigtig del af billedet i baggrundsfarven af programmet"
 
-#: translate_tmp.pl:1313
-#: translate_tmp.pl:1319
+#: translate_tmp.pl:1321
+#: translate_tmp.pl:1327
 msgid ""
 "Configure global keybinding for capture\n"
 "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
@@ -451,13 +457,13 @@ msgstr ""
 "\"<Ctl>\" og \"<Ctrl>\". Hvis dufravælger muligheder vil der ikke være nogen "
 "genvejstast at bruge. "
 
-#: translate_tmp.pl:1329
+#: translate_tmp.pl:1337
 msgid "Capture with selection"
 msgstr "Indfang med markering"
 
-#: translate_tmp.pl:1333
-#: translate_tmp.pl:1339
-#: translate_tmp.pl:1356
+#: translate_tmp.pl:1341
+#: translate_tmp.pl:1347
+#: translate_tmp.pl:1364
 msgid ""
 "Configure global keybinding for capture with selection\n"
 "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
@@ -471,82 +477,82 @@ msgstr ""
 "\"<Ctrl>\". Hvis du fravælger disse, vil der ikke være en genvejstast for "
 "denne handling. "
 
-#: translate_tmp.pl:1344
-#: translate_tmp.pl:255
+#: translate_tmp.pl:1352
+#: translate_tmp.pl:215
 #: translate_tmp.pl:796
 #: translate_tmp.pl:63
 msgid "Selection"
 msgstr "Markering"
 
-#: translate_tmp.pl:1345
+#: translate_tmp.pl:1353
 #: translate_tmp.pl:99
 msgid "Window"
 msgstr "Vindue"
 
-#: translate_tmp.pl:1346
+#: translate_tmp.pl:1354
 #: translate_tmp.pl:120
 msgid "Section"
 msgstr "Sektion"
 
-#: translate_tmp.pl:1396
-#: translate_tmp.pl:1442
+#: translate_tmp.pl:1404
+#: translate_tmp.pl:1450
 msgid "Autohide main window when taking a screenshot"
 msgstr "Auto-skjul hovedvindue når skærmbillede tages"
 
-#: translate_tmp.pl:1397
+#: translate_tmp.pl:1405
 msgid "Redraw Delay"
 msgstr "Gentegn Forsinkelse"
 
-#: translate_tmp.pl:1405
-#: translate_tmp.pl:1460
+#: translate_tmp.pl:1413
+#: translate_tmp.pl:1468
 msgid "Present main window after taking a screenshot"
 msgstr "Vis hovedvindue efter skærmbillede er taget"
 
-#: translate_tmp.pl:1406
-#: translate_tmp.pl:1501
+#: translate_tmp.pl:1414
+#: translate_tmp.pl:1509
 msgid "Minimize to tray when closing main window"
 msgstr "Minimér til systembakke når hovedvinduet lukkes"
 
-#: translate_tmp.pl:1408
-#: translate_tmp.pl:1468
+#: translate_tmp.pl:1416
+#: translate_tmp.pl:1476
 msgid "Display pop-up notification after taking a screenshot"
 msgstr "Vis duk-frem påmindelse efter skærmbillede er taget"
 
-#: translate_tmp.pl:1409
-#: translate_tmp.pl:1476
+#: translate_tmp.pl:1417
 #: translate_tmp.pl:1484
+#: translate_tmp.pl:1492
 msgid "Display pop-up notification when using a delay"
 msgstr "Vis duk-frem påmindelse når forsinkelse anvendes"
 
-#: translate_tmp.pl:1410
+#: translate_tmp.pl:1418
 msgid "Display pop-up notification when using a pre-capture delay"
 msgstr "Vis duk-frem påmindelse når præ-indfang forsinkelse bruges"
 
-#: translate_tmp.pl:1412
+#: translate_tmp.pl:1420
 msgid "Notification agent"
 msgstr ""
 
-#: translate_tmp.pl:1414
+#: translate_tmp.pl:1422
 msgid "Desktop Notifications"
 msgstr ""
 
-#: translate_tmp.pl:1415
+#: translate_tmp.pl:1423
 msgid "Built-In Notifications"
 msgstr ""
 
-#: translate_tmp.pl:1419
-#: translate_tmp.pl:1509
+#: translate_tmp.pl:1427
+#: translate_tmp.pl:1517
 msgid "Ask before moving files to trash"
 msgstr "Spørg før filer flyttes til papirkurv"
 
-#: translate_tmp.pl:1420
-#: translate_tmp.pl:1517
+#: translate_tmp.pl:1428
+#: translate_tmp.pl:1525
 msgid "Move file to trash when closing tab"
 msgstr "Flyt til til papirkurv når faneblad lukkes"
 
-#: translate_tmp.pl:1450
-#: translate_tmp.pl:1451
-#: translate_tmp.pl:1452
+#: translate_tmp.pl:1458
+#: translate_tmp.pl:1459
+#: translate_tmp.pl:1460
 msgid ""
 "Configure a short timeout to give the Xserver a chance to redraw areas that "
 "were obscured by Shutter's windows before taking a screenshot."
@@ -554,14 +560,14 @@ msgstr ""
 "Konfigurer en kortvarig ventetid som giver Xserver en chance for at opfriske "
 "områder der er gjort uklare af Shutter's vinduer før skærmbilledet tages."
 
-#: translate_tmp.pl:1492
-#: translate_tmp.pl:1493
+#: translate_tmp.pl:1500
+#: translate_tmp.pl:1501
 msgid ""
 "You can either choose the system-wide desktop notifications (e.g. Ubuntu's "
 "Notify-OSD) or Shutter's built-in notification system"
 msgstr ""
 
-#: translate_tmp.pl:1527
+#: translate_tmp.pl:1535
 msgid ""
 "Entering your Accounts for specific hosting-sites is optional. If entered it "
 "will give you the same benefits as the upload on the website. If you leave "
@@ -573,15 +579,15 @@ msgstr ""
 "lader disse felter stå tomme vil du kunne oploade til den specifikke hosting-"
 "partner som gæst."
 
-#: translate_tmp.pl:1538
-#: translate_tmp.pl:8595
+#: translate_tmp.pl:1546
+#: translate_tmp.pl:8877
 msgid "URI"
 msgstr "URI"
 
-#: translate_tmp.pl:1547
-#: translate_tmp.pl:1549
-#: translate_tmp.pl:8600
-#: translate_tmp.pl:8602
+#: translate_tmp.pl:1555
+#: translate_tmp.pl:1557
+#: translate_tmp.pl:8882
+#: translate_tmp.pl:8884
 msgid ""
 "URI\n"
 "Example: ftp://host:port/path"
@@ -589,110 +595,110 @@ msgstr ""
 "URI\n"
 "Eksempel: ftp://host:port/sti"
 
-#: translate_tmp.pl:1554
-#: translate_tmp.pl:1565
-#: translate_tmp.pl:1567
-#: translate_tmp.pl:8607
-#: translate_tmp.pl:8614
-#: translate_tmp.pl:8616
+#: translate_tmp.pl:1562
+#: translate_tmp.pl:1573
+#: translate_tmp.pl:1575
+#: translate_tmp.pl:8889
+#: translate_tmp.pl:8896
+#: translate_tmp.pl:8898
 msgid "Connection mode"
 msgstr "Tilslutningstilstand"
 
-#: translate_tmp.pl:1557
-#: translate_tmp.pl:8610
+#: translate_tmp.pl:1565
+#: translate_tmp.pl:8892
 msgid "Active mode"
 msgstr "Aktiv tilstand"
 
-#: translate_tmp.pl:1558
-#: translate_tmp.pl:8611
+#: translate_tmp.pl:1566
+#: translate_tmp.pl:8893
 msgid "Passive mode"
 msgstr "Passiv tilstand"
 
-#: translate_tmp.pl:1572
-#: translate_tmp.pl:1581
-#: translate_tmp.pl:1583
-#: translate_tmp.pl:7450
-#: translate_tmp.pl:8621
-#: translate_tmp.pl:8626
-#: translate_tmp.pl:8628
+#: translate_tmp.pl:1580
+#: translate_tmp.pl:1589
+#: translate_tmp.pl:1591
+#: translate_tmp.pl:7628
+#: translate_tmp.pl:8903
+#: translate_tmp.pl:8908
+#: translate_tmp.pl:8910
 msgid "Username"
 msgstr "Brugernavn"
 
-#: translate_tmp.pl:1588
-#: translate_tmp.pl:1599
-#: translate_tmp.pl:1601
-#: translate_tmp.pl:7457
-#: translate_tmp.pl:8633
-#: translate_tmp.pl:8640
-#: translate_tmp.pl:8642
+#: translate_tmp.pl:1596
+#: translate_tmp.pl:1607
+#: translate_tmp.pl:1609
+#: translate_tmp.pl:7635
+#: translate_tmp.pl:8915
+#: translate_tmp.pl:8922
+#: translate_tmp.pl:8924
 msgid "Password"
 msgstr "Adgangskode"
 
-#: translate_tmp.pl:1606
-#: translate_tmp.pl:1615
-#: translate_tmp.pl:1617
-#: translate_tmp.pl:8647
-#: translate_tmp.pl:8652
-#: translate_tmp.pl:8654
+#: translate_tmp.pl:1614
+#: translate_tmp.pl:1623
+#: translate_tmp.pl:1625
+#: translate_tmp.pl:8929
+#: translate_tmp.pl:8934
+#: translate_tmp.pl:8936
 msgid "Website URL"
 msgstr ""
 
-#: translate_tmp.pl:1625
+#: translate_tmp.pl:1633
 #: translate_tmp.pl:3949
 msgid "Main"
 msgstr "Hoved"
 
-#: translate_tmp.pl:1682
+#: translate_tmp.pl:1690
 msgid "Advanced"
 msgstr "Avanceret"
 
-#: translate_tmp.pl:1727
+#: translate_tmp.pl:1735
 msgid "Image View"
 msgstr "Billedvisning"
 
-#: translate_tmp.pl:1738
+#: translate_tmp.pl:1746
 msgid "Behavior"
 msgstr "Opførsel"
 
-#: translate_tmp.pl:1767
+#: translate_tmp.pl:1775
 msgid "Keyboard"
 msgstr "Tastatur"
 
-#: translate_tmp.pl:1785
-#: translate_tmp.pl:518
-#: translate_tmp.pl:302
-#: translate_tmp.pl:399
+#: translate_tmp.pl:1793
+#: translate_tmp.pl:519
+#: translate_tmp.pl:309
+#: translate_tmp.pl:408
 msgid "Upload"
 msgstr "Overfør"
 
-#: translate_tmp.pl:1838
+#: translate_tmp.pl:1846
 msgid "Plugins"
 msgstr "Udvidelser"
 
-#: translate_tmp.pl:1840
+#: translate_tmp.pl:1848
 msgid "The following plugins are installed"
 msgstr "Følgende udvidelser er installeret"
 
-#: translate_tmp.pl:2026
+#: translate_tmp.pl:2036
 msgid "millisecond"
 msgid_plural "milliseconds"
 msgstr[0] "millisekund"
 msgstr[1] "millisekunder"
 
-#: translate_tmp.pl:2045
+#: translate_tmp.pl:2055
 msgid "Quality"
 msgstr "Kvalitet"
 
-#: translate_tmp.pl:2112
+#: translate_tmp.pl:2122
 msgid "Please activate the menu you want to capture"
 msgstr "Venligst aktivér den menu du ønsker at optage"
 
-#: translate_tmp.pl:2114
+#: translate_tmp.pl:2124
 msgid "Please activate the tooltip you want to capture"
 msgstr "Venligst aktivér det værktøjstip du ønsker at optage"
 
-#: translate_tmp.pl:2123
 #: translate_tmp.pl:2133
+#: translate_tmp.pl:2143
 #: translate_tmp.pl:193
 #: translate_tmp.pl:201
 #, perl-format
@@ -701,215 +707,214 @@ msgid_plural "Screenshot will be taken in %s seconds"
 msgstr[0] "Skærmbillede bliver taget om %s sekund"
 msgstr[1] "Skærmbillede bliver taget om %s sekunder"
 
-#: translate_tmp.pl:2381
-#: translate_tmp.pl:7484
+#: translate_tmp.pl:2391
+#: translate_tmp.pl:7662
 msgid "Register"
 msgstr "Registrér"
 
-#: translate_tmp.pl:2686
-#: translate_tmp.pl:6290
+#: translate_tmp.pl:2761
+#: translate_tmp.pl:6296
 msgid "Choose file to open"
 msgstr "Vælg fil at åbne"
 
-#: translate_tmp.pl:2717
-#: translate_tmp.pl:6321
+#: translate_tmp.pl:2792
+#: translate_tmp.pl:6327
 msgid "All compatible image formats"
 msgstr "Alle kompatible billedeformater"
 
-#: translate_tmp.pl:2886
+#: translate_tmp.pl:2961
 msgid "Profile deleted"
 msgstr "Profil slettet"
 
-#: translate_tmp.pl:2888
-#: translate_tmp.pl:2889
+#: translate_tmp.pl:2963
+#: translate_tmp.pl:2964
 msgid "Profile could not be deleted"
 msgstr "Profil kunne ikke slettes"
 
-#: translate_tmp.pl:2888
-#: translate_tmp.pl:3083
-#: translate_tmp.pl:4321
-#: translate_tmp.pl:4327
-#: translate_tmp.pl:4403
-#: translate_tmp.pl:4409
-#: translate_tmp.pl:4571
-#: translate_tmp.pl:4806
-#: translate_tmp.pl:4933
-#: translate_tmp.pl:4963
-#: translate_tmp.pl:5718
-#: translate_tmp.pl:8453
-#: translate_tmp.pl:9174
-#: translate_tmp.pl:110
-#: translate_tmp.pl:120
+#: translate_tmp.pl:2963
+#: translate_tmp.pl:3158
+#: translate_tmp.pl:4419
+#: translate_tmp.pl:4425
+#: translate_tmp.pl:4501
+#: translate_tmp.pl:4507
+#: translate_tmp.pl:4669
+#: translate_tmp.pl:4904
+#: translate_tmp.pl:5031
+#: translate_tmp.pl:5061
+#: translate_tmp.pl:5820
+#: translate_tmp.pl:8699
+#: translate_tmp.pl:107
+#: translate_tmp.pl:117
 msgid "Failed"
 msgstr "Mislykkedes"
 
-#: translate_tmp.pl:2907
+#: translate_tmp.pl:2982
 #, perl-format
 msgid "Profile %s loaded successfully"
 msgstr "Profil %s indlæst med succes"
 
-#: translate_tmp.pl:2933
-#: translate_tmp.pl:5859
+#: translate_tmp.pl:3008
+#: translate_tmp.pl:5961
 msgid "Session"
 msgstr "Session"
 
-#: translate_tmp.pl:2952
-#: translate_tmp.pl:4277
+#: translate_tmp.pl:3027
+#: translate_tmp.pl:4375
 msgid "not found"
 msgstr "ikke fundet"
 
-#: translate_tmp.pl:3518
+#: translate_tmp.pl:3614
 msgid "Settings could not be saved!"
 msgstr "Indstillingerne kunne ikke gemmes!"
 
-#: translate_tmp.pl:3520
+#: translate_tmp.pl:3616
 msgid "Settings saved successfully!"
 msgstr "Indstillinger er nu gemt!"
 
-#: translate_tmp.pl:3546
+#: translate_tmp.pl:3642
 msgid "Session could not be saved!"
 msgstr "Sessionen kunne ikke gemmes!"
 
-#: translate_tmp.pl:3564
+#: translate_tmp.pl:3660
 msgid "Account-settings could not be saved!"
 msgstr "Konto-indstillingerne kunne ikke gemmes!"
 
-#: translate_tmp.pl:3905
+#: translate_tmp.pl:4003
 msgid "Settings could not be restored!"
 msgstr "Indstillingerne kunne ikke gendannes!"
 
-#: translate_tmp.pl:3908
+#: translate_tmp.pl:4006
 msgid "Settings loaded successfully"
 msgstr "Indstillingerne er nu fremkaldt"
 
-#: translate_tmp.pl:4012
+#: translate_tmp.pl:4110
 msgid "Account-settings could not be restored!"
 msgstr "Konto-indstillingerne kunne ikke gendannes!"
 
-#: translate_tmp.pl:4112
+#: translate_tmp.pl:4210
 msgid "Loading files"
 msgstr "Loader filer"
 
-#: translate_tmp.pl:4116
+#: translate_tmp.pl:4214
 msgid "Please wait while your selected files are being loaded into Shutter"
 msgstr "Vent venligst mens dine udvalgte filer bliver indlæst i Shutter"
 
-#: translate_tmp.pl:4157
+#: translate_tmp.pl:4255
 msgid "opened"
 msgstr "åbnet"
 
-#: translate_tmp.pl:4205
+#: translate_tmp.pl:4303
 msgid "Restoring session"
 msgstr "Genskaber session"
 
-#: translate_tmp.pl:4207
+#: translate_tmp.pl:4305
 msgid "Please wait while your saved session is being restored"
 msgstr "Vent venligst mens din gemte session genskabes"
 
-#: translate_tmp.pl:4258
+#: translate_tmp.pl:4356
 msgid "Session could not be restored!"
 msgstr "Sessionen kunne ikke gendannes!"
 
-#: translate_tmp.pl:4298
+#: translate_tmp.pl:4396
 #, perl-format
 msgid "Are you sure you want to move %s to the trash?"
 msgstr "Er du sikker på at du vil flytte %s til papirkurven?"
 
-#: translate_tmp.pl:4299
-#: translate_tmp.pl:4368
+#: translate_tmp.pl:4397
+#: translate_tmp.pl:4466
 #: translate_tmp.pl:198
-#: translate_tmp.pl:663
+#: translate_tmp.pl:675
 msgid "Move to _Trash"
 msgstr "Flyt til _papirkurv"
 
-#: translate_tmp.pl:4333
+#: translate_tmp.pl:4431
 msgid "deleted"
 msgstr "slettet"
 
-#: translate_tmp.pl:4367
+#: translate_tmp.pl:4465
 msgid "Are you sure you want to move the selected files to the trash?"
 msgstr "Er du sikker på at du vil flytte de valgte filer til papirkurven?"
 
-#: translate_tmp.pl:4372
-#: translate_tmp.pl:4425
-#: translate_tmp.pl:4525
+#: translate_tmp.pl:4470
+#: translate_tmp.pl:4523
+#: translate_tmp.pl:4623
 msgid "No screenshots selected"
 msgstr "Ingen valgte skærmbilleder"
 
-#: translate_tmp.pl:4441
+#: translate_tmp.pl:4539
 msgid "Selected screenshots deleted"
 msgstr "Valgte skærmbilleder slettet"
 
-#: translate_tmp.pl:4477
-#: translate_tmp.pl:6228
-#: translate_tmp.pl:6259
-#: translate_tmp.pl:6287
-#: translate_tmp.pl:6316
+#: translate_tmp.pl:4575
+#: translate_tmp.pl:6370
+#: translate_tmp.pl:6401
+#: translate_tmp.pl:6429
+#: translate_tmp.pl:6458
 msgid "removed from session"
 msgstr "fjernet fra sessionen"
 
-#: translate_tmp.pl:4541
+#: translate_tmp.pl:4639
 msgid "Selected screenshots removed"
 msgstr "Valgte skærmbilleder fjernet"
 
-#: translate_tmp.pl:4571
-#: translate_tmp.pl:4933
+#: translate_tmp.pl:4669
+#: translate_tmp.pl:5031
 msgid "No valid filetype specified"
 msgstr "Ingen gyldig filtype angivet"
 
-#: translate_tmp.pl:4586
+#: translate_tmp.pl:4684
 msgid "There is no image data in the clipboard to paste"
 msgstr "Der er ingen billededata i klippebordet at indsætte"
 
-#: translate_tmp.pl:4645
+#: translate_tmp.pl:4743
 msgid "Selected filenames copied to clipboard"
 msgstr "Valgte filnavne kopieret til klippebord"
 
-#: translate_tmp.pl:4660
+#: translate_tmp.pl:4758
 msgid "Selected images copied to clipboard"
 msgstr "Valgte billeder kopieret til klippebord"
 
-#: translate_tmp.pl:4707
+#: translate_tmp.pl:4805
 msgid "Last action undone"
 msgstr "Sidste handling trukket tilbage"
 
-#: translate_tmp.pl:4715
-#: translate_tmp.pl:4767
+#: translate_tmp.pl:4813
+#: translate_tmp.pl:4865
 #, perl-format
 msgid "Error while copying last version (%s)."
 msgstr "Fejl under kopiering af sidste version (%s)."
 
-#: translate_tmp.pl:4716
+#: translate_tmp.pl:4814
 #, perl-format
 msgid "There was an error performing undo on %s."
 msgstr "Der var en fejl under fortrydelse af %s."
 
-#: translate_tmp.pl:4759
+#: translate_tmp.pl:4857
 msgid "Last action redone"
 msgstr "Sidste handling gentages"
 
-#: translate_tmp.pl:4768
+#: translate_tmp.pl:4866
 #, perl-format
 msgid "There was an error performing redo on %s."
 msgstr "Der opstod en fejl under gentagelse af %s."
 
-#: translate_tmp.pl:4806
+#: translate_tmp.pl:4904
 msgid "No plugin installed"
 msgstr "Intet plugin installeret"
 
-#: translate_tmp.pl:4962
-#: translate_tmp.pl:6454
+#: translate_tmp.pl:5060
+#: translate_tmp.pl:6631
 msgid "There was an error determining the filename."
 msgstr "Der var en fejl ved bestemmelse af filnavn"
 
-#: translate_tmp.pl:5185
+#: translate_tmp.pl:5283
 msgid "Triggered invalid screenshot action."
 msgstr ""
 
-#: translate_tmp.pl:5186
-#: translate_tmp.pl:5189
-#: translate_tmp.pl:5403
-#: translate_tmp.pl:5405
+#: translate_tmp.pl:5284
+#: translate_tmp.pl:5287
+#: translate_tmp.pl:5501
+#: translate_tmp.pl:5503
 #: translate_tmp.pl:69
 #: translate_tmp.pl:77
 #: translate_tmp.pl:85
@@ -920,25 +925,25 @@ msgstr ""
 msgid "Error while taking the screenshot."
 msgstr "Fejl under optagelse af skærmbilledet."
 
-#: translate_tmp.pl:5284
+#: translate_tmp.pl:5382
 #: translate_tmp.pl:122
 msgid "Capture aborted by user"
 msgstr "Indfang annuleret af bruger"
 
-#: translate_tmp.pl:5391
-#: translate_tmp.pl:6278
-#: translate_tmp.pl:8189
-#: translate_tmp.pl:8194
-#: translate_tmp.pl:8261
-#: translate_tmp.pl:8267
+#: translate_tmp.pl:5489
+#: translate_tmp.pl:6420
+#: translate_tmp.pl:8435
+#: translate_tmp.pl:8440
+#: translate_tmp.pl:8507
+#: translate_tmp.pl:8513
 msgid "saved"
 msgstr "gemt"
 
-#: translate_tmp.pl:5396
+#: translate_tmp.pl:5494
 msgid "Screenshot saved"
 msgstr "Skærmbillede gemt"
 
-#: translate_tmp.pl:5402
+#: translate_tmp.pl:5500
 #, perl-format
 msgid ""
 "The filename %s could not be verified. Maybe it contains unsupported "
@@ -947,108 +952,108 @@ msgstr ""
 "Filnavnet %s kunne ikke verificeres. Det indeholder muligvis ikke-"
 "understøttede tegn."
 
-#: translate_tmp.pl:5640
+#: translate_tmp.pl:5742
 msgid "opened with"
 msgstr "åbnet med"
 
-#: translate_tmp.pl:5670
+#: translate_tmp.pl:5772
 msgid "Opened all files with"
 msgstr "Åbnet alle filer med"
 
-#: translate_tmp.pl:5718
-#: translate_tmp.pl:5737
+#: translate_tmp.pl:5820
+#: translate_tmp.pl:5839
 #, perl-format
 msgid "Could not apply plugin %s"
 msgstr "Kunne ikke anvende udvidelse %s"
 
-#: translate_tmp.pl:5735
-#: translate_tmp.pl:5783
+#: translate_tmp.pl:5837
+#: translate_tmp.pl:5885
 #, perl-format
 msgid "Successfully applied plugin %s"
 msgstr "Succesfuld anvendelse af udvidelse %s"
 
-#: translate_tmp.pl:5786
+#: translate_tmp.pl:5888
 #, perl-format
 msgid "Error while executing plugin %s."
 msgstr "Fejl under afvikling af udvidelse %s."
 
-#: translate_tmp.pl:5787
+#: translate_tmp.pl:5889
 msgid "There was an error executing the plugin."
 msgstr "Der var en fejl under afvikling af udvidelsen."
 
-#: translate_tmp.pl:5861
+#: translate_tmp.pl:5963
 #, perl-format
 msgid "%s screenshot"
 msgid_plural "%s screenshots"
 msgstr[0] "%s skærmbillede"
 msgstr[1] "%s skærmbilleder"
 
-#: translate_tmp.pl:5873
+#: translate_tmp.pl:5975
 msgid "Current profile"
 msgstr "Nuværende profil"
 
-#: translate_tmp.pl:6219
+#: translate_tmp.pl:6361
 msgid "Try to resave the file?"
 msgstr "Prøv at gemme filen igen?"
 
-#: translate_tmp.pl:6220
+#: translate_tmp.pl:6362
 #, perl-format
 msgid "Image %s was not found on disk"
 msgstr "Billedet %s blev ikke fundet på disk"
 
-#: translate_tmp.pl:6251
+#: translate_tmp.pl:6393
 #: translate_tmp.pl:116
 #, perl-format
 msgid "Error while saving the image %s."
 msgstr "Fejl under lagring af billedet %s."
 
-#: translate_tmp.pl:6252
+#: translate_tmp.pl:6394
 #: translate_tmp.pl:117
 #, perl-format
 msgid "There was an error saving the image to %s."
 msgstr "Der var en fejl under lagring af billedet til %s."
 
-#: translate_tmp.pl:6308
+#: translate_tmp.pl:6450
 #: translate_tmp.pl:192
 #: translate_tmp.pl:2873
-#: translate_tmp.pl:5632
-#: translate_tmp.pl:6109
-#: translate_tmp.pl:6356
-#: translate_tmp.pl:6650
-#: translate_tmp.pl:6682
+#: translate_tmp.pl:5638
+#: translate_tmp.pl:6115
+#: translate_tmp.pl:6362
+#: translate_tmp.pl:6656
+#: translate_tmp.pl:6688
 #, perl-format
 msgid "Error while opening image %s."
 msgstr "Fejl under åbning af billedet %s."
 
-#: translate_tmp.pl:6309
+#: translate_tmp.pl:6451
 #: translate_tmp.pl:193
 #: translate_tmp.pl:2874
-#: translate_tmp.pl:5633
-#: translate_tmp.pl:6110
-#: translate_tmp.pl:6357
-#: translate_tmp.pl:6651
-#: translate_tmp.pl:6683
+#: translate_tmp.pl:5639
+#: translate_tmp.pl:6116
+#: translate_tmp.pl:6363
+#: translate_tmp.pl:6657
+#: translate_tmp.pl:6689
 msgid "There was an error opening the image."
 msgstr "Der var en fejl under åbning af billedet."
 
-#: translate_tmp.pl:6453
+#: translate_tmp.pl:6630
 #, perl-format
 msgid "Error while opening directory %s."
 msgstr "Fejl under åbning af mappe %s."
 
-#: translate_tmp.pl:6518
+#: translate_tmp.pl:6695
 msgid "Updating plugin information"
 msgstr "Opdatering information om udvidelse"
 
-#: translate_tmp.pl:6523
+#: translate_tmp.pl:6700
 msgid "Please wait while Shutter updates the plugin information"
 msgstr "Vent venligst mens Shutter opdaterer information om udvidelse"
 
-#: translate_tmp.pl:6760
+#: translate_tmp.pl:6937
 msgid "Limit to current monitor"
 msgstr "Begræns til nuværende skærm"
 
-#: translate_tmp.pl:6775
+#: translate_tmp.pl:6952
 #, perl-format
 msgid ""
 "This option is only useful when you are running a multi-monitor system (%d "
@@ -1067,55 +1072,55 @@ msgstr[1] ""
 "(%d fundne skærme).\n"
 "Tilvælg den for kun at optage nuværende skærm."
 
-#: translate_tmp.pl:6824
+#: translate_tmp.pl:7001
 #: translate_tmp.pl:392
 msgid "_Selection"
 msgstr "_Markering"
 
-#: translate_tmp.pl:6857
+#: translate_tmp.pl:7034
 #: translate_tmp.pl:424
 msgid "W_indow"
 msgstr "_Vindue"
 
-#: translate_tmp.pl:6873
+#: translate_tmp.pl:7050
 #: translate_tmp.pl:437
 msgid "Se_ction"
 msgstr "Se_ktion"
 
-#: translate_tmp.pl:6892
+#: translate_tmp.pl:7069
 #: translate_tmp.pl:453
 msgid "_Menu"
 msgstr "_Menu"
 
-#: translate_tmp.pl:6911
+#: translate_tmp.pl:7088
 #: translate_tmp.pl:469
 msgid "_Tooltip"
 msgstr "_Værktøjstip"
 
-#: translate_tmp.pl:6930
+#: translate_tmp.pl:7107
 #: translate_tmp.pl:487
 msgid "_Web"
 msgstr "_Internet"
 
-#: translate_tmp.pl:6947
+#: translate_tmp.pl:7124
 #: translate_tmp.pl:384
 msgid "_Redo last screenshot"
 msgstr ""
 
-#: translate_tmp.pl:6957
+#: translate_tmp.pl:7135
 #: translate_tmp.pl:212
 msgid "_Quick profile select"
 msgstr "_Hurtigt profilvalg"
 
-#: translate_tmp.pl:6998
+#: translate_tmp.pl:7176
 msgid "Advanced selection tool"
 msgstr "Avanceret markerings-værktøj"
 
-#: translate_tmp.pl:7001
+#: translate_tmp.pl:7179
 msgid "Simple selection tool"
 msgstr "Simpelt markerings-værktøj"
 
-#: translate_tmp.pl:7018
+#: translate_tmp.pl:7196
 msgid ""
 "The advanced selection tool allows you to enlarge/shrink or move your "
 "selected area\n"
@@ -1125,7 +1130,7 @@ msgstr ""
 "eller flytte\n"
 "dine valgte områder indtil du som det sidste tager skærmbilledet."
 
-#: translate_tmp.pl:7021
+#: translate_tmp.pl:7199
 msgid ""
 "The simple selection tool is the fastest way of taking a screenshot.\n"
 "It provides an optional zoom window for precise shots."
@@ -1134,107 +1139,141 @@ msgstr ""
 "skærmbillede.\n"
 "Det tilbyder et optionel zoom-vindue til præcise billeder."
 
-#: translate_tmp.pl:7173
-#: translate_tmp.pl:7181
+#: translate_tmp.pl:7351
+#: translate_tmp.pl:7359
 #: translate_tmp.pl:524
-#: translate_tmp.pl:615
+#: translate_tmp.pl:621
 #, perl-format
 msgid "_Open with %s"
 msgstr "_Åbn med %s"
 
-#: translate_tmp.pl:7281
-#: translate_tmp.pl:7282
-#: translate_tmp.pl:7283
-#: translate_tmp.pl:7284
-#: translate_tmp.pl:7285
+#: translate_tmp.pl:7459
+#: translate_tmp.pl:7460
+#: translate_tmp.pl:7461
+#: translate_tmp.pl:7462
+#: translate_tmp.pl:7463
 msgid "Timeout"
 msgstr "Timeout"
 
-#: translate_tmp.pl:7287
-#: translate_tmp.pl:7288
-#: translate_tmp.pl:7289
-#: translate_tmp.pl:7290
-#: translate_tmp.pl:7291
+#: translate_tmp.pl:7465
+#: translate_tmp.pl:7466
+#: translate_tmp.pl:7467
+#: translate_tmp.pl:7468
+#: translate_tmp.pl:7469
 #: translate_tmp.pl:182
 msgid "The timeout in seconds, or 0 to disable timeout"
 msgstr "Tidsudløser målt i sekunder, eller 0 for at slå tidsudløser fra."
 
-#: translate_tmp.pl:7428
+#: translate_tmp.pl:7606
 msgid "Host"
 msgstr "Vært"
 
-#: translate_tmp.pl:7507
+#: translate_tmp.pl:7685
 msgid "Icon"
 msgstr "Ikon"
 
-#: translate_tmp.pl:7516
+#: translate_tmp.pl:7694
 msgid "Name"
 msgstr "Navn"
 
-#: translate_tmp.pl:7526
+#: translate_tmp.pl:7704
 msgid "Category"
 msgstr "Kategori"
 
-#: translate_tmp.pl:7536
-#: translate_tmp.pl:8376
+#: translate_tmp.pl:7714
+#: translate_tmp.pl:8622
 msgid "Description"
 msgstr "Beskrivelse"
 
-#: translate_tmp.pl:7546
+#: translate_tmp.pl:7724
 msgid "Language"
 msgstr "Sprog"
 
-#: translate_tmp.pl:7555
+#: translate_tmp.pl:7733
 msgid "Path"
 msgstr "Sti"
 
-#: translate_tmp.pl:7782
+#: translate_tmp.pl:7773
+msgid "Copy Ubuntu One public URL"
+msgstr ""
+
+#: translate_tmp.pl:7783
+msgid "Successfully published"
+msgstr ""
+
+#: translate_tmp.pl:7783
+#, perl-format
+msgid "The file %s was successfully published: %s1"
+msgstr ""
+
+#: translate_tmp.pl:7785
+#, perl-format
+msgid "%s published"
+msgstr ""
+
+#: translate_tmp.pl:7790
+msgid "Unpublished"
+msgstr ""
+
+#: translate_tmp.pl:7790
+#, perl-format
+msgid ""
+"The file %s is no longer published. The external link is not available "
+"anymore."
+msgstr ""
+
+#: translate_tmp.pl:7792
+#, perl-format
+msgid "The file %s is no longer published."
+msgstr ""
+
+#: translate_tmp.pl:8028
 msgid "Rename"
 msgstr "Omdøb"
 
-#: translate_tmp.pl:7786
+#: translate_tmp.pl:8032
 #, perl-format
 msgid "Rename image %s"
 msgstr "Omdøb billede %s"
 
-#: translate_tmp.pl:7788
+#: translate_tmp.pl:8034
 msgid "New filename"
 msgstr "Nyt filnavn"
 
-#: translate_tmp.pl:7791
+#: translate_tmp.pl:8037
 msgid "_Rename"
 msgstr "_Omdøb"
 
-#: translate_tmp.pl:7890
-#: translate_tmp.pl:7940
+#: translate_tmp.pl:8136
+#: translate_tmp.pl:8186
 msgid "renamed"
 msgstr "omdøbt"
 
-#: translate_tmp.pl:7898
-#: translate_tmp.pl:7948
-#: translate_tmp.pl:7988
+#: translate_tmp.pl:8144
+#: translate_tmp.pl:8194
+#: translate_tmp.pl:8234
 #, perl-format
 msgid "Error while renaming the image %s."
 msgstr "Fejl under omdøbning af billedet %s."
 
-#: translate_tmp.pl:7899
-#: translate_tmp.pl:7949
-#: translate_tmp.pl:7989
+#: translate_tmp.pl:8145
+#: translate_tmp.pl:8195
+#: translate_tmp.pl:8235
 #, perl-format
 msgid "There was an error renaming the image to %s."
 msgstr "Der var en fejl under billede-omdøbning til %s."
 
-#: translate_tmp.pl:7911
-#: translate_tmp.pl:8216
-#: translate_tmp.pl:9030
-#: translate_tmp.pl:9253
+#: translate_tmp.pl:8157
+#: translate_tmp.pl:8462
+#: translate_tmp.pl:9437
+#: translate_tmp.pl:9681
 #: translate_tmp.pl:1583
 msgid "_Replace"
 msgstr "E_rstat"
 
-#: translate_tmp.pl:7915
-#: translate_tmp.pl:8220
-#: translate_tmp.pl:9041
+#: translate_tmp.pl:8161
+#: translate_tmp.pl:8466
+#: translate_tmp.pl:9448
 #: translate_tmp.pl:1587
 #, perl-format
 msgid ""
@@ -1242,268 +1281,380 @@ msgid ""
 msgstr ""
 "Billedet eksisterer allerede i %s. Ved af erstatte det overskrives indholdet."
 
-#: translate_tmp.pl:7916
-#: translate_tmp.pl:8221
-#: translate_tmp.pl:9042
+#: translate_tmp.pl:8162
+#: translate_tmp.pl:8467
+#: translate_tmp.pl:9449
 #: translate_tmp.pl:1588
 #, perl-format
 msgid "An image named %s already exists. Do you want to replace it?"
 msgstr "Et billede døbt %s eksisterer allerede. Ønsker du at erstatte det?"
 
-#: translate_tmp.pl:7992
+#: translate_tmp.pl:8238
 msgid "Invalid Filename"
 msgstr "Ugyldigt filnavn"
 
-#: translate_tmp.pl:8019
+#: translate_tmp.pl:8265
 #: translate_tmp.pl:1428
 msgid "Choose a location to save to"
 msgstr "Vælg en lokation, der gemmes til"
 
-#: translate_tmp.pl:8308
+#: translate_tmp.pl:8554
 msgid "Choose a plugin"
 msgstr "Vælg et plugin"
 
-#: translate_tmp.pl:8313
+#: translate_tmp.pl:8559
 msgid "_Run"
 msgstr "_Kør"
 
-#: translate_tmp.pl:8363
+#: translate_tmp.pl:8609
 msgid "Plugin"
 msgstr "Udvidelse"
 
-#: translate_tmp.pl:8453
+#: translate_tmp.pl:8699
 msgid "No plugin specified"
 msgstr "Intet plugin valgt"
 
-#: translate_tmp.pl:8502
+#: translate_tmp.pl:8748
 msgid "Upload / Export"
 msgstr "Upload / Eksporter"
 
-#: translate_tmp.pl:8506
-#: translate_tmp.pl:8696
+#: translate_tmp.pl:8752
+#: translate_tmp.pl:8977
 msgid "_Upload"
 msgstr "_Upload"
 
-#: translate_tmp.pl:8522
+#: translate_tmp.pl:8767
 msgid "Guest"
 msgstr "Gæst"
 
-#: translate_tmp.pl:8570
+#: translate_tmp.pl:8811
 msgid "Choose account"
 msgstr "Vælg konto"
 
-#: translate_tmp.pl:8683
+#: translate_tmp.pl:8833
+msgid "Status"
+msgstr ""
+
+#: translate_tmp.pl:8965
 msgid "Public hosting"
 msgstr "Offentlig hosting"
 
-#: translate_tmp.pl:8685
+#: translate_tmp.pl:8967
 msgid "Places"
 msgstr "Steder"
 
-#: translate_tmp.pl:8693
+#: translate_tmp.pl:8968
+msgid "Ubuntu One"
+msgstr ""
+
+#: translate_tmp.pl:8980
 msgid "_Export"
 msgstr "_Eksport"
 
-#: translate_tmp.pl:8770
-#: translate_tmp.pl:8801
-#: translate_tmp.pl:8869
-#: translate_tmp.pl:8943
+#: translate_tmp.pl:8983
+msgid "_Publish"
+msgstr ""
+
+#: translate_tmp.pl:9002
+#: translate_tmp.pl:135
+msgid "Disconnected"
+msgstr ""
+
+#: translate_tmp.pl:9015
+#, perl-format
+msgid ""
+"Folder %s is synchronized with Ubuntu One.\n"
+"The selected file will be copied to that folder before being published."
+msgid_plural ""
+"Folder %s is synchronized with Ubuntu One.\n"
+"The selected files will be copied to that folder before being published."
+msgstr[0] ""
+msgstr[1] ""
+
+#: translate_tmp.pl:9018
+msgid ""
+"<b>Please note:</b> The selected file will be published in a background "
+"process.\n"
+"You will be notified when the process has finished."
+msgid_plural ""
+"<b>Please note:</b> The selected files will be published in a background "
+"process.\n"
+"You will be notified when the process has finished."
+msgstr[0] ""
+msgstr[1] ""
+
 #: translate_tmp.pl:9023
-#: translate_tmp.pl:9063
+#, perl-format
+msgid ""
+"Folder %s is not synchronized with Ubuntu One.\n"
+"Please choose an alternative folder."
+msgstr ""
+
+#: translate_tmp.pl:9049
+msgid ""
+"Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature"
+msgstr ""
+
+#: translate_tmp.pl:9119
+#: translate_tmp.pl:9153
+#: translate_tmp.pl:9223
+#: translate_tmp.pl:9299
+#: translate_tmp.pl:9402
+#: translate_tmp.pl:9475
 msgid "uploaded"
 msgstr "sendt"
 
-#: translate_tmp.pl:8832
-#: translate_tmp.pl:9171
-#: translate_tmp.pl:92
+#: translate_tmp.pl:9186
+#: translate_tmp.pl:9590
+#: translate_tmp.pl:89
 msgid "Please check your credentials and try again."
 msgstr "Tjek venligst dine oplysninger og prøv igen."
 
-#: translate_tmp.pl:8833
-#: translate_tmp.pl:9171
+#: translate_tmp.pl:9187
 msgid "Login failed!"
 msgstr "Login mislykkedes!"
 
-#: translate_tmp.pl:8846
-#: translate_tmp.pl:8872
-#: translate_tmp.pl:9177
-#: translate_tmp.pl:85
+#: translate_tmp.pl:9200
+#: translate_tmp.pl:9226
+#: translate_tmp.pl:9603
+#: translate_tmp.pl:82
 msgid "Please check your connectivity and try again."
 msgstr "Tjek venligst dine forbindelse og prøv igen."
 
-#: translate_tmp.pl:8847
-#: translate_tmp.pl:8873
-#: translate_tmp.pl:9178
+#: translate_tmp.pl:9201
+#: translate_tmp.pl:9227
 msgid "Connection error!"
 msgstr "Forbindelsesfejl!"
 
-#: translate_tmp.pl:8848
-#: translate_tmp.pl:8874
-#: translate_tmp.pl:8961
-#: translate_tmp.pl:9043
-#: translate_tmp.pl:9153
-#: translate_tmp.pl:9174
-#: translate_tmp.pl:9179
+#: translate_tmp.pl:9202
+#: translate_tmp.pl:9228
+#: translate_tmp.pl:9320
+#: translate_tmp.pl:9450
+#: translate_tmp.pl:9571
+#: translate_tmp.pl:9597
+#: translate_tmp.pl:9605
 msgid "Skip all"
 msgstr "Spring over alle"
 
-#: translate_tmp.pl:8849
-#: translate_tmp.pl:8875
-#: translate_tmp.pl:8962
-#: translate_tmp.pl:9043
-#: translate_tmp.pl:9154
-#: translate_tmp.pl:9174
-#: translate_tmp.pl:9179
+#: translate_tmp.pl:9203
+#: translate_tmp.pl:9229
+#: translate_tmp.pl:9321
+#: translate_tmp.pl:9450
+#: translate_tmp.pl:9572
+#: translate_tmp.pl:9597
+#: translate_tmp.pl:9605
 msgid "Skip"
 msgstr "Spring over"
 
-#: translate_tmp.pl:9021
-#: translate_tmp.pl:9061
+#: translate_tmp.pl:9204
+#: translate_tmp.pl:9230
+#: translate_tmp.pl:9322
+#: translate_tmp.pl:9605
+msgid "Retry"
+msgstr ""
+
+#: translate_tmp.pl:9302
+#: translate_tmp.pl:9405
+#: translate_tmp.pl:9478
+msgid "Successfully uploaded"
+msgstr ""
+
+#: translate_tmp.pl:9302
+#: translate_tmp.pl:9405
+#: translate_tmp.pl:9478
+#, perl-format
+msgid "The file %s was successfully uploaded."
+msgstr ""
+
+#: translate_tmp.pl:9397
+#: translate_tmp.pl:9470
 msgid "exported"
 msgstr "eksporteret"
 
-#: translate_tmp.pl:9147
+#: translate_tmp.pl:9400
+#: translate_tmp.pl:9473
+msgid "Successfully exported"
+msgstr ""
+
+#: translate_tmp.pl:9400
+#: translate_tmp.pl:9473
+#, perl-format
+msgid "The file %s was successfully exported."
+msgstr ""
+
+#: translate_tmp.pl:9410
+#: translate_tmp.pl:9483
+#, perl-format
+msgid "Publishing %s..."
+msgstr ""
+
+#: translate_tmp.pl:9565
 msgid "_Retry"
 msgstr "F_orsøg igen"
 
-#: translate_tmp.pl:9151
+#: translate_tmp.pl:9569
 #, perl-format
 msgid "Error while copying the image %s."
 msgstr "Fejl under kopiering af billede %s."
 
-#: translate_tmp.pl:9152
+#: translate_tmp.pl:9570
 #, perl-format
 msgid "There was an error copying the image into %s."
 msgstr "Der var en fejl under kopiering af billedet til %s."
 
-#: translate_tmp.pl:9173
-msgid "Maximum filesize reached!"
-msgstr "Maksimal filstørrelse nået!"
+#: translate_tmp.pl:9591
+msgid "Error while login"
+msgstr ""
 
-#: translate_tmp.pl:9194
+#: translate_tmp.pl:9595
+msgid "Maximum filesize reached"
+msgstr ""
+
+#: translate_tmp.pl:9596
+msgid "Error while uploading"
+msgstr ""
+
+#: translate_tmp.pl:9599
+#, perl-format
+msgid "Maximum filesize: %s"
+msgstr ""
+
+#: translate_tmp.pl:9604
+msgid "Error while connecting"
+msgstr ""
+
+#: translate_tmp.pl:9622
 msgid "Save current preferences as new profile"
 msgstr "Gem nuværende præferencer som ny profil"
 
-#: translate_tmp.pl:9196
+#: translate_tmp.pl:9624
 msgid "New profile name"
 msgstr "Nyt profilnavn"
 
-#: translate_tmp.pl:9257
+#: translate_tmp.pl:9685
 msgid "Replacing it will overwrite its contents."
 msgstr "Ved at erstatte den vil indhold blive overskrevet"
 
-#: translate_tmp.pl:9258
+#: translate_tmp.pl:9686
 #, perl-format
 msgid "A profile named %s already exists. Do you want to replace it?"
 msgstr "En profil kaldet %s eksisterer allerede. Ønsker du at erstatte den?"
 
-#: translate_tmp.pl:64
+#: translate_tmp.pl:61
 msgid "Illegal URI."
 msgstr "Illegal URI."
 
-#: translate_tmp.pl:84
+#: translate_tmp.pl:81
 msgid "Connection error."
 msgstr "Forbindelsesfejl."
 
-#: translate_tmp.pl:91
+#: translate_tmp.pl:88
 #, perl-format
 msgid "Login with username %s failed."
 msgstr "Login med brugernavnet %s mislykkedes."
 
-#: translate_tmp.pl:111
+#: translate_tmp.pl:108
 msgid "Cannot change working directory."
 msgstr "Kan ikke ændre arbejdsmappe."
 
-#: translate_tmp.pl:121
+#: translate_tmp.pl:118
 msgid "Command 'put' failed."
 msgstr "Kommandoen 'put' fejlede."
 
-#: translate_tmp.pl:408
-#: translate_tmp.pl:170
-#: translate_tmp.pl:184
+#: translate_tmp.pl:409
+#: translate_tmp.pl:179
+#: translate_tmp.pl:193
 msgid "Upload status:"
 msgstr "Overførselsstatus"
 
-#: translate_tmp.pl:417
-#: translate_tmp.pl:192
+#: translate_tmp.pl:418
+#: translate_tmp.pl:202
 msgid "Thumbnail for forums"
 msgstr "Miniature for forummer"
 
-#: translate_tmp.pl:418
+#: translate_tmp.pl:419
 msgid "Short URL"
 msgstr ""
 
-#: translate_tmp.pl:420
-#: translate_tmp.pl:195
-#: translate_tmp.pl:356
+#: translate_tmp.pl:421
+#: translate_tmp.pl:204
+#: translate_tmp.pl:365
 msgid "Direct link"
 msgstr "Direkte link"
 
-#: translate_tmp.pl:421
-#: translate_tmp.pl:362
+#: translate_tmp.pl:422
+#: translate_tmp.pl:371
 msgid "Hotlink for websites"
 msgstr "Hotlink til hjemmesider"
 
-#: translate_tmp.pl:432
-#: translate_tmp.pl:455
-#: translate_tmp.pl:474
-#: translate_tmp.pl:485
-#: translate_tmp.pl:204
-#: translate_tmp.pl:216
+#: translate_tmp.pl:433
+#: translate_tmp.pl:456
+#: translate_tmp.pl:475
+#: translate_tmp.pl:486
+#: translate_tmp.pl:213
+#: translate_tmp.pl:224
+#: translate_tmp.pl:235
+#: translate_tmp.pl:246
+#: translate_tmp.pl:257
 #: translate_tmp.pl:228
-#: translate_tmp.pl:239
-#: translate_tmp.pl:250
-#: translate_tmp.pl:219
-#: translate_tmp.pl:231
-#: translate_tmp.pl:243
-#: translate_tmp.pl:254
-#: translate_tmp.pl:265
-#: translate_tmp.pl:277
-#: translate_tmp.pl:289
-#: translate_tmp.pl:301
-#: translate_tmp.pl:313
+#: translate_tmp.pl:240
+#: translate_tmp.pl:252
+#: translate_tmp.pl:263
+#: translate_tmp.pl:274
+#: translate_tmp.pl:286
+#: translate_tmp.pl:298
+#: translate_tmp.pl:310
+#: translate_tmp.pl:322
 msgid "Copy this code to clipboard"
 msgstr "Kopier denne kode til clipboard"
 
-#: translate_tmp.pl:189
+#: translate_tmp.pl:200
 msgid "Thumbnail for websites (with border)"
 msgstr "Miniature for hjemmeside (med kanter)"
 
-#: translate_tmp.pl:191
+#: translate_tmp.pl:201
 msgid "Thumbnail for websites (without border)"
 msgstr "Miniature for hjemmeside (uden kanter)"
 
-#: translate_tmp.pl:194
+#: translate_tmp.pl:203
 msgid "Thumbnail for Ubuntuusers.de forum"
 msgstr "Miniature for Ubuntuusers.de forum"
 
-#: translate_tmp.pl:326
+#: translate_tmp.pl:335
 msgid "Thumbnail for websites"
 msgstr "Miniature for hjemmesider"
 
-#: translate_tmp.pl:332
+#: translate_tmp.pl:341
 msgid "Thumbnail for boards (1)"
 msgstr "Thumbnail for boards (1)"
 
-#: translate_tmp.pl:338
+#: translate_tmp.pl:347
 msgid "Thumbnail for boards (2)"
 msgstr "Thumbnail for boards (2)"
 
-#: translate_tmp.pl:344
+#: translate_tmp.pl:353
 msgid "Show your friends"
 msgstr "Vis dinne venner"
 
-#: translate_tmp.pl:350
+#: translate_tmp.pl:359
 msgid "Popup for websites"
 msgstr "Popup for hjemmesider"
 
-#: translate_tmp.pl:368
+#: translate_tmp.pl:377
 msgid "Hotlink for boards (1)"
 msgstr "Hotlink for boards (1)"
 
-#: translate_tmp.pl:374
+#: translate_tmp.pl:383
 msgid "Hotlink for boards (2)"
 msgstr "Hotlink for boards (2)"
+
+#: translate_tmp.pl:138
+msgid "Synchronization complete"
+msgstr ""
+
+#: translate_tmp.pl:140
+msgid "Synchronization in progress..."
+msgstr ""
 
 #: translate_tmp.pl:104
 msgid "No subwindow detected"
@@ -1528,16 +1679,16 @@ msgstr "Menu"
 msgid "Tooltip"
 msgstr "Værktøjstip"
 
-#: translate_tmp.pl:72
+#: translate_tmp.pl:75
 #: translate_tmp.pl:181
 msgid "Take a screenshot of a website"
 msgstr "Tag et skærmbillede af en hjemmeside"
 
-#: translate_tmp.pl:74
+#: translate_tmp.pl:77
 msgid "URL to capture"
 msgstr "URL der skal indfanges"
 
-#: translate_tmp.pl:91
+#: translate_tmp.pl:94
 msgid "C_apture"
 msgstr "_Optag"
 
@@ -1803,7 +1954,7 @@ msgid "Current value"
 msgstr "Nuværende værdi"
 
 #: translate_tmp.pl:4078
-#: translate_tmp.pl:5929
+#: translate_tmp.pl:5935
 msgid "Arrow"
 msgstr "Pil"
 
@@ -1824,7 +1975,7 @@ msgid "Display an arrow at the start of the line"
 msgstr "Vis en pil i begyndelsen af linjen"
 
 #: translate_tmp.pl:4149
-#: translate_tmp.pl:5932
+#: translate_tmp.pl:5938
 msgid "Text"
 msgstr "Tekst"
 
@@ -1836,200 +1987,200 @@ msgstr "Skriftfarve"
 msgid "Choose font color"
 msgstr "Vælg skriftfarve"
 
-#: translate_tmp.pl:4215
+#: translate_tmp.pl:4216
 msgid "Use selected font"
 msgstr ""
 
-#: translate_tmp.pl:5807
+#: translate_tmp.pl:5813
 #: translate_tmp.pl:34
 msgid "_File"
 msgstr "_Fil"
 
-#: translate_tmp.pl:5808
+#: translate_tmp.pl:5814
 #: translate_tmp.pl:39
 msgid "_Edit"
 msgstr "R_edigér"
 
-#: translate_tmp.pl:5809
+#: translate_tmp.pl:5815
 msgid "_Tools"
 msgstr "_Værktøjer"
 
-#: translate_tmp.pl:5810
+#: translate_tmp.pl:5816
 #: translate_tmp.pl:44
 msgid "_View"
 msgstr "_Vis"
 
-#: translate_tmp.pl:5811
+#: translate_tmp.pl:5817
 msgid "Undo last action"
 msgstr "Fortryd sidste handling"
 
-#: translate_tmp.pl:5814
+#: translate_tmp.pl:5820
 msgid "Do again the last undone action"
 msgstr "Gentag sidst fortrudte handling"
 
-#: translate_tmp.pl:5817
+#: translate_tmp.pl:5823
 msgid "Copy selection to clipboard"
 msgstr "Kopiér markering til klippebord"
 
-#: translate_tmp.pl:5823
+#: translate_tmp.pl:5829
 msgid "Cut selection to clipboard"
 msgstr "Klip markering til klippebord"
 
-#: translate_tmp.pl:5830
+#: translate_tmp.pl:5836
 msgid "Paste objects from clipboard"
 msgstr "Indsæt objekter fra udklipsholder"
 
-#: translate_tmp.pl:5833
+#: translate_tmp.pl:5839
 msgid "Delete current object"
 msgstr "Slet nuværende objekt"
 
-#: translate_tmp.pl:5836
+#: translate_tmp.pl:5842
 msgid "Clear canvas"
 msgstr "Ryd lærred"
 
-#: translate_tmp.pl:5850
+#: translate_tmp.pl:5856
 msgid "Abort current mode"
 msgstr "Afbryd nuværende tilstand"
 
-#: translate_tmp.pl:5853
+#: translate_tmp.pl:5859
 msgid "Close this window"
 msgstr "Luk dette vindue"
 
-#: translate_tmp.pl:5856
+#: translate_tmp.pl:5862
 msgid "Save image"
 msgstr "Gem billede"
 
-#: translate_tmp.pl:5859
+#: translate_tmp.pl:5865
 msgid "Export to _File..."
 msgstr ""
 
-#: translate_tmp.pl:5859
+#: translate_tmp.pl:5865
 msgid "Export to File..."
 msgstr ""
 
-#: translate_tmp.pl:5862
+#: translate_tmp.pl:5868
 msgid "_Export to SVG..."
 msgstr ""
 
-#: translate_tmp.pl:5862
+#: translate_tmp.pl:5868
 msgid "Export to SVG..."
 msgstr ""
 
-#: translate_tmp.pl:5865
+#: translate_tmp.pl:5871
 #: translate_tmp.pl:108
 msgid "E_xport to PDF..."
 msgstr ""
 
-#: translate_tmp.pl:5865
+#: translate_tmp.pl:5871
 msgid "Export to PDF..."
 msgstr ""
 
-#: translate_tmp.pl:5889
+#: translate_tmp.pl:5895
 msgid "Automatic scrolling"
 msgstr "Automatisk rulning"
 
-#: translate_tmp.pl:5925
+#: translate_tmp.pl:5931
 msgid "Select"
 msgstr "Vælg"
 
-#: translate_tmp.pl:5925
+#: translate_tmp.pl:5931
 msgid "Select item to move or resize it"
 msgstr "Vælg element for at flytte eller ændre størrelse på det"
 
-#: translate_tmp.pl:5926
+#: translate_tmp.pl:5932
 msgid "Freehand"
 msgstr "Frihånd"
 
-#: translate_tmp.pl:5926
+#: translate_tmp.pl:5932
 msgid "Draw a freehand line"
 msgstr "Tegn en frihånds-linje"
 
-#: translate_tmp.pl:5927
+#: translate_tmp.pl:5933
 msgid "Highlighter"
 msgstr "Fremhæver"
 
-#: translate_tmp.pl:5928
+#: translate_tmp.pl:5934
 msgid "Line"
 msgstr "Linje"
 
-#: translate_tmp.pl:5928
+#: translate_tmp.pl:5934
 msgid "Draw a straight line"
 msgstr "Tegn en lige linje"
 
-#: translate_tmp.pl:5929
+#: translate_tmp.pl:5935
 msgid "Draw an arrow"
 msgstr "Tegn en pil"
 
-#: translate_tmp.pl:5930
+#: translate_tmp.pl:5936
 msgid "Rectangle"
 msgstr "Rektangel"
 
-#: translate_tmp.pl:5930
+#: translate_tmp.pl:5936
 msgid "Draw a rectangle"
 msgstr "Tegn et rektangel"
 
-#: translate_tmp.pl:5931
+#: translate_tmp.pl:5937
 msgid "Ellipse"
 msgstr "Ellipse"
 
-#: translate_tmp.pl:5931
+#: translate_tmp.pl:5937
 msgid "Draw a ellipse"
 msgstr "Tegn en ellipse"
 
-#: translate_tmp.pl:5932
+#: translate_tmp.pl:5938
 msgid "Add some text to the screenshot"
 msgstr "Tilføj noget tekst til skærmbilledet"
 
-#: translate_tmp.pl:5933
+#: translate_tmp.pl:5939
 msgid "Censor"
 msgstr "Censurer"
 
-#: translate_tmp.pl:5933
+#: translate_tmp.pl:5939
 msgid "Censor portions of your screenshot to hide private data"
 msgstr "Censurér dele af det skærmbillede for at gemme private oplysninger"
 
-#: translate_tmp.pl:5934
+#: translate_tmp.pl:5940
 msgid "Pixelize"
 msgstr ""
 
-#: translate_tmp.pl:5934
+#: translate_tmp.pl:5940
 msgid "Pixelize selected areas of your screenshot to hide private data"
 msgstr ""
 
-#: translate_tmp.pl:5935
+#: translate_tmp.pl:5941
 msgid "Number"
 msgstr "Nummer"
 
-#: translate_tmp.pl:5935
+#: translate_tmp.pl:5941
 msgid "Add an auto-increment shape to the screenshot"
 msgstr "Tilføj en auto-forøg form til skærmbilledet"
 
-#: translate_tmp.pl:5936
+#: translate_tmp.pl:5942
 msgid "Crop"
 msgstr "Beskær"
 
-#: translate_tmp.pl:5936
+#: translate_tmp.pl:5942
 msgid "Crop your screenshot"
 msgstr "Beskær dit skærmbillede"
 
-#: translate_tmp.pl:6199
-#: translate_tmp.pl:6402
+#: translate_tmp.pl:6205
+#: translate_tmp.pl:6408
 msgid "No icon was found"
 msgstr "Ingen ikoner blev fundet"
 
-#: translate_tmp.pl:6258
+#: translate_tmp.pl:6264
 msgid "Import from current theme..."
 msgstr "Importer fra nuværende tema"
 
-#: translate_tmp.pl:6272
+#: translate_tmp.pl:6278
 msgid "Import from session..."
 msgstr "Importér fra session..."
 
-#: translate_tmp.pl:6283
+#: translate_tmp.pl:6289
 msgid "Import from filesystem..."
 msgstr "Importér fra filstystem..."
 
-#: translate_tmp.pl:7093
+#: translate_tmp.pl:7099
 msgid "New text..."
 msgstr "Ny tekst..."
 
@@ -2085,7 +2236,7 @@ msgid "C_lose all"
 msgstr "_Luk alle"
 
 #: translate_tmp.pl:193
-#: translate_tmp.pl:658
+#: translate_tmp.pl:670
 msgid "Copy _Filename"
 msgstr ""
 
@@ -2110,40 +2261,45 @@ msgid "Import from clip_board"
 msgstr "Importér fra udklips_holder"
 
 #: translate_tmp.pl:531
-#: translate_tmp.pl:622
+#: translate_tmp.pl:628
 msgid "Open wit_h"
 msgstr "_Åbn med"
 
 #: translate_tmp.pl:537
-#: translate_tmp.pl:628
+#: translate_tmp.pl:634
 msgid "_Rename..."
 msgstr "_Omdøb..."
 
 #: translate_tmp.pl:546
-#: translate_tmp.pl:636
+#: translate_tmp.pl:642
 msgid "_Send To..."
 msgstr ""
 
 #: translate_tmp.pl:555
-#: translate_tmp.pl:644
+#: translate_tmp.pl:650
 msgid "E_xport..."
 msgstr "E_ksportér..."
 
-#: translate_tmp.pl:564
-#: translate_tmp.pl:671
+#: translate_tmp.pl:562
+#: translate_tmp.pl:656
+msgid "Public URLs"
+msgstr ""
+
+#: translate_tmp.pl:570
+#: translate_tmp.pl:683
 msgid "_Edit..."
 msgstr "_Redigér..."
 
-#: translate_tmp.pl:581
+#: translate_tmp.pl:587
 msgid "Run a _plugin..."
 msgstr "Kør et _udvidelsesmodul..."
 
-#: translate_tmp.pl:590
-#: translate_tmp.pl:695
+#: translate_tmp.pl:596
+#: translate_tmp.pl:707
 msgid "Redo _this screenshot"
 msgstr ""
 
-#: translate_tmp.pl:687
+#: translate_tmp.pl:699
 msgid "Run a _Plugin..."
 msgstr ""
 
@@ -2378,6 +2534,9 @@ msgstr ""
 
 #~ msgid "Screenshot failed!"
 #~ msgstr "Skærmbilledet blev ikke taget!"
+
+#~ msgid "Maximum filesize reached!"
+#~ msgstr "Maksimal filstørrelse nået!"
 
 #~ msgid ""
 #~ "There are several wildcards available, like\n"

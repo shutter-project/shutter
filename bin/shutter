@@ -86,7 +86,7 @@ use Digest::MD5  qw(md5_hex);
 #define constants
 #--------------------------------------
 use constant MAX_ERROR 			=> 5;
-use constant SHUTTER_REV      => '$Revision-Id$';
+use constant SHUTTER_REV      	=> 'Rev.860';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> 'trunk';
 
@@ -2824,7 +2824,7 @@ sub fct_get_last_capture{
 }
 
 sub fct_ret_upload_links_menu {
-	my $key = shift;
+   my $key = shift;
 	
    my $traytheme = $sc->get_theme;
    
@@ -2834,7 +2834,11 @@ sub fct_ret_upload_links_menu {
    	
 	if(defined $key && exists $session_screens{$key}->{'links'}){
 		foreach my $link (keys %{$session_screens{$key}->{'links'}}){
-			#~ print Dumper $session_screens{$key}->{'links'}->{$link}, "\n";
+		#~ print Dumper $session_screens{$key}->{'links'}->{$link}, "\n";
+
+		#no longer valid
+		next unless exists $session_screens{$key}->{'links'}->{$link}->{'puburl'};
+		next unless defined $session_screens{$key}->{'links'}->{$link}->{'puburl'};
 
          #create menu entry
          my $menuitem_link = Gtk2::ImageMenuItem->new_with_mnemonic( $session_screens{$key}->{'links'}->{$link}->{'menuentry'} );
@@ -2856,7 +2860,7 @@ sub fct_ret_upload_links_menu {
 		}
 	}
    
-   $menu_links->show_all;
+	$menu_links->show_all;
 
 	return ($nmenu_entries,$menu_links);
 }
@@ -2946,11 +2950,13 @@ sub fct_update_actions {
 		#upload links
 		#~ $sm->{_menuitem_links}->set_sensitive(&fct_get_upload_links($key));
 		#upload links
-      my ($nmenu_entries, $menu_links) = &fct_ret_upload_links_menu($key);
-		$sm->{_menuitem_links}->set_sensitive($nmenu_entries);
-      if($nmenu_entries){
-         $sm->{_menuitem_links}->set_submenu($menu_links);
-      }
+		my ($nmenu_entries, $menu_links) = &fct_ret_upload_links_menu($key);
+		if($nmenu_entries){
+			$sm->{_menuitem_links}->set_submenu($menu_links);
+		}else{
+			$sm->{_menuitem_links}->set_submenu(undef);
+		}
+		$sm->{_menuitem_links}->set_sensitive($nmenu_entries);		
 	
 		#nautilus-sendto is optional, don't enable it when not installed
 		if ( $nautilus_sendto ) {
@@ -2987,11 +2993,13 @@ sub fct_update_actions {
 		$sm->{_menuitem_large_copy_filename}->set_sensitive($n_items);
 
 		#upload links
-      my ($nmenu_entries_large, $menu_links_large) = &fct_ret_upload_links_menu($key);
+		my ($nmenu_entries_large, $menu_links_large) = &fct_ret_upload_links_menu($key);
+		if($nmenu_entries_large){
+			$sm->{_menuitem_large_links}->set_submenu($menu_links_large);
+		}else{
+			$sm->{_menuitem_large_links}->set_submenu(undef);
+		}
 		$sm->{_menuitem_large_links}->set_sensitive($nmenu_entries_large);
-      if($nmenu_entries_large){
-         $sm->{_menuitem_large_links}->set_submenu($menu_links_large);
-      }
 
 		#nautilus-sendto is optional, don't enable it when not installed
 		if ( $nautilus_sendto ) {
@@ -3197,7 +3205,6 @@ sub evt_save_as {
 	my ( $widget, $data ) = @_;
 	print "\n$data was emitted by widget $widget\n"
 		if $sc->get_debug;
-
 
 	my $key = &fct_get_current_file;
 
@@ -5856,9 +5863,9 @@ sub fct_upload {
 		push( @upload_array, $key );
 		&dlg_upload(@upload_array);
 
-      #update actions
-      #new public links might be available
-      &fct_update_actions(1, $key);
+		#update actions
+		#new public links might be available
+		&fct_update_actions(1, $key);
 
 		#session tab
 	} else {
@@ -8101,13 +8108,14 @@ sub fct_init_u1_watcher {
          #~ print Dumper %meta;
          #find corresponding key
          if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
-                              
-            $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'puburl'}     = $meta{'public_url'};
-            $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuentry'}  = $d->get("Copy Ubuntu One public URL");
-            $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuimage'}  = "ubuntuone";
-            
+                                          
             #changed to public
             if($meta{'is_public'}){
+ 
+			   $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'puburl'}     = $meta{'public_url'};
+               $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuentry'}  = $d->get("Copy Ubuntu One public URL");
+			   $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuimage'}  = "ubuntuone";
+ 
                #copy to clipboard
                $clipboard->set_text($meta{'public_url'});
             
@@ -8118,12 +8126,21 @@ sub fct_init_u1_watcher {
                &fct_show_status_message( 1, $shf->utf8_decode(sprintf($d->get("%s published"), $meta{'path'})) );
             #publishing stopped
             }else{							
+
+			   $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'puburl'}     = undef;
+               $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuentry'}  = undef;
+			   $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuimage'}  = undef;
+
                #show as notification
                my $notify 	= $sc->get_notification_object;
                $notify->show( $d->get("Unpublished"), sprintf($d->get("The file %s is no longer published. The external link is not available anymore."), $meta{'path'} ) );
             
                &fct_show_status_message( 1, $shf->utf8_decode(sprintf($d->get("The file %s is no longer published."), $meta{'path'})) );									
             }
+
+			#update actions
+			#new public links
+			&fct_update_actions(1, $key);
                         
          }
       });
@@ -9748,24 +9765,24 @@ sub dlg_upload {
 							$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'pubfile'} = Gnome2::VFS->unescape_string($target_uri->get_path);
 							&fct_show_status_message( 1, sprintf($d->get("Publishing %s..."), $file) );
 
-                     my $u1 = Shutter::Upload::UbuntuOne->new($sc);
-                     $u1->connect_to_bus;
+							my $u1 = Shutter::Upload::UbuntuOne->new($sc);
+							$u1->connect_to_bus;
                            
-                     if($u1->is_connected){
-                        my $sd_public = $u1->get_syncdaemon_public;
-                        my $sd_fs     = $u1->get_syncdaemon_fs;
-                        my %meta;
-                        eval{
-                           %meta = %{$sd_fs->get_metadata($file)};
-                        };
-                        unless($@){
-                           #call publishing api directly if the file is already uploaded
-                           #if not the file is uploaded first and publishing api is called afterwards (&fct_init_u1_watcher)
-                           if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
-                              $sd_public->change_public_access($meta{'share_id'}, $meta{'node_id'}, TRUE);
-                           }
-                        }
-                     }   
+							if($u1->is_connected){
+								my $sd_public = $u1->get_syncdaemon_public;
+								my $sd_fs     = $u1->get_syncdaemon_fs;
+								my %meta;
+								eval{
+								   %meta = %{$sd_fs->get_metadata($file)};
+								};
+								unless($@){
+								   #call publishing api directly if the file is already uploaded
+								   #if not the file is uploaded first and publishing api is called afterwards (&fct_init_u1_watcher)
+								   if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
+									  $sd_public->change_public_access($meta{'share_id'}, $meta{'node_id'}, TRUE);
+								   }
+								}
+							}   
 
 						}
 					
@@ -9871,14 +9888,14 @@ sub dlg_upload {
 			$sc->set_ruu_tab($unotebook->get_current_page);
 			#and the relevant detail (folder, uploader etc.)
 			#hosting service		
-         $sc->set_ruu_hosting($hosting->get_active);
+			$sc->set_ruu_hosting($hosting->get_active);
 			$sc->set_ruu_places($places_fc->get_current_folder);
 			$sc->set_ruu_u1($u1_fc->get_current_folder);
 			
-         #set initial state of dialog
-         $upload_button->set_sensitive(TRUE);
-         $close_button->set_sensitive(TRUE);
-         $hosting_progress->hide;
+			#set initial state of dialog
+			$upload_button->set_sensitive(TRUE);
+			$close_button->set_sensitive(TRUE);
+			$hosting_progress->hide;
 		
 		#response != accept
 		} else {
