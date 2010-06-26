@@ -86,9 +86,9 @@ use Digest::MD5  qw(md5_hex);
 #define constants
 #--------------------------------------
 use constant MAX_ERROR 			=> 5;
-use constant SHUTTER_REV      	=> 'Rev.860';
+use constant SHUTTER_REV      	=> 'Rev.861';
 use constant SHUTTER_NAME		=> 'Shutter';
-use constant SHUTTER_VERSION	=> 'trunk';
+use constant SHUTTER_VERSION	=> '0.86.3';
 
 #--------------------------------------
 
@@ -183,8 +183,9 @@ require Shutter::Upload::ImageBanana;
 require Shutter::Upload::UbuntuPics;
 require Shutter::Upload::ImageShack;
 require Shutter::Upload::FTP;
-require Shutter::Upload::UbuntuOne;
-
+if($ubuntuone){
+	require Shutter::Upload::UbuntuOne;
+}
 #--------------------------------------
 
 #main window
