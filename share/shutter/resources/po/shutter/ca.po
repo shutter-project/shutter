@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-06-20 14:59+0200\n"
-"PO-Revision-Date: 2010-06-20 11:58+0000\n"
+"PO-Revision-Date: 2010-06-29 10:22+0000\n"
 "Last-Translator: Josep Sànchez <josep.sanchez@ubuntu.cat>\n"
 "Language-Team: Catalan <ca@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2010-06-25 21:12+0000\n"
+"X-Launchpad-Export-Date: 2010-07-03 07:13+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: translate_tmp.pl:211
@@ -179,7 +179,7 @@ msgstr "$profile = el nom del perfil actual\n"
 
 #: translate_tmp.pl:751
 msgid "$R = random char (e.g. $RRRR = ag4r)\n"
-msgstr ""
+msgstr "$R = random char (e.g. $RRRR = ag4r)\n"
 
 #: translate_tmp.pl:752
 msgid "%NN = counter"
@@ -924,7 +924,7 @@ msgstr "S'ha produït un error en determinar el nom del fitxer"
 
 #: translate_tmp.pl:5283
 msgid "Triggered invalid screenshot action."
-msgstr ""
+msgstr "S'ha activat una acció incorrecta de captura de pantalla"
 
 #: translate_tmp.pl:5284
 #: translate_tmp.pl:5287
@@ -979,33 +979,33 @@ msgstr "Obre tots els fitxers amb"
 #: translate_tmp.pl:5839
 #, perl-format
 msgid "Could not apply plugin %s"
-msgstr ""
+msgstr "No s'ha pogut aplicar el connector %s"
 
 #: translate_tmp.pl:5837
 #: translate_tmp.pl:5885
 #, perl-format
 msgid "Successfully applied plugin %s"
-msgstr ""
+msgstr "S'ha aplicat correctament el connector %s"
 
 #: translate_tmp.pl:5888
 #, perl-format
 msgid "Error while executing plugin %s."
-msgstr ""
+msgstr "S'ha produït un error en executar el connector %s."
 
 #: translate_tmp.pl:5889
 msgid "There was an error executing the plugin."
-msgstr ""
+msgstr "S'ha produït un error en executar el connector."
 
 #: translate_tmp.pl:5963
 #, perl-format
 msgid "%s screenshot"
 msgid_plural "%s screenshots"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s captura de pantalla"
+msgstr[1] "%s captures de pantalla"
 
 #: translate_tmp.pl:5975
 msgid "Current profile"
-msgstr ""
+msgstr "Perfil actual"
 
 #: translate_tmp.pl:6361
 msgid "Try to resave the file?"
@@ -1105,12 +1105,12 @@ msgstr "Se_cció"
 #: translate_tmp.pl:7069
 #: translate_tmp.pl:453
 msgid "_Menu"
-msgstr ""
+msgstr "_Menú"
 
 #: translate_tmp.pl:7088
 #: translate_tmp.pl:469
 msgid "_Tooltip"
-msgstr ""
+msgstr "_Consell"
 
 #: translate_tmp.pl:7107
 #: translate_tmp.pl:487
@@ -1120,7 +1120,7 @@ msgstr "_Web"
 #: translate_tmp.pl:7124
 #: translate_tmp.pl:384
 msgid "_Redo last screenshot"
-msgstr ""
+msgstr "_Refès la última captura de pantalla"
 
 #: translate_tmp.pl:7135
 #: translate_tmp.pl:212
@@ -1210,41 +1210,41 @@ msgstr "Camí"
 
 #: translate_tmp.pl:7773
 msgid "Copy Ubuntu One public URL"
-msgstr ""
+msgstr "Copia l'URL públic de l'Ubuntu One"
 
 #: translate_tmp.pl:7783
 msgid "Successfully published"
-msgstr ""
+msgstr "S'ha publicat correctament"
 
 #: translate_tmp.pl:7783
 #, perl-format
 msgid "The file %s was successfully published: %s1"
-msgstr ""
+msgstr "S'ha publicat correctament el fitxer %s: %s1"
 
 #: translate_tmp.pl:7785
 #, perl-format
 msgid "%s published"
-msgstr ""
+msgstr "%s publicat/s"
 
 #: translate_tmp.pl:7790
 msgid "Unpublished"
-msgstr ""
+msgstr "No publicat"
 
 #: translate_tmp.pl:7790
 #, perl-format
 msgid ""
 "The file %s is no longer published. The external link is not available "
 "anymore."
-msgstr ""
+msgstr "El fitxer %s ja no és publicat. L'enllaç extern ja no és disponible."
 
 #: translate_tmp.pl:7792
 #, perl-format
 msgid "The file %s is no longer published."
-msgstr ""
+msgstr "El fitxer %s ja no és publicat."
 
 #: translate_tmp.pl:8028
 msgid "Rename"
-msgstr ""
+msgstr "Reanomena"
 
 #: translate_tmp.pl:8032
 #, perl-format
@@ -1319,7 +1319,7 @@ msgstr "Seleccioneu un complement"
 
 #: translate_tmp.pl:8559
 msgid "_Run"
-msgstr ""
+msgstr "_Executa"
 
 #: translate_tmp.pl:8609
 msgid "Plugin"
@@ -1348,7 +1348,7 @@ msgstr "Trieu el compte"
 
 #: translate_tmp.pl:8833
 msgid "Status"
-msgstr ""
+msgstr "Estat"
 
 #: translate_tmp.pl:8965
 msgid "Public hosting"
@@ -1360,7 +1360,7 @@ msgstr "Llocs"
 
 #: translate_tmp.pl:8968
 msgid "Ubuntu One"
-msgstr ""
+msgstr "Ubuntu One"
 
 #: translate_tmp.pl:8980
 msgid "_Export"
@@ -1368,12 +1368,12 @@ msgstr "_Exporta"
 
 #: translate_tmp.pl:8983
 msgid "_Publish"
-msgstr ""
+msgstr "_Publica"
 
 #: translate_tmp.pl:9002
 #: translate_tmp.pl:135
 msgid "Disconnected"
-msgstr ""
+msgstr "Desconnectat"
 
 #: translate_tmp.pl:9015
 #, perl-format
@@ -1384,7 +1384,11 @@ msgid_plural ""
 "Folder %s is synchronized with Ubuntu One.\n"
 "The selected files will be copied to that folder before being published."
 msgstr[0] ""
+"S'ha sincronitzat la carpeta %s a l'Ubuntu One.\n"
+"Es copiarà el fitxer seleccionat a aquesta carpeta abans de publicar-lo."
 msgstr[1] ""
+"S'ha sincronitzat la carpeta %s a l'Ubuntu One.\n"
+"Es copiaran els fitxers seleccionats a aquesta carpeta abans de publicar-los."
 
 #: translate_tmp.pl:9018
 msgid ""
@@ -1396,7 +1400,13 @@ msgid_plural ""
 "process.\n"
 "You will be notified when the process has finished."
 msgstr[0] ""
+"<b>Tingueu present:</b> Es publicarà el fitxer seleccionat en un procés en "
+"segon pla.\n"
+"Se us notificarà la finalització del procés."
 msgstr[1] ""
+"<b>Tingueu present:</b> Es publicaran els fitxers seleccionats en un procés "
+"en segon pla.\n"
+"Se us notificarà la finalització del procés."
 
 #: translate_tmp.pl:9023
 #, perl-format
@@ -1404,11 +1414,15 @@ msgid ""
 "Folder %s is not synchronized with Ubuntu One.\n"
 "Please choose an alternative folder."
 msgstr ""
+"La carpeta %s no està sincronitzada amb l'Ubuntu One.\n"
+"Trieu una carpeta alternativa."
 
 #: translate_tmp.pl:9049
 msgid ""
 "Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature"
 msgstr ""
+"S'ha d'instal·lar Net::DBus::GLib/libnet-dbus-glib-perl per a aquesta "
+"característica"
 
 #: translate_tmp.pl:9119
 #: translate_tmp.pl:9153
@@ -1466,20 +1480,20 @@ msgstr "Omet"
 #: translate_tmp.pl:9322
 #: translate_tmp.pl:9605
 msgid "Retry"
-msgstr ""
+msgstr "Reintenta"
 
 #: translate_tmp.pl:9302
 #: translate_tmp.pl:9405
 #: translate_tmp.pl:9478
 msgid "Successfully uploaded"
-msgstr ""
+msgstr "S'ha pujat correctament"
 
 #: translate_tmp.pl:9302
 #: translate_tmp.pl:9405
 #: translate_tmp.pl:9478
 #, perl-format
 msgid "The file %s was successfully uploaded."
-msgstr ""
+msgstr "S'ha pujat correctament el fitxer %s."
 
 #: translate_tmp.pl:9397
 #: translate_tmp.pl:9470
@@ -1489,23 +1503,23 @@ msgstr "exportat"
 #: translate_tmp.pl:9400
 #: translate_tmp.pl:9473
 msgid "Successfully exported"
-msgstr ""
+msgstr "S'ha exportat correctament"
 
 #: translate_tmp.pl:9400
 #: translate_tmp.pl:9473
 #, perl-format
 msgid "The file %s was successfully exported."
-msgstr ""
+msgstr "El fitxer %s s'ha exportat correctament."
 
 #: translate_tmp.pl:9410
 #: translate_tmp.pl:9483
 #, perl-format
 msgid "Publishing %s..."
-msgstr ""
+msgstr "S'està publicant %s..."
 
 #: translate_tmp.pl:9565
 msgid "_Retry"
-msgstr ""
+msgstr "_Torna-ho a intentar"
 
 #: translate_tmp.pl:9569
 #, perl-format
@@ -1519,24 +1533,24 @@ msgstr "S'ha produït un error en copiar la imatge a %s."
 
 #: translate_tmp.pl:9591
 msgid "Error while login"
-msgstr ""
+msgstr "S'ha produït un error en entrar"
 
 #: translate_tmp.pl:9595
 msgid "Maximum filesize reached"
-msgstr ""
+msgstr "S'ha assolit la mida màxima de fitxer"
 
 #: translate_tmp.pl:9596
 msgid "Error while uploading"
-msgstr ""
+msgstr "S'ha produït un error en la pujada"
 
 #: translate_tmp.pl:9599
 #, perl-format
 msgid "Maximum filesize: %s"
-msgstr ""
+msgstr "Mida màxima de fitxer: %s"
 
 #: translate_tmp.pl:9604
 msgid "Error while connecting"
-msgstr ""
+msgstr "S'ha produït un error en connectar"
 
 #: translate_tmp.pl:9622
 msgid "Save current preferences as new profile"
@@ -1589,7 +1603,7 @@ msgstr "Miniatura per a fòrums"
 
 #: translate_tmp.pl:419
 msgid "Short URL"
-msgstr ""
+msgstr "URL curt"
 
 #: translate_tmp.pl:421
 #: translate_tmp.pl:204
@@ -1665,31 +1679,34 @@ msgstr "Hotlink per a tauler d'anuncis (2)"
 
 #: translate_tmp.pl:138
 msgid "Synchronization complete"
-msgstr ""
+msgstr "S'ha completat la sincronització"
 
 #: translate_tmp.pl:140
 msgid "Synchronization in progress..."
-msgstr ""
+msgstr "S'està portant a terme la sincronització..."
 
 #: translate_tmp.pl:104
 msgid "No subwindow detected"
-msgstr ""
+msgstr "No s'ha detectat cap subfinestra"
 
 #: translate_tmp.pl:105
 msgid ""
 "Maybe this window is using client-side windows (or similar).\n"
 "Shutter is not yet able to query the tree information of such windows."
 msgstr ""
+"Potser aquesta finestra està emprant finestres des de la banda del client (o "
+"alguna cosa semblant).\n"
+"El Shutter encara no pot obtenir la informació d'aquesta mena de finestres."
 
 #: translate_tmp.pl:997
 #: translate_tmp.pl:140
 msgid "Menu"
-msgstr ""
+msgstr "Menú"
 
 #: translate_tmp.pl:1003
 #: translate_tmp.pl:160
 msgid "Tooltip"
-msgstr ""
+msgstr "Consell"
 
 #: translate_tmp.pl:75
 #: translate_tmp.pl:181
@@ -1702,7 +1719,7 @@ msgstr "URL a capturar"
 
 #: translate_tmp.pl:94
 msgid "C_apture"
-msgstr ""
+msgstr "C_aptura"
 
 #: translate_tmp.pl:115
 msgid ""
@@ -1718,6 +1735,11 @@ msgid ""
 "ctrl + scrollwheel = zoom in/out\t\tspace = zoom window on/off\n"
 "cursor keys + alt = move selection\t\tcursor keys + ctrl = resize selection"
 msgstr ""
+"maj/botó alternatiu = activa/desactiva el diàleg de selecció\n"
+"ctrl + roda de desplaçament = apropa/allunya\t\t = activa/desactiva "
+"l'apropament i allunyament de la finestra\n"
+"tecles de cursor + alt = moure la selecció\t\ttecles de cursor + ctrl = "
+"redimensiona la selecció"
 
 #: translate_tmp.pl:76
 msgid ""
@@ -1728,28 +1750,28 @@ msgstr ""
 
 #: translate_tmp.pl:84
 msgid "Keyboard could not be grabbed."
-msgstr ""
+msgstr "No s'ha pogut capturar el teclat."
 
 #: translate_tmp.pl:93
 msgid "menu"
-msgstr ""
+msgstr "menú"
 
 #: translate_tmp.pl:95
 msgid "tooltip"
-msgstr ""
+msgstr "consell"
 
 #: translate_tmp.pl:99
 #, perl-format
 msgid "No window with type %s detected."
-msgstr ""
+msgstr "No s'ha detectat cap finestra del tipus %s."
 
 #: translate_tmp.pl:107
 msgid "There is no last capture that can be redone."
-msgstr ""
+msgstr "No hi ha cap última captura per a refer-la."
 
 #: translate_tmp.pl:115
 msgid "The window is no longer available."
-msgstr ""
+msgstr "La finestra ja no és disponible."
 
 #: translate_tmp.pl:127
 #: translate_tmp.pl:133
@@ -1875,7 +1897,7 @@ msgstr ""
 
 #: translate_tmp.pl:892
 msgid "Click-Drag to create a pixelized region"
-msgstr ""
+msgstr "Fes clic i arrosega per crear una zona pixelada"
 
 #: translate_tmp.pl:896
 msgid "Click to add an auto-increment shape"
@@ -1907,33 +1929,33 @@ msgstr[1] ""
 
 #: translate_tmp.pl:1660
 msgid "Do you want to save the changed background color?"
-msgstr ""
+msgstr "Voleu desar el color de fons modificat?"
 
 #: translate_tmp.pl:1661
 msgid ""
 "The background is likely to be transparent if you decide to ignore the "
 "background color."
-msgstr ""
+msgstr "Segurament el fons serà transparent si decidiu ignorar-ne el color."
 
 #: translate_tmp.pl:1663
 msgid "Save Background Color"
-msgstr ""
+msgstr "Desa el color del fons"
 
 #: translate_tmp.pl:1666
 msgid "_Ignore Background Color"
-msgstr ""
+msgstr "_Ignora el color del fons"
 
 #: translate_tmp.pl:1669
 msgid "_Save Background Color"
-msgstr ""
+msgstr "De_sa el color de fons"
 
 #: translate_tmp.pl:3719
 msgid "Change Background Color..."
-msgstr ""
+msgstr "Canvia el color de fons..."
 
 #: translate_tmp.pl:3729
 msgid "_Reset to Default"
-msgstr ""
+msgstr "_Reinicia als predeterminats"
 
 #: translate_tmp.pl:3779
 msgid "Raise"
@@ -1945,19 +1967,19 @@ msgstr "Baixa"
 
 #: translate_tmp.pl:3847
 msgid "Unlock"
-msgstr ""
+msgstr "Desbloqueja"
 
 #: translate_tmp.pl:3850
 msgid "Lock"
-msgstr ""
+msgstr "Bloqueja"
 
 #: translate_tmp.pl:3872
 msgid "Edit Preferences..."
-msgstr ""
+msgstr "Edita les preferències..."
 
 #: translate_tmp.pl:4013
 msgid "Numbering"
-msgstr ""
+msgstr "Numeració"
 
 #: translate_tmp.pl:4023
 msgid "Current value"
@@ -1966,7 +1988,7 @@ msgstr "Valor actual"
 #: translate_tmp.pl:4078
 #: translate_tmp.pl:5935
 msgid "Arrow"
-msgstr ""
+msgstr "Punter"
 
 #: translate_tmp.pl:4100
 msgid "Length"
@@ -1987,7 +2009,7 @@ msgstr "Mostra una fletxa al inici de la línia"
 #: translate_tmp.pl:4149
 #: translate_tmp.pl:5938
 msgid "Text"
-msgstr ""
+msgstr "Text"
 
 #: translate_tmp.pl:4188
 msgid "Font color"
@@ -1999,7 +2021,7 @@ msgstr "Trieu el color de la lletra"
 
 #: translate_tmp.pl:4216
 msgid "Use selected font"
-msgstr ""
+msgstr "Empra el tipus de lletra seleccionat"
 
 #: translate_tmp.pl:5813
 #: translate_tmp.pl:34
@@ -2013,7 +2035,7 @@ msgstr "_Edita"
 
 #: translate_tmp.pl:5815
 msgid "_Tools"
-msgstr ""
+msgstr "E_ines"
 
 #: translate_tmp.pl:5816
 #: translate_tmp.pl:44
@@ -2022,68 +2044,68 @@ msgstr "_Visualitza"
 
 #: translate_tmp.pl:5817
 msgid "Undo last action"
-msgstr ""
+msgstr "Desfés l'ultima acció"
 
 #: translate_tmp.pl:5820
 msgid "Do again the last undone action"
-msgstr ""
+msgstr "Torna a fer la darrera acció desfeta"
 
 #: translate_tmp.pl:5823
 msgid "Copy selection to clipboard"
-msgstr ""
+msgstr "Copia la selecció al porta-retalls"
 
 #: translate_tmp.pl:5829
 msgid "Cut selection to clipboard"
-msgstr ""
+msgstr "Retalla la selecció al porta-retalls"
 
 #: translate_tmp.pl:5836
 msgid "Paste objects from clipboard"
-msgstr ""
+msgstr "Enganxa els objectes del porta-retalls"
 
 #: translate_tmp.pl:5839
 msgid "Delete current object"
-msgstr ""
+msgstr "Esborra l'objecte actual"
 
 #: translate_tmp.pl:5842
 msgid "Clear canvas"
-msgstr ""
+msgstr "Neteja el llenç"
 
 #: translate_tmp.pl:5856
 msgid "Abort current mode"
-msgstr ""
+msgstr "Interromp el mode actual"
 
 #: translate_tmp.pl:5859
 msgid "Close this window"
-msgstr ""
+msgstr "Tanca aquesta finestra"
 
 #: translate_tmp.pl:5862
 msgid "Save image"
-msgstr ""
+msgstr "Desa la imatge"
 
 #: translate_tmp.pl:5865
 msgid "Export to _File..."
-msgstr ""
+msgstr "Exporta a _Fitxer..."
 
 #: translate_tmp.pl:5865
 msgid "Export to File..."
-msgstr ""
+msgstr "Exporta a Fitxer..."
 
 #: translate_tmp.pl:5868
 msgid "_Export to SVG..."
-msgstr ""
+msgstr "_Exporta a SVG..."
 
 #: translate_tmp.pl:5868
 msgid "Export to SVG..."
-msgstr ""
+msgstr "Exporta a SVG..."
 
 #: translate_tmp.pl:5871
 #: translate_tmp.pl:108
 msgid "E_xport to PDF..."
-msgstr ""
+msgstr "E_xporta a PDF..."
 
 #: translate_tmp.pl:5871
 msgid "Export to PDF..."
-msgstr ""
+msgstr "Exporta a PDF..."
 
 #: translate_tmp.pl:5895
 msgid "Automatic scrolling"
@@ -2091,7 +2113,7 @@ msgstr "Desplaçament automàtic"
 
 #: translate_tmp.pl:5931
 msgid "Select"
-msgstr ""
+msgstr "Selecció"
 
 #: translate_tmp.pl:5931
 msgid "Select item to move or resize it"
@@ -2099,7 +2121,7 @@ msgstr "Trieu un ítem per a moure'l o redimensionar-lo"
 
 #: translate_tmp.pl:5932
 msgid "Freehand"
-msgstr ""
+msgstr "Mà alçada"
 
 #: translate_tmp.pl:5932
 msgid "Draw a freehand line"
@@ -2111,7 +2133,7 @@ msgstr "Eina de remarcat"
 
 #: translate_tmp.pl:5934
 msgid "Line"
-msgstr ""
+msgstr "Línia"
 
 #: translate_tmp.pl:5934
 msgid "Draw a straight line"
@@ -2123,7 +2145,7 @@ msgstr "Dibuixa una fletxa"
 
 #: translate_tmp.pl:5936
 msgid "Rectangle"
-msgstr ""
+msgstr "Rectangle"
 
 #: translate_tmp.pl:5936
 msgid "Draw a rectangle"
@@ -2131,7 +2153,7 @@ msgstr "Dibuixa un rectangle"
 
 #: translate_tmp.pl:5937
 msgid "Ellipse"
-msgstr ""
+msgstr "El·lipse"
 
 #: translate_tmp.pl:5937
 msgid "Draw a ellipse"
@@ -2143,7 +2165,7 @@ msgstr "Afegeix text a la captura de pantalla"
 
 #: translate_tmp.pl:5939
 msgid "Censor"
-msgstr ""
+msgstr "Censor"
 
 #: translate_tmp.pl:5939
 msgid "Censor portions of your screenshot to hide private data"
@@ -2152,15 +2174,17 @@ msgstr ""
 
 #: translate_tmp.pl:5940
 msgid "Pixelize"
-msgstr ""
+msgstr "Pixelitza"
 
 #: translate_tmp.pl:5940
 msgid "Pixelize selected areas of your screenshot to hide private data"
 msgstr ""
+"Pixelitza les àrees seleccionades de la vostra captura de pantalla per "
+"amagar les dades privades"
 
 #: translate_tmp.pl:5941
 msgid "Number"
-msgstr ""
+msgstr "Nombre"
 
 #: translate_tmp.pl:5941
 msgid "Add an auto-increment shape to the screenshot"
@@ -2168,7 +2192,7 @@ msgstr "Afegeix una forma d'auto increment a la captura de pantalla"
 
 #: translate_tmp.pl:5942
 msgid "Crop"
-msgstr ""
+msgstr "Escapça"
 
 #: translate_tmp.pl:5942
 msgid "Crop your screenshot"
@@ -2218,7 +2242,7 @@ msgstr "_Ajuda"
 
 #: translate_tmp.pl:87
 msgid "_Open..."
-msgstr ""
+msgstr "_Obre..."
 
 #: translate_tmp.pl:92
 msgid "Recent _Files"
@@ -2226,7 +2250,7 @@ msgstr "_Fitxers recents"
 
 #: translate_tmp.pl:97
 msgid "Save _As..."
-msgstr ""
+msgstr "_Anomena i desa..."
 
 #: translate_tmp.pl:118
 msgid "Page Set_up"
@@ -2234,11 +2258,11 @@ msgstr "Configuració de la pàgina"
 
 #: translate_tmp.pl:125
 msgid "_Print..."
-msgstr ""
+msgstr "Im_primeix..."
 
 #: translate_tmp.pl:133
 msgid "Send by E_mail..."
-msgstr ""
+msgstr "Envia per _correu..."
 
 #: translate_tmp.pl:148
 msgid "C_lose all"
@@ -2247,19 +2271,19 @@ msgstr "Tanca-ho tot"
 #: translate_tmp.pl:193
 #: translate_tmp.pl:670
 msgid "Copy _Filename"
-msgstr ""
+msgstr "Copia el nom del _fitxer"
 
 #: translate_tmp.pl:235
 msgid "Show Navigation _Toolbar"
-msgstr ""
+msgstr "Mostra la barra de _navegació"
 
 #: translate_tmp.pl:317
 msgid "Get Help Online..."
-msgstr ""
+msgstr "Obteniu ajuda en línia..."
 
 #: translate_tmp.pl:332
 msgid "Translate this Application..."
-msgstr ""
+msgstr "Traduïu aquesta aplicació..."
 
 #: translate_tmp.pl:347
 msgid "Report a Problem"
@@ -2267,7 +2291,7 @@ msgstr "Informeu d'un problema"
 
 #: translate_tmp.pl:503
 msgid "Import from clip_board"
-msgstr ""
+msgstr "Importa del _porta-retalls"
 
 #: translate_tmp.pl:531
 #: translate_tmp.pl:628
@@ -2277,48 +2301,48 @@ msgstr "Obre am_b"
 #: translate_tmp.pl:537
 #: translate_tmp.pl:634
 msgid "_Rename..."
-msgstr ""
+msgstr "_Reanomena..."
 
 #: translate_tmp.pl:546
 #: translate_tmp.pl:642
 msgid "_Send To..."
-msgstr ""
+msgstr "En_via a..."
 
 #: translate_tmp.pl:555
 #: translate_tmp.pl:650
 msgid "E_xport..."
-msgstr ""
+msgstr "E_xporta..."
 
 #: translate_tmp.pl:562
 #: translate_tmp.pl:656
 msgid "Public URLs"
-msgstr ""
+msgstr "URL públics"
 
 #: translate_tmp.pl:570
 #: translate_tmp.pl:683
 msgid "_Edit..."
-msgstr ""
+msgstr "_Edita..."
 
 #: translate_tmp.pl:587
 msgid "Run a _plugin..."
-msgstr ""
+msgstr "Executa un com_plement..."
 
 #: translate_tmp.pl:596
 #: translate_tmp.pl:707
 msgid "Redo _this screenshot"
-msgstr ""
+msgstr "Refès aques_ta captura de pantalla"
 
 #: translate_tmp.pl:699
 msgid "Run a _Plugin..."
-msgstr ""
+msgstr "Executa un com_plement..."
 
 #: translate_tmp.pl:37
 msgid "Redo"
-msgstr ""
+msgstr "Refés"
 
 #: translate_tmp.pl:40
 msgid "Redo last screenshot"
-msgstr ""
+msgstr "Refés la última captura de pantalla"
 
 #: translate_tmp.pl:70
 msgid ""
@@ -2363,10 +2387,11 @@ msgstr ""
 #: translate_tmp.pl:143
 msgid "Select a single menu or cascading menus from any application"
 msgstr ""
+"Selecciona un menú simple o un desplegable de menús de qualsevol aplicació"
 
 #: translate_tmp.pl:163
 msgid "Capture a tooltip"
-msgstr ""
+msgstr "Captura un consell"
 
 #: translate_tmp.pl:179
 msgid "Web"
@@ -2381,16 +2406,20 @@ msgid ""
 "Use the built-in editor to highlight important fragments of your screenshot "
 "or crop it to a desired size"
 msgstr ""
+"Empra l'editor integrat per a ressaltar els fragments importants de la "
+"vostra captura de pantalla o escapçar-la a la mida desitjada"
 
 #: translate_tmp.pl:213
 msgid "Export"
-msgstr ""
+msgstr "Exporta"
 
 #: translate_tmp.pl:216
 msgid ""
 "Upload your images to an image hosting service, FTP site or export them to "
 "an arbitrary folder"
 msgstr ""
+"Pugeu les vostres imatges a un servei d'hostatjament, lloc FTP o exporteu-"
+"les a una carpeta arbitrària"
 
 #: translate_tmp.pl:33
 #: translate_tmp.pl:47
@@ -2398,7 +2427,7 @@ msgstr ""
 #: translate_tmp.pl:76
 #, perl-format
 msgid "Error while executing %s."
-msgstr ""
+msgstr "S'ha produït un error en executar %s."
 
 #: translate_tmp.pl:34
 #: translate_tmp.pl:48
@@ -2406,7 +2435,7 @@ msgstr ""
 #: translate_tmp.pl:77
 #, perl-format
 msgid "There was an error executing %s."
-msgstr ""
+msgstr "S'ha produït un error en executar %s."
 
 #: translate_tmp.pl:37
 #: translate_tmp.pl:51
@@ -2414,7 +2443,7 @@ msgstr ""
 #: translate_tmp.pl:80
 #, perl-format
 msgid "Exit Code: %d."
-msgstr ""
+msgstr "Codi d'error: %d."
 
 #~ msgid "<i>Main</i>"
 #~ msgstr "<i>Principal</i>"
