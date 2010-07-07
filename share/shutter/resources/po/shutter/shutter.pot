@@ -1,3 +1,4 @@
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Shutter\n"
@@ -9,7 +10,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-03 07:13+0000\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"X-Launchpad-Export-Date: 2010-07-07 11:00+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: translate_tmp.pl:212
@@ -377,7 +379,11 @@ msgid "Ignore possibly wrong type hints"
 msgstr ""
 
 #: translate_tmp.pl:1219
-msgid "The type hint constants specify hints for the window manager that indicate what type of function the window has. Sometimes these type hints are not correctly set. By enabling this option Shutter will not insist on the requested type hint."
+msgid ""
+"The type hint constants specify hints for the window manager that indicate "
+"what type of function the window has. Sometimes these type hints are not "
+"correctly set. By enabling this option Shutter will not insist on the "
+"requested type hint."
 msgstr ""
 
 #: translate_tmp.pl:1230
@@ -414,18 +420,24 @@ msgid "Displays any transparent parts of the image in a check pattern"
 msgstr ""
 
 #: translate_tmp.pl:1288
-msgid "Displays any transparent parts of the image in a solid color that you specify"
+msgid ""
+"Displays any transparent parts of the image in a solid color that you specify"
 msgstr ""
 
 #: translate_tmp.pl:1289
-msgid "Displays any transparent parts of the image in the background color of the application"
+msgid ""
+"Displays any transparent parts of the image in the background color of the "
+"application"
 msgstr ""
 
 #: translate_tmp.pl:1322
 #: translate_tmp.pl:1328
 msgid ""
 "Configure global keybinding for capture\n"
-"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
+"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
+"fairly liberal and allows lower or upper case, and also abbreviations such "
+"as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
+"\"disabled\", then there will be no keybinding for this action. "
 msgstr ""
 
 #: translate_tmp.pl:1338
@@ -437,7 +449,10 @@ msgstr ""
 #: translate_tmp.pl:1365
 msgid ""
 "Configure global keybinding for capture with selection\n"
-"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
+"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
+"fairly liberal and allows lower or upper case, and also abbreviations such "
+"as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
+"\"disabled\", then there will be no keybinding for this action. "
 msgstr ""
 
 #: translate_tmp.pl:1353
@@ -516,16 +531,24 @@ msgstr ""
 #: translate_tmp.pl:1459
 #: translate_tmp.pl:1460
 #: translate_tmp.pl:1461
-msgid "Configure a short timeout to give the Xserver a chance to redraw areas that were obscured by Shutter's windows before taking a screenshot."
+msgid ""
+"Configure a short timeout to give the Xserver a chance to redraw areas that "
+"were obscured by Shutter's windows before taking a screenshot."
 msgstr ""
 
 #: translate_tmp.pl:1501
 #: translate_tmp.pl:1502
-msgid "You can either choose the system-wide desktop notifications (e.g. Ubuntu's Notify-OSD) or Shutter's built-in notification system"
+msgid ""
+"You can either choose the system-wide desktop notifications (e.g. Ubuntu's "
+"Notify-OSD) or Shutter's built-in notification system"
 msgstr ""
 
 #: translate_tmp.pl:1536
-msgid "Entering your Accounts for specific hosting-sites is optional. If entered it will give you the same benefits as the upload on the website. If you leave these fields empty you will be able to upload to the specific hosting-partner as a guest."
+msgid ""
+"Entering your Accounts for specific hosting-sites is optional. If entered it "
+"will give you the same benefits as the upload on the website. If you leave "
+"these fields empty you will be able to upload to the specific hosting-"
+"partner as a guest."
 msgstr ""
 
 #: translate_tmp.pl:1547
@@ -892,7 +915,9 @@ msgstr ""
 
 #: translate_tmp.pl:5508
 #, perl-format
-msgid "The filename %s could not be verified. Maybe it contains unsupported characters."
+msgid ""
+"The filename %s could not be verified. Maybe it contains unsupported "
+"characters."
 msgstr ""
 
 #: translate_tmp.pl:5750
@@ -999,10 +1024,12 @@ msgstr ""
 #: translate_tmp.pl:6960
 #, perl-format
 msgid ""
-"This option is only useful when you are running a multi-monitor system (%d monitor detected).\n"
+"This option is only useful when you are running a multi-monitor system (%d "
+"monitor detected).\n"
 "Enable it to capture only the current monitor."
 msgid_plural ""
-"This option is only useful when you are running a multi-monitor system (%d monitors detected).\n"
+"This option is only useful when you are running a multi-monitor system (%d "
+"monitors detected).\n"
 "Enable it to capture only the current monitor."
 msgstr[0] ""
 msgstr[1] ""
@@ -1057,7 +1084,8 @@ msgstr ""
 
 #: translate_tmp.pl:7204
 msgid ""
-"The advanced selection tool allows you to enlarge/shrink or move your selected area\n"
+"The advanced selection tool allows you to enlarge/shrink or move your "
+"selected area\n"
 "until you finally take the screenshot."
 msgstr ""
 
@@ -1145,7 +1173,9 @@ msgstr ""
 
 #: translate_tmp.pl:7804
 #, perl-format
-msgid "The file %s is no longer published. The external link is not available anymore."
+msgid ""
+"The file %s is no longer published. The external link is not available "
+"anymore."
 msgstr ""
 
 #: translate_tmp.pl:7806
@@ -1202,7 +1232,8 @@ msgstr ""
 #: translate_tmp.pl:9486
 #: translate_tmp.pl:1587
 #, perl-format
-msgid "The image already exists in %s. Replacing it will overwrite its contents."
+msgid ""
+"The image already exists in %s. Replacing it will overwrite its contents."
 msgstr ""
 
 #: translate_tmp.pl:8180
@@ -1297,10 +1328,12 @@ msgstr[1] ""
 
 #: translate_tmp.pl:9046
 msgid ""
-"<b>Please note:</b> The selected file will be published in a background process.\n"
+"<b>Please note:</b> The selected file will be published in a background "
+"process.\n"
 "You will be notified when the process has finished."
 msgid_plural ""
-"<b>Please note:</b> The selected files will be published in a background process.\n"
+"<b>Please note:</b> The selected files will be published in a background "
+"process.\n"
 "You will be notified when the process has finished."
 msgstr[0] ""
 msgstr[1] ""
@@ -1317,7 +1350,8 @@ msgid "Ubuntu One service cannot be found."
 msgstr ""
 
 #: translate_tmp.pl:9087
-msgid "Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature"
+msgid ""
+"Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature"
 msgstr ""
 
 #: translate_tmp.pl:9157
@@ -1615,7 +1649,9 @@ msgid "C_apture"
 msgstr ""
 
 #: translate_tmp.pl:115
-msgid "Draw a rectangular area using the mouse. To take a screenshot, press the Enter key. Press Esc to quit."
+msgid ""
+"Draw a rectangular area using the mouse. To take a screenshot, press the "
+"Enter key. Press Esc to quit."
 msgstr ""
 
 #: translate_tmp.pl:120
@@ -1626,7 +1662,8 @@ msgid ""
 msgstr ""
 
 #: translate_tmp.pl:76
-msgid "Maybe mouse pointer could not be grabbed or the selected area is invalid."
+msgid ""
+"Maybe mouse pointer could not be grabbed or the selected area is invalid."
 msgstr ""
 
 #: translate_tmp.pl:84
@@ -1794,8 +1831,10 @@ msgstr ""
 
 #: translate_tmp.pl:1299
 #, perl-format
-msgid "If you don't save the image, changes from the last minute will be lost"
-msgid_plural "If you don't save the image, changes from the last %d minutes will be lost"
+msgid ""
+"If you don't save the image, changes from the last minute will be lost"
+msgid_plural ""
+"If you don't save the image, changes from the last %d minutes will be lost"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -1804,7 +1843,9 @@ msgid "Do you want to save the changed background color?"
 msgstr ""
 
 #: translate_tmp.pl:1661
-msgid "The background is likely to be transparent if you decide to ignore the background color."
+msgid ""
+"The background is likely to be transparent if you decide to ignore the "
+"background color."
 msgstr ""
 
 #: translate_tmp.pl:1663
@@ -2237,7 +2278,9 @@ msgid "Take a screenshot of a specific window"
 msgstr ""
 
 #: translate_tmp.pl:123
-msgid "Captures only a section of the window. You will be able to select any child window by moving the mouse over it"
+msgid ""
+"Captures only a section of the window. You will be able to select any child "
+"window by moving the mouse over it"
 msgstr ""
 
 #: translate_tmp.pl:143
@@ -2257,7 +2300,9 @@ msgid "Edit"
 msgstr ""
 
 #: translate_tmp.pl:206
-msgid "Use the built-in editor to highlight important fragments of your screenshot or crop it to a desired size"
+msgid ""
+"Use the built-in editor to highlight important fragments of your screenshot "
+"or crop it to a desired size"
 msgstr ""
 
 #: translate_tmp.pl:213
@@ -2265,7 +2310,9 @@ msgid "Export"
 msgstr ""
 
 #: translate_tmp.pl:216
-msgid "Upload your images to an image hosting service, FTP site or export them to an arbitrary folder"
+msgid ""
+"Upload your images to an image hosting service, FTP site or export them to "
+"an arbitrary folder"
 msgstr ""
 
 #: translate_tmp.pl:33
@@ -2291,4 +2338,3 @@ msgstr ""
 #, perl-format
 msgid "Exit Code: %d."
 msgstr ""
-
