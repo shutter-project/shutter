@@ -86,7 +86,7 @@ use Digest::MD5  qw(md5_hex);
 #define constants
 #--------------------------------------
 use constant MAX_ERROR 			=> 5;
-use constant SHUTTER_REV      	=> 'Rev.868';
+use constant SHUTTER_REV      	=> 'Rev.869';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.86.3';
 
@@ -3557,7 +3557,6 @@ sub fct_control_signals {
 	#enable/disable controls
 	if($st->{_select} && $sm->{_menuitem_selection}){
 		#menu
-		$sm->{_menuitem_redoshot}->set_sensitive($sensitive);
 		$sm->{_menuitem_selection}->set_sensitive($sensitive);
 		$sm->{_menuitem_full}->set_sensitive($sensitive);
 		$sm->{_menuitem_window}->set_sensitive($sensitive);
@@ -3574,10 +3573,14 @@ sub fct_control_signals {
 		$st->{_section}->set_sensitive($sensitive);
 		$st->{_menu}->set_sensitive($sensitive);
 		$st->{_tooltip}->set_sensitive($sensitive);
+		$st->{_web}->set_sensitive($sensitive) if ($gnome_web_photo);
+				
+		#special case: redoshot (toolbar and menu)
 		if(&fct_get_last_capture){
 			$st->{_redoshot}->set_sensitive($sensitive);
+			$sm->{_menuitem_redoshot}->set_sensitive($sensitive);
 		}
-		$st->{_web}->set_sensitive($sensitive) if ($gnome_web_photo);
+
 	}
 	
 	return TRUE;
