@@ -86,7 +86,7 @@ use Digest::MD5  qw(md5_hex);
 #define constants
 #--------------------------------------
 use constant MAX_ERROR 			=> 5;
-use constant SHUTTER_REV      	=> 'Rev.866';
+use constant SHUTTER_REV      	=> 'Rev.867';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.86.3';
 
@@ -8122,7 +8122,7 @@ sub fct_init_u1_watcher {
             
                #show as notification
                my $notify 	= $sc->get_notification_object;
-               $notify->show( $d->get("Successfully published"), sprintf($d->get("The file %s was successfully published: %s1"), $session_screens{$key}->{'long'}, $meta{'public_url'} ) );
+               $notify->show( $d->get("Successfully published"), sprintf($d->get("The file %s was successfully published: %s"), $session_screens{$key}->{'long'}, $meta{'public_url'} ) );
             
                &fct_show_status_message( 1, $shf->utf8_decode(sprintf($d->get("%s published"), $meta{'path'})) );
             #publishing stopped
