@@ -26,7 +26,7 @@ use utf8;
 use strict;
 
 #DBus message system
-use Net::DBus::GLib qw/ dbus_string dbus_boolean /;
+use Net::DBus::GLib;
 
 #Glib
 use Glib qw/TRUE FALSE/;
