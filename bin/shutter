@@ -86,7 +86,7 @@ use Digest::MD5  qw(md5_hex);
 #define constants
 #--------------------------------------
 use constant MAX_ERROR 			=> 5;
-use constant SHUTTER_REV      	=> 'Rev.870';
+use constant SHUTTER_REV      	=> 'Rev.871';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.86.3';
 
@@ -8085,73 +8085,76 @@ sub fct_set_model_plugins {
 
 sub fct_init_u1_watcher {
 
-   return FALSE unless $ubuntuone;
-
-   my $u1 = Shutter::Upload::UbuntuOne->new($sc);
-   $u1->connect_to_bus;
+	return FALSE unless $ubuntuone;
+	
+	my $u1 = Shutter::Upload::UbuntuOne->new($sc);
+	$u1->connect_to_bus;
+	
+	#check api requirements
+	return FALSE unless $u1->check_api;
 				
-   if($u1->is_connected){
-      
-      my $sd_status = $u1->get_syncdaemon_status;
-      my $sd_public = $u1->get_syncdaemon_public;
-      my $sd_fs     = $u1->get_syncdaemon_fs;
+	if($u1->is_connected){
+	  
+	  my $sd_status = $u1->get_syncdaemon_status;
+	  my $sd_public = $u1->get_syncdaemon_public;
+	  my $sd_fs     = $u1->get_syncdaemon_fs;
 
-      $sd_status->connect_to_signal('UploadFinished', sub {
-         my $file = shift;
-         my %meta = %{$sd_fs->get_metadata($file)};
-         #~ print Dumper %meta;
-         #find corresponding key
-         if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
-            $sd_public->change_public_access($meta{'share_id'}, $meta{'node_id'}, TRUE);
-         }
-      });               
-      
-      $sd_public->connect_to_signal('PublicAccessChanged', sub {
-         my $meta_ref = shift;
-         my %meta = %{$meta_ref};
-         #~ print Dumper %meta;
-         #find corresponding key
-         if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
-                                          
-            #changed to public
-            if($meta{'is_public'}){
- 
+	  $sd_status->connect_to_signal('UploadFinished', sub {
+		 my $file = shift;
+		 my %meta = %{$sd_fs->get_metadata($file)};
+		 #~ print Dumper %meta;
+		 #find corresponding key
+		 if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
+			$sd_public->change_public_access($meta{'share_id'}, $meta{'node_id'}, TRUE);
+		 }
+	  });               
+	  
+	  $sd_public->connect_to_signal('PublicAccessChanged', sub {
+		 my $meta_ref = shift;
+		 my %meta = %{$meta_ref};
+		 #~ print Dumper %meta;
+		 #find corresponding key
+		 if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
+										  
+			#changed to public
+			if($meta{'is_public'}){
+
 			   $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'puburl'}     = $meta{'public_url'};
-               $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuentry'}  = $d->get("Copy Ubuntu One public URL");
+			   $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuentry'}  = $d->get("Copy Ubuntu One public URL");
 			   $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuimage'}  = "ubuntuone";
- 
-               #copy to clipboard
-               $clipboard->set_text($meta{'public_url'});
-            
-               #show as notification
-               my $notify 	= $sc->get_notification_object;
-               $notify->show( $d->get("Successfully published"), sprintf($d->get("The file %s was successfully published: %s"), $session_screens{$key}->{'long'}, $meta{'public_url'} ) );
-            
-               &fct_show_status_message( 1, $shf->utf8_decode(sprintf($d->get("%s published"), $meta{'path'})) );
-            #publishing stopped
-            }else{							
+
+			   #copy to clipboard
+			   $clipboard->set_text($meta{'public_url'});
+			
+			   #show as notification
+			   my $notify 	= $sc->get_notification_object;
+			   $notify->show( $d->get("Successfully published"), sprintf($d->get("The file %s was successfully published: %s"), $session_screens{$key}->{'long'}, $meta{'public_url'} ) );
+			
+			   &fct_show_status_message( 1, $shf->utf8_decode(sprintf($d->get("%s published"), $meta{'path'})) );
+			#publishing stopped
+			}else{							
 
 			   $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'puburl'}     = undef;
-               $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuentry'}  = undef;
+			   $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuentry'}  = undef;
 			   $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuimage'}  = undef;
 
-               #show as notification
-               my $notify 	= $sc->get_notification_object;
-               $notify->show( $d->get("Unpublished"), sprintf($d->get("The file %s is no longer published. The external link is not available anymore."), $meta{'path'} ) );
-            
-               &fct_show_status_message( 1, $shf->utf8_decode(sprintf($d->get("The file %s is no longer published."), $meta{'path'})) );									
-            }
+			   #show as notification
+			   my $notify 	= $sc->get_notification_object;
+			   $notify->show( $d->get("Unpublished"), sprintf($d->get("The file %s is no longer published. The external link is not available anymore."), $meta{'path'} ) );
+			
+			   &fct_show_status_message( 1, $shf->utf8_decode(sprintf($d->get("The file %s is no longer published."), $meta{'path'})) );									
+			}
 
 			#update actions
 			#new public links
 			&fct_update_actions(1, $key);
-                        
-         }
-      });
-   
-   }
-   
-   return $u1;
+						
+		 }
+	  });
+
+	}
+
+	return $u1;
 }
 
 sub fct_init_depend {
@@ -8178,8 +8181,8 @@ sub fct_init_depend {
 		warn "WARNING: Goo::Canvas/libgoocanvas is missing --> drawing tool will be disabled!\n\n";
 		$goocanvas = FALSE;
 	}
-
-   eval { require Net::DBus::GLib };
+	
+	eval { require Net::DBus::GLib };
 	if ($@) {
 		warn "WARNING: Net::DBus::GLib is missing --> Ubuntu One support will be disabled!\n\n";
 		$ubuntuone = FALSE;
@@ -9357,72 +9360,75 @@ sub dlg_upload {
          
          #ubuntuone enabled (libs installed)?
          if($ubuntuone){
-            
+                        
             #connect
             $u1 = Shutter::Upload::UbuntuOne->new($sc);
             my $con_result = $u1->connect_to_bus;
             
-            #set initial status
-            $u1_status->set_text($d->get("Disconnected"));
+            #check api version
+            if($u1->check_api){
             
-            if($u1->is_connected){
-			   
-			   #reset tooltip
-			   $tooltips->set_tip( $u1_hbox_hint, "" );
-         
-               #current status
-               my ($is_connected, $is_online, $text) = $u1->get_current_status;
-               $u1_status->set_text($text);
-               
-               #is current folder synced?
-               $u1_fc->signal_connect('current-folder-changed', sub {
-                  #current status
-                  my ($is_connected, $is_online, $text) = $u1->get_current_status;				   
-                  if($is_connected && $is_online){
-					  #is current folder synced?
-					  if($u1->is_synced_folder($u1_fc->get_current_folder)){
-						 $u1_hint->set_markup("<span size='small'>" . 
-										sprintf($d->nget("Folder %s is synchronized with Ubuntu One.\nThe selected file will be copied to that folder before being published.", "Folder %s is synchronized with Ubuntu One.\nThe selected files will be copied to that folder before being published.", scalar @files_to_upload) , "'".$u1_fc->get_current_folder."'") 
-										. "</span>");								
-						 $u1_hint2->set_markup("<span size='small'>" . 
-										$d->nget("<b>Please note:</b> The selected file will be published in a background process.\nYou will be notified when the process has finished.", "<b>Please note:</b> The selected files will be published in a background process.\nYou will be notified when the process has finished.", scalar @files_to_upload)
-										. "</span>");	
-						 $upload_button->set_sensitive(TRUE);													
+				#set initial status
+				$u1_status->set_text($d->get("Disconnected"));
+				
+				if($u1->is_connected){
+				   
+				   #reset tooltip
+				   $tooltips->set_tip( $u1_hbox_hint, "" );
+				   
+				   #save coderef to scalar - for easier reuse
+				   my $u1_code = sub {
+					  #current status
+					  my ($is_connected, $is_online, $text) = $u1->get_current_status;
+					  $u1_status->set_text($text);
+									   
+					  if($is_connected && $is_online){
+						  #is current folder synced?
+						  if($u1->is_synced_folder($u1_fc->get_current_folder)){
+							 $u1_hint->set_markup("<span size='small'>" . 
+											sprintf($d->nget("Folder %s is synchronized with Ubuntu One.\nThe selected file will be copied to that folder before being published.", "Folder %s is synchronized with Ubuntu One.\nThe selected files will be copied to that folder before being published.", scalar @files_to_upload) , "'".$u1_fc->get_current_folder."'") 
+											. "</span>");								
+							 $u1_hint2->set_markup("<span size='small'>" . 
+											$d->nget("<b>Please note:</b> The selected file will be published in a background process.\nYou will be notified when the process has finished.", "<b>Please note:</b> The selected files will be published in a background process.\nYou will be notified when the process has finished.", scalar @files_to_upload)
+											. "</span>");	
+							 $upload_button->set_sensitive(TRUE);													
+						  }else{
+							 $u1_hint->set_markup("<span size='small' color='red'>" . 
+											sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_current_folder."'") 
+											. "</span>");
+							 $u1_hint2->set_markup("");				
+							 $upload_button->set_sensitive(FALSE);
+						  }
 					  }else{
-						 $u1_hint->set_markup("<span size='small' color='red'>" . 
-										sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_current_folder."'") 
-										. "</span>");
-						 $u1_hint2->set_markup("");				
-						 $upload_button->set_sensitive(FALSE);
-					  }
-                  }else{
-                    $u1_hint->set_markup("");								
-                    $u1_hint2->set_markup("");						  
-					$upload_button->set_sensitive(FALSE);					  
-				  }						
-               });
-            
-               #emit first event manually
-               $u1_fc->signal_emit('current-folder-changed');
-         
-               my $sd_status = $u1->get_syncdaemon_status;
-               
-               $sd_status->connect_to_signal('StatusChanged', sub {
-                  my $status_ref = shift;
-                  #~ print Dumper $status_ref;
-                  ($is_connected, $is_online, $text) = $u1->get_current_status($status_ref);
-                  #set text
-                  $u1_status->set_text($text);
-				  #emit manually
-				  $u1_fc->signal_emit('current-folder-changed');  
-               });
-            
-            #not connected   
-            }else{
-               $u1_hint->set_markup("<span size='small' color='red'>" . $d->get("Ubuntu One service cannot be found.") . "</span>");
-               $tooltips->set_tip( $u1_hbox_hint, $con_result );
-               $upload_button->set_sensitive(FALSE);
-            }
+						$u1_hint->set_markup("");								
+						$u1_hint2->set_markup("");						  
+						$upload_button->set_sensitive(FALSE);					  
+					  }						
+				   };
+				   
+				   #change text and status when folder is changes
+				   $u1_fc->signal_connect('current-folder-changed', $u1_code);
+				
+				   #init texts and status - emit first event manually
+				   $u1_fc->signal_emit('current-folder-changed');
+			 
+				   #change text when status has changes
+				   my $sd_status = $u1->get_syncdaemon_status;
+				   $sd_status->connect_to_signal('StatusChanged', $u1_code);
+				
+				#not connected   
+				}else{
+				   $u1_hint->set_markup("<span size='small' color='red'>" . $d->get("Ubuntu One service cannot be found.") . "</span>");
+				   $tooltips->set_tip( $u1_hbox_hint, $con_result );
+				   $upload_button->set_sensitive(FALSE);
+				}
+			
+			#wrong api version
+			}else{
+				$u1_hint->set_markup("<span size='small' color='red'>" . $d->get("/publicfiles is not available. Your Ubuntu One installation seems to be out of date.") . "</span>");
+				$upload_button->set_sensitive(FALSE);
+				$u1_fc->set_sensitive(FALSE);				
+			}
          
          #ubuntuone enabled?
          }else{
@@ -9433,7 +9439,7 @@ sub dlg_upload {
          
       }  
 		
-	} );
+	});
 
 	$hosting_dialog->vbox->add($unotebook);
 

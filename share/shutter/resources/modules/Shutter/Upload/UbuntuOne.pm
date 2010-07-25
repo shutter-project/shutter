@@ -64,6 +64,18 @@ sub connect_to_bus {
 	return ($self->{_service});
 }
 
+sub check_api {
+	my $self = shift;
+	return FALSE unless $self->is_connected;
+	my $api = $self->{_service}->get_object("/", "org.freedesktop.DBus.Introspectable");
+	my $node = $api->Introspect();
+	if($node =~ /name=\"publicfiles\"/){
+		return TRUE;
+	}
+	print "Warning: Node 'publicfiles' not found. Your Ubuntu One installation seems to be out of date.", "\n";	
+	return FALSE;
+}
+
 sub get_syncdaemon {
 	my $self = shift;
 	return FALSE unless $self->is_connected;
