@@ -86,7 +86,7 @@ use Digest::MD5  qw(md5_hex);
 #define constants
 #--------------------------------------
 use constant MAX_ERROR 			=> 5;
-use constant SHUTTER_REV      	=> 'Rev.872';
+use constant SHUTTER_REV      	=> 'Rev.873';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.86.3';
 
@@ -180,7 +180,6 @@ require Shutter::Screenshot::Error;
 
 #upload classes
 require Shutter::Upload::ImageBanana;
-require Shutter::Upload::UbuntuPics;
 require Shutter::Upload::ImageShack;
 require Shutter::Upload::FTP;
 if($ubuntuone){
@@ -4456,19 +4455,6 @@ sub fct_load_accounts {
 	}
 
 	#account data, load defaults if nothing is set
-	unless ( exists( $accounts_xml->{'ubuntu-pics.de'} ) ) {
-		$accounts{'ubuntu-pics.de'}->{host}     = "ubuntu-pics.de";
-		$accounts{'ubuntu-pics.de'}->{username} = "";
-		$accounts{'ubuntu-pics.de'}->{password} = "";
-	} else {
-		$accounts{'ubuntu-pics.de'}->{host}     = $accounts_xml->{'ubuntu-pics.de'}->{host};
-		$accounts{'ubuntu-pics.de'}->{username} = $accounts_xml->{'ubuntu-pics.de'}->{username};
-		$accounts{'ubuntu-pics.de'}->{password} = $accounts_xml->{'ubuntu-pics.de'}->{password};
-	}
-
-	$accounts{'ubuntu-pics.de'}->{register} = "http://www.ubuntu-pics.de/registrieren.html";
-
-	#account data, load defaults if nothing is set
 	unless ( exists( $accounts_xml->{'imageshack.us'} ) ) {
 		$accounts{'imageshack.us'}->{host}     = "imageshack.us";
 		$accounts{'imageshack.us'}->{username} = "";
@@ -4498,7 +4484,6 @@ sub fct_load_accounts {
 		utf8::decode $accounts{$_}->{'username'};
 		utf8::decode $accounts{$_}->{'password'};
 		$accounts{$_}->{'register_color'} = "blue";
-		#~ $accounts{$_}->{'register_text'}  = $d->get("click me");
 		$accounts{$_}->{'register_text'}  = $accounts{$_}->{register};
 	}
 
@@ -9134,37 +9119,10 @@ sub dlg_upload {
 	my $renderer_host = Gtk2::CellRendererText->new;
 	$hosting->pack_start( $renderer_host, FALSE );
 	$hosting->add_attribute( $renderer_host, text => 0 );
+	
 	my $renderer_username = Gtk2::CellRendererText->new;
 	$hosting->pack_start( $renderer_username, FALSE );
 	$hosting->add_attribute( $renderer_username, text => 3 );
-	#~ $hosting->signal_connect(
-		#~ 'changed' => sub {
-#~ 
-			#~ my $model        = $hosting->get_model();
-			#~ my $hosting_iter = $hosting->get_active_iter();
-#~ 
-			#~ if ($hosting_iter) {
-				#~ my $hosting_host     = $model->get_value( $hosting_iter, 0 );
-				#~ my $hosting_username = $model->get_value( $hosting_iter, 1 );
-				#~ if ( $hosting_host =~ /imageshack/i ) {
-					#~ $hosting_image->set_from_pixbuf(
-						#~ Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$shutter_root/share/shutter/resources/icons/logo-imageshack.png", 200, 200, TRUE )
-					#~ );
-				#~ } elsif ( $hosting_host =~ /imagebanana/i ) {
-					#~ $hosting_image->set_from_pixbuf(
-						#~ Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$shutter_root/share/shutter/resources/icons/logo-imagebanana.png", 200, 200, TRUE )
-					#~ );
-				#~ } elsif ( $hosting_host =~ /ubuntu-pics/i ) {
-					#~ $hosting_image->set_from_pixbuf(
-						#~ Gtk2::Gdk::Pixbuf->new_from_file_at_scale( "$shutter_root/share/shutter/resources/icons/logo-ubuntu-pics.png", 200, 200, TRUE )
-					#~ );
-				#~ }
-#~ 
-			#~ }
-		#~ },
-		#~ 'changed'
-	#~ );
-
 	$hosting->set_active(0);
 
 	#public hosting settings
@@ -9484,42 +9442,8 @@ sub dlg_upload {
 				my $hosting_host     = $model->get_value( $hosting_iter, 0 );
 				my $hosting_username = $model->get_value( $hosting_iter, 1 );
 				my $hosting_password = $model->get_value( $hosting_iter, 2 );
-				if ( $hosting_host eq "ubuntu-pics.de" ) {
-					my $uploader
-						= Shutter::Upload::UbuntuPics->new( $hosting_host, $sc->get_debug, $shutter_root, $d, $window, SHUTTER_VERSION );
-					my $counter = 1;
-					$hosting_progress->set_fraction(0);
-					foreach my $key( sort @files_to_upload ) {
-						
-						my $file = $session_screens{$key}->{'long'};
-						
-						$hosting_progress->set_text($file);
-						
-						#update gui
-						&fct_update_gui;
-						
-						my %upload_response = $uploader->upload( $shf->switch_home_in_file($file), $hosting_username, $hosting_password );
-
-						if ( is_success( $upload_response{'status'} ) ) {
-							$uploader->show;
-							&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
-						} else {
-							my $response = &dlg_upload_error_message( $upload_response{'status'}, $upload_response{'max_filesize'} );
-
-							#10 == skip all, 20 == skip, else == cancel
-							last if $response == 10;
-							next if $response == 20;
-							redo if $response == 30;
-							next;
-						}
-						$hosting_progress->set_fraction( $counter / @files_to_upload );
-
-						#update gui
-						&fct_update_gui;
-						$counter++;
-					}
-					$uploader->show_all;
-				} elsif ( $hosting_host eq "imagebanana.com" ) {
+				
+				if ( $hosting_host eq "imagebanana.com" ) {
 					my $uploader
 						= Shutter::Upload::ImageBanana->new( $hosting_host, $sc->get_debug, $shutter_root, $d, $window, SHUTTER_VERSION );
 					my $counter = 1;
