@@ -307,7 +307,7 @@ sub create_tab {
 	$upload_hbox2->pack_start( $upload_copy1, FALSE, TRUE, 10 );
 
 	$upload_hbox3->pack_start_defaults(
-		Gtk2::Label->new( $self->{_gettext_object}->get("Thumbnail for boards") ) );
+		Gtk2::Label->new( $self->{_gettext_object}->get("Thumbnail for forums") ) );
 	$upload_hbox3->pack_start_defaults($entry_thumb2);
 	$upload_hbox4->pack_start_defaults($upload_hbox3);
 	$upload_hbox4->pack_start( $upload_copy2, FALSE, TRUE, 10 );
@@ -325,7 +325,7 @@ sub create_tab {
 	$upload_hbox8->pack_start( $upload_copy4, FALSE, TRUE, 10 );
 
 	$upload_hbox9->pack_start_defaults(
-		Gtk2::Label->new( $self->{_gettext_object}->get("Hotlink for boards") ) );
+		Gtk2::Label->new( $self->{_gettext_object}->get("Hotlink for forums") ) );
 	$upload_hbox9->pack_start_defaults($entry_hotboard1);
 	$upload_hbox10->pack_start_defaults($upload_hbox9);
 	$upload_hbox10->pack_start( $upload_copy5, FALSE, TRUE, 10 );
