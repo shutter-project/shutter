@@ -86,7 +86,7 @@ use Digest::MD5  qw(md5_hex);
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.879';
+use constant SHUTTER_REV		=> 'Rev.880';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.86.3';
 
@@ -9275,8 +9275,6 @@ sub dlg_upload {
 
 	#setup notebook
 	my $unotebook = Gtk2::Notebook->new;
-	#~ $unotebook->set( homogeneous  => TRUE );
-	
 	$unotebook->append_page($pub_vbox1, $d->get("Public hosting"));
 	$unotebook->append_page($ftp_vbox_dlg, "FTP");
 	$unotebook->append_page($pl_vbox1, $d->get("Places"));
@@ -9285,7 +9283,7 @@ sub dlg_upload {
 	$unotebook->signal_connect( 'switch-page' => sub {
 		my ( $unotebook, $pointer, $int ) = @_;
 
-      #change label text
+		#change label text
 		my $hbox = $upload_button->get_child->get_child;
 		foreach($hbox->get_children){		
 			if(($int == 0 || $int == 1) && $_ =~ /Gtk2::Label/){
@@ -9297,122 +9295,122 @@ sub dlg_upload {
 			}elsif($int == 3 && $_ =~ /Gtk2::Label/){      
 				$_->set_text_with_mnemonic($d->get("_Publish"));
 				last;
-         }
-      }
-
-      if($int == 0 || $int == 1 || $int == 2){
-         
-         $upload_button->set_sensitive(TRUE);
-      
-      }elsif($int == 3){
-         
-         #ubuntuone enabled (libs installed)?
-         if($ubuntuone){
-                        
-            #connect
-            $u1 = Shutter::Upload::UbuntuOne->new($sc);
-            my $con_result = $u1->connect_to_bus;
-            
-            #check api version
-            if($u1->check_api){
-            
-				#set initial status
-				$u1_status->set_text($d->get("Disconnected"));
-				
-				if($u1->is_connected){
-				   
-				   #reset tooltip
-				   $tooltips->set_tip( $u1_hbox_hint, "" );
-
-				   #update when status has changed
-				   my $sd_status = $u1->get_syncdaemon_status;
-				   $sd_status->connect_to_signal('StatusChanged', sub {
-						my $status_ref = shift;
-						
-						#current status
-						my ($is_connected, $is_online, $text) = $u1->get_current_status($status_ref);
-						$u1_status->set_text($text);
-									   
-						if($is_connected && $is_online){
-						  #is current folder synced?
-						  if($u1->is_synced_folder($u1_fc->get_current_folder)){
-							 $u1_hint->set_markup("<span size='small'>" . 
-											sprintf($d->nget("Folder %s is synchronized with Ubuntu One.\nThe selected file will be copied to that folder before being published.", "Folder %s is synchronized with Ubuntu One.\nThe selected files will be copied to that folder before being published.", scalar @files_to_upload) , "'".$u1_fc->get_current_folder."'") 
-											. "</span>");								
-							 $u1_hint2->set_markup("<span size='small'>" . 
-											$d->nget("<b>Please note:</b> The selected file will be published in a background process.\nYou will be notified when the process has finished.", "<b>Please note:</b> The selected files will be published in a background process.\nYou will be notified when the process has finished.", scalar @files_to_upload)
-											. "</span>");	
-							 $upload_button->set_sensitive(TRUE);													
-						  }else{
-							 $u1_hint->set_markup("<span size='small' color='red'>" . 
-											sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_current_folder."'") 
-											. "</span>");
-							 $u1_hint2->set_markup("");				
-							 $upload_button->set_sensitive(FALSE);
-						  }
-						}else{
-							$u1_hint->set_markup("");								
-							$u1_hint2->set_markup("");						  
-							$upload_button->set_sensitive(FALSE);					  
-						}		
-				   });
-				   		   
-				   #change text and status when folder is changes
-				   $u1_fc->signal_connect('current-folder-changed', sub {
-   
-					  #current status
-					  my ($is_connected, $is_online, $text) = $u1->get_current_status;
-					  $u1_status->set_text($text);
-									   
-					  if($is_connected && $is_online){
-						  #is current folder synced?
-						  if($u1->is_synced_folder($u1_fc->get_current_folder)){
-							 $u1_hint->set_markup("<span size='small'>" . 
-											sprintf($d->nget("Folder %s is synchronized with Ubuntu One.\nThe selected file will be copied to that folder before being published.", "Folder %s is synchronized with Ubuntu One.\nThe selected files will be copied to that folder before being published.", scalar @files_to_upload) , "'".$u1_fc->get_current_folder."'") 
-											. "</span>");								
-							 $u1_hint2->set_markup("<span size='small'>" . 
-											$d->nget("<b>Please note:</b> The selected file will be published in a background process.\nYou will be notified when the process has finished.", "<b>Please note:</b> The selected files will be published in a background process.\nYou will be notified when the process has finished.", scalar @files_to_upload)
-											. "</span>");	
-							 $upload_button->set_sensitive(TRUE);													
-						  }else{
-							 $u1_hint->set_markup("<span size='small' color='red'>" . 
-											sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_current_folder."'") 
-											. "</span>");
-							 $u1_hint2->set_markup("");				
-							 $upload_button->set_sensitive(FALSE);
-						  }
-					  }else{
-						$u1_hint->set_markup("");								
-						$u1_hint2->set_markup("");						  
-						$upload_button->set_sensitive(FALSE);					  
-					  }						
-				   });
-				
-				   #init texts and status - emit first event manually
-				   $u1_fc->signal_emit('current-folder-changed');
-				
-				#not connected   
-				}else{
-				   $u1_hint->set_markup("<span size='small' color='red'>" . $d->get("Ubuntu One service cannot be found.") . "</span>");
-				   $tooltips->set_tip( $u1_hbox_hint, $con_result );
-				   $upload_button->set_sensitive(FALSE);
-				}
-			
-			#wrong api version
-			}else{
-				$u1_hint->set_markup("<span size='small' color='red'>" . $d->get("/publicfiles is not available. Your Ubuntu One installation seems to be out of date.") . "</span>");
-				$upload_button->set_sensitive(FALSE);
-				$u1_fc->set_sensitive(FALSE);				
 			}
-         
-         #ubuntuone enabled?
-         }else{
-            $u1_status->set_text($d->get("Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature"));
-            $upload_button->set_sensitive(FALSE);
-            $u1_fc->set_sensitive(FALSE);
-         }
-         
-      }  
+		}
+
+		if($int == 0 || $int == 1 || $int == 2){
+
+			$upload_button->set_sensitive(TRUE);
+
+		}elsif($int == 3){
+				 
+			#ubuntuone enabled (libs installed)?
+			if($ubuntuone){
+
+				#connect
+				$u1 = Shutter::Upload::UbuntuOne->new($sc);
+				my $con_result = $u1->connect_to_bus;
+
+				#check api version
+				if($u1->check_api){
+
+					#set initial status
+					$u1_status->set_text($d->get("Disconnected"));
+
+					if($u1->is_connected){
+
+						#reset tooltip
+						$tooltips->set_tip( $u1_hbox_hint, "" );
+
+						#update when status has changed
+						my $sd_status = $u1->get_syncdaemon_status;
+						$sd_status->connect_to_signal('StatusChanged', sub {
+							my $status_ref = shift;
+
+							#current status
+							my ($is_connected, $is_online, $text) = $u1->get_current_status($status_ref);
+							$u1_status->set_text($text);
+
+							if($is_connected && $is_online){
+								#is current folder synced?
+								if(defined $u1_fc->get_current_folder && $u1->is_synced_folder($u1_fc->get_current_folder)){
+									$u1_hint->set_markup("<span size='small'>" . 
+										sprintf($d->nget("Folder %s is synchronized with Ubuntu One.\nThe selected file will be copied to that folder before being published.", "Folder %s is synchronized with Ubuntu One.\nThe selected files will be copied to that folder before being published.", scalar @files_to_upload) , "'".$u1_fc->get_current_folder."'") 
+										. "</span>");								
+										$u1_hint2->set_markup("<span size='small'>" . 
+										$d->nget("<b>Please note:</b> The selected file will be published in a background process.\nYou will be notified when the process has finished.", "<b>Please note:</b> The selected files will be published in a background process.\nYou will be notified when the process has finished.", scalar @files_to_upload)
+										. "</span>");	
+										$upload_button->set_sensitive(TRUE);													
+								}else{
+										$u1_hint->set_markup("<span size='small' color='red'>" . 
+										sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_current_folder."'") 
+										. "</span>");
+										$u1_hint2->set_markup("");				
+										$upload_button->set_sensitive(FALSE);
+								}
+							}else{
+								$u1_hint->set_markup("");								
+								$u1_hint2->set_markup("");						  
+								$upload_button->set_sensitive(FALSE);					  
+							}
+						});
+
+						#change text and status when folder is changes
+						#FIXME this is ugly here, because we have nearly the same code here as above
+						$u1_fc->signal_connect('current-folder-changed', sub {
+
+							#current status
+							my ($is_connected, $is_online, $text) = $u1->get_current_status;
+							$u1_status->set_text($text);
+
+							if($is_connected && $is_online){
+								#is current folder synced?
+								if($u1->is_synced_folder($u1_fc->get_current_folder)){
+									$u1_hint->set_markup("<span size='small'>" . 
+									sprintf($d->nget("Folder %s is synchronized with Ubuntu One.\nThe selected file will be copied to that folder before being published.", "Folder %s is synchronized with Ubuntu One.\nThe selected files will be copied to that folder before being published.", scalar @files_to_upload) , "'".$u1_fc->get_current_folder."'") 
+									. "</span>");								
+									$u1_hint2->set_markup("<span size='small'>" . 
+									$d->nget("<b>Please note:</b> The selected file will be published in a background process.\nYou will be notified when the process has finished.", "<b>Please note:</b> The selected files will be published in a background process.\nYou will be notified when the process has finished.", scalar @files_to_upload)
+									. "</span>");	
+									$upload_button->set_sensitive(TRUE);													
+								}else{
+										$u1_hint->set_markup("<span size='small' color='red'>" . 
+										sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_current_folder."'") 
+										. "</span>");
+										$u1_hint2->set_markup("");				
+										$upload_button->set_sensitive(FALSE);
+								}
+							}else{
+									$u1_hint->set_markup("");								
+									$u1_hint2->set_markup("");						  
+									$upload_button->set_sensitive(FALSE);					  
+							}
+						});
+
+						#init texts and status - emit first event manually
+						$u1_fc->signal_emit('current-folder-changed');
+
+					#not connected   
+					}else{
+						$u1_hint->set_markup("<span size='small' color='red'>" . $d->get("Ubuntu One service cannot be found.") . "</span>");
+						$tooltips->set_tip( $u1_hbox_hint, $con_result );
+						$upload_button->set_sensitive(FALSE);
+					}
+
+				#wrong api version
+				}else{
+					$u1_hint->set_markup("<span size='small' color='red'>" . $d->get("/publicfiles is not available. Your Ubuntu One installation seems to be out of date.") . "</span>");
+					$upload_button->set_sensitive(FALSE);
+					$u1_fc->set_sensitive(FALSE);				
+				}
+
+			#ubuntuone enabled?
+			}else{
+				$u1_status->set_text($d->get("Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature"));
+				$upload_button->set_sensitive(FALSE);
+				$u1_fc->set_sensitive(FALSE);
+			}
+		}  
 		
 	});
 
@@ -9432,14 +9430,14 @@ sub dlg_upload {
 	}
 	#and the relevant detail (folder, uploader etc.)
 	if(defined $sc->get_ruu_hosting && $sc->get_ruu_hosting){		
-      $hosting->set_active($sc->get_ruu_hosting);
-   }
-   if(defined $sc->get_ruu_places && $shf->folder_exists($sc->get_ruu_places)){
-      $places_fc->set_current_folder($sc->get_ruu_places);
-   }	
-   if(defined $sc->get_ruu_u1 && $shf->folder_exists($sc->get_ruu_u1)){
-      $u1_fc->set_current_folder($sc->get_ruu_u1);
-   }
+		$hosting->set_active($sc->get_ruu_hosting);
+	}
+	if(defined $sc->get_ruu_places && $shf->folder_exists($sc->get_ruu_places)){
+		$places_fc->set_current_folder($sc->get_ruu_places);
+	}	
+	if(defined $sc->get_ruu_u1 && $shf->folder_exists($sc->get_ruu_u1)){
+		$u1_fc->set_current_folder($sc->get_ruu_u1);
+	}
 
 	#DIALOG RUN
 	while (my $hosting_response = $hosting_dialog->run) {
