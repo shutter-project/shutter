@@ -38,7 +38,7 @@ sub new {
 	my $self = {
 		_host            => shift,
 		_debug_cparam    => shift,
-		_shutter_root     => shift,
+		_shutter_root    => shift,
 		_gettext_object  => shift,
 		_main_gtk_window => shift,
 		_ua              => shift
@@ -85,7 +85,7 @@ sub upload {
 	if ( $username ne "" && $password ne "" ) {
 		
 		eval{
-			$self->{_mech}->get("http://www.imagebanana.com/myib/login/");
+			$self->{_mech}->get("http://www.imagebanana.com/member/");
 		};
 		if($@){
 			$self->{_links}{'status'} = $@;
@@ -99,16 +99,16 @@ sub upload {
 
 		#already logged in?
 		unless ( $self->{_mech}->find_link( text_regex => qr/logout/i ) ) {
-			$self->{_mech}->field( nick     => $username );
-			$self->{_mech}->field( password => $password );
-			$self->{_mech}->click("login");
+			$self->{_mech}->field( member_nick     => $username );
+			$self->{_mech}->field( member_password => $password );
+			$self->{_mech}->click_button( value => 'Anmelden' );
 
 			$self->{_http_status} = $self->{_mech}->status();
 			unless ( is_success( $self->{_http_status} ) ) {
 				$self->{_links}{'status'} = $self->{_http_status};
 				return %{ $self->{_links} };
 			}
-			if ( $self->{_mech}->content =~ /Login nicht erfolgreich/ ) {
+			if ( $self->{_mech}->content =~ /Login fehlgeschlagen/ ) {
 				$self->{_links}{'status'} = 999;
 				return %{ $self->{_links} };
 			}
@@ -124,53 +124,61 @@ sub upload {
 		$self->{_links}{'status'} = $@;
 		return %{ $self->{_links} };			
 	}
+	
 	$self->{_http_status} = $self->{_mech}->status();
 	unless ( is_success( $self->{_http_status} ) ) {
 		$self->{_links}{'status'} = $self->{_http_status};
 		return %{ $self->{_links} };
 	}
+	
 	$self->{_mech}->form_number(1);
-	$self->{_mech}->field( img => $upload_filename );
-	$self->{_mech}->click("send");
+	$self->{_mech}->field( 'upload[]' => $upload_filename );
+	$self->{_mech}->click_button( value => 'Hochladen!' );
 
 	$self->{_http_status} = $self->{_mech}->status();
 	if ( is_success( $self->{_http_status} ) ) {
+		
 		my $html_file = $self->{_mech}->content;
+		#~ print $html_file, "\n";
 
 		#error??
 		if ( $html_file =~ /Upload Error/ ) {
 			$self->{_links}{'status'} = 'unknown';
 			return %{ $self->{_links} };
 		}
+		
+		#new extended view
+		$self->{_mech}->follow_link( url_regex => qr/\?extended/i );
 
+		$self->{_http_status} = $self->{_mech}->status();
+		unless ( is_success( $self->{_http_status} ) ) {
+			$self->{_links}{'status'} = $self->{_http_status};
+			return %{ $self->{_links} };		
+		}
+		
+		my $html_file = $self->{_mech}->content;
+		#~ print $html_file, "\n";
+		
 		$html_file = $self->switch_html_entities($html_file);
 
 		my @link_array;
-		while ( $html_file =~ /value="(.*)" class/g ) {
+		while ( $html_file =~ /type="text" value="(.*)"/g ) {
 			push( @link_array, $1 );
 		}
 
-		$self->{_links}{'thumb1'}    = $link_array[0];
-		$self->{_links}{'thumb2'}    = $link_array[1];
-		$self->{_links}{'thumb3'}    = $link_array[2];
-		$self->{_links}{'friends'}   = $link_array[3];
-		$self->{_links}{'popup'}     = $link_array[4];
-		$self->{_links}{'hotweb'}    = $link_array[5];
-		$self->{_links}{'hotboard1'} = $link_array[6];
-		$self->{_links}{'hotboard2'} = $link_array[7];
-		$self->{_links}{'direct'}    = $link_array[8];
+		$self->{_links}{'thumb1'}    = $link_array[1];
+		$self->{_links}{'thumb2'}    = $link_array[2];
+		$self->{_links}{'hotweb'}    = $link_array[3];
+		$self->{_links}{'hotboard1'} = $link_array[4];
+		$self->{_links}{'direct'}    = $link_array[5];
 
 		if ( $self->{_debug_cparam} ) {
 			print "The following links were returned by http://www.imagebanana.com:\n";
 			print $self->{_links}{'thumb1'} . "\n";
 			print $self->{_links}{'thumb2'} . "\n";
-			print $self->{_links}{'thumb3'} . "\n";
-			print $self->{_links}{'friends'} . "\n";
-			print $self->{_links}{'popup'} . "\n";
-			print $self->{_links}{'direct'} . "\n";
 			print $self->{_links}{'hotweb'} . "\n";
 			print $self->{_links}{'hotboard1'} . "\n";
-			print $self->{_links}{'hotboard2'} . "\n";
+			print $self->{_links}{'direct'} . "\n";
 		}
 
 		$self->{_links}{'status'} = $self->{_http_status};
@@ -202,14 +210,6 @@ sub create_tab {
 	my $upload_hbox8  = Gtk2::HBox->new( FALSE, 10 );
 	my $upload_hbox9  = Gtk2::HBox->new( TRUE,  10 );
 	my $upload_hbox10 = Gtk2::HBox->new( FALSE, 10 );
-	my $upload_hbox11 = Gtk2::HBox->new( TRUE,  10 );
-	my $upload_hbox12 = Gtk2::HBox->new( FALSE, 10 );
-	my $upload_hbox13 = Gtk2::HBox->new( TRUE,  10 );
-	my $upload_hbox14 = Gtk2::HBox->new( FALSE, 10 );
-	my $upload_hbox15 = Gtk2::HBox->new( TRUE,  10 );
-	my $upload_hbox16 = Gtk2::HBox->new( FALSE, 10 );
-	my $upload_hbox17 = Gtk2::HBox->new( TRUE,  10 );
-	my $upload_hbox18 = Gtk2::HBox->new( FALSE, 10 );
 
 	my $upload_vbox = Gtk2::VBox->new( FALSE, 0 );
 
@@ -229,22 +229,14 @@ sub create_tab {
 
 	my $entry_thumb1    = Gtk2::Entry->new;
 	my $entry_thumb2    = Gtk2::Entry->new;
-	my $entry_thumb3    = Gtk2::Entry->new;
-	my $entry_friends   = Gtk2::Entry->new;
-	my $entry_popup     = Gtk2::Entry->new;
 	my $entry_direct    = Gtk2::Entry->new;
 	my $entry_hotweb    = Gtk2::Entry->new;
 	my $entry_hotboard1 = Gtk2::Entry->new;
-	my $entry_hotboard2 = Gtk2::Entry->new;
 	$entry_thumb1->set_text( $self->{_links}{'thumb1'} );
 	$entry_thumb2->set_text( $self->{_links}{'thumb2'} );
-	$entry_thumb3->set_text( $self->{_links}{'thumb3'} );
-	$entry_friends->set_text( $self->{_links}{'friends'} );
-	$entry_popup->set_text( $self->{_links}{'popup'} );
 	$entry_direct->set_text( $self->{_links}{'direct'} );
 	$entry_hotweb->set_text( $self->{_links}{'hotweb'} );
 	$entry_hotboard1->set_text( $self->{_links}{'hotboard1'} );
-	$entry_hotboard2->set_text( $self->{_links}{'hotboard2'} );
 
 	my $upload_copy1 = Gtk2::Button->new;
 	$tooltips->set_tip( $upload_copy1,
@@ -279,8 +271,9 @@ sub create_tab {
 			my ( $widget, $entry ) = @_;
 			$clipboard->set_text( $entry->get_text );
 		},
-		$entry_thumb3
+		$entry_direct
 	);
+	
 	my $upload_copy4 = Gtk2::Button->new;
 	$tooltips->set_tip( $upload_copy4,
 		$self->{_gettext_object}->get("Copy this code to clipboard") );
@@ -290,8 +283,9 @@ sub create_tab {
 			my ( $widget, $entry ) = @_;
 			$clipboard->set_text( $entry->get_text );
 		},
-		$entry_friends
+		$entry_hotweb
 	);
+	
 	my $upload_copy5 = Gtk2::Button->new;
 	$tooltips->set_tip( $upload_copy5,
 		$self->{_gettext_object}->get("Copy this code to clipboard") );
@@ -301,55 +295,7 @@ sub create_tab {
 			my ( $widget, $entry ) = @_;
 			$clipboard->set_text( $entry->get_text );
 		},
-		$entry_popup
-	);
-
-	my $upload_copy6 = Gtk2::Button->new;
-	$tooltips->set_tip( $upload_copy6,
-		$self->{_gettext_object}->get("Copy this code to clipboard") );
-	$upload_copy6->set_image( Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
-	$upload_copy6->signal_connect(
-		'clicked' => sub {
-			my ( $widget, $entry ) = @_;
-			$clipboard->set_text( $entry->get_text );
-		},
-		$entry_direct
-	);
-
-	my $upload_copy7 = Gtk2::Button->new;
-	$tooltips->set_tip( $upload_copy7,
-		$self->{_gettext_object}->get("Copy this code to clipboard") );
-	$upload_copy7->set_image( Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
-	$upload_copy7->signal_connect(
-		'clicked' => sub {
-			my ( $widget, $entry ) = @_;
-			$clipboard->set_text( $entry->get_text );
-		},
-		$entry_hotweb
-	);
-
-	my $upload_copy8 = Gtk2::Button->new;
-	$tooltips->set_tip( $upload_copy8,
-		$self->{_gettext_object}->get("Copy this code to clipboard") );
-	$upload_copy8->set_image( Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
-	$upload_copy8->signal_connect(
-		'clicked' => sub {
-			my ( $widget, $entry ) = @_;
-			$clipboard->set_text( $entry->get_text );
-		},
 		$entry_hotboard1
-	);
-
-	my $upload_copy9 = Gtk2::Button->new;
-	$tooltips->set_tip( $upload_copy9,
-		$self->{_gettext_object}->get("Copy this code to clipboard") );
-	$upload_copy9->set_image( Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
-	$upload_copy9->signal_connect(
-		'clicked' => sub {
-			my ( $widget, $entry ) = @_;
-			$clipboard->set_text( $entry->get_text );
-		},
-		$entry_hotboard2
 	);
 
 	$upload_vbox->pack_start( $upload_hbox, TRUE, TRUE, 10 );
@@ -361,62 +307,34 @@ sub create_tab {
 	$upload_hbox2->pack_start( $upload_copy1, FALSE, TRUE, 10 );
 
 	$upload_hbox3->pack_start_defaults(
-		Gtk2::Label->new( $self->{_gettext_object}->get("Thumbnail for boards (1)") ) );
+		Gtk2::Label->new( $self->{_gettext_object}->get("Thumbnail for boards") ) );
 	$upload_hbox3->pack_start_defaults($entry_thumb2);
 	$upload_hbox4->pack_start_defaults($upload_hbox3);
 	$upload_hbox4->pack_start( $upload_copy2, FALSE, TRUE, 10 );
 
 	$upload_hbox5->pack_start_defaults(
-		Gtk2::Label->new( $self->{_gettext_object}->get("Thumbnail for boards (2)") ) );
-	$upload_hbox5->pack_start_defaults($entry_thumb3);
+		Gtk2::Label->new( $self->{_gettext_object}->get("Direct link") ) );
+	$upload_hbox5->pack_start_defaults($entry_direct);
 	$upload_hbox6->pack_start_defaults($upload_hbox5);
 	$upload_hbox6->pack_start( $upload_copy3, FALSE, TRUE, 10 );
 
 	$upload_hbox7->pack_start_defaults(
-		Gtk2::Label->new( $self->{_gettext_object}->get("Show your friends") ) );
-	$upload_hbox7->pack_start_defaults($entry_friends);
+		Gtk2::Label->new( $self->{_gettext_object}->get("Hotlink for websites") ) );
+	$upload_hbox7->pack_start_defaults($entry_hotweb);
 	$upload_hbox8->pack_start_defaults($upload_hbox7);
 	$upload_hbox8->pack_start( $upload_copy4, FALSE, TRUE, 10 );
 
 	$upload_hbox9->pack_start_defaults(
-		Gtk2::Label->new( $self->{_gettext_object}->get("Popup for websites") ) );
-	$upload_hbox9->pack_start_defaults($entry_popup);
+		Gtk2::Label->new( $self->{_gettext_object}->get("Hotlink for boards") ) );
+	$upload_hbox9->pack_start_defaults($entry_hotboard1);
 	$upload_hbox10->pack_start_defaults($upload_hbox9);
 	$upload_hbox10->pack_start( $upload_copy5, FALSE, TRUE, 10 );
-
-	$upload_hbox11->pack_start_defaults(
-		Gtk2::Label->new( $self->{_gettext_object}->get("Direct link") ) );
-	$upload_hbox11->pack_start_defaults($entry_direct);
-	$upload_hbox12->pack_start_defaults($upload_hbox11);
-	$upload_hbox12->pack_start( $upload_copy6, FALSE, TRUE, 10 );
-
-	$upload_hbox13->pack_start_defaults(
-		Gtk2::Label->new( $self->{_gettext_object}->get("Hotlink for websites") ) );
-	$upload_hbox13->pack_start_defaults($entry_hotweb);
-	$upload_hbox14->pack_start_defaults($upload_hbox13);
-	$upload_hbox14->pack_start( $upload_copy7, FALSE, TRUE, 10 );
-
-	$upload_hbox15->pack_start_defaults(
-		Gtk2::Label->new( $self->{_gettext_object}->get("Hotlink for boards (1)") ) );
-	$upload_hbox15->pack_start_defaults($entry_hotboard1);
-	$upload_hbox16->pack_start_defaults($upload_hbox15);
-	$upload_hbox16->pack_start( $upload_copy8, FALSE, TRUE, 10 );
-
-	$upload_hbox17->pack_start_defaults(
-		Gtk2::Label->new( $self->{_gettext_object}->get("Hotlink for boards (2)") ) );
-	$upload_hbox17->pack_start_defaults($entry_hotboard2);
-	$upload_hbox18->pack_start_defaults($upload_hbox17);
-	$upload_hbox18->pack_start( $upload_copy9, FALSE, TRUE, 10 );
 
 	$upload_vbox->pack_start_defaults($upload_hbox2);
 	$upload_vbox->pack_start_defaults($upload_hbox4);
 	$upload_vbox->pack_start_defaults($upload_hbox6);
 	$upload_vbox->pack_start_defaults($upload_hbox8);
 	$upload_vbox->pack_start_defaults($upload_hbox10);
-	$upload_vbox->pack_start_defaults($upload_hbox12);
-	$upload_vbox->pack_start_defaults($upload_hbox14);
-	$upload_vbox->pack_start_defaults($upload_hbox16);
-	$upload_vbox->pack_start_defaults($upload_hbox18);
 
 	return $upload_vbox;
 }

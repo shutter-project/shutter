@@ -86,7 +86,7 @@ use Digest::MD5  qw(md5_hex);
 #define constants
 #--------------------------------------
 use constant MAX_ERROR 			=> 5;
-use constant SHUTTER_REV      	=> 'Rev.874';
+use constant SHUTTER_REV      	=> 'Rev.875';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.86.3';
 
@@ -4477,7 +4477,7 @@ sub fct_load_accounts {
 		$accounts{'imagebanana.com'}->{password} = $accounts_xml->{'imagebanana.com'}->{password};
 	}
 
-	$accounts{'imagebanana.com'}->{register} = "http://www.imagebanana.com/myib/registrieren/";
+	$accounts{'imagebanana.com'}->{register} = "http://www.imagebanana.com/register/";
 
 	foreach ( keys %accounts ) {
 		utf8::decode $accounts{$_}->{'host'};
