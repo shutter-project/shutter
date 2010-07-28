@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Shutter\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-28 01:53+0200\n"
-"PO-Revision-Date: 2010-07-28 01:54+0100\n"
+"POT-Creation-Date: 2010-07-28 17:07+0200\n"
+"PO-Revision-Date: 2010-07-28 17:08+0100\n"
 "Last-Translator: Mario Kemper <mario.kemper@googlemail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -123,7 +123,7 @@ msgstr ""
 
 #: translate_tmp.pl:727
 #: translate_tmp.pl:8074
-#: translate_tmp.pl:9625
+#: translate_tmp.pl:9652
 #, perl-format
 msgid "Reserved character %s is not allowed to be in a filename."
 msgstr ""
@@ -613,7 +613,7 @@ msgstr ""
 
 #: translate_tmp.pl:1793
 #: translate_tmp.pl:519
-#: translate_tmp.pl:408
+#: translate_tmp.pl:326
 msgid "Upload"
 msgstr ""
 
@@ -1190,15 +1190,15 @@ msgstr ""
 
 #: translate_tmp.pl:8166
 #: translate_tmp.pl:8471
-#: translate_tmp.pl:9411
-#: translate_tmp.pl:9655
+#: translate_tmp.pl:9438
+#: translate_tmp.pl:9682
 #: translate_tmp.pl:1583
 msgid "_Replace"
 msgstr ""
 
 #: translate_tmp.pl:8170
 #: translate_tmp.pl:8475
-#: translate_tmp.pl:9422
+#: translate_tmp.pl:9449
 #: translate_tmp.pl:1587
 #, perl-format
 msgid "The image already exists in %s. Replacing it will overwrite its contents."
@@ -1206,7 +1206,7 @@ msgstr ""
 
 #: translate_tmp.pl:8171
 #: translate_tmp.pl:8476
-#: translate_tmp.pl:9423
+#: translate_tmp.pl:9450
 #: translate_tmp.pl:1588
 #, perl-format
 msgid "An image named %s already exists. Do you want to replace it?"
@@ -1283,7 +1283,8 @@ msgstr ""
 msgid "Disconnected"
 msgstr ""
 
-#: translate_tmp.pl:9011
+#: translate_tmp.pl:9014
+#: translate_tmp.pl:9045
 #, perl-format
 msgid ""
 "Folder %s is synchronized with Ubuntu One.\n"
@@ -1294,7 +1295,8 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: translate_tmp.pl:9014
+#: translate_tmp.pl:9017
+#: translate_tmp.pl:9048
 msgid ""
 "<b>Please note:</b> The selected file will be published in a background process.\n"
 "You will be notified when the process has finished."
@@ -1304,165 +1306,166 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: translate_tmp.pl:9019
+#: translate_tmp.pl:9022
+#: translate_tmp.pl:9053
 #, perl-format
 msgid ""
 "Folder %s is not synchronized with Ubuntu One.\n"
 "Please choose an alternative folder."
 msgstr ""
 
-#: translate_tmp.pl:9043
+#: translate_tmp.pl:9070
 msgid "Ubuntu One service cannot be found."
 msgstr ""
 
-#: translate_tmp.pl:9050
+#: translate_tmp.pl:9077
 msgid "/publicfiles is not available. Your Ubuntu One installation seems to be out of date."
 msgstr ""
 
-#: translate_tmp.pl:9057
+#: translate_tmp.pl:9084
 msgid "Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature"
 msgstr ""
 
-#: translate_tmp.pl:9127
-#: translate_tmp.pl:9197
-#: translate_tmp.pl:9273
-#: translate_tmp.pl:9376
-#: translate_tmp.pl:9449
+#: translate_tmp.pl:9154
+#: translate_tmp.pl:9224
+#: translate_tmp.pl:9300
+#: translate_tmp.pl:9403
+#: translate_tmp.pl:9476
 msgid "uploaded"
 msgstr ""
 
-#: translate_tmp.pl:9160
-#: translate_tmp.pl:9564
+#: translate_tmp.pl:9187
+#: translate_tmp.pl:9591
 #: translate_tmp.pl:89
 msgid "Please check your credentials and try again."
 msgstr ""
 
-#: translate_tmp.pl:9161
+#: translate_tmp.pl:9188
 msgid "Login failed!"
 msgstr ""
 
-#: translate_tmp.pl:9174
-#: translate_tmp.pl:9200
-#: translate_tmp.pl:9577
+#: translate_tmp.pl:9201
+#: translate_tmp.pl:9227
+#: translate_tmp.pl:9604
 #: translate_tmp.pl:82
 msgid "Please check your connectivity and try again."
 msgstr ""
 
-#: translate_tmp.pl:9175
-#: translate_tmp.pl:9201
+#: translate_tmp.pl:9202
+#: translate_tmp.pl:9228
 msgid "Connection error!"
 msgstr ""
 
-#: translate_tmp.pl:9176
-#: translate_tmp.pl:9202
-#: translate_tmp.pl:9294
-#: translate_tmp.pl:9424
-#: translate_tmp.pl:9545
-#: translate_tmp.pl:9571
-#: translate_tmp.pl:9579
+#: translate_tmp.pl:9203
+#: translate_tmp.pl:9229
+#: translate_tmp.pl:9321
+#: translate_tmp.pl:9451
+#: translate_tmp.pl:9572
+#: translate_tmp.pl:9598
+#: translate_tmp.pl:9606
 msgid "Skip all"
 msgstr ""
 
-#: translate_tmp.pl:9177
-#: translate_tmp.pl:9203
-#: translate_tmp.pl:9295
-#: translate_tmp.pl:9424
-#: translate_tmp.pl:9546
-#: translate_tmp.pl:9571
-#: translate_tmp.pl:9579
+#: translate_tmp.pl:9204
+#: translate_tmp.pl:9230
+#: translate_tmp.pl:9322
+#: translate_tmp.pl:9451
+#: translate_tmp.pl:9573
+#: translate_tmp.pl:9598
+#: translate_tmp.pl:9606
 msgid "Skip"
 msgstr ""
 
-#: translate_tmp.pl:9178
-#: translate_tmp.pl:9204
-#: translate_tmp.pl:9296
-#: translate_tmp.pl:9579
+#: translate_tmp.pl:9205
+#: translate_tmp.pl:9231
+#: translate_tmp.pl:9323
+#: translate_tmp.pl:9606
 msgid "Retry"
 msgstr ""
 
-#: translate_tmp.pl:9276
-#: translate_tmp.pl:9379
-#: translate_tmp.pl:9452
+#: translate_tmp.pl:9303
+#: translate_tmp.pl:9406
+#: translate_tmp.pl:9479
 msgid "Successfully uploaded"
 msgstr ""
 
-#: translate_tmp.pl:9276
-#: translate_tmp.pl:9379
-#: translate_tmp.pl:9452
+#: translate_tmp.pl:9303
+#: translate_tmp.pl:9406
+#: translate_tmp.pl:9479
 #, perl-format
 msgid "The file %s was successfully uploaded."
 msgstr ""
 
-#: translate_tmp.pl:9371
-#: translate_tmp.pl:9444
+#: translate_tmp.pl:9398
+#: translate_tmp.pl:9471
 msgid "exported"
 msgstr ""
 
-#: translate_tmp.pl:9374
-#: translate_tmp.pl:9447
+#: translate_tmp.pl:9401
+#: translate_tmp.pl:9474
 msgid "Successfully exported"
 msgstr ""
 
-#: translate_tmp.pl:9374
-#: translate_tmp.pl:9447
+#: translate_tmp.pl:9401
+#: translate_tmp.pl:9474
 #, perl-format
 msgid "The file %s was successfully exported."
 msgstr ""
 
-#: translate_tmp.pl:9384
-#: translate_tmp.pl:9457
+#: translate_tmp.pl:9411
+#: translate_tmp.pl:9484
 #, perl-format
 msgid "Publishing %s..."
 msgstr ""
 
-#: translate_tmp.pl:9539
+#: translate_tmp.pl:9566
 msgid "_Retry"
 msgstr ""
 
-#: translate_tmp.pl:9543
+#: translate_tmp.pl:9570
 #, perl-format
 msgid "Error while copying the image %s."
 msgstr ""
 
-#: translate_tmp.pl:9544
+#: translate_tmp.pl:9571
 #, perl-format
 msgid "There was an error copying the image into %s."
 msgstr ""
 
-#: translate_tmp.pl:9565
+#: translate_tmp.pl:9592
 msgid "Error while login"
 msgstr ""
 
-#: translate_tmp.pl:9569
+#: translate_tmp.pl:9596
 msgid "Maximum filesize reached"
 msgstr ""
 
-#: translate_tmp.pl:9570
+#: translate_tmp.pl:9597
 msgid "Error while uploading"
 msgstr ""
 
-#: translate_tmp.pl:9573
+#: translate_tmp.pl:9600
 #, perl-format
 msgid "Maximum filesize: %s"
 msgstr ""
 
-#: translate_tmp.pl:9578
+#: translate_tmp.pl:9605
 msgid "Error while connecting"
 msgstr ""
 
-#: translate_tmp.pl:9596
+#: translate_tmp.pl:9623
 msgid "Save current preferences as new profile"
 msgstr ""
 
-#: translate_tmp.pl:9598
+#: translate_tmp.pl:9625
 msgid "New profile name"
 msgstr ""
 
-#: translate_tmp.pl:9659
+#: translate_tmp.pl:9686
 msgid "Replacing it will overwrite its contents."
 msgstr ""
 
-#: translate_tmp.pl:9660
+#: translate_tmp.pl:9687
 #, perl-format
 msgid "A profile named %s already exists. Do you want to replace it?"
 msgstr ""
@@ -1502,12 +1505,12 @@ msgid "Short URL"
 msgstr ""
 
 #: translate_tmp.pl:421
-#: translate_tmp.pl:365
+#: translate_tmp.pl:293
 msgid "Direct link"
 msgstr ""
 
 #: translate_tmp.pl:422
-#: translate_tmp.pl:371
+#: translate_tmp.pl:299
 msgid "Hotlink for websites"
 msgstr ""
 
@@ -1515,44 +1518,24 @@ msgstr ""
 #: translate_tmp.pl:456
 #: translate_tmp.pl:475
 #: translate_tmp.pl:486
-#: translate_tmp.pl:228
-#: translate_tmp.pl:240
-#: translate_tmp.pl:252
-#: translate_tmp.pl:263
-#: translate_tmp.pl:274
-#: translate_tmp.pl:286
-#: translate_tmp.pl:298
-#: translate_tmp.pl:310
-#: translate_tmp.pl:322
+#: translate_tmp.pl:220
+#: translate_tmp.pl:232
+#: translate_tmp.pl:244
+#: translate_tmp.pl:256
+#: translate_tmp.pl:268
 msgid "Copy this code to clipboard"
 msgstr ""
 
-#: translate_tmp.pl:335
+#: translate_tmp.pl:281
 msgid "Thumbnail for websites"
 msgstr ""
 
-#: translate_tmp.pl:341
-msgid "Thumbnail for boards (1)"
+#: translate_tmp.pl:287
+msgid "Thumbnail for boards"
 msgstr ""
 
-#: translate_tmp.pl:347
-msgid "Thumbnail for boards (2)"
-msgstr ""
-
-#: translate_tmp.pl:353
-msgid "Show your friends"
-msgstr ""
-
-#: translate_tmp.pl:359
-msgid "Popup for websites"
-msgstr ""
-
-#: translate_tmp.pl:377
-msgid "Hotlink for boards (1)"
-msgstr ""
-
-#: translate_tmp.pl:383
-msgid "Hotlink for boards (2)"
+#: translate_tmp.pl:305
+msgid "Hotlink for boards"
 msgstr ""
 
 #: translate_tmp.pl:150
