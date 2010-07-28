@@ -85,8 +85,8 @@ use Digest::MD5  qw(md5_hex);
 
 #define constants
 #--------------------------------------
-use constant MAX_ERROR 			=> 5;
-use constant SHUTTER_REV      	=> 'Rev.878';
+use constant MAX_ERROR			=> 5;
+use constant SHUTTER_REV		=> 'Rev.879';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.86.3';
 
@@ -295,12 +295,12 @@ my $status = Gtk2::Statusbar->new;
 $status->set_name('main-window-statusbar');
 
 #customize the statusbar style
-Gtk2::Rc->parse_string ("
-	style 'statusbar-style' {
-		 GtkStatusbar::shadow-type = GTK_SHADOW_NONE
-	 }
-	 widget '*.main-window-statusbar' style 'statusbar-style'
-");
+Gtk2::Rc->parse_string (
+	"style 'statusbar-style' {
+		GtkStatusbar::shadow-type = GTK_SHADOW_NONE
+	}
+	widget '*.main-window-statusbar' style 'statusbar-style'"
+);
     
 my $combobox_status_profiles_label = Gtk2::Label->new( $d->get("Profile") . ":" );
 my $combobox_status_profiles = Gtk2::ComboBox->new_text;
@@ -544,7 +544,7 @@ my $window_capture_vbox = Gtk2::VBox->new( FALSE, 0 );
 my $menu_capture_vbox   = Gtk2::VBox->new( FALSE, 0 );
 my $web_capture_vbox    = Gtk2::VBox->new( FALSE, 0 );
 
-my $zoom_box      		= Gtk2::HBox->new( FALSE, 0 );
+my $zoom_box			= Gtk2::HBox->new( FALSE, 0 );
 my $asel_isize_box      = Gtk2::HBox->new( FALSE, 0 );
 my $asel_isize_box2     = Gtk2::HBox->new( FALSE, 0 );
 my $border_box          = Gtk2::HBox->new( FALSE, 0 );
@@ -567,7 +567,7 @@ my $keybinding_vbox     = Gtk2::VBox->new( FALSE, 0 );
 
 my $hide_active_hbox    = Gtk2::HBox->new( FALSE, 0 );
 my $pafter_active_hbox  = Gtk2::HBox->new( FALSE, 0 );
-my $cac_hbox      		= Gtk2::HBox->new( FALSE, 0 );
+my $cac_hbox			= Gtk2::HBox->new( FALSE, 0 );
 my $hide_time_hbox      = Gtk2::HBox->new( FALSE, 0 );
 my $na_active_hbox      = Gtk2::HBox->new( FALSE, 0 );
 my $nt_active_hbox      = Gtk2::HBox->new( FALSE, 0 );
@@ -2536,8 +2536,7 @@ sub evt_behavior_handle {
 			$capture_key->set_sensitive(TRUE);
 		} else {
 			$capture_key->set_sensitive(FALSE);
-		}
-		
+		}	
 	}
 
 	#checkbox for "keybinding_sel" -> entry active/inactive
@@ -2662,7 +2661,6 @@ sub evt_show_systray {
 
 	#right button (mouse)
 	elsif ( $_[1]->button == 3 ) {
-
 		$tray_menu->popup(
 			undef,    # parent menu shell
 			undef,    # parent menu item
@@ -2670,8 +2668,7 @@ sub evt_show_systray {
 			undef,    # data
 			$data->button,
 			$data->time
-		);
-		
+		);	
 	}
 	return TRUE;
 }
@@ -2707,7 +2704,6 @@ sub evt_activate_systray_statusicon {
 	} else {
 		&fct_control_main_window ('show');
 	}
-
 	return TRUE;
 }
 
@@ -2729,7 +2725,6 @@ sub evt_tab_button_press {
 	
 	#right click
 	if($key && $ev->button == 3 && $ev->type eq 'button-press'){
-
 		$sm->{_menu_large_actions}->popup(
 			undef,    # parent menu shell
 			undef,    # parent menu item
@@ -2737,8 +2732,7 @@ sub evt_tab_button_press {
 			undef,    # data
 			$ev->button,
 			$ev->time
-		);
-		
+		);		
 	}
 	
 	return TRUE;
@@ -3223,9 +3217,7 @@ sub evt_save_as {
 				my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
 				if ( defined $iter ) {
 					my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
-
 					push @save_as_files, $key;
-
 				}
 			},
 			undef
@@ -3408,15 +3400,15 @@ sub fct_integrate_screenshot_in_notebook {
 	$tab_close_button->set_name('tab-close-button');
 	
 	#customize the button style
-	Gtk2::Rc->parse_string ("
-		style 'tab-close-button-style' {
+	Gtk2::Rc->parse_string (
+		"style 'tab-close-button-style' {
              GtkWidget::focus-padding = 0
              GtkWidget::focus-line-width = 0
              xthickness = 0
              ythickness = 0
          }
-         widget '*.tab-close-button' style 'tab-close-button-style'
-    ");
+         widget '*.tab-close-button' style 'tab-close-button-style'"
+	);
     		
 	my $tab_label = Gtk2::Label->new($key);
 	$hbox_tab_label->pack_start( $session_screens{$key}->{'tab_icon'}, FALSE, TRUE, 1 );
@@ -3434,10 +3426,8 @@ sub fct_integrate_screenshot_in_notebook {
 	$notebook->set_current_page($new_index);
 
 	if ( &fct_update_tab( $key, $pixbuf, $uri ) ) {
-
 		#setup a filemonitor, so we get noticed if the file changed
-		&fct_add_file_monitor($key);
-				
+		&fct_add_file_monitor($key);			
 	}
 
 	return $key;
@@ -4229,10 +4219,10 @@ sub fct_load_settings {
 				#advanced settings
 				$zoom_active->set_active( $settings_xml->{'general'}->{'zoom_active'} );
 				
-		 	   	$asel_size3->set_value($settings_xml->{'general'}->{'asel_x'});
-	 	        $asel_size4->set_value($settings_xml->{'general'}->{'asel_y'});
-	 	        $asel_size1->set_value($settings_xml->{'general'}->{'asel_w'});
-	 	        $asel_size2->set_value($settings_xml->{'general'}->{'asel_h'});
+				$asel_size3->set_value($settings_xml->{'general'}->{'asel_x'});
+				$asel_size4->set_value($settings_xml->{'general'}->{'asel_y'});
+				$asel_size1->set_value($settings_xml->{'general'}->{'asel_w'});
+				$asel_size2->set_value($settings_xml->{'general'}->{'asel_h'});
 		
 				$border_active->set_active( $settings_xml->{'general'}->{'border'} );
 				$visible_windows_active->set_active( $settings_xml->{'general'}->{'visible_windows'} );
@@ -6107,8 +6097,8 @@ sub fct_open_with_program {
 			print Dumper $_ . " &" if $sc->get_debug;
 			system( $_ . " &" );
 		}
-
 	}
+	
 	return TRUE;
 }
 
@@ -9634,9 +9624,10 @@ sub dlg_upload {
 					
 						#everything is fine here
 						&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
-                  #show as notification
-                  my $notify 	= $sc->get_notification_object;
-                  $notify->show( $d->get("Successfully uploaded"), sprintf($d->get("The file %s was successfully uploaded."), $file ) );
+
+						#show as notification
+						my $notify 	= $sc->get_notification_object;
+						$notify->show( $d->get("Successfully uploaded"), sprintf($d->get("The file %s was successfully uploaded."), $file ) );
 						
 						#copy website url to clipboard
 						if($ftp_wurl_entry_dlg->get_text){
@@ -9682,7 +9673,7 @@ sub dlg_upload {
 					$counter++;
 				} #end foreach
 				
-            eval { $uploader->quit; };
+				eval { $uploader->quit; };
 			
 			#xfer using Gnome-VFS - we use this for u1 as well
 			} elsif ( $unotebook->get_current_page == 2 || $unotebook->get_current_page == 3) {
@@ -9732,14 +9723,14 @@ sub dlg_upload {
 						if($unotebook->get_current_page == 2){
 							if($target_uri->is_local){
 								&fct_show_status_message( 1, $file . " " . $d->get("exported") );
-                        #show as notification
-                        my $notify 	= $sc->get_notification_object;
-                        $notify->show( $d->get("Successfully exported"), sprintf($d->get("The file %s was successfully exported."), $file ) );
+								#show as notification
+								my $notify 	= $sc->get_notification_object;
+								$notify->show( $d->get("Successfully exported"), sprintf($d->get("The file %s was successfully exported."), $file ) );
 							}else{
 								&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
-                        #show as notification
-                        my $notify 	= $sc->get_notification_object;
-                        $notify->show( $d->get("Successfully uploaded"), sprintf($d->get("The file %s was successfully uploaded."), $file ) );
+								#show as notification
+								my $notify 	= $sc->get_notification_object;
+								$notify->show( $d->get("Successfully uploaded"), sprintf($d->get("The file %s was successfully uploaded."), $file ) );
 							}
 						#u1 - call publishing API
 						}else{
@@ -9805,14 +9796,14 @@ sub dlg_upload {
 								if($unotebook->get_current_page == 2){
 									if($target_uri->is_local){
 										&fct_show_status_message( 1, $file . " " . $d->get("exported") );
-                              #show as notification
-                              my $notify 	= $sc->get_notification_object;
-                              $notify->show( $d->get("Successfully exported"), sprintf($d->get("The file %s was successfully exported."), $file ) );                             
+										#show as notification
+										my $notify 	= $sc->get_notification_object;
+										$notify->show( $d->get("Successfully exported"), sprintf($d->get("The file %s was successfully exported."), $file ) );                             
 									}else{
 										&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
-                              #show as notification
-                              my $notify 	= $sc->get_notification_object;
-                              $notify->show( $d->get("Successfully uploaded"), sprintf($d->get("The file %s was successfully uploaded."), $file ) );                              
+										#show as notification
+										my $notify 	= $sc->get_notification_object;
+										$notify->show( $d->get("Successfully uploaded"), sprintf($d->get("The file %s was successfully uploaded."), $file ) );                              
 									}
 								#u1
 								}else{
