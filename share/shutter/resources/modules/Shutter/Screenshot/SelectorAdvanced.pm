@@ -618,7 +618,7 @@ sub select_advanced {
 					}
 												
 				#take screenshot
-				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Return}) {
+				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Return} || $Gtk2::Gdk::Keysyms{KP_Enter}) {
 					
 					$self->{_select_window}->hide;
 					$self->{_zoom_window}->hide;
