@@ -48,6 +48,7 @@ sub new {
 
 	$self->{_zoom_active} 	= shift;
 	$self->{_hide_time}		= shift;   #a short timeout to give the server a chance to redraw the area that was obscured
+	$self->{_hide_help}		= shift;   #hide help text?
 
 	#FIXME
 	#get them as params 
@@ -95,100 +96,111 @@ sub select_advanced {
 
 	my $d = $self->{_sc}->get_gettext;
 
-	#we display the tip only on the current monitor
-	#if we would use the root window we would display the next
-	#right in the middle of both screens, this is pretty ugly
-	my $mon1 = $self->get_current_monitor;
-
-	print "Using monitor: "
-		. $mon1->x . " - "
-		. $mon1->y . " - "
-		. $mon1->width . " - "
-		. $mon1->height . "\n"
-		if $self->{_sc}->get_debug;
-
-	#obtain current colors and font_desc from the main window
-    my $style 		= $self->{_sc}->get_mainwindow->get_style;
-	my $sel_bg 		= $style->bg('selected');
-	my $sel_tx 		= $style->text('selected');
-	my $font_fam 	= $style->font_desc->get_family;
-	my $font_size 	= $style->font_desc->get_size;
-	
-	#create cairo context und layout
-	my $surface = Cairo::ImageSurface->create( 'argb32', $self->{_root}->{w}, $self->{_root}->{h} );
-	my $cr   	= Cairo::Context->create($surface);
-
+	#create pixbuf (root window)
 	my $clean_pixbuf = Gtk2::Gdk::Pixbuf->get_from_drawable(
 		$self->{_root}, undef, 0, 0, 0, 0,
 		$self->{_root}->{w},
 		$self->{_root}->{h}
 	);
 
-	#set_source_pixbuf
-	Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $clean_pixbuf, 0, 0 );
-	$cr->paint;
+	#show help text?
+	if($self->{_hide_help}) {
 
-	my $layout = Gtk2::Pango::Cairo::create_layout($cr);
-	$layout->set_width( int( $mon1->width / 2 ) * Gtk2::Pango->scale );
-	$layout->set_alignment('left');
-	$layout->set_wrap('word');
-	
-	#determine font-size
-	my $size = int( $mon1->width * 0.014 );
-	my $size2 = int( $mon1->width * 0.007 );
-	
-	my $text
-		= $d->get(
-		"Draw a rectangular area using the mouse. To take a screenshot, press the Enter key. Press Esc to quit."
+		#we display the tip only on the current monitor
+		#if we would use the root window we would display the next
+		#right in the middle of both screens, this is pretty ugly
+		my $mon1 = $self->get_current_monitor;
+
+		print "Using monitor: "
+			. $mon1->x . " - "
+			. $mon1->y . " - "
+			. $mon1->width . " - "
+			. $mon1->height . "\n"
+			if $self->{_sc}->get_debug;
+
+		#obtain current colors and font_desc from the main window
+		my $style 		= $self->{_sc}->get_mainwindow->get_style;
+		my $sel_bg 		= $style->bg('selected');
+		my $sel_tx 		= $style->text('selected');
+		my $font_fam 	= $style->font_desc->get_family;
+		my $font_size 	= $style->font_desc->get_size;
+		
+		#create cairo context und layout
+		my $surface = Cairo::ImageSurface->create( 'argb32', $self->{_root}->{w}, $self->{_root}->{h} );
+		my $cr   	= Cairo::Context->create($surface);
+
+		#set_source_pixbuf
+		Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $clean_pixbuf, 0, 0 );
+		$cr->paint;
+
+		my $layout = Gtk2::Pango::Cairo::create_layout($cr);
+		$layout->set_width( int( $mon1->width / 2 ) * Gtk2::Pango->scale );
+		$layout->set_alignment('left');
+		$layout->set_wrap('word');
+		
+		#determine font-size
+		my $size = int( $mon1->width * 0.014 );
+		my $size2 = int( $mon1->width * 0.007 );
+		
+		my $text
+			= $d->get(
+			"Draw a rectangular area using the mouse. To take a screenshot, press the Enter key. Press Esc to quit."
+			);
+
+		my $sec_text
+			= $d->get(
+			"shift/right-click = selection dialog on/off\nctrl + scrollwheel = zoom in/out\t\tspace = zoom window on/off\ncursor keys + alt = move selection\t\tcursor keys + ctrl = resize selection"
+			);
+
+		#use this one for white font-color	
+		$layout->set_markup("<span font_desc=\"$font_fam $size\" foreground=\"#FFFFFF\">$text</span>\n\n<span font_desc=\"$font_fam $size2\" weight=\"bold\" foreground=\"#FFFFFF\">$sec_text</span>");
+		
+		#draw the rectangle
+		$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.85 );
+
+		my ( $lw, $lh ) = $layout->get_pixel_size;
+
+		my $w = $lw + $size * 2;
+		my $h = $lh + $size * 2;
+		my $x = int( ( $mon1->width - $w ) / 2 ) + $mon1->x;
+		my $y = int( ( $mon1->height - $h ) / 2 ) + $mon1->y;
+		my $r = 20;
+
+		$cr->move_to( $x + $r, $y );
+		$cr->line_to( $x + $w - $r, $y );
+		$cr->curve_to( $x + $w, $y, $x + $w, $y, $x + $w, $y + $r );
+		$cr->line_to( $x + $w, $y + $h - $r );
+		$cr->curve_to( $x + $w, $y + $h, $x + $w, $y + $h, $x + $w - $r, $y + $h );
+		$cr->line_to( $x + $r, $y + $h );
+		$cr->curve_to( $x, $y + $h, $x, $y + $h, $x, $y + $h - $r );
+		$cr->line_to( $x, $y + $r );
+		$cr->curve_to( $x, $y, $x, $y, $x + $r, $y );
+		$cr->fill;
+
+		$cr->move_to( $x + $size, $y + $size );
+		
+		#draw the pango layout
+		Gtk2::Pango::Cairo::show_layout( $cr, $layout );
+
+		#write surface to pixbuf
+		my $loader = Gtk2::Gdk::PixbufLoader->new;
+		$surface->write_to_png_stream(
+			sub {
+				my ( $closure, $data ) = @_;
+				$loader->write($data);
+			}
 		);
+		$loader->close;
+		
+		#set pixbuf
+		$self->{_view}->set_pixbuf($loader->get_pixbuf);
 
-	my $sec_text
-		= $d->get(
-		"shift/right-click = selection dialog on/off\nctrl + scrollwheel = zoom in/out\t\tspace = zoom window on/off\ncursor keys + alt = move selection\t\tcursor keys + ctrl = resize selection"
-		);
-
-	#use this one for white font-color	
-	$layout->set_markup("<span font_desc=\"$font_fam $size\" foreground=\"#FFFFFF\">$text</span>\n\n<span font_desc=\"$font_fam $size2\" weight=\"bold\" foreground=\"#FFFFFF\">$sec_text</span>");
+	}else{
+		
+		#set pixbuf
+		$self->{_view}->set_pixbuf($clean_pixbuf);
 	
-	#draw the rectangle
-	$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.85 );
-
-	my ( $lw, $lh ) = $layout->get_pixel_size;
-
-	my $w = $lw + $size * 2;
-	my $h = $lh + $size * 2;
-	my $x = int( ( $mon1->width - $w ) / 2 ) + $mon1->x;
-	my $y = int( ( $mon1->height - $h ) / 2 ) + $mon1->y;
-	my $r = 20;
-
-	$cr->move_to( $x + $r, $y );
-	$cr->line_to( $x + $w - $r, $y );
-	$cr->curve_to( $x + $w, $y, $x + $w, $y, $x + $w, $y + $r );
-	$cr->line_to( $x + $w, $y + $h - $r );
-	$cr->curve_to( $x + $w, $y + $h, $x + $w, $y + $h, $x + $w - $r, $y + $h );
-	$cr->line_to( $x + $r, $y + $h );
-	$cr->curve_to( $x, $y + $h, $x, $y + $h, $x, $y + $h - $r );
-	$cr->line_to( $x, $y + $r );
-	$cr->curve_to( $x, $y, $x, $y, $x + $r, $y );
-	$cr->fill;
-
-	$cr->move_to( $x + $size, $y + $size );
-	
-	#draw the pango layout
-	Gtk2::Pango::Cairo::show_layout( $cr, $layout );
-
-	#write surface to pixbuf
-	my $loader = Gtk2::Gdk::PixbufLoader->new;
-	$surface->write_to_png_stream(
-		sub {
-			my ( $closure, $data ) = @_;
-			$loader->write($data);
-		}
-	);
-	$loader->close;
-	
-	#set pixbuf
-	$self->{_view}->set_pixbuf($loader->get_pixbuf);
+	}
 
 	#define zoom window
 	$self->{_zoom_window} = Gtk2::Window->new('popup');
@@ -283,7 +295,11 @@ sub select_advanced {
 	$self->{_select_window}->window->set_override_redirect(TRUE);
 
 	#init state flags
-	$self->{_selector_init} = TRUE;
+	if($self->{_hide_help}) {
+		$self->{_selector_init} = FALSE;
+	}else{
+		$self->{_selector_init} = TRUE;
+	}
 	$self->{_selector_init_zoom} = 0;
 
 	#hide help text when selector is invoked
