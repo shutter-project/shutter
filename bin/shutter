@@ -5804,6 +5804,16 @@ sub fct_take_screenshot {
 			}
 			
 		}else{	
+
+			#bordereffect
+			if ( $bordereffect_active->get_active ) {
+
+				print "Adding border effect to $screenshot_name\n"
+					if $sc->get_debug;
+
+				my $pbuf_border = Shutter::Pixbuf::Border->new($sc);
+				$screenshot = $pbuf_border->create_border($screenshot, $bordereffect->get_value, $bordereffect_cbtn->get_color);
+			}
 		
 			print "Trying to save file to $screenshot_name\n"
 				if $sc->get_debug;

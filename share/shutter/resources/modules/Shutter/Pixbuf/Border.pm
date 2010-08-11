@@ -56,8 +56,29 @@ sub create_border {
 	my $width	= shift;
 	my $color	= shift;
 	
-
-	return $pixbuf;
+	#create new pixbuf
+	my $tmp_pbuf = Gtk2::Gdk::Pixbuf->new ('rgb', TRUE, 8, $pixbuf->get_width+2*$width, $pixbuf->get_height+2*$width);	
+	
+	#Create a pixel specification
+	my $pixel = 0;
+	$pixel += ($color->red   / 257) << 24;
+	$pixel += ($color->green / 257) << 16;
+	$pixel += ($color->blue  / 257) <<  8;
+	$pixel += 255;
+	
+	#fill tmp pixbuf
+	$tmp_pbuf->fill($pixel);
+	
+	#copy source pixbuf to new pixbuf
+	eval{
+		$pixbuf->copy_area (0, 0, $pixbuf->get_width, $pixbuf->get_height, $tmp_pbuf, $width, $width);
+	};
+	if($@){
+		print "create border failed: $@\n" if $self->{_common}->get_debug;
+		return $pixbuf;
+	}
+	
+	return $tmp_pbuf;
 }
 
 1;
