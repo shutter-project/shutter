@@ -512,6 +512,9 @@ sub select_advanced {
 															
 			#handle key-press
 			}elsif ( $event->type eq 'key-press' ) {
+				
+				#where is the pointer currently?
+				my ( $window_at_pointer, $x, $y, $mask ) = $self->{_root}->get_pointer;
 
 				#toggle zoom window
 				if ( $event->keyval == $Gtk2::Gdk::Keysyms{space} ) {
@@ -547,44 +550,52 @@ sub select_advanced {
 					$self->quit;
 				
 				#move / resize selector
-				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Up} && $s) {
+				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Up} ) {
 					
-					if ($event->state >= 'control-mask'){
+					if ($event->state >= 'control-mask' && $s){
 						$s->height($s->height-1);
 						$self->{_selector}->set_selection($s);							
-					}elsif ($event->state >= 'mod1-mask'){	
+					}elsif ($event->state >= 'mod1-mask' && $s){	
 						$s->y($s->y-1);
 						$self->{_selector}->set_selection($s);
+					}else{
+						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x, $y-1);
 					}
 					
-				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Down} && $s) {
+				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Down} ) {
 
-					if ($event->state >= 'control-mask'){
+					if ($event->state >= 'control-mask' && $s){
 						$s->height($s->height+1);
 						$self->{_selector}->set_selection($s);						
-					}elsif ($event->state >= 'mod1-mask'){	
+					}elsif ($event->state >= 'mod1-mask' && $s){	
 						$s->y($s->y+1);
 						$self->{_selector}->set_selection($s);
+					}else{
+						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x, $y+1);
 					}
 					
-				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Left} && $s) {
+				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Left} ) {
 
-					if ($event->state >= 'control-mask'){
+					if ($event->state >= 'control-mask' && $s){
 						$s->width($s->width-1);
 						$self->{_selector}->set_selection($s);
-					}elsif ($event->state >= 'mod1-mask'){	
+					}elsif ($event->state >= 'mod1-mask' && $s){	
 						$s->x($s->x-1);
 						$self->{_selector}->set_selection($s);
+					}else{
+						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x-1, $y);
 					}
 					
-				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Right} && $s) {	
+				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Right} ) {	
 
-					if ($event->state >= 'control-mask'){
+					if ($event->state >= 'control-mask' && $s){
 						$s->width($s->width+1);
 						$self->{_selector}->set_selection($s);
-					}elsif ($event->state >= 'mod1-mask'){	
+					}elsif ($event->state >= 'mod1-mask' && $s){	
 						$s->x($s->x+1);
 						$self->{_selector}->set_selection($s);
+					}else{
+						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x+1, $y);
 					}
 				
 				#zoom in
