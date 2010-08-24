@@ -112,7 +112,7 @@ sub select_advanced {
 	my $sel_bg 		= $style->bg('selected');
 	my $sel_tx 		= $style->text('selected');
 	my $font_fam 	= $style->font_desc->get_family;
-	my $font_size 	= $style->font_desc->get_size;
+	my $font_size 	= $style->font_desc->get_size / Gtk2::Pango->scale;
 	
 	#create cairo context und layout
 	my $surface = Cairo::ImageSurface->create( 'argb32', $self->{_root}->{w}, $self->{_root}->{h} );
@@ -134,8 +134,8 @@ sub select_advanced {
 	$layout->set_wrap('word');
 	
 	#determine font-size
-	my $size = int( $mon1->width * 0.014 );
-	my $size2 = int( $mon1->width * 0.007 );
+	my $size	= $font_size * 1.5;
+	my $size2	= $font_size;
 	
 	my $text
 		= $d->get(
@@ -211,9 +211,9 @@ sub select_advanced {
 	my $canvas_root = $canvas->root();
 	$scwin->add($canvas);
 
-	my $xlabel    = Gtk2::Label->new("X: ");
-	my $ylabel    = Gtk2::Label->new("Y: ");
-	my $rlabel      = Gtk2::Label->new("0 x 0");
+	my $xlabel	= Gtk2::Label->new("X: ");
+	my $ylabel	= Gtk2::Label->new("Y: ");
+	my $rlabel	= Gtk2::Label->new("0 x 0");
 	
 	$ylabel->set_max_width_chars (10);
 	$xlabel->set_max_width_chars (10);
@@ -288,7 +288,7 @@ sub select_advanced {
 
 	#hide help text when selector is invoked
 	$self->{_selector_handler} = $self->{_selector}->signal_connect(
-		'selection-changed' => sub {	
+		'selection-changed' => sub {
 			#hide initial text
 			if ($self->{_selector_init}) {
 				$self->{_view}->set_pixbuf( $clean_pixbuf, FALSE );
@@ -554,7 +554,8 @@ sub select_advanced {
 					
 					if ($event->state >= 'control-mask' && $s){
 						$s->height($s->height-1);
-						$self->{_selector}->set_selection($s);							
+						$self->{_selector}->set_selection($s);
+						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->width + $s->x, $s->height + $s->y);		
 					}elsif ($event->state >= 'mod1-mask' && $s){	
 						$s->y($s->y-1);
 						$self->{_selector}->set_selection($s);
@@ -566,7 +567,13 @@ sub select_advanced {
 
 					if ($event->state >= 'control-mask' && $s){
 						$s->height($s->height+1);
-						$self->{_selector}->set_selection($s);						
+						$self->{_selector}->set_selection($s);
+						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->width + $s->x, $s->height + $s->y);					
+					}elsif ($event->state >= 'control-mask'){
+						$self->{_selector}->set_selection(
+							Gtk2::Gdk::Rectangle->new($x, $y, 1, 2)
+						);
+						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x+1, $y+2);							
 					}elsif ($event->state >= 'mod1-mask' && $s){	
 						$s->y($s->y+1);
 						$self->{_selector}->set_selection($s);
@@ -579,6 +586,7 @@ sub select_advanced {
 					if ($event->state >= 'control-mask' && $s){
 						$s->width($s->width-1);
 						$self->{_selector}->set_selection($s);
+						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->width + $s->x, $s->height + $s->y);
 					}elsif ($event->state >= 'mod1-mask' && $s){	
 						$s->x($s->x-1);
 						$self->{_selector}->set_selection($s);
@@ -591,6 +599,12 @@ sub select_advanced {
 					if ($event->state >= 'control-mask' && $s){
 						$s->width($s->width+1);
 						$self->{_selector}->set_selection($s);
+						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->width + $s->x, $s->height + $s->y);	
+					}elsif ($event->state >= 'control-mask'){
+						$self->{_selector}->set_selection(
+							Gtk2::Gdk::Rectangle->new($x, $y, 2, 1)
+						);
+						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x+2, $y+1);
 					}elsif ($event->state >= 'mod1-mask' && $s){	
 						$s->x($s->x+1);
 						$self->{_selector}->set_selection($s);
