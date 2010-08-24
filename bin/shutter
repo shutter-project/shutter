@@ -5328,14 +5328,12 @@ sub fct_take_screenshot {
 	
 	#filename
 	my $filename_value = $filename->get_text();
-	utf8::decode $filename_value;
 	
 	#filetype
 	my $filetype_value 	   = undef;
 	
 	#folder to save
 	my $folder             = $saveDir_button->get_current_folder || $folder_from_config;
-	utf8::decode $folder;
 	
 	#screenshot(pixbuf) and screenshot name
 	my $screenshot         = undef;
@@ -5625,7 +5623,7 @@ sub fct_take_screenshot {
 
 		#we have to use the path (e.g. /home/username/file1.png)
 		#so we can save the screenshot_properly
-		$screenshot_name = $shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path));
+		$screenshot_name = $shf->utf8_decode($uri->get_path);
 		#maybe / is set as uri (get_path returns undef)
 		#in this case nothing is returned when using get_path
 		#we use the directory name and the short name in this case
@@ -5674,7 +5672,7 @@ sub fct_take_screenshot {
 		#maybe the uri already exists, so we have to append some digits (e.g. testfile01(0002).png)
 		if ( $uri->exists ) {
 			my $count = 1;
-			my $new_filename = fileparse($shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path)), qr/\.[^.]*/);
+			my $new_filename = fileparse($shf->utf8_decode($uri->get_path), qr/\.[^.]*/);
 			
 			print "Checking if filename already exists: " . $new_filename . "\n" if $sc->get_debug;
 			
@@ -5688,7 +5686,7 @@ sub fct_take_screenshot {
 		}
 				
 		#we have to update the path again
-		$screenshot_name = $shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path));
+		$screenshot_name = $shf->utf8_decode($uri->get_path);
 		
 		#ask for filename and folder
 		if($save_ask_active->get_active){
