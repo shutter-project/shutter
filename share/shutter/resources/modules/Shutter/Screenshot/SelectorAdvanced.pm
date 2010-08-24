@@ -559,6 +559,7 @@ sub select_advanced {
 					}elsif ($event->state >= 'mod1-mask' && $s){	
 						$s->y($s->y-1);
 						$self->{_selector}->set_selection($s);
+						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->x, $s->y);
 					}else{
 						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x, $y-1);
 					}
@@ -577,6 +578,7 @@ sub select_advanced {
 					}elsif ($event->state >= 'mod1-mask' && $s){	
 						$s->y($s->y+1);
 						$self->{_selector}->set_selection($s);
+						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->x, $s->y);
 					}else{
 						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x, $y+1);
 					}
@@ -590,6 +592,7 @@ sub select_advanced {
 					}elsif ($event->state >= 'mod1-mask' && $s){	
 						$s->x($s->x-1);
 						$self->{_selector}->set_selection($s);
+						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->x, $s->y);
 					}else{
 						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x-1, $y);
 					}
@@ -608,6 +611,7 @@ sub select_advanced {
 					}elsif ($event->state >= 'mod1-mask' && $s){	
 						$s->x($s->x+1);
 						$self->{_selector}->set_selection($s);
+						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->x, $s->y);
 					}else{
 						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x+1, $y);
 					}
