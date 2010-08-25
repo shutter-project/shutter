@@ -7260,7 +7260,7 @@ sub fct_ret_workspace_menu {
 	#entry for capturing all workspaces
 	$menu_wrksp->append( Gtk2::SeparatorMenuItem->new );
 	
-	my $allwspaces_item = Gtk2::MenuItem->new_with_label( $d->get("Capture all workspaces"));
+	my $allwspaces_item = Gtk2::MenuItem->new_with_label( $d->get("Capture All Workspaces"));
 	$allwspaces_item->signal_connect(
 		'activate' => \&evt_take_screenshot,
 		"shutter_wrksp_direct" . 'all'

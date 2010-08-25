@@ -61,10 +61,15 @@ sub new {
 sub workspaces {
 	my $self = shift;
 
+	my $d = $self->{_sc}->get_gettext;
+
 	my $active_workspace = $self->{_wnck_screen}->get_active_workspace;
 	
 	#valid workspace?
 	return TRUE unless $active_workspace;
+
+	my $active_vpx = $active_workspace->get_viewport_x;
+	my $active_vpy = $active_workspace->get_viewport_y;
 
 	#create shutter region object
 	my $sr = Shutter::Geometry::Region->new();
@@ -82,25 +87,77 @@ sub workspaces {
 	my $width 	= 0;
 	foreach my $space ( @{ $self->{_workspaces} } ) {
 		next unless defined $space;
-		#capture next workspace
-		$self->{_selected_workspace} = $space->get_number;
-		#~ print "Capturing Workspace: ".$space->get_number." Layout-Row:". $space->get_layout_row ." Layout-Column:". $space->get_layout_column ."\n";
-		$pixbuf = $self->workspace(TRUE, TRUE);
 
-		if ($column < $space->get_layout_column){
-			$width += $pixbuf->get_width;			
-		}elsif ($column > $space->get_layout_column){
-			$width = 0;	
+		#compiz
+		if ( $self->{_wm_manager_name} =~ /compiz/ ){
+
+			#calculate viewports with size of workspace
+			my $vpx = $space->get_viewport_x;
+			my $vpy = $space->get_viewport_y;
+
+			my $n_viewports_column = int( $space->get_width / $self->{_wnck_screen}->get_width );
+			my $n_viewports_rows   = int( $space->get_height / $self->{_wnck_screen}->get_height );
+
+			#rows
+			for ( my $j = 0; $j < $n_viewports_rows; $j++ ) {
+				#columns
+				for ( my $i = 0; $i < $n_viewports_column; $i++ ) {
+					my @vp = ( $i * $self->{_wnck_screen}->get_width, $j * $self->{_wnck_screen}->get_height );
+					
+					#set coordinates
+					$self->{_vpx} = $vp[0];
+					$self->{_vpy} = $vp[1];
+					
+					#and disable workspace
+					$self->{_selected_workspace} = undef;
+					
+					#capture viewport
+					$pixbuf = $self->workspace(TRUE, TRUE);
+										
+					my $rect = Gtk2::Gdk::Rectangle->new($width, $height, $pixbuf->get_width, $pixbuf->get_height);
+					$wspaces_region->union_with_rect($rect);
+					push @pixbuf_array, $pixbuf;
+					push @rects_array, $rect;			
+
+					#increase width according to current column
+					$width += $pixbuf->get_width;
+					
+				}
+				
+				#next row
+				# > set height to clipbox-height
+				# > set width to 0, because we start in column 0 again
+				$height	= $sr->get_clipbox($wspaces_region)->height;
+				$width 	= 0;
+			
+			}
+
+
+		#all other wm manager like metacity etc.		
+		}else{
+
+			#capture next workspace
+			$self->{_selected_workspace} = $space->get_number;
+			#~ print "Capturing Workspace: ".$space->get_number." Layout-Row:". $space->get_layout_row ." Layout-Column:". $space->get_layout_column ."\n";
+			$pixbuf = $self->workspace(TRUE, TRUE);
+
+			if ($column < $space->get_layout_column){
+				$width += $pixbuf->get_width;			
+			}elsif ($column > $space->get_layout_column){
+				$width = 0;	
+			}
+			$column = $space->get_layout_column;
+			
+			$height = $sr->get_clipbox($wspaces_region)->height if ($row != $space->get_layout_row);
+			$row = $space->get_layout_row;
+			
+			my $rect = Gtk2::Gdk::Rectangle->new($width, $height, $pixbuf->get_width, $pixbuf->get_height);
+			$wspaces_region->union_with_rect($rect);
+			push @pixbuf_array, $pixbuf;
+			push @rects_array, $rect;			
+			
 		}
-		$column = $space->get_layout_column;
-		
-		$height = $sr->get_clipbox($wspaces_region)->height if ($row != $space->get_layout_row);
-		$row = $space->get_layout_row;
-		
-		my $rect = Gtk2::Gdk::Rectangle->new($width, $height, $pixbuf->get_width, $pixbuf->get_height);
-		$wspaces_region->union_with_rect($rect);
-		push @pixbuf_array, $pixbuf;
-		push @rects_array, $rect;
+				
 	}	
 
 	if($wspaces_region->get_rectangles){
@@ -124,16 +181,15 @@ sub workspaces {
 	#set name of the captured workspace
 	#e.g. for use in wildcards
 	if($output =~ /Gtk2/){
-		$self->{_action_name} = 'FIXME';
+		$self->{_action_name} = $d->get("Workspaces");
 	}
 
-	#metacity etc
-	if ( $active_workspace ) {
-		$active_workspace->activate(Gtk2->get_current_event_time);
 	#compiz
-	} else {
-		#FIXME
-		#$self->{_wnck_screen}->move_viewport( $active_vpx, $active_vpy );
+	if ( $self->{_wm_manager_name} =~ /compiz/ ){
+		$self->{_wnck_screen}->move_viewport( $active_vpx, $active_vpy );
+	#metacity etc.
+	}else{
+		$active_workspace->activate(Gtk2->get_current_event_time);
 	}
 	
 	return $output;
