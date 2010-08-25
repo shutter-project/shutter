@@ -7263,7 +7263,7 @@ sub fct_ret_workspace_menu {
 	my $allwspaces_item = Gtk2::MenuItem->new_with_label( $d->get("Capture all workspaces"));
 	$allwspaces_item->signal_connect(
 		'activate' => \&evt_take_screenshot,
-		"shutter_wrksp_all" . $vp[0] . "x" . $vp[1]
+		"shutter_wrksp_direct" . 'all'
 	);
 	$menu_wrksp->append($allwspaces_item);
 

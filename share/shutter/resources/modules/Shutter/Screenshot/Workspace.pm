@@ -60,27 +60,37 @@ sub new {
 
 sub workspaces {
 	my $self = shift;
-	
-	#variable to save the pixbuf
-	my $output = undef;
 
-	my $clipboard_region = Gtk2::Gdk::Region->new;
+	my $active_workspace = $self->{_wnck_screen}->get_active_workspace;
+	
+	#valid workspace?
+	return TRUE unless $active_workspace;
+
+	#create shutter region object
+	my $sr = Shutter::Geometry::Region->new();
+	
+	#variables to save the pixbuf
+	my $output = undef;
+	my $pixbuf = undef;
+
+	my $wspaces_region = Gtk2::Gdk::Region->new;
 	my @pixbuf_array;
 	my @rects_array;	
 	foreach my $space ( @{ $self->{_workspaces} } ) {
 		next unless defined $space;
 		#capture next workspace
-		$self->{_selected_workspace} = $space->get_number
-		my $pixbuf = $self->workspace();
+		$self->{_selected_workspace} = $space->get_number;
+		print "Capturing Workspace: ".$space->get_number."\n";
+		$pixbuf = $self->workspace(TRUE, TRUE);
 		
-		my $rect = Gtk2::Gdk::Rectangle->new($sr->get_clipbox($clipboard_region)->width, 0, $pixbuf->get_width, $pixbuf->get_height);
-		$clipboard_region->union_with_rect($rect);
+		my $rect = Gtk2::Gdk::Rectangle->new($sr->get_clipbox($wspaces_region)->width, 0, $pixbuf->get_width, $pixbuf->get_height);
+		$wspaces_region->union_with_rect($rect);
 		push @pixbuf_array, $pixbuf;
 		push @rects_array, $rect;
 	}	
 
-	if($clipboard_region->get_rectangles){
-		$output = Gtk2::Gdk::Pixbuf->new ('rgb', TRUE, 8, $sr->get_clipbox($clipboard_region)->width, $sr->get_clipbox($clipboard_region)->height);	
+	if($wspaces_region->get_rectangles){
+		$output = Gtk2::Gdk::Pixbuf->new ('rgb', TRUE, 8, $sr->get_clipbox($wspaces_region)->width, $sr->get_clipbox($wspaces_region)->height);	
 		$output->fill(0x00000000);
 		
 		#copy images to the blank pixbuf
@@ -91,11 +101,34 @@ sub workspaces {
 		}	
 	}
 	
+	#this value will be overwritten - restore for history
+	$self->{_selected_workspace} = 'all';
+
+	#set history object
+	$self->{_history} = Shutter::Screenshot::History->new($self->{_sc});	
+
+	#set name of the captured workspace
+	#e.g. for use in wildcards
+	if($output =~ /Gtk2/){
+		$self->{_action_name} = 'FIXME';
+	}
+
+	#metacity etc
+	if ( $active_workspace ) {
+		$active_workspace->activate(Gtk2->get_current_event_time);
+	#compiz
+	} else {
+		#FIXME
+		#$self->{_wnck_screen}->move_viewport( $active_vpx, $active_vpy );
+	}
+	
 	return $output;
 }
 
 sub workspace {
-	my $self = shift;
+	my $self 			= shift;
+	my $no_active_check	= shift || FALSE;
+	my $no_finishing 	= shift || FALSE;
 
 	my $wrksp_changed = FALSE;
 
@@ -108,11 +141,11 @@ sub workspace {
 	my $active_vpy = $active_workspace->get_viewport_y;
 
 	#metacity etc
-	if ( $self->{_selected_workspace} ) {
+	if ( defined $self->{_selected_workspace} ) {
 		foreach my $space ( @{ $self->{_workspaces} } ) {
 			next unless defined $space;
-			if (   $self->{_selected_workspace} == $space->get_number
-				&& $self->{_selected_workspace} != $active_workspace->get_number )
+			if ( $self->{_selected_workspace} == $space->get_number
+				&& ($no_active_check || $self->{_selected_workspace} != $active_workspace->get_number) )
 			{
 				$space->activate(Gtk2->get_current_event_time);
 				$wrksp_changed = TRUE;
@@ -156,21 +189,25 @@ sub workspace {
 										
 	}
 
-	#set history object
-	$self->{_history} = Shutter::Screenshot::History->new($self->{_sc});	
+	unless($no_finishing){
 
-	#set name of the captured workspace
-	#e.g. for use in wildcards
-	if($output =~ /Gtk2/){
-		$self->{_action_name} = $self->{_wnck_screen}->get_active_workspace->get_name;
-	}
+		#set history object
+		$self->{_history} = Shutter::Screenshot::History->new($self->{_sc});	
 
-	#metacity etc
-	if ( $self->{_selected_workspace} ) {
-		$active_workspace->activate(Gtk2->get_current_event_time) if $wrksp_changed;
-	#compiz
-	} else {
-		$self->{_wnck_screen}->move_viewport( $active_vpx, $active_vpy );
+		#set name of the captured workspace
+		#e.g. for use in wildcards
+		if($output =~ /Gtk2/){
+			$self->{_action_name} = $self->{_wnck_screen}->get_active_workspace->get_name;
+		}
+
+		#metacity etc
+		if ( $self->{_selected_workspace} ) {
+			$active_workspace->activate(Gtk2->get_current_event_time) if $wrksp_changed;
+		#compiz
+		} else {
+			$self->{_wnck_screen}->move_viewport( $active_vpx, $active_vpy );
+		}
+
 	}
 
 	return $output;
