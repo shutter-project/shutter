@@ -5364,7 +5364,7 @@ sub fct_take_screenshot {
 	}
 	
 	#prepare filename, parse wild-cards
-	$filename_value = strftime $filename_value , localtime;
+	$filename_value = $shf->utf8_decode (strftime $filename_value , localtime);
 	#remove "/" and "#"
 	$filename_value =~ s/(\/|\#)/-/g;
 
@@ -6958,11 +6958,16 @@ sub fct_get_next_filename {
 		#reading all files in current directory
 		my $next_count = 0;
 		while ( my ( $result, $file ) = $uri_list->read_next ) {
-			if ( $result eq 'ok' ) {
-				my $fileinfo = Gnome2::VFS::FileInfo->new($file);
+			if ( $result eq 'ok' ) {				
+				my $fileinfo	= Gnome2::VFS::FileInfo->new($file);
+				my $fname		= $shf->utf8_decode($fileinfo->{'name'});
+				
+				#not a regular file? -> skip
+				next unless $fileinfo->{'type'} eq 'regular';
 				
 				#does the current file match the pattern?
-				if ($fileinfo->{'name'} =~ $search_pattern){
+				print "Comparing $fname\n" if $sc->get_debug;
+				if ($fname =~ $search_pattern){
 					my $curr_value = $1;
 					if($curr_value && $curr_value > $next_count){
 						$next_count = $curr_value;
