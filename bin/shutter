@@ -5522,7 +5522,11 @@ sub fct_take_screenshot {
 			$selected_workspace, $vpx, $vpy, $current_monitor_active->get_active 
 		);
 		
-		$screenshot = $screenshooter->workspace();
+		if($selected_workspace eq 'all'){
+			$screenshot = $screenshooter->workspaces();
+		}else{
+			$screenshot = $screenshooter->workspace();
+		}
 
 	} elsif ( $data eq "redoshot" ) {
 

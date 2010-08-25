@@ -58,6 +58,42 @@ sub new {
     #~ print "$self dying at\n";
 #~ } 
 
+sub workspaces {
+	my $self = shift;
+	
+	#variable to save the pixbuf
+	my $output = undef;
+
+	my $clipboard_region = Gtk2::Gdk::Region->new;
+	my @pixbuf_array;
+	my @rects_array;	
+	foreach my $space ( @{ $self->{_workspaces} } ) {
+		next unless defined $space;
+		#capture next workspace
+		$self->{_selected_workspace} = $space->get_number
+		my $pixbuf = $self->workspace();
+		
+		my $rect = Gtk2::Gdk::Rectangle->new($sr->get_clipbox($clipboard_region)->width, 0, $pixbuf->get_width, $pixbuf->get_height);
+		$clipboard_region->union_with_rect($rect);
+		push @pixbuf_array, $pixbuf;
+		push @rects_array, $rect;
+	}	
+
+	if($clipboard_region->get_rectangles){
+		$output = Gtk2::Gdk::Pixbuf->new ('rgb', TRUE, 8, $sr->get_clipbox($clipboard_region)->width, $sr->get_clipbox($clipboard_region)->height);	
+		$output->fill(0x00000000);
+		
+		#copy images to the blank pixbuf
+		my $rect_counter = 0;
+		foreach my $pixbuf (@pixbuf_array){
+			$pixbuf->copy_area (0, 0, $pixbuf->get_width, $pixbuf->get_height, $output, $rects_array[$rect_counter]->x, 0);
+			$rect_counter++;
+		}	
+	}
+	
+	return $output;
+}
+
 sub workspace {
 	my $self = shift;
 
