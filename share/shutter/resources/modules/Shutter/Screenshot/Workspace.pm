@@ -75,15 +75,29 @@ sub workspaces {
 
 	my $wspaces_region = Gtk2::Gdk::Region->new;
 	my @pixbuf_array;
-	my @rects_array;	
+	my @rects_array;
+	my $row 	= 0;
+	my $column 	= 0;
+	my $height 	= 0;
+	my $width 	= 0;
 	foreach my $space ( @{ $self->{_workspaces} } ) {
 		next unless defined $space;
 		#capture next workspace
 		$self->{_selected_workspace} = $space->get_number;
-		print "Capturing Workspace: ".$space->get_number."\n";
+		#~ print "Capturing Workspace: ".$space->get_number." Layout-Row:". $space->get_layout_row ." Layout-Column:". $space->get_layout_column ."\n";
 		$pixbuf = $self->workspace(TRUE, TRUE);
+
+		if ($column < $space->get_layout_column){
+			$width += $pixbuf->get_width;			
+		}elsif ($column > $space->get_layout_column){
+			$width = 0;	
+		}
+		$column = $space->get_layout_column;
 		
-		my $rect = Gtk2::Gdk::Rectangle->new($sr->get_clipbox($wspaces_region)->width, 0, $pixbuf->get_width, $pixbuf->get_height);
+		$height = $sr->get_clipbox($wspaces_region)->height if ($row != $space->get_layout_row);
+		$row = $space->get_layout_row;
+		
+		my $rect = Gtk2::Gdk::Rectangle->new($width, $height, $pixbuf->get_width, $pixbuf->get_height);
 		$wspaces_region->union_with_rect($rect);
 		push @pixbuf_array, $pixbuf;
 		push @rects_array, $rect;
@@ -96,7 +110,7 @@ sub workspaces {
 		#copy images to the blank pixbuf
 		my $rect_counter = 0;
 		foreach my $pixbuf (@pixbuf_array){
-			$pixbuf->copy_area (0, 0, $pixbuf->get_width, $pixbuf->get_height, $output, $rects_array[$rect_counter]->x, 0);
+			$pixbuf->copy_area (0, 0, $pixbuf->get_width, $pixbuf->get_height, $output, $rects_array[$rect_counter]->x, $rects_array[$rect_counter]->y);
 			$rect_counter++;
 		}	
 	}
