@@ -150,6 +150,7 @@ my $ubuntuone       = TRUE;
 #app classes
 require Shutter::App::AboutDialog;
 require Shutter::App::Common;
+require Shutter::App::GlobalSettings;
 require Shutter::App::SimpleDialogs;
 require Shutter::App::HelperFunctions;
 require Shutter::App::Menu;
@@ -955,6 +956,7 @@ foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
 	}
 }
 $combobox_type->signal_connect( 'changed' => \&evt_value_changed, 'type_changed' );
+$scale->signal_connect( 'value-changed' => \&evt_value_changed, 'qvalue_changed' );
 
 if ( defined $settings_xml->{'general'}->{'filetype'} ) {
 	
@@ -2369,6 +2371,24 @@ sub evt_value_changed {
 			$thumbnail->set_sensitive(TRUE);
 		} else {
 			$thumbnail->set_sensitive(FALSE);
+		}
+	}
+
+	#quality value changed
+	if ( $data eq "qvalue_changed" ) {
+		my $settings = undef;
+		if(defined $sc->get_globalsettings_object){
+			$settings = $sc->get_globalsettings_object;
+		}else{
+			$settings = Shutter::App::GlobalSettings->new();
+			$sc->set_globalsettings_object($settings);
+		}
+		if ( $combobox_type->get_active_text =~ /jpeg/ ) {
+			$settings->set_jpg_quality($scale->get_value);
+		} elsif ( $combobox_type->get_active_text =~ /png/ ) {
+			$settings->set_png_quality($scale->get_value);
+		} else {
+			$settings->clear_quality_settings();
 		}
 	}
 
