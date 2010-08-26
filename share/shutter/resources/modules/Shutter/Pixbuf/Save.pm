@@ -71,7 +71,7 @@ sub save_pixbuf_to_file {
 	#currently this is bmp, jpeg, png and ico (ico is not useful here)
 	my $imagemagick_result = undef;
 	if ( $filetype eq 'jpeg' ) {
-		$quality = '100' unless $quality;
+		$quality = '90' unless $quality;
 		eval{
 			$pixbuf->save( $filename, $filetype, quality => $quality );
 		};
