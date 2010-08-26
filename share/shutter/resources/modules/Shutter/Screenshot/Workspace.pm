@@ -158,7 +158,7 @@ sub workspaces {
 			
 		}
 				
-	}	
+	}
 
 	if($wspaces_region->get_rectangles){
 		$output = Gtk2::Gdk::Pixbuf->new ('rgb', TRUE, 8, $sr->get_clipbox($wspaces_region)->width, $sr->get_clipbox($wspaces_region)->height);	
@@ -286,7 +286,9 @@ sub workspace {
 sub redo_capture {
 	my $self = shift;
 	my $output = 3;
-	if(defined $self->{_history}){
+	if(defined $self->{_history} && $self->{_selected_workspace} eq 'all'){
+		$output = $self->workspaces();
+	}elsif(defined $self->{_history}){
 		$output = $self->workspace();
 	}
 	return $output;
