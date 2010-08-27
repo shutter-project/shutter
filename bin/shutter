@@ -728,7 +728,7 @@ $button_profile_apply->signal_connect(
 	}
 );
 $button_profile_apply->set_image( Gtk2::Image->new_from_stock( 'gtk-apply', 'button' ) );
-$tooltips->set_tip( $button_profile_apply, $d->get("Set profile for current configuration") );
+$tooltips->set_tip( $button_profile_apply, $d->get("Load the selected profile's configuration") );
 
 #--------------------------------------
 
