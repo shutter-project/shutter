@@ -4462,6 +4462,24 @@ sub fct_get_program_model {
 
 	my $traytheme = $sc->get_theme;
 
+	#add Shutter's built-in editor to the list
+	if($goocanvas){
+		my $tray_pixbuf = undef;
+		my $tray_name = 'shutter';
+		if ( $traytheme->has_icon( $tray_name ) ) {
+			my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
+			eval{
+				$tray_pixbuf = $traytheme->load_icon( $tray_name, $ih, 'generic-fallback' );
+			};
+			if($@){
+				print "\nWARNING: Could not load icon $tray_name: $@\n";
+				$tray_pixbuf = undef;
+			}						
+		}	
+		$model->set( $model->append, 0, $tray_pixbuf, 1, $d->get("Built-in Editor"), 2, 'shutter-built-in' );
+	}
+
+	#Get all installed apps
 	#FIXME - use png as default mime type (is this clever enough?)
 	my ( $default, @mapps ) = File::MimeInfo::Applications::mime_applications('image/png');
 	
@@ -4487,7 +4505,7 @@ sub fct_get_program_model {
 		}
 		push @apps, $_ unless $already_in_list;
 	}
-	
+		
 	#no app determined!
 	unless (scalar @apps && scalar @mapps){
 		return $model;			
@@ -6180,15 +6198,25 @@ sub fct_open_with_program {
 	if ($key) {
 
 		return FALSE unless &fct_screenshot_exists($key);
+		
+		if($dentry =~ /shutter-built-in/){
+			
+			&fct_draw();
 
-		#everything is fine -> open it
-		if ( $dentry->wants_uris ) {
-			$exec_call = $dentry->parse_Exec( $session_screens{$key}->{'uri'}->to_string );
-		} else {
-			$exec_call = $dentry->parse_Exec( $session_screens{$key}->{'long'} );
-		}
+			&fct_show_status_message( 1, sprintf($d->get("%s opened with %s"), $session_screens{$key}->{'long'}, $d->get("Built-in Editor")) );
+			
+		}else{
+			
+			#everything is fine -> open it
+			if ( $dentry->wants_uris ) {
+				$exec_call = $dentry->parse_Exec( $session_screens{$key}->{'uri'}->to_string );
+			} else {
+				$exec_call = $dentry->parse_Exec( $session_screens{$key}->{'long'} );
+			}
 
-		&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("opened with") . " " . $name );
+			&fct_show_status_message( 1, sprintf($d->get("%s opened with %s"), $session_screens{$key}->{'long'}, $name) );
+
+		}		
 
 		#session tab
 	} else {
