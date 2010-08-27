@@ -88,7 +88,7 @@ use Digest::MD5  qw(md5_hex);
 use constant MAX_ERROR			=> 5;
 use constant SHUTTER_REV		=> 'Rev.882';
 use constant SHUTTER_NAME		=> 'Shutter';
-use constant SHUTTER_VERSION	=> '0.86.3';
+use constant SHUTTER_VERSION	=> '0.86.4 (beta)';
 
 #--------------------------------------
 
@@ -9333,23 +9333,21 @@ sub dlg_upload {
 
 							if($is_connected && $is_online){
 								#is current folder synced?
-								eval{
-									if(defined $u1_fc->get_current_folder && $u1->is_synced_folder($u1_fc->get_current_folder)){
-										$u1_hint->set_markup("<span size='small'>" . 
-											sprintf($d->nget("Folder %s is synchronized with Ubuntu One.\nThe selected file will be copied to that folder before being published.", "Folder %s is synchronized with Ubuntu One.\nThe selected files will be copied to that folder before being published.", scalar @files_to_upload) , "'".$u1_fc->get_current_folder."'") 
-											. "</span>");								
-											$u1_hint2->set_markup("<span size='small'>" . 
-											$d->nget("<b>Please note:</b> The selected file will be published in a background process.\nYou will be notified when the process has finished.", "<b>Please note:</b> The selected files will be published in a background process.\nYou will be notified when the process has finished.", scalar @files_to_upload)
-											. "</span>");	
-											$upload_button->set_sensitive(TRUE);													
-									}else{
-											$u1_hint->set_markup("<span size='small' color='red'>" . 
-											sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_current_folder."'") 
-											. "</span>");
-											$u1_hint2->set_markup("");				
-											$upload_button->set_sensitive(FALSE);
-									}
-								};
+								if(defined $u1_fc->get_current_folder && $u1->is_synced_folder($u1_fc->get_current_folder)){
+									$u1_hint->set_markup("<span size='small'>" . 
+										sprintf($d->nget("Folder %s is synchronized with Ubuntu One.\nThe selected file will be copied to that folder before being published.", "Folder %s is synchronized with Ubuntu One.\nThe selected files will be copied to that folder before being published.", scalar @files_to_upload) , "'".$u1_fc->get_current_folder."'") 
+										. "</span>");								
+										$u1_hint2->set_markup("<span size='small'>" . 
+										$d->nget("<b>Please note:</b> The selected file will be published in a background process.\nYou will be notified when the process has finished.", "<b>Please note:</b> The selected files will be published in a background process.\nYou will be notified when the process has finished.", scalar @files_to_upload)
+										. "</span>");	
+										$upload_button->set_sensitive(TRUE);													
+								}else{
+										$u1_hint->set_markup("<span size='small' color='red'>" . 
+										sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_current_folder."'") 
+										. "</span>");
+										$u1_hint2->set_markup("");				
+										$upload_button->set_sensitive(FALSE);
+								}
 							}else{
 								$u1_hint->set_markup("");								
 								$u1_hint2->set_markup("");						  
@@ -9376,11 +9374,11 @@ sub dlg_upload {
 									. "</span>");	
 									$upload_button->set_sensitive(TRUE);													
 								}else{
-										$u1_hint->set_markup("<span size='small' color='red'>" . 
-										sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_current_folder."'") 
-										. "</span>");
-										$u1_hint2->set_markup("");				
-										$upload_button->set_sensitive(FALSE);
+									$u1_hint->set_markup("<span size='small' color='red'>" . 
+									sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_current_folder."'") 
+									. "</span>");
+									$u1_hint2->set_markup("");				
+									$upload_button->set_sensitive(FALSE);
 								}
 							}else{
 									$u1_hint->set_markup("");								

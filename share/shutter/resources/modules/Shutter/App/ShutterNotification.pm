@@ -51,12 +51,12 @@ sub new {
 			$self->{_notifications_window}->set_colormap($self->{_sc}->get_mainwindow->get_screen->get_rgba_colormap);
 		}
 	
-      $self->{_notifications_window}->set_app_paintable(TRUE);
-      $self->{_notifications_window}->set_decorated(FALSE);
+		$self->{_notifications_window}->set_app_paintable(TRUE);
+		$self->{_notifications_window}->set_decorated(FALSE);
 		$self->{_notifications_window}->set_skip_taskbar_hint(TRUE);
 		$self->{_notifications_window}->set_skip_pager_hint(TRUE);	    
-      $self->{_notifications_window}->set_keep_above(TRUE);
-      $self->{_notifications_window}->set_accept_focus(FALSE);	
+		$self->{_notifications_window}->set_keep_above(TRUE);
+		$self->{_notifications_window}->set_accept_focus(FALSE);	
 		$self->{_notifications_window}->add_events('GDK_ENTER_NOTIFY_MASK');
 		
 		#shape the window
@@ -72,87 +72,83 @@ sub new {
 		$self->{_notifications_window}->signal_connect('expose-event' => sub{
 			
 			return FALSE unless $self->{_notifications_window}->window;
-			
+
 			return FALSE unless $self->{_summary};
 
-         #current monitor
-         my $mon 	= $self->{_sc}->get_current_monitor;
+			#current monitor
+			my $mon 	= $self->{_sc}->get_current_monitor;
 
-         #initial position
+			#initial position
 			unless(defined $self->{_notifications_window}->{'pos'}){
 				$self->{_notifications_window}->move($mon->x + $mon->width - 315, $mon->y + $mon->height - 120);
 				$self->{_notifications_window}->{'pos'} = 1;
 			}
-   		
+
 			#window size and position
 			my ($w, $h) = $self->{_notifications_window}->get_size;
 			my ($x, $y) = $self->{_notifications_window}->get_position;
 
-         #obtain current colors and font_desc from the main window
-         my $style 		= $self->{_sc}->get_mainwindow->get_style;
-         my $sel_bg 		= Gtk2::Gdk::Color->parse('#131313');
-         my $sel_tx 		= Gtk2::Gdk::Color->parse('white');
-         my $font_fam 	= $style->font_desc->get_family;
-         my $font_size 	= $style->font_desc->get_size / Gtk2::Pango->scale;
-   			
+			#obtain current colors and font_desc from the main window
+			my $style 		= $self->{_sc}->get_mainwindow->get_style;
+			my $sel_bg 		= Gtk2::Gdk::Color->parse('#131313');
+			my $sel_tx 		= Gtk2::Gdk::Color->parse('white');
+			my $font_fam 	= $style->font_desc->get_family;
+			my $font_size 	= $style->font_desc->get_size / Gtk2::Pango->scale;
+				
 			#create cairo context
 			my $cr = Gtk2::Gdk::Cairo::Context->create ($self->{_notifications_window}->window);
-	
+
 			#pango layout
 			my $layout = Gtk2::Pango::Cairo::create_layout($cr);
 			$layout->set_width( ($w - $font_size * 2) * Gtk2::Pango->scale );
-			
+
 			if ( Gtk2::Pango->CHECK_VERSION( 1, 20, 0 ) ) {
 				$layout->set_height( $h * Gtk2::Pango->scale );
 			}else{
 				warn "WARNING: \$layout->set_height is not available - outdated Pango version\n";
 			}
-			
+
 			if ( Gtk2::Pango->CHECK_VERSION( 1, 6, 0 ) ) {
 				$layout->set_ellipsize ('middle');
 			}else{
 				warn "WARNING: \$layout->set_ellipsize is not available - outdated Pango version\n";
 			}
-			
+
 			$layout->set_alignment('left');
 			$layout->set_wrap('word-char');
-			
+
 			#set text
 			$layout->set_markup("<span font_desc=\"$font_fam $font_size\" weight=\"bold\" foreground=\"#FFFFFF\">" . Glib::Markup::escape_text( $self->{_summary} ) . "</span><span font_desc=\"$font_fam $font_size\" foreground=\"#FFFFFF\">\n" . Glib::Markup::escape_text( $self->{_body} ) . "</span>");
-			
+
 			#fill window
 			$cr->set_operator('source');
-			
+
 			if($self->{_sc}->get_mainwindow->get_screen->is_composited){
-				
 				$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.9 );
-            $cr->paint;
-				
+				$cr->paint;
 			}else{
-				
 				$cr->set_source_rgb( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255 );
 				$cr->paint;
-				
 			}
 
 			#get layout size
 			my ( $lw, $lh ) = $layout->get_pixel_size;			
 			$cr->move_to( ($w - $lw) / 2, ($h - $lh) / 2 );
 			Gtk2::Pango::Cairo::show_layout( $cr, $layout );
-			
+
 			return TRUE;
 		});	
 
 		$self->{_notifications_window}->signal_connect('enter-notify-event' => sub{
-			
+
 			#remove old handler
 			if(defined $self->{_enter_notify_timeout}){
 				Glib::Source->remove($self->{_enter_notify_timeout});
 			}
 
-         #current monitor
-         my $mon 	= $self->{_sc}->get_current_monitor;
-			
+			#current monitor
+			my $mon = $self->{_sc}->get_current_monitor;
+
 			if(defined $self->{_notifications_window}->{'pos'} && $self->{_notifications_window}->{'pos'} == 1){
 				$self->{_notifications_window}->move($mon->x + $mon->width - 315, $mon->y + 40);
 				$self->{_notifications_window}->{'pos'} = 0;
@@ -160,14 +156,14 @@ sub new {
 				$self->{_notifications_window}->move($mon->x + $mon->width - 315, $mon->y + $mon->height - 120);
 				$self->{_notifications_window}->{'pos'} = 1;
 			}
-			
+
 			$self->{_enter_notify_timeout} = Glib::Timeout->add (100, sub{
 				$self->show($self->{_summary}, $self->{_body});
 			});
-			
+
 			return FALSE;
 		});	
-		
+
 	};
 	if($@){
 		print "Warning: $@", "\n";	
@@ -187,10 +183,10 @@ sub show {
 	if(defined $self->{_notifications_timeout}){
 		Glib::Source->remove($self->{_notifications_timeout});
 	}
-	
+
 	#set body and summary
-	$self->{_summary} = shift;
-	$self->{_body}  	= shift;
+	$self->{_summary} 	= shift;
+	$self->{_body}		= shift;
 
 	$self->{_notifications_window}->show_all;
 
@@ -206,17 +202,17 @@ sub show {
 sub close {
 	my $self 		= shift;
 	my $no_clear 	= shift;
-	
+
 	#clear body and summary
 	unless($no_clear){
-		$self->{_summary} 	= undef;
-		$self->{_body}  	= undef;
+		$self->{_summary}	= undef;
+		$self->{_body}		= undef;
 	}
 
 	$self->{_notifications_window}->hide_all;
-	
-   $self->{_notifications_window}->{'pos'} = undef;
-   
+
+	$self->{_notifications_window}->{'pos'} = undef;
+
 	return 0;
 }
 
