@@ -63,6 +63,9 @@ sub new {
 
 	#gdk screen
 	$self->{_gdk_screen} = Gtk2::Gdk::Screen->get_default;	
+
+	#gdk display
+	$self->{_gdk_display} = $self->{_gdk_screen}->get_display;
 	
 	#we determine the wm name but on older
 	#version of libwnck (or the bindings)
