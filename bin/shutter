@@ -7657,6 +7657,10 @@ sub fct_ret_program_menu {
 			
 			$program_large_item = $sm->{_menuitem_large_reopen_default};
 			$program_large_item->{'default'} = TRUE;
+
+			#show always an icon
+			$program_item->set('always_show_image' => TRUE) if Gtk2->CHECK_VERSION( 2, 16, 0 );	
+			$program_large_item->set('always_show_image' => TRUE) if Gtk2->CHECK_VERSION( 2, 16, 0 );	
 			
 			$sm->{_menuitem_reopen_default}->show;
 			$sm->{_menuitem_reopen_default}->set_sensitive(TRUE);
@@ -7682,7 +7686,8 @@ sub fct_ret_program_menu {
 				
 		#other apps			
 		}else{
-			$program_item = Gtk2::ImageMenuItem->new_with_label( $app->{'name'} );			
+			$program_item = Gtk2::ImageMenuItem->new_with_label( $app->{'name'} );
+			$program_item->set('always_show_image' => TRUE) if Gtk2->CHECK_VERSION( 2, 16, 0 );	
 			$menu_programs->append($program_item);
 		}
 
