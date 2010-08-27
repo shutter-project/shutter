@@ -239,7 +239,7 @@ if($goocanvas){
 
 #UbuntuOne Client
 my $u1 = undef;
-my $u1_watcher = &fct_init_u1_watcher;
+my $u1_watcher = undef;
 
 #data structures
 #--------------------------------------
@@ -9351,6 +9351,11 @@ sub dlg_upload {
 				 
 			#ubuntuone enabled (libs installed)?
 			if($ubuntuone){
+
+				#start watcher if it is not started yet
+				unless($u1_watcher){
+					$u1_watcher = &fct_init_u1_watcher;
+				}
 
 				#connect
 				$u1 = Shutter::Upload::UbuntuOne->new($sc);
