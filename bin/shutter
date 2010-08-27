@@ -164,6 +164,7 @@ require Shutter::Geometry::Region;
 #pixbuf operations
 require Shutter::Pixbuf::Save;
 require Shutter::Pixbuf::Thumbnail;
+require Shutter::Pixbuf::Border;
 
 #drawing classes
 if($goocanvas){
@@ -539,6 +540,7 @@ my $actions_vbox        = Gtk2::VBox->new( FALSE, 0 );
 my $progname_box        = Gtk2::HBox->new( FALSE, 0 );
 my $im_colors_box       = Gtk2::HBox->new( FALSE, 0 );
 my $thumbnail_box       = Gtk2::HBox->new( FALSE, 0 );
+my $bordereffect_box	= Gtk2::HBox->new( FALSE, 0 );
 
 #advanced
 my $window_capture_vbox = Gtk2::VBox->new( FALSE, 0 );
@@ -1304,6 +1306,70 @@ $thumbnail_box->pack_start( $thumbnail,        TRUE,  TRUE,  0 );
 #end - thumbnail
 #--------------------------------------
 
+#bordereffect
+#--------------------------------------
+my $bordereffect_active = Gtk2::CheckButton->new;
+$bordereffect_active->set_active(TRUE);
+
+my $bordereffect_label = Gtk2::Label->new( $d->get("Border") . ":" );
+my $bordereffect = Gtk2::SpinButton->new_with_range( 1, 100, 1 );
+my $bordereffect_vlabel = Gtk2::Label->new( $d->get("pixels") );
+
+my $bordereffect_clabel = Gtk2::Label->new( $d->get("Color") . ":" );
+my $bordereffect_cbtn = Gtk2::ColorButton->new();
+$bordereffect_cbtn->set_use_alpha(FALSE);
+$bordereffect_cbtn->set_title( $d->get("Choose border color") );
+
+$tooltips->set_tip( $bordereffect_active,
+	$d->get("Adds a border effect to the screenshot") );
+$tooltips->set_tip( $bordereffect,
+	$d->get("Adds a border effect to the screenshot") );
+$tooltips->set_tip( $bordereffect_label,
+	$d->get("Adds a border effect to the screenshot") );
+
+$tooltips->set_tip( $bordereffect_clabel,
+	$d->get("Choose border color") );
+$tooltips->set_tip( $bordereffect_cbtn,
+	$d->get("Choose border color") );	
+	
+$bordereffect_box->pack_start( $bordereffect_label, FALSE, TRUE, 12 );
+$bordereffect_box->pack_start( $bordereffect_active, FALSE, FALSE, 0 );
+$bordereffect_box->pack_start( $bordereffect, TRUE, TRUE, 2 );
+$bordereffect_box->pack_start( $bordereffect_vlabel, FALSE, FALSE, 2 );
+$bordereffect_box->pack_start( $bordereffect_clabel, FALSE, FALSE, 12 );
+$bordereffect_box->pack_start( $bordereffect_cbtn, FALSE, FALSE, 0 );
+
+$bordereffect_active->signal_connect(
+	'toggled' => \&evt_value_changed,
+	'bordereffect_toggled'
+);
+
+$bordereffect->signal_connect(
+	'value-changed' => \&evt_value_changed,
+	'bordereffect_changed'
+);
+
+if ( defined $settings_xml->{'general'}->{'bordereffect_active'} ) {
+	$bordereffect_active->set_active( $settings_xml->{'general'}->{'bordereffect_active'} );
+} else {
+	$bordereffect_active->set_active(FALSE);
+}
+
+if ( defined $settings_xml->{'general'}->{'bordereffect'} ) {
+	$bordereffect->set_value( $settings_xml->{'general'}->{'bordereffect'} );
+} else {
+	$bordereffect->set_value(2);
+}
+
+if ( defined $settings_xml->{'general'}->{'bordereffect_col'} ){
+	$bordereffect_cbtn->set_color(Gtk2::Gdk::Color->parse($settings_xml->{'general'}->{'bordereffect_col'}));
+} else {
+	$bordereffect_cbtn->set_color( Gtk2::Gdk::Color->parse('black') );		
+}
+
+#end - bordereffect
+#--------------------------------------
+
 #zoom window
 #--------------------------------------
 my $zoom_active = Gtk2::CheckButton->new_with_label( $d->get("Enable zoom window") );
@@ -1934,17 +2000,20 @@ $label_actions->set_markup( $d->get("Actions") );
 $actions_vbox->pack_start( $progname_box,  FALSE, TRUE, 3 );
 $actions_vbox->pack_start( $im_colors_box, FALSE, TRUE, 3 );
 $actions_vbox->pack_start( $thumbnail_box, FALSE, TRUE, 3 );
+$actions_vbox->pack_start( $bordereffect_box, FALSE, TRUE, 3 );
 $actions_frame->add($actions_vbox);
 
 #all labels = one size
 $progname_label->set_alignment( 0, 0.5 );
 $im_colors_label->set_alignment( 0, 0.5 );
 $thumbnail_label->set_alignment( 0, 0.5 );
+$bordereffect_label->set_alignment( 0, 0.5 );
 
 my $sg_actions = Gtk2::SizeGroup->new('horizontal');
 $sg_actions->add_widget($progname_label);
 $sg_actions->add_widget($im_colors_label);
 $sg_actions->add_widget($thumbnail_label);
+$sg_actions->add_widget($bordereffect_label);
 
 $vbox_actions->pack_start( $actions_frame, FALSE, TRUE, 3 );
 $vbox_actions->set_border_width(5);
@@ -2390,6 +2459,20 @@ sub evt_value_changed {
 		} else {
 			$settings->clear_quality_settings();
 		}
+	}	
+		
+	#checkbox for "bordereffect" -> HScale active/inactive
+	if ( $data eq "bordereffect_toggled" ) {
+		if ( $bordereffect_active->get_active ) {
+			$bordereffect->set_sensitive(TRUE);
+		} else {
+			$bordereffect->set_sensitive(FALSE);
+		}
+	}
+
+	#value for "bordereffect" -> update text
+	if ( $data eq "bordereffect_changed" ) {
+		$bordereffect_vlabel->set_text( $d->nget("pixel", "pixels", $bordereffect->get_value) ); 
 	}
 
 	#filetype changed
@@ -3886,11 +3969,15 @@ sub fct_save_settings {
 	}
 
 	#actions
-	$settings{'general'}->{'prog_active'}      = $progname_active->get_active();
-	$settings{'general'}->{'im_colors'}        = $combobox_im_colors->get_active();
-	$settings{'general'}->{'im_colors_active'} = $im_colors_active->get_active();
-	$settings{'general'}->{'thumbnail'}        = $thumbnail->get_value();
-	$settings{'general'}->{'thumbnail_active'} = $thumbnail_active->get_active();
+	$settings{'general'}->{'prog_active'}			= $progname_active->get_active();
+	$settings{'general'}->{'im_colors'}				= $combobox_im_colors->get_active();
+	$settings{'general'}->{'im_colors_active'}		= $im_colors_active->get_active();
+	$settings{'general'}->{'thumbnail'}				= $thumbnail->get_value();
+	$settings{'general'}->{'thumbnail_active'}		= $thumbnail_active->get_active();
+	$settings{'general'}->{'bordereffect'}			= $bordereffect->get_value();
+	$settings{'general'}->{'bordereffect_active'}	= $bordereffect_active->get_active();
+	my $bcolor = $bordereffect_cbtn->get_color;
+	$settings{'general'}->{'bordereffect_col'}		= sprintf( "#%02x%02x%02x", $bcolor->red / 257, $bcolor->green / 257, $bcolor->blue / 257 );
 
 	#advanced
 	$settings{'general'}->{'zoom_active'} 	   = $zoom_active->get_active();
@@ -3907,8 +3994,8 @@ sub fct_save_settings {
 	#imageview
 	$settings{'general'}->{'trans_check'}      = $trans_check->get_active();
 	$settings{'general'}->{'trans_custom'}     = $trans_custom->get_active();
-	my $color = $trans_custom_btn->get_color;
-	$settings{'general'}->{'trans_custom_col'} = sprintf( "#%02x%02x%02x", $color->red / 257, $color->green / 257, $color->blue / 257 );
+	my $tcolor = $trans_custom_btn->get_color;
+	$settings{'general'}->{'trans_custom_col'} = sprintf( "#%02x%02x%02x", $tcolor->red / 257, $tcolor->green / 257, $tcolor->blue / 257 );
 	$settings{'general'}->{'trans_backg'}      = $trans_backg->get_active();
 
 	#behavior
@@ -4235,6 +4322,12 @@ sub fct_load_settings {
 				
 				$thumbnail->set_value( $settings_xml->{'general'}->{'thumbnail'} );
 				$thumbnail_active->set_active( $settings_xml->{'general'}->{'thumbnail_active'} );
+
+				$bordereffect->set_value( $settings_xml->{'general'}->{'bordereffect'} );
+				$bordereffect_active->set_active( $settings_xml->{'general'}->{'bordereffect_active'} );
+				if(defined $settings_xml->{'general'}->{'bordereffect_col'}){
+					$bordereffect_cbtn->set_color(Gtk2::Gdk::Color->parse($settings_xml->{'general'}->{'bordereffect_col'}));
+				}
 				
 				#advanced settings
 				$zoom_active->set_active( $settings_xml->{'general'}->{'zoom_active'} );
@@ -5738,6 +5831,16 @@ sub fct_take_screenshot {
 			}
 			
 		}else{	
+
+			#bordereffect
+			if ( $bordereffect_active->get_active ) {
+
+				print "Adding border effect to $screenshot_name\n"
+					if $sc->get_debug;
+
+				my $pbuf_border = Shutter::Pixbuf::Border->new($sc);
+				$screenshot = $pbuf_border->create_border($screenshot, $bordereffect->get_value, $bordereffect_cbtn->get_color);
+			}
 		
 			print "Trying to save file to $screenshot_name\n"
 				if $sc->get_debug;
