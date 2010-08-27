@@ -5525,11 +5525,16 @@ sub fct_take_screenshot {
 			$vpy = $2;
 			print "Sel. Viewport: $vpx, $vpy\n" if $sc->get_debug;
 
-			#metacity etc.
+		#metacity etc.
 		} elsif ( $data =~ /shutter_wrksp_direct(.*)/ ) {
 			$selected_workspace = $1;
 			print "Sel. Workspace: $selected_workspace\n"
 				if $sc->get_debug;
+		#all workspaces		
+		} elsif ( $data =~ /shutter_wrksp_all/ ) {
+			print "Capturing all workspaces\n"
+				if $sc->get_debug;
+			$selected_workspace = 'all';	
 		}
 
 		$screenshooter = Shutter::Screenshot::Workspace->new( 
@@ -5537,7 +5542,11 @@ sub fct_take_screenshot {
 			$selected_workspace, $vpx, $vpy, $current_monitor_active->get_active 
 		);
 		
-		$screenshot = $screenshooter->workspace();
+		if($selected_workspace eq 'all'){
+			$screenshot = $screenshooter->workspaces();
+		}else{
+			$screenshot = $screenshooter->workspace();
+		}
 
 	} elsif ( $data eq "redoshot" ) {
 
@@ -7268,6 +7277,19 @@ sub fct_ret_workspace_menu {
 		}
 	} 
 
+	#entry for capturing all workspaces
+	$menu_wrksp->append( Gtk2::SeparatorMenuItem->new );
+	
+	my $allwspaces_item = Gtk2::MenuItem->new_with_label( $d->get("Capture All Workspaces"));
+	$allwspaces_item->signal_connect(
+		'activate' => \&evt_take_screenshot,
+		"shutter_wrksp_direct" . 'all'
+	);
+	$menu_wrksp->append($allwspaces_item);
+
+	$menu_wrksp->append( Gtk2::SeparatorMenuItem->new );
+
+	#monitor flag
 	my $n_mons = Gtk2::Gdk::Screen->get_default->get_n_monitors;
 
 	#use only current monitore
