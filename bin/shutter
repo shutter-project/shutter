@@ -86,7 +86,7 @@ use Digest::MD5  qw(md5_hex);
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.896';
+use constant SHUTTER_REV		=> 'Rev.897';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.86.4 (beta)';
 
@@ -5786,7 +5786,7 @@ sub fct_take_screenshot {
 
 		#we have to use the path (e.g. /home/username/file1.png)
 		#so we can save the screenshot_properly
-		$screenshot_name = $shf->utf8_decode($uri->get_path);
+		$screenshot_name = $shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path));
 		#maybe / is set as uri (get_path returns undef)
 		#in this case nothing is returned when using get_path
 		#we use the directory name and the short name in this case
