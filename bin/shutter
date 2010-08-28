@@ -86,7 +86,7 @@ use Digest::MD5  qw(md5_hex);
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.897';
+use constant SHUTTER_REV		=> 'Rev.898';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.86.4 (beta)';
 
@@ -5835,7 +5835,7 @@ sub fct_take_screenshot {
 		#maybe the uri already exists, so we have to append some digits (e.g. testfile01(0002).png)
 		if ( $uri->exists ) {
 			my $count = 1;
-			my $new_filename = fileparse($shf->utf8_decode($uri->get_path), qr/\.[^.]*/);
+			my $new_filename = fileparse($shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path)), qr/\.[^.]*/);
 			
 			print "Checking if filename already exists: " . $new_filename . "\n" if $sc->get_debug;
 			
@@ -5849,7 +5849,7 @@ sub fct_take_screenshot {
 		}
 				
 		#we have to update the path again
-		$screenshot_name = $shf->utf8_decode($uri->get_path);
+		$shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path));
 		
 		#ask for filename and folder
 		if($save_ask_active->get_active){
