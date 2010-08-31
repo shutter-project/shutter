@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-03-17 20:48+0100\n"
+"POT-Creation-Date: 2010-08-31 19:30+0200\n"
 "PO-Revision-Date: 2010-03-16 01:27+0000\n"
 "Last-Translator: Cédric VALMARY (Tot en òc) <cvalmary@yahoo.fr>\n"
 "Language-Team: Occitan (post 1500) <oc@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-28 18:48+0000\n"
+"X-Launchpad-Export-Date: 2010-08-31 23:04+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: translate_tmp:27
@@ -25,6 +25,7 @@ msgstr ""
 #: translate_tmp:74
 #: translate_tmp:63
 #: translate_tmp:72
+#: translate_tmp:64
 msgid "Effect"
 msgstr "Efièch"
 
@@ -74,14 +75,6 @@ msgid "Raise a rectangular 3d-border"
 msgstr ""
 
 #: translate_tmp:27
-msgid "Hard Shadow"
-msgstr ""
-
-#: translate_tmp:29
-msgid "Add a shadow to the image on a transparent background"
-msgstr "Apond una ombra a l'imatge sus un fons transparent"
-
-#: translate_tmp:27
 msgid "Soft Edges"
 msgstr ""
 
@@ -103,6 +96,19 @@ msgstr ""
 
 #: translate_tmp:29
 msgid "Add a torn-like border to the image"
+msgstr ""
+
+#: translate_tmp:27
+msgid "Autocrop"
+msgstr ""
+
+#: translate_tmp:28
+#: translate_tmp:49
+msgid "Tool"
+msgstr "Esplech"
+
+#: translate_tmp:29
+msgid "Remove empty borders from the image"
 msgstr ""
 
 #: translate_tmp:73
@@ -196,6 +202,7 @@ msgstr "Causir una color de fons"
 #: translate_tmp:259
 #: translate_tmp:328
 #: translate_tmp:257
+#: translate_tmp:314
 #: translate_tmp:315
 #, perl-format
 msgid "Error while executing plugin %s."
@@ -208,6 +215,7 @@ msgstr ""
 #: translate_tmp:260
 #: translate_tmp:329
 #: translate_tmp:258
+#: translate_tmp:315
 #: translate_tmp:316
 msgid "There was an error executing the plugin."
 msgstr ""
@@ -436,10 +444,6 @@ msgstr ""
 msgid "Resize"
 msgstr ""
 
-#: translate_tmp:49
-msgid "Tool"
-msgstr "Esplech"
-
 #: translate_tmp:53
 msgid "Resize your screenshot"
 msgstr ""
@@ -454,6 +458,36 @@ msgstr ""
 
 #: translate_tmp:110
 msgid "Sepia tone"
+msgstr ""
+
+#: translate_tmp:63
+msgid "Hard Shadow"
+msgstr ""
+
+#: translate_tmp:65
+msgid "Add a shadow to the image on a transparent background"
+msgstr "Apond una ombra a l'imatge sus un fons transparent"
+
+#: translate_tmp:94
+msgid "Direction"
+msgstr ""
+
+#: translate_tmp:110
+#: translate_tmp:117
+msgid "The direction of the shadow"
+msgstr ""
+
+#: translate_tmp:121
+msgid "Color"
+msgstr ""
+
+#: translate_tmp:126
+msgid "Choose color"
+msgstr ""
+
+#: translate_tmp:131
+#: translate_tmp:138
+msgid "The color of the shadow"
 msgstr ""
 
 #: translate_tmp:62

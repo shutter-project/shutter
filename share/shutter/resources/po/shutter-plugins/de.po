@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gscrot-plugins-bash\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-03-17 20:48+0100\n"
-"PO-Revision-Date: 2010-07-07 12:54+0000\n"
+"POT-Creation-Date: 2010-08-31 19:30+0200\n"
+"PO-Revision-Date: 2010-08-31 22:53+0000\n"
 "Last-Translator: Mario Kemper (Romario) <mario.kemper@googlemail.com>\n"
 "Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-28 18:48+0000\n"
+"X-Launchpad-Export-Date: 2010-08-31 23:04+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: translate_tmp:27
@@ -25,6 +25,7 @@ msgstr "Shutter Branding"
 #: translate_tmp:74
 #: translate_tmp:63
 #: translate_tmp:72
+#: translate_tmp:64
 msgid "Effect"
 msgstr "Effekt"
 
@@ -74,14 +75,6 @@ msgid "Raise a rectangular 3d-border"
 msgstr "Erhobener rechteckiger 3D-Rahmen"
 
 #: translate_tmp:27
-msgid "Hard Shadow"
-msgstr "Schlagschatten"
-
-#: translate_tmp:29
-msgid "Add a shadow to the image on a transparent background"
-msgstr "Schwarzer Schlagschatten mit transparentem Hintergrund"
-
-#: translate_tmp:27
 msgid "Soft Edges"
 msgstr "Kanten abrunden"
 
@@ -104,6 +97,19 @@ msgstr "Zerfetztes Papier"
 #: translate_tmp:29
 msgid "Add a torn-like border to the image"
 msgstr "Erzeugt einen zerfetzten Bildrand"
+
+#: translate_tmp:27
+msgid "Autocrop"
+msgstr "Automatisch zuschneiden"
+
+#: translate_tmp:28
+#: translate_tmp:49
+msgid "Tool"
+msgstr "Werkzeug"
+
+#: translate_tmp:29
+msgid "Remove empty borders from the image"
+msgstr "Leere Ränder des Bildes entfernen"
 
 #: translate_tmp:73
 msgid "3D reflection"
@@ -133,7 +139,7 @@ msgstr "Rotation:"
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "Perseptive rotation about left edge of image"
-msgstr ""
+msgstr "Perseptive Drehung um linken Rand des Bildes"
 
 #: translate_tmp:122
 msgid "Fade:"
@@ -155,7 +161,7 @@ msgstr "Transparenz des Spiegelbildes in Prozent"
 
 #: translate_tmp:158
 msgid "Pef:"
-msgstr ""
+msgstr "Pef:"
 
 #: translate_tmp:165
 #: translate_tmp:172
@@ -202,6 +208,7 @@ msgstr "Hintergrundfarbe festlegen"
 #: translate_tmp:259
 #: translate_tmp:328
 #: translate_tmp:257
+#: translate_tmp:314
 #: translate_tmp:315
 #, perl-format
 msgid "Error while executing plugin %s."
@@ -214,6 +221,7 @@ msgstr "Fehler beim Ausführen des Plugins %s."
 #: translate_tmp:260
 #: translate_tmp:329
 #: translate_tmp:258
+#: translate_tmp:315
 #: translate_tmp:316
 msgid "There was an error executing the plugin."
 msgstr "Beim Ausführen des Plugins ist ein Fehler aufgetreten."
@@ -352,6 +360,11 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/bordereffects/index.php"
 msgstr ""
+"Erstellen verschiedener Dispersion-ähnlicher Effekte am Rand eines Bildes\n"
+"\n"
+"Basierend auf einem Script von Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/bordereffects/index.php"
 
 #: translate_tmp:104
 msgid "Size:"
@@ -471,10 +484,6 @@ msgstr "Linienfarbe festlegen"
 msgid "Resize"
 msgstr "Größe ändern"
 
-#: translate_tmp:49
-msgid "Tool"
-msgstr "Werkzeug"
-
 #: translate_tmp:53
 msgid "Resize your screenshot"
 msgstr "Die Größe des Bildschirmfotos ändern"
@@ -490,6 +499,36 @@ msgstr "Erzeugt einen Sepia Effekt"
 #: translate_tmp:110
 msgid "Sepia tone"
 msgstr "Sepia Farbton"
+
+#: translate_tmp:63
+msgid "Hard Shadow"
+msgstr "Schlagschatten"
+
+#: translate_tmp:65
+msgid "Add a shadow to the image on a transparent background"
+msgstr "Schwarzer Schlagschatten mit transparentem Hintergrund"
+
+#: translate_tmp:94
+msgid "Direction"
+msgstr "Ausrichtung"
+
+#: translate_tmp:110
+#: translate_tmp:117
+msgid "The direction of the shadow"
+msgstr "Ausrichtung des Schattens"
+
+#: translate_tmp:121
+msgid "Color"
+msgstr "Farbe"
+
+#: translate_tmp:126
+msgid "Choose color"
+msgstr "Farbe auswählen"
+
+#: translate_tmp:131
+#: translate_tmp:138
+msgid "The color of the shadow"
+msgstr "Die Farbe des Schattens"
 
 #: translate_tmp:62
 msgid "Watermark"
