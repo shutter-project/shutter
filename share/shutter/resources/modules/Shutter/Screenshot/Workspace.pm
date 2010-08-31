@@ -58,8 +58,147 @@ sub new {
     #~ print "$self dying at\n";
 #~ } 
 
-sub workspace {
+sub workspaces {
 	my $self = shift;
+
+	my $d = $self->{_sc}->get_gettext;
+
+	my $active_workspace = $self->{_wnck_screen}->get_active_workspace;
+	
+	#valid workspace?
+	return TRUE unless $active_workspace;
+
+	my $active_vpx = $active_workspace->get_viewport_x;
+	my $active_vpy = $active_workspace->get_viewport_y;
+
+	#create shutter region object
+	my $sr = Shutter::Geometry::Region->new();
+	
+	#variables to save the pixbuf
+	my $output = undef;
+	my $pixbuf = undef;
+
+	my $wspaces_region = Gtk2::Gdk::Region->new;
+	my @pixbuf_array;
+	my @rects_array;
+	my $row 	= 0;
+	my $column 	= 0;
+	my $height 	= 0;
+	my $width 	= 0;
+	foreach my $space ( @{ $self->{_workspaces} } ) {
+		next unless defined $space;
+
+		#compiz
+		if ( $self->{_wm_manager_name} =~ /compiz/ ){
+
+			#calculate viewports with size of workspace
+			my $vpx = $space->get_viewport_x;
+			my $vpy = $space->get_viewport_y;
+
+			my $n_viewports_column = int( $space->get_width / $self->{_wnck_screen}->get_width );
+			my $n_viewports_rows   = int( $space->get_height / $self->{_wnck_screen}->get_height );
+
+			#rows
+			for ( my $j = 0; $j < $n_viewports_rows; $j++ ) {
+				#columns
+				for ( my $i = 0; $i < $n_viewports_column; $i++ ) {
+					my @vp = ( $i * $self->{_wnck_screen}->get_width, $j * $self->{_wnck_screen}->get_height );
+					
+					#set coordinates
+					$self->{_vpx} = $vp[0];
+					$self->{_vpy} = $vp[1];
+					
+					#and disable workspace
+					$self->{_selected_workspace} = undef;
+					
+					#capture viewport
+					$pixbuf = $self->workspace(TRUE, TRUE);
+										
+					my $rect = Gtk2::Gdk::Rectangle->new($width, $height, $pixbuf->get_width, $pixbuf->get_height);
+					$wspaces_region->union_with_rect($rect);
+					push @pixbuf_array, $pixbuf;
+					push @rects_array, $rect;			
+
+					#increase width according to current column
+					$width += $pixbuf->get_width;
+					
+				}
+				
+				#next row
+				# > set height to clipbox-height
+				# > set width to 0, because we start in column 0 again
+				$height	= $sr->get_clipbox($wspaces_region)->height;
+				$width 	= 0;
+			
+			}
+
+
+		#all other wm manager like metacity etc.		
+		}else{
+
+			#capture next workspace
+			$self->{_selected_workspace} = $space->get_number;
+			#~ print "Capturing Workspace: ".$space->get_number." Layout-Row:". $space->get_layout_row ." Layout-Column:". $space->get_layout_column ."\n";
+			$pixbuf = $self->workspace(TRUE, TRUE);
+
+			if ($column < $space->get_layout_column){
+				$width += $pixbuf->get_width;			
+			}elsif ($column > $space->get_layout_column){
+				$width = 0;	
+			}
+			$column = $space->get_layout_column;
+			
+			$height = $sr->get_clipbox($wspaces_region)->height if ($row != $space->get_layout_row);
+			$row = $space->get_layout_row;
+			
+			my $rect = Gtk2::Gdk::Rectangle->new($width, $height, $pixbuf->get_width, $pixbuf->get_height);
+			$wspaces_region->union_with_rect($rect);
+			push @pixbuf_array, $pixbuf;
+			push @rects_array, $rect;			
+			
+		}
+				
+	}
+
+	if($wspaces_region->get_rectangles){
+		$output = Gtk2::Gdk::Pixbuf->new ('rgb', TRUE, 8, $sr->get_clipbox($wspaces_region)->width, $sr->get_clipbox($wspaces_region)->height);	
+		$output->fill(0x00000000);
+		
+		#copy images to the blank pixbuf
+		my $rect_counter = 0;
+		foreach my $pixbuf (@pixbuf_array){
+			$pixbuf->copy_area (0, 0, $pixbuf->get_width, $pixbuf->get_height, $output, $rects_array[$rect_counter]->x, $rects_array[$rect_counter]->y);
+			$rect_counter++;
+		}	
+	}
+	
+	#this value will be overwritten - restore for history
+	$self->{_selected_workspace} = 'all';
+
+	#set history object
+	$self->{_history} = Shutter::Screenshot::History->new($self->{_sc});	
+
+	#set name of the captured workspace
+	#e.g. for use in wildcards
+	if($output =~ /Gtk2/){
+		$self->{_action_name} = $d->get("Workspaces");
+	}
+
+	#compiz
+	if ( $self->{_wm_manager_name} =~ /compiz/ ){
+		$self->{_wnck_screen}->move_viewport( $active_vpx, $active_vpy );
+	#metacity etc.
+	}else{
+		$active_workspace->activate(Gtk2->get_current_event_time);
+	}
+	
+	return $output;
+}
+
+sub workspace {
+	my $self 			= shift;
+	my $no_active_check	= shift || FALSE;
+	my $no_finishing 	= shift || FALSE;
 
 	my $wrksp_changed = FALSE;
 
@@ -72,11 +211,11 @@ sub workspace {
 	my $active_vpy = $active_workspace->get_viewport_y;
 
 	#metacity etc
-	if ( $self->{_selected_workspace} ) {
+	if ( defined $self->{_selected_workspace} ) {
 		foreach my $space ( @{ $self->{_workspaces} } ) {
 			next unless defined $space;
-			if (   $self->{_selected_workspace} == $space->get_number
-				&& $self->{_selected_workspace} != $active_workspace->get_number )
+			if ( $self->{_selected_workspace} == $space->get_number
+				&& ($no_active_check || $self->{_selected_workspace} != $active_workspace->get_number) )
 			{
 				$space->activate(Gtk2->get_current_event_time);
 				$wrksp_changed = TRUE;
@@ -120,21 +259,25 @@ sub workspace {
 										
 	}
 
-	#set history object
-	$self->{_history} = Shutter::Screenshot::History->new($self->{_sc});	
+	unless($no_finishing){
 
-	#set name of the captured workspace
-	#e.g. for use in wildcards
-	if($output =~ /Gtk2/){
-		$self->{_action_name} = $self->{_wnck_screen}->get_active_workspace->get_name;
-	}
+		#set history object
+		$self->{_history} = Shutter::Screenshot::History->new($self->{_sc});	
 
-	#metacity etc
-	if ( $self->{_selected_workspace} ) {
-		$active_workspace->activate(Gtk2->get_current_event_time) if $wrksp_changed;
-	#compiz
-	} else {
-		$self->{_wnck_screen}->move_viewport( $active_vpx, $active_vpy );
+		#set name of the captured workspace
+		#e.g. for use in wildcards
+		if($output =~ /Gtk2/){
+			$self->{_action_name} = $self->{_wnck_screen}->get_active_workspace->get_name;
+		}
+
+		#metacity etc
+		if ( $self->{_selected_workspace} ) {
+			$active_workspace->activate(Gtk2->get_current_event_time) if $wrksp_changed;
+		#compiz
+		} else {
+			$self->{_wnck_screen}->move_viewport( $active_vpx, $active_vpy );
+		}
+
 	}
 
 	return $output;
@@ -143,7 +286,9 @@ sub workspace {
 sub redo_capture {
 	my $self = shift;
 	my $output = 3;
-	if(defined $self->{_history}){
+	if(defined $self->{_history} && $self->{_selected_workspace} eq 'all'){
+		$output = $self->workspaces();
+	}elsif(defined $self->{_history}){
 		$output = $self->workspace();
 	}
 	return $output;

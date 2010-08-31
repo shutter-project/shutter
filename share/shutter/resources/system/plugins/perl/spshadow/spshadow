@@ -1,0 +1,412 @@
+#! /usr/bin/env perl
+
+###################################################
+#
+#  Copyright (C) 2008, 2009, 2010 Mario Kemper <mario.kemper@googlemail.com> and Shutter Team
+#
+#  This file is part of Shutter.
+#
+#  Shutter is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  Shutter is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with Shutter; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+###################################################
+
+use utf8;
+use strict;
+use warnings;
+use Gtk2 '-init';
+use Image::Magick;
+use POSIX qw/setlocale/;
+use Locale::gettext;
+use Glib qw/TRUE FALSE/;
+use FindBin '$Bin';    #path where plugin is located
+use File::Temp qw/ tempfile tempdir /;
+use Time::HiRes qw/usleep/;
+use Data::Dumper;
+
+#load modules at custom path at runtime
+#--------------------------------------
+require lib;
+import lib $ENV{'SHUTTER_ROOT'}."/share/shutter/resources/modules";
+
+#proc (Thanks to Michael Schilli)
+require Proc::Simple;
+
+#load shutter's modules
+#--------------------------------------
+require Shutter::App::SimpleDialogs;
+
+#Set LC_NUMERIC to C to prevent decimal commas (or anything else)
+setlocale(LC_NUMERIC, "C");	
+#configure gettext using ENV Variable (setup during shutter start)
+setlocale( LC_MESSAGES, "" );
+my $d = Locale::gettext->domain("shutter-plugins");
+$d->dir( $ENV{'SHUTTER_INTL'} );
+
+#icontheme to determine if icons exist or not
+#in some cases we deliver fallback icons
+my $icontheme = Gtk2::IconTheme->get_default;
+$icontheme->append_search_path($ENV{'SHUTTER_ROOT'} . "/share/icons");
+
+#shutter will ask for some infos
+my %plugin_info = 	( 	'name'	=> $d->get( "Hard Shadow" ),
+						'sort'	=> $d->get( "Effect" ),
+						'tip'	=> $d->get( "Add a shadow to the image on a transparent background" ),
+					);
+
+binmode( STDOUT, ":utf8" );
+if ( exists $plugin_info{$ARGV[ 0 ]} ) {
+	print $plugin_info{$ARGV[ 0 ]};
+	exit;
+}
+
+#these variables are passed to the plugin
+my $socket_id = $ARGV[ 0 ];
+my $filename  = $ARGV[ 1 ];
+my $width     = $ARGV[ 2 ];
+my $height    = $ARGV[ 3 ];
+my $filetype  = $ARGV[ 4 ];
+
+#decode filename
+utf8::decode $filename;
+
+my $plug = Gtk2::Plug->new( $socket_id );
+$plug->set_default_icon_name( 'shutter' );
+$plug->set_border_width( 10 );
+
+$plug->signal_connect( destroy => sub { Gtk2->main_quit } );
+
+#tooltips
+my $tooltips = Gtk2::Tooltips->new;
+
+#configure buttons and other needed controls
+my $direction_label = Gtk2::Label->new( $d->get( "Direction:" ) );
+my $direction_combo = Gtk2::ComboBox->new_text;
+$direction_combo->insert_text( 0, "NorthWest" );
+$direction_combo->insert_text( 1, "North" );
+$direction_combo->insert_text( 2, "NorthEast" );
+$direction_combo->insert_text( 3, "West" );
+$direction_combo->insert_text( 4, "Center" );
+$direction_combo->insert_text( 5, "East" );
+$direction_combo->insert_text( 6, "SouthWest" );
+$direction_combo->insert_text( 7, "South" );
+$direction_combo->insert_text( 8, "SouthEast" );
+$direction_combo->set_active( 8 );
+
+$tooltips->set_tip(
+	$direction_label,
+	$d->get(
+		"The direction of the shadow"
+	)
+);
+
+$tooltips->set_tip(
+	$direction_combo,
+	$d->get(
+		"The direction of the shadow"
+	)
+);
+
+my $shadow_color_label = Gtk2::Label->new( $d->get("Color"). ":" );
+my $shadow_color = Gtk2::ColorButton->new();
+$shadow_color->set_color( Gtk2::Gdk::Color->parse('#5F5F5F') );
+$shadow_color->set_alpha( int( 1 * 65535 ) );
+$shadow_color->set_use_alpha(FALSE);
+$shadow_color->set_title( $d->get("Choose color") );
+
+$tooltips->set_tip(
+	$shadow_color_label,
+	$d->get(
+		"The color of the shadow"
+	)
+);
+
+$tooltips->set_tip(
+	$shadow_color,
+	$d->get(
+		"The color of the shadow"
+	)
+);
+
+#all labels on the left side 
+#need to have the same size
+$direction_label->set_alignment( 0, 0.5 );
+$shadow_color_label->set_alignment( 0, 0.5 );
+
+my $sgl = Gtk2::SizeGroup->new ('both');
+$sgl->set ('ignore-hidden' => FALSE);
+$sgl->add_widget($direction_label);
+$sgl->add_widget($shadow_color_label);
+
+#we define two Gtk2::Image widgets
+#to store the screenshot
+#and a throbber that is shown while the changes are processed
+my $preview =
+	Gtk2::Image->new_from_pixbuf(
+	   Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $filename, 300, 300, TRUE ) );
+
+my $preview_throb =
+	Gtk2::Image->new_from_file( $ENV{'SHUTTER_ROOT'}."/share/shutter/resources/icons/throbber.gif" );
+
+my $sg = Gtk2::SizeGroup->new ('both');
+$sg->set ('ignore-hidden' => FALSE);
+$sg->add_widget($preview);
+$sg->add_widget($preview_throb);
+
+#we define three Gtk2::Button widgets
+#to refresh, save and cancel the plugin's work
+my $refresh_btn = Gtk2::Button->new_from_stock( 'gtk-refresh' );
+$refresh_btn->signal_connect( 'clicked', \&fct_imagemagick_shadow, 'refresh' );
+
+my $save_btn = Gtk2::Button->new_from_stock( 'gtk-save' );
+$save_btn->signal_connect( 'clicked', \&fct_imagemagick_shadow, 'save' );
+
+my $cancel_btn = Gtk2::Button->new_from_stock( 'gtk-cancel' );
+$cancel_btn->signal_connect( 'clicked' => sub { Gtk2->main_quit; exit 2; }, 'cancel' );
+
+#define the gui layout
+my $hbox1      = Gtk2::HBox->new( FALSE, 8 );
+my $hbox2      = Gtk2::HBox->new( FALSE, 8 );
+
+my $hbox_row1 = Gtk2::HBox->new( TRUE, 8 );
+
+my $vbox_param = Gtk2::VBox->new( FALSE,  8 );
+my $vbox_left = Gtk2::VBox->new( FALSE, 8 );
+my $vbox_right = Gtk2::VBox->new( FALSE, 8 );
+
+my $hbox_btn  = Gtk2::HBox->new( TRUE,  8 );
+my $vbox_btn  = Gtk2::VBox->new( FALSE, 8 );
+my $vbox_main = Gtk2::VBox->new( FALSE, 8 );
+
+#packing
+$hbox1->pack_start( $shadow_color_label, FALSE, TRUE, 5 );
+$hbox1->pack_start( $shadow_color, TRUE, TRUE, 5 );
+
+$hbox2->pack_start( $direction_label, FALSE, TRUE, 5 );
+$hbox2->pack_start( $direction_combo, TRUE, TRUE, 5 );
+
+#controls on the left side
+$vbox_left->pack_start( $hbox1, FALSE, FALSE, 5);
+$vbox_left->pack_start( $hbox2, FALSE, FALSE, 5);
+
+#preview
+$vbox_right->pack_start_defaults( $preview );
+$vbox_right->pack_start_defaults( $preview_throb );
+
+#row 1
+$hbox_row1->pack_start_defaults( $vbox_left );
+$hbox_row1->pack_start_defaults( $vbox_right );
+
+$vbox_param->pack_start( $hbox_row1, TRUE, TRUE, 5 );
+
+$vbox_main->pack_start( $vbox_param, FALSE, FALSE, 5 );
+$vbox_main->pack_start( $refresh_btn, TRUE, TRUE, 5 );
+
+$hbox_btn->pack_start( $cancel_btn, TRUE, TRUE, 5 );
+$hbox_btn->pack_start( $save_btn,   TRUE, TRUE, 5 );
+
+$vbox_main->pack_start( $hbox_btn,  TRUE, TRUE, 5 );
+
+$plug->add( $vbox_main );
+
+$plug->show_all;
+
+#hide the preview widget at startup 
+$preview->hide_all;
+
+#create tempfile
+my ( $tmpfh, $tmpfilename ) = tempfile();
+#png format
+$tmpfilename .= ".png";
+
+#we fork a child process to do the work
+my $process = Proc::Simple->new;
+#create tempfiles for subprocess outputs
+my ( $tmpfh_stdout, $tmpfilename_stdout ) = tempfile(UNLINK => 1);
+my ( $tmpfh_stderr, $tmpfilename_sterr ) = tempfile(UNLINK => 1);
+$process->redirect_output ($tmpfilename_stdout, $tmpfilename_sterr);
+
+#generate first preview at startup
+Glib::Idle->add (
+	sub{
+		&fct_imagemagick_shadow( undef, 'refresh' );
+		return FALSE;	
+	}, 
+undef);
+
+#lets'start
+Gtk2->main;
+
+
+sub fct_imagemagick_shadow {
+	my ( $widget, $data ) = @_;
+
+	$save_btn->set_sensitive(FALSE);
+
+	if ( $data eq 'save' ) {
+
+		my $image = Image::Magick->new;
+		$image->ReadImage( $tmpfilename );
+		$image->WriteImage( filename => $filename );
+
+		#delete temp files
+		unlink $tmpfilename;
+		
+		Gtk2->main_quit;
+		return TRUE;
+	} else {
+
+		$preview->hide_all;
+		$preview_throb->show_all;
+
+		$process->start(
+			sub {
+				&apply_effect();
+				POSIX::_exit(0);
+			}
+		);
+
+		#so we can update the gui
+		while ( $process->poll ) {
+			&fct_update_gui;
+			usleep 100000;
+		}
+		
+		eval{
+			$preview->set_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
+										$tmpfilename, 300, 300, TRUE)
+								 	 );
+		};
+		#error -> read output from tempfiles
+		if($@){		
+			#store error here
+			my $error_string = "Plugin error:\n";
+			
+			#reading stdout from file
+			while (<$tmpfh_stdout>){
+				$error_string .= $_;	
+			}
+			#reading stderr from file
+			while (<$tmpfh_stderr>){
+				$error_string .= $_;	
+			}
+
+			#get the parent window of the plug
+			require X11::Protocol;
+			my $x11 = X11::Protocol->new( $ENV{ 'DISPLAY' } );
+			
+			my $plugp = Gtk2::Gdk::Window->foreign_new( &find_wm_window( $x11, $plug->get_id ));
+			
+			#show error message
+			my $shutter_dialog = Shutter::App::SimpleDialogs->new($plug, $plugp);
+			$shutter_dialog->dlg_error_message( 
+				sprintf ( $d->get(  "Error while executing plugin %s." ), "'" . $plugin_info{'name'} . "'" ) ,
+				$d->get( "There was an error executing the plugin." ),
+				undef, undef, undef,
+				undef, undef, undef,
+				$error_string
+			);
+			
+			#delete temp files
+			unlink $tmpfilename;
+
+			Gtk2->main_quit;
+			exit 1;	
+		}
+
+		$save_btn->set_sensitive(TRUE);
+		$preview->show_all;
+		$preview_throb->hide_all;
+
+		return TRUE;
+	}
+}
+
+sub apply_effect {	
+
+	my $scolor = $shadow_color->get_color;
+
+	my $direction1 = undef;
+	my $direction2 = undef;
+	if ($direction_combo->get_active_text eq "NorthWest" ){
+		$direction1 = "80x3-5-5";
+		$direction2 = "80x3+1+1";
+	}elsif ($direction_combo->get_active_text eq "North" ){
+		$direction1 = "80x3-0-5";
+		$direction2 = "80x3+0+1";
+	}elsif ($direction_combo->get_active_text eq "NorthEast" ){
+		$direction1 = "80x3+5-5";
+		$direction2 = "80x3-1+1";
+	}elsif ($direction_combo->get_active_text eq "West" ){
+		$direction1 = "80x3-5+0";
+		$direction2 = "80x3+1-0";
+	}elsif ($direction_combo->get_active_text eq "Center" ){
+		$direction1 = "80x3-0-0";
+		$direction2 = "80x3+0+0";
+	}elsif ($direction_combo->get_active_text eq "East" ){
+		$direction1 = "80x3+5+0";
+		$direction2 = "80x3-1-0";
+	}elsif ($direction_combo->get_active_text eq "SouthWest" ){
+		$direction1 = "80x3-5+5";
+		$direction2 = "80x3+1-1";
+	}elsif ($direction_combo->get_active_text eq "South" ){
+		$direction1 = "80x3-0+5";
+		$direction2 = "80x3-0-1";
+	}elsif ($direction_combo->get_active_text eq "SouthEast" ){
+		$direction1 = "80x3+5+5";
+		$direction2 = "80x3-1-1";
+	}
+	
+	#execute imagemagick command		
+	system( "convert"
+			. " '$filename'"
+			. " -gravity northwest -background 'rgba(255,255,255,0)' -splice 10x10"
+			. " \\( +clone -background '"
+			. sprintf( "#%04x%04x%04x%04x", $scolor->red, $scolor->green, $scolor->blue, $shadow_color->get_alpha )
+			. "' -shadow "
+			. $direction2
+			. " \\) +swap -background none -mosaic +repage"
+			. " \\( +clone -background '"
+			. sprintf( "#%04x%04x%04x%04x", $scolor->red, $scolor->green, $scolor->blue, $shadow_color->get_alpha )
+			. "' -shadow "
+			. $direction1
+			. " \\) +swap -background none -mosaic +repage"
+			. " $tmpfilename" );
+
+}
+
+sub fct_update_gui {
+
+	while ( Gtk2->events_pending ) {
+		Gtk2->main_iteration;
+	}
+	Gtk2::Gdk->flush;
+
+	return TRUE;
+}
+
+sub find_wm_window {
+	my $x11  = shift;
+	my $xid  = shift;
+
+	do {
+		my ( $qroot, $qparent, @qkids ) = $x11->QueryTree($xid);
+		return undef unless ( $qroot || $qparent );
+		return $xid if ( $qroot == $qparent );
+		$xid = $qparent;
+	} while (TRUE);
+}
+
+1;
+

@@ -2,7 +2,7 @@
 
 ###################################################
 #
-#  Copyright (C) 2008, 2009 TualatriX <tualatrix@gmail.com>
+#  Copyright (C) 2010 Mario Kemper <mario.kemper@googlemail.com> and Shutter Team
 #
 #  This file is part of Shutter.
 #
@@ -24,10 +24,10 @@
 
 TEXTDOMAIN=shutter-plugins
 TEXTDOMAINDIR=$SHUTTER_INTL
-PLUGIN_NAME=$"Hard Shadow"
-PLUGIN_SORT=$"Effect"
-PLUGIN_TIP=$"Add a shadow to the image on a transparent background"
-PLUGIN_EXT="image/png"
+PLUGIN_NAME=$"Autocrop"
+PLUGIN_SORT=$"Tool"
+PLUGIN_TIP=$"Remove empty borders from the image"
+PLUGIN_EXT="image/png;image/bmp;image/jpeg"
 
 if [[ "${1}" = "name" ]];then
    	echo "${PLUGIN_NAME}"
@@ -49,9 +49,7 @@ FILE="${1}"
 #FILEYTPE="${4}"
 #GEO="${2}x${3}"
 
-convert "${FILE}" -gravity northwest -background 'rgba(255,255,255,0)' -splice 10x10 \
-\( +clone -background gray -shadow 80x3-1-1 \) +swap -background none -mosaic +repage \
-\( +clone -background gray -shadow 80x3+5+5 \) +swap -background none -mosaic +repage "${FILE}"
+convert "${FILE}" -trim "${FILE}"
 
        
 exit 0

@@ -62,6 +62,9 @@ A thumbnail is always created.
 
 package Shutter::Upload::ImageShack;
 
+use Encode qw(encode);
+
+use utf8;
 use LWP::UserAgent;
 use HTTP::Response;
 use HTTP::Request::Common;
@@ -234,6 +237,8 @@ just optimizes
 sub host{
 	my ($self, $image, $size) = @_;
 
+	my $upload_filename = encode('UTF-8', $image);
+
 	if(!defined($url)){
 		croak("No url to host");
 	}
@@ -244,11 +249,11 @@ sub host{
 		'refer'      => ''
 	);
 
-	my $is_external = $image=~ m{^https??://};
+	my $is_external = $upload_filename =~ m{^https??://};
 	if($is_external){
-		$params{'url'} = $image;
+		$params{'url'} = $upload_filename;
 	}else{
-		$params{'fileupload'}    = [$image];
+		$params{'fileupload'} = [$upload_filename];
 		$params{'MAX_FILE_SIZE'} = 3145728;
 		#XXX is this really necessary
 		$params{'url'} = '';

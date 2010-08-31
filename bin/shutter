@@ -86,9 +86,9 @@ use Digest::MD5  qw(md5_hex);
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.882';
+use constant SHUTTER_REV		=> 'Rev.<>';
 use constant SHUTTER_NAME		=> 'Shutter';
-use constant SHUTTER_VERSION	=> '0.86.3';
+use constant SHUTTER_VERSION	=> '<major>.<minor>';
 
 #--------------------------------------
 
@@ -150,6 +150,7 @@ my $ubuntuone       = TRUE;
 #app classes
 require Shutter::App::AboutDialog;
 require Shutter::App::Common;
+require Shutter::App::GlobalSettings;
 require Shutter::App::SimpleDialogs;
 require Shutter::App::HelperFunctions;
 require Shutter::App::Menu;
@@ -163,6 +164,7 @@ require Shutter::Geometry::Region;
 #pixbuf operations
 require Shutter::Pixbuf::Save;
 require Shutter::Pixbuf::Thumbnail;
+require Shutter::Pixbuf::Border;
 
 #drawing classes
 if($goocanvas){
@@ -238,7 +240,7 @@ if($goocanvas){
 
 #UbuntuOne Client
 my $u1 = undef;
-my $u1_watcher = &fct_init_u1_watcher;
+my $u1_watcher = undef;
 
 #data structures
 #--------------------------------------
@@ -538,6 +540,7 @@ my $actions_vbox        = Gtk2::VBox->new( FALSE, 0 );
 my $progname_box        = Gtk2::HBox->new( FALSE, 0 );
 my $im_colors_box       = Gtk2::HBox->new( FALSE, 0 );
 my $thumbnail_box       = Gtk2::HBox->new( FALSE, 0 );
+my $bordereffect_box	= Gtk2::HBox->new( FALSE, 0 );
 
 #advanced
 my $window_capture_vbox = Gtk2::VBox->new( FALSE, 0 );
@@ -545,6 +548,7 @@ my $menu_capture_vbox   = Gtk2::VBox->new( FALSE, 0 );
 my $web_capture_vbox    = Gtk2::VBox->new( FALSE, 0 );
 
 my $zoom_box			= Gtk2::HBox->new( FALSE, 0 );
+my $as_help_box			= Gtk2::HBox->new( FALSE, 0 );
 my $asel_isize_box      = Gtk2::HBox->new( FALSE, 0 );
 my $asel_isize_box2     = Gtk2::HBox->new( FALSE, 0 );
 my $border_box          = Gtk2::HBox->new( FALSE, 0 );
@@ -725,7 +729,7 @@ $button_profile_apply->signal_connect(
 	}
 );
 $button_profile_apply->set_image( Gtk2::Image->new_from_stock( 'gtk-apply', 'button' ) );
-$tooltips->set_tip( $button_profile_apply, $d->get("Set profile for current configuration") );
+$tooltips->set_tip( $button_profile_apply, $d->get("Load the selected profile's configuration") );
 
 #--------------------------------------
 
@@ -955,6 +959,7 @@ foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
 	}
 }
 $combobox_type->signal_connect( 'changed' => \&evt_value_changed, 'type_changed' );
+$scale->signal_connect( 'value-changed' => \&evt_value_changed, 'qvalue_changed' );
 
 if ( defined $settings_xml->{'general'}->{'filetype'} ) {
 	
@@ -1302,6 +1307,70 @@ $thumbnail_box->pack_start( $thumbnail,        TRUE,  TRUE,  0 );
 #end - thumbnail
 #--------------------------------------
 
+#bordereffect
+#--------------------------------------
+my $bordereffect_active = Gtk2::CheckButton->new;
+$bordereffect_active->set_active(TRUE);
+
+my $bordereffect_label = Gtk2::Label->new( $d->get("Border") . ":" );
+my $bordereffect = Gtk2::SpinButton->new_with_range( 1, 100, 1 );
+my $bordereffect_vlabel = Gtk2::Label->new( $d->get("pixels") );
+
+my $bordereffect_clabel = Gtk2::Label->new( $d->get("Color") . ":" );
+my $bordereffect_cbtn = Gtk2::ColorButton->new();
+$bordereffect_cbtn->set_use_alpha(FALSE);
+$bordereffect_cbtn->set_title( $d->get("Choose border color") );
+
+$tooltips->set_tip( $bordereffect_active,
+	$d->get("Adds a border effect to the screenshot") );
+$tooltips->set_tip( $bordereffect,
+	$d->get("Adds a border effect to the screenshot") );
+$tooltips->set_tip( $bordereffect_label,
+	$d->get("Adds a border effect to the screenshot") );
+
+$tooltips->set_tip( $bordereffect_clabel,
+	$d->get("Choose border color") );
+$tooltips->set_tip( $bordereffect_cbtn,
+	$d->get("Choose border color") );	
+	
+$bordereffect_box->pack_start( $bordereffect_label, FALSE, TRUE, 12 );
+$bordereffect_box->pack_start( $bordereffect_active, FALSE, FALSE, 0 );
+$bordereffect_box->pack_start( $bordereffect, TRUE, TRUE, 2 );
+$bordereffect_box->pack_start( $bordereffect_vlabel, FALSE, FALSE, 2 );
+$bordereffect_box->pack_start( $bordereffect_clabel, FALSE, FALSE, 12 );
+$bordereffect_box->pack_start( $bordereffect_cbtn, FALSE, FALSE, 0 );
+
+$bordereffect_active->signal_connect(
+	'toggled' => \&evt_value_changed,
+	'bordereffect_toggled'
+);
+
+$bordereffect->signal_connect(
+	'value-changed' => \&evt_value_changed,
+	'bordereffect_changed'
+);
+
+if ( defined $settings_xml->{'general'}->{'bordereffect_active'} ) {
+	$bordereffect_active->set_active( $settings_xml->{'general'}->{'bordereffect_active'} );
+} else {
+	$bordereffect_active->set_active(FALSE);
+}
+
+if ( defined $settings_xml->{'general'}->{'bordereffect'} ) {
+	$bordereffect->set_value( $settings_xml->{'general'}->{'bordereffect'} );
+} else {
+	$bordereffect->set_value(2);
+}
+
+if ( defined $settings_xml->{'general'}->{'bordereffect_col'} ){
+	$bordereffect_cbtn->set_color(Gtk2::Gdk::Color->parse($settings_xml->{'general'}->{'bordereffect_col'}));
+} else {
+	$bordereffect_cbtn->set_color( Gtk2::Gdk::Color->parse('black') );		
+}
+
+#end - bordereffect
+#--------------------------------------
+
 #zoom window
 #--------------------------------------
 my $zoom_active = Gtk2::CheckButton->new_with_label( $d->get("Enable zoom window") );
@@ -1376,6 +1445,23 @@ $asel_isize_box2->pack_start( $asel_size4, FALSE, FALSE,  0 );
 $asel_isize_box2->pack_start( $asel_size_vlabel2, FALSE, FALSE, 2 );
 
 #end - initial size for advanced selection tool
+#--------------------------------------
+
+#show help text when using advanced selection tool
+#--------------------------------------
+my $as_help_active = Gtk2::CheckButton->new_with_label( $d->get("Show help text") );
+
+if ( defined $settings_xml->{'general'}->{'as_help_active'} ) {
+	$as_help_active->set_active( $settings_xml->{'general'}->{'as_help_active'} );
+} else {
+	$as_help_active->set_active(TRUE);
+}
+
+$tooltips->set_tip( $as_help_active, $d->get("Enables the help text") );
+
+$as_help_box->pack_start( $as_help_active, FALSE, TRUE, 12 );
+
+#end - show help text when using advanced selection tool
 #--------------------------------------
 
 #border
@@ -1932,17 +2018,20 @@ $label_actions->set_markup( $d->get("Actions") );
 $actions_vbox->pack_start( $progname_box,  FALSE, TRUE, 3 );
 $actions_vbox->pack_start( $im_colors_box, FALSE, TRUE, 3 );
 $actions_vbox->pack_start( $thumbnail_box, FALSE, TRUE, 3 );
+$actions_vbox->pack_start( $bordereffect_box, FALSE, TRUE, 3 );
 $actions_frame->add($actions_vbox);
 
 #all labels = one size
 $progname_label->set_alignment( 0, 0.5 );
 $im_colors_label->set_alignment( 0, 0.5 );
 $thumbnail_label->set_alignment( 0, 0.5 );
+$bordereffect_label->set_alignment( 0, 0.5 );
 
 my $sg_actions = Gtk2::SizeGroup->new('horizontal');
 $sg_actions->add_widget($progname_label);
 $sg_actions->add_widget($im_colors_label);
 $sg_actions->add_widget($thumbnail_label);
+$sg_actions->add_widget($bordereffect_label);
 
 $vbox_actions->pack_start( $actions_frame, FALSE, TRUE, 3 );
 $vbox_actions->set_border_width(5);
@@ -1965,6 +2054,7 @@ my $sg_asel2 = Gtk2::SizeGroup->new('horizontal');
 $sg_asel2->add_widget($asel_size_label2);
 $sg_asel2->add_widget($asel_size_label4);
 
+$asel_capture_vbox->pack_start( $as_help_box, FALSE, TRUE, 3 );
 $asel_capture_vbox->pack_start( $asel_isize_box, FALSE, TRUE, 3 );
 $asel_capture_vbox->pack_start( $asel_isize_box2, FALSE, TRUE, 3 );
 $asel_capture_frame->add($asel_capture_vbox);
@@ -2370,6 +2460,38 @@ sub evt_value_changed {
 		} else {
 			$thumbnail->set_sensitive(FALSE);
 		}
+	}
+
+	#quality value changed
+	if ( $data eq "qvalue_changed" ) {
+		my $settings = undef;
+		if(defined $sc->get_globalsettings_object){
+			$settings = $sc->get_globalsettings_object;
+		}else{
+			$settings = Shutter::App::GlobalSettings->new();
+			$sc->set_globalsettings_object($settings);
+		}
+		if ( $combobox_type->get_active_text =~ /jpeg/ ) {
+			$settings->set_jpg_quality($scale->get_value);
+		} elsif ( $combobox_type->get_active_text =~ /png/ ) {
+			$settings->set_png_quality($scale->get_value);
+		} else {
+			$settings->clear_quality_settings();
+		}
+	}	
+		
+	#checkbox for "bordereffect" -> HScale active/inactive
+	if ( $data eq "bordereffect_toggled" ) {
+		if ( $bordereffect_active->get_active ) {
+			$bordereffect->set_sensitive(TRUE);
+		} else {
+			$bordereffect->set_sensitive(FALSE);
+		}
+	}
+
+	#value for "bordereffect" -> update text
+	if ( $data eq "bordereffect_changed" ) {
+		$bordereffect_vlabel->set_text( $d->nget("pixel", "pixels", $bordereffect->get_value) ); 
 	}
 
 	#filetype changed
@@ -3866,14 +3988,19 @@ sub fct_save_settings {
 	}
 
 	#actions
-	$settings{'general'}->{'prog_active'}      = $progname_active->get_active();
-	$settings{'general'}->{'im_colors'}        = $combobox_im_colors->get_active();
-	$settings{'general'}->{'im_colors_active'} = $im_colors_active->get_active();
-	$settings{'general'}->{'thumbnail'}        = $thumbnail->get_value();
-	$settings{'general'}->{'thumbnail_active'} = $thumbnail_active->get_active();
+	$settings{'general'}->{'prog_active'}			= $progname_active->get_active();
+	$settings{'general'}->{'im_colors'}				= $combobox_im_colors->get_active();
+	$settings{'general'}->{'im_colors_active'}		= $im_colors_active->get_active();
+	$settings{'general'}->{'thumbnail'}				= $thumbnail->get_value();
+	$settings{'general'}->{'thumbnail_active'}		= $thumbnail_active->get_active();
+	$settings{'general'}->{'bordereffect'}			= $bordereffect->get_value();
+	$settings{'general'}->{'bordereffect_active'}	= $bordereffect_active->get_active();
+	my $bcolor = $bordereffect_cbtn->get_color;
+	$settings{'general'}->{'bordereffect_col'}		= sprintf( "#%02x%02x%02x", $bcolor->red / 257, $bcolor->green / 257, $bcolor->blue / 257 );
 
 	#advanced
 	$settings{'general'}->{'zoom_active'} 	   = $zoom_active->get_active();
+	$settings{'general'}->{'as_help_active'}   = $as_help_active->get_active();
 	$settings{'general'}->{'asel_x'} 	   	   = $asel_size3->get_value();
 	$settings{'general'}->{'asel_y'} 	       = $asel_size4->get_value();
 	$settings{'general'}->{'asel_w'} 	       = $asel_size1->get_value();
@@ -3887,8 +4014,8 @@ sub fct_save_settings {
 	#imageview
 	$settings{'general'}->{'trans_check'}      = $trans_check->get_active();
 	$settings{'general'}->{'trans_custom'}     = $trans_custom->get_active();
-	my $color = $trans_custom_btn->get_color;
-	$settings{'general'}->{'trans_custom_col'} = sprintf( "#%02x%02x%02x", $color->red / 257, $color->green / 257, $color->blue / 257 );
+	my $tcolor = $trans_custom_btn->get_color;
+	$settings{'general'}->{'trans_custom_col'} = sprintf( "#%02x%02x%02x", $tcolor->red / 257, $tcolor->green / 257, $tcolor->blue / 257 );
 	$settings{'general'}->{'trans_backg'}      = $trans_backg->get_active();
 
 	#behavior
@@ -4215,9 +4342,17 @@ sub fct_load_settings {
 				
 				$thumbnail->set_value( $settings_xml->{'general'}->{'thumbnail'} );
 				$thumbnail_active->set_active( $settings_xml->{'general'}->{'thumbnail_active'} );
+
+				$bordereffect->set_value( $settings_xml->{'general'}->{'bordereffect'} );
+				$bordereffect_active->set_active( $settings_xml->{'general'}->{'bordereffect_active'} );
+				if(defined $settings_xml->{'general'}->{'bordereffect_col'}){
+					$bordereffect_cbtn->set_color(Gtk2::Gdk::Color->parse($settings_xml->{'general'}->{'bordereffect_col'}));
+				}
 				
 				#advanced settings
 				$zoom_active->set_active( $settings_xml->{'general'}->{'zoom_active'} );
+				
+				$as_help_active->set_active( $settings_xml->{'general'}->{'as_help_active'} );
 				
 				$asel_size3->set_value($settings_xml->{'general'}->{'asel_x'});
 				$asel_size4->set_value($settings_xml->{'general'}->{'asel_y'});
@@ -4349,6 +4484,24 @@ sub fct_get_program_model {
 
 	my $traytheme = $sc->get_theme;
 
+	#add Shutter's built-in editor to the list
+	if($goocanvas){
+		my $tray_pixbuf = undef;
+		my $tray_name = 'shutter';
+		if ( $traytheme->has_icon( $tray_name ) ) {
+			my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
+			eval{
+				$tray_pixbuf = $traytheme->load_icon( $tray_name, $ih, 'generic-fallback' );
+			};
+			if($@){
+				print "\nWARNING: Could not load icon $tray_name: $@\n";
+				$tray_pixbuf = undef;
+			}						
+		}	
+		$model->set( $model->append, 0, $tray_pixbuf, 1, $d->get("Built-in Editor"), 2, 'shutter-built-in' );
+	}
+
+	#Get all installed apps
 	#FIXME - use png as default mime type (is this clever enough?)
 	my ( $default, @mapps ) = File::MimeInfo::Applications::mime_applications('image/png');
 	
@@ -4374,7 +4527,7 @@ sub fct_get_program_model {
 		}
 		push @apps, $_ unless $already_in_list;
 	}
-	
+		
 	#no app determined!
 	unless (scalar @apps && scalar @mapps){
 		return $model;			
@@ -5328,14 +5481,12 @@ sub fct_take_screenshot {
 	
 	#filename
 	my $filename_value = $filename->get_text();
-	utf8::decode $filename_value;
 	
 	#filetype
 	my $filetype_value 	   = undef;
 	
 	#folder to save
 	my $folder             = $saveDir_button->get_current_folder || $folder_from_config;
-	utf8::decode $folder;
 	
 	#screenshot(pixbuf) and screenshot name
 	my $screenshot         = undef;
@@ -5366,7 +5517,7 @@ sub fct_take_screenshot {
 	}
 	
 	#prepare filename, parse wild-cards
-	$filename_value = strftime $filename_value , localtime;
+	$filename_value = $shf->utf8_decode (strftime $filename_value , localtime);
 	#remove "/" and "#"
 	$filename_value =~ s/(\/|\#)/-/g;
 
@@ -5421,18 +5572,19 @@ sub fct_take_screenshot {
 			#~ my $zoom_size_factor = 1;
 			#~ $zoom_size_factor = 2 if ( $zoom_size2->get_active );
 			#~ $zoom_size_factor = 3 if ( $zoom_size3->get_active );
-					
+			
 			$screenshooter = Shutter::Screenshot::SelectorAdvanced->new( 
 				$sc, $cursor_active->get_active, 
 				$delay_value, $notify_timeout_active->get_active, 
 				$zoom_active->get_active, $hide_time->get_value,
+				$as_help_active->get_active,
 				$view, $selector, $dragger,
 				$asel_size3->get_value, $asel_size4->get_value,
 				$asel_size1->get_value, $asel_size2->get_value
 			);
 			
 			$screenshot = $screenshooter->select_advanced();
-
+			
 		} else {
 
 			#~ my $zoom_size_factor = 1;
@@ -5505,11 +5657,16 @@ sub fct_take_screenshot {
 			$vpy = $2;
 			print "Sel. Viewport: $vpx, $vpy\n" if $sc->get_debug;
 
-			#metacity etc.
+		#metacity etc.
 		} elsif ( $data =~ /shutter_wrksp_direct(.*)/ ) {
 			$selected_workspace = $1;
 			print "Sel. Workspace: $selected_workspace\n"
 				if $sc->get_debug;
+		#all workspaces		
+		} elsif ( $data =~ /shutter_wrksp_all/ ) {
+			print "Capturing all workspaces\n"
+				if $sc->get_debug;
+			$selected_workspace = 'all';	
 		}
 
 		$screenshooter = Shutter::Screenshot::Workspace->new( 
@@ -5517,7 +5674,11 @@ sub fct_take_screenshot {
 			$selected_workspace, $vpx, $vpy, $current_monitor_active->get_active 
 		);
 		
-		$screenshot = $screenshooter->workspace();
+		if($selected_workspace eq 'all'){
+			$screenshot = $screenshooter->workspaces();
+		}else{
+			$screenshot = $screenshooter->workspace();
+		}
 
 	} elsif ( $data eq "redoshot" ) {
 
@@ -5688,7 +5849,7 @@ sub fct_take_screenshot {
 		}
 				
 		#we have to update the path again
-		$screenshot_name = $shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path));
+		$shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path));
 		
 		#ask for filename and folder
 		if($save_ask_active->get_active){
@@ -5711,6 +5872,16 @@ sub fct_take_screenshot {
 			}
 			
 		}else{	
+
+			#bordereffect
+			if ( $bordereffect_active->get_active ) {
+
+				print "Adding border effect to $screenshot_name\n"
+					if $sc->get_debug;
+
+				my $pbuf_border = Shutter::Pixbuf::Border->new($sc);
+				$screenshot = $pbuf_border->create_border($screenshot, $bordereffect->get_value, $bordereffect_cbtn->get_color);
+			}
 		
 			print "Trying to save file to $screenshot_name\n"
 				if $sc->get_debug;
@@ -6050,15 +6221,25 @@ sub fct_open_with_program {
 	if ($key) {
 
 		return FALSE unless &fct_screenshot_exists($key);
+		
+		if($dentry =~ /shutter-built-in/){
+			
+			&fct_draw();
 
-		#everything is fine -> open it
-		if ( $dentry->wants_uris ) {
-			$exec_call = $dentry->parse_Exec( $session_screens{$key}->{'uri'}->to_string );
-		} else {
-			$exec_call = $dentry->parse_Exec( $session_screens{$key}->{'long'} );
-		}
+			&fct_show_status_message( 1, sprintf($d->get("%s opened with %s"), $session_screens{$key}->{'long'}, $d->get("Built-in Editor")) );
+			
+		}else{
+			
+			#everything is fine -> open it
+			if ( $dentry->wants_uris ) {
+				$exec_call = $dentry->parse_Exec( $session_screens{$key}->{'uri'}->to_string );
+			} else {
+				$exec_call = $dentry->parse_Exec( $session_screens{$key}->{'long'} );
+			}
 
-		&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("opened with") . " " . $name );
+			&fct_show_status_message( 1, sprintf($d->get("%s opened with %s"), $session_screens{$key}->{'long'}, $name) );
+
+		}		
 
 		#session tab
 	} else {
@@ -6960,11 +7141,16 @@ sub fct_get_next_filename {
 		#reading all files in current directory
 		my $next_count = 0;
 		while ( my ( $result, $file ) = $uri_list->read_next ) {
-			if ( $result eq 'ok' ) {
-				my $fileinfo = Gnome2::VFS::FileInfo->new($file);
+			if ( $result eq 'ok' ) {				
+				my $fileinfo	= Gnome2::VFS::FileInfo->new($file);
+				my $fname		= $shf->utf8_decode($fileinfo->{'name'});
+				
+				#not a regular file? -> skip
+				next unless $fileinfo->{'type'} eq 'regular';
 				
 				#does the current file match the pattern?
-				if ($fileinfo->{'name'} =~ $search_pattern){
+				print "Comparing $fname\n" if $sc->get_debug;
+				if ($fname =~ $search_pattern){
 					my $curr_value = $1;
 					if($curr_value && $curr_value > $next_count){
 						$next_count = $curr_value;
@@ -7248,6 +7434,19 @@ sub fct_ret_workspace_menu {
 		}
 	} 
 
+	#entry for capturing all workspaces
+	$menu_wrksp->append( Gtk2::SeparatorMenuItem->new );
+	
+	my $allwspaces_item = Gtk2::MenuItem->new_with_label( $d->get("Capture All Workspaces"));
+	$allwspaces_item->signal_connect(
+		'activate' => \&evt_take_screenshot,
+		"shutter_wrksp_direct" . 'all'
+	);
+	$menu_wrksp->append($allwspaces_item);
+
+	$menu_wrksp->append( Gtk2::SeparatorMenuItem->new );
+
+	#monitor flag
 	my $n_mons = Gtk2::Gdk::Screen->get_default->get_n_monitors;
 
 	#use only current monitore
@@ -9312,6 +9511,11 @@ sub dlg_upload {
 			#ubuntuone enabled (libs installed)?
 			if($ubuntuone){
 
+				#start watcher if it is not started yet
+				unless($u1_watcher){
+					$u1_watcher = &fct_init_u1_watcher;
+				}
+
 				#connect
 				$u1 = Shutter::Upload::UbuntuOne->new($sc);
 				my $con_result = $u1->connect_to_bus;
@@ -9338,23 +9542,21 @@ sub dlg_upload {
 
 							if($is_connected && $is_online){
 								#is current folder synced?
-								eval{
-									if(defined $u1_fc->get_current_folder && $u1->is_synced_folder($u1_fc->get_current_folder)){
-										$u1_hint->set_markup("<span size='small'>" . 
-											sprintf($d->nget("Folder %s is synchronized with Ubuntu One.\nThe selected file will be copied to that folder before being published.", "Folder %s is synchronized with Ubuntu One.\nThe selected files will be copied to that folder before being published.", scalar @files_to_upload) , "'".$u1_fc->get_current_folder."'") 
-											. "</span>");								
-											$u1_hint2->set_markup("<span size='small'>" . 
-											$d->nget("<b>Please note:</b> The selected file will be published in a background process.\nYou will be notified when the process has finished.", "<b>Please note:</b> The selected files will be published in a background process.\nYou will be notified when the process has finished.", scalar @files_to_upload)
-											. "</span>");	
-											$upload_button->set_sensitive(TRUE);													
-									}else{
-											$u1_hint->set_markup("<span size='small' color='red'>" . 
-											sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_current_folder."'") 
-											. "</span>");
-											$u1_hint2->set_markup("");				
-											$upload_button->set_sensitive(FALSE);
-									}
-								};
+								if(defined $u1_fc->get_current_folder && $u1->is_synced_folder($u1_fc->get_current_folder)){
+									$u1_hint->set_markup("<span size='small'>" . 
+										sprintf($d->nget("Folder %s is synchronized with Ubuntu One.\nThe selected file will be copied to that folder before being published.", "Folder %s is synchronized with Ubuntu One.\nThe selected files will be copied to that folder before being published.", scalar @files_to_upload) , "'".$u1_fc->get_current_folder."'") 
+										. "</span>");								
+										$u1_hint2->set_markup("<span size='small'>" . 
+										$d->nget("<b>Please note:</b> The selected file will be published in a background process.\nYou will be notified when the process has finished.", "<b>Please note:</b> The selected files will be published in a background process.\nYou will be notified when the process has finished.", scalar @files_to_upload)
+										. "</span>");	
+										$upload_button->set_sensitive(TRUE);													
+								}else{
+										$u1_hint->set_markup("<span size='small' color='red'>" . 
+										sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_current_folder."'") 
+										. "</span>");
+										$u1_hint2->set_markup("");				
+										$upload_button->set_sensitive(FALSE);
+								}
 							}else{
 								$u1_hint->set_markup("");								
 								$u1_hint2->set_markup("");						  
@@ -9381,11 +9583,11 @@ sub dlg_upload {
 									. "</span>");	
 									$upload_button->set_sensitive(TRUE);													
 								}else{
-										$u1_hint->set_markup("<span size='small' color='red'>" . 
-										sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_current_folder."'") 
-										. "</span>");
-										$u1_hint2->set_markup("");				
-										$upload_button->set_sensitive(FALSE);
+									$u1_hint->set_markup("<span size='small' color='red'>" . 
+									sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_current_folder."'") 
+									. "</span>");
+									$u1_hint2->set_markup("");				
+									$upload_button->set_sensitive(FALSE);
 								}
 							}else{
 									$u1_hint->set_markup("");								
