@@ -1,10 +1,9 @@
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: gscrot-plugins-bash\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-17 20:48+0100\n"
-"PO-Revision-Date: 2010-03-17 20:49+0100\n"
+"POT-Creation-Date: 2010-08-31 19:30+0200\n"
+"PO-Revision-Date: 2010-08-31 19:31+0100\n"
 "Last-Translator: Mario Kemper <mario.kemper@googlemail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -21,12 +20,12 @@ msgstr ""
 #: translate_tmp:74
 #: translate_tmp:63
 #: translate_tmp:72
+#: translate_tmp:64
 msgid "Effect"
 msgstr ""
 
 #: translate_tmp:29
-msgid ""
-"Turn the image into a polaroid one with the Shutter logo and a subtitle added"
+msgid "Turn the image into a polaroid one with the Shutter logo and a subtitle added"
 msgstr ""
 
 #: translate_tmp:27
@@ -70,14 +69,6 @@ msgid "Raise a rectangular 3d-border"
 msgstr ""
 
 #: translate_tmp:27
-msgid "Hard Shadow"
-msgstr ""
-
-#: translate_tmp:29
-msgid "Add a shadow to the image on a transparent background"
-msgstr ""
-
-#: translate_tmp:27
 msgid "Soft Edges"
 msgstr ""
 
@@ -99,6 +90,19 @@ msgstr ""
 
 #: translate_tmp:29
 msgid "Add a torn-like border to the image"
+msgstr ""
+
+#: translate_tmp:27
+msgid "Autocrop"
+msgstr ""
+
+#: translate_tmp:28
+#: translate_tmp:49
+msgid "Tool"
+msgstr ""
+
+#: translate_tmp:29
+msgid "Remove empty borders from the image"
 msgstr ""
 
 #: translate_tmp:73
@@ -192,6 +196,7 @@ msgstr ""
 #: translate_tmp:259
 #: translate_tmp:328
 #: translate_tmp:257
+#: translate_tmp:314
 #: translate_tmp:315
 #, perl-format
 msgid "Error while executing plugin %s."
@@ -204,6 +209,7 @@ msgstr ""
 #: translate_tmp:260
 #: translate_tmp:329
 #: translate_tmp:258
+#: translate_tmp:315
 #: translate_tmp:316
 msgid "There was an error executing the plugin."
 msgstr ""
@@ -238,8 +244,7 @@ msgstr ""
 
 #: translate_tmp:183
 #: translate_tmp:190
-msgid ""
-"Output zoom factor; where value > 1 means zoom in and < 1 means zoom out"
+msgid "Output zoom factor; where value > 1 means zoom in and < 1 means zoom out"
 msgstr ""
 
 #: translate_tmp:204
@@ -299,10 +304,7 @@ msgstr ""
 #: translate_tmp:154
 #: translate_tmp:161
 msgid ""
-"The parameter d describes the linear scaling of the image. Using d=1, and "
-"a=b=c=0 leaves the image as it is. Choosing other d-values scales the image "
-"by that amount. a,b and c distort the image. Using negative values shifts "
-"distant points away from the center.\n"
+"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n"
 "\n"
 "Defined by Barrel Correction Distortion, by Helmut Dersch.\n"
 "http://www.all-in-one.ee/~dersch/barrel/barrel.html"
@@ -354,9 +356,7 @@ msgstr ""
 
 #: translate_tmp:165
 #: translate_tmp:172
-msgid ""
-"The base grain size or pixelization size used to create the detail in the "
-"border"
+msgid "The base grain size or pixelization size used to create the detail in the border"
 msgstr ""
 
 #: translate_tmp:176
@@ -385,9 +385,7 @@ msgid "Polaroid"
 msgstr ""
 
 #: translate_tmp:64
-msgid ""
-"Make your screenshot look like a polaroid photo, add a caption, and even "
-"rotate it a little"
+msgid "Make your screenshot look like a polaroid photo, add a caption, and even rotate it a little"
 msgstr ""
 
 #: translate_tmp:99
@@ -430,10 +428,6 @@ msgstr ""
 msgid "Resize"
 msgstr ""
 
-#: translate_tmp:49
-msgid "Tool"
-msgstr ""
-
 #: translate_tmp:53
 msgid "Resize your screenshot"
 msgstr ""
@@ -450,6 +444,36 @@ msgstr ""
 msgid "Sepia tone"
 msgstr ""
 
+#: translate_tmp:63
+msgid "Hard Shadow"
+msgstr ""
+
+#: translate_tmp:65
+msgid "Add a shadow to the image on a transparent background"
+msgstr ""
+
+#: translate_tmp:94
+msgid "Direction"
+msgstr ""
+
+#: translate_tmp:110
+#: translate_tmp:117
+msgid "The direction of the shadow"
+msgstr ""
+
+#: translate_tmp:121
+msgid "Color"
+msgstr ""
+
+#: translate_tmp:126
+msgid "Choose color"
+msgstr ""
+
+#: translate_tmp:131
+#: translate_tmp:138
+msgid "The color of the shadow"
+msgstr ""
+
 #: translate_tmp:62
 msgid "Watermark"
 msgstr ""
@@ -457,3 +481,4 @@ msgstr ""
 #: translate_tmp:64
 msgid "Add a custom text watermark to your screenshot"
 msgstr ""
+

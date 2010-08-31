@@ -91,7 +91,7 @@ $plug->signal_connect( destroy => sub { Gtk2->main_quit } );
 my $tooltips = Gtk2::Tooltips->new;
 
 #configure buttons and other needed controls
-my $direction_label = Gtk2::Label->new( $d->get( "Direction:" ) );
+my $direction_label = Gtk2::Label->new( $d->get( "Direction" ). ":" );
 my $direction_combo = Gtk2::ComboBox->new_text;
 $direction_combo->insert_text( 0, "NorthWest" );
 $direction_combo->insert_text( 1, "North" );
