@@ -67,6 +67,9 @@ sub new {
 	#notification object
 	$self->{_notification};
 
+	#globalsettings object
+	$self->{_globalsettings};
+
 	#icontheme to determine if icons exist or not
 	#in some cases we deliver fallback icons
 	$self->{_icontheme} = Gtk2::IconTheme->get_default;
@@ -74,7 +77,7 @@ sub new {
 
 	#recently used upload tab
 	$self->{_ruu_tab} = 0;
-   #... and details
+    #... and details
 	$self->{_ruu_hosting} = 0;
 	$self->{_ruu_places} = 0;
 	$self->{_ruu_u1} = 0;
@@ -165,6 +168,19 @@ sub set_notification_object {
 		$self->{_notification} = shift;
 	}
 	return $self->{_notification};
+}
+
+sub get_globalsettings_object {
+	my $self = shift;
+	return $self->{_globalsettings};
+}
+
+sub set_globalsettings_object {
+	my $self = shift;
+	if (@_) {
+		$self->{_globalsettings} = shift;
+	}
+	return $self->{_globalsettings};
 }
 
 sub get_rusf {

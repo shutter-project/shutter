@@ -71,12 +71,38 @@ sub save_pixbuf_to_file {
 	#currently this is bmp, jpeg, png and ico (ico is not useful here)
 	my $imagemagick_result = undef;
 	if ( $filetype eq 'jpeg' ) {
-		$quality = '100' unless $quality;
+		
+		#get quality value from settings if not set
+		unless($quality){
+			if(my $settings = $self->{_common}->get_globalsettings_object){
+				if(defined $settings->get_jpg_quality){
+					$quality = $settings->get_jpg_quality;
+				}else{
+					$quality = 90;
+				}
+			}else{
+				$quality = 90;
+			}
+		}
+		
 		eval{
 			$pixbuf->save( $filename, $filetype, quality => $quality );
 		};
 	} elsif ( $filetype eq 'png' ) {
-		$quality = '9' unless $quality;
+		
+		#get quality value from settings if not set
+		unless($quality){
+			if(my $settings = $self->{_common}->get_globalsettings_object){
+				if(defined $settings->get_png_quality){
+					$quality = $settings->get_png_quality;
+				}else{
+					$quality = 9;
+				}
+			}else{
+				$quality = 9;
+			}
+		}
+		
 		eval{
 			$pixbuf->save( $filename, $filetype, "tEXt::Software" => "Shutter", compression => $quality );
 		};
