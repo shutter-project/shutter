@@ -86,9 +86,9 @@ use Digest::MD5  qw(md5_hex);
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.898';
+use constant SHUTTER_REV		=> 'Rev.<>';
 use constant SHUTTER_NAME		=> 'Shutter';
-use constant SHUTTER_VERSION	=> '0.86.4 (beta)';
+use constant SHUTTER_VERSION	=> '<major>.<minor>';
 
 #--------------------------------------
 
