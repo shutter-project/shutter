@@ -120,16 +120,34 @@ $tooltips->set_tip(
 
 my $shadow_color_label = Gtk2::Label->new( $d->get("Color"). ":" );
 my $shadow_color = Gtk2::ColorButton->new();
-$shadow_color->set_color( Gtk2::Gdk::Color->parse('black') );
+$shadow_color->set_color( Gtk2::Gdk::Color->parse('#5F5F5F') );
 $shadow_color->set_alpha( int( 1 * 65535 ) );
-$shadow_color->set_use_alpha(TRUE);
+$shadow_color->set_use_alpha(FALSE);
 $shadow_color->set_title( $d->get("Choose color") );
+
+$tooltips->set_tip(
+	$shadow_color_label,
+	$d->get(
+		"The color of the shadow"
+	)
+);
+
+$tooltips->set_tip(
+	$shadow_color,
+	$d->get(
+		"The color of the shadow"
+	)
+);
 
 #all labels on the left side 
 #need to have the same size
+$direction_label->set_alignment( 0, 0.5 );
+$shadow_color_label->set_alignment( 0, 0.5 );
+
 my $sgl = Gtk2::SizeGroup->new ('both');
 $sgl->set ('ignore-hidden' => FALSE);
 $sgl->add_widget($direction_label);
+$sgl->add_widget($shadow_color_label);
 
 #we define two Gtk2::Image widgets
 #to store the screenshot
@@ -146,12 +164,10 @@ $sg->set ('ignore-hidden' => FALSE);
 $sg->add_widget($preview);
 $sg->add_widget($preview_throb);
 
-
 #we define three Gtk2::Button widgets
 #to refresh, save and cancel the plugin's work
 my $refresh_btn = Gtk2::Button->new_from_stock( 'gtk-refresh' );
-$refresh_btn->signal_connect( 'clicked', \&fct_imagemagick_shadow,
-							  'refresh' );
+$refresh_btn->signal_connect( 'clicked', \&fct_imagemagick_shadow, 'refresh' );
 
 my $save_btn = Gtk2::Button->new_from_stock( 'gtk-save' );
 $save_btn->signal_connect( 'clicked', \&fct_imagemagick_shadow, 'save' );
@@ -164,7 +180,6 @@ my $hbox1      = Gtk2::HBox->new( FALSE, 8 );
 my $hbox2      = Gtk2::HBox->new( FALSE, 8 );
 
 my $hbox_row1 = Gtk2::HBox->new( TRUE, 8 );
-my $hbox_row2 = Gtk2::HBox->new( TRUE, 8 );
 
 my $vbox_param = Gtk2::VBox->new( FALSE,  8 );
 my $vbox_left = Gtk2::VBox->new( FALSE, 8 );
@@ -175,30 +190,27 @@ my $vbox_btn  = Gtk2::VBox->new( FALSE, 8 );
 my $vbox_main = Gtk2::VBox->new( FALSE, 8 );
 
 #packing
-$hbox1->pack_start( $direction_label, FALSE, TRUE, 5 );
-$hbox1->pack_start( $direction_combo, TRUE,  TRUE, 5 );
+$hbox1->pack_start( $shadow_color_label, FALSE, TRUE, 5 );
+$hbox1->pack_start( $shadow_color, TRUE, TRUE, 5 );
 
-$hbox2->pack_start( $shadow_color_label, FALSE, TRUE, 5 );
-$hbox2->pack_start( $shadow_color, TRUE,  TRUE, 5 );
-
-#row 1
-$hbox_row1->pack_start_defaults( $hbox2 );
+$hbox2->pack_start( $direction_label, FALSE, TRUE, 5 );
+$hbox2->pack_start( $direction_combo, TRUE, TRUE, 5 );
 
 #controls on the left side
-$vbox_left->pack_start_defaults( $hbox1 );
+$vbox_left->pack_start( $hbox1, FALSE, FALSE, 5);
+$vbox_left->pack_start( $hbox2, FALSE, FALSE, 5);
 
 #preview
 $vbox_right->pack_start_defaults( $preview );
 $vbox_right->pack_start_defaults( $preview_throb );
 
-#row 2
-$hbox_row2->pack_start_defaults( $vbox_left );
-$hbox_row2->pack_start_defaults( $vbox_right );
+#row 1
+$hbox_row1->pack_start_defaults( $vbox_left );
+$hbox_row1->pack_start_defaults( $vbox_right );
 
 $vbox_param->pack_start( $hbox_row1, TRUE, TRUE, 5 );
-$vbox_param->pack_start( $hbox_row2, TRUE, TRUE, 5 );
 
-$vbox_main->pack_start( $vbox_param, FALSE, TRUE, 5 );
+$vbox_main->pack_start( $vbox_param, FALSE, FALSE, 5 );
 $vbox_main->pack_start( $refresh_btn, TRUE, TRUE, 5 );
 
 $hbox_btn->pack_start( $cancel_btn, TRUE, TRUE, 5 );
@@ -325,17 +337,50 @@ sub apply_effect {
 
 	my $scolor = $shadow_color->get_color;
 
+	my $direction1 = undef;
+	my $direction2 = undef;
+	if ($direction_combo->get_active_text eq "NorthWest" ){
+		$direction1 = "80x3-5-5";
+		$direction2 = "80x3+1+1";
+	}elsif ($direction_combo->get_active_text eq "North" ){
+		$direction1 = "80x3-0-5";
+		$direction2 = "80x3+0+1";
+	}elsif ($direction_combo->get_active_text eq "NorthEast" ){
+		$direction1 = "80x3+5-5";
+		$direction2 = "80x3-1+1";
+	}elsif ($direction_combo->get_active_text eq "West" ){
+		$direction1 = "80x3-5+0";
+		$direction2 = "80x3+1-0";
+	}elsif ($direction_combo->get_active_text eq "Center" ){
+		$direction1 = "80x3-0-0";
+		$direction2 = "80x3+0+0";
+	}elsif ($direction_combo->get_active_text eq "East" ){
+		$direction1 = "80x3+5+0";
+		$direction2 = "80x3-1-0";
+	}elsif ($direction_combo->get_active_text eq "SouthWest" ){
+		$direction1 = "80x3-5+5";
+		$direction2 = "80x3+1-1";
+	}elsif ($direction_combo->get_active_text eq "South" ){
+		$direction1 = "80x3-0+5";
+		$direction2 = "80x3-0-1";
+	}elsif ($direction_combo->get_active_text eq "SouthEast" ){
+		$direction1 = "80x3+5+5";
+		$direction2 = "80x3-1-1";
+	}
+	
 	#execute imagemagick command		
 	system( "convert"
 			. " '$filename'"
 			. " -gravity northwest -background 'rgba(255,255,255,0)' -splice 10x10"
 			. " \\( +clone -background '"
 			. sprintf( "#%04x%04x%04x%04x", $scolor->red, $scolor->green, $scolor->blue, $shadow_color->get_alpha )
-			. "' -shadow 80x3-1-1 \\) +swap -background none -mosaic +repage"
+			. "' -shadow "
+			. $direction2
+			. " \\) +swap -background none -mosaic +repage"
 			. " \\( +clone -background '"
 			. sprintf( "#%04x%04x%04x%04x", $scolor->red, $scolor->green, $scolor->blue, $shadow_color->get_alpha )
-			. "' -shadow"
-			. " 80x3-1-1"
+			. "' -shadow "
+			. $direction1
 			. " \\) +swap -background none -mosaic +repage"
 			. " $tmpfilename" );
 
