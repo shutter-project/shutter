@@ -48,7 +48,7 @@ sub new {
 
 	$self->{_zoom_active} 	= shift;
 	$self->{_hide_time}		= shift;   #a short timeout to give the server a chance to redraw the area that was obscured
-	$self->{_hide_help}		= shift;   #hide help text?
+	$self->{_show_help}		= shift;   #hide help text?
 
 	#FIXME
 	#get them as params 
@@ -104,7 +104,7 @@ sub select_advanced {
 	);
 
 	#show help text?
-	if($self->{_hide_help}) {
+	if($self->{_show_help}) {
 
 		#we display the tip only on the current monitor
 		#if we would use the root window we would display the next
@@ -295,16 +295,17 @@ sub select_advanced {
 	$self->{_select_window}->window->set_override_redirect(TRUE);
 
 	#init state flags
-	if($self->{_hide_help}) {
-		$self->{_selector_init} = FALSE;
-	}else{
+	if($self->{_show_help}) {
 		$self->{_selector_init} = TRUE;
+	}else{
+		$self->{_selector_init} = FALSE;
 	}
 	$self->{_selector_init_zoom} = 0;
 
 	#hide help text when selector is invoked
 	$self->{_selector_handler} = $self->{_selector}->signal_connect(
 		'selection-changed' => sub {
+			
 			#hide initial text
 			if ($self->{_selector_init}) {
 				$self->{_view}->set_pixbuf( $clean_pixbuf, FALSE );
@@ -528,7 +529,7 @@ sub select_advanced {
 															
 			#handle key-press
 			}elsif ( $event->type eq 'key-press' ) {
-				
+								
 				#where is the pointer currently?
 				my ( $window_at_pointer, $x, $y, $mask ) = $self->{_root}->get_pointer;
 
@@ -663,7 +664,7 @@ sub select_advanced {
 					}
 												
 				#take screenshot
-				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Return} || $Gtk2::Gdk::Keysyms{KP_Enter}) {
+				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Return} || $event->keyval == $Gtk2::Gdk::Keysyms{KP_Enter}) {
 					
 					$self->{_select_window}->hide;
 					$self->{_zoom_window}->hide;
