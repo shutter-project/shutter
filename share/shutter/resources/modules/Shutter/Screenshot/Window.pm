@@ -734,7 +734,8 @@ sub window {
 
 	#grab pointer and keyboard
 	#when mode is section or window 
-	unless($self->{_mode} eq "menu" || $self->{_mode} eq "tray_menu" || $self->{_mode} eq "tooltip" || $self->{_mode} eq "tray_tooltip"){
+	unless($self->{_mode} eq "menu" || $self->{_mode} eq "tray_menu" || $self->{_mode} eq "tooltip" || $self->{_mode} eq "tray_tooltip" || $self->{_mode} eq "awindow" || $self->{_mode} eq "tray_awindow"){
+		
 		my $grab_counter = 0;
 		while ( !Gtk2::Gdk->pointer_is_grabbed && $grab_counter < 100 ) {
 			Gtk2::Gdk->pointer_grab(
@@ -752,6 +753,7 @@ sub window {
 			Gtk2::Gdk->keyboard_grab( $self->{_root}, 0, Gtk2->get_current_event_time );
 			$grab_counter++;
 		}
+
 	}
 
 	#init
@@ -926,7 +928,7 @@ sub window {
 		$self->ungrab_pointer_and_keyboard( FALSE, FALSE, FALSE );
 		$output = 0;
 
-		if ( ( $self->{_mode} eq "window" || $self->{_mode} eq "tray_window" ) ) {
+		if ( ( $self->{_mode} eq "window" || $self->{_mode} eq "tray_window" ||  $self->{_mode} eq "awindow"  || $self->{_mode} eq "tray_awindow" ) ) {
 
 			#and select current parent window
 			$self->find_active_window;
@@ -990,7 +992,7 @@ sub window {
 		#respect rounded corners of wm decorations 
 		#(metacity for example - does not work with compiz currently)
 		#only if toplevel window was selected
-		if ( ( $self->{_mode} eq "window" || $self->{_mode} eq "tray_window" ) ) {
+		if ( ( $self->{_mode} eq "window" || $self->{_mode} eq "tray_window" ||  $self->{_mode} eq "awindow"  || $self->{_mode} eq "tray_awindow" ) ) {
 			if($self->{_x11}{ext_shape} && $self->{_include_border}){
 				my $xid = $self->{_c}{ 'cw' }{ 'gdk_window' }->get_xid;
 				#do not try this for child windows
@@ -1007,7 +1009,7 @@ sub window {
 		#e.g. for use in wildcards
 		my $d = $self->{_sc}->get_gettext;
 		
-		if ( ( $self->{_mode} eq "window" || $self->{_mode} eq "tray_window" ) ) {
+		if ( ( $self->{_mode} eq "window" || $self->{_mode} eq "tray_window" ||  $self->{_mode} eq "awindow"  || $self->{_mode} eq "tray_awindow" ) ) {
 
 			if($output =~ /Gtk2/ && defined $self->{_c}{'cw'}{'window'}){
 				$self->{_action_name} = $self->{_c}{'cw'}{'window'}->get_name;
@@ -1093,7 +1095,7 @@ sub redo_capture {
 					( $wp, $hp ) = $gdk_window->get_size;
 					( $xp, $yp ) = $gdk_window->get_origin;
 					
-				}elsif($self->{_mode} eq "window" || $self->{_mode} eq "tray_window" ){
+				}elsif($self->{_mode} eq "window" || $self->{_mode} eq "tray_window" || $self->{_mode} eq "awindow" || $self->{_mode} eq "tray_awindow"){
 	
 					#get_size of it
 					( $xp, $yp, $wp, $hp ) = $self->get_window_size($wnck_window, $gdk_window, $self->{_include_border});
@@ -1114,7 +1116,7 @@ sub redo_capture {
 					#-> ugly but fastest and safest solution now				
 					$output = $output_new;
 	
-					if($self->{_mode} eq "window" || $self->{_mode} eq "tray_window" ){
+					if($self->{_mode} eq "window" || $self->{_mode} eq "tray_window" || $self->{_mode} eq "awindow" || $self->{_mode} eq "tray_awindow"){
 						$output = $self->get_shape($gxid, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);
 					}
 	

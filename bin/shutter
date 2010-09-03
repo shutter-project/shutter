@@ -406,6 +406,7 @@ if ($app->is_running) {
 	$sm->{_menuitem_redoshot}->signal_connect( 'activate', \&evt_take_screenshot, 'redoshot' );
 	$sm->{_menuitem_selection}->signal_connect( 'activate', \&evt_take_screenshot, 'select' );
 	$sm->{_menuitem_full}->signal_connect( 'activate', \&evt_take_screenshot, 'desktop' );
+	$sm->{_menuitem_awindow}->signal_connect( 'activate', \&evt_take_screenshot, 'awindow' );
 	$sm->{_menuitem_window}->signal_connect( 'activate', \&evt_take_screenshot, 'window' );
 	$sm->{_menuitem_section}->signal_connect( 'activate', \&evt_take_screenshot, 'section' );
 	$sm->{_menuitem_menu}->signal_connect( 'activate', \&evt_take_screenshot, 'menu' );
@@ -696,13 +697,13 @@ if ($app->is_running) {
 
 	#init menus
 	$st->{_full}->set_menu( &fct_ret_workspace_menu(TRUE) );	
-	$st->{_window}->set_menu( &fct_ret_window_menu );	
+	$st->{_awindow}->set_menu( &fct_ret_window_menu );	
 
 	#and attach signal handlers
 	$st->{_full}->signal_connect( 'show-menu' => sub { $st->{_full}->set_menu( &fct_ret_workspace_menu(FALSE) ) } );
-	$st->{_window}->signal_connect( 'clicked' => \&evt_take_screenshot, 'window' );
+	$st->{_awindow}->signal_connect( 'clicked' => \&evt_take_screenshot, 'awindow' );
 
-	$st->{_window}->signal_connect( 'show-menu' => sub { $st->{_window}->set_menu( &fct_ret_window_menu ) } );
+	$st->{_awindow}->signal_connect( 'show-menu' => sub { $st->{_awindow}->set_menu( &fct_ret_window_menu ) } );
 	$st->{_section}->signal_connect( 'clicked' => \&evt_take_screenshot, 'section' );
 	$st->{_menu}->signal_connect( 'clicked' => \&evt_take_screenshot, 'menu' );
 	$st->{_tooltip}->signal_connect( 'clicked' => \&evt_take_screenshot, 'tooltip' );
@@ -1741,7 +1742,7 @@ if ($app->is_running) {
 	#keybinding_mode
 	my $combobox_keybinding_mode = Gtk2::ComboBox->new_text;
 	$combobox_keybinding_mode->insert_text( 0, $d->get("Selection") );
-	$combobox_keybinding_mode->insert_text( 1, $d->get("Window") );
+	$combobox_keybinding_mode->insert_text( 1, $d->get("Select Window") );
 	$combobox_keybinding_mode->insert_text( 2, $d->get("Active Window") );
 	$combobox_keybinding_mode->insert_text( 3, $d->get("Section") );
 	$combobox_keybinding_mode->insert_text( 4, $d->get("Menu") );
@@ -3757,7 +3758,7 @@ if ($app->is_running) {
 			#toolbar
 			$st->{_select}->set_sensitive($sensitive);
 			$st->{_full}->set_sensitive($sensitive);
-			$st->{_window}->set_sensitive($sensitive);
+			$st->{_awindow}->set_sensitive($sensitive);
 			$st->{_section}->set_sensitive($sensitive);
 			$st->{_menu}->set_sensitive($sensitive);
 			$st->{_tooltip}->set_sensitive($sensitive);
@@ -5632,6 +5633,8 @@ if ($app->is_running) {
 		#window
 		} elsif ( $data eq "window" || 
 				  $data eq "tray_window" || 
+				  $data eq "awindow" || 
+				  $data eq "tray_awindow" || 
 				  $data eq "section" || 
 				  $data eq "tray_section" || 
 				  $data eq "menu" || 
@@ -7569,12 +7572,37 @@ if ($app->is_running) {
 	}
 
 	sub fct_ret_window_menu {
-		my $screen = Gnome2::Wnck::Screen->get_default;
-		#~ $screen->force_update();
-
-		my $active_workspace = $screen->get_active_workspace;
 
 		my $menu_windows = Gtk2::Menu->new;
+		my $screen = Gnome2::Wnck::Screen->get_default;
+		my $active_workspace = $screen->get_active_workspace;
+		my $icontheme = $sc->get_theme;
+		
+		#add item for selecting a window with our mouse
+		my $sel_window_item_image;
+		if($icontheme->has_icon('gnome-window-manager')){
+			$sel_window_item_image = Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'menu' );		
+		}else{
+			$sel_window_item_image = Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+					"$shutter_root/share/shutter/resources/icons/sel_window.svg",
+					Gtk2::IconSize->lookup('menu')
+				)
+			);
+		}
+		
+		my $sel_window_item = Gtk2::ImageMenuItem->new_with_label( $d->get("Select Window") );
+		$sel_window_item->set_image($sel_window_item_image);
+		$sel_window_item->set('always_show_image' => TRUE) if Gtk2->CHECK_VERSION( 2, 16, 0 );
+
+		$tooltips->set_tip( $sel_window_item, $d->get("Select a window with your mouse") );
+		
+		$sel_window_item->signal_connect( 'activate' => \&evt_take_screenshot, 'window' );
+		
+		$menu_windows->append($sel_window_item);
+		$menu_windows->append( Gtk2::SeparatorMenuItem->new );
+
+		#add all windows to menu to capture it directly
 		foreach my $win ( $screen->get_windows_stacked ) {
 			if ($active_workspace && $win->is_visible_on_workspace( $active_workspace ) ) {
 				my $window_item = Gtk2::ImageMenuItem->new_with_label( $win->get_name );
@@ -7630,9 +7658,25 @@ if ($app->is_running) {
 			activate => \&evt_take_screenshot,
 			'tray_desktop'
 		);
+
+		#awindow
+		my $menuitem_awindow = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Active Window') );
+		if($traytheme->has_icon('gnome-window-manager')){
+			$menuitem_awindow->set_image( Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'menu' ) );	
+		}else{
+			$menuitem_awindow->set_image(
+				Gtk2::Image->new_from_pixbuf(
+					Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/sel_window_active.svg", Gtk2::IconSize->lookup('menu') )
+				)
+			);
+		}
+		$menuitem_awindow->signal_connect(
+			activate => \&evt_take_screenshot,
+			'tray_awindow'
+		);
 		
 		#window
-		my $menuitem_window = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('W_indow') );
+		my $menuitem_window = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Select W_indow') );
 		if($traytheme->has_icon('gnome-window-manager')){
 			$menuitem_window->set_image( Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'menu' ) );	
 		}else{
@@ -7752,6 +7796,7 @@ if ($app->is_running) {
 		$menu_tray->append( Gtk2::SeparatorMenuItem->new );
 		$menu_tray->append($menuitem_raw);
 		$menu_tray->append( Gtk2::SeparatorMenuItem->new );
+		$menu_tray->append($menuitem_awindow);
 		$menu_tray->append($menuitem_window);
 		$menu_tray->append($menuitem_window_sect);
 		$menu_tray->append($menuitem_window_menu);
