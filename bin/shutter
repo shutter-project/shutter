@@ -220,6 +220,7 @@ my $app = Gtk2::UniqueApp->new(
 		menu	=> 6,
 		tooltip	=> 7,
 		web		=> 8,
+		null	=> 9,
 );
 
 #load command line arguments
@@ -287,7 +288,7 @@ if ($app->is_running) {
 	# Watch the main window and register a handler that will be called each time
 	# that there's a new message.
 	$app->watch_window($window);
-	$app->signal_connect('message-received' => sub {
+	my $app_watch_id = $app->signal_connect('message-received' => sub {
 		my ($app, $cmdno, $message, $time) = @_;
 
 		my $cmdname = undef;
@@ -311,9 +312,7 @@ if ($app->is_running) {
 		
 		if(defined $cmdname){
 			&evt_take_screenshot( 'global_keybinding', $cmdname );	
-		}else{
-			warn "no valid message"
-		}	
+		}
 		
 		return 'ok';
 	});
@@ -3700,10 +3699,9 @@ if ($app->is_running) {
 			$sensitive = FALSE;
 		
 			#block signals
-			$SIG{USR1}  = 'IGNORE';
-			$SIG{USR2}  = 'IGNORE';
-			$SIG{RTMIN} = 'IGNORE';
-			$SIG{RTMAX} = 'IGNORE';
+			if($app->signal_handler_is_connected($app_watch_id)){
+				$app->signal_handler_block($app_watch_id);
+			}
 		
 			#and block status icon handler
 			if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
@@ -3724,10 +3722,9 @@ if ($app->is_running) {
 			$sensitive = TRUE;
 
 			#attach signal-handler again
-			$SIG{USR1}  = sub { &evt_take_screenshot( 'global_keybinding', 'desktop' ) };
-			$SIG{USR2}  = sub { &evt_take_screenshot( 'global_keybinding', 'window' ) };
-			$SIG{RTMIN} = sub { &evt_take_screenshot( 'global_keybinding', 'select' ) };
-			$SIG{RTMAX} = sub { &evt_take_screenshot( 'global_keybinding', 'section' ) };
+			if($app->signal_handler_is_connected($app_watch_id)){
+				$app->signal_handler_unblock($app_watch_id);
+			}
 				
 			#and unblock status icon handler
 			if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
