@@ -52,6 +52,9 @@ use Glib qw/TRUE FALSE/;
 #filename parsing
 use POSIX qw/ strftime /;
 
+#Extended processing of command line options
+use Getopt::Long qw(:config no_ignore_case pass_through);
+
 #File operations
 use File::Copy qw/ cp mv /;
 use File::Path qw/ rmtree /;
@@ -213,7 +216,7 @@ my $sthumb 	= Shutter::Pixbuf::Thumbnail->new($sc);
 my $app = Gtk2::UniqueApp->new(
 		"org.shutter-project.Shutter", undef,
 		select 	=> 1,
-		desktop => 2,
+		full	=> 2,
 		window 	=> 3,
 		awindow	=> 4,
 		section => 5,
@@ -295,7 +298,7 @@ if ($app->is_running) {
 		if ($cmdno == 1) {
 			$cmdname = 'select';
 		} elsif ($cmdno == 2) {
-			$cmdname = 'desktop';
+			$cmdname = 'full';
 		} elsif ($cmdno == 3) {
 			$cmdname = 'window';
 		} elsif ($cmdno == 4) {
@@ -405,7 +408,7 @@ if ($app->is_running) {
 
 	$sm->{_menuitem_redoshot}->signal_connect( 'activate', \&evt_take_screenshot, 'redoshot' );
 	$sm->{_menuitem_selection}->signal_connect( 'activate', \&evt_take_screenshot, 'select' );
-	$sm->{_menuitem_full}->signal_connect( 'activate', \&evt_take_screenshot, 'desktop' );
+	$sm->{_menuitem_full}->signal_connect( 'activate', \&evt_take_screenshot, 'full' );
 	$sm->{_menuitem_awindow}->signal_connect( 'activate', \&evt_take_screenshot, 'awindow' );
 	$sm->{_menuitem_window}->signal_connect( 'activate', \&evt_take_screenshot, 'window' );
 	$sm->{_menuitem_section}->signal_connect( 'activate', \&evt_take_screenshot, 'section' );
@@ -693,7 +696,7 @@ if ($app->is_running) {
 	$st->{_select}->signal_connect( 'clicked' => \&evt_take_screenshot, 'select' );
 
 	my $current_monitor_active = undef;
-	$st->{_full}->signal_connect( 'clicked' => \&evt_take_screenshot, 'desktop' );
+	$st->{_full}->signal_connect( 'clicked' => \&evt_take_screenshot, 'full' );
 
 	#init menus
 	$st->{_full}->set_menu( &fct_ret_workspace_menu(TRUE) );	
@@ -2413,8 +2416,8 @@ if ($app->is_running) {
 	#--------------------------------------
 	my $folder_to_save = $settings_xml->{'general'}->{'folder'} || $ENV{'HOME'};
 	if ( $sc->get_start_with && $folder_to_save ) {
-		if ( $sc->get_start_with eq "desktop" ) {
-			&evt_take_screenshot( 'global_keybinding', "desktop", $folder_to_save );
+		if ( $sc->get_start_with eq "full" ) {
+			&evt_take_screenshot( 'global_keybinding', "full", $folder_to_save );
 		} elsif ( $sc->get_start_with eq "select" ) {
 			&evt_take_screenshot( 'global_keybinding', "select", $folder_to_save );
 		} elsif ( $sc->get_start_with eq "window" ) {
@@ -2433,8 +2436,6 @@ if ($app->is_running) {
 	}
 
 	Gtk2->main;
-
-
 
 	0;
 
@@ -5619,7 +5620,7 @@ if ($app->is_running) {
 		}
 
 		#fullscreen screenshot
-		if ( $data eq "desktop" || $data eq "tray_desktop" ) {
+		if ( $data eq "full" || $data eq "tray_full" ) {
 			my $wnck_screen = Gnome2::Wnck::Screen->get_default;
 
 			$screenshooter = Shutter::Screenshot::Workspace->new(
@@ -7656,7 +7657,7 @@ if ($app->is_running) {
 		my $menuitem_raw = Gtk2::ImageMenuItem->new_from_stock( 'gtk-fullscreen' );
 		$menuitem_raw->signal_connect(
 			activate => \&evt_take_screenshot,
-			'tray_desktop'
+			'tray_full'
 		);
 
 		#awindow
@@ -8499,66 +8500,37 @@ if ($app->is_running) {
 	}
 
 	sub fct_init_arg {
+
+		GetOptions (
+			's|select' => sub{ $sc->set_start_with("select"); $sc->set_min(TRUE); },
+			'f|full' => sub{ $sc->set_start_with("full"); $sc->set_min(TRUE); },
+			'w|window' => sub{ $sc->set_start_with("window"); $sc->set_min(TRUE); },
+			'aw|awindow' => sub{ $sc->set_start_with("awindow"); $sc->set_min(TRUE); },
+			'm|menu' => sub{ $sc->set_start_with("menu"); $sc->set_min(TRUE); },
+			't|tooltip' => sub{ $sc->set_start_with("tooltip"); $sc->set_min(TRUE); },
+			'web' => sub{ $sc->set_start_with("web"); },
 			
-		#are there any command line params?
+			'd|debug' => sub{ $sc->set_debug(TRUE); },
+			'h|help' => sub{ $shf->usage; exit; },
+			'v|version' => sub{ print $sc->get_version, " ", $sc->get_rev, "\n"; exit; },
+			'c|clear_cache' => sub{ $sc->set_clear_cache(TRUE); },
+			'min_at_startup' => sub{ $sc->set_min(TRUE); },
+			'disable_systray' => sub{ $sc->set_disable_systray(TRUE); },
+		);
+
+		#unknown value are passed through in @ARGV - might be filenames
 		if ( @ARGV > 0 ) {
 			foreach my $arg (@ARGV) {
-				
-				#filename?
 				if ( $shf->file_exists($arg) || $shf->uri_exists($arg) ) {
 					#push filename to array, open when GUI is initialized
 					push @init_files, $arg;
 					next;
-				}	
-				
-				$arg =~ s/.{2}//;
-				if ( $arg eq "debug" ) {
-					$sc->set_debug(TRUE);
-				} elsif ( $arg eq "help" ) {
-					$shf->usage;
-					exit;
-				} elsif ( $arg eq "version" ) {
-					print $sc->get_version, " ", $sc->get_rev, "\n";
-					exit;
-				} elsif ( $arg eq "clear_cache" ) {
-					$sc->set_clear_cache(TRUE);
-				} elsif ( $arg eq "min_at_startup" ) {
-					$sc->set_min(TRUE);
-				} elsif ( $arg eq "disable_systray" ) {
-					$sc->set_disable_systray(TRUE);
-				} elsif ( $arg eq "selection" ) {
-					$sc->set_start_with("select");
-					$sc->set_min(TRUE);
-				} elsif ( $arg eq "desktop" ) {
-					$sc->set_start_with("desktop");
-					$sc->set_min(TRUE);			
-				} elsif ( $arg eq "window" ) {
-					$sc->set_start_with("window");
-					$sc->set_min(TRUE);
-				} elsif ( $arg eq "awindow" ) {
-					$sc->set_start_with("awindow");
-					$sc->set_min(TRUE);					
-				} elsif ( $arg eq "section" ) {
-					$sc->set_start_with("section");
-					$sc->set_min(TRUE);
-				} elsif ( $arg eq "menu" ) {
-					$sc->set_start_with("menu");
-					$sc->set_min(TRUE);
-				} elsif ( $arg eq "tooltip" ) {
-					$sc->set_start_with("tooltip");
-					$sc->set_min(TRUE);
-				} elsif ( $arg eq "web" ) {
-					$sc->set_start_with("web");									
 				} else {
-					warn "ERROR: illegal command " . $arg . " \n\n";
+					warn "ERROR: unknown command " . $arg . " \n\n";
 					$shf->usage;
 					exit;
 				}
-				print "INFO: command " . $arg . " recognized!\n\n";
-			} #end foreach $arg
-					
-		} else {
-			print "INFO: no command line parameters set...\n\n";
+			}
 		}
 
 		return TRUE;
