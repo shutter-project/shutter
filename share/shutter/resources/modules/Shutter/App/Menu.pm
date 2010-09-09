@@ -417,7 +417,7 @@ sub fct_ret_new_menu {
 	$self->{_menuitem_selection} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Selection') );
 	
 	eval{
-		my $ccursor_pb = Gtk2::Gdk::Cursor->new('crosshair')->get_image->scale_simple(Gtk2::IconSize->lookup('menu'), 'bilinear');
+		my $ccursor_pb = Gtk2::Gdk::Cursor->new('left_ptr')->get_image->scale_simple(Gtk2::IconSize->lookup('menu'), 'bilinear');
 		$self->{_menuitem_selection}->set_image( 
 			Gtk2::Image->new_from_pixbuf($ccursor_pb)
 		);	

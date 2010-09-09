@@ -70,7 +70,7 @@ sub create_toolbar {
 	#--------------------------------------
 	my $image_select;
 	eval{
-		my $ccursor_pb = Gtk2::Gdk::Cursor->new('crosshair')->get_image->scale_simple(Gtk2::IconSize->lookup('large-toolbar'), 'bilinear');
+		my $ccursor_pb = Gtk2::Gdk::Cursor->new('left_ptr')->get_image->scale_simple(Gtk2::IconSize->lookup('large-toolbar'), 'bilinear');
 		$image_select = Gtk2::Image->new_from_pixbuf($ccursor_pb);
 	};
 	if($@){

@@ -7635,7 +7635,7 @@ if ($app->is_running) {
 		#selection
 		my $menuitem_select = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Selection') );
 		eval{
-			my $ccursor_pb = Gtk2::Gdk::Cursor->new('crosshair')->get_image->scale_simple(Gtk2::IconSize->lookup('menu'), 'bilinear');
+			my $ccursor_pb = Gtk2::Gdk::Cursor->new('left_ptr')->get_image->scale_simple(Gtk2::IconSize->lookup('menu'), 'bilinear');
 			$menuitem_select->set_image( 
 				Gtk2::Image->new_from_pixbuf($ccursor_pb)
 			);	
