@@ -52,9 +52,6 @@ use Glib qw/TRUE FALSE/;
 #filename parsing
 use POSIX qw/ strftime /;
 
-#Extended processing of command line options
-use Getopt::Long qw(:config no_ignore_case pass_through);
-
 #File operations
 use File::Copy qw/ cp mv /;
 use File::Path qw/ rmtree /;
@@ -159,6 +156,7 @@ require Shutter::App::Common;
 require Shutter::App::GlobalSettings;
 require Shutter::App::SimpleDialogs;
 require Shutter::App::HelperFunctions;
+require Shutter::App::Usage;
 require Shutter::App::Menu;
 require Shutter::App::Notification;
 require Shutter::App::ShutterNotification;
@@ -204,6 +202,7 @@ my $window 	= Gtk2::Window->new('toplevel');
 #--------------------------------------
 my $sc 		= Shutter::App::Common->new($shutter_root, $window, SHUTTER_NAME, SHUTTER_VERSION, SHUTTER_REV, $$);
 my $shf		= Shutter::App::HelperFunctions->new($sc);
+my $su  	= Shutter::App::Usage->new($sc, $shf);
 my $sm  	= Shutter::App::Menu->new($sc);
 my $st  	= Shutter::App::Toolbar->new($sc);
 my $sd 		= Shutter::App::SimpleDialogs->new($window);
@@ -227,7 +226,9 @@ my $app = Gtk2::UniqueApp->new(
 );
 
 #load command line arguments
-&fct_init_arg;
+#as well as file to open when starting
+my $init_files = $su->get_options;
+my @init_files = @$init_files;
 
 #The application is already running, send it a message
 if ($app->is_running) {
@@ -283,10 +284,6 @@ if ($app->is_running) {
 	my %plugins;        #hash to store plugin infos
 	my %accounts;       #hash to store account infos
 	my %settings;       #hash to store settings
-
-	#init
-	#--------------------------------------
-	my @init_files; #array to store filenames (cmd arguments)
 
 	# Watch the main window and register a handler that will be called each time
 	# that there's a new message.
@@ -667,10 +664,15 @@ if ($app->is_running) {
 	#--------------------------------------
 	my $settings_xml = &fct_load_settings( "start" );
 
-	#load last profile
-	if ( defined $settings_xml->{'general'}->{'last_profile'} ) {
-		if ( $settings_xml->{'general'}->{'last_profile'} != -1 ) {
-			$settings_xml = &fct_load_settings("start", $settings_xml->{'general'}->{'last_profile_name'} );
+	#load requested profile (argv)
+	if(defined $sc->get_profile_to_start_with){
+		$settings_xml = &fct_load_settings("start", $sc->get_profile_to_start_with );
+	}else{	
+		#or load last used profile
+		if ( defined $settings_xml->{'general'}->{'last_profile'} ) {
+			if ( $settings_xml->{'general'}->{'last_profile'} != -1 ) {
+				$settings_xml = &fct_load_settings("start", $settings_xml->{'general'}->{'last_profile_name'} );
+			}
 		}
 	}
 
@@ -4558,8 +4560,11 @@ if ($app->is_running) {
 			}else{
 				&fct_show_status_message( 1, $d->get("Settings loaded successfully") );				
 			}			
-
-		} #endif file exists
+		
+		#endif file exists
+		} else {
+			warn "ERROR: settingsfile " . $settingsfile . " does not exist\n\n";
+		} 
 
 		return $settings_xml;
 	}
@@ -8499,43 +8504,6 @@ if ($app->is_running) {
 		return TRUE;
 	}
 
-	sub fct_init_arg {
-
-		GetOptions (
-			's|select' => sub{ $sc->set_start_with("select"); $sc->set_min(TRUE); },
-			'f|full' => sub{ $sc->set_start_with("full"); $sc->set_min(TRUE); },
-			'w|window' => sub{ $sc->set_start_with("window"); $sc->set_min(TRUE); },
-			'aw|awindow' => sub{ $sc->set_start_with("awindow"); $sc->set_min(TRUE); },
-			'm|menu' => sub{ $sc->set_start_with("menu"); $sc->set_min(TRUE); },
-			't|tooltip' => sub{ $sc->set_start_with("tooltip"); $sc->set_min(TRUE); },
-			'web' => sub{ $sc->set_start_with("web"); },
-			
-			'd|debug' => sub{ $sc->set_debug(TRUE); },
-			'h|help' => sub{ $shf->usage; exit; },
-			'v|version' => sub{ print $sc->get_version, " ", $sc->get_rev, "\n"; exit; },
-			'c|clear_cache' => sub{ $sc->set_clear_cache(TRUE); },
-			'min_at_startup' => sub{ $sc->set_min(TRUE); },
-			'disable_systray' => sub{ $sc->set_disable_systray(TRUE); },
-		);
-
-		#unknown value are passed through in @ARGV - might be filenames
-		if ( @ARGV > 0 ) {
-			foreach my $arg (@ARGV) {
-				if ( $shf->file_exists($arg) || $shf->uri_exists($arg) ) {
-					#push filename to array, open when GUI is initialized
-					push @init_files, $arg;
-					next;
-				} else {
-					warn "ERROR: unknown command " . $arg . " \n\n";
-					$shf->usage;
-					exit;
-				}
-			}
-		}
-
-		return TRUE;
-	}
-
 	sub fct_init_environment {
 		
 		#an old .shutter file existing?
@@ -10351,3 +10319,93 @@ if ($app->is_running) {
 
 	#--------------------------------------
 }
+
+__END__
+
+=head1 NAME
+
+Shutter - Feature-rich Screenshot Tool
+
+=head1 SYNOPSIS
+
+shutter [options] [file ...]
+
+=head1 CAPTURE MODE OPTIONS
+
+=over 8
+
+=item B<-s, --select>
+
+Capture an area of the screen.
+
+=item B<-f, --full>
+
+Capture the entire screen.
+
+=item B<-w, --window>
+
+Interactively select a window to capture.
+
+=item B<-a, --active>
+
+Capture the current active window.
+
+=item B<-t, --tooltip>
+
+Capture a tooltip.
+
+=item B<--web, --webpage>
+
+Capture a webpage.
+
+=back
+
+=head1 SETTINGS OPTIONS
+
+=over 8
+
+=item B<-p, --profile=NAME>
+
+Load a specific profile on startup.
+
+=back
+
+=head1 APPLICATION OPTIONS
+
+=over 8
+
+=item B<-h, --help>
+
+Prints a brief help message and exits.
+
+=item B<-m, --man>
+
+Prints the manual page and exits.
+
+=item B<-v, --version>
+
+Prints version information.
+
+=item B<-d, --debug>
+
+Prints a lot of debugging information to STDOUT.
+
+=item B<--clear_cache>
+
+Clears cache, e.g. installed plugins, at startup.
+
+=item B<--min_at_startup>
+
+Starts Shutter minimized to tray.
+
+=item B<--disable_systray>
+
+Disables systray icon.
+
+=back
+
+=head1 DESCRIPTION
+
+B<Shutter> is a feature-rich screenshot program. You can take a screenshot of a specific area, window, your whole screen, or even of a website - apply different effects to it, draw on it to highlight points, and then upload to an image hosting site, all within one window.
+
+=cut

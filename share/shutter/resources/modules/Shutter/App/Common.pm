@@ -50,6 +50,7 @@ sub new {
 	$self->{_min_cparam}             = FALSE;
 	$self->{_disable_systray_cparam} = FALSE;
 	$self->{_start_with}             = undef;
+	$self->{_profile_to_start_with}  = undef;
 
 	#Set LC_NUMERIC to C to prevent decimal commas (or anything else)
 	setlocale(LC_NUMERIC, "C");	
@@ -337,6 +338,19 @@ sub set_start_with {
 		$self->{_start_with} = shift;
 	}
 	return $self->{_start_with};
+}
+
+sub get_profile_to_start_with {
+	my $self = shift;
+	return $self->{_profile_to_start_with};
+}
+
+sub set_profile_to_start_with {
+	my $self = shift;
+	if (@_) {
+		$self->{_profile_to_start_with} = shift;
+	}
+	return $self->{_profile_to_start_with};
 }
 
 sub get_current_monitor {
