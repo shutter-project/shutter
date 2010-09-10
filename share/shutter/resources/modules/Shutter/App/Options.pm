@@ -20,7 +20,7 @@
 #
 ###################################################
 
-package Shutter::App::Usage;
+package Shutter::App::Options;
 
 use utf8;
 use strict;
@@ -54,7 +54,7 @@ sub get_options {
 		'a|active' => sub{ $self->{_sc}->set_start_with("awindow"); $self->{_sc}->set_min(TRUE); },
 		'm|menu' => sub{ $self->{_sc}->set_start_with("menu"); $self->{_sc}->set_min(TRUE); },
 		't|tooltip' => sub{ $self->{_sc}->set_start_with("tooltip"); $self->{_sc}->set_min(TRUE); },
-		'web|webpage' => sub{ $self->{_sc}->set_start_with("web"); },
+		'web|webpage:s' => sub{ my ($web, $url) = @_; $self->{_sc}->set_start_with("web", $url); },
 		
 		'p|profile=s' => sub{ my ($p, $profile) = @_; $self->{_sc}->set_profile_to_start_with($profile); },		
 		
@@ -65,6 +65,7 @@ sub get_options {
 		'clear_cache' => sub{ $self->{_sc}->set_clear_cache(TRUE); },
 		'min_at_startup' => sub{ $self->{_sc}->set_min(TRUE); },
 		'disable_systray' => sub{ $self->{_sc}->set_disable_systray(TRUE); },
+		'exit_after_capture' => sub{ $self->{_sc}->set_exit_after_capture(TRUE); },
 	);
 
 	#unknown value are passed through in @ARGV - might be filenames

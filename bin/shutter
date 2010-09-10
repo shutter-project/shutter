@@ -156,7 +156,7 @@ require Shutter::App::Common;
 require Shutter::App::GlobalSettings;
 require Shutter::App::SimpleDialogs;
 require Shutter::App::HelperFunctions;
-require Shutter::App::Usage;
+require Shutter::App::Options;
 require Shutter::App::Menu;
 require Shutter::App::Notification;
 require Shutter::App::ShutterNotification;
@@ -202,7 +202,7 @@ my $window 	= Gtk2::Window->new('toplevel');
 #--------------------------------------
 my $sc 		= Shutter::App::Common->new($shutter_root, $window, SHUTTER_NAME, SHUTTER_VERSION, SHUTTER_REV, $$);
 my $shf		= Shutter::App::HelperFunctions->new($sc);
-my $su  	= Shutter::App::Usage->new($sc, $shf);
+my $so  	= Shutter::App::Options->new($sc, $shf);
 my $sm  	= Shutter::App::Menu->new($sc);
 my $st  	= Shutter::App::Toolbar->new($sc);
 my $sd 		= Shutter::App::SimpleDialogs->new($window);
@@ -227,16 +227,16 @@ my $app = Gtk2::UniqueApp->new(
 
 #load command line arguments
 #as well as file to open when starting
-my $init_files = $su->get_options;
+my $init_files = $so->get_options;
 my @init_files = @$init_files;
 
 #The application is already running, send it a message
 if ($app->is_running) {
 
-	my $cmdname = $sc->get_start_with;
+	my ($cmdname, $extra) = $sc->get_start_with;
 	
 	if(defined $cmdname){
-		$app->send_message_by_name( $cmdname );
+		$app->send_message_by_name( $cmdname, text => $extra );
 	}else{
 		$app->send_message_by_name( 'null' );
 	}
@@ -311,7 +311,7 @@ if ($app->is_running) {
 		}	
 		
 		if(defined $cmdname){
-			&evt_take_screenshot( 'global_keybinding', $cmdname );	
+			&evt_take_screenshot( 'global_keybinding', $cmdname, undef, $message->get_text );	
 		}
 		
 		return 'ok';
@@ -2417,23 +2417,24 @@ if ($app->is_running) {
 	#load saved settings
 	#--------------------------------------
 	my $folder_to_save = $settings_xml->{'general'}->{'folder'} || $ENV{'HOME'};
-	if ( $sc->get_start_with && $folder_to_save ) {
-		if ( $sc->get_start_with eq "full" ) {
-			&evt_take_screenshot( 'global_keybinding', "full", $folder_to_save );
-		} elsif ( $sc->get_start_with eq "select" ) {
-			&evt_take_screenshot( 'global_keybinding', "select", $folder_to_save );
-		} elsif ( $sc->get_start_with eq "window" ) {
-			&evt_take_screenshot( 'global_keybinding', "window", $folder_to_save );
-		} elsif ( $sc->get_start_with eq "awindow" ) {
-			&evt_take_screenshot( 'global_keybinding', "awindow", $folder_to_save );
-		} elsif ( $sc->get_start_with eq "section" ) {
-			&evt_take_screenshot( 'global_keybinding', "section", $folder_to_save );
-		} elsif ( $sc->get_start_with eq "menu" ) {
-			&evt_take_screenshot( 'global_keybinding', "menu", $folder_to_save );
-		} elsif ( $sc->get_start_with eq "tooltip" ) {
-			&evt_take_screenshot( 'global_keybinding', "tooltip", $folder_to_save );
-		} elsif ( $sc->get_start_with eq "web" ) {
-			&evt_take_screenshot( 'global_keybinding', "web", $folder_to_save );
+	my ($cmdname, $extra) = $sc->get_start_with;
+	if ( $cmdname && $folder_to_save ) {
+		if ( $cmdname eq "full" ) {
+			&evt_take_screenshot( 'global_keybinding', "full", $folder_to_save, $extra );
+		} elsif ( $cmdname eq "select" ) {
+			&evt_take_screenshot( 'global_keybinding', "select", $folder_to_save, $extra );
+		} elsif ( $cmdname eq "window" ) {
+			&evt_take_screenshot( 'global_keybinding', "window", $folder_to_save, $extra );
+		} elsif ( $cmdname eq "awindow" ) {
+			&evt_take_screenshot( 'global_keybinding', "awindow", $folder_to_save, $extra );
+		} elsif ( $cmdname eq "section" ) {
+			&evt_take_screenshot( 'global_keybinding', "section", $folder_to_save, $extra );
+		} elsif ( $cmdname eq "menu" ) {
+			&evt_take_screenshot( 'global_keybinding', "menu", $folder_to_save, $extra );
+		} elsif ( $cmdname eq "tooltip" ) {
+			&evt_take_screenshot( 'global_keybinding', "tooltip", $folder_to_save, $extra );
+		} elsif ( $cmdname eq "web" ) {
+			&evt_take_screenshot( 'global_keybinding', "web", $folder_to_save, $extra );
 		}
 	}
 
@@ -2610,7 +2611,7 @@ if ($app->is_running) {
 	}
 
 	sub evt_take_screenshot {
-		my ( $widget, $data, $folder_from_config ) = @_;
+		my ( $widget, $data, $folder_from_config, $extra ) = @_;
 
 		#get xid if any window was selected from the submenu...
 		my $selfcapture = FALSE;
@@ -2641,7 +2642,7 @@ if ($app->is_running) {
 		&fct_control_signals('block');
 
 		if ( $data eq "web" || $data eq "tray_web" ){
-			&fct_take_screenshot($widget, $data, $folder_from_config);
+			&fct_take_screenshot($widget, $data, $folder_from_config, $extra);
 			#unblock signal handler
 			&fct_control_signals('unblock');
 		}elsif ( $data eq "menu" || 
@@ -2704,7 +2705,7 @@ if ($app->is_running) {
 			#A short timeout to give the server a chance to
 			#redraw the area that was obscured by our dialog.
 			Glib::Timeout->add ($menu_delay->get_value * 1000, sub{
-				&fct_take_screenshot($widget, $data, $folder_from_config);
+				&fct_take_screenshot($widget, $data, $folder_from_config, $extra);
 				#unblock signal handler
 				&fct_control_signals('unblock');
 				return FALSE;	
@@ -2714,13 +2715,13 @@ if ($app->is_running) {
 			#redraw the area that was obscured by our dialog.
 			if($hide_active->get_active){
 				Glib::Timeout->add ($hide_time->get_value, sub{
-					&fct_take_screenshot($widget, $data, $folder_from_config);
+					&fct_take_screenshot($widget, $data, $folder_from_config, $extra);
 					#unblock signal handler
 					&fct_control_signals('unblock');
 					return FALSE;	
 				});
 			}else{
-				&fct_take_screenshot($widget, $data, $folder_from_config);
+				&fct_take_screenshot($widget, $data, $folder_from_config, $extra);
 				#unblock signal handler
 				&fct_control_signals('unblock');			
 			}			
@@ -5561,7 +5562,7 @@ if ($app->is_running) {
 	}
 
 	sub fct_take_screenshot {
-		my ( $widget, $data, $folder_from_config ) = @_;
+		my ( $widget, $data, $folder_from_config, $extra ) = @_;
 
 		print "\n$data was emitted by widget $widget\n"
 			if $sc->get_debug;
@@ -5717,7 +5718,7 @@ if ($app->is_running) {
 			}
 			
 			$screenshooter = Shutter::Screenshot::Web->new($sc, $timeout, $filetype_value, $website_width);		 
-			$screenshot = $screenshooter->dlg_website();
+			$screenshot = $screenshooter->dlg_website($extra);
 		
 		#window by xid	
 		} elsif ( $data =~ /^shutter_window_direct(.*)/ ) {
@@ -6088,6 +6089,15 @@ if ($app->is_running) {
 		}
 		
 		&fct_control_main_window('show', $present_after_active->get_active);
+		
+		#Exit Shutter after the first capture has been made. 
+		#This is useful when using Shutter in scripts.
+		if($sc->get_exit_after_capture){
+			Glib::Idle->add(sub{
+				&evt_delete_window( '', 'quit' );
+				return FALSE;
+			});
+		}
 		
 		return TRUE;
 	}
@@ -10330,7 +10340,19 @@ Shutter - Feature-rich Screenshot Tool
 
 shutter [options] [file ...]
 
-=head1 CAPTURE MODE OPTIONS
+=head1 COPYRIGHT
+
+Shutter is Copyright (C) by Mario Kemper and Shutter Team
+
+=head1 DESCRIPTION
+
+B<Shutter> is a feature-rich screenshot program. You can take a screenshot of a specific area, window, your whole screen, or even of a website - apply different effects to it, draw on it to highlight points, and then upload to an image hosting site, all within one window.
+       
+=head1 OPTIONS
+
+Example: shutter -a -p=myprofile --min_at_startup
+
+=head2 CAPTURE MODE OPTIONS
 
 =over 8
 
@@ -10354,13 +10376,13 @@ Capture the current active window.
 
 Capture a tooltip.
 
-=item B<--web, --webpage>
+=item B<--web, --webpage=[URL]>
 
-Capture a webpage.
+Capture a webpage. Providing an URL ist optional.
 
 =back
 
-=head1 SETTINGS OPTIONS
+=head2 SETTINGS OPTIONS
 
 =over 8
 
@@ -10370,7 +10392,7 @@ Load a specific profile on startup.
 
 =back
 
-=head1 APPLICATION OPTIONS
+=head2 APPLICATION OPTIONS
 
 =over 8
 
@@ -10402,10 +10424,20 @@ Starts Shutter minimized to tray.
 
 Disables systray icon.
 
+=item B<--exit_after_capture>
+
+Exit after the first capture has been made. This is useful when using Shutter in scripts.
+
 =back
 
-=head1 DESCRIPTION
+=head1 BUG REPORTS
 
-B<Shutter> is a feature-rich screenshot program. You can take a screenshot of a specific area, window, your whole screen, or even of a website - apply different effects to it, draw on it to highlight points, and then upload to an image hosting site, all within one window.
+If you find a bug in Shutter, you should report it.  But first, you should make sure that it really is a bug, and that it appears in the latest version of Shutter.
+
+The latest version is always available from:
+B<https://launchpad.net/shutter>
+
+Once you have determined that a bug actually exists, please report it at launchpad:
+B<https://bugs.launchpad.net/shutter/+filebug>
 
 =cut
