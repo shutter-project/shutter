@@ -48,9 +48,9 @@ sub get_options {
 	my $self = shift;
 
 	GetOptions (
-		's|select' => sub{ $self->{_sc}->set_start_with("select"); $self->{_sc}->set_min(TRUE); },
+		's|select:s@' => sub{ my ($select, $sel_ref) = @_; $self->{_sc}->set_start_with("select", $sel_ref); $self->{_sc}->set_min(TRUE); },
 		'f|full' => sub{ $self->{_sc}->set_start_with("full"); $self->{_sc}->set_min(TRUE); },
-		'w|window' => sub{ $self->{_sc}->set_start_with("window"); $self->{_sc}->set_min(TRUE); },
+		'w|window:s' => sub{ my ($web, $name) = @_; $self->{_sc}->set_start_with("window", $name); $self->{_sc}->set_min(TRUE); },
 		'a|active' => sub{ $self->{_sc}->set_start_with("awindow"); $self->{_sc}->set_min(TRUE); },
 		'm|menu' => sub{ $self->{_sc}->set_start_with("menu"); $self->{_sc}->set_min(TRUE); },
 		't|tooltip' => sub{ $self->{_sc}->set_start_with("tooltip"); $self->{_sc}->set_min(TRUE); },
@@ -59,13 +59,13 @@ sub get_options {
 		'p|profile=s' => sub{ my ($p, $profile) = @_; $self->{_sc}->set_profile_to_start_with($profile); },		
 		
 		'h|help' => sub{ pod2usage(-verbose => 1); },
-		'm|man' => sub{ pod2usage(-verbose => 2); },
+		'man' => sub{ pod2usage(-verbose => 2); },
 		'v|version' => sub{ print $self->{_sc}->get_version, " ", $self->{_sc}->get_rev, "\n"; exit; },		
 		'd|debug' => sub{ $self->{_sc}->set_debug(TRUE); },
 		'clear_cache' => sub{ $self->{_sc}->set_clear_cache(TRUE); },
 		'min_at_startup' => sub{ $self->{_sc}->set_min(TRUE); },
 		'disable_systray' => sub{ $self->{_sc}->set_disable_systray(TRUE); },
-		'exit_after_capture' => sub{ $self->{_sc}->set_exit_after_capture(TRUE); },
+		'e|exit_after_capture' => sub{ $self->{_sc}->set_exit_after_capture(TRUE); },
 	);
 
 	#unknown value are passed through in @ARGV - might be filenames

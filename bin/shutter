@@ -178,10 +178,12 @@ if($goocanvas){
 #screenshot classes
 require Shutter::Screenshot::SelectorAdvanced;
 require Shutter::Screenshot::SelectorSimple;
+require Shutter::Screenshot::SelectorAuto;
 require Shutter::Screenshot::Workspace;
 require Shutter::Screenshot::Web;
 require Shutter::Screenshot::Window;
 require Shutter::Screenshot::WindowXid;
+require Shutter::Screenshot::WindowName;
 require Shutter::Screenshot::Error;
 
 #upload classes
@@ -2419,23 +2421,7 @@ if ($app->is_running) {
 	my $folder_to_save = $settings_xml->{'general'}->{'folder'} || $ENV{'HOME'};
 	my ($cmdname, $extra) = $sc->get_start_with;
 	if ( $cmdname && $folder_to_save ) {
-		if ( $cmdname eq "full" ) {
-			&evt_take_screenshot( 'global_keybinding', "full", $folder_to_save, $extra );
-		} elsif ( $cmdname eq "select" ) {
-			&evt_take_screenshot( 'global_keybinding', "select", $folder_to_save, $extra );
-		} elsif ( $cmdname eq "window" ) {
-			&evt_take_screenshot( 'global_keybinding', "window", $folder_to_save, $extra );
-		} elsif ( $cmdname eq "awindow" ) {
-			&evt_take_screenshot( 'global_keybinding', "awindow", $folder_to_save, $extra );
-		} elsif ( $cmdname eq "section" ) {
-			&evt_take_screenshot( 'global_keybinding', "section", $folder_to_save, $extra );
-		} elsif ( $cmdname eq "menu" ) {
-			&evt_take_screenshot( 'global_keybinding', "menu", $folder_to_save, $extra );
-		} elsif ( $cmdname eq "tooltip" ) {
-			&evt_take_screenshot( 'global_keybinding', "tooltip", $folder_to_save, $extra );
-		} elsif ( $cmdname eq "web" ) {
-			&evt_take_screenshot( 'global_keybinding', "web", $folder_to_save, $extra );
-		}
+		&evt_take_screenshot( 'global_keybinding', $cmdname, $folder_to_save, $extra );
 	}
 
 	Gtk2->main;
@@ -5597,7 +5583,6 @@ if ($app->is_running) {
 		#delay
 		#when capturing a menu or tooltip => disable delay (there is a dedicated delay property for this)
 		unless ( $data eq "menu" || $data eq "tray_menu" || $data eq "tooltip" || $data eq "tray_tooltip" ){
-			#~ if ( $delay_active->get_active ) {
 			if ( $delay->get_value ) {
 				$delay_value = int $delay->get_value;
 			} else {
@@ -5627,6 +5612,7 @@ if ($app->is_running) {
 
 		#fullscreen screenshot
 		if ( $data eq "full" || $data eq "tray_full" ) {
+			
 			my $wnck_screen = Gnome2::Wnck::Screen->get_default;
 
 			$screenshooter = Shutter::Screenshot::Workspace->new(
@@ -5649,48 +5635,67 @@ if ($app->is_running) {
 				  $data eq "tooltip" || 
 				  $data eq "tray_tooltip" ) {
 
-			$screenshooter = Shutter::Screenshot::Window->new(
-				$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active,
-				$border_active->get_active, $data, $is_hidden, 
-				$visible_windows_active->get_active, $hide_time->get_value, $menu_waround_active->get_active
-			);
-			
-			$screenshot = $screenshooter->window();
+			if ( defined $extra && $extra ) {
+
+				$screenshooter = Shutter::Screenshot::WindowName->new(
+					$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active,
+					$border_active->get_active, $hide_time->get_value,
+				);
+				
+				$screenshot = $screenshooter->window_find_by_name($extra);
+				
+			} else {	
+
+				$screenshooter = Shutter::Screenshot::Window->new(
+					$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active,
+					$border_active->get_active, $data, $is_hidden, 
+					$visible_windows_active->get_active, $hide_time->get_value, $menu_waround_active->get_active
+				);
+				
+				$screenshot = $screenshooter->window();
+
+			}
 
 		#selection
 		} elsif ( $data eq "select" || $data eq "tray_select" ) {
-
-			if ( $tool_advanced->get_active ) {
-
-				#~ my $zoom_size_factor = 1;
-				#~ $zoom_size_factor = 2 if ( $zoom_size2->get_active );
-				#~ $zoom_size_factor = 3 if ( $zoom_size3->get_active );
+			
+			if ( defined $extra && $extra ) {
 				
-				$screenshooter = Shutter::Screenshot::SelectorAdvanced->new( 
-					$sc, $cursor_active->get_active, 
-					$delay_value, $notify_timeout_active->get_active, 
-					$zoom_active->get_active, $hide_time->get_value,
-					$as_help_active->get_active,
-					$view, $selector, $dragger,
-					$asel_size3->get_value, $asel_size4->get_value,
-					$asel_size1->get_value, $asel_size2->get_value
+				my @coords = split(',', $extra);
+				
+				$screenshooter = Shutter::Screenshot::SelectorAuto->new( 
+					$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active,
 				);
 				
-				$screenshot = $screenshooter->select_advanced();
-				
+				$screenshot = $screenshooter->select_auto($coords[0], $coords[1], $coords[2], $coords[3]);				
+						
 			} else {
 
-				#~ my $zoom_size_factor = 1;
-				#~ $zoom_size_factor = 2 if ( $zoom_size2->get_active );
-				#~ $zoom_size_factor = 3 if ( $zoom_size3->get_active );
-				
-				$screenshooter = Shutter::Screenshot::SelectorSimple->new( 
-					$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active, 
-					$zoom_active->get_active, $hide_time->get_value 
-				);
-				
-				$screenshot = $screenshooter->select_simple();
+				if ( $tool_advanced->get_active ) {
+					
+					$screenshooter = Shutter::Screenshot::SelectorAdvanced->new( 
+						$sc, $cursor_active->get_active, 
+						$delay_value, $notify_timeout_active->get_active, 
+						$zoom_active->get_active, $hide_time->get_value,
+						$as_help_active->get_active,
+						$view, $selector, $dragger,
+						$asel_size3->get_value, $asel_size4->get_value,
+						$asel_size1->get_value, $asel_size2->get_value,
+					);
+					
+					$screenshot = $screenshooter->select_advanced();
+					
+				} else {
+					
+					$screenshooter = Shutter::Screenshot::SelectorSimple->new( 
+						$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active, 
+						$zoom_active->get_active, $hide_time->get_value,
+					);
+					
+					$screenshot = $screenshooter->select_simple();
 
+				}
+				
 			}
 			
 		#web
@@ -10350,27 +10355,45 @@ B<Shutter> is a feature-rich screenshot program. You can take a screenshot of a 
        
 =head1 OPTIONS
 
-Example: shutter -a -p=myprofile --min_at_startup
+=over 8
+
+=item Example 1
+
+shutter -a -p=myprofile --min_at_startup
+
+=item Example 2
+
+shutter -s=100,100,300,300 -e
+
+=item Example 2
+
+shutter --window=firefox
+
+=back
 
 =head2 CAPTURE MODE OPTIONS
 
 =over 8
 
-=item B<-s, --select>
+=item B<-s, --select=[X,Y,WIDTH,HEIGHT]>
 
-Capture an area of the screen.
+Capture an area of the screen. Providing X,Y,WIDTH,HEIGHT is optional.
 
 =item B<-f, --full>
 
 Capture the entire screen.
 
-=item B<-w, --window>
+=item B<-w, --window=[NAME_PATTERN]>
 
-Interactively select a window to capture.
+Select a window to capture. Providing a NAME_PATTERN ist optional.
 
 =item B<-a, --active>
 
 Capture the current active window.
+
+=item B<-m, --menu>
+
+Capture a menu.
 
 =item B<-t, --tooltip>
 
@@ -10400,7 +10423,7 @@ Load a specific profile on startup.
 
 Prints a brief help message and exits.
 
-=item B<-m, --man>
+=item B<--man>
 
 Prints the manual page and exits.
 
@@ -10424,7 +10447,7 @@ Starts Shutter minimized to tray.
 
 Disables systray icon.
 
-=item B<--exit_after_capture>
+=item B<-e, --exit_after_capture>
 
 Exit after the first capture has been made. This is useful when using Shutter in scripts.
 
