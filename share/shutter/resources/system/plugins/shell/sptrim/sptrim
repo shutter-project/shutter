@@ -49,7 +49,7 @@ FILE="${1}"
 #FILEYTPE="${4}"
 #GEO="${2}x${3}"
 
-convert "${FILE}" -trim "${FILE}"
+convert "${FILE}" -trim +repage "${FILE}"
 
        
 exit 0
