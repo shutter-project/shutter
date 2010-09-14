@@ -36,7 +36,7 @@ use Glib qw/TRUE FALSE/;
 sub new {
 	my $class = shift;
 	
-	my $self = { _sc  => shift, _code => shift, _data => shift };
+	my $self = { _sc  => shift, _code => shift, _data => shift, _extra => shift };
 
 	#############
 	# code = 0 - pointer could not be grabbed - or invalid region
@@ -46,6 +46,7 @@ sub new {
 	# code = 4 - window no longer available
 	# code = 5 - user aborted
 	# code = 6 - gnome-web-photo failed
+	# code = 7 - no window with name xy detected
 	#############	
 
 	bless $self, $class;
@@ -54,7 +55,7 @@ sub new {
 
 sub get_error {
 	my $self = shift;
-	return ($self->{_code}, $self->{_data});
+	return ($self->{_code}, $self->{_data}, $self->{_extra});
 }
 
 sub is_error {
@@ -71,8 +72,9 @@ sub set_error {
 	if (@_) {
 		$self->{_code} = shift;
 		$self->{_data} = shift;
+		$self->{_extra} = shift;
 	}		
-	return ($self->{_code}, $self->{_data});
+	return ($self->{_code}, $self->{_data}, $self->{_extra});
 }
 
 sub show_dialog {
@@ -157,6 +159,16 @@ sub show_dialog {
 		
 		$status_text = $d->get("Unable to capture website");
 			
+	#no window with name $pattern detected
+	}elsif( $self->{_code} == 7 ) {
+		
+		my $name_pattern = $self->{_extra};
+		
+		$response = $sd->dlg_error_message( 
+			sprintf( $d->get( "No window with name pattern %s detected." ), "'".$name_pattern."'"),
+			$d->get( "Error while taking the screenshot." )
+		);
+
 	}
 
 	return ($response, $status_text);

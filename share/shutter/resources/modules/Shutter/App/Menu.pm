@@ -417,7 +417,7 @@ sub fct_ret_new_menu {
 	$self->{_menuitem_selection} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Selection') );
 	
 	eval{
-		my $ccursor_pb = Gtk2::Gdk::Cursor->new('crosshair')->get_image->scale_simple(Gtk2::IconSize->lookup('menu'), 'bilinear');
+		my $ccursor_pb = Gtk2::Gdk::Cursor->new('left_ptr')->get_image->scale_simple(Gtk2::IconSize->lookup('menu'), 'bilinear');
 		$self->{_menuitem_selection}->set_image( 
 			Gtk2::Image->new_from_pixbuf($ccursor_pb)
 		);	
@@ -445,8 +445,21 @@ sub fct_ret_new_menu {
 
 	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
 
+	#awindow
+	$self->{_menuitem_awindow} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Active Window') );
+	if($icontheme->has_icon('gnome-window-manager')){
+		$self->{_menuitem_awindow}->set_image( Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'menu' ) );	
+	}else{
+		$self->{_menuitem_awindow}->set_image(
+			Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/sel_window_active.svg", Gtk2::IconSize->lookup('menu') )
+			)
+		);
+	}
+	$self->{_menu_new}->append( $self->{_menuitem_awindow} );
+
 	#window
-	$self->{_menuitem_window} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('W_indow') );
+	$self->{_menuitem_window} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Select W_indow') );
 	if($icontheme->has_icon('gnome-window-manager')){
 		$self->{_menuitem_window}->set_image( Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'menu' ) );	
 	}else{

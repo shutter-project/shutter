@@ -163,17 +163,22 @@ sub usage {
 	print "shutter [options]\n";
 	print "Available options:\n\n"
 		. "Capture:\n"
-		. "--full (starts shutter and takes a full screen screenshot directly)\n"
-		. "--selection (starts shutter in selection mode)\n"
-		. "--window (starts shutter in window selection mode)\n"
-		. "--section (starts shutter in section selection mode)\n\n"
+		. "--select (starts Shutter in selection mode)\n"
+		. "--full (starts Shutter and takes a full screen screenshot directly)\n"
+		. "--window (starts Shutter in window selection mode)\n"
+		. "--awindow (capture the active window)\n"
+		. "--section (starts Shutter in section selection mode)\n"
+		. "--menu (starts Shutter in menu selection mode)\n"
+		. "--tooltip (starts Shutter in tooltip selection mode)\n"
+		. "--web (starts Shutter in web capture mode)\n\n"
 		.
 
 		"Application:\n"
-		. "--min_at_startup (starts shutter minimized to tray)\n"
+		. "--min_at_startup (starts Shutter minimized to tray)\n"
 		. "--clear_cache (clears cache, e.g. installed plugins, at startup)\n"
 		. "--debug (prints a lot of debugging information to STDOUT)\n"
 		. "--disable_systray (disable systray icon)\n"
+		. "--version (displays version information)\n"
 		. "--help (displays this help)\n";
 
 	return TRUE;

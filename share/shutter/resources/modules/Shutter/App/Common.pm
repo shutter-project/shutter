@@ -45,11 +45,14 @@ sub new {
 	my $self = { _shutter_root => shift, _mainwindow => shift, _appname => shift, _version => shift, _rev => shift, _pid => shift };
 
 	#vars
-	$self->{_debug_cparam}           = FALSE;
-	$self->{_clear_cache}            = FALSE;
-	$self->{_min_cparam}             = FALSE;
-	$self->{_disable_systray_cparam} = FALSE;
-	$self->{_start_with}             = undef;
+	$self->{_debug_cparam}           	= FALSE;
+	$self->{_clear_cache}            	= FALSE;
+	$self->{_min_cparam}             	= FALSE;
+	$self->{_disable_systray_cparam} 	= FALSE;
+	$self->{_exit_after_capture_cparam} = FALSE;
+	$self->{_start_with}             	= undef;
+	$self->{_start_with_extra}			= undef;
+	$self->{_profile_to_start_with}  	= undef;
 
 	#Set LC_NUMERIC to C to prevent decimal commas (or anything else)
 	setlocale(LC_NUMERIC, "C");	
@@ -326,17 +329,44 @@ sub set_disable_systray {
 	return $self->{_disable_systray_cparam};
 }
 
+sub get_exit_after_capture {
+	my $self = shift;
+	return $self->{_exit_after_capture_cparam};
+}
+
+sub set_exit_after_capture {
+	my $self = shift;
+	if (@_) {
+		$self->{_exit_after_capture_cparam} = shift;
+	}
+	return $self->{_exit_after_capture_cparam};
+}
+
 sub get_start_with {
 	my $self = shift;
-	return $self->{_start_with};
+	return ($self->{_start_with}, $self->{_start_with_extra});
 }
 
 sub set_start_with {
 	my $self = shift;
 	if (@_) {
 		$self->{_start_with} = shift;
+		$self->{_start_with_extra} = shift;
 	}
-	return $self->{_start_with};
+	return ($self->{_start_with}, $self->{_start_with_extra});
+}
+
+sub get_profile_to_start_with {
+	my $self = shift;
+	return $self->{_profile_to_start_with};
+}
+
+sub set_profile_to_start_with {
+	my $self = shift;
+	if (@_) {
+		$self->{_profile_to_start_with} = shift;
+	}
+	return $self->{_profile_to_start_with};
 }
 
 sub get_current_monitor {
