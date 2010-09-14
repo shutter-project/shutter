@@ -237,8 +237,10 @@ if ($app->is_running) {
 
 	my ($cmdname, $extra) = $sc->get_start_with;
 	
-	if(defined $cmdname){
+	if(defined $cmdname && defined $extra){
 		$app->send_message_by_name( $cmdname, text => $extra );
+	}elsif(defined $cmdname){
+		$app->send_message_by_name( $cmdname );	
 	}else{
 		$app->send_message_by_name( 'null' );
 	}
@@ -287,6 +289,10 @@ if ($app->is_running) {
 	my %accounts;       #hash to store account infos
 	my %settings;       #hash to store settings
 
+	#HELPERS
+	my $current_profile_indx = 0; #current profile index
+	my $is_hidden            = TRUE; #main window hidden flag
+
 	# Watch the main window and register a handler that will be called each time
 	# that there's a new message.
 	$app->watch_window($window);
@@ -311,8 +317,12 @@ if ($app->is_running) {
 		} elsif ($cmdno == 8) {
 			$cmdname = 'web';
 		}	
-		
+				
 		if(defined $cmdname){
+			if($is_hidden){
+				$is_hidden = FALSE;
+				&fct_control_main_window('hide');
+			}
 			&evt_take_screenshot( 'global_keybinding', $cmdname, undef, $message->get_text );	
 		}
 		
@@ -350,10 +360,6 @@ if ($app->is_running) {
 	my $tray                 = undef;
 	my $tray_box			 = undef; #Gtk2::TrayIcon needs and Gtk2::EventBox 
 	my $tray_menu			 = &fct_ret_tray_menu;
-
-	#HELPERS
-	my $current_profile_indx = 0; #current profile index
-	my $is_hidden            = TRUE; #main window hidden flag
 
 	#SESSION NOTEBOOK
 	my $notebook = Gtk2::Notebook->new;
