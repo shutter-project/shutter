@@ -5872,7 +5872,7 @@ if ($app->is_running) {
 
 		#...successfully???
 		#~ print "$sc, $screenshot, $data\n";
-		my $error = Shutter::Screenshot::Error->new($sc, $screenshot, $data);
+		my $error = Shutter::Screenshot::Error->new($sc, $screenshot, $data, $extra);
 		if($error->is_error) {
 			
 			my ($response, $status_text) = $error->show_dialog($screenshooter->get_error_text);
@@ -7625,7 +7625,7 @@ if ($app->is_running) {
 
 		#add all windows to menu to capture it directly
 		foreach my $win ( $screen->get_windows_stacked ) {
-			if ($active_workspace && $win->is_visible_on_workspace( $active_workspace ) ) {
+			if ($active_workspace && $win->is_on_workspace( $active_workspace ) ) {
 				my $window_item = Gtk2::ImageMenuItem->new_with_label( $win->get_name );
 				$window_item->set_image( Gtk2::Image->new_from_pixbuf( $win->get_mini_icon ) );
 				$window_item->set('always_show_image' => TRUE) if Gtk2->CHECK_VERSION( 2, 16, 0 );
@@ -10365,9 +10365,9 @@ shutter -a -p=myprofile --min_at_startup
 
 shutter -s=100,100,300,300 -e
 
-=item Example 2
+=item Example 3
 
-shutter --window=firefox
+shutter --window=.*firefox.*
 
 =back
 
@@ -10385,7 +10385,7 @@ Capture the entire screen.
 
 =item B<-w, --window=[NAME_PATTERN]>
 
-Select a window to capture. Providing a NAME_PATTERN ist optional.
+Select a window to capture. Providing a NAME_PATTERN (Perl-style regex) ist optional.
 
 =item B<-a, --active>
 

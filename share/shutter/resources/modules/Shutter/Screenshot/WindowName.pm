@@ -58,23 +58,21 @@ sub new {
 
 sub window_find_by_name {
 	my $self = shift;
-	my $name = shift;
+	my $name_pattern = shift;
 	
 	my $active_workspace = $self->{_wnck_screen}->get_active_workspace;
 	
 	#cycle through all windows
-	my $output = 0;
+	my $output = 7;
 	foreach my $win ( $self->{_wnck_screen}->get_windows_stacked ) {
-		if ( $active_workspace && $win->is_visible_on_workspace( $active_workspace ) ) {
-			if ( $win->get_name =~ m/.*$name.*/i ) {
+		if ( $active_workspace && $win->is_on_workspace( $active_workspace ) ) {
+			if ( $win->get_name =~ m/$name_pattern/i ) {
 				$output = $self->window_by_xid($win->get_xid);
 				last;
 			}
 		}
 	}	
-	
-	#FIXME
-	
+		
 	return $output;
 }
 
