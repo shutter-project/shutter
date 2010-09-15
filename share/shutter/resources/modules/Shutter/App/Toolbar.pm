@@ -99,8 +99,20 @@ sub create_toolbar {
 
 	#button full screen
 	#--------------------------------------
-	my $image_raw = Gtk2::Image->new_from_stock('gtk-fullscreen', 'large-toolbar');
-	$self->{_full} = Gtk2::MenuToolButton->new( $image_raw, $d->get("Full Screen") );
+	my $image_full;
+	if($icontheme->has_icon('user-desktop')){
+		$image_full = Gtk2::Image->new_from_icon_name( 'user-desktop', 'large-toolbar' );		
+	}elsif($icontheme->has_icon('desktop')){
+		$image_full = Gtk2::Image->new_from_icon_name( 'desktop', 'large-toolbar' );		
+	}else{
+		$image_full = Gtk2::Image->new_from_pixbuf(
+			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+				"$shutter_root/share/shutter/resources/icons/desktop.svg",
+				Gtk2::IconSize->lookup('large-toolbar')
+			)
+		);
+	}
+	$self->{_full} = Gtk2::MenuToolButton->new( $image_full, $d->get("Desktop") );
 	$self->{_full}->set_is_important (TRUE);
 
 	$tooltips->set_tip( $self->{_full}, $d->get("Take a screenshot of your whole desktop") );

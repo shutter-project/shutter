@@ -440,7 +440,18 @@ sub fct_ret_new_menu {
 	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
 
 	#full screen
-	$self->{_menuitem_full} = Gtk2::ImageMenuItem->new_from_stock( 'gtk-fullscreen' );
+	$self->{_menuitem_full} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Desktop') );
+	if($icontheme->has_icon('user-desktop')){
+		$self->{_menuitem_full}->set_image( Gtk2::Image->new_from_icon_name( 'user-desktop', 'menu' ) );	
+	}elsif($icontheme->has_icon('desktop')){
+		$self->{_menuitem_full}->set_image( Gtk2::Image->new_from_icon_name( 'desktop', 'menu' ) );	
+	}else{
+		$self->{_menuitem_full}->set_image(
+			Gtk2::Image->new_from_pixbuf(
+				Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/desktop.svg", Gtk2::IconSize->lookup('menu') )
+			)
+		);
+	}
 	$self->{_menu_new}->append( $self->{_menuitem_full} );
 
 	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
