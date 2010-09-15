@@ -1005,9 +1005,10 @@ if ($app->is_running) {
 	}
 
 	$tooltips->set_tip( $scale,
-		$d->get("Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)") );
+		$d->get("Adjust quality/compression value") );
 	$tooltips->set_tip( $scale_label,
-		$d->get("Quality/Compression:\nHigh value means high size / high compression\n(depending on file format chosen)") );
+		$d->get("Adjust quality/compression value") );
+		
 	$scale_box->pack_start( $scale_label, FALSE, TRUE, 12 );
 	$scale_box->pack_start( $scale, TRUE, TRUE, 0 );
 
