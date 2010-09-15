@@ -7228,6 +7228,7 @@ if ($app->is_running) {
 			$search_pattern =~ s/\\\$h/\\d{1,}/g;
 			$search_pattern =~ s/\\\$profile/.{1,}/g;
 			$search_pattern =~ s/\\\$name/.{1,}/g;
+			$search_pattern =~ s/\\\$nb_name/.{1,}/g;
 
 			print "Searching for files with pattern: $search_pattern\n"
 				if $sc->get_debug;
