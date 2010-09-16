@@ -4283,7 +4283,7 @@ if ($app->is_running) {
 				
 				my $mode = undef;
 				if ( $combobox_keybinding_mode->get_active() == 0 ) {
-					$mode = "--selection";
+					$mode = "--select";
 				} elsif ( $combobox_keybinding_mode->get_active() == 1 ) {
 					$mode = "--window";
 				} elsif ( $combobox_keybinding_mode->get_active() == 2 ) {
