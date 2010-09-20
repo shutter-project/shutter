@@ -737,7 +737,7 @@ if ($app->is_running) {
 	if ( $goocanvas ) {
 		$st->{_edit}->signal_connect( 'clicked' => \&fct_draw );
 	}else{
-		$tooltips->set_tip( $st->{_edit}, $d->get("Goo::Canvas/libgoocanvas needs to be installed for this feature") );
+		$tooltips->set_tip( $st->{_edit}, $d->get("Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature") );
 	}
 	$st->{_edit}->set_sensitive(FALSE);
 		
@@ -4287,7 +4287,7 @@ if ($app->is_running) {
 				} elsif ( $combobox_keybinding_mode->get_active() == 1 ) {
 					$mode = "--window";
 				} elsif ( $combobox_keybinding_mode->get_active() == 2 ) {
-					$mode = "--awindow";
+					$mode = "--active";
 				} elsif ( $combobox_keybinding_mode->get_active() == 3 ) {
 					$mode = "--section";
 				} elsif ( $combobox_keybinding_mode->get_active() == 4 ) {
@@ -8525,7 +8525,7 @@ if ($app->is_running) {
 		#goocanvas
 		eval { require Goo::Canvas };
 		if ($@) {
-			warn "WARNING: Goo::Canvas/libgoocanvas is missing --> drawing tool will be disabled!\n\n";
+			warn "WARNING: Goo::Canvas/libgoo-canvas-perl is missing --> drawing tool will be disabled!\n\n";
 			$goocanvas = FALSE;
 		}
 		
@@ -10388,6 +10388,10 @@ shutter -s=100,100,300,300 -e
 
 shutter --window=.*firefox.*
 
+=item Example 4
+
+shutter --web=http://shutter-project.org/ -e
+
 =back
 
 =head2 CAPTURE MODE OPTIONS
@@ -10410,6 +10414,10 @@ Select a window to capture. Providing a NAME_PATTERN (Perl-style regex) ist opti
 
 Capture the current active window.
 
+=item B<--section>
+
+Capture a section. You will be able to select any child window by moving the mouse over it.
+
 =item B<-m, --menu>
 
 Capture a menu.
@@ -10418,7 +10426,7 @@ Capture a menu.
 
 Capture a tooltip.
 
-=item B<--web, --webpage=[URL]>
+=item B<--web=[URL]>
 
 Capture a webpage. Providing an URL ist optional.
 

@@ -52,9 +52,10 @@ sub get_options {
 		'f|full' => sub{ $self->{_sc}->set_start_with("full"); $self->{_sc}->set_min(TRUE); },
 		'w|window:s' => sub{ my ($web, $name) = @_; $self->{_sc}->set_start_with("window", $name); $self->{_sc}->set_min(TRUE); },
 		'a|active' => sub{ $self->{_sc}->set_start_with("awindow"); $self->{_sc}->set_min(TRUE); },
+		'section' => sub{ $self->{_sc}->set_start_with("section"); $self->{_sc}->set_min(TRUE); },
 		'm|menu' => sub{ $self->{_sc}->set_start_with("menu"); $self->{_sc}->set_min(TRUE); },
 		't|tooltip' => sub{ $self->{_sc}->set_start_with("tooltip"); $self->{_sc}->set_min(TRUE); },
-		'web|webpage:s' => sub{ my ($web, $url) = @_; $self->{_sc}->set_start_with("web", $url); },
+		'web:s' => sub{ my ($web, $url) = @_; $self->{_sc}->set_start_with("web", $url); },
 		
 		'p|profile=s' => sub{ my ($p, $profile) = @_; $self->{_sc}->set_profile_to_start_with($profile); },		
 		
