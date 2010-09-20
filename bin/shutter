@@ -1246,12 +1246,12 @@ if ($app->is_running) {
 		'cursor_toggled'
 	);
 
-	$cursor_box->pack_start( $cursor_active,    FALSE, TRUE, 12 );
+	$cursor_box->pack_start( $cursor_active, FALSE, TRUE, 12 );
 
 	if ( defined $settings_xml->{'general'}->{'cursor'} ) {
 		$cursor_active->set_active( $settings_xml->{'general'}->{'cursor'} );
 	} else {
-		$cursor_active->set_active(TRUE);
+		$cursor_active->set_active(FALSE);
 	}
 
 	#end - cursor
