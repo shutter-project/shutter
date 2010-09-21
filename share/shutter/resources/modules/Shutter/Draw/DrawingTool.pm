@@ -1348,6 +1348,11 @@ sub load_settings {
 	if ( $shutter_hfunct->file_exists($settingsfile) ) {
 		eval {
 			$settings_xml = XMLin( IO::File->new($settingsfile) );
+			
+			#restore window state when maximized
+			if(exists $settings_xml->{'drawing'}->{'state'} && defined $settings_xml->{'drawing'}->{'state'} && $settings_xml->{'drawing'}->{'state'} eq 'maximized'){
+				$self->{_drawing_window}->maximize;			
+			}	
 	
 			#window size and position
 			if($settings_xml->{'drawing'}->{'x'} && $settings_xml->{'drawing'}->{'y'}){
@@ -1399,6 +1404,12 @@ sub save_settings {
 	my %settings;
 
 	#window size and position
+	if(defined $self->{_drawing_window}->window){
+		if($self->{_drawing_window}->window->get_state eq 'GDK_WINDOW_STATE_MAXIMIZED'){
+			$settings{'drawing'}->{'state'} = 'maximized';
+		}
+	}
+	
 	my ($w, $h) = $self->{_drawing_window}->get_size;
 	my ($x, $y) = $self->{_drawing_window}->get_position;
 	$settings{'drawing'}->{'x'} = $x;
