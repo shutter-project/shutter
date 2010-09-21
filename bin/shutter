@@ -7568,12 +7568,10 @@ if ($app->is_running) {
 		);
 		$menu_wrksp->append($allwspaces_item);
 
-		$menu_wrksp->append( Gtk2::SeparatorMenuItem->new );
-
 		#monitor flag
 		my $n_mons = Gtk2::Gdk::Screen->get_default->get_n_monitors;
 
-		#use only current monitore
+		#use only current monitor
 		$menu_wrksp->append( Gtk2::SeparatorMenuItem->new );
 		if ($init) {
 			$current_monitor_active = Gtk2::CheckMenuItem->new_with_label( $d->get("Limit to current monitor") );
