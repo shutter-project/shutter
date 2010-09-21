@@ -369,6 +369,18 @@ sub include_cursor {
 
 	my $cursor_pixbuf = $cursor->get_image;
 	
+	#try to use default cursor if there was an error
+	unless ( $cursor_pixbuf) {
+		warn "WARNING: There was an error while getting the cursor image - using a default cursor\n";
+		my $icons_path = $self->{_sc}->get_root . "/share/shutter/resources/icons";
+		eval{
+			$cursor_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($icons_path."/Normal.cur");
+		};
+		if($@){
+			warn "ERROR: There was an error while loading the default cursor: $@\n";
+		}
+	}
+	
 	if ( $cursor_pixbuf ) {
 		my ( $window_at_pointer, $x, $y, $mask ) = $gdk_window->get_pointer;
 	
