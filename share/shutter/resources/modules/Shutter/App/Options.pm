@@ -78,7 +78,7 @@ sub get_options {
 				push @init_files, $arg;
 				next;
 			} else {
-				warn "ERROR: unknown command " . $arg . " \n\n";
+				warn "ERROR: unknown command or filename " . $arg . " \n\n";
 				pod2usage(-verbose => 1);
 			}
 		}

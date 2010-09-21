@@ -242,7 +242,7 @@ if ($app->is_running) {
 	}elsif(defined $cmdname){
 		$app->send_message_by_name( $cmdname );	
 	}else{
-		$app->send_message_by_name( 'null' );
+		$app->send_message_by_name( 'open', uris => \@init_files );
 	}
 
 #Create the single application instance and wait for other requests
@@ -317,13 +317,22 @@ if ($app->is_running) {
 		} elsif ($cmdno == 8) {
 			$cmdname = 'web';
 		}	
-				
+		
+		#shutter window is presented automatically, sync our flag
+		$is_hidden = FALSE;
+		
+		#take screenshot		
 		if(defined $cmdname){
 			if($is_hidden){
-				$is_hidden = FALSE;
 				&fct_control_main_window('hide');
 			}
 			&evt_take_screenshot( 'global_keybinding', $cmdname, undef, $message->get_text );	
+		#open new files
+		}else{
+			my @init_files = $message->get_uris;
+			if(scalar @init_files > 0){
+				&fct_open_files(@init_files);
+			}	
 		}
 		
 		return 'ok';
