@@ -2392,7 +2392,10 @@ if ($app->is_running) {
 
 	#restore session
 	#--------------------------------------
-	&fct_load_session;
+	Glib::Idle->add(sub{
+		&fct_load_session;
+		return FALSE;
+	});
 
 	#open init files (cmd arguments)
 	#--------------------------------------
@@ -3631,7 +3634,7 @@ if ($app->is_running) {
 		$session_screens{$key}->{'tab_child'} = $notebook->get_nth_page($new_index);
 		$tab_close_button->signal_connect( clicked => sub { &fct_remove($key); } );
 
-		$notebook->set_current_page($new_index);
+		#~ $notebook->set_current_page($new_index);
 
 		if ( &fct_update_tab( $key, $pixbuf, $uri ) ) {
 			#setup a filemonitor, so we get noticed if the file changed
@@ -4862,38 +4865,38 @@ if ($app->is_running) {
 				if $shf->file_exists($sessionfile);
 
 			return FALSE if scalar( keys %{$session_xml} ) < 1;
-
-			my $restore_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/], 'info', 'close', 'none' );
-
-			$restore_dialog->set( 'text' => $d->get("Restoring session") );
-
-			$restore_dialog->set( 'secondary-text' => $d->get("Please wait while your saved session is being restored") . "." );
-
-			$restore_dialog->signal_connect( response => sub { $_[0]->destroy } );
-
-			my $restore_progress = Gtk2::ProgressBar->new;
-			$restore_progress->set_no_show_all(TRUE);
-			$restore_progress->set_ellipsize('middle');
-			$restore_progress->set_orientation('left-to-right');
-			$restore_progress->set_fraction(0);
-
-			$restore_dialog->vbox->add($restore_progress);
+#~ 
+			#~ my $restore_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/], 'info', 'close', 'none' );
+#~ 
+			#~ $restore_dialog->set( 'text' => $d->get("Restoring session") );
+#~ 
+			#~ $restore_dialog->set( 'secondary-text' => $d->get("Please wait while your saved session is being restored") . "." );
+#~ 
+			#~ $restore_dialog->signal_connect( response => sub { $_[0]->destroy } );
+#~ 
+			#~ my $restore_progress = Gtk2::ProgressBar->new;
+			#~ $restore_progress->set_no_show_all(TRUE);
+			#~ $restore_progress->set_ellipsize('middle');
+			#~ $restore_progress->set_orientation('left-to-right');
+			#~ $restore_progress->set_fraction(0);
+#~ 
+			#~ $restore_dialog->vbox->add($restore_progress);
 
 			#do not show when min at startup
-			unless ( $sc->get_min ) {
-				$restore_progress->show;
-				$restore_dialog->show_all;
-				$restore_progress->grab_focus;
-			}
+			#~ unless ( $sc->get_min ) {
+				#~ $restore_progress->show;
+				#~ $restore_dialog->show_all;
+				#~ $restore_progress->grab_focus;
+			#~ }
 
 			my $num_files = scalar( keys %{$session_xml} );
 			my $count     = 0;
 			foreach ( sort keys %{$session_xml} ) {
 
 				#refresh the progressbar
-				$count++;
-				$restore_progress->set_fraction( $count / $num_files );
-				$restore_progress->set_text( ${$session_xml}{$_}{'filename'} );
+				#~ $count++;
+				#~ $restore_progress->set_fraction( $count / $num_files );
+				#~ $restore_progress->set_text( ${$session_xml}{$_}{'filename'} );
 
 				#refresh tray icon
 				if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
@@ -4909,7 +4912,7 @@ if ($app->is_running) {
 
 			}
 		
-			$restore_dialog->response('ok');
+			#~ $restore_dialog->response('ok');
 
 			#refresh tray icon
 			if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
