@@ -3559,7 +3559,7 @@ if ($app->is_running) {
 	}
 
 	sub fct_integrate_screenshot_in_notebook {
-		my ($uri, $pixbuf, $history) = @_;
+		my ($uri, $pixbuf, $history, $count) = @_;
 
 		#check parameters
 		return FALSE unless $uri;
@@ -3586,10 +3586,23 @@ if ($app->is_running) {
 		#add to recentmanager
 		$rmanager->add_item($uri->to_string);
 
+		#FIXME
+		my $num_files = $session_start_screen{'first_page'}->{'num_session_files'};
+
 		#append a page to notebook using with label == filename
 		my ( $second, $minute, $hour ) = localtime();
 		my $theTime = sprintf("%02d:%02d:%02d", $hour, $minute, $second);
-		my $key     = "[" . &fct_get_latest_tab_key . "] - $theTime";
+		my $key = 0;
+		if(defined $num_files && $num_files > 0){
+			if(defined $history && $history->get_history){
+				my $indx = $num_files + 1;
+				$key = "[" . $indx . "] - $theTime";
+			}else{
+				$key = "[" . $count . "] - $theTime";
+			} 
+		}else{
+			$key = "[" . &fct_get_latest_tab_key . "] - $theTime";
+		}	
 
 		#store the history object
 		if(defined $history && $history->get_history){
@@ -3629,12 +3642,25 @@ if ($app->is_running) {
 		$hbox_tab_label->show_all;
 
 		#and append page with label == key
-		my $new_index = $notebook->append_page( &fct_create_tab( $key, FALSE ), $hbox_tab_label );
+		my $new_index = 0;
+		if(defined $num_files && $num_files > 0){
+			if(defined $history && $history->get_history){
+				$new_index = $notebook->insert_page ( &fct_create_tab( $key, FALSE ), $hbox_tab_label, $num_files + 1 );
+			}else{
+				$new_index = $notebook->insert_page ( &fct_create_tab( $key, FALSE ), $hbox_tab_label, $count );
+			} 
+		}else{
+			$new_index = $notebook->append_page( &fct_create_tab( $key, FALSE ), $hbox_tab_label );
+		}	
 		$session_screens{$key}->{'tab_label'} = $hbox_tab_label;
 		$session_screens{$key}->{'tab_child'} = $notebook->get_nth_page($new_index);
 		$tab_close_button->signal_connect( clicked => sub { &fct_remove($key); } );
 
-		#~ $notebook->set_current_page($new_index);
+		#if there is a history we recently took a screenshot
+		#switch to that page
+		if(defined $history && $history->get_history){
+			$notebook->set_current_page($new_index);
+		}
 
 		if ( &fct_update_tab( $key, $pixbuf, $uri ) ) {
 			#setup a filemonitor, so we get noticed if the file changed
@@ -3938,6 +3964,23 @@ if ($app->is_running) {
 
 			#create iconview for session
 			$session_start_screen{'first_page'}->{'model'} = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String' );
+			$session_start_screen{'first_page'}->{'model'}->set_sort_func (2, sub{
+				#The comparison callback should return 
+				#	-1 if the iter1 row should come before the iter2 row, 
+				#	0 if the rows are equal, or 
+				#	1 if the iter1 row should come after the iter2 row.
+				my ($liststore, $a, $b, $user_data) = @_;
+				
+				my $ka = $liststore->get_value( $a, 2 );
+				my $kb = $liststore->get_value( $b, 2 );
+				
+				if(defined $ka && defined $kb){
+					return Sort::Naturally::ncmp($ka, $kb);
+				}
+				
+				return -1;
+			});
+			$session_start_screen{'first_page'}->{'model'}->set_sort_column_id (2, 'descending');
 			$session_start_screen{'first_page'}->{'view'} = Gtk2::IconView->new_with_model($session_start_screen{'first_page'}->{'model'});
 			#~ $session_start_screen{'first_page'}->{'view'}->set_orientation('horizontal');
 			$session_start_screen{'first_page'}->{'view'}->set_item_width (150);
@@ -4889,15 +4932,13 @@ if ($app->is_running) {
 				#~ $restore_progress->grab_focus;
 			#~ }
 
-			my $num_files = scalar( keys %{$session_xml} );
+			$session_start_screen{'first_page'}->{'num_session_files'} = scalar( keys %{$session_xml} );
 			my $count     = 0;
 			foreach ( sort keys %{$session_xml} ) {
 
-				#refresh the progressbar
-				#~ $count++;
-				#~ $restore_progress->set_fraction( $count / $num_files );
-				#~ $restore_progress->set_text( ${$session_xml}{$_}{'filename'} );
-
+				#increment counter
+				$count++;
+				
 				#refresh tray icon
 				if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
 					$tray->set_blinking(TRUE);
@@ -4911,6 +4952,8 @@ if ($app->is_running) {
 				&fct_integrate_screenshot_in_notebook( $new_uri );
 
 			}
+			
+			$session_start_screen{'first_page'}->{'num_session_files'} = 0;
 		
 			#~ $restore_dialog->response('ok');
 
@@ -6956,10 +6999,12 @@ if ($app->is_running) {
 					$thumb_view = Gtk2::Gdk::Pixbuf->new ('rgb', TRUE, 8, 5, 5);	
 					$thumb_view->fill(0x00000000);	
 				}
-
+				
+				#create new iter
 				unless(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
 					$session_screens{$key}->{'iter'} = $session_start_screen{'first_page'}->{'model'}->append;
-					$session_start_screen{'first_page'}->{'model'}->set( $session_screens{$key}->{'iter'}, 0, $thumb_view, 1, $session_screens{$key}->{'short'}, 2, $key );
+					$session_start_screen{'first_page'}->{'model'}->set( $session_screens{$key}->{'iter'}, 0, $thumb_view, 1, $session_screens{$key}->{'short'}, 2, $key );	
+				#updating an existing one
 				}else{
 					$session_start_screen{'first_page'}->{'model'}->set( $session_screens{$key}->{'iter'}, 0, $thumb_view, 1, $session_screens{$key}->{'short'}, 2, $key );					
 				}
