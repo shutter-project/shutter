@@ -4898,6 +4898,26 @@ if ($app->is_running) {
 		return FALSE;	
 	}
 
+	sub fct_toggle_status_throbber {
+		my $status = shift;
+		my $throbber = shift;
+		return FALSE unless $status;
+		
+		if(defined $throbber){	
+			$throbber->destroy;
+			$throbber = undef;
+		}else{
+			$throbber = Gtk2::Image->new_from_file(
+				"$shutter_root/share/shutter/resources/icons/throbber_16x16.gif"	
+			);		
+			$status->pack_end( $throbber, FALSE, FALSE, 0 );
+		}
+		
+		$status->show_all;
+		
+		return $throbber;
+	}
+
 	sub fct_load_session {
 
 		#session file
@@ -4908,42 +4928,22 @@ if ($app->is_running) {
 				if $shf->file_exists($sessionfile);
 
 			return FALSE if scalar( keys %{$session_xml} ) < 1;
-#~ 
-			#~ my $restore_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/], 'info', 'close', 'none' );
-#~ 
-			#~ $restore_dialog->set( 'text' => $d->get("Restoring session") );
-#~ 
-			#~ $restore_dialog->set( 'secondary-text' => $d->get("Please wait while your saved session is being restored") . "." );
-#~ 
-			#~ $restore_dialog->signal_connect( response => sub { $_[0]->destroy } );
-#~ 
-			#~ my $restore_progress = Gtk2::ProgressBar->new;
-			#~ $restore_progress->set_no_show_all(TRUE);
-			#~ $restore_progress->set_ellipsize('middle');
-			#~ $restore_progress->set_orientation('left-to-right');
-			#~ $restore_progress->set_fraction(0);
-#~ 
-			#~ $restore_dialog->vbox->add($restore_progress);
 
-			#do not show when min at startup
-			#~ unless ( $sc->get_min ) {
-				#~ $restore_progress->show;
-				#~ $restore_dialog->show_all;
-				#~ $restore_progress->grab_focus;
-			#~ }
-
+			#activate throbber
+			my $throbber = &fct_toggle_status_throbber($status);
+			
+			#how many files have to be loaded
+			#store this value in the session hash
 			$session_start_screen{'first_page'}->{'num_session_files'} = scalar( keys %{$session_xml} );
+			
+			#local counter
+			#is passed to several subroutines to indicate the correct index
 			my $count     = 0;
 			foreach ( sort keys %{$session_xml} ) {
 
 				#increment counter
 				$count++;
 				
-				#refresh tray icon
-				if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
-					$tray->set_blinking(TRUE);
-				}
-
 				#refresh gui
 				&fct_update_gui;
 
@@ -4953,26 +4953,16 @@ if ($app->is_running) {
 
 			}
 			
+			#clear the value after loading the files
 			$session_start_screen{'first_page'}->{'num_session_files'} = 0;
-		
-			#~ $restore_dialog->response('ok');
 
-			#refresh tray icon
-			if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
-				$tray->set_blinking(FALSE);			
-			}
-			
+			#de-activate the throbber
+			&fct_toggle_status_throbber($status, $throbber);
+					
 		};
 		if ($@) {
 			$sd->dlg_error_message( $@, $d->get("Session could not be restored!") );
-
 			unlink $sessionfile;
-
-			#refresh tray icon
-			if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
-				$tray->set_blinking(FALSE);
-			}
-
 		}
 
 		return TRUE;
@@ -6622,7 +6612,7 @@ if ($app->is_running) {
 							  "  " .
 							  $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display( $session_screens{$key}->{'size'} ) ) 
 						   );
-
+			
 		#session tab
 		}else{
 			
@@ -6633,7 +6623,7 @@ if ($app->is_running) {
 							  "  " .
 							  $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display(&fct_get_total_size_of_session) )
 						   );
-								
+						   
 		}	
 
 		#TRAY TOOLTIP
