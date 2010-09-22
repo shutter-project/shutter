@@ -4954,7 +4954,7 @@ if ($app->is_running) {
 			}
 			
 			#clear the value after loading the files
-			$session_start_screen{'first_page'}->{'num_session_files'} = 0;
+			$session_start_screen{'first_page'}->{'num_session_files'} = undef;
 
 			#de-activate the throbber
 			&fct_toggle_status_throbber($status, $throbber);
