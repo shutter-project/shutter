@@ -296,25 +296,39 @@ sub create_btoolbar {
 	$expander_l->set_draw(FALSE);
 	
 	#--------------------------------------
+
+	#button ascending
+	#--------------------------------------
+	my $image_sorta = Gtk2::Image->new_from_stock( 'gtk-sort-ascending', 'small-toolbar' );
+	$self->{_sorta} = Gtk2::ToolButton->new( $image_sorta, '' );
+
+	#--------------------------------------	
 	
 	#button back
 	#--------------------------------------
-	my $image_back = Gtk2::Image->new_from_stock( 'gtk-go-back', 'large-toolbar' );
+	my $image_back = Gtk2::Image->new_from_stock( 'gtk-go-back', 'small-toolbar' );
 	$self->{_back} = Gtk2::ToolButton->new( $image_back, '' );
 
 	#--------------------------------------	
 
 	#button home
 	#--------------------------------------
-	my $image_home = Gtk2::Image->new_from_stock( 'gtk-index', 'large-toolbar' );
+	my $image_home = Gtk2::Image->new_from_stock( 'gtk-index', 'small-toolbar' );
 	$self->{_home} = Gtk2::ToolButton->new( $image_home, '' );
 
 	#--------------------------------------	
 	
 	#button forward
 	#--------------------------------------
-	my $image_forw = Gtk2::Image->new_from_stock( 'gtk-go-forward', 'large-toolbar' );
+	my $image_forw = Gtk2::Image->new_from_stock( 'gtk-go-forward', 'small-toolbar' );
 	$self->{_forw} = Gtk2::ToolButton->new( $image_forw, '' );
+
+	#--------------------------------------	
+
+	#button sort descending
+	#--------------------------------------
+	my $image_sortd = Gtk2::Image->new_from_stock( 'gtk-sort-descending', 'small-toolbar' );
+	$self->{_sortd} = Gtk2::ToolButton->new( $image_sortd, '' );
 
 	#--------------------------------------	
 
@@ -330,10 +344,13 @@ sub create_btoolbar {
 	$self->{_btoolbar} = Gtk2::Toolbar->new;
 	$self->{_btoolbar}->set_no_show_all(TRUE);
 	$self->{_btoolbar}->set_show_arrow(FALSE);
+	$self->{_btoolbar}->set_style('icons');
 	$self->{_btoolbar}->insert( $expander_l, -1 );
+	$self->{_btoolbar}->insert( $self->{_sorta}, -1 );
 	$self->{_btoolbar}->insert( $self->{_back}, -1 );
 	$self->{_btoolbar}->insert( $self->{_home}, -1 );
 	$self->{_btoolbar}->insert( $self->{_forw}, -1 );
+	$self->{_btoolbar}->insert( $self->{_sortd}, -1 );
 	$self->{_btoolbar}->insert( $expander_r, -1 );
 
 	return $self->{_btoolbar};

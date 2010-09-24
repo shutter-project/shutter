@@ -167,6 +167,7 @@ require Shutter::Geometry::Region;
 
 #pixbuf operations
 require Shutter::Pixbuf::Save;
+require Shutter::Pixbuf::Load;
 require Shutter::Pixbuf::Thumbnail;
 require Shutter::Pixbuf::Border;
 
@@ -210,6 +211,7 @@ my $st  	= Shutter::App::Toolbar->new($sc);
 my $sd 		= Shutter::App::SimpleDialogs->new($window);
 
 my $sp 		= Shutter::Pixbuf::Save->new($sc);
+my $lp 		= Shutter::Pixbuf::Load->new($sc);
 my $sthumb 	= Shutter::Pixbuf::Thumbnail->new($sc);
 
 #--------------------------------------
@@ -646,6 +648,10 @@ if ($app->is_running) {
 	my $imageview_hbox2     = Gtk2::HBox->new( FALSE, 0 );
 	my $imageview_hbox3     = Gtk2::HBox->new( FALSE, 0 );
 
+	my $session_vbox		= Gtk2::VBox->new( FALSE, 0 );
+	my $session_hbox1		= Gtk2::HBox->new( FALSE, 0 );
+	my $session_hbox2		= Gtk2::HBox->new( FALSE, 0 );
+
 	#behavior
 	my $window_vbox       	= Gtk2::VBox->new( FALSE, 0 );
 	my $notify_vbox       	= Gtk2::VBox->new( FALSE, 0 );
@@ -786,9 +792,6 @@ if ($app->is_running) {
 		$combobox_settings_profiles->set_active(0);
 		$current_profile_indx = 0;
 	}
-
-	#populate quick selector as well
-	&fct_update_profile_selectors($combobox_settings_profiles, \@current_profiles);
 
 	my $button_profile_save = Gtk2::Button->new;
 	$button_profile_save->signal_connect(
@@ -935,6 +938,13 @@ if ($app->is_running) {
 	my $transparent_frame = Gtk2::Frame->new();
 	$transparent_frame->set_label_widget($transparent_frame_label);
 	$transparent_frame->set_shadow_type('none');
+
+	my $session_frame_label = Gtk2::Label->new;
+	$session_frame_label->set_markup( "<b>" . $d->get("Session View") . "</b>" );
+
+	my $session_frame = Gtk2::Frame->new();
+	$session_frame->set_label_widget($session_frame_label);
+	$session_frame->set_shadow_type('none');
 
 	#filename
 	#--------------------------------------
@@ -1717,6 +1727,61 @@ if ($app->is_running) {
 		'transp_toggled'
 	);
 
+	#session view
+	my $session_asc = Gtk2::RadioButton->new (undef, $d->get("Sort ascending by"));
+	my $session_asc_combo = Gtk2::ComboBox->new_text();
+	$session_asc_combo->insert_text( 0, $d->get("Filename") );
+	$session_asc_combo->insert_text( 1, $d->get("Key/Time Created") );
+	my $session_desc = Gtk2::RadioButton->new ($session_asc, $d->get("Sort descending by"));
+	my $session_desc_combo = Gtk2::ComboBox->new_text();
+	$session_desc_combo->insert_text( 0, $d->get("Filename") );
+	$session_desc_combo->insert_text( 1, $d->get("Key/Time Created") );
+
+	$session_hbox1->pack_start( $session_asc, FALSE, TRUE, 12 );
+	$session_hbox1->pack_start( $session_asc_combo, FALSE, TRUE, 0 );
+	$session_hbox2->pack_start( $session_desc, FALSE, TRUE, 12 );
+	$session_hbox2->pack_start( $session_desc_combo, FALSE, TRUE, 0 );
+
+	if ( defined $settings_xml->{'general'}->{'session_asc'} && defined $settings_xml->{'general'}->{'session_desc'}) {
+		$session_asc->set_active( $settings_xml->{'general'}->{'session_asc'} );
+		$session_desc->set_active( $settings_xml->{'general'}->{'session_desc'} );
+	} else {
+		$session_desc->set_active(TRUE);
+	}
+	
+	if ( defined $settings_xml->{'general'}->{'session_asc_combo'} ){
+		$session_asc_combo->set_active($settings_xml->{'general'}->{'session_asc_combo'});
+	}else{
+		$session_asc_combo->set_active(1);		
+	}
+	
+	if ( defined $settings_xml->{'general'}->{'session_desc_combo'} ){
+		$session_desc_combo->set_active($settings_xml->{'general'}->{'session_desc_combo'});		
+	}else{
+		$session_desc_combo->set_active(1);		
+	}	
+
+	$session_asc->signal_connect('toggled', sub{
+		$st->{_sorta}->signal_emit('clicked');
+	});
+
+	$session_desc->signal_connect('toggled', sub{
+		$st->{_sortd}->signal_emit('clicked');
+	});	
+
+	$session_asc_combo->signal_connect('changed', sub{
+		$st->{_sorta}->signal_emit('clicked');
+	});
+
+	$session_desc_combo->signal_connect('changed', sub{
+		$st->{_sortd}->signal_emit('clicked');
+	});	
+
+	$tooltips->set_tip( $session_asc, $d->get("Configure sort criteria") );
+	$tooltips->set_tip( $session_asc_combo, $d->get("Configure sort criteria") );
+	$tooltips->set_tip( $session_desc, $d->get("Configure sort criteria") );
+	$tooltips->set_tip( $session_desc_combo, $d->get("Configure sort criteria") );
+
 	#end - imageview
 	#--------------------------------------
 
@@ -2187,7 +2252,16 @@ if ($app->is_running) {
 	$transparent_vbox->pack_start( $imageview_hbox3, TRUE, TRUE, 3 );
 	$transparent_frame->add($transparent_vbox);
 
+	my $sg_session = Gtk2::SizeGroup->new('horizontal');
+	$sg_session->add_widget($session_asc);
+	$sg_session->add_widget($session_desc);
+
+	$session_vbox->pack_start( $session_hbox1, TRUE, TRUE, 3 );
+	$session_vbox->pack_start( $session_hbox2, TRUE, TRUE, 3 );
+	$session_frame->add($session_vbox);
+
 	$vbox_imageview->pack_start( $transparent_frame, FALSE, TRUE, 3 );
+	$vbox_imageview->pack_start( $session_frame, FALSE, TRUE, 3 );
 	$vbox_imageview->set_border_width(5);
 
 	#settings behavior tab
@@ -2362,7 +2436,7 @@ if ($app->is_running) {
 
 	#bottom toolbar
 	my $nav_toolbar = $st->create_btoolbar;
-	$vbox->pack_start( $nav_toolbar, FALSE, TRUE, 0 );
+	$vbox->pack_start( $nav_toolbar, FALSE, FALSE, 0 );
 
 	#signal handler
 	$st->{_back}->signal_connect( 'clicked' => sub {
@@ -2378,9 +2452,55 @@ if ($app->is_running) {
 		}
 	);
 
+	#signal handler for sort buttons
+	$st->{_sorta}->signal_connect( 'clicked' => sub {
+			$session_start_screen{'first_page'}->{'model'}->set_sort_func (2, sub{
+				#The comparison callback should return 
+				#	-1 if the iter1 row should come before the iter2 row, 
+				#	0 if the rows are equal, or 
+				#	1 if the iter1 row should come after the iter2 row.
+				my ($liststore, $a, $b) = @_;
+				
+				my $ka = $liststore->get_value( $a, $session_asc_combo->get_active+1 );
+				my $kb = $liststore->get_value( $b, $session_asc_combo->get_active+1 );
+				
+				if(defined $ka && defined $kb){
+					#negate result in this case
+					return Sort::Naturally::ncmp($ka, $kb) * -1;
+				}
+				
+				return -1;
+			});
+		}
+	);
+	
+	$st->{_sortd}->signal_connect( 'clicked' => sub {
+			$session_start_screen{'first_page'}->{'model'}->set_sort_func (2, sub{
+				#see above
+				my ($liststore, $a, $b) = @_;
+				
+				my $ka = $liststore->get_value( $a, $session_desc_combo->get_active+1 );
+				my $kb = $liststore->get_value( $b, $session_desc_combo->get_active+1 );
+				
+				if(defined $ka && defined $kb){
+					return Sort::Naturally::ncmp($ka, $kb);
+				}
+				
+				return -1;
+			});
+		}
+	);	
+
+	#set saved value
+	if($session_asc->get_active){
+		$st->{_sorta}->signal_emit('clicked');
+	}else{
+		$st->{_sortd}->signal_emit('clicked');	
+	}
+
 	#pack statusbar
 	$status->pack_start( $cursor_status_active, FALSE, FALSE, 0 );
-	$status->pack_start( Gtk2::HSeparator->new , FALSE, FALSE, 6 );
+	$status->pack_start( Gtk2::HSeparator->new , FALSE, FALSE, 3 );
 
 	$status->pack_start( $delay_status_label, FALSE, FALSE, 0 );
 	$status->pack_start( $delay_status, FALSE, FALSE, 0 );
@@ -2390,9 +2510,11 @@ if ($app->is_running) {
 
 	#--------------------------------------
 
+	#populate quick selector as well
 	#restore session
 	#--------------------------------------
 	Glib::Idle->add(sub{
+		&fct_update_profile_selectors($combobox_settings_profiles, \@current_profiles);		
 		&fct_load_session;
 		return FALSE;
 	});
@@ -2782,7 +2904,8 @@ if ($app->is_running) {
 						unless($session_screens{$_}->{'image'}->get_pixbuf){
 							eval{
 								#~ print "setting ", $_, "\n";
-								$session_screens{$_}->{'image'}->set_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} ));								
+								$session_screens{$_}->{'image'}->set_pixbuf($lp->load( $session_screens{$key}->{'long'}, undef, undef, undef, TRUE ));
+																
 							}
 						}
 						
@@ -3076,9 +3199,18 @@ if ($app->is_running) {
 
 		Glib::Idle->add(sub{
 
-			#does the file still exist?
+			
 			if(defined $key){
+				#does the file still exist?
 				return FALSE unless exists $session_screens{$key};
+				
+				#disable sort buttons when session tab is active
+				$st->{_sorta}->set_sensitive(FALSE);
+				$st->{_sortd}->set_sensitive(FALSE);
+			}else{
+				#enable sort buttons when session tab is active
+				$st->{_sorta}->set_sensitive(TRUE);
+				$st->{_sortd}->set_sensitive(TRUE);				
 			}
 			
 			#TRAY
@@ -3314,7 +3446,7 @@ if ($app->is_running) {
 					if(my $pfilename = $fs->get_preview_filename){
 						my $pixbuf = undef;
 						eval{
-							$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale ($pfilename, 200, 200, TRUE);
+							$pixbuf = $lp->load($pfilename, 200, 200, TRUE);
 						};
 						if($@){
 							$fs->set_preview_widget_active(FALSE);
@@ -3963,23 +4095,7 @@ if ($app->is_running) {
 		} else {
 
 			#create iconview for session
-			$session_start_screen{'first_page'}->{'model'} = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String' );
-			$session_start_screen{'first_page'}->{'model'}->set_sort_func (2, sub{
-				#The comparison callback should return 
-				#	-1 if the iter1 row should come before the iter2 row, 
-				#	0 if the rows are equal, or 
-				#	1 if the iter1 row should come after the iter2 row.
-				my ($liststore, $a, $b, $user_data) = @_;
-				
-				my $ka = $liststore->get_value( $a, 2 );
-				my $kb = $liststore->get_value( $b, 2 );
-				
-				if(defined $ka && defined $kb){
-					return Sort::Naturally::ncmp($ka, $kb);
-				}
-				
-				return -1;
-			});
+			$session_start_screen{'first_page'}->{'model'} = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String' );			
 			$session_start_screen{'first_page'}->{'model'}->set_sort_column_id (2, 'descending');
 			$session_start_screen{'first_page'}->{'view'} = Gtk2::IconView->new_with_model($session_start_screen{'first_page'}->{'model'});
 			#~ $session_start_screen{'first_page'}->{'view'}->set_orientation('horizontal');
@@ -4147,6 +4263,11 @@ if ($app->is_running) {
 		my $tcolor = $trans_custom_btn->get_color;
 		$settings{'general'}->{'trans_custom_col'} = sprintf( "#%02x%02x%02x", $tcolor->red / 257, $tcolor->green / 257, $tcolor->blue / 257 );
 		$settings{'general'}->{'trans_backg'}      = $trans_backg->get_active();
+
+		$settings{'general'}->{'session_asc'}        = $session_asc->get_active();
+		$settings{'general'}->{'session_asc_combo'}  = $session_asc_combo->get_active();
+		$settings{'general'}->{'session_desc'}       = $session_desc->get_active();
+		$settings{'general'}->{'session_desc_combo'} = $session_desc_combo->get_active();
 
 		#behavior
 		$settings{'general'}->{'autohide'}         = $hide_active->get_active();
@@ -4509,6 +4630,11 @@ if ($app->is_running) {
 					}
 					$trans_backg->set_active( $settings_xml->{'general'}->{'trans_backg'} );
 
+					$session_asc->set_active( $settings_xml->{'general'}->{'session_asc'} );
+					$session_asc_combo->set_active( $settings_xml->{'general'}->{'session_asc_combo'} );
+					$session_desc->set_active( $settings_xml->{'general'}->{'session_desc'} );
+					$session_desc_combo->set_active( $settings_xml->{'general'}->{'session_desc_combo'} );
+
 					#behavior
 					$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
 					$hide_time->set_value( $settings_xml->{'general'}->{'autohide_time'} );
@@ -4817,46 +4943,14 @@ if ($app->is_running) {
 		my (@new_files) = @_;
 
 		return FALSE if scalar(@new_files) < 1;
+		
+		my $throbber = &fct_toggle_status_throbber($status);
+		
+		foreach my $file (@new_files) {
 
-		my $open_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/], 'info', 'close', $d->get("Loading files") );
-
-		$open_dialog->set_title("Shutter");
-
-		$open_dialog->set( 'secondary-text' => $d->get("Please wait while your selected files are being loaded into Shutter") . "." );
-
-		$open_dialog->signal_connect( response => sub { $_[0]->destroy } );
-
-		my $open_progress = Gtk2::ProgressBar->new;
-		$open_progress->set_no_show_all(TRUE);
-		$open_progress->set_ellipsize('middle');
-		$open_progress->set_orientation('left-to-right');
-		$open_progress->set_fraction(0);
-
-		$open_dialog->vbox->add($open_progress);
-
-		#do not show when min at startup
-		unless ( $sc->get_min ) {
-			$open_progress->show;
-			$open_dialog->show_all;
-		}
-
-		my $num_files = scalar(@new_files);
-		my $count     = 0;
-		foreach (@new_files) {
-
-			my $new_uri = Gnome2::VFS::URI->new ($shf->utf8_decode(Gnome2::VFS->unescape_string($_)));
+			my $new_uri = Gnome2::VFS::URI->new ($shf->utf8_decode(Gnome2::VFS->unescape_string($file)));
 
 			next if &fct_is_uri_in_session($new_uri, TRUE);
-
-			#refresh the progressbar
-			$count++;
-			$open_progress->set_fraction( $count / $num_files );
-			$open_progress->set_text($new_uri->to_string);
-
-			#refresh tray icon
-			if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
-				$tray->set_blinking(TRUE);
-			}
 
 			#refresh gui
 			&fct_update_gui;
@@ -4866,12 +4960,8 @@ if ($app->is_running) {
 				&fct_show_status_message( 1, $new_uri->to_string . " " . $d->get("opened") );	
 			}
 		}
-		$open_dialog->response('ok');
-
-		#refresh tray icon
-		if ( $tray && $tray->isa('Gtk2::StatusIcon') ) {
-			$tray->set_blinking(FALSE);
-		}
+		
+		&fct_toggle_status_throbber($status, $throbber);
 
 		return TRUE;
 	}
@@ -4909,7 +4999,7 @@ if ($app->is_running) {
 		}else{
 			$throbber = Gtk2::Image->new_from_file(
 				"$shutter_root/share/shutter/resources/icons/throbber_16x16.gif"	
-			);		
+			);
 			$status->pack_end( $throbber, FALSE, FALSE, 0 );
 		}
 		
@@ -5327,7 +5417,7 @@ if ($app->is_running) {
 		foreach my $key (@clipboard_array){
 
 			if($mode eq 'image'){
-				my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($session_screens{$key}->{'long'});
+				my $pixbuf = $lp->load($session_screens{$key}->{'long'});
 				my $rect = Gtk2::Gdk::Rectangle->new($sr->get_clipbox($clipboard_region)->width, 0, $pixbuf->get_width, $pixbuf->get_height);
 				$clipboard_region->union_with_rect($rect);
 				push @pixbuf_array, $pixbuf;
@@ -6071,7 +6161,7 @@ if ($app->is_running) {
 				my $theight = int( $screenshot->get_height * ( $thumbnail->get_value / 100 ) );
 
 				#create thumbail
-				$screenshot_thumbnail = Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $screenshot_name, $twidth, $theight, TRUE );
+				$screenshot_thumbnail = $lp->load( $screenshot_name, $twidth, $theight, TRUE );
 
 				#save path of thumbnail
 				my ($name, $folder, $ext) = fileparse( $screenshot_name, qr/\.[^.]*/ );
@@ -6332,7 +6422,7 @@ if ($app->is_running) {
 				my $cr = $pc->get_cairo_context;
 
 				#load pixbuf from file
-				my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $pages[$int] );
+				my $pixbuf = $lp->load( $pages[$int] );
 				
 				#~ my $pas = $pc->get_page_setup;
 				#~ my $dpi_x = $pixbuf->get_width / $pas->get_page_width('inch');
@@ -6763,9 +6853,9 @@ if ($app->is_running) {
 				
 				$combobox_status_profiles_label = Gtk2::Label->new( $d->get("Profile") . ":" );
 				$combobox_status_profiles = Gtk2::ComboBox->new_text;
-				$status->pack_end( Gtk2::HSeparator->new , FALSE, FALSE, 6 );
-				$status->pack_end( $combobox_status_profiles, FALSE, FALSE, 0 );
-				$status->pack_end( $combobox_status_profiles_label, FALSE, FALSE, 0 );
+				$status->pack_start( Gtk2::HSeparator->new , FALSE, FALSE, 3 );
+				$status->pack_start( $combobox_status_profiles_label, FALSE, FALSE, 0 );
+				$status->pack_start( $combobox_status_profiles, FALSE, FALSE, 0 );
 				
 				foreach my $profile ( @{$current_profiles_ref} ) {
 					$combobox_status_profiles->append_text($profile);	
@@ -6884,7 +6974,7 @@ if ($app->is_running) {
 				#maybe we have a pixbuf already (e.g. after taking a screenshot)
 				unless ($pixbuf) {
 					eval {
-						$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $session_screens{$key}->{'long'} );		
+						$pixbuf = $lp->load( $session_screens{$key}->{'long'}, undef, undef, undef, TRUE );		
 					};
 					if ($@) {
 						#increment error counter 
@@ -7045,7 +7135,7 @@ if ($app->is_running) {
 					
 					my $pixbuf;
 					eval{
-						$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $current_version );
+						$pixbuf = $lp->load( $current_version );
 					};
 					#restoring the last version failed => delete the screenshot	
 					if($@){
@@ -7148,7 +7238,7 @@ if ($app->is_running) {
 		
 		if ( $function eq "reduce_colors" ) {
 			$result = `convert '$file' -colors $data '$file'`;
-			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $file );
+			$pixbuf = $lp->load( $file );
 		} 
 		
 		return $pixbuf;
@@ -7384,7 +7474,7 @@ if ($app->is_running) {
 		# maybe the plugin 
 		# does not provide a custom icon
 		my $fb_pixbuf_path 	= "$shutter_root/share/shutter/resources/icons/executable.svg";
-		my $fb_pixbuf		= Gtk2::Gdk::Pixbuf->new_from_file_at_size( $fb_pixbuf_path, Gtk2::IconSize->lookup('menu') );
+		my $fb_pixbuf		= $lp->load( $fb_pixbuf_path, Gtk2::IconSize->lookup('menu') );
 
 		foreach my $plugin_path (@plugin_paths) {
 			my @plugins = glob($plugin_path);
@@ -7460,7 +7550,7 @@ if ($app->is_running) {
 
 							if ( $shf->file_exists( $plugins{$_}->{'pixbuf'} ) ) {
 								$plugins{$_}->{'pixbuf_object'}
-									= Gtk2::Gdk::Pixbuf->new_from_file_at_size( $plugins{$_}->{'pixbuf'}, Gtk2::IconSize->lookup('menu') );
+									= $lp->load( $plugins{$_}->{'pixbuf'}, Gtk2::IconSize->lookup('menu') );
 							} else {
 								$plugins{$_}->{'pixbuf'} 		= $fb_pixbuf_path;
 								$plugins{$_}->{'pixbuf_object'} = $fb_pixbuf;
@@ -7658,7 +7748,7 @@ if ($app->is_running) {
 			$sel_window_item_image = Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'menu' );		
 		}else{
 			$sel_window_item_image = Gtk2::Image->new_from_pixbuf(
-				Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+				$lp->load(
 					"$shutter_root/share/shutter/resources/icons/sel_window.svg",
 					Gtk2::IconSize->lookup('menu')
 				)
@@ -7716,7 +7806,7 @@ if ($app->is_running) {
 			}else{
 				$menuitem_select->set_image(
 					Gtk2::Image->new_from_pixbuf(
-						Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/selection.svg", Gtk2::IconSize->lookup('menu') )
+						$lp->load( "$shutter_root/share/shutter/resources/icons/selection.svg", Gtk2::IconSize->lookup('menu') )
 					)
 				);
 			}
@@ -7735,7 +7825,7 @@ if ($app->is_running) {
 		}else{
 			$menuitem_full->set_image(
 				Gtk2::Image->new_from_pixbuf(
-					Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/desktop.svg", Gtk2::IconSize->lookup('menu') )
+					$lp->load( "$shutter_root/share/shutter/resources/icons/desktop.svg", Gtk2::IconSize->lookup('menu') )
 				)
 			);
 		}
@@ -7751,7 +7841,7 @@ if ($app->is_running) {
 		}else{
 			$menuitem_awindow->set_image(
 				Gtk2::Image->new_from_pixbuf(
-					Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/sel_window_active.svg", Gtk2::IconSize->lookup('menu') )
+					$lp->load( "$shutter_root/share/shutter/resources/icons/sel_window_active.svg", Gtk2::IconSize->lookup('menu') )
 				)
 			);
 		}
@@ -7767,7 +7857,7 @@ if ($app->is_running) {
 		}else{
 			$menuitem_window->set_image(
 				Gtk2::Image->new_from_pixbuf(
-					Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/sel_window.svg", Gtk2::IconSize->lookup('menu') )
+					$lp->load( "$shutter_root/share/shutter/resources/icons/sel_window.svg", Gtk2::IconSize->lookup('menu') )
 				)
 			);
 		}
@@ -7783,7 +7873,7 @@ if ($app->is_running) {
 		}else{
 			$menuitem_window_sect->set_image(
 				Gtk2::Image->new_from_pixbuf(
-					Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+					$lp->load(
 						"$shutter_root/share/shutter/resources/icons/sel_window_section.svg",
 						Gtk2::IconSize->lookup('menu')
 					)
@@ -7802,7 +7892,7 @@ if ($app->is_running) {
 		}else{
 			$menuitem_window_menu->set_image(
 				Gtk2::Image->new_from_pixbuf(
-					Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+					$lp->load(
 						"$shutter_root/share/shutter/resources/icons/sel_window_menu.svg",
 						Gtk2::IconSize->lookup('menu')
 					)
@@ -7821,7 +7911,7 @@ if ($app->is_running) {
 		#~ }else{
 			$menuitem_window_tooltip->set_image(
 				Gtk2::Image->new_from_pixbuf(
-					Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+					$lp->load(
 						"$shutter_root/share/shutter/resources/icons/sel_window_tooltip.svg",
 						Gtk2::IconSize->lookup('menu')
 					)
@@ -7841,7 +7931,7 @@ if ($app->is_running) {
 		}else{
 			$menuitem_web->set_image(
 				Gtk2::Image->new_from_pixbuf(
-					Gtk2::Gdk::Pixbuf->new_from_file_at_size( "$shutter_root/share/shutter/resources/icons/web_image.svg", Gtk2::IconSize->lookup('menu') )
+					$lp->load( "$shutter_root/share/shutter/resources/icons/web_image.svg", Gtk2::IconSize->lookup('menu') )
 				)
 			);
 		}
@@ -8307,10 +8397,10 @@ if ($app->is_running) {
 						if ( $shf->file_exists( $plugins{$_}->{'binary'} . ".svg" ) );
 			
 					if ( $shf->file_exists( $plugins{$_}->{'pixbuf'} ) ) {
-						$plugins{$_}->{'pixbuf_object'}= Gtk2::Gdk::Pixbuf->new_from_file_at_size( $plugins{$_}->{'pixbuf'}, Gtk2::IconSize->lookup('menu') );
+						$plugins{$_}->{'pixbuf_object'}= $lp->load( $plugins{$_}->{'pixbuf'}, Gtk2::IconSize->lookup('menu') );
 					} else {
 						$plugins{$_}->{'pixbuf'} = "$shutter_root/share/shutter/resources/icons/executable.svg";
-						$plugins{$_}->{'pixbuf_object'}= Gtk2::Gdk::Pixbuf->new_from_file_at_size( $plugins{$_}->{'pixbuf'}, Gtk2::IconSize->lookup('menu') );
+						$plugins{$_}->{'pixbuf_object'}= $lp->load( $plugins{$_}->{'pixbuf'}, Gtk2::IconSize->lookup('menu') );
 					}
 				}
 
@@ -8939,7 +9029,7 @@ if ($app->is_running) {
 				if(my $pfilename = $fs->get_preview_filename){
 					my $pixbuf = undef;
 					eval{
-						$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale ($pfilename, 200, 200, TRUE);
+						$pixbuf = $lp->load ($pfilename, 200, 200, TRUE);
 					};
 					if($@){
 						$fs->set_preview_widget_active(FALSE);
@@ -9055,7 +9145,7 @@ if ($app->is_running) {
 				my $pixbuf = $rpixbuf;
 				unless($pixbuf){
 					#or load pixbuf from existing file
-					$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $rfilename );
+					$pixbuf = $lp->load( $rfilename );
 				}
 				
 				#save as (pixbuf, new_filename, filetype, quality - auto here, old_filename)			
@@ -9117,7 +9207,7 @@ if ($app->is_running) {
 					my $pixbuf = $rpixbuf;
 					unless($pixbuf){
 						#or load pixbuf from existing file
-						$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file( $rfilename );
+						$pixbuf = $lp->load( $rfilename );
 					}
 					
 					if($sp->save_pixbuf_to_file($pixbuf, $filename, $choosen_format, $rquality)){
@@ -9299,7 +9389,7 @@ if ($app->is_running) {
 
 					$plugin_descr->set_text($plugin_tip);
 					if ( $shf->file_exists( $plugins{$plugin_key}->{'pixbuf'} ) ) {
-						$plugin_image->set_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_size( $plugins{$plugin_key}->{'pixbuf'}, 100, 100 ) );
+						$plugin_image->set_from_pixbuf( $lp->load( $plugins{$plugin_key}->{'pixbuf'}, 100, 100 ) );
 					}
 				}
 			}

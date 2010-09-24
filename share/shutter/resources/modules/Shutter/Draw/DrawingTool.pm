@@ -188,9 +188,10 @@ sub show {
 		$self->{_drawing_window}->set_default_size( $self->{_root}->{w} - 100, $self->{_root}->{h} - 100 );
 	}
 
-	#dialogs and thumbnail generator
+	#dialogs, thumbnail generator and pixbuf loader
 	$self->{_dialogs} = Shutter::App::SimpleDialogs->new( $self->{_drawing_window} );
 	$self->{_thumbs}  = Shutter::Pixbuf::Thumbnail->new( $self->{_sc} );
+	$self->{_lp} = Shutter::Pixbuf::Load->new( $self->{_sc}, $self->{_drawing_window} );
 
 	#setup cursor-hash
 	#
@@ -214,19 +215,11 @@ sub show {
 
 	#load file
 	eval{
-		$self->{_drawing_pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file( $self->{_filename} );
+		$self->{_drawing_pixbuf} = $self->{_lp}->load( $self->{_filename}, undef, undef, undef, TRUE );
 	};
-	if($@){
-		my $response = $self->{_dialogs}->dlg_error_message( 
-			sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $self->{_filename} . "'"),
-			$self->{_d}->get( "There was an error opening the image." ),
-			undef, undef, undef,
-			undef, undef, undef,
-			$@
-		);
-		
+	unless($self->{_drawing_pixbuf}){
 		$self->{_drawing_window}->destroy if $self->{_drawing_window};
-		return FALSE;	
+		return FALSE;
 	}
 	
 	#CANVAS
