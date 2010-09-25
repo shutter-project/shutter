@@ -44,7 +44,7 @@ sub new {
 	my $class = shift;
 
 	#constructor
-	my $self = { _common => shift, _window => shift };
+	my $self = { _common => shift, _window => shift, _no_error_dialog => shift };
 
 	#import shutter dialogs
 	my $current_window = $self->{_window} || $self->{_common}->get_mainwindow;
@@ -80,17 +80,21 @@ sub load {
 	#handle possible error messages
 	if ($@) {
 		
-		#parse filename
-		my ( $name, $folder, $type ) = fileparse( $filename, qr/\.[^.]*/ );		
+		unless(defined $self->{_no_error_dialog} && $self->{_no_error_dialog}){
+		
+			#parse filename
+			my ( $name, $folder, $type ) = fileparse( $filename, qr/\.[^.]*/ );		
 
-		#nice error dialog, more detailed messages are shown with a gtk2 expander
-		my $response = $self->{_dialogs}->dlg_error_message( 
-			sprintf( $d->get("Error while opening image %s."), "'" . $name.$type . "'"),
-			$d->get("There was an error opening the image."),		
-			undef, undef, undef,
-			undef, undef, undef,
-			$@->message
-		);
+			#nice error dialog, more detailed messages are shown with a gtk2 expander
+			my $response = $self->{_dialogs}->dlg_error_message( 
+				sprintf( $d->get("Error while opening image %s."), "'" . $name.$type . "'"),
+				$d->get("There was an error opening the image."),		
+				undef, undef, undef,
+				undef, undef, undef,
+				$@->message
+			);
+		
+		}
 		
 	}
 	

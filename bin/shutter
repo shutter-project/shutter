@@ -212,6 +212,7 @@ my $sd 		= Shutter::App::SimpleDialogs->new($window);
 
 my $sp 		= Shutter::Pixbuf::Save->new($sc);
 my $lp 		= Shutter::Pixbuf::Load->new($sc);
+my $lp_ne 	= Shutter::Pixbuf::Load->new($sc, undef, TRUE);
 my $sthumb 	= Shutter::Pixbuf::Thumbnail->new($sc);
 
 #--------------------------------------
@@ -408,7 +409,7 @@ if ($app->is_running) {
 	#--------------------------------------
 	$vbox->pack_start( $sm->create_menu, FALSE, TRUE, 0 );
 
-	$sm->{_menuitem_open}->signal_connect( 'activate', \&evt_open, 'menu_open' );
+	$sm->{_menuitem_open}->signal_connect( 'activate', \&dlg_open, 'menu_open' );
 
 	#recent manager and menu entry
 	my $rmanager = Gtk2::RecentManager->new;
@@ -419,7 +420,7 @@ if ($app->is_running) {
 	my $recentfilter = Gtk2::RecentFilter->new;
 	$recentfilter->add_pixbuf_formats;
 	$sm->{_menu_recent}->add_filter ($recentfilter);
-	$sm->{_menu_recent}->signal_connect('item-activated' => \&evt_open);	
+	$sm->{_menu_recent}->signal_connect('item-activated' => \&dlg_open);	
 	$sm->{_menuitem_recent}->set_submenu($sm->{_menu_recent});	
 
 	$sm->{_menuitem_redoshot}->signal_connect( 'activate', \&evt_take_screenshot, 'redoshot' );
@@ -2916,11 +2917,7 @@ if ($app->is_running) {
 						#do nothing if
 						#the view does already show a pixbuf
 						unless($session_screens{$_}->{'image'}->get_pixbuf){
-							eval{
-								#~ print "setting ", $_, "\n";
-								$session_screens{$_}->{'image'}->set_pixbuf($lp->load( $session_screens{$key}->{'long'}, undef, undef, undef, TRUE ));
-																
-							}
+							$session_screens{$_}->{'image'}->set_pixbuf($lp->load( $session_screens{$key}->{'long'}, undef, undef, undef, TRUE ));
 						}
 						
 					}
@@ -3433,111 +3430,6 @@ if ($app->is_running) {
 		return TRUE;
 	}
 
-	sub evt_open {
-		my ( $widget, $data ) = @_;
-		print "\n$data was emitted by widget $widget\n"
-			if $sc->get_debug;
-
-		#do we need to open a filechooserdialog?
-		#maybe we open a recently opened file that is 
-		#selected via menu
-		my @new_files;	
-		unless($widget =~ /Gtk2::RecentChooserMenu/){
-			my $fs = Gtk2::FileChooserDialog->new(
-				$d->get("Choose file to open"), $window,
-				'open',
-				'gtk-cancel' => 'reject',
-				'gtk-open'   => 'accept'
-			);
-			$fs->set_select_multiple(TRUE);
-
-			#preview widget
-			my $iprev = Gtk2::Image->new;
-			$fs->set_preview_widget($iprev);
-		
-			$fs->signal_connect(
-				'selection-changed' => sub {
-					if(my $pfilename = $fs->get_preview_filename){
-						my $pixbuf = undef;
-						eval{
-							$pixbuf = $lp->load($pfilename, 200, 200, TRUE);
-						};
-						if($@){
-							$fs->set_preview_widget_active(FALSE);
-						}else{
-							$fs->get_preview_widget->set_from_pixbuf($pixbuf);
-							$fs->set_preview_widget_active(TRUE)
-						}
-					}else{
-						$fs->set_preview_widget_active(FALSE);
-					}
-				}
-			);
-
-			my $filter_all = Gtk2::FileFilter->new;
-			$filter_all->set_name( $d->get("All compatible image formats") );
-			$fs->add_filter($filter_all);
-			
-			foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
-				my $filter = Gtk2::FileFilter->new;
-				
-				#add all known formats to the dialog			
-				$filter->set_name( $_->{name} . " - " . $_->{description} );
-				
-				foreach ( @{ $_->{extensions} } ) {
-					$filter->add_pattern( "*." . uc $_ );
-					$filter_all->add_pattern( "*." . uc $_ );
-					$filter->add_pattern( "*." . $_ );
-					$filter_all->add_pattern( "*." . $_ );
-				}
-				$fs->add_filter($filter);
-			}
-			
-			#set default filter
-			$fs->set_filter($filter_all);
-			
-			#get current file
-			my $key = &fct_get_current_file;
-			
-			#go to recently used folder
-			if(defined $sc->get_ruof && $shf->folder_exists($sc->get_ruof)){
-				$fs->set_current_folder( $sc->get_ruof );
-			}else{
-				if ($key) {
-					$fs->set_filename( $session_screens{$key}->{'long'} );
-				} elsif ( $saveDir_button->get_current_folder ) {
-					$fs->set_current_folder( $saveDir_button->get_current_folder );
-				}else{
-					$fs->set_current_folder( $ENV{'HOME'} );
-				}
-			}
-			
-			my $fs_resp = $fs->run;
-
-			if ( $fs_resp eq "accept" ) {
-				@new_files = $fs->get_filenames;
-				
-				#keep folder in mind
-				if($new_files[0]){
-					my ( $oshort, $ofolder, $oext ) = fileparse( $new_files[0], qr/\.[^.]*/ );
-					$sc->set_ruof($ofolder) if defined $ofolder;
-				}
-				
-				$fs->destroy();
-			} else {
-				$fs->destroy();
-			}
-
-		}else{
-			push @new_files, $widget->get_current_uri;
-		}
-
-		#call function to open files - with progress bar etc.
-		&fct_open_files(@new_files);
-
-		return TRUE;
-	}
-
 	sub evt_page_setup {
 		my ( $widget, $data ) = @_;
 
@@ -3710,7 +3602,7 @@ if ($app->is_running) {
 		#check parameters
 		return FALSE unless $uri;
 		unless ($uri->exists){
-			&fct_show_status_message( 1, $uri->to_string . " " . $d->get("not found") );		
+			&fct_show_status_message( 1, $uri->get_path . " " . $d->get("not found") );		
 			return FALSE;
 		}
 		
@@ -3742,13 +3634,19 @@ if ($app->is_running) {
 		if(defined $num_files && $num_files > 0){
 			if(defined $history && $history->get_history){
 				my $indx = $num_files + 1;
+				#update it (e.g. when taking more than one screenshot when still loading session)
+				$session_start_screen{'first_page'}->{'num_session_files'} = $indx;
 				$key = "[" . $indx . "] - $theTime";
-			}else{
+			}elsif(defined $count){
 				$key = "[" . $count . "] - $theTime";
-			} 
+			}else{
+				$key = "[" . &fct_get_latest_tab_key . "] - $theTime";	
+			}		
 		}else{
 			$key = "[" . &fct_get_latest_tab_key . "] - $theTime";
-		}	
+		}
+		
+		print $key, "-", $uri->to_string, "\n";
 
 		#store the history object
 		if(defined $history && $history->get_history){
@@ -3792,9 +3690,11 @@ if ($app->is_running) {
 		if(defined $num_files && $num_files > 0){
 			if(defined $history && $history->get_history){
 				$new_index = $notebook->insert_page ( &fct_create_tab( $key, FALSE ), $hbox_tab_label, $num_files + 1 );
-			}else{
+			}elsif(defined $count){
 				$new_index = $notebook->insert_page ( &fct_create_tab( $key, FALSE ), $hbox_tab_label, $count );
-			} 
+			}else{
+				$new_index = $notebook->append_page( &fct_create_tab( $key, FALSE ), $hbox_tab_label );	
+			}
 		}else{
 			$new_index = $notebook->append_page( &fct_create_tab( $key, FALSE ), $hbox_tab_label );
 		}	
@@ -4971,7 +4871,12 @@ if ($app->is_running) {
 
 			#do the real work
 			if(&fct_integrate_screenshot_in_notebook( $new_uri )){
-				&fct_show_status_message( 1, $new_uri->to_string . " " . $d->get("opened") );	
+				&fct_show_status_message( 1, $new_uri->get_path . " " . $d->get("opened") );	
+			}else{
+				my $response = $sd->dlg_error_message( 
+					sprintf( $d->get("Error while adding image %s to the session."), "'" . $new_uri->extract_short_name . "'"),
+					$d->get("There was an error adding the image."),		
+				);
 			}
 		}
 		
@@ -5053,7 +4958,14 @@ if ($app->is_running) {
 
 				#do the real work
 				my $new_uri = Gnome2::VFS::URI->new( ${$session_xml}{$key}{'filename'} );
-				&fct_integrate_screenshot_in_notebook( $new_uri, undef, undef, $count );
+				if(&fct_integrate_screenshot_in_notebook( $new_uri, undef, undef, $count )){
+					&fct_show_status_message( 1, $new_uri->get_path . " " . $d->get("opened") );	
+				}else{
+					my $response = $sd->dlg_error_message( 
+						sprintf( $d->get("Error while adding image %s to the session."), "'" . $new_uri->extract_short_name . "'"),
+						$d->get("There was an error adding the image."),		
+					);					
+				}	
 
 			}
 			
@@ -6436,20 +6348,18 @@ if ($app->is_running) {
 				my $cr = $pc->get_cairo_context;
 
 				#load pixbuf from file
-				my $pixbuf = $lp->load( $pages[$int] );
+				if (my $pixbuf = $lp->load( $pages[$int])){
 				
-				#~ my $pas = $pc->get_page_setup;
-				#~ my $dpi_x = $pixbuf->get_width / $pas->get_page_width('inch');
-				#~ my $dpi_y = $pixbuf->get_height / $pas->get_page_height('inch');
+					#scale if image doesn't fit on page
+					my $scale_x = $pc->get_width / $pixbuf->get_width;
+					my $scale_y = $pc->get_height / $pixbuf->get_height;
+					if(min($scale_x, $scale_y) < 1){
+						$cr->scale(min($scale_x, $scale_y), min($scale_x, $scale_y));
+					}
+					
+					Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $pixbuf, 0, 0 );
 				
-				#scale if image doesn't fit on page
-				my $scale_x = $pc->get_width / $pixbuf->get_width;
-				my $scale_y = $pc->get_height / $pixbuf->get_height;
-				if(min($scale_x, $scale_y) < 1){
-					$cr->scale(min($scale_x, $scale_y), min($scale_x, $scale_y));
 				}
-				
-				Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $pixbuf, 0, 0 );
 
 				$cr->paint;
 
@@ -6987,10 +6897,8 @@ if ($app->is_running) {
 				#--------------------------------------
 				#maybe we have a pixbuf already (e.g. after taking a screenshot)
 				unless ($pixbuf) {
-					eval {
-						$pixbuf = $lp->load( $session_screens{$key}->{'long'}, undef, undef, undef, TRUE );		
-					};
-					if ($@) {
+					$pixbuf = $lp_ne->load( $session_screens{$key}->{'long'}, undef, undef, undef, TRUE );		
+					unless ($pixbuf) {
 						#increment error counter 
 						#and go to next try
 						$error_counter++;
@@ -7147,12 +7055,9 @@ if ($app->is_running) {
 					#(current version is always the last element in the array)
 					my $current_version = pop @{$session_screens{$key}->{'undo'}};
 					
-					my $pixbuf;
-					eval{
-						$pixbuf = $lp->load( $current_version );
-					};
+					my $pixbuf = $lp_ne->load( $current_version );
 					#restoring the last version failed => delete the screenshot	
-					if($@){
+					unless($pixbuf){
 
 						$sd->dlg_error_message( 
 							sprintf( $d->get("Error while saving the image %s."), "'" . $session_screens{$key}->{'short'} . "'"),
@@ -8996,6 +8901,109 @@ if ($app->is_running) {
 		
 	}
 
+	sub dlg_open {
+		my ( $widget, $data ) = @_;
+		print "\n$data was emitted by widget $widget\n"
+			if $sc->get_debug;
+
+		#do we need to open a filechooserdialog?
+		#maybe we open a recently opened file that is 
+		#selected via menu
+		my @new_files;	
+		unless($widget =~ /Gtk2::RecentChooserMenu/){
+			my $fs = Gtk2::FileChooserDialog->new(
+				$d->get("Choose file to open"), $window,
+				'open',
+				'gtk-cancel' => 'reject',
+				'gtk-open'   => 'accept'
+			);
+			$fs->set_select_multiple(TRUE);
+
+			#preview widget
+			my $iprev = Gtk2::Image->new;
+			$fs->set_preview_widget($iprev);
+		
+			$fs->signal_connect(
+				'selection-changed' => sub {
+					if(my $pfilename = $fs->get_preview_filename){
+						#without error dialog
+						my $pixbuf = $lp_ne->load($pfilename, 200, 200, TRUE);
+						unless(defined $pixbuf){
+							$fs->set_preview_widget_active(FALSE);
+						}else{
+							$fs->get_preview_widget->set_from_pixbuf($pixbuf);
+							$fs->set_preview_widget_active(TRUE)
+						}
+					}else{
+						$fs->set_preview_widget_active(FALSE);
+					}
+				}
+			);
+
+			my $filter_all = Gtk2::FileFilter->new;
+			$filter_all->set_name( $d->get("All compatible image formats") );
+			$fs->add_filter($filter_all);
+			
+			foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
+				my $filter = Gtk2::FileFilter->new;
+				
+				#add all known formats to the dialog			
+				$filter->set_name( $_->{name} . " - " . $_->{description} );
+				
+				foreach ( @{ $_->{extensions} } ) {
+					$filter->add_pattern( "*." . uc $_ );
+					$filter_all->add_pattern( "*." . uc $_ );
+					$filter->add_pattern( "*." . $_ );
+					$filter_all->add_pattern( "*." . $_ );
+				}
+				$fs->add_filter($filter);
+			}
+			
+			#set default filter
+			$fs->set_filter($filter_all);
+			
+			#get current file
+			my $key = &fct_get_current_file;
+			
+			#go to recently used folder
+			if(defined $sc->get_ruof && $shf->folder_exists($sc->get_ruof)){
+				$fs->set_current_folder( $sc->get_ruof );
+			}else{
+				if ($key) {
+					$fs->set_filename( $session_screens{$key}->{'long'} );
+				} elsif ( $saveDir_button->get_current_folder ) {
+					$fs->set_current_folder( $saveDir_button->get_current_folder );
+				}else{
+					$fs->set_current_folder( $ENV{'HOME'} );
+				}
+			}
+			
+			my $fs_resp = $fs->run;
+
+			if ( $fs_resp eq "accept" ) {
+				@new_files = $fs->get_filenames;
+				
+				#keep folder in mind
+				if($new_files[0]){
+					my ( $oshort, $ofolder, $oext ) = fileparse( $new_files[0], qr/\.[^.]*/ );
+					$sc->set_ruof($ofolder) if defined $ofolder;
+				}
+				
+				$fs->destroy();
+			} else {
+				$fs->destroy();
+			}
+
+		}else{
+			push @new_files, $widget->get_current_uri;
+		}
+
+		#call function to open files - with progress bar etc.
+		&fct_open_files(@new_files);
+
+		return TRUE;
+	}
+
 	sub dlg_save_as {
 		#mandatory
 		my $key = shift;
@@ -9041,11 +9049,9 @@ if ($app->is_running) {
 		$fs->signal_connect(
 			'selection-changed' => sub {
 				if(my $pfilename = $fs->get_preview_filename){
-					my $pixbuf = undef;
-					eval{
-						$pixbuf = $lp->load ($pfilename, 200, 200, TRUE);
-					};
-					if($@){
+					#without error dialog
+					my $pixbuf = $lp_ne->load($pfilename, 200, 200, TRUE);
+					unless(defined $pixbuf){
 						$fs->set_preview_widget_active(FALSE);
 					}else{
 						$fs->get_preview_widget->set_from_pixbuf($pixbuf);
@@ -9159,7 +9165,7 @@ if ($app->is_running) {
 				my $pixbuf = $rpixbuf;
 				unless($pixbuf){
 					#or load pixbuf from existing file
-					$pixbuf = $lp->load( $rfilename );
+					$pixbuf = $lp_ne->load( $rfilename );
 				}
 				
 				#save as (pixbuf, new_filename, filetype, quality - auto here, old_filename)			
@@ -9221,7 +9227,7 @@ if ($app->is_running) {
 					my $pixbuf = $rpixbuf;
 					unless($pixbuf){
 						#or load pixbuf from existing file
-						$pixbuf = $lp->load( $rfilename );
+						$pixbuf = $lp_ne->load( $rfilename );
 					}
 					
 					if($sp->save_pixbuf_to_file($pixbuf, $filename, $choosen_format, $rquality)){
