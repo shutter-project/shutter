@@ -8934,7 +8934,7 @@ if ($app->is_running) {
 				'selection-changed' => sub {
 					if(my $pfilename = $fs->get_preview_filename){
 						#without error dialog
-						my $pixbuf = $lp_ne->load($pfilename, 200, 200, TRUE);
+						my $pixbuf = $lp_ne->load($pfilename, 200, 200, TRUE, TRUE);
 						unless(defined $pixbuf){
 							$fs->set_preview_widget_active(FALSE);
 						}else{
@@ -9057,7 +9057,7 @@ if ($app->is_running) {
 			'selection-changed' => sub {
 				if(my $pfilename = $fs->get_preview_filename){
 					#without error dialog
-					my $pixbuf = $lp_ne->load($pfilename, 200, 200, TRUE);
+					my $pixbuf = $lp_ne->load($pfilename, 200, 200, TRUE, TRUE);
 					unless(defined $pixbuf){
 						$fs->set_preview_widget_active(FALSE);
 					}else{

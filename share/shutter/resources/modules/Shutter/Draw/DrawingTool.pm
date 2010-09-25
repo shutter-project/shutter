@@ -192,6 +192,7 @@ sub show {
 	$self->{_dialogs} = Shutter::App::SimpleDialogs->new( $self->{_drawing_window} );
 	$self->{_thumbs}  = Shutter::Pixbuf::Thumbnail->new( $self->{_sc} );
 	$self->{_lp} = Shutter::Pixbuf::Load->new( $self->{_sc}, $self->{_drawing_window} );
+	$self->{_lp_ne} = Shutter::Pixbuf::Load->new( $self->{_sc}, $self->{_drawing_window}, TRUE );
 
 	#setup cursor-hash
 	#
@@ -214,9 +215,7 @@ sub show {
 	$self->load_settings;
 
 	#load file
-	eval{
-		$self->{_drawing_pixbuf} = $self->{_lp}->load( $self->{_filename}, undef, undef, undef, TRUE );
-	};
+	$self->{_drawing_pixbuf} = $self->{_lp}->load( $self->{_filename}, undef, undef, undef, TRUE );
 	unless($self->{_drawing_pixbuf}){
 		$self->{_drawing_window}->destroy if $self->{_drawing_window};
 		return FALSE;
@@ -1483,11 +1482,8 @@ sub export_to_file {
 	$fs->signal_connect(
 		'selection-changed' => sub {
 			if(my $pfilename = $fs->get_preview_filename){
-				my $pixbuf = undef;
-				eval{
-					$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale ($pfilename, 200, 200, TRUE);
-				};
-				if($@){
+				my $pixbuf = $self->{_lp_ne}->load ($pfilename, 200, 200, TRUE, TRUE);
+				unless($pixbuf){
 					$fs->set_preview_widget_active(FALSE);
 				}else{
 					$fs->get_preview_widget->set_from_pixbuf($pixbuf);
@@ -2890,11 +2886,8 @@ sub xdo {
 				
 				#~ print "xdo image\n";
 				
-				my $copy = undef;
-				eval{
-					$copy = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($self->{_items}{$item}{orig_pixbuf_filename},$self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'), FALSE);
-				};
-				unless($@){		
+				my $copy = $self->{_lp}->load($self->{_items}{$item}{orig_pixbuf_filename},$self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'), FALSE);
+				if($copy){		
 					$self->{_items}{$item}{image}->set(
 						'x'      => int $self->{_items}{$item}->get('x'),
 						'y'      => int $self->{_items}{$item}->get('y'),
@@ -2902,15 +2895,7 @@ sub xdo {
 						'height' => $self->{_items}{$item}->get('height'),
 						'pixbuf' => $copy
 					);
-				}else{
-					my $response = $self->{_dialogs}->dlg_error_message( 
-						sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $self->{_items}{$item}{orig_pixbuf_filename} . "'"),
-						$self->{_d}->get( "There was an error opening the image." ),
-						undef, undef, undef,
-						undef, undef, undef,
-						$@
-					);
-				}	
+				}
 
 			}elsif ( exists $self->{_items}{$item}{line} ) {
 
@@ -5655,11 +5640,8 @@ sub event_item_on_button_release {
 		
 		}else{
 
-			my $copy = undef;
-			eval{
-				$copy = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($self->{_items}{$parent}{orig_pixbuf_filename},$self->{_items}{$parent}->get('width'), $self->{_items}{$parent}->get('height'), FALSE);
-			};
-			unless($@){		
+			my $copy = $self->{_lp}->load($self->{_items}{$parent}{orig_pixbuf_filename},$self->{_items}{$parent}->get('width'), $self->{_items}{$parent}->get('height'), FALSE);
+			if($copy){		
 				$self->{_items}{$parent}{image}->set(
 					'x'      => int $self->{_items}{$parent}->get('x'),
 					'y'      => int $self->{_items}{$parent}->get('y'),
@@ -5668,13 +5650,6 @@ sub event_item_on_button_release {
 					'pixbuf' => $copy,
 				);
 			}else{
-				my $response = $self->{_dialogs}->dlg_error_message( 
-					sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $self->{_items}{$parent}{orig_pixbuf_filename} . "'"),
-					$self->{_d}->get( "There was an error opening the image." ),
-					undef, undef, undef,
-					undef, undef, undef,
-					$@
-				);
 				$self->abort_current_mode;											
 			}
 			
@@ -6125,11 +6100,8 @@ sub import_from_dnd {
 			my $new_uri 	= Gnome2::VFS::URI->new ($self->utf8_decode(Gnome2::VFS->unescape_string($_)));
 			my $new_file	= $self->utf8_decode(Gnome2::VFS->unescape_string($new_uri->get_path));
 						
-			eval{
-				$self->{_current_pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($new_file);	
-			};
-			#check if there is any error while loading this file
-			unless($@){
+			$self->{_current_pixbuf} = $self->{_lp}->load($new_file);	
+			if($self->{_current_pixbuf}){
 				$self->{_current_pixbuf_filename} = $new_file;
 				
 				#construct an event and create a new image object
@@ -6146,13 +6118,6 @@ sub import_from_dnd {
 				$self->store_to_xdo_stack($nitem , 'create', 'undo');
 								
 			}else{
-				my $response = $self->{_dialogs}->dlg_error_message( 
-					sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $new_file. "'"),
-					$self->{_d}->get( "There was an error opening the image." ),
-					undef, undef, undef,
-					undef, undef, undef,
-					$@
-				);
 				$self->abort_current_mode;											
 			}	
 		}
@@ -6342,11 +6307,8 @@ sub import_from_filesystem {
 				$fs->signal_connect(
 					'selection-changed' => sub {
 						if(my $pfilename = $fs->get_preview_filename){
-							my $pixbuf = undef;
-							eval{
-								$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale ($pfilename, 200, 200, TRUE);
-							};
-							if($@){
+							my $pixbuf = $self->{_lp_ne}->load ($pfilename, 200, 200, TRUE, TRUE);
+							unless($pixbuf){
 								$fs->set_preview_widget_active(FALSE);
 							}else{
 								$fs->get_preview_widget->set_from_pixbuf($pixbuf);
@@ -6383,23 +6345,13 @@ sub import_from_filesystem {
 				if ( $fs_resp eq "accept" ) {
 					$new_file = $fs->get_filenames;
 				
-					eval{
-						$self->{_current_pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($new_file);	
-					};
-					#check if there is any error while loading this file
-					unless($@){
+					$self->{_current_pixbuf} = $self->{_lp}->load($new_file);	
+					if($$self->{_current_pixbuf}){
 						$self->{_current_pixbuf_filename} = $new_file;
 						$button->set_icon_widget(Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size($self->{_dicons}.'/draw-image.svg', Gtk2::IconSize->lookup('menu'))));
 						$button->show_all;
 						$self->{_canvas}->window->set_cursor( $self->change_cursor_to_current_pixbuf );
 					}else{
-						my $response = $self->{_dialogs}->dlg_error_message( 
-							sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $new_file. "'"),
-							$self->{_d}->get( "There was an error opening the image." ),
-							undef, undef, undef,
-							undef, undef, undef,
-							$@
-						);
 						$self->abort_current_mode;											
 					}
 					
@@ -6683,19 +6635,13 @@ sub change_cursor_to_current_pixbuf {
 	my $cursor = undef; 
 	
 	#load file
-	eval{
-		$self->{_current_pixbuf} = Gtk2::Gdk::Pixbuf->new_from_file($self->{_current_pixbuf_filename});
-	};				
-	if($@){
-		my $response = $self->{_dialogs}->dlg_error_message( 
-			sprintf( $self->{_d}->get("Error while opening image %s."), "'" . $self->{_current_pixbuf_filename} . "'" ),
-			$self->{_d}->get( "There was an error opening the image." ),
-			undef, undef, undef,
-			undef, undef, undef,
-			$@
-		);
-		$self->abort_current_mode;	
-		return FALSE;	
+	$self->{_current_pixbuf} = $self->{_lp}->load($self->{_current_pixbuf_filename});
+	unless($self->{_current_pixbuf}){
+		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
+				Gtk2::Gdk::Display->get_default,
+				Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-image.svg'),
+				Gtk2::IconSize->lookup('menu')
+		);		
 	}
 	
 	#very big images usually don't work as a cursor (no error though??)
