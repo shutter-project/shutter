@@ -85,8 +85,8 @@ sub load {
 
 		#nice error dialog, more detailed messages are shown with a gtk2 expander
 		my $response = $self->{_dialogs}->dlg_error_message( 
-			sprintf( $d->get("Error while opening the image %s."), "'" . $name.$type . "'"),
-			sprintf( $d->get("There was an error opening the image to %s."), "'" . $folder . "'"),		
+			sprintf( $d->get("Error while opening image %s."), "'" . $name.$type . "'"),
+			$d->get("There was an error opening the image."),		
 			undef, undef, undef,
 			undef, undef, undef,
 			$@->message
