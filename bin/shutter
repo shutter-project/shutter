@@ -3631,19 +3631,22 @@ if ($app->is_running) {
 		my ( $second, $minute, $hour ) = localtime();
 		my $theTime = sprintf("%02d:%02d:%02d", $hour, $minute, $second);
 		my $key = 0;
+		my $indx = 0;
 		if(defined $num_files && $num_files > 0){
 			if(defined $history && $history->get_history){
-				my $indx = $num_files + 1;
+				$indx = $num_files + 1;
 				#update it (e.g. when taking more than one screenshot when still loading session)
 				$session_start_screen{'first_page'}->{'num_session_files'} = $indx;
 				$key = "[" . $indx . "] - $theTime";
 			}elsif(defined $count){
 				$key = "[" . $count . "] - $theTime";
 			}else{
-				my $indx = $num_files + 1;
+				$indx = $num_files + 1;
 				while($indx < &fct_get_latest_tab_key){
 					$indx++;
 				}
+				#update it (e.g. when taking more than one screenshot when still loading session)
+				$session_start_screen{'first_page'}->{'num_session_files'} = $indx;
 				$key = "[" . $indx . "] - $theTime";	
 			}		
 		}else{
@@ -3693,11 +3696,11 @@ if ($app->is_running) {
 		my $new_index = 0;
 		if(defined $num_files && $num_files > 0){
 			if(defined $history && $history->get_history){
-				$new_index = $notebook->insert_page ( &fct_create_tab( $key, FALSE ), $hbox_tab_label, $num_files + 1 );
+				$new_index = $notebook->insert_page ( &fct_create_tab( $key, FALSE ), $hbox_tab_label, $indx );
 			}elsif(defined $count){
 				$new_index = $notebook->insert_page ( &fct_create_tab( $key, FALSE ), $hbox_tab_label, $count );
 			}else{
-				$new_index = $notebook->append_page( &fct_create_tab( $key, FALSE ), $hbox_tab_label );	
+				$new_index = $notebook->insert_page( &fct_create_tab( $key, FALSE ), $hbox_tab_label, $indx );	
 			}
 		}else{
 			$new_index = $notebook->append_page( &fct_create_tab( $key, FALSE ), $hbox_tab_label );
