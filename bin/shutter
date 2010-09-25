@@ -3640,7 +3640,11 @@ if ($app->is_running) {
 			}elsif(defined $count){
 				$key = "[" . $count . "] - $theTime";
 			}else{
-				$key = "[" . &fct_get_latest_tab_key . "] - $theTime";	
+				my $indx = $num_files + 1;
+				while($indx < &fct_get_latest_tab_key){
+					$indx++;
+				}
+				$key = "[" . $indx . "] - $theTime";	
 			}		
 		}else{
 			$key = "[" . &fct_get_latest_tab_key . "] - $theTime";
