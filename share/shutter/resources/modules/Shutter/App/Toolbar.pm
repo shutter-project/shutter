@@ -300,7 +300,8 @@ sub create_btoolbar {
 	#button ascending
 	#--------------------------------------
 	my $image_sorta = Gtk2::Image->new_from_stock( 'gtk-sort-ascending', 'small-toolbar' );
-	$self->{_sorta} = Gtk2::ToolButton->new( $image_sorta, '' );
+	$self->{_sorta} = Gtk2::ToggleToolButton->new();
+	$self->{_sorta}->set_icon_widget( $image_sorta );
 
 	#--------------------------------------	
 	
@@ -328,7 +329,8 @@ sub create_btoolbar {
 	#button sort descending
 	#--------------------------------------
 	my $image_sortd = Gtk2::Image->new_from_stock( 'gtk-sort-descending', 'small-toolbar' );
-	$self->{_sortd} = Gtk2::ToolButton->new( $image_sortd, '' );
+	$self->{_sortd} = Gtk2::ToggleToolButton->new();
+	$self->{_sortd}->set_icon_widget( $image_sortd );
 
 	#--------------------------------------	
 

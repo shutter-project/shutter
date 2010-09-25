@@ -1762,19 +1762,19 @@ if ($app->is_running) {
 	}	
 
 	$session_asc->signal_connect('toggled', sub{
-		$st->{_sorta}->signal_emit('clicked');
+		$st->{_sorta}->set_active($session_asc->get_active);
 	});
 
 	$session_desc->signal_connect('toggled', sub{
-		$st->{_sortd}->signal_emit('clicked');
+		$st->{_sortd}->set_active($session_desc->get_active);
 	});	
 
 	$session_asc_combo->signal_connect('changed', sub{
-		$st->{_sorta}->signal_emit('clicked');
+		$st->{_sorta}->signal_emit('toggled') if $session_asc->get_active;
 	});
 
 	$session_desc_combo->signal_connect('changed', sub{
-		$st->{_sortd}->signal_emit('clicked');
+		$st->{_sortd}->signal_emit('toggled') if $session_desc->get_active;
 	});	
 
 	$tooltips->set_tip( $session_asc, $d->get("Configure sort criteria") );
@@ -2453,49 +2453,63 @@ if ($app->is_running) {
 	);
 
 	#signal handler for sort buttons
-	$st->{_sorta}->signal_connect( 'clicked' => sub {
-			$session_start_screen{'first_page'}->{'model'}->set_sort_func (2, sub{
-				#The comparison callback should return 
-				#	-1 if the iter1 row should come before the iter2 row, 
-				#	0 if the rows are equal, or 
-				#	1 if the iter1 row should come after the iter2 row.
-				my ($liststore, $a, $b) = @_;
-				
-				my $ka = $liststore->get_value( $a, $session_asc_combo->get_active+1 );
-				my $kb = $liststore->get_value( $b, $session_asc_combo->get_active+1 );
-				
-				if(defined $ka && defined $kb){
-					#negate result in this case
-					return Sort::Naturally::ncmp($ka, $kb) * -1;
-				}
-				
-				return -1;
-			});
+	$st->{_sorta}->signal_connect( 'toggled' => sub {
+			my $this_button = shift;
+			if($this_button->get_active){
+				$session_start_screen{'first_page'}->{'model'}->set_sort_func (2, sub{
+					#The comparison callback should return 
+					#	-1 if the iter1 row should come before the iter2 row, 
+					#	0 if the rows are equal, or 
+					#	1 if the iter1 row should come after the iter2 row.
+					my ($liststore, $a, $b) = @_;
+					
+					my $ka = $liststore->get_value( $a, $session_asc_combo->get_active+1 );
+					my $kb = $liststore->get_value( $b, $session_asc_combo->get_active+1 );
+					
+					if(defined $ka && defined $kb){
+						#negate result in this case
+						return Sort::Naturally::ncmp($ka, $kb) * -1;
+					}
+					
+					return -1;
+				});
+				$session_asc->set_active(TRUE);
+				$st->{_sortd}->set_active(FALSE);
+			}else{
+				$st->{_sortd}->set_active(TRUE);
+			}
 		}
 	);
 	
-	$st->{_sortd}->signal_connect( 'clicked' => sub {
-			$session_start_screen{'first_page'}->{'model'}->set_sort_func (2, sub{
-				#see above
-				my ($liststore, $a, $b) = @_;
-				
-				my $ka = $liststore->get_value( $a, $session_desc_combo->get_active+1 );
-				my $kb = $liststore->get_value( $b, $session_desc_combo->get_active+1 );
-				
-				if(defined $ka && defined $kb){
-					return Sort::Naturally::ncmp($ka, $kb);
-				}
-				
-				return -1;
-			});
+	$st->{_sortd}->signal_connect( 'toggled' => sub {
+			my $this_button = shift;
+			if($this_button->get_active){
+				$session_start_screen{'first_page'}->{'model'}->set_sort_func (2, sub{
+					#see above
+					my ($liststore, $a, $b) = @_;
+					
+					my $ka = $liststore->get_value( $a, $session_desc_combo->get_active+1 );
+					my $kb = $liststore->get_value( $b, $session_desc_combo->get_active+1 );
+					
+					if(defined $ka && defined $kb){
+						return Sort::Naturally::ncmp($ka, $kb);
+					}
+					
+					return -1;
+				});
+				$session_desc->set_active(TRUE);
+				$st->{_sorta}->set_active(FALSE);
+			}else{
+				$st->{_sorta}->set_active(TRUE);
+			}
 		}
 	);	
 
 	#set saved value
 	if($session_asc->get_active){
-		$st->{_sorta}->signal_emit('clicked');
+		$st->{_sorta}->signal_emit('toggled');
 	}else{
-		$st->{_sortd}->signal_emit('clicked');	
+		$st->{_sortd}->signal_emit('toggled');	
 	}
 
 	#pack statusbar
