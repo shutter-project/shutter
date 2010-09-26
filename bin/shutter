@@ -3944,9 +3944,6 @@ if ($app->is_running) {
 						
 			#Gtk2::ImageView::ScrollWin packaged in a Gtk2::ScrolledWindow
 			my $scrolled_window_image = Gtk2::ImageView::ScrollWin->new($session_screens{$key}->{'image'});
-			#~ my $scrolled_window_image = Gtk2::ScrolledWindow->new;
-			#~ $scrolled_window_image->set_policy( 'automatic', 'automatic' );
-			#~ $scrolled_window_image->add_with_viewport(Gtk2::ImageView::ScrollWin->new($session_screens{$key}->{'image'}));
 
 			#WORKAROUND
 			#upstream bug

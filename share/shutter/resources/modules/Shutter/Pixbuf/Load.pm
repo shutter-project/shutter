@@ -46,10 +46,6 @@ sub new {
 	#constructor
 	my $self = { _common => shift, _window => shift, _no_error_dialog => shift };
 
-	#import shutter dialogs
-	my $current_window = $self->{_window} || $self->{_common}->get_mainwindow;
-	$self->{_dialogs} = Shutter::App::SimpleDialogs->new( $current_window );
-
 	bless $self, $class;
 	return $self;
 }
@@ -61,11 +57,6 @@ sub load {
 	my $height 		= shift;
 	my $sratio 		= shift;
 	my $rotate		= shift;
-
-	print "Loading file $filename\n" if $self->{_common}->get_debug;
-
-	#gettext variable
-	my $d = $self->{_common}->get_gettext;
 
 	my $pixbuf = undef;
 	eval{
@@ -81,12 +72,19 @@ sub load {
 	if ($@) {
 		
 		unless(defined $self->{_no_error_dialog} && $self->{_no_error_dialog}){
+
+			#import shutter dialogs
+			my $current_window = $self->{_window} || $self->{_common}->get_mainwindow;
+			my $sd = Shutter::App::SimpleDialogs->new( $current_window );
+
+			#gettext variable
+			my $d = $self->{_common}->get_gettext;
 		
 			#parse filename
 			my ( $name, $folder, $type ) = fileparse( $filename, qr/\.[^.]*/ );		
 
 			#nice error dialog, more detailed messages are shown with a gtk2 expander
-			my $response = $self->{_dialogs}->dlg_error_message( 
+			my $response = $sd->dlg_error_message( 
 				sprintf( $d->get("Error while opening image %s."), "'" . $name.$type . "'"),
 				$d->get("There was an error opening the image."),		
 				undef, undef, undef,
@@ -101,18 +99,39 @@ sub load {
 	#load meta-data
 	if($rotate && $pixbuf){
 		my %orientation_flags = (
-			1 => 'none',
-			8 => 'clockwise',
-			3 => 'upsidedown',
-			6 => 'counterclockwise',
+			1 => 'none,-1',
+			2 => 'none,1',
+			3 => 'upsidedown,-1',
+			4 => 'none,0',
+			5 => 'clockwise,1',
+			6 => 'clockwise,-1',
+			7 => 'clockwise,0',
+			8 => 'counterclockwise,-1',
 		);
-		my $flag = $pixbuf->get_option('orientation'); 
-		if(defined $flag && exists $orientation_flags{$flag}){
-			$pixbuf = $pixbuf->rotate_simple($orientation_flags{$flag});
+		my $option = $self->get_option($pixbuf, 'orientation');
+		if(defined $option && exists $orientation_flags{$option}){
+			my ($rotate, $flip_horiz) = split ",", $orientation_flags{$option};
+			#~ print $option, "\n";
+			if(defined $rotate){
+				$pixbuf = $pixbuf->rotate_simple($rotate);
+			}
+			if(defined $flip_horiz && $flip_horiz > -1){
+				$pixbuf = $pixbuf->flip($flip_horiz);
+			}
 		}
 	}
 	
 	return $pixbuf;
+}
+
+sub get_option {
+	my $self = shift;
+	my $pixbuf = shift;
+	my $option = shift;
+
+	return FALSE unless (defined $pixbuf && defined $option);
+
+	return $pixbuf->get_option($option); 	
 }
 
 1;
