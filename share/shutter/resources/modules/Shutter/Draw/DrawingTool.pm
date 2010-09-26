@@ -2886,7 +2886,7 @@ sub xdo {
 				
 				#~ print "xdo image\n";
 				
-				my $copy = $self->{_lp}->load($self->{_items}{$item}{orig_pixbuf_filename},$self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'), FALSE);
+				my $copy = $self->{_lp}->load($self->{_items}{$item}{orig_pixbuf_filename},$self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'), FALSE, TRUE);
 				if($copy){		
 					$self->{_items}{$item}{image}->set(
 						'x'      => int $self->{_items}{$item}->get('x'),
@@ -5639,8 +5639,8 @@ sub event_item_on_button_release {
 			$self->handle_embedded( 'update', $parent, undef, undef, TRUE );
 		
 		}else{
-
-			my $copy = $self->{_lp}->load($self->{_items}{$parent}{orig_pixbuf_filename},$self->{_items}{$parent}->get('width'), $self->{_items}{$parent}->get('height'), FALSE);
+			
+			my $copy = $self->{_lp}->load($self->{_items}{$parent}{orig_pixbuf_filename},$self->{_items}{$parent}->get('width'), $self->{_items}{$parent}->get('height'), FALSE, TRUE);
 			if($copy){		
 				$self->{_items}{$parent}{image}->set(
 					'x'      => int $self->{_items}{$parent}->get('x'),
@@ -5649,6 +5649,9 @@ sub event_item_on_button_release {
 					'height' => $self->{_items}{$parent}->get('height'),
 					'pixbuf' => $copy,
 				);
+			
+			$self->handle_embedded( 'update', $parent, undef, undef, TRUE );
+			
 			}else{
 				$self->abort_current_mode;											
 			}
@@ -6100,7 +6103,7 @@ sub import_from_dnd {
 			my $new_uri 	= Gnome2::VFS::URI->new ($self->utf8_decode(Gnome2::VFS->unescape_string($_)));
 			my $new_file	= $self->utf8_decode(Gnome2::VFS->unescape_string($new_uri->get_path));
 						
-			$self->{_current_pixbuf} = $self->{_lp}->load($new_file);	
+			$self->{_current_pixbuf} = $self->{_lp}->load($new_file, undef, undef, undef, TRUE);	
 			if($self->{_current_pixbuf}){
 				$self->{_current_pixbuf_filename} = $new_file;
 				
@@ -6345,8 +6348,8 @@ sub import_from_filesystem {
 				if ( $fs_resp eq "accept" ) {
 					$new_file = $fs->get_filenames;
 				
-					$self->{_current_pixbuf} = $self->{_lp}->load($new_file);	
-					if($$self->{_current_pixbuf}){
+					$self->{_current_pixbuf} = $self->{_lp}->load($new_file, undef, undef, undef, TRUE);	
+					if($self->{_current_pixbuf}){
 						$self->{_current_pixbuf_filename} = $new_file;
 						$button->set_icon_widget(Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size($self->{_dicons}.'/draw-image.svg', Gtk2::IconSize->lookup('menu'))));
 						$button->show_all;
@@ -6553,7 +6556,7 @@ sub gen_thumbnail_on_idle {
 				
 				$small_image = Gtk2::Image->new_from_pixbuf( $thumb );					
 			}else{ 
-				my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file ($name);
+				my $pixbuf = $self->{_lp_ne}->load($name, undef, undef, undef, TRUE);
 				#16x16 is minimum size
 				if($pixbuf->get_width >= 16 && $pixbuf->get_height >= 16){
 					$small_image = Gtk2::Image->new_from_pixbuf( 
@@ -6635,7 +6638,7 @@ sub change_cursor_to_current_pixbuf {
 	my $cursor = undef; 
 	
 	#load file
-	$self->{_current_pixbuf} = $self->{_lp}->load($self->{_current_pixbuf_filename});
+	$self->{_current_pixbuf} = $self->{_lp}->load($self->{_current_pixbuf_filename}, undef, undef, undef, TRUE);
 	unless($self->{_current_pixbuf}){
 		$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf(
 				Gtk2::Gdk::Display->get_default,
@@ -6659,7 +6662,7 @@ sub change_cursor_to_current_pixbuf {
 			if($cw > $pb_w || $ch > $pb_w){
 				$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default, $self->{_current_pixbuf}, int($pb_w / 2), int($pb_h / 2));				
 			}else{
-				my $cpixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($self->{_current_pixbuf_filename}, $cw, $ch, TRUE);	
+				my $cpixbuf = $self->{_lp}->load($self->{_current_pixbuf_filename}, $cw, $ch, TRUE, TRUE);	
 				$cursor = Gtk2::Gdk::Cursor->new_from_pixbuf( Gtk2::Gdk::Display->get_default, $cpixbuf, int($cpixbuf->get_width / 2), int($cpixbuf->get_height / 2));
 			}
 			
@@ -7055,7 +7058,7 @@ sub create_image {
 
 	if ( $copy_item ){
 		
-		my $copy = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($self->{_items}{$item}{orig_pixbuf_filename},$self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'), FALSE);
+		my $copy = $self->{_lp}->load($self->{_items}{$item}{orig_pixbuf_filename},$self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('height'), FALSE, TRUE);
 				
 		$self->{_items}{$item}{image}->set(
 			'x'      => int $self->{_items}{$item}->get('x'),

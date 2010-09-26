@@ -96,29 +96,9 @@ sub load {
 		
 	}
 	
-	#load meta-data
+	#read exif and rotate accordingly
 	if($rotate && $pixbuf){
-		my %orientation_flags = (
-			1 => 'none,-1',
-			2 => 'none,1',
-			3 => 'upsidedown,-1',
-			4 => 'none,0',
-			5 => 'clockwise,1',
-			6 => 'clockwise,-1',
-			7 => 'clockwise,0',
-			8 => 'counterclockwise,-1',
-		);
-		my $option = $self->get_option($pixbuf, 'orientation');
-		if(defined $option && exists $orientation_flags{$option}){
-			my ($rotate, $flip_horiz) = split ",", $orientation_flags{$option};
-			#~ print $option, "\n";
-			if(defined $rotate){
-				$pixbuf = $pixbuf->rotate_simple($rotate);
-			}
-			if(defined $flip_horiz && $flip_horiz > -1){
-				$pixbuf = $pixbuf->flip($flip_horiz);
-			}
-		}
+		$pixbuf = $self->auto_rotate($pixbuf);
 	}
 	
 	return $pixbuf;
@@ -132,6 +112,35 @@ sub get_option {
 	return FALSE unless (defined $pixbuf && defined $option);
 
 	return $pixbuf->get_option($option); 	
+}
+
+sub auto_rotate {
+	my $self = shift;
+	my $pixbuf = shift;
+
+	my %orientation_flags = (
+		1 => 'none,-1',
+		2 => 'none,1',
+		3 => 'upsidedown,-1',
+		4 => 'none,0',
+		5 => 'clockwise,1',
+		6 => 'clockwise,-1',
+		7 => 'clockwise,0',
+		8 => 'counterclockwise,-1',
+	);
+	my $option = $self->get_option($pixbuf, 'orientation');
+	if(defined $option && exists $orientation_flags{$option}){
+		my ($rotate, $flip_horiz) = split ",", $orientation_flags{$option};
+		#~ print $option, "\n";
+		if(defined $rotate){
+			$pixbuf = $pixbuf->rotate_simple($rotate);
+		}
+		if(defined $flip_horiz && $flip_horiz > -1){
+			$pixbuf = $pixbuf->flip($flip_horiz);
+		}
+	}	
+
+	return $pixbuf;
 }
 
 1;

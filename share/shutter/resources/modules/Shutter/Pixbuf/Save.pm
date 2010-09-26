@@ -49,6 +49,7 @@ sub new {
 	#import shutter dialogs
 	my $current_window = $self->{_window} || $self->{_common}->get_mainwindow;
 	$self->{_dialogs} = Shutter::App::SimpleDialogs->new( $current_window );
+	$self->{_lp} = Shutter::Pixbuf::Load->new( $self->{_common}, $current_window );
 
 	bless $self, $class;
 	return $self;
@@ -65,6 +66,18 @@ sub save_pixbuf_to_file {
 
 	#gettext variable
 	my $d = $self->{_common}->get_gettext;
+
+	#check if we need to rotate the image or set the exif data accordingly
+	my $option = $self->{_lp}->get_option($pixbuf, 'orientation');
+	$option = 1 unless defined $option;
+
+	#FIXME: NOT COVERED BY BINDINGS YET
+	#we rotate the pixbuf when saving to any other format than jpeg
+	#~ unless ( $filetype eq 'jpeg' ) {
+		if($option != 1){
+			$pixbuf = $self->{_lp}->auto_rotate($pixbuf);
+		}
+	#~ }
 
 	#we have two main ways of saving file
 	#when possible we try to use all supported formats of the gdk-pixbuf libs
@@ -86,6 +99,8 @@ sub save_pixbuf_to_file {
 		}
 		
 		eval{
+			#FIXME: NOT COVERED BY BINDINGS YET
+			#~ $pixbuf->set_option( 'orientation' => $option );
 			$pixbuf->save( $filename, $filetype, quality => $quality );
 		};
 	} elsif ( $filetype eq 'png' ) {
