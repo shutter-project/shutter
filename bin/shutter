@@ -4845,8 +4845,8 @@ if ($app->is_running) {
 		my $mime_type = shift;
 
 		foreach my $format ( Gtk2::Gdk::Pixbuf->get_formats ) {		
-			foreach ( @{ $format->{mime_types} } ) {
-				return TRUE if $format eq $mime_type;
+			foreach my $mtype ( @{ $format->{mime_types} } ) {
+				return TRUE if $mtype eq $mime_type;
 				last;
 			}
 		}
@@ -4859,7 +4859,7 @@ if ($app->is_running) {
 
 		return FALSE if scalar(@new_files) < 1;
 		
-		my $throbber = &fct_toggle_status_throbber($status);
+		my ($throbber, $sep) = &fct_toggle_status_throbber($status);
 		
 		foreach my $file (@new_files) {
 
@@ -4881,7 +4881,7 @@ if ($app->is_running) {
 			}
 		}
 		
-		&fct_toggle_status_throbber($status, $throbber);
+		&fct_toggle_status_throbber($status, $throbber, $sep);
 
 		return TRUE;
 	}
@@ -4911,21 +4911,33 @@ if ($app->is_running) {
 	sub fct_toggle_status_throbber {
 		my $status = shift;
 		my $throbber = shift;
+		my $sep = shift;
 		return FALSE unless $status;
-		
-		if(defined $throbber){	
+				
+		if(defined $throbber && defined $sep){	
 			$throbber->destroy;
 			$throbber = undef;
+			$sep->destroy;
+			$sep = undef;
 		}else{
+			#don't show more than one
+			foreach my $child ($status->get_children){
+				if($child->get_name eq 'throbber'){
+					return FALSE;
+				}
+			}
 			$throbber = Gtk2::Image->new_from_file(
 				"$shutter_root/share/shutter/resources/icons/throbber_16x16.gif"	
 			);
+			$throbber->set_name('throbber');
+			$sep = Gtk2::HSeparator->new;
+			$status->pack_start( $sep, FALSE, FALSE, 3 );
 			$status->pack_end( $throbber, FALSE, FALSE, 0 );
 		}
 		
 		$status->show_all;
 		
-		return $throbber;
+		return ($throbber, $sep);
 	}
 
 	sub fct_load_session {
@@ -4940,7 +4952,7 @@ if ($app->is_running) {
 			return FALSE if scalar( keys %{$session_xml} ) < 1;
 
 			#activate throbber
-			my $throbber = &fct_toggle_status_throbber($status);
+			my ($throbber, $sep) = &fct_toggle_status_throbber($status);
 			
 			#how many files have to be loaded
 			#store this value in the session hash
@@ -4974,7 +4986,7 @@ if ($app->is_running) {
 			$session_start_screen{'first_page'}->{'num_session_files'} = undef;
 
 			#de-activate the throbber
-			&fct_toggle_status_throbber($status, $throbber);
+			&fct_toggle_status_throbber($status, $throbber, $sep);
 					
 		};
 		if ($@) {
@@ -8949,11 +8961,11 @@ if ($app->is_running) {
 				#add all known formats to the dialog			
 				$filter->set_name( $format->{name} . " - " . $format->{description} );
 				
-				foreach ( @{ $format->{extensions} } ) {
-					$filter->add_pattern( "*." . uc $format );
-					$filter_all->add_pattern( "*." . uc $format );
-					$filter->add_pattern( "*." . $format );
-					$filter_all->add_pattern( "*." . $format );
+				foreach my $ext ( @{ $format->{extensions} } ) {
+					$filter->add_pattern( "*." . uc $ext );
+					$filter_all->add_pattern( "*." . uc $ext );
+					$filter->add_pattern( "*." . $ext );
+					$filter_all->add_pattern( "*." . $ext );
 				}
 				$fs->add_filter($filter);
 			}
