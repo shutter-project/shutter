@@ -76,6 +76,14 @@ sub new {
 		return FALSE;
 	});
 
+	#handle zoom events
+	#ignore zoom values greater 10 (see: #654185)
+	$self->{_view}->signal_connect('zoom-changed' => sub{
+		if($self->{_view}->get_zoom > 10){
+			$self->{_view}->set_zoom(10);
+		}
+	});
+
 	#clipboard
 	$self->{_clipboard} 	= Gtk2::Clipboard->get( Gtk2::Gdk->SELECTION_CLIPBOARD );
 
