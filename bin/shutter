@@ -768,10 +768,10 @@ if ($app->is_running) {
 	my $combobox_settings_profiles = Gtk2::ComboBox->new_text;
 	my @current_profiles;
 	my $current_index = 0;
-	foreach ( sort glob("$ENV{'HOME'}/.shutter/profiles/*.xml") ) {
-		utf8::decode $_;
-		next if $_ =~ /\_accounts.xml/;    #accounts file - we are looking for "real" profiles
-		$_ =~ /.*\/(.*)\.xml/;            #get profiles name
+	foreach my $pfile ( sort glob("$ENV{'HOME'}/.shutter/profiles/*.xml") ) {
+		utf8::decode $pfile;
+		next if $pfile =~ /\_accounts.xml/;    #accounts file - we are looking for "real" profiles
+		$pfile =~ /.*\/(.*)\.xml/;            #get profiles name
 		my $last_profile_name = $1;
 		$combobox_settings_profiles->append_text($last_profile_name);
 
@@ -1037,20 +1037,20 @@ if ($app->is_running) {
 	my ( $int_png, $int_jpeg, $int_bmp ) = ( -1, -1, -1 );
 	my $format_counter = 0;
 
-	foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
-		if (   $_->{name} eq "jpeg"
-			|| $_->{name} eq "png"
-			|| $_->{name} eq "bmp" )
+	foreach my $format ( Gtk2::Gdk::Pixbuf->get_formats ) {
+		if (   $format->{name} eq "jpeg"
+			|| $format->{name} eq "png"
+			|| $format->{name} eq "bmp" )
 		{
-			$combobox_type->append_text( $_->{name} . " - " . $_->{description} );
+			$combobox_type->append_text( $format->{name} . " - " . $format->{description} );
 			
 			#a little ugly here, maybe the values are in alternative order on several machine...
 			#just remember the number when appending, so we can set png as default for example
-			if ( $_->{name} eq "jpeg" ) {
+			if ( $format->{name} eq "jpeg" ) {
 				$int_jpeg = $format_counter;
-			} elsif ( $_->{name} eq "png" ) {
+			} elsif ( $format->{name} eq "png" ) {
 				$int_png = $format_counter;
-			} elsif ( $_->{name} eq "bmp" ) {
+			} elsif ( $format->{name} eq "bmp" ) {
 				$int_bmp = $format_counter;
 			}
 
@@ -1087,9 +1087,9 @@ if ($app->is_running) {
 	} else {
 
 		#we will try to set a default value in this order
-		foreach ( @{ [ $int_png, $int_jpeg, $int_bmp ] } ) {
-			if ( $_ > -1 ) {
-				$combobox_type->set_active( $_ );
+		foreach my $cformat ( @{ [ $int_png, $int_jpeg, $int_bmp ] } ) {
+			if ( $cformat > -1 ) {
+				$combobox_type->set_active( $cformat );
 				last;
 			}
 		}
@@ -2907,30 +2907,30 @@ if ($app->is_running) {
 		my $key = &fct_get_file_by_index($int);
 		if($key){
 
-			foreach (keys %session_screens){
+			foreach my $ckey (keys %session_screens){
 				#set pixbuf for current item
-				if ($_ eq $key){
+				if ($ckey eq $key){
 					if($session_screens{$key}->{'long'}){
 						
 						&fct_update_info_and_tray($key);
 																							
 						#do nothing if
 						#the view does already show a pixbuf
-						unless($session_screens{$_}->{'image'}->get_pixbuf){
-							$session_screens{$_}->{'image'}->set_pixbuf($lp->load( $session_screens{$key}->{'long'}, undef, undef, undef, TRUE ));
+						unless($session_screens{$ckey}->{'image'}->get_pixbuf){
+							$session_screens{$ckey}->{'image'}->set_pixbuf($lp->load( $session_screens{$key}->{'long'}, undef, undef, undef, TRUE ));
 						}
 						
 					}
 					next;
 				}
 				#unset imageview for all other items
-				if(defined $session_screens{$_}->{'image'} && $session_screens{$_}->{'image'}->get_pixbuf){
+				if(defined $session_screens{$ckey}->{'image'} && $session_screens{$ckey}->{'image'}->get_pixbuf){
 					eval{
-						#~ print "unsetting ", $_, "\n";
-						$session_screens{$_}->{'image'}->set_pixbuf(undef);
+						#~ print "unsetting ", $ckey, "\n";
+						$session_screens{$ckey}->{'image'}->set_pixbuf(undef);
 					};
 					if($@){
-						delete $session_screens{$_};
+						delete $session_screens{$ckey};
 						next;	
 					}
 				}
@@ -3228,9 +3228,9 @@ if ($app->is_running) {
 			#--------------------------------------
 			
 			#last capture
-			foreach($tray_menu->get_children){
-				if ($_->get_name eq 'redoshot'){
-					$_->set_sensitive(&fct_get_last_capture);
+			foreach my $child ($tray_menu->get_children){
+				if ($child->get_name eq 'redoshot'){
+					$child->set_sensitive(&fct_get_last_capture);
 					last;
 				}	
 			}
@@ -3482,8 +3482,8 @@ if ($app->is_running) {
 			$rfiletype = 'pdf';
 		}
 		
-		foreach (@save_as_files){
-			&dlg_save_as($_, $rfiletype);
+		foreach my $file (@save_as_files){
+			&dlg_save_as($file, $rfiletype);
 		}
 
 		return TRUE;
@@ -3983,9 +3983,9 @@ if ($app->is_running) {
 			$session_screens{$key}->{'image'}->signal_connect('expose-event', sub{
 				my ($view) = @_;
 				my $block_dnd = FALSE;
-				foreach ($scrolled_window_image->get_children){
-					if($_ =~ /Scrollbar/){
-						if($_->visible){
+				foreach my $child ($scrolled_window_image->get_children){
+					if($child =~ /Scrollbar/){
+						if($child->visible){
 							$block_dnd = TRUE;
 							last;
 						}
@@ -4132,10 +4132,9 @@ if ($app->is_running) {
 			my $web_menu = $st->{_web}->get_menu;
 			my @timeouts = $web_menu->get_children;
 			my $timeout  = undef;
-			foreach (@timeouts) {
-
-				if ( $_->get_active ) {
-					$timeout = $_->get_children->get_text;
+			foreach my $to (@timeouts) {
+				if ( $to->get_active ) {
+					$timeout = $to->get_children->get_text;
 					$timeout =~ /([0-9]+)/;
 					$timeout = $1;
 				}
@@ -4245,14 +4244,12 @@ if ($app->is_running) {
 		#we need to clean the hashkeys, so they become parseable
 		my %clean_files;
 		my $counter = 0;
-		foreach ( Sort::Naturally::nsort(keys %session_screens) ) {
-
-			next unless exists $session_screens{$_}->{'long'};
-
+		foreach my $key ( Sort::Naturally::nsort(keys %session_screens) ) {
+			next unless exists $session_screens{$key}->{'long'};
 			#8 leading zeros to counter
 			$counter = sprintf( "%08d", $counter );
-			if ( $shf->file_exists( $session_screens{$_}->{'long'} ) ) {
-				$clean_files{ "file" . $counter }{'filename'} = $session_screens{$_}->{'long'};
+			if ( $shf->file_exists( $session_screens{$key}->{'long'} ) ) {
+				$clean_files{ "file" . $counter }{'filename'} = $session_screens{$key}->{'long'};
 				$counter++;
 			}
 		}
@@ -4270,10 +4267,10 @@ if ($app->is_running) {
 
 		#accounts
 		my %clean_accounts;
-		foreach ( keys %accounts ) {
-			$clean_accounts{$_}->{'host'} 			= $accounts{$_}->{'host'};
-			$clean_accounts{$_}->{'password'} 		= $accounts{$_}->{'password'};
-			$clean_accounts{$_}->{'username'} 		= $accounts{$_}->{'username'};
+		foreach my $ac ( keys %accounts ) {
+			$clean_accounts{$ac}->{'host'} 		= $accounts{$ac}->{'host'};
+			$clean_accounts{$ac}->{'password'} 	= $accounts{$ac}->{'password'};
+			$clean_accounts{$ac}->{'username'} 	= $accounts{$ac}->{'username'};
 		}
 
 		eval {
@@ -4497,12 +4494,12 @@ if ($app->is_running) {
 					my $web_menu = $st->{_web}->get_menu;
 					my @timeouts = $web_menu->get_children;
 					my $timeout  = undef;
-					foreach (@timeouts) {
-						$timeout = $_->get_children->get_text;
+					foreach my $to (@timeouts) {
+						$timeout = $to->get_children->get_text;
 						$timeout =~ /([0-9]+)/;
 						$timeout = $1;
 						if ( $settings_xml->{'general'}->{'web_timeout'} == $timeout ) {
-							$_->set_active(TRUE);
+							$to->set_active(TRUE);
 						}
 					}
 
@@ -4700,15 +4697,15 @@ if ($app->is_running) {
 
 		#get some other apps that may be capable (e.g. browsers)
 		my $mime_type_fallback = Gnome2::VFS::Mime::Type->new ('text/html');
-		foreach ($mime_type_fallback->get_all_applications()){
+		foreach my $all_app ($mime_type_fallback->get_all_applications()){
 			my $already_in_list = FALSE;
 			foreach my $existing_app (@apps){
-				if($_->{'id'} eq $existing_app->{'id'}){
+				if($all_app->{'id'} eq $existing_app->{'id'}){
 					$already_in_list = TRUE;
 					last;
 				}
 			}
-			push @apps, $_ unless $already_in_list;
+			push @apps, $all_app unless $already_in_list;
 		}
 			
 		#no app determined!
@@ -4805,12 +4802,12 @@ if ($app->is_running) {
 
 		$accounts{'imagebanana.com'}->{register} = "http://www.imagebanana.com/register/";
 
-		foreach ( keys %accounts ) {
-			utf8::decode $accounts{$_}->{'host'};
-			utf8::decode $accounts{$_}->{'username'};
-			utf8::decode $accounts{$_}->{'password'};
-			$accounts{$_}->{'register_color'} = "blue";
-			$accounts{$_}->{'register_text'}  = $accounts{$_}->{register};
+		foreach my $ac ( keys %accounts ) {
+			utf8::decode $accounts{$ac}->{'host'};
+			utf8::decode $accounts{$ac}->{'username'};
+			utf8::decode $accounts{$ac}->{'password'};
+			$accounts{$ac}->{'register_color'} = "blue";
+			$accounts{$ac}->{'register_text'}  = $accounts{$ac}->{register};
 		}
 
 		return TRUE;
@@ -4825,10 +4822,10 @@ if ($app->is_running) {
 		my @files = grep defined($_), split /[\r\n]+/, $data;
 		
 		my @valid_files;
-		foreach(@files){
-			my $mime_type = Gnome2::VFS->get_mime_type_for_name( $_ );
+		foreach my $file (@files){
+			my $mime_type = Gnome2::VFS->get_mime_type_for_name( $file );
 			if($mime_type && &fct_check_valid_mime_type($mime_type)){
-				push @valid_files, $_;
+				push @valid_files, $file;
 			}
 		}
 		
@@ -4847,9 +4844,9 @@ if ($app->is_running) {
 	sub fct_check_valid_mime_type {
 		my $mime_type = shift;
 
-		foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {		
-			foreach ( @{ $_->{mime_types} } ) {
-				return TRUE if $_ eq $mime_type;
+		foreach my $format ( Gtk2::Gdk::Pixbuf->get_formats ) {		
+			foreach ( @{ $format->{mime_types} } ) {
+				return TRUE if $format eq $mime_type;
 				last;
 			}
 		}
@@ -5385,12 +5382,12 @@ if ($app->is_running) {
 	sub fct_unlink_tempfiles {
 		my $key = shift;
 		
-		foreach(@{$session_screens{$key}->{'undo'}}){
-			unlink $_;
+		foreach my $tmpf (@{$session_screens{$key}->{'undo'}}){
+			unlink $tmpf;
 		}	
 
-		foreach(@{$session_screens{$key}->{'redo'}}){
-			unlink $_;
+		foreach my $tmpf (@{$session_screens{$key}->{'redo'}}){
+			unlink $tmpf;
 		}	
 		
 		return TRUE;
@@ -5785,9 +5782,9 @@ if ($app->is_running) {
 			my $web_menu = $st->{_web}->get_menu;
 			my @timeouts = $web_menu->get_children;
 			my $timeout  = undef;
-			foreach (@timeouts) {
-				if ( $_->get_active ) {
-					$timeout = $_->get_children->get_text;
+			foreach my $to (@timeouts) {
+				if ( $to->get_active ) {
+					$timeout = $to->get_children->get_text;
 					$timeout =~ /([0-9]+)/;
 					$timeout = $1;
 					print $timeout. "\n" if $sc->get_debug;
@@ -6451,9 +6448,9 @@ if ($app->is_running) {
 		}
 
 		if ($exec_call) {
-			foreach ( split /;/, $exec_call ) {
-				print Dumper $_ . " &" if $sc->get_debug;
-				system( $_ . " &" );
+			foreach my $cmd ( split /;/, $exec_call ) {
+				print Dumper $cmd . " &" if $sc->get_debug;
+				system( $cmd . " &" );
 			}
 		}
 		
@@ -6668,11 +6665,11 @@ if ($app->is_running) {
 
 		my $key = undef;
 		#and loop through hash to find the corresponding key
-		foreach ( keys %session_screens ) {
-			next unless exists $session_screens{$_}->{'long'};
-			#~ print "compare ".$session_screens{$_}->{'long'}." - $filename\n";
-			if ( $session_screens{$_}->{'long'} eq $filename ) {
-				$key = $_;
+		foreach my $ckey ( keys %session_screens ) {
+			next unless exists $session_screens{$ckey}->{'long'};
+			#~ print "compare ".$session_screens{$ckey}->{'long'}." - $filename\n";
+			if ( $session_screens{$ckey}->{'long'} eq $filename ) {
+				$key = $ckey;
 				last;
 			}
 		}
@@ -6687,13 +6684,13 @@ if ($app->is_running) {
 
 		my $key = undef;
 		#and loop through hash to find the corresponding key
-		foreach ( keys %session_screens ) {
-			next unless exists $session_screens{$_}->{'links'};
-			next unless exists $session_screens{$_}->{'links'}->{'ubuntu-one'};
-			next unless exists $session_screens{$_}->{'links'}->{'ubuntu-one'}->{'pubfile'};
-			#~ print "compare ".$session_screens{$_}->{'links'}->{'ubuntu-one'}->{'pubfile'}." - $filename\n";
-			if ( $session_screens{$_}->{'links'}->{'ubuntu-one'}->{'pubfile'} eq $filename ) {
-				$key = $_;
+		foreach my $ckey ( keys %session_screens ) {
+			next unless exists $session_screens{$ckey}->{'links'};
+			next unless exists $session_screens{$ckey}->{'links'}->{'ubuntu-one'};
+			next unless exists $session_screens{$ckey}->{'links'}->{'ubuntu-one'}->{'pubfile'};
+			#~ print "compare ".$session_screens{$ckey}->{'links'}->{'ubuntu-one'}->{'pubfile'}." - $filename\n";
+			if ( $session_screens{$ckey}->{'links'}->{'ubuntu-one'}->{'pubfile'} eq $filename ) {
+				$key = $ckey;
 				last;
 			}
 		}
@@ -6712,10 +6709,10 @@ if ($app->is_running) {
 		my $key = undef;
 		#and loop through hash to find the corresponding key
 		if($curr_page){
-			foreach ( keys %session_screens ) {
-				next unless exists $session_screens{$_}->{'tab_child'};
-				if ( $session_screens{$_}->{'tab_child'} == $curr_page ) {
-					$key = $_;
+			foreach my $ckey ( keys %session_screens ) {
+				next unless exists $session_screens{$ckey}->{'tab_child'};
+				if ( $session_screens{$ckey}->{'tab_child'} == $curr_page ) {
+					$key = $ckey;
 					last;
 				}
 			}
@@ -6726,9 +6723,9 @@ if ($app->is_running) {
 
 	sub fct_get_total_size_of_session {
 		my $total_size = 0;
-		foreach ( keys %session_screens ) {
-			next unless $session_screens{$_}->{'size'};
-			$total_size += $session_screens{$_}->{'size'};
+		foreach my $ckey ( keys %session_screens ) {
+			next unless $session_screens{$ckey}->{'size'};
+			$total_size += $session_screens{$ckey}->{'size'};
 		}
 		return $total_size;		
 	}
@@ -6741,10 +6738,10 @@ if ($app->is_running) {
 		my $key = undef;
 		#and loop through hash to find the corresponding key
 		if($curr_page){
-			foreach ( keys %session_screens ) {
-				next unless ( exists $session_screens{$_}->{'tab_child'} );
-				if ( $session_screens{$_}->{'tab_child'} == $curr_page ) {
-					$key = $_;
+			foreach my $ckey ( keys %session_screens ) {
+				next unless ( exists $session_screens{$ckey}->{'tab_child'} );
+				if ( $session_screens{$ckey}->{'tab_child'} == $curr_page ) {
+					$key = $ckey;
 					last;
 				}
 			}
@@ -6759,10 +6756,10 @@ if ($app->is_running) {
 		#populate quick selector as well
 		if(scalar @{$current_profiles_ref} > 0){
 			#tray menu
-			foreach($tray_menu->get_children){
-				if ($_->get_name eq 'quicks'){
-					$_->set_submenu( fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );					
-					$_->set_sensitive(TRUE);
+			foreach my $child ($tray_menu->get_children){
+				if ($child->get_name eq 'quicks'){
+					$child->set_submenu( fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );					
+					$child->set_sensitive(TRUE);
 					last;
 				}	
 			}
@@ -6781,7 +6778,6 @@ if ($app->is_running) {
 				
 				$combobox_status_profiles_label = Gtk2::Label->new( $d->get("Profile") . ":" );
 				$combobox_status_profiles = Gtk2::ComboBox->new_text;
-				$status->pack_start( Gtk2::HSeparator->new , FALSE, FALSE, 3 );
 				$status->pack_start( $combobox_status_profiles_label, FALSE, FALSE, 0 );
 				$status->pack_start( $combobox_status_profiles, FALSE, FALSE, 0 );
 				
@@ -6806,10 +6802,10 @@ if ($app->is_running) {
 
 		}else{
 			#tray menu
-			foreach($tray_menu->get_children){
-				if ($_->get_name eq 'quicks'){
-					$_->remove_submenu;
-					$_->set_sensitive(FALSE);
+			foreach my $child ($tray_menu->get_children){
+				if ($child->get_name eq 'quicks'){
+					$child->remove_submenu;
+					$child->set_sensitive(FALSE);
 					last;
 				}	
 			}		
@@ -7401,9 +7397,9 @@ if ($app->is_running) {
 
 		foreach my $plugin_path (@plugin_paths) {
 			my @plugins = glob($plugin_path);
-			foreach (@plugins) {
-				if ( -d $_ ) {
-					my $dir_name = $_;
+			foreach my $pkey (@plugins) {
+				if ( -d $pkey ) {
+					my $dir_name = $pkey;
 
 					#parse filename
 					my ( $name, $folder, $type ) = fileparse( $dir_name, qr/\.[^.]*/ );
@@ -7415,11 +7411,11 @@ if ($app->is_running) {
 						if ( $shf->file_executable("$dir_name/$name") ) {
 
 							#new plugin information?
-							unless ( $plugins{$_}->{'binary'}
-								&& $plugins{$_}->{'name'}
-								&& $plugins{$_}->{'category'}
-								&& $plugins{$_}->{'tooltip'}
-								&& $plugins{$_}->{'lang'} )
+							unless ( $plugins{$pkey}->{'binary'}
+								&& $plugins{$pkey}->{'name'}
+								&& $plugins{$pkey}->{'category'}
+								&& $plugins{$pkey}->{'tooltip'}
+								&& $plugins{$pkey}->{'lang'} )
 							{
 															
 								#show dialog and progress bar
@@ -7431,67 +7427,67 @@ if ($app->is_running) {
 								print "\nINFO: new plugin information detected - $dir_name/$name\n";
 
 								#path to executable
-								$plugins{$_}->{'binary'} = "$dir_name/$name";
+								$plugins{$pkey}->{'binary'} = "$dir_name/$name";
 
 								#name
-								$plugins{$_}->{'name'} = &fct_plugin_get_info( $plugins{$_}->{'binary'}, 'name' );
+								$plugins{$pkey}->{'name'} = &fct_plugin_get_info( $plugins{$pkey}->{'binary'}, 'name' );
 
 								#category
-								$plugins{$_}->{'category'} = &fct_plugin_get_info( $plugins{$_}->{'binary'}, 'sort' );
+								$plugins{$pkey}->{'category'} = &fct_plugin_get_info( $plugins{$pkey}->{'binary'}, 'sort' );
 
 								#tooltip
-								$plugins{$_}->{'tooltip'} = &fct_plugin_get_info( $plugins{$_}->{'binary'}, 'tip' );
+								$plugins{$pkey}->{'tooltip'} = &fct_plugin_get_info( $plugins{$pkey}->{'binary'}, 'tip' );
 
 								#language (shell, perl etc.)
 								#=> directory name
 								my $folder_name = dirname($dir_name);
 								$folder_name =~ /.*\/(.*)/;
-								$plugins{$_}->{'lang'} = $1;
+								$plugins{$pkey}->{'lang'} = $1;
 
 								#refresh the progressbar
 								$plugin_progress->pulse;
-								$plugin_progress->set_text($plugins{$_}->{'binary'});
+								$plugin_progress->set_text($plugins{$pkey}->{'binary'});
 
 								#refresh gui
 								&fct_update_gui;
 
 							}
 
-							$plugins{$_}->{'lang'} = "shell"
-								if $plugins{$_}->{'lang'} eq "";
+							$plugins{$pkey}->{'lang'} = "shell"
+								if $plugins{$pkey}->{'lang'} eq "";
 
-							chomp( $plugins{$_}->{'name'} );
-							chomp( $plugins{$_}->{'category'} );
-							chomp( $plugins{$_}->{'tooltip'} );
-							chomp( $plugins{$_}->{'lang'} );
+							chomp( $plugins{$pkey}->{'name'} );
+							chomp( $plugins{$pkey}->{'category'} );
+							chomp( $plugins{$pkey}->{'tooltip'} );
+							chomp( $plugins{$pkey}->{'lang'} );
 
 							#pixbuf
-							$plugins{$_}->{'pixbuf'} = $plugins{$_}->{'binary'} . ".png"
-								if ( $shf->file_exists( $plugins{$_}->{'binary'} . ".png" ) );
-							$plugins{$_}->{'pixbuf'} = $plugins{$_}->{'binary'} . ".svg"
-								if ( $shf->file_exists( $plugins{$_}->{'binary'} . ".svg" ) );
+							$plugins{$pkey}->{'pixbuf'} = $plugins{$pkey}->{'binary'} . ".png"
+								if ( $shf->file_exists( $plugins{$pkey}->{'binary'} . ".png" ) );
+							$plugins{$pkey}->{'pixbuf'} = $plugins{$pkey}->{'binary'} . ".svg"
+								if ( $shf->file_exists( $plugins{$pkey}->{'binary'} . ".svg" ) );
 
-							if ( $shf->file_exists( $plugins{$_}->{'pixbuf'} ) ) {
-								$plugins{$_}->{'pixbuf_object'}
-									= $lp->load( $plugins{$_}->{'pixbuf'}, Gtk2::IconSize->lookup('menu') );
+							if ( $shf->file_exists( $plugins{$pkey}->{'pixbuf'} ) ) {
+								$plugins{$pkey}->{'pixbuf_object'}
+									= $lp->load( $plugins{$pkey}->{'pixbuf'}, Gtk2::IconSize->lookup('menu') );
 							} else {
-								$plugins{$_}->{'pixbuf'} 		= $fb_pixbuf_path;
-								$plugins{$_}->{'pixbuf_object'} = $fb_pixbuf;
+								$plugins{$pkey}->{'pixbuf'} 		= $fb_pixbuf_path;
+								$plugins{$pkey}->{'pixbuf_object'} = $fb_pixbuf;
 							}
 							if ( $sc->get_debug ) {
-								print "$plugins{$_}->{'name'} - $plugins{$_}->{'binary'}\n";
+								print "$plugins{$pkey}->{'name'} - $plugins{$pkey}->{'binary'}\n";
 							}
 							
 						}else{
 							my $changed = chmod(0755, "$dir_name/$name");
 							unless($changed){
 								print "\nERROR: plugin exists but is not executable - $dir_name/$name\n";
-								delete $plugins{$_};
+								delete $plugins{$pkey};
 							}
 						} #endif plugin is executable
 						
 					} else {
-						delete $plugins{$_};
+						delete $plugins{$pkey};
 					}    #endif plugin exists
 				
 				}
@@ -8009,15 +8005,15 @@ if ($app->is_running) {
 
 		#get some other apps that may be capable (e.g. browsers)	
 		my $mime_type_fallback = Gnome2::VFS::Mime::Type->new ('text/html');
-		foreach ($mime_type_fallback->get_all_applications()){
+		foreach my $all_app ($mime_type_fallback->get_all_applications()){
 			my $already_in_list = FALSE;
 			foreach my $existing_app (@apps){
-				if($_->{'id'} eq $existing_app->{'id'}){
+				if($all_app->{'id'} eq $existing_app->{'id'}){
 					$already_in_list = TRUE;
 					last;
 				}
 			}
-			push @apps, $_ unless $already_in_list;
+			push @apps, $all_app unless $already_in_list;
 		}
 		
 		#no app determined!
@@ -8225,16 +8221,15 @@ if ($app->is_running) {
 		$menu_web->append($timeout4);
 
 		if ( defined $settings_xml->{'general'}->{'web_timeout'} ) {
-
 			#determining timeout
 			my @timeouts = $menu_web->get_children;
 			my $timeout  = undef;
-			foreach (@timeouts) {
-				$timeout = $_->get_children->get_text;
+			foreach my $to (@timeouts) {
+				$timeout = $to->get_children->get_text;
 				$timeout =~ /([0-9]+)/;
 				$timeout = $1;
 				if ( $settings_xml->{'general'}->{'web_timeout'} == $timeout ) {
-					$_->set_active(TRUE);
+					$to->set_active(TRUE);
 				}
 			}
 		}
@@ -8283,15 +8278,15 @@ if ($app->is_running) {
 		$accounts_model
 			= Gtk2::ListStore->new( 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String' );
 
-		foreach ( keys %accounts ) {
+		foreach my $ac ( keys %accounts ) {
 			my $hidden_text = "";
-			for ( my $i = 1; $i <= length( $accounts{$_}->{'password'} ); $i++ ) {
+			for ( my $i = 1; $i <= length( $accounts{$ac}->{'password'} ); $i++ ) {
 				$hidden_text .= '*';
 			}
 			$accounts_model->set(
-				$accounts_model->append, 0, $accounts{$_}->{'host'},     1, $accounts{$_}->{'username'},       2,
-				$hidden_text,            3, $accounts{$_}->{'register'}, 4, $accounts{$_}->{'register_color'}, 5,
-				$accounts{$_}->{'register_text'}
+				$accounts_model->append, 0, $accounts{$ac}->{'host'},     1, $accounts{$ac}->{'username'},       2,
+				$hidden_text,            3, $accounts{$ac}->{'register'}, 4, $accounts{$ac}->{'register_color'}, 5,
+				$accounts{$ac}->{'register_text'}
 			);
 		}
 
@@ -8305,37 +8300,37 @@ if ($app->is_running) {
 			'Glib::String', 'Glib::String', 'Glib::String', 
 			'Glib::String',
 		);
-		foreach ( sort keys %plugins ) {
-			if ( $plugins{$_}->{'binary'} ) {
+		foreach my $pkey ( sort keys %plugins ) {
+			if ( $plugins{$pkey}->{'binary'} ) {
 			
 				#we need to update the pixbuf of the plugins again in some cases
 				#
 				#pixbufs are not cached and therefore not checked at startup if
 				#the cached plugin is not in the plugin path
 				#(maybe changed the installation dir)
-				unless($plugins{$_}->{'pixbuf'} || $plugins{$_}->{'pixbuf_object'}){
-					$plugins{$_}->{'pixbuf'} = $plugins{$_}->{'binary'} . ".png"
-						if ( $shf->file_exists( $plugins{$_}->{'binary'} . ".png" ) );
-					$plugins{$_}->{'pixbuf'} = $plugins{$_}->{'binary'} . ".svg"
-						if ( $shf->file_exists( $plugins{$_}->{'binary'} . ".svg" ) );
+				unless($plugins{$pkey}->{'pixbuf'} || $plugins{$pkey}->{'pixbuf_object'}){
+					$plugins{$pkey}->{'pixbuf'} = $plugins{$pkey}->{'binary'} . ".png"
+						if ( $shf->file_exists( $plugins{$pkey}->{'binary'} . ".png" ) );
+					$plugins{$pkey}->{'pixbuf'} = $plugins{$pkey}->{'binary'} . ".svg"
+						if ( $shf->file_exists( $plugins{$pkey}->{'binary'} . ".svg" ) );
 			
-					if ( $shf->file_exists( $plugins{$_}->{'pixbuf'} ) ) {
-						$plugins{$_}->{'pixbuf_object'}= $lp->load( $plugins{$_}->{'pixbuf'}, Gtk2::IconSize->lookup('menu') );
+					if ( $shf->file_exists( $plugins{$pkey}->{'pixbuf'} ) ) {
+						$plugins{$pkey}->{'pixbuf_object'}= $lp->load( $plugins{$pkey}->{'pixbuf'}, Gtk2::IconSize->lookup('menu') );
 					} else {
-						$plugins{$_}->{'pixbuf'} = "$shutter_root/share/shutter/resources/icons/executable.svg";
-						$plugins{$_}->{'pixbuf_object'}= $lp->load( $plugins{$_}->{'pixbuf'}, Gtk2::IconSize->lookup('menu') );
+						$plugins{$pkey}->{'pixbuf'} = "$shutter_root/share/shutter/resources/icons/executable.svg";
+						$plugins{$pkey}->{'pixbuf_object'}= $lp->load( $plugins{$pkey}->{'pixbuf'}, Gtk2::IconSize->lookup('menu') );
 					}
 				}
 
 				$effects_model->set(
 					$effects_model->append,     
-					0, $plugins{$_}->{'pixbuf_object'}, 1, $plugins{$_}->{'name'},
-					2, $plugins{$_}->{'category'}, 3, $plugins{$_}->{'tooltip'},  
-					4, $plugins{$_}->{'lang'}, 5, $plugins{$_}->{'binary'}, 6, $_,
+					0, $plugins{$pkey}->{'pixbuf_object'}, 1, $plugins{$pkey}->{'name'},
+					2, $plugins{$pkey}->{'category'}, 3, $plugins{$pkey}->{'tooltip'},  
+					4, $plugins{$pkey}->{'lang'}, 5, $plugins{$pkey}->{'binary'}, 6, $pkey,
 				);
 			} else {
-				print "\nWARNING: Plugin $_ is not configured properly, ignoring\n";
-				delete $plugins{$_};
+				print "\nWARNING: Plugin $pkey is not configured properly, ignoring\n";
+				delete $plugins{$pkey};
 			}
 		}
 
@@ -8346,8 +8341,8 @@ if ($app->is_running) {
 		my $accounts_tree = $_[0];
 
 		my @columns = $accounts_tree->get_columns;
-		foreach (@columns) {
-			$accounts_tree->remove_column($_);
+		foreach my $col (@columns) {
+			$accounts_tree->remove_column($col);
 		}
 
 		#host
@@ -8948,17 +8943,17 @@ if ($app->is_running) {
 			$filter_all->set_name( $d->get("All compatible image formats") );
 			$fs->add_filter($filter_all);
 			
-			foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
+			foreach my $format ( Gtk2::Gdk::Pixbuf->get_formats ) {
 				my $filter = Gtk2::FileFilter->new;
 				
 				#add all known formats to the dialog			
-				$filter->set_name( $_->{name} . " - " . $_->{description} );
+				$filter->set_name( $format->{name} . " - " . $format->{description} );
 				
-				foreach ( @{ $_->{extensions} } ) {
-					$filter->add_pattern( "*." . uc $_ );
-					$filter_all->add_pattern( "*." . uc $_ );
-					$filter->add_pattern( "*." . $_ );
-					$filter_all->add_pattern( "*." . $_ );
+				foreach ( @{ $format->{extensions} } ) {
+					$filter->add_pattern( "*." . uc $format );
+					$filter_all->add_pattern( "*." . uc $format );
+					$filter->add_pattern( "*." . $format );
+					$filter_all->add_pattern( "*." . $format );
 				}
 				$fs->add_filter($filter);
 			}
@@ -9086,20 +9081,20 @@ if ($app->is_running) {
 		#images
 		}else{
 			
-			foreach ( Gtk2::Gdk::Pixbuf->get_formats ) {
+			foreach my $format ( Gtk2::Gdk::Pixbuf->get_formats ) {
 				
 				#we don't want svg here - this is a dedicated action in the DrawingTool
-				next if !defined $rfiletype && $_->{name} =~ /svg/;
+				next if !defined $rfiletype && $format->{name} =~ /svg/;
 				
 				#we have a requested filetype - nothing else will be offered
-				next if defined $rfiletype && $_->{name} ne $rfiletype;
+				next if defined $rfiletype && $format->{name} ne $rfiletype;
 				
 				#add all known formats to the dialog
-				$combobox_save_as_type->insert_text( $counter, $_->{name} . " - " . $_->{description} );
+				$combobox_save_as_type->insert_text( $counter, $format->{name} . " - " . $format->{description} );
 				
 				#set active when mime_type is matching
 				#loop because multiple mime types are registered for fome file formats
-				foreach my $mime (@{$_->{mime_types}}){
+				foreach my $mime (@{$format->{mime_types}}){
 					$combobox_save_as_type->set_active($counter)
 						if ( ( defined $key && $mime eq $session_screens{$key}->{'mime_type'} ) || defined $rfiletype );		
 					
@@ -9511,17 +9506,17 @@ if ($app->is_running) {
 		$hosting_dialog->set_default_response('accept');
 		my $model = Gtk2::ListStore->new( 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String' );
 
-		foreach ( keys %accounts ) {
+		foreach my $ac ( keys %accounts ) {
 			#cut username so the dialog will not explode ;-)
-			my $short_username = $accounts{$_}->{'username'};
-			if ( length $accounts{$_}->{'username'} > 10 ) {
-				$short_username = substr( $accounts{$_}->{'username'}, 0, 10 ) . "...";
+			my $short_username = $accounts{$ac}->{'username'};
+			if ( length $accounts{$ac}->{'username'} > 10 ) {
+				$short_username = substr( $accounts{$ac}->{'username'}, 0, 10 ) . "...";
 			}
 
-			$model->set( $model->append, 0, $accounts{$_}->{'host'}, 1, $accounts{$_}->{'username'}, 2, $accounts{$_}->{'password'}, 3, $short_username )
-				if ($accounts{$_}->{'username'} ne "" && $accounts{$_}->{'password'} ne "" );			
+			$model->set( $model->append, 0, $accounts{$ac}->{'host'}, 1, $accounts{$ac}->{'username'}, 2, $accounts{$ac}->{'password'}, 3, $short_username )
+				if ($accounts{$ac}->{'username'} ne "" && $accounts{$ac}->{'password'} ne "" );			
 			
-			$model->set( $model->append, 0, $accounts{$_}->{'host'}, 1, $d->get("Guest"), 2, "", 3, $d->get("Guest") );
+			$model->set( $model->append, 0, $accounts{$ac}->{'host'}, 1, $d->get("Guest"), 2, "", 3, $d->get("Guest") );
 		}
 
 		my $hosting_image = Gtk2::Image->new;
@@ -9707,15 +9702,15 @@ if ($app->is_running) {
 
 			#change label text
 			my $hbox = $upload_button->get_child->get_child;
-			foreach($hbox->get_children){		
-				if(($int == 0 || $int == 1) && $_ =~ /Gtk2::Label/){
-					$_->set_text_with_mnemonic($d->get("_Upload"));
+			foreach my $child ($hbox->get_children){		
+				if(($int == 0 || $int == 1) && $child =~ /Gtk2::Label/){
+					$child->set_text_with_mnemonic($d->get("_Upload"));
 					last;
-				}elsif($int == 2 && $_ =~ /Gtk2::Label/){
-					$_->set_text_with_mnemonic($d->get("_Export"));
+				}elsif($int == 2 && $child =~ /Gtk2::Label/){
+					$child->set_text_with_mnemonic($d->get("_Export"));
 					last;
-				}elsif($int == 3 && $_ =~ /Gtk2::Label/){      
-					$_->set_text_with_mnemonic($d->get("_Publish"));
+				}elsif($int == 3 && $child =~ /Gtk2::Label/){      
+					$child->set_text_with_mnemonic($d->get("_Publish"));
 					last;
 				}
 			}
@@ -10499,13 +10494,13 @@ if ($app->is_running) {
 		
 		if($widget->get_active){
 			$nav_toolbar->show;
-			foreach($nav_toolbar->get_children){
-				$_->show_all;
+			foreach my $child ($nav_toolbar->get_children){
+				$child->show_all;
 			}		
 		}else{
 			$nav_toolbar->hide;
-			foreach($nav_toolbar->get_children){
-				$_->hide_all;
+			foreach my $child ($nav_toolbar->get_children){
+				$child->hide_all;
 			}		
 		}
 	}
