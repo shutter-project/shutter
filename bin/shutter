@@ -2508,9 +2508,9 @@ if ($app->is_running) {
 
 	#set saved value
 	if($session_asc->get_active){
-		$st->{_sorta}->signal_emit('toggled');
+		$st->{_sorta}->set_active(TRUE);
 	}else{
-		$st->{_sortd}->signal_emit('toggled');	
+		$st->{_sortd}->set_active(TRUE);
 	}
 
 	#pack statusbar
