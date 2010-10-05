@@ -71,13 +71,13 @@ sub save_pixbuf_to_file {
 	my $option = $self->{_lp}->get_option($pixbuf, 'orientation');
 	$option = 1 unless defined $option;
 
-	#FIXME: NOT COVERED BY BINDINGS YET
+	#FIXME: NOT COVERED BY BINDINGS YET (we use Image::ExifTool instead)
 	#we rotate the pixbuf when saving to any other format than jpeg
-	#~ unless ( $filetype eq 'jpeg' ) {
+	unless ( $filetype eq 'jpeg' ) {
 		if($option != 1){
 			$pixbuf = $self->{_lp}->auto_rotate($pixbuf);
 		}
-	#~ }
+	}
 
 	#we have two main ways of saving file
 	#when possible we try to use all supported formats of the gdk-pixbuf libs
@@ -99,9 +99,18 @@ sub save_pixbuf_to_file {
 		}
 		
 		eval{
-			#FIXME: NOT COVERED BY BINDINGS YET
-			#~ $pixbuf->set_option( 'orientation' => $option );
 			$pixbuf->save( $filename, $filetype, quality => $quality );
+			
+			#FIXME: NOT COVERED BY BINDINGS YET (we use Image::ExifTool instead)
+			#~ $pixbuf->set_option( 'orientation' => $option );
+			if(my $exif = Shutter::App::Optional::Exif->new()){
+				#new Image::ExifTool instance 
+				my $exiftool = $exif->get_exiftool;
+				#Set a new value for a tag
+				$exiftool->SetNewValue('Orientation' => $option, Type => 'ValueConv');
+				#Write new meta information to a file
+				my $success = $exiftool->WriteInfo($filename);
+			}
 		};
 	} elsif ( $filetype eq 'png' ) {
 		

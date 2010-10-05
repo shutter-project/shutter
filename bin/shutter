@@ -143,6 +143,7 @@ my $gnome_web_photo = TRUE;
 my $nautilus_sendto = TRUE;
 my $goocanvas       = TRUE;
 my $ubuntuone       = TRUE;
+my $exiftool		= TRUE;
 &fct_init_depend;
 
 #--------------------------------------
@@ -161,6 +162,7 @@ require Shutter::App::Menu;
 require Shutter::App::Notification;
 require Shutter::App::ShutterNotification;
 require Shutter::App::Toolbar;
+require Shutter::App::Optional::Exif;
 
 #region
 require Shutter::Geometry::Region;
@@ -8594,10 +8596,18 @@ if ($app->is_running) {
 			$goocanvas = FALSE;
 		}
 		
+		#net-dbus-glib-perl
 		eval { require Net::DBus::GLib };
 		if ($@) {
 			warn "WARNING: Net::DBus::GLib is missing --> Ubuntu One support will be disabled!\n\n";
 			$ubuntuone = FALSE;
+		}
+		
+		#libimage-exiftool-perl
+		eval { require Image::ExifTool };
+		if ($@) {
+			warn "WARNING: Image::ExifTool is missing --> Writing Exif information will be disabled!\n\n";
+			$exiftool = FALSE;
 		}
 
 		return TRUE;
