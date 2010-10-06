@@ -607,6 +607,7 @@ if ($app->is_running) {
 	my $filename_box        = Gtk2::HBox->new( FALSE, 0 );
 	my $saveDir_box         = Gtk2::HBox->new( FALSE, 0 );
 	my $save_ask_box        = Gtk2::HBox->new( FALSE, 0 );
+	my $save_no_box         = Gtk2::HBox->new( FALSE, 0 );
 	my $save_auto_box       = Gtk2::HBox->new( FALSE, 0 );
 	my $no_autocopy_box  	= Gtk2::HBox->new( FALSE, 0 );
 	my $image_autocopy_box  = Gtk2::HBox->new( FALSE, 0 );
@@ -1132,12 +1133,22 @@ if ($app->is_running) {
 
 	$tooltips->set_tip( $save_ask_active, $d->get("Browse for save folder every time") );
 
+	my $save_no_active = Gtk2::RadioButton->new_with_label($save_ask_active, $d->get("Do not save file automatically") );
+	$save_no_box->pack_start( $save_no_active, FALSE, TRUE, 12 );
+
+	$tooltips->set_tip( $save_no_active, $d->get("Do not save file automatically") );
+
 	my $save_auto_active = Gtk2::RadioButton->new_with_label($save_ask_active, $d->get("Automatically save file") );
 	$save_auto_box->pack_start( $save_auto_active, FALSE, TRUE, 12 );
 
 	$tooltips->set_tip( $save_auto_active, $d->get("Automatically save file") );
 
 	$save_ask_active->signal_connect(
+		'toggled' => \&evt_value_changed,
+		'save_toggled'
+	);
+	
+	$save_no_active->signal_connect(
 		'toggled' => \&evt_value_changed,
 		'save_toggled'
 	);
@@ -1149,6 +1160,7 @@ if ($app->is_running) {
 
 	#default state
 	$save_ask_active->set_active( FALSE );
+	$save_no_active->set_active( FALSE );
 	$save_auto_active->set_active( TRUE );
 
 	if ( defined $settings_xml->{'general'}->{'save_auto'} ) {
@@ -1157,6 +1169,10 @@ if ($app->is_running) {
 
 	if ( defined $settings_xml->{'general'}->{'save_ask'} ) {
 		$save_ask_active->set_active( $settings_xml->{'general'}->{'save_ask'} );
+	}
+	
+	if ( defined $settings_xml->{'general'}->{'save_no'} ) {
+		$save_no_active->set_active( $settings_xml->{'general'}->{'save_no'} );
 	}
 
 	#end - save options
@@ -2142,6 +2158,7 @@ if ($app->is_running) {
 	$file_frame->add($file_vbox);
 
 	$save_vbox->pack_start( $save_ask_box, TRUE, TRUE, 3 );
+	$save_vbox->pack_start( $save_no_box, TRUE, TRUE, 3 );
 	$save_vbox->pack_start( $save_auto_box, TRUE, TRUE, 3 );
 	$save_vbox->pack_start( $filename_box, TRUE, TRUE, 3 );
 	$save_vbox->pack_start( $saveDir_box, FALSE, TRUE, 3 );
@@ -6031,6 +6048,17 @@ if ($app->is_running) {
 					
 			#we have to update the path again
 			$shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path));
+
+			#manipulate before saving
+			#bordereffect
+			if ( $bordereffect_active->get_active ) {
+
+				print "Adding border effect to $screenshot_name\n"
+					if $sc->get_debug;
+
+				my $pbuf_border = Shutter::Pixbuf::Border->new($sc);
+				$screenshot = $pbuf_border->create_border($screenshot, $bordereffect->get_value, $bordereffect_cbtn->get_color);
+			}			
 			
 			#ask for filename and folder
 			if($save_ask_active->get_active){
@@ -6052,17 +6080,7 @@ if ($app->is_running) {
 					return FALSE;					
 				}
 				
-			}else{	
-
-				#bordereffect
-				if ( $bordereffect_active->get_active ) {
-
-					print "Adding border effect to $screenshot_name\n"
-						if $sc->get_debug;
-
-					my $pbuf_border = Shutter::Pixbuf::Border->new($sc);
-					$screenshot = $pbuf_border->create_border($screenshot, $bordereffect->get_value, $bordereffect_cbtn->get_color);
-				}
+			}elsif($save_auto_active->get_active){	
 			
 				print "Trying to save file to $screenshot_name\n"
 					if $sc->get_debug;
