@@ -95,6 +95,12 @@ use constant SHUTTER_VERSION	=> '<major>.<minor>';
 
 #--------------------------------------
 
+#set home
+#--------------------------------------
+$ENV{ 'HOME' } = Glib::get_home_dir;
+
+#--------------------------------------
+
 #configure path settings
 #--------------------------------------
 my $shutter_root = undef;
@@ -129,11 +135,6 @@ require File::Copy::Recursive;
 
 #Find programs to open a file by mimetype
 require File::MimeInfo::Applications;
-
-#Find your home and other directories, on any platform
-require File::HomeDir::Unix;
-require File::HomeDir;
-$ENV{ 'HOME' } = File::HomeDir->my_home;
 
 #--------------------------------------
 
@@ -1116,7 +1117,7 @@ if ($app->is_running) {
 	if ( defined $settings_xml->{'general'}->{'folder'} ) {
 		$saveDir_button->set_current_folder( $settings_xml->{'general'}->{'folder'} );
 	} else {
-		$saveDir_button->set_current_folder( File::HomeDir->my_pictures );
+		$saveDir_button->set_current_folder( Glib::get_user_special_dir('pictures') );
 	}
 
 	$tooltips->set_tip( $saveDir_button, $d->get("Your screenshots will be saved to this directory") );
