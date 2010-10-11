@@ -168,6 +168,8 @@ sub show {
 	$self->{_filename}    = shift;
 	$self->{_filetype}    = shift;
 	$self->{_mimetype}    = shift;
+	$self->{_name}        = shift;
+	$self->{_is_unsaved}  = shift;
 	$self->{_import_hash} = shift;
 
 	#gettext
@@ -184,7 +186,11 @@ sub show {
 	( $self->{_root}->{x}, $self->{_root}->{y} ) = $self->{_root}->get_origin;
 
 	$self->{_drawing_window} = Gtk2::Window->new('toplevel');
-	$self->{_drawing_window}->set_title( $self->{_filename} ." - Shutter DrawingTool" );
+	if(defined $self->{_is_unsaved} && $self->{_is_unsaved}){
+		$self->{_drawing_window}->set_title( "*".$self->{_name}." - Shutter DrawingTool" );
+	}else{
+		$self->{_drawing_window}->set_title( $self->{_filename}." - Shutter DrawingTool" );
+	}
 	$self->{_drawing_window}->set_position('center');
 	$self->{_drawing_window}->set_modal(1);
 	$self->{_drawing_window}->signal_connect( 'delete_event', sub { return $self->quit(TRUE) } );
@@ -333,7 +339,7 @@ sub show {
 	$self->{_drawing_inner_vbox}   = Gtk2::VBox->new( FALSE, 0 );
 	$self->{_drawing_inner_vbox_c} = Gtk2::VBox->new( FALSE, 0 );
 	$self->{_drawing_hbox}         = Gtk2::HBox->new( FALSE, 0 );
-	$self->{_drawing_hbox_c}         = Gtk2::HBox->new( FALSE, 0 );
+	$self->{_drawing_hbox_c}       = Gtk2::HBox->new( FALSE, 0 );
 
 	#mark some actions as important
 	$self->{_uimanager}->get_widget("/ToolBar/Close")->set_is_important (TRUE);
@@ -1473,12 +1479,16 @@ sub export_to_file {
 
 	my $shutter_hfunct = Shutter::App::HelperFunctions->new( $self->{_sc} );
 
+	#parse filename
+	my ( $short, $folder, $ext ) = fileparse( $self->{_filename}, qr/\.[^.]*/ );
+
 	#go to recently used folder
 	if(defined $self->{_sc}->get_rusf && $shutter_hfunct->folder_exists($self->{_sc}->get_rusf)){
-		#parse filename
-		my ( $rshort, $rfolder, $rext ) = fileparse( $self->{_filename}, qr/\.[^.]*/ );
 		$fs->set_current_folder($self->{_sc}->get_rusf);
-		$fs->set_current_name($rshort.$rext);
+		$fs->set_current_name($short.$ext);
+	}elsif(defined $self->{_is_unsaved} && $self->{_is_unsaved}){
+		$fs->set_current_folder(Glib::get_home_dir);
+		$fs->set_current_name($short.$ext);		
 	}else{
 		$fs->set_filename( $self->{_filename} );
 	}

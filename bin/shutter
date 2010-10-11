@@ -1144,21 +1144,6 @@ if ($app->is_running) {
 
 	$tooltips->set_tip( $save_auto_active, $d->get("Automatically save file") );
 
-	$save_ask_active->signal_connect(
-		'toggled' => \&evt_value_changed,
-		'save_toggled'
-	);
-	
-	$save_no_active->signal_connect(
-		'toggled' => \&evt_value_changed,
-		'save_toggled'
-	);
-
-	$save_auto_active->signal_connect(
-		'toggled' => \&evt_value_changed,
-		'save_toggled'
-	);
-
 	#default state
 	$save_ask_active->set_active( FALSE );
 	$save_no_active->set_active( FALSE );
@@ -2656,15 +2641,6 @@ if ($app->is_running) {
 				}
 			}
 							
-		}
-
-		#"save" toggled
-		if ( $data eq "save_toggled" ) {
-			$filename_label->set_sensitive($save_auto_active->get_active); 
-			$filename->set_sensitive($save_auto_active->get_active); 
-			$saveDir_label->set_sensitive($save_auto_active->get_active); 
-			$saveDir_label->set_sensitive($save_auto_active->get_active); 
-			$saveDir_button->set_sensitive($save_auto_active->get_active); 
 		}
 
 		#"cursor_status" toggled
@@ -5655,7 +5631,7 @@ if ($app->is_running) {
 		#open drawing tool
 		foreach my $key (@draw_array){
 			my $drawing_tool = Shutter::Draw::DrawingTool->new($sc, $view_d, $selector_d, $dragger_d);
-			$drawing_tool->show( $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'}, $session_screens{$key}->{'mime_type'}, \%session_screens );		
+			$drawing_tool->show( $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'}, $session_screens{$key}->{'mime_type'}, $session_screens{$key}->{'name'}, $session_screens{$key}->{'is_unsaved'}, \%session_screens );		
 		}
 
 		#~ &fct_control_main_window ('show');
@@ -6669,7 +6645,7 @@ if ($app->is_running) {
 			
 			#change window title
 			if(defined $session_screens{$key}->{'is_unsaved'} && $session_screens{$key}->{'is_unsaved'}){
-				$window->set_title("*".$session_screens{$key}->{'short'}." - ".SHUTTER_NAME);
+				$window->set_title("*".$session_screens{$key}->{'name'}." - ".SHUTTER_NAME);
 			}else{
 				$window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
 			}
