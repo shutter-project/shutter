@@ -443,6 +443,7 @@ if ($app->is_running) {
 		$sm->{_menuitem_web}->set_sensitive(FALSE);	
 	}
 
+	$sm->{_menuitem_save}->signal_connect( 'activate', \&evt_save_as, 'menu_save' );
 	$sm->{_menuitem_save_as}->signal_connect( 'activate', \&evt_save_as, 'menu_save_as' );
 	#~ $sm->{_menuitem_export_svg}->signal_connect( 'activate', \&evt_save_as, 'menu_export_svg' );
 	$sm->{_menuitem_export_pdf}->signal_connect( 'activate', \&evt_save_as, 'menu_export_pdf' );
@@ -3276,6 +3277,13 @@ if ($app->is_running) {
 			$sm->{_menuitem_redoshot}->set_sensitive($st->{_redoshot}->is_sensitive);
 			
 			#file
+			if(defined $key && defined $session_screens{$key}->{'is_unsaved'} && $session_screens{$key}->{'is_unsaved'}){
+				$sm->{_menuitem_save}->set_sensitive($n_items);
+			}elsif(defined $key){
+				$sm->{_menuitem_save}->set_sensitive(FALSE);
+			}else{
+				$sm->{_menuitem_save}->set_sensitive($n_items);				
+			}
 			$sm->{_menuitem_save_as}->set_sensitive($n_items);
 			#~ $sm->{_menuitem_export_svg}->set_sensitive($n_items);
 			$sm->{_menuitem_export_pdf}->set_sensitive($n_items);
@@ -3501,8 +3509,14 @@ if ($app->is_running) {
 			$rfiletype = 'pdf';
 		}
 		
+		#when saving an unsaved file we take the folder from settings
+		my $rfolder = undef;
+		if($data eq 'menu_save'){
+			$rfolder = $saveDir_button->get_current_folder;
+		}		
+		
 		foreach my $file (@save_as_files){
-			&dlg_save_as($file, $rfiletype);
+			&dlg_save_as($file, $rfiletype, undef, $rfolder);
 		}
 
 		return TRUE;
@@ -4126,17 +4140,18 @@ if ($app->is_running) {
 		$settings{'recent'}->{'ruu_u1'}        = $sc->get_ruu_u1;
 
 		#main
-		$settings{'general'}->{'filetype'} 		   = $combobox_type->get_active;
-		$settings{'general'}->{'quality'}  		   = $scale->get_value();
-		$settings{'general'}->{'filename'} 		   = $filename->get_text();
-		$settings{'general'}->{'folder'} 		   = $saveDir_button->get_current_folder();
-		$settings{'general'}->{'save_auto'}       = $save_auto_active->get_active();
-		$settings{'general'}->{'save_ask'}        = $save_ask_active->get_active();
-		$settings{'general'}->{'image_autocopy'}  = $image_autocopy_active->get_active();
-		$settings{'general'}->{'fname_autocopy'}  = $fname_autocopy_active->get_active();
-		$settings{'general'}->{'no_autocopy'} 	   = $no_autocopy_active->get_active();
-		$settings{'general'}->{'cursor'}		      = $cursor_active->get_active();
-		$settings{'general'}->{'delay'}			   = $delay->get_value();
+		$settings{'general'}->{'filetype'}			= $combobox_type->get_active;
+		$settings{'general'}->{'quality'}			= $scale->get_value();
+		$settings{'general'}->{'filename'}			= $filename->get_text();
+		$settings{'general'}->{'folder'}			= $saveDir_button->get_current_folder();
+		$settings{'general'}->{'save_auto'}			= $save_auto_active->get_active();
+		$settings{'general'}->{'save_ask'}			= $save_ask_active->get_active();
+		$settings{'general'}->{'save_no'}			= $save_no_active->get_active();
+		$settings{'general'}->{'image_autocopy'}	= $image_autocopy_active->get_active();
+		$settings{'general'}->{'fname_autocopy'}	= $fname_autocopy_active->get_active();
+		$settings{'general'}->{'no_autocopy'}		= $no_autocopy_active->get_active();
+		$settings{'general'}->{'cursor'}			= $cursor_active->get_active();
+		$settings{'general'}->{'delay'}				= $delay->get_value();
 
 		#wrksp -> submenu
 		$settings{'general'}->{'current_monitor_active'} = $current_monitor_active->get_active;
@@ -4486,6 +4501,7 @@ if ($app->is_running) {
 					
 					$save_auto_active->set_active( $settings_xml->{'general'}->{'save_auto'} );
 					$save_ask_active->set_active( $settings_xml->{'general'}->{'save_ask'} );
+					$save_no_active->set_active( $settings_xml->{'general'}->{'save_no'} );
 					
 					$image_autocopy_active->set_active( $settings_xml->{'general'}->{'image_autocopy'} );
 					$fname_autocopy_active->set_active( $settings_xml->{'general'}->{'fname_autocopy'} );
@@ -5664,6 +5680,9 @@ if ($app->is_running) {
 		
 		#folder to save
 		my $folder             = $saveDir_button->get_current_folder || $folder_from_config;
+		if($save_no_active->get_active){
+			$folder = Glib::get_user_cache_dir;
+		}
 		
 		#screenshot(pixbuf) and screenshot name
 		my $screenshot         = undef;
@@ -6066,7 +6085,7 @@ if ($app->is_running) {
 				print "Asking for filename\n"
 					if $sc->get_debug;
 
-				if($screenshot_name = &dlg_save_as(undef, undef, $screenshot_name, $screenshot, $quality_value)){
+				if($screenshot_name = &dlg_save_as(undef, undef, $screenshot_name, undef, $screenshot, $quality_value)){
 					if($screenshot_name eq 'user_cancel'){
 						&fct_show_status_message( 1, $d->get("Capture aborted by user") );
 						&fct_control_main_window('show', $present_after_active->get_active);
@@ -6080,7 +6099,7 @@ if ($app->is_running) {
 					return FALSE;					
 				}
 				
-			}elsif($save_auto_active->get_active){	
+			}else{	
 			
 				print "Trying to save file to $screenshot_name\n"
 					if $sc->get_debug;
@@ -6649,7 +6668,11 @@ if ($app->is_running) {
 		if($key && defined $session_screens{$key}->{'long'} && defined $session_screens{$key}->{'width'}){
 			
 			#change window title
-			$window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
+			if(defined $session_screens{$key}->{'is_unsaved'} && $session_screens{$key}->{'is_unsaved'}){
+				$window->set_title("*".$session_screens{$key}->{'short'}." - ".SHUTTER_NAME);
+			}else{
+				$window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
+			}
 			
 			$status->push(1, $session_screens{$key}->{'width'} . 
 							  " x " . 
@@ -6959,6 +6982,13 @@ if ($app->is_running) {
 					$session_screens{$key}->{'no_thumbnail'} = FALSE;
 				}else{
 					$session_screens{$key}->{'no_thumbnail'} = TRUE;	
+				}
+
+				#update is_unsaved flag
+				if($session_screens{$key}->{'folder'} eq Glib::get_user_cache_dir){
+					$session_screens{$key}->{'is_unsaved'} = TRUE;
+				}else{
+					$session_screens{$key}->{'is_unsaved'} = FALSE;
 				}
 
 				#create tempfile
@@ -9050,6 +9080,7 @@ if ($app->is_running) {
 		#optional
 		my $rfiletype = shift;
 		my $rfilename = shift;
+		my $rfolder   = shift;
 		my $rpixbuf   = shift;
 		my $rquality  = shift;
 		
@@ -9062,22 +9093,24 @@ if ($app->is_running) {
 			'gtk-save'   => 'accept'
 		);
 		
+		#parse filename
+		my ( $short, $folder, $ext ) = fileparse( $rfilename, qr/\.[^.]*/ );		
+		
 		#go to recently used folder
 		if(defined $sc->get_rusf && $shf->folder_exists($sc->get_rusf)){
-			#parse filename
-			my ( $rshort, $rfolder, $rext ) = fileparse( $rfilename, qr/\.[^.]*/ );
 			$fs->set_current_folder($sc->get_rusf);
-			$fs->set_current_name($rshort.$rext);
+			$fs->set_current_name($short.$ext);
+		}elsif(defined $rfolder){	
+			$fs->set_current_folder($rfolder);
+			$fs->set_current_name($short.$ext);				
 		}else{
 			#file already exists
 			if($key){
 				$fs->set_filename( $rfilename );
 			#new file
 			}else{
-				#parse filename
-				my ( $rshort, $rfolder, $rext ) = fileparse( $rfilename, qr/\.[^.]*/ );
-				$fs->set_current_folder($rfolder);
-				$fs->set_current_name($rshort.$rext);
+				$fs->set_current_folder($folder);
+				$fs->set_current_name($short.$ext);
 			}		
 		}
 
