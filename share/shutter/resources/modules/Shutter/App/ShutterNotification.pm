@@ -121,7 +121,7 @@ sub new {
 			$layout->set_markup("<span font_desc=\"$font_fam $font_size\" weight=\"bold\" foreground=\"#FFFFFF\">" . Glib::Markup::escape_text( $self->{_summary} ) . "</span><span font_desc=\"$font_fam $font_size\" foreground=\"#FFFFFF\">\n" . Glib::Markup::escape_text( $self->{_body} ) . "</span>");
 
 			#fill window
-			$cr->set_operator('source');
+			$cr->set_operator('over');
 
 			if($self->{_sc}->get_mainwindow->get_screen->is_composited){
 				$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.9 );
