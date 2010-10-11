@@ -1478,6 +1478,7 @@ sub export_to_file {
 	);
 
 	my $shutter_hfunct = Shutter::App::HelperFunctions->new( $self->{_sc} );
+	my $shutter_dir = Shutter::App::Directories->new();
 
 	#parse filename
 	my ( $short, $folder, $ext ) = fileparse( $self->{_filename}, qr/\.[^.]*/ );
@@ -1487,7 +1488,7 @@ sub export_to_file {
 		$fs->set_current_folder($self->{_sc}->get_rusf);
 		$fs->set_current_name($short.$ext);
 	}elsif(defined $self->{_is_unsaved} && $self->{_is_unsaved}){
-		$fs->set_current_folder(Glib::get_home_dir);
+		$fs->set_current_folder($shutter_dir->get_home_dir);
 		$fs->set_current_name($short.$ext);		
 	}else{
 		$fs->set_filename( $self->{_filename} );

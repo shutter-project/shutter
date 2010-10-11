@@ -95,12 +95,6 @@ use constant SHUTTER_VERSION	=> '<major>.<minor>';
 
 #--------------------------------------
 
-#set home
-#--------------------------------------
-$ENV{ 'HOME' } = Glib::get_home_dir;
-
-#--------------------------------------
-
 #configure path settings
 #--------------------------------------
 my $shutter_root = undef;
@@ -159,6 +153,7 @@ require Shutter::App::GlobalSettings;
 require Shutter::App::SimpleDialogs;
 require Shutter::App::HelperFunctions;
 require Shutter::App::Options;
+require Shutter::App::Directories;
 require Shutter::App::Menu;
 require Shutter::App::Notification;
 require Shutter::App::ShutterNotification;
@@ -209,6 +204,7 @@ my $window 	= Gtk2::Window->new('toplevel');
 my $sc 		= Shutter::App::Common->new($shutter_root, $window, SHUTTER_NAME, SHUTTER_VERSION, SHUTTER_REV, $$);
 my $shf		= Shutter::App::HelperFunctions->new($sc);
 my $so  	= Shutter::App::Options->new($sc, $shf);
+my $sdir  	= Shutter::App::Directories->new();
 my $sm  	= Shutter::App::Menu->new($sc);
 my $st  	= Shutter::App::Toolbar->new($sc);
 my $sd 		= Shutter::App::SimpleDialogs->new($window);
@@ -217,6 +213,12 @@ my $sp 		= Shutter::Pixbuf::Save->new($sc);
 my $lp 		= Shutter::Pixbuf::Load->new($sc);
 my $lp_ne 	= Shutter::Pixbuf::Load->new($sc, undef, TRUE);
 my $sthumb 	= Shutter::Pixbuf::Thumbnail->new($sc);
+
+#--------------------------------------
+
+#set home
+#--------------------------------------
+$ENV{ 'HOME' } = $sdir->get_home_dir;
 
 #--------------------------------------
 
@@ -5652,7 +5654,7 @@ if ($app->is_running) {
 		#folder to save
 		my $folder             = $saveDir_button->get_current_folder || $folder_from_config;
 		if($save_no_active->get_active){
-			$folder = Glib::get_user_cache_dir;
+			$folder = $sdir->get_cache_dir;
 		}
 		
 		#screenshot(pixbuf) and screenshot name
@@ -6956,7 +6958,7 @@ if ($app->is_running) {
 				}
 
 				#update is_unsaved flag
-				if($session_screens{$key}->{'folder'} eq Glib::get_user_cache_dir){
+				if($session_screens{$key}->{'folder'} eq $sdir->get_cache_dir){
 					$session_screens{$key}->{'is_unsaved'} = TRUE;
 				}else{
 					$session_screens{$key}->{'is_unsaved'} = FALSE;
