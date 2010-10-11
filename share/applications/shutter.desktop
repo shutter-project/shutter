@@ -1,12 +1,15 @@
 [Desktop Entry]
 Version=1.0
 Name=Shutter
+Name[de_DE]=Shutter
+Name[pt_BR]=Shutter
+GenericName[pt_BR]=Captura de tela
 Comment=Feature-rich screenshot application
+Comment[de_DE]=Vielseitiges Programm zur Aufnahme von Bildschirmfotos
+Comment[pt_BR]=Aplicativo avançado para capturar imagens da tela
 Exec=shutter %F
 Icon=shutter
 Terminal=false
 Type=Application
 Categories=Utility;Application;
 MimeType=image/bmp;image/jpeg;image/gif;image/png;image/tiff;image/x-bmp;image/x-ico;image/x-png;image/x-pcx;image/x-tga;image/xpm;image/svg+xml;
-Name[de_DE]=Shutter
-Comment[de_DE]=Vielseitiges Programm zur Aufnahme von Bildschirmfotos
