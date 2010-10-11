@@ -444,7 +444,7 @@ if ($app->is_running) {
 		$sm->{_menuitem_web}->set_sensitive(FALSE);	
 	}
 
-	$sm->{_menuitem_save}->signal_connect( 'activate', \&evt_save_as, 'menu_save' );
+	#~ $sm->{_menuitem_save}->signal_connect( 'activate', \&evt_save_as, 'menu_save' );
 	$sm->{_menuitem_save_as}->signal_connect( 'activate', \&evt_save_as, 'menu_save_as' );
 	#~ $sm->{_menuitem_export_svg}->signal_connect( 'activate', \&evt_save_as, 'menu_export_svg' );
 	$sm->{_menuitem_export_pdf}->signal_connect( 'activate', \&evt_save_as, 'menu_export_pdf' );
@@ -3254,13 +3254,13 @@ if ($app->is_running) {
 			$sm->{_menuitem_redoshot}->set_sensitive($st->{_redoshot}->is_sensitive);
 			
 			#file
-			if(defined $key && defined $session_screens{$key}->{'is_unsaved'} && $session_screens{$key}->{'is_unsaved'}){
-				$sm->{_menuitem_save}->set_sensitive($n_items);
-			}elsif(defined $key){
-				$sm->{_menuitem_save}->set_sensitive(FALSE);
-			}else{
-				$sm->{_menuitem_save}->set_sensitive($n_items);				
-			}
+			#~ if(defined $key && defined $session_screens{$key}->{'is_unsaved'} && $session_screens{$key}->{'is_unsaved'}){
+				#~ $sm->{_menuitem_save}->set_sensitive($n_items);
+			#~ }elsif(defined $key){
+				#~ $sm->{_menuitem_save}->set_sensitive(FALSE);
+			#~ }else{
+				#~ $sm->{_menuitem_save}->set_sensitive($n_items);				
+			#~ }
 			$sm->{_menuitem_save_as}->set_sensitive($n_items);
 			#~ $sm->{_menuitem_export_svg}->set_sensitive($n_items);
 			$sm->{_menuitem_export_pdf}->set_sensitive($n_items);
@@ -3485,15 +3485,9 @@ if ($app->is_running) {
 		}elsif($data eq 'menu_export_pdf'){
 			$rfiletype = 'pdf';
 		}
-		
-		#when saving an unsaved file we take the folder from settings
-		my $rfolder = undef;
-		if($data eq 'menu_save'){
-			$rfolder = $saveDir_button->get_current_folder;
-		}		
-		
+				
 		foreach my $file (@save_as_files){
-			&dlg_save_as($file, $rfiletype, undef, $rfolder);
+			&dlg_save_as($file, $rfiletype);
 		}
 
 		return TRUE;
@@ -6062,7 +6056,7 @@ if ($app->is_running) {
 				print "Asking for filename\n"
 					if $sc->get_debug;
 
-				if($screenshot_name = &dlg_save_as(undef, undef, $screenshot_name, undef, $screenshot, $quality_value)){
+				if($screenshot_name = &dlg_save_as(undef, undef, $screenshot_name, $screenshot, $quality_value)){
 					if($screenshot_name eq 'user_cancel'){
 						&fct_show_status_message( 1, $d->get("Capture aborted by user") );
 						&fct_control_main_window('show', $present_after_active->get_active);
@@ -9057,7 +9051,6 @@ if ($app->is_running) {
 		#optional
 		my $rfiletype = shift;
 		my $rfilename = shift;
-		my $rfolder   = shift;
 		my $rpixbuf   = shift;
 		my $rquality  = shift;
 		
@@ -9077,8 +9070,8 @@ if ($app->is_running) {
 		if(defined $sc->get_rusf && $shf->folder_exists($sc->get_rusf)){
 			$fs->set_current_folder($sc->get_rusf);
 			$fs->set_current_name($short.$ext);
-		}elsif(defined $rfolder){	
-			$fs->set_current_folder($rfolder);
+		}elsif(defined $key && defined $session_screens{$key}->{'is_unsaved'} && $session_screens{$key}->{'is_unsaved'}){
+			$fs->set_current_folder($saveDir_button->get_current_folder);
 			$fs->set_current_name($short.$ext);				
 		}else{
 			#file already exists
