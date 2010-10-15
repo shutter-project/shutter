@@ -483,6 +483,9 @@ sub apply_effect {
 	my $bcolor = $back_color->get_color;
 	my $scolor = $sky_color->get_color;
 
+	#quote filename
+	my $qfilename = quotemeta $filename;
+
 	#auto value
 	my $auto = "";
 	$auto = " auto=".$auto_combo->get_active_text if $auto_combo->get_active_text ne "off";
@@ -513,7 +516,7 @@ sub apply_effect {
 			. sprintf( "#%04x%04x%04x%04x", $bcolor->red, $bcolor->green, $bcolor->blue, $back_color->get_alpha )
 			. "' skycolor='"
 			. sprintf( "#%04x%04x%04x%04x", $scolor->red, $scolor->green, $scolor->blue, $sky_color->get_alpha )													
-			. "' '$filename'"
+			. "' $qfilename"
 			. " $tmpfilename" );
 	
 }

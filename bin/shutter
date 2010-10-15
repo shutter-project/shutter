@@ -6506,11 +6506,12 @@ if ($app->is_running) {
 			my $pid = fork;
 			if ( $pid < 0 ) {
 				$sd->dlg_error_message( sprintf ( $d->get("Could not apply plugin %s"), "'" . $plugin_name . "'" ), $d->get("Failed") );
-			}
-			if ( $pid == 0 ) {		
+			}elsif ( $pid == 0 ) {
+				#see Bug #661424		
+				my $qfilename = quotemeta $session_screens{$key}->{'long'};
 				exec(
 					sprintf(
-						"$^X $plugin_value %d '$session_screens{$key}->{'long'}' $session_screens{$key}->{'width'} $session_screens{$key}->{'height'} $session_screens{$key}->{'filetype'}\n",
+						"$^X $plugin_value %d $qfilename $session_screens{$key}->{'width'} $session_screens{$key}->{'height'} $session_screens{$key}->{'filetype'}\n",
 						$socket->get_id )
 				);
 			}
@@ -6543,9 +6544,12 @@ if ($app->is_running) {
 			#create a new process, so we are able to cancel the current operation
 			my $plugin_process = Proc::Simple->new;
 
+			#see Bug #661424		
+			my $qfilename = quotemeta $session_screens{$key}->{'long'};
+
 			$plugin_process->start(
 				sub {
-					system("'$plugin_value' '$session_screens{$key}->{'long'}' '$session_screens{$key}->{'width'}' '$session_screens{$key}->{'height'}' '$session_screens{$key}->{'filetype'}' ");				
+					system("'$plugin_value' $qfilename '$session_screens{$key}->{'width'}' '$session_screens{$key}->{'height'}' '$session_screens{$key}->{'filetype'}' ");				
 					POSIX::_exit(0);
 				}
 			);

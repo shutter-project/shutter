@@ -367,10 +367,13 @@ sub apply_effect {
 		$direction1 = "80x3+5+5";
 		$direction2 = "80x3-1-1";
 	}
+
+	#quote filename
+	my $qfilename = quotemeta $filename;
 	
 	#execute imagemagick command		
 	system( "convert"
-			. " '$filename'"
+			. " $qfilename"
 			. " -gravity northwest -background 'rgba(255,255,255,0)' -splice 10x10"
 			. " \\( +clone -background '"
 			. sprintf( "#%04x%04x%04x%04x", $scolor->red, $scolor->green, $scolor->blue, $shadow_color->get_alpha )

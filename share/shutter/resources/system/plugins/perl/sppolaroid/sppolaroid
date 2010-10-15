@@ -349,7 +349,9 @@ sub fct_imagemagick_polaroid {
 
 sub apply_effect {
 
-	my $convert_output = undef;
+	#quote filename
+	my $qfilename = quotemeta $filename;
+
 	if ( $use_caption ) {
 
 		my $text = $caption_entry->get_text;
@@ -359,11 +361,11 @@ sub apply_effect {
 
 		my $color = $stroke_color->get_color;
 			
-		system(   "convert -caption "
+		system( "convert -caption "
 				. $text
 				. " -fill '"
 				. sprintf( "#%04x%04x%04x%04x", $color->red, $color->green, $color->blue, $stroke_color->get_alpha )
-				. "' '$filename' -pointsize "
+				. "' $qfilename -pointsize "
 				. $pointsize_sbutton->get_value
 				. " -gravity "
 				. $gravity_combo->get_active_text
@@ -375,11 +377,9 @@ sub apply_effect {
 				
 	} else {
 		
-		system( "
-			  convert '$filename' -bordercolor white -border 6 -bordercolor grey60 -border 1 -background none -rotate "
+		system( "convert $qfilename -bordercolor white -border 6 -bordercolor grey60 -border 1 -background none -rotate "
 				. $angle_sbutton->get_value
-				. " -background  black  \\( +clone -shadow 60x4+4+4 \\) +swap -background none -flatten $tmpfilename"
-		);
+				. " -background  black  \\( +clone -shadow 60x4+4+4 \\) +swap -background none -flatten $tmpfilename" );
 	
 	}
 

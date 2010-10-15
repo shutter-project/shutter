@@ -422,6 +422,9 @@ sub apply_effect {
 
 	my $bcolor = $back_color->get_color;
 
+	#quote filename
+	my $qfilename = quotemeta $filename;
+
 	#check if script is executable
 	unless ( -x $Bin."/bordereffects"){
 		my $changed = chmod(0755, $Bin."/bordereffects");
@@ -445,7 +448,7 @@ sub apply_effect {
 			. $granularity_sbutton->get_value										
 			. " -b '"
 			. sprintf( "#%04x%04x%04x%04x", $bcolor->red, $bcolor->green, $bcolor->blue, $back_color->get_alpha )
-			. "' '$filename'"
+			. "' $qfilename"
 			. " $tmpfilename" );
 	
 }

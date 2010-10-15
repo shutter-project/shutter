@@ -336,10 +336,14 @@ sub fct_imagemagick_watermark {
 
 sub apply_effect {	
 
+	#prepare text
 	my $text = $caption_entry->get_text;
 	utf8::decode $text;
 	$text = strftime $text, localtime;
 	$text = quotemeta $text;
+
+	#quote filename
+	my $qfilename = quotemeta $filename;
 
 	my $psize = $pointsize_sbutton->get_value;
 
@@ -363,7 +367,7 @@ sub apply_effect {
 	system("composite $tmpfilename"		
 			. " -gravity "
 			. $gravity_combo->get_active_text
-			. " '$filename'"
+			. " $qfilename"
 			. " $tmpfilename2" );
 
 }

@@ -386,6 +386,9 @@ sub apply_effect {
 
 	my $color = $back_color->get_color;
 
+	#quote filename
+	my $qfilename = quotemeta $filename;
+
 	#execute imagemagick command		
 	system(   "convert"
 			. " -virtual-pixel Background -background '"
@@ -398,7 +401,7 @@ sub apply_effect {
 			. $c3_sbutton->get_value
 			. " "
 			. $c4_sbutton->get_value														
-			. "' '$filename'"
+			. "' $qfilename"
 			. " $tmpfilename" );
 												
 }
