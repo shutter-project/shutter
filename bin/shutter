@@ -4112,7 +4112,7 @@ if ($app->is_running) {
 		$settings{'general'}->{'filetype'} 		   = $combobox_type->get_active;
 		$settings{'general'}->{'quality'}  		   = $scale->get_value();
 		$settings{'general'}->{'filename'} 		   = $filename->get_text();
-		$settings{'general'}->{'folder'} 		   = $saveDir_button->get_current_folder();
+		$settings{'general'}->{'folder'} 		   = $saveDir_button->get_filename();
 		$settings{'general'}->{'save_auto'}       = $save_auto_active->get_active();
 		$settings{'general'}->{'save_ask'}        = $save_ask_active->get_active();
 		$settings{'general'}->{'image_autocopy'}  = $image_autocopy_active->get_active();
@@ -5646,7 +5646,7 @@ if ($app->is_running) {
 		my $filetype_value 	   = undef;
 		
 		#folder to save
-		my $folder             = $saveDir_button->get_current_folder || $folder_from_config;
+		my $folder             = $saveDir_button->get_filename || $folder_from_config;
 		
 		#screenshot(pixbuf) and screenshot name
 		my $screenshot         = undef;
@@ -8996,8 +8996,8 @@ if ($app->is_running) {
 			}else{
 				if ($key) {
 					$fs->set_filename( $session_screens{$key}->{'long'} );
-				} elsif ( $saveDir_button->get_current_folder ) {
-					$fs->set_current_folder( $saveDir_button->get_current_folder );
+				} elsif ( $saveDir_button->get_filename ) {
+					$fs->set_current_folder( $saveDir_button->get_filename );
 				}else{
 					$fs->set_current_folder( $ENV{'HOME'} );
 				}
@@ -9781,9 +9781,9 @@ if ($app->is_running) {
 
 								if($is_connected && $is_online){
 									#is current folder synced?
-									if(defined $u1_fc->get_current_folder && $u1->is_synced_folder($u1_fc->get_current_folder)){
+									if(defined $u1_fc->get_filename && $u1->is_synced_folder($u1_fc->get_filename)){
 										$u1_hint->set_markup("<span size='small'>" . 
-											sprintf($d->nget("Folder %s is synchronized with Ubuntu One.\nThe selected file will be copied to that folder before being published.", "Folder %s is synchronized with Ubuntu One.\nThe selected files will be copied to that folder before being published.", scalar @files_to_upload) , "'".$u1_fc->get_current_folder."'") 
+											sprintf($d->nget("Folder %s is synchronized with Ubuntu One.\nThe selected file will be copied to that folder before being published.", "Folder %s is synchronized with Ubuntu One.\nThe selected files will be copied to that folder before being published.", scalar @files_to_upload) , "'".$u1_fc->get_filename."'") 
 											. "</span>");								
 											$u1_hint2->set_markup("<span size='small'>" . 
 											$d->nget("<b>Please note:</b> The selected file will be published in a background process.\nYou will be notified when the process has finished.", "<b>Please note:</b> The selected files will be published in a background process.\nYou will be notified when the process has finished.", scalar @files_to_upload)
@@ -9791,7 +9791,7 @@ if ($app->is_running) {
 											$upload_button->set_sensitive(TRUE);													
 									}else{
 											$u1_hint->set_markup("<span size='small' color='red'>" . 
-											sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_current_folder."'") 
+											sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_filename."'") 
 											. "</span>");
 											$u1_hint2->set_markup("");				
 											$upload_button->set_sensitive(FALSE);
@@ -9813,9 +9813,9 @@ if ($app->is_running) {
 
 								if($is_connected && $is_online){
 									#is current folder synced?
-									if($u1->is_synced_folder($u1_fc->get_current_folder)){
+									if($u1->is_synced_folder($u1_fc->get_filename)){
 										$u1_hint->set_markup("<span size='small'>" . 
-										sprintf($d->nget("Folder %s is synchronized with Ubuntu One.\nThe selected file will be copied to that folder before being published.", "Folder %s is synchronized with Ubuntu One.\nThe selected files will be copied to that folder before being published.", scalar @files_to_upload) , "'".$u1_fc->get_current_folder."'") 
+										sprintf($d->nget("Folder %s is synchronized with Ubuntu One.\nThe selected file will be copied to that folder before being published.", "Folder %s is synchronized with Ubuntu One.\nThe selected files will be copied to that folder before being published.", scalar @files_to_upload) , "'".$u1_fc->get_filename."'") 
 										. "</span>");								
 										$u1_hint2->set_markup("<span size='small'>" . 
 										$d->nget("<b>Please note:</b> The selected file will be published in a background process.\nYou will be notified when the process has finished.", "<b>Please note:</b> The selected files will be published in a background process.\nYou will be notified when the process has finished.", scalar @files_to_upload)
@@ -9823,7 +9823,7 @@ if ($app->is_running) {
 										$upload_button->set_sensitive(TRUE);													
 									}else{
 										$u1_hint->set_markup("<span size='small' color='red'>" . 
-										sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_current_folder."'") 
+										sprintf($d->get("Folder %s is not synchronized with Ubuntu One.\nPlease choose an alternative folder.") , "'".$u1_fc->get_filename."'") 
 										. "</span>");
 										$u1_hint2->set_markup("");				
 										$upload_button->set_sensitive(FALSE);
@@ -10307,8 +10307,8 @@ if ($app->is_running) {
 				#and the relevant detail (folder, uploader etc.)
 				#hosting service		
 				$sc->set_ruu_hosting($hosting->get_active);
-				$sc->set_ruu_places($places_fc->get_current_folder);
-				$sc->set_ruu_u1($u1_fc->get_current_folder);
+				$sc->set_ruu_places($places_fc->get_filename);
+				$sc->set_ruu_u1($u1_fc->get_filename);
 				
 				#set initial state of dialog
 				$upload_button->set_sensitive(TRUE);
