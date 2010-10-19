@@ -130,11 +130,6 @@ require File::Copy::Recursive;
 #Find programs to open a file by mimetype
 require File::MimeInfo::Applications;
 
-#Find your home and other directories, on any platform
-require File::HomeDir::Unix;
-require File::HomeDir;
-$ENV{ 'HOME' } = File::HomeDir->my_home;
-
 #--------------------------------------
 
 #check optional components
@@ -158,6 +153,7 @@ require Shutter::App::GlobalSettings;
 require Shutter::App::SimpleDialogs;
 require Shutter::App::HelperFunctions;
 require Shutter::App::Options;
+require Shutter::App::Directories;
 require Shutter::App::Menu;
 require Shutter::App::Notification;
 require Shutter::App::ShutterNotification;
@@ -208,6 +204,7 @@ my $window 	= Gtk2::Window->new('toplevel');
 my $sc 		= Shutter::App::Common->new($shutter_root, $window, SHUTTER_NAME, SHUTTER_VERSION, SHUTTER_REV, $$);
 my $shf		= Shutter::App::HelperFunctions->new($sc);
 my $so  	= Shutter::App::Options->new($sc, $shf);
+my $sdir  	= Shutter::App::Directories->new();
 my $sm  	= Shutter::App::Menu->new($sc);
 my $st  	= Shutter::App::Toolbar->new($sc);
 my $sd 		= Shutter::App::SimpleDialogs->new($window);
@@ -216,6 +213,12 @@ my $sp 		= Shutter::Pixbuf::Save->new($sc);
 my $lp 		= Shutter::Pixbuf::Load->new($sc);
 my $lp_ne 	= Shutter::Pixbuf::Load->new($sc, undef, TRUE);
 my $sthumb 	= Shutter::Pixbuf::Thumbnail->new($sc);
+
+#--------------------------------------
+
+#set home
+#--------------------------------------
+$ENV{ 'HOME' } = $sdir->get_home_dir;
 
 #--------------------------------------
 
@@ -443,6 +446,7 @@ if ($app->is_running) {
 		$sm->{_menuitem_web}->set_sensitive(FALSE);	
 	}
 
+	#~ $sm->{_menuitem_save}->signal_connect( 'activate', \&evt_save_as, 'menu_save' );
 	$sm->{_menuitem_save_as}->signal_connect( 'activate', \&evt_save_as, 'menu_save_as' );
 	#~ $sm->{_menuitem_export_svg}->signal_connect( 'activate', \&evt_save_as, 'menu_export_svg' );
 	$sm->{_menuitem_export_pdf}->signal_connect( 'activate', \&evt_save_as, 'menu_export_pdf' );
@@ -607,6 +611,7 @@ if ($app->is_running) {
 	my $filename_box        = Gtk2::HBox->new( FALSE, 0 );
 	my $saveDir_box         = Gtk2::HBox->new( FALSE, 0 );
 	my $save_ask_box        = Gtk2::HBox->new( FALSE, 0 );
+	my $save_no_box         = Gtk2::HBox->new( FALSE, 0 );
 	my $save_auto_box       = Gtk2::HBox->new( FALSE, 0 );
 	my $no_autocopy_box  	= Gtk2::HBox->new( FALSE, 0 );
 	my $image_autocopy_box  = Gtk2::HBox->new( FALSE, 0 );
@@ -1114,7 +1119,7 @@ if ($app->is_running) {
 	if ( defined $settings_xml->{'general'}->{'folder'} ) {
 		$saveDir_button->set_current_folder( $settings_xml->{'general'}->{'folder'} );
 	} else {
-		$saveDir_button->set_current_folder( File::HomeDir->my_pictures );
+		$saveDir_button->set_current_folder( Glib::get_user_special_dir('pictures') );
 	}
 
 	$tooltips->set_tip( $saveDir_button, $d->get("Your screenshots will be saved to this directory") );
@@ -1132,23 +1137,19 @@ if ($app->is_running) {
 
 	$tooltips->set_tip( $save_ask_active, $d->get("Browse for save folder every time") );
 
+	my $save_no_active = Gtk2::RadioButton->new_with_label($save_ask_active, $d->get("Do not save file automatically") );
+	$save_no_box->pack_start( $save_no_active, FALSE, TRUE, 12 );
+
+	$tooltips->set_tip( $save_no_active, $d->get("Do not save file automatically") );
+
 	my $save_auto_active = Gtk2::RadioButton->new_with_label($save_ask_active, $d->get("Automatically save file") );
 	$save_auto_box->pack_start( $save_auto_active, FALSE, TRUE, 12 );
 
 	$tooltips->set_tip( $save_auto_active, $d->get("Automatically save file") );
 
-	$save_ask_active->signal_connect(
-		'toggled' => \&evt_value_changed,
-		'save_toggled'
-	);
-
-	$save_auto_active->signal_connect(
-		'toggled' => \&evt_value_changed,
-		'save_toggled'
-	);
-
 	#default state
 	$save_ask_active->set_active( FALSE );
+	$save_no_active->set_active( FALSE );
 	$save_auto_active->set_active( TRUE );
 
 	if ( defined $settings_xml->{'general'}->{'save_auto'} ) {
@@ -1157,6 +1158,10 @@ if ($app->is_running) {
 
 	if ( defined $settings_xml->{'general'}->{'save_ask'} ) {
 		$save_ask_active->set_active( $settings_xml->{'general'}->{'save_ask'} );
+	}
+	
+	if ( defined $settings_xml->{'general'}->{'save_no'} ) {
+		$save_no_active->set_active( $settings_xml->{'general'}->{'save_no'} );
 	}
 
 	#end - save options
@@ -2142,6 +2147,7 @@ if ($app->is_running) {
 	$file_frame->add($file_vbox);
 
 	$save_vbox->pack_start( $save_ask_box, TRUE, TRUE, 3 );
+	$save_vbox->pack_start( $save_no_box, TRUE, TRUE, 3 );
 	$save_vbox->pack_start( $save_auto_box, TRUE, TRUE, 3 );
 	$save_vbox->pack_start( $filename_box, TRUE, TRUE, 3 );
 	$save_vbox->pack_start( $saveDir_box, FALSE, TRUE, 3 );
@@ -2638,15 +2644,6 @@ if ($app->is_running) {
 				}
 			}
 							
-		}
-
-		#"save" toggled
-		if ( $data eq "save_toggled" ) {
-			$filename_label->set_sensitive($save_auto_active->get_active); 
-			$filename->set_sensitive($save_auto_active->get_active); 
-			$saveDir_label->set_sensitive($save_auto_active->get_active); 
-			$saveDir_label->set_sensitive($save_auto_active->get_active); 
-			$saveDir_button->set_sensitive($save_auto_active->get_active); 
 		}
 
 		#"cursor_status" toggled
@@ -3259,6 +3256,13 @@ if ($app->is_running) {
 			$sm->{_menuitem_redoshot}->set_sensitive($st->{_redoshot}->is_sensitive);
 			
 			#file
+			#~ if(defined $key && defined $session_screens{$key}->{'is_unsaved'} && $session_screens{$key}->{'is_unsaved'}){
+				#~ $sm->{_menuitem_save}->set_sensitive($n_items);
+			#~ }elsif(defined $key){
+				#~ $sm->{_menuitem_save}->set_sensitive(FALSE);
+			#~ }else{
+				#~ $sm->{_menuitem_save}->set_sensitive($n_items);				
+			#~ }
 			$sm->{_menuitem_save_as}->set_sensitive($n_items);
 			#~ $sm->{_menuitem_export_svg}->set_sensitive($n_items);
 			$sm->{_menuitem_export_pdf}->set_sensitive($n_items);
@@ -3483,7 +3487,7 @@ if ($app->is_running) {
 		}elsif($data eq 'menu_export_pdf'){
 			$rfiletype = 'pdf';
 		}
-		
+				
 		foreach my $file (@save_as_files){
 			&dlg_save_as($file, $rfiletype);
 		}
@@ -4109,17 +4113,18 @@ if ($app->is_running) {
 		$settings{'recent'}->{'ruu_u1'}        = $sc->get_ruu_u1;
 
 		#main
-		$settings{'general'}->{'filetype'} 		   = $combobox_type->get_active;
-		$settings{'general'}->{'quality'}  		   = $scale->get_value();
-		$settings{'general'}->{'filename'} 		   = $filename->get_text();
-		$settings{'general'}->{'folder'} 		   = $saveDir_button->get_filename();
-		$settings{'general'}->{'save_auto'}       = $save_auto_active->get_active();
-		$settings{'general'}->{'save_ask'}        = $save_ask_active->get_active();
-		$settings{'general'}->{'image_autocopy'}  = $image_autocopy_active->get_active();
-		$settings{'general'}->{'fname_autocopy'}  = $fname_autocopy_active->get_active();
-		$settings{'general'}->{'no_autocopy'} 	   = $no_autocopy_active->get_active();
-		$settings{'general'}->{'cursor'}		      = $cursor_active->get_active();
-		$settings{'general'}->{'delay'}			   = $delay->get_value();
+		$settings{'general'}->{'filetype'}			= $combobox_type->get_active;
+		$settings{'general'}->{'quality'}			= $scale->get_value();
+		$settings{'general'}->{'filename'}			= $filename->get_text();
+		$settings{'general'}->{'folder'}			= $saveDir_button->get_current_folder();
+		$settings{'general'}->{'save_auto'}			= $save_auto_active->get_active();
+		$settings{'general'}->{'save_ask'}			= $save_ask_active->get_active();
+		$settings{'general'}->{'save_no'}			= $save_no_active->get_active();
+		$settings{'general'}->{'image_autocopy'}	= $image_autocopy_active->get_active();
+		$settings{'general'}->{'fname_autocopy'}	= $fname_autocopy_active->get_active();
+		$settings{'general'}->{'no_autocopy'}		= $no_autocopy_active->get_active();
+		$settings{'general'}->{'cursor'}			= $cursor_active->get_active();
+		$settings{'general'}->{'delay'}				= $delay->get_value();
 
 		#wrksp -> submenu
 		$settings{'general'}->{'current_monitor_active'} = $current_monitor_active->get_active;
@@ -4469,6 +4474,7 @@ if ($app->is_running) {
 					
 					$save_auto_active->set_active( $settings_xml->{'general'}->{'save_auto'} );
 					$save_ask_active->set_active( $settings_xml->{'general'}->{'save_ask'} );
+					$save_no_active->set_active( $settings_xml->{'general'}->{'save_no'} );
 					
 					$image_autocopy_active->set_active( $settings_xml->{'general'}->{'image_autocopy'} );
 					$fname_autocopy_active->set_active( $settings_xml->{'general'}->{'fname_autocopy'} );
@@ -5622,7 +5628,7 @@ if ($app->is_running) {
 		#open drawing tool
 		foreach my $key (@draw_array){
 			my $drawing_tool = Shutter::Draw::DrawingTool->new($sc, $view_d, $selector_d, $dragger_d);
-			$drawing_tool->show( $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'}, $session_screens{$key}->{'mime_type'}, \%session_screens );		
+			$drawing_tool->show( $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'}, $session_screens{$key}->{'mime_type'}, $session_screens{$key}->{'name'}, $session_screens{$key}->{'is_unsaved'}, \%session_screens );		
 		}
 
 		#~ &fct_control_main_window ('show');
@@ -5647,6 +5653,9 @@ if ($app->is_running) {
 		
 		#folder to save
 		my $folder             = $saveDir_button->get_filename || $folder_from_config;
+		if($save_no_active->get_active){
+			$folder = $sdir->get_cache_dir;
+		}
 		
 		#screenshot(pixbuf) and screenshot name
 		my $screenshot         = undef;
@@ -6031,6 +6040,17 @@ if ($app->is_running) {
 					
 			#we have to update the path again
 			$shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path));
+
+			#manipulate before saving
+			#bordereffect
+			if ( $bordereffect_active->get_active ) {
+
+				print "Adding border effect to $screenshot_name\n"
+					if $sc->get_debug;
+
+				my $pbuf_border = Shutter::Pixbuf::Border->new($sc);
+				$screenshot = $pbuf_border->create_border($screenshot, $bordereffect->get_value, $bordereffect_cbtn->get_color);
+			}			
 			
 			#ask for filename and folder
 			if($save_ask_active->get_active){
@@ -6053,16 +6073,6 @@ if ($app->is_running) {
 				}
 				
 			}else{	
-
-				#bordereffect
-				if ( $bordereffect_active->get_active ) {
-
-					print "Adding border effect to $screenshot_name\n"
-						if $sc->get_debug;
-
-					my $pbuf_border = Shutter::Pixbuf::Border->new($sc);
-					$screenshot = $pbuf_border->create_border($screenshot, $bordereffect->get_value, $bordereffect_cbtn->get_color);
-				}
 			
 				print "Trying to save file to $screenshot_name\n"
 					if $sc->get_debug;
@@ -6635,7 +6645,11 @@ if ($app->is_running) {
 		if($key && defined $session_screens{$key}->{'long'} && defined $session_screens{$key}->{'width'}){
 			
 			#change window title
-			$window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
+			if(defined $session_screens{$key}->{'is_unsaved'} && $session_screens{$key}->{'is_unsaved'}){
+				$window->set_title("*".$session_screens{$key}->{'name'}." - ".SHUTTER_NAME);
+			}else{
+				$window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
+			}
 			
 			$status->push(1, $session_screens{$key}->{'width'} . 
 							  " x " . 
@@ -6945,6 +6959,13 @@ if ($app->is_running) {
 					$session_screens{$key}->{'no_thumbnail'} = FALSE;
 				}else{
 					$session_screens{$key}->{'no_thumbnail'} = TRUE;	
+				}
+
+				#update is_unsaved flag
+				if($session_screens{$key}->{'folder'} eq $sdir->get_cache_dir){
+					$session_screens{$key}->{'is_unsaved'} = TRUE;
+				}else{
+					$session_screens{$key}->{'is_unsaved'} = FALSE;
 				}
 
 				#create tempfile
@@ -9048,22 +9069,24 @@ if ($app->is_running) {
 			'gtk-save'   => 'accept'
 		);
 		
+		#parse filename
+		my ( $short, $folder, $ext ) = fileparse( $rfilename, qr/\.[^.]*/ );		
+		
 		#go to recently used folder
 		if(defined $sc->get_rusf && $shf->folder_exists($sc->get_rusf)){
-			#parse filename
-			my ( $rshort, $rfolder, $rext ) = fileparse( $rfilename, qr/\.[^.]*/ );
 			$fs->set_current_folder($sc->get_rusf);
-			$fs->set_current_name($rshort.$rext);
+			$fs->set_current_name($short.$ext);
+		}elsif(defined $key && defined $session_screens{$key}->{'is_unsaved'} && $session_screens{$key}->{'is_unsaved'}){
+			$fs->set_current_folder($saveDir_button->get_current_folder);
+			$fs->set_current_name($short.$ext);				
 		}else{
 			#file already exists
 			if($key){
 				$fs->set_filename( $rfilename );
 			#new file
 			}else{
-				#parse filename
-				my ( $rshort, $rfolder, $rext ) = fileparse( $rfilename, qr/\.[^.]*/ );
-				$fs->set_current_folder($rfolder);
-				$fs->set_current_name($rshort.$rext);
+				$fs->set_current_folder($folder);
+				$fs->set_current_name($short.$ext);
 			}		
 		}
 

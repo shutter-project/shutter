@@ -119,6 +119,12 @@ sub fct_ret_file_menu {
 
 	$self->{_menu_file}->append( Gtk2::SeparatorMenuItem->new );
 
+	#~ $self->{_menuitem_save} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Save') );
+	#~ $self->{_menuitem_save}->set_image( Gtk2::Image->new_from_stock( 'gtk-save', 'menu' ) );
+	#~ $self->{_menuitem_save}->set_sensitive(FALSE);
+	#~ $self->{_menuitem_save}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Control>S'), qw/visible/ );
+	#~ $self->{_menu_file}->append( $self->{_menuitem_save} );
+
 	$self->{_menuitem_save_as} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Save _As...') );
 	$self->{_menuitem_save_as}->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'menu' ) );
 	$self->{_menuitem_save_as}->set_sensitive(FALSE);
