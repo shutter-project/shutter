@@ -61,8 +61,8 @@ sub new {
 		
 		#shape the window
 		my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file  ($self->{_sc}->get_root . "/share/shutter/resources/icons/notify.svg");
-		my ($pixmap, $mask) = $pixbuf->render_pixmap_and_mask (1);
-		$self->{_notifications_window}->shape_combine_mask($mask, 0, 0);
+		#~ my ($pixmap, $mask) = $pixbuf->render_pixmap_and_mask (1);
+		#~ $self->{_notifications_window}->shape_combine_mask($mask, 0, 0);
 		
 		#add a widget to control size of the window
 		my $fixed = Gtk2::Fixed->new;
@@ -76,7 +76,7 @@ sub new {
 			return FALSE unless $self->{_summary};
 
 			#current monitor
-			my $mon 	= $self->{_sc}->get_current_monitor;
+			my $mon = $self->{_sc}->get_current_monitor;
 
 			#initial position
 			unless(defined $self->{_notifications_window}->{'pos'}){
@@ -100,10 +100,10 @@ sub new {
 
 			#pango layout
 			my $layout = Gtk2::Pango::Cairo::create_layout($cr);
-			$layout->set_width( ($w - $font_size * 2) * Gtk2::Pango->scale );
+			$layout->set_width( ($w - 30) * Gtk2::Pango->scale );
 
 			if ( Gtk2::Pango->CHECK_VERSION( 1, 20, 0 ) ) {
-				$layout->set_height( $h * Gtk2::Pango->scale );
+				$layout->set_height( ($h - 20) * Gtk2::Pango->scale );
 			}else{
 				warn "WARNING: \$layout->set_height is not available - outdated Pango version\n";
 			}
@@ -120,16 +120,18 @@ sub new {
 			#set text
 			$layout->set_markup("<span font_desc=\"$font_fam $font_size\" weight=\"bold\" foreground=\"#FFFFFF\">" . Glib::Markup::escape_text( $self->{_summary} ) . "</span><span font_desc=\"$font_fam $font_size\" foreground=\"#FFFFFF\">\n" . Glib::Markup::escape_text( $self->{_body} ) . "</span>");
 
-			#fill window
-			$cr->set_operator('over');
+			$cr->set_operator('source');
 
 			if($self->{_sc}->get_mainwindow->get_screen->is_composited){
-				$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.9 );
+				$cr->set_source_rgba( 1.0, 1.0, 1.0, 0 );
+				Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $pixbuf, 0, 0 );
 				$cr->paint;
 			}else{
 				$cr->set_source_rgb( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255 );
 				$cr->paint;
 			}
+
+			$cr->set_operator('over');
 
 			#get layout size
 			my ( $lw, $lh ) = $layout->get_pixel_size;			
