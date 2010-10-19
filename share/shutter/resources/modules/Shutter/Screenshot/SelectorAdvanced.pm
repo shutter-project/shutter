@@ -120,10 +120,11 @@ sub select_advanced {
 
 		#obtain current colors and font_desc from the main window
 		my $style 		= $self->{_sc}->get_mainwindow->get_style;
-		my $sel_bg 		= $style->bg('selected');
+		#~ my $sel_bg 		= $style->bg('selected');
+		my $sel_bg 		= Gtk2::Gdk::Color->parse('#131313');
 		my $sel_tx 		= $style->text('selected');
 		my $font_fam 	= $style->font_desc->get_family;
-		my $font_size 	= $style->font_desc->get_size;
+		my $font_size 	= $style->font_desc->get_size / Gtk2::Pango->scale;
 		
 		#create cairo context und layout
 		my $surface = Cairo::ImageSurface->create( 'argb32', $self->{_root}->{w}, $self->{_root}->{h} );
@@ -139,29 +140,33 @@ sub select_advanced {
 		$layout->set_wrap('word');
 		
 		#determine font-size
-		my $size = int( $mon1->width * 0.014 );
-		my $size2 = int( $mon1->width * 0.007 );
+		my $size1 = int ($font_size * 2.0);
+		my $size2 = int ($font_size * 1.5);
+		my $size3 = int ($font_size * 1.0);
 		
-		my $text
-			= $d->get(
-			"Draw a rectangular area using the mouse. To take a screenshot, press the Enter key. Press Esc to quit."
-			);
+		my $text1 = 
+			$d->get("Draw a rectangular area using the mouse.");
+		
+		my $text2 =
+			$d->get("To take a screenshot, press the Enter key. Press Esc to quit.");
 
-		my $sec_text
-			= $d->get(
-			"shift/right-click = selection dialog on/off\nctrl + scrollwheel = zoom in/out\t\tspace = zoom window on/off\ncursor keys + alt = move selection\t\tcursor keys + ctrl = resize selection"
-			);
+		my $text3 = 
+			$d->get("<b>shift/right-click</b> → selection dialog on/off")."\n".
+			$d->get("<b>ctrl + scrollwheel</b> → zoom in/out")."\n".
+			$d->get("<b>space</b> → zoom window on/off")."\n".
+			$d->get("<b>cursor keys + alt</b> → move selection")."\n".
+			$d->get("<b>cursor keys + ctrl</b> → resize selection");
 
 		#use this one for white font-color	
-		$layout->set_markup("<span font_desc=\"$font_fam $size\" foreground=\"#FFFFFF\">$text</span>\n\n<span font_desc=\"$font_fam $size2\" weight=\"bold\" foreground=\"#FFFFFF\">$sec_text</span>");
+		$layout->set_markup("<span font_desc=\"$font_fam $size1\" foreground=\"#FFFFFF\">$text1</span>\n<span font_desc=\"$font_fam $size2\" foreground=\"#FFFFFF\">$text2</span>\n\n<span font_desc=\"$font_fam $size3\" foreground=\"#FFFFFF\">$text3</span>");
 		
 		#draw the rectangle
 		$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.85 );
 
 		my ( $lw, $lh ) = $layout->get_pixel_size;
 
-		my $w = $lw + $size * 2;
-		my $h = $lh + $size * 2;
+		my $w = $lw + $size1 * 2;
+		my $h = $lh + $size1 * 2;
 		my $x = int( ( $mon1->width - $w ) / 2 ) + $mon1->x;
 		my $y = int( ( $mon1->height - $h ) / 2 ) + $mon1->y;
 		my $r = 20;
@@ -177,7 +182,7 @@ sub select_advanced {
 		$cr->curve_to( $x, $y, $x, $y, $x + $r, $y );
 		$cr->fill;
 
-		$cr->move_to( $x + $size, $y + $size );
+		$cr->move_to( $x + $size1, $y + $size1 );
 		
 		#draw the pango layout
 		Gtk2::Pango::Cairo::show_layout( $cr, $layout );
