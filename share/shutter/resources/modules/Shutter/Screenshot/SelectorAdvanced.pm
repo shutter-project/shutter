@@ -370,52 +370,65 @@ sub select_advanced {
 		);			
 	}
 	
-	#event-handling	
+	#event-handling
+	#we simulate a 2button-press here	
+	$self->{_view_button_handler} = $self->{_view}->signal_connect('button-press-event' =>
+		sub {
+			my ( $view, $event ) = @_;
+			return FALSE unless defined $event;
+			
+			my $s = $self->{_selector}->get_selection;
+			
+			if ($event->button == 1) {
+			
+				unless(defined $self->{_dclick}){
+
+					$self->{_dclick} = $event->time;
+					return FALSE;	
+
+				}else{
+
+					if($event->time - $self->{_dclick} <= 500){
+					
+						$self->{_select_window}->hide;
+						$self->{_zoom_window}->hide;
+						$self->{_prop_window}->hide;
+						
+						#A short timeout to give the server a chance to
+						#redraw the area that was obscured by our dialog.
+						Glib::Timeout->add ($self->{_hide_time}, sub{
+							$output = $self->take_screenshot($s, $clean_pixbuf);
+							$self->quit;
+							return FALSE;	
+						});
+					
+					}else{
+						
+						$self->{_dclick} = $event->time;
+						return FALSE;
+					
+					}					
+				}
+
+			}
+		}
+	);
+
+	#event-handling
+	#all other events
 	$self->{_select_window}->signal_connect('event' =>
 		sub {
 			my ( $window, $event ) = @_;
-			return 0 unless defined $event;
+			return FALSE unless defined $event;
 
 			my $s = $self->{_selector}->get_selection;				
 			
 			#~ print $event->type, "\n";
 							
 			#handle button-release event
-			#we simulate a 2button-press here
-			if ( $event->type eq 'button-release') {		
+			if ( $event->type eq 'button-release' ) {		
 				
-				#left mouse button
-				if($event->button == 1){
-					
-					unless(defined $self->{_dclick}){
-	
-						$self->{_dclick} = $event->time;		
-	
-					}else{
-	
-						if($event->time - $self->{_dclick} <= 500){
-						
-							$self->{_select_window}->hide;
-							$self->{_zoom_window}->hide;
-							$self->{_prop_window}->hide;
-							
-							#A short timeout to give the server a chance to
-							#redraw the area that was obscured by our dialog.
-							Glib::Timeout->add ($self->{_hide_time}, sub{
-								$output = $self->take_screenshot($s, $clean_pixbuf);
-								$self->quit;
-								return FALSE;	
-							});
-						
-						}else{
-							
-							$self->{_dclick} = $event->time;
-						
-						}					
-	
-					}
-					
-				}elsif($event->button == 3){
+				if($event->button == 3){
 					if($self->{_prop_active}){
 						Gtk2::Gdk->keyboard_ungrab( Gtk2->get_current_event_time );
 						$self->{_prop_window}->hide_all;
@@ -1059,6 +1072,7 @@ sub quit {
 	$self->ungrab_pointer_and_keyboard( FALSE, FALSE, TRUE );
 	$self->{_selector}->signal_handler_disconnect ($self->{_selector_handler});
 	$self->{_view}->signal_handler_disconnect ($self->{_view_zoom_handler});
+	$self->{_view}->signal_handler_disconnect ($self->{_view_button_handler});
 	$self->{_select_window}->destroy;
 	$self->{_zoom_window}->destroy;
 	$self->{_prop_window}->destroy;
