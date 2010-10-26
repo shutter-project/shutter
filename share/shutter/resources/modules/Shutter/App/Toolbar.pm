@@ -46,8 +46,8 @@ sub new {
 sub create_toolbar {
 	my $self = shift;
 
-	my $d           = $self->{_common}->get_gettext;
-	my $window      = $self->{_common}->get_mainwindow;
+	my $d = $self->{_common}->get_gettext;
+	my $window = $self->{_common}->get_mainwindow;
 	my $shutter_root = $self->{_common}->get_root;
 
 	#Tooltips
@@ -60,7 +60,7 @@ sub create_toolbar {
 	#--------------------------------------
 	my $image_redoshot = Gtk2::Image->new_from_stock( 'gtk-refresh', 'large-toolbar' );
 	$self->{_redoshot} = Gtk2::ToolButton->new( $image_redoshot, $d->get("Redo") );
-	$self->{_redoshot}->set_is_important (TRUE);
+	#~ $self->{_redoshot}->set_is_important (TRUE);
 
 	$tooltips->set_tip( $self->{_redoshot}, $d->get("Redo last screenshot") );
 
@@ -257,16 +257,16 @@ sub create_toolbar {
 	#create the toolbar
 	$self->{_toolbar} = Gtk2::Toolbar->new;
 	$self->{_toolbar}->set_show_arrow(FALSE);
-	$self->{_toolbar}->insert( $self->{_redoshot},           -1 );	
+	$self->{_toolbar}->insert( $self->{_redoshot},           -1 );
+	$self->{_toolbar}->insert( Gtk2::SeparatorToolItem->new, -1 );	
 	$self->{_toolbar}->insert( $self->{_select},             -1 );
-	$self->{_toolbar}->insert( Gtk2::SeparatorToolItem->new, -1 );
 	$self->{_toolbar}->insert( $self->{_full},               -1 );
-	$self->{_toolbar}->insert( Gtk2::SeparatorToolItem->new, -1 );
+	#~ $self->{_toolbar}->insert( Gtk2::SeparatorToolItem->new, -1 );
 	$self->{_toolbar}->insert( $self->{_awindow},            -1 );
 	$self->{_toolbar}->insert( $self->{_section},            -1 );
 	$self->{_toolbar}->insert( $self->{_menu},               -1 );
 	$self->{_toolbar}->insert( $self->{_tooltip},            -1 );
-	$self->{_toolbar}->insert( Gtk2::SeparatorToolItem->new, -1 );
+	#~ $self->{_toolbar}->insert( Gtk2::SeparatorToolItem->new, -1 );
 	$self->{_toolbar}->insert( $self->{_web},                -1 );
 	#~ $self->{_toolbar}->insert( Gtk2::SeparatorToolItem->new, -1 );
 	$self->{_toolbar}->insert( $expander_r, 				 -1 );

@@ -7926,15 +7926,15 @@ if ($app->is_running) {
 		$menu_tray->append($menuitem_redoshot);
 		$menu_tray->append( Gtk2::SeparatorMenuItem->new );	
 		$menu_tray->append($menuitem_select);
-		$menu_tray->append( Gtk2::SeparatorMenuItem->new );
+		#~ $menu_tray->append( Gtk2::SeparatorMenuItem->new );
 		$menu_tray->append($menuitem_full);
-		$menu_tray->append( Gtk2::SeparatorMenuItem->new );
+		#~ $menu_tray->append( Gtk2::SeparatorMenuItem->new );
 		$menu_tray->append($menuitem_awindow);
 		$menu_tray->append($menuitem_window);
 		$menu_tray->append($menuitem_window_sect);
 		$menu_tray->append($menuitem_window_menu);
 		$menu_tray->append($menuitem_window_tooltip);
-		$menu_tray->append( Gtk2::SeparatorMenuItem->new );
+		#~ $menu_tray->append( Gtk2::SeparatorMenuItem->new );
 		$menu_tray->append($menuitem_web);
 		$menu_tray->append( Gtk2::SeparatorMenuItem->new );
 		$menu_tray->append( $menuitem_settings );

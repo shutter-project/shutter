@@ -443,7 +443,7 @@ sub fct_ret_new_menu {
 	}
 	$self->{_menu_new}->append( $self->{_menuitem_selection} );
 
-	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
+	#~ $self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
 
 	#full screen
 	$self->{_menuitem_full} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Desktop') );
@@ -460,7 +460,7 @@ sub fct_ret_new_menu {
 	}
 	$self->{_menu_new}->append( $self->{_menuitem_full} );
 
-	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
+	#~ $self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
 
 	#awindow
 	$self->{_menuitem_awindow} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Active Window') );
@@ -536,7 +536,7 @@ sub fct_ret_new_menu {
 	#~ }
 	$self->{_menu_new}->append( $self->{_menuitem_tooltip} );
 
-	$self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
+	#~ $self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
 
 	#web
 	$self->{_menuitem_web} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Web') );
