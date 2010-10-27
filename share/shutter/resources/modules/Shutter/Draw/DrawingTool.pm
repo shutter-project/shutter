@@ -400,7 +400,7 @@ sub show {
 	#-------------------------------------------------
 	#scrolled window for the cropping tool
 	$self->{_scrolled_window_c} = Gtk2::ImageView::ScrollWin->new ($self->{_view});	
-	$self->{_rframe_c} = $self->setup_right_vbox_c;	#be careful => frame is returned
+	($self->{_rframe_c}, $self->{_btn_ok_c}) = $self->setup_right_vbox_c;
 	$self->{_drawing_hbox_c}->pack_start( $self->{_scrolled_window_c}, TRUE, TRUE, 0 );
 	$self->{_drawing_hbox_c}->pack_start( $self->{_rframe_c}, FALSE, FALSE, 3 );
 
@@ -837,7 +837,7 @@ sub setup_right_vbox_c {
 
 	$crop_frame->add($cropping_bottom_vbox);
 
-	return $crop_frame;
+	return ($crop_frame, $crop_ok);
 }	
 
 sub adjust_crop_values{
@@ -1128,6 +1128,9 @@ sub change_drawing_tool_cb {
 
 		#hide drawing tool widgets
 		$self->{_drawing_inner_vbox}->hide_all;
+
+		#focus crop-ok-button
+		$self->{_btn_ok_c}->grab_focus;
 
 	}
 
