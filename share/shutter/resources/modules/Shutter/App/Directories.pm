@@ -60,6 +60,11 @@ sub get_temp_dir {
 	return $self->create_if_not_exists($self->get_root_dir."/temp");	
 }
 
+sub get_autostart_dir {
+	my $self = shift;
+	return $self->create_if_not_exists(Glib::get_user_config_dir."/autostart");		
+}
+
 sub get_home_dir {
 	my $self = shift;
 	return Glib::get_home_dir;

@@ -154,6 +154,7 @@ require Shutter::App::SimpleDialogs;
 require Shutter::App::HelperFunctions;
 require Shutter::App::Options;
 require Shutter::App::Directories;
+require Shutter::App::Autostart;
 require Shutter::App::Menu;
 require Shutter::App::Notification;
 require Shutter::App::ShutterNotification;
@@ -205,6 +206,7 @@ my $sc 		= Shutter::App::Common->new($shutter_root, $window, SHUTTER_NAME, SHUTT
 my $shf		= Shutter::App::HelperFunctions->new($sc);
 my $so  	= Shutter::App::Options->new($sc, $shf);
 my $sdir  	= Shutter::App::Directories->new();
+my $sas  	= Shutter::App::Autostart->new();
 my $sm  	= Shutter::App::Menu->new($sc);
 my $st  	= Shutter::App::Toolbar->new($sc);
 my $sd 		= Shutter::App::SimpleDialogs->new($window);
@@ -399,6 +401,8 @@ if ($app->is_running) {
 
 	#arrange settings in notebook
 	my $notebook_settings = Gtk2::Notebook->new;
+	$notebook_settings->set_tab_pos('left');
+	
 	my $settings_dialog   = Gtk2::Dialog->new(
 		SHUTTER_NAME . " - " . $d->get("Preferences"),
 		$window,
@@ -661,11 +665,15 @@ if ($app->is_running) {
 	my $session_hbox2		= Gtk2::HBox->new( FALSE, 0 );
 
 	#behavior
+	my $first_vbox       	= Gtk2::VBox->new( FALSE, 0 );
 	my $window_vbox       	= Gtk2::VBox->new( FALSE, 0 );
 	my $notify_vbox       	= Gtk2::VBox->new( FALSE, 0 );
 	my $trash_vbox       	= Gtk2::VBox->new( FALSE, 0 );
 	my $keybinding_vbox     = Gtk2::VBox->new( FALSE, 0 );
 
+	my $fs_active_hbox      = Gtk2::HBox->new( FALSE, 0 );
+	my $fs_min_active_hbox  = Gtk2::HBox->new( FALSE, 0 );
+	my $fs_not_active_hbox  = Gtk2::HBox->new( FALSE, 0 );
 	my $hide_active_hbox    = Gtk2::HBox->new( FALSE, 0 );
 	my $pafter_active_hbox  = Gtk2::HBox->new( FALSE, 0 );
 	my $cac_hbox			= Gtk2::HBox->new( FALSE, 0 );
@@ -849,6 +857,13 @@ if ($app->is_running) {
 	$save_frame->set_label_widget($save_frame_label);
 	$save_frame->set_shadow_type('none');
 
+	my $firstlaunch_frame_label = Gtk2::Label->new;
+	$firstlaunch_frame_label->set_markup( "<b>" . $d->get("First-launch Behavior") . "</b>" );
+
+	my $firstlaunch_frame = Gtk2::Frame->new();
+	$firstlaunch_frame->set_label_widget($firstlaunch_frame_label);
+	$firstlaunch_frame->set_shadow_type('none');
+	
 	my $window_frame_label = Gtk2::Label->new;
 	$window_frame_label->set_markup( "<b>" . $d->get("Window Preferences") . "</b>" );
 
@@ -1898,6 +1913,10 @@ if ($app->is_running) {
 
 	#behavior
 	#--------------------------------------
+	my $fs_active		= Gtk2::CheckButton->new_with_label( $d->get("Start Shutter at login") );
+	my $fs_min_active	= Gtk2::CheckButton->new_with_label( $d->get("Hide window on first launch") );
+	my $fs_not_active	= Gtk2::CheckButton->new_with_label( $d->get("Show notification icon") );
+
 	my $hide_active           = Gtk2::CheckButton->new_with_label( $d->get("Autohide main window when taking a screenshot") );
 	my $hide_time_label 	  = Gtk2::Label->new($d->get("Redraw Delay"). ":");
 	my $hide_time_vlabel      = Gtk2::Label->new;
@@ -1924,6 +1943,9 @@ if ($app->is_running) {
 	my $ask_on_delete_active    = Gtk2::CheckButton->new_with_label( $d->get("Ask before moving files to trash") );
 	my $delete_on_close_active  = Gtk2::CheckButton->new_with_label( $d->get("Move file to trash when closing tab") );
 
+	$fs_active_hbox->pack_start( $fs_active,                FALSE, TRUE, 12 );
+	$fs_min_active_hbox->pack_start( $fs_min_active,        FALSE, TRUE, 12 );
+	$fs_not_active_hbox->pack_start( $fs_not_active,        FALSE, TRUE, 12 );
 	$hide_active_hbox->pack_start( $hide_active,            FALSE, TRUE, 12 );
 	$pafter_active_hbox->pack_start( $present_after_active, FALSE, TRUE, 12 );
 	$cac_hbox->pack_start( $close_at_close_active,          FALSE, TRUE, 12 );
@@ -1937,6 +1959,30 @@ if ($app->is_running) {
 	$ns_combo_hbox->pack_start( $combobox_ns,               FALSE, TRUE,  0 );
 	$aod_active_hbox->pack_start( $ask_on_delete_active,    FALSE, TRUE, 12 );
 	$doc_active_hbox->pack_start( $delete_on_close_active,  FALSE, TRUE, 12 );
+
+	if ( defined $settings_xml->{'general'}->{'autofs'} ) {
+		$fs_active->set_active( $settings_xml->{'general'}->{'autofs'} );
+	} else {
+		$fs_active->set_active(FALSE);
+	}
+
+	$tooltips->set_tip( $fs_active, $d->get("Start Shutter at login") );
+
+	if ( defined $settings_xml->{'general'}->{'autofs_min'} ) {
+		$fs_min_active->set_active( $settings_xml->{'general'}->{'autofs_min'} );
+	} else {
+		$fs_min_active->set_active(FALSE);
+	}
+
+	$tooltips->set_tip( $fs_min_active, $d->get("Hide window on first launch") );
+
+	if ( defined $settings_xml->{'general'}->{'autofs_not'} ) {
+		$fs_not_active->set_active( $settings_xml->{'general'}->{'autofs_not'} );
+	} else {
+		$fs_not_active->set_active(FALSE);
+	}
+
+	$tooltips->set_tip( $fs_not_active, $d->get("Show notification icon") );
 
 	if ( defined $settings_xml->{'general'}->{'autohide'} ) {
 		$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
@@ -2277,6 +2323,11 @@ if ($app->is_running) {
 	my $label_behavior = Gtk2::Label->new;
 	$label_behavior->set_markup( $d->get("Behavior") );
 
+	$first_vbox->pack_start( $fs_active_hbox, TRUE, TRUE, 3 );
+	$first_vbox->pack_start( $fs_min_active_hbox, TRUE, TRUE, 3 );
+	$first_vbox->pack_start( $fs_not_active_hbox, TRUE, TRUE, 3 );
+	$firstlaunch_frame->add($first_vbox);
+
 	$window_vbox->pack_start( $hide_active_hbox, TRUE, TRUE, 3 );
 	$window_vbox->pack_start( $pafter_active_hbox, TRUE, TRUE, 3 );
 	$window_vbox->pack_start( $cac_hbox, TRUE, TRUE, 3 );
@@ -2299,6 +2350,7 @@ if ($app->is_running) {
 	my $sg_behav = Gtk2::SizeGroup->new('horizontal');
 	$sg_behav->add_widget($hide_time_label);
 
+	$vbox_behavior->pack_start( $firstlaunch_frame, FALSE, TRUE, 3 );
 	$vbox_behavior->pack_start( $window_frame, FALSE, TRUE, 3 );
 	$vbox_behavior->pack_start( $notify_frame, FALSE, TRUE, 3 );
 	$vbox_behavior->pack_start( $trash_frame, FALSE, TRUE, 3 );
@@ -4194,6 +4246,9 @@ if ($app->is_running) {
 		$settings{'general'}->{'session_desc_combo'} = $session_desc_combo->get_active();
 
 		#behavior
+		$settings{'general'}->{'autofs'}           = $fs_active->get_active();
+		$settings{'general'}->{'autofs_min'}       = $fs_min_active->get_active();
+		$settings{'general'}->{'autofs_not'}       = $fs_not_active->get_active();
 		$settings{'general'}->{'autohide'}         = $hide_active->get_active();
 		$settings{'general'}->{'autohide_time'}    = $hide_time->get_value();
 		$settings{'general'}->{'present_after'}    = $present_after_active->get_active();
@@ -4292,6 +4347,9 @@ if ($app->is_running) {
 
 		#keybindings
 		&fct_save_bindings($capture_key->get_text, $capture_sel_key->get_text);	
+
+		#autostart
+		$sas->create_autostart_file($sdir->get_autostart_dir, $fs_active->get_active, $fs_min_active->get_active, $fs_not_active->get_active);
 
 		return TRUE;
 	}
@@ -4559,6 +4617,9 @@ if ($app->is_running) {
 					$session_desc_combo->set_active( $settings_xml->{'general'}->{'session_desc_combo'} );
 
 					#behavior
+					$fs_active->set_active( $settings_xml->{'general'}->{'autofs'} );
+					$fs_min_active->set_active( $settings_xml->{'general'}->{'autofs_min'} );
+					$fs_not_active->set_active( $settings_xml->{'general'}->{'autofs_not'} );
 					$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
 					$hide_time->set_value( $settings_xml->{'general'}->{'autohide_time'} );
 					$present_after_active->set_active( $settings_xml->{'general'}->{'present_after'} );
