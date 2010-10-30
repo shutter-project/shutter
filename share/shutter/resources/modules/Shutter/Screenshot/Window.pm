@@ -403,7 +403,7 @@ sub get_window_size {
 		( $xp, $yp, $wp, $hp ) = $wnck_window->get_geometry;
 	} else {
 		( $xp, $yp, $wp, $hp ) = $gdk_window->get_geometry;
-		( $xp, $yp ) = $gdk_window->get_root_origin;
+		( $xp, $yp ) = $gdk_window->get_origin;
 	}
 
 	return ( $xp, $yp, $wp, $hp );
