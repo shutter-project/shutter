@@ -382,8 +382,12 @@ sub get_window_size {
 			if(defined $self->{_windowresize_h} && $self->{_windowresize_h} > 0){
 				$hc = $self->{_windowresize_h};
 			}
-					
-			$gdk_window->move_resize ($xc, $yc, $wc, $hc);
+			
+			if($border){
+				$wnck_window->set_geometry ('current', [qw/width height/], $xc, $yc, $wc, $hc);		
+			}else{
+				$gdk_window->resize ($wc, $hc);
+			}
 				
 			Glib::Timeout->add ($self->{_hide_time}, sub{		
 				Gtk2->main_quit;
@@ -393,25 +397,13 @@ sub get_window_size {
 		}
 	}
 
-	my ( $xp, $yp, $wp, $hp ) = $wnck_window->get_geometry;
+	#calculate size of the window
+	my ( $xp, $yp, $wp, $hp ) = (0, 0, 0, 0);
 	if ($border) {
-
-		#~ #find wm_window
-		#~ my $wm_window = Gtk2::Gdk::Window->foreign_new( $self->find_wm_window( $wnck_window->get_xid ) );
-		#~ $gdk_window = $wm_window if $wm_window;
-
-		#get_size of it
-		my ( $xp2, $yp2, $wp2, $hp2 ) = $gdk_window->get_geometry;
-		( $xp2, $yp2 ) = $gdk_window->get_origin;
-
-		#check the correct rect
-		if (   $xp2 + $wp2 > $xp + $wp && $yp2 + $hp2 > $yp + $hp ) {
-			( $xp, $yp, $wp, $hp ) = ( $xp2, $yp2, $wp2, $hp2 );
-		}
-
+		( $xp, $yp, $wp, $hp ) = $wnck_window->get_geometry;
 	} else {
-		( $wp, $hp ) 	= $gdk_window->get_size;
-		( $xp, $yp )	= $gdk_window->get_origin;
+		( $xp, $yp, $wp, $hp ) = $gdk_window->get_geometry;
+		( $xp, $yp ) = $gdk_window->get_root_origin;
 	}
 
 	return ( $xp, $yp, $wp, $hp );
