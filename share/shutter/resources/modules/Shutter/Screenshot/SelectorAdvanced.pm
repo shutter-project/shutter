@@ -400,12 +400,15 @@ sub select_advanced {
 						$self->{_prop_window}->hide;
 						
 						#A short timeout to give the server a chance to
-						#redraw the area that was obscured by our dialog.
-						Glib::Timeout->add ($self->{_hide_time}, sub{
-							$output = $self->take_screenshot($s, $clean_pixbuf);
-							$self->quit;
+						#redraw the area
+						Glib::Timeout->add ($self->{_hide_time}, sub{		
+							Gtk2->main_quit;
 							return FALSE;	
-						});
+						});	
+						Gtk2->main();
+
+						$output = $self->take_screenshot($s, $clean_pixbuf);
+						$self->quit;
 					
 					}else{
 						
@@ -689,12 +692,15 @@ sub select_advanced {
 					$self->{_prop_window}->hide;
 					
 					#A short timeout to give the server a chance to
-					#redraw the area that was obscured by our dialog.
-					Glib::Timeout->add ($self->{_hide_time}, sub{
-						$output = $self->take_screenshot($s, $clean_pixbuf);
-						$self->quit;
+					#redraw the area
+					Glib::Timeout->add ($self->{_hide_time}, sub{		
+						Gtk2->main_quit;
 						return FALSE;	
-					});		
+					});	
+					Gtk2->main();
+					
+					$output = $self->take_screenshot($s, $clean_pixbuf);
+					$self->quit;
 									
 				}
 			}	

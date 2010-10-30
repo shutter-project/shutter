@@ -41,11 +41,9 @@ use Glib qw/TRUE FALSE/;
 sub new {
 	my $class = shift;
 
-	#call constructor of super class (shutter_common, include_cursor, delay, notify_timeout, include_border)
-	my $self = $class->SUPER::new( shift, shift, shift, shift, shift );
+	#call constructor of super class (shutter_common, include_cursor, delay, notify_timeout, include_border, windowresize_active, windowresize_w, windowresize_h, hide_time)
+	my $self = $class->SUPER::new( shift, shift, shift, shift, shift, shift, shift, shift, shift );
 
-	$self->{_hide_time} = shift;   #a short timeout to give the server a chance to redraw the area that was obscured
-	
 	bless $self, $class;
 	return $self;
 }
@@ -96,33 +94,33 @@ sub window_by_xid {
 	
 		#A short timeout to give the server a chance to
 		#redraw the area
-		Glib::Timeout->add ($self->{_hide_time}, sub{
-	
-			my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_pixbuf_from_drawable($self->{_root}, $xp, $yp, $wp, $hp);
-	
-			#save return value to current $output variable 
-			#-> ugly but fastest and safest solution now
-			$output = $output_new;	
-	
-			#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
-			if($self->{_x11}{ext_shape} && $self->{_include_border}){
-				$output = $self->get_shape($xid, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);				
-			}
-	
-			#set name of the captured window
-			#e.g. for use in wildcards
-			if($output =~ /Gtk2/){
-				$self->{_action_name} = $wnck_window->get_name;
-			}
-	
-			#set history object
-			$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->{_root}, $xp, $yp, $wp, $hp, undef, $xid, $xid);
-
-			$self->quit;
+		Glib::Timeout->add ($self->{_hide_time}, sub{		
+			Gtk2->main_quit;
 			return FALSE;	
 		});	
-	
 		Gtk2->main();
+	
+		my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_pixbuf_from_drawable($self->{_root}, $xp, $yp, $wp, $hp);
+
+		#save return value to current $output variable 
+		#-> ugly but fastest and safest solution now
+		$output = $output_new;	
+
+		#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
+		if($self->{_x11}{ext_shape} && $self->{_include_border}){
+			$output = $self->get_shape($xid, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);				
+		}
+
+		#set name of the captured window
+		#e.g. for use in wildcards
+		if($output =~ /Gtk2/){
+			$self->{_action_name} = $wnck_window->get_name;
+		}
+
+		#set history object
+		$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->{_root}, $xp, $yp, $wp, $hp, undef, $xid, $xid);
+
+		$self->quit;
 	
 	}else{	
 		$output = 4;	
@@ -154,6 +152,14 @@ sub get_error_text {
 sub get_action_name {
 	my $self = shift;
 	return $self->{_action_name};
+}
+
+sub quit {
+	my $self = shift;
+	
+	$self->ungrab_pointer_and_keyboard( FALSE, TRUE, FALSE );
+	Gtk2::Gdk->flush;
+
 }
 
 1;

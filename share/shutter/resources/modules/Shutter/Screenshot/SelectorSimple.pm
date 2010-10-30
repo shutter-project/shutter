@@ -230,24 +230,27 @@ sub select_simple {
 						#hide zoom_window and disable Event Handler
 						$zoom_window->hide;
 						$self->ungrab_pointer_and_keyboard( FALSE, TRUE, FALSE );
-						
+
 						#A short timeout to give the server a chance to
-						#redraw the area that was obscured by our zoom window
-						Glib::Timeout->add ($self->{_hide_time}, sub{
-							($output) = $self->get_pixbuf_from_drawable( $self->{_root}, $rect_x, $rect_y, $rect_w+1, $rect_h+1);
-							
-							#we don't have a useful string for wildcards (e.g. $name)
-							my $d = $self->{_sc}->get_gettext;
-							if($output =~ /Gtk2/){
-								$self->{_action_name} = $d->get("Selection");
-							}
-						
-							#set history object
-							$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->{_root}, $rect_x, $rect_y, $rect_w+1, $rect_h+1);
-							
-							$self->quit($zoom_window);
+						#redraw the area
+						Glib::Timeout->add ($self->{_hide_time}, sub{		
+							Gtk2->main_quit;
 							return FALSE;	
 						});	
+						Gtk2->main();						
+
+						($output) = $self->get_pixbuf_from_drawable( $self->{_root}, $rect_x, $rect_y, $rect_w+1, $rect_h+1);
+						
+						#we don't have a useful string for wildcards (e.g. $name)
+						my $d = $self->{_sc}->get_gettext;
+						if($output =~ /Gtk2/){
+							$self->{_action_name} = $d->get("Selection");
+						}
+					
+						#set history object
+						$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->{_root}, $rect_x, $rect_y, $rect_w+1, $rect_h+1);
+						
+						$self->quit($zoom_window);
 						
 					#return error	
 					} else {

@@ -47,10 +47,13 @@ sub new {
 
 	#get params
 	$self->{_include_border} 	= shift;
+	$self->{_windowresize}      = shift;
+	$self->{_windowresize_w}    = shift;
+	$self->{_windowresize_h}    = shift;
+	$self->{_hide_time}			= shift;   #a short timeout to give the server a chance to redraw the area that was obscured
 	$self->{_mode} 				= shift;
 	$self->{_is_hidden}      	= shift;
 	$self->{_show_visible}      = shift;   #show user-visible windows only when selecting a window
-	$self->{_hide_time}			= shift;   #a short timeout to give the server a chance to redraw the area that was obscured
 	$self->{_ignore_type}	    = shift;   #Ignore possibly wrong type hints
 
 	#X11 protocol and XSHAPE ext
@@ -365,7 +368,30 @@ sub get_shape {
 }	
 
 sub get_window_size {
-	my ( $self, $wnck_window, $gdk_window, $border ) = @_;
+	my ( $self, $wnck_window, $gdk_window, $border, $no_resize ) = @_;
+
+	#windowresize is active
+	unless($no_resize){
+		if(defined $self->{_windowresize} && $self->{_windowresize}) {
+			my ($xc, $yc, $wc, $hc) = $self->get_window_size($wnck_window, $gdk_window, $border, TRUE);
+			
+			if(defined $self->{_windowresize_w} && $self->{_windowresize} > 0){
+				$wc = $self->{_windowresize_w};
+			}
+			
+			if(defined $self->{_windowresize_h} && $self->{_windowresize_h} > 0){
+				$hc = $self->{_windowresize_h};
+			}
+					
+			$gdk_window->move_resize ($xc, $yc, $wc, $hc);
+				
+			Glib::Timeout->add ($self->{_hide_time}, sub{		
+				Gtk2->main_quit;
+				return FALSE;	
+			});	
+			Gtk2->main();
+		}
+	}
 
 	my ( $xp, $yp, $wp, $hp ) = $wnck_window->get_geometry;
 	if ($border) {
@@ -452,7 +478,7 @@ sub find_current_parent_window {
 				next if ( $cwdow->get_xid == $self->{_main_gtk_window}->window->get_xid );
 			}
 	
-			my ( $xp, $yp, $wp, $hp ) = $self->get_window_size( $cwdow, $drawable, $self->{_include_border} );
+			my ( $xp, $yp, $wp, $hp ) = $self->get_window_size( $cwdow, $drawable, $self->{_include_border}, TRUE );
 	
 			my $wr = Gtk2::Gdk::Region->rectangle(
 				Gtk2::Gdk::Rectangle->new( $xp, $yp, $wp, $hp ) );
@@ -814,10 +840,20 @@ sub window {
 				
 				#BUTTON-RELEASE				
 				} elsif ( $event->type eq 'button-release' ) {
-					print "Type: " . $event->type . "\n"
-						if ( defined $event && $self->{_sc}->get_debug );
+					print "Type: " . $event->type . "\n" if ( defined $event && $self->{_sc}->get_debug );
 
 					if ( defined $self->{_c}{'lw'} && $self->{_c}{'lw'}{'gdk_window'} ) {
+
+						#destroy highlighter window
+						$self->{_highlighter}->destroy;
+
+						#size (we need to do this again because of autoresizing)
+						my ( $xp, $yp, $wp, $hp ) = $self->get_window_size( $self->{_c}{'lw'}{'window'}, $self->{_c}{'lw'}{'gdk_window'}, $self->{_include_border} );
+
+						$self->{_c}{'cw'}{'x'} 			= $xp;
+						$self->{_c}{'cw'}{'y'} 			= $yp;
+						$self->{_c}{'cw'}{'width'} 		= $wp;
+						$self->{_c}{'cw'}{'height'} 	= $hp;
 
 						#focus selected window (maybe it is hidden)
 						$self->{_c}{'lw'}{'gdk_window'}->focus($event->time);
@@ -848,63 +884,60 @@ sub window {
 						#we don't take the screenshot yet
 						return TRUE;
 					}
-
-					#destroy highlighter window
-					$self->{_highlighter}->destroy;
-
-					#disable Event Handler
-					$self->ungrab_pointer_and_keyboard( FALSE, TRUE, FALSE );
 					
 					#A short timeout to give the server a chance to
 					#redraw the area
-					Glib::Timeout->add ($self->{_hide_time}, sub{
-						
-						my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = 
-							$self->get_pixbuf_from_drawable(
-								$self->{_root},
-								$self->{_c}{'cw'}{'x'},
-								$self->{_c}{'cw'}{'y'},
-								$self->{_c}{'cw'}{'width'},
-								$self->{_c}{'cw'}{'height'}
-							);
-
-						#save return value to current $output variable 
-						#-> ugly but fastest and safest solution now
-						$output = $output_new;
-													
-						#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
-						if($self->{_x11}{ext_shape} && $self->{_include_border}){
-							my $xid = $self->{_c}{ 'cw' }{ 'gdk_window' }->get_xid;
-							#do not try this for child windows
-							foreach my $win ($self->{_wnck_screen}->get_windows){
-								if($win->get_xid == $xid){
-									$output = $self->get_shape($xid, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);				
-									last;
-								}
-							}
-						}
-
-						#set name of the captured window
-						#e.g. for use in wildcards
-						if($output =~ /Gtk2/ && defined $self->{_c}{'cw'}{'window'}){
-							$self->{_action_name} = $self->{_c}{'cw'}{'window'}->get_name;
-						}
-
-						#set history object
-						$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, 
-								$self->{_root}, 
-								$self->{_c}{'cw'}{'x'}, 
-								$self->{_c}{'cw'}{'y'},
-								$self->{_c}{'cw'}{'width'},
-								$self->{_c}{'cw'}{'height'},
-								undef,
-								$self->{_c}{'cw'}{'window'}->get_xid,
-								$self->{_c}{'cw'}{'gdk_window'}->get_xid
-						);
-
-						$self->quit;
+					Glib::Timeout->add ($self->{_hide_time}, sub{		
+						Gtk2->main_quit;
 						return FALSE;	
 					});	
+					Gtk2->main();
+					
+					my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = 
+						$self->get_pixbuf_from_drawable(
+							$self->{_root},
+							$self->{_c}{'cw'}{'x'},
+							$self->{_c}{'cw'}{'y'},
+							$self->{_c}{'cw'}{'width'},
+							$self->{_c}{'cw'}{'height'}
+						);
+
+					#save return value to current $output variable 
+					#-> ugly but fastest and safest solution now
+					$output = $output_new;
+												
+					#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
+					if($self->{_x11}{ext_shape} && $self->{_include_border}){
+						my $xid = $self->{_c}{ 'cw' }{ 'gdk_window' }->get_xid;
+						#do not try this for child windows
+						foreach my $win ($self->{_wnck_screen}->get_windows){
+							if($win->get_xid == $xid){
+								$output = $self->get_shape($xid, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);				
+								last;
+							}
+						}
+					}
+					
+
+					#set name of the captured window
+					#e.g. for use in wildcards
+					if($output =~ /Gtk2/ && defined $self->{_c}{'cw'}{'window'}){
+						$self->{_action_name} = $self->{_c}{'cw'}{'window'}->get_name;
+					}
+
+					#set history object
+					$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, 
+							$self->{_root}, 
+							$self->{_c}{'cw'}{'x'}, 
+							$self->{_c}{'cw'}{'y'},
+							$self->{_c}{'cw'}{'width'},
+							$self->{_c}{'cw'}{'height'},
+							undef,
+							$self->{_c}{'cw'}{'window'}->get_xid,
+							$self->{_c}{'cw'}{'gdk_window'}->get_xid
+					);
+
+					$self->quit;
 															
 				#MOTION-NOTIFY											
 				} elsif ( $event->type eq 'motion-notify' ) {
@@ -925,7 +958,6 @@ sub window {
 	#pointer not grabbed	
 	} else {    
 		
-		$self->ungrab_pointer_and_keyboard( FALSE, FALSE, FALSE );
 		$output = 0;
 
 		if ( ( $self->{_mode} eq "window" || $self->{_mode} eq "tray_window" ||  $self->{_mode} eq "awindow"  || $self->{_mode} eq "tray_awindow" ) ) {
@@ -1105,26 +1137,26 @@ sub redo_capture {
 				#focus selected window (maybe it is hidden)
 				$gdk_window->focus(Gtk2->get_current_event_time);
 				Gtk2::Gdk->flush;	
-	
+
 				#A short timeout to give the server a chance to
 				#redraw the area
-				Glib::Timeout->add ($self->{_hide_time}, sub{
-	
-					my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_pixbuf_from_drawable($self->{_root}, $xp, $yp, $wp, $hp);
-	
-					#save return value to current $output variable 
-					#-> ugly but fastest and safest solution now				
-					$output = $output_new;
-	
-					if($self->{_mode} eq "window" || $self->{_mode} eq "tray_window" || $self->{_mode} eq "awindow" || $self->{_mode} eq "tray_awindow"){
-						$output = $self->get_shape($gxid, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);
-					}
-	
-					$self->quit;
+				Glib::Timeout->add ($self->{_hide_time}, sub{		
+					Gtk2->main_quit;
 					return FALSE;	
-				});					
-				
+				});	
 				Gtk2->main();
+		
+				my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_pixbuf_from_drawable($self->{_root}, $xp, $yp, $wp, $hp);
+
+				#save return value to current $output variable 
+				#-> ugly but fastest and safest solution now				
+				$output = $output_new;
+
+				if($self->{_mode} eq "window" || $self->{_mode} eq "tray_window" || $self->{_mode} eq "awindow" || $self->{_mode} eq "tray_awindow"){
+					$output = $self->get_shape($gxid, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);
+				}
+
+				$self->quit_eventh_only;
 					
 			}else{
 				warn "WARNING: Could not get window with id $gxid\n";
@@ -1164,5 +1196,12 @@ sub quit {
 
 }
 
+sub quit_eventh_only {
+	my $self = shift;
+	
+	$self->ungrab_pointer_and_keyboard( FALSE, TRUE, FALSE );
+	Gtk2::Gdk->flush;
+
+}
 
 1;

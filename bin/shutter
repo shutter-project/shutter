@@ -649,6 +649,7 @@ if ($app->is_running) {
 	my $asel_isize_box      = Gtk2::HBox->new( FALSE, 0 );
 	my $asel_isize_box2     = Gtk2::HBox->new( FALSE, 0 );
 	my $border_box          = Gtk2::HBox->new( FALSE, 0 );
+	my $winresize_box       = Gtk2::HBox->new( FALSE, 0 );
 	my $visible_windows_box = Gtk2::HBox->new( FALSE, 0 );
 	my $menu_delay_box      = Gtk2::HBox->new( FALSE, 0 );
 	my $menu_waround_box    = Gtk2::HBox->new( FALSE, 0 );
@@ -1424,7 +1425,7 @@ if ($app->is_running) {
 		$d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be") );
 	$thumbnail_box->pack_start( $thumbnail_label, FALSE, TRUE, 12 );
 	$thumbnail_box->pack_start( $thumbnail_active, FALSE, FALSE, 0 );
-	$thumbnail_box->pack_start( $thumbnail,        TRUE,  TRUE,  0 );
+	$thumbnail_box->pack_start( $thumbnail, TRUE, TRUE, 0 );
 
 	#end - thumbnail
 	#--------------------------------------
@@ -1600,6 +1601,49 @@ if ($app->is_running) {
 	}
 
 	#end - border
+	#--------------------------------------
+
+	#window resize
+	#--------------------------------------
+	my ($x, $y, $w, $h) = Gtk2::Gdk->get_default_root_window->get_geometry;
+	
+	my $winresize_active = Gtk2::CheckButton->new_with_label( $d->get("Automatically resize window to") );
+	my $winresize_label = Gtk2::Label->new( "x" );
+	my $winresize_w = Gtk2::SpinButton->new_with_range( 0, $w, 1 );
+	my $winresize_h = Gtk2::SpinButton->new_with_range( 0, $h, 1 );
+	my $winresize_vlabel = Gtk2::Label->new( $d->get("pixels") );
+
+	if ( defined $settings_xml->{'general'}->{'winresize_active'} ) {
+		$winresize_active->set_active( $settings_xml->{'general'}->{'winresize_active'} );
+	} else {
+		$winresize_active->set_active(FALSE);
+	}
+
+	if ( defined $settings_xml->{'general'}->{'winresize_w'} ) {
+		$winresize_w->set_value( $settings_xml->{'general'}->{'winresize_w'} );
+	} else {
+		$winresize_w->set_value(500);
+	}
+	
+	if ( defined $settings_xml->{'general'}->{'winresize_h'} ) {
+		$winresize_h->set_value( $settings_xml->{'general'}->{'winresize_h'} );
+	} else {
+		$winresize_h->set_value(500);
+	}
+
+	$tooltips->set_tip( $winresize_active, $d->get("This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize.") );
+	$tooltips->set_tip( $winresize_w, $d->get("This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize.") );
+	$tooltips->set_tip( $winresize_label, $d->get("This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize.") );
+	$tooltips->set_tip( $winresize_h, $d->get("This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize.") );
+	$tooltips->set_tip( $winresize_vlabel, $d->get("This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize.") );
+
+	$winresize_box->pack_start( $winresize_active, FALSE, FALSE, 12 );
+	$winresize_box->pack_start( $winresize_w, FALSE, FALSE, 0 );
+	$winresize_box->pack_start( $winresize_label, FALSE, FALSE, 0 );
+	$winresize_box->pack_start( $winresize_h, FALSE, FALSE, 0 );
+	$winresize_box->pack_start( $winresize_vlabel, FALSE, FALSE, 2 );
+	
+	#end - window resize
 	#--------------------------------------
 
 	#visible windows only
@@ -2273,6 +2317,7 @@ if ($app->is_running) {
 	$asel_capture_frame->add($asel_capture_vbox);
 
 	$window_capture_vbox->pack_start( $border_box, FALSE, TRUE, 3 );
+	$window_capture_vbox->pack_start( $winresize_box, FALSE, TRUE, 3 );
 	$window_capture_vbox->pack_start( $visible_windows_box, FALSE, TRUE, 3 );
 	$window_capture_frame->add($window_capture_vbox);
 
@@ -4228,6 +4273,9 @@ if ($app->is_running) {
 		$settings{'general'}->{'asel_w'} 	       = $asel_size1->get_value();
 		$settings{'general'}->{'asel_h'} 	       = $asel_size2->get_value();
 		$settings{'general'}->{'border'}           = $border_active->get_active();
+		$settings{'general'}->{'winresize_active'} = $winresize_active->get_active();
+		$settings{'general'}->{'winresize_w'}      = $winresize_w->get_value();
+		$settings{'general'}->{'winresize_h'}      = $winresize_h->get_value();
 		$settings{'general'}->{'visible_windows'}  = $visible_windows_active->get_active();
 		$settings{'general'}->{'menu_delay'}  	   = $menu_delay->get_value();
 		$settings{'general'}->{'menu_waround'}     = $menu_waround_active->get_active();
@@ -4598,6 +4646,11 @@ if ($app->is_running) {
 					$asel_size2->set_value($settings_xml->{'general'}->{'asel_h'});
 			
 					$border_active->set_active( $settings_xml->{'general'}->{'border'} );
+					
+					$winresize_active->set_active( $settings_xml->{'general'}->{'winresize_active'} );
+					$winresize_w->set_value( $settings_xml->{'general'}->{'winresize_w'} );
+					$winresize_h->set_active( $settings_xml->{'general'}->{'winresize_h'} );
+					
 					$visible_windows_active->set_active( $settings_xml->{'general'}->{'visible_windows'} );
 					$menu_waround_active->set_active( $settings_xml->{'general'}->{'menu_waround'} );
 					$menu_delay->set_value( $settings_xml->{'general'}->{'menu_delay'} );
@@ -5791,8 +5844,10 @@ if ($app->is_running) {
 			if ( defined $extra && $extra ) {
 
 				$screenshooter = Shutter::Screenshot::WindowName->new(
-					$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active,
-					$border_active->get_active, $hide_time->get_value,
+					$sc, $cursor_active->get_active, $delay_value, 
+					$notify_timeout_active->get_active, $border_active->get_active, 
+					$winresize_active->get_active, $winresize_w->get_value, $winresize_h->get_value,
+					$hide_time->get_value,
 				);
 				
 				$screenshot = $screenshooter->window_find_by_name($extra);
@@ -5800,9 +5855,12 @@ if ($app->is_running) {
 			} else {	
 
 				$screenshooter = Shutter::Screenshot::Window->new(
-					$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active,
-					$border_active->get_active, $data, $is_hidden, 
-					$visible_windows_active->get_active, $hide_time->get_value, $menu_waround_active->get_active
+					$sc, $cursor_active->get_active, $delay_value, 
+					$notify_timeout_active->get_active, $border_active->get_active, 
+					$winresize_active->get_active, $winresize_w->get_value, $winresize_h->get_value,
+					$hide_time->get_value,
+					$data, $is_hidden, $visible_windows_active->get_active, 
+					$menu_waround_active->get_active
 				);
 				
 				$screenshot = $screenshooter->window();
@@ -5890,6 +5948,7 @@ if ($app->is_running) {
 				$delay_value, 
 				$notify_timeout_active->get_active, 
 				$border_active->get_active,
+				$winresize_active->get_active, $winresize_w->get_value, $winresize_h->get_value,
 				$hide_time->get_value,
 			);
 			
