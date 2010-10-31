@@ -5848,6 +5848,7 @@ if ($app->is_running) {
 					$notify_timeout_active->get_active, $border_active->get_active, 
 					$winresize_active->get_active, $winresize_w->get_value, $winresize_h->get_value,
 					$hide_time->get_value,
+					$data,
 				);
 				
 				$screenshot = $screenshooter->window_find_by_name($extra);
@@ -5941,7 +5942,10 @@ if ($app->is_running) {
 			
 			my $xid = $1;
 			print "Selected xid: $xid\n" if $sc->get_debug;
-
+			
+			#change mode (imitating selecting a window by mouse)
+			$data = "window";
+			
 			$screenshooter = Shutter::Screenshot::WindowXid->new( 
 				$sc, 
 				$cursor_active->get_active, 
@@ -5950,6 +5954,7 @@ if ($app->is_running) {
 				$border_active->get_active,
 				$winresize_active->get_active, $winresize_w->get_value, $winresize_h->get_value,
 				$hide_time->get_value,
+				$data,
 			);
 			
 			$screenshot = $screenshooter->window_by_xid($xid);

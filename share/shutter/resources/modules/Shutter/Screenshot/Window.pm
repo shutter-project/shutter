@@ -374,6 +374,20 @@ sub get_window_size {
 	if($self->{_mode} eq "window" || $self->{_mode} eq "tray_window" || $self->{_mode} eq "awindow" || $self->{_mode} eq "tray_awindow"){
 		unless($no_resize){
 			if(defined $self->{_windowresize} && $self->{_windowresize}) {
+				
+				#windows can usually not be resized when maximized
+				if($wnck_window->is_maximized){
+					$wnck_window->unmaximize;
+				}
+
+				$self->quit_eventh_only;
+
+				Glib::Timeout->add ($self->{_hide_time}, sub{		
+					Gtk2->main_quit;
+					return FALSE;	
+				});	
+				Gtk2->main();
+				
 				my ($xc, $yc, $wc, $hc) = $self->get_window_size($wnck_window, $gdk_window, $border, TRUE);
 				
 				if(defined $self->{_windowresize_w} && $self->{_windowresize} > 0){
@@ -389,8 +403,6 @@ sub get_window_size {
 				}else{
 					$gdk_window->resize ($wc, $hc);
 				}
-				
-				$self->quit_eventh_only;
 					
 				Glib::Timeout->add ($self->{_hide_time}, sub{		
 					Gtk2->main_quit;
