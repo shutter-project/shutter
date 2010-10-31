@@ -4649,7 +4649,7 @@ if ($app->is_running) {
 					
 					$winresize_active->set_active( $settings_xml->{'general'}->{'winresize_active'} );
 					$winresize_w->set_value( $settings_xml->{'general'}->{'winresize_w'} );
-					$winresize_h->set_active( $settings_xml->{'general'}->{'winresize_h'} );
+					$winresize_h->set_value( $settings_xml->{'general'}->{'winresize_h'} );
 					
 					$visible_windows_active->set_active( $settings_xml->{'general'}->{'visible_windows'} );
 					$menu_waround_active->set_active( $settings_xml->{'general'}->{'menu_waround'} );
