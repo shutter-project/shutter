@@ -91,11 +91,11 @@ sub new {
 		my $sel_bg 		= $style->bg('selected');
 		my $sel_tx 		= $style->text('selected');
 		my $font_fam 	= $style->font_desc->get_family;
-		my $font_size 	= $style->font_desc->get_size;
+		my $font_size 	= $style->font_desc->get_size / Gtk2::Pango->scale;
 
 		my $mon 	= $self->get_current_monitor;
-		my $size 	= int( $mon->width * 0.007 );
-		my $size2 	= int( $mon->width * 0.006 );
+		#~ my $font_size 	= int( $mon->width * 0.007 );
+		#~ my $font_size2 	= int( $mon->width * 0.006 );
 
 		$self->{_highlighter_expose} = $self->{_highlighter}->signal_connect('expose-event' => sub{
 			#remove old handler
@@ -139,12 +139,12 @@ sub new {
 
 			#pango layout
 			my $layout = Gtk2::Pango::Cairo::create_layout($cr);
-			$layout->set_width( ($w - $icon->get_width - $size * 3) * Gtk2::Pango->scale );
+			$layout->set_width( ($w - $icon->get_width - $font_size * 3) * Gtk2::Pango->scale );
 			$layout->set_alignment('left');
 			$layout->set_wrap('char');
 			
 			#set text
-			$layout->set_markup("<span font_desc=\"$font_fam $size\" weight=\"bold\" foreground=\"#FFFFFF\">$text</span><span font_desc=\"$font_fam $size2\" foreground=\"#FFFFFF\">$sec_text</span>");
+			$layout->set_markup("<span font_desc=\"$font_fam $font_size\" weight=\"bold\" foreground=\"#FFFFFF\">$text</span><span font_desc=\"$font_fam $font_size\" foreground=\"#FFFFFF\">$sec_text</span>");
 
 			#get layout size
 			my ( $lw, $lh ) = $layout->get_pixel_size;
@@ -154,8 +154,8 @@ sub new {
 			$lh = $icon->get_height if $icon->get_height > $lh;
 			
 			#calculate values for rounded/shaped rectangle
-			my $wi = $lw + $size * 3;
-			my $hi = $lh + $size * 2;
+			my $wi = $lw + $font_size * 3;
+			my $hi = $lh + $font_size * 2;
 			my $xi = int( ($w - $wi) / 2 );
 			my $yi = int( ($h - $hi) / 2 );
 			my $ri = 20;
@@ -202,11 +202,11 @@ sub new {
 								$cr->fill;	
 	
 								#app icon
-								Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $icon, $xi + $size, $yi + $size );
+								Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $icon, $xi + $font_size, $yi + $font_size );
 								$cr->paint;
 								
 								#draw the pango layout
-								$cr->move_to( $xi + $size*2 + $icon->get_width, $yi + $size );
+								$cr->move_to( $xi + $font_size*2 + $icon->get_width, $yi + $font_size );
 								Gtk2::Pango::Cairo::show_layout( $cr, $layout );	
 
 							}
@@ -242,11 +242,11 @@ sub new {
 					
 					if($lw <= $w && $lh <= $h){
 						#app icon
-						Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $icon, $xi + $size, $yi + $size );
+						Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $icon, $xi + $font_size, $yi + $font_size );
 						$cr->paint;
 						
 						#draw the pango layout
-						$cr->move_to( $xi + $size*2 + $icon->get_width, $yi + $size );
+						$cr->move_to( $xi + $font_size*2 + $icon->get_width, $yi + $font_size );
 						Gtk2::Pango::Cairo::show_layout( $cr, $layout );
 					}	
 				
