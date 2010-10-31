@@ -371,29 +371,33 @@ sub get_window_size {
 	my ( $self, $wnck_window, $gdk_window, $border, $no_resize ) = @_;
 
 	#windowresize is active
-	unless($no_resize){
-		if(defined $self->{_windowresize} && $self->{_windowresize}) {
-			my ($xc, $yc, $wc, $hc) = $self->get_window_size($wnck_window, $gdk_window, $border, TRUE);
-			
-			if(defined $self->{_windowresize_w} && $self->{_windowresize} > 0){
-				$wc = $self->{_windowresize_w};
-			}
-			
-			if(defined $self->{_windowresize_h} && $self->{_windowresize_h} > 0){
-				$hc = $self->{_windowresize_h};
-			}
-			
-			if($border){
-				$wnck_window->set_geometry ('current', [qw/width height/], $xc, $yc, $wc, $hc);		
-			}else{
-				$gdk_window->resize ($wc, $hc);
-			}
+	if($self->{_mode} eq "window" || $self->{_mode} eq "tray_window" || $self->{_mode} eq "awindow" || $self->{_mode} eq "tray_awindow"){
+		unless($no_resize){
+			if(defined $self->{_windowresize} && $self->{_windowresize}) {
+				my ($xc, $yc, $wc, $hc) = $self->get_window_size($wnck_window, $gdk_window, $border, TRUE);
 				
-			Glib::Timeout->add ($self->{_hide_time}, sub{		
-				Gtk2->main_quit;
-				return FALSE;	
-			});	
-			Gtk2->main();
+				if(defined $self->{_windowresize_w} && $self->{_windowresize} > 0){
+					$wc = $self->{_windowresize_w};
+				}
+				
+				if(defined $self->{_windowresize_h} && $self->{_windowresize_h} > 0){
+					$hc = $self->{_windowresize_h};
+				}
+				
+				if($border){
+					$wnck_window->set_geometry ('current', [qw/width height/], $xc, $yc, $wc, $hc);		
+				}else{
+					$gdk_window->resize ($wc, $hc);
+				}
+				
+				$self->quit_eventh_only;
+					
+				Glib::Timeout->add ($self->{_hide_time}, sub{		
+					Gtk2->main_quit;
+					return FALSE;	
+				});	
+				Gtk2->main();
+			}
 		}
 	}
 
@@ -836,9 +840,6 @@ sub window {
 
 					if ( defined $self->{_c}{'lw'} && $self->{_c}{'lw'}{'gdk_window'} ) {
 
-						#destroy highlighter window
-						$self->{_highlighter}->destroy;
-
 						#size (we need to do this again because of autoresizing)
 						my ( $xp, $yp, $wp, $hp ) = $self->get_window_size( $self->{_c}{'lw'}{'window'}, $self->{_c}{'lw'}{'gdk_window'}, $self->{_include_border} );
 
@@ -876,6 +877,12 @@ sub window {
 						#we don't take the screenshot yet
 						return TRUE;
 					}
+
+					#stop event handler
+					$self->quit_eventh_only;
+
+					#destroy highlighter window
+					$self->{_highlighter}->destroy;
 					
 					#A short timeout to give the server a chance to
 					#redraw the area
