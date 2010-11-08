@@ -49,7 +49,7 @@ sub create_autostart_file {
 	my $dir = shift; # ~/.config/autostart in most cases
 	my $enabled = shift;
 	my $min = shift;
-	my $notification = shift;
+	my $nonotification = shift;
 	
 	#copy in order keep original data
 	my @data = @{$self->{_data}};
@@ -62,7 +62,7 @@ sub create_autostart_file {
 			#add options
 			my $options = '';
 			$options .= " --min_at_startup" if $min;
-			$options .= " --disable_systray" if !$notification;
+			$options .= " --disable_systray" if $nonotification;
 			#remove placeholder
 			$line =~ s/<options>/$options/;
 		}elsif($line =~ /X-GNOME-Autostart-enabled=false/){
@@ -83,6 +83,8 @@ Version=1.0
 Name=Shutter
 Name[de_DE]=Shutter
 Name[pt_BR]=Shutter
+GenericName=Screenshot Tool
+GenericName[de_DE]=Anwendung für Bildschirmfotos
 GenericName[pt_BR]=Captura de tela
 Comment=Feature-rich screenshot application
 Comment[de_DE]=Vielseitiges Programm zur Aufnahme von Bildschirmfotos

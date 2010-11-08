@@ -674,7 +674,7 @@ if ($app->is_running) {
 
 	my $fs_active_hbox      = Gtk2::HBox->new( FALSE, 0 );
 	my $fs_min_active_hbox  = Gtk2::HBox->new( FALSE, 0 );
-	my $fs_not_active_hbox  = Gtk2::HBox->new( FALSE, 0 );
+	my $fs_nonot_active_hbox  = Gtk2::HBox->new( FALSE, 0 );
 	my $hide_active_hbox    = Gtk2::HBox->new( FALSE, 0 );
 	my $pafter_active_hbox  = Gtk2::HBox->new( FALSE, 0 );
 	my $cac_hbox			= Gtk2::HBox->new( FALSE, 0 );
@@ -1959,7 +1959,7 @@ if ($app->is_running) {
 	#--------------------------------------
 	my $fs_active		= Gtk2::CheckButton->new_with_label( $d->get("Start Shutter at login") );
 	my $fs_min_active	= Gtk2::CheckButton->new_with_label( $d->get("Hide window on first launch") );
-	my $fs_not_active	= Gtk2::CheckButton->new_with_label( $d->get("Show notification icon") );
+	my $fs_nonot_active	= Gtk2::CheckButton->new_with_label( $d->get("Hide notification icon") );
 
 	my $hide_active           = Gtk2::CheckButton->new_with_label( $d->get("Autohide main window when taking a screenshot") );
 	my $hide_time_label 	  = Gtk2::Label->new($d->get("Redraw Delay"). ":");
@@ -1989,7 +1989,7 @@ if ($app->is_running) {
 
 	$fs_active_hbox->pack_start( $fs_active,                FALSE, TRUE, 12 );
 	$fs_min_active_hbox->pack_start( $fs_min_active,        FALSE, TRUE, 12 );
-	$fs_not_active_hbox->pack_start( $fs_not_active,        FALSE, TRUE, 12 );
+	$fs_nonot_active_hbox->pack_start( $fs_nonot_active,        FALSE, TRUE, 12 );
 	$hide_active_hbox->pack_start( $hide_active,            FALSE, TRUE, 12 );
 	$pafter_active_hbox->pack_start( $present_after_active, FALSE, TRUE, 12 );
 	$cac_hbox->pack_start( $close_at_close_active,          FALSE, TRUE, 12 );
@@ -2021,17 +2021,17 @@ if ($app->is_running) {
 	$tooltips->set_tip( $fs_min_active, $d->get("Hide window on first launch") );
 
 	if ( defined $settings_xml->{'general'}->{'autofs_not'} ) {
-		$fs_not_active->set_active( $settings_xml->{'general'}->{'autofs_not'} );
+		$fs_nonot_active->set_active( $settings_xml->{'general'}->{'autofs_not'} );
 	} else {
-		$fs_not_active->set_active(FALSE);
+		$fs_nonot_active->set_active(FALSE);
 	}
 
-	$tooltips->set_tip( $fs_not_active, $d->get("Show notification icon") );
+	$tooltips->set_tip( $fs_nonot_active, $d->get("Hide notification icon") );
 
 	if ( defined $settings_xml->{'general'}->{'autohide'} ) {
 		$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
 	} else {
-		$hide_active->set_active(TRUE);
+		$hide_active->set_active(FALSE);
 	}
 
 	$tooltips->set_tip( $hide_active, $d->get("Autohide main window when taking a screenshot") );
@@ -2370,7 +2370,7 @@ if ($app->is_running) {
 
 	$first_vbox->pack_start( $fs_active_hbox, TRUE, TRUE, 3 );
 	$first_vbox->pack_start( $fs_min_active_hbox, TRUE, TRUE, 3 );
-	$first_vbox->pack_start( $fs_not_active_hbox, TRUE, TRUE, 3 );
+	$first_vbox->pack_start( $fs_nonot_active_hbox, TRUE, TRUE, 3 );
 	$firstlaunch_frame->add($first_vbox);
 
 	$window_vbox->pack_start( $hide_active_hbox, TRUE, TRUE, 3 );
@@ -4296,7 +4296,7 @@ if ($app->is_running) {
 		#behavior
 		$settings{'general'}->{'autofs'}           = $fs_active->get_active();
 		$settings{'general'}->{'autofs_min'}       = $fs_min_active->get_active();
-		$settings{'general'}->{'autofs_not'}       = $fs_not_active->get_active();
+		$settings{'general'}->{'autofs_not'}       = $fs_nonot_active->get_active();
 		$settings{'general'}->{'autohide'}         = $hide_active->get_active();
 		$settings{'general'}->{'autohide_time'}    = $hide_time->get_value();
 		$settings{'general'}->{'present_after'}    = $present_after_active->get_active();
@@ -4397,7 +4397,7 @@ if ($app->is_running) {
 		&fct_save_bindings($capture_key->get_text, $capture_sel_key->get_text);	
 
 		#autostart
-		$sas->create_autostart_file($sdir->get_autostart_dir, $fs_active->get_active, $fs_min_active->get_active, $fs_not_active->get_active);
+		$sas->create_autostart_file($sdir->get_autostart_dir, $fs_active->get_active, $fs_min_active->get_active, $fs_nonot_active->get_active);
 
 		return TRUE;
 	}
@@ -4672,7 +4672,7 @@ if ($app->is_running) {
 					#behavior
 					$fs_active->set_active( $settings_xml->{'general'}->{'autofs'} );
 					$fs_min_active->set_active( $settings_xml->{'general'}->{'autofs_min'} );
-					$fs_not_active->set_active( $settings_xml->{'general'}->{'autofs_not'} );
+					$fs_nonot_active->set_active( $settings_xml->{'general'}->{'autofs_not'} );
 					$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
 					$hide_time->set_value( $settings_xml->{'general'}->{'autohide_time'} );
 					$present_after_active->set_active( $settings_xml->{'general'}->{'present_after'} );
