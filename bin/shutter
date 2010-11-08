@@ -226,15 +226,16 @@ $ENV{ 'HOME' } = $sdir->get_home_dir;
 
 my $app = Gtk2::UniqueApp->new(
 		"org.shutter-project.Shutter", undef,
-		select 	=> 1,
-		full	=> 2,
-		window 	=> 3,
-		awindow	=> 4,
-		section => 5,
-		menu	=> 6,
-		tooltip	=> 7,
-		web		=> 8,
-		null	=> 9,
+		select 	 => 1,
+		full	 => 2,
+		window 	 => 3,
+		awindow	 => 4,
+		section  => 5,
+		menu	 => 6,
+		tooltip	 => 7,
+		web		 => 8,
+		redoshot => 9,
+		null	 => 10,
 );
 
 #load command line arguments
@@ -326,6 +327,8 @@ if ($app->is_running) {
 			$cmdname = 'tooltip';
 		} elsif ($cmdno == 8) {
 			$cmdname = 'web';
+		} elsif ($cmdno == 9) {
+			$cmdname = 'redoshot';
 		}	
 		
 		#shutter window is presented automatically, sync our flag
@@ -1903,6 +1906,7 @@ if ($app->is_running) {
 	$combobox_keybinding_mode->insert_text( 4, $d->get("Menu") );
 	$combobox_keybinding_mode->insert_text( 5, $d->get("Tooltip") );
 	$combobox_keybinding_mode->insert_text( 6, $d->get("Web") );
+	$combobox_keybinding_mode->insert_text( 7, $d->get("Redo") );
 
 	if ( defined $settings_xml->{'general'}->{'keybinding_mode'} ) {
 		$combobox_keybinding_mode->set_active( $settings_xml->{'general'}->{'keybinding_mode'} );
@@ -1924,10 +1928,10 @@ if ($app->is_running) {
 
 	$key_box->pack_start( $capture_label, FALSE, TRUE, 12 );
 	$key_box->pack_start( $keybinding_active, FALSE, FALSE, 0 );
-	$key_box->pack_start( $capture_key, TRUE,  TRUE,  0 );
+	$key_box->pack_start( $capture_key, TRUE, TRUE, 0 );
 	$key_sel_box->pack_start( $capture_sel_label, FALSE, TRUE, 12 );
 	$key_sel_box->pack_start( $keybinding_sel_active, FALSE, FALSE, 0 );
-	$key_sel_box->pack_start( $capture_sel_key,       TRUE,  TRUE,  0 );
+	$key_sel_box->pack_start( $capture_sel_key, TRUE, TRUE, 0 );
 	$keybinding_active->set_active(TRUE);
 
 	#add signal handlers BEFORE settings are restored
@@ -4500,6 +4504,8 @@ if ($app->is_running) {
 					$mode = "--tooltip";
 				} elsif ( $combobox_keybinding_mode->get_active() == 6 ) {
 					$mode = "--web";
+				} elsif ( $combobox_keybinding_mode->get_active() == 7 ) {
+					$mode = "--redo";
 				}
 				
 				$client->set( $command_sel, { type  => 'string', value => "$shutter_path $mode" } );
@@ -6091,8 +6097,11 @@ if ($app->is_running) {
 		#~ print "$sc, $screenshot, $data\n";
 		my $error = Shutter::Screenshot::Error->new($sc, $screenshot, $data, $extra);
 		if($error->is_error) {
-			
-			my ($response, $status_text) = $error->show_dialog($screenshooter->get_error_text);
+			my $detailed_error_text = '';
+			if(defined $screenshooter && $screenshooter){
+				$detailed_error_text = $screenshooter->get_error_text;
+			}
+			my ($response, $status_text) = $error->show_dialog($detailed_error_text);
 			&fct_show_status_message( 1, $status_text );
 			&fct_control_main_window ('show');
 			return FALSE;
@@ -10757,6 +10766,10 @@ Capture a tooltip.
 =item B<--web=[URL]>
 
 Capture a webpage. Providing an URL ist optional.
+
+=item B<-r, --redo>
+
+Redo last screenshot.
 
 =back
 

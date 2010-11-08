@@ -56,6 +56,7 @@ sub get_options {
 		'm|menu' => sub{ $self->{_sc}->set_start_with("menu"); $self->{_sc}->set_min(TRUE); },
 		't|tooltip' => sub{ $self->{_sc}->set_start_with("tooltip"); $self->{_sc}->set_min(TRUE); },
 		'web:s' => sub{ my ($web, $url) = @_; $self->{_sc}->set_start_with("web", $url); },
+		'r|redo' => sub{ $self->{_sc}->set_start_with("redoshot"); $self->{_sc}->set_min(TRUE); },
 		
 		'p|profile=s' => sub{ my ($p, $profile) = @_; $self->{_sc}->set_profile_to_start_with($profile); },		
 		
