@@ -7080,8 +7080,9 @@ if ($app->is_running) {
 				}
 				
 				#update tab label
-				$session_screens{$key}->{'tab_label'}->set_text("[" . $session_screens{$key}->{'tab_indx'} . "] - ".
-					$shf->utf8_decode(Gnome2::VFS->unescape_string_for_display($session_screens{$key}->{'uri'}->extract_short_name)));
+				$session_screens{$key}->{'tab_label'}->set_text("[" . $session_screens{$key}->{'tab_indx'} . "] - ".$session_screens{$key}->{'short'});
+				#and tooltip
+				$tooltips->set_tip($session_screens{$key}->{'hbox_tab_label'}, $session_screens{$key}->{'long'});
 				
 				#setting pixbuf
 				$session_screens{$key}->{'image'}->set_pixbuf( $pixbuf );
