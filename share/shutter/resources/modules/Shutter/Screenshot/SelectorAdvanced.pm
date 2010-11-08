@@ -154,6 +154,7 @@ sub select_advanced {
 			$d->get("<b>shift/right-click</b> → selection dialog on/off")."\n".
 			$d->get("<b>ctrl + scrollwheel</b> → zoom in/out")."\n".
 			$d->get("<b>space</b> → zoom window on/off")."\n".
+			$d->get("<b>cursor keys</b> → move cursor")."\n".
 			$d->get("<b>cursor keys + alt</b> → move selection")."\n".
 			$d->get("<b>cursor keys + ctrl</b> → resize selection");
 
@@ -424,7 +425,7 @@ sub select_advanced {
 
 	#event-handling
 	#all other events
-	$self->{_select_window}->signal_connect('event' =>
+	$self->{_view_event_handler} = $self->{_view}->signal_connect('event' =>
 		sub {
 			my ( $window, $event ) = @_;
 			return FALSE unless defined $event;
@@ -916,7 +917,7 @@ sub select_dialog {
 	$hw_hbox->pack_start( $self->{_height_spin_w}, FALSE, FALSE, 5 );
 
 	my $prop_dialog = Gtk2::Window->new('popup');
-	$prop_dialog->set_decorated(TRUE);
+	$prop_dialog->set_decorated(FALSE);
 	$prop_dialog->set_skip_taskbar_hint(TRUE);
 	$prop_dialog->set_skip_pager_hint(TRUE);	
 	$prop_dialog->set_keep_above(TRUE);
@@ -1084,6 +1085,7 @@ sub quit {
 	$self->{_selector}->signal_handler_disconnect ($self->{_selector_handler});
 	$self->{_view}->signal_handler_disconnect ($self->{_view_zoom_handler});
 	$self->{_view}->signal_handler_disconnect ($self->{_view_button_handler});
+	$self->{_view}->signal_handler_disconnect ($self->{_view_event_handler});
 	$self->{_select_window}->destroy;
 	$self->{_zoom_window}->destroy;
 	$self->{_prop_window}->destroy;
