@@ -742,13 +742,13 @@ if ($app->is_running) {
 
 	#init menus
 	$st->{_full}->set_menu( &fct_ret_workspace_menu(TRUE) );	
-	$st->{_awindow}->set_menu( &fct_ret_window_menu );	
+	$st->{_window}->set_menu( &fct_ret_window_menu );	
 
 	#and attach signal handlers
 	$st->{_full}->signal_connect( 'show-menu' => sub { $st->{_full}->set_menu( &fct_ret_workspace_menu(FALSE) ) } );
-	$st->{_awindow}->signal_connect( 'clicked' => \&evt_take_screenshot, 'awindow' );
+	$st->{_window}->signal_connect( 'clicked' => \&evt_take_screenshot, 'window' );
 
-	$st->{_awindow}->signal_connect( 'show-menu' => sub { $st->{_awindow}->set_menu( &fct_ret_window_menu ) } );
+	$st->{_window}->signal_connect( 'show-menu' => sub { $st->{_window}->set_menu( &fct_ret_window_menu ) } );
 	$st->{_section}->signal_connect( 'clicked' => \&evt_take_screenshot, 'section' );
 	$st->{_menu}->signal_connect( 'clicked' => \&evt_take_screenshot, 'menu' );
 	$st->{_tooltip}->signal_connect( 'clicked' => \&evt_take_screenshot, 'tooltip' );
@@ -3949,7 +3949,7 @@ if ($app->is_running) {
 			#toolbar
 			$st->{_select}->set_sensitive($sensitive);
 			$st->{_full}->set_sensitive($sensitive);
-			$st->{_awindow}->set_sensitive($sensitive);
+			$st->{_window}->set_sensitive($sensitive);
 			$st->{_section}->set_sensitive($sensitive);
 			$st->{_menu}->set_sensitive($sensitive);
 			$st->{_tooltip}->set_sensitive($sensitive);
@@ -7825,28 +7825,28 @@ if ($app->is_running) {
 		my $active_workspace = $screen->get_active_workspace;
 		my $icontheme = $sc->get_theme;
 		
-		#add item for selecting a window with our mouse
-		my $sel_window_item_image;
+		#add item for active window
+		my $active_window_item_image;
 		if($icontheme->has_icon('gnome-window-manager')){
-			$sel_window_item_image = Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'menu' );		
+			$active_window_item_image = Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'menu' );		
 		}else{
-			$sel_window_item_image = Gtk2::Image->new_from_pixbuf(
+			$active_window_item_image = Gtk2::Image->new_from_pixbuf(
 				$lp->load(
-					"$shutter_root/share/shutter/resources/icons/sel_window.svg",
+					"$shutter_root/share/shutter/resources/icons/sel_window_active.svg",
 					Gtk2::IconSize->lookup('menu')
 				)
 			);
 		}
 		
-		my $sel_window_item = Gtk2::ImageMenuItem->new_with_label( $d->get("Select Window") );
-		$sel_window_item->set_image($sel_window_item_image);
-		$sel_window_item->set('always_show_image' => TRUE) if Gtk2->CHECK_VERSION( 2, 16, 0 );
+		my $active_window_item = Gtk2::ImageMenuItem->new_with_label( $d->get("Active Window") );
+		$active_window_item->set_image($active_window_item_image);
+		$active_window_item->set('always_show_image' => TRUE) if Gtk2->CHECK_VERSION( 2, 16, 0 );
 
-		$tooltips->set_tip( $sel_window_item, $d->get("Select a window with your mouse") );
+		$tooltips->set_tip( $active_window_item, $d->get("Capture the last active window") );
 		
-		$sel_window_item->signal_connect( 'activate' => \&evt_take_screenshot, 'window' );
+		$active_window_item->signal_connect( 'activate' => \&evt_take_screenshot, 'awindow' );
 		
-		$menu_windows->append($sel_window_item);
+		$menu_windows->append($active_window_item);
 		$menu_windows->append( Gtk2::SeparatorMenuItem->new );
 
 		#add all windows to menu to capture it directly

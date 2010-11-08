@@ -122,24 +122,43 @@ sub create_toolbar {
 
 	#button active window
 	#--------------------------------------
-	my $image_awindow;
+	#~ my $image_awindow;
+	#~ if($icontheme->has_icon('gnome-window-manager')){
+		#~ $image_awindow = Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'large-toolbar' );		
+	#~ }else{
+		#~ $image_awindow = Gtk2::Image->new_from_pixbuf(
+			#~ Gtk2::Gdk::Pixbuf->new_from_file_at_size(
+				#~ "$shutter_root/share/shutter/resources/icons/sel_window_active.svg",
+				#~ Gtk2::IconSize->lookup('large-toolbar')
+			#~ )
+		#~ );
+	#~ }
+	#~ $self->{_awindow} = Gtk2::MenuToolButton->new( $image_awindow, $d->get("Window") );
+	#~ $self->{_awindow}->set_is_important (TRUE);
+	#~ 
+	#~ $tooltips->set_tip( $self->{_awindow}, $d->get("Capture active window") );
+	#~ $self->{_awindow}->set_arrow_tooltip( $tooltips, $d->get("Take a screenshot of a specific window"), '' );
+
+	#--------------------------------------
+
+	#button window
+	#--------------------------------------
+	my $image_window;
 	if($icontheme->has_icon('gnome-window-manager')){
-		$image_awindow = Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'large-toolbar' );		
+		$image_window = Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'large-toolbar' );		
 	}else{
-		$image_awindow = Gtk2::Image->new_from_pixbuf(
+		$image_window = Gtk2::Image->new_from_pixbuf(
 			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
-				"$shutter_root/share/shutter/resources/icons/sel_window_active.svg",
+				"$shutter_root/share/shutter/resources/icons/sel_window.svg",
 				Gtk2::IconSize->lookup('large-toolbar')
 			)
 		);
 	}
-	$self->{_awindow} = Gtk2::MenuToolButton->new( $image_awindow, $d->get("Window") );
-	$self->{_awindow}->set_is_important (TRUE);
+	$self->{_window} = Gtk2::MenuToolButton->new( $image_window, $d->get("Window") );
+	$self->{_window}->set_is_important (TRUE);
 
-	$tooltips->set_tip( $self->{_awindow}, $d->get("Capture active window") );
-	$self->{_awindow}->set_arrow_tooltip( $tooltips, $d->get("Take a screenshot of a specific window"), '' );
-
-	#--------------------------------------
+	$tooltips->set_tip( $self->{_window}, $d->get("Select a window with your mouse") );
+	$self->{_window}->set_arrow_tooltip( $tooltips, $d->get("Take a screenshot of a specific window"), '' );
 
 	#button section
 	#--------------------------------------
@@ -262,7 +281,8 @@ sub create_toolbar {
 	$self->{_toolbar}->insert( $self->{_select},             -1 );
 	$self->{_toolbar}->insert( $self->{_full},               -1 );
 	#~ $self->{_toolbar}->insert( Gtk2::SeparatorToolItem->new, -1 );
-	$self->{_toolbar}->insert( $self->{_awindow},            -1 );
+	#~ $self->{_toolbar}->insert( $self->{_aindow},             -1 );
+	$self->{_toolbar}->insert( $self->{_window},             -1 );
 	$self->{_toolbar}->insert( $self->{_section},            -1 );
 	$self->{_toolbar}->insert( $self->{_menu},               -1 );
 	$self->{_toolbar}->insert( $self->{_tooltip},            -1 );
