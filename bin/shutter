@@ -6173,9 +6173,11 @@ if ($app->is_running) {
 					print "Checking new uri after parsing: " . $uri->to_string . "\n" if $sc->get_debug;
 				}
 			}
-					
+			
+			print "New uri after exists check: " . $uri->to_string . "\n" if $sc->get_debug;
+			
 			#we have to update the path again
-			$shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path));
+			$screenshot_name = $shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path));
 
 			#manipulate before saving
 			#bordereffect
