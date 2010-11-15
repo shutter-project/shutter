@@ -58,6 +58,15 @@ sub get_error {
 	return ($self->{_code}, $self->{_data}, $self->{_extra});
 }
 
+sub is_aborted_by_user {
+	my $self = shift;
+	if(defined $self->{_code} && $self->{_code} == 5){
+		return TRUE;
+	}else{
+		return FALSE;
+	}	
+}
+
 sub is_error {
 	my $self = shift;
 	if(defined $self->{_code} && $self->{_code} =~ /^\d+$/){

@@ -345,7 +345,8 @@ if ($app->is_running) {
 			my @init_files = $message->get_uris;
 			if(scalar @init_files > 0){
 				&fct_open_files(@init_files);
-			}	
+			}
+			&fct_control_main_window('show');
 		}
 		
 		return 'ok';
@@ -2955,7 +2956,7 @@ if ($app->is_running) {
 		}else{
 			#A short timeout to give the server a chance to
 			#redraw the area that was obscured by our dialog.
-			if($hide_active->get_active){
+			if($hide_active->get_active && $widget ne 'global_keybinding'){
 				Glib::Timeout->add ($hide_time->get_value, sub{
 					&fct_take_screenshot($widget, $data, $folder_from_config, $extra);
 					#unblock signal handler
@@ -6105,7 +6106,11 @@ if ($app->is_running) {
 			}
 			my ($response, $status_text) = $error->show_dialog($detailed_error_text);
 			&fct_show_status_message( 1, $status_text );
-			&fct_control_main_window ('show');
+			if($error->is_aborted_by_user){
+				&fct_control_main_window('show', $present_after_active->get_active);
+			}else{
+				&fct_control_main_window('show');
+			}	
 			return FALSE;
 			
 		} else {
