@@ -689,6 +689,7 @@ if ($app->is_running) {
 	my $ns_combo_hbox       = Gtk2::HBox->new( FALSE, 0 );
 	my $aod_active_hbox     = Gtk2::HBox->new( FALSE, 0 );
 	my $doc_active_hbox     = Gtk2::HBox->new( FALSE, 0 );
+	my $aofsd_active_hbox   = Gtk2::HBox->new( FALSE, 0 );
 
 	#upload
 	my $accounts_vbox       = Gtk2::VBox->new( FALSE, 0 );
@@ -1991,23 +1992,25 @@ if ($app->is_running) {
 
 	my $ask_on_delete_active    = Gtk2::CheckButton->new_with_label( $d->get("Ask before moving files to trash") );
 	my $delete_on_close_active  = Gtk2::CheckButton->new_with_label( $d->get("Move file to trash when closing tab") );
+	my $ask_on_fs_delete_active = Gtk2::CheckButton->new_with_label( $d->get("Notify when file was deleted from filesystem") );
 
-	$fs_active_hbox->pack_start( $fs_active,                FALSE, TRUE, 12 );
-	$fs_min_active_hbox->pack_start( $fs_min_active,        FALSE, TRUE, 12 );
-	$fs_nonot_active_hbox->pack_start( $fs_nonot_active,        FALSE, TRUE, 12 );
-	$hide_active_hbox->pack_start( $hide_active,            FALSE, TRUE, 12 );
-	$pafter_active_hbox->pack_start( $present_after_active, FALSE, TRUE, 12 );
-	$cac_hbox->pack_start( $close_at_close_active,          FALSE, TRUE, 12 );
-	$hide_time_hbox->pack_start( $hide_time_label,          FALSE, TRUE, 12 );
-	$hide_time_hbox->pack_start( $hide_time,                FALSE, TRUE,  6 );
-	$hide_time_hbox->pack_start( $hide_time_vlabel,         FALSE, TRUE,  0 );
-	$na_active_hbox->pack_start( $notify_after_active,      FALSE, TRUE, 12 );
-	$nt_active_hbox->pack_start( $notify_timeout_active,    FALSE, TRUE, 12 );
-	$npt_active_hbox->pack_start( $notify_ptimeout_active,  FALSE, TRUE, 12 );
-	$ns_combo_hbox->pack_start( $ns_label,                  FALSE, TRUE, 12 );
-	$ns_combo_hbox->pack_start( $combobox_ns,               FALSE, TRUE,  0 );
-	$aod_active_hbox->pack_start( $ask_on_delete_active,    FALSE, TRUE, 12 );
-	$doc_active_hbox->pack_start( $delete_on_close_active,  FALSE, TRUE, 12 );
+	$fs_active_hbox->pack_start( $fs_active,                  FALSE, TRUE, 12 );
+	$fs_min_active_hbox->pack_start( $fs_min_active,          FALSE, TRUE, 12 );
+	$fs_nonot_active_hbox->pack_start( $fs_nonot_active,      FALSE, TRUE, 12 );
+	$hide_active_hbox->pack_start( $hide_active,              FALSE, TRUE, 12 );
+	$pafter_active_hbox->pack_start( $present_after_active,   FALSE, TRUE, 12 );
+	$cac_hbox->pack_start( $close_at_close_active,            FALSE, TRUE, 12 );
+	$hide_time_hbox->pack_start( $hide_time_label,            FALSE, TRUE, 12 );
+	$hide_time_hbox->pack_start( $hide_time,                  FALSE, TRUE,  6 );
+	$hide_time_hbox->pack_start( $hide_time_vlabel,           FALSE, TRUE,  0 );
+	$na_active_hbox->pack_start( $notify_after_active,        FALSE, TRUE, 12 );
+	$nt_active_hbox->pack_start( $notify_timeout_active,      FALSE, TRUE, 12 );
+	$npt_active_hbox->pack_start( $notify_ptimeout_active,    FALSE, TRUE, 12 );
+	$ns_combo_hbox->pack_start( $ns_label,                    FALSE, TRUE, 12 );
+	$ns_combo_hbox->pack_start( $combobox_ns,                 FALSE, TRUE,  0 );
+	$aod_active_hbox->pack_start( $ask_on_delete_active,      FALSE, TRUE, 12 );
+	$doc_active_hbox->pack_start( $delete_on_close_active,    FALSE, TRUE, 12 );
+	$aofsd_active_hbox->pack_start( $ask_on_fs_delete_active, FALSE, TRUE, 12 );
 
 	if ( defined $settings_xml->{'general'}->{'autofs'} ) {
 		$fs_active->set_active( $settings_xml->{'general'}->{'autofs'} );
@@ -2115,6 +2118,14 @@ if ($app->is_running) {
 	}
 
 	$tooltips->set_tip( $delete_on_close_active, $d->get("Move file to trash when closing tab") );
+
+	if ( defined $settings_xml->{'general'}->{'ask_on_fs_delete'} ) {
+		$ask_on_fs_delete_active->set_active( $settings_xml->{'general'}->{'ask_on_fs_delete'} );
+	} else {
+		$ask_on_fs_delete_active->set_active(FALSE);
+	}
+
+	$tooltips->set_tip( $ask_on_fs_delete_active, $d->get("Notify when file was deleted from filesystem") );
 
 	#end - behavior
 	#--------------------------------------
@@ -2392,6 +2403,7 @@ if ($app->is_running) {
 
 	$trash_vbox->pack_start( $aod_active_hbox, TRUE, TRUE, 3 );
 	$trash_vbox->pack_start( $doc_active_hbox, TRUE, TRUE, 3 );
+	$trash_vbox->pack_start( $aofsd_active_hbox, TRUE, TRUE, 3 );
 	$trash_frame->add($trash_vbox);
 
 	#all labels = one size
@@ -4314,6 +4326,7 @@ if ($app->is_running) {
 		$settings{'general'}->{'notify_agent'}     = $combobox_ns->get_active();
 		$settings{'general'}->{'ask_on_delete'}    = $ask_on_delete_active->get_active();
 		$settings{'general'}->{'delete_on_close'}  = $delete_on_close_active->get_active();
+		$settings{'general'}->{'ask_on_fs_delete'} = $ask_on_fs_delete_active->get_active();
 
 		#keybindings
 		$settings{'general'}->{'keybinding'}       = $keybinding_active->get_active();
@@ -4692,6 +4705,7 @@ if ($app->is_running) {
 					$combobox_ns->set_active( $settings_xml->{'general'}->{'notify_agent'} );
 					$ask_on_delete_active->set_active( $settings_xml->{'general'}->{'ask_on_close'} );
 					$delete_on_close_active->set_active( $settings_xml->{'general'}->{'delete_on_close'} );
+					$ask_on_fs_delete_active->set_active( $settings_xml->{'general'}->{'ask_on_fs_delete'} );
 
 					#keybindings
 					$keybinding_active->set_active( $settings_xml->{'general'}->{'keybinding'} );
@@ -7211,48 +7225,23 @@ if ($app->is_running) {
 							
 			#file does not exist
 			}else{
-
-				#mark file as deleted
-				$session_screens{$key}->{'deleted'} = TRUE;	
-
-				#we only handle one case here:
-				#file was deleted in filesystem and we got informed about that...	
-				my $response = $sd->dlg_question_message(
-					$d->get("Try to resave the file?"),
-					sprintf( $d->get("Image %s was not found on disk"), "'" . $session_screens{$key}->{'long'} . "'" ),
-					'gtk-discard', 'gtk-save'
-				);
 				
-				#handle different responses
-				if($response == 10){
+				#show dialog
+				if($ask_on_fs_delete_active->get_active){
+				
+					#mark file as deleted
+					$session_screens{$key}->{'deleted'} = TRUE;	
 
-					$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
-					&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
-						if defined( $session_screens{$key}->{'long'} );
-
-					if(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
-						$session_start_screen{'first_page'}->{'model'}->remove( $session_screens{$key}->{'iter'} );
-					}
-
-					delete( $session_screens{$key} );    
+					#we only handle one case here:
+					#file was deleted in filesystem and we got informed about that...	
+					my $response = $sd->dlg_question_message(
+						$d->get("Try to resave the file?"),
+						sprintf( $d->get("Image %s was not found on disk"), "'" . $session_screens{$key}->{'long'} . "'" ),
+						'gtk-discard', 'gtk-save'
+					);
 					
-				}elsif($response == 20){
-					
-					#try to resave the file
-					#(current version is always the last element in the array)
-					my $current_version = pop @{$session_screens{$key}->{'undo'}};
-					
-					my $pixbuf = $lp_ne->load( $current_version );
-					#restoring the last version failed => delete the screenshot	
-					unless($pixbuf){
-
-						$sd->dlg_error_message( 
-							sprintf( $d->get("Error while saving the image %s."), "'" . $session_screens{$key}->{'short'} . "'"),
-							sprintf( $d->get("There was an error saving the image to %s."), "'" . $session_screens{$key}->{'folder'} . "'"),		
-							undef, undef, undef,
-							undef, undef, undef,
-							$@
-						);
+					#handle different responses
+					if($response == 10){
 
 						$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
 						&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
@@ -7262,25 +7251,86 @@ if ($app->is_running) {
 							$session_start_screen{'first_page'}->{'model'}->remove( $session_screens{$key}->{'iter'} );
 						}
 
-						delete( $session_screens{$key} );   
-
-						&fct_update_info_and_tray();
-						return FALSE;
+						delete( $session_screens{$key} );    
 						
+					}elsif($response == 20){
+						
+						#try to resave the file
+						#(current version is always the last element in the array)
+						my $current_version = pop @{$session_screens{$key}->{'undo'}};
+						
+						my $pixbuf = $lp_ne->load( $current_version );
+						#restoring the last version failed => delete the screenshot	
+						unless($pixbuf){
+
+							$sd->dlg_error_message( 
+								sprintf( $d->get("Error while saving the image %s."), "'" . $session_screens{$key}->{'short'} . "'"),
+								sprintf( $d->get("There was an error saving the image to %s."), "'" . $session_screens{$key}->{'folder'} . "'"),		
+								undef, undef, undef,
+								undef, undef, undef,
+								$@
+							);
+
+							$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
+							&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
+								if defined( $session_screens{$key}->{'long'} );
+
+							if(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
+								$session_start_screen{'first_page'}->{'model'}->remove( $session_screens{$key}->{'iter'} );
+							}
+
+							delete( $session_screens{$key} );   
+
+							&fct_update_info_and_tray();
+							return FALSE;
+							
+						}
+							
+						if($sp->save_pixbuf_to_file($pixbuf, $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'})){
+							
+							&fct_update_tab($key);
+							
+							#setup a new filemonitor, so we get noticed if the file changed
+							&fct_add_file_monitor($key);
+
+							&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("saved"));
+						
+							&fct_update_info_and_tray();
+							return TRUE;
+						
+						#resave failed => delete the screenshot	
+						}else{
+
+							$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
+							&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
+								if defined( $session_screens{$key}->{'long'} );
+
+							if(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
+								$session_start_screen{'first_page'}->{'model'}->remove( $session_screens{$key}->{'iter'} );
+							}
+
+							delete( $session_screens{$key} );    				
+
+						}	
 					}
-						
-					if($sp->save_pixbuf_to_file($pixbuf, $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'})){
+								
+				#no dialog
+				}else{
 
-						#setup a new filemonitor, so we get noticed if the file changed
-						&fct_add_file_monitor($key);
-
-						&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("saved"));
-					
-						&fct_update_info_and_tray();
-						return TRUE;
-					
-					#resave failed => delete the screenshot	
-					}else{
+					#~ if($sp->save_pixbuf_to_file($pixbuf, $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'})){
+						#~ 
+						#~ &fct_update_tab($key);
+						#~ 
+						#~ #setup a new filemonitor, so we get noticed if the file changed
+						#~ &fct_add_file_monitor($key);
+#~ 
+						#~ &fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("saved"));
+					#~ 
+						#~ &fct_update_info_and_tray();
+						#~ return TRUE;
+					#~ 
+					#~ #resave failed => delete the screenshot	
+					#~ }else{
 
 						$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
 						&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
@@ -7292,13 +7342,14 @@ if ($app->is_running) {
 
 						delete( $session_screens{$key} );    				
 
-					}	
+					#~ }	
+					
 				}
-				
+
 				&fct_update_info_and_tray();
 				return FALSE;
-
-			}	 
+			
+			}#end if exists
 					
 		}#end while($error_counter <= MAX_ERROR){
 
