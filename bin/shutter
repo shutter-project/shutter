@@ -3894,7 +3894,7 @@ if ($app->is_running) {
 		#show error dialog when installing the file
 		#monitor failed
 		unless ($result eq 'ok'){
-			$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), $d->get("Failed") );		
+			$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), $d->get("There was an error while adding the file monitor") );		
 			return FALSE;
 		}
 
@@ -7254,7 +7254,7 @@ if ($app->is_running) {
 						delete( $session_screens{$key} );    
 						
 					}elsif($response == 20){
-						
+
 						#try to resave the file
 						#(current version is always the last element in the array)
 						my $current_version = pop @{$session_screens{$key}->{'undo'}};
@@ -7317,20 +7317,58 @@ if ($app->is_running) {
 				#no dialog
 				}else{
 
-					#~ if($sp->save_pixbuf_to_file($pixbuf, $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'})){
-						#~ 
-						#~ &fct_update_tab($key);
-						#~ 
-						#~ #setup a new filemonitor, so we get noticed if the file changed
-						#~ &fct_add_file_monitor($key);
-#~ 
-						#~ &fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("saved"));
-					#~ 
-						#~ &fct_update_info_and_tray();
-						#~ return TRUE;
-					#~ 
-					#~ #resave failed => delete the screenshot	
-					#~ }else{
+					#mark file as deleted
+					$session_screens{$key}->{'deleted'} = TRUE;	
+
+					#try to resave the file
+					#(current version is always the last element in the array)
+					my $current_version = pop @{$session_screens{$key}->{'undo'}};
+										
+					my $pixbuf = $lp_ne->load( $current_version );
+					#restoring the last version failed => delete the screenshot	
+					unless($pixbuf){
+
+						$sd->dlg_error_message( 
+							sprintf( $d->get("Error while saving the image %s."), "'" . $session_screens{$key}->{'short'} . "'"),
+							sprintf( $d->get("There was an error saving the image to %s."), "'" . $sdir->get_cache_dir . "'"),		
+							undef, undef, undef,
+							undef, undef, undef,
+							$@
+						);
+
+						$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
+						&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
+							if defined( $session_screens{$key}->{'long'} );
+
+						if(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
+							$session_start_screen{'first_page'}->{'model'}->remove( $session_screens{$key}->{'iter'} );
+						}
+
+						delete( $session_screens{$key} );   
+
+						&fct_update_info_and_tray();
+						return FALSE;
+						
+					}
+					
+					#prepare new filename
+					my ( $short, $folder, $ext ) = fileparse( $session_screens{$key}->{'long'}, qr/\.[^.]*/ );
+					my $new_filename = $sdir->get_cache_dir."/".$short.$ext;
+					
+					if($sp->save_pixbuf_to_file($pixbuf, $new_filename, $session_screens{$key}->{'filetype'})){
+					
+						if(&fct_update_tab( $key, undef, Gnome2::VFS::URI->new($new_filename), FALSE, 'clear' )){
+							#setup a new filemonitor, so we get noticed if the file changed
+							&fct_add_file_monitor($key);
+						}
+						
+						&fct_show_status_message( 1, sprintf ( $d->get( "Image %s was deleted from filesystem" ), $new_filename ) );
+					
+						&fct_update_info_and_tray();
+						return TRUE;
+					
+					#resave failed => delete the screenshot	
+					}else{
 
 						$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
 						&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
@@ -7342,7 +7380,7 @@ if ($app->is_running) {
 
 						delete( $session_screens{$key} );    				
 
-					#~ }	
+					}	
 					
 				}
 
