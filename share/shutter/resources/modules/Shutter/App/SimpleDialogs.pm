@@ -51,8 +51,7 @@ sub dlg_info_message {
 	my $dlg_info_message = shift;
 	my $dlg_info_header = shift;
 
-	my $info_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/],
-		'info', 'ok', $dlg_info_message );
+	my $info_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/], 'info', 'none', undef );
 
 	$info_dialog->set_title("Shutter");
 

@@ -308,38 +308,17 @@ if ($app->is_running) {
 	# that there's a new message.
 	$app->watch_window($window);
 	my $app_watch_id = $app->signal_connect('message-received' => sub {
-		my ($app, $cmdno, $message, $time) = @_;
-
-		my $cmdname = undef;
-		if ($cmdno == 1) {
-			$cmdname = 'select';
-		} elsif ($cmdno == 2) {
-			$cmdname = 'full';
-		} elsif ($cmdno == 3) {
-			$cmdname = 'window';
-		} elsif ($cmdno == 4) {
-			$cmdname = 'awindow';
-		} elsif ($cmdno == 5) {
-			$cmdname = 'section';
-		} elsif ($cmdno == 6) {		
-			$cmdname = 'menu';
-		} elsif ($cmdno == 7) {
-			$cmdname = 'tooltip';
-		} elsif ($cmdno == 8) {
-			$cmdname = 'web';
-		} elsif ($cmdno == 9) {
-			$cmdname = 'redoshot';
-		}	
+		my ($app, $cmd, $message, $time) = @_;
 		
 		#shutter window is presented automatically, sync our flag
 		$is_hidden = FALSE;
 		
 		#take screenshot		
-		if(defined $cmdname){
+		if(defined $cmd){
 			if($is_hidden){
 				&fct_control_main_window('hide');
 			}
-			&evt_take_screenshot( 'global_keybinding', $cmdname, undef, $message->get_text );	
+			&evt_take_screenshot( 'global_keybinding', $cmd, undef, $message->get_text );	
 		#open new files
 		}else{
 			my @init_files = $message->get_uris;
@@ -3079,8 +3058,14 @@ if ($app->is_running) {
 		#hide window and save settings
 		$window->hide;
 		&fct_save_settings(undef);
-		&fct_save_settings( $combobox_settings_profiles->get_active_text ) 
+		&fct_save_settings($combobox_settings_profiles->get_active_text) 
 			if $combobox_settings_profiles->get_active != -1;
+
+		#keybindings
+		&fct_save_bindings($capture_key->get_text, $capture_sel_key->get_text);	
+
+		#autostart
+		$sas->create_autostart_file($sdir->get_autostart_dir, $fs_active->get_active, $fs_min_active->get_active, $fs_nonot_active->get_active);
 
 		Gtk2->main_quit;
 		return FALSE;
@@ -3540,8 +3525,14 @@ if ($app->is_running) {
 		
 		#save directly
 		&fct_save_settings(undef);
-		&fct_save_settings( $combobox_settings_profiles->get_active_text ) 
+		&fct_save_settings($combobox_settings_profiles->get_active_text) 
 			if $combobox_settings_profiles->get_active != -1;
+
+		#keybindings
+		&fct_save_bindings($capture_key->get_text, $capture_sel_key->get_text);	
+
+		#autostart
+		$sas->create_autostart_file($sdir->get_autostart_dir, $fs_active->get_active, $fs_min_active->get_active, $fs_nonot_active->get_active);
 		
 		#we need to update the first tab here
 		#because the profile might have changed
@@ -3629,6 +3620,10 @@ if ($app->is_running) {
 
 			}
 			&fct_save_settings($new_profile_name);
+			#keybindings
+			&fct_save_bindings($capture_key->get_text, $capture_sel_key->get_text);	
+			#autostart
+			$sas->create_autostart_file($sdir->get_autostart_dir, $fs_active->get_active, $fs_min_active->get_active, $fs_nonot_active->get_active);			
 		}
 		return TRUE;
 	}
@@ -4413,12 +4408,6 @@ if ($app->is_running) {
 			$sd->dlg_error_message( $@, $d->get("Account-settings could not be saved!") );
 		}
 
-		#keybindings
-		&fct_save_bindings($capture_key->get_text, $capture_sel_key->get_text);	
-
-		#autostart
-		$sas->create_autostart_file($sdir->get_autostart_dir, $fs_active->get_active, $fs_min_active->get_active, $fs_nonot_active->get_active);
-
 		return TRUE;
 	}
 
@@ -4426,40 +4415,65 @@ if ($app->is_running) {
 		my $key 	= shift;
 		my $skey 	= shift;
 		
-		#~ #COMPIZ VIA DBus	
-		#~ my $bus		= undef;
-		#~ my $compiz 	= undef;
-		#~ my $cs 		= undef;
-		#~ my $cs_k  	= undef;
-		#~ my $cws     = undef;
-		#~ my $cws_k  	= undef;
+		#convert some abbreviations
+		#so they are accepted by compiz-settings-manager
+		$key =~ s/(Ctrl|Ctl)/Control/gi;
+		$skey =~ s/(Ctrl|Ctl)/Control/gi;
+
+		#construct mode string
+		my $mode = undef;
+		if ( $combobox_keybinding_mode->get_active() == 0 ) {
+			$mode = "--select";
+		} elsif ( $combobox_keybinding_mode->get_active() == 1 ) {
+			$mode = "--window";
+		} elsif ( $combobox_keybinding_mode->get_active() == 2 ) {
+			$mode = "--active";
+		} elsif ( $combobox_keybinding_mode->get_active() == 3 ) {
+			$mode = "--section";
+		} elsif ( $combobox_keybinding_mode->get_active() == 4 ) {
+			$mode = "--menu";
+		} elsif ( $combobox_keybinding_mode->get_active() == 5 ) {
+			$mode = "--tooltip";
+		} elsif ( $combobox_keybinding_mode->get_active() == 6 ) {
+			$mode = "--web";
+		} elsif ( $combobox_keybinding_mode->get_active() == 7 ) {
+			$mode = "--redo";
+		}
 		
-		#~ eval{
-			#~ $bus = Net::DBus->find;
-			#~ 
-			#~ #Get a handle to the compiz service
-			#~ $compiz = $bus->get_service("org.freedesktop.compiz");
-	#~ 
-			#~ # Get the relevant objects object
-			#~ $cs = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/command_screenshot",
-										 #~ "org.freedesktop.compiz");
-			#~ 
-			#~ $cs_k = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/run_command_screenshot_key",
-										 #~ "org.freedesktop.compiz");
-	#~ 
-			#~ $cws = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/command_window_screenshot",
-										 #~ "org.freedesktop.compiz");
-			#~ 
-			#~ $cws_k = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/run_command_window_screenshot_key",
-										 #~ "org.freedesktop.compiz");
-		#~ };
-		#~ if($@){
-			#~ warn "WARNING: DBus connection to org.freedesktop.compiz failed --> setting keyboard shortcuts may not work when using compiz\n\n";
-			#~ warn $@ . "\n\n";
-		#~ }
+		#COMPIZ VIA DBus	
+		my $bus		= undef;
+		my $compiz 	= undef;
+		my $cs 		= undef;
+		my $cs_k  	= undef;
+		my $cws     = undef;
+		my $cws_k  	= undef;
+		
+		eval{
+			$bus = Net::DBus->find;
+			
+			#Get a handle to the compiz service
+			$compiz = $bus->get_service("org.freedesktop.compiz");
+	
+			#Get the relevant objects object
+			$cs = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/command_screenshot",
+										 "org.freedesktop.compiz");
+			
+			$cs_k = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/run_command_screenshot_key",
+										 "org.freedesktop.compiz");
+	
+			$cws = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/command_window_screenshot",
+										 "org.freedesktop.compiz");
+			
+			$cws_k = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/run_command_window_screenshot_key",
+										 "org.freedesktop.compiz");
+		};
+		if($@){
+			warn "WARNING: DBus connection to org.freedesktop.compiz failed --> setting keyboard shortcuts may not work when using compiz\n\n";
+			warn $@ . "\n\n";
+		}
 
 		#GCONF
-		my $client        = Gnome2::GConf::Client->get_default;
+		my $client = Gnome2::GConf::Client->get_default;
 
 		#global error handler function catch just the unchecked error
 		$client->set_error_handling('handle-unreturned');
@@ -4480,83 +4494,92 @@ if ($app->is_running) {
 				$client->set( $command_full, { type => 'string', value => "$shutter_path --full" } );
 				$client->set( $shortcut_full, { type  => 'string', value => $key } );
 				
-				#compiz if available
-				#~ if(defined $cs && defined $cs_k){
-					#~ $cs->set(dbus_string "$shutter_path --full");
-					#~ 
-					#~ #currently not needed because keys are copied from gconf
-					#~ $cs_k->set(dbus_string $key);
-				#~ }
+				#compiz if not updated automatically (GConf Backend)
+				if(defined $cs && defined $cs_k){
+					unless($cs->get eq "$shutter_path --full"){ 
+						$cs->set(dbus_string "$shutter_path --full");
+					}
+					unless($cs_k->get eq $key){ 
+						$cs_k->set(dbus_string $key);
+					}					
+				}
 				
 			} else {
 				
 				$client->set( $command_full,  { type => 'string', value => 'gnome-screenshot', } );
 				$client->set( $shortcut_full, { type => 'string', value => 'Print', } );
 
-				#compiz if available
-				#~ if(defined $cs && defined $cs_k){
-					#~ $cs->set(dbus_string 'gnome-screenshot');
-					#~ 
-					#~ #currently not needed because keys are copied from gconf
-					#~ $cs_k->set(dbus_string 'Print');
-				#~ }	
+				#compiz if not updated automatically (GConf Backend)
+				if(defined $cs && defined $cs_k){
+					unless($cs->get eq 'gnome-screenshot'){ 
+						$cs->set(dbus_string 'gnome-screenshot');
+					}
+					unless($cs_k->get eq 'Print'){ 
+						$cs_k->set(dbus_string 'Print');
+					}
+				}	
 
 			}
 			
 			if ( $keybinding_sel_active->get_active() ) {
-				
-				my $mode = undef;
-				if ( $combobox_keybinding_mode->get_active() == 0 ) {
-					$mode = "--select";
-				} elsif ( $combobox_keybinding_mode->get_active() == 1 ) {
-					$mode = "--window";
-				} elsif ( $combobox_keybinding_mode->get_active() == 2 ) {
-					$mode = "--active";
-				} elsif ( $combobox_keybinding_mode->get_active() == 3 ) {
-					$mode = "--section";
-				} elsif ( $combobox_keybinding_mode->get_active() == 4 ) {
-					$mode = "--menu";
-				} elsif ( $combobox_keybinding_mode->get_active() == 5 ) {
-					$mode = "--tooltip";
-				} elsif ( $combobox_keybinding_mode->get_active() == 6 ) {
-					$mode = "--web";
-				} elsif ( $combobox_keybinding_mode->get_active() == 7 ) {
-					$mode = "--redo";
-				}
-				
+								
 				$client->set( $command_sel, { type  => 'string', value => "$shutter_path $mode" } );
 				$client->set( $shortcut_sel, { type  => 'string', value => $skey } );
 				
-				#compiz if available
-				#~ if(defined $cws && defined $cws_k){
-					#~ $cws->set(dbus_string "$shutter_path $mode");
-					#~ 
-					#~ #currently not needed because keys are copied from gconf
-					#~ $cws_k->set(dbus_string $skey);
-				#~ }
+				#compiz if not updated automatically (GConf Backend)
+				if(defined $cws && defined $cws_k){
+					unless($cws->get eq "$shutter_path $mode"){ 
+						$cws->set(dbus_string "$shutter_path $mode");
+					}
+					unless($cws_k->get eq $skey){ 
+						$cws_k->set(dbus_string $skey);
+					}
+				}
 
 			} else {
 				
 				$client->set( $command_sel, { type  => 'string', value => 'gnome-screenshot --window' } );
 				$client->set( $shortcut_sel, { type => 'string', value => '<Alt>Print' } );
 				
-				#compiz if available
-				#~ if(defined $cws && defined $cws_k){
-					#~ $cws->set(dbus_string 'gnome-screenshot --window');
-	#~ 
-					#~ #currently not needed because keys are copied from gconf
-					#~ $cws_k->set(dbus_string '<Alt>Print');
-				#~ }	
+				#compiz if not updated automatically (GConf Backend)
+				if(defined $cws && defined $cws_k){
+					unless($cws->get eq 'gnome-screenshot --window'){
+						$cws->set(dbus_string 'gnome-screenshot --window');
+					}
+					unless($cws_k->get eq '<Alt>Print'){
+						$cws_k->set(dbus_string '<Alt>Print');
+					}
+				}	
 				
 			}
 
 		};
-		if($@){
-			#show error message
-			#~ my $response = $sd->dlg_error_message( 
-				#~ $@,
-				#~ $d->get(  "There was an error configuring the keybindings." )
-			#~ );				
+
+		#check values again and show error dialog when something went wrong
+		my $error = 0;
+		if ( $keybinding_active->get_active() ) {
+			if(defined $cs && defined $cs_k){
+				unless($cs->get eq "$shutter_path --full" && $cs_k->get eq $key){
+					$error++;
+				}
+			}
+		}
+		if ( $keybinding_sel_active->get_active() ) {
+			if(defined $cws && defined $cws_k){
+				unless($cws->get eq "$shutter_path $mode" && $cws_k->get eq $skey){
+					$error++;
+				}
+			}
+		}
+
+		if($error > 0){
+			my $response = $sd->dlg_error_message( 
+				$d->get( "The format looks like \"<Control>Print\" or \"<Shift><Alt>Print\". The parser is fairly liberal and allows lower or upper case, but abbreviations such as \"<Ctl>\" and \"<Ctrl>\" may cause problems under some circumstances (e.g. when using compiz)." ),
+				$d->get( "There was an error configuring the keybindings." ),
+				undef, undef, undef,
+				undef, undef, undef,
+				$@
+			);	
 		}
 
 		return TRUE;
