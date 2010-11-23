@@ -102,7 +102,7 @@ my $tooltips = Gtk2::Tooltips->new;
 
 #configure buttons and other needed controls
 my $rotation_label = Gtk2::Label->new( $d->get("Rotation:") );
-my $rotation_sbutton = Gtk2::SpinButton->new_with_range( -180, 180, 1 );
+my $rotation_sbutton = Gtk2::SpinButton->new_with_range( 0, 90, 1 );
 $rotation_sbutton->set_value( 20 );
 
 $tooltips->set_tip(
