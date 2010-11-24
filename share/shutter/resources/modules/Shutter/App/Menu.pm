@@ -133,13 +133,18 @@ sub fct_ret_file_menu {
 
 	#~ $self->{_menuitem_export_svg} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Export to SVG...') );
 	#~ $self->{_menuitem_export_svg}->set_sensitive(FALSE);
-	#~ $self->{_menuitem_export_svg}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Shift><Alt>S'), qw/visible/ );
+	#~ $self->{_menuitem_export_svg}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Shift><Alt>G'), qw/visible/ );
 	#~ $self->{_menu_file}->append( $self->{_menuitem_export_svg} );
 
 	$self->{_menuitem_export_pdf} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('E_xport to PDF...') );
 	$self->{_menuitem_export_pdf}->set_sensitive(FALSE);
 	$self->{_menuitem_export_pdf}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Shift><Alt>P'), qw/visible/ );
 	$self->{_menu_file}->append( $self->{_menuitem_export_pdf} );
+
+	$self->{_menuitem_export_pscript} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Export to Post_Script...') );
+	$self->{_menuitem_export_pscript}->set_sensitive(FALSE);
+	$self->{_menuitem_export_pscript}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Shift><Alt>S'), qw/visible/ );
+	$self->{_menu_file}->append( $self->{_menuitem_export_pscript} );
 
 	$self->{_menu_file}->append( Gtk2::SeparatorMenuItem->new );
 

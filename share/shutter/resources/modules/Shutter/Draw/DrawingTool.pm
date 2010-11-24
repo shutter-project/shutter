@@ -1494,7 +1494,8 @@ sub export_to_file {
 		$fs->set_current_folder($shutter_dir->get_home_dir);
 		$fs->set_current_name($short.$ext);		
 	}else{
-		$fs->set_filename( $self->{_filename} );
+		$fs->set_current_folder($folder);
+		$fs->set_current_name($short.$ext);		
 	}
 
 	#preview widget
@@ -1537,6 +1538,12 @@ sub export_to_file {
 	if(defined $rfiletype && $rfiletype eq 'pdf') {
 
 		$combobox_save_as_type->insert_text($counter, "pdf - Portable Document Format");
+		$combobox_save_as_type->set_active(0);
+
+	#add ps support
+	}elsif(defined $rfiletype && $rfiletype eq 'ps') {
+
+		$combobox_save_as_type->insert_text($counter, "ps - PostScript");
 		$combobox_save_as_type->set_active(0);
 	
 	#images
@@ -1592,6 +1599,9 @@ sub export_to_file {
 			$fs->set_current_name( $short . "." . $choosen_format );
 		}
 	);
+
+	#emit the signal once in order to invoke the sub above
+	#~ $combobox_save_as_type->signal_emit('changed');
 
 	$extra_hbox->pack_start( $label_save_as_type,    FALSE, FALSE, 5 );
 	$extra_hbox->pack_start( $combobox_save_as_type, FALSE, FALSE, 5 );
@@ -1663,6 +1673,17 @@ sub export_to_svg {
 	
 	#just call the dialog
 	$self->export_to_file('svg');
+	
+	return TRUE;
+}
+
+sub export_to_ps {
+	my $self = shift;
+	
+	#here might be some more features in future releases of Shutter
+	
+	#just call the dialog
+	$self->export_to_file('ps');
 	
 	return TRUE;
 }
@@ -1752,6 +1773,15 @@ sub save {
 
 		#0.8? => 72 / 90 dpi		
     	my $surface = Cairo::SvgSurface->create($filename, $self->{_canvas_bg_rect}->get('width') * 0.8, $self->{_canvas_bg_rect}->get('height') * 0.8);
+    	my $cr = Cairo::Context->create($surface);
+		$cr->scale(0.8, 0.8);
+		$self->{_canvas}->render( $cr, $self->{_canvas_bg_rect}->get_bounds, 1 );
+		$cr->show_page;
+
+	}elsif($filetype eq 'ps'){
+
+		#0.8? => 72 / 90 dpi		
+    	my $surface = Cairo::PsSurface->create($filename, $self->{_canvas_bg_rect}->get('width') * 0.8, $self->{_canvas_bg_rect}->get('height') * 0.8);
     	my $cr = Cairo::Context->create($surface);
 		$cr->scale(0.8, 0.8);
 		$self->{_canvas}->render( $cr, $self->{_canvas_bg_rect}->get_bounds, 1 );
@@ -5900,11 +5930,14 @@ sub setup_uimanager {
 		[ "ExportTo", 'gtk-save-as', $self->{_d}->get("Export to _File..."), "<Shift><Control>E", $self->{_d}->get("Export to File..."), sub { 
 			$self->export_to_file()
 		} ],
-		[ "ExportToSvg", undef, $self->{_d}->get("_Export to SVG..."), "<Shift><Alt>S", $self->{_d}->get("Export to SVG..."), sub { 
+		[ "ExportToSvg", undef, $self->{_d}->get("_Export to SVG..."), "<Shift><Alt>V", $self->{_d}->get("Export to SVG..."), sub { 
 			$self->export_to_svg()
 		} ],
 		[ "ExportToPdf", undef, $self->{_d}->get("E_xport to PDF..."), "<Shift><Alt>P", $self->{_d}->get("Export to PDF..."), sub { 
 			$self->export_to_pdf()
+		} ],
+		[ "ExportToPS", undef, $self->{_d}->get("Export to Post_Script..."), "<Shift><Alt>S", $self->{_d}->get("Export to PostScript..."), sub { 
+			$self->export_to_ps()
 		} ],
 		[ "ZoomIn", 'gtk-zoom-in',  undef, "<control>plus", undef, sub { 
 			$self->zoom_in_cb($self) 
@@ -6007,6 +6040,7 @@ sub setup_uimanager {
 		  <menuitem action = 'ExportTo'/>
 		  <menuitem action = 'ExportToSvg'/>
 		  <menuitem action = 'ExportToPdf'/>
+		  <menuitem action = 'ExportToPS'/>
 		  <separator/>
 		  <menuitem action = 'Close'/>
 		</menu>
