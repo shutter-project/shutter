@@ -4415,6 +4415,8 @@ if ($app->is_running) {
 		my $key 	= shift;
 		my $skey 	= shift;
 		
+		my $error = 0;
+		
 		#convert some abbreviations
 		#so they are accepted by compiz-settings-manager
 		$key =~ s/(Ctrl|Ctl)/Control/gi;
@@ -4470,6 +4472,22 @@ if ($app->is_running) {
 		if($@){
 			warn "WARNING: DBus connection to org.freedesktop.compiz failed --> setting keyboard shortcuts may not work when using compiz\n\n";
 			warn $@ . "\n\n";
+		}
+		
+		#check if gnomecompat is activated
+		eval{
+			if(defined $cws && defined $cws_k){
+				$cs->get;
+			}			
+		};
+		if($@){
+			warn "WARNING: gnomecompat is disabled --> setting keyboard shortcuts may not work when using compiz\n\n";
+			warn $@ . "\n\n";
+			$cs    = undef;
+			$cs_k  = undef;
+			$cws   = undef;
+			$cws_k = undef;
+			$error = 3;	
 		}
 
 		#GCONF
@@ -4531,8 +4549,8 @@ if ($app->is_running) {
 					unless($cws->get eq "$shutter_path $mode"){ 
 						$cws->set(dbus_string "$shutter_path $mode");
 					}
-					unless($cws_k->get eq $skey){ 
-						$cws_k->set(dbus_string $skey);
+					unless($cws_k->get eq "$skey"){ 
+						$cws_k->set(dbus_string "$skey");
 					}
 				}
 
@@ -4556,7 +4574,6 @@ if ($app->is_running) {
 		};
 
 		#check values again and show error dialog when something went wrong
-		my $error = 0;
 		if ( $keybinding_active->get_active() ) {
 			if(defined $cs && defined $cs_k){
 				unless($cs->get eq "$shutter_path --full" && $cs_k->get eq $key){
@@ -4571,8 +4588,18 @@ if ($app->is_running) {
 				}
 			}
 		}
-
-		if($error > 0){
+		
+		#gnomecompat is disabled
+		if($error == 3){
+			my $response = $sd->dlg_error_message( 
+				$d->get( "Please activate the Gnome Compatibility plugin via CompizConfig Settings Manager." ),
+				$d->get( "There was an error configuring the keybindings." ),
+				undef, undef, undef,
+				undef, undef, undef,
+				$@
+			);
+		#settings are not correctly set even though there are no other errors
+		}elsif($error > 0){
 			my $response = $sd->dlg_error_message( 
 				$d->get( "The format looks like \"<Control>Print\" or \"<Shift><Alt>Print\". The parser is fairly liberal and allows lower or upper case, but abbreviations such as \"<Ctl>\" and \"<Ctrl>\" may cause problems under some circumstances (e.g. when using compiz)." ),
 				$d->get( "There was an error configuring the keybindings." ),
