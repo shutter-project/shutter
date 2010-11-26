@@ -66,6 +66,7 @@ sub window_by_xid {
 	my $output = 0;
 	if (defined $gdk_window && defined $wnck_window){
 	
+		my ( $xc, $yc, $wc, $hc ) = $self->get_window_size( $wnck_window, $gdk_window, $self->{_include_border}, TRUE );
 		my ( $xp, $yp, $wp, $hp ) = $self->get_window_size( $wnck_window, $gdk_window, $self->{_include_border} );
 
 		#focus selected window (maybe it is hidden)
@@ -89,6 +90,19 @@ sub window_by_xid {
 		#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
 		if($self->{_x11}{ext_shape} && $self->{_include_border}){
 			$output = $self->get_shape($xid, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);				
+		}
+
+		#restore window size when autoresizing was used
+		if($self->{_mode} eq "window" || $self->{_mode} eq "tray_window" || $self->{_mode} eq "awindow" || $self->{_mode} eq "tray_awindow"){
+			if(defined $self->{_windowresize} && $self->{_windowresize}) {
+				if($wc != $wp || $hc != $hp){
+					if($self->{_include_border}){
+						$wnck_window->set_geometry ('current', [qw/width height/], $xc, $yc, $wc, $hc);		
+					}else{
+						$gdk_window->resize ($wc, $hc);
+					}
+				}
+			}
 		}
 
 		#set name of the captured window

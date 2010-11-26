@@ -613,25 +613,12 @@ sub find_active_window {
 		
 		if ( defined $wnck_window ) {
 						
-			#size
-			my ( $xp, $yp, $wp, $hp ) = $self->get_window_size( $wnck_window, $gdk_window, $self->{_include_border} );
-
-			$self->{_c}{'cw'}{'window'}     = $wnck_window;
-			$self->{_c}{'cw'}{'gdk_window'} = $gdk_window;
-			$self->{_c}{'cw'}{'x'} 			= $xp;
-			$self->{_c}{'cw'}{'y'} 			= $yp;
-			$self->{_c}{'cw'}{'width'} 		= $wp;
-			$self->{_c}{'cw'}{'height'} 	= $hp;
-			$self->{_c}{'cw'}{'is_parent'} 	= TRUE;
-	
-			#~ print $self->{_c}{'cw'}{'x'}, " - ",			 			
-				  #~ $self->{_c}{'cw'}{'y'}, " - ", 			
-				  #~ $self->{_c}{'cw'}{'width'}, " - ", 		
-				  #~ $self->{_c}{'cw'}{'height'}, " \n " if $self->{_sc}->get_debug; 
+			return ($wnck_window, $gdk_window);
+			
 		}		  				
 	}
 	
-	return TRUE;	
+	return FALSE;	
 }
 
 sub find_region_for_window_type {
@@ -850,10 +837,13 @@ sub window {
 				} elsif ( $event->type eq 'button-release' ) {
 					print "Type: " . $event->type . "\n" if ( defined $event && $self->{_sc}->get_debug );
 
+					my ( $xp, $yp, $wp, $hp, $xc, $yc, $wc, $hc ) = (0, 0, 0, 0, 0, 0, 0, 0);
+
 					if ( defined $self->{_c}{'lw'} && $self->{_c}{'lw'}{'gdk_window'} ) {
 
 						#size (we need to do this again because of autoresizing)
-						my ( $xp, $yp, $wp, $hp ) = $self->get_window_size( $self->{_c}{'lw'}{'window'}, $self->{_c}{'lw'}{'gdk_window'}, $self->{_include_border} );
+						( $xc, $yc, $wc, $hc ) = $self->get_window_size( $self->{_c}{'lw'}{'window'}, $self->{_c}{'lw'}{'gdk_window'}, $self->{_include_border}, TRUE );
+						( $xp, $yp, $wp, $hp ) = $self->get_window_size( $self->{_c}{'lw'}{'window'}, $self->{_c}{'lw'}{'gdk_window'}, $self->{_include_border} );
 
 						$self->{_c}{'cw'}{'x'} 			= $xp;
 						$self->{_c}{'cw'}{'y'} 			= $yp;
@@ -928,7 +918,19 @@ sub window {
 							}
 						}
 					}
-					
+
+					#restore window size when autoresizing was used
+					if($self->{_mode} eq "window" || $self->{_mode} eq "tray_window" || $self->{_mode} eq "awindow" || $self->{_mode} eq "tray_awindow"){
+						if(defined $self->{_windowresize} && $self->{_windowresize}) {
+							if($wc != $wp || $hc != $hp){
+								if($self->{_include_border}){
+									$self->{_c}{'lw'}{'window'}->set_geometry ('current', [qw/width height/], $xc, $yc, $wc, $hc);		
+								}else{
+									$self->{_c}{'lw'}{'gdk_window'}->resize ($wc, $hc);
+								}
+							}
+						}
+					}
 
 					#set name of the captured window
 					#e.g. for use in wildcards
@@ -971,10 +973,28 @@ sub window {
 		
 		$output = 0;
 
+		my ( $xp, $yp, $wp, $hp, $xc, $yc, $wc, $hc ) = (0, 0, 0, 0, 0, 0, 0, 0);
+
 		if ( ( $self->{_mode} eq "window" || $self->{_mode} eq "tray_window" ||  $self->{_mode} eq "awindow"  || $self->{_mode} eq "tray_awindow" ) ) {
 
 			#and select current parent window
-			$self->find_active_window;
+			my ($wnck_window, $gdk_window) = $self->find_active_window;
+			
+			if(defined $wnck_window && $wnck_window && defined $gdk_window && $gdk_window){
+
+				#get_size of it
+				( $xc, $yc, $wc, $hc ) = $self->get_window_size($wnck_window, $gdk_window, $self->{_include_border}, TRUE);
+				( $xp, $yp, $wp, $hp ) = $self->get_window_size($wnck_window, $gdk_window, $self->{_include_border});
+			
+				$self->{_c}{'cw'}{'window'}     = $wnck_window;
+				$self->{_c}{'cw'}{'gdk_window'} = $gdk_window;
+				$self->{_c}{'cw'}{'x'} 			= $xp;
+				$self->{_c}{'cw'}{'y'} 			= $yp;
+				$self->{_c}{'cw'}{'width'} 		= $wp;
+				$self->{_c}{'cw'}{'height'} 	= $hp;
+				$self->{_c}{'cw'}{'is_parent'} 	= TRUE;
+			
+			}
 
 		}elsif ( ( $self->{_mode} eq "menu" || $self->{_mode} eq "tray_menu" ) ) {
 
@@ -1043,6 +1063,19 @@ sub window {
 					if($win->get_xid == $xid){
 						$output = $self->get_shape($xid, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);				
 						last;
+					}
+				}
+			}
+		}
+
+		#restore window size when autoresizing was used
+		if($self->{_mode} eq "window" || $self->{_mode} eq "tray_window" || $self->{_mode} eq "awindow" || $self->{_mode} eq "tray_awindow"){
+			if(defined $self->{_windowresize} && $self->{_windowresize}) {
+				if($wc != $wp || $hc != $hp){
+					if($self->{_include_border}){
+						$self->{_c}{'cw'}{'window'}->set_geometry ('current', [qw/width height/], $xc, $yc, $wc, $hc);		
+					}else{
+						$self->{_c}{'cw'}{'gdk_window'}->resize ($wc, $hc);
 					}
 				}
 			}
@@ -1131,7 +1164,7 @@ sub redo_capture {
 			if(defined $gdk_window && defined $wnck_window){
 	
 				#store size
-				my ( $xp, $yp, $wp, $hp ) = (0, 0, 0, 0);
+				my ( $xp, $yp, $wp, $hp, $xc, $yc, $wc, $hc ) = (0, 0, 0, 0, 0, 0, 0, 0);
 	
 				if($self->{_mode} eq "section" || $self->{_mode} eq "tray_section" ){
 	
@@ -1141,6 +1174,7 @@ sub redo_capture {
 				}elsif($self->{_mode} eq "window" || $self->{_mode} eq "tray_window" || $self->{_mode} eq "awindow" || $self->{_mode} eq "tray_awindow"){
 	
 					#get_size of it
+					( $xc, $yc, $wc, $hc ) = $self->get_window_size($wnck_window, $gdk_window, $self->{_include_border}, TRUE);
 					( $xp, $yp, $wp, $hp ) = $self->get_window_size($wnck_window, $gdk_window, $self->{_include_border});
 								
 				}
@@ -1165,6 +1199,19 @@ sub redo_capture {
 
 				if($self->{_mode} eq "window" || $self->{_mode} eq "tray_window" || $self->{_mode} eq "awindow" || $self->{_mode} eq "tray_awindow"){
 					$output = $self->get_shape($gxid, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);
+				}
+				
+				#restore window size when autoresizing was used
+				if($self->{_mode} eq "window" || $self->{_mode} eq "tray_window" || $self->{_mode} eq "awindow" || $self->{_mode} eq "tray_awindow"){
+					if(defined $self->{_windowresize} && $self->{_windowresize}) {
+						if($wc != $wp || $hc != $hp){
+							if($self->{_include_border}){
+								$wnck_window->set_geometry ('current', [qw/width height/], $xc, $yc, $wc, $hc);		
+							}else{
+								$gdk_window->resize ($wc, $hc);
+							}
+						}
+					}
 				}
 
 				$self->quit_eventh_only;
