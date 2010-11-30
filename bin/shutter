@@ -7407,7 +7407,8 @@ if ($app->is_running) {
 					
 					#prepare new filename
 					my ( $short, $folder, $ext ) = fileparse( $session_screens{$key}->{'long'}, qr/\.[^.]*/ );
-					my $new_filename = $sdir->get_cache_dir."/".$short.$ext;
+					my $new_uri = &fct_get_next_filename( $short, $sdir->get_cache_dir, $ext );
+					my $new_filename = $shf->utf8_decode(Gnome2::VFS->unescape_string($new_uri->get_path));
 					
 					if($sp->save_pixbuf_to_file($pixbuf, $new_filename, $session_screens{$key}->{'filetype'})){
 					
@@ -7529,6 +7530,9 @@ if ($app->is_running) {
 
 	sub fct_get_next_filename {
 		my ( $filename_value, $folder, $filetype_value ) = @_;
+
+		#remove possible dots
+		$filetype_value =~ s/\.//;
 
 		$filename_value =~ s/\\//g;
 		
