@@ -28,6 +28,9 @@ use utf8;
 use strict;
 use warnings;
 
+#File operations
+use IO::File();
+
 use Shutter::Screenshot::Main;
 use Shutter::Screenshot::History;
 use Data::Dumper;
@@ -46,15 +49,16 @@ sub new {
 	my $self = $class->SUPER::new( shift, shift, shift, shift );
 
 	#get params
-	$self->{_include_border} 	= shift;
+	$self->{_include_border}    = shift;
 	$self->{_windowresize}      = shift;
 	$self->{_windowresize_w}    = shift;
 	$self->{_windowresize_h}    = shift;
-	$self->{_hide_time}			= shift;   #a short timeout to give the server a chance to redraw the area that was obscured
-	$self->{_mode} 				= shift;
-	$self->{_is_hidden}      	= shift;
+	$self->{_hide_time}         = shift;   #a short timeout to give the server a chance to redraw the area that was obscured
+	$self->{_mode}              = shift;
+	$self->{_is_hidden}         = shift;
 	$self->{_show_visible}      = shift;   #show user-visible windows only when selecting a window
-	$self->{_ignore_type}	    = shift;   #Ignore possibly wrong type hints
+	$self->{_ignore_type}       = shift;   #Ignore possibly wrong type hints
+	$self->{_auto_shape}        = shift;   #shape the window without XShape support
 
 	#X11 protocol and XSHAPE ext
 	require X11::Protocol;
@@ -313,23 +317,84 @@ sub get_shape {
 
 	my ($ordering, @r) = $self->{_x11}->ShapeGetRectangles($self->find_wm_window($xid), 'Bounding');
 	
+	my $manually_shaped = FALSE;
+	#create shape manually when option is set
+	if (scalar @r <= 1 && defined $self->{_auto_shape} && $self->{_auto_shape}){
+		
+		my $shf = Shutter::App::HelperFunctions->new( $self->{_sc} );
+		
+		my $shape_path = undef;
+		$shape_path = $self->{_sc}->get_root . "/share/shutter/resources/conf/shape.conf" if $shf->file_exists($self->{_sc}->get_root . "/share/shutter/resources/conf/shape.conf");
+		$shape_path = "$ENV{'HOME'}/.shutter/shape.conf" if $shf->file_exists("$ENV{'HOME'}/.shutter/shape.conf");
+		
+		if(defined $shape_path && $shape_path){
+			
+			my @fregion;
+			
+			my $fh = new IO::File;
+			if ($fh->open("< $shape_path")) {
+				while( my $line = <$fh> ){
+					#skip on comments
+					next if $line =~ /^#/;
+					chomp($line);
+					push @fregion, $line;
+				}
+				$fh->close;
+			}else{
+				print "Unable to open file $shape_path" if $self->{_sc}->get_debug;
+				return $orig;
+			}
+			
+			print "Window shape not detected - using $shape_path\n" if $self->{_sc}->get_debug;
+			
+			#remove current entry
+			pop @r;
+			
+			my $width = $orig->get_width;
+			my $height = $orig->get_height;
+						
+			foreach my $line(@fregion){
+				$line =~ s/width/$width/;
+				$line =~ s/height/$height/;
+				$line =~ s/(\d+)-(\d+)/$1-$2/eg;
+				my @temp = split(' ', $line);
+				push @r, \@temp;
+			}
+			
+			$manually_shaped = TRUE;
+			
+		}else{
+			
+			print "Unable to locate shape.conf\n" if $self->{_sc}->get_debug;
+			
+		}
+		
 	#do nothing if there are no
-	#shape rectangles (or only one)
-	return $orig if scalar @r <= 1;
+	#shape rectangles (or only one)		
+	}elsif(scalar @r <= 1){
+		return $orig;
+	}
 							
 	#create a region from the bounding rectangles
 	my $bregion = Gtk2::Gdk::Region->new;					
 	foreach my $r (@r){
 		my @rect =  @{$r};
 		
-		#adjust rectangle if window is only partially visible
-		if($l_cropped){
-			$rect[2] -= $l_cropped - $rect[0]; 
-			$rect[0] = 0;
-		}
-		if($t_cropped){
-			$rect[3] -= $t_cropped - $rect[1]; 
-			$rect[1] = 0;
+		next unless defined $rect[0];
+		next unless defined $rect[1];
+		next unless defined $rect[2];
+		next unless defined $rect[3];
+		
+		unless($manually_shaped){
+			#adjust rectangle if window is only partially visible
+			if($l_cropped){
+				$rect[2] -= $l_cropped - $rect[0]; 
+				$rect[0] = 0;
+			}
+			if($t_cropped){
+				$rect[3] -= $t_cropped - $rect[1]; 
+				$rect[1] = 0;
+			}
 		}
 		
 		print "Current $rect[0],$rect[1],$rect[2],$rect[3]\n" if $self->{_sc}->get_debug;
