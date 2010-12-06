@@ -1634,7 +1634,7 @@ if ($app->is_running) {
 
 	#window autoshape
 	#--------------------------------------	
-	my $autoshape_active = Gtk2::CheckButton->new_with_label( $d->get("Force round window corners") );
+	my $autoshape_active = Gtk2::CheckButton->new_with_label( $d->get("Force rounded window corners") );
 
 	if ( defined $settings_xml->{'general'}->{'autoshape_active'} ) {
 		$autoshape_active->set_active( $settings_xml->{'general'}->{'autoshape_active'} );
