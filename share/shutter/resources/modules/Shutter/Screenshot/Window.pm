@@ -55,10 +55,10 @@ sub new {
 	$self->{_windowresize_h}    = shift;
 	$self->{_hide_time}         = shift;   #a short timeout to give the server a chance to redraw the area that was obscured
 	$self->{_mode}              = shift;
+	$self->{_auto_shape}        = shift;   #shape the window without XShape support	
 	$self->{_is_hidden}         = shift;
 	$self->{_show_visible}      = shift;   #show user-visible windows only when selecting a window
 	$self->{_ignore_type}       = shift;   #Ignore possibly wrong type hints
-	$self->{_auto_shape}        = shift;   #shape the window without XShape support
 
 	#X11 protocol and XSHAPE ext
 	require X11::Protocol;

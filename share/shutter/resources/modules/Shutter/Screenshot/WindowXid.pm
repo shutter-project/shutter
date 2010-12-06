@@ -41,8 +41,8 @@ use Glib qw/TRUE FALSE/;
 sub new {
 	my $class = shift;
 
-	#call constructor of super class (shutter_common, include_cursor, delay, notify_timeout, include_border, windowresize_active, windowresize_w, windowresize_h, hide_time, mode)
-	my $self = $class->SUPER::new( shift, shift, shift, shift, shift, shift, shift, shift, shift, shift );
+	#call constructor of super class (shutter_common, include_cursor, delay, notify_timeout, include_border, windowresize_active, windowresize_w, windowresize_h, hide_time, mode, autoshape)
+	my $self = $class->SUPER::new( shift, shift, shift, shift, shift, shift, shift, shift, shift, shift, shift );
 
 	bless $self, $class;
 	return $self;

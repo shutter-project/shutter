@@ -634,6 +634,7 @@ if ($app->is_running) {
 	my $asel_isize_box2     = Gtk2::HBox->new( FALSE, 0 );
 	my $border_box          = Gtk2::HBox->new( FALSE, 0 );
 	my $winresize_box       = Gtk2::HBox->new( FALSE, 0 );
+	my $autoshape_box       = Gtk2::HBox->new( FALSE, 0 );
 	my $visible_windows_box = Gtk2::HBox->new( FALSE, 0 );
 	my $menu_delay_box      = Gtk2::HBox->new( FALSE, 0 );
 	my $menu_waround_box    = Gtk2::HBox->new( FALSE, 0 );
@@ -1631,6 +1632,29 @@ if ($app->is_running) {
 	#end - window resize
 	#--------------------------------------
 
+	#window autoshape
+	#--------------------------------------	
+	my $autoshape_active = Gtk2::CheckButton->new_with_label( $d->get("Force round window corners") );
+
+	if ( defined $settings_xml->{'general'}->{'autoshape_active'} ) {
+		$autoshape_active->set_active( $settings_xml->{'general'}->{'autoshape_active'} );
+	} else {
+		$autoshape_active->set_active(FALSE);
+	}
+
+	$tooltips->set_tip( $autoshape_active, 
+		sprintf($d->get("Shutter uses the XShape extension to determine the window's shape, ". 
+		"but this does not work under some circumstances, e.g. when running compiz.\n\n". 
+		"When this option is activated Shutter uses fixed parameters to round the window corners. ".
+		"You can overwrite the default parameters by creating a file named ~/.shutter/shape.conf and put custom values in it. ". 
+		"The default values are stored in %s."), "$shutter_root/share/shutter/resources/conf/shape.conf")
+	);
+
+	$autoshape_box->pack_start( $autoshape_active, FALSE, FALSE, 12 );
+	
+	#end - window autoshape
+	#--------------------------------------
+
 	#visible windows only
 	#--------------------------------------
 	my $visible_windows_active = Gtk2::CheckButton->new_with_label( $d->get("Select only visible windows") );
@@ -2314,6 +2338,7 @@ if ($app->is_running) {
 
 	$window_capture_vbox->pack_start( $border_box, FALSE, TRUE, 3 );
 	$window_capture_vbox->pack_start( $winresize_box, FALSE, TRUE, 3 );
+	$window_capture_vbox->pack_start( $autoshape_box, FALSE, TRUE, 3 );
 	$window_capture_vbox->pack_start( $visible_windows_box, FALSE, TRUE, 3 );
 	$window_capture_frame->add($window_capture_vbox);
 
@@ -4294,6 +4319,7 @@ if ($app->is_running) {
 		$settings{'general'}->{'winresize_active'} = $winresize_active->get_active();
 		$settings{'general'}->{'winresize_w'}      = $winresize_w->get_value();
 		$settings{'general'}->{'winresize_h'}      = $winresize_h->get_value();
+		$settings{'general'}->{'autoshape_active'} = $autoshape_active->get_active();
 		$settings{'general'}->{'visible_windows'}  = $visible_windows_active->get_active();
 		$settings{'general'}->{'menu_delay'}  	   = $menu_delay->get_value();
 		$settings{'general'}->{'menu_waround'}     = $menu_waround_active->get_active();
@@ -4727,6 +4753,7 @@ if ($app->is_running) {
 					$winresize_w->set_value( $settings_xml->{'general'}->{'winresize_w'} );
 					$winresize_h->set_value( $settings_xml->{'general'}->{'winresize_h'} );
 					
+					$autoshape_active->set_active( $settings_xml->{'general'}->{'autoshape_active'} );
 					$visible_windows_active->set_active( $settings_xml->{'general'}->{'visible_windows'} );
 					$menu_waround_active->set_active( $settings_xml->{'general'}->{'menu_waround'} );
 					$menu_delay->set_value( $settings_xml->{'general'}->{'menu_delay'} );
@@ -5925,7 +5952,7 @@ if ($app->is_running) {
 					$notify_timeout_active->get_active, $border_active->get_active, 
 					$winresize_active->get_active, $winresize_w->get_value, $winresize_h->get_value,
 					$hide_time->get_value,
-					$data,
+					$data, $autoshape_active->get_active
 				);
 				
 				$screenshot = $screenshooter->window_find_by_name($extra);
@@ -5937,7 +5964,8 @@ if ($app->is_running) {
 					$notify_timeout_active->get_active, $border_active->get_active, 
 					$winresize_active->get_active, $winresize_w->get_value, $winresize_h->get_value,
 					$hide_time->get_value,
-					$data, $is_hidden, $visible_windows_active->get_active, 
+					$data, $autoshape_active->get_active,
+					$is_hidden, $visible_windows_active->get_active, 
 					$menu_waround_active->get_active
 				);
 				
@@ -6031,7 +6059,7 @@ if ($app->is_running) {
 				$border_active->get_active,
 				$winresize_active->get_active, $winresize_w->get_value, $winresize_h->get_value,
 				$hide_time->get_value,
-				$data,
+				$data, $autoshape_active->get_active
 			);
 			
 			$screenshot = $screenshooter->window_by_xid($xid);
