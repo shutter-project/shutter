@@ -2654,10 +2654,12 @@ if ($app->is_running) {
 
 	#populate quick selector as well
 	#restore session
+	#clean 'unsaved' files directory
 	#--------------------------------------
 	Glib::Idle->add(sub{
-		&fct_update_profile_selectors($combobox_settings_profiles, \@current_profiles);		
+		&fct_update_profile_selectors($combobox_settings_profiles, \@current_profiles);
 		&fct_load_session;
+		&fct_init_unsaved_files;
 		return FALSE;
 	});
 
@@ -8986,8 +8988,20 @@ if ($app->is_running) {
 		#...and a profiles folder?
 		mkdir "$ENV{'HOME'}/.shutter/profiles"
 			unless ( -d "$ENV{'HOME'}/.shutter/profiles" );
-			
+				
 		return TRUE;			
+	}
+
+	sub fct_init_unsaved_files {
+		#delete all files in this folder
+		#except the ones that are in the current session
+		my @unsaved_files = glob( $sdir->get_cache_dir."/*" );
+		foreach my $unsaved_file(@unsaved_files){
+			unless(&fct_get_key_by_filename($unsaved_file)){
+				print $unsaved_file, "deleted \n" if $sc->get_debug;
+				unlink $unsaved_file;
+			}
+		}
 	}
 
 	sub fct_init_debug_output {
