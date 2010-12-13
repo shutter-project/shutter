@@ -5100,10 +5100,7 @@ if ($app->is_running) {
 			if(&fct_integrate_screenshot_in_notebook( $new_uri )){
 				&fct_show_status_message( 1, $new_uri->get_path . " " . $d->get("opened") );	
 			}else{
-				my $response = $sd->dlg_error_message( 
-					sprintf( $d->get("Error while adding image %s to the session."), "'" . $new_uri->extract_short_name . "'"),
-					$d->get("There was an error adding the image."),		
-				);
+				&fct_show_status_message( 1, sprintf( $d->get("Error while opening image %s"), "'" . $new_uri->extract_short_name . "'") );
 			}
 		}
 		
@@ -5200,10 +5197,7 @@ if ($app->is_running) {
 				if(&fct_integrate_screenshot_in_notebook( $new_uri, undef, undef, $count )){
 					&fct_show_status_message( 1, $new_uri->get_path . " " . $d->get("opened") );	
 				}else{
-					my $response = $sd->dlg_error_message( 
-						sprintf( $d->get("Error while adding image %s to the session."), "'" . $new_uri->extract_short_name . "'"),
-						$d->get("There was an error adding the image."),		
-					);					
+					&fct_show_status_message( 1, sprintf( $d->get("Error while opening image %s"), "'" . $new_uri->extract_short_name . "'") );
 				}	
 
 			}
