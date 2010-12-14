@@ -7277,7 +7277,7 @@ if ($app->is_running) {
 						$session_screens{$key}->{'uri'}->to_string,
 						$session_screens{$key}->{'mime_type'},
 						$session_screens{$key}->{'mtime'},
-						0.5
+						1.0
 					);
 					#update dnd pixbuf
 					$session_screens{$key}->{'image'}->drag_source_set_icon_pixbuf($thumb_view);	

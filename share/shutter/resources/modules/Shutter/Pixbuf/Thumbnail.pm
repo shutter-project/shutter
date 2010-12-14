@@ -101,12 +101,16 @@ sub get_thumbnail {
 	}
 	
 	if($pixbuf){
-		my $dest_width 	= $pixbuf->get_width*$rfactor; 
-		my $dest_height = $pixbuf->get_height*$rfactor;
-		$dest_width = 1 if $dest_width < 1;
-		$dest_height = 1 if $dest_height < 1;
+		if($rfactor != 1.0){
+			my $dest_width 	= $pixbuf->get_width*$rfactor; 
+			my $dest_height = $pixbuf->get_height*$rfactor;
+			$dest_width = 1 if $dest_width < 1;
+			$dest_height = 1 if $dest_height < 1;
 
-		return $pixbuf->scale_simple ($dest_width, $dest_height, 'tiles');	
+			return $pixbuf->scale_simple ($dest_width, $dest_height, 'tiles');	
+		}else{
+			return $pixbuf;		
+		}
 	}else{
 		my $blank = Gtk2::Gdk::Pixbuf->new ('rgb', TRUE, 8, 5, 5);	
 		$blank->fill(0x00000000);
