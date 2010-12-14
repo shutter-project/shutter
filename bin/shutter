@@ -5927,6 +5927,7 @@ if ($app->is_running) {
 		if ( $data eq "full" || $data eq "tray_full" ) {
 			
 			my $wnck_screen = Gnome2::Wnck::Screen->get_default;
+			$wnck_screen->force_update;
 
 			$screenshooter = Shutter::Screenshot::Workspace->new(
 				$sc, $cursor_active->get_active,
@@ -7893,7 +7894,7 @@ if ($app->is_running) {
 		my $menu_wrksp = Gtk2::Menu->new;
 
 		my $screen = Gnome2::Wnck::Screen->get_default;
-		#~ $screen->force_update();
+		$screen->force_update();
 
 		#we determine the wm name but on older
 		#version of libwnck (or the bindings)
@@ -8028,6 +8029,8 @@ if ($app->is_running) {
 
 		my $menu_windows = Gtk2::Menu->new;
 		my $screen = Gnome2::Wnck::Screen->get_default;
+		$screen->force_update();
+		
 		my $active_workspace = $screen->get_active_workspace;
 		my $icontheme = $sc->get_theme;
 		
