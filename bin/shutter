@@ -9008,15 +9008,16 @@ if ($app->is_running) {
 	}
 
 	sub fct_init_unsaved_files {
-		#delete all files in this folder
-		#except the ones that are in the current session
-		my @unsaved_files = glob( $sdir->get_cache_dir."/*" );
-		foreach my $unsaved_file(@unsaved_files){
-			unless(&fct_get_key_by_filename($unsaved_file)){
-				print $unsaved_file, "deleted \n" if $sc->get_debug;
-				unlink $unsaved_file;
-			}
-		}
+		#~ #delete all files in this folder
+		#~ #except the ones that are in the current session
+		#~ my @unsaved_files = glob( $sdir->get_cache_dir."/*" );
+		#~ foreach my $unsaved_file(@unsaved_files){
+			#~ print $unsaved_file, "\n";
+			#~ unless(&fct_get_key_by_filename($unsaved_file)){
+				#~ print $unsaved_file, "deleted \n" if $sc->get_debug;
+				#~ unlink $unsaved_file;
+			#~ }
+		#~ }
 	}
 
 	sub fct_init_debug_output {
