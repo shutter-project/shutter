@@ -7177,12 +7177,7 @@ if ($app->is_running) {
 						next;
 					}
 				}
-				
-				#update tab label
-				$session_screens{$key}->{'tab_label'}->set_text("[" . $session_screens{$key}->{'tab_indx'} . "] - ".$session_screens{$key}->{'short'});
-				#and tooltip
-				$tooltips->set_tip($session_screens{$key}->{'hbox_tab_label'}, $session_screens{$key}->{'long'});
-				
+								
 				#setting pixbuf
 				$session_screens{$key}->{'image'}->set_pixbuf( $pixbuf );
 				
@@ -7206,6 +7201,16 @@ if ($app->is_running) {
 					$session_screens{$key}->{'is_unsaved'} = TRUE;
 				}else{
 					$session_screens{$key}->{'is_unsaved'} = FALSE;
+				}
+
+				#update tab label
+				#and tooltip
+				if(defined $session_screens{$key}->{'is_unsaved'} && $session_screens{$key}->{'is_unsaved'}){
+					$tooltips->set_tip($session_screens{$key}->{'hbox_tab_label'}, "*".$session_screens{$key}->{'name'});
+					$session_screens{$key}->{'tab_label'}->set_text("[" . $session_screens{$key}->{'tab_indx'} . "] - "."*".$session_screens{$key}->{'name'});
+				}else{
+					$tooltips->set_tip($session_screens{$key}->{'hbox_tab_label'}, $session_screens{$key}->{'long'});
+					$session_screens{$key}->{'tab_label'}->set_text("[" . $session_screens{$key}->{'tab_indx'} . "] - ".$session_screens{$key}->{'short'});
 				}
 
 				#create tempfile
