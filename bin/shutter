@@ -3713,7 +3713,7 @@ if ($app->is_running) {
 
 	sub fct_create_session_notebook {
 		
-		$notebook->set( 'homogeneous' => TRUE );
+		#~ $notebook->set( 'homogeneous' => TRUE );
 		$notebook->set( 'scrollable' => TRUE );
 
 		#enable dnd for it
@@ -3832,8 +3832,8 @@ if ($app->is_running) {
 		my $tab_label = Gtk2::Label->new($key);
 		$tab_label->set_ellipsize('middle');
 		$tab_label->set_width_chars(20);
-		$hbox_tab_label->pack_start( $session_screens{$key}->{'tab_icon'}, FALSE, TRUE, 1 );
-		$hbox_tab_label->pack_start( $tab_label, FALSE, FALSE, 1 );
+		$hbox_tab_label->pack_start( $session_screens{$key}->{'tab_icon'}, FALSE, FALSE, 1 );
+		$hbox_tab_label->pack_start( $tab_label, TRUE, TRUE, 1 );
 		$hbox_tab_label->pack_start( Gtk2::HBox->new, TRUE, TRUE, 1 );
 		$hbox_tab_label->pack_start( $tab_close_button, FALSE, FALSE, 1 );
 		$hbox_tab_label->show_all;
