@@ -8472,21 +8472,21 @@ if ($app->is_running) {
 				$sm->{_menuitem_large_reopen_default}->show;
 				$sm->{_menuitem_large_reopen_default}->set_sensitive(TRUE);
 
-				#change label of the default app entry
-				$sm->{_menuitem_reopen_default}->foreach (sub {
-					if($_[0] =~ /Gtk2::AccelLabel/){
-						$_[0]->set_label(sprintf( $d->get("_Open with %s"), "'".$app->{'name'}."'"));
-						return;
-					}
-				});	
+				#~ #change label of the default app entry
+				#~ $sm->{_menuitem_reopen_default}->foreach (sub {
+					#~ if($_[0] =~ /Gtk2::AccelLabel/){
+						#~ $_[0]->set_label(sprintf( $d->get("_Open with %s"), "'".$app->{'name'}."'"));
+						#~ return;
+					#~ }
+				#~ });	
 
-				#change label of the default app entry - large menu
-				$sm->{_menuitem_large_reopen_default}->foreach (sub {
-					if($_[0] =~ /Gtk2::AccelLabel/){
-						$_[0]->set_label(sprintf( $d->get("_Open with %s"), "'".$app->{'name'}."'"));
-						return;
-					}
-				});	
+				#~ #change label of the default app entry - large menu
+				#~ $sm->{_menuitem_large_reopen_default}->foreach (sub {
+					#~ if($_[0] =~ /Gtk2::AccelLabel/){
+						#~ $_[0]->set_label(sprintf( $d->get("_Open with %s"), "'".$app->{'name'}."'"));
+						#~ return;
+					#~ }
+				#~ });	
 					
 			#other apps			
 			}else{
