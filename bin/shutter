@@ -461,7 +461,8 @@ if ($app->is_running) {
 	$sm->{_menuitem_fullscreen}->signal_connect( 'toggled', \&fct_fullscreen );
 
 	#screenshot menu
-	$sm->{_menu_actions}->signal_connect( 'focus', sub { $sm->{_menuitem_reopen}->set_submenu(&fct_ret_program_menu); });
+	#~ $sm->{_menu_actions}->signal_connect( 'focus', sub { $sm->{_menuitem_reopen}->set_submenu(&fct_ret_program_menu); });	
+	$sm->{_menuitem_reopen}->set_submenu(&fct_ret_program_menu);	
 	$sm->{_menuitem_rename}->signal_connect( 'activate', \&fct_rename );
 	$sm->{_menuitem_upload}->signal_connect( 'activate', \&fct_upload );
 
@@ -483,7 +484,8 @@ if ($app->is_running) {
 	$sm->{_menuitem_redoshot_this}->signal_connect( 'activate', \&evt_take_screenshot, 'redoshot_this' );
 
 	#large screenshot menu
-	$sm->{_menu_large_actions}->signal_connect( 'focus', sub { $sm->{_menuitem_large_reopen}->set_submenu(&fct_ret_program_menu); });
+	#~ $sm->{_menu_large_actions}->signal_connect( 'focus', sub { $sm->{_menuitem_large_reopen}->set_submenu(&fct_ret_program_menu($sm->{_menuitem_large_reopen}->get_submenu)); });
+	$sm->{_menuitem_large_reopen}->set_submenu(&fct_ret_program_menu);
 	$sm->{_menuitem_large_rename}->signal_connect( 'activate', \&fct_rename );
 	$sm->{_menuitem_large_copy}->signal_connect( 'activate', \&fct_clipboard, 'image' );
 	$sm->{_menuitem_large_copy_filename}->signal_connect( 'activate', \&fct_clipboard, 'text' );
@@ -2656,12 +2658,12 @@ if ($app->is_running) {
 	#restore session
 	#clean 'unsaved' files directory
 	#--------------------------------------
-	Glib::Idle->add(sub{
+	#~ Glib::Idle->add(sub{
 		&fct_update_profile_selectors($combobox_settings_profiles, \@current_profiles);
 		&fct_load_session;
 		&fct_init_unsaved_files;
-		return FALSE;
-	});
+		#~ return FALSE;
+	#~ });
 
 	#open init files (cmd arguments)
 	#--------------------------------------
@@ -3333,10 +3335,13 @@ if ($app->is_running) {
 	sub fct_update_actions {
 		my $n_items = shift;
 		my $key 	= shift;
+		
+		#update menu (don't do it when Idle > GlobalMenu bug)
+		$sm->{_menuitem_reopen}->set_submenu(&fct_ret_program_menu($sm->{_menuitem_reopen}->get_submenu));
+		$sm->{_menuitem_large_reopen}->set_submenu(&fct_ret_program_menu($sm->{_menuitem_large_reopen}->get_submenu));
 
-		Glib::Idle->add(sub{
+		#~ Glib::Idle->add(sub{
 
-			
 			if(defined $key){
 				#does the file still exist?
 				return FALSE unless exists $session_screens{$key};
@@ -3508,8 +3513,8 @@ if ($app->is_running) {
 				$sm->{_menuitem_large_redoshot_this}->set_sensitive(FALSE);
 			}
 		
-			return FALSE;
-		});
+			#~ return FALSE;
+		#~ });
 			
 		return TRUE;
 	}
@@ -7040,7 +7045,7 @@ if ($app->is_running) {
 			}
 					
 			#main menu
-			$sm->{_menuitem_quicks}->set_submenu( fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref ) );
+			$sm->{_menuitem_quicks}->set_submenu( fct_ret_profile_menu( $combobox_settings_profiles, $current_profiles_ref, $sm->{_menuitem_quicks}->get_submenu ) );
 			$sm->{_menuitem_quicks}->set_sensitive(TRUE);
 
 			#and statusbar
@@ -8318,9 +8323,14 @@ if ($app->is_running) {
 
 	sub fct_ret_program_menu {
 		#FIXME - this whole sub is weird ;-)
-
-		my $traytheme     = $sc->get_theme;
-		my $menu_programs = Gtk2::Menu->new;
+		my $menu_programs = shift;
+		
+		my $traytheme = $sc->get_theme;
+		
+		$menu_programs = Gtk2::Menu->new unless defined $menu_programs;
+		foreach my $child ($menu_programs->get_children){
+			$child->destroy;
+		}
 
 		#take $key (mime) directly
 		my $key = &fct_get_current_file;
@@ -8613,9 +8623,13 @@ if ($app->is_running) {
 	sub fct_ret_profile_menu {
 		my $combobox_settings_profiles = shift;
 		my $current_profiles_ref       = shift;
+		my $menu_profile = shift;
 
-		my $menu_profile = Gtk2::Menu->new;
-
+		$menu_profile = Gtk2::Menu->new unless defined $menu_profile;
+		foreach my $child ($menu_profile->get_children){
+			$child->destroy;
+		}
+		
 		my $group   = undef;
 		my $counter = 0;
 		foreach my $profile ( @{$current_profiles_ref} ) {
