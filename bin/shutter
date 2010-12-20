@@ -3292,10 +3292,14 @@ if ($app->is_running) {
 
 	sub fct_ret_upload_links_menu {
 	   my $key = shift;
+	   my $menu_links = shift;
 		
 	   my $traytheme = $sc->get_theme;
 	   
-	   my $menu_links = Gtk2::Menu->new;
+	   $menu_links = Gtk2::Menu->new unless defined $menu_links;
+	   foreach my $child ($menu_links->get_children){
+			$child->destroy;
+		}
 	   
 	   my $nmenu_entries = 0;
 		
@@ -3437,12 +3441,12 @@ if ($app->is_running) {
 			#upload links
 			#~ $sm->{_menuitem_links}->set_sensitive(&fct_get_upload_links($key));
 			#upload links
-			my ($nmenu_entries, $menu_links) = &fct_ret_upload_links_menu($key);
-			if($nmenu_entries){
+			my ($nmenu_entries, $menu_links) = &fct_ret_upload_links_menu($key, $sm->{_menuitem_links}->get_submenu);
+			#~ if($nmenu_entries){
 				$sm->{_menuitem_links}->set_submenu($menu_links);
-			}else{
-				$sm->{_menuitem_links}->set_submenu(undef);
-			}
+			#~ }else{
+				#~ $sm->{_menuitem_links}->set_submenu(undef);
+			#~ }
 			$sm->{_menuitem_links}->set_sensitive($nmenu_entries);		
 		
 			#nautilus-sendto is optional, don't enable it when not installed
@@ -3480,12 +3484,12 @@ if ($app->is_running) {
 			$sm->{_menuitem_large_copy_filename}->set_sensitive($n_items);
 
 			#upload links
-			my ($nmenu_entries_large, $menu_links_large) = &fct_ret_upload_links_menu($key);
-			if($nmenu_entries_large){
+			my ($nmenu_entries_large, $menu_links_large) = &fct_ret_upload_links_menu($key, $sm->{_menuitem_large_links}->get_submenu);
+			#~ if($nmenu_entries_large){
 				$sm->{_menuitem_large_links}->set_submenu($menu_links_large);
-			}else{
-				$sm->{_menuitem_large_links}->set_submenu(undef);
-			}
+			#~ }else{
+				#~ $sm->{_menuitem_large_links}->set_submenu(undef);
+			#~ }
 			$sm->{_menuitem_large_links}->set_sensitive($nmenu_entries_large);
 
 			#nautilus-sendto is optional, don't enable it when not installed
