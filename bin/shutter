@@ -2658,12 +2658,12 @@ if ($app->is_running) {
 	#restore session
 	#clean 'unsaved' files directory
 	#--------------------------------------
-	#~ Glib::Idle->add(sub{
-		&fct_update_profile_selectors($combobox_settings_profiles, \@current_profiles);
+	&fct_update_profile_selectors($combobox_settings_profiles, \@current_profiles);	
+	Glib::Idle->add(sub{
 		&fct_load_session;
 		&fct_init_unsaved_files;
-		#~ return FALSE;
-	#~ });
+		return FALSE;
+	});
 
 	#open init files (cmd arguments)
 	#--------------------------------------
@@ -3475,8 +3475,8 @@ if ($app->is_running) {
 			}
 			
 			#right-click menu
-			$sm->{_menuitem_large_reopen_default}->visible($n_items);
-			$sm->{_menuitem_large_reopen_default}->set_sensitive($n_items);
+			#~ $sm->{_menuitem_large_reopen_default}->visible($n_items);
+			#~ $sm->{_menuitem_large_reopen_default}->set_sensitive($n_items);
 			$sm->{_menuitem_large_reopen}->set_sensitive($n_items);
 			$sm->{_menuitem_large_rename}->set_sensitive($n_items);
 			$sm->{_menuitem_large_trash}->set_sensitive($n_items);
@@ -8528,13 +8528,13 @@ if ($app->is_running) {
 							$tray_pixbuf = undef;	
 						}	
 						
-						if($program_item){
-							$program_item->set_image( Gtk2::Image->new_from_pixbuf($tray_pixbuf) );
-						}
-						
-						if($program_large_item){
-							$program_large_item->set_image( Gtk2::Image->new_from_pixbuf($tray_pixbuf) );
-						}
+						#~ if($program_item){
+							#~ $program_item->set_image( Gtk2::Image->new_from_pixbuf($tray_pixbuf) );
+						#~ }
+						#~ 
+						#~ if($program_large_item){
+							#~ $program_large_item->set_image( Gtk2::Image->new_from_pixbuf($tray_pixbuf) );
+						#~ }
 					}
 				}
 				
@@ -8545,6 +8545,8 @@ if ($app->is_running) {
 							&fct_open_with_program($oapp, $app->{'name'});
 						}
 					);
+				}else{
+					$sm->{_menuitem_reopen_default}->visible(FALSE);	
 				}
 				
 				my $hid_large;
@@ -8554,6 +8556,8 @@ if ($app->is_running) {
 							&fct_open_with_program($oapp, $app->{'name'});
 						}
 					);
+				}else{			
+					$sm->{_menuitem_large_reopen_default}->visible(FALSE);						
 				}
 				
 				#save hid when default app
