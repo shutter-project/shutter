@@ -8470,11 +8470,13 @@ if ($app->is_running) {
 				$program_item->set('always_show_image' => TRUE) if Gtk2->CHECK_VERSION( 2, 16, 0 );	
 				$program_large_item->set('always_show_image' => TRUE) if Gtk2->CHECK_VERSION( 2, 16, 0 );	
 				
-				$sm->{_menuitem_reopen_default}->show;
+				$sm->{_menuitem_reopen_default}->visible(TRUE);
 				$sm->{_menuitem_reopen_default}->set_sensitive(TRUE);
+				$sm->{_menuitem_reopen_default}->show;
 				
-				$sm->{_menuitem_large_reopen_default}->show;
+				$sm->{_menuitem_large_reopen_default}->visible(TRUE);
 				$sm->{_menuitem_large_reopen_default}->set_sensitive(TRUE);
+				$sm->{_menuitem_large_reopen_default}->show;
 
 				#~ #change label of the default app entry
 				#~ $sm->{_menuitem_reopen_default}->foreach (sub {
@@ -8545,8 +8547,6 @@ if ($app->is_running) {
 							&fct_open_with_program($oapp, $app->{'name'});
 						}
 					);
-				}else{
-					$sm->{_menuitem_reopen_default}->visible(FALSE);	
 				}
 				
 				my $hid_large;
@@ -8556,8 +8556,6 @@ if ($app->is_running) {
 							&fct_open_with_program($oapp, $app->{'name'});
 						}
 					);
-				}else{			
-					$sm->{_menuitem_large_reopen_default}->visible(FALSE);						
 				}
 				
 				#save hid when default app
