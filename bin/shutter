@@ -5118,7 +5118,7 @@ if ($app->is_running) {
 			if(&fct_integrate_screenshot_in_notebook( $new_uri )){
 				&fct_show_status_message( 1, $new_uri->get_path . " " . $d->get("opened") );	
 			}else{
-				&fct_show_status_message( 1, sprintf( $d->get("Error while opening image %s"), "'" . $new_uri->extract_short_name . "'") );
+				&fct_show_status_message( 1, sprintf( $d->get("Error while opening image %s."), "'" . $new_uri->extract_short_name . "'") );
 			}
 		}
 		
@@ -5215,7 +5215,7 @@ if ($app->is_running) {
 				if(&fct_integrate_screenshot_in_notebook( $new_uri, undef, undef, $count )){
 					&fct_show_status_message( 1, $new_uri->get_path . " " . $d->get("opened") );	
 				}else{
-					&fct_show_status_message( 1, sprintf( $d->get("Error while opening image %s"), "'" . $new_uri->extract_short_name . "'") );
+					&fct_show_status_message( 1, sprintf( $d->get("Error while opening image %s."), "'" . $new_uri->extract_short_name . "'") );
 				}	
 
 			}
