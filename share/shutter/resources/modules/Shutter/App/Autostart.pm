@@ -67,6 +67,8 @@ sub create_autostart_file {
 			$line =~ s/<options>/$options/;
 		}elsif($line =~ /X-GNOME-Autostart-enabled=false/){
 			$line =~ s/false/true/ if $enabled;
+		}elsif($line =~ /Hidden=true/){
+			$line =~ s/true/false/ if $enabled;
 		}
 		print FILE $line;
 	}
@@ -95,4 +97,5 @@ Terminal=false
 Type=Application
 Categories=Utility;Application;
 X-GNOME-Autostart-enabled=false
+Hidden=true
 
