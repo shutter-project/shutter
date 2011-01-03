@@ -86,6 +86,11 @@ use Digest::MD5  qw(md5_hex);
 
 #--------------------------------------
 
+#print UTF-8 to standard output
+#--------------------------------------
+binmode STDOUT, ":utf8";
+#--------------------------------------
+
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
