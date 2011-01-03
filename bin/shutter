@@ -7519,7 +7519,7 @@ if ($app->is_running) {
 	sub fct_get_latest_tab_key {
 		my $max_key = 0;
 		foreach my $key ( keys %session_screens ) {
-			$key =~ /\[(.*)\]/;
+			$key =~ /\[(\d+)\]/;
 			$max_key = $1 if ( $1 > $max_key );
 		}
 		return $max_key + 1;
