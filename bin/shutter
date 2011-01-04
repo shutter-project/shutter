@@ -3811,7 +3811,7 @@ if ($app->is_running) {
 		}
 		
 		$key = "[" . $indx . "] - $fname";
-		print $key, "-", $uri->to_string, "\n";
+		#~ print $key, "-", $uri->to_string, "\n";
 
 		#store the history object
 		if(defined $history && $history->get_history){
@@ -3941,7 +3941,7 @@ if ($app->is_running) {
 		#show error dialog when installing the file
 		#monitor failed
 		unless ($result eq 'ok'){
-			$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), $d->get("There was an error while adding the file monitor") );		
+			$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), $d->get("There was an error while adding the file monitor.") );		
 			return FALSE;
 		}
 
