@@ -159,6 +159,7 @@ require Shutter::App::SimpleDialogs;
 require Shutter::App::HelperFunctions;
 require Shutter::App::Options;
 require Shutter::App::Directories;
+require Shutter::App::TrashInfo;
 require Shutter::App::Autostart;
 require Shutter::App::Menu;
 require Shutter::App::Notification;
@@ -211,6 +212,7 @@ my $sc 		= Shutter::App::Common->new($shutter_root, $window, SHUTTER_NAME, SHUTT
 my $shf		= Shutter::App::HelperFunctions->new($sc);
 my $so  	= Shutter::App::Options->new($sc, $shf);
 my $sdir  	= Shutter::App::Directories->new();
+my $strash  = Shutter::App::TrashInfo->new();
 my $sas  	= Shutter::App::Autostart->new();
 my $sm  	= Shutter::App::Menu->new($sc);
 my $st  	= Shutter::App::Toolbar->new($sc);
@@ -5282,12 +5284,33 @@ if ($app->is_running) {
 
 				#find trash directory
 				my $trash_uri = Gnome2::VFS->find_directory( Gnome2::VFS::URI->new( $ENV{'HOME'} ), 'trash', TRUE, TRUE, 755 );
+								
+				#create a trashinfo file to enable restoring (a tempfile first)
+				my $trashinfo_path = $strash->create_trashinfo_file(Gnome2::VFS->escape_path_string ($session_screens{$key}->{'long'}));
 
-				#move to trash
-				$trash_uri = $trash_uri->append_file_name( $session_screens{$key}->{'short'} );
-				#~ my $result = $session_screens{$key}->{'uri'}->move( $trash_uri, TRUE ) if $session_screens{$key}->{'uri'}->exists;
+				#get filename for trash folder
+				my ( $short, $folder, $ext ) = fileparse( $session_screens{$key}->{'long'}, qr/\.[^.]*/ );
+				my $new_trash_uri = &fct_get_next_filename( $short, $shf->utf8_decode(Gnome2::VFS->unescape_string($trash_uri->get_path)), $ext );
+				my $trash_filename = $shf->utf8_decode(Gnome2::VFS->unescape_string($new_trash_uri->get_path));	
+				
+				#get filename for trashinfo file
+				my ( $ishort, $ifolder, $iext ) = fileparse( $trash_filename, qr/\.[^.]*/ );
+				my $trashinfo_uri = $new_trash_uri->get_parent->get_parent->append_path("info")->append_file_name($ishort.$iext.".trashinfo");
+				my $trashinfo_filename = $shf->utf8_decode(Gnome2::VFS->unescape_string($trashinfo_uri->get_path));
+
+				print $trash_filename,"\n";
+				print $trashinfo_filename,"\n";
+			
+				#move trashinfo file
+				if($trashinfo_path){
+					my $result = Gnome2::VFS::Xfer->uri (Gnome2::VFS::URI->new($trashinfo_path), $trashinfo_uri, 'default', 'abort', 'replace', sub{ return TRUE });
+					unless ($result eq 'ok'){
+						$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), $d->get("Failed") );
+					}
+				}
+				
 				#move to trash (Xfer because the Trash might be on a different filesystem)
-				my $result = Gnome2::VFS::Xfer->uri ($session_screens{$key}->{'uri'}, $trash_uri, 'default', 'abort', 'replace', sub{ return TRUE });
+				my $result = Gnome2::VFS::Xfer->uri ($session_screens{$key}->{'uri'}, $new_trash_uri, 'default', 'abort', 'replace', sub{ return TRUE });
 				unless ($result eq 'ok'){
 					$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), $d->get("Failed") );
 				}
@@ -5297,6 +5320,8 @@ if ($app->is_running) {
 				unless ($result eq 'ok'){
 					$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), $d->get("Failed") );
 				}			
+				
+				print Gnome2::VFS->result_to_string($result), " deleted\n";
 				
 			}
 
