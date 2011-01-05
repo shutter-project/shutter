@@ -3943,7 +3943,7 @@ if ($app->is_running) {
 		#show error dialog when installing the file
 		#monitor failed
 		unless ($result eq 'ok'){
-			$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), $d->get("There was an error while adding the file monitor.") );		
+			$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), $d->get("Error while adding the file monitor.") );		
 			return FALSE;
 		}
 
@@ -5253,6 +5253,61 @@ if ($app->is_running) {
 		return TRUE;
 	}
 
+	sub fct_trash {
+		my $key = shift;
+
+		#cancel handle
+		if ( exists $session_screens{$key}->{'handle'} ) {
+			$session_screens{$key}->{'handle'}->cancel;
+		}
+
+		#find trash directory
+		my $trash_uri = Gnome2::VFS->find_directory( Gnome2::VFS::URI->new( $ENV{'HOME'} ), 'trash', TRUE, TRUE, 755 );
+						
+		#create a trashinfo file to enable restoring (a tempfile first)
+		my $trashinfo_path = $strash->create_trashinfo_file(Gnome2::VFS->escape_path_string ($session_screens{$key}->{'long'}));
+
+		#get filename for trash folder
+		my ( $short, $folder, $ext ) = fileparse( $session_screens{$key}->{'long'}, qr/\.[^.]*/ );
+		my $new_trash_uri = &fct_get_next_filename( $short, $shf->utf8_decode(Gnome2::VFS->unescape_string($trash_uri->get_path)), $ext );
+		my $trash_filename = $shf->utf8_decode(Gnome2::VFS->unescape_string($new_trash_uri->get_path));	
+		
+		if($trashinfo_path){
+			#get filename for trashinfo file
+			my ( $ishort, $ifolder, $iext ) = fileparse( $trash_filename, qr/\.[^.]*/ );
+			my $trashinfo_uri = $new_trash_uri->get_parent->get_parent->append_path("info")->append_file_name($ishort.$iext.".trashinfo");
+			my $trashinfo_filename = $shf->utf8_decode(Gnome2::VFS->unescape_string($trashinfo_uri->get_path));
+			
+			if ($sc->get_debug){
+				print "trashing file...\n";
+				print $trash_filename,"\n";
+				print $trashinfo_filename,"\n";
+			}
+		
+			#move trashinfo file
+			my $result = Gnome2::VFS::Xfer->uri (Gnome2::VFS::URI->new($trashinfo_path), $trashinfo_uri, 'default', 'abort', 'replace', sub{ return TRUE });
+			unless ($result eq 'bok'){
+				$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), sprintf ($d->get("Error while creating the trashinfo file %s."), "'" .$trashinfo_filename. "'" ) );
+			}
+			
+			#delete temp trashinfo file
+			unlink $trashinfo_path;
+		}
+		
+		#move to trash (Xfer because the Trash might be on a different filesystem)
+		my $result = Gnome2::VFS::Xfer->uri ($session_screens{$key}->{'uri'}, $new_trash_uri, 'default', 'abort', 'replace', sub{ return TRUE });
+		unless ($result eq 'bok'){
+			$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), sprintf ($d->get("Error while moving the file %s to trash."), "'" .$trash_filename. "'" ) );
+		}
+		
+		#and finally delete the file
+		$result = $session_screens{$key}->{'uri'}->unlink;
+		unless ($result eq 'bok'){
+			$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), sprintf ($d->get("Error while removing the file %s from disk."), "'" .$session_screens{$key}->{'long'}. "'" ));
+		}			
+		
+	}
+
 	sub fct_delete {
 		my $key 	= shift;
 		my $action 	= shift;
@@ -5275,54 +5330,7 @@ if ($app->is_running) {
 			}	
 
 			if ( $session_screens{$key}->{'uri'}->exists ) {
-
-				#cancel handle
-				if ( exists $session_screens{$key}->{'handle'} ) {
-					
-					$session_screens{$key}->{'handle'}->cancel;
-				}
-
-				#find trash directory
-				my $trash_uri = Gnome2::VFS->find_directory( Gnome2::VFS::URI->new( $ENV{'HOME'} ), 'trash', TRUE, TRUE, 755 );
-								
-				#create a trashinfo file to enable restoring (a tempfile first)
-				my $trashinfo_path = $strash->create_trashinfo_file(Gnome2::VFS->escape_path_string ($session_screens{$key}->{'long'}));
-
-				#get filename for trash folder
-				my ( $short, $folder, $ext ) = fileparse( $session_screens{$key}->{'long'}, qr/\.[^.]*/ );
-				my $new_trash_uri = &fct_get_next_filename( $short, $shf->utf8_decode(Gnome2::VFS->unescape_string($trash_uri->get_path)), $ext );
-				my $trash_filename = $shf->utf8_decode(Gnome2::VFS->unescape_string($new_trash_uri->get_path));	
-				
-				#get filename for trashinfo file
-				my ( $ishort, $ifolder, $iext ) = fileparse( $trash_filename, qr/\.[^.]*/ );
-				my $trashinfo_uri = $new_trash_uri->get_parent->get_parent->append_path("info")->append_file_name($ishort.$iext.".trashinfo");
-				my $trashinfo_filename = $shf->utf8_decode(Gnome2::VFS->unescape_string($trashinfo_uri->get_path));
-
-				print $trash_filename,"\n";
-				print $trashinfo_filename,"\n";
-			
-				#move trashinfo file
-				if($trashinfo_path){
-					my $result = Gnome2::VFS::Xfer->uri (Gnome2::VFS::URI->new($trashinfo_path), $trashinfo_uri, 'default', 'abort', 'replace', sub{ return TRUE });
-					unless ($result eq 'ok'){
-						$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), $d->get("Failed") );
-					}
-				}
-				
-				#move to trash (Xfer because the Trash might be on a different filesystem)
-				my $result = Gnome2::VFS::Xfer->uri ($session_screens{$key}->{'uri'}, $new_trash_uri, 'default', 'abort', 'replace', sub{ return TRUE });
-				unless ($result eq 'ok'){
-					$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), $d->get("Failed") );
-				}
-				
-				#and finally delete the file
-				$result = $session_screens{$key}->{'uri'}->unlink;
-				unless ($result eq 'ok'){
-					$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), $d->get("Failed") );
-				}			
-				
-				print Gnome2::VFS->result_to_string($result), " deleted\n";
-				
+				&fct_trash($key);	
 			}
 
 			$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
@@ -5380,31 +5388,7 @@ if ($app->is_running) {
 						$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
 						
 						if ( $session_screens{$key}->{'uri'}->exists ) {
-
-							#cancel handle
-							if ( exists $session_screens{$key}->{'handle'} ) {
-								
-								$session_screens{$key}->{'handle'}->cancel;
-							}
-
-							#find trash directory
-							my $trash_uri = Gnome2::VFS->find_directory( Gnome2::VFS::URI->new( $ENV{'HOME'} ), 'trash', TRUE, TRUE, 755 );
-
-							#move to trash
-							$trash_uri = $trash_uri->append_file_name( $session_screens{$key}->{'short'} );
-							#~ $session_screens{$key}->{'uri'}->move( $trash_uri, TRUE );
-							#move to trash (Xfer because the Trash might be on a different filesystem)
-							my $result = Gnome2::VFS::Xfer->uri ($session_screens{$key}->{'uri'}, $trash_uri, 'default', 'abort', 'replace', sub{ return TRUE });
-							unless ($result eq 'ok'){
-								$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), $d->get("Failed") );
-							}
-							
-							#and finally delete the file
-							$result = $session_screens{$key}->{'uri'}->unlink;
-							unless ($result eq 'ok'){
-								$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), $d->get("Failed") );
-							}	
-
+							&fct_trash($key);		
 						}
 
 						#copy to array
