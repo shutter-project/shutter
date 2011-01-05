@@ -26,9 +26,8 @@ use utf8;
 use strict;
 use warnings;
 
-#Glib
 use Glib qw/TRUE FALSE/; 
-
+use POSIX qw/ strftime /;
 use File::Temp qw/ tempfile tempdir /;
 
 sub new {
@@ -60,8 +59,9 @@ sub create_trashinfo_file {
 			#remove placeholder
 			$line =~ s/<abspath>/$filename/;
 		}elsif($line =~ /DeletionDate=<ddate>/){
-			#FIXME: Not implemented yet, see http://www.ramendik.ru/docs/trashspec.html
-			my $ddate = '';
+			#The date and time are to be in the YYYY-MM-DDThh:mm:ss format (see RFC 3339).
+			#The time zone should be the user's (or filesystem's) local time. The value type for this key is “string”.
+			my $ddate = strftime "%Y-%m-%dT%H:%M:%S", localtime;
 			#remove placeholder
 			$line =~ s/<ddate>/$ddate/;
 		}
