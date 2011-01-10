@@ -5286,7 +5286,7 @@ if ($app->is_running) {
 		
 			#move trashinfo file
 			my $result = Gnome2::VFS::Xfer->uri (Gnome2::VFS::URI->new($trashinfo_path), $trashinfo_uri, 'default', 'abort', 'replace', sub{ return TRUE });
-			unless ($result eq 'bok'){
+			unless ($result eq 'ok'){
 				$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), sprintf ($d->get("Error while creating the trashinfo file %s."), "'" .$trashinfo_filename. "'" ) );
 			}
 			
@@ -5296,13 +5296,13 @@ if ($app->is_running) {
 		
 		#move to trash (Xfer because the Trash might be on a different filesystem)
 		my $result = Gnome2::VFS::Xfer->uri ($session_screens{$key}->{'uri'}, $new_trash_uri, 'default', 'abort', 'replace', sub{ return TRUE });
-		unless ($result eq 'bok'){
+		unless ($result eq 'ok'){
 			$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), sprintf ($d->get("Error while moving the file %s to trash."), "'" .$trash_filename. "'" ) );
 		}
 		
 		#and finally delete the file
 		$result = $session_screens{$key}->{'uri'}->unlink;
-		unless ($result eq 'bok'){
+		unless ($result eq 'ok'){
 			$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), sprintf ($d->get("Error while removing the file %s from disk."), "'" .$session_screens{$key}->{'long'}. "'" ));
 		}			
 		
