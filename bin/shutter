@@ -5315,8 +5315,9 @@ if ($app->is_running) {
 		
 			#move trashinfo file
 			my $result = Gnome2::VFS::Xfer->uri (Gnome2::VFS::URI->new($trashinfo_path), $trashinfo_uri, 'default', 'abort', 'replace', sub{ return TRUE });
-			unless ($result eq 'ok'){
-				$sd->dlg_error_message( Gnome2::VFS->result_to_string($result), sprintf ($d->get("Error while creating the trashinfo file %s."), "'" .$trashinfo_filename. "'" ) );
+			unless ($result eq 'bok'){
+				print "WARNING: ", sprintf ($d->get("Error while creating the trashinfo file %s."), "'" .$trashinfo_filename. "'" ), "\n";
+				#~ $sd->dlg_error_message( Gnome2::VFS->result_to_string($result), sprintf ($d->get("Error while creating the trashinfo file %s."), "'" .$trashinfo_filename. "'" ) );
 			}
 			
 			#delete temp trashinfo file
