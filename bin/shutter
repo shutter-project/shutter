@@ -317,14 +317,42 @@ if ($app->is_running) {
 	my $app_watch_id = $app->signal_connect('message-received' => sub {
 		my ($app, $cmd, $message, $time) = @_;
 		
+		#map $cmd id
+		if ($cmd =~ /^[0-9]+$/) {
+			if($cmd == 1){
+				$cmd = 'select';
+			}elsif($cmd == 2){
+				$cmd = 'full';
+			}elsif($cmd == 3){
+				$cmd = 'window';
+			}elsif($cmd == 4){
+				$cmd = 'awindow';
+			}elsif($cmd == 5){
+				$cmd = 'section';
+			}elsif($cmd == 6){
+				$cmd = 'menu';
+			}elsif($cmd == 7){
+				$cmd = 'tooltip';
+			}elsif($cmd == 8){
+				$cmd = 'web';
+			}elsif($cmd == 9){						
+				$cmd = 'redoshot';
+			}else{						
+				$cmd = 'null';
+			}
+		}
+		
 		#shutter window is presented automatically, sync our flag
 		$is_hidden = FALSE;
 		
 		#take screenshot		
 		if(defined $cmd){
-			if($is_hidden){
+			#A short timeout to give the server a chance to
+			#redraw the area that was obscured by our dialog.
+			Glib::Timeout->add (800 * 1000, sub{
 				&fct_control_main_window('hide');
-			}
+				return FALSE;	
+			});
 			&evt_take_screenshot( 'global_keybinding', $cmd, undef, $message->get_text );	
 		#open new files
 		}else{
