@@ -242,7 +242,6 @@ my $app = Gtk2::UniqueApp->new(
 		tooltip	 => 7,
 		web		 => 8,
 		redoshot => 9,
-		null	 => 10,
 );
 
 #load command line arguments
@@ -318,7 +317,7 @@ if ($app->is_running) {
 		my ($app, $cmd, $message, $time) = @_;
 		
 		#map $cmd id
-		if ($cmd =~ /^[0-9]+$/) {
+		if ($cmd =~ /^-*[0-9]+$/) {
 			if($cmd == 1){
 				$cmd = 'select';
 			}elsif($cmd == 2){
@@ -338,30 +337,32 @@ if ($app->is_running) {
 			}elsif($cmd == 9){						
 				$cmd = 'redoshot';
 			}else{						
-				$cmd = 'null';
+				$cmd = 'open';
 			}
 		}
 		
 		#shutter window is presented automatically, sync our flag
 		$is_hidden = FALSE;
-		
-		#take screenshot		
+	
 		if(defined $cmd){
-			#A short timeout to give the server a chance to
-			#redraw the area that was obscured by our dialog.
-			Glib::Timeout->add (800 * 1000, sub{
-				&fct_control_main_window('hide');
-				return FALSE;	
-			});
-			&evt_take_screenshot( 'global_keybinding', $cmd, undef, $message->get_text );	
-		#open new files
-		}else{
-			my @init_files = $message->get_uris;
-			if(scalar @init_files > 0){
-				&fct_open_files(@init_files);
+			#open new files
+			if($cmd eq 'open'){
+				my @init_files = $message->get_uris;
+				if(scalar @init_files > 0){
+					&fct_open_files(@init_files);
+				}
+				&fct_control_main_window('show');				
+			#take screenshot	
+			}else{	
+				#A short timeout to give the server a chance to
+				#redraw the area that was obscured by our dialog.
+				Glib::Timeout->add (800 * 1000, sub{
+					&fct_control_main_window('hide');
+					return FALSE;	
+				});
+				&evt_take_screenshot( 'global_keybinding', $cmd, undef, $message->get_text );
 			}
-			&fct_control_main_window('show');
-		}
+		}	
 		
 		return 'ok';
 	});
