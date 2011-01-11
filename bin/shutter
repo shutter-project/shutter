@@ -6468,7 +6468,11 @@ if ($app->is_running) {
 			#show pop-up notification
 			if($notify_after_active->get_active){
 				my $notify 	= $sc->get_notification_object;
-				$notify->show( $d->get("Screenshot saved"), $screenshot_name );
+				if(defined $session_screens{$new_key_screenshot}->{'is_unsaved'} && $session_screens{$new_key_screenshot}->{'is_unsaved'}){
+					$notify->show( $d->get("Screenshot saved"), "*".$session_screens{$new_key_screenshot}->{'name'});
+				}else{
+					$notify->show( $d->get("Screenshot saved"), $session_screens{$new_key_screenshot}->{'long'} );
+				}
 			}
 
 		} else {
@@ -9076,7 +9080,6 @@ if ($app->is_running) {
 		#except the ones that are in the current session
 		my @unsaved_files = glob( $sdir->get_cache_dir."/*" );
 		foreach my $unsaved_file(@unsaved_files){
-			print $unsaved_file, "\n";
 			unless(&fct_get_key_by_filename($unsaved_file)){
 				print $unsaved_file, " deleted \n" if $sc->get_debug;
 				unlink $unsaved_file;
