@@ -9245,7 +9245,7 @@ if ($app->is_running) {
 								&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("renamed") );
 								
 								#change window title
-								$window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
+								#~ $window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
 								
 							}else{
 
@@ -9295,7 +9295,7 @@ if ($app->is_running) {
 									&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("renamed") );
 
 									#change window title
-									$window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
+									#~ $window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
 
 								}else{
 
