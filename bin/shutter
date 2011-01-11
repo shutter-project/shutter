@@ -6999,7 +6999,7 @@ if ($app->is_running) {
 		#and loop through hash to find the corresponding key
 		foreach my $ckey ( keys %session_screens ) {
 			next unless exists $session_screens{$ckey}->{'long'};
-			#~ print "compare ".$session_screens{$ckey}->{'long'}." - $filename\n";
+			print "compare ".$session_screens{$ckey}->{'long'}." - $filename\n";
 			if ( $session_screens{$ckey}->{'long'} eq $filename ) {
 				$key = $ckey;
 				last;
@@ -9080,6 +9080,8 @@ if ($app->is_running) {
 		#except the ones that are in the current session
 		my @unsaved_files = glob( $sdir->get_cache_dir."/*" );
 		foreach my $unsaved_file(@unsaved_files){
+			utf8::decode $unsaved_file;
+			print $unsaved_file, " checking \n" if $sc->get_debug;
 			unless(&fct_get_key_by_filename($unsaved_file)){
 				print $unsaved_file, " deleted \n" if $sc->get_debug;
 				unlink $unsaved_file;
