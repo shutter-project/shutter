@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: gscrot-plugins-bash\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-31 19:30+0200\n"
-"PO-Revision-Date: 2010-06-25 22:36+0000\n"
-"Last-Translator: Mario Kemper (Romario) <mario.kemper@googlemail.com>\n"
+"PO-Revision-Date: 2010-08-31 23:23+0000\n"
+"Last-Translator: Vadim Rutkovsky <roignac@gmail.com>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-31 23:04+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-01-15 15:54+0000\n"
+"X-Generator: Launchpad (build 12200)\n"
 
 #: translate_tmp:27
 msgid "Shutter Branding"
@@ -103,7 +103,7 @@ msgstr "Создает рваный край"
 
 #: translate_tmp:27
 msgid "Autocrop"
-msgstr ""
+msgstr "Автокадрирование"
 
 #: translate_tmp:28
 #: translate_tmp:49
@@ -112,7 +112,7 @@ msgstr "Инструмент"
 
 #: translate_tmp:29
 msgid "Remove empty borders from the image"
-msgstr ""
+msgstr "Удалить пустые области на границе изображения"
 
 #: translate_tmp:73
 msgid "3D reflection"
@@ -510,25 +510,25 @@ msgstr "Чёткая чёрная тень на прозрачном фоне"
 
 #: translate_tmp:94
 msgid "Direction"
-msgstr ""
+msgstr "Направление"
 
 #: translate_tmp:110
 #: translate_tmp:117
 msgid "The direction of the shadow"
-msgstr ""
+msgstr "Направление тени"
 
 #: translate_tmp:121
 msgid "Color"
-msgstr ""
+msgstr "Цвет"
 
 #: translate_tmp:126
 msgid "Choose color"
-msgstr ""
+msgstr "Выберите цвет"
 
 #: translate_tmp:131
 #: translate_tmp:138
 msgid "The color of the shadow"
-msgstr ""
+msgstr "Цвет тени"
 
 #: translate_tmp:62
 msgid "Watermark"
@@ -619,6 +619,59 @@ msgstr "Добавить собственный текстовый водяно�
 
 #~ msgid "barrel distortion"
 #~ msgstr "бочкообразные искажения"
+
+#~ msgid "grayscale"
+#~ msgstr "оттенки серого"
+
+#~ msgid "cut out a jigsaw piece at the bottom right corner"
+#~ msgstr "Вырезает в нижнем правом углу изображения элемент пазла"
+
+#~ msgid "cut a jigsaw piece out of the picture"
+#~ msgstr "Преобразует картинку в элемент пазла"
+
+#~ msgid "hard shadow"
+#~ msgstr "Плотная тень"
+
+#~ msgid "a black hard shadow on transparent background"
+#~ msgstr "Добавляет плотную черную тень на прозрачном фоне"
+
+#~ msgid "reflection"
+#~ msgstr "отражение"
+
+#~ msgid "applies a simple reflection effect"
+#~ msgstr "добавляет отражение"
+
+#~ msgid "soft edges"
+#~ msgstr "Размытые края"
+
+#~ msgid "add soft edges around the picture"
+#~ msgstr "Размывает края изображения"
+
+#~ msgid "apply a distortion effect to your screenshot"
+#~ msgstr "Применить эффект искривления к выбранному снимку"
+
+#~ msgid "polaroid"
+#~ msgstr "Поляроид"
+
+#~ msgid ""
+#~ "make your screenshot look like a polaroid photo, add a caption, and even "
+#~ "rotate it a little"
+#~ msgstr ""
+#~ "Оформляет скриншот в виде фотографии из камеры Поляроид, добавляет подпись, "
+#~ "поворачивает на небольшой угол."
+
+#~ msgid "sepia tone coloring"
+#~ msgstr "Имитация тонирования сепией"
+
+#~ msgid "add a custom text watermark to your screenshot"
+#~ msgstr "добавляет текстовый \"водяной знак\" поверх изображения"
+
+#~ msgid "Shutter branding"
+#~ msgstr "В стиле Shutter"
+
+#~ msgid "polaroid with Shutter logo and the name of the picture as subtitle"
+#~ msgstr ""
+#~ "В виде фотографии \"Поляроид\" с логотипом Shutter и именем снимка в подписи"
 
 #~ msgid "PDF Export"
 #~ msgstr "Экспорт в PDF"

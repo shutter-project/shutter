@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: gscrot-plugins-bash\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-31 19:30+0200\n"
-"PO-Revision-Date: 2010-06-25 22:41+0000\n"
-"Last-Translator: Mario Kemper (Romario) <mario.kemper@googlemail.com>\n"
+"PO-Revision-Date: 2011-01-04 01:08+0000\n"
+"Last-Translator: Fitoschido <Unknown>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-31 23:04+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-01-15 15:53+0000\n"
+"X-Generator: Launchpad (build 12200)\n"
 
 #: translate_tmp:27
 msgid "Shutter Branding"
@@ -33,8 +33,8 @@ msgstr "Efecto"
 msgid ""
 "Turn the image into a polaroid one with the Shutter logo and a subtitle added"
 msgstr ""
-"Girar la imagen en una polaroid con el logotipo de obturación y un subtítulo "
-"añadido"
+"Convertir la imagen en una Polaroid con el logotipo de Shutter y un "
+"subtítulo añadido"
 
 #: translate_tmp:27
 msgid "Grayscale"
@@ -42,23 +42,23 @@ msgstr "Escala de grises"
 
 #: translate_tmp:29
 msgid "Turn the image into a grayscale image (256 shades)"
-msgstr "Girar la imagen en una imagen en escala de grises (256 tonos)"
+msgstr "Convertir la imagen en una a escala de grises (256 tonos)"
 
 #: translate_tmp:27
 msgid "Jigsaw Piece 1"
-msgstr "pieza del rompecabezas 1"
+msgstr "Pieza del rompecabezas 1"
 
 #: translate_tmp:29
 msgid "Cut out a jigsaw piece at the bottom right corner"
-msgstr "Cortar un pedazo del rompecabezas en la esquina inferior derecha"
+msgstr "Cortar un pedazo de rompecabezas en la esquina inferior derecha"
 
 #: translate_tmp:27
 msgid "Jigsaw Piece 2"
-msgstr "pieza del rompecabezas 1"
+msgstr "Pieza del Rompecabezas 2"
 
 #: translate_tmp:29
 msgid "Cut a jigsaw piece out of the image"
-msgstr "Corte un pedazo del rompecabezas de la imagen"
+msgstr "Cortar un una pieza en forma de rompecabeza de la imagen"
 
 #: translate_tmp:27
 msgid "Offset"
@@ -75,7 +75,7 @@ msgstr "Aumentar el borde"
 
 #: translate_tmp:29
 msgid "Raise a rectangular 3d-border"
-msgstr "aumente ubn borde 3d rectangular"
+msgstr "Levantar un borde rectangular en 3D"
 
 #: translate_tmp:27
 msgid "Soft Edges"
@@ -103,7 +103,7 @@ msgstr "Añadir un borde estropeado a la imagen"
 
 #: translate_tmp:27
 msgid "Autocrop"
-msgstr ""
+msgstr "Autorrecortar"
 
 #: translate_tmp:28
 #: translate_tmp:49
@@ -112,11 +112,11 @@ msgstr "Herramienta"
 
 #: translate_tmp:29
 msgid "Remove empty borders from the image"
-msgstr ""
+msgstr "Quitar bordes vacíos de la imagen"
 
 #: translate_tmp:73
 msgid "3D reflection"
-msgstr "reflexión 3D"
+msgstr "Reflejo 3D"
 
 #: translate_tmp:75
 msgid ""
@@ -126,8 +126,8 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
 msgstr ""
-"Añade una reflexión desvaneciéndose debajo de una imagen y puntos de vista "
-"en perspectiva\n"
+"Añade un reflejo desvaneciéndose debajo de una imagen y puntos de vista en "
+"perspectiva\n"
 "\n"
 "Basado en el script de Fred Weinhaus\n"
 "\n"
@@ -146,12 +146,12 @@ msgstr "Rotación en perspectiva sobre el lado izquierdo de la imagen"
 
 #: translate_tmp:122
 msgid "Fade:"
-msgstr "Desteñir:"
+msgstr "Desvanecer:"
 
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "Fade percent for mirror image"
-msgstr "Porcentaje de fundido para el espejo de la imagen"
+msgstr "Porcentaje de desvanecimiento para la imagen en espejo"
 
 #: translate_tmp:140
 msgid "Opacity:"
@@ -241,14 +241,16 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 msgstr ""
-"Se aplica una distorsión de la perspectiva de una imagen\n"
-"Basado en un guión de Fred Weinhaus\n"
+"Aplica una distorsión de perspectiva a la imagen\n"
+"\n"
+"Basado en el script de Fred Weinhaus\n"
+"\n"
 "http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "Rotation about image vertical centerline"
-msgstr "Rotacion sobre la linea central vertical de la imagen"
+msgstr "Rotación sobre la línea central vertical de la imagen"
 
 #: translate_tmp:129
 #: translate_tmp:136
@@ -269,7 +271,7 @@ msgstr ""
 
 #: translate_tmp:204
 msgid "Auto:"
-msgstr "Auto"
+msgstr "Auto:"
 
 #: translate_tmp:226
 #: translate_tmp:233
@@ -297,7 +299,7 @@ msgstr "Color del cielo"
 
 #: translate_tmp:248
 msgid "Choose sky color"
-msgstr "Elejir color del cielo"
+msgstr "Elegir color del cielo"
 
 #: translate_tmp:62
 msgid "Barrel Distortion"
@@ -359,7 +361,12 @@ msgid ""
 "Based on a script by Fred Weinhaus\n"
 "\n"
 "http://www.fmwconcepts.com/imagemagick/bordereffects/index.php"
-msgstr "Crea varios efectos dispersion-like  en el borde de una imagen"
+msgstr ""
+"Crea varios efectos de dispersión en el borde de una imagen\n"
+"\n"
+"Basado en el script de Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/bordereffects/index.php"
 
 #: translate_tmp:104
 msgid "Size:"
@@ -386,7 +393,7 @@ msgstr "Curvatura:"
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "The curviness in the border features"
-msgstr "El curviness en las caracteristicas del borde"
+msgstr "La cantidad de curvatura en los rasgos del borde"
 
 #: translate_tmp:158
 msgid "Granularity:"
@@ -413,7 +420,7 @@ msgstr ""
 
 #: translate_tmp:62
 msgid "Negate"
-msgstr "Negar"
+msgstr "Negativo"
 
 #: translate_tmp:64
 msgid "Invert the colors of the image"
@@ -432,8 +439,8 @@ msgid ""
 "Make your screenshot look like a polaroid photo, add a caption, and even "
 "rotate it a little"
 msgstr ""
-"Hacer ver captura de pantalla como una foto polaroid, añadir un título, e "
-"incluso rotar un poco"
+"Haga lucir su captura de pantalla como una foto Polaroid, agregue un texto, "
+"e incluso rótela un poco"
 
 #: translate_tmp:99
 #: translate_tmp:93
@@ -459,7 +466,7 @@ msgstr ""
 #: translate_tmp:116
 #: translate_tmp:110
 msgid "Font size:"
-msgstr "Tamaño de letra:"
+msgstr "Tamaño de tipografía:"
 
 #: translate_tmp:120
 #: translate_tmp:114
@@ -478,11 +485,11 @@ msgstr "Seleccionar el color del trazo"
 
 #: translate_tmp:45
 msgid "Resize"
-msgstr "Cambiar tamaño"
+msgstr "Redimensionar"
 
 #: translate_tmp:53
 msgid "Resize your screenshot"
-msgstr "Cambiar el tamaño de su captura"
+msgstr "Redimensione su captura de pantalla"
 
 #: translate_tmp:71
 msgid "Sepia"
@@ -490,7 +497,7 @@ msgstr "Sepia"
 
 #: translate_tmp:73
 msgid "Add sepia color toning to the image"
-msgstr "Agregar una tonalidad sepia a la imágen"
+msgstr "Agregar una tonalidad sepia a la imagen"
 
 #: translate_tmp:110
 msgid "Sepia tone"
@@ -506,25 +513,25 @@ msgstr "Añadir una sombra a la imagen en un fondo transparente"
 
 #: translate_tmp:94
 msgid "Direction"
-msgstr ""
+msgstr "Dirección"
 
 #: translate_tmp:110
 #: translate_tmp:117
 msgid "The direction of the shadow"
-msgstr ""
+msgstr "La dirección de la sombra"
 
 #: translate_tmp:121
 msgid "Color"
-msgstr ""
+msgstr "Color"
 
 #: translate_tmp:126
 msgid "Choose color"
-msgstr ""
+msgstr "Elegir color"
 
 #: translate_tmp:131
 #: translate_tmp:138
 msgid "The color of the shadow"
-msgstr ""
+msgstr "El color de la sombra"
 
 #: translate_tmp:62
 msgid "Watermark"

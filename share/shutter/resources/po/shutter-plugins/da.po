@@ -8,18 +8,18 @@ msgstr ""
 "Project-Id-Version: gscrot-plugins-bash\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-31 19:30+0200\n"
-"PO-Revision-Date: 2010-08-27 18:23+0000\n"
-"Last-Translator: Mark Jensen <Unknown>\n"
+"PO-Revision-Date: 2011-01-14 00:21+0000\n"
+"Last-Translator: Aputsiaq Janussen <aj@isit.gl>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-31 23:04+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-01-15 15:54+0000\n"
+"X-Generator: Launchpad (build 12200)\n"
 
 #: translate_tmp:27
 msgid "Shutter Branding"
-msgstr ""
+msgstr "Shutter Branding"
 
 #: translate_tmp:28
 #: translate_tmp:74
@@ -33,6 +33,7 @@ msgstr "Effekt"
 msgid ""
 "Turn the image into a polaroid one with the Shutter logo and a subtitle added"
 msgstr ""
+"Gør billedet til et polaroid med Shutter-logoet og en underrubrik føjet til."
 
 #: translate_tmp:27
 msgid "Grayscale"
@@ -40,7 +41,7 @@ msgstr "Gråtoner"
 
 #: translate_tmp:29
 msgid "Turn the image into a grayscale image (256 shades)"
-msgstr ""
+msgstr "Gør billedet til et billede i gråskala (256 nuancer)"
 
 #: translate_tmp:27
 msgid "Jigsaw Piece 1"
@@ -64,7 +65,7 @@ msgstr "Forskydning"
 
 #: translate_tmp:29
 msgid "Give the picture an offset with itself as background"
-msgstr ""
+msgstr "Giv billedet en forskydning med sig selv som baggrund"
 
 #: translate_tmp:27
 msgid "Raise Border"
@@ -88,7 +89,7 @@ msgstr "Sænket kant"
 
 #: translate_tmp:29
 msgid "Add an inverted 3d border to the image"
-msgstr ""
+msgstr "Føj en indadvendt 3D-kant til billedet"
 
 #: translate_tmp:27
 msgid "Torned Paper"
@@ -96,20 +97,20 @@ msgstr "Iturevet papir"
 
 #: translate_tmp:29
 msgid "Add a torn-like border to the image"
-msgstr ""
+msgstr "Føj en itu-lignende kant til billedet"
 
 #: translate_tmp:27
 msgid "Autocrop"
-msgstr ""
+msgstr "Autobeskær"
 
 #: translate_tmp:28
 #: translate_tmp:49
 msgid "Tool"
-msgstr ""
+msgstr "Værktøj"
 
 #: translate_tmp:29
 msgid "Remove empty borders from the image"
-msgstr ""
+msgstr "Fjern tomme kanter fra billedet"
 
 #: translate_tmp:73
 msgid "3D reflection"
@@ -123,6 +124,11 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
 msgstr ""
+"Føjer en aftagende reflektion under et billede og viser det i perspektiv\n"
+"\n"
+"Baseret på et skript af Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
 
 #: translate_tmp:104
 #: translate_tmp:133
@@ -137,25 +143,25 @@ msgstr "Perspektivisk rotation om billedets venstre kant"
 
 #: translate_tmp:122
 msgid "Fade:"
-msgstr ""
+msgstr "Falmen:"
 
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "Fade percent for mirror image"
-msgstr ""
+msgstr "Falme-procent for spejlbillede"
 
 #: translate_tmp:140
 msgid "Opacity:"
-msgstr ""
+msgstr "Uigennemsighed:"
 
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "Opacity percent applied to whole mirror image"
-msgstr ""
+msgstr "Uigennemsigtighedsprocent anvendt på hele spejlbilled"
 
 #: translate_tmp:158
 msgid "Pef:"
-msgstr ""
+msgstr "Pef:"
 
 #: translate_tmp:165
 #: translate_tmp:172
@@ -179,7 +185,7 @@ msgstr "Zoom:"
 #: translate_tmp:201
 #: translate_tmp:208
 msgid "Zoom factor for output image"
-msgstr ""
+msgstr "Zoom-faktor for output-billede"
 
 #: translate_tmp:212
 #: translate_tmp:236
@@ -232,6 +238,11 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 msgstr ""
+"Tilfører en perspektivforvrængning til et billede\n"
+"\n"
+"Baseret på et skript af Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 
 #: translate_tmp:111
 #: translate_tmp:118
@@ -327,6 +338,13 @@ msgid ""
 "Defined by Barrel Correction Distortion, by Helmut Dersch.\n"
 "http://www.all-in-one.ee/~dersch/barrel/barrel.html"
 msgstr ""
+"Parameteren d beskriver den lineære skalering af billedet. Bruges d=1, og "
+"a=b=c=0 bevares billede som det er. Vælges andre d-værdier skaleres billedet "
+"med denne angivelse. a, b og c forvrænger billedet. Brug af negative værdier "
+"skifter sigtepunkterne væk fra centrum.\n"
+"\n"
+"Defineret af Barrel Correction Distortion, ved Helmut Dersch.\n"
+"http://www.all-in-one.ee/~dersch/barrel/barrel.html"
 
 #: translate_tmp:73
 msgid "Bordereffects"
@@ -340,6 +358,11 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/bordereffects/index.php"
 msgstr ""
+"Opretter forskellige findelingslignende effekter i kanten af et billede\n"
+"\n"
+"Baseret på et skript af Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/bordereffects/index.php"
 
 #: translate_tmp:104
 msgid "Size:"
@@ -348,29 +371,29 @@ msgstr "Størrelse:"
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "The size or dimension of the border region"
-msgstr ""
+msgstr "Størrelsen eller dimensionen på kantområdet"
 
 #: translate_tmp:122
 msgid "Density:"
-msgstr ""
+msgstr "Tæthed:"
 
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "The frequency of detail in the border"
-msgstr ""
+msgstr "Frekvensen af detaljer i kanten"
 
 #: translate_tmp:140
 msgid "Curviness:"
-msgstr ""
+msgstr "Kurvehældning:"
 
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "The curviness in the border features"
-msgstr ""
+msgstr "Kurvehældningen i kantens egenskaber"
 
 #: translate_tmp:158
 msgid "Granularity:"
-msgstr ""
+msgstr "Granularitet:"
 
 #: translate_tmp:165
 #: translate_tmp:172
@@ -378,23 +401,25 @@ msgid ""
 "The base grain size or pixelization size used to create the detail in the "
 "border"
 msgstr ""
+"Størrelsen på basiskorn eller pikseleringsstørrelsen brugt til at oprette "
+"detaljen i kanten"
 
 #: translate_tmp:176
 msgid "Pad:"
-msgstr ""
+msgstr "Plade:"
 
 #: translate_tmp:183
 #: translate_tmp:190
 msgid "The pad size of constant color around the perimeter of the border"
-msgstr ""
+msgstr "Størrelse på pladen af konstantfarven omkring omkredsen af kanten"
 
 #: translate_tmp:62
 msgid "Negate"
-msgstr ""
+msgstr "Negativ"
 
 #: translate_tmp:64
 msgid "Invert the colors of the image"
-msgstr ""
+msgstr "Omvend farverne fra billedet"
 
 #: translate_tmp:101
 msgid "Channel"
@@ -402,13 +427,15 @@ msgstr "Kanal"
 
 #: translate_tmp:62
 msgid "Polaroid"
-msgstr ""
+msgstr "Polaroid"
 
 #: translate_tmp:64
 msgid ""
 "Make your screenshot look like a polaroid photo, add a caption, and even "
 "rotate it a little"
 msgstr ""
+"Få dit skærmbillede til at ligne et polaroidfoto, tilføj en billedtekst, og "
+"rotér endda det en smule"
 
 #: translate_tmp:99
 #: translate_tmp:93
@@ -425,6 +452,11 @@ msgid ""
 "%d = day\n"
 "%T = time"
 msgstr ""
+"Der er adskillige jokertegn tilgængelige, så som\n"
+"%Y = år\n"
+"%m = måned\n"
+"%d = dag\n"
+"%T = tid"
 
 #: translate_tmp:116
 #: translate_tmp:110
@@ -448,19 +480,19 @@ msgstr "Vælg stregfarve"
 
 #: translate_tmp:45
 msgid "Resize"
-msgstr ""
+msgstr "Tilpas størrelse"
 
 #: translate_tmp:53
 msgid "Resize your screenshot"
-msgstr ""
+msgstr "Tilpas størrelse på skærmbillede"
 
 #: translate_tmp:71
 msgid "Sepia"
-msgstr ""
+msgstr "Sepia"
 
 #: translate_tmp:73
 msgid "Add sepia color toning to the image"
-msgstr ""
+msgstr "Føj sepia-farvetoning til billedet"
 
 #: translate_tmp:110
 msgid "Sepia tone"
@@ -476,33 +508,33 @@ msgstr "Tilføj en skygge til billedet på en gennemsigtig baggrund"
 
 #: translate_tmp:94
 msgid "Direction"
-msgstr ""
+msgstr "Retning"
 
 #: translate_tmp:110
 #: translate_tmp:117
 msgid "The direction of the shadow"
-msgstr ""
+msgstr "Skyggens retning"
 
 #: translate_tmp:121
 msgid "Color"
-msgstr ""
+msgstr "Farve"
 
 #: translate_tmp:126
 msgid "Choose color"
-msgstr ""
+msgstr "Vælg farve"
 
 #: translate_tmp:131
 #: translate_tmp:138
 msgid "The color of the shadow"
-msgstr ""
+msgstr "Farve på skyggen"
 
 #: translate_tmp:62
 msgid "Watermark"
-msgstr ""
+msgstr "Vandmærke"
 
 #: translate_tmp:64
 msgid "Add a custom text watermark to your screenshot"
-msgstr ""
+msgstr "Føj et selvvalgt tekstvandmærke til dit skærmbillede"
 
 #~ msgid "jigsaw piece 1"
 #~ msgstr "puslespil del 1"
@@ -557,3 +589,70 @@ msgstr ""
 
 #~ msgid "replace every pixel with its complementary color"
 #~ msgstr "erstat alle pixels med dens komplementær farve"
+
+#~ msgid "offset"
+#~ msgstr "offset"
+
+#~ msgid "polaroid with Shutter logo and the name of the picture as subtitle"
+#~ msgstr "polaroid med Shutter logo og navnet på billedet som undertitel"
+
+#~ msgid "Shutter branding"
+#~ msgstr "Shutter branding"
+
+#~ msgid "export your screenshot to pdf"
+#~ msgstr "eksportér dit skærmbillede til pdf"
+
+#~ msgid "raise border"
+#~ msgstr "hæv kant"
+
+#~ msgid "raise a rectangular 3d-border"
+#~ msgstr "hæv med en rektangulær 3d-kant"
+
+#~ msgid "give the picture an offset with itself as background"
+#~ msgstr "giv billedet et offset med det selv som baggrund"
+
+#~ msgid "reflection"
+#~ msgstr "reflektion"
+
+#~ msgid "applies a simple reflection effect"
+#~ msgstr "tildel en simpel reflektions-effekt"
+
+#~ msgid "a black hard shadow on transparent background"
+#~ msgstr "en hård sort skygge på en transparent baggrund"
+
+#~ msgid ""
+#~ "applies a perspective distortion to an image\n"
+#~ "\n"
+#~ "Based on a script by Fred Weinhaus\n"
+#~ "\n"
+#~ "http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
+#~ msgstr ""
+#~ "tildeler en perspektiv-forskydning til et billede\n"
+#~ "\n"
+#~ "Baseret på et skript af Fred Weinhaus\n"
+#~ "\n"
+#~ "http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
+
+#~ msgid "torned paper"
+#~ msgstr "iturevet papir"
+
+#~ msgid "generates a torned-border"
+#~ msgstr "generer en itureven kant"
+
+#~ msgid "sunk a rectangular 3d-border"
+#~ msgstr "sænk en rektangulær 3d-kant"
+
+#~ msgid "barrel distortion"
+#~ msgstr "tønde-forvrængning"
+
+#~ msgid "apply a distortion effect to your screenshot"
+#~ msgstr "tilføj en forvrængelseseffekt til dit skærmbillede"
+
+#~ msgid "add a custom text watermark to your screenshot"
+#~ msgstr "tilføj et tilpasset tekst-vandmærke til dit skærmbillede"
+
+#~ msgid "watermark"
+#~ msgstr "vandmærke"
+
+#~ msgid "sepia tone coloring"
+#~ msgstr "sepia farvetone"

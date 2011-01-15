@@ -7,324 +7,333 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-08-30 13:02+0200\n"
-"PO-Revision-Date: 2010-08-29 11:34+0000\n"
-"Last-Translator: luisah <luisah.linux@gmail.com>\n"
+"POT-Creation-Date: 2011-01-05 12:54+0100\n"
+"PO-Revision-Date: 2010-09-19 18:13+0000\n"
+"Last-Translator: Jan Cerny <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2010-08-31 23:04+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-01-15 15:53+0000\n"
+"X-Generator: Launchpad (build 12200)\n"
 
-#: translate_tmp.pl:213
-#: translate_tmp.pl:1942
-#: translate_tmp.pl:6264
+#: translate_tmp.pl:307
+#: translate_tmp.pl:2447
+#: translate_tmp.pl:6995
 msgid "Profile"
 msgstr "Profil"
 
-#: translate_tmp.pl:218
-#: translate_tmp.pl:3909
+#: translate_tmp.pl:315
+#: translate_tmp.pl:3950
 msgid "Preferences"
 msgstr "Předvolby"
 
-#: translate_tmp.pl:517
-#: translate_tmp.pl:518
+#: translate_tmp.pl:676
+#: translate_tmp.pl:677
 msgid "gnome-web-photo needs to be installed for this feature"
 msgstr ""
 "gnome-web-photo musí být nainstalováno, abyste mohli používat tuto funkci"
 
-#: translate_tmp.pl:525
-msgid "Goo::Canvas/libgoocanvas needs to be installed for this feature"
-msgstr "Goo::Canvas/libgoocanvas musí být nainstalován pro tuto funkci"
+#: translate_tmp.pl:685
+msgid "Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature"
+msgstr ""
 
-#: translate_tmp.pl:555
+#: translate_tmp.pl:718
 msgid "Choose a profile"
 msgstr "Vyberte profil"
 
-#: translate_tmp.pl:572
+#: translate_tmp.pl:734
 msgid "Save configuration as profile"
 msgstr "Uložit konfiguraci jako profil"
 
-#: translate_tmp.pl:582
+#: translate_tmp.pl:744
 msgid "Delete profile"
 msgstr "Smazat konfigurační profil"
 
-#: translate_tmp.pl:591
+#: translate_tmp.pl:753
 msgid "Load the selected profile's configuration"
-msgstr "Načíst zvolené nastavení profilů"
+msgstr "Načíst zvolené nastavení profilu"
 
-#: translate_tmp.pl:596
-#: translate_tmp.pl:845
-#: translate_tmp.pl:8505
-#: translate_tmp.pl:1477
+#: translate_tmp.pl:761
+#: translate_tmp.pl:1035
+#: translate_tmp.pl:9415
+#: translate_tmp.pl:1500
 msgid "Image format"
 msgstr "Formát souboru"
 
-#: translate_tmp.pl:603
+#: translate_tmp.pl:768
 msgid "Save"
 msgstr "Uložit"
 
-#: translate_tmp.pl:610
+#: translate_tmp.pl:775
+msgid "First-launch Behavior"
+msgstr ""
+
+#: translate_tmp.pl:782
 msgid "Window Preferences"
 msgstr "Předvolby okna"
 
-#: translate_tmp.pl:617
+#: translate_tmp.pl:789
 msgid "Notifications"
 msgstr "Upozornění"
 
-#: translate_tmp.pl:624
+#: translate_tmp.pl:796
 msgid "Trash"
 msgstr "Koš"
 
-#: translate_tmp.pl:631
+#: translate_tmp.pl:803
 msgid "Gnome-Keybinding"
 msgstr "Klávesové zkratky Gnome"
 
-#: translate_tmp.pl:638
-#: translate_tmp.pl:1748
+#: translate_tmp.pl:810
+#: translate_tmp.pl:2220
 msgid "Actions"
 msgstr "Akce"
 
-#: translate_tmp.pl:645
-#: translate_tmp.pl:1395
+#: translate_tmp.pl:817
+#: translate_tmp.pl:1799
 msgid "Capture"
 msgstr "Zachytit"
 
-#: translate_tmp.pl:652
+#: translate_tmp.pl:824
 msgid "Selection Capture"
 msgstr "Zachytit výběr"
 
-#: translate_tmp.pl:659
+#: translate_tmp.pl:831
 msgid "Advanced Selection Capture"
 msgstr "Pokročilé zachycení výběru"
 
-#: translate_tmp.pl:666
+#: translate_tmp.pl:838
 msgid "Window Capture"
 msgstr "Zachytit okno"
 
-#: translate_tmp.pl:673
+#: translate_tmp.pl:845
 msgid "Menu/Tooltip Capture"
 msgstr "Zachytit nabídku/kontextovou nápovědu"
 
-#: translate_tmp.pl:680
+#: translate_tmp.pl:852
 msgid "Website Capture"
 msgstr "Zachytit webovou stránku"
 
-#: translate_tmp.pl:687
+#: translate_tmp.pl:859
 msgid "Accounts"
 msgstr "Účty"
 
-#: translate_tmp.pl:694
+#: translate_tmp.pl:866
 msgid "File Transfer Protocol (FTP)"
 msgstr "Protokol pro přenos souborů (FTP)"
 
-#: translate_tmp.pl:701
+#: translate_tmp.pl:873
 msgid "Transparent Parts"
 msgstr "Průhledné části"
 
-#: translate_tmp.pl:707
+#: translate_tmp.pl:880
+msgid "Session View"
+msgstr ""
+
+#: translate_tmp.pl:888
+#: translate_tmp.pl:1736
+#: translate_tmp.pl:1740
 msgid "Filename"
 msgstr "Název souboru"
 
-#: translate_tmp.pl:731
-#: translate_tmp.pl:8255
-#: translate_tmp.pl:9837
+#: translate_tmp.pl:914
+#: translate_tmp.pl:9062
+#: translate_tmp.pl:10755
 #, perl-format
 msgid "Reserved character %s is not allowed to be in a filename."
 msgstr "Vyhrazený znak %s není povolen v názvu souboru."
 
-#: translate_tmp.pl:745
+#: translate_tmp.pl:928
 msgid "There are several wildcards available, like\n"
 msgstr "Je k dispozici několik divokých karet, jako\n"
 
-#: translate_tmp.pl:746
+#: translate_tmp.pl:929
 msgid "%Y = year\n"
 msgstr "%Y = rok\n"
 
-#: translate_tmp.pl:747
+#: translate_tmp.pl:930
 msgid "%m = month\n"
 msgstr "%m = měsíc\n"
 
-#: translate_tmp.pl:748
+#: translate_tmp.pl:931
 #, perl-format
 msgid "%d = day\n"
 msgstr "%d = den\n"
 
-#: translate_tmp.pl:749
+#: translate_tmp.pl:932
 msgid "%T = time\n"
 msgstr "%T = čas\n"
 
-#: translate_tmp.pl:750
+#: translate_tmp.pl:933
 msgid "$w = width\n"
 msgstr "$w = šířka\n"
 
-#: translate_tmp.pl:751
+#: translate_tmp.pl:934
 msgid "$h = height\n"
 msgstr "$h = výška\n"
 
-#: translate_tmp.pl:752
+#: translate_tmp.pl:935
 msgid "$name = multi-purpose (e.g. window title)\n"
 msgstr "$name = multi-účel (např. titulek okna)\n"
 
-#: translate_tmp.pl:753
+#: translate_tmp.pl:936
 msgid "$nb_name = like $name but without blanks in resulting strings\n"
 msgstr "$nb_name = jako $name, ale bez mezer ve výsledných řetězcích\n"
 
-#: translate_tmp.pl:754
+#: translate_tmp.pl:937
 msgid "$profile = name of current profile\n"
 msgstr "$profile = název aktuálního profilu\n"
 
-#: translate_tmp.pl:755
+#: translate_tmp.pl:938
 msgid "$R = random char (e.g. $RRRR = ag4r)\n"
 msgstr "$R = náhodný znak (např. $RRRR = ag4r)\n"
 
-#: translate_tmp.pl:756
+#: translate_tmp.pl:939
 msgid "%NN = counter"
 msgstr "%NN = počítadlo"
 
-#: translate_tmp.pl:767
-#: translate_tmp.pl:2175
+#: translate_tmp.pl:954
+#: translate_tmp.pl:2783
 msgid "Compression"
 msgstr "Komprese"
 
-#: translate_tmp.pl:776
-#: translate_tmp.pl:778
-msgid ""
-"Quality/Compression:\n"
-"High value means high size / high compression\n"
-"(depending on file format chosen)"
-msgstr ""
-"Kvalita/komprese:\n"
-"Vyšší hodnota znamená větší velikost/kompresi\n"
-"(podle vybraného formátu souboru)"
+#: translate_tmp.pl:964
+#: translate_tmp.pl:966
+msgid "Adjust quality/compression value"
+msgstr "Nastavit kvalitu/kompresní hodnotu"
 
-#: translate_tmp.pl:846
-#: translate_tmp.pl:847
+#: translate_tmp.pl:1036
+#: translate_tmp.pl:1037
 msgid "Select a file format"
 msgstr "Vyberte formát souboru"
 
-#: translate_tmp.pl:852
+#: translate_tmp.pl:1046
 msgid "Directory"
 msgstr "Složka"
 
-#: translate_tmp.pl:853
-#: translate_tmp.pl:8984
-#: translate_tmp.pl:8986
-#: translate_tmp.pl:9006
-#: translate_tmp.pl:9007
+#: translate_tmp.pl:1047
+#: translate_tmp.pl:9902
+#: translate_tmp.pl:9904
+#: translate_tmp.pl:9924
+#: translate_tmp.pl:9925
 msgid "Choose folder"
 msgstr "Vyberte složku"
 
-#: translate_tmp.pl:860
-#: translate_tmp.pl:861
+#: translate_tmp.pl:1054
+#: translate_tmp.pl:1055
 msgid "Your screenshots will be saved to this directory"
 msgstr "Snímky budou uložené do této složky"
 
-#: translate_tmp.pl:866
-#: translate_tmp.pl:869
+#: translate_tmp.pl:1064
+#: translate_tmp.pl:1067
 msgid "Browse for save folder every time"
 msgstr "Pokaždé procházet složku pro uložení"
 
-#: translate_tmp.pl:871
-#: translate_tmp.pl:874
+#: translate_tmp.pl:1069
+#: translate_tmp.pl:1072
+msgid "Do not save file automatically"
+msgstr ""
+
+#: translate_tmp.pl:1074
+#: translate_tmp.pl:1077
 msgid "Automatically save file"
 msgstr "Automaticky uložit soubor"
 
-#: translate_tmp.pl:898
-#: translate_tmp.pl:907
+#: translate_tmp.pl:1101
+#: translate_tmp.pl:1110
 msgid "Automatically copy screenshot to clipboard"
 msgstr "Automaticky kopírovat snímek do schránky"
 
-#: translate_tmp.pl:910
-#: translate_tmp.pl:919
+#: translate_tmp.pl:1117
+#: translate_tmp.pl:1126
 msgid "Automatically copy filename to clipboard"
 msgstr "Automaticky kopírovat název souboru do schránky"
 
-#: translate_tmp.pl:922
-#: translate_tmp.pl:931
+#: translate_tmp.pl:1133
+#: translate_tmp.pl:1142
 msgid "Do not copy anything to clipboard"
 msgstr "Nic nekopírovat do schránky"
 
-#: translate_tmp.pl:935
+#: translate_tmp.pl:1151
 msgid "Delay"
 msgstr "Prodleva"
 
-#: translate_tmp.pl:937
-#: translate_tmp.pl:945
-#: translate_tmp.pl:1274
-#: translate_tmp.pl:2102
-#: translate_tmp.pl:2108
-#: translate_tmp.pl:2113
+#: translate_tmp.pl:1153
+#: translate_tmp.pl:1162
+#: translate_tmp.pl:1606
+#: translate_tmp.pl:2710
+#: translate_tmp.pl:2716
+#: translate_tmp.pl:2721
 msgid "second"
 msgid_plural "seconds"
 msgstr[0] "sekunda"
 msgstr[1] "sekundy"
 msgstr[2] "sekund"
 
-#: translate_tmp.pl:943
+#: translate_tmp.pl:1160
 msgid "Capture after a delay of"
 msgstr "Zachytit s prodlevou"
 
-#: translate_tmp.pl:957
-#: translate_tmp.pl:958
-#: translate_tmp.pl:959
-#: translate_tmp.pl:961
-#: translate_tmp.pl:962
-#: translate_tmp.pl:963
+#: translate_tmp.pl:1174
+#: translate_tmp.pl:1175
+#: translate_tmp.pl:1176
+#: translate_tmp.pl:1178
+#: translate_tmp.pl:1179
+#: translate_tmp.pl:1180
 msgid "Wait n seconds before taking a screenshot"
 msgstr "Vyčkat n sekund před pořízením snímku"
 
-#: translate_tmp.pl:970
+#: translate_tmp.pl:1191
 msgid "Include Cursor"
 msgstr "Zahrnout kurzor"
 
-#: translate_tmp.pl:971
-#: translate_tmp.pl:977
-#: translate_tmp.pl:978
+#: translate_tmp.pl:1192
+#: translate_tmp.pl:1198
+#: translate_tmp.pl:1199
 msgid "Include cursor when taking a screenshot"
 msgstr "Zahrnout kurzor při vytváření snímku"
 
-#: translate_tmp.pl:1025
+#: translate_tmp.pl:1254
 msgid "Open with"
 msgstr "Otevřít s"
 
-#: translate_tmp.pl:1026
-#: translate_tmp.pl:1027
-#: translate_tmp.pl:1028
+#: translate_tmp.pl:1255
+#: translate_tmp.pl:1256
+#: translate_tmp.pl:1257
 msgid "Open your screenshot with this program after capturing"
 msgstr "Po zachycení otevřít snímek tímto programem"
 
-#: translate_tmp.pl:1035
+#: translate_tmp.pl:1268
 msgid "16 colors   - (4bit) "
 msgstr "16 barev - (4bit) "
 
-#: translate_tmp.pl:1036
+#: translate_tmp.pl:1269
 msgid "64 colors   - (6bit) "
 msgstr "64 barev - (6bit) "
 
-#: translate_tmp.pl:1037
+#: translate_tmp.pl:1270
 msgid "256 colors  - (8bit) "
 msgstr "256 barev - (8bit) "
 
-#: translate_tmp.pl:1062
+#: translate_tmp.pl:1295
 msgid "Reduce colors"
 msgstr "Snížit počet barev"
 
-#: translate_tmp.pl:1063
-#: translate_tmp.pl:1064
-#: translate_tmp.pl:1065
+#: translate_tmp.pl:1296
+#: translate_tmp.pl:1297
+#: translate_tmp.pl:1298
 msgid "Automatically reduce colors after taking a screenshot"
 msgstr "Automatické snížení barev po vytvoření snímku"
 
-#: translate_tmp.pl:1071
+#: translate_tmp.pl:1308
 msgid "Thumbnail"
 msgstr "Náhled"
 
-#: translate_tmp.pl:1097
-#: translate_tmp.pl:1099
-#: translate_tmp.pl:1101
+#: translate_tmp.pl:1334
+#: translate_tmp.pl:1336
+#: translate_tmp.pl:1338
 msgid ""
 "Generate thumbnail too.\n"
 "select the percentage of the original size for the thumbnail to be"
@@ -332,93 +341,125 @@ msgstr ""
 "Vygenerovat také miniaturu.\n"
 "Zvolte procentuální poměr miniatury k originálu snímku."
 
-#: translate_tmp.pl:1110
+#: translate_tmp.pl:1351
 msgid "Border"
 msgstr "Okraj"
 
-#: translate_tmp.pl:1112
-#: translate_tmp.pl:1188
-#: translate_tmp.pl:1189
-#: translate_tmp.pl:1320
-#: translate_tmp.pl:6111
+#: translate_tmp.pl:1353
+#: translate_tmp.pl:1437
+#: translate_tmp.pl:1438
+#: translate_tmp.pl:1527
+#: translate_tmp.pl:1660
+#: translate_tmp.pl:6842
 msgid "pixels"
 msgstr "pixelů"
 
-#: translate_tmp.pl:1114
+#: translate_tmp.pl:1355
 msgid "Color"
 msgstr "Barva"
 
-#: translate_tmp.pl:1117
-#: translate_tmp.pl:1127
-#: translate_tmp.pl:1129
+#: translate_tmp.pl:1358
+#: translate_tmp.pl:1368
+#: translate_tmp.pl:1370
 msgid "Choose border color"
 msgstr "Vybrat barvu okraje"
 
-#: translate_tmp.pl:1120
-#: translate_tmp.pl:1122
-#: translate_tmp.pl:1124
+#: translate_tmp.pl:1361
+#: translate_tmp.pl:1363
+#: translate_tmp.pl:1365
 msgid "Adds a border effect to the screenshot"
 msgstr "Přidat efekt okraje do snímku"
 
-#: translate_tmp.pl:1167
-#: translate_tmp.pl:1175
+#: translate_tmp.pl:1412
+#: translate_tmp.pl:1420
 msgid "Enable zoom window"
 msgstr "Zapnout okno s přiblížením"
 
-#: translate_tmp.pl:1180
+#: translate_tmp.pl:1429
 msgid "Start with selection size of"
 msgstr "Začít s výběrem o velikosti"
 
-#: translate_tmp.pl:1182
+#: translate_tmp.pl:1431
 msgid "at"
 msgstr "v"
 
-#: translate_tmp.pl:1212
-#: translate_tmp.pl:1213
-#: translate_tmp.pl:1214
-#: translate_tmp.pl:1215
-#: translate_tmp.pl:1216
-#: translate_tmp.pl:1217
-#: translate_tmp.pl:1218
-#: translate_tmp.pl:1219
-#: translate_tmp.pl:1220
-#: translate_tmp.pl:1221
+#: translate_tmp.pl:1461
+#: translate_tmp.pl:1462
+#: translate_tmp.pl:1463
+#: translate_tmp.pl:1464
+#: translate_tmp.pl:1465
+#: translate_tmp.pl:1466
+#: translate_tmp.pl:1467
+#: translate_tmp.pl:1468
+#: translate_tmp.pl:1469
+#: translate_tmp.pl:1470
 msgid "Start Advanced Selection Tool with a customized selection size"
 msgstr "Spustit pokročilý nástroj pro výběr vlastní velikosti"
 
-#: translate_tmp.pl:1235
+#: translate_tmp.pl:1488
 msgid "Show help text"
-msgstr ""
+msgstr "Zobrazit textovou nápovědu"
 
-#: translate_tmp.pl:1243
+#: translate_tmp.pl:1496
 msgid "Enables the help text"
-msgstr ""
+msgstr "Povolit textovou nápovědu"
 
-#: translate_tmp.pl:1248
-#: translate_tmp.pl:1249
+#: translate_tmp.pl:1505
+#: translate_tmp.pl:1506
 msgid "Include window decoration when capturing a window"
 msgstr "Zahrnout dekoraci okna při zachycení"
 
-#: translate_tmp.pl:1260
-#: translate_tmp.pl:1261
+#: translate_tmp.pl:1523
+msgid "Automatically resize window to"
+msgstr ""
+
+#: translate_tmp.pl:1547
+#: translate_tmp.pl:1548
+#: translate_tmp.pl:1549
+#: translate_tmp.pl:1550
+#: translate_tmp.pl:1551
+msgid ""
+"This resizes the window automatically to the specified width and height. "
+"This method asks the window manager to resize the window. However, the "
+"window manager may not allow the resize."
+msgstr ""
+
+#: translate_tmp.pl:1564
+msgid "Force rounded window corners"
+msgstr ""
+
+#: translate_tmp.pl:1573
+#, perl-format
+msgid ""
+"Shutter uses the XShape extension to determine the window's shape, but this "
+"does not work under some circumstances, e.g. when running compiz.\n"
+"\n"
+"When this option is activated Shutter uses fixed parameters to round the "
+"window corners. You can overwrite the default parameters by creating a file "
+"named ~/.shutter/shape.conf and put custom values in it. The default values "
+"are stored in %s."
+msgstr ""
+
+#: translate_tmp.pl:1587
+#: translate_tmp.pl:1588
 msgid "Select only visible windows"
 msgstr "Vybrat pouze viditelná okna"
 
-#: translate_tmp.pl:1272
+#: translate_tmp.pl:1604
 msgid "Pre-Capture Delay"
 msgstr "Prodleva před zachycením"
 
-#: translate_tmp.pl:1286
-#: translate_tmp.pl:1287
-#: translate_tmp.pl:1288
+#: translate_tmp.pl:1618
+#: translate_tmp.pl:1619
+#: translate_tmp.pl:1620
 msgid "Capture menu/tooltip after a delay of n seconds"
 msgstr "Zachytit nabídku/kontextovou nápovědu s prodlevou n sekund"
 
-#: translate_tmp.pl:1295
+#: translate_tmp.pl:1631
 msgid "Ignore possibly wrong type hints"
 msgstr "Ignorovat možné nesprávné nápovědy"
 
-#: translate_tmp.pl:1296
+#: translate_tmp.pl:1632
 msgid ""
 "The type hint constants specify hints for the window manager that indicate "
 "what type of function the window has. Sometimes these type hints are not "
@@ -429,52 +470,72 @@ msgstr ""
 "jaký typ funkce má okno. Někdy tyto typy nápovědy nejsou správně nastaveny. "
 "Povolením této volby, Shutter nebude trvat na požadovaném typu nápovědy."
 
-#: translate_tmp.pl:1307
+#: translate_tmp.pl:1647
 msgid "Virtual browser width"
 msgstr "Šířka virtuálního prohlížeče"
 
-#: translate_tmp.pl:1328
-#: translate_tmp.pl:1329
-#: translate_tmp.pl:1330
+#: translate_tmp.pl:1668
+#: translate_tmp.pl:1669
+#: translate_tmp.pl:1670
 msgid "Virtual browser width when taking a website screenshot"
 msgstr "Šířka virtuálního prohlížeče při zachycení webové stránky"
 
-#: translate_tmp.pl:1337
+#: translate_tmp.pl:1681
 msgid "Show as check pattern"
 msgstr "Zobrazit jako kostkovaný vzor"
 
-#: translate_tmp.pl:1338
+#: translate_tmp.pl:1682
 msgid "Show as custom color:"
 msgstr "Zobrazit jako vlastní barvu:"
 
-#: translate_tmp.pl:1341
-#: translate_tmp.pl:446
-#: translate_tmp.pl:3723
-#: translate_tmp.pl:3979
+#: translate_tmp.pl:1685
+#: translate_tmp.pl:452
+#: translate_tmp.pl:3764
+#: translate_tmp.pl:4020
 msgid "Choose fill color"
 msgstr "Vybrat barvu výplně"
 
-#: translate_tmp.pl:1343
+#: translate_tmp.pl:1687
 msgid "Show as background"
 msgstr "Zobrazit jako pozadí"
 
-#: translate_tmp.pl:1364
+#: translate_tmp.pl:1708
 msgid "Displays any transparent parts of the image in a check pattern"
 msgstr "Zobrazí všechny průhledné části obrázku jako šachovnici"
 
-#: translate_tmp.pl:1365
+#: translate_tmp.pl:1709
 msgid ""
 "Displays any transparent parts of the image in a solid color that you specify"
 msgstr "Zobrazí všechny průhledné části obrázku jako zvolenou barvu"
 
-#: translate_tmp.pl:1366
+#: translate_tmp.pl:1710
 msgid ""
 "Displays any transparent parts of the image in the background color of the "
 "application"
 msgstr "Zobrazí všechny průhledné části obrázku jako barvu pozadí aplikace"
 
-#: translate_tmp.pl:1399
-#: translate_tmp.pl:1405
+#: translate_tmp.pl:1734
+msgid "Sort ascending by"
+msgstr ""
+
+#: translate_tmp.pl:1737
+#: translate_tmp.pl:1741
+msgid "Key/Time Created"
+msgstr ""
+
+#: translate_tmp.pl:1738
+msgid "Sort descending by"
+msgstr ""
+
+#: translate_tmp.pl:1783
+#: translate_tmp.pl:1784
+#: translate_tmp.pl:1785
+#: translate_tmp.pl:1786
+msgid "Configure sort criteria"
+msgstr ""
+
+#: translate_tmp.pl:1803
+#: translate_tmp.pl:1809
 msgid ""
 "Configure global keybinding for capture\n"
 "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
@@ -488,13 +549,13 @@ msgstr ""
 "\"<Ctrl>\". Pokud nastavíte této volbě hodnotu \"disabled\", pak nebude pro "
 "tuto akci definována žádná klávesová zkratka. "
 
-#: translate_tmp.pl:1415
+#: translate_tmp.pl:1819
 msgid "Capture with selection"
 msgstr "Zachytit výběr"
 
-#: translate_tmp.pl:1419
-#: translate_tmp.pl:1425
-#: translate_tmp.pl:1442
+#: translate_tmp.pl:1823
+#: translate_tmp.pl:1829
+#: translate_tmp.pl:1852
 msgid ""
 "Configure global keybinding for capture with selection\n"
 "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
@@ -508,82 +569,129 @@ msgstr ""
 "\"<Ctrl>\". Pokud nastavíte této volbě hodnotu \"disabled\", pak nebude pro "
 "tuto akci definována žádná klávesová zkratka. "
 
-#: translate_tmp.pl:1430
-#: translate_tmp.pl:215
-#: translate_tmp.pl:796
+#: translate_tmp.pl:1835
 #: translate_tmp.pl:63
+#: translate_tmp.pl:46
+#: translate_tmp.pl:220
+#: translate_tmp.pl:802
 msgid "Selection"
 msgstr "Výběr"
 
-#: translate_tmp.pl:1431
-#: translate_tmp.pl:99
-msgid "Window"
-msgstr "Okno"
+#: translate_tmp.pl:1836
+msgid "Select Window"
+msgstr "Vybrat okno"
 
-#: translate_tmp.pl:1432
-#: translate_tmp.pl:120
+#: translate_tmp.pl:1837
+#: translate_tmp.pl:7991
+msgid "Active Window"
+msgstr "Aktivní okno"
+
+#: translate_tmp.pl:1838
+#: translate_tmp.pl:151
 msgid "Section"
 msgstr "Sekce"
 
-#: translate_tmp.pl:1482
-#: translate_tmp.pl:1528
+#: translate_tmp.pl:1839
+#: translate_tmp.pl:171
+#: translate_tmp.pl:1139
+msgid "Menu"
+msgstr "Nabídka"
+
+#: translate_tmp.pl:1840
+#: translate_tmp.pl:191
+#: translate_tmp.pl:1145
+msgid "Tooltip"
+msgstr "Kontextová nápověda"
+
+#: translate_tmp.pl:1841
+#: translate_tmp.pl:210
+msgid "Web"
+msgstr "Web"
+
+#: translate_tmp.pl:1842
+#: translate_tmp.pl:37
+msgid "Redo"
+msgstr "Znovu"
+
+#: translate_tmp.pl:1897
+#: translate_tmp.pl:1952
+msgid "Start Shutter at login"
+msgstr ""
+
+#: translate_tmp.pl:1898
+#: translate_tmp.pl:1960
+msgid "Hide window on first launch"
+msgstr ""
+
+#: translate_tmp.pl:1899
+#: translate_tmp.pl:1968
+msgid "Hide notification icon"
+msgstr ""
+
+#: translate_tmp.pl:1901
+#: translate_tmp.pl:1976
 msgid "Autohide main window when taking a screenshot"
 msgstr "Automaticky skrýt hlavní okno, když je zachytáván snímek"
 
-#: translate_tmp.pl:1483
+#: translate_tmp.pl:1902
 msgid "Redraw Delay"
 msgstr "Překreslit s prodlevou"
 
-#: translate_tmp.pl:1491
-#: translate_tmp.pl:1546
+#: translate_tmp.pl:1910
+#: translate_tmp.pl:1994
 msgid "Present main window after taking a screenshot"
 msgstr "Zobrazit hlavní okno po zachycení snímku"
 
-#: translate_tmp.pl:1492
-#: translate_tmp.pl:1587
+#: translate_tmp.pl:1911
+#: translate_tmp.pl:2035
 msgid "Minimize to tray when closing main window"
 msgstr "Minimalizovat do oznamovací oblasti při zavření"
 
-#: translate_tmp.pl:1494
-#: translate_tmp.pl:1554
+#: translate_tmp.pl:1913
+#: translate_tmp.pl:2002
 msgid "Display pop-up notification after taking a screenshot"
 msgstr "Zobrazit bublinu s upozorněním po vytvoření snímku"
 
-#: translate_tmp.pl:1495
-#: translate_tmp.pl:1562
-#: translate_tmp.pl:1570
+#: translate_tmp.pl:1914
+#: translate_tmp.pl:2010
+#: translate_tmp.pl:2018
 msgid "Display pop-up notification when using a delay"
 msgstr "Zobrazit bublinu s upozorněním při použití prodlevy"
 
-#: translate_tmp.pl:1496
+#: translate_tmp.pl:1915
 msgid "Display pop-up notification when using a pre-capture delay"
 msgstr "Zobrazit bublinu s upozorněním při použití prodlevy před zachycením"
 
-#: translate_tmp.pl:1498
+#: translate_tmp.pl:1917
 msgid "Notification agent"
 msgstr "Zprostředkovatel upozornění"
 
-#: translate_tmp.pl:1500
+#: translate_tmp.pl:1919
 msgid "Desktop Notifications"
 msgstr "Upozornění na ploše"
 
-#: translate_tmp.pl:1501
+#: translate_tmp.pl:1920
 msgid "Built-In Notifications"
 msgstr "Vestavěné upozornění"
 
-#: translate_tmp.pl:1505
-#: translate_tmp.pl:1595
+#: translate_tmp.pl:1924
+#: translate_tmp.pl:2043
 msgid "Ask before moving files to trash"
 msgstr "Zeptat se před přesunutím souboru do koše"
 
-#: translate_tmp.pl:1506
-#: translate_tmp.pl:1603
+#: translate_tmp.pl:1925
+#: translate_tmp.pl:2051
 msgid "Move file to trash when closing tab"
 msgstr "Přesunout soubor do koše při uzavření karty"
 
-#: translate_tmp.pl:1536
-#: translate_tmp.pl:1537
-#: translate_tmp.pl:1538
+#: translate_tmp.pl:1926
+#: translate_tmp.pl:2059
+msgid "Notify when file was deleted from filesystem"
+msgstr ""
+
+#: translate_tmp.pl:1984
+#: translate_tmp.pl:1985
+#: translate_tmp.pl:1986
 msgid ""
 "Configure a short timeout to give the Xserver a chance to redraw areas that "
 "were obscured by Shutter's windows before taking a screenshot."
@@ -591,8 +699,8 @@ msgstr ""
 "Konfigurace krátkého časového limitu, aby Xserver mohl překreslit oblasti, "
 "která byla zakryta oknem Shuttera před zachycením snímku obrazovky."
 
-#: translate_tmp.pl:1578
-#: translate_tmp.pl:1579
+#: translate_tmp.pl:2026
+#: translate_tmp.pl:2027
 msgid ""
 "You can either choose the system-wide desktop notifications (e.g. Ubuntu's "
 "Notify-OSD) or Shutter's built-in notification system"
@@ -600,7 +708,7 @@ msgstr ""
 "Můžete si vybrat systémové oznámení (např. Ubuntu notify-osd) nebo vestavěné "
 "systémové oznámení Shutteru"
 
-#: translate_tmp.pl:1613
+#: translate_tmp.pl:2073
 msgid ""
 "Entering your Accounts for specific hosting-sites is optional. If entered it "
 "will give you the same benefits as the upload on the website. If you leave "
@@ -612,15 +720,15 @@ msgstr ""
 "účtem. Pokud necháte pole prázdná, budete mít možnost nahrát obrázky na "
 "server jako host."
 
-#: translate_tmp.pl:1624
-#: translate_tmp.pl:9047
+#: translate_tmp.pl:2085
+#: translate_tmp.pl:9965
 msgid "URI"
 msgstr "URI"
 
-#: translate_tmp.pl:1633
-#: translate_tmp.pl:1635
-#: translate_tmp.pl:9052
-#: translate_tmp.pl:9054
+#: translate_tmp.pl:2094
+#: translate_tmp.pl:2096
+#: translate_tmp.pl:9970
+#: translate_tmp.pl:9972
 msgid ""
 "URI\n"
 "Example: ftp://host:port/path"
@@ -628,117 +736,117 @@ msgstr ""
 "URI\n"
 "Příklad: ftp://host:port/path"
 
-#: translate_tmp.pl:1640
-#: translate_tmp.pl:1651
-#: translate_tmp.pl:1653
-#: translate_tmp.pl:9059
-#: translate_tmp.pl:9066
-#: translate_tmp.pl:9068
+#: translate_tmp.pl:2102
+#: translate_tmp.pl:2113
+#: translate_tmp.pl:2115
+#: translate_tmp.pl:9977
+#: translate_tmp.pl:9984
+#: translate_tmp.pl:9986
 msgid "Connection mode"
 msgstr "Mód připojení FTP"
 
-#: translate_tmp.pl:1643
-#: translate_tmp.pl:9062
+#: translate_tmp.pl:2105
+#: translate_tmp.pl:9980
 msgid "Active mode"
 msgstr "Aktivní mód"
 
-#: translate_tmp.pl:1644
-#: translate_tmp.pl:9063
+#: translate_tmp.pl:2106
+#: translate_tmp.pl:9981
 msgid "Passive mode"
 msgstr "Pasivní mód"
 
-#: translate_tmp.pl:1658
-#: translate_tmp.pl:1667
-#: translate_tmp.pl:1669
-#: translate_tmp.pl:7805
-#: translate_tmp.pl:9073
-#: translate_tmp.pl:9078
-#: translate_tmp.pl:9080
+#: translate_tmp.pl:2121
+#: translate_tmp.pl:2130
+#: translate_tmp.pl:2132
+#: translate_tmp.pl:8697
+#: translate_tmp.pl:9991
+#: translate_tmp.pl:9996
+#: translate_tmp.pl:9998
 msgid "Username"
 msgstr "Uživatel"
 
-#: translate_tmp.pl:1674
-#: translate_tmp.pl:1685
-#: translate_tmp.pl:1687
-#: translate_tmp.pl:7812
-#: translate_tmp.pl:9085
-#: translate_tmp.pl:9092
-#: translate_tmp.pl:9094
+#: translate_tmp.pl:2138
+#: translate_tmp.pl:2149
+#: translate_tmp.pl:2151
+#: translate_tmp.pl:8704
+#: translate_tmp.pl:10003
+#: translate_tmp.pl:10010
+#: translate_tmp.pl:10012
 msgid "Password"
 msgstr "Heslo"
 
-#: translate_tmp.pl:1692
-#: translate_tmp.pl:1701
-#: translate_tmp.pl:1703
-#: translate_tmp.pl:9099
-#: translate_tmp.pl:9104
-#: translate_tmp.pl:9106
+#: translate_tmp.pl:2157
+#: translate_tmp.pl:2166
+#: translate_tmp.pl:2168
+#: translate_tmp.pl:10017
+#: translate_tmp.pl:10022
+#: translate_tmp.pl:10024
 msgid "Website URL"
 msgstr "URL webové stránky"
 
-#: translate_tmp.pl:1711
-#: translate_tmp.pl:3949
+#: translate_tmp.pl:2180
+#: translate_tmp.pl:3990
 msgid "Main"
 msgstr "Hlavní"
 
-#: translate_tmp.pl:1771
+#: translate_tmp.pl:2245
 msgid "Advanced"
 msgstr "Pokročilé"
 
-#: translate_tmp.pl:1817
+#: translate_tmp.pl:2296
 msgid "Image View"
 msgstr "Zobrazit obrázek"
 
-#: translate_tmp.pl:1828
+#: translate_tmp.pl:2317
 msgid "Behavior"
 msgstr "Chování"
 
-#: translate_tmp.pl:1857
+#: translate_tmp.pl:2355
 msgid "Keyboard"
 msgstr "Klávesnice"
 
-#: translate_tmp.pl:1875
+#: translate_tmp.pl:2375
 #: translate_tmp.pl:524
 #: translate_tmp.pl:326
 msgid "Upload"
-msgstr "Upload"
+msgstr "Odeslat"
 
-#: translate_tmp.pl:1928
+#: translate_tmp.pl:2432
 msgid "Plugins"
 msgstr "Zásuvné moduly"
 
-#: translate_tmp.pl:1930
+#: translate_tmp.pl:2434
 msgid "The following plugins are installed"
 msgstr "Jsou nainstalovány tyto zásuvné moduly"
 
-#: translate_tmp.pl:2118
+#: translate_tmp.pl:2726
 msgid "millisecond"
 msgid_plural "milliseconds"
 msgstr[0] "milisekunda"
 msgstr[1] "milisekundy"
 msgstr[2] "milisekund"
 
-#: translate_tmp.pl:2159
+#: translate_tmp.pl:2767
 msgid "pixel"
 msgid_plural "pixels"
 msgstr[0] "pixel"
 msgstr[1] "pixely"
 msgstr[2] "pixelů"
 
-#: translate_tmp.pl:2169
+#: translate_tmp.pl:2777
 msgid "Quality"
 msgstr "Kvalita"
 
-#: translate_tmp.pl:2236
+#: translate_tmp.pl:2844
 msgid "Please activate the menu you want to capture"
 msgstr "Prosím, aktivujte nabídku, kterou chcete zachytit"
 
-#: translate_tmp.pl:2238
+#: translate_tmp.pl:2846
 msgid "Please activate the tooltip you want to capture"
 msgstr "Prosím, aktivujte kontextovou nápovědu, kterou chcete zachytit"
 
-#: translate_tmp.pl:2247
-#: translate_tmp.pl:2257
+#: translate_tmp.pl:2855
+#: translate_tmp.pl:2865
 #: translate_tmp.pl:196
 #: translate_tmp.pl:204
 #, perl-format
@@ -748,248 +856,268 @@ msgstr[0] "Snímek bude vytvořen za %s sekundu"
 msgstr[1] "Snímek bude vytvořen za %s sekundy"
 msgstr[2] "Snímek bude vytvořen za %s sekund"
 
-#: translate_tmp.pl:2501
-#: translate_tmp.pl:7839
+#: translate_tmp.pl:3112
+#: translate_tmp.pl:8731
 msgid "Register"
 msgstr "Registrovat"
 
-#: translate_tmp.pl:2877
-#: translate_tmp.pl:6296
-msgid "Choose file to open"
-msgstr "Otevřít soubory"
-
-#: translate_tmp.pl:2908
-#: translate_tmp.pl:6327
-msgid "All compatible image formats"
-msgstr "Všechny kompatibilní formáty obrázků"
-
-#: translate_tmp.pl:3074
+#: translate_tmp.pl:3616
 msgid "Profile deleted"
 msgstr "Profil smazán"
 
-#: translate_tmp.pl:3076
-#: translate_tmp.pl:3077
+#: translate_tmp.pl:3618
+#: translate_tmp.pl:3619
 msgid "Profile could not be deleted"
 msgstr "Profil se nepodařilo smazat"
 
-#: translate_tmp.pl:3076
-#: translate_tmp.pl:3269
-#: translate_tmp.pl:4550
-#: translate_tmp.pl:4556
-#: translate_tmp.pl:4632
-#: translate_tmp.pl:4638
-#: translate_tmp.pl:4800
-#: translate_tmp.pl:5035
-#: translate_tmp.pl:5160
-#: translate_tmp.pl:5190
-#: translate_tmp.pl:5979
-#: translate_tmp.pl:8889
+#: translate_tmp.pl:3618
+#: translate_tmp.pl:5469
+#: translate_tmp.pl:5704
+#: translate_tmp.pl:5832
+#: translate_tmp.pl:5861
+#: translate_tmp.pl:6702
+#: translate_tmp.pl:9807
 #: translate_tmp.pl:107
 #: translate_tmp.pl:117
 msgid "Failed"
 msgstr "Selhalo"
 
-#: translate_tmp.pl:3095
+#: translate_tmp.pl:3637
 #, perl-format
 msgid "Profile %s loaded successfully"
 msgstr "Profil %s byl úspěšně načtený"
 
-#: translate_tmp.pl:3121
-#: translate_tmp.pl:6120
+#: translate_tmp.pl:3666
+#: translate_tmp.pl:6851
 msgid "Session"
 msgstr "Sezení"
 
-#: translate_tmp.pl:3140
-#: translate_tmp.pl:4506
+#: translate_tmp.pl:3685
+#: translate_tmp.pl:5168
 msgid "not found"
 msgstr "nenalezeno"
 
-#: translate_tmp.pl:3733
+#: translate_tmp.pl:3864
+msgid "Error while adding the file monitor."
+msgstr ""
+
+#: translate_tmp.pl:4337
 msgid "Settings could not be saved!"
 msgstr "Nastavení nemohlo být uloženo!"
 
-#: translate_tmp.pl:3735
+#: translate_tmp.pl:4339
 msgid "Settings saved successfully!"
 msgstr "Nastavení úspěšně uloženo!"
 
-#: translate_tmp.pl:3761
+#: translate_tmp.pl:4363
 msgid "Session could not be saved!"
 msgstr "Sezení se nepodařilo uložit!"
 
-#: translate_tmp.pl:3779
+#: translate_tmp.pl:4381
 msgid "Account-settings could not be saved!"
 msgstr "Nastavení účtu nemohlo být uloženo!"
 
-#: translate_tmp.pl:4130
+#: translate_tmp.pl:4568
+msgid ""
+"Please activate the Gnome Compatibility plugin via CompizConfig Settings "
+"Manager."
+msgstr ""
+
+#: translate_tmp.pl:4569
+#: translate_tmp.pl:4578
+msgid "There was an error configuring the keybindings."
+msgstr ""
+
+#: translate_tmp.pl:4577
+msgid ""
+"The format looks like \"<Control>Print\" or \"<Shift><Alt>Print\". The "
+"parser is fairly liberal and allows lower or upper case, but abbreviations "
+"such as \"<Ctl>\" and \"<Ctrl>\" may cause problems under some circumstances "
+"(e.g. when using compiz)."
+msgstr ""
+
+#: translate_tmp.pl:4817
 msgid "Settings could not be restored!"
 msgstr "Nastavení se nepodařilo načíst!"
 
-#: translate_tmp.pl:4133
+#: translate_tmp.pl:4820
 msgid "Settings loaded successfully"
 msgstr "Nastavení bylo úspěšně načteno"
 
-#: translate_tmp.pl:4160
-#: translate_tmp.pl:5888
+#: translate_tmp.pl:4850
+#: translate_tmp.pl:6611
 msgid "Built-in Editor"
-msgstr ""
+msgstr "Vestavěný Editor"
 
-#: translate_tmp.pl:4255
+#: translate_tmp.pl:4945
 msgid "Account-settings could not be restored!"
 msgstr "Nastavení účtu se nepodařilo obnovit!"
 
-#: translate_tmp.pl:4341
-msgid "Loading files"
-msgstr "Načítám soubory"
-
-#: translate_tmp.pl:4345
-msgid "Please wait while your selected files are being loaded into Shutter"
-msgstr "Počkejte prosím než se načtou vybrané soubory do Shuttera"
-
-#: translate_tmp.pl:4386
+#: translate_tmp.pl:5044
+#: translate_tmp.pl:5141
 msgid "opened"
 msgstr "otevřeno"
 
-#: translate_tmp.pl:4434
-msgid "Restoring session"
-msgstr "Obnovuji sezení"
+#: translate_tmp.pl:5046
+#: translate_tmp.pl:5143
+#: translate_tmp.pl:7429
+#: translate_tmp.pl:61
+#: translate_tmp.pl:6697
+#, perl-format
+msgid "Error while opening image %s."
+msgstr "Chyba při otevírání obrázku %s."
 
-#: translate_tmp.pl:4436
-msgid "Please wait while your saved session is being restored"
-msgstr "Prosím, vyčkejte než se načte uložené sezení"
-
-#: translate_tmp.pl:4487
+#: translate_tmp.pl:5156
 msgid "Session could not be restored!"
 msgstr "Sezení se nepodařilo obnovit!"
 
-#: translate_tmp.pl:4527
+#: translate_tmp.pl:5208
+#, perl-format
+msgid "Error while creating the trashinfo file %s."
+msgstr ""
+
+#: translate_tmp.pl:5218
+#, perl-format
+msgid "Error while moving the file %s to trash."
+msgstr ""
+
+#: translate_tmp.pl:5224
+#, perl-format
+msgid "Error while removing the file %s from disk."
+msgstr ""
+
+#: translate_tmp.pl:5244
 #, perl-format
 msgid "Are you sure you want to move %s to the trash?"
 msgstr "Opravdu chcete přesunout %s do koše?"
 
-#: translate_tmp.pl:4528
-#: translate_tmp.pl:4597
-#: translate_tmp.pl:198
-#: translate_tmp.pl:675
+#: translate_tmp.pl:5245
+#: translate_tmp.pl:5290
+#: translate_tmp.pl:209
+#: translate_tmp.pl:716
 msgid "Move to _Trash"
 msgstr "Přesunou_t do koše"
 
-#: translate_tmp.pl:4562
+#: translate_tmp.pl:5255
 msgid "deleted"
 msgstr "smazáno"
 
-#: translate_tmp.pl:4596
+#: translate_tmp.pl:5289
 msgid "Are you sure you want to move the selected files to the trash?"
 msgstr "Opravdu chcete přesunout vybrané soubory do koše?"
 
-#: translate_tmp.pl:4601
-#: translate_tmp.pl:4654
-#: translate_tmp.pl:4754
+#: translate_tmp.pl:5294
+#: translate_tmp.pl:5323
+#: translate_tmp.pl:5423
 msgid "No screenshots selected"
 msgstr "Není vybrán žádný snímek"
 
-#: translate_tmp.pl:4670
+#: translate_tmp.pl:5339
 msgid "Selected screenshots deleted"
 msgstr "Vybrané snímky byly smazány"
 
-#: translate_tmp.pl:4706
-#: translate_tmp.pl:6529
-#: translate_tmp.pl:6560
-#: translate_tmp.pl:6588
-#: translate_tmp.pl:6617
+#: translate_tmp.pl:5375
+#: translate_tmp.pl:7279
+#: translate_tmp.pl:7307
+#: translate_tmp.pl:7337
+#: translate_tmp.pl:7372
+#: translate_tmp.pl:7407
+#: translate_tmp.pl:7437
 msgid "removed from session"
 msgstr "odebráno ze sezení"
 
-#: translate_tmp.pl:4770
+#: translate_tmp.pl:5439
 msgid "Selected screenshots removed"
 msgstr "Vybrané snímky byly smazány"
 
-#: translate_tmp.pl:4800
-#: translate_tmp.pl:5160
+#: translate_tmp.pl:5469
+#: translate_tmp.pl:5832
 msgid "No valid filetype specified"
 msgstr "Nebyl zadán platný typ souboru"
 
-#: translate_tmp.pl:4815
+#: translate_tmp.pl:5484
 msgid "There is no image data in the clipboard to paste"
 msgstr "Není žádný obrázek ve schránce ke vložení"
 
-#: translate_tmp.pl:4874
+#: translate_tmp.pl:5543
 msgid "Selected filenames copied to clipboard"
 msgstr "Vybrané názvy souborů zkopírovat do schránky"
 
-#: translate_tmp.pl:4889
+#: translate_tmp.pl:5558
 msgid "Selected images copied to clipboard"
 msgstr "Vybrané obrázky zkopírovat do schránky"
 
-#: translate_tmp.pl:4936
+#: translate_tmp.pl:5605
 msgid "Last action undone"
 msgstr "Poslední akce zrušená"
 
-#: translate_tmp.pl:4944
-#: translate_tmp.pl:4996
+#: translate_tmp.pl:5613
+#: translate_tmp.pl:5665
 #, perl-format
 msgid "Error while copying last version (%s)."
 msgstr "Chyba při kopírování poslední verze (%s)."
 
-#: translate_tmp.pl:4945
+#: translate_tmp.pl:5614
 #, perl-format
 msgid "There was an error performing undo on %s."
 msgstr "Došlo k chybě při kroku vrátit zpět na %s."
 
-#: translate_tmp.pl:4988
+#: translate_tmp.pl:5657
 msgid "Last action redone"
 msgstr "Vrátit poslední krok"
 
-#: translate_tmp.pl:4997
+#: translate_tmp.pl:5666
 #, perl-format
 msgid "There was an error performing redo on %s."
 msgstr "Došlo k chybě při kroku zpět na %s."
 
-#: translate_tmp.pl:5035
+#: translate_tmp.pl:5704
 msgid "No plugin installed"
 msgstr "Není nainstalován žádný zásuvný modul"
 
-#: translate_tmp.pl:5189
-#: translate_tmp.pl:6790
+#: translate_tmp.pl:5860
+#: translate_tmp.pl:7614
 msgid "There was an error determining the filename."
 msgstr "Nastala chyba při určování jména souboru."
 
-#: translate_tmp.pl:5422
+#: translate_tmp.pl:6128
 msgid "Triggered invalid screenshot action."
 msgstr "Spuštěna neplatná akce zachycení snímku."
 
-#: translate_tmp.pl:5423
-#: translate_tmp.pl:5426
-#: translate_tmp.pl:5650
-#: translate_tmp.pl:5652
-#: translate_tmp.pl:69
-#: translate_tmp.pl:77
-#: translate_tmp.pl:85
-#: translate_tmp.pl:100
-#: translate_tmp.pl:108
-#: translate_tmp.pl:116
-#: translate_tmp.pl:128
+#: translate_tmp.pl:6129
+#: translate_tmp.pl:6132
+#: translate_tmp.pl:6366
+#: translate_tmp.pl:6368
+#: translate_tmp.pl:80
+#: translate_tmp.pl:88
+#: translate_tmp.pl:96
+#: translate_tmp.pl:111
+#: translate_tmp.pl:119
+#: translate_tmp.pl:127
+#: translate_tmp.pl:139
+#: translate_tmp.pl:153
 msgid "Error while taking the screenshot."
 msgstr "Při snímaní došlo k chybě."
 
-#: translate_tmp.pl:5521
-#: translate_tmp.pl:122
+#: translate_tmp.pl:6247
+#: translate_tmp.pl:133
 msgid "Capture aborted by user"
 msgstr "Zachycení zrušeno uživatelem"
 
-#: translate_tmp.pl:5638
-#: translate_tmp.pl:6579
-#: translate_tmp.pl:8625
-#: translate_tmp.pl:8630
-#: translate_tmp.pl:8697
-#: translate_tmp.pl:8703
+#: translate_tmp.pl:6354
+#: translate_tmp.pl:7328
+#: translate_tmp.pl:9543
+#: translate_tmp.pl:9548
+#: translate_tmp.pl:9615
+#: translate_tmp.pl:9621
 msgid "saved"
 msgstr "uloženo"
 
-#: translate_tmp.pl:5643
+#: translate_tmp.pl:6359
 msgid "Screenshot saved"
 msgstr "Snímek uložen"
 
-#: translate_tmp.pl:5649
+#: translate_tmp.pl:6365
 #, perl-format
 msgid ""
 "The filename %s could not be verified. Maybe it contains unsupported "
@@ -997,38 +1125,38 @@ msgid ""
 msgstr ""
 "Název souboru %s nemohl být ověřen. Možná obsahuje nepodporované znaky."
 
-#: translate_tmp.pl:5888
-#: translate_tmp.pl:5899
+#: translate_tmp.pl:6611
+#: translate_tmp.pl:6622
 #, perl-format
 msgid "%s opened with %s"
 msgstr "%s otevřeno s %s"
 
-#: translate_tmp.pl:5931
+#: translate_tmp.pl:6654
 msgid "Opened all files with"
 msgstr "Všechny soubory byly otevřeny s"
 
-#: translate_tmp.pl:5979
-#: translate_tmp.pl:5998
+#: translate_tmp.pl:6702
+#: translate_tmp.pl:6722
 #, perl-format
 msgid "Could not apply plugin %s"
 msgstr "Zásuvný modul %s není možné použít"
 
-#: translate_tmp.pl:5996
-#: translate_tmp.pl:6044
+#: translate_tmp.pl:6720
+#: translate_tmp.pl:6771
 #, perl-format
 msgid "Successfully applied plugin %s"
 msgstr "Zásuvný modul %s byl úspěšně použit"
 
-#: translate_tmp.pl:6047
+#: translate_tmp.pl:6774
 #, perl-format
 msgid "Error while executing plugin %s."
 msgstr "Při spouštění zásuvného modulu %s nastala chyba."
 
-#: translate_tmp.pl:6048
+#: translate_tmp.pl:6775
 msgid "There was an error executing the plugin."
 msgstr "Při spouštění zásuvného modulu nastala chyba."
 
-#: translate_tmp.pl:6122
+#: translate_tmp.pl:6853
 #, perl-format
 msgid "%s screenshot"
 msgid_plural "%s screenshots"
@@ -1036,76 +1164,66 @@ msgstr[0] "%s snímek"
 msgstr[1] "%s snímky"
 msgstr[2] "%s snímků"
 
-#: translate_tmp.pl:6134
+#: translate_tmp.pl:6865
 msgid "Current profile"
 msgstr "Aktuální profil"
 
-#: translate_tmp.pl:6520
+#: translate_tmp.pl:7270
 msgid "Try to resave the file?"
 msgstr "Pokusit se znovu uložit soubor?"
 
-#: translate_tmp.pl:6521
+#: translate_tmp.pl:7271
 #, perl-format
 msgid "Image %s was not found on disk"
 msgstr "Obrázek %s nebyl na disku nalezen."
 
-#: translate_tmp.pl:6552
-#: translate_tmp.pl:142
+#: translate_tmp.pl:7299
+#: translate_tmp.pl:7364
+#: translate_tmp.pl:179
 #, perl-format
 msgid "Error while saving the image %s."
 msgstr "Chyba při ukládání obrázku %s."
 
-#: translate_tmp.pl:6553
-#: translate_tmp.pl:143
+#: translate_tmp.pl:7300
+#: translate_tmp.pl:7365
+#: translate_tmp.pl:180
 #, perl-format
 msgid "There was an error saving the image to %s."
 msgstr "Nastala chyba při ukládání obrázku %s."
 
-#: translate_tmp.pl:6609
-#: translate_tmp.pl:192
-#: translate_tmp.pl:2873
-#: translate_tmp.pl:5638
-#: translate_tmp.pl:6115
-#: translate_tmp.pl:6362
-#: translate_tmp.pl:6656
-#: translate_tmp.pl:6688
+#: translate_tmp.pl:7398
 #, perl-format
-msgid "Error while opening image %s."
-msgstr "Chyba při otevírání obrázku %s."
+msgid "Image %s was deleted from filesystem"
+msgstr ""
 
-#: translate_tmp.pl:6610
-#: translate_tmp.pl:193
-#: translate_tmp.pl:2874
-#: translate_tmp.pl:5639
-#: translate_tmp.pl:6116
-#: translate_tmp.pl:6363
-#: translate_tmp.pl:6657
-#: translate_tmp.pl:6689
+#: translate_tmp.pl:7430
+#: translate_tmp.pl:62
+#: translate_tmp.pl:6698
 msgid "There was an error opening the image."
 msgstr "Došlo k chybě při otevírání obrázku."
 
-#: translate_tmp.pl:6789
+#: translate_tmp.pl:7613
 #, perl-format
 msgid "Error while opening directory %s."
 msgstr "Chyba při otevírání složky %s."
 
-#: translate_tmp.pl:6859
+#: translate_tmp.pl:7683
 msgid "Updating plugin information"
-msgstr "Obnovování informací o pluginu"
+msgstr "Obnovování informací o zásuvném modulu"
 
-#: translate_tmp.pl:6864
+#: translate_tmp.pl:7688
 msgid "Please wait while Shutter updates the plugin information"
-msgstr "Prosím, vyčkejte než Shutter obnoví informace o pluginu"
+msgstr "Prosím, vyčkejte než Shutter obnoví informace o zásuvném modulu"
 
-#: translate_tmp.pl:7099
+#: translate_tmp.pl:7923
 msgid "Capture All Workspaces"
 msgstr "Zachytit všechny pracovní plochy"
 
-#: translate_tmp.pl:7114
+#: translate_tmp.pl:7936
 msgid "Limit to current monitor"
 msgstr "Omezit na právě aktivní monitor."
 
-#: translate_tmp.pl:7129
+#: translate_tmp.pl:7951
 #, perl-format
 msgid ""
 "This option is only useful when you are running a multi-monitor system (%d "
@@ -1128,55 +1246,69 @@ msgstr[2] ""
 "(nalezeno %d monitorů).\n"
 "Nastavte, pokud chcete zachytit pouze právě aktivní monitor."
 
-#: translate_tmp.pl:7178
-#: translate_tmp.pl:392
+#: translate_tmp.pl:7995
+msgid "Capture the last active window"
+msgstr ""
+
+#: translate_tmp.pl:8027
+#: translate_tmp.pl:403
 msgid "_Selection"
 msgstr "_Výběr"
 
-#: translate_tmp.pl:7211
-#: translate_tmp.pl:424
-msgid "W_indow"
-msgstr "_Okno"
+#: translate_tmp.pl:8053
+#: translate_tmp.pl:429
+msgid "_Desktop"
+msgstr "_Pracovní plocha"
 
-#: translate_tmp.pl:7227
-#: translate_tmp.pl:437
+#: translate_tmp.pl:8071
+#: translate_tmp.pl:446
+msgid "_Active Window"
+msgstr "_Aktivní okno"
+
+#: translate_tmp.pl:8087
+#: translate_tmp.pl:459
+msgid "Select W_indow"
+msgstr "Vybrat _okno"
+
+#: translate_tmp.pl:8103
+#: translate_tmp.pl:472
 msgid "Se_ction"
 msgstr "_Sekce"
 
-#: translate_tmp.pl:7246
-#: translate_tmp.pl:453
+#: translate_tmp.pl:8122
+#: translate_tmp.pl:488
 msgid "_Menu"
 msgstr "_Nabídka"
 
-#: translate_tmp.pl:7265
-#: translate_tmp.pl:469
+#: translate_tmp.pl:8141
+#: translate_tmp.pl:504
 msgid "_Tooltip"
 msgstr "_Kontextová nápověda"
 
-#: translate_tmp.pl:7284
-#: translate_tmp.pl:487
+#: translate_tmp.pl:8160
+#: translate_tmp.pl:522
 msgid "_Web"
 msgstr "_Webová stránka"
 
-#: translate_tmp.pl:7301
-#: translate_tmp.pl:384
+#: translate_tmp.pl:8177
+#: translate_tmp.pl:395
 msgid "_Redo last screenshot"
 msgstr "_Zachytit znovu poslední snímek"
 
-#: translate_tmp.pl:7312
-#: translate_tmp.pl:212
+#: translate_tmp.pl:8188
+#: translate_tmp.pl:223
 msgid "_Quick profile select"
 msgstr "_Rychlá změna profilu"
 
-#: translate_tmp.pl:7353
+#: translate_tmp.pl:8230
 msgid "Advanced selection tool"
 msgstr "Pokročilý výběr"
 
-#: translate_tmp.pl:7356
+#: translate_tmp.pl:8233
 msgid "Simple selection tool"
 msgstr "Jednoduchý výběr"
 
-#: translate_tmp.pl:7373
+#: translate_tmp.pl:8250
 msgid ""
 "The advanced selection tool allows you to enlarge/shrink or move your "
 "selected area\n"
@@ -1185,7 +1317,7 @@ msgstr ""
 "Pokročilý výběr umožňuje zvětšovat/zmenšovat a posouvat oblast výběru až "
 "dokud není vytvořen snímek."
 
-#: translate_tmp.pl:7376
+#: translate_tmp.pl:8253
 msgid ""
 "The simple selection tool is the fastest way of taking a screenshot.\n"
 "It provides an optional zoom window for precise shots."
@@ -1193,228 +1325,230 @@ msgstr ""
 "Jednoduchý výběr je nejrychlejší způsob, jak získat snímek.\n"
 "Poskytuje možnost okna přiblížení pro přesné snímky."
 
-#: translate_tmp.pl:7528
-#: translate_tmp.pl:7536
-#: translate_tmp.pl:524
-#: translate_tmp.pl:621
-#, perl-format
-msgid "_Open with %s"
-msgstr "Otevřít _s %s"
-
-#: translate_tmp.pl:7636
-#: translate_tmp.pl:7637
-#: translate_tmp.pl:7638
-#: translate_tmp.pl:7639
-#: translate_tmp.pl:7640
+#: translate_tmp.pl:8525
+#: translate_tmp.pl:8526
+#: translate_tmp.pl:8527
+#: translate_tmp.pl:8528
+#: translate_tmp.pl:8529
 msgid "Timeout"
 msgstr "Timeout"
 
-#: translate_tmp.pl:7642
-#: translate_tmp.pl:7643
-#: translate_tmp.pl:7644
-#: translate_tmp.pl:7645
-#: translate_tmp.pl:7646
-#: translate_tmp.pl:182
+#: translate_tmp.pl:8531
+#: translate_tmp.pl:8532
+#: translate_tmp.pl:8533
+#: translate_tmp.pl:8534
+#: translate_tmp.pl:8535
+#: translate_tmp.pl:213
 msgid "The timeout in seconds, or 0 to disable timeout"
 msgstr "Časový limit v sekundách, 0 pro žádný limit"
 
-#: translate_tmp.pl:7783
+#: translate_tmp.pl:8675
 msgid "Host"
 msgstr "Server"
 
-#: translate_tmp.pl:7862
+#: translate_tmp.pl:8754
 msgid "Icon"
 msgstr "Ikona"
 
-#: translate_tmp.pl:7871
+#: translate_tmp.pl:8763
 msgid "Name"
 msgstr "Název"
 
-#: translate_tmp.pl:7881
+#: translate_tmp.pl:8773
 msgid "Category"
 msgstr "Kategorie"
 
-#: translate_tmp.pl:7891
-#: translate_tmp.pl:8812
+#: translate_tmp.pl:8783
+#: translate_tmp.pl:9730
 msgid "Description"
 msgstr "Popis"
 
-#: translate_tmp.pl:7901
+#: translate_tmp.pl:8793
 msgid "Language"
 msgstr "Jazyk"
 
-#: translate_tmp.pl:7910
+#: translate_tmp.pl:8802
 msgid "Path"
 msgstr "Umístění"
 
-#: translate_tmp.pl:7956
+#: translate_tmp.pl:8848
 msgid "Copy Ubuntu One public URL"
 msgstr "Zkopírovat veřejné URL služby Ubuntu One"
 
-#: translate_tmp.pl:7964
+#: translate_tmp.pl:8856
 msgid "Successfully published"
 msgstr "Úspěšně zveřejněno"
 
-#: translate_tmp.pl:7964
+#: translate_tmp.pl:8856
 #, perl-format
 msgid "The file %s was successfully published: %s"
 msgstr "Soubor %s byl úspěšně zveřejněn: %s"
 
-#: translate_tmp.pl:7966
+#: translate_tmp.pl:8858
 #, perl-format
 msgid "%s published"
 msgstr "%s zveřejněno"
 
-#: translate_tmp.pl:7976
+#: translate_tmp.pl:8868
 msgid "Unpublished"
 msgstr "Neuveřejněno"
 
-#: translate_tmp.pl:7976
+#: translate_tmp.pl:8868
 #, perl-format
 msgid ""
 "The file %s is no longer published. The external link is not available "
 "anymore."
 msgstr "Soubor %s již není zveřejněn. Externí odkaz již není k dispozici."
 
-#: translate_tmp.pl:7978
+#: translate_tmp.pl:8870
 #, perl-format
 msgid "The file %s is no longer published."
 msgstr "Soubor %s již není zveřejněn."
 
-#: translate_tmp.pl:8218
+#: translate_tmp.pl:9025
 msgid "Rename"
 msgstr "Přejmenovat"
 
-#: translate_tmp.pl:8222
+#: translate_tmp.pl:9029
 #, perl-format
 msgid "Rename image %s"
 msgstr "Přejmenovat obrázek %s"
 
-#: translate_tmp.pl:8224
+#: translate_tmp.pl:9031
 msgid "New filename"
 msgstr "Nový název souboru"
 
-#: translate_tmp.pl:8227
+#: translate_tmp.pl:9034
 msgid "_Rename"
 msgstr "_Přejmenovat"
 
-#: translate_tmp.pl:8326
-#: translate_tmp.pl:8376
+#: translate_tmp.pl:9133
+#: translate_tmp.pl:9183
 msgid "renamed"
 msgstr "přejmenováno"
 
-#: translate_tmp.pl:8334
-#: translate_tmp.pl:8384
-#: translate_tmp.pl:8424
+#: translate_tmp.pl:9141
+#: translate_tmp.pl:9191
+#: translate_tmp.pl:9231
 #, perl-format
 msgid "Error while renaming the image %s."
 msgstr "Chyba při přejmenování obrázku %s."
 
-#: translate_tmp.pl:8335
-#: translate_tmp.pl:8385
-#: translate_tmp.pl:8425
+#: translate_tmp.pl:9142
+#: translate_tmp.pl:9192
+#: translate_tmp.pl:9232
 #, perl-format
 msgid "There was an error renaming the image to %s."
 msgstr "Nastala chyba při pokusu o přejmenování obrázku na %s."
 
-#: translate_tmp.pl:8347
-#: translate_tmp.pl:8652
-#: translate_tmp.pl:9623
-#: translate_tmp.pl:9867
-#: translate_tmp.pl:1583
+#: translate_tmp.pl:9154
+#: translate_tmp.pl:9570
+#: translate_tmp.pl:10541
+#: translate_tmp.pl:10785
+#: translate_tmp.pl:1615
 msgid "_Replace"
 msgstr "_Přepsat"
 
-#: translate_tmp.pl:8351
-#: translate_tmp.pl:8656
-#: translate_tmp.pl:9634
-#: translate_tmp.pl:1587
+#: translate_tmp.pl:9158
+#: translate_tmp.pl:9574
+#: translate_tmp.pl:10552
+#: translate_tmp.pl:1619
 #, perl-format
 msgid ""
 "The image already exists in %s. Replacing it will overwrite its contents."
 msgstr "Obrázek již existuje v %s. Přepsáním ztratíte původní obsah."
 
-#: translate_tmp.pl:8352
-#: translate_tmp.pl:8657
-#: translate_tmp.pl:9635
-#: translate_tmp.pl:1588
+#: translate_tmp.pl:9159
+#: translate_tmp.pl:9575
+#: translate_tmp.pl:10553
+#: translate_tmp.pl:1620
 #, perl-format
 msgid "An image named %s already exists. Do you want to replace it?"
 msgstr "Obrázek s názvem %s již existuje. Chcete ho přepsat?"
 
-#: translate_tmp.pl:8428
+#: translate_tmp.pl:9235
 msgid "Invalid Filename"
 msgstr "Neplatný název souboru"
 
-#: translate_tmp.pl:8455
-#: translate_tmp.pl:1428
+#: translate_tmp.pl:9260
+#: translate_tmp.pl:6324
+msgid "Choose file to open"
+msgstr "Otevřít soubory"
+
+#: translate_tmp.pl:9289
+#: translate_tmp.pl:6352
+msgid "All compatible image formats"
+msgstr "Všechny kompatibilní formáty obrázků"
+
+#: translate_tmp.pl:9365
+#: translate_tmp.pl:1448
 msgid "Choose a location to save to"
 msgstr "Uložit jako"
 
-#: translate_tmp.pl:8744
+#: translate_tmp.pl:9662
 msgid "Choose a plugin"
 msgstr "Vyberte zásuvný modul"
 
-#: translate_tmp.pl:8749
+#: translate_tmp.pl:9667
 msgid "_Run"
 msgstr "_Spustit"
 
-#: translate_tmp.pl:8799
+#: translate_tmp.pl:9717
 msgid "Plugin"
 msgstr "Zásuvný modul"
 
-#: translate_tmp.pl:8889
+#: translate_tmp.pl:9807
 msgid "No plugin specified"
 msgstr "Neurčen žádný zásuvný modul"
 
-#: translate_tmp.pl:8938
+#: translate_tmp.pl:9856
 msgid "Upload / Export"
-msgstr "Upload / Export"
+msgstr "Odeslat / Exportovat"
 
-#: translate_tmp.pl:8942
-#: translate_tmp.pl:9145
+#: translate_tmp.pl:9860
+#: translate_tmp.pl:10063
 msgid "_Upload"
-msgstr "_Nahrát"
+msgstr "_Odeslat"
 
-#: translate_tmp.pl:8957
+#: translate_tmp.pl:9875
 msgid "Guest"
 msgstr "anonymně"
 
-#: translate_tmp.pl:8977
+#: translate_tmp.pl:9895
 msgid "Choose account"
 msgstr "Vyberte účet"
 
-#: translate_tmp.pl:8999
+#: translate_tmp.pl:9917
 msgid "Status"
 msgstr "Stav"
 
-#: translate_tmp.pl:9133
+#: translate_tmp.pl:10051
 msgid "Public hosting"
 msgstr "Veřejné servery"
 
-#: translate_tmp.pl:9135
+#: translate_tmp.pl:10053
 msgid "Places"
 msgstr "Umístění"
 
-#: translate_tmp.pl:9136
+#: translate_tmp.pl:10054
 msgid "Ubuntu One"
 msgstr "Ubuntu One"
 
-#: translate_tmp.pl:9148
+#: translate_tmp.pl:10066
 msgid "_Export"
 msgstr "_Export"
 
-#: translate_tmp.pl:9151
+#: translate_tmp.pl:10069
 msgid "_Publish"
 msgstr "Z_veřejnit"
 
-#: translate_tmp.pl:9178
+#: translate_tmp.pl:10096
 #: translate_tmp.pl:147
 msgid "Disconnected"
 msgstr "Odpojeno"
 
-#: translate_tmp.pl:9198
-#: translate_tmp.pl:9230
+#: translate_tmp.pl:10116
+#: translate_tmp.pl:10148
 #, perl-format
 msgid ""
 "Folder %s is synchronized with Ubuntu One.\n"
@@ -1432,8 +1566,8 @@ msgstr[2] ""
 "Složka %s je synchronizována s Ubuntu One.\n"
 "Vybrané soubory budou zkopírovány do této složky před zveřejněním."
 
-#: translate_tmp.pl:9201
-#: translate_tmp.pl:9233
+#: translate_tmp.pl:10119
+#: translate_tmp.pl:10151
 msgid ""
 "<b>Please note:</b> The selected file will be published in a background "
 "process.\n"
@@ -1455,8 +1589,8 @@ msgstr[2] ""
 "na pozadí.\n"
 "O dokončení procesu budete informováni."
 
-#: translate_tmp.pl:9206
-#: translate_tmp.pl:9238
+#: translate_tmp.pl:10124
+#: translate_tmp.pl:10156
 #, perl-format
 msgid ""
 "Folder %s is not synchronized with Ubuntu One.\n"
@@ -1465,192 +1599,438 @@ msgstr ""
 "Složka %s není synchronizována s Ubuntu One.\n"
 "Zvolte prosím alternativní složku."
 
-#: translate_tmp.pl:9255
+#: translate_tmp.pl:10173
 msgid "Ubuntu One service cannot be found."
 msgstr "Služba Ubuntu One není k dispozici."
 
-#: translate_tmp.pl:9262
+#: translate_tmp.pl:10180
 msgid ""
 "/publicfiles is not available. Your Ubuntu One installation seems to be out "
 "of date."
 msgstr ""
 "/publicfiles není dostupný. Vaše instalace Ubuntu One se zdá být neaktuální."
 
-#: translate_tmp.pl:9269
+#: translate_tmp.pl:10187
 msgid ""
 "Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature"
 msgstr ""
 "Pro tuto funkci musí být nainstalováno Net::DBus::GLib/libnet-dbus-glib-perl"
 
-#: translate_tmp.pl:9338
-#: translate_tmp.pl:9408
-#: translate_tmp.pl:9484
-#: translate_tmp.pl:9588
-#: translate_tmp.pl:9661
+#: translate_tmp.pl:10256
+#: translate_tmp.pl:10326
+#: translate_tmp.pl:10402
+#: translate_tmp.pl:10506
+#: translate_tmp.pl:10579
 msgid "uploaded"
-msgstr "uploadováno"
+msgstr "odesláno"
 
-#: translate_tmp.pl:9371
-#: translate_tmp.pl:9776
+#: translate_tmp.pl:10289
+#: translate_tmp.pl:10694
 #: translate_tmp.pl:89
 msgid "Please check your credentials and try again."
 msgstr "Prosím zkontrolujte své přihlašovací údaje a zkuste to znovu."
 
-#: translate_tmp.pl:9372
+#: translate_tmp.pl:10290
 msgid "Login failed!"
 msgstr "Přihlášení se nezdařilo!"
 
-#: translate_tmp.pl:9385
-#: translate_tmp.pl:9411
-#: translate_tmp.pl:9789
+#: translate_tmp.pl:10303
+#: translate_tmp.pl:10329
+#: translate_tmp.pl:10707
 #: translate_tmp.pl:82
 msgid "Please check your connectivity and try again."
 msgstr "Prosím zkontrolujte síťové připojení a zkuste to znovu."
 
-#: translate_tmp.pl:9386
-#: translate_tmp.pl:9412
+#: translate_tmp.pl:10304
+#: translate_tmp.pl:10330
 msgid "Connection error!"
 msgstr "Chyba připojení!"
 
-#: translate_tmp.pl:9387
-#: translate_tmp.pl:9413
-#: translate_tmp.pl:9506
-#: translate_tmp.pl:9636
-#: translate_tmp.pl:9757
-#: translate_tmp.pl:9783
-#: translate_tmp.pl:9791
+#: translate_tmp.pl:10305
+#: translate_tmp.pl:10331
+#: translate_tmp.pl:10424
+#: translate_tmp.pl:10554
+#: translate_tmp.pl:10675
+#: translate_tmp.pl:10701
+#: translate_tmp.pl:10709
 msgid "Skip all"
 msgstr "Přeskočit vše"
 
-#: translate_tmp.pl:9388
-#: translate_tmp.pl:9414
-#: translate_tmp.pl:9507
-#: translate_tmp.pl:9636
-#: translate_tmp.pl:9758
-#: translate_tmp.pl:9783
-#: translate_tmp.pl:9791
+#: translate_tmp.pl:10306
+#: translate_tmp.pl:10332
+#: translate_tmp.pl:10425
+#: translate_tmp.pl:10554
+#: translate_tmp.pl:10676
+#: translate_tmp.pl:10701
+#: translate_tmp.pl:10709
 msgid "Skip"
 msgstr "Přeskočit"
 
-#: translate_tmp.pl:9389
-#: translate_tmp.pl:9415
-#: translate_tmp.pl:9508
-#: translate_tmp.pl:9791
+#: translate_tmp.pl:10307
+#: translate_tmp.pl:10333
+#: translate_tmp.pl:10426
+#: translate_tmp.pl:10709
 msgid "Retry"
 msgstr "Opakovat"
 
-#: translate_tmp.pl:9488
-#: translate_tmp.pl:9591
-#: translate_tmp.pl:9664
+#: translate_tmp.pl:10406
+#: translate_tmp.pl:10509
+#: translate_tmp.pl:10582
 msgid "Successfully uploaded"
-msgstr "Úspěšně nahráno"
+msgstr "Úspěšně odesláno"
 
-#: translate_tmp.pl:9488
-#: translate_tmp.pl:9591
-#: translate_tmp.pl:9664
+#: translate_tmp.pl:10406
+#: translate_tmp.pl:10509
+#: translate_tmp.pl:10582
 #, perl-format
 msgid "The file %s was successfully uploaded."
 msgstr "Soubor %s byl úspěšně nahrán na server."
 
-#: translate_tmp.pl:9583
-#: translate_tmp.pl:9656
+#: translate_tmp.pl:10501
+#: translate_tmp.pl:10574
 msgid "exported"
 msgstr "exportován"
 
-#: translate_tmp.pl:9586
-#: translate_tmp.pl:9659
+#: translate_tmp.pl:10504
+#: translate_tmp.pl:10577
 msgid "Successfully exported"
 msgstr "Úspěšně exportováno"
 
-#: translate_tmp.pl:9586
-#: translate_tmp.pl:9659
+#: translate_tmp.pl:10504
+#: translate_tmp.pl:10577
 #, perl-format
 msgid "The file %s was successfully exported."
 msgstr "Soubor %s byl úspěšně exportován."
 
-#: translate_tmp.pl:9596
-#: translate_tmp.pl:9669
+#: translate_tmp.pl:10514
+#: translate_tmp.pl:10587
 #, perl-format
 msgid "Publishing %s..."
 msgstr "Zveřejňuje se %s..."
 
-#: translate_tmp.pl:9751
+#: translate_tmp.pl:10669
 msgid "_Retry"
 msgstr "_Opakovat"
 
-#: translate_tmp.pl:9755
+#: translate_tmp.pl:10673
 #, perl-format
 msgid "Error while copying the image %s."
 msgstr "Chyba při kopírování obrázku %s."
 
-#: translate_tmp.pl:9756
+#: translate_tmp.pl:10674
 #, perl-format
 msgid "There was an error copying the image into %s."
 msgstr "Nastala chyba při kopírování obrázku do %s."
 
-#: translate_tmp.pl:9777
+#: translate_tmp.pl:10695
 msgid "Error while login"
 msgstr "Chyba při přihlášení"
 
-#: translate_tmp.pl:9781
+#: translate_tmp.pl:10699
 msgid "Maximum filesize reached"
 msgstr "Dosaženo maximální velikosti souboru"
 
-#: translate_tmp.pl:9782
+#: translate_tmp.pl:10700
 msgid "Error while uploading"
-msgstr "Chyba při nahrávání na server"
+msgstr "Chyba při odesílání na server"
 
-#: translate_tmp.pl:9785
+#: translate_tmp.pl:10703
 #, perl-format
 msgid "Maximum filesize: %s"
 msgstr "Maximální velikost souboru: %s"
 
-#: translate_tmp.pl:9790
+#: translate_tmp.pl:10708
 msgid "Error while connecting"
 msgstr "Chyba při připojování"
 
-#: translate_tmp.pl:9808
+#: translate_tmp.pl:10726
 msgid "Save current preferences as new profile"
 msgstr "Uložit současná nastavení jako nový profil"
 
-#: translate_tmp.pl:9810
+#: translate_tmp.pl:10728
 msgid "New profile name"
 msgstr "Jméno nového profilu"
 
-#: translate_tmp.pl:9871
+#: translate_tmp.pl:10789
 msgid "Replacing it will overwrite its contents."
 msgstr "Nahrazení přepíše současný obsah."
 
-#: translate_tmp.pl:9872
+#: translate_tmp.pl:10790
 #, perl-format
 msgid "A profile named %s already exists. Do you want to replace it?"
 msgstr "Profil s názvem %s již existuje. Chcete ho nahradit?"
 
-#: translate_tmp.pl:61
-msgid "Illegal URI."
-msgstr "Neplatné URI."
+#: translate_tmp.pl:79
+msgid "translator-credits"
+msgstr ""
+"Launchpad Contributions:\n"
+"  Jan Cerny https://launchpad.net/~cernyhonza\n"
+"  Jan Kaláb https://launchpad.net/~pitel\n"
+"  Kamil Páral https://launchpad.net/~kamil.paral\n"
+"  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
+"  Mihailo Cvetkovic https://launchpad.net/~mihi84\n"
+"  Peter Surňák https://launchpad.net/~okolnost\n"
+"  Petr R. https://launchpad.net/~ateps-r\n"
+"  Roman Horník https://launchpad.net/~roman.hornik\n"
+"  Zdeněk Dlauhý https://launchpad.net/~zdlauhy\n"
+"  luisah https://launchpad.net/~luisah"
 
-#: translate_tmp.pl:81
-msgid "Connection error."
-msgstr "Chyba připojení."
+#: translate_tmp.pl:34
+#: translate_tmp.pl:5847
+msgid "_File"
+msgstr "_Soubor"
 
-#: translate_tmp.pl:88
+#: translate_tmp.pl:39
+#: translate_tmp.pl:5848
+msgid "_Edit"
+msgstr "Úpr_avy"
+
+#: translate_tmp.pl:44
+#: translate_tmp.pl:5850
+msgid "_View"
+msgstr "_Zobrazit"
+
+#: translate_tmp.pl:49
+msgid "_Screenshot"
+msgstr "Sní_mek"
+
+#: translate_tmp.pl:54
+msgid "_Go"
+msgstr "_Přejít"
+
+#: translate_tmp.pl:59
+msgid "_Help"
+msgstr "_Nápověda"
+
+#: translate_tmp.pl:87
+msgid "_Open..."
+msgstr "_Otevřít..."
+
+#: translate_tmp.pl:92
+msgid "Recent _Files"
+msgstr "Nedávné _soubory"
+
+#: translate_tmp.pl:103
+msgid "Save _As..."
+msgstr "Uložit _jako..."
+
+#: translate_tmp.pl:114
+#: translate_tmp.pl:5905
+msgid "E_xport to PDF..."
+msgstr "E_xportovat do PDF..."
+
+#: translate_tmp.pl:119
+#: translate_tmp.pl:5908
+msgid "Export to Post_Script..."
+msgstr ""
+
+#: translate_tmp.pl:129
+msgid "Page Set_up"
+msgstr "_Vzhled stránky..."
+
+#: translate_tmp.pl:136
+msgid "_Print..."
+msgstr "_Tisk…"
+
+#: translate_tmp.pl:144
+msgid "Send by E_mail..."
+msgstr "Odeslat e-_mailem..."
+
+#: translate_tmp.pl:159
+msgid "C_lose all"
+msgstr "Z_avřít vše"
+
+#: translate_tmp.pl:204
+#: translate_tmp.pl:711
+msgid "Copy _Filename"
+msgstr "Kopírovat _název souboru"
+
+#: translate_tmp.pl:246
+msgid "Show Navigation _Toolbar"
+msgstr "Zobrazit navigační _panel nástrojů"
+
+#: translate_tmp.pl:328
+msgid "Get Help Online..."
+msgstr "Získat pomoc online..."
+
+#: translate_tmp.pl:343
+msgid "Translate this Application..."
+msgstr "Přeložit tuto aplikaci..."
+
+#: translate_tmp.pl:358
+msgid "Report a Problem"
+msgstr "Nahlásit problém"
+
+#: translate_tmp.pl:538
+msgid "Import from clip_board"
+msgstr "_Importovat ze schránky"
+
+#: translate_tmp.pl:562
+#: translate_tmp.pl:662
+msgid "_Open with default application"
+msgstr ""
+
+#: translate_tmp.pl:569
+#: translate_tmp.pl:669
+msgid "Open wit_h"
+msgstr "_Otevřít pomocí"
+
+#: translate_tmp.pl:575
+#: translate_tmp.pl:675
+msgid "_Rename..."
+msgstr "_Přejmenovat..."
+
+#: translate_tmp.pl:584
+#: translate_tmp.pl:683
+msgid "_Send To..."
+msgstr "Odesla_t..."
+
+#: translate_tmp.pl:593
+#: translate_tmp.pl:691
+msgid "E_xport..."
+msgstr "E_xportovat..."
+
+#: translate_tmp.pl:600
+#: translate_tmp.pl:697
+msgid "Public URLs"
+msgstr "Veřejné URL"
+
+#: translate_tmp.pl:608
+#: translate_tmp.pl:724
+msgid "_Edit..."
+msgstr "_Upravit…"
+
+#: translate_tmp.pl:625
+msgid "Run a _plugin..."
+msgstr "Spustit zásuvný _modul..."
+
+#: translate_tmp.pl:634
+#: translate_tmp.pl:748
+msgid "Redo _this screenshot"
+msgstr "_Zachytit znovu tento snímek"
+
+#: translate_tmp.pl:740
+msgid "Run a _Plugin..."
+msgstr "Spustit zásuvný _modul..."
+
+#: translate_tmp.pl:40
+msgid "Redo last screenshot"
+msgstr "Zachytit znovu poslední snímek"
+
+#: translate_tmp.pl:70
+msgid ""
+"Draw a rectangular capture area with your mouse\n"
+"to select a specified screen area"
+msgstr "Myší vybrat oblast k zachycení"
+
+#: translate_tmp.pl:71
+msgid "Choose selection tool"
+msgstr "Vyberte nástroj pro výběr"
+
+#: translate_tmp.pl:90
+msgid "Desktop"
+msgstr "Pracovní plocha"
+
+#: translate_tmp.pl:93
+msgid "Take a screenshot of your whole desktop"
+msgstr "Získat snímek celé obrazovky"
+
+#: translate_tmp.pl:94
+msgid "Capture a specific workspace"
+msgstr "Získat snímek jiné plochy"
+
+#: translate_tmp.pl:132
+msgid "Window"
+msgstr "Okno"
+
+#: translate_tmp.pl:135
+msgid "Select a window with your mouse"
+msgstr "Vybrat myší okno pro snímek"
+
+#: translate_tmp.pl:136
+msgid "Take a screenshot of a specific window"
+msgstr "Získat snímek některého okna"
+
+#: translate_tmp.pl:154
+msgid ""
+"Captures only a section of the window. You will be able to select any child "
+"window by moving the mouse over it"
+msgstr ""
+"Zachytit pouze vybranou sekci okna. Po aktivaci funkce myší vyberte okno a "
+"potom sekci okna."
+
+#: translate_tmp.pl:174
+msgid "Select a single menu or cascading menus from any application"
+msgstr "Vybrat jednoduchou nebo kaskádovou nabídku z libovolné aplikace"
+
+#: translate_tmp.pl:194
+msgid "Capture a tooltip"
+msgstr "Zachytit kontextovou nápovědu"
+
+#: translate_tmp.pl:212
+#: translate_tmp.pl:75
+msgid "Take a screenshot of a website"
+msgstr "Získat snímek webové stránky"
+
+#: translate_tmp.pl:234
+msgid "Edit"
+msgstr "Upravit"
+
+#: translate_tmp.pl:237
+msgid ""
+"Use the built-in editor to highlight important fragments of your screenshot "
+"or crop it to a desired size"
+msgstr ""
+"Použít vestavěný editor ke zvýraznění důležitých fragmentů snímku nebo "
+"oříznout na požadovanou velikost"
+
+#: translate_tmp.pl:244
+msgid "Export"
+msgstr "Exportovat"
+
+#: translate_tmp.pl:247
+msgid ""
+"Upload your images to an image hosting service, FTP site or export them to "
+"an arbitrary folder"
+msgstr ""
+"Odeslat obrázky na hosting, FTP server nebo je exportovat do libovolné složky"
+
+#: translate_tmp.pl:33
+#: translate_tmp.pl:47
+#: translate_tmp.pl:62
+#: translate_tmp.pl:76
 #, perl-format
-msgid "Login with username %s failed."
-msgstr "Přihlášení s uživatelským jménem %s se nezdařilo."
+msgid "Error while executing %s."
+msgstr "Chyba při spuštění %s."
 
-#: translate_tmp.pl:108
-msgid "Cannot change working directory."
-msgstr "Nelze změnit pozici v adresářové struktuře."
+#: translate_tmp.pl:34
+#: translate_tmp.pl:48
+#: translate_tmp.pl:63
+#: translate_tmp.pl:77
+#, perl-format
+msgid "There was an error executing %s."
+msgstr "Vyskytla se chyba při spuštění %s."
 
-#: translate_tmp.pl:118
-msgid "Command 'put' failed."
-msgstr "Příkaz 'put' se nezdařil."
+#: translate_tmp.pl:37
+#: translate_tmp.pl:51
+#: translate_tmp.pl:66
+#: translate_tmp.pl:80
+#, perl-format
+msgid "Exit Code: %d."
+msgstr "Návratový kód: %d."
+
+#: translate_tmp.pl:150
+msgid "Synchronization complete"
+msgstr "Synchronizace dokončena"
+
+#: translate_tmp.pl:152
+msgid "Synchronization in progress..."
+msgstr "Probíhá synchronizace..."
 
 #: translate_tmp.pl:414
 #: translate_tmp.pl:193
 msgid "Upload status:"
-msgstr "Stav uploadu:"
+msgstr "Stav odesílání:"
 
 #: translate_tmp.pl:423
 #: translate_tmp.pl:287
@@ -1691,38 +2071,109 @@ msgstr "Miniatura pro webové stránky"
 msgid "Hotlink for forums"
 msgstr "Odkaz pro fóra"
 
-#: translate_tmp.pl:150
-msgid "Synchronization complete"
-msgstr "Synchronizace dokončena"
+#: translate_tmp.pl:61
+msgid "Illegal URI."
+msgstr "Neplatné URI."
 
-#: translate_tmp.pl:152
-msgid "Synchronization in progress..."
-msgstr "Probíhá synchronizace..."
+#: translate_tmp.pl:81
+msgid "Connection error."
+msgstr "Chyba připojení."
+
+#: translate_tmp.pl:88
+#, perl-format
+msgid "Login with username %s failed."
+msgstr "Přihlášení s uživatelským jménem %s se nezdařilo."
+
+#: translate_tmp.pl:108
+msgid "Cannot change working directory."
+msgstr "Nelze změnit pozici v adresářové struktuře."
+
+#: translate_tmp.pl:118
+msgid "Command 'put' failed."
+msgstr "Příkaz 'put' se nezdařil."
+
+#: translate_tmp.pl:121
+msgid "Draw a rectangular area using the mouse."
+msgstr ""
+
+#: translate_tmp.pl:124
+msgid "To take a screenshot, press the Enter key. Press Esc to quit."
+msgstr ""
+
+#: translate_tmp.pl:127
+msgid "<b>shift/right-click</b> → selection dialog on/off"
+msgstr ""
+
+#: translate_tmp.pl:128
+msgid "<b>ctrl + scrollwheel</b> → zoom in/out"
+msgstr ""
+
+#: translate_tmp.pl:129
+msgid "<b>space</b> → zoom window on/off"
+msgstr ""
+
+#: translate_tmp.pl:130
+msgid "<b>cursor keys</b> → move cursor"
+msgstr ""
+
+#: translate_tmp.pl:131
+msgid "<b>cursor keys + alt</b> → move selection"
+msgstr ""
+
+#: translate_tmp.pl:132
+msgid "<b>cursor keys + ctrl</b> → resize selection"
+msgstr ""
+
+#: translate_tmp.pl:87
+msgid ""
+"Maybe mouse pointer could not be grabbed or the selected area is invalid."
+msgstr ""
+"Možná nemohl být zachycen kurzor myši nebo je vybraná oblast neplatná."
+
+#: translate_tmp.pl:95
+msgid "Keyboard could not be grabbed."
+msgstr "Klávesnici se nepodařilo zachytit"
 
 #: translate_tmp.pl:104
+msgid "menu"
+msgstr "Nabídka"
+
+#: translate_tmp.pl:106
+msgid "tooltip"
+msgstr "kontextová nápověda"
+
+#: translate_tmp.pl:110
+#, perl-format
+msgid "No window with type %s detected."
+msgstr "Nezjištěné žádné okno typu %s ."
+
+#: translate_tmp.pl:118
+msgid "There is no last capture that can be redone."
+msgstr "Neexistuje žádné poslední zachycení, které může být znovu provedeno."
+
+#: translate_tmp.pl:126
+msgid "The window is no longer available."
+msgstr "Okno již není k dispozici."
+
+#: translate_tmp.pl:138
+#: translate_tmp.pl:144
+msgid "Unable to capture website"
+msgstr "Nepodařilo se zachytit snímek webové stránky"
+
+#: translate_tmp.pl:152
+#, perl-format
+msgid "No window with name pattern %s detected."
+msgstr "Žádné okno s názvem podle vzoru %s nezjištěno."
+
+#: translate_tmp.pl:110
 msgid "No subwindow detected"
 msgstr "Nezjištěné podokno"
 
-#: translate_tmp.pl:105
+#: translate_tmp.pl:111
 msgid ""
 "Maybe this window is using client-side windows (or similar).\n"
 "Shutter is not yet able to query the tree information of such windows."
 msgstr ""
-
-#: translate_tmp.pl:997
-#: translate_tmp.pl:140
-msgid "Menu"
-msgstr "Nabídka"
-
-#: translate_tmp.pl:1003
-#: translate_tmp.pl:160
-msgid "Tooltip"
-msgstr "Kontextová nápověda"
-
-#: translate_tmp.pl:75
-#: translate_tmp.pl:181
-msgid "Take a screenshot of a website"
-msgstr "Získat snímek webové stránky"
 
 #: translate_tmp.pl:77
 msgid "URL to capture"
@@ -1732,201 +2183,145 @@ msgstr "URL k zachycení"
 msgid "C_apture"
 msgstr "_Zachytit"
 
-#: translate_tmp.pl:120
-msgid ""
-"Draw a rectangular area using the mouse. To take a screenshot, press the "
-"Enter key. Press Esc to quit."
-msgstr ""
-"Myší vyberte obdélníkovou oblast. Pro sejmutí obrazovky stiskněte klávesu "
-"Enter nebo stiskněte Esc pro ukončení."
-
-#: translate_tmp.pl:125
-msgid ""
-"shift/right-click = selection dialog on/off\n"
-"ctrl + scrollwheel = zoom in/out\t\tspace = zoom window on/off\n"
-"cursor keys + alt = move selection\t\tcursor keys + ctrl = resize selection"
-msgstr ""
-"shift/pravý-klik = volba dialogu zap/vyp\n"
-"ctrl + kolečko myši = zoom přiblížit/oddálit\t\tmezerník = zoom okno "
-"zap/vyp\n"
-"kurzorové klávesy + alt = přesunout výběr\t\tkurzorové klávesy + ctrl = "
-"změna velikosti výběru"
-
 #: translate_tmp.pl:157
 msgid "Workspaces"
 msgstr "Pracovní plochy"
 
-#: translate_tmp.pl:76
-msgid ""
-"Maybe mouse pointer could not be grabbed or the selected area is invalid."
-msgstr ""
-"Možná nemohl být zachycen kurzor myši nebo je vybraná oblast neplatná."
-
-#: translate_tmp.pl:84
-msgid "Keyboard could not be grabbed."
-msgstr "Klávesnici se nepodařilo zachytit"
-
-#: translate_tmp.pl:93
-msgid "menu"
-msgstr "Nabídka"
-
-#: translate_tmp.pl:95
-msgid "tooltip"
-msgstr "kontextová nápověda"
-
-#: translate_tmp.pl:99
-#, perl-format
-msgid "No window with type %s detected."
-msgstr "Nezjištěné žádné okno typu %s ."
-
-#: translate_tmp.pl:107
-msgid "There is no last capture that can be redone."
-msgstr "Neexistuje žádné poslední zachycení, které může být znovu provedeno."
-
-#: translate_tmp.pl:115
-msgid "The window is no longer available."
-msgstr "Okno již není k dispozici."
-
-#: translate_tmp.pl:127
-#: translate_tmp.pl:133
-msgid "Unable to capture website"
-msgstr "Nepodařilo se zachytit snímek webové stránky"
-
-#: translate_tmp.pl:441
-#: translate_tmp.pl:3973
+#: translate_tmp.pl:447
+#: translate_tmp.pl:4014
 msgid "Fill color"
 msgstr "Barva výplně"
 
-#: translate_tmp.pl:448
-#: translate_tmp.pl:449
+#: translate_tmp.pl:454
+#: translate_tmp.pl:455
 msgid "Adjust fill color and opacity"
 msgstr "Upravit barvu a průhlednost výplně"
 
-#: translate_tmp.pl:455
-#: translate_tmp.pl:3992
+#: translate_tmp.pl:461
+#: translate_tmp.pl:4033
 msgid "Stroke color"
 msgstr "Barva čáry"
 
-#: translate_tmp.pl:460
-#: translate_tmp.pl:3998
+#: translate_tmp.pl:466
+#: translate_tmp.pl:4039
 msgid "Choose stroke color"
 msgstr "Vybrat barvu čáry"
 
-#: translate_tmp.pl:462
-#: translate_tmp.pl:463
+#: translate_tmp.pl:468
+#: translate_tmp.pl:469
 msgid "Adjust stroke color and opacity"
 msgstr "Nastavit barvu a průhlednost čáry"
 
-#: translate_tmp.pl:469
-#: translate_tmp.pl:3959
+#: translate_tmp.pl:475
+#: translate_tmp.pl:4000
 msgid "Line width"
 msgstr "Šířka čáry"
 
-#: translate_tmp.pl:473
-#: translate_tmp.pl:474
+#: translate_tmp.pl:479
+#: translate_tmp.pl:480
 msgid "Adjust line width"
 msgstr "Upravit šířku čáry"
 
-#: translate_tmp.pl:480
-#: translate_tmp.pl:4035
-#: translate_tmp.pl:4159
+#: translate_tmp.pl:486
+#: translate_tmp.pl:4076
+#: translate_tmp.pl:4200
 msgid "Font"
 msgstr "Písmo"
 
-#: translate_tmp.pl:484
-#: translate_tmp.pl:485
+#: translate_tmp.pl:490
+#: translate_tmp.pl:491
 msgid "Select font family and size"
 msgstr "Vybrat typ a velikost písma"
 
-#: translate_tmp.pl:491
+#: translate_tmp.pl:497
 msgid "Insert image"
 msgstr "Vložení obrázku"
 
-#: translate_tmp.pl:604
-#: translate_tmp.pl:605
+#: translate_tmp.pl:610
+#: translate_tmp.pl:611
 msgid "Insert an arbitrary object or file"
 msgstr "Vložit vybraný objekt nebo soubor"
 
-#: translate_tmp.pl:625
+#: translate_tmp.pl:631
 msgid "X"
 msgstr "X"
 
-#: translate_tmp.pl:644
+#: translate_tmp.pl:650
 msgid "Y"
 msgstr "Y"
 
-#: translate_tmp.pl:663
-#: translate_tmp.pl:4088
+#: translate_tmp.pl:669
+#: translate_tmp.pl:4129
 msgid "Width"
 msgstr "Šířka"
 
-#: translate_tmp.pl:682
+#: translate_tmp.pl:688
 msgid "Height"
 msgstr "Výška"
 
-#: translate_tmp.pl:712
+#: translate_tmp.pl:718
 msgid "_Crop"
 msgstr "_Ořezat"
 
-#: translate_tmp.pl:857
+#: translate_tmp.pl:863
 msgid "Click-Drag to scale (try Control to scale uniformly)"
 msgstr ""
 "Klikněte a táhněte pro změnu velikosti (Control pro rovnoměrnou změnu)"
 
-#: translate_tmp.pl:859
+#: translate_tmp.pl:865
 msgid "Click-Drag to resize the canvas"
 msgstr "Klikněte a táhněte pro změnu velikosti plátna"
 
-#: translate_tmp.pl:864
+#: translate_tmp.pl:870
 msgid "Click to paint (try Control or Shift for a straight line)"
 msgstr "Klikněte a kreslete (Control nebo Shift pro rovnou čáru)"
 
-#: translate_tmp.pl:868
+#: translate_tmp.pl:874
 msgid "Click-Drag to create a new straight line"
 msgstr "Klikněte a táhněte pro novou rovnou čáru"
 
-#: translate_tmp.pl:872
+#: translate_tmp.pl:878
 msgid "Click-Drag to create a new arrow"
 msgstr "Klikněte a táhněte pro vytvoření nové šipky"
 
-#: translate_tmp.pl:876
+#: translate_tmp.pl:882
 msgid "Click-Drag to create a new rectangle"
 msgstr "Klikněte a táhněte pro nový obdélník"
 
-#: translate_tmp.pl:880
+#: translate_tmp.pl:886
 msgid "Click-Drag to create a new ellipse"
 msgstr "Klikněte a táhněte pro novou elipsu"
 
-#: translate_tmp.pl:884
+#: translate_tmp.pl:890
 msgid "Click-Drag to add a new text area"
 msgstr "Klikněte a táhněte pro novou textovou oblast"
 
-#: translate_tmp.pl:888
+#: translate_tmp.pl:894
 msgid "Click to censor (try Control or Shift for a straight line)"
 msgstr "Klikněte pro cenzuru (Control nebo Shift pro rovnou čáru)"
 
-#: translate_tmp.pl:892
+#: translate_tmp.pl:898
 msgid "Click-Drag to create a pixelized region"
 msgstr "Kliknutím a táhnutím vytvořit pixelizovanou oblast"
 
-#: translate_tmp.pl:896
+#: translate_tmp.pl:902
 msgid "Click to add an auto-increment shape"
 msgstr "Klikněte pro nový tvar s počítadlem"
 
-#: translate_tmp.pl:1214
+#: translate_tmp.pl:1223
 #, perl-format
 msgid "Save the changes to image %s before closing?"
 msgstr "Uložit změny do obrázku %s před ukončením?"
 
-#: translate_tmp.pl:1230
+#: translate_tmp.pl:1239
 msgid "Close"
 msgstr "Zavřít"
 
-#: translate_tmp.pl:1233
+#: translate_tmp.pl:1242
 msgid "Do_n't save"
 msgstr "_Neukládat"
 
-#: translate_tmp.pl:1299
+#: translate_tmp.pl:1308
 #, perl-format
 msgid ""
 "If you don't save the image, changes from the last minute will be lost"
@@ -1939,522 +2334,279 @@ msgstr[1] ""
 msgstr[2] ""
 "Pokud zvolíte neuložit obrázek, změny za posledních %d minut budou ztraceny."
 
-#: translate_tmp.pl:1660
+#: translate_tmp.pl:1703
 msgid "Do you want to save the changed background color?"
 msgstr "Chcete uložit změněnou barvu pozadí?"
 
-#: translate_tmp.pl:1661
+#: translate_tmp.pl:1704
 msgid ""
 "The background is likely to be transparent if you decide to ignore the "
 "background color."
 msgstr ""
 "Pozadí může být průhledné, pokud se rozhodnete ignorovat barvy pozadí."
 
-#: translate_tmp.pl:1663
+#: translate_tmp.pl:1706
 msgid "Save Background Color"
 msgstr "Uložit barvu pozadí"
 
-#: translate_tmp.pl:1666
+#: translate_tmp.pl:1709
 msgid "_Ignore Background Color"
 msgstr "_Ignorovat barvu pozadí"
 
-#: translate_tmp.pl:1669
+#: translate_tmp.pl:1712
 msgid "_Save Background Color"
 msgstr "_Uložit barvu pozadí"
 
-#: translate_tmp.pl:3719
+#: translate_tmp.pl:3760
 msgid "Change Background Color..."
 msgstr "Změnit barvu pozadí..."
 
-#: translate_tmp.pl:3729
+#: translate_tmp.pl:3770
 msgid "_Reset to Default"
 msgstr "_Obnovit výchozí"
 
-#: translate_tmp.pl:3779
+#: translate_tmp.pl:3820
 msgid "Raise"
 msgstr "Do popředí"
 
-#: translate_tmp.pl:3802
+#: translate_tmp.pl:3843
 msgid "Lower"
 msgstr "Do pozadí"
 
-#: translate_tmp.pl:3847
+#: translate_tmp.pl:3888
 msgid "Unlock"
 msgstr "Odemknout"
 
-#: translate_tmp.pl:3850
+#: translate_tmp.pl:3891
 msgid "Lock"
 msgstr "Zamknout"
 
-#: translate_tmp.pl:3872
+#: translate_tmp.pl:3913
 msgid "Edit Preferences..."
 msgstr "Upravit předvolby..."
 
-#: translate_tmp.pl:4013
+#: translate_tmp.pl:4054
 msgid "Numbering"
 msgstr "Číslování"
 
-#: translate_tmp.pl:4023
+#: translate_tmp.pl:4064
 msgid "Current value"
 msgstr "Nynější hodnota"
 
-#: translate_tmp.pl:4078
-#: translate_tmp.pl:5935
+#: translate_tmp.pl:4119
+#: translate_tmp.pl:5972
 msgid "Arrow"
 msgstr "Šipka"
 
-#: translate_tmp.pl:4100
+#: translate_tmp.pl:4141
 msgid "Length"
 msgstr "Délka"
 
-#: translate_tmp.pl:4112
+#: translate_tmp.pl:4153
 msgid "Tip length"
 msgstr "Délka špičky"
 
-#: translate_tmp.pl:4122
+#: translate_tmp.pl:4163
 msgid "Display an arrow at the end of the line"
 msgstr "Zobrazit šipku na konci řádku"
 
-#: translate_tmp.pl:4124
+#: translate_tmp.pl:4165
 msgid "Display an arrow at the start of the line"
 msgstr "Zobrazit šipku na začátku řádku"
 
-#: translate_tmp.pl:4149
-#: translate_tmp.pl:5938
+#: translate_tmp.pl:4190
+#: translate_tmp.pl:5975
 msgid "Text"
 msgstr "Text"
 
-#: translate_tmp.pl:4188
+#: translate_tmp.pl:4229
 msgid "Font color"
 msgstr "Barva písma"
 
-#: translate_tmp.pl:4194
+#: translate_tmp.pl:4235
 msgid "Choose font color"
 msgstr "Vybrat barvu písma"
 
-#: translate_tmp.pl:4216
+#: translate_tmp.pl:4257
 msgid "Use selected font"
 msgstr "Použít vybrané písmo"
 
-#: translate_tmp.pl:5813
-#: translate_tmp.pl:34
-msgid "_File"
-msgstr "_Soubor"
-
-#: translate_tmp.pl:5814
-#: translate_tmp.pl:39
-msgid "_Edit"
-msgstr "Úpr_avy"
-
-#: translate_tmp.pl:5815
+#: translate_tmp.pl:5849
 msgid "_Tools"
 msgstr "_Nástroje"
 
-#: translate_tmp.pl:5816
-#: translate_tmp.pl:44
-msgid "_View"
-msgstr "_Zobrazit"
-
-#: translate_tmp.pl:5817
+#: translate_tmp.pl:5851
 msgid "Undo last action"
 msgstr "Vrátit poslední akci"
 
-#: translate_tmp.pl:5820
+#: translate_tmp.pl:5854
 msgid "Do again the last undone action"
 msgstr "Znovu provést poslední vrácenou akci"
 
-#: translate_tmp.pl:5823
+#: translate_tmp.pl:5857
 msgid "Copy selection to clipboard"
 msgstr "Kopírovat výběr do schránky"
 
-#: translate_tmp.pl:5829
+#: translate_tmp.pl:5863
 msgid "Cut selection to clipboard"
 msgstr "Vyjmout výběr do schránky"
 
-#: translate_tmp.pl:5836
+#: translate_tmp.pl:5870
 msgid "Paste objects from clipboard"
 msgstr "Vložit objekt ze schránky"
 
-#: translate_tmp.pl:5839
+#: translate_tmp.pl:5873
 msgid "Delete current object"
 msgstr "Smazat aktuální objekt"
 
-#: translate_tmp.pl:5842
+#: translate_tmp.pl:5876
 msgid "Clear canvas"
 msgstr "Vyčistit plátno"
 
-#: translate_tmp.pl:5856
+#: translate_tmp.pl:5890
 msgid "Abort current mode"
 msgstr "Zrušit aktuální režim"
 
-#: translate_tmp.pl:5859
+#: translate_tmp.pl:5893
 msgid "Close this window"
 msgstr "Zavřít toto okno"
 
-#: translate_tmp.pl:5862
+#: translate_tmp.pl:5896
 msgid "Save image"
 msgstr "Uložit obrázek"
 
-#: translate_tmp.pl:5865
+#: translate_tmp.pl:5899
 msgid "Export to _File..."
 msgstr "Exportovat do _souboru..."
 
-#: translate_tmp.pl:5865
+#: translate_tmp.pl:5899
 msgid "Export to File..."
 msgstr "Exportovat do souboru..."
 
-#: translate_tmp.pl:5868
+#: translate_tmp.pl:5902
 msgid "_Export to SVG..."
 msgstr "_Exportovat do SVG..."
 
-#: translate_tmp.pl:5868
+#: translate_tmp.pl:5902
 msgid "Export to SVG..."
 msgstr "Exportovat do SVG..."
 
-#: translate_tmp.pl:5871
-#: translate_tmp.pl:108
-msgid "E_xport to PDF..."
-msgstr "E_xportovat do PDF..."
-
-#: translate_tmp.pl:5871
+#: translate_tmp.pl:5905
 msgid "Export to PDF..."
 msgstr "Exportovat do PDF..."
 
-#: translate_tmp.pl:5895
+#: translate_tmp.pl:5908
+msgid "Export to PostScript..."
+msgstr ""
+
+#: translate_tmp.pl:5932
 msgid "Automatic scrolling"
 msgstr "Automaticky posouvat"
 
-#: translate_tmp.pl:5931
+#: translate_tmp.pl:5968
 msgid "Select"
 msgstr "Vybrat"
 
-#: translate_tmp.pl:5931
+#: translate_tmp.pl:5968
 msgid "Select item to move or resize it"
 msgstr "Vybrat objekt pro posun nebo změnu velikosti"
 
-#: translate_tmp.pl:5932
+#: translate_tmp.pl:5969
 msgid "Freehand"
 msgstr "Volná ruka"
 
-#: translate_tmp.pl:5932
+#: translate_tmp.pl:5969
 msgid "Draw a freehand line"
 msgstr "Kreslit čáru ručně"
 
-#: translate_tmp.pl:5933
+#: translate_tmp.pl:5970
 msgid "Highlighter"
 msgstr "Zvýrazňovač"
 
-#: translate_tmp.pl:5934
+#: translate_tmp.pl:5971
 msgid "Line"
 msgstr "Čára"
 
-#: translate_tmp.pl:5934
+#: translate_tmp.pl:5971
 msgid "Draw a straight line"
 msgstr "Kreslit rovnou čáru"
 
-#: translate_tmp.pl:5935
+#: translate_tmp.pl:5972
 msgid "Draw an arrow"
 msgstr "Kreslit šipku"
 
-#: translate_tmp.pl:5936
+#: translate_tmp.pl:5973
 msgid "Rectangle"
 msgstr "Obdélník"
 
-#: translate_tmp.pl:5936
+#: translate_tmp.pl:5973
 msgid "Draw a rectangle"
 msgstr "Kreslit obdélník"
 
-#: translate_tmp.pl:5937
+#: translate_tmp.pl:5974
 msgid "Ellipse"
 msgstr "Elipsa"
 
-#: translate_tmp.pl:5937
+#: translate_tmp.pl:5974
 msgid "Draw a ellipse"
 msgstr "Kreslit elipsu"
 
-#: translate_tmp.pl:5938
+#: translate_tmp.pl:5975
 msgid "Add some text to the screenshot"
 msgstr "Přidat text do snímku"
 
-#: translate_tmp.pl:5939
+#: translate_tmp.pl:5976
 msgid "Censor"
 msgstr "Cenzor"
 
-#: translate_tmp.pl:5939
+#: translate_tmp.pl:5976
 msgid "Censor portions of your screenshot to hide private data"
 msgstr "Cenzurovat části snímku a skrýt soukromá data"
 
-#: translate_tmp.pl:5940
+#: translate_tmp.pl:5977
 msgid "Pixelize"
 msgstr "Pixelizovat"
 
-#: translate_tmp.pl:5940
+#: translate_tmp.pl:5977
 msgid "Pixelize selected areas of your screenshot to hide private data"
 msgstr "Pixelizovat vybranou oblast snímku pro skrytí osobních údajů"
 
-#: translate_tmp.pl:5941
+#: translate_tmp.pl:5978
 msgid "Number"
 msgstr "Počítadlo"
 
-#: translate_tmp.pl:5941
+#: translate_tmp.pl:5978
 msgid "Add an auto-increment shape to the screenshot"
 msgstr "Přidat tvar s počítadlem do snímku"
 
-#: translate_tmp.pl:5942
+#: translate_tmp.pl:5979
 msgid "Crop"
 msgstr "Oříznout"
 
-#: translate_tmp.pl:5942
+#: translate_tmp.pl:5979
 msgid "Crop your screenshot"
 msgstr "Oříznout snímek obrazovky"
 
-#: translate_tmp.pl:6205
-#: translate_tmp.pl:6408
+#: translate_tmp.pl:6233
+#: translate_tmp.pl:6423
 msgid "No icon was found"
 msgstr "Nebyla nalezena žádná ikonka"
 
-#: translate_tmp.pl:6264
+#: translate_tmp.pl:6292
 msgid "Import from current theme..."
 msgstr "Importovat z nynějšího motivu..."
 
-#: translate_tmp.pl:6278
+#: translate_tmp.pl:6306
 msgid "Import from session..."
 msgstr "Importovat ze sezení..."
 
-#: translate_tmp.pl:6289
+#: translate_tmp.pl:6317
 msgid "Import from filesystem..."
 msgstr "Importovat ze souborového systému..."
 
-#: translate_tmp.pl:7099
+#: translate_tmp.pl:7108
 msgid "New text..."
 msgstr "Nový text..."
-
-#: translate_tmp.pl:79
-msgid "translator-credits"
-msgstr ""
-"Launchpad Contributions:\n"
-"  Jan Kaláb https://launchpad.net/~pitel\n"
-"  Kamil Páral https://launchpad.net/~kamil.paral\n"
-"  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
-"  Mihailo Cvetkovic https://launchpad.net/~mihi84\n"
-"  Peter Surňák https://launchpad.net/~okolnost\n"
-"  Petr R. https://launchpad.net/~ateps-r\n"
-"  Roman Horník https://launchpad.net/~roman.hornik\n"
-"  Zdeněk Dlauhý https://launchpad.net/~zdlauhy\n"
-"  luisah https://launchpad.net/~luisah"
-
-#: translate_tmp.pl:49
-msgid "_Screenshot"
-msgstr "Sní_mek"
-
-#: translate_tmp.pl:54
-msgid "_Go"
-msgstr "_Přejít"
-
-#: translate_tmp.pl:59
-msgid "_Help"
-msgstr "_Nápověda"
-
-#: translate_tmp.pl:87
-msgid "_Open..."
-msgstr "_Otevřít..."
-
-#: translate_tmp.pl:92
-msgid "Recent _Files"
-msgstr "Nedávné _soubory"
-
-#: translate_tmp.pl:97
-msgid "Save _As..."
-msgstr "Uložit _jako..."
-
-#: translate_tmp.pl:118
-msgid "Page Set_up"
-msgstr "_Vzhled stránky..."
-
-#: translate_tmp.pl:125
-msgid "_Print..."
-msgstr "_Tisk…"
-
-#: translate_tmp.pl:133
-msgid "Send by E_mail..."
-msgstr "Odeslat e-_mailem..."
-
-#: translate_tmp.pl:148
-msgid "C_lose all"
-msgstr "Z_avřít vše"
-
-#: translate_tmp.pl:193
-#: translate_tmp.pl:670
-msgid "Copy _Filename"
-msgstr "Kopírovat _název souboru"
-
-#: translate_tmp.pl:235
-msgid "Show Navigation _Toolbar"
-msgstr "Zobrazit navigační _panel nástrojů"
-
-#: translate_tmp.pl:317
-msgid "Get Help Online..."
-msgstr "Získat pomoc online..."
-
-#: translate_tmp.pl:332
-msgid "Translate this Application..."
-msgstr "Přeložit tuto aplikaci..."
-
-#: translate_tmp.pl:347
-msgid "Report a Problem"
-msgstr "Nahlásit problém"
-
-#: translate_tmp.pl:503
-msgid "Import from clip_board"
-msgstr "_Importovat ze schránky"
-
-#: translate_tmp.pl:531
-#: translate_tmp.pl:628
-msgid "Open wit_h"
-msgstr "_Otevřít pomocí"
-
-#: translate_tmp.pl:537
-#: translate_tmp.pl:634
-msgid "_Rename..."
-msgstr "_Přejmenovat..."
-
-#: translate_tmp.pl:546
-#: translate_tmp.pl:642
-msgid "_Send To..."
-msgstr "Odesla_t..."
-
-#: translate_tmp.pl:555
-#: translate_tmp.pl:650
-msgid "E_xport..."
-msgstr "E_xportovat..."
-
-#: translate_tmp.pl:562
-#: translate_tmp.pl:656
-msgid "Public URLs"
-msgstr "Veřejné URL"
-
-#: translate_tmp.pl:570
-#: translate_tmp.pl:683
-msgid "_Edit..."
-msgstr "_Upravit…"
-
-#: translate_tmp.pl:587
-msgid "Run a _plugin..."
-msgstr "Spustit zásuvný _modul..."
-
-#: translate_tmp.pl:596
-#: translate_tmp.pl:707
-msgid "Redo _this screenshot"
-msgstr "_Zachytit znovu tento snímek"
-
-#: translate_tmp.pl:699
-msgid "Run a _Plugin..."
-msgstr "Spustit zásuvný _modul..."
-
-#: translate_tmp.pl:37
-msgid "Redo"
-msgstr "Znovu"
-
-#: translate_tmp.pl:40
-msgid "Redo last screenshot"
-msgstr "Zachytit znovu poslední snímek"
-
-#: translate_tmp.pl:70
-msgid ""
-"Draw a rectangular capture area with your mouse\n"
-"to select a specified screen area"
-msgstr "Myší vyberte oblast k zachycení"
-
-#: translate_tmp.pl:71
-msgid "Choose selection tool"
-msgstr "Vyberte nástroj pro výběr"
-
-#: translate_tmp.pl:78
-msgid "Full Screen"
-msgstr "Celá obrazovka"
-
-#: translate_tmp.pl:81
-msgid "Take a screenshot of your whole desktop"
-msgstr "Získat snímek celé obrazovky"
-
-#: translate_tmp.pl:82
-msgid "Capture a specific workspace"
-msgstr "Získat snímek jiné plochy"
-
-#: translate_tmp.pl:102
-msgid "Select a window with your mouse"
-msgstr "Vybrat myší okno pro snímek"
-
-#: translate_tmp.pl:103
-msgid "Take a screenshot of a specific window"
-msgstr "Získat snímek některého okna"
-
-#: translate_tmp.pl:123
-msgid ""
-"Captures only a section of the window. You will be able to select any child "
-"window by moving the mouse over it"
-msgstr ""
-"Snímá pouze vybranou sekci okna. Po aktivaci funkce myší vyberete okno a "
-"potom sekci okna."
-
-#: translate_tmp.pl:143
-msgid "Select a single menu or cascading menus from any application"
-msgstr "Vyberte jednoduchou nebo kaskádovou nabídku z libovolné aplikace"
-
-#: translate_tmp.pl:163
-msgid "Capture a tooltip"
-msgstr "Zachytit kontextovou nápovědu"
-
-#: translate_tmp.pl:179
-msgid "Web"
-msgstr "Web"
-
-#: translate_tmp.pl:203
-msgid "Edit"
-msgstr "Upravit"
-
-#: translate_tmp.pl:206
-msgid ""
-"Use the built-in editor to highlight important fragments of your screenshot "
-"or crop it to a desired size"
-msgstr ""
-"Použít vestavěný editor ke zvýraznění důležitých fragmentů snímku nebo "
-"oříznout na požadovanou velikost"
-
-#: translate_tmp.pl:213
-msgid "Export"
-msgstr "Exportovat"
-
-#: translate_tmp.pl:216
-msgid ""
-"Upload your images to an image hosting service, FTP site or export them to "
-"an arbitrary folder"
-msgstr ""
-"Odeslat obrázky na hosting, FTP server nebo je exportovat do libovolné složky"
-
-#: translate_tmp.pl:33
-#: translate_tmp.pl:47
-#: translate_tmp.pl:62
-#: translate_tmp.pl:76
-#, perl-format
-msgid "Error while executing %s."
-msgstr "Chyba při spuštění %s."
-
-#: translate_tmp.pl:34
-#: translate_tmp.pl:48
-#: translate_tmp.pl:63
-#: translate_tmp.pl:77
-#, perl-format
-msgid "There was an error executing %s."
-msgstr "Vyskytla se chyba při spuštění %s."
-
-#: translate_tmp.pl:37
-#: translate_tmp.pl:51
-#: translate_tmp.pl:66
-#: translate_tmp.pl:80
-#, perl-format
-msgid "Exit Code: %d."
-msgstr "Návratový kód: %d."
 
 #~ msgid "Quit"
 #~ msgstr "Ukončit"
@@ -2490,6 +2642,15 @@ msgstr "Návratový kód: %d."
 #~ "$w = šířka\n"
 #~ "$h = výška\n"
 #~ "%NN = počítadlo"
+
+#~ msgid ""
+#~ "Quality/Compression:\n"
+#~ "High value means high size / high compression\n"
+#~ "(depending on file format chosen)"
+#~ msgstr ""
+#~ "Kvalita/komprese:\n"
+#~ "Vyšší hodnota znamená větší velikost/kompresi\n"
+#~ "(podle vybraného formátu souboru)"
 
 #~ msgid "Save settings when exiting"
 #~ msgstr "Ukládat nastavení při ukončení"
@@ -2625,6 +2786,9 @@ msgstr "Návratový kód: %d."
 #~ msgid "Set profile for current configuration"
 #~ msgstr "Použít konfigurační profil"
 
+#~ msgid "Full Screen"
+#~ msgstr "Celá obrazovka"
+
 #~ msgid ""
 #~ "Please wait while your selected files\n"
 #~ "are being integrated into Shutter"
@@ -2639,14 +2803,33 @@ msgstr "Návratový kód: %d."
 #~ "Prosím počkejte než se vámi\n"
 #~ "uložené sezení obnoví"
 
+#~ msgid "Restoring session"
+#~ msgstr "Obnovuji sezení"
+
+#~ msgid "Loading files"
+#~ msgstr "Načítám soubory"
+
 #~ msgid "Error while taking the screenshot"
 #~ msgstr "Chyba při snímání obrazovky"
 
 #~ msgid "Autohide Shutter Window when taking a screenshot"
 #~ msgstr "Automaticky skrývat okno Shutter při tvorbě snímku"
 
+#~ msgid "Gtk2::ImageView needs to be installed for this feature"
+#~ msgstr "Gtk2::ImageView musí být nainstalován pro tuto funkci"
+
 #~ msgid "Maximum filesize reached!"
 #~ msgstr "Dosaženo maximální velikosti souboru!"
+
+#~ msgid ""
+#~ "Draw a rectangular area using the mouse. To take a screenshot, press the "
+#~ "Enter key. Press Esc to quit."
+#~ msgstr ""
+#~ "Myší vyberte obdélníkovou oblast. Pro sejmutí obrazovky stiskněte klávesu "
+#~ "Enter nebo stiskněte Esc pro ukončení."
+
+#~ msgid "Select an object to delete it from the canvas"
+#~ msgstr "Vyberte objekt pro odstranění z obrázku"
 
 #~ msgid "Delete all objects"
 #~ msgstr "Smazat všechny objekty"
@@ -2654,14 +2837,29 @@ msgstr "Návratový kód: %d."
 #~ msgid "<i>Text</i>"
 #~ msgstr "<i>Text</i>"
 
+#~ msgid "Delete objects"
+#~ msgstr "Smazat objekty"
+
+#~ msgid "_Full Screen"
+#~ msgstr "_Celá obrazovka"
+
 #~ msgid "Move to Dele_ted Items folder"
 #~ msgstr "_Přesunout do koše"
+
+#~ msgid "_Quick select"
+#~ msgstr "_Rychlý výběr profilu"
+
+#~ msgid "_Open with"
+#~ msgstr "_Otevřít s"
 
 #~ msgid "_Upload / Export"
 #~ msgstr "Upload / _Exportovat"
 
 #~ msgid "Execute a _plugin"
 #~ msgstr "_Spustit zásuvný modul"
+
+#~ msgid "Save settings automatically when exiting Shutter"
+#~ msgstr "Automaticky ukládat nastavení při ukončení programu"
 
 #~ msgid "Current Profile"
 #~ msgstr "Aktivní profil"
@@ -2687,6 +2885,9 @@ msgstr "Návratový kód: %d."
 #~ "\n"
 #~ "Není potřeba zadávat heslo."
 
+#~ msgid "Please wait while your saved session is being restored"
+#~ msgstr "Prosím, vyčkejte než se načte uložené sezení"
+
 #~ msgid ""
 #~ "ctrl + scrollwheel = zoom in/out\n"
 #~ "cursor keys + alt = move selection\n"
@@ -2708,8 +2909,35 @@ msgstr "Návratový kód: %d."
 #~ msgid "As background"
 #~ msgstr "Jako pozadí"
 
+#~ msgid "Please wait while your selected files are being loaded into Shutter"
+#~ msgstr "Počkejte prosím než se načtou vybrané soubory do Shuttera"
+
+#~ msgid "W_indow"
+#~ msgstr "_Okno"
+
+#, perl-format
+#~ msgid "_Open with %s"
+#~ msgstr "Otevřít _s %s"
+
 #~ msgid "As custom color:"
 #~ msgstr "Jako vlastní barva:"
 
 #~ msgid "As check pattern"
 #~ msgstr "Jako šachovnice"
+
+#~ msgid "Goo::Canvas/libgoocanvas needs to be installed for this feature"
+#~ msgstr "Goo::Canvas/libgoocanvas musí být nainstalován pro tuto funkci"
+
+#~ msgid ""
+#~ "shift/right-click = selection dialog on/off\n"
+#~ "ctrl + scrollwheel = zoom in/out\t\tspace = zoom window on/off\n"
+#~ "cursor keys + alt = move selection\t\tcursor keys + ctrl = resize selection"
+#~ msgstr ""
+#~ "shift/pravý-klik = volba dialogu zap/vyp\n"
+#~ "ctrl + kolečko myši = zoom přiblížit/oddálit\t\tmezerník = zoom okno "
+#~ "zap/vyp\n"
+#~ "kurzorové klávesy + alt = přesunout výběr\t\tkurzorové klávesy + ctrl = "
+#~ "změna velikosti výběru"
+
+#~ msgid "Capture active window"
+#~ msgstr "Zachytit aktivní okno"

@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-31 19:30+0200\n"
-"PO-Revision-Date: 2010-03-16 01:03+0000\n"
-"Last-Translator: András Bognár <bognarandras.mail@gmail.com>\n"
+"PO-Revision-Date: 2010-09-18 12:07+0000\n"
+"Last-Translator: Papp Bence <papp.bence89@gmail.com>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-31 23:04+0000\n"
-"X-Generator: Launchpad (build Unknown)\n"
+"X-Launchpad-Export-Date: 2011-01-15 15:54+0000\n"
+"X-Generator: Launchpad (build 12200)\n"
 
 #: translate_tmp:27
 msgid "Shutter Branding"
@@ -100,7 +100,7 @@ msgstr "Tépett papírhoz hasonló szegélyt hozzáadása a képhez"
 
 #: translate_tmp:27
 msgid "Autocrop"
-msgstr ""
+msgstr "Automatikus levágás"
 
 #: translate_tmp:28
 #: translate_tmp:49
@@ -109,11 +109,11 @@ msgstr "Eszköz"
 
 #: translate_tmp:29
 msgid "Remove empty borders from the image"
-msgstr ""
+msgstr "A kép üres keretének eltávolítása"
 
 #: translate_tmp:73
 msgid "3D reflection"
-msgstr ""
+msgstr "3D visszaverődés"
 
 #: translate_tmp:75
 msgid ""
@@ -123,6 +123,11 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
 msgstr ""
+"A képhez hozzáad egy fading reflection-t és megjeleníti egy előnézetben\n"
+"\n"
+"Fred Weinhaus scriptje alapján\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
 
 #: translate_tmp:104
 #: translate_tmp:133
@@ -137,7 +142,7 @@ msgstr ""
 
 #: translate_tmp:122
 msgid "Fade:"
-msgstr ""
+msgstr "Elhalványodás:"
 
 #: translate_tmp:129
 #: translate_tmp:136
@@ -146,7 +151,7 @@ msgstr ""
 
 #: translate_tmp:140
 msgid "Opacity:"
-msgstr ""
+msgstr "Áttetszőség:"
 
 #: translate_tmp:147
 #: translate_tmp:154
@@ -164,7 +169,7 @@ msgstr ""
 
 #: translate_tmp:176
 msgid "Gap:"
-msgstr ""
+msgstr "Hézag:"
 
 #: translate_tmp:183
 #: translate_tmp:190
@@ -340,7 +345,7 @@ msgstr ""
 
 #: translate_tmp:104
 msgid "Size:"
-msgstr ""
+msgstr "Méret:"
 
 #: translate_tmp:111
 #: translate_tmp:118
@@ -349,7 +354,7 @@ msgstr ""
 
 #: translate_tmp:122
 msgid "Density:"
-msgstr ""
+msgstr "Sűrűség:"
 
 #: translate_tmp:129
 #: translate_tmp:136
@@ -479,7 +484,7 @@ msgstr "Árnyékolást hozzáadása a képhez az áttetsző háttérnél"
 
 #: translate_tmp:94
 msgid "Direction"
-msgstr ""
+msgstr "Irány"
 
 #: translate_tmp:110
 #: translate_tmp:117
@@ -488,7 +493,7 @@ msgstr ""
 
 #: translate_tmp:121
 msgid "Color"
-msgstr ""
+msgstr "Szín"
 
 #: translate_tmp:126
 msgid "Choose color"
@@ -540,6 +545,9 @@ msgstr "Egyedi szöveges vízjel hozzáadása a képernyőképhez"
 #~ msgid "polaroid"
 #~ msgstr "polaroid"
 
+#~ msgid "Caption:"
+#~ msgstr "Felirat:"
+
 #~ msgid "resize"
 #~ msgstr "átméretezés"
 
@@ -575,6 +583,9 @@ msgstr "Egyedi szöveges vízjel hozzáadása a képernyőképhez"
 
 #~ msgid "generates a torned-border"
 #~ msgstr "tépett keret készítése"
+
+#~ msgid "watermark"
+#~ msgstr "vízjel"
 
 #~ msgid "Save your screenshot as a PDF file"
 #~ msgstr "PDF fájlként menti el a képernyőképet"
