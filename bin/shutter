@@ -94,7 +94,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1018';
+use constant SHUTTER_REV		=> 'Rev.1019';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87';
 
@@ -2096,7 +2096,7 @@ if ($app->is_running) {
 	if ( defined $settings_xml->{'general'}->{'autohide'} ) {
 		$hide_active->set_active( $settings_xml->{'general'}->{'autohide'} );
 	} else {
-		$hide_active->set_active(FALSE);
+		$hide_active->set_active(TRUE);
 	}
 
 	$tooltips->set_tip( $hide_active, $d->get("Autohide main window when taking a screenshot") );
