@@ -106,10 +106,12 @@ sub save_pixbuf_to_file {
 			if(my $exif = Shutter::App::Optional::Exif->new()){
 				#new Image::ExifTool instance 
 				my $exiftool = $exif->get_exiftool;
-				#Set a new value for a tag
-				$exiftool->SetNewValue('Orientation' => $option, Type => 'ValueConv');
-				#Write new meta information to a file
-				my $success = $exiftool->WriteInfo($filename);
+				if($exiftool){
+					#Set a new value for a tag
+					$exiftool->SetNewValue('Orientation' => $option, Type => 'ValueConv');
+					#Write new meta information to a file
+					my $success = $exiftool->WriteInfo($filename);
+				}
 			}
 		};
 	} elsif ( $filetype eq 'png' ) {
