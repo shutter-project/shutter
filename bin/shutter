@@ -94,7 +94,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1015';
+use constant SHUTTER_REV		=> 'Rev.1016';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87';
 
@@ -242,6 +242,7 @@ my $app = Gtk2::UniqueApp->new(
 		tooltip	 => 7,
 		web		 => 8,
 		redoshot => 9,
+		profile  => 10,
 );
 
 #load command line arguments
@@ -253,9 +254,18 @@ my @init_files = @$init_files;
 if ($app->is_running) {
 
 	my ($cmdname, $extra) = $sc->get_start_with;
+	my $profile = $sc->get_profile_to_start_with;
 	
-	if(defined $cmdname && defined $extra){
-		$app->send_message_by_name( $cmdname, text => $extra );
+	if(defined $cmdname && defined $extra && defined $profile){
+		$app->send_message_by_name( 'profile', text => $profile );
+		$app->send_message_by_name( $cmdname, text => $extra );	
+	}elsif(defined $profile){
+		$app->send_message_by_name( 'profile', text => $profile );		
+	}elsif(defined $cmdname && defined $profile){
+		$app->send_message_by_name( 'profile', text => $profile );
+		$app->send_message_by_name( $cmdname );	
+	}elsif(defined $cmdname && defined $extra){
+		$app->send_message_by_name( $cmdname, text => $extra );		
 	}elsif(defined $cmdname){
 		$app->send_message_by_name( $cmdname );	
 	}else{
@@ -336,6 +346,8 @@ if ($app->is_running) {
 				$cmd = 'web';
 			}elsif($cmd == 9){						
 				$cmd = 'redoshot';
+			}elsif($cmd == 10){						
+				$cmd = 'profile';
 			}else{						
 				$cmd = 'open';
 			}
@@ -352,8 +364,11 @@ if ($app->is_running) {
 					&fct_open_files(@init_files);
 				}
 				&fct_control_main_window('show');				
+			#load profile
+			}elsif($cmd eq 'profile'){
+				print "FIXME: switching profiles via IPC is not implemented yet\n";
 			#take screenshot	
-			}else{	
+			}else{
 				#A short timeout to give the server a chance to
 				#redraw the area that was obscured by our dialog.
 				Glib::Timeout->add (800 * 1000, sub{
@@ -5315,7 +5330,7 @@ if ($app->is_running) {
 		
 			#move trashinfo file
 			my $result = Gnome2::VFS::Xfer->uri (Gnome2::VFS::URI->new($trashinfo_path), $trashinfo_uri, 'default', 'abort', 'replace', sub{ return TRUE });
-			unless ($result eq 'bok'){
+			unless ($result eq 'ok'){
 				print "WARNING: ", sprintf ($d->get("Error while creating the trashinfo file %s."), "'" .$trashinfo_filename. "'" ), "\n";
 				#~ $sd->dlg_error_message( Gnome2::VFS->result_to_string($result), sprintf ($d->get("Error while creating the trashinfo file %s."), "'" .$trashinfo_filename. "'" ) );
 			}
