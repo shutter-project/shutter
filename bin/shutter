@@ -94,7 +94,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1019';
+use constant SHUTTER_REV		=> 'Rev.1020';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87';
 
@@ -243,6 +243,7 @@ my $app = Gtk2::UniqueApp->new(
 		web		 => 8,
 		redoshot => 9,
 		profile  => 10,
+		open     => 11,
 );
 
 #load command line arguments
@@ -256,20 +257,45 @@ if ($app->is_running) {
 	my ($cmdname, $extra) = $sc->get_start_with;
 	my $profile = $sc->get_profile_to_start_with;
 	
-	if(defined $cmdname && defined $extra && defined $profile){
-		$app->send_message_by_name( 'profile', text => $profile );
-		$app->send_message_by_name( $cmdname, text => $extra );	
+	my $cmdid = undef;
+	if(defined $cmdname){
+		if($cmdname eq 'select'){
+			$cmdid = 1;
+		}elsif($cmdname eq 'full'){
+			$cmdid = 2;
+		}elsif($cmdname eq 'window'){
+			$cmdid = 3;
+		}elsif($cmdname eq 'awindow'){
+			$cmdid = 4;
+		}elsif($cmdname eq 'section'){
+			$cmdid = 5;
+		}elsif($cmdname eq 'menu'){
+			$cmdid = 6;
+		}elsif($cmdname eq 'tooltip'){
+			$cmdid = 7;
+		}elsif($cmdname eq 'web'){
+			$cmdid = 8;
+		}elsif($cmdname eq 'redoshot'){						
+			$cmdid = 9;
+		}elsif($cmdname eq 'profile'){						
+			$cmdid = 10;
+		}
+	}
+	
+	if(defined $cmdid && defined $extra && defined $profile){
+		$app->send_message( 10, text => $profile );
+		$app->send_message( $cmdid, text => $extra );	
 	}elsif(defined $profile){
-		$app->send_message_by_name( 'profile', text => $profile );		
-	}elsif(defined $cmdname && defined $profile){
-		$app->send_message_by_name( 'profile', text => $profile );
-		$app->send_message_by_name( $cmdname );	
-	}elsif(defined $cmdname && defined $extra){
-		$app->send_message_by_name( $cmdname, text => $extra );		
-	}elsif(defined $cmdname){
-		$app->send_message_by_name( $cmdname );	
+		$app->send_message( 10, text => $profile );		
+	}elsif(defined $cmdid && defined $profile){
+		$app->send_message( 10, text => $profile );
+		$app->send_message( $cmdid );	
+	}elsif(defined $cmdid && defined $extra){
+		$app->send_message( $cmdid, text => $extra );		
+	}elsif(defined $cmdid){
+		$app->send_message( $cmdid );	
 	}else{
-		$app->send_message_by_name( 'open', uris => \@init_files );
+		$app->send_message( 11, uris => \@init_files );
 	}
 
 #Create the single application instance and wait for other requests
@@ -344,12 +370,14 @@ if ($app->is_running) {
 				$cmd = 'tooltip';
 			}elsif($cmd == 8){
 				$cmd = 'web';
-			}elsif($cmd == 9){						
+			}elsif($cmd == 9){			
 				$cmd = 'redoshot';
-			}elsif($cmd == 10){						
+			}elsif($cmd == 10){			
 				$cmd = 'profile';
-			}else{						
+			}elsif($cmd == 11){
 				$cmd = 'open';
+			}else{
+				$cmd = 'open';				
 			}
 		}
 		
