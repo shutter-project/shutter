@@ -289,11 +289,11 @@ if ($app->is_running) {
 		$app->send_message( 10, text => $profile );		
 	}elsif(defined $cmdid && defined $profile){
 		$app->send_message( 10, text => $profile );
-		$app->send_message( $cmdid );	
+		$app->send_message( $cmdid, text => '' );	
 	}elsif(defined $cmdid && defined $extra){
 		$app->send_message( $cmdid, text => $extra );		
 	}elsif(defined $cmdid){
-		$app->send_message( $cmdid );	
+		$app->send_message( $cmdid, text => '' );	
 	}else{
 		$app->send_message( 11, uris => \@init_files );
 	}
