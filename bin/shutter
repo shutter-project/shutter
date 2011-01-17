@@ -94,7 +94,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1020';
+use constant SHUTTER_REV		=> 'Rev.1021';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87';
 
@@ -243,7 +243,7 @@ my $app = Gtk2::UniqueApp->new(
 		web		 => 8,
 		redoshot => 9,
 		profile  => 10,
-		open     => 11,
+		fopen    => 11,
 );
 
 #load command line arguments
@@ -375,9 +375,9 @@ if ($app->is_running) {
 			}elsif($cmd == 10){			
 				$cmd = 'profile';
 			}elsif($cmd == 11){
-				$cmd = 'open';
+				$cmd = 'fopen';
 			}else{
-				$cmd = 'open';				
+				$cmd = 'fopen';				
 			}
 		}
 		
@@ -386,7 +386,7 @@ if ($app->is_running) {
 	
 		if(defined $cmd){
 			#open new files
-			if($cmd eq 'open'){
+			if($cmd eq 'fopen'){
 				my @init_files = $message->get_uris;
 				if(scalar @init_files > 0){
 					&fct_open_files(@init_files);
