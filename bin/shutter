@@ -420,6 +420,9 @@ if ($app->is_running) {
 		return 'ok';
 	});
 
+	#check some wm related settings
+	&fct_init_wm_settings;
+
 	#create needed directories etc.
 	&fct_init_environment;
 
@@ -9090,6 +9093,54 @@ if ($app->is_running) {
 			$exiftool = FALSE;
 		}
 
+		return TRUE;
+	}
+
+	sub fct_init_wm_settings {
+
+		#compiz via dbus	
+		my $bus		= undef;
+		my $compiz 	= undef;
+		my $fpl		= undef;
+		
+		#check focus prevention when using compiz
+		eval{
+			$bus = Net::DBus->find;
+			
+			#Get a handle to the compiz service
+			$compiz = $bus->get_service("org.freedesktop.compiz");
+	
+			#Get the relevant object
+			$fpl = $compiz->get_object("/org/freedesktop/compiz/core/screen0/focus_prevention_level", "org.freedesktop.compiz");
+		};
+		if($@){
+			warn "INFO: DBus connection to org.freedesktop.compiz failed --> skipping compiz related tasks\n\n";
+			warn $@ . "\n\n";
+		}
+		if(defined $fpl && $fpl && $fpl->get != 0){
+			my $screen = Gnome2::Wnck::Screen->get_default;
+			$screen->force_update();
+
+			my $wm_name = Gtk2::Gdk::Screen->get_default->get_window_manager_name;
+			if($screen->can('get_window_manager_name')){
+				$wm_name = $screen->get_window_manager_name;
+			}			
+
+			my ($response, $rcheck) = $sd->dlg_question_message( 
+				$d->get( "It is recommended to disable the feature 'focus stealing prevention'. Disable this feature now?" ),
+				sprintf( $d->get( "Your window manager (%s) is using unrecommended settings." ), $wm_name ),
+				'gtk-cancel', $d->get("Disable feature"), undef,
+				undef, undef, undef, undef,
+				$d->get("_Do not ask again")
+			);
+			
+			#disable via dbus
+			if($response == 20){
+				$fpl->set(0);
+			}
+			print $rcheck, "\n";
+		}
+		
 		return TRUE;
 	}
 

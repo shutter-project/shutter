@@ -87,6 +87,7 @@ sub dlg_question_message {
 	my $button_widget_extra2 	= shift;
 	my $button_widget_extra3 	= shift;
 	my $detail_message 			= shift;
+	my $detail_checkbox 		= shift;
 
 	my $question_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef );
 
@@ -120,6 +121,16 @@ sub dlg_question_message {
 		$question_dialog->vbox->add($detail_hbox);
 	}
 
+	#show a detailed message with checkbox
+	my $dcheck = undef;
+	if($detail_checkbox){
+		$dcheck = Gtk2::CheckButton->new_with_mnemonic($detail_checkbox);
+		my $detail_hbox = Gtk2::HBox->new();
+		$detail_hbox->pack_start(Gtk2::Label->new, FALSE, FALSE, 12);
+		$detail_hbox->pack_start_defaults($dcheck);
+		$question_dialog->vbox->add($detail_hbox);
+	}
+
 	$question_dialog->show_all;
 
 	if(defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk2::Gdk::Window/){
@@ -134,7 +145,12 @@ sub dlg_question_message {
 	$question_response = -1 if $question_response =~ /event/;
 
 	$question_dialog->destroy();
-	return $question_response;
+	
+	if(defined $dcheck){
+		return ($question_response, $dcheck->get_active);
+	}else{
+		return $question_response;	
+	}
 }
 
 sub dlg_error_message {
