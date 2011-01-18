@@ -94,7 +94,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1025';
+use constant SHUTTER_REV		=> 'Rev.1026';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87';
 
@@ -208,20 +208,20 @@ my $window 	= Gtk2::Window->new('toplevel');
 
 #create app objects
 #--------------------------------------
-my $sc 		= Shutter::App::Common->new($shutter_root, $window, SHUTTER_NAME, SHUTTER_VERSION, SHUTTER_REV, $$);
+my $sc		= Shutter::App::Common->new($shutter_root, $window, SHUTTER_NAME, SHUTTER_VERSION, SHUTTER_REV, $$);
 my $shf		= Shutter::App::HelperFunctions->new($sc);
-my $so  	= Shutter::App::Options->new($sc, $shf);
-my $sdir  	= Shutter::App::Directories->new();
-my $strash  = Shutter::App::TrashInfo->new();
-my $sas  	= Shutter::App::Autostart->new();
-my $sm  	= Shutter::App::Menu->new($sc);
-my $st  	= Shutter::App::Toolbar->new($sc);
-my $sd 		= Shutter::App::SimpleDialogs->new($window);
+my $so		= Shutter::App::Options->new($sc, $shf);
+my $sdir	= Shutter::App::Directories->new();
+my $strash	= Shutter::App::TrashInfo->new();
+my $sas		= Shutter::App::Autostart->new();
+my $sm		= Shutter::App::Menu->new($sc);
+my $st		= Shutter::App::Toolbar->new($sc);
+my $sd		= Shutter::App::SimpleDialogs->new($window);
 
-my $sp 		= Shutter::Pixbuf::Save->new($sc);
-my $lp 		= Shutter::Pixbuf::Load->new($sc);
-my $lp_ne 	= Shutter::Pixbuf::Load->new($sc, undef, TRUE);
-my $sthumb 	= Shutter::Pixbuf::Thumbnail->new($sc);
+my $sp		= Shutter::Pixbuf::Save->new($sc);
+my $lp		= Shutter::Pixbuf::Load->new($sc);
+my $lp_ne	= Shutter::Pixbuf::Load->new($sc, undef, TRUE);
+my $sthumb	= Shutter::Pixbuf::Thumbnail->new($sc);
 
 #--------------------------------------
 
