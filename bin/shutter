@@ -94,7 +94,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1026';
+use constant SHUTTER_REV		=> 'Rev.1027';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87';
 
@@ -244,6 +244,7 @@ my $app = Gtk2::UniqueApp->new(
 		redoshot => 9,
 		profile  => 10,
 		fopen    => 11,
+		exitac   => 12,
 );
 
 #load command line arguments
@@ -256,6 +257,7 @@ if ($app->is_running) {
 
 	my ($cmdname, $extra) = $sc->get_start_with;
 	my $profile = $sc->get_profile_to_start_with;
+	my $exitac = $sc->get_exit_after_capture;
 	
 	my $cmdid = undef;
 	if(defined $cmdname){
@@ -282,15 +284,18 @@ if ($app->is_running) {
 		}
 	}
 	
-	if(defined $cmdid && defined $extra && defined $profile){
+	#change profile in running application
+	if(defined $profile && $profile){
 		$app->send_message( 10, text => $profile );
-		$app->send_message( $cmdid, text => $extra );	
-	}elsif(defined $profile){
-		$app->send_message( 10, text => $profile );		
-	}elsif(defined $cmdid && defined $profile){
-		$app->send_message( 10, text => $profile );
-		$app->send_message( $cmdid, text => '' );	
-	}elsif(defined $cmdid && defined $extra){
+	}
+	
+	#set exit flag in running application
+	if(defined $exitac && $exitac){
+		$app->send_message( 12, text => '' );
+	}
+	
+	#send $cmdid
+	if(defined $cmdid && defined $extra){
 		$app->send_message( $cmdid, text => $extra );		
 	}elsif(defined $cmdid){
 		$app->send_message( $cmdid, text => '' );	
@@ -375,7 +380,9 @@ if ($app->is_running) {
 			}elsif($cmd == 10){			
 				$cmd = 'profile';
 			}elsif($cmd == 11){
-				$cmd = 'fopen';
+				$cmd = 'fopen';				
+			}elsif($cmd == 12){
+				$cmd = 'exitac';
 			}else{
 				$cmd = 'fopen';				
 			}
@@ -385,8 +392,11 @@ if ($app->is_running) {
 		$is_hidden = FALSE;
 	
 		if(defined $cmd){
+			#set exit flag
+			if($cmd eq 'exitac'){
+				$sc->set_exit_after_capture(TRUE);
 			#open new files
-			if($cmd eq 'fopen'){
+			}elsif($cmd eq 'fopen'){
 				my @init_files = $message->get_uris;
 				if(scalar @init_files > 0){
 					&fct_open_files(@init_files);
