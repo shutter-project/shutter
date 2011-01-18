@@ -63,6 +63,11 @@ sub window_find_by_name {
 	#cycle through all windows
 	my $output = 7;
 	foreach my $win ( $self->{_wnck_screen}->get_windows_stacked ) {
+		#ignore shutter window
+		if ( $self->{_sc}->get_mainwindow->window ) {
+			next if ( $win->get_xid == $self->{_sc}->get_mainwindow->window->get_xid );
+		}
+		#check if window is on active workspace
 		if ( $active_workspace && $win->is_on_workspace( $active_workspace ) ) {
 			if ( $win->get_name =~ m/$name_pattern/i ) {
 				$output = $self->window_by_xid($win->get_xid);
