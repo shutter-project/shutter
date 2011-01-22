@@ -94,7 +94,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1029';
+use constant SHUTTER_REV		=> 'Rev.1030';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87';
 
@@ -419,9 +419,6 @@ if ($app->is_running) {
 		
 		return 'ok';
 	});
-
-	#check some wm related settings
-	&fct_init_wm_settings;
 
 	#create needed directories etc.
 	&fct_init_environment;
@@ -6058,6 +6055,9 @@ if ($app->is_running) {
 				  $data eq "tooltip" || 
 				  $data eq "tray_tooltip" ) {
 
+			#control some wm related settings
+			my $curr_value = &fct_control_wm_settings('start');
+
 			if ( defined $extra && $extra ) {
 
 				$screenshooter = Shutter::Screenshot::WindowName->new(
@@ -6084,6 +6084,11 @@ if ($app->is_running) {
 				
 				$screenshot = $screenshooter->window();
 
+			}
+			
+			#control some wm related settings
+			if(defined $curr_value && $curr_value != -1){
+				&fct_control_wm_settings('stop', $curr_value);
 			}
 
 		#selection
@@ -6160,6 +6165,9 @@ if ($app->is_running) {
 			
 			my $xid = $1;
 			print "Selected xid: $xid\n" if $sc->get_debug;
+
+			#control some wm related settings
+			my $curr_value = &fct_control_wm_settings('start');
 			
 			#change mode (imitating selecting a window by mouse)
 			$data = "window";
@@ -6176,6 +6184,11 @@ if ($app->is_running) {
 			);
 			
 			$screenshot = $screenshooter->window_by_xid($xid);
+			
+			#control some wm related settings
+			if(defined $curr_value && $curr_value != -1){
+				&fct_control_wm_settings('stop', $curr_value);
+			}
 
 		} elsif ( $data =~ /^shutter_wrksp_direct/ ) {
 			
@@ -9096,14 +9109,19 @@ if ($app->is_running) {
 		return TRUE;
 	}
 
-	sub fct_init_wm_settings {
+	sub fct_control_wm_settings {
+		my $mode = shift;
+		my $restore_value = shift;
 
 		#compiz via dbus	
 		my $bus		= undef;
 		my $compiz 	= undef;
 		my $fpl		= undef;
 		
-		#check focus prevention when using compiz
+		#disable focus_prevention
+		my $curr_value = -1;		
+		
+		#disable focus prevention when using compiz
 		eval{
 			$bus = Net::DBus->find;
 			
@@ -9116,32 +9134,27 @@ if ($app->is_running) {
 		if($@){
 			warn "INFO: DBus connection to org.freedesktop.compiz failed --> skipping compiz related tasks\n\n";
 			warn $@ . "\n\n";
-		}
-		if(defined $fpl && $fpl && $fpl->get != 0){
-			my $screen = Gnome2::Wnck::Screen->get_default;
-			$screen->force_update();
-
-			my $wm_name = Gtk2::Gdk::Screen->get_default->get_window_manager_name;
-			if($screen->can('get_window_manager_name')){
-				$wm_name = $screen->get_window_manager_name;
-			}			
-
-			my ($response, $rcheck) = $sd->dlg_question_message( 
-				$d->get( "It is recommended to disable the feature 'focus stealing prevention'. Disable this feature now?" ),
-				sprintf( $d->get( "Your window manager (%s) is using unrecommended settings." ), $wm_name ),
-				'gtk-cancel', $d->get("Disable feature"), undef,
-				undef, undef, undef, undef,
-				$d->get("_Do not ask again")
-			);
-			
-			#disable via dbus
-			if($response == 20){
-				$fpl->set(0);
-			}
-			print $rcheck, "\n";
+			return $curr_value;
 		}
 		
-		return TRUE;
+		if($mode eq 'start'){
+			#save and return current value
+			if(defined $fpl && $fpl){
+				$curr_value = $fpl->get;
+			}			
+			if(defined $fpl && $fpl && $fpl->get != 0){
+				$fpl->set(0);
+			}
+		#re-enable focus prevention -> restore value
+		}elsif($mode eq 'stop'){
+			if(defined $fpl && $fpl && defined $restore_value){
+				$fpl->set($restore_value);
+			}elsif(defined $fpl && $fpl){
+				$fpl->set(1);
+			}			
+		}
+		
+		return $curr_value;
 	}
 
 	sub fct_init_environment {

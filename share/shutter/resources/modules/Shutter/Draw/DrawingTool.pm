@@ -4285,15 +4285,29 @@ sub show_item_properties {
 
 		#use font checkbox
 		my $use_font  = Gtk2::CheckButton->new_with_label( $self->{_d}->get("Use selected font") );
-		$use_font->set_active(TRUE);
+		$use_font->set_active(FALSE);
 
 		$text_vbox->pack_start_defaults($use_font);
+
+		#use font color checkbox
+		my $use_font_color  = Gtk2::CheckButton->new_with_label( $self->{_d}->get("Use selected font color") );
+		$use_font_color->set_active(FALSE);
+
+		$text_vbox->pack_start_defaults($use_font_color);
 
 		#apply changes directly
 		$use_font->signal_connect(
 			'toggled' => sub {
 
-				$self->modify_text_in_properties( $font_btn, $textview, $font_color, $item, $use_font );
+				$self->modify_text_in_properties( $font_btn, $textview, $font_color, $item, $use_font, $use_font_color );
+
+			}
+		);
+
+		$use_font_color->signal_connect(
+			'toggled' => sub {
+
+				$self->modify_text_in_properties( $font_btn, $textview, $font_color, $item, $use_font, $use_font_color );
 
 			}
 		);
@@ -4301,7 +4315,7 @@ sub show_item_properties {
 		$font_btn->signal_connect(
 			'font-set' => sub {
 
-				$self->modify_text_in_properties( $font_btn, $textview, $font_color, $item, $use_font );
+				$self->modify_text_in_properties( $font_btn, $textview, $font_color, $item, $use_font, $use_font_color );
 
 			}
 		);
@@ -4309,7 +4323,7 @@ sub show_item_properties {
 		$font_color->signal_connect(
 			'color-set' => sub {
 
-				$self->modify_text_in_properties( $font_btn, $textview, $font_color, $item, $use_font );
+				$self->modify_text_in_properties( $font_btn, $textview, $font_color, $item, $use_font, $use_font_color );
 
 			}
 		);
@@ -4761,19 +4775,22 @@ sub apply_properties {
 }
 
 sub modify_text_in_properties {
-	my $self       = shift;
-	my $font_btn   = shift;
-	my $textview   = shift;
-	my $font_color = shift;
-	my $item       = shift;
-	my $use_font   = shift;
+	my $self           = shift;
+	my $font_btn       = shift;
+	my $textview       = shift;
+	my $font_color     = shift;
+	my $item           = shift;
+	my $use_font       = shift;
+	my $use_font_color = shift;
 
 	my $font_descr = Gtk2::Pango::FontDescription->from_string( $font_btn->get_font_name );
 	my $texttag    = Gtk2::TextTag->new;
 	
-	if($use_font->get_active){
+	if($use_font->get_active && $use_font_color->get_active){
 		$texttag->set( 'font-desc' => $font_descr, 'foreground-gdk' => $font_color->get_color );
-	}else{
+	}elsif($use_font->get_active){
+		$texttag->set( 'font-desc' => $font_descr );
+	}elsif($use_font_color->get_active){
 		$texttag->set( 'foreground-gdk' => $font_color->get_color );
 	}
 	

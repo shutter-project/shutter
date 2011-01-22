@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   id="svg548"
+   sodipodi:version="0.32"
+   width="400pt"
+   height="400pt"
+   sodipodi:docname="Callout_ubuntu_center_up.svg"
+   inkscape:version="0.48.0 r9654"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   version="1.1">
+  <metadata
+     id="metadata2409" />
+  <defs
+     id="defs550">
+    <filter
+       id="filter3505"
+       inkscape:label="Drop shadow"
+       width="1.5"
+       height="1.5"
+       x="-.25"
+       y="-.25">
+      <feGaussianBlur
+         id="feGaussianBlur3507"
+         in="SourceAlpha"
+         stdDeviation="2"
+         result="blur" />
+      <feColorMatrix
+         id="feColorMatrix3509"
+         result="bluralpha"
+         type="matrix"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.5 0 " />
+      <feOffset
+         id="feOffset3511"
+         in="bluralpha"
+         dx="10"
+         dy="10"
+         result="offsetBlur" />
+      <feMerge
+         id="feMerge3513">
+        <feMergeNode
+           id="feMergeNode3515"
+           in="offsetBlur" />
+        <feMergeNode
+           id="feMergeNode3517"
+           in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     inkscape:zoom="1"
+     inkscape:cx="383.96036"
+     inkscape:cy="200"
+     inkscape:window-width="1166"
+     inkscape:window-height="881"
+     inkscape:window-x="383"
+     inkscape:window-y="185"
+     showgrid="false"
+     inkscape:current-layer="svg548"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata2411">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:title></dc:title>
+        <dc:rights>
+          <cc:Agent>
+            <dc:title>Nicu Buculei</dc:title>
+          </cc:Agent>
+        </dc:rights>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <cc:license
+           rdf:resource="http://web.resource.org/cc/PublicDomain" />
+        <dc:format>image/svg+xml</dc:format>
+      </cc:Work>
+      <cc:License
+         rdf:about="http://web.resource.org/cc/PublicDomain">
+        <cc:permits
+           rdf:resource="http://web.resource.org/cc/Reproduction" />
+        <cc:permits
+           rdf:resource="http://web.resource.org/cc/Distribution" />
+        <cc:permits
+           rdf:resource="http://web.resource.org/cc/DerivativeWorks" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <path
+     inkscape:connector-curvature="0"
+     style="fill:#f15d22;fill-opacity:1;stroke:none;display:inline;enable-background:new;filter:url(#filter3505)"
+     d="m 430.36372,118.93252 c 46.47391,98.58073 2.81005,216.84157 -97.52599,264.14301 -12.542,5.91268 -25.37582,10.43674 -38.32335,13.63441 -0.0329,-0.32463 -48.87283,84.53436 -48.87283,84.53436 0,0 -42.78535,-81.98724 -43.10401,-81.84118 C 154.32506,382.90795 90.25176,339.51651 67.014796,290.22616 20.540884,191.64546 64.204744,73.384614 164.54078,26.083194 264.87682,-21.218246 383.8898,20.351834 430.36372,118.93252 z"
+     id="path2844"
+     sodipodi:nodetypes="cscccssc" />
+</svg>
