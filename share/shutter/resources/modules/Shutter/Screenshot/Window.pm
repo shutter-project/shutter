@@ -865,8 +865,8 @@ sub window {
 	$initevent->window($self->{_root});
 	$initevent->x($initx);
 	$initevent->y($inity);
-	
-	if ( Gtk2::Gdk->pointer_is_grabbed ) {
+		
+	if ( Gtk2::Gdk->pointer_is_grabbed && !($self->{_mode} eq "menu" || $self->{_mode} eq "tray_menu" || $self->{_mode} eq "tooltip" || $self->{_mode} eq "tray_tooltip" || $self->{_mode} eq "awindow" || $self->{_mode} eq "tray_awindow") ) {
 
 		#simulate mouse movement
 		$self->select_window($initevent, $active_workspace);
