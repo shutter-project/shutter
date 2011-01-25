@@ -905,16 +905,18 @@ sub window {
 					my ( $xp, $yp, $wp, $hp, $xc, $yc, $wc, $hc ) = (0, 0, 0, 0, 0, 0, 0, 0);
 
 					if ( defined $self->{_c}{'lw'} && $self->{_c}{'lw'}{'gdk_window'} ) {
-
+						
 						#size (we need to do this again because of autoresizing)
-						( $xc, $yc, $wc, $hc ) = $self->get_window_size( $self->{_c}{'lw'}{'window'}, $self->{_c}{'lw'}{'gdk_window'}, $self->{_include_border}, TRUE );
-						( $xp, $yp, $wp, $hp ) = $self->get_window_size( $self->{_c}{'lw'}{'window'}, $self->{_c}{'lw'}{'gdk_window'}, $self->{_include_border} );
+						if ( ( $self->{_mode} eq "window" || $self->{_mode} eq "tray_window" ||  $self->{_mode} eq "awindow"  || $self->{_mode} eq "tray_awindow" ) ) {
+							( $xc, $yc, $wc, $hc ) = $self->get_window_size( $self->{_c}{'lw'}{'window'}, $self->{_c}{'lw'}{'gdk_window'}, $self->{_include_border}, TRUE );
+							( $xp, $yp, $wp, $hp ) = $self->get_window_size( $self->{_c}{'lw'}{'window'}, $self->{_c}{'lw'}{'gdk_window'}, $self->{_include_border} );
 
-						$self->{_c}{'cw'}{'x'} 			= $xp;
-						$self->{_c}{'cw'}{'y'} 			= $yp;
-						$self->{_c}{'cw'}{'width'} 		= $wp;
-						$self->{_c}{'cw'}{'height'} 	= $hp;
-
+							$self->{_c}{'cw'}{'x'} 			= $xp;
+							$self->{_c}{'cw'}{'y'} 			= $yp;
+							$self->{_c}{'cw'}{'width'} 		= $wp;
+							$self->{_c}{'cw'}{'height'} 	= $hp;
+						}
+						
 						#focus selected window (maybe it is hidden)
 						$self->{_c}{'lw'}{'gdk_window'}->focus($event->time);
 						Gtk2::Gdk->flush;						
@@ -1233,7 +1235,7 @@ sub redo_capture {
 	
 				if($self->{_mode} eq "section" || $self->{_mode} eq "tray_section" ){
 	
-					( $wp, $hp ) = $gdk_window->get_size;
+					( $xp, $yp, $wp, $hp ) = $gdk_window->get_geometry;
 					( $xp, $yp ) = $gdk_window->get_origin;
 					
 				}elsif($self->{_mode} eq "window" || $self->{_mode} eq "tray_window" || $self->{_mode} eq "awindow" || $self->{_mode} eq "tray_awindow"){
