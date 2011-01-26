@@ -1238,6 +1238,15 @@ sub redo_capture {
 					( $xp, $yp, $wp, $hp ) = $gdk_window->get_geometry;
 					( $xp, $yp ) = $gdk_window->get_origin;
 					
+					#find parent window
+					my $pxid = $self->find_wm_window($gxid);
+					my $parent = Gtk2::Gdk::Window->foreign_new( $pxid );
+					if(defined $parent && $parent){
+						#and focus parent window (maybe it is hidden)
+						$parent->focus(Gtk2->get_current_event_time);
+						Gtk2::Gdk->flush;
+					}
+									
 				}elsif($self->{_mode} eq "window" || $self->{_mode} eq "tray_window" || $self->{_mode} eq "awindow" || $self->{_mode} eq "tray_awindow"){
 	
 					#get_size of it

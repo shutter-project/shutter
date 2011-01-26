@@ -94,7 +94,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1034';
+use constant SHUTTER_REV		=> 'Rev.1035';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87';
 
@@ -6240,6 +6240,12 @@ if ($app->is_running) {
 				#we need to handle menu and tooltip in a special way
 				if($screenshooter->can('get_mode')){
 					if(my $mode = $screenshooter->get_mode){
+						#control some wm related settings
+						my $curr_value = undef;
+						if ( ( $mode eq "window" || $mode eq "tray_window" ||  $mode eq "awindow"  || $mode eq "tray_awindow" ||  $mode eq "section"  || $mode eq "tray_section" ) ) {
+							$curr_value = &fct_control_wm_settings('start');							
+						}
+						
 						if ( $mode eq "menu" || $mode eq "tray_menu" ) {
 							$st->{_menu}->signal_emit('clicked');
 							return FALSE;
@@ -6249,9 +6255,22 @@ if ($app->is_running) {
 						}else{
 							$screenshot = $screenshooter->redo_capture;	
 						}
+						
+						#control some wm related settings
+						if ( ( $mode eq "window" || $mode eq "tray_window" ||  $mode eq "awindow"  || $mode eq "tray_awindow" ||  $mode eq "section"  || $mode eq "tray_section" ) ) {
+							if(defined $curr_value && $curr_value != -1){
+								&fct_control_wm_settings('stop', $curr_value);
+							}						
+						}
 					#window by xid
 					}else{
+						#control some wm related settings
+						my $curr_value = &fct_control_wm_settings('start');
 						$screenshot = $screenshooter->redo_capture;
+						#control some wm related settings
+						if(defined $curr_value && $curr_value != -1){
+							&fct_control_wm_settings('stop', $curr_value);
+						}
 					}	
 				}else{
 					$screenshot = $screenshooter->redo_capture;
@@ -6283,6 +6302,12 @@ if ($app->is_running) {
 				#we need to handle menu and tooltip in a special way
 				if($screenshooter->can('get_mode')){
 					if(my $mode = $screenshooter->get_mode){
+						#control some wm related settings
+						my $curr_value = undef;
+						if ( ( $mode eq "window" || $mode eq "tray_window" ||  $mode eq "awindow"  || $mode eq "tray_awindow" ||  $mode eq "section"  || $mode eq "tray_section" ) ) {
+							$curr_value = &fct_control_wm_settings('start');							
+						}
+						
 						if ( $mode eq "menu" || $mode eq "tray_menu" ) {
 							$st->{_menu}->signal_emit('clicked');
 							return FALSE;
@@ -6292,9 +6317,22 @@ if ($app->is_running) {
 						}else{
 							$screenshot = $screenshooter->redo_capture;	
 						}
+						
+						#control some wm related settings
+						if ( ( $mode eq "window" || $mode eq "tray_window" ||  $mode eq "awindow"  || $mode eq "tray_awindow" ||  $mode eq "section"  || $mode eq "tray_section" ) ) {
+							if(defined $curr_value && $curr_value != -1){
+								&fct_control_wm_settings('stop', $curr_value);
+							}						
+						}
 					#window by xid	
 					}else{
+						#control some wm related settings
+						my $curr_value = &fct_control_wm_settings('start');
 						$screenshot = $screenshooter->redo_capture;
+						#control some wm related settings
+						if(defined $curr_value && $curr_value != -1){
+							&fct_control_wm_settings('stop', $curr_value);
+						}
 					}	
 				}else{
 					$screenshot = $screenshooter->redo_capture;
