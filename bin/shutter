@@ -94,7 +94,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1036';
+use constant SHUTTER_REV		=> 'Rev.1037';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87';
 
@@ -3123,32 +3123,43 @@ if ($app->is_running) {
 				if ($ckey eq $key){
 					if($session_screens{$key}->{'long'}){
 						
-						&fct_update_info_and_tray($key);
-																							
-						#do nothing if
-						#the view does already show a pixbuf
-						unless($session_screens{$ckey}->{'image'}->get_pixbuf){
-							$session_screens{$ckey}->{'image'}->set_pixbuf($lp->load( $session_screens{$key}->{'long'}, undef, undef, undef, TRUE ));
-						}
+						Glib::Idle->add(sub{
+						
+							&fct_update_info_and_tray($key);
+																								
+							#do nothing if
+							#the view does already show a pixbuf
+							unless($session_screens{$ckey}->{'image'}->get_pixbuf){
+								$session_screens{$ckey}->{'image'}->set_pixbuf($lp->load( $session_screens{$key}->{'long'}, undef, undef, undef, TRUE ));
+							}
+						
+						return FALSE;
+						});
 						
 					}
 					next;
 				}
 				#unset imageview for all other items
 				if(defined $session_screens{$ckey}->{'image'} && $session_screens{$ckey}->{'image'}->get_pixbuf){
-					eval{
-						#~ print "unsetting ", $ckey, "\n";
-						$session_screens{$ckey}->{'image'}->set_pixbuf(undef);
-					};
-					if($@){
-						delete $session_screens{$ckey};
-						next;	
-					}
+					Glib::Idle->add(sub{
+						eval{
+							#~ print "unsetting ", $ckey, "\n";
+							$session_screens{$ckey}->{'image'}->set_pixbuf(undef);
+						};
+						if($@){
+							delete $session_screens{$ckey};
+							next;	
+						}
+						return FALSE;
+					});
 				}
 			}
 
 		}else{
-			&fct_update_info_and_tray("session");		
+			Glib::Idle->add(sub{
+				&fct_update_info_and_tray("session");		
+				return FALSE;
+			});
 		}
 
 		#unselect all items in session tab
