@@ -94,7 +94,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1035';
+use constant SHUTTER_REV		=> 'Rev.1036';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87';
 
@@ -3164,7 +3164,7 @@ if ($app->is_running) {
 	}
 
 	sub evt_delete_window {
-		my ( $widget, $data ) = @_;
+		my ( $widget, $data, $scounter ) = @_;
 		print "\n$data was emitted by widget $widget\n"
 			if $sc->get_debug;
 
@@ -3173,20 +3173,44 @@ if ($app->is_running) {
 			$is_hidden = TRUE;
 			return TRUE;
 		}
+		
+		Glib::Idle->add( sub{
+			
+			#hide window and block sontrols
+			$window->hide;
+			&fct_control_signals('block');
 
-		#hide window and save settings
-		$window->hide;
-		&fct_save_settings(undef);
-		&fct_save_settings($combobox_settings_profiles->get_active_text) 
-			if $combobox_settings_profiles->get_active != -1;
+			#wait if there are still files that need to be loaded
+			#they would not be saved in session 
+			unless(defined $scounter){
+				$scounter = 0;
+			}
+			while(defined $session_start_screen{'first_page'}->{'num_session_files'} && $scounter <= 15){
+				$scounter++;
+				#try again in a second
+				Glib::Timeout->add (1000, sub{
+					&evt_delete_window( '', 'quit', $scounter );
+					return FALSE;	
+				});
+				return FALSE;
+			}
 
-		#keybindings
-		&fct_save_bindings($capture_key->get_text, $capture_sel_key->get_text);	
+			#save settings
+			&fct_save_settings(undef);
+			&fct_save_settings($combobox_settings_profiles->get_active_text) 
+				if $combobox_settings_profiles->get_active != -1;
 
-		#autostart
-		$sas->create_autostart_file($sdir->get_autostart_dir, $fs_active->get_active, $fs_min_active->get_active, $fs_nonot_active->get_active);
+			#keybindings
+			&fct_save_bindings($capture_key->get_text, $capture_sel_key->get_text);	
 
-		Gtk2->main_quit;
+			#autostart
+			$sas->create_autostart_file($sdir->get_autostart_dir, $fs_active->get_active, $fs_min_active->get_active, $fs_nonot_active->get_active);
+
+			Gtk2->main_quit;
+
+			return FALSE;
+		});
+		
 		return FALSE;
 	}
 
@@ -6598,10 +6622,7 @@ if ($app->is_running) {
 		#Exit Shutter after the first capture has been made. 
 		#This is useful when using Shutter in scripts.
 		if($sc->get_exit_after_capture){
-			Glib::Idle->add(sub{
-				&evt_delete_window( '', 'quit' );
-				return FALSE;
-			});
+			&evt_delete_window( '', 'quit' );
 		}
 		
 		return TRUE;
