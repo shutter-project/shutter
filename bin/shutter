@@ -94,7 +94,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1038';
+use constant SHUTTER_REV		=> 'Rev.1039';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87';
 
@@ -3122,20 +3122,18 @@ if ($app->is_running) {
 				#set pixbuf for current item
 				if ($ckey eq $key){
 					if($session_screens{$key}->{'long'}){
-						
 						Glib::Idle->add(sub{
-						
+							return FALSE unless(exists $session_screens{$key} && exists $session_screens{$ckey});
 							&fct_update_info_and_tray($key);
-																								
 							#do nothing if
 							#the view does already show a pixbuf
-							unless($session_screens{$ckey}->{'image'}->get_pixbuf){
-								$session_screens{$ckey}->{'image'}->set_pixbuf($lp->load( $session_screens{$key}->{'long'}, undef, undef, undef, TRUE ));
+							if(defined $session_screens{$ckey}->{'image'}){
+								unless($session_screens{$ckey}->{'image'}->get_pixbuf){
+									$session_screens{$ckey}->{'image'}->set_pixbuf($lp->load( $session_screens{$key}->{'long'}, undef, undef, undef, TRUE ));
+								}
 							}
-						
 						return FALSE;
 						});
-						
 					}
 					next;
 				}
@@ -3148,7 +3146,6 @@ if ($app->is_running) {
 						};
 						if($@){
 							delete $session_screens{$ckey};
-							next;	
 						}
 						return FALSE;
 					});
@@ -8322,24 +8319,24 @@ if ($app->is_running) {
 			'tray_full'
 		);
 
-		#awindow
-		my $menuitem_awindow = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Active Window') );
-		if($traytheme->has_icon('gnome-window-manager')){
-			$menuitem_awindow->set_image( Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'menu' ) );	
-		}else{
-			$menuitem_awindow->set_image(
-				Gtk2::Image->new_from_pixbuf(
-					$lp->load( "$shutter_root/share/shutter/resources/icons/sel_window_active.svg", Gtk2::IconSize->lookup('menu') )
-				)
-			);
-		}
-		$menuitem_awindow->signal_connect(
-			activate => \&evt_take_screenshot,
-			'tray_awindow'
-		);
+		#~ #awindow
+		#~ my $menuitem_awindow = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Active Window') );
+		#~ if($traytheme->has_icon('gnome-window-manager')){
+			#~ $menuitem_awindow->set_image( Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'menu' ) );	
+		#~ }else{
+			#~ $menuitem_awindow->set_image(
+				#~ Gtk2::Image->new_from_pixbuf(
+					#~ $lp->load( "$shutter_root/share/shutter/resources/icons/sel_window_active.svg", Gtk2::IconSize->lookup('menu') )
+				#~ )
+			#~ );
+		#~ }
+		#~ $menuitem_awindow->signal_connect(
+			#~ activate => \&evt_take_screenshot,
+			#~ 'tray_awindow'
+		#~ );
 		
 		#window
-		my $menuitem_window = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Select W_indow') );
+		my $menuitem_window = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Window _under Cursor') );
 		if($traytheme->has_icon('gnome-window-manager')){
 			$menuitem_window->set_image( Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'menu' ) );	
 		}else{
@@ -8353,6 +8350,19 @@ if ($app->is_running) {
 			activate => \&evt_take_screenshot,
 			'tray_window'
 		);
+		
+		#window list
+		my $menuitem_window_list = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Select W_indow') );
+		if($traytheme->has_icon('gnome-window-manager')){
+			$menuitem_window_list->set_image( Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'menu' ) );	
+		}else{
+			$menuitem_window_list->set_image(
+				Gtk2::Image->new_from_pixbuf(
+					$lp->load( "$shutter_root/share/shutter/resources/icons/sel_window_list.svg", Gtk2::IconSize->lookup('menu') )
+				)
+			);
+		}
+		$menuitem_window_list->set_submenu( &fct_ret_window_menu );
 		
 		#section
 		my $menuitem_window_sect = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Se_ction') );
@@ -8459,8 +8469,9 @@ if ($app->is_running) {
 		#~ $menu_tray->append( Gtk2::SeparatorMenuItem->new );
 		$menu_tray->append($menuitem_full);
 		#~ $menu_tray->append( Gtk2::SeparatorMenuItem->new );
-		$menu_tray->append($menuitem_awindow);
+		#~ $menu_tray->append($menuitem_awindow);
 		$menu_tray->append($menuitem_window);
+		$menu_tray->append($menuitem_window_list);
 		$menu_tray->append($menuitem_window_sect);
 		$menu_tray->append($menuitem_window_menu);
 		$menu_tray->append($menuitem_window_tooltip);
