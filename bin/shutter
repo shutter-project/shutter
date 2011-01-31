@@ -94,7 +94,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1040';
+use constant SHUTTER_REV		=> 'Rev.1041';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87';
 
@@ -8260,6 +8260,13 @@ if ($app->is_running) {
 		foreach my $win ( $screen->get_windows_stacked ) {
 			if ($active_workspace && $win->is_on_workspace( $active_workspace ) ) {
 				my $window_item = Gtk2::ImageMenuItem->new_with_label( $win->get_name );
+				foreach my $child ($window_item->get_children){
+					if($child =~ /Gtk2::AccelLabel/){
+						$child->set_width_chars(50);
+						$child->set_ellipsize('middle');
+						last;
+					}
+				}
 				$window_item->set_image( Gtk2::Image->new_from_pixbuf( $win->get_mini_icon ) );
 				$window_item->set('always_show_image' => TRUE) if Gtk2->CHECK_VERSION( 2, 16, 0 );
 				$window_item->signal_connect(
