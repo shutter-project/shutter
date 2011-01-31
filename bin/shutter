@@ -94,7 +94,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1041';
+use constant SHUTTER_REV		=> 'Rev.1042';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87';
 
@@ -3251,6 +3251,15 @@ if ($app->is_running) {
 
 		#right button (mouse)
 		elsif ( $_[1]->button == 3 ) {
+			
+			#update window list
+			foreach my $child ($tray_menu->get_children){
+				if ($child->get_name eq 'windowlist'){
+					$child->set_submenu( &fct_ret_window_menu );
+					last;
+				}	
+			}
+			
 			$tray_menu->popup(
 				undef,    # parent menu shell
 				undef,    # parent menu item
@@ -3267,6 +3276,14 @@ if ($app->is_running) {
 		my ( $widget, $button, $time, $tray ) = @_;
 		if ( $sc->get_debug ) {
 			print "\n$button, $time was emitted by widget $widget\n";
+		}
+
+		#update window list
+		foreach my $child ($tray_menu->get_children){
+			if ($child->get_name eq 'windowlist'){
+				$child->set_submenu( &fct_ret_window_menu );
+				last;
+			}	
 		}
 
 		$tray_menu->popup(
@@ -8374,6 +8391,7 @@ if ($app->is_running) {
 				)
 			);
 		}
+		$menuitem_window_list->set_name('windowlist');
 		$menuitem_window_list->set_submenu( &fct_ret_window_menu );
 		
 		#section
