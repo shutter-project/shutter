@@ -94,7 +94,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1045';
+use constant SHUTTER_REV		=> 'Rev.1046';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87';
 
@@ -3475,6 +3475,16 @@ if ($app->is_running) {
 		my $key 	= shift;
 		
 		Glib::Idle->add(sub{
+			
+			#does the file still exist?
+			if(defined $key){
+				return FALSE unless exists $session_screens{$key};
+			}
+
+			#does the file still exist?
+			if(defined $key){
+				return FALSE unless exists $session_screens{$key};
+			}
 
 			#is key still current page?
 			if(defined $key && $notebook->get_current_page != 0 ){
