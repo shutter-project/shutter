@@ -66,7 +66,7 @@ sub new {
 		
 		#add a widget to control size of the window
 		my $fixed = Gtk2::Fixed->new;
-		$fixed->set_size_request(300, 80);
+		$fixed->set_size_request(300, 120);
 		$self->{_notifications_window}->add($fixed);
 				
 		$self->{_notifications_window}->signal_connect('expose-event' => sub{
@@ -80,7 +80,7 @@ sub new {
 
 			#initial position
 			unless(defined $self->{_notifications_window}->{'pos'}){
-				$self->{_notifications_window}->move($mon->x + $mon->width - 315, $mon->y + $mon->height - 120);
+				$self->{_notifications_window}->move($mon->x + $mon->width - 315, $mon->y + $mon->height - 140);
 				$self->{_notifications_window}->{'pos'} = 1;
 			}
 
@@ -155,7 +155,7 @@ sub new {
 				$self->{_notifications_window}->move($mon->x + $mon->width - 315, $mon->y + 40);
 				$self->{_notifications_window}->{'pos'} = 0;
 			}else{
-				$self->{_notifications_window}->move($mon->x + $mon->width - 315, $mon->y + $mon->height - 120);
+				$self->{_notifications_window}->move($mon->x + $mon->width - 315, $mon->y + $mon->height - 140);
 				$self->{_notifications_window}->{'pos'} = 1;
 			}
 
