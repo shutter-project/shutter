@@ -94,9 +94,9 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1048';
+use constant SHUTTER_REV		=> 'Rev.1049';
 use constant SHUTTER_NAME		=> 'Shutter';
-use constant SHUTTER_VERSION	=> '0.87';
+use constant SHUTTER_VERSION	=> '0.87.1 (unstable)';
 
 #--------------------------------------
 
@@ -7557,7 +7557,7 @@ if ($app->is_running) {
 					);
 					
 					#handle different responses
-					if($response == 10){
+					if($response == 10 || $response == -1){
 
 						$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
 						&fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
