@@ -329,7 +329,7 @@ sub show {
 	my $nitem = $self->create_image( $initevent, undef, TRUE);
 	$self->{_canvas_bg} = $self->{_items}{$nitem}{image};
 	#this item is locked at first
-	$self->{_items}{$nitem}{locked} = TRUE;
+	$self->{_items}{$nitem}{locked} = FALSE;
 
 	$self->handle_bg_rects( 'raise' );
 
