@@ -94,7 +94,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1050';
+use constant SHUTTER_REV		=> 'Rev.1051';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87.1 (unstable)';
 
@@ -8397,7 +8397,7 @@ if ($app->is_running) {
 		}else{
 			$menuitem_window_list->set_image(
 				Gtk2::Image->new_from_pixbuf(
-					$lp->load( "$shutter_root/share/shutter/resources/icons/sel_window_list.svg", Gtk2::IconSize->lookup('menu') )
+					$lp->load( "$shutter_root/share/shutter/resources/icons/sel_window.svg", Gtk2::IconSize->lookup('menu') )
 				)
 			);
 		}
