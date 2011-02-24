@@ -94,7 +94,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1052';
+use constant SHUTTER_REV		=> 'Rev.1053';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87.1 (unstable)';
 
@@ -4427,7 +4427,7 @@ if ($app->is_running) {
 		$settings{'general'}->{'filetype'}			= $combobox_type->get_active;
 		$settings{'general'}->{'quality'}			= $scale->get_value();
 		$settings{'general'}->{'filename'}			= $filename->get_text();
-		$settings{'general'}->{'folder'}			= $saveDir_button->get_current_folder();
+		$settings{'general'}->{'folder'}			= $saveDir_button->get_filename();
 		$settings{'general'}->{'save_auto'}			= $save_auto_active->get_active();
 		$settings{'general'}->{'save_ask'}			= $save_ask_active->get_active();
 		$settings{'general'}->{'save_no'}			= $save_no_active->get_active();
