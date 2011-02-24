@@ -94,7 +94,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1051';
+use constant SHUTTER_REV		=> 'Rev.1052';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87.1 (unstable)';
 
@@ -8768,13 +8768,13 @@ if ($app->is_running) {
 							$tray_pixbuf = undef;	
 						}	
 						
-						#~ if($program_item){
-							#~ $program_item->set_image( Gtk2::Image->new_from_pixbuf($tray_pixbuf) );
-						#~ }
-						#~ 
-						#~ if($program_large_item){
-							#~ $program_large_item->set_image( Gtk2::Image->new_from_pixbuf($tray_pixbuf) );
-						#~ }
+						if($program_item){
+							$program_item->set_image( Gtk2::Image->new_from_pixbuf($tray_pixbuf) );
+						}
+						
+						if($program_large_item){
+							$program_large_item->set_image( Gtk2::Image->new_from_pixbuf($tray_pixbuf) );
+						}
 					}
 				}
 				
@@ -9390,10 +9390,10 @@ if ($app->is_running) {
 			$rename_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'button' ) );
 			$rename_btn->can_default(TRUE);
 
-			$input_dialog->add_button( 'gtk-cancel', 10 );
-			$input_dialog->add_action_widget( $rename_btn, 20 );
+			$input_dialog->add_button( 'gtk-cancel', 'reject' );
+			$input_dialog->add_action_widget( $rename_btn, 'accept' );
 
-			$input_dialog->set_default_response(20);
+			$input_dialog->set_default_response('accept');
 
 			my $new_filename_vbox = Gtk2::VBox->new();
 			my $new_filename_hint = Gtk2::Label->new();
@@ -9452,7 +9452,7 @@ if ($app->is_running) {
 			my $input_response = $input_dialog->run;
 
 			#handle user responses here
-			if ( $input_response == 20 ) {
+			if ( $input_response eq 'accept' ) {
 
 				my $new_name = $new_filename->get_text;
 				$new_name = $session_screens{$key}->{'folder'} . "/" . $new_name . "." . $session_screens{$key}->{'filetype'};
@@ -10023,10 +10023,10 @@ if ($app->is_running) {
 		$run_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-execute', 'button' ) );
 		$run_btn->can_default(TRUE);
 
-		$plugin_dialog->add_button( 'gtk-cancel', 10 );
-		$plugin_dialog->add_action_widget( $run_btn, 20 );
+		$plugin_dialog->add_button( 'gtk-cancel', 'reject' );
+		$plugin_dialog->add_action_widget( $run_btn, 'accept' );
 
-		$plugin_dialog->set_default_response(20);
+		$plugin_dialog->set_default_response('accept');
 		
 		my $model = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String' );
 
@@ -10155,7 +10155,7 @@ if ($app->is_running) {
 
 		my $plugin_response = $plugin_dialog->run;
 
-		if ( $plugin_response == 20 ) {
+		if ( $plugin_response eq 'accept' ) {
 			
 			#anything wrong with the selected plugin?
 			unless ( $plugin_value =~ /[a-zA-Z0-9]+/ ) {
@@ -11082,10 +11082,10 @@ if ($app->is_running) {
 
 		$profile_dialog->set( 'secondary-text' => $d->get("New profile name") . ": " );
 
-		$profile_dialog->add_button( 'gtk-cancel', 10 );
-		$profile_dialog->add_button( 'gtk-save', 20 );
+		$profile_dialog->add_button( 'gtk-cancel', 'reject' );
+		$profile_dialog->add_button( 'gtk-save', 'accept' );
 
-		$profile_dialog->set_default_response(20);
+		$profile_dialog->set_default_response('accept');
 
 		my $new_profile_name_vbox = Gtk2::VBox->new();
 		my $new_profile_name_hint = Gtk2::Label->new();	
@@ -11130,7 +11130,7 @@ if ($app->is_running) {
 		my $profile_response = $profile_dialog->run;
 
 		#handle user responses here
-		if ( $profile_response == 20 ) {
+		if ( $profile_response eq 'accept' ) {
 			my $entered_name = $new_profile_name->get_text;
 
 			if ( $shf->file_exists("$ENV{'HOME'}/.shutter/profiles/$entered_name.xml") ) {
