@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-02-03 02:07+0100\n"
-"PO-Revision-Date: 2011-01-15 20:17+0000\n"
-"Last-Translator: Mario Kemper (Romario) <mario.kemper@googlemail.com>\n"
+"PO-Revision-Date: 2011-02-09 20:41+0000\n"
+"Last-Translator: andygol <Unknown>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-02-08 06:00+0000\n"
-"X-Generator: Launchpad (build 12335)\n"
+"X-Launchpad-Export-Date: 2011-02-24 11:49+0000\n"
+"X-Generator: Launchpad (build 12432)\n"
 
 #: translate_tmp.pl:389
 #: translate_tmp.pl:2530
@@ -37,7 +37,7 @@ msgstr "Для цієї функції потрібно встановити gno
 
 #: translate_tmp.pl:767
 msgid "Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature"
-msgstr ""
+msgstr "Для роботи цієї функції потрібен Goo::Canvas/libgoo-canvas-perl"
 
 #: translate_tmp.pl:800
 msgid "Choose a profile"
@@ -53,7 +53,7 @@ msgstr "Вилучити профіль"
 
 #: translate_tmp.pl:835
 msgid "Load the selected profile's configuration"
-msgstr ""
+msgstr "Завантажити налаштування виділеного профілю"
 
 #: translate_tmp.pl:843
 #: translate_tmp.pl:1117
@@ -68,7 +68,7 @@ msgstr "Зберегти"
 
 #: translate_tmp.pl:857
 msgid "First-launch Behavior"
-msgstr ""
+msgstr "Поведінка під час першого запуску"
 
 #: translate_tmp.pl:864
 msgid "Window Preferences"
@@ -110,7 +110,7 @@ msgstr "Знімок вікна"
 
 #: translate_tmp.pl:927
 msgid "Menu/Tooltip Capture"
-msgstr ""
+msgstr "Знімок меню/підказки"
 
 #: translate_tmp.pl:934
 msgid "Website Capture"
@@ -130,7 +130,7 @@ msgstr "Прозорі елементи"
 
 #: translate_tmp.pl:962
 msgid "Session View"
-msgstr ""
+msgstr "Вигляд сеансу"
 
 #: translate_tmp.pl:970
 #: translate_tmp.pl:1818
@@ -202,7 +202,7 @@ msgstr "Рівень стиснення"
 #: translate_tmp.pl:1046
 #: translate_tmp.pl:1048
 msgid "Adjust quality/compression value"
-msgstr ""
+msgstr "Налаштувати співвідношення між якістю та стисенням"
 
 #: translate_tmp.pl:1118
 #: translate_tmp.pl:1119
@@ -234,7 +234,7 @@ msgstr "Кожного разу питати, куди зберігати"
 #: translate_tmp.pl:1151
 #: translate_tmp.pl:1154
 msgid "Do not save file automatically"
-msgstr ""
+msgstr "Не зберігати файл автоматично"
 
 #: translate_tmp.pl:1156
 #: translate_tmp.pl:1159
@@ -269,6 +269,8 @@ msgstr "Затримка"
 msgid "second"
 msgid_plural "seconds"
 msgstr[0] "секунда"
+msgstr[1] "секунди"
+msgstr[2] "секунд"
 
 #: translate_tmp.pl:1242
 msgid "Capture after a delay of"
@@ -342,7 +344,7 @@ msgstr ""
 
 #: translate_tmp.pl:1433
 msgid "Border"
-msgstr ""
+msgstr "Рамка"
 
 #: translate_tmp.pl:1435
 #: translate_tmp.pl:1519
@@ -355,19 +357,19 @@ msgstr "пікселів"
 
 #: translate_tmp.pl:1437
 msgid "Color"
-msgstr ""
+msgstr "Колір"
 
 #: translate_tmp.pl:1440
 #: translate_tmp.pl:1450
 #: translate_tmp.pl:1452
 msgid "Choose border color"
-msgstr ""
+msgstr "Оберіть колір рамки"
 
 #: translate_tmp.pl:1443
 #: translate_tmp.pl:1445
 #: translate_tmp.pl:1447
 msgid "Adds a border effect to the screenshot"
-msgstr ""
+msgstr "Додає ефект рамки до знімку"
 
 #: translate_tmp.pl:1494
 #: translate_tmp.pl:1502
@@ -380,7 +382,7 @@ msgstr "Початкові розміри виділення"
 
 #: translate_tmp.pl:1513
 msgid "at"
-msgstr ""
+msgstr "на"
 
 #: translate_tmp.pl:1543
 #: translate_tmp.pl:1544
@@ -397,11 +399,11 @@ msgstr "Починати розширене виділення із зазнач
 
 #: translate_tmp.pl:1570
 msgid "Show help text"
-msgstr ""
+msgstr "Показувати підказку"
 
 #: translate_tmp.pl:1578
 msgid "Enables the help text"
-msgstr ""
+msgstr "Увімкнути показ підказок"
 
 #: translate_tmp.pl:1587
 #: translate_tmp.pl:1588
@@ -410,7 +412,7 @@ msgstr "Захоплювати декорації вікна при зйомці
 
 #: translate_tmp.pl:1605
 msgid "Automatically resize window to"
-msgstr ""
+msgstr "Автоматично змінювати розмір вікна до"
 
 #: translate_tmp.pl:1629
 #: translate_tmp.pl:1630
@@ -422,10 +424,13 @@ msgid ""
 "This method asks the window manager to resize the window. However, the "
 "window manager may not allow the resize."
 msgstr ""
+"Автоматично змінює розмір вікна до вказаної ширини та висоти. Цей метод "
+"надсилає запит віконному менеджеру на зміну розміру вікна. Однак, віконний "
+"менеджер може не дозволити зробити це."
 
 #: translate_tmp.pl:1646
 msgid "Force rounded window corners"
-msgstr ""
+msgstr "Примусово закруглювати кути вікон"
 
 #: translate_tmp.pl:1655
 #, perl-format
@@ -438,6 +443,13 @@ msgid ""
 "named ~/.shutter/shape.conf and put custom values in it. The default values "
 "are stored in %s."
 msgstr ""
+"Shutter використовує розширення XShape для визначення форми вікна, але це не "
+"спрацьовує при певних обставинах (наприклад у разі використання Compiz).\n"
+"\n"
+"Якщо цей параметр є активованим, Shutter використовує фіксовані параметри "
+"для закруглення кутів вікна. Щоб змінити початкові параметри, створіть файл "
+"~/.shutter/shape.conf та внесіть у нього бажані значення параметрів. "
+"Початкові  параметри зберігаються у %s."
 
 #: translate_tmp.pl:1669
 #: translate_tmp.pl:1670
@@ -513,26 +525,27 @@ msgid ""
 "Displays any transparent parts of the image in the background color of the "
 "application"
 msgstr ""
+"Показувати всі прозорі частини зображень заповненими кольором фону застосунка"
 
 #: translate_tmp.pl:1816
 msgid "Sort ascending by"
-msgstr ""
+msgstr "Сортувати за збільшенням"
 
 #: translate_tmp.pl:1819
 #: translate_tmp.pl:1823
 msgid "Key/Time Created"
-msgstr ""
+msgstr "Ключ/Час створення"
 
 #: translate_tmp.pl:1820
 msgid "Sort descending by"
-msgstr ""
+msgstr "Сортувати за зменшенням"
 
 #: translate_tmp.pl:1865
 #: translate_tmp.pl:1866
 #: translate_tmp.pl:1867
 #: translate_tmp.pl:1868
 msgid "Configure sort criteria"
-msgstr ""
+msgstr "Налаштувати критерії сотрутвання"
 
 #: translate_tmp.pl:1885
 #: translate_tmp.pl:1891
@@ -579,12 +592,12 @@ msgstr "Виділення"
 
 #: translate_tmp.pl:1918
 msgid "Select Window"
-msgstr ""
+msgstr "Вибрати вікно"
 
 #: translate_tmp.pl:1919
 #: translate_tmp.pl:8183
 msgid "Active Window"
-msgstr ""
+msgstr "Активне вікно"
 
 #: translate_tmp.pl:1920
 #: translate_tmp.pl:151
@@ -595,13 +608,13 @@ msgstr "Секція"
 #: translate_tmp.pl:171
 #: translate_tmp.pl:1141
 msgid "Menu"
-msgstr ""
+msgstr "Меню"
 
 #: translate_tmp.pl:1922
 #: translate_tmp.pl:191
 #: translate_tmp.pl:1147
 msgid "Tooltip"
-msgstr ""
+msgstr "Підказка"
 
 #: translate_tmp.pl:1923
 #: translate_tmp.pl:210
@@ -611,43 +624,44 @@ msgstr "Веб-сайт"
 #: translate_tmp.pl:1924
 #: translate_tmp.pl:37
 msgid "Redo"
-msgstr ""
+msgstr "Повторити"
 
 #: translate_tmp.pl:1979
 #: translate_tmp.pl:2035
 msgid "Start Shutter at login"
-msgstr ""
+msgstr "Запускати Shutter під час входу до системи"
 
 #: translate_tmp.pl:1980
 #: translate_tmp.pl:2043
 msgid "Hide window on first launch"
-msgstr ""
+msgstr "Приховувати вікно під час першого запуску"
 
 #: translate_tmp.pl:1981
 #: translate_tmp.pl:2051
 msgid "Hide notification icon"
-msgstr ""
+msgstr "Приховати значок в системній таці"
 
 #: translate_tmp.pl:1983
 #: translate_tmp.pl:2059
 msgid "Autohide main window when taking a screenshot"
-msgstr ""
+msgstr "Автоматично приховувати вікно під час створення знімку"
 
 #: translate_tmp.pl:1984
 msgid "Redraw Delay"
-msgstr ""
+msgstr "Затримка перемальовування"
 
 #: translate_tmp.pl:1987
 #: translate_tmp.pl:2809
 msgid "millisecond"
 msgid_plural "milliseconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "міллісекунда"
+msgstr[1] "міллісекунди"
+msgstr[2] "міллісекунд"
 
 #: translate_tmp.pl:1993
 #: translate_tmp.pl:2077
 msgid "Present main window after taking a screenshot"
-msgstr ""
+msgstr "Показувати головне вікно після створення знімка"
 
 #: translate_tmp.pl:1994
 #: translate_tmp.pl:2118
@@ -657,44 +671,45 @@ msgstr "Згортати в лоток при закритті головног�
 #: translate_tmp.pl:1996
 #: translate_tmp.pl:2085
 msgid "Display pop-up notification after taking a screenshot"
-msgstr ""
+msgstr "Показувати виринаюче повідомлення після створення знімка"
 
 #: translate_tmp.pl:1997
 #: translate_tmp.pl:2093
 #: translate_tmp.pl:2101
 msgid "Display pop-up notification when using a delay"
-msgstr ""
+msgstr "Показувати виринаюче повідомлення, якщо включено затримку"
 
 #: translate_tmp.pl:1998
 msgid "Display pop-up notification when using a pre-capture delay"
 msgstr ""
+"Показувати виринаюче повідомлення, якщо включено затримку перед зніманням"
 
 #: translate_tmp.pl:2000
 msgid "Notification agent"
-msgstr ""
+msgstr "Агент сповіщення"
 
 #: translate_tmp.pl:2002
 msgid "Desktop Notifications"
-msgstr ""
+msgstr "Сповіщення на стільниці"
 
 #: translate_tmp.pl:2003
 msgid "Built-In Notifications"
-msgstr ""
+msgstr "Вбудовані сповіщення"
 
 #: translate_tmp.pl:2007
 #: translate_tmp.pl:2126
 msgid "Ask before moving files to trash"
-msgstr ""
+msgstr "Питати перед тим, як перемістити файл у смітник"
 
 #: translate_tmp.pl:2008
 #: translate_tmp.pl:2134
 msgid "Move file to trash when closing tab"
-msgstr ""
+msgstr "Переміщати файли у смітник після закриття вкладки"
 
 #: translate_tmp.pl:2009
 #: translate_tmp.pl:2142
 msgid "Notify when file was deleted from filesystem"
-msgstr ""
+msgstr "Сповіщати про вилучення файлу з файлової системи"
 
 #: translate_tmp.pl:2067
 #: translate_tmp.pl:2068
@@ -703,6 +718,9 @@ msgid ""
 "Configure a short timeout to give the Xserver a chance to redraw areas that "
 "were obscured by Shutter's windows before taking a screenshot."
 msgstr ""
+"Налаштувати коротку затримку для Х-сервера, щоб надати можливість "
+"перемалювати ділянки, що затуляються головним вікном Shutter перед початком "
+"знімання."
 
 #: translate_tmp.pl:2109
 #: translate_tmp.pl:2110
@@ -710,6 +728,8 @@ msgid ""
 "You can either choose the system-wide desktop notifications (e.g. Ubuntu's "
 "Notify-OSD) or Shutter's built-in notification system"
 msgstr ""
+"Ви можете обирати між системними сповіщеннями (наприклад, сповіщеннями від "
+"Ubuntu) або ж сповіщеннями вбудованими у Shutter"
 
 #: translate_tmp.pl:2156
 msgid ""
@@ -783,7 +803,7 @@ msgstr "Пароль"
 #: translate_tmp.pl:10285
 #: translate_tmp.pl:10287
 msgid "Website URL"
-msgstr ""
+msgstr "Адреса веб-сайту"
 
 #: translate_tmp.pl:2263
 #: translate_tmp.pl:3990
@@ -796,7 +816,7 @@ msgstr "Додатково"
 
 #: translate_tmp.pl:2379
 msgid "Image View"
-msgstr ""
+msgstr "Перегляд зображення"
 
 #: translate_tmp.pl:2400
 msgid "Behavior"
@@ -804,7 +824,7 @@ msgstr "Поведінка"
 
 #: translate_tmp.pl:2438
 msgid "Keyboard"
-msgstr ""
+msgstr "Клавіатура"
 
 #: translate_tmp.pl:2458
 #: translate_tmp.pl:524
@@ -823,8 +843,9 @@ msgstr "Наступні додатки є встановленими"
 #: translate_tmp.pl:2850
 msgid "pixel"
 msgid_plural "pixels"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "піксель"
+msgstr[1] "пікселя"
+msgstr[2] "пікселів"
 
 #: translate_tmp.pl:2860
 msgid "Quality"
@@ -832,11 +853,11 @@ msgstr "Якість"
 
 #: translate_tmp.pl:2927
 msgid "Please activate the menu you want to capture"
-msgstr ""
+msgstr "Будь ласка, активуйте меню, яке ви бажаєте зняти"
 
 #: translate_tmp.pl:2929
 msgid "Please activate the tooltip you want to capture"
-msgstr ""
+msgstr "Будь ласка, активуйте підказку, яке ви бажаєте зняти"
 
 #: translate_tmp.pl:2938
 #: translate_tmp.pl:2948
@@ -845,8 +866,9 @@ msgstr ""
 #, perl-format
 msgid "Screenshot will be taken in %s second"
 msgid_plural "Screenshot will be taken in %s seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Знімок буде зроблено через %s секунду"
+msgstr[1] "Знімок буде зроблено через %s секунди"
+msgstr[2] "Знімок буде зроблено через %s секунд"
 
 #: translate_tmp.pl:3239
 #: translate_tmp.pl:8945
@@ -877,7 +899,7 @@ msgstr "Збій"
 #: translate_tmp.pl:3773
 #, perl-format
 msgid "Profile %s loaded successfully"
-msgstr ""
+msgstr "Профіль %s завантажений"
 
 #: translate_tmp.pl:3802
 #: translate_tmp.pl:7043
@@ -891,7 +913,7 @@ msgstr "не знайдено"
 
 #: translate_tmp.pl:4000
 msgid "Error while adding the file monitor."
-msgstr ""
+msgstr "Помилка під час додавання файлу монітора."
 
 #: translate_tmp.pl:4473
 msgid "Settings could not be saved!"
@@ -914,11 +936,13 @@ msgid ""
 "Please activate the Gnome Compatibility plugin via CompizConfig Settings "
 "Manager."
 msgstr ""
+"Будь ласка, активуйте втулок Сумісність з Gnome у Менеджері налаштувань "
+"CompizConfig."
 
 #: translate_tmp.pl:4705
 #: translate_tmp.pl:4714
 msgid "There was an error configuring the keybindings."
-msgstr ""
+msgstr "Під час налаштування комбінацій клавіш сталась помилка."
 
 #: translate_tmp.pl:4713
 msgid ""
@@ -927,6 +951,10 @@ msgid ""
 "such as \"<Ctl>\" and \"<Ctrl>\" may cause problems under some circumstances "
 "(e.g. when using compiz)."
 msgstr ""
+"Формат виглядає яу \"<Control>Print\" або \"<Shift><Alt>Print\". "
+"Інтерпретатор дозволяє використання як верхнього так й нижнього регістру, "
+"але скорочення такі як \"<Ctl>\" та \"<Ctrl>\" можуть привести до проблем в "
+"деяких випадках (наприклад  при використанні Compiz)."
 
 #: translate_tmp.pl:4953
 msgid "Settings could not be restored!"
@@ -939,7 +967,7 @@ msgstr "Налаштування завантажені успішно"
 #: translate_tmp.pl:4986
 #: translate_tmp.pl:6803
 msgid "Built-in Editor"
-msgstr ""
+msgstr "Вбудований редактор"
 
 #: translate_tmp.pl:5081
 msgid "Account-settings could not be restored!"
@@ -966,29 +994,29 @@ msgstr "Неможливо відновити сесію!"
 #: translate_tmp.pl:5344
 #, perl-format
 msgid "Error while creating the trashinfo file %s."
-msgstr ""
+msgstr "Помилка створення файлу trashinfo %s."
 
 #: translate_tmp.pl:5355
 #, perl-format
 msgid "Error while moving the file %s to trash."
-msgstr ""
+msgstr "Помилка переміщення файлу %s у смітник."
 
 #: translate_tmp.pl:5361
 #, perl-format
 msgid "Error while removing the file %s from disk."
-msgstr ""
+msgstr "Помилка вилучення файлу %s з диска."
 
 #: translate_tmp.pl:5381
 #, perl-format
 msgid "Are you sure you want to move %s to the trash?"
-msgstr ""
+msgstr "Ви переконані, що бажаєте перемістити %s у смітник?"
 
 #: translate_tmp.pl:5382
 #: translate_tmp.pl:5427
 #: translate_tmp.pl:209
 #: translate_tmp.pl:716
 msgid "Move to _Trash"
-msgstr ""
+msgstr "Перемістити у _смітник"
 
 #: translate_tmp.pl:5392
 msgid "deleted"
@@ -996,13 +1024,13 @@ msgstr "видалений"
 
 #: translate_tmp.pl:5426
 msgid "Are you sure you want to move the selected files to the trash?"
-msgstr ""
+msgstr "Ви переконані, що бажаєте вилучити виділені файли?"
 
 #: translate_tmp.pl:5431
 #: translate_tmp.pl:5460
 #: translate_tmp.pl:5560
 msgid "No screenshots selected"
-msgstr ""
+msgstr "Жодного знімку не вибрано"
 
 #: translate_tmp.pl:5476
 msgid "Selected screenshots deleted"
@@ -1029,39 +1057,39 @@ msgstr "Не вказано вірний тип файлу"
 
 #: translate_tmp.pl:5621
 msgid "There is no image data in the clipboard to paste"
-msgstr ""
+msgstr "У буфері обміну немає жодного зображення для вставлення"
 
 #: translate_tmp.pl:5680
 msgid "Selected filenames copied to clipboard"
-msgstr ""
+msgstr "Виділені імена файлів скопійовано до буферу обміну"
 
 #: translate_tmp.pl:5695
 msgid "Selected images copied to clipboard"
-msgstr ""
+msgstr "Виділені зображення скопійовано до буферу обміну"
 
 #: translate_tmp.pl:5742
 msgid "Last action undone"
-msgstr ""
+msgstr "Останню дію відмінено"
 
 #: translate_tmp.pl:5750
 #: translate_tmp.pl:5802
 #, perl-format
 msgid "Error while copying last version (%s)."
-msgstr ""
+msgstr "Помилка під час копіювання останньої версії (%s)."
 
 #: translate_tmp.pl:5751
 #, perl-format
 msgid "There was an error performing undo on %s."
-msgstr ""
+msgstr "Виникла помилка під час відмінення дії %s."
 
 #: translate_tmp.pl:5794
 msgid "Last action redone"
-msgstr ""
+msgstr "Повернуто останню дію"
 
 #: translate_tmp.pl:5803
 #, perl-format
 msgid "There was an error performing redo on %s."
-msgstr ""
+msgstr "Виникла помилка під час повернення дії %s."
 
 #: translate_tmp.pl:5841
 msgid "No plugin installed"
@@ -1074,7 +1102,7 @@ msgstr "Виникла помилка при визначення імені ф�
 
 #: translate_tmp.pl:6319
 msgid "Triggered invalid screenshot action."
-msgstr ""
+msgstr "Викликано неприпустиму операцію."
 
 #: translate_tmp.pl:6320
 #: translate_tmp.pl:6323
@@ -1108,7 +1136,7 @@ msgstr "збережено"
 #: translate_tmp.pl:6551
 #: translate_tmp.pl:6553
 msgid "Screenshot saved"
-msgstr ""
+msgstr "Знімок екрану збережений"
 
 #: translate_tmp.pl:6560
 #, perl-format
@@ -1116,6 +1144,8 @@ msgid ""
 "The filename %s could not be verified. Maybe it contains unsupported "
 "characters."
 msgstr ""
+"Неможливо перевірити ім'я файлу %s. Можливо воно містить непідтримувані "
+"символи."
 
 #: translate_tmp.pl:6803
 #: translate_tmp.pl:6814
@@ -1744,6 +1774,7 @@ msgstr ""
 "  Serhey Kusyumoff (Сергій Кусюмов) https://launchpad.net/~sergemine\n"
 "  Sukochev Roman (Leolik) https://launchpad.net/~leolik\n"
 "  Venechka https://launchpad.net/~vene4ka\n"
+"  andygol https://launchpad.net/~andy.gol\n"
 "  atany https://launchpad.net/~ye-gorshkov"
 
 #: translate_tmp.pl:34

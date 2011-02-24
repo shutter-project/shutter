@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: GScrot\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-02-03 02:07+0100\n"
-"PO-Revision-Date: 2011-01-15 18:48+0000\n"
-"Last-Translator: Mario Kemper (Romario) <mario.kemper@googlemail.com>\n"
+"PO-Revision-Date: 2011-02-21 22:56+0000\n"
+"Last-Translator: Sérgio Marques <Unknown>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-02-08 06:00+0000\n"
-"X-Generator: Launchpad (build 12335)\n"
+"X-Launchpad-Export-Date: 2011-02-24 11:49+0000\n"
+"X-Generator: Launchpad (build 12432)\n"
 
 #: translate_tmp.pl:389
 #: translate_tmp.pl:2530
@@ -32,22 +32,21 @@ msgstr "Preferências"
 #: translate_tmp.pl:758
 #: translate_tmp.pl:759
 msgid "gnome-web-photo needs to be installed for this feature"
-msgstr ""
-"Para usar esta funcionalidade, precisa de instalar o pacote gnome-web-photo"
+msgstr "Para usar esta funcionalidade, precisa do pacote gnome-web-photo"
 
 #: translate_tmp.pl:767
 msgid "Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature"
 msgstr ""
-"Para usar esta funcionalidade, precisa de instalar o pacote libgoo-canvas-"
-"perl ( Goo::Canvas )"
+"Para usar esta funcionalidade, precisa do pacote Goo::Canvas/libgoo-canvas-"
+"perl"
 
 #: translate_tmp.pl:800
 msgid "Choose a profile"
-msgstr "Seleccione um perfil"
+msgstr "Escolha um perfil"
 
 #: translate_tmp.pl:816
 msgid "Save configuration as profile"
-msgstr "Guardar as configurações como perfil"
+msgstr "Gravar configuração como perfil"
 
 #: translate_tmp.pl:826
 msgid "Delete profile"
@@ -55,7 +54,7 @@ msgstr "Apagar perfil"
 
 #: translate_tmp.pl:835
 msgid "Load the selected profile's configuration"
-msgstr "Guardar configurações do perfile seleccionado"
+msgstr "Carregar a configuração do perfil selecionado"
 
 #: translate_tmp.pl:843
 #: translate_tmp.pl:1117
@@ -66,15 +65,15 @@ msgstr "Formato da imagem"
 
 #: translate_tmp.pl:850
 msgid "Save"
-msgstr "Guardar"
+msgstr "Gravar"
 
 #: translate_tmp.pl:857
 msgid "First-launch Behavior"
-msgstr "Comportamento quando executado pela primeira vez"
+msgstr "Comportamento de arranque inicial"
 
 #: translate_tmp.pl:864
 msgid "Window Preferences"
-msgstr "Preferências de Janela"
+msgstr "Preferências da janela"
 
 #: translate_tmp.pl:871
 msgid "Notifications"
@@ -82,16 +81,16 @@ msgstr "Notificações"
 
 #: translate_tmp.pl:878
 msgid "Trash"
-msgstr "Lixeira"
+msgstr "Lixo"
 
 #: translate_tmp.pl:885
 msgid "Gnome-Keybinding"
-msgstr "Definir teclas de atalho"
+msgstr "Traclas de atalho Gnome"
 
 #: translate_tmp.pl:892
 #: translate_tmp.pl:2303
 msgid "Actions"
-msgstr "Acções"
+msgstr "Ações"
 
 #: translate_tmp.pl:899
 #: translate_tmp.pl:1881
@@ -100,11 +99,11 @@ msgstr "Captura"
 
 #: translate_tmp.pl:906
 msgid "Selection Capture"
-msgstr "Seleção de área de captura"
+msgstr "Captura de seleção"
 
 #: translate_tmp.pl:913
 msgid "Advanced Selection Capture"
-msgstr "Definições avançadas de captura"
+msgstr "Captura avançada de seleção"
 
 #: translate_tmp.pl:920
 msgid "Window Capture"
@@ -116,7 +115,7 @@ msgstr "Captura de menu/dica"
 
 #: translate_tmp.pl:934
 msgid "Website Capture"
-msgstr "Captura de sitio de Internet"
+msgstr "Captura de sítio web"
 
 #: translate_tmp.pl:941
 msgid "Accounts"
@@ -128,11 +127,11 @@ msgstr "Protocolo de transferência de ficheiros (FTP)"
 
 #: translate_tmp.pl:955
 msgid "Transparent Parts"
-msgstr "partes transparentes"
+msgstr "Partes transparentes"
 
 #: translate_tmp.pl:962
 msgid "Session View"
-msgstr ""
+msgstr "Vista da sessão"
 
 #: translate_tmp.pl:970
 #: translate_tmp.pl:1818
@@ -145,11 +144,11 @@ msgstr "Nome do ficheiro"
 #: translate_tmp.pl:11018
 #, perl-format
 msgid "Reserved character %s is not allowed to be in a filename."
-msgstr "O carater %s não é permitido em nomes de ficheiros"
+msgstr "O carater %s não é permitido para os nomes dos ficheiros."
 
 #: translate_tmp.pl:1010
 msgid "There are several wildcards available, like\n"
-msgstr ""
+msgstr "Existem diversos \"wildcards\" disponíveis:\n"
 
 #: translate_tmp.pl:1011
 msgid "%Y = year\n"
@@ -166,11 +165,11 @@ msgstr "%d = dia\n"
 
 #: translate_tmp.pl:1014
 msgid "%T = time\n"
-msgstr ""
+msgstr "%T = hora\n"
 
 #: translate_tmp.pl:1015
 msgid "$w = width\n"
-msgstr ""
+msgstr "$w = largura\n"
 
 #: translate_tmp.pl:1016
 msgid "$h = height\n"
@@ -178,23 +177,24 @@ msgstr "$h = altura\n"
 
 #: translate_tmp.pl:1017
 msgid "$name = multi-purpose (e.g. window title)\n"
-msgstr ""
+msgstr "$name = diversos (ex: título da janela)\n"
 
 #: translate_tmp.pl:1018
 msgid "$nb_name = like $name but without blanks in resulting strings\n"
 msgstr ""
+"$nb_name = igual a $name mas sem espaços vazios nas linhas resultantes\n"
 
 #: translate_tmp.pl:1019
 msgid "$profile = name of current profile\n"
-msgstr ""
+msgstr "$profile = nome do perfil atual\n"
 
 #: translate_tmp.pl:1020
 msgid "$R = random char (e.g. $RRRR = ag4r)\n"
-msgstr ""
+msgstr "$R = carater aleatório (ex: $RRRR = ag4r)\n"
 
 #: translate_tmp.pl:1021
 msgid "%NN = counter"
-msgstr ""
+msgstr "%NN = contagem"
 
 #: translate_tmp.pl:1036
 #: translate_tmp.pl:2866
@@ -204,16 +204,16 @@ msgstr "Compressão"
 #: translate_tmp.pl:1046
 #: translate_tmp.pl:1048
 msgid "Adjust quality/compression value"
-msgstr ""
+msgstr "Ajustar qualidade/compressão"
 
 #: translate_tmp.pl:1118
 #: translate_tmp.pl:1119
 msgid "Select a file format"
-msgstr "Seleccione um formato de ficheiro"
+msgstr "Selecione um formato de ficheiro"
 
 #: translate_tmp.pl:1128
 msgid "Directory"
-msgstr "Localização"
+msgstr "Diretório"
 
 #: translate_tmp.pl:1129
 #: translate_tmp.pl:10165
@@ -221,27 +221,27 @@ msgstr "Localização"
 #: translate_tmp.pl:10187
 #: translate_tmp.pl:10188
 msgid "Choose folder"
-msgstr "Escolher pasta"
+msgstr "Escolha a pasta"
 
 #: translate_tmp.pl:1136
 #: translate_tmp.pl:1137
 msgid "Your screenshots will be saved to this directory"
-msgstr "Os screenshots serão guardados neste directório"
+msgstr "As suas captura serão gravadas neste dirétorio"
 
 #: translate_tmp.pl:1146
 #: translate_tmp.pl:1149
 msgid "Browse for save folder every time"
-msgstr ""
+msgstr "Escolher pasta em cada captura"
 
 #: translate_tmp.pl:1151
 #: translate_tmp.pl:1154
 msgid "Do not save file automatically"
-msgstr ""
+msgstr "Não gravar ficheiro automaticamente"
 
 #: translate_tmp.pl:1156
 #: translate_tmp.pl:1159
 msgid "Automatically save file"
-msgstr ""
+msgstr "Gravar ficheiro automaticamente"
 
 #: translate_tmp.pl:1183
 #: translate_tmp.pl:1192
@@ -251,12 +251,12 @@ msgstr "Copiar automaticamente a imagem para a área de transferência"
 #: translate_tmp.pl:1199
 #: translate_tmp.pl:1208
 msgid "Automatically copy filename to clipboard"
-msgstr ""
+msgstr "Copiar automaticamente o nome para a área de transferência"
 
 #: translate_tmp.pl:1215
 #: translate_tmp.pl:1224
 msgid "Do not copy anything to clipboard"
-msgstr ""
+msgstr "Não copiar nada para a área de transferência"
 
 #: translate_tmp.pl:1233
 msgid "Delay"
@@ -275,7 +275,7 @@ msgstr[1] "segundos"
 
 #: translate_tmp.pl:1242
 msgid "Capture after a delay of"
-msgstr "Captura após  pause de"
+msgstr "Capturar após"
 
 #: translate_tmp.pl:1256
 #: translate_tmp.pl:1257
@@ -288,13 +288,13 @@ msgstr "Aguardar n segundos antes de capturar uma imagem"
 
 #: translate_tmp.pl:1273
 msgid "Include Cursor"
-msgstr "Incluir apontador"
+msgstr "Incluir cursor"
 
 #: translate_tmp.pl:1274
 #: translate_tmp.pl:1280
 #: translate_tmp.pl:1281
 msgid "Include cursor when taking a screenshot"
-msgstr "Incluir o cursor do rato na imagem"
+msgstr "Incluir na imagem o cursor do rato"
 
 #: translate_tmp.pl:1336
 msgid "Open with"
@@ -304,7 +304,7 @@ msgstr "Abrir com"
 #: translate_tmp.pl:1338
 #: translate_tmp.pl:1339
 msgid "Open your screenshot with this program after capturing"
-msgstr "Abrir a imagem do screenshot com este programa após captura"
+msgstr "Após capturar, abrir imagem com este programa"
 
 #: translate_tmp.pl:1350
 msgid "16 colors   - (4bit) "
@@ -326,7 +326,7 @@ msgstr "Reduzir cores"
 #: translate_tmp.pl:1379
 #: translate_tmp.pl:1380
 msgid "Automatically reduce colors after taking a screenshot"
-msgstr "Redução automática de cores após captura"
+msgstr "Redução automática de cores após capturar"
 
 #: translate_tmp.pl:1390
 msgid "Thumbnail"
@@ -340,11 +340,11 @@ msgid ""
 "select the percentage of the original size for the thumbnail to be"
 msgstr ""
 "Criar miniatura simultaneamente.\n"
-"Defina a redução da imagem, em percentagem, para a criação da miniatura"
+"Defina a redução da imagem, em percentagem, para criar a miniatura"
 
 #: translate_tmp.pl:1433
 msgid "Border"
-msgstr ""
+msgstr "Contorno"
 
 #: translate_tmp.pl:1435
 #: translate_tmp.pl:1519
@@ -363,22 +363,22 @@ msgstr "Cor"
 #: translate_tmp.pl:1450
 #: translate_tmp.pl:1452
 msgid "Choose border color"
-msgstr ""
+msgstr "Escolha a cor do contorno"
 
 #: translate_tmp.pl:1443
 #: translate_tmp.pl:1445
 #: translate_tmp.pl:1447
 msgid "Adds a border effect to the screenshot"
-msgstr ""
+msgstr "Adiciona um efeito ao contorno da captura"
 
 #: translate_tmp.pl:1494
 #: translate_tmp.pl:1502
 msgid "Enable zoom window"
-msgstr "Activar a janela de ampliação"
+msgstr "Ativar a janela de ampliação"
 
 #: translate_tmp.pl:1511
 msgid "Start with selection size of"
-msgstr "Iniciar com uma selecção do seguinte tamanho"
+msgstr "Iniciar seleção com o tamanho"
 
 #: translate_tmp.pl:1513
 msgid "at"
@@ -395,15 +395,15 @@ msgstr "em"
 #: translate_tmp.pl:1551
 #: translate_tmp.pl:1552
 msgid "Start Advanced Selection Tool with a customized selection size"
-msgstr "Iniciar Ferramenta de Selecção com tamanho personalisado"
+msgstr "Iniciar ferramenta avançada de seleção com tamanho personalizado"
 
 #: translate_tmp.pl:1570
 msgid "Show help text"
-msgstr ""
+msgstr "Mostrar ajuda"
 
 #: translate_tmp.pl:1578
 msgid "Enables the help text"
-msgstr ""
+msgstr "Ativa a ajuda"
 
 #: translate_tmp.pl:1587
 #: translate_tmp.pl:1588
@@ -412,7 +412,7 @@ msgstr "Incluir decoração da janela na captura"
 
 #: translate_tmp.pl:1605
 msgid "Automatically resize window to"
-msgstr ""
+msgstr "Ajustar janela automaticamente para"
 
 #: translate_tmp.pl:1629
 #: translate_tmp.pl:1630
@@ -1723,6 +1723,7 @@ msgstr ""
 "  Diogo Lavareda https://launchpad.net/~diogolavareda\n"
 "  José Borges Ferreira (underspell) https://launchpad.net/~jose-ferreira\n"
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
+"  Sérgio Marques https://launchpad.net/~sergio+marques\n"
 "  Tiago Silva https://launchpad.net/~tiagosilva\n"
 "  nglnx https://launchpad.net/~nglnx"
 
