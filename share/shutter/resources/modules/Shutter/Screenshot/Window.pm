@@ -80,15 +80,17 @@ sub new {
 		if($compos){
 			$self->{_highlighter}->set_colormap($self->{_main_gtk_window}->get_screen->get_rgba_colormap);
 		}
-	
+		$self->{_highlighter}->set_type_hint('splashscreen');
+		$self->{_highlighter}->set_has_frame(FALSE);
+		$self->{_highlighter}->can_focus(TRUE);
+		$self->{_highlighter}->set_accept_focus(TRUE);
+		$self->{_highlighter}->set_modal(TRUE);		
 		$self->{_highlighter}->double_buffered(FALSE);
 	    $self->{_highlighter}->set_app_paintable(TRUE);
 	    $self->{_highlighter}->set_decorated(FALSE);
 		$self->{_highlighter}->set_skip_taskbar_hint(TRUE);
 		$self->{_highlighter}->set_skip_pager_hint(TRUE);	    
 	    $self->{_highlighter}->set_keep_above(TRUE);
-	    $self->{_highlighter}->set_accept_focus(FALSE);
-	    $self->{_highlighter}->set_sensitive(FALSE);
 
 		#obtain current colors and font_desc from the main window
 	    my $style 		= $self->{_main_gtk_window}->get_style;
@@ -102,6 +104,7 @@ sub new {
 		#~ my $font_size2 	= int( $mon->width * 0.006 );
 
 		$self->{_highlighter_expose} = $self->{_highlighter}->signal_connect('expose-event' => sub{
+
 			#remove old handler
 			if(defined $self->{_highlighter_anim}){
 				my $removed = Glib::Source->remove($self->{_highlighter_anim});
@@ -109,15 +112,15 @@ sub new {
 
 			return FALSE unless $self->{_highlighter}->window;
 
+			#window size and position
+			my ($w, $h) = $self->{_highlighter}->get_size;
+			my ($x, $y) = $self->{_highlighter}->get_position;
+
 			print $self->{_c}{'cw'}{'window'}->get_name, "\n" if $self->{_sc}->get_debug; 
 
 			my $text = Glib::Markup::escape_text ($self->{_c}{'cw'}{'window'}->get_name);
 			
 			my $sec_text =  "\n".$self->{_c}{'cw'}{'width'} . "x" . $self->{_c}{'cw'}{'height'};
-
-			#window size and position
-			my ($w, $h) = $self->{_highlighter}->get_size;
-			my ($x, $y) = $self->{_highlighter}->get_position;
 
 			#app icon
 			my $icon = $self->{_c}{'cw'}{'window'}->get_icon;
@@ -497,29 +500,21 @@ sub update_highlighter {
 	my $width	= shift;
 	my $height	= shift;
 
-	#two different methods to hide the window before moving it
-	#(to avoid flicker)
-	if (Gtk2->CHECK_VERSION( 2, 12, 0 )) {
-		$self->{_highlighter}->set_opacity(0);	
-	}else{
-		$self->{_highlighter}->hide;	
-	}
-	
+	#hide window
+	$self->{_highlighter}->hide;	
+
 	if(defined $self->{_c}{'cw'}{'gdk_window'} && defined $self->{_c}{'cw'}{'window'}){
 
-		#Place window and resize it
+		#place window, resize it
 		$self->{_highlighter}->move($x-3, $y-3);
 		$self->{_highlighter}->resize($width+6, $height+6);
 		
-		#and show highlighter window at current cursor position		
+		#and show it
 		$self->{_highlighter}->show;
-
-		if (Gtk2->CHECK_VERSION( 2, 12, 0 )) {
-			$self->{_notifications_timeout} = Glib::Timeout->add (100, sub{
-				$self->{_highlighter}->set_opacity(1);
-			});		
-		}
-	
+		$self->{_highlighter}->present;
+		
+		Gtk2::Gdk->keyboard_grab( $self->{_highlighter}->window, 0, Gtk2->get_current_event_time );
+		
 		#save last window objects
 		$self->{_c}{'lw'}{'window'} 	= $self->{_c}{'cw'}{'window'};
 		$self->{_c}{'lw'}{'gdk_window'} = $self->{_c}{'cw'}{'gdk_window'};
@@ -822,6 +817,10 @@ sub window {
 	#when mode is section or window 
 	unless($self->{_mode} eq "menu" || $self->{_mode} eq "tray_menu" || $self->{_mode} eq "tooltip" || $self->{_mode} eq "tray_tooltip" || $self->{_mode} eq "awindow" || $self->{_mode} eq "tray_awindow"){
 		
+		#show and present highlighter
+		$self->{_highlighter}->show;
+		$self->{_highlighter}->present;
+		
 		my $grab_counter = 0;
 		while ( !Gtk2::Gdk->pointer_is_grabbed && $grab_counter < 100 ) {
 			Gtk2::Gdk->pointer_grab(
@@ -836,7 +835,7 @@ sub window {
 				Gtk2::Gdk::Cursor->new('GDK_HAND2'),
 				Gtk2->get_current_event_time
 			);
-			Gtk2::Gdk->keyboard_grab( $self->{_root}, 0, Gtk2->get_current_event_time );
+			Gtk2::Gdk->keyboard_grab( $self->{_highlighter}->window, 0, Gtk2->get_current_event_time );
 			$grab_counter++;
 		}
 
