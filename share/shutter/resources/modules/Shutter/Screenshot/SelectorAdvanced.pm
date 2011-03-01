@@ -291,14 +291,14 @@ sub select_advanced {
 	$self->{_prop_active} = FALSE;
 
 	#window that contains the imageview widget
-	$self->{_select_window} = Gtk2::Window->new('popup');
+	$self->{_select_window} = Gtk2::Window->new('toplevel');
+	$self->{_select_window}->set_modal(TRUE);
 	$self->{_select_window}->set_decorated(FALSE);
 	$self->{_select_window}->set_skip_taskbar_hint(TRUE);
 	$self->{_select_window}->set_skip_pager_hint(TRUE);
 	$self->{_select_window}->set_keep_above(TRUE);
 	$self->{_select_window}->add($self->{_view});
 	$self->{_select_window}->show_all;
-	$self->{_select_window}->window->set_override_redirect(TRUE);
 
 	#init state flags
 	if($self->{_show_help}) {
@@ -708,23 +708,16 @@ sub select_advanced {
 		}
 	);
 
-	#finally focus it
-	my $status = Gtk2::Gdk->keyboard_grab( $self->{_select_window}->window, 0, Gtk2->get_current_event_time );
-		
-	if($status eq 'success'){	
-		if($self->{_zoom_active}){
-			$self->{_zoom_window}->show_all;
-			$self->{_zoom_window}->window->set_override_redirect(TRUE);
-			$self->zoom_check_pos();
-			$self->{_zoom_window}->window->raise;
-		}
-		Gtk2->main();
-	}else{
-		$output = 1;
-		$self->{_select_window}->destroy;
-		$self->{_zoom_window}->destroy;
-		$self->{_prop_window}->destroy;
+	#handle zoom window
+	if($self->{_zoom_active}){
+		$self->{_zoom_window}->show_all;
+		$self->{_zoom_window}->window->set_override_redirect(TRUE);
+		$self->zoom_check_pos();
+		$self->{_zoom_window}->window->raise;
 	}
+	
+	#...and start loop
+	Gtk2->main();
 
 	return $output;
 }
@@ -916,7 +909,8 @@ sub select_dialog {
 	$hw_hbox->pack_start( $heightw_label, FALSE, FALSE, 5 );
 	$hw_hbox->pack_start( $self->{_height_spin_w}, FALSE, FALSE, 5 );
 
-	my $prop_dialog = Gtk2::Window->new('popup');
+	my $prop_dialog = Gtk2::Window->new('toplevel');
+	$prop_dialog->set_modal(TRUE);
 	$prop_dialog->set_decorated(FALSE);
 	$prop_dialog->set_skip_taskbar_hint(TRUE);
 	$prop_dialog->set_skip_pager_hint(TRUE);	
