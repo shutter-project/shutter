@@ -119,6 +119,7 @@ sub new {
 			print $self->{_c}{'cw'}{'window'}->get_name, "\n" if $self->{_sc}->get_debug; 
 
 			my $text = Glib::Markup::escape_text ($self->{_c}{'cw'}{'window'}->get_name);
+			utf8::decode $text;
 			
 			my $sec_text =  "\n".$self->{_c}{'cw'}{'width'} . "x" . $self->{_c}{'cw'}{'height'};
 
