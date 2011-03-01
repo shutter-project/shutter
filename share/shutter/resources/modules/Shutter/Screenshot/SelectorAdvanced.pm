@@ -291,14 +291,22 @@ sub select_advanced {
 	$self->{_prop_active} = FALSE;
 
 	#window that contains the imageview widget
-	$self->{_select_window} = Gtk2::Window->new('toplevel');
+	$self->{_select_window} = Gtk2::Window->new('popup');
+	$self->{_select_window}->set_type_hint('splashscreen');
+	$self->{_select_window}->set_has_frame(FALSE);
+	$self->{_select_window}->can_focus(TRUE);
+	$self->{_select_window}->set_accept_focus(TRUE);
 	$self->{_select_window}->set_modal(TRUE);
 	$self->{_select_window}->set_decorated(FALSE);
 	$self->{_select_window}->set_skip_taskbar_hint(TRUE);
 	$self->{_select_window}->set_skip_pager_hint(TRUE);
 	$self->{_select_window}->set_keep_above(TRUE);
 	$self->{_select_window}->add($self->{_view});
+	$self->{_select_window}->set_default_size($self->{_root}->{w}, $self->{_root}->{h});
+	$self->{_select_window}->resize($self->{_root}->{w}, $self->{_root}->{h});
+	$self->{_select_window}->move($self->{_root}->{x}, $self->{_root}->{y});	
 	$self->{_select_window}->show_all;
+	$self->{_select_window}->present;
 
 	#init state flags
 	if($self->{_show_help}) {
@@ -353,20 +361,6 @@ sub select_advanced {
 			}
 
 		}
-	);
-
-	#see docs
-	#http://library.gnome.org/devel/gtk/stable/GtkWindow.html
-	#asks the window manager to move window to the given position.
-	#Window managers are free to ignore this;
-	#most window managers ignore requests for initial window positions
-	#(instead using a user-defined placement algorithm) and
-	#honor requests after the window has already been shown.
-	$self->{_select_window}->window->move_resize(
-		$self->{_root}->{x},
-		$self->{_root}->{y},
-		$self->{_root}->{w},
-		$self->{_root}->{h}
 	);
 
 	#set initial size
@@ -707,7 +701,7 @@ sub select_advanced {
 			}	
 		}
 	);
-
+	
 	#handle zoom window
 	if($self->{_zoom_active}){
 		$self->{_zoom_window}->show_all;
