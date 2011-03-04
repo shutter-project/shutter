@@ -702,16 +702,20 @@ sub select_advanced {
 		}
 	);
 	
-	#handle zoom window
-	if($self->{_zoom_active}){
-		$self->{_zoom_window}->show_all;
-		$self->{_zoom_window}->window->set_override_redirect(TRUE);
-		$self->zoom_check_pos();
-		$self->{_zoom_window}->window->raise;
-	}
-	
-	#...and start loop
-	Gtk2->main();
+	my $status = Gtk2::Gdk->keyboard_grab( $self->{_select_window}->window, 0, Gtk2->get_current_event_time );
+		
+	#~ if($status eq 'success'){	
+		if($self->{_zoom_active}){
+			$self->{_zoom_window}->show_all;
+			$self->{_zoom_window}->window->set_override_redirect(TRUE);
+			$self->zoom_check_pos();
+			$self->{_zoom_window}->window->raise;
+		}
+		Gtk2->main();
+	#~ }else{
+		#~ $output = 1;
+		#~ $self->clean;
+	#~ }
 
 	return $output;
 }
@@ -1070,6 +1074,12 @@ sub quit {
 	my $self = shift;
 	
 	$self->ungrab_pointer_and_keyboard( FALSE, FALSE, TRUE );
+	$self->clean;
+}
+
+sub clean {
+	my $self = shift;
+	
 	$self->{_selector}->signal_handler_disconnect ($self->{_selector_handler});
 	$self->{_view}->signal_handler_disconnect ($self->{_view_zoom_handler});
 	$self->{_view}->signal_handler_disconnect ($self->{_view_button_handler});
@@ -1077,7 +1087,6 @@ sub quit {
 	$self->{_select_window}->destroy;
 	$self->{_zoom_window}->destroy;
 	$self->{_prop_window}->destroy;
-	
 }
 
 1;
