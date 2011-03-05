@@ -86,8 +86,6 @@ sub new {
 		$self->{_highlighter}->can_focus(TRUE);
 		$self->{_highlighter}->set_accept_focus(TRUE);
 		$self->{_highlighter}->set_modal(TRUE);
-	
-		$self->{_highlighter}->double_buffered(FALSE);
 	    $self->{_highlighter}->set_app_paintable(TRUE);
 	    $self->{_highlighter}->set_decorated(FALSE);
 		$self->{_highlighter}->set_skip_taskbar_hint(TRUE);
@@ -100,16 +98,11 @@ sub new {
 		my $sel_tx 		= $style->text('selected');
 		my $font_fam 	= $style->font_desc->get_family;
 		my $font_size 	= $style->font_desc->get_size / Gtk2::Pango->scale;
-
-		my $mon 	= $self->get_current_monitor;
-		#~ my $font_size 	= int( $mon->width * 0.007 );
-		#~ my $font_size2 	= int( $mon->width * 0.006 );
+		
+		#get current monitor
+		my $mon = $self->get_current_monitor;
 
 		$self->{_highlighter_expose} = $self->{_highlighter}->signal_connect('expose-event' => sub{
-			#remove old handler
-			if(defined $self->{_highlighter_anim}){
-				my $removed = Glib::Source->remove($self->{_highlighter_anim});
-			}
 
 			return FALSE unless $self->{_highlighter}->window;
 
@@ -127,6 +120,15 @@ sub new {
 			#app icon
 			my $icon = $self->{_c}{'cw'}{'window'}->get_icon;
 			
+			#create cairo context
+			my $cr = Gtk2::Gdk::Cairo::Context->create ($self->{_highlighter}->window);
+			
+			#pango layout
+			my $layout = Gtk2::Pango::Cairo::create_layout($cr);
+			$layout->set_width( ($w - $icon->get_width - $font_size * 3) * Gtk2::Pango->scale );
+			$layout->set_alignment('left');
+			$layout->set_wrap('char');
+
 			#warning if there are no subwindows
 			#when we are in section mode and 
 			#a toplevel window was already selected
@@ -140,17 +142,11 @@ sub new {
 					my $d = $self->{_sc}->get_gettext;
 					$text = $d->get("No subwindow detected");
 					$sec_text = "\n".$d->get("Maybe this window is using client-side windows (or similar).\nShutter is not yet able to query the tree information of such windows.");
+					
+					#wrap nicely
+					$layout->set_wrap('word-char');
 				}
 			}
-	
-			#create cairo context
-			my $cr = Gtk2::Gdk::Cairo::Context->create ($self->{_highlighter}->window);
-
-			#pango layout
-			my $layout = Gtk2::Pango::Cairo::create_layout($cr);
-			$layout->set_width( ($w - $icon->get_width - $font_size * 3) * Gtk2::Pango->scale );
-			$layout->set_alignment('left');
-			$layout->set_wrap('char');
 			
 			#set text
 			$layout->set_markup("<span font_desc=\"$font_fam $font_size\" weight=\"bold\" foreground=\"#FFFFFF\">$text</span><span font_desc=\"$font_fam $font_size\" foreground=\"#FFFFFF\">$sec_text</span>");
@@ -172,72 +168,54 @@ sub new {
 			#two different ways - compositing or not
 			if($compos){
 				
-				my $counter = 0;
-				$self->{_highlighter_anim} = Glib::Timeout->add (20, sub{
+				#fill window
+				$cr->set_operator('source');
+				$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.3 );
+				$cr->paint;
+
+				#Parent window with text and icon			
+				if($self->{_c}{'cw'}{'is_parent'}){						
 					
-						return FALSE unless $self->{_highlighter}->window;
-						
-						#increase animation counter
-						$counter++;
-													
-						#fill window
-						$cr->set_operator('source');
-						$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, $counter * 0.02 );
+					$cr->set_operator('over');
+																			
+					#create small frame (window outlines)
+					$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.75 );
+					$cr->set_line_width(6);
+					$cr->rectangle (0, 0, $w, $h);
+					$cr->stroke;
+					
+					if($lw <= $w && $lh <= $h){
+					
+						#rounded rectangle to display the window name
+						$cr->move_to( $xi + $ri, $yi );
+						$cr->line_to( $xi + $wi - $ri, $yi );
+						$cr->curve_to( $xi + $wi, $yi, $xi + $wi, $yi, $xi + $wi, $yi + $ri );
+						$cr->line_to( $xi + $wi, $yi + $hi - $ri );
+						$cr->curve_to( $xi + $wi, $yi + $hi, $xi + $wi, $yi + $hi, $xi + $wi - $ri, $yi + $hi );
+						$cr->line_to( $xi + $ri, $yi + $hi );
+						$cr->curve_to( $xi, $yi + $hi, $xi, $yi + $hi, $xi, $yi + $hi - $ri );
+						$cr->line_to( $xi, $yi + $ri );
+						$cr->curve_to( $xi, $yi, $xi, $yi, $xi + $ri, $yi );
+						$cr->fill;	
+
+						#app icon
+						Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $icon, $xi + $font_size, $yi + $font_size );
 						$cr->paint;
-	
-						#Parent window with text and icon			
-						if($self->{_c}{'cw'}{'is_parent'}){						
-							
-							$cr->set_operator('over');
-																					
-							#create small frame (window outlines)
-							$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.75 );
-							$cr->set_line_width(6);
-							$cr->rectangle (0, 0, $w, $h);
-							$cr->stroke;
-							
-							if($lw <= $w && $lh <= $h){
-							
-								#rounded rectangle to display the window name
-								$cr->move_to( $xi + $ri, $yi );
-								$cr->line_to( $xi + $wi - $ri, $yi );
-								$cr->curve_to( $xi + $wi, $yi, $xi + $wi, $yi, $xi + $wi, $yi + $ri );
-								$cr->line_to( $xi + $wi, $yi + $hi - $ri );
-								$cr->curve_to( $xi + $wi, $yi + $hi, $xi + $wi, $yi + $hi, $xi + $wi - $ri, $yi + $hi );
-								$cr->line_to( $xi + $ri, $yi + $hi );
-								$cr->curve_to( $xi, $yi + $hi, $xi, $yi + $hi, $xi, $yi + $hi - $ri );
-								$cr->line_to( $xi, $yi + $ri );
-								$cr->curve_to( $xi, $yi, $xi, $yi, $xi + $ri, $yi );
-								$cr->fill;	
-	
-								#app icon
-								Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $icon, $xi + $font_size, $yi + $font_size );
-								$cr->paint;
-								
-								#draw the pango layout
-								$cr->move_to( $xi + $font_size*2 + $icon->get_width, $yi + $font_size );
-								Gtk2::Pango::Cairo::show_layout( $cr, $layout );	
+						
+						#draw the pango layout
+						$cr->move_to( $xi + $font_size*2 + $icon->get_width, $yi + $font_size );
+						Gtk2::Pango::Cairo::show_layout( $cr, $layout );	
 
-							}
-
-						}else{
-							#create small frame
-							$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.75 );
-							$cr->set_line_width(6);
-							$cr->rectangle (0, 0, $w, $h);
-							$cr->stroke;	
-						}
-							
-					#quit animation	
-					if($counter == 15){
-						return FALSE;
-					}else{
-						return TRUE;	
 					}
-	
-					return FALSE;	
-				});	
-			
+
+				}else{
+					#create small frame
+					$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.75 );
+					$cr->set_line_width(6);
+					$cr->rectangle (0, 0, $w, $h);
+					$cr->stroke;	
+				}
+
 			#no compositing
 			}else{
 
@@ -511,7 +489,7 @@ sub update_highlighter {
 		$self->{_highlighter}->resize($width+6, $height+6);
 		
 		#and show highlighter window at current cursor position		
-		$self->{_highlighter}->show;
+		$self->{_highlighter}->show_all;
 		$self->{_highlighter}->present;
 
 		Gtk2::Gdk->keyboard_grab( $self->{_highlighter}->window, 0, Gtk2->get_current_event_time );
