@@ -94,7 +94,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1062';
+use constant SHUTTER_REV		=> 'Rev.1063';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87.1';
 
@@ -4955,7 +4955,7 @@ if ($app->is_running) {
 					$notify_timeout_active->set_active( $settings_xml->{'general'}->{'notify_timeout'} );
 					$notify_ptimeout_active->set_active( $settings_xml->{'general'}->{'notify_ptimeout'} );
 					$combobox_ns->set_active( $settings_xml->{'general'}->{'notify_agent'} );
-					$ask_on_delete_active->set_active( $settings_xml->{'general'}->{'ask_on_close'} );
+					$ask_on_delete_active->set_active( $settings_xml->{'general'}->{'ask_on_delete'} );
 					$delete_on_close_active->set_active( $settings_xml->{'general'}->{'delete_on_close'} );
 					$ask_on_fs_delete_active->set_active( $settings_xml->{'general'}->{'ask_on_fs_delete'} );
 
