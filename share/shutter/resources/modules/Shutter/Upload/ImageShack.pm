@@ -292,30 +292,58 @@ sub host{
 
 	if($rsp->is_success){
 		my $txt = $rsp->content;
-		#~ print $txt, "\n";
-	
-		if($txt =~ /link-directlink-click.+>(.*)<\/textarea>.*link-widget-click/ism){
-			$self->hosted($1);
-			
-			#short link
-			if($txt =~ /link-shortlink-click.+?value=['"]*([^'"]+)['"]*/ism){
-				$self->hosted_short($1);
-			}else{
-				#no short link available
-				$self->hosted_short(undef);
-			}
+		print $txt, "\n";
+		
+		#with account
+		if($self->{_username} ne '' && $self->{_password} ne ''){
+			if($txt =~ /link-directlink-click.+>(.*)<\/textarea>.*link-widget-click/ism){
+				$self->hosted($1);
+				
+				#short link
+				if($txt =~ /link-shortlink-click.+?value=['"]*([^'"]+)['"]*/ism){
+					$self->hosted_short($1);
+				}else{
+					#no short link available
+					$self->hosted_short(undef);
+				}
 
-			#forum thumb link
-			if($txt =~ /thumb-forum-click.+>(.*)<\/textarea>.*thumb-alt-click/ism){
-				$self->hosted_thumb($1);
-			}else{
-				#no short link available
-				$self->hosted_thumb(undef);
-			}
+				#forum thumb link
+				if($txt =~ /thumb-forum-click.+>(.*)<\/textarea>.*thumb-alt-click/ism){
+					$self->hosted_thumb($1);
+				}else{
+					#no short link available
+					$self->hosted_thumb(undef);
+				}
 
-			return $self->hosted;
+				return $self->hosted;
+			}else{
+				croak("direct link not found in. Maybe an error ocurred during upload. [".$rsp->as_string."]");
+			}
+		#anony. login -> no user, no password
 		}else{
-			croak("direct link not found in. Maybe an error ocurred during upload. [".$rsp->as_string."]");
+			if($txt =~ /Direct Link.+value=['"]*([^'"]+)['"].*to get this link/ism){
+				$self->hosted($1);
+				
+				#short link
+				if($txt =~ /link-shortlink-click.+?value=['"]*([^'"]+)['"]*/ism){
+					$self->hosted_short($1);
+				}else{
+					#no short link available
+					$self->hosted_short(undef);
+				}
+
+				#forum thumb link
+				if($txt =~ /thumb-forum-click.+>(.*)<\/textarea>.*thumb-alt-click/ism){
+					$self->hosted_thumb($1);
+				}else{
+					#no short link available
+					$self->hosted_thumb(undef);
+				}
+
+				return $self->hosted;
+			}else{
+				croak("direct link not found in. Maybe an error ocurred during upload. [".$rsp->as_string."]");
+			}			
 		}
 	}else{
 		#XXX debug
