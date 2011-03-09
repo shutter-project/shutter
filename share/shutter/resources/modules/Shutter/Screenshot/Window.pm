@@ -856,7 +856,7 @@ sub window {
 				if ( $event->type eq 'key-press' ) {
 					next unless defined $event->keyval;
 					
-					if ( $event->keyval == $Gtk2::Gdk::Keysyms{Escape} ) {
+					if ( $event->keyval == Gtk2::Gdk->keyval_from_name('Escape') ) {
 
 						#destroy highlighter window
 						$self->{_highlighter}->destroy;

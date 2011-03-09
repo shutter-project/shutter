@@ -251,7 +251,7 @@ sub fct_ret_edit_menu {
 	$self->{_menu_edit}->append( Gtk2::SeparatorMenuItem->new );
 
 	$self->{_menuitem_settings} = Gtk2::ImageMenuItem->new_from_stock('gtk-preferences');
-	$self->{_menuitem_settings}->add_accelerator( 'activate', $accel_group, $Gtk2::Gdk::Keysyms{P}, qw/mod1-mask/, qw/visible/ );
+	$self->{_menuitem_settings}->add_accelerator( 'activate', $accel_group, Gtk2::Gdk->keyval_from_name('P'), qw/mod1-mask/, qw/visible/ );
 	$self->{_menu_edit}->append( $self->{_menuitem_settings} );
 
 	return $self->{_menu_edit};
@@ -319,21 +319,21 @@ sub fct_ret_session_menu {
 	$self->{_menu_session} = Gtk2::Menu->new();
 
 	$self->{_menuitem_back} = Gtk2::ImageMenuItem->new_from_stock('gtk-go-back');
-	$self->{_menuitem_back}->add_accelerator( 'activate', $accel_group, $Gtk2::Gdk::Keysyms{Left}, qw/mod1-mask/, qw/visible/ );
+	$self->{_menuitem_back}->add_accelerator( 'activate', $accel_group, Gtk2::Gdk->keyval_from_name('Left'), qw/mod1-mask/, qw/visible/ );
 	$self->{_menu_session}->append( $self->{_menuitem_back} );
 
 	$self->{_menuitem_forward} = Gtk2::ImageMenuItem->new_from_stock('gtk-go-forward');
-	$self->{_menuitem_forward}->add_accelerator( 'activate', $accel_group, $Gtk2::Gdk::Keysyms{Right}, qw/mod1-mask/, qw/visible/ );
+	$self->{_menuitem_forward}->add_accelerator( 'activate', $accel_group, Gtk2::Gdk->keyval_from_name('Right'), qw/mod1-mask/, qw/visible/ );
 	$self->{_menu_session}->append( $self->{_menuitem_forward} );
 
 	$self->{_menu_session}->append( Gtk2::SeparatorMenuItem->new );
 
 	$self->{_menuitem_first} = Gtk2::ImageMenuItem->new_from_stock('gtk-goto-first');
-	$self->{_menuitem_first}->add_accelerator( 'activate', $accel_group, $Gtk2::Gdk::Keysyms{Home}, qw/mod1-mask/, qw/visible/ );
+	$self->{_menuitem_first}->add_accelerator( 'activate', $accel_group, Gtk2::Gdk->keyval_from_name('Home'), qw/mod1-mask/, qw/visible/ );
 	$self->{_menu_session}->append( $self->{_menuitem_first} );
 
 	$self->{_menuitem_last} = Gtk2::ImageMenuItem->new_from_stock('gtk-goto-last');
-	$self->{_menuitem_last}->add_accelerator( 'activate', $accel_group, $Gtk2::Gdk::Keysyms{End}, qw/mod1-mask/, qw/visible/ );
+	$self->{_menuitem_last}->add_accelerator( 'activate', $accel_group, Gtk2::Gdk->keyval_from_name('End'), qw/mod1-mask/, qw/visible/ );
 	$self->{_menu_session}->append( $self->{_menuitem_last} );
 	
 	return $self->{_menu_session};
@@ -398,7 +398,7 @@ sub fct_ret_help_menu {
 	$self->{_menu_help}->append( Gtk2::SeparatorMenuItem->new );
 
 	$self->{_menuitem_about} = Gtk2::ImageMenuItem->new_from_stock('gtk-about');
-	$self->{_menuitem_about}->add_accelerator( 'activate', $accel_group, $Gtk2::Gdk::Keysyms{I}, qw/control-mask/, qw/visible/ );
+	$self->{_menuitem_about}->add_accelerator( 'activate', $accel_group, Gtk2::Gdk->keyval_from_name('I'), qw/control-mask/, qw/visible/ );
 	$self->{_menu_help}->append( $self->{_menuitem_about} );
 
 	return $self->{_menu_help};

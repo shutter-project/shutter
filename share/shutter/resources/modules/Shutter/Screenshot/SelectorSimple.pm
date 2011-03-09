@@ -195,7 +195,7 @@ sub select_simple {
 				if ( $event->type eq 'key-press' ) {
 										
 					#toggle zoom window
-					if ( $event->keyval == $Gtk2::Gdk::Keysyms{space} ) {
+					if ( $event->keyval == Gtk2::Gdk->keyval_from_name('space') ) {
 						if ($self->{_zoom_active}){
 							$zoom_window->hide_all;
 							$self->{_zoom_active} = FALSE;
@@ -206,7 +206,7 @@ sub select_simple {
 					}
 						
 					#quit on escape
-					if ( $event->keyval == $Gtk2::Gdk::Keysyms{Escape} ) {
+					if ( $event->keyval == Gtk2::Gdk->keyval_from_name('Escape') ) {
 						if ( $rect_w > 1 ) {
 							#clear the last rectangle
 							$self->{_root}->draw_rectangle( $gc, 0, $rect_x, $rect_y, $rect_w, $rect_h );

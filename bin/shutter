@@ -39,7 +39,6 @@ Gnome2::AuthenticationManager->init;
 
 #Gtk2 and Gtk2::ImageView
 use Gtk2 '-init';
-use Gtk2::Gdk::Keysyms;
 use Gtk2::Pango;
 use Gtk2::ImageView;
 
@@ -94,7 +93,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1065';
+use constant SHUTTER_REV		=> 'Rev.1066';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87.1';
 

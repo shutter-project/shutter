@@ -3398,19 +3398,19 @@ sub event_item_on_key_press {
 			$curr_item->{dragging_start} = TRUE;
 							
 			#move with arrow keys
-			if($ev->keyval == $Gtk2::Gdk::Keysyms{Up}){
+			if($ev->keyval == Gtk2::Gdk->keyval_from_name('Up')){
 				#~ print $ev->keyval," $old_x,$old_y-up\n";
 				$mevent->x($old_x);
 				$mevent->y($old_y-1);	
-			}elsif($ev->keyval == $Gtk2::Gdk::Keysyms{Down}){
+			}elsif($ev->keyval == Gtk2::Gdk->keyval_from_name('Down')){
 				#~ print $ev->keyval," $old_x,$old_y-down\n";
 				$mevent->x($old_x);
 				$mevent->y($old_y+1);			
-			}elsif($ev->keyval == $Gtk2::Gdk::Keysyms{Left}){
+			}elsif($ev->keyval == Gtk2::Gdk->keyval_from_name('Left')){
 				#~ print $ev->keyval," $old_x,$old_y-left\n";
 				$mevent->x($old_x-1);
 				$mevent->y($old_y);			
-			}elsif($ev->keyval == $Gtk2::Gdk::Keysyms{Right}){
+			}elsif($ev->keyval == Gtk2::Gdk->keyval_from_name('Right')){
 				#~ print $ev->keyval," $old_x,$old_y-right\n";
 				$mevent->x($old_x+1);
 				$mevent->y($old_y);			

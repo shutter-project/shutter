@@ -550,7 +550,7 @@ sub select_advanced {
 				my ( $window_at_pointer, $x, $y, $mask ) = $self->{_root}->get_pointer;
 
 				#toggle zoom window
-				if ( $event->keyval == $Gtk2::Gdk::Keysyms{space} ) {
+				if ( $event->keyval == Gtk2::Gdk->keyval_from_name('space') ) {
 					
 					if ($self->{_zoom_active}){
 						$self->{_zoom_window}->hide_all;
@@ -561,7 +561,7 @@ sub select_advanced {
 					} 
 
 				#toggle prop dialog				
-				}elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Shift_L} || $event->keyval == $Gtk2::Gdk::Keysyms{Shift_R} ) {
+				}elsif ( $event->keyval == Gtk2::Gdk->keyval_from_name('Shift_L') || $event->keyval == Gtk2::Gdk->keyval_from_name('Shift_R') ) {
 					
 					if($self->{_prop_active}){
 						Gtk2::Gdk->keyboard_ungrab( Gtk2->get_current_event_time );
@@ -578,12 +578,12 @@ sub select_advanced {
 					}
 						
 				#abort screenshot				
-				}elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Escape} ) {
+				}elsif ( $event->keyval == Gtk2::Gdk->keyval_from_name('Escape') ) {
 											
 					$self->quit;
 				
 				#move / resize selector
-				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Up} ) {
+				} elsif ( $event->keyval == Gtk2::Gdk->keyval_from_name('Up') ) {
 					
 					if ($event->state >= 'control-mask' && $s){
 						$s->height($s->height-1);
@@ -597,7 +597,7 @@ sub select_advanced {
 						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x, $y-1);
 					}
 					
-				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Down} ) {
+				} elsif ( $event->keyval == Gtk2::Gdk->keyval_from_name('Down') ) {
 
 					if ($event->state >= 'control-mask' && $s){
 						$s->height($s->height+1);
@@ -616,7 +616,7 @@ sub select_advanced {
 						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x, $y+1);
 					}
 					
-				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Left} ) {
+				} elsif ( $event->keyval == Gtk2::Gdk->keyval_from_name('Left') ) {
 
 					if ($event->state >= 'control-mask' && $s){
 						$s->width($s->width-1);
@@ -630,7 +630,7 @@ sub select_advanced {
 						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x-1, $y);
 					}
 					
-				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Right} ) {	
+				} elsif ( $event->keyval == Gtk2::Gdk->keyval_from_name('Right') ) {	
 
 					if ($event->state >= 'control-mask' && $s){
 						$s->width($s->width+1);
@@ -651,9 +651,9 @@ sub select_advanced {
 				
 				#zoom in
 				} elsif ( 
-					$event->keyval == $Gtk2::Gdk::Keysyms{KP_Add} ||
-					$event->keyval == $Gtk2::Gdk::Keysyms{plus} ||
-					$event->keyval == $Gtk2::Gdk::Keysyms{equal}		
+					$event->keyval == Gtk2::Gdk->keyval_from_name('KP_Add') ||
+					$event->keyval == Gtk2::Gdk->keyval_from_name('plus') ||
+					$event->keyval == Gtk2::Gdk->keyval_from_name('equal')		
 				) {	
 
 					if ($event->state >= 'control-mask'){
@@ -662,8 +662,8 @@ sub select_advanced {
 
 				#zoom out
 				} elsif ( 
-					$event->keyval == $Gtk2::Gdk::Keysyms{KP_Subtract} ||
-					$event->keyval == $Gtk2::Gdk::Keysyms{minus}		
+					$event->keyval == Gtk2::Gdk->keyval_from_name('KP_Subtract')||
+					$event->keyval == Gtk2::Gdk->keyval_from_name('minus')
 				) {	
 
 					if ($event->state >= 'control-mask'){
@@ -672,7 +672,7 @@ sub select_advanced {
 
 				#zoom normal
 				} elsif ( 
-					$event->keyval == $Gtk2::Gdk::Keysyms{0}	
+					$event->keyval == Gtk2::Gdk->keyval_from_name('0')
 				) {	
 
 					if ($event->state >= 'control-mask'){
@@ -680,7 +680,7 @@ sub select_advanced {
 					}
 												
 				#take screenshot
-				} elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Return} || $event->keyval == $Gtk2::Gdk::Keysyms{KP_Enter}) {
+				} elsif ( $event->keyval == Gtk2::Gdk->keyval_from_name('Return') || $event->keyval == Gtk2::Gdk->keyval_from_name('KP_Enter')) {
 					
 					$self->{_select_window}->hide;
 					$self->{_zoom_window}->hide;
@@ -921,7 +921,7 @@ sub select_dialog {
 		my $event  = shift;
 		
 		#toggle zoom window
-		if ( $event->keyval == $Gtk2::Gdk::Keysyms{space} ) {
+		if ( $event->keyval == Gtk2::Gdk->keyval_from_name('Space') ) {
 			
 			if ($self->{_zoom_active}){
 				$self->{_zoom_window}->hide_all;
@@ -932,7 +932,7 @@ sub select_dialog {
 			} 
 	
 		#toggle prop dialog				
-		}elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Shift_L} || $event->keyval == $Gtk2::Gdk::Keysyms{Shift_R} ) {
+		}elsif ( $event->keyval == Gtk2::Gdk->keyval_from_name('Shift_L') || $event->keyval == Gtk2::Gdk->keyval_from_name('Shift_R') ) {
 			
 			if($self->{_prop_active}){
 				Gtk2::Gdk->keyboard_ungrab( Gtk2->get_current_event_time );
@@ -949,7 +949,7 @@ sub select_dialog {
 			}
 				
 		#abort screenshot				
-		}elsif ( $event->keyval == $Gtk2::Gdk::Keysyms{Escape} ) {
+		}elsif ( $event->keyval == Gtk2::Gdk->keyval_from_name('Escape') ) {
 									
 			$self->quit;
 		
