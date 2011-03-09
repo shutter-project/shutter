@@ -93,7 +93,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1066';
+use constant SHUTTER_REV		=> 'Rev.1067';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87.1';
 
@@ -3059,20 +3059,13 @@ if ($app->is_running) {
 		}else{
 			#A short timeout to give the server a chance to
 			#redraw the area that was obscured by our dialog.
-			if($widget ne 'global_keybinding'){
-				Glib::Timeout->add ($hide_time->get_value, sub{
-					&fct_take_screenshot($widget, $data, $folder_from_config, $extra);
-					#unblock signal handler
-					&fct_control_signals('unblock');
-					return FALSE;	
-				});
-			}else{
+			Glib::Timeout->add ($hide_time->get_value, sub{
 				&fct_take_screenshot($widget, $data, $folder_from_config, $extra);
 				#unblock signal handler
-				&fct_control_signals('unblock');			
-			}			
+				&fct_control_signals('unblock');
+				return FALSE;	
+			});
 		}		
-		
 		
 		return TRUE;
 	}
