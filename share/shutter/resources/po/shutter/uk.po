@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-02-03 02:07+0100\n"
-"PO-Revision-Date: 2011-02-25 01:27+0000\n"
-"Last-Translator: Mario Kemper (Romario) <mario.kemper@googlemail.com>\n"
+"PO-Revision-Date: 2011-03-23 17:17+0000\n"
+"Last-Translator: Anatoliy Babchuk <Unknown>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-03-05 00:04+0000\n"
-"X-Generator: Launchpad (build 12515)\n"
+"X-Launchpad-Export-Date: 2011-03-25 11:01+0000\n"
+"X-Generator: Launchpad (build 12661)\n"
 
 #: translate_tmp.pl:389
 #: translate_tmp.pl:2530
@@ -297,7 +297,7 @@ msgstr "Додати курсор до знімоку"
 
 #: translate_tmp.pl:1336
 msgid "Open with"
-msgstr "Відкрити за допомогою"
+msgstr "Відкрити з допомогою"
 
 #: translate_tmp.pl:1337
 #: translate_tmp.pl:1338
@@ -1009,7 +1009,7 @@ msgstr "Помилка вилучення файлу %s з диска."
 #: translate_tmp.pl:5381
 #, perl-format
 msgid "Are you sure you want to move %s to the trash?"
-msgstr "Ви переконані, що бажаєте перемістити %s у смітник?"
+msgstr "Ви впевнені, що бажаєте перемістити %s у смітник?"
 
 #: translate_tmp.pl:5382
 #: translate_tmp.pl:5427
@@ -1151,7 +1151,7 @@ msgstr ""
 #: translate_tmp.pl:6814
 #, perl-format
 msgid "%s opened with %s"
-msgstr ""
+msgstr "%s відкрито з допомогою %s"
 
 #: translate_tmp.pl:6846
 msgid "Opened all files with"
@@ -1161,33 +1161,34 @@ msgstr "Відкрити всі файли з"
 #: translate_tmp.pl:6914
 #, perl-format
 msgid "Could not apply plugin %s"
-msgstr ""
+msgstr "Не можливо застосувати додаток %s"
 
 #: translate_tmp.pl:6912
 #: translate_tmp.pl:6963
 #, perl-format
 msgid "Successfully applied plugin %s"
-msgstr ""
+msgstr "Додаток %s успышно застосовано"
 
 #: translate_tmp.pl:6966
 #, perl-format
 msgid "Error while executing plugin %s."
-msgstr ""
+msgstr "Помилка виконання додатка %s"
 
 #: translate_tmp.pl:6967
 msgid "There was an error executing the plugin."
-msgstr ""
+msgstr "Сталася помилка при виконанні додатку"
 
 #: translate_tmp.pl:7045
 #, perl-format
 msgid "%s screenshot"
 msgid_plural "%s screenshots"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s знімок екрану"
+msgstr[1] "%s знімка екрану"
+msgstr[2] "%s знімків екрану"
 
 #: translate_tmp.pl:7057
 msgid "Current profile"
-msgstr ""
+msgstr "Поточний профіль"
 
 #: translate_tmp.pl:7462
 msgid "Try to resave the file?"
@@ -1215,7 +1216,7 @@ msgstr "Виникла помилка при збереженні зображе
 #: translate_tmp.pl:7590
 #, perl-format
 msgid "Image %s was deleted from filesystem"
-msgstr ""
+msgstr "Зображення %s видалено з файлової системи"
 
 #: translate_tmp.pl:7622
 #: translate_tmp.pl:62
@@ -1238,7 +1239,7 @@ msgstr "Будь-ласка зачекайте поки Shutter оновлює �
 
 #: translate_tmp.pl:8115
 msgid "Capture All Workspaces"
-msgstr ""
+msgstr "Зробити знімок усіх робочих областей"
 
 #: translate_tmp.pl:8128
 msgid "Limit to current monitor"
@@ -1269,7 +1270,7 @@ msgstr[2] ""
 
 #: translate_tmp.pl:8187
 msgid "Capture the last active window"
-msgstr ""
+msgstr "Знімок останнього активного вікна"
 
 #: translate_tmp.pl:8226
 #: translate_tmp.pl:403
@@ -1279,16 +1280,16 @@ msgstr "Виділити область"
 #: translate_tmp.pl:8252
 #: translate_tmp.pl:429
 msgid "_Desktop"
-msgstr ""
+msgstr "_Стільниця"
 
 #: translate_tmp.pl:8286
 msgid "Window _under Cursor"
-msgstr ""
+msgstr "Вікно _під курсором"
 
 #: translate_tmp.pl:8302
 #: translate_tmp.pl:459
 msgid "Select W_indow"
-msgstr ""
+msgstr "Вибрати В_ікно"
 
 #: translate_tmp.pl:8316
 #: translate_tmp.pl:472
@@ -1298,12 +1299,12 @@ msgstr "Секція"
 #: translate_tmp.pl:8335
 #: translate_tmp.pl:488
 msgid "_Menu"
-msgstr ""
+msgstr "_Меню"
 
 #: translate_tmp.pl:8354
 #: translate_tmp.pl:504
 msgid "_Tooltip"
-msgstr ""
+msgstr "_Підказка"
 
 #: translate_tmp.pl:8373
 #: translate_tmp.pl:522
@@ -1313,7 +1314,7 @@ msgstr "Веб-сайт"
 #: translate_tmp.pl:8390
 #: translate_tmp.pl:395
 msgid "_Redo last screenshot"
-msgstr ""
+msgstr "_Відновити останній знімок"
 
 #: translate_tmp.pl:8401
 #: translate_tmp.pl:223
@@ -1393,25 +1394,25 @@ msgstr "Шлях"
 
 #: translate_tmp.pl:9062
 msgid "Copy Ubuntu One public URL"
-msgstr ""
+msgstr "Копіювати спільну адресу Ubuntu One"
 
 #: translate_tmp.pl:9070
 msgid "Successfully published"
-msgstr ""
+msgstr "Успішно опубліковано"
 
 #: translate_tmp.pl:9070
 #, perl-format
 msgid "The file %s was successfully published: %s"
-msgstr ""
+msgstr "Файл %s був успішно опублікований: %s"
 
 #: translate_tmp.pl:9072
 #, perl-format
 msgid "%s published"
-msgstr ""
+msgstr "%s опубліковано"
 
 #: translate_tmp.pl:9082
 msgid "Unpublished"
-msgstr ""
+msgstr "Неопубліковано"
 
 #: translate_tmp.pl:9082
 #, perl-format
@@ -1419,15 +1420,16 @@ msgid ""
 "The file %s is no longer published. The external link is not available "
 "anymore."
 msgstr ""
+"Файл %s більше не публікується. Зовнішнє посилання більше не доступне."
 
 #: translate_tmp.pl:9084
 #, perl-format
 msgid "The file %s is no longer published."
-msgstr ""
+msgstr "Файл %s більше не публікується."
 
 #: translate_tmp.pl:9288
 msgid "Rename"
-msgstr ""
+msgstr "Перейменувати"
 
 #: translate_tmp.pl:9292
 #, perl-format
@@ -1512,7 +1514,7 @@ msgstr "Обрати додаток"
 
 #: translate_tmp.pl:9930
 msgid "_Run"
-msgstr ""
+msgstr "_Запустити"
 
 #: translate_tmp.pl:9980
 msgid "Plugin"
@@ -1541,7 +1543,7 @@ msgstr "Виберіть рахунок"
 
 #: translate_tmp.pl:10180
 msgid "Status"
-msgstr ""
+msgstr "Статус"
 
 #: translate_tmp.pl:10314
 msgid "Public hosting"
@@ -1553,7 +1555,7 @@ msgstr "Теки"
 
 #: translate_tmp.pl:10317
 msgid "Ubuntu One"
-msgstr ""
+msgstr "Ubuntu One"
 
 #: translate_tmp.pl:10329
 msgid "_Export"
@@ -1561,12 +1563,12 @@ msgstr "_Експорт"
 
 #: translate_tmp.pl:10332
 msgid "_Publish"
-msgstr ""
+msgstr "_Опублікувати"
 
 #: translate_tmp.pl:10359
 #: translate_tmp.pl:147
 msgid "Disconnected"
-msgstr ""
+msgstr "Роз’єднано"
 
 #: translate_tmp.pl:10379
 #: translate_tmp.pl:10411
@@ -1578,7 +1580,14 @@ msgid_plural ""
 "Folder %s is synchronized with Ubuntu One.\n"
 "The selected files will be copied to that folder before being published."
 msgstr[0] ""
+"Теку %s синхронізовано з Ubuntu One.\n"
+"Виділений файл буде скопійований до тієї теки перед публікуванням."
 msgstr[1] ""
+"Теку %s синхронізовано з Ubuntu One.\n"
+"Виділені файли будуть скопійовані до тієї теки перед публікуванням."
+msgstr[2] ""
+"Теку %s синхронізовано з Ubuntu One.\n"
+"Виділені файли будуть скопійовані до тієї теки перед публікуванням."
 
 #: translate_tmp.pl:10382
 #: translate_tmp.pl:10414
@@ -1591,7 +1600,16 @@ msgid_plural ""
 "process.\n"
 "You will be notified when the process has finished."
 msgstr[0] ""
+"<b>Зверніть увагу:</b> Виділений файл буде опубліковано у фоновому процесі.\n"
+"Ви будете повідомлені, коли процес закінчиться."
 msgstr[1] ""
+"<b>Зверніть увагу:</b> Виділені файли будуть опубліковані у фоновому "
+"процесі.\n"
+"Ви будете повідомлені, коли процес закінчиться."
+msgstr[2] ""
+"<b>Зверніть увагу:</b> Виділені файли будуть опубліковані у фоновому "
+"процесі.\n"
+"Ви будете повідомлені, коли процес закінчиться."
 
 #: translate_tmp.pl:10387
 #: translate_tmp.pl:10419
@@ -1600,21 +1618,24 @@ msgid ""
 "Folder %s is not synchronized with Ubuntu One.\n"
 "Please choose an alternative folder."
 msgstr ""
+"Тека %s не синхронізована з Ubuntu One.\n"
+"Будь ласка, виберіть іншу теку."
 
 #: translate_tmp.pl:10436
 msgid "Ubuntu One service cannot be found."
-msgstr ""
+msgstr "Сервіс Ubuntu One не знайдено."
 
 #: translate_tmp.pl:10443
 msgid ""
 "/publicfiles is not available. Your Ubuntu One installation seems to be out "
 "of date."
-msgstr ""
+msgstr "/publicfiles недоступний. Можливо у вас застаріла версія Ubuntu One."
 
 #: translate_tmp.pl:10450
 msgid ""
 "Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature"
 msgstr ""
+"Для цієї функції потрібно встановити Net::DBus::GLib/libnet-dbus-glib-perl"
 
 #: translate_tmp.pl:10519
 #: translate_tmp.pl:10589
@@ -1672,20 +1693,20 @@ msgstr "Пропустити"
 #: translate_tmp.pl:10689
 #: translate_tmp.pl:10972
 msgid "Retry"
-msgstr ""
+msgstr "Повторити"
 
 #: translate_tmp.pl:10669
 #: translate_tmp.pl:10772
 #: translate_tmp.pl:10845
 msgid "Successfully uploaded"
-msgstr ""
+msgstr "Вивантажено успішно"
 
 #: translate_tmp.pl:10669
 #: translate_tmp.pl:10772
 #: translate_tmp.pl:10845
 #, perl-format
 msgid "The file %s was successfully uploaded."
-msgstr ""
+msgstr "Файл %s було успішно вивантажено"
 
 #: translate_tmp.pl:10764
 #: translate_tmp.pl:10837
@@ -1695,23 +1716,23 @@ msgstr "експортовано"
 #: translate_tmp.pl:10767
 #: translate_tmp.pl:10840
 msgid "Successfully exported"
-msgstr ""
+msgstr "Успішно експортовано"
 
 #: translate_tmp.pl:10767
 #: translate_tmp.pl:10840
 #, perl-format
 msgid "The file %s was successfully exported."
-msgstr ""
+msgstr "Файл  %s було успішно експортовано"
 
 #: translate_tmp.pl:10777
 #: translate_tmp.pl:10850
 #, perl-format
 msgid "Publishing %s..."
-msgstr ""
+msgstr "Публікування %s..."
 
 #: translate_tmp.pl:10932
 msgid "_Retry"
-msgstr ""
+msgstr "_Повторити"
 
 #: translate_tmp.pl:10936
 #, perl-format
@@ -1725,24 +1746,24 @@ msgstr "Виникла помилка при копіюванні зображе
 
 #: translate_tmp.pl:10958
 msgid "Error while login"
-msgstr ""
+msgstr "Помилка входу"
 
 #: translate_tmp.pl:10962
 msgid "Maximum filesize reached"
-msgstr ""
+msgstr "Досягнуто максимального розміру файлу"
 
 #: translate_tmp.pl:10963
 msgid "Error while uploading"
-msgstr ""
+msgstr "Помилка при вивантеженні"
 
 #: translate_tmp.pl:10966
 #, perl-format
 msgid "Maximum filesize: %s"
-msgstr ""
+msgstr "Максимальний розмір файлу:  %s"
 
 #: translate_tmp.pl:10971
 msgid "Error while connecting"
-msgstr ""
+msgstr "Помилка при підключенні"
 
 #: translate_tmp.pl:10989
 msgid "Save current preferences as new profile"
@@ -1766,6 +1787,7 @@ msgstr ""
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
+"  Anatoliy Babchuk https://launchpad.net/~holyexperiment\n"
 "  Eugene Babiy https://launchpad.net/~eugene-babiy\n"
 "  Incubus-Grauen https://launchpad.net/~incubusgrauen\n"
 "  MFX https://launchpad.net/~mfx\n"
@@ -1806,7 +1828,7 @@ msgstr "_Довідка"
 
 #: translate_tmp.pl:87
 msgid "_Open..."
-msgstr ""
+msgstr "_Відкрити…"
 
 #: translate_tmp.pl:92
 msgid "Recent _Files"
@@ -1814,17 +1836,17 @@ msgstr "Оста_нні файли"
 
 #: translate_tmp.pl:103
 msgid "Save _As..."
-msgstr ""
+msgstr "Зберегти _як…"
 
 #: translate_tmp.pl:114
 #: translate_tmp.pl:5922
 msgid "E_xport to PDF..."
-msgstr ""
+msgstr "Експорт в PDF..."
 
 #: translate_tmp.pl:119
 #: translate_tmp.pl:5925
 msgid "Export to Post_Script..."
-msgstr ""
+msgstr "Експорт в Post_Script..."
 
 #: translate_tmp.pl:129
 msgid "Page Set_up"
@@ -1832,11 +1854,11 @@ msgstr "Макет сторінки"
 
 #: translate_tmp.pl:136
 msgid "_Print..."
-msgstr ""
+msgstr "_Друк..."
 
 #: translate_tmp.pl:144
 msgid "Send by E_mail..."
-msgstr ""
+msgstr "Надіслати по_штою..."
 
 #: translate_tmp.pl:159
 msgid "C_lose all"
@@ -1845,83 +1867,83 @@ msgstr "Закрити всі"
 #: translate_tmp.pl:204
 #: translate_tmp.pl:711
 msgid "Copy _Filename"
-msgstr ""
+msgstr "Копіювати _ім'я файлу"
 
 #: translate_tmp.pl:246
 msgid "Show Navigation _Toolbar"
-msgstr ""
+msgstr "Показувати _панель навігації"
 
 #: translate_tmp.pl:328
 msgid "Get Help Online..."
-msgstr ""
+msgstr "Отримати онлайн довідку..."
 
 #: translate_tmp.pl:343
 msgid "Translate this Application..."
-msgstr ""
+msgstr "Перекласти цю програму"
 
 #: translate_tmp.pl:358
 msgid "Report a Problem"
-msgstr "Звітувати про проблему"
+msgstr "Повідомити про проблему"
 
 #: translate_tmp.pl:446
 msgid "_Active Window"
-msgstr ""
+msgstr "_Активне вікно"
 
 #: translate_tmp.pl:538
 msgid "Import from clip_board"
-msgstr ""
+msgstr "Імпортувати з _буферу обміну"
 
 #: translate_tmp.pl:562
 #: translate_tmp.pl:662
 msgid "_Open with default application"
-msgstr ""
+msgstr "_Відкрити у стандартній програмі"
 
 #: translate_tmp.pl:569
 #: translate_tmp.pl:669
 msgid "Open wit_h"
-msgstr "Відкри_ти за допомогою"
+msgstr "Відкрити _з"
 
 #: translate_tmp.pl:575
 #: translate_tmp.pl:675
 msgid "_Rename..."
-msgstr ""
+msgstr "Пере_йменувати..."
 
 #: translate_tmp.pl:584
 #: translate_tmp.pl:683
 msgid "_Send To..."
-msgstr ""
+msgstr "_Надіслати до..."
 
 #: translate_tmp.pl:593
 #: translate_tmp.pl:691
 msgid "E_xport..."
-msgstr ""
+msgstr "Е_кспортувати…"
 
 #: translate_tmp.pl:600
 #: translate_tmp.pl:697
 msgid "Public URLs"
-msgstr ""
+msgstr "Публічні посилання"
 
 #: translate_tmp.pl:608
 #: translate_tmp.pl:724
 msgid "_Edit..."
-msgstr ""
+msgstr "_Змінити..."
 
 #: translate_tmp.pl:625
 msgid "Run a _plugin..."
-msgstr ""
+msgstr "Запустити _додаток..."
 
 #: translate_tmp.pl:634
 #: translate_tmp.pl:748
 msgid "Redo _this screenshot"
-msgstr ""
+msgstr "Відновити _цей знімок екрану..."
 
 #: translate_tmp.pl:740
 msgid "Run a _Plugin..."
-msgstr ""
+msgstr "Запустити _додаток..."
 
 #: translate_tmp.pl:40
 msgid "Redo last screenshot"
-msgstr ""
+msgstr "Повторити останній знімок екрану"
 
 #: translate_tmp.pl:70
 msgid ""
@@ -1935,7 +1957,7 @@ msgstr "Оберіть інструмент виділення"
 
 #: translate_tmp.pl:90
 msgid "Desktop"
-msgstr ""
+msgstr "Робочий стіл"
 
 #: translate_tmp.pl:93
 msgid "Take a screenshot of your whole desktop"
@@ -1965,11 +1987,11 @@ msgstr "Захопити тільки елемент програми."
 
 #: translate_tmp.pl:174
 msgid "Select a single menu or cascading menus from any application"
-msgstr ""
+msgstr "Вибрати одиночне або каскадне меню у програмі"
 
 #: translate_tmp.pl:194
 msgid "Capture a tooltip"
-msgstr ""
+msgstr "Знімок підказки"
 
 #: translate_tmp.pl:212
 #: translate_tmp.pl:75
@@ -1985,16 +2007,19 @@ msgid ""
 "Use the built-in editor to highlight important fragments of your screenshot "
 "or crop it to a desired size"
 msgstr ""
+"Використовувати вбудований редактор для виділення важливих фрагментів знімка "
+"або обрізати до бажаних розмірів"
 
 #: translate_tmp.pl:244
 msgid "Export"
-msgstr ""
+msgstr "Експорт"
 
 #: translate_tmp.pl:247
 msgid ""
 "Upload your images to an image hosting service, FTP site or export them to "
 "an arbitrary folder"
 msgstr ""
+"Завантажити зображення на хостинг, FTP або експортувати їх до заданої теки"
 
 #: translate_tmp.pl:33
 #: translate_tmp.pl:47
@@ -2002,7 +2027,7 @@ msgstr ""
 #: translate_tmp.pl:76
 #, perl-format
 msgid "Error while executing %s."
-msgstr ""
+msgstr "Помилка при виконанні %s."
 
 #: translate_tmp.pl:34
 #: translate_tmp.pl:48
@@ -2010,7 +2035,7 @@ msgstr ""
 #: translate_tmp.pl:77
 #, perl-format
 msgid "There was an error executing %s."
-msgstr ""
+msgstr "Сталася помилка при виконанні %s."
 
 #: translate_tmp.pl:37
 #: translate_tmp.pl:51
@@ -2018,15 +2043,15 @@ msgstr ""
 #: translate_tmp.pl:80
 #, perl-format
 msgid "Exit Code: %d."
-msgstr ""
+msgstr "Код виходу: %d."
 
 #: translate_tmp.pl:150
 msgid "Synchronization complete"
-msgstr ""
+msgstr "Синхронізацію завершено"
 
 #: translate_tmp.pl:152
 msgid "Synchronization in progress..."
-msgstr ""
+msgstr "Відбувається синхронізація..."
 
 #: translate_tmp.pl:414
 #: translate_tmp.pl:193
@@ -2040,7 +2065,7 @@ msgstr "Мініатюра для форумів"
 
 #: translate_tmp.pl:424
 msgid "Short URL"
-msgstr ""
+msgstr "Короткий URL"
 
 #: translate_tmp.pl:426
 #: translate_tmp.pl:293
@@ -2070,7 +2095,7 @@ msgstr "Мініатюра для веб-сайту"
 
 #: translate_tmp.pl:305
 msgid "Hotlink for forums"
-msgstr ""
+msgstr "Посилання для форуму"
 
 #: translate_tmp.pl:61
 msgid "Illegal URI."
@@ -2095,35 +2120,40 @@ msgstr "Команда 'Вставити' зазнала невдачі."
 
 #: translate_tmp.pl:121
 msgid "Draw a rectangular area using the mouse."
-msgstr ""
+msgstr "Виділіть прямокутну область з допомогою миші"
 
 #: translate_tmp.pl:124
 msgid "To take a screenshot, press the Enter key. Press Esc to quit."
-msgstr ""
+msgstr "Щоб зробити знімок натисніть Enter. Натисніть Esc, щоб вийти."
 
 #: translate_tmp.pl:127
 msgid "<b>shift/right-click</b> → selection dialog on/off"
 msgstr ""
+"<b>shift або права кнопка миші</b> → показати/сховати діалог виділення"
 
 #: translate_tmp.pl:128
 msgid "<b>ctrl + scrollwheel</b> → zoom in/out"
-msgstr ""
+msgstr "<b>ctrl + scrollwheel</b> → zoom in/out"
 
 #: translate_tmp.pl:129
 msgid "<b>space</b> → zoom window on/off"
-msgstr ""
+msgstr "<b>пробіл</b> → вмикнути/вимкнути збільшувальне вікно"
 
 #: translate_tmp.pl:130
 msgid "<b>cursor keys</b> → move cursor"
-msgstr ""
+msgstr "<b>клавіші управління курсором (стрілки)</b> → переміщення курсору"
 
 #: translate_tmp.pl:131
 msgid "<b>cursor keys + alt</b> → move selection"
 msgstr ""
+"<b>alt + клавіші управління курсором (стрілки)</b> → переміщення вибраної "
+"області"
 
 #: translate_tmp.pl:132
 msgid "<b>cursor keys + ctrl</b> → resize selection"
 msgstr ""
+"<b>ctrl + клавіші управління курсором (стрілки)</b> → зміна розміру вибраної "
+"області"
 
 #: translate_tmp.pl:87
 msgid ""
@@ -2132,28 +2162,28 @@ msgstr "Не вдалось захопити курсор миші або виб
 
 #: translate_tmp.pl:95
 msgid "Keyboard could not be grabbed."
-msgstr ""
+msgstr "Не вдалося захопити клавіатуру"
 
 #: translate_tmp.pl:104
 msgid "menu"
-msgstr ""
+msgstr "меню"
 
 #: translate_tmp.pl:106
 msgid "tooltip"
-msgstr ""
+msgstr "підказка"
 
 #: translate_tmp.pl:110
 #, perl-format
 msgid "No window with type %s detected."
-msgstr ""
+msgstr "Не виявлено вікна типу %s."
 
 #: translate_tmp.pl:118
 msgid "There is no last capture that can be redone."
-msgstr ""
+msgstr "Неможливо повторити, оскільки останні знімки відсутні."
 
 #: translate_tmp.pl:126
 msgid "The window is no longer available."
-msgstr ""
+msgstr "Вікно більше не доступне."
 
 #: translate_tmp.pl:138
 #: translate_tmp.pl:144
@@ -2163,17 +2193,19 @@ msgstr "Неможливо створити знімок веб-сайту"
 #: translate_tmp.pl:152
 #, perl-format
 msgid "No window with name pattern %s detected."
-msgstr ""
+msgstr "Вікон, які містять у імені %s не виявлені."
 
 #: translate_tmp.pl:110
 msgid "No subwindow detected"
-msgstr ""
+msgstr "Дочірнє вікно не виявлено"
 
 #: translate_tmp.pl:111
 msgid ""
 "Maybe this window is using client-side windows (or similar).\n"
 "Shutter is not yet able to query the tree information of such windows."
 msgstr ""
+"Можливо, це вікно використовує вікна на стороні клієнта (чи подібні).\n"
+"Shutter поки не може отримувати інформацію від таких вікон."
 
 #: translate_tmp.pl:77
 msgid "URL to capture"
@@ -2181,11 +2213,11 @@ msgstr "Адреса веб-сайту"
 
 #: translate_tmp.pl:94
 msgid "C_apture"
-msgstr ""
+msgstr "З_німок"
 
 #: translate_tmp.pl:157
 msgid "Workspaces"
-msgstr ""
+msgstr "Робочі області"
 
 #: translate_tmp.pl:447
 #: translate_tmp.pl:4014
@@ -2307,11 +2339,11 @@ msgstr ""
 
 #: translate_tmp.pl:898
 msgid "Click-Drag to create a pixelized region"
-msgstr ""
+msgstr "Натисніть і перетягніть, щоб розмити область"
 
 #: translate_tmp.pl:902
 msgid "Click to add an auto-increment shape"
-msgstr ""
+msgstr "Натисніть, щоб додати форму з автоpозширенням"
 
 #: translate_tmp.pl:1223
 #, perl-format
@@ -2343,33 +2375,33 @@ msgstr[2] ""
 
 #: translate_tmp.pl:1703
 msgid "Do you want to save the changed background color?"
-msgstr ""
+msgstr "Зберегти змінений колір фону?"
 
 #: translate_tmp.pl:1704
 msgid ""
 "The background is likely to be transparent if you decide to ignore the "
 "background color."
-msgstr ""
+msgstr "Швидше за все фон буде прозорим, якщо ви проігноруєте колір фону"
 
 #: translate_tmp.pl:1706
 msgid "Save Background Color"
-msgstr ""
+msgstr "Зберегти колір фону"
 
 #: translate_tmp.pl:1709
 msgid "_Ignore Background Color"
-msgstr ""
+msgstr "_Ігнорувати колір фону"
 
 #: translate_tmp.pl:1712
 msgid "_Save Background Color"
-msgstr ""
+msgstr "_Зберегти колір фону"
 
 #: translate_tmp.pl:3760
 msgid "Change Background Color..."
-msgstr ""
+msgstr "Змінити колір фону..."
 
 #: translate_tmp.pl:3770
 msgid "_Reset to Default"
-msgstr ""
+msgstr "С_кинути на типові"
 
 #: translate_tmp.pl:3820
 msgid "Raise"
@@ -2381,19 +2413,19 @@ msgstr "Опустити"
 
 #: translate_tmp.pl:3888
 msgid "Unlock"
-msgstr ""
+msgstr "Розблокувати"
 
 #: translate_tmp.pl:3891
 msgid "Lock"
-msgstr ""
+msgstr "Заблокувати"
 
 #: translate_tmp.pl:3913
 msgid "Edit Preferences..."
-msgstr ""
+msgstr "Змінити налаштування"
 
 #: translate_tmp.pl:4054
 msgid "Numbering"
-msgstr ""
+msgstr "Нумерація"
 
 #: translate_tmp.pl:4064
 msgid "Current value"
@@ -2402,7 +2434,7 @@ msgstr "Поточне значення"
 #: translate_tmp.pl:4119
 #: translate_tmp.pl:5989
 msgid "Arrow"
-msgstr ""
+msgstr "Стрілка"
 
 #: translate_tmp.pl:4141
 msgid "Length"
@@ -2423,7 +2455,7 @@ msgstr "Відобразити стрілку на початку рядку"
 #: translate_tmp.pl:4190
 #: translate_tmp.pl:5992
 msgid "Text"
-msgstr ""
+msgstr "Текст"
 
 #: translate_tmp.pl:4229
 msgid "Font color"
@@ -2435,79 +2467,79 @@ msgstr "Оберіть колір шрифту"
 
 #: translate_tmp.pl:4257
 msgid "Use selected font"
-msgstr ""
+msgstr "Використовувати обраний шрифт"
 
 #: translate_tmp.pl:4263
 msgid "Use selected font color"
-msgstr ""
+msgstr "Використовувати колір обраного шрифта"
 
 #: translate_tmp.pl:5866
 msgid "_Tools"
-msgstr ""
+msgstr "_Інструменти"
 
 #: translate_tmp.pl:5868
 msgid "Undo last action"
-msgstr ""
+msgstr "Скасувати останню операцію"
 
 #: translate_tmp.pl:5871
 msgid "Do again the last undone action"
-msgstr ""
+msgstr "Повторити останню скасовану дію"
 
 #: translate_tmp.pl:5874
 msgid "Copy selection to clipboard"
-msgstr ""
+msgstr "Копіювати вибране у буфер обміну"
 
 #: translate_tmp.pl:5880
 msgid "Cut selection to clipboard"
-msgstr ""
+msgstr "Вирізати вибране у буфер обміну"
 
 #: translate_tmp.pl:5887
 msgid "Paste objects from clipboard"
-msgstr ""
+msgstr "Вставити об'єкти з буфера обміну"
 
 #: translate_tmp.pl:5890
 msgid "Delete current object"
-msgstr ""
+msgstr "Видалити об'єкт"
 
 #: translate_tmp.pl:5893
 msgid "Clear canvas"
-msgstr ""
+msgstr "Очистити полотно"
 
 #: translate_tmp.pl:5907
 msgid "Abort current mode"
-msgstr ""
+msgstr "Перервати поточний режим"
 
 #: translate_tmp.pl:5910
 msgid "Close this window"
-msgstr ""
+msgstr "Закрити це вікно"
 
 #: translate_tmp.pl:5913
 msgid "Save image"
-msgstr ""
+msgstr "Зберегти зображення"
 
 #: translate_tmp.pl:5916
 msgid "Export to _File..."
-msgstr ""
+msgstr "Експортувати у _файл..."
 
 #: translate_tmp.pl:5916
 msgid "Export to File..."
-msgstr ""
+msgstr "Експортувати у файл..."
 
 #: translate_tmp.pl:5919
 msgid "_Export to SVG..."
-msgstr ""
+msgstr "_Експортувати у SVG..."
 
 #: translate_tmp.pl:5919
 msgid "Export to SVG..."
-msgstr ""
+msgstr "Експортувати у SVG..."
 
 #: translate_tmp.pl:5922
 msgid "Export to PDF..."
-msgstr ""
+msgstr "Експортувати у PDF..."
 
 #: translate_tmp.pl:5925
 msgid "Export to PostScript..."
-msgstr ""
+msgstr "Експортувати у PostScript..."
 
 #: translate_tmp.pl:5949
 msgid "Automatic scrolling"
@@ -2515,7 +2547,7 @@ msgstr "Автоматична прокрутка"
 
 #: translate_tmp.pl:5985
 msgid "Select"
-msgstr ""
+msgstr "Вибрати"
 
 #: translate_tmp.pl:5985
 msgid "Select item to move or resize it"
@@ -2523,7 +2555,7 @@ msgstr "Оберіть елемент щоб перемістити його а�
 
 #: translate_tmp.pl:5986
 msgid "Freehand"
-msgstr ""
+msgstr "Довільне малювання"
 
 #: translate_tmp.pl:5986
 msgid "Draw a freehand line"
@@ -2531,11 +2563,11 @@ msgstr "Намалювати лінію від руки"
 
 #: translate_tmp.pl:5987
 msgid "Highlighter"
-msgstr ""
+msgstr "Підсвічування"
 
 #: translate_tmp.pl:5988
 msgid "Line"
-msgstr ""
+msgstr "Лінія"
 
 #: translate_tmp.pl:5988
 msgid "Draw a straight line"
@@ -2547,7 +2579,7 @@ msgstr "Намалювати стрілку"
 
 #: translate_tmp.pl:5990
 msgid "Rectangle"
-msgstr ""
+msgstr "Прямокутник"
 
 #: translate_tmp.pl:5990
 msgid "Draw a rectangle"
@@ -2555,7 +2587,7 @@ msgstr "Намалювати прямокутник"
 
 #: translate_tmp.pl:5991
 msgid "Ellipse"
-msgstr ""
+msgstr "Елліпс"
 
 #: translate_tmp.pl:5991
 msgid "Draw a ellipse"
@@ -2567,7 +2599,7 @@ msgstr "Додати текст до знімка екрана"
 
 #: translate_tmp.pl:5993
 msgid "Censor"
-msgstr ""
+msgstr "Цензор"
 
 #: translate_tmp.pl:5993
 msgid "Censor portions of your screenshot to hide private data"
@@ -2575,23 +2607,23 @@ msgstr "Перевірити частини вашого знімку щоб п�
 
 #: translate_tmp.pl:5994
 msgid "Pixelize"
-msgstr ""
+msgstr "Розмивання"
 
 #: translate_tmp.pl:5994
 msgid "Pixelize selected areas of your screenshot to hide private data"
-msgstr ""
+msgstr "Розмити вибрані ділянки знімка екрану для приховання особистих даних"
 
 #: translate_tmp.pl:5995
 msgid "Number"
-msgstr ""
+msgstr "Номер"
 
 #: translate_tmp.pl:5995
 msgid "Add an auto-increment shape to the screenshot"
-msgstr ""
+msgstr "Додати форму з автоpозширенням до знімка"
 
 #: translate_tmp.pl:5996
 msgid "Crop"
-msgstr ""
+msgstr "Обрізати"
 
 #: translate_tmp.pl:5996
 msgid "Crop your screenshot"

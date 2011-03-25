@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-02-03 02:07+0100\n"
-"PO-Revision-Date: 2011-01-15 18:37+0000\n"
+"PO-Revision-Date: 2011-03-05 01:09+0000\n"
 "Last-Translator: Xuacu Saturio <xuacusk8@gmail.com>\n"
 "Language-Team: Asturian <ast@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-03-05 00:04+0000\n"
-"X-Generator: Launchpad (build 12515)\n"
+"X-Launchpad-Export-Date: 2011-03-25 11:01+0000\n"
+"X-Generator: Launchpad (build 12661)\n"
 
 #: translate_tmp.pl:389
 #: translate_tmp.pl:2530
@@ -68,7 +68,7 @@ msgstr "Guardar"
 
 #: translate_tmp.pl:857
 msgid "First-launch Behavior"
-msgstr ""
+msgstr "Comportamientu na primera execución"
 
 #: translate_tmp.pl:864
 msgid "Window Preferences"
@@ -130,7 +130,7 @@ msgstr "Partes tresparentes"
 
 #: translate_tmp.pl:962
 msgid "Session View"
-msgstr ""
+msgstr "Vista de sesión"
 
 #: translate_tmp.pl:970
 #: translate_tmp.pl:1818
@@ -234,7 +234,7 @@ msgstr "Restolar la carpeta de guardáu cada vegada"
 #: translate_tmp.pl:1151
 #: translate_tmp.pl:1154
 msgid "Do not save file automatically"
-msgstr ""
+msgstr "Nun guardar el ficheru automáticamente"
 
 #: translate_tmp.pl:1156
 #: translate_tmp.pl:1159
@@ -328,7 +328,7 @@ msgstr "Reducir automáticamente los colores dempués de facer una captura"
 
 #: translate_tmp.pl:1390
 msgid "Thumbnail"
-msgstr ""
+msgstr "Miniatura"
 
 #: translate_tmp.pl:1416
 #: translate_tmp.pl:1418
@@ -337,6 +337,8 @@ msgid ""
 "Generate thumbnail too.\n"
 "select the percentage of the original size for the thumbnail to be"
 msgstr ""
+"Xenerar miniatura tamién.\n"
+"Seleiciona'l porcentaxe del tamañu orixinal que tien de tener la miniatura"
 
 #: translate_tmp.pl:1433
 msgid "Border"
@@ -370,15 +372,15 @@ msgstr "Amiesta un efeutu de berbesu a la captura"
 #: translate_tmp.pl:1494
 #: translate_tmp.pl:1502
 msgid "Enable zoom window"
-msgstr ""
+msgstr "Activar ventana de zoom"
 
 #: translate_tmp.pl:1511
 msgid "Start with selection size of"
-msgstr ""
+msgstr "Comenzar con un tamañu de seleición de"
 
 #: translate_tmp.pl:1513
 msgid "at"
-msgstr ""
+msgstr "a les"
 
 #: translate_tmp.pl:1543
 #: translate_tmp.pl:1544
@@ -392,23 +394,25 @@ msgstr ""
 #: translate_tmp.pl:1552
 msgid "Start Advanced Selection Tool with a customized selection size"
 msgstr ""
+"Anicia la ferramienta avanzada de seleición con un tamañu de seleición "
+"personalizáu"
 
 #: translate_tmp.pl:1570
 msgid "Show help text"
-msgstr ""
+msgstr "Amosar el testu d'ayuda"
 
 #: translate_tmp.pl:1578
 msgid "Enables the help text"
-msgstr ""
+msgstr "Activar el testu d'ayuda"
 
 #: translate_tmp.pl:1587
 #: translate_tmp.pl:1588
 msgid "Include window decoration when capturing a window"
-msgstr ""
+msgstr "Incluir la decoración de ventana al capturar una ventana"
 
 #: translate_tmp.pl:1605
 msgid "Automatically resize window to"
-msgstr ""
+msgstr "Redimensionar automáticamente la ventana a"
 
 #: translate_tmp.pl:1629
 #: translate_tmp.pl:1630
@@ -420,10 +424,14 @@ msgid ""
 "This method asks the window manager to resize the window. However, the "
 "window manager may not allow the resize."
 msgstr ""
+"Esto redimensiona la ventana automáticamente a l'altor y anchu conseñaos. "
+"Esti métodu pide-y a l'alministrador de ventanes que redimensione la "
+"ventana. Por embargu, l'alministrador de ventanes pue nun permitir el "
+"redimensionáu."
 
 #: translate_tmp.pl:1646
 msgid "Force rounded window corners"
-msgstr ""
+msgstr "Forzar esquines de ventana redondiaes"
 
 #: translate_tmp.pl:1655
 #, perl-format
@@ -436,25 +444,33 @@ msgid ""
 "named ~/.shutter/shape.conf and put custom values in it. The default values "
 "are stored in %s."
 msgstr ""
+"Shutter usa la estensión XShape pa determinar la forma de la ventana, pero "
+"esto nun funciona en determinaes circunstancies, como cuando s'executa "
+"compiz.\n"
+"\n"
+"Cuando esta opción ta activa Shutter usa parámetros fixos para redondiar les "
+"esquines de les ventanes. Pues camudar los parámetros predeterminaos creando "
+"un ficheru nomáu ~/.shutter/shape.conf y poniendo nel valores personalizaos. "
+"Los valores predeterminaos se guarden en %s."
 
 #: translate_tmp.pl:1669
 #: translate_tmp.pl:1670
 msgid "Select only visible windows"
-msgstr ""
+msgstr "Seleccionar solo les ventanes visibles"
 
 #: translate_tmp.pl:1686
 msgid "Pre-Capture Delay"
-msgstr ""
+msgstr "Retrasu de pre-captura"
 
 #: translate_tmp.pl:1700
 #: translate_tmp.pl:1701
 #: translate_tmp.pl:1702
 msgid "Capture menu/tooltip after a delay of n seconds"
-msgstr ""
+msgstr "Capturar menú/suxerencia con un retrasu de n segundos"
 
 #: translate_tmp.pl:1713
 msgid "Ignore possibly wrong type hints"
-msgstr ""
+msgstr "Inorar los gabitos de triba posiblemente equivocada"
 
 #: translate_tmp.pl:1714
 msgid ""
