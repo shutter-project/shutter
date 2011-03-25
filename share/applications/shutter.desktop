@@ -15,7 +15,7 @@ Terminal=false
 Type=Application
 Categories=Utility;Application;
 MimeType=image/bmp;image/jpeg;image/gif;image/png;image/tiff;image/x-bmp;image/x-ico;image/x-png;image/x-pcx;image/x-tga;image/xpm;image/svg+xml;
-X-Ayatana-Desktop-Shortcuts=Select;Screen;Window;Active;Section;Menu;Tooltip;Web
+X-Ayatana-Desktop-Shortcuts=Select;Screen;Window;Active
 
 [Select Shortcut Group]
 Name=Capture an area of the screen
@@ -37,22 +37,3 @@ Name=Capture the current active window
 Exec=shutter --active
 OnlyShowIn=Unity
 
-[Section Shortcut Group]
-Name=Capture a section
-Exec=shutter --section
-OnlyShowIn=Unity
-
-[Menu Shortcut Group]
-Name=Capture a menu
-Exec=shutter --menu
-OnlyShowIn=Unity
-
-[Tooltip Shortcut Group]
-Name=Capture a tooltip
-Exec=shutter --tooltip
-OnlyShowIn=Unity
-
-[Web Shortcut Group]
-Name=Capture a webpage
-Exec=shutter --web
-OnlyShowIn=Unity
