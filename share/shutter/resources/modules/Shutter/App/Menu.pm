@@ -597,6 +597,14 @@ sub fct_ret_actions_menu{
 	$self->{_menuitem_reopen}->set_name('item-reopen-list');
 	$self->{_menu_actions}->append( $self->{_menuitem_reopen} );
 
+	$self->{_menuitem_show_in_folder} = Gtk2::ImageMenuItem->new_with_mnemonic( 
+			$d->get('Show in _folder')
+ 		);
+	$self->{_menuitem_show_in_folder}->set_image( Gtk2::Image->new_from_stock( 'gtk-open', 'menu' ) );
+	$self->{_menuitem_show_in_folder}->set_sensitive(FALSE);
+	$self->{_menuitem_show_in_folder}->set_name('item-reopen-default');
+	$self->{_menu_actions}->append( $self->{_menuitem_show_in_folder} );
+
 	$self->{_menuitem_rename} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Rename...') );
 	$self->{_menuitem_rename}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('F2'), qw/visible/ ) if $accel_group;
 	$self->{_menuitem_rename}->set_image( Gtk2::Image->new_from_stock( 'gtk-edit', 'menu' ) );
@@ -696,6 +704,14 @@ sub fct_ret_actions_menu_large{
 	$self->{_menuitem_large_reopen}->set_sensitive(FALSE);
 	$self->{_menuitem_large_reopen}->set_name('item-large-reopen-list');
 	$self->{_menu_large_actions}->append( $self->{_menuitem_large_reopen} );
+
+	$self->{_menuitem_large_show_in_folder} = Gtk2::ImageMenuItem->new_with_mnemonic( 
+			$d->get('Show in _folder')
+ 		);
+	$self->{_menuitem_large_show_in_folder}->set_image( Gtk2::Image->new_from_stock( 'gtk-open', 'menu' ) );
+	$self->{_menuitem_large_show_in_folder}->set_sensitive(FALSE);
+	$self->{_menuitem_large_show_in_folder}->set_name('item-reopen-default');
+	$self->{_menu_large_actions}->append( $self->{_menuitem_large_show_in_folder} );
 
 	$self->{_menuitem_large_rename} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Rename...') );
 	$self->{_menuitem_large_rename}->set_image( Gtk2::Image->new_from_stock( 'gtk-edit', 'menu' ) );

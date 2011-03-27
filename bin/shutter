@@ -550,6 +550,7 @@ if ($app->is_running) {
 	#screenshot menu
 	#~ $sm->{_menu_actions}->signal_connect( 'focus', sub { $sm->{_menuitem_reopen}->set_submenu(&fct_ret_program_menu); });	
 	$sm->{_menuitem_reopen}->set_submenu(&fct_ret_program_menu);	
+	$sm->{_menuitem_show_in_folder}->signal_connect( 'activate', \&fct_show_in_folder );
 	$sm->{_menuitem_rename}->signal_connect( 'activate', \&fct_rename );
 	$sm->{_menuitem_upload}->signal_connect( 'activate', \&fct_upload );
 
@@ -573,6 +574,7 @@ if ($app->is_running) {
 	#large screenshot menu
 	$sm->{_menu_large_actions}->signal_connect( 'focus', sub { $sm->{_menuitem_large_reopen}->set_submenu(&fct_ret_program_menu($sm->{_menuitem_large_reopen}->get_submenu)); });
 	$sm->{_menuitem_large_reopen}->set_submenu(&fct_ret_program_menu);
+	$sm->{_menuitem_large_show_in_folder}->signal_connect( 'activate', \&fct_show_in_folder );
 	$sm->{_menuitem_large_rename}->signal_connect( 'activate', \&fct_rename );
 	$sm->{_menuitem_large_copy}->signal_connect( 'activate', \&fct_clipboard, 'image' );
 	$sm->{_menuitem_large_copy_filename}->signal_connect( 'activate', \&fct_clipboard, 'text' );
@@ -3580,6 +3582,7 @@ if ($app->is_running) {
 			$sm->{_menuitem_reopen_default}->visible($n_items);
 			$sm->{_menuitem_reopen_default}->set_sensitive($n_items);
 			$sm->{_menuitem_reopen}->set_sensitive($n_items);
+			$sm->{_menuitem_show_in_folder}->set_sensitive($n_items);
 			$sm->{_menuitem_rename}->set_sensitive($n_items);
 			
 			#upload links
@@ -3622,6 +3625,7 @@ if ($app->is_running) {
 			#~ $sm->{_menuitem_large_reopen_default}->visible($n_items);
 			#~ $sm->{_menuitem_large_reopen_default}->set_sensitive($n_items);
 			$sm->{_menuitem_large_reopen}->set_sensitive($n_items);
+			$sm->{_menuitem_large_show_in_folder}->set_sensitive($n_items);
 			$sm->{_menuitem_large_rename}->set_sensitive($n_items);
 			$sm->{_menuitem_large_trash}->set_sensitive($n_items);
 			$sm->{_menuitem_large_copy}->set_sensitive($n_items);
@@ -5946,6 +5950,44 @@ if ($app->is_running) {
 		}
 		return TRUE;
 	}
+
+	sub fct_show_in_folder {
+		my $key = &fct_get_current_file;
+
+		my @show_in_folder_array;
+
+		#single file
+		if ($key) {
+
+			return FALSE unless &fct_screenshot_exists($key);
+
+			print "Showing in filebrowser started  - file: " . $session_screens{$key}->{'long'} . "\n"
+				if $sc->get_debug;
+			push (@show_in_folder_array, $key);
+		
+		} else {
+			
+			$session_start_screen{'first_page'}->{'view'}->selected_foreach(
+				sub {
+					my ( $view, $path ) = @_;
+					my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
+					if ( defined $iter ) {
+						my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
+						push (@show_in_folder_array, $key);
+					}
+				},
+				undef
+			);			
+			
+		}
+		
+		#open folders in filebrowser
+		foreach my $ckey (@show_in_folder_array){
+			$shf->xdg_open( undef, $session_screens{$ckey}->{'folder'});
+		}
+		
+		return TRUE;
+	}	
 
 	sub fct_rename {
 
