@@ -235,7 +235,7 @@ sub create_toolbar {
 	$self->{_web} = Gtk2::MenuToolButton->new( $image_web, $d->get("Web") );
 
 	$tooltips->set_tip( $self->{_web}, $d->get("Take a screenshot of a website") );
-	$self->{_web}->set_arrow_tooltip( $tooltips, $d->get("The timeout in seconds, or 0 to disable timeout"), '' );
+	$self->{_web}->set_arrow_tooltip( $tooltips, $d->get("Set how long Shutter will wait for the screenshot to complete before aborting the process if it's taking too long"), '' );
 
 	#--------------------------------------
 

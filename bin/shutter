@@ -93,7 +93,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1075';
+use constant SHUTTER_REV		=> 'Rev.1076';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87.3';
 
@@ -4447,7 +4447,7 @@ if ($app->is_running) {
 			my $timeout  = undef;
 			foreach my $to (@timeouts) {
 				if ( $to->get_active ) {
-					$timeout = $to->get_children->get_text;
+					$timeout = $to->get_name;
 					$timeout =~ /([0-9]+)/;
 					$timeout = $1;
 				}
@@ -4877,7 +4877,7 @@ if ($app->is_running) {
 					my @timeouts = $web_menu->get_children;
 					my $timeout  = undef;
 					foreach my $to (@timeouts) {
-						$timeout = $to->get_children->get_text;
+						$timeout = $to->get_name;
 						$timeout =~ /([0-9]+)/;
 						$timeout = $1;
 						if ( $settings_xml->{'general'}->{'web_timeout'} == $timeout ) {
@@ -6247,7 +6247,7 @@ if ($app->is_running) {
 			my $timeout  = undef;
 			foreach my $to (@timeouts) {
 				if ( $to->get_active ) {
-					$timeout = $to->get_children->get_text;
+					$timeout = $to->get_name;
 					$timeout =~ /([0-9]+)/;
 					$timeout = $1;
 					print $timeout. "\n" if $sc->get_debug;
@@ -8861,17 +8861,23 @@ if ($app->is_running) {
 		
 		my $menu_web = Gtk2::Menu->new;
 		
-		my $timeout0 = Gtk2::RadioMenuItem->new( undef, $d->get("Timeout") . ": 0" );
-		my $timeout1 = Gtk2::RadioMenuItem->new( $timeout0, $d->get("Timeout") . ": 10" );
-		my $timeout2 = Gtk2::RadioMenuItem->new( $timeout0, $d->get("Timeout") . ": 30" );
-		my $timeout3 = Gtk2::RadioMenuItem->new( $timeout0, $d->get("Timeout") . ": 60" );
-		my $timeout4 = Gtk2::RadioMenuItem->new( $timeout0, $d->get("Timeout") . ": 120" );
+		my $timeout0 = Gtk2::RadioMenuItem->new( undef, $d->get("Wait indefinitely") );
+		my $timeout1 = Gtk2::RadioMenuItem->new( $timeout0, sprintf($d->nget("Wait max %d second", "Wait max %d seconds", 10), 10));
+		my $timeout2 = Gtk2::RadioMenuItem->new( $timeout0, sprintf($d->nget("Wait max %d second", "Wait max %d seconds", 10), 30));
+		my $timeout3 = Gtk2::RadioMenuItem->new( $timeout0, sprintf($d->nget("Wait max %d minute", "Wait max %d minutes", 1), 1));
+		my $timeout4 = Gtk2::RadioMenuItem->new( $timeout0, sprintf($d->nget("Wait max %d minute", "Wait max %d minutes", 2), 2));
 
-		$tooltips->set_tip( $timeout0, $d->get("The timeout in seconds, or 0 to disable timeout" ));
-		$tooltips->set_tip( $timeout1, $d->get("The timeout in seconds, or 0 to disable timeout" ));
-		$tooltips->set_tip( $timeout2, $d->get("The timeout in seconds, or 0 to disable timeout" ));
-		$tooltips->set_tip( $timeout3, $d->get("The timeout in seconds, or 0 to disable timeout" ));
-		$tooltips->set_tip( $timeout4, $d->get("The timeout in seconds, or 0 to disable timeout" ));
+		$timeout0->set_name("timeout0");
+		$timeout1->set_name("timeout10");
+		$timeout2->set_name("timeout30");
+		$timeout3->set_name("timeout60");
+		$timeout4->set_name("timeout120");
+
+		$tooltips->set_tip( $timeout0, $d->get("Shutter will wait indefinitely for the screenshot to capture" ));
+		$tooltips->set_tip( $timeout1, sprintf($d->nget("Shutter will wait up to %d second for the screenshot to capture before aborting the process if it's taking too long", "Shutter will wait up to %d seconds for the screenshot to capture before aborting the process if it's taking too long", 10), 10));
+		$tooltips->set_tip( $timeout2, sprintf($d->nget("Shutter will wait up to %d second for the screenshot to capture before aborting the process if it's taking too long", "Shutter will wait up to %d seconds for the screenshot to capture before aborting the process if it's taking too long", 30), 30));
+		$tooltips->set_tip( $timeout3, sprintf($d->nget("Shutter will wait up to %d minute for the screenshot to capture before aborting the process if it's taking too long", "Shutter will wait up to %d minutes for the screenshot to capture before aborting the process if it's taking too long", 1), 1));
+		$tooltips->set_tip( $timeout4, sprintf($d->nget("Shutter will wait up to %d minute for the screenshot to capture before aborting the process if it's taking too long", "Shutter will wait up to %d minutes for the screenshot to capture before aborting the process if it's taking too long", 2), 2));
 		
 		$timeout2->set_active(TRUE);
 		$menu_web->append($timeout0);
@@ -8885,7 +8891,7 @@ if ($app->is_running) {
 			my @timeouts = $menu_web->get_children;
 			my $timeout  = undef;
 			foreach my $to (@timeouts) {
-				$timeout = $to->get_children->get_text;
+				$timeout = $to->get_name;
 				$timeout =~ /([0-9]+)/;
 				$timeout = $1;
 				if ( $settings_xml->{'general'}->{'web_timeout'} == $timeout ) {
