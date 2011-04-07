@@ -93,7 +93,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1074';
+use constant SHUTTER_REV		=> 'Rev.1075';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87.3';
 
@@ -6505,7 +6505,7 @@ if ($app->is_running) {
 			#e.g. window or workspace name		
 			if(my $action_name = $screenshooter->get_action_name){
 				utf8::decode $action_name;
-				$action_name =~ s/(\/|\#)/-/g;
+				$action_name =~ s/(\/|\#|\>|\<|\%|\*)/-/g;
 				$screenshot_name =~ s/\$name/$action_name/g;
 				#no blanks (special wildcard)
 				$action_name =~ s/\ //g;
