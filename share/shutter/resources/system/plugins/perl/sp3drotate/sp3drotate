@@ -108,14 +108,14 @@ $pan_sbutton->set_value( 40 );
 $tooltips->set_tip(
 	$pan_label,
 	$d->get(
-		"Rotation about image vertical centerline"
+		"Rotation around image vertical centerline"
 	)
 );
 
 $tooltips->set_tip(
 	$pan_sbutton,
 	$d->get(
-		"Rotation about image vertical centerline"
+		"Rotation around image vertical centerline"
 	)
 );
 
@@ -126,14 +126,14 @@ $tilt_sbutton->set_value( 0 );
 $tooltips->set_tip(
 	$tilt_label,
 	$d->get(
-		"Rotation about image horizontal centerline"
+		"Rotation around image horizontal centerline"
 	)
 );
 
 $tooltips->set_tip(
 	$tilt_sbutton,
 	$d->get(
-		"Rotation about image horizontal centerline"
+		"Rotation around image horizontal centerline"
 	)
 );
 
@@ -144,14 +144,14 @@ $roll_sbutton->set_value( 0 );
 $tooltips->set_tip(
 	$roll_label,
 	$d->get(
-		"Rotation about the image center"
+		"Rotation around the image center"
 	)
 );
 
 $tooltips->set_tip(
 	$roll_sbutton,
 	$d->get(
-		"Rotation about the image center"
+		"Rotation around the image center"
 	)
 );
 

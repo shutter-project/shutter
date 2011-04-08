@@ -108,14 +108,14 @@ $rotation_sbutton->set_value( 20 );
 $tooltips->set_tip(
 	$rotation_label,
 	$d->get(
-		"Perseptive rotation about left edge of image"
+		"Perseptive rotation around left edge of image"
 	)
 );
 
 $tooltips->set_tip(
 	$rotation_sbutton,
 	$d->get(
-		"Perseptive rotation about left edge of image"
+		"Perseptive rotation around left edge of image"
 	)
 );
 
