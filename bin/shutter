@@ -93,7 +93,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1077';
+use constant SHUTTER_REV		=> 'Rev.1078';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87.3';
 
@@ -6254,7 +6254,7 @@ if ($app->is_running) {
 				}
 			}
 			
-			$screenshooter = Shutter::Screenshot::Web->new($sc, $timeout, $filetype_value, $website_width);		 
+			$screenshooter = Shutter::Screenshot::Web->new($sc, $timeout, $website_width);		 
 			$screenshot = $screenshooter->dlg_website($extra);
 		
 		#window by xid	

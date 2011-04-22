@@ -48,8 +48,7 @@ sub new {
 	
 	my $self = {
 				 _sc			=> shift,
-				 _timeout 		=> shift,
-				 _format  		=> shift,
+				 _timeout  		=> shift,
 				 _width			=> shift,
 			   };
 	
@@ -65,7 +64,7 @@ sub new {
 sub web {
 	my $self = shift;
 	
-	system("gnome-web-photo --timeout=$self->{_timeout} --mode=photo --format=$self->{_format} --width=$self->{_width} '$self->{_url}' '$self->{_dest_filename}'");
+	system("gnome-web-photo --timeout=$self->{_timeout} --mode=photo --width=$self->{_width} '$self->{_url}' '$self->{_dest_filename}'");
 	
 	return TRUE;
 }
@@ -198,7 +197,7 @@ sub dlg_website {
 		$self->{_url} = $website->get_text;
 		$self->{_dest_filename} = $tmpfilename;
 
-		print "gnome-web-photo --timeout=$self->{_timeout} --mode=photo --format=$self->{_format} --width=$self->{_width} '$self->{_url}' '$self->{_dest_filename}'\n" if $self->{_sc}->get_debug;
+		print "gnome-web-photo --timeout=$self->{_timeout} --mode=photo --width=$self->{_width} '$self->{_url}' '$self->{_dest_filename}'\n" if $self->{_sc}->get_debug;
 		Proc::Simple::debug(1) if $self->{_sc}->get_debug;
 
 		$web_process->start(
