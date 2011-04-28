@@ -93,7 +93,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1078';
+use constant SHUTTER_REV		=> 'Rev.1079';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87.3';
 
@@ -8182,7 +8182,8 @@ if ($app->is_running) {
 			next unless defined $space;
 			
 			#compiz
-			if ( $wm_name =~ /compiz/ ){
+			print "Current window manager: ", $wm_name, "\n" if $sc->get_debug;
+			if ( $wm_name =~ /compiz/i ){
 
 				#calculate viewports with size of workspace
 				my $vpx = $space->get_viewport_x;
@@ -11275,7 +11276,7 @@ Shutter is Copyright (C) by Mario Kemper and Shutter Team
 =head1 DESCRIPTION
 
 B<Shutter> is a feature-rich screenshot program. You can take a screenshot of a specific area, window, your whole screen, or even of a website - apply different effects to it, draw on it to highlight points, and then upload to an image hosting site, all within one window.
-       
+
 =head1 OPTIONS
 
 =over 8

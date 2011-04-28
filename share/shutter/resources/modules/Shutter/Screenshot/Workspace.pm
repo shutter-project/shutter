@@ -89,7 +89,7 @@ sub workspaces {
 		next unless defined $space;
 
 		#compiz
-		if ( $self->{_wm_manager_name} =~ /compiz/ ){
+		if ( $self->{_wm_manager_name} =~ /compiz/i ){
 
 			#calculate viewports with size of workspace
 			my $vpx = $space->get_viewport_x;
@@ -185,7 +185,7 @@ sub workspaces {
 	}
 
 	#compiz
-	if ( $self->{_wm_manager_name} =~ /compiz/ ){
+	if ( $self->{_wm_manager_name} =~ /compiz/i ){
 		$self->{_wnck_screen}->move_viewport( $active_vpx, $active_vpy );
 	#metacity etc.
 	}else{
