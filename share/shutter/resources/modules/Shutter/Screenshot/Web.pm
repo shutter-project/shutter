@@ -64,6 +64,11 @@ sub new {
 sub web {
 	my $self = shift;
 	
+	#use http:// when nothing provided
+	unless($self->{_url} =~ /^(http\:\/\/|https\:\/\/|file\:\/\/)/i){
+		$self->{_url} = "http://".$self->{_url};
+	}
+	
 	system("gnome-web-photo --timeout=$self->{_timeout} --mode=photo --width=$self->{_width} '$self->{_url}' '$self->{_dest_filename}'");
 	
 	return TRUE;
