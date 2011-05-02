@@ -93,7 +93,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1080';
+use constant SHUTTER_REV		=> 'Rev.1081';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87.3';
 
@@ -11358,10 +11358,6 @@ Load a specific profile on startup.
 =item B<-h, --help>
 
 Prints a brief help message and exits.
-
-=item B<--man>
-
-Prints the manual page and exits.
 
 =item B<-v, --version>
 

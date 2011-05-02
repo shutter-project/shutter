@@ -61,7 +61,6 @@ sub get_options {
 		'p|profile=s' => sub{ my ($p, $profile) = @_; $self->{_sc}->set_profile_to_start_with($profile); },		
 		
 		'h|help' => sub{ pod2usage(-verbose => 1); },
-		'man' => sub{ pod2usage(-verbose => 2); },
 		'v|version' => sub{ print $self->{_sc}->get_version, " ", $self->{_sc}->get_rev, "\n"; exit; },		
 		'd|debug' => sub{ $self->{_sc}->set_debug(TRUE); },
 		'clear_cache' => sub{ $self->{_sc}->set_clear_cache(TRUE); },
