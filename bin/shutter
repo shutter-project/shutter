@@ -93,7 +93,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1081';
+use constant SHUTTER_REV		=> 'Rev.1082';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87.3';
 
@@ -9157,71 +9157,77 @@ if ($app->is_running) {
 	sub fct_init_u1_watcher {
 
 		return FALSE unless $ubuntuone;
-		
+
 		my $u1 = Shutter::Upload::UbuntuOne->new($sc);
 		$u1->connect_to_bus;
-		
+
 		#check api requirements
 		return FALSE unless $u1->check_api;
-					
-		if($u1->is_connected){
-		  
-		  my $sd_status = $u1->get_syncdaemon_status;
-		  my $sd_public = $u1->get_syncdaemon_public;
-		  my $sd_fs     = $u1->get_syncdaemon_fs;
 
-		  $sd_status->connect_to_signal('UploadFinished', sub {
-			 my $file = shift;
-			 my %meta = %{$sd_fs->get_metadata($file)};
-			 #~ print Dumper %meta;
-			 #find corresponding key
-			 if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
+		if($u1->is_connected){
+
+			my $sd_status = $u1->get_syncdaemon_status;
+			my $sd_public = $u1->get_syncdaemon_public;
+			my $sd_fs     = $u1->get_syncdaemon_fs;
+
+			$sd_status->connect_to_signal('UploadFinished', sub {
+				my $file = shift;
+				my %meta = %{$sd_fs->get_metadata($file)};
+				#~ print Dumper %meta;
+				#find corresponding key
+				if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
 				$sd_public->change_public_access($meta{'share_id'}, $meta{'node_id'}, TRUE);
-			 }
-		  });               
-		  
-		  $sd_public->connect_to_signal('PublicAccessChanged', sub {
-			 my $meta_ref = shift;
-			 my %meta = %{$meta_ref};
-			 #~ print Dumper %meta;
-			 #find corresponding key
-			 if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
-											  
+				}
+			});               
+
+			$sd_public->connect_to_signal('PublicAccessChanged', sub {
+			my $meta_ref = shift;
+			my %meta = %{$meta_ref};
+			#~ print Dumper %meta;
+			#find corresponding key
+			if(my $key = &fct_get_key_by_pubfile($meta{'path'})){
+								  
 				#changed to public
 				if($meta{'is_public'}){
 
-				   $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'puburl'}     = $meta{'public_url'};
-				   $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuentry'}  = $d->get("Copy Ubuntu One public URL");
-				   $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuimage'}  = "ubuntuone";
+					$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'puburl'}     = $meta{'public_url'};
+					$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuentry'}  = $d->get("Copy Ubuntu One public URL");
+					$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuimage'}  = "ubuntuone";
 
-				   #copy to clipboard
-				   $clipboard->set_text($meta{'public_url'});
+					#copy to clipboard
+					$clipboard->set_text($meta{'public_url'});
+
+					#show as notification
+					unless($u1->is_notifications_enabled){
+						my $notify 	= $sc->get_notification_object;
+						$notify->show( $d->get("Successfully published"), sprintf($d->get("The file %s was successfully published: %s"), $session_screens{$key}->{'long'}, $meta{'public_url'} ) );
+					}
+					
+					&fct_show_status_message( 1, $shf->utf8_decode(sprintf($d->get("%s published"), $meta{'path'})) );
 				
-				   #show as notification
-				   my $notify 	= $sc->get_notification_object;
-				   $notify->show( $d->get("Successfully published"), sprintf($d->get("The file %s was successfully published: %s"), $session_screens{$key}->{'long'}, $meta{'public_url'} ) );
-				
-				   &fct_show_status_message( 1, $shf->utf8_decode(sprintf($d->get("%s published"), $meta{'path'})) );
-				#publishing stopped
+				#publishing stopped	
 				}else{							
 
-				   $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'puburl'}     = undef;
-				   $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuentry'}  = undef;
-				   $session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuimage'}  = undef;
+					$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'puburl'}     = undef;
+					$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuentry'}  = undef;
+					$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuimage'}  = undef;
 
-				   #show as notification
-				   my $notify 	= $sc->get_notification_object;
-				   $notify->show( $d->get("Unpublished"), sprintf($d->get("The file %s is no longer published. The external link is not available anymore."), $meta{'path'} ) );
-				
-				   &fct_show_status_message( 1, $shf->utf8_decode(sprintf($d->get("The file %s is no longer published."), $meta{'path'})) );									
+					#show as notification
+					unless($u1->is_notifications_enabled){
+						my $notify 	= $sc->get_notification_object;
+						$notify->show( $d->get("Unpublished"), sprintf($d->get("The file %s is no longer published. The external link is not available anymore."), $meta{'path'} ) );
+					}
+
+					&fct_show_status_message( 1, $shf->utf8_decode(sprintf($d->get("The file %s is no longer published."), $meta{'path'})) );									
+					
 				}
 
 				#update actions
 				#new public links
 				&fct_update_actions(1, $key);
-							
-			 }
-		  });
+
+				}
+			});
 
 		}
 

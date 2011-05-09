@@ -112,6 +112,23 @@ sub get_syncdaemon_folders {
 	return $self->{_sd_folders};
 }
 
+sub get_syncdaemon_config {
+	my $self = shift;
+	return FALSE unless $self->is_connected;
+	
+	#the following does not exist in all versions of U1
+	my $api = $self->{_service}->get_object("/", "org.freedesktop.DBus.Introspectable");
+	my $node = $api->Introspect();
+	if($node =~ /name=\"config\"/){
+		unless(defined $self->{_sd_config}){
+			$self->{_sd_config} = $self->{_service}->get_object("/config", "com.ubuntuone.SyncDaemon.Config");
+		}
+		return $self->{_sd_config};
+	}
+	print "Warning: Node 'config' not found. Your Ubuntu One installation seems to be out of date. Unable to check for configuration.", "\n";	
+	return FALSE;
+}
+
 sub get_syncdaemon_shares {
 	my $self = shift;
 	return FALSE unless $self->is_connected;
@@ -200,6 +217,26 @@ sub is_synced_folder {
 		return FALSE;
 	}
 	return $meta{is_dir};
+}
+
+sub is_notifications_enabled {
+	my $self = shift;
+	
+	return FALSE unless $self->is_connected;
+
+	my $sd_cf = $self->get_syncdaemon_config;
+	
+	#does not exist in all version of U1
+	return FALSE unless $sd_cf;
+	
+	my $is_enabled = TRUE;
+	eval{
+		$is_enabled = $sd_cf->show_all_notifications_enabled;
+	};
+	if($@){
+		return FALSE;
+	}
+	return $is_enabled;
 }
 
 1;
