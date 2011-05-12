@@ -93,7 +93,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1083';
+use constant SHUTTER_REV		=> 'Rev.1084';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87.3';
 
@@ -9316,21 +9316,29 @@ if ($app->is_running) {
 			return $curr_value;
 		}
 		
-		if($mode eq 'start'){
-			#save and return current value
-			if(defined $fpl && $fpl){
-				$curr_value = $fpl->get;
-			}			
-			if(defined $fpl && $fpl && $fpl->get != 0){
-				$fpl->set(0);
+		if(defined $fpl && $fpl){
+			eval{
+				if($mode eq 'start'){
+					#save and return current value
+					if(defined $fpl && $fpl){
+						$curr_value = $fpl->get;
+					}			
+					if(defined $fpl && $fpl && $fpl->get != 0){
+						$fpl->set(0);
+					}
+				#re-enable focus prevention -> restore value
+				}elsif($mode eq 'stop'){
+					if(defined $fpl && $fpl && defined $restore_value){
+						$fpl->set($restore_value);
+					}elsif(defined $fpl && $fpl){
+						$fpl->set(1);
+					}			
+				}				
+			};
+			if($@){
+				warn "ERROR: Unable to set/get focus_level_prevention --> skipping compiz related tasks\n\n";
+				warn $@ . "\n\n";
 			}
-		#re-enable focus prevention -> restore value
-		}elsif($mode eq 'stop'){
-			if(defined $fpl && $fpl && defined $restore_value){
-				$fpl->set($restore_value);
-			}elsif(defined $fpl && $fpl){
-				$fpl->set(1);
-			}			
 		}
 		
 		return $curr_value;
