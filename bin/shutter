@@ -93,7 +93,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1082';
+use constant SHUTTER_REV		=> 'Rev.1083';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87.3';
 
@@ -703,6 +703,7 @@ if ($app->is_running) {
 	my $asel_capture_vbox    = Gtk2::VBox->new( FALSE, 0 );
 
 	my $keybinding_mode_box  = Gtk2::HBox->new( TRUE,  0 );
+	my $keybinding_hint_box  = Gtk2::HBox->new( TRUE,  0 );
 	my $key_box              = Gtk2::HBox->new( FALSE, 0 );
 	my $key_sel_box          = Gtk2::HBox->new( FALSE, 0 );
 
@@ -2020,6 +2021,16 @@ if ($app->is_running) {
 	$keybinding_mode_box->pack_start( Gtk2::Label->new,          FALSE, FALSE, 0 );
 	$keybinding_mode_box->pack_start( $combobox_keybinding_mode, TRUE,  TRUE,  0 );
 
+	my $keybinding_hint = Gtk2::Label->new;
+	$keybinding_hint->set_alignment( 0, 0.5 );
+
+	$keybinding_hint->set_markup(
+		"<span size='small'>" . 
+			$d->get("<b>Please note:</b> Make sure to activate <i>Gnome Compatibility</i> and <i>D-Bus Control Backend</i>\nvia CompizConfig Settings Manager if your are using Desktop Effects or Unity.")
+		. "</span>");	
+
+	$keybinding_hint_box->pack_start( $keybinding_hint, TRUE,  TRUE,  6 );
+
 	my $keybinding_active = Gtk2::CheckButton->new;
 	my $keybinding_sel_active = Gtk2::CheckButton->new;
 
@@ -2530,6 +2541,7 @@ if ($app->is_running) {
 	$keybinding_vbox->pack_start( $key_box,             FALSE, TRUE, 3 );
 	$keybinding_vbox->pack_start( $key_sel_box,         FALSE, TRUE, 3 );
 	$keybinding_vbox->pack_start( $keybinding_mode_box, FALSE, TRUE, 3 );
+	$keybinding_vbox->pack_start( $keybinding_hint_box, FALSE, TRUE, 3 );
 	$keybinding_frame->add($keybinding_vbox);
 
 	$vbox_keyboard->pack_start( $keybinding_frame, FALSE, TRUE, 3 );
@@ -4787,13 +4799,13 @@ if ($app->is_running) {
 		
 		#gnomecompat is disabled
 		if($error == 3){
-			my $response = $sd->dlg_error_message( 
-				$d->get( "Please activate the Gnome Compatibility plugin via CompizConfig Settings Manager." ),
-				$d->get( "There was an error configuring the keybindings." ),
-				undef, undef, undef,
-				undef, undef, undef,
-				$@
-			);
+			#~ my $response = $sd->dlg_error_message( 
+				#~ $d->get( "Please activate the Gnome Compatibility plugin via CompizConfig Settings Manager." ),
+				#~ $d->get( "There was an error configuring the keybindings." ),
+				#~ undef, undef, undef,
+				#~ undef, undef, undef,
+				#~ $@
+			#~ );
 		#settings are not correctly set even though there are no other errors
 		}elsif($error > 0){
 			my $response = $sd->dlg_error_message( 
