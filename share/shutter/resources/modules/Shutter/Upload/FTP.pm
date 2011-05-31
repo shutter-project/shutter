@@ -110,7 +110,7 @@ sub login {
 		or return (
 			sprintf ($self->{_gettext_object}->get("Login with username %s failed."), "'".$self->{_username}."'"),
 			$self->{_gettext_object}->get("Please check your credentials and try again."),
-			undef);
+			$self->{_ftp}->message);
 
 	#THERE ARE NO ERRORS WHEN ROUTINE RETURNS AT THIS POINT
 	return (FALSE);
