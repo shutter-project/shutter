@@ -93,7 +93,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1087';
+use constant SHUTTER_REV		=> 'Rev.1088';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.87.3';
 
@@ -3177,7 +3177,7 @@ if ($app->is_running) {
 		print "\n$data was emitted by widget $widget\n"
 			if $sc->get_debug;
 
-		if ( $data ne "quit" && $close_at_close_active->get_active ) {
+		if ( $data ne "quit" && $close_at_close_active->get_active && !$sc->get_disable_systray ) {
 			$window->hide;
 			$is_hidden = TRUE;
 			return TRUE;
@@ -3220,7 +3220,7 @@ if ($app->is_running) {
 			return FALSE;
 		});
 		
-		return FALSE;
+		return TRUE;
 	}
 
 	sub evt_bug {
