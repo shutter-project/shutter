@@ -7,24 +7,24 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-02-03 02:07+0100\n"
-"PO-Revision-Date: 2011-03-15 15:05+0000\n"
-"Last-Translator: extraymond@gmail.com <extraymond@gmail.com>\n"
+"POT-Creation-Date: 2011-04-07 15:06+0200\n"
+"PO-Revision-Date: 2011-04-19 05:17+0000\n"
+"Last-Translator: Calvin So <Unknown>\n"
 "Language-Team: Traditional Chinese <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2011-03-25 11:00+0000\n"
-"X-Generator: Launchpad (build 12661)\n"
+"X-Launchpad-Export-Date: 2011-06-30 21:45+0000\n"
+"X-Generator: Launchpad (build 13333)\n"
 
-#: translate_tmp.pl:389
+#: translate_tmp.pl:387
 #: translate_tmp.pl:2530
-#: translate_tmp.pl:7187
+#: translate_tmp.pl:7230
 msgid "Profile"
 msgstr "樣式"
 
-#: translate_tmp.pl:397
+#: translate_tmp.pl:395
 #: translate_tmp.pl:3950
 msgid "Preferences"
 msgstr "偏好設定"
@@ -52,22 +52,22 @@ msgstr "刪除樣式"
 
 #: translate_tmp.pl:835
 msgid "Load the selected profile's configuration"
-msgstr "載入選擇的身份檔案之設定"
+msgstr "載入選擇的樣式設定"
 
 #: translate_tmp.pl:843
 #: translate_tmp.pl:1117
-#: translate_tmp.pl:9678
+#: translate_tmp.pl:9727
 #: translate_tmp.pl:1500
 msgid "Image format"
 msgstr "影像格式"
 
 #: translate_tmp.pl:850
 msgid "Save"
-msgstr "儲存"
+msgstr "存檔"
 
 #: translate_tmp.pl:857
 msgid "First-launch Behavior"
-msgstr "第一次啟用行為"
+msgstr "首次啟用動作"
 
 #: translate_tmp.pl:864
 msgid "Window Preferences"
@@ -75,7 +75,7 @@ msgstr "視窗偏好設定"
 
 #: translate_tmp.pl:871
 msgid "Notifications"
-msgstr "彈出通知視窗"
+msgstr "通知"
 
 #: translate_tmp.pl:878
 msgid "Trash"
@@ -88,12 +88,12 @@ msgstr "Gnome 快捷鍵"
 #: translate_tmp.pl:892
 #: translate_tmp.pl:2303
 msgid "Actions"
-msgstr "套用"
+msgstr "動作"
 
 #: translate_tmp.pl:899
 #: translate_tmp.pl:1881
 msgid "Capture"
-msgstr "擷取"
+msgstr "截取"
 
 #: translate_tmp.pl:906
 msgid "Selection Capture"
@@ -117,11 +117,11 @@ msgstr "網站擷取"
 
 #: translate_tmp.pl:941
 msgid "Accounts"
-msgstr "帳號"
+msgstr "帳戶"
 
 #: translate_tmp.pl:948
 msgid "File Transfer Protocol (FTP)"
-msgstr "FTP"
+msgstr "File Transfer Protocol (FTP)"
 
 #: translate_tmp.pl:955
 msgid "Transparent Parts"
@@ -138,11 +138,11 @@ msgid "Filename"
 msgstr "檔案名稱"
 
 #: translate_tmp.pl:996
-#: translate_tmp.pl:9325
-#: translate_tmp.pl:11018
+#: translate_tmp.pl:9374
+#: translate_tmp.pl:11067
 #, perl-format
 msgid "Reserved character %s is not allowed to be in a filename."
-msgstr "\"%s\" 無法當作檔案名稱"
+msgstr "保留字符 \"%s\" 無法當作檔案名稱"
 
 #: translate_tmp.pl:1010
 msgid "There are several wildcards available, like\n"
@@ -175,19 +175,19 @@ msgstr "$h = 高度\n"
 
 #: translate_tmp.pl:1017
 msgid "$name = multi-purpose (e.g. window title)\n"
-msgstr ""
+msgstr "$name = 多用途 (例如： 視窗標題)\n"
 
 #: translate_tmp.pl:1018
 msgid "$nb_name = like $name but without blanks in resulting strings\n"
-msgstr ""
+msgstr "$nb_name = 相似 $name 但沒有空白字符\n"
 
 #: translate_tmp.pl:1019
 msgid "$profile = name of current profile\n"
-msgstr ""
+msgstr "$profile = 當前樣式名稱\n"
 
 #: translate_tmp.pl:1020
 msgid "$R = random char (e.g. $RRRR = ag4r)\n"
-msgstr ""
+msgstr "$R = 隨機字符 (例如： $RRRR = ag4r)\n"
 
 #: translate_tmp.pl:1021
 msgid "%NN = counter"
@@ -213,10 +213,10 @@ msgid "Directory"
 msgstr "目錄"
 
 #: translate_tmp.pl:1129
-#: translate_tmp.pl:10165
-#: translate_tmp.pl:10167
-#: translate_tmp.pl:10187
-#: translate_tmp.pl:10188
+#: translate_tmp.pl:10214
+#: translate_tmp.pl:10216
+#: translate_tmp.pl:10236
+#: translate_tmp.pl:10237
 msgid "Choose folder"
 msgstr "選擇資料夾"
 
@@ -228,7 +228,7 @@ msgstr "您的截圖會儲存在此資料夾"
 #: translate_tmp.pl:1146
 #: translate_tmp.pl:1149
 msgid "Browse for save folder every time"
-msgstr "手動儲存檔案"
+msgstr "每次選擇存檔路徑"
 
 #: translate_tmp.pl:1151
 #: translate_tmp.pl:1154
@@ -271,7 +271,7 @@ msgstr[0] "秒"
 
 #: translate_tmp.pl:1242
 msgid "Capture after a delay of"
-msgstr "延遲多久後擷取"
+msgstr "擷取前延遲"
 
 #: translate_tmp.pl:1256
 #: translate_tmp.pl:1257
@@ -290,11 +290,11 @@ msgstr "包含滑鼠游標"
 #: translate_tmp.pl:1280
 #: translate_tmp.pl:1281
 msgid "Include cursor when taking a screenshot"
-msgstr "包含滑鼠指標圖示當擷圖時"
+msgstr "擷圖時包含滑鼠指標"
 
 #: translate_tmp.pl:1336
 msgid "Open with"
-msgstr "依此開啟..."
+msgstr "以此開啟"
 
 #: translate_tmp.pl:1337
 #: translate_tmp.pl:1338
@@ -316,13 +316,13 @@ msgstr "256 colors - (8bit) "
 
 #: translate_tmp.pl:1377
 msgid "Reduce colors"
-msgstr "減少顏色"
+msgstr "減少色深"
 
 #: translate_tmp.pl:1378
 #: translate_tmp.pl:1379
 #: translate_tmp.pl:1380
 msgid "Automatically reduce colors after taking a screenshot"
-msgstr "截圖後自動減少顏色"
+msgstr "截圖後自動減少色深"
 
 #: translate_tmp.pl:1390
 msgid "Thumbnail"
@@ -335,37 +335,37 @@ msgid ""
 "Generate thumbnail too.\n"
 "select the percentage of the original size for the thumbnail to be"
 msgstr ""
-"產生縮圖\n"
-"選擇百分比產生縮圖"
+"生成縮圖\n"
+"選擇生成縮圖百份比"
 
 #: translate_tmp.pl:1433
 msgid "Border"
-msgstr ""
+msgstr "框線"
 
 #: translate_tmp.pl:1435
 #: translate_tmp.pl:1519
 #: translate_tmp.pl:1520
 #: translate_tmp.pl:1609
 #: translate_tmp.pl:1742
-#: translate_tmp.pl:7034
+#: translate_tmp.pl:7077
 msgid "pixels"
 msgstr "像素"
 
 #: translate_tmp.pl:1437
 msgid "Color"
-msgstr ""
+msgstr "顏色"
 
 #: translate_tmp.pl:1440
 #: translate_tmp.pl:1450
 #: translate_tmp.pl:1452
 msgid "Choose border color"
-msgstr ""
+msgstr "選擇框線顏色"
 
 #: translate_tmp.pl:1443
 #: translate_tmp.pl:1445
 #: translate_tmp.pl:1447
 msgid "Adds a border effect to the screenshot"
-msgstr ""
+msgstr "在截圖加入框線效果"
 
 #: translate_tmp.pl:1494
 #: translate_tmp.pl:1502
@@ -395,11 +395,11 @@ msgstr "進階選取工具定義擷取範圍大小"
 
 #: translate_tmp.pl:1570
 msgid "Show help text"
-msgstr ""
+msgstr "顯視幫助文字"
 
 #: translate_tmp.pl:1578
 msgid "Enables the help text"
-msgstr ""
+msgstr "啟用幫助文字"
 
 #: translate_tmp.pl:1587
 #: translate_tmp.pl:1588
@@ -408,7 +408,7 @@ msgstr "擷取視窗時包含視窗裝飾"
 
 #: translate_tmp.pl:1605
 msgid "Automatically resize window to"
-msgstr ""
+msgstr "自動調整視窗大少至"
 
 #: translate_tmp.pl:1629
 #: translate_tmp.pl:1630
@@ -419,11 +419,11 @@ msgid ""
 "This resizes the window automatically to the specified width and height. "
 "This method asks the window manager to resize the window. However, the "
 "window manager may not allow the resize."
-msgstr ""
+msgstr "此自動調整視窗至指定大小為視窗管理員負責，但視窗管理員不允許調整視窗至指定大小。"
 
 #: translate_tmp.pl:1646
 msgid "Force rounded window corners"
-msgstr ""
+msgstr "強行使視窗角變圓"
 
 #: translate_tmp.pl:1655
 #, perl-format
@@ -436,6 +436,9 @@ msgid ""
 "named ~/.shutter/shape.conf and put custom values in it. The default values "
 "are stored in %s."
 msgstr ""
+"Shutter 使用 XShape 擴充件來判斷視窗形狀，但在某些情況下會失敗。例如 COMPIZ (3D 視窗) 正在執行中。\n"
+"\n"
+"當開啟些選項時，Shutter 將使用固定值來使窗角變圓。你可以創建~/.shutter/shape.conf設定檔來更改預設值。預設值儲存在%s。"
 
 #: translate_tmp.pl:1669
 #: translate_tmp.pl:1670
@@ -476,7 +479,7 @@ msgstr "虛擬瀏覽器的寬度時，採取了網站截圖"
 
 #: translate_tmp.pl:1763
 msgid "Show as check pattern"
-msgstr ""
+msgstr "顯示為檢查樣式"
 
 #: translate_tmp.pl:1764
 msgid "Show as custom color:"
@@ -495,38 +498,38 @@ msgstr "顯示為背景"
 
 #: translate_tmp.pl:1790
 msgid "Displays any transparent parts of the image in a check pattern"
-msgstr ""
+msgstr "顯示任何透明部份為檢查樣式"
 
 #: translate_tmp.pl:1791
 msgid ""
 "Displays any transparent parts of the image in a solid color that you specify"
-msgstr ""
+msgstr "用指定的顏色顯示任何透明部份"
 
 #: translate_tmp.pl:1792
 msgid ""
 "Displays any transparent parts of the image in the background color of the "
 "application"
-msgstr ""
+msgstr "用程式背景顏色顯示任何透明部份"
 
 #: translate_tmp.pl:1816
 msgid "Sort ascending by"
-msgstr ""
+msgstr "以此排順序"
 
 #: translate_tmp.pl:1819
 #: translate_tmp.pl:1823
 msgid "Key/Time Created"
-msgstr ""
+msgstr "創建的時間/信息"
 
 #: translate_tmp.pl:1820
 msgid "Sort descending by"
-msgstr ""
+msgstr "以此排倒序"
 
 #: translate_tmp.pl:1865
 #: translate_tmp.pl:1866
 #: translate_tmp.pl:1867
 #: translate_tmp.pl:1868
 msgid "Configure sort criteria"
-msgstr ""
+msgstr "設定排序準則"
 
 #: translate_tmp.pl:1885
 #: translate_tmp.pl:1891
@@ -563,63 +566,63 @@ msgstr "擷取選取區域"
 
 #: translate_tmp.pl:1918
 msgid "Select Window"
-msgstr ""
+msgstr "選取視窗"
 
 #: translate_tmp.pl:1919
-#: translate_tmp.pl:8183
+#: translate_tmp.pl:8226
 msgid "Active Window"
-msgstr ""
+msgstr "使用中的視窗"
 
 #: translate_tmp.pl:1920
 #: translate_tmp.pl:151
 msgid "Section"
-msgstr "擷取區域"
+msgstr "區域"
 
 #: translate_tmp.pl:1921
 #: translate_tmp.pl:171
-#: translate_tmp.pl:1141
+#: translate_tmp.pl:1117
 msgid "Menu"
-msgstr ""
+msgstr "功能表"
 
 #: translate_tmp.pl:1922
 #: translate_tmp.pl:191
-#: translate_tmp.pl:1147
+#: translate_tmp.pl:1123
 msgid "Tooltip"
-msgstr ""
+msgstr "工具提示"
 
 #: translate_tmp.pl:1923
 #: translate_tmp.pl:210
 msgid "Web"
-msgstr "擷取網頁"
+msgstr "網頁"
 
 #: translate_tmp.pl:1924
 #: translate_tmp.pl:37
 msgid "Redo"
-msgstr ""
+msgstr "重做"
 
 #: translate_tmp.pl:1979
 #: translate_tmp.pl:2035
 msgid "Start Shutter at login"
-msgstr ""
+msgstr "登入時啟動 Shutter"
 
 #: translate_tmp.pl:1980
 #: translate_tmp.pl:2043
 msgid "Hide window on first launch"
-msgstr ""
+msgstr "首次啟動時隱藏視窗"
 
 #: translate_tmp.pl:1981
 #: translate_tmp.pl:2051
 msgid "Hide notification icon"
-msgstr ""
+msgstr "隱藏提示圖標"
 
 #: translate_tmp.pl:1983
 #: translate_tmp.pl:2059
 msgid "Autohide main window when taking a screenshot"
-msgstr ""
+msgstr "截取時自動隱藏主視窗"
 
 #: translate_tmp.pl:1984
 msgid "Redraw Delay"
-msgstr ""
+msgstr "畫面更新延時"
 
 #: translate_tmp.pl:1987
 #: translate_tmp.pl:2809
@@ -630,39 +633,39 @@ msgstr[0] "毫秒"
 #: translate_tmp.pl:1993
 #: translate_tmp.pl:2077
 msgid "Present main window after taking a screenshot"
-msgstr ""
+msgstr "截圖後顯視主視窗"
 
 #: translate_tmp.pl:1994
 #: translate_tmp.pl:2118
 msgid "Minimize to tray when closing main window"
-msgstr "關閉視窗時最小化至系統夾"
+msgstr "關閉視窗時最小化至提示列"
 
 #: translate_tmp.pl:1996
 #: translate_tmp.pl:2085
 msgid "Display pop-up notification after taking a screenshot"
-msgstr ""
+msgstr "截取後顯視彈出提示"
 
 #: translate_tmp.pl:1997
 #: translate_tmp.pl:2093
 #: translate_tmp.pl:2101
 msgid "Display pop-up notification when using a delay"
-msgstr ""
+msgstr "當使用延時截取後顯視彈出提示"
 
 #: translate_tmp.pl:1998
 msgid "Display pop-up notification when using a pre-capture delay"
-msgstr ""
+msgstr "當使用前延時截取後顯視彈出提示"
 
 #: translate_tmp.pl:2000
 msgid "Notification agent"
-msgstr ""
+msgstr "提示小幫手"
 
 #: translate_tmp.pl:2002
 msgid "Desktop Notifications"
-msgstr ""
+msgstr "桌面提示"
 
 #: translate_tmp.pl:2003
 msgid "Built-In Notifications"
-msgstr ""
+msgstr "內建提示"
 
 #: translate_tmp.pl:2007
 #: translate_tmp.pl:2126
@@ -672,12 +675,12 @@ msgstr "在檔案移至回收筒前詢問"
 #: translate_tmp.pl:2008
 #: translate_tmp.pl:2134
 msgid "Move file to trash when closing tab"
-msgstr "關閉分頁時將檔案移除到垃圾桶"
+msgstr "關閉分頁時將檔案移除到回收筒"
 
 #: translate_tmp.pl:2009
 #: translate_tmp.pl:2142
 msgid "Notify when file was deleted from filesystem"
-msgstr ""
+msgstr "在檔案從系統刪除時提示"
 
 #: translate_tmp.pl:2067
 #: translate_tmp.pl:2068
@@ -685,14 +688,14 @@ msgstr ""
 msgid ""
 "Configure a short timeout to give the Xserver a chance to redraw areas that "
 "were obscured by Shutter's windows before taking a screenshot."
-msgstr ""
+msgstr "設定停頓時間讓XServer在Shutter截圖時前更新畫面"
 
 #: translate_tmp.pl:2109
 #: translate_tmp.pl:2110
 msgid ""
 "You can either choose the system-wide desktop notifications (e.g. Ubuntu's "
 "Notify-OSD) or Shutter's built-in notification system"
-msgstr ""
+msgstr "你可選擇使用系統提示(e.g. Ubuntu's Notify-OSD)或Shutter內建提示系統"
 
 #: translate_tmp.pl:2156
 msgid ""
@@ -703,14 +706,14 @@ msgid ""
 msgstr "輸入您的帳號登入特殊的網站網址。如果您在此留下空白欄位將以訪客的身份登入。"
 
 #: translate_tmp.pl:2168
-#: translate_tmp.pl:10228
+#: translate_tmp.pl:10277
 msgid "URI"
 msgstr "網址"
 
 #: translate_tmp.pl:2177
 #: translate_tmp.pl:2179
-#: translate_tmp.pl:10233
-#: translate_tmp.pl:10235
+#: translate_tmp.pl:10282
+#: translate_tmp.pl:10284
 msgid ""
 "URI\n"
 "Example: ftp://host:port/path"
@@ -721,50 +724,50 @@ msgstr ""
 #: translate_tmp.pl:2185
 #: translate_tmp.pl:2196
 #: translate_tmp.pl:2198
-#: translate_tmp.pl:10240
-#: translate_tmp.pl:10247
-#: translate_tmp.pl:10249
+#: translate_tmp.pl:10289
+#: translate_tmp.pl:10296
+#: translate_tmp.pl:10298
 msgid "Connection mode"
 msgstr "連線模式"
 
 #: translate_tmp.pl:2188
-#: translate_tmp.pl:10243
+#: translate_tmp.pl:10292
 msgid "Active mode"
 msgstr "主動模式"
 
 #: translate_tmp.pl:2189
-#: translate_tmp.pl:10244
+#: translate_tmp.pl:10293
 msgid "Passive mode"
 msgstr "被動模式"
 
 #: translate_tmp.pl:2204
 #: translate_tmp.pl:2213
 #: translate_tmp.pl:2215
-#: translate_tmp.pl:8911
-#: translate_tmp.pl:10254
-#: translate_tmp.pl:10259
-#: translate_tmp.pl:10261
+#: translate_tmp.pl:8960
+#: translate_tmp.pl:10303
+#: translate_tmp.pl:10308
+#: translate_tmp.pl:10310
 msgid "Username"
 msgstr "帳號"
 
 #: translate_tmp.pl:2221
 #: translate_tmp.pl:2232
 #: translate_tmp.pl:2234
-#: translate_tmp.pl:8918
-#: translate_tmp.pl:10266
-#: translate_tmp.pl:10273
-#: translate_tmp.pl:10275
+#: translate_tmp.pl:8967
+#: translate_tmp.pl:10315
+#: translate_tmp.pl:10322
+#: translate_tmp.pl:10324
 msgid "Password"
 msgstr "密碼"
 
 #: translate_tmp.pl:2240
 #: translate_tmp.pl:2249
 #: translate_tmp.pl:2251
-#: translate_tmp.pl:10280
-#: translate_tmp.pl:10285
-#: translate_tmp.pl:10287
+#: translate_tmp.pl:10329
+#: translate_tmp.pl:10334
+#: translate_tmp.pl:10336
 msgid "Website URL"
-msgstr ""
+msgstr "網站 URL"
 
 #: translate_tmp.pl:2263
 #: translate_tmp.pl:3990
@@ -777,39 +780,38 @@ msgstr "進階"
 
 #: translate_tmp.pl:2379
 msgid "Image View"
-msgstr ""
+msgstr "影像檢視"
 
 #: translate_tmp.pl:2400
 msgid "Behavior"
-msgstr "作用"
+msgstr "行為"
 
 #: translate_tmp.pl:2438
 msgid "Keyboard"
-msgstr ""
+msgstr "鍵盤"
 
 #: translate_tmp.pl:2458
-#: translate_tmp.pl:524
+#: translate_tmp.pl:552
 #: translate_tmp.pl:326
 msgid "Upload"
 msgstr "上傳"
 
 #: translate_tmp.pl:2515
 msgid "Plugins"
-msgstr "套件模組"
+msgstr "插件"
 
 #: translate_tmp.pl:2517
 msgid "The following plugins are installed"
-msgstr "以下為已安裝的套件模組"
+msgstr "以下為已安裝的插件"
 
 #: translate_tmp.pl:2850
 msgid "pixel"
 msgid_plural "pixels"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "像素"
 
 #: translate_tmp.pl:2860
 msgid "Quality"
-msgstr "擷圖品質"
+msgstr "品質"
 
 #: translate_tmp.pl:2927
 msgid "Please activate the menu you want to capture"
@@ -828,79 +830,79 @@ msgid "Screenshot will be taken in %s second"
 msgid_plural "Screenshot will be taken in %s seconds"
 msgstr[0] "將在%s秒後擷取畫面"
 
-#: translate_tmp.pl:3239
-#: translate_tmp.pl:8945
+#: translate_tmp.pl:3232
+#: translate_tmp.pl:8994
 msgid "Register"
 msgstr "註冊"
 
-#: translate_tmp.pl:3752
+#: translate_tmp.pl:3757
 msgid "Profile deleted"
 msgstr "樣式刪除"
 
-#: translate_tmp.pl:3754
-#: translate_tmp.pl:3755
+#: translate_tmp.pl:3759
+#: translate_tmp.pl:3760
 msgid "Profile could not be deleted"
 msgstr "樣式無法刪除"
 
-#: translate_tmp.pl:3754
-#: translate_tmp.pl:5606
-#: translate_tmp.pl:5841
-#: translate_tmp.pl:5969
-#: translate_tmp.pl:5998
-#: translate_tmp.pl:6894
-#: translate_tmp.pl:10070
+#: translate_tmp.pl:3759
+#: translate_tmp.pl:5611
+#: translate_tmp.pl:5846
+#: translate_tmp.pl:6012
+#: translate_tmp.pl:6041
+#: translate_tmp.pl:6937
+#: translate_tmp.pl:10119
 #: translate_tmp.pl:107
 #: translate_tmp.pl:117
 msgid "Failed"
 msgstr "錯誤"
 
-#: translate_tmp.pl:3773
+#: translate_tmp.pl:3778
 #, perl-format
 msgid "Profile %s loaded successfully"
 msgstr ""
 
-#: translate_tmp.pl:3802
-#: translate_tmp.pl:7043
+#: translate_tmp.pl:3807
+#: translate_tmp.pl:7086
 msgid "Session"
 msgstr "作業階段"
 
-#: translate_tmp.pl:3821
-#: translate_tmp.pl:5304
+#: translate_tmp.pl:3826
+#: translate_tmp.pl:5309
 msgid "not found"
 msgstr "找不到"
 
-#: translate_tmp.pl:4000
+#: translate_tmp.pl:4005
 msgid "Error while adding the file monitor."
 msgstr ""
 
-#: translate_tmp.pl:4473
+#: translate_tmp.pl:4478
 msgid "Settings could not be saved!"
 msgstr "設定無法儲存！"
 
-#: translate_tmp.pl:4475
+#: translate_tmp.pl:4480
 msgid "Settings saved successfully!"
 msgstr "設定儲存完成！"
 
-#: translate_tmp.pl:4499
+#: translate_tmp.pl:4504
 msgid "Session could not be saved!"
 msgstr "此工作階段無法儲存！"
 
-#: translate_tmp.pl:4517
+#: translate_tmp.pl:4522
 msgid "Account-settings could not be saved!"
 msgstr "帳號設定無法儲存！"
 
-#: translate_tmp.pl:4704
+#: translate_tmp.pl:4709
 msgid ""
 "Please activate the Gnome Compatibility plugin via CompizConfig Settings "
 "Manager."
 msgstr ""
 
-#: translate_tmp.pl:4705
-#: translate_tmp.pl:4714
+#: translate_tmp.pl:4710
+#: translate_tmp.pl:4719
 msgid "There was an error configuring the keybindings."
 msgstr ""
 
-#: translate_tmp.pl:4713
+#: translate_tmp.pl:4718
 msgid ""
 "The format looks like \"<Control>Print\" or \"<Shift><Alt>Print\". The "
 "parser is fairly liberal and allows lower or upper case, but abbreviations "
@@ -908,158 +910,158 @@ msgid ""
 "(e.g. when using compiz)."
 msgstr ""
 
-#: translate_tmp.pl:4953
+#: translate_tmp.pl:4958
 msgid "Settings could not be restored!"
 msgstr "設定值無法恢復！"
 
-#: translate_tmp.pl:4956
+#: translate_tmp.pl:4961
 msgid "Settings loaded successfully"
 msgstr "載入設定完成"
 
-#: translate_tmp.pl:4986
-#: translate_tmp.pl:6803
+#: translate_tmp.pl:4991
+#: translate_tmp.pl:6846
 msgid "Built-in Editor"
 msgstr ""
 
-#: translate_tmp.pl:5081
+#: translate_tmp.pl:5086
 msgid "Account-settings could not be restored!"
 msgstr "帳號設定值無法恢復！"
 
-#: translate_tmp.pl:5180
-#: translate_tmp.pl:5277
+#: translate_tmp.pl:5185
+#: translate_tmp.pl:5282
 msgid "opened"
 msgstr "已開啟"
 
-#: translate_tmp.pl:5182
-#: translate_tmp.pl:5279
-#: translate_tmp.pl:7621
+#: translate_tmp.pl:5187
+#: translate_tmp.pl:5284
+#: translate_tmp.pl:7664
 #: translate_tmp.pl:61
 #: translate_tmp.pl:6714
 #, perl-format
 msgid "Error while opening image %s."
 msgstr "當開啟資料夾 \" %s \" 發生錯誤"
 
-#: translate_tmp.pl:5292
+#: translate_tmp.pl:5297
 msgid "Session could not be restored!"
 msgstr "工作階段無法恢復！"
 
-#: translate_tmp.pl:5344
+#: translate_tmp.pl:5349
 #, perl-format
 msgid "Error while creating the trashinfo file %s."
 msgstr ""
 
-#: translate_tmp.pl:5355
+#: translate_tmp.pl:5360
 #, perl-format
 msgid "Error while moving the file %s to trash."
 msgstr ""
 
-#: translate_tmp.pl:5361
+#: translate_tmp.pl:5366
 #, perl-format
 msgid "Error while removing the file %s from disk."
 msgstr ""
 
-#: translate_tmp.pl:5381
+#: translate_tmp.pl:5386
 #, perl-format
 msgid "Are you sure you want to move %s to the trash?"
 msgstr "您確定要將%s移至回收筒？"
 
-#: translate_tmp.pl:5382
-#: translate_tmp.pl:5427
+#: translate_tmp.pl:5387
+#: translate_tmp.pl:5432
 #: translate_tmp.pl:209
-#: translate_tmp.pl:716
+#: translate_tmp.pl:732
 msgid "Move to _Trash"
 msgstr "移至回收筒(_T)"
 
-#: translate_tmp.pl:5392
+#: translate_tmp.pl:5397
 msgid "deleted"
 msgstr "已刪除"
 
-#: translate_tmp.pl:5426
+#: translate_tmp.pl:5431
 msgid "Are you sure you want to move the selected files to the trash?"
 msgstr "您確定要將已選擇的檔案移至回收筒？"
 
-#: translate_tmp.pl:5431
-#: translate_tmp.pl:5460
-#: translate_tmp.pl:5560
+#: translate_tmp.pl:5436
+#: translate_tmp.pl:5465
+#: translate_tmp.pl:5565
 msgid "No screenshots selected"
 msgstr ""
 
-#: translate_tmp.pl:5476
+#: translate_tmp.pl:5481
 msgid "Selected screenshots deleted"
 msgstr "已選擇刪除的擷圖"
 
-#: translate_tmp.pl:5512
-#: translate_tmp.pl:7471
-#: translate_tmp.pl:7499
-#: translate_tmp.pl:7529
-#: translate_tmp.pl:7564
-#: translate_tmp.pl:7599
-#: translate_tmp.pl:7629
+#: translate_tmp.pl:5517
+#: translate_tmp.pl:7514
+#: translate_tmp.pl:7542
+#: translate_tmp.pl:7572
+#: translate_tmp.pl:7607
+#: translate_tmp.pl:7642
+#: translate_tmp.pl:7672
 msgid "removed from session"
 msgstr "從工作階段中刪除"
 
-#: translate_tmp.pl:5576
+#: translate_tmp.pl:5581
 msgid "Selected screenshots removed"
 msgstr "選擇的截圖已刪除"
 
-#: translate_tmp.pl:5606
-#: translate_tmp.pl:5969
+#: translate_tmp.pl:5611
+#: translate_tmp.pl:6012
 msgid "No valid filetype specified"
 msgstr "無效的檔案格式"
 
-#: translate_tmp.pl:5621
+#: translate_tmp.pl:5626
 msgid "There is no image data in the clipboard to paste"
 msgstr "沒有影像資料可貼上"
 
-#: translate_tmp.pl:5680
+#: translate_tmp.pl:5685
 msgid "Selected filenames copied to clipboard"
 msgstr ""
 
-#: translate_tmp.pl:5695
+#: translate_tmp.pl:5700
 msgid "Selected images copied to clipboard"
 msgstr ""
 
-#: translate_tmp.pl:5742
+#: translate_tmp.pl:5747
 msgid "Last action undone"
 msgstr ""
 
-#: translate_tmp.pl:5750
-#: translate_tmp.pl:5802
+#: translate_tmp.pl:5755
+#: translate_tmp.pl:5807
 #, perl-format
 msgid "Error while copying last version (%s)."
 msgstr ""
 
-#: translate_tmp.pl:5751
+#: translate_tmp.pl:5756
 #, perl-format
 msgid "There was an error performing undo on %s."
 msgstr ""
 
-#: translate_tmp.pl:5794
+#: translate_tmp.pl:5799
 msgid "Last action redone"
 msgstr ""
 
-#: translate_tmp.pl:5803
+#: translate_tmp.pl:5808
 #, perl-format
 msgid "There was an error performing redo on %s."
 msgstr ""
 
-#: translate_tmp.pl:5841
+#: translate_tmp.pl:5846
 msgid "No plugin installed"
 msgstr "無安裝的套件模組"
 
-#: translate_tmp.pl:5997
-#: translate_tmp.pl:7806
+#: translate_tmp.pl:6040
+#: translate_tmp.pl:7849
 msgid "There was an error determining the filename."
 msgstr "這是一個檔案名稱上的錯誤"
 
-#: translate_tmp.pl:6319
+#: translate_tmp.pl:6362
 msgid "Triggered invalid screenshot action."
 msgstr ""
 
-#: translate_tmp.pl:6320
-#: translate_tmp.pl:6323
-#: translate_tmp.pl:6561
-#: translate_tmp.pl:6563
+#: translate_tmp.pl:6363
+#: translate_tmp.pl:6366
+#: translate_tmp.pl:6604
+#: translate_tmp.pl:6606
 #: translate_tmp.pl:80
 #: translate_tmp.pl:88
 #: translate_tmp.pl:96
@@ -1071,129 +1073,129 @@ msgstr ""
 msgid "Error while taking the screenshot."
 msgstr "當截圖時發生錯誤"
 
-#: translate_tmp.pl:6438
+#: translate_tmp.pl:6481
 #: translate_tmp.pl:133
 msgid "Capture aborted by user"
 msgstr "使用者取消擷取"
 
-#: translate_tmp.pl:6545
-#: translate_tmp.pl:7520
-#: translate_tmp.pl:9806
-#: translate_tmp.pl:9811
-#: translate_tmp.pl:9878
-#: translate_tmp.pl:9884
+#: translate_tmp.pl:6588
+#: translate_tmp.pl:7563
+#: translate_tmp.pl:9855
+#: translate_tmp.pl:9860
+#: translate_tmp.pl:9927
+#: translate_tmp.pl:9933
 msgid "saved"
 msgstr "已儲存"
 
-#: translate_tmp.pl:6551
-#: translate_tmp.pl:6553
+#: translate_tmp.pl:6594
+#: translate_tmp.pl:6596
 msgid "Screenshot saved"
 msgstr ""
 
-#: translate_tmp.pl:6560
+#: translate_tmp.pl:6603
 #, perl-format
 msgid ""
 "The filename %s could not be verified. Maybe it contains unsupported "
 "characters."
 msgstr "檔案%s無法驗証。也許它包含不被支援的字元。"
 
-#: translate_tmp.pl:6803
-#: translate_tmp.pl:6814
+#: translate_tmp.pl:6846
+#: translate_tmp.pl:6857
 #, perl-format
 msgid "%s opened with %s"
 msgstr ""
 
-#: translate_tmp.pl:6846
+#: translate_tmp.pl:6889
 msgid "Opened all files with"
 msgstr "所有檔案以此開啟"
 
-#: translate_tmp.pl:6894
-#: translate_tmp.pl:6914
+#: translate_tmp.pl:6937
+#: translate_tmp.pl:6957
 #, perl-format
 msgid "Could not apply plugin %s"
 msgstr "無法啟用%s套件"
 
-#: translate_tmp.pl:6912
-#: translate_tmp.pl:6963
+#: translate_tmp.pl:6955
+#: translate_tmp.pl:7006
 #, perl-format
 msgid "Successfully applied plugin %s"
 msgstr "順利啟用%s 套件"
 
-#: translate_tmp.pl:6966
+#: translate_tmp.pl:7009
 #, perl-format
 msgid "Error while executing plugin %s."
 msgstr "執行%s套件時發生錯誤"
 
-#: translate_tmp.pl:6967
+#: translate_tmp.pl:7010
 msgid "There was an error executing the plugin."
 msgstr "執行套件時發生錯誤"
 
-#: translate_tmp.pl:7045
+#: translate_tmp.pl:7088
 #, perl-format
 msgid "%s screenshot"
 msgid_plural "%s screenshots"
 msgstr[0] "%s擷圖"
 
-#: translate_tmp.pl:7057
+#: translate_tmp.pl:7100
 msgid "Current profile"
 msgstr ""
 
-#: translate_tmp.pl:7462
+#: translate_tmp.pl:7505
 msgid "Try to resave the file?"
 msgstr "嘗試重試儲存檔案嗎？"
 
-#: translate_tmp.pl:7463
+#: translate_tmp.pl:7506
 #, perl-format
 msgid "Image %s was not found on disk"
 msgstr "圖片 \" %s \" 找不到"
 
-#: translate_tmp.pl:7491
-#: translate_tmp.pl:7556
+#: translate_tmp.pl:7534
+#: translate_tmp.pl:7599
 #: translate_tmp.pl:181
 #, perl-format
 msgid "Error while saving the image %s."
 msgstr "當儲存圖片( %s )時發生錯誤"
 
-#: translate_tmp.pl:7492
-#: translate_tmp.pl:7557
+#: translate_tmp.pl:7535
+#: translate_tmp.pl:7600
 #: translate_tmp.pl:182
 #, perl-format
 msgid "There was an error saving the image to %s."
 msgstr "儲存圖片( %s )時發生錯誤"
 
-#: translate_tmp.pl:7590
+#: translate_tmp.pl:7633
 #, perl-format
 msgid "Image %s was deleted from filesystem"
 msgstr ""
 
-#: translate_tmp.pl:7622
+#: translate_tmp.pl:7665
 #: translate_tmp.pl:62
 #: translate_tmp.pl:6715
 msgid "There was an error opening the image."
 msgstr "開啟圖片時發生錯誤"
 
-#: translate_tmp.pl:7805
+#: translate_tmp.pl:7848
 #, perl-format
 msgid "Error while opening directory %s."
 msgstr "當開啟資料夾 \" %s \" 發生錯誤"
 
-#: translate_tmp.pl:7875
+#: translate_tmp.pl:7918
 msgid "Updating plugin information"
 msgstr "更新套件資訊"
 
-#: translate_tmp.pl:7880
+#: translate_tmp.pl:7923
 msgid "Please wait while Shutter updates the plugin information"
 msgstr "請稍候，正在更新您的套件資訊"
 
-#: translate_tmp.pl:8115
+#: translate_tmp.pl:8158
 msgid "Capture All Workspaces"
 msgstr ""
 
-#: translate_tmp.pl:8128
+#: translate_tmp.pl:8171
 msgid "Limit to current monitor"
 msgstr "限制當前的螢幕"
 
-#: translate_tmp.pl:8143
+#: translate_tmp.pl:8186
 #, perl-format
 msgid ""
 "This option is only useful when you are running a multi-monitor system (%d "
@@ -1207,68 +1209,68 @@ msgstr[0] ""
 "這些設定只有在使用多重螢幕時才有作用 (偵測到 %d 個螢幕)。 \n"
 "開啟它來擷取當前的螢幕。"
 
-#: translate_tmp.pl:8187
+#: translate_tmp.pl:8230
 msgid "Capture the last active window"
 msgstr ""
 
-#: translate_tmp.pl:8226
+#: translate_tmp.pl:8269
 #: translate_tmp.pl:403
 msgid "_Selection"
 msgstr "選擇範圍 (_S)"
 
-#: translate_tmp.pl:8252
+#: translate_tmp.pl:8295
 #: translate_tmp.pl:429
 msgid "_Desktop"
 msgstr ""
 
-#: translate_tmp.pl:8286
+#: translate_tmp.pl:8329
 msgid "Window _under Cursor"
 msgstr ""
 
-#: translate_tmp.pl:8302
+#: translate_tmp.pl:8345
 #: translate_tmp.pl:459
 msgid "Select W_indow"
 msgstr ""
 
-#: translate_tmp.pl:8316
+#: translate_tmp.pl:8359
 #: translate_tmp.pl:472
 msgid "Se_ction"
 msgstr "選擇 (_c)"
 
-#: translate_tmp.pl:8335
+#: translate_tmp.pl:8378
 #: translate_tmp.pl:488
 msgid "_Menu"
 msgstr ""
 
-#: translate_tmp.pl:8354
+#: translate_tmp.pl:8397
 #: translate_tmp.pl:504
 msgid "_Tooltip"
 msgstr ""
 
-#: translate_tmp.pl:8373
+#: translate_tmp.pl:8416
 #: translate_tmp.pl:522
 msgid "_Web"
 msgstr "網頁(_W)"
 
-#: translate_tmp.pl:8390
+#: translate_tmp.pl:8433
 #: translate_tmp.pl:395
 msgid "_Redo last screenshot"
 msgstr ""
 
-#: translate_tmp.pl:8401
+#: translate_tmp.pl:8444
 #: translate_tmp.pl:223
 msgid "_Quick profile select"
 msgstr ""
 
-#: translate_tmp.pl:8444
+#: translate_tmp.pl:8487
 msgid "Advanced selection tool"
 msgstr "進階選取工具"
 
-#: translate_tmp.pl:8447
+#: translate_tmp.pl:8490
 msgid "Simple selection tool"
 msgstr "簡易選取工具"
 
-#: translate_tmp.pl:8464
+#: translate_tmp.pl:8507
 msgid ""
 "The advanced selection tool allows you to enlarge/shrink or move your "
 "selected area\n"
@@ -1277,7 +1279,7 @@ msgstr ""
 "此進階選取工具可讓您自由變更選取大小或是移動選取區域\n"
 "直到最後您擷取螢幕圖示。"
 
-#: translate_tmp.pl:8467
+#: translate_tmp.pl:8510
 msgid ""
 "The simple selection tool is the fastest way of taking a screenshot.\n"
 "It provides an optional zoom window for precise shots."
@@ -1285,230 +1287,261 @@ msgstr ""
 "此簡易選取工具給您快速的擷圖功能。\n"
 "它提供精準的放大或縮小功能。"
 
-#: translate_tmp.pl:8739
-#: translate_tmp.pl:8740
-#: translate_tmp.pl:8741
-#: translate_tmp.pl:8742
-#: translate_tmp.pl:8743
-msgid "Timeout"
-msgstr "時間延遲"
+#: translate_tmp.pl:8782
+msgid "Wait indefinitely"
+msgstr ""
 
-#: translate_tmp.pl:8745
-#: translate_tmp.pl:8746
-#: translate_tmp.pl:8747
-#: translate_tmp.pl:8748
-#: translate_tmp.pl:8749
-#: translate_tmp.pl:213
-msgid "The timeout in seconds, or 0 to disable timeout"
-msgstr "時間倒數單位為秒，或設定 0 取消倒數"
+#: translate_tmp.pl:8783
+#: translate_tmp.pl:8784
+#, perl-format
+msgid "Wait max %d second"
+msgid_plural "Wait max %d seconds"
+msgstr[0] ""
+msgstr[1] ""
 
-#: translate_tmp.pl:8889
+#: translate_tmp.pl:8785
+#: translate_tmp.pl:8786
+#, perl-format
+msgid "Wait max %d minute"
+msgid_plural "Wait max %d minutes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: translate_tmp.pl:8794
+msgid "Shutter will wait indefinitely for the screenshot to capture"
+msgstr ""
+
+#: translate_tmp.pl:8795
+#: translate_tmp.pl:8796
+#, perl-format
+msgid ""
+"Shutter will wait up to %d second for the screenshot to capture before "
+"aborting the process if it's taking too long"
+msgid_plural ""
+"Shutter will wait up to %d seconds for the screenshot to capture before "
+"aborting the process if it's taking too long"
+msgstr[0] ""
+msgstr[1] ""
+
+#: translate_tmp.pl:8797
+#: translate_tmp.pl:8798
+#, perl-format
+msgid ""
+"Shutter will wait up to %d minute for the screenshot to capture before "
+"aborting the process if it's taking too long"
+msgid_plural ""
+"Shutter will wait up to %d minutes for the screenshot to capture before "
+"aborting the process if it's taking too long"
+msgstr[0] ""
+msgstr[1] ""
+
+#: translate_tmp.pl:8938
 msgid "Host"
 msgstr "網站"
 
-#: translate_tmp.pl:8968
+#: translate_tmp.pl:9017
 msgid "Icon"
 msgstr "圖示"
 
-#: translate_tmp.pl:8977
+#: translate_tmp.pl:9026
 msgid "Name"
 msgstr "名稱"
 
-#: translate_tmp.pl:8987
+#: translate_tmp.pl:9036
 msgid "Category"
 msgstr "類別"
 
-#: translate_tmp.pl:8997
-#: translate_tmp.pl:9993
+#: translate_tmp.pl:9046
+#: translate_tmp.pl:10042
 msgid "Description"
 msgstr "描述"
 
-#: translate_tmp.pl:9007
+#: translate_tmp.pl:9056
 msgid "Language"
 msgstr "語系"
 
-#: translate_tmp.pl:9016
+#: translate_tmp.pl:9065
 msgid "Path"
 msgstr "路徑"
 
-#: translate_tmp.pl:9062
+#: translate_tmp.pl:9111
 msgid "Copy Ubuntu One public URL"
 msgstr ""
 
-#: translate_tmp.pl:9070
+#: translate_tmp.pl:9119
 msgid "Successfully published"
 msgstr ""
 
-#: translate_tmp.pl:9070
+#: translate_tmp.pl:9119
 #, perl-format
 msgid "The file %s was successfully published: %s"
 msgstr ""
 
-#: translate_tmp.pl:9072
+#: translate_tmp.pl:9121
 #, perl-format
 msgid "%s published"
 msgstr ""
 
-#: translate_tmp.pl:9082
+#: translate_tmp.pl:9131
 msgid "Unpublished"
 msgstr ""
 
-#: translate_tmp.pl:9082
+#: translate_tmp.pl:9131
 #, perl-format
 msgid ""
 "The file %s is no longer published. The external link is not available "
 "anymore."
 msgstr ""
 
-#: translate_tmp.pl:9084
+#: translate_tmp.pl:9133
 #, perl-format
 msgid "The file %s is no longer published."
 msgstr ""
 
-#: translate_tmp.pl:9288
+#: translate_tmp.pl:9337
 msgid "Rename"
 msgstr ""
 
-#: translate_tmp.pl:9292
+#: translate_tmp.pl:9341
 #, perl-format
 msgid "Rename image %s"
 msgstr "重新命名 %s"
 
-#: translate_tmp.pl:9294
+#: translate_tmp.pl:9343
 msgid "New filename"
 msgstr "新的檔案名稱"
 
-#: translate_tmp.pl:9297
+#: translate_tmp.pl:9346
 msgid "_Rename"
 msgstr "重新命名(_R)"
 
-#: translate_tmp.pl:9396
-#: translate_tmp.pl:9446
+#: translate_tmp.pl:9445
+#: translate_tmp.pl:9495
 msgid "renamed"
 msgstr "已更名"
 
-#: translate_tmp.pl:9404
-#: translate_tmp.pl:9454
-#: translate_tmp.pl:9494
+#: translate_tmp.pl:9453
+#: translate_tmp.pl:9503
+#: translate_tmp.pl:9543
 #, perl-format
 msgid "Error while renaming the image %s."
 msgstr "當變更圖片名稱( %s )時發生錯誤"
 
-#: translate_tmp.pl:9405
-#: translate_tmp.pl:9455
-#: translate_tmp.pl:9495
+#: translate_tmp.pl:9454
+#: translate_tmp.pl:9504
+#: translate_tmp.pl:9544
 #, perl-format
 msgid "There was an error renaming the image to %s."
 msgstr "變更圖片名稱( %s )時發生錯誤"
 
-#: translate_tmp.pl:9417
-#: translate_tmp.pl:9833
-#: translate_tmp.pl:10804
-#: translate_tmp.pl:11048
+#: translate_tmp.pl:9466
+#: translate_tmp.pl:9882
+#: translate_tmp.pl:10853
+#: translate_tmp.pl:11097
 #: translate_tmp.pl:1615
 msgid "_Replace"
 msgstr "取代(_R)"
 
-#: translate_tmp.pl:9421
-#: translate_tmp.pl:9837
-#: translate_tmp.pl:10815
+#: translate_tmp.pl:9470
+#: translate_tmp.pl:9886
+#: translate_tmp.pl:10864
 #: translate_tmp.pl:1619
 #, perl-format
 msgid ""
 "The image already exists in %s. Replacing it will overwrite its contents."
 msgstr "此圖片已存在於 %s ，取代它將覆蓋其內容。"
 
-#: translate_tmp.pl:9422
-#: translate_tmp.pl:9838
-#: translate_tmp.pl:10816
+#: translate_tmp.pl:9471
+#: translate_tmp.pl:9887
+#: translate_tmp.pl:10865
 #: translate_tmp.pl:1620
 #, perl-format
 msgid "An image named %s already exists. Do you want to replace it?"
 msgstr "圖片檔案 %s 已存在。您想要覆蓋取代它嗎？"
 
-#: translate_tmp.pl:9498
+#: translate_tmp.pl:9547
 msgid "Invalid Filename"
 msgstr "無效的檔案名稱"
 
-#: translate_tmp.pl:9523
+#: translate_tmp.pl:9572
 #: translate_tmp.pl:6341
 msgid "Choose file to open"
 msgstr "選擇檔案開啟"
 
-#: translate_tmp.pl:9552
+#: translate_tmp.pl:9601
 #: translate_tmp.pl:6369
 msgid "All compatible image formats"
 msgstr "所有適合的圖片格式"
 
-#: translate_tmp.pl:9628
+#: translate_tmp.pl:9677
 #: translate_tmp.pl:1448
 msgid "Choose a location to save to"
 msgstr "選擇一個位置來儲存"
 
-#: translate_tmp.pl:9925
+#: translate_tmp.pl:9974
 msgid "Choose a plugin"
 msgstr "選擇一個套件模組"
 
-#: translate_tmp.pl:9930
+#: translate_tmp.pl:9979
 msgid "_Run"
 msgstr ""
 
-#: translate_tmp.pl:9980
+#: translate_tmp.pl:10029
 msgid "Plugin"
 msgstr "套件模組"
 
-#: translate_tmp.pl:10070
+#: translate_tmp.pl:10119
 msgid "No plugin specified"
 msgstr "無指定的套件模組"
 
-#: translate_tmp.pl:10119
+#: translate_tmp.pl:10168
 msgid "Upload / Export"
 msgstr "上傳/匯出"
 
-#: translate_tmp.pl:10123
-#: translate_tmp.pl:10326
+#: translate_tmp.pl:10172
+#: translate_tmp.pl:10375
 msgid "_Upload"
 msgstr "上傳(_U)"
 
-#: translate_tmp.pl:10138
+#: translate_tmp.pl:10187
 msgid "Guest"
 msgstr "訪客"
 
-#: translate_tmp.pl:10158
+#: translate_tmp.pl:10207
 msgid "Choose account"
 msgstr "選擇帳號"
 
-#: translate_tmp.pl:10180
+#: translate_tmp.pl:10229
 msgid "Status"
 msgstr ""
 
-#: translate_tmp.pl:10314
+#: translate_tmp.pl:10363
 msgid "Public hosting"
 msgstr "公眾網域"
 
-#: translate_tmp.pl:10316
+#: translate_tmp.pl:10365
 msgid "Places"
 msgstr "位置"
 
-#: translate_tmp.pl:10317
+#: translate_tmp.pl:10366
 msgid "Ubuntu One"
 msgstr ""
 
-#: translate_tmp.pl:10329
+#: translate_tmp.pl:10378
 msgid "_Export"
 msgstr "匯出 (_E)"
 
-#: translate_tmp.pl:10332
+#: translate_tmp.pl:10381
 msgid "_Publish"
 msgstr ""
 
-#: translate_tmp.pl:10359
+#: translate_tmp.pl:10408
 #: translate_tmp.pl:147
 msgid "Disconnected"
 msgstr ""
 
-#: translate_tmp.pl:10379
-#: translate_tmp.pl:10411
+#: translate_tmp.pl:10428
+#: translate_tmp.pl:10460
 #, perl-format
 msgid ""
 "Folder %s is synchronized with Ubuntu One.\n"
@@ -1519,8 +1552,8 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: translate_tmp.pl:10382
-#: translate_tmp.pl:10414
+#: translate_tmp.pl:10431
+#: translate_tmp.pl:10463
 msgid ""
 "<b>Please note:</b> The selected file will be published in a background "
 "process.\n"
@@ -1532,169 +1565,169 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: translate_tmp.pl:10387
-#: translate_tmp.pl:10419
+#: translate_tmp.pl:10436
+#: translate_tmp.pl:10468
 #, perl-format
 msgid ""
 "Folder %s is not synchronized with Ubuntu One.\n"
 "Please choose an alternative folder."
 msgstr ""
 
-#: translate_tmp.pl:10436
+#: translate_tmp.pl:10485
 msgid "Ubuntu One service cannot be found."
 msgstr "無法找到Ubuntu One伺服器"
 
-#: translate_tmp.pl:10443
+#: translate_tmp.pl:10492
 msgid ""
 "/publicfiles is not available. Your Ubuntu One installation seems to be out "
 "of date."
 msgstr ""
 
-#: translate_tmp.pl:10450
+#: translate_tmp.pl:10499
 msgid ""
 "Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature"
 msgstr ""
 
-#: translate_tmp.pl:10519
-#: translate_tmp.pl:10589
-#: translate_tmp.pl:10665
-#: translate_tmp.pl:10769
-#: translate_tmp.pl:10842
+#: translate_tmp.pl:10568
+#: translate_tmp.pl:10638
+#: translate_tmp.pl:10714
+#: translate_tmp.pl:10818
+#: translate_tmp.pl:10891
 msgid "uploaded"
 msgstr "已上傳"
 
-#: translate_tmp.pl:10552
-#: translate_tmp.pl:10957
+#: translate_tmp.pl:10601
+#: translate_tmp.pl:11006
 #: translate_tmp.pl:89
 msgid "Please check your credentials and try again."
 msgstr "請確定您的憑證後再嘗試登入。"
 
-#: translate_tmp.pl:10553
+#: translate_tmp.pl:10602
 msgid "Login failed!"
 msgstr "登入錯誤！"
 
-#: translate_tmp.pl:10566
-#: translate_tmp.pl:10592
-#: translate_tmp.pl:10970
+#: translate_tmp.pl:10615
+#: translate_tmp.pl:10641
+#: translate_tmp.pl:11019
 #: translate_tmp.pl:82
 msgid "Please check your connectivity and try again."
 msgstr "請確認您的連線後再次嘗試登入。"
 
-#: translate_tmp.pl:10567
-#: translate_tmp.pl:10593
+#: translate_tmp.pl:10616
+#: translate_tmp.pl:10642
 msgid "Connection error!"
 msgstr "連線錯誤！"
 
-#: translate_tmp.pl:10568
-#: translate_tmp.pl:10594
-#: translate_tmp.pl:10687
-#: translate_tmp.pl:10817
-#: translate_tmp.pl:10938
-#: translate_tmp.pl:10964
-#: translate_tmp.pl:10972
+#: translate_tmp.pl:10617
+#: translate_tmp.pl:10643
+#: translate_tmp.pl:10736
+#: translate_tmp.pl:10866
+#: translate_tmp.pl:10987
+#: translate_tmp.pl:11013
+#: translate_tmp.pl:11021
 msgid "Skip all"
 msgstr "全部略過"
 
-#: translate_tmp.pl:10569
-#: translate_tmp.pl:10595
-#: translate_tmp.pl:10688
-#: translate_tmp.pl:10817
-#: translate_tmp.pl:10939
-#: translate_tmp.pl:10964
-#: translate_tmp.pl:10972
+#: translate_tmp.pl:10618
+#: translate_tmp.pl:10644
+#: translate_tmp.pl:10737
+#: translate_tmp.pl:10866
+#: translate_tmp.pl:10988
+#: translate_tmp.pl:11013
+#: translate_tmp.pl:11021
 msgid "Skip"
 msgstr "略過"
 
-#: translate_tmp.pl:10570
-#: translate_tmp.pl:10596
-#: translate_tmp.pl:10689
-#: translate_tmp.pl:10972
+#: translate_tmp.pl:10619
+#: translate_tmp.pl:10645
+#: translate_tmp.pl:10738
+#: translate_tmp.pl:11021
 msgid "Retry"
 msgstr ""
 
-#: translate_tmp.pl:10669
-#: translate_tmp.pl:10772
-#: translate_tmp.pl:10845
+#: translate_tmp.pl:10718
+#: translate_tmp.pl:10821
+#: translate_tmp.pl:10894
 msgid "Successfully uploaded"
 msgstr ""
 
-#: translate_tmp.pl:10669
-#: translate_tmp.pl:10772
-#: translate_tmp.pl:10845
+#: translate_tmp.pl:10718
+#: translate_tmp.pl:10821
+#: translate_tmp.pl:10894
 #, perl-format
 msgid "The file %s was successfully uploaded."
 msgstr "%s順利上傳完成"
 
-#: translate_tmp.pl:10764
-#: translate_tmp.pl:10837
+#: translate_tmp.pl:10813
+#: translate_tmp.pl:10886
 msgid "exported"
 msgstr "已匯出"
 
-#: translate_tmp.pl:10767
-#: translate_tmp.pl:10840
+#: translate_tmp.pl:10816
+#: translate_tmp.pl:10889
 msgid "Successfully exported"
 msgstr ""
 
-#: translate_tmp.pl:10767
-#: translate_tmp.pl:10840
+#: translate_tmp.pl:10816
+#: translate_tmp.pl:10889
 #, perl-format
 msgid "The file %s was successfully exported."
 msgstr ""
 
-#: translate_tmp.pl:10777
-#: translate_tmp.pl:10850
+#: translate_tmp.pl:10826
+#: translate_tmp.pl:10899
 #, perl-format
 msgid "Publishing %s..."
 msgstr ""
 
-#: translate_tmp.pl:10932
+#: translate_tmp.pl:10981
 msgid "_Retry"
 msgstr ""
 
-#: translate_tmp.pl:10936
+#: translate_tmp.pl:10985
 #, perl-format
 msgid "Error while copying the image %s."
 msgstr "當複製圖片( %s )時發生錯誤"
 
-#: translate_tmp.pl:10937
+#: translate_tmp.pl:10986
 #, perl-format
 msgid "There was an error copying the image into %s."
 msgstr "複製圖片( %s )時發生錯誤"
 
-#: translate_tmp.pl:10958
+#: translate_tmp.pl:11007
 msgid "Error while login"
 msgstr "登入時發生錯誤"
 
-#: translate_tmp.pl:10962
+#: translate_tmp.pl:11011
 msgid "Maximum filesize reached"
 msgstr ""
 
-#: translate_tmp.pl:10963
+#: translate_tmp.pl:11012
 msgid "Error while uploading"
 msgstr ""
 
-#: translate_tmp.pl:10966
+#: translate_tmp.pl:11015
 #, perl-format
 msgid "Maximum filesize: %s"
 msgstr "檔案大小限制：%s"
 
-#: translate_tmp.pl:10971
+#: translate_tmp.pl:11020
 msgid "Error while connecting"
 msgstr "連接時發生錯誤"
 
-#: translate_tmp.pl:10989
+#: translate_tmp.pl:11038
 msgid "Save current preferences as new profile"
 msgstr "儲存當前的設定為一個新的樣式"
 
-#: translate_tmp.pl:10991
+#: translate_tmp.pl:11040
 msgid "New profile name"
 msgstr "新樣式名稱"
 
-#: translate_tmp.pl:11052
+#: translate_tmp.pl:11101
 msgid "Replacing it will overwrite its contents."
 msgstr "取代它將會覆蓋其內容。"
 
-#: translate_tmp.pl:11053
+#: translate_tmp.pl:11102
 #, perl-format
 msgid "A profile named %s already exists. Do you want to replace it?"
 msgstr "一個樣式名稱 %s 已存在。您想要取代它嗎？"
@@ -1703,6 +1736,7 @@ msgstr "一個樣式名稱 %s 已存在。您想要取代它嗎？"
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
+"  Calvin So https://launchpad.net/~calvinss\n"
 "  Ev Law https://launchpad.net/~tyuuuu2001\n"
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
 "  Toomore https://launchpad.net/~toomore\n"
@@ -1778,7 +1812,7 @@ msgid "C_lose all"
 msgstr "關閉全部(_L)"
 
 #: translate_tmp.pl:204
-#: translate_tmp.pl:711
+#: translate_tmp.pl:727
 msgid "Copy _Filename"
 msgstr ""
 
@@ -1807,50 +1841,55 @@ msgid "Import from clip_board"
 msgstr ""
 
 #: translate_tmp.pl:562
-#: translate_tmp.pl:662
+#: translate_tmp.pl:670
 msgid "_Open with default application"
 msgstr ""
 
 #: translate_tmp.pl:569
-#: translate_tmp.pl:669
+#: translate_tmp.pl:677
 msgid "Open wit_h"
 msgstr ""
 
-#: translate_tmp.pl:575
-#: translate_tmp.pl:675
+#: translate_tmp.pl:576
+#: translate_tmp.pl:684
+msgid "Show in _folder"
+msgstr ""
+
+#: translate_tmp.pl:583
+#: translate_tmp.pl:691
 msgid "_Rename..."
 msgstr ""
 
-#: translate_tmp.pl:584
-#: translate_tmp.pl:683
+#: translate_tmp.pl:592
+#: translate_tmp.pl:699
 msgid "_Send To..."
 msgstr ""
 
-#: translate_tmp.pl:593
-#: translate_tmp.pl:691
+#: translate_tmp.pl:601
+#: translate_tmp.pl:707
 msgid "E_xport..."
 msgstr ""
 
-#: translate_tmp.pl:600
-#: translate_tmp.pl:697
+#: translate_tmp.pl:608
+#: translate_tmp.pl:713
 msgid "Public URLs"
 msgstr ""
 
-#: translate_tmp.pl:608
-#: translate_tmp.pl:724
+#: translate_tmp.pl:616
+#: translate_tmp.pl:740
 msgid "_Edit..."
 msgstr ""
 
-#: translate_tmp.pl:625
+#: translate_tmp.pl:633
 msgid "Run a _plugin..."
 msgstr ""
 
-#: translate_tmp.pl:634
-#: translate_tmp.pl:748
+#: translate_tmp.pl:642
+#: translate_tmp.pl:764
 msgid "Redo _this screenshot"
 msgstr ""
 
-#: translate_tmp.pl:740
+#: translate_tmp.pl:756
 msgid "Run a _Plugin..."
 msgstr ""
 
@@ -1913,6 +1952,12 @@ msgstr ""
 msgid "Take a screenshot of a website"
 msgstr "擷取網頁畫面"
 
+#: translate_tmp.pl:213
+msgid ""
+"Set how long Shutter will wait for the screenshot to complete before "
+"aborting the process if it's taking too long"
+msgstr ""
+
 #: translate_tmp.pl:234
 msgid "Edit"
 msgstr ""
@@ -1965,34 +2010,34 @@ msgstr ""
 msgid "Synchronization in progress..."
 msgstr "同步中…"
 
-#: translate_tmp.pl:414
+#: translate_tmp.pl:442
 #: translate_tmp.pl:193
 msgid "Upload status:"
 msgstr "上傳狀態:"
 
-#: translate_tmp.pl:423
+#: translate_tmp.pl:451
 #: translate_tmp.pl:287
 msgid "Thumbnail for forums"
 msgstr "討論區擷圖"
 
-#: translate_tmp.pl:424
+#: translate_tmp.pl:452
 msgid "Short URL"
 msgstr ""
 
-#: translate_tmp.pl:426
+#: translate_tmp.pl:454
 #: translate_tmp.pl:293
 msgid "Direct link"
 msgstr "直接連結"
 
-#: translate_tmp.pl:427
+#: translate_tmp.pl:455
 #: translate_tmp.pl:299
 msgid "Hotlink for websites"
 msgstr "網站熱門連結"
 
-#: translate_tmp.pl:438
-#: translate_tmp.pl:461
-#: translate_tmp.pl:480
-#: translate_tmp.pl:491
+#: translate_tmp.pl:466
+#: translate_tmp.pl:489
+#: translate_tmp.pl:508
+#: translate_tmp.pl:519
 #: translate_tmp.pl:220
 #: translate_tmp.pl:232
 #: translate_tmp.pl:244
@@ -2102,11 +2147,11 @@ msgstr "無法擷取網頁"
 msgid "No window with name pattern %s detected."
 msgstr ""
 
-#: translate_tmp.pl:110
+#: translate_tmp.pl:117
 msgid "No subwindow detected"
 msgstr ""
 
-#: translate_tmp.pl:111
+#: translate_tmp.pl:118
 msgid ""
 "Maybe this window is using client-side windows (or similar).\n"
 "Shutter is not yet able to query the tree information of such windows."
@@ -2708,6 +2753,9 @@ msgstr ""
 #~ msgid "Gtk2::ImageView needs to be installed for this feature"
 #~ msgstr "Gtk2::必須安裝 ImageView 才可以使用此項功能"
 
+#~ msgid "Timeout"
+#~ msgstr "時間延遲"
+
 #~ msgid "Screenshot failed!"
 #~ msgstr "擷圖錯誤！"
 
@@ -2778,6 +2826,9 @@ msgstr ""
 
 #~ msgid "<i>Text</i>"
 #~ msgstr "<i>內容</i>"
+
+#~ msgid "The timeout in seconds, or 0 to disable timeout"
+#~ msgstr "時間倒數單位為秒，或設定 0 取消倒數"
 
 #~ msgid "Please wait while your saved session is being restored"
 #~ msgstr "請稍等一下，正在恢復您的設定..."
