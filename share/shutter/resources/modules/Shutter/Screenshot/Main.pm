@@ -395,7 +395,7 @@ sub include_cursor {
 				my $b = ($argb >> 0)  & 0xFF;
 				$pos += 4;
 				
-				print "r:$r,g:$g,b:$b,a:$a\n";
+				#~ print "r:$r,g:$g,b:$b,a:$a\n";
 				
 				$r = ($r * 255) / $a if($a);
 				$g = ($g * 255) / $a if($a);

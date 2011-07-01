@@ -298,10 +298,14 @@ sub get_shape {
 
 	print "Calculating window shape\n" if $self->{_sc}->get_debug;
 
-	my ($ordering, @r) = $self->{_x11}->ShapeGetRectangles($self->find_wm_window($xid), 'Bounding');
+	#check if extenstion is available and use it
+	my ($ordering, @r) = (undef, undef);
+	if($self->{_x11}{ext_shape}){
+		($ordering, @r) = $self->{_x11}->ShapeGetRectangles($self->find_wm_window($xid), 'Bounding');
+	}
 	
 	my $manually_shaped = FALSE;
-	#create shape manually when option is set
+	#create shape manually when option is set and the shape was not detected automatically
 	if (scalar @r <= 1 && defined $self->{_auto_shape} && $self->{_auto_shape}){
 		
 		my $shf = Shutter::App::HelperFunctions->new( $self->{_sc} );
@@ -951,7 +955,7 @@ sub window {
 					$output = $output_new;
 												
 					#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
-					if($self->{_x11}{ext_shape} && $self->{_include_border}){
+					if($self->{_include_border}){
 						my $xid = $self->{_c}{ 'cw' }{ 'gdk_window' }->get_xid;
 						#do not try this for child windows
 						foreach my $win ($self->{_wnck_screen}->get_windows){
@@ -1099,7 +1103,7 @@ sub window {
 		#(metacity for example - does not work with compiz currently)
 		#only if toplevel window was selected
 		if ( ( $self->{_mode} eq "window" || $self->{_mode} eq "tray_window" ||  $self->{_mode} eq "awindow"  || $self->{_mode} eq "tray_awindow" ) ) {
-			if($self->{_x11}{ext_shape} && $self->{_include_border}){
+			if($self->{_include_border}){
 				my $xid = $self->{_c}{ 'cw' }{ 'gdk_window' }->get_xid;
 				#do not try this for child windows
 				foreach my $win ($self->{_wnck_screen}->get_windows){
@@ -1250,7 +1254,9 @@ sub redo_capture {
 				$output = $output_new;
 
 				if($self->{_mode} eq "window" || $self->{_mode} eq "tray_window" || $self->{_mode} eq "awindow" || $self->{_mode} eq "tray_awindow"){
-					$output = $self->get_shape($gxid, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);
+					if($self->{_include_border}){
+						$output = $self->get_shape($gxid, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);
+					}
 				}
 				
 				#restore window size when autoresizing was used
