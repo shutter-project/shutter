@@ -53,7 +53,6 @@ use POSIX qw/ strftime /;
 
 #File operations
 use File::Copy qw/ cp mv /;
-use File::Path qw/ rmtree /;
 use File::Glob qw/ glob /;
 use File::Basename qw/ fileparse dirname basename /;
 use File::Temp qw/ tempfile tempdir /;
@@ -93,9 +92,9 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1091';
+use constant SHUTTER_REV		=> 'Rev.1092';
 use constant SHUTTER_NAME		=> 'Shutter';
-use constant SHUTTER_VERSION	=> '0.87.3';
+use constant SHUTTER_VERSION	=> '0.88';
 
 #--------------------------------------
 
@@ -9345,28 +9344,6 @@ if ($app->is_running) {
 	}
 
 	sub fct_init_environment {
-		
-		#an old .shutter file existing?
-		unlink("$ENV{ 'HOME' }/.shutter")
-			if ( $shf->file_exists("$ENV{ 'HOME' }/.shutter") );
-
-		#an old .shutter/settings.conf file existing?
-		unlink("$ENV{ 'HOME' }/.shutter/settings.conf")
-			if ( $shf->file_exists("$ENV{ 'HOME' }/.shutter/settings.conf") );
-
-
-		#migrate from gscrot to shutter
-		#if an .gscrot folder exists in the home dir
-		#we copy the contents to a newly created .shutter
-		#folder
-		if(-d "$ENV{ 'HOME' }/.gscrot"){
-			if(File::Copy::Recursive::dircopy("$ENV{ 'HOME' }/.gscrot", "$ENV{ 'HOME' }/.shutter")){
-				print "INFO: successfully copied all files from .gscrot to .shutter...\n\n";
-				rmtree("$ENV{ 'HOME' }/.gscrot");
-			}else{
-				die $!;	
-			}
-		}
 
 		#is there already a .shutter folder?
 		mkdir("$ENV{ 'HOME' }/.shutter")
