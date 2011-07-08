@@ -580,17 +580,6 @@ sub fct_ret_actions_menu{
 	
 	$self->{_menu_actions} = Gtk2::Menu->new();
 
-	#~ $self->{_menuitem_reopen_default} = Gtk2::ImageMenuItem->new_with_mnemonic( 
-			#~ sprintf( $d->get('_Open with %s'), ''),
- 		#~ );
-	$self->{_menuitem_reopen_default} = Gtk2::ImageMenuItem->new_with_mnemonic( 
-			$d->get('_Open with default application')
- 		);
-	$self->{_menuitem_reopen_default}->set_image( Gtk2::Image->new_from_stock( 'gtk-open', 'menu' ) );
-	$self->{_menuitem_reopen_default}->set_sensitive(FALSE);
-	$self->{_menuitem_reopen_default}->set_name('item-reopen-default');
-	$self->{_menu_actions}->append( $self->{_menuitem_reopen_default} );
-
 	$self->{_menuitem_reopen} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Open wit_h') );
 	$self->{_menuitem_reopen}->set_image( Gtk2::Image->new_from_stock( 'gtk-open', 'menu' ) );
 	$self->{_menuitem_reopen}->set_sensitive(FALSE);
@@ -687,17 +676,6 @@ sub fct_ret_actions_menu_large{
 	my $icontheme = $self->{_common}->get_theme;
 	
 	$self->{_menu_large_actions} = Gtk2::Menu->new();
-
-	#~ $self->{_menuitem_large_reopen_default} = Gtk2::ImageMenuItem->new_with_mnemonic( 
-			#~ sprintf( $d->get('_Open with %s'), ''),
- 		#~ );
-	$self->{_menuitem_large_reopen_default} = Gtk2::ImageMenuItem->new_with_mnemonic( 
-			$d->get('_Open with default application')
- 		);
-	$self->{_menuitem_large_reopen_default}->set_image( Gtk2::Image->new_from_stock( 'gtk-open', 'menu' ) );
-	$self->{_menuitem_large_reopen_default}->set_sensitive(FALSE);
-	$self->{_menuitem_large_reopen_default}->set_name('item-large-reopen-default');
-	$self->{_menu_large_actions}->append( $self->{_menuitem_large_reopen_default} );
 
 	$self->{_menuitem_large_reopen} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Open wit_h') );
 	$self->{_menuitem_large_reopen}->set_image( Gtk2::Image->new_from_stock( 'gtk-open', 'menu' ) );

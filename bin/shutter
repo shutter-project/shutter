@@ -92,7 +92,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1092';
+use constant SHUTTER_REV		=> 'Rev.1093';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -129,9 +129,6 @@ require File::Which;
 
 #Perl extension for recursively copying files and directories (Thanks to Daniel Muey)
 require File::Copy::Recursive;
-
-#Find programs to open a file by mimetype
-require File::MimeInfo::Applications;
 
 #--------------------------------------
 
@@ -3590,8 +3587,6 @@ if ($app->is_running) {
 			$sm->{_menuitem_zoom_best}->set_sensitive($n_items);
 		
 			#screenshot
-			$sm->{_menuitem_reopen_default}->visible($n_items);
-			$sm->{_menuitem_reopen_default}->set_sensitive($n_items);
 			$sm->{_menuitem_reopen}->set_sensitive($n_items);
 			$sm->{_menuitem_show_in_folder}->set_sensitive($n_items);
 			$sm->{_menuitem_rename}->set_sensitive($n_items);
@@ -3633,8 +3628,6 @@ if ($app->is_running) {
 			}
 			
 			#right-click menu
-			#~ $sm->{_menuitem_large_reopen_default}->visible($n_items);
-			#~ $sm->{_menuitem_large_reopen_default}->set_sensitive($n_items);
 			$sm->{_menuitem_large_reopen}->set_sensitive($n_items);
 			$sm->{_menuitem_large_show_in_folder}->set_sensitive($n_items);
 			$sm->{_menuitem_large_rename}->set_sensitive($n_items);
@@ -5065,102 +5058,59 @@ if ($app->is_running) {
 	sub fct_get_program_model {
 		my $model = Gtk2::ListStore->new( 'Gtk2::Gdk::Pixbuf', 'Glib::String', 'Glib::Scalar' );
 
-		my $traytheme = $sc->get_theme;
-
 		#add Shutter's built-in editor to the list
 		if($goocanvas){
-			my $tray_pixbuf = undef;
-			my $tray_name = 'shutter';
-			if ( $traytheme->has_icon( $tray_name ) ) {
+			my $icon_pixbuf = undef;
+			my $icon = 'shutter';
+			if ( $sc->get_theme->has_icon( $icon ) ) {
 				my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
 				eval{
-					$tray_pixbuf = $traytheme->load_icon( $tray_name, $ih, 'generic-fallback' );
+					$icon_pixbuf = $sc->get_theme->load_icon( $icon, $ih, 'generic-fallback' );
 				};
 				if($@){
-					print "\nWARNING: Could not load icon $tray_name: $@\n";
-					$tray_pixbuf = undef;
+					print "\nWARNING: Could not load icon $icon: $@\n";
+					$icon_pixbuf = undef;
 				}						
 			}	
-			$model->set( $model->append, 0, $tray_pixbuf, 1, $d->get("Built-in Editor"), 2, 'shutter-built-in' );
+			$model->set( $model->append, 0, $icon_pixbuf, 1, $d->get("Built-in Editor"), 2, 'shutter-built-in' );
 		}
 
-		#Get all installed apps
-		#FIXME - use png as default mime type (is this clever enough?)
-		my ( $default, @mapps ) = File::MimeInfo::Applications::mime_applications('image/png');
-		
-		#currently we use File::MimeInfo::Applications and Gnome2::VFS::Mime::Type
-		#because of the following error
-		#
-		#libgnomevfs-WARNING **: 
-		#Cannot call gnome_vfs_mime_application_get_icon 
-		#with a GNOMEVFSMimeApplication structure constructed 
-		#by the deprecated application registry 
+		#get applications
 		my $mime_type = Gnome2::VFS::Mime::Type->new ('image/png');
 		my @apps = $mime_type->get_all_applications();
 
-		#get some other apps that may be capable (e.g. browsers)
-		my $mime_type_fallback = Gnome2::VFS::Mime::Type->new ('text/html');
-		foreach my $all_app ($mime_type_fallback->get_all_applications()){
-			my $already_in_list = FALSE;
-			foreach my $existing_app (@apps){
-				if($all_app->{'id'} eq $existing_app->{'id'}){
-					$already_in_list = TRUE;
-					last;
+		#no apps determined!
+		unless (scalar @apps){
+			return $model;
+		}
+		
+		#create menu items
+		foreach my $app (@apps) {
+			#ignore Shutter's desktop entry
+			next if $app->{'id'} eq 'shutter.desktop';
+			
+			$app->{'name'} = $shf->utf8_decode($app->{'name'});
+			
+			#get icon
+			my $icon_pixbuf = undef;
+			my $icon = $app->get_icon;
+			if($icon){
+				#cut image formats
+				$icon =~ s/(.png|.svg|.gif|.jpeg|.jpg|.xpm)//g;
+				if ( $sc->get_theme->has_icon( $icon ) ) {
+					my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
+					eval{
+						$icon_pixbuf = $sc->get_theme->load_icon( $icon, $ih, 'generic-fallback' );
+					};
+					if($@){
+						print "\nWARNING: Could not load icon $icon: $@\n";
+						$icon_pixbuf = undef;	
+					}
 				}
 			}
-			push @apps, $all_app unless $already_in_list;
+			$model->set( $model->append, 0, $icon_pixbuf, 1, $app->{'name'}, 2, $app );
 		}
-			
-		#no app determined!
-		unless (scalar @apps && scalar @mapps){
-			return $model;			
-		}
-
-		#find icon and app
-		#we use File::DesktopEntry instead of the Gnome one
-		#for opening files
-		foreach my $mapp (@mapps){
-			foreach my $app (@apps){
-
-				#~ print "checking ", $app->{'name'}, " for preferences\n";
-
-				#ignore Shutter's desktop entry
-				next if $app->{'id'} eq 'shutter.desktop';
-				
-				$app->{'name'} = $shf->utf8_decode($app->{'name'});
-				
-				#FIXME - kde apps do not support the freedesktop standards (.desktop files)
-				#we simply cut the kde* / kde4* substring here
-				#is it possible to get the wrong app if there 
-				#is the kde3 and the kde4 version of an app installed?
-				#
-				#I think so ;-)
-				$app->{'id'} =~ s/^(kde4|kde)-//g;
-				if($mapp->{'file'} =~ m/$app->{'id'}/){
-					my $tray_pixbuf = undef;
-					my $tray_name = $mapp->Icon;
-					if($tray_name){
-						#cut image formats
-						$tray_name =~ s/(.png|.svg|.gif|.jpeg|.jpg)//g;				
-						if ( $traytheme->has_icon( $tray_name ) ) {
-							my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
-							eval{
-								$tray_pixbuf = $traytheme->load_icon( $tray_name, $ih, 'generic-fallback' );
-							};
-							if($@){
-								print "\nWARNING: Could not load icon $tray_name: $@\n";
-								$tray_pixbuf = undef;	
-							}						
-						}
-					}else{
-						$tray_pixbuf = undef;
-					}
-					$model->set( $model->append, 0, $tray_pixbuf, 1, $app->{'name'}, 2, $mapp );
-					last;
-				}	
-			}
-		}
-
+		
 		return $model;
 	}
 
@@ -6913,56 +6863,43 @@ if ($app->is_running) {
 	}
 
 	sub fct_open_with_program {
-		my $dentry 		= shift;
-		my $trans_name 	= shift;
+		my $app = shift;
 
 		#no program set - exit
-		return FALSE unless $dentry;
-
-		#trans_name is optional here,
-		#we use the name of the desktop entry if 
-		#trans_name is not present
-		my $name = $trans_name || $dentry->Name;
+		return FALSE unless $app;
 
 		my $key = &fct_get_current_file;
 
-		my $exec_call;
 		#single file
 		if ($key) {
 
 			return FALSE unless &fct_screenshot_exists($key);
 			
-			if($dentry =~ /shutter-built-in/){
-				
+			#built-in-editor
+			if($app =~ /shutter/){
 				&fct_draw();
-
-				&fct_show_status_message( 1, sprintf($d->get("%s opened with %s"), $session_screens{$key}->{'long'}, $d->get("Built-in Editor")) );
-				
+				&fct_show_status_message( 1, sprintf($d->get("%s opened with %s"), $session_screens{$key}->{'short'}, $d->get("Built-in Editor")) );
 			}else{
-				
 				#everything is fine -> open it
-				if ( $dentry->wants_uris ) {
-					$exec_call = $dentry->parse_Exec( $session_screens{$key}->{'uri'}->to_string );
+				if ( $app->supports_uris ) {
+					$app->launch( $session_screens{$key}->{'uri'}->to_string );
 				} else {
-					$exec_call = $dentry->parse_Exec( $session_screens{$key}->{'long'} );
+					$app->launch( $session_screens{$key}->{'long'} );
 				}
-
-				&fct_show_status_message( 1, sprintf($d->get("%s opened with %s"), $session_screens{$key}->{'long'}, $name) );
-
+				&fct_show_status_message( 1, sprintf($d->get("%s opened with %s"), $session_screens{$key}->{'short'}, $app->{'name'}) );
 			}		
 
-			#session tab
+		#session tab
 		} else {
 
 			my @open_files;
-
 			$session_start_screen{'first_page'}->{'view'}->selected_foreach(
 				sub {
 					my ( $view, $path ) = @_;
 					my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
 					if ( defined $iter ) {
 						my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
-						if ( $dentry->wants_uris ) {
+						if ( $app->supports_uris ) {
 							push @open_files, $session_screens{$key}->{'uri'}->to_string;
 						} else {
 							push @open_files, $session_screens{$key}->{'long'};
@@ -6972,24 +6909,11 @@ if ($app->is_running) {
 				undef
 			);
 			if ( @open_files > 0 ) {
-				if ( $dentry->wants_list ) {
-					$exec_call = $dentry->parse_Exec(@open_files);
-				} else {
-					foreach my $file (@open_files) {
-						$exec_call .= $dentry->parse_Exec($file) . ";";
-					}
-				}
-				&fct_show_status_message( 1, $d->get("Opened all files with") . " " . $name );
+				$app->launch(@open_files);
+				&fct_show_status_message( 1, $d->get("Opened all files with") . " " . $app->{'name'} );
 			}
 		}
 
-		if ($exec_call) {
-			foreach my $cmd ( split /;/, $exec_call ) {
-				print Dumper $cmd . " &" if $sc->get_debug;
-				system( $cmd . " &" );
-			}
-		}
-		
 		return TRUE;
 	}
 
@@ -8609,10 +8533,7 @@ if ($app->is_running) {
 	}
 
 	sub fct_ret_program_menu {
-		#FIXME - this whole sub is weird ;-)
 		my $menu_programs = shift;
-		
-		my $traytheme = $sc->get_theme;
 		
 		$menu_programs = Gtk2::Menu->new unless defined $menu_programs;
 		foreach my $child ($menu_programs->get_children){
@@ -8644,8 +8565,6 @@ if ($app->is_running) {
 
 		#still no key? => leave sub
 		unless( $key ){
-			$sm->{_menuitem_reopen_default}->visible(FALSE);
-			$sm->{_menuitem_large_reopen_default}->visible(FALSE);
 			$sm->{_menuitem_reopen}->set_sensitive(FALSE);
 			$sm->{_menuitem_large_reopen}->set_sensitive(FALSE);
 			return $menu_programs;		
@@ -8653,65 +8572,30 @@ if ($app->is_running) {
 
 		#no valid hash entry?
 		unless (exists $session_screens{$key}->{'mime_type'}){
-			$sm->{_menuitem_reopen_default}->visible(FALSE);
-			$sm->{_menuitem_large_reopen_default}->visible(FALSE);
 			$sm->{_menuitem_reopen}->set_sensitive(FALSE);
 			$sm->{_menuitem_large_reopen}->set_sensitive(FALSE);
 			return $menu_programs;	
 		}
 
-		#determine apps registered with that mime type	
-		my ( $default, @mapps ) = File::MimeInfo::Applications::mime_applications( $session_screens{$key}->{'mime_type'} );
-		
-		#currently we use File::MimeInfo::Applications and Gnome2::VFS::Mime::Type
-		#because of the following error
-		#
-		#libgnomevfs-WARNING **: 
-		#Cannot call gnome_vfs_mime_application_get_icon 
-		#with a GNOMEVFSMimeApplication structure constructed 
-		#by the deprecated application registry 
+		#get applications
 		my $mime_type = Gnome2::VFS::Mime::Type->new ($session_screens{$key}->{'mime_type'});
 		my @apps = $mime_type->get_all_applications();
 
-		#get some other apps that may be capable (e.g. browsers)	
-		my $mime_type_fallback = Gnome2::VFS::Mime::Type->new ('text/html');
-		foreach my $all_app ($mime_type_fallback->get_all_applications()){
-			my $already_in_list = FALSE;
-			foreach my $existing_app (@apps){
-				if($all_app->{'id'} eq $existing_app->{'id'}){
-					$already_in_list = TRUE;
-					last;
-				}
-			}
-			push @apps, $all_app unless $already_in_list;
-		}
-		
-		#no app determined!
-		unless (scalar @apps && scalar @mapps){
-			$sm->{_menuitem_reopen_default}->visible(FALSE);
-			$sm->{_menuitem_large_reopen_default}->visible(FALSE);
+		#no apps determined!
+		unless (scalar @apps){
 			$sm->{_menuitem_reopen}->set_sensitive(FALSE);
 			$sm->{_menuitem_large_reopen}->set_sensitive(FALSE);
 			return $menu_programs;			
 		}
-
-		#no default app determined!
-		unless ($default){
-			$sm->{_menuitem_reopen_default}->visible(FALSE);					
-			$sm->{_menuitem_large_reopen_default}->visible(FALSE);					
-		}
 		
-		my $default_matched = FALSE;
+		#create menu items
 		foreach my $app (@apps) {
-			
-			#~ print "checking ", $app->{'name'}, " for open with dialog\n";
-			
 			#ignore Shutter's desktop entry
 			next if $app->{'id'} eq 'shutter.desktop';
 			
 			$app->{'name'} = $shf->utf8_decode($app->{'name'});
 			
-			#FIXME - kde apps do not support the freedesktop standards (.desktop files)
+			#FIXME
 			#we simply cut the kde* / kde4* substring here
 			#is it possible to get the wrong app if there 
 			#is the kde3 and the kde4 version of an app installed?
@@ -8719,152 +8603,48 @@ if ($app->is_running) {
 			#I think so ;-)
 			$app->{'id'} =~ s/^(kde4|kde)-//g;
 
-			my $program_item = undef; 
-			my $program_large_item = undef; 
+			my $program_item = Gtk2::ImageMenuItem->new_with_label( $app->{'name'} );
+			$program_item->set('always_show_image' => TRUE) if Gtk2->CHECK_VERSION( 2, 16, 0 );	
+			$menu_programs->append($program_item);	
 			
-			#default app
-			if($default && $default->{'file'} =~ m/$app->{'id'}/){
-				
-				#set flag
-				$default_matched = TRUE;
-				
-				#remove old handler
-				#strange things happen when we do not remove it
-				if(exists $sm->{_menuitem_reopen_default}{hid} 
-					&& $sm->{_menuitem_reopen_default}->signal_handler_is_connected($sm->{_menuitem_reopen_default}{hid}))
-				{
-					$sm->{_menuitem_reopen_default}->signal_handler_disconnect($sm->{_menuitem_reopen_default}{hid});
-				}
-				
-				#remove old handler from large menu
-				if(exists $sm->{_menuitem_large_reopen_default}{hid} 
-					&& $sm->{_menuitem_large_reopen_default}->signal_handler_is_connected($sm->{_menuitem_large_reopen_default}{hid}))
-				{
-					$sm->{_menuitem_large_reopen_default}->signal_handler_disconnect($sm->{_menuitem_large_reopen_default}{hid});
-				}
-				
-				$program_item = $sm->{_menuitem_reopen_default};
-				$program_item->{'default'} = TRUE;
-				
-				$program_large_item = $sm->{_menuitem_large_reopen_default};
-				$program_large_item->{'default'} = TRUE;
-
-				#show always an icon
-				$program_item->set('always_show_image' => TRUE) if Gtk2->CHECK_VERSION( 2, 16, 0 );	
-				$program_large_item->set('always_show_image' => TRUE) if Gtk2->CHECK_VERSION( 2, 16, 0 );	
-				
-				$sm->{_menuitem_reopen_default}->visible(TRUE);
-				$sm->{_menuitem_reopen_default}->set_sensitive(TRUE);
-				$sm->{_menuitem_reopen_default}->show;
-				
-				$sm->{_menuitem_large_reopen_default}->visible(TRUE);
-				$sm->{_menuitem_large_reopen_default}->set_sensitive(TRUE);
-				$sm->{_menuitem_large_reopen_default}->show;
-
-				#~ #change label of the default app entry
-				#~ $sm->{_menuitem_reopen_default}->foreach (sub {
-					#~ if($_[0] =~ /Gtk2::AccelLabel/){
-						#~ $_[0]->set_label(sprintf( $d->get("_Open with %s"), "'".$app->{'name'}."'"));
-						#~ return;
-					#~ }
-				#~ });	
-
-				#~ #change label of the default app entry - large menu
-				#~ $sm->{_menuitem_large_reopen_default}->foreach (sub {
-					#~ if($_[0] =~ /Gtk2::AccelLabel/){
-						#~ $_[0]->set_label(sprintf( $d->get("_Open with %s"), "'".$app->{'name'}."'"));
-						#~ return;
-					#~ }
-				#~ });	
+			my $icon = $app->get_icon;
+			if($icon){
+				#cut image formats
+				$icon =~ s/(.png|.svg|.gif|.jpeg|.jpg|.xpm)//g;
+				if ( $sc->get_theme->has_icon( $icon ) ) {
+					my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
 					
-			#other apps			
-			}else{
-				$program_item = Gtk2::ImageMenuItem->new_with_label( $app->{'name'} );
-				$program_item->set('always_show_image' => TRUE) if Gtk2->CHECK_VERSION( 2, 16, 0 );	
-				$menu_programs->append($program_item);
-			}
-
-			#find icon and app
-			#we use File::DesktopEntry instead of the Gnome one
-			#for opening files
-			my $oapp = undef; 
-			foreach my $mapp (@mapps){
-				if($mapp->{'file'} =~ m/$app->{'id'}/){
-					$oapp = $mapp;
-					last;	
-				}	
-			}
-		
-			#match found!
-			if ($oapp){
-				my $tray_name = $oapp->Icon;
-				if($tray_name){
-					#cut image formats
-					$tray_name =~ s/(.png|.svg|.gif|.jpeg|.jpg)//g;
-					if ( $traytheme->has_icon( $tray_name ) ) {
-						my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
-						
-						my $tray_pixbuf = undef;
-						eval{
-							$tray_pixbuf = $traytheme->load_icon( $tray_name, $ih, 'generic-fallback' );
-						};
-						if($@){
-							print "\nWARNING: Could not load icon $tray_name: $@\n";
-							$tray_pixbuf = undef;	
-						}	
-						
-						if($program_item){
-							$program_item->set_image( Gtk2::Image->new_from_pixbuf($tray_pixbuf) );
-						}
-						
-						if($program_large_item){
-							$program_large_item->set_image( Gtk2::Image->new_from_pixbuf($tray_pixbuf) );
-						}
+					my $icon_pixbuf = undef;
+					eval{
+						$icon_pixbuf = $sc->get_theme->load_icon( $icon, $ih, 'generic-fallback' );
+					};
+					if($@){
+						print "\nWARNING: Could not load icon $icon: $@\n";
+						$icon_pixbuf = undef;	
+					}	
+					
+					if($program_item){
+						$program_item->set_image( Gtk2::Image->new_from_pixbuf($icon_pixbuf) );
 					}
 				}
-				
-				my $hid;
-				if($program_item){
-					$hid = $program_item->signal_connect(
-						'activate' => sub {
-							&fct_open_with_program($oapp, $app->{'name'});
-						}
-					);
-				}
-				
-				my $hid_large;
-				if($program_large_item){
-					$hid_large = $program_large_item->signal_connect(
-						'activate' => sub {
-							&fct_open_with_program($oapp, $app->{'name'});
-						}
-					);
-				}
-				
-				#save hid when default app
-				#to remove the handler next time we open the menu
-				$sm->{_menuitem_reopen_default}{hid} = $hid if $program_item->{'default'};
-				$sm->{_menuitem_large_reopen_default}{hid} = $hid_large if $program_large_item->{'default'};
-				
-			#no match found -> destroy current menu entry		
-			}else{
-				$program_item->destroy;
-			}		
-			
-		} #end foreach	
-		
-		#no default app matched!
-		unless($default_matched){
-			$sm->{_menuitem_reopen_default}->visible(FALSE);	
-			$sm->{_menuitem_large_reopen_default}->visible(FALSE);	
+			}				
+
+			#connect to signal	
+			if($program_item){
+				$program_item->signal_connect(
+					'activate' => sub {
+						&fct_open_with_program($app, $app->{'name'});
+					}
+				);
+			}
 		}
-		
+
 		#menu does not contain any item
 		unless($menu_programs->get_children){
 			$sm->{_menuitem_reopen}->set_sensitive(FALSE);
 			$sm->{_menuitem_large_reopen}->set_sensitive(FALSE);
 		}
-		
+
 		$menu_programs->show_all;
 		return $menu_programs;
 	}
