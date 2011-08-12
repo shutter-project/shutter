@@ -92,7 +92,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1095';
+use constant SHUTTER_REV		=> 'Rev.1096';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -344,7 +344,9 @@ if ($app->is_running) {
 	#data structures
 	#--------------------------------------
 	my %plugins;        #hash to store plugin infos
+	my %upload_plugins; #hash to store upload plugin infos
 	my %accounts;       #hash to store account infos
+	my %accounts_xml;   #hash to store last account xml
 	my %settings;       #hash to store settings
 
 	#HELPERS
@@ -800,6 +802,13 @@ if ($app->is_running) {
 	#not used in a standalone environment
 	unless($ENV{PAR_TEMP}){
 		&fct_check_installed_plugins;
+	}
+
+	#check upload plugins
+	#--------------------------------------
+	#not used in a standalone environment
+	unless($ENV{PAR_TEMP}){
+		&fct_check_installed_upload_plugins;
 	}
 
 	$vbox->pack_start( $st->create_toolbar, FALSE, TRUE, 0 );
@@ -5122,45 +5131,20 @@ if ($app->is_running) {
 		$accountsfile = "$ENV{ HOME }/.shutter/profiles/$profilename\_accounts.xml"
 			if ( defined $profilename );
 
-		my $accounts_xml;
-		eval { $accounts_xml = XMLin( IO::File->new($accountsfile) ) if $shf->file_exists($accountsfile); };
+		eval { %accounts_xml = XMLin( IO::File->new($accountsfile) ) if $shf->file_exists($accountsfile); };
 
 		if ($@) {
 			$sd->dlg_error_message( $@, $d->get("Account-settings could not be restored!") );
 			unlink $accountsfile;
 		}
 
-		#account data, load defaults if nothing is set
-		unless ( exists( $accounts_xml->{'imageshack.us'} ) ) {
-			$accounts{'imageshack.us'}->{host}     = "imageshack.us";
-			$accounts{'imageshack.us'}->{username} = "";
-			$accounts{'imageshack.us'}->{password} = "";
-		} else {
-			$accounts{'imageshack.us'}->{host}     = $accounts_xml->{'imageshack.us'}->{host};
-			$accounts{'imageshack.us'}->{username} = $accounts_xml->{'imageshack.us'}->{username};
-			$accounts{'imageshack.us'}->{password} = $accounts_xml->{'imageshack.us'}->{password};
-		}
-
-		$accounts{'imageshack.us'}->{register} = "http://my.imageshack.us/registration/";
-
-		unless ( exists( $accounts_xml->{'imagebanana.com'} ) ) {
-			$accounts{'imagebanana.com'}->{host}     = "imagebanana.com";
-			$accounts{'imagebanana.com'}->{username} = "";
-			$accounts{'imagebanana.com'}->{password} = "";
-		} else {
-			$accounts{'imagebanana.com'}->{host}     = $accounts_xml->{'imagebanana.com'}->{host};
-			$accounts{'imagebanana.com'}->{username} = $accounts_xml->{'imagebanana.com'}->{username};
-			$accounts{'imagebanana.com'}->{password} = $accounts_xml->{'imagebanana.com'}->{password};
-		}
-
-		$accounts{'imagebanana.com'}->{register} = "http://www.imagebanana.com/register/";
-
-		foreach my $ac ( keys %accounts ) {
-			utf8::decode $accounts{$ac}->{'host'};
-			utf8::decode $accounts{$ac}->{'username'};
-			utf8::decode $accounts{$ac}->{'password'};
-			$accounts{$ac}->{'register_color'} = "blue";
-			$accounts{$ac}->{'register_text'}  = $accounts{$ac}->{register};
+		foreach ( keys %accounts ) {
+			utf8::decode $accounts{$_}->{'host'};
+			utf8::decode $accounts{$_}->{'username'};
+			utf8::decode $accounts{$_}->{'password'};
+			$accounts{$_}->{'register_color'} = "blue";
+			#~ $accounts{$_}->{'register_text'}  = $d->get("click me");
+			$accounts{$_}->{'register_text'}  = $accounts{$_}->{register};
 		}
 
 		return TRUE;
@@ -8073,6 +8057,135 @@ if ($app->is_running) {
 		return $plugin_info;
 	}
 
+	sub fct_check_installed_upload_plugins {
+
+		my $upload_plugin_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/], 'info', 'close', $d->get("Updating upload plugins information") );
+		$upload_plugin_dialog->{destroyed} = FALSE;
+
+		$upload_plugin_dialog->set_title("Shutter");
+		
+		$upload_plugin_dialog->set( 'secondary-text' => $d->get("Please wait while Shutter updates the upload plugin sites information") . "." );
+
+		$upload_plugin_dialog->signal_connect( response => sub { $upload_plugin_dialog->{destroyed} = TRUE; $_[0]->destroy; } );
+		
+		$upload_plugin_dialog->set_resizable(TRUE);
+
+		my $upload_plugin_progress = Gtk2::ProgressBar->new;
+		$upload_plugin_progress->set_no_show_all(TRUE);
+		$upload_plugin_progress->set_ellipsize('middle');
+		$upload_plugin_progress->set_orientation('left-to-right');
+		$upload_plugin_progress->set_fraction(0);
+
+		$upload_plugin_dialog->vbox->add($upload_plugin_progress);
+		
+		my @upload_plugin_paths = ( "$shutter_root/share/shutter/resources/system/upload_plugins/*/*", "$ENV{'HOME'}/.shutter/plugins/*/*" );
+
+		#fallback icon
+		# maybe the plugin 
+		# does not provide a custom icon
+		# FIXME: Add a fallback icon for upload_plugin service
+		my $fb_pixbuf_path 	= "$shutter_root/share/shutter/resources/icons/executable.svg";
+		my $fb_pixbuf		= Gtk2::Gdk::Pixbuf->new_from_file_at_size( $fb_pixbuf_path, Gtk2::IconSize->lookup('menu') );
+
+		foreach my $upload_plugin_path (@upload_plugin_paths) {
+			my @upload_plugins = glob($upload_plugin_path);
+			foreach (@upload_plugins) {
+				# Checking if file exists. Why did we use -d in fct_check_installed_plugins?
+				if ( -e $_ ) {
+					my $dir_name = $_;
+
+					#parse filename
+					my ( $name, $folder, $type ) = fileparse( $dir_name, qr/\.[^.]*/ );
+												
+					unless ( $upload_plugins{$_}->{'module'} 
+						&& $upload_plugins{$_}->{'url'}
+						&& $upload_plugins{$_}->{'name'}
+						&& $upload_plugins{$_}->{'folder'}
+						&& $upload_plugins{$_}->{'description'}
+					) {
+													
+						#show dialog and progress bar
+						if(!$upload_plugin_dialog->window && !$upload_plugin_dialog->{destroyed}){
+							$upload_plugin_progress->show;
+							$upload_plugin_dialog->show_all;
+						}
+						
+						# Module Name
+						$upload_plugins{$_}->{'module'} = &fct_upload_plugin_get_info( $dir_name, 'module' ); 				
+						# URL
+						$upload_plugins{$_}->{'url'} = &fct_upload_plugin_get_info( $dir_name, 'url' ); 
+						#Registration URL
+						$upload_plugins{$_}->{'registration'} = &fct_upload_plugin_get_info( $dir_name, 'registration' ); 
+						# Name
+						$upload_plugins{$_}->{'name'} = &fct_upload_plugin_get_info( $dir_name, 'name' );
+						# Folder
+						$upload_plugins{$_}->{'folder'} = $folder;
+						# Description
+						$upload_plugins{$_}->{'description'} = &fct_plugin_get_info( $dir_name, 'description' );
+						my $new_plugin_name = $upload_plugins{$_}->{'name'};
+						
+						#refresh the progressbar
+						$upload_plugin_progress->pulse;
+						$upload_plugin_progress->set_text("Upload plugins");
+						
+						#~ print $new_plugin_name, "\n";
+						
+						# Loading accounts data
+						unless ( exists( %accounts_xml->{$new_plugin_name} ) ) {
+							$accounts{$new_plugin_name}->{host}     = $upload_plugins{$_}->{'url'};
+							$accounts{$new_plugin_name}->{username} = "";
+							$accounts{$new_plugin_name}->{password} = "";
+							$accounts{$new_plugin_name}->{module}   = $upload_plugins{$_}->{'module'};
+							$accounts{$new_plugin_name}->{folder}   = $upload_plugins{$_}->{'folder'};
+						} else {
+							$accounts{$new_plugin_name}->{host}     = %accounts_xml->{$new_plugin_name}->{host};
+							$accounts{$new_plugin_name}->{username} = %accounts_xml->{$new_plugin_name}->{username};
+							$accounts{$new_plugin_name}->{password} = %accounts_xml->{$new_plugin_name}->{password};
+							$accounts{$new_plugin_name}->{module}   = %accounts_xml->{$new_plugin_name}->{module};
+							$accounts{$new_plugin_name}->{folder}   = %accounts_xml->{$new_plugin_name}->{folder};
+						}
+
+						#refresh gui
+						&fct_update_gui;
+
+						chomp( $upload_plugins{$_}->{'url'} );
+						chomp( $upload_plugins{$_}->{'name'} );
+						chomp( $upload_plugins{$_}->{'registration'} );
+						chomp( $upload_plugins{$_}->{'description'} );
+						chomp( $upload_plugins{$_}->{'folder'} );
+						chomp( $upload_plugins{$_}->{'module'} );
+							
+					} 
+				
+				}
+			}
+
+			# reformat accounts data
+			foreach ( keys %accounts ) {
+				utf8::decode $accounts{$_}->{'host'};
+				utf8::decode $accounts{$_}->{'username'};
+				utf8::decode $accounts{$_}->{'password'};
+				$accounts{$_}->{'register_color'} = "blue";
+				#~ $accounts{$_}->{'register_text'}  = $d->get("click me");
+				$accounts{$_}->{'register_text'}  = $accounts{$_}->{register};
+			}
+		}
+
+		#destroys the upload_plugin dialog
+		$upload_plugin_dialog->response('ok');
+
+		return TRUE;
+	}
+
+	sub fct_upload_plugin_get_info {
+		my ( $upload_plugin, $info ) = @_;
+
+		my $upload_plugin_info = `$upload_plugin $info`;
+		utf8::decode $upload_plugin_info;
+		
+		return $upload_plugin_info;
+	}
+
 	sub fct_iter_programs {
 		my ( $model, $path, $iter, $search_for ) = @_;
 		my $progname_value = $model->get_value( $iter, 1 );
@@ -8738,17 +8851,23 @@ if ($app->is_running) {
 	sub fct_load_accounts_tree {
 
 		$accounts_model
-			= Gtk2::ListStore->new( 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String' );
+			= Gtk2::ListStore->new( 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String','Glib::String' );
 
-		foreach my $ac ( keys %accounts ) {
+		foreach ( keys %accounts ) {
 			my $hidden_text = "";
-			for ( my $i = 1; $i <= length( $accounts{$ac}->{'password'} ); $i++ ) {
+			for ( my $i = 1; $i <= length( $accounts{$_}->{'password'} ); $i++ ) {
 				$hidden_text .= '*';
 			}
 			$accounts_model->set(
-				$accounts_model->append, 0, $accounts{$ac}->{'host'},     1, $accounts{$ac}->{'username'},       2,
-				$hidden_text,            3, $accounts{$ac}->{'register'}, 4, $accounts{$ac}->{'register_color'}, 5,
-				$accounts{$ac}->{'register_text'}
+				$accounts_model->append,           0, 
+				$accounts{$_}->{'host'},           1, 
+				$accounts{$_}->{'username'},       2,
+				$hidden_text,                      3, 
+				$accounts{$_}->{'register'},       4, 
+				$accounts{$_}->{'register_color'}, 5,
+				$accounts{$_}->{'register_text'},  6,
+				$accounts{$_}->{'module'},         7,
+							$accounts{$_}->{'folder'}
 			);
 		}
 
@@ -10408,123 +10527,172 @@ if ($app->is_running) {
 
 				#public hosting
 				if ( $unotebook->get_current_page == 0 ) {
+					
 					my $model            = $hosting->get_model();
 					my $hosting_iter     = $hosting->get_active_iter();
 					my $hosting_host     = $model->get_value( $hosting_iter, 0 );
 					my $hosting_username = $model->get_value( $hosting_iter, 1 );
 					my $hosting_password = $model->get_value( $hosting_iter, 2 );
+					my $hosting_module   = $model->get_value( $hosting_iter, 4 );
+					my $hosting_folder   = $model->get_value( $hosting_iter, 5 );
 					
-					if ( $hosting_host eq "imagebanana.com" ) {
-						my $uploader
-							= Shutter::Upload::ImageBanana->new( $hosting_host, $sc->get_debug, $shutter_root, $d, $window, SHUTTER_VERSION );
-						my $counter = 1;
-						$hosting_progress->set_fraction(0);
-						foreach my $key (@files_to_upload) {
+					$hosting_progress->set_text("Loading module $hosting_module");
+					&fct_update_gui;
+					import lib $hosting_folder;
+									require "$hosting_module.pm";
+					
+					my $uploader = $hosting_module->new( $hosting_host, $sc->get_debug, $shutter_root, $d, $window, SHUTTER_VERSION );
+					
+					my $counter = 1;
+					$hosting_progress->set_fraction(0);
+					foreach my $file ( sort @files_to_upload ) {
+						$hosting_progress->set_text($file);
 							
-							my $file = $session_screens{$key}->{'long'};
+						#update gui
+						&fct_update_gui;
 							
-							$hosting_progress->set_text($file);
+											$hosting_progress->set_text("Uploading $file");
+											&fct_update_gui;
+						my %upload_response = $uploader->upload( $shf->switch_home_in_file($file), $hosting_username, $hosting_password );
 
-							#update gui
-							&fct_update_gui;
-							my %upload_response = $uploader->upload( $shf->switch_home_in_file($file), $hosting_username, $hosting_password );
-
-							if ( is_success( $upload_response{'status'} ) ) {
-								$uploader->show;
-								&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
-							} else {
-								my $response = &dlg_upload_error_message( $upload_response{'status'}, $upload_response{'max_filesize'} );
+						if ( is_success( $upload_response{'status'} ) ) {
+							$uploader->show;
+							&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
+						} else {
+							my $response = &dlg_upload_error_message( $upload_response{'status'}, $upload_response{'max_filesize'} );
 
 								#10 == skip all, 20 == skip, else == cancel
-								last if $response == 10;
-								next if $response == 20;
-								redo if $response == 30;
-								next;
-							}
-							$hosting_progress->set_fraction( $counter / @files_to_upload );
-
-							#update gui
-							&fct_update_gui;
-							$counter++;
+							last if $response == 10;
+							next if $response == 20;
+							redo if $response == 30;
+							next UPDIALOG;
 						}
-						$uploader->show_all;
-					} elsif ( $hosting_host eq "imageshack.us" ) {
-						my $ishack = Shutter::Upload::ImageShack->new();
-						
-						#clear possible cookie (is this really needed here?)
-						$ishack->logout;
-											
-						#upload
-						my $counter = 1;
-						$hosting_progress->set_fraction(0);
-						foreach my $key (@files_to_upload) {
-							
-							my $file = $session_screens{$key}->{'long'};
+						$hosting_progress->set_fraction( $counter / @files_to_upload );
 
-							#login
-							eval { $ishack->login($hosting_username, $hosting_password); };
-							if ($@) {
-								my $response = $sd->dlg_error_message( $d->get("Please check your credentials and try again."),
-									$d->get("Login failed!") );
-
-								next;
-							}
-
-							$hosting_progress->set_text($file);
-
-							#update gui
-							&fct_update_gui;
-							my $url = undef;
-							eval { $url = $ishack->host( $file, undef ); };
-							if ($@) {
-								my $response = $sd->dlg_error_message(
-									$d->get("Please check your connectivity and try again."),
-									$d->get("Connection error!"),
-									$d->get("Skip all"), 
-									$d->get("Skip"), 
-									$d->get("Retry")
-								);
-
-								#10 == skip all, 20 == skip, else == cancel
-								last if $response == 10;
-								next if $response == 20;
-								redo if $response == 30;
-								next;
-							}
-
-							#get short link
-							my $short_url = undef;
-							eval { $short_url = $ishack->hosted_short; };
-
-							my $thumb_url = undef;
-							eval { $thumb_url = $ishack->hosted_thumb; };
-
-							if ($url) {
-								$ishack->show( $hosting_host, $hosting_username, $file, $url, $thumb_url, $short_url, RC_OK, $d, $window, $shutter_root );
-								&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
-							} else {
-								my $response = $sd->dlg_error_message(
-									$d->get("Please check your connectivity and try again."),
-									$d->get("Connection error!"),
-									$d->get("Skip all"), 
-									$d->get("Skip"), 
-									$d->get("Retry")
-								);
-
-								#10 == skip all, 20 == skip, else == cancel
-								last if $response == 10;
-								next if $response == 20;
-								redo if $response == 30;
-								next;
-							}
-							$hosting_progress->set_fraction( $counter / @files_to_upload );
-
-							#update gui
-							&fct_update_gui;
-							$counter++;
-						}
-						$ishack->show_all;
+						#update gui
+						&fct_update_gui;
+						$counter++;
 					}
+					$uploader->show_all;					
+					
+					
+					#~ my $model            = $hosting->get_model();
+					#~ my $hosting_iter     = $hosting->get_active_iter();
+					#~ my $hosting_host     = $model->get_value( $hosting_iter, 0 );
+					#~ my $hosting_username = $model->get_value( $hosting_iter, 1 );
+					#~ my $hosting_password = $model->get_value( $hosting_iter, 2 );
+					#~ 
+					#~ if ( $hosting_host eq "imagebanana.com" ) {
+						#~ my $uploader
+							#~ = Shutter::Upload::ImageBanana->new( $hosting_host, $sc->get_debug, $shutter_root, $d, $window, SHUTTER_VERSION );
+						#~ my $counter = 1;
+						#~ $hosting_progress->set_fraction(0);
+						#~ foreach my $key (@files_to_upload) {
+							#~ 
+							#~ my $file = $session_screens{$key}->{'long'};
+							#~ 
+							#~ $hosting_progress->set_text($file);
+#~ 
+							#~ #update gui
+							#~ &fct_update_gui;
+							#~ my %upload_response = $uploader->upload( $shf->switch_home_in_file($file), $hosting_username, $hosting_password );
+#~ 
+							#~ if ( is_success( $upload_response{'status'} ) ) {
+								#~ $uploader->show;
+								#~ &fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
+							#~ } else {
+								#~ my $response = &dlg_upload_error_message( $upload_response{'status'}, $upload_response{'max_filesize'} );
+#~ 
+								#~ #10 == skip all, 20 == skip, else == cancel
+								#~ last if $response == 10;
+								#~ next if $response == 20;
+								#~ redo if $response == 30;
+								#~ next;
+							#~ }
+							#~ $hosting_progress->set_fraction( $counter / @files_to_upload );
+#~ 
+							#~ #update gui
+							#~ &fct_update_gui;
+							#~ $counter++;
+						#~ }
+						#~ $uploader->show_all;
+					#~ } elsif ( $hosting_host eq "imageshack.us" ) {
+						#~ my $ishack = Shutter::Upload::ImageShack->new();
+						#~ 
+						#~ #clear possible cookie (is this really needed here?)
+						#~ $ishack->logout;
+											#~ 
+						#~ #upload
+						#~ my $counter = 1;
+						#~ $hosting_progress->set_fraction(0);
+						#~ foreach my $key (@files_to_upload) {
+							#~ 
+							#~ my $file = $session_screens{$key}->{'long'};
+#~ 
+							#~ #login
+							#~ eval { $ishack->login($hosting_username, $hosting_password); };
+							#~ if ($@) {
+								#~ my $response = $sd->dlg_error_message( $d->get("Please check your credentials and try again."),
+									#~ $d->get("Login failed!") );
+#~ 
+								#~ next;
+							#~ }
+#~ 
+							#~ $hosting_progress->set_text($file);
+#~ 
+							#~ #update gui
+							#~ &fct_update_gui;
+							#~ my $url = undef;
+							#~ eval { $url = $ishack->host( $file, undef ); };
+							#~ if ($@) {
+								#~ my $response = $sd->dlg_error_message(
+									#~ $d->get("Please check your connectivity and try again."),
+									#~ $d->get("Connection error!"),
+									#~ $d->get("Skip all"), 
+									#~ $d->get("Skip"), 
+									#~ $d->get("Retry")
+								#~ );
+#~ 
+								#~ #10 == skip all, 20 == skip, else == cancel
+								#~ last if $response == 10;
+								#~ next if $response == 20;
+								#~ redo if $response == 30;
+								#~ next;
+							#~ }
+#~ 
+							#~ #get short link
+							#~ my $short_url = undef;
+							#~ eval { $short_url = $ishack->hosted_short; };
+#~ 
+							#~ my $thumb_url = undef;
+							#~ eval { $thumb_url = $ishack->hosted_thumb; };
+#~ 
+							#~ if ($url) {
+								#~ $ishack->show( $hosting_host, $hosting_username, $file, $url, $thumb_url, $short_url, RC_OK, $d, $window, $shutter_root );
+								#~ &fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
+							#~ } else {
+								#~ my $response = $sd->dlg_error_message(
+									#~ $d->get("Please check your connectivity and try again."),
+									#~ $d->get("Connection error!"),
+									#~ $d->get("Skip all"), 
+									#~ $d->get("Skip"), 
+									#~ $d->get("Retry")
+								#~ );
+#~ 
+								#~ #10 == skip all, 20 == skip, else == cancel
+								#~ last if $response == 10;
+								#~ next if $response == 20;
+								#~ redo if $response == 30;
+								#~ next;
+							#~ }
+							#~ $hosting_progress->set_fraction( $counter / @files_to_upload );
+#~ 
+							#~ #update gui
+							#~ &fct_update_gui;
+							#~ $counter++;
+						#~ }
+						#~ $ishack->show_all;
+					#~ }
 
 					#ftp
 				} elsif ( $unotebook->get_current_page == 1 ) {
