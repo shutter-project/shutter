@@ -92,7 +92,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1097';
+use constant SHUTTER_REV		=> 'Rev.1098';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -10173,7 +10173,7 @@ if ($app->is_running) {
 				if ($accounts{$_}->{'username'} ne "" && $accounts{$_}->{'password'} ne "" );			
 			
 			$model->set( $model->append, 0, $accounts{$_}->{'host'}, 1, $d->get("Guest"), 2, "", 3, $d->get("Guest"), 4, $accounts{$_}->{'module'}, 5, $accounts{$_}->{'folder'} );
-		}bzr 
+		}
 
 		my $hosting_image = Gtk2::Image->new;
 
