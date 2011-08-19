@@ -21,7 +21,7 @@
 #
 ###################################################
 
-package ImageBanana;
+package ImageBanana2;
 
 use utf8;
 use strict;
@@ -38,10 +38,10 @@ $d->dir( $ENV{'SHUTTER_INTL'} );
 
 # TODO: update the data
 my %upload_plugin_info = 	(
-    'module'		=> $d->get( "ImageBanana"),
-	'url'			=> $d->get( "http://imagebanana.com" ),
+    'module'		=> $d->get( "ImageBanana2"),
+	'url'			=> $d->get( "http://imagebanana.com2" ),
 	'registration'  => $d->get( "http://www.imagebanana.com/myib/registrieren/") ,
-	'name'			=> $d->get( "ImagaBanana.com" ),
+	'name'			=> $d->get( "ImagaBanana.com2" ),
 	'description'	=> $d->get( "Site to store images in imagebanana.com"),
 );
 
