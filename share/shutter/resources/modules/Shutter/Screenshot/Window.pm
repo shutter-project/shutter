@@ -81,16 +81,18 @@ sub new {
 			$self->{_highlighter}->set_colormap($self->{_main_gtk_window}->get_screen->get_rgba_colormap);
 		}
 
-		$self->{_highlighter}->set_type_hint('splashscreen');
-		$self->{_highlighter}->set_has_frame(FALSE);
-		$self->{_highlighter}->can_focus(TRUE);
-		$self->{_highlighter}->set_accept_focus(TRUE);
-		$self->{_highlighter}->set_modal(TRUE);
+		#~ $self->{_highlighter}->set_type_hint('splashscreen');
+		#~ $self->{_highlighter}->set_has_frame(FALSE);
+		#~ $self->{_highlighter}->can_focus(TRUE);
+		#~ $self->{_highlighter}->set_accept_focus(TRUE);
+		#~ $self->{_highlighter}->set_modal(TRUE);
+		
 	    $self->{_highlighter}->set_app_paintable(TRUE);
 	    $self->{_highlighter}->set_decorated(FALSE);
 		$self->{_highlighter}->set_skip_taskbar_hint(TRUE);
 		$self->{_highlighter}->set_skip_pager_hint(TRUE);	    
 	    $self->{_highlighter}->set_keep_above(TRUE);
+		$self->{_highlighter}->set_accept_focus(FALSE);
 
 		#obtain current colors and font_desc from the main window
 	    my $style 		= $self->{_main_gtk_window}->get_style;
@@ -106,6 +108,9 @@ sub new {
 
 			return FALSE unless $self->{_highlighter}->window;
 
+			#Place window and resize it
+			$self->{_highlighter}->window->move_resize($self->{_c}{'cw'}{'x'}-3, $self->{_c}{'cw'}{'y'}-3 ,$self->{_c}{'cw'}{'width'}+6, $self->{_c}{'cw'}{'height'}+6);			
+			
 			print $self->{_c}{'cw'}{'window'}->get_name, "\n" if $self->{_sc}->get_debug; 
 
 			my $text = Glib::Markup::escape_text ($self->{_c}{'cw'}{'window'}->get_name);
@@ -479,22 +484,12 @@ sub get_window_size {
 
 sub update_highlighter {
 	my $self 	= shift;
-	my $x		= shift;
-	my $y		= shift;
-	my $width	= shift;
-	my $height	= shift;
 
-	$self->{_highlighter}->hide;
-	
 	if(defined $self->{_c}{'cw'}{'gdk_window'} && defined $self->{_c}{'cw'}{'window'}){
 
-		#Place window and resize it
-		$self->{_highlighter}->move($x-3, $y-3);
-		$self->{_highlighter}->resize($width+6, $height+6);
-		
 		#and show highlighter window at current cursor position		
 		$self->{_highlighter}->show_all;
-		$self->{_highlighter}->present;
+		$self->{_highlighter}->queue_draw;
 
 		Gtk2::Gdk->keyboard_grab( $self->{_highlighter}->window, 0, Gtk2->get_current_event_time );
 	
@@ -766,12 +761,7 @@ sub select_window {
 	if ( (Gtk2::Gdk->pointer_is_grabbed && ($self->{_c}{'lw'}{'gdk_window'} ne $self->{_c}{'cw'}{'gdk_window'})) || 
 		 (Gtk2::Gdk->pointer_is_grabbed && $self->{_c}{'ws_init'}) ) {
 			 
-		$self->update_highlighter(
-			$self->{_c}{'cw'}{'x'},
-			$self->{_c}{'cw'}{'y'},
-			$self->{_c}{'cw'}{'width'},
-			$self->{_c}{'cw'}{'height'}
-		);
+		$self->update_highlighter();
 		
 		#reset flag
 		$self->{_c}{'ws_init'} = FALSE;
