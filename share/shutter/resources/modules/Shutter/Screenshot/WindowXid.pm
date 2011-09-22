@@ -88,7 +88,7 @@ sub window_by_xid {
 		$output = $output_new;	
 
 		#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
-		if($self->{_x11}{ext_shape} && $self->{_include_border}){
+		if($self->{_include_border}){
 			$output = $self->get_shape($xid, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);				
 		}
 
