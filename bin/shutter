@@ -92,7 +92,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1102';
+use constant SHUTTER_REV		=> 'Rev.1103';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -10520,6 +10520,12 @@ if ($app->is_running) {
 			 $hosting_progress->show;
 
 				#public hosting
+				#All modules must provide the following methods:
+				# 1: init
+				# 2: upload
+				# 3: show
+				# 4: show_all
+				
 				if ( $unotebook->get_current_page == 0 ) {
 					
 					my $model            = $hosting->get_model();
@@ -10533,6 +10539,7 @@ if ($app->is_running) {
 					$hosting_progress->set_text("Loading module $hosting_module");
 					&fct_update_gui;
 					
+					#import module
 					import lib $hosting_folder;
 					require "$hosting_module.pm";
 					
@@ -10544,14 +10551,14 @@ if ($app->is_running) {
 						
 						my $file = $session_screens{$key}->{'long'};
 						
-						#set text for progressbar
-						$hosting_progress->set_text($file);
-							
-						#update gui
-						&fct_update_gui;
-							
+						#set text for progressbar					
 						$hosting_progress->set_text("Uploading $file");
 						&fct_update_gui;
+						
+						#init module
+						$uploader->init;
+						
+						#upload file
 						my %upload_response = $uploader->upload( $shf->switch_home_in_file($file), $hosting_username, $hosting_password );
 
 						if ( is_success( $upload_response{'status'} ) ) {
@@ -10559,7 +10566,6 @@ if ($app->is_running) {
 							&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
 						} else {
 							my $response = &dlg_upload_error_message( $upload_response{'status'}, $upload_response{'max_filesize'} );
-
 							#10 == skip all, 20 == skip, else == cancel
 							last if $response == 10;
 							next if $response == 20;
@@ -10572,126 +10578,8 @@ if ($app->is_running) {
 						&fct_update_gui;
 						$counter++;
 					}
+					
 					$uploader->show_all;					
-					
-					
-					#~ my $model            = $hosting->get_model();
-					#~ my $hosting_iter     = $hosting->get_active_iter();
-					#~ my $hosting_host     = $model->get_value( $hosting_iter, 0 );
-					#~ my $hosting_username = $model->get_value( $hosting_iter, 1 );
-					#~ my $hosting_password = $model->get_value( $hosting_iter, 2 );
-					#~ 
-					#~ if ( $hosting_host eq "imagebanana.com" ) {
-						#~ my $uploader
-							#~ = Shutter::Upload::ImageBanana->new( $hosting_host, $sc->get_debug, $shutter_root, $d, $window, SHUTTER_VERSION );
-						#~ my $counter = 1;
-						#~ $hosting_progress->set_fraction(0);
-						#~ foreach my $key (@files_to_upload) {
-							#~ 
-							#~ my $file = $session_screens{$key}->{'long'};
-							#~ 
-							#~ $hosting_progress->set_text($file);
-#~ 
-							#~ #update gui
-							#~ &fct_update_gui;
-							#~ my %upload_response = $uploader->upload( $shf->switch_home_in_file($file), $hosting_username, $hosting_password );
-#~ 
-							#~ if ( is_success( $upload_response{'status'} ) ) {
-								#~ $uploader->show;
-								#~ &fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
-							#~ } else {
-								#~ my $response = &dlg_upload_error_message( $upload_response{'status'}, $upload_response{'max_filesize'} );
-#~ 
-								#~ #10 == skip all, 20 == skip, else == cancel
-								#~ last if $response == 10;
-								#~ next if $response == 20;
-								#~ redo if $response == 30;
-								#~ next;
-							#~ }
-							#~ $hosting_progress->set_fraction( $counter / @files_to_upload );
-#~ 
-							#~ #update gui
-							#~ &fct_update_gui;
-							#~ $counter++;
-						#~ }
-						#~ $uploader->show_all;
-					#~ } elsif ( $hosting_host eq "imageshack.us" ) {
-						#~ my $ishack = Shutter::Upload::ImageShack->new();
-						#~ 
-						#~ #clear possible cookie (is this really needed here?)
-						#~ $ishack->logout;
-											#~ 
-						#~ #upload
-						#~ my $counter = 1;
-						#~ $hosting_progress->set_fraction(0);
-						#~ foreach my $key (@files_to_upload) {
-							#~ 
-							#~ my $file = $session_screens{$key}->{'long'};
-#~ 
-							#~ #login
-							#~ eval { $ishack->login($hosting_username, $hosting_password); };
-							#~ if ($@) {
-								#~ my $response = $sd->dlg_error_message( $d->get("Please check your credentials and try again."),
-									#~ $d->get("Login failed!") );
-#~ 
-								#~ next;
-							#~ }
-#~ 
-							#~ $hosting_progress->set_text($file);
-#~ 
-							#~ #update gui
-							#~ &fct_update_gui;
-							#~ my $url = undef;
-							#~ eval { $url = $ishack->host( $file, undef ); };
-							#~ if ($@) {
-								#~ my $response = $sd->dlg_error_message(
-									#~ $d->get("Please check your connectivity and try again."),
-									#~ $d->get("Connection error!"),
-									#~ $d->get("Skip all"), 
-									#~ $d->get("Skip"), 
-									#~ $d->get("Retry")
-								#~ );
-#~ 
-								#~ #10 == skip all, 20 == skip, else == cancel
-								#~ last if $response == 10;
-								#~ next if $response == 20;
-								#~ redo if $response == 30;
-								#~ next;
-							#~ }
-#~ 
-							#~ #get short link
-							#~ my $short_url = undef;
-							#~ eval { $short_url = $ishack->hosted_short; };
-#~ 
-							#~ my $thumb_url = undef;
-							#~ eval { $thumb_url = $ishack->hosted_thumb; };
-#~ 
-							#~ if ($url) {
-								#~ $ishack->show( $hosting_host, $hosting_username, $file, $url, $thumb_url, $short_url, RC_OK, $d, $window, $shutter_root );
-								#~ &fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
-							#~ } else {
-								#~ my $response = $sd->dlg_error_message(
-									#~ $d->get("Please check your connectivity and try again."),
-									#~ $d->get("Connection error!"),
-									#~ $d->get("Skip all"), 
-									#~ $d->get("Skip"), 
-									#~ $d->get("Retry")
-								#~ );
-#~ 
-								#~ #10 == skip all, 20 == skip, else == cancel
-								#~ last if $response == 10;
-								#~ next if $response == 20;
-								#~ redo if $response == 30;
-								#~ next;
-							#~ }
-							#~ $hosting_progress->set_fraction( $counter / @files_to_upload );
-#~ 
-							#~ #update gui
-							#~ &fct_update_gui;
-							#~ $counter++;
-						#~ }
-						#~ $ishack->show_all;
-					#~ }
 
 					#ftp
 				} elsif ( $unotebook->get_current_page == 1 ) {

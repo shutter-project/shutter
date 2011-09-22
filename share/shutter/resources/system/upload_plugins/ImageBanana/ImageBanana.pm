@@ -25,18 +25,13 @@ package ImageBanana;
 
 use utf8;
 use strict;
-use WWW::Mechanize;
-use HTTP::Status;
 use POSIX qw/setlocale/;
 use Locale::gettext;
-
-#--------------------------------------
+use Glib qw/TRUE FALSE/; 
 
 my $d = Locale::gettext->domain("shutter-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
-
-# TODO: update the data
 my %upload_plugin_info = 	(
     'module'		=> $d->get( "ImageBanana"),
 	'url'			=> $d->get( "http://imagebanana.com" ),
@@ -51,10 +46,6 @@ if ( exists $upload_plugin_info{$ARGV[ 0 ]} ) {
 	exit;
 }
 
-#--------------------------------------
-#Glib
-use Glib qw/TRUE FALSE/; 
-
 sub new {
 	my $class = shift;
 
@@ -66,9 +57,6 @@ sub new {
 		_main_gtk_window => shift,
 		_ua              => shift
 	};
-
-	$self->{_mech} = WWW::Mechanize->new( agent => "$self->{_ua}", timeout => 20 );
-	$self->{_http_status} = undef;
 
 	#received links are stored here
 	$self->{_links} = undef;
@@ -86,9 +74,22 @@ sub new {
 	return $self;
 }
 
+sub init {
+	my $self = shift;
+	
+	#do custom stuff here
+	use WWW::Mechanize;
+	use HTTP::Status;
+	
+	$self->{_mech} = WWW::Mechanize->new( agent => "$self->{_ua}", timeout => 20 );
+	$self->{_http_status} = undef;
+}
+
+###################################################
+
 sub upload {
 	my ( $self, $upload_filename, $username, $password ) = @_;
-
+	
 	#store as object vars
 	$self->{_filename} = $upload_filename;
 	$self->{_username} = $username;
