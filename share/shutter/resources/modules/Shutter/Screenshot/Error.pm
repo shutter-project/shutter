@@ -47,6 +47,7 @@ sub new {
 	# code = 5 - user aborted
 	# code = 6 - gnome-web-photo failed
 	# code = 7 - no window with name xy detected
+	# code = 8 - invalid pattern
 	#############	
 
 	bless $self, $class;
@@ -176,6 +177,18 @@ sub show_dialog {
 		$response = $sd->dlg_error_message( 
 			sprintf( $d->get( "No window with name pattern %s detected." ), "'".$name_pattern."'"),
 			$d->get( "Error while taking the screenshot." )
+		);
+		
+	#invalid pattern
+	}elsif( $self->{_code} == 8 ) {
+		
+		my $name_pattern = $self->{_extra};
+		
+		$response = $sd->dlg_error_message( 
+			sprintf( $d->get( "Invalid pattern %s detected." ), "'".$name_pattern."'"),
+			$d->get( "Error while taking the screenshot." ),
+			undef, undef, undef, undef, undef, undef,
+			$detailed_error_text 
 		);
 
 	}

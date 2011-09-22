@@ -69,14 +69,21 @@ sub window_find_by_name {
 		}
 		#check if window is on active workspace
 		if ( $active_workspace && $win->is_on_workspace( $active_workspace ) ) {
-			if ( $win->get_name =~ m/$name_pattern/i ) {
-				$output = $self->window_by_xid($win->get_xid);
-				last;
+			eval{
+				if ( $win->get_name =~ m/$name_pattern/i ) {
+					$output = $self->window_by_xid($win->get_xid);
+					last;
+				}
+			};
+			if($@){
+				$output = 8;
+				$self->{_error_text} = $@;
 			}
 		}
 	}	
 		
 	return $output;
 }
+
 
 1;
