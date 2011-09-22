@@ -92,7 +92,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1101';
+use constant SHUTTER_REV		=> 'Rev.1102';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -345,7 +345,6 @@ if ($app->is_running) {
 	#--------------------------------------
 	my %plugins;        #hash to store plugin infos
 	my %accounts;       #hash to store account infos
-	my $accounts_xml;   #hash to store account settings
 	my %settings;       #hash to store settings
 
 	#HELPERS
@@ -4602,11 +4601,15 @@ if ($app->is_running) {
 		print Dumper %accounts;
 		my %clean_accounts;
 		foreach my $ac ( keys %accounts ) {
-			$clean_accounts{$ac}->{'host'} 		= $accounts{$ac}->{'host'};
-			$clean_accounts{$ac}->{'password'} 	= $accounts{$ac}->{'password'};
-			$clean_accounts{$ac}->{'username'} 	= $accounts{$ac}->{'username'};
-			$clean_accounts{$ac}->{'module'} 	= $accounts{$ac}->{'module'};
-			$clean_accounts{$ac}->{'folder'} 	= $accounts{$ac}->{'folder'};
+			$clean_accounts{$ac}->{'path'} = $accounts{$ac}->{'path'};
+			$clean_accounts{$ac}->{'host'} = $accounts{$ac}->{'host'};
+			$clean_accounts{$ac}->{'password'} = $accounts{$ac}->{'password'};
+			$clean_accounts{$ac}->{'username'} = $accounts{$ac}->{'username'};
+			$clean_accounts{$ac}->{'module'} = $accounts{$ac}->{'module'};
+			$clean_accounts{$ac}->{'folder'} = $accounts{$ac}->{'folder'};
+			$clean_accounts{$ac}->{'description'} = $accounts{$ac}->{'description'};
+			$clean_accounts{$ac}->{'register_text'} = $accounts{$ac}->{'register_text'};
+			$clean_accounts{$ac}->{'register_color'} = $accounts{$ac}->{'register_color'};
 		}
 
 		eval {
@@ -5136,21 +5139,31 @@ if ($app->is_running) {
 			if ( defined $profilename );
 
 		if($shf->file_exists($accountsfile)){
+			my $accounts_xml = undef;
 			eval { $accounts_xml = XMLin( IO::File->new($accountsfile) )  };
-
-				if ($@) {
-					$sd->dlg_error_message( $@, $d->get("Account-settings could not be restored!") );
-					unlink $accountsfile;
+			if ($@) {
+				$sd->dlg_error_message( $@, $d->get("Account-settings could not be restored!") );
+				unlink $accountsfile;
+			} else {
+				foreach ( keys %{$accounts_xml} ) {				
+					#check if plugin still exists
+					if ( $shf->file_exists( $accounts_xml->{$_}->{path} ) ) {
+						$accounts{$_}->{path}   	= $accounts_xml->{$_}->{path};
+						$accounts{$_}->{module}   	= $accounts_xml->{$_}->{module};
+						$accounts{$_}->{host}		= $accounts_xml->{$_}->{host};
+						$accounts{$_}->{folder}   	= $accounts_xml->{$_}->{folder};
+						$accounts{$_}->{description}= $accounts_xml->{$_}->{description};								
+						$accounts{$_}->{username}	= $accounts_xml->{$_}->{username};
+						$accounts{$_}->{password}	= $accounts_xml->{$_}->{password};
+						$accounts{$_}->{register_color} = "blue";
+						$accounts{$_}->{register_text} = $accounts_xml->{$_}->{register_text};
+						
+						utf8::decode $accounts{$_}->{'host'};
+						utf8::decode $accounts{$_}->{'username'};
+						utf8::decode $accounts{$_}->{'password'};
+					}
 				}
-
-				#~ foreach ( keys %accounts ) {
-					#~ utf8::decode $accounts{$_}->{'host'};
-					#~ utf8::decode $accounts{$_}->{'username'};
-					#~ utf8::decode $accounts{$_}->{'password'};
-					#~ $accounts{$_}->{'register_color'} = "blue";
-					#~ $accounts{$_}->{'register_text'}  = $d->get("click me");
-					#~ $accounts{$_}->{'register_text'}  = $accounts{$_}->{register};
-				#~ }
+			}
 		}
 
 		return TRUE;
@@ -8086,13 +8099,6 @@ if ($app->is_running) {
 		
 		my @upload_plugin_paths = ( "$shutter_root/share/shutter/resources/system/upload_plugins/*/*", "$ENV{'HOME'}/.shutter/plugins/*/*" );
 
-		#fallback icon
-		# maybe the plugin 
-		# does not provide a custom icon
-		# FIXME: Add a fallback icon for upload_plugin service
-		my $fb_pixbuf_path 	= "$shutter_root/share/shutter/resources/icons/executable.svg";
-		my $fb_pixbuf		= Gtk2::Gdk::Pixbuf->new_from_file_at_size( $fb_pixbuf_path, Gtk2::IconSize->lookup('menu') );
-
 		foreach my $upload_plugin_path (@upload_plugin_paths) {
 			my @upload_plugins = glob($upload_plugin_path);
 			foreach my $ukey (@upload_plugins) {
@@ -8105,8 +8111,7 @@ if ($app->is_running) {
 							#parse filename
 							my ( $name, $folder, $type ) = fileparse( $ukey, qr/\.[^.]*/ );
 							
-							#~ print $_,$name, $folder, $type, "\n";
-							print $ukey,"\n";
+							#~ print $name, $folder, $type, "\n";
 														
 							unless ( exists $accounts{$name} ) {
 															
@@ -8116,6 +8121,8 @@ if ($app->is_running) {
 									$upload_plugin_dialog->show_all;
 								}
 								
+								# Path
+								$accounts{$name}->{path} = $ukey; 				
 								# Module Name
 								$accounts{$name}->{module} = &fct_upload_plugin_get_info( $ukey, 'module' ); 				
 								# URL
@@ -8140,37 +8147,20 @@ if ($app->is_running) {
 								#refresh gui
 								&fct_update_gui;
 									
-							}else{
-								
-								$accounts{$name}->{module}   	= $accounts_xml->{$name}->{module};
-								$accounts{$name}->{host}		= $accounts_xml->{$name}->{host};
-								$accounts{$name}->{folder}   	= $accounts_xml->{$name}->{folder};
-								$accounts{$name}->{description}	= $accounts_xml->{$name}->{description};								
-								$accounts{$name}->{username}	= $accounts_xml->{$name}->{username};
-								$accounts{$name}->{password}	= $accounts_xml->{$name}->{password};
-								$accounts{$name}->{register_color} = "blue";
-								$accounts{$name}->{register_text} = $accounts_xml->{$name}->{register_text};
-								
 							}
+							
 					}else{
-						my $changed = chmod(0755, "$_");
+						my $changed = chmod(0755, "$ukey");
 						unless($changed){
-							print "\nERROR: upload plugin exists but is not executable - $_\n";
-							#~ delete $upload_plugins{$_};
-						}
+							print "\nERROR: upload plugin exists but is not executable - $ukey\n";
+							#~ #parse filename
+							#~ my ( $name, $folder, $type ) = fileparse( $ukey, qr/\.[^.]*/ );
+							#~ delete $accounts{$name};
+						} #endif plugin is executable
 					}	
 				}
 			}
 
-			# reformat accounts data
-			#~ foreach ( keys %accounts ) {
-				#~ utf8::decode $accounts{$_}->{'host'};
-				#~ utf8::decode $accounts{$_}->{'username'};
-				#~ utf8::decode $accounts{$_}->{'password'};
-				#~ $accounts{$_}->{'register_color'} = "blue";
-				#~ $accounts{$_}->{'register_text'}  = $d->get("click me");
-				#~ $accounts{$_}->{'register_text'}  = $accounts{$_}->{register};
-			#~ }
 		}
 
 		#destroys the upload_plugin dialog
@@ -8853,7 +8843,7 @@ if ($app->is_running) {
 	sub fct_load_accounts_tree {
 
 		$accounts_model
-			= Gtk2::ListStore->new( 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String','Glib::String' );
+			= Gtk2::ListStore->new( 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String','Glib::String' );
 
 		foreach ( keys %accounts ) {
 			my $hidden_text = "";
@@ -8869,6 +8859,7 @@ if ($app->is_running) {
 				$accounts{$_}->{'register_color'}, 5,
 				$accounts{$_}->{'register_text'},  6,
 				$accounts{$_}->{'module'},         7,
+				$accounts{$_}->{'path'},           8,
 				$accounts{$_}->{'folder'}
 			);
 		}
@@ -8945,7 +8936,7 @@ if ($app->is_running) {
 				my $iter = $model->get_iter($path);
 
 				#save entered username to the hash
-				$accounts{ $model->get_value( $iter, 0 ) }->{'username'} = $new_text;
+				$accounts{ $model->get_value( $iter, 6 ) }->{'username'} = $new_text;
 
 				$model->set( $iter, 1, $new_text );
 			},
@@ -8974,7 +8965,7 @@ if ($app->is_running) {
 					$hidden_text .= '*';
 				}
 				
-				$accounts{ $model->get_value( $iter, 0 ) }->{'password'} = $new_text;    #save entered password to the hash
+				$accounts{ $model->get_value( $iter, 6 ) }->{'password'} = $new_text;    #save entered password to the hash
 				$model->set( $iter, 2, $hidden_text );
 			},
 			$accounts_model
@@ -10569,11 +10560,11 @@ if ($app->is_running) {
 						} else {
 							my $response = &dlg_upload_error_message( $upload_response{'status'}, $upload_response{'max_filesize'} );
 
-								#10 == skip all, 20 == skip, else == cancel
+							#10 == skip all, 20 == skip, else == cancel
 							last if $response == 10;
 							next if $response == 20;
 							redo if $response == 30;
-							next UPDIALOG;
+							next;
 						}
 						$hosting_progress->set_fraction( $counter / @files_to_upload );
 
