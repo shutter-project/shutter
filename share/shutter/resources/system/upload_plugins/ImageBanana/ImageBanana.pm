@@ -37,7 +37,7 @@ my %upload_plugin_info = 	(
 	'url'			=> $d->get( "http://imagebanana.com" ),
 	'registration'  => $d->get( "http://www.imagebanana.com/myib/registrieren/") ,
 	'name'			=> $d->get( "ImagaBanana.com" ),
-	'description'	=> $d->get( "Site to store images in imagebanana.com"),
+	'description'	=> $d->get( "Upload screenshots to imagebanana.com"),
 );
 
 binmode( STDOUT, ":utf8" );
