@@ -92,7 +92,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1104';
+use constant SHUTTER_REV		=> 'Rev.1105';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -420,8 +420,10 @@ if ($app->is_running) {
 	#print debug output
 	&fct_init_debug_output if $sc->get_debug;
 	
-	#load accounts for hosting services
-	&fct_load_accounts;
+	#load accounts for hosting services unless param is set to ignore it
+	if ( !$sc->get_clear_cache ) {	
+		&fct_load_accounts;
+	}	
 
 	#shutdown Shutter carefully when INT or TERM are detected
 	# => save settings
@@ -4610,6 +4612,8 @@ if ($app->is_running) {
 			$clean_accounts{$ac}->{'description'} = $accounts{$ac}->{'description'};
 			$clean_accounts{$ac}->{'register_text'} = $accounts{$ac}->{'register_text'};
 			$clean_accounts{$ac}->{'register_color'} = $accounts{$ac}->{'register_color'};
+			$clean_accounts{$ac}->{'supports_anonymous_upload'} = $accounts{$ac}->{'supports_anonymous_upload'};
+			$clean_accounts{$ac}->{'supports_authorized_upload'} = $accounts{$ac}->{'supports_authorized_upload'};
 		}
 
 		eval {
@@ -5157,6 +5161,8 @@ if ($app->is_running) {
 						$accounts{$_}->{password}	= $accounts_xml->{$_}->{password};
 						$accounts{$_}->{register_color} = "blue";
 						$accounts{$_}->{register_text} = $accounts_xml->{$_}->{register_text};
+						$accounts{$_}->{supports_anonymous_upload} = $accounts_xml->{$_}->{supports_anonymous_upload};
+						$accounts{$_}->{supports_authorized_upload} = $accounts_xml->{$_}->{supports_authorized_upload};
 						
 						utf8::decode $accounts{$_}->{'host'};
 						utf8::decode $accounts{$_}->{'username'};
@@ -8139,6 +8145,9 @@ if ($app->is_running) {
 								$accounts{$name}->{register_color} = "blue";
 								# Register Text	
 								$accounts{$name}->{register_text} = &fct_upload_plugin_get_info( $ukey, 'registration' ); 
+								# Upload Features
+								$accounts{$name}->{supports_anonymous_upload} = &fct_upload_plugin_get_info( $ukey, 'supports_anonymous_upload' ); 
+								$accounts{$name}->{supports_authorized_upload} = &fct_upload_plugin_get_info( $ukey, 'supports_authorized_upload' ); 
 								
 								#refresh the progressbar
 								$upload_plugin_progress->pulse;
@@ -8843,7 +8852,7 @@ if ($app->is_running) {
 	sub fct_load_accounts_tree {
 
 		$accounts_model
-			= Gtk2::ListStore->new( 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String','Glib::String' );
+			= Gtk2::ListStore->new( 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::Boolean', 'Glib::Boolean' );
 
 		foreach ( keys %accounts ) {
 			my $hidden_text = "";
@@ -8851,16 +8860,18 @@ if ($app->is_running) {
 				$hidden_text .= '*';
 			}
 			$accounts_model->set(
-				$accounts_model->append,           0, 
-				$accounts{$_}->{'host'},           1, 
-				$accounts{$_}->{'username'},       2,
-				$hidden_text,                      3, 
-				$accounts{$_}->{'register'},       4, 
-				$accounts{$_}->{'register_color'}, 5,
-				$accounts{$_}->{'register_text'},  6,
-				$accounts{$_}->{'module'},         7,
-				$accounts{$_}->{'path'},           8,
-				$accounts{$_}->{'folder'}
+				$accounts_model->append,
+					0,  $accounts{$_}->{'host'},
+					1,  $accounts{$_}->{'username'},
+					2,  $hidden_text,
+					3,  $accounts{$_}->{'register'},
+					4,  $accounts{$_}->{'register_color'},
+					5,  $accounts{$_}->{'register_text'},
+					6,  $accounts{$_}->{'module'},
+					7,  $accounts{$_}->{'path'},
+					8,  $accounts{$_}->{'folder'},
+					9,  $accounts{$_}->{'supports_anonymous_upload'},
+					10, $accounts{$_}->{'supports_authorized_upload'},
 			);
 		}
 
@@ -8927,8 +8938,13 @@ if ($app->is_running) {
 		$tv_clmn_name_text->set_attributes( $renderer_name_accounts, text => 0 );
 		$accounts_tree->append_column($tv_clmn_name_text);
 
+		#username
+		my $tv_clmn_username_text = Gtk2::TreeViewColumn->new;
+		$tv_clmn_username_text->set_max_width(100);
+		$tv_clmn_username_text->set_title( $d->get("Username") );
 		my $renderer_username_accounts = Gtk2::CellRendererText->new;
-		$renderer_username_accounts->set( editable => TRUE );
+		$tv_clmn_username_text->pack_start( $renderer_username_accounts, FALSE );
+		$tv_clmn_username_text->set_attributes($renderer_username_accounts, text => 1, editable => 10, sensitive => 10 );
 		$renderer_username_accounts->signal_connect(
 			'edited' => sub {
 				my ( $cell, $text_path, $new_text, $model ) = @_;
@@ -8943,8 +8959,6 @@ if ($app->is_running) {
 			$accounts_model
 		);
 		
-		my $tv_clmn_username_text = Gtk2::TreeViewColumn->new_with_attributes( $d->get("Username"), $renderer_username_accounts, text => 1 );
-		$tv_clmn_username_text->set_max_width(100);
 		$accounts_tree->append_column($tv_clmn_username_text);
 
 		#password
@@ -8952,8 +8966,8 @@ if ($app->is_running) {
 		$tv_clmn_password_text->set_max_width(100);
 		$tv_clmn_password_text->set_title( $d->get("Password") );
 		my $renderer_password_accounts = Gtk2::CellRendererText->new;
-		$renderer_password_accounts->set( editable => TRUE );
-
+		$tv_clmn_password_text->pack_start( $renderer_password_accounts, FALSE );
+		$tv_clmn_password_text->set_attributes($renderer_password_accounts, text => 2, editable => 10, sensitive => 10 );
 		$renderer_password_accounts->signal_connect(
 			'edited' => sub {
 				my ( $cell, $text_path, $new_text, $model ) = @_;
@@ -8971,16 +8985,29 @@ if ($app->is_running) {
 			$accounts_model
 		);
 
-		$tv_clmn_password_text->pack_start( $renderer_password_accounts, FALSE );
-		$tv_clmn_password_text->set_attributes( $renderer_password_accounts, text => 2 );
 		$accounts_tree->append_column($tv_clmn_password_text);
+
+		#upload features
+		my $tv_clmn_f1_toggle = Gtk2::TreeViewColumn->new;
+		$tv_clmn_f1_toggle->set_title( $d->get("Anonymous Upload") );
+		my $f1_toggle = Gtk2::CellRendererToggle->new();
+		$tv_clmn_f1_toggle->pack_start( $f1_toggle, FALSE );
+		$tv_clmn_f1_toggle->set_attributes( $f1_toggle, active => 9 );
+		$accounts_tree->append_column($tv_clmn_f1_toggle);
+
+		my $tv_clmn_f2_toggle = Gtk2::TreeViewColumn->new;
+		$tv_clmn_f2_toggle->set_title( $d->get("Authorized Upload") );
+		my $f2_toggle = Gtk2::CellRendererToggle->new();
+		$tv_clmn_f2_toggle->pack_start( $f2_toggle, FALSE );
+		$tv_clmn_f2_toggle->set_attributes( $f2_toggle, active => 10 );
+		$accounts_tree->append_column($tv_clmn_f2_toggle);
 
 		#register
 		my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
 		$tv_clmn_pix_text->set_title( $d->get("Register") );
 		my $ren_text = Gtk2::CellRendererText->new();
 		$tv_clmn_pix_text->pack_start( $ren_text, FALSE );
-		$tv_clmn_pix_text->set_attributes( $ren_text, 'text', ( $d->get(5) ), 'foreground', 4 );
+		$tv_clmn_pix_text->set_attributes( $ren_text, 'text', 5, 'foreground', 4 );
 		$accounts_tree->append_column($tv_clmn_pix_text);
 
 		return TRUE;
@@ -10160,10 +10187,17 @@ if ($app->is_running) {
 				$short_username = substr( $accounts{$_}->{'username'}, 0, 10 ) . "...";
 			}
 
-			$model->set( $model->append, 0, $accounts{$_}->{'host'}, 1, $accounts{$_}->{'username'}, 2, $accounts{$_}->{'password'}, 3, $short_username, 4, $accounts{$_}->{'module'}, 5, $accounts{$_}->{'folder'} )
-				if ($accounts{$_}->{'username'} ne "" && $accounts{$_}->{'password'} ne "" );			
+			#Create Username/Password entry (if supported and supplied)
+			if($accounts{$_}->{'supports_authorized_upload'}){
+				if($accounts{$_}->{'username'} ne "" && $accounts{$_}->{'password'} ne "" ){
+					$model->set( $model->append, 0, $accounts{$_}->{'host'}, 1, $accounts{$_}->{'username'}, 2, $accounts{$_}->{'password'}, 3, $short_username, 4, $accounts{$_}->{'module'}, 5, $accounts{$_}->{'folder'} )
+				}
+			}
 			
-			$model->set( $model->append, 0, $accounts{$_}->{'host'}, 1, $d->get("Guest"), 2, "", 3, $d->get("Guest"), 4, $accounts{$_}->{'module'}, 5, $accounts{$_}->{'folder'} );
+			#Create Anonymous entry (if supported)
+			if($accounts{$_}->{'supports_anonymous_upload'}){
+				$model->set( $model->append, 0, $accounts{$_}->{'host'}, 1, $d->get("Guest"), 2, "", 3, $d->get("Guest"), 4, $accounts{$_}->{'module'}, 5, $accounts{$_}->{'folder'} );
+			}
 		}
 
 		my $hosting_image = Gtk2::Image->new;
@@ -10500,6 +10534,8 @@ if ($app->is_running) {
 		#and the relevant detail (folder, uploader etc.)
 		if(defined $sc->get_ruu_hosting && $sc->get_ruu_hosting){		
 			$hosting->set_active($sc->get_ruu_hosting);
+		}else{
+			$hosting->set_active(0);
 		}
 		if(defined $sc->get_ruu_places && $shf->folder_exists($sc->get_ruu_places)){
 			$places_fc->set_current_folder($sc->get_ruu_places);

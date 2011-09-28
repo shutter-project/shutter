@@ -38,6 +38,8 @@ my %upload_plugin_info = 	(
 	'registration'  => $d->get( "http://www.imagebanana.com/myib/registrieren/") ,
 	'name'			=> $d->get( "ImagaBanana.com" ),
 	'description'	=> $d->get( "Upload screenshots to imagebanana.com"),
+	'supports_anonymous_upload'	 => TRUE,
+	'supports_authorized_upload' => TRUE,
 );
 
 binmode( STDOUT, ":utf8" );

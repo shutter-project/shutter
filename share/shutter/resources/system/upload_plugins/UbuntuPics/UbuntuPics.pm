@@ -38,6 +38,8 @@ my %upload_plugin_info = 	(
 	'registration'  => $d->get( "http://www.ubuntu-pics.de/reg") ,
 	'name'			=> $d->get( "Ubuntu-Pics.de" ),
 	'description'	=> $d->get( "Upload screenshots to ubuntu-pics.de"),
+	'supports_anonymous_upload'	 => FALSE,
+	'supports_authorized_upload' => TRUE,	
 );
 
 binmode( STDOUT, ":utf8" );
