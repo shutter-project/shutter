@@ -30,7 +30,7 @@ use strict;
 use POSIX qw/setlocale/;
 use Locale::gettext;
 use Glib qw/TRUE FALSE/;
-use Data::Dumper;
+#~ use Data::Dumper;
 
 use Shutter::Upload::Shared;
 our @ISA = qw(Shutter::Upload::Shared);
@@ -115,7 +115,7 @@ sub upload {
 
 			#convert XML
 			my $ref = XMLin($rsp->content);
-			print Dumper $ref;
+			#~ print Dumper $ref;
 			
 			unless(defined $ref->{'err'}){
 				$self->{_links} = $ref;
