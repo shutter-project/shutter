@@ -21,7 +21,7 @@
 #
 ###################################################
 
-package UbuntuPics;
+package ImageShack;
 
 use lib $ENV{'SHUTTER_ROOT'}.'/share/shutter/resources/modules';
 
@@ -38,12 +38,12 @@ my $d = Locale::gettext->domain("shutter-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
 my %upload_plugin_info = 	(
-    'module'		=> $d->get( "UbuntuPics"),
-	'url'			=> $d->get( "http://www.ubuntu-pics.de" ),
-	'registration'  => $d->get( "http://www.ubuntu-pics.de/reg") ,
-	'name'			=> $d->get( "Ubuntu-Pics.de" ),
-	'description'	=> $d->get( "Upload screenshots to ubuntu-pics.de"),
-	'supports_anonymous_upload'	 => FALSE,
+    'module'		=> $d->get( "ImageShack"),
+	'url'			=> $d->get( "http://imageshack.us/" ),
+	'registration'  => $d->get( "http://register.imageshack.us") ,
+	'name'			=> $d->get( "ImageShack.us" ),
+	'description'	=> $d->get( "Upload screenshots to imageshack.us"),
+	'supports_anonymous_upload'	 => TRUE,
 	'supports_authorized_upload' => TRUE,	
 );
 
@@ -68,10 +68,10 @@ sub new {
 sub init {
 	my $self = shift;
 
-	#do custom stuff here	
-	use JSON;
+	#do custom stuff here
 	use LWP::UserAgent;
 	use HTTP::Request::Common;
+	use XML::Simple;
 }
 
 sub upload {
@@ -86,7 +86,7 @@ sub upload {
 	utf8::encode $password;
 	utf8::encode $username;
 
-	if ( $username ne "" && $password ne "" ) {
+	#~ if ( $username ne "" && $password ne "" ) {
 
 		my $client = LWP::UserAgent->new(
 			'timeout'    => 20,
@@ -96,64 +96,47 @@ sub upload {
 
 		eval{
 
-			my %data = (
-				auth => {
-					clientName		=> "Shutter",
-					clientVersion	=> "0.86.4",
-					clientKey		=> "8430a2028f301ad05b9d24039bc63673",
-					clientWeb		=> "http://shutter-project.org",
-				},
-				upload => {
-					userName		=> $self->{_username},
-					password		=> $self->{_password},
-					description		=> "",	
-					tags			=> "",
-				},
-			);
-
-			#prepare request
-			my $json = JSON->new(); 
-			my $json_text = $json->encode(\%data);
-
 			my %params = (
-				'upload' => [$self->{_filename}],
-				'json'   => $json_text,
+				'fileupload' => [$self->{_filename}],
+				'key' => '4679FKPXc50115cd7f3966adcf240a1e3609ecbf',
+				'a_username' => $self->{_username},
+				'a_password' => $self->{_password},
 			);
 
 			my @params = (
-				"http://api.ubuntu-pics.de",
+				"http://www.imageshack.us/upload_api.php",
 				'Content_Type' => 'multipart/form-data',
 				'Content' => [%params]
 			);
-
+			
 			my $req = HTTP::Request::Common::POST(@params);
+			push @{ $client->requests_redirectable }, 'POST';
 			my $rsp = $client->request($req);
 
-			$self->{_links} = $json->decode( $rsp->content ); 
-			if(defined $self->{_links}->{'action'} && $self->{_links}->{'action'} eq 'success'){
-				#clean hash
-				foreach (keys %{$self->{_links}}){
-					if($_ eq 'transferid' || $_ eq 'action' || $_ eq 'status'){
-						delete $self->{_links}->{$_};
-						next;
-					}
-					if( $self->{_debug_cparam}) {
-						print $_.": ".$self->{_links}->{$_}, "\n";
+			#convert XML
+			my $ref = XMLin($rsp->content);
+			unless(defined $ref->{'error'}){
+				$self->{_links} = $ref->{'links'};
+				if( $self->{_debug_cparam}) { 
+					foreach (keys %{$ref->{'links'}}){
+						print $_, ": ", $ref->{'links'}->{$_};
 					}
 				}
 				#set status (success)
-				$self->{_links}{'status'} = 200;
+				$self->{_links}{'status'} = 200;				
 			}else{
-				$self->{_links}{'status'} = $self->{_links}->{'code'};
+				$self->{_links}{'status'} = $ref->{'error'}->{'content'};
 			}
-			
+    
 		};
 		if($@){
 			$self->{_links}{'status'} = $@;
 			#~ print "$@\n";
 		}
 
-	}
+	#~ }else{
+		#~ 
+	#~ }
 	
 	#and return links
 	return %{ $self->{_links} };
