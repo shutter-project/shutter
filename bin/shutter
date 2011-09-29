@@ -92,7 +92,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1105';
+use constant SHUTTER_REV		=> 'Rev.1106';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -188,8 +188,6 @@ require Shutter::Screenshot::WindowName;
 require Shutter::Screenshot::Error;
 
 #upload classes
-require Shutter::Upload::ImageBanana;
-require Shutter::Upload::ImageShack;
 require Shutter::Upload::FTP;
 if($ubuntuone){
 	require Shutter::Upload::UbuntuOne;
@@ -8103,7 +8101,8 @@ if ($app->is_running) {
 
 		$upload_plugin_dialog->vbox->add($upload_plugin_progress);
 		
-		my @upload_plugin_paths = ( "$shutter_root/share/shutter/resources/system/upload_plugins/*/*", "$ENV{'HOME'}/.shutter/plugins/*/*" );
+		#plugins in user-home not supported yet FIXME
+		my @upload_plugin_paths = ( "$shutter_root/share/shutter/resources/system/upload_plugins/Upload/*" );
 
 		foreach my $upload_plugin_path (@upload_plugin_paths) {
 			my @upload_plugins = glob($upload_plugin_path);
@@ -8930,12 +8929,12 @@ if ($app->is_running) {
 			$accounts_tree->remove_column($col);
 		}
 
-		#host
+		#name
 		my $tv_clmn_name_text = Gtk2::TreeViewColumn->new;
 		$tv_clmn_name_text->set_title( $d->get("Host") );
 		my $renderer_name_accounts = Gtk2::CellRendererText->new;
 		$tv_clmn_name_text->pack_start( $renderer_name_accounts, FALSE );
-		$tv_clmn_name_text->set_attributes( $renderer_name_accounts, text => 0 );
+		$tv_clmn_name_text->set_attributes( $renderer_name_accounts, text => 6 );
 		$accounts_tree->append_column($tv_clmn_name_text);
 
 		#username
@@ -10190,13 +10189,13 @@ if ($app->is_running) {
 			#Create Username/Password entry (if supported and supplied)
 			if($accounts{$_}->{'supports_authorized_upload'}){
 				if($accounts{$_}->{'username'} ne "" && $accounts{$_}->{'password'} ne "" ){
-					$model->set( $model->append, 0, $accounts{$_}->{'host'}, 1, $accounts{$_}->{'username'}, 2, $accounts{$_}->{'password'}, 3, $short_username, 4, $accounts{$_}->{'module'}, 5, $accounts{$_}->{'folder'} )
+					$model->set( $model->append, 0, $accounts{$_}->{'module'}, 1, $accounts{$_}->{'username'}, 2, $accounts{$_}->{'password'}, 3, $short_username, 4, $accounts{$_}->{'module'}, 5, $accounts{$_}->{'folder'} )
 				}
 			}
 			
 			#Create Anonymous entry (if supported)
 			if($accounts{$_}->{'supports_anonymous_upload'}){
-				$model->set( $model->append, 0, $accounts{$_}->{'host'}, 1, $d->get("Guest"), 2, "", 3, $d->get("Guest"), 4, $accounts{$_}->{'module'}, 5, $accounts{$_}->{'folder'} );
+				$model->set( $model->append, 0, $accounts{$_}->{'module'}, 1, $d->get("Guest"), 2, "", 3, $d->get("Guest"), 4, $accounts{$_}->{'module'}, 5, $accounts{$_}->{'folder'} );
 			}
 		}
 

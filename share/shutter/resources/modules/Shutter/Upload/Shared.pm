@@ -21,7 +21,7 @@
 #
 ###################################################
 
-package UbuntuPics;
+package Shutter::Upload::Shared;
 
 use utf8;
 use strict;
@@ -32,22 +32,6 @@ use Glib qw/TRUE FALSE/;
 my $d = Locale::gettext->domain("shutter-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
-my %upload_plugin_info = 	(
-    'module'		=> $d->get( "UbuntuPics"),
-	'url'			=> $d->get( "http://www.ubuntu-pics.de" ),
-	'registration'  => $d->get( "http://www.ubuntu-pics.de/reg") ,
-	'name'			=> $d->get( "Ubuntu-Pics.de" ),
-	'description'	=> $d->get( "Upload screenshots to ubuntu-pics.de"),
-	'supports_anonymous_upload'	 => FALSE,
-	'supports_authorized_upload' => TRUE,	
-);
-
-binmode( STDOUT, ":utf8" );
-if ( exists $upload_plugin_info{$ARGV[ 0 ]} ) {
-	print $upload_plugin_info{$ARGV[ 0 ]};
-	exit;
-}
-
 ###################################################
 
 sub new {
@@ -56,7 +40,7 @@ sub new {
 	my $self = {
 		_host            => shift,
 		_debug_cparam    => shift,
-		_shutter_root     => shift,
+		_shutter_root    => shift,
 		_gettext_object  => shift,
 		_main_gtk_window => shift,
 		_ua              => shift
@@ -78,131 +62,22 @@ sub new {
 	return $self;
 }
 
-###################################################
-
-sub init {
-	my $self = shift;
-
-	#do custom stuff here	
-	use JSON;
-	use LWP::UserAgent;
-	use HTTP::Request::Common;
-	
-}
-
-sub upload {
-	my ( $self, $upload_filename, $username, $password ) = @_;
-
-	#store as object vars
-	$self->{_filename} = $upload_filename;
-	$self->{_username} = $username;
-	$self->{_password} = $password;
-
-	utf8::encode $upload_filename;
-	utf8::encode $password;
-	utf8::encode $username;
-
-	if ( $username ne "" && $password ne "" ) {
-
-	##########FIXME
-
-		my $client = LWP::UserAgent->new(
-			'timeout'    => 20,
-			'keep_alive' => 10,
-			'env_proxy'  => 1,
-		  );
-
-		  eval{
-
-			my %data = (
-				auth => {
-					clientName		=> "Shutter",
-					clientVersion	=> "0.86.4",
-					clientKey		=> "8430a2028f301ad05b9d24039bc63673",
-					clientWeb		=> "http://shutter-project.org",
-				},
-				upload => {
-					userName		=> "betatest",
-					password		=> "betatest",
-					description		=> "",	
-					tags			=> "",
-				},
-			);
-
-			my $json = JSON->new(); 
-			my $json_text = $json->encode(\%data);
-
-			my %params = (
-				'upload' => [$self->{_filename}],
-				'json'   => $json_text,
-			);
-
-			my @params = (
-				"http://api.ubuntu-pics.de",
-				'Content_Type' => 'multipart/form-data',
-				'Content' => [%params]
-			);
-			
-			my $req = HTTP::Request::Common::POST(@params);
-			my $rsp = $client->request($req);
-
-			$self->{_links} = $json->decode( $rsp->content ); 
-			if(defined $self->{_links}->{'action'} && $self->{_links}->{'action'} eq 'success'){
-				foreach (keys %{$self->{_links}}){
-					next if $_ eq 'transferid';
-					next if $_ eq 'action';
-					print $_.": ".$self->{_links}->{$_}, "\n";
-				}
-			}else{
-				print $self->{_links}->{'code'}, "\n";
-			}
-			
-		  };
-
-		  if($@){
-			print "$@\n";
-		  }
-
-
-		}
-
-	##########FIXME
-
-	$self->{_links}{'status'} = 200;
-	return %{ $self->{_links} };
-}
-
 sub create_tab {
 	my $self = shift;
 
 	my $upload_vbox = Gtk2::VBox->new( FALSE, 0 );
 	my $upload_hbox = Gtk2::HBox->new( FALSE, 0 );
+	my $label_status = Gtk2::Label->new( $self->{_gettext_object}->get("Upload successful - FIXME") );
 	
-	my $label_status = Gtk2::Label->new( $self->{_gettext_object}->get("FIXME") );
-
-	#~ $upload_hbox->pack_start(
-		#~ Gtk2::Image->new_from_pixbuf(
-			#~ Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
-				#~ "$self->{_shutter_root}/share/shutter/resources/icons/logo-ubuntu-pics.png",
-				#~ 100, 100, TRUE
-			#~ )
-		#~ ),
-		#~ TRUE, TRUE, 0
-	#~ );
-	#~ 
 	$upload_hbox->pack_start( $label_status, TRUE, TRUE, 0 );	
-
 	$upload_vbox->pack_start( $upload_hbox, TRUE, TRUE, 10 );
 
-	#call class method - FIXME!!!
+	#create entry for each link
 	foreach (keys %{$self->{_links}}){
-		next if $_ eq 'transferid';
-		next if $_ eq 'action';
 		next if $_ eq 'status';
 		my $box = $self->create_entry_for_notebook($_, $self->{_links}->{$_});
 		$upload_vbox->pack_start_defaults($box);
 	}
-	
 	
 	return $upload_vbox;
 }
@@ -242,17 +117,13 @@ sub create_entry_for_notebook {
 	return $upload_hbox2;
 }
 
-
 sub show_all {
 	my $self = shift;
 
 	#are there any uploaded files?
 	return FALSE if $self->{_notebook}->get_n_pages < 1;
 
-	my $dlg_header
-		= $self->{_gettext_object}->get("Upload") . " - "
-		. $self->{_host} . " - "
-		. $self->{_username};
+	my $dlg_header = sprintf($self->{_gettext_object}->get("Upload - %s - %s"), $self->{_host}, $self->{_username});
 	my $upload_dialog = Gtk2::Dialog->new(
 		$dlg_header,
 		$self->{_main_gtk_window},
@@ -265,7 +136,7 @@ sub show_all {
 	$upload_dialog->show_all;
 	my $upload_response = $upload_dialog->run;
 
-	if ( $upload_response eq "accept" ) {
+	if($upload_response eq "accept") {
 		$upload_dialog->destroy();
 		return TRUE;
 	} else {
