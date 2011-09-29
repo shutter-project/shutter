@@ -92,7 +92,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1106';
+use constant SHUTTER_REV		=> 'Rev.1107';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -10972,11 +10972,9 @@ if ($app->is_running) {
 		  );
 		} else {
 			$response = $sd->dlg_error_message(
-				$d->get("Please check your connectivity and try again."),
+				$status,
 				$d->get("Error while connecting"),
 				$d->get("Skip all"), $d->get("Skip"), $d->get("Retry"),
-			 undef, undef, undef,
-			 $status
 			);
 		}
 		return $response;

@@ -137,8 +137,12 @@ sub upload {
 						delete $self->{_links}->{$_};
 						next;
 					}
-					#~ print $_.": ".$self->{_links}->{$_}, "\n";
+					if( $self->{_debug_cparam}) {
+						print $_.": ".$self->{_links}->{$_}, "\n";
+					}
 				}
+				#set status (success)
+				$self->{_links}{'status'} = 200;
 			}else{
 				$self->{_links}{'status'} = $self->{_links}->{'code'};
 			}
@@ -149,9 +153,6 @@ sub upload {
 		}
 
 	}
-
-	#set status (success)
-	$self->{_links}{'status'} = 200;
 	
 	#and return links
 	return %{ $self->{_links} };

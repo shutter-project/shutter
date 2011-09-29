@@ -23,11 +23,16 @@
 
 package ImageBanana;
 
+use lib $ENV{'SHUTTER_ROOT'}.'/share/shutter/resources/modules';
+
 use utf8;
 use strict;
 use POSIX qw/setlocale/;
 use Locale::gettext;
-use Glib qw/TRUE FALSE/; 
+use Glib qw/TRUE FALSE/;
+
+use Shutter::Upload::Shared;
+our @ISA = qw(Shutter::Upload::Shared);
 
 my $d = Locale::gettext->domain("shutter-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
@@ -48,29 +53,13 @@ if ( exists $upload_plugin_info{$ARGV[ 0 ]} ) {
 	exit;
 }
 
+###################################################
+
 sub new {
 	my $class = shift;
 
-	my $self = {
-		_host            => shift,
-		_debug_cparam    => shift,
-		_shutter_root     => shift,
-		_gettext_object  => shift,
-		_main_gtk_window => shift,
-		_ua              => shift
-	};
-
-	#received links are stored here
-	$self->{_links} = undef;
-
-	#credentials and filename
-	$self->{_filename} = undef;
-	$self->{_username} = undef;
-	$self->{_password} = undef;
-
-	$self->{_notebook} = Gtk2::Notebook->new;
-	$self->{_notebook}->set( homogeneous => 1 );
-	$self->{_notebook}->set_scrollable(TRUE);
+	#call constructor of super class (host, debug_cparam, shutter_root, gettext_object, main_gtk_window, ua)
+	my $self = $class->SUPER::new( shift, shift, shift, shift, shift, shift );
 
 	bless $self, $class;
 	return $self;
@@ -86,8 +75,6 @@ sub init {
 	$self->{_mech} = WWW::Mechanize->new( agent => "$self->{_ua}", timeout => 20 );
 	$self->{_http_status} = undef;
 }
-
-###################################################
 
 sub upload {
 	my ( $self, $upload_filename, $username, $password ) = @_;
@@ -192,19 +179,19 @@ sub upload {
 			push( @link_array, $1 );
 		}
 
-		$self->{_links}{'thumb1'}    = $link_array[1];
-		$self->{_links}{'thumb2'}    = $link_array[2];
-		$self->{_links}{'hotweb'}    = $link_array[3];
-		$self->{_links}{'hotboard1'} = $link_array[4];
-		$self->{_links}{'direct'}    = $link_array[5];
+		$self->{_links}{'thumbnail for websites'}    = $link_array[1];
+		$self->{_links}{'thumbnail for forums'}    = $link_array[2];
+		$self->{_links}{'hotlink for websites'}    = $link_array[3];
+		$self->{_links}{'hotlink for forums'} = $link_array[4];
+		$self->{_links}{'direct link'}    = $link_array[5];
 
 		if ( $self->{_debug_cparam} ) {
 			print "The following links were returned by http://www.imagebanana.com:\n";
-			print $self->{_links}{'thumb1'} . "\n";
-			print $self->{_links}{'thumb2'} . "\n";
-			print $self->{_links}{'hotweb'} . "\n";
-			print $self->{_links}{'hotboard1'} . "\n";
-			print $self->{_links}{'direct'} . "\n";
+			print $self->{_links}{'thumbnail for websites'} . "\n";
+			print $self->{_links}{'thumbnail for forums'} . "\n";
+			print $self->{_links}{'hotlink for websites'} . "\n";
+			print $self->{_links}{'hotlink for forums'} . "\n";
+			print $self->{_links}{'direct link'} . "\n";
 		}
 
 		$self->{_links}{'status'} = $self->{_http_status};
@@ -214,195 +201,6 @@ sub upload {
 		$self->{_links}{'status'} = $self->{_http_status};
 		return %{ $self->{_links} };
 	}
-}
-
-sub create_tab {
-	my $self = shift;
-
-	#Clipboard
-	my $clipboard = Gtk2::Clipboard->get( Gtk2::Gdk->SELECTION_CLIPBOARD );
-
-	#Tooltips
-	my $tooltips = Gtk2::Tooltips->new;
-
-	my $upload_hbox   = Gtk2::HBox->new( FALSE, 0 );
-	my $upload_hbox1  = Gtk2::HBox->new( TRUE,  10 );
-	my $upload_hbox2  = Gtk2::HBox->new( FALSE, 10 );
-	my $upload_hbox3  = Gtk2::HBox->new( TRUE,  10 );
-	my $upload_hbox4  = Gtk2::HBox->new( FALSE, 10 );
-	my $upload_hbox5  = Gtk2::HBox->new( TRUE,  10 );
-	my $upload_hbox6  = Gtk2::HBox->new( FALSE, 10 );
-	my $upload_hbox7  = Gtk2::HBox->new( TRUE,  10 );
-	my $upload_hbox8  = Gtk2::HBox->new( FALSE, 10 );
-	my $upload_hbox9  = Gtk2::HBox->new( TRUE,  10 );
-	my $upload_hbox10 = Gtk2::HBox->new( FALSE, 10 );
-
-	my $upload_vbox = Gtk2::VBox->new( FALSE, 0 );
-
-	my $label_status = Gtk2::Label->new( $self->{_gettext_object}->get("Upload status:") . " "
-			. status_message( $self->{_http_status} ) );
-
-	$upload_hbox->pack_start(
-		Gtk2::Image->new_from_pixbuf(
-			Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
-				"$self->{_shutter_root}/share/shutter/resources/icons/logo-imagebanana.png",
-				100, 100, TRUE
-			)
-		),
-		TRUE, TRUE, 0
-	);
-	$upload_hbox->pack_start( $label_status, TRUE, TRUE, 0 );
-
-	my $entry_thumb1    = Gtk2::Entry->new;
-	my $entry_thumb2    = Gtk2::Entry->new;
-	my $entry_direct    = Gtk2::Entry->new;
-	my $entry_hotweb    = Gtk2::Entry->new;
-	my $entry_hotboard1 = Gtk2::Entry->new;
-	$entry_thumb1->set_text( $self->{_links}{'thumb1'} );
-	$entry_thumb2->set_text( $self->{_links}{'thumb2'} );
-	$entry_direct->set_text( $self->{_links}{'direct'} );
-	$entry_hotweb->set_text( $self->{_links}{'hotweb'} );
-	$entry_hotboard1->set_text( $self->{_links}{'hotboard1'} );
-
-	my $upload_copy1 = Gtk2::Button->new;
-	$tooltips->set_tip( $upload_copy1,
-		$self->{_gettext_object}->get("Copy this code to clipboard") );
-	$upload_copy1->set_image( Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
-	$upload_copy1->signal_connect(
-		'clicked' => sub {
-			my ( $widget, $entry ) = @_;
-			$clipboard->set_text( $entry->get_text );
-		},
-		$entry_thumb1
-	);
-
-	my $upload_copy2 = Gtk2::Button->new;
-	$tooltips->set_tip( $upload_copy2,
-		$self->{_gettext_object}->get("Copy this code to clipboard") );
-	$upload_copy2->set_image( Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
-	$upload_copy2->signal_connect(
-		'clicked' => sub {
-			my ( $widget, $entry ) = @_;
-			$clipboard->set_text( $entry->get_text );
-		},
-		$entry_thumb2
-	);
-
-	my $upload_copy3 = Gtk2::Button->new;
-	$tooltips->set_tip( $upload_copy3,
-		$self->{_gettext_object}->get("Copy this code to clipboard") );
-	$upload_copy3->set_image( Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
-	$upload_copy3->signal_connect(
-		'clicked' => sub {
-			my ( $widget, $entry ) = @_;
-			$clipboard->set_text( $entry->get_text );
-		},
-		$entry_direct
-	);
-	
-	my $upload_copy4 = Gtk2::Button->new;
-	$tooltips->set_tip( $upload_copy4,
-		$self->{_gettext_object}->get("Copy this code to clipboard") );
-	$upload_copy4->set_image( Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
-	$upload_copy4->signal_connect(
-		'clicked' => sub {
-			my ( $widget, $entry ) = @_;
-			$clipboard->set_text( $entry->get_text );
-		},
-		$entry_hotweb
-	);
-	
-	my $upload_copy5 = Gtk2::Button->new;
-	$tooltips->set_tip( $upload_copy5,
-		$self->{_gettext_object}->get("Copy this code to clipboard") );
-	$upload_copy5->set_image( Gtk2::Image->new_from_stock( 'gtk-copy', 'menu' ) );
-	$upload_copy5->signal_connect(
-		'clicked' => sub {
-			my ( $widget, $entry ) = @_;
-			$clipboard->set_text( $entry->get_text );
-		},
-		$entry_hotboard1
-	);
-
-	$upload_vbox->pack_start( $upload_hbox, TRUE, TRUE, 10 );
-
-	$upload_hbox1->pack_start_defaults(
-		Gtk2::Label->new( $self->{_gettext_object}->get("Thumbnail for websites") ) );
-	$upload_hbox1->pack_start_defaults($entry_thumb1);
-	$upload_hbox2->pack_start_defaults($upload_hbox1);
-	$upload_hbox2->pack_start( $upload_copy1, FALSE, TRUE, 10 );
-
-	$upload_hbox3->pack_start_defaults(
-		Gtk2::Label->new( $self->{_gettext_object}->get("Thumbnail for forums") ) );
-	$upload_hbox3->pack_start_defaults($entry_thumb2);
-	$upload_hbox4->pack_start_defaults($upload_hbox3);
-	$upload_hbox4->pack_start( $upload_copy2, FALSE, TRUE, 10 );
-
-	$upload_hbox5->pack_start_defaults(
-		Gtk2::Label->new( $self->{_gettext_object}->get("Direct link") ) );
-	$upload_hbox5->pack_start_defaults($entry_direct);
-	$upload_hbox6->pack_start_defaults($upload_hbox5);
-	$upload_hbox6->pack_start( $upload_copy3, FALSE, TRUE, 10 );
-
-	$upload_hbox7->pack_start_defaults(
-		Gtk2::Label->new( $self->{_gettext_object}->get("Hotlink for websites") ) );
-	$upload_hbox7->pack_start_defaults($entry_hotweb);
-	$upload_hbox8->pack_start_defaults($upload_hbox7);
-	$upload_hbox8->pack_start( $upload_copy4, FALSE, TRUE, 10 );
-
-	$upload_hbox9->pack_start_defaults(
-		Gtk2::Label->new( $self->{_gettext_object}->get("Hotlink for forums") ) );
-	$upload_hbox9->pack_start_defaults($entry_hotboard1);
-	$upload_hbox10->pack_start_defaults($upload_hbox9);
-	$upload_hbox10->pack_start( $upload_copy5, FALSE, TRUE, 10 );
-
-	$upload_vbox->pack_start_defaults($upload_hbox2);
-	$upload_vbox->pack_start_defaults($upload_hbox4);
-	$upload_vbox->pack_start_defaults($upload_hbox6);
-	$upload_vbox->pack_start_defaults($upload_hbox8);
-	$upload_vbox->pack_start_defaults($upload_hbox10);
-
-	return $upload_vbox;
-}
-
-sub show_all {
-	my $self = shift;
-
-	#are there any uploaded files?
-	return FALSE if $self->{_notebook}->get_n_pages < 1;
-
-	my $dlg_header
-		= $self->{_gettext_object}->get("Upload") . " - "
-		. $self->{_host} . " - "
-		. $self->{_username};
-	my $upload_dialog = Gtk2::Dialog->new(
-		$dlg_header,
-		$self->{_main_gtk_window},
-		[qw/modal destroy-with-parent/],
-		'gtk-ok' => 'accept'
-	);
-	$upload_dialog->set_default_response('accept');
-
-	$upload_dialog->vbox->add( $self->{_notebook} );
-	$upload_dialog->show_all;
-	my $upload_response = $upload_dialog->run;
-
-	if ( $upload_response eq "accept" ) {
-		$upload_dialog->destroy();
-		return TRUE;
-	} else {
-		$upload_dialog->destroy();
-		return FALSE;
-	}
-}
-
-sub show {
-	my $self = shift;
-
-	$self->{_notebook}->append_page( $self->create_tab(), $self->{_filename} );
-
-	return TRUE;
-
 }
 
 sub switch_html_entities {
