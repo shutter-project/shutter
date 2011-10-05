@@ -92,7 +92,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1116';
+use constant SHUTTER_REV		=> 'Rev.1117';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -4997,6 +4997,16 @@ if ($app->is_running) {
 					$ftp_username_entry->set_text( $settings_xml->{'general'}->{'ftp_username'} );
 					$ftp_password_entry->set_text( $settings_xml->{'general'}->{'ftp_password'} );
 					$ftp_wurl_entry->set_text( $settings_xml->{'general'}->{'ftp_wurl'} );
+
+					#we store the version info, so we know if there was a new version installed
+					#when starting new version we clear the cache on first startup
+					if (defined $settings_xml->{'general'}->{'app_version'}){
+						if($sc->get_version . $sc->get_rev ne $settings_xml->{'general'}->{'app_version'}){
+							$sc->set_clear_cache(TRUE);
+						}	
+					}else{
+						$sc->set_clear_cache(TRUE);
+					}
 
 					#load account data from profile unless param is set to ignore it
 					if ( !$sc->get_clear_cache ) {
