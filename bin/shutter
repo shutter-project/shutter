@@ -92,7 +92,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1117';
+use constant SHUTTER_REV		=> 'Rev.1118';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -4612,6 +4612,7 @@ if ($app->is_running) {
 			$clean_accounts{$ac}->{'register_color'} = $accounts{$ac}->{'register_color'};
 			$clean_accounts{$ac}->{'supports_anonymous_upload'} = $accounts{$ac}->{'supports_anonymous_upload'};
 			$clean_accounts{$ac}->{'supports_authorized_upload'} = $accounts{$ac}->{'supports_authorized_upload'};
+			$clean_accounts{$ac}->{'supports_oauth_upload'} = $accounts{$ac}->{'supports_oauth_upload'};
 		}
 
 		eval {
@@ -5171,6 +5172,7 @@ if ($app->is_running) {
 						$accounts{$_}->{register_text} = $accounts_xml->{$_}->{register_text};
 						$accounts{$_}->{supports_anonymous_upload} = $accounts_xml->{$_}->{supports_anonymous_upload};
 						$accounts{$_}->{supports_authorized_upload} = $accounts_xml->{$_}->{supports_authorized_upload};
+						$accounts{$_}->{supports_oauth_upload} = $accounts_xml->{$_}->{supports_oauth_upload};
 						
 						utf8::decode $accounts{$_}->{'host'};
 						utf8::decode $accounts{$_}->{'username'};
@@ -8157,6 +8159,7 @@ if ($app->is_running) {
 								# Upload Features
 								$accounts{$name}->{supports_anonymous_upload} = &fct_upload_plugin_get_info( $ukey, 'supports_anonymous_upload' ); 
 								$accounts{$name}->{supports_authorized_upload} = &fct_upload_plugin_get_info( $ukey, 'supports_authorized_upload' ); 
+								$accounts{$name}->{supports_oauth_upload} = &fct_upload_plugin_get_info( $ukey, 'supports_oauth_upload' ); 
 								
 								#refresh the progressbar
 								$upload_plugin_progress->pulse;
@@ -8861,7 +8864,7 @@ if ($app->is_running) {
 	sub fct_load_accounts_tree {
 
 		$accounts_model
-			= Gtk2::ListStore->new( 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::Boolean', 'Glib::Boolean' );
+			= Gtk2::ListStore->new( 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::Boolean', 'Glib::Boolean', 'Glib::Boolean' );
 
 		foreach ( keys %accounts ) {
 			my $hidden_text = "";
@@ -8881,6 +8884,7 @@ if ($app->is_running) {
 					8,  $accounts{$_}->{'folder'},
 					9,  $accounts{$_}->{'supports_anonymous_upload'},
 					10, $accounts{$_}->{'supports_authorized_upload'},
+					11, $accounts{$_}->{'supports_oauth_upload'},
 			);
 		}
 
@@ -9010,6 +9014,13 @@ if ($app->is_running) {
 		$tv_clmn_f2_toggle->pack_start( $f2_toggle, FALSE );
 		$tv_clmn_f2_toggle->set_attributes( $f2_toggle, active => 10 );
 		$accounts_tree->append_column($tv_clmn_f2_toggle);
+
+		my $tv_clmn_f3_toggle = Gtk2::TreeViewColumn->new;
+		$tv_clmn_f3_toggle->set_title( $d->get("OAuth Upload") );
+		my $f3_toggle = Gtk2::CellRendererToggle->new();
+		$tv_clmn_f3_toggle->pack_start( $f3_toggle, FALSE );
+		$tv_clmn_f3_toggle->set_attributes( $f3_toggle, active => 11 );
+		$accounts_tree->append_column($tv_clmn_f3_toggle);
 
 		#register
 		my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
@@ -10207,6 +10218,11 @@ if ($app->is_running) {
 			if($accounts{$_}->{'supports_anonymous_upload'}){
 				$model->set( $model->append, 0, $accounts{$_}->{'module'}, 1, $d->get("Guest"), 2, "", 3, $d->get("Guest"), 4, $accounts{$_}->{'module'}, 5, $accounts{$_}->{'folder'} );
 			}
+			
+			#Create OAuth entry (if supported)
+			if($accounts{$_}->{'supports_oauth_upload'}){
+				$model->set( $model->append, 0, $accounts{$_}->{'module'}, 1, $d->get("OAuth"), 2, "", 3, $d->get("OAuth"), 4, $accounts{$_}->{'module'}, 5, $accounts{$_}->{'folder'} );
+			}			
 		}
 
 		my $hosting_image = Gtk2::Image->new;
@@ -10936,6 +10952,9 @@ if ($app->is_running) {
 		my $target_uri = shift;
 		my $result = shift;
 
+		#dialogs (main window != parent window)
+		my $sd = Shutter::App::SimpleDialogs->new;
+
 		my $target_path=undef;
 		if($target_uri->is_local){
 			$target_path = $shf->utf8_decode(Gnome2::VFS->unescape_string($target_uri->extract_dirname));
@@ -10959,12 +10978,14 @@ if ($app->is_running) {
 			Gnome2::VFS->result_to_string ($result)
 		);
 		
-		return $response;
-		
+		return $response;		
 	}
 
 	sub dlg_upload_error_message {
 		my ( $status, $max_filesize ) = @_;
+
+		#dialogs (main window != parent window)
+		my $sd = Shutter::App::SimpleDialogs->new;
 
 		my $response;
 		if ( $status == 999 ) {

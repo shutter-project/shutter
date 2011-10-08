@@ -50,6 +50,9 @@ sub dlg_info_message {
 	my $self = shift;
 	my $dlg_info_message = shift;
 	my $dlg_info_header = shift;
+	my $button_text_extra1 = shift;
+	my $button_text_extra2 = shift;
+	my $button_text_extra3 = shift;
 
 	my $info_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/], 'info', 'none', undef );
 
@@ -58,6 +61,10 @@ sub dlg_info_message {
 	$info_dialog->set( 'text' => $dlg_info_header );
 
 	$info_dialog->set( 'secondary-text' => $dlg_info_message );
+
+	$info_dialog->add_button( $button_text_extra1, 10 ) if $button_text_extra1;
+	$info_dialog->add_button( $button_text_extra2, 20 ) if $button_text_extra2;
+	$info_dialog->add_button( $button_text_extra3, 30 ) if $button_text_extra3;
 
 	$info_dialog->show_all;
 
@@ -73,7 +80,7 @@ sub dlg_info_message {
 	$info_response = -1 if $info_response =~ /event/;
 	
 	$info_dialog->destroy();
-	return TRUE;
+	return $info_response;
 }
 
 sub dlg_question_message {
