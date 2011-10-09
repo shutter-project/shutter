@@ -75,11 +75,11 @@ sub init {
 	use JSON;
 	use URI::Escape qw(uri_escape_utf8);
 	use File::Basename qw(dirname basename);
-	use File::Spec;
+	use Path::Class;
 
 	$self->{_box} = undef;
 	$self->{_config} = { };
-	$self->{_config_file} = File::Spec->catfile( $ENV{'HOME'}, '.dropbox-api-config' );
+	$self->{_config_file} = file( $ENV{'HOME'}, '.dropbox-api-config' );
 	
 	$self->connect;
 }
@@ -89,16 +89,13 @@ sub connect {
 	
 	eval{
 		if(-f $self->{_config_file}){
-			$self->{_config} = decode_json($self->{_config_file}->slurp);
-			$self->{_config}->{key} = 'fwsv9z8slaw0c0q';
-			$self->{_config}->{secret} = 'hsxflivocvav6ag';
-			$self->{_config}->{callback_url} = '';						
+			$self->{_config} = decode_json($self->{_config_file}->slurp);	
 			$self->{_box} = Net::Dropbox::API->new($self->{_config});
 			$self->{_box}->context('dropbox');
 		}else{
 			$self->{_config}->{key} = 'fwsv9z8slaw0c0q';
 			$self->{_config}->{secret} = 'hsxflivocvav6ag';
-			$self->{_config}->{callback_url} = '';				
+			$self->{_config}->{callback_url} = '';					
 			return $self->setup;
 		}
 	};
@@ -146,9 +143,6 @@ sub setup {
 			#get atoken and asecret
 			$self->{_config}->{access_token} = $self->{_box}->access_token;
 			$self->{_config}->{access_secret} = $self->{_box}->access_secret;
-			$self->{_config}->{key} = 'fwsv9z8slaw0c0q';
-			$self->{_config}->{secret} = 'hsxflivocvav6ag';
-			$self->{_config}->{callback_url} = '';
 			
 			print $self->{_config}->{access_token}, "\n";
 			print $self->{_config}->{access_secret}, "\n";
