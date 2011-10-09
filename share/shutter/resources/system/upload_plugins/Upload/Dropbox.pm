@@ -124,12 +124,12 @@ sub setup {
 		return FALSE;	
 	}else{
 		my $response = $sd->dlg_info_message(
-			"Please follow the URL ($login_link) below to authorize with Dropbox. Press 'Accept' when you are done.", 
+			"Please click on the button below to authorize with Dropbox. Press 'Apply' when you are done.", 
 			$d->get("Authorize with Dropbox"),
-			'gtk-cancel',
-			$d->get("I have authorized Shutter. Let's go ...")
+			'gtk-cancel','gtk-apply', undef,
+			undef, undef, undef, undef, undef,
+			Gtk2::LinkButton->new ($login_link, $d->get("Authorize")),
 		);
-		print $response, "\n";
 		if ( $response == 20 ) {
 			
 			print "Dropbox: Authorizing...\n";

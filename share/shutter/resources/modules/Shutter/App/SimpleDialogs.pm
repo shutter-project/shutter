@@ -53,6 +53,12 @@ sub dlg_info_message {
 	my $button_text_extra1 = shift;
 	my $button_text_extra2 = shift;
 	my $button_text_extra3 = shift;
+	my $button_widget_extra1 = shift;
+	my $button_widget_extra2 = shift;
+	my $button_widget_extra3 = shift;
+	my $detail_message = shift;
+	my $detail_checkbox = shift;
+	my $content_widget = shift;
 
 	my $info_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/], 'info', 'none', undef );
 
@@ -62,9 +68,41 @@ sub dlg_info_message {
 
 	$info_dialog->set( 'secondary-text' => $dlg_info_message );
 
+	if($content_widget){
+		$info_dialog->get_content_area()->add($content_widget);
+	}
+
 	$info_dialog->add_button( $button_text_extra1, 10 ) if $button_text_extra1;
 	$info_dialog->add_button( $button_text_extra2, 20 ) if $button_text_extra2;
 	$info_dialog->add_button( $button_text_extra3, 30 ) if $button_text_extra3;
+
+	$info_dialog->add_action_widget( $button_widget_extra1, 40 ) if $button_widget_extra1;
+	$info_dialog->add_action_widget( $button_widget_extra2, 50 ) if $button_widget_extra2;
+	$info_dialog->add_action_widget( $button_widget_extra3, 60 ) if $button_widget_extra3;
+
+	#show a detailed message (use expander to show it)
+	if($detail_message){
+		my $expander = Gtk2::Expander->new_with_mnemonic ('Show more _details');	
+		my $detail_label = Gtk2::Label->new($detail_message);
+		$detail_label->set_width_chars (50);
+		$detail_label->set_line_wrap (TRUE);
+		$detail_label->set_alignment( 0, 0.5 );
+		$expander->add($detail_label);
+		my $detail_hbox = Gtk2::HBox->new();
+		$detail_hbox->pack_start(Gtk2::Label->new, FALSE, FALSE, 12);
+		$detail_hbox->pack_start_defaults($expander);
+		$info_dialog->vbox->add($detail_hbox);
+	}
+
+	#show a detailed message with checkbox
+	my $dcheck = undef;
+	if($detail_checkbox){
+		$dcheck = Gtk2::CheckButton->new_with_mnemonic($detail_checkbox);
+		my $detail_hbox = Gtk2::HBox->new();
+		$detail_hbox->pack_start(Gtk2::Label->new, FALSE, FALSE, 12);
+		$detail_hbox->pack_start_defaults($dcheck);
+		$info_dialog->vbox->add($detail_hbox);
+	}
 
 	$info_dialog->show_all;
 
