@@ -92,7 +92,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1121';
+use constant SHUTTER_REV		=> 'Rev.1122';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -10605,42 +10605,44 @@ if ($app->is_running) {
 					require "$hosting_module.pm";
 					
 					my $uploader = $hosting_module->new( $hosting_host, $sc->get_debug, $shutter_root, $d, $window, SHUTTER_VERSION );
-					
-					my $counter = 1;
-					$hosting_progress->set_fraction(0);
-					foreach my $key ( sort @files_to_upload ) {
-						
-						my $file = $session_screens{$key}->{'long'};
-						
-						#set text for progressbar					
-						$hosting_progress->set_text("Uploading $file");
-						&fct_update_gui;
-						
-						#init module
-						$uploader->init;
-						
-						#upload file
-						my %upload_response = $uploader->upload( $shf->switch_home_in_file($file), $hosting_username, $hosting_password );
 
-						if ( is_success( $upload_response{'status'} ) ) {
-							$uploader->show;
-							&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
-						} else {
-							my $response = &dlg_upload_error_message( $upload_response{'status'}, $upload_response{'max_filesize'} );
-							#10 == skip all, 20 == skip, else == cancel
-							last if $response == 10;
-							next if $response == 20;
-							redo if $response == 30;
-							next;
+					#init module
+					if($uploader->init){
+					
+						my $counter = 1;
+						$hosting_progress->set_fraction(0);
+						foreach my $key ( sort @files_to_upload ) {
+							
+							my $file = $session_screens{$key}->{'long'};
+							
+							#set text for progressbar					
+							$hosting_progress->set_text("Uploading $file");
+							&fct_update_gui;
+							
+							#upload file
+							my %upload_response = $uploader->upload( $shf->switch_home_in_file($file), $hosting_username, $hosting_password );
+
+							if ( is_success( $upload_response{'status'} ) ) {
+								$uploader->show;
+								&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
+							} else {
+								my $response = &dlg_upload_error_message( $upload_response{'status'}, $upload_response{'max_filesize'} );
+								#10 == skip all, 20 == skip, else == cancel
+								last if $response == 10;
+								next if $response == 20;
+								redo if $response == 30;
+								next;
+							}
+							$hosting_progress->set_fraction( $counter / @files_to_upload );
+
+							#update gui
+							&fct_update_gui;
+							$counter++;
 						}
-						$hosting_progress->set_fraction( $counter / @files_to_upload );
-
-						#update gui
-						&fct_update_gui;
-						$counter++;
-					}
+						
+						$uploader->show_all;
 					
-					$uploader->show_all;					
+					}				
 
 					#ftp
 				} elsif ( $unotebook->get_current_page == 1 ) {

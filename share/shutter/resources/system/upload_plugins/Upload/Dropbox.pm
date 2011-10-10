@@ -81,26 +81,26 @@ sub init {
 	$self->{_config} = { };
 	$self->{_config_file} = file( $ENV{'HOME'}, '.dropbox-api-config' );
 	
-	$self->connect;
+	return $self->connect;
 }
 
 sub connect {
 	my $self = shift;
 	
-	eval{
-		if(-f $self->{_config_file}){
+	if(-f $self->{_config_file}){
+		eval{
 			$self->{_config} = decode_json($self->{_config_file}->slurp);	
 			$self->{_box} = Net::Dropbox::API->new($self->{_config});
 			$self->{_box}->context('dropbox');
-		}else{
-			$self->{_config}->{key} = 'fwsv9z8slaw0c0q';
-			$self->{_config}->{secret} = 'hsxflivocvav6ag';
-			$self->{_config}->{callback_url} = '';					
-			return $self->setup;
+		};
+		if($@){
+			return FALSE;
 		}
-	};
-	if($@){
-		return FALSE;
+	}else{
+		$self->{_config}->{key} = 'fwsv9z8slaw0c0q';
+		$self->{_config}->{secret} = 'hsxflivocvav6ag';
+		$self->{_config}->{callback_url} = '';					
+		return $self->setup;
 	}
 	
 	return TRUE;
@@ -109,7 +109,9 @@ sub connect {
 sub setup {
 	my $self = shift;
 	
-	print "Setting up Dropbox...\n";
+	if( $self->{_debug_cparam}) {
+		print "Setting up Dropbox...\n";
+	}
 	
 	#some helpers
 	my $sd = Shutter::App::SimpleDialogs->new;
@@ -132,7 +134,9 @@ sub setup {
 		);
 		if ( $response == 20 ) {
 			
-			print "Dropbox: Authorizing...\n";
+			if( $self->{_debug_cparam}) {
+				print "Dropbox: Authorizing...\n";
+			}
 			
 			$self->{_box}->auth;
 			if($self->{_box}->error){
@@ -144,8 +148,10 @@ sub setup {
 			$self->{_config}->{access_token} = $self->{_box}->access_token;
 			$self->{_config}->{access_secret} = $self->{_box}->access_secret;
 			
-			print $self->{_config}->{access_token}, "\n";
-			print $self->{_config}->{access_secret}, "\n";
+			if( $self->{_debug_cparam}) {
+				print $self->{_config}->{access_token}, "\n";
+				print $self->{_config}->{access_secret}, "\n";
+			}
 			
 			$self->{_config_file}->openw->print(encode_json($self->{_config}));
 			chmod 0600, $self->{_config_file};			
@@ -156,7 +162,6 @@ sub setup {
 			
 			return TRUE;
 		} else {
-			print "What is wrong here....dialog reponse\n";
 			return FALSE;
 		}
 		
