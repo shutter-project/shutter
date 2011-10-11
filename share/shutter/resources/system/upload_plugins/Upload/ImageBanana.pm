@@ -74,6 +74,8 @@ sub init {
 	
 	$self->{_mech} = WWW::Mechanize->new( agent => "$self->{_ua}", timeout => 20 );
 	$self->{_http_status} = undef;
+	
+	return TRUE;
 }
 
 sub upload {

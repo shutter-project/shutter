@@ -72,6 +72,8 @@ sub init {
 	use LWP::UserAgent;
 	use HTTP::Request::Common;
 	use XML::Simple;
+	
+	return TRUE;
 }
 
 sub upload {

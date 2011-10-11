@@ -73,6 +73,8 @@ sub init {
 	use JSON;
 	use LWP::UserAgent;
 	use HTTP::Request::Common;
+	
+	return TRUE;	
 }
 
 sub upload {
