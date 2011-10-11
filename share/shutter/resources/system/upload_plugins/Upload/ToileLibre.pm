@@ -38,11 +38,11 @@ my $d = Locale::gettext->domain("shutter-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
 my %upload_plugin_info = 	(
-    'module'		=> $d->get( "ToileLibre"),
+    'module'		=> $d->get( "ToileLibre" ),
 	'url'			=> $d->get( "http://pix.toile-libre.org/" ),
-	'registration'  => $d->get( "-") ,
+	'registration'  => $d->get( "-"),
 	'name'			=> $d->get( "Toile Libre" ),
-	'description'	=> $d->get( "Upload screenshots to pix.toile-libre.org"),
+	'description'	=> $d->get( "Upload screenshots to pix.toile-libre.org" ),
 	'supports_anonymous_upload'	 => TRUE,
 	'supports_authorized_upload' => FALSE,
 );

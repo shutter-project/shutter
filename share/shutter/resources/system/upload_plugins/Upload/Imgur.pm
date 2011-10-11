@@ -38,11 +38,11 @@ my $d = Locale::gettext->domain("shutter-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
 my %upload_plugin_info = 	(
-    'module'		=> $d->get( "Imgur"),
+    'module'		=> $d->get( "Imgur" ),
 	'url'			=> $d->get( "http://imgur.com/" ),
-	'registration'  => $d->get( "https://imgur.com/register") ,
+	'registration'  => $d->get( "https://imgur.com/register" ),
 	'name'			=> $d->get( "imgur.com" ),
-	'description'	=> $d->get( "Upload screenshots to imgur.com"),
+	'description'	=> $d->get( "Upload screenshots to imgur.com" ),
 	'supports_anonymous_upload'	 => TRUE,
 	'supports_authorized_upload' => FALSE,	
 );

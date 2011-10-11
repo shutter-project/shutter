@@ -38,11 +38,11 @@ my $d = Locale::gettext->domain("shutter-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
 my %upload_plugin_info = 	(
-    'module'		=> $d->get( "ImageShack"),
+    'module'		=> $d->get( "ImageShack" ),
 	'url'			=> $d->get( "http://imageshack.us/" ),
-	'registration'  => $d->get( "http://register.imageshack.us") ,
+	'registration'  => $d->get( "http://register.imageshack.us" ),
 	'name'			=> $d->get( "ImageShack.us" ),
-	'description'	=> $d->get( "Upload screenshots to imageshack.us"),
+	'description'	=> $d->get( "Upload screenshots to imageshack.us" ),
 	'supports_anonymous_upload'	 => TRUE,
 	'supports_authorized_upload' => TRUE,	
 );
