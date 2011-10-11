@@ -66,24 +66,27 @@ sub create_tab {
 	my $self = shift;
 
 	my $upload_vbox = Gtk2::VBox->new( FALSE, 0 );
-	my $upload_hbox = Gtk2::HBox->new( FALSE, 0 );
+	my $upload_hbox = Gtk2::HBox->new( FALSE, 10 );
 	my $label_status = Gtk2::Label->new( $self->{_gettext_object}->get("Upload successful - FIXME") );
 	
-	$upload_hbox->pack_start( $label_status, TRUE, TRUE, 0 );	
-	$upload_vbox->pack_start( $upload_hbox, TRUE, TRUE, 10 );
+	$upload_hbox->pack_start( $label_status, FALSE, FALSE, 10 );	
+	$upload_vbox->pack_start( $upload_hbox, FALSE, FALSE, 10 );
+
+	#sizegroup for all labels
+	my $sg = Gtk2::SizeGroup->new('horizontal');
 
 	#create entry for each link
 	foreach (keys %{$self->{_links}}){
 		next if $_ eq 'status';
-		my $box = $self->create_entry_for_notebook($_, $self->{_links}->{$_});
-		$upload_vbox->pack_start_defaults($box);
+		my $box = $self->create_entry_for_notebook($_, $self->{_links}->{$_}, $sg);
+		$upload_vbox->pack_start($box, FALSE, FALSE, 3);
 	}
 	
 	return $upload_vbox;
 }
 
 sub create_entry_for_notebook {
-	my ($self, $field, $value) = @_;
+	my ($self, $field, $value, $sg) = @_;
 
 	#Clipboard
 	my $clipboard = Gtk2::Clipboard->get( Gtk2::Gdk->SELECTION_CLIPBOARD );
@@ -91,8 +94,13 @@ sub create_entry_for_notebook {
 	#Tooltips
 	my $tooltips = Gtk2::Tooltips->new;
 	
-	my $upload_hbox1 = Gtk2::HBox->new( TRUE,  10 );
-	my $upload_hbox2 = Gtk2::HBox->new( FALSE, 10 );
+	my $upload_hbox1 = Gtk2::HBox->new(FALSE, 10);
+	my $upload_hbox2 = Gtk2::HBox->new(FALSE, 10);
+	
+	my $label = Gtk2::Label->new($field);
+	$label->set_alignment( 0, 0.5 );
+	$sg->add_widget($label);
+	
 	my $entry = Gtk2::Entry->new();
 	$entry->set_text($value);
 	
@@ -108,11 +116,11 @@ sub create_entry_for_notebook {
 		},
 		$entry
 	);
-
-	$upload_hbox1->pack_start_defaults(Gtk2::Label->new($field));
-	$upload_hbox1->pack_start_defaults($entry);
-	$upload_hbox2->pack_start_defaults($upload_hbox1);
-	$upload_hbox2->pack_start( $upload_copy, FALSE, TRUE, 10 );
+	
+	$upload_hbox1->pack_start($label, FALSE, FALSE, 10);
+	$upload_hbox1->pack_start($entry, TRUE, TRUE, 10);
+	$upload_hbox2->pack_start($upload_hbox1, TRUE, TRUE, 10);
+	$upload_hbox2->pack_start($upload_copy, FALSE, TRUE, 3);
 	
 	return $upload_hbox2;
 }
