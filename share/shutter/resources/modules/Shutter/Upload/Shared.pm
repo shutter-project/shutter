@@ -27,7 +27,8 @@ use utf8;
 use strict;
 use POSIX qw/setlocale/;
 use Locale::gettext;
-use Glib qw/TRUE FALSE/; 
+use Glib qw/TRUE FALSE/;
+use Data::Dumper;
 
 my $d = Locale::gettext->domain("shutter-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
@@ -103,6 +104,12 @@ sub create_entry_for_notebook {
 	
 	my $entry = Gtk2::Entry->new();
 	$entry->set_text($value);
+	$entry->signal_connect( 'button-release-event' => sub {
+			my ($widget, $event) = @_;
+			$widget->select_region(0, -1);
+			return FALSE;
+		}
+	);
 	
 	my $upload_copy = Gtk2::Button->new;
 	$tooltips->set_tip( $upload_copy,
