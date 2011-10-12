@@ -92,7 +92,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1126';
+use constant SHUTTER_REV		=> 'Rev.1127';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -10601,8 +10601,21 @@ if ($app->is_running) {
 					&fct_update_gui;
 					
 					#import module
-					import lib $hosting_folder;
-					require "$hosting_module.pm";
+					eval{
+						import lib $hosting_folder;
+						require "$hosting_module.pm";
+					};
+					if($@){
+						$sd->dlg_error_message( 
+							sprintf ( $d->get( "Error while executing upload-plugin %s." ), "'" . $hosting_module . "'" ) ,
+							$d->get( "There was an error executing the upload-plugin." ),
+							undef, undef, undef,
+							undef, undef, undef,
+							$@
+						);						
+						$hosting_dialog->destroy();
+						return FALSE;
+					}
 					
 					my $uploader = $hosting_module->new( $hosting_host, $sc->get_debug, $shutter_root, $d, $window, SHUTTER_VERSION );
 
@@ -10992,17 +11005,17 @@ if ($app->is_running) {
 		my $response;
 		if ( $status == 999 ) {
 			$response = $sd->dlg_error_message( 
-			 $d->get("Please check your credentials and try again."), 
-			 $d->get("Error while login")
-		  );
+				$d->get("Please check your credentials and try again."), 
+				$d->get("Error while login")
+			);
 		} elsif ( $status == 998 ) {
 			$response = $sd->dlg_error_message( 
-			 $d->get("Maximum filesize reached"),
+				$d->get("Maximum filesize reached"),
 				$d->get("Error while uploading"), 
-			 $d->get("Skip all"), $d->get("Skip"), undef,
-			 undef, undef, undef,
-			 sprintf($d->get("Maximum filesize: %s"), $max_filesize)
-		  );
+				$d->get("Skip all"), $d->get("Skip"), undef,
+				undef, undef, undef,
+				sprintf($d->get("Maximum filesize: %s"), $max_filesize)
+			);
 		} else {
 			$response = $sd->dlg_error_message(
 				$status,
