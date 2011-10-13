@@ -92,7 +92,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1127';
+use constant SHUTTER_REV		=> 'Rev.1128';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -3433,43 +3433,52 @@ if ($app->is_running) {
 	}
 
 	sub fct_ret_upload_links_menu {
-	   my $key = shift;
-	   my $menu_links = shift;
-		
-	   my $traytheme = $sc->get_theme;
-	   
-	   $menu_links = Gtk2::Menu->new unless defined $menu_links;
-	   foreach my $child ($menu_links->get_children){
+		my $key = shift;
+		my $menu_links = shift;
+
+		my $traytheme = $sc->get_theme;
+
+		$menu_links = Gtk2::Menu->new unless defined $menu_links;
+		foreach my $child ($menu_links->get_children){
 			$child->destroy;
 		}
-	   
-	   my $nmenu_entries = 0;
+
+		my $nmenu_entries = 0;
 		
 		if(defined $key && exists $session_screens{$key}->{'links'}){
-			foreach my $link (keys %{$session_screens{$key}->{'links'}}){
-			#~ print Dumper $session_screens{$key}->{'links'}->{$link}, "\n";
+			foreach my $hoster (keys %{$session_screens{$key}->{'links'}}){
+				print Dumper $session_screens{$key}->{'links'}->{$hoster}, "\n";
 
-			#no longer valid
-			next unless exists $session_screens{$key}->{'links'}->{$link}->{'puburl'};
-			next unless defined $session_screens{$key}->{'links'}->{$link}->{'puburl'};
+				#no longer valid
+				next unless defined $session_screens{$key}->{'links'}->{$hoster};
+				next unless scalar keys %{$session_screens{$key}->{'links'}->{$hoster}} > 0;
 
-			 #create menu entry
-			 my $menuitem_link = Gtk2::ImageMenuItem->new_with_mnemonic( $session_screens{$key}->{'links'}->{$link}->{'menuentry'} );
-			 if(defined $session_screens{$key}->{'links'}->{$link}->{'menuimage'}){
-				if($traytheme->has_icon($session_screens{$key}->{'links'}->{$link}->{'menuimage'})){
-				   $menuitem_link->set_image( Gtk2::Image->new_from_icon_name( $session_screens{$key}->{'links'}->{$link}->{'menuimage'}, 'menu' ) );	
+				#create menu entry
+				my $menuitem_hoster = Gtk2::ImageMenuItem->new_with_mnemonic( $session_screens{$key}->{'links'}->{$hoster}->{'menuentry'} );
+				if(defined $session_screens{$key}->{'links'}->{$hoster}->{'menuimage'}){
+					if($traytheme->has_icon($session_screens{$key}->{'links'}->{$hoster}->{'menuimage'})){
+						$menuitem_hoster->set_image( Gtk2::Image->new_from_icon_name( $session_screens{$key}->{'links'}->{$hoster}->{'menuimage'}, 'menu' ) );	
+					}
 				}
-			 }
-			 $menuitem_link->signal_connect(
-				activate => sub {
-				   $clipboard->set_text($session_screens{$key}->{'links'}->{$link}->{'puburl'});
-				}
-			 );
 
-			 $menu_links->append($menuitem_link);
-			 
-			 $nmenu_entries++;
-			 
+				#create submenu with urls
+				my $menu_urls = Gtk2::Menu->new;
+				foreach my $url (keys %{$session_screens{$key}->{'links'}->{$hoster}}){
+					next if $url eq 'menuimage';
+					next if $url eq 'menuentry';
+					my $menuitem_url = Gtk2::ImageMenuItem->new_with_mnemonic( $session_screens{$key}->{'links'}->{$hoster}->{$url} );
+					$menuitem_url->signal_connect( activate => sub {
+						$clipboard->set_text($session_screens{$key}->{'links'}->{$hoster}->{$url});
+					});
+					$menu_urls->append($menuitem_url);
+				}
+
+				$menuitem_hoster->set_submenu($menu_urls);
+
+				$menu_links->append($menuitem_hoster);
+
+				$nmenu_entries++;
+
 			}
 		}
 	   
@@ -10636,6 +10645,15 @@ if ($app->is_running) {
 							my %upload_response = $uploader->upload( $shf->switch_home_in_file($file), $hosting_username, $hosting_password );
 
 							if ( is_success( $upload_response{'status'} ) ) {
+								
+								#add to public-links menu
+								foreach (keys %upload_response){
+									next if $_ eq 'status';
+									$session_screens{$key}->{'links'}->{$hosting_module}->{$_} = $upload_response{_links}->{$_};
+									$session_screens{$key}->{'links'}->{$hosting_module}->{'menuentry'} = sprintf( $d->get("Copy %s URLs"), $hosting_module );
+									#~ $session_screens{$key}->{'links'}->{$hosting_module}->{'menuimage'} = "ubuntuone";
+								}
+								
 								$uploader->show;
 								&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
 							} else {
@@ -10856,7 +10874,10 @@ if ($app->is_running) {
 							}else{								
 								$target_path = $shf->utf8_decode(Gnome2::VFS->unescape_string($target_uri->get_scheme."://".$target_uri->get_host_name.$target_uri->extract_dirname));
 							}
-
+							
+							#dialogs (main window != parent window)
+							my $sd = Shutter::App::SimpleDialogs->new;
+							
 							my $response = $sd->dlg_warning_message(
 								sprintf( $d->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $target_path ."'"),
 								sprintf( $d->get("An image named %s already exists. Do you want to replace it?"), "'" . $target_uri->extract_short_name . "'" ),
