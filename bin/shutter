@@ -92,7 +92,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1128';
+use constant SHUTTER_REV		=> 'Rev.1129';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -10615,6 +10615,9 @@ if ($app->is_running) {
 						require "$hosting_module.pm";
 					};
 					if($@){
+						#dialogs (main window != parent window)
+						my $sd = Shutter::App::SimpleDialogs->new;						
+						
 						$sd->dlg_error_message( 
 							sprintf ( $d->get( "Error while executing upload-plugin %s." ), "'" . $hosting_module . "'" ) ,
 							$d->get( "There was an error executing the upload-plugin." ),
