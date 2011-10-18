@@ -67,11 +67,6 @@ sub create_tab {
 	my $self = shift;
 
 	my $upload_vbox = Gtk2::VBox->new( FALSE, 0 );
-	my $upload_hbox = Gtk2::HBox->new( FALSE, 10 );
-	my $label_status = Gtk2::Label->new( $self->{_gettext_object}->get("Upload successful - FIXME") );
-	
-	$upload_hbox->pack_start( $label_status, FALSE, FALSE, 10 );	
-	$upload_vbox->pack_start( $upload_hbox, FALSE, FALSE, 10 );
 
 	#sizegroup for all labels
 	my $sg = Gtk2::SizeGroup->new('horizontal');
@@ -98,6 +93,9 @@ sub create_entry_for_notebook {
 	my $upload_hbox1 = Gtk2::HBox->new(FALSE, 10);
 	my $upload_hbox2 = Gtk2::HBox->new(FALSE, 10);
 	
+	#prepare $field
+	$field =~ s/_/ /ig;
+	$field = ucfirst $field;
 	my $label = Gtk2::Label->new($field);
 	$label->set_alignment( 0, 0.5 );
 	$sg->add_widget($label);
