@@ -195,7 +195,10 @@ sub upload {
 			$self->{_links}{'status'} = 200;
 			
 			#...and filename
-			$self->{_links}->{'direct_link'} = "http://dl.dropbox.com/u/".$self->get_uid."/".$self->escape(basename($upload_filename));
+			my $prep_filename = basename($upload_filename);
+			utf8::decode $prep_filename;
+			#~ $self->{_links}->{'direct_link'} = "http://dl.dropbox.com/u/".$self->get_uid."/".$self->escape(basename($upload_filename));
+			$self->{_links}->{'direct_link'} = "http://dl.dropbox.com/u/".$self->get_uid."/".$prep_filename;
 			
 			#print all links (debug)
 			if( $self->{_debug_cparam}) {

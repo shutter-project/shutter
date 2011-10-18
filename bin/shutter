@@ -3477,14 +3477,17 @@ if ($app->is_running) {
 							last;							
 						}
 					}
-					#prepare identifier for tooltiup
-					#e.g. direct_link => Direct link
-					$url =~ s/_/ /ig;
-					$url = ucfirst $url;
-					$tooltips->set_tip( $menuitem_url, $url );
 					$menuitem_url->signal_connect( activate => sub {
 						$clipboard->set_text($session_screens{$key}->{'links'}->{$hoster}->{$url});
 					});
+
+					#prepare identifier for tooltiup
+					#e.g. direct_link => Direct link
+					my $prep_url = $url;
+					$prep_url =~ s/_/ /ig;
+					$prep_url = ucfirst $prep_url;
+					$tooltips->set_tip( $menuitem_url, $prep_url );
+					
 					$menu_urls->append($menuitem_url);
 				}
 
