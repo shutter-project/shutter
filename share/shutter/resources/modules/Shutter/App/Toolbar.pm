@@ -266,10 +266,12 @@ sub create_toolbar {
 	#button upload
 	#--------------------------------------
 	my $image_upload = Gtk2::Image->new_from_stock( 'gtk-network', 'large-toolbar' );
-	$self->{_upload} = Gtk2::ToolButton->new( $image_upload, $d->get("Export") );
+	$self->{_upload} = Gtk2::MenuToolButton->new( $image_upload, $d->get("Export") );
 	$self->{_upload}->set_is_important (TRUE);
 
 	$tooltips->set_tip( $self->{_upload}, $d->get("Upload your images to an image hosting service, FTP site or export them to an arbitrary folder") );
+	$self->{_upload}->set_arrow_tooltip( $tooltips, $d->get("Show links to previous uploads"), '' );
+
 
 	#--------------------------------------	
 

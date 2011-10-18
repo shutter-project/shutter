@@ -92,7 +92,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1129';
+use constant SHUTTER_REV		=> 'Rev.1131';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -3438,16 +3438,18 @@ if ($app->is_running) {
 
 		my $traytheme = $sc->get_theme;
 
-		$menu_links = Gtk2::Menu->new unless defined $menu_links;
-		foreach my $child ($menu_links->get_children){
-			$child->destroy;
+		if(defined $menu_links){
+			foreach my $child ($menu_links->get_children){
+				$child->destroy;
+			}
+		}else{
+			$menu_links = Gtk2::Menu->new;
 		}
 
 		my $nmenu_entries = 0;
 		
 		if(defined $key && exists $session_screens{$key}->{'links'}){
 			foreach my $hoster (keys %{$session_screens{$key}->{'links'}}){
-				print Dumper $session_screens{$key}->{'links'}->{$hoster}, "\n";
 
 				#no longer valid
 				next unless defined $session_screens{$key}->{'links'}->{$hoster};
@@ -3466,7 +3468,20 @@ if ($app->is_running) {
 				foreach my $url (keys %{$session_screens{$key}->{'links'}->{$hoster}}){
 					next if $url eq 'menuimage';
 					next if $url eq 'menuentry';
-					my $menuitem_url = Gtk2::ImageMenuItem->new_with_mnemonic( $session_screens{$key}->{'links'}->{$hoster}->{$url} );
+					#create item
+					my $menuitem_url = Gtk2::MenuItem->new_with_label( $session_screens{$key}->{'links'}->{$hoster}->{$url} );
+					foreach my $child ($menuitem_url->get_children){
+						if($child =~ m/Gtk2::AccelLabel/){
+							$child->set_ellipsize('middle');
+							$child->set_width_chars(20);
+							last;							
+						}
+					}
+					#prepare identifier for tooltiup
+					#e.g. direct_link => Direct link
+					$url =~ s/_/ /ig;
+					$url = ucfirst $url;
+					$tooltips->set_tip( $menuitem_url, $url );
 					$menuitem_url->signal_connect( activate => sub {
 						$clipboard->set_text($session_screens{$key}->{'links'}->{$hoster}->{$url});
 					});
@@ -3553,6 +3568,13 @@ if ($app->is_running) {
 				$st->{_edit}->set_sensitive(FALSE);
 			}
 			
+			#upload links
+			my ($nmenu_entries_tb, $menu_links_tb) = &fct_ret_upload_links_menu($key, $st->{_upload}->get_menu);
+			if($nmenu_entries_tb){
+				$st->{_upload}->set_menu($menu_links_tb);
+			}else{
+				$st->{_upload}->set_menu(undef);
+			}
 			$st->{_upload}->set_sensitive($n_items);
 		
 			#MENU
@@ -6703,11 +6725,7 @@ if ($app->is_running) {
 			push( @upload_array, $key );
 			&dlg_upload(@upload_array);
 
-			#update actions
-			#new public links might be available
-			&fct_update_actions(1, $key);
-
-			#session tab
+		#session tab
 		} else {
 
 			$session_start_screen{'first_page'}->{'view'}->selected_foreach(
@@ -6724,7 +6742,15 @@ if ($app->is_running) {
 				undef
 			);
 			&dlg_upload(@upload_array);
+			
 		}
+		
+		#update actions
+		#new public links might be available
+		foreach my $key (@upload_array){
+			&fct_update_actions(1, $key);
+		}
+		
 		return TRUE;
 	}
 
@@ -9150,7 +9176,7 @@ if ($app->is_running) {
 				if($meta{'is_public'}){
 
 					$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'puburl'}     = $meta{'public_url'};
-					$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuentry'}  = $d->get("Copy Ubuntu One public URL");
+					$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuentry'}  = $d->get("Ubuntu One");
 					$session_screens{$key}->{'links'}->{'ubuntu-one'}->{'menuimage'}  = "ubuntuone";
 
 					#copy to clipboard
@@ -10652,9 +10678,8 @@ if ($app->is_running) {
 								#add to public-links menu
 								foreach (keys %upload_response){
 									next if $_ eq 'status';
-									$session_screens{$key}->{'links'}->{$hosting_module}->{$_} = $upload_response{_links}->{$_};
-									$session_screens{$key}->{'links'}->{$hosting_module}->{'menuentry'} = sprintf( $d->get("Copy %s URLs"), $hosting_module );
-									#~ $session_screens{$key}->{'links'}->{$hosting_module}->{'menuimage'} = "ubuntuone";
+									$session_screens{$key}->{'links'}->{$hosting_module}->{$_} = $upload_response{$_};
+									$session_screens{$key}->{'links'}->{$hosting_module}->{'menuentry'} = $hosting_module;
 								}
 								
 								$uploader->show;
