@@ -92,7 +92,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1132';
+use constant SHUTTER_REV		=> 'Rev.1133';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -3454,7 +3454,8 @@ if ($app->is_running) {
 				#no longer valid
 				next unless defined $session_screens{$key}->{'links'}->{$hoster};
 				next unless scalar keys %{$session_screens{$key}->{'links'}->{$hoster}} > 0;
-
+				next unless defined $session_screens{$key}->{'links'}->{$hoster}->{'menuentry'};
+				
 				#create menu entry
 				my $menuitem_hoster = Gtk2::ImageMenuItem->new_with_mnemonic( $session_screens{$key}->{'links'}->{$hoster}->{'menuentry'} );
 				if(defined $session_screens{$key}->{'links'}->{$hoster}->{'menuimage'}){
@@ -3468,6 +3469,7 @@ if ($app->is_running) {
 				foreach my $url (keys %{$session_screens{$key}->{'links'}->{$hoster}}){
 					next if $url eq 'menuimage';
 					next if $url eq 'menuentry';
+					next if $url eq 'pubfile';
 					#create item
 					my $menuitem_url = Gtk2::MenuItem->new_with_label( $session_screens{$key}->{'links'}->{$hoster}->{$url} );
 					foreach my $child ($menuitem_url->get_children){
