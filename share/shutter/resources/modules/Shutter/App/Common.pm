@@ -53,6 +53,7 @@ sub new {
 	$self->{_start_with}             	= undef;
 	$self->{_start_with_extra}			= undef;
 	$self->{_profile_to_start_with}  	= undef;
+	$self->{_export_filename}			= undef;
 
 	#Set LC_NUMERIC to C to prevent decimal commas (or anything else)
 	setlocale(LC_NUMERIC, "C");	
@@ -367,6 +368,19 @@ sub set_profile_to_start_with {
 		$self->{_profile_to_start_with} = shift;
 	}
 	return $self->{_profile_to_start_with};
+}
+
+sub get_export_filename {
+	my $self = shift;
+	return $self->{_export_filename};
+}
+
+sub set_export_filename {
+	my $self = shift;
+	if (@_) {
+		$self->{_export_filename} = shift;
+	}
+	return $self->{_export_filename};
 }
 
 sub get_current_monitor {

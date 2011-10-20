@@ -59,6 +59,7 @@ sub get_options {
 		'r|redo' => sub{ $self->{_sc}->set_start_with("redoshot"); $self->{_sc}->set_min(TRUE); },
 		
 		'p|profile=s' => sub{ my ($p, $profile) = @_; $self->{_sc}->set_profile_to_start_with($profile); },		
+		'o|output=s' => sub{ my ($o, $output) = @_; $self->{_sc}->set_export_filename($output); },		
 		
 		'h|help' => sub{ pod2usage(-verbose => 1); },
 		'v|version' => sub{ print $self->{_sc}->get_version, " ", $self->{_sc}->get_rev, "\n"; exit; },		

@@ -92,7 +92,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1133';
+use constant SHUTTER_REV		=> 'Rev.1134';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -6082,17 +6082,17 @@ if ($app->is_running) {
 		print "\n$data was emitted by widget $widget\n"
 			if $sc->get_debug;
 
-		my $quality_value	= $scale->get_value();
-		my $delay_value     = undef;
+		my $quality_value = $scale->get_value();
+		my $delay_value = undef;
 		
 		#filename
 		my $filename_value = $filename->get_text();
 		
 		#filetype
-		my $filetype_value 	   = undef;
+		my $filetype_value = undef;
 		
 		#folder to save
-		my $folder             = $saveDir_button->get_filename || $folder_from_config;
+		my $folder = $saveDir_button->get_filename || $folder_from_config;
 		if($save_no_active->get_active){
 			$folder = $sdir->get_cache_dir;
 		}
@@ -6130,7 +6130,12 @@ if ($app->is_running) {
 		$filename_value =~ s/(\/|\#)/-/g;
 
 		#get next filename (auto increment using a wild card or manually)
-		my $uri = &fct_get_next_filename( $filename_value, $folder, $filetype_value );
+		my $uri = undef;
+		if($sc->get_export_filename){
+			$uri = Gnome2::VFS::URI->new($sc->get_export_filename);
+		}else{
+			$uri = &fct_get_next_filename($filename_value, $folder, $filetype_value);
+		}
 
 		#no valid filename was determined, exit here
 		unless($uri){
@@ -6470,7 +6475,6 @@ if ($app->is_running) {
 		#start postprocessing here
 
 		#...successfully???
-		#~ print "$sc, $screenshot, $data\n";
 		my $error = Shutter::Screenshot::Error->new($sc, $screenshot, $data, $extra);
 		if($error->is_error) {
 			my $detailed_error_text = '';
@@ -11319,6 +11323,10 @@ Redo last screenshot.
 =item B<-p, --profile=NAME>
 
 Load a specific profile on startup.
+
+=item B<-o, --output=FILENAME>
+
+Specify a filename to save the screenshot to (overwrites any profile-related setting).
 
 =back
 
