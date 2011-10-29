@@ -93,7 +93,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1135';
+use constant SHUTTER_REV		=> 'Rev.1136';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -426,8 +426,8 @@ if ($app->is_running) {
 
 	#shutdown Shutter carefully when INT or TERM are detected
 	# => save settings
-	$SIG{INT}    = sub { &evt_delete_window( '', 'quit' ) };
-	$SIG{TERM}   = sub { &evt_delete_window( '', 'quit' ) };
+	$SIG{INT} = sub { &evt_delete_window( '', 'quit' ) };
+	$SIG{TERM} = sub { &evt_delete_window( '', 'quit' ) };
 
 	#hash of screenshots during session
 	my %session_screens;
@@ -443,9 +443,9 @@ if ($app->is_running) {
 	$window->set_default_size( -1, 500 );
 
 	#TRAY ICON AND MENU
-	my $tray                 = undef;
-	my $tray_box			 = undef; #Gtk2::TrayIcon needs and Gtk2::EventBox 
-	my $tray_menu			 = &fct_ret_tray_menu;
+	my $tray = undef;
+	my $tray_box = undef; #Gtk2::TrayIcon needs and Gtk2::EventBox 
+	my $tray_menu = &fct_ret_tray_menu;
 
 	#SESSION NOTEBOOK
 	my $notebook = Gtk2::Notebook->new;
@@ -2077,10 +2077,10 @@ if ($app->is_running) {
 	my $fs_min_active	= Gtk2::CheckButton->new_with_label( $d->get("Hide window on first launch") );
 	my $fs_nonot_active	= Gtk2::CheckButton->new_with_label( $d->get("Hide notification icon") );
 
-	my $hide_active           = Gtk2::CheckButton->new_with_label( $d->get("Autohide main window when taking a screenshot") );
-	my $hide_time_label 	  = Gtk2::Label->new($d->get("Redraw Delay"). ":");
-	my $hide_time_vlabel      = Gtk2::Label->new;
-	my $hide_time			  = Gtk2::SpinButton->new_with_range (100, 1000, 50);
+	my $hide_active			= Gtk2::CheckButton->new_with_label( $d->get("Autohide main window when taking a screenshot") );
+	my $hide_time_label		= Gtk2::Label->new($d->get("Redraw Delay"). ":");
+	my $hide_time_vlabel	= Gtk2::Label->new;
+	my $hide_time			= Gtk2::SpinButton->new_with_range (100, 1000, 50);
 	$hide_time_vlabel->set_text( $d->nget("millisecond", "milliseconds", $hide_time->get_value) );
 	$hide_time->signal_connect(
 		'value-changed' => \&evt_value_changed,
@@ -2165,10 +2165,16 @@ if ($app->is_running) {
 	$tooltips->set_tip( $hide_time, $d->get("Configure a short timeout to give the Xserver a chance to redraw areas that were obscured by Shutter's windows before taking a screenshot.") );
 	$tooltips->set_tip( $hide_time_vlabel, $d->get("Configure a short timeout to give the Xserver a chance to redraw areas that were obscured by Shutter's windows before taking a screenshot.") );
 
-	if ( defined $settings_xml->{'general'}->{'present_after'} ) {
-		$present_after_active->set_active( $settings_xml->{'general'}->{'present_after'} );
+	#If get_exit_after_capture is TRUE, overwrite any saved setting
+	#because presenting the window does not make sense here
+	if( $sc->get_exit_after_capture ) {
+		$present_after_active->set_active(FALSE);
 	} else {
-		$present_after_active->set_active(TRUE);
+		if ( defined $settings_xml->{'general'}->{'present_after'} ) {
+			$present_after_active->set_active( $settings_xml->{'general'}->{'present_after'} );
+		} else {
+			$present_after_active->set_active(TRUE);
+		}		
 	}
 
 	$tooltips->set_tip( $present_after_active, $d->get("Present main window after taking a screenshot") );
