@@ -404,16 +404,22 @@ sub include_cursor {
 				$data .= pack ('C*', $r, $g, $b, $a);
 			}
 		}
-		
-		$cursor_pixbuf = Gtk2::Gdk::Pixbuf->new_from_data($data,'rgb',1,8,$width,$height-1,4*$width);
 
-		$cursor_pixbuf_xhot = $xhot;
-		$cursor_pixbuf_yhot = $yhot;
+		if($width > 1 && $height > 1){
+			$cursor_pixbuf = Gtk2::Gdk::Pixbuf->new_from_data($data,'rgb',1,8,$width,$height-1,4*$width);
 
-		$cursor_pixbuf_xroot = $root_x;
-		$cursor_pixbuf_yroot = $root_y;
+			$cursor_pixbuf_xhot = $xhot;
+			$cursor_pixbuf_yhot = $yhot;
+
+			$cursor_pixbuf_xroot = $root_x;
+			$cursor_pixbuf_yroot = $root_y;
+		}else{
+			warn "WARNING: There was an error while getting the cursor image (XFIXESGetCursorImage)\n";
+		}
 		
 	}else{
+
+		warn "WARNING: XFIXES extension not found - using a default cursor image\n";
 
 		my ( $window_at_pointer, $root_x, $root_y, $mask ) = $gdk_window->get_pointer;
 
@@ -422,22 +428,24 @@ sub include_cursor {
 	
 		#try to use default cursor if there was an error
 		unless ( $cursor_pixbuf) {
-			warn "WARNING: There was an error while getting the cursor image - using a default cursor\n";
+			warn "WARNING: There was an error while getting the default cursor image - using one of our image files\n";
 			my $icons_path = $self->{_sc}->get_root . "/share/shutter/resources/icons";
 			eval{
 				$cursor_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($icons_path."/Normal.cur");
 			};
 			if($@){
-				warn "ERROR: There was an error while loading the default cursor: $@\n";
+				warn "ERROR: There was an error while loading the image file: $@\n";
 			}
 		}
 		
-		$cursor_pixbuf_xhot = $cursor_pixbuf->get_option('x_hot');
-		$cursor_pixbuf_yhot = $cursor_pixbuf->get_option('y_hot');
+		if( $cursor_pixbuf ){
+			$cursor_pixbuf_xhot = $cursor_pixbuf->get_option('x_hot');
+			$cursor_pixbuf_yhot = $cursor_pixbuf->get_option('y_hot');
+			
+			$cursor_pixbuf_xroot = $root_x;
+			$cursor_pixbuf_yroot = $root_y;
+		}
 		
-		$cursor_pixbuf_xroot = $root_x;
-		$cursor_pixbuf_yroot = $root_y;
-	
 	}
 	
 	if ( $cursor_pixbuf ) {
