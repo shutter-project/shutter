@@ -35,6 +35,9 @@ use Locale::gettext;
 #Glib
 use Glib qw/TRUE FALSE/; 
 
+#File
+use File::Spec;
+
 #--------------------------------------
 
 ##################public subs##################

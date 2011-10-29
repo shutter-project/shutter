@@ -56,6 +56,7 @@ use File::Copy qw/ cp mv /;
 use File::Glob qw/ glob /;
 use File::Basename qw/ fileparse dirname basename /;
 use File::Temp qw/ tempfile tempdir /;
+use File::Spec; 
 use IO::File();
 
 #A selection of general-utility list subroutines
@@ -92,7 +93,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1134';
+use constant SHUTTER_REV		=> 'Rev.1135';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -6124,16 +6125,30 @@ if ($app->is_running) {
 			$delay_value = 0;
 		}
 		
-		#prepare filename, parse wild-cards
-		$filename_value = $shf->utf8_decode (strftime $filename_value , localtime);
-		#remove "/" and "#"
-		$filename_value =~ s/(\/|\#)/-/g;
-
 		#get next filename (auto increment using a wild card or manually)
 		my $uri = undef;
-		if($sc->get_export_filename){
-			$uri = Gnome2::VFS::URI->new($sc->get_export_filename);
+		if($sc->get_export_filename){		
+			my ( $short, $folder, $ext ) = fileparse($shf->switch_home_in_file($sc->get_export_filename), qr/\.[^.]*/);
+			#set filetype
+			$filetype_value = $ext;
+			$filetype_value =~ s/\.//;
+			#prepare filename, parse wild-cards 
+			$short = $shf->utf8_decode(strftime $short, localtime);
+			#..remove / and #
+			$short =~ s/(\/|\#)/-/g;
+			#relative to abs
+			my $tmp_filename = $folder.$short.$ext;
+			unless(File::Spec->file_name_is_absolute($tmp_filename)){
+				$tmp_filename = File::Spec->rel2abs($tmp_filename);	
+			}
+			#...and create an uri
+			$uri = Gnome2::VFS::URI->new($tmp_filename);
 		}else{
+			#prepare filename, parse wild-cards
+			$filename_value = $shf->utf8_decode (strftime $filename_value , localtime);
+			#..remove / and #
+			$filename_value =~ s/(\/|\#)/-/g;
+			#...and get next filename
 			$uri = &fct_get_next_filename($filename_value, $folder, $filetype_value);
 		}
 
@@ -6541,25 +6556,38 @@ if ($app->is_running) {
 			$uri = Gnome2::VFS::URI->new ($screenshot_name);
 					
 			#maybe the uri already exists, so we have to append some digits (e.g. testfile01(0002).png)
-			if ( $uri->exists ) {
-				my $count = 1;
-				my $new_filename = fileparse($shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path)), qr/\.[^.]*/);
-				
-				print "Checking if filename already exists: " . $new_filename . "\n" if $sc->get_debug;
-				
-				my $existing_filename = $new_filename;
-				while ( $uri->exists ) {
-					$new_filename = $existing_filename . "(" . sprintf( "%03d", $count++ ) . ")";
-					$uri 	= Gnome2::VFS::URI->new($folder);
-					$uri    = $uri->append_string("$new_filename.$filetype_value");
-					print "Checking new uri after parsing: " . $uri->to_string . "\n" if $sc->get_debug;
+			#don't check if filename is set via cmd parameter
+			unless($sc->get_export_filename){
+				if ($uri->exists) {
+					my $count = 1;
+					my $new_filename = fileparse($shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path)), qr/\.[^.]*/);
+					
+					print "Checking if filename already exists: " . $new_filename . "\n" if $sc->get_debug;
+					
+					my $existing_filename = $new_filename;
+					while ( $uri->exists ) {
+						$new_filename = $existing_filename . "(" . sprintf( "%03d", $count++ ) . ")";
+						$uri 	= Gnome2::VFS::URI->new($folder);
+						$uri    = $uri->append_string("$new_filename.$filetype_value");
+						print "Checking new uri after parsing: " . $uri->to_string . "\n" if $sc->get_debug;
+					}
 				}
 			}
-			
-			print "New uri after exists check: " . $uri->to_string . "\n" if $sc->get_debug;
-			
+				
 			#we have to update the path again
 			$screenshot_name = $shf->utf8_decode(Gnome2::VFS->unescape_string($uri->get_path));
+
+			#no valid filename was determined, exit here
+			unless($screenshot_name){
+				my $response = $sd->dlg_error_message( 
+					$d->get( "There was an error determining the filename." ),
+					$d->get("Failed") 
+				);		
+				&fct_control_main_window ('show');
+				return FALSE;
+			}
+
+			print "New uri after exists check: " . $uri->to_string . "\n" if $sc->get_debug;
 
 			#manipulate before saving
 			#bordereffect
@@ -11242,7 +11270,7 @@ Shutter - Feature-rich Screenshot Tool
 
 =head1 SYNOPSIS
 
-shutter [options] [file ...]
+shutter [options]
 
 =head1 COPYRIGHT
 
@@ -11327,6 +11355,26 @@ Load a specific profile on startup.
 =item B<-o, --output=FILENAME>
 
 Specify a filename to save the screenshot to (overwrites any profile-related setting).
+
+B<Supported image formats:> You can save to any popular image format (e.g. jpeg, png, gif, bmp). Additionally it is possible to save to pdf, ps or svg.
+
+B<Please note:> There are several wildcards available, like
+
+ %Y = year
+ %m = month
+ %d = day
+ %T = time
+ $w = width
+ $h = height
+ $name = multi-purpose (e.g. window title)
+ $nb_name = like $name but without blanks in resulting strings
+ $profile = name of current profile
+ $R = random char (e.g. $RRRR = ag4r)
+ %NN = counter
+
+The string is interpretted by strftime. See C<man strftime> for more examples.
+
+B<As an example:> shutter -f -e -o './%y-%m-%d_$w_$h.png' would create a file named '11-10-28_1280_800.png' in the current directory. 
 
 =back
 
