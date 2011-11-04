@@ -93,7 +93,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1140';
+use constant SHUTTER_REV		=> 'Rev.1141';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -6712,13 +6712,20 @@ if ($app->is_running) {
 				}
 
 			}
+			
+			my $new_key_screenshot = undef;
+			my $new_key_screenshot_thumbnail = undef;
+			#Dont add it to session if it already exists
+			unless(&fct_is_uri_in_session($uri, TRUE)){
+			
+				#integrate it into the notebook
+				$new_key_screenshot = &fct_integrate_screenshot_in_notebook( $uri, $screenshot, $screenshooter );
 
-			#integrate it into the notebook
-			my $new_key_screenshot = &fct_integrate_screenshot_in_notebook( $uri, $screenshot, $screenshooter );
-
-			#thumbnail as well if present
-			my $new_key_screenshot_thumbnail = &fct_integrate_screenshot_in_notebook( Gnome2::VFS::URI->new($screenshot_thumbnail_name), $screenshot_thumbnail )
-				if $thumbnail_active->get_active;
+				#thumbnail as well if present
+				$new_key_screenshot_thumbnail = &fct_integrate_screenshot_in_notebook( Gnome2::VFS::URI->new($screenshot_thumbnail_name), $screenshot_thumbnail )
+					if $thumbnail_active->get_active;
+			
+			}
 			
 			#in some cases it is not possible to add it to the session
 			#e.g. when saving to pdf
