@@ -93,7 +93,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1137';
+use constant SHUTTER_REV		=> 'Rev.1138';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -3964,6 +3964,20 @@ if ($app->is_running) {
 		}
 		
 		#check mime type
+		my $mime_type = Gnome2::VFS->get_mime_type_for_name( $uri->to_string );
+		if ($mime_type =~ m/(pdf|ps|svg)/ig){
+			#not a supported mime type
+			#~ my $response = $sd->dlg_error_message( 
+				#~ sprintf ( $d->get(  "Error while opening image %s." ), "'" . $uri->to_string . "'" ) ,
+				#~ $d->get( "There was an error opening the image." ),
+				#~ undef, undef, undef,
+				#~ undef, undef, undef,
+				#~ $d->get( "MimeType not supported." )
+			#~ );
+			#~ &fct_show_status_message( 1, $uri->to_string . " " . $d->get("not supported") );		
+			return FALSE;					
+		}
+
 		#~ my $mime_type = Gnome2::VFS->get_mime_type_for_name( $uri->to_string );
 		#~ unless ($mime_type && &fct_check_valid_mime_type($mime_type)){
 			#~ #not a supported mime type
@@ -6694,46 +6708,67 @@ if ($app->is_running) {
 			my $new_key_screenshot_thumbnail = &fct_integrate_screenshot_in_notebook( Gnome2::VFS::URI->new($screenshot_thumbnail_name), $screenshot_thumbnail )
 				if $thumbnail_active->get_active;
 			
-			#copy to clipboard
-			if(!$no_autocopy_active->get_active()) {
+			#in some cases it is not possible to add it to the session
+			#e.g. when saving to pdf
+			if($new_key_screenshot){
 			
-				#image_autocopy to clipboard if configured
-				if ( $image_autocopy_active->get_active() ) {
-					$clipboard->set_image($screenshot);
-				}
+				#copy to clipboard
+				if(!$no_autocopy_active->get_active()) {
 				
-				#filename autocopy to clipboard if configured
-				if ( $fname_autocopy_active->get_active() ) {
-					$clipboard->set_text($screenshot_name);
+					#image_autocopy to clipboard if configured
+					if ( $image_autocopy_active->get_active() ) {
+						$clipboard->set_image($screenshot);
+					}
+					
+					#filename autocopy to clipboard if configured
+					if ( $fname_autocopy_active->get_active() ) {
+						$clipboard->set_text($screenshot_name);
+					}
+
 				}
 
-			}
-
-			#open screenshot with configured program
-			if ( $progname_active->get_active ) {
-				my $model         	= $progname->get_model();
-				my $progname_iter 	= $progname->get_active_iter();
-				if ($progname_iter) {
-					my $progname_value 	= $model->get_value( $progname_iter, 2 );
-					my $appname_value 	= $model->get_value( $progname_iter, 1 );
-					&fct_open_with_program($progname_value, $appname_value);
+				#open screenshot with configured program
+				if ( $progname_active->get_active ) {
+					my $model         	= $progname->get_model();
+					my $progname_iter 	= $progname->get_active_iter();
+					if ($progname_iter) {
+						my $progname_value 	= $model->get_value( $progname_iter, 2 );
+						my $appname_value 	= $model->get_value( $progname_iter, 1 );
+						&fct_open_with_program($progname_value, $appname_value);
+					}
 				}
-			}
-			print "screenshot successfully saved to $screenshot_name!\n"
-				if $sc->get_debug;
-			&fct_show_status_message( 1, "$session_screens{$new_key_screenshot}->{'short'} " . $d->get("saved") );
+				print "screenshot successfully saved to $screenshot_name!\n"
+					if $sc->get_debug;
+				
+				&fct_show_status_message( 1, sprintf($d->get("%s saved"),$session_screens{$new_key_screenshot}->{'short'}) );
+				
+				#show pop-up notification
+				if($notify_after_active->get_active){
+					my $notify 	= $sc->get_notification_object;
+					if(defined $session_screens{$new_key_screenshot}->{'is_unsaved'} && $session_screens{$new_key_screenshot}->{'is_unsaved'}){
+						$notify->show( $d->get("Screenshot saved"), "*".$session_screens{$new_key_screenshot}->{'name'} );
+					}else{
+						$notify->show( $d->get("Screenshot saved"), $session_screens{$new_key_screenshot}->{'long'} );
+					}
+				}
+
+			} else { #endif - adding to session worked
+
+				print "screenshot successfully saved to $screenshot_name, but unable to add the file to session!\n"
+					if $sc->get_debug;
+				
+				&fct_show_status_message( 1, sprintf($d->get("%s saved"),$screenshot_name) );
+				
+				#show pop-up notification
+				if($notify_after_active->get_active){
+					my $notify 	= $sc->get_notification_object;
+					$notify->show( $d->get("Screenshot saved"), $screenshot_name );
+				}		
 			
-			#show pop-up notification
-			if($notify_after_active->get_active){
-				my $notify 	= $sc->get_notification_object;
-				if(defined $session_screens{$new_key_screenshot}->{'is_unsaved'} && $session_screens{$new_key_screenshot}->{'is_unsaved'}){
-					$notify->show( $d->get("Screenshot saved"), "*".$session_screens{$new_key_screenshot}->{'name'});
-				}else{
-					$notify->show( $d->get("Screenshot saved"), $session_screens{$new_key_screenshot}->{'long'} );
-				}
 			}
-
+		
 		} else {
+			
 			#show error dialog
 			my $response = $sd->dlg_error_message( 
 				sprintf($d->get( "The filename %s could not be verified. Maybe it contains unsupported characters." ), "'" . $screenshot_name . "'"),
@@ -6742,8 +6777,9 @@ if ($app->is_running) {
 			&fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
 			&fct_control_main_window ('show');
 			return FALSE;		
-		}
 		
+		}
+
 		&fct_control_main_window('show', $present_after_active->get_active);
 		
 		#Exit Shutter after the first capture has been made. 
