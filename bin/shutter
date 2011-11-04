@@ -93,7 +93,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1138';
+use constant SHUTTER_REV		=> 'Rev.1139';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -227,18 +227,19 @@ $ENV{ 'HOME' } = $sdir->get_home_dir;
 
 my $app = Gtk2::UniqueApp->new(
 		"org.shutter-project.Shutter", undef,
-		select 	 => 1,
-		full	 => 2,
-		window 	 => 3,
-		awindow	 => 4,
-		section  => 5,
-		menu	 => 6,
-		tooltip	 => 7,
-		web		 => 8,
-		redoshot => 9,
-		profile  => 10,
-		fopen    => 11,
-		exitac   => 12,
+		select 	   => 1,
+		full	   => 2,
+		window 	   => 3,
+		awindow	   => 4,
+		section    => 5,
+		menu	   => 6,
+		tooltip	   => 7,
+		web		   => 8,
+		redoshot   => 9,
+		profile    => 10,
+		fopen      => 11,
+		exitac     => 12,
+		exfilename => 13,
 );
 
 #load command line arguments
@@ -252,6 +253,7 @@ if ($app->is_running) {
 	my ($cmdname, $extra) = $sc->get_start_with;
 	my $profile = $sc->get_profile_to_start_with;
 	my $exitac = $sc->get_exit_after_capture;
+	my $exfilename = $sc->get_export_filename;
 	
 	my $cmdid = undef;
 	if(defined $cmdname){
@@ -273,8 +275,6 @@ if ($app->is_running) {
 			$cmdid = 8;
 		}elsif($cmdname eq 'redoshot'){						
 			$cmdid = 9;
-		}elsif($cmdname eq 'profile'){						
-			$cmdid = 10;
 		}
 	}
 	
@@ -286,6 +286,11 @@ if ($app->is_running) {
 	#set exit flag in running application
 	if(defined $exitac && $exitac){
 		$app->send_message( 12, text => '' );
+	}
+
+	#set export_filename (parameter -o) in running application
+	if(defined $exfilename && $exfilename){
+		$app->send_message( 13, text => $shf->utf8_decode ($exfilename) );
 	}
 	
 	#send $cmdid
@@ -382,6 +387,8 @@ if ($app->is_running) {
 				$cmd = 'fopen';				
 			}elsif($cmd == 12){
 				$cmd = 'exitac';
+			}elsif($cmd == 13){
+				$cmd = 'exfilename';
 			}else{
 				$cmd = 'fopen';				
 			}
@@ -394,6 +401,9 @@ if ($app->is_running) {
 			#set exit flag
 			if($cmd eq 'exitac'){
 				$sc->set_exit_after_capture(TRUE);
+			#set export filename
+			}elsif($cmd eq 'exfilename'){
+				$sc->set_export_filename($message->get_text);
 			#open new files
 			}elsif($cmd eq 'fopen'){
 				my @init_files = $message->get_uris;
