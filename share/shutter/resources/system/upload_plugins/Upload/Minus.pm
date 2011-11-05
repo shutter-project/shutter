@@ -172,87 +172,10 @@ sub upload {
 	};
 	if($@){
 		$self->{_links}{'status'} = $@;
-		#~ print "$@\n";
 	}
 	
 	#and return links
 	return %{ $self->{_links} };
 }
-
-
-####The following code was downloaded from https://github.com/minus-development/MinusAPI/blob/master/perl/upload.pl
-
-
-#~ sub GetItem {
-#~ 
-#~ $browser->request($req_login)->as_string; #login
-#~ 
-#~ chomp(my $id = $ARGV[1] );
-#~ 
-#~ my $req_getitem = HTTP::Request->new(GET=> "http://min.us/api/GetItems/m$id");	#adding an m here
-#~ $req_getitem->content_type("application/x-www-form-urlencoded");
-#~ 
-#~ if ($browser->request($req_getitem)->is_success) {
-#~ 
-    #~ my $json = $browser->request($req_getitem)->content;
-    #~ my $json_coder = JSON::XS->new->utf8;
-    #~ my %json_perl = %{ $json_coder->decode($json) };
-#~ 
-    #~ foreach my $key ( sort keys %json_perl )  {
-        #~ print "$key\n";
-		#~ if (ref ($json_perl{$key}) eq "ARRAY" ) {
-			#~ foreach ( @{ $json_perl{$key} } ) {		#dereferencing array
-				#~ print $_ . "\n";
-			#~ }
-		#~ } else {
-			#~ print $json_perl{$key}."\n";
-		#~ }
-#~ 
-    #~ }
-#~ 
-#~ 
-#~ } else {
-#~ print "Request not successful\n";
-#~ print $browser->request($req_getitem)->status_line, "\n";
-#~ }
-#~ 
-#~ }
-#~ 
-#~ sub MyGalleries {
-#~ 
-#~ $browser->request($req_login)->as_string; #login
-#~ 
-#~ my $req_mygalleries = HTTP::Request->new(GET=> "http://min.us/api/MyGalleries.json");
-#~ $req_mygalleries->content_type("text/html");
-#~ 
-#~ if ($browser->request($req_mygalleries)->is_success) {
-#~ 
-    #~ my $json = $browser->request($req_mygalleries)->content;
-    #~ my $json_coder = JSON::XS->new->utf8->pretty->allow_nonref;
-    #~ my %json_perl = %{ $json_coder->decode($json) };
-#~ 
-    #~ foreach my $key ( sort keys %json_perl )  {
-        #~ print "$key\n\n";
-#~ 
-        #~ if (ref ($json_perl{$key}) eq "ARRAY" ) {
-			#~ foreach ( @{ $json_perl{$key} } ) {		#dereferencing array of hashes
-                #~ print "\n";
-				#~ foreach ( %{ $_ } ) {				#dereferencing hashes
-					#~ print $_ . "\n" ;
-				#~ } 
-            #~ }
-		#~ } else {
-            #~ print $json_perl{$key}."\n";
-        #~ }
-#~ 
-    #~ }
-#~ 
-#~ 
-#~ } else {
-#~ print "Request not successful\n";
-#~ print $browser->request($req_mygalleries)->status_line, "\n";
-#~ }
-#~ 
-#~ }
 
 1;
