@@ -93,7 +93,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1145';
+use constant SHUTTER_REV		=> 'Rev.1146';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -431,9 +431,6 @@ if ($app->is_running) {
 	#print debug output
 	&fct_init_debug_output if $sc->get_debug;
 	
-	#load accounts for hosting services unless param is set to ignore it
-	&fct_load_accounts;
-
 	#shutdown Shutter carefully when INT or TERM are detected
 	# => save settings
 	$SIG{INT} = sub { &evt_delete_window( '', 'quit' ) };
@@ -788,6 +785,9 @@ if ($app->is_running) {
 	#load settings
 	#--------------------------------------
 	my $settings_xml = &fct_load_settings( "start" );
+
+	#load accounts for hosting services
+	&fct_load_accounts;
 
 	#load requested profile (argv)
 	if(defined $sc->get_profile_to_start_with){
