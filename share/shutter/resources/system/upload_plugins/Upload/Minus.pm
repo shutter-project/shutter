@@ -42,7 +42,6 @@ my %upload_plugin_info = 	(
     'module'		=> $d->get( "Minus" ),
 	'url'			=> $d->get( "http://minus.com/" ),
 	'registration'  => $d->get( "http://minus.com/" ),
-	'name'			=> $d->get( "Minus" ),
 	'description'	=> $d->get( "Upload screenshots to Minus" ),
 	'supports_anonymous_upload'	 => TRUE,
 	'supports_authorized_upload' => TRUE,	

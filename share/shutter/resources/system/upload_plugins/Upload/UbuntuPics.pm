@@ -41,7 +41,6 @@ my %upload_plugin_info = 	(
     'module'		=> $d->get( "UbuntuPics" ),
 	'url'			=> $d->get( "http://www.ubuntu-pics.de" ),
 	'registration'  => $d->get( "http://www.ubuntu-pics.de/reg" ),
-	'name'			=> $d->get( "Ubuntu-Pics.de" ),
 	'description'	=> $d->get( "Upload screenshots to ubuntu-pics.de" ),
 	'supports_anonymous_upload'	 => FALSE,
 	'supports_authorized_upload' => TRUE,	

@@ -41,7 +41,6 @@ my %upload_plugin_info = 	(
     'module'		=> $d->get( "ImageShack" ),
 	'url'			=> $d->get( "http://imageshack.us/" ),
 	'registration'  => $d->get( "http://register.imageshack.us" ),
-	'name'			=> $d->get( "ImageShack.us" ),
 	'description'	=> $d->get( "Upload screenshots to imageshack.us" ),
 	'supports_anonymous_upload'	 => TRUE,
 	'supports_authorized_upload' => TRUE,	

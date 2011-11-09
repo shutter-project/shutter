@@ -42,7 +42,6 @@ my %upload_plugin_info = (
     'module'		=> $d->get( "Dropbox" ),
 	'url'			=> $d->get( "https://www.dropbox.com/" ),
 	'registration'  => $d->get( "https://www.dropbox.com/register" ),
-	'name'			=> $d->get( "Dropbox" ),
 	'description'	=> $d->get( "Upload screenshots into your Dropbox" ),
 	'supports_anonymous_upload'	 => FALSE,
 	'supports_authorized_upload' => FALSE,	
