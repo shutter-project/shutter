@@ -93,7 +93,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1146';
+use constant SHUTTER_REV		=> 'Rev.1147';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -9644,7 +9644,9 @@ if ($app->is_running) {
 							#replace button
 							my $replace_btn = Gtk2::Button->new_with_mnemonic( $d->get("_Replace") );
 							$replace_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'button' ) );
-
+							
+							my $sd = Shutter::App::SimpleDialogs->new;
+							
 							my $response = $sd->dlg_warning_message(
 								sprintf( $d->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $new_uri->extract_dirname . "'"),
 								sprintf( $d->get( "An image named %s already exists. Do you want to replace it?"), "'" . $new_uri->extract_short_name . "'"),
