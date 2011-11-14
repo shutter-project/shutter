@@ -38,13 +38,13 @@ our @ISA = qw(Shutter::Upload::Shared);
 my $d = Locale::gettext->domain("shutter-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
-my %upload_plugin_info = 	(
-    'module'		=> $d->get( "TwitPic"),
-	'url'			=> $d->get( "http://twitpic.com/" ),
-	'registration'  => $d->get( "http://twitpic.com/session/new") ,
+my %upload_plugin_info = (
+    'module'		=> "TwitPic",
+	'url'			=> "http://twitpic.com/",
+	'registration'  => "http://twitpic.com/session/new",
 	'description'	=> $d->get( "TwitPic lets you share media on Twitter in real-time."),
 	'supports_anonymous_upload'	 => FALSE,
-	'supports_authorized_upload' => TRUE,	
+	'supports_authorized_upload' => TRUE,
 );
 
 binmode( STDOUT, ":utf8" );

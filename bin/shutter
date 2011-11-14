@@ -93,7 +93,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1148';
+use constant SHUTTER_REV		=> 'Rev.1149';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -8292,28 +8292,35 @@ if ($app->is_running) {
 									$upload_plugin_dialog->show_all;
 								}
 								
-								# Path
-								$accounts{$name}->{path} = $ukey; 				
-								# Module Name
-								$accounts{$name}->{module} = &fct_upload_plugin_get_info( $ukey, 'module' ); 				
-								# URL
-								$accounts{$name}->{host}  = &fct_upload_plugin_get_info( $ukey, 'url' ); 
-								# Folder
-								$accounts{$name}->{folder} = $folder;
-								# Description
-								$accounts{$name}->{description}= &fct_plugin_get_info( $ukey, 'description' );
-								# Username
-								$accounts{$name}->{username} = "" unless defined $accounts{$name}->{username};
-								# Password	
-								$accounts{$name}->{password} = "" unless defined $accounts{$name}->{password};
-								# Register Color	
-								$accounts{$name}->{register_color} = "blue";
-								# Register Text	
-								$accounts{$name}->{register_text} = &fct_upload_plugin_get_info( $ukey, 'registration' ); 
-								# Upload Features
-								$accounts{$name}->{supports_anonymous_upload} = &fct_upload_plugin_get_info( $ukey, 'supports_anonymous_upload' ); 
-								$accounts{$name}->{supports_authorized_upload} = &fct_upload_plugin_get_info( $ukey, 'supports_authorized_upload' ); 
-								$accounts{$name}->{supports_oauth_upload} = &fct_upload_plugin_get_info( $ukey, 'supports_oauth_upload' ); 
+								print "\nINFO: new upload-plugin information detected - $folder$name\n";
+								
+								if(&fct_upload_plugin_get_info( $ukey, 'module' )){
+									# Path
+									$accounts{$name}->{path} = $ukey; 				
+									# Module Name
+									$accounts{$name}->{module} = &fct_upload_plugin_get_info( $ukey, 'module' ); 				
+									# URL
+									$accounts{$name}->{host}  = &fct_upload_plugin_get_info( $ukey, 'url' ); 
+									# Folder
+									$accounts{$name}->{folder} = $folder;
+									# Description
+									$accounts{$name}->{description}= &fct_plugin_get_info( $ukey, 'description' );
+									# Username
+									$accounts{$name}->{username} = "" unless defined $accounts{$name}->{username};
+									# Password	
+									$accounts{$name}->{password} = "" unless defined $accounts{$name}->{password};
+									# Register Color	
+									$accounts{$name}->{register_color} = "blue";
+									# Register Text	
+									$accounts{$name}->{register_text} = &fct_upload_plugin_get_info( $ukey, 'registration' ); 
+									# Upload Features
+									$accounts{$name}->{supports_anonymous_upload} = &fct_upload_plugin_get_info( $ukey, 'supports_anonymous_upload' ); 
+									$accounts{$name}->{supports_authorized_upload} = &fct_upload_plugin_get_info( $ukey, 'supports_authorized_upload' ); 
+									$accounts{$name}->{supports_oauth_upload} = &fct_upload_plugin_get_info( $ukey, 'supports_oauth_upload' ); 
+								}else{
+									print "\nERROR: upload-plugin exists but does not work properly - $folder$name\n";
+									delete $accounts{$name};	
+								}
 								
 								#refresh the progressbar
 								$upload_plugin_progress->pulse;
@@ -8321,16 +8328,16 @@ if ($app->is_running) {
 								
 								#refresh gui
 								&fct_update_gui;
-									
+
 							}
 							
 					}else{
 						my $changed = chmod(0755, "$ukey");
 						unless($changed){
-							print "\nERROR: upload plugin exists but is not executable - $ukey\n";
-							#~ #parse filename
-							#~ my ( $name, $folder, $type ) = fileparse( $ukey, qr/\.[^.]*/ );
-							#~ delete $accounts{$name};
+							#parse filename
+							my ( $name, $folder, $type ) = fileparse( $ukey, qr/\.[^.]*/ );
+							print "\nERROR: upload-plugin exists but is not executable - $ukey\n";
+							delete $accounts{$name};
 						} #endif plugin is executable
 					}	
 				}

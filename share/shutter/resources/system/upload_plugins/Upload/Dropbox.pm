@@ -39,13 +39,13 @@ my $d = Locale::gettext->domain("shutter-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
 my %upload_plugin_info = (
-    'module'		=> $d->get( "Dropbox" ),
-	'url'			=> $d->get( "https://www.dropbox.com/" ),
-	'registration'  => $d->get( "https://www.dropbox.com/register" ),
+    'module'		=> "Dropbox",
+	'url'			=> "https://www.dropbox.com/",
+	'registration'  => "https://www.dropbox.com/register",
 	'description'	=> $d->get( "Upload screenshots into your Dropbox" ),
 	'supports_anonymous_upload'	 => FALSE,
-	'supports_authorized_upload' => FALSE,	
-	'supports_oauth_upload' => TRUE,	
+	'supports_authorized_upload' => FALSE,
+	'supports_oauth_upload' => TRUE,
 );
 
 binmode( STDOUT, ":utf8" );

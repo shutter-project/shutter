@@ -37,13 +37,13 @@ our @ISA = qw(Shutter::Upload::Shared);
 my $d = Locale::gettext->domain("shutter-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
-my %upload_plugin_info = 	(
-    'module'		=> $d->get( "ImageShack" ),
-	'url'			=> $d->get( "http://imageshack.us/" ),
-	'registration'  => $d->get( "http://register.imageshack.us" ),
-	'description'	=> $d->get( "Upload screenshots to imageshack.us" ),
+my %upload_plugin_info = (
+    'module'		=> "ImageShack",
+	'url'			=> "http://imageshack.us/",
+	'registration'  => "http://register.imageshack.us",
+	'description'	=> $d->get( "ImageShack is providing free image hosting." ),
 	'supports_anonymous_upload'	 => TRUE,
-	'supports_authorized_upload' => TRUE,	
+	'supports_authorized_upload' => TRUE,
 );
 
 binmode( STDOUT, ":utf8" );

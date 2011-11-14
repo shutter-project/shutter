@@ -37,11 +37,11 @@ our @ISA = qw(Shutter::Upload::Shared);
 my $d = Locale::gettext->domain("shutter-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
-my %upload_plugin_info = 	(
-    'module'		=> $d->get( "Omploader" ),
-	'url'			=> $d->get( "http://ompldr.org/" ),
-	'registration'  => $d->get( "-" ),
-	'description'	=> $d->get( "Upload screenshots to ompldr.org/" ),
+my %upload_plugin_info = (
+    'module'		=> "Omploader",
+	'url'			=> "http://ompldr.org/",
+	'registration'  => "-",
+	'description'	=> $d->get( "Upload screenshots to ompldr.org" ),
 	'supports_anonymous_upload'	 => TRUE,
 	'supports_authorized_upload' => FALSE,
 );

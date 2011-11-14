@@ -37,10 +37,10 @@ our @ISA = qw(Shutter::Upload::Shared);
 my $d = Locale::gettext->domain("shutter-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
-my %upload_plugin_info = 	(
-    'module'		=> $d->get( "ToileLibre" ),
-	'url'			=> $d->get( "http://pix.toile-libre.org/" ),
-	'registration'  => $d->get( "-"),
+my %upload_plugin_info = (
+    'module'		=> "ToileLibre",
+	'url'			=> "http://pix.toile-libre.org/",
+	'registration'  => "-",
 	'description'	=> $d->get( "Upload screenshots to pix.toile-libre.org" ),
 	'supports_anonymous_upload'	 => TRUE,
 	'supports_authorized_upload' => FALSE,
