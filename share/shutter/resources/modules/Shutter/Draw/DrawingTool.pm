@@ -920,21 +920,17 @@ sub push_tool_help_to_statusbar {
 
 	} elsif ( $self->{_current_mode} == 90 ) {
 
-		$status_text .= " ".$self->{_d}->get("Click-Drag to add a new text area");
+		$status_text .= " ".$self->{_d}->get("Click to censor (try Control or Shift for a straight line)");
 
 	} elsif ( $self->{_current_mode} == 100 ) {
 
-		$status_text .= " ".$self->{_d}->get("Click to censor (try Control or Shift for a straight line)");
+		$status_text .= " ".$self->{_d}->get("Click-Drag to create a pixelized region");
 
 	} elsif ( $self->{_current_mode} == 110 ) {
 
-		$status_text .= " ".$self->{_d}->get("Click-Drag to create a pixelized region");
-
-	} elsif ( $self->{_current_mode} == 120 ) {
-
 		$status_text .= " ".$self->{_d}->get("Click to add an auto-increment shape");
 
-	} elsif ( $self->{_current_mode} == 130 ) {
+	} elsif ( $self->{_current_mode} == 120 ) {
 
 		#nothing to do here....
 
@@ -994,16 +990,16 @@ sub change_drawing_tool_cb {
 	if( $self->{_current_mode} != $self->{_last_mode} && 
 		$self->{_current_mode} != 10  &&
 		$self->{_current_mode} != 30  && 
+		$self->{_current_mode} != 90  && 
 		$self->{_current_mode} != 100  && 
-		$self->{_current_mode} != 110  && 
-		$self->{_current_mode} != 130 ){
+		$self->{_current_mode} != 120 ){
 	
 		$self->restore_drawing_properties;
 	
 	}
 	
 	#show drawing tool widgets
-	if($self->{_current_mode} != 130){
+	if($self->{_current_mode} != 120){
 
 		#show drawing tool widgets
 		$self->{_table}->show_all;
@@ -1021,6 +1017,7 @@ sub change_drawing_tool_cb {
 	$self->{_stroke_color_w}->set_sensitive(TRUE);
 	$self->{_line_spin_w}->set_sensitive(TRUE);
 	$self->{_font_btn_w}->set_sensitive(TRUE);
+		
 
 	if ( $self->{_current_mode} == 10 ) {
 
@@ -1086,10 +1083,6 @@ sub change_drawing_tool_cb {
 
 	} elsif ( $self->{_current_mode} == 90 ) {
 
-		$self->{_current_mode_descr} = "backtext";
-
-	} elsif ( $self->{_current_mode} == 100 ) {
-
 		$self->{_current_mode_descr} = "censor";
 		
 		#disable controls, because they are not useful when using the
@@ -1102,7 +1095,7 @@ sub change_drawing_tool_cb {
 		#restore hard-coded censor properties
 		$self->restore_fixed_properties($self->{_current_mode_descr});
 
-	} elsif ( $self->{_current_mode} == 110 ) {
+	} elsif ( $self->{_current_mode} == 100 ) {
 		
 		$self->{_current_mode_descr} = "pixelize";
 
@@ -1113,11 +1106,11 @@ sub change_drawing_tool_cb {
 		$self->{_line_spin_w}->set_sensitive(FALSE);
 		$self->{_font_btn_w}->set_sensitive(FALSE);	
 		
-	} elsif ( $self->{_current_mode} == 120 ) {
+	} elsif ( $self->{_current_mode} == 110 ) {
 
 		$self->{_current_mode_descr} = "number";
 
-	} elsif ( $self->{_current_mode} == 130 ) {
+	} elsif ( $self->{_current_mode} == 120 ) {
 
 		$self->{_current_mode_descr} = "crop";
 		
@@ -2028,7 +2021,6 @@ sub event_item_on_motion_notify {
 			|| $self->{_current_mode_descr} eq "arrow"
 			|| $self->{_current_mode_descr} eq "ellipse"
 			|| $self->{_current_mode_descr} eq "text"
-			|| $self->{_current_mode_descr} eq "backtext"
 			|| $self->{_current_mode_descr} eq "image"
 			|| $self->{_current_mode_descr} eq "pixelize"
 			|| $self->{_current_mode_descr} eq "number"
@@ -2408,7 +2400,6 @@ sub get_parent_item {
 	foreach ( keys %{ $self->{_items} } ) {
 		$parent = $self->{_items}{$_} if exists $self->{_items}{$_}{ellipse} && $self->{_items}{$_}{ellipse} == $item;
 		$parent = $self->{_items}{$_} if exists $self->{_items}{$_}{text} && $self->{_items}{$_}{text} == $item;
-		$parent = $self->{_items}{$_} if exists $self->{_items}{$_}{rectangle} && $self->{_items}{$_}{rectangle} == $item;
 		$parent = $self->{_items}{$_} if exists $self->{_items}{$_}{image} && $self->{_items}{$_}{image} == $item;
 		$parent = $self->{_items}{$_} if exists $self->{_items}{$_}{pixelize} && $self->{_items}{$_}{pixelize} == $item;
 		$parent = $self->{_items}{$_} if exists $self->{_items}{$_}{line} && $self->{_items}{$_}{line} == $item;
@@ -2566,7 +2557,6 @@ sub get_child_item {
 	if (defined $item && exists $self->{_items}{$item}){
 		$child = $self->{_items}{$item}{text}    	if exists $self->{_items}{$item}{text};
 		$child = $self->{_items}{$item}{ellipse} 	if exists $self->{_items}{$item}{ellipse};
-		#~ $child = $self->{_items}{$item}{rectangle} 	if exists $self->{_items}{$item}{rectangle};
 		$child = $self->{_items}{$item}{image}   	if exists $self->{_items}{$item}{image};
 		$child = $self->{_items}{$item}{pixelize}   if exists $self->{_items}{$item}{pixelize};
 		$child = $self->{_items}{$item}{line}    	if exists $self->{_items}{$item}{line};
@@ -3200,7 +3190,10 @@ sub set_and_save_drawing_properties {
 
 	#~ print "set_and_save_drawing_properties3\n";
 
-	if ( $self->valid_for_general_settings($self->{_items}{$key}{type}) ) {
+	if (   $item->isa('Goo::Canvas::Rect')
+		|| $item->isa('Goo::Canvas::Ellipse')
+		|| $item->isa('Goo::Canvas::Polyline') )
+	{
 				
 		#line width
 		$self->{_line_spin_w}->set_value( $item->get('line-width') );
@@ -3248,9 +3241,7 @@ sub set_and_save_drawing_properties {
 			}
 		}
 
-	}
-	
-	if ( $self->valid_for_text_settings($self->{_items}{$key}{type}) ) {
+	}elsif ( $item->isa('Goo::Canvas::Text') ) {
 
 		#determine font description from string
 		my ( $attr_list, $text_raw, $accel_char ) = Gtk2::Pango->parse_markup( $item->get('text') );
@@ -3270,12 +3261,6 @@ sub set_and_save_drawing_properties {
 		if ($@) {
 			print "\nERROR: Pango Markup could not be parsed:\n$@";
 		}
-
-		#text with background-color (backtext)
-		if($self->{_items}{$key}{fill_color}){
-			$self->{_fill_color_w}->set_color( $self->{_items}{$key}{fill_color} );
-			$self->{_fill_color_w}->set_alpha( int( $self->{_items}{$key}{fill_color_alpha} * 65535 ) );
-		}		
 
 		#font color
 		$self->{_stroke_color_w}->set_color( $self->{_items}{$key}{stroke_color} );
@@ -3467,7 +3452,7 @@ sub event_item_on_button_press {
 
 			unless (defined $self->{_current_item} && $item == $self->{_current_item}){
 
-				unless ($self->{_current_mode_descr} eq "number" || $self->{_current_mode_descr} eq "text" || $self->{_current_mode_descr} eq "backtext"){
+				unless ($self->{_current_mode_descr} eq "number" || $self->{_current_mode_descr} eq "text"){
 					
 					unless($self->{_items}{$item}{locked}){
 					
@@ -3532,7 +3517,7 @@ sub event_item_on_button_press {
 		
 	}
 	
-	#left mouse click to drag, resize, create or delete items
+	#left mouse click to drag, resize, create or delelte items
 	if ( $ev->type eq 'button-press' && ($ev->button == 1 || $ev->button == 2) ) {
 
 		#MOVE
@@ -3545,10 +3530,6 @@ sub event_item_on_button_press {
 			return TRUE if (exists $self->{_items}{$item} && $self->{_items}{$item}{locked});
 			
 			if ( $item->isa('Goo::Canvas::Rect') ) {
-				
-				#~ #embedded item?
-				#~ my $parent = $self->get_parent_item($item);
-				#~ $item = $parent if $parent;
 							
 				#real shape => move 
 				if ( exists $self->{_items}{$item} ) {
@@ -3582,6 +3563,10 @@ sub event_item_on_button_press {
 						$self->store_to_xdo_stack($self->{_current_item} , 'modify', 'undo');
 				
 					}
+					
+					#restore style pattern
+					my $pattern = $self->create_color( $self->{_style_bg}, 1 );
+					$item->set('fill-pattern' => $pattern);
 				
 				}
 				
@@ -3705,11 +3690,6 @@ sub event_item_on_button_press {
 	
 					$self->create_text( $ev, undef );
 	
-					#BACKTEXT
-				} elsif ( $self->{_current_mode_descr} eq "backtext" ) {
-	
-					$self->create_backtext( $ev, undef );
-	
 					#IMAGE
 				} elsif ( $self->{_current_mode_descr} eq "image" ) {
 	
@@ -3750,7 +3730,6 @@ sub event_item_on_button_press {
 			if( $ev->type eq '2button-press' && 
 				$ev->button == 1 &&
 				$self->{_current_mode_descr} ne "text" &&
-				$self->{_current_mode_descr} ne "backtext" &&
 				$self->{_current_mode_descr} ne "number" &&
 				$self->{_current_mode_descr} ne "freehand" && 
 				$self->{_current_mode_descr} ne "highlighter" && 
@@ -3991,42 +3970,6 @@ sub get_item_key {
 	}
 }
 
-sub valid_for_general_settings{
-	my ($self, $ctype) = @_;
-
-	my @types = ('backtext', 'censor', 'number', 'ellipse', 'line', 'arrow', 'highlighter', 'freehand', 'rectangle');
-
-	foreach my $type (@types){
-		return TRUE if $ctype eq $type;
-	}
-	
-	return FALSE;
-}
-
-sub valid_for_arrow_settings{
-	my ($self, $ctype) = @_;
-
-	my @types = ('arrow');
-
-	foreach my $type (@types){
-		return TRUE if $ctype eq $type;
-	}
-	
-	return FALSE;
-}
-
-sub valid_for_text_settings{
-	my ($self, $ctype) = @_;
-
-	my @types = ('text', 'backtext');
-
-	foreach my $type (@types){
-		return TRUE if $ctype eq $type;
-	}
-	
-	return FALSE;
-}
-
 sub show_item_properties {
 	my ($self, $item, $parent, $key) = @_;
 
@@ -4064,8 +4007,12 @@ sub show_item_properties {
 	my $font_color;
 
 	#RECT OR ELLIPSE OR NUMBER OR POLYLINE
-	#GENERAL SETTINGS
-	if ( $self->valid_for_general_settings($self->{_items}{$key}{type}) ) {
+	#GENERAL SETTINGS	
+	if (   $item->isa('Goo::Canvas::Rect')
+		|| $item->isa('Goo::Canvas::Ellipse')
+		|| $item->isa('Goo::Canvas::Polyline')
+		|| ($item->isa('Goo::Canvas::Text') && defined $self->{_items}{$key}{ellipse}) )
+	{
 
 		my $general_vbox = Gtk2::VBox->new( FALSE, 5 );
 
@@ -4128,8 +4075,8 @@ sub show_item_properties {
 
 		$frame_general->add($general_vbox);
 
-		#special shape: numbered ellipse
-		if(defined $self->{_items}{$key}{text} && exists $self->{_items}{$key}{ellipse} ){
+		#special shapes like numbered ellipse
+		if(defined $self->{_items}{$key}{text}){
 			
 			my $numbered_vbox = Gtk2::VBox->new( FALSE, 5 );
 			
@@ -4192,7 +4139,10 @@ sub show_item_properties {
 	}
 
 	#ARROW item
-	if ( $self->valid_for_arrow_settings($self->{_items}{$key}{type}) ) {
+	if ($item->isa('Goo::Canvas::Polyline') 
+		&& defined $self->{_items}{$key}{end_arrow} 
+		&& defined $self->{_items}{$key}{start_arrow})
+	{
 		my $arrow_vbox = Gtk2::VBox->new( FALSE, 5 );
 
 		my $label_arrow = Gtk2::Label->new;
@@ -4260,10 +4210,9 @@ sub show_item_properties {
 		#final packing
 		$frame_arrow->add($arrow_vbox);
 
-	}
-
-	#TEXT item
-	if ( $self->valid_for_text_settings($self->{_items}{$key}{type}) ) {
+	#simple TEXT item (no numbered ellipse)
+	}elsif ( $item->isa('Goo::Canvas::Text')
+		&& !defined $self->{_items}{$key}{ellipse} ) {
 
 		my $text_vbox = Gtk2::VBox->new( FALSE, 5 );
 
@@ -4304,23 +4253,6 @@ sub show_item_properties {
 		$font_hbox->pack_start($font_btn, TRUE, TRUE, 0);
 		$text_vbox->pack_start( $font_hbox, FALSE, FALSE, 0 );
 
-		#fill color (text with background)
-		if(exists $self->{_items}{$key}{fill_color} && defined $self->{_items}{$key}{fill_color}){
-			my $fill_color_hbox = Gtk2::HBox->new( FALSE, 5 );
-			$fill_color_hbox->set_border_width(5);
-			my $fill_color_label = Gtk2::Label->new( $self->{_d}->get("Fill color") . ":" );
-			$fill_color = Gtk2::ColorButton->new();
-
-			$fill_color->set_color( $self->{_items}{$key}{fill_color} );
-			$fill_color->set_alpha( int( $self->{_items}{$key}{fill_color_alpha} * 65535 ) );
-			$fill_color->set_use_alpha(TRUE);
-			$fill_color->set_title( $self->{_d}->get("Choose fill color") );
-
-			$fill_color_hbox->pack_start($fill_color_label, FALSE, TRUE, 12);
-			$fill_color_hbox->pack_start($fill_color, TRUE, TRUE, 0);
-			$text_vbox->pack_start( $fill_color_hbox, FALSE, FALSE, 0 );
-		}
-		
 		#font color
 		my $font_color_hbox = Gtk2::HBox->new( FALSE, 5 );
 		$font_color_hbox->set_border_width(5);
@@ -4824,23 +4756,12 @@ sub apply_properties {
 			'fill-pattern' => $fill_pattern
 		);
 
-		#adjust parent rectangle...
+		#adjust parent rectangle
 		my $tb = $item->get_bounds;
 		$parent->set( 		
 			'width' 	=> abs($tb->x1 - $tb->x2),
 			'height' 	=> abs($tb->y1 - $tb->y2),
-		);
-		
-		#...and color when needed (background text)
-		if(exists $self->{_items}{$key}{rectangle} && defined $self->{_items}{$key}{rectangle}){
-			my $fill_pattern = $self->create_color( $fill_color->get_color, $fill_color->get_alpha / 65535 );
-			my $stroke_pattern = $self->create_color( $stroke_color->get_color, $stroke_color->get_alpha / 65535 );
-			$self->{_items}{$key}{rectangle}->set(
-				'fill-pattern' 	=> $fill_pattern,
-				'line-width'     => $line_spin->get_value,
-				'stroke-pattern' => $stroke_pattern,
-			);			
-		}
+		);		
 
 		$self->handle_rects( 'update', $parent );
 		$self->handle_embedded( 'update', $parent );
@@ -4848,12 +4769,6 @@ sub apply_properties {
 		#save color and opacity as well
 		$self->{_items}{$key}{stroke_color}       = $font_color->get_color;
 		$self->{_items}{$key}{stroke_color_alpha} = $font_color->get_alpha / 65535;
-
-		#text with background
-		if(exists $self->{_items}{$key}{rectangle} && defined $self->{_items}{$key}{rectangle}){
-			$self->{_items}{$key}{fill_color}       = $fill_color->get_color;
-			$self->{_items}{$key}{fill_color_alpha} = $fill_color->get_alpha / 65535;			
-		}
 
 	}
 		
@@ -5042,38 +4957,13 @@ sub handle_embedded {
 				);				
 			}	
 
-		} elsif ( exists $self->{_items}{$item}{rectangle} ) {
-			
-			#text with background
-			if ( exists $self->{_items}{$item}{text} ) {
-				#adjust rectangle
-				if ( exists $self->{_items}{$item}{rectangle} ) {
-					$self->{_items}{$item}{rectangle}->set(
-						'x'     => $self->{_items}{$item}->get('x'),
-						'y'     => $self->{_items}{$item}->get('y'),
-						'width' => $self->{_items}{$item}->get('width'),
-						'height' => $self->{_items}{$item}->get('height'),
-						'visibility' => $visibility,
-					);					
-				}
-
-				#adjust text
-				$self->{_items}{$item}{text}->set(
-					'x'     => $self->{_items}{$item}->get('x') + ($self->{_items}{$item}->get('width')/2),
-					'y'     => $self->{_items}{$item}->get('y') + ($self->{_items}{$item}->get('height')/2),
-					'visibility' => $visibility,
-				);		
-			}				
-			
 		} elsif ( exists $self->{_items}{$item}{text} ) {
-			
 			$self->{_items}{$item}{text}->set(
 				'x'     => $self->{_items}{$item}->get('x'),
 				'y'     => $self->{_items}{$item}->get('y'),
 				'width' => $self->{_items}{$item}->get('width'),
 				'visibility' => $visibility,
-			);	
-			
+			);
 		} elsif ( exists $self->{_items}{$item}{line} ) {
 		
 				#handle possible arrows properly
@@ -5180,13 +5070,6 @@ sub handle_embedded {
 			}
 		}
 
-		#rectangle
-		if ( exists $self->{_items}{$item}{rectangle} ) {
-			if(my $nint = $self->{_canvas}->get_root_item->find_child($self->{_items}{$item}{rectangle})){
-				$self->{_canvas}->get_root_item->remove_child($nint);
-			}
-		}
-
 		#pixelize
 		if ( exists $self->{_items}{$item}{pixelize} ) {
 			if(my $nint = $self->{_canvas}->get_root_item->find_child($self->{_items}{$item}{pixelize})){
@@ -5220,11 +5103,6 @@ sub handle_embedded {
 		#text => hide rectangle as well
 		if ( exists $self->{_items}{$item}{text} ) {
 			$self->{_items}{$item}{text}->set( 'visibility' => $visibility );
-		}
-
-		#rectangle (e.g. text with background) => hide rectangle as well
-		if ( exists $self->{_items}{$item}{rectangle} ) {
-			$self->{_items}{$item}{rectangle}->set( 'visibility' => $visibility );
 		}
 
 		#pixelize => hide rectangle as well
@@ -5497,6 +5375,8 @@ sub handle_rects {
 			my $visibility = 'visible';
 			$visibility = 'hidden' if $action eq 'hide';
 
+			my $lw = $item->get('line-width');
+
 			#ellipse => hide rectangle as well
 			if ( exists $self->{_items}{$item}{ellipse} ) {
 				$self->{_items}{$item}->set( 'visibility' => $visibility );
@@ -5504,11 +5384,6 @@ sub handle_rects {
 
 			#text => hide rectangle as well
 			if ( exists $self->{_items}{$item}{text} ) {
-				$self->{_items}{$item}->set( 'visibility' => $visibility );
-			}
-			
-			#rectangle (e.g. text with background) => hide rectangle as well
-			if ( exists $self->{_items}{$item}{rectangle} ) {
 				$self->{_items}{$item}->set( 'visibility' => $visibility );
 			}
 
@@ -5678,43 +5553,7 @@ sub event_item_on_button_release {
 									$self->handle_embedded( 'delete', $nitem );
 									#delete from hash
 									delete $self->{_items}{$nitem};
-									#delete all xdo entries for this object
-									$self->xdo_remove('undo', $nitem);
-									$self->xdo_remove('redo', $nitem);
-									$self->deactivate_all;
-								}								
-							}
-							return FALSE;
-						});
-						
-					}elsif($self->{_items}{$nitem}{type} eq 'backtext'){
-						
-						#clear text
-						$self->{_items}{$nitem}{text}->set(
-							'text' => "<span font_desc='" . $self->{_font} . "' ></span>"
-						);
-						
-						#adjust parent rectangle
-						my $tb = $self->{_items}{$nitem}{text}->get_bounds;
-										
-						$nitem->set( 
-							'x'  		=> $ev->x, 
-							'y' 		=> $ev->y - int(abs($tb->y1 - $tb->y2)/2), 			
-							'width' 	=> abs($tb->x1 - $tb->x2),
-							'height' 	=> abs($tb->y1 - $tb->y2),
-						);
-						
-						#show property dialog directly
-						Glib::Idle->add(sub{	
-							unless($self->show_item_properties($self->{_items}{$nitem}{text}, $nitem, $nitem)){
-								if(my $nint = $self->{_canvas}->get_root_item->find_child($nitem)){
-									#delete canvas objects
-									$self->{_canvas}->get_root_item->remove_child($nint);
-									$self->handle_rects( 'delete', $nitem );
-									$self->handle_embedded( 'delete', $nitem );
-									#delete from hash
-									delete $self->{_items}{$nitem};
-									#delete all xdo entries for this object
+									#delete all xdo emtries for this object
 									$self->xdo_remove('undo', $nitem);
 									$self->xdo_remove('redo', $nitem);
 									$self->deactivate_all;
@@ -6044,7 +5883,6 @@ sub setup_uimanager {
 	$self->{_factory}->add( 'shutter-line', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-line.png') ) );
 	$self->{_factory}->add( 'shutter-arrow', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-arrow.png') ) );
 	$self->{_factory}->add( 'shutter-text', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-text.png') ) );
-	$self->{_factory}->add( 'shutter-backtext', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-backtext.png') ) );
 	$self->{_factory}->add( 'shutter-censor', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-censor.png') ) );
 	$self->{_factory}->add( 'shutter-pixelize', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-pixelize.png') ) );
 	$self->{_factory}->add( 'shutter-number', Gtk2::IconSet->new_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/draw-number.png') ) );
@@ -6183,11 +6021,10 @@ sub setup_uimanager {
 		[ "Rect", 'shutter-rectangle', $self->{_d}->get("Rectangle"), "<alt>5", $self->{_d}->get("Draw a rectangle"), 60 ],
 		[ "Ellipse", 'shutter-ellipse', $self->{_d}->get("Ellipse"), "<alt>6", $self->{_d}->get("Draw a ellipse"), 70 ],
 		[ "Text", 'shutter-text', $self->{_d}->get("Text"), "<alt>7", $self->{_d}->get("Add some text to the screenshot"), 80 ],
-		[ "BackText", 'shutter-backtext', $self->{_d}->get("Text with Background"), "<alt>8", $self->{_d}->get("Add some text (with background-color) to the screenshot"), 90 ],
-		[ "Censor", 'shutter-censor', $self->{_d}->get("Censor"), "<alt>9", $self->{_d}->get("Censor portions of your screenshot to hide private data"), 100 ],
-		[ "Pixelize", 'shutter-pixelize', $self->{_d}->get("Pixelize"), "<alt><ctrl>9", $self->{_d}->get("Pixelize selected areas of your screenshot to hide private data"), 110 ],
-		[ "Number", 'shutter-number', $self->{_d}->get("Number"), "<alt>n", $self->{_d}->get("Add an auto-increment shape to the screenshot"), 120 ],
-		[ "Crop", 'shutter-crop', $self->{_d}->get("Crop"), "<alt>c", $self->{_d}->get("Crop your screenshot"), 130 ]
+		[ "Censor", 'shutter-censor', $self->{_d}->get("Censor"), "<alt>8", $self->{_d}->get("Censor portions of your screenshot to hide private data"), 90 ],
+		[ "Pixelize", 'shutter-pixelize', $self->{_d}->get("Pixelize"), "<alt><ctrl>8", $self->{_d}->get("Pixelize selected areas of your screenshot to hide private data"), 100 ],
+		[ "Number", 'shutter-number', $self->{_d}->get("Number"), "<alt>9", $self->{_d}->get("Add an auto-increment shape to the screenshot"), 110 ],
+		[ "Crop", 'shutter-crop', $self->{_d}->get("Crop"), "<alt>c", $self->{_d}->get("Crop your screenshot"), 120 ]
 	);
 
 	my $uimanager = Gtk2::UIManager->new();
@@ -6248,7 +6085,6 @@ sub setup_uimanager {
 		  <menuitem action='Rect'/>
 		  <menuitem action='Ellipse'/>
 		  <menuitem action='Text'/>
-		  <menuitem action='BackText'/>
 		  <menuitem action='Censor'/>
 		  <menuitem action='Pixelize'/>
 		  <menuitem action='Number'/>
@@ -6294,7 +6130,6 @@ sub setup_uimanager {
 		<toolitem action='Rect'/>
 		<toolitem action='Ellipse'/>
 		<toolitem action='Text'/>
-		<toolitem action='BackText'/>
 		<toolitem action='Censor'/>
 		<toolitem action='Pixelize'/>
 		<toolitem action='Number'/>
@@ -6999,10 +6834,7 @@ sub paste_item {
 			$new_item = $self->create_ellipse( undef, $item);
 		}elsif ( $child->isa('Goo::Canvas::Text') ){
 			#~ print "Creating Text...\n";
-			$new_item = $self->create_text( undef, $item );			
-		}elsif ( $child->isa('Goo::Canvas::Text') && exists $self->{_items}{$item}{fill_color} ){
-			#~ print "Creating BackText...\n";
-			$new_item = $self->create_backtext( undef, $item );
+			$new_item = $self->create_text( undef, $item );
 		}elsif ( $child->isa('Goo::Canvas::Image') &&  exists $self->{_items}{$item}{pixelize} ){
 			#~ print "Creating Pixelize...\n";
 			$new_item = $self->create_pixel_image( undef, $item );
@@ -7314,116 +7146,6 @@ sub create_image {
 	return $item;	
 }
 
-sub create_backtext{
-	my $self      = shift;
-	my $ev        = shift;
-	my $copy_item = shift;
-
-	my @dimensions = ( 0, 0, 0, 0 );
-	my $stroke_pattern = $self->create_color( $self->{_stroke_color}, $self->{_stroke_color_alpha} );
-	my $fill_pattern   = $self->create_color( $self->{_fill_color}, $self->{_fill_color_alpha} );
-	my $text = $self->{_d}->get('New text...');
-	my $line_width = $self->{_line_width};
-
-	#use event coordinates and selected color
-	if ($ev) {
-		@dimensions = ( $ev->x, $ev->y, 0, 0 );
-		#use source item coordinates and item color
-	} elsif ($copy_item) {
-		@dimensions = ( $copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height') );
-		$stroke_pattern = $self->create_color( $self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha} );
-		$fill_pattern   = $self->create_color( $self->{_items}{$copy_item}{fill_color},   $self->{_items}{$copy_item}{fill_color_alpha} );
-		$text = $self->{_items}{$copy_item}{text}->get('text');
-		$line_width = $self->{_items}{$copy_item}{text}->get('line-width');
-	}
-
-	my $pattern = $self->create_alpha;
-	my $item    = Goo::Canvas::Rect->new(
-		$self->{_canvas}->get_root_item, @dimensions,
-		'fill-pattern' => $pattern,
-		'line-dash'    => Goo::Canvas::LineDash->new( [ 5, 5 ] ),
-		'line-width'   => 1,
-		'stroke-color' => 'gray',
-	);
-
-	$self->{_current_new_item} = $item unless($copy_item);
-	$self->{_items}{$item} = $item;
-
-	#rectangle for the background
-	$self->{_items}{$item}{rectangle} = Goo::Canvas::Rect->new(
-		$self->{_canvas}->get_root_item, $item->get('x'), $item->get('y'), $item->get('width'),
-		$item->get('height'),
-		'fill-pattern'   => $fill_pattern,
-		'stroke-pattern' => $stroke_pattern,
-		'line-width'     => $line_width,
-	);
-
-	#text
-	$self->{_items}{$item}{text} = Goo::Canvas::Text->new(
-		$self->{_canvas}->get_root_item, "<span font_desc='" . $self->{_font} . "' >".$text."</span>",
-		$item->get('x'),
-		$item->get('y'), 
-		-1,
-		'center',
-		'use-markup'   	=> TRUE,
-		'fill-pattern' 	=> $stroke_pattern,
-		'line-width'   	=> $line_width,
-	);
-
-	#adjust parent rectangle
-	my $tb = $self->{_items}{$item}{text}->get_bounds;
-	my $w  = abs($tb->x1 - $tb->x2);
-	my $h  = abs($tb->y1 - $tb->y2);
-	
-	if($copy_item){				
-		$self->{_items}{$item}->set( 
-			'x'				=> $self->{_items}{$item}->get('x') + 20, 
-			'y'				=> $self->{_items}{$item}->get('y') + 20, 			
-			'width'			=> $w,
-			'height'		=> $h,
-			'visibility' 	=> 'hidden',
-		);
-	}else{
-		$self->{_items}{$item}->set( 
-			'x'				=> $ev->x - $w, 
-			'y'				=> $ev->y - $h, 			
-			'width'			=> $w,
-			'height'		=> $h,
-			'visibility'	=> 'hidden',
-		);		
-	}	
-
-	#update text
-	$self->handle_embedded('hide', $item); 
-
-	#set type flag
-	$self->{_items}{$item}{type} = 'backtext';
-	$self->{_items}{$item}{uid} = $self->{_uid}++;
-
-	$self->{_items}{$item}{fill_color}         = $self->{_fill_color};
-	$self->{_items}{$item}{fill_color_alpha}   = $self->{_fill_color_alpha};
-	$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
-	$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
-
-	#create rectangles
-	$self->handle_rects( 'create', $item );
-	if ($copy_item){
-		$self->handle_embedded('update', $item); 			
-		$self->handle_rects('hide', $item); 	
-	}
-
-	$self->setup_item_signals( $self->{_items}{$item}{rectangle} );
-	$self->setup_item_signals_extra( $self->{_items}{$item}{rectangle} );
-
-	$self->setup_item_signals( $self->{_items}{$item}{text} );
-	$self->setup_item_signals_extra( $self->{_items}{$item}{text} );
-
-	$self->setup_item_signals( $self->{_items}{$item} );
-	$self->setup_item_signals_extra( $self->{_items}{$item} );
-
-	return $item;
-}	
-
 sub create_text{
 	my $self      = shift;
 	my $ev        = shift;
@@ -7584,20 +7306,16 @@ sub create_line {
 	);				
 	
 	if(defined $end_arrow || defined $start_arrow){
-		#set type flag
-		$self->{_items}{$item}{type} = 'arrow';
-
 		#save arrow specific properties
 		$self->{_items}{$item}{end_arrow} 			= $self->{_items}{$item}{line}->get('end-arrow');
 		$self->{_items}{$item}{start_arrow} 		= $self->{_items}{$item}{line}->get('start-arrow');
 		$self->{_items}{$item}{arrow_width} 		= $self->{_items}{$item}{line}->get('arrow-width');
 		$self->{_items}{$item}{arrow_length} 		= $self->{_items}{$item}{line}->get('arrow-length');
 		$self->{_items}{$item}{arrow_tip_length}	= $self->{_items}{$item}{line}->get('arrow-tip-length');
-	}else{
-		#set type flag
-		$self->{_items}{$item}{type} = 'line';
 	}
-	
+
+	#set type flag
+	$self->{_items}{$item}{type} = 'line';
 	$self->{_items}{$item}{uid} = $self->{_uid}++;
 
 	$self->{_items}{$item}{mirrored_w} = $mirrored_w;
