@@ -93,7 +93,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1149';
+use constant SHUTTER_REV		=> 'Rev.1150';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -8268,7 +8268,7 @@ if ($app->is_running) {
 		$upload_plugin_dialog->vbox->add($upload_plugin_progress);
 		
 		#plugins in user-home not supported yet FIXME
-		my @upload_plugin_paths = ( "$shutter_root/share/shutter/resources/system/upload_plugins/Upload/*" );
+		my @upload_plugin_paths = ( "$shutter_root/share/shutter/resources/system/upload_plugins/upload/*" );
 
 		foreach my $upload_plugin_path (@upload_plugin_paths) {
 			my @upload_plugins = glob($upload_plugin_path);
