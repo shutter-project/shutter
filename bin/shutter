@@ -93,7 +93,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1150';
+use constant SHUTTER_REV		=> 'Rev.1151';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -8248,12 +8248,12 @@ if ($app->is_running) {
 
 	sub fct_check_installed_upload_plugins {
 
-		my $upload_plugin_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/], 'info', 'close', $d->get("Updating upload plugins information") );
+		my $upload_plugin_dialog = Gtk2::MessageDialog->new( $window, [qw/modal destroy-with-parent/], 'info', 'close', $d->get("Updating upload plugin information") );
 		$upload_plugin_dialog->{destroyed} = FALSE;
 
 		$upload_plugin_dialog->set_title("Shutter");
 		
-		$upload_plugin_dialog->set( 'secondary-text' => $d->get("Please wait while Shutter updates the upload plugin sites information") . "." );
+		$upload_plugin_dialog->set( 'secondary-text' => $d->get("Please wait while Shutter updates the upload plugin information") . "." );
 
 		$upload_plugin_dialog->signal_connect( response => sub { $upload_plugin_dialog->{destroyed} = TRUE; $_[0]->destroy; } );
 		
@@ -10823,8 +10823,8 @@ if ($app->is_running) {
 						my $sd = Shutter::App::SimpleDialogs->new;						
 						
 						$sd->dlg_error_message( 
-							sprintf ( $d->get( "Error while executing upload-plugin %s." ), "'" . $hosting_module . "'" ) ,
-							$d->get( "There was an error executing the upload-plugin." ),
+							sprintf ( $d->get( "Error while executing upload plugin %s." ), "'" . $hosting_module . "'" ) ,
+							$d->get( "There was an error executing the upload plugin." ),
 							undef, undef, undef,
 							undef, undef, undef,
 							$@
