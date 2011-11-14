@@ -35,7 +35,7 @@ use Glib qw/TRUE FALSE/;
 use Shutter::Upload::Shared;
 our @ISA = qw(Shutter::Upload::Shared);
 
-my $d = Locale::gettext->domain("shutter-plugins");
+my $d = Locale::gettext->domain("shutter-upload-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
 my %upload_plugin_info = (
