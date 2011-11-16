@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1160';
+use constant SHUTTER_REV		=> 'Rev.1161';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -8309,7 +8309,7 @@ if ($app->is_running) {
 								
 								#refresh the progressbar
 								$upload_plugin_progress->pulse;
-								$upload_plugin_progress->set_text($name);
+								$upload_plugin_progress->set_text($accounts{$name}->{path});
 								
 								#refresh gui
 								&fct_update_gui;
