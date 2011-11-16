@@ -56,7 +56,9 @@ use File::Copy qw/ cp mv /;
 use File::Glob qw/ glob /;
 use File::Basename qw/ fileparse dirname basename /;
 use File::Temp qw/ tempfile tempdir /;
-use File::Spec; 
+use File::Spec;
+use File::Which;
+use File::Copy::Recursive;
 use IO::File();
 
 #A selection of general-utility list subroutines
@@ -83,6 +85,12 @@ use Data::Dumper;
 #md5 hash library
 use Digest::MD5  qw(md5_hex);
 
+#proc
+use Proc::Simple;
+
+#sort lexically, but sort numeral parts numerically
+use Sort::Naturally;
+
 #--------------------------------------
 
 #print UTF-8 to standard output
@@ -93,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1154';
+use constant SHUTTER_REV		=> 'Rev.1155';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -114,25 +122,6 @@ $ENV{'SHUTTER_ROOT'} = $shutter_root;    #used by some plugins
 
 #--------------------------------------
 
-#load modules at custom path at runtime
-#--------------------------------------
-require lib;
-import lib "$shutter_root/share/shutter/resources/modules";
-
-#Sort::Naturally - sort lexically, but sort numeral parts numerically
-require Sort::Naturally;
-
-#proc (Thanks to Michael Schilli)
-require Proc::Simple;
-
-#File::Which - Portable implementation of the `which' utility
-require File::Which;
-
-#Perl extension for recursively copying files and directories (Thanks to Daniel Muey)
-require File::Copy::Recursive;
-
-#--------------------------------------
-
 #check optional components
 #--------------------------------------
 my $gnome_web_photo = TRUE;
@@ -146,6 +135,8 @@ my $exiftool		= TRUE;
 
 #load shutter's modules
 #--------------------------------------
+require lib;
+import lib "$shutter_root/share/shutter/resources/modules";
 
 #app classes
 require Shutter::App::AboutDialog;
