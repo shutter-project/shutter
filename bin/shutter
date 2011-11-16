@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1156';
+use constant SHUTTER_REV		=> 'Rev.1157';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -3352,8 +3352,7 @@ if ($app->is_running) {
 		if ( $column->get_title eq $d->get("Register") ) {
 			my $model         = $tree->get_model();
 			my $account_iter  = $model->get_iter($path);
-			my $account_value = $model->get_value( $account_iter, 3 );
-			#~ print $account_value, "\n";
+			my $account_value = $model->get_value( $account_iter, 5 );
 			$shf->xdg_open( undef, $account_value, undef );
 		}
 		return TRUE;
@@ -9023,7 +9022,7 @@ if ($app->is_running) {
 					0,  $accounts{$_}->{'host'},
 					1,  $accounts{$_}->{'username'},
 					2,  $hidden_text,
-					3,  $accounts{$_}->{'register'},
+					3,  $accounts{$_}->{'not_used_yet'},
 					4,  $accounts{$_}->{'register_color'},
 					5,  $accounts{$_}->{'register_text'},
 					6,  $accounts{$_}->{'module'},
