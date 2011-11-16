@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-04-07 15:06+0200\n"
-"PO-Revision-Date: 2011-05-30 22:26+0000\n"
+"POT-Creation-Date: 2011-11-16 01:50+0100\n"
+"PO-Revision-Date: 2011-07-01 10:19+0000\n"
 "Last-Translator: Mihai Petcu <miky_brother@yahoo.com>\n"
 "Language-Team: Romanian\n"
 "MIME-Version: 1.0\n"
@@ -16,326 +16,326 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0: (((n % 100 > 19) || ((n % 100 "
 "== 0) && (n != 0))) ? 2: 1));\n"
-"X-Launchpad-Export-Date: 2011-06-30 21:44+0000\n"
-"X-Generator: Launchpad (build 13333)\n"
+"X-Launchpad-Export-Date: 2011-11-16 22:46+0000\n"
+"X-Generator: Launchpad (build 14291)\n"
 "Language: ro\n"
 
-#: translate_tmp.pl:387
-#: translate_tmp.pl:2530
-#: translate_tmp.pl:7230
+#: translate_tmp.pl:388
+#: translate_tmp.pl:2574
+#: translate_tmp.pl:7329
 msgid "Profile"
 msgstr "Profil"
 
-#: translate_tmp.pl:395
+#: translate_tmp.pl:396
 #: translate_tmp.pl:3950
 msgid "Preferences"
 msgstr "Preferințe"
 
-#: translate_tmp.pl:758
-#: translate_tmp.pl:759
+#: translate_tmp.pl:770
+#: translate_tmp.pl:771
 msgid "gnome-web-photo needs to be installed for this feature"
 msgstr "trebuie instalat gnome-web-photo pentru această funcție"
 
-#: translate_tmp.pl:767
+#: translate_tmp.pl:779
 msgid "Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature"
 msgstr ""
 "trebuie instalat Goo::Canvas/libgoo-canvas-perl pentru această funcție"
 
-#: translate_tmp.pl:800
+#: translate_tmp.pl:812
 msgid "Choose a profile"
 msgstr "Alege un profil"
 
-#: translate_tmp.pl:816
+#: translate_tmp.pl:828
 msgid "Save configuration as profile"
 msgstr "Salvează configurația ca profil"
 
-#: translate_tmp.pl:826
+#: translate_tmp.pl:838
 msgid "Delete profile"
 msgstr "Șterge profil"
 
-#: translate_tmp.pl:835
+#: translate_tmp.pl:847
 msgid "Load the selected profile's configuration"
 msgstr "Încarcă configurația profilului selectat"
 
-#: translate_tmp.pl:843
-#: translate_tmp.pl:1117
-#: translate_tmp.pl:9727
+#: translate_tmp.pl:855
+#: translate_tmp.pl:1129
+#: translate_tmp.pl:9839
 #: translate_tmp.pl:1500
 msgid "Image format"
 msgstr "Formatul imaginii"
 
-#: translate_tmp.pl:850
+#: translate_tmp.pl:862
 msgid "Save"
 msgstr "Salvează"
 
-#: translate_tmp.pl:857
+#: translate_tmp.pl:869
 msgid "First-launch Behavior"
 msgstr "Comportament la prima rulare"
 
-#: translate_tmp.pl:864
+#: translate_tmp.pl:876
 msgid "Window Preferences"
 msgstr "Preferințe fereastră"
 
-#: translate_tmp.pl:871
+#: translate_tmp.pl:883
 msgid "Notifications"
 msgstr "Notificări"
 
-#: translate_tmp.pl:878
+#: translate_tmp.pl:890
 msgid "Trash"
 msgstr "Coș de gunoi"
 
-#: translate_tmp.pl:885
+#: translate_tmp.pl:897
 msgid "Gnome-Keybinding"
 msgstr "Tastele implicite Gnome"
 
-#: translate_tmp.pl:892
-#: translate_tmp.pl:2303
+#: translate_tmp.pl:904
+#: translate_tmp.pl:2342
 msgid "Actions"
 msgstr "Acțiuni"
 
-#: translate_tmp.pl:899
-#: translate_tmp.pl:1881
+#: translate_tmp.pl:911
+#: translate_tmp.pl:1893
 msgid "Capture"
 msgstr "Capturează"
 
-#: translate_tmp.pl:906
+#: translate_tmp.pl:918
 msgid "Selection Capture"
 msgstr "Capturează prin selecție"
 
-#: translate_tmp.pl:913
+#: translate_tmp.pl:925
 msgid "Advanced Selection Capture"
 msgstr "Capturează prin selecție avansată"
 
-#: translate_tmp.pl:920
+#: translate_tmp.pl:932
 msgid "Window Capture"
 msgstr "Captură de fereastră"
 
-#: translate_tmp.pl:927
+#: translate_tmp.pl:939
 msgid "Menu/Tooltip Capture"
 msgstr "Captură de meniu/indicație"
 
-#: translate_tmp.pl:934
+#: translate_tmp.pl:946
 msgid "Website Capture"
 msgstr "Captură de website"
 
-#: translate_tmp.pl:941
+#: translate_tmp.pl:953
 msgid "Accounts"
 msgstr "Conturi"
 
-#: translate_tmp.pl:948
+#: translate_tmp.pl:960
 msgid "File Transfer Protocol (FTP)"
 msgstr "Protocol pentru transferul fișierelor (FTP)"
 
-#: translate_tmp.pl:955
+#: translate_tmp.pl:967
 msgid "Transparent Parts"
 msgstr "Părți transparente"
 
-#: translate_tmp.pl:962
+#: translate_tmp.pl:974
 msgid "Session View"
 msgstr "Vizualizare sesiune"
 
-#: translate_tmp.pl:970
-#: translate_tmp.pl:1818
-#: translate_tmp.pl:1822
+#: translate_tmp.pl:982
+#: translate_tmp.pl:1830
+#: translate_tmp.pl:1834
 msgid "Filename"
 msgstr "Nume fişier"
 
-#: translate_tmp.pl:996
-#: translate_tmp.pl:9374
-#: translate_tmp.pl:11067
+#: translate_tmp.pl:1008
+#: translate_tmp.pl:9484
+#: translate_tmp.pl:11218
 #, perl-format
 msgid "Reserved character %s is not allowed to be in a filename."
 msgstr "Caracterul rezervat %s nu este permis în numele fișierului."
 
-#: translate_tmp.pl:1010
+#: translate_tmp.pl:1022
 msgid "There are several wildcards available, like\n"
 msgstr "Sunt disponibile mai multe metacaractere, precum\n"
 
-#: translate_tmp.pl:1011
+#: translate_tmp.pl:1023
 msgid "%Y = year\n"
 msgstr "%Y = an\n"
 
-#: translate_tmp.pl:1012
+#: translate_tmp.pl:1024
 msgid "%m = month\n"
 msgstr "%m = lună\n"
 
-#: translate_tmp.pl:1013
+#: translate_tmp.pl:1025
 #, perl-format
 msgid "%d = day\n"
 msgstr "%d = ziua\n"
 
-#: translate_tmp.pl:1014
+#: translate_tmp.pl:1026
 msgid "%T = time\n"
 msgstr "%T = timp\n"
 
-#: translate_tmp.pl:1015
+#: translate_tmp.pl:1027
 msgid "$w = width\n"
 msgstr "$w = lățime\n"
 
-#: translate_tmp.pl:1016
+#: translate_tmp.pl:1028
 msgid "$h = height\n"
 msgstr "$h = înălțime\n"
 
-#: translate_tmp.pl:1017
+#: translate_tmp.pl:1029
 msgid "$name = multi-purpose (e.g. window title)\n"
 msgstr "$name = multi-scop (ex. titlul ferestrei)\n"
 
-#: translate_tmp.pl:1018
+#: translate_tmp.pl:1030
 msgid "$nb_name = like $name but without blanks in resulting strings\n"
 msgstr "$nb_name = precum $name dar fără spații în șirurile rezultate\n"
 
-#: translate_tmp.pl:1019
+#: translate_tmp.pl:1031
 msgid "$profile = name of current profile\n"
 msgstr "$profile = numele profilului curent\n"
 
-#: translate_tmp.pl:1020
+#: translate_tmp.pl:1032
 msgid "$R = random char (e.g. $RRRR = ag4r)\n"
 msgstr "$R = caracter aleatoriu (ex:  $RRRR = ag4r)\n"
 
-#: translate_tmp.pl:1021
+#: translate_tmp.pl:1033
 msgid "%NN = counter"
 msgstr "%NN = contor"
 
-#: translate_tmp.pl:1036
-#: translate_tmp.pl:2866
+#: translate_tmp.pl:1048
+#: translate_tmp.pl:2910
 msgid "Compression"
 msgstr "Compresie"
 
-#: translate_tmp.pl:1046
-#: translate_tmp.pl:1048
+#: translate_tmp.pl:1058
+#: translate_tmp.pl:1060
 msgid "Adjust quality/compression value"
 msgstr "Ajustează valoarea calitate/compresie"
 
-#: translate_tmp.pl:1118
-#: translate_tmp.pl:1119
+#: translate_tmp.pl:1130
+#: translate_tmp.pl:1131
 msgid "Select a file format"
 msgstr "Selectați formatul fișierului"
 
-#: translate_tmp.pl:1128
+#: translate_tmp.pl:1140
 msgid "Directory"
 msgstr "Director"
 
-#: translate_tmp.pl:1129
-#: translate_tmp.pl:10214
-#: translate_tmp.pl:10216
-#: translate_tmp.pl:10236
-#: translate_tmp.pl:10237
+#: translate_tmp.pl:1141
+#: translate_tmp.pl:10370
+#: translate_tmp.pl:10372
+#: translate_tmp.pl:10390
+#: translate_tmp.pl:10391
 msgid "Choose folder"
 msgstr "Alege director"
 
-#: translate_tmp.pl:1136
-#: translate_tmp.pl:1137
+#: translate_tmp.pl:1148
+#: translate_tmp.pl:1149
 msgid "Your screenshots will be saved to this directory"
 msgstr "Captura de ecran va fi salvată în acest dosar"
 
-#: translate_tmp.pl:1146
-#: translate_tmp.pl:1149
+#: translate_tmp.pl:1158
+#: translate_tmp.pl:1161
 msgid "Browse for save folder every time"
 msgstr "Răsfoiți pentru dosarul de salvare de fiecare dată"
 
-#: translate_tmp.pl:1151
-#: translate_tmp.pl:1154
+#: translate_tmp.pl:1163
+#: translate_tmp.pl:1166
 msgid "Do not save file automatically"
 msgstr "Nu salva fișierul automat"
 
-#: translate_tmp.pl:1156
-#: translate_tmp.pl:1159
+#: translate_tmp.pl:1168
+#: translate_tmp.pl:1171
 msgid "Automatically save file"
 msgstr "Salvează automat fișierul"
 
-#: translate_tmp.pl:1183
-#: translate_tmp.pl:1192
+#: translate_tmp.pl:1195
+#: translate_tmp.pl:1204
 msgid "Automatically copy screenshot to clipboard"
 msgstr "Copiază automat captura de ecran în clipboard"
 
-#: translate_tmp.pl:1199
-#: translate_tmp.pl:1208
+#: translate_tmp.pl:1211
+#: translate_tmp.pl:1220
 msgid "Automatically copy filename to clipboard"
 msgstr "Copiază automat numele fișierului în clipboard"
 
-#: translate_tmp.pl:1215
-#: translate_tmp.pl:1224
+#: translate_tmp.pl:1227
+#: translate_tmp.pl:1236
 msgid "Do not copy anything to clipboard"
 msgstr "Nu copia nimic în clipboard"
 
-#: translate_tmp.pl:1233
+#: translate_tmp.pl:1245
 msgid "Delay"
 msgstr "Întârziere"
 
-#: translate_tmp.pl:1235
-#: translate_tmp.pl:1244
-#: translate_tmp.pl:1688
-#: translate_tmp.pl:2793
-#: translate_tmp.pl:2799
-#: translate_tmp.pl:2804
+#: translate_tmp.pl:1247
+#: translate_tmp.pl:1256
+#: translate_tmp.pl:1700
+#: translate_tmp.pl:2837
+#: translate_tmp.pl:2843
+#: translate_tmp.pl:2848
 msgid "second"
 msgid_plural "seconds"
 msgstr[0] "secundă"
 msgstr[1] "secunde"
 msgstr[2] "secunde"
 
-#: translate_tmp.pl:1242
+#: translate_tmp.pl:1254
 msgid "Capture after a delay of"
 msgstr "Capturează cu o întârziere de"
 
-#: translate_tmp.pl:1256
-#: translate_tmp.pl:1257
-#: translate_tmp.pl:1258
-#: translate_tmp.pl:1260
-#: translate_tmp.pl:1261
-#: translate_tmp.pl:1262
+#: translate_tmp.pl:1268
+#: translate_tmp.pl:1269
+#: translate_tmp.pl:1270
+#: translate_tmp.pl:1272
+#: translate_tmp.pl:1273
+#: translate_tmp.pl:1274
 msgid "Wait n seconds before taking a screenshot"
 msgstr "Așteaptă n secunde înainte de a face o captură"
 
-#: translate_tmp.pl:1273
+#: translate_tmp.pl:1285
 msgid "Include Cursor"
 msgstr "Include cursor"
 
-#: translate_tmp.pl:1274
-#: translate_tmp.pl:1280
-#: translate_tmp.pl:1281
+#: translate_tmp.pl:1286
+#: translate_tmp.pl:1292
+#: translate_tmp.pl:1293
 msgid "Include cursor when taking a screenshot"
 msgstr "Include cursor când faci captura de ecran"
 
-#: translate_tmp.pl:1336
+#: translate_tmp.pl:1348
 msgid "Open with"
 msgstr "Deschide cu"
 
-#: translate_tmp.pl:1337
-#: translate_tmp.pl:1338
-#: translate_tmp.pl:1339
+#: translate_tmp.pl:1349
+#: translate_tmp.pl:1350
+#: translate_tmp.pl:1351
 msgid "Open your screenshot with this program after capturing"
 msgstr "Deschide captura de ecran cu acest program după capturare"
 
-#: translate_tmp.pl:1350
+#: translate_tmp.pl:1362
 msgid "16 colors   - (4bit) "
 msgstr "16 culori - (4biti) "
 
-#: translate_tmp.pl:1351
+#: translate_tmp.pl:1363
 msgid "64 colors   - (6bit) "
 msgstr "64 culori - (6biti) "
 
-#: translate_tmp.pl:1352
+#: translate_tmp.pl:1364
 msgid "256 colors  - (8bit) "
 msgstr "256 culori - (8biti) r "
 
-#: translate_tmp.pl:1377
+#: translate_tmp.pl:1389
 msgid "Reduce colors"
 msgstr "Redu numărul de culori"
 
-#: translate_tmp.pl:1378
-#: translate_tmp.pl:1379
-#: translate_tmp.pl:1380
+#: translate_tmp.pl:1390
+#: translate_tmp.pl:1391
+#: translate_tmp.pl:1392
 msgid "Automatically reduce colors after taking a screenshot"
 msgstr "Redu automat numărul de culori după captura de ecran"
 
-#: translate_tmp.pl:1390
+#: translate_tmp.pl:1402
 msgid "Thumbnail"
 msgstr "Miniatură"
 
-#: translate_tmp.pl:1416
-#: translate_tmp.pl:1418
-#: translate_tmp.pl:1420
+#: translate_tmp.pl:1428
+#: translate_tmp.pl:1430
+#: translate_tmp.pl:1432
 msgid ""
 "Generate thumbnail too.\n"
 "select the percentage of the original size for the thumbnail to be"
@@ -343,83 +343,83 @@ msgstr ""
 "Generează miniatură.\n"
 "selectează procentul din dimensiunea inițială pentru miniatură"
 
-#: translate_tmp.pl:1433
+#: translate_tmp.pl:1445
 msgid "Border"
 msgstr "Contur"
 
-#: translate_tmp.pl:1435
-#: translate_tmp.pl:1519
-#: translate_tmp.pl:1520
-#: translate_tmp.pl:1609
-#: translate_tmp.pl:1742
-#: translate_tmp.pl:7077
+#: translate_tmp.pl:1447
+#: translate_tmp.pl:1531
+#: translate_tmp.pl:1532
+#: translate_tmp.pl:1621
+#: translate_tmp.pl:1754
+#: translate_tmp.pl:7176
 msgid "pixels"
 msgstr "pixeli"
 
-#: translate_tmp.pl:1437
+#: translate_tmp.pl:1449
 msgid "Color"
 msgstr "Culoare"
 
-#: translate_tmp.pl:1440
-#: translate_tmp.pl:1450
 #: translate_tmp.pl:1452
+#: translate_tmp.pl:1462
+#: translate_tmp.pl:1464
 msgid "Choose border color"
 msgstr "Alege culoarea conturului"
 
-#: translate_tmp.pl:1443
-#: translate_tmp.pl:1445
-#: translate_tmp.pl:1447
+#: translate_tmp.pl:1455
+#: translate_tmp.pl:1457
+#: translate_tmp.pl:1459
 msgid "Adds a border effect to the screenshot"
 msgstr "Adaugă contur la captura de ecran"
 
-#: translate_tmp.pl:1494
-#: translate_tmp.pl:1502
+#: translate_tmp.pl:1506
+#: translate_tmp.pl:1514
 msgid "Enable zoom window"
 msgstr "Activează fereastra de mărire"
 
-#: translate_tmp.pl:1511
+#: translate_tmp.pl:1523
 msgid "Start with selection size of"
 msgstr "Începe cu o selecție de dimensiune"
 
-#: translate_tmp.pl:1513
+#: translate_tmp.pl:1525
 msgid "at"
 msgstr "la"
 
-#: translate_tmp.pl:1543
-#: translate_tmp.pl:1544
-#: translate_tmp.pl:1545
-#: translate_tmp.pl:1546
-#: translate_tmp.pl:1547
-#: translate_tmp.pl:1548
-#: translate_tmp.pl:1549
-#: translate_tmp.pl:1550
-#: translate_tmp.pl:1551
-#: translate_tmp.pl:1552
+#: translate_tmp.pl:1555
+#: translate_tmp.pl:1556
+#: translate_tmp.pl:1557
+#: translate_tmp.pl:1558
+#: translate_tmp.pl:1559
+#: translate_tmp.pl:1560
+#: translate_tmp.pl:1561
+#: translate_tmp.pl:1562
+#: translate_tmp.pl:1563
+#: translate_tmp.pl:1564
 msgid "Start Advanced Selection Tool with a customized selection size"
 msgstr "Alege unealta de selecție avansată cu o dimensiune personalizată"
 
-#: translate_tmp.pl:1570
+#: translate_tmp.pl:1582
 msgid "Show help text"
 msgstr "Arată textul de ajutor"
 
-#: translate_tmp.pl:1578
+#: translate_tmp.pl:1590
 msgid "Enables the help text"
 msgstr "Activează textul de ajutor"
 
-#: translate_tmp.pl:1587
-#: translate_tmp.pl:1588
+#: translate_tmp.pl:1599
+#: translate_tmp.pl:1600
 msgid "Include window decoration when capturing a window"
 msgstr "Include marginile ferestrei la captură"
 
-#: translate_tmp.pl:1605
+#: translate_tmp.pl:1617
 msgid "Automatically resize window to"
 msgstr "Redimensionează automat fereastra la"
 
-#: translate_tmp.pl:1629
-#: translate_tmp.pl:1630
-#: translate_tmp.pl:1631
-#: translate_tmp.pl:1632
-#: translate_tmp.pl:1633
+#: translate_tmp.pl:1641
+#: translate_tmp.pl:1642
+#: translate_tmp.pl:1643
+#: translate_tmp.pl:1644
+#: translate_tmp.pl:1645
 msgid ""
 "This resizes the window automatically to the specified width and height. "
 "This method asks the window manager to resize the window. However, the "
@@ -429,11 +429,11 @@ msgstr ""
 "Această metodă cere gestionarului de ferestre să redimensioneze fereastra. "
 "Însă, gestionarul de ferestre poate să nu permită redimensionarea."
 
-#: translate_tmp.pl:1646
+#: translate_tmp.pl:1658
 msgid "Force rounded window corners"
 msgstr "Forțează rotunjirea colțurilor ferestrei"
 
-#: translate_tmp.pl:1655
+#: translate_tmp.pl:1667
 #, perl-format
 msgid ""
 "Shutter uses the XShape extension to determine the window's shape, but this "
@@ -453,26 +453,26 @@ msgstr ""
 "prin crearea unui fișier numit ~/.shutter/shape.conf și adăugarea unor "
 "valori personalizate în el. Valorile implicite sunt stocate în %s."
 
-#: translate_tmp.pl:1669
-#: translate_tmp.pl:1670
+#: translate_tmp.pl:1681
+#: translate_tmp.pl:1682
 msgid "Select only visible windows"
 msgstr "Selectează numai ferestrele vizibile"
 
-#: translate_tmp.pl:1686
+#: translate_tmp.pl:1698
 msgid "Pre-Capture Delay"
 msgstr "Întârziere Pre-Captare"
 
-#: translate_tmp.pl:1700
-#: translate_tmp.pl:1701
-#: translate_tmp.pl:1702
+#: translate_tmp.pl:1712
+#: translate_tmp.pl:1713
+#: translate_tmp.pl:1714
 msgid "Capture menu/tooltip after a delay of n seconds"
 msgstr "Capturează meniul/indiciul cu o întârziere de n secunde"
 
-#: translate_tmp.pl:1713
+#: translate_tmp.pl:1725
 msgid "Ignore possibly wrong type hints"
 msgstr "Ignorați posibilele sugestii de tip greșit"
 
-#: translate_tmp.pl:1714
+#: translate_tmp.pl:1726
 msgid ""
 "The type hint constants specify hints for the window manager that indicate "
 "what type of function the window has. Sometimes these type hints are not "
@@ -484,76 +484,76 @@ msgstr ""
 "sugestii de tip nu sunt definite corect. Prin activarea acestei opțiuni "
 "Shutter nu va insista pentru sugestia de tip solicitată."
 
-#: translate_tmp.pl:1729
+#: translate_tmp.pl:1741
 msgid "Virtual browser width"
 msgstr "Lățimea browserului virtual"
 
-#: translate_tmp.pl:1750
-#: translate_tmp.pl:1751
-#: translate_tmp.pl:1752
+#: translate_tmp.pl:1762
+#: translate_tmp.pl:1763
+#: translate_tmp.pl:1764
 msgid "Virtual browser width when taking a website screenshot"
 msgstr ""
 "Lățimea virtuală a navigatorului atunci când se face captura de ecran unei "
 "pagini web"
 
-#: translate_tmp.pl:1763
+#: translate_tmp.pl:1775
 msgid "Show as check pattern"
 msgstr "Arată ca model tablă de șah"
 
-#: translate_tmp.pl:1764
+#: translate_tmp.pl:1776
 msgid "Show as custom color:"
 msgstr "Arată ca o culoare personalizată:"
 
-#: translate_tmp.pl:1767
+#: translate_tmp.pl:1779
 #: translate_tmp.pl:452
 #: translate_tmp.pl:3764
 #: translate_tmp.pl:4020
 msgid "Choose fill color"
 msgstr "Alege culoarea de umplere"
 
-#: translate_tmp.pl:1769
+#: translate_tmp.pl:1781
 msgid "Show as background"
 msgstr "Arată ca fundal"
 
-#: translate_tmp.pl:1790
+#: translate_tmp.pl:1802
 msgid "Displays any transparent parts of the image in a check pattern"
 msgstr "Arată părțile transparente ale imaginii în tabla de șah"
 
-#: translate_tmp.pl:1791
+#: translate_tmp.pl:1803
 msgid ""
 "Displays any transparent parts of the image in a solid color that you specify"
 msgstr ""
 "Arată părțile transparente ale imaginii într-o culoare aleasă de tine"
 
-#: translate_tmp.pl:1792
+#: translate_tmp.pl:1804
 msgid ""
 "Displays any transparent parts of the image in the background color of the "
 "application"
 msgstr ""
 "Afișează părțile transparente din imagine în culoarea fundalului aplicației"
 
-#: translate_tmp.pl:1816
+#: translate_tmp.pl:1828
 msgid "Sort ascending by"
 msgstr "Sortează crescător după"
 
-#: translate_tmp.pl:1819
-#: translate_tmp.pl:1823
+#: translate_tmp.pl:1831
+#: translate_tmp.pl:1835
 msgid "Key/Time Created"
 msgstr "Cheie/Timp creată"
 
-#: translate_tmp.pl:1820
+#: translate_tmp.pl:1832
 msgid "Sort descending by"
 msgstr "Sortează descrescător după"
 
-#: translate_tmp.pl:1865
-#: translate_tmp.pl:1866
-#: translate_tmp.pl:1867
-#: translate_tmp.pl:1868
+#: translate_tmp.pl:1877
+#: translate_tmp.pl:1878
+#: translate_tmp.pl:1879
+#: translate_tmp.pl:1880
 msgid "Configure sort criteria"
 msgstr "Configurează criteriile de sortare"
 
-#: translate_tmp.pl:1885
-#: translate_tmp.pl:1891
+#: translate_tmp.pl:1897
+#: translate_tmp.pl:1903
 msgid ""
 "Configure global keybinding for capture\n"
 "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
@@ -568,13 +568,13 @@ msgstr ""
 "șiruri speciale „dezactivată”, atunci nu vor exista combinații de taste "
 "pentru această operație. "
 
-#: translate_tmp.pl:1901
+#: translate_tmp.pl:1913
 msgid "Capture with selection"
 msgstr "Catputrează cu selecția"
 
-#: translate_tmp.pl:1905
-#: translate_tmp.pl:1911
-#: translate_tmp.pl:1934
+#: translate_tmp.pl:1917
+#: translate_tmp.pl:1923
+#: translate_tmp.pl:1946
 msgid ""
 "Configure global keybinding for capture with selection\n"
 "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
@@ -589,7 +589,7 @@ msgstr ""
 "șiruri speciale „dezactivată”, atunci nu vor exista combinații de taste "
 "pentru această operație. "
 
-#: translate_tmp.pl:1917
+#: translate_tmp.pl:1929
 #: translate_tmp.pl:63
 #: translate_tmp.pl:46
 #: translate_tmp.pl:220
@@ -597,129 +597,136 @@ msgstr ""
 msgid "Selection"
 msgstr "Selecție"
 
-#: translate_tmp.pl:1918
+#: translate_tmp.pl:1930
 msgid "Select Window"
 msgstr "Selectează fereastra"
 
-#: translate_tmp.pl:1919
-#: translate_tmp.pl:8226
+#: translate_tmp.pl:1931
+#: translate_tmp.pl:8440
 msgid "Active Window"
 msgstr "Fereastra activă"
 
-#: translate_tmp.pl:1920
+#: translate_tmp.pl:1932
 #: translate_tmp.pl:151
 msgid "Section"
 msgstr "Secțiune"
 
-#: translate_tmp.pl:1921
+#: translate_tmp.pl:1933
 #: translate_tmp.pl:171
-#: translate_tmp.pl:1117
+#: translate_tmp.pl:1111
 msgid "Menu"
 msgstr "Meniu"
 
-#: translate_tmp.pl:1922
+#: translate_tmp.pl:1934
 #: translate_tmp.pl:191
-#: translate_tmp.pl:1123
+#: translate_tmp.pl:1117
 msgid "Tooltip"
 msgstr "Indicație"
 
-#: translate_tmp.pl:1923
+#: translate_tmp.pl:1935
 #: translate_tmp.pl:210
 msgid "Web"
 msgstr "Web"
 
-#: translate_tmp.pl:1924
+#: translate_tmp.pl:1936
 #: translate_tmp.pl:37
 msgid "Redo"
 msgstr "Refă"
 
-#: translate_tmp.pl:1979
-#: translate_tmp.pl:2035
+#: translate_tmp.pl:1962
+msgid ""
+"<b>Please note:</b> Make sure to activate <i>Gnome Compatibility</i> and "
+"<i>D-Bus Control Backend</i> via CompizConfig Settings Manager if your are "
+"using Desktop Effects or Unity."
+msgstr ""
+
+#: translate_tmp.pl:2005
+#: translate_tmp.pl:2061
 msgid "Start Shutter at login"
 msgstr "Pornește Shutter la autentificare"
 
-#: translate_tmp.pl:1980
-#: translate_tmp.pl:2043
+#: translate_tmp.pl:2006
+#: translate_tmp.pl:2069
 msgid "Hide window on first launch"
 msgstr "Ascunde fereastra la prima rulare"
 
-#: translate_tmp.pl:1981
-#: translate_tmp.pl:2051
+#: translate_tmp.pl:2007
+#: translate_tmp.pl:2077
 msgid "Hide notification icon"
 msgstr "Ascunde iconița de notificare"
 
-#: translate_tmp.pl:1983
-#: translate_tmp.pl:2059
+#: translate_tmp.pl:2009
+#: translate_tmp.pl:2085
 msgid "Autohide main window when taking a screenshot"
 msgstr "Ascunde automat fereastra principală când se captează ecranul"
 
-#: translate_tmp.pl:1984
+#: translate_tmp.pl:2010
 msgid "Redraw Delay"
 msgstr "Întarziere de redesenare"
 
-#: translate_tmp.pl:1987
-#: translate_tmp.pl:2809
+#: translate_tmp.pl:2013
+#: translate_tmp.pl:2853
 msgid "millisecond"
 msgid_plural "milliseconds"
 msgstr[0] "milisecundă"
 msgstr[1] "milisecunde"
 msgstr[2] "milisecunde"
 
-#: translate_tmp.pl:1993
-#: translate_tmp.pl:2077
+#: translate_tmp.pl:2019
+#: translate_tmp.pl:2109
 msgid "Present main window after taking a screenshot"
 msgstr "Prezintă fereastra principală după captura de ecran"
 
-#: translate_tmp.pl:1994
-#: translate_tmp.pl:2118
+#: translate_tmp.pl:2020
+#: translate_tmp.pl:2150
 msgid "Minimize to tray when closing main window"
 msgstr "Micșoreaza în zona de notificare la inchiderea ferestrei"
 
-#: translate_tmp.pl:1996
-#: translate_tmp.pl:2085
+#: translate_tmp.pl:2022
+#: translate_tmp.pl:2117
 msgid "Display pop-up notification after taking a screenshot"
 msgstr "Arată o notificare după captura de ecran"
 
-#: translate_tmp.pl:1997
-#: translate_tmp.pl:2093
-#: translate_tmp.pl:2101
+#: translate_tmp.pl:2023
+#: translate_tmp.pl:2125
+#: translate_tmp.pl:2133
 msgid "Display pop-up notification when using a delay"
 msgstr "Arată o notificare la folosirea întârzierii"
 
-#: translate_tmp.pl:1998
+#: translate_tmp.pl:2024
 msgid "Display pop-up notification when using a pre-capture delay"
 msgstr "Arată o notificare la folosirea întârzierii înaintea capturii"
 
-#: translate_tmp.pl:2000
+#: translate_tmp.pl:2026
 msgid "Notification agent"
 msgstr "Agent de notificare"
 
-#: translate_tmp.pl:2002
+#: translate_tmp.pl:2028
 msgid "Desktop Notifications"
 msgstr "Notificări spațiu de lucru"
 
-#: translate_tmp.pl:2003
+#: translate_tmp.pl:2029
 msgid "Built-In Notifications"
 msgstr "Notificări încorporate"
 
-#: translate_tmp.pl:2007
-#: translate_tmp.pl:2126
+#: translate_tmp.pl:2033
+#: translate_tmp.pl:2158
 msgid "Ask before moving files to trash"
 msgstr "Întreabă înainte de mutarea fișierelor în coșul de gunoi"
 
-#: translate_tmp.pl:2008
-#: translate_tmp.pl:2134
+#: translate_tmp.pl:2034
+#: translate_tmp.pl:2166
 msgid "Move file to trash when closing tab"
 msgstr "Mută fișierele în coșul de gunoi la inchiderea filei"
 
-#: translate_tmp.pl:2009
-#: translate_tmp.pl:2142
+#: translate_tmp.pl:2035
+#: translate_tmp.pl:2174
 msgid "Notify when file was deleted from filesystem"
 msgstr "Notifică când fișierul a fost șters din sistemul de fișiere"
 
-#: translate_tmp.pl:2067
-#: translate_tmp.pl:2068
-#: translate_tmp.pl:2069
+#: translate_tmp.pl:2093
+#: translate_tmp.pl:2094
+#: translate_tmp.pl:2095
 msgid ""
 "Configure a short timeout to give the Xserver a chance to redraw areas that "
 "were obscured by Shutter's windows before taking a screenshot."
@@ -728,8 +735,8 @@ msgstr ""
 "redeseneze zonele care au fost ascunse de către ferestrele Shutter înaintea "
 "unei capturi."
 
-#: translate_tmp.pl:2109
-#: translate_tmp.pl:2110
+#: translate_tmp.pl:2141
+#: translate_tmp.pl:2142
 msgid ""
 "You can either choose the system-wide desktop notifications (e.g. Ubuntu's "
 "Notify-OSD) or Shutter's built-in notification system"
@@ -737,27 +744,22 @@ msgstr ""
 "Puteți alege notificări desktop pentru tot sistemul (exemplu Sistemul de "
 "notificări Ubuntu) sau sistemul de notificări încorporat Shutter"
 
-#: translate_tmp.pl:2156
+#: translate_tmp.pl:2202
 msgid ""
-"Entering your Accounts for specific hosting-sites is optional. If entered it "
-"will give you the same benefits as the upload on the website. If you leave "
-"these fields empty you will be able to upload to the specific hosting-"
-"partner as a guest."
+"<b>Please note:</b> If a plugin allows authorized uploading you can enter "
+"your credentials above. Plugins with OAuth support are configured "
+"automatically the first time you use them."
 msgstr ""
-"Introducerea conturilor pentru pagini de găzduire specifice este opțională. "
-"Dacă sunt introduse, vă vor fi oferite aceleași beneficii ca și încărcarea "
-"pe pagină. Dacă lăsați aceste câmpuri goale veți putea încărca pe partenerul "
-"de găzduire specific ca vizitator."
 
-#: translate_tmp.pl:2168
-#: translate_tmp.pl:10277
+#: translate_tmp.pl:2207
+#: translate_tmp.pl:10440
 msgid "URI"
 msgstr "URI"
 
-#: translate_tmp.pl:2177
-#: translate_tmp.pl:2179
-#: translate_tmp.pl:10282
-#: translate_tmp.pl:10284
+#: translate_tmp.pl:2216
+#: translate_tmp.pl:2218
+#: translate_tmp.pl:10445
+#: translate_tmp.pl:10447
 msgid ""
 "URI\n"
 "Example: ftp://host:port/path"
@@ -765,112 +767,110 @@ msgstr ""
 "URI\n"
 "Exemplu: ftp://gazda:port/cale"
 
-#: translate_tmp.pl:2185
-#: translate_tmp.pl:2196
-#: translate_tmp.pl:2198
-#: translate_tmp.pl:10289
-#: translate_tmp.pl:10296
-#: translate_tmp.pl:10298
+#: translate_tmp.pl:2224
+#: translate_tmp.pl:2235
+#: translate_tmp.pl:2237
+#: translate_tmp.pl:10452
+#: translate_tmp.pl:10459
+#: translate_tmp.pl:10461
 msgid "Connection mode"
 msgstr "Modul de conectare"
 
-#: translate_tmp.pl:2188
-#: translate_tmp.pl:10292
+#: translate_tmp.pl:2227
+#: translate_tmp.pl:10455
 msgid "Active mode"
 msgstr "Mod activ"
 
-#: translate_tmp.pl:2189
-#: translate_tmp.pl:10293
+#: translate_tmp.pl:2228
+#: translate_tmp.pl:10456
 msgid "Passive mode"
 msgstr "Mod pasiv"
 
-#: translate_tmp.pl:2204
-#: translate_tmp.pl:2213
-#: translate_tmp.pl:2215
-#: translate_tmp.pl:8960
-#: translate_tmp.pl:10303
-#: translate_tmp.pl:10308
-#: translate_tmp.pl:10310
+#: translate_tmp.pl:2243
+#: translate_tmp.pl:2252
+#: translate_tmp.pl:2254
+#: translate_tmp.pl:9030
+#: translate_tmp.pl:10466
+#: translate_tmp.pl:10471
+#: translate_tmp.pl:10473
 msgid "Username"
 msgstr "Nume utilizator"
 
-#: translate_tmp.pl:2221
-#: translate_tmp.pl:2232
-#: translate_tmp.pl:2234
-#: translate_tmp.pl:8967
-#: translate_tmp.pl:10315
-#: translate_tmp.pl:10322
-#: translate_tmp.pl:10324
+#: translate_tmp.pl:2260
+#: translate_tmp.pl:2271
+#: translate_tmp.pl:2273
+#: translate_tmp.pl:9053
+#: translate_tmp.pl:10478
+#: translate_tmp.pl:10485
+#: translate_tmp.pl:10487
 msgid "Password"
 msgstr "Parolă"
 
-#: translate_tmp.pl:2240
-#: translate_tmp.pl:2249
-#: translate_tmp.pl:2251
-#: translate_tmp.pl:10329
-#: translate_tmp.pl:10334
-#: translate_tmp.pl:10336
+#: translate_tmp.pl:2279
+#: translate_tmp.pl:2288
+#: translate_tmp.pl:2290
+#: translate_tmp.pl:10492
+#: translate_tmp.pl:10497
+#: translate_tmp.pl:10499
 msgid "Website URL"
 msgstr "Adresă site web"
 
-#: translate_tmp.pl:2263
+#: translate_tmp.pl:2302
 #: translate_tmp.pl:3990
 msgid "Main"
 msgstr "Principal"
 
-#: translate_tmp.pl:2328
+#: translate_tmp.pl:2367
 msgid "Advanced"
 msgstr "Avansat"
 
-#: translate_tmp.pl:2379
+#: translate_tmp.pl:2418
 msgid "Image View"
 msgstr "Vizualizare imagine"
 
-#: translate_tmp.pl:2400
+#: translate_tmp.pl:2439
 msgid "Behavior"
 msgstr "Comportament"
 
-#: translate_tmp.pl:2438
+#: translate_tmp.pl:2477
 msgid "Keyboard"
 msgstr "Tastatură"
 
-#: translate_tmp.pl:2458
-#: translate_tmp.pl:552
-#: translate_tmp.pl:326
+#: translate_tmp.pl:2498
 msgid "Upload"
 msgstr "Încarcă"
 
-#: translate_tmp.pl:2515
+#: translate_tmp.pl:2559
 msgid "Plugins"
 msgstr "Extensii"
 
-#: translate_tmp.pl:2517
+#: translate_tmp.pl:2561
 msgid "The following plugins are installed"
 msgstr "Următoarele extensii sunt instalate"
 
-#: translate_tmp.pl:2850
+#: translate_tmp.pl:2894
 msgid "pixel"
 msgid_plural "pixels"
 msgstr[0] "pixel"
 msgstr[1] "pixeli"
 msgstr[2] "de pixeli"
 
-#: translate_tmp.pl:2860
+#: translate_tmp.pl:2904
 msgid "Quality"
 msgstr "Calitate"
 
-#: translate_tmp.pl:2927
+#: translate_tmp.pl:2971
 msgid "Please activate the menu you want to capture"
 msgstr "Activează meniul de capturat"
 
-#: translate_tmp.pl:2929
+#: translate_tmp.pl:2973
 msgid "Please activate the tooltip you want to capture"
 msgstr "Activeză indiciul de capturat"
 
-#: translate_tmp.pl:2938
-#: translate_tmp.pl:2948
-#: translate_tmp.pl:196
-#: translate_tmp.pl:204
+#: translate_tmp.pl:2982
+#: translate_tmp.pl:2992
+#: translate_tmp.pl:198
+#: translate_tmp.pl:206
 #, perl-format
 msgid "Screenshot will be taken in %s second"
 msgid_plural "Screenshot will be taken in %s seconds"
@@ -878,80 +878,69 @@ msgstr[0] "Ecranul va fi capturat în %s secundă"
 msgstr[1] "Ecranul va fi capturat în %s secunde"
 msgstr[2] "Ecranul va fi capturat în %s secunde"
 
-#: translate_tmp.pl:3232
-#: translate_tmp.pl:8994
+#: translate_tmp.pl:3276
+#: translate_tmp.pl:9112
 msgid "Register"
 msgstr "Înregistrează"
 
-#: translate_tmp.pl:3757
+#: translate_tmp.pl:3833
 msgid "Profile deleted"
 msgstr "Profil șters"
 
-#: translate_tmp.pl:3759
-#: translate_tmp.pl:3760
+#: translate_tmp.pl:3835
+#: translate_tmp.pl:3836
 msgid "Profile could not be deleted"
 msgstr "Profilul nu a putut fi șters"
 
-#: translate_tmp.pl:3759
-#: translate_tmp.pl:5611
-#: translate_tmp.pl:5846
-#: translate_tmp.pl:6012
-#: translate_tmp.pl:6041
-#: translate_tmp.pl:6937
-#: translate_tmp.pl:10119
+#: translate_tmp.pl:3835
+#: translate_tmp.pl:5672
+#: translate_tmp.pl:5907
+#: translate_tmp.pl:6073
+#: translate_tmp.pl:6121
+#: translate_tmp.pl:6546
+#: translate_tmp.pl:7036
+#: translate_tmp.pl:10231
 #: translate_tmp.pl:107
 #: translate_tmp.pl:117
 msgid "Failed"
 msgstr "Eșuat"
 
-#: translate_tmp.pl:3778
+#: translate_tmp.pl:3854
 #, perl-format
 msgid "Profile %s loaded successfully"
 msgstr "Profilul %s a fost încărcat"
 
-#: translate_tmp.pl:3807
-#: translate_tmp.pl:7086
+#: translate_tmp.pl:3883
+#: translate_tmp.pl:7185
 msgid "Session"
 msgstr "Sesiune"
 
-#: translate_tmp.pl:3826
-#: translate_tmp.pl:5309
+#: translate_tmp.pl:3902
+#: translate_tmp.pl:5370
 msgid "not found"
 msgstr "nu s-a găsit"
 
-#: translate_tmp.pl:4005
+#: translate_tmp.pl:4095
 msgid "Error while adding the file monitor."
 msgstr "Eroare la adăugarea monitorului de fișiere."
 
-#: translate_tmp.pl:4478
+#: translate_tmp.pl:4568
 msgid "Settings could not be saved!"
 msgstr "Setările nu au putut fi salvate!"
 
-#: translate_tmp.pl:4480
+#: translate_tmp.pl:4570
 msgid "Settings saved successfully!"
 msgstr "Setări salvate!"
 
-#: translate_tmp.pl:4504
+#: translate_tmp.pl:4594
 msgid "Session could not be saved!"
 msgstr "Sesiunea nu a putut fi salvată!"
 
-#: translate_tmp.pl:4522
+#: translate_tmp.pl:4622
 msgid "Account-settings could not be saved!"
 msgstr "Setările contului nu au putut fi salvate!"
 
-#: translate_tmp.pl:4709
-msgid ""
-"Please activate the Gnome Compatibility plugin via CompizConfig Settings "
-"Manager."
-msgstr ""
-"Activați modulul Compatibilitate Gnome prin managerul de setări CompizConfig."
-
-#: translate_tmp.pl:4710
-#: translate_tmp.pl:4719
-msgid "There was an error configuring the keybindings."
-msgstr "S-a produs o eroare la configurarea combinațiilor de taste."
-
-#: translate_tmp.pl:4718
+#: translate_tmp.pl:4818
 msgid ""
 "The format looks like \"<Control>Print\" or \"<Shift><Alt>Print\". The "
 "parser is fairly liberal and allows lower or upper case, but abbreviations "
@@ -963,189 +952,193 @@ msgstr ""
 "abrevierile precum „<Ctl>” și „<Ctrl>” pot cauza probleme în anumite "
 "situații (exemplu când este folosit compiz)."
 
-#: translate_tmp.pl:4958
+#: translate_tmp.pl:4819
+msgid "There was an error configuring the keybindings."
+msgstr "S-a produs o eroare la configurarea combinațiilor de taste."
+
+#: translate_tmp.pl:5068
 msgid "Settings could not be restored!"
 msgstr "Setarile nu au putut fi restabilite!"
 
-#: translate_tmp.pl:4961
+#: translate_tmp.pl:5071
 msgid "Settings loaded successfully"
 msgstr "Setările au fost încărcate cu succes"
 
-#: translate_tmp.pl:4991
-#: translate_tmp.pl:6846
+#: translate_tmp.pl:5099
+#: translate_tmp.pl:6963
 msgid "Built-in Editor"
 msgstr "Editor inclus"
 
-#: translate_tmp.pl:5086
+#: translate_tmp.pl:5153
 msgid "Account-settings could not be restored!"
 msgstr "Setările-contului nu au putut fi restaurate!"
 
-#: translate_tmp.pl:5185
-#: translate_tmp.pl:5282
+#: translate_tmp.pl:5246
+#: translate_tmp.pl:5343
 msgid "opened"
 msgstr "deschis"
 
-#: translate_tmp.pl:5187
-#: translate_tmp.pl:5284
-#: translate_tmp.pl:7664
+#: translate_tmp.pl:5248
+#: translate_tmp.pl:5345
+#: translate_tmp.pl:7763
 #: translate_tmp.pl:61
 #: translate_tmp.pl:6714
 #, perl-format
 msgid "Error while opening image %s."
 msgstr "Eroare la deschiderea imaginii %s."
 
-#: translate_tmp.pl:5297
+#: translate_tmp.pl:5358
 msgid "Session could not be restored!"
 msgstr "Sesiunea nu a putut fi restaurată!"
 
-#: translate_tmp.pl:5349
+#: translate_tmp.pl:5410
 #, perl-format
 msgid "Error while creating the trashinfo file %s."
 msgstr "Eroare la crearea fișierului trashinfo %s."
 
-#: translate_tmp.pl:5360
+#: translate_tmp.pl:5421
 #, perl-format
 msgid "Error while moving the file %s to trash."
 msgstr "Eroare la mutarea fișierului %s la gunoi."
 
-#: translate_tmp.pl:5366
+#: translate_tmp.pl:5427
 #, perl-format
 msgid "Error while removing the file %s from disk."
 msgstr "Eroare la ștergerea fișierului %s de pe disc."
 
-#: translate_tmp.pl:5386
+#: translate_tmp.pl:5447
 #, perl-format
 msgid "Are you sure you want to move %s to the trash?"
 msgstr "Ești sigur că vrei sa muți %s în coșul de gunoi?"
 
-#: translate_tmp.pl:5387
-#: translate_tmp.pl:5432
+#: translate_tmp.pl:5448
+#: translate_tmp.pl:5493
 #: translate_tmp.pl:209
-#: translate_tmp.pl:732
+#: translate_tmp.pl:710
 msgid "Move to _Trash"
 msgstr "Mu_tă la gunoi"
 
-#: translate_tmp.pl:5397
+#: translate_tmp.pl:5458
 msgid "deleted"
 msgstr "șters"
 
-#: translate_tmp.pl:5431
+#: translate_tmp.pl:5492
 msgid "Are you sure you want to move the selected files to the trash?"
 msgstr "Ești sigur că vrei să muți fișierele selectate la gunoi?"
 
-#: translate_tmp.pl:5436
-#: translate_tmp.pl:5465
-#: translate_tmp.pl:5565
+#: translate_tmp.pl:5497
+#: translate_tmp.pl:5526
+#: translate_tmp.pl:5626
 msgid "No screenshots selected"
 msgstr "Nici o captură de ecran selectată"
 
-#: translate_tmp.pl:5481
+#: translate_tmp.pl:5542
 msgid "Selected screenshots deleted"
 msgstr "Capturile de ecran selectate au fost șterse"
 
-#: translate_tmp.pl:5517
-#: translate_tmp.pl:7514
-#: translate_tmp.pl:7542
-#: translate_tmp.pl:7572
-#: translate_tmp.pl:7607
-#: translate_tmp.pl:7642
-#: translate_tmp.pl:7672
+#: translate_tmp.pl:5578
+#: translate_tmp.pl:7613
+#: translate_tmp.pl:7641
+#: translate_tmp.pl:7671
+#: translate_tmp.pl:7706
+#: translate_tmp.pl:7741
+#: translate_tmp.pl:7771
 msgid "removed from session"
 msgstr "eliminat din sesiune"
 
-#: translate_tmp.pl:5581
+#: translate_tmp.pl:5642
 msgid "Selected screenshots removed"
 msgstr "Capturile de ecran selectate au fost eliminate"
 
-#: translate_tmp.pl:5611
-#: translate_tmp.pl:6012
+#: translate_tmp.pl:5672
+#: translate_tmp.pl:6073
 msgid "No valid filetype specified"
 msgstr "Nu e specificat un tip de fișier valid"
 
-#: translate_tmp.pl:5626
+#: translate_tmp.pl:5687
 msgid "There is no image data in the clipboard to paste"
 msgstr "Nu există date de imagine în clipboard pentru lipire"
 
-#: translate_tmp.pl:5685
+#: translate_tmp.pl:5746
 msgid "Selected filenames copied to clipboard"
 msgstr "Numele fișierelor selectate au fost copiate în clipboard"
 
-#: translate_tmp.pl:5700
+#: translate_tmp.pl:5761
 msgid "Selected images copied to clipboard"
 msgstr "Imaginile selectate au fost copiate în clipboard"
 
-#: translate_tmp.pl:5747
+#: translate_tmp.pl:5808
 msgid "Last action undone"
 msgstr "Ultima acțiune anulată"
 
-#: translate_tmp.pl:5755
-#: translate_tmp.pl:5807
+#: translate_tmp.pl:5816
+#: translate_tmp.pl:5868
 #, perl-format
 msgid "Error while copying last version (%s)."
 msgstr "Eroare la copierea ultimei versiuni (%s)."
 
-#: translate_tmp.pl:5756
+#: translate_tmp.pl:5817
 #, perl-format
 msgid "There was an error performing undo on %s."
 msgstr "S-a produs o eroare la efectuarea operației de anulare pentru %s."
 
-#: translate_tmp.pl:5799
+#: translate_tmp.pl:5860
 msgid "Last action redone"
 msgstr "Ultima acțiune repetată"
 
-#: translate_tmp.pl:5808
+#: translate_tmp.pl:5869
 #, perl-format
 msgid "There was an error performing redo on %s."
 msgstr "S-a produs o eroare la efectuarea operației de refacere pentru %s."
 
-#: translate_tmp.pl:5846
+#: translate_tmp.pl:5907
 msgid "No plugin installed"
 msgstr "Nici un modul instalat"
 
-#: translate_tmp.pl:6040
-#: translate_tmp.pl:7849
+#: translate_tmp.pl:6120
+#: translate_tmp.pl:6545
+#: translate_tmp.pl:7948
 msgid "There was an error determining the filename."
 msgstr "A fost o eroare la determinarea numelui fişierului."
 
-#: translate_tmp.pl:6362
+#: translate_tmp.pl:6442
 msgid "Triggered invalid screenshot action."
 msgstr "S-a declanșat o operație nevalidă a capturii de ecran."
 
-#: translate_tmp.pl:6363
-#: translate_tmp.pl:6366
-#: translate_tmp.pl:6604
-#: translate_tmp.pl:6606
-#: translate_tmp.pl:80
-#: translate_tmp.pl:88
-#: translate_tmp.pl:96
-#: translate_tmp.pl:111
-#: translate_tmp.pl:119
-#: translate_tmp.pl:127
-#: translate_tmp.pl:139
-#: translate_tmp.pl:153
+#: translate_tmp.pl:6443
+#: translate_tmp.pl:6446
+#: translate_tmp.pl:6724
+#: translate_tmp.pl:6726
+#: translate_tmp.pl:81
+#: translate_tmp.pl:89
+#: translate_tmp.pl:97
+#: translate_tmp.pl:112
+#: translate_tmp.pl:120
+#: translate_tmp.pl:128
+#: translate_tmp.pl:140
+#: translate_tmp.pl:154
+#: translate_tmp.pl:164
 msgid "Error while taking the screenshot."
 msgstr "Eroare la capturarea ecranului."
 
-#: translate_tmp.pl:6481
-#: translate_tmp.pl:133
+#: translate_tmp.pl:6573
+#: translate_tmp.pl:134
 msgid "Capture aborted by user"
 msgstr "Captura a fost anulată de alt utilizator"
 
-#: translate_tmp.pl:6588
-#: translate_tmp.pl:7563
-#: translate_tmp.pl:9855
-#: translate_tmp.pl:9860
-#: translate_tmp.pl:9927
-#: translate_tmp.pl:9933
-msgid "saved"
-msgstr "salvat"
+#: translate_tmp.pl:6692
+#: translate_tmp.pl:6709
+#, perl-format
+msgid "%s saved"
+msgstr ""
 
-#: translate_tmp.pl:6594
-#: translate_tmp.pl:6596
+#: translate_tmp.pl:6698
+#: translate_tmp.pl:6700
+#: translate_tmp.pl:6714
 msgid "Screenshot saved"
 msgstr "Captură ecran salvată"
 
-#: translate_tmp.pl:6603
+#: translate_tmp.pl:6723
 #, perl-format
 msgid ""
 "The filename %s could not be verified. Maybe it contains unsupported "
@@ -1154,38 +1147,38 @@ msgstr ""
 "Numele de fișier %s nu a putut fi verificat. Probabil conține caractere fără "
 "suport."
 
-#: translate_tmp.pl:6846
-#: translate_tmp.pl:6857
+#: translate_tmp.pl:6963
+#: translate_tmp.pl:6971
 #, perl-format
 msgid "%s opened with %s"
 msgstr "%s deschis cu %s"
 
-#: translate_tmp.pl:6889
+#: translate_tmp.pl:6995
 msgid "Opened all files with"
 msgstr "Deschide toate fișierele cu"
 
-#: translate_tmp.pl:6937
-#: translate_tmp.pl:6957
+#: translate_tmp.pl:7036
+#: translate_tmp.pl:7056
 #, perl-format
 msgid "Could not apply plugin %s"
 msgstr "Modulul %s nu a putut fi aplicat"
 
-#: translate_tmp.pl:6955
-#: translate_tmp.pl:7006
+#: translate_tmp.pl:7054
+#: translate_tmp.pl:7105
 #, perl-format
 msgid "Successfully applied plugin %s"
 msgstr "Modulul %s a fost aplicat cu succes"
 
-#: translate_tmp.pl:7009
+#: translate_tmp.pl:7108
 #, perl-format
 msgid "Error while executing plugin %s."
 msgstr "Eroare în timpul execuției modulului %s."
 
-#: translate_tmp.pl:7010
+#: translate_tmp.pl:7109
 msgid "There was an error executing the plugin."
 msgstr "S-a produs o eroare la execuția modulului."
 
-#: translate_tmp.pl:7088
+#: translate_tmp.pl:7187
 #, perl-format
 msgid "%s screenshot"
 msgid_plural "%s screenshots"
@@ -1193,66 +1186,82 @@ msgstr[0] "%s captură ecran"
 msgstr[1] "%s capturi ecran"
 msgstr[2] "%s capturi ecran"
 
-#: translate_tmp.pl:7100
+#: translate_tmp.pl:7199
 msgid "Current profile"
 msgstr "Profilul curent"
 
-#: translate_tmp.pl:7505
+#: translate_tmp.pl:7604
 msgid "Try to resave the file?"
 msgstr "Încearcă să salveze din nou fișierul?"
 
-#: translate_tmp.pl:7506
+#: translate_tmp.pl:7605
 #, perl-format
 msgid "Image %s was not found on disk"
 msgstr "Imaginea %s nu a fost găsită pe disc"
 
-#: translate_tmp.pl:7534
-#: translate_tmp.pl:7599
+#: translate_tmp.pl:7633
+#: translate_tmp.pl:7698
 #: translate_tmp.pl:181
 #, perl-format
 msgid "Error while saving the image %s."
 msgstr "Eroare la salvarea imaginii %s."
 
-#: translate_tmp.pl:7535
-#: translate_tmp.pl:7600
+#: translate_tmp.pl:7634
+#: translate_tmp.pl:7699
 #: translate_tmp.pl:182
 #, perl-format
 msgid "There was an error saving the image to %s."
 msgstr "A fost o eroare la salvarea imaginii la %s."
 
-#: translate_tmp.pl:7633
+#: translate_tmp.pl:7662
+#: translate_tmp.pl:9967
+#: translate_tmp.pl:9972
+#: translate_tmp.pl:10039
+#: translate_tmp.pl:10045
+msgid "saved"
+msgstr "salvat"
+
+#: translate_tmp.pl:7732
 #, perl-format
 msgid "Image %s was deleted from filesystem"
 msgstr "Imaginea %s a fost ștearsă din sistemul de fișiere."
 
-#: translate_tmp.pl:7665
+#: translate_tmp.pl:7764
 #: translate_tmp.pl:62
 #: translate_tmp.pl:6715
 msgid "There was an error opening the image."
 msgstr "A fost o eroare la deschiderea imaginii."
 
-#: translate_tmp.pl:7848
+#: translate_tmp.pl:7947
 #, perl-format
 msgid "Error while opening directory %s."
 msgstr "Eroare la deschiderea directorului %s."
 
-#: translate_tmp.pl:7918
+#: translate_tmp.pl:8017
 msgid "Updating plugin information"
 msgstr "Se actualizează informaţiile modulului"
 
-#: translate_tmp.pl:7923
+#: translate_tmp.pl:8022
 msgid "Please wait while Shutter updates the plugin information"
 msgstr "Așteptați până Shutter actualizează informațiile modulelor"
 
-#: translate_tmp.pl:8158
+#: translate_tmp.pl:8160
+msgid "Updating upload plugin information"
+msgstr ""
+
+#: translate_tmp.pl:8165
+msgid "Please wait while Shutter updates the upload plugin information"
+msgstr ""
+
+#: translate_tmp.pl:8372
 msgid "Capture All Workspaces"
 msgstr "Capturează toate spatiile de lucru"
 
-#: translate_tmp.pl:8171
+#: translate_tmp.pl:8385
 msgid "Limit to current monitor"
 msgstr "Limitează la monitorul curent"
 
-#: translate_tmp.pl:8186
+#: translate_tmp.pl:8400
 #, perl-format
 msgid ""
 "This option is only useful when you are running a multi-monitor system (%d "
@@ -1275,68 +1284,68 @@ msgstr[2] ""
 "multe monitoare (%d de monitoare detectat).\n"
 "Activați pentru a captura doar monitorul curent."
 
-#: translate_tmp.pl:8230
+#: translate_tmp.pl:8444
 msgid "Capture the last active window"
 msgstr "Capturează ultima fereastră activă"
 
-#: translate_tmp.pl:8269
+#: translate_tmp.pl:8483
 #: translate_tmp.pl:403
 msgid "_Selection"
 msgstr "_Selecţie"
 
-#: translate_tmp.pl:8295
+#: translate_tmp.pl:8509
 #: translate_tmp.pl:429
 msgid "_Desktop"
 msgstr "Spațiu _de lucru"
 
-#: translate_tmp.pl:8329
+#: translate_tmp.pl:8543
 msgid "Window _under Cursor"
 msgstr ""
 
-#: translate_tmp.pl:8345
+#: translate_tmp.pl:8559
 #: translate_tmp.pl:459
 msgid "Select W_indow"
 msgstr "Selectează f_ereastra"
 
-#: translate_tmp.pl:8359
+#: translate_tmp.pl:8573
 #: translate_tmp.pl:472
 msgid "Se_ction"
 msgstr "Se_lecţie"
 
-#: translate_tmp.pl:8378
+#: translate_tmp.pl:8592
 #: translate_tmp.pl:488
 msgid "_Menu"
 msgstr "_Meniu"
 
-#: translate_tmp.pl:8397
+#: translate_tmp.pl:8611
 #: translate_tmp.pl:504
 msgid "_Tooltip"
 msgstr "Suges_tie"
 
-#: translate_tmp.pl:8416
+#: translate_tmp.pl:8630
 #: translate_tmp.pl:522
 msgid "_Web"
 msgstr "_Web"
 
-#: translate_tmp.pl:8433
+#: translate_tmp.pl:8647
 #: translate_tmp.pl:395
 msgid "_Redo last screenshot"
 msgstr "_Refă ultima captură ecran"
 
-#: translate_tmp.pl:8444
+#: translate_tmp.pl:8658
 #: translate_tmp.pl:223
 msgid "_Quick profile select"
 msgstr "_Selectie rapidă de profil"
 
-#: translate_tmp.pl:8487
+#: translate_tmp.pl:8701
 msgid "Advanced selection tool"
 msgstr "Unealtă de selecție avansată"
 
-#: translate_tmp.pl:8490
+#: translate_tmp.pl:8704
 msgid "Simple selection tool"
 msgstr "Unealtă de selecție simplă"
 
-#: translate_tmp.pl:8507
+#: translate_tmp.pl:8721
 msgid ""
 "The advanced selection tool allows you to enlarge/shrink or move your "
 "selected area\n"
@@ -1346,7 +1355,7 @@ msgstr ""
 "zona selectată\n"
 "până când faceți captura de ecran."
 
-#: translate_tmp.pl:8510
+#: translate_tmp.pl:8724
 msgid ""
 "The simple selection tool is the fastest way of taking a screenshot.\n"
 "It provides an optional zoom window for precise shots."
@@ -1355,32 +1364,32 @@ msgstr ""
 "ecran.\n"
 "Prevede o fereastră opțională de zoom pentru capturi precise."
 
-#: translate_tmp.pl:8782
+#: translate_tmp.pl:8852
 msgid "Wait indefinitely"
 msgstr ""
 
-#: translate_tmp.pl:8783
-#: translate_tmp.pl:8784
+#: translate_tmp.pl:8853
+#: translate_tmp.pl:8854
 #, perl-format
 msgid "Wait max %d second"
 msgid_plural "Wait max %d seconds"
 msgstr[0] ""
 msgstr[1] ""
 
-#: translate_tmp.pl:8785
-#: translate_tmp.pl:8786
+#: translate_tmp.pl:8855
+#: translate_tmp.pl:8856
 #, perl-format
 msgid "Wait max %d minute"
 msgid_plural "Wait max %d minutes"
 msgstr[0] ""
 msgstr[1] ""
 
-#: translate_tmp.pl:8794
+#: translate_tmp.pl:8864
 msgid "Shutter will wait indefinitely for the screenshot to capture"
 msgstr ""
 
-#: translate_tmp.pl:8795
-#: translate_tmp.pl:8796
+#: translate_tmp.pl:8865
+#: translate_tmp.pl:8866
 #, perl-format
 msgid ""
 "Shutter will wait up to %d second for the screenshot to capture before "
@@ -1391,8 +1400,8 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: translate_tmp.pl:8797
-#: translate_tmp.pl:8798
+#: translate_tmp.pl:8867
+#: translate_tmp.pl:8868
 #, perl-format
 msgid ""
 "Shutter will wait up to %d minute for the screenshot to capture before "
@@ -1403,58 +1412,72 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: translate_tmp.pl:8938
+#: translate_tmp.pl:9021
 msgid "Host"
 msgstr "Gazdă"
 
-#: translate_tmp.pl:9017
-msgid "Icon"
-msgstr "Iconiță"
+#: translate_tmp.pl:9078
+msgid "Anonymous Upload"
+msgstr ""
 
-#: translate_tmp.pl:9026
-msgid "Name"
-msgstr "Nume"
+#: translate_tmp.pl:9085
+msgid "Authorized Upload"
+msgstr ""
 
-#: translate_tmp.pl:9036
-msgid "Category"
-msgstr "Categorie"
+#: translate_tmp.pl:9092
+msgid "OAuth Upload"
+msgstr ""
 
-#: translate_tmp.pl:9046
-#: translate_tmp.pl:10042
+#: translate_tmp.pl:9103
+#: translate_tmp.pl:9164
+#: translate_tmp.pl:10154
 msgid "Description"
 msgstr "Descriere"
 
-#: translate_tmp.pl:9056
+#: translate_tmp.pl:9135
+msgid "Icon"
+msgstr "Iconiță"
+
+#: translate_tmp.pl:9144
+msgid "Name"
+msgstr "Nume"
+
+#: translate_tmp.pl:9154
+msgid "Category"
+msgstr "Categorie"
+
+#: translate_tmp.pl:9174
 msgid "Language"
 msgstr "Limbă"
 
-#: translate_tmp.pl:9065
+#: translate_tmp.pl:9183
 msgid "Path"
 msgstr "Cale"
 
-#: translate_tmp.pl:9111
-msgid "Copy Ubuntu One public URL"
-msgstr "Copiază URL-ul public Ubuntu One"
+#: translate_tmp.pl:9229
+#: translate_tmp.pl:10529
+msgid "Ubuntu One"
+msgstr "Ubuntu One"
 
-#: translate_tmp.pl:9119
+#: translate_tmp.pl:9238
 msgid "Successfully published"
 msgstr "Publicat cu succes"
 
-#: translate_tmp.pl:9119
+#: translate_tmp.pl:9238
 #, perl-format
 msgid "The file %s was successfully published: %s"
 msgstr "Fișierul %s a fost publicat cu succes: %s"
 
-#: translate_tmp.pl:9121
+#: translate_tmp.pl:9241
 #, perl-format
 msgid "%s published"
 msgstr "%s publicat"
 
-#: translate_tmp.pl:9131
+#: translate_tmp.pl:9253
 msgid "Unpublished"
 msgstr "Nepublicat"
 
-#: translate_tmp.pl:9131
+#: translate_tmp.pl:9253
 #, perl-format
 msgid ""
 "The file %s is no longer published. The external link is not available "
@@ -1462,361 +1485,340 @@ msgid ""
 msgstr ""
 "Fișierul %s nu mai este publicat. Legătura externă nu mai este disponibilă."
 
-#: translate_tmp.pl:9133
+#: translate_tmp.pl:9256
 #, perl-format
 msgid "The file %s is no longer published."
 msgstr "Fișierul %s nu mai este publicat."
 
-#: translate_tmp.pl:9337
+#: translate_tmp.pl:9447
 msgid "Rename"
 msgstr "Redenumește"
 
-#: translate_tmp.pl:9341
+#: translate_tmp.pl:9451
 #, perl-format
 msgid "Rename image %s"
 msgstr "Redenumește imaginea %s"
 
-#: translate_tmp.pl:9343
+#: translate_tmp.pl:9453
 msgid "New filename"
 msgstr "Nume fişier nou"
 
-#: translate_tmp.pl:9346
+#: translate_tmp.pl:9456
 msgid "_Rename"
 msgstr "_Redenumește"
 
-#: translate_tmp.pl:9445
-#: translate_tmp.pl:9495
+#: translate_tmp.pl:9555
+#: translate_tmp.pl:9607
 msgid "renamed"
 msgstr "redenumit"
 
-#: translate_tmp.pl:9453
-#: translate_tmp.pl:9503
-#: translate_tmp.pl:9543
+#: translate_tmp.pl:9563
+#: translate_tmp.pl:9615
+#: translate_tmp.pl:9655
 #, perl-format
 msgid "Error while renaming the image %s."
 msgstr "Eroare la redenumirea imaginii %s."
 
-#: translate_tmp.pl:9454
-#: translate_tmp.pl:9504
-#: translate_tmp.pl:9544
+#: translate_tmp.pl:9564
+#: translate_tmp.pl:9616
+#: translate_tmp.pl:9656
 #, perl-format
 msgid "There was an error renaming the image to %s."
 msgstr "A fost o eroare la redenumirea imaginii la %s."
 
-#: translate_tmp.pl:9466
-#: translate_tmp.pl:9882
-#: translate_tmp.pl:10853
-#: translate_tmp.pl:11097
+#: translate_tmp.pl:9576
+#: translate_tmp.pl:9994
+#: translate_tmp.pl:10998
+#: translate_tmp.pl:11248
 #: translate_tmp.pl:1615
 msgid "_Replace"
 msgstr "_Înlocuieşte"
 
-#: translate_tmp.pl:9470
-#: translate_tmp.pl:9886
-#: translate_tmp.pl:10864
+#: translate_tmp.pl:9582
+#: translate_tmp.pl:9998
+#: translate_tmp.pl:11012
 #: translate_tmp.pl:1619
 #, perl-format
 msgid ""
 "The image already exists in %s. Replacing it will overwrite its contents."
 msgstr "Imaginea există deja în %s. Înlocuirea ei va suprascrie conținutul."
 
-#: translate_tmp.pl:9471
-#: translate_tmp.pl:9887
-#: translate_tmp.pl:10865
+#: translate_tmp.pl:9583
+#: translate_tmp.pl:9999
+#: translate_tmp.pl:11013
 #: translate_tmp.pl:1620
 #, perl-format
 msgid "An image named %s already exists. Do you want to replace it?"
 msgstr "O imagine cu numele %s exista deja. Doriți sa o înlocuiți?"
 
-#: translate_tmp.pl:9547
+#: translate_tmp.pl:9659
 msgid "Invalid Filename"
 msgstr "Nume fișier invalid"
 
-#: translate_tmp.pl:9572
+#: translate_tmp.pl:9684
 #: translate_tmp.pl:6341
 msgid "Choose file to open"
 msgstr "Deschide un fişier"
 
-#: translate_tmp.pl:9601
+#: translate_tmp.pl:9713
 #: translate_tmp.pl:6369
 msgid "All compatible image formats"
 msgstr "Toate formatele compatibile de imagine"
 
-#: translate_tmp.pl:9677
+#: translate_tmp.pl:9789
 #: translate_tmp.pl:1448
 msgid "Choose a location to save to"
 msgstr "Alegeți o locație pentru a salva"
 
-#: translate_tmp.pl:9974
+#: translate_tmp.pl:10086
 msgid "Choose a plugin"
 msgstr "Alegeți un modul"
 
-#: translate_tmp.pl:9979
+#: translate_tmp.pl:10091
 msgid "_Run"
 msgstr "_Execută"
 
-#: translate_tmp.pl:10029
+#: translate_tmp.pl:10141
 msgid "Plugin"
 msgstr "Modul"
 
-#: translate_tmp.pl:10119
+#: translate_tmp.pl:10231
 msgid "No plugin specified"
 msgstr "Nici un modul specificat"
 
-#: translate_tmp.pl:10168
+#: translate_tmp.pl:10280
 msgid "Upload / Export"
 msgstr "Încarcă / Exportă"
 
-#: translate_tmp.pl:10172
-#: translate_tmp.pl:10375
+#: translate_tmp.pl:10284
+#: translate_tmp.pl:10538
 msgid "_Upload"
 msgstr "_Încarcă"
 
-#: translate_tmp.pl:10187
+#: translate_tmp.pl:10306
 msgid "Guest"
 msgstr "Oaspete"
 
-#: translate_tmp.pl:10207
+#: translate_tmp.pl:10311
+msgid "OAuth"
+msgstr ""
+
+#: translate_tmp.pl:10346
+msgid ""
+"Please choose one of the accounts above and click <i>Upload</i>. The upload "
+"links will still be available in the screenshot's <i>right-click menu</i> "
+"after closing this dialog."
+msgstr ""
+
+#: translate_tmp.pl:10351
+msgid ""
+"<b>Please note:</b> If a plugin allows only authorized uploading you need to "
+"enter your credentials in preferences first to make it appear in the list "
+"above."
+msgstr ""
+
+#: translate_tmp.pl:10355
 msgid "Choose account"
 msgstr "Alege cont"
 
-#: translate_tmp.pl:10229
+#: translate_tmp.pl:10383
 msgid "Status"
 msgstr "Stare"
 
-#: translate_tmp.pl:10363
+#: translate_tmp.pl:10526
 msgid "Public hosting"
 msgstr "Găzduire publică"
 
-#: translate_tmp.pl:10365
+#: translate_tmp.pl:10528
 msgid "Places"
 msgstr "Locuri"
 
-#: translate_tmp.pl:10366
-msgid "Ubuntu One"
-msgstr "Ubuntu One"
-
-#: translate_tmp.pl:10378
+#: translate_tmp.pl:10541
 msgid "_Export"
 msgstr "_Exportă"
 
-#: translate_tmp.pl:10381
+#: translate_tmp.pl:10544
 msgid "_Publish"
 msgstr "_Publică"
 
-#: translate_tmp.pl:10408
-#: translate_tmp.pl:147
+#: translate_tmp.pl:10571
+#: translate_tmp.pl:164
 msgid "Disconnected"
 msgstr "Deconectat"
 
-#: translate_tmp.pl:10428
-#: translate_tmp.pl:10460
+#: translate_tmp.pl:10592
+#: translate_tmp.pl:10630
 #, perl-format
 msgid ""
-"Folder %s is synchronized with Ubuntu One.\n"
-"The selected file will be copied to that folder before being published."
+"Folder %s is synchronized with Ubuntu One. The selected file will be copied "
+"to that folder before being published."
 msgid_plural ""
-"Folder %s is synchronized with Ubuntu One.\n"
-"The selected files will be copied to that folder before being published."
+"Folder %s is synchronized with Ubuntu One. The selected files will be copied "
+"to that folder before being published."
 msgstr[0] ""
-"Dosarul %s este sincronizat cu Ubuntu One.\n"
-"Fișierul selectat va fi copiat la acel dosar înainte de a fi publicat."
 msgstr[1] ""
-"Dosarul %s este sincronizat cu Ubuntu One.\n"
-"Fișierele selectate vor fi copiate la acel dosar înainte de a fi publicate."
-msgstr[2] ""
-"Dosarul %s este sincronizat cu Ubuntu One.\n"
-"Fișierele selectate vor fi copiate la acel dosar înainte de a fi publicate."
 
-#: translate_tmp.pl:10431
-#: translate_tmp.pl:10463
+#: translate_tmp.pl:10597
+#: translate_tmp.pl:10635
 msgid ""
 "<b>Please note:</b> The selected file will be published in a background "
-"process.\n"
-"You will be notified when the process has finished."
+"process. You will be notified when the process has finished."
 msgid_plural ""
 "<b>Please note:</b> The selected files will be published in a background "
-"process.\n"
-"You will be notified when the process has finished."
+"process. You will be notified when the process has finished."
 msgstr[0] ""
-"<b>Atenție:</b> Fișierul selectat va fi publicat într-un proces de fundal.\n"
-"Veți fi notificat când procesul s-a terminat."
 msgstr[1] ""
-"<b>Atenție:</b> Fișierele selectate vor fi publicate într-un proces de "
-"fundal.\n"
-"Veți fi notificat când procesul s-a terminat."
-msgstr[2] ""
-"<b>Atenție:</b> Fișierele selectate vor fi publicate într-un proces de "
-"fundal.\n"
-"Veți fi notificat când procesul s-a terminat."
 
-#: translate_tmp.pl:10436
-#: translate_tmp.pl:10468
+#: translate_tmp.pl:10604
+#: translate_tmp.pl:10642
 #, perl-format
 msgid ""
-"Folder %s is not synchronized with Ubuntu One.\n"
-"Please choose an alternative folder."
+"Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
+"folder."
 msgstr ""
-"Dosarul %s nu este sincronizat cu Ubuntu One.\n"
-"Alegeți alt dosar."
 
-#: translate_tmp.pl:10485
+#: translate_tmp.pl:10660
 msgid "Ubuntu One service cannot be found."
 msgstr "Serviciul Ubuntu One nu a putut fi găsit."
 
-#: translate_tmp.pl:10492
+#: translate_tmp.pl:10667
 msgid ""
 "/publicfiles is not available. Your Ubuntu One installation seems to be out "
 "of date."
 msgstr ""
 "/publicfiles nu este disponibil. Instalarea Ubuntu One pare a fi veche."
 
-#: translate_tmp.pl:10499
+#: translate_tmp.pl:10674
 msgid ""
 "Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature"
 msgstr ""
 "trebuie instalat Net::DBus::GLib/libnet-dbus-glib-perl pentru aceasta funcție"
 
-#: translate_tmp.pl:10568
-#: translate_tmp.pl:10638
-#: translate_tmp.pl:10714
-#: translate_tmp.pl:10818
-#: translate_tmp.pl:10891
+#: translate_tmp.pl:10750
+#, perl-format
+msgid "Error while executing upload plugin %s."
+msgstr ""
+
+#: translate_tmp.pl:10751
+msgid "There was an error executing the upload plugin."
+msgstr ""
+
+#: translate_tmp.pl:10788
+#: translate_tmp.pl:10859
+#: translate_tmp.pl:10963
+#: translate_tmp.pl:11039
 msgid "uploaded"
 msgstr "încărcat"
 
-#: translate_tmp.pl:10601
-#: translate_tmp.pl:11006
-#: translate_tmp.pl:89
-msgid "Please check your credentials and try again."
-msgstr "Verificați autorizările și încercați din nou."
-
-#: translate_tmp.pl:10602
-msgid "Login failed!"
-msgstr "Autentificare eşuată!"
-
-#: translate_tmp.pl:10615
-#: translate_tmp.pl:10641
-#: translate_tmp.pl:11019
-#: translate_tmp.pl:82
-msgid "Please check your connectivity and try again."
-msgstr "Verificați conexiunea și încercați din nou."
-
-#: translate_tmp.pl:10616
-#: translate_tmp.pl:10642
-msgid "Connection error!"
-msgstr "Eroare de conectare!"
-
-#: translate_tmp.pl:10617
-#: translate_tmp.pl:10643
-#: translate_tmp.pl:10736
-#: translate_tmp.pl:10866
-#: translate_tmp.pl:10987
-#: translate_tmp.pl:11013
-#: translate_tmp.pl:11021
-msgid "Skip all"
-msgstr "Omite tot"
-
-#: translate_tmp.pl:10618
-#: translate_tmp.pl:10644
-#: translate_tmp.pl:10737
-#: translate_tmp.pl:10866
-#: translate_tmp.pl:10988
-#: translate_tmp.pl:11013
-#: translate_tmp.pl:11021
-msgid "Skip"
-msgstr "Sări peste"
-
-#: translate_tmp.pl:10619
-#: translate_tmp.pl:10645
-#: translate_tmp.pl:10738
-#: translate_tmp.pl:11021
-msgid "Retry"
-msgstr "Reîncearcă"
-
-#: translate_tmp.pl:10718
-#: translate_tmp.pl:10821
-#: translate_tmp.pl:10894
+#: translate_tmp.pl:10863
+#: translate_tmp.pl:10966
+#: translate_tmp.pl:11042
 msgid "Successfully uploaded"
 msgstr "Încărcat cu succes"
 
-#: translate_tmp.pl:10718
-#: translate_tmp.pl:10821
-#: translate_tmp.pl:10894
+#: translate_tmp.pl:10863
+#: translate_tmp.pl:10966
+#: translate_tmp.pl:11042
 #, perl-format
 msgid "The file %s was successfully uploaded."
 msgstr "Fișierul %s a fost încărcat cu succes."
 
-#: translate_tmp.pl:10813
-#: translate_tmp.pl:10886
+#: translate_tmp.pl:10881
+#: translate_tmp.pl:11014
+#: translate_tmp.pl:11138
+#: translate_tmp.pl:11166
+#: translate_tmp.pl:11174
+msgid "Skip all"
+msgstr "Omite tot"
+
+#: translate_tmp.pl:10882
+#: translate_tmp.pl:11014
+#: translate_tmp.pl:11139
+#: translate_tmp.pl:11166
+#: translate_tmp.pl:11174
+msgid "Skip"
+msgstr "Sări peste"
+
+#: translate_tmp.pl:10883
+#: translate_tmp.pl:11174
+msgid "Retry"
+msgstr "Reîncearcă"
+
+#: translate_tmp.pl:10958
+#: translate_tmp.pl:11034
 msgid "exported"
 msgstr "exportat"
 
-#: translate_tmp.pl:10816
-#: translate_tmp.pl:10889
+#: translate_tmp.pl:10961
+#: translate_tmp.pl:11037
 msgid "Successfully exported"
 msgstr "Exportat cu succes"
 
-#: translate_tmp.pl:10816
-#: translate_tmp.pl:10889
+#: translate_tmp.pl:10961
+#: translate_tmp.pl:11037
 #, perl-format
 msgid "The file %s was successfully exported."
 msgstr "Fișierul %s a fost exportat cu succes."
 
-#: translate_tmp.pl:10826
-#: translate_tmp.pl:10899
+#: translate_tmp.pl:10971
+#: translate_tmp.pl:11047
 #, perl-format
 msgid "Publishing %s..."
 msgstr "Se publică %s..."
 
-#: translate_tmp.pl:10981
+#: translate_tmp.pl:11132
 msgid "_Retry"
 msgstr "_Reîncearcă"
 
-#: translate_tmp.pl:10985
+#: translate_tmp.pl:11136
 #, perl-format
 msgid "Error while copying the image %s."
 msgstr "Eroare la copierea imaginii %s."
 
-#: translate_tmp.pl:10986
+#: translate_tmp.pl:11137
 #, perl-format
 msgid "There was an error copying the image into %s."
 msgstr "A fost o eroare la copierea imaginii în %s."
 
-#: translate_tmp.pl:11007
+#: translate_tmp.pl:11159
+#: translate_tmp.pl:89
+msgid "Please check your credentials and try again."
+msgstr "Verificați autorizările și încercați din nou."
+
+#: translate_tmp.pl:11160
 msgid "Error while login"
 msgstr "Eroare la autentificare"
 
-#: translate_tmp.pl:11011
+#: translate_tmp.pl:11164
 msgid "Maximum filesize reached"
 msgstr "S-a ajuns la dimensiunea maximă a fișierului"
 
-#: translate_tmp.pl:11012
+#: translate_tmp.pl:11165
 msgid "Error while uploading"
 msgstr "Eroare la încărcare"
 
-#: translate_tmp.pl:11015
+#: translate_tmp.pl:11168
 #, perl-format
 msgid "Maximum filesize: %s"
 msgstr "Dimensiunea maximă a fișierului: %s"
 
-#: translate_tmp.pl:11020
+#: translate_tmp.pl:11173
 msgid "Error while connecting"
 msgstr "Eroare la conectare"
 
-#: translate_tmp.pl:11038
+#: translate_tmp.pl:11189
 msgid "Save current preferences as new profile"
 msgstr "Salvează preferințele curente ca profil nou"
 
-#: translate_tmp.pl:11040
+#: translate_tmp.pl:11191
 msgid "New profile name"
 msgstr "Nume de profil nou"
 
-#: translate_tmp.pl:11101
+#: translate_tmp.pl:11252
 msgid "Replacing it will overwrite its contents."
 msgstr "Înlocuirea va suprascrie conținutul."
 
-#: translate_tmp.pl:11102
+#: translate_tmp.pl:11253
 #, perl-format
 msgid "A profile named %s already exists. Do you want to replace it?"
 msgstr "Un profil cu numele %s exista deja. Doriți să îl înlocuiți?"
@@ -1901,7 +1903,7 @@ msgid "C_lose all"
 msgstr "Închide tot"
 
 #: translate_tmp.pl:204
-#: translate_tmp.pl:727
+#: translate_tmp.pl:705
 msgid "Copy _Filename"
 msgstr "Copiază numele _fișierului"
 
@@ -1929,56 +1931,51 @@ msgstr "Fereastra _activă"
 msgid "Import from clip_board"
 msgstr "Importă din clip_board"
 
-#: translate_tmp.pl:562
-#: translate_tmp.pl:670
-msgid "_Open with default application"
-msgstr "_Deschide cu aplicația implicită"
-
-#: translate_tmp.pl:569
-#: translate_tmp.pl:677
+#: translate_tmp.pl:558
+#: translate_tmp.pl:655
 msgid "Open wit_h"
 msgstr "Desc_hide cu"
 
-#: translate_tmp.pl:576
-#: translate_tmp.pl:684
+#: translate_tmp.pl:565
+#: translate_tmp.pl:662
 msgid "Show in _folder"
 msgstr ""
 
-#: translate_tmp.pl:583
-#: translate_tmp.pl:691
+#: translate_tmp.pl:572
+#: translate_tmp.pl:669
 msgid "_Rename..."
 msgstr "_Redenumește..."
 
-#: translate_tmp.pl:592
-#: translate_tmp.pl:699
+#: translate_tmp.pl:581
+#: translate_tmp.pl:677
 msgid "_Send To..."
 msgstr "_Trimite la..."
 
-#: translate_tmp.pl:601
-#: translate_tmp.pl:707
+#: translate_tmp.pl:590
+#: translate_tmp.pl:685
 msgid "E_xport..."
 msgstr "E_xportă..."
 
-#: translate_tmp.pl:608
-#: translate_tmp.pl:713
+#: translate_tmp.pl:597
+#: translate_tmp.pl:691
 msgid "Public URLs"
 msgstr "URLuri publice"
 
-#: translate_tmp.pl:616
-#: translate_tmp.pl:740
+#: translate_tmp.pl:605
+#: translate_tmp.pl:718
 msgid "_Edit..."
 msgstr "_Editează..."
 
-#: translate_tmp.pl:633
+#: translate_tmp.pl:622
 msgid "Run a _plugin..."
 msgstr "Execută un _modul..."
 
-#: translate_tmp.pl:642
-#: translate_tmp.pl:764
+#: translate_tmp.pl:631
+#: translate_tmp.pl:742
 msgid "Redo _this screenshot"
 msgstr "Refă această cap_tură de ecran"
 
-#: translate_tmp.pl:756
+#: translate_tmp.pl:734
 msgid "Run a _Plugin..."
 msgstr "Execută un _modul..."
 
@@ -2040,7 +2037,7 @@ msgid "Capture a tooltip"
 msgstr "Capturează o indicație"
 
 #: translate_tmp.pl:212
-#: translate_tmp.pl:75
+#: translate_tmp.pl:79
 msgid "Take a screenshot of a website"
 msgstr "Fă o captură a site-ului web"
 
@@ -2074,6 +2071,10 @@ msgstr ""
 "Încarcă imaginile pe un serviciu de găzduire de imagini, site FTP sau "
 "exportă într-un dosar arbitrar"
 
+#: translate_tmp.pl:248
+msgid "Show links to previous uploads"
+msgstr ""
+
 #: translate_tmp.pl:33
 #: translate_tmp.pl:47
 #: translate_tmp.pl:62
@@ -2098,57 +2099,13 @@ msgstr "A fost o eroare la execuția %s."
 msgid "Exit Code: %d."
 msgstr "Cod de ieșire: %d."
 
-#: translate_tmp.pl:150
+#: translate_tmp.pl:167
 msgid "Synchronization complete"
 msgstr "Sincronizare completă"
 
-#: translate_tmp.pl:152
+#: translate_tmp.pl:169
 msgid "Synchronization in progress..."
 msgstr "Sincronizare în progres..."
-
-#: translate_tmp.pl:442
-#: translate_tmp.pl:193
-msgid "Upload status:"
-msgstr "Status încărcare:"
-
-#: translate_tmp.pl:451
-#: translate_tmp.pl:287
-msgid "Thumbnail for forums"
-msgstr "Thumbnail pentru forumuri"
-
-#: translate_tmp.pl:452
-msgid "Short URL"
-msgstr "URL scurt"
-
-#: translate_tmp.pl:454
-#: translate_tmp.pl:293
-msgid "Direct link"
-msgstr "Link direct"
-
-#: translate_tmp.pl:455
-#: translate_tmp.pl:299
-msgid "Hotlink for websites"
-msgstr "Legătură pentru pagini web"
-
-#: translate_tmp.pl:466
-#: translate_tmp.pl:489
-#: translate_tmp.pl:508
-#: translate_tmp.pl:519
-#: translate_tmp.pl:220
-#: translate_tmp.pl:232
-#: translate_tmp.pl:244
-#: translate_tmp.pl:256
-#: translate_tmp.pl:268
-msgid "Copy this code to clipboard"
-msgstr "Copiază acest cod în clipboard"
-
-#: translate_tmp.pl:281
-msgid "Thumbnail for websites"
-msgstr "Thumbnail pentru pagini web"
-
-#: translate_tmp.pl:305
-msgid "Hotlink for forums"
-msgstr "Legătură pentru forumuri"
 
 #: translate_tmp.pl:61
 msgid "Illegal URI."
@@ -2157,6 +2114,10 @@ msgstr "URI ilegal."
 #: translate_tmp.pl:81
 msgid "Connection error."
 msgstr "Eroare de conectare."
+
+#: translate_tmp.pl:82
+msgid "Please check your connectivity and try again."
+msgstr "Verificați conexiunea și încercați din nou."
 
 #: translate_tmp.pl:88
 #, perl-format
@@ -2205,53 +2166,58 @@ msgstr "<b>taste cursor + alt</b> → mută selecția"
 msgid "<b>cursor keys + ctrl</b> → resize selection"
 msgstr "<b>taste cursor + ctrl</b> → redimensionează selecția"
 
-#: translate_tmp.pl:87
+#: translate_tmp.pl:88
 msgid ""
 "Maybe mouse pointer could not be grabbed or the selected area is invalid."
 msgstr ""
 "Probabil locul de indiciu al mausului nu putut fi luat sau zona de selecție "
 "nu este validă."
 
-#: translate_tmp.pl:95
+#: translate_tmp.pl:96
 msgid "Keyboard could not be grabbed."
 msgstr "Tastatura nu a putut fi luată."
 
-#: translate_tmp.pl:104
+#: translate_tmp.pl:105
 msgid "menu"
 msgstr "meniu"
 
-#: translate_tmp.pl:106
+#: translate_tmp.pl:107
 msgid "tooltip"
 msgstr "indicație"
 
-#: translate_tmp.pl:110
+#: translate_tmp.pl:111
 #, perl-format
 msgid "No window with type %s detected."
 msgstr "Nu a fost detectată nicio fereastră de tipul %s."
 
-#: translate_tmp.pl:118
+#: translate_tmp.pl:119
 msgid "There is no last capture that can be redone."
 msgstr "Nu există nicio ultimă captură care poate fi refăcută."
 
-#: translate_tmp.pl:126
+#: translate_tmp.pl:127
 msgid "The window is no longer available."
 msgstr "Fereastra nu mai este disponibilă."
 
-#: translate_tmp.pl:138
-#: translate_tmp.pl:144
+#: translate_tmp.pl:139
+#: translate_tmp.pl:145
 msgid "Unable to capture website"
 msgstr "Nu s-a putut captura pagina web."
 
-#: translate_tmp.pl:152
+#: translate_tmp.pl:153
 #, perl-format
 msgid "No window with name pattern %s detected."
 msgstr "Nu a fost detectată nicio fereastră cu modelul de nume %s."
 
-#: translate_tmp.pl:117
+#: translate_tmp.pl:163
+#, perl-format
+msgid "Invalid pattern %s detected."
+msgstr ""
+
+#: translate_tmp.pl:122
 msgid "No subwindow detected"
 msgstr "Nu a fost detectată nicio subfereastră"
 
-#: translate_tmp.pl:118
+#: translate_tmp.pl:123
 msgid ""
 "Maybe this window is using client-side windows (or similar).\n"
 "Shutter is not yet able to query the tree information of such windows."
@@ -2260,11 +2226,11 @@ msgstr ""
 "Shutter încă nu poate interoga informația de arbore a ferestrelor de acest "
 "tip."
 
-#: translate_tmp.pl:77
+#: translate_tmp.pl:81
 msgid "URL to capture"
 msgstr "URLul de capturat"
 
-#: translate_tmp.pl:94
+#: translate_tmp.pl:98
 msgid "C_apture"
 msgstr "C_aptură"
 
@@ -2706,80 +2672,3 @@ msgstr "Importă din sistemul de fișiere..."
 #: translate_tmp.pl:7125
 msgid "New text..."
 msgstr "Text nou..."
-
-#~ msgid "Goo::Canvas/libgoocanvas needs to be installed for this feature"
-#~ msgstr "trebuie instalat Goo::Canvas/libgoocanvas pentru această funcție"
-
-#~ msgid ""
-#~ "Quality/Compression:\n"
-#~ "High value means high size / high compression\n"
-#~ "(depending on file format chosen)"
-#~ msgstr "Calitate/Compresie:"
-
-#~ msgid "As background"
-#~ msgstr "Ca fundal"
-
-#~ msgid "Set profile for current configuration"
-#~ msgstr "Definește profilul pentru configurația actuală"
-
-#~ msgid "As check pattern"
-#~ msgstr "Ca tablă de șah"
-
-#~ msgid "Restoring session"
-#~ msgstr "Refac sesiunea"
-
-#~ msgid ""
-#~ "There are several wildcards available, like\n"
-#~ "%Y = year\n"
-#~ "%m = month\n"
-#~ "%d = day\n"
-#~ "%T = time\n"
-#~ "$w = width\n"
-#~ "$h = height\n"
-#~ "$name = multi-purpose (e.g. window title)\n"
-#~ "%NN = counter"
-#~ msgstr ""
-#~ "Sunt câteva metacaractere disponibile, precum\n"
-#~ "%Y = an\n"
-#~ "%m = luna\n"
-#~ "%d = ziua\n"
-#~ "%T = timp\n"
-#~ "$w = latime\n"
-#~ "$h = inaltime\n"
-#~ "$name = cu scop multiplu (ex. titlul ferestrei)\n"
-#~ "%NN = contor"
-
-#~ msgid "As custom color:"
-#~ msgstr "Ca culoare personalizată:"
-
-#~ msgid "Loading files"
-#~ msgstr "Se încarcă fișierele"
-
-#~ msgid "Please wait while your selected files are being loaded into Shutter"
-#~ msgstr ""
-#~ "Te rog așteaptă până ce fișierele selectate sunt încărcate în Shutter"
-
-#~ msgid "Please wait while your saved session is being restored"
-#~ msgstr "Te rog aşteaptă până când sesiunea este restaurată"
-
-#~ msgid "opened with"
-#~ msgstr "deschis cu"
-
-#~ msgid "W_indow"
-#~ msgstr "F_reastră"
-
-#~ msgid "The timeout in seconds, or 0 to disable timeout"
-#~ msgstr "Timpul alocat în secunde, sau 0 pentru a dezactiva tipul alocat"
-
-#, perl-format
-#~ msgid "_Open with %s"
-#~ msgstr "_Deschide cu %s"
-
-#~ msgid "Timeout"
-#~ msgstr "Timp alocat expirat"
-
-#~ msgid "Show your friends"
-#~ msgstr "Arată-mi prieteni"
-
-#~ msgid "Full Screen"
-#~ msgstr "Ecran complet"

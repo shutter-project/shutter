@@ -1,0 +1,524 @@
+# Korean translation for shutter
+# Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
+# This file is distributed under the same license as the shutter package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: shutter\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2011-11-16 01:50+0100\n"
+"PO-Revision-Date: 2011-11-05 00:51+0000\n"
+"Last-Translator: Lyuso <Lutinaroa@gmail.com>\n"
+"Language-Team: Korean <ko@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2011-11-16 22:46+0000\n"
+"X-Generator: Launchpad (build 14291)\n"
+
+#: translate_tmp:27
+msgid "Shutter Branding"
+msgstr "셔터 혼합"
+
+#: translate_tmp:28
+#: translate_tmp:74
+#: translate_tmp:63
+#: translate_tmp:72
+#: translate_tmp:64
+msgid "Effect"
+msgstr "효과"
+
+#: translate_tmp:29
+msgid ""
+"Turn the image into a polaroid one with the Shutter logo and a subtitle added"
+msgstr "소제목과 Shutter 표식을 담을 폴라로이드 이미지로 전환"
+
+#: translate_tmp:27
+msgid "Grayscale"
+msgstr "회색톤"
+
+#: translate_tmp:29
+msgid "Turn the image into a grayscale image (256 shades)"
+msgstr "이미지를 회색톤 이미지로 전환 (256 단계)"
+
+#: translate_tmp:27
+msgid "Jigsaw Piece 1"
+msgstr "직소퍼즐 1"
+
+#: translate_tmp:29
+msgid "Cut out a jigsaw piece at the bottom right corner"
+msgstr "오른쪽 하단의 끝을 직소 퍼즐 조각으로 잘라내기"
+
+#: translate_tmp:27
+msgid "Jigsaw Piece 2"
+msgstr "직소퍼즐 2"
+
+#: translate_tmp:29
+msgid "Cut a jigsaw piece out of the image"
+msgstr "이미지를 직소 퍼즐형식으로 자르기"
+
+#: translate_tmp:27
+msgid "Offset"
+msgstr "오프셋"
+
+#: translate_tmp:29
+msgid "Give the picture an offset with itself as background"
+msgstr "사진이 자신을 배경으로 하도록 여백을 주기"
+
+#: translate_tmp:27
+msgid "Raise Border"
+msgstr "경계 강조"
+
+#: translate_tmp:29
+msgid "Raise a rectangular 3d-border"
+msgstr "직사각형 3차원 경계 강조"
+
+#: translate_tmp:27
+msgid "Soft Edges"
+msgstr "부드러운 윤곽선"
+
+#: translate_tmp:29
+msgid "Add soft edges around the image"
+msgstr "이미지 전체에 부드러운 윤곽선 적용하기"
+
+#: translate_tmp:27
+msgid "Sunk Border"
+msgstr "경계 흐리게"
+
+#: translate_tmp:29
+msgid "Add an inverted 3d border to the image"
+msgstr "3d 윤곽선 반전을 이미지에 적용하기"
+
+#: translate_tmp:27
+msgid "Torned Paper"
+msgstr "무늬지"
+
+#: translate_tmp:29
+msgid "Add a torn-like border to the image"
+msgstr "무늬있는 윤곽선을 이미지에 적용하기"
+
+#: translate_tmp:27
+msgid "Autocrop"
+msgstr "자동 다듬기"
+
+#: translate_tmp:28
+#: translate_tmp:49
+msgid "Tool"
+msgstr "도구"
+
+#: translate_tmp:29
+msgid "Remove empty borders from the image"
+msgstr "이미지의 빈 테두리 제거"
+
+#: translate_tmp:73
+msgid "3D reflection"
+msgstr "3D 반사"
+
+#: translate_tmp:75
+msgid ""
+"Adds a fading reflection below an image and views it in perspective\n"
+"\n"
+"Based on a script by Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
+msgstr ""
+"아래 이미지에 감소하는 반사를 적용하고 원근법으로 표시\n"
+"\n"
+"Fred Weinhaus 의 스크립트에 기초함\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
+
+#: translate_tmp:104
+#: translate_tmp:133
+#: translate_tmp:127
+msgid "Rotation:"
+msgstr "회전:"
+
+#: translate_tmp:111
+#: translate_tmp:118
+msgid "Perseptive rotation around left edge of image"
+msgstr "화상의 왼쪽 모서리로 시선 회전"
+
+#: translate_tmp:122
+msgid "Fade:"
+msgstr "페이드:"
+
+#: translate_tmp:129
+#: translate_tmp:136
+msgid "Fade percent for mirror image"
+msgstr "반사된 화상의 옅어짐 정도"
+
+#: translate_tmp:140
+msgid "Opacity:"
+msgstr "투명도:"
+
+#: translate_tmp:147
+#: translate_tmp:154
+msgid "Opacity percent applied to whole mirror image"
+msgstr "전체 반사 화상에 투명도 정도가 적용됨"
+
+#: translate_tmp:158
+msgid "Pef:"
+msgstr "선호:"
+
+#: translate_tmp:165
+#: translate_tmp:172
+msgid "Perspective exaggeration factor"
+msgstr "시선 과장 정도"
+
+#: translate_tmp:176
+msgid "Gap:"
+msgstr "간극:"
+
+#: translate_tmp:183
+#: translate_tmp:190
+msgid "Gap between image and mirror in pixels"
+msgstr "반사화상과 원본화상과의 거리를 픽셀로"
+
+#: translate_tmp:194
+#: translate_tmp:176
+msgid "Zoom:"
+msgstr "확대:"
+
+#: translate_tmp:201
+#: translate_tmp:208
+msgid "Zoom factor for output image"
+msgstr "출력 이미지의 확대 정도"
+
+#: translate_tmp:212
+#: translate_tmp:236
+#: translate_tmp:165
+#: translate_tmp:194
+msgid "Background color"
+msgstr "배경색"
+
+#: translate_tmp:217
+#: translate_tmp:241
+#: translate_tmp:170
+#: translate_tmp:199
+msgid "Choose background color"
+msgstr "배경색 선택"
+
+#: translate_tmp:423
+#: translate_tmp:459
+#: translate_tmp:363
+#: translate_tmp:399
+#: translate_tmp:259
+#: translate_tmp:328
+#: translate_tmp:257
+#: translate_tmp:314
+#: translate_tmp:315
+#, perl-format
+msgid "Error while executing plugin %s."
+msgstr "플러그인 %s 를 실행하는 중 오류가 발생하였습니다."
+
+#: translate_tmp:424
+#: translate_tmp:460
+#: translate_tmp:364
+#: translate_tmp:400
+#: translate_tmp:260
+#: translate_tmp:329
+#: translate_tmp:258
+#: translate_tmp:315
+#: translate_tmp:316
+msgid "There was an error executing the plugin."
+msgstr "플러그인 실행 도중 오류가 발생하였습니다."
+
+#: translate_tmp:73
+msgid "3D rotate"
+msgstr "3D 회전"
+
+#: translate_tmp:75
+msgid ""
+"Applies a perspective distortion to an image\n"
+"\n"
+"Based on a script by Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
+msgstr ""
+"이미지에 원근법 외곡을 적용\n"
+"\n"
+"Fred Werinhaus 의 스트립트에 기초함 \n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
+
+#: translate_tmp:111
+#: translate_tmp:118
+msgid "Rotation around image vertical centerline"
+msgstr "화상의 수직 중간선을 따라 회전"
+
+#: translate_tmp:129
+#: translate_tmp:136
+msgid "Rotation around image horizontal centerline"
+msgstr "화상의 수평 중간선을 따라 회전"
+
+#: translate_tmp:147
+#: translate_tmp:154
+msgid "Rotation around the image center"
+msgstr "화상의 중앙을 따라 회전"
+
+#: translate_tmp:183
+#: translate_tmp:190
+msgid ""
+"Output zoom factor; where value > 1 means zoom in and < 1 means zoom out"
+msgstr "출력 확대 정도 ; 값이 값>1 이면 커지고, <1 이면 작아짐"
+
+#: translate_tmp:204
+msgid "Auto:"
+msgstr "자동:"
+
+#: translate_tmp:226
+#: translate_tmp:233
+msgid ""
+"off - No automatic adjustment\n"
+"\n"
+"c - Center bounding box in output\n"
+"\n"
+"zc - Zoom to fill and center bounding box in output\n"
+"\n"
+"out - Creates an output image of size needed to hold the transformed image"
+msgstr ""
+"끔 - 자동 조정 없음\n"
+"\n"
+"c - 중앙선 상자를 출력으로\n"
+"\n"
+"zc - 중앙선 상자와 중심에 다 차도록 확대한 뒤 출력으로\n"
+"\n"
+"out - 변형된 이미지를 원하는 크기로 고정한 뒤 출력 이미지 생성"
+
+#: translate_tmp:243
+msgid "Sky color"
+msgstr "하늘색"
+
+#: translate_tmp:248
+msgid "Choose sky color"
+msgstr "하늘색 선택"
+
+#: translate_tmp:62
+msgid "Barrel Distortion"
+msgstr "몸통 외곡"
+
+#: translate_tmp:64
+msgid "Apply a distortion effect to your screenshot"
+msgstr "스크린 샷에 외곡 효과 적용"
+
+#: translate_tmp:93
+msgid "A:"
+msgstr "A:"
+
+#: translate_tmp:97
+msgid "B:"
+msgstr "B:"
+
+#: translate_tmp:101
+msgid "C:"
+msgstr "C:"
+
+#: translate_tmp:105
+msgid "D:"
+msgstr "D:"
+
+#: translate_tmp:112
+#: translate_tmp:119
+#: translate_tmp:126
+#: translate_tmp:133
+#: translate_tmp:140
+#: translate_tmp:147
+#: translate_tmp:154
+#: translate_tmp:161
+msgid ""
+"The parameter d describes the linear scaling of the image. Using d=1, and "
+"a=b=c=0 leaves the image as it is. Choosing other d-values scales the image "
+"by that amount. a,b and c distort the image. Using negative values shifts "
+"distant points away from the center.\n"
+"\n"
+"Defined by Barrel Correction Distortion, by Helmut Dersch.\n"
+"http://www.all-in-one.ee/~dersch/barrel/barrel.html"
+msgstr ""
+"매개변수 d 는 이미지의 선형 조정을 정의합니다. d=1 이나 a=b=c=0 을 사용함으로서 이미지는 그렇게 변합니다. 이미지의 다른 d-"
+"값들을 그 정도로 고르십시요. a,b 와 c 는 이미지를 외곡합니다. 음의 앖은 이이미지를 중앙으로부터 멀리 밀게될 거리를 나타냅니다.\n"
+"\n"
+"몸통 교정 외곡에 의해 정의됨. Helmut Dersch 가 만듦.\n"
+"http://www.all-in-one.ee/~dersch/barrel/barrel.html"
+
+#: translate_tmp:73
+msgid "Bordereffects"
+msgstr "윤곽효과들"
+
+#: translate_tmp:75
+msgid ""
+"Create various dispersion-like effects in the border of an image\n"
+"\n"
+"Based on a script by Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/bordereffects/index.php"
+msgstr ""
+"이미지의 윤곽에 다양한 분산 효과를 만들기\n"
+"\n"
+"Fred Weinhaus 의 스크립트에 기초함\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/bordereffects/index.php"
+
+#: translate_tmp:104
+msgid "Size:"
+msgstr "크기:"
+
+#: translate_tmp:111
+#: translate_tmp:118
+msgid "The size or dimension of the border region"
+msgstr ""
+
+#: translate_tmp:122
+msgid "Density:"
+msgstr ""
+
+#: translate_tmp:129
+#: translate_tmp:136
+msgid "The frequency of detail in the border"
+msgstr ""
+
+#: translate_tmp:140
+msgid "Curviness:"
+msgstr ""
+
+#: translate_tmp:147
+#: translate_tmp:154
+msgid "The curviness in the border features"
+msgstr ""
+
+#: translate_tmp:158
+msgid "Granularity:"
+msgstr ""
+
+#: translate_tmp:165
+#: translate_tmp:172
+msgid ""
+"The base grain size or pixelization size used to create the detail in the "
+"border"
+msgstr ""
+
+#: translate_tmp:176
+msgid "Pad:"
+msgstr ""
+
+#: translate_tmp:183
+#: translate_tmp:190
+msgid "The pad size of constant color around the perimeter of the border"
+msgstr ""
+
+#: translate_tmp:62
+msgid "Negate"
+msgstr ""
+
+#: translate_tmp:64
+msgid "Invert the colors of the image"
+msgstr ""
+
+#: translate_tmp:101
+msgid "Channel"
+msgstr ""
+
+#: translate_tmp:62
+msgid "Polaroid"
+msgstr ""
+
+#: translate_tmp:64
+msgid ""
+"Make your screenshot look like a polaroid photo, add a caption, and even "
+"rotate it a little"
+msgstr ""
+
+#: translate_tmp:99
+#: translate_tmp:93
+msgid "Text:"
+msgstr ""
+
+#: translate_tmp:106
+#: translate_tmp:112
+#: translate_tmp:100
+msgid ""
+"There are several wild-cards available, like\n"
+"%Y = year\n"
+"%m = month\n"
+"%d = day\n"
+"%T = time"
+msgstr ""
+
+#: translate_tmp:116
+#: translate_tmp:110
+msgid "Font size:"
+msgstr ""
+
+#: translate_tmp:120
+#: translate_tmp:114
+msgid "Gravity:"
+msgstr ""
+
+#: translate_tmp:137
+#: translate_tmp:131
+msgid "Stroke color"
+msgstr ""
+
+#: translate_tmp:142
+#: translate_tmp:136
+msgid "Choose stroke color"
+msgstr ""
+
+#: translate_tmp:45
+msgid "Resize"
+msgstr ""
+
+#: translate_tmp:53
+msgid "Resize your screenshot"
+msgstr ""
+
+#: translate_tmp:71
+msgid "Sepia"
+msgstr ""
+
+#: translate_tmp:73
+msgid "Add sepia color toning to the image"
+msgstr ""
+
+#: translate_tmp:110
+msgid "Sepia tone"
+msgstr ""
+
+#: translate_tmp:63
+msgid "Hard Shadow"
+msgstr ""
+
+#: translate_tmp:65
+msgid "Add a shadow to the image on a transparent background"
+msgstr ""
+
+#: translate_tmp:94
+msgid "Direction"
+msgstr ""
+
+#: translate_tmp:110
+#: translate_tmp:117
+msgid "The direction of the shadow"
+msgstr ""
+
+#: translate_tmp:121
+msgid "Color"
+msgstr ""
+
+#: translate_tmp:126
+msgid "Choose color"
+msgstr ""
+
+#: translate_tmp:131
+#: translate_tmp:138
+msgid "The color of the shadow"
+msgstr ""
+
+#: translate_tmp:62
+msgid "Watermark"
+msgstr ""
+
+#: translate_tmp:64
+msgid "Add a custom text watermark to your screenshot"
+msgstr ""

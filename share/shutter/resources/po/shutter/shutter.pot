@@ -1,3 +1,4 @@
+#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: shutter\n"
@@ -9,8 +10,9 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-30 21:44+0000\n"
-"X-Generator: Launchpad (build 13333)\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"X-Launchpad-Export-Date: 2011-11-16 22:46+0000\n"
+"X-Generator: Launchpad (build 14291)\n"
 
 #: translate_tmp.pl:388
 #: translate_tmp.pl:2574
@@ -408,7 +410,10 @@ msgstr ""
 #: translate_tmp.pl:1643
 #: translate_tmp.pl:1644
 #: translate_tmp.pl:1645
-msgid "This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize."
+msgid ""
+"This resizes the window automatically to the specified width and height. "
+"This method asks the window manager to resize the window. However, the "
+"window manager may not allow the resize."
 msgstr ""
 
 #: translate_tmp.pl:1658
@@ -418,9 +423,13 @@ msgstr ""
 #: translate_tmp.pl:1667
 #, perl-format
 msgid ""
-"Shutter uses the XShape extension to determine the window's shape, but this does not work under some circumstances, e.g. when running compiz.\n"
+"Shutter uses the XShape extension to determine the window's shape, but this "
+"does not work under some circumstances, e.g. when running compiz.\n"
 "\n"
-"When this option is activated Shutter uses fixed parameters to round the window corners. You can overwrite the default parameters by creating a file named ~/.shutter/shape.conf and put custom values in it. The default values are stored in %s."
+"When this option is activated Shutter uses fixed parameters to round the "
+"window corners. You can overwrite the default parameters by creating a file "
+"named ~/.shutter/shape.conf and put custom values in it. The default values "
+"are stored in %s."
 msgstr ""
 
 #: translate_tmp.pl:1681
@@ -443,7 +452,11 @@ msgid "Ignore possibly wrong type hints"
 msgstr ""
 
 #: translate_tmp.pl:1726
-msgid "The type hint constants specify hints for the window manager that indicate what type of function the window has. Sometimes these type hints are not correctly set. By enabling this option Shutter will not insist on the requested type hint."
+msgid ""
+"The type hint constants specify hints for the window manager that indicate "
+"what type of function the window has. Sometimes these type hints are not "
+"correctly set. By enabling this option Shutter will not insist on the "
+"requested type hint."
 msgstr ""
 
 #: translate_tmp.pl:1741
@@ -480,11 +493,14 @@ msgid "Displays any transparent parts of the image in a check pattern"
 msgstr ""
 
 #: translate_tmp.pl:1803
-msgid "Displays any transparent parts of the image in a solid color that you specify"
+msgid ""
+"Displays any transparent parts of the image in a solid color that you specify"
 msgstr ""
 
 #: translate_tmp.pl:1804
-msgid "Displays any transparent parts of the image in the background color of the application"
+msgid ""
+"Displays any transparent parts of the image in the background color of the "
+"application"
 msgstr ""
 
 #: translate_tmp.pl:1828
@@ -511,7 +527,10 @@ msgstr ""
 #: translate_tmp.pl:1903
 msgid ""
 "Configure global keybinding for capture\n"
-"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
+"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
+"fairly liberal and allows lower or upper case, and also abbreviations such "
+"as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
+"\"disabled\", then there will be no keybinding for this action. "
 msgstr ""
 
 #: translate_tmp.pl:1913
@@ -523,7 +542,10 @@ msgstr ""
 #: translate_tmp.pl:1946
 msgid ""
 "Configure global keybinding for capture with selection\n"
-"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
+"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
+"fairly liberal and allows lower or upper case, and also abbreviations such "
+"as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
+"\"disabled\", then there will be no keybinding for this action. "
 msgstr ""
 
 #: translate_tmp.pl:1929
@@ -571,7 +593,10 @@ msgid "Redo"
 msgstr ""
 
 #: translate_tmp.pl:1962
-msgid "<b>Please note:</b> Make sure to activate <i>Gnome Compatibility</i> and <i>D-Bus Control Backend</i> via CompizConfig Settings Manager if your are using Desktop Effects or Unity."
+msgid ""
+"<b>Please note:</b> Make sure to activate <i>Gnome Compatibility</i> and "
+"<i>D-Bus Control Backend</i> via CompizConfig Settings Manager if your are "
+"using Desktop Effects or Unity."
 msgstr ""
 
 #: translate_tmp.pl:2005
@@ -660,16 +685,23 @@ msgstr ""
 #: translate_tmp.pl:2093
 #: translate_tmp.pl:2094
 #: translate_tmp.pl:2095
-msgid "Configure a short timeout to give the Xserver a chance to redraw areas that were obscured by Shutter's windows before taking a screenshot."
+msgid ""
+"Configure a short timeout to give the Xserver a chance to redraw areas that "
+"were obscured by Shutter's windows before taking a screenshot."
 msgstr ""
 
 #: translate_tmp.pl:2141
 #: translate_tmp.pl:2142
-msgid "You can either choose the system-wide desktop notifications (e.g. Ubuntu's Notify-OSD) or Shutter's built-in notification system"
+msgid ""
+"You can either choose the system-wide desktop notifications (e.g. Ubuntu's "
+"Notify-OSD) or Shutter's built-in notification system"
 msgstr ""
 
 #: translate_tmp.pl:2202
-msgid "<b>Please note:</b> If a plugin allows authorized uploading you can enter your credentials above. Plugins with OAuth support are configured automatically the first time you use them."
+msgid ""
+"<b>Please note:</b> If a plugin allows authorized uploading you can enter "
+"your credentials above. Plugins with OAuth support are configured "
+"automatically the first time you use them."
 msgstr ""
 
 #: translate_tmp.pl:2207
@@ -858,7 +890,11 @@ msgid "Account-settings could not be saved!"
 msgstr ""
 
 #: translate_tmp.pl:4818
-msgid "The format looks like \"<Control>Print\" or \"<Shift><Alt>Print\". The parser is fairly liberal and allows lower or upper case, but abbreviations such as \"<Ctl>\" and \"<Ctrl>\" may cause problems under some circumstances (e.g. when using compiz)."
+msgid ""
+"The format looks like \"<Control>Print\" or \"<Shift><Alt>Print\". The "
+"parser is fairly liberal and allows lower or upper case, but abbreviations "
+"such as \"<Ctl>\" and \"<Ctrl>\" may cause problems under some circumstances "
+"(e.g. when using compiz)."
 msgstr ""
 
 #: translate_tmp.pl:4819
@@ -1049,7 +1085,9 @@ msgstr ""
 
 #: translate_tmp.pl:6723
 #, perl-format
-msgid "The filename %s could not be verified. Maybe it contains unsupported characters."
+msgid ""
+"The filename %s could not be verified. Maybe it contains unsupported "
+"characters."
 msgstr ""
 
 #: translate_tmp.pl:6963
@@ -1168,10 +1206,12 @@ msgstr ""
 #: translate_tmp.pl:8400
 #, perl-format
 msgid ""
-"This option is only useful when you are running a multi-monitor system (%d monitor detected).\n"
+"This option is only useful when you are running a multi-monitor system (%d "
+"monitor detected).\n"
 "Enable it to capture only the current monitor."
 msgid_plural ""
-"This option is only useful when you are running a multi-monitor system (%d monitors detected).\n"
+"This option is only useful when you are running a multi-monitor system (%d "
+"monitors detected).\n"
 "Enable it to capture only the current monitor."
 msgstr[0] ""
 msgstr[1] ""
@@ -1239,7 +1279,8 @@ msgstr ""
 
 #: translate_tmp.pl:8721
 msgid ""
-"The advanced selection tool allows you to enlarge/shrink or move your selected area\n"
+"The advanced selection tool allows you to enlarge/shrink or move your "
+"selected area\n"
 "until you finally take the screenshot."
 msgstr ""
 
@@ -1276,16 +1317,24 @@ msgstr ""
 #: translate_tmp.pl:8865
 #: translate_tmp.pl:8866
 #, perl-format
-msgid "Shutter will wait up to %d second for the screenshot to capture before aborting the process if it's taking too long"
-msgid_plural "Shutter will wait up to %d seconds for the screenshot to capture before aborting the process if it's taking too long"
+msgid ""
+"Shutter will wait up to %d second for the screenshot to capture before "
+"aborting the process if it's taking too long"
+msgid_plural ""
+"Shutter will wait up to %d seconds for the screenshot to capture before "
+"aborting the process if it's taking too long"
 msgstr[0] ""
 msgstr[1] ""
 
 #: translate_tmp.pl:8867
 #: translate_tmp.pl:8868
 #, perl-format
-msgid "Shutter will wait up to %d minute for the screenshot to capture before aborting the process if it's taking too long"
-msgid_plural "Shutter will wait up to %d minutes for the screenshot to capture before aborting the process if it's taking too long"
+msgid ""
+"Shutter will wait up to %d minute for the screenshot to capture before "
+"aborting the process if it's taking too long"
+msgid_plural ""
+"Shutter will wait up to %d minutes for the screenshot to capture before "
+"aborting the process if it's taking too long"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -1356,7 +1405,9 @@ msgstr ""
 
 #: translate_tmp.pl:9253
 #, perl-format
-msgid "The file %s is no longer published. The external link is not available anymore."
+msgid ""
+"The file %s is no longer published. The external link is not available "
+"anymore."
 msgstr ""
 
 #: translate_tmp.pl:9256
@@ -1413,7 +1464,8 @@ msgstr ""
 #: translate_tmp.pl:11012
 #: translate_tmp.pl:1619
 #, perl-format
-msgid "The image already exists in %s. Replacing it will overwrite its contents."
+msgid ""
+"The image already exists in %s. Replacing it will overwrite its contents."
 msgstr ""
 
 #: translate_tmp.pl:9583
@@ -1477,11 +1529,17 @@ msgid "OAuth"
 msgstr ""
 
 #: translate_tmp.pl:10346
-msgid "Please choose one of the accounts above and click <i>Upload</i>. The upload links will still be available in the screenshot's <i>right-click menu</i> after closing this dialog."
+msgid ""
+"Please choose one of the accounts above and click <i>Upload</i>. The upload "
+"links will still be available in the screenshot's <i>right-click menu</i> "
+"after closing this dialog."
 msgstr ""
 
 #: translate_tmp.pl:10351
-msgid "<b>Please note:</b> If a plugin allows only authorized uploading you need to enter your credentials in preferences first to make it appear in the list above."
+msgid ""
+"<b>Please note:</b> If a plugin allows only authorized uploading you need to "
+"enter your credentials in preferences first to make it appear in the list "
+"above."
 msgstr ""
 
 #: translate_tmp.pl:10355
@@ -1516,22 +1574,32 @@ msgstr ""
 #: translate_tmp.pl:10592
 #: translate_tmp.pl:10630
 #, perl-format
-msgid "Folder %s is synchronized with Ubuntu One. The selected file will be copied to that folder before being published."
-msgid_plural "Folder %s is synchronized with Ubuntu One. The selected files will be copied to that folder before being published."
+msgid ""
+"Folder %s is synchronized with Ubuntu One. The selected file will be copied "
+"to that folder before being published."
+msgid_plural ""
+"Folder %s is synchronized with Ubuntu One. The selected files will be copied "
+"to that folder before being published."
 msgstr[0] ""
 msgstr[1] ""
 
 #: translate_tmp.pl:10597
 #: translate_tmp.pl:10635
-msgid "<b>Please note:</b> The selected file will be published in a background process. You will be notified when the process has finished."
-msgid_plural "<b>Please note:</b> The selected files will be published in a background process. You will be notified when the process has finished."
+msgid ""
+"<b>Please note:</b> The selected file will be published in a background "
+"process. You will be notified when the process has finished."
+msgid_plural ""
+"<b>Please note:</b> The selected files will be published in a background "
+"process. You will be notified when the process has finished."
 msgstr[0] ""
 msgstr[1] ""
 
 #: translate_tmp.pl:10604
 #: translate_tmp.pl:10642
 #, perl-format
-msgid "Folder %s is not synchronized with Ubuntu One. Please choose an alternative folder."
+msgid ""
+"Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
+"folder."
 msgstr ""
 
 #: translate_tmp.pl:10660
@@ -1539,11 +1607,14 @@ msgid "Ubuntu One service cannot be found."
 msgstr ""
 
 #: translate_tmp.pl:10667
-msgid "/publicfiles is not available. Your Ubuntu One installation seems to be out of date."
+msgid ""
+"/publicfiles is not available. Your Ubuntu One installation seems to be out "
+"of date."
 msgstr ""
 
 #: translate_tmp.pl:10674
-msgid "Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature"
+msgid ""
+"Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature"
 msgstr ""
 
 #: translate_tmp.pl:10750
@@ -1860,7 +1931,9 @@ msgid "Take a screenshot of a specific window"
 msgstr ""
 
 #: translate_tmp.pl:154
-msgid "Captures only a section of the window. You will be able to select any child window by moving the mouse over it"
+msgid ""
+"Captures only a section of the window. You will be able to select any child "
+"window by moving the mouse over it"
 msgstr ""
 
 #: translate_tmp.pl:174
@@ -1877,7 +1950,9 @@ msgid "Take a screenshot of a website"
 msgstr ""
 
 #: translate_tmp.pl:213
-msgid "Set how long Shutter will wait for the screenshot to complete before aborting the process if it's taking too long"
+msgid ""
+"Set how long Shutter will wait for the screenshot to complete before "
+"aborting the process if it's taking too long"
 msgstr ""
 
 #: translate_tmp.pl:234
@@ -1885,7 +1960,9 @@ msgid "Edit"
 msgstr ""
 
 #: translate_tmp.pl:237
-msgid "Use the built-in editor to highlight important fragments of your screenshot or crop it to a desired size"
+msgid ""
+"Use the built-in editor to highlight important fragments of your screenshot "
+"or crop it to a desired size"
 msgstr ""
 
 #: translate_tmp.pl:244
@@ -1893,7 +1970,9 @@ msgid "Export"
 msgstr ""
 
 #: translate_tmp.pl:247
-msgid "Upload your images to an image hosting service, FTP site or export them to an arbitrary folder"
+msgid ""
+"Upload your images to an image hosting service, FTP site or export them to "
+"an arbitrary folder"
 msgstr ""
 
 #: translate_tmp.pl:248
@@ -1990,7 +2069,8 @@ msgid "<b>cursor keys + ctrl</b> → resize selection"
 msgstr ""
 
 #: translate_tmp.pl:88
-msgid "Maybe mouse pointer could not be grabbed or the selected area is invalid."
+msgid ""
+"Maybe mouse pointer could not be grabbed or the selected area is invalid."
 msgstr ""
 
 #: translate_tmp.pl:96
@@ -2190,8 +2270,10 @@ msgstr ""
 
 #: translate_tmp.pl:1308
 #, perl-format
-msgid "If you don't save the image, changes from the last minute will be lost"
-msgid_plural "If you don't save the image, changes from the last %d minutes will be lost"
+msgid ""
+"If you don't save the image, changes from the last minute will be lost"
+msgid_plural ""
+"If you don't save the image, changes from the last %d minutes will be lost"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -2200,7 +2282,9 @@ msgid "Do you want to save the changed background color?"
 msgstr ""
 
 #: translate_tmp.pl:1704
-msgid "The background is likely to be transparent if you decide to ignore the background color."
+msgid ""
+"The background is likely to be transparent if you decide to ignore the "
+"background color."
 msgstr ""
 
 #: translate_tmp.pl:1706
@@ -2469,4 +2553,3 @@ msgstr ""
 #: translate_tmp.pl:7125
 msgid "New text..."
 msgstr ""
-

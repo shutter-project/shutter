@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-04-08 15:47+0200\n"
-"PO-Revision-Date: 2010-09-19 15:31+0000\n"
-"Last-Translator: Ярослав Шаматієнко <shamatienko.yaroslav@gmail.com>\n"
+"POT-Creation-Date: 2011-11-16 01:50+0100\n"
+"PO-Revision-Date: 2011-08-17 19:07+0000\n"
+"Last-Translator: Andriy Korchak <kharts@ukr.net>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-06-30 21:45+0000\n"
-"X-Generator: Launchpad (build 13333)\n"
+"X-Launchpad-Export-Date: 2011-11-16 22:46+0000\n"
+"X-Generator: Launchpad (build 14291)\n"
 
 #: translate_tmp:27
 msgid "Shutter Branding"
@@ -40,7 +40,7 @@ msgstr "Градації сірого"
 
 #: translate_tmp:29
 msgid "Turn the image into a grayscale image (256 shades)"
-msgstr ""
+msgstr "Перетворити зображення на чорно-біле (256 відтінків)"
 
 #: translate_tmp:27
 msgid "Jigsaw Piece 1"
@@ -60,7 +60,7 @@ msgstr ""
 
 #: translate_tmp:27
 msgid "Offset"
-msgstr ""
+msgstr "Зсув"
 
 #: translate_tmp:29
 msgid "Give the picture an offset with itself as background"
@@ -76,44 +76,44 @@ msgstr ""
 
 #: translate_tmp:27
 msgid "Soft Edges"
-msgstr ""
+msgstr "М'які краї"
 
 #: translate_tmp:29
 msgid "Add soft edges around the image"
-msgstr ""
+msgstr "Додати м'які краї навколо зображення"
 
 #: translate_tmp:27
 msgid "Sunk Border"
-msgstr ""
+msgstr "Затоплена межа"
 
 #: translate_tmp:29
 msgid "Add an inverted 3d border to the image"
-msgstr ""
+msgstr "Додати до зображення інвертовану тривимірну межу"
 
 #: translate_tmp:27
 msgid "Torned Paper"
-msgstr ""
+msgstr "Порваний папір"
 
 #: translate_tmp:29
 msgid "Add a torn-like border to the image"
-msgstr ""
+msgstr "Додати до зображення \"подерту\" межу"
 
 #: translate_tmp:27
 msgid "Autocrop"
-msgstr ""
+msgstr "Автокадрування"
 
 #: translate_tmp:28
 #: translate_tmp:49
 msgid "Tool"
-msgstr ""
+msgstr "Інструмент"
 
 #: translate_tmp:29
 msgid "Remove empty borders from the image"
-msgstr ""
+msgstr "Видалити порожні області на межі зображення"
 
 #: translate_tmp:73
 msgid "3D reflection"
-msgstr ""
+msgstr "Тривимірне відображення"
 
 #: translate_tmp:75
 msgid ""
@@ -137,16 +137,16 @@ msgstr ""
 
 #: translate_tmp:122
 msgid "Fade:"
-msgstr ""
+msgstr "Згасання:"
 
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "Fade percent for mirror image"
-msgstr ""
+msgstr "Відсоток згасання для відображеного зображення"
 
 #: translate_tmp:140
 msgid "Opacity:"
-msgstr ""
+msgstr "Непрозорість:"
 
 #: translate_tmp:147
 #: translate_tmp:154
@@ -164,12 +164,12 @@ msgstr ""
 
 #: translate_tmp:176
 msgid "Gap:"
-msgstr ""
+msgstr "Проміжок:"
 
 #: translate_tmp:183
 #: translate_tmp:190
 msgid "Gap between image and mirror in pixels"
-msgstr ""
+msgstr "Проміжок між зображенням та його відображенням в пікселях"
 
 #: translate_tmp:194
 #: translate_tmp:176
@@ -206,7 +206,7 @@ msgstr "Вибрати колір фону"
 #: translate_tmp:315
 #, perl-format
 msgid "Error while executing plugin %s."
-msgstr ""
+msgstr "Помилка виконання додатка %s."
 
 #: translate_tmp:424
 #: translate_tmp:460
@@ -236,23 +236,25 @@ msgstr ""
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "Rotation around image vertical centerline"
-msgstr ""
+msgstr "Обертання навколо вертикальної осі зображення"
 
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "Rotation around image horizontal centerline"
-msgstr ""
+msgstr "Обертання навколо горизонтальної осі зображення"
 
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "Rotation around the image center"
-msgstr ""
+msgstr "Обертання навколо центра зображення"
 
 #: translate_tmp:183
 #: translate_tmp:190
 msgid ""
 "Output zoom factor; where value > 1 means zoom in and < 1 means zoom out"
 msgstr ""
+"Масштаб отримуваного зображення; де значення > 1 означає збільшення, а < 1 - "
+"зменшення"
 
 #: translate_tmp:204
 msgid "Auto:"
@@ -272,7 +274,7 @@ msgstr ""
 
 #: translate_tmp:243
 msgid "Sky color"
-msgstr ""
+msgstr "Колір неба"
 
 #: translate_tmp:248
 msgid "Choose sky color"
@@ -284,7 +286,7 @@ msgstr ""
 
 #: translate_tmp:64
 msgid "Apply a distortion effect to your screenshot"
-msgstr ""
+msgstr "Застосовує до вашого знімка екрана ефект спотворення"
 
 #: translate_tmp:93
 msgid "A:"
@@ -332,10 +334,15 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/bordereffects/index.php"
 msgstr ""
+"Створює різні дисперсійні ефекти на межі зображення\n"
+"\n"
+"Засновано на сценарії від Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/bordereffects/index.php"
 
 #: translate_tmp:104
 msgid "Size:"
-msgstr ""
+msgstr "Розмір:"
 
 #: translate_tmp:111
 #: translate_tmp:118
@@ -344,7 +351,7 @@ msgstr ""
 
 #: translate_tmp:122
 msgid "Density:"
-msgstr ""
+msgstr "Щільність:"
 
 #: translate_tmp:129
 #: translate_tmp:136
@@ -362,7 +369,7 @@ msgstr ""
 
 #: translate_tmp:158
 msgid "Granularity:"
-msgstr ""
+msgstr "Зернистість:"
 
 #: translate_tmp:165
 #: translate_tmp:172
@@ -382,11 +389,11 @@ msgstr ""
 
 #: translate_tmp:62
 msgid "Negate"
-msgstr ""
+msgstr "Негатив"
 
 #: translate_tmp:64
 msgid "Invert the colors of the image"
-msgstr ""
+msgstr "Інвертувати кольори зображення"
 
 #: translate_tmp:101
 msgid "Channel"
@@ -394,7 +401,7 @@ msgstr "Канал"
 
 #: translate_tmp:62
 msgid "Polaroid"
-msgstr ""
+msgstr "Polaroid"
 
 #: translate_tmp:64
 msgid ""
@@ -440,15 +447,15 @@ msgstr "Виберіть колір штриха"
 
 #: translate_tmp:45
 msgid "Resize"
-msgstr ""
+msgstr "Зміна розміру"
 
 #: translate_tmp:53
 msgid "Resize your screenshot"
-msgstr ""
+msgstr "Зміна розміру знімка екрана"
 
 #: translate_tmp:71
 msgid "Sepia"
-msgstr ""
+msgstr "Сепія"
 
 #: translate_tmp:73
 msgid "Add sepia color toning to the image"
@@ -460,7 +467,7 @@ msgstr "Ефект сепія"
 
 #: translate_tmp:63
 msgid "Hard Shadow"
-msgstr ""
+msgstr "Жорстка тінь"
 
 #: translate_tmp:65
 msgid "Add a shadow to the image on a transparent background"
@@ -468,154 +475,30 @@ msgstr ""
 
 #: translate_tmp:94
 msgid "Direction"
-msgstr ""
+msgstr "Напрям"
 
 #: translate_tmp:110
 #: translate_tmp:117
 msgid "The direction of the shadow"
-msgstr ""
+msgstr "Напрям тіні"
 
 #: translate_tmp:121
 msgid "Color"
-msgstr ""
+msgstr "Колір"
 
 #: translate_tmp:126
 msgid "Choose color"
-msgstr ""
+msgstr "Вибрати колір"
 
 #: translate_tmp:131
 #: translate_tmp:138
 msgid "The color of the shadow"
-msgstr ""
+msgstr "Колір тіні"
 
 #: translate_tmp:62
 msgid "Watermark"
-msgstr ""
+msgstr "Водяний знак"
 
 #: translate_tmp:64
 msgid "Add a custom text watermark to your screenshot"
 msgstr ""
-
-#~ msgid "offset"
-#~ msgstr "Рамка"
-
-#~ msgid "jigsaw piece 2"
-#~ msgstr "Пазл 2"
-
-#~ msgid "jigsaw piece 1"
-#~ msgstr "Пазл 1"
-
-#~ msgid "256 color grayscale"
-#~ msgstr "256 відтінків сірого"
-
-#~ msgid "grayscale"
-#~ msgstr "відтінки сірого"
-
-#~ msgid "effect"
-#~ msgstr "ефект"
-
-#~ msgid "tool"
-#~ msgstr "інструмент"
-
-#~ msgid "raise border"
-#~ msgstr "виступаюча рамка"
-
-#~ msgid "raise a rectangular 3d-border"
-#~ msgstr "виступаюча прямокутна 3D-рамка"
-
-#~ msgid "give the picture an offset with itself as background"
-#~ msgstr "створює навколо зображення рамку з ним самим в якості фону"
-
-#~ msgid "add soft edges around the picture"
-#~ msgstr "округляє кути зображення"
-
-#~ msgid "soft edges"
-#~ msgstr "м’які кути"
-
-#~ msgid "a black hard shadow on transparent background"
-#~ msgstr "чітка чорна тінь на прозорому фоні"
-
-#~ msgid "hard shadow"
-#~ msgstr "Чітка тінь"
-
-#~ msgid "replace every pixel with its complementary color"
-#~ msgstr "Замінити колір кожного пікселя, на протилежний"
-
-#~ msgid "negate"
-#~ msgstr "негатив"
-
-#~ msgid "polaroid"
-#~ msgstr "полароїд"
-
-#~ msgid ""
-#~ "make your screenshot look like a polaroid photo, add a caption, and even "
-#~ "rotate it a little"
-#~ msgstr ""
-#~ "створить рамку як у фотографії полароїд, добавить підпис і навіть трішки "
-#~ "поверне знімок"
-
-#~ msgid "generates a torned-border"
-#~ msgstr "Створює рвані краї"
-
-#~ msgid "torned paper"
-#~ msgstr "пірваний папір"
-
-#~ msgid "sunk a rectangular 3d-border"
-#~ msgstr "втоплена прямокутна 3D-рамка"
-
-#~ msgid "sunk border"
-#~ msgstr "втоплена рамка"
-
-#~ msgid "Caption:"
-#~ msgstr "Підпис:"
-
-#~ msgid "resize"
-#~ msgstr "змінити розмір"
-
-#~ msgid "resize your screenshot"
-#~ msgstr "змінити розмір вашого знімку"
-
-#~ msgid "sepia tone coloring"
-#~ msgstr "Подсвічення в м’який коричневий тон"
-
-#~ msgid "sepia"
-#~ msgstr "сепія"
-
-#~ msgid "watermark"
-#~ msgstr "водяний знак"
-
-#~ msgid "cut a jigsaw piece out of the picture"
-#~ msgstr "вирізає кусочок мозаїки зі всього зображення"
-
-#~ msgid "cut out a jigsaw piece at the bottom right corner"
-#~ msgstr "вирізає кусочок мозаїки в нижньому правому куті зображення"
-
-#~ msgid "polaroid with Shutter logo and the name of the picture as subtitle"
-#~ msgstr "Ефект зображення pPolaroid, з логотипом Shutter та заданим текстом"
-
-#~ msgid "Shutter branding"
-#~ msgstr "Логотип Shutter"
-
-#~ msgid "export your screenshot to pdf"
-#~ msgstr "експортувати знімок у формат pdf"
-
-#~ msgid "pdf export"
-#~ msgstr "Експорт у PDF"
-
-#~ msgid "reflection"
-#~ msgstr "відображення"
-
-#~ msgid "applies a simple reflection effect"
-#~ msgstr "застосовує простий ефект відображення"
-
-#~ msgid "Rotation about the image center"
-#~ msgstr "Обертання довкола центру зображення"
-
-#~ msgid "Rotation about image vertical centerline"
-#~ msgstr "Обертання зображення довкола вертикальної середньої лінії"
-
-#~ msgid "Rotation about image horizontal centerline"
-#~ msgstr "Обертання зображення довкола горизонтальної середньої лінії"
-
-#~ msgid "add a custom text watermark to your screenshot"
-#~ msgstr "Додати текст водяного знаку до вашого зображення"
