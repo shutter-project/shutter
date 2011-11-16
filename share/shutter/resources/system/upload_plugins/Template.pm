@@ -21,7 +21,7 @@
 #
 ###################################################
 
-package PROVIDER;
+package PROVIDER;														#edit
 
 use lib $ENV{'SHUTTER_ROOT'}.'/share/shutter/resources/modules';
 
@@ -38,14 +38,15 @@ our @ISA = qw(Shutter::Upload::Shared);
 my $d = Locale::gettext->domain("shutter-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
-my %upload_plugin_info = 	(
-    'module'		=> $d->get( "PROVIDER" ),							#edit this
-	'url'			=> $d->get( "http://provider.com/" ),				#edit this
-	'registration'  => $d->get( "http://provider.com/" ),				#edit this
-	'name'			=> $d->get( "PROVIDER" ),							#edit this
-	'description'	=> $d->get( "Upload screenshots to PROVIDER" ),		#edit this
-	'supports_anonymous_upload'	 => TRUE,								#
-	'supports_authorized_upload' => TRUE,								#
+my %upload_plugin_info = (
+    'module'						=> "PROVIDER",						#edit (must be the same as 'package')
+	'url'							=> "http://provider.com/",			#edit (the website's url)
+	'registration'  				=> "http://provider.com/register",	#edit (a link to the registration page)
+	'name'							=> "PROVIDER",						#edit (the provider's name)
+	'description'					=> "Upload screenshots to PROVIDER",#edit (a description of the service)
+	'supports_anonymous_upload'	 	=> TRUE,							#TRUE if you can upload *without* username/password
+	'supports_authorized_upload' 	=> TRUE,							#TRUE if username/password are supported (might be in addition to anonymous_upload)
+	'supports_oauth_upload' 		=> FALSE,							#TRUE if OAuth is used (see Dropbox.pm as an example)
 );
 
 binmode( STDOUT, ":utf8" );
@@ -90,6 +91,7 @@ sub upload {
 	utf8::encode $password;
 	utf8::encode $username;
 
+	#examples related to the sub 'init'
 	my $json_coder = JSON::XS->new;
 
 	my $browser = LWP::UserAgent->new(
@@ -97,24 +99,21 @@ sub upload {
 		'keep_alive' => 10,
 		'env_proxy'  => 1,
 	);
-
+	
+	#username/password are provided
 	if ( $username ne "" && $password ne "" ) {
 
 		eval{
 
-			#SignIn
-			my $req_login = HTTP::Request->new(POST => "http://minus.com/api/SignIn");
-			$req_login->content_type("application/x-www-form-urlencoded");
-			$req_login->content("username=" . $self->{_username} . "&password1=" . $self->{_password});
-
-			my $res_login = $browser->request($req_login); #login
-			my $login_json = $json_coder->decode($res_login->content);
-			$login_json->{'success'} += 0; #see http://www.perlmonks.org/?node_id=773713
+			########################
+			#put the login code here
+			########################
 			
-			unless(defined $login_json->{'success'} && $login_json->{'success'} == 1){
-				$self->{_links}{'status'} = 999;
-				return;
-			}
+			#if login failed (status code == 999) => Shutter will display an appropriate message
+			#unless($login == 'success'){
+			#	$self->{_links}{'status'} = 999;
+			#	return;
+			#}
 
 		};
 		if($@){
@@ -127,48 +126,20 @@ sub upload {
 		
 	}
 	
+	#upload the file
 	eval{
+
+		#########################
+		#put the upload code here
+		#########################
 		
-		#CreateGallery
-		my $req_gallery = HTTP::Request->new(POST => "http://minus.com/api/CreateGallery");
-		my $res_gallery = $browser->request($req_gallery);
-		my $gallery_json = $json_coder->decode($res_gallery->content);
-		
-		#upload if everything is fine
-		if(defined $gallery_json->{'editor_id'}){
+		#save all retrieved links to a hash, as an example:
+		$self->{_links}->{'direct_link'} = 'mylink1';
+		$self->{_links}->{'short_link'} = 'mylink2';
+		$self->{_links}->{'bbcode'} = 'mylink3';
 
-			my $url = "http://min.us/api/UploadItem?". "editor_id=" . $gallery_json->{'editor_id'} . "&key=OK&filename=" . $self->{_filename};
-
-			$HTTP::Request::Common::DYNAMIC_FILE_UPLOAD = 1;
-
-			my $req_upitem = POST(
-				$url,
-				Content_Type => 'multipart/form-data',
-				Content      => [ file => [$self->{_filename}] ],
-			);
-
-			my $res = $browser->request($req_upitem);
-			#~ print Dumper $res->content;
-
-			if ($res->status_line =~ m/^200/ ) {
-				#construct link
-				my $upload_json = $json_coder->decode($res->content);
-				$self->{_links}->{'direct_link'} = "http://minus.com/l".$upload_json->{'id'};
-				#debug
-				if( $self->{_debug_cparam}) {
-					foreach (keys %{$self->{_links}}){
-						print $_.": ".$self->{_links}->{$_}, "\n";
-					}
-				}
-				$self->{_links}{'status'} = 200;	
-			} else { 
-			   $self->{_links}{'status'} = $res->status_line;
-			}
-
-		#createGallery failed
-		}else{
-			$self->{_links}{'status'} = $@;
-		}
+		#set success code (200)
+		$self->{_links}{'status'} = 200;
 		
 	};
 	if($@){
