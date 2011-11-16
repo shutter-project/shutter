@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1155';
+use constant SHUTTER_REV		=> 'Rev.1156';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -2258,12 +2258,6 @@ if ($app->is_running) {
 	&fct_load_accounts_tree;
 
 	my $accounts_tree = Gtk2::TreeView->new_with_model($accounts_model);
-	$tooltips->set_tip(
-		$accounts_tree,
-		$d->get(
-			"If a plugin allows authorized uploading you can enter your credentials above. Plugins with OAuth support are configured automatically the first time you use them."
-		)
-	);
 
 	$accounts_tree->signal_connect(
 		'row-activated' => \&evt_accounts,
@@ -3359,6 +3353,7 @@ if ($app->is_running) {
 			my $model         = $tree->get_model();
 			my $account_iter  = $model->get_iter($path);
 			my $account_value = $model->get_value( $account_iter, 3 );
+			#~ print $account_value, "\n";
 			$shf->xdg_open( undef, $account_value, undef );
 		}
 		return TRUE;
@@ -5240,11 +5235,11 @@ if ($app->is_running) {
 					if ( $shf->file_exists( $accounts_xml->{$_}->{path} ) ) {
 						#clear cache
 						if ( !$sc->get_clear_cache ) {
-							$accounts{$_}->{path}   	= $accounts_xml->{$_}->{path};
-							$accounts{$_}->{module}   	= $accounts_xml->{$_}->{module};
-							$accounts{$_}->{host}		= $accounts_xml->{$_}->{host};
-							$accounts{$_}->{folder}   	= $accounts_xml->{$_}->{folder};
-							$accounts{$_}->{description}= $accounts_xml->{$_}->{description};								
+							$accounts{$_}->{path} = $accounts_xml->{$_}->{path};
+							$accounts{$_}->{module} = $accounts_xml->{$_}->{module};
+							$accounts{$_}->{host} = $accounts_xml->{$_}->{host};
+							$accounts{$_}->{folder} = $accounts_xml->{$_}->{folder};
+							$accounts{$_}->{description} = $accounts_xml->{$_}->{description};								
 							$accounts{$_}->{register_color} = "blue";
 							$accounts{$_}->{register_text} = $accounts_xml->{$_}->{register_text};
 							$accounts{$_}->{supports_anonymous_upload} = $accounts_xml->{$_}->{supports_anonymous_upload};
@@ -5253,8 +5248,8 @@ if ($app->is_running) {
 						
 							utf8::decode $accounts{$_}->{'host'};
 						}
-						$accounts{$_}->{username}	= $accounts_xml->{$_}->{username};
-						$accounts{$_}->{password}	= $accounts_xml->{$_}->{password};
+						$accounts{$_}->{username} = $accounts_xml->{$_}->{username};
+						$accounts{$_}->{password} = $accounts_xml->{$_}->{password};
 						
 						utf8::decode $accounts{$_}->{'username'};
 						utf8::decode $accounts{$_}->{'password'};
@@ -8295,7 +8290,7 @@ if ($app->is_running) {
 									# Folder
 									$accounts{$name}->{folder} = $folder;
 									# Description
-									$accounts{$name}->{description}= &fct_plugin_get_info( $ukey, 'description' );
+									$accounts{$name}->{description} = &fct_plugin_get_info( $ukey, 'description' );
 									# Username
 									$accounts{$name}->{username} = "" unless defined $accounts{$name}->{username};
 									# Password	
@@ -9016,7 +9011,7 @@ if ($app->is_running) {
 	sub fct_load_accounts_tree {
 
 		$accounts_model
-			= Gtk2::ListStore->new( 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::Boolean', 'Glib::Boolean', 'Glib::Boolean' );
+			= Gtk2::ListStore->new( 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::String', 'Glib::Boolean', 'Glib::Boolean', 'Glib::Boolean' );
 
 		foreach ( keys %accounts ) {
 			my $hidden_text = "";
@@ -9034,9 +9029,10 @@ if ($app->is_running) {
 					6,  $accounts{$_}->{'module'},
 					7,  $accounts{$_}->{'path'},
 					8,  $accounts{$_}->{'folder'},
-					9,  $accounts{$_}->{'supports_anonymous_upload'},
-					10, $accounts{$_}->{'supports_authorized_upload'},
-					11, $accounts{$_}->{'supports_oauth_upload'},
+					9,  $accounts{$_}->{'description'},
+					10, $accounts{$_}->{'supports_anonymous_upload'},
+					11, $accounts{$_}->{'supports_authorized_upload'},
+					12, $accounts{$_}->{'supports_oauth_upload'},
 			);
 		}
 
@@ -9094,6 +9090,8 @@ if ($app->is_running) {
 		foreach my $col (@columns) {
 			$accounts_tree->remove_column($col);
 		}
+		
+		$accounts_tree->set_tooltip_column(9) if Gtk2->CHECK_VERSION( 2, 11, 0 );
 
 		#name
 		my $tv_clmn_name_text = Gtk2::TreeViewColumn->new;
@@ -9157,22 +9155,34 @@ if ($app->is_running) {
 		$tv_clmn_f1_toggle->set_title( $d->get("Anonymous Upload") );
 		my $f1_toggle = Gtk2::CellRendererToggle->new();
 		$tv_clmn_f1_toggle->pack_start( $f1_toggle, FALSE );
-		$tv_clmn_f1_toggle->set_attributes( $f1_toggle, active => 9 );
+		$tv_clmn_f1_toggle->set_attributes( $f1_toggle, active => 10 );
 		$accounts_tree->append_column($tv_clmn_f1_toggle);
 
 		my $tv_clmn_f2_toggle = Gtk2::TreeViewColumn->new;
 		$tv_clmn_f2_toggle->set_title( $d->get("Authorized Upload") );
 		my $f2_toggle = Gtk2::CellRendererToggle->new();
 		$tv_clmn_f2_toggle->pack_start( $f2_toggle, FALSE );
-		$tv_clmn_f2_toggle->set_attributes( $f2_toggle, active => 10 );
+		$tv_clmn_f2_toggle->set_attributes( $f2_toggle, active => 11 );
 		$accounts_tree->append_column($tv_clmn_f2_toggle);
 
 		my $tv_clmn_f3_toggle = Gtk2::TreeViewColumn->new;
 		$tv_clmn_f3_toggle->set_title( $d->get("OAuth Upload") );
 		my $f3_toggle = Gtk2::CellRendererToggle->new();
 		$tv_clmn_f3_toggle->pack_start( $f3_toggle, FALSE );
-		$tv_clmn_f3_toggle->set_attributes( $f3_toggle, active => 11 );
+		$tv_clmn_f3_toggle->set_attributes( $f3_toggle, active => 12 );
 		$accounts_tree->append_column($tv_clmn_f3_toggle);
+
+		#description
+		#tooltip column (show as columns when needed)
+		unless ( Gtk2->CHECK_VERSION( 2, 12, 0 ) ) {
+			my $tv_clmn_descr_text = Gtk2::TreeViewColumn->new;
+			$tv_clmn_descr_text->set_resizable(TRUE);
+			$tv_clmn_descr_text->set_title( $d->get("Description") );
+			my $renderer_descr_effects = Gtk2::CellRendererText->new;
+			$tv_clmn_descr_text->pack_start( $renderer_descr_effects, FALSE );
+			$tv_clmn_descr_text->set_attributes( $renderer_descr_effects, text => 9 );
+			$accounts_tree->append_column($tv_clmn_descr_text);
+		}		
 
 		#register
 		my $tv_clmn_pix_text = Gtk2::TreeViewColumn->new;
@@ -9193,7 +9203,7 @@ if ($app->is_running) {
 			#~ $effects_tree->remove_column($_);
 		#~ }
 
-		#icon
+		#tooltip
 		$effects_tree->set_tooltip_column(3)
 			if Gtk2->CHECK_VERSION( 2, 11, 0 );
 		
