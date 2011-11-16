@@ -42,7 +42,7 @@ my %upload_plugin_info = (
     'module'		=> "TwitPic",
 	'url'			=> "http://twitpic.com/",
 	'registration'  => "http://twitpic.com/session/new",
-	'description'	=> $d->get( "TwitPic lets you share media on Twitter in real-time."),
+	'description'	=> $d->get( "TwitPic lets you share media on Twitter in real-time"),
 	'supports_anonymous_upload'	 => FALSE,
 	'supports_authorized_upload' => TRUE,
 );

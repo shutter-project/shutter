@@ -41,7 +41,7 @@ my %upload_plugin_info = (
     'module'		=> "ImageShack",
 	'url'			=> "http://imageshack.us/",
 	'registration'  => "http://register.imageshack.us",
-	'description'	=> $d->get( "ImageShack is providing free image hosting." ),
+	'description'	=> $d->get( "ImageShack is providing free image hosting" ),
 	'supports_anonymous_upload'	 => TRUE,
 	'supports_authorized_upload' => TRUE,
 );

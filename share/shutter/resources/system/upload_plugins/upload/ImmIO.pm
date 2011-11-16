@@ -41,7 +41,7 @@ my %upload_plugin_info = (
     'module'		=> "ImmIO",
 	'url'			=> "http://imm.io/",
 	'registration'  => "-",
-	'description'	=> $d->get( "imm.io is a one-click easy image sharer, perfect if you want to upload an image to show your friends or link from other sites." ),
+	'description'	=> $d->get( "imm.io is a one-click easy image sharer, perfect if you want to upload an image to show your friends or link from other sites" ),
 	'supports_anonymous_upload'	 => TRUE,
 	'supports_authorized_upload' => FALSE,
 );
