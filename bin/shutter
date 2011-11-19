@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1164';
+use constant SHUTTER_REV		=> 'Rev.1165';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -9109,7 +9109,7 @@ if ($app->is_running) {
 		$tv_clmn_username_text->set_title( $d->get("Username") );
 		my $renderer_username_accounts = Gtk2::CellRendererText->new;
 		$tv_clmn_username_text->pack_start( $renderer_username_accounts, FALSE );
-		$tv_clmn_username_text->set_attributes($renderer_username_accounts, text => 1, editable => 10, sensitive => 10 );
+		$tv_clmn_username_text->set_attributes($renderer_username_accounts, text => 1, editable => 11, sensitive => 11 );
 		$renderer_username_accounts->signal_connect(
 			'edited' => sub {
 				my ( $cell, $text_path, $new_text, $model ) = @_;
@@ -9132,7 +9132,7 @@ if ($app->is_running) {
 		$tv_clmn_password_text->set_title( $d->get("Password") );
 		my $renderer_password_accounts = Gtk2::CellRendererText->new;
 		$tv_clmn_password_text->pack_start( $renderer_password_accounts, FALSE );
-		$tv_clmn_password_text->set_attributes($renderer_password_accounts, text => 2, editable => 10, sensitive => 10 );
+		$tv_clmn_password_text->set_attributes($renderer_password_accounts, text => 2, editable => 11, sensitive => 11 );
 		$renderer_password_accounts->signal_connect(
 			'edited' => sub {
 				my ( $cell, $text_path, $new_text, $model ) = @_;
