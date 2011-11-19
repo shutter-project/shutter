@@ -123,8 +123,8 @@ sub create_entry_for_notebook {
 	);
 	
 	$upload_hbox1->pack_start($label, FALSE, FALSE, 10);
-	$upload_hbox1->pack_start($entry, TRUE, TRUE, 10);
-	$upload_hbox2->pack_start($upload_hbox1, TRUE, TRUE, 10);
+	$upload_hbox1->pack_start($entry, TRUE, TRUE, 3);
+	$upload_hbox2->pack_start($upload_hbox1, TRUE, TRUE, 0);
 	$upload_hbox2->pack_start($upload_copy, FALSE, TRUE, 3);
 	
 	return $upload_hbox2;
@@ -161,7 +161,16 @@ sub show_all {
 sub show {
 	my $self = shift;
 
-	$self->{_notebook}->append_page( $self->create_tab(), $self->{_filename} );
+	#Tooltips
+	my $tooltips = Gtk2::Tooltips->new;
+	
+	#Create label for each notebook page
+	my $fnlabel = Gtk2::Label->new($self->{_filename});
+	$fnlabel->set_ellipsize('middle');
+	$fnlabel->set_width_chars(20);
+	$tooltips->set_tip( $fnlabel, $self->{_filename} );
+
+	$self->{_notebook}->append_page( $self->create_tab(), $fnlabel );
 
 	return TRUE;
 }
