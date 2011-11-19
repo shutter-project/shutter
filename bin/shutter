@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1163';
+use constant SHUTTER_REV		=> 'Rev.1164';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -7645,14 +7645,17 @@ if ($app->is_running) {
 					$thumb_view->fill(0x00000000);	
 				}
 				
-				#create new iter
+				#create new iter if needed...
 				unless(defined $session_screens{$key}->{'iter'} && $session_start_screen{'first_page'}->{'model'}->iter_is_valid($session_screens{$key}->{'iter'})){
 					$session_screens{$key}->{'iter'} = $session_start_screen{'first_page'}->{'model'}->append;
-					$session_start_screen{'first_page'}->{'model'}->set( $session_screens{$key}->{'iter'}, 0, $thumb_view, 1, $session_screens{$key}->{'short'}, 2, $key );	
-				#updating an existing one
-				}else{
-					$session_start_screen{'first_page'}->{'model'}->set( $session_screens{$key}->{'iter'}, 0, $thumb_view, 1, $session_screens{$key}->{'short'}, 2, $key );					
 				}
+				
+				#...update it
+				if(defined $session_screens{$key}->{'is_unsaved'} && $session_screens{$key}->{'is_unsaved'}){
+					$session_start_screen{'first_page'}->{'model'}->set( $session_screens{$key}->{'iter'}, 0, $thumb_view, 1, "*".$session_screens{$key}->{'name'}, 2, $key );						
+				}else{
+					$session_start_screen{'first_page'}->{'model'}->set( $session_screens{$key}->{'iter'}, 0, $thumb_view, 1, $session_screens{$key}->{'short'}, 2, $key );						
+				}							
 							
 				#update first tab
 				&fct_update_info_and_tray();
