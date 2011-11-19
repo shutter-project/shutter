@@ -1,0 +1,1012 @@
+shutter (0.88)
+
+  * New Features
+    -- Refactored the uploading code (added support for plugins)
+    -- Added new upload plugins
+    -- Public links are now saved when a screenshot was uploaded
+    -- New command line option: specify filename
+  * New Upload Plugins
+    -- Dropbox
+    -- ImageBanana
+    -- ImageShack
+    -- Imgur
+    -- ImmIO
+    -- ITmages
+    -- Minus
+    -- Omploader
+    -- ToileLibre
+    -- TwitPic
+    -- UbuntuPics
+  * Fixed bugs / minor improvements
+    -- LP: #342622
+       [Remember upload links]
+    -- LP: #841328
+       [black corners if window is selected from the window list]
+    -- LP: #888441
+       [dialog not clickable when renaming a file]
+    -- LP: #889031
+       [Package should'nt provide own perl libraries]
+    -- LP: #650701
+       [retrieve Public URL if screenshot is already uploaded]
+    -- LP: #675911
+       [Url not selected when i do single click]
+    -- LP: #793462
+       [Short URL in imageshack.us]
+    -- LP: #870556
+       [specify file name on command line]
+    -- LP: #374024
+       [http://omploader.org/ as new image hoster]
+    -- LP: #486490
+       [Feature Request: Upload to imgur]
+    -- LP: #489598
+       [Wish: Add Twitpic support]
+    -- LP: #598818
+       [feature request: extensible imagehost/upload tools]
+    -- LP: #602209
+       [Add integration with Dropbox]
+    -- LP: #619748
+       [Add ubuntuusers.de thumbnail code to any of the hosting plugins]
+    -- LP: #651029
+       [Feature Request: Upload to ITmages]
+    -- LP: #703299
+       [Add upload to http://pix.toile-libre.org/]
+    -- LP: #785032
+       [min.us uploading support]
+    -- LP: #793463
+       [More image services to upload]
+  * improved support for Gnome-Shell
+  * several smaller bugfixes
+  * updated translations
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Sat, 19 Nov 2011 01:30:39 +0100
+
+shutter (0.87.3)
+
+  * New Features 
+    -- Show "real" cursor (instead of standard cursor)
+    -- Locate on disk
+  * Fixed bugs / minor improvements
+    -- LP: #695629	
+       [locate on disk feature]
+    -- LP: #781235
+       [shutter.1.gz isn't gzipped]
+    -- LP: #769902
+       [shutter --man displays source code]
+    -- LP: #752846
+       [Application doesn't work on windows with certain titles]
+    -- LP: #749442
+       [UI improvements to the timeout menu]
+    -- LP: #779252
+       [Support gnome-web-photo >= 0.10]
+    -- LP: #744397
+       [It doesn't save the selected profile between sessions]
+    -- LP: #388475
+       [Showing standard cursor (left-ptr) instead of current cursor]
+  * updated translations
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Sun, 03 Jul 2011 15:35:08 +0200
+
+shutter (0.87.2)
+
+  * Fixed bugs / minor improvements
+    -- LP: #737428
+       ['Open with' does not work when filename contains german umlauts]
+    -- LP: #738710
+       [Needs quicklists for Natty]
+  * updated translations
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Fri, 25 Mar 2011 11:59:51 +0100
+
+shutter (0.87.1)
+
+  * Fixed bugs / minor improvements
+    -- LP: #657585
+       [Shutter ignores typed-in save location]
+    -- LP: #695295
+       [Section: Encoding problems in non-english version of Shutter]
+    -- LP: #697483
+       [Initial image in DrawingTool shouldn't be locked by default]
+    -- LP: #705094
+       [Enter and Escape keys don't work any more]
+    -- LP: #705315
+       [Shutter failed to take screenshot on seamless mode of virtualbox]
+    -- LP: #708753
+       [Tab closing crashes in some circumstances]
+    -- LP: #723075
+       [Error while opening image 'sel_window_list.svg']
+    -- LP: #730883
+       [Profiles doesn't save some information]
+    -- LP: #731495
+       [Uploading to ImageShack broken]
+  * updated translations
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Thu, 10 Mar 2011 01:20:30 +0100
+
+shutter (0.87)
+
+  * New Features 
+    -- Capture active window
+    -- Uniqueness via libunique (single instance)
+    -- Support for rounded window corners when using Compiz
+    -- Automatically resize windows before capture
+    -- New option: don't save screenshot to disk
+    -- Advanced startup-options
+    -- EXIF orientation flag is now supported
+    -- Compatible with global menu (unity)
+    -- Export to PostScript
+    -- Faster application startup (load session in background task)
+  * Fixed Bugs / Improvements
+    -- LP: #336132
+       [Load last session in a background task]
+    -- LP: #348161
+       [Option not to save screenshots to disk by default]
+    -- LP: #371555
+       [Add advanced startup-options to the settings dialog]
+    -- LP: #388478
+       [multiple instances running]
+    -- LP: #419137
+       [keyboard shortcuts and hidden main window]
+    -- LP: #429677
+       [Add option to capture last active window]
+    -- LP: #481096
+       [hotkeys and Compiz' flat-file backend]
+    -- LP: #486659
+       [Pressing Enter in the image editor doesn't save image]
+    -- LP: #517267
+       [shortcut keys with abbreviations can reset compiz shortcut keys]
+    -- LP: #577040
+       [Add a --version command line argument]
+    -- LP: #632042
+       [Disable re-save file warnings]
+    -- LP: #638588
+       [Image name overlapping error with $nb_name format]
+    -- LP: #643675
+       [Editor window opens too large]
+    -- LP: #643683
+       [Can't capture cursor anymore]
+    -- LP: #644084
+       [Moving files to trash doesn't work with KDE]
+    -- LP: #644168
+       [Rotation in Shotwell is incomp. with some other applications]
+    -- LP: #644847
+       [Shutter does not respect the EXIF orientation flag]
+    -- LP: #654185
+       [Crop tool - Offset when zooming]
+    -- LP: #658740
+       ['Open with' does not work with global menu (unity)]
+    -- LP: #658745
+       [Unreadable (built-in) notifications: Text is highlighted]
+    -- LP: #661424
+       [Plugins fails if ' in filename]
+    -- LP: #657585
+       [Shutter ignores typed-in save location]
+    -- LP: #666854
+       [Auto-resize windows]
+    -- LP: #666858
+       [Opaque window corners when using compiz]
+    -- LP: #671749
+       [Feature Request: Redo hotkey]
+    -- LP: #671914
+       [Zoom window does not update when modifying selection]
+    -- LP: #671917
+       [Use filename for notebook pages (instead of [no] - [date])]
+    -- LP: #671918
+       [autoincrement does not work (in rare cases)]
+    -- LP: #677745
+       [non-HIG complient menu tooltip]
+    -- LP: #681008
+       [Add feature 'Export to PostScript']
+    -- LP: #685235
+       [Double click doesn't work when selecting a selection]
+  * updated translations
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Tue, 08 Feb 2011 07:15:28 +0100
+
+shutter (0.86.4)
+
+  * New Features
+    -- Automatically add a border  
+    -- Capture all workspaces as one image
+  * New Plugins
+    -- Hard Shadow
+    -- Autocrop
+  * Fixed Bugs / Minor Improvements
+    -- LP: #342628
+       [Make selection capture 'rounded grey box' less intrusive]
+    -- LP: #497050
+       [Direction/Color on Shadow Plugin]
+    -- LP: #535481
+       [Need an autocrop tool]
+    -- LP: #583988
+       [JPEG export: file size too big]
+    -- LP: #588188
+       [Add DrawingTool to Preferences>Actions>Open with]
+    -- LP: #590348
+       [Need "border" feature]
+    -- LP: #608683
+       [capture ALL desktops as one image]
+    -- LP: #611832
+       [Advanced selection tool - Enable numpad enter]
+    -- LP: #618008
+       [Non-latin filenames]
+    -- LP: #620136
+       [Keyboard should be able to be used for fine grain movements]
+    -- LP: #620397
+       [Adv. Selection Tool: no update when using the keyboard]
+    -- LP: #622638
+       [shutter launches ubuntuone also, at startup]
+  * updated translations
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Wed, 01 Sep 2010 22:36:16 +0200
+
+shutter (0.86.3)
+
+  * New features
+    -- Publish via Ubuntu One
+    -- New humanity icons (ubuntu-mono-dark and ubuntu-mono-light)
+  * Fixed bugs / minor improvements
+    -- LP: #361971
+       [Rename Redo to Retry in upload failure dialog]
+    -- LP: #506181
+       [Would like integration with Ubuntu One]
+    -- LP: #552842
+       [function to hash the file name]
+    -- LP: #577040
+       [Add a --version command line argument]
+    -- LP: #582134
+       [Cannot export photos to imageshack]     
+    -- LP: #610042
+       [Ubuntu-pics.de is dead]
+    -- LP: #610784
+       [Cannot export photos to imagebanana]
+  * updated translations
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Thu, 29 Jul 2010 17:47:59 +0200
+
+shutter (0.86.2)
+
+  * Fixed bugs / minor improvements
+    -- LP: #470403
+       [Drag & drop the image after taking screenshot]
+    -- LP: #543446
+       [Transparent parts... show as <whatever>]
+    -- LP: #561097
+       [Profiles are broken]
+    -- LP: #566597
+       [imageshack.us direct link is messed up]
+    -- LP: #568961
+       [Desktop may crash when canceling web-capture]
+  * updated translations
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Wed, 28 Apr 2010 11:34:02 +0200
+
+shutter (0.86.1)
+
+  * Fixed bugs / minor improvements
+    -- LP: #541751
+       [Add support for Thunderbird when sending via email]
+    -- LP: #543058
+       [No error reporting on 'Send by mail']
+    -- LP: #549732
+       [print gives blank page]
+  * updated translations
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Wed, 31 Mar 2010 23:39:34 +0200
+
+shutter (0.86)
+
+  * New features
+    -- Repeat last screenshots easily
+    -- DrawingTool: New Pixelize tool
+    -- DrawingTool: PDF + SVG Export
+    -- DrawingTool: new shapes (e.g. callouts)
+    -- Improved PDF export
+    -- Copy URL to clipboard (FTP)
+    -- Built-in notification windows
+    -- Option to ask for a name and directory before saving
+    -- Many usability improvements
+  * Screenshot Tools
+    -- LP: #344754
+       [Keep selection for screenshots]
+    -- LP: #507465
+       [implement a workaround if some window doesn't deliver the correct type hint]
+    -- #515944
+       [Can't take window screenshots when using fluxbox and styles that use the XShape extension]
+  * Upload / Export
+    -- LP: #339920
+       [Copy URL to clipboard after uploading to a FTP Server]
+    -- LP: #341810
+       [Remember last used 'Upload' tab]
+    -- LP: #513778
+       [ImageShack direct link incorrect]
+  * Drawing Tool
+    -- LP: #349048
+       [Add a callout editing tool for quick annotations]     
+    -- LP: #482791
+       [Text Tool should allow me to edit the text immediately]
+    -- LP: #486680
+       [Shapes can't be moved with keyboard]
+    -- LP: #493308
+       [Should be able to move around the original image]
+    -- LP: #511919
+       [Add an svg export to DrawingTool]
+    -- LP: #519869
+       [Line width not changes, in Shutter editor, if I use "draw arrow" tool after "censor" tool]   
+  * Fixed bugs / minor improvements
+    -- LP: #264623
+       [Add pdf export to File Menu]     
+    -- LP: #340762
+       [Send by email]
+    -- LP: #412917
+       [Remember the path to last opened folder in "Save as" dialog]
+    -- LP: #500352
+       [Shutter closes down completely when attempting web capture]
+    -- LP: #501969
+       [Ctrl N does nothing, even though it is listed in the File menu]
+    -- LP: #509546
+       [Option to ask for a name and location before saving the screenshots to disk]
+    -- LP: #510404
+       [Keybindings do not work correctly when optional command line parameters are used]
+    -- LP: #511942
+       [Default directory for saved screenshots is /home instead of /home/login]
+    -- LP: #512130
+       [Shutter doesn't start if $icontheme->load_icon fails]
+    -- LP: #513616
+       [File mask %T non compatible and $name]
+    -- LP: #522508
+       [Several problems with comma as decimal separator]
+    -- LP: #533764
+       [I'd like an option "Copy nothing to clipboard"]
+    -- LP: #543052
+       [Close buttons are right-aligned instead of left on tabs]
+    -- LP: #543063
+       [Layout overlap on bottom]
+  * updated translations
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Fri, 26 Mar 2010 00:21:52 +0100
+
+shutter (0.85.1)
+
+  * Fixed bugs
+    -- LP: #471895
+       [Unable to set Shutter as default screenshot tool when using compiz] 
+    -- LP: #488845
+       [check gtk version before calling gtk-image-menu-...] 
+    -- LP: #488895
+       [capture menu / tooltip doesn't work with gtk2-perl 1.161] 
+    -- LP: #488897
+       [duplicate file after capturing a webpage and using $name in th...]
+    -- LP: #486322
+       [copy filename / copy screenshot to clipboard should be xor]
+    -- LP: #486659
+       [Pressing Enter in the image editor doesn't save image]
+    -- LP: #486691
+       [copy and copy filename do not work in session tab]
+    -- LP: #488702
+       [can't shot localhost web]
+  * updated translations
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Tue, 01 Dec 2009 20:26:49 +0100
+
+shutter (0.85)
+
+  * New features
+    -- Undo/Redo functionality
+    -- Drag and drop pics into Shutter
+    -- Functionality to capture menus
+    -- Functionality to capture tooltips
+    -- Improved Advanced Selection Tool
+    -- Improved Window Selection
+    -- Improved right-click menu in preview tab
+    -- Many UI improvements
+    -- Change backgound color in Drawing Tool
+    -- New multi-purpose wildcard $name
+    -- Import images from clipboard
+    -- Use system's notification system
+    -- Send screenshots via email or instant messenger
+    -- Autocopy filename to clipboard
+    -- Shutter registers itself as an app to open images with
+  * Screenshot Tools
+    -- LP: #371550  
+       [Advanced selection tool: Specify pixel values of selection area]
+    -- LP: #392002  
+       [Add gnome-web-photo's --width parameter to the webphoto settings]
+    -- LP: #412466  
+       [gnome-web-photo "Unknown option -q"]
+    -- LP: #454266  
+       [Cursor does not display]                     
+    -- LP: #457218  
+       [Combine the advanced and the simple selection tool into one tool]
+  * Drawing Tool
+    -- LP: #311582  
+       [Make the properties dialog function as "instant apply"]
+    -- LP: #394367
+       [change and mark hot spot of mouse pointer icons]
+    -- LP: #396431  
+       [Properties of the marker tool aren't updated instantly]
+    -- LP: #403469  
+       [DrawingTool: Add an option to change the background color when...]
+    -- LP: #466067  
+       [no icos in the 'Screenshot-Edit-Insert image' menu]                
+  * User Interface
+    -- LP: #279271  
+       [Allow easy profile switching]  
+    -- LP: #338800  
+       [Drag and drop pics into shutter]  
+    -- LP: #342643
+       [Provide easier access to actions in the preview tab]
+    -- LP: #344828  
+       [Remove MIME type info from general window]   
+    -- LP: #365373  
+       [screenshot info should be summarized]
+  * Fixed bugs / minor improvements
+    -- LP: #328663  
+       [Give the screenshot title of window when capturing window only]
+    -- LP: #338796  
+       [Shutter should register itself as an app to open pictures with]
+    -- LP: #339728  
+       [Need an 'undo' for image editing and plugin operations]
+    -- LP: #339924  
+       [Rename strings]
+    -- LP: #340762
+       [Send by email]
+    -- LP: #345382  
+       [add indicator for running countdown]
+    -- LP: #350660  
+       [Add an option to keep the shutter window hidden after a capture]
+    -- LP: #415917  
+       [Capture menus more easily]
+    -- LP: #421832  
+       [Import image from clipboard]
+    -- LP: #426348  
+       [JPG is a default format]
+    -- LP: #428661  
+       [X crashes if no instance of Shutter is running while capture s...]
+    -- LP: #436504  
+       [Screenshot looks fuzzy after printing]
+    -- LP: #440526  
+       [Files remain in folder even if put in trash]
+    -- LP: #453210  
+       [Shutter signals in Multi User Env]
+    -- LP: #457209  
+       [Add a 'delete-on-tab-close' option to the preferences]
+    -- LP: #457211  
+       [Add an option for a delete prompt to preferences]
+  * updated translations
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Sat, 21 Nov 2009 15:01:45 +0100
+
+shutter (0.80.1)
+
+  * Fixed bugs
+    -- LP: #363708
+       [small lines at the edge of small screenshots] 
+    -- LP: #388532
+       [Respect stacking order of windows when selecting] 
+    -- LP: #396795
+       [Jigsaw plugins are broken]  
+    -- LP: #396797
+       [gnome-web-photo errors not properly handled in all cases]
+    -- LP: #397873
+       [check permissions when saving to directory] 
+    -- LP: #397875
+       [Don't install anything to /usr/share/app-install]	    
+    -- LP: #404860
+       [Paths with whitespaces in them aren't properly treated]
+    -- LP: #406017
+       [settings could not be restored]
+  * DrawingTool: new cursors
+  * DrawingTool: improved 'insert image' functionality
+  * updated translations
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Thu, 06 Aug 2009 22:43:41 +0200
+ 
+shutter (0.80)
+
+  * New features
+    -- Undo/Redo functionality in Drawing Tool
+    -- Added arrow shape to Drawing Tool
+    -- Added highlighter/marker to Drawing Tool
+    -- Added numbered tags to Drawing Tool
+    -- Added crop tool to Drawing Tool
+    -- Functionality to resize the canvas
+    -- Zoomable image preview
+    -- New 'Copy filename' action
+    -- Added access to 'Recent files'
+    -- New watermark plugin
+    -- New reflection plugin
+    -- New distortion plugin
+    -- New 3D rotate plugin		
+  * Drawing Tool
+    -- LP: #310704
+       [object property changes should take immediate effect]
+    -- LP: #311578
+       [resize canvas]
+    -- LP: #312405
+       [added numbered tags]
+    -- LP: #312965
+       [Drawing tool should have an Undo feature]
+    -- LP: #318452
+       [save and restore last used tool]
+    -- LP: #322811
+       [Add crop tool to drawing tool]
+    -- LP: #338809
+       [keep tool focus after one usage]
+    -- LP: #360254
+       [added highlighter/marker]
+    -- LP: #364815
+       [added arrow shape]
+    -- LP: #380790
+       [Fullscreen mode]
+  * User Interface
+    -- Show screenshot menu on right-button click in each tab
+    -- Show default application in separate menu item
+    -- Show progress dialog when updating plugin information
+    -- LP: #338528
+       [use icon theme and toolbar style wherever it is possible]
+  * Plugins
+    -- LP: #264622
+       [new watermark plugin]
+    -- LP: #342034
+       [new reflection plugin]
+    -- LP: #374192
+       [new distortion plugin]
+    -- LP: #375069
+       [new 3D rotate plugin]
+  * Fixed bugs / minor improvements
+    -- Use File::HomeDir instead of $ENV{ 'HOME' }
+    -- Use xdg-open instead of gnome-open
+    -- LP: #312221
+       [Item is drawn in bottom-right point of the cursor]
+    -- LP: #336122
+       [Ctrl+resize in editor moves the shape]
+    -- LP: #338812
+       [Better timeout options]
+    -- LP: #340503
+       [Show item properties on double-click]
+    -- LP: #341458
+       [Allow zooming in editor via ctrl+scrollwheel]
+    -- LP: #348595
+       [keybindings don't work in ubuntu jaunty when using compiz]
+    -- LP: #353819
+       [check window border option when calculating shape]
+    -- LP: #353824
+       [fix advanced selection tool when using compiz]
+    -- LP: #353830
+       [do not capture the zoom window when using the simple selection]
+    -- LP: #356324
+       [Stutter doesn't remember preference for screenshot location]
+    -- LP: #362508
+       [File - Open with gets broken sometimes]
+    -- LP: #363708
+       [lines of selected area get captured sometimes]
+    -- LP: #340635
+       [Preview in plugin dialogs takes too long]
+    -- LP: #364165
+       [dialogs should set the window title]
+    -- LP: #365365
+       [polaroid plugin text doesn't allow apostrophes]
+    -- LP: #366695
+       [control advanced selection tool with arrow keys]
+    -- LP: #367513
+       [desktop entry contains deprecated encoding key]
+    -- LP: #370359
+       [Watermark plugin doesn't say the allowed syntax]
+    -- LP: #370367
+       [DrawingTool -> View has multiple same options]
+    -- LP: #384352
+       [Save settings to file when closing preferences dialog]
+    -- LP: #386304
+       [Rename Edit -> Quick select to Quick profile select]
+    -- LP: #386316
+       ['Delete objects' and 'Delete all objects' are too similar]
+    -- LP: #386318
+       [New highlighter icon]
+    -- LP: #386766
+       [Text of '3D rotate' plugin is malformated]
+    -- LP: #386769
+       [quick profile selector is even sensitive when empty]
+    -- LP: #389837
+       [Invalid chars in japanese translation]
+    -- LP: #390853
+       [Workaround for upstream bug http://trac.bjourne.webfactional.com/ticket/21]
+    -- LP: #394283
+       [query new libgoocanvas properties and methods]
+  * code cleanup
+  * updated translations
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Sun, 05 Jul 2009 14:39:53 +0200
+
+shutter (0.70.2)
+
+  * fixed bugs
+    -- LP: #339139
+       [Shutter selects incorrect target window]
+    -- LP: #340855 + LP: #340864
+       [fixed save-as function]	
+    -- LP: #340856
+       [main window is partly visible on screenshots]
+    -- LP: #340990
+       [Shutter crashes when xserver grab fails]
+    -- LP: #341459
+       [Ctrl+ + doesn't zoom in drawing area]
+    -- LP: #347821
+       [decode filesize properly]
+  * updated translations
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Tue, 24 Mar 2009 21:41:37 +0100
+
+shutter (0.70.1)
+
+  * fixed bugs
+    -- LP: #260771
+       [Detect 'window-manager-changed' event]	
+    -- LP: #328654
+       [Weird paths after uploading]
+    -- LP: #338829
+       [Uploading to imageshack is broken]
+    -- LP: #338990
+       [Open with dialog freezes shutter and desktop]
+    -- LP: #340253
+       [Capture Website creates two files]
+    -- LP: #340459
+       [Use fallback icons if icon does not exist]
+  * updated translations
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Tue, 10 Mar 2009 23:06:25 +0100
+
+shutter (0.701)
+  * General changes
+    -- Rebranding from GScrot to Shutter
+    -- Exports to and opens all file formats supported by gdk-pixbuf
+    -- Added native printing support (instead of gtklp)
+    -- Watch opened files via GnomeVFS File Monitor to monitor changes 
+    -- Integration of GNOME Virtual File System and
+       GNOME authentication manager (LP: #310780)
+    -- Respect non-rectangular windows (XSHAPE) 
+       when using metacity (LP: #260771)
+    -- Use themeable icons wherever its is possible
+    -- Use systemwide MIME Information instead of config file
+    -- Move screenshots to trash instead of deleting them (LP: #313003)
+    -- Faster thumbail creation and caching 
+       (improves gui startup when a lot of files are in last session)
+    -- Improved Dialogs (e.g. Settings Dialog)
+    -- Show context menu for each file in session tab (right click)
+  * Gui improvements
+    Show current profile in statusbar (LP: #279271)
+    Second toolbar removed (LP: #311626)
+    Progress bars (LP: #310299)
+    -- LP: #311627
+    -- LP: #312966
+    -- LP: #313346
+    -- LP: #326758
+  * Drawing Tool
+    Scale uniformly (LP: #310708)
+    Added standard actions (copy, cut, paste, delete) (LP: #313343)
+    Added censor tool to hide private data (LP: #317659)
+    -- LP: #310717
+    -- LP: #310721
+    -- LP: #311574
+    -- LP: #311576
+    -- LP: #311577
+    -- LP: #311580
+  * Miscellaneous
+    Shutter shows up in GNOME add/remove (LP: #322388)
+    Repository is not signed (thanks to the LP Team) (LP: #312681)
+  * Plugins
+    New hard shadow plugin (thanks to Tualatrix) (LP: #331914)		
+  * Fixed bugs
+    -- LP: #303090
+    -- LP: #313761
+    -- LP: #316917
+    -- LP: #336120
+    -- LP: #336126
+    -- LP: #336121
+    -- LP: #336118
+    -- LP: #336133
+    -- LP: #336124
+  * updated translations
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Thu, 05 Mar 2009 12:23:51 +0100
+ 
+gscrot (0.642)
+
+  * fixed bugs
+    -- LP: #313351
+    -- LP: #318226
+    -- LP: #318227
+    -- LP: #313351
+  * updated translations
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Sun, 18 Jan 2009 15:10:27 +0100
+
+gscrot (0.640)
+
+  * fixed bugs
+    -- LP: #312866
+    -- LP: #313005
+  * updated translations
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Fri, 02 Jan 2009 14:33:27 +0100
+ 
+gscrot (0.64)
+
+  * new goo-canvas based drawing tool (LP: #264617, LP: #278999, LP: #279001)
+  * added ftp-upload (LP: #291286)
+  * improved startup time (LP: #296341)
+  * improved advanced selection tool (LP: #311185)
+  * improved plugin interface and error handling (LP: #296091)
+  * fixed bugs/smaller feature requests
+    -- LP: #306420
+    -- LP: #264616
+    -- LP: #277040
+    -- LP: #279271
+    -- LP: #280161
+    -- LP: #291284
+    -- LP: #310871
+  * new plugin: torned-paper (Edwood Ocasio)  
+  * updated translations
+  * massive code cleanup
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Tue, 30 Dec 2008 09:48:36 +0100
+
+gscrot (0.63)
+
+  * added new "advanced" selection-tool (see LP: #273763, depends on Gtk2::ImageView)
+  * added new keybinding-mode option
+  * ported to Gtk2::StatusIcon (Gtk2::TrayIcon supported for older Gtk2 Versions)
+  * faster plugin checks
+  * minor changes (human interface guidelines)	
+  * fixed (LP: #286632, LP: #293091, LP: #291753, LP: #293616)
+  * updated translations
+  * code cleanup    
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Thu, 06 Nov 2008 13:45:57 +0100
+
+gscrot (0.62)
+
+  * display session information on startup (see LP: #277121)
+  * minor changes related to upload dialog (see LP: #280154 and LP: #280165)
+  * new file->save as and file->close menu entries (see LP: #280155 and LP: #280886)
+  * new command line parameters (see LP: #280868 and LP: #281793)
+  * deleted hard dependencies of gnome-web-photo and gtklp in source code for more flexibility (e.g. packaging)
+  * updated translations    
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Wed, 22 Oct 2008 15:10:33 +0200
+
+gscrot (0.61)
+
+  * added new feature "include cursor" (default cursor)
+  * added imageshack.us as hosting-partner
+  * save and restore session automatically (restore tabs/screenshots)
+  * improved plugin-dialog and upload-dialog
+  * redesigned polaroid plugin
+  * fixed wrong utf8-encoding in profile names
+  * fixed wrong utf8-encoding in about dialog
+  * improved auto incrementing of filenames (see LP: #275352)
+  * improved thumbs (session tab) 
+  * updated translations    
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Mon, 06 Oct 2008 22:47:58 +0200
+ 
+gscrot (0.60)
+
+  * added new feature "grab window-section"
+  * added settings-profiles 
+  * added new plugin interface
+  * added new plugins
+    -- pdf-export
+    -- negate
+    -- sepia (perl)
+    -- resize
+  * gui redesign
+    -- scaling of main window
+    -- auto-scaling of preview
+    -- new toolbar
+    -- new menu entries
+    -- settings moved to menu
+  * updated translations    
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Wed, 24 Sep 2008 22:00:18 +0200 
+
+gscrot (0.51.1)
+
+  * minor changes
+  * added/updated translations  
+  * fixed bugs
+    -- 264637 
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Fri, 05 Sep 2008 18:29:35 +0200  
+
+gscrot (0.51)
+
+  * new features
+    -- capture window by name
+    -- select specific workspace to capture
+  * minor changes
+    -- several performance improvements
+    -- some options added
+  * added/updated translations  
+    -- Danish
+    -- Dutch
+    -- French
+    -- German
+    -- Italian
+    -- Korean
+    -- Norwegian Bokmal
+    -- Polish
+    -- Russian
+    -- Serbian
+    -- Simplified Chinese
+    -- Spanish
+    -- Swedish
+    -- Traditional Chinese
+    -- Ukrainian
+  * fixed bugs
+    -- 262165
+    -- 262206
+    -- 262207
+    -- 262263  
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Mon, 01 Sep 2008 03:25:16 +0200  
+
+gscrot (0.50.1)
+
+  * minor changes
+    -- partly rewritten window-selection
+    -- changed .po/.mo naming of plugins
+    -- added new svg icon
+  * added/updated translations
+    -- Brazilian Portuguese
+    -- Catalan
+    -- Spanish
+    -- Italian
+    -- Polish
+    -- Russian
+    -- Swedish
+    -- Traditional Chinese
+    -- Ukrainian
+  * fixed bugs
+    -- 260146
+    -- 260142
+    -- 260736  
+  
+ -- Mario Kemper <mario.kemper@googlemail.com>  Tue, 26 Aug 2008 00:13:09 +0200  
+ 
+gscrot (0.50)
+
+  * implemented new backend (gscrot does not depend on scrot anymore)
+  * zoom for free-hand screenshot
+  * gui changes
+    -- added a detachable toolbar (buttons are replaced)
+  * added translations
+    -- spanish
+    -- catalan 
+  
+ -- Mario Kemper <mario.kemper@googlemail.com>  Tue, 19 Aug 2008 22:00:58 +0200  
+
+gscrot (0.405)
+
+  * fixed bug https://bugs.launchpad.net/gscrot/+bug/252549
+  
+ -- Mario Kemper <mario.kemper@googlemail.com>  Mon, 28 Jul 2008 16:42:19 +0200   
+
+gscrot (0.404)
+
+  * gui changes (added expanders)
+  * session collection
+    -- added file infos
+    -- added thumbnails 
+  * save settings automatically when exiting
+  * added url-column to accounts treeview
+  * included gscrot-plugins-bash in base-package  
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Fri, 25 Jul 2008 21:07:44 +0200  
+
+gscrot (0.39)
+
+  * drawing-tool
+    -- it's a canvas now ;-)
+    -- zoom-factor and width of brush configurable
+    -- fixed drawing glitches due to fast mouse movement
+  * added new wildcard (%NN = counter)
+  * added keybindings (using gconf, configurable via gui)
+  * added libgnome2-perl and libgnome2-gconf-perl to dependencies 
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Fri, 11 Jul 2008 00:57:11 +0200
+
+gscrot (0.385)
+
+  * added simple drawing tool
+  * added plugin-interface and gui structure
+  * added support for image-hoster imagebanana.com
+  * added support for upload-accounts (ubuntu-pics.de && imagebanana.com)
+    -- gui structure and accounts.xml
+  * internal changes  
+    -- upload-functionality swapped out to perl-modules 
+    -- changed settings-format to xml
+
+ -- Mario Kemper <mario.kemper@googlemail.com>  Thu, 03 Jul 2008 19:39:35 +0200 
+
+gscrot (0.370)
+
+  * added functionality to capture websites using gnome-web-photo
+  * added upload functionality to ubuntu-pics.de
+    --upload a file and automatically retrieve all links generated by ubuntu-pics.de
+  * moved configuration to /home/<username>/.gscrot/settings.conf
+  * modified program-selector
+    --switched simple entry to combobox with tree-model
+    --predefined or custom programs/scripts
+    --overwrite settings individually by setting up /home/<username>/.gscrot/programs.conf
+  * added custom icon-set
+  * smaller changes
+    --solved deprecation warning in about-dialog
+    --fixed wrong time format in debian/changelog
+    --added all new dependencies to debian/control 
+  * added russian translation files
+
+ -- Mario Kemper <mario.kemper@gmx.de>  Mon, 19 May 2008 12:49:27 +0200  
+
+gscrot (0.36.2)
+
+  * unset "reduce colors" by default
+
+ -- Mario Kemper <mario.kemper@gmx.de>  Thu, 08 May 2008 22:43:38 +0200 
+
+gscrot (0.36)
+
+  * added functionalities to "session collection"
+    --remove screenshots from session (but do not delete them)
+    --reopen screenshot with specified program
+    --rename screenshot
+  * new arrangement of settings area
+  * new feature -- reduce colors --
+  * added dependency perlmagick
+
+ -- Mario Kemper <mario.kemper@gmx.de>  Wed, 07 May 2008 19:55:10 +0200  
+
+gscrot (0.35)
+
+  * added feature "session collection" 
+    --keep track of all screenshots during session
+    --copy screeners to clipboard
+    --print screenshots
+    --delete screenshots
+  * added command line args
+    --min_at_startup - starts gscrot minimized to tray
+    --beeper_off - turns audible feedback off
+    --debug - prints a lot of debugging information to STDOUT
+    --help - displays this help
+  * start of localization using gettext
+    --english is now default language
+    --german translation added
+  * fixed typo in info_message
+  * changed hbox/vbox arrangement
+
+ -- Mario Kemper <mario.kemper@gmx.de>  Thu, 17 Apr 2008 13:17:37 +0200    
+
+gscrot (0.34)
+
+  * new features 
+  * added keybindings in menubar
+  * added save and revert settings
+  * reimplemented message dialogs
+  * added support for grabbing window border when not using compiz or beryl
+  * added debian folder to source directory
+  * load settings automatically at startup
+  * added statusbar to main window
+
+ -- Mario Kemper <mario.kemper@gmx.de>  Thu, 10 Apr 2008 21:00:10 +0200  
+
+gscrot (0.33)
+
+  * added homepage to about box
+
+ -- Mario Kemper <mario.kemper@gmx.de>  Wed, 09 Apr 2008 13:19:30 +0200 
+
+gscrot (0.33)
+
+  * initial release
+
+ -- Mario Kemper <mario.kemper@gmx.de>  Wed, 09 Apr 2008 12:50:28 +0200 
+
