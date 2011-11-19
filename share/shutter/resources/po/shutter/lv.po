@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-16 01:50+0100\n"
-"PO-Revision-Date: 2011-09-29 16:13+0000\n"
+"PO-Revision-Date: 2011-11-17 18:33+0000\n"
 "Last-Translator: tuxmaniack <Unknown>\n"
 "Language-Team: Latvian <lv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-11-16 22:46+0000\n"
-"X-Generator: Launchpad (build 14291)\n"
+"X-Launchpad-Export-Date: 2011-11-19 16:36+0000\n"
+"X-Generator: Launchpad (build 14299)\n"
 
 #: translate_tmp.pl:388
 #: translate_tmp.pl:2574
@@ -32,12 +32,12 @@ msgstr "Iestatījumi"
 #: translate_tmp.pl:770
 #: translate_tmp.pl:771
 msgid "gnome-web-photo needs to be installed for this feature"
-msgstr "lai izmantotu šo iespēju, ir jābūt uzinstalētam 'gnome-web-photo'"
+msgstr "Lai izmantotu šo iespēju, ir jābūt uzinstalētam 'gnome-web-photo'"
 
 #: translate_tmp.pl:779
 msgid "Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature"
 msgstr ""
-"lai izmantotu šo iespēju, ir jābūt uzinstalētam 'Goo::Canvas/libgoo-canvas-"
+"Lai izmantotu šo iespēju, ir jābūt uzinstalētam 'Goo::Canvas/libgoo-canvas-"
 "perl'"
 
 #: translate_tmp.pl:812
@@ -630,6 +630,9 @@ msgid ""
 "<i>D-Bus Control Backend</i> via CompizConfig Settings Manager if your are "
 "using Desktop Effects or Unity."
 msgstr ""
+"<b>Piezīme:</b> Pārliecinieties, ka ir aktivizēts <i>Gnome Compatibility</i> "
+"un <i>D-Bus Control Backend</i> caur CompizConfig iestatījumu pārvaldnieku, "
+"ja izmantojiet darbvirsmas efektus vai Unity."
 
 #: translate_tmp.pl:2005
 #: translate_tmp.pl:2061
@@ -740,6 +743,9 @@ msgid ""
 "your credentials above. Plugins with OAuth support are configured "
 "automatically the first time you use them."
 msgstr ""
+"<b>Piezīme:</b> Ja spraudnis atļauj autorizētu augšupielādēšanu, jūs variet "
+"ievadīt savus pieteikšanās datus augšā. Spraudņi ar OAuth tiek konfigurēti "
+"automātiski, kad pirmo reizi tos izmantojiet."
 
 #: translate_tmp.pl:2207
 #: translate_tmp.pl:10440
@@ -1120,7 +1126,7 @@ msgstr "Uzņemšna pārtraukta pēc lietotāja pieprasījuma"
 #: translate_tmp.pl:6709
 #, perl-format
 msgid "%s saved"
-msgstr ""
+msgstr "%s saglabāts"
 
 #: translate_tmp.pl:6698
 #: translate_tmp.pl:6700
@@ -1237,11 +1243,12 @@ msgstr "Lūdzu, uzgaidiet, kamēr Shutter atjaunina spraudņu informāciju"
 
 #: translate_tmp.pl:8160
 msgid "Updating upload plugin information"
-msgstr ""
+msgstr "Atjaunina augšupielādes spraudņu informāciju"
 
 #: translate_tmp.pl:8165
 msgid "Please wait while Shutter updates the upload plugin information"
 msgstr ""
+"Lūdzu, uzgaidiet, kamēr Shutter atjaunina augšupielādes spraudņu informāciju"
 
 #: translate_tmp.pl:8372
 msgid "Capture All Workspaces"
@@ -1423,15 +1430,15 @@ msgstr "Saimnieks"
 
 #: translate_tmp.pl:9078
 msgid "Anonymous Upload"
-msgstr ""
+msgstr "Anonīma augšupielāde"
 
 #: translate_tmp.pl:9085
 msgid "Authorized Upload"
-msgstr ""
+msgstr "Autorizēta augšupielāde"
 
 #: translate_tmp.pl:9092
 msgid "OAuth Upload"
-msgstr ""
+msgstr "OAuth augšupielāde"
 
 #: translate_tmp.pl:9103
 #: translate_tmp.pl:9164
@@ -1605,7 +1612,7 @@ msgstr "Viesis"
 
 #: translate_tmp.pl:10311
 msgid "OAuth"
-msgstr ""
+msgstr "OAuth"
 
 #: translate_tmp.pl:10346
 msgid ""
@@ -1613,6 +1620,9 @@ msgid ""
 "links will still be available in the screenshot's <i>right-click menu</i> "
 "after closing this dialog."
 msgstr ""
+"Lūdzu, izvēlieties kādu no kontiem augšā un nospiediet <i>Augšupielādēt</i>. "
+"Augšupielādes saites joprojām būs pieejamas <i>labā-klikšķa izvēlnē</i> pēc "
+"šī dialoglodziņa aizvēršanas."
 
 #: translate_tmp.pl:10351
 msgid ""
@@ -1620,6 +1630,9 @@ msgid ""
 "enter your credentials in preferences first to make it appear in the list "
 "above."
 msgstr ""
+"<b>Piezīme:</b> Ja spraudnis atļauj tikai autorizētu augšupielādi ir "
+"nepieciešams ievadīt savus pieteikšanās datus iestatījumos, lai tie "
+"uzrādītos sarakstā augšā."
 
 #: translate_tmp.pl:10355
 msgid "Choose account"
@@ -1660,7 +1673,14 @@ msgid_plural ""
 "Folder %s is synchronized with Ubuntu One. The selected files will be copied "
 "to that folder before being published."
 msgstr[0] ""
+"Mape %s ir sinhronizēta ar Ubuntu One. Izvēlētais fails tiks iekopēts tajā "
+"pirms publicēšanas."
 msgstr[1] ""
+"Mape %s ir sinhronizēta ar Ubuntu One. Izvēlētie faili tiks iekopēti tajā "
+"pirms publicēšanas."
+msgstr[2] ""
+"Mape %s ir sinhronizēta ar Ubuntu One. Izvēlētie faili tiks iekopēti tajā "
+"pirms publicēšanas."
 
 #: translate_tmp.pl:10597
 #: translate_tmp.pl:10635
@@ -1671,7 +1691,14 @@ msgid_plural ""
 "<b>Please note:</b> The selected files will be published in a background "
 "process. You will be notified when the process has finished."
 msgstr[0] ""
+"<b>Piezīme:</b> Izvēlētais fails tiks publicēts fona procesā. Jums tiks "
+"paziņots, kad process ir noslēdzies."
 msgstr[1] ""
+"<b>Piezīme:</b> Izvēlētie faili tiks publicēti fona procesā. Jums tiks "
+"paziņots, kad process ir noslēdzies."
+msgstr[2] ""
+"<b>Piezīme:</b> Izvēlētie faili tiks publicēti fona procesā. Jums tiks "
+"paziņots, kad process ir noslēdzies."
 
 #: translate_tmp.pl:10604
 #: translate_tmp.pl:10642
@@ -1680,6 +1707,7 @@ msgid ""
 "Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
 "folder."
 msgstr ""
+"Mape %s nav sinhronizēta ar Ubuntu One. Lūdzu, izvēlieties citu mapi."
 
 #: translate_tmp.pl:10660
 msgid "Ubuntu One service cannot be found."
@@ -1702,11 +1730,11 @@ msgstr ""
 #: translate_tmp.pl:10750
 #, perl-format
 msgid "Error while executing upload plugin %s."
-msgstr ""
+msgstr "Kļūda, izpildot augšupielādes spraudni %s."
 
 #: translate_tmp.pl:10751
 msgid "There was an error executing the upload plugin."
-msgstr ""
+msgstr "Gadījās kļūda, izpildot augšupielādes spraudni."
 
 #: translate_tmp.pl:10788
 #: translate_tmp.pl:10859
@@ -1792,7 +1820,7 @@ msgstr "Lūdzu, pārbaudiet jūsu akreditācijas datus un mēģiniet vēlreiz."
 
 #: translate_tmp.pl:11160
 msgid "Error while login"
-msgstr "Kļūda piesakoties"
+msgstr "Kļūda, piesakoties"
 
 #: translate_tmp.pl:11164
 msgid "Maximum filesize reached"
@@ -1800,7 +1828,7 @@ msgstr "Maksimālais faila izmērs sasniegts"
 
 #: translate_tmp.pl:11165
 msgid "Error while uploading"
-msgstr "Kļūda augšupielādējot"
+msgstr "Kļūda, augšupielādējot"
 
 #: translate_tmp.pl:11168
 #, perl-format
@@ -1809,7 +1837,7 @@ msgstr "Maksimālais faila izmērs: %s"
 
 #: translate_tmp.pl:11173
 msgid "Error while connecting"
-msgstr "Kļūda pieslēdzoties"
+msgstr "Kļūda, pieslēdzoties"
 
 #: translate_tmp.pl:11189
 msgid "Save current preferences as new profile"
@@ -1832,6 +1860,7 @@ msgstr "Profila nosaukumu %s jau eksistē. Vai vēlaties to aizstāt?"
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
+"  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
 "  tuxmaniack https://launchpad.net/~tuxmaniack"
 
 #: translate_tmp.pl:34
@@ -2071,7 +2100,7 @@ msgstr ""
 
 #: translate_tmp.pl:248
 msgid "Show links to previous uploads"
-msgstr ""
+msgstr "Rādīt saites uz iepriekšējām augšupielādēm"
 
 #: translate_tmp.pl:33
 #: translate_tmp.pl:47
@@ -2209,7 +2238,7 @@ msgstr "Nav atklāts neviens logs ar rakstu %s."
 #: translate_tmp.pl:163
 #, perl-format
 msgid "Invalid pattern %s detected."
-msgstr ""
+msgstr "Atklāts nederīgs raksts %s."
 
 #: translate_tmp.pl:122
 msgid "No subwindow detected"

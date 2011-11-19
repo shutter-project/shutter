@@ -8,18 +8,18 @@ msgstr ""
 "Project-Id-Version: gscrot-plugins-bash\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-16 01:50+0100\n"
-"PO-Revision-Date: 2011-04-10 12:56+0000\n"
-"Last-Translator: myromance123 <Unknown>\n"
+"PO-Revision-Date: 2011-11-18 13:31+0000\n"
+"Last-Translator: abuyop <Unknown>\n"
 "Language-Team: Malay <ms@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-11-16 22:46+0000\n"
-"X-Generator: Launchpad (build 14291)\n"
+"X-Launchpad-Export-Date: 2011-11-19 16:37+0000\n"
+"X-Generator: Launchpad (build 14299)\n"
 
 #: translate_tmp:27
 msgid "Shutter Branding"
-msgstr ""
+msgstr "Perajahan Shutter"
 
 #: translate_tmp:28
 #: translate_tmp:74
@@ -27,12 +27,13 @@ msgstr ""
 #: translate_tmp:72
 #: translate_tmp:64
 msgid "Effect"
-msgstr ""
+msgstr "Kesan"
 
 #: translate_tmp:29
 msgid ""
 "Turn the image into a polaroid one with the Shutter logo and a subtitle added"
 msgstr ""
+"Tukar imej kepada polaroid dengan logo Shutter dan ditambah dengan sarikata"
 
 #: translate_tmp:27
 msgid "Grayscale"
@@ -88,15 +89,15 @@ msgstr "Sempadan Tenggelam"
 
 #: translate_tmp:29
 msgid "Add an inverted 3d border to the image"
-msgstr ""
+msgstr "Tambah sempadan 3d songsang kepada imej"
 
 #: translate_tmp:27
 msgid "Torned Paper"
-msgstr ""
+msgstr "Kertas Terkoyak"
 
 #: translate_tmp:29
 msgid "Add a torn-like border to the image"
-msgstr ""
+msgstr "Tambah sempadan seperti dikoyak kepada imej"
 
 #: translate_tmp:27
 msgid "Autocrop"
@@ -138,7 +139,7 @@ msgstr "Putaran:"
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "Perseptive rotation around left edge of image"
-msgstr ""
+msgstr "Putaran persepektif disekitar pinggir kiri imej"
 
 #: translate_tmp:122
 msgid "Fade:"
@@ -165,40 +166,40 @@ msgstr "Pef:"
 #: translate_tmp:165
 #: translate_tmp:172
 msgid "Perspective exaggeration factor"
-msgstr ""
+msgstr "Faktor penokok-tambahan perspektif"
 
 #: translate_tmp:176
 msgid "Gap:"
-msgstr ""
+msgstr "Sela:"
 
 #: translate_tmp:183
 #: translate_tmp:190
 msgid "Gap between image and mirror in pixels"
-msgstr ""
+msgstr "Sela diantara imej dan cermin dalam piksel"
 
 #: translate_tmp:194
 #: translate_tmp:176
 msgid "Zoom:"
-msgstr ""
+msgstr "Zum:"
 
 #: translate_tmp:201
 #: translate_tmp:208
 msgid "Zoom factor for output image"
-msgstr ""
+msgstr "Faktor zum bagi imej output"
 
 #: translate_tmp:212
 #: translate_tmp:236
 #: translate_tmp:165
 #: translate_tmp:194
 msgid "Background color"
-msgstr ""
+msgstr "Warna latar belakang"
 
 #: translate_tmp:217
 #: translate_tmp:241
 #: translate_tmp:170
 #: translate_tmp:199
 msgid "Choose background color"
-msgstr ""
+msgstr "Pilih warna latar belakang"
 
 #: translate_tmp:423
 #: translate_tmp:459
@@ -211,7 +212,7 @@ msgstr ""
 #: translate_tmp:315
 #, perl-format
 msgid "Error while executing plugin %s."
-msgstr ""
+msgstr "Ralat semasa melakukan pemalam %s."
 
 #: translate_tmp:424
 #: translate_tmp:460
@@ -223,11 +224,11 @@ msgstr ""
 #: translate_tmp:315
 #: translate_tmp:316
 msgid "There was an error executing the plugin."
-msgstr ""
+msgstr "Terdapat ralat semasa melakukan pemalam."
 
 #: translate_tmp:73
 msgid "3D rotate"
-msgstr ""
+msgstr "Putaran 3D"
 
 #: translate_tmp:75
 msgid ""
@@ -237,31 +238,38 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 msgstr ""
+"Laksanakan herotan perspektif kepada imej\n"
+"\n"
+"Berdasarkan skrip oleh Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "Rotation around image vertical centerline"
-msgstr ""
+msgstr "Putaran disekitar garis-tengah menegak imej"
 
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "Rotation around image horizontal centerline"
-msgstr ""
+msgstr "Putaran disekitar garis-tengah melintang imej"
 
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "Rotation around the image center"
-msgstr ""
+msgstr "Putaran disekitar pusat imej"
 
 #: translate_tmp:183
 #: translate_tmp:190
 msgid ""
 "Output zoom factor; where value > 1 means zoom in and < 1 means zoom out"
 msgstr ""
+"Faktor zum output; yang mana nilai > 1 bermaksud zum masuk dan < 1 bermaksud "
+"zum keluar"
 
 #: translate_tmp:204
 msgid "Auto:"
-msgstr ""
+msgstr "Auto:"
 
 #: translate_tmp:226
 #: translate_tmp:233
@@ -274,38 +282,46 @@ msgid ""
 "\n"
 "out - Creates an output image of size needed to hold the transformed image"
 msgstr ""
+"off - Tiada pelarasan automatik\n"
+"\n"
+"c - Tengahkan kotak lantunan dalam output\n"
+"\n"
+"zc - Zum untuk isi dan tengahkan kotak lantunan dalam output\n"
+"\n"
+"out - Cipta imej output bagi saiz yang diperlukan untuk tahan imej yang "
+"dijelmakan"
 
 #: translate_tmp:243
 msgid "Sky color"
-msgstr ""
+msgstr "Warna langit"
 
 #: translate_tmp:248
 msgid "Choose sky color"
-msgstr ""
+msgstr "Pilih warna langit"
 
 #: translate_tmp:62
 msgid "Barrel Distortion"
-msgstr ""
+msgstr "Herotan Barel"
 
 #: translate_tmp:64
 msgid "Apply a distortion effect to your screenshot"
-msgstr ""
+msgstr "Laksanakan kesan herotan kepada cekupan skrin anda"
 
 #: translate_tmp:93
 msgid "A:"
-msgstr ""
+msgstr "A:"
 
 #: translate_tmp:97
 msgid "B:"
-msgstr ""
+msgstr "B:"
 
 #: translate_tmp:101
 msgid "C:"
-msgstr ""
+msgstr "C:"
 
 #: translate_tmp:105
 msgid "D:"
-msgstr ""
+msgstr "D:"
 
 #: translate_tmp:112
 #: translate_tmp:119
@@ -327,7 +343,7 @@ msgstr ""
 
 #: translate_tmp:73
 msgid "Bordereffects"
-msgstr ""
+msgstr "Kesan sempadan"
 
 #: translate_tmp:75
 msgid ""
@@ -340,34 +356,34 @@ msgstr ""
 
 #: translate_tmp:104
 msgid "Size:"
-msgstr ""
+msgstr "Saiz:"
 
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "The size or dimension of the border region"
-msgstr ""
+msgstr "Saiz atau dimensi bagi kawasan sempadan"
 
 #: translate_tmp:122
 msgid "Density:"
-msgstr ""
+msgstr "Ketumpatan:"
 
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "The frequency of detail in the border"
-msgstr ""
+msgstr "Frekuensi terperinci dalam sempadan"
 
 #: translate_tmp:140
 msgid "Curviness:"
-msgstr ""
+msgstr "Kelengkungan:"
 
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "The curviness in the border features"
-msgstr ""
+msgstr "Kelengkungan dalam fitur sempadan"
 
 #: translate_tmp:158
 msgid "Granularity:"
-msgstr ""
+msgstr "Granulariti:"
 
 #: translate_tmp:165
 #: translate_tmp:172
@@ -375,23 +391,25 @@ msgid ""
 "The base grain size or pixelization size used to create the detail in the "
 "border"
 msgstr ""
+"Asas saiz butiran atau saiz pikselasi yang digunakan untuk cipta terperinci "
+"dalam sempadan"
 
 #: translate_tmp:176
 msgid "Pad:"
-msgstr ""
+msgstr "Pad:"
 
 #: translate_tmp:183
 #: translate_tmp:190
 msgid "The pad size of constant color around the perimeter of the border"
-msgstr ""
+msgstr "Saiz pada bagi warna malar disekitar perimeter sempadan"
 
 #: translate_tmp:62
 msgid "Negate"
-msgstr ""
+msgstr "Nafikan"
 
 #: translate_tmp:64
 msgid "Invert the colors of the image"
-msgstr ""
+msgstr "Songsangkan warna imej"
 
 #: translate_tmp:101
 msgid "Channel"
@@ -399,13 +417,15 @@ msgstr "Saluran"
 
 #: translate_tmp:62
 msgid "Polaroid"
-msgstr ""
+msgstr "Polaroid"
 
 #: translate_tmp:64
 msgid ""
 "Make your screenshot look like a polaroid photo, add a caption, and even "
 "rotate it a little"
 msgstr ""
+"Jadikan cekupan skrin anda keliharan seperti foto polaroid, tambah kapsyen, "
+"dan sedikit putaran"
 
 #: translate_tmp:99
 #: translate_tmp:93
@@ -436,67 +456,67 @@ msgstr "Graviti"
 #: translate_tmp:137
 #: translate_tmp:131
 msgid "Stroke color"
-msgstr ""
+msgstr "Warna lejang"
 
 #: translate_tmp:142
 #: translate_tmp:136
 msgid "Choose stroke color"
-msgstr ""
+msgstr "Pilih warna lejang"
 
 #: translate_tmp:45
 msgid "Resize"
-msgstr ""
+msgstr "Saiz Semula"
 
 #: translate_tmp:53
 msgid "Resize your screenshot"
-msgstr ""
+msgstr "Saiz semula cekupan skrin anda"
 
 #: translate_tmp:71
 msgid "Sepia"
-msgstr ""
+msgstr "Sepia"
 
 #: translate_tmp:73
 msgid "Add sepia color toning to the image"
-msgstr ""
+msgstr "Tambah pengetonan warna sepia kepada imej"
 
 #: translate_tmp:110
 msgid "Sepia tone"
-msgstr ""
+msgstr "Ton sepia"
 
 #: translate_tmp:63
 msgid "Hard Shadow"
-msgstr ""
+msgstr "Bayang Jelas"
 
 #: translate_tmp:65
 msgid "Add a shadow to the image on a transparent background"
-msgstr ""
+msgstr "Tambah bayang kepada imej dengan latar belakang lutsinar"
 
 #: translate_tmp:94
 msgid "Direction"
-msgstr ""
+msgstr "Arah"
 
 #: translate_tmp:110
 #: translate_tmp:117
 msgid "The direction of the shadow"
-msgstr ""
+msgstr "Arah bayang"
 
 #: translate_tmp:121
 msgid "Color"
-msgstr ""
+msgstr "Warna"
 
 #: translate_tmp:126
 msgid "Choose color"
-msgstr ""
+msgstr "Pilih warna"
 
 #: translate_tmp:131
 #: translate_tmp:138
 msgid "The color of the shadow"
-msgstr ""
+msgstr "warna bayang"
 
 #: translate_tmp:62
 msgid "Watermark"
-msgstr ""
+msgstr "Tera Air"
 
 #: translate_tmp:64
 msgid "Add a custom text watermark to your screenshot"
-msgstr ""
+msgstr "Tambah tera air teks suai kepada cekupan skrin anda"
