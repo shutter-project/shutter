@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1169';
+use constant SHUTTER_REV		=> 'Rev.1170';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88';
 
@@ -10813,7 +10813,7 @@ if ($app->is_running) {
 					my $hosting_module   = $model->get_value( $hosting_iter, 4 );
 					my $hosting_folder   = $model->get_value( $hosting_iter, 5 );
 					
-					$hosting_progress->set_text($d->get("Loading module $hosting_module"));
+					$hosting_progress->set_text(sprintf($d->get("Loading module %s"), $hosting_module));
 					&fct_update_gui;
 					
 					#import module
