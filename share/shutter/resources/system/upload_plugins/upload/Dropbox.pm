@@ -125,7 +125,7 @@ sub setup {
 		return FALSE;	
 	}else{
 		my $response = $sd->dlg_info_message(
-			"Please click on the button below to authorize with Dropbox. Press 'Apply' when you are done.", 
+			$d->get("Please click on the button below to authorize with Dropbox. Press 'Apply' when you are done."), 
 			$d->get("Authorize with Dropbox"),
 			'gtk-cancel','gtk-apply', undef,
 			undef, undef, undef, undef, undef,
@@ -207,6 +207,10 @@ sub upload {
 			}
 		}else{
 			$self->{_links}{'status'} = $res->{'error'};
+			if($self->{_box}->error =~ m/401/){
+				unlink $self->{_config_file};
+				$self->{_links}{'status'} = $res->{'error'}.": ".$d->get("Maybe you or Dropbox revoked or expired an access token. Please close this dialog and try again. Your account will be re-authenticated the next time you upload a file.");
+			}
 		}
 	};
 	if($@){

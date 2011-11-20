@@ -30,11 +30,6 @@ use Locale::gettext;
 use Glib qw/TRUE FALSE/;
 use Data::Dumper;
 
-my $d = Locale::gettext->domain("shutter-plugins");
-$d->dir( $ENV{'SHUTTER_INTL'} );
-
-###################################################
-
 sub new {
 	my $class = shift;
 
