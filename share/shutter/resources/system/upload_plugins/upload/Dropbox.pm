@@ -114,7 +114,6 @@ sub setup {
 	
 	#some helpers
 	my $sd = Shutter::App::SimpleDialogs->new;
-	my $d = $self->{_gettext_object};
 
     #Authentication
     $self->{_box} = Net::Dropbox::API->new($self->{_config});
