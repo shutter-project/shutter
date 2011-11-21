@@ -26,6 +26,8 @@ shutter (0.88)
        [dialog not clickable when renaming a file]
     -- LP: #889031
        [Package should'nt provide own perl libraries]
+    -- LP: #892703
+       [After unlinking from Dropbox there is no way to relink it again]
     -- LP: #650701
        [retrieve Public URL if screenshot is already uploaded]
     -- LP: #675911
@@ -58,7 +60,7 @@ shutter (0.88)
   * several smaller bugfixes
   * updated translations
 
- -- Mario Kemper <mario.kemper@googlemail.com>  Sat, 19 Nov 2011 01:30:39 +0100
+ -- Mario Kemper <mario.kemper@googlemail.com>  Mon, 21 Nov 2011 15:54:45 +0100
 
 shutter (0.87.3)
 
