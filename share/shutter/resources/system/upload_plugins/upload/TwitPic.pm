@@ -99,9 +99,9 @@ sub upload {
 		eval{
 
 			my %params = (
-				'media' => [$self->{_filename}],
-				'username' => $self->{_username},
-				'password' => $self->{_password},
+				'media' => [$upload_filename],
+				'username' => $username,
+				'password' => $password,
 			);
 
 			my @params = (

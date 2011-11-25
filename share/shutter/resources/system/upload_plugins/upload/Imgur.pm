@@ -100,7 +100,7 @@ sub upload {
 			my $json = JSON->new(); 
 
 			my %params = (
-				'image' => [$self->{_filename}],
+				'image' => [$upload_filename],
 				'key'   => '12ea5e932124142c5ef3c8d5a02557de',
 			);
 

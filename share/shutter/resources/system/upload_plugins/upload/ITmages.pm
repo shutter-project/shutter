@@ -102,7 +102,7 @@ sub upload {
 				'Content_Type' => 'form-data',
 				'Content' => [
 					"UFileManager[picture]" => "",
-					"UFileManager[picture]" => [ $self->{_filename}, $self->{_filename} ],
+					"UFileManager[picture]" => [ $upload_filename, $upload_filename ],
 					"yt0" => "Upload",
 				]				
 			);

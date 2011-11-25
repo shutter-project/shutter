@@ -105,8 +105,8 @@ sub upload {
 					clientWeb		=> "http://shutter-project.org",
 				},
 				upload => {
-					userName		=> $self->{_username},
-					password		=> $self->{_password},
+					userName		=> $username,
+					password		=> $password,
 					description		=> "",	
 					tags			=> "",
 				},
@@ -117,7 +117,7 @@ sub upload {
 			my $json_text = $json->encode(\%data);
 
 			my %params = (
-				'upload' => [$self->{_filename}],
+				'upload' => [$upload_filename],
 				'json'   => $json_text,
 			);
 

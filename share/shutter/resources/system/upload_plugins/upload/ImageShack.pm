@@ -98,10 +98,10 @@ sub upload {
 		eval{
 
 			my %params = (
-				'fileupload' => [$self->{_filename}],
+				'fileupload' => [$upload_filename],
 				'key' => '4679FKPXc50115cd7f3966adcf240a1e3609ecbf',
-				'a_username' => $self->{_username},
-				'a_password' => $self->{_password},
+				'a_username' => $username,
+				'a_password' => $password,
 			);
 
 			my @params = (

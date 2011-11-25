@@ -96,6 +96,7 @@ sub upload {
 	utf8::encode $upload_filename;
 	utf8::encode $password;
 	utf8::encode $username;
+	
 	if ( $username ne "" && $password ne "" ) {
 		
 		eval{
@@ -180,11 +181,11 @@ sub upload {
 			push( @link_array, $1 );
 		}
 
-		$self->{_links}{'thumbnail for websites'}    = $link_array[1];
-		$self->{_links}{'thumbnail for forums'}    = $link_array[2];
-		$self->{_links}{'hotlink for websites'}    = $link_array[3];
+		$self->{_links}{'thumbnail for websites'} = $link_array[1];
+		$self->{_links}{'thumbnail for forums'} = $link_array[2];
+		$self->{_links}{'hotlink for websites'} = $link_array[3];
 		$self->{_links}{'hotlink for forums'} = $link_array[4];
-		$self->{_links}{'direct link'}    = $link_array[5];
+		$self->{_links}{'direct link'} = $link_array[5];
 
 		if ( $self->{_debug_cparam} ) {
 			print "The following links were returned by http://www.imagebanana.com:\n";

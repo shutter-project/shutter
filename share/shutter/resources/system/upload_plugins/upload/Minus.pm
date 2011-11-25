@@ -103,7 +103,7 @@ sub upload {
 			#SignIn
 			my $req_login = HTTP::Request->new(POST => "http://minus.com/api/SignIn");
 			$req_login->content_type("application/x-www-form-urlencoded");
-			$req_login->content("username=" . $self->{_username} . "&password1=" . $self->{_password});
+			$req_login->content("username=" . $username . "&password1=" . $password);
 
 			my $res_login = $browser->request($req_login); #login
 			my $login_json = $json_coder->decode($res_login->content);
@@ -135,14 +135,14 @@ sub upload {
 		#upload if everything is fine
 		if(defined $gallery_json->{'editor_id'}){
 
-			my $url = "http://min.us/api/UploadItem?". "editor_id=" . $gallery_json->{'editor_id'} . "&key=OK&filename=" . $self->{_filename};
+			my $url = "http://min.us/api/UploadItem?". "editor_id=" . $gallery_json->{'editor_id'} . "&key=OK&filename=" . $upload_filename;
 
 			$HTTP::Request::Common::DYNAMIC_FILE_UPLOAD = 1;
 
 			my $req_upitem = POST(
 				$url,
 				Content_Type => 'multipart/form-data',
-				Content      => [ file => [$self->{_filename}] ],
+				Content      => [ file => [$upload_filename] ],
 			);
 
 			my $res = $browser->request($req_upitem);
