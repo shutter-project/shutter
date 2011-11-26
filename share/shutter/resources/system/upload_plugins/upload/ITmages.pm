@@ -98,7 +98,7 @@ sub upload {
 		eval{
 
 			my @params = (
-				'http://itmages.ru/api/add',
+				'http://itmages.com/api/v2/add',
 				'Content_Type' => 'form-data',
 				'Content' => [
 					"UFileManager[picture]" => "",
@@ -106,18 +106,20 @@ sub upload {
 					"yt0" => "Upload",
 				]				
 			);
-			
+
 			my $req = HTTP::Request::Common::POST(@params);
 			push @{ $client->requests_redirectable }, 'POST';
 			my $rsp = $client->request($req);
 
 			#convert XML
 			my $ref = XMLin($rsp->content);
-			
+
 			if(defined $ref->{'status'} && $ref->{'status'} eq 'ok'){			
 				#construct links
-				$self->{_links}->{'direct_link'} = "http://".$ref->{'obj'}->{'server'}.".static.itmages.ru/".$ref->{'obj'}->{'full'};
-				$self->{_links}->{'thumbnail'} = "http://".$ref->{'obj'}->{'server'}.".static.itmages.ru/".$ref->{'obj'}->{'thumb'};
+				$self->{_links}->{'direct_link'} = "http://"
+					. $ref->{'item'}->{'server'} . ".static.itmages.com/" . $ref->{'item'}->{'iuri'};
+				$self->{_links}->{'thumbnail'} = "http://"
+					. $ref->{'item'}->{'server'} . ".static.itmages.com/" . $ref->{'item'}->{'turi'};
 				
 				#debug
 				if( $self->{_debug_cparam}) {
