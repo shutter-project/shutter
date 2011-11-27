@@ -39,10 +39,10 @@ my $d = Locale::gettext->domain("shutter-upload-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
 my %upload_plugin_info = (
-    'module'		=> "Minus",
-	'url'			=> "http://minus.com/",
+    'module'        => "Minus",
+	'url'           => "http://minus.com/",
 	'registration'  => "http://minus.com/",
-	'description'	=> $d->get( "Minus is the simplest free file sharing platform online" ),
+	'description'   => $d->get( "Minus is the simplest free file sharing platform online" ),
 	'supports_anonymous_upload'	 => TRUE,
 	'supports_authorized_upload' => TRUE,
 );

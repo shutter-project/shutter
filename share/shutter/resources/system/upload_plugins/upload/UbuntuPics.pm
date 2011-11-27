@@ -38,11 +38,11 @@ my $d = Locale::gettext->domain("shutter-upload-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
 my %upload_plugin_info = (
-    'module'		=> "UbuntuPics",
-	'url'			=> "http://www.ubuntu-pics.de",
+    'module'        => "UbuntuPics",
+	'url'           => "http://www.ubuntu-pics.de",
 	'registration'  => "http://www.ubuntu-pics.de/reg",
-	'description'	=> $d->get( "Upload screenshots to ubuntu-pics.de" ),
-	'supports_anonymous_upload'	 => FALSE,
+	'description'   => $d->get( "Upload screenshots to ubuntu-pics.de" ),
+	'supports_anonymous_upload'  => FALSE,
 	'supports_authorized_upload' => TRUE,
 );
 

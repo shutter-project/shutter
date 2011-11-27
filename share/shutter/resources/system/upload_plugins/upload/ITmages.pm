@@ -38,11 +38,11 @@ my $d = Locale::gettext->domain("shutter-upload-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
 my %upload_plugin_info = (
-    'module'		=> "ITmages",
-	'url'			=> "http://itmages.com/",
+    'module'        => "ITmages",
+	'url'           => "http://itmages.com/",
 	'registration'  => "http://itmages.com/user/register",
-	'description'	=> $d->get( "Upload screenshots to itmages.com" ),
-	'supports_anonymous_upload'	 => TRUE,
+	'description'   => $d->get( "Upload screenshots to itmages.com" ),
+	'supports_anonymous_upload'  => TRUE,
 	'supports_authorized_upload' => FALSE,
 );
 
