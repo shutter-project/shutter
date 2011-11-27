@@ -38,10 +38,10 @@ my $d = Locale::gettext->domain("shutter-upload-plugins");
 $d->dir( $ENV{'SHUTTER_INTL'} );
 
 my %upload_plugin_info = (
-    'module'		=> "ToileLibre",
-	'url'			=> "http://pix.toile-libre.org/",
+    'module'        => "ToileLibre",
+	'url'           => "http://pix.toile-libre.org/",
 	'registration'  => "-",
-	'description'	=> $d->get( "Upload screenshots to pix.toile-libre.org" ),
+	'description'   => $d->get( "Upload screenshots to pix.toile-libre.org" ),
 	'supports_anonymous_upload'	 => TRUE,
 	'supports_authorized_upload' => FALSE,
 );
@@ -98,50 +98,58 @@ sub upload {
 	utf8::encode $password;
 	utf8::encode $username;
 
-	$self->{_mech}->get("http://pix.toile-libre.org");
-	$self->{_http_status} = $self->{_mech}->status();
-	unless ( is_success( $self->{_http_status} ) ) {
-		$self->{_links}{'status'} = $self->{_http_status};
-		return %{ $self->{_links} };
-	}
-	
-	$self->{_mech}->request(POST "http://pix.toile-libre.org/?action=upload",
-		Content_Type => 'form-data',
-			Content      => [
-				img =>  [ $upload_filename ],
-			],
-	);
-	
-	$self->{_http_status} = $self->{_mech}->status();
-		
-	if ( is_success( $self->{_http_status} ) ) {
-		my $html_file = $self->{_mech}->content;
-		
-		my @links = $html_file =~ m{ <textarea>(.*)</textarea> }gx;
+	eval{
 
-		$self->{_links}{'view_image'} = $links[0];
-		$self->{_links}{'direct_link'} = $links[1];
-		$self->{_links}{'thumbnail_forum'} = $links[2];
-		$self->{_links}{'forum'} = $links[3];
-		$self->{_links}{'thumbnail website'} = $links[4];
-		$self->{_links}{'website'} = $links[5];
-
-		if ( $self->{_debug} ) {
-			print "The following links were returned by http://pix.toile-libre.org:\n";
-			print $self->{_links}{'view_image'},"\n";
-			print $self->{_links}{'direct_link'},"\n";
-			print $self->{_links}{'thumbnail_forum'},"\n";
-			print $self->{_links}{'forum'},"\n";
-			print $self->{_links}{'thumbnail website'},"\n";
-			print $self->{_links}{'website'},"\n";
+		$self->{_mech}->get("http://pix.toile-libre.org");
+		$self->{_http_status} = $self->{_mech}->status();
+		unless ( is_success( $self->{_http_status} ) ) {
+			$self->{_links}{'status'} = $self->{_http_status};
+			return %{ $self->{_links} };
 		}
+		
+		$self->{_mech}->request(POST "http://pix.toile-libre.org/?action=upload",
+			Content_Type => 'form-data',
+				Content      => [
+					img =>  [ $upload_filename ],
+				],
+		);
+		
+		$self->{_http_status} = $self->{_mech}->status();
+			
+		if ( is_success( $self->{_http_status} ) ) {
+			my $html_file = $self->{_mech}->content;
+			
+			my @links = $html_file =~ m{ <textarea>(.*)</textarea> }gx;
 
-		$self->{_links}{'status'} = $self->{_http_status};
-		return %{ $self->{_links} };
+			$self->{_links}{'view_image'} = $links[0];
+			$self->{_links}{'direct_link'} = $links[1];
+			$self->{_links}{'thumbnail_forum'} = $links[2];
+			$self->{_links}{'forum'} = $links[3];
+			$self->{_links}{'thumbnail website'} = $links[4];
+			$self->{_links}{'website'} = $links[5];
 
-	} else {
-		$self->{_links}{'status'} = $self->{_http_status};
-		return %{ $self->{_links} };
+			if ( $self->{_debug} ) {
+				print "The following links were returned by http://pix.toile-libre.org:\n";
+				print $self->{_links}{'view_image'},"\n";
+				print $self->{_links}{'direct_link'},"\n";
+				print $self->{_links}{'thumbnail_forum'},"\n";
+				print $self->{_links}{'forum'},"\n";
+				print $self->{_links}{'thumbnail website'},"\n";
+				print $self->{_links}{'website'},"\n";
+			}
+
+			$self->{_links}{'status'} = $self->{_http_status};
+			return %{ $self->{_links} };
+
+		} else {
+			$self->{_links}{'status'} = $self->{_http_status};
+			return %{ $self->{_links} };
+		}
+	
+	};
+	if($@){
+		$self->{_links}{'status'} = $@;
+		return %{ $self->{_links} };		
 	}
 
 }
