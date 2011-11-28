@@ -104,66 +104,66 @@ sub upload {
 
 		$self->{_mech}->get($url);
 		$self->{_http_status} = $self->{_mech}->status();
-		unless ( is_success( $self->{_http_status} ) ) {
-			$self->{_links}{'status'} = $self->{_http_status};
-			return %{ $self->{_links} };
-		}
-			
-		$self->{_mech}->request(POST "http://ompldr.org/upload",
-			Content_Type => 'form-data',
-				Content      => [
-					file1 =>  [ $upload_filename ],
-				],
-		);
-			
-		$self->{_http_status} = $self->{_mech}->status();
-			
+
 		if ( is_success( $self->{_http_status} ) ) {
-			my $html_file = $self->{_mech}->content;
 			
-			#error??
-			if ( $html_file =~ m/You are a trad./i ) {
-				$self->{_links}{'status'} = 'unknown';
-				return %{ $self->{_links} };
+			$self->{_mech}->request(POST "http://ompldr.org/upload",
+				Content_Type => 'form-data',
+					Content      => [
+						file1 =>  [ $upload_filename ],
+					],
+			);
+				
+			$self->{_http_status} = $self->{_mech}->status();
+				
+			if ( is_success( $self->{_http_status} ) ) {
+				my $html_file = $self->{_mech}->content;
+				
+				#error??
+				if ( $html_file =~ m/You are a trad./i ) {
+					$self->{_links}{'status'} = 'unknown';
+					return %{ $self->{_links} };
+				}
+
+				$html_file =~ m/Info.*<a href="(.*)"/;
+				$self->{_links}{'info'} = $url.$1;
+
+				$html_file =~ m/File.*<a href="(.*)"/;
+				$self->{_links}{'file'} = $url.$1;
+
+				$html_file =~ m/&nbsp;.*<a href="(.*)"/;
+				$self->{_links}{'direct'} = $url.$1;
+				
+				$html_file =~ m/Thumbnail.*<a href="(.*)"/;
+				$self->{_links}{'thumb'} = $url.$1;
+
+				$html_file =~ m/BBCode.*<div class=\"code\">(.*)<\/div><\/div>/;
+				$self->{_links}{'bbcode'} = $1;
+
+				if ( $self->{_debug} ) {
+					print "The following links were returned by http://omploader.org:\n";
+					print "Info\n$self->{_links}{'info'}\n";
+					print "File\n$self->{_links}{'file'}\n";
+					print "Direct Link \n$self->{_links}{'direct'}\n";
+					print "Thumbnail \n$self->{_links}{'thumb'}\n";
+					print "BBCode \n$self->{_links}{'bbcode'}\n";
+				}
+
+				$self->{_links}{'status'} = $self->{_http_status};
+			} else {
+				$self->{_links}{'status'} = $self->{_http_status};
 			}
-
-			$html_file =~ m/Info.*<a href="(.*)"/;
-			$self->{_links}{'info'} = $url.$1;
-
-			$html_file =~ m/File.*<a href="(.*)"/;
-			$self->{_links}{'file'} = $url.$1;
-
-			$html_file =~ m/&nbsp;.*<a href="(.*)"/;
-			$self->{_links}{'direct'} = $url.$1;
-			
-			$html_file =~ m/Thumbnail.*<a href="(.*)"/;
-			$self->{_links}{'thumb'} = $url.$1;
-
-			$html_file =~ m/BBCode.*<div class=\"code\">(.*)<\/div><\/div>/;
-			$self->{_links}{'bbcode'} = $1;
-
-			if ( $self->{_debug} ) {
-				print "The following links were returned by http://omploader.org:\n";
-				print "Info\n$self->{_links}{'info'}\n";
-				print "File\n$self->{_links}{'file'}\n";
-				print "Direct Link \n$self->{_links}{'direct'}\n";
-				print "Thumbnail \n$self->{_links}{'thumb'}\n";
-				print "BBCode \n$self->{_links}{'bbcode'}\n";
-			}
-
-			$self->{_links}{'status'} = $self->{_http_status};
-			return %{ $self->{_links} };
 
 		} else {
 			$self->{_links}{'status'} = $self->{_http_status};
-			return %{ $self->{_links} };
 		}
 	
 	};
 	if($@){
-		$self->{_links}{'status'} = $@;
-		return %{ $self->{_links} };		
+		$self->{_links}{'status'} = $@;	
 	}	
+
+	return %{ $self->{_links} };
 
 }
 
