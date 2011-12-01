@@ -72,6 +72,7 @@ sub init {
 	use JSON;
 	use LWP::UserAgent;
 	use HTTP::Request::Common;
+	use HTTP::Cookies;
 	
 	return TRUE;	
 }
@@ -95,6 +96,9 @@ sub upload {
 		'keep_alive' => 10,
 		'env_proxy'  => 1,
 	);
+	
+	my $cookie_jar = HTTP::Cookies->new(autosave => 1, ignore_discard => 1);
+	$browser->cookie_jar($cookie_jar);
 
 	if ( $username ne "" && $password ne "" ) {
 
@@ -130,6 +134,12 @@ sub upload {
 		#CreateGallery
 		my $req_gallery = HTTP::Request->new(POST => "http://minus.com/api/CreateGallery");
 		my $res_gallery = $browser->request($req_gallery);
+		
+		# extract cookie from response header
+		$cookie_jar->extract_cookies($res_gallery);
+		
+		print Dumper $res_gallery;
+		
 		my $gallery_json = $json_coder->decode($res_gallery->content);
 		
 		#upload if everything is fine
@@ -142,9 +152,11 @@ sub upload {
 			my $req_upitem = POST(
 				$url,
 				Content_Type => 'multipart/form-data',
-				Content      => [ file => [$upload_filename] ],
+				Content => [ file => [$upload_filename] ],
+				Cookie => $cookie_jar->as_string,
 			);
-
+			
+			$cookie_jar->add_cookie_header($req_upitem);
 			my $res = $browser->request($req_upitem);
 			#~ print Dumper $res->content;
 
