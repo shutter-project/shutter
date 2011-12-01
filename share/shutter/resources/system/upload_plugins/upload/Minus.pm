@@ -73,6 +73,7 @@ sub init {
 	use LWP::UserAgent;
 	use HTTP::Request::Common;
 	use HTTP::Cookies;
+	use File::Basename qw(basename);
 	
 	return TRUE;	
 }
@@ -96,9 +97,12 @@ sub upload {
 		'keep_alive' => 10,
 		'env_proxy'  => 1,
 	);
+
+	#~ $browser->add_handler("request_send",  sub { shift->dump; return });
+	#~ $browser->add_handler("response_done", sub { shift->dump; return });
 	
+	#create cookie jar
 	my $cookie_jar = HTTP::Cookies->new(autosave => 1, ignore_discard => 1);
-	$browser->cookie_jar($cookie_jar);
 
 	if ( $username ne "" && $password ne "" ) {
 
@@ -138,17 +142,16 @@ sub upload {
 		# extract cookie from response header
 		$cookie_jar->extract_cookies($res_gallery);
 		
-		print Dumper $res_gallery;
-		
 		my $gallery_json = $json_coder->decode($res_gallery->content);
 		
 		#upload if everything is fine
 		if(defined $gallery_json->{'editor_id'}){
 
-			my $url = "http://min.us/api/UploadItem?". "editor_id=" . $gallery_json->{'editor_id'} . "&key=OK&filename=" . $upload_filename;
+			my $url = "http://min.us/api/UploadItem?". "editor_id=" . $gallery_json->{'editor_id'} . "&key=OK&filename=" . basename($upload_filename);
 
 			$HTTP::Request::Common::DYNAMIC_FILE_UPLOAD = 1;
-
+			
+			#construct POST request (don't forget the cookie)
 			my $req_upitem = POST(
 				$url,
 				Content_Type => 'multipart/form-data',
@@ -156,9 +159,8 @@ sub upload {
 				Cookie => $cookie_jar->as_string,
 			);
 			
-			$cookie_jar->add_cookie_header($req_upitem);
+			#execute upload request
 			my $res = $browser->request($req_upitem);
-			#~ print Dumper $res->content;
 
 			if ($res->status_line =~ m/^200/ ) {
 				#construct link
