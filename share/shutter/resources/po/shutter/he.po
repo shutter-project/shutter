@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-20 21:55+0100\n"
-"PO-Revision-Date: 2011-11-16 23:54+0000\n"
+"PO-Revision-Date: 2011-12-01 14:44+0000\n"
 "Last-Translator: Yaron <sh.yaron@gmail.com>\n"
 "Language-Team: Hebrew <he@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-11-21 12:32+0000\n"
-"X-Generator: Launchpad (build 14299)\n"
+"X-Launchpad-Export-Date: 2011-12-01 23:58+0000\n"
+"X-Generator: Launchpad (build 14414)\n"
 
 #: translate_tmp.pl:388
 #: translate_tmp.pl:2574
@@ -206,7 +206,7 @@ msgstr "הגדרת ערך איכות/דחיסה"
 #: translate_tmp.pl:1130
 #: translate_tmp.pl:1131
 msgid "Select a file format"
-msgstr "בחר מבנה קובץ"
+msgstr "נא לבחור בתבנית קובץ"
 
 #: translate_tmp.pl:1140
 msgid "Directory"
@@ -218,7 +218,7 @@ msgstr "תיקייה"
 #: translate_tmp.pl:10393
 #: translate_tmp.pl:10394
 msgid "Choose folder"
-msgstr "בחר תיקייה"
+msgstr "בחירת תיקייה"
 
 #: translate_tmp.pl:1148
 #: translate_tmp.pl:1149
@@ -243,7 +243,7 @@ msgstr "שמירת הקובץ אוטומטית"
 #: translate_tmp.pl:1195
 #: translate_tmp.pl:1204
 msgid "Automatically copy screenshot to clipboard"
-msgstr "העתק את צילום המסך ללוח הגזירים אוטומטית"
+msgstr "העתקת צילום המסך ללוח הגזירים אוטומטית"
 
 #: translate_tmp.pl:1211
 #: translate_tmp.pl:1220
@@ -272,7 +272,7 @@ msgstr[1] "שניות"
 
 #: translate_tmp.pl:1254
 msgid "Capture after a delay of"
-msgstr "לכידה לאחר פרק זמן של"
+msgstr "לכידה לאחר המתנה של"
 
 #: translate_tmp.pl:1268
 #: translate_tmp.pl:1269
@@ -281,7 +281,7 @@ msgstr "לכידה לאחר פרק זמן של"
 #: translate_tmp.pl:1273
 #: translate_tmp.pl:1274
 msgid "Wait n seconds before taking a screenshot"
-msgstr "המתן n שניות לפני הצילום"
+msgstr "יש להמתין n שניות לפני הצילום"
 
 #: translate_tmp.pl:1285
 msgid "Include Cursor"
@@ -291,11 +291,11 @@ msgstr "כולל הסמן"
 #: translate_tmp.pl:1292
 #: translate_tmp.pl:1293
 msgid "Include cursor when taking a screenshot"
-msgstr "כלול את הסמן בעת צילום המסך"
+msgstr "הצגת הסמן בעת צילום המסך"
 
 #: translate_tmp.pl:1348
 msgid "Open with"
-msgstr "פתח באמצעות"
+msgstr "פתיחה באמצעות"
 
 #: translate_tmp.pl:1349
 #: translate_tmp.pl:1350
@@ -317,7 +317,7 @@ msgstr "256 צבעים - (8סיביות) "
 
 #: translate_tmp.pl:1389
 msgid "Reduce colors"
-msgstr "הפחת צבעים"
+msgstr "הפחתת צבעים"
 
 #: translate_tmp.pl:1390
 #: translate_tmp.pl:1391
@@ -336,8 +336,8 @@ msgid ""
 "Generate thumbnail too.\n"
 "select the percentage of the original size for the thumbnail to be"
 msgstr ""
-"יצר את התמונה הממוזערת גם כן.\n"
-"בחר את האחוזים מתוך התמונה המקורית עבור גודל התמונה הממוזערת"
+"יצירת התמונה הממוזערת גם כן.\n"
+"עליך לבחור את האחוזים מתוך התמונה המקורית עבור גודל התמונה הממוזערת"
 
 #: translate_tmp.pl:1445
 msgid "Border"
@@ -371,11 +371,11 @@ msgstr "הוספת אפקט מסגרת לצילום המסך"
 #: translate_tmp.pl:1506
 #: translate_tmp.pl:1514
 msgid "Enable zoom window"
-msgstr "אפשר את חלון התקריב"
+msgstr "הפעלת חלון התקריב"
 
 #: translate_tmp.pl:1523
 msgid "Start with selection size of"
-msgstr "התחלה עם גודל בחירה של"
+msgstr "התחלה עם בחירה בגודל"
 
 #: translate_tmp.pl:1525
 msgid "at"
@@ -392,7 +392,7 @@ msgstr "ב־"
 #: translate_tmp.pl:1563
 #: translate_tmp.pl:1564
 msgid "Start Advanced Selection Tool with a customized selection size"
-msgstr ""
+msgstr "התחלת כלי הבחירה המתקדם עם גודל בחירה מותאם אישית"
 
 #: translate_tmp.pl:1582
 msgid "Show help text"
@@ -421,10 +421,13 @@ msgid ""
 "This method asks the window manager to resize the window. However, the "
 "window manager may not allow the resize."
 msgstr ""
+"פעולה זו משנה את גודל החלון לגודל המוגדר אוטומטית. שיטה זו מבקשת ממנהל "
+"החלונות לשנות את גודל החלון. עם זאת, יתכן שמנהל החלונות לא יאפשר לשנות את "
+"גודל החלון."
 
 #: translate_tmp.pl:1658
 msgid "Force rounded window corners"
-msgstr ""
+msgstr "אילוץ פינות חלון מעוגלות"
 
 #: translate_tmp.pl:1667
 #, perl-format
@@ -441,21 +444,21 @@ msgstr ""
 #: translate_tmp.pl:1681
 #: translate_tmp.pl:1682
 msgid "Select only visible windows"
-msgstr ""
+msgstr "בחירת חלונות גלויים בלבד"
 
 #: translate_tmp.pl:1698
 msgid "Pre-Capture Delay"
-msgstr ""
+msgstr "השהיית טרום צילום"
 
 #: translate_tmp.pl:1712
 #: translate_tmp.pl:1713
 #: translate_tmp.pl:1714
 msgid "Capture menu/tooltip after a delay of n seconds"
-msgstr ""
+msgstr "לכידת תפריט/חלונית עצה לאחר השהיה n שניות"
 
 #: translate_tmp.pl:1725
 msgid "Ignore possibly wrong type hints"
-msgstr ""
+msgstr "התעלמות מרמיזות הקלדה שנראות שגויות"
 
 #: translate_tmp.pl:1726
 msgid ""

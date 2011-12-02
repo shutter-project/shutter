@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-20 21:55+0100\n"
-"PO-Revision-Date: 2011-11-16 23:53+0000\n"
+"PO-Revision-Date: 2011-11-28 10:24+0000\n"
 "Last-Translator: ander goñi <agonirena@gmail.com>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-11-21 12:32+0000\n"
-"X-Generator: Launchpad (build 14299)\n"
+"X-Launchpad-Export-Date: 2011-12-01 23:58+0000\n"
+"X-Generator: Launchpad (build 14414)\n"
 
 #: translate_tmp.pl:388
 #: translate_tmp.pl:2574
@@ -526,18 +526,18 @@ msgstr ""
 #: translate_tmp.pl:1831
 #: translate_tmp.pl:1835
 msgid "Key/Time Created"
-msgstr ""
+msgstr "Sortuta Gakoa/Data"
 
 #: translate_tmp.pl:1832
 msgid "Sort descending by"
-msgstr ""
+msgstr "Ordenatu beherantz hau erabiliz"
 
 #: translate_tmp.pl:1877
 #: translate_tmp.pl:1878
 #: translate_tmp.pl:1879
 #: translate_tmp.pl:1880
 msgid "Configure sort criteria"
-msgstr ""
+msgstr "Konfiguratu orden irizpideak"
 
 #: translate_tmp.pl:1897
 #: translate_tmp.pl:1903
@@ -574,12 +574,12 @@ msgstr "Hautapena"
 
 #: translate_tmp.pl:1930
 msgid "Select Window"
-msgstr ""
+msgstr "Hautatu leihoa"
 
 #: translate_tmp.pl:1931
 #: translate_tmp.pl:8443
 msgid "Active Window"
-msgstr ""
+msgstr "Leiho aktiboa"
 
 #: translate_tmp.pl:1932
 #: translate_tmp.pl:151
@@ -606,7 +606,7 @@ msgstr "Weba"
 #: translate_tmp.pl:1936
 #: translate_tmp.pl:37
 msgid "Redo"
-msgstr ""
+msgstr "Berregin"
 
 #: translate_tmp.pl:1962
 msgid ""
@@ -618,17 +618,17 @@ msgstr ""
 #: translate_tmp.pl:2005
 #: translate_tmp.pl:2061
 msgid "Start Shutter at login"
-msgstr ""
+msgstr "Hasi Shutter saioa hastean"
 
 #: translate_tmp.pl:2006
 #: translate_tmp.pl:2069
 msgid "Hide window on first launch"
-msgstr ""
+msgstr "Ezkutatu leihoa lehenengoz abiaraztean"
 
 #: translate_tmp.pl:2007
 #: translate_tmp.pl:2077
 msgid "Hide notification icon"
-msgstr ""
+msgstr "Ezkutatu jakinarazpen ikonoa"
 
 #: translate_tmp.pl:2009
 #: translate_tmp.pl:2085
@@ -697,7 +697,7 @@ msgstr "Bidali fitxategia zakarrontzira fitxa ixtean"
 #: translate_tmp.pl:2035
 #: translate_tmp.pl:2174
 msgid "Notify when file was deleted from filesystem"
-msgstr ""
+msgstr "Jakinarazi fitxategia fitxategi-sistematik noiz ezabatu zen"
 
 #: translate_tmp.pl:2093
 #: translate_tmp.pl:2094
@@ -894,7 +894,7 @@ msgstr "ez da aurkitu"
 
 #: translate_tmp.pl:4095
 msgid "Error while adding the file monitor."
-msgstr ""
+msgstr "Errorea fitxategi monitorea gehitzean"
 
 #: translate_tmp.pl:4568
 msgid "Settings could not be saved!"
@@ -922,7 +922,7 @@ msgstr ""
 
 #: translate_tmp.pl:4819
 msgid "There was an error configuring the keybindings."
-msgstr ""
+msgstr "Errorea egon da laster-teklak konfiguratzean."
 
 #: translate_tmp.pl:5068
 msgid "Settings could not be restored!"
@@ -962,17 +962,17 @@ msgstr "Saioa ezin izan da berreskuratu!"
 #: translate_tmp.pl:5410
 #, perl-format
 msgid "Error while creating the trashinfo file %s."
-msgstr ""
+msgstr "Errorea egon da %s zakarrontzi informazio fitxategia sortzean."
 
 #: translate_tmp.pl:5421
 #, perl-format
 msgid "Error while moving the file %s to trash."
-msgstr ""
+msgstr "Errorea %s fitxategia zakarrontzira mugitzean."
 
 #: translate_tmp.pl:5427
 #, perl-format
 msgid "Error while removing the file %s from disk."
-msgstr ""
+msgstr "Errorea %s fitxategia diskotik ezabatzean."
 
 #: translate_tmp.pl:5447
 #, perl-format
@@ -1098,7 +1098,7 @@ msgstr "Erabiltzaileak kaptura bertan behera utzi du"
 #: translate_tmp.pl:6709
 #, perl-format
 msgid "%s saved"
-msgstr ""
+msgstr "%s gorde da"
 
 #: translate_tmp.pl:6698
 #: translate_tmp.pl:6700
@@ -1119,7 +1119,7 @@ msgstr ""
 #: translate_tmp.pl:6971
 #, perl-format
 msgid "%s opened with %s"
-msgstr ""
+msgstr "%s ireki da %s-(r)ekin"
 
 #: translate_tmp.pl:6995
 msgid "Opened all files with"
@@ -1191,7 +1191,7 @@ msgstr "gordeta"
 #: translate_tmp.pl:7735
 #, perl-format
 msgid "Image %s was deleted from filesystem"
-msgstr ""
+msgstr "%s iruda fitxategi sistematik ezabatu da"
 
 #: translate_tmp.pl:7767
 #: translate_tmp.pl:62
@@ -1215,15 +1215,17 @@ msgstr ""
 
 #: translate_tmp.pl:8163
 msgid "Updating upload plugin information"
-msgstr ""
+msgstr "Igotzeko pluginaren informazioa eguneratzen"
 
 #: translate_tmp.pl:8168
 msgid "Please wait while Shutter updates the upload plugin information"
 msgstr ""
+"Itxoin mesedez Shutterrek igotzeko pluginaren informazioa eguneratzen duen "
+"bitartean"
 
 #: translate_tmp.pl:8375
 msgid "Capture All Workspaces"
-msgstr ""
+msgstr "Kapturatu langune guztiak"
 
 #: translate_tmp.pl:8388
 msgid "Limit to current monitor"
@@ -1250,7 +1252,7 @@ msgstr[1] ""
 
 #: translate_tmp.pl:8447
 msgid "Capture the last active window"
-msgstr ""
+msgstr "Kapturatu azken leiho aktiboa"
 
 #: translate_tmp.pl:8486
 #: translate_tmp.pl:403
@@ -1260,11 +1262,11 @@ msgstr "_Hautapena"
 #: translate_tmp.pl:8512
 #: translate_tmp.pl:429
 msgid "_Desktop"
-msgstr ""
+msgstr "_Mahaigaina"
 
 #: translate_tmp.pl:8546
 msgid "Window _under Cursor"
-msgstr ""
+msgstr "Kursore _azpiko leihoa"
 
 #: translate_tmp.pl:8562
 #: translate_tmp.pl:459
@@ -1329,27 +1331,27 @@ msgstr ""
 
 #: translate_tmp.pl:8855
 msgid "Wait indefinitely"
-msgstr ""
+msgstr "Itxaroten gelditu"
 
 #: translate_tmp.pl:8856
 #: translate_tmp.pl:8857
 #, perl-format
 msgid "Wait max %d second"
 msgid_plural "Wait max %d seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Itxaron gehienez %d segundu"
+msgstr[1] "Itxaron gehienez %d segundu"
 
 #: translate_tmp.pl:8858
 #: translate_tmp.pl:8859
 #, perl-format
 msgid "Wait max %d minute"
 msgid_plural "Wait max %d minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Itxaron gehienez %d segundu"
+msgstr[1] "Itxaron gehienez %d segundu"
 
 #: translate_tmp.pl:8867
 msgid "Shutter will wait indefinitely for the screenshot to capture"
-msgstr ""
+msgstr "Shutter itxaroten geldituko da pantaila-argazkia kapturatzeko"
 
 #: translate_tmp.pl:8868
 #: translate_tmp.pl:8869
@@ -1381,15 +1383,15 @@ msgstr "Ostalaria"
 
 #: translate_tmp.pl:9081
 msgid "Anonymous Upload"
-msgstr ""
+msgstr "Karga anonimoa"
 
 #: translate_tmp.pl:9088
 msgid "Authorized Upload"
-msgstr ""
+msgstr "Karga Baimendua"
 
 #: translate_tmp.pl:9095
 msgid "OAuth Upload"
-msgstr ""
+msgstr "OAuth karga"
 
 #: translate_tmp.pl:9106
 #: translate_tmp.pl:9167
@@ -1420,7 +1422,7 @@ msgstr "Bidea"
 #: translate_tmp.pl:9232
 #: translate_tmp.pl:10532
 msgid "Ubuntu One"
-msgstr ""
+msgstr "Ubuntu One"
 
 #: translate_tmp.pl:9241
 msgid "Successfully published"
@@ -1513,7 +1515,7 @@ msgstr ""
 #: translate_tmp.pl:1620
 #, perl-format
 msgid "An image named %s already exists. Do you want to replace it?"
-msgstr ""
+msgstr "%s izena duen irudia badago. Ordeztu nahi duzu?"
 
 #: translate_tmp.pl:9662
 msgid "Invalid Filename"
@@ -1540,7 +1542,7 @@ msgstr "Hautatu plugin bat"
 
 #: translate_tmp.pl:10094
 msgid "_Run"
-msgstr ""
+msgstr "_Abiarazi"
 
 #: translate_tmp.pl:10144
 msgid "Plugin"
@@ -1557,7 +1559,7 @@ msgstr "Igo / Esportatu"
 #: translate_tmp.pl:10287
 #: translate_tmp.pl:10541
 msgid "_Upload"
-msgstr ""
+msgstr "_Igo"
 
 #: translate_tmp.pl:10309
 msgid "Guest"
@@ -1565,7 +1567,7 @@ msgstr "Gonbidatua"
 
 #: translate_tmp.pl:10314
 msgid "OAuth"
-msgstr ""
+msgstr "OAuth"
 
 #: translate_tmp.pl:10349
 msgid ""
@@ -1587,7 +1589,7 @@ msgstr "Hautatu kontua"
 
 #: translate_tmp.pl:10386
 msgid "Status"
-msgstr ""
+msgstr "Egoera"
 
 #: translate_tmp.pl:10529
 msgid "Public hosting"
@@ -1599,16 +1601,16 @@ msgstr "Lekuak"
 
 #: translate_tmp.pl:10544
 msgid "_Export"
-msgstr ""
+msgstr "_Esportatu"
 
 #: translate_tmp.pl:10547
 msgid "_Publish"
-msgstr ""
+msgstr "_Publikatu"
 
 #: translate_tmp.pl:10574
 #: translate_tmp.pl:164
 msgid "Disconnected"
-msgstr ""
+msgstr "Deskonektatuta"
 
 #: translate_tmp.pl:10595
 #: translate_tmp.pl:10633
@@ -1640,35 +1642,41 @@ msgid ""
 "Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
 "folder."
 msgstr ""
+"%s karpeta ez dago Ubuntu Onekin sinkronizatua. Hautatu mesedez beste "
+"karpeta bat."
 
 #: translate_tmp.pl:10663
 msgid "Ubuntu One service cannot be found."
-msgstr ""
+msgstr "Ezin izan da Ubuntu One zerbitzua aurkitu"
 
 #: translate_tmp.pl:10670
 msgid ""
 "/publicfiles is not available. Your Ubuntu One installation seems to be out "
 "of date."
 msgstr ""
+"/publicfiles ez dago eskuragarri. Zure Ubuntu One instalazioa zaharkitua "
+"dagoela dirudi."
 
 #: translate_tmp.pl:10677
 msgid ""
 "Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature"
 msgstr ""
+"Net::DBus::GLib/libnet-dbus-glib-perl instalatu behar da funtzionalitate "
+"honetarako"
 
 #: translate_tmp.pl:10740
 #, perl-format
 msgid "Loading module %s"
-msgstr ""
+msgstr "%s modulua kargatzen"
 
 #: translate_tmp.pl:10753
 #, perl-format
 msgid "Error while executing upload plugin %s."
-msgstr ""
+msgstr "Errorea karga plugina abiaraztean %s."
 
 #: translate_tmp.pl:10754
 msgid "There was an error executing the upload plugin."
-msgstr ""
+msgstr "Errorea egon da karga plugina abiaraztean."
 
 #: translate_tmp.pl:10791
 #: translate_tmp.pl:10862
@@ -1681,14 +1689,14 @@ msgstr "igota"
 #: translate_tmp.pl:10969
 #: translate_tmp.pl:11045
 msgid "Successfully uploaded"
-msgstr ""
+msgstr "Ongi kargatu da"
 
 #: translate_tmp.pl:10866
 #: translate_tmp.pl:10969
 #: translate_tmp.pl:11045
 #, perl-format
 msgid "The file %s was successfully uploaded."
-msgstr ""
+msgstr "%s fitxategia ongi kargatu da."
 
 #: translate_tmp.pl:10884
 #: translate_tmp.pl:11017
@@ -1709,7 +1717,7 @@ msgstr "Saltatu"
 #: translate_tmp.pl:10886
 #: translate_tmp.pl:11177
 msgid "Retry"
-msgstr ""
+msgstr "Berriz saiatu"
 
 #: translate_tmp.pl:10961
 #: translate_tmp.pl:11037
@@ -1719,23 +1727,23 @@ msgstr "esportatua"
 #: translate_tmp.pl:10964
 #: translate_tmp.pl:11040
 msgid "Successfully exported"
-msgstr ""
+msgstr "Ongi esportatu da"
 
 #: translate_tmp.pl:10964
 #: translate_tmp.pl:11040
 #, perl-format
 msgid "The file %s was successfully exported."
-msgstr ""
+msgstr "%s fitxategia ongi esportatu da."
 
 #: translate_tmp.pl:10974
 #: translate_tmp.pl:11050
 #, perl-format
 msgid "Publishing %s..."
-msgstr ""
+msgstr "%s argitaratzen..."
 
 #: translate_tmp.pl:11135
 msgid "_Retry"
-msgstr ""
+msgstr "_Saiatu berriro"
 
 #: translate_tmp.pl:11139
 #, perl-format
@@ -1754,24 +1762,24 @@ msgstr "Mesedez, egiaztatu zure kredentzialak eta saiatu berriz"
 
 #: translate_tmp.pl:11163
 msgid "Error while login"
-msgstr ""
+msgstr "Errorea saioa hastean"
 
 #: translate_tmp.pl:11167
 msgid "Maximum filesize reached"
-msgstr ""
+msgstr "Gehienezko fitxategi tamaina gainditu da"
 
 #: translate_tmp.pl:11168
 msgid "Error while uploading"
-msgstr ""
+msgstr "Errorea kargatzean"
 
 #: translate_tmp.pl:11171
 #, perl-format
 msgid "Maximum filesize: %s"
-msgstr ""
+msgstr "Gehienezko fitxategi tamaina: %s"
 
 #: translate_tmp.pl:11176
 msgid "Error while connecting"
-msgstr ""
+msgstr "Errorea konektatzerakoan"
 
 #: translate_tmp.pl:11192
 msgid "Save current preferences as new profile"
@@ -1799,148 +1807,148 @@ msgstr ""
 #: translate_tmp.pl:34
 #: translate_tmp.pl:5864
 msgid "_File"
-msgstr ""
+msgstr "_Fitxategia"
 
 #: translate_tmp.pl:39
 #: translate_tmp.pl:5865
 msgid "_Edit"
-msgstr ""
+msgstr "_Editatu"
 
 #: translate_tmp.pl:44
 #: translate_tmp.pl:5867
 msgid "_View"
-msgstr ""
+msgstr "_Ikusi"
 
 #: translate_tmp.pl:49
 msgid "_Screenshot"
-msgstr ""
+msgstr "Pantaila-argazkia"
 
 #: translate_tmp.pl:54
 msgid "_Go"
-msgstr ""
+msgstr "_Joan"
 
 #: translate_tmp.pl:59
 msgid "_Help"
-msgstr ""
+msgstr "_Laguntza"
 
 #: translate_tmp.pl:87
 msgid "_Open..."
-msgstr ""
+msgstr "_Ireki"
 
 #: translate_tmp.pl:92
 msgid "Recent _Files"
-msgstr ""
+msgstr "Azken _Fitxategiak"
 
 #: translate_tmp.pl:103
 msgid "Save _As..."
-msgstr ""
+msgstr "Gorde _Honela..."
 
 #: translate_tmp.pl:114
 #: translate_tmp.pl:5922
 msgid "E_xport to PDF..."
-msgstr ""
+msgstr "PDF-ra esportatu"
 
 #: translate_tmp.pl:119
 #: translate_tmp.pl:5925
 msgid "Export to Post_Script..."
-msgstr ""
+msgstr "Post_Script-era esportatu"
 
 #: translate_tmp.pl:129
 msgid "Page Set_up"
-msgstr ""
+msgstr "Orriaren Konfig_urazioa"
 
 #: translate_tmp.pl:136
 msgid "_Print..."
-msgstr ""
+msgstr "In_primatu..."
 
 #: translate_tmp.pl:144
 msgid "Send by E_mail..."
-msgstr ""
+msgstr "Bidali eposta bidez..."
 
 #: translate_tmp.pl:159
 msgid "C_lose all"
-msgstr ""
+msgstr "Dena _itxi"
 
 #: translate_tmp.pl:204
 #: translate_tmp.pl:705
 msgid "Copy _Filename"
-msgstr ""
+msgstr "Kopiatu _Fitxategi Izena"
 
 #: translate_tmp.pl:246
 msgid "Show Navigation _Toolbar"
-msgstr ""
+msgstr "Erakutsi Nabegazio Tresna-_barra"
 
 #: translate_tmp.pl:328
 msgid "Get Help Online..."
-msgstr ""
+msgstr "Lortu laguntza online..."
 
 #: translate_tmp.pl:343
 msgid "Translate this Application..."
-msgstr ""
+msgstr "Aplikazio hau itzuli..."
 
 #: translate_tmp.pl:358
 msgid "Report a Problem"
-msgstr ""
+msgstr "Arazo Baten Berri Eman"
 
 #: translate_tmp.pl:446
 msgid "_Active Window"
-msgstr ""
+msgstr "Leiho _Aktiboa"
 
 #: translate_tmp.pl:538
 msgid "Import from clip_board"
-msgstr ""
+msgstr "Ar_belatik inportatu"
 
 #: translate_tmp.pl:558
 #: translate_tmp.pl:655
 msgid "Open wit_h"
-msgstr ""
+msgstr "Ireki _honekin"
 
 #: translate_tmp.pl:565
 #: translate_tmp.pl:662
 msgid "Show in _folder"
-msgstr ""
+msgstr "Karpetan erakutsi"
 
 #: translate_tmp.pl:572
 #: translate_tmp.pl:669
 msgid "_Rename..."
-msgstr ""
+msgstr "Izena _aldatu..."
 
 #: translate_tmp.pl:581
 #: translate_tmp.pl:677
 msgid "_Send To..."
-msgstr ""
+msgstr "_Bidali honi..."
 
 #: translate_tmp.pl:590
 #: translate_tmp.pl:685
 msgid "E_xport..."
-msgstr ""
+msgstr "E_sportatu..."
 
 #: translate_tmp.pl:597
 #: translate_tmp.pl:691
 msgid "Public URLs"
-msgstr ""
+msgstr "URL publikoak"
 
 #: translate_tmp.pl:605
 #: translate_tmp.pl:718
 msgid "_Edit..."
-msgstr ""
+msgstr "_Editatu..."
 
 #: translate_tmp.pl:622
 msgid "Run a _plugin..."
-msgstr ""
+msgstr "Plugin bat _abiarazi"
 
 #: translate_tmp.pl:631
 #: translate_tmp.pl:742
 msgid "Redo _this screenshot"
-msgstr ""
+msgstr "Pantaila-argazki hau berriz egin"
 
 #: translate_tmp.pl:734
 msgid "Run a _Plugin..."
-msgstr ""
+msgstr "Plugin bat _abiarazi"
 
 #: translate_tmp.pl:40
 msgid "Redo last screenshot"
-msgstr ""
+msgstr "Azken pantaila-argazkia berriz egin"
 
 #: translate_tmp.pl:70
 msgid ""
