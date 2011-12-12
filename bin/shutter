@@ -101,9 +101,9 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1184';
+use constant SHUTTER_REV		=> 'Rev.1185';
 use constant SHUTTER_NAME		=> 'Shutter';
-use constant SHUTTER_VERSION	=> '0.88.1';
+use constant SHUTTER_VERSION	=> '0.88.2';
 
 #--------------------------------------
 
@@ -231,6 +231,7 @@ my $app = Gtk2::UniqueApp->new(
 		fopen      => 11,
 		exitac     => 12,
 		exfilename => 13,
+		nosession  => 14,
 );
 
 #load command line arguments
@@ -245,6 +246,7 @@ if ($app->is_running) {
 	my $profile = $sc->get_profile_to_start_with;
 	my $exitac = $sc->get_exit_after_capture;
 	my $exfilename = $sc->get_export_filename;
+	my $nosession = $sc->get_no_session;
 	
 	my $cmdid = undef;
 	if(defined $cmdname){
@@ -282,6 +284,11 @@ if ($app->is_running) {
 	#set export_filename (parameter -o) in running application
 	if(defined $exfilename && $exfilename){
 		$app->send_message( 13, text => $shf->utf8_decode ($exfilename) );
+	}
+
+	#set nosession flag in running application
+	if(defined $nosession && $nosession){
+		$app->send_message( 14, text => '' );
 	}
 	
 	#send $cmdid
@@ -382,6 +389,8 @@ if ($app->is_running) {
 				$cmd = 'exitac';
 			}elsif($cmd == 13){
 				$cmd = 'exfilename';
+			}elsif($cmd == 14){
+				$cmd = 'nosession';
 			}else{
 				$cmd = 'fopen';				
 			}
@@ -397,6 +406,9 @@ if ($app->is_running) {
 			#set export filename
 			}elsif($cmd eq 'exfilename'){
 				$sc->set_export_filename($message->get_text);
+			#set nosession flag
+			}elsif($cmd eq 'nosession'){
+				$sc->set_no_session($message->get_text);
 			#open new files
 			}elsif($cmd eq 'fopen'){
 				my @init_files = $message->get_uris;
@@ -6721,16 +6733,20 @@ if ($app->is_running) {
 			
 			my $new_key_screenshot = undef;
 			my $new_key_screenshot_thumbnail = undef;
-			#Dont add it to session if it already exists
-			unless(&fct_is_uri_in_session($uri, TRUE)){
 			
-				#integrate it into the notebook
-				$new_key_screenshot = &fct_integrate_screenshot_in_notebook( $uri, $screenshot, $screenshooter );
+			#Dont add it to session if no_session-parameter is set
+			unless($sc->get_no_session){
+				#Dont add it to session if it already exists
+				unless(&fct_is_uri_in_session($uri, TRUE)){
+				
+					#integrate it into the notebook
+					$new_key_screenshot = &fct_integrate_screenshot_in_notebook( $uri, $screenshot, $screenshooter );
 
-				#thumbnail as well if present
-				$new_key_screenshot_thumbnail = &fct_integrate_screenshot_in_notebook( Gnome2::VFS::URI->new($screenshot_thumbnail_name), $screenshot_thumbnail )
-					if $thumbnail_active->get_active;
-			
+					#thumbnail as well if present
+					$new_key_screenshot_thumbnail = &fct_integrate_screenshot_in_notebook( Gnome2::VFS::URI->new($screenshot_thumbnail_name), $screenshot_thumbnail )
+						if $thumbnail_active->get_active;
+				
+				}
 			}
 			
 			#in some cases it is not possible to add it to the session
@@ -11553,6 +11569,10 @@ Disables systray icon.
 =item B<-e, --exit_after_capture>
 
 Exit after the first capture has been made. This is useful when using Shutter in scripts.
+
+=item B<-n, --no_session>
+
+Do not add the screenshot to the session. This is useful when using Shutter in scripts.
 
 =back
 

@@ -48,15 +48,16 @@ sub new {
 	my $self = { _shutter_root => shift, _mainwindow => shift, _appname => shift, _version => shift, _rev => shift, _pid => shift };
 
 	#vars
-	$self->{_debug_cparam}           	= FALSE;
-	$self->{_clear_cache}            	= FALSE;
-	$self->{_min_cparam}             	= FALSE;
-	$self->{_disable_systray_cparam} 	= FALSE;
+	$self->{_debug_cparam}              = FALSE;
+	$self->{_clear_cache}               = FALSE;
+	$self->{_min_cparam}                = FALSE;
+	$self->{_disable_systray_cparam}    = FALSE;
 	$self->{_exit_after_capture_cparam} = FALSE;
-	$self->{_start_with}             	= undef;
-	$self->{_start_with_extra}			= undef;
-	$self->{_profile_to_start_with}  	= undef;
-	$self->{_export_filename}			= undef;
+	$self->{_no_session_cparam}         = FALSE;
+	$self->{_start_with}                = undef;
+	$self->{_start_with_extra}          = undef;
+	$self->{_profile_to_start_with}     = undef;
+	$self->{_export_filename}           = undef;
 
 	#Set LC_NUMERIC to C to prevent decimal commas (or anything else)
 	setlocale(LC_NUMERIC, "C");	
@@ -344,6 +345,19 @@ sub set_exit_after_capture {
 		$self->{_exit_after_capture_cparam} = shift;
 	}
 	return $self->{_exit_after_capture_cparam};
+}
+
+sub get_no_session {
+	my $self = shift;
+	return $self->{_no_session_cparam};
+}
+
+sub set_no_session {
+	my $self = shift;
+	if (@_) {
+		$self->{_no_session_cparam} = shift;
+	}
+	return $self->{_no_session_cparam};
 }
 
 sub get_start_with {

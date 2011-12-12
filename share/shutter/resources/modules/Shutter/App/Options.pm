@@ -68,6 +68,7 @@ sub get_options {
 		'min_at_startup' => sub{ $self->{_sc}->set_min(TRUE); },
 		'disable_systray' => sub{ $self->{_sc}->set_disable_systray(TRUE); },
 		'e|exit_after_capture' => sub{ $self->{_sc}->set_exit_after_capture(TRUE); },
+		'n|no_session' => sub{ $self->{_sc}->set_no_session(TRUE); },
 	);
 
 	#unknown value are passed through in @ARGV - might be filenames
