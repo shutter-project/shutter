@@ -81,25 +81,19 @@ sub new {
 			$self->{_highlighter}->set_colormap($self->{_main_gtk_window}->get_screen->get_rgba_colormap);
 		}
 
-		#~ $self->{_highlighter}->set_type_hint('splashscreen');
-		#~ $self->{_highlighter}->set_has_frame(FALSE);
-		#~ $self->{_highlighter}->can_focus(TRUE);
-		#~ $self->{_highlighter}->set_accept_focus(TRUE);
-		#~ $self->{_highlighter}->set_modal(TRUE);
-		
-	    $self->{_highlighter}->set_app_paintable(TRUE);
-	    $self->{_highlighter}->set_decorated(FALSE);
+		$self->{_highlighter}->set_app_paintable(TRUE);
+		$self->{_highlighter}->set_decorated(FALSE);
 		$self->{_highlighter}->set_skip_taskbar_hint(TRUE);
 		$self->{_highlighter}->set_skip_pager_hint(TRUE);	    
-	    $self->{_highlighter}->set_keep_above(TRUE);
+		$self->{_highlighter}->set_keep_above(TRUE);
 		$self->{_highlighter}->set_accept_focus(FALSE);
 
 		#obtain current colors and font_desc from the main window
-	    my $style 		= $self->{_main_gtk_window}->get_style;
-		my $sel_bg 		= $style->bg('selected');
-		my $sel_tx 		= $style->text('selected');
-		my $font_fam 	= $style->font_desc->get_family;
-		my $font_size 	= $style->font_desc->get_size / Gtk2::Pango->scale;
+		my $style = $self->{_main_gtk_window}->get_style;
+		my $sel_bg = $style->bg('selected');
+		my $sel_tx = $style->text('selected');
+		my $font_fam = $style->font_desc->get_family;
+		my $font_size = $style->font_desc->get_size / Gtk2::Pango->scale;
 		
 		#get current monitor
 		my $mon = $self->get_current_monitor;
@@ -291,13 +285,13 @@ sub find_wm_window {
 }
 
 sub get_shape {
-	my $self 		= shift;
-	my $xid 		= shift;
-	my $orig 		= shift;
-	my $l_cropped 	= shift;
-	my $r_cropped 	= shift;
-	my $t_cropped 	= shift;
-	my $b_cropped 	= shift;
+	my $self        = shift;
+	my $xid         = shift;
+	my $orig        = shift;
+	my $l_cropped   = shift;
+	my $r_cropped   = shift;
+	my $t_cropped   = shift;
+	my $b_cropped   = shift;
 
 	print "$l_cropped, $r_cropped, $t_cropped, $b_cropped cropped\n" if $self->{_sc}->get_debug;
 
@@ -646,13 +640,9 @@ sub find_active_window {
 	my $gdk_window = $self->{_gdk_screen}->get_active_window;
 
 	if ( defined $gdk_window ) {
-
 		my $wnck_window = Gnome2::Wnck::Window->get( $gdk_window->get_xid );
-		
 		if ( defined $wnck_window ) {
-						
 			return ($wnck_window, $gdk_window);
-			
 		}		  				
 	}
 	
@@ -718,9 +708,9 @@ sub find_region_for_window_type {
 			$self->{_c}{'cw'}{'is_parent'} 	= FALSE;
 
 			#~ print $self->{_c}{'cw'}{'x'}, " - ",			 			
-				  #~ $self->{_c}{'cw'}{'y'}, " - ", 			
-				  #~ $self->{_c}{'cw'}{'width'}, " - ", 		
-				  #~ $self->{_c}{'cw'}{'height'}, " \n "; 				
+			#~ $self->{_c}{'cw'}{'y'}, " - ", 			
+			#~ $self->{_c}{'cw'}{'width'}, " - ", 		
+			#~ $self->{_c}{'cw'}{'height'}, " \n "; 				
 		}
 	}
 	
@@ -728,14 +718,14 @@ sub find_region_for_window_type {
 }
 
 sub select_window {
-	my $self 				= shift;
-	my $event				= shift;
-	my $active_workspace	= shift;
-	
+	my $self = shift;
+	my $event = shift;
+	my $active_workspace = shift;
+
 	#select child window
-	my $depth				= shift; 
-	my $limit				= shift;
-	my $type_hint			= shift;
+	my $depth = shift; 
+	my $limit = shift;
+	my $type_hint = shift;
 
 	#root window size is minimum at startup
 	$self->{_min_size} = $self->{_root}->{w} * $self->{_root}->{h};
@@ -795,14 +785,8 @@ sub window {
 		my $grab_counter = 0;
 		while ( !Gtk2::Gdk->pointer_is_grabbed && $grab_counter < 100 ) {
 			Gtk2::Gdk->pointer_grab(
-				$self->{_root},
-				0,
-				[   qw/
-						pointer-motion-mask
-						button-press-mask
-						button-release-mask/
-				],
-				undef,
+				$self->{_root}, FALSE,
+				[qw/pointer-motion-mask button-press-mask button-release-mask/], undef,
 				Gtk2::Gdk::Cursor->new('GDK_HAND2'),
 				Gtk2->get_current_event_time
 			);
@@ -813,13 +797,13 @@ sub window {
 	}
 
 	#init
-	$self->{_c} 					= ();
-	$self->{_c}{'ws'} 				= undef;	
-	$self->{_c}{'ws_init'} 			= FALSE;	
+	$self->{_c} = ();
+	$self->{_c}{'ws'} = undef;	
+	$self->{_c}{'ws_init'} = FALSE;	
 	$self->{_c}{'lw'}{'gdk_window'} = 0;
 
 	#root window size is minimum at startup
-	$self->{_min_size} 				= $self->{_root}->{w} * $self->{_root}->{h};
+	$self->{_min_size}              = $self->{_root}->{w} * $self->{_root}->{h};
 	$self->{_c}{'cw'}{'gdk_window'} = $self->{_root};
 	$self->{_c}{'cw'}{'x'}          = $self->{_root}->{x};
 	$self->{_c}{'cw'}{'y'}          = $self->{_root}->{y};
@@ -1025,11 +1009,11 @@ sub window {
 			
 				$self->{_c}{'cw'}{'window'}     = $wnck_window;
 				$self->{_c}{'cw'}{'gdk_window'} = $gdk_window;
-				$self->{_c}{'cw'}{'x'} 			= $xp;
-				$self->{_c}{'cw'}{'y'} 			= $yp;
-				$self->{_c}{'cw'}{'width'} 		= $wp;
-				$self->{_c}{'cw'}{'height'} 	= $hp;
-				$self->{_c}{'cw'}{'is_parent'} 	= TRUE;
+				$self->{_c}{'cw'}{'x'}          = $xp;
+				$self->{_c}{'cw'}{'y'}          = $yp;
+				$self->{_c}{'cw'}{'width'}      = $wp;
+				$self->{_c}{'cw'}{'height'}     = $hp;
+				$self->{_c}{'cw'}{'is_parent'}  = TRUE;
 			
 			}
 
