@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1187';
+use constant SHUTTER_REV		=> 'Rev.1188';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88.2';
 
@@ -10925,6 +10925,9 @@ if ($app->is_running) {
 								$ftp_password_entry_dlg->get_text );
 
 							if ($upload_response[0]) {
+								
+								#dialogs (main window != parent window)
+								my $sd = Shutter::App::SimpleDialogs->new;
 
 								#we already get translated error messaged back
 								my $response = $sd->dlg_error_message( 
@@ -10968,6 +10971,9 @@ if ($app->is_running) {
 							}
 						
 						} else {
+							
+							#dialogs (main window != parent window)
+							my $sd = Shutter::App::SimpleDialogs->new;
 
 							#we already get translated error messaged back
 							my $response = $sd->dlg_error_message( 
