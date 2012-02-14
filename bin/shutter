@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1189';
+use constant SHUTTER_REV		=> 'Rev.1190';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88.2';
 
@@ -2794,14 +2794,20 @@ if ($app->is_running) {
 
 	#--------------------------------------
 
-	#populate quick selector as well
-	#restore session
-	#clean 'unsaved' files directory
+	#populate quick selector (profiles)
 	#--------------------------------------
 	&fct_update_profile_selectors($combobox_settings_profiles, \@current_profiles);	
+	
+	#restore session
+	#clean 'unsaved' files directory
+	#save settings directly when cache was cleared (see Bug #909195)
+	#--------------------------------------
 	Glib::Idle->add(sub{
 		&fct_load_session;
 		&fct_init_unsaved_files;
+		if($sc->get_clear_cache){
+			&fct_post_settings();
+		}
 		return FALSE;
 	});
 
@@ -3788,8 +3794,10 @@ if ($app->is_running) {
 		if ( $current_profile_indx != $combobox_settings_profiles->get_active ) {
 			$combobox_settings_profiles->set_active($current_profile_indx);
 		}
-
-		$settings_dialog->hide();
+		
+		if(defined $settings_dialog && $settings_dialog){
+			$settings_dialog->hide();
+		}
 		
 		#save directly
 		&fct_save_settings(undef);
