@@ -3901,6 +3901,47 @@ sub ret_item_menu {
 
 	$menu_item->append( Gtk2::SeparatorMenuItem->new );
 
+	#copy item
+	my $copy_item = Gtk2::ImageMenuItem->new_from_stock('gtk-copy');
+
+	$copy_item->signal_connect(
+		'activate' => sub {
+			#clear clipboard			
+			$self->{_clipboard}->set_text("");
+			$self->{_cut} = FALSE; 
+			$self->{_current_copy_item} = $self->{_current_item}; 
+		}
+	);
+
+	$menu_item->append($copy_item);
+
+	#cut item
+	my $cut_item = Gtk2::ImageMenuItem->new_from_stock('gtk-cut');
+
+	$cut_item->signal_connect(
+		'activate' => sub {
+			#clear clipboard
+			$self->{_clipboard}->set_text("");
+			$self->{_cut} = TRUE; 
+			$self->{_current_copy_item} = $self->{_current_item}; 
+			$self->clear_item_from_canvas( $self->{_current_copy_item} ); 
+		}
+	);
+
+	$menu_item->append($cut_item);
+
+	#paste item
+	my $paste_item = Gtk2::ImageMenuItem->new_from_stock('gtk-paste');
+
+	$paste_item->signal_connect(
+		'activate' => sub {
+			$self->paste_item($self->{_current_copy_item}, $self->{_cut} ); 
+			$self->{_cut} = FALSE; 
+		}
+	);
+
+	$menu_item->append($paste_item);
+
 	#delete item
 	my $remove_item = Gtk2::ImageMenuItem->new_from_stock('gtk-delete');
 
