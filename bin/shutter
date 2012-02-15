@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1190';
+use constant SHUTTER_REV		=> 'Rev.1191';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88.2';
 
@@ -1155,16 +1155,19 @@ if ($app->is_running) {
 	my ( $int_png, $int_jpeg, $int_bmp ) = ( -1, -1, -1 );
 	my $format_counter = 0;
 
-	foreach my $format ( Gtk2::Gdk::Pixbuf->get_formats ) {
-		if (   $format->{name} eq "jpeg"
-			|| $format->{name} eq "png"
-			|| $format->{name} eq "bmp" )
-		{
-			$combobox_type->append_text( $format->{name} . " - " . $format->{description} );
+	foreach my $format ( Gtk2::Gdk::Pixbuf->get_formats ) {	
+		if ($format->{name} eq "jpeg" || $format->{name} eq "png" || $format->{name} eq "bmp" ) {
+			
+			#we want jpg not jpeg
+			if ( $format->{name} eq "jpeg" || $format->{name} eq "jpg" ) {
+				$combobox_type->append_text( "jpg" . " - " . $format->{description} );
+			} else {
+				$combobox_type->append_text( $format->{name} . " - " . $format->{description} );			
+			}
 			
 			#a little ugly here, maybe the values are in alternative order on several machine...
 			#just remember the number when appending, so we can set png as default for example
-			if ( $format->{name} eq "jpeg" ) {
+			if ( $format->{name} eq "jpeg" || $format->{name} eq "jpg" ) {
 				$int_jpeg = $format_counter;
 			} elsif ( $format->{name} eq "png" ) {
 				$int_png = $format_counter;
@@ -1183,7 +1186,7 @@ if ($app->is_running) {
 		
 		#migration from gscrot to shutter
 		#maybe we can drop this in future releases
-		# 0 := jpeg
+		# 0 := jpeg (jpg)
 		# 1 := png
 		unless(defined $settings_xml->{'general'}->{'app_version'}){
 			if($settings_xml->{'general'}->{'filetype'} == 0){
@@ -2967,6 +2970,8 @@ if ($app->is_running) {
 			}
 			if ( $combobox_type->get_active_text =~ /jpeg/ ) {
 				$settings->set_jpg_quality($scale->get_value);
+			} elsif ( $combobox_type->get_active_text =~ /jpg/ ) {
+				$settings->set_jpg_quality($scale->get_value);
 			} elsif ( $combobox_type->get_active_text =~ /png/ ) {
 				$settings->set_png_quality($scale->get_value);
 			} else {
@@ -2991,6 +2996,12 @@ if ($app->is_running) {
 		#filetype changed
 		if ( $data eq "type_changed" ) {
 			if ( $combobox_type->get_active_text =~ /jpeg/ ) {
+				$scale->set_sensitive(TRUE);
+				$scale_label->set_sensitive(TRUE);
+				$scale->set_range( 1, 100 );
+				$scale->set_value(90);
+				$scale_label->set_text( $d->get("Quality") . ":" );
+			} elsif ( $combobox_type->get_active_text =~ /jpg/ ) {
 				$scale->set_sensitive(TRUE);
 				$scale_label->set_sensitive(TRUE);
 				$scale->set_range( 1, 100 );
@@ -9968,9 +9979,13 @@ if ($app->is_running) {
 				
 				#we have a requested filetype - nothing else will be offered
 				next if defined $rfiletype && $format->{name} ne $rfiletype;
-				
-				#add all known formats to the dialog
-				$combobox_save_as_type->insert_text( $counter, $format->{name} . " - " . $format->{description} );
+
+				#we want jpg not jpeg
+				if ( $format->{name} eq "jpeg" || $format->{name} eq "jpg" ) {
+					$combobox_save_as_type->insert_text( $counter, "jpg" . " - " . $format->{description} );
+				} else {
+					$combobox_save_as_type->insert_text( $counter, $format->{name} . " - " . $format->{description} );			
+				}
 				
 				#set active when mime_type is matching
 				#loop because multiple mime types are registered for fome file formats
@@ -10002,7 +10017,7 @@ if ($app->is_running) {
 				my $filename = $fs->get_filename;
 
 				my $choosen_format = $combobox_save_as_type->get_active_text;
-				$choosen_format =~ s/ \-.*//;    #get png or jpeg for example
+				$choosen_format =~ s/ \-.*//;    #get png or jpeg (jpg) for example
 				#~ print $choosen_format . "\n";
 
 				#parse filename
@@ -10038,7 +10053,7 @@ if ($app->is_running) {
 			
 			#handle file format
 			my $choosen_format = $combobox_save_as_type->get_active_text;
-			$choosen_format =~ s/ \-.*//;    #get png or jpeg for example
+			$choosen_format =~ s/ \-.*//;    #get png or jpeg (jpg) for example
 
 			$filename = $folder . $short . "." . $choosen_format;
 

@@ -39,7 +39,7 @@ use Glib qw/TRUE FALSE/;
 
 #--------------------------------------
 
-##################public subs##################
+
 sub new {
 	my $class = shift;
 
@@ -72,8 +72,8 @@ sub save_pixbuf_to_file {
 	$option = 1 unless defined $option;
 
 	#FIXME: NOT COVERED BY BINDINGS YET (we use Image::ExifTool instead)
-	#we rotate the pixbuf when saving to any other format than jpeg
-	unless ( $filetype eq 'jpeg' ) {
+	#we rotate the pixbuf when saving to any other format than jpeg (jpg)
+	unless ( $filetype eq 'jpeg' || $filetype eq 'jpg') {
 		if($option != 1){
 			$pixbuf = $self->{_lp}->auto_rotate($pixbuf);
 		}
@@ -81,9 +81,9 @@ sub save_pixbuf_to_file {
 
 	#we have two main ways of saving file
 	#when possible we try to use all supported formats of the gdk-pixbuf libs
-	#currently this is bmp, jpeg, png and ico (ico is not useful here)
+	#currently this is bmp, jpeg (jpg), png and ico (ico is not useful here)
 	my $imagemagick_result = undef;
-	if ( $filetype eq 'jpeg' ) {
+	if ( $filetype eq 'jpeg' || $filetype eq 'jpg' ) {
 		
 		#get quality value from settings if not set
 		unless($quality){
@@ -99,7 +99,7 @@ sub save_pixbuf_to_file {
 		}
 		
 		eval{
-			$pixbuf->save( $filename, $filetype, quality => $quality );
+			$pixbuf->save( $filename, 'jpeg', quality => $quality );
 			
 			#FIXME: NOT COVERED BY BINDINGS YET (we use Image::ExifTool instead)
 			#~ $pixbuf->set_option( 'orientation' => $option );

@@ -1557,8 +1557,12 @@ sub export_to_file {
 			#we have a requested filetype - nothing else will be offered
 			next if defined $rfiletype && $_->{name} ne $rfiletype;
 			
-			#add all known formats to the dialog
-			$combobox_save_as_type->insert_text( $counter, $_->{name} . " - " . $_->{description} );
+			#we want jpg not jpeg
+			if ( $_->{name} eq "jpeg" || $_->{name} eq "jpg" ) {
+				$combobox_save_as_type->insert_text( $counter, "jpg" . " - " . $_->{description} );
+			} else {
+				$combobox_save_as_type->insert_text( $counter, $_->{name} . " - " . $_->{description} );			
+			}
 			
 			#set active when mime_type is matching
 			#loop because multiple mime types are registered for fome file formats
@@ -1590,7 +1594,7 @@ sub export_to_file {
 			my $filename = $fs->get_filename;
 
 			my $choosen_format = $combobox_save_as_type->get_active_text;
-			$choosen_format =~ s/ \-.*//;    #get png or jpeg for example
+			$choosen_format =~ s/ \-.*//;    #get png or jpeg (jpg) for example
 			#~ print $choosen_format . "\n";
 
 			#parse filename
@@ -1626,7 +1630,7 @@ sub export_to_file {
 
 		#handle file format
 		my $choosen_format = $combobox_save_as_type->get_active_text;
-		$choosen_format =~ s/ \-.*//;    #get png or jpeg for example
+		$choosen_format =~ s/ \-.*//;    #get png or jpeg (jpg) for example
 
 		$filename = $folder . $short . "." . $choosen_format;
 
@@ -1714,7 +1718,7 @@ sub save {
 	unless($save_to_mem){
 		#image format supports transparency or not
 		#we need to support more formats here I think
-		if($filetype eq 'jpeg' || $filetype eq 'bmp'){	
+		if($filetype eq 'jpeg' || $filetype eq 'jpg' || $filetype eq 'bmp'){	
 			$self->{_canvas_bg_rect}->set(
 				'fill-pattern' 	=> $self->create_color($self->{_canvas_bg_rect}{fill_color}, 1.0),
 				'line-width' 	=> 0,
