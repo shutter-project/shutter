@@ -62,8 +62,6 @@ sub save_pixbuf_to_file {
 	my $filetype = shift;
 	my $quality = shift;
 
-	print "Saving file $filename, $filetype, $quality\n" if $self->{_common}->get_debug;
-
 	#gettext variable
 	my $d = $self->{_common}->get_gettext;
 
@@ -86,17 +84,17 @@ sub save_pixbuf_to_file {
 	if ( $filetype eq 'jpeg' || $filetype eq 'jpg' ) {
 		
 		#get quality value from settings if not set
-		unless($quality){
-			if(my $settings = $self->{_common}->get_globalsettings_object){
-				if(defined $settings->get_jpg_quality){
-					$quality = $settings->get_jpg_quality;
-				}else{
-					$quality = 90;
-				}
+		if(my $settings = $self->{_common}->get_globalsettings_object){
+			if(defined $settings->get_jpg_quality){
+				$quality = $settings->get_jpg_quality;
 			}else{
 				$quality = 90;
 			}
+		}else{
+			$quality = 90;
 		}
+		
+		print "Saving file $filename, $filetype, $quality\n" if $self->{_common}->get_debug;
 		
 		eval{
 			$pixbuf->save( $filename, 'jpeg', quality => $quality );
@@ -117,17 +115,17 @@ sub save_pixbuf_to_file {
 	} elsif ( $filetype eq 'png' ) {
 		
 		#get quality value from settings if not set
-		unless($quality){
-			if(my $settings = $self->{_common}->get_globalsettings_object){
-				if(defined $settings->get_png_quality){
-					$quality = $settings->get_png_quality;
-				}else{
-					$quality = 9;
-				}
+		if(my $settings = $self->{_common}->get_globalsettings_object){
+			if(defined $settings->get_png_quality){
+				$quality = $settings->get_png_quality;
 			}else{
 				$quality = 9;
 			}
+		}else{
+			$quality = 9;
 		}
+		
+		print "Saving file $filename, $filetype, $quality\n" if $self->{_common}->get_debug;
 		
 		eval{
 			$pixbuf->save( $filename, $filetype, "tEXt::Software" => "Shutter", compression => $quality );
@@ -137,6 +135,8 @@ sub save_pixbuf_to_file {
 			$pixbuf->save( $filename, $filetype );
 		};
 	} elsif ( $filetype eq 'pdf' ) {	
+		
+		print "Saving file $filename, $filetype\n" if $self->{_common}->get_debug;
 		
 		#0.8? => 72 / 90 dpi		
     	my $surface = Cairo::PdfSurface->create($filename, $pixbuf->get_width * 0.8, $pixbuf->get_height * 0.8);
@@ -151,6 +151,8 @@ sub save_pixbuf_to_file {
 
 	} elsif ( $filetype eq 'ps' ) {
 		
+		print "Saving file $filename, $filetype\n" if $self->{_common}->get_debug;
+		
 		#0.8? => 72 / 90 dpi		
     	my $surface = Cairo::PsSurface->create($filename, $pixbuf->get_width * 0.8, $pixbuf->get_height * 0.8);
     	my $cr = Cairo::Context->create($surface);
@@ -162,7 +164,9 @@ sub save_pixbuf_to_file {
 		undef $surface;
 		undef $cr;
 
-	} elsif ( $filetype eq 'svg' ) {	
+	} elsif ( $filetype eq 'svg' ) {
+		
+		print "Saving file $filename, $filetype\n" if $self->{_common}->get_debug;
 		
 		#0.8? => 72 / 90 dpi		
     	my $surface = Cairo::SvgSurface->create($filename, $pixbuf->get_width * 0.8, $pixbuf->get_height * 0.8);
@@ -176,6 +180,9 @@ sub save_pixbuf_to_file {
 		undef $cr;
 	
 	} else  {
+		
+		print "Saving file $filename, $filetype, $quality (using fallback-mode)\n" if $self->{_common}->get_debug;
+		
 		#save pixbuf to tempfile
 		my ( $tmpfh, $tmpfilename ) = tempfile();
 		$tmpfilename .= '.png';
