@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-20 21:55+0100\n"
-"PO-Revision-Date: 2011-07-01 10:16+0000\n"
-"Last-Translator: Mario Kemper (Romario) <mario.kemper@googlemail.com>\n"
+"PO-Revision-Date: 2012-01-16 12:50+0000\n"
+"Last-Translator: abuyop <Unknown>\n"
 "Language-Team: Malay <ms@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-12-01 23:58+0000\n"
-"X-Generator: Launchpad (build 14414)\n"
+"X-Launchpad-Export-Date: 2012-02-23 10:42+0000\n"
+"X-Generator: Launchpad (build 14855)\n"
 
 #: translate_tmp.pl:388
 #: translate_tmp.pl:2574
@@ -421,10 +421,14 @@ msgid ""
 "This method asks the window manager to resize the window. However, the "
 "window manager may not allow the resize."
 msgstr ""
+"Ini saizkan semula tetingkap secara automatik ke lebar dan tinggi yang "
+"dinyatakan. Kaedah ini menanya pengurus tetingkap untuk saizkan semula "
+"tetingkap. Walaubagaimanapun, pengurus tetingkap mungkin tidak benarkan saiz "
+"semula."
 
 #: translate_tmp.pl:1658
 msgid "Force rounded window corners"
-msgstr ""
+msgstr "Paksa bucu tetingkap berbundar"
 
 #: translate_tmp.pl:1667
 #, perl-format
@@ -437,25 +441,32 @@ msgid ""
 "named ~/.shutter/shape.conf and put custom values in it. The default values "
 "are stored in %s."
 msgstr ""
+"Shutter menggunakan sambungan XShape untuk nyatakan bentuk tetingkap, tetapi "
+"ini tidak berfungsi dibawah keadaan tertentu, cht. bila jalankan compiz.\n"
+"\n"
+"Bila pilihan ini diaktifkan Shutter menggunakan parameter tetap untuk "
+"bundarkan bucu tetingkap. Anda boleh tulis-ganti parameter lalai dengan "
+"mencipta fail bernama  ~/.shutter/shape.conf dan letakkan nilai suai disitu. "
+"Nilai lalai disimpan dalam %s."
 
 #: translate_tmp.pl:1681
 #: translate_tmp.pl:1682
 msgid "Select only visible windows"
-msgstr ""
+msgstr "Hanya pilih tetingkap tampak"
 
 #: translate_tmp.pl:1698
 msgid "Pre-Capture Delay"
-msgstr ""
+msgstr "Lengahan Pra-Tangkap"
 
 #: translate_tmp.pl:1712
 #: translate_tmp.pl:1713
 #: translate_tmp.pl:1714
 msgid "Capture menu/tooltip after a delay of n seconds"
-msgstr ""
+msgstr "Tangkap menu/tip alat selepas lengahan sebanyak n saat"
 
 #: translate_tmp.pl:1725
 msgid "Ignore possibly wrong type hints"
-msgstr ""
+msgstr "Abai pembayang jenis yang salah"
 
 #: translate_tmp.pl:1726
 msgid ""
@@ -464,70 +475,76 @@ msgid ""
 "correctly set. By enabling this option Shutter will not insist on the "
 "requested type hint."
 msgstr ""
+"Pembayang jenis biasanya tentukan pembayang untuk pengurus tetingkap yang "
+"menunjukkan jenis fungsi yang dimiliki tetingkap. Kadangkala pembayang jenis "
+"ini tidak ditetapkan dengan betul. Dengan membenarkan pilihan ini Shutter "
+"tidak akan paksa permintaan pembayang jenis."
 
 #: translate_tmp.pl:1741
 msgid "Virtual browser width"
-msgstr ""
+msgstr "Lebar pelayar maya"
 
 #: translate_tmp.pl:1762
 #: translate_tmp.pl:1763
 #: translate_tmp.pl:1764
 msgid "Virtual browser width when taking a website screenshot"
-msgstr ""
+msgstr "Lebar pelayar maya bila mengambil cekupan skrin laman sesawang"
 
 #: translate_tmp.pl:1775
 msgid "Show as check pattern"
-msgstr ""
+msgstr "Papar corak semak"
 
 #: translate_tmp.pl:1776
 msgid "Show as custom color:"
-msgstr ""
+msgstr "Papar sebagai warna suai:"
 
 #: translate_tmp.pl:1779
 #: translate_tmp.pl:452
 #: translate_tmp.pl:3764
 #: translate_tmp.pl:4020
 msgid "Choose fill color"
-msgstr ""
+msgstr "Pilih warna isi"
 
 #: translate_tmp.pl:1781
 msgid "Show as background"
-msgstr ""
+msgstr "Papar sebagai latar belakang"
 
 #: translate_tmp.pl:1802
 msgid "Displays any transparent parts of the image in a check pattern"
-msgstr ""
+msgstr "Papar mana-mana bahagian lutsinar imej dalam corak semak"
 
 #: translate_tmp.pl:1803
 msgid ""
 "Displays any transparent parts of the image in a solid color that you specify"
 msgstr ""
+"Papar mana-mana bahagian lutsinar imej dalam warna padu yang anda tentukan"
 
 #: translate_tmp.pl:1804
 msgid ""
 "Displays any transparent parts of the image in the background color of the "
 "application"
 msgstr ""
+"Papar mana-mana bahagian lutsinar imej dalam warna latar belakang aplikasi"
 
 #: translate_tmp.pl:1828
 msgid "Sort ascending by"
-msgstr ""
+msgstr "Isih menaik mengikut"
 
 #: translate_tmp.pl:1831
 #: translate_tmp.pl:1835
 msgid "Key/Time Created"
-msgstr ""
+msgstr "Kunci/Masa Dicipta"
 
 #: translate_tmp.pl:1832
 msgid "Sort descending by"
-msgstr ""
+msgstr "Isih menurun mengikut"
 
 #: translate_tmp.pl:1877
 #: translate_tmp.pl:1878
 #: translate_tmp.pl:1879
 #: translate_tmp.pl:1880
 msgid "Configure sort criteria"
-msgstr ""
+msgstr "Konfigur kriteria isih"
 
 #: translate_tmp.pl:1897
 #: translate_tmp.pl:1903
@@ -538,6 +555,11 @@ msgid ""
 "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
 "\"disabled\", then there will be no keybinding for this action. "
 msgstr ""
+"Konfigur pengikatan kekunci sejagat untuk menangkap\n"
+"Format kelihatan seperti \"<Control>a\" atau \"<Shift><Alt>F1\". Penghurai "
+"biasanya liberal dan membenarkan huruf besar atau kecil, dan juga singkatan "
+"seperti \"<Ctl>\" dan \"<Ctrl>\". Jika anda tetapkan pilihan ke rentetan "
+"khas 'dilumpuhkan\", maka tiada lagi pengikatan kekunci untuk tindakan ini. "
 
 #: translate_tmp.pl:1913
 msgid "Capture with selection"
@@ -553,6 +575,11 @@ msgid ""
 "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
 "\"disabled\", then there will be no keybinding for this action. "
 msgstr ""
+"Konfigur pengikatan kekunci sejagat untuk menangkap dengan pemilihan\n"
+"Format kelihatan seperti \"<Control>a\" atau \"<Shift><Alt>F1\". Penghurai "
+"biasanya liberal dan membenarkan huruf besar atau kecil, dan juga singkatan "
+"seperti \"<Ctl>\" dan \"<Ctrl>\". Jika anda tetapkan pilihan ke rentetan "
+"khas 'dilumpuhkan\", maka tiada lagi pengikatan kekunci untuk tindakan ini. "
 
 #: translate_tmp.pl:1929
 #: translate_tmp.pl:63
@@ -564,12 +591,12 @@ msgstr "Pilihan"
 
 #: translate_tmp.pl:1930
 msgid "Select Window"
-msgstr ""
+msgstr "Pilih Tetingkap"
 
 #: translate_tmp.pl:1931
 #: translate_tmp.pl:8443
 msgid "Active Window"
-msgstr ""
+msgstr "Tetingkap Aktif"
 
 #: translate_tmp.pl:1932
 #: translate_tmp.pl:151
@@ -580,13 +607,13 @@ msgstr "Bahagian"
 #: translate_tmp.pl:171
 #: translate_tmp.pl:1111
 msgid "Menu"
-msgstr ""
+msgstr "Menu"
 
 #: translate_tmp.pl:1934
 #: translate_tmp.pl:191
 #: translate_tmp.pl:1117
 msgid "Tooltip"
-msgstr ""
+msgstr "Tip Alat"
 
 #: translate_tmp.pl:1935
 #: translate_tmp.pl:210
@@ -596,7 +623,7 @@ msgstr "Web"
 #: translate_tmp.pl:1936
 #: translate_tmp.pl:37
 msgid "Redo"
-msgstr ""
+msgstr "Buat semula"
 
 #: translate_tmp.pl:1962
 msgid ""
@@ -604,89 +631,92 @@ msgid ""
 "<i>D-Bus Control Backend</i> via CompizConfig Settings Manager if your are "
 "using Desktop Effects or Unity."
 msgstr ""
+"<b>Perhatian:</b> Pastikan aktifkan <i>Keserasian Gnome</i> dan <i>Bahagian "
+"Belakang Kawalan D-Bus</i> melalui Pengurus Tetapan CompizConfig jika anda "
+"menggunakan Kesan Desktop atau Unity."
 
 #: translate_tmp.pl:2005
 #: translate_tmp.pl:2061
 msgid "Start Shutter at login"
-msgstr ""
+msgstr "Mula Shutter semasa daftar masuk"
 
 #: translate_tmp.pl:2006
 #: translate_tmp.pl:2069
 msgid "Hide window on first launch"
-msgstr ""
+msgstr "Sembunyi tetingkap bila mula-mula dilancar"
 
 #: translate_tmp.pl:2007
 #: translate_tmp.pl:2077
 msgid "Hide notification icon"
-msgstr ""
+msgstr "Sembunyi ikon pemberitahuan"
 
 #: translate_tmp.pl:2009
 #: translate_tmp.pl:2085
 msgid "Autohide main window when taking a screenshot"
-msgstr ""
+msgstr "Sembunyi sendiri tetingkap utama bila mengambil cekupan skrin"
 
 #: translate_tmp.pl:2010
 msgid "Redraw Delay"
-msgstr ""
+msgstr "Lengahan Lukis Semula"
 
 #: translate_tmp.pl:2013
 #: translate_tmp.pl:2853
 msgid "millisecond"
 msgid_plural "milliseconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "milisaat"
+msgstr[1] "milisaat"
 
 #: translate_tmp.pl:2019
 #: translate_tmp.pl:2109
 msgid "Present main window after taking a screenshot"
-msgstr ""
+msgstr "Hadirkan tetingkap utama selepas mengambil cekupan skrin"
 
 #: translate_tmp.pl:2020
 #: translate_tmp.pl:2150
 msgid "Minimize to tray when closing main window"
-msgstr ""
+msgstr "Minimumkan talam bila menutup tetingkap utama"
 
 #: translate_tmp.pl:2022
 #: translate_tmp.pl:2117
 msgid "Display pop-up notification after taking a screenshot"
-msgstr ""
+msgstr "Papar pemberitahuan timbul selepas mengambil cekupan skrin"
 
 #: translate_tmp.pl:2023
 #: translate_tmp.pl:2125
 #: translate_tmp.pl:2133
 msgid "Display pop-up notification when using a delay"
-msgstr ""
+msgstr "Papar pemberitahuan timbul bila menggunakan lengahan"
 
 #: translate_tmp.pl:2024
 msgid "Display pop-up notification when using a pre-capture delay"
-msgstr ""
+msgstr "Papar pemberitahuan timbul bila menggunakan lengahah pra-tangkap"
 
 #: translate_tmp.pl:2026
 msgid "Notification agent"
-msgstr ""
+msgstr "Ejen pemberitahuan"
 
 #: translate_tmp.pl:2028
 msgid "Desktop Notifications"
-msgstr ""
+msgstr "Pemberitahuan Desktop"
 
 #: translate_tmp.pl:2029
 msgid "Built-In Notifications"
-msgstr ""
+msgstr "Pemberitahuan Terbina-dalam"
 
 #: translate_tmp.pl:2033
 #: translate_tmp.pl:2158
 msgid "Ask before moving files to trash"
-msgstr ""
+msgstr "Tanya sebelum mengalih fail ke tong sampah"
 
 #: translate_tmp.pl:2034
 #: translate_tmp.pl:2166
 msgid "Move file to trash when closing tab"
-msgstr ""
+msgstr "Alih faik ke tong sampah bila menutup tab"
 
 #: translate_tmp.pl:2035
 #: translate_tmp.pl:2174
 msgid "Notify when file was deleted from filesystem"
-msgstr ""
+msgstr "Maklum bila fail dipadam dari sistem fail"
 
 #: translate_tmp.pl:2093
 #: translate_tmp.pl:2094
@@ -695,6 +725,9 @@ msgid ""
 "Configure a short timeout to give the Xserver a chance to redraw areas that "
 "were obscured by Shutter's windows before taking a screenshot."
 msgstr ""
+"Konfigur had masa tamat pendek untuk berikan pelayan X peluang lukis semula "
+"kawasan yang dilindungi oleh tetingkap Shutter sebelum mengambil cekupan "
+"skrin."
 
 #: translate_tmp.pl:2141
 #: translate_tmp.pl:2142
@@ -702,6 +735,8 @@ msgid ""
 "You can either choose the system-wide desktop notifications (e.g. Ubuntu's "
 "Notify-OSD) or Shutter's built-in notification system"
 msgstr ""
+"Anda boleh sama ada pilih pemberitahuan desktop menyeluruhi-sistem (cth. OSD-"
+"Makluman Ubuntu) atau sistem pemberitahuan terbina-dalam Shutter"
 
 #: translate_tmp.pl:2202
 msgid ""
@@ -709,11 +744,14 @@ msgid ""
 "your credentials above. Plugins with OAuth support are configured "
 "automatically the first time you use them."
 msgstr ""
+"<b>Perhatian:</b> Jika pemalam izinkan memuat naik, anda boleh masukkan "
+"kelayakan anda diatas. Pemalam dengan sokongan OAuth dikonfigur secara "
+"automatik bila anda gunakannya kali pertama."
 
 #: translate_tmp.pl:2207
 #: translate_tmp.pl:10443
 msgid "URI"
-msgstr ""
+msgstr "URI"
 
 #: translate_tmp.pl:2216
 #: translate_tmp.pl:2218
@@ -723,6 +761,8 @@ msgid ""
 "URI\n"
 "Example: ftp://host:port/path"
 msgstr ""
+"URI\n"
+"Contoh: ftp://host:port/path"
 
 #: translate_tmp.pl:2224
 #: translate_tmp.pl:2235
@@ -731,17 +771,17 @@ msgstr ""
 #: translate_tmp.pl:10462
 #: translate_tmp.pl:10464
 msgid "Connection mode"
-msgstr ""
+msgstr "Mod sambungan"
 
 #: translate_tmp.pl:2227
 #: translate_tmp.pl:10458
 msgid "Active mode"
-msgstr ""
+msgstr "Mod aktif"
 
 #: translate_tmp.pl:2228
 #: translate_tmp.pl:10459
 msgid "Passive mode"
-msgstr ""
+msgstr "Mod pasif"
 
 #: translate_tmp.pl:2243
 #: translate_tmp.pl:2252
@@ -751,7 +791,7 @@ msgstr ""
 #: translate_tmp.pl:10474
 #: translate_tmp.pl:10476
 msgid "Username"
-msgstr ""
+msgstr "Nama Pengguna"
 
 #: translate_tmp.pl:2260
 #: translate_tmp.pl:2271
@@ -761,7 +801,7 @@ msgstr ""
 #: translate_tmp.pl:10488
 #: translate_tmp.pl:10490
 msgid "Password"
-msgstr ""
+msgstr "Kata Laluan"
 
 #: translate_tmp.pl:2279
 #: translate_tmp.pl:2288
@@ -770,20 +810,20 @@ msgstr ""
 #: translate_tmp.pl:10500
 #: translate_tmp.pl:10502
 msgid "Website URL"
-msgstr ""
+msgstr "URL Laman Sesawang"
 
 #: translate_tmp.pl:2302
 #: translate_tmp.pl:3990
 msgid "Main"
-msgstr ""
+msgstr "Utama"
 
 #: translate_tmp.pl:2367
 msgid "Advanced"
-msgstr ""
+msgstr "Lanjutan"
 
 #: translate_tmp.pl:2418
 msgid "Image View"
-msgstr ""
+msgstr "Paparan Imej"
 
 #: translate_tmp.pl:2439
 msgid "Behavior"
@@ -791,37 +831,37 @@ msgstr "Kelakuan"
 
 #: translate_tmp.pl:2477
 msgid "Keyboard"
-msgstr ""
+msgstr "Papan Kekunci"
 
 #: translate_tmp.pl:2498
 msgid "Upload"
-msgstr ""
+msgstr "Muat Naik"
 
 #: translate_tmp.pl:2559
 msgid "Plugins"
-msgstr ""
+msgstr "Pemalam"
 
 #: translate_tmp.pl:2561
 msgid "The following plugins are installed"
-msgstr ""
+msgstr "Pemalam berikut dipasangkan"
 
 #: translate_tmp.pl:2894
 msgid "pixel"
 msgid_plural "pixels"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "piksel"
+msgstr[1] "piksel"
 
 #: translate_tmp.pl:2904
 msgid "Quality"
-msgstr ""
+msgstr "Kualiti"
 
 #: translate_tmp.pl:2971
 msgid "Please activate the menu you want to capture"
-msgstr ""
+msgstr "Sila aktifkan menu yang anda hendak tangkap"
 
 #: translate_tmp.pl:2973
 msgid "Please activate the tooltip you want to capture"
-msgstr ""
+msgstr "Sila aktifkan tip alat yang anda hendak tangkap"
 
 #: translate_tmp.pl:2982
 #: translate_tmp.pl:2992
@@ -830,22 +870,22 @@ msgstr ""
 #, perl-format
 msgid "Screenshot will be taken in %s second"
 msgid_plural "Screenshot will be taken in %s seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Cekupan skrin akan diambil dalam tempoh %s saat"
+msgstr[1] "Cekupan skrin akan diambil dalam tempoh %s saat"
 
 #: translate_tmp.pl:3276
 #: translate_tmp.pl:9115
 msgid "Register"
-msgstr ""
+msgstr "Daftar"
 
 #: translate_tmp.pl:3833
 msgid "Profile deleted"
-msgstr ""
+msgstr "Profil dipadam"
 
 #: translate_tmp.pl:3835
 #: translate_tmp.pl:3836
 msgid "Profile could not be deleted"
-msgstr ""
+msgstr "Profil tidak dapat dipadam"
 
 #: translate_tmp.pl:3835
 #: translate_tmp.pl:5672
@@ -858,42 +898,42 @@ msgstr ""
 #: translate_tmp.pl:107
 #: translate_tmp.pl:117
 msgid "Failed"
-msgstr ""
+msgstr "Gagal"
 
 #: translate_tmp.pl:3854
 #, perl-format
 msgid "Profile %s loaded successfully"
-msgstr ""
+msgstr "Profil %s berjaya dimuatkan"
 
 #: translate_tmp.pl:3883
 #: translate_tmp.pl:7185
 msgid "Session"
-msgstr ""
+msgstr "Sesi"
 
 #: translate_tmp.pl:3902
 #: translate_tmp.pl:5370
 msgid "not found"
-msgstr ""
+msgstr "tidak ditemui"
 
 #: translate_tmp.pl:4095
 msgid "Error while adding the file monitor."
-msgstr ""
+msgstr "Ralat semasa menambah pemantau fail."
 
 #: translate_tmp.pl:4568
 msgid "Settings could not be saved!"
-msgstr ""
+msgstr "Tetapan tidak dapat disimpan!"
 
 #: translate_tmp.pl:4570
 msgid "Settings saved successfully!"
-msgstr ""
+msgstr "Tetapan berjaya disimpan!"
 
 #: translate_tmp.pl:4594
 msgid "Session could not be saved!"
-msgstr ""
+msgstr "Sesi tidak dapat disimpan!"
 
 #: translate_tmp.pl:4622
 msgid "Account-settings could not be saved!"
-msgstr ""
+msgstr "Tetapan-akaun tidak dapat disimpan!"
 
 #: translate_tmp.pl:4818
 msgid ""
@@ -902,32 +942,36 @@ msgid ""
 "such as \"<Ctl>\" and \"<Ctrl>\" may cause problems under some circumstances "
 "(e.g. when using compiz)."
 msgstr ""
+"Format kelihatan seperti \"<Control>Print\" atau \"<Shift><Alt>Print\". "
+"Penghurai biasanya liberal dan membenarkan huruf kecil dan besar, tetapi "
+"singkatan seperti  \"<Ctl>\" dan \"<Ctrl>\" boleh menyebabkan masalah pada "
+"keadaan tertentu (cth. bila menggunakan compiz)."
 
 #: translate_tmp.pl:4819
 msgid "There was an error configuring the keybindings."
-msgstr ""
+msgstr "Terdapat ralat menkonfigur pengikatan kekunci."
 
 #: translate_tmp.pl:5068
 msgid "Settings could not be restored!"
-msgstr ""
+msgstr "Tetapan tidak dapat dipulihkan!"
 
 #: translate_tmp.pl:5071
 msgid "Settings loaded successfully"
-msgstr ""
+msgstr "Tetapan berjaya dimuatkan"
 
 #: translate_tmp.pl:5099
 #: translate_tmp.pl:6963
 msgid "Built-in Editor"
-msgstr ""
+msgstr "Penyunting Terbina-dalam"
 
 #: translate_tmp.pl:5153
 msgid "Account-settings could not be restored!"
-msgstr ""
+msgstr "Tetapan-akaun tidak dapat dipulihkan!"
 
 #: translate_tmp.pl:5246
 #: translate_tmp.pl:5343
 msgid "opened"
-msgstr ""
+msgstr "dibuka"
 
 #: translate_tmp.pl:5248
 #: translate_tmp.pl:5345
@@ -936,56 +980,56 @@ msgstr ""
 #: translate_tmp.pl:6714
 #, perl-format
 msgid "Error while opening image %s."
-msgstr ""
+msgstr "Ralat semasa membuka imej %s."
 
 #: translate_tmp.pl:5358
 msgid "Session could not be restored!"
-msgstr ""
+msgstr "Sesi tidak dapat dipulihkan!"
 
 #: translate_tmp.pl:5410
 #, perl-format
 msgid "Error while creating the trashinfo file %s."
-msgstr ""
+msgstr "Ralat semasa mencipta fail trashinfo %s."
 
 #: translate_tmp.pl:5421
 #, perl-format
 msgid "Error while moving the file %s to trash."
-msgstr ""
+msgstr "Ralat semasa mengalih fail %s ke tong sampah."
 
 #: translate_tmp.pl:5427
 #, perl-format
 msgid "Error while removing the file %s from disk."
-msgstr ""
+msgstr "Ralat semasa membuang fail %s dari cakera."
 
 #: translate_tmp.pl:5447
 #, perl-format
 msgid "Are you sure you want to move %s to the trash?"
-msgstr ""
+msgstr "Anda pasti henda alihkan %s ke tong sampah?"
 
 #: translate_tmp.pl:5448
 #: translate_tmp.pl:5493
 #: translate_tmp.pl:209
 #: translate_tmp.pl:710
 msgid "Move to _Trash"
-msgstr ""
+msgstr "Alih ke _Tong Sampah"
 
 #: translate_tmp.pl:5458
 msgid "deleted"
-msgstr ""
+msgstr "dipadamkan"
 
 #: translate_tmp.pl:5492
 msgid "Are you sure you want to move the selected files to the trash?"
-msgstr ""
+msgstr "Anda pasti henda alihkan fail terpilih ke tong sampah?"
 
 #: translate_tmp.pl:5497
 #: translate_tmp.pl:5526
 #: translate_tmp.pl:5626
 msgid "No screenshots selected"
-msgstr ""
+msgstr "Tiada cekupan skrin dipilih"
 
 #: translate_tmp.pl:5542
 msgid "Selected screenshots deleted"
-msgstr ""
+msgstr "Cekupan skrin terpilih dipadam"
 
 #: translate_tmp.pl:5578
 #: translate_tmp.pl:7616
@@ -995,66 +1039,66 @@ msgstr ""
 #: translate_tmp.pl:7744
 #: translate_tmp.pl:7774
 msgid "removed from session"
-msgstr ""
+msgstr "dibuang dari sesi"
 
 #: translate_tmp.pl:5642
 msgid "Selected screenshots removed"
-msgstr ""
+msgstr "Cekupan terpilih dibuang"
 
 #: translate_tmp.pl:5672
 #: translate_tmp.pl:6073
 msgid "No valid filetype specified"
-msgstr ""
+msgstr "Tiada jenis fail yang sah dinyatakan"
 
 #: translate_tmp.pl:5687
 msgid "There is no image data in the clipboard to paste"
-msgstr ""
+msgstr "Tiada data imej dalam papan keratan untuk ditampalkan"
 
 #: translate_tmp.pl:5746
 msgid "Selected filenames copied to clipboard"
-msgstr ""
+msgstr "Nama fail terpilih disalin ke papan keratan"
 
 #: translate_tmp.pl:5761
 msgid "Selected images copied to clipboard"
-msgstr ""
+msgstr "Imej terpilih disalin ke papan keratan"
 
 #: translate_tmp.pl:5808
 msgid "Last action undone"
-msgstr ""
+msgstr "Tindakan terakhir tidak dibuat"
 
 #: translate_tmp.pl:5816
 #: translate_tmp.pl:5868
 #, perl-format
 msgid "Error while copying last version (%s)."
-msgstr ""
+msgstr "Ralat semasa menyalin versi terakhir (%s)."
 
 #: translate_tmp.pl:5817
 #, perl-format
 msgid "There was an error performing undo on %s."
-msgstr ""
+msgstr "Terdapat ralat melakukan buat asal pada %s."
 
 #: translate_tmp.pl:5860
 msgid "Last action redone"
-msgstr ""
+msgstr "Tindakan terakhir dibuat semula"
 
 #: translate_tmp.pl:5869
 #, perl-format
 msgid "There was an error performing redo on %s."
-msgstr ""
+msgstr "Terdapat ralam melakukan buat semula pada %s."
 
 #: translate_tmp.pl:5907
 msgid "No plugin installed"
-msgstr ""
+msgstr "Tiada pemalam dipasang"
 
 #: translate_tmp.pl:6120
 #: translate_tmp.pl:6545
 #: translate_tmp.pl:7951
 msgid "There was an error determining the filename."
-msgstr ""
+msgstr "Terdapat ralat menentukan nama fail."
 
 #: translate_tmp.pl:6442
 msgid "Triggered invalid screenshot action."
-msgstr ""
+msgstr "Terpicu tindakan cekupan skrin yang tidak sah."
 
 #: translate_tmp.pl:6443
 #: translate_tmp.pl:6446
@@ -1070,24 +1114,24 @@ msgstr ""
 #: translate_tmp.pl:154
 #: translate_tmp.pl:164
 msgid "Error while taking the screenshot."
-msgstr ""
+msgstr "Ralat semasa mengambil cekupan skrin."
 
 #: translate_tmp.pl:6573
 #: translate_tmp.pl:134
 msgid "Capture aborted by user"
-msgstr ""
+msgstr "Tangkapan dihenti paksa oleh pengguna"
 
 #: translate_tmp.pl:6692
 #: translate_tmp.pl:6709
 #, perl-format
 msgid "%s saved"
-msgstr ""
+msgstr "%s disimpan"
 
 #: translate_tmp.pl:6698
 #: translate_tmp.pl:6700
 #: translate_tmp.pl:6714
 msgid "Screenshot saved"
-msgstr ""
+msgstr "Cekupan skrin disimpan"
 
 #: translate_tmp.pl:6723
 #, perl-format
@@ -1095,71 +1139,73 @@ msgid ""
 "The filename %s could not be verified. Maybe it contains unsupported "
 "characters."
 msgstr ""
+"Nama fail %s tidak dapat disahkan. Mungkin ia mengandungi aksara tidak "
+"disokong."
 
 #: translate_tmp.pl:6963
 #: translate_tmp.pl:6971
 #, perl-format
 msgid "%s opened with %s"
-msgstr ""
+msgstr "%s dibuka dengan %s"
 
 #: translate_tmp.pl:6995
 msgid "Opened all files with"
-msgstr ""
+msgstr "Buka semua fail dengan"
 
 #: translate_tmp.pl:7036
 #: translate_tmp.pl:7056
 #, perl-format
 msgid "Could not apply plugin %s"
-msgstr ""
+msgstr "Tidak dapat laksanakan pemalam %s"
 
 #: translate_tmp.pl:7054
 #: translate_tmp.pl:7105
 #, perl-format
 msgid "Successfully applied plugin %s"
-msgstr ""
+msgstr "Berjaya laksanakan pemalam %s"
 
 #: translate_tmp.pl:7108
 #, perl-format
 msgid "Error while executing plugin %s."
-msgstr ""
+msgstr "Ralat semasa melakukan pemalam %s."
 
 #: translate_tmp.pl:7109
 msgid "There was an error executing the plugin."
-msgstr ""
+msgstr "Terdapat ralat semasa melakukan pemalam."
 
 #: translate_tmp.pl:7187
 #, perl-format
 msgid "%s screenshot"
 msgid_plural "%s screenshots"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s cekupan skrin"
+msgstr[1] "%s cekupan skrin"
 
 #: translate_tmp.pl:7199
 msgid "Current profile"
-msgstr ""
+msgstr "Profil semasa"
 
 #: translate_tmp.pl:7607
 msgid "Try to resave the file?"
-msgstr ""
+msgstr "Cuba menyimpan semula fail?"
 
 #: translate_tmp.pl:7608
 #, perl-format
 msgid "Image %s was not found on disk"
-msgstr ""
+msgstr "Imej %s tidak ditemui dalam cakera"
 
 #: translate_tmp.pl:7636
 #: translate_tmp.pl:7701
 #: translate_tmp.pl:181
 #, perl-format
 msgid "Error while saving the image %s."
-msgstr ""
+msgstr "Ralat semasa menyimpan imej %s."
 
 #: translate_tmp.pl:7637
 #: translate_tmp.pl:7702
 #: translate_tmp.pl:182
 #, perl-format
 msgid "There was an error saving the image to %s."
-msgstr ""
+msgstr "Terdapat ralat semasa menyimpan imej ke %s."
 
 #: translate_tmp.pl:7665
 #: translate_tmp.pl:9970
@@ -1167,47 +1213,48 @@ msgstr ""
 #: translate_tmp.pl:10042
 #: translate_tmp.pl:10048
 msgid "saved"
-msgstr ""
+msgstr "disimpan"
 
 #: translate_tmp.pl:7735
 #, perl-format
 msgid "Image %s was deleted from filesystem"
-msgstr ""
+msgstr "Imej %s telah dipadam dari sistem fail"
 
 #: translate_tmp.pl:7767
 #: translate_tmp.pl:62
 #: translate_tmp.pl:6715
 msgid "There was an error opening the image."
-msgstr ""
+msgstr "Terdapat ralat membuka imej."
 
 #: translate_tmp.pl:7950
 #, perl-format
 msgid "Error while opening directory %s."
-msgstr ""
+msgstr "Ralat semasa membuka direktori %s."
 
 #: translate_tmp.pl:8020
 msgid "Updating plugin information"
-msgstr ""
+msgstr "Mengemaskini maklumat pemalam"
 
 #: translate_tmp.pl:8025
 msgid "Please wait while Shutter updates the plugin information"
-msgstr ""
+msgstr "Tunggu sebentar semasa Shutter mengemaskini maklumat pemalam"
 
 #: translate_tmp.pl:8163
 msgid "Updating upload plugin information"
-msgstr ""
+msgstr "Mengemaskini maklumat pemalam yang dimuat naik"
 
 #: translate_tmp.pl:8168
 msgid "Please wait while Shutter updates the upload plugin information"
 msgstr ""
+"Tunggu sebentar semasa Shutter mengemaskini maklumat pemalam dimuat naik"
 
 #: translate_tmp.pl:8375
 msgid "Capture All Workspaces"
-msgstr ""
+msgstr "Tangkap Semua Ruang Kerja"
 
 #: translate_tmp.pl:8388
 msgid "Limit to current monitor"
-msgstr ""
+msgstr "Hadkan ke monitor semasa"
 
 #: translate_tmp.pl:8403
 #, perl-format
@@ -1220,68 +1267,74 @@ msgid_plural ""
 "monitors detected).\n"
 "Enable it to capture only the current monitor."
 msgstr[0] ""
+"Pilihan ini hanya berguna bila anda menjalani sistem monitor-berbilang (%d "
+"monitor dikesan).\n"
+"Benarkannya untuk menangkap monitor semasa sahaja."
 msgstr[1] ""
+"Pilihan ini hanya berguna bila anda menjalani sistem monitor-berbilang (%d "
+"monitor dikesan).\n"
+"Benarkannya untuk menangkap monitor semasa sahaja."
 
 #: translate_tmp.pl:8447
 msgid "Capture the last active window"
-msgstr ""
+msgstr "Tangkap tetingkap aktif terakhir"
 
 #: translate_tmp.pl:8486
 #: translate_tmp.pl:403
 msgid "_Selection"
-msgstr ""
+msgstr "_Pemilihan"
 
 #: translate_tmp.pl:8512
 #: translate_tmp.pl:429
 msgid "_Desktop"
-msgstr ""
+msgstr "_Desktop"
 
 #: translate_tmp.pl:8546
 msgid "Window _under Cursor"
-msgstr ""
+msgstr "Tetingkap diba_wah Kursor"
 
 #: translate_tmp.pl:8562
 #: translate_tmp.pl:459
 msgid "Select W_indow"
-msgstr ""
+msgstr "Pilih T_etingkap"
 
 #: translate_tmp.pl:8576
 #: translate_tmp.pl:472
 msgid "Se_ction"
-msgstr ""
+msgstr "Seks_yen"
 
 #: translate_tmp.pl:8595
 #: translate_tmp.pl:488
 msgid "_Menu"
-msgstr ""
+msgstr "_Menu"
 
 #: translate_tmp.pl:8614
 #: translate_tmp.pl:504
 msgid "_Tooltip"
-msgstr ""
+msgstr "_Tip Alat"
 
 #: translate_tmp.pl:8633
 #: translate_tmp.pl:522
 msgid "_Web"
-msgstr ""
+msgstr "Sesa_wang"
 
 #: translate_tmp.pl:8650
 #: translate_tmp.pl:395
 msgid "_Redo last screenshot"
-msgstr ""
+msgstr "Buat _semula cekupan skrin terakhir"
 
 #: translate_tmp.pl:8661
 #: translate_tmp.pl:223
 msgid "_Quick profile select"
-msgstr ""
+msgstr "Pilih profil pa_ntas"
 
 #: translate_tmp.pl:8704
 msgid "Advanced selection tool"
-msgstr ""
+msgstr "Alat pemilihan lanjutan"
 
 #: translate_tmp.pl:8707
 msgid "Simple selection tool"
-msgstr ""
+msgstr "Alat pemilihan ringkas"
 
 #: translate_tmp.pl:8724
 msgid ""
@@ -1289,36 +1342,41 @@ msgid ""
 "selected area\n"
 "until you finally take the screenshot."
 msgstr ""
+"Alat pemilihan lanjutan membenarkan anda besar/kecilkan atai alihkan kawasan "
+"terpiliha anda\n"
+"sehingga anfa selesai mengambil cekupan skrin."
 
 #: translate_tmp.pl:8727
 msgid ""
 "The simple selection tool is the fastest way of taking a screenshot.\n"
 "It provides an optional zoom window for precise shots."
 msgstr ""
+"Alat pemilihan mudah merupakan cara terpantas mengambil cekupan\n"
+"skrin. Ia menyediakan tetingkap zum pilihan untuk syot tepat."
 
 #: translate_tmp.pl:8855
 msgid "Wait indefinitely"
-msgstr ""
+msgstr "Tunggu tanpa batas"
 
 #: translate_tmp.pl:8856
 #: translate_tmp.pl:8857
 #, perl-format
 msgid "Wait max %d second"
 msgid_plural "Wait max %d seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Tunggu maksimum selama %d saat"
+msgstr[1] "Tunggu maksimum selama %d saat"
 
 #: translate_tmp.pl:8858
 #: translate_tmp.pl:8859
 #, perl-format
 msgid "Wait max %d minute"
 msgid_plural "Wait max %d minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Tunggu maksimum selama %d minit"
+msgstr[1] "Tunggu maksimum selama %d minit"
 
 #: translate_tmp.pl:8867
 msgid "Shutter will wait indefinitely for the screenshot to capture"
-msgstr ""
+msgstr "Shutter akan tunggu tanpa batas bagi cekupan skrin yang ditangkap"
 
 #: translate_tmp.pl:8868
 #: translate_tmp.pl:8869
@@ -1330,7 +1388,11 @@ msgid_plural ""
 "Shutter will wait up to %d seconds for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
+"Shutter akan tunggu selama %d saat untuk cekupan skrin ditangkap sebelum "
+"menghenti paksa proses jika ia mengambil masa terlalu lama"
 msgstr[1] ""
+"Shutter akan tunggu selama %d saat untuk cekupan skrin ditangkap sebelum "
+"menghenti paksa proses jika ia mengambil masa terlalu lama"
 
 #: translate_tmp.pl:8870
 #: translate_tmp.pl:8871
@@ -1342,120 +1404,124 @@ msgid_plural ""
 "Shutter will wait up to %d minutes for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
+"Shutter akan tunggu selama %d minit untuk cekupan skrin ditangkap sebelum "
+"menghenti paksa proses jika ia mengambil masa terlalu lama"
 msgstr[1] ""
+"Shutter akan tunggu selama %d minit untuk cekupan skrin ditangkap sebelum "
+"menghenti paksa proses jika ia mengambil masa terlalu lama"
 
 #: translate_tmp.pl:9024
 msgid "Host"
-msgstr ""
+msgstr "Hos"
 
 #: translate_tmp.pl:9081
 msgid "Anonymous Upload"
-msgstr ""
+msgstr "Awanama Dimuat Naik"
 
 #: translate_tmp.pl:9088
 msgid "Authorized Upload"
-msgstr ""
+msgstr "Muat Naik Diizinkan"
 
 #: translate_tmp.pl:9095
 msgid "OAuth Upload"
-msgstr ""
+msgstr "Muat Naik OAuth"
 
 #: translate_tmp.pl:9106
 #: translate_tmp.pl:9167
 #: translate_tmp.pl:10157
 msgid "Description"
-msgstr ""
+msgstr "Keterangan"
 
 #: translate_tmp.pl:9138
 msgid "Icon"
-msgstr ""
+msgstr "Ikon"
 
 #: translate_tmp.pl:9147
 msgid "Name"
-msgstr ""
+msgstr "Nama"
 
 #: translate_tmp.pl:9157
 msgid "Category"
-msgstr ""
+msgstr "Kategori"
 
 #: translate_tmp.pl:9177
 msgid "Language"
-msgstr ""
+msgstr "Bahasa"
 
 #: translate_tmp.pl:9186
 msgid "Path"
-msgstr ""
+msgstr "Laluan"
 
 #: translate_tmp.pl:9232
 #: translate_tmp.pl:10532
 msgid "Ubuntu One"
-msgstr ""
+msgstr "Ubuntu One"
 
 #: translate_tmp.pl:9241
 msgid "Successfully published"
-msgstr ""
+msgstr "Berjaya diterbitkan"
 
 #: translate_tmp.pl:9241
 #, perl-format
 msgid "The file %s was successfully published: %s"
-msgstr ""
+msgstr "Fail %s berjaya diterbitkan: %s"
 
 #: translate_tmp.pl:9244
 #, perl-format
 msgid "%s published"
-msgstr ""
+msgstr "%s diterbitkan"
 
 #: translate_tmp.pl:9256
 msgid "Unpublished"
-msgstr ""
+msgstr "Tidak Diterbitkan"
 
 #: translate_tmp.pl:9256
 #, perl-format
 msgid ""
 "The file %s is no longer published. The external link is not available "
 "anymore."
-msgstr ""
+msgstr "Fail %s tiada lagi diterbitkan. Pautan luaran tidak tersedia lagi."
 
 #: translate_tmp.pl:9259
 #, perl-format
 msgid "The file %s is no longer published."
-msgstr ""
+msgstr "Fail %s tiada lagi diterbitkan."
 
 #: translate_tmp.pl:9450
 msgid "Rename"
-msgstr ""
+msgstr "Nama semula"
 
 #: translate_tmp.pl:9454
 #, perl-format
 msgid "Rename image %s"
-msgstr ""
+msgstr "Nama semula imej %s"
 
 #: translate_tmp.pl:9456
 msgid "New filename"
-msgstr ""
+msgstr "Nama fail baru"
 
 #: translate_tmp.pl:9459
 msgid "_Rename"
-msgstr ""
+msgstr "_Nama Semula"
 
 #: translate_tmp.pl:9558
 #: translate_tmp.pl:9610
 msgid "renamed"
-msgstr ""
+msgstr "dinamakan semula"
 
 #: translate_tmp.pl:9566
 #: translate_tmp.pl:9618
 #: translate_tmp.pl:9658
 #, perl-format
 msgid "Error while renaming the image %s."
-msgstr ""
+msgstr "Ralat semasa menamakan semula imej %s"
 
 #: translate_tmp.pl:9567
 #: translate_tmp.pl:9619
 #: translate_tmp.pl:9659
 #, perl-format
 msgid "There was an error renaming the image to %s."
-msgstr ""
+msgstr "Terdapat ralat menamakan semula imej ke %s."
 
 #: translate_tmp.pl:9579
 #: translate_tmp.pl:9997
@@ -1463,7 +1529,7 @@ msgstr ""
 #: translate_tmp.pl:11251
 #: translate_tmp.pl:1615
 msgid "_Replace"
-msgstr ""
+msgstr "_Ganti"
 
 #: translate_tmp.pl:9585
 #: translate_tmp.pl:10001
@@ -1473,6 +1539,7 @@ msgstr ""
 msgid ""
 "The image already exists in %s. Replacing it will overwrite its contents."
 msgstr ""
+"Imej sudah wujud dalam %s. Penggantiannya akan menulis-ganti kandungannya."
 
 #: translate_tmp.pl:9586
 #: translate_tmp.pl:10002
@@ -1480,59 +1547,59 @@ msgstr ""
 #: translate_tmp.pl:1620
 #, perl-format
 msgid "An image named %s already exists. Do you want to replace it?"
-msgstr ""
+msgstr "Satu imej bernama %s sudah wujud. Anda hendak gantikannya?"
 
 #: translate_tmp.pl:9662
 msgid "Invalid Filename"
-msgstr ""
+msgstr "Nama Fial Tidak Sah"
 
 #: translate_tmp.pl:9687
 #: translate_tmp.pl:6341
 msgid "Choose file to open"
-msgstr ""
+msgstr "Pilih fail untuk dibuka"
 
 #: translate_tmp.pl:9716
 #: translate_tmp.pl:6369
 msgid "All compatible image formats"
-msgstr ""
+msgstr "Semua format imej boleh serasi"
 
 #: translate_tmp.pl:9792
 #: translate_tmp.pl:1448
 msgid "Choose a location to save to"
-msgstr ""
+msgstr "Pilih lokasi untuk disimpankan"
 
 #: translate_tmp.pl:10089
 msgid "Choose a plugin"
-msgstr ""
+msgstr "Pilih pemalam"
 
 #: translate_tmp.pl:10094
 msgid "_Run"
-msgstr ""
+msgstr "_Jalankan"
 
 #: translate_tmp.pl:10144
 msgid "Plugin"
-msgstr ""
+msgstr "Pemalam"
 
 #: translate_tmp.pl:10234
 msgid "No plugin specified"
-msgstr ""
+msgstr "Tiada pemalam dinyatakan"
 
 #: translate_tmp.pl:10283
 msgid "Upload / Export"
-msgstr ""
+msgstr "Muat Naik / Eksport"
 
 #: translate_tmp.pl:10287
 #: translate_tmp.pl:10541
 msgid "_Upload"
-msgstr ""
+msgstr "M_uat naik"
 
 #: translate_tmp.pl:10309
 msgid "Guest"
-msgstr ""
+msgstr "Tetamu"
 
 #: translate_tmp.pl:10314
 msgid "OAuth"
-msgstr ""
+msgstr "OAuth"
 
 #: translate_tmp.pl:10349
 msgid ""
@@ -1540,6 +1607,9 @@ msgid ""
 "links will still be available in the screenshot's <i>right-click menu</i> "
 "after closing this dialog."
 msgstr ""
+"Sila pilih salah satu akaun diatas dan klik <i>Muat Naik</i>. Pautan muat "
+"naik masih tersedia dalam <i>menu klik-kanan</i> cekupan skrin selepas "
+"menutup dialog ini."
 
 #: translate_tmp.pl:10354
 msgid ""
@@ -1547,35 +1617,38 @@ msgid ""
 "enter your credentials in preferences first to make it appear in the list "
 "above."
 msgstr ""
+"<b>Perhatian:</b> Jika pemalam hanya izinkan anda memuat naik, anda perlu "
+"masukkan kelayakan anda dalam keutamaan terlebih dahulu supaya ia kelihatan "
+"dalam senarai diatas."
 
 #: translate_tmp.pl:10358
 msgid "Choose account"
-msgstr ""
+msgstr "Pilih akaun"
 
 #: translate_tmp.pl:10386
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 #: translate_tmp.pl:10529
 msgid "Public hosting"
-msgstr ""
+msgstr "Pengehosan awam"
 
 #: translate_tmp.pl:10531
 msgid "Places"
-msgstr ""
+msgstr "Tempat"
 
 #: translate_tmp.pl:10544
 msgid "_Export"
-msgstr ""
+msgstr "_Eksport"
 
 #: translate_tmp.pl:10547
 msgid "_Publish"
-msgstr ""
+msgstr "_Terbitkan"
 
 #: translate_tmp.pl:10574
 #: translate_tmp.pl:164
 msgid "Disconnected"
-msgstr ""
+msgstr "Terputus"
 
 #: translate_tmp.pl:10595
 #: translate_tmp.pl:10633
@@ -1587,7 +1660,11 @@ msgid_plural ""
 "Folder %s is synchronized with Ubuntu One. The selected files will be copied "
 "to that folder before being published."
 msgstr[0] ""
+"Folder %s disegerakkan dengan Ubuntu One. Fail terpilih akan disalin ke "
+"folder tersebut sebelum diterbitkan."
 msgstr[1] ""
+"Folder %s disegerakkan dengan Ubuntu One. Fail terpilih akan disalin ke "
+"folder tersebut sebelum diterbitkan."
 
 #: translate_tmp.pl:10600
 #: translate_tmp.pl:10638
@@ -1598,7 +1675,11 @@ msgid_plural ""
 "<b>Please note:</b> The selected files will be published in a background "
 "process. You will be notified when the process has finished."
 msgstr[0] ""
+"<b>Perhatian:</b> Fail terpilih akan diterbitkan dalam proses latar "
+"belakang. Anda akan dimaklumkan bila proses sudah selesai."
 msgstr[1] ""
+"<b>Perhatian:</b> Fail terpilih akan diterbitkan dalam proses latar "
+"belakang. Anda akan dimaklumkan bila proses sudah selesai."
 
 #: translate_tmp.pl:10607
 #: translate_tmp.pl:10645
@@ -1607,55 +1688,59 @@ msgid ""
 "Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
 "folder."
 msgstr ""
+"Folder %s tidak disegerak dengan Ubuntu One. Sila pilih satu folder "
+"pengganti."
 
 #: translate_tmp.pl:10663
 msgid "Ubuntu One service cannot be found."
-msgstr ""
+msgstr "Perkhidmatan Ubuntu One tidak ditemui."
 
 #: translate_tmp.pl:10670
 msgid ""
 "/publicfiles is not available. Your Ubuntu One installation seems to be out "
 "of date."
 msgstr ""
+"/publicfiles tidak tersedia. Pemasangan Ubuntu One anda kelihatan sudah "
+"luput."
 
 #: translate_tmp.pl:10677
 msgid ""
 "Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature"
-msgstr ""
+msgstr "Net::DBus::GLib/libnet-dbus-glib-perl perlu dipasang untuk fitur ini"
 
 #: translate_tmp.pl:10740
 #, perl-format
 msgid "Loading module %s"
-msgstr ""
+msgstr "Memuatkan modul %s"
 
 #: translate_tmp.pl:10753
 #, perl-format
 msgid "Error while executing upload plugin %s."
-msgstr ""
+msgstr "Ralat semasa melakukan pemalam muat naik %s."
 
 #: translate_tmp.pl:10754
 msgid "There was an error executing the upload plugin."
-msgstr ""
+msgstr "Terdapat ralat melakukan pemalam muat naik."
 
 #: translate_tmp.pl:10791
 #: translate_tmp.pl:10862
 #: translate_tmp.pl:10966
 #: translate_tmp.pl:11042
 msgid "uploaded"
-msgstr ""
+msgstr "dimuat naik"
 
 #: translate_tmp.pl:10866
 #: translate_tmp.pl:10969
 #: translate_tmp.pl:11045
 msgid "Successfully uploaded"
-msgstr ""
+msgstr "Berjaya dimuat naik"
 
 #: translate_tmp.pl:10866
 #: translate_tmp.pl:10969
 #: translate_tmp.pl:11045
 #, perl-format
 msgid "The file %s was successfully uploaded."
-msgstr ""
+msgstr "Fail %s berjaya dimuat naik."
 
 #: translate_tmp.pl:10884
 #: translate_tmp.pl:11017
@@ -1663,7 +1748,7 @@ msgstr ""
 #: translate_tmp.pl:11169
 #: translate_tmp.pl:11177
 msgid "Skip all"
-msgstr ""
+msgstr "Langkau semua"
 
 #: translate_tmp.pl:10885
 #: translate_tmp.pl:11017
@@ -1671,91 +1756,91 @@ msgstr ""
 #: translate_tmp.pl:11169
 #: translate_tmp.pl:11177
 msgid "Skip"
-msgstr ""
+msgstr "Langkau"
 
 #: translate_tmp.pl:10886
 #: translate_tmp.pl:11177
 msgid "Retry"
-msgstr ""
+msgstr "Cuba lagi"
 
 #: translate_tmp.pl:10961
 #: translate_tmp.pl:11037
 msgid "exported"
-msgstr ""
+msgstr "dieksport"
 
 #: translate_tmp.pl:10964
 #: translate_tmp.pl:11040
 msgid "Successfully exported"
-msgstr ""
+msgstr "Berjaya dieksport"
 
 #: translate_tmp.pl:10964
 #: translate_tmp.pl:11040
 #, perl-format
 msgid "The file %s was successfully exported."
-msgstr ""
+msgstr "Fail %s telah berjaya dieksportkan."
 
 #: translate_tmp.pl:10974
 #: translate_tmp.pl:11050
 #, perl-format
 msgid "Publishing %s..."
-msgstr ""
+msgstr "Menerbitkan %s..."
 
 #: translate_tmp.pl:11135
 msgid "_Retry"
-msgstr ""
+msgstr "_Cuba Lagi"
 
 #: translate_tmp.pl:11139
 #, perl-format
 msgid "Error while copying the image %s."
-msgstr ""
+msgstr "Ralat semasa menyalin imej %s."
 
 #: translate_tmp.pl:11140
 #, perl-format
 msgid "There was an error copying the image into %s."
-msgstr ""
+msgstr "Terdapat ralat menyalin imej ke %s."
 
 #: translate_tmp.pl:11162
 #: translate_tmp.pl:89
 msgid "Please check your credentials and try again."
-msgstr ""
+msgstr "Sila semak kelayakan anda dan cuba lagi."
 
 #: translate_tmp.pl:11163
 msgid "Error while login"
-msgstr ""
+msgstr "Ralat semasa daftar masuk"
 
 #: translate_tmp.pl:11167
 msgid "Maximum filesize reached"
-msgstr ""
+msgstr "Saiz fail maksimum dicapai"
 
 #: translate_tmp.pl:11168
 msgid "Error while uploading"
-msgstr ""
+msgstr "Ralat semasa memuat naik"
 
 #: translate_tmp.pl:11171
 #, perl-format
 msgid "Maximum filesize: %s"
-msgstr ""
+msgstr "Saiz fail maksimum: %s"
 
 #: translate_tmp.pl:11176
 msgid "Error while connecting"
-msgstr ""
+msgstr "Ralat semasa menyambung"
 
 #: translate_tmp.pl:11192
 msgid "Save current preferences as new profile"
-msgstr ""
+msgstr "Simpan keutamaan semasa sebagai profil baru"
 
 #: translate_tmp.pl:11194
 msgid "New profile name"
-msgstr ""
+msgstr "Nama profil baru"
 
 #: translate_tmp.pl:11255
 msgid "Replacing it will overwrite its contents."
-msgstr ""
+msgstr "Penggantiannya akan menulis-ganti kandungannya"
 
 #: translate_tmp.pl:11256
 #, perl-format
 msgid "A profile named %s already exists. Do you want to replace it?"
-msgstr ""
+msgstr "Satu profil bernama %s sudah wujud. Anda hendak menggantikannya?"
 
 #: translate_tmp.pl:79
 msgid "translator-credits"
@@ -1764,6 +1849,7 @@ msgstr ""
 "  Ahmed Noor Kader Mustajir Md Eusoff https://launchpad.net/~sir.ade\n"
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
 "  Mohd Farimi Ab Rahman https://launchpad.net/~farimi\n"
+"  abuyop https://launchpad.net/~abuyop\n"
 "  melayubuntu https://launchpad.net/~zul-malc\n"
 "  myromance123 https://launchpad.net/~linkinpark-neon"
 
@@ -1780,11 +1866,11 @@ msgstr "_Sunting"
 #: translate_tmp.pl:44
 #: translate_tmp.pl:5867
 msgid "_View"
-msgstr ""
+msgstr "_Papar"
 
 #: translate_tmp.pl:49
 msgid "_Screenshot"
-msgstr ""
+msgstr "_Cekupan Skrin"
 
 #: translate_tmp.pl:54
 msgid "_Go"
@@ -1796,37 +1882,37 @@ msgstr "_Bantuan"
 
 #: translate_tmp.pl:87
 msgid "_Open..."
-msgstr ""
+msgstr "_Buka..."
 
 #: translate_tmp.pl:92
 msgid "Recent _Files"
-msgstr ""
+msgstr "_Fail Baru-baru Ini"
 
 #: translate_tmp.pl:103
 msgid "Save _As..."
-msgstr ""
+msgstr "Simpan Seb_agai..."
 
 #: translate_tmp.pl:114
 #: translate_tmp.pl:5922
 msgid "E_xport to PDF..."
-msgstr ""
+msgstr "E_ksport ke PDF..."
 
 #: translate_tmp.pl:119
 #: translate_tmp.pl:5925
 msgid "Export to Post_Script..."
-msgstr ""
+msgstr "EKsport ke Post_Script..."
 
 #: translate_tmp.pl:129
 msgid "Page Set_up"
-msgstr ""
+msgstr "Pe_rsediaan Halaman"
 
 #: translate_tmp.pl:136
 msgid "_Print..."
-msgstr ""
+msgstr "_Cetak..."
 
 #: translate_tmp.pl:144
 msgid "Send by E_mail..."
-msgstr ""
+msgstr "Hantar melalui E-_mel"
 
 #: translate_tmp.pl:159
 msgid "C_lose all"
@@ -1835,19 +1921,19 @@ msgstr "T_utup semua"
 #: translate_tmp.pl:204
 #: translate_tmp.pl:705
 msgid "Copy _Filename"
-msgstr ""
+msgstr "Salin Nama _Fail"
 
 #: translate_tmp.pl:246
 msgid "Show Navigation _Toolbar"
-msgstr ""
+msgstr "Papar Palang Ala_t Pandu Arah"
 
 #: translate_tmp.pl:328
 msgid "Get Help Online..."
-msgstr ""
+msgstr "Dapatkan Bantuan Atas Talian..."
 
 #: translate_tmp.pl:343
 msgid "Translate this Application..."
-msgstr ""
+msgstr "Terjemahkan Aplikasi Ini..."
 
 #: translate_tmp.pl:358
 msgid "Report a Problem"
@@ -1855,85 +1941,87 @@ msgstr "Laporkan Masalah"
 
 #: translate_tmp.pl:446
 msgid "_Active Window"
-msgstr ""
+msgstr "Tetingkap _Aktif"
 
 #: translate_tmp.pl:538
 msgid "Import from clip_board"
-msgstr ""
+msgstr "Import dari papan ke_ratan"
 
 #: translate_tmp.pl:558
 #: translate_tmp.pl:655
 msgid "Open wit_h"
-msgstr ""
+msgstr "Buka den_gan"
 
 #: translate_tmp.pl:565
 #: translate_tmp.pl:662
 msgid "Show in _folder"
-msgstr ""
+msgstr "Papar dalam _folder"
 
 #: translate_tmp.pl:572
 #: translate_tmp.pl:669
 msgid "_Rename..."
-msgstr ""
+msgstr "_Namakan semula..."
 
 #: translate_tmp.pl:581
 #: translate_tmp.pl:677
 msgid "_Send To..."
-msgstr ""
+msgstr "Hantar _Ke..."
 
 #: translate_tmp.pl:590
 #: translate_tmp.pl:685
 msgid "E_xport..."
-msgstr ""
+msgstr "E_ksport..."
 
 #: translate_tmp.pl:597
 #: translate_tmp.pl:691
 msgid "Public URLs"
-msgstr ""
+msgstr "URL Awam"
 
 #: translate_tmp.pl:605
 #: translate_tmp.pl:718
 msgid "_Edit..."
-msgstr ""
+msgstr "_Sunting..."
 
 #: translate_tmp.pl:622
 msgid "Run a _plugin..."
-msgstr ""
+msgstr "Jalankan _pemalam"
 
 #: translate_tmp.pl:631
 #: translate_tmp.pl:742
 msgid "Redo _this screenshot"
-msgstr ""
+msgstr "Buat semula cekupan skrin _ini"
 
 #: translate_tmp.pl:734
 msgid "Run a _Plugin..."
-msgstr ""
+msgstr "Jalankan _Pemalam..."
 
 #: translate_tmp.pl:40
 msgid "Redo last screenshot"
-msgstr ""
+msgstr "Buat semula cekupan skrin terakhir"
 
 #: translate_tmp.pl:70
 msgid ""
 "Draw a rectangular capture area with your mouse\n"
 "to select a specified screen area"
 msgstr ""
+"Lukiskan kawasan tangkapan segiempat dengan tetikus anda\n"
+"untuk memilih kawasan skrin yang ditentukan"
 
 #: translate_tmp.pl:71
 msgid "Choose selection tool"
-msgstr ""
+msgstr "Pilih alat pemilihan"
 
 #: translate_tmp.pl:90
 msgid "Desktop"
-msgstr ""
+msgstr "Dekstop"
 
 #: translate_tmp.pl:93
 msgid "Take a screenshot of your whole desktop"
-msgstr ""
+msgstr "Ambil cekupan skrin bagi keseluruhan dekstop anda"
 
 #: translate_tmp.pl:94
 msgid "Capture a specific workspace"
-msgstr ""
+msgstr "Tangkap ruang kerja khusus"
 
 #: translate_tmp.pl:132
 msgid "Window"
@@ -1941,25 +2029,27 @@ msgstr "Tetingkap"
 
 #: translate_tmp.pl:135
 msgid "Select a window with your mouse"
-msgstr ""
+msgstr "Pilih tetingkap dengan tetikus anda"
 
 #: translate_tmp.pl:136
 msgid "Take a screenshot of a specific window"
-msgstr ""
+msgstr "Ambil cekupan skrin bagi tetingkap khusus"
 
 #: translate_tmp.pl:154
 msgid ""
 "Captures only a section of the window. You will be able to select any child "
 "window by moving the mouse over it"
 msgstr ""
+"Hanya tangkap bahagian tetingkap. Anda boleh memilih mana-mana tetingkap "
+"anak dengan mengalihkan tetikus diatasnya"
 
 #: translate_tmp.pl:174
 msgid "Select a single menu or cascading menus from any application"
-msgstr ""
+msgstr "Pilih menu tunggal atau menu bertindih dari mana-mana aplikasi"
 
 #: translate_tmp.pl:194
 msgid "Capture a tooltip"
-msgstr ""
+msgstr "Tangkap tip alat"
 
 #: translate_tmp.pl:212
 #: translate_tmp.pl:79
@@ -1971,30 +2061,36 @@ msgid ""
 "Set how long Shutter will wait for the screenshot to complete before "
 "aborting the process if it's taking too long"
 msgstr ""
+"Tetapkan berapa lama Shutter menunggu cekupan skrin selesai sebelum "
+"menghenti paksa proses jika ia mengambil masa yang terlalu lama"
 
 #: translate_tmp.pl:234
 msgid "Edit"
-msgstr ""
+msgstr "Sunting"
 
 #: translate_tmp.pl:237
 msgid ""
 "Use the built-in editor to highlight important fragments of your screenshot "
 "or crop it to a desired size"
 msgstr ""
+"Guna penyunting terbina-dalam untuk sorotkan serpihan penting cekupan skrin "
+"anda atau kerat ia kepada saiz yang dikehendaki"
 
 #: translate_tmp.pl:244
 msgid "Export"
-msgstr ""
+msgstr "Eksport"
 
 #: translate_tmp.pl:247
 msgid ""
 "Upload your images to an image hosting service, FTP site or export them to "
 "an arbitrary folder"
 msgstr ""
+"Muat naik imej anda ke perkhidmatan pengehosan imej, laman FTP atau eksport "
+"ia ke folder arbitari"
 
 #: translate_tmp.pl:248
 msgid "Show links to previous uploads"
-msgstr ""
+msgstr "Papar pautan ke muat naik terdahulu"
 
 #: translate_tmp.pl:33
 #: translate_tmp.pl:47
@@ -2002,7 +2098,7 @@ msgstr ""
 #: translate_tmp.pl:76
 #, perl-format
 msgid "Error while executing %s."
-msgstr ""
+msgstr "Ralat semasa melakukan %s."
 
 #: translate_tmp.pl:34
 #: translate_tmp.pl:48
@@ -2010,7 +2106,7 @@ msgstr ""
 #: translate_tmp.pl:77
 #, perl-format
 msgid "There was an error executing %s."
-msgstr ""
+msgstr "Terdapat ralat melakukan %s."
 
 #: translate_tmp.pl:37
 #: translate_tmp.pl:51
@@ -2018,281 +2114,287 @@ msgstr ""
 #: translate_tmp.pl:80
 #, perl-format
 msgid "Exit Code: %d."
-msgstr ""
+msgstr "Kod Keluar: %d"
 
 #: translate_tmp.pl:167
 msgid "Synchronization complete"
-msgstr ""
+msgstr "Penyegerakan selesai"
 
 #: translate_tmp.pl:169
 msgid "Synchronization in progress..."
-msgstr ""
+msgstr "Penyegerakan dalam proses..."
 
 #: translate_tmp.pl:61
 msgid "Illegal URI."
-msgstr ""
+msgstr "URL tidak sah."
 
 #: translate_tmp.pl:81
 msgid "Connection error."
-msgstr ""
+msgstr "Ralat sambungan."
 
 #: translate_tmp.pl:82
 msgid "Please check your connectivity and try again."
-msgstr ""
+msgstr "Sila semak penyambungan anda dan cuba lagi."
 
 #: translate_tmp.pl:88
 #, perl-format
 msgid "Login with username %s failed."
-msgstr ""
+msgstr "Daftar masuk dengan nama pengguna %s mengalami kegagalan."
 
 #: translate_tmp.pl:108
 msgid "Cannot change working directory."
-msgstr ""
+msgstr "Tidak dapat ubah direktori kerja."
 
 #: translate_tmp.pl:118
 msgid "Command 'put' failed."
-msgstr ""
+msgstr "Perintah 'put' gagal."
 
 #: translate_tmp.pl:87
 msgid "Copy this code to clipboard"
-msgstr ""
+msgstr "Salin kod ini ke papan keratan"
 
 #: translate_tmp.pl:112
 #, perl-format
 msgid "Upload - %s - %s"
-msgstr ""
+msgstr "Muat naik - %s - %s"
 
 #: translate_tmp.pl:121
 msgid "Draw a rectangular area using the mouse."
-msgstr ""
+msgstr "Lukis kawasan segiempat menggunakan tetikus."
 
 #: translate_tmp.pl:124
 msgid "To take a screenshot, press the Enter key. Press Esc to quit."
 msgstr ""
+"Untuk engambil cekupan skrin, tekan kekunci Enter. Tekan Esc untuk keluar."
 
 #: translate_tmp.pl:127
 msgid "<b>shift/right-click</b> → selection dialog on/off"
-msgstr ""
+msgstr "<b>shift/klik-kanan</b> → dialog pemilihan dihidupkan/dimatikan"
 
 #: translate_tmp.pl:128
 msgid "<b>ctrl + scrollwheel</b> → zoom in/out"
-msgstr ""
+msgstr "<b>ctrl + roda tatal</b> → zum masuk/keluar"
 
 #: translate_tmp.pl:129
 msgid "<b>space</b> → zoom window on/off"
-msgstr ""
+msgstr "<b>space</b> → zum tetingkap dihidupkan/dimatikan"
 
 #: translate_tmp.pl:130
 msgid "<b>cursor keys</b> → move cursor"
-msgstr ""
+msgstr "<b>kekunci kursor</b> → gerak kursor"
 
 #: translate_tmp.pl:131
 msgid "<b>cursor keys + alt</b> → move selection"
-msgstr ""
+msgstr "<b>kekunci kursor + alt</b> → gerak pemilihan"
 
 #: translate_tmp.pl:132
 msgid "<b>cursor keys + ctrl</b> → resize selection"
-msgstr ""
+msgstr "<b>kekunci kursor + ctrl</b> → saiz semula pemilihan"
 
 #: translate_tmp.pl:88
 msgid ""
 "Maybe mouse pointer could not be grabbed or the selected area is invalid."
 msgstr ""
+"Mungkin penuding tetikus tidak dapat dicekau atau kawasan terpilih tidak sah."
 
 #: translate_tmp.pl:96
 msgid "Keyboard could not be grabbed."
-msgstr ""
+msgstr "Papan kekunci tidak boleh dicekau."
 
 #: translate_tmp.pl:105
 msgid "menu"
-msgstr ""
+msgstr "menu"
 
 #: translate_tmp.pl:107
 msgid "tooltip"
-msgstr ""
+msgstr "tip alat"
 
 #: translate_tmp.pl:111
 #, perl-format
 msgid "No window with type %s detected."
-msgstr ""
+msgstr "Tiada tetingkap dengan jenis %s dikesan."
 
 #: translate_tmp.pl:119
 msgid "There is no last capture that can be redone."
-msgstr ""
+msgstr "Tiada tangkapan terakhir boleh dibuat semula."
 
 #: translate_tmp.pl:127
 msgid "The window is no longer available."
-msgstr ""
+msgstr "Tetingkap tiada lagi tersedia."
 
 #: translate_tmp.pl:139
 #: translate_tmp.pl:145
 msgid "Unable to capture website"
-msgstr ""
+msgstr "Tidak boleh menangkap laman sesawang"
 
 #: translate_tmp.pl:153
 #, perl-format
 msgid "No window with name pattern %s detected."
-msgstr ""
+msgstr "Tiada tetingkap dengan corak nama %s dikesan."
 
 #: translate_tmp.pl:163
 #, perl-format
 msgid "Invalid pattern %s detected."
-msgstr ""
+msgstr "Corak %s tidak sah dikesan."
 
 #: translate_tmp.pl:122
 msgid "No subwindow detected"
-msgstr ""
+msgstr "Tiada sub-tetingkap dikesan"
 
 #: translate_tmp.pl:123
 msgid ""
 "Maybe this window is using client-side windows (or similar).\n"
 "Shutter is not yet able to query the tree information of such windows."
 msgstr ""
+"Mungkin tetingkap ini menggunakan tetingkap sisi-klien (yang serupa).\n"
+"Shutter tidak dapat menanya maklumat pepohon bagi tetingkap sebegitu."
 
 #: translate_tmp.pl:81
 msgid "URL to capture"
-msgstr ""
+msgstr "URL untuk ditangkap"
 
 #: translate_tmp.pl:98
 msgid "C_apture"
-msgstr ""
+msgstr "T_angkap"
 
 #: translate_tmp.pl:157
 msgid "Workspaces"
-msgstr ""
+msgstr "Ruang Kerja"
 
 #: translate_tmp.pl:447
 #: translate_tmp.pl:4014
 msgid "Fill color"
-msgstr ""
+msgstr "Warna isian"
 
 #: translate_tmp.pl:454
 #: translate_tmp.pl:455
 msgid "Adjust fill color and opacity"
-msgstr ""
+msgstr "Laras warna isian dan kelegapan"
 
 #: translate_tmp.pl:461
 #: translate_tmp.pl:4033
 msgid "Stroke color"
-msgstr ""
+msgstr "Warna lejang"
 
 #: translate_tmp.pl:466
 #: translate_tmp.pl:4039
 msgid "Choose stroke color"
-msgstr ""
+msgstr "Pilih warna lejang"
 
 #: translate_tmp.pl:468
 #: translate_tmp.pl:469
 msgid "Adjust stroke color and opacity"
-msgstr ""
+msgstr "Laras warna lejang dan kelegapan"
 
 #: translate_tmp.pl:475
 #: translate_tmp.pl:4000
 msgid "Line width"
-msgstr ""
+msgstr "Lebar Garisan"
 
 #: translate_tmp.pl:479
 #: translate_tmp.pl:480
 msgid "Adjust line width"
-msgstr ""
+msgstr "Laras lebar garisan"
 
 #: translate_tmp.pl:486
 #: translate_tmp.pl:4076
 #: translate_tmp.pl:4200
 msgid "Font"
-msgstr ""
+msgstr "Fon"
 
 #: translate_tmp.pl:490
 #: translate_tmp.pl:491
 msgid "Select font family and size"
-msgstr ""
+msgstr "Pilih keluarga dan saiz fon"
 
 #: translate_tmp.pl:497
 msgid "Insert image"
-msgstr ""
+msgstr "sisip imej"
 
 #: translate_tmp.pl:610
 #: translate_tmp.pl:611
 msgid "Insert an arbitrary object or file"
-msgstr ""
+msgstr "Sisip objek atau fail arbitari"
 
 #: translate_tmp.pl:631
 msgid "X"
-msgstr ""
+msgstr "X"
 
 #: translate_tmp.pl:650
 msgid "Y"
-msgstr ""
+msgstr "Y"
 
 #: translate_tmp.pl:669
 #: translate_tmp.pl:4129
 msgid "Width"
-msgstr ""
+msgstr "Lebar"
 
 #: translate_tmp.pl:688
 msgid "Height"
-msgstr ""
+msgstr "Tinggi"
 
 #: translate_tmp.pl:718
 msgid "_Crop"
-msgstr ""
+msgstr "_Kerat"
 
 #: translate_tmp.pl:863
 msgid "Click-Drag to scale (try Control to scale uniformly)"
-msgstr ""
+msgstr "Klik-Seret untuk skalakan (cuba Kawal untuk skalakan dengan seragam)"
 
 #: translate_tmp.pl:865
 msgid "Click-Drag to resize the canvas"
-msgstr ""
+msgstr "Klik-Seret untuk saizkan semula kanvas"
 
 #: translate_tmp.pl:870
 msgid "Click to paint (try Control or Shift for a straight line)"
 msgstr ""
+"Klik untuk mengecat (cuba Control atau Shift untuk dapatkan garis lurus)"
 
 #: translate_tmp.pl:874
 msgid "Click-Drag to create a new straight line"
-msgstr ""
+msgstr "Klik-Seret untuk cipta garis lurus baru"
 
 #: translate_tmp.pl:878
 msgid "Click-Drag to create a new arrow"
-msgstr ""
+msgstr "Klik-Seret untuk cipta anak panah baru"
 
 #: translate_tmp.pl:882
 msgid "Click-Drag to create a new rectangle"
-msgstr ""
+msgstr "Klik-Seret untuk cipta segiempat baru"
 
 #: translate_tmp.pl:886
 msgid "Click-Drag to create a new ellipse"
-msgstr ""
+msgstr "Klik-Seret untuk cipta elips baru"
 
 #: translate_tmp.pl:890
 msgid "Click-Drag to add a new text area"
-msgstr ""
+msgstr "Klik-Seret untuk tambah kawasan teks baru"
 
 #: translate_tmp.pl:894
 msgid "Click to censor (try Control or Shift for a straight line)"
 msgstr ""
+"Klik untuk mencoret (cuba Control atau Shift untuk dapatkan garis lurus)"
 
 #: translate_tmp.pl:898
 msgid "Click-Drag to create a pixelized region"
-msgstr ""
+msgstr "Klik-Seret untuk cipta kawasan terpiksel"
 
 #: translate_tmp.pl:902
 msgid "Click to add an auto-increment shape"
-msgstr ""
+msgstr "Klik untuk tambah bentuk menokok-sendiri"
 
 #: translate_tmp.pl:1223
 #, perl-format
 msgid "Save the changes to image %s before closing?"
-msgstr ""
+msgstr "Simpan perubahan ke imej %s sebelum menutup?"
 
 #: translate_tmp.pl:1239
 msgid "Close"
-msgstr ""
+msgstr "Tutup"
 
 #: translate_tmp.pl:1242
 msgid "Do_n't save"
-msgstr ""
+msgstr "_Jangan simpan"
 
 #: translate_tmp.pl:1308
 #, perl-format
@@ -2300,282 +2402,287 @@ msgid ""
 "If you don't save the image, changes from the last minute will be lost"
 msgid_plural ""
 "If you don't save the image, changes from the last %d minutes will be lost"
-msgstr[0] ""
+msgstr[0] "Jika anda tidak simpan imej, perubahan minit terakhir akan hilang"
 msgstr[1] ""
+"Jika anda tidak simpan imej, perubahan %d minit terakhir akan hilang"
 
 #: translate_tmp.pl:1703
 msgid "Do you want to save the changed background color?"
-msgstr ""
+msgstr "Anda hendak simpan warna latar belakang yang berubah?"
 
 #: translate_tmp.pl:1704
 msgid ""
 "The background is likely to be transparent if you decide to ignore the "
 "background color."
 msgstr ""
+"Latar belakang kelihatan lutsinar jika anda bercadang untuk abaikan warna "
+"latar belakang."
 
 #: translate_tmp.pl:1706
 msgid "Save Background Color"
-msgstr ""
+msgstr "Simpan Warna Latar Belakang"
 
 #: translate_tmp.pl:1709
 msgid "_Ignore Background Color"
-msgstr ""
+msgstr "Aba_i Warna Latar Belakang"
 
 #: translate_tmp.pl:1712
 msgid "_Save Background Color"
-msgstr ""
+msgstr "_Simpan Warna Latar Belakang"
 
 #: translate_tmp.pl:3760
 msgid "Change Background Color..."
-msgstr ""
+msgstr "_Ubah Warna Latar Belakang..."
 
 #: translate_tmp.pl:3770
 msgid "_Reset to Default"
-msgstr ""
+msgstr "Teta_p Semula ke Lalai"
 
 #: translate_tmp.pl:3820
 msgid "Raise"
-msgstr ""
+msgstr "Naikkan"
 
 #: translate_tmp.pl:3843
 msgid "Lower"
-msgstr ""
+msgstr "Turunkan"
 
 #: translate_tmp.pl:3888
 msgid "Unlock"
-msgstr ""
+msgstr "Buka"
 
 #: translate_tmp.pl:3891
 msgid "Lock"
-msgstr ""
+msgstr "Kunci"
 
 #: translate_tmp.pl:3913
 msgid "Edit Preferences..."
-msgstr ""
+msgstr "Sunting Keutamaan..."
 
 #: translate_tmp.pl:4054
 msgid "Numbering"
-msgstr ""
+msgstr "Penomboran"
 
 #: translate_tmp.pl:4064
 msgid "Current value"
-msgstr ""
+msgstr "Nilai semasa"
 
 #: translate_tmp.pl:4119
 #: translate_tmp.pl:5989
 msgid "Arrow"
-msgstr ""
+msgstr "Anak Panah"
 
 #: translate_tmp.pl:4141
 msgid "Length"
-msgstr ""
+msgstr "Panjang"
 
 #: translate_tmp.pl:4153
 msgid "Tip length"
-msgstr ""
+msgstr "Panjang tip"
 
 #: translate_tmp.pl:4163
 msgid "Display an arrow at the end of the line"
-msgstr ""
+msgstr "Paparkan anak panah dihujung garis"
 
 #: translate_tmp.pl:4165
 msgid "Display an arrow at the start of the line"
-msgstr ""
+msgstr "Paparkan anak panah dipermulaan garis"
 
 #: translate_tmp.pl:4190
 #: translate_tmp.pl:5992
 msgid "Text"
-msgstr ""
+msgstr "Teks"
 
 #: translate_tmp.pl:4229
 msgid "Font color"
-msgstr ""
+msgstr "Warna fon"
 
 #: translate_tmp.pl:4235
 msgid "Choose font color"
-msgstr ""
+msgstr "Pilih warna fon"
 
 #: translate_tmp.pl:4257
 msgid "Use selected font"
-msgstr ""
+msgstr "Guna fon pilihan"
 
 #: translate_tmp.pl:4263
 msgid "Use selected font color"
-msgstr ""
+msgstr "Guna warna fon terpilih"
 
 #: translate_tmp.pl:5866
 msgid "_Tools"
-msgstr ""
+msgstr "_Alatan"
 
 #: translate_tmp.pl:5868
 msgid "Undo last action"
-msgstr ""
+msgstr "Buat asal tindakan terakhir"
 
 #: translate_tmp.pl:5871
 msgid "Do again the last undone action"
-msgstr ""
+msgstr "Buat lagi tindakan buat asal terakhir"
 
 #: translate_tmp.pl:5874
 msgid "Copy selection to clipboard"
-msgstr ""
+msgstr "Salin pemilihan ke papan keratan"
 
 #: translate_tmp.pl:5880
 msgid "Cut selection to clipboard"
-msgstr ""
+msgstr "Tampal pemilihan ke papan keratan"
 
 #: translate_tmp.pl:5887
 msgid "Paste objects from clipboard"
-msgstr ""
+msgstr "Tampal objek dari papan keratan"
 
 #: translate_tmp.pl:5890
 msgid "Delete current object"
-msgstr ""
+msgstr "Padam objek semasa"
 
 #: translate_tmp.pl:5893
 msgid "Clear canvas"
-msgstr ""
+msgstr "Kosongkan kanvas"
 
 #: translate_tmp.pl:5907
 msgid "Abort current mode"
-msgstr ""
+msgstr "Henti paksa mod semasa"
 
 #: translate_tmp.pl:5910
 msgid "Close this window"
-msgstr ""
+msgstr "Tutup tetingkap ini"
 
 #: translate_tmp.pl:5913
 msgid "Save image"
-msgstr ""
+msgstr "Simpan imej"
 
 #: translate_tmp.pl:5916
 msgid "Export to _File..."
-msgstr ""
+msgstr "Eksport ke _Fail..."
 
 #: translate_tmp.pl:5916
 msgid "Export to File..."
-msgstr ""
+msgstr "Eksport ke Fail..."
 
 #: translate_tmp.pl:5919
 msgid "_Export to SVG..."
-msgstr ""
+msgstr "_Eksport ke SVG..."
 
 #: translate_tmp.pl:5919
 msgid "Export to SVG..."
-msgstr ""
+msgstr "Eksport ke SVG..."
 
 #: translate_tmp.pl:5922
 msgid "Export to PDF..."
-msgstr ""
+msgstr "Eksport ke PDF..."
 
 #: translate_tmp.pl:5925
 msgid "Export to PostScript..."
-msgstr ""
+msgstr "Eksport ke PostScript..."
 
 #: translate_tmp.pl:5949
 msgid "Automatic scrolling"
-msgstr ""
+msgstr "Penatalan automatik"
 
 #: translate_tmp.pl:5985
 msgid "Select"
-msgstr ""
+msgstr "Pilih"
 
 #: translate_tmp.pl:5985
 msgid "Select item to move or resize it"
-msgstr ""
+msgstr "Pilih item untuk alih atau saiz semula ia"
 
 #: translate_tmp.pl:5986
 msgid "Freehand"
-msgstr ""
+msgstr "Lakaran tangan"
 
 #: translate_tmp.pl:5986
 msgid "Draw a freehand line"
-msgstr ""
+msgstr "Lukis garis lakaran tangan"
 
 #: translate_tmp.pl:5987
 msgid "Highlighter"
-msgstr ""
+msgstr "Penyorot"
 
 #: translate_tmp.pl:5988
 msgid "Line"
-msgstr ""
+msgstr "Garis"
 
 #: translate_tmp.pl:5988
 msgid "Draw a straight line"
-msgstr ""
+msgstr "Lukis garis lurus"
 
 #: translate_tmp.pl:5989
 msgid "Draw an arrow"
-msgstr ""
+msgstr "Lukis anak panah"
 
 #: translate_tmp.pl:5990
 msgid "Rectangle"
-msgstr ""
+msgstr "Segiempat Tepat"
 
 #: translate_tmp.pl:5990
 msgid "Draw a rectangle"
-msgstr ""
+msgstr "Lukis segiempat tepat"
 
 #: translate_tmp.pl:5991
 msgid "Ellipse"
-msgstr ""
+msgstr "Elips"
 
 #: translate_tmp.pl:5991
 msgid "Draw a ellipse"
-msgstr ""
+msgstr "Lukis elips"
 
 #: translate_tmp.pl:5992
 msgid "Add some text to the screenshot"
-msgstr ""
+msgstr "Tambah beberapa teks ke cekupan skrin"
 
 #: translate_tmp.pl:5993
 msgid "Censor"
-msgstr ""
+msgstr "Coret"
 
 #: translate_tmp.pl:5993
 msgid "Censor portions of your screenshot to hide private data"
-msgstr ""
+msgstr "Coretkan bahagian cekupan skrin anda untuk sembunyikan data peribadi"
 
 #: translate_tmp.pl:5994
 msgid "Pixelize"
-msgstr ""
+msgstr "Pikselkan"
 
 #: translate_tmp.pl:5994
 msgid "Pixelize selected areas of your screenshot to hide private data"
 msgstr ""
+"Pikselkan kawasan terpilih bagi cekupan skrin anda untuk sembunyikan data "
+"peribadi"
 
 #: translate_tmp.pl:5995
 msgid "Number"
-msgstr ""
+msgstr "Bilangan"
 
 #: translate_tmp.pl:5995
 msgid "Add an auto-increment shape to the screenshot"
-msgstr ""
+msgstr "Tambah bentuk menokok-sendiri ke cekupan skrin"
 
 #: translate_tmp.pl:5996
 msgid "Crop"
-msgstr ""
+msgstr "Kerat"
 
 #: translate_tmp.pl:5996
 msgid "Crop your screenshot"
-msgstr ""
+msgstr "Kerat cekupan skrin anda"
 
 #: translate_tmp.pl:6250
 #: translate_tmp.pl:6440
 msgid "No icon was found"
-msgstr ""
+msgstr "Tiada ikon ditemui"
 
 #: translate_tmp.pl:6309
 msgid "Import from current theme..."
-msgstr ""
+msgstr "Import dari tema semasa..."
 
 #: translate_tmp.pl:6323
 msgid "Import from session..."
-msgstr ""
+msgstr "Import dari sesi..."
 
 #: translate_tmp.pl:6334
 msgid "Import from filesystem..."
-msgstr ""
+msgstr "Import dari sistem fail..."
 
 #: translate_tmp.pl:7125
 msgid "New text..."
-msgstr ""
+msgstr "Teks baru..."

@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-20 21:55+0100\n"
-"PO-Revision-Date: 2011-11-24 23:06+0000\n"
-"Last-Translator: Marti Bosch <Unknown>\n"
+"PO-Revision-Date: 2012-02-07 06:07+0000\n"
+"Last-Translator: Fitoschido <fitoschido@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2011-12-01 23:58+0000\n"
-"X-Generator: Launchpad (build 14414)\n"
+"X-Launchpad-Export-Date: 2012-02-23 10:43+0000\n"
+"X-Generator: Launchpad (build 14855)\n"
 
 #: translate_tmp.pl:388
 #: translate_tmp.pl:2574
@@ -32,22 +32,21 @@ msgstr "Preferencias"
 #: translate_tmp.pl:770
 #: translate_tmp.pl:771
 msgid "gnome-web-photo needs to be installed for this feature"
-msgstr ""
-"Se necesita instalar gnome-web-photo para poder usar esta característica"
+msgstr "gnome-web-photo necesita ser instalado para esta característica"
 
 #: translate_tmp.pl:779
 msgid "Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature"
 msgstr ""
-"Se necesita instalar Goo::Canvas/libgoo-canvas-perl para poder usar esta "
+"Goo:: Canvas / libgoo-canvas-perl necesita ser instalado para esta "
 "característica"
 
 #: translate_tmp.pl:812
 msgid "Choose a profile"
-msgstr "Seleccione un perfil"
+msgstr "Elija su perfil"
 
 #: translate_tmp.pl:828
 msgid "Save configuration as profile"
-msgstr "Guardar configuración como perfil"
+msgstr "Guardar la configuración del perfil"
 
 #: translate_tmp.pl:838
 msgid "Delete profile"
@@ -55,7 +54,7 @@ msgstr "Eliminar perfil"
 
 #: translate_tmp.pl:847
 msgid "Load the selected profile's configuration"
-msgstr "Cargar la configuración del perfil seleccionado"
+msgstr "Cargar las configuraciónes del perfil seleccionado"
 
 #: translate_tmp.pl:855
 #: translate_tmp.pl:1129
@@ -70,7 +69,7 @@ msgstr "Guardar"
 
 #: translate_tmp.pl:869
 msgid "First-launch Behavior"
-msgstr "Comportamiento al iniciar por primera vez"
+msgstr "Comportamiento de primer inicio"
 
 #: translate_tmp.pl:876
 msgid "Window Preferences"
@@ -100,23 +99,23 @@ msgstr "Capturar"
 
 #: translate_tmp.pl:918
 msgid "Selection Capture"
-msgstr "Captura de selección"
+msgstr "Seleccionar captura"
 
 #: translate_tmp.pl:925
 msgid "Advanced Selection Capture"
-msgstr "Captura de selección avanzada"
+msgstr "Selección de captura avanzada"
 
 #: translate_tmp.pl:932
 msgid "Window Capture"
-msgstr "Captura de ventana"
+msgstr "Ventana de captura"
 
 #: translate_tmp.pl:939
 msgid "Menu/Tooltip Capture"
-msgstr "Captura de menú/mensaje emergente"
+msgstr "Menú/Herramienta de captura"
 
 #: translate_tmp.pl:946
 msgid "Website Capture"
-msgstr "Captura de sitio web"
+msgstr "Sitio Web de captura"
 
 #: translate_tmp.pl:953
 msgid "Accounts"
@@ -124,7 +123,7 @@ msgstr "Cuentas"
 
 #: translate_tmp.pl:960
 msgid "File Transfer Protocol (FTP)"
-msgstr "Protocolo de transferencia de archivos (FTP)"
+msgstr "Protocolo de Transferencia de Archivos (FTP)"
 
 #: translate_tmp.pl:967
 msgid "Transparent Parts"
@@ -132,25 +131,24 @@ msgstr "Partes transparentes"
 
 #: translate_tmp.pl:974
 msgid "Session View"
-msgstr "Vista de sesión"
+msgstr "Vista de la sesión"
 
 #: translate_tmp.pl:982
 #: translate_tmp.pl:1830
 #: translate_tmp.pl:1834
 msgid "Filename"
-msgstr "Nombre de archivo"
+msgstr "Nombre del archivo"
 
 #: translate_tmp.pl:1008
 #: translate_tmp.pl:9487
 #: translate_tmp.pl:11221
 #, perl-format
 msgid "Reserved character %s is not allowed to be in a filename."
-msgstr ""
-"El caracter reservado %s no se puede utilizar en el nombre del archivo."
+msgstr "Carácter reservado %s no puede ser un nombre de archivo."
 
 #: translate_tmp.pl:1022
 msgid "There are several wildcards available, like\n"
-msgstr "Hay varios comodines disponibles, como\n"
+msgstr "Existen varios caracteres comodín, como\n"
 
 #: translate_tmp.pl:1023
 msgid "%Y = year\n"
@@ -277,7 +275,7 @@ msgstr[1] "segundos"
 
 #: translate_tmp.pl:1254
 msgid "Capture after a delay of"
-msgstr "Capturar depues de un retraso de"
+msgstr "Capturar después de un retraso de"
 
 #: translate_tmp.pl:1268
 #: translate_tmp.pl:1269
@@ -756,6 +754,9 @@ msgid ""
 "your credentials above. Plugins with OAuth support are configured "
 "automatically the first time you use them."
 msgstr ""
+"<b>Atención:</ b> Si un plugin permite subida autorizada, puede introducir "
+"sus credenciales arriba. Los plugins con soporte OAuth se configuran de "
+"forma automática la primera vez que se utilizan."
 
 #: translate_tmp.pl:2207
 #: translate_tmp.pl:10443
@@ -1621,6 +1622,9 @@ msgid ""
 "links will still be available in the screenshot's <i>right-click menu</i> "
 "after closing this dialog."
 msgstr ""
+"Por favor, elija una de las cuentas anteriores y haga clic en <i>Subir</i>. "
+"Los enlaces de las subidas todavía estarán disponibles en el <i>menú de clic "
+"derecho</i> de la captura después de cerrar este cuadro de diálogo."
 
 #: translate_tmp.pl:10354
 msgid ""
@@ -1861,6 +1865,7 @@ msgstr ""
 "Launchpad Contributions:\n"
 "  A. Belén López Garello https://launchpad.net/~belen.lg\n"
 "  A. Emmanuel Mendoza https://launchpad.net/~a.emmanuelmendoza\n"
+"  Aaron Farias https://launchpad.net/~timido\n"
 "  Adrián García https://launchpad.net/~adryitan\n"
 "  Alejandro Del Rincón https://launchpad.net/~alexsp92\n"
 "  Cristian Ferreyra https://launchpad.net/~snake8d2\n"
@@ -1892,7 +1897,8 @@ msgstr ""
 "  hhlp https://launchpad.net/~hhlp\n"
 "  jpangamarca https://launchpad.net/~jpangamarca\n"
 "  juancarlospaco https://launchpad.net/~juancarlospaco\n"
-"  nerjamartin https://launchpad.net/~nerjamartin"
+"  nerjamartin https://launchpad.net/~nerjamartin\n"
+"  Ángel Araya https://launchpad.net/~al-arayaq"
 
 #: translate_tmp.pl:34
 #: translate_tmp.pl:5864

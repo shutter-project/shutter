@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-20 21:55+0100\n"
-"PO-Revision-Date: 2011-11-16 23:53+0000\n"
-"Last-Translator: Mario Kemper (Romario) <mario.kemper@googlemail.com>\n"
+"PO-Revision-Date: 2012-02-16 16:34+0000\n"
+"Last-Translator: Ibrahim Saed <ibraheem5000@gmail.com>\n"
 "Language-Team: Arabic <ar@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n % 100 >= "
 "3 && n % 100 <= 10 ? 3 : n % 100 >= 11 && n % 100 <= 99 ? 4 : 5;\n"
-"X-Launchpad-Export-Date: 2011-12-01 23:58+0000\n"
-"X-Generator: Launchpad (build 14414)\n"
+"X-Launchpad-Export-Date: 2012-02-23 10:43+0000\n"
+"X-Generator: Launchpad (build 14855)\n"
 
 #: translate_tmp.pl:388
 #: translate_tmp.pl:2574
@@ -33,7 +33,7 @@ msgstr "التفضيلات"
 #: translate_tmp.pl:770
 #: translate_tmp.pl:771
 msgid "gnome-web-photo needs to be installed for this feature"
-msgstr ""
+msgstr "تحتاج لتثبيت gnome-web-photo لاستخدام هذه الخاصية"
 
 #: translate_tmp.pl:779
 msgid "Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature"
@@ -53,7 +53,7 @@ msgstr "احذف الملف الشخصي"
 
 #: translate_tmp.pl:847
 msgid "Load the selected profile's configuration"
-msgstr "حمل إعدادات المفات الشخصية المختارة"
+msgstr "حمل إعدادات الملفات الشخصية المختارة"
 
 #: translate_tmp.pl:855
 #: translate_tmp.pl:1129
@@ -80,7 +80,7 @@ msgstr "إعلامات"
 
 #: translate_tmp.pl:890
 msgid "Trash"
-msgstr "المحذوفات"
+msgstr "المُهملات"
 
 #: translate_tmp.pl:897
 msgid "Gnome-Keybinding"
@@ -229,7 +229,7 @@ msgstr "سيتم حفظ لقطات الشاشة في هذا الملف"
 #: translate_tmp.pl:1158
 #: translate_tmp.pl:1161
 msgid "Browse for save folder every time"
-msgstr "قم بإختيار ملف الحفظ في كل مرة"
+msgstr ""
 
 #: translate_tmp.pl:1163
 #: translate_tmp.pl:1166
@@ -258,7 +258,7 @@ msgstr ""
 
 #: translate_tmp.pl:1245
 msgid "Delay"
-msgstr "التأخير"
+msgstr "المُهلة"
 
 #: translate_tmp.pl:1247
 #: translate_tmp.pl:1256
@@ -269,11 +269,15 @@ msgstr "التأخير"
 msgid "second"
 msgid_plural "seconds"
 msgstr[0] "ثانية"
-msgstr[1] "ثواني"
+msgstr[1] "ثانية"
+msgstr[2] "ثانيتين"
+msgstr[3] "ثوانِ"
+msgstr[4] "ثانية"
+msgstr[5] "ثانية"
 
 #: translate_tmp.pl:1254
 msgid "Capture after a delay of"
-msgstr "إلتقط بعد"
+msgstr "التقط بعد الانتظار"
 
 #: translate_tmp.pl:1268
 #: translate_tmp.pl:1269
@@ -286,7 +290,7 @@ msgstr "انتظر كذا ثانية قبل التقاط الصورة"
 
 #: translate_tmp.pl:1285
 msgid "Include Cursor"
-msgstr "إضافة المؤشر"
+msgstr "ضمّن مؤشر الفأرة"
 
 #: translate_tmp.pl:1286
 #: translate_tmp.pl:1292
@@ -296,7 +300,7 @@ msgstr "ضمن"
 
 #: translate_tmp.pl:1348
 msgid "Open with"
-msgstr "افتح بواسطة"
+msgstr "افتح باستخدام"
 
 #: translate_tmp.pl:1349
 #: translate_tmp.pl:1350
@@ -582,7 +586,7 @@ msgstr ""
 #: translate_tmp.pl:1931
 #: translate_tmp.pl:8443
 msgid "Active Window"
-msgstr ""
+msgstr "نافذة نشطة"
 
 #: translate_tmp.pl:1932
 #: translate_tmp.pl:151
@@ -593,7 +597,7 @@ msgstr "مقطع"
 #: translate_tmp.pl:171
 #: translate_tmp.pl:1111
 msgid "Menu"
-msgstr ""
+msgstr "قائمة"
 
 #: translate_tmp.pl:1934
 #: translate_tmp.pl:191
@@ -680,7 +684,7 @@ msgstr ""
 
 #: translate_tmp.pl:2028
 msgid "Desktop Notifications"
-msgstr ""
+msgstr "تنبيهات سطح المكتب"
 
 #: translate_tmp.pl:2029
 msgid "Built-In Notifications"
@@ -689,12 +693,12 @@ msgstr ""
 #: translate_tmp.pl:2033
 #: translate_tmp.pl:2158
 msgid "Ask before moving files to trash"
-msgstr ""
+msgstr "اسأل قبل نقل الملفات للمُهملات"
 
 #: translate_tmp.pl:2034
 #: translate_tmp.pl:2166
 msgid "Move file to trash when closing tab"
-msgstr ""
+msgstr "انقل الملف للمُهملات عند إغلاق اللسان"
 
 #: translate_tmp.pl:2035
 #: translate_tmp.pl:2174
@@ -806,7 +810,7 @@ msgstr "السلوك"
 
 #: translate_tmp.pl:2477
 msgid "Keyboard"
-msgstr ""
+msgstr "لوحة المفاتيح"
 
 #: translate_tmp.pl:2498
 msgid "Upload"
@@ -814,11 +818,11 @@ msgstr "رفع"
 
 #: translate_tmp.pl:2559
 msgid "Plugins"
-msgstr "الإضافات"
+msgstr "المُلحقات"
 
 #: translate_tmp.pl:2561
 msgid "The following plugins are installed"
-msgstr "اﻻضافات التالية مثبته"
+msgstr "المُلحقات التالية مثبته"
 
 #: translate_tmp.pl:2894
 msgid "pixel"
@@ -933,7 +937,7 @@ msgstr "تم تحميل الإعدادات بنجاح"
 #: translate_tmp.pl:5099
 #: translate_tmp.pl:6963
 msgid "Built-in Editor"
-msgstr ""
+msgstr "مُحرّر مضمن"
 
 #: translate_tmp.pl:5153
 msgid "Account-settings could not be restored!"
@@ -965,7 +969,7 @@ msgstr ""
 #: translate_tmp.pl:5421
 #, perl-format
 msgid "Error while moving the file %s to trash."
-msgstr ""
+msgstr "حدث خطأ عند نقل الملف %s للمهملات"
 
 #: translate_tmp.pl:5427
 #, perl-format
@@ -975,14 +979,14 @@ msgstr ""
 #: translate_tmp.pl:5447
 #, perl-format
 msgid "Are you sure you want to move %s to the trash?"
-msgstr ""
+msgstr "هل أنت متأكد أنك تريد نقل %s للمهملات؟"
 
 #: translate_tmp.pl:5448
 #: translate_tmp.pl:5493
 #: translate_tmp.pl:209
 #: translate_tmp.pl:710
 msgid "Move to _Trash"
-msgstr ""
+msgstr "انقل إلى ال_مهملات"
 
 #: translate_tmp.pl:5458
 msgid "deleted"
@@ -990,7 +994,7 @@ msgstr "تم حذفه"
 
 #: translate_tmp.pl:5492
 msgid "Are you sure you want to move the selected files to the trash?"
-msgstr ""
+msgstr "هل أنت متأكد أنك تريد نقل الملفات المُختارة للمهملات؟"
 
 #: translate_tmp.pl:5497
 #: translate_tmp.pl:5526
@@ -1059,7 +1063,7 @@ msgstr ""
 
 #: translate_tmp.pl:5907
 msgid "No plugin installed"
-msgstr "لم يتم تنصيب أي إضافة"
+msgstr "لم يتم تثبيت أي مُلحق"
 
 #: translate_tmp.pl:6120
 #: translate_tmp.pl:6545
@@ -1125,22 +1129,22 @@ msgstr "يتم فتح جميع الملفات بواسطة"
 #: translate_tmp.pl:7056
 #, perl-format
 msgid "Could not apply plugin %s"
-msgstr ""
+msgstr "تعذّر تطبيق المُلحق %s"
 
 #: translate_tmp.pl:7054
 #: translate_tmp.pl:7105
 #, perl-format
 msgid "Successfully applied plugin %s"
-msgstr ""
+msgstr "تم تطبيق المُلحق %s بنجاح"
 
 #: translate_tmp.pl:7108
 #, perl-format
 msgid "Error while executing plugin %s."
-msgstr ""
+msgstr "خطأ عند تنفيذ المُلحق %s."
 
 #: translate_tmp.pl:7109
 msgid "There was an error executing the plugin."
-msgstr ""
+msgstr "حدث خطأ أثناء تنفيذ المُلحق."
 
 #: translate_tmp.pl:7187
 #, perl-format
@@ -1202,19 +1206,19 @@ msgstr "وقع خطأ اثناء فتح المجلد %s ."
 
 #: translate_tmp.pl:8020
 msgid "Updating plugin information"
-msgstr "تحديث معلومات البرنامج المساعد"
+msgstr "تحديث معلومات المُلحقات"
 
 #: translate_tmp.pl:8025
 msgid "Please wait while Shutter updates the plugin information"
-msgstr "الرجاء اﻻنتضار ريثما يتم تحديث معلومات البرامج الملحقة"
+msgstr "الرجاء اﻻنتظار ريثما يتم تحديث معلومات المُلحقات"
 
 #: translate_tmp.pl:8163
 msgid "Updating upload plugin information"
-msgstr ""
+msgstr "تحديث معلومات مُلحق الرفع"
 
 #: translate_tmp.pl:8168
 msgid "Please wait while Shutter updates the upload plugin information"
-msgstr ""
+msgstr "الرجاء الانتظار بينما يُحدث Shutter معلومات مُلحق الرفع"
 
 #: translate_tmp.pl:8375
 msgid "Capture All Workspaces"
@@ -1255,7 +1259,7 @@ msgstr[5] ""
 
 #: translate_tmp.pl:8447
 msgid "Capture the last active window"
-msgstr ""
+msgstr "إلتقط آخر نافذة نشطة"
 
 #: translate_tmp.pl:8486
 #: translate_tmp.pl:403
@@ -1265,7 +1269,7 @@ msgstr "اختيار"
 #: translate_tmp.pl:8512
 #: translate_tmp.pl:429
 msgid "_Desktop"
-msgstr ""
+msgstr "_سطح المكتب"
 
 #: translate_tmp.pl:8546
 msgid "Window _under Cursor"
@@ -1284,7 +1288,7 @@ msgstr "قسم"
 #: translate_tmp.pl:8595
 #: translate_tmp.pl:488
 msgid "_Menu"
-msgstr ""
+msgstr "_قائمة"
 
 #: translate_tmp.pl:8614
 #: translate_tmp.pl:504
@@ -1333,27 +1337,35 @@ msgstr ""
 
 #: translate_tmp.pl:8855
 msgid "Wait indefinitely"
-msgstr ""
+msgstr "انتظر لوقت غير معلوم"
 
 #: translate_tmp.pl:8856
 #: translate_tmp.pl:8857
 #, perl-format
 msgid "Wait max %d second"
 msgid_plural "Wait max %d seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "انتظر %d ثانية كحد أقصى"
+msgstr[1] "انتظر ثانية واحدة كحد أقصى"
+msgstr[2] "انتظر ثانيتان كحد أقصى"
+msgstr[3] "انتظر %d ثوان كحد أقصى"
+msgstr[4] "انتظر %d ثانية كحد أقصى"
+msgstr[5] "انتظر %d ثانية كحد أقصى"
 
 #: translate_tmp.pl:8858
 #: translate_tmp.pl:8859
 #, perl-format
 msgid "Wait max %d minute"
 msgid_plural "Wait max %d minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "انتظر %d دقيقة كحد أقصى"
+msgstr[1] "انتظر دقيقة واحدة كحد أقصى"
+msgstr[2] "انتظر دقيقتان كحد أقصى"
+msgstr[3] "انتظر %d دقائق كحد أقصى"
+msgstr[4] "انتظر %d دقيقة كحد أقصى"
+msgstr[5] "انتظر %d دقيقة كحد أقصى"
 
 #: translate_tmp.pl:8867
 msgid "Shutter will wait indefinitely for the screenshot to capture"
-msgstr ""
+msgstr "سينتظر Shutter إلى وقت غير محدود لالتقاط الشاشة"
 
 #: translate_tmp.pl:8868
 #: translate_tmp.pl:8869
@@ -1365,7 +1377,23 @@ msgid_plural ""
 "Shutter will wait up to %d seconds for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
+"سينتظر Shutter لـ %d ثانية لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
+"طويلًا"
 msgstr[1] ""
+"سينتظر Shutter لثانية واحدة لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
+"طويلًا"
+msgstr[2] ""
+"سينتظر Shutter لثانيتين لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
+"طويلًا"
+msgstr[3] ""
+"سينتظر Shutter لـ %d ثوان لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
+"طويلًا"
+msgstr[4] ""
+"سينتظر Shutter لـ %d ثانية لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
+"طويلًا"
+msgstr[5] ""
+"سينتظر Shutter لـ %d ثانية لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
+"طويلًا"
 
 #: translate_tmp.pl:8870
 #: translate_tmp.pl:8871
@@ -1377,7 +1405,23 @@ msgid_plural ""
 "Shutter will wait up to %d minutes for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
+"سينتظر Shutter لـ %d دقيقة لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
+"طويلًا"
 msgstr[1] ""
+"سينتظر Shutter لدقيقة واحدة لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
+"طويلًا"
+msgstr[2] ""
+"سينتظر Shutter لدقيقتين لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
+"طويلًا"
+msgstr[3] ""
+"سينتظر Shutter لـ %d دقائق لالتقاط الشاشة قبل إجهاض العملية إذا اخذت وقتًا "
+"طويلًا"
+msgstr[4] ""
+"سينتظر Shutter لـ %d دقيقة لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
+"طويلًا"
+msgstr[5] ""
+"سينتظر Shutter لـ %d دقيقة لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
+"طويلًا"
 
 #: translate_tmp.pl:9024
 msgid "Host"
@@ -1458,12 +1502,12 @@ msgstr ""
 
 #: translate_tmp.pl:9450
 msgid "Rename"
-msgstr ""
+msgstr "غيّر الاسم"
 
 #: translate_tmp.pl:9454
 #, perl-format
 msgid "Rename image %s"
-msgstr "اعادة تسمية الصورة %s"
+msgstr "تغيير اسم الصورة %s"
 
 #: translate_tmp.pl:9456
 msgid "New filename"
@@ -1471,12 +1515,12 @@ msgstr "اسم ملف جديد"
 
 #: translate_tmp.pl:9459
 msgid "_Rename"
-msgstr "اعادة تسمية"
+msgstr "_غيّر الاسم"
 
 #: translate_tmp.pl:9558
 #: translate_tmp.pl:9610
 msgid "renamed"
-msgstr "تم إعادة تسميته"
+msgstr "تم تغيير الاسم"
 
 #: translate_tmp.pl:9566
 #: translate_tmp.pl:9618
@@ -1515,11 +1559,11 @@ msgstr "الصورة موجودة بالفعل في %s . استبدالها سو
 #: translate_tmp.pl:1620
 #, perl-format
 msgid "An image named %s already exists. Do you want to replace it?"
-msgstr "الصورة المسى %s موجودة بالفعل . هل تريد استبدالها ؟"
+msgstr "هناك صورة باسم %s موجودة حاليًا. هل تريد استبدالها ؟"
 
 #: translate_tmp.pl:9662
 msgid "Invalid Filename"
-msgstr "اسم الملف عير صالح"
+msgstr "اسم ملف غير صالح"
 
 #: translate_tmp.pl:9687
 #: translate_tmp.pl:6341
@@ -1538,19 +1582,19 @@ msgstr "اختر مكان الحفظ"
 
 #: translate_tmp.pl:10089
 msgid "Choose a plugin"
-msgstr "اختر إضافة"
+msgstr "اختر مُلحق"
 
 #: translate_tmp.pl:10094
 msgid "_Run"
-msgstr ""
+msgstr "_شغّل"
 
 #: translate_tmp.pl:10144
 msgid "Plugin"
-msgstr "إضافة"
+msgstr "مُلحق"
 
 #: translate_tmp.pl:10234
 msgid "No plugin specified"
-msgstr "لم يتم تحديد أي إضافة"
+msgstr "لم يتم تحديد أي مُلحق"
 
 #: translate_tmp.pl:10283
 msgid "Upload / Export"
@@ -1622,7 +1666,23 @@ msgid_plural ""
 "Folder %s is synchronized with Ubuntu One. The selected files will be copied "
 "to that folder before being published."
 msgstr[0] ""
+"المُجلد %s مُتزامن باستخدام أبونتو ون. الملف المُختار سيُنسخ إلى هذا المُجلد "
+"قبل نشره."
 msgstr[1] ""
+"المُجلد %s مُتزامن باستخدام أبونتو ون. الملف المُختار سيُنسخ إلى هذا المُجلد "
+"قبل نشره."
+msgstr[2] ""
+"المُجلد %s مُتزامن باستخدام أبونتو ون. الملفين المُختارين سيُنسخان إلى هذا "
+"المُجلد قبل نشرهما."
+msgstr[3] ""
+"المُجلد %s مُتزامن باستخدام أبونتو ون. الملفات المُختارة ستُنسخ إلى هذا "
+"المُجلد قبل نشرها."
+msgstr[4] ""
+"المُجلد %s مُتزامن باستخدام أبونتو ون. الملفات المُختارة ستُنسخ إلى هذا "
+"المُجلد قبل نشرها."
+msgstr[5] ""
+"المُجلد %s مُتزامن باستخدام أبونتو ون. الملفات المُختارة ستُنسخ إلى هذا "
+"المُجلد قبل نشرها."
 
 #: translate_tmp.pl:10600
 #: translate_tmp.pl:10638
@@ -1641,7 +1701,7 @@ msgstr[1] ""
 msgid ""
 "Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
 "folder."
-msgstr ""
+msgstr "المُجلد %s غير مُتزامن باستخدام أبونتو ون. رجاءً اختر مُجلد بديل."
 
 #: translate_tmp.pl:10663
 msgid "Ubuntu One service cannot be found."
@@ -1666,7 +1726,7 @@ msgstr ""
 #: translate_tmp.pl:10753
 #, perl-format
 msgid "Error while executing upload plugin %s."
-msgstr ""
+msgstr "خطأ أثناء تنفيذ مُلحق الرفع %s."
 
 #: translate_tmp.pl:10754
 msgid "There was an error executing the upload plugin."
@@ -1716,18 +1776,18 @@ msgstr ""
 #: translate_tmp.pl:10961
 #: translate_tmp.pl:11037
 msgid "exported"
-msgstr "مصدّر."
+msgstr "تم التصدير"
 
 #: translate_tmp.pl:10964
 #: translate_tmp.pl:11040
 msgid "Successfully exported"
-msgstr ""
+msgstr "تم التصدير بنجاح"
 
 #: translate_tmp.pl:10964
 #: translate_tmp.pl:11040
 #, perl-format
 msgid "The file %s was successfully exported."
-msgstr ""
+msgstr "تم تصدير الملف %s ينجاح."
 
 #: translate_tmp.pl:10974
 #: translate_tmp.pl:11050
@@ -1798,10 +1858,14 @@ msgstr ""
 "Launchpad Contributions:\n"
 "  Ahmed Mohammed https://launchpad.net/~ahmedqatar\n"
 "  Ali https://launchpad.net/~ccl-339\n"
+"  Ibrahim Saed https://launchpad.net/~ibraheem5000\n"
+"  MEG https://launchpad.net/~meg87\n"
+"  MaXeR https://launchpad.net/~themaxer\n"
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
 "  Mufs https://launchpad.net/~tcp-error\n"
 "  WinkoBit https://launchpad.net/~conanedejawa\n"
 "  abdallah alemran https://launchpad.net/~abukhallad\n"
+"  docesam https://launchpad.net/~doctoresam\n"
 "  drsaudi https://launchpad.net/~mon7b6\n"
 "  faical117 https://launchpad.net/~faical117\n"
 "  foxoman https://launchpad.net/~romance990033\n"
@@ -1815,7 +1879,7 @@ msgstr "_ملف"
 #: translate_tmp.pl:39
 #: translate_tmp.pl:5865
 msgid "_Edit"
-msgstr "_حرِّر"
+msgstr "ت_حرير"
 
 #: translate_tmp.pl:44
 #: translate_tmp.pl:5867
@@ -1875,19 +1939,19 @@ msgstr "_أغلق الكل"
 #: translate_tmp.pl:204
 #: translate_tmp.pl:705
 msgid "Copy _Filename"
-msgstr ""
+msgstr "انسخ ا_سم الملف"
 
 #: translate_tmp.pl:246
 msgid "Show Navigation _Toolbar"
-msgstr ""
+msgstr "اعرض _شريط أدوات التنقّل"
 
 #: translate_tmp.pl:328
 msgid "Get Help Online..."
-msgstr ""
+msgstr "احصل على المساعدة عبر الإنترنت..."
 
 #: translate_tmp.pl:343
 msgid "Translate this Application..."
-msgstr ""
+msgstr "ترجم هذا التطبيق..."
 
 #: translate_tmp.pl:358
 msgid "Report a Problem"
@@ -1895,7 +1959,7 @@ msgstr "أبلغ عن مشكلة"
 
 #: translate_tmp.pl:446
 msgid "_Active Window"
-msgstr ""
+msgstr "نافذة _نشطة"
 
 #: translate_tmp.pl:538
 msgid "Import from clip_board"
@@ -1904,7 +1968,7 @@ msgstr ""
 #: translate_tmp.pl:558
 #: translate_tmp.pl:655
 msgid "Open wit_h"
-msgstr "افتح Wit_h"
+msgstr "افتح با_ستخدام"
 
 #: translate_tmp.pl:565
 #: translate_tmp.pl:662
@@ -1914,12 +1978,12 @@ msgstr ""
 #: translate_tmp.pl:572
 #: translate_tmp.pl:669
 msgid "_Rename..."
-msgstr ""
+msgstr "_غيّر الاسم..."
 
 #: translate_tmp.pl:581
 #: translate_tmp.pl:677
 msgid "_Send To..."
-msgstr ""
+msgstr "إ_رسال إلى..."
 
 #: translate_tmp.pl:590
 #: translate_tmp.pl:685
@@ -1934,11 +1998,11 @@ msgstr ""
 #: translate_tmp.pl:605
 #: translate_tmp.pl:718
 msgid "_Edit..."
-msgstr ""
+msgstr "_حرّر..."
 
 #: translate_tmp.pl:622
 msgid "Run a _plugin..."
-msgstr ""
+msgstr "شغّل مُ_لحق..."
 
 #: translate_tmp.pl:631
 #: translate_tmp.pl:742
@@ -1947,7 +2011,7 @@ msgstr ""
 
 #: translate_tmp.pl:734
 msgid "Run a _Plugin..."
-msgstr ""
+msgstr "شغّل مُ_لحق..."
 
 #: translate_tmp.pl:40
 msgid "Redo last screenshot"
@@ -1967,7 +2031,7 @@ msgstr "اختر أداة التحديد"
 
 #: translate_tmp.pl:90
 msgid "Desktop"
-msgstr ""
+msgstr "سطح المكتب"
 
 #: translate_tmp.pl:93
 msgid "Take a screenshot of your whole desktop"
@@ -2014,26 +2078,29 @@ msgid ""
 "Set how long Shutter will wait for the screenshot to complete before "
 "aborting the process if it's taking too long"
 msgstr ""
+"اضبط كم سينتظر Shutter لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا طويلًا"
 
 #: translate_tmp.pl:234
 msgid "Edit"
-msgstr "تحرير"
+msgstr "حرّر"
 
 #: translate_tmp.pl:237
 msgid ""
 "Use the built-in editor to highlight important fragments of your screenshot "
 "or crop it to a desired size"
 msgstr ""
+"استخدم المُحرّر المُضمن لتوضيح وإبراز الأجزاء المُهمة في الصورة أو لاقتصاص "
+"جزء من الصورة."
 
 #: translate_tmp.pl:244
 msgid "Export"
-msgstr ""
+msgstr "تصدير"
 
 #: translate_tmp.pl:247
 msgid ""
 "Upload your images to an image hosting service, FTP site or export them to "
 "an arbitrary folder"
-msgstr ""
+msgstr "ارفع صورك إلى خادم مضيف للصور، أو موقع FTP أو صدرها إلى مجلد مُحدد"
 
 #: translate_tmp.pl:248
 msgid "Show links to previous uploads"
@@ -2278,7 +2345,7 @@ msgstr "الإرتفاع"
 
 #: translate_tmp.pl:718
 msgid "_Crop"
-msgstr "_قصّر"
+msgstr "ا_قتص"
 
 #: translate_tmp.pl:863
 msgid "Click-Drag to scale (try Control to scale uniformly)"
@@ -2404,7 +2471,7 @@ msgstr ""
 
 #: translate_tmp.pl:3913
 msgid "Edit Preferences..."
-msgstr ""
+msgstr "عدّل التفضيلات..."
 
 #: translate_tmp.pl:4054
 msgid "Numbering"
@@ -2450,11 +2517,11 @@ msgstr "اختر لون الخط"
 
 #: translate_tmp.pl:4257
 msgid "Use selected font"
-msgstr "إستخدام الخط المختار"
+msgstr "استخدم الخط المُختار"
 
 #: translate_tmp.pl:4263
 msgid "Use selected font color"
-msgstr ""
+msgstr "استخدم لون الخط المُختار"
 
 #: translate_tmp.pl:5866
 msgid "_Tools"
@@ -2606,11 +2673,11 @@ msgstr "أضف شكل يزداد ألياً إلى الصورة."
 
 #: translate_tmp.pl:5996
 msgid "Crop"
-msgstr ""
+msgstr "اقتصاص"
 
 #: translate_tmp.pl:5996
 msgid "Crop your screenshot"
-msgstr "قم باقتطاع جزء من الصورة"
+msgstr "قم باقتصاص جزء من الصورة"
 
 #: translate_tmp.pl:6250
 #: translate_tmp.pl:6440

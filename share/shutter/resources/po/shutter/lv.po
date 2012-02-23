@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-20 21:55+0100\n"
-"PO-Revision-Date: 2011-11-24 16:20+0000\n"
+"PO-Revision-Date: 2012-02-11 17:52+0000\n"
 "Last-Translator: tuxmaniack <Unknown>\n"
 "Language-Team: Latvian <lv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-12-01 23:58+0000\n"
-"X-Generator: Launchpad (build 14414)\n"
+"X-Launchpad-Export-Date: 2012-02-23 10:43+0000\n"
+"X-Generator: Launchpad (build 14855)\n"
 
 #: translate_tmp.pl:388
 #: translate_tmp.pl:2574
@@ -284,7 +284,7 @@ msgstr "Uzņemt pēc aiztures"
 #: translate_tmp.pl:1273
 #: translate_tmp.pl:1274
 msgid "Wait n seconds before taking a screenshot"
-msgstr "Gaidīt n sekundes pirms uzņemt ekrānuzņēmumu"
+msgstr "Gaidīt n sekundes, pirms uzņemt ekrānuzņēmumu"
 
 #: translate_tmp.pl:1285
 msgid "Include Cursor"
@@ -743,7 +743,7 @@ msgid ""
 "your credentials above. Plugins with OAuth support are configured "
 "automatically the first time you use them."
 msgstr ""
-"<b>Piezīme:</b> Ja spraudnis atļauj autorizētu augšupielādēšanu, jūs variet "
+"<b>Piezīme:</b> Ja spraudnis atļauj autorizētu augšupielādi, jūs varat "
 "ievadīt savus pieteikšanās datus augšā. Spraudņi ar OAuth tiek konfigurēti "
 "automātiski, kad pirmo reizi tos izmantojiet."
 
@@ -818,7 +818,7 @@ msgstr "Galvenā"
 
 #: translate_tmp.pl:2367
 msgid "Advanced"
-msgstr "Paplašināts"
+msgstr "Paplašināti"
 
 #: translate_tmp.pl:2418
 msgid "Image View"
@@ -958,7 +958,7 @@ msgstr "Neizdevās atjaunot iestatījumus!"
 
 #: translate_tmp.pl:5071
 msgid "Settings loaded successfully"
-msgstr "Iestatījumi veiksmīgi ielādeti"
+msgstr "Iestatījumi veiksmīgi ielādēti"
 
 #: translate_tmp.pl:5099
 #: translate_tmp.pl:6963
@@ -1080,7 +1080,7 @@ msgstr "Gadījās kļūda, veicot atsaukšanu uz %s."
 
 #: translate_tmp.pl:5860
 msgid "Last action redone"
-msgstr "Pēdejā darbība atkārtota"
+msgstr "Pēdējā darbība atkārtota"
 
 #: translate_tmp.pl:5869
 #, perl-format
@@ -1120,7 +1120,7 @@ msgstr "Kļūda, uzņemot ekrānuzņēmumu."
 #: translate_tmp.pl:6573
 #: translate_tmp.pl:134
 msgid "Capture aborted by user"
-msgstr "Uzņemšna pārtraukta pēc lietotāja pieprasījuma"
+msgstr "Uzņemšana pārtraukta pēc lietotāja pieprasījuma"
 
 #: translate_tmp.pl:6692
 #: translate_tmp.pl:6709
@@ -1269,21 +1269,21 @@ msgid_plural ""
 "monitors detected).\n"
 "Enable it to capture only the current monitor."
 msgstr[0] ""
-"Šī opcija ir noderīga tikai, ja izmanto multi-monitoru sistēmu (%d monitors "
-"atklāts).\n"
+"Šī opcija ir noderīga tikai tad, ja tiek izmantota vairāku monitoru sistēma "
+"(%d monitors atklāts).\n"
 "Aktivizējiet to, lai uzņemtu tikai pašreizējo monitoru."
 msgstr[1] ""
-"Šī opcija ir noderīga tikai, ja izmanto multi-monitoru sistēmu (%d monitori "
-"atklāti).\n"
+"Šī opcija ir noderīga tikai tad, ja tiek izmantota vairāku monitoru sistēma "
+"(%d monitori atklāti).\n"
 "Aktivizējiet to, lai uzņemtu tikai pašreizējo monitoru."
 msgstr[2] ""
-"Šī opcija ir noderīga tikai, ja izmanto multi-monitoru sistēmu (%d monitori "
-"atklāti).\n"
+"Šī opcija ir noderīga tikai tad, ja tiek izmantota vairāku monitoru sistēma "
+"(%d monitoru atklāti).\n"
 "Aktivizējiet to, lai uzņemtu tikai pašreizējo monitoru."
 
 #: translate_tmp.pl:8447
 msgid "Capture the last active window"
-msgstr "Uzņemt pēdejo aktīvo logu"
+msgstr "Uzņemt pēdējo aktīvo logu"
 
 #: translate_tmp.pl:8486
 #: translate_tmp.pl:403
@@ -1302,7 +1302,7 @@ msgstr "Logs zem k_ursora"
 #: translate_tmp.pl:8562
 #: translate_tmp.pl:459
 msgid "Select W_indow"
-msgstr "_Izvēlieties logu"
+msgstr "_Izvēlēties logu"
 
 #: translate_tmp.pl:8576
 #: translate_tmp.pl:472
@@ -1327,7 +1327,7 @@ msgstr "_Tīmeklis"
 #: translate_tmp.pl:8650
 #: translate_tmp.pl:395
 msgid "_Redo last screenshot"
-msgstr "_Atkārtot pēdejo ekrānuzņēmumu"
+msgstr "_Atkārtot pēdējo ekrānuzņēmumu"
 
 #: translate_tmp.pl:8661
 #: translate_tmp.pl:223
@@ -1371,7 +1371,7 @@ msgid "Wait max %d second"
 msgid_plural "Wait max %d seconds"
 msgstr[0] "Gaidīt maksimums %d sekundi"
 msgstr[1] "Gaidīt maksimums %d sekundes"
-msgstr[2] "Gaidīt maksimums %d sekundžu"
+msgstr[2] "Gaidīt maksimums %d sekunžu"
 
 #: translate_tmp.pl:8858
 #: translate_tmp.pl:8859
@@ -1379,7 +1379,7 @@ msgstr[2] "Gaidīt maksimums %d sekundžu"
 msgid "Wait max %d minute"
 msgid_plural "Wait max %d minutes"
 msgstr[0] "Gaidīt maksimums %d minūti"
-msgstr[1] "Gaidīt maksimums %d munūtes"
+msgstr[1] "Gaidīt maksimums %d minūtes"
 msgstr[2] "Gaidīt maksimums %d minūšu"
 
 #: translate_tmp.pl:8867
@@ -1759,7 +1759,7 @@ msgstr "Veiksmīgi augšupielādēts"
 #: translate_tmp.pl:11045
 #, perl-format
 msgid "The file %s was successfully uploaded."
-msgstr "The fails %s tika veiksmīgi augšupielādēts."
+msgstr "Fails %s tika veiksmīgi augšupielādēts."
 
 #: translate_tmp.pl:10884
 #: translate_tmp.pl:11017
@@ -1846,7 +1846,7 @@ msgstr "Kļūda, pieslēdzoties"
 
 #: translate_tmp.pl:11192
 msgid "Save current preferences as new profile"
-msgstr "Saglabāt pašreizējos iestatijumus kā jaunu profilu"
+msgstr "Saglabāt pašreizējos iestatījumus kā jaunu profilu"
 
 #: translate_tmp.pl:11194
 msgid "New profile name"
@@ -2019,8 +2019,8 @@ msgid ""
 "Draw a rectangular capture area with your mouse\n"
 "to select a specified screen area"
 msgstr ""
-"Uzzīmēt taisnstūrveida apgabalu, izmantojot peli,\n"
-"lai iezīmētu noteiktu ekrāna daļu"
+"Iezīmēt taisnstūrveida apgabalu, izmantojot peli,\n"
+"lai uzņemtu noteiktu ekrāna daļu"
 
 #: translate_tmp.pl:71
 msgid "Choose selection tool"
@@ -2101,7 +2101,7 @@ msgid ""
 "an arbitrary folder"
 msgstr ""
 "Augšupielādēt attēlus uz attēlu mitināšanas pakalpojumu, FTP vietni vai "
-"eksportēt tos uz noteiktu mapi."
+"eksportēt tos uz noteiktu mapi"
 
 #: translate_tmp.pl:248
 msgid "Show links to previous uploads"
@@ -2171,7 +2171,7 @@ msgstr "Kopēt šo kodu starpliktuvē"
 #: translate_tmp.pl:112
 #, perl-format
 msgid "Upload - %s - %s"
-msgstr "Augšupielādet - %s - %s"
+msgstr "Augšupielādēt - %s - %s"
 
 #: translate_tmp.pl:121
 msgid "Draw a rectangular area using the mouse."
@@ -2358,7 +2358,7 @@ msgstr "Ap_cirst"
 msgid "Click-Drag to scale (try Control to scale uniformly)"
 msgstr ""
 "Nospiediet un velciet, lai mērogotu (mēģiniet Control, lai mērogotu "
-"vienmērigi)"
+"vienmērīgi)"
 
 #: translate_tmp.pl:865
 msgid "Click-Drag to resize the canvas"
@@ -2367,7 +2367,8 @@ msgstr "Nospiediet un velciet, lai mainītu audekla izmēru"
 #: translate_tmp.pl:870
 msgid "Click to paint (try Control or Shift for a straight line)"
 msgstr ""
-"Nospied, lai zīmētu (mēģiniet Control vai Shift, lai zīmētu taisnu līniju)"
+"Klikšķiniet, lai zīmētu (mēģiniet Control vai Shift, lai vilktu taisnu "
+"līniju)"
 
 #: translate_tmp.pl:874
 msgid "Click-Drag to create a new straight line"
@@ -2392,21 +2393,22 @@ msgstr "Nospiediet un velciet, lai izveidotu jaunu teksta laukumu"
 #: translate_tmp.pl:894
 msgid "Click to censor (try Control or Shift for a straight line)"
 msgstr ""
-"Nospied, lai cenzētu (mēģiniet Control vai Shift, lai zīmētu taisnu līniju)"
+"Klikšķiniet, lai cenzētu (mēģiniet Control vai Shift, lai vilktu taisnu "
+"līniju)"
 
 #: translate_tmp.pl:898
 msgid "Click-Drag to create a pixelized region"
-msgstr "Nospiediet un velciet, lai izveidotu pixelizētu reģionu"
+msgstr "Nospiediet un velciet, lai izveidotu pikselizētu reģionu"
 
 #: translate_tmp.pl:902
 msgid "Click to add an auto-increment shape"
 msgstr ""
-"Noklikškini, lai pievienotu automātsiki pieaugošas numeracijas figūru"
+"Noklikšķini, lai pievienotu automātiski pieaugošas numerācijas figūru"
 
 #: translate_tmp.pl:1223
 #, perl-format
 msgid "Save the changes to image %s before closing?"
-msgstr "Saglabāt attēlā %s veiktās izmaiņas pirms aizvērt?"
+msgstr "Saglabāt attēla %s izmaiņas pirms aizvēršanas?"
 
 #: translate_tmp.pl:1239
 msgid "Close"
@@ -2550,7 +2552,7 @@ msgstr "Iekopēt iezīmēto starpliktuvē"
 
 #: translate_tmp.pl:5880
 msgid "Cut selection to clipboard"
-msgstr "Izgriezt iezīmēto starpiktuvē"
+msgstr "Izgriezt iezīmēto starpliktuvē"
 
 #: translate_tmp.pl:5887
 msgid "Paste objects from clipboard"
@@ -2574,7 +2576,7 @@ msgstr "Aizvērt šo logu"
 
 #: translate_tmp.pl:5913
 msgid "Save image"
-msgstr "Salgabāt attēlu"
+msgstr "Saglabāt attēlu"
 
 #: translate_tmp.pl:5916
 msgid "Export to _File..."
@@ -2678,7 +2680,7 @@ msgstr "Numurs"
 
 #: translate_tmp.pl:5995
 msgid "Add an auto-increment shape to the screenshot"
-msgstr "Pievienot automātsiki pieaugošu numerāciju ekrānuzņēmumam"
+msgstr "Pievienot automātiski pieaugošu numerāciju ekrānuzņēmumam"
 
 #: translate_tmp.pl:5996
 msgid "Crop"

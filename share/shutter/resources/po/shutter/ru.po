@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-20 21:55+0100\n"
-"PO-Revision-Date: 2011-11-17 00:01+0000\n"
-"Last-Translator: Mario Kemper (Romario) <mario.kemper@googlemail.com>\n"
+"PO-Revision-Date: 2012-02-07 20:53+0000\n"
+"Last-Translator: Oleg Koptev <koptev.oleg@gmail.com>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2011-12-01 23:58+0000\n"
-"X-Generator: Launchpad (build 14414)\n"
+"X-Launchpad-Export-Date: 2012-02-23 10:43+0000\n"
+"X-Generator: Launchpad (build 14855)\n"
 
 #: translate_tmp.pl:388
 #: translate_tmp.pl:2574
@@ -143,7 +143,7 @@ msgstr "Название файла"
 #: translate_tmp.pl:11221
 #, perl-format
 msgid "Reserved character %s is not allowed to be in a filename."
-msgstr "Зарезервированный символ %s не может использоваться в имени файла"
+msgstr "Зарезервированный символ %s не может использоваться в названии файла"
 
 #: translate_tmp.pl:1022
 msgid "There are several wildcards available, like\n"
@@ -631,6 +631,9 @@ msgid ""
 "<i>D-Bus Control Backend</i> via CompizConfig Settings Manager if your are "
 "using Desktop Effects or Unity."
 msgstr ""
+"<b>Примечнае:</b> Активируйте опцию <i>Gnome Compatibility</i> и <i>D-Bus "
+"Control Backend</i> в CompizConfig Settings Manager если вы используете "
+"Desktop Effects или Unity."
 
 #: translate_tmp.pl:2005
 #: translate_tmp.pl:2061
@@ -742,6 +745,9 @@ msgid ""
 "your credentials above. Plugins with OAuth support are configured "
 "automatically the first time you use them."
 msgstr ""
+"<b>Примечание:</b> Если дополнение позволяет совершать авторизацию на "
+"сервисе, то вы можете ввести свои данные ниже. Дополнения, поддерживающие "
+"OAuth конфигурируются автоматически, при первом их использовании."
 
 #: translate_tmp.pl:2207
 #: translate_tmp.pl:10443
@@ -1124,7 +1130,7 @@ msgstr "Процесс съёмки отменён пользователем"
 #: translate_tmp.pl:6709
 #, perl-format
 msgid "%s saved"
-msgstr ""
+msgstr "%s сохранено"
 
 #: translate_tmp.pl:6698
 #: translate_tmp.pl:6700
@@ -1241,11 +1247,12 @@ msgstr "Пожалуйста, подождите. Shutter обновляет и�
 
 #: translate_tmp.pl:8163
 msgid "Updating upload plugin information"
-msgstr ""
+msgstr "Обновление информации о загрузке плагина"
 
 #: translate_tmp.pl:8168
 msgid "Please wait while Shutter updates the upload plugin information"
 msgstr ""
+"Подождите пожалуйста пока Shutter обновит информацию о загрузке плагина"
 
 #: translate_tmp.pl:8375
 msgid "Capture All Workspaces"
@@ -1414,15 +1421,15 @@ msgstr "Хост"
 
 #: translate_tmp.pl:9081
 msgid "Anonymous Upload"
-msgstr ""
+msgstr "Анонимная загрузка"
 
 #: translate_tmp.pl:9088
 msgid "Authorized Upload"
-msgstr ""
+msgstr "Авторизированная Загрузка"
 
 #: translate_tmp.pl:9095
 msgid "OAuth Upload"
-msgstr ""
+msgstr "OAuth Загрузка"
 
 #: translate_tmp.pl:9106
 #: translate_tmp.pl:9167
@@ -1598,7 +1605,7 @@ msgstr "Гость"
 
 #: translate_tmp.pl:10314
 msgid "OAuth"
-msgstr ""
+msgstr "OAuth"
 
 #: translate_tmp.pl:10349
 msgid ""
@@ -1606,6 +1613,9 @@ msgid ""
 "links will still be available in the screenshot's <i>right-click menu</i> "
 "after closing this dialog."
 msgstr ""
+"Пожалуйста, выберите одну из учётных записей и нажмите <i>Загрузить</i>.  "
+"Ссылки для загрузки будут доступны в скриншотах <i>в меню по правому "
+"клику</i> после закрытия этого диалога."
 
 #: translate_tmp.pl:10354
 msgid ""
@@ -1613,6 +1623,9 @@ msgid ""
 "enter your credentials in preferences first to make it appear in the list "
 "above."
 msgstr ""
+"<b>Примечание:</b> Если дополнение позволяет совершать только авторизованную "
+"загрузку на сервис, то вы должны будете ввести свои данные в настройках "
+"программы для того, чтобы они появились в списке, расположенном ниже."
 
 #: translate_tmp.pl:10358
 msgid "Choose account"
@@ -1653,7 +1666,14 @@ msgid_plural ""
 "Folder %s is synchronized with Ubuntu One. The selected files will be copied "
 "to that folder before being published."
 msgstr[0] ""
+"Папка %s синхронизирована с помощью Ubuntu One. Выбранный файл будет "
+"скопирован в эту папку перед началом публикации."
 msgstr[1] ""
+"Папка %s синхронизирована с помощью Ubuntu One. Выбранные файлы будут "
+"скопирован в эту папку перед началом публикации."
+msgstr[2] ""
+"Папка %s синхронизирована с помощью Ubuntu One. Выбранные файлы будут "
+"скопирован в эту папку перед началом публикации."
 
 #: translate_tmp.pl:10600
 #: translate_tmp.pl:10638
@@ -1664,7 +1684,14 @@ msgid_plural ""
 "<b>Please note:</b> The selected files will be published in a background "
 "process. You will be notified when the process has finished."
 msgstr[0] ""
+"<b>Примечание:</b> Выбранный файл будет опубликован в фоне. Вы будете "
+"уведомлены, когда процесс публикации будет закончен."
 msgstr[1] ""
+"<b>Примечание:</b> Выбранные файлы будут опубликован в фоне. Вы будете "
+"уведомлены, когда процесс публикации будет закончен."
+msgstr[2] ""
+"<b>Примечание:</b> Выбранные файлы будут опубликован в фоне. Вы будете "
+"уведомлены, когда процесс публикации будет закончен."
 
 #: translate_tmp.pl:10607
 #: translate_tmp.pl:10645
@@ -1673,6 +1700,8 @@ msgid ""
 "Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
 "folder."
 msgstr ""
+"Каталог %s не синхронизирован с Ubuntu One. Пожалуйста, выберите другой "
+"каталог."
 
 #: translate_tmp.pl:10663
 msgid "Ubuntu One service cannot be found."
@@ -1696,16 +1725,16 @@ msgstr ""
 #: translate_tmp.pl:10740
 #, perl-format
 msgid "Loading module %s"
-msgstr ""
+msgstr "Загрузка модуля %s"
 
 #: translate_tmp.pl:10753
 #, perl-format
 msgid "Error while executing upload plugin %s."
-msgstr ""
+msgstr "Ошибка при выполнении загрузки модуля %s."
 
 #: translate_tmp.pl:10754
 msgid "There was an error executing the upload plugin."
-msgstr ""
+msgstr "При выполнении загрузки этого модуля произошла ошибка."
 
 #: translate_tmp.pl:10791
 #: translate_tmp.pl:10862
@@ -1832,9 +1861,11 @@ msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
 "  Alexander 'FONTER' Zinin https://launchpad.net/~spore-09\n"
+"  Alexandr Bogovik https://launchpad.net/~kowalski86\n"
 "  Andrei Dziahel https://launchpad.net/~develop7\n"
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
 "  Nkolay Parukhin https://launchpad.net/~parukhin\n"
+"  Oleg Koptev https://launchpad.net/~koptev-oleg\n"
 "  Oleg «Eleidan» Kulik https://launchpad.net/~helh-saintman\n"
 "  Paul Philippov https://launchpad.net/~themactep\n"
 "  Photon https://launchpad.net/~michael-kogan\n"
@@ -1846,6 +1877,7 @@ msgstr ""
 "  Vadim Peretokin https://launchpad.net/~vperetokin\n"
 "  Vlad https://launchpad.net/~vvladxx\n"
 "  segooon https://launchpad.net/~segooon\n"
+"  valera5505 https://launchpad.net/~valera5505\n"
 "  vovkkk https://launchpad.net/~vovkkk\n"
 "  Алексей Капранов (Alex Kapranoff) https://launchpad.net/~kkapp"
 
@@ -2083,7 +2115,7 @@ msgstr ""
 
 #: translate_tmp.pl:248
 msgid "Show links to previous uploads"
-msgstr ""
+msgstr "Показать ссылки для предыдущих загрузок"
 
 #: translate_tmp.pl:33
 #: translate_tmp.pl:47
@@ -2144,12 +2176,12 @@ msgstr "Команда 'Вставить' не удалась."
 
 #: translate_tmp.pl:87
 msgid "Copy this code to clipboard"
-msgstr ""
+msgstr "Скопировать этот код в буфер обмена"
 
 #: translate_tmp.pl:112
 #, perl-format
 msgid "Upload - %s - %s"
-msgstr ""
+msgstr "Загрузить - %s - %s"
 
 #: translate_tmp.pl:121
 msgid "Draw a rectangular area using the mouse."
@@ -2230,7 +2262,7 @@ msgstr "Окна, содержащие в имени %s, не найдены"
 #: translate_tmp.pl:163
 #, perl-format
 msgid "Invalid pattern %s detected."
-msgstr ""
+msgstr "Недопустимый шаблон %s обнаружен."
 
 #: translate_tmp.pl:122
 msgid "No subwindow detected"

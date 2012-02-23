@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-20 21:55+0100\n"
-"PO-Revision-Date: 2011-11-17 00:03+0000\n"
-"Last-Translator: Mario Kemper (Romario) <mario.kemper@googlemail.com>\n"
+"PO-Revision-Date: 2011-12-21 12:08+0000\n"
+"Last-Translator: ruysabino <ruysabino@gmail.com>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2011-12-01 23:58+0000\n"
-"X-Generator: Launchpad (build 14414)\n"
+"X-Launchpad-Export-Date: 2012-02-23 10:43+0000\n"
+"X-Generator: Launchpad (build 14855)\n"
 
 #: translate_tmp.pl:388
 #: translate_tmp.pl:2574
@@ -639,6 +639,9 @@ msgid ""
 "<i>D-Bus Control Backend</i> via CompizConfig Settings Manager if your are "
 "using Desktop Effects or Unity."
 msgstr ""
+"<b>Please note:</b> Tenha certeza de ter ativado <i>Compatibilidade com "
+"Gnome</i> e <i>D-Bus Control Backend</i> via CompizConfig Settings Manager "
+"(CCSM) se você estiver usando Efeitos no Desktop ou Unity."
 
 #: translate_tmp.pl:2005
 #: translate_tmp.pl:2061
@@ -749,6 +752,9 @@ msgid ""
 "your credentials above. Plugins with OAuth support are configured "
 "automatically the first time you use them."
 msgstr ""
+"<b>Please note:</b> Se um plugin permite o envio autorizado, você poderá "
+"inserir suas credenciais acima. Plugins com suporte  à OAuth são "
+"configurados automaticamente na primeira vez que você usá-los."
 
 #: translate_tmp.pl:2207
 #: translate_tmp.pl:10443
@@ -1128,7 +1134,7 @@ msgstr "Captura abortada pelo usuário"
 #: translate_tmp.pl:6709
 #, perl-format
 msgid "%s saved"
-msgstr ""
+msgstr "%s salvo"
 
 #: translate_tmp.pl:6698
 #: translate_tmp.pl:6700
@@ -1245,11 +1251,13 @@ msgstr ""
 
 #: translate_tmp.pl:8163
 msgid "Updating upload plugin information"
-msgstr ""
+msgstr "Atualizando informações do plugin de envio"
 
 #: translate_tmp.pl:8168
 msgid "Please wait while Shutter updates the upload plugin information"
 msgstr ""
+"Por favor aguarda enquanto o Shutter atualiza as informações do plugin de "
+"envio"
 
 #: translate_tmp.pl:8375
 msgid "Capture All Workspaces"
@@ -1418,15 +1426,15 @@ msgstr "Servidor"
 
 #: translate_tmp.pl:9081
 msgid "Anonymous Upload"
-msgstr ""
+msgstr "Envio anônimo"
 
 #: translate_tmp.pl:9088
 msgid "Authorized Upload"
-msgstr ""
+msgstr "Envio Autorizado"
 
 #: translate_tmp.pl:9095
 msgid "OAuth Upload"
-msgstr ""
+msgstr "OAuth Enviar"
 
 #: translate_tmp.pl:9106
 #: translate_tmp.pl:9167
@@ -1603,7 +1611,7 @@ msgstr "Convidado"
 
 #: translate_tmp.pl:10314
 msgid "OAuth"
-msgstr ""
+msgstr "OAuth"
 
 #: translate_tmp.pl:10349
 msgid ""
@@ -1611,6 +1619,9 @@ msgid ""
 "links will still be available in the screenshot's <i>right-click menu</i> "
 "after closing this dialog."
 msgstr ""
+"Por favor escolha uma das contas abaixo e clique <i>Enviar</i>. Os links de "
+"envio estão disponíveis na captura <i>right-click menu</i> depois de fechar "
+"esta janela."
 
 #: translate_tmp.pl:10354
 msgid ""
@@ -1618,6 +1629,9 @@ msgid ""
 "enter your credentials in preferences first to make it appear in the list "
 "above."
 msgstr ""
+"<b>Please note:</b> Se o plugin só permitir envio autorizado, você precisa "
+"entrar com sua credenciais nas preferências para que o mesmo apareça na "
+"lista abaixo."
 
 #: translate_tmp.pl:10358
 msgid "Choose account"
@@ -1658,7 +1672,11 @@ msgid_plural ""
 "Folder %s is synchronized with Ubuntu One. The selected files will be copied "
 "to that folder before being published."
 msgstr[0] ""
+"Pasta %s sincronizada com Ubuntu One. O arquivo selecionado será copiado "
+"para esta pasta após ser publicado."
 msgstr[1] ""
+"Pasta %s sincronizada com Ubuntu One. Os arquivos selecionados serão "
+"copiados para esta pasta após serem publicados."
 
 #: translate_tmp.pl:10600
 #: translate_tmp.pl:10638
@@ -1669,7 +1687,11 @@ msgid_plural ""
 "<b>Please note:</b> The selected files will be published in a background "
 "process. You will be notified when the process has finished."
 msgstr[0] ""
+"<b>Please note:</b>  O arquivo selecionado será publicado em segundo plano.  "
+"Você será notificado quando o processo for finalizado."
 msgstr[1] ""
+"<b>Please note:</b>  Os arquivos selecionados serão publicados em segundo "
+"plano. Você será notificado quando o processo for finalizado."
 
 #: translate_tmp.pl:10607
 #: translate_tmp.pl:10645
@@ -1678,6 +1700,8 @@ msgid ""
 "Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
 "folder."
 msgstr ""
+"Esta pasta %s não é sincronizada com Ubuntu One. Por favor selecione uma "
+"pasta alternativa."
 
 #: translate_tmp.pl:10663
 msgid "Ubuntu One service cannot be found."
@@ -1701,16 +1725,16 @@ msgstr ""
 #: translate_tmp.pl:10740
 #, perl-format
 msgid "Loading module %s"
-msgstr ""
+msgstr "Carregando módulo %s"
 
 #: translate_tmp.pl:10753
 #, perl-format
 msgid "Error while executing upload plugin %s."
-msgstr ""
+msgstr "Ocorreu um erro quando o plugin estava executando o envio %s."
 
 #: translate_tmp.pl:10754
 msgid "There was an error executing the upload plugin."
-msgstr ""
+msgstr "Ocorreu um erro ao executar o plugin de envio."
 
 #: translate_tmp.pl:10791
 #: translate_tmp.pl:10862
@@ -1853,7 +1877,8 @@ msgstr ""
 "  Vitor da Silva Gonçalves https://launchpad.net/~vitorsgoncalves\n"
 "  Waldir Leoncio https://launchpad.net/~wleoncio\n"
 "  Willian Alberto da Cruz https://launchpad.net/~willianalberto\n"
-"  millemiglia https://launchpad.net/~dnieper650"
+"  millemiglia https://launchpad.net/~dnieper650\n"
+"  ruysabino https://launchpad.net/~ruysabino"
 
 #: translate_tmp.pl:34
 #: translate_tmp.pl:5864
@@ -2092,7 +2117,7 @@ msgstr ""
 
 #: translate_tmp.pl:248
 msgid "Show links to previous uploads"
-msgstr ""
+msgstr "Mostrar links de envios anteriores"
 
 #: translate_tmp.pl:33
 #: translate_tmp.pl:47
@@ -2153,12 +2178,12 @@ msgstr "O comando \"put\" falhou."
 
 #: translate_tmp.pl:87
 msgid "Copy this code to clipboard"
-msgstr ""
+msgstr "Copie este código para a área de transferência"
 
 #: translate_tmp.pl:112
 #, perl-format
 msgid "Upload - %s - %s"
-msgstr ""
+msgstr "Envio - %s - %s"
 
 #: translate_tmp.pl:121
 msgid "Draw a rectangular area using the mouse."
@@ -2237,7 +2262,7 @@ msgstr "Nenhuma janela com padrão de nome %s detectada."
 #: translate_tmp.pl:163
 #, perl-format
 msgid "Invalid pattern %s detected."
-msgstr ""
+msgstr "Parâmetro %s inválido detectado."
 
 #: translate_tmp.pl:122
 msgid "No subwindow detected"
