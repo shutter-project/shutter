@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1196';
+use constant SHUTTER_REV		=> 'Rev.1197';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88.3';
 
@@ -9990,8 +9990,24 @@ if ($app->is_running) {
 				#set active when mime_type is matching
 				#loop because multiple mime types are registered for fome file formats
 				foreach my $mime (@{$format->{mime_types}}){
-					$combobox_save_as_type->set_active($counter)
-						if ( ( defined $key && $mime eq $session_screens{$key}->{'mime_type'} ) || defined $rfiletype );		
+					
+					if(defined $key){
+						if ( $mime eq $session_screens{$key}->{'mime_type'} || defined $rfiletype ){
+							$combobox_save_as_type->set_active($counter);
+						}
+					}else{
+						#Fix Bug #966159
+						if(defined $rfilename){
+							my ( $short, $folder, $ext ) = fileparse( $rfilename, qr/\.[^.]*/ );
+							if ( $mime eq "image/jpeg" && $ext eq ".jpg" ) {
+								$combobox_save_as_type->set_active($counter);
+							} elsif ( $mime eq "image/png" && $ext eq ".png" ) {
+								$combobox_save_as_type->set_active($counter);
+							} elsif ( $mime eq "image/bmp" && $ext eq ".bmp" ) {
+								$combobox_save_as_type->set_active($counter);
+							}
+						}
+					}	
 					
 					#save png_counter as well as fallback
 					$png_counter = $counter if $mime eq 'image/png';
