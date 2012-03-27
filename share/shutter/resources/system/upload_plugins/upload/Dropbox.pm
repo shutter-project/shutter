@@ -72,7 +72,7 @@ sub init {
 	#do custom stuff here
 	use Net::Dropbox::API;
 	use JSON;
-	use URI::Escape qw(uri_escape_utf8);
+	use URI::Escape qw(uri_escape);
 	use File::Basename qw(dirname basename);
 	use Path::Class;
 
@@ -175,7 +175,7 @@ sub get_uid {
 sub escape {
 	my $self = shift;
     my $str = shift;
-    my $escape = uri_escape_utf8($str, q{^a-zA-Z0-9_./-});
+    my $escape = uri_escape($str);
     return $escape;
 }
 
@@ -194,9 +194,7 @@ sub upload {
 			
 			#...and filename
 			my $prep_filename = basename($upload_filename);
-			utf8::decode $prep_filename;
-			#~ $self->{_links}->{'direct_link'} = "http://dl.dropbox.com/u/".$self->get_uid."/".$self->escape(basename($upload_filename));
-			$self->{_links}->{'direct_link'} = "http://dl.dropbox.com/u/".$self->get_uid."/".$prep_filename;
+			$self->{_links}->{'direct_link'} = "http://dl.dropbox.com/u/".$self->get_uid."/".$self->escape($prep_filename);
 			
 			#print all links (debug)
 			if( $self->{_debug_cparam}) {
