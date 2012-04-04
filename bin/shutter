@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR			=> 5;
-use constant SHUTTER_REV		=> 'Rev.1198';
+use constant SHUTTER_REV		=> 'Rev.1199';
 use constant SHUTTER_NAME		=> 'Shutter';
 use constant SHUTTER_VERSION	=> '0.88.3';
 
@@ -498,15 +498,16 @@ if ($app->is_running) {
 	$sm->{_menuitem_open}->signal_connect( 'activate', \&dlg_open, 'menu_open' );
 
 	#recent manager and menu entry
-	my $rmanager = Gtk2::RecentManager->new;
-	$sm->{_menu_recent} = Gtk2::RecentChooserMenu->new_for_manager($rmanager); 
+	$sm->{_menu_recent} = Gtk2::RecentChooserMenu->new_for_manager(Gtk2::RecentManager->get_default); 
 	$sm->{_menu_recent}->set_sort_type('mru');
 	$sm->{_menu_recent}->set_local_only (TRUE);
+	$sm->{_menu_recent}->set_show_numbers (TRUE);
+	$sm->{_menu_recent}->set_show_not_found (FALSE);
 
 	my $recentfilter = Gtk2::RecentFilter->new;
 	$recentfilter->add_pixbuf_formats;
 	$sm->{_menu_recent}->add_filter ($recentfilter);
-	$sm->{_menu_recent}->signal_connect('item-activated' => \&dlg_open);	
+	$sm->{_menu_recent}->signal_connect('item-activated' => \&dlg_open, $sm->{_menu_recent}->get_current_uri);	
 	$sm->{_menuitem_recent}->set_submenu($sm->{_menu_recent});	
 
 	$sm->{_menuitem_redoshot}->signal_connect( 'activate', \&evt_take_screenshot, 'redoshot' );
@@ -4040,7 +4041,7 @@ if ($app->is_running) {
 		#~ }
 
 		#add to recentmanager
-		$rmanager->add_item($uri->to_string);
+		Gtk2::RecentManager->get_default->add_item($uri->to_string);
 
 		#FIXME
 		my $num_files = $session_start_screen{'first_page'}->{'num_session_files'};
@@ -5558,7 +5559,11 @@ if ($app->is_running) {
 			}	
 
 			if ( $session_screens{$key}->{'uri'}->exists ) {
-				&fct_trash($key);	
+				&fct_trash($key);
+				eval {
+					#remove from recentmanager
+					Gtk2::RecentManager->get_default->remove_item($session_screens{$key}->{'uri'}->to_string);
+				};
 			}
 
 			$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
@@ -5616,7 +5621,11 @@ if ($app->is_running) {
 						$notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
 						
 						if ( $session_screens{$key}->{'uri'}->exists ) {
-							&fct_trash($key);		
+							&fct_trash($key);
+							eval {
+								#remove from recentmanager
+								Gtk2::RecentManager->get_default->remove_item($session_screens{$key}->{'uri'}->to_string);
+							};
 						}
 
 						#copy to array
@@ -9878,7 +9887,8 @@ if ($app->is_running) {
 			}
 
 		}else{
-			push @new_files, $widget->get_current_uri;
+			print "Trying to open file via RecentChooserMenu ", $sm->{_menu_recent}->get_current_item->get_uri, "\n" if $sc->get_debug;	
+			push @new_files, $sm->{_menu_recent}->get_current_item->get_uri;
 		}
 
 		#call function to open files - with progress bar etc.
