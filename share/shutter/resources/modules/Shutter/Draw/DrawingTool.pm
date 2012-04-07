@@ -5753,7 +5753,7 @@ sub event_item_on_button_release {
 			$self->handle_embedded( 'update', $parent, undef, undef, TRUE );
 		
 		}else{
-			
+
 			my $copy = $self->{_lp}->load($self->{_items}{$parent}{orig_pixbuf_filename},$self->{_items}{$parent}->get('width'), $self->{_items}{$parent}->get('height'), FALSE, TRUE);
 			if($copy){		
 				$self->{_items}{$parent}{image}->set(
@@ -5767,7 +5767,22 @@ sub event_item_on_button_release {
 			$self->handle_embedded( 'update', $parent, undef, undef, TRUE );
 			
 			}else{
-				$self->abort_current_mode;											
+				
+				#Try to load it with default width and height (Bug #975247)
+				$self->{_items}{$parent}->set(
+					'x' 		=> $ev->x - int($self->{_items}{$parent}{orig_pixbuf}->get_width  / 2),
+					'y' 		=> $ev->y - int($self->{_items}{$parent}{orig_pixbuf}->get_height / 2),
+					'width' 	=> $self->{_items}{$parent}{orig_pixbuf}->get_width,
+					'height' 	=> $self->{_items}{$parent}{orig_pixbuf}->get_height,
+				);				
+				
+				#mark as active item
+				$self->{_current_item} = $parent;
+
+				$self->handle_rects( 'update', $parent );
+				$self->handle_embedded( 'update', $parent, undef, undef, TRUE );
+				
+				#~ $self->abort_current_mode;											
 			}
 			
 		}
