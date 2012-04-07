@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1200';
+use constant SHUTTER_REV     => 'Rev.1201';
 use constant SHUTTER_NAME    => 'Shutter';
 use constant SHUTTER_VERSION => '0.88.3';
 
@@ -675,116 +675,116 @@ if ($app->is_running) {
 
 	#settings
 	#--------------------------------------
-	my $vbox_settings        = Gtk2::VBox->new( FALSE, 12 );
-	my $hbox_settings        = Gtk2::HBox->new( FALSE, 12 );
-	my $vbox_basic           = Gtk2::VBox->new( FALSE, 12 );
-	my $vbox_advanced        = Gtk2::VBox->new( FALSE, 12 );
-	my $vbox_actions         = Gtk2::VBox->new( FALSE, 12 );
-	my $vbox_imageview       = Gtk2::VBox->new( FALSE, 12 );
-	my $vbox_behavior        = Gtk2::VBox->new( FALSE, 12 );
-	my $vbox_keyboard        = Gtk2::VBox->new( FALSE, 12 );
-	my $vbox_accounts        = Gtk2::VBox->new( FALSE, 12 );
+	my $vbox_settings			= Gtk2::VBox->new( FALSE, 12 );
+	my $hbox_settings			= Gtk2::HBox->new( FALSE, 12 );
+	my $vbox_basic			= Gtk2::VBox->new( FALSE, 12 );
+	my $vbox_advanced			= Gtk2::VBox->new( FALSE, 12 );
+	my $vbox_actions			= Gtk2::VBox->new( FALSE, 12 );
+	my $vbox_imageview		= Gtk2::VBox->new( FALSE, 12 );
+	my $vbox_behavior			= Gtk2::VBox->new( FALSE, 12 );
+	my $vbox_keyboard			= Gtk2::VBox->new( FALSE, 12 );
+	my $vbox_accounts			= Gtk2::VBox->new( FALSE, 12 );
 
 	#profiles
-	my $profiles_box         = Gtk2::HBox->new( FALSE, 0 );
+	my $profiles_box			= Gtk2::HBox->new( FALSE, 0 );
 
 	#main
-	my $file_vbox            = Gtk2::VBox->new( FALSE, 0 );
-	my $save_vbox            = Gtk2::VBox->new( FALSE, 0 );
-	my $capture_vbox         = Gtk2::VBox->new( FALSE, 0 );
+	my $file_vbox				= Gtk2::VBox->new( FALSE, 0 );
+	my $save_vbox				= Gtk2::VBox->new( FALSE, 0 );
+	my $capture_vbox			= Gtk2::VBox->new( FALSE, 0 );
 
-	my $scale_box            = Gtk2::HBox->new( FALSE, 0 );
-	my $filetype_box         = Gtk2::HBox->new( FALSE, 0 );
-	my $filename_box         = Gtk2::HBox->new( FALSE, 0 );
-	my $saveDir_box          = Gtk2::HBox->new( FALSE, 0 );
-	my $save_ask_box         = Gtk2::HBox->new( FALSE, 0 );
-	my $save_no_box          = Gtk2::HBox->new( FALSE, 0 );
-	my $save_auto_box        = Gtk2::HBox->new( FALSE, 0 );
-	my $no_autocopy_box  	 = Gtk2::HBox->new( FALSE, 0 );
-	my $image_autocopy_box   = Gtk2::HBox->new( FALSE, 0 );
-	my $fname_autocopy_box   = Gtk2::HBox->new( FALSE, 0 );
-	my $delay_box            = Gtk2::HBox->new( FALSE, 0 );
-	my $cursor_box           = Gtk2::HBox->new( FALSE, 0 );
+	my $scale_box				= Gtk2::HBox->new( FALSE, 0 );
+	my $filetype_box			= Gtk2::HBox->new( FALSE, 0 );
+	my $filename_box			= Gtk2::HBox->new( FALSE, 0 );
+	my $saveDir_box			= Gtk2::HBox->new( FALSE, 0 );
+	my $save_ask_box			= Gtk2::HBox->new( FALSE, 0 );
+	my $save_no_box			= Gtk2::HBox->new( FALSE, 0 );
+	my $save_auto_box			= Gtk2::HBox->new( FALSE, 0 );
+	my $no_autocopy_box		= Gtk2::HBox->new( FALSE, 0 );
+	my $image_autocopy_box	= Gtk2::HBox->new( FALSE, 0 );
+	my $fname_autocopy_box	= Gtk2::HBox->new( FALSE, 0 );
+	my $delay_box				= Gtk2::HBox->new( FALSE, 0 );
+	my $cursor_box			= Gtk2::HBox->new( FALSE, 0 );
 
 	#keybindings
-	my $sel_capture_vbox     = Gtk2::VBox->new( FALSE, 0 );
-	my $asel_capture_vbox    = Gtk2::VBox->new( FALSE, 0 );
+	my $sel_capture_vbox		= Gtk2::VBox->new( FALSE, 0 );
+	my $asel_capture_vbox	= Gtk2::VBox->new( FALSE, 0 );
 
-	my $keybinding_mode_box  = Gtk2::HBox->new( TRUE,  0 );
-	my $keybinding_hint_box  = Gtk2::HBox->new( TRUE,  0 );
-	my $key_box              = Gtk2::HBox->new( FALSE, 0 );
-	my $key_sel_box          = Gtk2::HBox->new( FALSE, 0 );
+	my $keybinding_mode_box	= Gtk2::HBox->new( TRUE,  0 );
+	my $keybinding_hint_box	= Gtk2::HBox->new( TRUE,  0 );
+	my $key_box				= Gtk2::HBox->new( FALSE, 0 );
+	my $key_sel_box			= Gtk2::HBox->new( FALSE, 0 );
 
 	#actions
-	my $actions_vbox         = Gtk2::VBox->new( FALSE, 0 );
+	my $actions_vbox			= Gtk2::VBox->new( FALSE, 0 );
 
-	my $progname_box         = Gtk2::HBox->new( FALSE, 0 );
-	my $im_colors_box        = Gtk2::HBox->new( FALSE, 0 );
-	my $thumbnail_box        = Gtk2::HBox->new( FALSE, 0 );
-	my $bordereffect_box	 = Gtk2::HBox->new( FALSE, 0 );
+	my $progname_box			= Gtk2::HBox->new( FALSE, 0 );
+	my $im_colors_box			= Gtk2::HBox->new( FALSE, 0 );
+	my $thumbnail_box			= Gtk2::HBox->new( FALSE, 0 );
+	my $bordereffect_box		= Gtk2::HBox->new( FALSE, 0 );
 
 	#advanced
-	my $window_capture_vbox  = Gtk2::VBox->new( FALSE, 0 );
-	my $menu_capture_vbox    = Gtk2::VBox->new( FALSE, 0 );
-	my $web_capture_vbox     = Gtk2::VBox->new( FALSE, 0 );
+	my $window_capture_vbox	= Gtk2::VBox->new( FALSE, 0 );
+	my $menu_capture_vbox	= Gtk2::VBox->new( FALSE, 0 );
+	my $web_capture_vbox		= Gtk2::VBox->new( FALSE, 0 );
 
-	my $zoom_box			 = Gtk2::HBox->new( FALSE, 0 );
-	my $as_help_box			 = Gtk2::HBox->new( FALSE, 0 );
-	my $asel_isize_box       = Gtk2::HBox->new( FALSE, 0 );
-	my $asel_isize_box2      = Gtk2::HBox->new( FALSE, 0 );
-	my $border_box           = Gtk2::HBox->new( FALSE, 0 );
-	my $winresize_box        = Gtk2::HBox->new( FALSE, 0 );
-	my $autoshape_box        = Gtk2::HBox->new( FALSE, 0 );
-	my $visible_windows_box  = Gtk2::HBox->new( FALSE, 0 );
-	my $menu_delay_box       = Gtk2::HBox->new( FALSE, 0 );
-	my $menu_waround_box     = Gtk2::HBox->new( FALSE, 0 );
-	my $web_width_box        = Gtk2::HBox->new( FALSE, 0 );
+	my $zoom_box				= Gtk2::HBox->new( FALSE, 0 );
+	my $as_help_box			= Gtk2::HBox->new( FALSE, 0 );
+	my $asel_isize_box		= Gtk2::HBox->new( FALSE, 0 );
+	my $asel_isize_box2		= Gtk2::HBox->new( FALSE, 0 );
+	my $border_box			= Gtk2::HBox->new( FALSE, 0 );
+	my $winresize_box			= Gtk2::HBox->new( FALSE, 0 );
+	my $autoshape_box			= Gtk2::HBox->new( FALSE, 0 );
+	my $visible_windows_box	= Gtk2::HBox->new( FALSE, 0 );
+	my $menu_delay_box		= Gtk2::HBox->new( FALSE, 0 );
+	my $menu_waround_box		= Gtk2::HBox->new( FALSE, 0 );
+	my $web_width_box			= Gtk2::HBox->new( FALSE, 0 );
 
 	#imageview
-	my $transparent_vbox     = Gtk2::VBox->new( FALSE, 0 );
-	my $imageview_hbox1      = Gtk2::HBox->new( FALSE, 0 );
-	my $imageview_hbox2      = Gtk2::HBox->new( FALSE, 0 );
-	my $imageview_hbox3      = Gtk2::HBox->new( FALSE, 0 );
+	my $transparent_vbox		= Gtk2::VBox->new( FALSE, 0 );
+	my $imageview_hbox1		= Gtk2::HBox->new( FALSE, 0 );
+	my $imageview_hbox2		= Gtk2::HBox->new( FALSE, 0 );
+	my $imageview_hbox3		= Gtk2::HBox->new( FALSE, 0 );
 
-	my $session_vbox		 = Gtk2::VBox->new( FALSE, 0 );
-	my $session_hbox1		 = Gtk2::HBox->new( FALSE, 0 );
-	my $session_hbox2		 = Gtk2::HBox->new( FALSE, 0 );
+	my $session_vbox			= Gtk2::VBox->new( FALSE, 0 );
+	my $session_hbox1			= Gtk2::HBox->new( FALSE, 0 );
+	my $session_hbox2			= Gtk2::HBox->new( FALSE, 0 );
 
 	#behavior
-	my $first_vbox       	 = Gtk2::VBox->new( FALSE, 0 );
-	my $window_vbox       	 = Gtk2::VBox->new( FALSE, 0 );
-	my $notify_vbox       	 = Gtk2::VBox->new( FALSE, 0 );
-	my $trash_vbox       	 = Gtk2::VBox->new( FALSE, 0 );
-	my $keybinding_vbox      = Gtk2::VBox->new( FALSE, 0 );
+	my $first_vbox			= Gtk2::VBox->new( FALSE, 0 );
+	my $window_vbox			= Gtk2::VBox->new( FALSE, 0 );
+	my $notify_vbox			= Gtk2::VBox->new( FALSE, 0 );
+	my $trash_vbox			= Gtk2::VBox->new( FALSE, 0 );
+	my $keybinding_vbox		= Gtk2::VBox->new( FALSE, 0 );
 
-	my $fs_active_hbox       = Gtk2::HBox->new( FALSE, 0 );
-	my $fs_min_active_hbox   = Gtk2::HBox->new( FALSE, 0 );
-	my $fs_nonot_active_hbox = Gtk2::HBox->new( FALSE, 0 );
-	my $hide_active_hbox     = Gtk2::HBox->new( FALSE, 0 );
-	my $pafter_active_hbox   = Gtk2::HBox->new( FALSE, 0 );
-	my $cac_hbox			 = Gtk2::HBox->new( FALSE, 0 );
-	my $hide_time_hbox       = Gtk2::HBox->new( FALSE, 0 );
-	my $na_active_hbox       = Gtk2::HBox->new( FALSE, 0 );
-	my $nt_active_hbox       = Gtk2::HBox->new( FALSE, 0 );
-	my $npt_active_hbox      = Gtk2::HBox->new( FALSE, 0 );
-	my $ns_combo_hbox        = Gtk2::HBox->new( FALSE, 0 );
-	my $aod_active_hbox      = Gtk2::HBox->new( FALSE, 0 );
-	my $doc_active_hbox      = Gtk2::HBox->new( FALSE, 0 );
-	my $aofsd_active_hbox    = Gtk2::HBox->new( FALSE, 0 );
+	my $fs_active_hbox		= Gtk2::HBox->new( FALSE, 0 );
+	my $fs_min_active_hbox	= Gtk2::HBox->new( FALSE, 0 );
+	my $fs_nonot_active_hbox	= Gtk2::HBox->new( FALSE, 0 );
+	my $hide_active_hbox		= Gtk2::HBox->new( FALSE, 0 );
+	my $pafter_active_hbox	= Gtk2::HBox->new( FALSE, 0 );
+	my $cac_hbox				= Gtk2::HBox->new( FALSE, 0 );
+	my $hide_time_hbox		= Gtk2::HBox->new( FALSE, 0 );
+	my $na_active_hbox		= Gtk2::HBox->new( FALSE, 0 );
+	my $nt_active_hbox		= Gtk2::HBox->new( FALSE, 0 );
+	my $npt_active_hbox		= Gtk2::HBox->new( FALSE, 0 );
+	my $ns_combo_hbox			= Gtk2::HBox->new( FALSE, 0 );
+	my $aod_active_hbox		= Gtk2::HBox->new( FALSE, 0 );
+	my $doc_active_hbox		= Gtk2::HBox->new( FALSE, 0 );
+	my $aofsd_active_hbox	= Gtk2::HBox->new( FALSE, 0 );
 
 	#upload
-	my $accounts_vbox        = Gtk2::VBox->new( FALSE, 0 );
-	my $ftp_vbox             = Gtk2::VBox->new( FALSE, 0 );
+	my $accounts_vbox			= Gtk2::VBox->new( FALSE, 0 );
+	my $ftp_vbox				= Gtk2::VBox->new( FALSE, 0 );
 
-	my $accounts_hbox        = Gtk2::HBox->new( FALSE, 0 );
-	my $ftp_hbox1            = Gtk2::HBox->new( FALSE, 0 );
-	my $ftp_hbox2            = Gtk2::HBox->new( FALSE, 0 );
-	my $ftp_hbox3            = Gtk2::HBox->new( FALSE, 0 );
-	my $ftp_hbox4            = Gtk2::HBox->new( FALSE, 0 );
-	my $ftp_hbox5            = Gtk2::HBox->new( FALSE, 0 );
+	my $accounts_hbox			= Gtk2::HBox->new( FALSE, 0 );
+	my $ftp_hbox1				= Gtk2::HBox->new( FALSE, 0 );
+	my $ftp_hbox2				= Gtk2::HBox->new( FALSE, 0 );
+	my $ftp_hbox3				= Gtk2::HBox->new( FALSE, 0 );
+	my $ftp_hbox4				= Gtk2::HBox->new( FALSE, 0 );
+	my $ftp_hbox5				= Gtk2::HBox->new( FALSE, 0 );
 
 	#plugins
-	my $effects_vbox         = Gtk2::VBox->new( FALSE, 0 );
+	my $effects_vbox			= Gtk2::VBox->new( FALSE, 0 );
 
 	#load settings
 	#--------------------------------------
