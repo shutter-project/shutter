@@ -58,6 +58,9 @@ sub new {
 	$self->{_start_with_extra}          = undef;
 	$self->{_profile_to_start_with}     = undef;
 	$self->{_export_filename}           = undef;
+	$self->{_delay}						= undef;
+	$self->{_include_cursor}			= undef;
+	$self->{_remove_cursor}				= undef;
 
 	#Set LC_NUMERIC to C to prevent decimal commas (or anything else)
 	setlocale(LC_NUMERIC, "C");	
@@ -398,6 +401,45 @@ sub set_export_filename {
 		$self->{_export_filename} = shift;
 	}
 	return $self->{_export_filename};
+}
+
+sub get_include_cursor {
+	my $self = shift;
+	return $self->{_include_cursor};
+}
+
+sub set_include_cursor {
+	my $self = shift;
+	if (@_) {
+		$self->{_include_cursor} = shift;
+	}
+	return $self->{_include_cursor};
+}
+
+sub get_remove_cursor {
+	my $self = shift;
+	return $self->{_remove_cursor};
+}
+
+sub set_remove_cursor {
+	my $self = shift;
+	if (@_) {
+		$self->{_remove_cursor} = shift;
+	}
+	return $self->{_remove_cursor};
+}
+
+sub get_delay {
+	my $self = shift;
+	return $self->{_delay};
+}
+
+sub set_delay {
+	my $self = shift;
+	if (@_) {
+		$self->{_delay} = shift;
+	}
+	return $self->{_delay};
 }
 
 sub get_current_monitor {

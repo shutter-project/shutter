@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1201';
+use constant SHUTTER_REV     => 'Rev.1202';
 use constant SHUTTER_NAME    => 'Shutter';
 use constant SHUTTER_VERSION => '0.88.3';
 
@@ -231,7 +231,10 @@ my $app = Gtk2::UniqueApp->new(
 		fopen      => 11,
 		exitac     => 12,
 		exfilename => 13,
-		nosession  => 14,
+		delay      => 14,
+		include_cursor => 15,
+		remove_cursor => 16,
+		nosession  => 17,
 );
 
 #load command line arguments
@@ -246,6 +249,9 @@ if ($app->is_running) {
 	my $profile = $sc->get_profile_to_start_with;
 	my $exitac = $sc->get_exit_after_capture;
 	my $exfilename = $sc->get_export_filename;
+	my $delay = $sc->get_delay;
+	my $include_cursor = $sc->get_include_cursor;
+	my $remove_cursor = $sc->get_remove_cursor;
 	my $nosession = $sc->get_no_session;
 	
 	my $cmdid = undef;
@@ -286,9 +292,24 @@ if ($app->is_running) {
 		$app->send_message( 13, text => $shf->utf8_decode ($exfilename) );
 	}
 
+	#change delay in running application
+	if(defined $delay && $delay){
+		$app->send_message( 14, text => $delay );
+	}
+	
+	#change include_cursor in running application
+	if(defined $include_cursor && $include_cursor){
+		$app->send_message( 15, text => '' );
+	}
+
+	#change remove_cursor in running application
+	if(defined $remove_cursor && $remove_cursor){
+		$app->send_message( 16, text => '' );
+	}
+
 	#set nosession flag in running application
 	if(defined $nosession && $nosession){
-		$app->send_message( 14, text => '' );
+		$app->send_message( 17, text => '' );
 	}
 	
 	#send $cmdid
@@ -390,6 +411,12 @@ if ($app->is_running) {
 			}elsif($cmd == 13){
 				$cmd = 'exfilename';
 			}elsif($cmd == 14){
+				$cmd = 'delay';
+			}elsif($cmd == 15){
+				$cmd = 'include_cursor';				
+			}elsif($cmd == 16){
+				$cmd = 'remove_cursor';				
+			}elsif($cmd == 17){
 				$cmd = 'nosession';
 			}else{
 				$cmd = 'fopen';				
@@ -406,6 +433,17 @@ if ($app->is_running) {
 			#set export filename
 			}elsif($cmd eq 'exfilename'){
 				$sc->set_export_filename($message->get_text);
+			#set delay
+			}elsif($cmd eq 'delay'){
+				$sc->set_delay($message->get_text);
+			#set include_cursor flag
+			}elsif($cmd eq 'include_cursor'){
+				$sc->set_include_cursor(TRUE);
+				$sc->set_remove_cursor(FALSE);
+			#set remove_cursor flag
+			}elsif($cmd eq 'remove_cursor'){
+				$sc->set_remove_cursor(TRUE);
+				$sc->set_include_cursor(FALSE);
 			#set nosession flag
 			}elsif($cmd eq 'nosession'){
 				$sc->set_no_session($message->get_text);
@@ -6161,8 +6199,14 @@ if ($app->is_running) {
 		print "\n$data was emitted by widget $widget\n"
 			if $sc->get_debug;
 
+		#quality
 		my $quality_value = $scale->get_value();
+		
+		#delay
 		my $delay_value = undef;
+		
+		#include_cursor
+		my $include_cursor = undef;
 		
 		#filename
 		my $filename_value = $filename->get_text();
@@ -6194,14 +6238,31 @@ if ($app->is_running) {
 		#delay
 		#when capturing a menu or tooltip => disable delay (there is a dedicated delay property for this)
 		unless ( $data eq "menu" || $data eq "tray_menu" || $data eq "tooltip" || $data eq "tray_tooltip" ){
-			if ( $delay->get_value ) {
-				$delay_value = int $delay->get_value;
+			if( $sc->get_delay ){
+				$delay_value = int $sc->get_delay;
 			} else {
-				$delay_value = 0;
+				if ( $delay->get_value ) {
+					$delay_value = int $delay->get_value;
+				} else {
+					$delay_value = 0;
+				}				
 			}
 		}else{
 			$delay_value = 0;
 		}
+		
+		#cursor
+		if( $sc->get_include_cursor ){
+			$include_cursor = $sc->get_include_cursor;
+		} elsif ( $sc->get_remove_cursor ) {
+			$include_cursor = FALSE;	
+		} else {
+			if ( $cursor_active->get_active ) {
+				$include_cursor = $cursor_active->get_active
+			} else {
+				$include_cursor = FALSE;
+			}				
+		}		
 		
 		#get next filename (auto increment using a wild card or manually)
 		my $uri = undef;
@@ -6247,7 +6308,7 @@ if ($app->is_running) {
 			$wnck_screen->force_update;
 
 			$screenshooter = Shutter::Screenshot::Workspace->new(
-				$sc, $cursor_active->get_active,
+				$sc, $include_cursor,
 				$delay_value, $notify_timeout_active->get_active, $wnck_screen->get_active_workspace,
 				undef, undef, $current_monitor_active->get_active
 			);
@@ -6272,7 +6333,7 @@ if ($app->is_running) {
 			if ( defined $extra && $extra ) {
 
 				$screenshooter = Shutter::Screenshot::WindowName->new(
-					$sc, $cursor_active->get_active, $delay_value, 
+					$sc, $include_cursor, $delay_value, 
 					$notify_timeout_active->get_active, $border_active->get_active, 
 					$winresize_active->get_active, $winresize_w->get_value, $winresize_h->get_value,
 					$hide_time->get_value,
@@ -6284,7 +6345,7 @@ if ($app->is_running) {
 			} else {	
 
 				$screenshooter = Shutter::Screenshot::Window->new(
-					$sc, $cursor_active->get_active, $delay_value, 
+					$sc, $include_cursor, $delay_value, 
 					$notify_timeout_active->get_active, $border_active->get_active, 
 					$winresize_active->get_active, $winresize_w->get_value, $winresize_h->get_value,
 					$hide_time->get_value,
@@ -6310,7 +6371,7 @@ if ($app->is_running) {
 				my @coords = split(',', $extra);
 				
 				$screenshooter = Shutter::Screenshot::SelectorAuto->new( 
-					$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active,
+					$sc, $include_cursor, $delay_value, $notify_timeout_active->get_active,
 				);
 				
 				$screenshot = $screenshooter->select_auto($coords[0], $coords[1], $coords[2], $coords[3]);				
@@ -6320,7 +6381,7 @@ if ($app->is_running) {
 				if ( $tool_advanced->get_active ) {
 					
 					$screenshooter = Shutter::Screenshot::SelectorAdvanced->new( 
-						$sc, $cursor_active->get_active, 
+						$sc, $include_cursor, 
 						$delay_value, $notify_timeout_active->get_active, 
 						$zoom_active->get_active, $hide_time->get_value,
 						$as_help_active->get_active,
@@ -6334,7 +6395,7 @@ if ($app->is_running) {
 				} else {
 					
 					$screenshooter = Shutter::Screenshot::SelectorSimple->new( 
-						$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active, 
+						$sc, $include_cursor, $delay_value, $notify_timeout_active->get_active, 
 						$zoom_active->get_active, $hide_time->get_value,
 					);
 					
@@ -6385,7 +6446,7 @@ if ($app->is_running) {
 			
 			$screenshooter = Shutter::Screenshot::WindowXid->new( 
 				$sc, 
-				$cursor_active->get_active, 
+				$include_cursor, 
 				$delay_value, 
 				$notify_timeout_active->get_active, 
 				$border_active->get_active,
@@ -6427,7 +6488,7 @@ if ($app->is_running) {
 			}
 
 			$screenshooter = Shutter::Screenshot::Workspace->new( 
-				$sc, $cursor_active->get_active, $delay_value, $notify_timeout_active->get_active, 
+				$sc, $include_cursor, $delay_value, $notify_timeout_active->get_active, 
 				$selected_workspace, $vpx, $vpy, $current_monitor_active->get_active 
 			);
 			
@@ -11590,6 +11651,18 @@ B<Please note:> There are several wildcards available, like
 The string is interpretted by strftime. See C<man strftime> for more examples.
 
 B<As an example:> shutter -f -e -o './%y-%m-%d_$w_$h.png' would create a file named '11-10-28_1280_800.png' in the current directory. 
+
+=item B<-d, --delay=SECONDS>
+
+Wait n seconds before taking a screenshot.
+
+=item B<-c, --include_cursor>
+
+Include cursor when taking a screenshot.
+
+=item B<-C, --remove_cursor>
+
+Remove cursor when taking a screenshot.
 
 =back
 
