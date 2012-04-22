@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-16 01:50+0100\n"
-"PO-Revision-Date: 2011-04-14 14:17+0000\n"
-"Last-Translator: yuane <myewmyew@gmail.com>\n"
+"PO-Revision-Date: 2012-03-11 11:07+0000\n"
+"Last-Translator: Wang Dianjin <Unknown>\n"
 "Language-Team: Simplified Chinese <zh_CN@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-02-23 10:43+0000\n"
-"X-Generator: Launchpad (build 14855)\n"
+"X-Launchpad-Export-Date: 2012-04-22 23:01+0000\n"
+"X-Generator: Launchpad (build 15120)\n"
 
 #: translate_tmp:27
 msgid "Shutter Branding"
@@ -138,11 +138,11 @@ msgstr "旋转："
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "Perseptive rotation around left edge of image"
-msgstr ""
+msgstr "围绕图片左边缘透视旋转"
 
 #: translate_tmp:122
 msgid "Fade:"
-msgstr ""
+msgstr "淡入淡出："
 
 #: translate_tmp:129
 #: translate_tmp:136
@@ -151,12 +151,12 @@ msgstr "倒影的淡化比例"
 
 #: translate_tmp:140
 msgid "Opacity:"
-msgstr ""
+msgstr "透明度："
 
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "Opacity percent applied to whole mirror image"
-msgstr ""
+msgstr "透明度应用于整个倒影文件"
 
 #: translate_tmp:158
 msgid "Pef:"
@@ -165,16 +165,16 @@ msgstr ""
 #: translate_tmp:165
 #: translate_tmp:172
 msgid "Perspective exaggeration factor"
-msgstr ""
+msgstr "透视夸张因子"
 
 #: translate_tmp:176
 msgid "Gap:"
-msgstr ""
+msgstr "间距"
 
 #: translate_tmp:183
 #: translate_tmp:190
 msgid "Gap between image and mirror in pixels"
-msgstr ""
+msgstr "图片和倒影之间的间距(以像素为单位)"
 
 #: translate_tmp:194
 #: translate_tmp:176
@@ -237,21 +237,26 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 msgstr ""
+"对图像应用透视变形\n"
+"\n"
+"基于 Fred Weinhaus 的一个脚本\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "Rotation around image vertical centerline"
-msgstr ""
+msgstr "围绕图片垂直中心线旋转"
 
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "Rotation around image horizontal centerline"
-msgstr ""
+msgstr "围绕图片水平中心线旋转"
 
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "Rotation around the image center"
-msgstr ""
+msgstr "围绕图片中心旋转"
 
 #: translate_tmp:183
 #: translate_tmp:190
@@ -285,7 +290,7 @@ msgstr "选择前景色"
 
 #: translate_tmp:62
 msgid "Barrel Distortion"
-msgstr ""
+msgstr "桶形失真"
 
 #: translate_tmp:64
 msgid "Apply a distortion effect to your screenshot"
@@ -327,7 +332,7 @@ msgstr ""
 
 #: translate_tmp:73
 msgid "Bordereffects"
-msgstr ""
+msgstr "边框特效"
 
 #: translate_tmp:75
 msgid ""
@@ -340,7 +345,7 @@ msgstr ""
 
 #: translate_tmp:104
 msgid "Size:"
-msgstr ""
+msgstr "尺寸："
 
 #: translate_tmp:111
 #: translate_tmp:118
@@ -349,7 +354,7 @@ msgstr ""
 
 #: translate_tmp:122
 msgid "Density:"
-msgstr ""
+msgstr "密度："
 
 #: translate_tmp:129
 #: translate_tmp:136
@@ -470,7 +475,7 @@ msgstr "红褐色"
 
 #: translate_tmp:63
 msgid "Hard Shadow"
-msgstr ""
+msgstr "硬阴影"
 
 #: translate_tmp:65
 msgid "Add a shadow to the image on a transparent background"
@@ -478,25 +483,25 @@ msgstr "透明背景上为图像添加阴影"
 
 #: translate_tmp:94
 msgid "Direction"
-msgstr ""
+msgstr "方向"
 
 #: translate_tmp:110
 #: translate_tmp:117
 msgid "The direction of the shadow"
-msgstr ""
+msgstr "阴影方向"
 
 #: translate_tmp:121
 msgid "Color"
-msgstr ""
+msgstr "颜色"
 
 #: translate_tmp:126
 msgid "Choose color"
-msgstr ""
+msgstr "选择颜色"
 
 #: translate_tmp:131
 #: translate_tmp:138
 msgid "The color of the shadow"
-msgstr ""
+msgstr "阴影颜色"
 
 #: translate_tmp:62
 msgid "Watermark"

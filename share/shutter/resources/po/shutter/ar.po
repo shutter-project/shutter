@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-20 21:55+0100\n"
-"PO-Revision-Date: 2012-02-16 16:34+0000\n"
+"PO-Revision-Date: 2012-03-21 19:50+0000\n"
 "Last-Translator: Ibrahim Saed <ibraheem5000@gmail.com>\n"
 "Language-Team: Arabic <ar@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n % 100 >= "
 "3 && n % 100 <= 10 ? 3 : n % 100 >= 11 && n % 100 <= 99 ? 4 : 5;\n"
-"X-Launchpad-Export-Date: 2012-02-23 10:43+0000\n"
-"X-Generator: Launchpad (build 14855)\n"
+"X-Launchpad-Export-Date: 2012-04-22 23:01+0000\n"
+"X-Generator: Launchpad (build 15120)\n"
 
 #: translate_tmp.pl:388
 #: translate_tmp.pl:2574
@@ -64,7 +64,7 @@ msgstr "صيغة الصورة"
 
 #: translate_tmp.pl:862
 msgid "Save"
-msgstr "حفظ"
+msgstr "احفظ"
 
 #: translate_tmp.pl:869
 msgid "First-launch Behavior"
@@ -224,7 +224,7 @@ msgstr "إختر الملف"
 #: translate_tmp.pl:1148
 #: translate_tmp.pl:1149
 msgid "Your screenshots will be saved to this directory"
-msgstr "سيتم حفظ لقطات الشاشة في هذا الملف"
+msgstr "ستُحفظ لقطات الشاشة في هذا المُجلد"
 
 #: translate_tmp.pl:1158
 #: translate_tmp.pl:1161
@@ -581,12 +581,12 @@ msgstr "تحديد"
 
 #: translate_tmp.pl:1930
 msgid "Select Window"
-msgstr ""
+msgstr "اختر نافذة"
 
 #: translate_tmp.pl:1931
 #: translate_tmp.pl:8443
 msgid "Active Window"
-msgstr "نافذة نشطة"
+msgstr "النافذة النشطة"
 
 #: translate_tmp.pl:1932
 #: translate_tmp.pl:151
@@ -613,7 +613,7 @@ msgstr "انترنت"
 #: translate_tmp.pl:1936
 #: translate_tmp.pl:37
 msgid "Redo"
-msgstr ""
+msgstr "أعِد"
 
 #: translate_tmp.pl:1962
 msgid ""
@@ -730,7 +730,7 @@ msgstr ""
 #: translate_tmp.pl:2207
 #: translate_tmp.pl:10443
 msgid "URI"
-msgstr "URI"
+msgstr "المسار"
 
 #: translate_tmp.pl:2216
 #: translate_tmp.pl:2218
@@ -740,7 +740,7 @@ msgid ""
 "URI\n"
 "Example: ftp://host:port/path"
 msgstr ""
-"URI\n"
+"المسار\n"
 "مثال: ftp://host:port/path"
 
 #: translate_tmp.pl:2224
@@ -814,7 +814,7 @@ msgstr "لوحة المفاتيح"
 
 #: translate_tmp.pl:2498
 msgid "Upload"
-msgstr "رفع"
+msgstr "ارفع"
 
 #: translate_tmp.pl:2559
 msgid "Plugins"
@@ -1106,7 +1106,7 @@ msgstr ""
 #: translate_tmp.pl:6700
 #: translate_tmp.pl:6714
 msgid "Screenshot saved"
-msgstr ""
+msgstr "حُفظت لقطة الشاشة"
 
 #: translate_tmp.pl:6723
 #, perl-format
@@ -1159,7 +1159,7 @@ msgstr ""
 
 #: translate_tmp.pl:7607
 msgid "Try to resave the file?"
-msgstr "جرب اعادة حفظ الملف ؟"
+msgstr "جرب اعادة حفظ الملف؟"
 
 #: translate_tmp.pl:7608
 #, perl-format
@@ -1186,7 +1186,7 @@ msgstr "هناك خطأ في حفظ الصورة إلى %s."
 #: translate_tmp.pl:10042
 #: translate_tmp.pl:10048
 msgid "saved"
-msgstr "تم الحفظ"
+msgstr "حُفظت"
 
 #: translate_tmp.pl:7735
 #, perl-format
@@ -1222,7 +1222,7 @@ msgstr "الرجاء الانتظار بينما يُحدث Shutter معلوما
 
 #: translate_tmp.pl:8375
 msgid "Capture All Workspaces"
-msgstr ""
+msgstr "التقط جميع مساحات العمل"
 
 #: translate_tmp.pl:8388
 msgid "Limit to current monitor"
@@ -1259,7 +1259,7 @@ msgstr[5] ""
 
 #: translate_tmp.pl:8447
 msgid "Capture the last active window"
-msgstr "إلتقط آخر نافذة نشطة"
+msgstr "التقط آخر نافذة نشطة"
 
 #: translate_tmp.pl:8486
 #: translate_tmp.pl:403
@@ -1303,7 +1303,7 @@ msgstr "ويب"
 #: translate_tmp.pl:8650
 #: translate_tmp.pl:395
 msgid "_Redo last screenshot"
-msgstr ""
+msgstr "أ_عد آخر التقاط للشاشة"
 
 #: translate_tmp.pl:8661
 #: translate_tmp.pl:223
@@ -1346,7 +1346,7 @@ msgid "Wait max %d second"
 msgid_plural "Wait max %d seconds"
 msgstr[0] "انتظر %d ثانية كحد أقصى"
 msgstr[1] "انتظر ثانية واحدة كحد أقصى"
-msgstr[2] "انتظر ثانيتان كحد أقصى"
+msgstr[2] "انتظر ثانيتين كحد أقصى"
 msgstr[3] "انتظر %d ثوان كحد أقصى"
 msgstr[4] "انتظر %d ثانية كحد أقصى"
 msgstr[5] "انتظر %d ثانية كحد أقصى"
@@ -1358,7 +1358,7 @@ msgid "Wait max %d minute"
 msgid_plural "Wait max %d minutes"
 msgstr[0] "انتظر %d دقيقة كحد أقصى"
 msgstr[1] "انتظر دقيقة واحدة كحد أقصى"
-msgstr[2] "انتظر دقيقتان كحد أقصى"
+msgstr[2] "انتظر دقيقتين كحد أقصى"
 msgstr[3] "انتظر %d دقائق كحد أقصى"
 msgstr[4] "انتظر %d دقيقة كحد أقصى"
 msgstr[5] "انتظر %d دقيقة كحد أقصى"
@@ -1511,7 +1511,7 @@ msgstr "تغيير اسم الصورة %s"
 
 #: translate_tmp.pl:9456
 msgid "New filename"
-msgstr "اسم ملف جديد"
+msgstr "الاسم الجديد للملف"
 
 #: translate_tmp.pl:9459
 msgid "_Rename"
@@ -1603,7 +1603,7 @@ msgstr "رفع / تصدير"
 #: translate_tmp.pl:10287
 #: translate_tmp.pl:10541
 msgid "_Upload"
-msgstr "_رفع"
+msgstr "ا_رفع"
 
 #: translate_tmp.pl:10309
 msgid "Guest"
@@ -1645,7 +1645,7 @@ msgstr "الأماكن"
 
 #: translate_tmp.pl:10544
 msgid "_Export"
-msgstr "_صدِّر."
+msgstr "_صدِّر"
 
 #: translate_tmp.pl:10547
 msgid "_Publish"
@@ -1900,20 +1900,20 @@ msgstr "_مساعدة"
 
 #: translate_tmp.pl:87
 msgid "_Open..."
-msgstr ""
+msgstr "ا_فتح..."
 
 #: translate_tmp.pl:92
 msgid "Recent _Files"
-msgstr "_الملف الحالي."
+msgstr "الملفات ال_حديثة"
 
 #: translate_tmp.pl:103
 msgid "Save _As..."
-msgstr ""
+msgstr "احفظ _كـ..."
 
 #: translate_tmp.pl:114
 #: translate_tmp.pl:5922
 msgid "E_xport to PDF..."
-msgstr ""
+msgstr "_صدّر إلى ملف PDF..."
 
 #: translate_tmp.pl:119
 #: translate_tmp.pl:5925
@@ -1922,15 +1922,15 @@ msgstr ""
 
 #: translate_tmp.pl:129
 msgid "Page Set_up"
-msgstr "اعداد الصفحة"
+msgstr "إ_عداد الصفحة"
 
 #: translate_tmp.pl:136
 msgid "_Print..."
-msgstr ""
+msgstr "ا_طبع..."
 
 #: translate_tmp.pl:144
 msgid "Send by E_mail..."
-msgstr ""
+msgstr "أرسل عبر ال_بريد..."
 
 #: translate_tmp.pl:159
 msgid "C_lose all"
@@ -1963,7 +1963,7 @@ msgstr "نافذة _نشطة"
 
 #: translate_tmp.pl:538
 msgid "Import from clip_board"
-msgstr ""
+msgstr "استورد من ال_حافظة"
 
 #: translate_tmp.pl:558
 #: translate_tmp.pl:655
@@ -1973,7 +1973,7 @@ msgstr "افتح با_ستخدام"
 #: translate_tmp.pl:565
 #: translate_tmp.pl:662
 msgid "Show in _folder"
-msgstr ""
+msgstr "اعرض في ال_مجلد"
 
 #: translate_tmp.pl:572
 #: translate_tmp.pl:669
@@ -1988,7 +1988,7 @@ msgstr "إ_رسال إلى..."
 #: translate_tmp.pl:590
 #: translate_tmp.pl:685
 msgid "E_xport..."
-msgstr ""
+msgstr "_صدِّر..."
 
 #: translate_tmp.pl:597
 #: translate_tmp.pl:691
@@ -2007,7 +2007,7 @@ msgstr "شغّل مُ_لحق..."
 #: translate_tmp.pl:631
 #: translate_tmp.pl:742
 msgid "Redo _this screenshot"
-msgstr ""
+msgstr "أعد إلتقاط الشاشة _هذا"
 
 #: translate_tmp.pl:734
 msgid "Run a _Plugin..."
@@ -2015,14 +2015,14 @@ msgstr "شغّل مُ_لحق..."
 
 #: translate_tmp.pl:40
 msgid "Redo last screenshot"
-msgstr ""
+msgstr "أعد آخر التقاط للشاشة"
 
 #: translate_tmp.pl:70
 msgid ""
 "Draw a rectangular capture area with your mouse\n"
 "to select a specified screen area"
 msgstr ""
-"ارسم مستطيل لإلتقاط مساحة بواسطة الفأرة\n"
+"ارسم مساحة التقاط مستطيلة بالفأرة\n"
 "لتحديد مساحة معينة في الشاشة"
 
 #: translate_tmp.pl:71
@@ -2140,7 +2140,7 @@ msgstr ""
 
 #: translate_tmp.pl:61
 msgid "Illegal URI."
-msgstr "وصلة غير شرعية."
+msgstr "مسار غير شرعية."
 
 #: translate_tmp.pl:81
 msgid "Connection error."
@@ -2269,7 +2269,7 @@ msgstr ""
 
 #: translate_tmp.pl:157
 msgid "Workspaces"
-msgstr ""
+msgstr "مساحات العمل"
 
 #: translate_tmp.pl:447
 #: translate_tmp.pl:4014
@@ -2412,16 +2412,16 @@ msgid ""
 "If you don't save the image, changes from the last minute will be lost"
 msgid_plural ""
 "If you don't save the image, changes from the last %d minutes will be lost"
-msgstr[0] "إذا لم تحفظ الصورة، ستخسر جميع التغييرات التي أجريت في آخر دقيقة"
-msgstr[1] "إذا لم تحفظ الصورة، ستخسر جميع التغييرات التي أجريت في آخر دقيقة"
+msgstr[0] "إذا لم تحفظ الصورة، ستفقد جميع التغييرات التي أجريت في آخر دقيقة"
+msgstr[1] "إذا لم تحفظ الصورة، ستفقد جميع التغييرات التي أجريت في آخر دقيقة"
 msgstr[2] ""
-"إذا لم تحفظ الصورة، ستخسر جميع التغييرات التي أجريت في آخر دقيقتين"
+"إذا لم تحفظ الصورة، ستفقد جميع التغييرات التي أجريت في آخر دقيقتين"
 msgstr[3] ""
-"إذا لم تحفظ الصورة، ستخسر جميع التغييرات التي أجريت في آخر ٣ دقائق"
+"إذا لم تحفظ الصورة، ستفقد جميع التغييرات التي أجريت في آخر %d دقائق"
 msgstr[4] ""
-"إذا لم تحفظ الصورة، ستخسر جميع التغييرات التي أجريت في آخر ٤ دقائق"
+"إذا لم تحفظ الصورة، ستفقد جميع التغييرات التي أجريت في آخر %d دقيقة"
 msgstr[5] ""
-"إذا لم تحفظ الصورة، ستخسر جميع التغييرات التي أجريت في آخر ٥ دقائق"
+"إذا لم تحفظ الصورة، ستفقد جميع التغييرات التي أجريت في آخر %d دقيقة"
 
 #: translate_tmp.pl:1703
 msgid "Do you want to save the changed background color?"
@@ -2529,11 +2529,11 @@ msgstr "_ادوات"
 
 #: translate_tmp.pl:5868
 msgid "Undo last action"
-msgstr "تراجع عن اّخر إجراء"
+msgstr "تراجع عن آخر إجراء"
 
 #: translate_tmp.pl:5871
 msgid "Do again the last undone action"
-msgstr "إعادة الإجراء الذي تم التراجع عنه"
+msgstr "أعد مُجددا آخر إجراء تم التراجع عنه"
 
 #: translate_tmp.pl:5874
 msgid "Copy selection to clipboard"
@@ -2569,11 +2569,11 @@ msgstr ""
 
 #: translate_tmp.pl:5916
 msgid "Export to _File..."
-msgstr ""
+msgstr "صدّر إلى _ملف..."
 
 #: translate_tmp.pl:5916
 msgid "Export to File..."
-msgstr ""
+msgstr "صدّر إلى ملف..."
 
 #: translate_tmp.pl:5919
 msgid "_Export to SVG..."
@@ -2585,7 +2585,7 @@ msgstr ""
 
 #: translate_tmp.pl:5922
 msgid "Export to PDF..."
-msgstr ""
+msgstr "صدّر إلى ملف PDF..."
 
 #: translate_tmp.pl:5925
 msgid "Export to PostScript..."
@@ -2686,7 +2686,7 @@ msgstr "لم يتم إيجاد الأيقونة."
 
 #: translate_tmp.pl:6309
 msgid "Import from current theme..."
-msgstr "استيراد من ثيم موجود ..."
+msgstr "استورد من السمة الحالية ..."
 
 #: translate_tmp.pl:6323
 msgid "Import from session..."
@@ -2694,7 +2694,7 @@ msgstr "استورد من الجلسة..."
 
 #: translate_tmp.pl:6334
 msgid "Import from filesystem..."
-msgstr "استورد من نظام الملفات"
+msgstr "استورد من نظام الملفات..."
 
 #: translate_tmp.pl:7125
 msgid "New text..."

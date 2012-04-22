@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-20 21:55+0100\n"
-"PO-Revision-Date: 2011-11-16 23:56+0000\n"
-"Last-Translator: Mario Kemper (Romario) <mario.kemper@googlemail.com>\n"
+"PO-Revision-Date: 2012-04-15 01:52+0000\n"
+"Last-Translator: pp/bs <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-02-23 10:42+0000\n"
-"X-Generator: Launchpad (build 14855)\n"
+"X-Launchpad-Export-Date: 2012-04-22 23:01+0000\n"
+"X-Generator: Launchpad (build 15120)\n"
 
 #: translate_tmp.pl:388
 #: translate_tmp.pl:2574
@@ -1122,7 +1122,7 @@ msgstr "Zrzut ekranu przerwany przez użytkownika"
 #: translate_tmp.pl:6709
 #, perl-format
 msgid "%s saved"
-msgstr ""
+msgstr "%s zapisanych"
 
 #: translate_tmp.pl:6698
 #: translate_tmp.pl:6700
@@ -1268,7 +1268,7 @@ msgstr[0] ""
 "Włącz tę opcję, aby wykonywać zrzuty tylko z bieżącego monitora."
 msgstr[1] ""
 "Opcja jest przydatna tylko wtedy, gdy używasz więcej niż jednego monitora "
-"(wykryto %d monitorów).\n"
+"(wykryto %d monitory).\n"
 "Włącz tę opcję, aby wykonywać zrzuty tylko z bieżącego monitora."
 msgstr[2] ""
 "Opcja jest przydatna tylko wtedy, gdy używasz więcej niż jednego monitora "
@@ -1391,7 +1391,14 @@ msgid_plural ""
 "Shutter will wait up to %d seconds for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
+"Shutter będzie czekać najwyżej %d sekundę na wykonanie zrzutu ekranu zanim "
+"przerwie tę operację w przypadku gdy będzie ona trwać zbyt długo"
 msgstr[1] ""
+"Shutter będzie czekać najwyżej %d sekundy na wykonanie zrzutu ekranu zanim "
+"przerwie tę operację w przypadku gdy będzie ona trwać zbyt długo"
+msgstr[2] ""
+"Shutter będzie czekać najwyżej %d sekund na wykonanie zrzutu ekranu zanim "
+"przerwie tę operację w przypadku gdy będzie ona trwać zbyt długo"
 
 #: translate_tmp.pl:8870
 #: translate_tmp.pl:8871
@@ -1403,7 +1410,14 @@ msgid_plural ""
 "Shutter will wait up to %d minutes for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
+"Shutter będzie czekać najwyżej %d minutę na wykonanie zrzutu ekranu zanim "
+"przerwie tę operację w przypadku gdy będzie ona trwać zbyt długo"
 msgstr[1] ""
+"Shutter będzie czekać najwyżej %d minuty na wykonanie zrzutu ekranu zanim "
+"przerwie tę operację w przypadku gdy będzie ona trwać zbyt długo"
+msgstr[2] ""
+"Shutter będzie czekać najwyżej %d minut na wykonanie zrzutu ekranu zanim "
+"przerwie tę operację w przypadku gdy będzie ona trwać zbyt długo"
 
 #: translate_tmp.pl:9024
 msgid "Host"
@@ -1411,11 +1425,11 @@ msgstr "Host"
 
 #: translate_tmp.pl:9081
 msgid "Anonymous Upload"
-msgstr ""
+msgstr "Anonimowe przesyłanie"
 
 #: translate_tmp.pl:9088
 msgid "Authorized Upload"
-msgstr ""
+msgstr "Autoryzowane przesyłanie"
 
 #: translate_tmp.pl:9095
 msgid "OAuth Upload"
@@ -1468,7 +1482,7 @@ msgstr "%s udostępniony"
 
 #: translate_tmp.pl:9256
 msgid "Unpublished"
-msgstr "Nie opublikowano"
+msgstr "Nieudostępniony"
 
 #: translate_tmp.pl:9256
 #, perl-format
@@ -1595,7 +1609,7 @@ msgstr "Gość"
 
 #: translate_tmp.pl:10314
 msgid "OAuth"
-msgstr ""
+msgstr "OAuth"
 
 #: translate_tmp.pl:10349
 msgid ""
@@ -1633,7 +1647,7 @@ msgstr "_Eksportuj"
 
 #: translate_tmp.pl:10547
 msgid "_Publish"
-msgstr "_Opublikuj"
+msgstr "_Udostępnij"
 
 #: translate_tmp.pl:10574
 #: translate_tmp.pl:164
@@ -1661,7 +1675,14 @@ msgid_plural ""
 "<b>Please note:</b> The selected files will be published in a background "
 "process. You will be notified when the process has finished."
 msgstr[0] ""
+"<b>Uwaga:</b> Wybrany plik zostanie udostępniony. Operacja ta będzie "
+"przeprowadzona w tle; po jej zakończeniu zostanie wyświetlone powiadomienie."
 msgstr[1] ""
+"<b>Uwaga:</b> Wybrane pliki zostaną udostępnione. Operacja ta będzie "
+"przeprowadzona w tle; po jej zakończeniu zostanie wyświetlone powiadomienie."
+msgstr[2] ""
+"<b>Uwaga:</b> Wybrane pliki zostaną udostępnione. Operacja ta będzie "
+"przeprowadzona w tle; po jej zakończeniu zostanie wyświetlone powiadomienie."
 
 #: translate_tmp.pl:10607
 #: translate_tmp.pl:10645
@@ -1670,6 +1691,8 @@ msgid ""
 "Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
 "folder."
 msgstr ""
+"Folder %s nie jest zsynchronizowany z Ubuntu One. Proszę wybrać alternatywny "
+"folder."
 
 #: translate_tmp.pl:10663
 msgid "Ubuntu One service cannot be found."
@@ -1691,7 +1714,7 @@ msgstr ""
 #: translate_tmp.pl:10740
 #, perl-format
 msgid "Loading module %s"
-msgstr ""
+msgstr "Wczytywanie modułu %s"
 
 #: translate_tmp.pl:10753
 #, perl-format
@@ -1763,7 +1786,7 @@ msgstr "Plik %s pomyślnie wyeksportowano."
 #: translate_tmp.pl:11050
 #, perl-format
 msgid "Publishing %s..."
-msgstr "Publikacja %s ..."
+msgstr "Udostępnianie %s..."
 
 #: translate_tmp.pl:11135
 msgid "_Retry"
@@ -1826,6 +1849,7 @@ msgstr "Nazwa profilu %s już istnieje. Chcesz ją zastąpić?"
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
+"  Antoni Kudelski https://launchpad.net/~antoni-kudelski\n"
 "  Bartosz Kaszubowski https://launchpad.net/~simek\n"
 "  Dariusz Jakoniuk https://launchpad.net/~darcio53\n"
 "  Jakub 'Livio' Rusinek https://launchpad.net/~liviopl-pl\n"
@@ -1835,6 +1859,7 @@ msgstr ""
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
 "  Mateusz Burnicki https://launchpad.net/~wlochu\n"
 "  Piotr Strębski https://launchpad.net/~strebski\n"
+"  SaJeN https://launchpad.net/~sayane69\n"
 "  adam00s https://launchpad.net/~theadam0s\n"
 "  buba https://launchpad.net/~wilq1989\n"
 "  mmiicc https://launchpad.net/~mpredotka\n"
@@ -1942,7 +1967,7 @@ msgstr "O_twórz za pomocą"
 #: translate_tmp.pl:565
 #: translate_tmp.pl:662
 msgid "Show in _folder"
-msgstr ""
+msgstr "Pokaż w _folderze"
 
 #: translate_tmp.pl:572
 #: translate_tmp.pl:669
@@ -2008,7 +2033,7 @@ msgstr "Pobierz zrzut ekranu całego pulpitu"
 
 #: translate_tmp.pl:94
 msgid "Capture a specific workspace"
-msgstr "Pobierz zrzut określonego obszaru roboczego"
+msgstr "Pobiera zrzut określonego obszaru roboczego"
 
 #: translate_tmp.pl:132
 msgid "Window"
@@ -2135,7 +2160,7 @@ msgstr "Komenda 'put' zawiodła."
 
 #: translate_tmp.pl:87
 msgid "Copy this code to clipboard"
-msgstr ""
+msgstr "Skopiuj ten kod do schowka"
 
 #: translate_tmp.pl:112
 #, perl-format
@@ -2210,7 +2235,7 @@ msgstr "Okno nie jest już dostępne."
 #: translate_tmp.pl:139
 #: translate_tmp.pl:145
 msgid "Unable to capture website"
-msgstr "Zrzut strony WWW niemożliwy"
+msgstr "Próba wykonania zrzutu strony WWW nie powiodła się"
 
 #: translate_tmp.pl:153
 #, perl-format

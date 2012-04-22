@@ -8,18 +8,18 @@ msgstr ""
 "Project-Id-Version: gscrot-plugins-bash\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-16 01:50+0100\n"
-"PO-Revision-Date: 2011-03-21 19:34+0000\n"
-"Last-Translator: Mateusz Burnicki <Unknown>\n"
+"PO-Revision-Date: 2012-04-03 20:54+0000\n"
+"Last-Translator: Antoni Kudelski <antekk@linux.pl>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-02-23 10:43+0000\n"
-"X-Generator: Launchpad (build 14855)\n"
+"X-Launchpad-Export-Date: 2012-04-22 23:01+0000\n"
+"X-Generator: Launchpad (build 15120)\n"
 
 #: translate_tmp:27
 msgid "Shutter Branding"
-msgstr ""
+msgstr "Cechowanie Migawki"
 
 #: translate_tmp:28
 #: translate_tmp:74
@@ -33,6 +33,8 @@ msgstr "Efekt"
 msgid ""
 "Turn the image into a polaroid one with the Shutter logo and a subtitle added"
 msgstr ""
+"Przekształć obrazek jakby był robiony polaroidem z logiem migawki i dodanymi "
+"napisami"
 
 #: translate_tmp:27
 msgid "Grayscale"
@@ -72,7 +74,7 @@ msgstr "Zwiększ ramkę"
 
 #: translate_tmp:29
 msgid "Raise a rectangular 3d-border"
-msgstr ""
+msgstr "Dodaje prostokątną ramkę 3d"
 
 #: translate_tmp:27
 msgid "Soft Edges"
@@ -88,11 +90,11 @@ msgstr ""
 
 #: translate_tmp:29
 msgid "Add an inverted 3d border to the image"
-msgstr ""
+msgstr "Dodaje odwróconą ramkę 3d do obrazu"
 
 #: translate_tmp:27
 msgid "Torned Paper"
-msgstr ""
+msgstr "Poszarpany Papier"
 
 #: translate_tmp:29
 msgid "Add a torn-like border to the image"
@@ -113,7 +115,7 @@ msgstr "Usuń puste granice z obrazu"
 
 #: translate_tmp:73
 msgid "3D reflection"
-msgstr ""
+msgstr "Rrefleksja 3D"
 
 #: translate_tmp:75
 msgid ""
@@ -123,6 +125,11 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
 msgstr ""
+"Dodaje gasnące refleksje poniżej obrazu i postrzega je w perspektywie\n"
+"\n"
+"Oparte na skrypcie autorstwa Fred Weinhau\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
 
 #: translate_tmp:104
 #: translate_tmp:133
@@ -137,7 +144,7 @@ msgstr ""
 
 #: translate_tmp:122
 msgid "Fade:"
-msgstr ""
+msgstr "Zanik:"
 
 #: translate_tmp:129
 #: translate_tmp:136
@@ -146,7 +153,7 @@ msgstr ""
 
 #: translate_tmp:140
 msgid "Opacity:"
-msgstr ""
+msgstr "Przezroczystość:"
 
 #: translate_tmp:147
 #: translate_tmp:154
@@ -155,7 +162,7 @@ msgstr ""
 
 #: translate_tmp:158
 msgid "Pef:"
-msgstr ""
+msgstr "Pef:"
 
 #: translate_tmp:165
 #: translate_tmp:172
@@ -232,21 +239,26 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 msgstr ""
+"Dodaje zniekształcenie perspektywy do obrazka\n"
+"\n"
+"Skrypt autorstwa Fred Weinhau\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "Rotation around image vertical centerline"
-msgstr ""
+msgstr "Obrót wokół obrazu pionowej linii środkowej"
 
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "Rotation around image horizontal centerline"
-msgstr ""
+msgstr "Obrót wokół obrazu poziomej środkowej"
 
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "Rotation around the image center"
-msgstr ""
+msgstr "Obrót wokół środka obrazu"
 
 #: translate_tmp:183
 #: translate_tmp:190
@@ -286,7 +298,7 @@ msgstr ""
 
 #: translate_tmp:64
 msgid "Apply a distortion effect to your screenshot"
-msgstr ""
+msgstr "Zastosuj efekt zniekstzałcenia do twojego zrzutu ekranu"
 
 #: translate_tmp:93
 msgid "A:"
@@ -357,7 +369,7 @@ msgstr ""
 
 #: translate_tmp:122
 msgid "Density:"
-msgstr ""
+msgstr "Gęstość:"
 
 #: translate_tmp:129
 #: translate_tmp:136
@@ -375,7 +387,7 @@ msgstr ""
 
 #: translate_tmp:158
 msgid "Granularity:"
-msgstr ""
+msgstr "Rozdrobnienie:"
 
 #: translate_tmp:165
 #: translate_tmp:172
@@ -399,7 +411,7 @@ msgstr ""
 
 #: translate_tmp:64
 msgid "Invert the colors of the image"
-msgstr ""
+msgstr "Odwrócić kolory obrazu"
 
 #: translate_tmp:101
 msgid "Channel"
@@ -407,13 +419,15 @@ msgstr "Kanał"
 
 #: translate_tmp:62
 msgid "Polaroid"
-msgstr ""
+msgstr "Polaroid"
 
 #: translate_tmp:64
 msgid ""
 "Make your screenshot look like a polaroid photo, add a caption, and even "
 "rotate it a little"
 msgstr ""
+"Zrób aby Twój zrzut ekranu wyglądał jak zdjęcie z polaroidu, dodaj podpis, a "
+"nawet obróć go trochę."
 
 #: translate_tmp:99
 #: translate_tmp:93
@@ -458,19 +472,19 @@ msgstr "Wybór koloru pociągnięcia"
 
 #: translate_tmp:45
 msgid "Resize"
-msgstr ""
+msgstr "Zmień rozmiar"
 
 #: translate_tmp:53
 msgid "Resize your screenshot"
-msgstr ""
+msgstr "Zmiana rozmiaru zrzutu ekranu"
 
 #: translate_tmp:71
 msgid "Sepia"
-msgstr ""
+msgstr "Sepia"
 
 #: translate_tmp:73
 msgid "Add sepia color toning to the image"
-msgstr ""
+msgstr "Dodaj tonacię kolorów sepia do zdjęcia"
 
 #: translate_tmp:110
 msgid "Sepia tone"
@@ -478,33 +492,33 @@ msgstr "Ton"
 
 #: translate_tmp:63
 msgid "Hard Shadow"
-msgstr ""
+msgstr "Twarde Cienie"
 
 #: translate_tmp:65
 msgid "Add a shadow to the image on a transparent background"
-msgstr ""
+msgstr "Dodak cień do obrazka na przezroczystym tle"
 
 #: translate_tmp:94
 msgid "Direction"
-msgstr ""
+msgstr "Kierunek"
 
 #: translate_tmp:110
 #: translate_tmp:117
 msgid "The direction of the shadow"
-msgstr ""
+msgstr "Kierunek cienia"
 
 #: translate_tmp:121
 msgid "Color"
-msgstr ""
+msgstr "Kolor"
 
 #: translate_tmp:126
 msgid "Choose color"
-msgstr ""
+msgstr "Wybierz kolor"
 
 #: translate_tmp:131
 #: translate_tmp:138
 msgid "The color of the shadow"
-msgstr ""
+msgstr "Kolor cienia"
 
 #: translate_tmp:62
 msgid "Watermark"

@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-20 21:55+0100\n"
-"PO-Revision-Date: 2012-01-13 03:22+0000\n"
+"PO-Revision-Date: 2012-02-26 02:19+0000\n"
 "Last-Translator: Aputsiaq Niels Janussen <aj@isit.gl>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-02-23 10:42+0000\n"
-"X-Generator: Launchpad (build 14855)\n"
+"X-Launchpad-Export-Date: 2012-04-22 23:01+0000\n"
+"X-Generator: Launchpad (build 15120)\n"
 
 #: translate_tmp.pl:388
 #: translate_tmp.pl:2574
@@ -633,6 +633,9 @@ msgid ""
 "<i>D-Bus Control Backend</i> via CompizConfig Settings Manager if your are "
 "using Desktop Effects or Unity."
 msgstr ""
+"<b>Bemærk venligst:</b> Sørg for at aktivere <i>Gnome-kompatibilitet</i> og "
+"<i>D-Bus kontrolmotor</i> gennem CompizConfigs indstillingshåndtering, hvis "
+"du bruger skrivebordseffekter eller Unity."
 
 #: translate_tmp.pl:2005
 #: translate_tmp.pl:2061
@@ -742,6 +745,9 @@ msgid ""
 "your credentials above. Plugins with OAuth support are configured "
 "automatically the first time you use them."
 msgstr ""
+"<b>Bemærk venligst:</b> Hvis et udvidelsesmodul tillader autoriseret "
+"overførsel, så kan du indtaste akkreditiver ovenfor. Udvidelser med OAuth-"
+"understøttelse konfigureres automatisk første gang du anvender dem."
 
 #: translate_tmp.pl:2207
 #: translate_tmp.pl:10443
@@ -1120,7 +1126,7 @@ msgstr "Indfang annuleret af bruger"
 #: translate_tmp.pl:6709
 #, perl-format
 msgid "%s saved"
-msgstr ""
+msgstr "%s gemt"
 
 #: translate_tmp.pl:6698
 #: translate_tmp.pl:6700
@@ -1236,11 +1242,12 @@ msgstr "Vent venligst mens Shutter opdaterer information om udvidelse"
 
 #: translate_tmp.pl:8163
 msgid "Updating upload plugin information"
-msgstr ""
+msgstr "Opdaterer information om overførsel af udvidelse"
 
 #: translate_tmp.pl:8168
 msgid "Please wait while Shutter updates the upload plugin information"
 msgstr ""
+"Vent venligst mens Shutter opdaterer information om overførsel af udvidelse"
 
 #: translate_tmp.pl:8375
 msgid "Capture All Workspaces"
@@ -1411,15 +1418,15 @@ msgstr "Vært"
 
 #: translate_tmp.pl:9081
 msgid "Anonymous Upload"
-msgstr ""
+msgstr "Anonym overførsel"
 
 #: translate_tmp.pl:9088
 msgid "Authorized Upload"
-msgstr ""
+msgstr "Autoriseret overførsel"
 
 #: translate_tmp.pl:9095
 msgid "OAuth Upload"
-msgstr ""
+msgstr "OAuth-overførsel"
 
 #: translate_tmp.pl:9106
 #: translate_tmp.pl:9167
@@ -1604,6 +1611,9 @@ msgid ""
 "links will still be available in the screenshot's <i>right-click menu</i> "
 "after closing this dialog."
 msgstr ""
+"Vælg venligst én af kontiene ovenfor og klik <i>Overfør</i>. Henvisninger "
+"til overførsel vil stadig være tilgængelig i skærmbilledets <i>højreklik-"
+"menu</i> efter denne dialog lukkes."
 
 #: translate_tmp.pl:10354
 msgid ""
@@ -1611,6 +1621,9 @@ msgid ""
 "enter your credentials in preferences first to make it appear in the list "
 "above."
 msgstr ""
+"<b>Bemærk venligst:</b> Hvis et udvidelsesmodul alene tillader autoriseret "
+"overførsel, så skal du angive dine akkreditiver i præfencerne første gange "
+"de optræder i listen ovenfor."
 
 #: translate_tmp.pl:10358
 msgid "Choose account"
@@ -1651,7 +1664,11 @@ msgid_plural ""
 "Folder %s is synchronized with Ubuntu One. The selected files will be copied "
 "to that folder before being published."
 msgstr[0] ""
+"Mappen %s synkroniseres med Ubuntu One. Den valgte fil  vil blive kopieret "
+"til denne mappe før publicering."
 msgstr[1] ""
+"Mappen %s synkroniseres med Ubuntu One. De valgte filer vil blive kopieret "
+"til denne mappe før publicering."
 
 #: translate_tmp.pl:10600
 #: translate_tmp.pl:10638
@@ -1662,7 +1679,11 @@ msgid_plural ""
 "<b>Please note:</b> The selected files will be published in a background "
 "process. You will be notified when the process has finished."
 msgstr[0] ""
+"<b>Bemærk venligst:</b> Den valgte fil vil blive publiceret i en "
+"baggrundsproces. Du vil blive påmindet når processen er afsluttet."
 msgstr[1] ""
+"<b>Bemærk venligst:</b> De valgte filer vil blive publiceret i en "
+"baggrundsproces. Du vil blive påmindet når processen er afsluttet."
 
 #: translate_tmp.pl:10607
 #: translate_tmp.pl:10645
@@ -1671,6 +1692,7 @@ msgid ""
 "Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
 "folder."
 msgstr ""
+"Mappen %s synkroniseres ikke med Ubuntu One. Vælg venligst en anden mappe."
 
 #: translate_tmp.pl:10663
 msgid "Ubuntu One service cannot be found."
@@ -1699,11 +1721,11 @@ msgstr "Indlæser modul %s"
 #: translate_tmp.pl:10753
 #, perl-format
 msgid "Error while executing upload plugin %s."
-msgstr ""
+msgstr "Fejl under kørsel af udvidelsesmodulet til at sende overførsel %s."
 
 #: translate_tmp.pl:10754
 msgid "There was an error executing the upload plugin."
-msgstr ""
+msgstr "Der skete en fejl  ved kørsel af udvidelsesmodulet til overførsler."
 
 #: translate_tmp.pl:10791
 #: translate_tmp.pl:10862
@@ -1829,8 +1851,8 @@ msgstr "En profil kaldet %s eksisterer allerede. Ønsker du at erstatte den?"
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
-"  Aktiwers https://launchpad.net/~aktiwers\n"
 "  Aputsiaq Niels Janussen https://launchpad.net/~aj\n"
+"  Bolli Khajeh https://launchpad.net/~aktiwers\n"
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
 "  Mark Jensen https://launchpad.net/~mark-markjensen\n"
 "  Peter Skov https://launchpad.net/~a0peter\n"
@@ -2074,7 +2096,7 @@ msgstr ""
 
 #: translate_tmp.pl:248
 msgid "Show links to previous uploads"
-msgstr ""
+msgstr "Vis henvisninger til tidligere sendte overførsler"
 
 #: translate_tmp.pl:33
 #: translate_tmp.pl:47
@@ -2135,12 +2157,12 @@ msgstr "Kommandoen 'put' fejlede."
 
 #: translate_tmp.pl:87
 msgid "Copy this code to clipboard"
-msgstr ""
+msgstr "Kopiér denne kode til udklipsholder"
 
 #: translate_tmp.pl:112
 #, perl-format
 msgid "Upload - %s - %s"
-msgstr ""
+msgstr "Overfør - %s - %s"
 
 #: translate_tmp.pl:121
 msgid "Draw a rectangular area using the mouse."
@@ -2219,7 +2241,7 @@ msgstr "Intet vindue med navnemønsteret %s opdaget."
 #: translate_tmp.pl:163
 #, perl-format
 msgid "Invalid pattern %s detected."
-msgstr ""
+msgstr "Ugyldigt mønster %s registreret."
 
 #: translate_tmp.pl:122
 msgid "No subwindow detected"

@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-20 21:55+0100\n"
-"PO-Revision-Date: 2011-05-31 07:14+0000\n"
-"Last-Translator: Andrej Znidarsic <andrej.znidarsic@gmail.com>\n"
+"PO-Revision-Date: 2012-04-15 21:19+0000\n"
+"Last-Translator: Sasa Batistic <Unknown>\n"
 "Language-Team: Slovenian <sl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || "
 "n%100==4 ? 3 : 0);\n"
-"X-Launchpad-Export-Date: 2012-02-23 10:43+0000\n"
-"X-Generator: Launchpad (build 14855)\n"
+"X-Launchpad-Export-Date: 2012-04-22 23:01+0000\n"
+"X-Generator: Launchpad (build 15120)\n"
 "X-Poedit-Country: SLOVENIA\n"
 "X-Poedit-Language: Slovenian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -636,6 +636,9 @@ msgid ""
 "<i>D-Bus Control Backend</i> via CompizConfig Settings Manager if your are "
 "using Desktop Effects or Unity."
 msgstr ""
+"<b>Opomba:</b> Prepričajte se, da ste omogočili <i>Združljivost Gnome</i> in "
+"<i>Nadzorno zaledje D-Bus</i> preko Upravljalnika nastavitev CompizConfig, "
+"če uporabljate namizne učinke ali Unity."
 
 #: translate_tmp.pl:2005
 #: translate_tmp.pl:2061
@@ -747,6 +750,9 @@ msgid ""
 "your credentials above. Plugins with OAuth support are configured "
 "automatically the first time you use them."
 msgstr ""
+"<b>Opomba:</b> Če vstavek omogoča pooblaščeno pošiljanje, lahko vpišete "
+"svoja poverila. Vstavki s podporo OAuth so samodejni nastavljeni že ob prvi "
+"uporabi."
 
 #: translate_tmp.pl:2207
 #: translate_tmp.pl:10443
@@ -1129,7 +1135,7 @@ msgstr "Uporabnik je preklical zajem"
 #: translate_tmp.pl:6709
 #, perl-format
 msgid "%s saved"
-msgstr ""
+msgstr "%s shranjeno"
 
 #: translate_tmp.pl:6698
 #: translate_tmp.pl:6700
@@ -1246,11 +1252,13 @@ msgstr "Počakajte medtem ko Shutter posodablja podatke o vstavkih"
 
 #: translate_tmp.pl:8163
 msgid "Updating upload plugin information"
-msgstr ""
+msgstr "Posodabljanje podrobnosti vstavka za pošiljanje"
 
 #: translate_tmp.pl:8168
 msgid "Please wait while Shutter updates the upload plugin information"
 msgstr ""
+"Prosim počakajte medtem, ko Shutter posodablja podrobnosti vstavka za "
+"pošiljanje"
 
 #: translate_tmp.pl:8375
 msgid "Capture All Workspaces"
@@ -1445,15 +1453,15 @@ msgstr "Host"
 
 #: translate_tmp.pl:9081
 msgid "Anonymous Upload"
-msgstr ""
+msgstr "Brezimno pošiljanje"
 
 #: translate_tmp.pl:9088
 msgid "Authorized Upload"
-msgstr ""
+msgstr "Pooblaščeno pošiljanje"
 
 #: translate_tmp.pl:9095
 msgid "OAuth Upload"
-msgstr ""
+msgstr "Pošiljanje OAuth"
 
 #: translate_tmp.pl:9106
 #: translate_tmp.pl:9167
@@ -1627,7 +1635,7 @@ msgstr "Gost"
 
 #: translate_tmp.pl:10314
 msgid "OAuth"
-msgstr ""
+msgstr "OAuth"
 
 #: translate_tmp.pl:10349
 msgid ""
@@ -1635,6 +1643,9 @@ msgid ""
 "links will still be available in the screenshot's <i>right-click menu</i> "
 "after closing this dialog."
 msgstr ""
+"Prosim, izberite enega izmed računov in kliknite <i>Pošlji</i>. Povezave "
+"pošiljanja bodo še vedno na voljo v <i>desnem kliku menija</i> zaslonske "
+"slike, ko boste zaprli pogovorno okno."
 
 #: translate_tmp.pl:10354
 msgid ""
@@ -1642,6 +1653,9 @@ msgid ""
 "enter your credentials in preferences first to make it appear in the list "
 "above."
 msgstr ""
+"<b>Opomba:</b> Če vstavek dovoljuje zgolj pooblaščeno pošiljanje, boste "
+"morali najprej vnesti svoja poverila v možnosti, da se bodo pojavili na "
+"seznamu."
 
 #: translate_tmp.pl:10358
 msgid "Choose account"
@@ -1682,7 +1696,17 @@ msgid_plural ""
 "Folder %s is synchronized with Ubuntu One. The selected files will be copied "
 "to that folder before being published."
 msgstr[0] ""
+"Mapa %s je usklajena z Ubuntu One. Izbranih datotek bo kopiranih v to mapo, "
+"preden bodo objavljene."
 msgstr[1] ""
+"Mapa %s je usklajena z Ubuntu One. Izbrana datoteka bo kopirana v to mapo, "
+"preden bo objavljena."
+msgstr[2] ""
+"Mapa %s je usklajena z Ubuntu One. Izbrani datoteki bosta kopirani v to "
+"mapo, preden bosta objavljeni."
+msgstr[3] ""
+"Mapa %s je usklajena z Ubuntu One. Izbrane datoteke bodo kopirane v to mapo, "
+"preden bodo objavljene."
 
 #: translate_tmp.pl:10600
 #: translate_tmp.pl:10638
@@ -1693,7 +1717,17 @@ msgid_plural ""
 "<b>Please note:</b> The selected files will be published in a background "
 "process. You will be notified when the process has finished."
 msgstr[0] ""
+"<b>Opomba:</b> Izbrane datoteke bodo objavljene v ozadnjem opravilu. O tem "
+"boste obveščeni, ko se opravilo konča."
 msgstr[1] ""
+"<b>Opomba:</b> Izbrana datoteka bo objavljena v ozadnjem opravilu. O tem "
+"boste obveščeni, ko se opravilo konča."
+msgstr[2] ""
+"<b>Opomba:</b> Izbrani datoteki bosta objavljeni v ozadnjem opravilu. O tem "
+"boste obveščeni, ko se opravilo konča."
+msgstr[3] ""
+"<b>Opomba:</b> Izbrane datoteke bodo objavljene v ozadnjem opravilu. O tem "
+"boste obveščeni, ko se opravilo konča."
 
 #: translate_tmp.pl:10607
 #: translate_tmp.pl:10645
@@ -1702,6 +1736,7 @@ msgid ""
 "Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
 "folder."
 msgstr ""
+"Mapa %s ni usklajena z Ubuntu One. Prosimo, izberite nadomestno mapo."
 
 #: translate_tmp.pl:10663
 msgid "Ubuntu One service cannot be found."
@@ -1724,16 +1759,16 @@ msgstr ""
 #: translate_tmp.pl:10740
 #, perl-format
 msgid "Loading module %s"
-msgstr ""
+msgstr "Nalaganje modula %s"
 
 #: translate_tmp.pl:10753
 #, perl-format
 msgid "Error while executing upload plugin %s."
-msgstr ""
+msgstr "Napaka pri izvrševanju vstavka za pošiljanje %s."
 
 #: translate_tmp.pl:10754
 msgid "There was an error executing the upload plugin."
-msgstr ""
+msgstr "Prišlo je do napake pri izvrševanju vstavka za pošiljanje."
 
 #: translate_tmp.pl:10791
 #: translate_tmp.pl:10862
@@ -1860,7 +1895,9 @@ msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
 "  Andrej Znidarsic https://launchpad.net/~andrej.znidarsic\n"
+"  Dražen Matešić https://launchpad.net/~crazylemon\n"
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
+"  Sasa Batistic https://launchpad.net/~sasa-batistic\n"
 "  feniks https://launchpad.net/~zigasebenik"
 
 #: translate_tmp.pl:34
@@ -2100,7 +2137,7 @@ msgstr ""
 
 #: translate_tmp.pl:248
 msgid "Show links to previous uploads"
-msgstr ""
+msgstr "Pokaži povezave prejšnjih pošiljanj"
 
 #: translate_tmp.pl:33
 #: translate_tmp.pl:47
@@ -2161,12 +2198,12 @@ msgstr "Ukaz 'put' je spodletel."
 
 #: translate_tmp.pl:87
 msgid "Copy this code to clipboard"
-msgstr ""
+msgstr "Kopiraj kodo v odložišče"
 
 #: translate_tmp.pl:112
 #, perl-format
 msgid "Upload - %s - %s"
-msgstr ""
+msgstr "Pošlji - %s - %s"
 
 #: translate_tmp.pl:121
 msgid "Draw a rectangular area using the mouse."
@@ -2245,7 +2282,7 @@ msgstr "Okno z vzorcem %s ni bilo zaznano."
 #: translate_tmp.pl:163
 #, perl-format
 msgid "Invalid pattern %s detected."
-msgstr ""
+msgstr "Zaznan neveljaven vzorec %s."
 
 #: translate_tmp.pl:122
 msgid "No subwindow detected"

@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-20 21:55+0100\n"
-"PO-Revision-Date: 2011-11-16 23:59+0000\n"
+"PO-Revision-Date: 2012-04-14 14:36+0000\n"
 "Last-Translator: Andriy Korchak <kharts@ukr.net>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-02-23 10:42+0000\n"
-"X-Generator: Launchpad (build 14855)\n"
+"X-Launchpad-Export-Date: 2012-04-22 23:01+0000\n"
+"X-Generator: Launchpad (build 15120)\n"
 
 #: translate_tmp.pl:388
 #: translate_tmp.pl:2574
@@ -632,6 +632,9 @@ msgid ""
 "<i>D-Bus Control Backend</i> via CompizConfig Settings Manager if your are "
 "using Desktop Effects or Unity."
 msgstr ""
+"<b>Зверніть увагу:</b> Переконайтесь, що опції <i>Сумісність Gnome</i> та "
+"<i>D-Bus Control Backend</i> увімкнено за допомогою CompizConfig Settings "
+"Manager якщо ви використовуєте Ефекти робочого столу чи Unity."
 
 #: translate_tmp.pl:2005
 #: translate_tmp.pl:2061
@@ -744,6 +747,9 @@ msgid ""
 "your credentials above. Plugins with OAuth support are configured "
 "automatically the first time you use them."
 msgstr ""
+"<b>Зверніть увагу:</b> Якщо додаток потребує авторизації для завантаження, "
+"ви можете ввести свої дані вище. Додатки з підтримкою OAuth налаштовуються "
+"автоматично при першому використанні."
 
 #: translate_tmp.pl:2207
 #: translate_tmp.pl:10443
@@ -1122,7 +1128,7 @@ msgstr "Знімок відмінений користувачем"
 #: translate_tmp.pl:6709
 #, perl-format
 msgid "%s saved"
-msgstr ""
+msgstr "%s збережено"
 
 #: translate_tmp.pl:6698
 #: translate_tmp.pl:6700
@@ -1239,11 +1245,13 @@ msgstr "Будь-ласка зачекайте поки Shutter оновлює �
 
 #: translate_tmp.pl:8163
 msgid "Updating upload plugin information"
-msgstr ""
+msgstr "Оновлення додатку для завантаження"
 
 #: translate_tmp.pl:8168
 msgid "Please wait while Shutter updates the upload plugin information"
 msgstr ""
+"Будь ласка зачекайте поки Shutter оновить інформацію про додаток для "
+"завантаження"
 
 #: translate_tmp.pl:8375
 msgid "Capture All Workspaces"
@@ -1417,15 +1425,15 @@ msgstr "Вузол"
 
 #: translate_tmp.pl:9081
 msgid "Anonymous Upload"
-msgstr ""
+msgstr "Анонімне завантаження"
 
 #: translate_tmp.pl:9088
 msgid "Authorized Upload"
-msgstr ""
+msgstr "Авторизоване завантаження"
 
 #: translate_tmp.pl:9095
 msgid "OAuth Upload"
-msgstr ""
+msgstr "Завантаження за допомогою OAuth"
 
 #: translate_tmp.pl:9106
 #: translate_tmp.pl:9167
@@ -1601,7 +1609,7 @@ msgstr "Гість"
 
 #: translate_tmp.pl:10314
 msgid "OAuth"
-msgstr ""
+msgstr "OAuth"
 
 #: translate_tmp.pl:10349
 msgid ""
@@ -1609,6 +1617,9 @@ msgid ""
 "links will still be available in the screenshot's <i>right-click menu</i> "
 "after closing this dialog."
 msgstr ""
+"Будь ласка оберіть один з облікових записів вище та натисніть "
+"<i>Завантажити</i>. Посилання на завантаження залишаться доступними в "
+"<i>контекстному меню</i> знімка екрана після закриття цього діалогу."
 
 #: translate_tmp.pl:10354
 msgid ""
@@ -1616,6 +1627,9 @@ msgid ""
 "enter your credentials in preferences first to make it appear in the list "
 "above."
 msgstr ""
+"<b>Зверніть увагу:</b> Якщо додаток дозволяє лише авторизоване завантаження, "
+"вам спочатку необхідно вказати свої дані в налаштуваннях для того, щоб він "
+"з'явився в списку вище."
 
 #: translate_tmp.pl:10358
 msgid "Choose account"
@@ -1656,7 +1670,14 @@ msgid_plural ""
 "Folder %s is synchronized with Ubuntu One. The selected files will be copied "
 "to that folder before being published."
 msgstr[0] ""
+"Каталог %s синхронізується з Ubuntu One. Обраний файл буде скопійований до "
+"цього каталогу перед публікацією."
 msgstr[1] ""
+"Каталог %s синхронізується з Ubuntu One. Обрані файли будуть скопійовані до "
+"цього каталогу перед публікацією."
+msgstr[2] ""
+"Каталог %s синхронізується з Ubuntu One. Обрані файли будуть скопійовані до "
+"цього каталогу перед публікацією."
 
 #: translate_tmp.pl:10600
 #: translate_tmp.pl:10638
@@ -1667,7 +1688,14 @@ msgid_plural ""
 "<b>Please note:</b> The selected files will be published in a background "
 "process. You will be notified when the process has finished."
 msgstr[0] ""
+"<b>Зверніть увагу:</b> Обраний файл буде опублікований у фоновому процесі. "
+"Вас буде оповіщено, коли процес буде завершений."
 msgstr[1] ""
+"<b>Зверніть увагу:</b> Обрані файли будуть опубліковані у фоновому процесі. "
+"Вас буде оповіщено, коли процес буде завершений."
+msgstr[2] ""
+"<b>Зверніть увагу:</b> Обрані файли будуть опубліковані у фоновому процесі. "
+"Вас буде оповіщено, коли процес буде завершений."
 
 #: translate_tmp.pl:10607
 #: translate_tmp.pl:10645
@@ -1676,6 +1704,8 @@ msgid ""
 "Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
 "folder."
 msgstr ""
+"Каталог %s не синхронізується з Ubuntu One. Будь ласка, оберіть інший "
+"каталог."
 
 #: translate_tmp.pl:10663
 msgid "Ubuntu One service cannot be found."
@@ -1696,16 +1726,16 @@ msgstr ""
 #: translate_tmp.pl:10740
 #, perl-format
 msgid "Loading module %s"
-msgstr ""
+msgstr "Завантаження модуля %s"
 
 #: translate_tmp.pl:10753
 #, perl-format
 msgid "Error while executing upload plugin %s."
-msgstr ""
+msgstr "Помилка виконання додатка завантаження %s."
 
 #: translate_tmp.pl:10754
 msgid "There was an error executing the upload plugin."
-msgstr ""
+msgstr "При виконанні додатка завантаження виникла помилка."
 
 #: translate_tmp.pl:10791
 #: translate_tmp.pl:10862

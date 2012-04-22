@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-20 21:55+0100\n"
-"PO-Revision-Date: 2012-02-11 17:58+0000\n"
-"Last-Translator: Quentin Delfour <Unknown>\n"
+"PO-Revision-Date: 2012-03-15 11:37+0000\n"
+"Last-Translator: Traroth <traroth@gmail.com>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-02-23 10:42+0000\n"
-"X-Generator: Launchpad (build 14855)\n"
+"X-Launchpad-Export-Date: 2012-04-22 23:01+0000\n"
+"X-Generator: Launchpad (build 15120)\n"
 
 #: translate_tmp.pl:388
 #: translate_tmp.pl:2574
@@ -45,7 +45,7 @@ msgstr "Choisir un profil"
 
 #: translate_tmp.pl:828
 msgid "Save configuration as profile"
-msgstr "Enregistrer la configuration sous un profil"
+msgstr "Enregistrer la configuration comme un profil"
 
 #: translate_tmp.pl:838
 msgid "Delete profile"
@@ -60,7 +60,7 @@ msgstr "Charger les paramètres du profil sélectionné"
 #: translate_tmp.pl:9842
 #: translate_tmp.pl:1500
 msgid "Image format"
-msgstr "Format d'image"
+msgstr "Format de l’image"
 
 #: translate_tmp.pl:862
 msgid "Save"
@@ -94,7 +94,7 @@ msgstr "Actions"
 #: translate_tmp.pl:911
 #: translate_tmp.pl:1893
 msgid "Capture"
-msgstr "Faire une capture"
+msgstr "Capturer"
 
 #: translate_tmp.pl:918
 msgid "Selection Capture"
@@ -126,7 +126,7 @@ msgstr "Protocole de transfert de fichier (FTP)"
 
 #: translate_tmp.pl:967
 msgid "Transparent Parts"
-msgstr "Zones transparentes"
+msgstr "Parties transparentes"
 
 #: translate_tmp.pl:974
 msgid "Session View"
@@ -136,14 +136,14 @@ msgstr "Vue de la session"
 #: translate_tmp.pl:1830
 #: translate_tmp.pl:1834
 msgid "Filename"
-msgstr "Nom du fichier"
+msgstr "Nom de fichier"
 
 #: translate_tmp.pl:1008
 #: translate_tmp.pl:9487
 #: translate_tmp.pl:11221
 #, perl-format
 msgid "Reserved character %s is not allowed to be in a filename."
-msgstr "Caractère réservé %s n'est pas autorisé dans un nom de fichier"
+msgstr "Le caractère réservé %s n'est pas autorisé dans un nom de fichier"
 
 #: translate_tmp.pl:1022
 msgid "There are several wildcards available, like\n"
@@ -176,7 +176,7 @@ msgstr "$h = hauteur\n"
 
 #: translate_tmp.pl:1029
 msgid "$name = multi-purpose (e.g. window title)\n"
-msgstr "$name = à fins multiples (ex: titre de fenêtre)\n"
+msgstr "$name = multi-usage\n"
 
 #: translate_tmp.pl:1030
 msgid "$nb_name = like $name but without blanks in resulting strings\n"
@@ -204,12 +204,12 @@ msgstr "Compression"
 #: translate_tmp.pl:1058
 #: translate_tmp.pl:1060
 msgid "Adjust quality/compression value"
-msgstr "Ajuster la valeur du ratio qualité/compression"
+msgstr "Ajuster le ratio qualité/compression"
 
 #: translate_tmp.pl:1130
 #: translate_tmp.pl:1131
 msgid "Select a file format"
-msgstr "Sélectionner un format de fichier image"
+msgstr "Sélectionnez un format de fichier"
 
 #: translate_tmp.pl:1140
 msgid "Directory"
@@ -231,7 +231,7 @@ msgstr "Vos captures d'écran seront sauvegardées dans ce répertoire"
 #: translate_tmp.pl:1158
 #: translate_tmp.pl:1161
 msgid "Browse for save folder every time"
-msgstr "Indiquer le répertoire de sauvegarde à chaque fois"
+msgstr "Indiquer le dossier de sauvegarde à chaque fois"
 
 #: translate_tmp.pl:1163
 #: translate_tmp.pl:1166
@@ -246,7 +246,7 @@ msgstr "Enregistrer le fichier automatiquement"
 #: translate_tmp.pl:1195
 #: translate_tmp.pl:1204
 msgid "Automatically copy screenshot to clipboard"
-msgstr "Copier la capture d'écran dans le presse-papiers"
+msgstr "Copier automatiquement la capture dans le presse-papiers"
 
 #: translate_tmp.pl:1211
 #: translate_tmp.pl:1220
@@ -640,6 +640,9 @@ msgid ""
 "<i>D-Bus Control Backend</i> via CompizConfig Settings Manager if your are "
 "using Desktop Effects or Unity."
 msgstr ""
+"<b>Note :</b> Assurez-vous d'avoir activé la <i>Compatibilité avec Gnome</i> "
+"et <i>D-Bus</i> via CompizConfig Settings Manager si vous utilisez les "
+"effets de bureau ou Unity."
 
 #: translate_tmp.pl:2005
 #: translate_tmp.pl:2061
@@ -1254,11 +1257,13 @@ msgstr "Veuillez patienter. Mise à jour des informations du module en cours"
 
 #: translate_tmp.pl:8163
 msgid "Updating upload plugin information"
-msgstr ""
+msgstr "Mise à jour des informations de plugin d'envoi"
 
 #: translate_tmp.pl:8168
 msgid "Please wait while Shutter updates the upload plugin information"
 msgstr ""
+"Merci de patienter pendant que Shutter met à jour les informations du plugin "
+"d'envoi"
 
 #: translate_tmp.pl:8375
 msgid "Capture All Workspaces"
@@ -1429,15 +1434,15 @@ msgstr "Hôte"
 
 #: translate_tmp.pl:9081
 msgid "Anonymous Upload"
-msgstr ""
+msgstr "Envoi anonyme"
 
 #: translate_tmp.pl:9088
 msgid "Authorized Upload"
-msgstr ""
+msgstr "Envoi autorisé"
 
 #: translate_tmp.pl:9095
 msgid "OAuth Upload"
-msgstr ""
+msgstr "Envoi OAuth"
 
 #: translate_tmp.pl:9106
 #: translate_tmp.pl:9167
@@ -1674,7 +1679,11 @@ msgid_plural ""
 "Folder %s is synchronized with Ubuntu One. The selected files will be copied "
 "to that folder before being published."
 msgstr[0] ""
+"Le dossier %s est synchronisé avec Ubuntu One. Le fichier sélectionné sera "
+"copié vers ce dossier avant d'être publié."
 msgstr[1] ""
+"Le dossier %s est synchronisé avec Ubuntu One. Les fichiers sélectionnés "
+"seront copiés vers ce dossier avant d'être publié."
 
 #: translate_tmp.pl:10600
 #: translate_tmp.pl:10638
@@ -1685,7 +1694,11 @@ msgid_plural ""
 "<b>Please note:</b> The selected files will be published in a background "
 "process. You will be notified when the process has finished."
 msgstr[0] ""
+"<b>Remarque:</b> Le fichier sélectionné sera publié en arrière-plan. Une "
+"notification apparaîtra quand le processus sera terminé."
 msgstr[1] ""
+"<b>Remarque:</b>Les fichiers sélectionnés seront publiés en arrière-plan. "
+"Une notification apparaîtra quand le processus sera terminé."
 
 #: translate_tmp.pl:10607
 #: translate_tmp.pl:10645
@@ -1694,6 +1707,8 @@ msgid ""
 "Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
 "folder."
 msgstr ""
+"Le dossier %s n'est pas synchronisé avec Ubuntu One. veuillez choisir un "
+"autre dossier."
 
 #: translate_tmp.pl:10663
 msgid "Ubuntu One service cannot be found."
@@ -1858,6 +1873,7 @@ msgstr ""
 "  Damien Lecan https://launchpad.net/~dlecan\n"
 "  David Bosman https://launchpad.net/~david-bosman\n"
 "  Jafri Ali https://launchpad.net/~alawane\n"
+"  James Dupin https://launchpad.net/~james.dupin\n"
 "  Jean Fontaine https://launchpad.net/~fontaine-jeanfred\n"
 "  Jonathan Ernst https://launchpad.net/~jonathan.ernst\n"
 "  Lionel Roubeyrie https://launchpad.net/~lionel-roubeyrie\n"
@@ -1869,7 +1885,9 @@ msgstr ""
 "  Ronan Jouchet https://launchpad.net/~ronj\n"
 "  Stanislas Michalak https://launchpad.net/~stanislas-michalak\n"
 "  Thibault Févry https://launchpad.net/~thibaultfevry\n"
+"  Traroth https://launchpad.net/~traroth\n"
 "  magnetik https://launchpad.net/~magnetik\n"
+"  nerjamartin https://launchpad.net/~nerjamartin\n"
 "  sunnycloud https://launchpad.net/~blackhole1002"
 
 #: translate_tmp.pl:34

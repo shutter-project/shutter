@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-20 21:55+0100\n"
-"PO-Revision-Date: 2011-11-17 00:02+0000\n"
-"Last-Translator: luisah <luisah.linux@gmail.com>\n"
+"PO-Revision-Date: 2012-03-19 19:54+0000\n"
+"Last-Translator: Tadeáš Pařík <tadeas.parik@gmail.com>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-02-23 10:42+0000\n"
-"X-Generator: Launchpad (build 14855)\n"
+"X-Launchpad-Export-Date: 2012-04-22 23:01+0000\n"
+"X-Generator: Launchpad (build 15120)\n"
 
 #: translate_tmp.pl:388
 #: translate_tmp.pl:2574
@@ -1106,7 +1106,7 @@ msgstr "Zachycení zrušeno uživatelem"
 #: translate_tmp.pl:6709
 #, perl-format
 msgid "%s saved"
-msgstr ""
+msgstr "%s uloženo"
 
 #: translate_tmp.pl:6698
 #: translate_tmp.pl:6700
@@ -1222,11 +1222,12 @@ msgstr "Prosím, vyčkejte než Shutter obnoví informace o zásuvném modulu"
 
 #: translate_tmp.pl:8163
 msgid "Updating upload plugin information"
-msgstr ""
+msgstr "Aktualizace informací o nahrávání pluginu"
 
 #: translate_tmp.pl:8168
 msgid "Please wait while Shutter updates the upload plugin information"
 msgstr ""
+"Vyčkejte prosím než Shutter aktualizuje informace o nahrávání pluginu"
 
 #: translate_tmp.pl:8375
 msgid "Capture All Workspaces"
@@ -1339,27 +1340,30 @@ msgstr ""
 
 #: translate_tmp.pl:8855
 msgid "Wait indefinitely"
-msgstr ""
+msgstr "Vyčkejte blíže neurčenou dobu"
 
 #: translate_tmp.pl:8856
 #: translate_tmp.pl:8857
 #, perl-format
 msgid "Wait max %d second"
 msgid_plural "Wait max %d seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Čekejte maximálně %d sekundu"
+msgstr[1] "Čekejte maximálně %d sekundy"
+msgstr[2] "Čekejte maximálně %d sekund"
 
 #: translate_tmp.pl:8858
 #: translate_tmp.pl:8859
 #, perl-format
 msgid "Wait max %d minute"
 msgid_plural "Wait max %d minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Čekejte maximálně %d minutu"
+msgstr[1] "Čekejte maximálně %d minuty"
+msgstr[2] "Čekejte maximálně %d minut"
 
 #: translate_tmp.pl:8867
 msgid "Shutter will wait indefinitely for the screenshot to capture"
 msgstr ""
+"Shutter bude vyčkávat blíže neurčenou dobu na zachycení snímku obrazovky"
 
 #: translate_tmp.pl:8868
 #: translate_tmp.pl:8869
@@ -1391,15 +1395,15 @@ msgstr "Server"
 
 #: translate_tmp.pl:9081
 msgid "Anonymous Upload"
-msgstr ""
+msgstr "Anonymní nahrávání"
 
 #: translate_tmp.pl:9088
 msgid "Authorized Upload"
-msgstr ""
+msgstr "Autorizované nahrávání"
 
 #: translate_tmp.pl:9095
 msgid "OAuth Upload"
-msgstr ""
+msgstr "OAuth nahrávání"
 
 #: translate_tmp.pl:9106
 #: translate_tmp.pl:9167
@@ -1573,7 +1577,7 @@ msgstr "anonymně"
 
 #: translate_tmp.pl:10314
 msgid "OAuth"
-msgstr ""
+msgstr "OAuth"
 
 #: translate_tmp.pl:10349
 msgid ""
@@ -1669,7 +1673,7 @@ msgstr ""
 #: translate_tmp.pl:10740
 #, perl-format
 msgid "Loading module %s"
-msgstr ""
+msgstr "Nahrávání modulu %s"
 
 #: translate_tmp.pl:10753
 #, perl-format
@@ -1810,6 +1814,7 @@ msgstr ""
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
 "  Mihailo Cvetkovic https://launchpad.net/~mihi84\n"
 "  Roman Horník https://launchpad.net/~roman.hornik\n"
+"  Tadeáš Pařík https://launchpad.net/~pariktadeas\n"
 "  luisah https://launchpad.net/~luisah"
 
 #: translate_tmp.pl:34
