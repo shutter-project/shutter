@@ -101,9 +101,9 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1206';
+use constant SHUTTER_REV     => 'Rev.1207';
 use constant SHUTTER_NAME    => 'Shutter';
-use constant SHUTTER_VERSION => '0.88.3';
+use constant SHUTTER_VERSION => '0.89';
 
 #--------------------------------------
 
@@ -126,9 +126,10 @@ $ENV{'SHUTTER_ROOT'} = $shutter_root;    #used by some plugins
 #--------------------------------------
 my $gnome_web_photo = TRUE;
 my $nautilus_sendto = TRUE;
-my $goocanvas        = TRUE;
-my $ubuntuone        = TRUE;
-my $exiftool         = TRUE;
+my $goocanvas = TRUE;
+my $ubuntuone = TRUE;
+my $exiftool = TRUE;
+my $appindicator = TRUE;
 &fct_init_depend;
 
 #--------------------------------------
@@ -674,38 +675,44 @@ if ($app->is_running) {
 	#--------------------------------------
 	#command line param set to disable tray icon?
 	unless ( $sc->get_disable_systray ) {
-			
-		if ( Gtk2->CHECK_VERSION( 2, 10, 0 ) ) {
-			$tray = Gtk2::StatusIcon->new();
-			
-			$tray->set_from_icon_name("shutter-panel");
-			$tray->set_visible(1);
-			$tray->{'hid'} = $tray->signal_connect(
-				'popup-menu' => sub { &evt_show_systray_statusicon; },
-				$tray
-			);
-			$tray->{'hid2'} = $tray->signal_connect(
-				'activate' => sub {
-					&evt_activate_systray_statusicon;
-					$tray;
-				},
-				$tray
-			);
-		} else {
-			
-			my $tray_image = Gtk2::Image->new_from_icon_name( 'shutter-panel', 'large-toolbar' );
-			
-			#eventbox with shutter logo
-			$tray_box = Gtk2::EventBox->new;
-			$tray_box->add($tray_image);
+		
+		if ($appindicator) {
+				$tray = Gtk2::AppIndicator->new("Shutter","shutter");
+				$tray->set_menu($tray_menu);
+				$tray->set_active();
+		} else {	
+			if ( Gtk2->CHECK_VERSION( 2, 10, 0 ) ) {
+				$tray = Gtk2::StatusIcon->new();
+				
+				$tray->set_from_icon_name("shutter-panel");
+				$tray->set_visible(1);
+				$tray->{'hid'} = $tray->signal_connect(
+					'popup-menu' => sub { &evt_show_systray_statusicon; },
+					$tray
+				);
+				$tray->{'hid2'} = $tray->signal_connect(
+					'activate' => sub {
+						&evt_activate_systray_statusicon;
+						$tray;
+					},
+					$tray
+				);
+			} else {
+				
+				my $tray_image = Gtk2::Image->new_from_icon_name( 'shutter-panel', 'large-toolbar' );
+				
+				#eventbox with shutter logo
+				$tray_box = Gtk2::EventBox->new;
+				$tray_box->add($tray_image);
 
-			#tray icon
-			require Gtk2::TrayIcon;		
-			$tray = Gtk2::TrayIcon->new('Shutter TrayIcon');
-			$tray->add($tray_box);
-			$tray_box->{'hid'} = $tray_box->signal_connect( 'button_release_event', \&evt_show_systray );
-			$tray->show_all;
-		}
+				#tray icon
+				require Gtk2::TrayIcon;		
+				$tray = Gtk2::TrayIcon->new('Shutter TrayIcon');
+				$tray->add($tray_box);
+				$tray_box->{'hid'} = $tray_box->signal_connect( 'button_release_event', \&evt_show_systray );
+				$tray->show_all;
+			}
+		}	
 
 	}
 
@@ -4266,6 +4273,8 @@ if ($app->is_running) {
 				if($tray->signal_handler_is_connected($tray->{'hid2'})){
 					$tray->signal_handler_block($tray->{'hid2'});
 				}
+			}elsif ( $tray && $tray->isa('Gtk2::AppIndicator') ) {	
+				#FIXME
 			}elsif($tray){
 				if($tray_box->signal_handler_is_connected($tray_box->{'hid'})){
 					$tray_box->signal_handler_block($tray_box->{'hid'});
@@ -4289,6 +4298,8 @@ if ($app->is_running) {
 				if($tray->signal_handler_is_connected($tray->{'hid2'})){
 					$tray->signal_handler_unblock($tray->{'hid2'});
 				}
+			}elsif ( $tray && $tray->isa('Gtk2::AppIndicator') ) {	
+				#FIXME				
 			}elsif($tray){
 				if($tray_box->signal_handler_is_connected($tray_box->{'hid'})){
 					$tray_box->signal_handler_unblock($tray_box->{'hid'});
@@ -9488,8 +9499,15 @@ if ($app->is_running) {
 		#libimage-exiftool-perl
 		eval { require Image::ExifTool };
 		if ($@) {
-			warn "WARNING: Image::ExifTool is missing --> Writing Exif information will be disabled!\n\n";
+			warn "WARNING: Image::ExifTool is missing --> writing Exif information will be disabled!\n\n";
 			$exiftool = FALSE;
+		}
+
+		#libgtk2-appindicator-perl
+		eval { require Gtk2::AppIndicator };
+		if ($@) {
+			warn "WARNING: Gtk2::AppIndicator is missing --> there will be no icon showing up in the status bar when running Unity!\n\n";
+			$appindicator = FALSE;
 		}
 
 		return TRUE;
