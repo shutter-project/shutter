@@ -105,109 +105,111 @@ sub select_advanced {
 
 	$self->{_view}->set_pixbuf($clean_pixbuf);
 
-	#show help text?
-	if($self->{_show_help}) {
-	
-		Glib::Idle->add(sub{
+	#show help text (do not show help text if predefined selection area is enabled)?
+	if($self->{_init_w} < 1 || $self->{_init_h} < 1) {
+		if($self->{_show_help}) {
+		
+			Glib::Idle->add(sub{
+				
+				print "help\n";
+				#we display the tip only on the current monitor
+				#if we would use the root window we would display the next
+				#right in the middle of both screens, this is pretty ugly
+				my $mon1 = $self->get_current_monitor;
 
-			#we display the tip only on the current monitor
-			#if we would use the root window we would display the next
-			#right in the middle of both screens, this is pretty ugly
-			my $mon1 = $self->get_current_monitor;
+				print "Using monitor: "
+					. $mon1->x . " - "
+					. $mon1->y . " - "
+					. $mon1->width . " - "
+					. $mon1->height . "\n"
+					if $self->{_sc}->get_debug;
 
-			print "Using monitor: "
-				. $mon1->x . " - "
-				. $mon1->y . " - "
-				. $mon1->width . " - "
-				. $mon1->height . "\n"
-				if $self->{_sc}->get_debug;
+				#obtain current colors and font_desc from the main window
+				my $style = $self->{_sc}->get_mainwindow->get_style;
+				my $sel_bg = Gtk2::Gdk::Color->parse('#131313');
+				my $sel_tx = $style->text('selected');
+				my $font_fam = $style->font_desc->get_family;
+				my $font_size = $style->font_desc->get_size / Gtk2::Pango->scale;
+				
+				#create cairo context und layout
+				my $surface = Cairo::ImageSurface->create( 'argb32', $self->{_root}->{w}, $self->{_root}->{h} );
+				my $cr = Cairo::Context->create($surface);
 
-			#obtain current colors and font_desc from the main window
-			my $style 		= $self->{_sc}->get_mainwindow->get_style;
-			#~ my $sel_bg 		= $style->bg('selected');
-			my $sel_bg 		= Gtk2::Gdk::Color->parse('#131313');
-			my $sel_tx 		= $style->text('selected');
-			my $font_fam 	= $style->font_desc->get_family;
-			my $font_size 	= $style->font_desc->get_size / Gtk2::Pango->scale;
-			
-			#create cairo context und layout
-			my $surface = Cairo::ImageSurface->create( 'argb32', $self->{_root}->{w}, $self->{_root}->{h} );
-			my $cr   	= Cairo::Context->create($surface);
+				#set_source_pixbuf
+				Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $clean_pixbuf, 0, 0 );
+				$cr->paint;
 
-			#set_source_pixbuf
-			Gtk2::Gdk::Cairo::Context::set_source_pixbuf( $cr, $clean_pixbuf, 0, 0 );
-			$cr->paint;
+				my $layout = Gtk2::Pango::Cairo::create_layout($cr);
+				$layout->set_width( int( $mon1->width / 2 ) * Gtk2::Pango->scale );
+				$layout->set_alignment('left');
+				$layout->set_wrap('word');
+				
+				#determine font-size
+				my $size1 = int ($font_size * 2.0);
+				my $size2 = int ($font_size * 1.5);
+				my $size3 = int ($font_size * 1.0);
+				
+				my $text1 = 
+					$d->get("Draw a rectangular area using the mouse.");
+				
+				my $text2 =
+					$d->get("To take a screenshot, press the Enter key. Press Esc to quit.");
 
-			my $layout = Gtk2::Pango::Cairo::create_layout($cr);
-			$layout->set_width( int( $mon1->width / 2 ) * Gtk2::Pango->scale );
-			$layout->set_alignment('left');
-			$layout->set_wrap('word');
-			
-			#determine font-size
-			my $size1 = int ($font_size * 2.0);
-			my $size2 = int ($font_size * 1.5);
-			my $size3 = int ($font_size * 1.0);
-			
-			my $text1 = 
-				$d->get("Draw a rectangular area using the mouse.");
-			
-			my $text2 =
-				$d->get("To take a screenshot, press the Enter key. Press Esc to quit.");
+				my $text3 = 
+					$d->get("<b>shift/right-click</b> → selection dialog on/off")."\n".
+					$d->get("<b>ctrl + scrollwheel</b> → zoom in/out")."\n".
+					$d->get("<b>space</b> → zoom window on/off")."\n".
+					$d->get("<b>cursor keys</b> → move cursor")."\n".
+					$d->get("<b>cursor keys + alt</b> → move selection")."\n".
+					$d->get("<b>cursor keys + ctrl</b> → resize selection");
 
-			my $text3 = 
-				$d->get("<b>shift/right-click</b> → selection dialog on/off")."\n".
-				$d->get("<b>ctrl + scrollwheel</b> → zoom in/out")."\n".
-				$d->get("<b>space</b> → zoom window on/off")."\n".
-				$d->get("<b>cursor keys</b> → move cursor")."\n".
-				$d->get("<b>cursor keys + alt</b> → move selection")."\n".
-				$d->get("<b>cursor keys + ctrl</b> → resize selection");
+				#use this one for white font-color	
+				$layout->set_markup("<span font_desc=\"$font_fam $size1\" foreground=\"#FFFFFF\">$text1</span>\n<span font_desc=\"$font_fam $size2\" foreground=\"#FFFFFF\">$text2</span>\n\n<span font_desc=\"$font_fam $size3\" foreground=\"#FFFFFF\">$text3</span>");
+				
+				#draw the rectangle
+				$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.85 );
 
-			#use this one for white font-color	
-			$layout->set_markup("<span font_desc=\"$font_fam $size1\" foreground=\"#FFFFFF\">$text1</span>\n<span font_desc=\"$font_fam $size2\" foreground=\"#FFFFFF\">$text2</span>\n\n<span font_desc=\"$font_fam $size3\" foreground=\"#FFFFFF\">$text3</span>");
-			
-			#draw the rectangle
-			$cr->set_source_rgba( $sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.85 );
+				my ( $lw, $lh ) = $layout->get_pixel_size;
 
-			my ( $lw, $lh ) = $layout->get_pixel_size;
+				my $w = $lw + $size1 * 2;
+				my $h = $lh + $size1 * 2;
+				my $x = int( ( $mon1->width - $w ) / 2 ) + $mon1->x;
+				my $y = int( ( $mon1->height - $h ) / 2 ) + $mon1->y;
+				my $r = 20;
 
-			my $w = $lw + $size1 * 2;
-			my $h = $lh + $size1 * 2;
-			my $x = int( ( $mon1->width - $w ) / 2 ) + $mon1->x;
-			my $y = int( ( $mon1->height - $h ) / 2 ) + $mon1->y;
-			my $r = 20;
+				$cr->move_to( $x + $r, $y );
+				$cr->line_to( $x + $w - $r, $y );
+				$cr->curve_to( $x + $w, $y, $x + $w, $y, $x + $w, $y + $r );
+				$cr->line_to( $x + $w, $y + $h - $r );
+				$cr->curve_to( $x + $w, $y + $h, $x + $w, $y + $h, $x + $w - $r, $y + $h );
+				$cr->line_to( $x + $r, $y + $h );
+				$cr->curve_to( $x, $y + $h, $x, $y + $h, $x, $y + $h - $r );
+				$cr->line_to( $x, $y + $r );
+				$cr->curve_to( $x, $y, $x, $y, $x + $r, $y );
+				$cr->fill;
 
-			$cr->move_to( $x + $r, $y );
-			$cr->line_to( $x + $w - $r, $y );
-			$cr->curve_to( $x + $w, $y, $x + $w, $y, $x + $w, $y + $r );
-			$cr->line_to( $x + $w, $y + $h - $r );
-			$cr->curve_to( $x + $w, $y + $h, $x + $w, $y + $h, $x + $w - $r, $y + $h );
-			$cr->line_to( $x + $r, $y + $h );
-			$cr->curve_to( $x, $y + $h, $x, $y + $h, $x, $y + $h - $r );
-			$cr->line_to( $x, $y + $r );
-			$cr->curve_to( $x, $y, $x, $y, $x + $r, $y );
-			$cr->fill;
+				$cr->move_to( $x + $size1, $y + $size1 );
+				
+				#draw the pango layout
+				Gtk2::Pango::Cairo::show_layout( $cr, $layout );
 
-			$cr->move_to( $x + $size1, $y + $size1 );
-			
-			#draw the pango layout
-			Gtk2::Pango::Cairo::show_layout( $cr, $layout );
+				#write surface to pixbuf
+				my $loader = Gtk2::Gdk::PixbufLoader->new;
+				$surface->write_to_png_stream(
+					sub {
+						my ( $closure, $data ) = @_;
+						$loader->write($data);
+					}
+				);
+				$loader->close;
+				
+				#set pixbuf
+				$self->{_view}->set_pixbuf($loader->get_pixbuf);
 
-			#write surface to pixbuf
-			my $loader = Gtk2::Gdk::PixbufLoader->new;
-			$surface->write_to_png_stream(
-				sub {
-					my ( $closure, $data ) = @_;
-					$loader->write($data);
-				}
-			);
-			$loader->close;
-			
-			#set pixbuf
-			$self->{_view}->set_pixbuf($loader->get_pixbuf);
+				return FALSE;
+			});
 
-			return FALSE;
-		});
-
+		}
 	}
 
 	#define zoom window
@@ -366,11 +368,14 @@ sub select_advanced {
 	);
 
 	#set initial size
-	if($self->{_init_w} && $self->{_init_h}){
-		$self->{_selector}->set_selection(
-			Gtk2::Gdk::Rectangle->new($self->{_init_x}, $self->{_init_y}, $self->{_init_w}, $self->{_init_h})
-		);			
-	}
+	Glib::Idle->add(sub{	
+		if($self->{_init_w} && $self->{_init_h}){
+			$self->{_selector}->set_selection(
+				Gtk2::Gdk::Rectangle->new($self->{_init_x}, $self->{_init_y}, $self->{_init_w}, $self->{_init_h})
+			);			
+		}
+		return FALSE;
+	});
 	
 	#event-handling
 	#we simulate a 2button-press here	
