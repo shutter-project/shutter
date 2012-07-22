@@ -111,7 +111,6 @@ sub select_advanced {
 		
 			Glib::Idle->add(sub{
 				
-				print "help\n";
 				#we display the tip only on the current monitor
 				#if we would use the root window we would display the next
 				#right in the middle of both screens, this is pretty ugly
