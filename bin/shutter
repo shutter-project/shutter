@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1207';
+use constant SHUTTER_REV     => 'Rev.1208';
 use constant SHUTTER_NAME    => 'Shutter';
 use constant SHUTTER_VERSION => '0.89';
 
@@ -189,24 +189,24 @@ if($ubuntuone){
 
 #main window
 #--------------------------------------
-my $window 	= Gtk2::Window->new('toplevel');
+my $window = Gtk2::Window->new('toplevel');
 #--------------------------------------
 
 #create app objects
 #--------------------------------------
-my $sc		= Shutter::App::Common->new($shutter_root, $window, SHUTTER_NAME, SHUTTER_VERSION, SHUTTER_REV, $$);
-my $shf		= Shutter::App::HelperFunctions->new($sc);
-my $so		= Shutter::App::Options->new($sc, $shf);
-my $sdir	= Shutter::App::Directories->new();
-my $strash	= Shutter::App::TrashInfo->new();
-my $sas		= Shutter::App::Autostart->new();
-my $sm		= Shutter::App::Menu->new($sc);
-my $st		= Shutter::App::Toolbar->new($sc);
-my $sd		= Shutter::App::SimpleDialogs->new($window);
+my $sc = Shutter::App::Common->new($shutter_root, $window, SHUTTER_NAME, SHUTTER_VERSION, SHUTTER_REV, $$);
+my $shf = Shutter::App::HelperFunctions->new($sc);
+my $so = Shutter::App::Options->new($sc, $shf);
+my $sdir = Shutter::App::Directories->new();
+my $strash = Shutter::App::TrashInfo->new();
+my $sas = Shutter::App::Autostart->new();
+my $sm = Shutter::App::Menu->new($sc);
+my $st = Shutter::App::Toolbar->new($sc);
+my $sd = Shutter::App::SimpleDialogs->new($window);
 
-my $sp		= Shutter::Pixbuf::Save->new($sc);
-my $lp		= Shutter::Pixbuf::Load->new($sc);
-my $lp_ne	= Shutter::Pixbuf::Load->new($sc, undef, TRUE);
+my $sp = Shutter::Pixbuf::Save->new($sc);
+my $lp = Shutter::Pixbuf::Load->new($sc);
+my $lp_ne = Shutter::Pixbuf::Load->new($sc, undef, TRUE);
 my $sthumb	= Shutter::Pixbuf::Thumbnail->new($sc);
 
 #--------------------------------------
@@ -4274,7 +4274,9 @@ if ($app->is_running) {
 					$tray->signal_handler_block($tray->{'hid2'});
 				}
 			}elsif ( $tray && $tray->isa('Gtk2::AppIndicator') ) {	
-				#FIXME
+				if(Gtk2::AppIndicator->VERSION > 0.12){
+					$tray->set_passive();
+				}
 			}elsif($tray){
 				if($tray_box->signal_handler_is_connected($tray_box->{'hid'})){
 					$tray_box->signal_handler_block($tray_box->{'hid'});
@@ -4299,7 +4301,9 @@ if ($app->is_running) {
 					$tray->signal_handler_unblock($tray->{'hid2'});
 				}
 			}elsif ( $tray && $tray->isa('Gtk2::AppIndicator') ) {	
-				#FIXME				
+				if(Gtk2::AppIndicator->VERSION > 0.12){
+					$tray->set_active();
+				}
 			}elsif($tray){
 				if($tray_box->signal_handler_is_connected($tray_box->{'hid'})){
 					$tray_box->signal_handler_unblock($tray_box->{'hid'});
