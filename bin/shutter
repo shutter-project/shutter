@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1214';
+use constant SHUTTER_REV     => 'Rev.1215';
 use constant SHUTTER_NAME    => 'Shutter';
 use constant SHUTTER_VERSION => '0.89';
 
@@ -490,6 +490,10 @@ if ($app->is_running) {
 	$window->set_resizable(TRUE);
 	$window->set_focus_on_map(TRUE);
 	$window->set_default_size( -1, 500 );
+
+	#UPDATE WINDOW LIST (signal is connected when GUI is loaded)
+	my $wnck_screen = Gnome2::Wnck::Screen->get_default;
+	$wnck_screen->force_update;
 
 	#TRAY ICON AND MENU
 	my $tray = undef;
@@ -2906,6 +2910,14 @@ if ($app->is_running) {
 		&evt_take_screenshot( 'global_keybinding', $cmdname, $folder_to_save, $extra );
 	}
 
+	#keep list of windows up-to-date (tray)
+	Glib::Idle->add(sub{	
+		$wnck_screen->signal_connect(
+			'window-stacking-changed' => sub { &fct_update_tray_menu; }
+		);
+		return FALSE;
+	});
+
 	Gtk2->main;
 
 	0;
@@ -3354,18 +3366,8 @@ if ($app->is_running) {
 				&fct_control_main_window ('show');
 			}
 		}
-
 		#right button (mouse)
-		elsif ( $_[1]->button == 3 ) {
-			
-			#update window list
-			foreach my $child ($tray_menu->get_children){
-				if ($child->get_name eq 'windowlist'){
-					$child->set_submenu( &fct_ret_window_menu );
-					last;
-				}	
-			}
-			
+		elsif ( $_[1]->button == 3 ) {			
 			$tray_menu->popup(
 				undef,    # parent menu shell
 				undef,    # parent menu item
@@ -3382,14 +3384,6 @@ if ($app->is_running) {
 		my ( $widget, $button, $time, $tray ) = @_;
 		if ( $sc->get_debug ) {
 			print "\n$button, $time was emitted by widget $widget\n";
-		}
-
-		#update window list
-		foreach my $child ($tray_menu->get_children){
-			if ($child->get_name eq 'windowlist'){
-				$child->set_submenu( &fct_ret_window_menu );
-				last;
-			}	
 		}
 
 		$tray_menu->popup(
@@ -6318,9 +6312,6 @@ if ($app->is_running) {
 
 		#fullscreen screenshot
 		if ( $data eq "full" || $data eq "tray_full" ) {
-			
-			my $wnck_screen = Gnome2::Wnck::Screen->get_default;
-			$wnck_screen->force_update;
 
 			$screenshooter = Shutter::Screenshot::Workspace->new(
 				$sc, $include_cursor,
@@ -6934,6 +6925,20 @@ if ($app->is_running) {
 		}
 		
 		return TRUE;
+	}
+
+	sub fct_update_tray_menu {
+		my $screen = shift;
+		if ( $sc->get_debug ) {
+			print "\nfct_update_tray_menu was called by $screen\n";
+		}
+		#update window list
+		foreach my $child ($tray_menu->get_children){
+			if ($child->get_name eq 'windowlist'){
+				$child->set_submenu( &fct_ret_window_menu );
+				last;
+			}	
+		}		
 	}
 
 	sub fct_upload {
@@ -8481,8 +8486,8 @@ if ($app->is_running) {
 
 		my $menu_wrksp = Gtk2::Menu->new;
 
-		my $screen = Gnome2::Wnck::Screen->get_default;
-		$screen->force_update();
+		my $wnck_screen = Gnome2::Wnck::Screen->get_default;
+		$wnck_screen->force_update();
 
 		#we determine the wm name but on older
 		#version of libwnck (or the bindings)
@@ -8492,11 +8497,11 @@ if ($app->is_running) {
 		#this leads to a known problem when switching
 		#the wm => wm_name will still remain the old one
 		my $wm_name = Gtk2::Gdk::Screen->get_default->get_window_manager_name;
-		if($screen->can('get_window_manager_name')){
-			$wm_name = $screen->get_window_manager_name;
+		if($wnck_screen->can('get_window_manager_name')){
+			$wm_name = $wnck_screen->get_window_manager_name;
 		}
 
-		my $active_workspace = $screen->get_active_workspace;
+		my $active_workspace = $wnck_screen->get_active_workspace;
 		
 		#we need to handle different window managers here because there are some different models related
 		#to workspaces and viewports
@@ -8504,8 +8509,8 @@ if ($app->is_running) {
 		#	default gnome wm metacity simply uses multiple workspaces
 		#we will try to handle them by name
 		my @workspaces = ();
-		for ( my $wcount = 0; $wcount < $screen->get_workspace_count; $wcount++ ) {
-			push( @workspaces, $screen->get_workspace($wcount) );
+		for ( my $wcount = 0; $wcount < $wnck_screen->get_workspace_count; $wcount++ ) {
+			push( @workspaces, $wnck_screen->get_workspace($wcount) );
 		}
 
 		foreach my $space (@workspaces) {
@@ -8519,15 +8524,15 @@ if ($app->is_running) {
 				my $vpx = $space->get_viewport_x;
 				my $vpy = $space->get_viewport_y;
 
-				my $n_viewports_column = int( $space->get_width / $screen->get_width );
-				my $n_viewports_rows   = int( $space->get_height / $screen->get_height );
+				my $n_viewports_column = int( $space->get_width / $wnck_screen->get_width );
+				my $n_viewports_rows   = int( $space->get_height / $wnck_screen->get_height );
 
 				#rows
 				for ( my $j = 0; $j < $n_viewports_rows; $j++ ) {
 
 					#columns
 					for ( my $i = 0; $i < $n_viewports_column; $i++ ) {
-						my @vp = ( $i * $screen->get_width, $j * $screen->get_height );
+						my @vp = ( $i * $wnck_screen->get_width, $j * $wnck_screen->get_height );
 						my $vp_name = "$wm_name x: $i y: $j";
 
 						print "shutter_wrksp_direct_compiz" . $vp[0] . "x" . $vp[1] . "\n"
@@ -8617,10 +8622,8 @@ if ($app->is_running) {
 	sub fct_ret_window_menu {
 
 		my $menu_windows = Gtk2::Menu->new;
-		my $screen = Gnome2::Wnck::Screen->get_default;
-		$screen->force_update();
 		
-		my $active_workspace = $screen->get_active_workspace;
+		my $active_workspace = $wnck_screen->get_active_workspace;
 		my $icontheme = $sc->get_theme;
 		
 		#add item for active window
@@ -8648,7 +8651,7 @@ if ($app->is_running) {
 		$menu_windows->append( Gtk2::SeparatorMenuItem->new );
 
 		#add all windows to menu to capture it directly
-		foreach my $win ( $screen->get_windows_stacked ) {
+		foreach my $win ( $wnck_screen->get_windows_stacked ) {
 			if ($active_workspace && $win->is_on_workspace( $active_workspace ) ) {
 				my $window_item = Gtk2::ImageMenuItem->new_with_label( $win->get_name );
 				foreach my $child ($window_item->get_children){
@@ -10517,7 +10520,7 @@ if ($app->is_running) {
 		foreach ( keys %accounts ) {
 			#cut username so the dialog will not explode ;-)
 			my $short_username = $accounts{$_}->{'username'};
-			if ( length $accounts{$_}->{'username'} > 10 ) {
+			if ( defined $accounts{$_}->{'username'} && length $accounts{$_}->{'username'} > 10 ) {
 				$short_username = substr( $accounts{$_}->{'username'}, 0, 10 ) . "...";
 			}
 
