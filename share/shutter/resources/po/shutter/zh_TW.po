@@ -8,21 +8,21 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-20 21:55+0100\n"
-"PO-Revision-Date: 2012-03-29 18:11+0000\n"
-"Last-Translator: Tse-Hsien Chiang <jackblackevo@gmail.com>\n"
+"PO-Revision-Date: 2012-05-25 15:23+0000\n"
+"Last-Translator: taijuin lee <Unknown>\n"
 "Language-Team: Traditional Chinese <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-04-22 23:01+0000\n"
-"X-Generator: Launchpad (build 15120)\n"
+"X-Launchpad-Export-Date: 2012-07-29 21:57+0000\n"
+"X-Generator: Launchpad (build 15694)\n"
 
 #: translate_tmp.pl:388
 #: translate_tmp.pl:2574
 #: translate_tmp.pl:7329
 msgid "Profile"
-msgstr "樣式"
+msgstr "配置檔"
 
 #: translate_tmp.pl:396
 #: translate_tmp.pl:3950
@@ -40,19 +40,19 @@ msgstr "Goo::Canvas/libgoo-canvas-perl  需要先安裝以使用此功能"
 
 #: translate_tmp.pl:812
 msgid "Choose a profile"
-msgstr "選擇樣式"
+msgstr "選擇一個配置檔"
 
 #: translate_tmp.pl:828
 msgid "Save configuration as profile"
-msgstr "儲存設定為一個新樣式"
+msgstr "儲存設定為一個配置檔"
 
 #: translate_tmp.pl:838
 msgid "Delete profile"
-msgstr "刪除樣式"
+msgstr "刪除配置檔"
 
 #: translate_tmp.pl:847
 msgid "Load the selected profile's configuration"
-msgstr "載入選取的樣式設定"
+msgstr "載入選取的配置檔設定"
 
 #: translate_tmp.pl:855
 #: translate_tmp.pl:1129
@@ -129,7 +129,7 @@ msgstr "透明部份"
 
 #: translate_tmp.pl:974
 msgid "Session View"
-msgstr ""
+msgstr "作業階段檢視"
 
 #: translate_tmp.pl:982
 #: translate_tmp.pl:1830
@@ -183,7 +183,7 @@ msgstr "$nb_name = 相似 $name 但沒有空白字符\n"
 
 #: translate_tmp.pl:1031
 msgid "$profile = name of current profile\n"
-msgstr "$profile = 當前樣式名稱\n"
+msgstr "$profile = 目前配置檔名稱\n"
 
 #: translate_tmp.pl:1032
 msgid "$R = random char (e.g. $RRRR = ag4r)\n"
@@ -841,12 +841,12 @@ msgstr "註冊"
 
 #: translate_tmp.pl:3833
 msgid "Profile deleted"
-msgstr "樣式刪除"
+msgstr "配置檔已刪除"
 
 #: translate_tmp.pl:3835
 #: translate_tmp.pl:3836
 msgid "Profile could not be deleted"
-msgstr "樣式無法刪除"
+msgstr "配置檔無法刪除"
 
 #: translate_tmp.pl:3835
 #: translate_tmp.pl:5672
@@ -864,7 +864,7 @@ msgstr "錯誤"
 #: translate_tmp.pl:3854
 #, perl-format
 msgid "Profile %s loaded successfully"
-msgstr ""
+msgstr "配置檔 %s 載入成功"
 
 #: translate_tmp.pl:3883
 #: translate_tmp.pl:7185
@@ -890,7 +890,7 @@ msgstr "設定儲存完成！"
 
 #: translate_tmp.pl:4594
 msgid "Session could not be saved!"
-msgstr "此工作階段無法儲存！"
+msgstr "作業階段無法被儲存！"
 
 #: translate_tmp.pl:4622
 msgid "Account-settings could not be saved!"
@@ -941,7 +941,7 @@ msgstr "當開啟資料夾 \" %s \" 發生錯誤"
 
 #: translate_tmp.pl:5358
 msgid "Session could not be restored!"
-msgstr "工作階段無法恢復！"
+msgstr "作業階段無法被恢復！"
 
 #: translate_tmp.pl:5410
 #, perl-format
@@ -982,7 +982,7 @@ msgstr "您確定要將已選擇的檔案移至回收筒？"
 #: translate_tmp.pl:5526
 #: translate_tmp.pl:5626
 msgid "No screenshots selected"
-msgstr ""
+msgstr "沒有選擇擷圖"
 
 #: translate_tmp.pl:5542
 msgid "Selected screenshots deleted"
@@ -996,7 +996,7 @@ msgstr "已選擇刪除的擷圖"
 #: translate_tmp.pl:7744
 #: translate_tmp.pl:7774
 msgid "removed from session"
-msgstr "從工作階段中刪除"
+msgstr "從作業階段中刪除"
 
 #: translate_tmp.pl:5642
 msgid "Selected screenshots removed"
@@ -1082,13 +1082,13 @@ msgstr "使用者取消擷取"
 #: translate_tmp.pl:6709
 #, perl-format
 msgid "%s saved"
-msgstr ""
+msgstr "%s 已儲存"
 
 #: translate_tmp.pl:6698
 #: translate_tmp.pl:6700
 #: translate_tmp.pl:6714
 msgid "Screenshot saved"
-msgstr ""
+msgstr "螢幕擷圖已存檔"
 
 #: translate_tmp.pl:6723
 #, perl-format
@@ -1136,7 +1136,7 @@ msgstr[0] "%s擷圖"
 
 #: translate_tmp.pl:7199
 msgid "Current profile"
-msgstr ""
+msgstr "目前的配置檔"
 
 #: translate_tmp.pl:7607
 msgid "Try to resave the file?"
@@ -1172,7 +1172,7 @@ msgstr "已儲存"
 #: translate_tmp.pl:7735
 #, perl-format
 msgid "Image %s was deleted from filesystem"
-msgstr ""
+msgstr "影像%s已從檔案系統中刪除"
 
 #: translate_tmp.pl:7767
 #: translate_tmp.pl:62
@@ -1195,11 +1195,11 @@ msgstr "請稍候，Shutter 正在更新您的插件資訊"
 
 #: translate_tmp.pl:8163
 msgid "Updating upload plugin information"
-msgstr ""
+msgstr "正在更新上傳外掛的資訊"
 
 #: translate_tmp.pl:8168
 msgid "Please wait while Shutter updates the upload plugin information"
-msgstr ""
+msgstr "請稍候，Shutter 更新上傳的插件資訊"
 
 #: translate_tmp.pl:8375
 msgid "Capture All Workspaces"
@@ -1239,7 +1239,7 @@ msgstr "桌面(_D)"
 
 #: translate_tmp.pl:8546
 msgid "Window _under Cursor"
-msgstr ""
+msgstr "滑鼠游標下的視窗(_U)"
 
 #: translate_tmp.pl:8562
 #: translate_tmp.pl:459
@@ -1274,7 +1274,7 @@ msgstr "重做最後擷圖動作(_R)"
 #: translate_tmp.pl:8661
 #: translate_tmp.pl:223
 msgid "_Quick profile select"
-msgstr ""
+msgstr "快速配置檔選擇(_Q)"
 
 #: translate_tmp.pl:8704
 msgid "Advanced selection tool"
@@ -1351,11 +1351,11 @@ msgstr "網站"
 
 #: translate_tmp.pl:9081
 msgid "Anonymous Upload"
-msgstr ""
+msgstr "匿名上傳"
 
 #: translate_tmp.pl:9088
 msgid "Authorized Upload"
-msgstr ""
+msgstr "授權上傳"
 
 #: translate_tmp.pl:9095
 msgid "OAuth Upload"
@@ -1394,7 +1394,7 @@ msgstr "Ubuntu One"
 
 #: translate_tmp.pl:9241
 msgid "Successfully published"
-msgstr ""
+msgstr "已成功地發布"
 
 #: translate_tmp.pl:9241
 #, perl-format
@@ -1404,11 +1404,11 @@ msgstr ""
 #: translate_tmp.pl:9244
 #, perl-format
 msgid "%s published"
-msgstr ""
+msgstr "%s 已發布"
 
 #: translate_tmp.pl:9256
 msgid "Unpublished"
-msgstr ""
+msgstr "未發布"
 
 #: translate_tmp.pl:9256
 #, perl-format
@@ -1559,7 +1559,7 @@ msgstr "狀態"
 
 #: translate_tmp.pl:10529
 msgid "Public hosting"
-msgstr "公眾網域"
+msgstr "公開的主機"
 
 #: translate_tmp.pl:10531
 msgid "Places"
@@ -1571,12 +1571,12 @@ msgstr "匯出 (_E)"
 
 #: translate_tmp.pl:10547
 msgid "_Publish"
-msgstr ""
+msgstr "發布(_P)"
 
 #: translate_tmp.pl:10574
 #: translate_tmp.pl:164
 msgid "Disconnected"
-msgstr ""
+msgstr "已斷線"
 
 #: translate_tmp.pl:10595
 #: translate_tmp.pl:10633
@@ -1627,7 +1627,7 @@ msgstr "這個功能需要安裝 Net::DBus::GLib/libnet-dbus-glib-perl"
 #: translate_tmp.pl:10740
 #, perl-format
 msgid "Loading module %s"
-msgstr ""
+msgstr "載入模組 %s"
 
 #: translate_tmp.pl:10753
 #, perl-format
@@ -1649,7 +1649,7 @@ msgstr "已上傳"
 #: translate_tmp.pl:10969
 #: translate_tmp.pl:11045
 msgid "Successfully uploaded"
-msgstr ""
+msgstr "已成功上傳"
 
 #: translate_tmp.pl:10866
 #: translate_tmp.pl:10969
@@ -1677,7 +1677,7 @@ msgstr "略過"
 #: translate_tmp.pl:10886
 #: translate_tmp.pl:11177
 msgid "Retry"
-msgstr ""
+msgstr "重試"
 
 #: translate_tmp.pl:10961
 #: translate_tmp.pl:11037
@@ -1693,17 +1693,17 @@ msgstr "成功地匯出"
 #: translate_tmp.pl:11040
 #, perl-format
 msgid "The file %s was successfully exported."
-msgstr ""
+msgstr "檔案%s已成功匯出"
 
 #: translate_tmp.pl:10974
 #: translate_tmp.pl:11050
 #, perl-format
 msgid "Publishing %s..."
-msgstr ""
+msgstr "正在發布 %s..."
 
 #: translate_tmp.pl:11135
 msgid "_Retry"
-msgstr ""
+msgstr "重試(_R)"
 
 #: translate_tmp.pl:11139
 #, perl-format
@@ -1726,11 +1726,11 @@ msgstr "登入時發生錯誤"
 
 #: translate_tmp.pl:11167
 msgid "Maximum filesize reached"
-msgstr ""
+msgstr "達到最大檔案大小"
 
 #: translate_tmp.pl:11168
 msgid "Error while uploading"
-msgstr ""
+msgstr "上傳時發生錯誤"
 
 #: translate_tmp.pl:11171
 #, perl-format
@@ -1743,11 +1743,11 @@ msgstr "連接時發生錯誤"
 
 #: translate_tmp.pl:11192
 msgid "Save current preferences as new profile"
-msgstr "儲存當前的設定為一個新的樣式"
+msgstr "儲存目前的偏好設定為一個新的配置檔"
 
 #: translate_tmp.pl:11194
 msgid "New profile name"
-msgstr "新樣式名稱"
+msgstr "新的配置檔名稱"
 
 #: translate_tmp.pl:11255
 msgid "Replacing it will overwrite its contents."
@@ -1756,12 +1756,13 @@ msgstr "取代它將會覆蓋其內容。"
 #: translate_tmp.pl:11256
 #, perl-format
 msgid "A profile named %s already exists. Do you want to replace it?"
-msgstr "一個樣式名稱 %s 已存在。您想要取代它嗎？"
+msgstr "一個名稱為 %s 的配置檔已存在。您想要取代它嗎？"
 
 #: translate_tmp.pl:79
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
+"  Bill https://launchpad.net/~cges30901\n"
 "  Calvin So https://launchpad.net/~calvinss\n"
 "  Ev Law https://launchpad.net/~tyuuuu2001\n"
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
@@ -1896,7 +1897,7 @@ msgstr "匯出(_X)..."
 #: translate_tmp.pl:597
 #: translate_tmp.pl:691
 msgid "Public URLs"
-msgstr ""
+msgstr "公開的網址"
 
 #: translate_tmp.pl:605
 #: translate_tmp.pl:718
@@ -2003,7 +2004,7 @@ msgstr "上傳你的圖片到圖片存取服務網站，FTP網站或匯出到任
 
 #: translate_tmp.pl:248
 msgid "Show links to previous uploads"
-msgstr ""
+msgstr "顯示先前上傳的連結"
 
 #: translate_tmp.pl:33
 #: translate_tmp.pl:47
@@ -2031,7 +2032,7 @@ msgstr ""
 
 #: translate_tmp.pl:167
 msgid "Synchronization complete"
-msgstr ""
+msgstr "同步完成"
 
 #: translate_tmp.pl:169
 msgid "Synchronization in progress..."
@@ -2069,15 +2070,15 @@ msgstr ""
 #: translate_tmp.pl:112
 #, perl-format
 msgid "Upload - %s - %s"
-msgstr ""
+msgstr "上傳 - %s - %s"
 
 #: translate_tmp.pl:121
 msgid "Draw a rectangular area using the mouse."
-msgstr ""
+msgstr "使用滑鼠繪製一個矩形區域。"
 
 #: translate_tmp.pl:124
 msgid "To take a screenshot, press the Enter key. Press Esc to quit."
-msgstr ""
+msgstr "按 Enter 鍵擷圖，按 Esc 鍵退出。"
 
 #: translate_tmp.pl:127
 msgid "<b>shift/right-click</b> → selection dialog on/off"
@@ -2150,7 +2151,7 @@ msgstr ""
 
 #: translate_tmp.pl:122
 msgid "No subwindow detected"
-msgstr ""
+msgstr "沒有子窗口偵測到"
 
 #: translate_tmp.pl:123
 msgid ""
@@ -2168,7 +2169,7 @@ msgstr "擷取(_A)"
 
 #: translate_tmp.pl:157
 msgid "Workspaces"
-msgstr ""
+msgstr "工作區"
 
 #: translate_tmp.pl:447
 #: translate_tmp.pl:4014
@@ -2323,15 +2324,15 @@ msgstr ""
 
 #: translate_tmp.pl:1706
 msgid "Save Background Color"
-msgstr ""
+msgstr "儲存背景顏色"
 
 #: translate_tmp.pl:1709
 msgid "_Ignore Background Color"
-msgstr ""
+msgstr "忽略背景顏色(_I)"
 
 #: translate_tmp.pl:1712
 msgid "_Save Background Color"
-msgstr ""
+msgstr "儲存背景顏色(_S)"
 
 #: translate_tmp.pl:3760
 msgid "Change Background Color..."
@@ -2339,7 +2340,7 @@ msgstr "變更背景顏色…"
 
 #: translate_tmp.pl:3770
 msgid "_Reset to Default"
-msgstr ""
+msgstr "重設為預設值(_R)"
 
 #: translate_tmp.pl:3820
 msgid "Raise"
@@ -2380,7 +2381,7 @@ msgstr "長度"
 
 #: translate_tmp.pl:4153
 msgid "Tip length"
-msgstr ""
+msgstr "提示長度"
 
 #: translate_tmp.pl:4163
 msgid "Display an arrow at the end of the line"
@@ -2445,7 +2446,7 @@ msgstr "清除畫布"
 
 #: translate_tmp.pl:5907
 msgid "Abort current mode"
-msgstr ""
+msgstr "中止目前的模式"
 
 #: translate_tmp.pl:5910
 msgid "Close this window"
@@ -2578,7 +2579,7 @@ msgstr ""
 
 #: translate_tmp.pl:6323
 msgid "Import from session..."
-msgstr "從工作階段匯入..."
+msgstr "從作業階段匯入..."
 
 #: translate_tmp.pl:6334
 msgid "Import from filesystem..."
@@ -2586,4 +2587,4 @@ msgstr "從檔案系統中匯入..."
 
 #: translate_tmp.pl:7125
 msgid "New text..."
-msgstr ""
+msgstr "新增下一個..."

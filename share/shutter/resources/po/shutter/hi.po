@@ -1,0 +1,2575 @@
+# Hindi translation for shutter
+# Copyright (c) 2012 Rosetta Contributors and Canonical Ltd 2012
+# This file is distributed under the same license as the shutter package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2012.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: shutter\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2011-11-20 21:55+0100\n"
+"PO-Revision-Date: 2012-06-22 13:20+0000\n"
+"Last-Translator: Ravi Kumar <Unknown>\n"
+"Language-Team: Hindi <hi@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Launchpad-Export-Date: 2012-07-29 21:56+0000\n"
+"X-Generator: Launchpad (build 15694)\n"
+
+#: translate_tmp.pl:388
+#: translate_tmp.pl:2574
+#: translate_tmp.pl:7329
+msgid "Profile"
+msgstr "प्रोफाइल"
+
+#: translate_tmp.pl:396
+#: translate_tmp.pl:3950
+msgid "Preferences"
+msgstr "प्राथमिकताएँ"
+
+#: translate_tmp.pl:770
+#: translate_tmp.pl:771
+msgid "gnome-web-photo needs to be installed for this feature"
+msgstr ""
+
+#: translate_tmp.pl:779
+msgid "Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature"
+msgstr ""
+
+#: translate_tmp.pl:812
+msgid "Choose a profile"
+msgstr "प्रोफ़ाइल चुनें"
+
+#: translate_tmp.pl:828
+msgid "Save configuration as profile"
+msgstr "प्रोफ़ाइल के रूप में कॉन्फ़िगरेशन सहेजें"
+
+#: translate_tmp.pl:838
+msgid "Delete profile"
+msgstr "प्रोफ़ाइल हटाएं"
+
+#: translate_tmp.pl:847
+msgid "Load the selected profile's configuration"
+msgstr "चयनित प्रोफ़ाइल कॉन्फ़िगरेशन लोड करॆं"
+
+#: translate_tmp.pl:855
+#: translate_tmp.pl:1129
+#: translate_tmp.pl:9842
+#: translate_tmp.pl:1500
+msgid "Image format"
+msgstr "छवि प्रारूप"
+
+#: translate_tmp.pl:862
+msgid "Save"
+msgstr "सहेजें"
+
+#: translate_tmp.pl:869
+msgid "First-launch Behavior"
+msgstr "प्रथम-प्रक्षेपण व्यवहार"
+
+#: translate_tmp.pl:876
+msgid "Window Preferences"
+msgstr "विंडो वरीयताएँ"
+
+#: translate_tmp.pl:883
+msgid "Notifications"
+msgstr "सूचनाएँ"
+
+#: translate_tmp.pl:890
+msgid "Trash"
+msgstr "कूढा"
+
+#: translate_tmp.pl:897
+msgid "Gnome-Keybinding"
+msgstr ""
+
+#: translate_tmp.pl:904
+#: translate_tmp.pl:2342
+msgid "Actions"
+msgstr ""
+
+#: translate_tmp.pl:911
+#: translate_tmp.pl:1893
+msgid "Capture"
+msgstr "कैप्चर"
+
+#: translate_tmp.pl:918
+msgid "Selection Capture"
+msgstr ""
+
+#: translate_tmp.pl:925
+msgid "Advanced Selection Capture"
+msgstr ""
+
+#: translate_tmp.pl:932
+msgid "Window Capture"
+msgstr "विंडो कैप्चर"
+
+#: translate_tmp.pl:939
+msgid "Menu/Tooltip Capture"
+msgstr "मेनू/टूलटिप कैप्चर"
+
+#: translate_tmp.pl:946
+msgid "Website Capture"
+msgstr "वेबसाइट कैप्चर"
+
+#: translate_tmp.pl:953
+msgid "Accounts"
+msgstr "खातॆ"
+
+#: translate_tmp.pl:960
+msgid "File Transfer Protocol (FTP)"
+msgstr "फ़ाइल स्थानांतरण प्रोटोकॉल (FTP)"
+
+#: translate_tmp.pl:967
+msgid "Transparent Parts"
+msgstr "पारदर्शी पार्ट्स"
+
+#: translate_tmp.pl:974
+msgid "Session View"
+msgstr ""
+
+#: translate_tmp.pl:982
+#: translate_tmp.pl:1830
+#: translate_tmp.pl:1834
+msgid "Filename"
+msgstr "फाइल का नाम"
+
+#: translate_tmp.pl:1008
+#: translate_tmp.pl:9487
+#: translate_tmp.pl:11221
+#, perl-format
+msgid "Reserved character %s is not allowed to be in a filename."
+msgstr ""
+
+#: translate_tmp.pl:1022
+msgid "There are several wildcards available, like\n"
+msgstr "यहाँ कई तरह के वाइल्डकार्ड उपलब्ध है, जॆसै\n"
+
+#: translate_tmp.pl:1023
+msgid "%Y = year\n"
+msgstr "%Y=वर्ष\n"
+
+#: translate_tmp.pl:1024
+msgid "%m = month\n"
+msgstr "%m=महीना\n"
+
+#: translate_tmp.pl:1025
+#, perl-format
+msgid "%d = day\n"
+msgstr "%d = दिन\n"
+
+#: translate_tmp.pl:1026
+msgid "%T = time\n"
+msgstr "%T = समय\n"
+
+#: translate_tmp.pl:1027
+msgid "$w = width\n"
+msgstr "$w = चौड़ाई\n"
+
+#: translate_tmp.pl:1028
+msgid "$h = height\n"
+msgstr "$h = उंचाई\n"
+
+#: translate_tmp.pl:1029
+msgid "$name = multi-purpose (e.g. window title)\n"
+msgstr "$name = बहुउद्देश्यीय (जैसे विंडो शीर्षक)\n"
+
+#: translate_tmp.pl:1030
+msgid "$nb_name = like $name but without blanks in resulting strings\n"
+msgstr ""
+
+#: translate_tmp.pl:1031
+msgid "$profile = name of current profile\n"
+msgstr "$profile = वर्तमान प्रोफ़ाइल का नाम\n"
+
+#: translate_tmp.pl:1032
+msgid "$R = random char (e.g. $RRRR = ag4r)\n"
+msgstr "$R = रैंडम वर्ण (जैसे $RRRR = ag4r)\n"
+
+#: translate_tmp.pl:1033
+msgid "%NN = counter"
+msgstr "%NN = काउंटर"
+
+#: translate_tmp.pl:1048
+#: translate_tmp.pl:2910
+msgid "Compression"
+msgstr "कम्प्रेशन"
+
+#: translate_tmp.pl:1058
+#: translate_tmp.pl:1060
+msgid "Adjust quality/compression value"
+msgstr ""
+
+#: translate_tmp.pl:1130
+#: translate_tmp.pl:1131
+msgid "Select a file format"
+msgstr "फ़ाइल प्रारूप का चयन करें"
+
+#: translate_tmp.pl:1140
+msgid "Directory"
+msgstr "डायरेक्ट्री"
+
+#: translate_tmp.pl:1141
+#: translate_tmp.pl:10373
+#: translate_tmp.pl:10375
+#: translate_tmp.pl:10393
+#: translate_tmp.pl:10394
+msgid "Choose folder"
+msgstr "फ़ोल्डर चुनें"
+
+#: translate_tmp.pl:1148
+#: translate_tmp.pl:1149
+msgid "Your screenshots will be saved to this directory"
+msgstr "आपका स्क्रीनशॉट इस डायरेक्टरी में सहेजा जाएगा"
+
+#: translate_tmp.pl:1158
+#: translate_tmp.pl:1161
+msgid "Browse for save folder every time"
+msgstr ""
+
+#: translate_tmp.pl:1163
+#: translate_tmp.pl:1166
+msgid "Do not save file automatically"
+msgstr "स्वचालित रूप से फ़ाइल को न सहेजॆ"
+
+#: translate_tmp.pl:1168
+#: translate_tmp.pl:1171
+msgid "Automatically save file"
+msgstr "स्वचालित रूप से फ़ाइल सहेजॆ"
+
+#: translate_tmp.pl:1195
+#: translate_tmp.pl:1204
+msgid "Automatically copy screenshot to clipboard"
+msgstr ""
+
+#: translate_tmp.pl:1211
+#: translate_tmp.pl:1220
+msgid "Automatically copy filename to clipboard"
+msgstr ""
+
+#: translate_tmp.pl:1227
+#: translate_tmp.pl:1236
+msgid "Do not copy anything to clipboard"
+msgstr ""
+
+#: translate_tmp.pl:1245
+msgid "Delay"
+msgstr "विलंब"
+
+#: translate_tmp.pl:1247
+#: translate_tmp.pl:1256
+#: translate_tmp.pl:1700
+#: translate_tmp.pl:2837
+#: translate_tmp.pl:2843
+#: translate_tmp.pl:2848
+msgid "second"
+msgid_plural "seconds"
+msgstr[0] "सेकेंड"
+msgstr[1] "सेकेंड"
+
+#: translate_tmp.pl:1254
+msgid "Capture after a delay of"
+msgstr "की देरी के बाद कैप्चर"
+
+#: translate_tmp.pl:1268
+#: translate_tmp.pl:1269
+#: translate_tmp.pl:1270
+#: translate_tmp.pl:1272
+#: translate_tmp.pl:1273
+#: translate_tmp.pl:1274
+msgid "Wait n seconds before taking a screenshot"
+msgstr "स्क्रीनशॉट लेने से पहले n सेकंड प्रतीक्षा करॆं"
+
+#: translate_tmp.pl:1285
+msgid "Include Cursor"
+msgstr "कर्सर को शामिल करें"
+
+#: translate_tmp.pl:1286
+#: translate_tmp.pl:1292
+#: translate_tmp.pl:1293
+msgid "Include cursor when taking a screenshot"
+msgstr ""
+
+#: translate_tmp.pl:1348
+msgid "Open with"
+msgstr "इस अनुप्रयोग से खोलें"
+
+#: translate_tmp.pl:1349
+#: translate_tmp.pl:1350
+#: translate_tmp.pl:1351
+msgid "Open your screenshot with this program after capturing"
+msgstr ""
+
+#: translate_tmp.pl:1362
+msgid "16 colors   - (4bit) "
+msgstr "16 रंग - (4bit) "
+
+#: translate_tmp.pl:1363
+msgid "64 colors   - (6bit) "
+msgstr "64 रंग - (6bit) "
+
+#: translate_tmp.pl:1364
+msgid "256 colors  - (8bit) "
+msgstr "256 रंग - (8bit) "
+
+#: translate_tmp.pl:1389
+msgid "Reduce colors"
+msgstr "रंग कम करें"
+
+#: translate_tmp.pl:1390
+#: translate_tmp.pl:1391
+#: translate_tmp.pl:1392
+msgid "Automatically reduce colors after taking a screenshot"
+msgstr ""
+
+#: translate_tmp.pl:1402
+msgid "Thumbnail"
+msgstr ""
+
+#: translate_tmp.pl:1428
+#: translate_tmp.pl:1430
+#: translate_tmp.pl:1432
+msgid ""
+"Generate thumbnail too.\n"
+"select the percentage of the original size for the thumbnail to be"
+msgstr ""
+
+#: translate_tmp.pl:1445
+msgid "Border"
+msgstr "किनारा"
+
+#: translate_tmp.pl:1447
+#: translate_tmp.pl:1531
+#: translate_tmp.pl:1532
+#: translate_tmp.pl:1621
+#: translate_tmp.pl:1754
+#: translate_tmp.pl:7176
+msgid "pixels"
+msgstr "पिक्सेल्स"
+
+#: translate_tmp.pl:1449
+msgid "Color"
+msgstr "रंग"
+
+#: translate_tmp.pl:1452
+#: translate_tmp.pl:1462
+#: translate_tmp.pl:1464
+msgid "Choose border color"
+msgstr "बॉर्डर का रंग चुनें"
+
+#: translate_tmp.pl:1455
+#: translate_tmp.pl:1457
+#: translate_tmp.pl:1459
+msgid "Adds a border effect to the screenshot"
+msgstr ""
+
+#: translate_tmp.pl:1506
+#: translate_tmp.pl:1514
+msgid "Enable zoom window"
+msgstr "ज़ूम विंडो सक्रिय करें"
+
+#: translate_tmp.pl:1523
+msgid "Start with selection size of"
+msgstr ""
+
+#: translate_tmp.pl:1525
+msgid "at"
+msgstr ""
+
+#: translate_tmp.pl:1555
+#: translate_tmp.pl:1556
+#: translate_tmp.pl:1557
+#: translate_tmp.pl:1558
+#: translate_tmp.pl:1559
+#: translate_tmp.pl:1560
+#: translate_tmp.pl:1561
+#: translate_tmp.pl:1562
+#: translate_tmp.pl:1563
+#: translate_tmp.pl:1564
+msgid "Start Advanced Selection Tool with a customized selection size"
+msgstr ""
+
+#: translate_tmp.pl:1582
+msgid "Show help text"
+msgstr "पाठ मदद दिखाएँ"
+
+#: translate_tmp.pl:1590
+msgid "Enables the help text"
+msgstr "सहायता पाठ को सक्रिय करता है"
+
+#: translate_tmp.pl:1599
+#: translate_tmp.pl:1600
+msgid "Include window decoration when capturing a window"
+msgstr "विंडो सजावट शामिल करें जब एक विंडो कैप्चर किया जा रहा हो"
+
+#: translate_tmp.pl:1617
+msgid "Automatically resize window to"
+msgstr ""
+
+#: translate_tmp.pl:1641
+#: translate_tmp.pl:1642
+#: translate_tmp.pl:1643
+#: translate_tmp.pl:1644
+#: translate_tmp.pl:1645
+msgid ""
+"This resizes the window automatically to the specified width and height. "
+"This method asks the window manager to resize the window. However, the "
+"window manager may not allow the resize."
+msgstr ""
+
+#: translate_tmp.pl:1658
+msgid "Force rounded window corners"
+msgstr ""
+
+#: translate_tmp.pl:1667
+#, perl-format
+msgid ""
+"Shutter uses the XShape extension to determine the window's shape, but this "
+"does not work under some circumstances, e.g. when running compiz.\n"
+"\n"
+"When this option is activated Shutter uses fixed parameters to round the "
+"window corners. You can overwrite the default parameters by creating a file "
+"named ~/.shutter/shape.conf and put custom values in it. The default values "
+"are stored in %s."
+msgstr ""
+
+#: translate_tmp.pl:1681
+#: translate_tmp.pl:1682
+msgid "Select only visible windows"
+msgstr ""
+
+#: translate_tmp.pl:1698
+msgid "Pre-Capture Delay"
+msgstr ""
+
+#: translate_tmp.pl:1712
+#: translate_tmp.pl:1713
+#: translate_tmp.pl:1714
+msgid "Capture menu/tooltip after a delay of n seconds"
+msgstr ""
+
+#: translate_tmp.pl:1725
+msgid "Ignore possibly wrong type hints"
+msgstr ""
+
+#: translate_tmp.pl:1726
+msgid ""
+"The type hint constants specify hints for the window manager that indicate "
+"what type of function the window has. Sometimes these type hints are not "
+"correctly set. By enabling this option Shutter will not insist on the "
+"requested type hint."
+msgstr ""
+
+#: translate_tmp.pl:1741
+msgid "Virtual browser width"
+msgstr ""
+
+#: translate_tmp.pl:1762
+#: translate_tmp.pl:1763
+#: translate_tmp.pl:1764
+msgid "Virtual browser width when taking a website screenshot"
+msgstr ""
+
+#: translate_tmp.pl:1775
+msgid "Show as check pattern"
+msgstr ""
+
+#: translate_tmp.pl:1776
+msgid "Show as custom color:"
+msgstr ""
+
+#: translate_tmp.pl:1779
+#: translate_tmp.pl:452
+#: translate_tmp.pl:3764
+#: translate_tmp.pl:4020
+msgid "Choose fill color"
+msgstr ""
+
+#: translate_tmp.pl:1781
+msgid "Show as background"
+msgstr ""
+
+#: translate_tmp.pl:1802
+msgid "Displays any transparent parts of the image in a check pattern"
+msgstr ""
+
+#: translate_tmp.pl:1803
+msgid ""
+"Displays any transparent parts of the image in a solid color that you specify"
+msgstr ""
+
+#: translate_tmp.pl:1804
+msgid ""
+"Displays any transparent parts of the image in the background color of the "
+"application"
+msgstr ""
+
+#: translate_tmp.pl:1828
+msgid "Sort ascending by"
+msgstr ""
+
+#: translate_tmp.pl:1831
+#: translate_tmp.pl:1835
+msgid "Key/Time Created"
+msgstr ""
+
+#: translate_tmp.pl:1832
+msgid "Sort descending by"
+msgstr ""
+
+#: translate_tmp.pl:1877
+#: translate_tmp.pl:1878
+#: translate_tmp.pl:1879
+#: translate_tmp.pl:1880
+msgid "Configure sort criteria"
+msgstr ""
+
+#: translate_tmp.pl:1897
+#: translate_tmp.pl:1903
+msgid ""
+"Configure global keybinding for capture\n"
+"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
+"fairly liberal and allows lower or upper case, and also abbreviations such "
+"as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
+"\"disabled\", then there will be no keybinding for this action. "
+msgstr ""
+
+#: translate_tmp.pl:1913
+msgid "Capture with selection"
+msgstr ""
+
+#: translate_tmp.pl:1917
+#: translate_tmp.pl:1923
+#: translate_tmp.pl:1946
+msgid ""
+"Configure global keybinding for capture with selection\n"
+"The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
+"fairly liberal and allows lower or upper case, and also abbreviations such "
+"as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
+"\"disabled\", then there will be no keybinding for this action. "
+msgstr ""
+
+#: translate_tmp.pl:1929
+#: translate_tmp.pl:63
+#: translate_tmp.pl:46
+#: translate_tmp.pl:220
+#: translate_tmp.pl:802
+msgid "Selection"
+msgstr "चुनाव"
+
+#: translate_tmp.pl:1930
+msgid "Select Window"
+msgstr ""
+
+#: translate_tmp.pl:1931
+#: translate_tmp.pl:8443
+msgid "Active Window"
+msgstr "सक्रिय विंडो"
+
+#: translate_tmp.pl:1932
+#: translate_tmp.pl:151
+msgid "Section"
+msgstr ""
+
+#: translate_tmp.pl:1933
+#: translate_tmp.pl:171
+#: translate_tmp.pl:1111
+msgid "Menu"
+msgstr "मेनू"
+
+#: translate_tmp.pl:1934
+#: translate_tmp.pl:191
+#: translate_tmp.pl:1117
+msgid "Tooltip"
+msgstr "टूलटिप"
+
+#: translate_tmp.pl:1935
+#: translate_tmp.pl:210
+msgid "Web"
+msgstr "वेब"
+
+#: translate_tmp.pl:1936
+#: translate_tmp.pl:37
+msgid "Redo"
+msgstr "पुनः करें"
+
+#: translate_tmp.pl:1962
+msgid ""
+"<b>Please note:</b> Make sure to activate <i>Gnome Compatibility</i> and "
+"<i>D-Bus Control Backend</i> via CompizConfig Settings Manager if your are "
+"using Desktop Effects or Unity."
+msgstr ""
+
+#: translate_tmp.pl:2005
+#: translate_tmp.pl:2061
+msgid "Start Shutter at login"
+msgstr ""
+
+#: translate_tmp.pl:2006
+#: translate_tmp.pl:2069
+msgid "Hide window on first launch"
+msgstr ""
+
+#: translate_tmp.pl:2007
+#: translate_tmp.pl:2077
+msgid "Hide notification icon"
+msgstr ""
+
+#: translate_tmp.pl:2009
+#: translate_tmp.pl:2085
+msgid "Autohide main window when taking a screenshot"
+msgstr ""
+
+#: translate_tmp.pl:2010
+msgid "Redraw Delay"
+msgstr ""
+
+#: translate_tmp.pl:2013
+#: translate_tmp.pl:2853
+msgid "millisecond"
+msgid_plural "milliseconds"
+msgstr[0] ""
+msgstr[1] ""
+
+#: translate_tmp.pl:2019
+#: translate_tmp.pl:2109
+msgid "Present main window after taking a screenshot"
+msgstr ""
+
+#: translate_tmp.pl:2020
+#: translate_tmp.pl:2150
+msgid "Minimize to tray when closing main window"
+msgstr ""
+
+#: translate_tmp.pl:2022
+#: translate_tmp.pl:2117
+msgid "Display pop-up notification after taking a screenshot"
+msgstr ""
+
+#: translate_tmp.pl:2023
+#: translate_tmp.pl:2125
+#: translate_tmp.pl:2133
+msgid "Display pop-up notification when using a delay"
+msgstr ""
+
+#: translate_tmp.pl:2024
+msgid "Display pop-up notification when using a pre-capture delay"
+msgstr ""
+
+#: translate_tmp.pl:2026
+msgid "Notification agent"
+msgstr ""
+
+#: translate_tmp.pl:2028
+msgid "Desktop Notifications"
+msgstr ""
+
+#: translate_tmp.pl:2029
+msgid "Built-In Notifications"
+msgstr ""
+
+#: translate_tmp.pl:2033
+#: translate_tmp.pl:2158
+msgid "Ask before moving files to trash"
+msgstr ""
+
+#: translate_tmp.pl:2034
+#: translate_tmp.pl:2166
+msgid "Move file to trash when closing tab"
+msgstr ""
+
+#: translate_tmp.pl:2035
+#: translate_tmp.pl:2174
+msgid "Notify when file was deleted from filesystem"
+msgstr ""
+
+#: translate_tmp.pl:2093
+#: translate_tmp.pl:2094
+#: translate_tmp.pl:2095
+msgid ""
+"Configure a short timeout to give the Xserver a chance to redraw areas that "
+"were obscured by Shutter's windows before taking a screenshot."
+msgstr ""
+
+#: translate_tmp.pl:2141
+#: translate_tmp.pl:2142
+msgid ""
+"You can either choose the system-wide desktop notifications (e.g. Ubuntu's "
+"Notify-OSD) or Shutter's built-in notification system"
+msgstr ""
+
+#: translate_tmp.pl:2202
+msgid ""
+"<b>Please note:</b> If a plugin allows authorized uploading you can enter "
+"your credentials above. Plugins with OAuth support are configured "
+"automatically the first time you use them."
+msgstr ""
+
+#: translate_tmp.pl:2207
+#: translate_tmp.pl:10443
+msgid "URI"
+msgstr ""
+
+#: translate_tmp.pl:2216
+#: translate_tmp.pl:2218
+#: translate_tmp.pl:10448
+#: translate_tmp.pl:10450
+msgid ""
+"URI\n"
+"Example: ftp://host:port/path"
+msgstr ""
+
+#: translate_tmp.pl:2224
+#: translate_tmp.pl:2235
+#: translate_tmp.pl:2237
+#: translate_tmp.pl:10455
+#: translate_tmp.pl:10462
+#: translate_tmp.pl:10464
+msgid "Connection mode"
+msgstr ""
+
+#: translate_tmp.pl:2227
+#: translate_tmp.pl:10458
+msgid "Active mode"
+msgstr ""
+
+#: translate_tmp.pl:2228
+#: translate_tmp.pl:10459
+msgid "Passive mode"
+msgstr ""
+
+#: translate_tmp.pl:2243
+#: translate_tmp.pl:2252
+#: translate_tmp.pl:2254
+#: translate_tmp.pl:9033
+#: translate_tmp.pl:10469
+#: translate_tmp.pl:10474
+#: translate_tmp.pl:10476
+msgid "Username"
+msgstr ""
+
+#: translate_tmp.pl:2260
+#: translate_tmp.pl:2271
+#: translate_tmp.pl:2273
+#: translate_tmp.pl:9056
+#: translate_tmp.pl:10481
+#: translate_tmp.pl:10488
+#: translate_tmp.pl:10490
+msgid "Password"
+msgstr ""
+
+#: translate_tmp.pl:2279
+#: translate_tmp.pl:2288
+#: translate_tmp.pl:2290
+#: translate_tmp.pl:10495
+#: translate_tmp.pl:10500
+#: translate_tmp.pl:10502
+msgid "Website URL"
+msgstr ""
+
+#: translate_tmp.pl:2302
+#: translate_tmp.pl:3990
+msgid "Main"
+msgstr ""
+
+#: translate_tmp.pl:2367
+msgid "Advanced"
+msgstr ""
+
+#: translate_tmp.pl:2418
+msgid "Image View"
+msgstr ""
+
+#: translate_tmp.pl:2439
+msgid "Behavior"
+msgstr ""
+
+#: translate_tmp.pl:2477
+msgid "Keyboard"
+msgstr ""
+
+#: translate_tmp.pl:2498
+msgid "Upload"
+msgstr ""
+
+#: translate_tmp.pl:2559
+msgid "Plugins"
+msgstr ""
+
+#: translate_tmp.pl:2561
+msgid "The following plugins are installed"
+msgstr ""
+
+#: translate_tmp.pl:2894
+msgid "pixel"
+msgid_plural "pixels"
+msgstr[0] ""
+msgstr[1] ""
+
+#: translate_tmp.pl:2904
+msgid "Quality"
+msgstr ""
+
+#: translate_tmp.pl:2971
+msgid "Please activate the menu you want to capture"
+msgstr ""
+
+#: translate_tmp.pl:2973
+msgid "Please activate the tooltip you want to capture"
+msgstr ""
+
+#: translate_tmp.pl:2982
+#: translate_tmp.pl:2992
+#: translate_tmp.pl:198
+#: translate_tmp.pl:206
+#, perl-format
+msgid "Screenshot will be taken in %s second"
+msgid_plural "Screenshot will be taken in %s seconds"
+msgstr[0] ""
+msgstr[1] ""
+
+#: translate_tmp.pl:3276
+#: translate_tmp.pl:9115
+msgid "Register"
+msgstr ""
+
+#: translate_tmp.pl:3833
+msgid "Profile deleted"
+msgstr ""
+
+#: translate_tmp.pl:3835
+#: translate_tmp.pl:3836
+msgid "Profile could not be deleted"
+msgstr ""
+
+#: translate_tmp.pl:3835
+#: translate_tmp.pl:5672
+#: translate_tmp.pl:5907
+#: translate_tmp.pl:6073
+#: translate_tmp.pl:6121
+#: translate_tmp.pl:6546
+#: translate_tmp.pl:7036
+#: translate_tmp.pl:10234
+#: translate_tmp.pl:107
+#: translate_tmp.pl:117
+msgid "Failed"
+msgstr ""
+
+#: translate_tmp.pl:3854
+#, perl-format
+msgid "Profile %s loaded successfully"
+msgstr ""
+
+#: translate_tmp.pl:3883
+#: translate_tmp.pl:7185
+msgid "Session"
+msgstr ""
+
+#: translate_tmp.pl:3902
+#: translate_tmp.pl:5370
+msgid "not found"
+msgstr ""
+
+#: translate_tmp.pl:4095
+msgid "Error while adding the file monitor."
+msgstr ""
+
+#: translate_tmp.pl:4568
+msgid "Settings could not be saved!"
+msgstr ""
+
+#: translate_tmp.pl:4570
+msgid "Settings saved successfully!"
+msgstr ""
+
+#: translate_tmp.pl:4594
+msgid "Session could not be saved!"
+msgstr ""
+
+#: translate_tmp.pl:4622
+msgid "Account-settings could not be saved!"
+msgstr ""
+
+#: translate_tmp.pl:4818
+msgid ""
+"The format looks like \"<Control>Print\" or \"<Shift><Alt>Print\". The "
+"parser is fairly liberal and allows lower or upper case, but abbreviations "
+"such as \"<Ctl>\" and \"<Ctrl>\" may cause problems under some circumstances "
+"(e.g. when using compiz)."
+msgstr ""
+
+#: translate_tmp.pl:4819
+msgid "There was an error configuring the keybindings."
+msgstr ""
+
+#: translate_tmp.pl:5068
+msgid "Settings could not be restored!"
+msgstr ""
+
+#: translate_tmp.pl:5071
+msgid "Settings loaded successfully"
+msgstr ""
+
+#: translate_tmp.pl:5099
+#: translate_tmp.pl:6963
+msgid "Built-in Editor"
+msgstr ""
+
+#: translate_tmp.pl:5153
+msgid "Account-settings could not be restored!"
+msgstr ""
+
+#: translate_tmp.pl:5246
+#: translate_tmp.pl:5343
+msgid "opened"
+msgstr ""
+
+#: translate_tmp.pl:5248
+#: translate_tmp.pl:5345
+#: translate_tmp.pl:7766
+#: translate_tmp.pl:61
+#: translate_tmp.pl:6714
+#, perl-format
+msgid "Error while opening image %s."
+msgstr ""
+
+#: translate_tmp.pl:5358
+msgid "Session could not be restored!"
+msgstr ""
+
+#: translate_tmp.pl:5410
+#, perl-format
+msgid "Error while creating the trashinfo file %s."
+msgstr ""
+
+#: translate_tmp.pl:5421
+#, perl-format
+msgid "Error while moving the file %s to trash."
+msgstr ""
+
+#: translate_tmp.pl:5427
+#, perl-format
+msgid "Error while removing the file %s from disk."
+msgstr ""
+
+#: translate_tmp.pl:5447
+#, perl-format
+msgid "Are you sure you want to move %s to the trash?"
+msgstr ""
+
+#: translate_tmp.pl:5448
+#: translate_tmp.pl:5493
+#: translate_tmp.pl:209
+#: translate_tmp.pl:710
+msgid "Move to _Trash"
+msgstr ""
+
+#: translate_tmp.pl:5458
+msgid "deleted"
+msgstr ""
+
+#: translate_tmp.pl:5492
+msgid "Are you sure you want to move the selected files to the trash?"
+msgstr ""
+
+#: translate_tmp.pl:5497
+#: translate_tmp.pl:5526
+#: translate_tmp.pl:5626
+msgid "No screenshots selected"
+msgstr ""
+
+#: translate_tmp.pl:5542
+msgid "Selected screenshots deleted"
+msgstr ""
+
+#: translate_tmp.pl:5578
+#: translate_tmp.pl:7616
+#: translate_tmp.pl:7644
+#: translate_tmp.pl:7674
+#: translate_tmp.pl:7709
+#: translate_tmp.pl:7744
+#: translate_tmp.pl:7774
+msgid "removed from session"
+msgstr ""
+
+#: translate_tmp.pl:5642
+msgid "Selected screenshots removed"
+msgstr ""
+
+#: translate_tmp.pl:5672
+#: translate_tmp.pl:6073
+msgid "No valid filetype specified"
+msgstr ""
+
+#: translate_tmp.pl:5687
+msgid "There is no image data in the clipboard to paste"
+msgstr ""
+
+#: translate_tmp.pl:5746
+msgid "Selected filenames copied to clipboard"
+msgstr ""
+
+#: translate_tmp.pl:5761
+msgid "Selected images copied to clipboard"
+msgstr ""
+
+#: translate_tmp.pl:5808
+msgid "Last action undone"
+msgstr ""
+
+#: translate_tmp.pl:5816
+#: translate_tmp.pl:5868
+#, perl-format
+msgid "Error while copying last version (%s)."
+msgstr ""
+
+#: translate_tmp.pl:5817
+#, perl-format
+msgid "There was an error performing undo on %s."
+msgstr ""
+
+#: translate_tmp.pl:5860
+msgid "Last action redone"
+msgstr ""
+
+#: translate_tmp.pl:5869
+#, perl-format
+msgid "There was an error performing redo on %s."
+msgstr ""
+
+#: translate_tmp.pl:5907
+msgid "No plugin installed"
+msgstr ""
+
+#: translate_tmp.pl:6120
+#: translate_tmp.pl:6545
+#: translate_tmp.pl:7951
+msgid "There was an error determining the filename."
+msgstr ""
+
+#: translate_tmp.pl:6442
+msgid "Triggered invalid screenshot action."
+msgstr ""
+
+#: translate_tmp.pl:6443
+#: translate_tmp.pl:6446
+#: translate_tmp.pl:6724
+#: translate_tmp.pl:6726
+#: translate_tmp.pl:81
+#: translate_tmp.pl:89
+#: translate_tmp.pl:97
+#: translate_tmp.pl:112
+#: translate_tmp.pl:120
+#: translate_tmp.pl:128
+#: translate_tmp.pl:140
+#: translate_tmp.pl:154
+#: translate_tmp.pl:164
+msgid "Error while taking the screenshot."
+msgstr ""
+
+#: translate_tmp.pl:6573
+#: translate_tmp.pl:134
+msgid "Capture aborted by user"
+msgstr ""
+
+#: translate_tmp.pl:6692
+#: translate_tmp.pl:6709
+#, perl-format
+msgid "%s saved"
+msgstr ""
+
+#: translate_tmp.pl:6698
+#: translate_tmp.pl:6700
+#: translate_tmp.pl:6714
+msgid "Screenshot saved"
+msgstr ""
+
+#: translate_tmp.pl:6723
+#, perl-format
+msgid ""
+"The filename %s could not be verified. Maybe it contains unsupported "
+"characters."
+msgstr ""
+
+#: translate_tmp.pl:6963
+#: translate_tmp.pl:6971
+#, perl-format
+msgid "%s opened with %s"
+msgstr ""
+
+#: translate_tmp.pl:6995
+msgid "Opened all files with"
+msgstr ""
+
+#: translate_tmp.pl:7036
+#: translate_tmp.pl:7056
+#, perl-format
+msgid "Could not apply plugin %s"
+msgstr ""
+
+#: translate_tmp.pl:7054
+#: translate_tmp.pl:7105
+#, perl-format
+msgid "Successfully applied plugin %s"
+msgstr ""
+
+#: translate_tmp.pl:7108
+#, perl-format
+msgid "Error while executing plugin %s."
+msgstr ""
+
+#: translate_tmp.pl:7109
+msgid "There was an error executing the plugin."
+msgstr ""
+
+#: translate_tmp.pl:7187
+#, perl-format
+msgid "%s screenshot"
+msgid_plural "%s screenshots"
+msgstr[0] ""
+msgstr[1] ""
+
+#: translate_tmp.pl:7199
+msgid "Current profile"
+msgstr ""
+
+#: translate_tmp.pl:7607
+msgid "Try to resave the file?"
+msgstr ""
+
+#: translate_tmp.pl:7608
+#, perl-format
+msgid "Image %s was not found on disk"
+msgstr ""
+
+#: translate_tmp.pl:7636
+#: translate_tmp.pl:7701
+#: translate_tmp.pl:181
+#, perl-format
+msgid "Error while saving the image %s."
+msgstr ""
+
+#: translate_tmp.pl:7637
+#: translate_tmp.pl:7702
+#: translate_tmp.pl:182
+#, perl-format
+msgid "There was an error saving the image to %s."
+msgstr ""
+
+#: translate_tmp.pl:7665
+#: translate_tmp.pl:9970
+#: translate_tmp.pl:9975
+#: translate_tmp.pl:10042
+#: translate_tmp.pl:10048
+msgid "saved"
+msgstr ""
+
+#: translate_tmp.pl:7735
+#, perl-format
+msgid "Image %s was deleted from filesystem"
+msgstr ""
+
+#: translate_tmp.pl:7767
+#: translate_tmp.pl:62
+#: translate_tmp.pl:6715
+msgid "There was an error opening the image."
+msgstr ""
+
+#: translate_tmp.pl:7950
+#, perl-format
+msgid "Error while opening directory %s."
+msgstr ""
+
+#: translate_tmp.pl:8020
+msgid "Updating plugin information"
+msgstr ""
+
+#: translate_tmp.pl:8025
+msgid "Please wait while Shutter updates the plugin information"
+msgstr ""
+
+#: translate_tmp.pl:8163
+msgid "Updating upload plugin information"
+msgstr ""
+
+#: translate_tmp.pl:8168
+msgid "Please wait while Shutter updates the upload plugin information"
+msgstr ""
+
+#: translate_tmp.pl:8375
+msgid "Capture All Workspaces"
+msgstr ""
+
+#: translate_tmp.pl:8388
+msgid "Limit to current monitor"
+msgstr ""
+
+#: translate_tmp.pl:8403
+#, perl-format
+msgid ""
+"This option is only useful when you are running a multi-monitor system (%d "
+"monitor detected).\n"
+"Enable it to capture only the current monitor."
+msgid_plural ""
+"This option is only useful when you are running a multi-monitor system (%d "
+"monitors detected).\n"
+"Enable it to capture only the current monitor."
+msgstr[0] ""
+msgstr[1] ""
+
+#: translate_tmp.pl:8447
+msgid "Capture the last active window"
+msgstr ""
+
+#: translate_tmp.pl:8486
+#: translate_tmp.pl:403
+msgid "_Selection"
+msgstr ""
+
+#: translate_tmp.pl:8512
+#: translate_tmp.pl:429
+msgid "_Desktop"
+msgstr ""
+
+#: translate_tmp.pl:8546
+msgid "Window _under Cursor"
+msgstr ""
+
+#: translate_tmp.pl:8562
+#: translate_tmp.pl:459
+msgid "Select W_indow"
+msgstr ""
+
+#: translate_tmp.pl:8576
+#: translate_tmp.pl:472
+msgid "Se_ction"
+msgstr ""
+
+#: translate_tmp.pl:8595
+#: translate_tmp.pl:488
+msgid "_Menu"
+msgstr ""
+
+#: translate_tmp.pl:8614
+#: translate_tmp.pl:504
+msgid "_Tooltip"
+msgstr ""
+
+#: translate_tmp.pl:8633
+#: translate_tmp.pl:522
+msgid "_Web"
+msgstr ""
+
+#: translate_tmp.pl:8650
+#: translate_tmp.pl:395
+msgid "_Redo last screenshot"
+msgstr ""
+
+#: translate_tmp.pl:8661
+#: translate_tmp.pl:223
+msgid "_Quick profile select"
+msgstr ""
+
+#: translate_tmp.pl:8704
+msgid "Advanced selection tool"
+msgstr ""
+
+#: translate_tmp.pl:8707
+msgid "Simple selection tool"
+msgstr ""
+
+#: translate_tmp.pl:8724
+msgid ""
+"The advanced selection tool allows you to enlarge/shrink or move your "
+"selected area\n"
+"until you finally take the screenshot."
+msgstr ""
+
+#: translate_tmp.pl:8727
+msgid ""
+"The simple selection tool is the fastest way of taking a screenshot.\n"
+"It provides an optional zoom window for precise shots."
+msgstr ""
+
+#: translate_tmp.pl:8855
+msgid "Wait indefinitely"
+msgstr ""
+
+#: translate_tmp.pl:8856
+#: translate_tmp.pl:8857
+#, perl-format
+msgid "Wait max %d second"
+msgid_plural "Wait max %d seconds"
+msgstr[0] ""
+msgstr[1] ""
+
+#: translate_tmp.pl:8858
+#: translate_tmp.pl:8859
+#, perl-format
+msgid "Wait max %d minute"
+msgid_plural "Wait max %d minutes"
+msgstr[0] ""
+msgstr[1] ""
+
+#: translate_tmp.pl:8867
+msgid "Shutter will wait indefinitely for the screenshot to capture"
+msgstr ""
+
+#: translate_tmp.pl:8868
+#: translate_tmp.pl:8869
+#, perl-format
+msgid ""
+"Shutter will wait up to %d second for the screenshot to capture before "
+"aborting the process if it's taking too long"
+msgid_plural ""
+"Shutter will wait up to %d seconds for the screenshot to capture before "
+"aborting the process if it's taking too long"
+msgstr[0] ""
+msgstr[1] ""
+
+#: translate_tmp.pl:8870
+#: translate_tmp.pl:8871
+#, perl-format
+msgid ""
+"Shutter will wait up to %d minute for the screenshot to capture before "
+"aborting the process if it's taking too long"
+msgid_plural ""
+"Shutter will wait up to %d minutes for the screenshot to capture before "
+"aborting the process if it's taking too long"
+msgstr[0] ""
+msgstr[1] ""
+
+#: translate_tmp.pl:9024
+msgid "Host"
+msgstr ""
+
+#: translate_tmp.pl:9081
+msgid "Anonymous Upload"
+msgstr ""
+
+#: translate_tmp.pl:9088
+msgid "Authorized Upload"
+msgstr ""
+
+#: translate_tmp.pl:9095
+msgid "OAuth Upload"
+msgstr ""
+
+#: translate_tmp.pl:9106
+#: translate_tmp.pl:9167
+#: translate_tmp.pl:10157
+msgid "Description"
+msgstr ""
+
+#: translate_tmp.pl:9138
+msgid "Icon"
+msgstr ""
+
+#: translate_tmp.pl:9147
+msgid "Name"
+msgstr ""
+
+#: translate_tmp.pl:9157
+msgid "Category"
+msgstr ""
+
+#: translate_tmp.pl:9177
+msgid "Language"
+msgstr ""
+
+#: translate_tmp.pl:9186
+msgid "Path"
+msgstr ""
+
+#: translate_tmp.pl:9232
+#: translate_tmp.pl:10532
+msgid "Ubuntu One"
+msgstr ""
+
+#: translate_tmp.pl:9241
+msgid "Successfully published"
+msgstr ""
+
+#: translate_tmp.pl:9241
+#, perl-format
+msgid "The file %s was successfully published: %s"
+msgstr ""
+
+#: translate_tmp.pl:9244
+#, perl-format
+msgid "%s published"
+msgstr ""
+
+#: translate_tmp.pl:9256
+msgid "Unpublished"
+msgstr ""
+
+#: translate_tmp.pl:9256
+#, perl-format
+msgid ""
+"The file %s is no longer published. The external link is not available "
+"anymore."
+msgstr ""
+
+#: translate_tmp.pl:9259
+#, perl-format
+msgid "The file %s is no longer published."
+msgstr ""
+
+#: translate_tmp.pl:9450
+msgid "Rename"
+msgstr ""
+
+#: translate_tmp.pl:9454
+#, perl-format
+msgid "Rename image %s"
+msgstr ""
+
+#: translate_tmp.pl:9456
+msgid "New filename"
+msgstr ""
+
+#: translate_tmp.pl:9459
+msgid "_Rename"
+msgstr ""
+
+#: translate_tmp.pl:9558
+#: translate_tmp.pl:9610
+msgid "renamed"
+msgstr ""
+
+#: translate_tmp.pl:9566
+#: translate_tmp.pl:9618
+#: translate_tmp.pl:9658
+#, perl-format
+msgid "Error while renaming the image %s."
+msgstr ""
+
+#: translate_tmp.pl:9567
+#: translate_tmp.pl:9619
+#: translate_tmp.pl:9659
+#, perl-format
+msgid "There was an error renaming the image to %s."
+msgstr ""
+
+#: translate_tmp.pl:9579
+#: translate_tmp.pl:9997
+#: translate_tmp.pl:11001
+#: translate_tmp.pl:11251
+#: translate_tmp.pl:1615
+msgid "_Replace"
+msgstr ""
+
+#: translate_tmp.pl:9585
+#: translate_tmp.pl:10001
+#: translate_tmp.pl:11015
+#: translate_tmp.pl:1619
+#, perl-format
+msgid ""
+"The image already exists in %s. Replacing it will overwrite its contents."
+msgstr ""
+
+#: translate_tmp.pl:9586
+#: translate_tmp.pl:10002
+#: translate_tmp.pl:11016
+#: translate_tmp.pl:1620
+#, perl-format
+msgid "An image named %s already exists. Do you want to replace it?"
+msgstr ""
+
+#: translate_tmp.pl:9662
+msgid "Invalid Filename"
+msgstr ""
+
+#: translate_tmp.pl:9687
+#: translate_tmp.pl:6341
+msgid "Choose file to open"
+msgstr ""
+
+#: translate_tmp.pl:9716
+#: translate_tmp.pl:6369
+msgid "All compatible image formats"
+msgstr ""
+
+#: translate_tmp.pl:9792
+#: translate_tmp.pl:1448
+msgid "Choose a location to save to"
+msgstr ""
+
+#: translate_tmp.pl:10089
+msgid "Choose a plugin"
+msgstr ""
+
+#: translate_tmp.pl:10094
+msgid "_Run"
+msgstr ""
+
+#: translate_tmp.pl:10144
+msgid "Plugin"
+msgstr ""
+
+#: translate_tmp.pl:10234
+msgid "No plugin specified"
+msgstr ""
+
+#: translate_tmp.pl:10283
+msgid "Upload / Export"
+msgstr ""
+
+#: translate_tmp.pl:10287
+#: translate_tmp.pl:10541
+msgid "_Upload"
+msgstr ""
+
+#: translate_tmp.pl:10309
+msgid "Guest"
+msgstr ""
+
+#: translate_tmp.pl:10314
+msgid "OAuth"
+msgstr ""
+
+#: translate_tmp.pl:10349
+msgid ""
+"Please choose one of the accounts above and click <i>Upload</i>. The upload "
+"links will still be available in the screenshot's <i>right-click menu</i> "
+"after closing this dialog."
+msgstr ""
+
+#: translate_tmp.pl:10354
+msgid ""
+"<b>Please note:</b> If a plugin allows only authorized uploading you need to "
+"enter your credentials in preferences first to make it appear in the list "
+"above."
+msgstr ""
+
+#: translate_tmp.pl:10358
+msgid "Choose account"
+msgstr ""
+
+#: translate_tmp.pl:10386
+msgid "Status"
+msgstr ""
+
+#: translate_tmp.pl:10529
+msgid "Public hosting"
+msgstr ""
+
+#: translate_tmp.pl:10531
+msgid "Places"
+msgstr ""
+
+#: translate_tmp.pl:10544
+msgid "_Export"
+msgstr ""
+
+#: translate_tmp.pl:10547
+msgid "_Publish"
+msgstr ""
+
+#: translate_tmp.pl:10574
+#: translate_tmp.pl:164
+msgid "Disconnected"
+msgstr ""
+
+#: translate_tmp.pl:10595
+#: translate_tmp.pl:10633
+#, perl-format
+msgid ""
+"Folder %s is synchronized with Ubuntu One. The selected file will be copied "
+"to that folder before being published."
+msgid_plural ""
+"Folder %s is synchronized with Ubuntu One. The selected files will be copied "
+"to that folder before being published."
+msgstr[0] ""
+msgstr[1] ""
+
+#: translate_tmp.pl:10600
+#: translate_tmp.pl:10638
+msgid ""
+"<b>Please note:</b> The selected file will be published in a background "
+"process. You will be notified when the process has finished."
+msgid_plural ""
+"<b>Please note:</b> The selected files will be published in a background "
+"process. You will be notified when the process has finished."
+msgstr[0] ""
+msgstr[1] ""
+
+#: translate_tmp.pl:10607
+#: translate_tmp.pl:10645
+#, perl-format
+msgid ""
+"Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
+"folder."
+msgstr ""
+
+#: translate_tmp.pl:10663
+msgid "Ubuntu One service cannot be found."
+msgstr ""
+
+#: translate_tmp.pl:10670
+msgid ""
+"/publicfiles is not available. Your Ubuntu One installation seems to be out "
+"of date."
+msgstr ""
+
+#: translate_tmp.pl:10677
+msgid ""
+"Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature"
+msgstr ""
+
+#: translate_tmp.pl:10740
+#, perl-format
+msgid "Loading module %s"
+msgstr ""
+
+#: translate_tmp.pl:10753
+#, perl-format
+msgid "Error while executing upload plugin %s."
+msgstr ""
+
+#: translate_tmp.pl:10754
+msgid "There was an error executing the upload plugin."
+msgstr ""
+
+#: translate_tmp.pl:10791
+#: translate_tmp.pl:10862
+#: translate_tmp.pl:10966
+#: translate_tmp.pl:11042
+msgid "uploaded"
+msgstr ""
+
+#: translate_tmp.pl:10866
+#: translate_tmp.pl:10969
+#: translate_tmp.pl:11045
+msgid "Successfully uploaded"
+msgstr ""
+
+#: translate_tmp.pl:10866
+#: translate_tmp.pl:10969
+#: translate_tmp.pl:11045
+#, perl-format
+msgid "The file %s was successfully uploaded."
+msgstr ""
+
+#: translate_tmp.pl:10884
+#: translate_tmp.pl:11017
+#: translate_tmp.pl:11141
+#: translate_tmp.pl:11169
+#: translate_tmp.pl:11177
+msgid "Skip all"
+msgstr ""
+
+#: translate_tmp.pl:10885
+#: translate_tmp.pl:11017
+#: translate_tmp.pl:11142
+#: translate_tmp.pl:11169
+#: translate_tmp.pl:11177
+msgid "Skip"
+msgstr ""
+
+#: translate_tmp.pl:10886
+#: translate_tmp.pl:11177
+msgid "Retry"
+msgstr ""
+
+#: translate_tmp.pl:10961
+#: translate_tmp.pl:11037
+msgid "exported"
+msgstr ""
+
+#: translate_tmp.pl:10964
+#: translate_tmp.pl:11040
+msgid "Successfully exported"
+msgstr ""
+
+#: translate_tmp.pl:10964
+#: translate_tmp.pl:11040
+#, perl-format
+msgid "The file %s was successfully exported."
+msgstr ""
+
+#: translate_tmp.pl:10974
+#: translate_tmp.pl:11050
+#, perl-format
+msgid "Publishing %s..."
+msgstr ""
+
+#: translate_tmp.pl:11135
+msgid "_Retry"
+msgstr ""
+
+#: translate_tmp.pl:11139
+#, perl-format
+msgid "Error while copying the image %s."
+msgstr ""
+
+#: translate_tmp.pl:11140
+#, perl-format
+msgid "There was an error copying the image into %s."
+msgstr ""
+
+#: translate_tmp.pl:11162
+#: translate_tmp.pl:89
+msgid "Please check your credentials and try again."
+msgstr ""
+
+#: translate_tmp.pl:11163
+msgid "Error while login"
+msgstr ""
+
+#: translate_tmp.pl:11167
+msgid "Maximum filesize reached"
+msgstr ""
+
+#: translate_tmp.pl:11168
+msgid "Error while uploading"
+msgstr ""
+
+#: translate_tmp.pl:11171
+#, perl-format
+msgid "Maximum filesize: %s"
+msgstr ""
+
+#: translate_tmp.pl:11176
+msgid "Error while connecting"
+msgstr ""
+
+#: translate_tmp.pl:11192
+msgid "Save current preferences as new profile"
+msgstr ""
+
+#: translate_tmp.pl:11194
+msgid "New profile name"
+msgstr ""
+
+#: translate_tmp.pl:11255
+msgid "Replacing it will overwrite its contents."
+msgstr ""
+
+#: translate_tmp.pl:11256
+#, perl-format
+msgid "A profile named %s already exists. Do you want to replace it?"
+msgstr ""
+
+#: translate_tmp.pl:79
+msgid "translator-credits"
+msgstr ""
+"Launchpad Contributions:\n"
+"  Ravi Kumar https://launchpad.net/~kumarravi-kumar267"
+
+#: translate_tmp.pl:34
+#: translate_tmp.pl:5864
+msgid "_File"
+msgstr ""
+
+#: translate_tmp.pl:39
+#: translate_tmp.pl:5865
+msgid "_Edit"
+msgstr ""
+
+#: translate_tmp.pl:44
+#: translate_tmp.pl:5867
+msgid "_View"
+msgstr ""
+
+#: translate_tmp.pl:49
+msgid "_Screenshot"
+msgstr ""
+
+#: translate_tmp.pl:54
+msgid "_Go"
+msgstr ""
+
+#: translate_tmp.pl:59
+msgid "_Help"
+msgstr ""
+
+#: translate_tmp.pl:87
+msgid "_Open..."
+msgstr ""
+
+#: translate_tmp.pl:92
+msgid "Recent _Files"
+msgstr ""
+
+#: translate_tmp.pl:103
+msgid "Save _As..."
+msgstr ""
+
+#: translate_tmp.pl:114
+#: translate_tmp.pl:5922
+msgid "E_xport to PDF..."
+msgstr ""
+
+#: translate_tmp.pl:119
+#: translate_tmp.pl:5925
+msgid "Export to Post_Script..."
+msgstr ""
+
+#: translate_tmp.pl:129
+msgid "Page Set_up"
+msgstr ""
+
+#: translate_tmp.pl:136
+msgid "_Print..."
+msgstr ""
+
+#: translate_tmp.pl:144
+msgid "Send by E_mail..."
+msgstr ""
+
+#: translate_tmp.pl:159
+msgid "C_lose all"
+msgstr ""
+
+#: translate_tmp.pl:204
+#: translate_tmp.pl:705
+msgid "Copy _Filename"
+msgstr ""
+
+#: translate_tmp.pl:246
+msgid "Show Navigation _Toolbar"
+msgstr ""
+
+#: translate_tmp.pl:328
+msgid "Get Help Online..."
+msgstr ""
+
+#: translate_tmp.pl:343
+msgid "Translate this Application..."
+msgstr ""
+
+#: translate_tmp.pl:358
+msgid "Report a Problem"
+msgstr ""
+
+#: translate_tmp.pl:446
+msgid "_Active Window"
+msgstr ""
+
+#: translate_tmp.pl:538
+msgid "Import from clip_board"
+msgstr ""
+
+#: translate_tmp.pl:558
+#: translate_tmp.pl:655
+msgid "Open wit_h"
+msgstr ""
+
+#: translate_tmp.pl:565
+#: translate_tmp.pl:662
+msgid "Show in _folder"
+msgstr ""
+
+#: translate_tmp.pl:572
+#: translate_tmp.pl:669
+msgid "_Rename..."
+msgstr ""
+
+#: translate_tmp.pl:581
+#: translate_tmp.pl:677
+msgid "_Send To..."
+msgstr ""
+
+#: translate_tmp.pl:590
+#: translate_tmp.pl:685
+msgid "E_xport..."
+msgstr ""
+
+#: translate_tmp.pl:597
+#: translate_tmp.pl:691
+msgid "Public URLs"
+msgstr ""
+
+#: translate_tmp.pl:605
+#: translate_tmp.pl:718
+msgid "_Edit..."
+msgstr ""
+
+#: translate_tmp.pl:622
+msgid "Run a _plugin..."
+msgstr ""
+
+#: translate_tmp.pl:631
+#: translate_tmp.pl:742
+msgid "Redo _this screenshot"
+msgstr ""
+
+#: translate_tmp.pl:734
+msgid "Run a _Plugin..."
+msgstr ""
+
+#: translate_tmp.pl:40
+msgid "Redo last screenshot"
+msgstr ""
+
+#: translate_tmp.pl:70
+msgid ""
+"Draw a rectangular capture area with your mouse\n"
+"to select a specified screen area"
+msgstr ""
+
+#: translate_tmp.pl:71
+msgid "Choose selection tool"
+msgstr ""
+
+#: translate_tmp.pl:90
+msgid "Desktop"
+msgstr ""
+
+#: translate_tmp.pl:93
+msgid "Take a screenshot of your whole desktop"
+msgstr ""
+
+#: translate_tmp.pl:94
+msgid "Capture a specific workspace"
+msgstr ""
+
+#: translate_tmp.pl:132
+msgid "Window"
+msgstr ""
+
+#: translate_tmp.pl:135
+msgid "Select a window with your mouse"
+msgstr ""
+
+#: translate_tmp.pl:136
+msgid "Take a screenshot of a specific window"
+msgstr ""
+
+#: translate_tmp.pl:154
+msgid ""
+"Captures only a section of the window. You will be able to select any child "
+"window by moving the mouse over it"
+msgstr ""
+
+#: translate_tmp.pl:174
+msgid "Select a single menu or cascading menus from any application"
+msgstr ""
+
+#: translate_tmp.pl:194
+msgid "Capture a tooltip"
+msgstr ""
+
+#: translate_tmp.pl:212
+#: translate_tmp.pl:79
+msgid "Take a screenshot of a website"
+msgstr ""
+
+#: translate_tmp.pl:213
+msgid ""
+"Set how long Shutter will wait for the screenshot to complete before "
+"aborting the process if it's taking too long"
+msgstr ""
+
+#: translate_tmp.pl:234
+msgid "Edit"
+msgstr ""
+
+#: translate_tmp.pl:237
+msgid ""
+"Use the built-in editor to highlight important fragments of your screenshot "
+"or crop it to a desired size"
+msgstr ""
+
+#: translate_tmp.pl:244
+msgid "Export"
+msgstr ""
+
+#: translate_tmp.pl:247
+msgid ""
+"Upload your images to an image hosting service, FTP site or export them to "
+"an arbitrary folder"
+msgstr ""
+
+#: translate_tmp.pl:248
+msgid "Show links to previous uploads"
+msgstr ""
+
+#: translate_tmp.pl:33
+#: translate_tmp.pl:47
+#: translate_tmp.pl:62
+#: translate_tmp.pl:76
+#, perl-format
+msgid "Error while executing %s."
+msgstr ""
+
+#: translate_tmp.pl:34
+#: translate_tmp.pl:48
+#: translate_tmp.pl:63
+#: translate_tmp.pl:77
+#, perl-format
+msgid "There was an error executing %s."
+msgstr ""
+
+#: translate_tmp.pl:37
+#: translate_tmp.pl:51
+#: translate_tmp.pl:66
+#: translate_tmp.pl:80
+#, perl-format
+msgid "Exit Code: %d."
+msgstr ""
+
+#: translate_tmp.pl:167
+msgid "Synchronization complete"
+msgstr ""
+
+#: translate_tmp.pl:169
+msgid "Synchronization in progress..."
+msgstr ""
+
+#: translate_tmp.pl:61
+msgid "Illegal URI."
+msgstr ""
+
+#: translate_tmp.pl:81
+msgid "Connection error."
+msgstr ""
+
+#: translate_tmp.pl:82
+msgid "Please check your connectivity and try again."
+msgstr ""
+
+#: translate_tmp.pl:88
+#, perl-format
+msgid "Login with username %s failed."
+msgstr ""
+
+#: translate_tmp.pl:108
+msgid "Cannot change working directory."
+msgstr ""
+
+#: translate_tmp.pl:118
+msgid "Command 'put' failed."
+msgstr ""
+
+#: translate_tmp.pl:87
+msgid "Copy this code to clipboard"
+msgstr ""
+
+#: translate_tmp.pl:112
+#, perl-format
+msgid "Upload - %s - %s"
+msgstr ""
+
+#: translate_tmp.pl:121
+msgid "Draw a rectangular area using the mouse."
+msgstr ""
+
+#: translate_tmp.pl:124
+msgid "To take a screenshot, press the Enter key. Press Esc to quit."
+msgstr ""
+
+#: translate_tmp.pl:127
+msgid "<b>shift/right-click</b> → selection dialog on/off"
+msgstr ""
+
+#: translate_tmp.pl:128
+msgid "<b>ctrl + scrollwheel</b> → zoom in/out"
+msgstr ""
+
+#: translate_tmp.pl:129
+msgid "<b>space</b> → zoom window on/off"
+msgstr ""
+
+#: translate_tmp.pl:130
+msgid "<b>cursor keys</b> → move cursor"
+msgstr ""
+
+#: translate_tmp.pl:131
+msgid "<b>cursor keys + alt</b> → move selection"
+msgstr ""
+
+#: translate_tmp.pl:132
+msgid "<b>cursor keys + ctrl</b> → resize selection"
+msgstr ""
+
+#: translate_tmp.pl:88
+msgid ""
+"Maybe mouse pointer could not be grabbed or the selected area is invalid."
+msgstr ""
+
+#: translate_tmp.pl:96
+msgid "Keyboard could not be grabbed."
+msgstr ""
+
+#: translate_tmp.pl:105
+msgid "menu"
+msgstr ""
+
+#: translate_tmp.pl:107
+msgid "tooltip"
+msgstr ""
+
+#: translate_tmp.pl:111
+#, perl-format
+msgid "No window with type %s detected."
+msgstr ""
+
+#: translate_tmp.pl:119
+msgid "There is no last capture that can be redone."
+msgstr ""
+
+#: translate_tmp.pl:127
+msgid "The window is no longer available."
+msgstr ""
+
+#: translate_tmp.pl:139
+#: translate_tmp.pl:145
+msgid "Unable to capture website"
+msgstr ""
+
+#: translate_tmp.pl:153
+#, perl-format
+msgid "No window with name pattern %s detected."
+msgstr ""
+
+#: translate_tmp.pl:163
+#, perl-format
+msgid "Invalid pattern %s detected."
+msgstr ""
+
+#: translate_tmp.pl:122
+msgid "No subwindow detected"
+msgstr ""
+
+#: translate_tmp.pl:123
+msgid ""
+"Maybe this window is using client-side windows (or similar).\n"
+"Shutter is not yet able to query the tree information of such windows."
+msgstr ""
+
+#: translate_tmp.pl:81
+msgid "URL to capture"
+msgstr ""
+
+#: translate_tmp.pl:98
+msgid "C_apture"
+msgstr ""
+
+#: translate_tmp.pl:157
+msgid "Workspaces"
+msgstr ""
+
+#: translate_tmp.pl:447
+#: translate_tmp.pl:4014
+msgid "Fill color"
+msgstr ""
+
+#: translate_tmp.pl:454
+#: translate_tmp.pl:455
+msgid "Adjust fill color and opacity"
+msgstr ""
+
+#: translate_tmp.pl:461
+#: translate_tmp.pl:4033
+msgid "Stroke color"
+msgstr ""
+
+#: translate_tmp.pl:466
+#: translate_tmp.pl:4039
+msgid "Choose stroke color"
+msgstr ""
+
+#: translate_tmp.pl:468
+#: translate_tmp.pl:469
+msgid "Adjust stroke color and opacity"
+msgstr ""
+
+#: translate_tmp.pl:475
+#: translate_tmp.pl:4000
+msgid "Line width"
+msgstr ""
+
+#: translate_tmp.pl:479
+#: translate_tmp.pl:480
+msgid "Adjust line width"
+msgstr ""
+
+#: translate_tmp.pl:486
+#: translate_tmp.pl:4076
+#: translate_tmp.pl:4200
+msgid "Font"
+msgstr ""
+
+#: translate_tmp.pl:490
+#: translate_tmp.pl:491
+msgid "Select font family and size"
+msgstr ""
+
+#: translate_tmp.pl:497
+msgid "Insert image"
+msgstr ""
+
+#: translate_tmp.pl:610
+#: translate_tmp.pl:611
+msgid "Insert an arbitrary object or file"
+msgstr ""
+
+#: translate_tmp.pl:631
+msgid "X"
+msgstr ""
+
+#: translate_tmp.pl:650
+msgid "Y"
+msgstr ""
+
+#: translate_tmp.pl:669
+#: translate_tmp.pl:4129
+msgid "Width"
+msgstr ""
+
+#: translate_tmp.pl:688
+msgid "Height"
+msgstr ""
+
+#: translate_tmp.pl:718
+msgid "_Crop"
+msgstr ""
+
+#: translate_tmp.pl:863
+msgid "Click-Drag to scale (try Control to scale uniformly)"
+msgstr ""
+
+#: translate_tmp.pl:865
+msgid "Click-Drag to resize the canvas"
+msgstr ""
+
+#: translate_tmp.pl:870
+msgid "Click to paint (try Control or Shift for a straight line)"
+msgstr ""
+
+#: translate_tmp.pl:874
+msgid "Click-Drag to create a new straight line"
+msgstr ""
+
+#: translate_tmp.pl:878
+msgid "Click-Drag to create a new arrow"
+msgstr ""
+
+#: translate_tmp.pl:882
+msgid "Click-Drag to create a new rectangle"
+msgstr ""
+
+#: translate_tmp.pl:886
+msgid "Click-Drag to create a new ellipse"
+msgstr ""
+
+#: translate_tmp.pl:890
+msgid "Click-Drag to add a new text area"
+msgstr ""
+
+#: translate_tmp.pl:894
+msgid "Click to censor (try Control or Shift for a straight line)"
+msgstr ""
+
+#: translate_tmp.pl:898
+msgid "Click-Drag to create a pixelized region"
+msgstr ""
+
+#: translate_tmp.pl:902
+msgid "Click to add an auto-increment shape"
+msgstr ""
+
+#: translate_tmp.pl:1223
+#, perl-format
+msgid "Save the changes to image %s before closing?"
+msgstr ""
+
+#: translate_tmp.pl:1239
+msgid "Close"
+msgstr ""
+
+#: translate_tmp.pl:1242
+msgid "Do_n't save"
+msgstr ""
+
+#: translate_tmp.pl:1308
+#, perl-format
+msgid ""
+"If you don't save the image, changes from the last minute will be lost"
+msgid_plural ""
+"If you don't save the image, changes from the last %d minutes will be lost"
+msgstr[0] ""
+msgstr[1] ""
+
+#: translate_tmp.pl:1703
+msgid "Do you want to save the changed background color?"
+msgstr ""
+
+#: translate_tmp.pl:1704
+msgid ""
+"The background is likely to be transparent if you decide to ignore the "
+"background color."
+msgstr ""
+
+#: translate_tmp.pl:1706
+msgid "Save Background Color"
+msgstr ""
+
+#: translate_tmp.pl:1709
+msgid "_Ignore Background Color"
+msgstr ""
+
+#: translate_tmp.pl:1712
+msgid "_Save Background Color"
+msgstr ""
+
+#: translate_tmp.pl:3760
+msgid "Change Background Color..."
+msgstr ""
+
+#: translate_tmp.pl:3770
+msgid "_Reset to Default"
+msgstr ""
+
+#: translate_tmp.pl:3820
+msgid "Raise"
+msgstr ""
+
+#: translate_tmp.pl:3843
+msgid "Lower"
+msgstr ""
+
+#: translate_tmp.pl:3888
+msgid "Unlock"
+msgstr ""
+
+#: translate_tmp.pl:3891
+msgid "Lock"
+msgstr ""
+
+#: translate_tmp.pl:3913
+msgid "Edit Preferences..."
+msgstr ""
+
+#: translate_tmp.pl:4054
+msgid "Numbering"
+msgstr ""
+
+#: translate_tmp.pl:4064
+msgid "Current value"
+msgstr ""
+
+#: translate_tmp.pl:4119
+#: translate_tmp.pl:5989
+msgid "Arrow"
+msgstr ""
+
+#: translate_tmp.pl:4141
+msgid "Length"
+msgstr ""
+
+#: translate_tmp.pl:4153
+msgid "Tip length"
+msgstr ""
+
+#: translate_tmp.pl:4163
+msgid "Display an arrow at the end of the line"
+msgstr ""
+
+#: translate_tmp.pl:4165
+msgid "Display an arrow at the start of the line"
+msgstr ""
+
+#: translate_tmp.pl:4190
+#: translate_tmp.pl:5992
+msgid "Text"
+msgstr ""
+
+#: translate_tmp.pl:4229
+msgid "Font color"
+msgstr ""
+
+#: translate_tmp.pl:4235
+msgid "Choose font color"
+msgstr ""
+
+#: translate_tmp.pl:4257
+msgid "Use selected font"
+msgstr ""
+
+#: translate_tmp.pl:4263
+msgid "Use selected font color"
+msgstr ""
+
+#: translate_tmp.pl:5866
+msgid "_Tools"
+msgstr ""
+
+#: translate_tmp.pl:5868
+msgid "Undo last action"
+msgstr ""
+
+#: translate_tmp.pl:5871
+msgid "Do again the last undone action"
+msgstr ""
+
+#: translate_tmp.pl:5874
+msgid "Copy selection to clipboard"
+msgstr ""
+
+#: translate_tmp.pl:5880
+msgid "Cut selection to clipboard"
+msgstr ""
+
+#: translate_tmp.pl:5887
+msgid "Paste objects from clipboard"
+msgstr ""
+
+#: translate_tmp.pl:5890
+msgid "Delete current object"
+msgstr ""
+
+#: translate_tmp.pl:5893
+msgid "Clear canvas"
+msgstr ""
+
+#: translate_tmp.pl:5907
+msgid "Abort current mode"
+msgstr ""
+
+#: translate_tmp.pl:5910
+msgid "Close this window"
+msgstr ""
+
+#: translate_tmp.pl:5913
+msgid "Save image"
+msgstr ""
+
+#: translate_tmp.pl:5916
+msgid "Export to _File..."
+msgstr ""
+
+#: translate_tmp.pl:5916
+msgid "Export to File..."
+msgstr ""
+
+#: translate_tmp.pl:5919
+msgid "_Export to SVG..."
+msgstr ""
+
+#: translate_tmp.pl:5919
+msgid "Export to SVG..."
+msgstr ""
+
+#: translate_tmp.pl:5922
+msgid "Export to PDF..."
+msgstr ""
+
+#: translate_tmp.pl:5925
+msgid "Export to PostScript..."
+msgstr ""
+
+#: translate_tmp.pl:5949
+msgid "Automatic scrolling"
+msgstr ""
+
+#: translate_tmp.pl:5985
+msgid "Select"
+msgstr ""
+
+#: translate_tmp.pl:5985
+msgid "Select item to move or resize it"
+msgstr ""
+
+#: translate_tmp.pl:5986
+msgid "Freehand"
+msgstr ""
+
+#: translate_tmp.pl:5986
+msgid "Draw a freehand line"
+msgstr ""
+
+#: translate_tmp.pl:5987
+msgid "Highlighter"
+msgstr ""
+
+#: translate_tmp.pl:5988
+msgid "Line"
+msgstr ""
+
+#: translate_tmp.pl:5988
+msgid "Draw a straight line"
+msgstr ""
+
+#: translate_tmp.pl:5989
+msgid "Draw an arrow"
+msgstr ""
+
+#: translate_tmp.pl:5990
+msgid "Rectangle"
+msgstr ""
+
+#: translate_tmp.pl:5990
+msgid "Draw a rectangle"
+msgstr ""
+
+#: translate_tmp.pl:5991
+msgid "Ellipse"
+msgstr ""
+
+#: translate_tmp.pl:5991
+msgid "Draw a ellipse"
+msgstr ""
+
+#: translate_tmp.pl:5992
+msgid "Add some text to the screenshot"
+msgstr ""
+
+#: translate_tmp.pl:5993
+msgid "Censor"
+msgstr ""
+
+#: translate_tmp.pl:5993
+msgid "Censor portions of your screenshot to hide private data"
+msgstr ""
+
+#: translate_tmp.pl:5994
+msgid "Pixelize"
+msgstr ""
+
+#: translate_tmp.pl:5994
+msgid "Pixelize selected areas of your screenshot to hide private data"
+msgstr ""
+
+#: translate_tmp.pl:5995
+msgid "Number"
+msgstr ""
+
+#: translate_tmp.pl:5995
+msgid "Add an auto-increment shape to the screenshot"
+msgstr ""
+
+#: translate_tmp.pl:5996
+msgid "Crop"
+msgstr ""
+
+#: translate_tmp.pl:5996
+msgid "Crop your screenshot"
+msgstr ""
+
+#: translate_tmp.pl:6250
+#: translate_tmp.pl:6440
+msgid "No icon was found"
+msgstr ""
+
+#: translate_tmp.pl:6309
+msgid "Import from current theme..."
+msgstr ""
+
+#: translate_tmp.pl:6323
+msgid "Import from session..."
+msgstr ""
+
+#: translate_tmp.pl:6334
+msgid "Import from filesystem..."
+msgstr ""
+
+#: translate_tmp.pl:7125
+msgid "New text..."
+msgstr ""

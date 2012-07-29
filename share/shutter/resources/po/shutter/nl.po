@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-20 21:55+0100\n"
-"PO-Revision-Date: 2012-02-23 13:43+0000\n"
-"Last-Translator: rob <linuxned@gmail.com>\n"
+"PO-Revision-Date: 2012-06-18 11:51+0000\n"
+"Last-Translator: Forage <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-04-22 23:01+0000\n"
-"X-Generator: Launchpad (build 15120)\n"
+"X-Launchpad-Export-Date: 2012-07-29 21:56+0000\n"
+"X-Generator: Launchpad (build 15694)\n"
 
 #: translate_tmp.pl:388
 #: translate_tmp.pl:2574
@@ -32,13 +32,13 @@ msgstr "Voorkeuren"
 #: translate_tmp.pl:770
 #: translate_tmp.pl:771
 msgid "gnome-web-photo needs to be installed for this feature"
-msgstr "Gnome-web-foto dient voor deze functionaliteit geïnstalleerd zijn"
+msgstr "gnome-web-foto dient geïnstalleerd te zijn voor deze functionaliteit"
 
 #: translate_tmp.pl:779
 msgid "Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature"
 msgstr ""
-"Goo::Canvas/libgoo-canvas-perl dient voor deze functionaliteit geïnstalleerd "
-"zijn"
+"Goo::Canvas/libgoo-canvas-perl dient geïnstalleerd te zijn voor deze "
+"functionaliteit"
 
 #: translate_tmp.pl:812
 msgid "Choose a profile"
@@ -46,15 +46,15 @@ msgstr "Kies een profiel"
 
 #: translate_tmp.pl:828
 msgid "Save configuration as profile"
-msgstr "Configuratie als profiel opslaan"
+msgstr "Sla configuratie op als profiel"
 
 #: translate_tmp.pl:838
 msgid "Delete profile"
-msgstr "Profiel verwijderen"
+msgstr "Verwijder profiel"
 
 #: translate_tmp.pl:847
 msgid "Load the selected profile's configuration"
-msgstr "Configuratie van geselecteerde profiel laden"
+msgstr "Laad configuratie van geselecteerd profiel"
 
 #: translate_tmp.pl:855
 #: translate_tmp.pl:1129
@@ -65,7 +65,7 @@ msgstr "Afbeeldingsformaat"
 
 #: translate_tmp.pl:862
 msgid "Save"
-msgstr "Opslaan"
+msgstr "Sla op"
 
 #: translate_tmp.pl:869
 msgid "First-launch Behavior"
@@ -111,7 +111,7 @@ msgstr "Vensteropname"
 
 #: translate_tmp.pl:939
 msgid "Menu/Tooltip Capture"
-msgstr "Opname menu/infotekst"
+msgstr "Menu/tekstballon-opname"
 
 #: translate_tmp.pl:946
 msgid "Website Capture"
@@ -144,7 +144,7 @@ msgstr "Bestandsnaam"
 #: translate_tmp.pl:11221
 #, perl-format
 msgid "Reserved character %s is not allowed to be in a filename."
-msgstr "Het gereserveerde teken %s is in een bestandsnaam niet toegestaan."
+msgstr "Het gereserveerde teken %s is niet toegestaan in een bestandsnaam."
 
 #: translate_tmp.pl:1022
 msgid "There are several wildcards available, like\n"
@@ -190,7 +190,7 @@ msgstr "$profile = huidige profielnaam\n"
 
 #: translate_tmp.pl:1032
 msgid "$R = random char (e.g. $RRRR = ag4r)\n"
-msgstr "$R = willekeurig teken (bv. $RRRR = ag4r)\n"
+msgstr "$R = willekeurig teken (bijv. $RRRR = ag4r)\n"
 
 #: translate_tmp.pl:1033
 msgid "%NN = counter"
@@ -204,7 +204,7 @@ msgstr "Compressie"
 #: translate_tmp.pl:1058
 #: translate_tmp.pl:1060
 msgid "Adjust quality/compression value"
-msgstr "Kwaliteit/compressiewaarde aanpassen"
+msgstr "Pas kwaliteit/compressiewaarde aan"
 
 #: translate_tmp.pl:1130
 #: translate_tmp.pl:1131
@@ -231,36 +231,36 @@ msgstr "Uw schermafdrukken worden in deze map opgeslagen"
 #: translate_tmp.pl:1158
 #: translate_tmp.pl:1161
 msgid "Browse for save folder every time"
-msgstr "Elke keer bladeren naar bewaarmap"
+msgstr "Blader elke keer naar bewaarmap"
 
 #: translate_tmp.pl:1163
 #: translate_tmp.pl:1166
 msgid "Do not save file automatically"
-msgstr "Bestand niet automatisch opslaan"
+msgstr "Sla bestand niet automatisch op"
 
 #: translate_tmp.pl:1168
 #: translate_tmp.pl:1171
 msgid "Automatically save file"
-msgstr "Bestand automatisch opslaan"
+msgstr "Sla bestand automatisch op"
 
 #: translate_tmp.pl:1195
 #: translate_tmp.pl:1204
 msgid "Automatically copy screenshot to clipboard"
-msgstr "Schermafdruk automatisch naar het klembord kopiëren"
+msgstr "Kopieer schermafdruk automatisch naar het klembord"
 
 #: translate_tmp.pl:1211
 #: translate_tmp.pl:1220
 msgid "Automatically copy filename to clipboard"
-msgstr "Bestandsnaam automatisch naar het klembord kopiëren"
+msgstr "Kopieer bestandsnaam automatisch naar het klembord"
 
 #: translate_tmp.pl:1227
 #: translate_tmp.pl:1236
 msgid "Do not copy anything to clipboard"
-msgstr "Niets naar het klembord kopiëren"
+msgstr "Kopieer niets naar het klembord"
 
 #: translate_tmp.pl:1245
 msgid "Delay"
-msgstr "Vertraging"
+msgstr "Wachttijd"
 
 #: translate_tmp.pl:1247
 #: translate_tmp.pl:1256
@@ -275,7 +275,7 @@ msgstr[1] "seconden"
 
 #: translate_tmp.pl:1254
 msgid "Capture after a delay of"
-msgstr "Opname maken na een vertraging van"
+msgstr "Maak opname na een wachttijd van"
 
 #: translate_tmp.pl:1268
 #: translate_tmp.pl:1269
@@ -284,17 +284,17 @@ msgstr "Opname maken na een vertraging van"
 #: translate_tmp.pl:1273
 #: translate_tmp.pl:1274
 msgid "Wait n seconds before taking a screenshot"
-msgstr "Schermafdruk maken na n seconden"
+msgstr "Wacht n seconden vóór maken van schermafdruk"
 
 #: translate_tmp.pl:1285
 msgid "Include Cursor"
-msgstr "Muisaanwijzer meenemen"
+msgstr "Voeg muisaanwijzer in"
 
 #: translate_tmp.pl:1286
 #: translate_tmp.pl:1292
 #: translate_tmp.pl:1293
 msgid "Include cursor when taking a screenshot"
-msgstr "Muisaanwijzer meenemen bij het maken van een schermafdruk"
+msgstr "Voeg muisaanwijzer in in de schermafdruk"
 
 #: translate_tmp.pl:1348
 msgid "Open with"
@@ -304,7 +304,7 @@ msgstr "Openen met"
 #: translate_tmp.pl:1350
 #: translate_tmp.pl:1351
 msgid "Open your screenshot with this program after capturing"
-msgstr "Open uw schermafdruk met dit programma na het maken"
+msgstr "Open uw schermafdruk na het maken met dit programma"
 
 #: translate_tmp.pl:1362
 msgid "16 colors   - (4bit) "
@@ -320,18 +320,18 @@ msgstr "256 kleuren - (8bit) "
 
 #: translate_tmp.pl:1389
 msgid "Reduce colors"
-msgstr "Aantal kleuren verminderen"
+msgstr "Verminder aantal kleuren"
 
 #: translate_tmp.pl:1390
 #: translate_tmp.pl:1391
 #: translate_tmp.pl:1392
 msgid "Automatically reduce colors after taking a screenshot"
 msgstr ""
-"Aantal kleuren automatisch verminderen na het maken van een schermafdruk"
+"Verminder aantal kleuren automatisch na het maken van een schermafdruk"
 
 #: translate_tmp.pl:1402
 msgid "Thumbnail"
-msgstr "Miniatuurweergave"
+msgstr "Miniatuur"
 
 #: translate_tmp.pl:1428
 #: translate_tmp.pl:1430
@@ -340,13 +340,12 @@ msgid ""
 "Generate thumbnail too.\n"
 "select the percentage of the original size for the thumbnail to be"
 msgstr ""
-"Maak ook een miniatuurweergave.\n"
-"kies het percentage van het origineel voor de afmeting van de "
-"miniatuurweergave"
+"Genereer tevens een miniatuurweergave.\n"
+"kies het percentage van het origineel voor de afmeting van de miniatuur"
 
 #: translate_tmp.pl:1445
 msgid "Border"
-msgstr "Kader"
+msgstr "Rand"
 
 #: translate_tmp.pl:1447
 #: translate_tmp.pl:1531
@@ -376,7 +375,7 @@ msgstr "Voegt een randeffect toe aan de schermafdruk"
 #: translate_tmp.pl:1506
 #: translate_tmp.pl:1514
 msgid "Enable zoom window"
-msgstr "Zoomvenster inschakelen"
+msgstr "Schakel zoomvenster in"
 
 #: translate_tmp.pl:1523
 msgid "Start with selection size of"
@@ -402,7 +401,7 @@ msgstr ""
 
 #: translate_tmp.pl:1582
 msgid "Show help text"
-msgstr "Helptekst tonen"
+msgstr "Toon helptekst"
 
 #: translate_tmp.pl:1590
 msgid "Enables the help text"
@@ -415,7 +414,7 @@ msgstr "Vensterdecoratie meenemen bij het maken van een vensteropname"
 
 #: translate_tmp.pl:1617
 msgid "Automatically resize window to"
-msgstr "Venstergrootte automatisch aanpassen naar"
+msgstr "Pas venstergrootte automatisch aan naar"
 
 #: translate_tmp.pl:1641
 #: translate_tmp.pl:1642
@@ -864,8 +863,8 @@ msgstr "De volgende invoegtoepassingen zijn geïnstalleerd"
 #: translate_tmp.pl:2894
 msgid "pixel"
 msgid_plural "pixels"
-msgstr[0] "beeldpunt"
-msgstr[1] "beeldpunten"
+msgstr[0] "pixel"
+msgstr[1] "pixels"
 
 #: translate_tmp.pl:2904
 msgid "Quality"
@@ -1890,12 +1889,14 @@ msgstr ""
 "  Steven Avonds https://launchpad.net/~steven-avonds\n"
 "  Steven De Baets https://launchpad.net/~stevendebaets\n"
 "  UndiFineD https://launchpad.net/~k.dejong\n"
+"  Vistaus https://launchpad.net/~djmusic121\n"
 "  Ward Muylaert https://launchpad.net/~ward-muylaert\n"
 "  Willem Ligtenberg https://launchpad.net/~wligtenberg\n"
 "  cumulus007 https://launchpad.net/~cumulus-007\n"
 "  fireprog https://launchpad.net/~daandeweerdt\n"
 "  gvandenbosch https://launchpad.net/~gvandenbosch\n"
 "  leipegast https://launchpad.net/~leipegast\n"
+"  ottoman.be https://launchpad.net/~ottoman-be\n"
 "  rob https://launchpad.net/~rvdb"
 
 #: translate_tmp.pl:34
@@ -2427,7 +2428,7 @@ msgstr ""
 
 #: translate_tmp.pl:898
 msgid "Click-Drag to create a pixelized region"
-msgstr "Klik-Sleep om een gebied van grove beeldpunten te creëren"
+msgstr "Klik-Sleep om een gebied van grove pixels te creëren"
 
 #: translate_tmp.pl:902
 msgid "Click to add an auto-increment shape"
@@ -2695,12 +2696,12 @@ msgstr "Delen van uw schermafdruk censureren om privégegevens te verbergen"
 
 #: translate_tmp.pl:5994
 msgid "Pixelize"
-msgstr "Grove beeldpunten van maken"
+msgstr "Grove pixels maken"
 
 #: translate_tmp.pl:5994
 msgid "Pixelize selected areas of your screenshot to hide private data"
 msgstr ""
-"Maak grove beeldpunten van geselecteerd gebied van uw schermafdruk om "
+"Grove pixels van geselecteerd gebied in uw schermafdruk maken om "
 "privégegevens te verbergen"
 
 #: translate_tmp.pl:5995
