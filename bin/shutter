@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1217';
+use constant SHUTTER_REV     => 'Rev.1218';
 use constant SHUTTER_NAME    => 'Shutter';
 use constant SHUTTER_VERSION => '0.89';
 
@@ -681,7 +681,7 @@ if ($app->is_running) {
 	unless ( $sc->get_disable_systray ) {
 		
 		if ($appindicator) {
-				$tray = Gtk2::AppIndicator->new("Shutter","shutter");
+				$tray = Gtk2::AppIndicator->new("Shutter","shutter-panel");
 				$tray->set_menu($tray_menu);
 				$tray->set_active();
 		} else {	
