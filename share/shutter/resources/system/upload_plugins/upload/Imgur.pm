@@ -105,7 +105,7 @@ sub upload {
 			);
 
 			my @params = (
-				"http://imgur.com/api/upload.json",
+				"http://api.imgur.com/1/upload.json",
 				'Content_Type' => 'multipart/form-data',
 				'Content' => [%params]
 			);
