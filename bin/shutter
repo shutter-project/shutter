@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1218';
+use constant SHUTTER_REV     => 'Rev.1219';
 use constant SHUTTER_NAME    => 'Shutter';
 use constant SHUTTER_VERSION => '0.89';
 
@@ -8429,16 +8429,17 @@ if ($app->is_running) {
 									# Upload Features
 									$accounts{$name}->{supports_anonymous_upload} = &fct_upload_plugin_get_info( $ukey, 'supports_anonymous_upload' ); 
 									$accounts{$name}->{supports_authorized_upload} = &fct_upload_plugin_get_info( $ukey, 'supports_authorized_upload' ); 
-									$accounts{$name}->{supports_oauth_upload} = &fct_upload_plugin_get_info( $ukey, 'supports_oauth_upload' ); 
+									$accounts{$name}->{supports_oauth_upload} = &fct_upload_plugin_get_info( $ukey, 'supports_oauth_upload' );
+									
+									#refresh the progressbar
+									$upload_plugin_progress->pulse;
+									$upload_plugin_progress->set_text($accounts{$name}->{path});
+									
 								}else{
 									print "\nERROR: upload-plugin exists but does not work properly - $folder$name\n";
 									delete $accounts{$name};	
 								}
-								
-								#refresh the progressbar
-								$upload_plugin_progress->pulse;
-								$upload_plugin_progress->set_text($accounts{$name}->{path});
-								
+							
 								#refresh gui
 								&fct_update_gui;
 
