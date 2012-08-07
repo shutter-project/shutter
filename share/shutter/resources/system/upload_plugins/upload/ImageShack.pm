@@ -99,7 +99,7 @@ sub upload {
 
 			my %params = (
 				'fileupload' => [$upload_filename],
-				'key' => '4679FKPXc50115cd7f3966adcf240a1e3609ecbf',
+				'key' => '457ABMRYbb8c46e47924a66927dfa87197e87f57',
 				'a_username' => $username,
 				'a_password' => $password,
 			);
