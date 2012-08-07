@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1221';
+use constant SHUTTER_REV     => 'Rev.1222';
 use constant SHUTTER_NAME    => 'Shutter';
 use constant SHUTTER_VERSION => '0.89.1';
 
@@ -6276,12 +6276,12 @@ if ($app->is_running) {
 		#get next filename (auto increment using a wild card or manually)
 		my $uri = undef;
 		if($sc->get_export_filename){		
-			my ( $short, $folder, $ext ) = fileparse($shf->switch_home_in_file($sc->get_export_filename), qr/\.[^.]*/);
+			my ( $short, $folder, $ext ) = fileparse($shf->switch_home_in_file($shf->utf8_decode($sc->get_export_filename)), qr/\.[^.]*/);
 			#set filetype
 			$filetype_value = $ext;
 			$filetype_value =~ s/\.//;
 			#prepare filename, parse wild-cards 
-			$short = $shf->utf8_decode(strftime $short, localtime);
+			$short = strftime $short, localtime;
 			#..remove / and #
 			$short =~ s/(\/|\#)/-/g;
 			#relative to abs
