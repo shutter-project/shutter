@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-20 21:55+0100\n"
-"PO-Revision-Date: 2012-07-09 05:40+0000\n"
-"Last-Translator: safaalfulaij <safaalfulaij@hotmail.com>\n"
+"PO-Revision-Date: 2012-08-05 18:04+0000\n"
+"Last-Translator: Ibrahim Saed <ibraheem5000@gmail.com>\n"
 "Language-Team: Arabic <ar@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n % 100 >= "
 "3 && n % 100 <= 10 ? 3 : n % 100 >= 11 && n % 100 <= 99 ? 4 : 5;\n"
-"X-Launchpad-Export-Date: 2012-07-29 21:57+0000\n"
-"X-Generator: Launchpad (build 15694)\n"
+"X-Launchpad-Export-Date: 2012-08-14 17:44+0000\n"
+"X-Generator: Launchpad (build 15801)\n"
 
 #: translate_tmp.pl:388
 #: translate_tmp.pl:2574
@@ -64,7 +64,7 @@ msgstr "صيغة الصورة"
 
 #: translate_tmp.pl:862
 msgid "Save"
-msgstr "احفظ"
+msgstr "الحفظ"
 
 #: translate_tmp.pl:869
 msgid "First-launch Behavior"
@@ -76,7 +76,7 @@ msgstr "خصائص النافذة"
 
 #: translate_tmp.pl:883
 msgid "Notifications"
-msgstr "إعلامات"
+msgstr "التنبيهات"
 
 #: translate_tmp.pl:890
 msgid "Trash"
@@ -110,7 +110,7 @@ msgstr "إلتقاط النافذة"
 
 #: translate_tmp.pl:939
 msgid "Menu/Tooltip Capture"
-msgstr ""
+msgstr "التقاط القوائم/التلميحات"
 
 #: translate_tmp.pl:946
 msgid "Website Capture"
@@ -126,11 +126,11 @@ msgstr "بروتوكول نقل الملفات (FTP)"
 
 #: translate_tmp.pl:967
 msgid "Transparent Parts"
-msgstr "أجزاء شفافة"
+msgstr "الأجزاء الشّفافة"
 
 #: translate_tmp.pl:974
 msgid "Session View"
-msgstr ""
+msgstr "مشهد الجلسة"
 
 #: translate_tmp.pl:982
 #: translate_tmp.pl:1830
@@ -147,7 +147,7 @@ msgstr "لا يسمح باحتواء اسم الملف على الرمز الغ�
 
 #: translate_tmp.pl:1022
 msgid "There are several wildcards available, like\n"
-msgstr ""
+msgstr "هناك العديد من الأنماط المتوفرة، مثل:\n"
 
 #: translate_tmp.pl:1023
 msgid "%Y = year\n"
@@ -207,11 +207,11 @@ msgstr "تعديل قيمة الجودة/الضغط"
 #: translate_tmp.pl:1130
 #: translate_tmp.pl:1131
 msgid "Select a file format"
-msgstr "إختر صيغة الملف"
+msgstr "اختر صيغة الملف"
 
 #: translate_tmp.pl:1140
 msgid "Directory"
-msgstr "الملف"
+msgstr "المجلد"
 
 #: translate_tmp.pl:1141
 #: translate_tmp.pl:10373
@@ -219,12 +219,12 @@ msgstr "الملف"
 #: translate_tmp.pl:10393
 #: translate_tmp.pl:10394
 msgid "Choose folder"
-msgstr "إختر الملف"
+msgstr "اختر مجلد"
 
 #: translate_tmp.pl:1148
 #: translate_tmp.pl:1149
 msgid "Your screenshots will be saved to this directory"
-msgstr "ستُحفظ لقطات الشاشة في هذا المُجلد"
+msgstr "ستُحفظ لقطات الشاشة إلى هذا المُجلد"
 
 #: translate_tmp.pl:1158
 #: translate_tmp.pl:1161
@@ -234,12 +234,12 @@ msgstr ""
 #: translate_tmp.pl:1163
 #: translate_tmp.pl:1166
 msgid "Do not save file automatically"
-msgstr "لا تحفظ الملفات آلياً"
+msgstr "لا تحفظ الملف تلقائيا"
 
 #: translate_tmp.pl:1168
 #: translate_tmp.pl:1171
 msgid "Automatically save file"
-msgstr "حفظ الملف تلقائياً"
+msgstr "احفظ الملف تلقائيا"
 
 #: translate_tmp.pl:1195
 #: translate_tmp.pl:1204
@@ -277,7 +277,7 @@ msgstr[5] "ثانية"
 
 #: translate_tmp.pl:1254
 msgid "Capture after a delay of"
-msgstr "التقط بعد الانتظار"
+msgstr "التقط بعد الانتظار لـ"
 
 #: translate_tmp.pl:1268
 #: translate_tmp.pl:1269
@@ -286,7 +286,7 @@ msgstr "التقط بعد الانتظار"
 #: translate_tmp.pl:1273
 #: translate_tmp.pl:1274
 msgid "Wait n seconds before taking a screenshot"
-msgstr "انتظر كذا ثانية قبل التقاط الصورة"
+msgstr "انتظر عدد من الثواني قبل التقاط الشاشة"
 
 #: translate_tmp.pl:1285
 msgid "Include Cursor"
@@ -296,11 +296,11 @@ msgstr "ضمّن مؤشر الفأرة"
 #: translate_tmp.pl:1292
 #: translate_tmp.pl:1293
 msgid "Include cursor when taking a screenshot"
-msgstr "ضمن"
+msgstr "تضمين مؤشر الفأرة عند أخذ لقطة شاشة"
 
 #: translate_tmp.pl:1348
 msgid "Open with"
-msgstr "افتح باستخدام"
+msgstr "فتح باستخدام"
 
 #: translate_tmp.pl:1349
 #: translate_tmp.pl:1350
@@ -310,19 +310,19 @@ msgstr "إفتح لقطة الشاشة بهذا البرنامج بعد إلتق
 
 #: translate_tmp.pl:1362
 msgid "16 colors   - (4bit) "
-msgstr "16 لون - (4bit) "
+msgstr "16 لون - (4 بت) "
 
 #: translate_tmp.pl:1363
 msgid "64 colors   - (6bit) "
-msgstr "64 لون - (6bit) "
+msgstr "64 لون - (6 بت) "
 
 #: translate_tmp.pl:1364
 msgid "256 colors  - (8bit) "
-msgstr "256 لون - (8bit) "
+msgstr "256 لون - (8 بت) "
 
 #: translate_tmp.pl:1389
 msgid "Reduce colors"
-msgstr "قلل الألوان"
+msgstr "تقليل الألوان"
 
 #: translate_tmp.pl:1390
 #: translate_tmp.pl:1391
@@ -332,7 +332,7 @@ msgstr "تقليل الألوان تلقائيا بعد إلتقاط صورة ا
 
 #: translate_tmp.pl:1402
 msgid "Thumbnail"
-msgstr "صورة مصغرة"
+msgstr "المصغرات"
 
 #: translate_tmp.pl:1428
 #: translate_tmp.pl:1430
@@ -458,7 +458,7 @@ msgstr ""
 #: translate_tmp.pl:1713
 #: translate_tmp.pl:1714
 msgid "Capture menu/tooltip after a delay of n seconds"
-msgstr ""
+msgstr "التقط القائمة/التلميحة بعد الانتظار لعدد من الثواني"
 
 #: translate_tmp.pl:1725
 msgid "Ignore possibly wrong type hints"
@@ -499,7 +499,7 @@ msgstr "اختر لون التعبئة"
 
 #: translate_tmp.pl:1781
 msgid "Show as background"
-msgstr "إعرض كخلفية"
+msgstr "عرض كخلفية"
 
 #: translate_tmp.pl:1802
 msgid "Displays any transparent parts of the image in a check pattern"
@@ -518,7 +518,7 @@ msgstr ""
 
 #: translate_tmp.pl:1828
 msgid "Sort ascending by"
-msgstr ""
+msgstr "ترتيب تصاعدي حسب"
 
 #: translate_tmp.pl:1831
 #: translate_tmp.pl:1835
@@ -527,7 +527,7 @@ msgstr ""
 
 #: translate_tmp.pl:1832
 msgid "Sort descending by"
-msgstr ""
+msgstr "ترتيب تنازلي حسب"
 
 #: translate_tmp.pl:1877
 #: translate_tmp.pl:1878
@@ -553,7 +553,7 @@ msgstr ""
 
 #: translate_tmp.pl:1913
 msgid "Capture with selection"
-msgstr "التقط صورة مع  التحديد"
+msgstr "التقط مع  التحديد"
 
 #: translate_tmp.pl:1917
 #: translate_tmp.pl:1923
@@ -603,7 +603,7 @@ msgstr "قائمة"
 #: translate_tmp.pl:191
 #: translate_tmp.pl:1117
 msgid "Tooltip"
-msgstr ""
+msgstr "تلميحة"
 
 #: translate_tmp.pl:1935
 #: translate_tmp.pl:210
@@ -625,7 +625,7 @@ msgstr ""
 #: translate_tmp.pl:2005
 #: translate_tmp.pl:2061
 msgid "Start Shutter at login"
-msgstr ""
+msgstr "تشغيل البرنامج تلقائيا عند الولوج"
 
 #: translate_tmp.pl:2006
 #: translate_tmp.pl:2069
@@ -650,8 +650,12 @@ msgstr ""
 #: translate_tmp.pl:2853
 msgid "millisecond"
 msgid_plural "milliseconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "مللي ثانية"
+msgstr[1] "مللي ثانية"
+msgstr[2] "مللي ثانية"
+msgstr[3] "مللي ثانية"
+msgstr[4] "مللي ثانية"
+msgstr[5] "مللي ثانية"
 
 #: translate_tmp.pl:2019
 #: translate_tmp.pl:2109
@@ -666,13 +670,13 @@ msgstr "صغر إلى مساحة التنبيه عند إغلاق النافذة
 #: translate_tmp.pl:2022
 #: translate_tmp.pl:2117
 msgid "Display pop-up notification after taking a screenshot"
-msgstr ""
+msgstr "عرض تنبيه منبثق بعد الالتقاط"
 
 #: translate_tmp.pl:2023
 #: translate_tmp.pl:2125
 #: translate_tmp.pl:2133
 msgid "Display pop-up notification when using a delay"
-msgstr ""
+msgstr "عرض تنبيه منبثق لعداد الوقت قبل الالتقاط"
 
 #: translate_tmp.pl:2024
 msgid "Display pop-up notification when using a pre-capture delay"
@@ -680,7 +684,7 @@ msgstr ""
 
 #: translate_tmp.pl:2026
 msgid "Notification agent"
-msgstr ""
+msgstr "أداة التنبيهات"
 
 #: translate_tmp.pl:2028
 msgid "Desktop Notifications"
@@ -688,7 +692,7 @@ msgstr "تنبيهات سطح المكتب"
 
 #: translate_tmp.pl:2029
 msgid "Built-In Notifications"
-msgstr ""
+msgstr "أداة التنبيهات المدمجة"
 
 #: translate_tmp.pl:2033
 #: translate_tmp.pl:2158
@@ -802,7 +806,7 @@ msgstr "متقدم"
 
 #: translate_tmp.pl:2418
 msgid "Image View"
-msgstr ""
+msgstr "عرض الصور"
 
 #: translate_tmp.pl:2439
 msgid "Behavior"
@@ -827,8 +831,12 @@ msgstr "المُلحقات التالية مثبته"
 #: translate_tmp.pl:2894
 msgid "pixel"
 msgid_plural "pixels"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "بكسل"
+msgstr[1] "بكسل"
+msgstr[2] "بكسلين"
+msgstr[3] "بكسلات"
+msgstr[4] "بكسلا"
+msgstr[5] "بكسل"
 
 #: translate_tmp.pl:2904
 msgid "Quality"
@@ -840,7 +848,7 @@ msgstr ""
 
 #: translate_tmp.pl:2973
 msgid "Please activate the tooltip you want to capture"
-msgstr ""
+msgstr "برجاء تنشيط التلميحة التي ترغب بالتقاطها"
 
 #: translate_tmp.pl:2982
 #: translate_tmp.pl:2992
@@ -937,7 +945,7 @@ msgstr "تم تحميل الإعدادات بنجاح"
 #: translate_tmp.pl:5099
 #: translate_tmp.pl:6963
 msgid "Built-in Editor"
-msgstr "مُحرّر مضمن"
+msgstr "المُحرّر الداخلي"
 
 #: translate_tmp.pl:5153
 msgid "Account-settings could not be restored!"
@@ -994,17 +1002,17 @@ msgstr "تم حذفه"
 
 #: translate_tmp.pl:5492
 msgid "Are you sure you want to move the selected files to the trash?"
-msgstr "هل أنت متأكد أنك تريد نقل الملفات المُختارة للمهملات؟"
+msgstr "هل أنت متأكد أنك ترغب بنقل الملفات المُختارة إلى المهملات؟"
 
 #: translate_tmp.pl:5497
 #: translate_tmp.pl:5526
 #: translate_tmp.pl:5626
 msgid "No screenshots selected"
-msgstr ""
+msgstr "لا توجد لقطات شاشة مختارة"
 
 #: translate_tmp.pl:5542
 msgid "Selected screenshots deleted"
-msgstr "لقطات الشاشة المحددة حذفت"
+msgstr "حُذفت لقطات الشاشة المختارة"
 
 #: translate_tmp.pl:5578
 #: translate_tmp.pl:7616
@@ -1014,11 +1022,11 @@ msgstr "لقطات الشاشة المحددة حذفت"
 #: translate_tmp.pl:7744
 #: translate_tmp.pl:7774
 msgid "removed from session"
-msgstr "احذف من الجلسة"
+msgstr "حُذف من الجلسة"
 
 #: translate_tmp.pl:5642
 msgid "Selected screenshots removed"
-msgstr "الصور المختارة حذفت"
+msgstr "حُذفت لقطات الشاشة المختارة"
 
 #: translate_tmp.pl:5672
 #: translate_tmp.pl:6073
@@ -1031,11 +1039,11 @@ msgstr ""
 
 #: translate_tmp.pl:5746
 msgid "Selected filenames copied to clipboard"
-msgstr ""
+msgstr "نُسخت اسماء الملفات المختارة إلى الحافظة"
 
 #: translate_tmp.pl:5761
 msgid "Selected images copied to clipboard"
-msgstr ""
+msgstr "نُسخت الصور المختارة إلى الحافظة"
 
 #: translate_tmp.pl:5808
 msgid "Last action undone"
@@ -1150,8 +1158,12 @@ msgstr "حدث خطأ أثناء تنفيذ المُلحق."
 #, perl-format
 msgid "%s screenshot"
 msgid_plural "%s screenshots"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "لا توجد لقطات شاشة"
+msgstr[1] "لقطة شاشة واحدة"
+msgstr[2] "لقطتي شاشة"
+msgstr[3] "%s لقطات شاشة"
+msgstr[4] "%s لقطة شاشة"
+msgstr[5] "%s لقطة شاشة"
 
 #: translate_tmp.pl:7199
 msgid "Current profile"
@@ -1159,7 +1171,7 @@ msgstr ""
 
 #: translate_tmp.pl:7607
 msgid "Try to resave the file?"
-msgstr "جرب اعادة حفظ الملف؟"
+msgstr "هل أجرّب إعادة حفظ الملف؟"
 
 #: translate_tmp.pl:7608
 #, perl-format
@@ -1218,7 +1230,7 @@ msgstr "تحديث معلومات مُلحق الرفع"
 
 #: translate_tmp.pl:8168
 msgid "Please wait while Shutter updates the upload plugin information"
-msgstr "الرجاء الانتظار بينما يُحدث Shutter معلومات مُلحق الرفع"
+msgstr "يرجى الانتظار بينما يُحدث Shutter معلومات مُلحقة الرفع"
 
 #: translate_tmp.pl:8375
 msgid "Capture All Workspaces"
@@ -1264,7 +1276,7 @@ msgstr "التقط آخر نافذة نشطة"
 #: translate_tmp.pl:8486
 #: translate_tmp.pl:403
 msgid "_Selection"
-msgstr "اختيار"
+msgstr "ت_حديد"
 
 #: translate_tmp.pl:8512
 #: translate_tmp.pl:429
@@ -1278,12 +1290,12 @@ msgstr ""
 #: translate_tmp.pl:8562
 #: translate_tmp.pl:459
 msgid "Select W_indow"
-msgstr ""
+msgstr "اختر نا_فذة"
 
 #: translate_tmp.pl:8576
 #: translate_tmp.pl:472
 msgid "Se_ction"
-msgstr "قسم"
+msgstr "م_قطع"
 
 #: translate_tmp.pl:8595
 #: translate_tmp.pl:488
@@ -1293,7 +1305,7 @@ msgstr "_قائمة"
 #: translate_tmp.pl:8614
 #: translate_tmp.pl:504
 msgid "_Tooltip"
-msgstr ""
+msgstr "ت_لميحة"
 
 #: translate_tmp.pl:8633
 #: translate_tmp.pl:522
@@ -1960,7 +1972,7 @@ msgstr "أبلغ عن مشكلة"
 
 #: translate_tmp.pl:446
 msgid "_Active Window"
-msgstr "نافذة _نشطة"
+msgstr "النافذة ال_نشطة"
 
 #: translate_tmp.pl:538
 msgid "Import from clip_board"
@@ -1984,7 +1996,7 @@ msgstr "_غيّر الاسم..."
 #: translate_tmp.pl:581
 #: translate_tmp.pl:677
 msgid "_Send To..."
-msgstr "إ_رسال إلى..."
+msgstr "أ_رسل إلى..."
 
 #: translate_tmp.pl:590
 #: translate_tmp.pl:685
@@ -2023,8 +2035,8 @@ msgid ""
 "Draw a rectangular capture area with your mouse\n"
 "to select a specified screen area"
 msgstr ""
-"ارسم مساحة التقاط مستطيلة بالفأرة\n"
-"لتحديد مساحة معينة في الشاشة"
+"ارسم مساحة مستطيلة بالفأرة\n"
+"لتحديد مساحة معينة في الشاشة لالتقاطها"
 
 #: translate_tmp.pl:71
 msgid "Choose selection tool"
@@ -2048,7 +2060,7 @@ msgstr "نافذة"
 
 #: translate_tmp.pl:135
 msgid "Select a window with your mouse"
-msgstr "حدد نافذة بواسطة الفأرة"
+msgstr "اختر نافذة بالفأرة"
 
 #: translate_tmp.pl:136
 msgid "Take a screenshot of a specific window"
@@ -2059,15 +2071,15 @@ msgid ""
 "Captures only a section of the window. You will be able to select any child "
 "window by moving the mouse over it"
 msgstr ""
-"التقط فقط قسم من النافذة. بإمكانك تحديد أي نافذة فرعية بتحريك الفأرة عليها"
+"التقط فقط مقطع من النافذة. بإمكانك تحديد أي نافذة فرعية بتحريك الفأرة عليها"
 
 #: translate_tmp.pl:174
 msgid "Select a single menu or cascading menus from any application"
-msgstr ""
+msgstr "اختر قائمة منفردة أو قوائم متتالية في أي تطبيق"
 
 #: translate_tmp.pl:194
 msgid "Capture a tooltip"
-msgstr ""
+msgstr "التقط تلميحة"
 
 #: translate_tmp.pl:212
 #: translate_tmp.pl:79
@@ -2220,7 +2232,7 @@ msgstr ""
 
 #: translate_tmp.pl:107
 msgid "tooltip"
-msgstr ""
+msgstr "تلميحة"
 
 #: translate_tmp.pl:111
 #, perl-format
@@ -2280,7 +2292,7 @@ msgstr "لون التعبئة"
 #: translate_tmp.pl:454
 #: translate_tmp.pl:455
 msgid "Adjust fill color and opacity"
-msgstr "عدل لون التعبئة والشفافية"
+msgstr "عدّل لون التعبئة والإعتام"
 
 #: translate_tmp.pl:461
 #: translate_tmp.pl:4033
@@ -2397,7 +2409,7 @@ msgstr "أنقر لإضافة شكل يزداد تلقائياً."
 #: translate_tmp.pl:1223
 #, perl-format
 msgid "Save the changes to image %s before closing?"
-msgstr "احفظ التغييرات للصورة %s قبل الإغلاق؟"
+msgstr "أترغب بحفظ التغييرات إلى صورة \"%s\" قبل الإغلاق؟"
 
 #: translate_tmp.pl:1239
 msgid "Close"
@@ -2497,11 +2509,11 @@ msgstr "طول القمة."
 
 #: translate_tmp.pl:4163
 msgid "Display an arrow at the end of the line"
-msgstr "أعرض سهم في نهاية الخط."
+msgstr "عرض سهم في نهاية الخط"
 
 #: translate_tmp.pl:4165
 msgid "Display an arrow at the start of the line"
-msgstr "أعرض سهم في بداية الخط."
+msgstr "عرض سهم في بداية الخط"
 
 #: translate_tmp.pl:4190
 #: translate_tmp.pl:5992

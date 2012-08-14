@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-11-20 21:55+0100\n"
-"PO-Revision-Date: 2012-03-10 15:25+0000\n"
+"PO-Revision-Date: 2012-08-05 16:40+0000\n"
 "Last-Translator: tuxmaniack <Unknown>\n"
 "Language-Team: Latvian <lv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n != 0 ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-07-29 21:56+0000\n"
-"X-Generator: Launchpad (build 15694)\n"
+"X-Launchpad-Export-Date: 2012-08-14 17:44+0000\n"
+"X-Generator: Launchpad (build 15801)\n"
 
 #: translate_tmp.pl:388
 #: translate_tmp.pl:2574
@@ -99,11 +99,11 @@ msgstr "Uzņemt"
 
 #: translate_tmp.pl:918
 msgid "Selection Capture"
-msgstr "Iezīmētā reģiona uzņemšana"
+msgstr "Iezīmējuma uzņemšana"
 
 #: translate_tmp.pl:925
 msgid "Advanced Selection Capture"
-msgstr "Paplašinātā iezīmētā reģiona uzņemšana"
+msgstr "Paplašinātā iezīmējuma uzņemšana"
 
 #: translate_tmp.pl:932
 msgid "Window Capture"
@@ -378,7 +378,7 @@ msgstr "Ieslēgt tālummaiņas logu"
 
 #: translate_tmp.pl:1523
 msgid "Start with selection size of"
-msgstr "Sākt ar iezīmētā laukuma lielumu"
+msgstr "Sākt ar iezīmējuma lielumu"
 
 #: translate_tmp.pl:1525
 msgid "at"
@@ -395,7 +395,7 @@ msgstr "uz"
 #: translate_tmp.pl:1563
 #: translate_tmp.pl:1564
 msgid "Start Advanced Selection Tool with a customized selection size"
-msgstr "Sākt paplašināto iezīmētā reģiona uzņemšanu ar pielāgotu izmēru"
+msgstr "Sākt paplašināto iezīmējuma uzņemšanu ar pielāgotu izmēru"
 
 #: translate_tmp.pl:1582
 msgid "Show help text"
@@ -586,7 +586,7 @@ msgstr ""
 #: translate_tmp.pl:220
 #: translate_tmp.pl:802
 msgid "Selection"
-msgstr "Iezīmētais"
+msgstr "Iezīmējums"
 
 #: translate_tmp.pl:1930
 msgid "Select Window"
@@ -716,7 +716,7 @@ msgstr "Aizverot cilni izmest failu miskastē"
 #: translate_tmp.pl:2035
 #: translate_tmp.pl:2174
 msgid "Notify when file was deleted from filesystem"
-msgstr "Paziņot, ja fails ir ticis izdzēsts"
+msgstr "Paziņot, ja fails ir dzēsts no failu sistēmas"
 
 #: translate_tmp.pl:2093
 #: translate_tmp.pl:2094
@@ -1288,7 +1288,7 @@ msgstr "Uzņemt pēdējo aktīvo logu"
 #: translate_tmp.pl:8486
 #: translate_tmp.pl:403
 msgid "_Selection"
-msgstr "Iezīmētai_s"
+msgstr "Iezīmējum_s"
 
 #: translate_tmp.pl:8512
 #: translate_tmp.pl:429
@@ -1336,11 +1336,11 @@ msgstr "_Ātrā profila atlase"
 
 #: translate_tmp.pl:8704
 msgid "Advanced selection tool"
-msgstr "Paplašinātais iezīmētā reģiona uzņemšanas rīks"
+msgstr "Paplašinātais iezīmēšanas rīks"
 
 #: translate_tmp.pl:8707
 msgid "Simple selection tool"
-msgstr "Iezīmētā reģiona uzņemšanas rīks"
+msgstr "Vienkāršais iezīmēšanas rīks"
 
 #: translate_tmp.pl:8724
 msgid ""
@@ -1348,16 +1348,15 @@ msgid ""
 "selected area\n"
 "until you finally take the screenshot."
 msgstr ""
-"Paplašinātais iezīmētā reģiona uzņemšanas rīks ļauj palielināt/samazināt vai "
-"pārvietot iezīmēto apgabalu, pirms tiek veikts ekrānuzņēmums."
+"Paplašinātais iezīmešanas rīks ļauj palielināt/samazināt vai pārvietot "
+"iezīmēto apgabalu, pirms tiek veikts ekrānuzņēmums."
 
 #: translate_tmp.pl:8727
 msgid ""
 "The simple selection tool is the fastest way of taking a screenshot.\n"
 "It provides an optional zoom window for precise shots."
 msgstr ""
-"Vienkāršais iezīmētā reģiona uzņemšanas rīks ir ātrākais veids, kā veikt "
-"ekrānuzņēmumu.\n"
+"Vienkāršais iezīmešanas rīks ir ātrākais veids, kā veikt ekrānuzņēmumu.\n"
 "Tas nodrošina, opcionālu tālummaiņas logu precīzai uzņemšanai."
 
 #: translate_tmp.pl:8855
@@ -1397,13 +1396,13 @@ msgid_plural ""
 "aborting the process if it's taking too long"
 msgstr[0] ""
 "Shutter gaidīs līdz pat %d sekundi, lai uzņemtu ekrānuzņēmumu, pirms "
-"pārtrauks procesu, ja tas aizņem pārāk ilgu laiku."
+"pārtrauks procesu, ja tas aizņem pārāk ilgu laiku"
 msgstr[1] ""
 "Shutter gaidīs līdz pat %d sekundēm, lai uzņemtu ekrānuzņēmumu, pirms "
-"pārtrauks procesu, ja tas aizņem pārāk ilgu laiku."
+"pārtrauks procesu, ja tas aizņem pārāk ilgu laiku"
 msgstr[2] ""
 "Shutter gaidīs līdz pat %d sekunžu, lai uzņemtu ekrānuzņēmumu, pirms "
-"pārtrauks procesu, ja tas aizņem pārāk ilgu laiku."
+"pārtrauks procesu, ja tas aizņem pārāk ilgu laiku"
 
 #: translate_tmp.pl:8870
 #: translate_tmp.pl:8871
@@ -1416,13 +1415,13 @@ msgid_plural ""
 "aborting the process if it's taking too long"
 msgstr[0] ""
 "Shutter gaidīs līdz pat %d minūti, lai uzņemtu ekrānuzņēmumu, pirms "
-"pārtrauks procesu, ja tas aizņem pārāk ilgu laiku."
+"pārtrauks procesu, ja tas aizņem pārāk ilgu laiku"
 msgstr[1] ""
 "Shutter gaidīs līdz pat %d minūtēm, lai uzņemtu ekrānuzņēmumu, pirms "
-"pārtrauks procesu, ja tas aizņem pārāk ilgu laiku."
+"pārtrauks procesu, ja tas aizņem pārāk ilgu laiku"
 msgstr[2] ""
 "Shutter gaidīs līdz pat %d minūšu, lai uzņemtu ekrānuzņēmumu, pirms "
-"pārtrauks procesu, ja tas aizņem pārāk ilgu laiku."
+"pārtrauks procesu, ja tas aizņem pārāk ilgu laiku"
 
 #: translate_tmp.pl:9024
 msgid "Host"
@@ -2076,8 +2075,8 @@ msgid ""
 "Set how long Shutter will wait for the screenshot to complete before "
 "aborting the process if it's taking too long"
 msgstr ""
-"Uzstādiet, cik ilgi Shutter gaidīs, lai uzņemtu ekrānuzņēmumu, pirms "
-"pārtrauks procesu, ja tas aizņem pārāk ilgu laiku."
+"Iestatiet, cik ilgi Shutter jāgaida, kamēr tiek pabeigts ekrānuzņēmums, "
+"pirms pārtraukt procesu, ja tas aizņem pārāk ilgu laiku"
 
 #: translate_tmp.pl:234
 msgid "Edit"
@@ -2175,7 +2174,7 @@ msgstr "Augšupielādēt - %s - %s"
 
 #: translate_tmp.pl:121
 msgid "Draw a rectangular area using the mouse."
-msgstr "Uzzīmējiet taisnstūrveida apgabalu, izmantojot peli."
+msgstr "Iezīmējiet taisnstūrveida apgabalu ar peli."
 
 #: translate_tmp.pl:124
 msgid "To take a screenshot, press the Enter key. Press Esc to quit."
@@ -2211,8 +2210,7 @@ msgstr "<b>kursortaustiņi + ctrl</b> → mainīt iezīmējuma lielumu"
 msgid ""
 "Maybe mouse pointer could not be grabbed or the selected area is invalid."
 msgstr ""
-"Iespējams peles rādītāju neizdevās satvert vai atlasītais apgabals ir "
-"nederīgs."
+"Varbūt peles kursoru nevar satvert vai izvēlētais apgabals ir nederīgs."
 
 #: translate_tmp.pl:96
 msgid "Keyboard could not be grabbed."
