@@ -15,7 +15,12 @@ Terminal=false
 Type=Application
 Categories=Utility;
 MimeType=image/bmp;image/jpeg;image/gif;image/png;image/tiff;image/x-bmp;image/x-ico;image/x-png;image/x-pcx;image/x-tga;image/xpm;image/svg+xml;
-X-Ayatana-Desktop-Shortcuts=Select;Screen;Window;Active
+X-Ayatana-Desktop-Shortcuts=X-Redo;X-Select;X-Screen;X-Window;X-Active
+
+[X-Redo Shortcut Group]
+Name=Redo last screenshot
+Exec=shutter --redo
+OnlyShowIn=Unity
 
 [X-Select Shortcut Group]
 Name=Capture an area of the screen
