@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1231';
+use constant SHUTTER_REV     => 'Rev.1232';
 use constant SHUTTER_NAME    => 'Shutter';
 use constant SHUTTER_VERSION => '0.89.2';
 
@@ -8846,7 +8846,13 @@ if ($app->is_running) {
 			'tray_web'
 		);
 
-		#preferences	
+		#show main window
+		my $menuitem_show_window = Gtk2::MenuItem->new_with_mnemonic( $d->get('Show _main window') );
+		$menuitem_show_window->signal_connect( 'activate', \&fct_control_main_window, 'redoshot' );
+		$menuitem_show_window->set_name('show_window');
+		$menuitem_show_window->set_sensitive(TRUE);
+
+		#redo last screenshot
 		my $menuitem_redoshot = Gtk2::ImageMenuItem->new_with_mnemonic ( $d->get('_Redo last screenshot') );
 		$menuitem_redoshot->set_image(Gtk2::Image->new_from_stock('gtk-refresh', 'menu'));
 		$menuitem_redoshot->signal_connect( 'activate', \&evt_take_screenshot, 'redoshot' );
@@ -8871,6 +8877,8 @@ if ($app->is_running) {
 		my $menuitem_quit = Gtk2::ImageMenuItem->new_from_stock( 'gtk-quit' );
 		$menuitem_quit->signal_connect( "activate", \&evt_delete_window, 'quit' );
 
+		$menu_tray->append($menuitem_show_window);
+		$menu_tray->append( Gtk2::SeparatorMenuItem->new );	
 		$menu_tray->append($menuitem_redoshot);
 		$menu_tray->append( Gtk2::SeparatorMenuItem->new );	
 		$menu_tray->append($menuitem_select);
