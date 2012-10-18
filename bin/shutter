@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1232';
+use constant SHUTTER_REV     => 'Rev.1233';
 use constant SHUTTER_NAME    => 'Shutter';
 use constant SHUTTER_VERSION => '0.89.2';
 
@@ -8847,8 +8847,8 @@ if ($app->is_running) {
 		);
 
 		#show main window
-		my $menuitem_show_window = Gtk2::MenuItem->new_with_mnemonic( $d->get('Show _main window') );
-		$menuitem_show_window->signal_connect( 'activate', \&fct_control_main_window, 'redoshot' );
+		my $menuitem_show_window = Gtk2::MenuItem->new_with_mnemonic( $d->get('S_how main window') );
+		$menuitem_show_window->signal_connect( 'activate', sub { $is_hidden = TRUE; &fct_control_main_window('show'); } );
 		$menuitem_show_window->set_name('show_window');
 		$menuitem_show_window->set_sensitive(TRUE);
 
