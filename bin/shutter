@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1235';
+use constant SHUTTER_REV     => 'Rev.1236';
 use constant SHUTTER_NAME    => 'Shutter';
 use constant SHUTTER_VERSION => '0.89.2';
 
@@ -4586,6 +4586,8 @@ if ($app->is_running) {
 		$settings{'general'}->{'quality'}			= $scale->get_value();
 		$settings{'general'}->{'filename'}			= $filename->get_text();
 		$settings{'general'}->{'folder'}			= $saveDir_button->get_filename();
+		print "Pfad ".$saveDir_button->get_filename()."\n";
+		print "Pfad ".$saveDir_button->get_uri()."\n";
 		$settings{'general'}->{'save_auto'}			= $save_auto_active->get_active();
 		$settings{'general'}->{'save_ask'}			= $save_ask_active->get_active();
 		$settings{'general'}->{'save_no'}			= $save_no_active->get_active();
