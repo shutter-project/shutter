@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1238';
+use constant SHUTTER_REV     => 'Rev.1239';
 use constant SHUTTER_NAME    => 'Shutter';
 use constant SHUTTER_VERSION => '0.90';
 
@@ -873,8 +873,6 @@ if ($app->is_running) {
 	$st->{_redoshot}->signal_connect( 'clicked' => \&evt_take_screenshot, 'redoshot' );
 	$st->{_redoshot}->set_sensitive(FALSE);
 
-	my ( $tool_advanced, $tool_simple ) = undef;
-	$st->{_select}->set_menu(&fct_ret_sel_menu);
 	$st->{_select}->signal_connect( 'clicked' => \&evt_take_screenshot, 'select' );
 
 	my $current_monitor_active = undef;
@@ -4421,11 +4419,6 @@ if ($app->is_running) {
 		#wrksp -> submenu
 		$settings{'general'}->{'current_monitor_active'} = $current_monitor_active->get_active;
 
-		$settings{'general'}->{'selection_tool'} = 1
-			if $tool_advanced->get_active;
-		$settings{'general'}->{'selection_tool'} = 2
-			if $tool_simple->get_active;
-
 		#determining timeout
 		if($gnome_web_photo){
 			my $web_menu = $st->{_web}->get_menu;
@@ -4653,12 +4646,6 @@ if ($app->is_running) {
 
 					#wrksp -> submenu
 					$current_monitor_active->set_active( $settings_xml->{'general'}->{'current_monitor_active'} );
-
-					#selection tool -> submenu
-					$tool_advanced->set_active(TRUE)
-						if $settings_xml->{'general'}->{'selection_tool'} == 1;
-					$tool_simple->set_active(TRUE)
-						if $settings_xml->{'general'}->{'selection_tool'} == 2;
 
 					#determining timeout
 					my $web_menu = $st->{_web}->get_menu;
@@ -5988,31 +5975,18 @@ if ($app->is_running) {
 						
 			} else {
 
-				if ( $tool_advanced->get_active ) {
-					
-					$screenshooter = Shutter::Screenshot::SelectorAdvanced->new( 
-						$sc, $include_cursor, 
-						$delay_value, $notify_timeout_active->get_active, 
-						$zoom_active->get_active, $hide_time->get_value,
-						$as_help_active->get_active,
-						$view, $selector, $dragger,
-						$asel_size3->get_value, $asel_size4->get_value,
-						$asel_size1->get_value, $asel_size2->get_value,
-					);
-					
-					$screenshot = $screenshooter->select_advanced();
-					
-				} else {
-					
-					$screenshooter = Shutter::Screenshot::SelectorSimple->new( 
-						$sc, $include_cursor, $delay_value, $notify_timeout_active->get_active, 
-						$zoom_active->get_active, $hide_time->get_value,
-					);
-					
-					$screenshot = $screenshooter->select_simple();
-
-				}
+				$screenshooter = Shutter::Screenshot::SelectorAdvanced->new( 
+					$sc, $include_cursor, 
+					$delay_value, $notify_timeout_active->get_active, 
+					$zoom_active->get_active, $hide_time->get_value,
+					$as_help_active->get_active,
+					$view, $selector, $dragger,
+					$asel_size3->get_value, $asel_size4->get_value,
+					$asel_size1->get_value, $asel_size2->get_value,
+				);
 				
+				$screenshot = $screenshooter->select_advanced();
+									
 			}
 			
 		#web
@@ -8506,41 +8480,6 @@ if ($app->is_running) {
 		$menu_tray->show_all;
 
 		return $menu_tray;
-	}
-
-	sub fct_ret_sel_menu {
-
-		my $menu_sel = Gtk2::Menu->new;
-
-		#advanced tool
-		$tool_advanced = Gtk2::RadioMenuItem->new( undef, $d->get("Advanced selection tool") );
-
-		#simple tool
-		$tool_simple = Gtk2::RadioMenuItem->new( $tool_advanced, $d->get("Simple selection tool") );
-
-		$menu_sel->append($tool_advanced);
-		$menu_sel->append($tool_simple);
-
-		#set saved/default settings
-		if ( defined $settings_xml->{'general'}->{'selection_tool'} ) {
-			if ( $settings_xml->{'general'}->{'selection_tool'} == 1 ) {
-				$tool_advanced->set_active(TRUE);
-			} elsif ( $settings_xml->{'general'}->{'selection_tool'} == 2 ) {
-				$tool_simple->set_active(TRUE);
-			}
-		} else {
-			$tool_advanced->set_active(TRUE);
-		}
-		
-		$tooltips->set_tip( $tool_advanced,
-			$d->get("The advanced selection tool allows you to enlarge/shrink or move your selected area\nuntil you finally take the screenshot.") );
-
-		$tooltips->set_tip( $tool_simple,
-			$d->get("The simple selection tool is the fastest way of taking a screenshot.\nIt provides an optional zoom window for precise shots.") );
-
-		$menu_sel->show_all;
-
-		return $menu_sel;
 	}
 
 	sub fct_ret_program_menu {

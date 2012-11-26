@@ -85,7 +85,7 @@ sub create_toolbar {
 		}
 	}
 		
-	$self->{_select} = Gtk2::MenuToolButton->new( $image_select, $d->get("Selection") );
+	$self->{_select} = Gtk2::ToolButton->new( $image_select, $d->get("Selection") );
 	#The GtkToolButton class uses this property to determine whether 
 	#to show or hide its label when the toolbar style is GTK_TOOLBAR_BOTH_HORIZ. 
 	#The result is that only tool buttons with the 
@@ -93,7 +93,6 @@ sub create_toolbar {
 	$self->{_select}->set_is_important (TRUE);
 
 	$tooltips->set_tip( $self->{_select}, $d->get("Draw a rectangular capture area with your mouse\nto select a specified screen area"), '' );
-	$self->{_select}->set_arrow_tooltip( $tooltips, $d->get("Choose selection tool"), '' );
 
 	#--------------------------------------
 
