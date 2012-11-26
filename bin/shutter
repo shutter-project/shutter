@@ -101,9 +101,9 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1237';
+use constant SHUTTER_REV     => 'Rev.1238';
 use constant SHUTTER_NAME    => 'Shutter';
-use constant SHUTTER_VERSION => '0.89.2';
+use constant SHUTTER_VERSION => '0.90';
 
 #--------------------------------------
 
@@ -755,14 +755,9 @@ if ($app->is_running) {
 	my $delay_box				= Gtk2::HBox->new( FALSE, 0 );
 	my $cursor_box			= Gtk2::HBox->new( FALSE, 0 );
 
-	#keybindings
+
 	my $sel_capture_vbox		= Gtk2::VBox->new( FALSE, 0 );
 	my $asel_capture_vbox	= Gtk2::VBox->new( FALSE, 0 );
-
-	my $keybinding_mode_box	= Gtk2::HBox->new( TRUE,  0 );
-	my $keybinding_hint_box	= Gtk2::HBox->new( TRUE,  0 );
-	my $key_box				= Gtk2::HBox->new( FALSE, 0 );
-	my $key_sel_box			= Gtk2::HBox->new( FALSE, 0 );
 
 	#actions
 	my $actions_vbox			= Gtk2::VBox->new( FALSE, 0 );
@@ -2023,124 +2018,6 @@ if ($app->is_running) {
 	#end - imageview
 	#--------------------------------------
 
-	#keybindings
-	#--------------------------------------
-	my $capture_key = Gtk2::Entry->new;
-	if ( defined $settings_xml->{'general'}->{'capture_key'} ) {
-		$capture_key->set_text( $settings_xml->{'general'}->{'capture_key'} );
-	} else {
-		$capture_key->set_text("Print");
-	}
-	my $capture_label = Gtk2::Label->new( $d->get("Capture") . ":" );
-	$tooltips->set_tip(
-		$capture_key,
-		$d->get(
-			"Configure global keybinding for capture\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
-		)
-	);
-	$tooltips->set_tip(
-		$capture_label,
-		$d->get(
-			"Configure global keybinding for capture\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
-		)
-	);
-	my $capture_sel_key = Gtk2::Entry->new;
-	if ( defined $settings_xml->{'general'}->{'capture_sel_key'} ) {
-		$capture_sel_key->set_text( $settings_xml->{'general'}->{'capture_sel_key'} );
-	} else {
-		$capture_sel_key->set_text("<Alt>Print");
-	}
-
-	my $capture_sel_label = Gtk2::Label->new( $d->get("Capture with selection") . ":" );
-	$tooltips->set_tip(
-		$capture_sel_key,
-		$d->get(
-			"Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
-		)
-	);
-	$tooltips->set_tip(
-		$capture_sel_label,
-		$d->get(
-			"Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
-		)
-	);
-
-	#keybinding_mode
-	my $combobox_keybinding_mode = Gtk2::ComboBox->new_text;
-	$combobox_keybinding_mode->insert_text( 0, $d->get("Selection") );
-	$combobox_keybinding_mode->insert_text( 1, $d->get("Select Window") );
-	$combobox_keybinding_mode->insert_text( 2, $d->get("Active Window") );
-	$combobox_keybinding_mode->insert_text( 3, $d->get("Section") );
-	$combobox_keybinding_mode->insert_text( 4, $d->get("Menu") );
-	$combobox_keybinding_mode->insert_text( 5, $d->get("Tooltip") );
-	$combobox_keybinding_mode->insert_text( 6, $d->get("Web") );
-	$combobox_keybinding_mode->insert_text( 7, $d->get("Redo") );
-
-	if ( defined $settings_xml->{'general'}->{'keybinding_mode'} ) {
-		$combobox_keybinding_mode->set_active( $settings_xml->{'general'}->{'keybinding_mode'} );
-	} else {
-		$combobox_keybinding_mode->set_active(1);
-	}
-	$tooltips->set_tip(
-		$combobox_keybinding_mode,
-		$d->get(
-			"Configure global keybinding for capture with selection\nThe format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is fairly liberal and allows lower or upper case, and also abbreviations such as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string \"disabled\", then there will be no keybinding for this action. "
-		)
-	);
-
-	$keybinding_mode_box->pack_start( Gtk2::Label->new,          FALSE, FALSE, 0 );
-	$keybinding_mode_box->pack_start( $combobox_keybinding_mode, TRUE,  TRUE,  0 );
-
-	my $keybinding_hint = Gtk2::Label->new;
-	$keybinding_hint->set_line_wrap(TRUE);
-	if ( Gtk2->CHECK_VERSION( 2, 9, 0 ) ) {
-		$keybinding_hint->set_line_wrap_mode('word-char');
-	}	
-	$keybinding_hint->set_alignment( 0, 0.5 );
-
-	$keybinding_hint->set_markup(
-		"<span size='small'>" . 
-			$d->get("<b>Please note:</b> Make sure to activate <i>Gnome Compatibility</i> and <i>D-Bus Control Backend</i> via CompizConfig Settings Manager if your are using Desktop Effects or Unity.")
-		. "</span>");	
-
-	$keybinding_hint_box->pack_start( $keybinding_hint, TRUE,  TRUE,  6 );
-
-	my $keybinding_active = Gtk2::CheckButton->new;
-	my $keybinding_sel_active = Gtk2::CheckButton->new;
-
-	$key_box->pack_start( $capture_label, FALSE, TRUE, 12 );
-	$key_box->pack_start( $keybinding_active, FALSE, FALSE, 0 );
-	$key_box->pack_start( $capture_key, TRUE, TRUE, 0 );
-	$key_sel_box->pack_start( $capture_sel_label, FALSE, TRUE, 12 );
-	$key_sel_box->pack_start( $keybinding_sel_active, FALSE, FALSE, 0 );
-	$key_sel_box->pack_start( $capture_sel_key, TRUE, TRUE, 0 );
-	$keybinding_active->set_active(TRUE);
-
-	#add signal handlers BEFORE settings are restored
-	$keybinding_active->signal_connect(
-		'toggled' => \&evt_behavior_handle,
-		'keybinding_toggled'
-	);
-
-	$keybinding_sel_active->signal_connect(
-		'toggled' => \&evt_behavior_handle,
-		'keybinding_sel_toggled'
-	);
-
-	if ( defined $settings_xml->{'general'}->{'keybinding'} ) {
-		$keybinding_active->set_active( $settings_xml->{'general'}->{'keybinding'} );
-	} else {
-		$keybinding_active->set_active(FALSE);
-	}
-	$keybinding_sel_active->set_active(TRUE);
-	if ( defined $settings_xml->{'general'}->{'keybinding_sel'} ) {
-		$keybinding_sel_active->set_active( $settings_xml->{'general'}->{'keybinding_sel'} );
-	} else {
-		$keybinding_sel_active->set_active(FALSE);
-	}
-	#end - keybindings
-	#--------------------------------------
-
 	#behavior
 	#--------------------------------------
 	my $fs_active		= Gtk2::CheckButton->new_with_label( $d->get("Start Shutter at login") );
@@ -2613,27 +2490,6 @@ if ($app->is_running) {
 	$vbox_behavior->pack_start( $trash_frame, FALSE, TRUE, 3 );
 	$vbox_behavior->set_border_width(5);
 
-	#settings keyboard tab
-	my $label_keyboard = Gtk2::Label->new;
-	$label_keyboard->set_markup( $d->get("Keyboard") );
-
-	#all labels = one size
-	$capture_label->set_alignment( 0, 0.5 );
-	$capture_sel_label->set_alignment( 0, 0.5 );
-
-	my $sg_key = Gtk2::SizeGroup->new('horizontal');
-	$sg_key->add_widget($capture_label);
-	$sg_key->add_widget($capture_sel_label);
-
-	$keybinding_vbox->pack_start( $key_box,             FALSE, TRUE, 3 );
-	$keybinding_vbox->pack_start( $key_sel_box,         FALSE, TRUE, 3 );
-	$keybinding_vbox->pack_start( $keybinding_mode_box, FALSE, TRUE, 3 );
-	$keybinding_vbox->pack_start( $keybinding_hint_box, FALSE, TRUE, 3 );
-	$keybinding_frame->add($keybinding_vbox);
-
-	$vbox_keyboard->pack_start( $keybinding_frame, FALSE, TRUE, 3 );
-	$vbox_keyboard->set_border_width(5);
-
 	#settings upload tab
 	my $label_accounts = Gtk2::Label->new;
 	$label_accounts->set_markup( $d->get("Upload") );
@@ -2681,7 +2537,6 @@ if ($app->is_running) {
 	$notebook_settings->append_page( $vbox_actions, $label_actions );
 	$notebook_settings->append_page( $vbox_imageview, $label_imageview );
 	$notebook_settings->append_page( $vbox_behavior, $label_behavior );
-	$notebook_settings->append_page( $vbox_keyboard, $label_keyboard );
 	$notebook_settings->append_page( $vbox_accounts, $label_accounts );
 
 	#plugins
@@ -3202,34 +3057,6 @@ if ($app->is_running) {
 		return TRUE;
 	}
 
-	sub evt_behavior_handle {
-		my ( $widget, $data ) = @_;
-		print "\n$data was emitted by widget $widget\n"
-			if $sc->get_debug;
-
-		#checkbox for "keybinding" -> entry active/inactive
-		if ( $data eq "keybinding_toggled" ) {
-			if ( $keybinding_active->get_active ) {
-				$capture_key->set_sensitive(TRUE);
-			} else {
-				$capture_key->set_sensitive(FALSE);
-			}	
-		}
-
-		#checkbox for "keybinding_sel" -> entry active/inactive
-		if ( $data eq "keybinding_sel_toggled" ) {
-			if ( $keybinding_sel_active->get_active ) {
-				$capture_sel_key->set_sensitive(TRUE);
-				$combobox_keybinding_mode->set_sensitive(TRUE);
-			} else {
-				$capture_sel_key->set_sensitive(FALSE);
-				$combobox_keybinding_mode->set_sensitive(FALSE);
-			}
-		}
-			
-		return TRUE;
-	}
-
 	sub evt_notebook_switch {
 		my ( $widget, $pointer, $int ) = @_;
 
@@ -3321,9 +3148,6 @@ if ($app->is_running) {
 			&fct_save_settings(undef);
 			&fct_save_settings($combobox_settings_profiles->get_active_text) 
 				if $combobox_settings_profiles->get_active != -1;
-
-			#keybindings
-			&fct_save_bindings($capture_key->get_text, $capture_sel_key->get_text);	
 
 			#autostart
 			$sas->create_autostart_file($sdir->get_autostart_dir, $fs_active->get_active, $fs_min_active->get_active, $fs_nonot_active->get_active);
@@ -3855,9 +3679,6 @@ if ($app->is_running) {
 		&fct_save_settings($combobox_settings_profiles->get_active_text) 
 			if $combobox_settings_profiles->get_active != -1;
 
-		#keybindings
-		&fct_save_bindings($capture_key->get_text, $capture_sel_key->get_text);	
-
 		#autostart
 		$sas->create_autostart_file($sdir->get_autostart_dir, $fs_active->get_active, $fs_min_active->get_active, $fs_nonot_active->get_active);
 		
@@ -3948,9 +3769,9 @@ if ($app->is_running) {
 				&fct_update_profile_selectors($combobox_settings_profiles, $current_profiles_ref);
 
 			}
+			#save settings
 			&fct_save_settings($new_profile_name);
-			#keybindings
-			&fct_save_bindings($capture_key->get_text, $capture_sel_key->get_text);	
+
 			#autostart
 			$sas->create_autostart_file($sdir->get_autostart_dir, $fs_active->get_active, $fs_min_active->get_active, $fs_nonot_active->get_active);			
 		}
@@ -4586,8 +4407,8 @@ if ($app->is_running) {
 		$settings{'general'}->{'quality'}			= $scale->get_value();
 		$settings{'general'}->{'filename'}			= $filename->get_text();
 		$settings{'general'}->{'folder'}			= $saveDir_button->get_filename();
-		print "Pfad ".$saveDir_button->get_filename()."\n";
-		print "Pfad ".$saveDir_button->get_uri()."\n";
+		#~ print "Pfad ".$saveDir_button->get_filename()."\n";
+		#~ print "Pfad ".$saveDir_button->get_uri()."\n";
 		$settings{'general'}->{'save_auto'}			= $save_auto_active->get_active();
 		$settings{'general'}->{'save_ask'}			= $save_ask_active->get_active();
 		$settings{'general'}->{'save_no'}			= $save_no_active->get_active();
@@ -4684,13 +4505,6 @@ if ($app->is_running) {
 		$settings{'general'}->{'delete_on_close'}  = $delete_on_close_active->get_active();
 		$settings{'general'}->{'ask_on_fs_delete'} = $ask_on_fs_delete_active->get_active();
 
-		#keybindings
-		$settings{'general'}->{'keybinding'}       = $keybinding_active->get_active();
-		$settings{'general'}->{'keybinding_sel'}   = $keybinding_sel_active->get_active();
-		$settings{'general'}->{'keybinding_mode'}  = $combobox_keybinding_mode->get_active();
-		$settings{'general'}->{'capture_key'}      = $capture_key->get_text();
-		$settings{'general'}->{'capture_sel_key'}  = $capture_sel_key->get_text();
-
 		#ftp upload
 		$settings{'general'}->{'ftp_uri'}      = $ftp_remote_entry->get_text();
 		$settings{'general'}->{'ftp_mode'}     = $ftp_mode_combo->get_active();
@@ -4777,207 +4591,6 @@ if ($app->is_running) {
 		};
 		if ($@) {
 			$sd->dlg_error_message( $@, $d->get("Account-settings could not be saved!") );
-		}
-
-		return TRUE;
-	}
-
-	sub fct_save_bindings {
-		my $key 	= shift;
-		my $skey 	= shift;
-		
-		my $error = 0;
-		
-		#convert some abbreviations
-		#so they are accepted by compiz-settings-manager
-		$key =~ s/(Ctrl|Ctl)/Control/gi;
-		$skey =~ s/(Ctrl|Ctl)/Control/gi;
-
-		#construct mode string
-		my $mode = undef;
-		if ( $combobox_keybinding_mode->get_active() == 0 ) {
-			$mode = "--select";
-		} elsif ( $combobox_keybinding_mode->get_active() == 1 ) {
-			$mode = "--window";
-		} elsif ( $combobox_keybinding_mode->get_active() == 2 ) {
-			$mode = "--active";
-		} elsif ( $combobox_keybinding_mode->get_active() == 3 ) {
-			$mode = "--section";
-		} elsif ( $combobox_keybinding_mode->get_active() == 4 ) {
-			$mode = "--menu";
-		} elsif ( $combobox_keybinding_mode->get_active() == 5 ) {
-			$mode = "--tooltip";
-		} elsif ( $combobox_keybinding_mode->get_active() == 6 ) {
-			$mode = "--web";
-		} elsif ( $combobox_keybinding_mode->get_active() == 7 ) {
-			$mode = "--redo";
-		}
-		
-		#COMPIZ VIA DBus	
-		my $bus		= undef;
-		my $compiz 	= undef;
-		my $cs 		= undef;
-		my $cs_k  	= undef;
-		my $cws     = undef;
-		my $cws_k  	= undef;
-		
-		eval{
-			$bus = Net::DBus->find;
-			
-			#Get a handle to the compiz service
-			$compiz = $bus->get_service("org.freedesktop.compiz");
-	
-			#Get the relevant objects object
-			$cs = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/command_screenshot",
-										 "org.freedesktop.compiz");
-			
-			$cs_k = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/run_command_screenshot_key",
-										 "org.freedesktop.compiz");
-	
-			$cws = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/command_window_screenshot",
-										 "org.freedesktop.compiz");
-			
-			$cws_k = $compiz->get_object("/org/freedesktop/compiz/gnomecompat/allscreens/run_command_window_screenshot_key",
-										 "org.freedesktop.compiz");
-		};
-		if($@){
-			warn "WARNING: DBus connection to org.freedesktop.compiz failed --> setting keyboard shortcuts may not work when using compiz\n\n";
-			warn $@ . "\n\n";
-		}
-		
-		#check if gnomecompat is activated
-		eval{
-			if(defined $cws && defined $cws_k){
-				$cs->get;
-			}			
-		};
-		if($@){
-			warn "WARNING: gnomecompat is disabled --> setting keyboard shortcuts may not work when using compiz\n\n";
-			warn $@ . "\n\n";
-			$cs    = undef;
-			$cs_k  = undef;
-			$cws   = undef;
-			$cws_k = undef;
-			$error = 3;	
-		}
-
-		#GCONF
-		my $client = Gnome2::GConf::Client->get_default;
-
-		#global error handler function catch just the unchecked error
-		$client->set_error_handling('handle-unreturned');
-		$client->signal_connect(unreturned_error => sub {
-			my ($client, $error) = @_;
-			warn $error; # is a Glib::Error
-		});	
-		
-		my $shortcut_full = "/apps/metacity/global_keybindings/run_command_screenshot";
-		my $shortcut_sel  = "/apps/metacity/global_keybindings/run_command_window_screenshot";
-		my $command_full  = "/apps/metacity/keybinding_commands/command_screenshot";
-		my $command_sel   = "/apps/metacity/keybinding_commands/command_window_screenshot";
-
-		eval{
-			#set values
-			if ( $keybinding_active->get_active() ) {
-				
-				$client->set( $command_full, { type => 'string', value => "$shutter_path --full" } );
-				$client->set( $shortcut_full, { type  => 'string', value => $key } );
-				
-				#compiz if not updated automatically (GConf Backend)
-				if(defined $cs && defined $cs_k){
-					unless($cs->get eq "$shutter_path --full"){ 
-						$cs->set(dbus_string "$shutter_path --full");
-					}
-					unless($cs_k->get eq $key){ 
-						$cs_k->set(dbus_string $key);
-					}					
-				}
-				
-			} else {
-				
-				$client->set( $command_full,  { type => 'string', value => 'gnome-screenshot', } );
-				$client->set( $shortcut_full, { type => 'string', value => 'Print', } );
-
-				#compiz if not updated automatically (GConf Backend)
-				if(defined $cs && defined $cs_k){
-					unless($cs->get eq 'gnome-screenshot'){ 
-						$cs->set(dbus_string 'gnome-screenshot');
-					}
-					unless($cs_k->get eq 'Print'){ 
-						$cs_k->set(dbus_string 'Print');
-					}
-				}	
-
-			}
-			
-			if ( $keybinding_sel_active->get_active() ) {
-								
-				$client->set( $command_sel, { type  => 'string', value => "$shutter_path $mode" } );
-				$client->set( $shortcut_sel, { type  => 'string', value => $skey } );
-				
-				#compiz if not updated automatically (GConf Backend)
-				if(defined $cws && defined $cws_k){
-					unless($cws->get eq "$shutter_path $mode"){ 
-						$cws->set(dbus_string "$shutter_path $mode");
-					}
-					unless($cws_k->get eq "$skey"){ 
-						$cws_k->set(dbus_string "$skey");
-					}
-				}
-
-			} else {
-				
-				$client->set( $command_sel, { type  => 'string', value => 'gnome-screenshot --window' } );
-				$client->set( $shortcut_sel, { type => 'string', value => '<Alt>Print' } );
-				
-				#compiz if not updated automatically (GConf Backend)
-				if(defined $cws && defined $cws_k){
-					unless($cws->get eq 'gnome-screenshot --window'){
-						$cws->set(dbus_string 'gnome-screenshot --window');
-					}
-					unless($cws_k->get eq '<Alt>Print'){
-						$cws_k->set(dbus_string '<Alt>Print');
-					}
-				}	
-				
-			}
-
-		};
-
-		#check values again and show error dialog when something went wrong
-		if ( $keybinding_active->get_active() ) {
-			if(defined $cs && defined $cs_k){
-				unless($cs->get eq "$shutter_path --full" && $cs_k->get eq $key){
-					$error++;
-				}
-			}
-		}
-		if ( $keybinding_sel_active->get_active() ) {
-			if(defined $cws && defined $cws_k){
-				unless($cws->get eq "$shutter_path $mode" && $cws_k->get eq $skey){
-					$error++;
-				}
-			}
-		}
-		
-		#gnomecompat is disabled
-		if($error == 3){
-			#~ my $response = $sd->dlg_error_message( 
-				#~ $d->get( "Please activate the Gnome Compatibility plugin via CompizConfig Settings Manager." ),
-				#~ $d->get( "There was an error configuring the keybindings." ),
-				#~ undef, undef, undef,
-				#~ undef, undef, undef,
-				#~ $@
-			#~ );
-		#settings are not correctly set even though there are no other errors
-		}elsif($error > 0){
-			my $response = $sd->dlg_error_message( 
-				$d->get( "The format looks like \"<Control>Print\" or \"<Shift><Alt>Print\". The parser is fairly liberal and allows lower or upper case, but abbreviations such as \"<Ctl>\" and \"<Ctrl>\" may cause problems under some circumstances (e.g. when using compiz)." ),
-				$d->get( "There was an error configuring the keybindings." ),
-				undef, undef, undef,
-				undef, undef, undef,
-				$@
-			);	
 		}
 
 		return TRUE;
@@ -5128,17 +4741,6 @@ if ($app->is_running) {
 					$ask_on_delete_active->set_active( $settings_xml->{'general'}->{'ask_on_delete'} );
 					$delete_on_close_active->set_active( $settings_xml->{'general'}->{'delete_on_close'} );
 					$ask_on_fs_delete_active->set_active( $settings_xml->{'general'}->{'ask_on_fs_delete'} );
-
-					#keybindings
-					$keybinding_active->set_active( $settings_xml->{'general'}->{'keybinding'} );
-					$keybinding_sel_active->set_active( $settings_xml->{'general'}->{'keybinding_sel'} );
-
-					utf8::decode $settings_xml->{'general'}->{'capture_key'};
-					utf8::decode $settings_xml->{'general'}->{'capture_sel_key'};
-					
-					$capture_key->set_text( $settings_xml->{'general'}->{'capture_key'} );
-					$capture_sel_key->set_text( $settings_xml->{'general'}->{'capture_sel_key'} );
-					$combobox_keybinding_mode->set_active( $settings_xml->{'general'}->{'keybinding_mode'} );
 
 					#ftp_upload
 					utf8::decode $settings_xml->{'general'}->{'ftp_uri'};
