@@ -70,6 +70,11 @@ sub get_home_dir {
 	return Glib::get_home_dir;
 }
 
+sub get_config_dir {
+	my $self = shift;
+	return Glib::get_user_config_dir;
+}
+
 sub get_settings_dir {
 	#not implemented
 }
