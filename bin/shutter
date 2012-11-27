@@ -100,7 +100,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1243';
+use constant SHUTTER_REV     => 'Rev.1244';
 use constant SHUTTER_NAME    => 'Shutter';
 use constant SHUTTER_VERSION => '0.90';
 
@@ -8172,8 +8172,8 @@ if ($app->is_running) {
 		
 		#add item for active window
 		my $active_window_item_image;
-		if($icontheme->has_icon('gnome-window-manager')){
-			$active_window_item_image = Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'menu' );		
+		if($icontheme->has_icon('preferences-system-windows')){
+			$active_window_item_image = Gtk2::Image->new_from_icon_name( 'preferences-system-windows', 'menu' );		
 		}else{
 			$active_window_item_image = Gtk2::Image->new_from_pixbuf(
 				$lp->load(
@@ -8271,8 +8271,8 @@ if ($app->is_running) {
 
 		#~ #awindow
 		#~ my $menuitem_awindow = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Active Window') );
-		#~ if($traytheme->has_icon('gnome-window-manager')){
-			#~ $menuitem_awindow->set_image( Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'menu' ) );	
+		#~ if($traytheme->has_icon('preferences-system-windows')){
+			#~ $menuitem_awindow->set_image( Gtk2::Image->new_from_icon_name( 'preferences-system-windows', 'menu' ) );	
 		#~ }else{
 			#~ $menuitem_awindow->set_image(
 				#~ Gtk2::Image->new_from_pixbuf(
@@ -8287,8 +8287,8 @@ if ($app->is_running) {
 		
 		#window
 		my $menuitem_window = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Window _under Cursor') );
-		if($traytheme->has_icon('gnome-window-manager')){
-			$menuitem_window->set_image( Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'menu' ) );	
+		if($traytheme->has_icon('preferences-system-windows')){
+			$menuitem_window->set_image( Gtk2::Image->new_from_icon_name( 'preferences-system-windows', 'menu' ) );	
 		}else{
 			$menuitem_window->set_image(
 				Gtk2::Image->new_from_pixbuf(
@@ -8303,8 +8303,8 @@ if ($app->is_running) {
 		
 		#window list
 		my $menuitem_window_list = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Select W_indow') );
-		if($traytheme->has_icon('gnome-window-manager')){
-			$menuitem_window_list->set_image( Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'menu' ) );	
+		if($traytheme->has_icon('preferences-system-windows')){
+			$menuitem_window_list->set_image( Gtk2::Image->new_from_icon_name( 'preferences-system-windows', 'menu' ) );	
 		}else{
 			$menuitem_window_list->set_image(
 				Gtk2::Image->new_from_pixbuf(
@@ -8355,9 +8355,9 @@ if ($app->is_running) {
 
 		#tooltip
 		my $menuitem_window_tooltip = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Tooltip') );
-		#~ if($traytheme->has_icon('alacarte')){
-			#~ $menuitem_window_tooltip->set_image( Gtk2::Image->new_from_icon_name( 'alacarte', 'menu' ) );	
-		#~ }else{
+		if($traytheme->has_icon('help-faq')){
+			$menuitem_window_tooltip->set_image( Gtk2::Image->new_from_icon_name( 'help-faq', 'menu' ) );	
+		}else{
 			$menuitem_window_tooltip->set_image(
 				Gtk2::Image->new_from_pixbuf(
 					$lp->load(
@@ -8366,7 +8366,7 @@ if ($app->is_running) {
 					)
 				)
 			);
-		#~ }
+		}
 		$menuitem_window_tooltip->signal_connect(
 			activate => \&evt_take_screenshot,
 			'tray_tooltip'

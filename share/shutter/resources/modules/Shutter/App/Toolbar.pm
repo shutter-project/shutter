@@ -122,8 +122,8 @@ sub create_toolbar {
 	#button active window
 	#--------------------------------------
 	#~ my $image_awindow;
-	#~ if($icontheme->has_icon('gnome-window-manager')){
-		#~ $image_awindow = Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'large-toolbar' );		
+	#~ if($icontheme->has_icon('preferences-system-windows')){
+		#~ $image_awindow = Gtk2::Image->new_from_icon_name( 'preferences-system-windows', 'large-toolbar' );		
 	#~ }else{
 		#~ $image_awindow = Gtk2::Image->new_from_pixbuf(
 			#~ Gtk2::Gdk::Pixbuf->new_from_file_at_size(
@@ -143,8 +143,8 @@ sub create_toolbar {
 	#button window
 	#--------------------------------------
 	my $image_window;
-	if($icontheme->has_icon('gnome-window-manager')){
-		$image_window = Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'large-toolbar' );		
+	if($icontheme->has_icon('preferences-system-windows')){
+		$image_window = Gtk2::Image->new_from_icon_name( 'preferences-system-windows', 'large-toolbar' );		
 	}else{
 		$image_window = Gtk2::Image->new_from_pixbuf(
 			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
@@ -202,16 +202,16 @@ sub create_toolbar {
 	#button tooltip
 	#--------------------------------------
 	my $image_window_tooltip;
-	#~ if($icontheme->has_icon('alacarte')){
-		#~ $image_window_tooltip = Gtk2::Image->new_from_icon_name( 'alacarte', 'large-toolbar' );		
-	#~ }else{
+	if($icontheme->has_icon('help-faq')){
+		$image_window_tooltip = Gtk2::Image->new_from_icon_name( 'help-faq', 'large-toolbar' );		
+	}else{
 		$image_window_tooltip = Gtk2::Image->new_from_pixbuf(
 			Gtk2::Gdk::Pixbuf->new_from_file_at_size(
 				"$shutter_root/share/shutter/resources/icons/sel_window_tooltip.svg",
 				Gtk2::IconSize->lookup('large-toolbar')
 			)
 		);
-	#~ }
+	}
 	$self->{_tooltip} = Gtk2::ToolButton->new( $image_window_tooltip, $d->get("Tooltip") );
 
 	$tooltips->set_tip( $self->{_tooltip},

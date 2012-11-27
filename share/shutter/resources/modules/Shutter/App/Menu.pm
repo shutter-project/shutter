@@ -168,7 +168,7 @@ sub fct_ret_file_menu {
 
 	$self->{_menuitem_email} = Gtk2::ImageMenuItem->new($d->get('Send by E_mail...'));
 	$self->{_menuitem_email}->set_image(
-		Gtk2::Image->new_from_icon_name( 'gnome-stock-mail-snd', 'menu' )
+		Gtk2::Image->new_from_icon_name( 'mail-send', 'menu' )
 	);
 	$self->{_menuitem_email}->set_sensitive(FALSE);
 	$self->{_menuitem_email}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('<Shift><Control>E'), qw/visible/ );
@@ -233,7 +233,7 @@ sub fct_ret_edit_menu {
 
 	$self->{_menuitem_trash} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Move to _Trash') );
 	$self->{_menuitem_trash}->add_accelerator( 'activate', $accel_group, Gtk2::Accelerator->parse('Delete'), qw/visible/ );
-	$self->{_menuitem_trash}->set_image( Gtk2::Image->new_from_icon_name( 'gnome-stock-trash', 'menu' ) );
+	$self->{_menuitem_trash}->set_image( Gtk2::Image->new_from_icon_name( 'user-trash', 'menu' ) );
 	$self->{_menuitem_trash}->set_sensitive(FALSE);
 	$self->{_menu_edit}->append( $self->{_menuitem_trash} );
 
@@ -469,8 +469,8 @@ sub fct_ret_new_menu {
 
 	#awindow
 	$self->{_menuitem_awindow} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Active Window') );
-	if($icontheme->has_icon('gnome-window-manager')){
-		$self->{_menuitem_awindow}->set_image( Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'menu' ) );	
+	if($icontheme->has_icon('preferences-system-windows')){
+		$self->{_menuitem_awindow}->set_image( Gtk2::Image->new_from_icon_name( 'preferences-system-windows', 'menu' ) );	
 	}else{
 		$self->{_menuitem_awindow}->set_image(
 			Gtk2::Image->new_from_pixbuf(
@@ -482,8 +482,8 @@ sub fct_ret_new_menu {
 
 	#window
 	$self->{_menuitem_window} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('Select W_indow') );
-	if($icontheme->has_icon('gnome-window-manager')){
-		$self->{_menuitem_window}->set_image( Gtk2::Image->new_from_icon_name( 'gnome-window-manager', 'menu' ) );	
+	if($icontheme->has_icon('preferences-system-windows')){
+		$self->{_menuitem_window}->set_image( Gtk2::Image->new_from_icon_name( 'preferences-system-windows', 'menu' ) );	
 	}else{
 		$self->{_menuitem_window}->set_image(
 			Gtk2::Image->new_from_pixbuf(
@@ -527,9 +527,9 @@ sub fct_ret_new_menu {
 
 	#tooltip
 	$self->{_menuitem_tooltip} = Gtk2::ImageMenuItem->new_with_mnemonic( $d->get('_Tooltip') );
-	#~ if($icontheme->has_icon('alacarte')){
-		#~ $self->{_menuitem_tooltip}->set_image( Gtk2::Image->new_from_icon_name( 'alacarte', 'menu' ) );		
-	#~ }else{
+	if($icontheme->has_icon('help-faq')){
+		$self->{_menuitem_tooltip}->set_image( Gtk2::Image->new_from_icon_name( 'help-faq', 'menu' ) );		
+	}else{
 		$self->{_menuitem_tooltip}->set_image(
 			Gtk2::Image->new_from_pixbuf(
 				Gtk2::Gdk::Pixbuf->new_from_file_at_size(
@@ -538,7 +538,7 @@ sub fct_ret_new_menu {
 				)
 			)
 		);
-	#~ }
+	}
 	$self->{_menu_new}->append( $self->{_menuitem_tooltip} );
 
 	#~ $self->{_menu_new}->append( Gtk2::SeparatorMenuItem->new );
