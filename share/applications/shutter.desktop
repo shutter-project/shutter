@@ -15,29 +15,29 @@ Terminal=false
 Type=Application
 Categories=Utility;
 MimeType=image/bmp;image/jpeg;image/gif;image/png;image/tiff;image/x-bmp;image/x-ico;image/x-png;image/x-pcx;image/x-tga;image/xpm;image/svg+xml;
-X-Ayatana-Desktop-Shortcuts=X-Redo;X-Select;X-Screen;X-Window;X-Active
+Actions=Redo;Select;Screen;Window;Active
 
-[X-Redo Shortcut Group]
+[Desktop Action Redo]
 Name=Redo last screenshot
 Exec=shutter --redo
 OnlyShowIn=Unity
 
-[X-Select Shortcut Group]
+[Desktop Action Select]
 Name=Capture an area of the screen
 Exec=shutter --select
 OnlyShowIn=Unity
 
-[X-Screen Shortcut Group]
+[Desktop Action Screen]
 Name=Capture the entire screen
 Exec=shutter --full
 OnlyShowIn=Unity
 
-[X-Window Shortcut Group]
+[Desktop Action Window]
 Name=Select a window to capture
 Exec=shutter --window
 OnlyShowIn=Unity
 
-[X-Active Shortcut Group]
+[Desktop Action Active]
 Name=Capture the current active window
 Exec=shutter --active
 OnlyShowIn=Unity
