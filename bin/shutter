@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1239';
+use constant SHUTTER_REV     => 'Rev.1240';
 use constant SHUTTER_NAME    => 'Shutter';
 use constant SHUTTER_VERSION => '0.90';
 
@@ -171,7 +171,6 @@ if($goocanvas){
 
 #screenshot classes
 require Shutter::Screenshot::SelectorAdvanced;
-require Shutter::Screenshot::SelectorSimple;
 require Shutter::Screenshot::SelectorAuto;
 require Shutter::Screenshot::Workspace;
 require Shutter::Screenshot::Web;
