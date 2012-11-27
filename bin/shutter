@@ -101,7 +101,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1240';
+use constant SHUTTER_REV     => 'Rev.1241';
 use constant SHUTTER_NAME    => 'Shutter';
 use constant SHUTTER_VERSION => '0.90';
 
@@ -754,10 +754,6 @@ if ($app->is_running) {
 	my $delay_box				= Gtk2::HBox->new( FALSE, 0 );
 	my $cursor_box			= Gtk2::HBox->new( FALSE, 0 );
 
-
-	my $sel_capture_vbox		= Gtk2::VBox->new( FALSE, 0 );
-	my $asel_capture_vbox	= Gtk2::VBox->new( FALSE, 0 );
-
 	#actions
 	my $actions_vbox			= Gtk2::VBox->new( FALSE, 0 );
 
@@ -767,6 +763,7 @@ if ($app->is_running) {
 	my $bordereffect_box		= Gtk2::HBox->new( FALSE, 0 );
 
 	#advanced
+	my $sel_capture_vbox		= Gtk2::VBox->new( FALSE, 0 );
 	my $window_capture_vbox	= Gtk2::VBox->new( FALSE, 0 );
 	my $menu_capture_vbox	= Gtk2::VBox->new( FALSE, 0 );
 	my $web_capture_vbox		= Gtk2::VBox->new( FALSE, 0 );
@@ -1050,13 +1047,6 @@ if ($app->is_running) {
 	my $sel_capture_frame = Gtk2::Frame->new();
 	$sel_capture_frame->set_label_widget($sel_capture_frame_label);
 	$sel_capture_frame->set_shadow_type('none');
-
-	my $asel_capture_frame_label = Gtk2::Label->new;
-	$asel_capture_frame_label->set_markup( "<b>" . $d->get("Advanced Selection Capture") . "</b>" );
-
-	my $asel_capture_frame = Gtk2::Frame->new();
-	$asel_capture_frame->set_label_widget($asel_capture_frame_label);
-	$asel_capture_frame->set_shadow_type('none');
 
 	my $window_capture_frame_label = Gtk2::Label->new;
 	$window_capture_frame_label->set_markup( "<b>" . $d->get("Window Capture") . "</b>" );
@@ -1651,7 +1641,7 @@ if ($app->is_running) {
 	#end - zoom window
 	#--------------------------------------
 
-	#initial size for advanced selection tool
+	#initial size for selection tool
 	#--------------------------------------
 	my $asel_size_label1 = Gtk2::Label->new( $d->get("Start with selection size of") );
 	my $asel_size_label2 = Gtk2::Label->new( "x" );
@@ -1685,16 +1675,16 @@ if ($app->is_running) {
 		$asel_size2->set_value(0);
 	}
 
-	$tooltips->set_tip( $asel_size_label1, $d->get("Start Advanced Selection Tool with a customized selection size") );
-	$tooltips->set_tip( $asel_size_label2, $d->get("Start Advanced Selection Tool with a customized selection size") );
-	$tooltips->set_tip( $asel_size_label3, $d->get("Start Advanced Selection Tool with a customized selection size") );
-	$tooltips->set_tip( $asel_size_label4, $d->get("Start Advanced Selection Tool with a customized selection size") );
-	$tooltips->set_tip( $asel_size1, $d->get("Start Advanced Selection Tool with a customized selection size") );
-	$tooltips->set_tip( $asel_size2, $d->get("Start Advanced Selection Tool with a customized selection size") );
-	$tooltips->set_tip( $asel_size3, $d->get("Start Advanced Selection Tool with a customized selection size") );
-	$tooltips->set_tip( $asel_size4, $d->get("Start Advanced Selection Tool with a customized selection size") );
-	$tooltips->set_tip( $asel_size_vlabel1, $d->get("Start Advanced Selection Tool with a customized selection size") );
-	$tooltips->set_tip( $asel_size_vlabel2, $d->get("Start Advanced Selection Tool with a customized selection size") );
+	$tooltips->set_tip( $asel_size_label1, $d->get("Start Selection Tool with a customized selection size") );
+	$tooltips->set_tip( $asel_size_label2, $d->get("Start Selection Tool with a customized selection size") );
+	$tooltips->set_tip( $asel_size_label3, $d->get("Start Selection Tool with a customized selection size") );
+	$tooltips->set_tip( $asel_size_label4, $d->get("Start Selection Tool with a customized selection size") );
+	$tooltips->set_tip( $asel_size1, $d->get("Start Selection Tool with a customized selection size") );
+	$tooltips->set_tip( $asel_size2, $d->get("Start Selection Tool with a customized selection size") );
+	$tooltips->set_tip( $asel_size3, $d->get("Start Selection Tool with a customized selection size") );
+	$tooltips->set_tip( $asel_size4, $d->get("Start Selection Tool with a customized selection size") );
+	$tooltips->set_tip( $asel_size_vlabel1, $d->get("Start Selection Tool with a customized selection size") );
+	$tooltips->set_tip( $asel_size_vlabel2, $d->get("Start Selection Tool with a customized selection size") );
 
 	$asel_isize_box->pack_start( $asel_size_label1, FALSE, FALSE, 12 );
 	$asel_isize_box->pack_start( $asel_size1, FALSE, FALSE,  0 );
@@ -2381,10 +2371,7 @@ if ($app->is_running) {
 	my $label_advanced = Gtk2::Label->new;
 	$label_advanced->set_markup( $d->get("Advanced") );
 
-	$sel_capture_vbox->pack_start( $zoom_box, FALSE, TRUE, 3 );
-	$sel_capture_frame->add($sel_capture_vbox);
-
-	#align labels (asel)
+	#all labels = one size
 	$asel_size_label3->set_alignment( 1, 0.5 );
 
 	my $sg_asel = Gtk2::SizeGroup->new('horizontal');
@@ -2394,11 +2381,12 @@ if ($app->is_running) {
 	my $sg_asel2 = Gtk2::SizeGroup->new('horizontal');
 	$sg_asel2->add_widget($asel_size_label2);
 	$sg_asel2->add_widget($asel_size_label4);
-
-	$asel_capture_vbox->pack_start( $as_help_box, FALSE, TRUE, 3 );
-	$asel_capture_vbox->pack_start( $asel_isize_box, FALSE, TRUE, 3 );
-	$asel_capture_vbox->pack_start( $asel_isize_box2, FALSE, TRUE, 3 );
-	$asel_capture_frame->add($asel_capture_vbox);
+    
+	$sel_capture_vbox->pack_start( $zoom_box, FALSE, TRUE, 3 );
+	$sel_capture_vbox->pack_start( $as_help_box, FALSE, TRUE, 3 );
+	$sel_capture_vbox->pack_start( $asel_isize_box, FALSE, TRUE, 3 );
+	$sel_capture_vbox->pack_start( $asel_isize_box2, FALSE, TRUE, 3 );
+	$sel_capture_frame->add($sel_capture_vbox);
 
 	$window_capture_vbox->pack_start( $border_box, FALSE, TRUE, 3 );
 	$window_capture_vbox->pack_start( $winresize_box, FALSE, TRUE, 3 );
@@ -2422,7 +2410,6 @@ if ($app->is_running) {
 	$sg_adv->add_widget($web_width_label);
 
 	$vbox_advanced->pack_start( $sel_capture_frame, FALSE, TRUE, 3 );
-	$vbox_advanced->pack_start( $asel_capture_frame, FALSE, TRUE, 3 );
 	$vbox_advanced->pack_start( $window_capture_frame, FALSE, TRUE, 3 );
 	$vbox_advanced->pack_start( $menu_capture_frame, FALSE, TRUE, 3 );
 	$vbox_advanced->pack_start( $web_capture_frame, FALSE, TRUE, 3 );
