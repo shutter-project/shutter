@@ -53,13 +53,12 @@ sub new {
 
 	my $self = { _sc => shift };
 
-	#FIXME
-	#get them as params 
-	#because there is a leak when 
-	#we declare them each time	
-	$self->{_view} 			= shift;
-	$self->{_selector} 		= shift;
-	$self->{_dragger} 		= shift;
+    #view, selector, dragger
+	$self->{_view} 		= Gtk2::ImageView->new;
+	$self->{_selector} 	= Gtk2::ImageView::Tool::Selector->new($self->{_view});
+	$self->{_dragger} 	= Gtk2::ImageView::Tool::Dragger->new($self->{_view});
+	$self->{_view}->set_interpolation ('tiles');
+	$self->{_view}->set_tool($self->{_selector});	
 
 	#WORKAROUND
 	#upstream bug

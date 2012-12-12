@@ -100,7 +100,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1246';
+use constant SHUTTER_REV     => 'Rev.1247';
 use constant SHUTTER_NAME    => 'Shutter';
 use constant SHUTTER_VERSION => '0.90';
 
@@ -341,25 +341,6 @@ if ($app->is_running) {
 
 	#Tooltips
 	my $tooltips = $sc->get_tooltips;
-
-	#Gtk2::ImageView and Selector for advanced selection tool
-	my $view 		= Gtk2::ImageView->new;
-	my $selector 	= Gtk2::ImageView::Tool::Selector->new($view);
-	my $dragger 	= Gtk2::ImageView::Tool::Dragger->new($view);
-	$view->set_interpolation ('tiles');
-	$view->set_tool($selector);
-
-	#Gtk2::ImageView and Selector for drawing tool
-	my $view_d;
-	my $selector_d;
-	my $dragger_d;
-	if($goocanvas){
-		$view_d     = Gtk2::ImageView->new;
-		$selector_d = Gtk2::ImageView::Tool::Selector->new($view_d);
-		$dragger_d 	= Gtk2::ImageView::Tool::Dragger->new($view_d);
-		$view_d->set_interpolation ('tiles');	
-		$view_d->set_tool($selector_d);
-	}
 
 	#UbuntuOne Client
 	my $u1 = undef;
@@ -5769,7 +5750,7 @@ if ($app->is_running) {
 
 		#open drawing tool
 		foreach my $key (@draw_array){
-			my $drawing_tool = Shutter::Draw::DrawingTool->new($sc, $view_d, $selector_d, $dragger_d);
+			my $drawing_tool = Shutter::Draw::DrawingTool->new($sc);
 			$drawing_tool->show( $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'}, $session_screens{$key}->{'mime_type'}, $session_screens{$key}->{'name'}, $session_screens{$key}->{'is_unsaved'}, \%session_screens );		
 		}
 
@@ -5965,7 +5946,6 @@ if ($app->is_running) {
 					$delay_value, $notify_timeout_active->get_active, 
 					$zoom_active->get_active, $hide_time->get_value,
 					$as_help_active->get_active,
-					$view, $selector, $dragger,
 					$asel_size3->get_value, $asel_size4->get_value,
 					$asel_size1->get_value, $asel_size2->get_value,
 				);

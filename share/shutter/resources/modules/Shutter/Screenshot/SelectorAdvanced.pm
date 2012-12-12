@@ -28,6 +28,7 @@ use utf8;
 use strict;
 use warnings;
 
+use Gtk2::ImageView;
 use Gnome2::Canvas;
 use Shutter::Screenshot::Main;
 use Shutter::Screenshot::History;
@@ -50,19 +51,18 @@ sub new {
 	$self->{_hide_time}		= shift;   #a short timeout to give the server a chance to redraw the area that was obscured
 	$self->{_show_help}		= shift;   #hide help text?
 
-	#FIXME
-	#get them as params 
-	#because there is a leak when 
-	#we declare them each time	
-	$self->{_view} 		= shift;
-	$self->{_selector} 	= shift;
-	$self->{_dragger} 	= shift;
-	
 	#initial selection size
 	$self->{_init_x} = shift;
 	$self->{_init_y} = shift;
 	$self->{_init_w} = shift;
 	$self->{_init_h} = shift;
+
+    #view, selector, dragger
+	$self->{_view} 		= Gtk2::ImageView->new;
+	$self->{_selector} 	= Gtk2::ImageView::Tool::Selector->new($self->{_view});
+	$self->{_dragger} 	= Gtk2::ImageView::Tool::Dragger->new($self->{_view});
+	$self->{_view}->set_interpolation ('tiles');
+	$self->{_view}->set_tool($self->{_selector});	
 	
 	#WORKAROUND
 	#upstream bug
