@@ -100,7 +100,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1245';
+use constant SHUTTER_REV     => 'Rev.1246';
 use constant SHUTTER_NAME    => 'Shutter';
 use constant SHUTTER_VERSION => '0.90';
 
@@ -9217,11 +9217,20 @@ if ($app->is_running) {
 				}
 			});
 
+            #parse filename
+            my ( $short, $folder, $ext ) = fileparse( $session_screens{$key}->{'long'}, qr/\.[^.]*/ );
+
 			#enable/disable rename button
 			#e.g. if no text is in entry
 			$new_filename->signal_connect('changed' => sub {
-				if(length($new_filename->get_text)){
-					$rename_btn->set_sensitive(TRUE);	
+                my $temp_filename = $new_filename->get_text;
+				if(length($temp_filename)){
+					$rename_btn->set_sensitive(TRUE);
+                    #Bug #1087367
+                    if($temp_filename =~ /.*$ext$/){
+                        my ( $short, $folder, $ext ) = fileparse( $temp_filename, qr/\.[^.]*/ );
+                        $new_filename->set_text($short);
+                    }
 				}else{
 					$rename_btn->set_sensitive(FALSE);
 				}
