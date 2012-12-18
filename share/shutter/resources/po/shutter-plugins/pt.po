@@ -7,19 +7,19 @@ msgid ""
 msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-11-16 01:50+0100\n"
-"PO-Revision-Date: 2011-09-12 23:59+0000\n"
-"Last-Translator: José Borges Ferreira (underspell) <Unknown>\n"
+"POT-Creation-Date: 2012-10-28 17:52+0100\n"
+"PO-Revision-Date: 2012-11-18 15:43+0000\n"
+"Last-Translator: Sérgio Marques <Unknown>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-08-14 17:44+0000\n"
-"X-Generator: Launchpad (build 15801)\n"
+"X-Launchpad-Export-Date: 2012-12-18 17:09+0000\n"
+"X-Generator: Launchpad (build 16372)\n"
 
 #: translate_tmp:27
-msgid "Shutter Branding"
-msgstr "Marca Shutter"
+msgid "Grayscale"
+msgstr "Escala de cinzentos"
 
 #: translate_tmp:28
 #: translate_tmp:74
@@ -30,33 +30,8 @@ msgid "Effect"
 msgstr "Efeito"
 
 #: translate_tmp:29
-msgid ""
-"Turn the image into a polaroid one with the Shutter logo and a subtitle added"
-msgstr "Transformar a imagem num polaroide com o logo Shutter e uma legenda"
-
-#: translate_tmp:27
-msgid "Grayscale"
-msgstr "Escala de cinzentos"
-
-#: translate_tmp:29
 msgid "Turn the image into a grayscale image (256 shades)"
 msgstr "Converte esta imagem numa imagem a preto e branco (256 tons)"
-
-#: translate_tmp:27
-msgid "Jigsaw Piece 1"
-msgstr "Peça do puzzle 1"
-
-#: translate_tmp:29
-msgid "Cut out a jigsaw piece at the bottom right corner"
-msgstr "Retire uma peça do puzzle no canto inferior direito"
-
-#: translate_tmp:27
-msgid "Jigsaw Piece 2"
-msgstr "Peça do puzzle 2"
-
-#: translate_tmp:29
-msgid "Cut a jigsaw piece out of the image"
-msgstr "Retire uma peça do puzzle da imagem"
 
 #: translate_tmp:27
 msgid "Offset"
@@ -68,11 +43,11 @@ msgstr "Dar uma posição à imagem com ela própria como fundo"
 
 #: translate_tmp:27
 msgid "Raise Border"
-msgstr "Aumentar conntorno"
+msgstr "Aumentar contorno"
 
 #: translate_tmp:29
 msgid "Raise a rectangular 3d-border"
-msgstr "Aumentar o contorno retangular em 3D"
+msgstr "Aumentar o contorno retangular 3D"
 
 #: translate_tmp:27
 msgid "Soft Edges"
@@ -139,7 +114,7 @@ msgstr "Rotação:"
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "Perseptive rotation around left edge of image"
-msgstr "rotação em prespectiva sobre a borda esquerda da imagem"
+msgstr "Rotação em perspetiva à volta do limite esquerdo da imagem"
 
 #: translate_tmp:122
 msgid "Fade:"
@@ -175,7 +150,7 @@ msgstr "Intervalo:"
 #: translate_tmp:183
 #: translate_tmp:190
 msgid "Gap between image and mirror in pixels"
-msgstr "Intervalo, em pixels, entre a imagem e seu espelho"
+msgstr "Intervalo, em pixel, entre a imagem e seu espelho"
 
 #: translate_tmp:194
 #: translate_tmp:176
@@ -185,14 +160,14 @@ msgstr "Ampliação:"
 #: translate_tmp:201
 #: translate_tmp:208
 msgid "Zoom factor for output image"
-msgstr "Factor de ampliação da imagem final"
+msgstr "Fator de ampliação da imagem final"
 
 #: translate_tmp:212
 #: translate_tmp:236
 #: translate_tmp:165
 #: translate_tmp:194
 msgid "Background color"
-msgstr "Cor do fundo"
+msgstr "Cor de fundo"
 
 #: translate_tmp:217
 #: translate_tmp:241
@@ -212,7 +187,7 @@ msgstr "Escolha a cor de fundo"
 #: translate_tmp:315
 #, perl-format
 msgid "Error while executing plugin %s."
-msgstr "Erro ao executar o \"plug-in\" %s."
+msgstr "Erro ao executar o <i>plug-in</i> %s."
 
 #: translate_tmp:424
 #: translate_tmp:460
@@ -224,7 +199,7 @@ msgstr "Erro ao executar o \"plug-in\" %s."
 #: translate_tmp:315
 #: translate_tmp:316
 msgid "There was an error executing the plugin."
-msgstr "Ocorreu um erro ao executar o \"plug-in\"."
+msgstr "Ocorreu um erro ao executar o <i>plug-in</i>."
 
 #: translate_tmp:73
 msgid "3D rotate"
@@ -247,17 +222,17 @@ msgstr ""
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "Rotation around image vertical centerline"
-msgstr ""
+msgstr "Rotação sobre o eixo vertical"
 
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "Rotation around image horizontal centerline"
-msgstr ""
+msgstr "Rotação sobre o eixo horizontal"
 
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "Rotation around the image center"
-msgstr ""
+msgstr "Rotação sobre o centro da imagem"
 
 #: translate_tmp:183
 #: translate_tmp:190
@@ -344,8 +319,7 @@ msgstr ""
 "valor. a,b e c para distorcer a imagem. Se usar valores negativos obriga ao "
 "afastamento do centro da imagem.\n"
 "\n"
-"Definição da Correção de Distorção Barrel Correction Distortion, por Helmut "
-"Dersch.\n"
+"Definição da Correção de Distorção Barrel por Helmut Dersch.\n"
 "http://www.all-in-one.ee/~dersch/barrel/barrel.html"
 
 #: translate_tmp:73

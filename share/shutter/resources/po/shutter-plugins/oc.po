@@ -7,19 +7,19 @@ msgid ""
 msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-11-16 01:50+0100\n"
-"PO-Revision-Date: 2011-10-16 17:02+0000\n"
+"POT-Creation-Date: 2012-10-28 17:52+0100\n"
+"PO-Revision-Date: 2012-11-05 21:23+0000\n"
 "Last-Translator: Cédric VALMARY (Tot en òc) <cvalmary@yahoo.fr>\n"
 "Language-Team: Occitan (post 1500) <oc@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-08-14 17:44+0000\n"
-"X-Generator: Launchpad (build 15801)\n"
+"X-Launchpad-Export-Date: 2012-12-18 17:09+0000\n"
+"X-Generator: Launchpad (build 16372)\n"
 
 #: translate_tmp:27
-msgid "Shutter Branding"
-msgstr ""
+msgid "Grayscale"
+msgstr "Escala de grises"
 
 #: translate_tmp:28
 #: translate_tmp:74
@@ -30,77 +30,52 @@ msgid "Effect"
 msgstr "Efièch"
 
 #: translate_tmp:29
-msgid ""
-"Turn the image into a polaroid one with the Shutter logo and a subtitle added"
-msgstr ""
-
-#: translate_tmp:27
-msgid "Grayscale"
-msgstr "Escala de grises"
-
-#: translate_tmp:29
 msgid "Turn the image into a grayscale image (256 shades)"
-msgstr ""
-
-#: translate_tmp:27
-msgid "Jigsaw Piece 1"
-msgstr ""
-
-#: translate_tmp:29
-msgid "Cut out a jigsaw piece at the bottom right corner"
-msgstr ""
-
-#: translate_tmp:27
-msgid "Jigsaw Piece 2"
-msgstr ""
-
-#: translate_tmp:29
-msgid "Cut a jigsaw piece out of the image"
-msgstr ""
+msgstr "Transformar l'imatge en nivèls de gris (256 nivèls)"
 
 #: translate_tmp:27
 msgid "Offset"
-msgstr ""
+msgstr "Posicion"
 
 #: translate_tmp:29
 msgid "Give the picture an offset with itself as background"
-msgstr ""
+msgstr "Decalar l'imatge, amb el-meteis en rèire plan"
 
 #: translate_tmp:27
 msgid "Raise Border"
-msgstr ""
+msgstr "Far montar una bordadura"
 
 #: translate_tmp:29
 msgid "Raise a rectangular 3d-border"
-msgstr ""
+msgstr "Far montar una bordadura 3d rectangulara"
 
 #: translate_tmp:27
 msgid "Soft Edges"
-msgstr ""
+msgstr "Bòrds doces"
 
 #: translate_tmp:29
 msgid "Add soft edges around the image"
-msgstr ""
+msgstr "Apondre de bòrds doces a l'entorn de l'imatge"
 
 #: translate_tmp:27
 msgid "Sunk Border"
-msgstr ""
+msgstr "Abaissar la bordadura"
 
 #: translate_tmp:29
 msgid "Add an inverted 3d border to the image"
-msgstr ""
+msgstr "Apondre una bordadura 3d inversada a l'imatge"
 
 #: translate_tmp:27
 msgid "Torned Paper"
-msgstr ""
+msgstr "Papièr cornenc"
 
 #: translate_tmp:29
 msgid "Add a torn-like border to the image"
-msgstr ""
+msgstr "Apondre una bordadura cornenca a l'imatge"
 
 #: translate_tmp:27
 msgid "Autocrop"
-msgstr ""
+msgstr "Rosegar automaticament"
 
 #: translate_tmp:28
 #: translate_tmp:49
@@ -109,11 +84,11 @@ msgstr "Esplech"
 
 #: translate_tmp:29
 msgid "Remove empty borders from the image"
-msgstr ""
+msgstr "Levar las bordaduras voidas de l'imatge"
 
 #: translate_tmp:73
 msgid "3D reflection"
-msgstr ""
+msgstr "Reflècte 3d"
 
 #: translate_tmp:75
 msgid ""
@@ -123,39 +98,44 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
 msgstr ""
+"Apond un reflècte en degradat jos un imatge e l'aficha en perspectiva\n"
+"\n"
+"D'aprèp un escript de Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
 
 #: translate_tmp:104
 #: translate_tmp:133
 #: translate_tmp:127
 msgid "Rotation:"
-msgstr ""
+msgstr "Rotacion :"
 
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "Perseptive rotation around left edge of image"
-msgstr ""
+msgstr "Rotacion perceptiva a l'entorn del bòrd d'esquèrra de l'imatge"
 
 #: translate_tmp:122
 msgid "Fade:"
-msgstr ""
+msgstr "Fondut :"
 
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "Fade percent for mirror image"
-msgstr ""
+msgstr "Taus del degradat per l'imatge miralh"
 
 #: translate_tmp:140
 msgid "Opacity:"
-msgstr ""
+msgstr "Opacitat :"
 
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "Opacity percent applied to whole mirror image"
-msgstr ""
+msgstr "Percentatge d'opacitat aplicat a tot l'imatge miralh"
 
 #: translate_tmp:158
 msgid "Pef:"
-msgstr ""
+msgstr "Perspectiva :"
 
 #: translate_tmp:165
 #: translate_tmp:172
@@ -164,12 +144,12 @@ msgstr "Coeficient d'exageracion de la perspectiva"
 
 #: translate_tmp:176
 msgid "Gap:"
-msgstr ""
+msgstr "Espaci :"
 
 #: translate_tmp:183
 #: translate_tmp:190
 msgid "Gap between image and mirror in pixels"
-msgstr ""
+msgstr "Espaci entre l'imatge e lo miralh en pixèls"
 
 #: translate_tmp:194
 #: translate_tmp:176
@@ -179,7 +159,7 @@ msgstr "Zoom :"
 #: translate_tmp:201
 #: translate_tmp:208
 msgid "Zoom factor for output image"
-msgstr ""
+msgstr "Factor de zoom per l'imatge final"
 
 #: translate_tmp:212
 #: translate_tmp:236
@@ -206,7 +186,7 @@ msgstr "Causir una color de fons"
 #: translate_tmp:315
 #, perl-format
 msgid "Error while executing plugin %s."
-msgstr ""
+msgstr "Error al moment de l'execucion del plugin %s."
 
 #: translate_tmp:424
 #: translate_tmp:460
@@ -218,7 +198,7 @@ msgstr ""
 #: translate_tmp:315
 #: translate_tmp:316
 msgid "There was an error executing the plugin."
-msgstr ""
+msgstr "Una error s'es producha al moment de l'execucion del plugin."
 
 #: translate_tmp:73
 msgid "3D rotate"
@@ -232,21 +212,26 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 msgstr ""
+"Aplicar un efièch de perspectiva a un imatge\n"
+"\n"
+"Basat sus un escript de Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "Rotation around image vertical centerline"
-msgstr ""
+msgstr "Rotacion a l'entorn de la linha centrala verticala de l'imatge"
 
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "Rotation around image horizontal centerline"
-msgstr ""
+msgstr "Rotacion a l'entorn de la linha centrala orizontala de l'imatge"
 
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "Rotation around the image center"
-msgstr ""
+msgstr "Rotacion a l'entorn del centre de l'imatge"
 
 #: translate_tmp:183
 #: translate_tmp:190
@@ -271,6 +256,11 @@ msgid ""
 "\n"
 "out - Creates an output image of size needed to hold the transformed image"
 msgstr ""
+"off (arrèst) - Pas cap d'ajustament automatic\n"
+"c - Centrar lo contorn rectangulara en sortida\n"
+"zc - Zoomar per emplenar e centrar lo contorn rectangular en sortida\n"
+"out (sortida) - Crear un imatge en sortida capable de conténer l'imatge "
+"transformat"
 
 #: translate_tmp:243
 msgid "Sky color"
@@ -282,11 +272,11 @@ msgstr "Causir una color de cèl"
 
 #: translate_tmp:62
 msgid "Barrel Distortion"
-msgstr ""
+msgstr "Desformacion en barricòt"
 
 #: translate_tmp:64
 msgid "Apply a distortion effect to your screenshot"
-msgstr ""
+msgstr "Aplicar un efièch de distorsion a vòstra captura d'ecran"
 
 #: translate_tmp:93
 msgid "A:"
@@ -321,10 +311,13 @@ msgid ""
 "Defined by Barrel Correction Distortion, by Helmut Dersch.\n"
 "http://www.all-in-one.ee/~dersch/barrel/barrel.html"
 msgstr ""
+"Lo paramètre d descriu la mesa a l'escala lineara de l'imatge. Amb las "
+"valors d=1, a=0,b=0, e c=0 modifica pas l'imatge. Causir una autra valor per "
+"d modifica l'escala de l'imatge per aquesta valor."
 
 #: translate_tmp:73
 msgid "Bordereffects"
-msgstr ""
+msgstr "Efièches de bordadura"
 
 #: translate_tmp:75
 msgid ""
@@ -334,37 +327,42 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/bordereffects/index.php"
 msgstr ""
+"Crear divèrses efièches de dispersion dins la bordadura d'un imatge\n"
+"\n"
+"Basat sus un escript de Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/bordereffects/index.php"
 
 #: translate_tmp:104
 msgid "Size:"
-msgstr ""
+msgstr "Talha :"
 
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "The size or dimension of the border region"
-msgstr ""
+msgstr "La talha o dimension de la region de la bordadura"
 
 #: translate_tmp:122
 msgid "Density:"
-msgstr ""
+msgstr "Densitat :"
 
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "The frequency of detail in the border"
-msgstr ""
+msgstr "La frequéncia de detalhs dins la bordadura"
 
 #: translate_tmp:140
 msgid "Curviness:"
-msgstr ""
+msgstr "Corbadura :"
 
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "The curviness in the border features"
-msgstr ""
+msgstr "La corbadura dins los elements de la bordadura"
 
 #: translate_tmp:158
 msgid "Granularity:"
-msgstr ""
+msgstr "Granularitat :"
 
 #: translate_tmp:165
 #: translate_tmp:172
@@ -372,15 +370,19 @@ msgid ""
 "The base grain size or pixelization size used to create the detail in the "
 "border"
 msgstr ""
+"La talha de gran de basa o de pixellizacion utilizada per crear los detalhs "
+"de la bordadura"
 
 #: translate_tmp:176
 msgid "Pad:"
-msgstr ""
+msgstr "Marge interior"
 
 #: translate_tmp:183
 #: translate_tmp:190
 msgid "The pad size of constant color around the perimeter of the border"
 msgstr ""
+"Talha del marge de color constanta a l'interior del perimètre definit per la "
+"bordadura"
 
 #: translate_tmp:62
 msgid "Negate"
@@ -388,26 +390,28 @@ msgstr "Inversar"
 
 #: translate_tmp:64
 msgid "Invert the colors of the image"
-msgstr ""
+msgstr "Inversar las colors de l'imatge"
 
 #: translate_tmp:101
 msgid "Channel"
-msgstr ""
+msgstr "Canal"
 
 #: translate_tmp:62
 msgid "Polaroid"
-msgstr ""
+msgstr "Polaroïd"
 
 #: translate_tmp:64
 msgid ""
 "Make your screenshot look like a polaroid photo, add a caption, and even "
 "rotate it a little"
 msgstr ""
+"Donar l'aparéncia d'un polaroïd a vòstra captura d'ecran, apondre una "
+"legenda, e la far pivotar leugièrament"
 
 #: translate_tmp:99
 #: translate_tmp:93
 msgid "Text:"
-msgstr ""
+msgstr "Tèxte :"
 
 #: translate_tmp:106
 #: translate_tmp:112
@@ -419,50 +423,55 @@ msgid ""
 "%d = day\n"
 "%T = time"
 msgstr ""
+"Mantun caractèr generics son disponibles, coma\n"
+"%Y = annada\n"
+"%m = mes\n"
+"%d = jorn\n"
+"%T = ora"
 
 #: translate_tmp:116
 #: translate_tmp:110
 msgid "Font size:"
-msgstr ""
+msgstr "Talha de la poliça :"
 
 #: translate_tmp:120
 #: translate_tmp:114
 msgid "Gravity:"
-msgstr ""
+msgstr "Gravitat :"
 
 #: translate_tmp:137
 #: translate_tmp:131
 msgid "Stroke color"
-msgstr ""
+msgstr "Color del trach"
 
 #: translate_tmp:142
 #: translate_tmp:136
 msgid "Choose stroke color"
-msgstr ""
+msgstr "Causir la color del trach"
 
 #: translate_tmp:45
 msgid "Resize"
-msgstr ""
+msgstr "Redimensionar"
 
 #: translate_tmp:53
 msgid "Resize your screenshot"
-msgstr ""
+msgstr "Redimensionar vòstra captura d'ecran"
 
 #: translate_tmp:71
 msgid "Sepia"
-msgstr ""
+msgstr "Sèpia"
 
 #: translate_tmp:73
 msgid "Add sepia color toning to the image"
-msgstr ""
+msgstr "Apondre una coloracion sèpia a l'imatge"
 
 #: translate_tmp:110
 msgid "Sepia tone"
-msgstr ""
+msgstr "Ton sèpia"
 
 #: translate_tmp:63
 msgid "Hard Shadow"
-msgstr ""
+msgstr "Ombra dura"
 
 #: translate_tmp:65
 msgid "Add a shadow to the image on a transparent background"
@@ -470,12 +479,12 @@ msgstr "Apond una ombra a l'imatge sus un fons transparent"
 
 #: translate_tmp:94
 msgid "Direction"
-msgstr ""
+msgstr "Orientacion"
 
 #: translate_tmp:110
 #: translate_tmp:117
 msgid "The direction of the shadow"
-msgstr ""
+msgstr "Orientacion de l'ombra"
 
 #: translate_tmp:121
 msgid "Color"
@@ -483,12 +492,12 @@ msgstr "Color"
 
 #: translate_tmp:126
 msgid "Choose color"
-msgstr ""
+msgstr "Causissètz una color"
 
 #: translate_tmp:131
 #: translate_tmp:138
 msgid "The color of the shadow"
-msgstr ""
+msgstr "Color de l'ombra"
 
 #: translate_tmp:62
 msgid "Watermark"
@@ -497,3 +506,4 @@ msgstr "Filigrana"
 #: translate_tmp:64
 msgid "Add a custom text watermark to your screenshot"
 msgstr ""
+"Apondre un tèxte personalizat en filigrana sus vòstra captura d'ecran"

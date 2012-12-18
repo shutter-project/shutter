@@ -7,19 +7,19 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gscrot-plugins-bash\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-11-16 01:50+0100\n"
-"PO-Revision-Date: 2012-05-11 00:25+0000\n"
-"Last-Translator: Seethi <sithis15@o2.pl>\n"
+"POT-Creation-Date: 2012-10-28 17:52+0100\n"
+"PO-Revision-Date: 2012-10-27 21:13+0000\n"
+"Last-Translator: Leon Miklosik <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-08-14 17:44+0000\n"
-"X-Generator: Launchpad (build 15801)\n"
+"X-Launchpad-Export-Date: 2012-12-18 17:09+0000\n"
+"X-Generator: Launchpad (build 16372)\n"
 
 #: translate_tmp:27
-msgid "Shutter Branding"
-msgstr "Cechowanie Migawki"
+msgid "Grayscale"
+msgstr "Skala szarości"
 
 #: translate_tmp:28
 #: translate_tmp:74
@@ -30,35 +30,8 @@ msgid "Effect"
 msgstr "Efekt"
 
 #: translate_tmp:29
-msgid ""
-"Turn the image into a polaroid one with the Shutter logo and a subtitle added"
-msgstr ""
-"Przekształć obrazek jakby był robiony polaroidem z logiem migawki i dodanymi "
-"napisami"
-
-#: translate_tmp:27
-msgid "Grayscale"
-msgstr "Skala szarości"
-
-#: translate_tmp:29
 msgid "Turn the image into a grayscale image (256 shades)"
 msgstr "Wprowadź skalę odcieni szarości (256 odcieni)"
-
-#: translate_tmp:27
-msgid "Jigsaw Piece 1"
-msgstr ""
-
-#: translate_tmp:29
-msgid "Cut out a jigsaw piece at the bottom right corner"
-msgstr ""
-
-#: translate_tmp:27
-msgid "Jigsaw Piece 2"
-msgstr ""
-
-#: translate_tmp:29
-msgid "Cut a jigsaw piece out of the image"
-msgstr ""
 
 #: translate_tmp:27
 msgid "Offset"
@@ -66,7 +39,7 @@ msgstr "Przesunięcie"
 
 #: translate_tmp:29
 msgid "Give the picture an offset with itself as background"
-msgstr ""
+msgstr "Ustaw obrazek na tle samego siebie"
 
 #: translate_tmp:27
 msgid "Raise Border"
@@ -86,7 +59,7 @@ msgstr "Dodaj gładkie krawędzie wokół obrazu"
 
 #: translate_tmp:27
 msgid "Sunk Border"
-msgstr ""
+msgstr "Zatopiona Krawędź"
 
 #: translate_tmp:29
 msgid "Add an inverted 3d border to the image"
@@ -98,7 +71,7 @@ msgstr "Poszarpany Papier"
 
 #: translate_tmp:29
 msgid "Add a torn-like border to the image"
-msgstr ""
+msgstr "Dodaj poszarpaną krawędź"
 
 #: translate_tmp:27
 msgid "Autocrop"
@@ -140,7 +113,7 @@ msgstr "Obrót:"
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "Perseptive rotation around left edge of image"
-msgstr ""
+msgstr "Perspektywiczny obrót wokół lewej krawędzi obrazu"
 
 #: translate_tmp:122
 msgid "Fade:"
@@ -149,7 +122,7 @@ msgstr "Zanik:"
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "Fade percent for mirror image"
-msgstr ""
+msgstr "Procent zaciemnienia dla lustrzanego odbicia"
 
 #: translate_tmp:140
 msgid "Opacity:"
@@ -158,7 +131,7 @@ msgstr "Przezroczystość:"
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "Opacity percent applied to whole mirror image"
-msgstr ""
+msgstr "Procent przezroczystości dla całego obrazu lustrzanego"
 
 #: translate_tmp:158
 msgid "Pef:"
@@ -283,6 +256,15 @@ msgid ""
 "\n"
 "out - Creates an output image of size needed to hold the transformed image"
 msgstr ""
+"off - Nieautomatyczna regulacja\n"
+"\n"
+"c - Centrowanie i wycinanie według ramki\n"
+"\n"
+"zc - Powiększanie, centrowanie i wycinanie według ramki\n"
+"\n"
+"out - Tworzy obraz wyjściowy potrzebnej wielkości\n"
+"   przedstawia podział wiersza. Rozpocznij nowy wiersz w równoważnej pozycji "
+"w tłumaczeniu."
 
 #: translate_tmp:243
 msgid "Sky color"
@@ -365,7 +347,7 @@ msgstr "Rozmiar:"
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "The size or dimension of the border region"
-msgstr ""
+msgstr "Rozmiar lub wymiar graniczej krawędzi"
 
 #: translate_tmp:122
 msgid "Density:"
@@ -374,7 +356,7 @@ msgstr "Gęstość:"
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "The frequency of detail in the border"
-msgstr ""
+msgstr "Gęstość szczegółów na krawędzi"
 
 #: translate_tmp:140
 msgid "Curviness:"
@@ -383,7 +365,7 @@ msgstr "Krzywizna:"
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "The curviness in the border features"
-msgstr ""
+msgstr "Krzywizna krawędzi"
 
 #: translate_tmp:158
 msgid "Granularity:"
@@ -394,20 +376,20 @@ msgstr "Rozdrobnienie:"
 msgid ""
 "The base grain size or pixelization size used to create the detail in the "
 "border"
-msgstr ""
+msgstr "Bazowy rozmiar lub pikselizacja użyta dla stworzenia detali krawędzi"
 
 #: translate_tmp:176
 msgid "Pad:"
-msgstr ""
+msgstr "Plansza"
 
 #: translate_tmp:183
 #: translate_tmp:190
 msgid "The pad size of constant color around the perimeter of the border"
-msgstr ""
+msgstr "Rozmiar planszy jednolitego koloru na obwodzie krawędzi"
 
 #: translate_tmp:62
 msgid "Negate"
-msgstr ""
+msgstr "Negatyw"
 
 #: translate_tmp:64
 msgid "Invert the colors of the image"
@@ -522,8 +504,8 @@ msgstr "Kolor cienia"
 
 #: translate_tmp:62
 msgid "Watermark"
-msgstr ""
+msgstr "Znak wodny"
 
 #: translate_tmp:64
 msgid "Add a custom text watermark to your screenshot"
-msgstr ""
+msgstr "Dodaj własny znak wodny do zrzutu ekranu"
