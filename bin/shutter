@@ -103,7 +103,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1252';
+use constant SHUTTER_REV     => 'Rev.1253';
 use constant SHUTTER_NAME    => 'Shutter';
 use constant SHUTTER_VERSION => '0.90';
 
@@ -956,7 +956,7 @@ else {
         $st->{_edit}->signal_connect( 'clicked' => \&fct_draw );
     }
     else {
-        $tooltips->set_tip( $st->{_edit}, $d->get( "Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature" ) );
+        $tooltips->set_tip( $st->{_edit}, $d->get("Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature") );
     }
     $st->{_edit}->set_sensitive(FALSE);
 
@@ -1178,7 +1178,7 @@ else {
             if ( grep( $input == $_, @invalid_codes ) ) {
                 my $char = chr($input);
                 $char = '&amp;' if $char eq '&';
-                $filename_hint->set_markup( "<span size='small'>" . sprintf( $d->get( "Reserved character %s is not allowed to be in a filename." ), "'" . $char . "'" ) . "</span>" );
+                $filename_hint->set_markup( "<span size='small'>" . sprintf( $d->get("Reserved character %s is not allowed to be in a filename."), "'" . $char . "'" ) . "</span>" );
 
                 $filename_hint->show;
                 return TRUE;
@@ -1614,9 +1614,9 @@ else {
     else {
         $thumbnail_active->set_active(FALSE);
     }
-    $tooltips->set_tip( $thumbnail,        $d->get( "Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be" ) );
-    $tooltips->set_tip( $thumbnail_active, $d->get( "Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be" ) );
-    $tooltips->set_tip( $thumbnail_label,  $d->get( "Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be" ) );
+    $tooltips->set_tip( $thumbnail,        $d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be") );
+    $tooltips->set_tip( $thumbnail_active, $d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be") );
+    $tooltips->set_tip( $thumbnail_label,  $d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be") );
     $thumbnail_box->pack_start( $thumbnail_label,  FALSE, TRUE,  12 );
     $thumbnail_box->pack_start( $thumbnail_active, FALSE, FALSE, 0 );
     $thumbnail_box->pack_start( $thumbnail,        TRUE,  TRUE,  0 );
@@ -1833,11 +1833,11 @@ else {
         $winresize_h->set_value(500);
     }
 
-    $tooltips->set_tip( $winresize_active, $d->get( "This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize." ) );
-    $tooltips->set_tip( $winresize_w,      $d->get( "This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize." ) );
-    $tooltips->set_tip( $winresize_label,  $d->get( "This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize." ) );
-    $tooltips->set_tip( $winresize_h,      $d->get( "This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize." ) );
-    $tooltips->set_tip( $winresize_vlabel, $d->get( "This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize." ) );
+    $tooltips->set_tip( $winresize_active, $d->get("This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize.") );
+    $tooltips->set_tip( $winresize_w,      $d->get("This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize.") );
+    $tooltips->set_tip( $winresize_label,  $d->get("This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize.") );
+    $tooltips->set_tip( $winresize_h,      $d->get("This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize.") );
+    $tooltips->set_tip( $winresize_vlabel, $d->get("This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize.") );
 
     $winresize_box->pack_start( $winresize_active, FALSE, FALSE, 12 );
     $winresize_box->pack_start( $winresize_w,      FALSE, FALSE, 0 );
@@ -1915,7 +1915,7 @@ else {
     #menu/tooltip workaround
     #--------------------------------------
     my $menu_waround_active = Gtk2::CheckButton->new_with_label( $d->get("Ignore possibly wrong type hints") );
-    $tooltips->set_tip( $menu_waround_active, $d->get( "The type hint constants specify hints for the window manager that indicate what type of function the window has. Sometimes these type hints are not correctly set. By enabling this option Shutter will not insist on the requested type hint." ) );
+    $tooltips->set_tip( $menu_waround_active, $d->get("The type hint constants specify hints for the window manager that indicate what type of function the window has. Sometimes these type hints are not correctly set. By enabling this option Shutter will not insist on the requested type hint.") );
 
     $menu_waround_box->pack_start( $menu_waround_active, FALSE, TRUE, 12 );
 
@@ -1999,8 +1999,8 @@ else {
     }
 
     $tooltips->set_tip( $trans_check,  $d->get("Displays any transparent parts of the image in a check pattern") );
-    $tooltips->set_tip( $trans_custom, $d->get( "Displays any transparent parts of the image in a solid color that you specify" ) );
-    $tooltips->set_tip( $trans_backg,  $d->get( "Displays any transparent parts of the image in the background color of the application" ) );
+    $tooltips->set_tip( $trans_custom, $d->get("Displays any transparent parts of the image in a solid color that you specify") );
+    $tooltips->set_tip( $trans_backg,  $d->get("Displays any transparent parts of the image in the background color of the application") );
 
     #connect signals after restoring the saved state
     $trans_check->signal_connect(
@@ -2196,9 +2196,9 @@ else {
         $hide_time->set_value(400);
     }
 
-    $tooltips->set_tip( $hide_time_label,  $d->get( "Configure a short timeout to give the Xserver a chance to redraw areas that were obscured by Shutter's windows before taking a screenshot." ) );
-    $tooltips->set_tip( $hide_time,        $d->get( "Configure a short timeout to give the Xserver a chance to redraw areas that were obscured by Shutter's windows before taking a screenshot." ) );
-    $tooltips->set_tip( $hide_time_vlabel, $d->get( "Configure a short timeout to give the Xserver a chance to redraw areas that were obscured by Shutter's windows before taking a screenshot." ) );
+    $tooltips->set_tip( $hide_time_label,  $d->get("Configure a short timeout to give the Xserver a chance to redraw areas that were obscured by Shutter's windows before taking a screenshot.") );
+    $tooltips->set_tip( $hide_time,        $d->get("Configure a short timeout to give the Xserver a chance to redraw areas that were obscured by Shutter's windows before taking a screenshot.") );
+    $tooltips->set_tip( $hide_time_vlabel, $d->get("Configure a short timeout to give the Xserver a chance to redraw areas that were obscured by Shutter's windows before taking a screenshot.") );
 
     #If get_exit_after_capture is TRUE, overwrite any saved setting
     #because presenting the window does not make sense here
@@ -2250,8 +2250,8 @@ else {
         $combobox_ns->set_active(TRUE);
     }
 
-    $tooltips->set_tip( $ns_label,    $d->get( "You can either choose the system-wide desktop notifications (e.g. Ubuntu's Notify-OSD) or Shutter's built-in notification system" ) );
-    $tooltips->set_tip( $combobox_ns, $d->get( "You can either choose the system-wide desktop notifications (e.g. Ubuntu's Notify-OSD) or Shutter's built-in notification system" ) );
+    $tooltips->set_tip( $ns_label,    $d->get("You can either choose the system-wide desktop notifications (e.g. Ubuntu's Notify-OSD) or Shutter's built-in notification system") );
+    $tooltips->set_tip( $combobox_ns, $d->get("You can either choose the system-wide desktop notifications (e.g. Ubuntu's Notify-OSD) or Shutter's built-in notification system") );
 
     if ( defined $settings_xml->{'general'}->{'close_at_close'} ) {
         $close_at_close_active->set_active( $settings_xml->{'general'}->{'close_at_close'} );
@@ -2313,7 +2313,7 @@ else {
         $pub_hint_pref->set_line_wrap_mode('word-char');
     }
 
-    $pub_hint_pref->set_markup( "<span size='small'>" . $d->get( "<b>Please note:</b> If a plugin allows authorized uploading you can enter your credentials above. Plugins with OAuth support are configured automatically the first time you use them." ) . "</span>" );
+    $pub_hint_pref->set_markup( "<span size='small'>" . $d->get("<b>Please note:</b> If a plugin allows authorized uploading you can enter your credentials above. Plugins with OAuth support are configured automatically the first time you use them.") . "</span>" );
 
     #ftp uri
     my $ftp_entry_label = Gtk2::Label->new( $d->get("URI") . ":" );
@@ -5366,7 +5366,7 @@ else {
                     return FALSE;
                 }
             }
-            $throbber = Gtk2::Image->new_from_file( "$shutter_root/share/shutter/resources/icons/throbber_16x16.gif" );
+            $throbber = Gtk2::Image->new_from_file("$shutter_root/share/shutter/resources/icons/throbber_16x16.gif");
             $throbber->set_name('throbber');
             $sep = Gtk2::HSeparator->new;
             $status->pack_start( $sep, FALSE, FALSE, 3 );
@@ -5564,7 +5564,7 @@ else {
                 );
 
                 if ($selected) {
-                    my $response = $sd->dlg_question_message( "", $d->get( "Are you sure you want to move the selected files to the trash?" ), 'gtk-cancel', $d->get("Move to _Trash"), );
+                    my $response = $sd->dlg_question_message( "", $d->get("Are you sure you want to move the selected files to the trash?"), 'gtk-cancel', $d->get("Move to _Trash"), );
                     return FALSE unless $response == 20;
                 }
                 else {
@@ -6846,7 +6846,7 @@ else {
         else {
 
             #show error dialog
-            my $response = $sd->dlg_error_message( sprintf( $d->get( "The filename %s could not be verified. Maybe it contains unsupported characters." ), "'" . $screenshot_name . "'" ), $d->get("Error while taking the screenshot.") );
+            my $response = $sd->dlg_error_message( sprintf( $d->get("The filename %s could not be verified. Maybe it contains unsupported characters."), "'" . $screenshot_name . "'" ), $d->get("Error while taking the screenshot.") );
             &fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
             &fct_control_main_window('show');
             return FALSE;
@@ -7206,7 +7206,7 @@ else {
 
             $plugin_process->start(
                 sub {
-                    system( "'$plugin_value' $qfilename '$session_screens{$key}->{'width'}' '$session_screens{$key}->{'height'}' '$session_screens{$key}->{'filetype'}' " );
+                    system("'$plugin_value' $qfilename '$session_screens{$key}->{'width'}' '$session_screens{$key}->{'height'}' '$session_screens{$key}->{'filetype'}' ");
                     POSIX::_exit(0);
                 }
             );
@@ -7788,7 +7788,7 @@ else {
                         #restoring the last version failed => delete the screenshot
                         unless ($pixbuf) {
 
-                            $sd->dlg_error_message( sprintf( $d->get("Error while saving the image %s."), "'" . $session_screens{$key}->{'short'} . "'" ), sprintf( $d->get( "There was an error saving the image to %s." ), "'" . $session_screens{$key}->{'folder'} . "'" ), undef, undef, undef, undef, undef, undef, $@ );
+                            $sd->dlg_error_message( sprintf( $d->get("Error while saving the image %s."), "'" . $session_screens{$key}->{'short'} . "'" ), sprintf( $d->get("There was an error saving the image to %s."), "'" . $session_screens{$key}->{'folder'} . "'" ), undef, undef, undef, undef, undef, undef, $@ );
 
                             $notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
                             &fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
@@ -7854,7 +7854,7 @@ else {
                     #restoring the last version failed => delete the screenshot
                     unless ($pixbuf) {
 
-                        $sd->dlg_error_message( sprintf( $d->get("Error while saving the image %s."), "'" . $session_screens{$key}->{'short'} . "'" ), sprintf( $d->get( "There was an error saving the image to %s." ), "'" . $sdir->get_cache_dir . "'" ), undef, undef, undef, undef, undef, undef, $@ );
+                        $sd->dlg_error_message( sprintf( $d->get("Error while saving the image %s."), "'" . $session_screens{$key}->{'short'} . "'" ), sprintf( $d->get("There was an error saving the image to %s."), "'" . $sdir->get_cache_dir . "'" ), undef, undef, undef, undef, undef, undef, $@ );
 
                         $notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
                         &fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
@@ -8324,7 +8324,7 @@ else {
 
         $upload_plugin_dialog->set_title("Shutter");
 
-        $upload_plugin_dialog->set( 'secondary-text' => $d->get( "Please wait while Shutter updates the upload plugin information" ) . "." );
+        $upload_plugin_dialog->set( 'secondary-text' => $d->get("Please wait while Shutter updates the upload plugin information") . "." );
 
         $upload_plugin_dialog->signal_connect( response => sub { $upload_plugin_dialog->{destroyed} = TRUE; $_[0]->destroy; } );
 
@@ -8339,7 +8339,7 @@ else {
         $upload_plugin_dialog->vbox->add($upload_plugin_progress);
 
         #plugins in user-home not supported yet FIXME
-        my @upload_plugin_paths = ( "$shutter_root/share/shutter/resources/system/upload_plugins/upload/*" );
+        my @upload_plugin_paths = ("$shutter_root/share/shutter/resources/system/upload_plugins/upload/*");
 
         foreach my $upload_plugin_path (@upload_plugin_paths) {
             my @upload_plugins = glob($upload_plugin_path);
@@ -9353,7 +9353,7 @@ else {
                             #show as notification
                             unless ( $u1->is_notifications_enabled ) {
                                 my $notify = $sc->get_notification_object;
-                                $notify->show( $d->get("Successfully published"), sprintf( $d->get( "The file %s was successfully published: %s" ), $session_screens{$key}->{'long'}, $meta{'public_url'} ) );
+                                $notify->show( $d->get("Successfully published"), sprintf( $d->get("The file %s was successfully published: %s"), $session_screens{$key}->{'long'}, $meta{'public_url'} ) );
                             }
 
                             &fct_show_status_message( 1, $shf->utf8_decode( sprintf( $d->get("%s published"), $meta{'path'} ) ) );
@@ -9369,10 +9369,10 @@ else {
                             #show as notification
                             unless ( $u1->is_notifications_enabled ) {
                                 my $notify = $sc->get_notification_object;
-                                $notify->show( $d->get("Unpublished"), sprintf( $d->get( "The file %s is no longer published. The external link is not available anymore." ), $meta{'path'} ) );
+                                $notify->show( $d->get("Unpublished"), sprintf( $d->get("The file %s is no longer published. The external link is not available anymore."), $meta{'path'} ) );
                             }
 
-                            &fct_show_status_message( 1, $shf->utf8_decode( sprintf( $d->get( "The file %s is no longer published." ), $meta{'path'} ) ) );
+                            &fct_show_status_message( 1, $shf->utf8_decode( sprintf( $d->get("The file %s is no longer published."), $meta{'path'} ) ) );
 
                         }
 
@@ -9608,7 +9608,7 @@ else {
                     if ( grep( $input == $_, @invalid_codes ) ) {
                         my $char = chr($input);
                         $char = '&amp;' if $char eq '&';
-                        $new_filename_hint->set_markup( "<span size='small'>" . sprintf( $d->get( "Reserved character %s is not allowed to be in a filename." ), "'" . $char . "'" ) . "</span>" );
+                        $new_filename_hint->set_markup( "<span size='small'>" . sprintf( $d->get("Reserved character %s is not allowed to be in a filename."), "'" . $char . "'" ) . "</span>" );
                         return TRUE;
                     }
                     else {
@@ -9703,7 +9703,7 @@ else {
                             }
                             else {
 
-                                my $response = $sd->dlg_error_message( sprintf( $d->get( "Error while renaming the image %s." ), "'" . $old_uri->extract_short_name . "'" ), sprintf( $d->get( "There was an error renaming the image to %s." ), "'" . $new_uri->extract_short_name . "'" ), undef, undef, undef, undef, undef, undef, Gnome2::VFS->result_to_string($result) );
+                                my $response = $sd->dlg_error_message( sprintf( $d->get("Error while renaming the image %s."), "'" . $old_uri->extract_short_name . "'" ), sprintf( $d->get("There was an error renaming the image to %s."), "'" . $new_uri->extract_short_name . "'" ), undef, undef, undef, undef, undef, undef, Gnome2::VFS->result_to_string($result) );
 
                             }
 
@@ -9717,7 +9717,7 @@ else {
 
                             my $sd = Shutter::App::SimpleDialogs->new;
 
-                            my $response = $sd->dlg_warning_message( sprintf( $d->get( "The image already exists in %s. Replacing it will overwrite its contents." ), "'" . $new_uri->extract_dirname . "'" ), sprintf( $d->get( "An image named %s already exists. Do you want to replace it?" ), "'" . $new_uri->extract_short_name . "'" ), undef, undef, undef, $replace_btn, undef, undef );
+                            my $response = $sd->dlg_warning_message( sprintf( $d->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $new_uri->extract_dirname . "'" ), sprintf( $d->get("An image named %s already exists. Do you want to replace it?"), "'" . $new_uri->extract_short_name . "'" ), undef, undef, undef, $replace_btn, undef, undef );
 
                             #rename == replace_btn was hit
                             if ( $response == 40 ) {
@@ -9746,7 +9746,7 @@ else {
                                 }
                                 else {
 
-                                    my $response = $sd->dlg_error_message( sprintf( $d->get( "Error while renaming the image %s." ), "'" . $old_uri->extract_short_name . "'" ), sprintf( $d->get( "There was an error renaming the image to %s." ), "'" . $new_uri->extract_short_name . "'" ), undef, undef, undef, undef, undef, undef, Gnome2::VFS->result_to_string($result) );
+                                    my $response = $sd->dlg_error_message( sprintf( $d->get("Error while renaming the image %s."), "'" . $old_uri->extract_short_name . "'" ), sprintf( $d->get("There was an error renaming the image to %s."), "'" . $new_uri->extract_short_name . "'" ), undef, undef, undef, undef, undef, undef, Gnome2::VFS->result_to_string($result) );
 
                                 }
 
@@ -10175,7 +10175,7 @@ else {
                 my $replace_btn = Gtk2::Button->new_with_mnemonic( $d->get("_Replace") );
                 $replace_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'button' ) );
 
-                my $response = $sd->dlg_warning_message( sprintf( $d->get( "The image already exists in %s. Replacing it will overwrite its contents." ), "'" . $folder . "'" ), sprintf( $d->get( "An image named %s already exists. Do you want to replace it?" ), "'" . $short . "." . $choosen_format . "'" ), undef, undef, undef, $replace_btn, undef, undef );
+                my $response = $sd->dlg_warning_message( sprintf( $d->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $folder . "'" ), sprintf( $d->get("An image named %s already exists. Do you want to replace it?"), "'" . $short . "." . $choosen_format . "'" ), undef, undef, undef, $replace_btn, undef, undef );
 
                 if ( $response == 40 ) {
 
@@ -10532,8 +10532,8 @@ else {
             $pub_hint2->set_line_wrap_mode('word-char');
         }
 
-        $pub_hint->set_markup( "<span size='small'>" . $d->get( "Please choose one of the accounts above and click <i>Upload</i>. The upload links will still be available in the screenshot's <i>right-click menu</i> after closing this dialog." ) . "</span>" );
-        $pub_hint2->set_markup( "<span size='small'>" . $d->get( "<b>Please note:</b> If a plugin allows only authorized uploading you need to enter your credentials in preferences first to make it appear in the list above." ) . "</span>" );
+        $pub_hint->set_markup( "<span size='small'>" . $d->get("Please choose one of the accounts above and click <i>Upload</i>. The upload links will still be available in the screenshot's <i>right-click menu</i> after closing this dialog.") . "</span>" );
+        $pub_hint2->set_markup( "<span size='small'>" . $d->get("<b>Please note:</b> If a plugin allows only authorized uploading you need to enter your credentials in preferences first to make it appear in the list above.") . "</span>" );
 
         $pub_hbox1->pack_start( Gtk2::Label->new( $d->get("Choose account") . ":" ), FALSE, FALSE, 6 );
         $pub_hbox1->pack_start_defaults($hosting);
@@ -10784,7 +10784,7 @@ else {
                                                 $upload_button->set_sensitive(TRUE);
                                             }
                                             else {
-                                                $u1_hint->set_markup( "<span size='small' color='red'>" . sprintf( $d->get( "Folder %s is not synchronized with Ubuntu One. Please choose an alternative folder." ), "'" . $u1_fc->get_filename . "'" ) . "</span>" );
+                                                $u1_hint->set_markup( "<span size='small' color='red'>" . sprintf( $d->get("Folder %s is not synchronized with Ubuntu One. Please choose an alternative folder."), "'" . $u1_fc->get_filename . "'" ) . "</span>" );
                                                 $u1_hint2->set_markup("");
                                                 $upload_button->set_sensitive(FALSE);
                                             }
@@ -10816,7 +10816,7 @@ else {
                                                 $upload_button->set_sensitive(TRUE);
                                             }
                                             else {
-                                                $u1_hint->set_markup( "<span size='small' color='red'>" . sprintf( $d->get( "Folder %s is not synchronized with Ubuntu One. Please choose an alternative folder." ), "'" . $u1_fc->get_filename . "'" ) . "</span>" );
+                                                $u1_hint->set_markup( "<span size='small' color='red'>" . sprintf( $d->get("Folder %s is not synchronized with Ubuntu One. Please choose an alternative folder."), "'" . $u1_fc->get_filename . "'" ) . "</span>" );
                                                 $u1_hint2->set_markup("");
                                                 $upload_button->set_sensitive(FALSE);
                                             }
@@ -10843,7 +10843,7 @@ else {
                             #wrong api version
                         }
                         else {
-                            $u1_hint->set_markup( "<span size='small' color='red'>" . $d->get( "/publicfiles is not available. Your Ubuntu One installation seems to be out of date." ) . "</span>" );
+                            $u1_hint->set_markup( "<span size='small' color='red'>" . $d->get("/publicfiles is not available. Your Ubuntu One installation seems to be out of date.") . "</span>" );
                             $upload_button->set_sensitive(FALSE);
                             $u1_fc->set_sensitive(FALSE);
                         }
@@ -10851,7 +10851,7 @@ else {
                         #ubuntuone enabled?
                     }
                     else {
-                        $u1_status->set_text( $d->get( "Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature" ) );
+                        $u1_status->set_text( $d->get("Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature") );
                         $upload_button->set_sensitive(FALSE);
                         $u1_fc->set_sensitive(FALSE);
                     }
@@ -10932,7 +10932,7 @@ else {
                         #dialogs (main window != parent window)
                         my $sd = Shutter::App::SimpleDialogs->new;
 
-                        $sd->dlg_error_message( sprintf( $d->get("Error while executing upload plugin %s."), "'" . $hosting_module . "'" ), $d->get( "There was an error executing the upload plugin." ), undef, undef, undef, undef, undef, undef, $@ );
+                        $sd->dlg_error_message( sprintf( $d->get("Error while executing upload plugin %s."), "'" . $hosting_module . "'" ), $d->get("There was an error executing the upload plugin."), undef, undef, undef, undef, undef, undef, $@ );
                         $hosting_dialog->destroy();
                         return FALSE;
                     }
@@ -11040,7 +11040,7 @@ else {
 
                             #show as notification
                             my $notify = $sc->get_notification_object;
-                            $notify->show( $d->get("Successfully uploaded"), sprintf( $d->get( "The file %s was successfully uploaded." ), $file ) );
+                            $notify->show( $d->get("Successfully uploaded"), sprintf( $d->get("The file %s was successfully uploaded."), $file ) );
 
                             #copy website url to clipboard
                             if ( $ftp_wurl_entry_dlg->get_text ) {
@@ -11148,14 +11148,14 @@ else {
 
                                     #show as notification
                                     my $notify = $sc->get_notification_object;
-                                    $notify->show( $d->get("Successfully exported"), sprintf( $d->get( "The file %s was successfully exported." ), $file ) );
+                                    $notify->show( $d->get("Successfully exported"), sprintf( $d->get("The file %s was successfully exported."), $file ) );
                                 }
                                 else {
                                     &fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
 
                                     #show as notification
                                     my $notify = $sc->get_notification_object;
-                                    $notify->show( $d->get("Successfully uploaded"), sprintf( $d->get( "The file %s was successfully uploaded." ), $file ) );
+                                    $notify->show( $d->get("Successfully uploaded"), sprintf( $d->get("The file %s was successfully uploaded."), $file ) );
                                 }
 
                                 #u1 - call publishing API
@@ -11203,7 +11203,7 @@ else {
                             #dialogs (main window != parent window)
                             my $sd = Shutter::App::SimpleDialogs->new;
 
-                            my $response = $sd->dlg_warning_message( sprintf( $d->get( "The image already exists in %s. Replacing it will overwrite its contents." ), "'" . $target_path . "'" ), sprintf( $d->get( "An image named %s already exists. Do you want to replace it?" ), "'" . $target_uri->extract_short_name . "'" ), $d->get("Skip all"), $d->get("Skip"), undef, $replace_btn, undef, undef );
+                            my $response = $sd->dlg_warning_message( sprintf( $d->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $target_path . "'" ), sprintf( $d->get("An image named %s already exists. Do you want to replace it?"), "'" . $target_uri->extract_short_name . "'" ), $d->get("Skip all"), $d->get("Skip"), undef, $replace_btn, undef, undef );
 
                             #10 == skip all, 20 == skip, 40 == replace, else == cancel
                             if ( $response == 10 ) {
@@ -11225,14 +11225,14 @@ else {
 
                                             #show as notification
                                             my $notify = $sc->get_notification_object;
-                                            $notify->show( $d->get("Successfully exported"), sprintf( $d->get( "The file %s was successfully exported." ), $file ) );
+                                            $notify->show( $d->get("Successfully exported"), sprintf( $d->get("The file %s was successfully exported."), $file ) );
                                         }
                                         else {
                                             &fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
 
                                             #show as notification
                                             my $notify = $sc->get_notification_object;
-                                            $notify->show( $d->get("Successfully uploaded"), sprintf( $d->get( "The file %s was successfully uploaded." ), $file ) );
+                                            $notify->show( $d->get("Successfully uploaded"), sprintf( $d->get("The file %s was successfully uploaded."), $file ) );
                                         }
 
                                         #u1
@@ -11399,7 +11399,7 @@ else {
                 if ( grep( $input == $_, @invalid_codes ) ) {
                     my $char = chr($input);
                     $char = '&amp;' if $char eq '&';
-                    $new_profile_name_hint->set_markup( "<span size='small'>" . sprintf( $d->get( "Reserved character %s is not allowed to be in a filename." ), "'" . $char . "'" ) . "</span>" );
+                    $new_profile_name_hint->set_markup( "<span size='small'>" . sprintf( $d->get("Reserved character %s is not allowed to be in a filename."), "'" . $char . "'" ) . "</span>" );
                     return TRUE;
                 }
                 else {
@@ -11434,7 +11434,7 @@ else {
                 my $replace_btn = Gtk2::Button->new_with_mnemonic( $d->get("_Replace") );
                 $replace_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'button' ) );
 
-                my $response = $sd->dlg_warning_message( $d->get("Replacing it will overwrite its contents."), sprintf( $d->get( "A profile named %s already exists. Do you want to replace it?" ), "'" . $entered_name . "'" ), undef, undef, undef, $replace_btn, undef, undef );
+                my $response = $sd->dlg_warning_message( $d->get("Replacing it will overwrite its contents."), sprintf( $d->get("A profile named %s already exists. Do you want to replace it?"), "'" . $entered_name . "'" ), undef, undef, undef, $replace_btn, undef, undef );
 
                 #40 == replace_btn was hit
                 if ( $response != 40 ) {
