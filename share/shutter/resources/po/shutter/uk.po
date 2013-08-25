@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2012-10-10 16:02+0000\n"
-"Last-Translator: Oleg «Eleidan» Kulik <helh-saintman@yandex.ru>\n"
+"PO-Revision-Date: 2013-02-11 19:51+0000\n"
+"Last-Translator: Andriy Korchak <kharts@ukr.net>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-12-18 17:09+0000\n"
-"X-Generator: Launchpad (build 16372)\n"
+"X-Launchpad-Export-Date: 2013-08-25 19:21+0000\n"
+"X-Generator: Launchpad (build 16738)\n"
 
 #: translate_tmp.pl:476
 #: translate_tmp.pl:2590
@@ -1256,7 +1256,7 @@ msgstr[2] "Чекати максимум %d хвилин"
 
 #: translate_tmp.pl:8908
 msgid "Shutter will wait indefinitely for the screenshot to capture"
-msgstr ""
+msgstr "Shutter буде чекати захоплення знімка екрана нескінченно довго"
 
 #: translate_tmp.pl:8909
 #: translate_tmp.pl:8910
@@ -1287,7 +1287,14 @@ msgid_plural ""
 "Shutter will wait up to %d minutes for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
+"Shutter буде чекати захоплення знімка екрана не більше %d хвилини перед "
+"завершенням процесу, якщо це займе забагато часу"
 msgstr[1] ""
+"Shutter буде чекати захоплення знімка екрана не більше %d хвилин перед "
+"завершенням процесу, якщо це займе забагато часу"
+msgstr[2] ""
+"Shutter буде чекати захоплення знімка екрана не більше %d хвилин перед "
+"завершенням процесу, якщо це займе забагато часу"
 
 #: translate_tmp.pl:9046
 msgid "Host"
@@ -1738,7 +1745,8 @@ msgstr ""
 "  Incubus-Grauen https://launchpad.net/~incubusgrauen\n"
 "  MFX https://launchpad.net/~mfx\n"
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
-"  Oleg «Eleidan» Kulik https://launchpad.net/~helh-saintman\n"
+"  Oleg «Eleidan» Kulyk https://launchpad.net/~helh-saintman\n"
+"  Roman Koshkin https://launchpad.net/~mar2008m\n"
 "  Serhey Kusyumoff (Сергій Кусюмов) https://launchpad.net/~sergemine\n"
 "  Sukochev Roman (Leolik) https://launchpad.net/~leolik\n"
 "  Venechka https://launchpad.net/~vene4ka\n"
@@ -1847,7 +1855,7 @@ msgstr "Відкрити _з"
 #: translate_tmp.pl:565
 #: translate_tmp.pl:662
 msgid "Show in _folder"
-msgstr ""
+msgstr "Показати в _каталоге"
 
 #: translate_tmp.pl:572
 #: translate_tmp.pl:669
@@ -1973,6 +1981,8 @@ msgid ""
 "Set how long Shutter will wait for the screenshot to complete before "
 "aborting the process if it's taking too long"
 msgstr ""
+"Встановити, скільки Shutter буде чекати захоплення знімка екрана перед "
+"завершенням процесу, якщо це займе забагато часу"
 
 #: translate_tmp.pl:233
 msgid "Edit"
@@ -1999,7 +2009,7 @@ msgstr ""
 
 #: translate_tmp.pl:247
 msgid "Show links to previous uploads"
-msgstr ""
+msgstr "Показати посилання для попередніх завантажень"
 
 #: translate_tmp.pl:33
 #: translate_tmp.pl:47
@@ -2058,12 +2068,12 @@ msgstr "Команда 'Вставити' зазнала невдачі."
 
 #: translate_tmp.pl:87
 msgid "Copy this code to clipboard"
-msgstr ""
+msgstr "Скопіювати цей код в буфер обміну"
 
 #: translate_tmp.pl:112
 #, perl-format
 msgid "Upload - %s - %s"
-msgstr ""
+msgstr "Завантажити - %s - %s"
 
 #: translate_tmp.pl:120
 msgid "Draw a rectangular area using the mouse."
@@ -2145,7 +2155,7 @@ msgstr "Вікон, які містять у імені %s не виявлені
 #: translate_tmp.pl:163
 #, perl-format
 msgid "Invalid pattern %s detected."
-msgstr ""
+msgstr "Виявлений невірний шаблон %s."
 
 #: translate_tmp.pl:116
 msgid "No subwindow detected"
@@ -2601,91 +2611,3 @@ msgstr "Імпортувати з файлової системи"
 #: translate_tmp.pl:7460
 msgid "New text..."
 msgstr "Новий текст"
-
-#~ msgid "Advanced selection tool"
-#~ msgstr "Вдосконалений інструмент виділення"
-
-#~ msgid "Simple selection tool"
-#~ msgstr "Простий інструмент виділення"
-
-#~ msgid ""
-#~ "The simple selection tool is the fastest way of taking a screenshot.\n"
-#~ "It provides an optional zoom window for precise shots."
-#~ msgstr ""
-#~ "Простий інструмент виділення є найшвидшим варіантом для\n"
-#~ "отримання знімку потрібної області екрану."
-
-#~ msgid ""
-#~ "The advanced selection tool allows you to enlarge/shrink or move your "
-#~ "selected area\n"
-#~ "until you finally take the screenshot."
-#~ msgstr ""
-#~ "Вдосконалений інструмент виділення\n"
-#~ "дозволяє змінювати розмір знімку."
-
-#~ msgid ""
-#~ "Configure global keybinding for capture\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "Тут ви можете налаштувати сполучення клавіш для знімків екрану.\n"
-#~ "Приклад сполучення клавіш - \"<control>a\" або \"<shift><alt>f1\". Регістр "
-#~ "букв не грає ролі, можливі також такі скорочення як \"<ctl>\" і \"<ctrl>\". "
-#~ "Якщо Ви знімете галочку або надрукуєте \"disabled\", для цієї дії не буде "
-#~ "активного сполучення клавіш. "
-
-#~ msgid ""
-#~ "Configure global keybinding for capture with selection\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "Тут ви можете налаштувати сполучення клавіш для знімків екрану.\n"
-#~ "Приклад сполучення клавіш: \"<control>a\" або \"<shift><alt>f1\". Регістр "
-#~ "букв не грає ролі, можливі також такі скорочення як \"<ctl>\" і \"<ctrl>\". "
-#~ "Якщо Ви знімете галочку або надрукуєте \"disabled\", для цієї дії не буде "
-#~ "активного сполучення клавіш. "
-
-#~ msgid "Choose selection tool"
-#~ msgstr "Оберіть інструмент виділення"
-
-#~ msgid "Advanced Selection Capture"
-#~ msgstr "Розширений знімок виділеного"
-
-#~ msgid "Start Advanced Selection Tool with a customized selection size"
-#~ msgstr "Починати розширене виділення із зазначеним розміром"
-
-#~ msgid "Capture with selection"
-#~ msgstr "Знімок з виділенням"
-
-#~ msgid "Select Window"
-#~ msgstr "Вибрати вікно"
-
-#~ msgid "Keyboard"
-#~ msgstr "Клавіатура"
-
-#~ msgid "There was an error configuring the keybindings."
-#~ msgstr "Під час налаштування комбінацій клавіш сталась помилка."
-
-#~ msgid ""
-#~ "The format looks like \"<Control>Print\" or \"<Shift><Alt>Print\". The "
-#~ "parser is fairly liberal and allows lower or upper case, but abbreviations "
-#~ "such as \"<Ctl>\" and \"<Ctrl>\" may cause problems under some circumstances "
-#~ "(e.g. when using compiz)."
-#~ msgstr ""
-#~ "Формат виглядає яу \"<Control>Print\" або \"<Shift><Alt>Print\". "
-#~ "Інтерпретатор дозволяє використання як верхнього так й нижнього регістру, "
-#~ "але скорочення такі як \"<Ctl>\" та \"<Ctrl>\" можуть привести до проблем в "
-#~ "деяких випадках (наприклад  при використанні Compiz)."
-
-#~ msgid ""
-#~ "<b>Please note:</b> Make sure to activate <i>Gnome Compatibility</i> and "
-#~ "<i>D-Bus Control Backend</i> via CompizConfig Settings Manager if your are "
-#~ "using Desktop Effects or Unity."
-#~ msgstr ""
-#~ "<b>Зверніть увагу:</b> Переконайтесь, що опції <i>Сумісність Gnome</i> та "
-#~ "<i>D-Bus Control Backend</i> увімкнено за допомогою CompizConfig Settings "
-#~ "Manager якщо ви використовуєте Ефекти робочого столу чи Unity."

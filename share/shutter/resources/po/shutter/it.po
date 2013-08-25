@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2012-07-30 01:09+0000\n"
-"Last-Translator: Mario Kemper (Romario) <mario.kemper@googlemail.com>\n"
+"PO-Revision-Date: 2013-07-03 13:30+0000\n"
+"Last-Translator: Giacomo Moretti <giacomo.moretti.it@gmail.com>\n"
 "Language-Team: Italian <it@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-12-18 17:09+0000\n"
-"X-Generator: Launchpad (build 16372)\n"
+"X-Launchpad-Export-Date: 2013-08-25 19:20+0000\n"
+"X-Generator: Launchpad (build 16738)\n"
 
 #: translate_tmp.pl:476
 #: translate_tmp.pl:2590
@@ -27,7 +27,7 @@ msgstr "Profilo"
 #: translate_tmp.pl:483
 #: translate_tmp.pl:4122
 msgid "Preferences"
-msgstr "Preferenze"
+msgstr "italiano"
 
 #: translate_tmp.pl:873
 #: translate_tmp.pl:874
@@ -77,7 +77,7 @@ msgstr "Preferenze finestra"
 
 #: translate_tmp.pl:986
 msgid "Notifications"
-msgstr "Notifiche"
+msgstr "Avvisi"
 
 #: translate_tmp.pl:993
 msgid "Trash"
@@ -114,7 +114,7 @@ msgstr "Cattura sito web"
 
 #: translate_tmp.pl:1049
 msgid "Accounts"
-msgstr "Account"
+msgstr "Accounts"
 
 #: translate_tmp.pl:1056
 msgid "File Transfer Protocol (FTP)"
@@ -391,6 +391,7 @@ msgstr "in"
 #: translate_tmp.pl:1678
 msgid "Start Selection Tool with a customized selection size"
 msgstr ""
+"Avvia strumento di selezione con una selezione di dimensioni personalizzate"
 
 #: translate_tmp.pl:1696
 msgid "Show help text"
@@ -1218,7 +1219,7 @@ msgstr "_Web"
 
 #: translate_tmp.pl:8713
 msgid "S_how main window"
-msgstr ""
+msgstr "M_otra finestra principale"
 
 #: translate_tmp.pl:8719
 #: translate_tmp.pl:395
@@ -1731,12 +1732,14 @@ msgstr ""
 "  Federico Alfredo Moretti https://launchpad.net/~fedmor\n"
 "  Filippo Magni https://launchpad.net/~fil0\n"
 "  François Laurent https://launchpad.net/~francois.laurent\n"
+"  Giacomo Moretti https://launchpad.net/~giacomo-moretti-it\n"
 "  Guybrush88 https://launchpad.net/~guybrush\n"
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
 "  Martino Barbon https://launchpad.net/~martins999\n"
 "  Milo Casagrande https://launchpad.net/~milo\n"
 "  TEYEB Mohamed https://launchpad.net/~aakari-\n"
 "  aviary-o2 https://launchpad.net/~vaviary\n"
+"  giovanni https://launchpad.net/~giovanni-cln\n"
 "  reyammer https://launchpad.net/~reyammer\n"
 "  simone.sandri https://launchpad.net/~lexluxsox"
 
@@ -2594,97 +2597,3 @@ msgstr "Importa dal filesystem..."
 #: translate_tmp.pl:7460
 msgid "New text..."
 msgstr "Nuovo testo..."
-
-#~ msgid "Capture with selection"
-#~ msgstr "Cattura con selezione"
-
-#~ msgid "Simple selection tool"
-#~ msgstr "Strumento di selezione semplice"
-
-#~ msgid ""
-#~ "The simple selection tool is the fastest way of taking a screenshot.\n"
-#~ "It provides an optional zoom window for precise shots."
-#~ msgstr ""
-#~ "Lo strumento di selezione semplice è il modo più veloce per catturare una "
-#~ "schermata.\n"
-#~ "Fornisce una finestra di ingrandimento opzionale per catture precise."
-
-#~ msgid ""
-#~ "The advanced selection tool allows you to enlarge/shrink or move your "
-#~ "selected area\n"
-#~ "until you finally take the screenshot."
-#~ msgstr ""
-#~ "Lo strumento di selezione avanzata ti permette di ingrandire/ridurre oppure "
-#~ "spostare l'area selezionata\n"
-#~ "finché catturi la schermata."
-
-#~ msgid "Advanced selection tool"
-#~ msgstr "Strumento di selezione avanzata"
-
-#~ msgid "Choose selection tool"
-#~ msgstr "Scegli strumento di selezione"
-
-#~ msgid "Advanced Selection Capture"
-#~ msgstr "Seleziona cattura avanzata"
-
-#~ msgid "Start Advanced Selection Tool with a customized selection size"
-#~ msgstr ""
-#~ "Avvia lo strumento di selezione avanzata con una dimensione di selezione "
-#~ "personalizzata"
-
-#~ msgid "Keyboard"
-#~ msgstr "Tastiera"
-
-#~ msgid ""
-#~ "Configure global keybinding for capture with selection\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "Configura l'associazione globale dei tasti per la cattura\n"
-#~ "Il formato somiglia a \"<Control>\" oppure \"<Shift><Alt>F1\". L'elaboratore "
-#~ "pienamente libero e permette lettere maiuscole e minuscole ma anche "
-#~ "abbreviazioni come \"<Ctl>\" e \"<Ctrl>\". Se imposti l'opzione alla stringa "
-#~ "speciale \"disabilitato\", allora non ci saranno associazioni dei tasti per "
-#~ "questa azione. "
-
-#~ msgid ""
-#~ "Configure global keybinding for capture\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "Configura l'associazione globale dei tasti per la cattura\n"
-#~ "Il formato somiglia a \"<Control>\" oppure \"<Shift><Alt>F1\". L'elaboratore "
-#~ "pienamente libero e permette lettere maiuscole e minuscole ma anche "
-#~ "abbreviazioni come \"<Ctl>\" e \"<Ctrl>\". Se imposti l'opzione alla stringa "
-#~ "speciale \"disabilitato\", allora non ci saranno associazioni dei tasti per "
-#~ "questa azione. "
-
-#~ msgid "Select Window"
-#~ msgstr "Seleziona finestra"
-
-#~ msgid "There was an error configuring the keybindings."
-#~ msgstr "Si è verificato un errore configurando l'associazione tasti."
-
-#~ msgid ""
-#~ "The format looks like \"<Control>Print\" or \"<Shift><Alt>Print\". The "
-#~ "parser is fairly liberal and allows lower or upper case, but abbreviations "
-#~ "such as \"<Ctl>\" and \"<Ctrl>\" may cause problems under some circumstances "
-#~ "(e.g. when using compiz)."
-#~ msgstr ""
-#~ "Il formato assomiglia a \"<Control>Print\" o \"<Shift><Alt>Print\". "
-#~ "L'associazione è libera e permette maiuscole e minuscole, ma le "
-#~ "abbreviazioni come \"<Ctl>\" e \"<Ctrl>\" possono causare problemi in alcune "
-#~ "circostanze (ad esempio quando Compiz è in esecuzione)."
-
-#~ msgid ""
-#~ "<b>Please note:</b> Make sure to activate <i>Gnome Compatibility</i> and "
-#~ "<i>D-Bus Control Backend</i> via CompizConfig Settings Manager if your are "
-#~ "using Desktop Effects or Unity."
-#~ msgstr ""
-#~ "<b>Nota:</b> Ricordati di attivare <i>Compatibilità Gnome</i> e <i>Controllo "
-#~ "Backend D-Bus</i> nel Gestore Impostazioni CompizConfig se stai usando gli "
-#~ "Effetti Desktop oppure Unity."

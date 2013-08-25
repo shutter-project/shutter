@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2012-12-18 16:22+0000\n"
+"PO-Revision-Date: 2013-01-15 08:48+0000\n"
 "Last-Translator: Mario Kemper (Romario) <mario.kemper@googlemail.com>\n"
 "Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-12-18 17:09+0000\n"
-"X-Generator: Launchpad (build 16372)\n"
+"X-Launchpad-Export-Date: 2013-08-25 19:21+0000\n"
+"X-Generator: Launchpad (build 16738)\n"
 
 #: translate_tmp.pl:476
 #: translate_tmp.pl:2590
@@ -78,7 +78,7 @@ msgstr "Fenstereinstellungen"
 
 #: translate_tmp.pl:986
 msgid "Notifications"
-msgstr "Benachrichtigen"
+msgstr "Benachrichtigungen"
 
 #: translate_tmp.pl:993
 msgid "Trash"
@@ -1742,7 +1742,7 @@ msgstr ""
 "  Moritz Baumann https://launchpad.net/~mo42\n"
 "  Oliver Horn https://launchpad.net/~oliverhorn\n"
 "  Rene Hennig https://launchpad.net/~shifty\n"
-"  pert7 https://launchpad.net/~pert7"
+"  pert7 https://launchpad.net/~pert7-deactivatedaccount"
 
 #: translate_tmp.pl:34
 #: translate_tmp.pl:6033
@@ -2608,96 +2608,3 @@ msgstr "Aus Datei..."
 #: translate_tmp.pl:7460
 msgid "New text..."
 msgstr "Neuer Text..."
-
-#~ msgid "Capture with selection"
-#~ msgstr "Aufnahme mit Auswahl"
-
-#~ msgid ""
-#~ "Configure global keybinding for capture\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "Konfigurieren Sie hier die Tastenkombination für einen Screenshot des "
-#~ "gesamten Bildschirms.\n"
-#~ "Dies könnte z.B. so aussehen: \"<Control>a\" oder \"<Shift><Alt>F1\". Dabei "
-#~ "ist es egal ob es gross oder klein geschrieben wird.\n"
-#~ "Wenn diese Option abgewählt wird, ist die eingegebene Tastenkombination "
-#~ "unwirksam. "
-
-#~ msgid ""
-#~ "Configure global keybinding for capture with selection\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "Konfigurieren Sie hier die Tastenkombination für einen Screenshot mit "
-#~ "Auswahl.\n"
-#~ "Dies könnte z.B. so aussehen: \"<Control>a\" oder \"<Shift><Alt>F1\". Dabei "
-#~ "ist es egal ob es gross oder klein geschrieben wird.\n"
-#~ "Wenn diese Option abgewählt wird, ist die eingegebene Tastenkombination "
-#~ "unwirksam. "
-
-#~ msgid "Advanced selection tool"
-#~ msgstr "Erweitertes Auswahlwerkzeug"
-
-#~ msgid "Simple selection tool"
-#~ msgstr "Einfaches Auswahlwerkzeug"
-
-#~ msgid ""
-#~ "The simple selection tool is the fastest way of taking a screenshot.\n"
-#~ "It provides an optional zoom window for precise shots."
-#~ msgstr ""
-#~ "Das einfache Auswahlwerkzeug ist die schnellste Möglichkeit ein "
-#~ "Bildschirmfoto aufzunehmen.\n"
-#~ "Für präzise Aufnahmen wird optional eine Zoomfunktion zur Verfügung gestellt."
-
-#~ msgid ""
-#~ "The advanced selection tool allows you to enlarge/shrink or move your "
-#~ "selected area\n"
-#~ "until you finally take the screenshot."
-#~ msgstr ""
-#~ "Das erweiterte Auswahlwerkzeug erlaubt Ihnen den ausgewählten Bereich zu "
-#~ "vergrößern/verkleinern \n"
-#~ "oder zu verschieben bevor Sie das Bildschirmfoto aufnehmen."
-
-#~ msgid "Choose selection tool"
-#~ msgstr "Auswahlwerkzeug festlegen"
-
-#~ msgid "Keyboard"
-#~ msgstr "Tastatur"
-
-#~ msgid "Advanced Selection Capture"
-#~ msgstr "Erweiterte Auswahlaufnahme"
-
-#~ msgid "Start Advanced Selection Tool with a customized selection size"
-#~ msgstr ""
-#~ "Erweitertes Auswahlwerkzeug mit einer individuellen Auswahlgröße starten"
-
-#~ msgid "Select Window"
-#~ msgstr "Fenster auswählen"
-
-#~ msgid "There was an error configuring the keybindings."
-#~ msgstr "Fehler beim Konfigurieren der Tastenkombinationen."
-
-#~ msgid ""
-#~ "The format looks like \"<Control>Print\" or \"<Shift><Alt>Print\". The "
-#~ "parser is fairly liberal and allows lower or upper case, but abbreviations "
-#~ "such as \"<Ctl>\" and \"<Ctrl>\" may cause problems under some circumstances "
-#~ "(e.g. when using compiz)."
-#~ msgstr ""
-#~ "Dies könnte z.B. so aussehen: \"<Control>a\" oder \"<Shift><Alt>F1\". Dabei "
-#~ "ist es egal, ob groß oder klein geschrieben wird. Abkürzungen, wie z.B. "
-#~ "\"<Ctl>\" und \"<Ctrl>\", könnten aber unter bestimmten Umständen Probleme "
-#~ "bereiten (z.B. bei der Verwendung von Compiz)."
-
-#~ msgid ""
-#~ "<b>Please note:</b> Make sure to activate <i>Gnome Compatibility</i> and "
-#~ "<i>D-Bus Control Backend</i> via CompizConfig Settings Manager if your are "
-#~ "using Desktop Effects or Unity."
-#~ msgstr ""
-#~ "<b>Bitte beachten:</b> Stellen Sie sicher, dass <i>Gnome-Kompatibilität</i> "
-#~ "und das <i>D-Bus Control Backend</i> im CompizConfig Einstellungsmanager "
-#~ "aktiviert sind, wenn Sie Desktop-Effekte oder Unity verwenden."

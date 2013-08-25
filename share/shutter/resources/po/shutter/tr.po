@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2012-09-08 12:14+0000\n"
-"Last-Translator: Mehmet Akif Tütüncü <Unknown>\n"
+"PO-Revision-Date: 2013-05-26 21:17+0000\n"
+"Last-Translator: Ercan SORMAZ <ercansormaz@gmail.com>\n"
 "Language-Team: Turkish <tr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-12-18 17:09+0000\n"
-"X-Generator: Launchpad (build 16372)\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Launchpad-Export-Date: 2013-08-25 19:21+0000\n"
+"X-Generator: Launchpad (build 16738)\n"
 
 #: translate_tmp.pl:476
 #: translate_tmp.pl:2590
@@ -32,7 +32,7 @@ msgstr "Tercihler"
 #: translate_tmp.pl:873
 #: translate_tmp.pl:874
 msgid "gnome-web-photo needs to be installed for this feature"
-msgstr "bu özellik için gnome-web-photo yüklü olmalıdır"
+msgstr "Bu özellik için gnome-web-photo yüklü olmalıdır"
 
 #: translate_tmp.pl:883
 msgid "Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature"
@@ -263,6 +263,7 @@ msgstr "Gecikme"
 msgid "second"
 msgid_plural "seconds"
 msgstr[0] "saniye"
+msgstr[1] "saniye"
 
 #: translate_tmp.pl:1360
 msgid "Capture after a delay of"
@@ -386,7 +387,7 @@ msgstr "et"
 #: translate_tmp.pl:1677
 #: translate_tmp.pl:1678
 msgid "Start Selection Tool with a customized selection size"
-msgstr ""
+msgstr "Seçim Aracını özelleştirilmiş seçim boyutu ile başlat"
 
 #: translate_tmp.pl:1696
 msgid "Show help text"
@@ -566,6 +567,7 @@ msgstr "Yeniden çizim süresi"
 msgid "millisecond"
 msgid_plural "milliseconds"
 msgstr[0] "milisaniye"
+msgstr[1] "milisaniye"
 
 #: translate_tmp.pl:2041
 #: translate_tmp.pl:2141
@@ -747,6 +749,7 @@ msgstr "Aşağıdaki eklentiler yüklendi"
 msgid "pixel"
 msgid_plural "pixels"
 msgstr[0] "piksel"
+msgstr[1] "piksel"
 
 #: translate_tmp.pl:2967
 #: translate_tmp.pl:2974
@@ -769,6 +772,7 @@ msgstr "Lütfen yakalamak istediğiniz ipucunu etkinleştirin"
 msgid "Screenshot will be taken in %s second"
 msgid_plural "Screenshot will be taken in %s seconds"
 msgstr[0] "%s Saniye içinde ekran görüntüsü alınacak"
+msgstr[1] "%s Saniye içinde ekran görüntüsü alınacak"
 
 #: translate_tmp.pl:3355
 #: translate_tmp.pl:9147
@@ -1058,6 +1062,7 @@ msgstr "Eklenti çalıştırılırken hata oluştu."
 msgid "%s screenshot"
 msgid_plural "%s screenshots"
 msgstr[0] "%s ekran görüntüsü"
+msgstr[1] "%s ekran görüntüleri"
 
 #: translate_tmp.pl:7251
 msgid "Current profile"
@@ -1148,6 +1153,10 @@ msgstr[0] ""
 "Bu seçenek birden fazla monitor kullananlar için kullanışlı olabilir. (%d "
 "monitor bulundu).\n"
 "Sadece mevcut monitor için etkinleştir."
+msgstr[1] ""
+"Bu seçenek birden fazla monitor kullananlar için kullanışlı olabilir. (%d "
+"monitor bulundu).\n"
+"Sadece mevcut monitor için etkinleştir."
 
 #: translate_tmp.pl:8537
 msgid "Active Window"
@@ -1198,7 +1207,7 @@ msgstr "_Web"
 
 #: translate_tmp.pl:8713
 msgid "S_how main window"
-msgstr ""
+msgstr "Ana pencereyi &göster"
 
 #: translate_tmp.pl:8719
 #: translate_tmp.pl:395
@@ -1219,14 +1228,16 @@ msgstr "Belirsiz bir süre bekle"
 #, perl-format
 msgid "Wait max %d second"
 msgid_plural "Wait max %d seconds"
-msgstr[0] "Maksimum %d saniye bekleyin"
+msgstr[0] "Maksimum bekleme süresi %d saniye"
+msgstr[1] "Maksimum bekleme süresi %d saniye"
 
 #: translate_tmp.pl:8899
 #: translate_tmp.pl:8900
 #, perl-format
 msgid "Wait max %d minute"
 msgid_plural "Wait max %d minutes"
-msgstr[0] "Maksimum %d dakika bekleyin"
+msgstr[0] "Maksimum bekleme süresi %d dakika"
+msgstr[1] "Maksimum bekleme süresi %d dakika"
 
 #: translate_tmp.pl:8908
 msgid "Shutter will wait indefinitely for the screenshot to capture"
@@ -1245,6 +1256,9 @@ msgid_plural ""
 msgstr[0] ""
 "Shutter işlemi çok uzun sürdüğü için iptal etmeden önce ekran görüntüsünü "
 "yakalamak için %d saniye bekleyecek."
+msgstr[1] ""
+"Shutter işlemi çok uzun sürdüğü için iptal etmeden önce ekran görüntüsünü "
+"yakalamak için %d saniye bekleyecek."
 
 #: translate_tmp.pl:8911
 #: translate_tmp.pl:8912
@@ -1256,6 +1270,9 @@ msgid_plural ""
 "Shutter will wait up to %d minutes for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
+"Shutter işlemi çok uzun sürdüğü için iptal etmeden önce ekran görüntüsünü "
+"yakalamak için %d dakika bekleyecek."
+msgstr[1] ""
 "Shutter işlemi çok uzun sürdüğü için iptal etmeden önce ekran görüntüsünü "
 "yakalamak için %d dakika bekleyecek."
 
@@ -1508,7 +1525,10 @@ msgid_plural ""
 "Folder %s is synchronized with Ubuntu One. The selected files will be copied "
 "to that folder before being published."
 msgstr[0] ""
-"%s dizini Ubuntu One ile eşleştirildi. Seçili dosya(lar) karşıya yüklenmeden "
+"%s dizini Ubuntu One ile eşleştirildi. Seçili dosya karşıya yüklenmeden önce "
+"bu dizine kopyalanacak."
+msgstr[1] ""
+"%s dizini Ubuntu One ile eşleştirildi. Seçili dosyalar karşıya yüklenmeden "
 "önce bu dizine kopyalanacaklar."
 
 #: translate_tmp.pl:10707
@@ -1521,6 +1541,9 @@ msgid_plural ""
 "process. You will be notified when the process has finished."
 msgstr[0] ""
 "<b>Lütfen not edin:</b> Seçili dosya bir arka plan işleminde "
+"yayınlanacaktır. İşlem bittiğinde bilgilendirileceksiniz."
+msgstr[1] ""
+"<b>Lütfen not edin:</b> Seçili dosyalar bir arka plan işleminde "
 "yayınlanacaktır. İşlem bittiğinde bilgilendirileceksiniz."
 
 #: translate_tmp.pl:10711
@@ -1688,6 +1711,7 @@ msgstr ""
 "Launchpad Contributions:\n"
 "  Cemal Dursun https://launchpad.net/~cmldrs\n"
 "  Emre Ayca https://launchpad.net/~anatolica\n"
+"  Ercan SORMAZ https://launchpad.net/~ercansormaz\n"
 "  Irmak Bıçakçıgil https://launchpad.net/~irmak\n"
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
 "  Mehmet Akif Tütüncü https://launchpad.net/~m-akif-tutuncu\n"
@@ -1697,6 +1721,7 @@ msgstr ""
 "  Soysal Tan https://launchpad.net/~genericdawn\n"
 "  Such https://launchpad.net/~cancerus\n"
 "  Utku BERBEROĞLU https://launchpad.net/~boluluutku\n"
+"  Volkan Gezer https://launchpad.net/~volkangezer\n"
 "  halukcy https://launchpad.net/~halukcy\n"
 "  kulkke https://launchpad.net/~kulkke\n"
 "  Şâkir Aşçı https://launchpad.net/~sakirasci"
@@ -2273,8 +2298,10 @@ msgid ""
 msgid_plural ""
 "If you don't save the image, changes from the last %d minutes will be lost"
 msgstr[0] ""
-"Eğer görüntüyü kaydetmezseniz, son yapılan değişiklikleri kaybedeceksiniz\r\n"
-"Eğer görüntüyü kaydetmezseniz, %d dakika içinde yapılan değişiklikleri "
+"Eğer görüntüyü kaydetmezseniz, son bir dakika içinde yapılan değişiklikleri "
+"kaybedeceksiniz"
+msgstr[1] ""
+"Eğer görüntüyü kaydetmezseniz, son %d dakika içinde yapılan değişiklikleri "
 "kaybedeceksiniz"
 
 #: translate_tmp.pl:1720
@@ -2555,90 +2582,3 @@ msgstr "Dosya sisteminden içe aktarma..."
 #: translate_tmp.pl:7460
 msgid "New text..."
 msgstr "Yeni yazı..."
-
-#~ msgid "Capture with selection"
-#~ msgstr "Seçileni yakala"
-
-#~ msgid "Advanced selection tool"
-#~ msgstr "Gelişmiş seçim aracı"
-
-#~ msgid "Simple selection tool"
-#~ msgstr "Basit seçim aracı"
-
-#~ msgid ""
-#~ "The simple selection tool is the fastest way of taking a screenshot.\n"
-#~ "It provides an optional zoom window for precise shots."
-#~ msgstr ""
-#~ "Basit seçim aracı ekran görüntüsü almanın en hızlı yoludur.\n"
-#~ "İsteğe bağlı hassas seçim büyültmesi de sağlar."
-
-#~ msgid ""
-#~ "The advanced selection tool allows you to enlarge/shrink or move your "
-#~ "selected area\n"
-#~ "until you finally take the screenshot."
-#~ msgstr ""
-#~ "Gelişmiş seçim aracı büyütme/küçültme veya seçilen alanın ekran görüntüsünü\n"
-#~ "almak için hareket imkanı sağlar."
-
-#~ msgid "Choose selection tool"
-#~ msgstr "Seçim aracını seçin"
-
-#~ msgid ""
-#~ "Configure global keybinding for capture with selection\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "Seçilen alanı yakalama için evrensel kısayolu ayarlayın\n"
-#~ "Biçim şu şekilde olabilir \"<Control>a\" veya <Shift>Alt>F1\". Ayırıcı "
-#~ "liberal bir şekilde büyük/küçük harf kullanılmasına izin verir, \"<Ctl>\" ve "
-#~ "\"<Ctrl>\" gibi kısaltma kullanılabilir. Eğer özel değeri \"disabled\" "
-#~ "olarak ayarlarsanız eylem için tuş atanmaz. "
-
-#~ msgid ""
-#~ "Configure global keybinding for capture\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "Yakalama için evrensel kısayolu ayarlayın\n"
-#~ "Biçim şu şekilde olabilir \"<Control>a\" veya <Shift>Alt>F1\". Ayırıcı "
-#~ "liberal bir şekilde büyük/küçük harf kullanılmasına izin verir, \"<Ctl>\" ve "
-#~ "\"<Ctrl>\" gibi kısaltma kullanılabilir. Eğer özel değeri \"disabled\" "
-#~ "olarak ayarlarsanız eylem için tuş atanmaz. "
-
-#~ msgid "Keyboard"
-#~ msgstr "Klavye"
-
-#~ msgid "Advanced Selection Capture"
-#~ msgstr "Gelişmiş Seçim Yakalama"
-
-#~ msgid "Start Advanced Selection Tool with a customized selection size"
-#~ msgstr "Gelişmiş Seçim Aracını belirlenen ölçülerde başlat"
-
-#~ msgid "Select Window"
-#~ msgstr "Pencere Seç"
-
-#~ msgid "There was an error configuring the keybindings."
-#~ msgstr "Klavye kısayolları ayarlanırken bir hata oluştu."
-
-#~ msgid ""
-#~ "<b>Please note:</b> Make sure to activate <i>Gnome Compatibility</i> and "
-#~ "<i>D-Bus Control Backend</i> via CompizConfig Settings Manager if your are "
-#~ "using Desktop Effects or Unity."
-#~ msgstr ""
-#~ "<b>Lütfen not edin:Eğer Unity için masaüstü efektleri kullanıyorsanız "
-#~ "</b>CompizConfig Settings Manager içinden <i>Gnome Compatibility</i> ve <i>D-"
-#~ "Bus Control Backend</i> seçeneklerini etkinleştirdiğinizden emin olun."
-
-#~ msgid ""
-#~ "The format looks like \"<Control>Print\" or \"<Shift><Alt>Print\". The "
-#~ "parser is fairly liberal and allows lower or upper case, but abbreviations "
-#~ "such as \"<Ctl>\" and \"<Ctrl>\" may cause problems under some circumstances "
-#~ "(e.g. when using compiz)."
-#~ msgstr ""
-#~ "Biçim \"<Control> Print\" ya da \"<Shift> <Alt> Print\" gibi görünüyor. "
-#~ "Çözümleyici oldukça esnektir ve büyük ya da küçük harflere izin verir, ama "
-#~ "\"<Ctl> ve <Ctrl>\" gibi kısaltmalar bazı durumlarda hatalara neden olabilir."

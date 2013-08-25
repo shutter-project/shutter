@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2012-07-30 01:08+0000\n"
-"Last-Translator: Mario Kemper (Romario) <mario.kemper@googlemail.com>\n"
+"PO-Revision-Date: 2013-08-09 10:23+0000\n"
+"Last-Translator: ub <xenolith0bytetestcomgreen@gmail.com>\n"
 "Language-Team: Japanese\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-12-18 17:09+0000\n"
-"X-Generator: Launchpad (build 16372)\n"
+"X-Launchpad-Export-Date: 2013-08-25 19:20+0000\n"
+"X-Generator: Launchpad (build 16738)\n"
 "X-Poedit-Country: JAPAN\n"
 "X-Poedit-Language: Japanese\n"
 
@@ -24,7 +24,7 @@ msgstr ""
 #: translate_tmp.pl:2590
 #: translate_tmp.pl:7396
 msgid "Profile"
-msgstr "プロフィール"
+msgstr "プロファイル"
 
 #: translate_tmp.pl:483
 #: translate_tmp.pl:4122
@@ -1104,11 +1104,11 @@ msgstr "プラグイン情報を更新する間、しばらくお待ちくださ
 
 #: translate_tmp.pl:8246
 msgid "Updating upload plugin information"
-msgstr ""
+msgstr "アップロードプラグインの情報をアップデート中"
 
 #: translate_tmp.pl:8251
 msgid "Please wait while Shutter updates the upload plugin information"
-msgstr ""
+msgstr "Shutterはアップロードプラグインの情報をアップデート中です。しばらくお待ち下さい"
 
 #: translate_tmp.pl:8482
 msgid "Capture All Workspaces"
@@ -1243,15 +1243,15 @@ msgstr "ホスト"
 
 #: translate_tmp.pl:9113
 msgid "Anonymous Upload"
-msgstr ""
+msgstr "匿名アップロード"
 
 #: translate_tmp.pl:9120
 msgid "Authorized Upload"
-msgstr ""
+msgstr "認証アップロード"
 
 #: translate_tmp.pl:9127
 msgid "OAuth Upload"
-msgstr ""
+msgstr "OAuthアップロード"
 
 #: translate_tmp.pl:9138
 #: translate_tmp.pl:9199
@@ -1425,7 +1425,7 @@ msgstr "ゲスト"
 
 #: translate_tmp.pl:10426
 msgid "OAuth"
-msgstr ""
+msgstr "OAuth"
 
 #: translate_tmp.pl:10459
 msgid ""
@@ -1439,7 +1439,7 @@ msgid ""
 "<b>Please note:</b> If a plugin allows only authorized uploading you need to "
 "enter your credentials in preferences first to make it appear in the list "
 "above."
-msgstr ""
+msgstr "<b>ノート:</b>プラグインがユーザ認証が必要なタイプの場合は、リストに表示させるために事前に設定を済ませておく必要があります。"
 
 #: translate_tmp.pl:10462
 msgid "Choose account"
@@ -1520,7 +1520,7 @@ msgstr ""
 #: translate_tmp.pl:10846
 #, perl-format
 msgid "Loading module %s"
-msgstr ""
+msgstr "モジュール %s をロード中です"
 
 #: translate_tmp.pl:10859
 #, perl-format
@@ -1659,9 +1659,11 @@ msgstr ""
 "  Kazutaka HARADA https://launchpad.net/~kazutaka\n"
 "  Kazutaka HARADA https://launchpad.net/~kazutaka802\n"
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
+"  Naoki MATSUMOTO https://launchpad.net/~nekomatu\n"
 "  Yutaka Aiko https://launchpad.net/~ubon\n"
 "  bigriver9 https://launchpad.net/~bigriver9615\n"
-"  hidenosuke https://launchpad.net/~hidenosuke"
+"  hidenosuke https://launchpad.net/~hidenosuke\n"
+"  ub https://launchpad.net/~xenolith0bytetestcomgreen"
 
 #: translate_tmp.pl:34
 #: translate_tmp.pl:6033
@@ -1765,7 +1767,7 @@ msgstr "別のアプリで開く(_H)"
 #: translate_tmp.pl:565
 #: translate_tmp.pl:662
 msgid "Show in _folder"
-msgstr ""
+msgstr "一時的に保存したフォルダーを開く"
 
 #: translate_tmp.pl:572
 #: translate_tmp.pl:669
@@ -1785,7 +1787,7 @@ msgstr "エクスポート(_E)..."
 #: translate_tmp.pl:597
 #: translate_tmp.pl:691
 msgid "Public URLs"
-msgstr ""
+msgstr "公開URL"
 
 #: translate_tmp.pl:605
 #: translate_tmp.pl:718
@@ -2001,7 +2003,7 @@ msgstr "<b>ctrl + scrollwheel</b> → ズームイン/アウト"
 
 #: translate_tmp.pl:124
 msgid "<b>space</b> → zoom window on/off"
-msgstr ""
+msgstr "<b>スペース</b> → ズームウィンドウのオン・オフ"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys</b> → move cursor"
@@ -2009,11 +2011,11 @@ msgstr "<b>カーソルキー</b> → カーソルを移動"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys + alt</b> → move selection"
-msgstr ""
+msgstr "<b>カーソルキー + alt</b> → 選択範囲の移動"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys + ctrl</b> → resize selection"
-msgstr ""
+msgstr "<b>カーソルキー + ctrl</b> → 選択範囲のサイズ変更"
 
 #: translate_tmp.pl:88
 msgid ""
@@ -2501,79 +2503,3 @@ msgstr "ファイルからインポート..."
 #: translate_tmp.pl:7460
 msgid "New text..."
 msgstr "新しいテキスト..."
-
-#~ msgid "Advanced selection tool"
-#~ msgstr "高度な選択ツール"
-
-#~ msgid "Advanced Selection Capture"
-#~ msgstr "範囲選択の高度なオプション"
-
-#~ msgid "Start Advanced Selection Tool with a customized selection size"
-#~ msgstr "高度な選択ツールを指定したサイズで開始します"
-
-#~ msgid "Capture with selection"
-#~ msgstr "範囲を選択して取得"
-
-#~ msgid "Keyboard"
-#~ msgstr "キーボード"
-
-#~ msgid "Simple selection tool"
-#~ msgstr "簡単な選択ツール"
-
-#~ msgid ""
-#~ "The advanced selection tool allows you to enlarge/shrink or move your "
-#~ "selected area\n"
-#~ "until you finally take the screenshot."
-#~ msgstr ""
-#~ "高度な選択ツールでは、スクリーンショットを取得する前に、選択範囲の拡大や縮小、\n"
-#~ "移動が自由に行えます"
-
-#~ msgid ""
-#~ "The simple selection tool is the fastest way of taking a screenshot.\n"
-#~ "It provides an optional zoom window for precise shots."
-#~ msgstr ""
-#~ "簡単な選択ツールは、最も早くスクリーンショットを取得できるツールです\n"
-#~ "正確な範囲指定用のズームウィンドウも備わっています"
-
-#~ msgid "Choose selection tool"
-#~ msgstr "選択ツールを選びます"
-
-#~ msgid "There was an error configuring the keybindings."
-#~ msgstr "キーバインドを設定中にエラーが発生しました。"
-
-#~ msgid "Select Window"
-#~ msgstr "ウィンドウを選択"
-
-#~ msgid ""
-#~ "Configure global keybinding for capture with selection\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "範囲を選択して取得する時のキーボード・ショートカットを設定します\n"
-#~ "書式は \"<Control>a\" や \"<Shift><Alt>F1\" のようになります。大文字でも小文字でも問題ありません。また "
-#~ "\"<Ctl>\" や \"<Ctrl>\" といった短縮形も利用できます。もし \"disabled\" "
-#~ "と指定した場合は、キーボード・ショートカットは設定されません。 "
-
-#~ msgid ""
-#~ "Configure global keybinding for capture\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "スクリーンショット取得用のキーボード・ショートカットを設定します\n"
-#~ "書式は \"<Control>a\" や \"<Shift><Alt>F1\" のようになります。大文字でも小文字でも問題ありません。また "
-#~ "\"<Ctl>\" や \"<Ctrl>\" といった短縮形も利用できます。もし \"disabled\" "
-#~ "と指定した場合は、キーボード・ショートカットは設定されません。 "
-
-#~ msgid ""
-#~ "The format looks like \"<Control>Print\" or \"<Shift><Alt>Print\". The "
-#~ "parser is fairly liberal and allows lower or upper case, but abbreviations "
-#~ "such as \"<Ctl>\" and \"<Ctrl>\" may cause problems under some circumstances "
-#~ "(e.g. when using compiz)."
-#~ msgstr ""
-#~ "形式は\"<Control>Print\" または "
-#~ "\"<Shift><Alt>Print\"のようになります。このパーサーは自由度が高く、小文字や大文字は区別なく利用できますが、略語など、例えば\"<Ct"
-#~ "l>\" や \"<Ctrl>\"は、いくつかの状況下で問題が起こる可能性があります(例:compizを利用しているとき)。"

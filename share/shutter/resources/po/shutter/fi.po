@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2012-09-18 16:08+0000\n"
-"Last-Translator: Aleksi Kinnunen <Unknown>\n"
+"PO-Revision-Date: 2013-05-09 15:47+0000\n"
+"Last-Translator: Jiri Grönroos <Unknown>\n"
 "Language-Team: Finnish <fi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-12-18 17:09+0000\n"
-"X-Generator: Launchpad (build 16372)\n"
+"X-Launchpad-Export-Date: 2013-08-25 19:21+0000\n"
+"X-Generator: Launchpad (build 16738)\n"
 
 #: translate_tmp.pl:883
 msgid "Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature"
@@ -219,7 +219,7 @@ msgstr "Valitse kansio"
 #: translate_tmp.pl:1251
 #: translate_tmp.pl:1252
 msgid "Your screenshots will be saved to this directory"
-msgstr "Ruutukaappauksesi tallennetaan tähän kansioon"
+msgstr "Kuvakaappauksesi tallennetaan tähän kansioon"
 
 #: translate_tmp.pl:1261
 #: translate_tmp.pl:1264
@@ -386,7 +386,7 @@ msgstr "sijainnissa"
 #: translate_tmp.pl:1677
 #: translate_tmp.pl:1678
 msgid "Start Selection Tool with a customized selection size"
-msgstr ""
+msgstr "Käynnistä valintatyökalu mukautetulla valinnan koolla"
 
 #: translate_tmp.pl:1696
 msgid "Show help text"
@@ -442,7 +442,7 @@ msgstr "Valitse vain näkyvät ikkunat"
 
 #: translate_tmp.pl:1813
 msgid "Pre-Capture Delay"
-msgstr ""
+msgstr "Esikaappauksen viive"
 
 #: translate_tmp.pl:1828
 #: translate_tmp.pl:1829
@@ -548,7 +548,7 @@ msgstr "Piilota pääikkuna automaattisesti kuvakaappausta ottaessa"
 
 #: translate_tmp.pl:2032
 msgid "Redraw Delay"
-msgstr ""
+msgstr "Uudelleenpiirron viive"
 
 #: translate_tmp.pl:2035
 #: translate_tmp.pl:2908
@@ -580,7 +580,7 @@ msgstr "Näytä ilmoitus viivettä käyttäessä"
 
 #: translate_tmp.pl:2046
 msgid "Display pop-up notification when using a pre-capture delay"
-msgstr ""
+msgstr "Näytä ilmoitus näytöllä esikaappausviivettä käyttäessä"
 
 #: translate_tmp.pl:2048
 msgid "Notification agent"
@@ -705,7 +705,7 @@ msgstr "Päävalikko"
 
 #: translate_tmp.pl:2408
 msgid "Advanced"
-msgstr "Edistyneet"
+msgstr "Lisäasetukset"
 
 #: translate_tmp.pl:2456
 msgid "Image View"
@@ -1107,11 +1107,11 @@ msgstr "Odota hetki, kun Shutter päivittää liitännäistietoja"
 
 #: translate_tmp.pl:8246
 msgid "Updating upload plugin information"
-msgstr ""
+msgstr "Päivitetään lähetysliitännäisen tietoja"
 
 #: translate_tmp.pl:8251
 msgid "Please wait while Shutter updates the upload plugin information"
-msgstr ""
+msgstr "Odota hetki, kun Shutter päivittää lähetysliitännäisten tietoja"
 
 #: translate_tmp.pl:8482
 msgid "Capture All Workspaces"
@@ -1183,7 +1183,7 @@ msgstr "_Verkkosivu"
 
 #: translate_tmp.pl:8713
 msgid "S_how main window"
-msgstr ""
+msgstr "N_äytä pääikkuna"
 
 #: translate_tmp.pl:8719
 #: translate_tmp.pl:395
@@ -1249,15 +1249,15 @@ msgstr "Isäntä"
 
 #: translate_tmp.pl:9113
 msgid "Anonymous Upload"
-msgstr ""
+msgstr "Anonyymi lähetys"
 
 #: translate_tmp.pl:9120
 msgid "Authorized Upload"
-msgstr ""
+msgstr "Valtuutettu lähetys"
 
 #: translate_tmp.pl:9127
 msgid "OAuth Upload"
-msgstr ""
+msgstr "OAuth-lähetys"
 
 #: translate_tmp.pl:9138
 #: translate_tmp.pl:9199
@@ -1506,7 +1506,11 @@ msgid_plural ""
 "<b>Please note:</b> The selected files will be published in a background "
 "process. You will be notified when the process has finished."
 msgstr[0] ""
+"<b>Huomaa:</b> Valittu tiedosto julkaistaan taustaprosessina. Sinulle "
+"ilmoitetaan, kun prosessi on valmis."
 msgstr[1] ""
+"<b>Huomaa:</b> Valitut tiedostot julkaistaan taustaprosessina. Sinulle "
+"ilmoitetaan, kun prosessi on valmis."
 
 #: translate_tmp.pl:10711
 #: translate_tmp.pl:10743
@@ -1542,11 +1546,11 @@ msgstr "Ladataan moduulia %s"
 #: translate_tmp.pl:10859
 #, perl-format
 msgid "Error while executing upload plugin %s."
-msgstr ""
+msgstr "Virhe suorittaessa lähetysliitännäistä %s."
 
 #: translate_tmp.pl:10859
 msgid "There was an error executing the upload plugin."
-msgstr ""
+msgstr "Virhe suorittaessa lähetysliitännäistä."
 
 #: translate_tmp.pl:10892
 #: translate_tmp.pl:10963
@@ -1941,7 +1945,7 @@ msgstr ""
 
 #: translate_tmp.pl:247
 msgid "Show links to previous uploads"
-msgstr ""
+msgstr "Näytä linkit aiemmin lähetettyihin kuviin"
 
 #: translate_tmp.pl:33
 #: translate_tmp.pl:47
@@ -1999,12 +2003,12 @@ msgstr "Komento 'put' epäonnistui."
 
 #: translate_tmp.pl:87
 msgid "Copy this code to clipboard"
-msgstr ""
+msgstr "Kopioi tämä koodi leikepöydälle"
 
 #: translate_tmp.pl:112
 #, perl-format
 msgid "Upload - %s - %s"
-msgstr ""
+msgstr "Lähetys - %s - %s"
 
 #: translate_tmp.pl:120
 msgid "Draw a rectangular area using the mouse."
@@ -2119,12 +2123,12 @@ msgstr "Määritä täyttöväri ja läpinäkyvyys"
 #: translate_tmp.pl:468
 #: translate_tmp.pl:4206
 msgid "Stroke color"
-msgstr ""
+msgstr "Viivan väri"
 
 #: translate_tmp.pl:473
 #: translate_tmp.pl:4212
 msgid "Choose stroke color"
-msgstr ""
+msgstr "Valitse viivan väri"
 
 #: translate_tmp.pl:475
 #: translate_tmp.pl:476
@@ -2196,15 +2200,15 @@ msgstr ""
 
 #: translate_tmp.pl:868
 msgid "Click-Drag to create a new straight line"
-msgstr ""
+msgstr "Napsauta ja vedä luodaksesi uudne suoran viivan"
 
 #: translate_tmp.pl:873
 msgid "Click-Drag to create a new arrow"
-msgstr ""
+msgstr "Napsauta ja vedä luodaksesi uuden nuolen"
 
 #: translate_tmp.pl:878
 msgid "Click-Drag to create a new rectangle"
-msgstr ""
+msgstr "Napsauta ja vedä luodaksesi uuden suorakulmion"
 
 #: translate_tmp.pl:883
 msgid "Click-Drag to create a new ellipse"
@@ -2212,7 +2216,7 @@ msgstr ""
 
 #: translate_tmp.pl:888
 msgid "Click-Drag to add a new text area"
-msgstr ""
+msgstr "Napsauta ja vedä luodaksesi uuden tekstialueen"
 
 #: translate_tmp.pl:893
 msgid "Click to censor (try Control or Shift for a straight line)"
@@ -2530,27 +2534,3 @@ msgstr "Tuo levyltä..."
 #: translate_tmp.pl:7460
 msgid "New text..."
 msgstr "Uusi teksti..."
-
-#~ msgid "Keyboard"
-#~ msgstr "Näppäimistö"
-
-#~ msgid "Simple selection tool"
-#~ msgstr "Yksinkertainen valintatyökalu"
-
-#~ msgid "Advanced Selection Capture"
-#~ msgstr "Edistynyt valinnan kaappaus"
-
-#~ msgid "Select Window"
-#~ msgstr "Valitse ikkuna"
-
-#~ msgid "Advanced selection tool"
-#~ msgstr "Edistynyt valinnan kaappaustyökalu"
-
-#~ msgid "Capture with selection"
-#~ msgstr "Kaappaus valinnalla"
-
-#~ msgid "Choose selection tool"
-#~ msgstr "Valitse valintatyökalu"
-
-#~ msgid "There was an error configuring the keybindings."
-#~ msgstr "Virhe pikanäppäimiä määriteltäessä."

@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2012-07-30 01:12+0000\n"
-"Last-Translator: පසිඳු කාවින්ද <pkavinda@gmail.com>\n"
+"PO-Revision-Date: 2013-06-01 20:13+0000\n"
+"Last-Translator: A.K.D.M.P Munasinghe <mpmunasinghe@gmail.com>\n"
 "Language-Team: Sinhalese <si@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-12-18 17:09+0000\n"
-"X-Generator: Launchpad (build 16372)\n"
+"X-Launchpad-Export-Date: 2013-08-25 19:20+0000\n"
+"X-Generator: Launchpad (build 16738)\n"
 
 #: translate_tmp.pl:476
 #: translate_tmp.pl:2590
@@ -45,7 +45,7 @@ msgstr "පැතිකඩක් තොරා ගන්න"
 
 #: translate_tmp.pl:932
 msgid "Save configuration as profile"
-msgstr ""
+msgstr "වින්‍යාසය සුරැකීම පැතිකඩක් ලෙස කරන්න"
 
 #: translate_tmp.pl:942
 msgid "Delete profile"
@@ -53,14 +53,14 @@ msgstr "පැතිකඩ මකන්න"
 
 #: translate_tmp.pl:951
 msgid "Load the selected profile's configuration"
-msgstr ""
+msgstr "තෝරාගත් පැතිකඩෙහි වින්‍යාසය ප්‍රවේශනය කරන්න"
 
 #: translate_tmp.pl:958
 #: translate_tmp.pl:1231
 #: translate_tmp.pl:9907
 #: translate_tmp.pl:1513
 msgid "Image format"
-msgstr ""
+msgstr "ප්‍රතිබිම්බ ආකෘතිය"
 
 #: translate_tmp.pl:965
 msgid "Save"
@@ -68,11 +68,11 @@ msgstr "සුරකින්න"
 
 #: translate_tmp.pl:972
 msgid "First-launch Behavior"
-msgstr ""
+msgstr "ප්‍රථම දියත්කිරීමේදී හැසිරීම"
 
 #: translate_tmp.pl:979
 msgid "Window Preferences"
-msgstr ""
+msgstr "කවුළු අභිරුචිය"
 
 #: translate_tmp.pl:986
 msgid "Notifications"
@@ -84,7 +84,7 @@ msgstr "කසල"
 
 #: translate_tmp.pl:1000
 msgid "Gnome-Keybinding"
-msgstr ""
+msgstr "Gnome-යතුරුබන්ධනය"
 
 #: translate_tmp.pl:1007
 #: translate_tmp.pl:2383
@@ -93,23 +93,23 @@ msgstr "ක්‍රියා"
 
 #: translate_tmp.pl:1014
 msgid "Capture"
-msgstr "ඩැහැගන්න"
+msgstr "ග්‍රහණය කරන්න"
 
 #: translate_tmp.pl:1021
 msgid "Selection Capture"
-msgstr "තෝරාගත් කොටස"
+msgstr "තෝරාගත් කොටස ග්‍රහණය"
 
 #: translate_tmp.pl:1028
 msgid "Window Capture"
-msgstr ""
+msgstr "කවුළු ග්‍රහණය"
 
 #: translate_tmp.pl:1035
 msgid "Menu/Tooltip Capture"
-msgstr ""
+msgstr "මෙනුව/මෙවලම්ඉගි ග්‍රහණය"
 
 #: translate_tmp.pl:1042
 msgid "Website Capture"
-msgstr ""
+msgstr "වෙබ්අඩවි ග්‍රහණය"
 
 #: translate_tmp.pl:1049
 msgid "Accounts"
@@ -117,7 +117,7 @@ msgstr "ගිණුම්"
 
 #: translate_tmp.pl:1056
 msgid "File Transfer Protocol (FTP)"
-msgstr "File Transfer Protocol (FTP)"
+msgstr "ගොනු මාරුකිරීමේ නියමාවලිය (FTP)"
 
 #: translate_tmp.pl:1063
 msgid "Transparent Parts"
@@ -125,24 +125,24 @@ msgstr "විනිවිද කොටස්"
 
 #: translate_tmp.pl:1070
 msgid "Session View"
-msgstr ""
+msgstr "සැසි දසුන"
 
 #: translate_tmp.pl:1078
 #: translate_tmp.pl:1953
 #: translate_tmp.pl:1957
 msgid "Filename"
-msgstr "ගොනු නම"
+msgstr "ගොනු නාමය"
 
 #: translate_tmp.pl:1105
 #: translate_tmp.pl:9535
 #: translate_tmp.pl:11326
 #, perl-format
 msgid "Reserved character %s is not allowed to be in a filename."
-msgstr ""
+msgstr "%s වෙන් කරන ලද අනුලකුණකි එය ගොනුනාමයක් ලෙස භාවිතයට ඉඩ නොමැත"
 
 #: translate_tmp.pl:1120
 msgid "There are several wildcards available, like\n"
-msgstr ""
+msgstr "ආදේශක කිහිපයක් පවතී, ඒවා නම්\n"
 
 #: translate_tmp.pl:1120
 msgid "%Y = year\n"
@@ -171,11 +171,12 @@ msgstr "$h = උස\n"
 
 #: translate_tmp.pl:1120
 msgid "$name = multi-purpose (e.g. window title)\n"
-msgstr ""
+msgstr "$name = බහු-කාර්ය (උදා. කවුළු මාතෘකාව)\n"
 
 #: translate_tmp.pl:1120
 msgid "$nb_name = like $name but without blanks in resulting strings\n"
 msgstr ""
+"$nb_name = $name වගේ එහෙත් ප්‍රතිඵල අනුලකුණු වැලෙහි හිස්තැන් රහිත විය යුතුය\n"
 
 #: translate_tmp.pl:1120
 msgid "$profile = name of current profile\n"
@@ -183,7 +184,7 @@ msgstr "$profile = වත්මන් පැතිකඩේ නම\n"
 
 #: translate_tmp.pl:1120
 msgid "$R = random char (e.g. $RRRR = ag4r)\n"
-msgstr ""
+msgstr "$R = සසම්භාවී අකුර (උදා. $RRRR = අජ්ත)\n"
 
 #: translate_tmp.pl:1120
 msgid "%NN = counter"
@@ -197,7 +198,7 @@ msgstr "හැකිලීම"
 #: translate_tmp.pl:1143
 #: translate_tmp.pl:1144
 msgid "Adjust quality/compression value"
-msgstr ""
+msgstr "තත්වය/හැකිලීමේ අගය සකස්කරන්න"
 
 #: translate_tmp.pl:1232
 #: translate_tmp.pl:1233
@@ -206,7 +207,7 @@ msgstr "ගොනු ජාතිය තෝරාගන්න"
 
 #: translate_tmp.pl:1242
 msgid "Directory"
-msgstr "බහලුම"
+msgstr "නාමාවලිය"
 
 #: translate_tmp.pl:1243
 #: translate_tmp.pl:10477
@@ -214,46 +215,46 @@ msgstr "බහලුම"
 #: translate_tmp.pl:10497
 #: translate_tmp.pl:10498
 msgid "Choose folder"
-msgstr "බහාලුම තෝරාගන්න"
+msgstr "නාමාවලිය තෝරන්න"
 
 #: translate_tmp.pl:1251
 #: translate_tmp.pl:1252
 msgid "Your screenshots will be saved to this directory"
-msgstr ""
+msgstr "ඔබගේ රාමුජායාරූපය මෙම නාමාවලිය තුල සුරැකීමට ලක් වේ"
 
 #: translate_tmp.pl:1261
 #: translate_tmp.pl:1264
 msgid "Browse for save folder every time"
-msgstr ""
+msgstr "සෑමවිටම සුරැකුම් ගොනුව විවෘත කරන්න"
 
 #: translate_tmp.pl:1266
 #: translate_tmp.pl:1269
 msgid "Do not save file automatically"
-msgstr "ස්වයංක්රීයව ගොනුව සුරැකීම නොකරන්න"
+msgstr "ස්වයංක්‍රීයව ගොනුව සුරැකීම නොකරන්න"
 
 #: translate_tmp.pl:1271
 #: translate_tmp.pl:1274
 msgid "Automatically save file"
-msgstr "ස්වයංක්රීයව ගොනුව සුරකින්න"
+msgstr "ස්වයංක්‍රීයව ගොනුව සුරකින්න"
 
 #: translate_tmp.pl:1298
 #: translate_tmp.pl:1308
 msgid "Automatically copy screenshot to clipboard"
-msgstr ""
+msgstr "රාමුජායාරූපය ස්වයංක්‍රීයව පසුරු පුවරුව මතට පිටපත් කරන්න"
 
 #: translate_tmp.pl:1315
 #: translate_tmp.pl:1325
 msgid "Automatically copy filename to clipboard"
-msgstr ""
+msgstr "ස්වයංක්‍රීයව ගොනුනාමය පසුරු පුවරුව මත පිටපත් කරන්න"
 
 #: translate_tmp.pl:1332
 #: translate_tmp.pl:1342
 msgid "Do not copy anything to clipboard"
-msgstr ""
+msgstr "පසුරු පුවරුවට කිසිවක් පිටපත් නොකරන්න"
 
 #: translate_tmp.pl:1351
 msgid "Delay"
-msgstr "පරක්කු කරන්න"
+msgstr "පමා කරන්න"
 
 #: translate_tmp.pl:1353
 #: translate_tmp.pl:1362
@@ -268,7 +269,7 @@ msgstr[1] "තත්පර"
 
 #: translate_tmp.pl:1360
 msgid "Capture after a delay of"
-msgstr "මෙම කාලයට පසු අල්ලගන්න"
+msgstr "මෙම කාලයට පසු ග්‍රහණය කරන්න"
 
 #: translate_tmp.pl:1375
 #: translate_tmp.pl:1376
@@ -277,7 +278,7 @@ msgstr "මෙම කාලයට පසු අල්ලගන්න"
 #: translate_tmp.pl:1380
 #: translate_tmp.pl:1381
 msgid "Wait n seconds before taking a screenshot"
-msgstr ""
+msgstr "රාමුජායාරූපයක් ගැනීමට පෙර n කාලයක් ගන්න"
 
 #: translate_tmp.pl:1392
 msgid "Include Cursor"
@@ -287,7 +288,7 @@ msgstr "කර්සරය ඇතුලත් කරන්න"
 #: translate_tmp.pl:1399
 #: translate_tmp.pl:1400
 msgid "Include cursor when taking a screenshot"
-msgstr ""
+msgstr "කර්සරයද සහිතව රාමුජායාරූපය ගන්න"
 
 #: translate_tmp.pl:1458
 msgid "Open with"
@@ -297,7 +298,7 @@ msgstr "මගින් විවෘත කරන්න"
 #: translate_tmp.pl:1460
 #: translate_tmp.pl:1461
 msgid "Open your screenshot with this program after capturing"
-msgstr ""
+msgstr "ඔබගේ රාමුජායාරූපය ගැනීමෙන් පසු මෙම වැඩසටහන භාවිතා කර එය විවෘත කරන්න"
 
 #: translate_tmp.pl:1472
 msgid "16 colors   - (4bit) "
@@ -319,11 +320,11 @@ msgstr "පාට අඩුකරන්න"
 #: translate_tmp.pl:1503
 #: translate_tmp.pl:1504
 msgid "Automatically reduce colors after taking a screenshot"
-msgstr ""
+msgstr "රාමුජායාරූපය ගැනීමෙන් පසු එහි වර්ණය ස්වයංක්‍රීයව අඩු කරන්න"
 
 #: translate_tmp.pl:1514
 msgid "Thumbnail"
-msgstr ""
+msgstr "කුඩා රුව"
 
 #: translate_tmp.pl:1541
 #: translate_tmp.pl:1542
@@ -332,6 +333,8 @@ msgid ""
 "Generate thumbnail too.\n"
 "select the percentage of the original size for the thumbnail to be"
 msgstr ""
+"කුඩා රුව පවා ජනනය කරන්න.\n"
+"කුඩා රුව සදහා මුලාකෘතියේ ප්‍රතිශතමය අගය භාවිතා කරන්න"
 
 #: translate_tmp.pl:1556
 msgid "Border"
@@ -360,20 +363,20 @@ msgstr "දාර පාට තෝරාගන්න"
 #: translate_tmp.pl:1566
 #: translate_tmp.pl:1567
 msgid "Adds a border effect to the screenshot"
-msgstr ""
+msgstr "රාමුජායාරූපය සදහා දාර හැඩගැන්වීම් ඵලයක් එක් කරන්න"
 
 #: translate_tmp.pl:1615
 #: translate_tmp.pl:1624
 msgid "Enable zoom window"
-msgstr ""
+msgstr "විශාල කිරිම් රාමුව සක්‍රීය කරන්න"
 
 #: translate_tmp.pl:1633
 msgid "Start with selection size of"
-msgstr ""
+msgstr "තෝරාගැනීම් ප්‍රමාණය ලෙස භාවිතා කරන්න"
 
 #: translate_tmp.pl:1635
 msgid "at"
-msgstr ""
+msgstr "ඔස්ට්‍රියාව"
 
 #: translate_tmp.pl:1669
 #: translate_tmp.pl:1670
@@ -386,24 +389,24 @@ msgstr ""
 #: translate_tmp.pl:1677
 #: translate_tmp.pl:1678
 msgid "Start Selection Tool with a customized selection size"
-msgstr ""
+msgstr "තෝරාගැනීමේ මෙවලම ආරම්භයේදී අභිරුචි විශාලත්වයක් ලබා දෙන්න"
 
 #: translate_tmp.pl:1696
 msgid "Show help text"
-msgstr ""
+msgstr "උදව් සටහන පෙන්වන්න"
 
 #: translate_tmp.pl:1705
 msgid "Enables the help text"
-msgstr ""
+msgstr "උදව් සටහන් සක්‍රීයකරන්න"
 
 #: translate_tmp.pl:1714
 #: translate_tmp.pl:1715
 msgid "Include window decoration when capturing a window"
-msgstr ""
+msgstr "කවුළුවක් ජායාරූපගත කරන විට කවුළු හැඩගැන්වීම අන්තර්ගත කරන්න"
 
 #: translate_tmp.pl:1733
 msgid "Automatically resize window to"
-msgstr ""
+msgstr "මෙම අගයට ස්වයංක්‍රීයව කවුළුව ප්‍රතිප්‍රමාණනය කරන්න"
 
 #: translate_tmp.pl:1760
 #: translate_tmp.pl:1761
@@ -415,10 +418,13 @@ msgid ""
 "This method asks the window manager to resize the window. However, the "
 "window manager may not allow the resize."
 msgstr ""
+"මෙය කවුළුව නිශ්චිත දිගකට හා පළලකට ප්‍රතිප්‍රමාණනය කරයි. මෙම ක්‍රමය කවුළු "
+"කලමානාකරණයට කවුළුව ප්‍රතිප්‍රමාණනයට විධානය ලබා දෙයි. එහෙත් කවුළු කලමානාකරණය "
+"ප්‍රතිප්‍රමාණනය සදහා ඉඩ ලබා නොදිය හැක."
 
 #: translate_tmp.pl:1777
 msgid "Force rounded window corners"
-msgstr ""
+msgstr "අනිවාර්යයෙන්  රවුම් කරන ලද කවුළු මුල්ල"
 
 #: translate_tmp.pl:1786
 #, perl-format
@@ -431,25 +437,31 @@ msgid ""
 "named ~/.shutter/shape.conf and put custom values in it. The default values "
 "are stored in %s."
 msgstr ""
+"ෂටරය xහැඩති දිගුව භාවිතා කරමින් කවුළුවේ හැඩය නිගමනය කරයි, නමුත් මෙය සමහර "
+"අවස්ථා වලදී ක්‍රියාත්මක නොවීය හැක. උදා. compiz ධාවනය කරන විට \n"
+"\n"
+"මෙම විකල්පය සක්‍රීයව පවතින විට ෂටරය නිශ්චිත පරාමිතීන් භාවිතා කර කවුළු කෙළවර "
+"රවුම් කරයි. ඔබට මෙහි පුරුදු පරාමිතීන් ~/.shutter/shape.conf ලෙස ගොනුවක් සකසා "
+"උපරිලේඛනය කර නව අගයන් යෙදිය හැක. පුරුදු පරාමිතීන් ගබඩා කර ඇත්තේ %s තුලය."
 
 #: translate_tmp.pl:1795
 #: translate_tmp.pl:1796
 msgid "Select only visible windows"
-msgstr ""
+msgstr "දෘශ්‍ය කවුළු පමණක් තෝරන්න"
 
 #: translate_tmp.pl:1813
 msgid "Pre-Capture Delay"
-msgstr "ඩැහැගැනීමට පෙර කාලය"
+msgstr "ග්‍රහණයට පෙර කාලය"
 
 #: translate_tmp.pl:1828
 #: translate_tmp.pl:1829
 #: translate_tmp.pl:1830
 msgid "Capture menu/tooltip after a delay of n seconds"
-msgstr ""
+msgstr "මෙනුව/මෙවලම් ඉගිය ග්‍රහණය කිරීමට පෙර තත්පර n කාලයක් සිටින්න"
 
 #: translate_tmp.pl:1841
 msgid "Ignore possibly wrong type hints"
-msgstr ""
+msgstr "නිවැරදි විය නොහැකි වර්ග ඉගි මගහරින්න"
 
 #: translate_tmp.pl:1842
 msgid ""
@@ -458,94 +470,101 @@ msgid ""
 "correctly set. By enabling this option Shutter will not insist on the "
 "requested type hint."
 msgstr ""
+"වර්ග ඉගි නියතයන් කවුළු කළමනාකරණයේ කවුළුවල අඩංගු කාර්ය පිළිබද නිශ්චිත ඉගි ලබා "
+"දෙයි. සමහරවිට මෙම වර්ග ඉගි නිවැරදිව සටහන කර නැත. මෙම විකල්පය සබල කිරිඉමෙන් "
+"shutter ඉල්ලූ වර්ග ඉගිය මත්තෙම යැපී නොපවතී."
 
 #: translate_tmp.pl:1858
 msgid "Virtual browser width"
-msgstr ""
+msgstr "අතත්‍ය බ්‍රව්සර පළල"
 
 #: translate_tmp.pl:1880
 #: translate_tmp.pl:1881
 #: translate_tmp.pl:1882
 msgid "Virtual browser width when taking a website screenshot"
-msgstr ""
+msgstr "වෙබ් පිටු රාමුජායාරූප ගත කරන විට අතත්‍ය බ්‍රව්සර පළල"
 
 #: translate_tmp.pl:1893
 msgid "Show as check pattern"
-msgstr ""
+msgstr "කොටු රටාවක් ලෙස පෙන්වන්න"
 
 #: translate_tmp.pl:1894
 msgid "Show as custom color:"
-msgstr ""
+msgstr "අභිරුචි වර්ණයක් ලෙස පෙන්වන්න:"
 
 #: translate_tmp.pl:1897
 #: translate_tmp.pl:459
 #: translate_tmp.pl:3881
 #: translate_tmp.pl:4192
 msgid "Choose fill color"
-msgstr ""
+msgstr "පිරවුම් වර්ණය තෝරන්න"
 
 #: translate_tmp.pl:1899
 msgid "Show as background"
-msgstr ""
+msgstr "පසුබිම ලෙස පෙන්වන්න"
 
 #: translate_tmp.pl:1925
 msgid "Displays any transparent parts of the image in a check pattern"
-msgstr ""
+msgstr "කොටු රටාව තුල වූ පින්තුරයේ විනිවිද කොටස ඇත්නම් ඒවා පෙන්වන්න"
 
 #: translate_tmp.pl:1926
 msgid ""
 "Displays any transparent parts of the image in a solid color that you specify"
 msgstr ""
+"පින්තුරය තුල වූ කුමන සියළු විනිවිද පෙනෙන කොටස් ඔබ විසින් ලබදෙනලද ඝන වරණයකින් "
+"පෙන්වන්න"
 
 #: translate_tmp.pl:1927
 msgid ""
 "Displays any transparent parts of the image in the background color of the "
 "application"
 msgstr ""
+"පින්තුරය තුල වූ කුමන සියළු විනිවිද පෙනෙන කොටස් යෙදවීමේ පසුබිම් වර්ණයෙන් "
+"පෙන්වන්න"
 
 #: translate_tmp.pl:1951
 msgid "Sort ascending by"
-msgstr ""
+msgstr "ආරෝහණ ආකරයට සකස් කල යුත්තේ"
 
 #: translate_tmp.pl:1954
 #: translate_tmp.pl:1958
 msgid "Key/Time Created"
-msgstr ""
+msgstr "නිර්මාණය කල යතුර/වෙලාව"
 
 #: translate_tmp.pl:1955
 msgid "Sort descending by"
-msgstr ""
+msgstr "අවරෝහණ ආකාරයට සකස් කල යුත්තේ"
 
 #: translate_tmp.pl:2017
 #: translate_tmp.pl:2018
 #: translate_tmp.pl:2019
 #: translate_tmp.pl:2020
 msgid "Configure sort criteria"
-msgstr ""
+msgstr "වර්ගකිරීමේ මිණුම වින්‍යාස කරන්න"
 
 #: translate_tmp.pl:2027
 #: translate_tmp.pl:2087
 msgid "Start Shutter at login"
-msgstr ""
+msgstr "ලොග් විමේදී shutter ආරම්භ කරන්න"
 
 #: translate_tmp.pl:2028
 #: translate_tmp.pl:2096
 msgid "Hide window on first launch"
-msgstr ""
+msgstr "ප්‍රථම දියත් කිරීමේදී කවුළුව සගවන්න"
 
 #: translate_tmp.pl:2029
 #: translate_tmp.pl:2105
 msgid "Hide notification icon"
-msgstr ""
+msgstr "දැනුම්දීමේ අයිකනය සගවන්න"
 
 #: translate_tmp.pl:2031
 #: translate_tmp.pl:2114
 msgid "Autohide main window when taking a screenshot"
-msgstr ""
+msgstr "රාමුජායාරූප ගැනීමේදී ප්‍රධාන කවුළුව ස්වයංක්‍රීයව සගවන්න"
 
 #: translate_tmp.pl:2032
 msgid "Redraw Delay"
-msgstr ""
+msgstr "නැවත ඇදීමේ ප්‍රමාදය"
 
 #: translate_tmp.pl:2035
 #: translate_tmp.pl:2908
@@ -557,31 +576,31 @@ msgstr[1] "මිලිතත්පර"
 #: translate_tmp.pl:2041
 #: translate_tmp.pl:2141
 msgid "Present main window after taking a screenshot"
-msgstr ""
+msgstr "රාමුජායාරූපය ගැනීමෙන් පසු ප්‍රධාන කවුළුව පෙන්වන්න"
 
 #: translate_tmp.pl:2042
 #: translate_tmp.pl:2187
 msgid "Minimize to tray when closing main window"
-msgstr ""
+msgstr "ප්‍රධාන කවුළුවෙන් ඉවත් වන විට තැටිය වෙතට හකුළුවන්න"
 
 #: translate_tmp.pl:2044
 #: translate_tmp.pl:2150
 msgid "Display pop-up notification after taking a screenshot"
-msgstr ""
+msgstr "රාමුජායාරුප ගැනීමෙන් පසු උත්පන්න දැනුම්දීම පෙන්වන්න"
 
 #: translate_tmp.pl:2045
 #: translate_tmp.pl:2159
 #: translate_tmp.pl:2168
 msgid "Display pop-up notification when using a delay"
-msgstr ""
+msgstr "ප්‍රමාධයක් සිදු වන විට උත්පන්න දැනුම්දීමක් පෙන්වන්න"
 
 #: translate_tmp.pl:2046
 msgid "Display pop-up notification when using a pre-capture delay"
-msgstr ""
+msgstr "පෙර ග්‍රහණ ප්‍රමාදයක් සිදු වන විට උත්පන්න දැනුම්දීමක් පෙන්වන්න"
 
 #: translate_tmp.pl:2048
 msgid "Notification agent"
-msgstr ""
+msgstr "දැනුම්දීම් ඒජන්ත"
 
 #: translate_tmp.pl:2050
 msgid "Desktop Notifications"
@@ -594,17 +613,17 @@ msgstr "ඇතුලත්කල නිවේදන"
 #: translate_tmp.pl:2058
 #: translate_tmp.pl:2196
 msgid "Ask before moving files to trash"
-msgstr ""
+msgstr "ගොනු ඉවත් කිරීමට පෙර විමසන්න"
 
 #: translate_tmp.pl:2059
 #: translate_tmp.pl:2205
 msgid "Move file to trash when closing tab"
-msgstr ""
+msgstr "පටිත්ත වසන විට ගොනුව කුණු බක්කියට ගෙනියන්න"
 
 #: translate_tmp.pl:2060
 #: translate_tmp.pl:2214
 msgid "Notify when file was deleted from filesystem"
-msgstr ""
+msgstr "ගොනු පද්දතියෙන් ගොනුවක් ඉවත් කරන විට දැනුම්දෙන්න"
 
 #: translate_tmp.pl:2123
 #: translate_tmp.pl:2124
@@ -613,6 +632,7 @@ msgid ""
 "Configure a short timeout to give the Xserver a chance to redraw areas that "
 "were obscured by Shutter's windows before taking a screenshot."
 msgstr ""
+"Xserver හි නොපැහැදිලි ප්‍රදේශ නැවත ඇදීම සදහා කෙටි කාලයක් වින්‍යාස කරන්න"
 
 #: translate_tmp.pl:2177
 #: translate_tmp.pl:2178
@@ -620,6 +640,8 @@ msgid ""
 "You can either choose the system-wide desktop notifications (e.g. Ubuntu's "
 "Notify-OSD) or Shutter's built-in notification system"
 msgstr ""
+"පද්ධතිය පුරා විසිරුනු පරිඝනක දනුම්දීම් හෝ Shutter හි අභ්‍යන්තර දැනුම්දීම් "
+"පධ්ධතිය භාවිතා කල හැක."
 
 #: translate_tmp.pl:2240
 msgid ""
@@ -627,6 +649,9 @@ msgid ""
 "your credentials above. Plugins with OAuth support are configured "
 "automatically the first time you use them."
 msgstr ""
+"<b>විශේෂ සටහන :<b> ප්ලගිනයක් මගින් අනුමත කරන ලද උඩුගත කිරීමක් නම් ඔබට ඔබගේ "
+"සහතිකකරන භාවිතා කල හැකිය.  OAuth සහිත ප්ලගින ඔබ භාවිතා කරන ප්‍රථම අවස්ථාවේම "
+"ක්‍රියාත්මක වීමට  වින්‍යාස කර ඇත."
 
 #: translate_tmp.pl:2243
 #: translate_tmp.pl:10547
@@ -651,17 +676,17 @@ msgstr ""
 #: translate_tmp.pl:10566
 #: translate_tmp.pl:10568
 msgid "Connection mode"
-msgstr ""
+msgstr "සම්බන්ධතා ප්‍රකාරය"
 
 #: translate_tmp.pl:2264
 #: translate_tmp.pl:10562
 msgid "Active mode"
-msgstr ""
+msgstr "සක්‍රීය ප්‍රකාරය"
 
 #: translate_tmp.pl:2265
 #: translate_tmp.pl:10563
 msgid "Passive mode"
-msgstr ""
+msgstr "නිශ්ක්‍රිය ප්‍රකාරය"
 
 #: translate_tmp.pl:2281
 #: translate_tmp.pl:2291
@@ -703,7 +728,7 @@ msgstr "සංකීර්ණ‍"
 
 #: translate_tmp.pl:2456
 msgid "Image View"
-msgstr ""
+msgstr "පිළිඹිබු දසුන"
 
 #: translate_tmp.pl:2477
 msgid "Behavior"
@@ -711,15 +736,15 @@ msgstr "හැසිරිම"
 
 #: translate_tmp.pl:2515
 msgid "Upload"
-msgstr ""
+msgstr "උඩුගත කරන්න"
 
 #: translate_tmp.pl:2575
 msgid "Plugins"
-msgstr ""
+msgstr "ප්ලගීන"
 
 #: translate_tmp.pl:2577
 msgid "The following plugins are installed"
-msgstr ""
+msgstr "පහත ප්ලගින පිහිටුවා ඇත"
 
 #: translate_tmp.pl:2957
 msgid "pixel"
@@ -734,11 +759,11 @@ msgstr "ගුණාත්මකබව"
 
 #: translate_tmp.pl:3051
 msgid "Please activate the menu you want to capture"
-msgstr ""
+msgstr "කරුණාකර ග්‍රහණය කල යුතු මෙනුව සක්‍රීයකරන්න"
 
 #: translate_tmp.pl:3054
 msgid "Please activate the tooltip you want to capture"
-msgstr ""
+msgstr "ඔබට ග්‍රහණය කරීමට අවශ්‍ය මෙවලම් ඉගිය සක්‍රීය කරන්න"
 
 #: translate_tmp.pl:3063
 #: translate_tmp.pl:3074
@@ -747,8 +772,8 @@ msgstr ""
 #, perl-format
 msgid "Screenshot will be taken in %s second"
 msgid_plural "Screenshot will be taken in %s seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "රාමුජායාරුපය තව තත්පර %sකින් ගනු ලැබේ"
+msgstr[1] "රාමුජායාරුපය තව තත්පර %sකින් ගනු ලැබේ"
 
 #: translate_tmp.pl:3355
 #: translate_tmp.pl:9147
@@ -757,12 +782,12 @@ msgstr "ලියාපදිංවි කරන්න"
 
 #: translate_tmp.pl:3965
 msgid "Profile deleted"
-msgstr ""
+msgstr "පැතිකඩ ඉවත් කරන ලදී"
 
 #: translate_tmp.pl:3968
 #: translate_tmp.pl:3969
 msgid "Profile could not be deleted"
-msgstr ""
+msgstr "පැතිකඩ ඉවත් කල නොහැක"
 
 #: translate_tmp.pl:3968
 #: translate_tmp.pl:5682
@@ -780,12 +805,12 @@ msgstr "අසාර්ථකයි"
 #: translate_tmp.pl:3987
 #, perl-format
 msgid "Profile %s loaded successfully"
-msgstr ""
+msgstr "%s පැතිකඩ සාර්ථකව ලබාගැනිණි"
 
 #: translate_tmp.pl:4016
 #: translate_tmp.pl:7240
 msgid "Session"
-msgstr "වාරය"
+msgstr "සැසිය"
 
 #: translate_tmp.pl:4035
 #: translate_tmp.pl:5365
@@ -794,7 +819,7 @@ msgstr "සොයාගත නොහැක"
 
 #: translate_tmp.pl:4244
 msgid "Error while adding the file monitor."
-msgstr ""
+msgstr "ගොනු අධීක්ෂණය එකතු කිරීමේ දෝෂය"
 
 #: translate_tmp.pl:4765
 msgid "Settings could not be saved!"
@@ -806,7 +831,7 @@ msgstr "සැකසුම් සුරැකීම සාර්ථකයි!"
 
 #: translate_tmp.pl:4794
 msgid "Session could not be saved!"
-msgstr ""
+msgstr "සැසිය සුරැකිය නොහැක!"
 
 #: translate_tmp.pl:4823
 msgid "Account-settings could not be saved!"
@@ -814,25 +839,25 @@ msgstr "ගිණුමේ සැකසුම් සුරැකිය නොහ
 
 #: translate_tmp.pl:5057
 msgid "Settings could not be restored!"
-msgstr ""
+msgstr "සිටුවම් නැවත පිහිටුවිය නොහැක!"
 
 #: translate_tmp.pl:5061
 msgid "Settings loaded successfully"
-msgstr ""
+msgstr "සිටුවම් සාර්ථකව ලබාගැනිණි"
 
 #: translate_tmp.pl:5088
 #: translate_tmp.pl:7010
 msgid "Built-in Editor"
-msgstr ""
+msgstr "ඇතුලාන්ත සංස්කාරකය"
 
 #: translate_tmp.pl:5142
 msgid "Account-settings could not be restored!"
-msgstr ""
+msgstr "ගිණුම්-සිටුවම් නැවත ස්ථාපනය කල නොහැක!"
 
 #: translate_tmp.pl:5239
 #: translate_tmp.pl:5337
 msgid "opened"
-msgstr ""
+msgstr "විවෘතයි"
 
 #: translate_tmp.pl:5242
 #: translate_tmp.pl:5340
@@ -841,31 +866,31 @@ msgstr ""
 #: translate_tmp.pl:7032
 #, perl-format
 msgid "Error while opening image %s."
-msgstr ""
+msgstr "%s ජායාරුපය විවෘත කිරීමේ දෝෂය."
 
 #: translate_tmp.pl:5353
 msgid "Session could not be restored!"
-msgstr ""
+msgstr "සැසිය නැවත පිහිටුවිය නොහැක!"
 
 #: translate_tmp.pl:5406
 #, perl-format
 msgid "Error while creating the trashinfo file %s."
-msgstr ""
+msgstr "trashinfo %s ගොනුව සෑදීමේ දෝෂය."
 
 #: translate_tmp.pl:5418
 #, perl-format
 msgid "Error while moving the file %s to trash."
-msgstr ""
+msgstr "%s ගොනුව බක්කියට ගෙන යාමේ දෝෂය."
 
 #: translate_tmp.pl:5424
 #, perl-format
 msgid "Error while removing the file %s from disk."
-msgstr ""
+msgstr "තැටියෙන් %s ගොනුව ඉවත් කිරීමේ දෝෂය."
 
 #: translate_tmp.pl:5442
 #, perl-format
 msgid "Are you sure you want to move %s to the trash?"
-msgstr ""
+msgstr "%s බක්කියට ගෙන යාම අත්‍යවශයද ?"
 
 #: translate_tmp.pl:5442
 #: translate_tmp.pl:5491
@@ -876,21 +901,21 @@ msgstr "ඉවතලන්න (_T)"
 
 #: translate_tmp.pl:5456
 msgid "deleted"
-msgstr ""
+msgstr "ඉවත් කරන ලදී"
 
 #: translate_tmp.pl:5491
 msgid "Are you sure you want to move the selected files to the trash?"
-msgstr ""
+msgstr "තෝරාගත් ගොනු බක්කියට ගෙනයාම අනිවාර්යද ?"
 
 #: translate_tmp.pl:5495
 #: translate_tmp.pl:5529
 #: translate_tmp.pl:5634
 msgid "No screenshots selected"
-msgstr ""
+msgstr "කිසි රාමුජායාරූපයක් තෝරා නොමැත"
 
 #: translate_tmp.pl:5547
 msgid "Selected screenshots deleted"
-msgstr ""
+msgstr "තෝරාගත් රාමුජායාරූප මකන ලදී"
 
 #: translate_tmp.pl:5583
 #: translate_tmp.pl:7692
@@ -900,66 +925,66 @@ msgstr ""
 #: translate_tmp.pl:7823
 #: translate_tmp.pl:7849
 msgid "removed from session"
-msgstr ""
+msgstr "සැසියෙන් ඉවත් කරන ලදී"
 
 #: translate_tmp.pl:5652
 msgid "Selected screenshots removed"
-msgstr ""
+msgstr "තෝරාගත් රාමුජායාරූප ඉවත් කරන ලදී"
 
 #: translate_tmp.pl:5682
 #: translate_tmp.pl:6088
 msgid "No valid filetype specified"
-msgstr ""
+msgstr "වලංගු ගොනු වර්ගයක් සදහන් කර නැත"
 
 #: translate_tmp.pl:5698
 msgid "There is no image data in the clipboard to paste"
-msgstr ""
+msgstr "ඇලවීම සදහා පසුරු පුවරුව තුල රුප දත්ත නොමැත"
 
 #: translate_tmp.pl:5759
 msgid "Selected filenames copied to clipboard"
-msgstr ""
+msgstr "තෝරාගත් ගොනුනාම පසුරු පුවරුවට පිටපත් කරන ලදී"
 
 #: translate_tmp.pl:5774
 msgid "Selected images copied to clipboard"
-msgstr ""
+msgstr "තෝරාගත් රූප පසුරු පුවරුවට පිටපත් කරන ලදී"
 
 #: translate_tmp.pl:5821
 msgid "Last action undone"
-msgstr ""
+msgstr "පෙර ක්‍රියාව නැවත පිහිටුවන ලදී"
 
 #: translate_tmp.pl:5829
 #: translate_tmp.pl:5877
 #, perl-format
 msgid "Error while copying last version (%s)."
-msgstr ""
+msgstr "පෙර අනුවාදය පිටපත් කිරීමේ දෝෂය (%s)."
 
 #: translate_tmp.pl:5829
 #, perl-format
 msgid "There was an error performing undo on %s."
-msgstr ""
+msgstr "%s නැවත සකස් කිරීම සිදු කිරීමේදී දෝෂයක් ඇතිවිය."
 
 #: translate_tmp.pl:5869
 msgid "Last action redone"
-msgstr ""
+msgstr "පෙර ක්‍රියාව නැවත කරන ලදී"
 
 #: translate_tmp.pl:5877
 #, perl-format
 msgid "There was an error performing redo on %s."
-msgstr ""
+msgstr "%s හී නැවත කිරීමේ ක්‍රියාව සිදු කිරීමේ දෝෂය."
 
 #: translate_tmp.pl:5911
 msgid "No plugin installed"
-msgstr ""
+msgstr "ප්ලගින් ස්ථාපනය කර නොමැත"
 
 #: translate_tmp.pl:6170
 #: translate_tmp.pl:6581
 #: translate_tmp.pl:8030
 msgid "There was an error determining the filename."
-msgstr ""
+msgstr "ගොනුනාමය නිශ්චය කර ගැනීමේ දෝෂය"
 
 #: translate_tmp.pl:6473
 msgid "Triggered invalid screenshot action."
-msgstr ""
+msgstr "අවලංගු රාමුජායාරූප ක්‍රියාවක් අරඹන ලදී."
 
 #: translate_tmp.pl:6473
 #: translate_tmp.pl:6475
@@ -975,24 +1000,24 @@ msgstr ""
 #: translate_tmp.pl:154
 #: translate_tmp.pl:164
 msgid "Error while taking the screenshot."
-msgstr ""
+msgstr "රාමුජායාරූපය ගැනීමේ දෝෂය."
 
 #: translate_tmp.pl:6608
 #: translate_tmp.pl:134
 msgid "Capture aborted by user"
-msgstr ""
+msgstr "පරිශීලකයා විසින් ග්‍රහණය අත් හරින ලදී"
 
 #: translate_tmp.pl:6738
 #: translate_tmp.pl:6759
 #, perl-format
 msgid "%s saved"
-msgstr ""
+msgstr "%s සුරකිනලදී"
 
 #: translate_tmp.pl:6746
 #: translate_tmp.pl:6749
 #: translate_tmp.pl:6764
 msgid "Screenshot saved"
-msgstr ""
+msgstr "රාමුජායාරූපය සුරකින ලදී"
 
 #: translate_tmp.pl:6773
 #, perl-format
@@ -1000,44 +1025,45 @@ msgid ""
 "The filename %s could not be verified. Maybe it contains unsupported "
 "characters."
 msgstr ""
+"%s ගොනුනාමය නිශ්චය කරගත නොහැක. සමහරවිට එහි සහය නොවන අකුරු සහිත විය හැකිය."
 
 #: translate_tmp.pl:7010
 #: translate_tmp.pl:7021
 #, perl-format
 msgid "%s opened with %s"
-msgstr ""
+msgstr "%s %s සමග විවෘත කර ඇත"
 
 #: translate_tmp.pl:7047
 msgid "Opened all files with"
-msgstr ""
+msgstr "සියලුම ගොනු විවෘත කරන ලද්දේ"
 
 #: translate_tmp.pl:7090
 #: translate_tmp.pl:7109
 #, perl-format
 msgid "Could not apply plugin %s"
-msgstr ""
+msgstr "%s ප්ලගිනය යෙදවිය නොහැක"
 
 #: translate_tmp.pl:7106
 #: translate_tmp.pl:7158
 #, perl-format
 msgid "Successfully applied plugin %s"
-msgstr ""
+msgstr "%s ප්ලගිනය සාර්ථකව ඇතුලත් කරන ලදී"
 
 #: translate_tmp.pl:7161
 #, perl-format
 msgid "Error while executing plugin %s."
-msgstr ""
+msgstr "%s ප්ලගිනය ක්‍රියාත්මක කිරීමේ දී ඇතිවූ  දෝෂය."
 
 #: translate_tmp.pl:7161
 msgid "There was an error executing the plugin."
-msgstr ""
+msgstr "ප්ලගිනය ක්‍රියාත්මක කිරීමේ දෝෂය."
 
 #: translate_tmp.pl:7242
 #, perl-format
 msgid "%s screenshot"
 msgid_plural "%s screenshots"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s රාමුජායාරූපය"
+msgstr[1] "%s රාමුජායාරූප"
 
 #: translate_tmp.pl:7251
 msgid "Current profile"
@@ -1045,26 +1071,26 @@ msgstr "වත්මන් පැතිකඩ"
 
 #: translate_tmp.pl:7686
 msgid "Try to resave the file?"
-msgstr ""
+msgstr "ගොනුව නැවත සුරැකීමට උත්සාහ කරන්න ද?"
 
 #: translate_tmp.pl:7686
 #, perl-format
 msgid "Image %s was not found on disk"
-msgstr ""
+msgstr "%s රූපය තැටිය තුළ නොපවතී"
 
 #: translate_tmp.pl:7715
 #: translate_tmp.pl:7781
 #: translate_tmp.pl:189
 #, perl-format
 msgid "Error while saving the image %s."
-msgstr ""
+msgstr "%s රූපය සුරැකීමේ දෝෂය"
 
 #: translate_tmp.pl:7715
 #: translate_tmp.pl:7781
 #: translate_tmp.pl:190
 #, perl-format
 msgid "There was an error saving the image to %s."
-msgstr ""
+msgstr "රූපය %s ට සුරැකීමේ දෝෂය"
 
 #: translate_tmp.pl:7741
 #: translate_tmp.pl:10069
@@ -1072,47 +1098,48 @@ msgstr ""
 #: translate_tmp.pl:10143
 #: translate_tmp.pl:10150
 msgid "saved"
-msgstr ""
+msgstr "සුරැකිනි"
 
 #: translate_tmp.pl:7813
 #, perl-format
 msgid "Image %s was deleted from filesystem"
-msgstr ""
+msgstr "ගොනුපධ්ධතියෙන් %s රූපය මකා දමන ලදී"
 
 #: translate_tmp.pl:7846
 #: translate_tmp.pl:62
 #: translate_tmp.pl:7032
 msgid "There was an error opening the image."
-msgstr ""
+msgstr "රූපය විවෘත කිරීමේදී දෝෂයක් සිදු විය."
 
 #: translate_tmp.pl:8030
 #, perl-format
 msgid "Error while opening directory %s."
-msgstr ""
+msgstr "%s නාමාවලිය විවෘත කිරීමේ දෝෂය."
 
 #: translate_tmp.pl:8099
 msgid "Updating plugin information"
-msgstr ""
+msgstr "ප්ලගිනයේ තොරතුරු යාවත්කාලීන වෙමින් පවතී"
 
 #: translate_tmp.pl:8104
 msgid "Please wait while Shutter updates the plugin information"
-msgstr ""
+msgstr "Shutter ප්ලගිනයේ තොරතුරු යාවත්කාලීන කරන තුරු මදක් රැදෙන්න"
 
 #: translate_tmp.pl:8246
 msgid "Updating upload plugin information"
-msgstr ""
+msgstr "උඩුගත කිරීමේ ප්ලගිනයේ තොරතුරු යාවත්කාලීන වෙමින් පවතී"
 
 #: translate_tmp.pl:8251
 msgid "Please wait while Shutter updates the upload plugin information"
 msgstr ""
+"විසින් උඩුගතකිරිමේ ප්ලගිනයේ තොරතුරු යාවත්කාලීන කරගන්නා තුරු මදක් ඉවසන්න"
 
 #: translate_tmp.pl:8482
 msgid "Capture All Workspaces"
-msgstr ""
+msgstr "සියළු වැඩප්‍රදේශ ග්‍රහණය කර ගන්න"
 
 #: translate_tmp.pl:8495
 msgid "Limit to current monitor"
-msgstr ""
+msgstr "වර්තමාන මොනිටරයට පමණක් සීමා කරන්න"
 
 #: translate_tmp.pl:8508
 #, perl-format
@@ -1125,7 +1152,13 @@ msgid_plural ""
 "monitors detected).\n"
 "Enable it to capture only the current monitor."
 msgstr[0] ""
+"මෙම විකල්පය වැදගත් වන්නේ බහු ප්‍රතිරූපක ප්‍රදර්ශක භාවිතා කරන විට පමනි (%d "
+"ප්‍රතිරූපක ප්‍රමාණයක් පවතී).\n"
+"වර්තමාන මොනිටරයේ පමණක් මෙය භාවිතා කිරීමට සකස් කරන්න."
 msgstr[1] ""
+"මෙම විකල්පය වැදගත් වන්නේ බහු ප්‍රතිරූපක ප්‍රදර්ශක භාවිතා කරන විට පමනි (%d "
+"ප්‍රතිරූපක ප්‍රමාණයක් පවතී).\n"
+"වර්තමාන මොනිටරයේ පමණක් මෙය භාවිතා කිරීමට සකස් කරන්න."
 
 #: translate_tmp.pl:8537
 msgid "Active Window"
@@ -1133,7 +1166,7 @@ msgstr "සක්‍රීය කවුළුව"
 
 #: translate_tmp.pl:8542
 msgid "Capture the last active window"
-msgstr ""
+msgstr "අවසාන සක්‍රීය කවුළුව ග්‍රහණය කරන්න"
 
 #: translate_tmp.pl:8585
 #: translate_tmp.pl:403
@@ -1147,17 +1180,17 @@ msgstr "වැඩතලය (_D)"
 
 #: translate_tmp.pl:8636
 msgid "Window _under Cursor"
-msgstr ""
+msgstr "කර්සරය යට තිබෙන කවුළුව"
 
 #: translate_tmp.pl:8649
 #: translate_tmp.pl:459
 msgid "Select W_indow"
-msgstr ""
+msgstr "කවුළුව තෝරන්න"
 
 #: translate_tmp.pl:8660
 #: translate_tmp.pl:472
 msgid "Se_ction"
-msgstr ""
+msgstr "අංශය"
 
 #: translate_tmp.pl:8673
 #: translate_tmp.pl:488
@@ -1167,7 +1200,7 @@ msgstr "මෙනුව (_M)"
 #: translate_tmp.pl:8686
 #: translate_tmp.pl:504
 msgid "_Tooltip"
-msgstr ""
+msgstr "_මෙවලම් ඉගිය"
 
 #: translate_tmp.pl:8699
 #: translate_tmp.pl:522
@@ -1176,41 +1209,41 @@ msgstr "වෙබ් (_W)"
 
 #: translate_tmp.pl:8713
 msgid "S_how main window"
-msgstr ""
+msgstr "ප්‍රධාන කවුළුව පෙන්වන්න"
 
 #: translate_tmp.pl:8719
 #: translate_tmp.pl:395
 msgid "_Redo last screenshot"
-msgstr ""
+msgstr "_පෙර රාමුජායාරූපය නැවත ගන්න"
 
 #: translate_tmp.pl:8730
 #: translate_tmp.pl:223
 msgid "_Quick profile select"
-msgstr ""
+msgstr "_ඉක්මන් පැතිකඩ තේරීම"
 
 #: translate_tmp.pl:8896
 msgid "Wait indefinitely"
-msgstr ""
+msgstr "අනන්තව බලා සිටින්න"
 
 #: translate_tmp.pl:8897
 #: translate_tmp.pl:8898
 #, perl-format
 msgid "Wait max %d second"
 msgid_plural "Wait max %d seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "උපරිම %d තත්පර ගණනක් බලා සිටින්න"
+msgstr[1] "උපරිම %d තත්පර ගණනක් බලා සිටින්න"
 
 #: translate_tmp.pl:8899
 #: translate_tmp.pl:8900
 #, perl-format
 msgid "Wait max %d minute"
 msgid_plural "Wait max %d minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "උපරිම %d මිනිත්තු ගණනක් බලා සිටින්න"
+msgstr[1] "උපරිම %d මිනිත්තු ගණනක් බලා සිටින්න"
 
 #: translate_tmp.pl:8908
 msgid "Shutter will wait indefinitely for the screenshot to capture"
-msgstr ""
+msgstr "නියමයක් නොමැතිව රාමුජායාරූපය ග්‍රහණය කිරීමට බලා සිටින්න"
 
 #: translate_tmp.pl:8909
 #: translate_tmp.pl:8910
@@ -1222,7 +1255,11 @@ msgid_plural ""
 "Shutter will wait up to %d seconds for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
+"Shutter ක්‍රියාවලිය සම්පූර්ණ වීමට දිගු වේලාවක් ගතවීම නිසා ක්‍රියව අත්හැරීමට "
+"පෙර %d තත්පර ප්‍රමාණයක් බලන්න"
 msgstr[1] ""
+"Shutter ක්‍රියාවලිය සම්පූර්ණ වීමට දිගු වේලාවක් ගතවීම නිසා ක්‍රියව අත්හැරීමට "
+"පෙර %d තත්පර ප්‍රමාණයක් බලන්න"
 
 #: translate_tmp.pl:8911
 #: translate_tmp.pl:8912
@@ -1234,23 +1271,27 @@ msgid_plural ""
 "Shutter will wait up to %d minutes for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
+"Shutter ක්‍රියාවලිය සම්පූර්ණ වීමට දිගු වේලාවක් ගතවීම නිසා ක්‍රියව අත්හැරීමට "
+"පෙර %d මිනිත්තු ප්‍රමාණයක් බලන්න"
 msgstr[1] ""
+"Shutter ක්‍රියාවලිය සම්පූර්ණ වීමට දිගු වේලාවක් ගතවීම නිසා ක්‍රියව අත්හැරීමට "
+"පෙර %d මිනිත්තු ප්‍රමාණයක් බලන්න"
 
 #: translate_tmp.pl:9046
 msgid "Host"
-msgstr ""
+msgstr "ධාරකය"
 
 #: translate_tmp.pl:9113
 msgid "Anonymous Upload"
-msgstr ""
+msgstr "නිර්නාමික උඩුගත කිරීම"
 
 #: translate_tmp.pl:9120
 msgid "Authorized Upload"
-msgstr ""
+msgstr "අවසරලත් උඩුගත කිරීම"
 
 #: translate_tmp.pl:9127
 msgid "OAuth Upload"
-msgstr ""
+msgstr "OAuth උඩුගත කිරීම"
 
 #: translate_tmp.pl:9138
 #: translate_tmp.pl:9199
@@ -1260,7 +1301,7 @@ msgstr "විස්තරය"
 
 #: translate_tmp.pl:9170
 msgid "Icon"
-msgstr ""
+msgstr "අයිකනය"
 
 #: translate_tmp.pl:9179
 msgid "Name"
@@ -1276,7 +1317,7 @@ msgstr "භාෂාව"
 
 #: translate_tmp.pl:9218
 msgid "Path"
-msgstr ""
+msgstr "පථය"
 
 #: translate_tmp.pl:9271
 #: translate_tmp.pl:10636
@@ -1285,33 +1326,33 @@ msgstr "Ubuntu One"
 
 #: translate_tmp.pl:9280
 msgid "Successfully published"
-msgstr ""
+msgstr "සාර්ථකව ප්‍රකාශ විය"
 
 #: translate_tmp.pl:9280
 #, perl-format
 msgid "The file %s was successfully published: %s"
-msgstr ""
+msgstr "%s ගොනුව සාර්ථකව ප්‍රකාශ විය: %s"
 
 #: translate_tmp.pl:9283
 #, perl-format
 msgid "%s published"
-msgstr ""
+msgstr "%s ප්‍රකාශ විය"
 
 #: translate_tmp.pl:9296
 msgid "Unpublished"
-msgstr ""
+msgstr "ප්‍රකාශ නොවිය"
 
 #: translate_tmp.pl:9296
 #, perl-format
 msgid ""
 "The file %s is no longer published. The external link is not available "
 "anymore."
-msgstr ""
+msgstr "%s ගොනුව තවදුරටත් ප්‍රකාශනයේ නොපවතී. භාහිර සබැධුම තවදුරටත් නොපවතී."
 
 #: translate_tmp.pl:9299
 #, perl-format
 msgid "The file %s is no longer published."
-msgstr ""
+msgstr "%s ගොනුව තවදුරටත් ප්‍රකාශනයේ නොපවතී."
 
 #: translate_tmp.pl:9498
 msgid "Rename"
@@ -1333,21 +1374,21 @@ msgstr "නම වෙනස් කරන්න (_R)"
 #: translate_tmp.pl:9622
 #: translate_tmp.pl:9665
 msgid "renamed"
-msgstr ""
+msgstr "නැවත නම් කරනැ ලදී"
 
 #: translate_tmp.pl:9630
 #: translate_tmp.pl:9673
 #: translate_tmp.pl:9709
 #, perl-format
 msgid "Error while renaming the image %s."
-msgstr "%s රුපයේ නම වෙනස් කිරීමේදී දෝෂය."
+msgstr "%s රූපයේ නම වෙනස් කිරීමේදී දෝෂය."
 
 #: translate_tmp.pl:9630
 #: translate_tmp.pl:9673
 #: translate_tmp.pl:9709
 #, perl-format
 msgid "There was an error renaming the image to %s."
-msgstr ""
+msgstr "%s ට නැවත නම් කිරීමේ දෝෂය"
 
 #: translate_tmp.pl:9639
 #: translate_tmp.pl:10099
@@ -1365,6 +1406,8 @@ msgstr "ආදේශය (_R)"
 msgid ""
 "The image already exists in %s. Replacing it will overwrite its contents."
 msgstr ""
+"රූපය දැනටමත් %s ලෙස පවතී. එය ප්‍රතිස්ථාපනය කිරීමෙන් එහි අඩංගු දත්ත ප්‍රති "
+"රචනය විය හැක."
 
 #: translate_tmp.pl:9644
 #: translate_tmp.pl:10102
@@ -1372,11 +1415,11 @@ msgstr ""
 #: translate_tmp.pl:1639
 #, perl-format
 msgid "An image named %s already exists. Do you want to replace it?"
-msgstr ""
+msgstr "%s ලෙස රූපයක් දැනටමත් පවතී. එය ප්‍රතිස්ථාපනය කරනවාට කැමතිද ?"
 
 #: translate_tmp.pl:9709
 msgid "Invalid Filename"
-msgstr ""
+msgstr "අවලංගු ගොනු නාමයකි"
 
 #: translate_tmp.pl:9733
 #: translate_tmp.pl:6653
@@ -1386,16 +1429,16 @@ msgstr "විවෘත කිරීමට ගොනුව තෝරන්න"
 #: translate_tmp.pl:9765
 #: translate_tmp.pl:6683
 msgid "All compatible image formats"
-msgstr ""
+msgstr "සියළු ගැලපෙන ආකෘති"
 
 #: translate_tmp.pl:9849
 #: translate_tmp.pl:1457
 msgid "Choose a location to save to"
-msgstr ""
+msgstr "සුරැකීම සදහා ස්ථානය තෝරන්න"
 
 #: translate_tmp.pl:10195
 msgid "Choose a plugin"
-msgstr ""
+msgstr "ප්ලගිනය තෝරන්න"
 
 #: translate_tmp.pl:10200
 msgid "_Run"
@@ -1407,16 +1450,16 @@ msgstr "ප්ලගිනය"
 
 #: translate_tmp.pl:10339
 msgid "No plugin specified"
-msgstr ""
+msgstr "ප්ලගිනයක් නිශ්චය කර නැත"
 
 #: translate_tmp.pl:10390
 msgid "Upload / Export"
-msgstr ""
+msgstr "උඩුගතකරන්න / අනුයාත කරන්න"
 
 #: translate_tmp.pl:10394
 #: translate_tmp.pl:10646
 msgid "_Upload"
-msgstr ""
+msgstr "_ උඩුගත කරන්න"
 
 #: translate_tmp.pl:10421
 msgid "Guest"
@@ -1424,7 +1467,7 @@ msgstr "අමුත්තා"
 
 #: translate_tmp.pl:10426
 msgid "OAuth"
-msgstr ""
+msgstr "OAuth නියමාවලිය"
 
 #: translate_tmp.pl:10459
 msgid ""
@@ -1432,6 +1475,9 @@ msgid ""
 "links will still be available in the screenshot's <i>right-click menu</i> "
 "after closing this dialog."
 msgstr ""
+"ඉහතින් එක් ගිණුමක් තෝරා <i>උඩුගතකිරීම </i> ඔබන්න. උඩුගතකිරීමේ සබැදුම "
+"තවදුරටත් රාමුජායාරූප තුල පවතී මෙම සංවාදය වැසීමෙන් පසු <i>මෙනුවට දකුණු පස "
+"ක්ලිකයක් </i> ලබාදෙන්න."
 
 #: translate_tmp.pl:10460
 msgid ""
@@ -1439,6 +1485,8 @@ msgid ""
 "enter your credentials in preferences first to make it appear in the list "
 "above."
 msgstr ""
+"<b>විශේෂ සටහන:</b> ප්ලගිනයක් මගින් අනුමැතිය සහිත උඩුගත කිරීමක් පමණක් ලබා දේ "
+"නම් එය ලයිස්තුවේ ඉහලින් පෙන්වීමට අභිරුචිකයන් තුල ඔබේ අක්තපත්‍ර ඇතුලත් කරන්න."
 
 #: translate_tmp.pl:10462
 msgid "Choose account"
@@ -1450,7 +1498,7 @@ msgstr "තත්ත්වය"
 
 #: translate_tmp.pl:10633
 msgid "Public hosting"
-msgstr ""
+msgstr "පොදු සත්කාරකය"
 
 #: translate_tmp.pl:10635
 msgid "Places"
@@ -1458,11 +1506,11 @@ msgstr "ස්ථාන"
 
 #: translate_tmp.pl:10650
 msgid "_Export"
-msgstr "අපනයන (_E)"
+msgstr "නිර්යාත කිරීම (_E)"
 
 #: translate_tmp.pl:10654
 msgid "_Publish"
-msgstr ""
+msgstr "_ප්‍රකාශනය කරන්න"
 
 #: translate_tmp.pl:10682
 #: translate_tmp.pl:164
@@ -1479,7 +1527,11 @@ msgid_plural ""
 "Folder %s is synchronized with Ubuntu One. The selected files will be copied "
 "to that folder before being published."
 msgstr[0] ""
+"%s ගොනු කාණ්ඩය Ubuntu One සමග සමමුහුර්ත කර ඇත. තෝරාගෙන ඇති ගොනුව ප්‍රකාශනයට "
+"පෙර  එම ගොනු කාණ්ඩයට පිටපත් කර ගනී."
 msgstr[1] ""
+"%s ගොනු කාණ්ඩය Ubuntu One සමග සමමුහුර්ත කර ඇත. තෝරාගෙන ඇති ගොනු ප්‍රකාශනයට "
+"පෙර  එම ගොනු කාණ්ඩයට පිටපත් කර ගනී."
 
 #: translate_tmp.pl:10707
 #: translate_tmp.pl:10739
@@ -1490,7 +1542,11 @@ msgid_plural ""
 "<b>Please note:</b> The selected files will be published in a background "
 "process. You will be notified when the process has finished."
 msgstr[0] ""
+"<b>විශේෂ සටහන:</b> පසුබිම් ක්‍රියාවලියක තෝරාගත් ගොනුව ප්‍රකාශනය කරනු ලැබේවි. "
+"එම ක්‍රියාවලිය අවසන් වූ විට දැනුම්දීමක් සිදුකරයි."
 msgstr[1] ""
+"<b>විශේෂ සටහන:</b> පසුබිම් ක්‍රියාවලියක තෝරාගත් ගොනු ප්‍රකාශනය කරනු ලැබේවි. "
+"එම ක්‍රියාවලිය අවසන් වූ විට දැනුම්දීමක් සිදුකරයි."
 
 #: translate_tmp.pl:10711
 #: translate_tmp.pl:10743
@@ -1499,6 +1555,7 @@ msgid ""
 "Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
 "folder."
 msgstr ""
+"%s ගොනු කාණ්ඩය Ubuntu One සමග සමමුහුර්ත කර නොමැත. වෙනත් ගොනු කාණ්ඩයක් තෝරන්න."
 
 #: translate_tmp.pl:10762
 msgid "Ubuntu One service cannot be found."
@@ -1508,46 +1565,48 @@ msgstr "Ubuntu One සේවය සොයාගත නොහැක."
 msgid ""
 "/publicfiles is not available. Your Ubuntu One installation seems to be out "
 "of date."
-msgstr ""
+msgstr "/publicfiles නොපවතී. ඔබේ Ubuntu One ස්ථාපනය කල් ඉකුත් වූවකි."
 
 #: translate_tmp.pl:10778
 msgid ""
 "Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature"
 msgstr ""
+"මෙම ලක්ෂණය ක්‍රියාත්මක වීමට Net::DBus::GLib/libnet-dbus-glib-perl පිහිටුවා "
+"තිබිය යුතුය"
 
 #: translate_tmp.pl:10846
 #, perl-format
 msgid "Loading module %s"
-msgstr ""
+msgstr "%s මොඩියුලය  ප්‍රවේශණය වෙමින් පවතී"
 
 #: translate_tmp.pl:10859
 #, perl-format
 msgid "Error while executing upload plugin %s."
-msgstr ""
+msgstr "%s උඩුගතකිරීමේ ප්ලගිනය ක්‍රියාකරවීමේ දෝෂය"
 
 #: translate_tmp.pl:10859
 msgid "There was an error executing the upload plugin."
-msgstr ""
+msgstr "උඩුගතකිරීමේ ප්ලගිනය ක්‍රියාකරවීමේදී දෝෂයක් හට ගැනිණි"
 
 #: translate_tmp.pl:10892
 #: translate_tmp.pl:10963
 #: translate_tmp.pl:11078
 #: translate_tmp.pl:11155
 msgid "uploaded"
-msgstr ""
+msgstr "උඩුගතකිරීම අවසන්"
 
 #: translate_tmp.pl:10967
 #: translate_tmp.pl:11082
 #: translate_tmp.pl:11159
 msgid "Successfully uploaded"
-msgstr ""
+msgstr "සාර්ථකව උඩුගතකරන ලදී"
 
 #: translate_tmp.pl:10967
 #: translate_tmp.pl:11082
 #: translate_tmp.pl:11159
 #, perl-format
 msgid "The file %s was successfully uploaded."
-msgstr ""
+msgstr "%s ගොනුව සාර්ථකව උඩුගත කරන ලදී."
 
 #: translate_tmp.pl:10987
 #: translate_tmp.pl:11130
@@ -1573,24 +1632,24 @@ msgstr "යළි උත්සාහ කරන්න"
 #: translate_tmp.pl:11071
 #: translate_tmp.pl:11148
 msgid "exported"
-msgstr ""
+msgstr "අනුයාත කරන ලදී"
 
 #: translate_tmp.pl:11075
 #: translate_tmp.pl:11152
 msgid "Successfully exported"
-msgstr "අපනයන සාර්ථකයි"
+msgstr "අනුයාතය සාර්ථකයි"
 
 #: translate_tmp.pl:11075
 #: translate_tmp.pl:11152
 #, perl-format
 msgid "The file %s was successfully exported."
-msgstr "%s ගොනුව අපනයන සාර්ථකයි"
+msgstr "%s ගොනුව අනුයාතය සාර්ථකයි"
 
 #: translate_tmp.pl:11089
 #: translate_tmp.pl:11166
 #, perl-format
 msgid "Publishing %s..."
-msgstr ""
+msgstr "%s ප්‍රකාශකරමින් ..."
 
 #: translate_tmp.pl:11262
 msgid "_Retry"
@@ -1609,24 +1668,24 @@ msgstr "%s තුලට රූපය පිටපත් කිරීමේදී
 #: translate_tmp.pl:11278
 #: translate_tmp.pl:90
 msgid "Please check your credentials and try again."
-msgstr ""
+msgstr "ඔබේ සහතිකකරණයන් නැවත බලා උත්සාහ කරන්න."
 
 #: translate_tmp.pl:11278
 msgid "Error while login"
-msgstr ""
+msgstr "ඇතුල්වීමේ දෝෂය"
 
 #: translate_tmp.pl:11281
 msgid "Maximum filesize reached"
-msgstr ""
+msgstr "උපරිම ගොනු විශාලත්වය"
 
 #: translate_tmp.pl:11281
 msgid "Error while uploading"
-msgstr ""
+msgstr "උඩුගත කිරීමේ දෝෂය"
 
 #: translate_tmp.pl:11281
 #, perl-format
 msgid "Maximum filesize: %s"
-msgstr ""
+msgstr "උපරිම ගොනු විශාලත්වය: %s"
 
 #: translate_tmp.pl:11284
 msgid "Error while connecting"
@@ -1634,29 +1693,30 @@ msgstr "සම්බන්ධවීමේදී දෝෂය"
 
 #: translate_tmp.pl:11298
 msgid "Save current preferences as new profile"
-msgstr ""
+msgstr "වර්තමාන අභිරුචිකත්වයන් නව පැතිකඩක් ලෙස සුරකින්න"
 
 #: translate_tmp.pl:11300
 msgid "New profile name"
-msgstr ""
+msgstr "නව පැතිකඩ නාමය"
 
 #: translate_tmp.pl:11361
 msgid "Replacing it will overwrite its contents."
-msgstr ""
+msgstr "ප්‍රති-ස්ථාපනය කිරීමෙන් එහි අන්තර්ගතයන් ප්‍රති-රචනා විය හැක."
 
 #: translate_tmp.pl:11361
 #, perl-format
 msgid "A profile named %s already exists. Do you want to replace it?"
-msgstr ""
+msgstr "%s ලෙස පැතිකඩක් දැනටමත් පවතී. එය ප්‍රති-ස්ථාපනය කිරීම අවශ්‍යද ?"
 
 #: translate_tmp.pl:79
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
+"  A.K.D.M.P Munasinghe https://launchpad.net/~mpmunasinghe\n"
 "  Dilantha Nanayakkara https://launchpad.net/~dilantha-openpathit\n"
 "  Dilantha Nanayakkara https://launchpad.net/~dilnana\n"
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
-"  Mohamed Rizmi https://launchpad.net/~mhmdrizmi50\n"
+"  Mohamed Rizmi https://launchpad.net/~mrizmi\n"
 "  Sadeepa Palliyaguru https://launchpad.net/~sadeepa-palliyaguru\n"
 "  පසිඳු කාවින්ද https://launchpad.net/~pkavinda"
 
@@ -1668,7 +1728,7 @@ msgstr "ගොනුව (_F)"
 #: translate_tmp.pl:39
 #: translate_tmp.pl:6034
 msgid "_Edit"
-msgstr "සැකසුම් (_E)"
+msgstr "සංස්කරණය (_E)"
 
 #: translate_tmp.pl:44
 #: translate_tmp.pl:6036
@@ -1677,7 +1737,7 @@ msgstr "දර්ශනය (_V)"
 
 #: translate_tmp.pl:49
 msgid "_Screenshot"
-msgstr ""
+msgstr "_රාමුජායරූප"
 
 #: translate_tmp.pl:54
 msgid "_Go"
@@ -1693,7 +1753,7 @@ msgstr "විවෘත කරන්න... (_O)"
 
 #: translate_tmp.pl:92
 msgid "Recent _Files"
-msgstr ""
+msgstr "මෑත _ගොනු"
 
 #: translate_tmp.pl:103
 msgid "Save _As..."
@@ -1707,11 +1767,11 @@ msgstr "PDF වෙත අපනයනය කරන්න... (_x)"
 #: translate_tmp.pl:119
 #: translate_tmp.pl:6192
 msgid "Export to Post_Script..."
-msgstr ""
+msgstr "Post_Script වෙත අනුයාත කරන්න"
 
 #: translate_tmp.pl:129
 msgid "Page Set_up"
-msgstr ""
+msgstr "පිටු සැකසුම (_u)"
 
 #: translate_tmp.pl:136
 msgid "_Print..."
@@ -1732,7 +1792,7 @@ msgstr "ගොනු නම පිටපත් කරන්න (_F)"
 
 #: translate_tmp.pl:246
 msgid "Show Navigation _Toolbar"
-msgstr ""
+msgstr "මං සෙවුම් _මෙවලම් තීරුව පෙන්වන්න (_T)"
 
 #: translate_tmp.pl:328
 msgid "Get Help Online..."
@@ -1744,25 +1804,25 @@ msgstr "මෙම වැඩසටහන පරිවර්තනය කරන්
 
 #: translate_tmp.pl:358
 msgid "Report a Problem"
-msgstr "ගැටලුවක් වාර්ථා කරන්න"
+msgstr "ගැටලුවක් වාර්තා කරන්න"
 
 #: translate_tmp.pl:446
 msgid "_Active Window"
-msgstr ""
+msgstr "ක්‍රියාකාරී කවුළුව (_)"
 
 #: translate_tmp.pl:538
 msgid "Import from clip_board"
-msgstr ""
+msgstr "පසුරු පුවරුවෙන් ආයාත කරන්න (_b)"
 
 #: translate_tmp.pl:558
 #: translate_tmp.pl:655
 msgid "Open wit_h"
-msgstr ""
+msgstr "සමග විවෘත කරන්න (_h)"
 
 #: translate_tmp.pl:565
 #: translate_tmp.pl:662
 msgid "Show in _folder"
-msgstr ""
+msgstr "ගොනු කාණ්ඩය තුල පෙන්වන්න (_f)"
 
 #: translate_tmp.pl:572
 #: translate_tmp.pl:669
@@ -1791,16 +1851,16 @@ msgstr "වෙනස් කරන්න... (_E)"
 
 #: translate_tmp.pl:622
 msgid "Run a _plugin..."
-msgstr ""
+msgstr "ප්ලගිනය ක්‍රියාත්මක කරන්න... (_p)"
 
 #: translate_tmp.pl:631
 #: translate_tmp.pl:742
 msgid "Redo _this screenshot"
-msgstr ""
+msgstr "මෙම රාමුජායාරූපය නැවත ගන්න (_t)"
 
 #: translate_tmp.pl:734
 msgid "Run a _Plugin..."
-msgstr ""
+msgstr "ප්ලගිනය ක්‍රියාත්මක කරන්න... (_P)"
 
 #: translate_tmp.pl:37
 msgid "Redo"
@@ -1808,7 +1868,7 @@ msgstr "යළි කරන්න"
 
 #: translate_tmp.pl:40
 msgid "Redo last screenshot"
-msgstr ""
+msgstr "අවසාන රාමුජායාරූපය නැවත ගන්න"
 
 #: translate_tmp.pl:63
 #: translate_tmp.pl:46
@@ -1821,6 +1881,8 @@ msgid ""
 "Draw a rectangular capture area with your mouse\n"
 "to select a specified screen area"
 msgstr ""
+"ඔබේ මුසිකය භාවිතයෙන් සෘජුකෝණීය ග්‍රහණ ප්‍රදේශයක් අදින්න \n"
+"එමගින් නිශ්චිත ප්‍රදේශයක් තෝරන්න"
 
 #: translate_tmp.pl:89
 msgid "Desktop"
@@ -1828,11 +1890,11 @@ msgstr "වැඩතලය"
 
 #: translate_tmp.pl:92
 msgid "Take a screenshot of your whole desktop"
-msgstr ""
+msgstr "ඔබේ මුළු ඩෙස්ක්ටොපයම රාමුජායාරූපයකට හසුකර ගන්න"
 
 #: translate_tmp.pl:93
 msgid "Capture a specific workspace"
-msgstr ""
+msgstr "නිශ්චිත වැඩප්‍රදේශයක් ග්‍රහණය කරන්න"
 
 #: translate_tmp.pl:131
 msgid "Window"
@@ -1840,11 +1902,11 @@ msgstr "කවුළුව"
 
 #: translate_tmp.pl:134
 msgid "Select a window with your mouse"
-msgstr ""
+msgstr "මුශිකය භාවිතයෙන් කවුළුවක් තෝරන්න"
 
 #: translate_tmp.pl:135
 msgid "Take a screenshot of a specific window"
-msgstr ""
+msgstr "නිශ්චිත කවුළුවක රාමුජායාරූපයක් ගන්න"
 
 #: translate_tmp.pl:150
 msgid "Section"
@@ -1855,6 +1917,8 @@ msgid ""
 "Captures only a section of the window. You will be able to select any child "
 "window by moving the mouse over it"
 msgstr ""
+"කවුළුවෙන් කොටසක් පමණක් ග්‍රහණය කරන්න. අනු කවුළු තේරීමට මුසිකය ඒවා මතින් ගෙන "
+"යන්න"
 
 #: translate_tmp.pl:170
 #: translate_tmp.pl:1095
@@ -1863,7 +1927,7 @@ msgstr "මෙනුව"
 
 #: translate_tmp.pl:173
 msgid "Select a single menu or cascading menus from any application"
-msgstr ""
+msgstr "ඕනෑම යෙදුමකින් තනි මෙනුවක් හෝ දිගහැරෙන මෙනුවක් තෝරන්න"
 
 #: translate_tmp.pl:190
 #: translate_tmp.pl:1101
@@ -1872,7 +1936,7 @@ msgstr "ඉගිය"
 
 #: translate_tmp.pl:193
 msgid "Capture a tooltip"
-msgstr ""
+msgstr "මෙවලම් ඉගිය ග්‍රහණය කරන්න"
 
 #: translate_tmp.pl:209
 msgid "Web"
@@ -1881,13 +1945,15 @@ msgstr "වෙබ්"
 #: translate_tmp.pl:211
 #: translate_tmp.pl:79
 msgid "Take a screenshot of a website"
-msgstr ""
+msgstr "වෙබ්පිටුවක රාමුජායාරූපයක් ගන්න"
 
 #: translate_tmp.pl:212
 msgid ""
 "Set how long Shutter will wait for the screenshot to complete before "
 "aborting the process if it's taking too long"
 msgstr ""
+"ක්‍රියාවලිය ගන්නා කාලය වැඩි නම් ක්‍රියාවලිය අත් හැරීමට පෙර Shutter බලා සිටිය "
+"යුතු කාලය සකස් කරන්න"
 
 #: translate_tmp.pl:233
 msgid "Edit"
@@ -1898,53 +1964,57 @@ msgid ""
 "Use the built-in editor to highlight important fragments of your screenshot "
 "or crop it to a desired size"
 msgstr ""
+"රාමුජායාරූපයේ වැදගත් කොටස් අවශ්‍ය ප්‍රමාණයට කපා ගැනීමට අභ්‍යන්තර සකසනය "
+"භාවිතයෙන් සලකුණු කරන්න"
 
 #: translate_tmp.pl:243
 msgid "Export"
-msgstr "අපනයනය"
+msgstr "නිර්යාත කරන්න"
 
 #: translate_tmp.pl:246
 msgid ""
 "Upload your images to an image hosting service, FTP site or export them to "
 "an arbitrary folder"
 msgstr ""
+"ඔබගේ පින්තූර පින්තූර සත්කාරක සේවයකට උඩුගත කරන්න, FTP අඩවි හෝ සාමාන්‍යය ගොනු "
+"එකතුවකට අනුයාත කරන්න"
 
 #: translate_tmp.pl:247
 msgid "Show links to previous uploads"
-msgstr ""
+msgstr "පෙර උඩුගත කිරීම් සදහා සබැදුම් පෙන්වන්න"
 
 #: translate_tmp.pl:33
 #: translate_tmp.pl:47
 #: translate_tmp.pl:61
 #, perl-format
 msgid "Error while executing %s."
-msgstr ""
+msgstr "%s ක්‍රියාකරවීමේ දෝෂය."
 
 #: translate_tmp.pl:34
 #: translate_tmp.pl:48
 #: translate_tmp.pl:62
 #, perl-format
 msgid "There was an error executing %s."
-msgstr ""
+msgstr "%s ක්‍රියාකරවීමේදී දෝෂයක් ඇති විය."
 
 #: translate_tmp.pl:37
 #: translate_tmp.pl:51
 #: translate_tmp.pl:65
 #, perl-format
 msgid "Exit Code: %d."
-msgstr ""
+msgstr "කේතයෙන් ඉවත් වෙන්න: %d."
 
 #: translate_tmp.pl:167
 msgid "Synchronization complete"
-msgstr ""
+msgstr "සමමුහුර්තකරණය සම්පූර්ණයි"
 
 #: translate_tmp.pl:169
 msgid "Synchronization in progress..."
-msgstr ""
+msgstr "සමමුහුර්තකරණය සිදු වෙමින්..."
 
 #: translate_tmp.pl:62
 msgid "Illegal URI."
-msgstr ""
+msgstr "වැරදි URL එකකි"
 
 #: translate_tmp.pl:82
 msgid "Connection error."
@@ -1957,65 +2027,66 @@ msgstr "කරුණාකර ඔබගේ සම්බන්ධතාවය ප
 #: translate_tmp.pl:89
 #, perl-format
 msgid "Login with username %s failed."
-msgstr ""
+msgstr "%s පරිශීලක නාමයෙන් ඇතුල් වීම අසාර්ථකයි."
 
 #: translate_tmp.pl:109
 msgid "Cannot change working directory."
-msgstr ""
+msgstr "වැඩකරන ගොනුව කාණ්ඩය වෙනස් කල නොහැක."
 
 #: translate_tmp.pl:119
 msgid "Command 'put' failed."
-msgstr ""
+msgstr "'put' විධානය අසාර්ථකයි"
 
 #: translate_tmp.pl:87
 msgid "Copy this code to clipboard"
-msgstr ""
+msgstr "මෙම කේතය ක්ලිප්බෝඩයට පිටපත් කරන්න"
 
 #: translate_tmp.pl:112
 #, perl-format
 msgid "Upload - %s - %s"
-msgstr ""
+msgstr "%s - %s උඩුගත කරන්න"
 
 #: translate_tmp.pl:120
 msgid "Draw a rectangular area using the mouse."
-msgstr ""
+msgstr "මුසිකය භාවිතා කර චතුරශ්‍රයක් අදින්න."
 
 #: translate_tmp.pl:122
 msgid "To take a screenshot, press the Enter key. Press Esc to quit."
-msgstr ""
+msgstr "රාමුජායාරූපයක් ගැනීමට, එන්ටර් බොත්තම ඔබන්න. ඉවත් වීමට Esc ඔබන්න."
 
 #: translate_tmp.pl:124
 msgid "<b>shift/right-click</b> → selection dialog on/off"
-msgstr ""
+msgstr "<b>shift/right-click</b> → තෝරාගැනීමේ සංවාදය අරින්න/වසන්න"
 
 #: translate_tmp.pl:124
 msgid "<b>ctrl + scrollwheel</b> → zoom in/out"
-msgstr ""
+msgstr "<b>ctrl + scrollwheel</b> → විශාලත්වය වැඩිකරන්න/අඩුකරන්න"
 
 #: translate_tmp.pl:124
 msgid "<b>space</b> → zoom window on/off"
-msgstr ""
+msgstr "<b>space</b> → විශාලත්ව කවුළුව අරින්න/වසන්න"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys</b> → move cursor"
-msgstr ""
+msgstr "<b>cursor keys</b> → කර්සරය ගෙනයන්න"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys + alt</b> → move selection"
-msgstr ""
+msgstr "<b>cursor keys + alt</b> → තේරීම සොලවන්න"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys + ctrl</b> → resize selection"
-msgstr ""
+msgstr "<b>cursor keys + ctrl</b> → තෝරාගත් කොටස පෙර විශාලත්වයට ගෙන එන්න"
 
 #: translate_tmp.pl:88
 msgid ""
 "Maybe mouse pointer could not be grabbed or the selected area is invalid."
 msgstr ""
+"මුසික දක්වනය එම ප්‍රදේශයට ගෙන ආ නොහැක එසේත් නැති නම් තේරූ ප්‍රදේශය වලංගු නැත."
 
 #: translate_tmp.pl:96
 msgid "Keyboard could not be grabbed."
-msgstr ""
+msgstr "යතුරු පුවරුව ගෙන ආ නොහැක."
 
 #: translate_tmp.pl:105
 msgid "menu"
@@ -2023,53 +2094,55 @@ msgstr "මෙනුව"
 
 #: translate_tmp.pl:107
 msgid "tooltip"
-msgstr ""
+msgstr "මෙවලම් ඉගිය"
 
 #: translate_tmp.pl:111
 #, perl-format
 msgid "No window with type %s detected."
-msgstr ""
+msgstr "%s වර්ගය සහිත කවුළුවක් නොපවතී."
 
 #: translate_tmp.pl:119
 msgid "There is no last capture that can be redone."
-msgstr ""
+msgstr "නැවත ඉටු කිරීමට පෙර සිදුකල ග්‍රහණයක් නොමැත."
 
 #: translate_tmp.pl:127
 msgid "The window is no longer available."
-msgstr ""
+msgstr "කවුළුව තවදුරටත් නොපවතී."
 
 #: translate_tmp.pl:139
 #: translate_tmp.pl:145
 msgid "Unable to capture website"
-msgstr ""
+msgstr "වෙබ්අඩවිය ග්‍රහණය කරගත නොහැක"
 
 #: translate_tmp.pl:153
 #, perl-format
 msgid "No window with name pattern %s detected."
-msgstr ""
+msgstr "%s ලෙස නාම රටාවක් සහිත කවුළුවක් සොයාගත නොහැක."
 
 #: translate_tmp.pl:163
 #, perl-format
 msgid "Invalid pattern %s detected."
-msgstr ""
+msgstr "%s යන රටාව වලංගු නැත."
 
 #: translate_tmp.pl:116
 msgid "No subwindow detected"
-msgstr ""
+msgstr "අනුකවුළු නොපවතී"
 
 #: translate_tmp.pl:117
 msgid ""
 "Maybe this window is using client-side windows (or similar).\n"
 "Shutter is not yet able to query the tree information of such windows."
 msgstr ""
+"සමහරවිට මෙම කවුළුව සේවාලාභියාගේ (හෝ ඒ හා සමාන) කවුළු භාවිතා කරනවා විය හැක.\n"
+"එවැනි කවුළු වල සැකසුම් තොරතුරු විමසීමට Shutter වෙත තවම නොහැකිය."
 
 #: translate_tmp.pl:81
 msgid "URL to capture"
-msgstr ""
+msgstr "ග්‍රහණය කල යුතු URL ය."
 
 #: translate_tmp.pl:98
 msgid "C_apture"
-msgstr ""
+msgstr "ග්‍රහණය (_a)"
 
 #: translate_tmp.pl:157
 msgid "Workspaces"
@@ -2078,57 +2151,57 @@ msgstr "කර්යාවකාශ"
 #: translate_tmp.pl:454
 #: translate_tmp.pl:4186
 msgid "Fill color"
-msgstr ""
+msgstr "පිරවුම් වර්ණය"
 
 #: translate_tmp.pl:461
 #: translate_tmp.pl:462
 msgid "Adjust fill color and opacity"
-msgstr ""
+msgstr "පිරවුම් වර්ණය හා පාරාන්ධතාවය සකසන්න"
 
 #: translate_tmp.pl:468
 #: translate_tmp.pl:4206
 msgid "Stroke color"
-msgstr ""
+msgstr "පහර සලකුණේ වර්ණය"
 
 #: translate_tmp.pl:473
 #: translate_tmp.pl:4212
 msgid "Choose stroke color"
-msgstr ""
+msgstr "පහර සලකුණේ වර්ණය තෝරන්න"
 
 #: translate_tmp.pl:475
 #: translate_tmp.pl:476
 msgid "Adjust stroke color and opacity"
-msgstr ""
+msgstr "පහර ලකුණේ වර්ණය සහ පරාන්ධතාවය සකස්කරන්න"
 
 #: translate_tmp.pl:482
 #: translate_tmp.pl:4172
 msgid "Line width"
-msgstr ""
+msgstr "රේඛා පළල"
 
 #: translate_tmp.pl:486
 #: translate_tmp.pl:487
 msgid "Adjust line width"
-msgstr ""
+msgstr "රේඛා පළල සකස්කරන්න"
 
 #: translate_tmp.pl:493
 #: translate_tmp.pl:4249
 #: translate_tmp.pl:4375
 msgid "Font"
-msgstr ""
+msgstr "අකුරු වර්ගය"
 
 #: translate_tmp.pl:497
 #: translate_tmp.pl:498
 msgid "Select font family and size"
-msgstr ""
+msgstr "අකුරු වර්ගය අයත් පවුල සහ විශාලත්වය තෝරන්න"
 
 #: translate_tmp.pl:504
 msgid "Insert image"
-msgstr ""
+msgstr "රූපය ඇතුලත් කරන්න"
 
 #: translate_tmp.pl:617
 #: translate_tmp.pl:618
 msgid "Insert an arbitrary object or file"
-msgstr ""
+msgstr "කුමක්හෝ වස්තුවක් හෝ ගොනුවක් ඇතුලත් කරන්න"
 
 #: translate_tmp.pl:638
 msgid "X"
@@ -2149,56 +2222,56 @@ msgstr "උස"
 
 #: translate_tmp.pl:705
 msgid "_Crop"
-msgstr ""
+msgstr "කපන්න (_C)"
 
 #: translate_tmp.pl:854
 msgid "Click-Drag to scale (try Control to scale uniformly)"
-msgstr ""
+msgstr "පරිමාණය කිරීමට අදිමින් ක්ලික් කරන්න"
 
 #: translate_tmp.pl:857
 msgid "Click-Drag to resize the canvas"
-msgstr ""
+msgstr "කැන්වසයේ විශාලත්වය වෙනස් කිරීමට අදිමින් ක්ලික් කරන්න"
 
 #: translate_tmp.pl:863
 msgid "Click to paint (try Control or Shift for a straight line)"
-msgstr ""
+msgstr "වර්ණගැන්වීමට ක්ලික් කරන්න (ctrl හෝ shift ඔබා සෘජු රේඛා අදින්න )"
 
 #: translate_tmp.pl:868
 msgid "Click-Drag to create a new straight line"
-msgstr ""
+msgstr "නව තනි සෘජු රේඛාවක් ඇදීමට ක්ලික් කරමින් අදින්න"
 
 #: translate_tmp.pl:873
 msgid "Click-Drag to create a new arrow"
-msgstr ""
+msgstr "නව ඊතලයක් සෑදීමට ක්ලික් කරමින් අදින්න"
 
 #: translate_tmp.pl:878
 msgid "Click-Drag to create a new rectangle"
-msgstr ""
+msgstr "නව චතුරශ්‍රයක් සෑදීමට ක්ලික් කරමින් අදින්න"
 
 #: translate_tmp.pl:883
 msgid "Click-Drag to create a new ellipse"
-msgstr ""
+msgstr "නව ඉලිප්සයක් සෑදීමට ක්ලික් කරමින් අදින්න"
 
 #: translate_tmp.pl:888
 msgid "Click-Drag to add a new text area"
-msgstr ""
+msgstr "නව වචන ප්‍රදේශයක් ඇති කිරීමට ක්ලික් කරමින් අදින්න"
 
 #: translate_tmp.pl:893
 msgid "Click to censor (try Control or Shift for a straight line)"
-msgstr ""
+msgstr "සංවේදනය සදහා ක්ලික් කරන්න (ctrl හෝ shift ඔබා සෘජු රේඛා අදින්න )"
 
 #: translate_tmp.pl:898
 msgid "Click-Drag to create a pixelized region"
-msgstr ""
+msgstr "පික්සලානුගත ප්‍රදේශයක් ඇති කිරීමට ක්ලික් කරමින් අදින්න"
 
 #: translate_tmp.pl:903
 msgid "Click to add an auto-increment shape"
-msgstr ""
+msgstr "ස්වයංක්‍රීයව වැඩිවන හැඩයක් එකතු කිරීමට ක්ලික් කරන්න"
 
 #: translate_tmp.pl:1240
 #, perl-format
 msgid "Save the changes to image %s before closing?"
-msgstr ""
+msgstr "වැසීමට පෙර %s වෙත රූපය සුරකින්නද ?"
 
 #: translate_tmp.pl:1256
 msgid "Close"
@@ -2206,7 +2279,7 @@ msgstr "වසන්න"
 
 #: translate_tmp.pl:1259
 msgid "Do_n't save"
-msgstr ""
+msgstr "සුරකින්න එපා (_n)"
 
 #: translate_tmp.pl:1323
 #, perl-format
@@ -2214,18 +2287,18 @@ msgid ""
 "If you don't save the image, changes from the last minute will be lost"
 msgid_plural ""
 "If you don't save the image, changes from the last %d minutes will be lost"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "රුපය සුරැකීම සිදු නොකලොත් අවසාන මිනිත්තුවේ වෙනස්කම් අහිමි වේ"
+msgstr[1] "රුපය සුරැකීම සිදු නොකලොත් අවසාන මිනිත්තු %d තුල වෙනස්කම් අහිමි වේ"
 
 #: translate_tmp.pl:1720
 msgid "Do you want to save the changed background color?"
-msgstr ""
+msgstr "වෙනස් කරන ලද පසුබිම් වර්ණය සුරැකිය යුතුද ?"
 
 #: translate_tmp.pl:1721
 msgid ""
 "The background is likely to be transparent if you decide to ignore the "
 "background color."
-msgstr ""
+msgstr "පසුබිම් වර්ණය නොසලකා හැරියොත් පසුබිම පාරදෘශ්‍ය විය හැකිය."
 
 #: translate_tmp.pl:1723
 msgid "Save Background Color"
@@ -2233,7 +2306,7 @@ msgstr "පසුබිම් වර්ණය සුරකින්න"
 
 #: translate_tmp.pl:1726
 msgid "_Ignore Background Color"
-msgstr ""
+msgstr "පසුබිම් වර්ණය නොසලකාහරින්න (_I)"
 
 #: translate_tmp.pl:1729
 msgid "_Save Background Color"
@@ -2245,15 +2318,15 @@ msgstr "පසුබිම් වර්ණය වෙනස් කරන්න...
 
 #: translate_tmp.pl:3887
 msgid "_Reset to Default"
-msgstr ""
+msgstr "පෙර තිබූ තත්වයට පත් කරන්න (_R)"
 
 #: translate_tmp.pl:3940
 msgid "Raise"
-msgstr ""
+msgstr "ඉහල දමන්න"
 
 #: translate_tmp.pl:3965
 msgid "Lower"
-msgstr ""
+msgstr "පහළ දමන්න"
 
 #: translate_tmp.pl:4055
 msgid "Unlock"
@@ -2265,7 +2338,7 @@ msgstr "අගුලු දමන්න"
 
 #: translate_tmp.pl:4084
 msgid "Edit Preferences..."
-msgstr ""
+msgstr "අභිරුචිකත්වයන් වෙනස් කරන්න..."
 
 #: translate_tmp.pl:4227
 msgid "Numbering"
@@ -2273,7 +2346,7 @@ msgstr "අංකනය"
 
 #: translate_tmp.pl:4237
 msgid "Current value"
-msgstr ""
+msgstr "වර්තමාන අගය"
 
 #: translate_tmp.pl:4292
 #: translate_tmp.pl:6304
@@ -2286,36 +2359,36 @@ msgstr "දිග"
 
 #: translate_tmp.pl:4326
 msgid "Tip length"
-msgstr ""
+msgstr "ඉගියේ දිග"
 
 #: translate_tmp.pl:4336
 msgid "Display an arrow at the end of the line"
-msgstr ""
+msgstr "රේඛාවේ කෙලවරට ඊතලයක් පෙන්වන්න"
 
 #: translate_tmp.pl:4338
 msgid "Display an arrow at the start of the line"
-msgstr ""
+msgstr "රේඛාවේ ආරම්භයට ඊතලයක් පෙන්වන්න"
 
 #: translate_tmp.pl:4365
 #: translate_tmp.pl:6304
 msgid "Text"
-msgstr ""
+msgstr "පාඨ"
 
 #: translate_tmp.pl:4404
 msgid "Font color"
-msgstr ""
+msgstr "අකුරු වර්ණය"
 
 #: translate_tmp.pl:4410
 msgid "Choose font color"
-msgstr ""
+msgstr "අකුරු වර්ණය තෝරන්න"
 
 #: translate_tmp.pl:4432
 msgid "Use selected font"
-msgstr ""
+msgstr "තෝරාගත් අකුරු වර්ගය භාවිතා කරන්න"
 
 #: translate_tmp.pl:4438
 msgid "Use selected font color"
-msgstr ""
+msgstr "තෝරාගත් අකුරු වර්ණය භාවිතා කරන්න"
 
 #: translate_tmp.pl:6035
 msgid "_Tools"
@@ -2323,35 +2396,35 @@ msgstr "මෙවලම් (_T)"
 
 #: translate_tmp.pl:6042
 msgid "Undo last action"
-msgstr ""
+msgstr "පෙර ක්‍රියාව ආපසු හරවන්න"
 
 #: translate_tmp.pl:6053
 msgid "Do again the last undone action"
-msgstr ""
+msgstr "කලින් ආපසු හැරවූ ක්‍රියාව නැවත කරන්න"
 
 #: translate_tmp.pl:6064
 msgid "Copy selection to clipboard"
-msgstr ""
+msgstr "තේරුම පසුරු පුවරුවට පිටපත් කරන්න"
 
 #: translate_tmp.pl:6078
 msgid "Cut selection to clipboard"
-msgstr ""
+msgstr "තේරුම පසුරු පුවරුවට කපා ගෙන යන්න"
 
 #: translate_tmp.pl:6093
 msgid "Paste objects from clipboard"
-msgstr ""
+msgstr "පසුරු පුවරුවෙන් වස්තූන් ගෙන අලවන්න"
 
 #: translate_tmp.pl:6103
 msgid "Delete current object"
-msgstr ""
+msgstr "වර්තමාන වස්තුව ඉවත් කරන්න"
 
 #: translate_tmp.pl:6113
 msgid "Clear canvas"
-msgstr ""
+msgstr "කැන්වසය හිස් කරන්න"
 
 #: translate_tmp.pl:6134
 msgid "Abort current mode"
-msgstr ""
+msgstr "වර්තමාන මුහුණුවර අත් හරින්න"
 
 #: translate_tmp.pl:6144
 msgid "Close this window"
@@ -2371,23 +2444,23 @@ msgstr "ගොනුව වෙත අපනයනය කරන්න..."
 
 #: translate_tmp.pl:6172
 msgid "_Export to SVG..."
-msgstr "SVG වෙත අපනයනය කරන්න... (_E)"
+msgstr "SVG වෙත අනුයාත කරන්න... (_E)"
 
 #: translate_tmp.pl:6174
 msgid "Export to SVG..."
-msgstr "SVG වෙත අපනයනය කරන්න..."
+msgstr "SVG වෙත අනුයාත කරන්න..."
 
 #: translate_tmp.pl:6184
 msgid "Export to PDF..."
-msgstr "PDF වෙත අපනයනය කරන්න..."
+msgstr "PDF වෙත අනුයාත කරන්න..."
 
 #: translate_tmp.pl:6194
 msgid "Export to PostScript..."
-msgstr ""
+msgstr "PostScript වෙත අනුයාත කරන්න..."
 
 #: translate_tmp.pl:6265
 msgid "Automatic scrolling"
-msgstr ""
+msgstr "ස්වයංක්‍රීය ස්ක්‍රෝල් කිරීම"
 
 #: translate_tmp.pl:6304
 msgid "Select"
@@ -2395,19 +2468,19 @@ msgstr "තෝරන්න"
 
 #: translate_tmp.pl:6304
 msgid "Select item to move or resize it"
-msgstr ""
+msgstr "ගෙනයාමට හෝ විශාලත්වය නැවත පිහිටවියයුතු අයිතමය තෝරන්න"
 
 #: translate_tmp.pl:6304
 msgid "Freehand"
-msgstr ""
+msgstr "නිදහස් අත"
 
 #: translate_tmp.pl:6304
 msgid "Draw a freehand line"
-msgstr ""
+msgstr "නිදහස්අත් රේඛාවක් අදින්න"
 
 #: translate_tmp.pl:6304
 msgid "Highlighter"
-msgstr ""
+msgstr "ඉස්මතුකරණය"
 
 #: translate_tmp.pl:6304
 msgid "Line"
@@ -2439,23 +2512,24 @@ msgstr "ඉලිප්සයක් අදින්න"
 
 #: translate_tmp.pl:6304
 msgid "Add some text to the screenshot"
-msgstr ""
+msgstr "රාමුජායාරූපයට අකුරු එකතු කරන්න"
 
 #: translate_tmp.pl:6304
 msgid "Censor"
-msgstr ""
+msgstr "සෙන්සරය"
 
 #: translate_tmp.pl:6304
 msgid "Censor portions of your screenshot to hide private data"
-msgstr ""
+msgstr "පෞද්ගලික දත්ත සැගවීමට ඔබගේ රාමුජායාරූපයේ කොටස් සෙන්සර් කරන්න"
 
 #: translate_tmp.pl:6304
 msgid "Pixelize"
-msgstr ""
+msgstr "පික්ස්ලානුකරණය"
 
 #: translate_tmp.pl:6304
 msgid "Pixelize selected areas of your screenshot to hide private data"
 msgstr ""
+"පෞද්ගලික දත්ත සැගවීමට ඔබගේ රාමුජායාරූපයේ ප්‍රදේශ පික්ස්ලානුකරණය කරන්න"
 
 #: translate_tmp.pl:6304
 msgid "Number"
@@ -2463,42 +2537,33 @@ msgstr "අංකය"
 
 #: translate_tmp.pl:6304
 msgid "Add an auto-increment shape to the screenshot"
-msgstr ""
+msgstr "රාමුජායාරූපයට ස්වයංක්‍රීය වැඩිවන හැඩයක් ඇතුල් කරන්න"
 
 #: translate_tmp.pl:6304
 msgid "Crop"
-msgstr ""
+msgstr "කොටසක් කපන්න"
 
 #: translate_tmp.pl:6304
 msgid "Crop your screenshot"
-msgstr ""
+msgstr "රාමුජායාරූපයෙන් කොටසක් කපන්න"
 
 #: translate_tmp.pl:6559
 #: translate_tmp.pl:6756
 msgid "No icon was found"
-msgstr ""
+msgstr "අයිකන කිසිවක් නොමැත"
 
 #: translate_tmp.pl:6621
 msgid "Import from current theme..."
-msgstr ""
+msgstr "වර්තමාන තේමාවෙන් අයාත කරන්න..."
 
 #: translate_tmp.pl:6635
 msgid "Import from session..."
-msgstr ""
+msgstr "සැසියෙන් අයාත කරන්න..."
 
 #: translate_tmp.pl:6646
 msgid "Import from filesystem..."
-msgstr ""
+msgstr "ගොනු පද්ධතියෙන් ආයත කරන්න..."
 
 #: translate_tmp.pl:7460
 msgid "New text..."
-msgstr ""
-
-#~ msgid "Select Window"
-#~ msgstr "කවුළුව තෝරන්න"
-
-#~ msgid "Capture with selection"
-#~ msgstr "තෝරාගත් කොටස උපුටාගන්න"
-
-#~ msgid "Keyboard"
-#~ msgstr "යතුරුපුවරුව"
+msgstr "නව පාඨ..."

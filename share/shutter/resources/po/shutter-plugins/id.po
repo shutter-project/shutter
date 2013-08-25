@@ -8,18 +8,18 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-10-28 17:52+0100\n"
-"PO-Revision-Date: 2012-11-26 04:47+0000\n"
-"Last-Translator: Ade Malsasa Akbar <rockmania52@gmail.com>\n"
+"PO-Revision-Date: 2013-03-04 07:12+0000\n"
+"Last-Translator: dhardiputra <dhardiputra@gmail.com>\n"
 "Language-Team: Indonesian <id@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-12-18 17:09+0000\n"
-"X-Generator: Launchpad (build 16372)\n"
+"X-Launchpad-Export-Date: 2013-08-25 19:21+0000\n"
+"X-Generator: Launchpad (build 16738)\n"
 
 #: translate_tmp:27
 msgid "Grayscale"
-msgstr ""
+msgstr "Skala Abu-abu"
 
 #: translate_tmp:28
 #: translate_tmp:74
@@ -35,11 +35,12 @@ msgstr "Ubah gambar menjadi warna abu-abu (256 warna)"
 
 #: translate_tmp:27
 msgid "Offset"
-msgstr ""
+msgstr "Mengimbangi"
 
 #: translate_tmp:29
 msgid "Give the picture an offset with itself as background"
 msgstr ""
+"Berikan gambar yang diimbangi dengan dirinya sendiri sebagai latar belakang"
 
 #: translate_tmp:27
 msgid "Raise Border"
@@ -47,7 +48,7 @@ msgstr "Tingkatkan Batas"
 
 #: translate_tmp:29
 msgid "Raise a rectangular 3d-border"
-msgstr ""
+msgstr "Membuat bingkai persegi 3d"
 
 #: translate_tmp:27
 msgid "Soft Edges"
@@ -75,7 +76,7 @@ msgstr "Tambahkan batas mirip sobekan pada gambar"
 
 #: translate_tmp:27
 msgid "Autocrop"
-msgstr ""
+msgstr "Autocrop"
 
 #: translate_tmp:28
 #: translate_tmp:49
@@ -98,6 +99,14 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
 msgstr ""
+"Tambahkan fading reflection di bawah gambar dan menampilkannya\n"
+"dalam perspektif.\n"
+"\n"
+"\n"
+"Berdasarkan skrip Fred Weinhaus\n"
+"\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
 
 #: translate_tmp:104
 #: translate_tmp:133
@@ -130,12 +139,12 @@ msgstr ""
 
 #: translate_tmp:158
 msgid "Pef:"
-msgstr ""
+msgstr "Pef:"
 
 #: translate_tmp:165
 #: translate_tmp:172
 msgid "Perspective exaggeration factor"
-msgstr ""
+msgstr "Perspektif faktor yang berlebihan"
 
 #: translate_tmp:176
 msgid "Gap:"
@@ -144,7 +153,7 @@ msgstr "Jarak:"
 #: translate_tmp:183
 #: translate_tmp:190
 msgid "Gap between image and mirror in pixels"
-msgstr ""
+msgstr "Jarak antara gambar dan cermin di piksel"
 
 #: translate_tmp:194
 #: translate_tmp:176
@@ -181,7 +190,7 @@ msgstr "Pilih warna latar belakang"
 #: translate_tmp:315
 #, perl-format
 msgid "Error while executing plugin %s."
-msgstr ""
+msgstr "Kesalahan saat mengeksekusi plugin %s."
 
 #: translate_tmp:424
 #: translate_tmp:460
@@ -193,7 +202,7 @@ msgstr ""
 #: translate_tmp:315
 #: translate_tmp:316
 msgid "There was an error executing the plugin."
-msgstr ""
+msgstr "Ada kesalahan mengeksekusi plugin."
 
 #: translate_tmp:73
 msgid "3D rotate"
@@ -233,7 +242,7 @@ msgstr ""
 
 #: translate_tmp:204
 msgid "Auto:"
-msgstr ""
+msgstr "Auto:"
 
 #: translate_tmp:226
 #: translate_tmp:233
@@ -257,11 +266,11 @@ msgstr "Pilih warna langit"
 
 #: translate_tmp:62
 msgid "Barrel Distortion"
-msgstr ""
+msgstr "Distorsi Barrel"
 
 #: translate_tmp:64
 msgid "Apply a distortion effect to your screenshot"
-msgstr ""
+msgstr "Menerapkan efek distorsi untuk screenshot Anda"
 
 #: translate_tmp:93
 msgid "A:"
@@ -277,7 +286,7 @@ msgstr "C:"
 
 #: translate_tmp:105
 msgid "D:"
-msgstr ""
+msgstr "D:"
 
 #: translate_tmp:112
 #: translate_tmp:119
@@ -312,7 +321,7 @@ msgstr ""
 
 #: translate_tmp:104
 msgid "Size:"
-msgstr ""
+msgstr "Ukuran:"
 
 #: translate_tmp:111
 #: translate_tmp:118
@@ -350,7 +359,7 @@ msgstr ""
 
 #: translate_tmp:176
 msgid "Pad:"
-msgstr ""
+msgstr "Pad:"
 
 #: translate_tmp:183
 #: translate_tmp:190
@@ -359,11 +368,11 @@ msgstr ""
 
 #: translate_tmp:62
 msgid "Negate"
-msgstr ""
+msgstr "meniadakan"
 
 #: translate_tmp:64
 msgid "Invert the colors of the image"
-msgstr ""
+msgstr "Membalikkan warna gambar"
 
 #: translate_tmp:101
 msgid "Channel"
@@ -371,13 +380,15 @@ msgstr "Kanal"
 
 #: translate_tmp:62
 msgid "Polaroid"
-msgstr ""
+msgstr "Polaroid"
 
 #: translate_tmp:64
 msgid ""
 "Make your screenshot look like a polaroid photo, add a caption, and even "
 "rotate it a little"
 msgstr ""
+"Membuat tampilan screenshot Anda seperti foto Polaroid, menambahkan "
+"keterangan, dan bahkan memutar itu sedikit"
 
 #: translate_tmp:99
 #: translate_tmp:93
@@ -398,12 +409,12 @@ msgstr ""
 #: translate_tmp:116
 #: translate_tmp:110
 msgid "Font size:"
-msgstr ""
+msgstr "Ukuran huruf:"
 
 #: translate_tmp:120
 #: translate_tmp:114
 msgid "Gravity:"
-msgstr ""
+msgstr "Gravity:"
 
 #: translate_tmp:137
 #: translate_tmp:131
@@ -417,15 +428,15 @@ msgstr ""
 
 #: translate_tmp:45
 msgid "Resize"
-msgstr ""
+msgstr "Ubah Ukuran"
 
 #: translate_tmp:53
 msgid "Resize your screenshot"
-msgstr ""
+msgstr "Mengubah ukuran screenshot Anda"
 
 #: translate_tmp:71
 msgid "Sepia"
-msgstr ""
+msgstr "Sepia"
 
 #: translate_tmp:73
 msgid "Add sepia color toning to the image"
@@ -450,7 +461,7 @@ msgstr "Arah"
 #: translate_tmp:110
 #: translate_tmp:117
 msgid "The direction of the shadow"
-msgstr ""
+msgstr "Arah bayangan"
 
 #: translate_tmp:121
 msgid "Color"

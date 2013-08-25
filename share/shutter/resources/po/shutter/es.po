@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2012-08-14 22:37+0000\n"
-"Last-Translator: Mario Kemper (Romario) <mario.kemper@googlemail.com>\n"
+"PO-Revision-Date: 2012-12-28 15:28+0000\n"
+"Last-Translator: nerjamartin <Unknown>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-12-18 17:09+0000\n"
-"X-Generator: Launchpad (build 16372)\n"
+"X-Launchpad-Export-Date: 2013-08-25 19:21+0000\n"
+"X-Generator: Launchpad (build 16738)\n"
 
 #: translate_tmp.pl:476
 #: translate_tmp.pl:2590
@@ -32,12 +32,13 @@ msgstr "Preferencias"
 #: translate_tmp.pl:873
 #: translate_tmp.pl:874
 msgid "gnome-web-photo needs to be installed for this feature"
-msgstr "gnome-web-photo necesita ser instalado para esta característica"
+msgstr ""
+"Se necesita instalar gnome-web-photo para poder usar esta característica"
 
 #: translate_tmp.pl:883
 msgid "Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature"
 msgstr ""
-"Goo:: Canvas / libgoo-canvas-perl necesita ser instalado para esta "
+"Se necesita instalar Goo::Canvas/libgoo-canvas-perl para poder usar esta "
 "característica"
 
 #: translate_tmp.pl:916
@@ -98,19 +99,19 @@ msgstr "Capturar"
 
 #: translate_tmp.pl:1021
 msgid "Selection Capture"
-msgstr "Seleccionar captura"
+msgstr "Captura de selección"
 
 #: translate_tmp.pl:1028
 msgid "Window Capture"
-msgstr "Ventana de captura"
+msgstr "Captura de ventana"
 
 #: translate_tmp.pl:1035
 msgid "Menu/Tooltip Capture"
-msgstr "Menú/Herramienta de captura"
+msgstr "Captura de menú/mensaje emergente"
 
 #: translate_tmp.pl:1042
 msgid "Website Capture"
-msgstr "Sitio Web de captura"
+msgstr "Captura de sitio web"
 
 #: translate_tmp.pl:1049
 msgid "Accounts"
@@ -164,11 +165,11 @@ msgstr "%T = hora\n"
 
 #: translate_tmp.pl:1120
 msgid "$w = width\n"
-msgstr "$w = ancho\n"
+msgstr "$w = anchura\n"
 
 #: translate_tmp.pl:1120
 msgid "$h = height\n"
-msgstr "$h = alto\n"
+msgstr "$h = altura\n"
 
 #: translate_tmp.pl:1120
 msgid "$name = multi-purpose (e.g. window title)\n"
@@ -391,6 +392,7 @@ msgstr "en"
 #: translate_tmp.pl:1678
 msgid "Start Selection Tool with a customized selection size"
 msgstr ""
+"Iniciar la herramienta de selección con un tamaño de selección personalizado"
 
 #: translate_tmp.pl:1696
 msgid "Show help text"
@@ -454,7 +456,7 @@ msgstr "Seleccionar solo las ventanas visibles"
 
 #: translate_tmp.pl:1813
 msgid "Pre-Capture Delay"
-msgstr "Retraso de pre-captura"
+msgstr "Retraso de precaptura"
 
 #: translate_tmp.pl:1828
 #: translate_tmp.pl:1829
@@ -1223,7 +1225,7 @@ msgstr "_Web"
 
 #: translate_tmp.pl:8713
 msgid "S_how main window"
-msgstr ""
+msgstr "_Mostrar la ventana principal"
 
 #: translate_tmp.pl:8719
 #: translate_tmp.pl:395
@@ -1761,7 +1763,7 @@ msgstr ""
 "  SmokedIronMade https://launchpad.net/~araujo-francisco\n"
 "  Snake https://launchpad.net/~snake8d2\n"
 "  alakran https://launchpad.net/~alakran-1\n"
-"  hhlp https://launchpad.net/~hhlp\n"
+"  hhlp https://launchpad.net/~hhlp-deactivatedaccount\n"
 "  jpangamarca https://launchpad.net/~jpangamarca\n"
 "  juancarlospaco https://launchpad.net/~juancarlospaco\n"
 "  nerjamartin https://launchpad.net/~nerjamartin\n"
@@ -2623,95 +2625,3 @@ msgstr "Importar desde sistema de archivos..."
 #: translate_tmp.pl:7460
 msgid "New text..."
 msgstr "Texto nuevo..."
-
-#~ msgid "Advanced selection tool"
-#~ msgstr "Herramienta de seleccion avanzada"
-
-#~ msgid "Keyboard"
-#~ msgstr "Teclado"
-
-#~ msgid "Advanced Selection Capture"
-#~ msgstr "Selección de captura avanzada"
-
-#~ msgid "Select Window"
-#~ msgstr "Seleccionar ventana"
-
-#~ msgid "Start Advanced Selection Tool with a customized selection size"
-#~ msgstr ""
-#~ "Inicie la herramienta de selección avanzada con un tamaño de selección "
-#~ "personalizado"
-
-#~ msgid "Capture with selection"
-#~ msgstr "Capturar con selección"
-
-#~ msgid ""
-#~ "Configure global keybinding for capture with selection\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "Configurar atajos de teclas globales para la captura con selección\n"
-#~ "El formato es como «<Control>a» o «<Shift><Alt>F1». El analizador es muy "
-#~ "permisivo y permite mayúsculas o minúsculas, y también abreviaciones como "
-#~ "«<Ctl>» y «<Ctrl>». Si selecciona la opción a la palabra especial "
-#~ "«disabled», entonces no habrá atajo para esta acción. "
-
-#~ msgid ""
-#~ "Configure global keybinding for capture\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "Configurar atajos de teclas globales para la captura \n"
-#~ "El formato es como «<Control>a» o «<Shift><Alt>F1». El analizador es muy "
-#~ "permisivo y permite mayúsculas o minúsculas, y también abreviaciones como "
-#~ "«<Ctl>» y «<Ctrl>». Si selecciona la opción a la palabra especial "
-#~ "«disabled», entonces no habrá atajo para esta acción. "
-
-#~ msgid "There was an error configuring the keybindings."
-#~ msgstr "Hubo un error al configurar los atajos de teclado."
-
-#~ msgid "Simple selection tool"
-#~ msgstr "Herramienta de selección simple"
-
-#~ msgid "Choose selection tool"
-#~ msgstr "Elegir herramienta de selección"
-
-#~ msgid ""
-#~ "The simple selection tool is the fastest way of taking a screenshot.\n"
-#~ "It provides an optional zoom window for precise shots."
-#~ msgstr ""
-#~ "La herramienta de selección simple es la manera más rápida de realizar "
-#~ "instantáneas.\n"
-#~ "Provee una ventana opcional de zoom para tomas precisas."
-
-#~ msgid ""
-#~ "The advanced selection tool allows you to enlarge/shrink or move your "
-#~ "selected area\n"
-#~ "until you finally take the screenshot."
-#~ msgstr ""
-#~ "La herramienta de seleccion avanzada permite agrandar/ajustar o mover el "
-#~ "área seleccionada\n"
-#~ "antes de la toma final de la instantánea"
-
-#~ msgid ""
-#~ "The format looks like \"<Control>Print\" or \"<Shift><Alt>Print\". The "
-#~ "parser is fairly liberal and allows lower or upper case, but abbreviations "
-#~ "such as \"<Ctl>\" and \"<Ctrl>\" may cause problems under some circumstances "
-#~ "(e.g. when using compiz)."
-#~ msgstr ""
-#~ "El formato se parece a \"<Control>Print\" o \"<Shift><Alt>Print\". El "
-#~ "analizador es bastante flexible y permite mayúsculas y minúsculas, pero las "
-#~ "abreviaturas como \"<Ctl>\" y \"<Ctrl>\" pueden causar problemas en ciertas "
-#~ "circunstancias (por ejemplo cuando se usa compiz)."
-
-#~ msgid ""
-#~ "<b>Please note:</b> Make sure to activate <i>Gnome Compatibility</i> and "
-#~ "<i>D-Bus Control Backend</i> via CompizConfig Settings Manager if your are "
-#~ "using Desktop Effects or Unity."
-#~ msgstr ""
-#~ "<b>Atención:</b> Asegúrese de activar <i>Compatibilidad de Gnome</i> y <i>D-"
-#~ "Bus Control Backend</i> a través del Administrador de Opciones CompizConfig "
-#~ "si está usando efectos de escritorio o Unity."

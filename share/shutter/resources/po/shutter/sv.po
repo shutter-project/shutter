@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2011-10-22 22:12+0000\n"
-"Last-Translator: Daniel Nylander <yeager@ubuntu.com>\n"
+"PO-Revision-Date: 2013-02-27 17:20+0000\n"
+"Last-Translator: Mikael Hiort af Ornäs <lakritslemmel@hotmail.com>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2012-12-18 17:09+0000\n"
-"X-Generator: Launchpad (build 16372)\n"
+"X-Launchpad-Export-Date: 2013-08-25 19:21+0000\n"
+"X-Generator: Launchpad (build 16738)\n"
 
 #: translate_tmp.pl:476
 #: translate_tmp.pl:2590
@@ -53,7 +53,7 @@ msgstr "Ta bort profil"
 
 #: translate_tmp.pl:951
 msgid "Load the selected profile's configuration"
-msgstr "Läs in valda profilens konfiguration"
+msgstr "Läs in den valda profilens konfiguration"
 
 #: translate_tmp.pl:958
 #: translate_tmp.pl:1231
@@ -371,11 +371,11 @@ msgstr "Aktivera zoomfönster"
 
 #: translate_tmp.pl:1633
 msgid "Start with selection size of"
-msgstr ""
+msgstr "Starta med markeringsstorleken"
 
 #: translate_tmp.pl:1635
 msgid "at"
-msgstr ""
+msgstr "vid"
 
 #: translate_tmp.pl:1669
 #: translate_tmp.pl:1670
@@ -388,7 +388,7 @@ msgstr ""
 #: translate_tmp.pl:1677
 #: translate_tmp.pl:1678
 msgid "Start Selection Tool with a customized selection size"
-msgstr ""
+msgstr "Starta markeringsverktyget med en anpassad markeringsstorklek"
 
 #: translate_tmp.pl:1696
 msgid "Show help text"
@@ -401,7 +401,7 @@ msgstr "Aktiverar hjälptexten"
 #: translate_tmp.pl:1714
 #: translate_tmp.pl:1715
 msgid "Include window decoration when capturing a window"
-msgstr ""
+msgstr "Inkludera fönsterdekoration vid fångst av fönster"
 
 #: translate_tmp.pl:1733
 msgid "Automatically resize window to"
@@ -417,10 +417,14 @@ msgid ""
 "This method asks the window manager to resize the window. However, the "
 "window manager may not allow the resize."
 msgstr ""
+"Detta ändrar storleken på fönstret automatiskt efter den specifierade "
+"bredden och höjden. Denna metod ber fönsterhanteraren att ändra storleken på "
+"fönstret. Dock kan det vara så att fönsterhanteraren inte tillåter "
+"storleksändringen."
 
 #: translate_tmp.pl:1777
 msgid "Force rounded window corners"
-msgstr "Tvinga rundade kanter på fönster"
+msgstr "Tvinga rundade fönsterkanter"
 
 #: translate_tmp.pl:1786
 #, perl-format
@@ -433,6 +437,13 @@ msgid ""
 "named ~/.shutter/shape.conf and put custom values in it. The default values "
 "are stored in %s."
 msgstr ""
+"Shutter använder tillägget XShape för att avgöra fönstrets form, men under "
+"vissa omständigheter fungerar det inte, t.ex. när compiz körs.\n"
+"\n"
+"När detta alternativ är aktiverat använder Shutter fasta parametrar för att "
+"runda av fönsterhörnen. Du kan ersätta standardparametrarna genom att skapa "
+"en fil med namnet ~/.shutter/shape.conf och ange egna värden i den. "
+"Standardvärdena lagras i %s."
 
 #: translate_tmp.pl:1795
 #: translate_tmp.pl:1796
@@ -441,17 +452,17 @@ msgstr "Välj endast synliga fönster"
 
 #: translate_tmp.pl:1813
 msgid "Pre-Capture Delay"
-msgstr ""
+msgstr "Fördröjning innan infångande"
 
 #: translate_tmp.pl:1828
 #: translate_tmp.pl:1829
 #: translate_tmp.pl:1830
 msgid "Capture menu/tooltip after a delay of n seconds"
-msgstr ""
+msgstr "Fånga in meny/verktygstips efter en fördröjning på n sekunder"
 
 #: translate_tmp.pl:1841
 msgid "Ignore possibly wrong type hints"
-msgstr ""
+msgstr "Ignorera eventuellt felaktiga typvägledningar"
 
 #: translate_tmp.pl:1842
 msgid ""
@@ -460,16 +471,21 @@ msgid ""
 "correctly set. By enabling this option Shutter will not insist on the "
 "requested type hint."
 msgstr ""
+"Konstanterna för typvägledning ger fönsterhanteraren en uppfattning om "
+"vilken funktion ett fönster har. Ibland är dessa vägledningskonstanter "
+"felaktigt angivna. Genom att aktivera detta alternativ kommer Shutter inte "
+"att insistera på att få svar på en begäran om typvägledning."
 
 #: translate_tmp.pl:1858
 msgid "Virtual browser width"
-msgstr ""
+msgstr "Bredd för virtuell webbläsare"
 
 #: translate_tmp.pl:1880
 #: translate_tmp.pl:1881
 #: translate_tmp.pl:1882
 msgid "Virtual browser width when taking a website screenshot"
 msgstr ""
+"Bredden för den virtuella webbläsaren när en skärmbild tas av en webbplats"
 
 #: translate_tmp.pl:1893
 msgid "Show as check pattern"
@@ -492,18 +508,20 @@ msgstr "Visa som bakgrund"
 
 #: translate_tmp.pl:1925
 msgid "Displays any transparent parts of the image in a check pattern"
-msgstr ""
+msgstr "Visar eventuellt transparenta delar av bilden som ett schackmönster."
 
 #: translate_tmp.pl:1926
 msgid ""
 "Displays any transparent parts of the image in a solid color that you specify"
 msgstr ""
+"Visar eventuellt transparenta delar av bilden i den färg som du specifierar"
 
 #: translate_tmp.pl:1927
 msgid ""
 "Displays any transparent parts of the image in the background color of the "
 "application"
 msgstr ""
+"Visar eventuellt transparenta delar av bilden i applikationens bakgrundsfärg"
 
 #: translate_tmp.pl:1951
 msgid "Sort ascending by"
@@ -512,7 +530,7 @@ msgstr "Sortera stigande efter"
 #: translate_tmp.pl:1954
 #: translate_tmp.pl:1958
 msgid "Key/Time Created"
-msgstr ""
+msgstr "Skapades (nyckel/tid)"
 
 #: translate_tmp.pl:1955
 msgid "Sort descending by"
@@ -543,11 +561,11 @@ msgstr "Dölj notifieringsikonen"
 #: translate_tmp.pl:2031
 #: translate_tmp.pl:2114
 msgid "Autohide main window when taking a screenshot"
-msgstr ""
+msgstr "Göm automatiskt huvudfönstret när skärmbild tas"
 
 #: translate_tmp.pl:2032
 msgid "Redraw Delay"
-msgstr ""
+msgstr "Omritningsfördröjning"
 
 #: translate_tmp.pl:2035
 #: translate_tmp.pl:2908
@@ -559,7 +577,7 @@ msgstr[1] "millisekunder"
 #: translate_tmp.pl:2041
 #: translate_tmp.pl:2141
 msgid "Present main window after taking a screenshot"
-msgstr ""
+msgstr "Visa huvudfönstret efter att ha tagit en skärmbild"
 
 #: translate_tmp.pl:2042
 #: translate_tmp.pl:2187
@@ -569,17 +587,17 @@ msgstr "Minimera till notifieringsyta när huvudfönster stängs"
 #: translate_tmp.pl:2044
 #: translate_tmp.pl:2150
 msgid "Display pop-up notification after taking a screenshot"
-msgstr ""
+msgstr "Visa ett popupmeddelande när en skärmbild har tagits"
 
 #: translate_tmp.pl:2045
 #: translate_tmp.pl:2159
 #: translate_tmp.pl:2168
 msgid "Display pop-up notification when using a delay"
-msgstr ""
+msgstr "Visa ett popupmeddelande när en fördröjning används"
 
 #: translate_tmp.pl:2046
 msgid "Display pop-up notification when using a pre-capture delay"
-msgstr ""
+msgstr "Visa ett popupmeddelande när en fördröjning innan infångande används"
 
 #: translate_tmp.pl:2048
 msgid "Notification agent"
@@ -606,7 +624,7 @@ msgstr "Flytta filen till papperskorgen när fliken stängs"
 #: translate_tmp.pl:2060
 #: translate_tmp.pl:2214
 msgid "Notify when file was deleted from filesystem"
-msgstr ""
+msgstr "Notifiera när fil raderades från filsystemet"
 
 #: translate_tmp.pl:2123
 #: translate_tmp.pl:2124
@@ -615,6 +633,8 @@ msgid ""
 "Configure a short timeout to give the Xserver a chance to redraw areas that "
 "were obscured by Shutter's windows before taking a screenshot."
 msgstr ""
+"Konfigurera ett kort tidsuppehåll för att ge Xservern chansen att rita om "
+"områden som doldes av Shutters fönster innan skärmbilden tas."
 
 #: translate_tmp.pl:2177
 #: translate_tmp.pl:2178
@@ -622,6 +642,8 @@ msgid ""
 "You can either choose the system-wide desktop notifications (e.g. Ubuntu's "
 "Notify-OSD) or Shutter's built-in notification system"
 msgstr ""
+"Du kan antingen välja systemglobala skrivbordsaviseringar (t.ex. Ubuntus "
+"Notify-OSD) eller Shutters inbyggda aviseringssystem"
 
 #: translate_tmp.pl:2240
 msgid ""
@@ -629,6 +651,9 @@ msgid ""
 "your credentials above. Plugins with OAuth support are configured "
 "automatically the first time you use them."
 msgstr ""
+"<b>Obs:</b> om en insticksmodul medger auktoriserad överföring kan du ange "
+"dina inloggningsuppgifter ovan. Insticksmoduler med stöd för OAuth "
+"konfigureras automatiskt första gången du använder dem."
 
 #: translate_tmp.pl:2243
 #: translate_tmp.pl:10547
@@ -713,7 +738,7 @@ msgstr "Beteende"
 
 #: translate_tmp.pl:2515
 msgid "Upload"
-msgstr "Skicka upp"
+msgstr "Överför"
 
 #: translate_tmp.pl:2575
 msgid "Plugins"
@@ -796,7 +821,7 @@ msgstr "hittades inte"
 
 #: translate_tmp.pl:4244
 msgid "Error while adding the file monitor."
-msgstr ""
+msgstr "Ett fel uppstod när filövervakaren skulle läggas till."
 
 #: translate_tmp.pl:4765
 msgid "Settings could not be saved!"
@@ -852,17 +877,17 @@ msgstr "Sessionen kunde inte återställas!"
 #: translate_tmp.pl:5406
 #, perl-format
 msgid "Error while creating the trashinfo file %s."
-msgstr ""
+msgstr "Ett fel uppstod när skräpinformationsfilen %s skulle skapas."
 
 #: translate_tmp.pl:5418
 #, perl-format
 msgid "Error while moving the file %s to trash."
-msgstr ""
+msgstr "Ett fel uppstod när filen %s skulle flyttas till papperskorgen."
 
 #: translate_tmp.pl:5424
 #, perl-format
 msgid "Error while removing the file %s from disk."
-msgstr ""
+msgstr "Ett fel uppstod när filen %s skulle tas bort från disken."
 
 #: translate_tmp.pl:5442
 #, perl-format
@@ -920,35 +945,35 @@ msgstr "Det finns inget bilddata i urklipp att klistra in"
 
 #: translate_tmp.pl:5759
 msgid "Selected filenames copied to clipboard"
-msgstr ""
+msgstr "Valda filnamn kopierade till urklipp"
 
 #: translate_tmp.pl:5774
 msgid "Selected images copied to clipboard"
-msgstr ""
+msgstr "Valda bilder kopierade till urklipp"
 
 #: translate_tmp.pl:5821
 msgid "Last action undone"
-msgstr ""
+msgstr "Den senaste åtgärden har ångrats"
 
 #: translate_tmp.pl:5829
 #: translate_tmp.pl:5877
 #, perl-format
 msgid "Error while copying last version (%s)."
-msgstr ""
+msgstr "Fel vid kopiering av senaste versionen (%s)"
 
 #: translate_tmp.pl:5829
 #, perl-format
 msgid "There was an error performing undo on %s."
-msgstr ""
+msgstr "Ett fel uppstod när en åtgärd i %s skulle ångras."
 
 #: translate_tmp.pl:5869
 msgid "Last action redone"
-msgstr ""
+msgstr "Den senaste åtgärden har gjorts om"
 
 #: translate_tmp.pl:5877
 #, perl-format
 msgid "There was an error performing redo on %s."
-msgstr ""
+msgstr "Ett fel uppstod när en åtgärd i %s skulle göras om."
 
 #: translate_tmp.pl:5911
 msgid "No plugin installed"
@@ -962,7 +987,7 @@ msgstr "Det uppstod ett fel när filnamnet bestämdes."
 
 #: translate_tmp.pl:6473
 msgid "Triggered invalid screenshot action."
-msgstr ""
+msgstr "En ogiltig skärmbildsåtgärd har utlösts."
 
 #: translate_tmp.pl:6473
 #: translate_tmp.pl:6475
@@ -989,7 +1014,7 @@ msgstr "Fångsten avbröts av användaren"
 #: translate_tmp.pl:6759
 #, perl-format
 msgid "%s saved"
-msgstr ""
+msgstr "%s sparad"
 
 #: translate_tmp.pl:6746
 #: translate_tmp.pl:6749
@@ -1003,6 +1028,8 @@ msgid ""
 "The filename %s could not be verified. Maybe it contains unsupported "
 "characters."
 msgstr ""
+"Filnamnet %s kunde ej verifieras. Detta kan bero på att det innehåller ej "
+"tillåtna tecken."
 
 #: translate_tmp.pl:7010
 #: translate_tmp.pl:7021
@@ -1080,7 +1107,7 @@ msgstr "sparad"
 #: translate_tmp.pl:7813
 #, perl-format
 msgid "Image %s was deleted from filesystem"
-msgstr ""
+msgstr "Bilden %s togs bort från filsystemet"
 
 #: translate_tmp.pl:7846
 #: translate_tmp.pl:62
@@ -1104,11 +1131,13 @@ msgstr ""
 
 #: translate_tmp.pl:8246
 msgid "Updating upload plugin information"
-msgstr ""
+msgstr "Uppdaterar överföringsinformation för insticksmodul"
 
 #: translate_tmp.pl:8251
 msgid "Please wait while Shutter updates the upload plugin information"
 msgstr ""
+"Var vänlig vänta medan Shutter uppdaterar överföringsinformationen för "
+"insticksmodulen"
 
 #: translate_tmp.pl:8482
 msgid "Capture All Workspaces"
@@ -1186,7 +1215,7 @@ msgstr "_Webb"
 
 #: translate_tmp.pl:8713
 msgid "S_how main window"
-msgstr ""
+msgstr "Vi_sa huvudfönster"
 
 #: translate_tmp.pl:8719
 #: translate_tmp.pl:395
@@ -1200,7 +1229,7 @@ msgstr "S_nabbvälj profil"
 
 #: translate_tmp.pl:8896
 msgid "Wait indefinitely"
-msgstr ""
+msgstr "Ingen tidsgräns för väntan"
 
 #: translate_tmp.pl:8897
 #: translate_tmp.pl:8898
@@ -1221,6 +1250,8 @@ msgstr[1] "Vänta maximalt %d minuter"
 #: translate_tmp.pl:8908
 msgid "Shutter will wait indefinitely for the screenshot to capture"
 msgstr ""
+"Shutter kommer att vänta i all oändlighet eller tills dess skärmbilden har "
+"fångats in"
 
 #: translate_tmp.pl:8909
 #: translate_tmp.pl:8910
@@ -1232,7 +1263,11 @@ msgid_plural ""
 "Shutter will wait up to %d seconds for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
+"Shutter kommer att vänta upp till %d sekund på att skärmbilden fångas in "
+"innan processen avbryts"
 msgstr[1] ""
+"Shutter kommer att vänta upp till %d sekunder på att skärmbilden fångas in "
+"innan processen avbryts"
 
 #: translate_tmp.pl:8911
 #: translate_tmp.pl:8912
@@ -1244,7 +1279,11 @@ msgid_plural ""
 "Shutter will wait up to %d minutes for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
+"Shutter kommer att vänta upp till %d minut på att skärmbilden fångas in "
+"innan processen avbryts"
 msgstr[1] ""
+"Shutter kommer att vänta upp till %d minuter på att skärmbilden fångas in "
+"innan processen avbryts"
 
 #: translate_tmp.pl:9046
 msgid "Host"
@@ -1252,15 +1291,15 @@ msgstr "Värd"
 
 #: translate_tmp.pl:9113
 msgid "Anonymous Upload"
-msgstr ""
+msgstr "Anonym överföring"
 
 #: translate_tmp.pl:9120
 msgid "Authorized Upload"
-msgstr ""
+msgstr "Auktoriserad överföring"
 
 #: translate_tmp.pl:9127
 msgid "OAuth Upload"
-msgstr ""
+msgstr "OAuth-överföring"
 
 #: translate_tmp.pl:9138
 #: translate_tmp.pl:9199
@@ -1425,12 +1464,12 @@ msgstr "Ingen insticksmodul angiven"
 
 #: translate_tmp.pl:10390
 msgid "Upload / Export"
-msgstr "Skicka upp / Exportera"
+msgstr "Överför / Exportera"
 
 #: translate_tmp.pl:10394
 #: translate_tmp.pl:10646
 msgid "_Upload"
-msgstr "Skicka _upp"
+msgstr "Ö_verför"
 
 #: translate_tmp.pl:10421
 msgid "Guest"
@@ -1438,7 +1477,7 @@ msgstr "Gäst"
 
 #: translate_tmp.pl:10426
 msgid "OAuth"
-msgstr ""
+msgstr "OAuth"
 
 #: translate_tmp.pl:10459
 msgid ""
@@ -1446,6 +1485,9 @@ msgid ""
 "links will still be available in the screenshot's <i>right-click menu</i> "
 "after closing this dialog."
 msgstr ""
+"Välj ett av kontona ovan och klicka på <i>Överför</i>. Överföringslänkarna "
+"kommer att vara tillgängliga i skärmbildens <i>högerklicksmeny</i> även "
+"efter att detta dialogfönster har stängts."
 
 #: translate_tmp.pl:10460
 msgid ""
@@ -1453,6 +1495,9 @@ msgid ""
 "enter your credentials in preferences first to make it appear in the list "
 "above."
 msgstr ""
+"<b>Obs:</b> om en insticksmodul endast medger auktoriserad överföring, så "
+"måste du ange din inloggningsinformation för att få den att visas i listan "
+"ovan."
 
 #: translate_tmp.pl:10462
 msgid "Choose account"
@@ -1493,7 +1538,11 @@ msgid_plural ""
 "Folder %s is synchronized with Ubuntu One. The selected files will be copied "
 "to that folder before being published."
 msgstr[0] ""
+"Mappen %s är synkroniserad med Ubuntu One. Den valda filen kommer att "
+"kopieras till den mappen innan den publiceras."
 msgstr[1] ""
+"Mappen %s är synkroniserad med Ubuntu One. De valda filerna kommer att "
+"kopieras till den mappen innan de publiceras."
 
 #: translate_tmp.pl:10707
 #: translate_tmp.pl:10739
@@ -1504,7 +1553,11 @@ msgid_plural ""
 "<b>Please note:</b> The selected files will be published in a background "
 "process. You will be notified when the process has finished."
 msgstr[0] ""
+"<b>Obs:</b> den valda filen kommer att publiceras i en bakgrundsprocess. Du "
+"kommer att meddelas när den har slutförts."
 msgstr[1] ""
+"<b>Obs:</b> de valda filerna kommer att publiceras i en bakgrundsprocess. Du "
+"kommer att meddelas när den har slutförts."
 
 #: translate_tmp.pl:10711
 #: translate_tmp.pl:10743
@@ -1512,7 +1565,7 @@ msgstr[1] ""
 msgid ""
 "Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
 "folder."
-msgstr ""
+msgstr "Mappen %s är inte synkroniserad med Ubuntu One. Välj en annan mapp."
 
 #: translate_tmp.pl:10762
 msgid "Ubuntu One service cannot be found."
@@ -1523,6 +1576,8 @@ msgid ""
 "/publicfiles is not available. Your Ubuntu One installation seems to be out "
 "of date."
 msgstr ""
+"/publicfiles är inte tillgängligt. Din installation av Ubuntu One verkar "
+"vara inaktuell."
 
 #: translate_tmp.pl:10778
 msgid ""
@@ -1533,36 +1588,36 @@ msgstr ""
 #: translate_tmp.pl:10846
 #, perl-format
 msgid "Loading module %s"
-msgstr ""
+msgstr "Läser in modulen %s"
 
 #: translate_tmp.pl:10859
 #, perl-format
 msgid "Error while executing upload plugin %s."
-msgstr ""
+msgstr "Ett fel uppstod under körning av överföringsinsticksmodulen %s."
 
 #: translate_tmp.pl:10859
 msgid "There was an error executing the upload plugin."
-msgstr ""
+msgstr "Ett fel uppstod under körning av överföringsinsticksmodulen."
 
 #: translate_tmp.pl:10892
 #: translate_tmp.pl:10963
 #: translate_tmp.pl:11078
 #: translate_tmp.pl:11155
 msgid "uploaded"
-msgstr "skickades upp"
+msgstr "överförd"
 
 #: translate_tmp.pl:10967
 #: translate_tmp.pl:11082
 #: translate_tmp.pl:11159
 msgid "Successfully uploaded"
-msgstr "Skickades upp utan problem"
+msgstr "Överföringen har slutförts"
 
 #: translate_tmp.pl:10967
 #: translate_tmp.pl:11082
 #: translate_tmp.pl:11159
 #, perl-format
 msgid "The file %s was successfully uploaded."
-msgstr "Filen %s skickades upp utan problem."
+msgstr "Överföringen av filen %s har slutförts."
 
 #: translate_tmp.pl:10987
 #: translate_tmp.pl:11130
@@ -1588,7 +1643,7 @@ msgstr "Försök igen"
 #: translate_tmp.pl:11071
 #: translate_tmp.pl:11148
 msgid "exported"
-msgstr "exportades"
+msgstr "exporterades"
 
 #: translate_tmp.pl:11075
 #: translate_tmp.pl:11152
@@ -1636,7 +1691,7 @@ msgstr "Maximal filstorlek uppnåddes"
 
 #: translate_tmp.pl:11281
 msgid "Error while uploading"
-msgstr "Fel vid sändning"
+msgstr "Fel vid överföring"
 
 #: translate_tmp.pl:11281
 #, perl-format
@@ -1669,8 +1724,9 @@ msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
 "  Daniel Nylander https://launchpad.net/~yeager\n"
+"  Larsson https://launchpad.net/~larsson\n"
 "  Linus C Unneback https://launchpad.net/~linusu\n"
-"  Patrik Johansson https://launchpad.net/~patrikjj\n"
+"  Mikael Hiort af Ornäs https://launchpad.net/~lakritslemmel\n"
 "  eyerouge https://launchpad.net/~spam-eyerouge\n"
 "  nairobie https://launchpad.net/~samuel-ostman"
 
@@ -1881,7 +1937,7 @@ msgstr "Meny"
 
 #: translate_tmp.pl:173
 msgid "Select a single menu or cascading menus from any application"
-msgstr ""
+msgstr "Välj en enskild meny eller undermenyer från vilket program som helst"
 
 #: translate_tmp.pl:190
 #: translate_tmp.pl:1101
@@ -1906,6 +1962,8 @@ msgid ""
 "Set how long Shutter will wait for the screenshot to complete before "
 "aborting the process if it's taking too long"
 msgstr ""
+"Ange hur länge Shutter skall vänta på att skärmbilden skall fångas in, innan "
+"processen avbryts"
 
 #: translate_tmp.pl:233
 msgid "Edit"
@@ -1916,6 +1974,8 @@ msgid ""
 "Use the built-in editor to highlight important fragments of your screenshot "
 "or crop it to a desired size"
 msgstr ""
+"Använd den inbyggda redigeraren för att färgmarkera viktiga delar av din "
+"skärmbild eller beskära den till önskad storlek"
 
 #: translate_tmp.pl:243
 msgid "Export"
@@ -1926,10 +1986,12 @@ msgid ""
 "Upload your images to an image hosting service, FTP site or export them to "
 "an arbitrary folder"
 msgstr ""
+"Överför dina bilder till en bildlagringstjänst, en FTP-webbplats eller "
+"exportera dem till en valfri mapp."
 
 #: translate_tmp.pl:247
 msgid "Show links to previous uploads"
-msgstr ""
+msgstr "Visa länkar till tidigare överföringar"
 
 #: translate_tmp.pl:33
 #: translate_tmp.pl:47
@@ -1987,12 +2049,12 @@ msgstr "Kommandot \"put\" misslyckades."
 
 #: translate_tmp.pl:87
 msgid "Copy this code to clipboard"
-msgstr ""
+msgstr "Kopiera denna kod till urklipp"
 
 #: translate_tmp.pl:112
 #, perl-format
 msgid "Upload - %s - %s"
-msgstr ""
+msgstr "Överföring - %s - %s"
 
 #: translate_tmp.pl:120
 msgid "Draw a rectangular area using the mouse."
@@ -2006,27 +2068,27 @@ msgstr ""
 
 #: translate_tmp.pl:124
 msgid "<b>shift/right-click</b> → selection dialog on/off"
-msgstr ""
+msgstr "<b>skift/högerklick</b> → markeringsfönstret på/av"
 
 #: translate_tmp.pl:124
 msgid "<b>ctrl + scrollwheel</b> → zoom in/out"
-msgstr ""
+msgstr "<b>ctrl+mushjul</b> → zooma in/ut"
 
 #: translate_tmp.pl:124
 msgid "<b>space</b> → zoom window on/off"
-msgstr ""
+msgstr "<b>blanksteg</b> → zoomningsfönstret på/av"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys</b> → move cursor"
-msgstr ""
+msgstr "<b>piltangenter</b> → flytta markör"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys + alt</b> → move selection"
-msgstr ""
+msgstr "<b>alt+piltangenter</b> → flytta markering"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys + ctrl</b> → resize selection"
-msgstr ""
+msgstr "<b>ctrl+piltangenter</b> → ändra storlek på markering"
 
 #: translate_tmp.pl:88
 msgid ""
@@ -2054,7 +2116,7 @@ msgstr "Inget fönster av typen %s hittades."
 
 #: translate_tmp.pl:119
 msgid "There is no last capture that can be redone."
-msgstr ""
+msgstr "Det finns inget \"senaste infångande\" som kan göras om."
 
 #: translate_tmp.pl:127
 msgid "The window is no longer available."
@@ -2068,22 +2130,24 @@ msgstr "Kunde inte fånga webbsida"
 #: translate_tmp.pl:153
 #, perl-format
 msgid "No window with name pattern %s detected."
-msgstr ""
+msgstr "Det gick inte att identifiera något fönster med namnmönstret %s."
 
 #: translate_tmp.pl:163
 #, perl-format
 msgid "Invalid pattern %s detected."
-msgstr ""
+msgstr "Ett ogiltigt mönster, %s, har identifierats."
 
 #: translate_tmp.pl:116
 msgid "No subwindow detected"
-msgstr ""
+msgstr "Inga underfönster har identifierats"
 
 #: translate_tmp.pl:117
 msgid ""
 "Maybe this window is using client-side windows (or similar).\n"
 "Shutter is not yet able to query the tree information of such windows."
 msgstr ""
+"Det här fönstret använder kanske fönster på klientsidan (eller liknande).\n"
+"Shutter kan än så länge inte söka i sådana fönsters trädinformation."
 
 #: translate_tmp.pl:81
 msgid "URL to capture"
@@ -2175,11 +2239,13 @@ msgstr "_Beskär"
 
 #: translate_tmp.pl:854
 msgid "Click-Drag to scale (try Control to scale uniformly)"
-msgstr "Klicka-dra för att skala (prova Control för att skala enhetligt)"
+msgstr ""
+"Klicka och dra för att skala (håll nere Ctrl för att behålla bredd-höjd-"
+"förhållandet)"
 
 #: translate_tmp.pl:857
 msgid "Click-Drag to resize the canvas"
-msgstr "Klicka-Dra för att ändra storlek på ritytan"
+msgstr "Klicka och dra för att ändra storlek på ritytan"
 
 #: translate_tmp.pl:863
 msgid "Click to paint (try Control or Shift for a straight line)"
@@ -2187,23 +2253,23 @@ msgstr "Klicka för att måla (prova Control eller Skift för en rak linje)"
 
 #: translate_tmp.pl:868
 msgid "Click-Drag to create a new straight line"
-msgstr "Klicka-dra för att skapa en ny rak linje"
+msgstr "Klicka och dra för att skapa en ny rak linje"
 
 #: translate_tmp.pl:873
 msgid "Click-Drag to create a new arrow"
-msgstr "Klicka-Dra för att skapa en ny pil"
+msgstr "Klicka och dra för att skapa en ny pil"
 
 #: translate_tmp.pl:878
 msgid "Click-Drag to create a new rectangle"
-msgstr "Klicka-dra för att skapa en ny rektangel"
+msgstr "Klicka och dra för att skapa en ny rektangel"
 
 #: translate_tmp.pl:883
 msgid "Click-Drag to create a new ellipse"
-msgstr "Klicka-dra för att skapa en ny ellips"
+msgstr "Klicka och dra för att skapa en ny ellips"
 
 #: translate_tmp.pl:888
 msgid "Click-Drag to add a new text area"
-msgstr "Klicka-dra för att lägga till ett nytt textområde"
+msgstr "Klicka och dra för att lägga till ett nytt textområde"
 
 #: translate_tmp.pl:893
 msgid "Click to censor (try Control or Shift for a straight line)"
@@ -2212,7 +2278,7 @@ msgstr ""
 
 #: translate_tmp.pl:898
 msgid "Click-Drag to create a pixelized region"
-msgstr ""
+msgstr "Klicka och dra för att skapa ett pixelerat område"
 
 #: translate_tmp.pl:903
 msgid "Click to add an auto-increment shape"
@@ -2253,6 +2319,8 @@ msgid ""
 "The background is likely to be transparent if you decide to ignore the "
 "background color."
 msgstr ""
+"Bakgrunden kommer antagligen att bli transparent om du väljer att ignorera "
+"bakgrundsfärgen."
 
 #: translate_tmp.pl:1723
 msgid "Save Background Color"
@@ -2342,7 +2410,7 @@ msgstr "Använd valt typsnitt"
 
 #: translate_tmp.pl:4438
 msgid "Use selected font color"
-msgstr ""
+msgstr "Använd den markerade teckenfärgen"
 
 #: translate_tmp.pl:6035
 msgid "_Tools"
@@ -2483,10 +2551,12 @@ msgstr "Pixelisera"
 #: translate_tmp.pl:6304
 msgid "Pixelize selected areas of your screenshot to hide private data"
 msgstr ""
+"Pixelera markerade områden av din skärmbild för att dölja personlig "
+"information"
 
 #: translate_tmp.pl:6304
 msgid "Number"
-msgstr ""
+msgstr "Antal"
 
 #: translate_tmp.pl:6304
 msgid "Add an auto-increment shape to the screenshot"
@@ -2520,68 +2590,3 @@ msgstr "Importera från filsystem..."
 #: translate_tmp.pl:7460
 msgid "New text..."
 msgstr "Ny text..."
-
-#~ msgid ""
-#~ "Configure global keybinding for capture\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "Ställ in globala tangentbordsgenvägar för fångst\n"
-#~ "Formatet är exempelvis som \"<Control>a\" eller \"<Shift><Alt>F1\". "
-#~ "Renderaren är inte så noga och accepterar både gemener och versaler, samt "
-#~ "även förkortningar som \"<Ctl>\" och \"<Ctrl>\". Om du väljer "
-#~ "\"inaktiverad\" för den särskilda strängen kommer det inte finnas en "
-#~ "tangentbordsgenväg. "
-
-#~ msgid "Capture with selection"
-#~ msgstr "Fånga med markering"
-
-#~ msgid ""
-#~ "Configure global keybinding for capture with selection\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "Ställ in globala tangentbordsgenvägar för fångst med markering\n"
-#~ "Formatet är exempelvis som \"<Control>a\" eller \"<Shift><Alt>F1\". "
-#~ "Renderaren är inte så noga och accepterar både gemener och versaler, samt "
-#~ "även förkortningar som \"<Ctl>\" och \"<Ctrl>\". Om du väljer "
-#~ "\"inaktiverad\" för den särskilda strängen kommer det inte finnas en "
-#~ "tangentbordsgenväg. "
-
-#~ msgid "Simple selection tool"
-#~ msgstr "Enkelt markeringsverktyg"
-
-#~ msgid "Advanced selection tool"
-#~ msgstr "Avancerat markeringsverktyg"
-
-#~ msgid ""
-#~ "The simple selection tool is the fastest way of taking a screenshot.\n"
-#~ "It provides an optional zoom window for precise shots."
-#~ msgstr ""
-#~ "Det enkla markeringsverktyget är det snabbaste sättet att ta en skärmbild.\n"
-#~ "Det tillåter ett valfritt zoomfönster för träffsäkra tagningar."
-
-#~ msgid ""
-#~ "The advanced selection tool allows you to enlarge/shrink or move your "
-#~ "selected area\n"
-#~ "until you finally take the screenshot."
-#~ msgstr ""
-#~ "Det avancerade markeringsverktyget låter dig förstora/förminska eller flytta "
-#~ "ditt markerade\n"
-#~ "område tills du väljer att ta skärmbilden."
-
-#~ msgid "Choose selection tool"
-#~ msgstr "Välj markeringsverktyg"
-
-#~ msgid "Keyboard"
-#~ msgstr "Tangentbord"
-
-#~ msgid "Advanced Selection Capture"
-#~ msgstr "Avancerad markeringsfångst"
-
-#~ msgid "Select Window"
-#~ msgstr "Välj fönster"

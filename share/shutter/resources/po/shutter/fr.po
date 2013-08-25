@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2012-07-30 01:08+0000\n"
-"Last-Translator: Traroth <traroth@gmail.com>\n"
+"PO-Revision-Date: 2013-04-04 08:02+0000\n"
+"Last-Translator: londumas <helion331990@gmail.com>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Launchpad-Export-Date: 2012-12-18 17:09+0000\n"
-"X-Generator: Launchpad (build 16372)\n"
+"X-Launchpad-Export-Date: 2013-08-25 19:21+0000\n"
+"X-Generator: Launchpad (build 16738)\n"
 
 #: translate_tmp.pl:476
 #: translate_tmp.pl:2590
@@ -391,6 +391,7 @@ msgstr "à"
 #: translate_tmp.pl:1678
 msgid "Start Selection Tool with a customized selection size"
 msgstr ""
+"Démarrer l'outil de sélection avec une taille de sélection personalisée"
 
 #: translate_tmp.pl:1696
 msgid "Show help text"
@@ -473,7 +474,7 @@ msgid ""
 "correctly set. By enabling this option Shutter will not insist on the "
 "requested type hint."
 msgstr ""
-"Les constantes \"type de suggestion\" indique au gestionnaire de fenêtre le "
+"Les constantes « type de suggestion » indique au gestionnaire de fenêtre le "
 "type de fonction que la fenêtre a. Parfois ces types ne sont pas initialisés "
 "correctement. En activant cette option, Shutter n'insistera pas sur le type "
 "de suggestion requis."
@@ -679,7 +680,7 @@ msgid ""
 "Example: ftp://host:port/path"
 msgstr ""
 "URI\n"
-"Exemple : ftp://hôte:port/chemin"
+"Exemple : ftp://hôte:port/chemin"
 
 #: translate_tmp.pl:2261
 #: translate_tmp.pl:2273
@@ -1224,7 +1225,7 @@ msgstr "_Internet"
 
 #: translate_tmp.pl:8713
 msgid "S_how main window"
-msgstr ""
+msgstr "Montrer _fenêtre principale"
 
 #: translate_tmp.pl:8719
 #: translate_tmp.pl:395
@@ -1748,12 +1749,14 @@ msgstr ""
 "  Patrick Fiquet https://launchpad.net/~patrick-fiquet\n"
 "  Philippe Petrinko https://launchpad.net/~philippe-petrinko\n"
 "  Quentin Delfour https://launchpad.net/~qdelfour\n"
+"  Quentin THEURET https://launchpad.net/~qt-tempo-consulting\n"
 "  Ronan Jouchet https://launchpad.net/~ronj\n"
 "  Stanislas Michalak https://launchpad.net/~stanislas-michalak\n"
 "  Thibault Févry https://launchpad.net/~thibaultfevry\n"
 "  Traroth https://launchpad.net/~traroth\n"
 "  bouchard renaud https://launchpad.net/~renaud-bouchard\n"
 "  hardball https://launchpad.net/~slzk-n\n"
+"  londumas https://launchpad.net/~helion331990\n"
 "  magnetik https://launchpad.net/~magnetik\n"
 "  nerjamartin https://launchpad.net/~nerjamartin\n"
 "  sunnycloud https://launchpad.net/~blackhole1002"
@@ -2075,7 +2078,7 @@ msgstr "Impossible de changer de répertoire de travail."
 
 #: translate_tmp.pl:119
 msgid "Command 'put' failed."
-msgstr "Commande 'put' échouée"
+msgstr "Commande « put » échouée"
 
 #: translate_tmp.pl:87
 msgid "Copy this code to clipboard"
@@ -2176,7 +2179,7 @@ msgid ""
 "Maybe this window is using client-side windows (or similar).\n"
 "Shutter is not yet able to query the tree information of such windows."
 msgstr ""
-"Cette fenêtre utilise peut-être le mécanisme de fenêtres \"client-side\".\n"
+"Cette fenêtre utilise peut-être le mécanisme de fenêtres « client-side ».\n"
 "Shutter n'est pas capable de traiter les informations de telles fenêtres."
 
 #: translate_tmp.pl:81
@@ -2317,7 +2320,7 @@ msgstr "Cliquer pour ajouter une forme auto-incrémentiel"
 #: translate_tmp.pl:1240
 #, perl-format
 msgid "Save the changes to image %s before closing?"
-msgstr "Enregistrer sous %s avant de fermer ?"
+msgstr "Enregistrer sous %s avant de fermer ?"
 
 #: translate_tmp.pl:1256
 msgid "Close"
@@ -2619,97 +2622,3 @@ msgstr "Importer depuis le système de fichiers..."
 #: translate_tmp.pl:7460
 msgid "New text..."
 msgstr "Nouveau texte..."
-
-#~ msgid "Capture with selection"
-#~ msgstr "Capture par sélection"
-
-#~ msgid "Simple selection tool"
-#~ msgstr "Outil de sélection basique"
-
-#~ msgid ""
-#~ "The simple selection tool is the fastest way of taking a screenshot.\n"
-#~ "It provides an optional zoom window for precise shots."
-#~ msgstr ""
-#~ "L'outil de sélection basique est la manière la plus rapide de prendre une "
-#~ "capture d'écran. \n"
-#~ "Il fournit une fenêtre de zoom pour des captures plus précises (optionnel)."
-
-#~ msgid "Choose selection tool"
-#~ msgstr "Choisir l'outil de sélection"
-
-#~ msgid "Advanced selection tool"
-#~ msgstr "Outil de sélection avancée"
-
-#~ msgid ""
-#~ "The advanced selection tool allows you to enlarge/shrink or move your "
-#~ "selected area\n"
-#~ "until you finally take the screenshot."
-#~ msgstr ""
-#~ "L'outil de sélection avancée vous permet d'agrandir/rétrécir ou de déplacer "
-#~ "la zone\n"
-#~ "sélectionnée avant de prendre la capture d'écran."
-
-#~ msgid "Advanced Selection Capture"
-#~ msgstr "Capture de la sélection avancée"
-
-#~ msgid "Start Advanced Selection Tool with a customized selection size"
-#~ msgstr "Démarrer l'outil de sélection avancé avec une taille personnalisée"
-
-#~ msgid "Keyboard"
-#~ msgstr "Clavier"
-
-#~ msgid ""
-#~ "Configure global keybinding for capture with selection\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "Configurez les raccourcis clavier pour déclencher la capture par sélection.\n"
-#~ "Le format est du type \"<Control>a\" ou \"<Shift><Alt>F1\". L'analyseur "
-#~ "syntaxique est suffisamment tolérant pour permettre l'emploi de minuscules "
-#~ "ou de majuscules ainsi que des abréviations comme \"<Ctl>\" ou \"<Ctrl>\". "
-#~ "Vous pouvez utilisez le mot spécial \"disabled\" afin de ne pas affecter de "
-#~ "raccourci clavier à une action. "
-
-#~ msgid ""
-#~ "Configure global keybinding for capture\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "Configurez les raccourcis clavier pour déclencher la capture de l'écran.\n"
-#~ "Le format est du type \"<Control>a\" ou \"<Shift><Alt>F1\". L'analyseur "
-#~ "syntaxique est suffisamment tolérant pour permettre l'emploi de minuscules "
-#~ "ou de majuscules ainsi que des abréviations comme \"<Ctl>\" ou \"<Ctrl>\". "
-#~ "Vous pouvez utilisez le mot spécial \"disabled\" afin de ne pas affecter de "
-#~ "raccourci clavier à une action. "
-
-#~ msgid "Select Window"
-#~ msgstr "Sélectionner une fenêtre"
-
-#~ msgid "There was an error configuring the keybindings."
-#~ msgstr ""
-#~ "Une erreur est survenue lors de la configuration des raccourcis clavier."
-
-#~ msgid ""
-#~ "The format looks like \"<Control>Print\" or \"<Shift><Alt>Print\". The "
-#~ "parser is fairly liberal and allows lower or upper case, but abbreviations "
-#~ "such as \"<Ctl>\" and \"<Ctrl>\" may cause problems under some circumstances "
-#~ "(e.g. when using compiz)."
-#~ msgstr ""
-#~ "Le format est de la forme \"<Control>Print\" ou \"<Shift><Alt>Print\". "
-#~ "L'analyseur syntaxique est laxiste et autorise les majuscule ou les "
-#~ "minuscules, mais l'emploi d'abréviations telles que \"<Ctl>\" et \"<Ctrl>\" "
-#~ "peut causer des problèmes dans certaines circonstances (utilisation de "
-#~ "Compiz par exemple)."
-
-#~ msgid ""
-#~ "<b>Please note:</b> Make sure to activate <i>Gnome Compatibility</i> and "
-#~ "<i>D-Bus Control Backend</i> via CompizConfig Settings Manager if your are "
-#~ "using Desktop Effects or Unity."
-#~ msgstr ""
-#~ "<b>Note :</b> Assurez-vous d'avoir activé la <i>Compatibilité avec Gnome</i> "
-#~ "et <i>D-Bus</i> via CompizConfig Settings Manager si vous utilisez les "
-#~ "effets de bureau ou Unity."

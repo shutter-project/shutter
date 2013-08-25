@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2012-04-23 02:01+0000\n"
-"Last-Translator: Mario Kemper (Romario) <mario.kemper@googlemail.com>\n"
+"PO-Revision-Date: 2013-03-02 18:01+0000\n"
+"Last-Translator: Damir Jerovšek <Unknown>\n"
 "Language-Team: Slovenian <sl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || "
 "n%100==4 ? 3 : 0);\n"
-"X-Launchpad-Export-Date: 2012-12-18 17:09+0000\n"
-"X-Generator: Launchpad (build 16372)\n"
+"X-Launchpad-Export-Date: 2013-08-25 19:20+0000\n"
+"X-Generator: Launchpad (build 16738)\n"
 "X-Poedit-Country: SLOVENIA\n"
 "X-Poedit-Language: Slovenian\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -36,7 +36,7 @@ msgstr "Možnosti"
 #: translate_tmp.pl:873
 #: translate_tmp.pl:874
 msgid "gnome-web-photo needs to be installed for this feature"
-msgstr "gnome-web-photo mora biti nameščen za to zmožnost"
+msgstr "Za to zmožnost mora biti nameščen gnome-web-photo"
 
 #: translate_tmp.pl:883
 msgid "Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature"
@@ -124,7 +124,7 @@ msgstr "Protokol za prenos datotek (FTP)"
 
 #: translate_tmp.pl:1063
 msgid "Transparent Parts"
-msgstr "Prozorni deli"
+msgstr "Prosojni deli"
 
 #: translate_tmp.pl:1070
 msgid "Session View"
@@ -141,7 +141,7 @@ msgstr "Ime datoteke"
 #: translate_tmp.pl:11326
 #, perl-format
 msgid "Reserved character %s is not allowed to be in a filename."
-msgstr "Rezerviranega znaka %s ni dovoljeno uporabiti v imenu datoteke."
+msgstr "V imenu datoteke ni dovoljeno uporabiti rezerviranega znaka %s."
 
 #: translate_tmp.pl:1120
 msgid "There are several wildcards available, like\n"
@@ -252,7 +252,7 @@ msgstr "Samodejno kopiraj ime datoteke na odložišče"
 #: translate_tmp.pl:1332
 #: translate_tmp.pl:1342
 msgid "Do not copy anything to clipboard"
-msgstr "Ne kopiraj nič na odložišče"
+msgstr "Ne kopiraj ničesar na odložišče"
 
 #: translate_tmp.pl:1351
 msgid "Delay"
@@ -292,7 +292,7 @@ msgstr "Vključi kazalko"
 #: translate_tmp.pl:1399
 #: translate_tmp.pl:1400
 msgid "Include cursor when taking a screenshot"
-msgstr "Ob zajemanju zaslonskega posnetka vključujte kazalko"
+msgstr "Ob zajemanju zaslonskega posnetka vključi kazalko"
 
 #: translate_tmp.pl:1458
 msgid "Open with"
@@ -302,7 +302,7 @@ msgstr "Odpri z"
 #: translate_tmp.pl:1460
 #: translate_tmp.pl:1461
 msgid "Open your screenshot with this program after capturing"
-msgstr "Odprte svoj zaslonski posnetek s tem programom po zajemu"
+msgstr "Odprite svoj zaslonski posnetek po zajemu s tem programom"
 
 #: translate_tmp.pl:1472
 msgid "16 colors   - (4bit) "
@@ -393,7 +393,7 @@ msgstr "na"
 #: translate_tmp.pl:1677
 #: translate_tmp.pl:1678
 msgid "Start Selection Tool with a customized selection size"
-msgstr ""
+msgstr "Začni Orodje izbora s prilagojeno velikostjo izbora"
 
 #: translate_tmp.pl:1696
 msgid "Show help text"
@@ -602,7 +602,7 @@ msgstr "Pri uporabi zamika pokaži pojavno obvestilo"
 
 #: translate_tmp.pl:2046
 msgid "Display pop-up notification when using a pre-capture delay"
-msgstr "Pri uporabi zamika pred zajemom uporabo pojavno obvestilo"
+msgstr "Pri uporabi zamika pred zajemom prikaži pojavno obvestilo"
 
 #: translate_tmp.pl:2048
 msgid "Notification agent"
@@ -1231,7 +1231,7 @@ msgstr "_Splet"
 
 #: translate_tmp.pl:8713
 msgid "S_how main window"
-msgstr ""
+msgstr "Pokaži _osrednje okno"
 
 #: translate_tmp.pl:8719
 #: translate_tmp.pl:395
@@ -1763,6 +1763,7 @@ msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
 "  Andrej Znidarsic https://launchpad.net/~andrej.znidarsic\n"
+"  Damir Jerovšek https://launchpad.net/~jierro\n"
 "  Dražen Matešić https://launchpad.net/~crazylemon\n"
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
 "  Sasa Batistic https://launchpad.net/~sasa-batistic\n"
@@ -2629,93 +2630,3 @@ msgstr "Uvozi iz datotečnega sistema ..."
 #: translate_tmp.pl:7460
 msgid "New text..."
 msgstr "Novo besedilo ..."
-
-#~ msgid "Advanced Selection Capture"
-#~ msgstr "Zajem napredne izbire"
-
-#~ msgid "Start Advanced Selection Tool with a customized selection size"
-#~ msgstr "Zaženi napredno orodje izbire z velikostjo izbire po meri"
-
-#~ msgid ""
-#~ "Configure global keybinding for capture\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "Nastavite splošne tipkovne bližnjice za zajemanje\n"
-#~ "Oblika je videti \"<Control>a\" ali \"<Shift><Alt>F1\". Razčlenjevalnik je "
-#~ "precej liberalen in dovoli majhne in velike črte in tudi okrajšave kot sta  "
-#~ "\"<Ctl>\" in \"<Ctrl>\". V primeru da možnost posebnih nizov onemogočite, za "
-#~ "to dejanje ne bo tipkovne bližnjice. "
-
-#~ msgid "Capture with selection"
-#~ msgstr "Zajemi z izborom"
-
-#~ msgid ""
-#~ "Configure global keybinding for capture with selection\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "Nastavite splošne tipkovne bližnjice za zajemanje z izbiro\n"
-#~ "Oblika je videti \"<Control>a\" ali \"<Shift><Alt>F1\". Razčlenjevalnik je "
-#~ "precej liberalen in dovoli majhne in velike črte in tudi okrajšave kot sta  "
-#~ "\"<Ctl>\" in \"<Ctrl>\". V primeru da možnost posebnih nizov onemogočite, za "
-#~ "to dejanje ne bo tipkovne bližnjice. "
-
-#~ msgid "Keyboard"
-#~ msgstr "Tipkovnica"
-
-#~ msgid "Advanced selection tool"
-#~ msgstr "Napredno orodje za izbiro"
-
-#~ msgid "Simple selection tool"
-#~ msgstr "Enostavno orodje za izbiro"
-
-#~ msgid ""
-#~ "The advanced selection tool allows you to enlarge/shrink or move your "
-#~ "selected area\n"
-#~ "until you finally take the screenshot."
-#~ msgstr ""
-#~ "Napredno orodje izbire vam omogoča povečavo/skrčenje ali premikanje "
-#~ "izbranega področja\n"
-#~ "dokler končno ne zajamete zaslonskega posnetka."
-
-#~ msgid ""
-#~ "The simple selection tool is the fastest way of taking a screenshot.\n"
-#~ "It provides an optional zoom window for precise shots."
-#~ msgstr ""
-#~ "Napredno orodje izbire je najhitrejši način za zajemanje zaslonskega "
-#~ "posnetka.\n"
-#~ "Zagotavlja izbirno okno približanja za natančne posnetke."
-
-#~ msgid "Choose selection tool"
-#~ msgstr "Izberite orodje za izbiro"
-
-#~ msgid "Select Window"
-#~ msgstr "Izberi okno"
-
-#~ msgid "There was an error configuring the keybindings."
-#~ msgstr "Prišlo je do napake pri nastavljanju tipkovnih vezav."
-
-#~ msgid ""
-#~ "The format looks like \"<Control>Print\" or \"<Shift><Alt>Print\". The "
-#~ "parser is fairly liberal and allows lower or upper case, but abbreviations "
-#~ "such as \"<Ctl>\" and \"<Ctrl>\" may cause problems under some circumstances "
-#~ "(e.g. when using compiz)."
-#~ msgstr ""
-#~ "Oblika je videti kot \"<Control>Natisni\" ali \"<Shift><Alt>Natisni\". "
-#~ "Razčlenjevalnik je precej liberalen in dovoljuje male in velike črke, vendar "
-#~ "lahko okrajšave kot sta \"<Ctl>\" and \"<Ctrl>\" v nekaterih primerih "
-#~ "povzročijo težave (na primer pri uporabi compiza)."
-
-#~ msgid ""
-#~ "<b>Please note:</b> Make sure to activate <i>Gnome Compatibility</i> and "
-#~ "<i>D-Bus Control Backend</i> via CompizConfig Settings Manager if your are "
-#~ "using Desktop Effects or Unity."
-#~ msgstr ""
-#~ "<b>Opomba:</b> Prepričajte se, da ste omogočili <i>Združljivost Gnome</i> in "
-#~ "<i>Nadzorno zaledje D-Bus</i> preko Upravljalnika nastavitev CompizConfig, "
-#~ "če uporabljate namizne učinke ali Unity."

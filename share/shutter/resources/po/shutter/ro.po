@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2012-02-23 13:49+0000\n"
-"Last-Translator: Mihai Petcu <miky_brother@yahoo.com>\n"
+"PO-Revision-Date: 2013-05-23 14:44+0000\n"
+"Last-Translator: Radu Rădeanu <radu.radeanu@gmail.com>\n"
 "Language-Team: Romanian\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n == 1 ? 0: (((n % 100 > 19) || ((n % 100 "
 "== 0) && (n != 0))) ? 2: 1));\n"
-"X-Launchpad-Export-Date: 2012-12-18 17:09+0000\n"
-"X-Generator: Launchpad (build 16372)\n"
+"X-Launchpad-Export-Date: 2013-08-25 19:21+0000\n"
+"X-Generator: Launchpad (build 16738)\n"
 "Language: ro\n"
 
 #: translate_tmp.pl:476
@@ -185,7 +185,7 @@ msgstr "$profile = numele profilului curent\n"
 
 #: translate_tmp.pl:1120
 msgid "$R = random char (e.g. $RRRR = ag4r)\n"
-msgstr "$R = caracter aleatoriu (ex:  $RRRR = ag4r)\n"
+msgstr "$R = caracter aleatoriu (exemplu $RRRR = ag4r)\n"
 
 #: translate_tmp.pl:1120
 msgid "%NN = counter"
@@ -392,6 +392,7 @@ msgstr "la"
 #: translate_tmp.pl:1678
 msgid "Start Selection Tool with a customized selection size"
 msgstr ""
+"Porniți unealta de selectie cu o dimensiune de selecție personalizată"
 
 #: translate_tmp.pl:1696
 msgid "Show help text"
@@ -488,8 +489,8 @@ msgstr "Lățimea browserului virtual"
 #: translate_tmp.pl:1882
 msgid "Virtual browser width when taking a website screenshot"
 msgstr ""
-"Lățimea virtuală a navigatorului atunci când se face captura de ecran unei "
-"pagini web"
+"Lățimea browserului virtual când se face o captura de ecran pentru o pagină "
+"web"
 
 #: translate_tmp.pl:1893
 msgid "Show as check pattern"
@@ -497,7 +498,7 @@ msgstr "Arată ca model tablă de șah"
 
 #: translate_tmp.pl:1894
 msgid "Show as custom color:"
-msgstr "Arată ca o culoare personalizată:"
+msgstr "Arată ca și culoare personalizată:"
 
 #: translate_tmp.pl:1897
 #: translate_tmp.pl:459
@@ -525,7 +526,7 @@ msgid ""
 "Displays any transparent parts of the image in the background color of the "
 "application"
 msgstr ""
-"Afișează părțile transparente din imagine în culoarea fundalului aplicației"
+"Arată părțile transparente ale imaginii în culoarea de fundal a aplicației"
 
 #: translate_tmp.pl:1951
 msgid "Sort ascending by"
@@ -657,6 +658,9 @@ msgid ""
 "your credentials above. Plugins with OAuth support are configured "
 "automatically the first time you use them."
 msgstr ""
+"<b>Vă rugăm să rețineți:</b> Dacă un modul vă permite încărcarea autorizată, "
+"puteți introduce datele de mai sus. Modulele cu sprijinul OAuth sunt "
+"configurate în mod automat prima dată când le folosiți."
 
 #: translate_tmp.pl:2243
 #: translate_tmp.pl:10547
@@ -855,7 +859,7 @@ msgstr "Setările au fost încărcate cu succes"
 #: translate_tmp.pl:5088
 #: translate_tmp.pl:7010
 msgid "Built-in Editor"
-msgstr "Editor inclus"
+msgstr "Editor încorporat"
 
 #: translate_tmp.pl:5142
 msgid "Account-settings could not be restored!"
@@ -972,7 +976,7 @@ msgstr "S-a produs o eroare la efectuarea operației de anulare pentru %s."
 
 #: translate_tmp.pl:5869
 msgid "Last action redone"
-msgstr "Ultima acțiune repetată"
+msgstr "Ultima acțiune refăcută"
 
 #: translate_tmp.pl:5877
 #, perl-format
@@ -1007,7 +1011,7 @@ msgstr "S-a declanșat o operație nevalidă a capturii de ecran."
 #: translate_tmp.pl:154
 #: translate_tmp.pl:164
 msgid "Error while taking the screenshot."
-msgstr "Eroare la capturarea ecranului."
+msgstr "Eroare la efectuarea capturii de ecran."
 
 #: translate_tmp.pl:6608
 #: translate_tmp.pl:134
@@ -1018,7 +1022,7 @@ msgstr "Captura a fost anulată de alt utilizator"
 #: translate_tmp.pl:6759
 #, perl-format
 msgid "%s saved"
-msgstr ""
+msgstr "%s salvat"
 
 #: translate_tmp.pl:6746
 #: translate_tmp.pl:6749
@@ -1131,15 +1135,17 @@ msgstr "Se actualizează informaţiile modulului"
 
 #: translate_tmp.pl:8104
 msgid "Please wait while Shutter updates the plugin information"
-msgstr "Așteptați până Shutter actualizează informațiile modulelor"
+msgstr "Așteptați cât timp Shutter actualizează informațiile modulului"
 
 #: translate_tmp.pl:8246
 msgid "Updating upload plugin information"
-msgstr ""
+msgstr "Actualizare informații de încărcare modul"
 
 #: translate_tmp.pl:8251
 msgid "Please wait while Shutter updates the upload plugin information"
 msgstr ""
+"Vă rugăm să așteptați în timp ce Shutter actualizează informațiile de "
+"încărcare modul"
 
 #: translate_tmp.pl:8482
 msgid "Capture All Workspaces"
@@ -1192,7 +1198,7 @@ msgstr "Spațiu _de lucru"
 
 #: translate_tmp.pl:8636
 msgid "Window _under Cursor"
-msgstr ""
+msgstr "Fereastra de s_ub cursor"
 
 #: translate_tmp.pl:8649
 #: translate_tmp.pl:459
@@ -1221,7 +1227,7 @@ msgstr "_Web"
 
 #: translate_tmp.pl:8713
 msgid "S_how main window"
-msgstr ""
+msgstr "A_rată fereastra principală"
 
 #: translate_tmp.pl:8719
 #: translate_tmp.pl:395
@@ -1235,27 +1241,30 @@ msgstr "_Selectie rapidă de profil"
 
 #: translate_tmp.pl:8896
 msgid "Wait indefinitely"
-msgstr ""
+msgstr "Așteptați pe termen nedefinit"
 
 #: translate_tmp.pl:8897
 #: translate_tmp.pl:8898
 #, perl-format
 msgid "Wait max %d second"
 msgid_plural "Wait max %d seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Așteptați maxim %d secundă"
+msgstr[1] "Așteptați maxim %d secunde"
+msgstr[2] "Așteptați maxim %d secunde"
 
 #: translate_tmp.pl:8899
 #: translate_tmp.pl:8900
 #, perl-format
 msgid "Wait max %d minute"
 msgid_plural "Wait max %d minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Așteptați maxim %d minut"
+msgstr[1] "Așteptați maxim %d minute"
+msgstr[2] "Așteptați maxim %d minute"
 
 #: translate_tmp.pl:8908
 msgid "Shutter will wait indefinitely for the screenshot to capture"
 msgstr ""
+"Shutter va aștepta pe termen nedefinit pentru a realiza captura de ecran"
 
 #: translate_tmp.pl:8909
 #: translate_tmp.pl:8910
@@ -1267,7 +1276,14 @@ msgid_plural ""
 "Shutter will wait up to %d seconds for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
+"Shutter va aștepta până la %d secundă pentru a realiza captura de ecran "
+"înainte de întreruperea procesului în cazul în care durează prea mult timp"
 msgstr[1] ""
+"Shutter va aștepta până la %d secunde pentru a realiza captura de ecran "
+"înainte de întreruperea procesului în cazul în care durează prea mult timp"
+msgstr[2] ""
+"Shutter va aștepta până la %d secunde pentru a realiza captura de ecran "
+"înainte de întreruperea procesului în cazul în care durează prea mult timp"
 
 #: translate_tmp.pl:8911
 #: translate_tmp.pl:8912
@@ -1279,7 +1295,14 @@ msgid_plural ""
 "Shutter will wait up to %d minutes for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
+"Shutter va aștepta până la %d minut pentru a realiza captura de ecran "
+"înainte de întreruperea procesului în cazul în care durează prea mult timp"
 msgstr[1] ""
+"Shutter va aștepta până la %d minute pentru a realiza captura de ecran "
+"înainte de întreruperea procesului în cazul în care durează prea mult timp"
+msgstr[2] ""
+"Shutter va aștepta până la %d minute pentru a realiza captura de ecran "
+"înainte de întreruperea procesului în cazul în care durează prea mult timp"
 
 #: translate_tmp.pl:9046
 msgid "Host"
@@ -1287,15 +1310,15 @@ msgstr "Gazdă"
 
 #: translate_tmp.pl:9113
 msgid "Anonymous Upload"
-msgstr ""
+msgstr "Încărcare anonimă"
 
 #: translate_tmp.pl:9120
 msgid "Authorized Upload"
-msgstr ""
+msgstr "Încărcare autorizată"
 
 #: translate_tmp.pl:9127
 msgid "OAuth Upload"
-msgstr ""
+msgstr "Încărcare OAuth"
 
 #: translate_tmp.pl:9138
 #: translate_tmp.pl:9199
@@ -1470,7 +1493,7 @@ msgstr "Oaspete"
 
 #: translate_tmp.pl:10426
 msgid "OAuth"
-msgstr ""
+msgstr "OAuth"
 
 #: translate_tmp.pl:10459
 msgid ""
@@ -1478,6 +1501,10 @@ msgid ""
 "links will still be available in the screenshot's <i>right-click menu</i> "
 "after closing this dialog."
 msgstr ""
+"Vă rugăm să alegeți unul dintre conturile de mai sus și faceți clic pe "
+"<i>Încărcare</i>. Linkurile de încărcare vor fi în continuare disponibile în "
+"<i>meniul click dreapta</i> al capturii de ecran de după închiderea acestui "
+"dialog."
 
 #: translate_tmp.pl:10460
 msgid ""
@@ -1485,6 +1512,9 @@ msgid ""
 "enter your credentials in preferences first to make it appear in the list "
 "above."
 msgstr ""
+"<b>Vă rugăm să rețineți:</b> Dacă un modul permite doar încărcarea "
+"autorizată va trebui să introduceți datele în preferințe înainte de a face "
+"să apară în lista de mai sus."
 
 #: translate_tmp.pl:10462
 msgid "Choose account"
@@ -1525,7 +1555,14 @@ msgid_plural ""
 "Folder %s is synchronized with Ubuntu One. The selected files will be copied "
 "to that folder before being published."
 msgstr[0] ""
+"Folderul %s este sincronizat cu Ubuntu One. Fișierul selectat va fi copiat "
+"în folder înainte de a fi publicat."
 msgstr[1] ""
+"Folderul %s este sincronizat cu Ubuntu One. Fișierele selectate vor fi "
+"copiate în folder înainte de a fi publicate."
+msgstr[2] ""
+"Folderul %s este sincronizat cu Ubuntu One. Fișierele selectate vor fi "
+"copiate în folder înainte de a fi publicate."
 
 #: translate_tmp.pl:10707
 #: translate_tmp.pl:10739
@@ -1536,7 +1573,14 @@ msgid_plural ""
 "<b>Please note:</b> The selected files will be published in a background "
 "process. You will be notified when the process has finished."
 msgstr[0] ""
+"<b>Vă rugăm să rețineți:</b> Fișierul selectat va fi publicat într-un proces "
+"de fundal. Veți fi anunțat când procesul s-a terminat."
 msgstr[1] ""
+"<b>Vă rugăm să rețineți:</b> Fișierele selectate vor fi publicate într-un "
+"proces de fundal. Veți fi anunțat când procesul s-a terminat."
+msgstr[2] ""
+"<b>Vă rugăm să rețineți:</b> Fișierele selectate vor fi publicate într-un "
+"proces de fundal. Veți fi anunțat când procesul s-a terminat."
 
 #: translate_tmp.pl:10711
 #: translate_tmp.pl:10743
@@ -1545,6 +1589,8 @@ msgid ""
 "Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
 "folder."
 msgstr ""
+"Folderul %s nu este sincronizat cu Ubuntu One. Vă rugăm să alegeți un folder "
+"alternativ."
 
 #: translate_tmp.pl:10762
 msgid "Ubuntu One service cannot be found."
@@ -1566,16 +1612,16 @@ msgstr ""
 #: translate_tmp.pl:10846
 #, perl-format
 msgid "Loading module %s"
-msgstr ""
+msgstr "Încărcarea modulului %s"
 
 #: translate_tmp.pl:10859
 #, perl-format
 msgid "Error while executing upload plugin %s."
-msgstr ""
+msgstr "Eroare în timpul executătrii încărcării modulului %s"
 
 #: translate_tmp.pl:10859
 msgid "There was an error executing the upload plugin."
-msgstr ""
+msgstr "A avut loc o eroare la executarea executarea de încărcare."
 
 #: translate_tmp.pl:10892
 #: translate_tmp.pl:10963
@@ -1709,7 +1755,8 @@ msgstr ""
 "  Ioan Eugen Stan https://launchpad.net/~ieugen\n"
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
 "  Mihai Petcu https://launchpad.net/~mikybrother\n"
-"  Morie Daniel Alexandru https://launchpad.net/~andu-qq"
+"  Morie Daniel Alexandru https://launchpad.net/~andu-qq\n"
+"  Radu Rădeanu https://launchpad.net/~radu-radeanu"
 
 #: translate_tmp.pl:34
 #: translate_tmp.pl:6033
@@ -1783,7 +1830,7 @@ msgstr "Copiază numele _fișierului"
 
 #: translate_tmp.pl:246
 msgid "Show Navigation _Toolbar"
-msgstr "Ara_tă bara de navigație"
+msgstr "Arată bara de unel_te pentru navigare"
 
 #: translate_tmp.pl:328
 msgid "Get Help Online..."
@@ -1813,7 +1860,7 @@ msgstr "Desc_hide cu"
 #: translate_tmp.pl:565
 #: translate_tmp.pl:662
 msgid "Show in _folder"
-msgstr ""
+msgstr "Afișați în _folder"
 
 #: translate_tmp.pl:572
 #: translate_tmp.pl:669
@@ -1944,6 +1991,8 @@ msgid ""
 "Set how long Shutter will wait for the screenshot to complete before "
 "aborting the process if it's taking too long"
 msgstr ""
+"Setați cât timp Shutter va aștepta pentru a realiza captura de ecran înainte "
+"de întreruperea procesului în cazul în care durează prea mult timp"
 
 #: translate_tmp.pl:233
 msgid "Edit"
@@ -1971,7 +2020,7 @@ msgstr ""
 
 #: translate_tmp.pl:247
 msgid "Show links to previous uploads"
-msgstr ""
+msgstr "Afișare linkuri către încărcări anterioare"
 
 #: translate_tmp.pl:33
 #: translate_tmp.pl:47
@@ -2029,12 +2078,12 @@ msgstr "Comanda „put” a eșuat."
 
 #: translate_tmp.pl:87
 msgid "Copy this code to clipboard"
-msgstr ""
+msgstr "Copiați acest cod în memoria temporară"
 
 #: translate_tmp.pl:112
 #, perl-format
 msgid "Upload - %s - %s"
-msgstr ""
+msgstr "Încărcat - %s - %s"
 
 #: translate_tmp.pl:120
 msgid "Draw a rectangular area using the mouse."
@@ -2115,7 +2164,7 @@ msgstr "Nu a fost detectată nicio fereastră cu modelul de nume %s."
 #: translate_tmp.pl:163
 #, perl-format
 msgid "Invalid pattern %s detected."
-msgstr ""
+msgstr "Model invalid %s detectat"
 
 #: translate_tmp.pl:116
 msgid "No subwindow detected"
@@ -2155,17 +2204,17 @@ msgstr "Ajustează culoarea de umplere și opacitatea"
 #: translate_tmp.pl:468
 #: translate_tmp.pl:4206
 msgid "Stroke color"
-msgstr ""
+msgstr "Culoarea liniei"
 
 #: translate_tmp.pl:473
 #: translate_tmp.pl:4212
 msgid "Choose stroke color"
-msgstr ""
+msgstr "Alege culoarea liniei"
 
 #: translate_tmp.pl:475
 #: translate_tmp.pl:476
 msgid "Adjust stroke color and opacity"
-msgstr ""
+msgstr "Ajustează culoarea liniei și opacitatea"
 
 #: translate_tmp.pl:482
 #: translate_tmp.pl:4172
@@ -2269,7 +2318,7 @@ msgstr "Click pentru a adăuga o formă cu auto-incrementare"
 #: translate_tmp.pl:1240
 #, perl-format
 msgid "Save the changes to image %s before closing?"
-msgstr "Salvați modificările imaginii %s înainte de a închide?"
+msgstr "Salvați modificările făcute imaginii %s înainte de a închide?"
 
 #: translate_tmp.pl:1256
 msgid "Close"
@@ -2309,19 +2358,19 @@ msgstr ""
 
 #: translate_tmp.pl:1723
 msgid "Save Background Color"
-msgstr "Salvează culoarea fundalului"
+msgstr "Salvează culoarea de fundal"
 
 #: translate_tmp.pl:1726
 msgid "_Ignore Background Color"
-msgstr "_Ignoră culoarea fundalului"
+msgstr "_Ignora culoarea de fundal"
 
 #: translate_tmp.pl:1729
 msgid "_Save Background Color"
-msgstr "_Salvează culoarea fundalului"
+msgstr "_Salvează culoarea de fundal"
 
 #: translate_tmp.pl:3877
 msgid "Change Background Color..."
-msgstr "Schimbă culoarea fundalului..."
+msgstr "Modifică culoarea de fundal..."
 
 #: translate_tmp.pl:3887
 msgid "_Reset to Default"
@@ -2370,7 +2419,7 @@ msgstr "Durată sugestie"
 
 #: translate_tmp.pl:4336
 msgid "Display an arrow at the end of the line"
-msgstr "Afișează o săgeată la finalul liniei"
+msgstr "Arată o săgeată la sfârșitul liniei"
 
 #: translate_tmp.pl:4338
 msgid "Display an arrow at the start of the line"
@@ -2528,7 +2577,7 @@ msgstr "Cenzurează"
 #: translate_tmp.pl:6304
 msgid "Censor portions of your screenshot to hide private data"
 msgstr ""
-"Cenzurează porțiuni ale capturi de ecran pentru a ascunde date private"
+"Cenzurează porțiuni ale capturii de ecran pentru a ascunde date private"
 
 #: translate_tmp.pl:6304
 msgid "Pixelize"
@@ -2554,7 +2603,7 @@ msgstr "Decupează"
 
 #: translate_tmp.pl:6304
 msgid "Crop your screenshot"
-msgstr "Taie captura de ecran"
+msgstr "Decupează captura de ecran"
 
 #: translate_tmp.pl:6559
 #: translate_tmp.pl:6756
@@ -2576,86 +2625,3 @@ msgstr "Importă din sistemul de fișiere..."
 #: translate_tmp.pl:7460
 msgid "New text..."
 msgstr "Text nou..."
-
-#~ msgid "Advanced Selection Capture"
-#~ msgstr "Capturează prin selecție avansată"
-
-#~ msgid "Keyboard"
-#~ msgstr "Tastatură"
-
-#~ msgid "Start Advanced Selection Tool with a customized selection size"
-#~ msgstr "Alege unealta de selecție avansată cu o dimensiune personalizată"
-
-#~ msgid "Capture with selection"
-#~ msgstr "Catputrează cu selecția"
-
-#~ msgid "Advanced selection tool"
-#~ msgstr "Unealtă de selecție avansată"
-
-#~ msgid "Simple selection tool"
-#~ msgstr "Unealtă de selecție simplă"
-
-#~ msgid "Select Window"
-#~ msgstr "Selectează fereastra"
-
-#~ msgid "Choose selection tool"
-#~ msgstr "Alegeți instrumentul de selecție"
-
-#~ msgid ""
-#~ "Configure global keybinding for capture\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "Configurează combinațiile de taste globale pentru captură\n"
-#~ "Formatul arată ca „<Control>a” sau „<Shift><Alt>F1”. Analizatorul este "
-#~ "destul de liber și permite folosirea literelor mici sau mari și de asemenea, "
-#~ "a abrevierilor precum „<Ctl>” și „<Ctrl>”. Dacă stabiliți opțiunea pentru "
-#~ "șiruri speciale „dezactivată”, atunci nu vor exista combinații de taste "
-#~ "pentru această operație. "
-
-#~ msgid ""
-#~ "Configure global keybinding for capture with selection\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "Configurează combinațiile de taste globale pentru captură cu selecție\n"
-#~ "Formatul arată ca „<Control>a” sau „<Shift><Alt>F1”. Analizatorul este "
-#~ "destul de liber și permite folosirea literelor mici sau mari și de asemenea, "
-#~ "a abrevierilor precum „<Ctl>” și „<Ctrl>”. Dacă stabiliți opțiunea pentru "
-#~ "șiruri speciale „dezactivată”, atunci nu vor exista combinații de taste "
-#~ "pentru această operație. "
-
-#~ msgid "There was an error configuring the keybindings."
-#~ msgstr "S-a produs o eroare la configurarea combinațiilor de taste."
-
-#~ msgid ""
-#~ "The format looks like \"<Control>Print\" or \"<Shift><Alt>Print\". The "
-#~ "parser is fairly liberal and allows lower or upper case, but abbreviations "
-#~ "such as \"<Ctl>\" and \"<Ctrl>\" may cause problems under some circumstances "
-#~ "(e.g. when using compiz)."
-#~ msgstr ""
-#~ "Formatul arată ca „<Control>Print” sau „<Shift><Alt>Print”. Analizatorul "
-#~ "este destul de liber și permite folosirea literelor mici sau mari, dar "
-#~ "abrevierile precum „<Ctl>” și „<Ctrl>” pot cauza probleme în anumite "
-#~ "situații (exemplu când este folosit compiz)."
-
-#~ msgid ""
-#~ "The advanced selection tool allows you to enlarge/shrink or move your "
-#~ "selected area\n"
-#~ "until you finally take the screenshot."
-#~ msgstr ""
-#~ "Unealta de selecție avansată vă permite să măriți/micșorați sau să mutați "
-#~ "zona selectată\n"
-#~ "până când faceți captura de ecran."
-
-#~ msgid ""
-#~ "The simple selection tool is the fastest way of taking a screenshot.\n"
-#~ "It provides an optional zoom window for precise shots."
-#~ msgstr ""
-#~ "Unealta de selecție simplă este cea mai rapidă cale de a face o captură de "
-#~ "ecran.\n"
-#~ "Prevede o fereastră opțională de zoom pentru capturi precise."

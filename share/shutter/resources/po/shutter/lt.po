@@ -9,16 +9,16 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2012-12-06 15:31+0000\n"
-"Last-Translator: Algimantas Margevičius <Margevicius.Algimantas@gmail.com>\n"
+"PO-Revision-Date: 2013-05-17 10:48+0000\n"
+"Last-Translator: Mantas Kriaučiūnas <mantas@akl.lt>\n"
 "Language-Team: Lietuvių <>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "(n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-12-18 17:09+0000\n"
-"X-Generator: Launchpad (build 16372)\n"
+"X-Launchpad-Export-Date: 2013-08-25 19:21+0000\n"
+"X-Generator: Launchpad (build 16738)\n"
 
 #: translate_tmp.pl:476
 #: translate_tmp.pl:2590
@@ -391,7 +391,7 @@ msgstr "ties"
 #: translate_tmp.pl:1677
 #: translate_tmp.pl:1678
 msgid "Start Selection Tool with a customized selection size"
-msgstr ""
+msgstr "Paleisti pasirinkimo įrankį su pasirinktu pasirinkimo dydžiu"
 
 #: translate_tmp.pl:1696
 msgid "Show help text"
@@ -1778,7 +1778,7 @@ msgstr "Paskutinieji _failai"
 
 #: translate_tmp.pl:103
 msgid "Save _As..."
-msgstr "Išs_augoti kaip..."
+msgstr "Įrašyti k_aip..."
 
 #: translate_tmp.pl:114
 #: translate_tmp.pl:6182
@@ -2600,91 +2600,3 @@ msgstr "Importuoti iš failų sistemos..."
 #: translate_tmp.pl:7460
 msgid "New text..."
 msgstr "Naujas tekstas..."
-
-#~ msgid "Choose selection tool"
-#~ msgstr "Rinktis pasirinkimo įrankį"
-
-#~ msgid "Advanced Selection Capture"
-#~ msgstr "Sudėtingesnis pasirinkimo įrašymas"
-
-#~ msgid "Start Advanced Selection Tool with a customized selection size"
-#~ msgstr ""
-#~ "Su derintu pasirinkimo dydžiu paleisti „Sudėtingesnio pasirinkimo įrankį“"
-
-#~ msgid ""
-#~ "Configure global keybinding for capture\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "Nustatykite bendrus įrašymo klavišų susiejimus\n"
-#~ "Formatas atrodo taip „<Control>a“ ar „<Shift><Alt>F1“. Apdoroklis yra "
-#~ "nereiklus ir leidžia tiek mažąsias tiek didžiąsias raides, taipogi "
-#~ "santrumpas, tokias kaip „<Ctl>“ ir „<Ctrl>“. Jei specialiai eilutei "
-#~ "nustatėte parinkty „disabled“, tam veiksmus nebus jokio susiejimo. "
-
-#~ msgid "Capture with selection"
-#~ msgstr "Įrašyti su pasirinkimu"
-
-#~ msgid ""
-#~ "Configure global keybinding for capture with selection\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "Nustatykite bendrus įrašymo su pasirinkimu klavišų susiejimus\n"
-#~ "Formatas atrodo taip „<Control>a“ ar „<Shift><Alt>F1“. Apdoroklis yra "
-#~ "nereiklus ir leidžia tiek mažąsias tiek didžiąsias raides, taipogi "
-#~ "santrumpas, tokias kaip „<Ctl>“ ir „<Ctrl>“. Jei specialiai eilutei "
-#~ "nustatėte parinkty „disabled“, tam veiksmus nebus jokio susiejimo. "
-
-#~ msgid "Select Window"
-#~ msgstr "Pasirinkti langą"
-
-#~ msgid ""
-#~ "<b>Please note:</b> Make sure to activate <i>Gnome Compatibility</i> and "
-#~ "<i>D-Bus Control Backend</i> via CompizConfig Settings Manager if your are "
-#~ "using Desktop Effects or Unity."
-#~ msgstr ""
-#~ "<b>Pastaba:</b> Jei naudojate darbastalio efektus ar Unity įsitikinkite jog "
-#~ "aktyvavote <i>Gnome suderinamumą</i> ir <i>D-Bus valdymo posistemę</i> "
-#~ "CompizConfig nustatymų tvarkyklėje."
-
-#~ msgid "Keyboard"
-#~ msgstr "Klaviatūra"
-
-#~ msgid ""
-#~ "The format looks like \"<Control>Print\" or \"<Shift><Alt>Print\". The "
-#~ "parser is fairly liberal and allows lower or upper case, but abbreviations "
-#~ "such as \"<Ctl>\" and \"<Ctrl>\" may cause problems under some circumstances "
-#~ "(e.g. when using compiz)."
-#~ msgstr ""
-#~ "Formatas atrodo taip „<Control>Print“ ar „<Shift><Alt>Print“. Apdoroklis yra "
-#~ "nereiklus ir leidžia tiek mažąsias tiek didžiąsias raides, bet santrumpos, "
-#~ "tokios kaip „<Ctl>“ ir „<Ctrl>“ gali sukelti problemų."
-
-#~ msgid "There was an error configuring the keybindings."
-#~ msgstr "Konfigūruojant klavišų susiejimus įvyko klaida."
-
-#~ msgid "Advanced selection tool"
-#~ msgstr "Sudėtingesnis pasirinkimo įrankis"
-
-#~ msgid "Simple selection tool"
-#~ msgstr "Paprastas pasirinkimo įrankis"
-
-#~ msgid ""
-#~ "The advanced selection tool allows you to enlarge/shrink or move your "
-#~ "selected area\n"
-#~ "until you finally take the screenshot."
-#~ msgstr ""
-#~ "Sudėtingesnis pasirinkimo įrankis prieš darant ekranvaizdį leidžia \n"
-#~ "padidinti/sumažinti ar perkelti pasirinktą sritį."
-
-#~ msgid ""
-#~ "The simple selection tool is the fastest way of taking a screenshot.\n"
-#~ "It provides an optional zoom window for precise shots."
-#~ msgstr ""
-#~ "Paprastas pasirinkimo įrankis yra greičiausias būdas padaryti ekranvaizdį.\n"
-#~ "Jis suteikia nebūtiną priartinimą tiksliems vaizdams."

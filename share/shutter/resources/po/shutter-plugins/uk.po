@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-10-28 17:52+0100\n"
-"PO-Revision-Date: 2011-08-17 19:07+0000\n"
-"Last-Translator: Andriy Korchak <kharts@ukr.net>\n"
+"PO-Revision-Date: 2013-02-11 20:11+0000\n"
+"Last-Translator: Roman Koshkin <mar2008m@rambler.ru>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-12-18 17:09+0000\n"
-"X-Generator: Launchpad (build 16372)\n"
+"X-Launchpad-Export-Date: 2013-08-25 19:21+0000\n"
+"X-Generator: Launchpad (build 16738)\n"
 
 #: translate_tmp:27
 msgid "Grayscale"
@@ -39,15 +39,15 @@ msgstr "Зсув"
 
 #: translate_tmp:29
 msgid "Give the picture an offset with itself as background"
-msgstr ""
+msgstr "Додати до зображення зсув з фоном у вигляді його ж"
 
 #: translate_tmp:27
 msgid "Raise Border"
-msgstr ""
+msgstr "Виступаюча рамка"
 
 #: translate_tmp:29
 msgid "Raise a rectangular 3d-border"
-msgstr ""
+msgstr "Виступаюча прямокутна 3D рамка"
 
 #: translate_tmp:27
 msgid "Soft Edges"
@@ -98,6 +98,11 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
 msgstr ""
+"Додає згасаюче відображення під зображенням та його вигляд в перспективі\n"
+"\n"
+"Засновано на сценарії від Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
 
 #: translate_tmp:104
 #: translate_tmp:133
@@ -108,7 +113,7 @@ msgstr "Обертання:"
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "Perseptive rotation around left edge of image"
-msgstr ""
+msgstr "Обертання навколо лівої межі зображення в перспективі"
 
 #: translate_tmp:122
 msgid "Fade:"
@@ -126,16 +131,16 @@ msgstr "Непрозорість:"
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "Opacity percent applied to whole mirror image"
-msgstr ""
+msgstr "Відсоток непрозорості всього відображеного зображення"
 
 #: translate_tmp:158
 msgid "Pef:"
-msgstr ""
+msgstr "Pef:"
 
 #: translate_tmp:165
 #: translate_tmp:172
 msgid "Perspective exaggeration factor"
-msgstr ""
+msgstr "Коефіцієнт перспективного спотворення"
 
 #: translate_tmp:176
 msgid "Gap:"
@@ -154,7 +159,7 @@ msgstr "Збільшення:"
 #: translate_tmp:201
 #: translate_tmp:208
 msgid "Zoom factor for output image"
-msgstr ""
+msgstr "Масштаб збільшення отримуваного зображення"
 
 #: translate_tmp:212
 #: translate_tmp:236
@@ -207,6 +212,11 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 msgstr ""
+"Застосовує до зображення спотворення в перспективі\n"
+"\n"
+"Засновано на сценарії від Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 
 #: translate_tmp:111
 #: translate_tmp:118
@@ -246,6 +256,13 @@ msgid ""
 "\n"
 "out - Creates an output image of size needed to hold the transformed image"
 msgstr ""
+"off - Без перерахунку розмірів\n"
+"\n"
+"c - Центрувати зображення і обрізати за розміром рамки\n"
+"\n"
+"zc - Центрувати зображення і вписати в розміри рамки\n"
+"\n"
+"out - Збільшити рамку до розмірів перетвореного зображення"
 
 #: translate_tmp:243
 msgid "Sky color"
@@ -253,11 +270,11 @@ msgstr "Колір неба"
 
 #: translate_tmp:248
 msgid "Choose sky color"
-msgstr ""
+msgstr "Вибрати колір неба"
 
 #: translate_tmp:62
 msgid "Barrel Distortion"
-msgstr ""
+msgstr "Бочкове спотворення"
 
 #: translate_tmp:64
 msgid "Apply a distortion effect to your screenshot"
@@ -296,10 +313,17 @@ msgid ""
 "Defined by Barrel Correction Distortion, by Helmut Dersch.\n"
 "http://www.all-in-one.ee/~dersch/barrel/barrel.html"
 msgstr ""
+"Параметр d описує лінійне масштабування зображення. При d=1, та a=b=c=0 "
+"зображення залишається таким, як і було. При інших значеннях d зображення "
+"збільшується у вказану кількість разів. a,b та c спотворюють зображення. При "
+"від'ємних значеннях віддалені точки зсуваються далі від центру.\n"
+"\n"
+"Визначено в Barrel Correction Distortion (Helmut Dersch).\n"
+"http://www.all-in-one.ee/~dersch/barrel/barrel.html"
 
 #: translate_tmp:73
 msgid "Bordereffects"
-msgstr ""
+msgstr "Крайові ефекти"
 
 #: translate_tmp:75
 msgid ""
@@ -322,7 +346,7 @@ msgstr "Розмір:"
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "The size or dimension of the border region"
-msgstr ""
+msgstr "Розмір чи величина межової області"
 
 #: translate_tmp:122
 msgid "Density:"
@@ -331,16 +355,16 @@ msgstr "Щільність:"
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "The frequency of detail in the border"
-msgstr ""
+msgstr "Частота деталей на межі"
 
 #: translate_tmp:140
 msgid "Curviness:"
-msgstr ""
+msgstr "Вигин:"
 
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "The curviness in the border features"
-msgstr ""
+msgstr "Вигин кордонів"
 
 #: translate_tmp:158
 msgid "Granularity:"
@@ -352,15 +376,17 @@ msgid ""
 "The base grain size or pixelization size used to create the detail in the "
 "border"
 msgstr ""
+"Базовий розмір зерна або розмір пікселізації, що використовується для "
+"створення деталей в межі"
 
 #: translate_tmp:176
 msgid "Pad:"
-msgstr ""
+msgstr "Планшет:"
 
 #: translate_tmp:183
 #: translate_tmp:190
 msgid "The pad size of constant color around the perimeter of the border"
-msgstr ""
+msgstr "Розмір планшета постійного кольору по периметру кордону"
 
 #: translate_tmp:62
 msgid "Negate"
@@ -383,6 +409,8 @@ msgid ""
 "Make your screenshot look like a polaroid photo, add a caption, and even "
 "rotate it a little"
 msgstr ""
+"Перетворення знімка в формат \\\"полароїд \\\", додавання напису і невеликий "
+"поворот зображення"
 
 #: translate_tmp:99
 #: translate_tmp:93
@@ -399,6 +427,11 @@ msgid ""
 "%d = day\n"
 "%T = time"
 msgstr ""
+"Ви можете використовувати наступні маски:\n"
+"%Y = рік\n"
+"%m = місяць\n"
+"% d = день\n"
+"% T = час"
 
 #: translate_tmp:116
 #: translate_tmp:110
@@ -434,7 +467,7 @@ msgstr "Сепія"
 
 #: translate_tmp:73
 msgid "Add sepia color toning to the image"
-msgstr ""
+msgstr "Подцветка зображення в м'який коричневий тон"
 
 #: translate_tmp:110
 msgid "Sepia tone"
@@ -446,7 +479,7 @@ msgstr "Жорстка тінь"
 
 #: translate_tmp:65
 msgid "Add a shadow to the image on a transparent background"
-msgstr ""
+msgstr "Додати тінь до зображення на прозорому фоні"
 
 #: translate_tmp:94
 msgid "Direction"
@@ -476,4 +509,4 @@ msgstr "Водяний знак"
 
 #: translate_tmp:64
 msgid "Add a custom text watermark to your screenshot"
-msgstr ""
+msgstr "Додати текстовий водяний знак до вашого знімка екрана"

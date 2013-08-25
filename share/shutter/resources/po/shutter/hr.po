@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2012-07-30 01:07+0000\n"
-"Last-Translator: zvacet <ikoli@yahoo.com>\n"
+"PO-Revision-Date: 2013-04-15 23:30+0000\n"
+"Last-Translator: Paolo Pelesk <ted.teddy.cro@gmail.com>\n"
 "Language-Team: Croatian <hr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2012-12-18 17:09+0000\n"
-"X-Generator: Launchpad (build 16372)\n"
+"X-Launchpad-Export-Date: 2013-08-25 19:20+0000\n"
+"X-Generator: Launchpad (build 16738)\n"
 
 #: translate_tmp.pl:476
 #: translate_tmp.pl:2590
@@ -68,7 +68,7 @@ msgstr "Spremi"
 
 #: translate_tmp.pl:972
 msgid "First-launch Behavior"
-msgstr ""
+msgstr "Ponašanje prvog pokretanja"
 
 #: translate_tmp.pl:979
 msgid "Window Preferences"
@@ -84,7 +84,7 @@ msgstr "Otpad"
 
 #: translate_tmp.pl:1000
 msgid "Gnome-Keybinding"
-msgstr ""
+msgstr "Gnome-Prečac"
 
 #: translate_tmp.pl:1007
 #: translate_tmp.pl:2383
@@ -97,19 +97,19 @@ msgstr "Hvatanje"
 
 #: translate_tmp.pl:1021
 msgid "Selection Capture"
-msgstr ""
+msgstr "Snimak odabira"
 
 #: translate_tmp.pl:1028
 msgid "Window Capture"
-msgstr ""
+msgstr "Snimak prozora"
 
 #: translate_tmp.pl:1035
 msgid "Menu/Tooltip Capture"
-msgstr ""
+msgstr "Snimak izbornika"
 
 #: translate_tmp.pl:1042
 msgid "Website Capture"
-msgstr ""
+msgstr "Snimak web stranice"
 
 #: translate_tmp.pl:1049
 msgid "Accounts"
@@ -125,7 +125,7 @@ msgstr ""
 
 #: translate_tmp.pl:1070
 msgid "Session View"
-msgstr ""
+msgstr "Pregled sesije"
 
 #: translate_tmp.pl:1078
 #: translate_tmp.pl:1953
@@ -138,56 +138,56 @@ msgstr "Ime datoteke"
 #: translate_tmp.pl:11326
 #, perl-format
 msgid "Reserved character %s is not allowed to be in a filename."
-msgstr ""
+msgstr "Rezervirani znak %s nije dozvoljen u nazivu"
 
 #: translate_tmp.pl:1120
 msgid "There are several wildcards available, like\n"
-msgstr ""
+msgstr "Postoji nekoliko zamjenskih znakova na raspolaganju, poput\n"
 
 #: translate_tmp.pl:1120
 msgid "%Y = year\n"
-msgstr ""
+msgstr "%Y = godina\n"
 
 #: translate_tmp.pl:1120
 msgid "%m = month\n"
-msgstr ""
+msgstr "%m = mjesec\n"
 
 #: translate_tmp.pl:1120
 #, perl-format
 msgid "%d = day\n"
-msgstr ""
+msgstr "%d = dan\n"
 
 #: translate_tmp.pl:1120
 msgid "%T = time\n"
-msgstr ""
+msgstr "%T = vrijeme\n"
 
 #: translate_tmp.pl:1120
 msgid "$w = width\n"
-msgstr ""
+msgstr "$w = širina\n"
 
 #: translate_tmp.pl:1120
 msgid "$h = height\n"
-msgstr ""
+msgstr "$h = visina\n"
 
 #: translate_tmp.pl:1120
 msgid "$name = multi-purpose (e.g. window title)\n"
-msgstr ""
+msgstr "$name = višenamjensko (npr. naziv prozora)\n"
 
 #: translate_tmp.pl:1120
 msgid "$nb_name = like $name but without blanks in resulting strings\n"
-msgstr ""
+msgstr "$nb_name = kao $name ali bez razmaka\n"
 
 #: translate_tmp.pl:1120
 msgid "$profile = name of current profile\n"
-msgstr ""
+msgstr "$profile = naziv trenutnog profila\n"
 
 #: translate_tmp.pl:1120
 msgid "$R = random char (e.g. $RRRR = ag4r)\n"
-msgstr ""
+msgstr "$R = slučajni znak (npr. $RRRR = ag4r)\n"
 
 #: translate_tmp.pl:1120
 msgid "%NN = counter"
-msgstr ""
+msgstr "%NN = brojač"
 
 #: translate_tmp.pl:1134
 #: translate_tmp.pl:2981
@@ -197,7 +197,7 @@ msgstr "Sažimanje"
 #: translate_tmp.pl:1143
 #: translate_tmp.pl:1144
 msgid "Adjust quality/compression value"
-msgstr ""
+msgstr "Namjesti vrijednost kvalitete/sažimanja"
 
 #: translate_tmp.pl:1232
 #: translate_tmp.pl:1233
@@ -219,12 +219,12 @@ msgstr "Izaberi mapu"
 #: translate_tmp.pl:1251
 #: translate_tmp.pl:1252
 msgid "Your screenshots will be saved to this directory"
-msgstr ""
+msgstr "Vaše snimke zaslona će biti spremljene u navedenoj mapi"
 
 #: translate_tmp.pl:1261
 #: translate_tmp.pl:1264
 msgid "Browse for save folder every time"
-msgstr ""
+msgstr "Pregledaj mapu spremanja svaki put"
 
 #: translate_tmp.pl:1266
 #: translate_tmp.pl:1269
@@ -239,17 +239,17 @@ msgstr "Automatski spremi datoteku"
 #: translate_tmp.pl:1298
 #: translate_tmp.pl:1308
 msgid "Automatically copy screenshot to clipboard"
-msgstr ""
+msgstr "Automatski kopiraj izrezak u međuspremnik"
 
 #: translate_tmp.pl:1315
 #: translate_tmp.pl:1325
 msgid "Automatically copy filename to clipboard"
-msgstr ""
+msgstr "Automatski kopiraj naziv datoteke u međuspremnik"
 
 #: translate_tmp.pl:1332
 #: translate_tmp.pl:1342
 msgid "Do not copy anything to clipboard"
-msgstr ""
+msgstr "Ne kopiraj u međuspremnik"
 
 #: translate_tmp.pl:1351
 msgid "Delay"
@@ -263,12 +263,13 @@ msgstr "Kašnjenje"
 #: translate_tmp.pl:2903
 msgid "second"
 msgid_plural "seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "sekunda"
+msgstr[1] "sekunde"
+msgstr[2] "sekundi"
 
 #: translate_tmp.pl:1360
 msgid "Capture after a delay of"
-msgstr ""
+msgstr "Snimi nakon odgode od"
 
 #: translate_tmp.pl:1375
 #: translate_tmp.pl:1376
@@ -277,17 +278,17 @@ msgstr ""
 #: translate_tmp.pl:1380
 #: translate_tmp.pl:1381
 msgid "Wait n seconds before taking a screenshot"
-msgstr ""
+msgstr "Pričekaj n sekundi prije snimanja"
 
 #: translate_tmp.pl:1392
 msgid "Include Cursor"
-msgstr ""
+msgstr "Uključi pokazivač"
 
 #: translate_tmp.pl:1393
 #: translate_tmp.pl:1399
 #: translate_tmp.pl:1400
 msgid "Include cursor when taking a screenshot"
-msgstr ""
+msgstr "Uključi pokazivač kod snimanja"
 
 #: translate_tmp.pl:1458
 msgid "Open with"
@@ -297,7 +298,7 @@ msgstr "Otvori sa"
 #: translate_tmp.pl:1460
 #: translate_tmp.pl:1461
 msgid "Open your screenshot with this program after capturing"
-msgstr ""
+msgstr "Otvori snimak zaslona s ovim programom"
 
 #: translate_tmp.pl:1472
 msgid "16 colors   - (4bit) "
@@ -319,7 +320,7 @@ msgstr "Smanji boje"
 #: translate_tmp.pl:1503
 #: translate_tmp.pl:1504
 msgid "Automatically reduce colors after taking a screenshot"
-msgstr ""
+msgstr "Automatski smanji boje nakon snimanja"
 
 #: translate_tmp.pl:1514
 msgid "Thumbnail"
@@ -331,11 +332,11 @@ msgstr "Minijatura"
 msgid ""
 "Generate thumbnail too.\n"
 "select the percentage of the original size for the thumbnail to be"
-msgstr ""
+msgstr "Također stvori minijaturu."
 
 #: translate_tmp.pl:1556
 msgid "Border"
-msgstr ""
+msgstr "Obrub"
 
 #: translate_tmp.pl:1558
 #: translate_tmp.pl:1641
@@ -344,11 +345,11 @@ msgstr ""
 #: translate_tmp.pl:1871
 #: translate_tmp.pl:7233
 msgid "pixels"
-msgstr ""
+msgstr "pikseli"
 
 #: translate_tmp.pl:1560
 msgid "Color"
-msgstr ""
+msgstr "Boja"
 
 #: translate_tmp.pl:1563
 #: translate_tmp.pl:1569
@@ -360,20 +361,20 @@ msgstr "Odaberi boju ruba"
 #: translate_tmp.pl:1566
 #: translate_tmp.pl:1567
 msgid "Adds a border effect to the screenshot"
-msgstr ""
+msgstr "Dodaje okvir na snimak"
 
 #: translate_tmp.pl:1615
 #: translate_tmp.pl:1624
 msgid "Enable zoom window"
-msgstr ""
+msgstr "Omogući prozor približavanja"
 
 #: translate_tmp.pl:1633
 msgid "Start with selection size of"
-msgstr ""
+msgstr "Počni s veličinom odabira od"
 
 #: translate_tmp.pl:1635
 msgid "at"
-msgstr ""
+msgstr "na"
 
 #: translate_tmp.pl:1669
 #: translate_tmp.pl:1670
@@ -386,7 +387,7 @@ msgstr ""
 #: translate_tmp.pl:1677
 #: translate_tmp.pl:1678
 msgid "Start Selection Tool with a customized selection size"
-msgstr ""
+msgstr "Pokreni alat za odabir s posebnim dimenzijama"
 
 #: translate_tmp.pl:1696
 msgid "Show help text"
@@ -399,7 +400,7 @@ msgstr "Omogućava tekst pomoći"
 #: translate_tmp.pl:1714
 #: translate_tmp.pl:1715
 msgid "Include window decoration when capturing a window"
-msgstr ""
+msgstr "Uključi ukrase prostora kod snimanja"
 
 #: translate_tmp.pl:1733
 msgid "Automatically resize window to"
@@ -421,7 +422,7 @@ msgstr ""
 
 #: translate_tmp.pl:1777
 msgid "Force rounded window corners"
-msgstr ""
+msgstr "Prisili zaobljene kutove prozora"
 
 #: translate_tmp.pl:1786
 #, perl-format
@@ -434,6 +435,13 @@ msgid ""
 "named ~/.shutter/shape.conf and put custom values in it. The default values "
 "are stored in %s."
 msgstr ""
+"Shutter koristi XShape dodatak pri odlučivanju oblika prozora, ali to ne "
+"radi u nekim slučajevima, npr. kod compiz-a.\n"
+"\n"
+"Kad je ova opcija uključena, Shutter koristi fiksne parametre za "
+"zaobljivanje kutova. Možete premostiti zadane parametre stvarajući datoteku "
+"~/.shutter/shape.conf i upisati vlastite vrijednosti. Po zadanom vrijednosti "
+"se pohranjuju u %s"
 
 #: translate_tmp.pl:1795
 #: translate_tmp.pl:1796
@@ -442,17 +450,17 @@ msgstr "Odaberi sano vidljive prozore"
 
 #: translate_tmp.pl:1813
 msgid "Pre-Capture Delay"
-msgstr ""
+msgstr "Odgoda prije snimanja"
 
 #: translate_tmp.pl:1828
 #: translate_tmp.pl:1829
 #: translate_tmp.pl:1830
 msgid "Capture menu/tooltip after a delay of n seconds"
-msgstr ""
+msgstr "Snimi izbornik nakon odgode od n sekundi"
 
 #: translate_tmp.pl:1841
 msgid "Ignore possibly wrong type hints"
-msgstr ""
+msgstr "Zanemari moguće pogrešne naznake"
 
 #: translate_tmp.pl:1842
 msgid ""
@@ -461,6 +469,9 @@ msgid ""
 "correctly set. By enabling this option Shutter will not insist on the "
 "requested type hint."
 msgstr ""
+"Tip naznake konstantno definira naznake za upravitelja prozora koji pokazuje "
+"koje funkcije prozor ima. Ponekad su naznake krivo postavljene. "
+"Omogućavanjem ove opcije Shutter neće tražiti vrstu naznake."
 
 #: translate_tmp.pl:1858
 msgid "Virtual browser width"
@@ -1665,6 +1676,7 @@ msgstr ""
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
 "  Miro Glavić https://launchpad.net/~klek\n"
 "  Miroslav Matejaš https://launchpad.net/~silverspace+amd64\n"
+"  Paolo Pelesk https://launchpad.net/~teddx\n"
 "  zvacet https://launchpad.net/~ivicakolic"
 
 #: translate_tmp.pl:34
@@ -2501,9 +2513,3 @@ msgstr "Uvezi iz datotečnog sustava..."
 #: translate_tmp.pl:7460
 msgid "New text..."
 msgstr "Novi tekst..."
-
-#~ msgid "Advanced selection tool"
-#~ msgstr "Napredni alat za odabir"
-
-#~ msgid "Simple selection tool"
-#~ msgstr "Prosti alat za odabir"

@@ -15,8 +15,8 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2012-12-18 17:09+0000\n"
-"X-Generator: Launchpad (build 16372)\n"
+"X-Launchpad-Export-Date: 2013-08-25 19:20+0000\n"
+"X-Generator: Launchpad (build 16738)\n"
 
 #: translate_tmp.pl:476
 #: translate_tmp.pl:2590
@@ -1670,9 +1670,7 @@ msgstr ""
 "  kaiman https://launchpad.net/~kaigfm\n"
 "  lyman https://launchpad.net/~lyman\n"
 "  renewjoy https://launchpad.net/~rlj-linux\n"
-"  viumden https://launchpad.net/~viumden\n"
-"  yuane https://launchpad.net/~yuane\n"
-"  冯超 https://launchpad.net/~rainofchaos"
+"  yuane https://launchpad.net/~yuane"
 
 #: translate_tmp.pl:34
 #: translate_tmp.pl:6033
@@ -2510,84 +2508,3 @@ msgstr "从文件系统导入..."
 #: translate_tmp.pl:7460
 msgid "New text..."
 msgstr "添加文字..."
-
-#~ msgid "Advanced selection tool"
-#~ msgstr "高级选取工具"
-
-#~ msgid "Simple selection tool"
-#~ msgstr "简单选取工具"
-
-#~ msgid "Choose selection tool"
-#~ msgstr "选择一个选取工具"
-
-#~ msgid "Capture with selection"
-#~ msgstr "选区抓取"
-
-#~ msgid ""
-#~ "Configure global keybinding for capture with selection\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "配置选区抓图的全局热键绑定\n"
-#~ "格式像 \"<Control>a\" 或者 \"<Shift><Alt>F1\"这样。不区分大小写，也可以像这样缩写 \"<Ctl>\" 和 "
-#~ "\"<Ctrl>\"。如果你将选项设置成 \"disabled\"，那么这个动作将不会有热键。 "
-
-#~ msgid ""
-#~ "Configure global keybinding for capture\n"
-#~ "The format looks like \"<Control>a\" or \"<Shift><Alt>F1\". The parser is "
-#~ "fairly liberal and allows lower or upper case, and also abbreviations such "
-#~ "as \"<Ctl>\" and \"<Ctrl>\". If you set the option to the special string "
-#~ "\"disabled\", then there will be no keybinding for this action. "
-#~ msgstr ""
-#~ "配置全局抓图热键绑定\n"
-#~ "格式像 \"<Control>a\" 或者 \"<Shift><Alt>F1\"这样。不区分大小写，也可以像这样缩写 \"<Ctl>\" 和 "
-#~ "\"<Ctrl>\"。如果你将选项设置成 \"disabled\"，那么这个动作将不会有热键。 "
-
-#~ msgid ""
-#~ "The advanced selection tool allows you to enlarge/shrink or move your "
-#~ "selected area\n"
-#~ "until you finally take the screenshot."
-#~ msgstr ""
-#~ "高级选取工具允许你扩大/缩小或者移动你所选的区域，\n"
-#~ "直到你最终执行抓图。"
-
-#~ msgid ""
-#~ "The simple selection tool is the fastest way of taking a screenshot.\n"
-#~ "It provides an optional zoom window for precise shots."
-#~ msgstr ""
-#~ "使用简单选取工具是最快的抓图方式。\n"
-#~ "它提供了一个便于精确抓图的缩放选项窗口。"
-
-#~ msgid "Keyboard"
-#~ msgstr "键盘"
-
-#~ msgid "Advanced Selection Capture"
-#~ msgstr "截取选区（高级）"
-
-#~ msgid "Start Advanced Selection Tool with a customized selection size"
-#~ msgstr "用自定义的选择尺寸启动高级选择工具"
-
-#~ msgid "Select Window"
-#~ msgstr "选择窗口"
-
-#~ msgid "There was an error configuring the keybindings."
-#~ msgstr "绑定键盘出错"
-
-#~ msgid ""
-#~ "The format looks like \"<Control>Print\" or \"<Shift><Alt>Print\". The "
-#~ "parser is fairly liberal and allows lower or upper case, but abbreviations "
-#~ "such as \"<Ctl>\" and \"<Ctrl>\" may cause problems under some circumstances "
-#~ "(e.g. when using compiz)."
-#~ msgstr ""
-#~ "格式类似 \"<Control>Print\" or \"<Shift><Alt>Print\".  解析器相当灵活，允许大小写， "
-#~ "但是像\"<Ctl>\" 和 \"<Ctrl>\" 这样的缩写， 在一些情况下 （比如，当使用 compiz），可能会出问题"
-
-#~ msgid ""
-#~ "<b>Please note:</b> Make sure to activate <i>Gnome Compatibility</i> and "
-#~ "<i>D-Bus Control Backend</i> via CompizConfig Settings Manager if your are "
-#~ "using Desktop Effects or Unity."
-#~ msgstr ""
-#~ "<b>请注意：</b>如果您使用桌面效果或Unity，请通过Compiz设置管理器，保证激活<i>Gnome兼容性</i> 和 <i>D-"
-#~ "Bus控制后台</i>"
