@@ -619,7 +619,7 @@ sub setup_bottom_hbox {
     $self->{_font_btn_wh} = $self->{_font_btn_w}->signal_connect(
         'font-set' => sub {
             my $font_descr = Gtk2::Pango::FontDescription->from_string( $self->{_font_btn_w}->get_font_name );
-            $self->{_font} = $font_descr->to_string;
+            $self->{_font} = $self->{_font_btn_w}->get_font_name;
 
             if ( $self->{_current_item} ) {
 
@@ -3312,7 +3312,7 @@ sub set_and_save_drawing_properties {
                 }
 
                 #apply current font settings to button
-                $self->{_font_btn_w}->set_font_name( $font_desc->to_string );
+                $self->{_font_btn_w}->set_font_name( $self->{_font} );
 
             }
         }
@@ -3344,7 +3344,7 @@ sub set_and_save_drawing_properties {
         $self->{_stroke_color_w}->set_alpha( int( $self->{_items}{$key}{stroke_color_alpha} * 65535 ) );
 
         #apply current font settings to button
-        $self->{_font_btn_w}->set_font_name( $font_desc->to_string );
+        $self->{_font_btn_w}->set_font_name( $self->{_font} );
 
     }
 
@@ -3355,7 +3355,7 @@ sub set_and_save_drawing_properties {
     $self->{_fill_color}         = $self->{_fill_color_w}->get_color;
     $self->{_fill_color_alpha}   = $self->{_fill_color_w}->get_alpha / 65636;
     my $font_descr = Gtk2::Pango::FontDescription->from_string( $self->{_font_btn_w}->get_font_name );
-    $self->{_font} = $font_descr->to_string;
+    $self->{_font} = $self->{_font_btn_w}->get_font_name;
 
     #unblock 'value-change' handlers for widgets
     $self->{_line_spin_w}->signal_handler_unblock( $self->{_line_spin_wh} );
@@ -3441,7 +3441,7 @@ sub restore_drawing_properties {
     $self->{_fill_color}         = $self->{_fill_color_w}->get_color;
     $self->{_fill_color_alpha}   = $self->{_fill_color_w}->get_alpha / 65636;
     my $font_descr = Gtk2::Pango::FontDescription->from_string( $self->{_font_btn_w}->get_font_name );
-    $self->{_font} = $font_descr->to_string;
+    $self->{_font} = $self->{_font_btn_w}->get_font_name;
 
     #unblock 'value-change' handlers for widgets
     $self->{_line_spin_w}->signal_handler_unblock( $self->{_line_spin_wh} );
@@ -4302,7 +4302,7 @@ sub show_item_properties {
             }
 
             #apply current font settings to button
-            $font_btn->set_font_name( $font_desc->to_string );
+            $font_btn->set_font_name( $self->{_font} );
 
             $font_hbox->pack_start( $font_label, FALSE, TRUE, 12 );
             $font_hbox->pack_start( $font_btn,   TRUE,  TRUE, 0 );
@@ -4507,7 +4507,7 @@ sub show_item_properties {
         );
 
         #apply current font settings to button
-        $font_btn->set_font_name( $font_desc->to_string );
+        $font_btn->set_font_name( $self->{_font} );
 
         #FIXME >> why do we have to invoke this manually??
         $font_btn->signal_emit('font-set');
@@ -4767,7 +4767,7 @@ sub apply_properties {
 
             my $font_descr = Gtk2::Pango::FontDescription->from_string( $font_btn->get_font_name );
             $self->{_items}{$key}{text}->set(
-                'text'         => "<span font_desc=' " . $font_descr->to_string . " ' >" . $digit . "</span>",
+                'text'         => "<span font_desc=' " . $font_btn->get_font_name . " ' >" . $digit . "</span>",
                 'fill-pattern' => $fill_pattern,
             );
 
@@ -4884,7 +4884,7 @@ sub apply_properties {
         }
 
         $item->set(
-            'text'         => "<span font_desc=' " . $font_descr->to_string . " ' >" . Glib::Markup::escape_text($new_text) . "</span>",
+            'text'         => "<span font_desc=' " . $font_btn->get_font_name . " ' >" . Glib::Markup::escape_text($new_text) . "</span>",
             'width'        => -1,
             'use-markup'   => TRUE,
             'fill-pattern' => $fill_pattern
