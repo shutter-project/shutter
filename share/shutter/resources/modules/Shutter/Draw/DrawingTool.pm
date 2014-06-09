@@ -6468,6 +6468,7 @@ sub import_from_dnd {
     my @valid_files;
     foreach (@files) {
         my $mime_type = Gnome2::VFS->get_mime_type_for_name($_);
+        $mime_type =~ s/image\/x\-apple\-ios\-png/image\/png/; #FIXME
         if ( $mime_type && $self->check_valid_mime_type($mime_type) ) {
             push @valid_files, $_;
         }
