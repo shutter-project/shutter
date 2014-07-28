@@ -70,11 +70,14 @@ sub init {
 	my $self = shift;
 
 	#do custom stuff here
-	use Net::Dropbox::API;
+	use WebService::Dropbox;
+    use IO::File;
 	use JSON;
 	use URI::Escape qw(uri_escape);
 	use File::Basename qw(dirname basename);
 	use Path::Class;
+
+	$WebService::Dropbox::USE_LWP = TRUE;
 
 	$self->{_box} = undef;
 	$self->{_config} = { };
@@ -88,9 +91,9 @@ sub connect {
 	
 	if(-f $self->{_config_file}){
 		eval{
-			$self->{_config} = decode_json($self->{_config_file}->slurp);	
-			$self->{_box} = Net::Dropbox::API->new($self->{_config});
-			$self->{_box}->context('dropbox');
+			$self->{_config} = decode_json($self->{_config_file}->slurp);
+			$self->{_config}->{upload_folder} = $self->{_config}->{upload_folder} || 'Apps/Shutter';
+			$self->{_box} = WebService::Dropbox->new($self->{_config});
 		};
 		if($@){
 			return FALSE;
@@ -98,7 +101,8 @@ sub connect {
 	}else{
 		$self->{_config}->{key} = 'fwsv9z8slaw0c0q';
 		$self->{_config}->{secret} = 'hsxflivocvav6ag';
-		$self->{_config}->{callback_url} = '';					
+		$self->{_config}->{upload_folder} = 'Apps/Shutter';
+		$self->{_config}->{callback_url} = '';
 		return $self->setup;
 	}
 	
@@ -116,8 +120,8 @@ sub setup {
 	my $sd = Shutter::App::SimpleDialogs->new;
 
     #Authentication
-    $self->{_box} = Net::Dropbox::API->new($self->{_config});
-    my $login_link = $self->{_box}->login;
+    $self->{_box} = WebService::Dropbox->new($self->{_config});
+    my $login_link = $self->{_box}->login($self->{_config}->{callback_url});
     if($self->{_box}->error){
 		$sd->dlg_error_message($self->{_box}->error, $d->get("There was an error receiving the authentication URL."));
 		print "ERROR: There was an error while receiving the Dropbox-URL. ", $self->{_box}->error, "\n";
@@ -155,8 +159,7 @@ sub setup {
 			chmod 0600, $self->{_config_file};			
 			
 			#again
-			$self->{_box} = Net::Dropbox::API->new($self->{_config});
-			$self->{_box}->context('dropbox');
+			$self->{_box} = WebService::Dropbox->new($self->{_config});
 			
 			return TRUE;
 		} else {
@@ -187,14 +190,18 @@ sub upload {
 	utf8::encode $upload_filename;
 	
 	eval{
-		my $res = $self->{_box}->putfile($upload_filename, "Public");
-		if($res->{'http_response_code'} == 200){
+		my $upload_file = IO::File->new($upload_filename);
+		my $res = $self->{_box}->files_put($self->{_config}->{upload_folder} . "/" . basename($upload_filename), $upload_file);
+		$upload_file->close();
+
+		if(! $self->{_box}->error) {
+			$res = $self->{_box}->media($self->{_config}->{upload_folder} . "/" . basename($upload_filename));
+		}
+
+		if(! $self->{_box}->error){
 			#set status (success)
 			$self->{_links}{'status'} = 200;
-			
-			#...and filename
-			my $prep_filename = basename($upload_filename);
-			$self->{_links}->{'direct_link'} = "http://dl.dropbox.com/u/".$self->get_uid."/".$self->escape($prep_filename);
+			$self->{_links}->{'direct_link'} = $res->{url};
 			
 			#print all links (debug)
 			if( $self->{_debug_cparam}) {
@@ -203,10 +210,10 @@ sub upload {
 				}
 			}
 		}else{
-			$self->{_links}{'status'} = $res->{'error'};
+			$self->{_links}{'status'} = $self->{_box}->error;
 			if($self->{_box}->error =~ m/401/){
 				unlink $self->{_config_file};
-				$self->{_links}{'status'} = $res->{'error'}.": ".$d->get("Maybe you or Dropbox revoked or expired an access token. Please close this dialog and try again. Your account will be re-authenticated the next time you upload a file.");
+				$self->{_links}{'status'} = $self->{_box}->error.": ".$d->get("Maybe you or Dropbox revoked or expired an access token. Please close this dialog and try again. Your account will be re-authenticated the next time you upload a file.");
 			}
 		}
 	};
