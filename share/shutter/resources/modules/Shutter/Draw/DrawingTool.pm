@@ -6649,22 +6649,22 @@ sub import_from_filesystem {
 
         $menu_objects->append( Gtk2::SeparatorMenuItem->new );
 
-        #objects from icontheme
-        if ( Gtk2->CHECK_VERSION( 2, 12, 0 ) ) {
-            my $icontheme = Gtk2::IconTheme->get_default;
-
-            my $utheme_item = Gtk2::ImageMenuItem->new_with_label( $self->{_d}->get("Import from current theme...") );
-            $utheme_item->set( 'always_show_image' => TRUE ) if Gtk2->CHECK_VERSION( 2, 16, 0 );
-            if ( $icontheme->has_icon('preferences-desktop-theme') ) {
-                $utheme_item->set_image( Gtk2::Image->new_from_icon_name( 'preferences-desktop-theme', 'menu' ) );
-            }
-
-            $utheme_item->set_submenu( $self->import_from_utheme( $icontheme, $button ) );
-
-            $menu_objects->append($utheme_item);
-
-            $menu_objects->append( Gtk2::SeparatorMenuItem->new );
-        }
+        #~ #objects from icontheme
+        #~ if ( Gtk2->CHECK_VERSION( 2, 12, 0 ) ) {
+            #~ my $icontheme = Gtk2::IconTheme->get_default;
+#~ 
+            #~ my $utheme_item = Gtk2::ImageMenuItem->new_with_label( $self->{_d}->get("Import from current theme...") );
+            #~ $utheme_item->set( 'always_show_image' => TRUE ) if Gtk2->CHECK_VERSION( 2, 16, 0 );
+            #~ if ( $icontheme->has_icon('preferences-desktop-theme') ) {
+                #~ $utheme_item->set_image( Gtk2::Image->new_from_icon_name( 'preferences-desktop-theme', 'menu' ) );
+            #~ }
+#~ 
+            #~ $utheme_item->set_submenu( $self->import_from_utheme( $icontheme, $button ) );
+#~ 
+            #~ $menu_objects->append($utheme_item);
+#~ 
+            #~ $menu_objects->append( Gtk2::SeparatorMenuItem->new );
+        #~ }
 
         #objects from session
         my $session_menu_item = Gtk2::ImageMenuItem->new_with_label( $self->{_d}->get("Import from session...") );
