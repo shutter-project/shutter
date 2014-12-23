@@ -8,7 +8,7 @@ use Net::OAuth;
 use URI;
 use URI::Escape;
 
-our $VERSION = '1.21';
+our $VERSION = '1.22';
 
 my $request_token_url = 'https://api.dropbox.com/1/oauth/request_token';
 my $access_token_url = 'https://api.dropbox.com/1/oauth/access_token';
@@ -392,6 +392,10 @@ sub delete {
 
 # private
 
+sub parse_error ($) {
+    eval { decode_json($_[0])->{error} } || $_[0];
+}
+
 sub api {
     my ($self, $args) = @_;
 
@@ -403,11 +407,27 @@ sub api {
 
     return $self->api_lwp($args) if $WebService::Dropbox::USE_LWP;
 
-    my ($minor_version, $code, $msg, $headers, $body) = $self->furl->request(%$args);
+    if (my $write_file = delete $args->{write_file}) {
+        $args->{write_code} = sub {
+            $write_file->print($_[3]);
+        };
+    }
+    if (my $write_code = delete $args->{write_code}) {
+        $args->{write_code} = sub {
+            if ($_[0] =~ qr{ \A 2 }xms) {
+                $write_code->(@_);
+            } else {
+                $self->error(parse_error($_[3]));
+            }
+        };
+    }
 
+    my ($minor_version, $code, $msg, $headers, $body) = $self->furl->request(%$args);
     $self->code($code);
-    if ($code != 200) {
-        $self->error($body);
+    if ($code !~ qr{ \A 2 }xms) {
+        unless ($self->error) {
+            $self->error($body || $msg);
+        }
         return;
     } else {
         $self->error(undef);
@@ -457,7 +477,7 @@ sub api_lwp {
     if ($res->is_success) {
         $self->error(undef);
     } else {
-        $self->error($res->decoded_content);
+        $self->error(parse_error($res->decoded_content));
     }
     return $res->decoded_content;
 }
