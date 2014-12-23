@@ -1,4 +1,4 @@
-# Copyright 2011 Kevin Ryde
+# Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 # This file is part of X11-Protocol-Other.
 #
@@ -22,101 +22,124 @@ use strict;
 use Carp;
 
 use vars '$VERSION', '@CARP_NOT';
-$VERSION = 9;
+$VERSION = 29;
 @CARP_NOT = ('X11::Protocol');
 
 # uncomment this to run the ### lines
-#use Smart::Comments;
+# use Smart::Comments;
 
 # /usr/share/doc/x11proto-fixes-dev/fixesproto.txt.gz
 #     http://cgit.freedesktop.org/xorg/proto/fixesproto/tree/fixesproto.txt
-#
-# /usr/include/X11/extensions/Xfixes.h
 # /usr/include/X11/extensions/xfixesproto.h
 # /usr/include/X11/extensions/xfixeswire.h
 #
 # /usr/share/doc/x11proto-xext-dev/shape.txt.gz
+#
+# /usr/include/X11/extensions/Xfixes.h
+#     Xlib.
+#
+# /usr/share/doc/x11proto-core-dev/x11protocol.txt.gz
 
-### XFIXES.pm loads
 
 # these not documented yet ...
-use constant CLIENT_MAJOR_VERSION => 4;
+use constant CLIENT_MAJOR_VERSION => 5;
 use constant CLIENT_MINOR_VERSION => 0;
 
 
 #------------------------------------------------------------------------------
 # symbolic constants
 
-my %const_arrays
-  = (
-     XFixesWindowRegionKind => ['Bounding', 'Clip'],
-     XFixesSaveSetMode      => ['Insert', 'Delete'],
-     XFixesSaveSetTarget    => ['Nearest', 'Root'],
-     XFixesSaveSetMap       => ['Map', 'Unmap'],
+use constant constants_list =>
+  (XFixesWindowRegionKind => ['Bounding', 'Clip'],
+   XFixesSaveSetMode      => ['Insert', 'Delete'],
+   XFixesSaveSetTarget    => ['Nearest', 'Root'],
+   XFixesSaveSetMap       => ['Map', 'Unmap'],
 
-     XFixesSelectionNotifySubtype => [ 'SetSelectionOwner',
-                                       'SelectionWindowDestroy',
-                                       'SelectionClientClose' ],
-     XFixesCursorNotifySubtype => [ 'DisplayCursor' ],
+   XFixesSelectionNotifySubtype => [ 'SetSelectionOwner',
+                                     'SelectionWindowDestroy',
+                                     'SelectionClientClose' ],
+   XFixesCursorNotifySubtype => [ 'DisplayCursor' ],
 
-     # Not sure about these two ...
-     # XFixesSelectionEventMask => [ 'SetSelectionOwner',
-     #                               'SelectionWindowDestroy',
-     #                               'SelectionClientClose' ],
-     # XFixesCursorEventMask     => [ 'DisplayCursor' ],
-    );
+   # Not sure about these two ...
+   # XFixesSelectionEventMask => [ 'SetSelectionOwner',
+   #                               'SelectionWindowDestroy',
+   #                               'SelectionClientClose' ],
+   # XFixesCursorEventMask     => [ 'DisplayCursor' ],
+  );
 
-my %const_hashes
-  = (map { $_ => { X11::Protocol::make_num_hash($const_arrays{$_}) } }
-     keys %const_arrays);
+sub _ext_constants_install {
+  my ($X, $constants_arrayref) = @_;
+  foreach (my $i = 0; $i <= $#$constants_arrayref; $i+=2) {
+    my $name = $constants_arrayref->[$i];
+    my $aref = $constants_arrayref->[$i+1];
+    $X->{'ext_const'}->{$name} = $aref;
+    $X->{'ext_const_num'}->{$name} = { X11::Protocol::make_num_hash($aref) };
+  }
+}
 
 #------------------------------------------------------------------------------
 # events
 
-my $XFixesSelectionNotify_event = [ 'xCxxL5',
-                                    ['subtype','XFixesSelectionNotifySubtype'],
-                                    'window',
-                                    ['owner',['None']], # window
-                                    'selection',        # atom
-                                    'time',
-                                    'selection_time',
-                                  ];
+my $events_arrayref
+  = [ XFixesSelectionNotify =>
+      [ 'xCxxL5',
+        ['subtype','XFixesSelectionNotifySubtype'],
+        'window',
+        ['owner',['None']], # window
+        'selection',        # atom
+        'time',
+        'selection_time',
+      ],
 
-my $XFixesCursorNotify_event
-  = [ sub {
-        my $X = shift;
-        my $data = shift;
-        ### XFixesCursorNotify unpack: @_
-        my ($subtype, $window, $cursor_serial, $time, $cursor_name)
-          = unpack 'xCxxL4', $data;
-        return (@_,  # base fields
-                subtype => $X->interp('XFixesCursorNotifySubtype',$subtype),
-                window  => _interp_none($X,$window), # probably not None though
-                cursor_serial => $cursor_serial,
-                time    => _interp_time($time),
-                # "name" field only in XFIXES 2.0 up, probably pad garbage
-                # in 1.0, so omit there.  Give it as "cursor_name" since
-                # plain "name" is the event name.
-                ($X->{'ext'}->{'XFIXES'}->[3]->{'major'} >= 2
-                 ? (cursor_name => $cursor_name)
-                 : ()));
-      },
-      sub {
-        my ($X, %h) = @_;
-        # "cursor_name" can be omitted as for a 1.0 event
-        return (pack('xCxxL4x12',
-                     $X->num('XFixesCursorNotifySubtype',$h{'subtype'}),
-                     _num_none($h{'window'}),
-                     $h{'cursor_serial'},
-                     _num_time($h{'time'}),
-                     _num_none($h{'cursor_name'} || 0)),
-                1); # "do_seq" put in sequence number
-      } ];
+      XFixesCursorNotify =>
+      [ sub {
+          my $X = shift;
+          my $data = shift;
+          ### XFixesCursorNotify unpack: @_
+          my ($subtype, $window, $cursor_serial, $time, $cursor_name)
+            = unpack 'xCxxL4', $data;
+          return (@_,  # base fields
+                  subtype => $X->interp('XFixesCursorNotifySubtype',$subtype),
+                  window  => _interp_none($X,$window), # probably not None though
+                  cursor_serial => $cursor_serial,
+                  time    => _interp_time($time),
+                  # "name" field only in XFIXES 2.0 up, probably pad garbage
+                  # in 1.0, so omit there.  Give it as "cursor_name" since
+                  # plain "name" is the event name.
+                  ($X->{'ext'}->{'XFIXES'}->[3]->{'major'} >= 2
+                   ? (cursor_name => $cursor_name)
+                   : ()));
+        },
+        sub {
+          my ($X, %h) = @_;
+          # "cursor_name" can be omitted as for a 1.0 event
+          return (pack('xCxxL4x12',
+                       $X->num('XFixesCursorNotifySubtype',$h{'subtype'}),
+                       _num_none($h{'window'}),
+                       $h{'cursor_serial'},
+                       _num_time($h{'time'}),
+                       _num_none($h{'cursor_name'} || 0)),
+                  1); # "do_seq" put in sequence number
+        } ],
+    ];
+
+sub _ext_events_install {
+  my ($X, $event_num, $events_arrayref) = @_;
+  foreach (my $i = 0; $i <= $#$events_arrayref; $i+=2) {
+    my $name = $events_arrayref->[$i];
+    if (defined (my $already = $X->{'ext_const'}->{'Events'}->[$event_num])) {
+      carp "Event $event_num $already overwritten with $name";
+    }
+    $X->{'ext_const'}->{'Events'}->[$event_num] = $name;
+    $X->{'ext_events'}->[$event_num] = $events_arrayref->[$i+1]; # pack/unpack
+    $event_num++;
+  }
+}
 
 #------------------------------------------------------------------------------
 # requests
 
-my $reqs =
+my $requests_arrayref =
   [
    [ 'XFixesQueryVersion',  # 0
      sub {
@@ -321,44 +344,48 @@ my $reqs =
    #---------------------------------------------------------------------------
    # version 5.0
 
-   # untested, and not sure about how to take the directions arg
-   #
-   # ['XFixesCreatePointerBarrier',  # 31
-   #  sub {
-   #    my ($X, $barrier, $drawable, $x1,$y1, $x2,$y2, $directions,
-   #        @devices) = @_;
-   #    my $devices = pack 'S*', map{_num_xinputdevice($_)} @devices;
-   #    return pack ('LLssLxx'.padding($devices),
-   #                 $barrier,             # CARD32
-   #                 $drawable,            # CARD32
-   #                 $x1,$y1, $x2,$y2,     # INT16
-   #                 $X->num('XFixesBarrierDirections',$directions), # CARD32
-   #                 # pad16
-   #                 scalar(@devices),     # CARD16
-   #                 $devices);            # stringized
-   #  }],
-   # 
-   # ['XFixesDestroyPointerBarrier',  # 32
-   #  \&_request_xids ],
+   ['XFixesCreatePointerBarrier',  # 31
+    sub {
+      my ($X, $barrier, $drawable, $x1,$y1, $x2,$y2, $directions,
+          @devices) = @_;
+      my $devices = pack 'S*', map{_num_xinputdevice($_)} @devices;
+      ### @devices
+      ### $devices
+      ### format: 'LLssssLxxS'.padded($devices)
+      return pack ('LLssssLxxS'.padded($devices),
+                   $barrier,             # CARD32
+                   $drawable,            # CARD32
+                   $x1,$y1, $x2,$y2,     # INT16 x 4
+                   $directions,          # CARD32
+                   scalar(@devices),     # CARD16 num_devices
+                   $devices);            # packed CARD16s
+    }],
+
+   ['XFixesDestroyPointerBarrier',  # 32
+    \&_request_xids ],  # ($X, $barrier)  single barrier to destroy
   ];
+
+sub _ext_requests_install {
+  my ($X, $request_num, $requests_arrayref) = @_;
+
+  $X->{'ext_request'}->{$request_num} = $requests_arrayref;
+  my $href = $X->{'ext_request_num'};
+  my $i;
+  foreach $i (0 .. $#$requests_arrayref) {
+    $href->{$requests_arrayref->[$i]->[0]} = [$request_num, $i];
+  }
+}
+
+#------------------------------------------------------------------------------
 
 sub new {
   my ($class, $X, $request_num, $event_num, $error_num) = @_;
   ### XFIXES new()
 
-  # Constants
-  %{$X->{'ext_const'}}     = (%{$X->{'ext_const'}     ||= {}}, %const_arrays);
-  %{$X->{'ext_const_num'}} = (%{$X->{'ext_const_num'} ||= {}}, %const_hashes);
-
-  # Events
-  $X->{'ext_const'}{'Events'}[$event_num] = 'XFixesSelectionNotify';
-  $X->{'ext_events'}[$event_num] = $XFixesSelectionNotify_event;
-  $event_num++;
-  $X->{'ext_const'}{'Events'}[$event_num] = 'XFixesCursorNotify';
-  $X->{'ext_events'}[$event_num] = $XFixesCursorNotify_event;
-
-  # Requests
-  _ext_requests_install ($X, $request_num, $reqs);
+  my $self = bless { }, $class;
+  _ext_constants_install ($X, [ $self->constants_list ]);
+  _ext_requests_install ($X, $request_num, $requests_arrayref);
+  _ext_events_install ($X, $event_num, $events_arrayref);
 
   # the protocol spec says must query version with what we support
   # need it to know which error types are defined too, as otherwise oughtn't
@@ -366,17 +393,17 @@ sub new {
   my ($server_major, $server_minor)
     = $X->req ('XFixesQueryVersion',
                CLIENT_MAJOR_VERSION, CLIENT_MINOR_VERSION);
+  $self->{'major'} = $server_major;
+  $self->{'minor'} = $server_minor;
 
   # Errors
-  _ext_const_error_install ($X, $error_num,
-                            # version 2.0
-                            ($server_major >= 2 ? ('Region') : ()),
-                            # version 5.0
-                            ($server_major >= 5 ? ('Barrier') : ()));
+  _ext_error_install ($X, $error_num,
+                      # version 2.0
+                      ($server_major >= 2 ? ('Region') : ()),
+                      # version 5.0
+                      ($server_major >= 5 ? ('Barrier') : ()));
 
-  return bless { major => $server_major,
-                 minor => $server_minor,
-               }, $class;
+  return $self;
 }
 
 sub _request_empty {
@@ -455,19 +482,9 @@ sub _num_xinputdevice {
   return $device;
 }
 
-sub _ext_requests_install {
-  my ($X, $request_num, $reqs) = @_;
-
-  $X->{'ext_request'}->{$request_num} = $reqs;
-  my $href = $X->{'ext_request_num'};
-  my $i;
-  foreach $i (0 .. $#$reqs) {
-    $href->{$reqs->[$i]->[0]} = [$request_num, $i];
-  }
-}
-sub _ext_const_error_install {
-  my $X = shift;
-  ### _ext_const_error_install: @_
+sub _ext_error_install {
+  my $X = shift;  # ($X, $errname1,$errname2,...)
+  ### _ext_error_install: @_
   my $error_num = shift;
   my $aref = $X->{'ext_const'}{'Error'}  # copy
     = [ @{$X->{'ext_const'}{'Error'} || []} ];
@@ -483,7 +500,7 @@ sub _ext_const_error_install {
 1;
 __END__
 
-=for stopwords XFIXES XID reparent Unmap arrayref AARRGGBB GG pre-multiplied pixmap RENDER ShapeKind subwindow Ryde hotspot ARGB GC ie latin-1 DisplayCursor RGB bitmask XIDs YX-banded
+=for stopwords XFIXES XID reparent Unmap arrayref AARRGGBB GG pre-multiplied pixmap RENDER ShapeKind subwindow Ryde hotspot ARGB GC ie latin-1 DisplayCursor RGB bitmask XIDs YX-banded subtypes XTEST Xvfb xdm Xlib Xinerama subtype
 
 =head1 NAME
 
@@ -498,7 +515,7 @@ X11::Protocol::Ext::XFIXES - miscellaneous "fixes" extension
 
 =head1 DESCRIPTION
 
-The XFIXES extension adds some extra features conceived as "fixing"
+The XFIXES extension adds some features which are conceived as "fixing"
 omissions in the core X11 protocol, including
 
 =over
@@ -509,8 +526,8 @@ Events for changes to the selection (the cut and paste between clients).
 
 =item *
 
-Current cursor image fetching, events for cursor change, and cursor naming
-and hiding.
+Current cursor image fetching, cursor change events, and cursor naming and
+hiding.
 
 =item *
 
@@ -538,23 +555,23 @@ might be less than requested (but not more than).
 
 The current code in this module supports up to 4.0 and automatically
 negotiates within C<init_extension()>, so direct use of
-C<XFixesQueryVersion> is not necessary.  Asking for higher than the code
+C<XFixesQueryVersion()> is not necessary.  Asking for higher than the code
 supports might be a bad idea.
 
 =item C<($atom, $str) = $X-E<gt>XFixesChangeSaveSet ($window, $mode, $target, $map)>
 
 Insert or delete C<$window> (an XID) from the "save set" of resources to be
 retained on the server when the client disconnects.  This is an extended
-version of the core C<ChangeSaveSet> request.
+version of the core C<ChangeSaveSet()> request.
 
 C<$mode> is either "Insert" or "Delete".
 
 C<$target> is how to reparent C<$window> on client close-down, either
-"Nearest" or "Root".  The core C<ChangeSaveSet> is "Nearest" and means go to
-the next non-client ancestor window.  "Root" means go to the root window.
+"Nearest" or "Root".  The core C<ChangeSaveSet()> is "Nearest" and means go
+to the next non-client ancestor window.  "Root" means go to the root window.
 
 C<$map> is either "Map" or "Unmap" to apply to C<$window> on close-down.
-The core C<ChangeSaveSet> is "Map".
+The core C<ChangeSaveSet()> is "Map".
 
 =item $X-E<gt>XFixesSelectSelectionInput ($window, $selection, $event_mask)>
 
@@ -579,6 +596,9 @@ C<$event_mask> has three bits for which event subtypes should be reported.
 There's no pack function for these yet so just give an integer, for instance
 0x07 for all three.
 
+See F<examples/xfixes-selection.pl> for a sample program listening to
+selection changes with this request.
+
 =item $X-E<gt>XFixesSelectCursorInput ($window, $event_mask)>
 
 Select C<XFixesCursorNotify> events (see L</"EVENTS"> below) to be sent to
@@ -601,46 +621,60 @@ Return the size and pixel contents of the currently displayed mouse pointer
 cursor.
 
 C<$root_x>,C<$root_y> is the pointer location in root window coordinates
-(similar to C<QueryPointer>).
+(similar to C<QueryPointer()>).
 
 C<$width>,C<$height> is the size of the cursor image.  C<$xhot>,C<$yhot> is
 the "hotspot" position within that, which is the pixel that follows the
 pointer location.
 
 C<$pixels> is a byte string of packed "ARGB" pixel values.  Each is 32-bits
-in client byte order, with C<$width> many for each row and C<$height> such
-rows, no padding in between, for a total C<4*$width*$height> bytes.  This
+in client byte order, with C<$width> many in each row and C<$height> such
+rows and no padding in between, so a total C<4*$width*$height> bytes.  This
 can be unpacked with for instance
 
     my @argb = unpack 'L*', $pixels; # each 0xAARRGGBB
 
     # top left pixel is in $argb[0]
-    my $blue  =  $argb[0]        & 0xFF;  # 0 to 255
-    my $green = ($argb[0] >> 8)  & 0xFF;  # components
-    my $red   = ($argb[0] >> 16) & 0xFF;
-    my $alpha = ($argb[0] >> 24) & 0xFF;
+    my $alpha = ($argb[0] >> 24) & 0xFF;  # each value
+    my $red   = ($argb[0] >> 16) & 0xFF;  # 0 to 255
+    my $green = ($argb[0] >> 8)  & 0xFF;
+    my $blue  =  $argb[0]        & 0xFF;
 
 The alpha transparency is pre-multiplied into the RGB components, so if the
 alpha is zero (transparent) then the components are zero too.
 
-The core C<CreateCursor> bitmask makes only alpha=0 full-transparent or
-alpha=255 full-opaque pixels.  The RENDER extension (see
+The core C<CreateCursor()> bitmask always makes alpha=0 transparent or
+alpha=255 opaque pixels.  The RENDER extension (see
 L<X11::Protocol::Ext::RENDER>) can make partially transparent cursors.
 
-There's no direct way to get the image of a cursor by its XID (beyond
-something dodgy like a C<GrabPointer> to make it the displayed cursor).
-Usually cursor XIDs are only ever created by a client itself (they can't be
-read back out of an arbitrary window for instance) so no need to read back.
+There's no direct way to get the image of a cursor by its XID (except
+something dodgy like a C<GrabPointer()> to make it the displayed cursor).
+Usually cursor XIDs are only ever created by a client itself so no need to
+read back (and the cursor XID can't be read out of an arbitrary window --
+though the XTEST extension can do some comparing, per
+L<X11::Protocol::Ext::XTEST>).
+
+For reference, in the X.org server circa version 1.11, the server may start
+up with no cursor at all, and when that happens an attempt to
+C<XFixesGetCursorImage()> gives a "Cursor" error.  In practice this probably
+only happens using a bare Xvfb or similar, since in normal use xdm or the
+window manager will almost certainly have set a cursor.
+
+See F<examples/xfixes-cursor-image.pl> in the X11-Protocol-Other sources for
+a sample program getting the cursor image with this request.
 
 =back
 
 =head2 XFIXES version 2.0
 
 A region object on the server represents a set of rectangles, each
-x,y,width,height, with positive or negative x,y, and the set possibly in
-disconnected sections, etc.  Since a rectangle might be simply 1x1 it can
-represent any bitmap, but is geared towards the sort or rectangle arithmetic
-arising from overlapping rectangular window areas etc.
+x,y,width,height, with positive or negative x,y, and the set possibly made
+of disconnected sections, etc.  (Basically a server-side copy of the Xlib
+region code, see L<XCreateRegion(3)>.)
+
+Each rectangle might be just 1x1 for a single pixel, so a region can
+represent any bitmap, but it's geared towards the sort of rectangle
+arithmetic which arises from overlapping rectangular windows etc.
 
 =over
 
@@ -669,9 +703,9 @@ L<X11::Protocol::Ext::SHAPE>).
     my $region = $X->new_rsrc;
     $X->XFixesCreateRegionFromBitmap ($region, $window, 'Clip');
 
-It's not necessary to C<$X-E<gt>init_extension('SHAPE')> before using this
-request, the shape as such is just on the server and results in whatever
-rectangular or non-rectangular C<$region>.
+There's no need to C<$X-E<gt>init_extension('SHAPE')> before using this
+request.  Any shape is just on the server and results in a C<$region> of
+either a single rectangle or set of rectangles for a shape.
 
 =item C<$X-E<gt>XFixesCreateRegionFromGC ($region, $gc)>
 
@@ -705,7 +739,7 @@ Destroy C<$region>.
 
 Set C<$region> to the union of the given rectangles, or empty if none.  Each
 C<$rect> is an arrayref C<[$x,$y,$width,$height]>, as per
-C<XFixesCreateRegion> above.
+C<XFixesCreateRegion()> above.
 
     $X->XFixesSetRegion ($region, [0,0,20,10], [100,100,5,5])
 
@@ -765,7 +799,7 @@ making up the region, in "YX-banded" order.
 Set the clip mask of C<$gc> (an XID) to C<$region> (an XID), and set the
 clip origin to C<$clip_x_origin>,C<$clip_x_origin>.
 
-This is similar to the core C<SetClipRectangles>, but the rectangles are
+This is similar to the core C<SetClipRectangles()>, but the rectangles are
 from C<$region> (and no "ordering" parameter).
 
 =item C<$X-E<gt>XFixesSetWindowShapeRegion ($window, $kind, $x_offset, $y_offset, $region)>
@@ -778,16 +812,16 @@ This is similar to C<ShapeMask()> (see L<X11::Protocol::Ext::SHAPE>) with
 operation "Set" and a a region instead of a bitmap.
 
 It's not necessary to C<$X-E<gt>init_extension('SHAPE')> before using this
-request.  If SHAPE is not available at all on the server then presumably
-this request gives an error reply.
+request.  If SHAPE is not available on the server then presumably this
+request gives an error reply.
 
 =item C<$X-E<gt>XFixesSetPictureClipRegion ($picture, $clip_x_origin, $clip_y_origin, $region)>
 
 Set the clip mask of RENDER C<$picture> (an XID) to C<$region>, and set the
 clip origin to C<$clip_x_origin>,C<$clip_x_origin>.
 
-This is similar to C<RenderSetPictureClipRectangles>, but the rectangles are
-from C<$region>.
+This is similar to C<RenderSetPictureClipRectangles()>, but the rectangles
+are from C<$region>.
 
 Picture objects are from the RENDER extension (see
 L<X11::Protocol::Ext::RENDER>).  The request always exists, but is not useful
@@ -796,14 +830,14 @@ without RENDER.
 =item C<$X-E<gt>XFixesSetCursorName ($cursor, $str)>
 
 Set a name for cursor object C<$cursor> (an XID).  The name string C<$str>
-is interned as an atom within the server and therefore should consist only
-of latin-1 characters.  (Perhaps in the future that might be enforced here,
-or wide chars converted.)
+is interned as an atom in the server and therefore should consist only of
+latin-1 characters.  (Perhaps in the future that might be enforced here, or
+wide chars converted.)
 
 =item C<($atom, $str) = $X-E<gt>XFixesGetCursorName ($cursor)>
 
 Get the name of mouse pointer cursor C<$cursor> (an XID), as set by
-C<XFixesSetCursorName>.
+C<XFixesSetCursorName()>.
 
 The returned C<$atom> is the name atom (an integer) and C<$str> is the name
 string (which is the atom's name).  If there's no name for C<$cursor> then
@@ -813,7 +847,7 @@ is empty "".
 =item C<($x,$y, $width,$height, $xhot,$yhot, $serial, $pixels, $atom, $str) = $X-E<gt>XFixesGetCursorImageAndName ()>
 
 Get the image and name of the current mouse pointer cursor.  The return is
-per C<XFixesGetCursorImage> plus C<XFixesGetCursorName> described above.
+per C<XFixesGetCursorImage()> plus C<XFixesGetCursorName()> described above.
 
 =item C<$X-E<gt>XFixesChangeCursor ($src, $dst)>
 
@@ -838,8 +872,8 @@ Set region C<$dst> (an XID) to the rectangles of region C<$src>, with each
 rectangle expanded by C<$left>, C<$right>, C<$top>, C<$bottom> many pixels
 in those respective directions.
 
-It doesn't matter how C<$src> is expressed as rectangles, the effect is as
-if each pixel in C<$src> was individually expanded and the union of the
+Notice it doesn't matter how C<$src> is expressed as rectangles, the effect
+is as if each individual pixel in C<$src> was expanded and the union of the
 result taken.
 
 =back
@@ -855,16 +889,86 @@ result taken.
 Hide or show the mouse pointer cursor while it's in C<$window> (an XID) or
 any subwindow of C<$window>.
 
-This hide/show for each window is a per-client setting.  If more than one
+This hiding for each window is a per-client setting.  If more than one
 client requests hiding then the cursor remains hidden until all of them
-"show" again.  If a client disconnects or is killed then any hides it has
-are undone.
+"show" again.  If a client disconnects or is killed then its hides are
+automatically undone.
 
 =back
 
 =head2 XFIXES version 5.0
 
-Code waiting to be tested!
+=over
+
+=item C<$X-E<gt>XFixesCreatePointerBarrier ($barrier, $drawable, $x1,$y1, $x2,$y2, $directions)>
+
+=item C<$X-E<gt>XFixesCreatePointerBarrier ($barrier, $drawable, $x1,$y1, $x2,$y2, $directions, $deviceid...)>
+
+Create C<$barrier> (a new XID) as a barrier object which prevents user mouse
+pointer movement across a line between points C<$x1,$y1> and C<$x2,$y2>.
+For example
+
+    my $barrier = $X->new_rsrc;
+    $X->XFixesCreatePointerBarrier ($barrier, $X->root,
+                                    100,100, 100,500,
+                                    0);
+
+X,Y coordinates are screen coordinates on the screen of C<$drawable>.  The
+line must be horizontal or vertical, so either C<$x1==$x2> or C<$y1==$y2>
+(but not both).  A horizontal barrier is across the top edge of the line
+pixels, a vertical barrier is along the left edge of the line pixels.
+
+C<$directions> is an integer OR of the follow bits for which directions to
+allow some movement across the line.  A value 0 means no movement across is
+allowed.
+
+    PositiveX    1
+    PositiveY    2
+    NegativeX    4
+    NegativeY    8
+
+For example on a horizontal line, value 8 would allow the pointer to move
+through the line in the negative Y direction (up the screen), and movement
+in the positive Y direction (down the screen) would still be forbidden.
+
+C<$directions> can let the user move the mouse out of some sort of forbidden
+region but not go back in.
+
+Optional C<$deviceid> arguments are X Input Extension 2.0 devices the
+barrier should apply to (see L<X11::Protocol::Ext::XInputExtension>).  With
+no arguments the barrier is just for the core protocol mouse pointer.  Each
+argument can be
+
+    device ID                integer
+    "AllDevices"             enum string, 0
+    "AllMasterDevices"       enum string, 1
+
+It's not necessary to C<$X-E<gt>init_extension('XInputExtension')> before
+using this request.
+
+The user can move the mouse pointer to go around a barrier line but by
+putting lines together a region can be constructed keeping the pointer
+inside or outside, or even making a maze to trick the user!
+
+Touchscreen pad input is not affected by barriers, and
+C<$X-E<gt>WarpPointer()> can still move the pointer anywhere.
+
+One intended use is when a Xinerama screen (see
+L<X11::Protocol::Ext::XINERAMA>) is made from monitors of different pixel
+sizes so parts of the logical screen extent are off the edge of one of the
+smaller monitors.  Barriers can prevent the user losing the mouse in one of
+those dead regions.
+
+For reference, some X.org server versions prior to some time around version
+1.14 did not accept C<$deviceid> arguments in the request and gave a
+C<Length> error on attempting to pass them.  Those servers might have given
+an C<Implementation> error anyway (for barrier feature not yet implemented).
+
+=item C<$X-E<gt>XFixesDestroyPointerBarrier ($barrier)>
+
+Destroy the given barrier (an XID).
+
+=back
 
 =head1 EVENTS
 
@@ -900,30 +1004,35 @@ selection was owned.
 
 =item C<XFixesCursorNotify>
 
-This is sent to the client when selected by C<XFixesSelectCursorInput>
-above.  It reports when the mouse pointer cursor displayed has changed.  It
-has the following event-specific fields,
+This is sent to the client when selected by C<XFixesSelectCursorInput()>
+above.  It reports when the currently displayed mouse pointer cursor has
+changed.  It has the following event-specific fields,
 
     subtype         enum string, currently always "DisplayCursor"
     window          XID
     cursor_serial   integer
     time            integer, server timestamp
-    cursor_name     atom or "None", XFIXES 2.0 up
+    cursor_name     atom or "None" (XFIXES 2.0 up)
 
 C<subtype> is "DisplayCursor" when the displayed cursor has changed.  This
 is the only subtype currently.
 
-C<cursor_serial> is a serial number as per C<XFixesGetCursorImage>.
-A client can use this to notice when the cursor changes to something it
-already fetched with C<XFixesGetCursorImage>.
+C<cursor_serial> is a serial number as per C<XFixesGetCursorImage()>.
+A client can use this to notice when the displayed cursor is something it
+has already fetched with C<XFixesGetCursorImage()>.
 
-C<cursor_name> is the atom of the name given to cursor by
-C<XFixesSetCursorName>, or string "None" if no name.  This is new in XFIXES
-2.0 and is in event unpack only if the server does XFIXES 2.0 or higher.  In
-an C<$X-E<gt>pack_event()> re-pack, C<cursor_name> is optional and the field
-set if given.
+C<cursor_name> is the atom of the name given to the cursor by
+C<XFixesSetCursorName>, or string "None" if no name.  This field is new in
+XFIXES 2.0 and is present in the event unpack only if the server does XFIXES
+2.0 or higher.  For C<$X-E<gt>pack_event()>, C<cursor_name> is optional and
+the field is set if given.
 
 =back
+
+=head1 ERRORS
+
+Error type "Region" is a bad C<$region> resource XID in a request (XFIXES
+2.0 up).
 
 =head1 SEE ALSO
 
@@ -931,13 +1040,15 @@ L<X11::Protocol>,
 L<X11::Protocol::Ext::SHAPE>,
 L<X11::Protocol::Ext::RENDER>
 
+F</usr/share/doc/x11proto-fixes-dev/fixesproto.txt.gz>
+
 =head1 HOME PAGE
 
-http://user42.tuxfamily.org/x11-protocol-other/index.html
+L<http://user42.tuxfamily.org/x11-protocol-other/index.html>
 
 =head1 LICENSE
 
-Copyright 2011 Kevin Ryde
+Copyright 2011, 2012, 2013, 2014 Kevin Ryde
 
 X11-Protocol-Other is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by the
@@ -953,52 +1064,3 @@ You should have received a copy of the GNU General Public License along with
 X11-Protocol-Other.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-
-
-
-
-
-# =head2 XFIXES version 5.0
-# 
-# =over
-# 
-# =item C<$X-E<gt>XFixesCreatePointerBarrier ($barrier, $drawable, $x1,$y1, $x2,$y2, $directions, $device...)>
-# 
-# Create C<$barrier> (a new XID) as a barrier object which prevents user mouse
-# pointer movement across a line between C<$x1,$y1> and C<$x2,$y2>.
-# 
-#     my $barrier = $X->new_rsrc;
-#     $X->XFixesCreatePointerBarrier ($barrier, $X->root,
-#                                     100,100, 100,500,
-#                                     ['PositiveY','NegativeY']);
-# 
-# The line must be horizontal or vertical, so either C<$x1==$x2> or
-# C<$y1==$y2>.  A horizontal barrier is across the top edge of the line
-# pixels, a vertical barrier is along the left edge of the line.
-# 
-# C<$directions> is an arrayref list of strings
-# 
-#     PositiveX
-#     PositiveY
-#     NegativeX
-#     NegativeY 
-# 
-# C<$device> parameters are optional.  If the X Input Extension 2.0 is
-# available on the server (see L<X11::Protocol::Ext::XinputExtension>) then
-# the devices is a list of device IDs or "AllDevices" or "AllMasterDevices"
-# which the barrier should apply to.
-#
-# The user can move the mouse pointer to skirt around a barrier line, but by
-# putting lines together a region can be constructed keeping the pointer
-# inside or outside, or even making a maze to trick the user!
-# 
-# Touchscreen pad input is not affected by barriers, and
-# C<$X-E<gt>WarpPointer> can still move the pointer anywhere.
-# 
-# =item C<$X-E<gt>XFixesDestroyPointerBarrier ($barrier)>
-# 
-# Destroy the given barrier (an XID).
-# 
-# =back
-
