@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2012-07-30 01:07+0000\n"
-"Last-Translator: KimTaeBeom <jnuktb@gmail.com>\n"
+"PO-Revision-Date: 2013-11-24 03:37+0000\n"
+"Last-Translator: Litty <Unknown>\n"
 "Language-Team: Korean <ko@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-08-25 19:21+0000\n"
-"X-Generator: Launchpad (build 16738)\n"
+"X-Launchpad-Export-Date: 2014-12-23 22:44+0000\n"
+"X-Generator: Launchpad (build 17286)\n"
 
 #: translate_tmp.pl:476
 #: translate_tmp.pl:2590
@@ -67,7 +67,7 @@ msgstr "저장"
 
 #: translate_tmp.pl:972
 msgid "First-launch Behavior"
-msgstr ""
+msgstr "시작시 작동"
 
 #: translate_tmp.pl:979
 msgid "Window Preferences"
@@ -124,7 +124,7 @@ msgstr "투명한 부분"
 
 #: translate_tmp.pl:1070
 msgid "Session View"
-msgstr ""
+msgstr "세션 보기"
 
 #: translate_tmp.pl:1078
 #: translate_tmp.pl:1953
@@ -141,7 +141,7 @@ msgstr "미리 지정된 문자 %s 는 자료 이름으로 사용할 수 없습�
 
 #: translate_tmp.pl:1120
 msgid "There are several wildcards available, like\n"
-msgstr ""
+msgstr "몇가지 와일드카드가 사용 가능합니다,\n"
 
 #: translate_tmp.pl:1120
 msgid "%Y = year\n"
@@ -170,15 +170,15 @@ msgstr "$h = 높이\n"
 
 #: translate_tmp.pl:1120
 msgid "$name = multi-purpose (e.g. window title)\n"
-msgstr ""
+msgstr "$name = 다용도 (예:창 제목)\n"
 
 #: translate_tmp.pl:1120
 msgid "$nb_name = like $name but without blanks in resulting strings\n"
-msgstr ""
+msgstr "$nb_name = $name 과 비슷하나 공백없이\n"
 
 #: translate_tmp.pl:1120
 msgid "$profile = name of current profile\n"
-msgstr ""
+msgstr "$profile = 현재 프로필의 이름\n"
 
 #: translate_tmp.pl:1120
 msgid "$R = random char (e.g. $RRRR = ag4r)\n"
@@ -186,7 +186,7 @@ msgstr "$R = 무작위 문자 (예. $RRRR = ag4r)\n"
 
 #: translate_tmp.pl:1120
 msgid "%NN = counter"
-msgstr ""
+msgstr "%NN = 장수"
 
 #: translate_tmp.pl:1134
 #: translate_tmp.pl:2981
@@ -196,7 +196,7 @@ msgstr "압축"
 #: translate_tmp.pl:1143
 #: translate_tmp.pl:1144
 msgid "Adjust quality/compression value"
-msgstr ""
+msgstr "품질/압축률 조정"
 
 #: translate_tmp.pl:1232
 #: translate_tmp.pl:1233
@@ -218,7 +218,7 @@ msgstr "폴더 선택"
 #: translate_tmp.pl:1251
 #: translate_tmp.pl:1252
 msgid "Your screenshots will be saved to this directory"
-msgstr ""
+msgstr "스크린샷이 이 디랙토리에 저장될것 입니다."
 
 #: translate_tmp.pl:1261
 #: translate_tmp.pl:1264
@@ -266,7 +266,7 @@ msgstr[0] "초"
 
 #: translate_tmp.pl:1360
 msgid "Capture after a delay of"
-msgstr ""
+msgstr "지연 후 캡쳐"
 
 #: translate_tmp.pl:1375
 #: translate_tmp.pl:1376
@@ -295,7 +295,7 @@ msgstr "이 프로그램으로 열기"
 #: translate_tmp.pl:1460
 #: translate_tmp.pl:1461
 msgid "Open your screenshot with this program after capturing"
-msgstr ""
+msgstr "캡쳐후 이 프로그램으로 스크린샷 열기"
 
 #: translate_tmp.pl:1472
 msgid "16 colors   - (4bit) "
@@ -317,7 +317,7 @@ msgstr "색상 줄이기"
 #: translate_tmp.pl:1503
 #: translate_tmp.pl:1504
 msgid "Automatically reduce colors after taking a screenshot"
-msgstr ""
+msgstr "스크린샷을 찍을때 자동으로 색상수 감소시키기"
 
 #: translate_tmp.pl:1514
 msgid "Thumbnail"
@@ -335,7 +335,7 @@ msgstr ""
 
 #: translate_tmp.pl:1556
 msgid "Border"
-msgstr ""
+msgstr "테두리"
 
 #: translate_tmp.pl:1558
 #: translate_tmp.pl:1641
@@ -344,23 +344,23 @@ msgstr ""
 #: translate_tmp.pl:1871
 #: translate_tmp.pl:7233
 msgid "pixels"
-msgstr ""
+msgstr "픽셀"
 
 #: translate_tmp.pl:1560
 msgid "Color"
-msgstr ""
+msgstr "색"
 
 #: translate_tmp.pl:1563
 #: translate_tmp.pl:1569
 #: translate_tmp.pl:1570
 msgid "Choose border color"
-msgstr ""
+msgstr "테두리 색 선택"
 
 #: translate_tmp.pl:1565
 #: translate_tmp.pl:1566
 #: translate_tmp.pl:1567
 msgid "Adds a border effect to the screenshot"
-msgstr ""
+msgstr "스크린샷에 테두리효과 추가"
 
 #: translate_tmp.pl:1615
 #: translate_tmp.pl:1624
@@ -369,7 +369,7 @@ msgstr "확대창 사용"
 
 #: translate_tmp.pl:1633
 msgid "Start with selection size of"
-msgstr ""
+msgstr "정해진 크기로 시작"
 
 #: translate_tmp.pl:1635
 msgid "at"
@@ -386,24 +386,24 @@ msgstr ""
 #: translate_tmp.pl:1677
 #: translate_tmp.pl:1678
 msgid "Start Selection Tool with a customized selection size"
-msgstr ""
+msgstr "지정된 선택크기로 선택도구 시작"
 
 #: translate_tmp.pl:1696
 msgid "Show help text"
-msgstr ""
+msgstr "도움말 표시"
 
 #: translate_tmp.pl:1705
 msgid "Enables the help text"
-msgstr ""
+msgstr "도움말 활성화"
 
 #: translate_tmp.pl:1714
 #: translate_tmp.pl:1715
 msgid "Include window decoration when capturing a window"
-msgstr ""
+msgstr "창 캡쳐시 창 장식 포함"
 
 #: translate_tmp.pl:1733
 msgid "Automatically resize window to"
-msgstr ""
+msgstr "자동으로 창 크기 조절"
 
 #: translate_tmp.pl:1760
 #: translate_tmp.pl:1761
@@ -415,10 +415,12 @@ msgid ""
 "This method asks the window manager to resize the window. However, the "
 "window manager may not allow the resize."
 msgstr ""
+"정해진 너비, 높이에 맞추어 창 크기를 자동조절 합니다. 이 방법은 창관리자에게 크기조절을 요청하는데 창 관리자에서 거부될 수 도 "
+"있습니다."
 
 #: translate_tmp.pl:1777
 msgid "Force rounded window corners"
-msgstr ""
+msgstr "강제 창 구석 다듬기"
 
 #: translate_tmp.pl:1786
 #, perl-format
@@ -431,21 +433,25 @@ msgid ""
 "named ~/.shutter/shape.conf and put custom values in it. The default values "
 "are stored in %s."
 msgstr ""
+"셔터는 XShape 확장기능을 사용해 창의 모양을 확인합니다. 하지만 컴피즈 작동중 또는 몇몇 환경에서 작동하지 않습니다.\n"
+"\n"
+"이 옵션을 사용하면 고정된 창 구석 둥글기를 사용합니다. ~/.shutter/shape.conf 파일을 만들어서 기본변수를 변경할 수 "
+"있습니다. 기본값은 %s에 있습니다."
 
 #: translate_tmp.pl:1795
 #: translate_tmp.pl:1796
 msgid "Select only visible windows"
-msgstr ""
+msgstr "보이는 창만 선택"
 
 #: translate_tmp.pl:1813
 msgid "Pre-Capture Delay"
-msgstr ""
+msgstr "캡쳐 전 지연"
 
 #: translate_tmp.pl:1828
 #: translate_tmp.pl:1829
 #: translate_tmp.pl:1830
 msgid "Capture menu/tooltip after a delay of n seconds"
-msgstr ""
+msgstr "n 초 지연후 메뉴/툴팁 캡쳐"
 
 #: translate_tmp.pl:1841
 msgid "Ignore possibly wrong type hints"
@@ -461,21 +467,21 @@ msgstr ""
 
 #: translate_tmp.pl:1858
 msgid "Virtual browser width"
-msgstr ""
+msgstr "가상 브라우저 너비"
 
 #: translate_tmp.pl:1880
 #: translate_tmp.pl:1881
 #: translate_tmp.pl:1882
 msgid "Virtual browser width when taking a website screenshot"
-msgstr ""
+msgstr "웹사이트 스크린샷을 찍을때 가상 브라우저 너비"
 
 #: translate_tmp.pl:1893
 msgid "Show as check pattern"
-msgstr ""
+msgstr "체크무늬 보이기"
 
 #: translate_tmp.pl:1894
 msgid "Show as custom color:"
-msgstr ""
+msgstr "지정색으로 보이기:"
 
 #: translate_tmp.pl:1897
 #: translate_tmp.pl:459
@@ -486,26 +492,26 @@ msgstr "채우기 색상 선택"
 
 #: translate_tmp.pl:1899
 msgid "Show as background"
-msgstr ""
+msgstr "배경으로 보이기"
 
 #: translate_tmp.pl:1925
 msgid "Displays any transparent parts of the image in a check pattern"
-msgstr ""
+msgstr "이미지의 투명한 부분을 체크무늬로 나타내기"
 
 #: translate_tmp.pl:1926
 msgid ""
 "Displays any transparent parts of the image in a solid color that you specify"
-msgstr ""
+msgstr "이미지의 투명한 부분을 사용자가 지정한 단일색으로 나타내기"
 
 #: translate_tmp.pl:1927
 msgid ""
 "Displays any transparent parts of the image in the background color of the "
 "application"
-msgstr ""
+msgstr "이미지의 투명한 부분을 어플리케이션의 배경색으로 나타내기"
 
 #: translate_tmp.pl:1951
 msgid "Sort ascending by"
-msgstr ""
+msgstr "오름차순 정렬"
 
 #: translate_tmp.pl:1954
 #: translate_tmp.pl:1958
@@ -514,50 +520,49 @@ msgstr ""
 
 #: translate_tmp.pl:1955
 msgid "Sort descending by"
-msgstr ""
+msgstr "내림차순 정렬"
 
 #: translate_tmp.pl:2017
 #: translate_tmp.pl:2018
 #: translate_tmp.pl:2019
 #: translate_tmp.pl:2020
 msgid "Configure sort criteria"
-msgstr ""
+msgstr "환경설정 정렬 조건"
 
 #: translate_tmp.pl:2027
 #: translate_tmp.pl:2087
 msgid "Start Shutter at login"
-msgstr ""
+msgstr "로그인시 셔터 실행"
 
 #: translate_tmp.pl:2028
 #: translate_tmp.pl:2096
 msgid "Hide window on first launch"
-msgstr ""
+msgstr "시작시 창 숨김"
 
 #: translate_tmp.pl:2029
 #: translate_tmp.pl:2105
 msgid "Hide notification icon"
-msgstr ""
+msgstr "알림 아이콘 숨기기"
 
 #: translate_tmp.pl:2031
 #: translate_tmp.pl:2114
 msgid "Autohide main window when taking a screenshot"
-msgstr ""
+msgstr "스크린샷을 찍을때 메인 창 자동 숨기기"
 
 #: translate_tmp.pl:2032
 msgid "Redraw Delay"
-msgstr ""
+msgstr "다시 그리기 지연"
 
 #: translate_tmp.pl:2035
 #: translate_tmp.pl:2908
 msgid "millisecond"
 msgid_plural "milliseconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "밀리세컨드(1/1000초)"
 
 #: translate_tmp.pl:2041
 #: translate_tmp.pl:2141
 msgid "Present main window after taking a screenshot"
-msgstr ""
+msgstr "스크린샷후에 메인 창 나타내기"
 
 #: translate_tmp.pl:2042
 #: translate_tmp.pl:2187
@@ -567,44 +572,44 @@ msgstr "메인 창을 닫을 때 트레이 영역으로 최소화합니다."
 #: translate_tmp.pl:2044
 #: translate_tmp.pl:2150
 msgid "Display pop-up notification after taking a screenshot"
-msgstr ""
+msgstr "스크린샷 찍은후 알림 팝업 나타내기"
 
 #: translate_tmp.pl:2045
 #: translate_tmp.pl:2159
 #: translate_tmp.pl:2168
 msgid "Display pop-up notification when using a delay"
-msgstr ""
+msgstr "지연을 사용할때 알림 팝업 나타내기"
 
 #: translate_tmp.pl:2046
 msgid "Display pop-up notification when using a pre-capture delay"
-msgstr ""
+msgstr "캡쳐전 지연 사용시 알림 팝업 나타내기"
 
 #: translate_tmp.pl:2048
 msgid "Notification agent"
-msgstr ""
+msgstr "알림 에이전트"
 
 #: translate_tmp.pl:2050
 msgid "Desktop Notifications"
-msgstr ""
+msgstr "데스크탑 알림"
 
 #: translate_tmp.pl:2051
 msgid "Built-In Notifications"
-msgstr ""
+msgstr "빌트인 알림"
 
 #: translate_tmp.pl:2058
 #: translate_tmp.pl:2196
 msgid "Ask before moving files to trash"
-msgstr ""
+msgstr "파일을 휴지통으로 옴기기전 묻기"
 
 #: translate_tmp.pl:2059
 #: translate_tmp.pl:2205
 msgid "Move file to trash when closing tab"
-msgstr ""
+msgstr "탭을 닫을때 파일을 휴지통으로 옴기기"
 
 #: translate_tmp.pl:2060
 #: translate_tmp.pl:2214
 msgid "Notify when file was deleted from filesystem"
-msgstr ""
+msgstr "파일이 파일시스템에서 삭제되면 알리기"
 
 #: translate_tmp.pl:2123
 #: translate_tmp.pl:2124
@@ -690,7 +695,7 @@ msgstr "열쇠글"
 #: translate_tmp.pl:10604
 #: translate_tmp.pl:10606
 msgid "Website URL"
-msgstr ""
+msgstr "웹사이트 URL"
 
 #: translate_tmp.pl:2343
 #: translate_tmp.pl:4162
@@ -703,7 +708,7 @@ msgstr "고급"
 
 #: translate_tmp.pl:2456
 msgid "Image View"
-msgstr ""
+msgstr "이미지 보기"
 
 #: translate_tmp.pl:2477
 msgid "Behavior"
@@ -719,13 +724,12 @@ msgstr "플러그인"
 
 #: translate_tmp.pl:2577
 msgid "The following plugins are installed"
-msgstr ""
+msgstr "다음 플러그인들이 설치되었습니다"
 
 #: translate_tmp.pl:2957
 msgid "pixel"
 msgid_plural "pixels"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "픽셀"
 
 #: translate_tmp.pl:2967
 #: translate_tmp.pl:2974
@@ -734,11 +738,11 @@ msgstr "품질"
 
 #: translate_tmp.pl:3051
 msgid "Please activate the menu you want to capture"
-msgstr ""
+msgstr "캡쳐를 원하는 메뉴를 활성화 해주십시오"
 
 #: translate_tmp.pl:3054
 msgid "Please activate the tooltip you want to capture"
-msgstr ""
+msgstr "캡쳐를 원하는 툴팁을 활성화 해주십시오"
 
 #: translate_tmp.pl:3063
 #: translate_tmp.pl:3074
@@ -747,8 +751,7 @@ msgstr ""
 #, perl-format
 msgid "Screenshot will be taken in %s second"
 msgid_plural "Screenshot will be taken in %s seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s 초 후 스크린샷이 찍힙니다"
 
 #: translate_tmp.pl:3355
 #: translate_tmp.pl:9147
@@ -780,7 +783,7 @@ msgstr "실패"
 #: translate_tmp.pl:3987
 #, perl-format
 msgid "Profile %s loaded successfully"
-msgstr ""
+msgstr "%s 프로필을 성공적으로 불러왓습니다"
 
 #: translate_tmp.pl:4016
 #: translate_tmp.pl:7240
@@ -794,7 +797,7 @@ msgstr "찾을 수 없습니다."
 
 #: translate_tmp.pl:4244
 msgid "Error while adding the file monitor."
-msgstr ""
+msgstr "파일 모니터 추가중 오류"
 
 #: translate_tmp.pl:4765
 msgid "Settings could not be saved!"
@@ -823,7 +826,7 @@ msgstr "설정을 성공적으로 불러왔습니다."
 #: translate_tmp.pl:5088
 #: translate_tmp.pl:7010
 msgid "Built-in Editor"
-msgstr ""
+msgstr "빌트인 에디터"
 
 #: translate_tmp.pl:5142
 msgid "Account-settings could not be restored!"
@@ -855,24 +858,24 @@ msgstr ""
 #: translate_tmp.pl:5418
 #, perl-format
 msgid "Error while moving the file %s to trash."
-msgstr ""
+msgstr "%s 파일을 휴지통으로 옴기던중 오류"
 
 #: translate_tmp.pl:5424
 #, perl-format
 msgid "Error while removing the file %s from disk."
-msgstr ""
+msgstr "%s 파일을 디스크에서 제거중 오류"
 
 #: translate_tmp.pl:5442
 #, perl-format
 msgid "Are you sure you want to move %s to the trash?"
-msgstr ""
+msgstr "%s를 휴지통에 버리시겠습니까?"
 
 #: translate_tmp.pl:5442
 #: translate_tmp.pl:5491
 #: translate_tmp.pl:209
 #: translate_tmp.pl:710
 msgid "Move to _Trash"
-msgstr ""
+msgstr "휴지통에 버리기(_T)"
 
 #: translate_tmp.pl:5456
 msgid "deleted"
@@ -880,13 +883,13 @@ msgstr "삭제"
 
 #: translate_tmp.pl:5491
 msgid "Are you sure you want to move the selected files to the trash?"
-msgstr ""
+msgstr "정말로 선택된 파일을 휴지통으로 버리시겠습니까?"
 
 #: translate_tmp.pl:5495
 #: translate_tmp.pl:5529
 #: translate_tmp.pl:5634
 msgid "No screenshots selected"
-msgstr ""
+msgstr "선택된 스크린샷 없음"
 
 #: translate_tmp.pl:5547
 msgid "Selected screenshots deleted"
@@ -904,7 +907,7 @@ msgstr "세션에서 제거"
 
 #: translate_tmp.pl:5652
 msgid "Selected screenshots removed"
-msgstr ""
+msgstr "선택된 스크린샷 지워짐"
 
 #: translate_tmp.pl:5682
 #: translate_tmp.pl:6088
@@ -913,39 +916,39 @@ msgstr "나열된 파일형태가 잘못되었음"
 
 #: translate_tmp.pl:5698
 msgid "There is no image data in the clipboard to paste"
-msgstr ""
+msgstr "클립보드에 이미지 데이터가 없습니다."
 
 #: translate_tmp.pl:5759
 msgid "Selected filenames copied to clipboard"
-msgstr ""
+msgstr "선택된 파일이름이 클립보드로 복사됨"
 
 #: translate_tmp.pl:5774
 msgid "Selected images copied to clipboard"
-msgstr ""
+msgstr "선택된 이미지가 클립보드로 복사됨"
 
 #: translate_tmp.pl:5821
 msgid "Last action undone"
-msgstr ""
+msgstr "마지막 작업 되돌려짐"
 
 #: translate_tmp.pl:5829
 #: translate_tmp.pl:5877
 #, perl-format
 msgid "Error while copying last version (%s)."
-msgstr ""
+msgstr "마지막 버전 (%s) 복사중 오류"
 
 #: translate_tmp.pl:5829
 #, perl-format
 msgid "There was an error performing undo on %s."
-msgstr ""
+msgstr "%s 를 되돌리기 작업중 오류가 발생했습니다."
 
 #: translate_tmp.pl:5869
 msgid "Last action redone"
-msgstr ""
+msgstr "마지막 작업 다시실행함"
 
 #: translate_tmp.pl:5877
 #, perl-format
 msgid "There was an error performing redo on %s."
-msgstr ""
+msgstr "%s 를 다시실행중 오류가 발생했습니다."
 
 #: translate_tmp.pl:5911
 msgid "No plugin installed"
@@ -955,11 +958,11 @@ msgstr "플러그인이 설치되지 않았습니다."
 #: translate_tmp.pl:6581
 #: translate_tmp.pl:8030
 msgid "There was an error determining the filename."
-msgstr ""
+msgstr "파일이름을 정하는중 오류가 발생했습니다."
 
 #: translate_tmp.pl:6473
 msgid "Triggered invalid screenshot action."
-msgstr ""
+msgstr "부적절한 스크린샷 작업이 발동됨"
 
 #: translate_tmp.pl:6473
 #: translate_tmp.pl:6475
@@ -975,7 +978,7 @@ msgstr ""
 #: translate_tmp.pl:154
 #: translate_tmp.pl:164
 msgid "Error while taking the screenshot."
-msgstr ""
+msgstr "스크린샷을 찍던중 오류발생"
 
 #: translate_tmp.pl:6608
 #: translate_tmp.pl:134
@@ -986,26 +989,26 @@ msgstr "사용자에 의해 캡처가 중단되었습니다"
 #: translate_tmp.pl:6759
 #, perl-format
 msgid "%s saved"
-msgstr ""
+msgstr "%s 저장됨"
 
 #: translate_tmp.pl:6746
 #: translate_tmp.pl:6749
 #: translate_tmp.pl:6764
 msgid "Screenshot saved"
-msgstr ""
+msgstr "스크린샷 저장됨"
 
 #: translate_tmp.pl:6773
 #, perl-format
 msgid ""
 "The filename %s could not be verified. Maybe it contains unsupported "
 "characters."
-msgstr ""
+msgstr "파일명 %s 은 적절하지 않습니다. 지원하지 않는 문자가 포함된것 같습니다."
 
 #: translate_tmp.pl:7010
 #: translate_tmp.pl:7021
 #, perl-format
 msgid "%s opened with %s"
-msgstr ""
+msgstr "%s 가 %s 로 열림"
 
 #: translate_tmp.pl:7047
 msgid "Opened all files with"
@@ -1015,37 +1018,36 @@ msgstr "모든 파일을 열었습니다."
 #: translate_tmp.pl:7109
 #, perl-format
 msgid "Could not apply plugin %s"
-msgstr ""
+msgstr "플러그인 %s 를 적용할 수 없음"
 
 #: translate_tmp.pl:7106
 #: translate_tmp.pl:7158
 #, perl-format
 msgid "Successfully applied plugin %s"
-msgstr ""
+msgstr "플러그인 %s가 성공적으로 적용됨"
 
 #: translate_tmp.pl:7161
 #, perl-format
 msgid "Error while executing plugin %s."
-msgstr ""
+msgstr "플러그인 %s 를 실행하는 중 오류가 발생하였습니다."
 
 #: translate_tmp.pl:7161
 msgid "There was an error executing the plugin."
-msgstr ""
+msgstr "플러그인 실행 도중 오류가 발생하였습니다."
 
 #: translate_tmp.pl:7242
 #, perl-format
 msgid "%s screenshot"
 msgid_plural "%s screenshots"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%s 스크린샷"
 
 #: translate_tmp.pl:7251
 msgid "Current profile"
-msgstr ""
+msgstr "현제 프로필"
 
 #: translate_tmp.pl:7686
 msgid "Try to resave the file?"
-msgstr ""
+msgstr "다시 저장할까요?"
 
 #: translate_tmp.pl:7686
 #, perl-format
@@ -1057,14 +1059,14 @@ msgstr "%s 그림이 디스크에 없습니다"
 #: translate_tmp.pl:189
 #, perl-format
 msgid "Error while saving the image %s."
-msgstr ""
+msgstr "이미지 %s 를 저장하는동안 오류가 발생했습니다."
 
 #: translate_tmp.pl:7715
 #: translate_tmp.pl:7781
 #: translate_tmp.pl:190
 #, perl-format
 msgid "There was an error saving the image to %s."
-msgstr ""
+msgstr "이미지를 %s로 저장중 오류가 발생했습니다."
 
 #: translate_tmp.pl:7741
 #: translate_tmp.pl:10069
@@ -1077,7 +1079,7 @@ msgstr "저장됨"
 #: translate_tmp.pl:7813
 #, perl-format
 msgid "Image %s was deleted from filesystem"
-msgstr ""
+msgstr "이미지 %s 는 파일시스템에서 삭제되었습니다"
 
 #: translate_tmp.pl:7846
 #: translate_tmp.pl:62
@@ -1092,23 +1094,23 @@ msgstr "%s디렉토리 열기 오류."
 
 #: translate_tmp.pl:8099
 msgid "Updating plugin information"
-msgstr ""
+msgstr "플러그인 정보 업데이트중"
 
 #: translate_tmp.pl:8104
 msgid "Please wait while Shutter updates the plugin information"
-msgstr ""
+msgstr "플러그인 정보를 업데이트하는동안 잠시만 기다려 주십시오"
 
 #: translate_tmp.pl:8246
 msgid "Updating upload plugin information"
-msgstr ""
+msgstr "업로드된 플러그인 정보 업데이트중"
 
 #: translate_tmp.pl:8251
 msgid "Please wait while Shutter updates the upload plugin information"
-msgstr ""
+msgstr "업로드된 플러그인 정보를 업데이트하는동안 잠시만 기다려 주십시오"
 
 #: translate_tmp.pl:8482
 msgid "Capture All Workspaces"
-msgstr ""
+msgstr "모든 작업공간 캡쳐"
 
 #: translate_tmp.pl:8495
 msgid "Limit to current monitor"
@@ -1125,92 +1127,91 @@ msgid_plural ""
 "monitors detected).\n"
 "Enable it to capture only the current monitor."
 msgstr[0] ""
-msgstr[1] ""
+"%d 모니터가 발견되었습니다. 이 옵션은 멀티모니터를 이용하는 시스템에 유용합니다.\n"
+"현재 모니터만 캡쳐하기 위해서는 활성화 하십시오."
 
 #: translate_tmp.pl:8537
 msgid "Active Window"
-msgstr ""
+msgstr "활성 창"
 
 #: translate_tmp.pl:8542
 msgid "Capture the last active window"
-msgstr ""
+msgstr "마지막 활성창을 캡쳐"
 
 #: translate_tmp.pl:8585
 #: translate_tmp.pl:403
 msgid "_Selection"
-msgstr ""
+msgstr "선택(_S)"
 
 #: translate_tmp.pl:8604
 #: translate_tmp.pl:429
 msgid "_Desktop"
-msgstr ""
+msgstr "바탕 화면(_D)"
 
 #: translate_tmp.pl:8636
 msgid "Window _under Cursor"
-msgstr ""
+msgstr "커서 아래 창(_U)"
 
 #: translate_tmp.pl:8649
 #: translate_tmp.pl:459
 msgid "Select W_indow"
-msgstr ""
+msgstr "선택 창(_I)"
 
 #: translate_tmp.pl:8660
 #: translate_tmp.pl:472
 msgid "Se_ction"
-msgstr ""
+msgstr "섹션(_C)"
 
 #: translate_tmp.pl:8673
 #: translate_tmp.pl:488
 msgid "_Menu"
-msgstr ""
+msgstr "메뉴(_M)"
 
 #: translate_tmp.pl:8686
 #: translate_tmp.pl:504
 msgid "_Tooltip"
-msgstr ""
+msgstr "툴팁(_T)"
 
 #: translate_tmp.pl:8699
 #: translate_tmp.pl:522
 msgid "_Web"
-msgstr ""
+msgstr "웹(_W)"
 
 #: translate_tmp.pl:8713
 msgid "S_how main window"
-msgstr ""
+msgstr "메인 창 나타내기(_S)"
 
 #: translate_tmp.pl:8719
 #: translate_tmp.pl:395
 msgid "_Redo last screenshot"
-msgstr ""
+msgstr "마지막 스크린샷 다시찍기(_R)"
 
 #: translate_tmp.pl:8730
 #: translate_tmp.pl:223
 msgid "_Quick profile select"
-msgstr ""
+msgstr "빠른 프로필 선택(_Q)"
 
 #: translate_tmp.pl:8896
 msgid "Wait indefinitely"
-msgstr ""
+msgstr "무기한 기다리기"
 
 #: translate_tmp.pl:8897
 #: translate_tmp.pl:8898
 #, perl-format
 msgid "Wait max %d second"
 msgid_plural "Wait max %d seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "최대 %d 초 기다리기"
 
 #: translate_tmp.pl:8899
 #: translate_tmp.pl:8900
 #, perl-format
 msgid "Wait max %d minute"
 msgid_plural "Wait max %d minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "최대 %d 분 기다리기"
 
 #: translate_tmp.pl:8908
 msgid "Shutter will wait indefinitely for the screenshot to capture"
-msgstr ""
+msgstr "셔터가 스크린샷을 찍을때까지 무한정 기다립니다"
 
 #: translate_tmp.pl:8909
 #: translate_tmp.pl:8910
@@ -1221,8 +1222,7 @@ msgid ""
 msgid_plural ""
 "Shutter will wait up to %d seconds for the screenshot to capture before "
 "aborting the process if it's taking too long"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "스크린샷을 찍는데 너무 오래걸리면 셔터는 %d 초 까지 기다립니다."
 
 #: translate_tmp.pl:8911
 #: translate_tmp.pl:8912
@@ -1233,8 +1233,7 @@ msgid ""
 msgid_plural ""
 "Shutter will wait up to %d minutes for the screenshot to capture before "
 "aborting the process if it's taking too long"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "스크린샷을 찍는데 너무 오래걸리면 셔터는 %d 분 까지 기다립니다."
 
 #: translate_tmp.pl:9046
 msgid "Host"
@@ -1242,15 +1241,15 @@ msgstr "호스트"
 
 #: translate_tmp.pl:9113
 msgid "Anonymous Upload"
-msgstr ""
+msgstr "익명 업로드"
 
 #: translate_tmp.pl:9120
 msgid "Authorized Upload"
-msgstr ""
+msgstr "권한으로 업로드"
 
 #: translate_tmp.pl:9127
 msgid "OAuth Upload"
-msgstr ""
+msgstr "OAuth 업로드"
 
 #: translate_tmp.pl:9138
 #: translate_tmp.pl:9199
@@ -1281,41 +1280,41 @@ msgstr "경로"
 #: translate_tmp.pl:9271
 #: translate_tmp.pl:10636
 msgid "Ubuntu One"
-msgstr ""
+msgstr "우분투 원"
 
 #: translate_tmp.pl:9280
 msgid "Successfully published"
-msgstr ""
+msgstr "성공적으로 발행됨"
 
 #: translate_tmp.pl:9280
 #, perl-format
 msgid "The file %s was successfully published: %s"
-msgstr ""
+msgstr "파일 %s 는 성공적으로 출판됨: %s"
 
 #: translate_tmp.pl:9283
 #, perl-format
 msgid "%s published"
-msgstr ""
+msgstr "%s 출판됨"
 
 #: translate_tmp.pl:9296
 msgid "Unpublished"
-msgstr ""
+msgstr "발행되지 않음"
 
 #: translate_tmp.pl:9296
 #, perl-format
 msgid ""
 "The file %s is no longer published. The external link is not available "
 "anymore."
-msgstr ""
+msgstr "파일 %s는 더이상 출판되지 않습니다. 더 이상 외부 링크를 이용할 수 없습니다."
 
 #: translate_tmp.pl:9299
 #, perl-format
 msgid "The file %s is no longer published."
-msgstr ""
+msgstr "파일 %s는 더이상 출판되지 않스빈다."
 
 #: translate_tmp.pl:9498
 msgid "Rename"
-msgstr ""
+msgstr "이름 바꾸기"
 
 #: translate_tmp.pl:9502
 #, perl-format
@@ -1340,14 +1339,14 @@ msgstr "이름 변경됨"
 #: translate_tmp.pl:9709
 #, perl-format
 msgid "Error while renaming the image %s."
-msgstr ""
+msgstr "이미지 %s 를 이름바꾸는 동안 오류가 발생했습니다."
 
 #: translate_tmp.pl:9630
 #: translate_tmp.pl:9673
 #: translate_tmp.pl:9709
 #, perl-format
 msgid "There was an error renaming the image to %s."
-msgstr ""
+msgstr "이미지를 %s 로 이름바꾸는 동안 오류가 발생했습니다."
 
 #: translate_tmp.pl:9639
 #: translate_tmp.pl:10099
@@ -1372,7 +1371,7 @@ msgstr "%s에 그림이 이미 존재하며, 내용이 변경됩니다."
 #: translate_tmp.pl:1639
 #, perl-format
 msgid "An image named %s already exists. Do you want to replace it?"
-msgstr ""
+msgstr "이미지 이름 %s 이 이미 존재합니다. 덮어쓰시겠습니까?"
 
 #: translate_tmp.pl:9709
 msgid "Invalid Filename"
@@ -1399,7 +1398,7 @@ msgstr "플러그인 선택"
 
 #: translate_tmp.pl:10200
 msgid "_Run"
-msgstr ""
+msgstr "실행(_R)"
 
 #: translate_tmp.pl:10249
 msgid "Plugin"
@@ -1411,7 +1410,7 @@ msgstr "선택된 플러그인 없음"
 
 #: translate_tmp.pl:10390
 msgid "Upload / Export"
-msgstr ""
+msgstr "업로드 / 내보내기"
 
 #: translate_tmp.pl:10394
 #: translate_tmp.pl:10646
@@ -1424,7 +1423,7 @@ msgstr "손님"
 
 #: translate_tmp.pl:10426
 msgid "OAuth"
-msgstr ""
+msgstr "OAuth"
 
 #: translate_tmp.pl:10459
 msgid ""
@@ -1446,7 +1445,7 @@ msgstr "계정 선택"
 
 #: translate_tmp.pl:10490
 msgid "Status"
-msgstr ""
+msgstr "상태"
 
 #: translate_tmp.pl:10633
 msgid "Public hosting"
@@ -1458,16 +1457,16 @@ msgstr "장소"
 
 #: translate_tmp.pl:10650
 msgid "_Export"
-msgstr ""
+msgstr "내보내기(_E)"
 
 #: translate_tmp.pl:10654
 msgid "_Publish"
-msgstr ""
+msgstr "발행(_P)"
 
 #: translate_tmp.pl:10682
 #: translate_tmp.pl:164
 msgid "Disconnected"
-msgstr ""
+msgstr "연결 끊어짐"
 
 #: translate_tmp.pl:10706
 #: translate_tmp.pl:10738
@@ -1502,7 +1501,7 @@ msgstr ""
 
 #: translate_tmp.pl:10762
 msgid "Ubuntu One service cannot be found."
-msgstr ""
+msgstr "우분투 원 서비스를 찾을 수 없습니다."
 
 #: translate_tmp.pl:10770
 msgid ""
@@ -1518,7 +1517,7 @@ msgstr ""
 #: translate_tmp.pl:10846
 #, perl-format
 msgid "Loading module %s"
-msgstr ""
+msgstr "모듈 %s 로딩중"
 
 #: translate_tmp.pl:10859
 #, perl-format
@@ -1540,14 +1539,14 @@ msgstr "업로드됨"
 #: translate_tmp.pl:11082
 #: translate_tmp.pl:11159
 msgid "Successfully uploaded"
-msgstr ""
+msgstr "성공적으로 업로드 됨"
 
 #: translate_tmp.pl:10967
 #: translate_tmp.pl:11082
 #: translate_tmp.pl:11159
 #, perl-format
 msgid "The file %s was successfully uploaded."
-msgstr ""
+msgstr "%s 파일이 성공적으로 업로드 되었습니다."
 
 #: translate_tmp.pl:10987
 #: translate_tmp.pl:11130
@@ -1568,7 +1567,7 @@ msgstr "건너뛰기"
 #: translate_tmp.pl:10987
 #: translate_tmp.pl:11284
 msgid "Retry"
-msgstr ""
+msgstr "다시 시도"
 
 #: translate_tmp.pl:11071
 #: translate_tmp.pl:11148
@@ -1578,13 +1577,13 @@ msgstr "전송"
 #: translate_tmp.pl:11075
 #: translate_tmp.pl:11152
 msgid "Successfully exported"
-msgstr ""
+msgstr "성공적으로 내보냄"
 
 #: translate_tmp.pl:11075
 #: translate_tmp.pl:11152
 #, perl-format
 msgid "The file %s was successfully exported."
-msgstr ""
+msgstr "%s 파일을 성공적으로 내보냈습니다."
 
 #: translate_tmp.pl:11089
 #: translate_tmp.pl:11166
@@ -1594,7 +1593,7 @@ msgstr ""
 
 #: translate_tmp.pl:11262
 msgid "_Retry"
-msgstr ""
+msgstr "다시 시도(_R)"
 
 #: translate_tmp.pl:11265
 #, perl-format
@@ -1621,16 +1620,16 @@ msgstr ""
 
 #: translate_tmp.pl:11281
 msgid "Error while uploading"
-msgstr ""
+msgstr "업로드 중 오류"
 
 #: translate_tmp.pl:11281
 #, perl-format
 msgid "Maximum filesize: %s"
-msgstr ""
+msgstr "최대 파일 크기: %s"
 
 #: translate_tmp.pl:11284
 msgid "Error while connecting"
-msgstr ""
+msgstr "연결중 오류"
 
 #: translate_tmp.pl:11298
 msgid "Save current preferences as new profile"
@@ -1659,9 +1658,11 @@ msgstr ""
 "  Jihui Choi https://launchpad.net/~jihui-choi\n"
 "  Kim MinJIn https://launchpad.net/~aeiou256\n"
 "  KimTaeBeom https://launchpad.net/~jnuktb\n"
+"  Litty https://launchpad.net/~litty\n"
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
 "  Mike Sierra https://launchpad.net/~ubuntuda\n"
 "  Shin Hungjae https://launchpad.net/~xfp\n"
+"  Sunil https://launchpad.net/~sodoetha\n"
 "  kmk1290 https://launchpad.net/~kmk1290-deactivatedaccount"
 
 #: translate_tmp.pl:34
@@ -1693,37 +1694,37 @@ msgstr "도움말(H)"
 
 #: translate_tmp.pl:87
 msgid "_Open..."
-msgstr ""
+msgstr "열기(_O)..."
 
 #: translate_tmp.pl:92
 msgid "Recent _Files"
-msgstr ""
+msgstr "최근에 사용한 파일들(_F)"
 
 #: translate_tmp.pl:103
 msgid "Save _As..."
-msgstr ""
+msgstr "다른 이름으로 저장(_A)..."
 
 #: translate_tmp.pl:114
 #: translate_tmp.pl:6182
 msgid "E_xport to PDF..."
-msgstr ""
+msgstr "PDF로 내보내기(_E)..."
 
 #: translate_tmp.pl:119
 #: translate_tmp.pl:6192
 msgid "Export to Post_Script..."
-msgstr ""
+msgstr "Post Script로 내보내기(_S)...."
 
 #: translate_tmp.pl:129
 msgid "Page Set_up"
-msgstr ""
+msgstr "페이지 설정(_U)"
 
 #: translate_tmp.pl:136
 msgid "_Print..."
-msgstr ""
+msgstr "인쇄(_P)..."
 
 #: translate_tmp.pl:144
 msgid "Send by E_mail..."
-msgstr ""
+msgstr "이메일로 보내기(_M)..."
 
 #: translate_tmp.pl:159
 msgid "C_lose all"
@@ -1732,19 +1733,19 @@ msgstr "모두 닫기(L)"
 #: translate_tmp.pl:204
 #: translate_tmp.pl:705
 msgid "Copy _Filename"
-msgstr ""
+msgstr "파일이름 복사(_F)"
 
 #: translate_tmp.pl:246
 msgid "Show Navigation _Toolbar"
-msgstr ""
+msgstr "안내 툴바 보이기(_T)"
 
 #: translate_tmp.pl:328
 msgid "Get Help Online..."
-msgstr ""
+msgstr "온라인으로 도움받기..."
 
 #: translate_tmp.pl:343
 msgid "Translate this Application..."
-msgstr ""
+msgstr "이 응용 프로그램 번역..."
 
 #: translate_tmp.pl:358
 msgid "Report a Problem"
@@ -1752,16 +1753,16 @@ msgstr "버그 보고"
 
 #: translate_tmp.pl:446
 msgid "_Active Window"
-msgstr ""
+msgstr "활성창(_A)"
 
 #: translate_tmp.pl:538
 msgid "Import from clip_board"
-msgstr ""
+msgstr "클립보드에서 가져오기(_B)"
 
 #: translate_tmp.pl:558
 #: translate_tmp.pl:655
 msgid "Open wit_h"
-msgstr ""
+msgstr "다른 프로그램으로 열기(_H)"
 
 #: translate_tmp.pl:565
 #: translate_tmp.pl:662
@@ -1771,48 +1772,48 @@ msgstr ""
 #: translate_tmp.pl:572
 #: translate_tmp.pl:669
 msgid "_Rename..."
-msgstr ""
+msgstr "이름 바꾸기(_R)..."
 
 #: translate_tmp.pl:581
 #: translate_tmp.pl:677
 msgid "_Send To..."
-msgstr ""
+msgstr "보내기(_S)..."
 
 #: translate_tmp.pl:590
 #: translate_tmp.pl:685
 msgid "E_xport..."
-msgstr ""
+msgstr "내보내기(_X)..."
 
 #: translate_tmp.pl:597
 #: translate_tmp.pl:691
 msgid "Public URLs"
-msgstr ""
+msgstr "공개 URL"
 
 #: translate_tmp.pl:605
 #: translate_tmp.pl:718
 msgid "_Edit..."
-msgstr ""
+msgstr "편집(_E)..."
 
 #: translate_tmp.pl:622
 msgid "Run a _plugin..."
-msgstr ""
+msgstr "플러그인 실행(_P)..."
 
 #: translate_tmp.pl:631
 #: translate_tmp.pl:742
 msgid "Redo _this screenshot"
-msgstr ""
+msgstr "이 스크린샷을 다시하기(_T)"
 
 #: translate_tmp.pl:734
 msgid "Run a _Plugin..."
-msgstr ""
+msgstr "플러그인 실행(_P)..."
 
 #: translate_tmp.pl:37
 msgid "Redo"
-msgstr ""
+msgstr "다시 하기"
 
 #: translate_tmp.pl:40
 msgid "Redo last screenshot"
-msgstr ""
+msgstr "마지막 스크린샷 다시하기"
 
 #: translate_tmp.pl:63
 #: translate_tmp.pl:46
@@ -1828,7 +1829,7 @@ msgstr "특정 화면 영역을 선택하려면 마우스로 해당 캡처 영�
 
 #: translate_tmp.pl:89
 msgid "Desktop"
-msgstr ""
+msgstr "바탕화면"
 
 #: translate_tmp.pl:92
 msgid "Take a screenshot of your whole desktop"
@@ -1863,7 +1864,7 @@ msgstr "선택한 영역에서만 캡처합니다."
 #: translate_tmp.pl:170
 #: translate_tmp.pl:1095
 msgid "Menu"
-msgstr ""
+msgstr "메뉴"
 
 #: translate_tmp.pl:173
 msgid "Select a single menu or cascading menus from any application"
@@ -1872,11 +1873,11 @@ msgstr ""
 #: translate_tmp.pl:190
 #: translate_tmp.pl:1101
 msgid "Tooltip"
-msgstr ""
+msgstr "툴팁"
 
 #: translate_tmp.pl:193
 msgid "Capture a tooltip"
-msgstr ""
+msgstr "툴팁 캡쳐"
 
 #: translate_tmp.pl:209
 msgid "Web"
@@ -1895,7 +1896,7 @@ msgstr ""
 
 #: translate_tmp.pl:233
 msgid "Edit"
-msgstr ""
+msgstr "편집"
 
 #: translate_tmp.pl:236
 msgid ""
@@ -1905,13 +1906,13 @@ msgstr ""
 
 #: translate_tmp.pl:243
 msgid "Export"
-msgstr ""
+msgstr "내보내기"
 
 #: translate_tmp.pl:246
 msgid ""
 "Upload your images to an image hosting service, FTP site or export them to "
 "an arbitrary folder"
-msgstr ""
+msgstr "이미지를 이미지호스팅 서비스, FTP 사이트 또는 임의폴더로 업로드"
 
 #: translate_tmp.pl:247
 msgid "Show links to previous uploads"
@@ -1940,11 +1941,11 @@ msgstr ""
 
 #: translate_tmp.pl:167
 msgid "Synchronization complete"
-msgstr ""
+msgstr "동기화 완료"
 
 #: translate_tmp.pl:169
 msgid "Synchronization in progress..."
-msgstr ""
+msgstr "동기화중..."
 
 #: translate_tmp.pl:62
 msgid "Illegal URI."
@@ -1973,7 +1974,7 @@ msgstr ""
 
 #: translate_tmp.pl:87
 msgid "Copy this code to clipboard"
-msgstr ""
+msgstr "이 코드를 클립보드로 복사"
 
 #: translate_tmp.pl:112
 #, perl-format
@@ -1982,11 +1983,11 @@ msgstr ""
 
 #: translate_tmp.pl:120
 msgid "Draw a rectangular area using the mouse."
-msgstr ""
+msgstr "마우스를 이용해 사각형을 그립니다."
 
 #: translate_tmp.pl:122
 msgid "To take a screenshot, press the Enter key. Press Esc to quit."
-msgstr ""
+msgstr "스크린샷을 찍으려면 엔터키를 누르세요. 나가려면 Esc."
 
 #: translate_tmp.pl:124
 msgid "<b>shift/right-click</b> → selection dialog on/off"
@@ -1994,7 +1995,7 @@ msgstr ""
 
 #: translate_tmp.pl:124
 msgid "<b>ctrl + scrollwheel</b> → zoom in/out"
-msgstr ""
+msgstr "<b>ctrl + scrollwheel</b> → 줌 인/아웃"
 
 #: translate_tmp.pl:124
 msgid "<b>space</b> → zoom window on/off"
@@ -2002,15 +2003,15 @@ msgstr ""
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys</b> → move cursor"
-msgstr ""
+msgstr "<b>cursor keys</b> → 커서 이동"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys + alt</b> → move selection"
-msgstr ""
+msgstr "<b>cursor keys + alt</b> → 선택 이동"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys + ctrl</b> → resize selection"
-msgstr ""
+msgstr "<b>cursor keys + ctrl</b> → 선택 크기조절"
 
 #: translate_tmp.pl:88
 msgid ""
@@ -2023,24 +2024,24 @@ msgstr ""
 
 #: translate_tmp.pl:105
 msgid "menu"
-msgstr ""
+msgstr "메뉴"
 
 #: translate_tmp.pl:107
 msgid "tooltip"
-msgstr ""
+msgstr "툴팁"
 
 #: translate_tmp.pl:111
 #, perl-format
 msgid "No window with type %s detected."
-msgstr ""
+msgstr "%s 형식의 창이 없습니다."
 
 #: translate_tmp.pl:119
 msgid "There is no last capture that can be redone."
-msgstr ""
+msgstr "다시할수있는 마지막 캡쳐가 없습니다."
 
 #: translate_tmp.pl:127
 msgid "The window is no longer available."
-msgstr ""
+msgstr "창을 더 이상 사용할 수 없습니다."
 
 #: translate_tmp.pl:139
 #: translate_tmp.pl:145
@@ -2050,7 +2051,7 @@ msgstr "웹사이트 캡처를 할수 없음"
 #: translate_tmp.pl:153
 #, perl-format
 msgid "No window with name pattern %s detected."
-msgstr ""
+msgstr "%s 의 이름형식을 가진 창을 찾을 수 없습니다."
 
 #: translate_tmp.pl:163
 #, perl-format
@@ -2059,7 +2060,7 @@ msgstr ""
 
 #: translate_tmp.pl:116
 msgid "No subwindow detected"
-msgstr ""
+msgstr "감지된 보조 창 없음"
 
 #: translate_tmp.pl:117
 msgid ""
@@ -2073,11 +2074,11 @@ msgstr "URL 캡처"
 
 #: translate_tmp.pl:98
 msgid "C_apture"
-msgstr ""
+msgstr "캡쳐(_C)"
 
 #: translate_tmp.pl:157
 msgid "Workspaces"
-msgstr ""
+msgstr "작업공간"
 
 #: translate_tmp.pl:454
 #: translate_tmp.pl:4186
@@ -2087,22 +2088,22 @@ msgstr "채우기 색상"
 #: translate_tmp.pl:461
 #: translate_tmp.pl:462
 msgid "Adjust fill color and opacity"
-msgstr ""
+msgstr "색채우기와 불투명도 조절"
 
 #: translate_tmp.pl:468
 #: translate_tmp.pl:4206
 msgid "Stroke color"
-msgstr ""
+msgstr "선 색"
 
 #: translate_tmp.pl:473
 #: translate_tmp.pl:4212
 msgid "Choose stroke color"
-msgstr ""
+msgstr "선 색을 고르세요"
 
 #: translate_tmp.pl:475
 #: translate_tmp.pl:476
 msgid "Adjust stroke color and opacity"
-msgstr ""
+msgstr "선 색과 불투명도 조절"
 
 #: translate_tmp.pl:482
 #: translate_tmp.pl:4172
@@ -2136,24 +2137,24 @@ msgstr ""
 
 #: translate_tmp.pl:638
 msgid "X"
-msgstr ""
+msgstr "X"
 
 #: translate_tmp.pl:652
 msgid "Y"
-msgstr ""
+msgstr "Y"
 
 #: translate_tmp.pl:666
 #: translate_tmp.pl:4302
 msgid "Width"
-msgstr ""
+msgstr "너비"
 
 #: translate_tmp.pl:680
 msgid "Height"
-msgstr ""
+msgstr "높이"
 
 #: translate_tmp.pl:705
 msgid "_Crop"
-msgstr ""
+msgstr "자르기(_C)"
 
 #: translate_tmp.pl:854
 msgid "Click-Drag to scale (try Control to scale uniformly)"
@@ -2169,15 +2170,15 @@ msgstr ""
 
 #: translate_tmp.pl:868
 msgid "Click-Drag to create a new straight line"
-msgstr ""
+msgstr "직선을 만들기 위해 클릭-드래그"
 
 #: translate_tmp.pl:873
 msgid "Click-Drag to create a new arrow"
-msgstr ""
+msgstr "화살표를 만들기 위해 클릭-드래그"
 
 #: translate_tmp.pl:878
 msgid "Click-Drag to create a new rectangle"
-msgstr ""
+msgstr "사각형을 만들기 위해 클릭-드래그"
 
 #: translate_tmp.pl:883
 msgid "Click-Drag to create a new ellipse"
@@ -2222,33 +2223,33 @@ msgstr[0] "저장하지 않으면, 최근 %d초동안 편집한 사항을 잃을
 
 #: translate_tmp.pl:1720
 msgid "Do you want to save the changed background color?"
-msgstr ""
+msgstr "변경된 배경색을 저장하시겠습니까?"
 
 #: translate_tmp.pl:1721
 msgid ""
 "The background is likely to be transparent if you decide to ignore the "
 "background color."
-msgstr ""
+msgstr "배경색 무시를 선택했다면 배경이 투명하게 될 것 입니다."
 
 #: translate_tmp.pl:1723
 msgid "Save Background Color"
-msgstr ""
+msgstr "배경색 저장"
 
 #: translate_tmp.pl:1726
 msgid "_Ignore Background Color"
-msgstr ""
+msgstr "배경색 무시(_I)"
 
 #: translate_tmp.pl:1729
 msgid "_Save Background Color"
-msgstr ""
+msgstr "배경색 저장(_S)"
 
 #: translate_tmp.pl:3877
 msgid "Change Background Color..."
-msgstr ""
+msgstr "배경색 변경..."
 
 #: translate_tmp.pl:3887
 msgid "_Reset to Default"
-msgstr ""
+msgstr "기본값으로 돌아가기(_R)"
 
 #: translate_tmp.pl:3940
 msgid "Raise"
@@ -2260,11 +2261,11 @@ msgstr "내리기"
 
 #: translate_tmp.pl:4055
 msgid "Unlock"
-msgstr ""
+msgstr "잠금 풀기"
 
 #: translate_tmp.pl:4059
 msgid "Lock"
-msgstr ""
+msgstr "잠금"
 
 #: translate_tmp.pl:4084
 msgid "Edit Preferences..."
@@ -2272,24 +2273,24 @@ msgstr ""
 
 #: translate_tmp.pl:4227
 msgid "Numbering"
-msgstr ""
+msgstr "번호 매기기"
 
 #: translate_tmp.pl:4237
 msgid "Current value"
-msgstr ""
+msgstr "현제값"
 
 #: translate_tmp.pl:4292
 #: translate_tmp.pl:6304
 msgid "Arrow"
-msgstr ""
+msgstr "화살표"
 
 #: translate_tmp.pl:4314
 msgid "Length"
-msgstr ""
+msgstr "길이"
 
 #: translate_tmp.pl:4326
 msgid "Tip length"
-msgstr ""
+msgstr "팁 길이"
 
 #: translate_tmp.pl:4336
 msgid "Display an arrow at the end of the line"
@@ -2302,7 +2303,7 @@ msgstr ""
 #: translate_tmp.pl:4365
 #: translate_tmp.pl:6304
 msgid "Text"
-msgstr ""
+msgstr "텍스트"
 
 #: translate_tmp.pl:4404
 msgid "Font color"
@@ -2314,7 +2315,7 @@ msgstr "글꼴 색상 선택"
 
 #: translate_tmp.pl:4432
 msgid "Use selected font"
-msgstr ""
+msgstr "선택한 글꼴 사용"
 
 #: translate_tmp.pl:4438
 msgid "Use selected font color"
@@ -2322,23 +2323,23 @@ msgstr ""
 
 #: translate_tmp.pl:6035
 msgid "_Tools"
-msgstr ""
+msgstr "도구(_T)"
 
 #: translate_tmp.pl:6042
 msgid "Undo last action"
-msgstr ""
+msgstr "마지막 작업 되돌림"
 
 #: translate_tmp.pl:6053
 msgid "Do again the last undone action"
-msgstr ""
+msgstr "마지막 되돌리기 한 것을 원래도 돌리기"
 
 #: translate_tmp.pl:6064
 msgid "Copy selection to clipboard"
-msgstr ""
+msgstr "선택한것을 클립보드로 복사"
 
 #: translate_tmp.pl:6078
 msgid "Cut selection to clipboard"
-msgstr ""
+msgstr "선택된부분을 잘라서 클립보드에 보관"
 
 #: translate_tmp.pl:6093
 msgid "Paste objects from clipboard"
@@ -2346,47 +2347,47 @@ msgstr ""
 
 #: translate_tmp.pl:6103
 msgid "Delete current object"
-msgstr ""
+msgstr "현재 개체 지우기"
 
 #: translate_tmp.pl:6113
 msgid "Clear canvas"
-msgstr ""
+msgstr "캔버스 비우기"
 
 #: translate_tmp.pl:6134
 msgid "Abort current mode"
-msgstr ""
+msgstr "현재 모드 중단"
 
 #: translate_tmp.pl:6144
 msgid "Close this window"
-msgstr ""
+msgstr "이 창 닫기"
 
 #: translate_tmp.pl:6154
 msgid "Save image"
-msgstr ""
+msgstr "이미지 저장"
 
 #: translate_tmp.pl:6162
 msgid "Export to _File..."
-msgstr ""
+msgstr "파일로 내보내기(_F)..."
 
 #: translate_tmp.pl:6164
 msgid "Export to File..."
-msgstr ""
+msgstr "파일로 내보내기..."
 
 #: translate_tmp.pl:6172
 msgid "_Export to SVG..."
-msgstr ""
+msgstr "SVG로 내보내기(_E)..."
 
 #: translate_tmp.pl:6174
 msgid "Export to SVG..."
-msgstr ""
+msgstr "SVG로 내보내기"
 
 #: translate_tmp.pl:6184
 msgid "Export to PDF..."
-msgstr ""
+msgstr "PDF로 내보내기..."
 
 #: translate_tmp.pl:6194
 msgid "Export to PostScript..."
-msgstr ""
+msgstr "PostScript로 내보내기..."
 
 #: translate_tmp.pl:6265
 msgid "Automatic scrolling"
@@ -2394,7 +2395,7 @@ msgstr "자동 스크롤"
 
 #: translate_tmp.pl:6304
 msgid "Select"
-msgstr ""
+msgstr "선택"
 
 #: translate_tmp.pl:6304
 msgid "Select item to move or resize it"
@@ -2402,47 +2403,47 @@ msgstr ""
 
 #: translate_tmp.pl:6304
 msgid "Freehand"
-msgstr ""
+msgstr "자유 그리기"
 
 #: translate_tmp.pl:6304
 msgid "Draw a freehand line"
-msgstr ""
+msgstr "자유선 그리기"
 
 #: translate_tmp.pl:6304
 msgid "Highlighter"
-msgstr ""
+msgstr "하이라이터"
 
 #: translate_tmp.pl:6304
 msgid "Line"
-msgstr ""
+msgstr "선"
 
 #: translate_tmp.pl:6304
 msgid "Draw a straight line"
-msgstr ""
+msgstr "직선 그리기"
 
 #: translate_tmp.pl:6304
 msgid "Draw an arrow"
-msgstr ""
+msgstr "화살표 그리기"
 
 #: translate_tmp.pl:6304
 msgid "Rectangle"
-msgstr ""
+msgstr "사각형"
 
 #: translate_tmp.pl:6304
 msgid "Draw a rectangle"
-msgstr ""
+msgstr "사각형 그리기"
 
 #: translate_tmp.pl:6304
 msgid "Ellipse"
-msgstr ""
+msgstr "타원"
 
 #: translate_tmp.pl:6304
 msgid "Draw a ellipse"
-msgstr ""
+msgstr "타원 그리기"
 
 #: translate_tmp.pl:6304
 msgid "Add some text to the screenshot"
-msgstr ""
+msgstr "스크린샷에 텍스트 추가하기"
 
 #: translate_tmp.pl:6304
 msgid "Censor"
@@ -2454,7 +2455,7 @@ msgstr ""
 
 #: translate_tmp.pl:6304
 msgid "Pixelize"
-msgstr ""
+msgstr "픽셀화"
 
 #: translate_tmp.pl:6304
 msgid "Pixelize selected areas of your screenshot to hide private data"
@@ -2462,7 +2463,7 @@ msgstr ""
 
 #: translate_tmp.pl:6304
 msgid "Number"
-msgstr ""
+msgstr "번호"
 
 #: translate_tmp.pl:6304
 msgid "Add an auto-increment shape to the screenshot"

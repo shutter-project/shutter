@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2013-01-15 08:48+0000\n"
-"Last-Translator: Mario Kemper (Romario) <mario.kemper@googlemail.com>\n"
+"PO-Revision-Date: 2014-11-21 20:30+0000\n"
+"Last-Translator: Tobias Bannert <Unknown>\n"
 "Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2013-08-25 19:21+0000\n"
-"X-Generator: Launchpad (build 16738)\n"
+"X-Launchpad-Export-Date: 2014-12-23 22:44+0000\n"
+"X-Generator: Launchpad (build 17286)\n"
 
 #: translate_tmp.pl:476
 #: translate_tmp.pl:2590
@@ -82,7 +82,7 @@ msgstr "Benachrichtigungen"
 
 #: translate_tmp.pl:993
 msgid "Trash"
-msgstr "Müll"
+msgstr "Papierkorb"
 
 #: translate_tmp.pl:1000
 msgid "Gnome-Keybinding"
@@ -369,7 +369,7 @@ msgstr "Fügt einen umlaufenden Rahmen zum Bildschirmfoto hinzu"
 #: translate_tmp.pl:1615
 #: translate_tmp.pl:1624
 msgid "Enable zoom window"
-msgstr "Zoom Fenster aktivieren"
+msgstr "Vergrößerungsfenster aktivieren"
 
 #: translate_tmp.pl:1633
 msgid "Start with selection size of"
@@ -606,7 +606,7 @@ msgstr "Benachrichtigungsdienst"
 
 #: translate_tmp.pl:2050
 msgid "Desktop Notifications"
-msgstr "Desktop-Benachrichtigungen"
+msgstr "Schreibtischbenachrichtigungen"
 
 #: translate_tmp.pl:2051
 msgid "Built-In Notifications"
@@ -620,7 +620,7 @@ msgstr "Vor dem Löschen von Dateien nachfragen"
 #: translate_tmp.pl:2059
 #: translate_tmp.pl:2205
 msgid "Move file to trash when closing tab"
-msgstr "Datei in den Müll verschieben beim Schließen der Registerkarte"
+msgstr "Beim Schließen des Reiters die Datei in den Papierkorb verschieben"
 
 #: translate_tmp.pl:2060
 #: translate_tmp.pl:2214
@@ -653,10 +653,10 @@ msgid ""
 "your credentials above. Plugins with OAuth support are configured "
 "automatically the first time you use them."
 msgstr ""
-"<b>Bitte beachten:</b> Wenn ein Plugin das Feature 'Autorisierter Upload' "
-"unterstützt, dann können Sie oben Ihre Anmeldedaten eintragen. Plugins, die "
-"das OAuth-Protokoll unterstützen, werden beim ersten Start automatisch "
-"konfiguriert."
+"<b>Bitte beachten:</b> Wenn eine Erweiterung die Funktion »Genehmigtes "
+"Hochladen« unterstützt, dann können Sie oben Ihre Anmeldedaten eintragen. "
+"Erweiterungen, die das OAuth-Protokoll unterstützen, werden beim ersten "
+"Start automatisch konfiguriert."
 
 #: translate_tmp.pl:2243
 #: translate_tmp.pl:10547
@@ -741,15 +741,15 @@ msgstr "Verhalten"
 
 #: translate_tmp.pl:2515
 msgid "Upload"
-msgstr "Upload"
+msgstr "Hochladen"
 
 #: translate_tmp.pl:2575
 msgid "Plugins"
-msgstr "Plugins"
+msgstr "Erweiterungen"
 
 #: translate_tmp.pl:2577
 msgid "The following plugins are installed"
-msgstr "Die folgenden Plugins sind installiert"
+msgstr "Die folgenden Erweiterungen sind installiert"
 
 #: translate_tmp.pl:2957
 msgid "pixel"
@@ -885,7 +885,7 @@ msgstr "Fehler beim Erstellen der .trashinfo-Datei %s."
 #: translate_tmp.pl:5418
 #, perl-format
 msgid "Error while moving the file %s to trash."
-msgstr "Fehler beim Verschieben der Datei %s in den Mülleimer."
+msgstr "Fehler beim Verschieben der Datei %s in den Papierkorb."
 
 #: translate_tmp.pl:5424
 #, perl-format
@@ -895,14 +895,14 @@ msgstr "Fehler beim Löschen der Datei %s."
 #: translate_tmp.pl:5442
 #, perl-format
 msgid "Are you sure you want to move %s to the trash?"
-msgstr "Soll %s wirklich in den Mülleimer verschoben werden?"
+msgstr "Soll %s wirklich in den Papierkorb verschoben werden?"
 
 #: translate_tmp.pl:5442
 #: translate_tmp.pl:5491
 #: translate_tmp.pl:209
 #: translate_tmp.pl:710
 msgid "Move to _Trash"
-msgstr "In den _Müll verschieben"
+msgstr "In den _Papierkorb verschieben"
 
 #: translate_tmp.pl:5456
 msgid "deleted"
@@ -911,7 +911,7 @@ msgstr "gelöscht"
 #: translate_tmp.pl:5491
 msgid "Are you sure you want to move the selected files to the trash?"
 msgstr ""
-"Sollen die ausgewählten Dateien wirklich in den Mülleimer verschoben werden?"
+"Sollen die ausgewählten Dateien wirklich in den Papierkorb verschoben werden?"
 
 #: translate_tmp.pl:5495
 #: translate_tmp.pl:5529
@@ -983,7 +983,7 @@ msgstr ""
 
 #: translate_tmp.pl:5911
 msgid "No plugin installed"
-msgstr "Kein Plugin installiert"
+msgstr "Keine Erweiterungen installiert"
 
 #: translate_tmp.pl:6170
 #: translate_tmp.pl:6581
@@ -1051,22 +1051,22 @@ msgstr "Alle Dateien geöffnet mit"
 #: translate_tmp.pl:7109
 #, perl-format
 msgid "Could not apply plugin %s"
-msgstr "Plugin %s konnte nicht angewendet werden"
+msgstr "Erweiterung »%s« konnte nicht angewendet werden"
 
 #: translate_tmp.pl:7106
 #: translate_tmp.pl:7158
 #, perl-format
 msgid "Successfully applied plugin %s"
-msgstr "Plugin %s erfolgreich angewendet"
+msgstr "Erweiterung »%s« wurde erfolgreich angewendet"
 
 #: translate_tmp.pl:7161
 #, perl-format
 msgid "Error while executing plugin %s."
-msgstr "Fehler beim Ausführen des Plugins %s."
+msgstr "Fehler beim Ausführen folgender Erweiterung »%s«."
 
 #: translate_tmp.pl:7161
 msgid "There was an error executing the plugin."
-msgstr "Beim Ausführen des Plugins ist ein Fehler aufgetreten."
+msgstr "Beim Ausführen der Erweiterung ist ein Fehler aufgetreten."
 
 #: translate_tmp.pl:7242
 #, perl-format
@@ -1128,21 +1128,22 @@ msgstr "Fehler beim Öffnen des Verzeichnisses %s."
 
 #: translate_tmp.pl:8099
 msgid "Updating plugin information"
-msgstr "Aktualisierung der Plugin-Informationen"
+msgstr "Erweiterungsinformation wird aktualisiert"
 
 #: translate_tmp.pl:8104
 msgid "Please wait while Shutter updates the plugin information"
 msgstr ""
-"Bitte warten Sie während die Plugin-Informationen aktualisiert werden"
+"Bitte warten Sie, während die Erweiterungsinformation aktualisiert werden"
 
 #: translate_tmp.pl:8246
 msgid "Updating upload plugin information"
-msgstr "Aktualisierung der Upload-Plugin-Informationen"
+msgstr "Hochladeerweiterungsinformationen werden aktualisiert"
 
 #: translate_tmp.pl:8251
 msgid "Please wait while Shutter updates the upload plugin information"
 msgstr ""
-"Bitte warten Sie während die Upload-Plugin-Informationen aktualisiert werden"
+"Bitte warten, während die Hochladeerweiterungsinformationen aktualisiert "
+"werden"
 
 #: translate_tmp.pl:8482
 msgid "Capture All Workspaces"
@@ -1189,7 +1190,7 @@ msgstr "_Auswahl"
 #: translate_tmp.pl:8604
 #: translate_tmp.pl:429
 msgid "_Desktop"
-msgstr "_Desktop"
+msgstr "_Schreibtisch"
 
 #: translate_tmp.pl:8636
 msgid "Window _under Cursor"
@@ -1296,15 +1297,15 @@ msgstr "Anbieter"
 
 #: translate_tmp.pl:9113
 msgid "Anonymous Upload"
-msgstr "Anonymer Upload"
+msgstr "Anonymes Hochladen"
 
 #: translate_tmp.pl:9120
 msgid "Authorized Upload"
-msgstr "Autorisierter Upload"
+msgstr "Genehmigtes Hochladen"
 
 #: translate_tmp.pl:9127
 msgid "OAuth Upload"
-msgstr "OAuth Upload"
+msgstr "OAuth-Hochladen"
 
 #: translate_tmp.pl:9138
 #: translate_tmp.pl:9199
@@ -1361,7 +1362,7 @@ msgid ""
 "The file %s is no longer published. The external link is not available "
 "anymore."
 msgstr ""
-"Die Datei %s ist nicht mehr öffentlich zugänglich. Der externe Link ist "
+"Die Datei %s ist nicht mehr öffentlich zugänglich. Der externe Verweis ist "
 "nicht länger verfügbar."
 
 #: translate_tmp.pl:9299
@@ -1453,7 +1454,7 @@ msgstr "Speichern unter"
 
 #: translate_tmp.pl:10195
 msgid "Choose a plugin"
-msgstr "Plugin auswählen"
+msgstr "Erweiterung auswählen"
 
 #: translate_tmp.pl:10200
 msgid "_Run"
@@ -1461,11 +1462,11 @@ msgstr "Ausfüh_ren"
 
 #: translate_tmp.pl:10249
 msgid "Plugin"
-msgstr "Plugin"
+msgstr "Erweiterung"
 
 #: translate_tmp.pl:10339
 msgid "No plugin specified"
-msgstr "Kein gültiges Plugin konfiguriert"
+msgstr "Keine gültige Erweiterung konfiguriert"
 
 #: translate_tmp.pl:10390
 msgid "Upload / Export"
@@ -1501,9 +1502,10 @@ msgid ""
 "enter your credentials in preferences first to make it appear in the list "
 "above."
 msgstr ""
-"<b>Bitte beachten:</b> Wenn ein Plugin nur autorisierten Upload unterstützt, "
-"dann müssen Sie zunächst Ihre Anmeldedaten im Einstellungsdialog "
-"hinterlegen. Erst dann wird das Plugin in der Liste angezeigt."
+"<b>Bitte beachten:</b> Wenn eine Erweiterung nur genehmigtes Hochladen "
+"unterstützt, dann müssen Sie zunächst Ihre Anmeldedaten im "
+"Einstellungsdialog hinterlegen. Erst dann wird die Erweiterung in der Liste "
+"angezeigt."
 
 #: translate_tmp.pl:10462
 msgid "Choose account"
@@ -1603,11 +1605,11 @@ msgstr "Lade Modul %s"
 #: translate_tmp.pl:10859
 #, perl-format
 msgid "Error while executing upload plugin %s."
-msgstr "Fehler beim Ausführen des Upload-Plugins %s."
+msgstr "Fehler beim Ausführen der Hochladeerweiterung %s."
 
 #: translate_tmp.pl:10859
 msgid "There was an error executing the upload plugin."
-msgstr "Beim Ausführen des Upload-Plugins ist ein Fehler aufgetreten."
+msgstr "Beim Ausführen der Hochladeerweiterung ist ein Fehler aufgetreten."
 
 #: translate_tmp.pl:10892
 #: translate_tmp.pl:10963
@@ -1670,7 +1672,7 @@ msgstr "Die Datei %s wurde erfolgreich exportiert."
 #: translate_tmp.pl:11166
 #, perl-format
 msgid "Publishing %s..."
-msgstr "Veröffentliche %s..."
+msgstr "%s wird veröffentlicht …"
 
 #: translate_tmp.pl:11262
 msgid "_Retry"
@@ -1693,7 +1695,7 @@ msgstr "Bitte prüfen Sie Ihre Anmeldedaten und versuchen Sie es erneut."
 
 #: translate_tmp.pl:11278
 msgid "Error while login"
-msgstr "Fehler bei der Authentifizierung"
+msgstr "Fehler während der Anmeldung"
 
 #: translate_tmp.pl:11281
 msgid "Maximum filesize reached"
@@ -1742,6 +1744,7 @@ msgstr ""
 "  Moritz Baumann https://launchpad.net/~mo42\n"
 "  Oliver Horn https://launchpad.net/~oliverhorn\n"
 "  Rene Hennig https://launchpad.net/~shifty\n"
+"  Tobias Bannert https://launchpad.net/~toba\n"
 "  pert7 https://launchpad.net/~pert7-deactivatedaccount"
 
 #: translate_tmp.pl:34
@@ -1781,17 +1784,17 @@ msgstr "_Zuletzt geöffnet"
 
 #: translate_tmp.pl:103
 msgid "Save _As..."
-msgstr "Speichern _unter…"
+msgstr "Speichern _unter …"
 
 #: translate_tmp.pl:114
 #: translate_tmp.pl:6182
 msgid "E_xport to PDF..."
-msgstr "E_xportieren als PDF..."
+msgstr "Als _PDF exportieren …"
 
 #: translate_tmp.pl:119
 #: translate_tmp.pl:6192
 msgid "Export to Post_Script..."
-msgstr "Exportieren als Post_Script..."
+msgstr "Als Post_Script exportieren …"
 
 #: translate_tmp.pl:129
 msgid "Page Set_up"
@@ -1799,11 +1802,11 @@ msgstr "Sei_teneinstellungen"
 
 #: translate_tmp.pl:136
 msgid "_Print..."
-msgstr "_Drucken…"
+msgstr "_Drucken …"
 
 #: translate_tmp.pl:144
 msgid "Send by E_mail..."
-msgstr "Per E-_Mail versenden..."
+msgstr "Per E-_Mail versenden …"
 
 #: translate_tmp.pl:159
 msgid "C_lose all"
@@ -1820,7 +1823,7 @@ msgstr "Navigationsleiste _anzeigen"
 
 #: translate_tmp.pl:328
 msgid "Get Help Online..."
-msgstr "Online Hilfe erhalten …"
+msgstr "Im Netz Hilfe erhalten …"
 
 #: translate_tmp.pl:343
 msgid "Translate this Application..."
@@ -1851,17 +1854,17 @@ msgstr "Anzeigen in _Ordner"
 #: translate_tmp.pl:572
 #: translate_tmp.pl:669
 msgid "_Rename..."
-msgstr "_Umbenennen..."
+msgstr "_Umbenennen …"
 
 #: translate_tmp.pl:581
 #: translate_tmp.pl:677
 msgid "_Send To..."
-msgstr "_Senden an..."
+msgstr "_Senden an …"
 
 #: translate_tmp.pl:590
 #: translate_tmp.pl:685
 msgid "E_xport..."
-msgstr "E_xportieren..."
+msgstr "E_xportieren …"
 
 #: translate_tmp.pl:597
 #: translate_tmp.pl:691
@@ -1871,11 +1874,11 @@ msgstr "Öffentliche URLs"
 #: translate_tmp.pl:605
 #: translate_tmp.pl:718
 msgid "_Edit..."
-msgstr "_Bearbeiten..."
+msgstr "_Bearbeiten …"
 
 #: translate_tmp.pl:622
 msgid "Run a _plugin..."
-msgstr "_Plugin ausführen..."
+msgstr "_Eine Erweiterung starten …"
 
 #: translate_tmp.pl:631
 #: translate_tmp.pl:742
@@ -1884,7 +1887,7 @@ msgstr "_Dieses Bildschirmfoto wiederholen"
 
 #: translate_tmp.pl:734
 msgid "Run a _Plugin..."
-msgstr "_Plugin ausführen..."
+msgstr "_Eine Erweiterung starten …"
 
 #: translate_tmp.pl:37
 msgid "Redo"
@@ -1910,11 +1913,11 @@ msgstr ""
 
 #: translate_tmp.pl:89
 msgid "Desktop"
-msgstr "Desktop"
+msgstr "Schreibtisch"
 
 #: translate_tmp.pl:92
 msgid "Take a screenshot of your whole desktop"
-msgstr "Den kompletten Desktop aufnehmen"
+msgstr "Den kompletten Schreibtisch aufnehmen"
 
 #: translate_tmp.pl:93
 msgid "Capture a specific workspace"
@@ -2005,7 +2008,7 @@ msgstr ""
 
 #: translate_tmp.pl:247
 msgid "Show links to previous uploads"
-msgstr "Links von vorherigen Uploads anzeigen"
+msgstr "Verweise zu vorherigen Übertragungen anzeigen"
 
 #: translate_tmp.pl:33
 #: translate_tmp.pl:47
@@ -2034,7 +2037,7 @@ msgstr "Synchronisierung abgeschlossen"
 
 #: translate_tmp.pl:169
 msgid "Synchronization in progress..."
-msgstr "Synchronisierung läuft..."
+msgstr "Synchronisierung läuft …"
 
 #: translate_tmp.pl:62
 msgid "Illegal URI."
@@ -2064,12 +2067,12 @@ msgstr "Befehl 'put' fehlgeschlagen."
 
 #: translate_tmp.pl:87
 msgid "Copy this code to clipboard"
-msgstr "Diesen Link in die Zwischenablage kopieren"
+msgstr "Diesen Verweis in die Zwischenablage kopieren"
 
 #: translate_tmp.pl:112
 #, perl-format
 msgid "Upload - %s - %s"
-msgstr "Upload - %s - %s"
+msgstr "Hochladen - %s - %s"
 
 #: translate_tmp.pl:120
 msgid "Draw a rectangular area using the mouse."
@@ -2087,11 +2090,11 @@ msgstr "<b>Umschalt/Rechtsklick</b> → Auswahldialog ein/aus"
 
 #: translate_tmp.pl:124
 msgid "<b>ctrl + scrollwheel</b> → zoom in/out"
-msgstr "<b>Strg + Scrollrad</b> → Heran-/Wegzoomen"
+msgstr "<b>Strg + Mausrad</b> → vergrößern/verkleinern"
 
 #: translate_tmp.pl:124
 msgid "<b>space</b> → zoom window on/off"
-msgstr "<b>Leertaste</b> → Zoom-Fenster ein/aus"
+msgstr "<b>Leertaste</b> → Vergrößerungsfenster ein/aus"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys</b> → move cursor"
@@ -2109,12 +2112,12 @@ msgstr "<b>Pfeiltasten + Strg</b> → Größe der Auswahl anpassen"
 msgid ""
 "Maybe mouse pointer could not be grabbed or the selected area is invalid."
 msgstr ""
-"Eventuell konnte der Mauszeiger nicht kontrolliert werden oder der "
-"ausgewählte Bereich ist ungültig."
+"Eventuell konnte der Mauszeiger nicht erfasst werden oder der ausgewählte "
+"Bereich ist ungültig."
 
 #: translate_tmp.pl:96
 msgid "Keyboard could not be grabbed."
-msgstr "Tastatur konnte nicht kontrolliert werden"
+msgstr "Tastatur konnte nicht erfasst werden."
 
 #: translate_tmp.pl:105
 msgid "menu"
@@ -2352,7 +2355,7 @@ msgstr "Hintergrundfarbe _speichern"
 
 #: translate_tmp.pl:3877
 msgid "Change Background Color..."
-msgstr "Hintergrundfarbe ändern..."
+msgstr "Hintergrundfarbe ändern …"
 
 #: translate_tmp.pl:3887
 msgid "_Reset to Default"
@@ -2376,7 +2379,7 @@ msgstr "Sperren"
 
 #: translate_tmp.pl:4084
 msgid "Edit Preferences..."
-msgstr "Eigenschaften bearbeiten..."
+msgstr "Eigenschaften bearbeiten …"
 
 #: translate_tmp.pl:4227
 msgid "Numbering"
@@ -2474,27 +2477,27 @@ msgstr "Bild speichern"
 
 #: translate_tmp.pl:6162
 msgid "Export to _File..."
-msgstr "In _Datei exportieren..."
+msgstr "In _Datei exportieren …"
 
 #: translate_tmp.pl:6164
 msgid "Export to File..."
-msgstr "In Datei exportieren"
+msgstr "In Datei exportieren …"
 
 #: translate_tmp.pl:6172
 msgid "_Export to SVG..."
-msgstr "_Exportieren als SVG..."
+msgstr "Als _SVG exportieren …"
 
 #: translate_tmp.pl:6174
 msgid "Export to SVG..."
-msgstr "Exportieren als SVG..."
+msgstr "Als SVG exportieren …"
 
 #: translate_tmp.pl:6184
 msgid "Export to PDF..."
-msgstr "Exportieren als PDF..."
+msgstr "Als PDF exportieren …"
 
 #: translate_tmp.pl:6194
 msgid "Export to PostScript..."
-msgstr "Exportieren als PostScript..."
+msgstr "Als PostScript exportieren …"
 
 #: translate_tmp.pl:6265
 msgid "Automatic scrolling"
@@ -2595,16 +2598,16 @@ msgstr "Kein Symbol gefunden"
 
 #: translate_tmp.pl:6621
 msgid "Import from current theme..."
-msgstr "Aus dem aktuellen Thema importieren..."
+msgstr "Aus dem aktuellen Thema importieren …"
 
 #: translate_tmp.pl:6635
 msgid "Import from session..."
-msgstr "Aus der Sitzung importieren..."
+msgstr "Aus der Sitzung importieren …"
 
 #: translate_tmp.pl:6646
 msgid "Import from filesystem..."
-msgstr "Aus Datei..."
+msgstr "Aus Dateisystem importieren …"
 
 #: translate_tmp.pl:7460
 msgid "New text..."
-msgstr "Neuer Text..."
+msgstr "Neuer Text …"

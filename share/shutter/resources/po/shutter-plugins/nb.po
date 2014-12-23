@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-10-28 17:52+0100\n"
-"PO-Revision-Date: 2012-02-18 12:45+0000\n"
-"Last-Translator: aleksander <aleksander.helgaker@gmail.com>\n"
+"PO-Revision-Date: 2014-04-22 23:12+0000\n"
+"Last-Translator: Harald H. <haarektrans@gmail.com>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-08-25 19:21+0000\n"
-"X-Generator: Launchpad (build 16738)\n"
+"X-Launchpad-Export-Date: 2014-12-23 22:44+0000\n"
+"X-Generator: Launchpad (build 17286)\n"
 
 #: translate_tmp:27
 msgid "Grayscale"
@@ -31,7 +31,7 @@ msgstr "Effekter"
 
 #: translate_tmp:29
 msgid "Turn the image into a grayscale image (256 shades)"
-msgstr ""
+msgstr "Gjør om bildet til et gråtonebilde (256 gråtoner)"
 
 #: translate_tmp:27
 msgid "Offset"
@@ -63,7 +63,7 @@ msgstr "Senk rammekant"
 
 #: translate_tmp:29
 msgid "Add an inverted 3d border to the image"
-msgstr ""
+msgstr "Legg til en invertert 3d kant til bildet"
 
 #: translate_tmp:27
 msgid "Torned Paper"
@@ -80,7 +80,7 @@ msgstr "Autobeskjær"
 #: translate_tmp:28
 #: translate_tmp:49
 msgid "Tool"
-msgstr "Vertkøy"
+msgstr "Verktøy"
 
 #: translate_tmp:29
 msgid "Remove empty borders from the image"
@@ -113,16 +113,16 @@ msgstr "Rotasjon:"
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "Perseptive rotation around left edge of image"
-msgstr ""
+msgstr "Perspektiv rotasjon rundt venstre kant av bildet"
 
 #: translate_tmp:122
 msgid "Fade:"
-msgstr ""
+msgstr "Tone ut/inn:"
 
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "Fade percent for mirror image"
-msgstr ""
+msgstr "Tone inn/ut prosent for speilbilde"
 
 #: translate_tmp:140
 msgid "Opacity:"
@@ -159,7 +159,7 @@ msgstr "Zoom:"
 #: translate_tmp:201
 #: translate_tmp:208
 msgid "Zoom factor for output image"
-msgstr ""
+msgstr "Zoom faktor for utdata bilde"
 
 #: translate_tmp:212
 #: translate_tmp:236
@@ -221,17 +221,17 @@ msgstr ""
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "Rotation around image vertical centerline"
-msgstr ""
+msgstr "Rotasjon rundt bildets vertikale senterlinje"
 
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "Rotation around image horizontal centerline"
-msgstr ""
+msgstr "Rotasjon rundt bildets horisontale senterlinje"
 
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "Rotation around the image center"
-msgstr ""
+msgstr "Rotering rundt bildets senter"
 
 #: translate_tmp:183
 #: translate_tmp:190
@@ -254,6 +254,13 @@ msgid ""
 "\n"
 "out - Creates an output image of size needed to hold the transformed image"
 msgstr ""
+"av - Ingen automatisk justering\n"
+"\n"
+"c - Senter bundet boks i utdata\n"
+"\n"
+"zc - Zoom til fullt, og sentrer bundet boks i utdata\n"
+"\n"
+"out - Lager et bilde stort nok til å inneholde det forandrede bildet"
 
 #: translate_tmp:243
 msgid "Sky color"
@@ -265,7 +272,7 @@ msgstr "Velg himmelfarge"
 
 #: translate_tmp:62
 msgid "Barrel Distortion"
-msgstr ""
+msgstr "Tønne Forvrengning"
 
 #: translate_tmp:64
 msgid "Apply a distortion effect to your screenshot"
@@ -304,10 +311,17 @@ msgid ""
 "Defined by Barrel Correction Distortion, by Helmut Dersch.\n"
 "http://www.all-in-one.ee/~dersch/barrel/barrel.html"
 msgstr ""
+"Parameteren d beskriver den lineære skaleringen av bildet. Bruk d=1 og "
+"a=b=c=0 for la bildet være som det er. Ved å velge andre d-verdier, skaleres "
+"bildet med den faktoren. a, b og c forvrenger bildet. Negative verdier "
+"skifter punkter langt unna vekk fra midten.\n"
+"\n"
+"Definert av Barrell Collection Distortion av Helmut Dersch.\n"
+"http://www.all-in-one.ee/~dersch/barrel/barrel.html"
 
 #: translate_tmp:73
 msgid "Bordereffects"
-msgstr ""
+msgstr "Kant effekter"
 
 #: translate_tmp:75
 msgid ""
@@ -325,7 +339,7 @@ msgstr "Størrelse:"
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "The size or dimension of the border region"
-msgstr ""
+msgstr "Størrelsen eller dimensjonen på kant regionen"
 
 #: translate_tmp:122
 msgid "Density:"
@@ -334,7 +348,7 @@ msgstr "Tetthet:"
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "The frequency of detail in the border"
-msgstr ""
+msgstr "Frekvensen for detaljer i kanten"
 
 #: translate_tmp:140
 msgid "Curviness:"
@@ -371,7 +385,7 @@ msgstr ""
 
 #: translate_tmp:64
 msgid "Invert the colors of the image"
-msgstr ""
+msgstr "Inverter fargene på bildet"
 
 #: translate_tmp:101
 msgid "Channel"
@@ -452,11 +466,11 @@ msgstr "Sepia tone"
 
 #: translate_tmp:63
 msgid "Hard Shadow"
-msgstr ""
+msgstr "Hard Skygge"
 
 #: translate_tmp:65
 msgid "Add a shadow to the image on a transparent background"
-msgstr ""
+msgstr "Legg til en skygge på bildet på en gjennomsiktig bakgrunn"
 
 #: translate_tmp:94
 msgid "Direction"
@@ -486,4 +500,4 @@ msgstr "Vannmerke"
 
 #: translate_tmp:64
 msgid "Add a custom text watermark to your screenshot"
-msgstr ""
+msgstr "Legg til et egendefinert tekst-vannmerke på skjermbildet ditt"

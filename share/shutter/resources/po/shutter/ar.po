@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2013-08-12 06:29+0000\n"
+"PO-Revision-Date: 2014-04-04 09:26+0000\n"
 "Last-Translator: Ibrahim Saed <ibraheem5000@gmail.com>\n"
 "Language-Team: Arabic <ar@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -16,8 +16,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n % 100 >= "
 "3 && n % 100 <= 10 ? 3 : n % 100 >= 11 && n % 100 <= 99 ? 4 : 5;\n"
-"X-Launchpad-Export-Date: 2013-08-25 19:20+0000\n"
-"X-Generator: Launchpad (build 16738)\n"
+"X-Launchpad-Export-Date: 2014-12-23 22:44+0000\n"
+"X-Generator: Launchpad (build 17286)\n"
 
 #: translate_tmp.pl:476
 #: translate_tmp.pl:2590
@@ -37,7 +37,7 @@ msgstr "تحتاج لتثبيت gnome-web-photo لاستخدام هذه الخا
 
 #: translate_tmp.pl:883
 msgid "Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature"
-msgstr "تحتاج إلى تنصيب Goo::Canvas/libgoo-canvas-perl لإستخدام هذه الخاصية"
+msgstr "تحتاج إلى تثبيت Goo::Canvas/libgoo-canvas-perl لاستخدام هذه الخاصية"
 
 #: translate_tmp.pl:916
 msgid "Choose a profile"
@@ -105,11 +105,11 @@ msgstr "إلتقاط النافذة"
 
 #: translate_tmp.pl:1035
 msgid "Menu/Tooltip Capture"
-msgstr "التقاط القوائم/التلميحات"
+msgstr "إلتقاط القوائم/التلميحات"
 
 #: translate_tmp.pl:1042
 msgid "Website Capture"
-msgstr "إلتقاط من موقع انترنت"
+msgstr "إلتقاط موقع ويب"
 
 #: translate_tmp.pl:1049
 msgid "Accounts"
@@ -171,11 +171,11 @@ msgstr "الطول\n"
 
 #: translate_tmp.pl:1120
 msgid "$name = multi-purpose (e.g. window title)\n"
-msgstr ""
+msgstr "$name = multi-purpose (مثال : إسم النّافذة )\n"
 
 #: translate_tmp.pl:1120
 msgid "$nb_name = like $name but without blanks in resulting strings\n"
-msgstr ""
+msgstr "$nb_name = مثال $name لكن بدون فراغات في الجمل النّاتجة\n"
 
 #: translate_tmp.pl:1120
 msgid "$profile = name of current profile\n"
@@ -272,7 +272,7 @@ msgstr[5] "ثانية"
 
 #: translate_tmp.pl:1360
 msgid "Capture after a delay of"
-msgstr "التقط بعد الانتظار لـ"
+msgstr "إلتقط بعد الانتظار لـ"
 
 #: translate_tmp.pl:1375
 #: translate_tmp.pl:1376
@@ -281,7 +281,7 @@ msgstr "التقط بعد الانتظار لـ"
 #: translate_tmp.pl:1380
 #: translate_tmp.pl:1381
 msgid "Wait n seconds before taking a screenshot"
-msgstr "انتظر عدد من الثواني قبل التقاط الشاشة"
+msgstr "انتظر عدد من الثواني قبل إلتقاط الشاشة"
 
 #: translate_tmp.pl:1392
 msgid "Include Cursor"
@@ -360,7 +360,7 @@ msgstr "اللون"
 #: translate_tmp.pl:1569
 #: translate_tmp.pl:1570
 msgid "Choose border color"
-msgstr "إختر لون الحافة"
+msgstr "اختر لون الحواف"
 
 #: translate_tmp.pl:1565
 #: translate_tmp.pl:1566
@@ -375,7 +375,7 @@ msgstr "فعل نافذة التكبير والتصغير"
 
 #: translate_tmp.pl:1633
 msgid "Start with selection size of"
-msgstr "إبدأ بإختيار حجم"
+msgstr "ابدأ مع حجم اختيار"
 
 #: translate_tmp.pl:1635
 msgid "at"
@@ -405,7 +405,7 @@ msgstr "يفعل نص المساعدة"
 #: translate_tmp.pl:1714
 #: translate_tmp.pl:1715
 msgid "Include window decoration when capturing a window"
-msgstr "أضف زينة النافذة عند إلتقاط صورة الشاشة"
+msgstr "تضمين إطار النافذة عند إلتقاط نافذة"
 
 #: translate_tmp.pl:1733
 msgid "Automatically resize window to"
@@ -426,7 +426,7 @@ msgstr ""
 
 #: translate_tmp.pl:1777
 msgid "Force rounded window corners"
-msgstr "الإلزام بإطارات نوافذ مقوسة"
+msgstr "تقويس أركان النافذة"
 
 #: translate_tmp.pl:1786
 #, perl-format
@@ -439,25 +439,32 @@ msgid ""
 "named ~/.shutter/shape.conf and put custom values in it. The default values "
 "are stored in %s."
 msgstr ""
+"Shutter يستعمل XShape كإضافة لتحديد شكل النّافذة ، لكن الإضافة يمكن أن لا "
+"تعمل في بعض الظّروف ، مثلا عندما يكون compiz في حالة عمل.\n"
+"\n"
+"عندما يكون هذا الخيار مفعّل Shutter يستعمل معلومات ثابة لتدوير زوايا "
+"النافذة. يمكنك تغير المعلومات الإفتراضيّة بخلق ملفّ بعنوان   "
+"~/.shutter/shape.conf و إضافة معلوماتك الخاصّة فيه. و المعلومات الإفتراضيّة "
+"مخزّنة في %s"
 
 #: translate_tmp.pl:1795
 #: translate_tmp.pl:1796
 msgid "Select only visible windows"
-msgstr "إختر النوافذ المرئية فقط"
+msgstr "اختيار النوافذ المرئية فقط"
 
 #: translate_tmp.pl:1813
 msgid "Pre-Capture Delay"
-msgstr "تأخير قبل صوير الشاشة"
+msgstr "المُهلة قبل تصوير الشاشة"
 
 #: translate_tmp.pl:1828
 #: translate_tmp.pl:1829
 #: translate_tmp.pl:1830
 msgid "Capture menu/tooltip after a delay of n seconds"
-msgstr "التقط القائمة/التلميحة بعد الانتظار لعدد من الثواني"
+msgstr "إلتقط القائمة/التلميحة بعد الانتظار لعدد من الثواني"
 
 #: translate_tmp.pl:1841
 msgid "Ignore possibly wrong type hints"
-msgstr ""
+msgstr "تجاهل تلميحات نوع الخطأ"
 
 #: translate_tmp.pl:1842
 msgid ""
@@ -475,7 +482,7 @@ msgstr "عرض المتصفح الافتراضي"
 #: translate_tmp.pl:1881
 #: translate_tmp.pl:1882
 msgid "Virtual browser width when taking a website screenshot"
-msgstr "عرض المتصفح الافتراضي عند التقاط صورة للموقع"
+msgstr "عرض المتصفح الافتراضي عند إلتقاط صورة لموقع الويب"
 
 #: translate_tmp.pl:1893
 msgid "Show as check pattern"
@@ -498,18 +505,18 @@ msgstr "عرض كخلفية"
 
 #: translate_tmp.pl:1925
 msgid "Displays any transparent parts of the image in a check pattern"
-msgstr ""
+msgstr "يعرض أي أجزاء شفافة من الصورة كنمط لوح الشطرنج"
 
 #: translate_tmp.pl:1926
 msgid ""
 "Displays any transparent parts of the image in a solid color that you specify"
-msgstr ""
+msgstr "يعرض أي أجزاء شفافة من الصورة كلون واحد غير شفاف يمكنك تحديده"
 
 #: translate_tmp.pl:1927
 msgid ""
 "Displays any transparent parts of the image in the background color of the "
 "application"
-msgstr ""
+msgstr "يعرض أي أجزاء شفافة من الصورة بلون خلفية التطبيق"
 
 #: translate_tmp.pl:1951
 msgid "Sort ascending by"
@@ -553,7 +560,7 @@ msgstr "أخفِ النافذة الرئيسية تلقائيا عند أخذ ل
 
 #: translate_tmp.pl:2032
 msgid "Redraw Delay"
-msgstr ""
+msgstr "رسم متأخّر"
 
 #: translate_tmp.pl:2035
 #: translate_tmp.pl:2908
@@ -625,6 +632,8 @@ msgid ""
 "Configure a short timeout to give the Xserver a chance to redraw areas that "
 "were obscured by Shutter's windows before taking a screenshot."
 msgstr ""
+"تكوين مهلة قصيرة من الوقت لإعطاء Xserver فرصة لإعادة رسم المناطق المظلمة "
+"التّي كونّتها نافذة Shutter قبل أخذ صورة الشّاشة."
 
 #: translate_tmp.pl:2177
 #: translate_tmp.pl:2178
@@ -632,6 +641,7 @@ msgid ""
 "You can either choose the system-wide desktop notifications (e.g. Ubuntu's "
 "Notify-OSD) or Shutter's built-in notification system"
 msgstr ""
+"يمكنك أن تختار إما نظام تنبيهات سطح المكتب أو نظام التنبيهات المُدمج بالتطبيق"
 
 #: translate_tmp.pl:2240
 msgid ""
@@ -639,6 +649,9 @@ msgid ""
 "your credentials above. Plugins with OAuth support are configured "
 "automatically the first time you use them."
 msgstr ""
+"<b>برجاء الملاحظة:</b> إذا كانت مُلحقة الرفع تسمح بالرفع المستوثق فقط "
+"فستحتاج لإدخال معلومات اعتماداتك أعلاه. المُلحقات التي تدعم بروتوكول "
+"الاستيثاق المفتوح \"OAuth\" يتم إعداداها تلقائيا من أول استخدام."
 
 #: translate_tmp.pl:2243
 #: translate_tmp.pl:10547
@@ -750,11 +763,11 @@ msgstr "الجودة"
 
 #: translate_tmp.pl:3051
 msgid "Please activate the menu you want to capture"
-msgstr "برجاء تنشيط القائمة التي ترغب بالتقاطها"
+msgstr "برجاء تنشيط القائمة التي ترغب بإلتقاطها"
 
 #: translate_tmp.pl:3054
 msgid "Please activate the tooltip you want to capture"
-msgstr "برجاء تنشيط التلميحة التي ترغب بالتقاطها"
+msgstr "برجاء تنشيط التلميحة التي ترغب بإلتقاطها"
 
 #: translate_tmp.pl:3063
 #: translate_tmp.pl:3074
@@ -979,7 +992,7 @@ msgstr "هناك خطأ في تحديد اسم الملف"
 
 #: translate_tmp.pl:6473
 msgid "Triggered invalid screenshot action."
-msgstr ""
+msgstr "آثار العمل على لقطة الشّاشة غير مفعّلة"
 
 #: translate_tmp.pl:6473
 #: translate_tmp.pl:6475
@@ -995,12 +1008,12 @@ msgstr ""
 #: translate_tmp.pl:154
 #: translate_tmp.pl:164
 msgid "Error while taking the screenshot."
-msgstr "خطأ أثناء التقاط الصورة"
+msgstr "خطأ أثناء إلتقاط الصورة"
 
 #: translate_tmp.pl:6608
 #: translate_tmp.pl:134
 msgid "Capture aborted by user"
-msgstr "تم إلغاء التقاط الصورة بواسطة المستخدم"
+msgstr "تم إلغاء إلتقاط الصورة بواسطة المستخدم"
 
 #: translate_tmp.pl:6738
 #: translate_tmp.pl:6759
@@ -1121,7 +1134,7 @@ msgstr "تحديث معلومات المُلحقات"
 
 #: translate_tmp.pl:8104
 msgid "Please wait while Shutter updates the plugin information"
-msgstr "الرجاء اﻻنتظار ريثما يتم تحديث معلومات المُلحقات"
+msgstr "يرجى اﻻنتظار ريثما يتم تحديث معلومات المُلحقات"
 
 #: translate_tmp.pl:8246
 msgid "Updating upload plugin information"
@@ -1129,11 +1142,11 @@ msgstr "تحديث معلومات مُلحق الرفع"
 
 #: translate_tmp.pl:8251
 msgid "Please wait while Shutter updates the upload plugin information"
-msgstr "يرجى الانتظار بينما يُحدث Shutter معلومات مُلحقة الرفع"
+msgstr "يرجى الانتظار ريثما يُحدث التطبيق معلومات مُلحقات الرفع"
 
 #: translate_tmp.pl:8482
 msgid "Capture All Workspaces"
-msgstr "التقط جميع مساحات العمل"
+msgstr "إلتقط جميع مساحات العمل"
 
 #: translate_tmp.pl:8495
 msgid "Limit to current monitor"
@@ -1150,23 +1163,23 @@ msgid_plural ""
 "monitors detected).\n"
 "Enable it to capture only the current monitor."
 msgstr[0] ""
-"هذا الخيار يكون مفيداً فقط إذا كنت تعمل على نظام متعدد الشاشات ( تم اكتشاف "
-"%d شاشة في جهازك) فعل الخيار لالتقاط صورة فقط للشاشة الحالية."
+"هذا الخيار يكون مفيدا فقط إذا كنت تعمل على نظام متعدد الشاشات ( تم اكتشاف %d "
+"شاشة في جهازك) فعل الخيار لالتقاط صورة للشاشة الحالية فقط."
 msgstr[1] ""
 "هذا الخيار يكون مفيداً فقط إذا كنت تعمل على نظام متعدد الشاشات ( تم اكتشاف "
-"شاشة واحدة في جهازك) فعل الخيار لالتقاط صورة فقط للشاشة الحالية."
+"شاشة واحدة في جهازك) فعل الخيار لالتقاط صورة للشاشة الحالية فقط."
 msgstr[2] ""
 "هذا الخيار يكون مفيداً فقط إذا كنت تعمل على نظام متعدد الشاشات ( تم اكتشاف "
-"شاشتين في جهازك) فعل الخيار لالتقاط صورة فقط للشاشة الحالية."
+"شاشتين في جهازك) فعل الخيار لالتقاط صورة للشاشة الحالية فقط."
 msgstr[3] ""
 "هذا الخيار يكون مفيداً فقط إذا كنت تعمل على نظام متعدد الشاشات ( تم اكتشاف "
-"%d شاشات في جهازك) فعل الخيار لالتقاط صورة فقط للشاشة الحالية."
+"%d شاشات في جهازك) فعل الخيار لالتقاط صورة للشاشة الحالية فقط."
 msgstr[4] ""
 "هذا الخيار يكون مفيداً فقط إذا كنت تعمل على نظام متعدد الشاشات ( تم اكتشاف "
-"%d شاشات في جهازك) فعل الخيار لالتقاط صورة فقط للشاشة الحالية."
+"%d شاشات في جهازك) فعل الخيار لالتقاط صورة للشاشة الحالية فقط."
 msgstr[5] ""
 "هذا الخيار يكون مفيداً فقط إذا كنت تعمل على نظام متعدد الشاشات ( تم اكتشاف "
-"%d شاشات في جهازك) فعل الخيار لالتقاط صورة فقط للشاشة الحالية."
+"%d شاشات في جهازك) فعل الخيار لالتقاط صورة للشاشة الحالية فقط."
 
 #: translate_tmp.pl:8537
 msgid "Active Window"
@@ -1174,7 +1187,7 @@ msgstr "النافذة النشطة"
 
 #: translate_tmp.pl:8542
 msgid "Capture the last active window"
-msgstr "التقط آخر نافذة نشطة"
+msgstr "إلتقط آخر نافذة نشطة"
 
 #: translate_tmp.pl:8585
 #: translate_tmp.pl:403
@@ -1222,7 +1235,7 @@ msgstr "ا_عرض النافذة الرئيسية"
 #: translate_tmp.pl:8719
 #: translate_tmp.pl:395
 msgid "_Redo last screenshot"
-msgstr "أ_عد آخر التقاط للشاشة"
+msgstr "أ_عد آخر إلتقاط للشاشة"
 
 #: translate_tmp.pl:8730
 #: translate_tmp.pl:223
@@ -1259,7 +1272,7 @@ msgstr[5] "انتظر %d دقيقة كحد أقصى"
 
 #: translate_tmp.pl:8908
 msgid "Shutter will wait indefinitely for the screenshot to capture"
-msgstr "سينتظر Shutter إلى وقت غير محدود لالتقاط الشاشة"
+msgstr "سينتظر التطبيق إلى وقت غير محدود لالتقاط الشاشة"
 
 #: translate_tmp.pl:8909
 #: translate_tmp.pl:8910
@@ -1271,22 +1284,22 @@ msgid_plural ""
 "Shutter will wait up to %d seconds for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
-"سينتظر Shutter لـ %d ثانية لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
+"سينتظر التطبيق لـ %d ثانية لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
 "طويلًا"
 msgstr[1] ""
-"سينتظر Shutter لثانية واحدة لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
+"سينتظر التطبيق لثانية واحدة لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
 "طويلًا"
 msgstr[2] ""
-"سينتظر Shutter لثانيتين لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
+"سينتظر التطبيق لثانيتين لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
 "طويلًا"
 msgstr[3] ""
-"سينتظر Shutter لـ %d ثوان لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
+"سينتظر التطبيق لـ %d ثوان لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
 "طويلًا"
 msgstr[4] ""
-"سينتظر Shutter لـ %d ثانية لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
+"سينتظر التطبيق لـ %d ثانية لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
 "طويلًا"
 msgstr[5] ""
-"سينتظر Shutter لـ %d ثانية لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
+"سينتظر التطبيق لـ %d ثانية لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
 "طويلًا"
 
 #: translate_tmp.pl:8911
@@ -1299,22 +1312,22 @@ msgid_plural ""
 "Shutter will wait up to %d minutes for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
-"سينتظر Shutter لـ %d دقيقة لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
+"سينتظر التطبيق لـ %d دقيقة لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
 "طويلًا"
 msgstr[1] ""
-"سينتظر Shutter لدقيقة واحدة لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
+"سينتظر التطبيق لدقيقة واحدة لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
 "طويلًا"
 msgstr[2] ""
-"سينتظر Shutter لدقيقتين لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
+"سينتظر التطبيق لدقيقتين لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
 "طويلًا"
 msgstr[3] ""
-"سينتظر Shutter لـ %d دقائق لالتقاط الشاشة قبل إجهاض العملية إذا اخذت وقتًا "
+"سينتظر التطبيق لـ %d دقائق لالتقاط الشاشة قبل إجهاض العملية إذا اخذت وقتًا "
 "طويلًا"
 msgstr[4] ""
-"سينتظر Shutter لـ %d دقيقة لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
+"سينتظر التطبيق لـ %d دقيقة لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
 "طويلًا"
 msgstr[5] ""
-"سينتظر Shutter لـ %d دقيقة لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
+"سينتظر التطبيق لـ %d دقيقة لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا "
 "طويلًا"
 
 #: translate_tmp.pl:9046
@@ -1462,7 +1475,7 @@ msgstr "اسم ملف غير صالح"
 #: translate_tmp.pl:9733
 #: translate_tmp.pl:6653
 msgid "Choose file to open"
-msgstr "إختر ملف للفتح"
+msgstr "اختر ملفا لفتحه"
 
 #: translate_tmp.pl:9765
 #: translate_tmp.pl:6683
@@ -1523,7 +1536,7 @@ msgid ""
 "above."
 msgstr ""
 "<b>يرجى ملاحظة:</b> أنه إذا كانت مُلحقة الرفع تسمح بالرفع المستوثق فقط "
-"فستحتاج لإدخال معلومات اعتماداتك في التفضيلات أولا لجعلها تظهر في القائمة "
+"فستحتاج لإدخال معلومات اعتماداتك في التفضيلات أولًا لجعلها تظهر في القائمة "
 "أعلاه."
 
 #: translate_tmp.pl:10462
@@ -1631,12 +1644,12 @@ msgstr "\\الملفات العامة غير متوفرة. يبدو أن تثب�
 #: translate_tmp.pl:10778
 msgid ""
 "Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature"
-msgstr ""
+msgstr "يجب تنصيب Net::DBus::GLib/libnet-dbus-glib-per لتفعيل هاته الميزة"
 
 #: translate_tmp.pl:10846
 #, perl-format
 msgid "Loading module %s"
-msgstr ""
+msgstr "تحميل الوحدة %s"
 
 #: translate_tmp.pl:10859
 #, perl-format
@@ -1774,17 +1787,18 @@ msgstr ""
 "  Abdullatif Alomair https://launchpad.net/~omair5354\n"
 "  Ahmed Mohammed https://launchpad.net/~ahmedqatar\n"
 "  Ali https://launchpad.net/~ccl-339\n"
+"  Chiheb https://launchpad.net/~chihebnexus\n"
 "  Ibrahim Saed https://launchpad.net/~ibraheem5000\n"
 "  MEG https://launchpad.net/~meg87\n"
 "  MaXeR https://launchpad.net/~themaxer\n"
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
 "  Mufs https://launchpad.net/~tcp-error\n"
+"  Sultan Al-Isaiee https://launchpad.net/~foxoman\n"
 "  WinkoBit https://launchpad.net/~conanedejawa\n"
 "  abdallah alemran https://launchpad.net/~abukhallad\n"
 "  docesam https://launchpad.net/~doctoresam\n"
 "  drsaudi https://launchpad.net/~mon7b6\n"
 "  faical117 https://launchpad.net/~faical117\n"
-"  foxoman https://launchpad.net/~romance990033\n"
 "  makkay https://launchpad.net/~makkay25\n"
 "  صفا الفليج https://launchpad.net/~safaalfulaij\n"
 "  محمدالحرقان https://launchpad.net/~imksa"
@@ -1836,7 +1850,7 @@ msgstr "_صدّر إلى ملف PDF..."
 #: translate_tmp.pl:119
 #: translate_tmp.pl:6192
 msgid "Export to Post_Script..."
-msgstr ""
+msgstr "التحويل إلى آخر السكريبت ..."
 
 #: translate_tmp.pl:129
 msgid "Page Set_up"
@@ -1937,7 +1951,7 @@ msgstr "أعِد"
 
 #: translate_tmp.pl:40
 msgid "Redo last screenshot"
-msgstr "أعد آخر التقاط للشاشة"
+msgstr "أعد آخر إلتقاط للشاشة"
 
 #: translate_tmp.pl:63
 #: translate_tmp.pl:46
@@ -1959,11 +1973,11 @@ msgstr "سطح المكتب"
 
 #: translate_tmp.pl:92
 msgid "Take a screenshot of your whole desktop"
-msgstr "التقط صورة لسطح المكتب كاملاً"
+msgstr "إلتقط صورة لسطح المكتب كاملاً"
 
 #: translate_tmp.pl:93
 msgid "Capture a specific workspace"
-msgstr "التقط صورة لمساحة عمل معينة"
+msgstr "إلتقط صورة لمساحة عمل معينة"
 
 #: translate_tmp.pl:131
 msgid "Window"
@@ -1975,7 +1989,7 @@ msgstr "اختر نافذة بالفأرة"
 
 #: translate_tmp.pl:135
 msgid "Take a screenshot of a specific window"
-msgstr "التقط صورة لنافذة معينة"
+msgstr "إلتقط صورة لنافذة معينة"
 
 #: translate_tmp.pl:150
 msgid "Section"
@@ -1986,7 +2000,7 @@ msgid ""
 "Captures only a section of the window. You will be able to select any child "
 "window by moving the mouse over it"
 msgstr ""
-"التقط فقط مقطع من النافذة. بإمكانك تحديد أي نافذة فرعية بتحريك الفأرة عليها"
+"إلتقط فقط مقطع من النافذة. بإمكانك تحديد أي نافذة فرعية بتحريك الفأرة عليها"
 
 #: translate_tmp.pl:170
 #: translate_tmp.pl:1095
@@ -2004,7 +2018,7 @@ msgstr "تلميحة"
 
 #: translate_tmp.pl:193
 msgid "Capture a tooltip"
-msgstr "التقط تلميحة"
+msgstr "إلتقط تلميحة"
 
 #: translate_tmp.pl:209
 msgid "Web"
@@ -2013,14 +2027,14 @@ msgstr "انترنت"
 #: translate_tmp.pl:211
 #: translate_tmp.pl:79
 msgid "Take a screenshot of a website"
-msgstr "التقط صورة لموقع على الإنترنت"
+msgstr "إلتقط صورة لموقع ويب"
 
 #: translate_tmp.pl:212
 msgid ""
 "Set how long Shutter will wait for the screenshot to complete before "
 "aborting the process if it's taking too long"
 msgstr ""
-"اضبط كم سينتظر Shutter لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا طويلًا"
+"اضبط كم سينتظر التطبيق لالتقاط الشاشة قبل إجهاض العملية إذا أخذت وقتًا طويلًا"
 
 #: translate_tmp.pl:233
 msgid "Edit"
@@ -2067,7 +2081,7 @@ msgstr "حدث خطأ عند تنفيذ %s."
 #: translate_tmp.pl:65
 #, perl-format
 msgid "Exit Code: %d."
-msgstr ""
+msgstr "كود الخروج : %d"
 
 #: translate_tmp.pl:167
 msgid "Synchronization complete"
@@ -2125,15 +2139,15 @@ msgstr "<b>shift/نقرة يمنى</b> ⟵ تشغيل/إيقاف نافذة ال
 
 #: translate_tmp.pl:124
 msgid "<b>ctrl + scrollwheel</b> → zoom in/out"
-msgstr ""
+msgstr "<b>ctrl + عجلة الفأرة</b> ← للتكبير والتصغير"
 
 #: translate_tmp.pl:124
 msgid "<b>space</b> → zoom window on/off"
-msgstr ""
+msgstr "<b>مفتاح المسافة</b> ← لإيقاف وتشغيل تكبير النافذة"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys</b> → move cursor"
-msgstr ""
+msgstr "<b>مفاتيح الأسهم</b> ← لتحريك المؤشر"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys + alt</b> → move selection"
@@ -2150,7 +2164,7 @@ msgstr "ربما مؤشر الفأرة لايمسك أو المنطقة المخ
 
 #: translate_tmp.pl:96
 msgid "Keyboard could not be grabbed."
-msgstr ""
+msgstr "لا يمكن تفعيل لوحة المفاتيح"
 
 #: translate_tmp.pl:105
 msgid "menu"
@@ -2163,11 +2177,11 @@ msgstr "تلميحة"
 #: translate_tmp.pl:111
 #, perl-format
 msgid "No window with type %s detected."
-msgstr ""
+msgstr "لا وجود لأيّ نافذة من نوع %s تمّ إكتشافها"
 
 #: translate_tmp.pl:119
 msgid "There is no last capture that can be redone."
-msgstr ""
+msgstr "لا توجد لقطة أخيرة يمكن استعادتها"
 
 #: translate_tmp.pl:127
 msgid "The window is no longer available."
@@ -2176,17 +2190,17 @@ msgstr "لم تعد النافذة متوفرة بعد."
 #: translate_tmp.pl:139
 #: translate_tmp.pl:145
 msgid "Unable to capture website"
-msgstr "غير قادر على التقاط صورة للموقع"
+msgstr "تعذّر إلتقاط صورة لموقع الويب"
 
 #: translate_tmp.pl:153
 #, perl-format
 msgid "No window with name pattern %s detected."
-msgstr ""
+msgstr "لا وجود لنافذة بإسم الإطار %s  تمّ التعرّف عليها"
 
 #: translate_tmp.pl:163
 #, perl-format
 msgid "Invalid pattern %s detected."
-msgstr ""
+msgstr "نمط غير صالح %s تمّ الكشف عنه"
 
 #: translate_tmp.pl:116
 msgid "No subwindow detected"
@@ -2197,10 +2211,13 @@ msgid ""
 "Maybe this window is using client-side windows (or similar).\n"
 "Shutter is not yet able to query the tree information of such windows."
 msgstr ""
+"ربّما هاته النّافذة تستعمل إطارا آخر من جانب العميل Client (أو ما شابه)\n"
+"\n"
+"Shutter غير قادر على الحصول على شجرة المعلومات من هاته النّافذة"
 
 #: translate_tmp.pl:81
 msgid "URL to capture"
-msgstr "العنوان URL التي سيتم التقاط صورة له"
+msgstr "رابط الويب الذي سيتم إلتقاط صورة له"
 
 #: translate_tmp.pl:98
 msgid "C_apture"
@@ -2528,7 +2545,7 @@ msgstr "صدّر إلى ملف PDF..."
 
 #: translate_tmp.pl:6194
 msgid "Export to PostScript..."
-msgstr ""
+msgstr "تصدير الحاشية"
 
 #: translate_tmp.pl:6265
 msgid "Automatic scrolling"
@@ -2588,7 +2605,7 @@ msgstr "أضف نص إلى الصورة"
 
 #: translate_tmp.pl:6304
 msgid "Censor"
-msgstr ""
+msgstr "مراقب"
 
 #: translate_tmp.pl:6304
 msgid "Censor portions of your screenshot to hide private data"
@@ -2604,7 +2621,7 @@ msgstr "شوّه منطقة محددة من الصورة لإخفاء بيانا
 
 #: translate_tmp.pl:6304
 msgid "Number"
-msgstr ""
+msgstr "رقم"
 
 #: translate_tmp.pl:6304
 msgid "Add an auto-increment shape to the screenshot"

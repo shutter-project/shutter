@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2012-12-18 22:32+0000\n"
-"Last-Translator: Martin Bořkovec <martinborkovec@seznam.cz>\n"
+"PO-Revision-Date: 2014-10-27 01:19+0000\n"
+"Last-Translator: Zdeněk Kopš <zdenekkops@gmail.com>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Launchpad-Export-Date: 2013-08-25 19:21+0000\n"
-"X-Generator: Launchpad (build 16738)\n"
+"X-Launchpad-Export-Date: 2014-12-23 22:44+0000\n"
+"X-Generator: Launchpad (build 17286)\n"
 
 #: translate_tmp.pl:476
 #: translate_tmp.pl:2590
@@ -390,7 +390,7 @@ msgstr "v"
 #: translate_tmp.pl:1677
 #: translate_tmp.pl:1678
 msgid "Start Selection Tool with a customized selection size"
-msgstr ""
+msgstr "Spustit výběrový nástroj s přizpůsobenou výběrovou velikostí"
 
 #: translate_tmp.pl:1696
 msgid "Show help text"
@@ -648,6 +648,9 @@ msgid ""
 "your credentials above. Plugins with OAuth support are configured "
 "automatically the first time you use them."
 msgstr ""
+"<b>Poznámka:</b> Jestliže zásuvný modul umožňuje nahrávání obrázků s "
+"přihlášením, přihlašovací údaje můžete zadat výše. Zásuvné moduly s podporou "
+"OAuth jsou nastaveny automaticky při jejich prvním použití."
 
 #: translate_tmp.pl:2243
 #: translate_tmp.pl:10547
@@ -817,7 +820,7 @@ msgstr "nenalezeno"
 
 #: translate_tmp.pl:4244
 msgid "Error while adding the file monitor."
-msgstr ""
+msgstr "Chyba při při přidávání kontrolního přijímače souboru."
 
 #: translate_tmp.pl:4765
 msgid "Settings could not be saved!"
@@ -873,7 +876,7 @@ msgstr "Sezení se nepodařilo obnovit!"
 #: translate_tmp.pl:5406
 #, perl-format
 msgid "Error while creating the trashinfo file %s."
-msgstr ""
+msgstr "Chyba při vytváření informace o smazání pro soubor %s."
 
 #: translate_tmp.pl:5418
 #, perl-format
@@ -1212,7 +1215,7 @@ msgstr "_Webová stránka"
 
 #: translate_tmp.pl:8713
 msgid "S_how main window"
-msgstr ""
+msgstr "_Zobrazit hlavní okno"
 
 #: translate_tmp.pl:8719
 #: translate_tmp.pl:395
@@ -1486,8 +1489,8 @@ msgid ""
 "after closing this dialog."
 msgstr ""
 "Vyberte prosím jeden z účtů a klikněte na <i>Odeslat</i>.  Po zavření tohoto "
-"dialogu budou cíle odeslání budou stále přístupné v kontextové nabídce "
-"(kliknutí pravým tlačítkem) snímku."
+"dialogu budou cíle odeslání stále přístupné v kontextové nabídce snímku "
+"(kliknutí pravým tlačítkem)."
 
 #: translate_tmp.pl:10460
 msgid ""
@@ -1495,6 +1498,9 @@ msgid ""
 "enter your credentials in preferences first to make it appear in the list "
 "above."
 msgstr ""
+"<b>Poznámka:</b> Jestliže zásuvný modul dovoluje pouze nahrávání s "
+"přihlášením, musíte nejprve zadat přihlašovací údaje v nastavení, aby se "
+"tyto moduly objevily v nabídce výše."
 
 #: translate_tmp.pl:10462
 msgid "Choose account"
@@ -1535,7 +1541,14 @@ msgid_plural ""
 "Folder %s is synchronized with Ubuntu One. The selected files will be copied "
 "to that folder before being published."
 msgstr[0] ""
+"Složka %s je synchronizována pomocí Ubuntu One. Vybraný soubor bude "
+"zkopírován do této složky dříve než bude uveřejněn."
 msgstr[1] ""
+"Složka %s je synchronizována pomocí Ubuntu One. Vybrané soubory budou "
+"zkopírovány do této složky dříve než budou uveřejněny."
+msgstr[2] ""
+"Složka %s je synchronizována pomocí Ubuntu One. Vybrané soubory budou "
+"zkopírovány do této složky dříve než budou uveřejněny."
 
 #: translate_tmp.pl:10707
 #: translate_tmp.pl:10739
@@ -1546,13 +1559,13 @@ msgid_plural ""
 "<b>Please note:</b> The selected files will be published in a background "
 "process. You will be notified when the process has finished."
 msgstr[0] ""
-"<b>Mějte na paměti:</b> Vybraný soubor bude publikován v procesu běžícím na "
-"pozadí. Po dokončení o tom budete informováni."
+"<b>Poznámka:</b> Vybraný soubor bude publikován v procesu běžícím na pozadí. "
+"Po dokončení o tom budete informováni."
 msgstr[1] ""
-"<b>Mějte na paměti:</b> Vybrané soubory bude publikován v procesu běžícím na "
+"<b>Poznámka:</b> Vybrané soubory budou publikovány v procesu běžícím na "
 "pozadí. Po dokončení o tom budete informováni."
 msgstr[2] ""
-"<b>Mějte na paměti:</b> Vybrané soubory bude publikován v procesu běžícím na "
+"<b>Poznámka:</b> Vybrané soubory budou publikovány v procesu běžícím na "
 "pozadí. Po dokončení o tom budete informováni."
 
 #: translate_tmp.pl:10711
@@ -1562,7 +1575,7 @@ msgid ""
 "Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
 "folder."
 msgstr ""
-"Adresář %s je synchronizován s Ubuntu One. Vyberte prosím jiný adresář."
+"Složka %s je synchronizována s Ubuntu One. Vyberte prosím jinou složku."
 
 #: translate_tmp.pl:10762
 msgid "Ubuntu One service cannot be found."
@@ -1589,7 +1602,7 @@ msgstr "Nahrávání modulu %s"
 #: translate_tmp.pl:10859
 #, perl-format
 msgid "Error while executing upload plugin %s."
-msgstr ""
+msgstr "Chyba při spouštění nahrávacího rozšíření %s."
 
 #: translate_tmp.pl:10859
 msgid "There was an error executing the upload plugin."
@@ -1730,6 +1743,7 @@ msgstr ""
 "  Roman Horník https://launchpad.net/~roman.hornik\n"
 "  Tadeáš Pařík https://launchpad.net/~pariktadeas\n"
 "  Zdeněk Dlauhý https://launchpad.net/~zdlauhy\n"
+"  Zdeněk Kopš https://launchpad.net/~zdenekkops\n"
 "  luisah https://launchpad.net/~luisah"
 
 #: translate_tmp.pl:34
@@ -1834,7 +1848,7 @@ msgstr "_Otevřít pomocí"
 #: translate_tmp.pl:565
 #: translate_tmp.pl:662
 msgid "Show in _folder"
-msgstr ""
+msgstr "Zobrazit ve _složce"
 
 #: translate_tmp.pl:572
 #: translate_tmp.pl:669
@@ -1962,6 +1976,8 @@ msgid ""
 "Set how long Shutter will wait for the screenshot to complete before "
 "aborting the process if it's taking too long"
 msgstr ""
+"Nastavit, jak dlouho bude Shutter vyčkávat na vytvoření snímku, než dojde k "
+"ukončení, trvá-li proces příliš dlouho."
 
 #: translate_tmp.pl:233
 msgid "Edit"
@@ -1988,7 +2004,7 @@ msgstr ""
 
 #: translate_tmp.pl:247
 msgid "Show links to previous uploads"
-msgstr ""
+msgstr "Zobrazit linky k předchozím nahráním"
 
 #: translate_tmp.pl:33
 #: translate_tmp.pl:47
@@ -2046,12 +2062,12 @@ msgstr "Příkaz 'put' se nezdařil."
 
 #: translate_tmp.pl:87
 msgid "Copy this code to clipboard"
-msgstr ""
+msgstr "Kopírovat tento kód do schránky"
 
 #: translate_tmp.pl:112
 #, perl-format
 msgid "Upload - %s - %s"
-msgstr ""
+msgstr "Nahrávání - %s - %s"
 
 #: translate_tmp.pl:120
 msgid "Draw a rectangular area using the mouse."
@@ -2130,7 +2146,7 @@ msgstr "Žádné okno s názvem podle vzoru %s nezjištěno."
 #: translate_tmp.pl:163
 #, perl-format
 msgid "Invalid pattern %s detected."
-msgstr ""
+msgstr "Byl detekován nesprávný vzor %s."
 
 #: translate_tmp.pl:116
 msgid "No subwindow detected"
@@ -2141,6 +2157,8 @@ msgid ""
 "Maybe this window is using client-side windows (or similar).\n"
 "Shutter is not yet able to query the tree information of such windows."
 msgstr ""
+"Toto okno pravděpodobně používá klienta postranního okna (nebo podobné).\n"
+"Shutter zatím není schopen využívat informace z podobných oken."
 
 #: translate_tmp.pl:81
 msgid "URL to capture"

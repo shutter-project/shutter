@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: gscrot-plugins-bash\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-10-28 17:52+0100\n"
-"PO-Revision-Date: 2011-10-25 11:25+0000\n"
-"Last-Translator: Sa5aD <Unknown>\n"
+"PO-Revision-Date: 2014-04-04 09:25+0000\n"
+"Last-Translator: Ibrahim Saed <ibraheem5000@gmail.com>\n"
 "Language-Team: Arabic <ar@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-08-25 19:21+0000\n"
-"X-Generator: Launchpad (build 16738)\n"
+"X-Launchpad-Export-Date: 2014-12-23 22:44+0000\n"
+"X-Generator: Launchpad (build 17286)\n"
 
 #: translate_tmp:27
 msgid "Grayscale"
@@ -27,11 +27,11 @@ msgstr "درجات الرمادي"
 #: translate_tmp:72
 #: translate_tmp:64
 msgid "Effect"
-msgstr "تأثير"
+msgstr "التأثير"
 
 #: translate_tmp:29
 msgid "Turn the image into a grayscale image (256 shades)"
-msgstr "تحويل الصورة إلى تدرج الرمادي (256 shades)"
+msgstr "تحويل الصورة إلى تدرج الرمادي (256 لون)"
 
 #: translate_tmp:27
 msgid "Offset"
@@ -39,43 +39,43 @@ msgstr "الإزاحة"
 
 #: translate_tmp:29
 msgid "Give the picture an offset with itself as background"
-msgstr ""
+msgstr "إعطاء الصّورة إزاحة مع نفسها كخلفية"
 
 #: translate_tmp:27
 msgid "Raise Border"
-msgstr ""
+msgstr "الترفيع في الحدود"
 
 #: translate_tmp:29
 msgid "Raise a rectangular 3d-border"
-msgstr ""
+msgstr "الترفيع في الحدود 3D المستطيليّة"
 
 #: translate_tmp:27
 msgid "Soft Edges"
-msgstr ""
+msgstr "حواف ناعمة"
 
 #: translate_tmp:29
 msgid "Add soft edges around the image"
-msgstr ""
+msgstr "إضافة حدود ناعمة حول محيط الصّورة"
 
 #: translate_tmp:27
 msgid "Sunk Border"
-msgstr ""
+msgstr "حدود عميقة"
 
 #: translate_tmp:29
 msgid "Add an inverted 3d border to the image"
-msgstr ""
+msgstr "إضافة حواف معكوسة ثلاثية الأبعاد للصورة"
 
 #: translate_tmp:27
 msgid "Torned Paper"
-msgstr ""
+msgstr "ورقة ممزّقة"
 
 #: translate_tmp:29
 msgid "Add a torn-like border to the image"
-msgstr ""
+msgstr "إضافة حواف ممزّقة للصورة"
 
 #: translate_tmp:27
 msgid "Autocrop"
-msgstr "قص تلقائي"
+msgstr "اقتصاص تلقائي"
 
 #: translate_tmp:28
 #: translate_tmp:49
@@ -88,7 +88,7 @@ msgstr "إزالة الحدود الفارغة من الصورة"
 
 #: translate_tmp:73
 msgid "3D reflection"
-msgstr ""
+msgstr "إنعكاس ثلاثي الأبعاد"
 
 #: translate_tmp:75
 msgid ""
@@ -98,6 +98,11 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
 msgstr ""
+"إضافة انعكاس متلاشي أسفل الصورة ومشاهدتها من جانب منظوري\n"
+"\n"
+"استنادا للبرنامج النصي لـ Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
 
 #: translate_tmp:104
 #: translate_tmp:133
@@ -108,16 +113,16 @@ msgstr "الدوران:"
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "Perseptive rotation around left edge of image"
-msgstr ""
+msgstr "دوران مميّز حول الحافة اليسرى للصورة"
 
 #: translate_tmp:122
 msgid "Fade:"
-msgstr "بهتان:"
+msgstr "التلاشي:"
 
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "Fade percent for mirror image"
-msgstr ""
+msgstr "نسبة تلاشي الصورة طبق الأصل"
 
 #: translate_tmp:140
 msgid "Opacity:"
@@ -126,35 +131,35 @@ msgstr "التعتيم:"
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "Opacity percent applied to whole mirror image"
-msgstr ""
+msgstr "نسبة التعميم المسلّطة على كافة الصّورة طبق الأصل"
 
 #: translate_tmp:158
 msgid "Pef:"
-msgstr ""
+msgstr "Pef:"
 
 #: translate_tmp:165
 #: translate_tmp:172
 msgid "Perspective exaggeration factor"
-msgstr ""
+msgstr "عامل المبالغة في المنظور"
 
 #: translate_tmp:176
 msgid "Gap:"
-msgstr ""
+msgstr "الفجوة:"
 
 #: translate_tmp:183
 #: translate_tmp:190
 msgid "Gap between image and mirror in pixels"
-msgstr ""
+msgstr "الفجوة بين الصّورة و المرأة بالبيكسل"
 
 #: translate_tmp:194
 #: translate_tmp:176
 msgid "Zoom:"
-msgstr ""
+msgstr "التقريب:"
 
 #: translate_tmp:201
 #: translate_tmp:208
 msgid "Zoom factor for output image"
-msgstr ""
+msgstr "عامل التكبير للصورة النهائيّة"
 
 #: translate_tmp:212
 #: translate_tmp:236
@@ -168,7 +173,7 @@ msgstr "اللون الخلفي"
 #: translate_tmp:170
 #: translate_tmp:199
 msgid "Choose background color"
-msgstr ""
+msgstr "اختيار اللون الخلفي"
 
 #: translate_tmp:423
 #: translate_tmp:459
@@ -181,7 +186,7 @@ msgstr ""
 #: translate_tmp:315
 #, perl-format
 msgid "Error while executing plugin %s."
-msgstr ""
+msgstr "خطأ عند تنفيذ المُلحق %s."
 
 #: translate_tmp:424
 #: translate_tmp:460
@@ -193,11 +198,11 @@ msgstr ""
 #: translate_tmp:315
 #: translate_tmp:316
 msgid "There was an error executing the plugin."
-msgstr ""
+msgstr "حدث خطأ أثناء تنفيذ المُلحق."
 
 #: translate_tmp:73
 msgid "3D rotate"
-msgstr ""
+msgstr "تعاقب 3D"
 
 #: translate_tmp:75
 msgid ""
@@ -207,31 +212,37 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 msgstr ""
+"تطبيق تشويه لمنظور الصّورة\n"
+"\n"
+"استنادا للبرنامج النصي لـ Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "Rotation around image vertical centerline"
-msgstr ""
+msgstr "الدوران حول المحور العمودي للصورة"
 
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "Rotation around image horizontal centerline"
-msgstr ""
+msgstr "الدوران حول المحور الأفقي للصورة"
 
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "Rotation around the image center"
-msgstr ""
+msgstr "الدوران حول المحور المركزي للصورة"
 
 #: translate_tmp:183
 #: translate_tmp:190
 msgid ""
 "Output zoom factor; where value > 1 means zoom in and < 1 means zoom out"
 msgstr ""
+"ناتج عامل التكبير ، النتيجة > 1 يعني تكبير أمّا < 1 يعني تصغيير للصورة"
 
 #: translate_tmp:204
 msgid "Auto:"
-msgstr ""
+msgstr "آلي"
 
 #: translate_tmp:226
 #: translate_tmp:233
@@ -244,38 +255,45 @@ msgid ""
 "\n"
 "out - Creates an output image of size needed to hold the transformed image"
 msgstr ""
+"off ـ لا وجود لضبط تلقائي \n"
+"\n"
+"c ـ  مربّع وسط المحيط عند الإنتاج\n"
+"\n"
+"zc ـ  تكبير لملئ و إنتاج المربّع المحيط عند الإنتاج\n"
+"\n"
+"out ـ  صناعة صورة نهائيّة حسب المقاييس المطلوبة للإحتفاظ بالصورة المتغيّرة"
 
 #: translate_tmp:243
 msgid "Sky color"
-msgstr ""
+msgstr "لون السّماء"
 
 #: translate_tmp:248
 msgid "Choose sky color"
-msgstr ""
+msgstr "إختيار لون السّماء"
 
 #: translate_tmp:62
 msgid "Barrel Distortion"
-msgstr ""
+msgstr "برميل التشويه"
 
 #: translate_tmp:64
 msgid "Apply a distortion effect to your screenshot"
-msgstr ""
+msgstr "تطبيق تأثير التشويه لقطعة من الصّورة"
 
 #: translate_tmp:93
 msgid "A:"
-msgstr ""
+msgstr "أ :"
 
 #: translate_tmp:97
 msgid "B:"
-msgstr ""
+msgstr "ب :"
 
 #: translate_tmp:101
 msgid "C:"
-msgstr ""
+msgstr "ج :"
 
 #: translate_tmp:105
 msgid "D:"
-msgstr ""
+msgstr "د :"
 
 #: translate_tmp:112
 #: translate_tmp:119
@@ -294,10 +312,18 @@ msgid ""
 "Defined by Barrel Correction Distortion, by Helmut Dersch.\n"
 "http://www.all-in-one.ee/~dersch/barrel/barrel.html"
 msgstr ""
+"المتغيّر د يصف مدى التحجيم الطّولي للصورة. باستعمال د=1  و أ=ب=0  الصّورة "
+"ستبقى نفسها. إختيار قيمة أخرى للمتغيّر د يغيّر حجم الصّورة حسب قيمة "
+"المتغيّر. أ ، ب و ج يشوّهون الصّورة.  و بإستعمال القيم السلبيّة تبتعد النقاط "
+"عن مركز الصّورة.\n"
+"\n"
+"معرّفة من قبل برميل تصحيح التشويه ، ل Helmut Dersh\n"
+"\n"
+"http://www.all-in-one.ee/~dersch/barrel/barrel.html"
 
 #: translate_tmp:73
 msgid "Bordereffects"
-msgstr ""
+msgstr "تأثيرات الحدود"
 
 #: translate_tmp:75
 msgid ""
@@ -307,6 +333,11 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/bordereffects/index.php"
 msgstr ""
+"إنشاء مجموعة من التأثيرات مثل التشتّت على حدود الصّورة\n"
+"\n"
+"Based on a script by Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/bordereffects/index.php"
 
 #: translate_tmp:104
 msgid "Size:"
@@ -315,53 +346,53 @@ msgstr "الحجم:"
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "The size or dimension of the border region"
-msgstr ""
+msgstr "الحجم أو البعد عند المنطقة الحدوديّة"
 
 #: translate_tmp:122
 msgid "Density:"
-msgstr ""
+msgstr "الكثافة :"
 
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "The frequency of detail in the border"
-msgstr ""
+msgstr "تواتر التفاصيل عند الحدود"
 
 #: translate_tmp:140
 msgid "Curviness:"
-msgstr ""
+msgstr "الإلتواء :"
 
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "The curviness in the border features"
-msgstr ""
+msgstr "إلتواء في ملامح الحدود"
 
 #: translate_tmp:158
 msgid "Granularity:"
-msgstr ""
+msgstr "حبيبات :"
 
 #: translate_tmp:165
 #: translate_tmp:172
 msgid ""
 "The base grain size or pixelization size used to create the detail in the "
 "border"
-msgstr ""
+msgstr "قاعدة حجم البيكسال المستعمل لإنشاء تفاصيل الحدود"
 
 #: translate_tmp:176
 msgid "Pad:"
-msgstr ""
+msgstr "وسادة"
 
 #: translate_tmp:183
 #: translate_tmp:190
 msgid "The pad size of constant color around the perimeter of the border"
-msgstr ""
+msgstr "حجم اللون  لوسادة الألوان الثابتة حول محيط الحدود"
 
 #: translate_tmp:62
 msgid "Negate"
-msgstr ""
+msgstr "عكس"
 
 #: translate_tmp:64
 msgid "Invert the colors of the image"
-msgstr ""
+msgstr "عكس ألوان الصّورة"
 
 #: translate_tmp:101
 msgid "Channel"
@@ -369,13 +400,14 @@ msgstr "قناة"
 
 #: translate_tmp:62
 msgid "Polaroid"
-msgstr ""
+msgstr "مستقطب الضوء"
 
 #: translate_tmp:64
 msgid ""
 "Make your screenshot look like a polaroid photo, add a caption, and even "
 "rotate it a little"
 msgstr ""
+"إجعل صورتك كصورة مستقطبة للضوء ، إضافة إسم توضيحي ، و حتّى تدور الصورة قليلا"
 
 #: translate_tmp:99
 #: translate_tmp:93
@@ -392,6 +424,10 @@ msgid ""
 "%d = day\n"
 "%T = time"
 msgstr ""
+"%Y = السنة\n"
+"%m = الشهر\n"
+"%d = اليوم\n"
+"%T = السّاعة"
 
 #: translate_tmp:116
 #: translate_tmp:110
@@ -406,28 +442,28 @@ msgstr "الجاذبية:"
 #: translate_tmp:137
 #: translate_tmp:131
 msgid "Stroke color"
-msgstr ""
+msgstr "لون الجرة"
 
 #: translate_tmp:142
 #: translate_tmp:136
 msgid "Choose stroke color"
-msgstr ""
+msgstr "اختر لون خط الرسم"
 
 #: translate_tmp:45
 msgid "Resize"
-msgstr ""
+msgstr "تغيير الحجم"
 
 #: translate_tmp:53
 msgid "Resize your screenshot"
-msgstr ""
+msgstr "تغيير حجم صورتك"
 
 #: translate_tmp:71
 msgid "Sepia"
-msgstr ""
+msgstr "تأثير اللّون البنّي الدّاكن"
 
 #: translate_tmp:73
 msgid "Add sepia color toning to the image"
-msgstr ""
+msgstr "إضافة لون داكن لتنغيم الصورة"
 
 #: translate_tmp:110
 msgid "Sepia tone"
@@ -435,11 +471,11 @@ msgstr "بني داكن tone"
 
 #: translate_tmp:63
 msgid "Hard Shadow"
-msgstr ""
+msgstr "ظلّ ثابت"
 
 #: translate_tmp:65
 msgid "Add a shadow to the image on a transparent background"
-msgstr ""
+msgstr "إضافة ضلّ للصورة داخل صورة شفّافة"
 
 #: translate_tmp:94
 msgid "Direction"
@@ -448,7 +484,7 @@ msgstr "الاتجاه:"
 #: translate_tmp:110
 #: translate_tmp:117
 msgid "The direction of the shadow"
-msgstr ""
+msgstr "إتّجاه الضلّ"
 
 #: translate_tmp:121
 msgid "Color"
@@ -469,4 +505,4 @@ msgstr "علامة مائيّة"
 
 #: translate_tmp:64
 msgid "Add a custom text watermark to your screenshot"
-msgstr ""
+msgstr "إضافة علامة نصيّة مائيّة لقطعة الشّاشة"

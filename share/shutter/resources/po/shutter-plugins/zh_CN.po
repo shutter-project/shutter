@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-10-28 17:52+0100\n"
-"PO-Revision-Date: 2013-02-28 21:15+0000\n"
-"Last-Translator: Jim Chen <knh.jabbany@gmail.com>\n"
+"PO-Revision-Date: 2014-05-10 13:57+0000\n"
+"Last-Translator: Qiaochu <qiaochulixian@gmail.com>\n"
 "Language-Team: Simplified Chinese <zh_CN@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-08-25 19:21+0000\n"
-"X-Generator: Launchpad (build 16738)\n"
+"X-Launchpad-Export-Date: 2014-12-23 22:44+0000\n"
+"X-Generator: Launchpad (build 17286)\n"
 
 #: translate_tmp:27
 msgid "Grayscale"
@@ -75,7 +75,7 @@ msgstr "为图像添加类似手撕纸张的边框"
 
 #: translate_tmp:27
 msgid "Autocrop"
-msgstr "自动裁剪"
+msgstr "自动剪裁"
 
 #: translate_tmp:28
 #: translate_tmp:49
@@ -122,20 +122,20 @@ msgstr "淡入淡出："
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "Fade percent for mirror image"
-msgstr "倒影的淡化比例"
+msgstr "镜像的淡化比例"
 
 #: translate_tmp:140
 msgid "Opacity:"
-msgstr "透明度："
+msgstr "不透明度:"
 
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "Opacity percent applied to whole mirror image"
-msgstr "透明度应用于整个倒影文件"
+msgstr "不透明度应用于整个镜像"
 
 #: translate_tmp:158
 msgid "Pef:"
-msgstr ""
+msgstr "偏好："
 
 #: translate_tmp:165
 #: translate_tmp:172
@@ -186,7 +186,7 @@ msgstr "选择背景色"
 #: translate_tmp:315
 #, perl-format
 msgid "Error while executing plugin %s."
-msgstr "运行插件 %s 出错。"
+msgstr "运行插件 %s 错误。"
 
 #: translate_tmp:424
 #: translate_tmp:460
@@ -254,6 +254,10 @@ msgid ""
 "\n"
 "out - Creates an output image of size needed to hold the transformed image"
 msgstr ""
+"关闭 - 无自动调整\n"
+"c - 由图像中心包围\n"
+"zc - 填充空白并由图像中心包围\n"
+"out - 根据变形后的图像建立适合的图像尺寸"
 
 #: translate_tmp:243
 msgid "Sky color"
@@ -304,6 +308,11 @@ msgid ""
 "Defined by Barrel Correction Distortion, by Helmut Dersch.\n"
 "http://www.all-in-one.ee/~dersch/barrel/barrel.html"
 msgstr ""
+"参数d描述图像的线性缩放比例。使用 d=1，和a=b=c=0 "
+"可以使图像保持不变。选择其他d值用来图像缩放大小，a，b和c用来扭曲图像。使用负值用来从图像中心平移。\n"
+"\n"
+"由桶形失真定义，作者Helmut Dersh。\n"
+"http://www.all-in-one.ee/~dersch/barrel/barrel.html"
 
 #: translate_tmp:73
 msgid "Bordereffects"
@@ -317,6 +326,11 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/bordereffects/index.php"
 msgstr ""
+"在图像边框创建多种分散效果\n"
+"\n"
+"建立于Fred Weinhaus的脚本。\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/bordereffects/index.php"
 
 #: translate_tmp:104
 msgid "Size:"
@@ -325,7 +339,7 @@ msgstr "尺寸："
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "The size or dimension of the border region"
-msgstr ""
+msgstr "边缘区域的大小或者尺寸"
 
 #: translate_tmp:122
 msgid "Density:"
@@ -334,16 +348,16 @@ msgstr "密度："
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "The frequency of detail in the border"
-msgstr ""
+msgstr "边框的细节频率"
 
 #: translate_tmp:140
 msgid "Curviness:"
-msgstr ""
+msgstr "卷曲："
 
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "The curviness in the border features"
-msgstr ""
+msgstr "边框卷曲效果"
 
 #: translate_tmp:158
 msgid "Granularity:"
@@ -354,16 +368,16 @@ msgstr "粒度:"
 msgid ""
 "The base grain size or pixelization size used to create the detail in the "
 "border"
-msgstr ""
+msgstr "用于在边框建立基本颗粒大小或像素化尺寸"
 
 #: translate_tmp:176
 msgid "Pad:"
-msgstr ""
+msgstr "填充："
 
 #: translate_tmp:183
 #: translate_tmp:190
 msgid "The pad size of constant color around the perimeter of the border"
-msgstr ""
+msgstr "边框四周的常量色彩填充大小"
 
 #: translate_tmp:62
 msgid "Negate"
@@ -438,11 +452,11 @@ msgstr "调整截图大小"
 
 #: translate_tmp:71
 msgid "Sepia"
-msgstr ""
+msgstr "棕黑色"
 
 #: translate_tmp:73
 msgid "Add sepia color toning to the image"
-msgstr ""
+msgstr "用棕黑色给图像调色"
 
 #: translate_tmp:110
 msgid "Sepia tone"

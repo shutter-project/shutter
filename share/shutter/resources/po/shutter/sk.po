@@ -9,15 +9,15 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2012-07-30 01:09+0000\n"
-"Last-Translator: Mario Kemper (Romario) <mario.kemper@googlemail.com>\n"
+"PO-Revision-Date: 2014-10-27 01:23+0000\n"
+"Last-Translator: Zdeněk Kopš <zdenekkops@gmail.com>\n"
 "Language-Team: Slovak <sk-i18n@lists.linux.sk>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
-"X-Launchpad-Export-Date: 2013-08-25 19:21+0000\n"
-"X-Generator: Launchpad (build 16738)\n"
+"X-Launchpad-Export-Date: 2014-12-23 22:44+0000\n"
+"X-Generator: Launchpad (build 17286)\n"
 
 #: translate_tmp.pl:476
 #: translate_tmp.pl:2590
@@ -390,7 +390,7 @@ msgstr "v"
 #: translate_tmp.pl:1677
 #: translate_tmp.pl:1678
 msgid "Start Selection Tool with a customized selection size"
-msgstr ""
+msgstr "Spustiť výberový nástroj s prispôsobenou výberovou veľkosťou"
 
 #: translate_tmp.pl:1696
 msgid "Show help text"
@@ -650,6 +650,9 @@ msgid ""
 "your credentials above. Plugins with OAuth support are configured "
 "automatically the first time you use them."
 msgstr ""
+"<b>Poznámka:</b> Ak zásuvný modul umožňuje nahrávanie obrázkov s "
+"prihlásením, prihlasovacie údaje môžete zadať vyššie. Zásuvné moduly s "
+"podporou OAuth sú nastavené automaticky pri ich prvom použití."
 
 #: translate_tmp.pl:2243
 #: translate_tmp.pl:10547
@@ -1011,7 +1014,7 @@ msgstr "Zachytávanie prerušil používateľ"
 #: translate_tmp.pl:6759
 #, perl-format
 msgid "%s saved"
-msgstr ""
+msgstr "%s uložené"
 
 #: translate_tmp.pl:6746
 #: translate_tmp.pl:6749
@@ -1127,11 +1130,12 @@ msgstr "Prosím počkajte kým Shutter aktualizuje informácie o rozšírení"
 
 #: translate_tmp.pl:8246
 msgid "Updating upload plugin information"
-msgstr ""
+msgstr "Aktualizácia informácií o nahrávaní pluginu"
 
 #: translate_tmp.pl:8251
 msgid "Please wait while Shutter updates the upload plugin information"
 msgstr ""
+"Vyčkajte prosím než Shutter aktualizuje informácie o nahrávaní pluginu"
 
 #: translate_tmp.pl:8482
 msgid "Capture All Workspaces"
@@ -1213,7 +1217,7 @@ msgstr "_Web"
 
 #: translate_tmp.pl:8713
 msgid "S_how main window"
-msgstr ""
+msgstr "_Zobraziť hlavné okno"
 
 #: translate_tmp.pl:8719
 #: translate_tmp.pl:395
@@ -1295,15 +1299,15 @@ msgstr "Hostiteľ"
 
 #: translate_tmp.pl:9113
 msgid "Anonymous Upload"
-msgstr ""
+msgstr "Anonymné nahrávanie"
 
 #: translate_tmp.pl:9120
 msgid "Authorized Upload"
-msgstr ""
+msgstr "Autorizované nahrávania"
 
 #: translate_tmp.pl:9127
 msgid "OAuth Upload"
-msgstr ""
+msgstr "OAuth nahrávanie"
 
 #: translate_tmp.pl:9138
 #: translate_tmp.pl:9199
@@ -1477,7 +1481,7 @@ msgstr "Hosť"
 
 #: translate_tmp.pl:10426
 msgid "OAuth"
-msgstr ""
+msgstr "OAuth"
 
 #: translate_tmp.pl:10459
 msgid ""
@@ -1485,6 +1489,9 @@ msgid ""
 "links will still be available in the screenshot's <i>right-click menu</i> "
 "after closing this dialog."
 msgstr ""
+"Vyberte jeden z účtov a kliknite na <i>Odoslať</i>. Po zatvorení tohto "
+"dialógu budú ciele odoslanie stále prístupné v kontextovej ponuke snímku "
+"(kliknutie pravým tlačidlom)."
 
 #: translate_tmp.pl:10460
 msgid ""
@@ -1492,6 +1499,9 @@ msgid ""
 "enter your credentials in preferences first to make it appear in the list "
 "above."
 msgstr ""
+"<b>Poznámka:</b> Ak zásuvný modul dovoľuje iba nahrávanie s prihlásením, "
+"musíte najprv zadať prihlasovacie údaje v nastavení, aby sa tieto moduly "
+"objavili v ponuke vyššie."
 
 #: translate_tmp.pl:10462
 msgid "Choose account"
@@ -1532,7 +1542,14 @@ msgid_plural ""
 "Folder %s is synchronized with Ubuntu One. The selected files will be copied "
 "to that folder before being published."
 msgstr[0] ""
+"Zložka %s je synchronizovaná pomocou Ubuntu One. Vybraný súbor sa skopíruje "
+"do tejto zložky skôr než bude uverejnený."
 msgstr[1] ""
+"Zložka %s je synchronizovaná pomocou Ubuntu One. Vybrané súbory budú "
+"skopírované do tejto zložky skôr ako budú zverejnené."
+msgstr[2] ""
+"Zložka %s je synchronizovaná pomocou Ubuntu One. Vybrané súbory budú "
+"skopírované do tejto zložky skôr ako budú zverejnené."
 
 #: translate_tmp.pl:10707
 #: translate_tmp.pl:10739
@@ -1543,7 +1560,14 @@ msgid_plural ""
 "<b>Please note:</b> The selected files will be published in a background "
 "process. You will be notified when the process has finished."
 msgstr[0] ""
+"<b>Poznámka:</b> Vybraný súbor bude publikovaný v procese bežiacom na "
+"pozadí. Po dokončení o tom budete informovaní."
 msgstr[1] ""
+"<b>Poznámka:</b> Vybrané súbory budú publikované v procese bežiacom na "
+"pozadí. Po dokončení o tom budete informovaní."
+msgstr[2] ""
+"<b>Poznámka:</b> Vybrané súbory budú publikované v procese bežiacom na "
+"pozadí. Po dokončení o tom budete informovaní."
 
 #: translate_tmp.pl:10711
 #: translate_tmp.pl:10743
@@ -1552,6 +1576,7 @@ msgid ""
 "Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
 "folder."
 msgstr ""
+"Zložka %s je synchronizovaná s Ubuntu One. Vyberte prosím inú zložku."
 
 #: translate_tmp.pl:10762
 msgid "Ubuntu One service cannot be found."
@@ -1574,16 +1599,16 @@ msgstr ""
 #: translate_tmp.pl:10846
 #, perl-format
 msgid "Loading module %s"
-msgstr ""
+msgstr "Načítavaní modulu %s"
 
 #: translate_tmp.pl:10859
 #, perl-format
 msgid "Error while executing upload plugin %s."
-msgstr ""
+msgstr "Chyba pri spúšťaní nahrávacieho rozšírenie %s."
 
 #: translate_tmp.pl:10859
 msgid "There was an error executing the upload plugin."
-msgstr ""
+msgstr "Pri behu pluginu pre odosielanie nastala chyba."
 
 #: translate_tmp.pl:10892
 #: translate_tmp.pl:10963
@@ -1713,6 +1738,7 @@ msgstr ""
 "  Milan Slovák https://launchpad.net/~milboys\n"
 "  Stano Kobella https://launchpad.net/~stano110\n"
 "  Tomáš Vadina https://launchpad.net/~kyberdev\n"
+"  Zdeněk Kopš https://launchpad.net/~zdenekkops\n"
 "  helix84 https://launchpad.net/~helix84"
 
 #: translate_tmp.pl:34
@@ -1974,7 +2000,7 @@ msgstr ""
 
 #: translate_tmp.pl:247
 msgid "Show links to previous uploads"
-msgstr ""
+msgstr "Zobraziť linky k predchádzajúcim nahraním"
 
 #: translate_tmp.pl:33
 #: translate_tmp.pl:47
@@ -2032,12 +2058,12 @@ msgstr "Príkaz „put“ zlyhal."
 
 #: translate_tmp.pl:87
 msgid "Copy this code to clipboard"
-msgstr ""
+msgstr "Kopírovať tento kód do schránky"
 
 #: translate_tmp.pl:112
 #, perl-format
 msgid "Upload - %s - %s"
-msgstr ""
+msgstr "Nahrávanie - %s - %s"
 
 #: translate_tmp.pl:120
 msgid "Draw a rectangular area using the mouse."
@@ -2117,7 +2143,7 @@ msgstr "Žiadne okno so vzorkou %s nebolo zistené."
 #: translate_tmp.pl:163
 #, perl-format
 msgid "Invalid pattern %s detected."
-msgstr ""
+msgstr "Zistil sa nesprávny vzor %s"
 
 #: translate_tmp.pl:116
 msgid "No subwindow detected"

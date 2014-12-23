@@ -2,21 +2,22 @@
 # Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
 # This file is distributed under the same license as the shutter package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
-#
+# Anh Phan <ppanhh@gmail.com>, 2013.
 msgid ""
 msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2013-04-21 16:47+0000\n"
-"Last-Translator: Khang Mạnh Tử <manhtuvjp@gmail.com>\n"
-"Language-Team: Vietnamese <vi@li.org>\n"
+"PO-Revision-Date: 2013-09-07 20:42+0000\n"
+"Last-Translator: ppanhh <ppanhh@gmail.com>\n"
+"Language-Team: ppanhh@gmail.com\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2013-08-25 19:21+0000\n"
-"X-Generator: Launchpad (build 16738)\n"
+"X-Launchpad-Export-Date: 2014-12-23 22:44+0000\n"
+"X-Generator: Launchpad (build 17286)\n"
+"Language: vi\n"
 
 #: translate_tmp.pl:476
 #: translate_tmp.pl:2590
@@ -125,7 +126,7 @@ msgstr "Vùng trong suốt"
 
 #: translate_tmp.pl:1070
 msgid "Session View"
-msgstr ""
+msgstr "Chế độ xem phiên làm việc"
 
 #: translate_tmp.pl:1078
 #: translate_tmp.pl:1953
@@ -389,6 +390,7 @@ msgstr "tại"
 #: translate_tmp.pl:1678
 msgid "Start Selection Tool with a customized selection size"
 msgstr ""
+"Bắt đầu công cụ lựa chọn với một khu vực lựa chọn được tùy chỉnh trước"
 
 #: translate_tmp.pl:1696
 msgid "Show help text"
@@ -405,7 +407,7 @@ msgstr "Bao gồm khung trang trí cửa sổ khi chụp một cửa sổ"
 
 #: translate_tmp.pl:1733
 msgid "Automatically resize window to"
-msgstr ""
+msgstr "Tự động thay đổi kích thước cửa sổ về"
 
 #: translate_tmp.pl:1760
 #: translate_tmp.pl:1761
@@ -417,10 +419,14 @@ msgid ""
 "This method asks the window manager to resize the window. However, the "
 "window manager may not allow the resize."
 msgstr ""
+"Phần này thay đổi kích thước cửa sổ một cách tự động dựa vào chiều rộng và "
+"chiều cao. Phương pháp này yêu cầu trình quản lý cửa sổ tiến hành thay đổi "
+"kích cỡ cửa sổ. Tuy nhiên, trình quản lý cửa sổ có thể không cho phép việc "
+"thay đổi kích cỡ."
 
 #: translate_tmp.pl:1777
 msgid "Force rounded window corners"
-msgstr ""
+msgstr "Buộc các góc cửa sổ dạng bo tròn"
 
 #: translate_tmp.pl:1786
 #, perl-format
@@ -433,6 +439,14 @@ msgid ""
 "named ~/.shutter/shape.conf and put custom values in it. The default values "
 "are stored in %s."
 msgstr ""
+"Shutter sử dụng phần bổ sung từ XShape để quyết định hình dạng của cửa sổ, "
+"nhưng điều này không hữu dụng trong một số trường hợp, ví dụ như khi đang "
+"chạy compiz.\n"
+"\n"
+"Khi tùy chọn này được kích hoạt Shutter sử dụng tham số cố định để làm tròn "
+"các góc cửa sổ. Bạn có thể ghi đè lên các tham số mặc định bằng cách tạo ra "
+"một tập tin tên ~/.shutter/shape.conf và đặt giá trị tùy chỉnh trong đó. Các "
+"giá trị mặc định được lưu trong %s."
 
 #: translate_tmp.pl:1795
 #: translate_tmp.pl:1796
@@ -451,7 +465,7 @@ msgstr "Chụp trình đơn/chú thích sau khoảng n giây"
 
 #: translate_tmp.pl:1841
 msgid "Ignore possibly wrong type hints"
-msgstr ""
+msgstr "Bỏ qua các phần gợi ý sai về mặt thể loại"
 
 #: translate_tmp.pl:1842
 msgid ""
@@ -509,23 +523,23 @@ msgstr ""
 
 #: translate_tmp.pl:1951
 msgid "Sort ascending by"
-msgstr ""
+msgstr "Sắp xếp giảm dần theo"
 
 #: translate_tmp.pl:1954
 #: translate_tmp.pl:1958
 msgid "Key/Time Created"
-msgstr ""
+msgstr "Thời gian/Khóa được tạo"
 
 #: translate_tmp.pl:1955
 msgid "Sort descending by"
-msgstr ""
+msgstr "Sắp xếp tăng dần theo"
 
 #: translate_tmp.pl:2017
 #: translate_tmp.pl:2018
 #: translate_tmp.pl:2019
 #: translate_tmp.pl:2020
 msgid "Configure sort criteria"
-msgstr ""
+msgstr "Chỉnh cấu hình khu vực sắp xếp"
 
 #: translate_tmp.pl:2027
 #: translate_tmp.pl:2087
@@ -540,7 +554,7 @@ msgstr "Ẩn cửa sổ Shutter sau khi mở"
 #: translate_tmp.pl:2029
 #: translate_tmp.pl:2105
 msgid "Hide notification icon"
-msgstr ""
+msgstr "Ẩn biểu tượng thông báo"
 
 #: translate_tmp.pl:2031
 #: translate_tmp.pl:2114
@@ -549,7 +563,7 @@ msgstr "Tự động ẩn cửa sổ chính khi chụp"
 
 #: translate_tmp.pl:2032
 msgid "Redraw Delay"
-msgstr ""
+msgstr "Độ trễ khi vẽ lại"
 
 #: translate_tmp.pl:2035
 #: translate_tmp.pl:2908
@@ -571,7 +585,7 @@ msgstr "Thu nhỏ tới khay khi đóng cửa sổ chính"
 #: translate_tmp.pl:2044
 #: translate_tmp.pl:2150
 msgid "Display pop-up notification after taking a screenshot"
-msgstr ""
+msgstr "Hiển thị các thông báo dạng bật lên sau khi chụp màn hình"
 
 #: translate_tmp.pl:2045
 #: translate_tmp.pl:2159
@@ -1666,6 +1680,7 @@ msgstr ""
 "  Ngoc Van-Hong Vo https://launchpad.net/~vhngoc\n"
 "  Phan Trọng Khanh https://launchpad.net/~khanhpt\n"
 "  TxHuy https://launchpad.net/~xhuy8x\n"
+"  ppanhh https://launchpad.net/~ppanhh\n"
 "  vozmem https://launchpad.net/~maximusaelius1987"
 
 #: translate_tmp.pl:34

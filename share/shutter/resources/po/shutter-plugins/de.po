@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: gscrot-plugins-bash\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-10-28 17:52+0100\n"
-"PO-Revision-Date: 2011-09-07 16:26+0000\n"
-"Last-Translator: Ghenrik <Unknown>\n"
+"PO-Revision-Date: 2014-06-10 23:24+0000\n"
+"Last-Translator: Tobias Bannert <Unknown>\n"
 "Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2013-08-25 19:21+0000\n"
-"X-Generator: Launchpad (build 16738)\n"
+"X-Launchpad-Export-Date: 2014-12-23 22:44+0000\n"
+"X-Generator: Launchpad (build 17286)\n"
 
 #: translate_tmp:27
 msgid "Grayscale"
@@ -155,12 +155,12 @@ msgstr "Lücke zwischen dem Original und dem Spiegelbild in Pixeln"
 #: translate_tmp:194
 #: translate_tmp:176
 msgid "Zoom:"
-msgstr "Zoom:"
+msgstr "Maßstab:"
 
 #: translate_tmp:201
 #: translate_tmp:208
 msgid "Zoom factor for output image"
-msgstr "Zoomfaktor der Ausgabe"
+msgstr "Vergrößerungsfaktor der Ausgabe"
 
 #: translate_tmp:212
 #: translate_tmp:236
@@ -187,7 +187,7 @@ msgstr "Hintergrundfarbe festlegen"
 #: translate_tmp:315
 #, perl-format
 msgid "Error while executing plugin %s."
-msgstr "Fehler beim Ausführen des Plugins %s."
+msgstr "Fehler beim Ausführen folgender Erweiterung »%s«."
 
 #: translate_tmp:424
 #: translate_tmp:460
@@ -199,7 +199,7 @@ msgstr "Fehler beim Ausführen des Plugins %s."
 #: translate_tmp:315
 #: translate_tmp:316
 msgid "There was an error executing the plugin."
-msgstr "Beim Ausführen des Plugins ist ein Fehler aufgetreten."
+msgstr "Beim Ausführen der Erweiterung ist ein Fehler aufgetreten."
 
 #: translate_tmp:73
 msgid "3D rotate"
@@ -239,8 +239,8 @@ msgstr "Rotation um die Bildmitte"
 msgid ""
 "Output zoom factor; where value > 1 means zoom in and < 1 means zoom out"
 msgstr ""
-"Zoomfaktor der Ausgabe; Ein Wert > 1 bedeutet Heranzoomen und ein Wert < 1 "
-"Wegzoomen"
+"Vergrößerungsfaktor der Ausgabe; Ein Wert > 1 bedeutet vergrößern und ein "
+"Wert < 1 verkleinern"
 
 #: translate_tmp:204
 msgid "Auto:"
