@@ -103,9 +103,9 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1272';
+use constant SHUTTER_REV     => 'Rev.1273';
 use constant SHUTTER_NAME    => 'Shutter';
-use constant SHUTTER_VERSION => '0.93';
+use constant SHUTTER_VERSION => '0.93.1';
 #--------------------------------------
 
 #configure path settings
@@ -3723,7 +3723,7 @@ else {
                 #edit
                 if (   $n_items
                     && defined $key
-                    && defined @{ $session_screens{$key}->{'undo'} }
+                    && defined $session_screens{$key}->{'undo'} 
                     && scalar @{ $session_screens{$key}->{'undo'} } > 1 )
                 {
                     $sm->{_menuitem_undo}->set_sensitive(TRUE);
@@ -3734,7 +3734,7 @@ else {
 
                 if (   $n_items
                     && defined $key
-                    && defined @{ $session_screens{$key}->{'redo'} }
+                    && defined $session_screens{$key}->{'redo'}
                     && scalar @{ $session_screens{$key}->{'redo'} } > 0 )
                 {
                     $sm->{_menuitem_redo}->set_sensitive(TRUE);
@@ -7244,8 +7244,11 @@ else {
         my $status_text = shift;
 
         $status->pop($index);
-        Glib::Source->remove( $session_start_screen{'first_page'}->{'statusbar_timer'} )
-          if defined $session_start_screen{'first_page'}->{'statusbar_timer'};
+        if (defined $session_start_screen{'first_page'}->{'statusbar_timer'}){
+			if ($session_start_screen{'first_page'}->{'statusbar_timer'}){
+				Glib::Source->remove( $session_start_screen{'first_page'}->{'statusbar_timer'} )
+			}
+		}  
         $status->push( $index, $status_text );
 
         #...and remove it
