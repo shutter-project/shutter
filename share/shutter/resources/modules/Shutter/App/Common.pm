@@ -48,7 +48,7 @@ sub new {
 	my $self = { _shutter_root => shift, _mainwindow => shift, _appname => shift, _version => shift, _rev => shift, _pid => shift };
 
 	#vars
-	$self->{_debug_cparam}              = FALSE;
+	$self->{_debug_cparam}              = TRUE;
 	$self->{_clear_cache}               = FALSE;
 	$self->{_min_cparam}                = FALSE;
 	$self->{_disable_systray_cparam}    = FALSE;

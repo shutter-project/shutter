@@ -8353,7 +8353,10 @@ else {
                         #~ print $name, $folder, $type, "\n";
 
                         if (   !exists $accounts{$name}
-                            || !exists $accounts{$name}->{module} )
+                            || !exists $accounts{$name}->{module}
+                            || $accounts{$name}->{supports_anonymous_upload} ne &fct_upload_plugin_get_info( $ukey, 'supports_anonymous_upload' ) ||
+                               $accounts{$name}->{supports_authorized_upload} ne &fct_upload_plugin_get_info( $ukey, 'supports_authorized_upload' ) ||
+                               $accounts{$name}->{supports_oauth_upload} ne &fct_upload_plugin_get_info( $ukey, 'supports_oauth_upload' ) )
                         {
 
                             #show dialog and progress bar
@@ -10632,7 +10635,7 @@ else {
                     my $uploader = $hosting_module->new( $hosting_host, $sc->get_debug, $shutter_root, $d, $window, SHUTTER_VERSION );
 
                     #init module
-                    if ( $uploader->init ) {
+                    if ( $uploader->init($hosting_username) ) {
 
                         my $counter = 1;
                         $hosting_progress->set_fraction(0);
