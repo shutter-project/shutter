@@ -79,9 +79,6 @@ sub init {
 	$self->{_config} = { };
 	$self->{_config_file} = file( $ENV{'HOME'}, '.imgur-api-config' );
 
-	print $username . "\n";
-	print $d->get("OAuth") . "\n";
-
 	$self->load_config;
 	if ($username eq $d->get("OAuth"))
 	{
@@ -233,11 +230,9 @@ sub upload {
 
 		my $req;
 		if ($username eq $d->get("OAuth") && $self->{_config}->{access_token}) {
-			print "1$username\n";
 			$req = HTTP::Request::Common::POST(@params, 'Authorization' => 'Bearer ' . $self->{_config}->{access_token});
 		}
 		else {
-			print "2$username\n";
 			$req = HTTP::Request::Common::POST(@params, 'Authorization' => 'Client-ID ' . $self->{_config}->{client_id});
 		}
 		my $rsp = $client->request($req);
@@ -245,7 +240,6 @@ sub upload {
 		#~ print Dumper $json->decode( $rsp->content ); 
 
 		my $json_rsp = $json->decode( $rsp->content );
-		print $rsp->content . "\n";
 
 		if ($json_rsp->{'status'} ne 200) {
 			unlink $self->{_config_file};
