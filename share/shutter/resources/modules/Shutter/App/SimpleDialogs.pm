@@ -59,6 +59,7 @@ sub dlg_info_message {
 	my $detail_message = shift;
 	my $detail_checkbox = shift;
 	my $content_widget = shift;
+	my $content_widget2 = shift;
 
 	my $info_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/], 'info', 'none', undef );
 
@@ -70,6 +71,9 @@ sub dlg_info_message {
 
 	if($content_widget){
 		$info_dialog->get_content_area()->add($content_widget);
+	}
+	if($content_widget2){
+		$info_dialog->get_content_area()->add($content_widget2);
 	}
 
 	$info_dialog->add_button( $button_text_extra1, 10 ) if $button_text_extra1;
