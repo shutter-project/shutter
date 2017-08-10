@@ -67,7 +67,7 @@ sub create_tab {
 	my $sg = Gtk2::SizeGroup->new('horizontal');
 
 	#create entry for each link
-	foreach (keys %{$self->{_links}}){
+	foreach (sort keys %{$self->{_links}}){
 		next if $_ eq 'status';
 		my $box = $self->create_entry_for_notebook($_, $self->{_links}->{$_}, $sg);
 		$upload_vbox->pack_start($box, FALSE, FALSE, 3);
