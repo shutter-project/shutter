@@ -442,12 +442,14 @@ else {
                     #set export filename
                 }
                 elsif ( $cmd eq 'exfilename' ) {
-                    $sc->set_export_filename( $message->get_text );
+                    my $arg = defined $message->get ? $message->get_text : "";
+                    $sc->set_export_filename( $arg );
 
                     #set delay
                 }
                 elsif ( $cmd eq 'delay' ) {
-                    $sc->set_delay( $message->get_text );
+                    my $arg = defined $message->get ? $message->get_text : "";
+                    $sc->set_delay( $arg );
 
                     #set include_cursor flag
                 }
@@ -464,12 +466,13 @@ else {
                     #set nosession flag
                 }
                 elsif ( $cmd eq 'nosession' ) {
-                    $sc->set_no_session( $message->get_text );
+                    my $arg = defined $message->get ? $message->get_text : "";
+                    $sc->set_no_session( $arg );
 
                     #open new files
                 }
                 elsif ( $cmd eq 'fopen' ) {
-                    my @init_files = $message->get_uris;
+                    my @init_files = defined $message->get ? $message->get_uris : ();
                     if ( scalar @init_files > 0 ) {
                         &fct_open_files(@init_files);
                     }
@@ -483,7 +486,8 @@ else {
                     #take screenshot
                 }
                 else {
-                    &evt_take_screenshot( 'global_keybinding', $cmd, undef, $message->get_text );
+                    my $arg = defined $message->get ? $message->get_text : "";
+                    &evt_take_screenshot( 'global_keybinding', $cmd, undef, $arg );
                 }
             }
 
