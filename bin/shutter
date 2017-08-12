@@ -7166,8 +7166,13 @@ else {
             elsif ( $pid == 0 ) {
 
                 #see Bug #661424
-                my $qfilename = quotemeta $session_screens{$key}->{'long'};
-                exec( sprintf( "$^X $plugin_value %d $qfilename $session_screens{$key}->{'width'} $session_screens{$key}->{'height'} $session_screens{$key}->{'filetype'}\n", $socket->get_id ) );
+                #my $qfilename = quotemeta $session_screens{$key}->{'long'};
+                exec( $^X, $plugin_value,
+                    $socket->get_id,
+                    $session_screens{$key}->{'long'},
+                    $session_screens{$key}->{'width'},
+                    $session_screens{$key}->{'height'},
+                    $session_screens{$key}->{'filetype'} );
             }
 
             $sdialog->show_all;
@@ -7200,11 +7205,15 @@ else {
             my $plugin_process = Proc::Simple->new;
 
             #see Bug #661424
-            my $qfilename = quotemeta $session_screens{$key}->{'long'};
+            #my $qfilename = quotemeta $session_screens{$key}->{'long'};
 
             $plugin_process->start(
                 sub {
-                    system("'$plugin_value' $qfilename '$session_screens{$key}->{'width'}' '$session_screens{$key}->{'height'}' '$session_screens{$key}->{'filetype'}' ");
+                    system( $plugin_value,
+                        $session_screens{$key}->{'long'},
+                        $session_screens{$key}->{'width'},
+                        $session_screens{$key}->{'height'},
+                        $session_screens{$key}->{'filetype'} );
                     POSIX::_exit(0);
                 }
             );
