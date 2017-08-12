@@ -30,6 +30,9 @@ use utf8;
 use strict;
 use warnings;
 
+#Deal with encoding problem
+use Encode;
+
 #Gnome2 libraries
 use Gnome2;
 use Gnome2::Wnck;
@@ -8631,7 +8634,9 @@ else {
         #add all windows to menu to capture it directly
         foreach my $win ( $wnck_screen->get_windows_stacked ) {
             if ( $active_workspace && $win->is_on_workspace($active_workspace) ) {
-                my $window_item = Gtk2::ImageMenuItem->new_with_label( $win->get_name );
+                my $win_name = $win->get_name;
+                Encode::_utf8_on( $win_name );
+                my $window_item = Gtk2::ImageMenuItem->new_with_label( $win_name );
                 foreach my $child ( $window_item->get_children ) {
                     if ( $child =~ /Gtk2::AccelLabel/ ) {
                         $child->set_width_chars(50);
