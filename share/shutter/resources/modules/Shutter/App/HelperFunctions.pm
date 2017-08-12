@@ -53,7 +53,8 @@ sub new {
 
 sub xdg_open {
 	my ( $self, $dialog, $link, $user_data ) = @_;
-	system("xdg-open $link");
+	my @args = ("xdg-open", "$link");
+	system(@args);
 	if($?){
 		my $response = $self->{_dialogs}->dlg_error_message( 
 			sprintf( $self->{_d}->get("Error while executing %s."), "'xdg-open'"),
