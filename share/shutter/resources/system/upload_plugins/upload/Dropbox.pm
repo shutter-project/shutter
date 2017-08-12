@@ -195,7 +195,7 @@ sub upload {
 		$upload_file->close();
 
 		if(! $self->{_box}->error) {
-			$res = $self->{_box}->media($self->{_config}->{upload_folder} . "/" . basename($upload_filename));
+			$res = $self->{_box}->shares($self->{_config}->{upload_folder} . "/" . basename($upload_filename), {short_url => 0});
 		}
 
 		if(! $self->{_box}->error){
