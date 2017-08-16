@@ -1,3 +1,19 @@
+shutter (0.64)
+
+This is a bugfix release implementing some of the patches available for quite some time. Following bugs are fixed:
+
+    -- LP:  #731874 Launching a second instance of Shutter if one instance is already open causes a crash
+    -- LP:  #1369330 [patch] i18n for desktop file
+    -- LP:  #1396368 Shutter screenshots uploaded to Dropbox expires
+    -- LP:  #1406324 Imgur uploaded links dialog shows links in random order on every upload
+    -- LP:  #1469840 Send by e-mail generates error (ctrl-shft-E)
+    -- LP:  #1495163 Insecure use of system() allows arbitrary code execution via "Show in Folder"
+    -- LP:  #1556021 'Window' does not show non-latin characters
+    -- LP:  #1565048 imgur upload plugin no longer works due to now unsupported API 1 and 2
+    -- LP:  #1624795 Linux software store metadata
+    
+ -- Michael Kogan <michael.kogan@gmx.net>	 Wed, 16 Aug 2017 20:53:00 +0100
+
 shutter (0.93.1)
 
   * updated Dropbox.pm and XFIXES.pm
