@@ -5466,14 +5466,14 @@ else {
         #get filename for trash folder
         my ( $short, $folder, $ext ) = fileparse( $session_screens{$key}->{'long'}, qr/\.[^.]*/ );
         my $new_trash_uri = &fct_get_next_filename( $short, $shf->utf8_decode( Gnome2::VFS->unescape_string( $trash_uri->get_path ) ), $ext );
-        my $trash_filename = $shf->utf8_decode( Gnome2::VFS->unescape_string ( $new_trash_uri->get_path ) );
+        my $trash_filename = $shf->utf8_decode( Gnome2::VFS->unescape_string( $new_trash_uri->get_path ) );
 
         if ($trashinfo_path) {
 
             #get filename for trashinfo file
             my ( $ishort, $ifolder, $iext ) = fileparse( $trash_filename, qr/\.[^.]*/ );
             my $trashinfo_uri      = $new_trash_uri->get_parent->get_parent->append_path("info")->append_file_name( $ishort . $iext . ".trashinfo" );
-            my $trashinfo_filename = $shf->utf8_decode( ( $trashinfo_uri->get_path ) );
+            my $trashinfo_filename = $shf->utf8_decode( Gnome2::VFS->unescape_string( $trashinfo_uri->get_path ) );
 
             if ( $sc->get_debug ) {
                 print "trashing file...\n";
@@ -10876,7 +10876,7 @@ else {
                                 $target_path = $shf->utf8_decode( Gnome2::VFS->unescape_string( $target_uri->get_parent->get_path ) );
                             }
                             else {
-                                $target_path = $shf->utf8_decode( ( $target_uri->get_scheme . "://" . $target_uri->get_host_name . $target_uri->get_parent->get_path ) );
+                                $target_path = $shf->utf8_decode( Gnome2::VFS->unescape_string( $target_uri->get_scheme . "://" . $target_uri->get_host_name . $target_uri->extract_dirname ) );
                             }
 
                             #dialogs (main window != parent window)
@@ -10997,10 +10997,10 @@ else {
 
         my $target_path = undef;
         if ( $target_uri->is_local ) {
-            $target_path = $shf->utf8_decode( ( $target_uri->get_parent->get_path ) );
+            $target_path = $shf->utf8_decode( Gnome2::VFS->unescape_string( $target_uri->get_parent->get_path ) );
         }
         else {
-            $target_path = $shf->utf8_decode( ( $target_uri->get_scheme . "://" . $target_uri->get_host_name . $target_uri->get_parent->get_path ) );
+            $target_path = $shf->utf8_decode( Gnome2::VFS->unescape_string( $target_uri->get_scheme . "://" . $target_uri->get_host_name . $target_uri->get_parent->get_path ) );
         }
 
         #retry button
