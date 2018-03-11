@@ -29,9 +29,12 @@ use strict;
 use warnings;
 
 use Gtk2;
+use 5.10.1;
 
 #Glib
 use Glib qw/TRUE FALSE/; 
+
+binmode STDOUT, ":utf8";
 
 #--------------------------------------
 
@@ -99,7 +102,10 @@ sub get_thumbnail {
 			}	 
 		}		
 	}
-	
+    else {
+        say "Cannot generate thumbnail for $text_uri";
+    }
+
 	if($pixbuf){
 		if($rfactor != 1.0){
 			my $dest_width 	= $pixbuf->get_width*$rfactor; 
