@@ -6664,7 +6664,7 @@ else {
                 return FALSE;
             }
 
-            print "New uri after exists check: " . $uri->to_string . "\n"
+            print "New uri after exists check: " . $uri->get_path . "\n"
               if $sc->get_debug;
 
             #manipulate before saving
