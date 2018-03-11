@@ -7716,7 +7716,7 @@ else {
                 unless ( $session_screens{$key}->{'no_thumbnail'} ) {
 
                     #update tab icon
-                    $thumb = $sthumb->get_thumbnail( $session_screens{$key}->{'uri'}->get_path, $session_screens{$key}->{'mime_type'}, $session_screens{$key}->{'mtime'}, 0.2, $force_thumb );
+                    $thumb = $sthumb->get_thumbnail( $session_screens{$key}->{'uri'}->get_uri, $session_screens{$key}->{'mime_type'}, $session_screens{$key}->{'mtime'}, 0.2, $force_thumb );
                     $session_screens{$key}->{'tab_icon'}->set_from_pixbuf($thumb);
                 }
 
@@ -7727,7 +7727,7 @@ else {
                 unless ( $session_screens{$key}->{'no_thumbnail'} ) {
 
                     #update view icon
-                    $thumb_view = $sthumb->get_thumbnail( $session_screens{$key}->{'uri'}->get_path, $session_screens{$key}->{'mime_type'}, $session_screens{$key}->{'mtime'}, 1.0 );
+                    $thumb_view = $sthumb->get_thumbnail( $session_screens{$key}->{'uri'}->get_uri, $session_screens{$key}->{'mime_type'}, $session_screens{$key}->{'mtime'}, 1.0 );
 
                     #update dnd pixbuf
                     $session_screens{$key}->{'image'}->drag_source_set_icon_pixbuf($thumb_view);
