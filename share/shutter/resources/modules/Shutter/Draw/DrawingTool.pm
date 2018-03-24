@@ -6943,7 +6943,7 @@ sub gen_thumbnail_on_idle {
                 if ( exists $child->{'uri'} ) {
                     my $thumb;
                     unless ( $child->{'no_thumbnail'} ) {
-                        $thumb = $self->{_thumbs}->get_thumbnail( $child->{'uri'}->get_path, $child->{'mime_type'}, $child->{'mtime'}, 0.2 );
+                        $thumb = $self->{_thumbs}->get_thumbnail( $child->{'uri'}->get_uri, $child->{'mime_type'}, $child->{'mtime'}, 0.2 );
                     }
                     else {
                         $thumb = Gtk2::Gdk::Pixbuf->new( 'rgb', TRUE, 8, 5, 5 );
