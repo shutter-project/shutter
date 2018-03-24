@@ -101,11 +101,40 @@ use Proc::Simple;
 #sort lexically, but sort numeral parts numerically
 use Sort::Naturally;
 
+sub escape_string {
+    # used to be  Gnome2::VFS->escape_string.
+    my $ret = Gnome2::VFS->escape_string($_[0]);
+    say "VFS escape_string $_[0] -> $ret";
+    return $ret;
+}
+
+sub unescape_string {
+    # used to be  Gnome2::VFS->unescape_string.
+    # at least, transform utf-8 to internal perl format for utf8
+    my $ret = Gnome2::VFS->unescape_string($_[0]);
+    say "VFS unescape_string $_[0] -> $ret";
+    return $ret;
+}
+
+sub unescape_string_for_display {
+    # used to be  Gnome2::VFS->unescape_string_for_display.
+    my $ret = Gnome2::VFS->unescape_string_for_display($_[0]);
+    say "VFS unescape_string_for_display $_[0] -> $ret";
+    return $ret;
+}
+
+sub escape_path_string {
+    # used to be  Gnome2::VFS->escape_path_string.
+    my $ret = Gnome2::VFS->escape_path_string($_[0]);
+    say "VFS escape_path_string $_[0] -> $ret";
+    return $ret;
+}
+
 #--------------------------------------
 
 #print UTF-8 to standard output
 #--------------------------------------
-binmode STDOUT, ":utf8";
+#binmode STDOUT, ":utf8";
 
 #--------------------------------------
 
@@ -341,7 +370,7 @@ if ( $app->is_running ) {
         #escape all filenames, see Bug #737428
         my @escaped_filenames;
         foreach my $file (@init_files) {
-            push @escaped_filenames, Gnome2::VFS->escape_string($file);
+            push @escaped_filenames, escape_string($file);
         }
         $app->send_message( 11, uris => \@escaped_filenames );
     }
@@ -4155,7 +4184,7 @@ else {
         my $num_files = $session_start_screen{'first_page'}->{'num_session_files'};
 
         #append a page to notebook using with label == filename
-        my $fname = $shf->utf8_decode( Gnome2::VFS->unescape_string_for_display( $uri->get_basename ) );
+        my $fname = $shf->utf8_decode( unescape_string_for_display( $uri->get_basename ) );
         my $key   = 0;
         my $indx  = 0;
         if ( defined $num_files && $num_files > 0 ) {
@@ -5308,7 +5337,7 @@ else {
 
         foreach my $file (@new_files) {
 
-            my $new_uri = Glib::IO::File::new_for_path( $shf->utf8_decode( Gnome2::VFS->unescape_string($file) ) );
+            my $new_uri = Glib::IO::File::new_for_path( $shf->utf8_decode( unescape_string($file) ) );
 
             next if &fct_is_uri_in_session( $new_uri, TRUE );
 
@@ -6583,7 +6612,7 @@ else {
 
             #we have to use the path (e.g. /home/username/file1.png)
             #so we can save the screenshot_properly
-            $screenshot_name = $shf->utf8_decode( Gnome2::VFS->unescape_string( $uri->get_path ) );
+            $screenshot_name = $shf->utf8_decode( unescape_string( $uri->get_path ) );
 
             #maybe / is set as uri (get_path returns undef)
             #in this case nothing is returned when using get_path
@@ -6638,7 +6667,7 @@ else {
             unless ( $sc->get_export_filename ) {
                 if ( $uri->query_exists ) {
                     my $count = 1;
-                    my $new_filename = fileparse( $shf->utf8_decode( Gnome2::VFS->unescape_string( $uri->get_path ) ), qr/\.[^.]*/ );
+                    my $new_filename = fileparse( $shf->utf8_decode( unescape_string( $uri->get_path ) ), qr/\.[^.]*/ );
 
                     print "Checking if filename already exists: " . $new_filename . "\n"
                       if $sc->get_debug;
@@ -6655,7 +6684,7 @@ else {
             }
 
             #we have to update the path again
-            $screenshot_name = $shf->utf8_decode( Gnome2::VFS->unescape_string( $uri->get_path ) );
+            $screenshot_name = $shf->utf8_decode( unescape_string( $uri->get_path ) );
 
             #no valid filename was determined, exit here
             unless ($screenshot_name) {
@@ -7586,9 +7615,9 @@ else {
                 $session_screens{$key}->{'mtime'} = $filestat->mtime;
                 $session_screens{$key}->{'size'}  = $filestat->size;
 
-                $session_screens{$key}->{'short'}    = $shf->utf8_decode( Gnome2::VFS->unescape_string( $session_screens{$key}->{'uri'}->get_basename ) );
-                $session_screens{$key}->{'long'}     = $shf->utf8_decode( Gnome2::VFS->unescape_string( $session_screens{$key}->{'uri'}->get_path ) );
-                $session_screens{$key}->{'folder'}   = $shf->utf8_decode( Gnome2::VFS->unescape_string( $session_screens{$key}->{'uri'}->get_parent->get_path ) );
+                $session_screens{$key}->{'short'}    = $shf->utf8_decode( unescape_string( $session_screens{$key}->{'uri'}->get_basename ) );
+                $session_screens{$key}->{'long'}     = $shf->utf8_decode( unescape_string( $session_screens{$key}->{'uri'}->get_path ) );
+                $session_screens{$key}->{'folder'}   = $shf->utf8_decode( unescape_string( $session_screens{$key}->{'uri'}->get_parent->get_path ) );
                 $session_screens{$key}->{'filetype'} = $session_screens{$key}->{'short'};
                 $session_screens{$key}->{'filetype'} =~ s/.*\.//ig;
 
@@ -7894,7 +7923,7 @@ else {
                     #prepare new filename
                     my ( $short, $folder, $ext ) = fileparse( $session_screens{$key}->{'long'}, qr/\.[^.]*/ );
                     my $new_uri = &fct_get_next_filename( $short, $sdir->get_cache_dir, $ext );
-                    my $new_filename = $shf->utf8_decode( Gnome2::VFS->unescape_string( $new_uri->get_path ) );
+                    my $new_filename = $shf->utf8_decode( unescape_string( $new_uri->get_path ) );
 
                     if ( $sp->save_pixbuf_to_file( $pixbuf, $new_filename, $session_screens{$key}->{'filetype'} ) ) {
 
@@ -10833,7 +10862,7 @@ else {
                         #~ print sprintf("%s und %s \n", $target_uri->to_string, $source_uri->to_string);
 
                         my $result;
-                        unless ( Gnome2::VFS->unescape_string( $target_uri->get_path ) eq Gnome2::VFS->unescape_string( $source_uri->get_path ) ) {
+                        unless ( unescape_string( $target_uri->get_path ) eq unescape_string( $source_uri->get_path ) ) {
                             unless ( $target_uri->query_exists ) {
                                 $result = Gnome2::VFS::Xfer->uri( $source_uri, $target_uri, 'default', 'abort', 'replace', sub { return TRUE } );
                             }
@@ -10873,10 +10902,10 @@ else {
 
                             my $target_path = undef;
                             if ( $target_uri->is_local ) {
-                                $target_path = $shf->utf8_decode( Gnome2::VFS->unescape_string( $target_uri->get_parent->get_path ) );
+                                $target_path = $shf->utf8_decode( unescape_string( $target_uri->get_parent->get_path ) );
                             }
                             else {
-                                $target_path = $shf->utf8_decode( Gnome2::VFS->unescape_string( $target_uri->get_scheme . "://" . $target_uri->get_host_name . $target_uri->extract_dirname ) );
+                                $target_path = $shf->utf8_decode( unescape_string( $target_uri->get_scheme . "://" . $target_uri->get_host_name . $target_uri->extract_dirname ) );
                             }
 
                             #dialogs (main window != parent window)
@@ -10997,10 +11026,10 @@ else {
 
         my $target_path = undef;
         if ( $target_uri->is_local ) {
-            $target_path = $shf->utf8_decode( Gnome2::VFS->unescape_string( $target_uri->get_parent->get_path ) );
+            $target_path = $shf->utf8_decode( unescape_string( $target_uri->get_parent->get_path ) );
         }
         else {
-            $target_path = $shf->utf8_decode( Gnome2::VFS->unescape_string( $target_uri->get_scheme . "://" . $target_uri->get_host_name . $target_uri->get_parent->get_path ) );
+            $target_path = $shf->utf8_decode( unescape_string( $target_uri->get_scheme . "://" . $target_uri->get_host_name . $target_uri->get_parent->get_path ) );
         }
 
         #retry button

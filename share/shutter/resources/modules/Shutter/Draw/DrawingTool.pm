@@ -6485,8 +6485,8 @@ sub import_from_dnd {
         foreach (@valid_files) {
 
             #transform uri to path
-            my $new_uri  = Glib::IO::File::new_for_file( $self->utf8_decode( Gnome2::VFS->unescape_string($_) ) );
-            my $new_file = $self->utf8_decode( Gnome2::VFS->unescape_string( $new_uri->get_path ) );
+            my $new_uri  = Glib::IO::File::new_for_file( $self->utf8_decode( main::unescape_string($_) ) );
+            my $new_file = $self->utf8_decode( main::unescape_string( $new_uri->get_path ) );
 
             $self->{_current_pixbuf} = $self->{_lp}->load( $new_file, undef, undef, undef, TRUE );
             if ( $self->{_current_pixbuf} ) {
