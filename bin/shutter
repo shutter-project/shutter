@@ -22,6 +22,9 @@
 #
 ###################################################
 
+# See "Migrating from GnomeVFS to GIO":
+# https://developer.gnome.org/gio/stable/ch33.html
+
 #perl -x -S perltidy -l=0 -b "%f"
 
 #modules
@@ -70,6 +73,9 @@ use File::Spec;
 use File::Which;
 use File::Copy::Recursive;
 use IO::File();
+
+use MIME::Detect;
+my $mime_detect = MIME::Detect->new();
 
 #A selection of general-utility list subroutines
 use List::Util qw/ max min /;
@@ -7114,7 +7120,7 @@ else {
             return FALSE unless &fct_screenshot_exists($key);
 
             #built-in-editor
-            if ( $app =~ /shutter/ ) {
+            if ( $app =~ /shutter/i ) {
                 &fct_draw();
                 &fct_show_status_message( 1, sprintf( $d->get("%s opened with %s"), $session_screens{$key}->{'short'}, $d->get("Built-in Editor") ) );
             }
@@ -7142,7 +7148,7 @@ else {
                     if ( defined $iter ) {
                         my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
                         if ( $app->supports_uris ) {
-                            push @open_files, $session_screens{$key}->{'uri'}->get_path;
+                            push @open_files, $session_screens{$key}->{'uri'}->get_uri;
                         }
                         else {
                             push @open_files, $session_screens{$key}->{'long'};
@@ -7152,7 +7158,7 @@ else {
                 undef
             );
             if ( @open_files > 0 ) {
-                $app->launch(@open_files);
+                $app->launch_uris(\@open_files);
                 &fct_show_status_message( 1, $d->get("Opened all files with") . " " . $app->{'name'} );
             }
         }
@@ -7626,7 +7632,7 @@ else {
                 $session_screens{$key}->{'name'} =~ s/\.$session_screens{$key}->{'filetype'}//g;
 
                 #mime type
-                my $mime_type = Gnome2::VFS->get_mime_type_for_name( $session_screens{$key}->{'uri'}->get_path );
+                my ($mime_type) = $mime_detect->mime_type( $session_screens{$key}->{'uri'}->get_path )->mime_type;
 				$mime_type =~ s/image\/x\-apple\-ios\-png/image\/png/; #FIXME
 				$session_screens{$key}->{'mime_type'} = $mime_type;
 
@@ -8945,23 +8951,25 @@ else {
         }
 
         #get applications
-        my $mime_type = Gnome2::VFS::Mime::Type->new( $session_screens{$key}->{'mime_type'} );
-        my @apps      = $mime_type->get_all_applications();
+        my $mime_type =  $session_screens{$key}->{'mime_type'}  ;
+        # apps is a list of GAppInfo
+        # https://developer.gnome.org/gio/stable/GAppInfo.html
+        my $apps = Glib::IO::AppInfo::get_recommended_for_type($mime_type);
 
         #no apps determined!
-        unless ( scalar @apps ) {
+        unless ( scalar @$apps ) {
             $sm->{_menuitem_reopen}->set_sensitive(FALSE);
             $sm->{_menuitem_large_reopen}->set_sensitive(FALSE);
             return $menu_programs;
         }
 
         #create menu items
-        foreach my $app (@apps) {
+        foreach my $app (@$apps) {
 
             #ignore Shutter's desktop entry
-            next if $app->{'id'} eq 'shutter.desktop';
+            next if $app->get_display_name =~ /shutter/i;
 
-            $app->{'name'} = $shf->utf8_decode( $app->{'name'} );
+            # $app->{'name'} = $shf->utf8_decode( $app->{'name'} );
 
             #FIXME
             #we simply cut the kde* / kde4* substring here
@@ -8969,9 +8977,9 @@ else {
             #is the kde3 and the kde4 version of an app installed?
             #
             #I think so ;-)
-            $app->{'id'} =~ s/^(kde4|kde)-//g;
+            # $app->{'id'} =~ s/^(kde4|kde)-//g;
 
-            my $program_item = Gtk2::ImageMenuItem->new_with_label( $app->{'name'} );
+            my $program_item = Gtk2::ImageMenuItem->new_with_label( $app->get_display_name );
             $program_item->set( 'always_show_image' => TRUE )
               if Gtk2->CHECK_VERSION( 2, 16, 0 );
             $menu_programs->append($program_item);
@@ -9001,7 +9009,7 @@ else {
             if ($program_item) {
                 $program_item->signal_connect(
                     'activate' => sub {
-                        &fct_open_with_program( $app, $app->{'name'} );
+                        &fct_open_with_program( $app, $app->get_display_name );
                     }
                 );
             }
