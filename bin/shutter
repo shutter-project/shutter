@@ -5490,19 +5490,19 @@ else {
         my $trash_uri = Gnome2::VFS->find_directory( Glib::IO::File::new_for_path( $ENV{'HOME'} ), 'trash', TRUE, TRUE, 755 );
 
         #create a trashinfo file to enable restoring (a tempfile first)
-        my $trashinfo_path = $strash->create_trashinfo_file( Gnome2::VFS->escape_path_string( $session_screens{$key}->{'long'} ) );
+        my $trashinfo_path = $strash->create_trashinfo_file( escape_path_string( $session_screens{$key}->{'long'} ) );
 
         #get filename for trash folder
         my ( $short, $folder, $ext ) = fileparse( $session_screens{$key}->{'long'}, qr/\.[^.]*/ );
-        my $new_trash_uri = &fct_get_next_filename( $short, $shf->utf8_decode( Gnome2::VFS->unescape_string( $trash_uri->get_path ) ), $ext );
-        my $trash_filename = $shf->utf8_decode( Gnome2::VFS->unescape_string( $new_trash_uri->get_path ) );
+        my $new_trash_uri = &fct_get_next_filename( $short, $shf->utf8_decode( unescape_string( $trash_uri->get_path ) ), $ext );
+        my $trash_filename = $shf->utf8_decode( unescape_string( $new_trash_uri->get_path ) );
 
         if ($trashinfo_path) {
 
             #get filename for trashinfo file
             my ( $ishort, $ifolder, $iext ) = fileparse( $trash_filename, qr/\.[^.]*/ );
             my $trashinfo_uri      = $new_trash_uri->get_parent->get_parent->append_path("info")->append_file_name( $ishort . $iext . ".trashinfo" );
-            my $trashinfo_filename = $shf->utf8_decode( Gnome2::VFS->unescape_string( $trashinfo_uri->get_path ) );
+            my $trashinfo_filename = $shf->utf8_decode( unescape_string( $trashinfo_uri->get_path ) );
 
             if ( $sc->get_debug ) {
                 print "trashing file...\n";
