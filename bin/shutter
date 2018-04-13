@@ -106,7 +106,7 @@ binmode STDOUT, ":utf8";
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1292';
+use constant SHUTTER_REV     => 'Rev.1293';
 use constant SHUTTER_NAME    => 'Shutter';
 use constant SHUTTER_VERSION => '0.94';
 #--------------------------------------
@@ -4963,16 +4963,18 @@ else {
 
                     #determining timeout
                     my $web_menu = $st->{_web}->get_menu;
-                    my @timeouts = $web_menu->get_children;
-                    my $timeout  = undef;
-                    foreach my $to (@timeouts) {
-                        $timeout = $to->get_name;
-                        $timeout =~ /([0-9]+)/;
-                        $timeout = $1;
-                        if ( $settings_xml->{'general'}->{'web_timeout'} == $timeout ) {
-                            $to->set_active(TRUE);
+			  if ( defined $web_menu ){
+                        my @timeouts = $web_menu->get_children;
+                        my $timeout  = undef;
+                        foreach my $to (@timeouts) {
+                            $timeout = $to->get_name;
+                            $timeout =~ /([0-9]+)/;
+                            $timeout = $1;
+                            if ( $settings_xml->{'general'}->{'web_timeout'} == $timeout ) {
+                                $to->set_active(TRUE);
+                            }
                         }
-                    }
+			  }
 
                     #action settings
                     my $model = $progname->get_model;
