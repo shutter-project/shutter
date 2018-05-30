@@ -156,7 +156,7 @@ sub upload
                 # Here, we clean that up
                 if ($returned_data =~ m/<.*>\n/gms)
                 {
-                    $returned_data =~ s/^<.*>\n{/{/ms;
+                    $returned_data =~ s/^<.*>\n\{/\{/ms;
                     $nothumbnail = 1;
                     #print "Cleaned returned data:\n$returned_data\n";
                 }
