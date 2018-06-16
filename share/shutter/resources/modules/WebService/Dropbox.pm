@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Carp ();
 use Fcntl qw(F_GETFL F_SETFL O_NONBLOCK SEEK_SET SEEK_END);
-use JSON;
+use JSON::MaybeXS;
 use Net::OAuth;
 use URI;
 use URI::Escape;

@@ -71,7 +71,7 @@ sub init {
 	my $username = shift;
 
 	#do custom stuff here
-	use JSON;
+	use JSON::MaybeXS;
 	use LWP::UserAgent;
 	use HTTP::Request::Common;
 	use Path::Class;
@@ -167,7 +167,7 @@ sub setup {
 		);
 		my $rsp = $client->request($req);
 
-		my $json = JSON->new(); 
+		my $json = JSON::MaybeXS->new(); 
 		my $json_rsp = $json->decode($rsp->content);
 		
 		if ($self->{_debug_cparam}) {
@@ -212,7 +212,7 @@ sub upload {
 
 	eval {
 
-		my $json = JSON->new();
+		my $json = JSON::MaybeXS->new();
 
 		open( IMAGE, $upload_filename ) or die "$!";
 		my $binary_data = do { local $/ = undef; <IMAGE>; };

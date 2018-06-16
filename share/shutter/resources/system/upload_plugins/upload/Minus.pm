@@ -69,7 +69,7 @@ sub init {
 	my $self = shift;
 
 	#do custom stuff here	
-	use JSON;
+	use JSON::MaybeXS;
 	use LWP::UserAgent;
 	use HTTP::Request::Common;
 	use HTTP::Cookies;
@@ -90,7 +90,7 @@ sub upload {
 	utf8::encode $password;
 	utf8::encode $username;
 
-	my $json_coder = JSON::XS->new;
+	my $json_coder = JSON::MaybeXS->new;
 
 	my $browser = LWP::UserAgent->new(
 		'timeout'    => 20,

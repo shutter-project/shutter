@@ -83,7 +83,7 @@ sub init
     use File::Spec;
     use File::Copy;
 
-    use JSON::XS;
+    use JSON::MaybeXS;
 
     $self->{_mech} =
       WWW::Mechanize->new(agent => "$self->{_ua}", timeout => 20);
@@ -117,7 +117,7 @@ sub upload
 
         if (is_success($self->{_http_status}))
         {
-            $json_worker = JSON::XS->new;
+            $json_worker = JSON::MaybeXS->new;
 
             
 

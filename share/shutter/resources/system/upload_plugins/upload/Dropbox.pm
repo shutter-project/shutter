@@ -72,7 +72,7 @@ sub init {
 	#do custom stuff here
 	use WebService::Dropbox;
     use IO::File;
-	use JSON;
+	use JSON::MaybeXS;
 	use URI::Escape qw(uri_escape);
 	use File::Basename qw(dirname basename);
 	use Path::Class;

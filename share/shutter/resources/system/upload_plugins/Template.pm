@@ -71,7 +71,7 @@ sub new {
 sub init {
 	my $self = shift;
 
-	use JSON;					#example1
+	use JSON::MaybeXS;			#example1
 	use LWP::UserAgent;			#example2
 	use HTTP::Request::Common;	#example3
 	
@@ -92,7 +92,7 @@ sub upload {
 	utf8::encode $username;
 
 	#examples related to the sub 'init'
-	my $json_coder = JSON::XS->new;
+	my $json_coder = JSON::MaybeXS->new;
 
 	my $browser = LWP::UserAgent->new(
 		'timeout'    => 20,
