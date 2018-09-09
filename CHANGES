@@ -1,3 +1,22 @@
+shutter (0.94.1)
+
+This is another bugfix release implementing further patches. Some upload plugins have been removed because the upload services have shut down (ITmages, Minus, TwitPic). Following changes in dependencies are there: perl-json-xs has been superseded by perl-json-maybexs; perl-webservice-gyazo-b is a new optional dependency for upload to Gyazo. Following update plugins are known to be still broken: Dropbox, vgy.me. Following bugs are fixed:
+
+    -- LP:  #1354563 
+	Right click > "show in folder" results in "There was an error executing xdg-open
+    -- LP:  #1565017 
+	[Patch] Convert all JSON modules to JSON::MaybeXS instead of discouraged JSON modules 
+    -- LP:  #1593781 
+	[PATCH] [enhancement] Add support for Gyazo Uploads 
+    -- LP:  #1652600 
+	Insecure use of perl exec()
+    -- LP:  #1734202 
+	Error when switching profiles 
+    -- LP:  #1739971 
+	[PATCH] Use reverse-DNS style AppStream ID
+     
+ -- Michael Kogan <michael.kogan@gmx.net>	 Sun, 09 Sep 2018 18:45:00 +0100
+
 shutter (0.94)
 
 This is a bugfix release implementing some of the patches available for quite some time. Following bugs are fixed:
