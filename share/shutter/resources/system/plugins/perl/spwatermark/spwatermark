@@ -342,33 +342,28 @@ sub apply_effect {
 	$text = strftime $text, localtime;
 	$text = quotemeta $text;
 
-	#quote filename
-	my $qfilename = quotemeta $filename;
-
 	my $psize = $pointsize_sbutton->get_value;
 
 	my $color = $stroke_color->get_color;
 
-	#execute imagemagick command		
-	system(   "convert "
-			. "-background '#00000000'" 
-			. " -fill '"
-			. sprintf( "#%04x%04x%04x%04x", $color->red, $color->green, $color->blue, $stroke_color->get_alpha )
-			. "' -pointsize "
-			. $psize
-			. " -gravity "
-			. $gravity_combo->get_active_text
-			. " -rotate "
-			. $angle_sbutton->get_value
-			. " label:"
-			. $text
-			. " $tmpfilename" );
-			
-	system("composite $tmpfilename"		
-			. " -gravity "
-			. $gravity_combo->get_active_text
-			. " $qfilename"
-			. " $tmpfilename2" );
+	#execute imagemagick command
+	system(
+        convert =>
+        -background => '#00000000',
+        -fill => sprintf( "#%04x%04x%04x%04x", $color->red, $color->green, $color->blue, $stroke_color->get_alpha ),
+        -pointsize => $psize,
+        -gravity => $gravity_combo->get_active_text,
+        -rotate => $angle_sbutton->get_value,
+        "label:$text",
+        $tmpfilename
+    );
+
+	system(
+        composite => $tmpfilename,
+        -gravity => $gravity_combo->get_active_text,
+        $filename => $tmpfilename2
+    );
+
 
 }
 

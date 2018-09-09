@@ -386,23 +386,13 @@ sub apply_effect {
 
 	my $color = $back_color->get_color;
 
-	#quote filename
-	my $qfilename = quotemeta $filename;
-
 	#execute imagemagick command		
-	system(   "convert"
-			. " -virtual-pixel Background -background '"
-			. sprintf( "#%04x%04x%04x%04x", $color->red, $color->green, $color->blue, $back_color->get_alpha )
-			. "' -distort Barrel '"
-			. $c1_sbutton->get_value
-			. " "
-			. $c2_sbutton->get_value
-			. " "
-			. $c3_sbutton->get_value
-			. " "
-			. $c4_sbutton->get_value														
-			. "' $qfilename"
-			. " $tmpfilename" );
+	system (
+        qw/convert -virtual-pixel Background/,
+        -background => sprintf( "#%04x%04x%04x%04x", $color->red, $color->green, $color->blue, $back_color->get_alpha ),
+        -distort => Barrel => join(' ',$c1_sbutton->get_value, $c2_sbutton->get_value, $c3_sbutton->get_value, $c4_sbutton->get_value),
+        $filename, $tmpfilename
+    );
 												
 }
 

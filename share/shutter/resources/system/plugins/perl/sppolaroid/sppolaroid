@@ -349,9 +349,6 @@ sub fct_imagemagick_polaroid {
 
 sub apply_effect {
 
-	#quote filename
-	my $qfilename = quotemeta $filename;
-
 	if ( $use_caption ) {
 
 		my $text = $caption_entry->get_text;
@@ -361,25 +358,34 @@ sub apply_effect {
 
 		my $color = $stroke_color->get_color;
 			
-		system( "convert -caption "
-				. $text
-				. " -fill '"
-				. sprintf( "#%04x%04x%04x%04x", $color->red, $color->green, $color->blue, $stroke_color->get_alpha )
-				. "' $qfilename -pointsize "
-				. $pointsize_sbutton->get_value
-				. " -gravity "
-				. $gravity_combo->get_active_text
-				. "  -bordercolor snow "
-				. " -background black "
-				. " -polaroid "
-				. $angle_sbutton->get_value
-				. " $tmpfilename" );
-				
+		system(
+            convert =>
+            -caption => $text,
+            -fill => sprintf( "#%04x%04x%04x%04x",
+                              $color->red,
+                              $color->green,
+                              $color->blue,
+                              $stroke_color->get_alpha
+                          ),
+            $filename,
+            -pointsize => $pointsize_sbutton->get_value,
+            -gravity => $gravity_combo->get_active_text,
+            qw/-bordercolor snow -background black/,
+            -polaroid => $angle_sbutton->get_value,
+            $tmpfilename
+        );
+
 	} else {
 		
-		system( "convert $qfilename -bordercolor white -border 6 -bordercolor grey60 -border 1 -background none -rotate "
-				. $angle_sbutton->get_value
-				. " -background  black  \\( +clone -shadow 60x4+4+4 \\) +swap -background none -flatten $tmpfilename" );
+		system(
+            convert => $filename,
+            qw/-bordercolor white -border 6 -bordercolor grey60 -border 1 -background none/,
+            -rotate => $angle_sbutton->get_value,
+            -background => 'black',
+            qw/( +clone -shadow 60x4+4+4 ) +swap -background none/,
+            -flatten => $tmpfilename
+        );
+
 	
 	}
 

@@ -368,24 +368,23 @@ sub apply_effect {
 		$direction2 = "80x3-1-1";
 	}
 
-	#quote filename
-	my $qfilename = quotemeta $filename;
-	
-	#execute imagemagick command		
-	system( "convert"
-			. " $qfilename"
-			. " -gravity northwest -background 'rgba(255,255,255,0)' -splice 10x10"
-			. " \\( +clone -background '"
-			. sprintf( "#%04x%04x%04x%04x", $scolor->red, $scolor->green, $scolor->blue, $shadow_color->get_alpha )
-			. "' -shadow "
-			. $direction2
-			. " \\) +swap -background none -mosaic +repage"
-			. " \\( +clone -background '"
-			. sprintf( "#%04x%04x%04x%04x", $scolor->red, $scolor->green, $scolor->blue, $shadow_color->get_alpha )
-			. "' -shadow "
-			. $direction1
-			. " \\) +swap -background none -mosaic +repage"
-			. " $tmpfilename" );
+	#execute imagemagick command
+	system(
+        convert => $filename,
+        -gravity => 'northwest',
+        -background => 'rgba(255,255,255,0)',
+        -splice => '10x10',
+        qw/( +clone/,
+        -background => sprintf( "#%04x%04x%04x%04x", $scolor->red, $scolor->green, $scolor->blue, $shadow_color->get_alpha ),
+        -shadow => $direction2,
+        qw/) +swap -background none -mosaic +repage/,
+        qw/( +clone/,
+        -background => sprintf( "#%04x%04x%04x%04x", $scolor->red, $scolor->green, $scolor->blue, $shadow_color->get_alpha ),
+        -shadow => $direction1,
+        qw/) +swap -background none -mosaic +repage/,
+        $tmpfilename
+    );
+
 
 }
 

@@ -69,7 +69,14 @@ sub web {
 		$self->{_url} = "http://".$self->{_url};
 	}
 	
-	system("gnome-web-photo --timeout=$self->{_timeout} --mode=photo --width=$self->{_width} '$self->{_url}' '$self->{_dest_filename}'");
+	system(
+        'gnome-web-photo',
+        '--timeout='.$self->{_timeout},
+        '--mode=photo',
+        '--width='.$self->{_width},
+        $self->{_url}, $self->{_dest_filename}
+    );
+
 	
 	return TRUE;
 }

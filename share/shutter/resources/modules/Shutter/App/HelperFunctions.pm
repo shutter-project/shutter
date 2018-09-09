@@ -67,8 +67,12 @@ sub xdg_open {
 }
 
 sub xdg_open_mail {
-	my ( $self, $dialog, $mail, $user_data ) = @_;
-	system("xdg-email $mail $user_data");
+	my ( $self, $dialog, $mail, @user_data ) = @_;
+
+	my @cmd = 'xdg-email';
+	push @cmd, $mail if $mail;
+	system(@cmd, @user_data);
+
 	if($?){
 		my $response = $self->{_dialogs}->dlg_error_message( 
 			sprintf( $self->{_d}->get("Error while executing %s."), "'xdg-email'"),
@@ -82,7 +86,7 @@ sub xdg_open_mail {
 
 sub nautilus_sendto {
 	my ( $self, $user_data ) = @_;
-	system("nautilus-sendto $user_data &");
+	system('nautilus-sendto', $user_data);
 	if($?){
 		my $response = $self->{_dialogs}->dlg_error_message( 
 			sprintf( $self->{_d}->get("Error while executing %s."), "'nautilus-sendto'"),
