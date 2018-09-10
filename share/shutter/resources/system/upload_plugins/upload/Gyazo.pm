@@ -46,8 +46,8 @@ my %upload_plugin_info = (
 	'url'           => "https://gyazo.com/",
 	'registration'  => "https://gyazo.com/signup",
 	'description'   => $d->get( "Gyazo is an open-source service for sharing screenshots." ),
-	'supports_anonymous_upload'  => TRUE,
-	'supports_authorized_upload' => FALSE,
+	'supports_anonymous_upload'  => FALSE,
+	'supports_authorized_upload' => TRUE,
 );
 
 binmode( STDOUT, ":utf8" );
