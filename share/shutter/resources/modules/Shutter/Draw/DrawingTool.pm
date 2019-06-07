@@ -35,7 +35,7 @@ use Gtk2;
 use Exporter;
 use Goo::Canvas;
 use File::Basename qw/ fileparse dirname basename /;
-use File::Glob qw/ glob /;
+use File::Glob qw/ bsd_glob /;
 use File::Temp qw/ tempfile tempdir /;
 use Data::Dumper;
 
@@ -221,7 +221,7 @@ sub show {
     #
     #cursors borrowed from inkscape
     #http://www.inkscape.org
-    my @cursors = glob( $self->{_dicons} . "/cursor/*" );
+    my @cursors = bsd_glob( $self->{_dicons} . "/cursor/*" );
     foreach my $cursor_path (@cursors) {
         my ( $cname, $folder, $type ) = fileparse( $cursor_path, qr/\.[^.]*/ );
         $self->{_cursors}{$cname} = Gtk2::Gdk::Pixbuf->new_from_file($cursor_path);
@@ -6567,7 +6567,7 @@ sub import_from_filesystem {
     my $fd = TRUE;
     my $ff = FALSE;
 
-    my @objects = glob("$dobjects/*");
+    my @objects = bsd_glob("$dobjects/*");
     foreach my $name ( sort { -d $a <=> -d $b } @objects ) {
 
         #parse filename

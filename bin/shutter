@@ -57,7 +57,7 @@ use POSIX qw/ strftime /;
 
 #File operations
 use File::Copy qw/ cp mv /;
-use File::Glob qw/ glob /;
+use File::Glob qw/ bsd_glob /;
 use File::Basename qw/ fileparse dirname basename /;
 use File::Temp qw/ tempfile tempdir /;
 use File::Spec;
@@ -968,7 +968,7 @@ else {
     my $combobox_settings_profiles = Gtk2::ComboBox->new_text;
     my @current_profiles;
     my $current_index = 0;
-    foreach my $pfile ( sort glob("$ENV{'HOME'}/.shutter/profiles/*.xml") ) {
+    foreach my $pfile ( sort bsd_glob("$ENV{'HOME'}/.shutter/profiles/*.xml") ) {
         utf8::decode $pfile;
         next
           if $pfile =~ /\_accounts.xml/;    #accounts file - we are looking for "real" profiles
@@ -8212,7 +8212,7 @@ else {
         my $fb_pixbuf = $lp->load( $fb_pixbuf_path, Gtk2::IconSize->lookup('menu') );
 
         foreach my $plugin_path (@plugin_paths) {
-            my @plugins = glob($plugin_path);
+            my @plugins = bsd_glob($plugin_path);
             foreach my $pkey (@plugins) {
                 if ( -d $pkey ) {
                     my $dir_name = $pkey;
@@ -8354,7 +8354,7 @@ else {
         my @upload_plugin_paths = ("$shutter_root/share/shutter/resources/system/upload_plugins/upload/*");
 
         foreach my $upload_plugin_path (@upload_plugin_paths) {
-            my @upload_plugins = glob($upload_plugin_path);
+            my @upload_plugins = bsd_glob($upload_plugin_path);
             foreach my $ukey (@upload_plugins) {
 
                 #Checking if file exists
@@ -9437,7 +9437,7 @@ else {
 
         #delete all files in this folder
         #except the ones that are in the current session
-        my @unsaved_files = glob( $sdir->get_cache_dir . "/*" );
+        my @unsaved_files = bsd_glob( $sdir->get_cache_dir . "/*" );
         foreach my $unsaved_file (@unsaved_files) {
             utf8::decode $unsaved_file;
             print $unsaved_file, " checking \n" if $sc->get_debug;
