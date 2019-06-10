@@ -82,7 +82,10 @@ sub init {
 	$self->load_config;
 	if ($username eq $d->get("OAuth"))
 	{
-		return $self->connect;
+		if (!$self->{_config}->{access_token}) 
+		{
+			return $self->connect;
+		}
 	}
 
 	return TRUE;
