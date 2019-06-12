@@ -1,3 +1,12 @@
+shutter (0.94.3)
+
+This is another bugfix release which ensures functionality with Perl 5.30. Bugs fixed:
+
+    -- LP:  #1831155 
+	New File::Glob does not export glob, shutter does not start
+    -- LP:  #1782646 
+	shutter asks to "Authorize with Imgur" for each upload to account Imgur OAuth 
+
 shutter (0.94.2)
 
 A quick fix for the Gyazo upload plugin.
