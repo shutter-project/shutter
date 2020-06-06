@@ -57,10 +57,11 @@ use Gtk2::Unique;
 #Glib
 use Glib qw/TRUE FALSE/;
 
-# Glib::IO to replace Gnome2::VFS
-use Glib::IO;
-
 use Glib::Object::Introspection;
+Glib::Object::Introspection->setup(
+    basename => 'Gio',
+    version => '2.0',
+    package => 'Glib::IO');
 Glib::Object::Introspection->setup(
     basename => 'Wnck',
     version => '1.0',
@@ -4158,7 +4159,7 @@ else {
         }
 
         #check mime type
-        my $mime_type = Gnome2::VFS->get_mime_type_for_name( $uri->get_path );
+        my ($mime_type) = $mime_detect->mime_type( $uri->get_path )->mime_type;
         $mime_type =~ s/image\/x\-apple\-ios\-png/image\/png/; #FIXME
         if ( $mime_type =~ m/(pdf|ps|svg)/ig ) {
 
@@ -4318,12 +4319,10 @@ else {
         $session_screens{$key}->{'deleted'} = FALSE;
         $session_screens{$key}->{'created'} = FALSE;
 
-        my $result;
-        if ( defined $session_screens{$key}->{'uri'} ) {
-            ( $result, $session_screens{$key}->{'handle'} ) = Gnome2::VFS::Monitor->add(
-                $session_screens{$key}->{'uri'}->get_path,
-                'file',
-                sub {
+		eval {
+			if ( defined $session_screens{$key}->{'uri'} ) {
+				my $monitor = $session_screens{$key}->{'uri'}->monitor_file([]);
+				$monitor->signal_connect('changed', sub {
                     my $handle = shift;
                     my $file1  = shift;
                     my $file2  = shift;
@@ -4352,20 +4351,15 @@ else {
 
                     }
 
-                },
-                $key
-            );
-        }
-        else {
-            $result = 'error-generic';
-        }
-
-        #show error dialog when installing the file
-        #monitor failed
-        unless ( $result eq 'ok' ) {
-            $sd->dlg_error_message( Gnome2::VFS->result_to_string($result), $d->get("Error while adding the file monitor.") );
+                }, $key);
+			}
+		};
+		if ($@) {
+			#show error dialog when installing the file
+			#monitor failed
+            $sd->dlg_error_message("$@", $d->get("Error while adding the file monitor."));
             return FALSE;
-        }
+		}
 
         return TRUE;
     }
@@ -5210,6 +5204,7 @@ else {
             $model->set( $model->append, 0, $icon_pixbuf, 1, $d->get("Built-in Editor"), 2, 'shutter-built-in' );
         }
 
+		return $model;
         #get applications
         my $mime_type = Gnome2::VFS::Mime::Type->new('image/png');
         my @apps      = $mime_type->get_all_applications();
@@ -5308,7 +5303,7 @@ else {
 
         my @valid_files;
         foreach my $file (@files) {
-            my $mime_type = Gnome2::VFS->get_mime_type_for_name($file);
+            my ($mime_type) = $mime_detect->mime_type( $file )->mime_type;
             $mime_type =~ s/image\/x\-apple\-ios\-png/image\/png/; #FIXME
             if ( $mime_type && &fct_check_valid_mime_type($mime_type) ) {
                 push @valid_files, $file;
@@ -5350,8 +5345,7 @@ else {
 
         foreach my $file (@new_files) {
 
-            my $new_uri = Glib::IO::File::new_for_path( $shf->utf8_decode( unescape_string($file) ) );
-
+            my $new_uri = Glib::IO::File::new_for_uri( $shf->utf8_decode( unescape_string($file) ) );
             next if &fct_is_uri_in_session( $new_uri, TRUE );
 
             #refresh gui
