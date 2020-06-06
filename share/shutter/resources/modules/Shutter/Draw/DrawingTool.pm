@@ -6890,7 +6890,7 @@ sub import_from_session {
         $screen_menu_item->{'name'}         = $import_hash{$key}->{'long'};
         $screen_menu_item->{'mime_type'}    = $import_hash{$key}->{'mime_type'};
         $screen_menu_item->{'mtime'}        = $import_hash{$key}->{'mtime'};
-        $screen_menu_item->{'uri'}          = $import_hash{$key}->{'uri'};
+        $screen_menu_item->{'giofile'}          = $import_hash{$key}->{'giofile'};
         $screen_menu_item->{'no_thumbnail'} = $import_hash{$key}->{'no_thumbnail'};
 
         $menu_session_objects->append($screen_menu_item);
@@ -6940,10 +6940,10 @@ sub gen_thumbnail_on_idle {
 
                 #if uri exists we generate a thumbnail
                 #with Shutter::Pixbuf::Thumbnail
-                if ( exists $child->{'uri'} ) {
+                if ( exists $child->{'giofile'} ) {
                     my $thumb;
                     unless ( $child->{'no_thumbnail'} ) {
-                        $thumb = $self->{_thumbs}->get_thumbnail( $child->{'uri'}->get_uri, $child->{'mime_type'}, $child->{'mtime'}, 0.2 );
+                        $thumb = $self->{_thumbs}->get_thumbnail( $child->{'giofile'}->get_uri, $child->{'mime_type'}, $child->{'mtime'}, 0.2 );
                     }
                     else {
                         $thumb = Gtk2::Gdk::Pixbuf->new( 'rgb', TRUE, 8, 5, 5 );

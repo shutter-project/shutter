@@ -4150,55 +4150,55 @@ else {
     }
 
     sub fct_integrate_screenshot_in_notebook {
-        my ( $uri, $pixbuf, $history, $count ) = @_;
+        my ( $giofile, $pixbuf, $history, $count ) = @_;
 
         #check parameters
-        return FALSE unless $uri;
+        return FALSE unless $giofile;
 
-        unless ( $uri->query_exists ) {
-            &fct_show_status_message( 1, $uri->get_path . " " . $d->get("not found") );
+        unless ( $giofile->query_exists ) {
+            &fct_show_status_message( 1, $giofile->get_path . " " . $d->get("not found") );
             return FALSE;
         }
 
         #check mime type
-        my ($mime_type) = $mime_detect->mime_type( $uri->get_path )->mime_type;
+        my ($mime_type) = $mime_detect->mime_type( $giofile->get_path )->mime_type;
         $mime_type =~ s/image\/x\-apple\-ios\-png/image\/png/; #FIXME
         if ( $mime_type =~ m/(pdf|ps|svg)/ig ) {
 
             #not a supported mime type
             #~ my $response = $sd->dlg_error_message(
-            #~ sprintf ( $d->get(  "Error while opening image %s." ), "'" . $uri->get_path . "'" ) ,
+            #~ sprintf ( $d->get(  "Error while opening image %s." ), "'" . $giofile->get_path . "'" ) ,
             #~ $d->get( "There was an error opening the image." ),
             #~ undef, undef, undef,
             #~ undef, undef, undef,
             #~ $d->get( "MimeType not supported." )
             #~ );
-            #~ &fct_show_status_message( 1, $uri->get_path . " " . $d->get("not supported") );
+            #~ &fct_show_status_message( 1, $giofile->get_path . " " . $d->get("not supported") );
             return FALSE;
         }
 
-        #~ my $mime_type = Gnome2::VFS->get_mime_type_for_name( $uri->get_path );
+        #~ my $mime_type = Gnome2::VFS->get_mime_type_for_name( $giofile->get_path );
         #~ unless ($mime_type && &fct_check_valid_mime_type($mime_type)){
         #~ #not a supported mime type
         #~ my $response = $sd->dlg_error_message(
-        #~ sprintf ( $d->get(  "Error while opening image %s." ), "'" . $uri->get_path . "'" ) ,
+        #~ sprintf ( $d->get(  "Error while opening image %s." ), "'" . $giofile->get_path . "'" ) ,
         #~ $d->get( "There was an error opening the image." ),
         #~ undef, undef, undef,
         #~ undef, undef, undef,
         #~ $d->get( "MimeType not supported." )
         #~ );
-        #~ &fct_show_status_message( 1, $uri->get_path . " " . $d->get("not supported") );
+        #~ &fct_show_status_message( 1, $giofile->get_path . " " . $d->get("not supported") );
         #~ return FALSE;
         #~ }
 
         #add to recentmanager
-        Gtk2::RecentManager->get_default->add_item( $uri->get_path );
+        Gtk2::RecentManager->get_default->add_item( $giofile->get_path );
 
         #FIXME
         my $num_files = $session_start_screen{'first_page'}->{'num_session_files'};
 
         #append a page to notebook using with label == filename
-        my $fname = $shf->utf8_decode( unescape_string_for_display( $uri->get_basename ) );
+        my $fname = $shf->utf8_decode( unescape_string_for_display( $giofile->get_basename ) );
         my $key   = 0;
         my $indx  = 0;
         if ( defined $num_files && $num_files > 0 ) {
@@ -4227,7 +4227,7 @@ else {
 
         $key = "[" . $indx . "] - $fname";
 
-        #~ print $key, "-", $uri->to_string, "\n";
+        #~ print $key, "-", $giofile->to_string, "\n";
 
         #store the history object
         if ( defined $history && $history->get_history ) {
@@ -4305,7 +4305,7 @@ else {
             }
         }
 
-        if ( &fct_update_tab( $key, $pixbuf, $uri ) ) {
+        if ( &fct_update_tab( $key, $pixbuf, $giofile ) ) {
 
             #setup a filemonitor, so we get noticed if the file changed
             &fct_add_file_monitor($key);
@@ -4322,8 +4322,8 @@ else {
         $session_screens{$key}->{'created'} = FALSE;
 
 		eval {
-			if ( defined $session_screens{$key}->{'uri'} ) {
-				my $monitor = $session_screens{$key}->{'uri'}->monitor_file([]);
+			if ( defined $session_screens{$key}->{'giofile'} ) {
+				my $monitor = $session_screens{$key}->{'giofile'}->monitor_file([]);
 				$monitor->signal_connect('changed', sub {
                     my $handle = shift;
                     my $file1  = shift;
@@ -4346,7 +4346,7 @@ else {
                     }
                     elsif ( $event eq 'changed' ) {
 
-                        print $session_screens{$key}->{'uri'}->get_path . " - " . $event . "\n"
+                        print $session_screens{$key}->{'giofile'}->get_path . " - " . $event . "\n"
                           if $sc->get_debug;
                         $session_screens{$key}->{'changed'} = TRUE;
                         &fct_update_tab($key);
@@ -4593,10 +4593,10 @@ else {
                 'drag-data-get',
                 sub {
                     my ( $widget, $context, $data, $info, $time ) = @_;
-                    if ( exists $session_screens{$key}->{'uri'}
-                        && defined $session_screens{$key}->{'uri'} )
+                    if ( exists $session_screens{$key}->{'giofile'}
+                        && defined $session_screens{$key}->{'giofile'} )
                     {
-                        $data->set( $data->target, 8, $session_screens{$key}->{'uri'}->get_path );
+                        $data->set( $data->target, 8, $session_screens{$key}->{'giofile'}->get_path );
                     }
                 }
             );
@@ -4687,10 +4687,10 @@ else {
                             my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
                             if ( defined $iter ) {
                                 my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
-                                if ( exists $session_screens{$key}->{'uri'}
-                                    && defined $session_screens{$key}->{'uri'} )
+                                if ( exists $session_screens{$key}->{'giofile'}
+                                    && defined $session_screens{$key}->{'giofile'} )
                                 {
-                                    $target_list .= $session_screens{$key}->{'uri'}->get_path . "\n";
+                                    $target_list .= $session_screens{$key}->{'giofile'}->get_path . "\n";
                                 }
                             }
                         }
@@ -5348,18 +5348,18 @@ else {
 
         foreach my $file (@new_files) {
 
-            my $new_uri = Glib::IO::File::new_for_uri( $shf->utf8_decode( unescape_string($file) ) );
-            next if &fct_is_uri_in_session( $new_uri, TRUE );
+            my $new_giofile = Glib::IO::File::new_for_uri( $shf->utf8_decode( unescape_string($file) ) );
+            next if &fct_is_uri_in_session( $new_giofile, TRUE );
 
             #refresh gui
             &fct_update_gui;
 
             #do the real work
-            if ( &fct_integrate_screenshot_in_notebook($new_uri) ) {
-                &fct_show_status_message( 1, $new_uri->get_path . " " . $d->get("opened") );
+            if ( &fct_integrate_screenshot_in_notebook($new_giofile) ) {
+                &fct_show_status_message( 1, $new_giofile->get_path . " " . $d->get("opened") );
             }
             else {
-                &fct_show_status_message( 1, sprintf( $d->get("Error while opening image %s."), "'" . $new_uri->get_basename . "'" ) );
+                &fct_show_status_message( 1, sprintf( $d->get("Error while opening image %s."), "'" . $new_giofile->get_basename . "'" ) );
             }
         }
 
@@ -5369,14 +5369,14 @@ else {
     }
 
     sub fct_is_uri_in_session {
-        my $uri  = shift;
+        my $giofile  = shift;
         my $jump = shift;
 
-        return FALSE unless $uri;
+        return FALSE unless $giofile;
 
         foreach my $key ( keys %session_screens ) {
-            if ( exists $session_screens{$key}->{'uri'} ) {
-                if ( $uri->equal( $session_screens{$key}->{'uri'} ) ) {
+            if ( exists $session_screens{$key}->{'giofile'} ) {
+                if ( $giofile->equal( $session_screens{$key}->{'giofile'} ) ) {
                     if ( exists $session_screens{$key}->{'tab_child'} ) {
                         if ($jump) {
                             $notebook->set_current_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
@@ -5452,12 +5452,12 @@ else {
                 &fct_update_gui;
 
                 #do the real work
-                my $new_uri = Glib::IO::File::new_for_path( ${$session_xml}{$key}{'filename'} );
-                if ( &fct_integrate_screenshot_in_notebook( $new_uri, undef, undef, $count ) ) {
-                    &fct_show_status_message( 1, $new_uri->get_path . " " . $d->get("opened") );
+                my $new_giofile = Glib::IO::File::new_for_path( ${$session_xml}{$key}{'filename'} );
+                if ( &fct_integrate_screenshot_in_notebook( $new_giofile, undef, undef, $count ) ) {
+                    &fct_show_status_message( 1, $new_giofile->get_path . " " . $d->get("opened") );
                 }
                 else {
-                    &fct_show_status_message( 1, sprintf( $d->get("Error while opening image %s."), "'" . $new_uri->get_basename . "'" ) );
+                    &fct_show_status_message( 1, sprintf( $d->get("Error while opening image %s."), "'" . $new_giofile->get_basename . "'" ) );
                 }
 
             }
@@ -5481,7 +5481,7 @@ else {
         my ($key) = @_;
 
         #check if file still exists
-        unless ( $session_screens{$key}->{'uri'}->query_exists ) {
+        unless ( $session_screens{$key}->{'giofile'}->query_exists ) {
             &fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("not found") );
             return FALSE;
         }
@@ -5496,7 +5496,7 @@ else {
             $session_screens{$key}->{'handle'}->cancel;
         }
 
-		$session_screens{$key}->{'uri'}->trash;
+		$session_screens{$key}->{'giofile'}->trash;
     }
 
     sub fct_delete {
@@ -5516,12 +5516,12 @@ else {
                 return FALSE unless $response == 20;
             }
 
-            if ( $session_screens{$key}->{'uri'}->query_exists ) {
+            if ( $session_screens{$key}->{'giofile'}->query_exists ) {
                 &fct_trash($key);
                 eval {
 
                     #remove from recentmanager
-                    Gtk2::RecentManager->get_default->remove_item( $session_screens{$key}->{'uri'}->get_path );
+                    Gtk2::RecentManager->get_default->remove_item( $session_screens{$key}->{'giofile'}->get_path );
                 };
             }
 
@@ -5579,12 +5579,12 @@ else {
                         my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
                         $notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
 
-                        if ( $session_screens{$key}->{'uri'}->query_exists ) {
+                        if ( $session_screens{$key}->{'giofile'}->query_exists ) {
                             &fct_trash($key);
                             eval {
 
                                 #remove from recentmanager
-                                Gtk2::RecentManager->get_default->remove_item( $session_screens{$key}->{'uri'}->get_path );
+                                Gtk2::RecentManager->get_default->remove_item( $session_screens{$key}->{'giofile'}->get_path );
                             };
                         }
 
@@ -5889,7 +5889,7 @@ else {
 
                 if ( cp( $last_version, $session_screens{$key}->{'long'} ) ) {
 
-                    &fct_update_tab( $key, undef, $session_screens{$key}->{'uri'}, TRUE, 'gui' );
+                    &fct_update_tab( $key, undef, $session_screens{$key}->{'giofile'}, TRUE, 'gui' );
 
                     &fct_show_status_message( 1, $d->get("Last action undone") );
 
@@ -5901,7 +5901,7 @@ else {
 
                     my $response = $sd->dlg_error_message( sprintf( $d->get("Error while copying last version (%s)."), "'" . $last_version . "'" ), sprintf( $d->get("There was an error performing undo on %s."), "'" . $session_screens{$key}->{'long'} . "'" ), undef, undef, undef, undef, undef, undef, $@ );
 
-                    &fct_update_tab( $key, undef, $session_screens{$key}->{'uri'}, TRUE, 'clear' );
+                    &fct_update_tab( $key, undef, $session_screens{$key}->{'giofile'}, TRUE, 'clear' );
 
                 }
 
@@ -5937,7 +5937,7 @@ else {
 
                 if ( cp( $last_version, $session_screens{$key}->{'long'} ) ) {
 
-                    &fct_update_tab( $key, undef, $session_screens{$key}->{'uri'}, TRUE, 'gui' );
+                    &fct_update_tab( $key, undef, $session_screens{$key}->{'giofile'}, TRUE, 'gui' );
 
                     &fct_show_status_message( 1, $d->get("Last action redone") );
 
@@ -5949,7 +5949,7 @@ else {
 
                     my $response = $sd->dlg_error_message( sprintf( $d->get("Error while copying last version (%s)."), "'" . $last_version . "'" ), sprintf( $d->get("There was an error performing redo on %s."), "'" . $session_screens{$key}->{'long'} . "'" ), undef, undef, undef, undef, undef, undef, $@ );
 
-                    &fct_update_tab( $key, undef, $session_screens{$key}->{'uri'}, TRUE, 'clear' );
+                    &fct_update_tab( $key, undef, $session_screens{$key}->{'giofile'}, TRUE, 'clear' );
 
                 }
 
@@ -6204,7 +6204,7 @@ else {
         }
 
         #get next filename (auto increment using a wild card or manually)
-        my $uri = undef;
+        my $giofile = undef;
         if ( $sc->get_export_filename ) {
             my ( $short, $folder, $ext ) = fileparse( $shf->switch_home_in_file( $shf->utf8_decode( $sc->get_export_filename ) ), qr/\.[^.]*/ );
 
@@ -6225,7 +6225,7 @@ else {
             }
 
             #...and create an uri
-            $uri = Glib::IO::File::new_for_path($tmp_filename);
+            $giofile = Glib::IO::File::new_for_path($tmp_filename);
         }
         else {
 
@@ -6236,11 +6236,11 @@ else {
             $filename_value =~ s/(\/|\#)/-/g;
 
             #...and get next filename
-            $uri = &fct_get_next_filename( $filename_value, $folder, $filetype_value );
+            $giofile = &fct_get_next_filename( $filename_value, $folder, $filetype_value );
         }
 
         #no valid filename was determined, exit here
-        unless ($uri) {
+        unless ($giofile) {
             my $response = $sd->dlg_error_message( $d->get("There was an error determining the filename."), $d->get("Failed") );
             &fct_control_main_window('show');
             return FALSE;
@@ -6576,13 +6576,13 @@ else {
 
             #we have to use the path (e.g. /home/username/file1.png)
             #so we can save the screenshot_properly
-            $screenshot_name = $shf->utf8_decode( unescape_string( $uri->get_path ) );
+            $screenshot_name = $shf->utf8_decode( unescape_string( $giofile->get_path ) );
 
             #maybe / is set as uri (get_path returns undef)
             #in this case nothing is returned when using get_path
             #we use the directory name and the short name in this case
             #(anyway - most users won't have permissions to write to /)
-            $screenshot_name = "/" . $uri->get_basename
+            $screenshot_name = "/" . $giofile->get_basename
               unless $screenshot_name;
 
             print "Parsing wildcards for $screenshot_name\n"
@@ -6624,31 +6624,31 @@ else {
               if $sc->get_debug;
 
             #update uri after parsing as well, so we can check if file exists for example
-            $uri = Glib::IO::File::new_for_path($screenshot_name);
+            $giofile = Glib::IO::File::new_for_path($screenshot_name);
 
             #maybe the uri already exists, so we have to append some digits (e.g. testfile01(0002).png)
             #don't check if filename is set via cmd parameter
             unless ( $sc->get_export_filename ) {
-                if ( $uri->query_exists ) {
+                if ( $giofile->query_exists ) {
                     my $count = 1;
-                    my $new_filename = fileparse( $shf->utf8_decode( unescape_string( $uri->get_path ) ), qr/\.[^.]*/ );
+                    my $new_filename = fileparse( $shf->utf8_decode( unescape_string( $giofile->get_path ) ), qr/\.[^.]*/ );
 
                     print "Checking if filename already exists: " . $new_filename . "\n"
                       if $sc->get_debug;
 
                     my $existing_filename = $new_filename;
-                    while ( $uri->query_exists ) {
+                    while ( $giofile->query_exists ) {
                         $new_filename = $existing_filename . "(" . sprintf( "%03d", $count++ ) . ")";
-                        $uri          = Glib::IO::File::new_for_path($folder);
-                        $uri          = $uri->append_string("$new_filename.$filetype_value");
-                        print "Checking new uri after parsing: " . $uri->get_path . "\n"
+                        $giofile          = Glib::IO::File::new_for_path($folder);
+                        $giofile          = $giofile->append_string("$new_filename.$filetype_value");
+                        print "Checking new uri after parsing: " . $giofile->get_path . "\n"
                           if $sc->get_debug;
                     }
                 }
             }
 
             #we have to update the path again
-            $screenshot_name = $shf->utf8_decode( unescape_string( $uri->get_path ) );
+            $screenshot_name = $shf->utf8_decode( unescape_string( $giofile->get_path ) );
 
             #no valid filename was determined, exit here
             unless ($screenshot_name) {
@@ -6657,7 +6657,7 @@ else {
                 return FALSE;
             }
 
-            print "New uri after exists check: " . $uri->get_path . "\n"
+            print "New uri after exists check: " . $giofile->get_path . "\n"
               if $sc->get_debug;
 
             #manipulate before saving
@@ -6686,7 +6686,7 @@ else {
                     else {
 
                         #update uri after saving, so we can check if file exists for example
-                        $uri = Glib::IO::File::new_for_path($screenshot_name);
+                        $giofile = Glib::IO::File::new_for_path($screenshot_name);
                     }
                 }
                 else {
@@ -6710,7 +6710,7 @@ else {
 
         }    #end screenshot successfull
 
-        if ( $uri->query_exists ) {
+        if ( $giofile->query_exists ) {
             #quantize
             if ( $im_colors_active->get_active ) {
                 my $colors;
@@ -6764,10 +6764,10 @@ else {
             unless ( $sc->get_no_session ) {
 
                 #Dont add it to session if it already exists
-                unless ( &fct_is_uri_in_session( $uri, TRUE ) ) {
+                unless ( &fct_is_uri_in_session( $giofile, TRUE ) ) {
 
                     #integrate it into the notebook
-                    $new_key_screenshot = &fct_integrate_screenshot_in_notebook( $uri, $screenshot, $screenshooter );
+                    $new_key_screenshot = &fct_integrate_screenshot_in_notebook( $giofile, $screenshot, $screenshooter );
 
                     #thumbnail as well if present
                     $new_key_screenshot_thumbnail = &fct_integrate_screenshot_in_notebook( Glib::IO::File::new_for_path($screenshot_thumbnail_name), $screenshot_thumbnail )
@@ -7083,7 +7083,7 @@ else {
 
                 #everything is fine -> open it
                 if ( $app->supports_uris ) {
-                    $app->launch( $session_screens{$key}->{'uri'}->get_path );
+                    $app->launch( $session_screens{$key}->{'giofile'}->get_path );
                 }
                 else {
                     $app->launch( $session_screens{$key}->{'long'} );
@@ -7103,7 +7103,7 @@ else {
                     if ( defined $iter ) {
                         my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
                         if ( $app->supports_uris ) {
-                            push @open_files, $session_screens{$key}->{'uri'}->get_uri;
+                            push @open_files, $session_screens{$key}->{'giofile'}->get_uri;
                         }
                         else {
                             push @open_files, $session_screens{$key}->{'long'};
@@ -7241,7 +7241,7 @@ else {
             }
 
             #update session tab manually
-            &fct_update_tab( $key, undef, $session_screens{$key}->{'uri'} );
+            &fct_update_tab( $key, undef, $session_screens{$key}->{'giofile'} );
 
             #setup a new filemonitor, so we get noticed if the file changed
             &fct_add_file_monitor($key);
@@ -7534,16 +7534,16 @@ else {
 
         #optional, e.g.used by fct_integrate...
         my $pixbuf      = shift;
-        my $uri         = shift;
+        my $giofile         = shift;
         my $force_thumb = shift;
         my $xdo         = shift;
 
-        $session_screens{$key}->{'uri'} = $uri if $uri;
+        $session_screens{$key}->{'giofile'} = $giofile if $giofile;
         $session_screens{$key}->{'mtime'} = -1
           unless $session_screens{$key}->{'mtime'};
 
         #something wrong here
-        unless ( defined $session_screens{$key}->{'uri'} ) {
+        unless ( defined $session_screens{$key}->{'giofile'} ) {
             return FALSE;
         }
 
@@ -7555,14 +7555,14 @@ else {
         my $error_counter = 0;
         while ( $error_counter <= MAX_ERROR ) {
 
-            my $filestat = stat($session_screens{$key}->{'uri'}->get_path);
+            my $filestat = stat($session_screens{$key}->{'giofile'}->get_path);
 
             #does the file exist?
-            if ( $session_screens{$key}->{'uri'}->query_exists ) {
+            if ( $session_screens{$key}->{'giofile'}->query_exists ) {
 
                 #maybe we need no update
                 if ( $filestat->mtime == $session_screens{$key}->{'mtime'}
-                    && !$uri )
+                    && !$giofile )
                 {
                     print "Updating fileinfos REJECTED for key: $key (not modified)\n"
                       if $sc->get_debug;
@@ -7576,9 +7576,9 @@ else {
                 $session_screens{$key}->{'mtime'} = $filestat->mtime;
                 $session_screens{$key}->{'size'}  = $filestat->size;
 
-                $session_screens{$key}->{'short'}    = $shf->utf8_decode( unescape_string( $session_screens{$key}->{'uri'}->get_basename ) );
-                $session_screens{$key}->{'long'}     = $shf->utf8_decode( unescape_string( $session_screens{$key}->{'uri'}->get_path ) );
-                $session_screens{$key}->{'folder'}   = $shf->utf8_decode( unescape_string( $session_screens{$key}->{'uri'}->get_parent->get_path ) );
+                $session_screens{$key}->{'short'}    = $shf->utf8_decode( unescape_string( $session_screens{$key}->{'giofile'}->get_basename ) );
+                $session_screens{$key}->{'long'}     = $shf->utf8_decode( unescape_string( $session_screens{$key}->{'giofile'}->get_path ) );
+                $session_screens{$key}->{'folder'}   = $shf->utf8_decode( unescape_string( $session_screens{$key}->{'giofile'}->get_parent->get_path ) );
                 $session_screens{$key}->{'filetype'} = $session_screens{$key}->{'short'};
                 $session_screens{$key}->{'filetype'} =~ s/.*\.//ig;
 
@@ -7587,7 +7587,7 @@ else {
                 $session_screens{$key}->{'name'} =~ s/\.$session_screens{$key}->{'filetype'}//g;
 
                 #mime type
-                my ($mime_type) = $mime_detect->mime_type( $session_screens{$key}->{'uri'}->get_path )->mime_type;
+                my ($mime_type) = $mime_detect->mime_type( $session_screens{$key}->{'giofile'}->get_path )->mime_type;
 				$mime_type =~ s/image\/x\-apple\-ios\-png/image\/png/; #FIXME
 				$session_screens{$key}->{'mime_type'} = $mime_type;
 
@@ -7706,7 +7706,7 @@ else {
                 unless ( $session_screens{$key}->{'no_thumbnail'} ) {
 
                     #update tab icon
-                    $thumb = $sthumb->get_thumbnail( $session_screens{$key}->{'uri'}->get_uri, $session_screens{$key}->{'mime_type'}, $session_screens{$key}->{'mtime'}, 0.2, $force_thumb );
+                    $thumb = $sthumb->get_thumbnail( $session_screens{$key}->{'giofile'}->get_uri, $session_screens{$key}->{'mime_type'}, $session_screens{$key}->{'mtime'}, 0.2, $force_thumb );
                     $session_screens{$key}->{'tab_icon'}->set_from_pixbuf($thumb);
                 }
 
@@ -7717,7 +7717,7 @@ else {
                 unless ( $session_screens{$key}->{'no_thumbnail'} ) {
 
                     #update view icon
-                    $thumb_view = $sthumb->get_thumbnail( $session_screens{$key}->{'uri'}->get_uri, $session_screens{$key}->{'mime_type'}, $session_screens{$key}->{'mtime'}, 1.0 );
+                    $thumb_view = $sthumb->get_thumbnail( $session_screens{$key}->{'giofile'}->get_uri, $session_screens{$key}->{'mime_type'}, $session_screens{$key}->{'mtime'}, 1.0 );
 
                     #update dnd pixbuf
                     $session_screens{$key}->{'image'}->drag_source_set_icon_pixbuf($thumb_view);
@@ -7883,8 +7883,8 @@ else {
 
                     #prepare new filename
                     my ( $short, $folder, $ext ) = fileparse( $session_screens{$key}->{'long'}, qr/\.[^.]*/ );
-                    my $new_uri = &fct_get_next_filename( $short, $sdir->get_cache_dir, $ext );
-                    my $new_filename = $shf->utf8_decode( unescape_string( $new_uri->get_path ) );
+                    my $new_giofile = &fct_get_next_filename( $short, $sdir->get_cache_dir, $ext );
+                    my $new_filename = $shf->utf8_decode( unescape_string( $new_giofile->get_path ) );
 
                     if ( $sp->save_pixbuf_to_file( $pixbuf, $new_filename, $session_screens{$key}->{'filetype'} ) ) {
 
@@ -8162,20 +8162,20 @@ else {
         }
 
         #create new uri
-        my $new_uri = Glib::IO::File::new_for_path("$folder/$filename_value.$filetype_value");
-        if ( $new_uri->query_exists ) {
+        my $new_giofile = Glib::IO::File::new_for_path("$folder/$filename_value.$filetype_value");
+        if ( $new_giofile->query_exists ) {
             my $count             = 1;
             my $existing_filename = $filename_value;
-            while ( $new_uri->query_exists ) {
+            while ( $new_giofile->query_exists ) {
                 $filename_value = $existing_filename . "(" . sprintf( "%03d", $count++ ) . ")";
-                $new_uri        = Glib::IO::File::new_for_path($folder);
-                $new_uri        = $new_uri->append_string("$filename_value.$filetype_value");
-                print "Checking new uri: " . $new_uri->to_string . "\n"
+                $new_giofile        = Glib::IO::File::new_for_path($folder);
+                $new_giofile        = $new_giofile->append_string("$filename_value.$filetype_value");
+                print "Checking new uri: " . $new_giofile->to_string . "\n"
                   if $sc->get_debug;
             }
         }
 
-        return $new_uri;
+        return $new_giofile;
     }
 
     sub fct_check_installed_plugins {
@@ -9587,10 +9587,10 @@ else {
                 $new_name = $session_screens{$key}->{'folder'} . "/" . $new_name . "." . $session_screens{$key}->{'filetype'};
 
                 #create uris for following action (e.g. update tab, move etc.)
-                my $new_uri = Glib::IO::File::new_for_path($new_name);
-                my $old_uri = $session_screens{$key}->{'uri'};
+                my $new_giofile = Glib::IO::File::new_for_path($new_name);
+                my $old_giofile = $session_screens{$key}->{'giofile'};
 
-                if ($new_uri) {
+                if ($new_giofile) {
 
                     #filenames eq? -> nothing to do here
                     unless ( $session_screens{$key}->{'long'} eq $new_name ) {
@@ -9606,10 +9606,10 @@ else {
                                 $session_screens{$key}->{'handle'}->cancel;
                             }
 
-                            my $result = $old_uri->move( $new_uri, TRUE );
+                            my $result = $old_giofile->move( $new_giofile, TRUE );
                             if ( $result eq 'ok' ) {
 
-                                &fct_update_tab( $key, undef, $new_uri, FALSE, 'block' );
+                                &fct_update_tab( $key, undef, $new_giofile, FALSE, 'block' );
 
                                 #setup a new filemonitor, so we get noticed if the file changed
                                 &fct_add_file_monitor($key);
@@ -9622,7 +9622,7 @@ else {
                             }
                             else {
 
-                                my $response = $sd->dlg_error_message( sprintf( $d->get("Error while renaming the image %s."), "'" . $old_uri->get_basename . "'" ), sprintf( $d->get("There was an error renaming the image to %s."), "'" . $new_uri->get_basename . "'" ), undef, undef, undef, undef, undef, undef, Gnome2::VFS->result_to_string($result) );
+                                my $response = $sd->dlg_error_message( sprintf( $d->get("Error while renaming the image %s."), "'" . $old_giofile->get_basename . "'" ), sprintf( $d->get("There was an error renaming the image to %s."), "'" . $new_giofile->get_basename . "'" ), undef, undef, undef, undef, undef, undef, Gnome2::VFS->result_to_string($result) );
 
                             }
 
@@ -9636,7 +9636,7 @@ else {
 
                             my $sd = Shutter::App::SimpleDialogs->new;
 
-                            my $response = $sd->dlg_warning_message( sprintf( $d->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $new_uri->extract_dirname . "'" ), sprintf( $d->get("An image named %s already exists. Do you want to replace it?"), "'" . $new_uri->get_basename . "'" ), undef, undef, undef, $replace_btn, undef, undef );
+                            my $response = $sd->dlg_warning_message( sprintf( $d->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $new_giofile->extract_dirname . "'" ), sprintf( $d->get("An image named %s already exists. Do you want to replace it?"), "'" . $new_giofile->get_basename . "'" ), undef, undef, undef, $replace_btn, undef, undef );
 
                             #rename == replace_btn was hit
                             if ( $response == 40 ) {
@@ -9649,10 +9649,10 @@ else {
                                     $session_screens{$key}->{'handle'}->cancel;
                                 }
 
-                                my $result = $old_uri->move( $new_uri, TRUE );
+                                my $result = $old_giofile->move( $new_giofile, TRUE );
                                 if ( $result eq 'ok' ) {
 
-                                    &fct_update_tab( $key, undef, $new_uri, FALSE, 'block' );
+                                    &fct_update_tab( $key, undef, $new_giofile, FALSE, 'block' );
 
                                     #setup a new filemonitor, so we get noticed if the file changed
                                     &fct_add_file_monitor($key);
@@ -9665,7 +9665,7 @@ else {
                                 }
                                 else {
 
-                                    my $response = $sd->dlg_error_message( sprintf( $d->get("Error while renaming the image %s."), "'" . $old_uri->get_basename . "'" ), sprintf( $d->get("There was an error renaming the image to %s."), "'" . $new_uri->get_basename . "'" ), undef, undef, undef, undef, undef, undef, Gnome2::VFS->result_to_string($result) );
+                                    my $response = $sd->dlg_error_message( sprintf( $d->get("Error while renaming the image %s."), "'" . $old_giofile->get_basename . "'" ), sprintf( $d->get("There was an error renaming the image to %s."), "'" . $new_giofile->get_basename . "'" ), undef, undef, undef, undef, undef, undef, Gnome2::VFS->result_to_string($result) );
 
                                 }
 
@@ -9680,7 +9680,7 @@ else {
                                             $session_screens{$searchkey}->{'handle'}->cancel;
                                         }
 
-                                        &fct_update_tab( $searchkey, undef, $new_uri, FALSE, 'block' );
+                                        &fct_update_tab( $searchkey, undef, $new_giofile, FALSE, 'block' );
 
                                         #setup a new filemonitor, so we get noticed if the file changed
                                         &fct_add_file_monitor($searchkey);
@@ -9701,7 +9701,7 @@ else {
 
                     #uri object could not be created
                     #=> uri illegal
-                    my $response = $sd->dlg_error_message( sprintf( $d->get("Error while renaming the image %s."), "'" . $old_uri->get_basename . "'" ), sprintf( $d->get("There was an error renaming the image to %s."), "'" . $new_name . "'" ), undef, undef, undef, undef, undef, undef, $d->get("Invalid Filename") );
+                    my $response = $sd->dlg_error_message( sprintf( $d->get("Error while renaming the image %s."), "'" . $old_giofile->get_basename . "'" ), sprintf( $d->get("There was an error renaming the image to %s."), "'" . $new_name . "'" ), undef, undef, undef, undef, undef, undef, $d->get("Invalid Filename") );
 
                 }
 
@@ -10817,17 +10817,17 @@ else {
                         #update gui
                         &fct_update_gui;
 
-                        my $source_uri = Glib::IO::File::new_for_path($file);
+                        my $source_giofile = Glib::IO::File::new_for_path($file);
 
-                        my $target_uri = Glib::IO::File::new_for_path( $places_fc->get_uri );
-                        $target_uri = $target_uri->append_file_name( $source_uri->get_basename );
+                        my $target_giofile = Glib::IO::File::new_for_path( $places_fc->get_uri );
+                        $target_giofile = $target_giofile->append_file_name( $source_giofile->get_basename );
 
-                        #~ print sprintf("%s und %s \n", $target_uri->to_string, $source_uri->to_string);
+                        #~ print sprintf("%s und %s \n", $target_giofile->to_string, $source_giofile->to_string);
 
                         my $result;
-                        unless ( unescape_string( $target_uri->get_path ) eq unescape_string( $source_uri->get_path ) ) {
-                            unless ( $target_uri->query_exists ) {
-                                $result = Gnome2::VFS::Xfer->uri( $source_uri, $target_uri, 'default', 'abort', 'replace', sub { return TRUE } );
+                        unless ( unescape_string( $target_giofile->get_path ) eq unescape_string( $source_giofile->get_path ) ) {
+                            unless ( $target_giofile->query_exists ) {
+                                $result = Gnome2::VFS::Xfer->uri( $source_giofile, $target_giofile, 'default', 'abort', 'replace', sub { return TRUE } );
                             }
                             else {
                                 $result = 'error-file-exists';
@@ -10840,7 +10840,7 @@ else {
                         #everything is fine here
                         if ( $result eq 'ok' ) {
 
-							if ( $target_uri->is_local ) {
+							if ( $target_giofile->is_local ) {
 								&fct_show_status_message( 1, $file . " " . $d->get("exported") );
 
 								#show as notification
@@ -10864,17 +10864,17 @@ else {
                             $replace_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'button' ) );
 
                             my $target_path = undef;
-                            if ( $target_uri->is_local ) {
-                                $target_path = $shf->utf8_decode( unescape_string( $target_uri->get_parent->get_path ) );
+                            if ( $target_giofile->is_local ) {
+                                $target_path = $shf->utf8_decode( unescape_string( $target_giofile->get_parent->get_path ) );
                             }
                             else {
-                                $target_path = $shf->utf8_decode( unescape_string( $target_uri->get_scheme . "://" . $target_uri->get_host_name . $target_uri->extract_dirname ) );
+                                $target_path = $shf->utf8_decode( unescape_string( $target_giofile->get_scheme . "://" . $target_giofile->get_host_name . $target_giofile->extract_dirname ) );
                             }
 
                             #dialogs (main window != parent window)
                             my $sd = Shutter::App::SimpleDialogs->new;
 
-                            my $response = $sd->dlg_warning_message( sprintf( $d->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $target_path . "'" ), sprintf( $d->get("An image named %s already exists. Do you want to replace it?"), "'" . $target_uri->get_basename . "'" ), $d->get("Skip all"), $d->get("Skip"), undef, $replace_btn, undef, undef );
+                            my $response = $sd->dlg_warning_message( sprintf( $d->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $target_path . "'" ), sprintf( $d->get("An image named %s already exists. Do you want to replace it?"), "'" . $target_giofile->get_basename . "'" ), $d->get("Skip all"), $d->get("Skip"), undef, $replace_btn, undef, undef );
 
                             #10 == skip all, 20 == skip, 40 == replace, else == cancel
                             if ( $response == 10 ) {
@@ -10884,12 +10884,12 @@ else {
                                 next;
                             }
                             elsif ( $response == 40 ) {
-                                $result = Gnome2::VFS::Xfer->uri( $source_uri, $target_uri, 'default', 'abort', 'replace', sub { return TRUE } );
+                                $result = Gnome2::VFS::Xfer->uri( $source_giofile, $target_giofile, 'default', 'abort', 'replace', sub { return TRUE } );
 
                                 #check result again
                                 if ( $result eq 'ok' ) {
 
-									if ( $target_uri->is_local ) {
+									if ( $target_giofile->is_local ) {
 										&fct_show_status_message( 1, $file . " " . $d->get("exported") );
 
 										#show as notification
@@ -10907,7 +10907,7 @@ else {
                                 }
                                 else {
 
-                                    my $response = &dlg_upload_error_message_gnome_vfs( $target_uri, $result );
+                                    my $response = &dlg_upload_error_message_gnome_vfs( $target_giofile, $result );
 
                                     #10 == skip all, 20 == skip, 40 == retry, else == cancel
                                     if ( $response == 10 ) {
@@ -10929,7 +10929,7 @@ else {
                         }
                         else {
 
-                            my $response = &dlg_upload_error_message_gnome_vfs( $target_uri, $result );
+                            my $response = &dlg_upload_error_message_gnome_vfs( $target_giofile, $result );
 
                             #10 == skip all, 20 == skip, 40 == retry, else == cancel
                             if ( $response == 10 ) {
@@ -10981,25 +10981,25 @@ else {
     }
 
     sub dlg_upload_error_message_gnome_vfs {
-        my $target_uri = shift;
+        my $target_giofile = shift;
         my $result     = shift;
 
         #dialogs (main window != parent window)
         my $sd = Shutter::App::SimpleDialogs->new;
 
         my $target_path = undef;
-        if ( $target_uri->is_local ) {
-            $target_path = $shf->utf8_decode( unescape_string( $target_uri->get_parent->get_path ) );
+        if ( $target_giofile->is_local ) {
+            $target_path = $shf->utf8_decode( unescape_string( $target_giofile->get_parent->get_path ) );
         }
         else {
-            $target_path = $shf->utf8_decode( unescape_string( $target_uri->get_scheme . "://" . $target_uri->get_host_name . $target_uri->get_parent->get_path ) );
+            $target_path = $shf->utf8_decode( unescape_string( $target_giofile->get_scheme . "://" . $target_giofile->get_host_name . $target_giofile->get_parent->get_path ) );
         }
 
         #retry button
         my $retry_btn = Gtk2::Button->new_with_mnemonic( $d->get("_Retry") );
         $retry_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-redo', 'button' ) );
 
-        my $response = $sd->dlg_error_message( sprintf( $d->get("Error while copying the image %s."), "'" . $target_uri->get_basename . "'" ), sprintf( $d->get("There was an error copying the image into %s."), "'" . $target_path . "'" ), $d->get("Skip all"), $d->get("Skip"), undef, $retry_btn, undef, undef, Gnome2::VFS->result_to_string($result) );
+        my $response = $sd->dlg_error_message( sprintf( $d->get("Error while copying the image %s."), "'" . $target_giofile->get_basename . "'" ), sprintf( $d->get("There was an error copying the image into %s."), "'" . $target_path . "'" ), $d->get("Skip all"), $d->get("Skip"), undef, $retry_btn, undef, undef, Gnome2::VFS->result_to_string($result) );
 
         return $response;
     }
