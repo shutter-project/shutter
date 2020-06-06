@@ -640,7 +640,7 @@ sub find_active_window {
 	my $gdk_window = $self->{_gdk_screen}->get_active_window;
 
 	if ( defined $gdk_window ) {
-		my $wnck_window = Gnome2::Wnck::Window->get( $gdk_window->get_xid );
+		my $wnck_window = Wnck::Window->get( $gdk_window->get_xid );
 		if ( defined $wnck_window ) {
 			return ($wnck_window, $gdk_window);
 		}		  				
@@ -1180,7 +1180,7 @@ sub redo_capture {
 		
 			#create windows
 			my $gdk_window  = Gtk2::Gdk::Window->foreign_new( $gxid );
-			my $wnck_window = Gnome2::Wnck::Window->get( $wxid );
+			my $wnck_window = Wnck::Window->get( $wxid );
 			
 			if(defined $gdk_window && defined $wnck_window){
 	

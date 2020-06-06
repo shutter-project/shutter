@@ -41,7 +41,6 @@ use File::stat;
 
 #Gnome2 libraries
 use Gnome2;
-use Gnome2::Wnck;
 use Gnome2::VFS '-init';
 
 #Use AuthenticationManager to handle user credentials easily
@@ -60,6 +59,12 @@ use Glib qw/TRUE FALSE/;
 
 # Glib::IO to replace Gnome2::VFS
 use Glib::IO;
+
+use Glib::Object::Introspection;
+Glib::Object::Introspection->setup(
+    basename => 'Wnck',
+    version => '1.0',
+    package => 'Wnck');
 
 #filename parsing
 use POSIX qw/ strftime /;
@@ -564,7 +569,7 @@ else {
     $window->set_default_size( -1, 500 );
 
     #UPDATE WINDOW LIST (signal is connected when GUI is loaded)
-    my $wnck_screen = Gnome2::Wnck::Screen->get_default;
+    my $wnck_screen = Wnck::Screen->get_default;
     $wnck_screen->force_update;
 
     #TRAY ICON AND MENU
@@ -8521,7 +8526,7 @@ else {
 
         my $menu_wrksp = Gtk2::Menu->new;
 
-        my $wnck_screen = Gnome2::Wnck::Screen->get_default;
+        my $wnck_screen = Wnck::Screen->get_default;
         $wnck_screen->force_update();
 
         #we determine the wm name but on older
@@ -8682,7 +8687,7 @@ else {
         $menu_windows->append( Gtk2::SeparatorMenuItem->new );
 
         #add all windows to menu to capture it directly
-        foreach my $win ( $wnck_screen->get_windows_stacked ) {
+        foreach my $win ( @{$wnck_screen->get_windows_stacked} ) {
             if ( $active_workspace && $win->is_on_workspace($active_workspace) ) {
                 my $win_name = $win->get_name;
                 Encode::_utf8_on( $win_name );
@@ -8694,7 +8699,7 @@ else {
                         last;
                     }
                 }
-                $window_item->set_image( Gtk2::Image->new_from_pixbuf( $win->get_mini_icon ) );
+				#$window_item->set_image( Gtk2::Image->new_from_pixbuf( $win->get_mini_icon ) );
                 $window_item->set( 'always_show_image' => TRUE )
                   if Gtk2->CHECK_VERSION( 2, 16, 0 );
                 $window_item->signal_connect(

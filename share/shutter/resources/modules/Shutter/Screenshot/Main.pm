@@ -61,7 +61,7 @@ sub new {
 	require Shutter::Geometry::Region;
 
 	#wnck screen
-	$self->{_wnck_screen} = Gnome2::Wnck::Screen->get_default;
+	$self->{_wnck_screen} = Wnck::Screen->get_default;
 	$self->{_wnck_screen}->force_update();	
 
 	#gdk screen
