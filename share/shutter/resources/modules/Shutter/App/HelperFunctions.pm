@@ -118,8 +118,8 @@ sub uri_exists {
 	my ( $self, $filename ) = @_;
 	return FALSE unless $filename;
 	$filename = $self->switch_home_in_file($filename);
-	my $new_uri = Gnome2::VFS::URI->new($filename);
-	return TRUE if $new_uri->exists;
+	my $new_giofile = Glib::IO::File::new_for_uri( $filename );
+	return TRUE if $new_giofile->query_exists;
 	return FALSE;
 }
 

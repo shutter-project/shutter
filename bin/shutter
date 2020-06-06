@@ -41,11 +41,11 @@ use File::stat;
 use Number::Bytes::Human qw(format_bytes);
 
 #Gnome2 libraries
-use Gnome2;
-use Gnome2::VFS '-init';
+#use Gnome2;
+#use Gnome2::VFS '-init';
 
 #Use AuthenticationManager to handle user credentials easily
-Gnome2::AuthenticationManager->init;
+#Gnome2::AuthenticationManager->init;
 
 #Gtk2 and Gtk2::ImageView
 use Gtk2 '-init';
@@ -4178,20 +4178,6 @@ else {
             #~ &fct_show_status_message( 1, $giofile->get_path . " " . $d->get("not supported") );
             return FALSE;
         }
-
-        #~ my $mime_type = Gnome2::VFS->get_mime_type_for_name( $giofile->get_path );
-        #~ unless ($mime_type && &fct_check_valid_mime_type($mime_type)){
-        #~ #not a supported mime type
-        #~ my $response = $sd->dlg_error_message(
-        #~ sprintf ( $d->get(  "Error while opening image %s." ), "'" . $giofile->get_path . "'" ) ,
-        #~ $d->get( "There was an error opening the image." ),
-        #~ undef, undef, undef,
-        #~ undef, undef, undef,
-        #~ $d->get( "MimeType not supported." )
-        #~ );
-        #~ &fct_show_status_message( 1, $giofile->get_path . " " . $d->get("not supported") );
-        #~ return FALSE;
-        #~ }
 
         #add to recentmanager
         Gtk2::RecentManager->get_default->add_item( $giofile->get_path );
@@ -9595,9 +9581,13 @@ else {
                                 $session_screens{$key}->{'handle'}->cancel;
                             }
 
-                            my $result = $old_giofile->move( $new_giofile, TRUE );
-                            if ( $result eq 'ok' ) {
+							eval {
+	                            $old_giofile->move( $new_giofile, [] );
+							};
+							if ($@) {
+                                my $response = $sd->dlg_error_message( sprintf( $d->get("Error while renaming the image %s."), "'" . $old_giofile->get_basename . "'" ), sprintf( $d->get("There was an error renaming the image to %s."), "'" . $new_giofile->get_basename . "'" ), undef, undef, undef, undef, undef, undef, $@);
 
+							}
                                 &fct_update_tab( $key, undef, $new_giofile, FALSE, 'block' );
 
                                 #setup a new filemonitor, so we get noticed if the file changed
@@ -9607,13 +9597,6 @@ else {
 
                                 #change window title
                                 #~ $window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
-
-                            }
-                            else {
-
-                                my $response = $sd->dlg_error_message( sprintf( $d->get("Error while renaming the image %s."), "'" . $old_giofile->get_basename . "'" ), sprintf( $d->get("There was an error renaming the image to %s."), "'" . $new_giofile->get_basename . "'" ), undef, undef, undef, undef, undef, undef, Gnome2::VFS->result_to_string($result) );
-
-                            }
 
                         }
                         else {
@@ -9638,9 +9621,12 @@ else {
                                     $session_screens{$key}->{'handle'}->cancel;
                                 }
 
-                                my $result = $old_giofile->move( $new_giofile, TRUE );
-                                if ( $result eq 'ok' ) {
-
+								eval {
+	                                $old_giofile->move( $new_giofile, ['overwrite'] );
+								};
+								if ($@) {
+                                    my $response = $sd->dlg_error_message( sprintf( $d->get("Error while renaming the image %s."), "'" . $old_giofile->get_basename . "'" ), sprintf( $d->get("There was an error renaming the image to %s."), "'" . $new_giofile->get_basename . "'" ), undef, undef, undef, undef, undef, undef, $@ );
+								}
                                     &fct_update_tab( $key, undef, $new_giofile, FALSE, 'block' );
 
                                     #setup a new filemonitor, so we get noticed if the file changed
@@ -9650,13 +9636,6 @@ else {
 
                                     #change window title
                                     #~ $window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
-
-                                }
-                                else {
-
-                                    my $response = $sd->dlg_error_message( sprintf( $d->get("Error while renaming the image %s."), "'" . $old_giofile->get_basename . "'" ), sprintf( $d->get("There was an error renaming the image to %s."), "'" . $new_giofile->get_basename . "'" ), undef, undef, undef, undef, undef, undef, Gnome2::VFS->result_to_string($result) );
-
-                                }
 
                                 #maybe file is in session as well, need to set the handler again ;-)
                                 foreach my $searchkey ( keys %session_screens ) {

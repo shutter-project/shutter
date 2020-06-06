@@ -6468,7 +6468,7 @@ sub import_from_dnd {
 
     my @valid_files;
     foreach (@files) {
-        my $mime_type = Gnome2::VFS->get_mime_type_for_name($_);
+        my ($mime_type) = Glib::Object::Introspection->invoke('Gio', undef, 'content_type_guess', $_);
         $mime_type =~ s/image\/x\-apple\-ios\-png/image\/png/; #FIXME
         if ( $mime_type && $self->check_valid_mime_type($mime_type) ) {
             push @valid_files, $_;
@@ -6485,7 +6485,7 @@ sub import_from_dnd {
         foreach (@valid_files) {
 
             #transform uri to path
-            my $new_uri  = Glib::IO::File::new_for_file( $self->utf8_decode( main::unescape_string($_) ) );
+            my $new_uri  = Glib::IO::File::new_for_uri( $self->utf8_decode( main::unescape_string($_) ) );
             my $new_file = $self->utf8_decode( main::unescape_string( $new_uri->get_path ) );
 
             $self->{_current_pixbuf} = $self->{_lp}->load( $new_file, undef, undef, undef, TRUE );
