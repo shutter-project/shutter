@@ -114,6 +114,7 @@ use Proc::Simple;
 use Sort::Naturally;
 
 sub escape_string {
+	return $_[0];
     # used to be  Gnome2::VFS->escape_string.
     my $ret = Gnome2::VFS->escape_string($_[0]);
     say "VFS escape_string $_[0] -> $ret";
@@ -121,6 +122,7 @@ sub escape_string {
 }
 
 sub unescape_string {
+	return $_[0];
     # used to be  Gnome2::VFS->unescape_string.
     # at least, transform utf-8 to internal perl format for utf8
     my $ret = Gnome2::VFS->unescape_string($_[0]);
@@ -129,6 +131,7 @@ sub unescape_string {
 }
 
 sub unescape_string_for_display {
+	return $_[0];
     # used to be  Gnome2::VFS->unescape_string_for_display.
     my $ret = Gnome2::VFS->unescape_string_for_display($_[0]);
     say "VFS unescape_string_for_display $_[0] -> $ret";
@@ -136,6 +139,7 @@ sub unescape_string_for_display {
 }
 
 sub escape_path_string {
+	return $_[0];
     # used to be  Gnome2::VFS->escape_path_string.
     my $ret = Gnome2::VFS->escape_path_string($_[0]);
     say "VFS escape_path_string $_[0] -> $ret";
