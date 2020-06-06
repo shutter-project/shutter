@@ -5194,40 +5194,35 @@ else {
             $model->set( $model->append, 0, $icon_pixbuf, 1, $d->get("Built-in Editor"), 2, 'shutter-built-in' );
         }
 
-		# TODO_gnomefix
-		return $model;
         #get applications
-        my $mime_type = Gnome2::VFS::Mime::Type->new('image/png');
-        my @apps      = $mime_type->get_all_applications();
+        my $apps = Glib::IO::AppInfo::get_recommended_for_type('image/png');
 
         #no apps determined!
-        unless ( scalar @apps ) {
+        unless ( scalar @$apps ) {
             return $model;
         }
 
         #create menu items
-        foreach my $app (@apps) {
+        foreach my $app (@$apps) {
 
             #ignore Shutter's desktop entry
-            next if $app->{'id'} eq 'shutter.desktop';
+            next if $app->get_id eq 'shutter.desktop';
 
-            $app->{'name'} = $shf->utf8_decode( $app->{'name'} );
+            $app->{'name'} = $shf->utf8_decode( $app->get_name );
 
             #get icon
             my $icon_pixbuf = undef;
             my $icon        = $app->get_icon;
             if ($icon) {
-
-                #cut image formats
-                $icon =~ s/(.png|.svg|.gif|.jpeg|.jpg|.xpm)//g;
-                if ( $sc->get_theme->has_icon($icon) ) {
-                    my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
-                    eval { $icon_pixbuf = $sc->get_theme->load_icon( $icon, $ih, 'generic-fallback' ); };
-                    if ($@) {
-                        print "\nWARNING: Could not load icon $icon: $@\n";
-                        $icon_pixbuf = undef;
-                    }
-                }
+                my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
+				eval {
+					my $icon_info = $sc->get_theme->choose_icon($icon->get_names, $ih, []);
+					$icon_pixbuf = $icon_info->load_icon if $icon_info;
+				};
+				if ($@) {
+					print "\nWARNING: Could not load icon for ", $app->{'name'}, ": $@\n";
+					$icon_pixbuf = undef;
+				}
             }
             $model->set( $model->append, 0, $icon_pixbuf, 1, $app->{'name'}, 2, $app );
         }
