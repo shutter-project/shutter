@@ -8108,26 +8108,15 @@ else {
 
             #get_all files from directory
             #we handle the listing with GnomeVFS to read remote dirs as well
-            my ( $result, $uri_list ) = Gnome2::VFS::Directory->open( $folder, 'default' );
-
-            #could not open directory, show error message and return
-            unless ( $result eq 'ok' ) {
-
-                my $response = $sd->dlg_error_message( sprintf( $d->get("Error while opening directory %s."), "'" . $folder . "'" ), $d->get("There was an error determining the filename."), undef, undef, undef, undef, undef, undef, Gnome2::VFS->result_to_string($result) );
-
-                return FALSE;
-
-            }
-
-            #reading all files in current directory
+			my $dir = Glib::IO::File::new_for_path($folder);
             my $next_count = 0;
-            while ( my ( $result, $file ) = $uri_list->read_next ) {
-                if ( $result eq 'ok' ) {
-                    my $fileinfo = Gnome2::VFS::FileInfo->new($file);
-                    my $fname    = $shf->utf8_decode( $fileinfo->{'name'} );
+			eval {
+				my $enumerator = $dir->enumerate_children('standard::*', []);
+				while (my $fileinfo = $enumerator->next_file) {
+					my $fname = $shf->utf8_decode( $fileinfo->get_name );
 
                     #not a regular file? -> skip
-                    next unless $fileinfo->{'type'} eq 'regular';
+                    next unless $fileinfo->get_file_type eq 'regular';
 
                     #does the current file match the pattern?
                     print "Comparing $fname\n" if $sc->get_debug;
@@ -8139,15 +8128,13 @@ else {
                               if $sc->get_debug;
                         }
                     }
-                }
-                elsif ( $result eq 'error-eof' ) {
-                    $uri_list->close();
-                    last;
-                }
-                else {
-                    next;
-                }
-            }
+				}
+				$enumerator->close;
+			};
+			if ($@) {
+                my $response = $sd->dlg_error_message( sprintf( $d->get("Error while opening directory %s."), "'" . $folder . "'" ), $d->get("There was an error determining the filename."), undef, undef, undef, undef, undef, undef, $@ );
+                return FALSE;
+			}
 
             $next_count = 0 unless $next_count =~ /^(\d+\.?\d*|\.\d+)$/;
             unless ( length( $next_count + 1 ) > $n_counter ) {
@@ -10821,16 +10808,22 @@ else {
 
                         my $source_giofile = Glib::IO::File::new_for_path($file);
 
-                        my $target_giofile = Glib::IO::File::new_for_path( $places_fc->get_uri );
-                        $target_giofile = $target_giofile->append_file_name( $source_giofile->get_basename );
+                        my $target_giofile = Glib::IO::File::new_for_uri( $places_fc->get_uri );
+                        $target_giofile = $target_giofile->get_child( $source_giofile->get_basename );
 
                         #~ print sprintf("%s und %s \n", $target_giofile->to_string, $source_giofile->to_string);
 
                         my $result;
                         unless ( unescape_string( $target_giofile->get_path ) eq unescape_string( $source_giofile->get_path ) ) {
                             unless ( $target_giofile->query_exists ) {
-                                $result = Gnome2::VFS::Xfer->uri( $source_giofile, $target_giofile, 'default', 'abort', 'replace', sub { return TRUE } );
-                            }
+								eval {
+									$source_giofile->copy($target_giofile, []);
+									$result = 'ok';
+	                            };
+								if ($@) {
+									$result = $@;
+								}
+							}
                             else {
                                 $result = 'error-file-exists';
                             }
@@ -10841,22 +10834,10 @@ else {
 
                         #everything is fine here
                         if ( $result eq 'ok' ) {
-
-							if ( $target_giofile->is_local ) {
 								&fct_show_status_message( 1, $file . " " . $d->get("exported") );
 
 								#show as notification
 								my $notify = $sc->get_notification_object;
-								$notify->show( $d->get("Successfully exported"), sprintf( $d->get("The file %s was successfully exported."), $file ) );
-							}
-							else {
-								&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
-
-								#show as notification
-								my $notify = $sc->get_notification_object;
-								$notify->show( $d->get("Successfully uploaded"), sprintf( $d->get("The file %s was successfully uploaded."), $file ) );
-							}
-
                         }
                         elsif ( $result eq 'error-file-exists' ) {
 
@@ -10865,18 +10846,12 @@ else {
                             my $replace_btn = Gtk2::Button->new_with_mnemonic( $d->get("_Replace") );
                             $replace_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-save-as', 'button' ) );
 
-                            my $target_path = undef;
-                            if ( $target_giofile->is_local ) {
-                                $target_path = $shf->utf8_decode( unescape_string( $target_giofile->get_parent->get_path ) );
-                            }
-                            else {
-                                $target_path = $shf->utf8_decode( unescape_string( $target_giofile->get_scheme . "://" . $target_giofile->get_host_name . $target_giofile->extract_dirname ) );
-                            }
+                            my $target_path = $shf->utf8_decode(unescape_string($target_giofile->get_path // $target_giofile->get_uri));
 
                             #dialogs (main window != parent window)
                             my $sd = Shutter::App::SimpleDialogs->new;
 
-                            my $response = $sd->dlg_warning_message( sprintf( $d->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $target_path . "'" ), sprintf( $d->get("An image named %s already exists. Do you want to replace it?"), "'" . $target_giofile->get_basename . "'" ), $d->get("Skip all"), $d->get("Skip"), undef, $replace_btn, undef, undef );
+                            my $response = $sd->dlg_warning_message( sprintf( $d->get("The image already exists in %s. Replacing it will overwrite its contents."), "'" . $target_path . "'" ), sprintf( $d->get("An image named %s already exists. Do you want to replace it?"), "'" . $shf->utf8_decode($target_giofile->get_basename) . "'" ), $d->get("Skip all"), $d->get("Skip"), undef, $replace_btn, undef, undef );
 
                             #10 == skip all, 20 == skip, 40 == replace, else == cancel
                             if ( $response == 10 ) {
@@ -10886,25 +10861,22 @@ else {
                                 next;
                             }
                             elsif ( $response == 40 ) {
-                                $result = Gnome2::VFS::Xfer->uri( $source_giofile, $target_giofile, 'default', 'abort', 'replace', sub { return TRUE } );
+								eval {
+									$source_giofile->copy($target_giofile, ['overwrite']);
+									$result = 'ok';
+								};
+								if ($@) {
+									$result = $@;
+								}
 
                                 #check result again
                                 if ( $result eq 'ok' ) {
 
-									if ( $target_giofile->is_local ) {
 										&fct_show_status_message( 1, $file . " " . $d->get("exported") );
 
 										#show as notification
 										my $notify = $sc->get_notification_object;
 										$notify->show( $d->get("Successfully exported"), sprintf( $d->get("The file %s was successfully exported."), $file ) );
-									}
-									else {
-										&fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
-
-										#show as notification
-										my $notify = $sc->get_notification_object;
-										$notify->show( $d->get("Successfully uploaded"), sprintf( $d->get("The file %s was successfully uploaded."), $file ) );
-									}
 
                                 }
                                 else {
@@ -10989,19 +10961,13 @@ else {
         #dialogs (main window != parent window)
         my $sd = Shutter::App::SimpleDialogs->new;
 
-        my $target_path = undef;
-        if ( $target_giofile->is_local ) {
-            $target_path = $shf->utf8_decode( unescape_string( $target_giofile->get_parent->get_path ) );
-        }
-        else {
-            $target_path = $shf->utf8_decode( unescape_string( $target_giofile->get_scheme . "://" . $target_giofile->get_host_name . $target_giofile->get_parent->get_path ) );
-        }
+        my $target_path = $shf->utf8_decode(unescape_string($target_giofile->get_path // $target_giofile->get_uri));
 
         #retry button
         my $retry_btn = Gtk2::Button->new_with_mnemonic( $d->get("_Retry") );
         $retry_btn->set_image( Gtk2::Image->new_from_stock( 'gtk-redo', 'button' ) );
 
-        my $response = $sd->dlg_error_message( sprintf( $d->get("Error while copying the image %s."), "'" . $target_giofile->get_basename . "'" ), sprintf( $d->get("There was an error copying the image into %s."), "'" . $target_path . "'" ), $d->get("Skip all"), $d->get("Skip"), undef, $retry_btn, undef, undef, Gnome2::VFS->result_to_string($result) );
+        my $response = $sd->dlg_error_message( sprintf( $d->get("Error while copying the image %s."), "'" . $target_giofile->get_basename . "'" ), sprintf( $d->get("There was an error copying the image into %s."), "'" . $target_path . "'" ), $d->get("Skip all"), $d->get("Skip"), undef, $retry_btn, undef, undef, $result );
 
         return $response;
     }

@@ -63,8 +63,8 @@ sub get_thumbnail {
 	my $force_new 	= shift;
 	
 	my $pixbuf;
-	my $factory = Gnome2::ThumbnailFactory->new ('normal');
-	if($factory->can_thumbnail($text_uri, $mime_type, $mtime)){
+	my $factory = 0;#Gnome2::ThumbnailFactory->new ('normal');
+	if(0 && $factory->can_thumbnail($text_uri, $mime_type, $mtime)){
 		unless($factory->has_valid_failed_thumbnail ($text_uri, $mtime)){
 			#force new thumbnail
 			if($force_new){
