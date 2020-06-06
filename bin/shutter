@@ -38,7 +38,7 @@ use 5.10.1;
 use Encode;
 
 use File::stat;
-use Number::Bytes::Human qw(format_bytes);
+use Number::Bytes::Human;
 
 #Gnome2 libraries
 #use Gnome2;
