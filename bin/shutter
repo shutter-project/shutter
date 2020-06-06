@@ -5208,7 +5208,7 @@ else {
             #ignore Shutter's desktop entry
             next if $app->get_id eq 'shutter.desktop';
 
-            $app->{'name'} = $shf->utf8_decode( $app->get_name );
+            $app->{'name'} = $shf->utf8_decode( $app->get_display_name );
 
             #get icon
             my $icon_pixbuf = undef;
@@ -8910,24 +8910,20 @@ else {
             $menu_programs->append($program_item);
 
             my $icon = $app->get_icon;
-            if ($icon) {
-
-                #cut image formats
-                $icon =~ s/(.png|.svg|.gif|.jpeg|.jpg|.xpm)//g;
-                if ( $sc->get_theme->has_icon($icon) ) {
-                    my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
-
-                    my $icon_pixbuf = undef;
-                    eval { $icon_pixbuf = $sc->get_theme->load_icon( $icon, $ih, 'generic-fallback' ); };
-                    if ($@) {
-                        print "\nWARNING: Could not load icon $icon: $@\n";
-                        $icon_pixbuf = undef;
-                    }
-
-                    if ($program_item) {
-                        $program_item->set_image( Gtk2::Image->new_from_pixbuf($icon_pixbuf) );
-                    }
-                }
+            if ($icon && $program_item) {
+                my $icon_pixbuf = undef;
+				my ( $iw, $ih ) = Gtk2::IconSize->lookup('menu');
+				eval {
+					my $icon_info = $sc->get_theme->choose_icon($icon->get_names, $ih, []);
+					$icon_pixbuf = $icon_info->load_icon if $icon_info;
+				};
+				if ($@) {
+					print "\nWARNING: Could not load icon for ", $app->get_display_name, ": $@\n";
+					$icon_pixbuf = undef;
+				}
+				if ($icon_pixbuf) {
+                    $program_item->set_image( Gtk2::Image->new_from_pixbuf($icon_pixbuf) );
+				}
             }
 
             #connect to signal
