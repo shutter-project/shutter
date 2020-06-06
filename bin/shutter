@@ -38,6 +38,7 @@ use 5.10.1;
 use Encode;
 
 use File::stat;
+use Number::Bytes::Human qw(format_bytes);
 
 #Gnome2 libraries
 use Gnome2;
@@ -259,6 +260,7 @@ my $sp     = Shutter::Pixbuf::Save->new($sc);
 my $lp     = Shutter::Pixbuf::Load->new($sc);
 my $lp_ne  = Shutter::Pixbuf::Load->new( $sc, undef, TRUE );
 my $sthumb = Shutter::Pixbuf::Thumbnail->new($sc);
+my $hu     = Number::Bytes::Human->new(si => 1);
 
 #--------------------------------------
 
@@ -7312,7 +7314,7 @@ else {
                 $window->set_title( $session_screens{$key}->{'long'} . " - " . SHUTTER_NAME );
             }
 
-            $status->push( 1, $session_screens{$key}->{'width'} . " x " . $session_screens{$key}->{'height'} . " " . $d->get("pixels") . "  " . $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display( $session_screens{$key}->{'size'} ) ) );
+            $status->push( 1, $session_screens{$key}->{'width'} . " x " . $session_screens{$key}->{'height'} . " " . $d->get("pixels") . "  " . $shf->utf8_decode( $hu->format( $session_screens{$key}->{'size'} ) ) );
 
             #session tab
         }
@@ -7321,7 +7323,7 @@ else {
             #change window title
             $window->set_title( $d->get("Session") . " - " . SHUTTER_NAME );
 
-            $status->push( 1, sprintf( $d->nget( "%s screenshot", "%s screenshots", scalar( keys(%session_screens) ) ), scalar( keys(%session_screens) ) ) . "  " . $shf->utf8_decode( Gnome2::VFS->format_file_size_for_display(&fct_get_total_size_of_session) ) );
+            $status->push( 1, sprintf( $d->nget( "%s screenshot", "%s screenshots", scalar( keys(%session_screens) ) ), scalar( keys(%session_screens) ) ) . "  " . $shf->utf8_decode( $hu->format(&fct_get_total_size_of_session) ) );
 
         }
 
