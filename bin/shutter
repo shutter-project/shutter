@@ -78,9 +78,6 @@ use File::Which;
 use File::Copy::Recursive;
 use IO::File();
 
-use MIME::Detect;
-my $mime_detect = MIME::Detect->new();
-
 #A selection of general-utility list subroutines
 use List::Util qw/ max min /;
 
@@ -4160,7 +4157,7 @@ else {
         }
 
         #check mime type
-        my ($mime_type) = $mime_detect->mime_type( $giofile->get_path )->mime_type;
+		my ($mime_type) = Glib::Object::Introspection->invoke('Gio', undef, 'content_type_guess', $giofile->get_path);
         $mime_type =~ s/image\/x\-apple\-ios\-png/image\/png/; #FIXME
         if ( $mime_type =~ m/(pdf|ps|svg)/ig ) {
 
@@ -4581,7 +4578,7 @@ else {
                     if ( exists $session_screens{$key}->{'giofile'}
                         && defined $session_screens{$key}->{'giofile'} )
                     {
-                        $data->set( $data->target, 8, $session_screens{$key}->{'giofile'}->get_path );
+                        $data->set( $data->target, 8, $session_screens{$key}->{'giofile'}->get_uri );
                     }
                 }
             );
@@ -4675,7 +4672,7 @@ else {
                                 if ( exists $session_screens{$key}->{'giofile'}
                                     && defined $session_screens{$key}->{'giofile'} )
                                 {
-                                    $target_list .= $session_screens{$key}->{'giofile'}->get_path . "\n";
+                                    $target_list .= $session_screens{$key}->{'giofile'}->get_uri . "\n";
                                 }
                             }
                         }
@@ -5286,10 +5283,10 @@ else {
 
         my @valid_files;
         foreach my $file (@files) {
-            my ($mime_type) = $mime_detect->mime_type( $file )->mime_type;
+			my ($mime_type) = Glib::Object::Introspection->invoke('Gio', undef, 'content_type_guess', $file);
             $mime_type =~ s/image\/x\-apple\-ios\-png/image\/png/; #FIXME
             if ( $mime_type && &fct_check_valid_mime_type($mime_type) ) {
-                push @valid_files, Glib::IO::File::new_for_path($file)->get_uri;
+                push @valid_files, $file;
             }
         }
 
@@ -7567,7 +7564,8 @@ else {
                 $session_screens{$key}->{'name'} =~ s/\.$session_screens{$key}->{'filetype'}//g;
 
                 #mime type
-                my ($mime_type) = $mime_detect->mime_type( $session_screens{$key}->{'giofile'}->get_path )->mime_type;
+				my ($mime_type) = Glib::Object::Introspection->invoke('Gio', undef, 'content_type_guess',
+					$session_screens{$key}->{'giofile'}->get_path);
 				$mime_type =~ s/image\/x\-apple\-ios\-png/image\/png/; #FIXME
 				$session_screens{$key}->{'mime_type'} = $mime_type;
 
