@@ -47,7 +47,6 @@ use XML::Simple;
 
 #Glib
 use Glib qw/TRUE FALSE/;
-use Glib::IO;
 
 #--------------------------------------
 
