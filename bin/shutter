@@ -5289,7 +5289,7 @@ else {
             my ($mime_type) = $mime_detect->mime_type( $file )->mime_type;
             $mime_type =~ s/image\/x\-apple\-ios\-png/image\/png/; #FIXME
             if ( $mime_type && &fct_check_valid_mime_type($mime_type) ) {
-                push @valid_files, $file;
+                push @valid_files, Glib::IO::File::new_for_path($file)->get_uri;
             }
         }
 
