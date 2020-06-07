@@ -6957,7 +6957,7 @@ sub gen_thumbnail_on_idle {
 
                     #16x16 is minimum size
                     if ( $pixbuf->get_width >= 16 && $pixbuf->get_height >= 16 ) {
-                        $small_image = Gtk2::Image->new_from_pixbuf( $pixbuf->scale_down_pixbuf( Gtk2::IconSize->lookup('menu') ) );
+                        $small_image = Gtk2::Image->new_from_pixbuf( $pixbuf->scale_simple( Gtk2::IconSize->lookup('menu'), 'bilinear' ) );
                     }
                 }
             };
