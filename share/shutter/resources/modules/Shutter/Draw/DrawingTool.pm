@@ -214,7 +214,6 @@ sub show {
 
     #dialogs, thumbnail generator and pixbuf loader
     $self->{_dialogs} = Shutter::App::SimpleDialogs->new( $self->{_drawing_window} );
-    $self->{_thumbs}  = Shutter::Pixbuf::Thumbnail->new( $self->{_sc} );
     $self->{_lp}      = Shutter::Pixbuf::Load->new( $self->{_sc}, $self->{_drawing_window} );
     $self->{_lp_ne}   = Shutter::Pixbuf::Load->new( $self->{_sc}, $self->{_drawing_window}, TRUE );
 
@@ -6909,6 +6908,8 @@ sub gen_thumbnail_on_idle {
     my $no_init    = shift;
     my @menu_items = @_;
 
+    my $shutter_hfunct = Shutter::App::HelperFunctions->new( $self->{_sc} );
+
     #generate thumbnails in an idle callback
     my $next_item = 0;
     Glib::Idle->add(
@@ -6943,9 +6944,8 @@ sub gen_thumbnail_on_idle {
                 if ( exists $child->{'giofile'} ) {
                     my $thumb;
                     unless ( $child->{'no_thumbnail'} ) {
-                        $thumb = $self->{_thumbs}->get_thumbnail( $child->{'giofile'}->get_uri, $child->{'mime_type'}, $child->{'mtime'}, 0.2 );
-                    }
-                    else {
+						$thumb = $self->{_lp_ne}->load($shutter_hfunct->utf8_decode($child->{'giofile'}->get_path), Gtk2::IconSize->lookup('small-toolbar'));
+					} else {
                         $thumb = Gtk2::Gdk::Pixbuf->new( 'rgb', TRUE, 8, 5, 5 );
                         $thumb->fill(0x00000000);
                     }
