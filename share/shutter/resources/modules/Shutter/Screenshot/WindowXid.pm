@@ -59,7 +59,7 @@ sub window_by_xid {
 	my $xid  = shift;
 
 	my $gdk_window  = Gtk2::Gdk::Window->foreign_new( $xid );
-	my $wnck_window = Wnck::Window->get( $xid );
+	my $wnck_window = Gnome2::Wnck::Window->get( $xid );
 	
 	#~ print $xid, " - ", $gdk_window, " - ", $wnck_window, "\n";
 	
