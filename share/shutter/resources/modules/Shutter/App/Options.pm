@@ -25,6 +25,8 @@ package Shutter::App::Options;
 use utf8;
 use strict;
 use warnings;
+use Encode::Locale;
+use Encode;
 
 #Glib
 use Glib qw/TRUE FALSE/; 
@@ -77,7 +79,7 @@ sub get_options {
 	#unknown value are passed through in @ARGV - might be filenames
 	my @init_files;
 	if ( @ARGV > 0 ) {
-		foreach my $arg (@ARGV) {
+		foreach my $arg (map { decode(locale => $_, 1) } @ARGV) {
 			if ( $self->{_shf}->file_exists($arg) || $self->{_shf}->uri_exists($arg) ) {
 				#push filename to array, open when GUI is initialized
 				push @init_files, $arg;
