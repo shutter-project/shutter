@@ -4304,6 +4304,7 @@ else {
 		eval {
 			if ( defined $session_screens{$key}->{'giofile'} ) {
 				my $monitor = $session_screens{$key}->{'giofile'}->monitor_file([]);
+				$session_screens{$key}->{'monitor'} = $monitor;
 				$monitor->signal_connect('changed', sub {
                     my $handle = shift;
                     my $file1  = shift;
@@ -7682,7 +7683,7 @@ else {
                 unless ( $session_screens{$key}->{'no_thumbnail'} ) {
 
                     #update tab icon
-					$thumb = $lp_ne->load($shf->utf8_decode($giofile->get_path), Gtk2::IconSize->lookup('small-toolbar'));
+					$thumb = $lp_ne->load($shf->utf8_decode($session_screens{$key}->{'giofile'}->get_path), Gtk2::IconSize->lookup('small-toolbar'));
                     $session_screens{$key}->{'tab_icon'}->set_from_pixbuf($thumb);
                 }
 
@@ -7696,7 +7697,7 @@ else {
                     #update view icon
 					if ($session_screens{$key}->{'image'}->get_pixbuf->get_height > $max_size ||
 								$session_screens{$key}->{'image'}->get_pixbuf->get_width > $max_size) {
-						$thumb_view = $lp_ne->load($shf->utf8_decode($giofile->get_path), $max_size, $max_size);
+						$thumb_view = $lp_ne->load($shf->utf8_decode($session_screens{$key}->{'giofile'}->get_path), $max_size, $max_size);
 					} else {
 						$thumb_view = $session_screens{$key}->{'image'}->get_pixbuf;
 					}
