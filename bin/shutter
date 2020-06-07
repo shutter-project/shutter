@@ -5333,10 +5333,10 @@ else {
 
             #do the real work
             if ( &fct_integrate_screenshot_in_notebook($new_giofile) ) {
-                &fct_show_status_message( 1, $new_giofile->get_path . " " . $d->get("opened") );
+                &fct_show_status_message( 1, $shf->utf8_decode($new_giofile->get_path) . " " . $d->get("opened") );
             }
             else {
-                &fct_show_status_message( 1, sprintf( $d->get("Error while opening image %s."), "'" . $new_giofile->get_basename . "'" ) );
+                &fct_show_status_message( 1, sprintf( $d->get("Error while opening image %s."), "'" . $shf->utf8_decode($new_giofile->get_basename) . "'" ) );
             }
         }
 
@@ -5431,7 +5431,7 @@ else {
                 #do the real work
                 my $new_giofile = Glib::IO::File::new_for_path( ${$session_xml}{$key}{'filename'} );
                 if ( &fct_integrate_screenshot_in_notebook( $new_giofile, undef, undef, $count ) ) {
-                    &fct_show_status_message( 1, $new_giofile->get_path . " " . $d->get("opened") );
+                    &fct_show_status_message( 1, $shf->utf8_decode($new_giofile->get_path) . " " . $d->get("opened") );
                 }
                 else {
                     &fct_show_status_message( 1, sprintf( $d->get("Error while opening image %s."), "'" . $new_giofile->get_basename . "'" ) );
