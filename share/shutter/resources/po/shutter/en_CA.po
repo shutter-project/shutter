@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2010-09-01 02:36+0000\n"
-"Last-Translator: Dan Klassen <danklassen@gmail.com>\n"
+"PO-Revision-Date: 2017-05-31 01:45+0000\n"
+"Last-Translator: Coder206 <Unknown>\n"
 "Language-Team: English (Canada) <en_CA@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-12-23 22:44+0000\n"
-"X-Generator: Launchpad (build 17286)\n"
+"X-Launchpad-Export-Date: 2020-06-08 09:52+0000\n"
+"X-Generator: Launchpad (build ef9fc486e875d54078fa61cf91e898b895125d89)\n"
 
 #: translate_tmp.pl:476
 #: translate_tmp.pl:2590
@@ -37,6 +37,7 @@ msgstr "gnome-web-photo needs to be installed for this feature"
 #: translate_tmp.pl:883
 msgid "Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature"
 msgstr ""
+"Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature"
 
 #: translate_tmp.pl:916
 msgid "Choose a profile"
@@ -52,7 +53,7 @@ msgstr "Delete profile"
 
 #: translate_tmp.pl:951
 msgid "Load the selected profile's configuration"
-msgstr ""
+msgstr "Load the selected profile's configuration"
 
 #: translate_tmp.pl:958
 #: translate_tmp.pl:1231
@@ -67,7 +68,7 @@ msgstr "Save"
 
 #: translate_tmp.pl:972
 msgid "First-launch Behavior"
-msgstr ""
+msgstr "First-launch Behaviour"
 
 #: translate_tmp.pl:979
 msgid "Window Preferences"
@@ -124,7 +125,7 @@ msgstr "Transparent Parts"
 
 #: translate_tmp.pl:1070
 msgid "Session View"
-msgstr ""
+msgstr "Session View"
 
 #: translate_tmp.pl:1078
 #: translate_tmp.pl:1953
@@ -196,7 +197,7 @@ msgstr "Compression"
 #: translate_tmp.pl:1143
 #: translate_tmp.pl:1144
 msgid "Adjust quality/compression value"
-msgstr ""
+msgstr "Adjust quality/compression value"
 
 #: translate_tmp.pl:1232
 #: translate_tmp.pl:1233
@@ -228,7 +229,7 @@ msgstr "Browse for save folder every time"
 #: translate_tmp.pl:1266
 #: translate_tmp.pl:1269
 msgid "Do not save file automatically"
-msgstr ""
+msgstr "Do not save file automatically"
 
 #: translate_tmp.pl:1271
 #: translate_tmp.pl:1274
@@ -336,7 +337,7 @@ msgstr ""
 
 #: translate_tmp.pl:1556
 msgid "Border"
-msgstr ""
+msgstr "Border"
 
 #: translate_tmp.pl:1558
 #: translate_tmp.pl:1641
@@ -349,19 +350,19 @@ msgstr "pixels"
 
 #: translate_tmp.pl:1560
 msgid "Color"
-msgstr ""
+msgstr "Colour"
 
 #: translate_tmp.pl:1563
 #: translate_tmp.pl:1569
 #: translate_tmp.pl:1570
 msgid "Choose border color"
-msgstr ""
+msgstr "Choose border colour"
 
 #: translate_tmp.pl:1565
 #: translate_tmp.pl:1566
 #: translate_tmp.pl:1567
 msgid "Adds a border effect to the screenshot"
-msgstr ""
+msgstr "Adds a border effect to the screenshot"
 
 #: translate_tmp.pl:1615
 #: translate_tmp.pl:1624
@@ -387,15 +388,15 @@ msgstr "at"
 #: translate_tmp.pl:1677
 #: translate_tmp.pl:1678
 msgid "Start Selection Tool with a customized selection size"
-msgstr ""
+msgstr "Start Selection Tool with a customized selection size"
 
 #: translate_tmp.pl:1696
 msgid "Show help text"
-msgstr ""
+msgstr "Show help text"
 
 #: translate_tmp.pl:1705
 msgid "Enables the help text"
-msgstr ""
+msgstr "Enables the help text"
 
 #: translate_tmp.pl:1714
 #: translate_tmp.pl:1715
@@ -404,7 +405,7 @@ msgstr "Include window decoration when capturing a window"
 
 #: translate_tmp.pl:1733
 msgid "Automatically resize window to"
-msgstr ""
+msgstr "Automatically resize window to"
 
 #: translate_tmp.pl:1760
 #: translate_tmp.pl:1761
@@ -416,10 +417,13 @@ msgid ""
 "This method asks the window manager to resize the window. However, the "
 "window manager may not allow the resize."
 msgstr ""
+"This resizes the window automatically to the specified width and height. "
+"This method asks the window manager to resize the window. However, the "
+"window manager may not allow the resize."
 
 #: translate_tmp.pl:1777
 msgid "Force rounded window corners"
-msgstr ""
+msgstr "Force rounded window corners"
 
 #: translate_tmp.pl:1786
 #, perl-format
@@ -432,6 +436,13 @@ msgid ""
 "named ~/.shutter/shape.conf and put custom values in it. The default values "
 "are stored in %s."
 msgstr ""
+"Shutter uses the XShape extension to determine the window's shape, but this "
+"does not work under some circumstances, e.g. when running compiz.\n"
+"\n"
+"When this option is activated Shutter uses fixed parameters to round the "
+"window corners. You can overwrite the default parameters by creating a file "
+"named ~/.shutter/shape.conf and put custom values in it. The default values "
+"are stored in %s."
 
 #: translate_tmp.pl:1795
 #: translate_tmp.pl:1796
@@ -514,38 +525,38 @@ msgstr ""
 
 #: translate_tmp.pl:1951
 msgid "Sort ascending by"
-msgstr ""
+msgstr "Sort ascending by"
 
 #: translate_tmp.pl:1954
 #: translate_tmp.pl:1958
 msgid "Key/Time Created"
-msgstr ""
+msgstr "Key/Time Created"
 
 #: translate_tmp.pl:1955
 msgid "Sort descending by"
-msgstr ""
+msgstr "Sort descending by"
 
 #: translate_tmp.pl:2017
 #: translate_tmp.pl:2018
 #: translate_tmp.pl:2019
 #: translate_tmp.pl:2020
 msgid "Configure sort criteria"
-msgstr ""
+msgstr "Configure sort criteria"
 
 #: translate_tmp.pl:2027
 #: translate_tmp.pl:2087
 msgid "Start Shutter at login"
-msgstr ""
+msgstr "Start Shutter at login"
 
 #: translate_tmp.pl:2028
 #: translate_tmp.pl:2096
 msgid "Hide window on first launch"
-msgstr ""
+msgstr "Hide window on first launch"
 
 #: translate_tmp.pl:2029
 #: translate_tmp.pl:2105
 msgid "Hide notification icon"
-msgstr ""
+msgstr "Hide notification icon"
 
 #: translate_tmp.pl:2031
 #: translate_tmp.pl:2114
@@ -613,7 +624,7 @@ msgstr "Move file to trash when closing tab"
 #: translate_tmp.pl:2060
 #: translate_tmp.pl:2214
 msgid "Notify when file was deleted from filesystem"
-msgstr ""
+msgstr "Notify when file was deleted from filesystem"
 
 #: translate_tmp.pl:2123
 #: translate_tmp.pl:2124
@@ -640,6 +651,9 @@ msgid ""
 "your credentials above. Plugins with OAuth support are configured "
 "automatically the first time you use them."
 msgstr ""
+"<b>Please note:</b> If a plugin allows authorized uploading you can enter "
+"your credentials above. Plugins with OAuth support are configured "
+"automatically the first time you use them."
 
 #: translate_tmp.pl:2243
 #: translate_tmp.pl:10547
@@ -737,8 +751,8 @@ msgstr "The following plugins are installed"
 #: translate_tmp.pl:2957
 msgid "pixel"
 msgid_plural "pixels"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "pixel"
+msgstr[1] "pixels"
 
 #: translate_tmp.pl:2967
 #: translate_tmp.pl:2974
@@ -807,7 +821,7 @@ msgstr "not found"
 
 #: translate_tmp.pl:4244
 msgid "Error while adding the file monitor."
-msgstr ""
+msgstr "Error while adding the file monitor."
 
 #: translate_tmp.pl:4765
 msgid "Settings could not be saved!"
@@ -836,7 +850,7 @@ msgstr "Settings loaded successfully"
 #: translate_tmp.pl:5088
 #: translate_tmp.pl:7010
 msgid "Built-in Editor"
-msgstr ""
+msgstr "Built-in Editor"
 
 #: translate_tmp.pl:5142
 msgid "Account-settings could not be restored!"
@@ -863,17 +877,17 @@ msgstr "Session could not be restored!"
 #: translate_tmp.pl:5406
 #, perl-format
 msgid "Error while creating the trashinfo file %s."
-msgstr ""
+msgstr "Error while creating the trashinfo file %s."
 
 #: translate_tmp.pl:5418
 #, perl-format
 msgid "Error while moving the file %s to trash."
-msgstr ""
+msgstr "Error while moving the file %s to trash."
 
 #: translate_tmp.pl:5424
 #, perl-format
 msgid "Error while removing the file %s from disk."
-msgstr ""
+msgstr "Error while removing the file %s from disk."
 
 #: translate_tmp.pl:5442
 #, perl-format
@@ -999,7 +1013,7 @@ msgstr "Capture aborted by user"
 #: translate_tmp.pl:6759
 #, perl-format
 msgid "%s saved"
-msgstr ""
+msgstr "%s saved"
 
 #: translate_tmp.pl:6746
 #: translate_tmp.pl:6749
@@ -1020,7 +1034,7 @@ msgstr ""
 #: translate_tmp.pl:7021
 #, perl-format
 msgid "%s opened with %s"
-msgstr ""
+msgstr "%s opened with %s"
 
 #: translate_tmp.pl:7047
 msgid "Opened all files with"
@@ -1092,7 +1106,7 @@ msgstr "saved"
 #: translate_tmp.pl:7813
 #, perl-format
 msgid "Image %s was deleted from filesystem"
-msgstr ""
+msgstr "Image %s was deleted from filesystem"
 
 #: translate_tmp.pl:7846
 #: translate_tmp.pl:62
@@ -1115,15 +1129,15 @@ msgstr "Please wait while Shutter updates the plugin information"
 
 #: translate_tmp.pl:8246
 msgid "Updating upload plugin information"
-msgstr ""
+msgstr "Updating upload plugin information"
 
 #: translate_tmp.pl:8251
 msgid "Please wait while Shutter updates the upload plugin information"
-msgstr ""
+msgstr "Please wait while Shutter updates the upload plugin information"
 
 #: translate_tmp.pl:8482
 msgid "Capture All Workspaces"
-msgstr ""
+msgstr "Capture All Workspaces"
 
 #: translate_tmp.pl:8495
 msgid "Limit to current monitor"
@@ -1150,11 +1164,11 @@ msgstr[1] ""
 
 #: translate_tmp.pl:8537
 msgid "Active Window"
-msgstr ""
+msgstr "Active Window"
 
 #: translate_tmp.pl:8542
 msgid "Capture the last active window"
-msgstr ""
+msgstr "Capture the last active window"
 
 #: translate_tmp.pl:8585
 #: translate_tmp.pl:403
@@ -1164,16 +1178,16 @@ msgstr "_Selection"
 #: translate_tmp.pl:8604
 #: translate_tmp.pl:429
 msgid "_Desktop"
-msgstr ""
+msgstr "_Desktop"
 
 #: translate_tmp.pl:8636
 msgid "Window _under Cursor"
-msgstr ""
+msgstr "Window _under Cursor"
 
 #: translate_tmp.pl:8649
 #: translate_tmp.pl:459
 msgid "Select W_indow"
-msgstr ""
+msgstr "Select W_indow"
 
 #: translate_tmp.pl:8660
 #: translate_tmp.pl:472
@@ -1197,7 +1211,7 @@ msgstr "_Web"
 
 #: translate_tmp.pl:8713
 msgid "S_how main window"
-msgstr ""
+msgstr "S_how main window"
 
 #: translate_tmp.pl:8719
 #: translate_tmp.pl:395
@@ -1211,27 +1225,27 @@ msgstr "_Quick profile select"
 
 #: translate_tmp.pl:8896
 msgid "Wait indefinitely"
-msgstr ""
+msgstr "Wait indefinitely"
 
 #: translate_tmp.pl:8897
 #: translate_tmp.pl:8898
 #, perl-format
 msgid "Wait max %d second"
 msgid_plural "Wait max %d seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Wait max %d second"
+msgstr[1] "Wait max %d seconds"
 
 #: translate_tmp.pl:8899
 #: translate_tmp.pl:8900
 #, perl-format
 msgid "Wait max %d minute"
 msgid_plural "Wait max %d minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Wait max %d minute"
+msgstr[1] "Wait max %d minutes"
 
 #: translate_tmp.pl:8908
 msgid "Shutter will wait indefinitely for the screenshot to capture"
-msgstr ""
+msgstr "Shutter will wait indefinitely for the screenshot to capture"
 
 #: translate_tmp.pl:8909
 #: translate_tmp.pl:8910
@@ -1243,7 +1257,11 @@ msgid_plural ""
 "Shutter will wait up to %d seconds for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
+"Shutter will wait up to %d second for the screenshot to capture before "
+"aborting the process if it's taking too long"
 msgstr[1] ""
+"Shutter will wait up to %d seconds for the screenshot to capture before "
+"aborting the process if it's taking too long"
 
 #: translate_tmp.pl:8911
 #: translate_tmp.pl:8912
@@ -1255,7 +1273,11 @@ msgid_plural ""
 "Shutter will wait up to %d minutes for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
+"Shutter will wait up to %d minute for the screenshot to capture before "
+"aborting the process if it's taking too long"
 msgstr[1] ""
+"Shutter will wait up to %d minutes for the screenshot to capture before "
+"aborting the process if it's taking too long"
 
 #: translate_tmp.pl:9046
 msgid "Host"
@@ -1263,15 +1285,15 @@ msgstr "Host"
 
 #: translate_tmp.pl:9113
 msgid "Anonymous Upload"
-msgstr ""
+msgstr "Anonymous Upload"
 
 #: translate_tmp.pl:9120
 msgid "Authorized Upload"
-msgstr ""
+msgstr "Authorized Upload"
 
 #: translate_tmp.pl:9127
 msgid "OAuth Upload"
-msgstr ""
+msgstr "OAuth Upload"
 
 #: translate_tmp.pl:9138
 #: translate_tmp.pl:9199
@@ -1448,7 +1470,7 @@ msgstr "Guest"
 
 #: translate_tmp.pl:10426
 msgid "OAuth"
-msgstr ""
+msgstr "OAuth"
 
 #: translate_tmp.pl:10459
 msgid ""
@@ -1456,6 +1478,9 @@ msgid ""
 "links will still be available in the screenshot's <i>right-click menu</i> "
 "after closing this dialog."
 msgstr ""
+"Please choose one of the accounts above and click <i>Upload</i>. The upload "
+"links will still be available in the screenshot's <i>right-click menu</i> "
+"after closing this dialog."
 
 #: translate_tmp.pl:10460
 msgid ""
@@ -1463,6 +1488,9 @@ msgid ""
 "enter your credentials in preferences first to make it appear in the list "
 "above."
 msgstr ""
+"<b>Please note:</b> If a plugin allows only authorized uploading you need to "
+"enter your credentials in preferences first to make it appear in the list "
+"above."
 
 #: translate_tmp.pl:10462
 msgid "Choose account"
@@ -1503,7 +1531,11 @@ msgid_plural ""
 "Folder %s is synchronized with Ubuntu One. The selected files will be copied "
 "to that folder before being published."
 msgstr[0] ""
+"Folder %s is synchronized with Ubuntu One. The selected file will be copied "
+"to that folder before being published."
 msgstr[1] ""
+"Folder %s is synchronized with Ubuntu One. The selected files will be copied "
+"to that folder before being published."
 
 #: translate_tmp.pl:10707
 #: translate_tmp.pl:10739
@@ -1514,7 +1546,11 @@ msgid_plural ""
 "<b>Please note:</b> The selected files will be published in a background "
 "process. You will be notified when the process has finished."
 msgstr[0] ""
+"<b>Please note:</b> The selected file will be published in a background "
+"process. You will be notified when the process has finished."
 msgstr[1] ""
+"<b>Please note:</b> The selected files will be published in a background "
+"process. You will be notified when the process has finished."
 
 #: translate_tmp.pl:10711
 #: translate_tmp.pl:10743
@@ -1523,6 +1559,8 @@ msgid ""
 "Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
 "folder."
 msgstr ""
+"Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
+"folder."
 
 #: translate_tmp.pl:10762
 msgid "Ubuntu One service cannot be found."
@@ -1545,16 +1583,16 @@ msgstr ""
 #: translate_tmp.pl:10846
 #, perl-format
 msgid "Loading module %s"
-msgstr ""
+msgstr "Loading module %s"
 
 #: translate_tmp.pl:10859
 #, perl-format
 msgid "Error while executing upload plugin %s."
-msgstr ""
+msgstr "Error while executing upload plugin %s."
 
 #: translate_tmp.pl:10859
 msgid "There was an error executing the upload plugin."
-msgstr ""
+msgstr "There was an error executing the upload plugin."
 
 #: translate_tmp.pl:10892
 #: translate_tmp.pl:10963
@@ -1680,6 +1718,7 @@ msgstr "A profile named %s already exists. Do you want to replace it?"
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
+"  Coder206 https://launchpad.net/~coder-206\n"
 "  Dan Klassen https://launchpad.net/~danklassen"
 
 #: translate_tmp.pl:34
@@ -1729,7 +1768,7 @@ msgstr "E_xport to PDF..."
 #: translate_tmp.pl:119
 #: translate_tmp.pl:6192
 msgid "Export to Post_Script..."
-msgstr ""
+msgstr "Export to Post_Script..."
 
 #: translate_tmp.pl:129
 msgid "Page Set_up"
@@ -1770,7 +1809,7 @@ msgstr "Report a Problem"
 
 #: translate_tmp.pl:446
 msgid "_Active Window"
-msgstr ""
+msgstr "_Active Window"
 
 #: translate_tmp.pl:538
 msgid "Import from clip_board"
@@ -1784,7 +1823,7 @@ msgstr "Open wit_h"
 #: translate_tmp.pl:565
 #: translate_tmp.pl:662
 msgid "Show in _folder"
-msgstr ""
+msgstr "Show in _folder"
 
 #: translate_tmp.pl:572
 #: translate_tmp.pl:669
@@ -1848,7 +1887,7 @@ msgstr ""
 
 #: translate_tmp.pl:89
 msgid "Desktop"
-msgstr ""
+msgstr "Desktop"
 
 #: translate_tmp.pl:92
 msgid "Take a screenshot of your whole desktop"
@@ -1914,6 +1953,8 @@ msgid ""
 "Set how long Shutter will wait for the screenshot to complete before "
 "aborting the process if it's taking too long"
 msgstr ""
+"Set how long Shutter will wait for the screenshot to complete before "
+"aborting the process if it's taking too long"
 
 #: translate_tmp.pl:233
 msgid "Edit"
@@ -1941,7 +1982,7 @@ msgstr ""
 
 #: translate_tmp.pl:247
 msgid "Show links to previous uploads"
-msgstr ""
+msgstr "Show links to previous uploads"
 
 #: translate_tmp.pl:33
 #: translate_tmp.pl:47
@@ -1999,44 +2040,44 @@ msgstr "Command 'put' failed."
 
 #: translate_tmp.pl:87
 msgid "Copy this code to clipboard"
-msgstr ""
+msgstr "Copy this code to clipboard"
 
 #: translate_tmp.pl:112
 #, perl-format
 msgid "Upload - %s - %s"
-msgstr ""
+msgstr "Upload - %s - %s"
 
 #: translate_tmp.pl:120
 msgid "Draw a rectangular area using the mouse."
-msgstr ""
+msgstr "Draw a rectangular area using the mouse."
 
 #: translate_tmp.pl:122
 msgid "To take a screenshot, press the Enter key. Press Esc to quit."
-msgstr ""
+msgstr "To take a screenshot, press the Enter key. Press Esc to quit."
 
 #: translate_tmp.pl:124
 msgid "<b>shift/right-click</b> → selection dialog on/off"
-msgstr ""
+msgstr "<b>shift/right-click</b> → selection dialog on/off"
 
 #: translate_tmp.pl:124
 msgid "<b>ctrl + scrollwheel</b> → zoom in/out"
-msgstr ""
+msgstr "<b>ctrl + scrollwheel</b> → zoom in/out"
 
 #: translate_tmp.pl:124
 msgid "<b>space</b> → zoom window on/off"
-msgstr ""
+msgstr "<b>space</b> → zoom window on/off"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys</b> → move cursor"
-msgstr ""
+msgstr "<b>cursor keys</b> → move cursor"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys + alt</b> → move selection"
-msgstr ""
+msgstr "<b>cursor keys + alt</b> → move selection"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys + ctrl</b> → resize selection"
-msgstr ""
+msgstr "<b>cursor keys + ctrl</b> → resize selection"
 
 #: translate_tmp.pl:88
 msgid ""
@@ -2077,12 +2118,12 @@ msgstr "Unable to capture website"
 #: translate_tmp.pl:153
 #, perl-format
 msgid "No window with name pattern %s detected."
-msgstr ""
+msgstr "No window with name pattern %s detected."
 
 #: translate_tmp.pl:163
 #, perl-format
 msgid "Invalid pattern %s detected."
-msgstr ""
+msgstr "Invalid pattern %s detected."
 
 #: translate_tmp.pl:116
 msgid "No subwindow detected"
@@ -2106,7 +2147,7 @@ msgstr "C_apture"
 
 #: translate_tmp.pl:157
 msgid "Workspaces"
-msgstr ""
+msgstr "Workspaces"
 
 #: translate_tmp.pl:454
 #: translate_tmp.pl:4186
@@ -2352,7 +2393,7 @@ msgstr "Use selected font"
 
 #: translate_tmp.pl:4438
 msgid "Use selected font color"
-msgstr ""
+msgstr "Use selected font colour"
 
 #: translate_tmp.pl:6035
 msgid "_Tools"
@@ -2420,7 +2461,7 @@ msgstr "Export to PDF..."
 
 #: translate_tmp.pl:6194
 msgid "Export to PostScript..."
-msgstr ""
+msgstr "Export to PostScript..."
 
 #: translate_tmp.pl:6265
 msgid "Automatic scrolling"

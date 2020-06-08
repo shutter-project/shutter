@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2014-09-18 06:46+0000\n"
-"Last-Translator: ander goñi <agonirena@gmail.com>\n"
+"PO-Revision-Date: 2018-08-23 09:45+0000\n"
+"Last-Translator: gorkaazk <gorkaazkarate@gmail.com>\n"
 "Language-Team: Basque <eu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-12-23 22:44+0000\n"
-"X-Generator: Launchpad (build 17286)\n"
+"X-Launchpad-Export-Date: 2020-06-08 09:52+0000\n"
+"X-Generator: Launchpad (build ef9fc486e875d54078fa61cf91e898b895125d89)\n"
 
 #: translate_tmp.pl:476
 #: translate_tmp.pl:2590
@@ -471,6 +471,10 @@ msgid ""
 "correctly set. By enabling this option Shutter will not insist on the "
 "requested type hint."
 msgstr ""
+"Aholku-konstanteak motak zehazten ditu iradokizunak leiho-"
+"kudeatzailearentzat eta honek erakusten du zein leiho mota daukan. Batzuetan "
+"aholku motak ez daude behar bezala zehaztuta. Aukera honi bidea zabalduz "
+"gero, Shutterek ez dizu eskatuko, behin eta berriro, aholku mota zehazteko."
 
 #: translate_tmp.pl:1858
 msgid "Virtual browser width"
@@ -648,6 +652,9 @@ msgid ""
 "your credentials above. Plugins with OAuth support are configured "
 "automatically the first time you use them."
 msgstr ""
+"<b>Oharra:</b> Pluginak gora-kargatze lan baimenduak onartzen baditu, zure "
+"kredentzialak sar ditzakezu hor goian. OAuth euskarria duten puginak modu "
+"automatikoan konfiguratuko dira erabiltzen dituzun lehenengo momentuan."
 
 #: translate_tmp.pl:2243
 #: translate_tmp.pl:10547
@@ -1208,7 +1215,7 @@ msgstr "_Web"
 
 #: translate_tmp.pl:8713
 msgid "S_how main window"
-msgstr ""
+msgstr "_Erakutsi leiho nagusia"
 
 #: translate_tmp.pl:8719
 #: translate_tmp.pl:395
@@ -1254,7 +1261,12 @@ msgid_plural ""
 "Shutter will wait up to %d seconds for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
+"Shutter aplikazioak segundo %d  itxaron egingo dio kapturatuko den "
+"pantailari prozesua abortatu baino lehenago, prozesua gehiegi luzatzen "
+"baldin bada"
 msgstr[1] ""
+"Shutter aplikazioak %d segundo itxaron egingo dio kapturatuko den pantailari "
+"prozesua abortatu baino lehenago, prozesua gehiegi luzatzen baldin bada"
 
 #: translate_tmp.pl:8911
 #: translate_tmp.pl:8912
@@ -1266,7 +1278,11 @@ msgid_plural ""
 "Shutter will wait up to %d minutes for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
+"Shutter aplikazioak minutu %d  itxaron egingo dio kapturatuko den pantailari "
+"prozesua abortatu baino lehenago, prozesua gehiegi luzatzen baldin bada"
 msgstr[1] ""
+"Shutter aplikazioak %d minutu  itxaron egingo dio kapturatuko den pantailari "
+"prozesua abortatu baino lehenago, prozesua gehiegi luzatzen baldin bada"
 
 #: translate_tmp.pl:9046
 msgid "Host"
@@ -1466,6 +1482,9 @@ msgid ""
 "links will still be available in the screenshot's <i>right-click menu</i> "
 "after closing this dialog."
 msgstr ""
+"Hautatu azpiko kontu horietako bat eta egin klik <i>Gora kargatu</i>. "
+"Kargatze estekak erabilgarri egongo dira pantaila argazkiaren <i>eskuineko "
+"klik menuan</i> elkarrizketa hau itxi eta gero."
 
 #: translate_tmp.pl:10460
 msgid ""
@@ -1473,6 +1492,9 @@ msgid ""
 "enter your credentials in preferences first to make it appear in the list "
 "above."
 msgstr ""
+"<b>Oharra:</b> Pluginak baimendutako kargatze lanak besterik ez baditu "
+"onartzen, aurretik zure kredentzialak sartu beharko dituzu azpiko zerrenda "
+"honetan ager daitezen."
 
 #: translate_tmp.pl:10462
 msgid "Choose account"
@@ -1513,7 +1535,13 @@ msgid_plural ""
 "Folder %s is synchronized with Ubuntu One. The selected files will be copied "
 "to that folder before being published."
 msgstr[0] ""
+"Honako karpeta hau: %s , Ubuntu One zerbitzuarekin sinkronizatuta dago. "
+"Hautatutako fitxategia karpeta horretara kopiatuko da argitaratzera eman "
+"baino lehenago."
 msgstr[1] ""
+"Honako karpeta hau: %s , Ubuntu One zerbitzuarekin sinkronizatuta dago. "
+"Hautatutako fitxategiak karpeta horretara kopiatuko dira argitaratzera eman "
+"baino lehenago."
 
 #: translate_tmp.pl:10707
 #: translate_tmp.pl:10739
@@ -1524,7 +1552,13 @@ msgid_plural ""
 "<b>Please note:</b> The selected files will be published in a background "
 "process. You will be notified when the process has finished."
 msgstr[0] ""
+"<b>Oharra:</b> Hautatutako fitxategia atzeko planoan burutuko den prozesu "
+"batean argitaratu egingo da. Prozesua amaitzerakoan jakinarazpen bat jasoko "
+"duzu."
 msgstr[1] ""
+"<b>Oharra:</b> Hautatutako fitxategiak atzeko planoan burutuko den prozesu "
+"batean argitaratu egingo dira. Prozesua amaitzerakoan jakinarazpen bat "
+"jasoko duzu."
 
 #: translate_tmp.pl:10711
 #: translate_tmp.pl:10743
@@ -1693,10 +1727,11 @@ msgstr "%s izena duen profila badago lehendik ere. Ordeztu nahi duzu?"
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
+"  Alexander Gabilondo https://launchpad.net/~alexgabi\n"
 "  Ander Goñi https://launchpad.net/~agoni-danobatgroup\n"
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
-"  alexgabi https://launchpad.net/~alexgabi\n"
-"  ander goñi https://launchpad.net/~agoni"
+"  ander goñi https://launchpad.net/~agoni\n"
+"  gorkaazk https://launchpad.net/~gorkaazkarate"
 
 #: translate_tmp.pl:34
 #: translate_tmp.pl:6033
@@ -1905,7 +1940,7 @@ msgstr "Menua"
 
 #: translate_tmp.pl:173
 msgid "Select a single menu or cascading menus from any application"
-msgstr ""
+msgstr "Hautatu menu soil bat edo kaskadako menuak edozein aplikaziotarako"
 
 #: translate_tmp.pl:190
 #: translate_tmp.pl:1101
@@ -1914,7 +1949,7 @@ msgstr "Argibidea"
 
 #: translate_tmp.pl:193
 msgid "Capture a tooltip"
-msgstr ""
+msgstr "Kapturatu menuko aholku bat"
 
 #: translate_tmp.pl:209
 msgid "Web"
@@ -1930,6 +1965,8 @@ msgid ""
 "Set how long Shutter will wait for the screenshot to complete before "
 "aborting the process if it's taking too long"
 msgstr ""
+"Ezarri ea zenbat denbora itxarongo duen Shutter aplikazio honek pantaila-"
+"argazkia egiteko prozesua abortatzeko, luzeegi itxaroten ez egoteko."
 
 #: translate_tmp.pl:233
 msgid "Edit"
@@ -1940,6 +1977,8 @@ msgid ""
 "Use the built-in editor to highlight important fragments of your screenshot "
 "or crop it to a desired size"
 msgstr ""
+"Erabili lehenetsitako editorea azpimarratzeko zure pantaila-kapturaren "
+"zatirik garrantzitsuenak, edo moztu horrelako zatiak, nahi duzun neurrikoak"
 
 #: translate_tmp.pl:243
 msgid "Export"
@@ -1955,32 +1994,32 @@ msgstr ""
 
 #: translate_tmp.pl:247
 msgid "Show links to previous uploads"
-msgstr ""
+msgstr "Erakutsi estekak aurretik egindako kargatze lanetara"
 
 #: translate_tmp.pl:33
 #: translate_tmp.pl:47
 #: translate_tmp.pl:61
 #, perl-format
 msgid "Error while executing %s."
-msgstr ""
+msgstr "Errorea %s exekutatzerakoan."
 
 #: translate_tmp.pl:34
 #: translate_tmp.pl:48
 #: translate_tmp.pl:62
 #, perl-format
 msgid "There was an error executing %s."
-msgstr ""
+msgstr "Errore bat egon da %s exekutatzerakoan."
 
 #: translate_tmp.pl:37
 #: translate_tmp.pl:51
 #: translate_tmp.pl:65
 #, perl-format
 msgid "Exit Code: %d."
-msgstr ""
+msgstr "Irteteko kodea, hauxe: %d."
 
 #: translate_tmp.pl:167
 msgid "Synchronization complete"
-msgstr ""
+msgstr "Sinkronizazioa amaitua"
 
 #: translate_tmp.pl:169
 msgid "Synchronization in progress..."
@@ -2018,7 +2057,7 @@ msgstr "Kopiatu kode hau arbelara"
 #: translate_tmp.pl:112
 #, perl-format
 msgid "Upload - %s - %s"
-msgstr ""
+msgstr "Gora kargatu - %s - %s"
 
 #: translate_tmp.pl:120
 msgid "Draw a rectangular area using the mouse."
@@ -2030,7 +2069,7 @@ msgstr "Kaptura bat egiteko sakatu Enter tekla. Sakatu Esc ateratzeko."
 
 #: translate_tmp.pl:124
 msgid "<b>shift/right-click</b> → selection dialog on/off"
-msgstr ""
+msgstr "<b>shift/eskuineko klik</b> → hautatze elkarrizketa: on/off"
 
 #: translate_tmp.pl:124
 msgid "<b>ctrl + scrollwheel</b> → zoom in/out"
@@ -2038,28 +2077,31 @@ msgstr "<b>ctrl + gurpila</b> → handiagotu/txikiagotu"
 
 #: translate_tmp.pl:124
 msgid "<b>space</b> → zoom window on/off"
-msgstr ""
+msgstr "<b>espazio barra</b> → zoom leihoa: on/off"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys</b> → move cursor"
-msgstr ""
+msgstr "<b>kurtsore teklak</b> → mugitu kurtsorea"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys + alt</b> → move selection"
-msgstr ""
+msgstr "<b>kurtsore teklak + alt</b> → mugitu hautatutako zatia"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys + ctrl</b> → resize selection"
 msgstr ""
+"<b>kurtsore teklak + ctrl</b> → berriro dimentsionatu hautatutako zatia"
 
 #: translate_tmp.pl:88
 msgid ""
 "Maybe mouse pointer could not be grabbed or the selected area is invalid."
 msgstr ""
+"Behar bada saguaren kurtsorea ezin izan da grabatu, edo hautatutako zatia ez "
+"da antzeman."
 
 #: translate_tmp.pl:96
 msgid "Keyboard could not be grabbed."
-msgstr ""
+msgstr "Gerta daiteke teklatua kapturatua ez izatea."
 
 #: translate_tmp.pl:105
 msgid "menu"
@@ -2072,7 +2114,7 @@ msgstr "argibidea"
 #: translate_tmp.pl:111
 #, perl-format
 msgid "No window with type %s detected."
-msgstr ""
+msgstr "%s motako leihorik ez da aurkitu."
 
 #: translate_tmp.pl:119
 msgid "There is no last capture that can be redone."
@@ -2080,7 +2122,7 @@ msgstr "Ez dago berregiteko azken kapturarik"
 
 #: translate_tmp.pl:127
 msgid "The window is no longer available."
-msgstr ""
+msgstr "Lehio hori iadanik ez dago eskuragarri."
 
 #: translate_tmp.pl:139
 #: translate_tmp.pl:145
@@ -2090,30 +2132,34 @@ msgstr "Ezin da webgunea kapturatu"
 #: translate_tmp.pl:153
 #, perl-format
 msgid "No window with name pattern %s detected."
-msgstr ""
+msgstr "%s izen-patroi hori duen lehiorik ez da aurkitu."
 
 #: translate_tmp.pl:163
 #, perl-format
 msgid "Invalid pattern %s detected."
-msgstr ""
+msgstr "%s patroi-izen ez-baliogarria aurkitu egin da."
 
 #: translate_tmp.pl:116
 msgid "No subwindow detected"
-msgstr ""
+msgstr "Ez da azpileihorik aurkitu"
 
 #: translate_tmp.pl:117
 msgid ""
 "Maybe this window is using client-side windows (or similar).\n"
 "Shutter is not yet able to query the tree information of such windows."
 msgstr ""
+"Agian leiho honek bezeroaren alderdiko leihoak erabiltzen ari da (edo "
+"antzekoak).\n"
+"Shutter aplikazioa oraingoz ez da gai kontsultatzeko honelako leihoetako "
+"zuhaitz-informazioa."
 
 #: translate_tmp.pl:81
 msgid "URL to capture"
-msgstr ""
+msgstr "Kapturatu beharreko URL helbidea"
 
 #: translate_tmp.pl:98
 msgid "C_apture"
-msgstr ""
+msgstr "K_apturatu"
 
 #: translate_tmp.pl:157
 msgid "Workspaces"
@@ -2122,37 +2168,37 @@ msgstr "Laneko areak"
 #: translate_tmp.pl:454
 #: translate_tmp.pl:4186
 msgid "Fill color"
-msgstr ""
+msgstr "Betetze-kolorea"
 
 #: translate_tmp.pl:461
 #: translate_tmp.pl:462
 msgid "Adjust fill color and opacity"
-msgstr ""
+msgstr "Doitu betetze kolorea eta opakutasuna"
 
 #: translate_tmp.pl:468
 #: translate_tmp.pl:4206
 msgid "Stroke color"
-msgstr ""
+msgstr "Trazuaren kolorea"
 
 #: translate_tmp.pl:473
 #: translate_tmp.pl:4212
 msgid "Choose stroke color"
-msgstr ""
+msgstr "Hautatu trazuaren kolorea"
 
 #: translate_tmp.pl:475
 #: translate_tmp.pl:476
 msgid "Adjust stroke color and opacity"
-msgstr ""
+msgstr "Doitu trazuaren kolorea eta opakutasuna"
 
 #: translate_tmp.pl:482
 #: translate_tmp.pl:4172
 msgid "Line width"
-msgstr ""
+msgstr "Lerroaren zabalera"
 
 #: translate_tmp.pl:486
 #: translate_tmp.pl:487
 msgid "Adjust line width"
-msgstr ""
+msgstr "Doitu lerroaren zabalera"
 
 #: translate_tmp.pl:493
 #: translate_tmp.pl:4249
@@ -2172,15 +2218,15 @@ msgstr "Txertatu irudia"
 #: translate_tmp.pl:617
 #: translate_tmp.pl:618
 msgid "Insert an arbitrary object or file"
-msgstr ""
+msgstr "Txertatu ausazko ofjektu edo fitxategi bat"
 
 #: translate_tmp.pl:638
 msgid "X"
-msgstr ""
+msgstr "X"
 
 #: translate_tmp.pl:652
 msgid "Y"
-msgstr ""
+msgstr "Y"
 
 #: translate_tmp.pl:666
 #: translate_tmp.pl:4302
@@ -2198,51 +2244,54 @@ msgstr "_Moztu"
 #: translate_tmp.pl:854
 msgid "Click-Drag to scale (try Control to scale uniformly)"
 msgstr ""
+"Egin klik eta mugitu arrastaka dimentsionatzeko (probatu CTRL modu "
+"uniformean dimentsionatzeko)"
 
 #: translate_tmp.pl:857
 msgid "Click-Drag to resize the canvas"
-msgstr ""
+msgstr "Egin klik eta mugitu arrastaka, mihiseari dimentsioa aldatzeko"
 
 #: translate_tmp.pl:863
 msgid "Click to paint (try Control or Shift for a straight line)"
-msgstr ""
+msgstr "Egin klik margotzeko (Ctrl edo Shift lerro zuzena egiteko)"
 
 #: translate_tmp.pl:868
 msgid "Click-Drag to create a new straight line"
-msgstr ""
+msgstr "Egin klik eta mugitu arrastaka lerro zuzen berri bat sortzeko"
 
 #: translate_tmp.pl:873
 msgid "Click-Drag to create a new arrow"
-msgstr ""
+msgstr "Egin klik eta mugitu arrastaka gezi berri bat sortzeko"
 
 #: translate_tmp.pl:878
 msgid "Click-Drag to create a new rectangle"
-msgstr ""
+msgstr "Egin klik eta mugitu arrastaka laukizuzen berri bat sortzeko"
 
 #: translate_tmp.pl:883
 msgid "Click-Drag to create a new ellipse"
-msgstr ""
+msgstr "Egin klik eta mugitu arrastaka elipse berri bat sortzeko"
 
 #: translate_tmp.pl:888
 msgid "Click-Drag to add a new text area"
-msgstr ""
+msgstr "Egin klik eta mugitu arrastaka testu-gune berri bat sortzeko"
 
 #: translate_tmp.pl:893
 msgid "Click to censor (try Control or Shift for a straight line)"
 msgstr ""
+"Egin klik zentsuratzeko (probatu Ctrl edo Shift lerro zuzena lortzeko)"
 
 #: translate_tmp.pl:898
 msgid "Click-Drag to create a pixelized region"
-msgstr ""
+msgstr "Egin klik eta mugitu arrastaka pixelatutako gune berri bat sortzeko"
 
 #: translate_tmp.pl:903
 msgid "Click to add an auto-increment shape"
-msgstr ""
+msgstr "Egin klik gehitzeko auto-handitutako forma bat"
 
 #: translate_tmp.pl:1240
 #, perl-format
 msgid "Save the changes to image %s before closing?"
-msgstr ""
+msgstr "Gordeko duzu %s irudian egindako aldaketak itxi baino lehen?"
 
 #: translate_tmp.pl:1256
 msgid "Close"
@@ -2250,7 +2299,7 @@ msgstr "Irten"
 
 #: translate_tmp.pl:1259
 msgid "Do_n't save"
-msgstr ""
+msgstr "E_z Gorde"
 
 #: translate_tmp.pl:1323
 #, perl-format
@@ -2264,41 +2313,43 @@ msgstr[1] ""
 
 #: translate_tmp.pl:1720
 msgid "Do you want to save the changed background color?"
-msgstr ""
+msgstr "Gorde nahi duzu aldatutako atzeko planoaren kolorea?"
 
 #: translate_tmp.pl:1721
 msgid ""
 "The background is likely to be transparent if you decide to ignore the "
 "background color."
 msgstr ""
+"Atzeko planoa ziurrenik gardentzat hartuko da atzeko planoaren koloreari "
+"muzin egiten badiozu."
 
 #: translate_tmp.pl:1723
 msgid "Save Background Color"
-msgstr ""
+msgstr "Gorde atzeko planoaren kolorea"
 
 #: translate_tmp.pl:1726
 msgid "_Ignore Background Color"
-msgstr ""
+msgstr "_Utzi alde batera atzeko planoa"
 
 #: translate_tmp.pl:1729
 msgid "_Save Background Color"
-msgstr ""
+msgstr "_Gorde atzeko planoa"
 
 #: translate_tmp.pl:3877
 msgid "Change Background Color..."
-msgstr ""
+msgstr "_Aldatu atzeko planoa"
 
 #: translate_tmp.pl:3887
 msgid "_Reset to Default"
-msgstr ""
+msgstr "Egin _Reset lehentsitako baloreetara itzultzeko"
 
 #: translate_tmp.pl:3940
 msgid "Raise"
-msgstr ""
+msgstr "Altzatu"
 
 #: translate_tmp.pl:3965
 msgid "Lower"
-msgstr ""
+msgstr "Jaitsi"
 
 #: translate_tmp.pl:4055
 msgid "Unlock"
@@ -2310,11 +2361,11 @@ msgstr "Blokeatu"
 
 #: translate_tmp.pl:4084
 msgid "Edit Preferences..."
-msgstr ""
+msgstr "Editatu hobespenak"
 
 #: translate_tmp.pl:4227
 msgid "Numbering"
-msgstr ""
+msgstr "Zenbatzea"
 
 #: translate_tmp.pl:4237
 msgid "Current value"
@@ -2331,15 +2382,15 @@ msgstr "Luzera"
 
 #: translate_tmp.pl:4326
 msgid "Tip length"
-msgstr ""
+msgstr "Aholkuaren luzera"
 
 #: translate_tmp.pl:4336
 msgid "Display an arrow at the end of the line"
-msgstr ""
+msgstr "Erakutsi gezi bat marraren bukaeran"
 
 #: translate_tmp.pl:4338
 msgid "Display an arrow at the start of the line"
-msgstr ""
+msgstr "Erakutsi gezi bat marraren hasieran"
 
 #: translate_tmp.pl:4365
 #: translate_tmp.pl:6304
@@ -2356,15 +2407,15 @@ msgstr "Aukeratu testu-kolorea"
 
 #: translate_tmp.pl:4432
 msgid "Use selected font"
-msgstr ""
+msgstr "Erabili hautatutako letra-tipoa"
 
 #: translate_tmp.pl:4438
 msgid "Use selected font color"
-msgstr ""
+msgstr "Erabili hautatutako letra-kolorea"
 
 #: translate_tmp.pl:6035
 msgid "_Tools"
-msgstr ""
+msgstr "_Tresnak"
 
 #: translate_tmp.pl:6042
 msgid "Undo last action"
@@ -2372,31 +2423,31 @@ msgstr "Desegin azken ekintza"
 
 #: translate_tmp.pl:6053
 msgid "Do again the last undone action"
-msgstr ""
+msgstr "Egin berriro desegindako azken ekintza"
 
 #: translate_tmp.pl:6064
 msgid "Copy selection to clipboard"
-msgstr ""
+msgstr "Kopiatu hautapena arbelean"
 
 #: translate_tmp.pl:6078
 msgid "Cut selection to clipboard"
-msgstr ""
+msgstr "Ebaki hautapena arbelean"
 
 #: translate_tmp.pl:6093
 msgid "Paste objects from clipboard"
-msgstr ""
+msgstr "Itsatsi objektuak arbeletik"
 
 #: translate_tmp.pl:6103
 msgid "Delete current object"
-msgstr ""
+msgstr "Ezabatu uneko objektuak"
 
 #: translate_tmp.pl:6113
 msgid "Clear canvas"
-msgstr ""
+msgstr "Garbitu mihisea"
 
 #: translate_tmp.pl:6134
 msgid "Abort current mode"
-msgstr ""
+msgstr "Alde batera utzu oraingo modua"
 
 #: translate_tmp.pl:6144
 msgid "Close this window"
@@ -2408,19 +2459,19 @@ msgstr "Gorde irudia"
 
 #: translate_tmp.pl:6162
 msgid "Export to _File..."
-msgstr ""
+msgstr "Esportatu hornako _Fitxategira..."
 
 #: translate_tmp.pl:6164
 msgid "Export to File..."
-msgstr ""
+msgstr "Esportatu fitxategira..."
 
 #: translate_tmp.pl:6172
 msgid "_Export to SVG..."
-msgstr ""
+msgstr "Esportatu SVG fitxategira..."
 
 #: translate_tmp.pl:6174
 msgid "Export to SVG..."
-msgstr ""
+msgstr "Esportatu SVG gisa..."
 
 #: translate_tmp.pl:6184
 msgid "Export to PDF..."
@@ -2436,23 +2487,23 @@ msgstr "Korritze automatikoa"
 
 #: translate_tmp.pl:6304
 msgid "Select"
-msgstr ""
+msgstr "Select"
 
 #: translate_tmp.pl:6304
 msgid "Select item to move or resize it"
-msgstr ""
+msgstr "Hautatu elementua mugitzeko edo bere dimentsioa aldatzeko"
 
 #: translate_tmp.pl:6304
 msgid "Freehand"
-msgstr ""
+msgstr "Esku hutsezko marrazketa"
 
 #: translate_tmp.pl:6304
 msgid "Draw a freehand line"
-msgstr ""
+msgstr "Marraztu lerro bat esku hutsez"
 
 #: translate_tmp.pl:6304
 msgid "Highlighter"
-msgstr ""
+msgstr "Markatzailea"
 
 #: translate_tmp.pl:6304
 msgid "Line"
@@ -2460,11 +2511,11 @@ msgstr "Marra"
 
 #: translate_tmp.pl:6304
 msgid "Draw a straight line"
-msgstr ""
+msgstr "Marraztu marra zuzen bat"
 
 #: translate_tmp.pl:6304
 msgid "Draw an arrow"
-msgstr ""
+msgstr "Marraztu gezi bat"
 
 #: translate_tmp.pl:6304
 msgid "Rectangle"
@@ -2480,19 +2531,20 @@ msgstr "Elipsea"
 
 #: translate_tmp.pl:6304
 msgid "Draw a ellipse"
-msgstr ""
+msgstr "Marraztu elipse bat"
 
 #: translate_tmp.pl:6304
 msgid "Add some text to the screenshot"
-msgstr ""
+msgstr "Erantsi testua kapturari"
 
 #: translate_tmp.pl:6304
 msgid "Censor"
-msgstr ""
+msgstr "Zentsuratzailea"
 
 #: translate_tmp.pl:6304
 msgid "Censor portions of your screenshot to hide private data"
 msgstr ""
+"Zentsuratu zure pantaila-argazkiaren zatiak datu pribatuak ezkutatzeko"
 
 #: translate_tmp.pl:6304
 msgid "Pixelize"
@@ -2501,6 +2553,7 @@ msgstr "Pixelizatu"
 #: translate_tmp.pl:6304
 msgid "Pixelize selected areas of your screenshot to hide private data"
 msgstr ""
+"Pixelizatu pantaila-argazkian hautatutako area datu pribatuak ezkutatzeko"
 
 #: translate_tmp.pl:6304
 msgid "Number"
@@ -2508,7 +2561,7 @@ msgstr "Zenbakia"
 
 #: translate_tmp.pl:6304
 msgid "Add an auto-increment shape to the screenshot"
-msgstr ""
+msgstr "Gehitu pantaila-argazkiari automatikoki handitzen den forma"
 
 #: translate_tmp.pl:6304
 msgid "Crop"
@@ -2525,16 +2578,16 @@ msgstr "Ez da ikonorik aurkitu"
 
 #: translate_tmp.pl:6621
 msgid "Import from current theme..."
-msgstr ""
+msgstr "Inportatu orain erabiltzen ari den gaitik..."
 
 #: translate_tmp.pl:6635
 msgid "Import from session..."
-msgstr ""
+msgstr "Inportatu orain zabalik dagoen saiotik..."
 
 #: translate_tmp.pl:6646
 msgid "Import from filesystem..."
-msgstr ""
+msgstr "Inportatu fitxategi sistematik..."
 
 #: translate_tmp.pl:7460
 msgid "New text..."
-msgstr ""
+msgstr "Testu berria..."

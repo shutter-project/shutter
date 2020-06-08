@@ -1,0 +1,514 @@
+# Basque translation for shutter
+# Copyright (c) 2018 Rosetta Contributors and Canonical Ltd 2018
+# This file is distributed under the same license as the shutter package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: shutter\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2012-10-28 17:52+0100\n"
+"PO-Revision-Date: 2018-08-23 15:35+0000\n"
+"Last-Translator: gorkaazk <gorkaazkarate@gmail.com>\n"
+"Language-Team: Basque <eu@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2020-06-08 09:52+0000\n"
+"X-Generator: Launchpad (build ef9fc486e875d54078fa61cf91e898b895125d89)\n"
+
+#: translate_tmp:27
+msgid "Grayscale"
+msgstr "Gris eskala"
+
+#: translate_tmp:28
+#: translate_tmp:74
+#: translate_tmp:63
+#: translate_tmp:72
+#: translate_tmp:64
+msgid "Effect"
+msgstr "Efektua"
+
+#: translate_tmp:29
+msgid "Turn the image into a grayscale image (256 shades)"
+msgstr "Bihurtu irudia gris eskalara (256 gris-mota)"
+
+#: translate_tmp:27
+msgid "Offset"
+msgstr "Konpentsazioa"
+
+#: translate_tmp:29
+msgid "Give the picture an offset with itself as background"
+msgstr "Eman irudiari konpentsazioa atzeko planoan ezarriz"
+
+#: translate_tmp:27
+msgid "Raise Border"
+msgstr "Altzatu ertza"
+
+#: translate_tmp:29
+msgid "Raise a rectangular 3d-border"
+msgstr "Altzatu 3d-ertz bat"
+
+#: translate_tmp:27
+msgid "Soft Edges"
+msgstr "Hegi xuabeak"
+
+#: translate_tmp:29
+msgid "Add soft edges around the image"
+msgstr "Gehitu hegi xuabeak irudiaren inguruan"
+
+#: translate_tmp:27
+msgid "Sunk Border"
+msgstr "Murgildutako ertza"
+
+#: translate_tmp:29
+msgid "Add an inverted 3d border to the image"
+msgstr "Gehitu 3d ertz inbertitua irudiari"
+
+#: translate_tmp:27
+msgid "Torned Paper"
+msgstr "Urratutako papera"
+
+#: translate_tmp:29
+msgid "Add a torn-like border to the image"
+msgstr "Gehitu itxura urratua duen paper ertza irudiari"
+
+#: translate_tmp:27
+msgid "Autocrop"
+msgstr "Auto-mozketa"
+
+#: translate_tmp:28
+#: translate_tmp:49
+msgid "Tool"
+msgstr "Tresna"
+
+#: translate_tmp:29
+msgid "Remove empty borders from the image"
+msgstr "Kendu ertz hutsak iruditik"
+
+#: translate_tmp:73
+msgid "3D reflection"
+msgstr "3D distira"
+
+#: translate_tmp:75
+msgid ""
+"Adds a fading reflection below an image and views it in perspective\n"
+"\n"
+"Based on a script by Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
+msgstr ""
+"Gehitzen du astiro moteltzen den koloregabetze errainu bat eta "
+"perspektibako\n"
+"\n"
+"ikuspuntua Fred Weinhaus garatzilearen script batean oinarriturik\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
+
+#: translate_tmp:104
+#: translate_tmp:133
+#: translate_tmp:127
+msgid "Rotation:"
+msgstr "Biraketa:"
+
+#: translate_tmp:111
+#: translate_tmp:118
+msgid "Perseptive rotation around left edge of image"
+msgstr "Perspektibako biraketa irudiaren ezkerreko ertzaren inguruan"
+
+#: translate_tmp:122
+msgid "Fade:"
+msgstr "Astiro koloregabetu"
+
+#: translate_tmp:129
+#: translate_tmp:136
+msgid "Fade percent for mirror image"
+msgstr "Koloregabetze ehunekoa ispilu irudi batean"
+
+#: translate_tmp:140
+msgid "Opacity:"
+msgstr "Opakutasuna:"
+
+#: translate_tmp:147
+#: translate_tmp:154
+msgid "Opacity percent applied to whole mirror image"
+msgstr "Opakotasunaren ehunekoa ispilu-irudi osoan aplikatuta"
+
+#: translate_tmp:158
+msgid "Pef:"
+msgstr "Pef:"
+
+#: translate_tmp:165
+#: translate_tmp:172
+msgid "Perspective exaggeration factor"
+msgstr "'Perspective exaggeration factor'"
+
+#: translate_tmp:176
+msgid "Gap:"
+msgstr "Tartea:"
+
+#: translate_tmp:183
+#: translate_tmp:190
+msgid "Gap between image and mirror in pixels"
+msgstr "irudia eta ispilu-irudiaren arteko tartea, pixeletan neurtua"
+
+#: translate_tmp:194
+#: translate_tmp:176
+msgid "Zoom:"
+msgstr "Zooma:"
+
+#: translate_tmp:201
+#: translate_tmp:208
+msgid "Zoom factor for output image"
+msgstr "Zoom faktorea irteera irudian"
+
+#: translate_tmp:212
+#: translate_tmp:236
+#: translate_tmp:165
+#: translate_tmp:194
+msgid "Background color"
+msgstr "Atzeko planoaren kolorea"
+
+#: translate_tmp:217
+#: translate_tmp:241
+#: translate_tmp:170
+#: translate_tmp:199
+msgid "Choose background color"
+msgstr "Hautatu atzeko planoaren kolorea"
+
+#: translate_tmp:423
+#: translate_tmp:459
+#: translate_tmp:363
+#: translate_tmp:399
+#: translate_tmp:259
+#: translate_tmp:328
+#: translate_tmp:257
+#: translate_tmp:314
+#: translate_tmp:315
+#, perl-format
+msgid "Error while executing plugin %s."
+msgstr "Errorea %s plugina exekutatzerakon."
+
+#: translate_tmp:424
+#: translate_tmp:460
+#: translate_tmp:364
+#: translate_tmp:400
+#: translate_tmp:260
+#: translate_tmp:329
+#: translate_tmp:258
+#: translate_tmp:315
+#: translate_tmp:316
+msgid "There was an error executing the plugin."
+msgstr "Errorea gertatu da plugina exekutatzerakoan."
+
+#: translate_tmp:73
+msgid "3D rotate"
+msgstr "3D biraketa"
+
+#: translate_tmp:75
+msgid ""
+"Applies a perspective distortion to an image\n"
+"\n"
+"Based on a script by Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
+msgstr ""
+"Aplikatzen du distortsio perspektiba bat irudian\n"
+"\n"
+"Fred Weinhaus garatzilearen script batean oinarriturik\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
+
+#: translate_tmp:111
+#: translate_tmp:118
+msgid "Rotation around image vertical centerline"
+msgstr "Erdiko lerro bertikalaren irudiaren inguruko biraketa"
+
+#: translate_tmp:129
+#: translate_tmp:136
+msgid "Rotation around image horizontal centerline"
+msgstr "Erdiko lerro horizontalaren irudiaren inguruko biraketa"
+
+#: translate_tmp:147
+#: translate_tmp:154
+msgid "Rotation around the image center"
+msgstr "Irudiaren erdiaren inguruko biraketa"
+
+#: translate_tmp:183
+#: translate_tmp:190
+msgid ""
+"Output zoom factor; where value > 1 means zoom in and < 1 means zoom out"
+msgstr ""
+"Zoomaren irteera faktorea; balioa > 1 horrek esan nahi du zoomarekin "
+"hurbildu; < 1 horrek zoomarekin urrundu."
+
+#: translate_tmp:204
+msgid "Auto:"
+msgstr "Auto:"
+
+#: translate_tmp:226
+#: translate_tmp:233
+msgid ""
+"off - No automatic adjustment\n"
+"\n"
+"c - Center bounding box in output\n"
+"\n"
+"zc - Zoom to fill and center bounding box in output\n"
+"\n"
+"out - Creates an output image of size needed to hold the transformed image"
+msgstr ""
+"off - Ez da doitze automatikoa gauzatuko\n"
+"\n"
+"c - Erdian (center) kokatu inguratze-kutxa\n"
+"\n"
+"zc - Zoom betetzeko eta erdian kokatu inguratze-kutxa irteeran\n"
+"\n"
+"out - Sortzen du irteera fitxategi bat aldatutako irudiaren neurri-neurrikoa"
+
+#: translate_tmp:243
+msgid "Sky color"
+msgstr "Zeru kolorea"
+
+#: translate_tmp:248
+msgid "Choose sky color"
+msgstr "Hautatu zeru kolorea"
+
+#: translate_tmp:62
+msgid "Barrel Distortion"
+msgstr "Upel distortsioa"
+
+#: translate_tmp:64
+msgid "Apply a distortion effect to your screenshot"
+msgstr "Aplikatu distortsio efektua zure pantaila-argazkiari"
+
+#: translate_tmp:93
+msgid "A:"
+msgstr "A:"
+
+#: translate_tmp:97
+msgid "B:"
+msgstr "B:"
+
+#: translate_tmp:101
+msgid "C:"
+msgstr "C:"
+
+#: translate_tmp:105
+msgid "D:"
+msgstr "D:"
+
+#: translate_tmp:112
+#: translate_tmp:119
+#: translate_tmp:126
+#: translate_tmp:133
+#: translate_tmp:140
+#: translate_tmp:147
+#: translate_tmp:154
+#: translate_tmp:161
+msgid ""
+"The parameter d describes the linear scaling of the image. Using d=1, and "
+"a=b=c=0 leaves the image as it is. Choosing other d-values scales the image "
+"by that amount. a,b and c distort the image. Using negative values shifts "
+"distant points away from the center.\n"
+"\n"
+"Defined by Barrel Correction Distortion, by Helmut Dersch.\n"
+"http://www.all-in-one.ee/~dersch/barrel/barrel.html"
+msgstr ""
+"d parametroak irudiaren lerro-eskala deskribatzen du.  d=1, eta a=b=c=0 "
+"erabiliz, irudia bere horretan geratuko da. Beste d-balioren bat hautatuz "
+"gero, irudia kantitatearen arabera eskalatuko da.  a,b eta c "
+"distortsionatuko dute irudia. Balio negatiboak erabiliz gero, hainbat puntu "
+"desplazatuko dira zentrotik urrutira.\n"
+"\n"
+"Upel zuzenketa-distortsioa Helmut Dersch-ek garatuta.\n"
+"http://www.all-in-one.ee/~dersch/barrel/barrel.html"
+
+#: translate_tmp:73
+msgid "Bordereffects"
+msgstr "Ertzeko efektuak"
+
+#: translate_tmp:75
+msgid ""
+"Create various dispersion-like effects in the border of an image\n"
+"\n"
+"Based on a script by Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/bordereffects/index.php"
+msgstr ""
+"Sortu hainbat 'barreiatze' efektu irudiaren ertzean\n"
+"\n"
+"Fred Weinhaus garatzailearen script batean oinarrituta\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/bordereffects/index.php"
+
+#: translate_tmp:104
+msgid "Size:"
+msgstr "Tamaina:"
+
+#: translate_tmp:111
+#: translate_tmp:118
+msgid "The size or dimension of the border region"
+msgstr "Ertz aldeko tamaina edo dimentsioa"
+
+#: translate_tmp:122
+msgid "Density:"
+msgstr "Dentsitatea:"
+
+#: translate_tmp:129
+#: translate_tmp:136
+msgid "The frequency of detail in the border"
+msgstr "Ertzeko zehaztasunaren frekuentzia"
+
+#: translate_tmp:140
+msgid "Curviness:"
+msgstr "Makotasuna:"
+
+#: translate_tmp:147
+#: translate_tmp:154
+msgid "The curviness in the border features"
+msgstr "Ertzeko tasunen makortasuna"
+
+#: translate_tmp:158
+msgid "Granularity:"
+msgstr "Pikorduna:"
+
+#: translate_tmp:165
+#: translate_tmp:172
+msgid ""
+"The base grain size or pixelization size used to create the detail in the "
+"border"
+msgstr ""
+"Ertzaren xehetasuna sortzeko pikorraren oinarrizko tamaina edo pixelazioaren "
+"tamaina"
+
+#: translate_tmp:176
+msgid "Pad:"
+msgstr "Plataforma:"
+
+#: translate_tmp:183
+#: translate_tmp:190
+msgid "The pad size of constant color around the perimeter of the border"
+msgstr "Plataformaren betetze kolorea ertzaren perimetroaren inguruan"
+
+#: translate_tmp:62
+msgid "Negate"
+msgstr "Negatiboa egin"
+
+#: translate_tmp:64
+msgid "Invert the colors of the image"
+msgstr "Irudiaren koloreak alderantzikatu"
+
+#: translate_tmp:101
+msgid "Channel"
+msgstr "Kanala"
+
+#: translate_tmp:62
+msgid "Polaroid"
+msgstr "Polaroid"
+
+#: translate_tmp:64
+msgid ""
+"Make your screenshot look like a polaroid photo, add a caption, and even "
+"rotate it a little"
+msgstr ""
+"Bihurtu zure pantaila-argazkia polaroid argazki zaharren itxuruara, gehitu "
+"argazki-oina, eta gainera pixka bat birakatu ahal duzu"
+
+#: translate_tmp:99
+#: translate_tmp:93
+msgid "Text:"
+msgstr "Testua:"
+
+#: translate_tmp:106
+#: translate_tmp:112
+#: translate_tmp:100
+msgid ""
+"There are several wild-cards available, like\n"
+"%Y = year\n"
+"%m = month\n"
+"%d = day\n"
+"%T = time"
+msgstr ""
+"Badaude zenbait joker-karta eskuragarri, esaterako\n"
+"%Y = urtea\n"
+"%m = hilabetea\n"
+"%d = eguna\n"
+"%T = ordua"
+
+#: translate_tmp:116
+#: translate_tmp:110
+msgid "Font size:"
+msgstr "Letra-tipoaren tamaina:"
+
+#: translate_tmp:120
+#: translate_tmp:114
+msgid "Gravity:"
+msgstr "Grabitatea:"
+
+#: translate_tmp:137
+#: translate_tmp:131
+msgid "Stroke color"
+msgstr "Trazuaren kolorea"
+
+#: translate_tmp:142
+#: translate_tmp:136
+msgid "Choose stroke color"
+msgstr "Hautatu trazuaren kolorea"
+
+#: translate_tmp:45
+msgid "Resize"
+msgstr "Aldatu tamaina"
+
+#: translate_tmp:53
+msgid "Resize your screenshot"
+msgstr "Aldatu zure pantaila-argazkiaren tamaina"
+
+#: translate_tmp:71
+msgid "Sepia"
+msgstr "Sepia"
+
+#: translate_tmp:73
+msgid "Add sepia color toning to the image"
+msgstr "Aldatu irudia sepia-kolorerantz"
+
+#: translate_tmp:110
+msgid "Sepia tone"
+msgstr "Sepia-tonoa"
+
+#: translate_tmp:63
+msgid "Hard Shadow"
+msgstr "Itzal gogorra"
+
+#: translate_tmp:65
+msgid "Add a shadow to the image on a transparent background"
+msgstr "Gehitu itzala irudia atzeko plano garden batean"
+
+#: translate_tmp:94
+msgid "Direction"
+msgstr "Norabidea"
+
+#: translate_tmp:110
+#: translate_tmp:117
+msgid "The direction of the shadow"
+msgstr "Itzalaren norabidea"
+
+#: translate_tmp:121
+msgid "Color"
+msgstr "Kolorea"
+
+#: translate_tmp:126
+msgid "Choose color"
+msgstr "Hautatu kolorea"
+
+#: translate_tmp:131
+#: translate_tmp:138
+msgid "The color of the shadow"
+msgstr "Itzalaren kolorea"
+
+#: translate_tmp:62
+msgid "Watermark"
+msgstr "Ur-marka"
+
+#: translate_tmp:64
+msgid "Add a custom text watermark to your screenshot"
+msgstr "Gehitu pertsonalizaturiko ur-marka zure pantaila-argazkiari"

@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2012-12-18 22:28+0000\n"
-"Last-Translator: Tauno Erik <sedumacre@gmail.com>\n"
+"PO-Revision-Date: 2015-05-12 09:38+0000\n"
+"Last-Translator: Sven Kadak <skkadak@gmail.com>\n"
 "Language-Team: Estonian <et@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-12-23 22:44+0000\n"
-"X-Generator: Launchpad (build 17286)\n"
+"X-Launchpad-Export-Date: 2020-06-08 09:52+0000\n"
+"X-Generator: Launchpad (build ef9fc486e875d54078fa61cf91e898b895125d89)\n"
 
 #: translate_tmp.pl:476
 #: translate_tmp.pl:2590
@@ -125,7 +125,7 @@ msgstr "Läbipaistvad osad"
 
 #: translate_tmp.pl:1070
 msgid "Session View"
-msgstr ""
+msgstr "Sessiooni vaade"
 
 #: translate_tmp.pl:1078
 #: translate_tmp.pl:1953
@@ -313,13 +313,13 @@ msgstr "256 värvi  - (8bit) "
 
 #: translate_tmp.pl:1501
 msgid "Reduce colors"
-msgstr ""
+msgstr "Vähenda värve"
 
 #: translate_tmp.pl:1502
 #: translate_tmp.pl:1503
 #: translate_tmp.pl:1504
 msgid "Automatically reduce colors after taking a screenshot"
-msgstr ""
+msgstr "Vähenda  värve automaatselt pärast pildi tegemist"
 
 #: translate_tmp.pl:1514
 msgid "Thumbnail"
@@ -360,7 +360,7 @@ msgstr "Vali raami värv"
 #: translate_tmp.pl:1566
 #: translate_tmp.pl:1567
 msgid "Adds a border effect to the screenshot"
-msgstr ""
+msgstr "Lisab ekraanipildile äärise efekti"
 
 #: translate_tmp.pl:1615
 #: translate_tmp.pl:1624
@@ -394,7 +394,7 @@ msgstr "Näita abi teksti"
 
 #: translate_tmp.pl:1705
 msgid "Enables the help text"
-msgstr ""
+msgstr "Luba abitekst"
 
 #: translate_tmp.pl:1714
 #: translate_tmp.pl:1715
@@ -495,7 +495,7 @@ msgstr ""
 #: translate_tmp.pl:1926
 msgid ""
 "Displays any transparent parts of the image in a solid color that you specify"
-msgstr ""
+msgstr "Täidab pildi läbipaistvad osad valitud värviga"
 
 #: translate_tmp.pl:1927
 msgid ""
@@ -505,7 +505,7 @@ msgstr ""
 
 #: translate_tmp.pl:1951
 msgid "Sort ascending by"
-msgstr ""
+msgstr "Sorteeri kasvavalt"
 
 #: translate_tmp.pl:1954
 #: translate_tmp.pl:1958
@@ -514,7 +514,7 @@ msgstr ""
 
 #: translate_tmp.pl:1955
 msgid "Sort descending by"
-msgstr ""
+msgstr "Sorteeri kahanevalt"
 
 #: translate_tmp.pl:2017
 #: translate_tmp.pl:2018
@@ -536,12 +536,12 @@ msgstr ""
 #: translate_tmp.pl:2029
 #: translate_tmp.pl:2105
 msgid "Hide notification icon"
-msgstr ""
+msgstr "Peida teavituste ikoon"
 
 #: translate_tmp.pl:2031
 #: translate_tmp.pl:2114
 msgid "Autohide main window when taking a screenshot"
-msgstr ""
+msgstr "Peida programmi aken automaatselt ekraanipildi tegemise hetkel"
 
 #: translate_tmp.pl:2032
 msgid "Redraw Delay"
@@ -557,17 +557,17 @@ msgstr[1] "millisekudit"
 #: translate_tmp.pl:2041
 #: translate_tmp.pl:2141
 msgid "Present main window after taking a screenshot"
-msgstr ""
+msgstr "Kuva programmi aken pärast ekraanipildi tegemist"
 
 #: translate_tmp.pl:2042
 #: translate_tmp.pl:2187
 msgid "Minimize to tray when closing main window"
-msgstr ""
+msgstr "Minimeeri programm peaakna sulgemisel tegumireale"
 
 #: translate_tmp.pl:2044
 #: translate_tmp.pl:2150
 msgid "Display pop-up notification after taking a screenshot"
-msgstr ""
+msgstr "Kuva pärast ekraanipildi tegemist hüpikteavitus"
 
 #: translate_tmp.pl:2045
 #: translate_tmp.pl:2159
@@ -599,12 +599,12 @@ msgstr "Küsi enne kui lükkad failid prügikasti"
 #: translate_tmp.pl:2059
 #: translate_tmp.pl:2205
 msgid "Move file to trash when closing tab"
-msgstr ""
+msgstr "Liiguta fail sulgemisel prügikasti"
 
 #: translate_tmp.pl:2060
 #: translate_tmp.pl:2214
 msgid "Notify when file was deleted from filesystem"
-msgstr ""
+msgstr "Teavita, kui fail kustutati failisüsteemist"
 
 #: translate_tmp.pl:2123
 #: translate_tmp.pl:2124
@@ -627,6 +627,9 @@ msgid ""
 "your credentials above. Plugins with OAuth support are configured "
 "automatically the first time you use them."
 msgstr ""
+"<b>Palun jälgi:</b> Kui pistikprogramm lubab autoriseeritud üleslaadimisi, "
+"saad andmed sisestada üleval. OAuth toega pistikprogrammid konfigureeritakse "
+"automaatselt esimesel kasutuskorral."
 
 #: translate_tmp.pl:2243
 #: translate_tmp.pl:10547
@@ -734,7 +737,7 @@ msgstr "Kvaliteet"
 
 #: translate_tmp.pl:3051
 msgid "Please activate the menu you want to capture"
-msgstr ""
+msgstr "Palun aktiveerige menüü, mida tahate jäädvustada"
 
 #: translate_tmp.pl:3054
 msgid "Please activate the tooltip you want to capture"
@@ -747,8 +750,8 @@ msgstr ""
 #, perl-format
 msgid "Screenshot will be taken in %s second"
 msgid_plural "Screenshot will be taken in %s seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Ekraanipilt tehakse %s sekundi pärast"
+msgstr[1] "Ekraanipilt tehakse %s sekundi pärast"
 
 #: translate_tmp.pl:3355
 #: translate_tmp.pl:9147
@@ -780,7 +783,7 @@ msgstr "Nurjus"
 #: translate_tmp.pl:3987
 #, perl-format
 msgid "Profile %s loaded successfully"
-msgstr ""
+msgstr "Profiil %s edukalt laetud"
 
 #: translate_tmp.pl:4016
 #: translate_tmp.pl:7240
@@ -806,15 +809,15 @@ msgstr "Seaded edukalt salvestatud!"
 
 #: translate_tmp.pl:4794
 msgid "Session could not be saved!"
-msgstr ""
+msgstr "Seansi salvestamine ebaõnnestus!"
 
 #: translate_tmp.pl:4823
 msgid "Account-settings could not be saved!"
-msgstr ""
+msgstr "Kasutaja seadistuste salvestamine ebaõnnestus!"
 
 #: translate_tmp.pl:5057
 msgid "Settings could not be restored!"
-msgstr ""
+msgstr "Seadistuste taastamine ebaõnnestus!"
 
 #: translate_tmp.pl:5061
 msgid "Settings loaded successfully"
@@ -827,7 +830,7 @@ msgstr "Sisseehitatud redaktor"
 
 #: translate_tmp.pl:5142
 msgid "Account-settings could not be restored!"
-msgstr ""
+msgstr "Kasutaja seadistuste taastamine ebaõnnestus!"
 
 #: translate_tmp.pl:5239
 #: translate_tmp.pl:5337
@@ -841,31 +844,31 @@ msgstr "avatud"
 #: translate_tmp.pl:7032
 #, perl-format
 msgid "Error while opening image %s."
-msgstr ""
+msgstr "Pildi %s avamisel tekkis viga."
 
 #: translate_tmp.pl:5353
 msgid "Session could not be restored!"
-msgstr ""
+msgstr "Seansi taastamine ebaõnnestus!"
 
 #: translate_tmp.pl:5406
 #, perl-format
 msgid "Error while creating the trashinfo file %s."
-msgstr ""
+msgstr "Rämpsu info faili %s loomisel tekkis viga."
 
 #: translate_tmp.pl:5418
 #, perl-format
 msgid "Error while moving the file %s to trash."
-msgstr ""
+msgstr "Faili %s liigutamisel prügikasti tekkis viga."
 
 #: translate_tmp.pl:5424
 #, perl-format
 msgid "Error while removing the file %s from disk."
-msgstr ""
+msgstr "Faili %s kustutamisel tekkis viga."
 
 #: translate_tmp.pl:5442
 #, perl-format
 msgid "Are you sure you want to move %s to the trash?"
-msgstr ""
+msgstr "Kas oled kindel, et tahad faili %s prügikasti visata?"
 
 #: translate_tmp.pl:5442
 #: translate_tmp.pl:5491
@@ -880,7 +883,7 @@ msgstr "Kustutatud"
 
 #: translate_tmp.pl:5491
 msgid "Are you sure you want to move the selected files to the trash?"
-msgstr ""
+msgstr "Kas oled kindel, et tahad valitud faile prügikasti visata?"
 
 #: translate_tmp.pl:5495
 #: translate_tmp.pl:5529
@@ -900,11 +903,11 @@ msgstr "Valitud kuvatõmmis kustutatud"
 #: translate_tmp.pl:7823
 #: translate_tmp.pl:7849
 msgid "removed from session"
-msgstr ""
+msgstr "seansist eemaldatud"
 
 #: translate_tmp.pl:5652
 msgid "Selected screenshots removed"
-msgstr ""
+msgstr "Valitud ekraanipildid eemaldatud"
 
 #: translate_tmp.pl:5682
 #: translate_tmp.pl:6088
@@ -913,15 +916,15 @@ msgstr ""
 
 #: translate_tmp.pl:5698
 msgid "There is no image data in the clipboard to paste"
-msgstr ""
+msgstr "Lõikelaual pole pildi andmeid. Kleepimine ebaõnnestus."
 
 #: translate_tmp.pl:5759
 msgid "Selected filenames copied to clipboard"
-msgstr ""
+msgstr "Valitud failinimed kopeeriti lõikelauale"
 
 #: translate_tmp.pl:5774
 msgid "Selected images copied to clipboard"
-msgstr ""
+msgstr "Valitud pildid kopeeriti lõikelauale"
 
 #: translate_tmp.pl:5821
 msgid "Last action undone"
@@ -931,16 +934,16 @@ msgstr ""
 #: translate_tmp.pl:5877
 #, perl-format
 msgid "Error while copying last version (%s)."
-msgstr ""
+msgstr "Viimase versiooni (%s) kopeerimisel tekkis viga."
 
 #: translate_tmp.pl:5829
 #, perl-format
 msgid "There was an error performing undo on %s."
-msgstr ""
+msgstr "%s tagasi võtmisel tekkis viga."
 
 #: translate_tmp.pl:5869
 msgid "Last action redone"
-msgstr ""
+msgstr "Viimast tegevust korrati"
 
 #: translate_tmp.pl:5877
 #, perl-format
@@ -949,13 +952,13 @@ msgstr ""
 
 #: translate_tmp.pl:5911
 msgid "No plugin installed"
-msgstr ""
+msgstr "Pistikprogrammi pole installitud"
 
 #: translate_tmp.pl:6170
 #: translate_tmp.pl:6581
 #: translate_tmp.pl:8030
 msgid "There was an error determining the filename."
-msgstr ""
+msgstr "Failile nime määramisel tekkis viga."
 
 #: translate_tmp.pl:6473
 msgid "Triggered invalid screenshot action."
@@ -975,18 +978,18 @@ msgstr ""
 #: translate_tmp.pl:154
 #: translate_tmp.pl:164
 msgid "Error while taking the screenshot."
-msgstr ""
+msgstr "Ekraanipildi tegemisel tekkis viga."
 
 #: translate_tmp.pl:6608
 #: translate_tmp.pl:134
 msgid "Capture aborted by user"
-msgstr ""
+msgstr "Kasutaja katkestas pildi jäädvustamise."
 
 #: translate_tmp.pl:6738
 #: translate_tmp.pl:6759
 #, perl-format
 msgid "%s saved"
-msgstr ""
+msgstr "%s salvestatud"
 
 #: translate_tmp.pl:6746
 #: translate_tmp.pl:6749
@@ -1015,22 +1018,22 @@ msgstr ""
 #: translate_tmp.pl:7109
 #, perl-format
 msgid "Could not apply plugin %s"
-msgstr ""
+msgstr "Pistikprogrammi %s ei saa rakendada"
 
 #: translate_tmp.pl:7106
 #: translate_tmp.pl:7158
 #, perl-format
 msgid "Successfully applied plugin %s"
-msgstr ""
+msgstr "Pistikprogramm %s edukalt rakendatud"
 
 #: translate_tmp.pl:7161
 #, perl-format
 msgid "Error while executing plugin %s."
-msgstr ""
+msgstr "Viga pistikprogrammi %s jooksutamisel."
 
 #: translate_tmp.pl:7161
 msgid "There was an error executing the plugin."
-msgstr ""
+msgstr "Pistikprogrammi jooksutamisel tekkis viga."
 
 #: translate_tmp.pl:7242
 #, perl-format
@@ -1041,30 +1044,30 @@ msgstr[1] ""
 
 #: translate_tmp.pl:7251
 msgid "Current profile"
-msgstr ""
+msgstr "Praegune profiil"
 
 #: translate_tmp.pl:7686
 msgid "Try to resave the file?"
-msgstr ""
+msgstr "Proovi faili uuesti salvestada?"
 
 #: translate_tmp.pl:7686
 #, perl-format
 msgid "Image %s was not found on disk"
-msgstr ""
+msgstr "Pilti %s ei leitud"
 
 #: translate_tmp.pl:7715
 #: translate_tmp.pl:7781
 #: translate_tmp.pl:189
 #, perl-format
 msgid "Error while saving the image %s."
-msgstr ""
+msgstr "Pildi %s salvestamisel tekkis viga."
 
 #: translate_tmp.pl:7715
 #: translate_tmp.pl:7781
 #: translate_tmp.pl:190
 #, perl-format
 msgid "There was an error saving the image to %s."
-msgstr ""
+msgstr "Pildi salvestamisel asukohta %s tekkis viga."
 
 #: translate_tmp.pl:7741
 #: translate_tmp.pl:10069
@@ -1077,38 +1080,38 @@ msgstr "salvestatud"
 #: translate_tmp.pl:7813
 #, perl-format
 msgid "Image %s was deleted from filesystem"
-msgstr ""
+msgstr "Pilt %s kustutati failisüsteemist"
 
 #: translate_tmp.pl:7846
 #: translate_tmp.pl:62
 #: translate_tmp.pl:7032
 msgid "There was an error opening the image."
-msgstr ""
+msgstr "Pildi avamisel tekkis viga."
 
 #: translate_tmp.pl:8030
 #, perl-format
 msgid "Error while opening directory %s."
-msgstr ""
+msgstr "Kausta %s avamisel tekkis viga."
 
 #: translate_tmp.pl:8099
 msgid "Updating plugin information"
-msgstr ""
+msgstr "Pistikprogrammi info uuendamine"
 
 #: translate_tmp.pl:8104
 msgid "Please wait while Shutter updates the plugin information"
-msgstr ""
+msgstr "Palun oota... Shutter uuendab pistikprogrammi infot"
 
 #: translate_tmp.pl:8246
 msgid "Updating upload plugin information"
-msgstr ""
+msgstr "Üleslaadimise pistikprogrammi info uuendamine"
 
 #: translate_tmp.pl:8251
 msgid "Please wait while Shutter updates the upload plugin information"
-msgstr ""
+msgstr "Palun oota... Shutter uuendab üleslaadimise pistikprogrammi infot"
 
 #: translate_tmp.pl:8482
 msgid "Capture All Workspaces"
-msgstr ""
+msgstr "Jäädvusta kõik töölauad"
 
 #: translate_tmp.pl:8495
 msgid "Limit to current monitor"
@@ -1125,7 +1128,11 @@ msgid_plural ""
 "monitors detected).\n"
 "Enable it to capture only the current monitor."
 msgstr[0] ""
+"See valik on kasulik ainult siis, kui kasutate mitut kuvarit (tuvastati %d "
+"kuvar)."
 msgstr[1] ""
+"See valik on kasulik ainult siis, kui kasutate mitut kuvarit (tuvastati %d "
+"kuvarit)."
 
 #: translate_tmp.pl:8537
 msgid "Active Window"
@@ -1133,7 +1140,7 @@ msgstr "Aktiivne aken"
 
 #: translate_tmp.pl:8542
 msgid "Capture the last active window"
-msgstr ""
+msgstr "Jäädvusta viimane aktiivne aken"
 
 #: translate_tmp.pl:8585
 #: translate_tmp.pl:403
@@ -1143,7 +1150,7 @@ msgstr "_Valik"
 #: translate_tmp.pl:8604
 #: translate_tmp.pl:429
 msgid "_Desktop"
-msgstr ""
+msgstr "_Töölaud"
 
 #: translate_tmp.pl:8636
 msgid "Window _under Cursor"
@@ -1190,27 +1197,27 @@ msgstr ""
 
 #: translate_tmp.pl:8896
 msgid "Wait indefinitely"
-msgstr ""
+msgstr "Oota lõpmatuseni"
 
 #: translate_tmp.pl:8897
 #: translate_tmp.pl:8898
 #, perl-format
 msgid "Wait max %d second"
 msgid_plural "Wait max %d seconds"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Oota maksimaalselt %d sekund"
+msgstr[1] "Oota maksimaalselt %d sekundit"
 
 #: translate_tmp.pl:8899
 #: translate_tmp.pl:8900
 #, perl-format
 msgid "Wait max %d minute"
 msgid_plural "Wait max %d minutes"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Oota maksimaalselt %d minut"
+msgstr[1] "Oota maksimaalselt %d minutit"
 
 #: translate_tmp.pl:8908
 msgid "Shutter will wait indefinitely for the screenshot to capture"
-msgstr ""
+msgstr "Shutter ootab kuni ekraanipilt jäädvustatakse"
 
 #: translate_tmp.pl:8909
 #: translate_tmp.pl:8910
@@ -1222,7 +1229,11 @@ msgid_plural ""
 "Shutter will wait up to %d seconds for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
+"Shutter ootab ekraanipildi jäädvustamiseks %d sekundi, enne kui protsess "
+"katkestatakse"
 msgstr[1] ""
+"Shutter ootab ekraanipildi jäädvustamiseks %d sekundit, enne kui protsess "
+"katkestatakse"
 
 #: translate_tmp.pl:8911
 #: translate_tmp.pl:8912
@@ -1234,7 +1245,11 @@ msgid_plural ""
 "Shutter will wait up to %d minutes for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
+"Shutter ootab ekraanipildi jäädvustamiseks %d minuti, enne kui protsess "
+"katkestatakse"
 msgstr[1] ""
+"Shutter ootab ekraanipildi jäädvustamiseks %d minutit, enne kui protsess "
+"katkestatakse"
 
 #: translate_tmp.pl:9046
 msgid "Host"
@@ -1242,15 +1257,15 @@ msgstr "Host"
 
 #: translate_tmp.pl:9113
 msgid "Anonymous Upload"
-msgstr ""
+msgstr "Anonüümne üleslaadimine"
 
 #: translate_tmp.pl:9120
 msgid "Authorized Upload"
-msgstr ""
+msgstr "Autoriseeritud üleslaadimine"
 
 #: translate_tmp.pl:9127
 msgid "OAuth Upload"
-msgstr ""
+msgstr "OAuth üleslaadimine"
 
 #: translate_tmp.pl:9138
 #: translate_tmp.pl:9199
@@ -1285,7 +1300,7 @@ msgstr "Ubuntu One"
 
 #: translate_tmp.pl:9280
 msgid "Successfully published"
-msgstr ""
+msgstr "Edukalt avalikustatud"
 
 #: translate_tmp.pl:9280
 #, perl-format
@@ -1655,6 +1670,7 @@ msgstr ""
 "Launchpad Contributions:\n"
 "  Maiko Mõtsar https://launchpad.net/~daddo\n"
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
+"  Sven Kadak https://launchpad.net/~sven-kadak\n"
 "  Tauno Erik https://launchpad.net/~taunoerik\n"
 "  lyyser https://launchpad.net/~lyyser"
 

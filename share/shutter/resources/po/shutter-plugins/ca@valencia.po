@@ -1,0 +1,516 @@
+# Catalan translation for gscrot-plugins-bash
+# Copyright (c) 2008 Rosetta Contributors and Canonical Ltd 2008
+# This file is distributed under the same license as the gscrot-plugins-bash package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2008.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: gscrot-plugins-bash\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2012-10-28 17:52+0100\n"
+"PO-Revision-Date: 2019-01-29 13:13+0000\n"
+"Last-Translator: Empar Montoro <Unknown>\n"
+"Language-Team: Catalan <ca@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2020-06-08 09:52+0000\n"
+"X-Generator: Launchpad (build ef9fc486e875d54078fa61cf91e898b895125d89)\n"
+
+#: translate_tmp:27
+msgid "Grayscale"
+msgstr "Escala de grisos"
+
+#: translate_tmp:28
+#: translate_tmp:74
+#: translate_tmp:63
+#: translate_tmp:72
+#: translate_tmp:64
+msgid "Effect"
+msgstr "Efecte"
+
+#: translate_tmp:29
+msgid "Turn the image into a grayscale image (256 shades)"
+msgstr "Converteix la imatge a escala de grisos (256 tons)"
+
+#: translate_tmp:27
+msgid "Offset"
+msgstr "Desplaçament"
+
+#: translate_tmp:29
+msgid "Give the picture an offset with itself as background"
+msgstr "Desplaça la imatge amb ella mateixa de fons"
+
+#: translate_tmp:27
+msgid "Raise Border"
+msgstr "Ressalta la vora"
+
+#: translate_tmp:29
+msgid "Raise a rectangular 3d-border"
+msgstr "Ressalta una vora rectangular en 3D"
+
+#: translate_tmp:27
+msgid "Soft Edges"
+msgstr "Vores suaus"
+
+#: translate_tmp:29
+msgid "Add soft edges around the image"
+msgstr "Suavitza la vora de la imatge"
+
+#: translate_tmp:27
+msgid "Sunk Border"
+msgstr "Enfonsa la vora"
+
+#: translate_tmp:29
+msgid "Add an inverted 3d border to the image"
+msgstr "Afegeix una vora 3D invertida a la imatge"
+
+#: translate_tmp:27
+msgid "Torned Paper"
+msgstr "Paper esgarrat"
+
+#: translate_tmp:29
+msgid "Add a torn-like border to the image"
+msgstr "Afig una vora esgarrada a la imatge"
+
+#: translate_tmp:27
+msgid "Autocrop"
+msgstr "Escapçament automàtic"
+
+#: translate_tmp:28
+#: translate_tmp:49
+msgid "Tool"
+msgstr "Eina"
+
+#: translate_tmp:29
+msgid "Remove empty borders from the image"
+msgstr "Suprimeix les vores buides de la imatge"
+
+#: translate_tmp:73
+msgid "3D reflection"
+msgstr "Reflex 3D"
+
+#: translate_tmp:75
+msgid ""
+"Adds a fading reflection below an image and views it in perspective\n"
+"\n"
+"Based on a script by Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
+msgstr ""
+"Afegeix un reflex difuminat sota la imatge i la mostra en perspectiva\n"
+"\n"
+"Basat en un script de Fred Weinhaus\n"
+"\n"
+"ttp://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
+
+#: translate_tmp:104
+#: translate_tmp:133
+#: translate_tmp:127
+msgid "Rotation:"
+msgstr "Rotació:"
+
+#: translate_tmp:111
+#: translate_tmp:118
+msgid "Perseptive rotation around left edge of image"
+msgstr "Rotació de perspectiva a la vora esquerra de la imatge"
+
+#: translate_tmp:122
+msgid "Fade:"
+msgstr "Fosa"
+
+#: translate_tmp:129
+#: translate_tmp:136
+msgid "Fade percent for mirror image"
+msgstr "Percentatge de fosa de la imatge mirall"
+
+#: translate_tmp:140
+msgid "Opacity:"
+msgstr "Opacitat:"
+
+#: translate_tmp:147
+#: translate_tmp:154
+msgid "Opacity percent applied to whole mirror image"
+msgstr "Percentatge de l'opacitat aplicada a tota la imatge espill"
+
+#: translate_tmp:158
+msgid "Pef:"
+msgstr "Pef:"
+
+#: translate_tmp:165
+#: translate_tmp:172
+msgid "Perspective exaggeration factor"
+msgstr "Factor d'exageració de la perspectiva"
+
+#: translate_tmp:176
+msgid "Gap:"
+msgstr "Interval:"
+
+#: translate_tmp:183
+#: translate_tmp:190
+msgid "Gap between image and mirror in pixels"
+msgstr "Interval entre la imatge i el mirall en píxels"
+
+#: translate_tmp:194
+#: translate_tmp:176
+msgid "Zoom:"
+msgstr "Ampliació:"
+
+#: translate_tmp:201
+#: translate_tmp:208
+msgid "Zoom factor for output image"
+msgstr "Factor d'ampliació per a la imatge de sortida"
+
+#: translate_tmp:212
+#: translate_tmp:236
+#: translate_tmp:165
+#: translate_tmp:194
+msgid "Background color"
+msgstr "Color de fons"
+
+#: translate_tmp:217
+#: translate_tmp:241
+#: translate_tmp:170
+#: translate_tmp:199
+msgid "Choose background color"
+msgstr "Trieu el color del fons"
+
+#: translate_tmp:423
+#: translate_tmp:459
+#: translate_tmp:363
+#: translate_tmp:399
+#: translate_tmp:259
+#: translate_tmp:328
+#: translate_tmp:257
+#: translate_tmp:314
+#: translate_tmp:315
+#, perl-format
+msgid "Error while executing plugin %s."
+msgstr "S'ha produït un error en executar el connector %s."
+
+#: translate_tmp:424
+#: translate_tmp:460
+#: translate_tmp:364
+#: translate_tmp:400
+#: translate_tmp:260
+#: translate_tmp:329
+#: translate_tmp:258
+#: translate_tmp:315
+#: translate_tmp:316
+msgid "There was an error executing the plugin."
+msgstr "S'ha produït un error en executar el connector."
+
+#: translate_tmp:73
+msgid "3D rotate"
+msgstr "rotació 3D"
+
+#: translate_tmp:75
+msgid ""
+"Applies a perspective distortion to an image\n"
+"\n"
+"Based on a script by Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
+msgstr ""
+"Aplica una distorsió de perspectiva a una imatge\n"
+"\n"
+"Basat en un script de Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
+
+#: translate_tmp:111
+#: translate_tmp:118
+msgid "Rotation around image vertical centerline"
+msgstr "Gir al voltant de la línia central vertical de la imatge"
+
+#: translate_tmp:129
+#: translate_tmp:136
+msgid "Rotation around image horizontal centerline"
+msgstr "Rotació al voltant de la línia central horitzontal de la imatge"
+
+#: translate_tmp:147
+#: translate_tmp:154
+msgid "Rotation around the image center"
+msgstr "Rotació al voltant del centre de la imatge"
+
+#: translate_tmp:183
+#: translate_tmp:190
+msgid ""
+"Output zoom factor; where value > 1 means zoom in and < 1 means zoom out"
+msgstr ""
+"Factor d'ampliació de l'eixida; quan el valor > 1 significa ampliació i quan "
+"< 1 significa reducció"
+
+#: translate_tmp:204
+msgid "Auto:"
+msgstr "Auto:"
+
+#: translate_tmp:226
+#: translate_tmp:233
+msgid ""
+"off - No automatic adjustment\n"
+"\n"
+"c - Center bounding box in output\n"
+"\n"
+"zc - Zoom to fill and center bounding box in output\n"
+"\n"
+"out - Creates an output image of size needed to hold the transformed image"
+msgstr ""
+"off - Sense ajustament automàtic\n"
+"\n"
+"c - Ajustament centrat de la sortida\n"
+"\n"
+"zc  - Ampliació fins omplenar i centrat de la sortida\n"
+"\n"
+"out - Crea una imatge de sortida de la mida necessària per a mantenir la "
+"imatge transformada"
+
+#: translate_tmp:243
+msgid "Sky color"
+msgstr "Color del cel"
+
+#: translate_tmp:248
+msgid "Choose sky color"
+msgstr "Trieu el color del cel"
+
+#: translate_tmp:62
+msgid "Barrel Distortion"
+msgstr "Distorsió de barril"
+
+#: translate_tmp:64
+msgid "Apply a distortion effect to your screenshot"
+msgstr "Aplica un efecte de distorsió a la vostra captura de pantalla"
+
+#: translate_tmp:93
+msgid "A:"
+msgstr "A:"
+
+#: translate_tmp:97
+msgid "B:"
+msgstr "B:"
+
+#: translate_tmp:101
+msgid "C:"
+msgstr "C:"
+
+#: translate_tmp:105
+msgid "D:"
+msgstr "D:"
+
+#: translate_tmp:112
+#: translate_tmp:119
+#: translate_tmp:126
+#: translate_tmp:133
+#: translate_tmp:140
+#: translate_tmp:147
+#: translate_tmp:154
+#: translate_tmp:161
+msgid ""
+"The parameter d describes the linear scaling of the image. Using d=1, and "
+"a=b=c=0 leaves the image as it is. Choosing other d-values scales the image "
+"by that amount. a,b and c distort the image. Using negative values shifts "
+"distant points away from the center.\n"
+"\n"
+"Defined by Barrel Correction Distortion, by Helmut Dersch.\n"
+"http://www.all-in-one.ee/~dersch/barrel/barrel.html"
+msgstr ""
+"El paràmetre d descriu l'escalat lineal de la imatge. Emprant d=1 i a=b=c=0 "
+"deixa la imatge tal i com és. Seleccionant altres valors de d escala la "
+"imatge en proporció. a, b i c distorsionen la imatge. Emprant valors "
+"negatius intercanvia punts lluny del centre\n"
+"\n"
+"Definit com a Correcció de distorsió dels canals RGB, per Helmut Dersch.\n"
+"http://www.all-in-one.ee/~dersch/barrel/barrel.html"
+
+#: translate_tmp:73
+msgid "Bordereffects"
+msgstr "Efectes de les vores"
+
+#: translate_tmp:75
+msgid ""
+"Create various dispersion-like effects in the border of an image\n"
+"\n"
+"Based on a script by Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/bordereffects/index.php"
+msgstr ""
+"Crea diversos efectes de dispersió a la vora d'una imatge\n"
+"\n"
+"Basat en un script de Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/bordereffects/index.php"
+
+#: translate_tmp:104
+msgid "Size:"
+msgstr "Mida:"
+
+#: translate_tmp:111
+#: translate_tmp:118
+msgid "The size or dimension of the border region"
+msgstr "La mida o dimensió de la vora"
+
+#: translate_tmp:122
+msgid "Density:"
+msgstr "Densitat:"
+
+#: translate_tmp:129
+#: translate_tmp:136
+msgid "The frequency of detail in the border"
+msgstr "La freqüència del detall a la vora"
+
+#: translate_tmp:140
+msgid "Curviness:"
+msgstr "Curvatura"
+
+#: translate_tmp:147
+#: translate_tmp:154
+msgid "The curviness in the border features"
+msgstr "La curvatura en les característiques de les vores"
+
+#: translate_tmp:158
+msgid "Granularity:"
+msgstr "Granularitat:"
+
+#: translate_tmp:165
+#: translate_tmp:172
+msgid ""
+"The base grain size or pixelization size used to create the detail in the "
+"border"
+msgstr ""
+"La mida del gra base o la mida de la pixelització emprats per a crear el "
+"detall de la vora"
+
+#: translate_tmp:176
+msgid "Pad:"
+msgstr "Farcit:"
+
+#: translate_tmp:183
+#: translate_tmp:190
+msgid "The pad size of constant color around the perimeter of the border"
+msgstr ""
+"La mida del farcit de color constant al voltant del perímetre de la vora"
+
+#: translate_tmp:62
+msgid "Negate"
+msgstr "Negatiu"
+
+#: translate_tmp:64
+msgid "Invert the colors of the image"
+msgstr "Inverteix els colors de la imatge"
+
+#: translate_tmp:101
+msgid "Channel"
+msgstr "Canal"
+
+#: translate_tmp:62
+msgid "Polaroid"
+msgstr "Polaroid"
+
+#: translate_tmp:64
+msgid ""
+"Make your screenshot look like a polaroid photo, add a caption, and even "
+"rotate it a little"
+msgstr ""
+"Feu que la vostra captura de pantalla semble una fotografia polaroid, afegiu "
+"un peu de foto i, fins i tot, gireu-la un poc"
+
+#: translate_tmp:99
+#: translate_tmp:93
+msgid "Text:"
+msgstr "Text:"
+
+#: translate_tmp:106
+#: translate_tmp:112
+#: translate_tmp:100
+msgid ""
+"There are several wild-cards available, like\n"
+"%Y = year\n"
+"%m = month\n"
+"%d = day\n"
+"%T = time"
+msgstr ""
+"Hi ha diversos comodins disponibles, com\n"
+"%Y = any\n"
+"%m = mes\n"
+"%d = dia\n"
+"%T = temps"
+
+#: translate_tmp:116
+#: translate_tmp:110
+msgid "Font size:"
+msgstr "Mida del tipus de lletra:"
+
+#: translate_tmp:120
+#: translate_tmp:114
+msgid "Gravity:"
+msgstr "Gravetat:"
+
+#: translate_tmp:137
+#: translate_tmp:131
+msgid "Stroke color"
+msgstr "Color del contorn"
+
+#: translate_tmp:142
+#: translate_tmp:136
+msgid "Choose stroke color"
+msgstr "Trieu el color del contorn"
+
+#: translate_tmp:45
+msgid "Resize"
+msgstr "Redimensiona"
+
+#: translate_tmp:53
+msgid "Resize your screenshot"
+msgstr "Redimensiona la vostra captura de pantalla"
+
+#: translate_tmp:71
+msgid "Sepia"
+msgstr "Sèpia"
+
+#: translate_tmp:73
+msgid "Add sepia color toning to the image"
+msgstr "Afegiu tons sépia a la vostra imatge"
+
+#: translate_tmp:110
+msgid "Sepia tone"
+msgstr "To sépia"
+
+#: translate_tmp:63
+msgid "Hard Shadow"
+msgstr "Ombra dura"
+
+#: translate_tmp:65
+msgid "Add a shadow to the image on a transparent background"
+msgstr "Afig una ombra a la imatge amb el fons transparent"
+
+#: translate_tmp:94
+msgid "Direction"
+msgstr "Direcció"
+
+#: translate_tmp:110
+#: translate_tmp:117
+msgid "The direction of the shadow"
+msgstr "La direcció de l'ombra"
+
+#: translate_tmp:121
+msgid "Color"
+msgstr "Color"
+
+#: translate_tmp:126
+msgid "Choose color"
+msgstr "Trieu un color"
+
+#: translate_tmp:131
+#: translate_tmp:138
+msgid "The color of the shadow"
+msgstr "Color de l'ombra"
+
+#: translate_tmp:62
+msgid "Watermark"
+msgstr "Marca d'aigua"
+
+#: translate_tmp:64
+msgid "Add a custom text watermark to your screenshot"
+msgstr ""
+"Afegiu un text com a marca d'aigua personalitzada a la vostra captura de "
+"pantalla"

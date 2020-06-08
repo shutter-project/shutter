@@ -1,0 +1,2571 @@
+# Kabyle translation for shutter
+# Copyright (c) 2018 Rosetta Contributors and Canonical Ltd 2018
+# This file is distributed under the same license as the shutter package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: shutter\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2012-12-18 16:48+0100\n"
+"PO-Revision-Date: 2018-11-20 12:01+0000\n"
+"Last-Translator: Yacine Bouklif <yacinebouklif@gmail.com>\n"
+"Language-Team: Kabyle <kab@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Launchpad-Export-Date: 2020-06-08 09:52+0000\n"
+"X-Generator: Launchpad (build ef9fc486e875d54078fa61cf91e898b895125d89)\n"
+"Language: kab\n"
+
+#: translate_tmp.pl:476
+#: translate_tmp.pl:2590
+#: translate_tmp.pl:7396
+msgid "Profile"
+msgstr "Alegdis"
+
+#: translate_tmp.pl:483
+#: translate_tmp.pl:4122
+msgid "Preferences"
+msgstr "Ismenyafen"
+
+#: translate_tmp.pl:873
+#: translate_tmp.pl:874
+msgid "gnome-web-photo needs to be installed for this feature"
+msgstr "Tameẓlit-agi tesra asbeddi n gnome-web-photo"
+
+#: translate_tmp.pl:883
+msgid "Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature"
+msgstr "Goo::Canvas/libgoo-canvas-perl isefk ad yettwasbedd i tmeẓlit-agi"
+
+#: translate_tmp.pl:916
+msgid "Choose a profile"
+msgstr "Fren alegdis"
+
+#: translate_tmp.pl:932
+msgid "Save configuration as profile"
+msgstr "Enregistrer la configuration comme un profil"
+
+#: translate_tmp.pl:942
+msgid "Delete profile"
+msgstr "Kkes alegdis"
+
+#: translate_tmp.pl:951
+msgid "Load the selected profile's configuration"
+msgstr "Ɛebbi iɣewwaren n ulegdis yettwafernen"
+
+#: translate_tmp.pl:958
+#: translate_tmp.pl:1231
+#: translate_tmp.pl:9907
+#: translate_tmp.pl:1513
+msgid "Image format"
+msgstr "Amasal n tugna"
+
+#: translate_tmp.pl:965
+msgid "Save"
+msgstr "Sekles"
+
+#: translate_tmp.pl:972
+msgid "First-launch Behavior"
+msgstr "Tikli n usekker amezwaru"
+
+#: translate_tmp.pl:979
+msgid "Window Preferences"
+msgstr "Ismenyifen n ubeqqeḍ"
+
+#: translate_tmp.pl:986
+msgid "Notifications"
+msgstr "Tilɣa"
+
+#: translate_tmp.pl:993
+msgid "Trash"
+msgstr "Taqecwalt"
+
+#: translate_tmp.pl:1000
+msgid "Gnome-Keybinding"
+msgstr "Anegzum n unasiw Gnome"
+
+#: translate_tmp.pl:1007
+#: translate_tmp.pl:2383
+msgid "Actions"
+msgstr "Tigawin"
+
+#: translate_tmp.pl:1014
+msgid "Capture"
+msgstr "Ṭṭef"
+
+#: translate_tmp.pl:1021
+msgid "Selection Capture"
+msgstr "Tuṭṭfa n tefrayt"
+
+#: translate_tmp.pl:1028
+msgid "Window Capture"
+msgstr "Tuṭṭfa n usfaylu"
+
+#: translate_tmp.pl:1035
+msgid "Menu/Tooltip Capture"
+msgstr "Tuṭṭfa umuɣ/tilillect n telɣut"
+
+#: translate_tmp.pl:1042
+msgid "Website Capture"
+msgstr "Ṭṭef asmel n web"
+
+#: translate_tmp.pl:1049
+msgid "Accounts"
+msgstr "Imiḍanen"
+
+#: translate_tmp.pl:1056
+msgid "File Transfer Protocol (FTP)"
+msgstr "Aneggaf n usiweḍ n ufaylu (FTP)"
+
+#: translate_tmp.pl:1063
+msgid "Transparent Parts"
+msgstr "Iḥricen ifrawanen"
+
+#: translate_tmp.pl:1070
+msgid "Session View"
+msgstr "Tamuɣli n tɣimit"
+
+#: translate_tmp.pl:1078
+#: translate_tmp.pl:1953
+#: translate_tmp.pl:1957
+msgid "Filename"
+msgstr "Isem n ufaylu"
+
+#: translate_tmp.pl:1105
+#: translate_tmp.pl:9535
+#: translate_tmp.pl:11326
+#, perl-format
+msgid "Reserved character %s is not allowed to be in a filename."
+msgstr "Asekkil yettwaḥerran %s ur yurig ara deg yisem n ufaylu"
+
+#: translate_tmp.pl:1120
+msgid "There are several wildcards available, like\n"
+msgstr "Plusieurs caractères de remplacements sont disponibles, tels que\n"
+
+#: translate_tmp.pl:1120
+msgid "%Y = year\n"
+msgstr "%Y = aseggas\n"
+
+#: translate_tmp.pl:1120
+msgid "%m = month\n"
+msgstr "%m = aggur\n"
+
+#: translate_tmp.pl:1120
+#, perl-format
+msgid "%d = day\n"
+msgstr "%d = ass\n"
+
+#: translate_tmp.pl:1120
+msgid "%T = time\n"
+msgstr "%T = asrag\n"
+
+#: translate_tmp.pl:1120
+msgid "$w = width\n"
+msgstr "$w = tehri\n"
+
+#: translate_tmp.pl:1120
+msgid "$h = height\n"
+msgstr "$h = teɣzi\n"
+
+#: translate_tmp.pl:1120
+msgid "$name = multi-purpose (e.g. window title)\n"
+msgstr "$name = aseqdec-yeggten (amedya : azwel n usfaylu)\n"
+
+#: translate_tmp.pl:1120
+msgid "$nb_name = like $name but without blanks in resulting strings\n"
+msgstr "$nb_name = am $name maca izraren n ugmuḍ ur seɛɛun ara tallunin\n"
+
+#: translate_tmp.pl:1120
+msgid "$profile = name of current profile\n"
+msgstr "$profile = isem n ulegdis amiranl\n"
+
+#: translate_tmp.pl:1120
+msgid "$R = random char (e.g. $RRRR = ag4r)\n"
+msgstr "$R = asekkil agacuran (amedya : $RRRR = ag4r)\n"
+
+#: translate_tmp.pl:1120
+msgid "%NN = counter"
+msgstr "%NN = amsiḍen"
+
+#: translate_tmp.pl:1134
+#: translate_tmp.pl:2981
+msgid "Compression"
+msgstr "Asekkusem"
+
+#: translate_tmp.pl:1143
+#: translate_tmp.pl:1144
+msgid "Adjust quality/compression value"
+msgstr "Sgaddi assaɣ taɣara/asekkusem"
+
+#: translate_tmp.pl:1232
+#: translate_tmp.pl:1233
+msgid "Select a file format"
+msgstr "Fren amasal n ufaylu"
+
+#: translate_tmp.pl:1242
+msgid "Directory"
+msgstr "Akaram"
+
+#: translate_tmp.pl:1243
+#: translate_tmp.pl:10477
+#: translate_tmp.pl:10479
+#: translate_tmp.pl:10497
+#: translate_tmp.pl:10498
+msgid "Choose folder"
+msgstr "Fren akaram"
+
+#: translate_tmp.pl:1251
+#: translate_tmp.pl:1252
+msgid "Your screenshots will be saved to this directory"
+msgstr "Tuṭṭfiwin-ik n ugdil ad ttwaskelsent deg ukaram-agi"
+
+#: translate_tmp.pl:1261
+#: translate_tmp.pl:1264
+msgid "Browse for save folder every time"
+msgstr "Mmel di yal tikkelt akaram n usekles"
+
+#: translate_tmp.pl:1266
+#: translate_tmp.pl:1269
+msgid "Do not save file automatically"
+msgstr "Ur seklas ara afaylu s wudem awurman"
+
+#: translate_tmp.pl:1271
+#: translate_tmp.pl:1274
+msgid "Automatically save file"
+msgstr "Sekles afaylu s wudem awurman"
+
+#: translate_tmp.pl:1298
+#: translate_tmp.pl:1308
+msgid "Automatically copy screenshot to clipboard"
+msgstr "Suken s wudem awurman tuṭṭfa ɣer tecfawit"
+
+#: translate_tmp.pl:1315
+#: translate_tmp.pl:1325
+msgid "Automatically copy filename to clipboard"
+msgstr "Suken s wudem awurman isem n ufaylu ɣer tecfawit"
+
+#: translate_tmp.pl:1332
+#: translate_tmp.pl:1342
+msgid "Do not copy anything to clipboard"
+msgstr "Ur yelli wacu ara yettusuknen ɣer tecfawit"
+
+#: translate_tmp.pl:1351
+msgid "Delay"
+msgstr "Amenḍar"
+
+#: translate_tmp.pl:1353
+#: translate_tmp.pl:1362
+#: translate_tmp.pl:1815
+#: translate_tmp.pl:2892
+#: translate_tmp.pl:2898
+#: translate_tmp.pl:2903
+msgid "second"
+msgid_plural "seconds"
+msgstr[0] "tasint"
+msgstr[1] "tasinin"
+
+#: translate_tmp.pl:1360
+msgid "Capture after a delay of"
+msgstr "Tuṭṭfa mbaɛd amenḍar n"
+
+#: translate_tmp.pl:1375
+#: translate_tmp.pl:1376
+#: translate_tmp.pl:1377
+#: translate_tmp.pl:1379
+#: translate_tmp.pl:1380
+#: translate_tmp.pl:1381
+msgid "Wait n seconds before taking a screenshot"
+msgstr "Arǧu n n tasinin send tuṭṭfa"
+
+#: translate_tmp.pl:1392
+msgid "Include Cursor"
+msgstr "Seddu taḥnacaḍt"
+
+#: translate_tmp.pl:1393
+#: translate_tmp.pl:1399
+#: translate_tmp.pl:1400
+msgid "Include cursor when taking a screenshot"
+msgstr "Seddu taḥnacaḍt di tuṭṭfa"
+
+#: translate_tmp.pl:1458
+msgid "Open with"
+msgstr "Ldi s"
+
+#: translate_tmp.pl:1459
+#: translate_tmp.pl:1460
+#: translate_tmp.pl:1461
+msgid "Open your screenshot with this program after capturing"
+msgstr "Ldi tuṭṭfa n ugdil s wahil-agi mbaɛd tuṭṭfa"
+
+#: translate_tmp.pl:1472
+msgid "16 colors   - (4bit) "
+msgstr "16 n yiniten - (4 bit) "
+
+#: translate_tmp.pl:1473
+msgid "64 colors   - (6bit) "
+msgstr "64 n yiniten - (6 bit) "
+
+#: translate_tmp.pl:1474
+msgid "256 colors  - (8bit) "
+msgstr "256 n yiniten  - (8 bit) "
+
+#: translate_tmp.pl:1501
+msgid "Reduce colors"
+msgstr "Asenqes n yiniten"
+
+#: translate_tmp.pl:1502
+#: translate_tmp.pl:1503
+#: translate_tmp.pl:1504
+msgid "Automatically reduce colors after taking a screenshot"
+msgstr "Senqes s wudem awurman initen mbaɛd tuṭṭfa"
+
+#: translate_tmp.pl:1514
+msgid "Thumbnail"
+msgstr "Tanfult"
+
+#: translate_tmp.pl:1541
+#: translate_tmp.pl:1542
+#: translate_tmp.pl:1543
+msgid ""
+"Generate thumbnail too.\n"
+"select the percentage of the original size for the thumbnail to be"
+msgstr ""
+"Sirew daɣen tinfulin.\n"
+"Fren afmiḍi n tiddi n tugna n tazwara i tenfult ara d-yeffɣen"
+
+#: translate_tmp.pl:1556
+msgid "Border"
+msgstr "Iran"
+
+#: translate_tmp.pl:1558
+#: translate_tmp.pl:1641
+#: translate_tmp.pl:1642
+#: translate_tmp.pl:1737
+#: translate_tmp.pl:1871
+#: translate_tmp.pl:7233
+msgid "pixels"
+msgstr "ipiksilen"
+
+#: translate_tmp.pl:1560
+msgid "Color"
+msgstr "Ini"
+
+#: translate_tmp.pl:1563
+#: translate_tmp.pl:1569
+#: translate_tmp.pl:1570
+msgid "Choose border color"
+msgstr "Fren ini n yiri"
+
+#: translate_tmp.pl:1565
+#: translate_tmp.pl:1566
+#: translate_tmp.pl:1567
+msgid "Adds a border effect to the screenshot"
+msgstr "Ad yernu iri i tuṭṭfa n ugdil"
+
+#: translate_tmp.pl:1615
+#: translate_tmp.pl:1624
+msgid "Enable zoom window"
+msgstr "Sermed zoom"
+
+#: translate_tmp.pl:1633
+msgid "Start with selection size of"
+msgstr "Bdu s tiddi n tefrayt n"
+
+#: translate_tmp.pl:1635
+msgid "at"
+msgstr "di"
+
+#: translate_tmp.pl:1669
+#: translate_tmp.pl:1670
+#: translate_tmp.pl:1671
+#: translate_tmp.pl:1672
+#: translate_tmp.pl:1673
+#: translate_tmp.pl:1674
+#: translate_tmp.pl:1675
+#: translate_tmp.pl:1676
+#: translate_tmp.pl:1677
+#: translate_tmp.pl:1678
+msgid "Start Selection Tool with a customized selection size"
+msgstr "Sekker afecku n tefrayt s tiddi n tefrayt yugnen"
+
+#: translate_tmp.pl:1696
+msgid "Show help text"
+msgstr "Sken aḍris n tallat"
+
+#: translate_tmp.pl:1705
+msgid "Enables the help text"
+msgstr "Sermed aḍris n tallalt"
+
+#: translate_tmp.pl:1714
+#: translate_tmp.pl:1715
+msgid "Include window decoration when capturing a window"
+msgstr "Seddu idlagen n usfaylu di tuṭṭfa n usfaylu"
+
+#: translate_tmp.pl:1733
+msgid "Automatically resize window to"
+msgstr "Beddel s wudem awurman tisekta n usfaylu ɣer"
+
+#: translate_tmp.pl:1760
+#: translate_tmp.pl:1761
+#: translate_tmp.pl:1762
+#: translate_tmp.pl:1763
+#: translate_tmp.pl:1764
+msgid ""
+"This resizes the window automatically to the specified width and height. "
+"This method asks the window manager to resize the window. However, the "
+"window manager may not allow the resize."
+msgstr ""
+"Ayagi ad ibeddel s wudem awurman tisekta n usfaylu ɣer tehri akked teɣzi i d-"
+"ittunefken. Tarrayt-agi ad tesutur seg umefrak n isfuyla iwakken ad ibeddel "
+"tisekta n usfaylu. Acu kan amsefrak n usfaylu yezmer ur isirig ara abeddel n "
+"tsekta."
+
+#: translate_tmp.pl:1777
+msgid "Force rounded window corners"
+msgstr "Ḥettem tiɣmar n usfaylu timdewrin"
+
+#: translate_tmp.pl:1786
+#, perl-format
+msgid ""
+"Shutter uses the XShape extension to determine the window's shape, but this "
+"does not work under some circumstances, e.g. when running compiz.\n"
+"\n"
+"When this option is activated Shutter uses fixed parameters to round the "
+"window corners. You can overwrite the default parameters by creating a file "
+"named ~/.shutter/shape.conf and put custom values in it. The default values "
+"are stored in %s."
+msgstr ""
+"Shutter iseqdac asiɣzef XShape iwakken ad d-yaf talɣiwin n isfuyla, maca "
+"ayagi ur utteddu ara di kra n tegnatin, amedya ma yettwaseqdec compiz.\n"
+"\n"
+"Ma yella termed tnefrunt-agi Shutter ad iseqdec iɣewwaren usbiḍen iwakken ad "
+"idewwer tiɣmar n usfaylu. Tzemreḍ ad tesfesxeḍ iɣewwaren-agi n lexṣas s "
+"usnulfu n ufaylu umi ara tsemmiḍ ~/.shutter/shape.conf anida ara tserseḍ "
+"azalen-inek udmawanen. Azalen n lexṣas ttuskelsen di %s."
+
+#: translate_tmp.pl:1795
+#: translate_tmp.pl:1796
+msgid "Select only visible windows"
+msgstr "Fren kan isfuyla ibanen"
+
+#: translate_tmp.pl:1813
+msgid "Pre-Capture Delay"
+msgstr "Amenḍar send tuṭṭfa"
+
+#: translate_tmp.pl:1828
+#: translate_tmp.pl:1829
+#: translate_tmp.pl:1830
+msgid "Capture menu/tooltip after a delay of n seconds"
+msgstr "Ṭṭef umuɣ/tilillect n telɣut mbaɛd amenḍar n tasinin"
+
+#: translate_tmp.pl:1841
+msgid "Ignore possibly wrong type hints"
+msgstr "Ttu isumar n wanaw izemren ad yili d arameɣtu"
+
+#: translate_tmp.pl:1842
+msgid ""
+"The type hint constants specify hints for the window manager that indicate "
+"what type of function the window has. Sometimes these type hints are not "
+"correctly set. By enabling this option Shutter will not insist on the "
+"requested type hint."
+msgstr ""
+"Timezgiyin n wanaw n umatar mmalent i wemsefrak n usfaylu acu n wanaw n "
+"twuri i yesɛa usfaylu. Tikwal isumar-agi n wanaw ur ttusbadun ara akken "
+"iwata. Ma tesremdeḍ tanefrun-agi, Shutter ur yeseḥṛas ara ɣef usumer n wanaw "
+"yettusutren."
+
+#: translate_tmp.pl:1858
+msgid "Virtual browser width"
+msgstr "Tehri n iminig uhlis"
+
+#: translate_tmp.pl:1880
+#: translate_tmp.pl:1881
+#: translate_tmp.pl:1882
+msgid "Virtual browser width when taking a website screenshot"
+msgstr "Tehri n iminig uhlis mi ara yettwaṭṭef usmel n web"
+
+#: translate_tmp.pl:1893
+msgid "Show as check pattern"
+msgstr "Sken s wudlifen imkuẓen"
+
+#: translate_tmp.pl:1894
+msgid "Show as custom color:"
+msgstr "Sken s yini yugnen:"
+
+#: translate_tmp.pl:1897
+#: translate_tmp.pl:459
+#: translate_tmp.pl:3881
+#: translate_tmp.pl:4192
+msgid "Choose fill color"
+msgstr "Fren ini n taččart"
+
+#: translate_tmp.pl:1899
+msgid "Show as background"
+msgstr "Sken am ugilal"
+
+#: translate_tmp.pl:1925
+msgid "Displays any transparent parts of the image in a check pattern"
+msgstr "Beqqeḍ yal aḥric afrawan n tugna s wudlifen imkuẓen"
+
+#: translate_tmp.pl:1926
+msgid ""
+"Displays any transparent parts of the image in a solid color that you specify"
+msgstr "Sken aḥric afrawan menwala n tugna s yini i tferneḍ"
+
+#: translate_tmp.pl:1927
+msgid ""
+"Displays any transparent parts of the image in the background color of the "
+"application"
+msgstr "Sken aḥric afrawan menwala n tugna s yini n ugilal n usnas"
+
+#: translate_tmp.pl:1951
+msgid "Sort ascending by"
+msgstr "Asmizzwer yettalin s"
+
+#: translate_tmp.pl:1954
+#: translate_tmp.pl:1958
+msgid "Key/Time Created"
+msgstr "Tasarut/Asrag tnulfa-d"
+
+#: translate_tmp.pl:1955
+msgid "Sort descending by"
+msgstr "Asmizzwer yettadren s"
+
+#: translate_tmp.pl:2017
+#: translate_tmp.pl:2018
+#: translate_tmp.pl:2019
+#: translate_tmp.pl:2020
+msgid "Configure sort criteria"
+msgstr "Swel isefranen n usmizzwer"
+
+#: translate_tmp.pl:2027
+#: translate_tmp.pl:2087
+msgid "Start Shutter at login"
+msgstr "Sekker Shutter mi ara teldi tɣimit"
+
+#: translate_tmp.pl:2028
+#: translate_tmp.pl:2096
+msgid "Hide window on first launch"
+msgstr "Ffer asfaylu deg usekker amezwaru"
+
+#: translate_tmp.pl:2029
+#: translate_tmp.pl:2105
+msgid "Hide notification icon"
+msgstr "Ffer tignit n telɣut"
+
+#: translate_tmp.pl:2031
+#: translate_tmp.pl:2114
+msgid "Autohide main window when taking a screenshot"
+msgstr "Ffer s wudem awurman asfaylu agejdan mi ara d-tili tuṭṭfa"
+
+#: translate_tmp.pl:2032
+msgid "Redraw Delay"
+msgstr "Amenḍar n walus n ubeqqeḍ"
+
+#: translate_tmp.pl:2035
+#: translate_tmp.pl:2908
+msgid "millisecond"
+msgid_plural "milliseconds"
+msgstr[0] "militasint"
+msgstr[1] "militasinin"
+
+#: translate_tmp.pl:2041
+#: translate_tmp.pl:2141
+msgid "Present main window after taking a screenshot"
+msgstr "Beqqeḍ asfaylu agejdan mbaɛd tuṭṭfa"
+
+#: translate_tmp.pl:2042
+#: translate_tmp.pl:2187
+msgid "Minimize to tray when closing main window"
+msgstr "Simẓi di tfeggagt n telɣut mi ara yettwamdel usfaylu agejdan"
+
+#: translate_tmp.pl:2044
+#: translate_tmp.pl:2150
+msgid "Display pop-up notification after taking a screenshot"
+msgstr "Beqqeḍ talɣut mbaɛd tuṭṭfa"
+
+#: translate_tmp.pl:2045
+#: translate_tmp.pl:2159
+#: translate_tmp.pl:2168
+msgid "Display pop-up notification when using a delay"
+msgstr "Beqqeḍ talɣut mi ara yettwaseqdec umenḍar"
+
+#: translate_tmp.pl:2046
+msgid "Display pop-up notification when using a pre-capture delay"
+msgstr "Beqqeḍ pop-up n telɣut mi ara yettwaseqdec umenḍar send tuṭṭfa"
+
+#: translate_tmp.pl:2048
+msgid "Notification agent"
+msgstr "Ameggi n telɣut"
+
+#: translate_tmp.pl:2050
+msgid "Desktop Notifications"
+msgstr "Tilɣa n tnarit"
+
+#: translate_tmp.pl:2051
+msgid "Built-In Notifications"
+msgstr "Tilɣa tidiganin"
+
+#: translate_tmp.pl:2058
+#: translate_tmp.pl:2196
+msgid "Ask before moving files to trash"
+msgstr "Steqsi send asmutti n ifuyla ɣer tqecwalt"
+
+#: translate_tmp.pl:2059
+#: translate_tmp.pl:2205
+msgid "Move file to trash when closing tab"
+msgstr "Smutti ifuyla ɣer tqecwalt mi ara yettwamdel yiccer"
+
+#: translate_tmp.pl:2060
+#: translate_tmp.pl:2214
+msgid "Notify when file was deleted from filesystem"
+msgstr "Selɣu ticki ara yettwakkes ufaylu seg unagraw"
+
+#: translate_tmp.pl:2123
+#: translate_tmp.pl:2124
+#: translate_tmp.pl:2125
+msgid ""
+"Configure a short timeout to give the Xserver a chance to redraw areas that "
+"were obscured by Shutter's windows before taking a screenshot."
+msgstr ""
+"Sbadu amenḍar awezlan iwakken ad yizmir Xserver ad yales asuneɣ n tɣezza i "
+"yeffer usfaylu n Shutter send tuṭṭfa n ugdil."
+
+#: translate_tmp.pl:2177
+#: translate_tmp.pl:2178
+msgid ""
+"You can either choose the system-wide desktop notifications (e.g. Ubuntu's "
+"Notify-OSD) or Shutter's built-in notification system"
+msgstr ""
+"Tzemreḍ ad tferneḍ tilɣa n inagrawen n tnarit (md. notify-OSD n Ubuntu) neɣ "
+"tilɣa tidiganin n Shutter"
+
+#: translate_tmp.pl:2240
+msgid ""
+"<b>Please note:</b> If a plugin allows authorized uploading you can enter "
+"your credentials above. Plugins with OAuth support are configured "
+"automatically the first time you use them."
+msgstr ""
+"<b>Tamawt:</b> Ma yella usiɣzef isirigen asili yurgen, tzemreḍ ad tsekcmeḍ "
+"isallan-inek n tuqqna uksawen-agi. Isiɣzaf ideg itteddu OAuth ttusewlen s "
+"wudem awurman mi ara ten-tesqedceḍ tikkelt tamezwarut."
+
+#: translate_tmp.pl:2243
+#: translate_tmp.pl:10547
+msgid "URI"
+msgstr "URI"
+
+#: translate_tmp.pl:2253
+#: translate_tmp.pl:2255
+#: translate_tmp.pl:10552
+#: translate_tmp.pl:10554
+msgid ""
+"URI\n"
+"Example: ftp://host:port/path"
+msgstr ""
+"URI\n"
+"Amedya: ftp://asneftaɣ:tawwurt/abrid"
+
+#: translate_tmp.pl:2261
+#: translate_tmp.pl:2273
+#: translate_tmp.pl:2275
+#: translate_tmp.pl:10559
+#: translate_tmp.pl:10566
+#: translate_tmp.pl:10568
+msgid "Connection mode"
+msgstr "Askar n tuqqna"
+
+#: translate_tmp.pl:2264
+#: translate_tmp.pl:10562
+msgid "Active mode"
+msgstr "Askar urmid"
+
+#: translate_tmp.pl:2265
+#: translate_tmp.pl:10563
+msgid "Passive mode"
+msgstr "Askar attwaɣ"
+
+#: translate_tmp.pl:2281
+#: translate_tmp.pl:2291
+#: translate_tmp.pl:2293
+#: translate_tmp.pl:9055
+#: translate_tmp.pl:10573
+#: translate_tmp.pl:10578
+#: translate_tmp.pl:10580
+msgid "Username"
+msgstr "Isem n useqdac"
+
+#: translate_tmp.pl:2299
+#: translate_tmp.pl:2311
+#: translate_tmp.pl:2313
+#: translate_tmp.pl:9083
+#: translate_tmp.pl:10585
+#: translate_tmp.pl:10592
+#: translate_tmp.pl:10594
+msgid "Password"
+msgstr "Awal n uɛeddi"
+
+#: translate_tmp.pl:2319
+#: translate_tmp.pl:2329
+#: translate_tmp.pl:2331
+#: translate_tmp.pl:10599
+#: translate_tmp.pl:10604
+#: translate_tmp.pl:10606
+msgid "Website URL"
+msgstr "Tansa n usmek n web"
+
+#: translate_tmp.pl:2343
+#: translate_tmp.pl:4162
+msgid "Main"
+msgstr "Agejdan"
+
+#: translate_tmp.pl:2408
+msgid "Advanced"
+msgstr "Anaẓi"
+
+#: translate_tmp.pl:2456
+msgid "Image View"
+msgstr "Abeqqeḍ n tugna"
+
+#: translate_tmp.pl:2477
+msgid "Behavior"
+msgstr "Tikli"
+
+#: translate_tmp.pl:2515
+msgid "Upload"
+msgstr "Sili"
+
+#: translate_tmp.pl:2575
+msgid "Plugins"
+msgstr "Isiɣzifen"
+
+#: translate_tmp.pl:2577
+msgid "The following plugins are installed"
+msgstr "Isiɣzifen-agi ttwasbedden"
+
+#: translate_tmp.pl:2957
+msgid "pixel"
+msgid_plural "pixels"
+msgstr[0] "apiksil"
+msgstr[1] "ipiksilen"
+
+#: translate_tmp.pl:2967
+#: translate_tmp.pl:2974
+msgid "Quality"
+msgstr "Taɣara"
+
+#: translate_tmp.pl:3051
+msgid "Please activate the menu you want to capture"
+msgstr "Ttxil-k sermed umuɣ i tebɣiḍ ad teṭṭfeḍ"
+
+#: translate_tmp.pl:3054
+msgid "Please activate the tooltip you want to capture"
+msgstr "Ttxil-k sermed tilillect n telɣut i tebɣiḍ ad teṭṭfeḍ"
+
+#: translate_tmp.pl:3063
+#: translate_tmp.pl:3074
+#: translate_tmp.pl:198
+#: translate_tmp.pl:206
+#, perl-format
+msgid "Screenshot will be taken in %s second"
+msgid_plural "Screenshot will be taken in %s seconds"
+msgstr[0] "Ṭṭef di %s n tasint"
+msgstr[1] "Ṭṭef di %s n tasinin"
+
+#: translate_tmp.pl:3355
+#: translate_tmp.pl:9147
+msgid "Register"
+msgstr "Kles"
+
+#: translate_tmp.pl:3965
+msgid "Profile deleted"
+msgstr "Alegdis yettwakkes"
+
+#: translate_tmp.pl:3968
+#: translate_tmp.pl:3969
+msgid "Profile could not be deleted"
+msgstr "Alegdis yegguma ad yettwakkes"
+
+#: translate_tmp.pl:3968
+#: translate_tmp.pl:5682
+#: translate_tmp.pl:5911
+#: translate_tmp.pl:6088
+#: translate_tmp.pl:6170
+#: translate_tmp.pl:6581
+#: translate_tmp.pl:7090
+#: translate_tmp.pl:10339
+#: translate_tmp.pl:108
+#: translate_tmp.pl:118
+msgid "Failed"
+msgstr "Tuccḍa"
+
+#: translate_tmp.pl:3987
+#, perl-format
+msgid "Profile %s loaded successfully"
+msgstr "Alegdis %s yettwaɛebba akken iwata"
+
+#: translate_tmp.pl:4016
+#: translate_tmp.pl:7240
+msgid "Session"
+msgstr "Tiɣimit"
+
+#: translate_tmp.pl:4035
+#: translate_tmp.pl:5365
+msgid "not found"
+msgstr "ulac-it"
+
+#: translate_tmp.pl:4244
+msgid "Error while adding the file monitor."
+msgstr "Tuccḍa di tmerna n ufaylu n usenqed."
+
+#: translate_tmp.pl:4765
+msgid "Settings could not be saved!"
+msgstr "Iɣewwaren gguman ad ttwaskelsen"
+
+#: translate_tmp.pl:4768
+msgid "Settings saved successfully!"
+msgstr "Iɣewwaren gguman ad ttwaskelsen !"
+
+#: translate_tmp.pl:4794
+msgid "Session could not be saved!"
+msgstr "D awezɣi asekles n tɣimit!"
+
+#: translate_tmp.pl:4823
+msgid "Account-settings could not be saved!"
+msgstr "D awezɣi asekles n iɣewwaren n umiḍan!"
+
+#: translate_tmp.pl:5057
+msgid "Settings could not be restored!"
+msgstr "D awezɣi aɛebbi n iɣewwaren!"
+
+#: translate_tmp.pl:5061
+msgid "Settings loaded successfully"
+msgstr "Iɣewwaren ttwaɛebban akken iwata"
+
+#: translate_tmp.pl:5088
+#: translate_tmp.pl:7010
+msgid "Built-in Editor"
+msgstr "Amaẓrag usliɣ"
+
+#: translate_tmp.pl:5142
+msgid "Account-settings could not be restored!"
+msgstr "D awezɣi tiririt n iɣewwaren imiḍanen!"
+
+#: translate_tmp.pl:5239
+#: translate_tmp.pl:5337
+msgid "opened"
+msgstr "yeldi"
+
+#: translate_tmp.pl:5242
+#: translate_tmp.pl:5340
+#: translate_tmp.pl:7846
+#: translate_tmp.pl:61
+#: translate_tmp.pl:7032
+#, perl-format
+msgid "Error while opening image %s."
+msgstr "Tuccḍa deg ulday n tugna %s."
+
+#: translate_tmp.pl:5353
+msgid "Session could not be restored!"
+msgstr "D awezɣi tiririt n tɣimit!"
+
+#: translate_tmp.pl:5406
+#, perl-format
+msgid "Error while creating the trashinfo file %s."
+msgstr "Tuccḍa deg usnulfu n ufaylu talɣut n tqecwalt %s."
+
+#: translate_tmp.pl:5418
+#, perl-format
+msgid "Error while moving the file %s to trash."
+msgstr "Tuccḍa deg usmutti n ufaylu %s ɣer tqecwalt."
+
+#: translate_tmp.pl:5424
+#, perl-format
+msgid "Error while removing the file %s from disk."
+msgstr "Tuccḍa di tukksa n ufaylu %s seg uḍebsi."
+
+#: translate_tmp.pl:5442
+#, perl-format
+msgid "Are you sure you want to move %s to the trash?"
+msgstr "D tidet tebɣiḍ ad tesmuttiḍ %s ɣer tqecwalt?"
+
+#: translate_tmp.pl:5442
+#: translate_tmp.pl:5491
+#: translate_tmp.pl:209
+#: translate_tmp.pl:710
+msgid "Move to _Trash"
+msgstr "Smutti ɣer t_qecwalt"
+
+#: translate_tmp.pl:5456
+msgid "deleted"
+msgstr "yettwakkes"
+
+#: translate_tmp.pl:5491
+msgid "Are you sure you want to move the selected files to the trash?"
+msgstr "D tidet tebɣiḍ ad tesmuttiḍ ifuyla yettwafernen ɣer tqecwalt?"
+
+#: translate_tmp.pl:5495
+#: translate_tmp.pl:5529
+#: translate_tmp.pl:5634
+msgid "No screenshots selected"
+msgstr "Ulac tuṭṭfa n ugdil yettwafernen"
+
+#: translate_tmp.pl:5547
+msgid "Selected screenshots deleted"
+msgstr "Tuṭṭfiwin n ugdil yettwafernen ttwakksent"
+
+#: translate_tmp.pl:5583
+#: translate_tmp.pl:7692
+#: translate_tmp.pl:7718
+#: translate_tmp.pl:7751
+#: translate_tmp.pl:7784
+#: translate_tmp.pl:7823
+#: translate_tmp.pl:7849
+msgid "removed from session"
+msgstr "yettwakkes si tɣimit"
+
+#: translate_tmp.pl:5652
+msgid "Selected screenshots removed"
+msgstr "Tuṭṭfiwin n ugdil yettwafernen ttwakksent"
+
+#: translate_tmp.pl:5682
+#: translate_tmp.pl:6088
+msgid "No valid filetype specified"
+msgstr "Ulac anaw ameɣtu n ufaylu i d-ittunefken"
+
+#: translate_tmp.pl:5698
+msgid "There is no image data in the clipboard to paste"
+msgstr "Ulac tugna di tecfawit i wesenteḍ."
+
+#: translate_tmp.pl:5759
+msgid "Selected filenames copied to clipboard"
+msgstr "Ismawen n ifuyla yettwafernen ttusuknen ɣer tecfawit"
+
+#: translate_tmp.pl:5774
+msgid "Selected images copied to clipboard"
+msgstr "Tugniwin yettwafernen ttusuknent ɣer tecfawit"
+
+#: translate_tmp.pl:5821
+msgid "Last action undone"
+msgstr "Tigawt taneggarut tettwasefsex"
+
+#: translate_tmp.pl:5829
+#: translate_tmp.pl:5877
+#, perl-format
+msgid "Error while copying last version (%s)."
+msgstr "Tuccḍa deg usuken n lqem aneggaru (%s)."
+
+#: translate_tmp.pl:5829
+#, perl-format
+msgid "There was an error performing undo on %s."
+msgstr "Tella-d tuccda deg usefsex n %s."
+
+#: translate_tmp.pl:5869
+msgid "Last action redone"
+msgstr "Tigawt taneggarut tules"
+
+#: translate_tmp.pl:5877
+#, perl-format
+msgid "There was an error performing redo on %s."
+msgstr "Teḍra-d tuccḍa deg walus n %s."
+
+#: translate_tmp.pl:5911
+msgid "No plugin installed"
+msgstr "Ulac asiɣzef yettwasbedden"
+
+#: translate_tmp.pl:6170
+#: translate_tmp.pl:6581
+#: translate_tmp.pl:8030
+msgid "There was an error determining the filename."
+msgstr "Teḍra-d tuccḍa deg waggay n yisem n ufaylu."
+
+#: translate_tmp.pl:6473
+msgid "Triggered invalid screenshot action."
+msgstr "Tigawt n tuṭṭfa n ugdil ineddḥen d arameɣtut"
+
+#: translate_tmp.pl:6473
+#: translate_tmp.pl:6475
+#: translate_tmp.pl:6773
+#: translate_tmp.pl:6774
+#: translate_tmp.pl:81
+#: translate_tmp.pl:89
+#: translate_tmp.pl:97
+#: translate_tmp.pl:112
+#: translate_tmp.pl:120
+#: translate_tmp.pl:128
+#: translate_tmp.pl:140
+#: translate_tmp.pl:154
+#: translate_tmp.pl:164
+msgid "Error while taking the screenshot."
+msgstr "Tuccḍa di tuṭṭfa n ugdil."
+
+#: translate_tmp.pl:6608
+#: translate_tmp.pl:134
+msgid "Capture aborted by user"
+msgstr "Tuṭṭfa isefsex-itt useqdac"
+
+#: translate_tmp.pl:6738
+#: translate_tmp.pl:6759
+#, perl-format
+msgid "%s saved"
+msgstr "%s tettwasekles"
+
+#: translate_tmp.pl:6746
+#: translate_tmp.pl:6749
+#: translate_tmp.pl:6764
+msgid "Screenshot saved"
+msgstr "Tuṭṭfa n ugdil tettwasekles"
+
+#: translate_tmp.pl:6773
+#, perl-format
+msgid ""
+"The filename %s could not be verified. Maybe it contains unsupported "
+"characters."
+msgstr ""
+"Isem n ufaylu %s ulamek ara yettwasenqed. Ahat yesɛa isekkilen ur ntteddu "
+"ara."
+
+#: translate_tmp.pl:7010
+#: translate_tmp.pl:7021
+#, perl-format
+msgid "%s opened with %s"
+msgstr "%s yettwaldi s %s"
+
+#: translate_tmp.pl:7047
+msgid "Opened all files with"
+msgstr "Akk ifuyla ttwaldin s"
+
+#: translate_tmp.pl:7090
+#: translate_tmp.pl:7109
+#, perl-format
+msgid "Could not apply plugin %s"
+msgstr "D awezɣi asnes n usiɣzef %s"
+
+#: translate_tmp.pl:7106
+#: translate_tmp.pl:7158
+#, perl-format
+msgid "Successfully applied plugin %s"
+msgstr "asiɣzef %s yettusnes akken iwata"
+
+#: translate_tmp.pl:7161
+#, perl-format
+msgid "Error while executing plugin %s."
+msgstr "Ticcḍa deg uselkem n usiɣzef %s."
+
+#: translate_tmp.pl:7161
+msgid "There was an error executing the plugin."
+msgstr "Teḍra-d tuccḍa deg uselkemn usiɣzef."
+
+#: translate_tmp.pl:7242
+#, perl-format
+msgid "%s screenshot"
+msgid_plural "%s screenshots"
+msgstr[0] "%s n tuṭṭfa"
+msgstr[1] "%s n tuṭṭfiwin"
+
+#: translate_tmp.pl:7251
+msgid "Current profile"
+msgstr "Alegdis amiran"
+
+#: translate_tmp.pl:7686
+msgid "Try to resave the file?"
+msgstr "Ad tɛerḍeḍ asekles n ufaylu tikkelt-nniḍen?"
+
+#: translate_tmp.pl:7686
+#, perl-format
+msgid "Image %s was not found on disk"
+msgstr "Tugna %s ur tettwaf ara deg uḍebsi"
+
+#: translate_tmp.pl:7715
+#: translate_tmp.pl:7781
+#: translate_tmp.pl:189
+#, perl-format
+msgid "Error while saving the image %s."
+msgstr "Tuccḍa deg usekles n tugna %s."
+
+#: translate_tmp.pl:7715
+#: translate_tmp.pl:7781
+#: translate_tmp.pl:190
+#, perl-format
+msgid "There was an error saving the image to %s."
+msgstr "Teḍra-d tuccḍa deg usekles n tugna di %s"
+
+#: translate_tmp.pl:7741
+#: translate_tmp.pl:10069
+#: translate_tmp.pl:10075
+#: translate_tmp.pl:10143
+#: translate_tmp.pl:10150
+msgid "saved"
+msgstr "yettwasekles"
+
+#: translate_tmp.pl:7813
+#, perl-format
+msgid "Image %s was deleted from filesystem"
+msgstr "Tugna %s tettwakkes seg unagraw n ifuyla"
+
+#: translate_tmp.pl:7846
+#: translate_tmp.pl:62
+#: translate_tmp.pl:7032
+msgid "There was an error opening the image."
+msgstr "Teḍra-d tuccḍa deg ulday n tugna."
+
+#: translate_tmp.pl:8030
+#, perl-format
+msgid "Error while opening directory %s."
+msgstr "Tuccḍa deg ulday n ukaram %s."
+
+#: translate_tmp.pl:8099
+msgid "Updating plugin information"
+msgstr "Aleqqem n isallan n usiɣzef"
+
+#: translate_tmp.pl:8104
+msgid "Please wait while Shutter updates the plugin information"
+msgstr "Ttxil-k arǧu simal Shutter ad ileqqem isallan n usiɣzef"
+
+#: translate_tmp.pl:8246
+msgid "Updating upload plugin information"
+msgstr "Aleqqem n isallan n usiɣzef n usili"
+
+#: translate_tmp.pl:8251
+msgid "Please wait while Shutter updates the upload plugin information"
+msgstr "Ttxil-k arǧu simal Shutter ad ileqqem isallan n usiɣzef n usili"
+
+#: translate_tmp.pl:8482
+msgid "Capture All Workspaces"
+msgstr "Ṭṭef-d akk tallunin n umahil."
+
+#: translate_tmp.pl:8495
+msgid "Limit to current monitor"
+msgstr "Sebded ɣer umsefrak amiran"
+
+#: translate_tmp.pl:8508
+#, perl-format
+msgid ""
+"This option is only useful when you are running a multi-monitor system (%d "
+"monitor detected).\n"
+"Enable it to capture only the current monitor."
+msgid_plural ""
+"This option is only useful when you are running a multi-monitor system (%d "
+"monitors detected).\n"
+"Enable it to capture only the current monitor."
+msgstr[0] ""
+"Tanefrunt-agi tenfeɛ kan ticki teselḥuyeḍ anagraw n imsefraken yeggten (%d n "
+"umsefrak yettwaf).\n"
+"Sremd-itt iwakken ad teṭṭfeḍ amsefrak amiran."
+msgstr[1] ""
+"Tanefrunt-agi tenfeɛ kan ticki teselḥuyeḍ anagraw n imsefraken yeggten (%d n "
+"imsefraken ttettwafen).\n"
+"Sremd-itt iwakken ad teṭṭfeḍ amsefrak amiran."
+
+#: translate_tmp.pl:8537
+msgid "Active Window"
+msgstr "Asfaytlu urmid"
+
+#: translate_tmp.pl:8542
+msgid "Capture the last active window"
+msgstr "Ṭṭef-d asfaylu urmid aneggaru"
+
+#: translate_tmp.pl:8585
+#: translate_tmp.pl:403
+msgid "_Selection"
+msgstr "Ta_frayt"
+
+#: translate_tmp.pl:8604
+#: translate_tmp.pl:429
+msgid "_Desktop"
+msgstr "Ta_narit"
+
+#: translate_tmp.pl:8636
+msgid "Window _under Cursor"
+msgstr "Asfaylu _ddaw n teḥnacaḍt"
+
+#: translate_tmp.pl:8649
+#: translate_tmp.pl:459
+msgid "Select W_indow"
+msgstr "A_sfaylu yettwafernen"
+
+#: translate_tmp.pl:8660
+#: translate_tmp.pl:472
+msgid "Se_ction"
+msgstr "A_ferdis"
+
+#: translate_tmp.pl:8673
+#: translate_tmp.pl:488
+msgid "_Menu"
+msgstr "U_muɣ"
+
+#: translate_tmp.pl:8686
+#: translate_tmp.pl:504
+msgid "_Tooltip"
+msgstr "Ti_lillect n telɣut"
+
+#: translate_tmp.pl:8699
+#: translate_tmp.pl:522
+msgid "_Web"
+msgstr "_Web"
+
+#: translate_tmp.pl:8713
+msgid "S_how main window"
+msgstr "_Sken asfaylu agejdan"
+
+#: translate_tmp.pl:8719
+#: translate_tmp.pl:395
+msgid "_Redo last screenshot"
+msgstr "A_les tuṭṭfa taneggarut n ugdil"
+
+#: translate_tmp.pl:8730
+#: translate_tmp.pl:223
+msgid "_Quick profile select"
+msgstr "Tafrayt s t_ɣawla n ulegdis"
+
+#: translate_tmp.pl:8896
+msgid "Wait indefinitely"
+msgstr "Araǧu war tagara"
+
+#: translate_tmp.pl:8897
+#: translate_tmp.pl:8898
+#, perl-format
+msgid "Wait max %d second"
+msgid_plural "Wait max %d seconds"
+msgstr[0] "Araǧu afellay %d n tasint"
+msgstr[1] "Araǧu afellay %d n tasinin"
+
+#: translate_tmp.pl:8899
+#: translate_tmp.pl:8900
+#, perl-format
+msgid "Wait max %d minute"
+msgid_plural "Wait max %d minutes"
+msgstr[0] "Araǧu adday %d n tsedidt"
+msgstr[1] "Araǧu adday %d n tsedidin"
+
+#: translate_tmp.pl:8908
+msgid "Shutter will wait indefinitely for the screenshot to capture"
+msgstr "Shutter ad yerǧu tuṭṭfa n ugdil s umenḍar war tagara"
+
+#: translate_tmp.pl:8909
+#: translate_tmp.pl:8910
+#, perl-format
+msgid ""
+"Shutter will wait up to %d second for the screenshot to capture before "
+"aborting the process if it's taking too long"
+msgid_plural ""
+"Shutter will wait up to %d seconds for the screenshot to capture before "
+"aborting the process if it's taking too long"
+msgstr[0] ""
+"Shutter ad yerǧu %d n tasint i tuṭṭfa n ugdil send ad yeǧǧ tigawt ma yella "
+"akala iɛeṭṭel"
+msgstr[1] ""
+"Shutter ad yerǧu %d n tasinin i tuṭṭfa n ugdil send ad yeǧǧ tigawt ma yella "
+"akala iɛeṭṭel"
+
+#: translate_tmp.pl:8911
+#: translate_tmp.pl:8912
+#, perl-format
+msgid ""
+"Shutter will wait up to %d minute for the screenshot to capture before "
+"aborting the process if it's taking too long"
+msgid_plural ""
+"Shutter will wait up to %d minutes for the screenshot to capture before "
+"aborting the process if it's taking too long"
+msgstr[0] ""
+"Shutter ad yerǧu %d n tsedidt i tuṭṭfa n ugdil send ad yeǧǧ tigawt ma yella "
+"akala iɛeṭṭel"
+msgstr[1] ""
+"Shutter ad yerǧu %d n tsedidin i tuṭṭfa n ugdil send ad yeǧǧ tigawt ma yella "
+"akala iɛeṭṭel"
+
+#: translate_tmp.pl:9046
+msgid "Host"
+msgstr "Asneftaɣ"
+
+#: translate_tmp.pl:9113
+msgid "Anonymous Upload"
+msgstr "Asili warisem"
+
+#: translate_tmp.pl:9120
+msgid "Authorized Upload"
+msgstr "Asili yurgen"
+
+#: translate_tmp.pl:9127
+msgid "OAuth Upload"
+msgstr "Asili OAuth"
+
+#: translate_tmp.pl:9138
+#: translate_tmp.pl:9199
+#: translate_tmp.pl:10262
+msgid "Description"
+msgstr "Asenmel"
+
+#: translate_tmp.pl:9170
+msgid "Icon"
+msgstr "Tignit"
+
+#: translate_tmp.pl:9179
+msgid "Name"
+msgstr "Isem"
+
+#: translate_tmp.pl:9189
+msgid "Category"
+msgstr "Taggayt"
+
+#: translate_tmp.pl:9209
+msgid "Language"
+msgstr "Tutlayt"
+
+#: translate_tmp.pl:9218
+msgid "Path"
+msgstr "Abrid"
+
+#: translate_tmp.pl:9271
+#: translate_tmp.pl:10636
+msgid "Ubuntu One"
+msgstr "Ubuntu One"
+
+#: translate_tmp.pl:9280
+msgid "Successfully published"
+msgstr "Yeffeɣ-d akken iwata"
+
+#: translate_tmp.pl:9280
+#, perl-format
+msgid "The file %s was successfully published: %s"
+msgstr "Afaylu %s yeffeɣ-d akken iwata: %s"
+
+#: translate_tmp.pl:9283
+#, perl-format
+msgid "%s published"
+msgstr "%s yeffeɣ-d"
+
+#: translate_tmp.pl:9296
+msgid "Unpublished"
+msgstr "Ur d-yeffiɣ ara"
+
+#: translate_tmp.pl:9296
+#, perl-format
+msgid ""
+"The file %s is no longer published. The external link is not available "
+"anymore."
+msgstr "Afaylu %s yeqqel ur d-yeffiɣ ara. Aseɣwen uffiɣ dayen ur yewjid ara."
+
+#: translate_tmp.pl:9299
+#, perl-format
+msgid "The file %s is no longer published."
+msgstr "Afaylu %s yeqqel ur d-yeffiɣ ara."
+
+#: translate_tmp.pl:9498
+msgid "Rename"
+msgstr "Beddel isem"
+
+#: translate_tmp.pl:9502
+#, perl-format
+msgid "Rename image %s"
+msgstr "Beddel isem n tugna %s"
+
+#: translate_tmp.pl:9504
+msgid "New filename"
+msgstr "Isem amaynut n ufaylu"
+
+#: translate_tmp.pl:9507
+msgid "_Rename"
+msgstr "_Beddel isem"
+
+#: translate_tmp.pl:9622
+#: translate_tmp.pl:9665
+msgid "renamed"
+msgstr "yettwabeddel yisem-is"
+
+#: translate_tmp.pl:9630
+#: translate_tmp.pl:9673
+#: translate_tmp.pl:9709
+#, perl-format
+msgid "Error while renaming the image %s."
+msgstr "Tuccḍa deg ubeddel n yisem n tugna %s"
+
+#: translate_tmp.pl:9630
+#: translate_tmp.pl:9673
+#: translate_tmp.pl:9709
+#, perl-format
+msgid "There was an error renaming the image to %s."
+msgstr "Teḍra-d tuccḍa mi yettwabeddel yisem n tugna %s"
+
+#: translate_tmp.pl:9639
+#: translate_tmp.pl:10099
+#: translate_tmp.pl:11116
+#: translate_tmp.pl:11358
+#: translate_tmp.pl:1636
+msgid "_Replace"
+msgstr "_Semselsi"
+
+#: translate_tmp.pl:9644
+#: translate_tmp.pl:10102
+#: translate_tmp.pl:11130
+#: translate_tmp.pl:1639
+#, perl-format
+msgid ""
+"The image already exists in %s. Replacing it will overwrite its contents."
+msgstr ""
+"Tugna tella yakan deg ukaram %s. Ma tsemselsiḍ-tt ad yettwasefsex ugbur-ines."
+
+#: translate_tmp.pl:9644
+#: translate_tmp.pl:10102
+#: translate_tmp.pl:11130
+#: translate_tmp.pl:1639
+#, perl-format
+msgid "An image named %s already exists. Do you want to replace it?"
+msgstr ""
+"Tugna umi yettwabeddel yisem %s tella yakan. Tebɣiḍ ad tt-tsemselsiḍ?"
+
+#: translate_tmp.pl:9709
+msgid "Invalid Filename"
+msgstr "Isem n ufaylu d armeɣtu"
+
+#: translate_tmp.pl:9733
+#: translate_tmp.pl:6653
+msgid "Choose file to open"
+msgstr "Fren afaylu ara teldiḍ"
+
+#: translate_tmp.pl:9765
+#: translate_tmp.pl:6683
+msgid "All compatible image formats"
+msgstr "Akk imasalen imeɣta n tugna"
+
+#: translate_tmp.pl:9849
+#: translate_tmp.pl:1457
+msgid "Choose a location to save to"
+msgstr "Fren adig anida ara teskelseḍ"
+
+#: translate_tmp.pl:10195
+msgid "Choose a plugin"
+msgstr "Fren asiɣzef"
+
+#: translate_tmp.pl:10200
+msgid "_Run"
+msgstr "_Sekker"
+
+#: translate_tmp.pl:10249
+msgid "Plugin"
+msgstr "Asiɣzef"
+
+#: translate_tmp.pl:10339
+msgid "No plugin specified"
+msgstr "Ulac asiɣzef i d-ittunefken"
+
+#: translate_tmp.pl:10390
+msgid "Upload / Export"
+msgstr "Sili / Sifeḍ"
+
+#: translate_tmp.pl:10394
+#: translate_tmp.pl:10646
+msgid "_Upload"
+msgstr "A_sili"
+
+#: translate_tmp.pl:10421
+msgid "Guest"
+msgstr "Inebgi"
+
+#: translate_tmp.pl:10426
+msgid "OAuth"
+msgstr "Oauth"
+
+#: translate_tmp.pl:10459
+msgid ""
+"Please choose one of the accounts above and click <i>Upload</i>. The upload "
+"links will still be available in the screenshot's <i>right-click menu</i> "
+"after closing this dialog."
+msgstr ""
+"Ttxil-k fren yiwen gar imiḍanen-agi ukessar sakin sit ɣef<i>Sili</ i>. "
+"Isɣewnen n usili ad wejden yalas di tuṭṭfa n ugdil n <i> wumuɣ n usiti "
+"ayefus </ i> ticki temdel tenkult-agi n udiwenni."
+
+#: translate_tmp.pl:10460
+msgid ""
+"<b>Please note:</b> If a plugin allows only authorized uploading you need to "
+"enter your credentials in preferences first to make it appear in the list "
+"above."
+msgstr ""
+"<b>Tamawt :</b> Ma yella usiɣzef i k-yesirgen-ak kan asili yurgen, isefk ad "
+"teskecmeḍ isallan-inek n tuqqna deg ismenyafen iwakken ad d-yeddu di tebdart-"
+"agi uksawen."
+
+#: translate_tmp.pl:10462
+msgid "Choose account"
+msgstr "Fren amiḍan"
+
+#: translate_tmp.pl:10490
+msgid "Status"
+msgstr "Addad"
+
+#: translate_tmp.pl:10633
+msgid "Public hosting"
+msgstr "Asnefteɣ azayez"
+
+#: translate_tmp.pl:10635
+msgid "Places"
+msgstr "Isunen"
+
+#: translate_tmp.pl:10650
+msgid "_Export"
+msgstr "_Sifeḍ"
+
+#: translate_tmp.pl:10654
+msgid "_Publish"
+msgstr "_Publier"
+
+#: translate_tmp.pl:10682
+#: translate_tmp.pl:164
+msgid "Disconnected"
+msgstr "Yenser"
+
+#: translate_tmp.pl:10706
+#: translate_tmp.pl:10738
+#, perl-format
+msgid ""
+"Folder %s is synchronized with Ubuntu One. The selected file will be copied "
+"to that folder before being published."
+msgid_plural ""
+"Folder %s is synchronized with Ubuntu One. The selected files will be copied "
+"to that folder before being published."
+msgstr[0] ""
+"Akaram %s yemtawa akked Ubuntu One. Afaylu yettwafernen ad yettusuken ɣer "
+"ukaram-agi send ad d-yeffeɣ."
+msgstr[1] ""
+"Akaram %s yemtawa akked Ubuntu One. Ifuyla yettwafernen ad ttusukenen ɣer "
+"ukaram-agi send ad d-ffeɣen."
+
+#: translate_tmp.pl:10707
+#: translate_tmp.pl:10739
+msgid ""
+"<b>Please note:</b> The selected file will be published in a background "
+"process. You will be notified when the process has finished."
+msgid_plural ""
+"<b>Please note:</b> The selected files will be published in a background "
+"process. You will be notified when the process has finished."
+msgstr[0] ""
+"<b>Tamawt:</b> Afaylu yettwafernen ad d-yeffeɣ deg ukala n ugilal. Ad twaliḍ "
+"talɣut ticki yemmed ukala."
+msgstr[1] ""
+"<b>Tamawt:</b> Ifuyla yettwafernen ad d-ffeɣen deg ukala n ugilal. Ad twaliḍ "
+"talɣut ticki yemmed ukala."
+
+#: translate_tmp.pl:10711
+#: translate_tmp.pl:10743
+#, perl-format
+msgid ""
+"Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
+"folder."
+msgstr ""
+"Akaram %s ur yemtawi ara akked Ubuntu One. Ttxil-k fren akaram-nniḍen."
+
+#: translate_tmp.pl:10762
+msgid "Ubuntu One service cannot be found."
+msgstr "Ameẓlu Ubuntu One ur yettwaf ara."
+
+#: translate_tmp.pl:10770
+msgid ""
+"/publicfiles is not available. Your Ubuntu One installation seems to be out "
+"of date."
+msgstr ""
+"/publicfiles ur yewjid ara. Asbeddi-inek n Ubuntu One yettban-d d aqbur."
+
+#: translate_tmp.pl:10778
+msgid ""
+"Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature"
+msgstr ""
+"Net::DBus::GLib/libnet-dbus-glib-perl isefk ad yettwasbedd iwakken ad "
+"tesqedceḍ tameẓlit-agi"
+
+#: translate_tmp.pl:10846
+#, perl-format
+msgid "Loading module %s"
+msgstr "Aɛebbi n uzegrir %s"
+
+#: translate_tmp.pl:10859
+#, perl-format
+msgid "Error while executing upload plugin %s."
+msgstr "Tuccḍa deg uselkem n usiɣzef n usili %s."
+
+#: translate_tmp.pl:10859
+msgid "There was an error executing the upload plugin."
+msgstr "Teḍra-d tuccḍa mi yettuselkem usiɣzef n usili."
+
+#: translate_tmp.pl:10892
+#: translate_tmp.pl:10963
+#: translate_tmp.pl:11078
+#: translate_tmp.pl:11155
+msgid "uploaded"
+msgstr "yuli"
+
+#: translate_tmp.pl:10967
+#: translate_tmp.pl:11082
+#: translate_tmp.pl:11159
+msgid "Successfully uploaded"
+msgstr "Yuli akken iwata"
+
+#: translate_tmp.pl:10967
+#: translate_tmp.pl:11082
+#: translate_tmp.pl:11159
+#, perl-format
+msgid "The file %s was successfully uploaded."
+msgstr "Afaylu %s yuli akken iwata."
+
+#: translate_tmp.pl:10987
+#: translate_tmp.pl:11130
+#: translate_tmp.pl:11265
+#: translate_tmp.pl:11281
+#: translate_tmp.pl:11284
+msgid "Skip all"
+msgstr "Ttu kulec"
+
+#: translate_tmp.pl:10987
+#: translate_tmp.pl:11130
+#: translate_tmp.pl:11265
+#: translate_tmp.pl:11281
+#: translate_tmp.pl:11284
+msgid "Skip"
+msgstr "Ttu"
+
+#: translate_tmp.pl:10987
+#: translate_tmp.pl:11284
+msgid "Retry"
+msgstr "Eɛreḍ tikkelt-nniḍen"
+
+#: translate_tmp.pl:11071
+#: translate_tmp.pl:11148
+msgid "exported"
+msgstr "yettusifeḍ"
+
+#: translate_tmp.pl:11075
+#: translate_tmp.pl:11152
+msgid "Successfully exported"
+msgstr "Yettusifeḍ akken iwata"
+
+#: translate_tmp.pl:11075
+#: translate_tmp.pl:11152
+#, perl-format
+msgid "The file %s was successfully exported."
+msgstr "Afaylu %s yettusifeḍ akken iwata."
+
+#: translate_tmp.pl:11089
+#: translate_tmp.pl:11166
+#, perl-format
+msgid "Publishing %s..."
+msgstr "Asuffeɣ n %s..."
+
+#: translate_tmp.pl:11262
+msgid "_Retry"
+msgstr "_Eɛreḍ tikkelt-nniḍen"
+
+#: translate_tmp.pl:11265
+#, perl-format
+msgid "Error while copying the image %s."
+msgstr "Tuccḍa mi tettusuken tugna %s"
+
+#: translate_tmp.pl:11265
+#, perl-format
+msgid "There was an error copying the image into %s."
+msgstr "Teḍra-d tuccḍa mi tettusuken tugna ɣer %s."
+
+#: translate_tmp.pl:11278
+#: translate_tmp.pl:90
+msgid "Please check your credentials and try again."
+msgstr "Ttxil-k selken isallan inek n tuqqna sakin eɛreḍ tikkelt-nniḍen."
+
+#: translate_tmp.pl:11278
+msgid "Error while login"
+msgstr "Tuccḍa di tuqqna"
+
+#: translate_tmp.pl:11281
+msgid "Maximum filesize reached"
+msgstr "Tewweḍ tiddi tafellayt n ufaylu"
+
+#: translate_tmp.pl:11281
+msgid "Error while uploading"
+msgstr "Tuccḍa deg usili"
+
+#: translate_tmp.pl:11281
+#, perl-format
+msgid "Maximum filesize: %s"
+msgstr "Tiddi tafellayt n ufaylu: %s"
+
+#: translate_tmp.pl:11284
+msgid "Error while connecting"
+msgstr "Tuccḍa di tuqqna"
+
+#: translate_tmp.pl:11298
+msgid "Save current preferences as new profile"
+msgstr "Sekles inuraf imiranen am ulegdis amaynut"
+
+#: translate_tmp.pl:11300
+msgid "New profile name"
+msgstr "Isem amaynut n ulegdis"
+
+#: translate_tmp.pl:11361
+msgid "Replacing it will overwrite its contents."
+msgstr "Ma tsemselsiḍ-t ad yettwabeddel ugbur."
+
+#: translate_tmp.pl:11361
+#, perl-format
+msgid "A profile named %s already exists. Do you want to replace it?"
+msgstr "Alegdis s yisem %s yella yakan. Tebɣiḍ ad t-tesemselsiḍ?"
+
+#: translate_tmp.pl:79
+msgid "translator-credits"
+msgstr ""
+"Launchpad Contributions:\n"
+"  Belkacem Mohammed https://launchpad.net/~belkacem77\n"
+"  Yacine Bouklif https://launchpad.net/~yacine-bouklif"
+
+#: translate_tmp.pl:34
+#: translate_tmp.pl:6033
+msgid "_File"
+msgstr "A_faylu"
+
+#: translate_tmp.pl:39
+#: translate_tmp.pl:6034
+msgid "_Edit"
+msgstr "Ta_ẓrigt"
+
+#: translate_tmp.pl:44
+#: translate_tmp.pl:6036
+msgid "_View"
+msgstr "Ta_muɣli"
+
+#: translate_tmp.pl:49
+msgid "_Screenshot"
+msgstr "Tuṭṭfa n ug_dil"
+
+#: translate_tmp.pl:54
+msgid "_Go"
+msgstr "_Ddu ɣer"
+
+#: translate_tmp.pl:59
+msgid "_Help"
+msgstr "Ta_llalt"
+
+#: translate_tmp.pl:87
+msgid "_Open..."
+msgstr "_Ldi..."
+
+#: translate_tmp.pl:92
+msgid "Recent _Files"
+msgstr "I_fuyla n melmi kan"
+
+#: translate_tmp.pl:103
+msgid "Save _As..."
+msgstr "Sekles am..."
+
+#: translate_tmp.pl:114
+#: translate_tmp.pl:6182
+msgid "E_xport to PDF..."
+msgstr "Sifeḍ s umasal n PDF"
+
+#: translate_tmp.pl:119
+#: translate_tmp.pl:6192
+msgid "Export to Post_Script..."
+msgstr "Sifeḍ ɣer Post_Script..."
+
+#: translate_tmp.pl:129
+msgid "Page Set_up"
+msgstr "Ase_ɣwer n usebtar"
+
+#: translate_tmp.pl:136
+msgid "_Print..."
+msgstr "Si_ggez"
+
+#: translate_tmp.pl:144
+msgid "Send by E_mail..."
+msgstr "Azen s i_mayl..."
+
+#: translate_tmp.pl:159
+msgid "C_lose all"
+msgstr "_Mdel kulec"
+
+#: translate_tmp.pl:204
+#: translate_tmp.pl:705
+msgid "Copy _Filename"
+msgstr "Suken isem n u_faylu"
+
+#: translate_tmp.pl:246
+msgid "Show Navigation _Toolbar"
+msgstr "Sken tafe_ggagt n yinig"
+
+#: translate_tmp.pl:328
+msgid "Get Help Online..."
+msgstr "Awi-d tallalt seg uẓeḍḍa..."
+
+#: translate_tmp.pl:343
+msgid "Translate this Application..."
+msgstr "Suqqel asnas-agi..."
+
+#: translate_tmp.pl:358
+msgid "Report a Problem"
+msgstr "Azen aneqqis ɣef wugur"
+
+#: translate_tmp.pl:446
+msgid "_Active Window"
+msgstr "Asfaylu u_rmid"
+
+#: translate_tmp.pl:538
+msgid "Import from clip_board"
+msgstr "Kter si tecfawit"
+
+#: translate_tmp.pl:558
+#: translate_tmp.pl:655
+msgid "Open wit_h"
+msgstr "Ldi _s"
+
+#: translate_tmp.pl:565
+#: translate_tmp.pl:662
+msgid "Show in _folder"
+msgstr "Sken deg u_karam"
+
+#: translate_tmp.pl:572
+#: translate_tmp.pl:669
+msgid "_Rename..."
+msgstr "_Beddel isem…"
+
+#: translate_tmp.pl:581
+#: translate_tmp.pl:677
+msgid "_Send To..."
+msgstr "A_zen ɣer..."
+
+#: translate_tmp.pl:590
+#: translate_tmp.pl:685
+msgid "E_xport..."
+msgstr "_Sifeḍ..."
+
+#: translate_tmp.pl:597
+#: translate_tmp.pl:691
+msgid "Public URLs"
+msgstr "URL izayazen"
+
+#: translate_tmp.pl:605
+#: translate_tmp.pl:718
+msgid "_Edit..."
+msgstr "_Ẓreg..."
+
+#: translate_tmp.pl:622
+msgid "Run a _plugin..."
+msgstr "Selkem a_siɣzef..."
+
+#: translate_tmp.pl:631
+#: translate_tmp.pl:742
+msgid "Redo _this screenshot"
+msgstr "Ales tuṭtfa-agi n ugdil"
+
+#: translate_tmp.pl:734
+msgid "Run a _Plugin..."
+msgstr "Sekker a_siɣzef..."
+
+#: translate_tmp.pl:37
+msgid "Redo"
+msgstr "Ales"
+
+#: translate_tmp.pl:40
+msgid "Redo last screenshot"
+msgstr "Aes tuṭṭfa taneggarut n ugdil"
+
+#: translate_tmp.pl:63
+#: translate_tmp.pl:46
+#: translate_tmp.pl:793
+msgid "Selection"
+msgstr "Tafrayt"
+
+#: translate_tmp.pl:70
+msgid ""
+"Draw a rectangular capture area with your mouse\n"
+"to select a specified screen area"
+msgstr ""
+"Suneɣ s tɣerdayt taɣzut n tuṭṭfa s talɣa n usrem\n"
+"iwakken ad tferneḍ taɣzut tulmist n ugdil"
+
+#: translate_tmp.pl:89
+msgid "Desktop"
+msgstr "Tanarit"
+
+#: translate_tmp.pl:92
+msgid "Take a screenshot of your whole desktop"
+msgstr "Ṭṭef tanarit akk"
+
+#: translate_tmp.pl:93
+msgid "Capture a specific workspace"
+msgstr "Ṭṭef-d tallunt n umahil tulmist"
+
+#: translate_tmp.pl:131
+msgid "Window"
+msgstr "Asfaylu"
+
+#: translate_tmp.pl:134
+msgid "Select a window with your mouse"
+msgstr "Fren asfaylu s tɣerdayt"
+
+#: translate_tmp.pl:135
+msgid "Take a screenshot of a specific window"
+msgstr "Ṭṭef-d asfaylu ulmis"
+
+#: translate_tmp.pl:150
+msgid "Section"
+msgstr "Tigezmi"
+
+#: translate_tmp.pl:153
+msgid ""
+"Captures only a section of the window. You will be able to select any child "
+"window by moving the mouse over it"
+msgstr ""
+"Ad yeṭṭef kan tigezmi n ugdil. Ad tizmireḍ ad tferneḍ asfaylu aqrur s "
+"usɛeddi n tɣerdayt fell-as."
+
+#: translate_tmp.pl:170
+#: translate_tmp.pl:1095
+msgid "Menu"
+msgstr "Umuɣ"
+
+#: translate_tmp.pl:173
+msgid "Select a single menu or cascading menus from any application"
+msgstr "Fren umuɣ asuf neɣ umuɣen s umazzar seg usnas menwala"
+
+#: translate_tmp.pl:190
+#: translate_tmp.pl:1101
+msgid "Tooltip"
+msgstr "Tilillect n telɣut"
+
+#: translate_tmp.pl:193
+msgid "Capture a tooltip"
+msgstr "Ṭṭef-d tilillect n telɣut"
+
+#: translate_tmp.pl:209
+msgid "Web"
+msgstr "Web"
+
+#: translate_tmp.pl:211
+#: translate_tmp.pl:79
+msgid "Take a screenshot of a website"
+msgstr "Ṭṭef-d asmel n web"
+
+#: translate_tmp.pl:212
+msgid ""
+"Set how long Shutter will wait for the screenshot to complete before "
+"aborting the process if it's taking too long"
+msgstr ""
+"Sbadu akud ideg Shutter ad yerǧu ad temmed tuṭṭfa n ugdil send ad yeǧǧ "
+"tigawt ma yella akala iɛeṭṭel aṭas."
+
+#: translate_tmp.pl:233
+msgid "Edit"
+msgstr "Ẓreg"
+
+#: translate_tmp.pl:236
+msgid ""
+"Use the built-in editor to highlight important fragments of your screenshot "
+"or crop it to a desired size"
+msgstr ""
+"Seqdec amaẓrag usliɣ iwakken ad tesbrurqeḍ iḥricen ixataren n tuṭṭfa n ugdil "
+"inek, neɣ iwakken ad tt-tɣeẓeḍ ɣer talɣa i tebɣiḍ."
+
+#: translate_tmp.pl:243
+msgid "Export"
+msgstr "Sfeḍ"
+
+#: translate_tmp.pl:246
+msgid ""
+"Upload your images to an image hosting service, FTP site or export them to "
+"an arbitrary folder"
+msgstr ""
+"Sili tugniwin-inek ɣer umeẓlu n usnefteɣ n tugniwin, aqeddac FTP, neɣ sifeḍ-"
+"itent ɣer ukaram agacuran"
+
+#: translate_tmp.pl:247
+msgid "Show links to previous uploads"
+msgstr "Beqqeḍ isɣewnen ɣer isliyn yezrin"
+
+#: translate_tmp.pl:33
+#: translate_tmp.pl:47
+#: translate_tmp.pl:61
+#, perl-format
+msgid "Error while executing %s."
+msgstr "Tuccḍa mi yettuselkem %s"
+
+#: translate_tmp.pl:34
+#: translate_tmp.pl:48
+#: translate_tmp.pl:62
+#, perl-format
+msgid "There was an error executing %s."
+msgstr "Teḍra-d tuccḍa mi yettuselkem %s"
+
+#: translate_tmp.pl:37
+#: translate_tmp.pl:51
+#: translate_tmp.pl:65
+#, perl-format
+msgid "Exit Code: %d."
+msgstr "Tangalt n tuffɣa: %d"
+
+#: translate_tmp.pl:167
+msgid "Synchronization complete"
+msgstr "Amtawi immed"
+
+#: translate_tmp.pl:169
+msgid "Synchronization in progress..."
+msgstr "Amtawi ala itteddu..."
+
+#: translate_tmp.pl:62
+msgid "Illegal URI."
+msgstr "URI d arameɣtu."
+
+#: translate_tmp.pl:82
+msgid "Connection error."
+msgstr "Tuccḍa n tuqqna"
+
+#: translate_tmp.pl:83
+msgid "Please check your connectivity and try again."
+msgstr "Ttxil-k selken tuqqna-inek sakin eɣreḍ tikkelt-nniḍen."
+
+#: translate_tmp.pl:89
+#, perl-format
+msgid "Login with username %s failed."
+msgstr "Tuqqna s yisem n useqdac %s ur teddi ara."
+
+#: translate_tmp.pl:109
+msgid "Cannot change working directory."
+msgstr "D awezɣi abeddel n ukaram n umahil."
+
+#: translate_tmp.pl:119
+msgid "Command 'put' failed."
+msgstr "Anezḍay 'put' yecceḍ."
+
+#: translate_tmp.pl:87
+msgid "Copy this code to clipboard"
+msgstr "Suken tangalt-agi ɣer tecfawit"
+
+#: translate_tmp.pl:112
+#, perl-format
+msgid "Upload - %s - %s"
+msgstr "Sili - %s - %s"
+
+#: translate_tmp.pl:120
+msgid "Draw a rectangular area using the mouse."
+msgstr "Suneɣ taɣzut tamkuẓt s tɣerdayt."
+
+#: translate_tmp.pl:122
+msgid "To take a screenshot, press the Enter key. Press Esc to quit."
+msgstr ""
+"Iwakken ad tgeḍ tuṭṭfa n ugdil, ssed taqfalt Kcem. Ssed Esc iwakken ad "
+"teffɣeḍ."
+
+#: translate_tmp.pl:124
+msgid "<b>shift/right-click</b> → selection dialog on/off"
+msgstr "<b>shift/asiti ayefust</b> → adiwenni n terfaryt yermed/yensa"
+
+#: translate_tmp.pl:124
+msgid "<b>ctrl + scrollwheel</b> → zoom in/out"
+msgstr "<b>ctrl + ruda n udrurem</b> → zoom ɣer sdat/deffir"
+
+#: translate_tmp.pl:124
+msgid "<b>space</b> → zoom window on/off"
+msgstr "<b>tallunt</b> → asfaylu n zoom yermed/yensa"
+
+#: translate_tmp.pl:124
+msgid "<b>cursor keys</b> → move cursor"
+msgstr "<b>tanasin n teneccabin</b> → smutti taḥnacaḍt"
+
+#: translate_tmp.pl:124
+msgid "<b>cursor keys + alt</b> → move selection"
+msgstr "<b>tanasin n teneccabin + alt</b> → smutti tafrayt"
+
+#: translate_tmp.pl:124
+msgid "<b>cursor keys + ctrl</b> → resize selection"
+msgstr "<b>tanasin n teneccabin+ ctrl</b> → ales tisekta n tefrayt"
+
+#: translate_tmp.pl:88
+msgid ""
+"Maybe mouse pointer could not be grabbed or the selected area is invalid."
+msgstr "Ahat taḥnacaḍt ur d-tettwar ara neɣ taɣzut n tefrayt d tarameɣtut."
+
+#: translate_tmp.pl:96
+msgid "Keyboard could not be grabbed."
+msgstr "D awezɣi tuṭṭfa n unasiw."
+
+#: translate_tmp.pl:105
+msgid "menu"
+msgstr "umuɣ"
+
+#: translate_tmp.pl:107
+msgid "tooltip"
+msgstr "tilillect n telɣut"
+
+#: translate_tmp.pl:111
+#, perl-format
+msgid "No window with type %s detected."
+msgstr "Ulac asfaylu n wanaw  %s yettwafen."
+
+#: translate_tmp.pl:119
+msgid "There is no last capture that can be redone."
+msgstr "Ulac tuṭṭfa taneggarut ara yettwalsen."
+
+#: translate_tmp.pl:127
+msgid "The window is no longer available."
+msgstr "Asfaylu dayen ur yewjid ara."
+
+#: translate_tmp.pl:139
+#: translate_tmp.pl:145
+msgid "Unable to capture website"
+msgstr "D awezɣi tuṭṭfa n usmel"
+
+#: translate_tmp.pl:153
+#, perl-format
+msgid "No window with name pattern %s detected."
+msgstr "Ulac asfaylu inmeɣran akked tmuddemt n yisem %s yettwafen."
+
+#: translate_tmp.pl:163
+#, perl-format
+msgid "Invalid pattern %s detected."
+msgstr "Tamuddemt tarameɣtut %s tettwaf."
+
+#: translate_tmp.pl:116
+msgid "No subwindow detected"
+msgstr "Ulac asfaylu anaddaw i yettwafen"
+
+#: translate_tmp.pl:117
+msgid ""
+"Maybe this window is using client-side windows (or similar).\n"
+"Shutter is not yet able to query the tree information of such windows."
+msgstr ""
+"Asfaylu-agi ahat isseqdac udem n usfaylu tama n umsaɣ (neɣ win i t-icuban).\n"
+"Shutter ur yezmir ara ad isekker isallan n isfuyla am wigi."
+
+#: translate_tmp.pl:81
+msgid "URL to capture"
+msgstr "URL ara yettwaṭṭfen"
+
+#: translate_tmp.pl:98
+msgid "C_apture"
+msgstr "Ṭ_ṭef"
+
+#: translate_tmp.pl:157
+msgid "Workspaces"
+msgstr "Tallunt n umahil"
+
+#: translate_tmp.pl:454
+#: translate_tmp.pl:4186
+msgid "Fill color"
+msgstr "Ini n taččart"
+
+#: translate_tmp.pl:461
+#: translate_tmp.pl:462
+msgid "Adjust fill color and opacity"
+msgstr "Fren ini n taččart akked tiḍullest"
+
+#: translate_tmp.pl:468
+#: translate_tmp.pl:4206
+msgid "Stroke color"
+msgstr "Ini n izirig"
+
+#: translate_tmp.pl:473
+#: translate_tmp.pl:4212
+msgid "Choose stroke color"
+msgstr "Fren ini n izirig"
+
+#: translate_tmp.pl:475
+#: translate_tmp.pl:476
+msgid "Adjust stroke color and opacity"
+msgstr "Fren ini akked tiḍullest n izirig"
+
+#: translate_tmp.pl:482
+#: translate_tmp.pl:4172
+msgid "Line width"
+msgstr "Tuzert n izirig"
+
+#: translate_tmp.pl:486
+#: translate_tmp.pl:487
+msgid "Adjust line width"
+msgstr "Sgaddi tuzert n izirig"
+
+#: translate_tmp.pl:493
+#: translate_tmp.pl:4249
+#: translate_tmp.pl:4375
+msgid "Font"
+msgstr "Tasefsit"
+
+#: translate_tmp.pl:497
+#: translate_tmp.pl:498
+msgid "Select font family and size"
+msgstr "Fren tasefsit akked tiddi"
+
+#: translate_tmp.pl:504
+msgid "Insert image"
+msgstr "Ger tugna"
+
+#: translate_tmp.pl:617
+#: translate_tmp.pl:618
+msgid "Insert an arbitrary object or file"
+msgstr "Ger taɣawsa neɣ afaylu"
+
+#: translate_tmp.pl:638
+msgid "X"
+msgstr "X"
+
+#: translate_tmp.pl:652
+msgid "Y"
+msgstr "Y"
+
+#: translate_tmp.pl:666
+#: translate_tmp.pl:4302
+msgid "Width"
+msgstr "Tehri"
+
+#: translate_tmp.pl:680
+msgid "Height"
+msgstr "Teɣzi"
+
+#: translate_tmp.pl:705
+msgid "_Crop"
+msgstr "_Ɣeẓ"
+
+#: translate_tmp.pl:854
+msgid "Click-Drag to scale (try Control to scale uniformly)"
+msgstr ""
+"Sit, zuɣer iwakken ad tbeddeleḍ taskala (eɛreḍ tanast Control iwakken ad "
+"tbeddeleḍ taskala s wudem amsari)"
+
+#: translate_tmp.pl:857
+msgid "Click-Drag to resize the canvas"
+msgstr "Sit, zuɣer iwakken ad tbeddeleḍ taskala n teɣzut n usuneɣ"
+
+#: translate_tmp.pl:863
+msgid "Click to paint (try Control or Shift for a straight line)"
+msgstr "Sit iwakken ad tekluḍ (Control neɣ Maj i uzirig usrid)"
+
+#: translate_tmp.pl:868
+msgid "Click-Drag to create a new straight line"
+msgstr "Sit, zuɣer iwakken ad d-tesnulfuḍ izirig usrid amaynut"
+
+#: translate_tmp.pl:873
+msgid "Click-Drag to create a new arrow"
+msgstr "Sit u zuɣer iwakken ad d-tesnulfuḍ taneccabt tamaynutt"
+
+#: translate_tmp.pl:878
+msgid "Click-Drag to create a new rectangle"
+msgstr "Sit u zuɣer iwakken ad d-tesnulfuḍ asrem amaynut"
+
+#: translate_tmp.pl:883
+msgid "Click-Drag to create a new ellipse"
+msgstr "Sit u zuɣer iwakken ad d-tesnulfuḍ taglayt tamaynutt"
+
+#: translate_tmp.pl:888
+msgid "Click-Drag to add a new text area"
+msgstr "Sit u zuɣer iwakken ad d-tesnulfuḍ taɣzut n uḍris tamaynutt"
+
+#: translate_tmp.pl:893
+msgid "Click to censor (try Control or Shift for a straight line)"
+msgstr "Sit iwakken ad tefreḍ (ssed ɣef Control neɣ Shift i uzirig usrid)"
+
+#: translate_tmp.pl:898
+msgid "Click-Drag to create a pixelized region"
+msgstr "Sit u zuɣer iwakken ad d-tesnulfuḍ taɣzut s ipixsilen"
+
+#: translate_tmp.pl:903
+msgid "Click to add an auto-increment shape"
+msgstr "Sit iwakken ad ternuḍ talɣa mm useffes awurman"
+
+#: translate_tmp.pl:1240
+#, perl-format
+msgid "Save the changes to image %s before closing?"
+msgstr "Sekles ibedilen ɣer tugna %s send ad tmedleḍ?"
+
+#: translate_tmp.pl:1256
+msgid "Close"
+msgstr "Mdel"
+
+#: translate_tmp.pl:1259
+msgid "Do_n't save"
+msgstr "_Ur seklas ara"
+
+#: translate_tmp.pl:1323
+#, perl-format
+msgid ""
+"If you don't save the image, changes from the last minute will be lost"
+msgid_plural ""
+"If you don't save the image, changes from the last %d minutes will be lost"
+msgstr[0] ""
+"Ma ur teskelseḍ ara tugna, ibeddilen n tsedidt taneggarut ad ruḥen"
+msgstr[1] ""
+"Ma ur teskelseḍ ara tugna, ibeddilen n %d n tsedidt tineggura ad ruḥen"
+
+#: translate_tmp.pl:1720
+msgid "Do you want to save the changed background color?"
+msgstr "Tebɣiḍ ad teskelseḍ ini n ugilal yettwabeddelen?"
+
+#: translate_tmp.pl:1721
+msgid ""
+"The background is likely to be transparent if you decide to ignore the "
+"background color."
+msgstr "Agilal ad yili d afrawan ma yella tettuḍ ini n ugilal."
+
+#: translate_tmp.pl:1723
+msgid "Save Background Color"
+msgstr "Sekles ini n ugilal"
+
+#: translate_tmp.pl:1726
+msgid "_Ignore Background Color"
+msgstr "_Ttu ini n ugilal"
+
+#: translate_tmp.pl:1729
+msgid "_Save Background Color"
+msgstr "_Sekles ini n ugilal"
+
+#: translate_tmp.pl:3877
+msgid "Change Background Color..."
+msgstr "Beddel ini n ugilal..."
+
+#: translate_tmp.pl:3887
+msgid "_Reset to Default"
+msgstr "A_zal n lexṣas"
+
+#: translate_tmp.pl:3940
+msgid "Raise"
+msgstr "Sali"
+
+#: translate_tmp.pl:3965
+msgid "Lower"
+msgstr "Ader"
+
+#: translate_tmp.pl:4055
+msgid "Unlock"
+msgstr "Kkes azekṛun"
+
+#: translate_tmp.pl:4059
+msgid "Lock"
+msgstr "Sekkeṛ"
+
+#: translate_tmp.pl:4084
+msgid "Edit Preferences..."
+msgstr "Ẓreg ismenyafen..."
+
+#: translate_tmp.pl:4227
+msgid "Numbering"
+msgstr "Asuḍḍen"
+
+#: translate_tmp.pl:4237
+msgid "Current value"
+msgstr "Azal amiran"
+
+#: translate_tmp.pl:4292
+#: translate_tmp.pl:6304
+msgid "Arrow"
+msgstr "Taneccabt"
+
+#: translate_tmp.pl:4314
+msgid "Length"
+msgstr "Teɣzi"
+
+#: translate_tmp.pl:4326
+msgid "Tip length"
+msgstr "Teɣzi n tqamumt"
+
+#: translate_tmp.pl:4336
+msgid "Display an arrow at the end of the line"
+msgstr "Beqqeḍ taneccabt di tagara n izirig"
+
+#: translate_tmp.pl:4338
+msgid "Display an arrow at the start of the line"
+msgstr "Beqqeḍ taneccabt di tazwara n izirig"
+
+#: translate_tmp.pl:4365
+#: translate_tmp.pl:6304
+msgid "Text"
+msgstr "Aḍris"
+
+#: translate_tmp.pl:4404
+msgid "Font color"
+msgstr "Ini n tsefsit"
+
+#: translate_tmp.pl:4410
+msgid "Choose font color"
+msgstr "Fren ini n tsefsit"
+
+#: translate_tmp.pl:4432
+msgid "Use selected font"
+msgstr "Seqdec tasefsit yettwafernen"
+
+#: translate_tmp.pl:4438
+msgid "Use selected font color"
+msgstr "Seqdec ini n tsefsit yettwafernen"
+
+#: translate_tmp.pl:6035
+msgid "_Tools"
+msgstr "I_fecka"
+
+#: translate_tmp.pl:6042
+msgid "Undo last action"
+msgstr "Sefsex tigawt taneggarut"
+
+#: translate_tmp.pl:6053
+msgid "Do again the last undone action"
+msgstr "Ales tigawt taneggarut yettwasfesxen"
+
+#: translate_tmp.pl:6064
+msgid "Copy selection to clipboard"
+msgstr "Suken tafrayt ɣer tecfawit"
+
+#: translate_tmp.pl:6078
+msgid "Cut selection to clipboard"
+msgstr "Gzem tafrayt ɣer tecfawit"
+
+#: translate_tmp.pl:6093
+msgid "Paste objects from clipboard"
+msgstr "Senteḍ iferdisen si tecfawit"
+
+#: translate_tmp.pl:6103
+msgid "Delete current object"
+msgstr "Kkes taɣawsa tamirant"
+
+#: translate_tmp.pl:6113
+msgid "Clear canvas"
+msgstr "Sfeḍ taɣzut n usuneɣ"
+
+#: translate_tmp.pl:6134
+msgid "Abort current mode"
+msgstr "Ffeɣ seg uskar amiran"
+
+#: translate_tmp.pl:6144
+msgid "Close this window"
+msgstr "Mdel asfaylu amiran"
+
+#: translate_tmp.pl:6154
+msgid "Save image"
+msgstr "Sekles tugna"
+
+#: translate_tmp.pl:6162
+msgid "Export to _File..."
+msgstr "Sifeḍ ɣer u_faylu..."
+
+#: translate_tmp.pl:6164
+msgid "Export to File..."
+msgstr "Sifeḍ ɣer u_faylu..."
+
+#: translate_tmp.pl:6172
+msgid "_Export to SVG..."
+msgstr "_Sifeḍ s umasal SVG..."
+
+#: translate_tmp.pl:6174
+msgid "Export to SVG..."
+msgstr "Sifeḍ s umasal SVG..."
+
+#: translate_tmp.pl:6184
+msgid "Export to PDF..."
+msgstr "Sifeḍ s umasal PDF..."
+
+#: translate_tmp.pl:6194
+msgid "Export to PostScript..."
+msgstr "Sifeḍ s umasal PostScript..."
+
+#: translate_tmp.pl:6265
+msgid "Automatic scrolling"
+msgstr "Adrurem awurman"
+
+#: translate_tmp.pl:6304
+msgid "Select"
+msgstr "Fren"
+
+#: translate_tmp.pl:6304
+msgid "Select item to move or resize it"
+msgstr "Fren aferdis ara tesmuttiḍ neɣ iwumi ara tbeddeleḍ tisekta"
+
+#: translate_tmp.pl:6304
+msgid "Freehand"
+msgstr "Suneɣ s ufus ilelli"
+
+#: translate_tmp.pl:6304
+msgid "Draw a freehand line"
+msgstr "Suneɣ izirig s ufus ilelli"
+
+#: translate_tmp.pl:6304
+msgid "Highlighter"
+msgstr "Amsebrureq"
+
+#: translate_tmp.pl:6304
+msgid "Line"
+msgstr "Izirig"
+
+#: translate_tmp.pl:6304
+msgid "Draw a straight line"
+msgstr "Suneɣ izirig usrid"
+
+#: translate_tmp.pl:6304
+msgid "Draw an arrow"
+msgstr "Suneɣ taneccabt"
+
+#: translate_tmp.pl:6304
+msgid "Rectangle"
+msgstr "Asrem"
+
+#: translate_tmp.pl:6304
+msgid "Draw a rectangle"
+msgstr "Suneɣ asrem"
+
+#: translate_tmp.pl:6304
+msgid "Ellipse"
+msgstr "Taglayt"
+
+#: translate_tmp.pl:6304
+msgid "Draw a ellipse"
+msgstr "Suneɣ taglayt"
+
+#: translate_tmp.pl:6304
+msgid "Add some text to the screenshot"
+msgstr "Rnu aḍris ɣer tuṭṭfa"
+
+#: translate_tmp.pl:6304
+msgid "Censor"
+msgstr "Tagelmust"
+
+#: translate_tmp.pl:6304
+msgid "Censor portions of your screenshot to hide private data"
+msgstr "Ffer aḥric seg tuṭṭfa n ugdil iwakken ad teffreḍ isallan imaẓlayen"
+
+#: translate_tmp.pl:6304
+msgid "Pixelize"
+msgstr "Spiksel"
+
+#: translate_tmp.pl:6304
+msgid "Pixelize selected areas of your screenshot to hide private data"
+msgstr ""
+"Spiksel tiɣza yettwafernen di tuṭṭfa n ugdil inek iwakken ad teffreḍ isefka "
+"udmawanan"
+
+#: translate_tmp.pl:6304
+msgid "Number"
+msgstr "Uḍḍun"
+
+#: translate_tmp.pl:6304
+msgid "Add an auto-increment shape to the screenshot"
+msgstr "Rnu talɣa mm useffes awurman ɣer tuṭṭfa n ugdil"
+
+#: translate_tmp.pl:6304
+msgid "Crop"
+msgstr "Ɣeẓ"
+
+#: translate_tmp.pl:6304
+msgid "Crop your screenshot"
+msgstr "Ɣeẓ iran n tuṭṭfa n ugdil"
+
+#: translate_tmp.pl:6559
+#: translate_tmp.pl:6756
+msgid "No icon was found"
+msgstr "Ulac tignit yettwafen"
+
+#: translate_tmp.pl:6621
+msgid "Import from current theme..."
+msgstr "Kter seg usentel amiran..."
+
+#: translate_tmp.pl:6635
+msgid "Import from session..."
+msgstr "Kter si tɣimit..."
+
+#: translate_tmp.pl:6646
+msgid "Import from filesystem..."
+msgstr "Kter seg unagraw n ifuyla..."
+
+#: translate_tmp.pl:7460
+msgid "New text..."
+msgstr "Aḍris amaynut..."

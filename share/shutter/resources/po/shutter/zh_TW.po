@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2013-04-14 08:13+0000\n"
-"Last-Translator: Bill <cges30901@gmail.com>\n"
+"PO-Revision-Date: 2018-03-01 08:43+0000\n"
+"Last-Translator: Tiffany <Unknown>\n"
 "Language-Team: Traditional Chinese <zh_TW@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Launchpad-Export-Date: 2014-12-23 22:44+0000\n"
-"X-Generator: Launchpad (build 17286)\n"
+"X-Launchpad-Export-Date: 2020-06-08 09:52+0000\n"
+"X-Generator: Launchpad (build ef9fc486e875d54078fa61cf91e898b895125d89)\n"
 
 #: translate_tmp.pl:476
 #: translate_tmp.pl:2590
@@ -386,7 +386,7 @@ msgstr "在"
 #: translate_tmp.pl:1677
 #: translate_tmp.pl:1678
 msgid "Start Selection Tool with a customized selection size"
-msgstr ""
+msgstr "使用客製化選擇區使用選擇工具"
 
 #: translate_tmp.pl:1696
 msgid "Show help text"
@@ -452,7 +452,7 @@ msgstr "擷取選單 /提示框，在延遲 n 秒後"
 
 #: translate_tmp.pl:1841
 msgid "Ignore possibly wrong type hints"
-msgstr "忽略可能的錯誤類型提示"
+msgstr "忽略可能錯誤的類型提示"
 
 #: translate_tmp.pl:1842
 msgid ""
@@ -460,7 +460,7 @@ msgid ""
 "what type of function the window has. Sometimes these type hints are not "
 "correctly set. By enabling this option Shutter will not insist on the "
 "requested type hint."
-msgstr ""
+msgstr "類型提示常量包括一些給視窗管理員的特殊提示，有時這些提示可能未被正確設定。啟用此選項可使 Shutter 不拘泥於請求的類型提示。"
 
 #: translate_tmp.pl:1858
 msgid "Virtual browser width"
@@ -628,7 +628,7 @@ msgid ""
 "<b>Please note:</b> If a plugin allows authorized uploading you can enter "
 "your credentials above. Plugins with OAuth support are configured "
 "automatically the first time you use them."
-msgstr ""
+msgstr "請注意：如果插件允許登入後上傳，您可以輸入您的登入資訊。在第一次使用時，可自動設定插件登入認證"
 
 #: translate_tmp.pl:2243
 #: translate_tmp.pl:10547
@@ -794,7 +794,7 @@ msgstr "找不到"
 
 #: translate_tmp.pl:4244
 msgid "Error while adding the file monitor."
-msgstr ""
+msgstr "載入檔案監視器時出錯。"
 
 #: translate_tmp.pl:4765
 msgid "Settings could not be saved!"
@@ -850,7 +850,7 @@ msgstr "作業階段無法被恢復！"
 #: translate_tmp.pl:5406
 #, perl-format
 msgid "Error while creating the trashinfo file %s."
-msgstr ""
+msgstr "建立 transinfo 檔案時發生錯誤 %s"
 
 #: translate_tmp.pl:5418
 #, perl-format
@@ -931,12 +931,12 @@ msgstr "已回復上一個動作"
 #: translate_tmp.pl:5877
 #, perl-format
 msgid "Error while copying last version (%s)."
-msgstr ""
+msgstr "複製最後版本時發生錯誤 (%s)"
 
 #: translate_tmp.pl:5829
 #, perl-format
 msgid "There was an error performing undo on %s."
-msgstr ""
+msgstr "復原時在 %s 發生錯誤"
 
 #: translate_tmp.pl:5869
 msgid "Last action redone"
@@ -945,7 +945,7 @@ msgstr "重做最後動作"
 #: translate_tmp.pl:5877
 #, perl-format
 msgid "There was an error performing redo on %s."
-msgstr ""
+msgstr "重做時在 %s 發生錯誤"
 
 #: translate_tmp.pl:5911
 msgid "No plugin installed"
@@ -959,7 +959,7 @@ msgstr "這是一個檔案名稱上的錯誤"
 
 #: translate_tmp.pl:6473
 msgid "Triggered invalid screenshot action."
-msgstr ""
+msgstr "截取視窗無效"
 
 #: translate_tmp.pl:6473
 #: translate_tmp.pl:6475
@@ -1005,7 +1005,7 @@ msgstr "檔案%s無法驗証。也許它包含不被支援的字元。"
 #: translate_tmp.pl:7021
 #, perl-format
 msgid "%s opened with %s"
-msgstr ""
+msgstr "%s 被 %s 開啟"
 
 #: translate_tmp.pl:7047
 msgid "Opened all files with"
@@ -1176,7 +1176,7 @@ msgstr "網頁(_W)"
 
 #: translate_tmp.pl:8713
 msgid "S_how main window"
-msgstr ""
+msgstr "S_how 主視窗"
 
 #: translate_tmp.pl:8719
 #: translate_tmp.pl:395
@@ -1286,7 +1286,7 @@ msgstr "已成功地發布"
 #: translate_tmp.pl:9280
 #, perl-format
 msgid "The file %s was successfully published: %s"
-msgstr ""
+msgstr "%s 檔案已成功發佈：%s"
 
 #: translate_tmp.pl:9283
 #, perl-format
@@ -1302,12 +1302,12 @@ msgstr "未發布"
 msgid ""
 "The file %s is no longer published. The external link is not available "
 "anymore."
-msgstr ""
+msgstr "%s 檔案已不再發佈。對外連結不可用。"
 
 #: translate_tmp.pl:9299
 #, perl-format
 msgid "The file %s is no longer published."
-msgstr ""
+msgstr "%s 檔案不再發佈"
 
 #: translate_tmp.pl:9498
 msgid "Rename"
@@ -1649,16 +1649,19 @@ msgstr "一個名稱為 %s 的配置檔已存在。您想要取代它嗎？"
 msgid "translator-credits"
 msgstr ""
 "Launchpad Contributions:\n"
-"  Bill https://launchpad.net/~cges30901\n"
 "  Calvin So https://launchpad.net/~calvinss\n"
 "  Ev Law https://launchpad.net/~tyuuuu2001\n"
+"  Hsiu-Ming Chang https://launchpad.net/~cges30901\n"
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
+"  Mingye Wang https://launchpad.net/~artoria2e5\n"
+"  Tiffany https://launchpad.net/~hsiaoting\n"
 "  Toomore https://launchpad.net/~toomore\n"
 "  Tse-Hsien Chiang https://launchpad.net/~jackblackevo\n"
 "  Wei Hsiang Hung https://launchpad.net/~koalahong\n"
 "  extraymond@gmail.com https://launchpad.net/~extraymond\n"
 "  goode9969 https://launchpad.net/~goode9969-gmail\n"
 "  hepha https://launchpad.net/~hepha-love\n"
+"  ralphchung https://launchpad.net/~ralphchung2005\n"
 "  s953812 https://launchpad.net/~s953812\n"
 "  taijuin lee https://launchpad.net/~taijuin"
 
@@ -1936,7 +1939,7 @@ msgstr "在執行%s時發生一個錯誤"
 #: translate_tmp.pl:65
 #, perl-format
 msgid "Exit Code: %d."
-msgstr ""
+msgstr "結束代碼：%d"
 
 #: translate_tmp.pl:167
 msgid "Synchronization complete"
@@ -1973,7 +1976,7 @@ msgstr "命令 \"put\" 發生錯誤。"
 
 #: translate_tmp.pl:87
 msgid "Copy this code to clipboard"
-msgstr ""
+msgstr "複製這段程式碼至剪貼簿"
 
 #: translate_tmp.pl:112
 #, perl-format
@@ -2002,7 +2005,7 @@ msgstr ""
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys</b> → move cursor"
-msgstr ""
+msgstr "<b>游標</b> → 移動游標"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys + alt</b> → move selection"
@@ -2165,7 +2168,7 @@ msgstr "單擊並拖動滑鼠以調整畫布大小"
 
 #: translate_tmp.pl:863
 msgid "Click to paint (try Control or Shift for a straight line)"
-msgstr ""
+msgstr "點擊畫圖 ( 試試 Control 或 Shift 可以畫出直線 )"
 
 #: translate_tmp.pl:868
 msgid "Click-Drag to create a new straight line"
@@ -2193,11 +2196,11 @@ msgstr "單擊以塗抹(可按住 [Ctrl] 或 [shift] 鍵，畫出水平或垂直
 
 #: translate_tmp.pl:898
 msgid "Click-Drag to create a pixelized region"
-msgstr ""
+msgstr "點擊 - 拖曳新增一個點陣區域"
 
 #: translate_tmp.pl:903
 msgid "Click to add an auto-increment shape"
-msgstr ""
+msgstr "點擊新增遞增編號的圖案"
 
 #: translate_tmp.pl:1240
 #, perl-format
@@ -2228,7 +2231,7 @@ msgstr "您想儲存變更過後的背景顏色嗎？"
 msgid ""
 "The background is likely to be transparent if you decide to ignore the "
 "background color."
-msgstr ""
+msgstr "如果忽略背景顏色的話，背景有可能會是透明的。"
 
 #: translate_tmp.pl:1723
 msgid "Save Background Color"
@@ -2483,7 +2486,7 @@ msgstr "沒有找到圖示"
 
 #: translate_tmp.pl:6621
 msgid "Import from current theme..."
-msgstr ""
+msgstr "從目前的佈景主題匯入"
 
 #: translate_tmp.pl:6635
 msgid "Import from session..."

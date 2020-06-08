@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: gscrot\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2014-11-21 20:30+0000\n"
-"Last-Translator: Tobias Bannert <Unknown>\n"
+"PO-Revision-Date: 2014-12-28 15:42+0000\n"
+"Last-Translator: Tobias Bannert <tobannert@gmail.com>\n"
 "Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-12-23 22:44+0000\n"
-"X-Generator: Launchpad (build 17286)\n"
+"X-Launchpad-Export-Date: 2020-06-08 09:52+0000\n"
+"X-Generator: Launchpad (build ef9fc486e875d54078fa61cf91e898b895125d89)\n"
 
 #: translate_tmp.pl:476
 #: translate_tmp.pl:2590
@@ -107,7 +107,7 @@ msgstr "Fensteraufnahme"
 
 #: translate_tmp.pl:1035
 msgid "Menu/Tooltip Capture"
-msgstr "Menü- und Tooltipaufnahme"
+msgstr "Menü- und Minihilfeaufnahme"
 
 #: translate_tmp.pl:1042
 msgid "Website Capture"
@@ -283,7 +283,7 @@ msgstr "Verzögert die Aufnahme um n Sekunden"
 
 #: translate_tmp.pl:1392
 msgid "Include Cursor"
-msgstr "Zeiger einbeziehen"
+msgstr "Mauszeiger einbeziehen"
 
 #: translate_tmp.pl:1393
 #: translate_tmp.pl:1399
@@ -460,7 +460,7 @@ msgstr "Vorverzögerung"
 #: translate_tmp.pl:1829
 #: translate_tmp.pl:1830
 msgid "Capture menu/tooltip after a delay of n seconds"
-msgstr "Menü/Tooltip nach einer Vorverzögerung von n Sekunden aufnehmen"
+msgstr "Menü/Minihilfe nach einer Vorverzögerung von n Sekunden aufnehmen"
 
 #: translate_tmp.pl:1841
 msgid "Ignore possibly wrong type hints"
@@ -720,7 +720,7 @@ msgstr "Passwort"
 #: translate_tmp.pl:10604
 #: translate_tmp.pl:10606
 msgid "Website URL"
-msgstr "URL der Webseite"
+msgstr "Adresse der Internetseite"
 
 #: translate_tmp.pl:2343
 #: translate_tmp.pl:4162
@@ -768,7 +768,7 @@ msgstr "Bitte aktivieren Sie das gewünschte Menü"
 
 #: translate_tmp.pl:3054
 msgid "Please activate the tooltip you want to capture"
-msgstr "Bitte aktivieren Sie den gewünschten Tooltip"
+msgstr "Bitte die Minihilfe aktivieren, die aufgenommen werden soll"
 
 #: translate_tmp.pl:3063
 #: translate_tmp.pl:3074
@@ -1204,7 +1204,7 @@ msgstr "F_enster auswählen"
 #: translate_tmp.pl:8660
 #: translate_tmp.pl:472
 msgid "Se_ction"
-msgstr "Bere_ich"
+msgstr "_Bereich"
 
 #: translate_tmp.pl:8673
 #: translate_tmp.pl:488
@@ -1214,12 +1214,12 @@ msgstr "_Menü"
 #: translate_tmp.pl:8686
 #: translate_tmp.pl:504
 msgid "_Tooltip"
-msgstr "_Tooltip"
+msgstr "Mini_hilfe"
 
 #: translate_tmp.pl:8699
 #: translate_tmp.pl:522
 msgid "_Web"
-msgstr "_Web"
+msgstr "_Internet"
 
 #: translate_tmp.pl:8713
 msgid "S_how main window"
@@ -1237,23 +1237,23 @@ msgstr "_Profilauswahl"
 
 #: translate_tmp.pl:8896
 msgid "Wait indefinitely"
-msgstr "Warten auf unbestimmte Zeit"
+msgstr "Unbegrenzt warten"
 
 #: translate_tmp.pl:8897
 #: translate_tmp.pl:8898
 #, perl-format
 msgid "Wait max %d second"
 msgid_plural "Wait max %d seconds"
-msgstr[0] "Warte maximal %d Sekunde"
-msgstr[1] "Warte maximal %d Sekunden"
+msgstr[0] "Höchstens %d Sekunde warten"
+msgstr[1] "Höchstens %d Sekunden warten"
 
 #: translate_tmp.pl:8899
 #: translate_tmp.pl:8900
 #, perl-format
 msgid "Wait max %d minute"
 msgid_plural "Wait max %d minutes"
-msgstr[0] "Warte maximal %d Minute"
-msgstr[1] "Warte maximal %d Minuten"
+msgstr[0] "Höchstens %d Minute warten"
+msgstr[1] "Höchstens %d Minuten warten"
 
 #: translate_tmp.pl:8908
 msgid "Shutter will wait indefinitely for the screenshot to capture"
@@ -1768,7 +1768,7 @@ msgstr "Bild_schirmfoto"
 
 #: translate_tmp.pl:54
 msgid "_Go"
-msgstr "_Gehe zu"
+msgstr "_Gehen zu"
 
 #: translate_tmp.pl:59
 msgid "_Help"
@@ -1869,7 +1869,7 @@ msgstr "E_xportieren …"
 #: translate_tmp.pl:597
 #: translate_tmp.pl:691
 msgid "Public URLs"
-msgstr "Öffentliche URLs"
+msgstr "Öffentliche Adressen"
 
 #: translate_tmp.pl:605
 #: translate_tmp.pl:718
@@ -1961,20 +1961,20 @@ msgstr ""
 #: translate_tmp.pl:190
 #: translate_tmp.pl:1101
 msgid "Tooltip"
-msgstr "Tooltip"
+msgstr "Minihilfe"
 
 #: translate_tmp.pl:193
 msgid "Capture a tooltip"
-msgstr "Einen Tooltip aufnehmen"
+msgstr "Eine Minihilfe aufnehmen"
 
 #: translate_tmp.pl:209
 msgid "Web"
-msgstr "Web"
+msgstr "Internet"
 
 #: translate_tmp.pl:211
 #: translate_tmp.pl:79
 msgid "Take a screenshot of a website"
-msgstr "Bildschirmfoto einer Webseite erzeugen"
+msgstr "Bildschirmfoto einer Internetseite erstellen"
 
 #: translate_tmp.pl:212
 msgid ""
@@ -2098,7 +2098,7 @@ msgstr "<b>Leertaste</b> → Vergrößerungsfenster ein/aus"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys</b> → move cursor"
-msgstr "<b>Pfeiltasten</b> → Cursor bewegen"
+msgstr "<b>Pfeiltasten</b> → Mauszeiger bewegen"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys + alt</b> → move selection"
@@ -2125,7 +2125,7 @@ msgstr "Menü"
 
 #: translate_tmp.pl:107
 msgid "tooltip"
-msgstr "Tooltip"
+msgstr "Minihilfe"
 
 #: translate_tmp.pl:111
 #, perl-format
@@ -2143,7 +2143,7 @@ msgstr "Das Fenster ist nicht mehr verfügbar."
 #: translate_tmp.pl:139
 #: translate_tmp.pl:145
 msgid "Unable to capture website"
-msgstr "Aufnahme der Webseite fehlgeschlagen"
+msgstr "Internetseite kann nicht erfasst werden"
 
 #: translate_tmp.pl:153
 #, perl-format
@@ -2171,7 +2171,7 @@ msgstr ""
 
 #: translate_tmp.pl:81
 msgid "URL to capture"
-msgstr "Folgende URL aufnehmen"
+msgstr "Adresse zum Aufnehmen"
 
 #: translate_tmp.pl:98
 msgid "C_apture"
