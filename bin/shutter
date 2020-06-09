@@ -180,7 +180,7 @@ my $nautilus_sendto = TRUE;
 my $goocanvas       = TRUE;
 my $exiftool        = TRUE;
 my $appindicator    = TRUE;
-&fct_init_depend;
+fct_init_depend();
 
 #--------------------------------------
 
@@ -520,9 +520,9 @@ else {
                 elsif ( $cmd eq 'fopen' ) {
                     my @init_files = defined $message->get ? $message->get_uris : ();
                     if ( scalar @init_files > 0 ) {
-                        &fct_open_files(@init_files);
+                        fct_open_files(@init_files);
                     }
-                    &fct_control_main_window('show');
+                    fct_control_main_window('show');
 
                     #load profile
                 }
@@ -533,7 +533,7 @@ else {
                 }
                 else {
                     my $arg = defined $message->get ? $message->get_text : "";
-                    &evt_take_screenshot( 'global_keybinding', $cmd, undef, $arg );
+                    evt_take_screenshot( 'global_keybinding', $cmd, undef, $arg );
                 }
             }
 
@@ -542,15 +542,15 @@ else {
     );
 
     #create needed directories etc.
-    &fct_init_environment;
+    fct_init_environment();
 
     #print debug output
     &fct_init_debug_output if $sc->get_debug;
 
     #shutdown Shutter carefully when INT or TERM are detected
     # => save settings
-    $SIG{INT}  = sub { &evt_delete_window( '', 'quit' ) };
-    $SIG{TERM} = sub { &evt_delete_window( '', 'quit' ) };
+    $SIG{INT}  = sub { evt_delete_window( '', 'quit' ) };
+    $SIG{TERM} = sub { evt_delete_window( '', 'quit' ) };
 
     #hash of screenshots during session
     my %session_screens;
@@ -572,11 +572,11 @@ else {
     #TRAY ICON AND MENU
     my $tray      = undef;
     my $tray_box  = undef;                #Gtk2::TrayIcon needs and Gtk2::EventBox
-    my $tray_menu = &fct_ret_tray_menu;
+    my $tray_menu = fct_ret_tray_menu();
 
     #SESSION NOTEBOOK
     my $notebook = Gtk2::Notebook->new;
-    $notebook = &fct_create_session_notebook;
+    $notebook = fct_create_session_notebook();
 
     #STATUSBAR
     my $status = Gtk2::Statusbar->new;
@@ -653,15 +653,15 @@ else {
     $sm->{_menuitem_print}->signal_connect( 'activate', \&fct_print, 'menu_print' );
     $sm->{_menuitem_pagesetup}->signal_connect( 'activate', \&evt_page_setup, 'menu_pagesetup' );
     $sm->{_menuitem_email}->signal_connect( 'activate', \&fct_email, 'menu_email' );
-    $sm->{_menuitem_close}->signal_connect( 'activate', sub { &fct_remove( undef, 'menu_close' ); } );
-    $sm->{_menuitem_close_all}->signal_connect( 'activate', sub { &fct_select_all; &fct_remove( undef, 'menu_close_all' ); } );
+    $sm->{_menuitem_close}->signal_connect( 'activate', sub { fct_remove( undef, 'menu_close' ); } );
+    $sm->{_menuitem_close_all}->signal_connect( 'activate', sub { fct_select_all(); fct_remove( undef, 'menu_close_all' ); } );
     $sm->{_menuitem_quit}->signal_connect( 'activate', \&evt_delete_window, 'quit' );
 
     $sm->{_menuitem_undo}->signal_connect( 'activate', \&fct_undo );
     $sm->{_menuitem_redo}->signal_connect( 'activate', \&fct_redo );
     $sm->{_menuitem_copy}->signal_connect( 'activate', \&fct_clipboard, 'image' );
     $sm->{_menuitem_copy_filename}->signal_connect( 'activate', \&fct_clipboard, 'text' );
-    $sm->{_menuitem_trash}->signal_connect( 'activate', sub { &fct_delete(undef); } );
+    $sm->{_menuitem_trash}->signal_connect( 'activate', sub { fct_delete(undef); } );
     $sm->{_menuitem_select_all}->signal_connect( 'activate', \&fct_select_all );
     $sm->{_menuitem_settings}->signal_connect( 'activate', \&evt_show_settings );
 
@@ -702,7 +702,7 @@ else {
     $sm->{_menu_large_actions}->signal_connect(
         'focus',
         sub {
-            $sm->{_menuitem_large_reopen}->set_submenu( &fct_ret_program_menu( $sm->{_menuitem_large_reopen}->get_submenu ) );
+            $sm->{_menuitem_large_reopen}->set_submenu( fct_ret_program_menu( $sm->{_menuitem_large_reopen}->get_submenu ) );
         }
     );
     $sm->{_menuitem_large_reopen}->set_submenu(&fct_ret_program_menu);
@@ -710,7 +710,7 @@ else {
     $sm->{_menuitem_large_rename}->signal_connect( 'activate', \&fct_rename );
     $sm->{_menuitem_large_copy}->signal_connect( 'activate', \&fct_clipboard, 'image' );
     $sm->{_menuitem_large_copy_filename}->signal_connect( 'activate', \&fct_clipboard, 'text' );
-    $sm->{_menuitem_large_trash}->signal_connect( 'activate', sub { &fct_delete(undef); } );
+    $sm->{_menuitem_large_trash}->signal_connect( 'activate', sub { fct_delete(undef); } );
     $sm->{_menuitem_large_upload}->signal_connect( 'activate', \&fct_upload );
 
     #nautilus-sendto is optional, don't enable it when not installed
@@ -779,12 +779,12 @@ else {
                 $tray->set_from_icon_name("shutter-panel");
                 $tray->set_visible(1);
                 $tray->{'hid'} = $tray->signal_connect(
-                    'popup-menu' => sub { &evt_show_systray_statusicon; },
+                    'popup-menu' => sub { evt_show_systray_statusicon(); },
                     $tray
                 );
                 $tray->{'hid2'} = $tray->signal_connect(
                     'activate' => sub {
-                        &evt_activate_systray_statusicon;
+                        evt_activate_systray_statusicon();
                         $tray;
                     },
                     $tray
@@ -918,21 +918,21 @@ else {
 
     #load settings
     #--------------------------------------
-    my $settings_xml = &fct_load_settings("start");
+    my $settings_xml = fct_load_settings("start");
 
     #load accounts for hosting services
-    &fct_load_accounts;
+    fct_load_accounts();
 
     #load requested profile (argv)
     if ( defined $sc->get_profile_to_start_with ) {
-        $settings_xml = &fct_load_settings( "start", $sc->get_profile_to_start_with );
+        $settings_xml = fct_load_settings( "start", $sc->get_profile_to_start_with );
     }
     else {
 
         #or load last used profile
         if ( defined $settings_xml->{'general'}->{'last_profile'} ) {
             if ( $settings_xml->{'general'}->{'last_profile'} != -1 ) {
-                $settings_xml = &fct_load_settings( "start", $settings_xml->{'general'}->{'last_profile_name'} );
+                $settings_xml = fct_load_settings( "start", $settings_xml->{'general'}->{'last_profile_name'} );
             }
         }
     }
@@ -940,20 +940,20 @@ else {
     #--------------------------------------
 
     #block signals while checking plugins / opening files
-    &fct_control_signals('block');
+    fct_control_signals('block');
 
     #check plugins
     #--------------------------------------
     #not used in a standalone environment
     unless ( $ENV{PAR_TEMP} ) {
-        &fct_check_installed_plugins;
+        fct_check_installed_plugins();
     }
 
     #check upload plugins
     #--------------------------------------
     #not used in a standalone environment
     unless ( $ENV{PAR_TEMP} ) {
-        &fct_check_installed_upload_plugins;
+        fct_check_installed_upload_plugins();
     }
 
     $vbox->pack_start( $st->create_toolbar, FALSE, TRUE, 0 );
@@ -967,11 +967,11 @@ else {
     $st->{_full}->signal_connect( 'clicked' => \&evt_take_screenshot, 'full' );
 
     #init menus
-    $st->{_full}->set_menu( &fct_ret_workspace_menu(TRUE) );
+    $st->{_full}->set_menu( fct_ret_workspace_menu(TRUE) );
     $st->{_window}->set_menu(&fct_ret_window_menu);
 
     #and attach signal handlers
-    $st->{_full}->signal_connect( 'show-menu' => sub { $st->{_full}->set_menu( &fct_ret_workspace_menu(FALSE) ) } );
+    $st->{_full}->signal_connect( 'show-menu' => sub { $st->{_full}->set_menu( fct_ret_workspace_menu(FALSE) ) } );
     $st->{_window}->signal_connect( 'clicked' => \&evt_take_screenshot, 'window' );
 
     $st->{_window}->signal_connect( 'show-menu' => sub { $st->{_window}->set_menu(&fct_ret_window_menu) } );
@@ -1042,7 +1042,7 @@ else {
     $button_profile_save->signal_connect(
         'clicked' => sub {
             my $widget = shift;
-            &evt_save_profile( $widget, $combobox_settings_profiles, \@current_profiles );
+            evt_save_profile( $widget, $combobox_settings_profiles, \@current_profiles );
         }
     );
     $button_profile_save->set_image( Gtk2::Image->new_from_stock( 'gtk-save', 'button' ) );
@@ -1052,7 +1052,7 @@ else {
     $button_profile_delete->signal_connect(
         'clicked' => sub {
             my $widget = shift;
-            &evt_delete_profile( $widget, $combobox_settings_profiles, \@current_profiles );
+            evt_delete_profile( $widget, $combobox_settings_profiles, \@current_profiles );
         }
     );
     $button_profile_delete->set_image( Gtk2::Image->new_from_stock( 'gtk-delete', 'button' ) );
@@ -1061,7 +1061,7 @@ else {
     $button_profile_apply->signal_connect(
         'clicked' => sub {
             my $widget = shift;
-            &evt_apply_profile( $widget, $combobox_settings_profiles, \@current_profiles );
+            evt_apply_profile( $widget, $combobox_settings_profiles, \@current_profiles );
         }
     );
     $button_profile_apply->set_image( Gtk2::Image->new_from_stock( 'gtk-apply', 'button' ) );
@@ -1218,7 +1218,7 @@ else {
             #~ print $input."\n";
             if ( grep( $input == $_, @invalid_codes ) ) {
                 my $char = chr($input);
-                $char = '&amp;' if $char eq '&';
+                $char = 'amp();' if $char eq '&';
                 $filename_hint->set_markup( "<span size='small'>" . sprintf( $d->get("Reserved character %s is not allowed to be in a filename."), "'" . $char . "'" ) . "</span>" );
 
                 $filename_hint->show;
@@ -1534,7 +1534,7 @@ else {
 
     #program
     #--------------------------------------
-    my $model    = &fct_get_program_model;
+    my $model    = fct_get_program_model();
     my $progname = Gtk2::ComboBox->new($model);
 
     #add pixbuf renderer for icon
@@ -2336,7 +2336,7 @@ else {
     #accounts
     #--------------------------------------
     my $accounts_model = undef;
-    &fct_load_accounts_tree;
+    fct_load_accounts_tree();
 
     my $accounts_tree = Gtk2::TreeView->new_with_model($accounts_model);
 
@@ -2345,7 +2345,7 @@ else {
         'row_activated'
     );
 
-    &fct_set_model_accounts($accounts_tree);
+    fct_set_model_accounts($accounts_tree);
 
     #some notes related to uploading
     my $pub_hint_pref = Gtk2::Label->new();
@@ -2681,7 +2681,7 @@ else {
     if ( keys(%plugins) > 0 && !$ENV{PAR_TEMP} ) {
 
         my $effects_tree = Gtk2::TreeView->new_with_model(&fct_load_plugin_tree);
-        &fct_set_model_plugins($effects_tree);
+        fct_set_model_plugins($effects_tree);
 
         my $scrolled_plugins_window = Gtk2::ScrolledWindow->new;
         $scrolled_plugins_window->set_policy( 'automatic', 'automatic' );
@@ -2858,7 +2858,7 @@ else {
 
     #populate quick selector (profiles)
     #--------------------------------------
-    &fct_update_profile_selectors( $combobox_settings_profiles, \@current_profiles );
+    fct_update_profile_selectors( $combobox_settings_profiles, \@current_profiles );
 
     #restore session
     #clean 'unsaved' files directory
@@ -2866,10 +2866,10 @@ else {
     #--------------------------------------
     Glib::Idle->add(
         sub {
-            &fct_load_session;
-            &fct_init_unsaved_files;
+            fct_load_session();
+            fct_init_unsaved_files();
             if ( $sc->get_clear_cache ) {
-                &fct_post_settings();
+                fct_post_settings();
             }
             return FALSE;
         }
@@ -2878,19 +2878,19 @@ else {
     #open init files (cmd arguments)
     #--------------------------------------
     if ( scalar @init_files > 0 ) {
-        &fct_open_files(@init_files);
+        fct_open_files(@init_files);
     }
 
     #unblock controls
-    &fct_control_signals('unblock');
+    fct_control_signals('unblock');
 
     #start minimized?
     #--------------------------------------
     unless ( $sc->get_min ) {
-        &fct_control_main_window('show');
+        fct_control_main_window('show');
     }
     else {
-        &fct_control_main_window('hide');
+        fct_control_main_window('hide');
     }
 
     #restore menu/toolbar settings
@@ -2909,24 +2909,24 @@ else {
     #we don't get the corret background color until the main window is shown
     #so we change it now
     if ( $trans_backg->get_active ) {
-        &evt_value_changed( undef, 'transp_toggled' );
+        evt_value_changed( undef, 'transp_toggled' );
     }
 
     #update the first tab on startup
-    &fct_update_info_and_tray();
+    fct_update_info_and_tray();
 
     #load saved settings
     #--------------------------------------
     my $folder_to_save = $settings_xml->{'general'}->{'folder'} || $ENV{'HOME'};
     my ( $cmdname, $extra ) = $sc->get_start_with;
     if ( $cmdname && $folder_to_save ) {
-        &evt_take_screenshot( 'global_keybinding', $cmdname, $folder_to_save, $extra );
+        evt_take_screenshot( 'global_keybinding', $cmdname, $folder_to_save, $extra );
     }
 
     #keep list of windows up-to-date (tray)
     Glib::Idle->add(
         sub {
-            $wnck_screen->signal_connect( 'window-stacking-changed' => sub { &fct_update_tray_menu; } );
+            $wnck_screen->signal_connect( 'window-stacking-changed' => sub { fct_update_tray_menu(); } );
             return FALSE;
         }
     );
@@ -3134,7 +3134,7 @@ else {
             && !$selfcapture )
         {
 
-            &fct_control_main_window('hide');
+            fct_control_main_window('hide');
 
         }
         else {
@@ -3149,13 +3149,13 @@ else {
         $notify->close;
 
         #disable signal-handler
-        &fct_control_signals('block');
+        fct_control_signals('block');
 
         if ( $data eq "web" || $data eq "tray_web" ) {
-            &fct_take_screenshot( $widget, $data, $folder_from_config, $extra );
+            fct_take_screenshot( $widget, $data, $folder_from_config, $extra );
 
             #unblock signal handler
-            &fct_control_signals('unblock');
+            fct_control_signals('unblock');
         }
         elsif ($data eq "menu"
             || $data eq "tray_menu"
@@ -3229,10 +3229,10 @@ else {
             Glib::Timeout->add(
                 $menu_delay->get_value * 1000,
                 sub {
-                    &fct_take_screenshot( $widget, $data, $folder_from_config, $extra );
+                    fct_take_screenshot( $widget, $data, $folder_from_config, $extra );
 
                     #unblock signal handler
-                    &fct_control_signals('unblock');
+                    fct_control_signals('unblock');
                     return FALSE;
                 }
             );
@@ -3244,10 +3244,10 @@ else {
             Glib::Timeout->add(
                 $hide_time->get_value,
                 sub {
-                    &fct_take_screenshot( $widget, $data, $folder_from_config, $extra );
+                    fct_take_screenshot( $widget, $data, $folder_from_config, $extra );
 
                     #unblock signal handler
-                    &fct_control_signals('unblock');
+                    fct_control_signals('unblock');
                     return FALSE;
                 }
             );
@@ -3259,7 +3259,7 @@ else {
     sub evt_notebook_switch {
         my ( $widget, $pointer, $int ) = @_;
 
-        my $key = &fct_get_file_by_index($int);
+        my $key = fct_get_file_by_index($int);
         if ($key) {
             Glib::Idle->add(
                 sub {
@@ -3279,7 +3279,7 @@ else {
                             if ( $session_screens{$key}->{'long'} ) {
 
                                 #update window title
-                                &fct_update_info_and_tray($key);
+                                fct_update_info_and_tray($key);
 
                                 #do nothing if the view does already show a pixbuf
                                 if ( exists $session_screens{$ckey}
@@ -3309,7 +3309,7 @@ else {
         else {
             Glib::Idle->add(
                 sub {
-                    &fct_update_info_and_tray("session");
+                    fct_update_info_and_tray("session");
                     return FALSE;
                 }
             );
@@ -3322,7 +3322,7 @@ else {
         }
 
         #enable/disable menu entry when we switch tabs
-        &fct_update_actions( $int, $key );
+        fct_update_actions( $int, $key );
 
         return TRUE;
     }
@@ -3346,7 +3346,7 @@ else {
 
                 #hide window and block sontrols
                 $window->hide;
-                &fct_control_signals('block');
+                fct_control_signals('block');
 
                 #wait if there are still files that need to be loaded
                 #they would not be saved in session
@@ -3360,7 +3360,7 @@ else {
                     Glib::Timeout->add(
                         1000,
                         sub {
-                            &evt_delete_window( '', 'quit', $scounter );
+                            evt_delete_window( '', 'quit', $scounter );
                             return FALSE;
                         }
                     );
@@ -3368,8 +3368,8 @@ else {
                 }
 
                 #save settings
-                &fct_save_settings(undef);
-                &fct_save_settings( $combobox_settings_profiles->get_active_text )
+                fct_save_settings(undef);
+                fct_save_settings( $combobox_settings_profiles->get_active_text )
                   if $combobox_settings_profiles->get_active != -1;
 
                 #autostart
@@ -3409,10 +3409,10 @@ else {
         #left button (mouse)
         if ( $_[1]->button == 1 ) {
             if ( $window->visible ) {
-                &fct_control_main_window('hide');
+                fct_control_main_window('hide');
             }
             else {
-                &fct_control_main_window('show');
+                fct_control_main_window('show');
             }
         }
 
@@ -3457,10 +3457,10 @@ else {
         }
 
         unless ($is_hidden) {
-            &fct_control_main_window('hide');
+            fct_control_main_window('hide');
         }
         else {
-            &fct_control_main_window('show');
+            fct_control_main_window('show');
         }
         return TRUE;
     }
@@ -3547,10 +3547,10 @@ else {
                 },
                 undef
             );
-            &fct_update_actions( scalar @sel_items, $key );
+            fct_update_actions( scalar @sel_items, $key );
         }
         else {
-            &fct_update_actions( scalar @sel_items );
+            fct_update_actions( scalar @sel_items );
         }
 
         return TRUE;
@@ -3690,7 +3690,7 @@ else {
 
                 #MENU
                 #--------------------------------------
-                $sm->{_menuitem_reopen}->set_submenu( &fct_ret_program_menu( $sm->{_menuitem_reopen}->get_submenu ) );
+                $sm->{_menuitem_reopen}->set_submenu( fct_ret_program_menu( $sm->{_menuitem_reopen}->get_submenu ) );
 
                 #NAVIGATION BAR
                 #--------------------------------------
@@ -3736,7 +3736,7 @@ else {
                 }
 
                 #upload links
-                my ( $nmenu_entries_tb, $menu_links_tb ) = &fct_ret_upload_links_menu( $key, $st->{_upload}->get_menu );
+                my ( $nmenu_entries_tb, $menu_links_tb ) = fct_ret_upload_links_menu( $key, $st->{_upload}->get_menu );
                 if ($nmenu_entries_tb) {
                     $st->{_upload}->set_menu($menu_links_tb);
                 }
@@ -3809,9 +3809,9 @@ else {
                 $sm->{_menuitem_rename}->set_sensitive($n_items);
 
                 #upload links
-                #~ $sm->{_menuitem_links}->set_sensitive(&fct_get_upload_links($key));
+                #~ $sm->{_menuitem_links}->set_sensitive(fct_get_upload_links($key));
                 #upload links
-                my ( $nmenu_entries, $menu_links ) = &fct_ret_upload_links_menu( $key, $sm->{_menuitem_links}->get_submenu );
+                my ( $nmenu_entries, $menu_links ) = fct_ret_upload_links_menu( $key, $sm->{_menuitem_links}->get_submenu );
 
                 #~ if($nmenu_entries){
                 $sm->{_menuitem_links}->set_submenu($menu_links);
@@ -3861,7 +3861,7 @@ else {
                 $sm->{_menuitem_large_copy_filename}->set_sensitive($n_items);
 
                 #upload links
-                my ( $nmenu_entries_large, $menu_links_large ) = &fct_ret_upload_links_menu( $key, $sm->{_menuitem_large_links}->get_submenu );
+                my ( $nmenu_entries_large, $menu_links_large ) = fct_ret_upload_links_menu( $key, $sm->{_menuitem_large_links}->get_submenu );
 
                 #~ if($nmenu_entries_large){
                 $sm->{_menuitem_large_links}->set_submenu($menu_links_large);
@@ -3923,12 +3923,12 @@ else {
     }
 
     sub evt_show_settings {
-        &fct_check_installed_programs;
+        fct_check_installed_programs();
 
         $settings_dialog->show_all;
         my $settings_dialog_response = $settings_dialog->run;
 
-        &fct_post_settings($settings_dialog);
+        fct_post_settings($settings_dialog);
 
         if ( $settings_dialog_response eq "close" ) {
             return TRUE;
@@ -3951,8 +3951,8 @@ else {
         }
 
         #save directly
-        &fct_save_settings(undef);
-        &fct_save_settings( $combobox_settings_profiles->get_active_text )
+        fct_save_settings(undef);
+        fct_save_settings( $combobox_settings_profiles->get_active_text )
           if $combobox_settings_profiles->get_active != -1;
 
         #autostart
@@ -3960,7 +3960,7 @@ else {
 
         #we need to update the first tab here
         #because the profile might have changed
-        &fct_update_info_and_tray();
+        fct_update_info_and_tray();
 
         return TRUE;
     }
@@ -3984,7 +3984,7 @@ else {
         print "\n$data was emitted by widget $widget\n"
           if $sc->get_debug;
 
-        my $key = &fct_get_current_file;
+        my $key = fct_get_current_file();
 
         my @save_as_files;
 
@@ -4024,7 +4024,7 @@ else {
         }
 
         foreach my $file (@save_as_files) {
-            &dlg_save_as( $file, $rfiletype );
+            dlg_save_as( $file, $rfiletype );
         }
 
         return TRUE;
@@ -4035,7 +4035,7 @@ else {
         my ( $widget, $combobox_settings_profiles, $current_profiles_ref ) = @_;
         my $curr_profile_name = $combobox_settings_profiles->get_active_text
           || "";
-        my $new_profile_name = &dlg_profile_name( $curr_profile_name, $combobox_settings_profiles );
+        my $new_profile_name = dlg_profile_name( $curr_profile_name, $combobox_settings_profiles );
 
         if ($new_profile_name) {
             if ( $curr_profile_name ne $new_profile_name ) {
@@ -4046,12 +4046,12 @@ else {
                 #unshift to array as well
                 unshift( @{$current_profiles_ref}, $new_profile_name );
 
-                &fct_update_profile_selectors( $combobox_settings_profiles, $current_profiles_ref );
+                fct_update_profile_selectors( $combobox_settings_profiles, $current_profiles_ref );
 
             }
 
             #save settings
-            &fct_save_settings($new_profile_name);
+            fct_save_settings($new_profile_name);
 
             #autostart
             $sas->create_autostart_file( $sdir->get_autostart_dir, $fs_active->get_active, $fs_min_active->get_active, $fs_nonot_active->get_active );
@@ -4077,13 +4077,13 @@ else {
                 #remove from array as well
                 splice( @{$current_profiles_ref}, $active_index, 1 );
 
-                &fct_update_profile_selectors( $combobox_settings_profiles, $current_profiles_ref );
+                fct_update_profile_selectors( $combobox_settings_profiles, $current_profiles_ref );
 
-                &fct_show_status_message( 1, $d->get("Profile deleted") );
+                fct_show_status_message( 1, $d->get("Profile deleted") );
             }
             else {
                 $sd->dlg_error_message( $d->get("Profile could not be deleted"), $d->get("Failed") );
-                &fct_show_status_message( 1, $d->get("Profile could not be deleted") );
+                fct_show_status_message( 1, $d->get("Profile could not be deleted") );
             }
         }
         return TRUE;
@@ -4093,15 +4093,15 @@ else {
         my ( $widget, $combobox_settings_profiles, $current_profiles_ref ) = @_;
 
         if ( $combobox_settings_profiles->get_active_text ) {
-            $settings_xml = &fct_load_settings( 'profile_load', $combobox_settings_profiles->get_active_text );
+            $settings_xml = fct_load_settings( 'profile_load', $combobox_settings_profiles->get_active_text );
             $current_profile_indx = $combobox_settings_profiles->get_active;
             my $current_profile_text = $combobox_settings_profiles->get_active_text;
 
-            &fct_update_profile_selectors( $combobox_settings_profiles, $current_profiles_ref, $widget );
+            fct_update_profile_selectors( $combobox_settings_profiles, $current_profiles_ref, $widget );
 
-            &fct_update_info_and_tray();
+            fct_update_info_and_tray();
 
-            &fct_show_status_message( 1, sprintf( $d->get("Profile %s loaded successfully"), "'" . $current_profile_text . "'" ) );
+            fct_show_status_message( 1, sprintf( $d->get("Profile %s loaded successfully"), "'" . $current_profile_text . "'" ) );
         }
 
         return TRUE;
@@ -4150,7 +4150,7 @@ else {
         return FALSE unless $giofile;
 
         unless ( $giofile->query_exists ) {
-            &fct_show_status_message( 1, $giofile->get_path . " " . $d->get("not found") );
+            fct_show_status_message( 1, $giofile->get_path . " " . $d->get("not found") );
             return FALSE;
         }
 
@@ -4167,7 +4167,7 @@ else {
             #~ undef, undef, undef,
             #~ $d->get( "MimeType not supported." )
             #~ );
-            #~ &fct_show_status_message( 1, $giofile->get_path . " " . $d->get("not supported") );
+            #~ fct_show_status_message( 1, $giofile->get_path . " " . $d->get("not supported") );
             return FALSE;
         }
 
@@ -4202,7 +4202,7 @@ else {
             }
         }
         else {
-            $indx = &fct_get_latest_tab_key;
+            $indx = fct_get_latest_tab_key();
         }
 
         $key = "[" . $indx . "] - $fname";
@@ -4252,23 +4252,23 @@ else {
         my $new_index = 0;
         if ( defined $num_files && $num_files > 0 ) {
             if ( defined $history && $history->get_history ) {
-                $new_index = $notebook->insert_page( &fct_create_tab( $key, FALSE ), $hbox_tab_label, $indx );
+                $new_index = $notebook->insert_page( fct_create_tab( $key, FALSE ), $hbox_tab_label, $indx );
             }
             elsif ( defined $count ) {
-                $new_index = $notebook->insert_page( &fct_create_tab( $key, FALSE ), $hbox_tab_label, $count );
+                $new_index = $notebook->insert_page( fct_create_tab( $key, FALSE ), $hbox_tab_label, $count );
             }
             else {
-                $new_index = $notebook->insert_page( &fct_create_tab( $key, FALSE ), $hbox_tab_label, $indx );
+                $new_index = $notebook->insert_page( fct_create_tab( $key, FALSE ), $hbox_tab_label, $indx );
             }
         }
         else {
-            $new_index = $notebook->append_page( &fct_create_tab( $key, FALSE ), $hbox_tab_label );
+            $new_index = $notebook->append_page( fct_create_tab( $key, FALSE ), $hbox_tab_label );
         }
         $session_screens{$key}->{'tab_indx'}       = $indx;
         $session_screens{$key}->{'tab_label'}      = $tab_label;
         $session_screens{$key}->{'hbox_tab_label'} = $hbox_tab_label;
         $session_screens{$key}->{'tab_child'}      = $notebook->get_nth_page($new_index);
-        $tab_close_button->signal_connect( clicked => sub { &fct_remove($key); } );
+        $tab_close_button->signal_connect( clicked => sub { fct_remove($key); } );
 
         #this value is undefined when all files are loaded
         #in this case we switch to any new image
@@ -4285,10 +4285,10 @@ else {
             }
         }
 
-        if ( &fct_update_tab( $key, $pixbuf, $giofile ) ) {
+        if ( fct_update_tab( $key, $pixbuf, $giofile ) ) {
 
             #setup a filemonitor, so we get noticed if the file changed
-            &fct_add_file_monitor($key);
+            fct_add_file_monitor($key);
         }
 
         return $key;
@@ -4321,7 +4321,7 @@ else {
                         if ( exists $session_screens{$key} ) {
                             $session_screens{$key}->{'deleted'} = TRUE;
                             $session_screens{$key}->{'changed'} = TRUE;
-                            &fct_update_tab($key);
+                            fct_update_tab($key);
                         }
 
                     }
@@ -4330,7 +4330,7 @@ else {
                         print $session_screens{$key}->{'giofile'}->get_path . " - " . $event . "\n"
                           if $sc->get_debug;
                         $session_screens{$key}->{'changed'} = TRUE;
-                        &fct_update_tab($key);
+                        fct_update_tab($key);
 
                     }
 
@@ -4559,7 +4559,7 @@ else {
                 sub {
                     my ( $view, $ev ) = @_;
                     if ( $ev->button == 1 && $ev->type eq '2button-press' ) {
-                        &fct_zoom_best;
+                        fct_zoom_best();
                         return TRUE;
                     }
                     else {
@@ -4863,7 +4863,7 @@ else {
             $sd->dlg_error_message( $@, $d->get("Settings could not be saved!") );
         }
         else {
-            &fct_show_status_message( 1, $d->get("Settings saved successfully!") );
+            fct_show_status_message( 1, $d->get("Settings saved successfully!") );
         }
 
         #we need to clean the hashkeys, so they become parseable
@@ -5094,11 +5094,11 @@ else {
                     }
 
                     #load account data from profile unless param is set to ignore it
-                    &fct_load_accounts($profilename);
+                    fct_load_accounts($profilename);
                     if ( defined $accounts_tree ) {
-                        &fct_load_accounts_tree;
+                        fct_load_accounts_tree();
                         $accounts_tree->set_model($accounts_model);
-                        &fct_set_model_accounts($accounts_tree);
+                        fct_set_model_accounts($accounts_tree);
                     }
 
                     #endif profile load
@@ -5157,7 +5157,7 @@ else {
                 unlink $settingsfile;
             }
             else {
-                &fct_show_status_message( 1, $d->get("Settings loaded successfully") );
+                fct_show_status_message( 1, $d->get("Settings loaded successfully") );
             }
 
             #endif file exists
@@ -5284,14 +5284,14 @@ else {
         foreach my $file (@files) {
 			my ($mime_type) = Glib::Object::Introspection->invoke('Gio', undef, 'content_type_guess', $file);
             $mime_type =~ s/image\/x\-apple\-ios\-png/image\/png/; #FIXME
-            if ( $mime_type && &fct_check_valid_mime_type($mime_type) ) {
+            if ( $mime_type && fct_check_valid_mime_type($mime_type) ) {
                 push @valid_files, $file;
             }
         }
 
         #open all valid files
         if (@valid_files) {
-            &fct_open_files(@valid_files);
+            fct_open_files(@valid_files);
         }
         else {
             $context->finish( 0, 0, $time );
@@ -5320,26 +5320,26 @@ else {
 
         return FALSE if scalar(@new_files) < 1;
 
-        my ( $throbber, $sep ) = &fct_toggle_status_throbber($status);
+        my ( $throbber, $sep ) = fct_toggle_status_throbber($status);
 
         foreach my $file (@new_files) {
 
             my $new_giofile = Glib::IO::File::new_for_uri( $shf->utf8_decode( unescape_string($file) ) );
-            next if &fct_is_uri_in_session( $new_giofile, TRUE );
+            next if fct_is_uri_in_session( $new_giofile, TRUE );
 
             #refresh gui
-            &fct_update_gui;
+            fct_update_gui();
 
             #do the real work
-            if ( &fct_integrate_screenshot_in_notebook($new_giofile) ) {
-                &fct_show_status_message( 1, $shf->utf8_decode($new_giofile->get_path) . " " . $d->get("opened") );
+            if ( fct_integrate_screenshot_in_notebook($new_giofile) ) {
+                fct_show_status_message( 1, $shf->utf8_decode($new_giofile->get_path) . " " . $d->get("opened") );
             }
             else {
-                &fct_show_status_message( 1, sprintf( $d->get("Error while opening image %s."), "'" . $shf->utf8_decode($new_giofile->get_basename) . "'" ) );
+                fct_show_status_message( 1, sprintf( $d->get("Error while opening image %s."), "'" . $shf->utf8_decode($new_giofile->get_basename) . "'" ) );
             }
         }
 
-        &fct_toggle_status_throbber( $status, $throbber, $sep );
+        fct_toggle_status_throbber( $status, $throbber, $sep );
 
         return TRUE;
     }
@@ -5410,7 +5410,7 @@ else {
             return FALSE if scalar( keys %{$session_xml} ) < 1;
 
             #activate throbber
-            my ( $throbber, $sep ) = &fct_toggle_status_throbber($status);
+            my ( $throbber, $sep ) = fct_toggle_status_throbber($status);
 
             #how many files have to be loaded
             #store this value in the session hash
@@ -5425,15 +5425,15 @@ else {
                 $count++;
 
                 #refresh gui
-                &fct_update_gui;
+                fct_update_gui();
 
                 #do the real work
                 my $new_giofile = Glib::IO::File::new_for_path( ${$session_xml}{$key}{'filename'} );
-                if ( &fct_integrate_screenshot_in_notebook( $new_giofile, undef, undef, $count ) ) {
-                    &fct_show_status_message( 1, $shf->utf8_decode($new_giofile->get_path) . " " . $d->get("opened") );
+                if ( fct_integrate_screenshot_in_notebook( $new_giofile, undef, undef, $count ) ) {
+                    fct_show_status_message( 1, $shf->utf8_decode($new_giofile->get_path) . " " . $d->get("opened") );
                 }
                 else {
-                    &fct_show_status_message( 1, sprintf( $d->get("Error while opening image %s."), "'" . $new_giofile->get_basename . "'" ) );
+                    fct_show_status_message( 1, sprintf( $d->get("Error while opening image %s."), "'" . $new_giofile->get_basename . "'" ) );
                 }
 
             }
@@ -5442,7 +5442,7 @@ else {
             $session_start_screen{'first_page'}->{'num_session_files'} = undef;
 
             #de-activate the throbber
-            &fct_toggle_status_throbber( $status, $throbber, $sep );
+            fct_toggle_status_throbber( $status, $throbber, $sep );
 
         };
         if ($@) {
@@ -5458,7 +5458,7 @@ else {
 
         #check if file still exists
         unless ( $session_screens{$key}->{'giofile'}->query_exists ) {
-            &fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("not found") );
+            fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("not found") );
             return FALSE;
         }
         return TRUE;
@@ -5493,7 +5493,7 @@ else {
             }
 
             if ( $session_screens{$key}->{'giofile'}->query_exists ) {
-                &fct_trash($key);
+                fct_trash($key);
                 eval {
 
                     #remove from recentmanager
@@ -5502,7 +5502,7 @@ else {
             }
 
             $notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
-            &fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("deleted") )
+            fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("deleted") )
               if defined( $session_screens{$key}->{'long'} );
 
             if ( defined $session_screens{$key}->{'iter'}
@@ -5512,7 +5512,7 @@ else {
             }
 
             #unlink undo and redo files
-            &fct_unlink_tempfiles($key);
+            fct_unlink_tempfiles($key);
 
             delete $session_screens{$key};
 
@@ -5541,7 +5541,7 @@ else {
                     return FALSE unless $response == 20;
                 }
                 else {
-                    &fct_show_status_message( 1, $d->get("No screenshots selected") );
+                    fct_show_status_message( 1, $d->get("No screenshots selected") );
                     return FALSE;
                 }
             }
@@ -5556,7 +5556,7 @@ else {
                         $notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );
 
                         if ( $session_screens{$key}->{'giofile'}->query_exists ) {
-                            &fct_trash($key);
+                            fct_trash($key);
                             eval {
 
                                 #remove from recentmanager
@@ -5575,7 +5575,7 @@ else {
             );
 
             if ( scalar @to_delete == 0 ) {
-                &fct_show_status_message( 1, $d->get("No screenshots selected") );
+                fct_show_status_message( 1, $d->get("No screenshots selected") );
                 return FALSE;
             }
 
@@ -5588,18 +5588,18 @@ else {
                 }
 
                 #unlink undo and redo files
-                &fct_unlink_tempfiles($key);
+                fct_unlink_tempfiles($key);
 
                 delete $session_screens{$key};
             }
 
-            &fct_show_status_message( 1, $d->get("Selected screenshots deleted") );
+            fct_show_status_message( 1, $d->get("Selected screenshots deleted") );
 
             $window->show_all unless $is_hidden;
 
         }
 
-        &fct_update_info_and_tray();
+        fct_update_info_and_tray();
 
         return TRUE;
     }
@@ -5618,7 +5618,7 @@ else {
 
             #delete instead of remove
             if ( $delete_on_close_active->get_active ) {
-                &fct_delete($key);
+                fct_delete($key);
                 return FALSE;
             }
 
@@ -5629,7 +5629,7 @@ else {
             }
 
             $notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
-            &fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
+            fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
               if defined( $session_screens{$key}->{'long'} );
 
             if ( defined $session_screens{$key}->{'iter'}
@@ -5639,7 +5639,7 @@ else {
             }
 
             #unlink undo and redo files
-            &fct_unlink_tempfiles($key);
+            fct_unlink_tempfiles($key);
 
             delete $session_screens{$key};
 
@@ -5650,7 +5650,7 @@ else {
 
             #delete instead of remove
             if ( $delete_on_close_active->get_active ) {
-                &fct_delete( undef, 'menu_close_all' );
+                fct_delete( undef, 'menu_close_all' );
                 return FALSE;
             }
 
@@ -5680,7 +5680,7 @@ else {
             );
 
             if ( scalar @to_remove == 0 ) {
-                &fct_show_status_message( 1, $d->get("No screenshots selected") );
+                fct_show_status_message( 1, $d->get("No screenshots selected") );
                 return FALSE;
             }
 
@@ -5693,18 +5693,18 @@ else {
                 }
 
                 #unlink undo and redo files
-                &fct_unlink_tempfiles($key);
+                fct_unlink_tempfiles($key);
 
                 delete $session_screens{$key};
             }
 
-            &fct_show_status_message( 1, $d->get("Selected screenshots removed") );
+            fct_show_status_message( 1, $d->get("Selected screenshots removed") );
 
             $window->show_all unless $is_hidden;
 
         }
 
-        &fct_update_info_and_tray();
+        fct_update_info_and_tray();
 
         return TRUE;
     }
@@ -5729,7 +5729,7 @@ else {
             my $filetype_value = $1;
             unless ($filetype_value) {
                 $sd->dlg_error_message( $d->get("No valid filetype specified"), $d->get("Failed") );
-                &fct_control_main_window('show');
+                fct_control_main_window('show');
                 return FALSE;
             }
 
@@ -5739,12 +5739,12 @@ else {
 
             #save pixbuf to tempfile and integrate it
             if ( $sp->save_pixbuf_to_file( $image, $tmpfilename, $filetype_value ) ) {
-                my $new_key = &fct_integrate_screenshot_in_notebook( Glib::IO::File::new_for_path($tmpfilename), $image );
+                my $new_key = fct_integrate_screenshot_in_notebook( Glib::IO::File::new_for_path($tmpfilename), $image );
             }
 
         }
         else {
-            &fct_show_status_message( 1, $d->get("There is no image data in the clipboard to paste") );
+            fct_show_status_message( 1, $d->get("There is no image data in the clipboard to paste") );
         }
 
         return TRUE;
@@ -5753,7 +5753,7 @@ else {
     sub fct_clipboard {
         my ( $widget, $mode ) = @_;
 
-        my $key = &fct_get_current_file;
+        my $key = fct_get_current_file();
 
         #create shutter region object
         my $sr = Shutter::Geometry::Region->new();
@@ -5763,7 +5763,7 @@ else {
         #single file
         if ($key) {
 
-            return FALSE unless &fct_screenshot_exists($key);
+            return FALSE unless fct_screenshot_exists($key);
             push( @clipboard_array, $key );
 
         }
@@ -5805,7 +5805,7 @@ else {
         if ($clipboard_string) {
             chomp $clipboard_string;
             $clipboard->set_text($clipboard_string);
-            &fct_show_status_message( 1, $d->get("Selected filenames copied to clipboard") );
+            fct_show_status_message( 1, $d->get("Selected filenames copied to clipboard") );
         }
 
         if ( $clipboard_region->get_rectangles ) {
@@ -5820,7 +5820,7 @@ else {
             }
 
             $clipboard->set_image($clipboard_image);
-            &fct_show_status_message( 1, $d->get("Selected images copied to clipboard") );
+            fct_show_status_message( 1, $d->get("Selected images copied to clipboard") );
         }
 
         return TRUE;
@@ -5842,12 +5842,12 @@ else {
 
     sub fct_undo {
 
-        my $key = &fct_get_current_file;
+        my $key = fct_get_current_file();
 
         #single file
         if ($key) {
 
-            return FALSE unless &fct_screenshot_exists($key);
+            return FALSE unless fct_screenshot_exists($key);
 
             #push current version to redo
             #(current version is always the last element in the array)
@@ -5865,9 +5865,9 @@ else {
 
                 if ( cp( $last_version, $session_screens{$key}->{'long'} ) ) {
 
-                    &fct_update_tab( $key, undef, $session_screens{$key}->{'giofile'}, TRUE, 'gui' );
+                    fct_update_tab( $key, undef, $session_screens{$key}->{'giofile'}, TRUE, 'gui' );
 
-                    &fct_show_status_message( 1, $d->get("Last action undone") );
+                    fct_show_status_message( 1, $d->get("Last action undone") );
 
                     #delete last_version from filesystem
                     unlink $last_version;
@@ -5877,12 +5877,12 @@ else {
 
                     my $response = $sd->dlg_error_message( sprintf( $d->get("Error while copying last version (%s)."), "'" . $last_version . "'" ), sprintf( $d->get("There was an error performing undo on %s."), "'" . $session_screens{$key}->{'long'} . "'" ), undef, undef, undef, undef, undef, undef, $@ );
 
-                    &fct_update_tab( $key, undef, $session_screens{$key}->{'giofile'}, TRUE, 'clear' );
+                    fct_update_tab( $key, undef, $session_screens{$key}->{'giofile'}, TRUE, 'clear' );
 
                 }
 
                 #setup a new filemonitor, so we get noticed if the file changed
-                &fct_add_file_monitor($key);
+                fct_add_file_monitor($key);
 
             }
 
@@ -5892,12 +5892,12 @@ else {
 
     sub fct_redo {
 
-        my $key = &fct_get_current_file;
+        my $key = fct_get_current_file();
 
         #single file
         if ($key) {
 
-            return FALSE unless &fct_screenshot_exists($key);
+            return FALSE unless fct_screenshot_exists($key);
 
             #and revert last version
             my $last_version = pop @{ $session_screens{$key}->{'redo'} };
@@ -5913,9 +5913,9 @@ else {
 
                 if ( cp( $last_version, $session_screens{$key}->{'long'} ) ) {
 
-                    &fct_update_tab( $key, undef, $session_screens{$key}->{'giofile'}, TRUE, 'gui' );
+                    fct_update_tab( $key, undef, $session_screens{$key}->{'giofile'}, TRUE, 'gui' );
 
-                    &fct_show_status_message( 1, $d->get("Last action redone") );
+                    fct_show_status_message( 1, $d->get("Last action redone") );
 
                     #delete last_version from filesystem
                     unlink $last_version;
@@ -5925,12 +5925,12 @@ else {
 
                     my $response = $sd->dlg_error_message( sprintf( $d->get("Error while copying last version (%s)."), "'" . $last_version . "'" ), sprintf( $d->get("There was an error performing redo on %s."), "'" . $session_screens{$key}->{'long'} . "'" ), undef, undef, undef, undef, undef, undef, $@ );
 
-                    &fct_update_tab( $key, undef, $session_screens{$key}->{'giofile'}, TRUE, 'clear' );
+                    fct_update_tab( $key, undef, $session_screens{$key}->{'giofile'}, TRUE, 'clear' );
 
                 }
 
                 #setup a new filemonitor, so we get noticed if the file changed
-                &fct_add_file_monitor($key);
+                fct_add_file_monitor($key);
 
             }
 
@@ -5947,21 +5947,21 @@ else {
 
     sub fct_plugin {
 
-        my $key = &fct_get_current_file;
+        my $key = fct_get_current_file();
 
         my @plugin_array;
 
         #single file
         if ($key) {
 
-            return FALSE unless &fct_screenshot_exists($key);
+            return FALSE unless fct_screenshot_exists($key);
 
             unless ( keys %plugins > 0 ) {
                 $sd->dlg_error_message( $d->get("No plugin installed"), $d->get("Failed") );
             }
             else {
                 push( @plugin_array, $key );
-                &dlg_plugin(@plugin_array);
+                dlg_plugin(@plugin_array);
             }
 
             #session tab
@@ -5980,20 +5980,20 @@ else {
                 },
                 undef
             );
-            &dlg_plugin(@plugin_array);
+            dlg_plugin(@plugin_array);
         }
         return TRUE;
     }
 
     sub fct_show_in_folder {
-        my $key = &fct_get_current_file;
+        my $key = fct_get_current_file();
 
         my @show_in_folder_array;
 
         #single file
         if ($key) {
 
-            return FALSE unless &fct_screenshot_exists($key);
+            return FALSE unless fct_screenshot_exists($key);
 
             print "Showing in filebrowser started  - file: " . $session_screens{$key}->{'long'} . "\n"
               if $sc->get_debug;
@@ -6027,14 +6027,14 @@ else {
 
     sub fct_rename {
 
-        my $key = &fct_get_current_file;
+        my $key = fct_get_current_file();
 
         my @rename_array;
 
         #single file
         if ($key) {
 
-            return FALSE unless &fct_screenshot_exists($key);
+            return FALSE unless fct_screenshot_exists($key);
 
             print "Renaming of file " . $session_screens{$key}->{'long'} . " started\n"
               if $sc->get_debug;
@@ -6055,21 +6055,21 @@ else {
             );
         }
 
-        &dlg_rename(@rename_array);
+        dlg_rename(@rename_array);
 
         return TRUE;
     }
 
     sub fct_draw {
 
-        my $key = &fct_get_current_file;
+        my $key = fct_get_current_file();
 
         my @draw_array;
 
         #single file
         if ($key) {
 
-            return FALSE unless &fct_screenshot_exists($key);
+            return FALSE unless fct_screenshot_exists($key);
             push( @draw_array, $key );
 
         }
@@ -6136,7 +6136,7 @@ else {
         $filetype_value = $1;
         unless ($filetype_value) {
             $sd->dlg_error_message( $d->get("No valid filetype specified"), $d->get("Failed") );
-            &fct_control_main_window('show');
+            fct_control_main_window('show');
             return FALSE;
         }
 
@@ -6212,13 +6212,13 @@ else {
             $filename_value =~ s/(\/|\#)/-/g;
 
             #...and get next filename
-            $giofile = &fct_get_next_filename( $filename_value, $folder, $filetype_value );
+            $giofile = fct_get_next_filename( $filename_value, $folder, $filetype_value );
         }
 
         #no valid filename was determined, exit here
         unless ($giofile) {
             my $response = $sd->dlg_error_message( $d->get("There was an error determining the filename."), $d->get("Failed") );
-            &fct_control_main_window('show');
+            fct_control_main_window('show');
             return FALSE;
         }
 
@@ -6244,7 +6244,7 @@ else {
         {
 
             #control some wm related settings
-            my $curr_value = &fct_control_wm_settings('start');
+            my $curr_value = fct_control_wm_settings('start');
 
             if ( defined $extra && $extra ) {
 
@@ -6263,7 +6263,7 @@ else {
 
             #control some wm related settings
             if ( defined $curr_value && $curr_value != -1 ) {
-                &fct_control_wm_settings( 'stop', $curr_value );
+                fct_control_wm_settings( 'stop', $curr_value );
             }
 
             #selection
@@ -6323,7 +6323,7 @@ else {
             print "Selected xid: $xid\n" if $sc->get_debug;
 
             #control some wm related settings
-            my $curr_value = &fct_control_wm_settings('start');
+            my $curr_value = fct_control_wm_settings('start');
 
             #change mode (imitating selecting a window by mouse)
             $data = "window";
@@ -6334,7 +6334,7 @@ else {
 
             #control some wm related settings
             if ( defined $curr_value && $curr_value != -1 ) {
-                &fct_control_wm_settings( 'stop', $curr_value );
+                fct_control_wm_settings( 'stop', $curr_value );
             }
 
         }
@@ -6378,7 +6378,7 @@ else {
         }
         elsif ( $data eq "redoshot" ) {
 
-            #~ my $key = &fct_get_last_capture;
+            #~ my $key = fct_get_last_capture();
             #~ if(defined $key && exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}){
             #~ $screenshooter = $session_screens{$key}->{'history'};
             #~ $screenshot = $screenshooter->redo_capture;
@@ -6395,7 +6395,7 @@ else {
                         #control some wm related settings
                         my $curr_value = undef;
                         if ( ( $mode eq "window" || $mode eq "tray_window" || $mode eq "awindow" || $mode eq "tray_awindow" || $mode eq "section" || $mode eq "tray_section" ) ) {
-                            $curr_value = &fct_control_wm_settings('start');
+                            $curr_value = fct_control_wm_settings('start');
                         }
 
                         if ( $mode eq "menu" || $mode eq "tray_menu" ) {
@@ -6413,7 +6413,7 @@ else {
                         #control some wm related settings
                         if ( ( $mode eq "window" || $mode eq "tray_window" || $mode eq "awindow" || $mode eq "tray_awindow" || $mode eq "section" || $mode eq "tray_section" ) ) {
                             if ( defined $curr_value && $curr_value != -1 ) {
-                                &fct_control_wm_settings( 'stop', $curr_value );
+                                fct_control_wm_settings( 'stop', $curr_value );
                             }
                         }
 
@@ -6422,12 +6422,12 @@ else {
                     else {
 
                         #control some wm related settings
-                        my $curr_value = &fct_control_wm_settings('start');
+                        my $curr_value = fct_control_wm_settings('start');
                         $screenshot = $screenshooter->redo_capture;
 
                         #control some wm related settings
                         if ( defined $curr_value && $curr_value != -1 ) {
-                            &fct_control_wm_settings( 'stop', $curr_value );
+                            fct_control_wm_settings( 'stop', $curr_value );
                         }
                     }
                 }
@@ -6443,7 +6443,7 @@ else {
         elsif ( $data eq "redoshot_this" ) {
 
             #get current screenshot (current notebook page)
-            my $key = &fct_get_current_file;
+            my $key = fct_get_current_file();
 
             #or get the selected screenshot in the view
             unless ( defined $key ) {
@@ -6472,7 +6472,7 @@ else {
                         #control some wm related settings
                         my $curr_value = undef;
                         if ( ( $mode eq "window" || $mode eq "tray_window" || $mode eq "awindow" || $mode eq "tray_awindow" || $mode eq "section" || $mode eq "tray_section" ) ) {
-                            $curr_value = &fct_control_wm_settings('start');
+                            $curr_value = fct_control_wm_settings('start');
                         }
 
                         if ( $mode eq "menu" || $mode eq "tray_menu" ) {
@@ -6490,7 +6490,7 @@ else {
                         #control some wm related settings
                         if ( ( $mode eq "window" || $mode eq "tray_window" || $mode eq "awindow" || $mode eq "tray_awindow" || $mode eq "section" || $mode eq "tray_section" ) ) {
                             if ( defined $curr_value && $curr_value != -1 ) {
-                                &fct_control_wm_settings( 'stop', $curr_value );
+                                fct_control_wm_settings( 'stop', $curr_value );
                             }
                         }
 
@@ -6499,12 +6499,12 @@ else {
                     else {
 
                         #control some wm related settings
-                        my $curr_value = &fct_control_wm_settings('start');
+                        my $curr_value = fct_control_wm_settings('start');
                         $screenshot = $screenshooter->redo_capture;
 
                         #control some wm related settings
                         if ( defined $curr_value && $curr_value != -1 ) {
-                            &fct_control_wm_settings( 'stop', $curr_value );
+                            fct_control_wm_settings( 'stop', $curr_value );
                         }
                     }
                 }
@@ -6522,8 +6522,8 @@ else {
             #show error dialog
             my $response = $sd->dlg_error_message( $d->get("Triggered invalid screenshot action."), $d->get("Error while taking the screenshot.") );
 
-            &fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
-            &fct_control_main_window('show');
+            fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
+            fct_control_main_window('show');
             return FALSE;
         }
 
@@ -6538,12 +6538,12 @@ else {
                 $detailed_error_text = $screenshooter->get_error_text;
             }
             my ( $response, $status_text ) = $error->show_dialog($detailed_error_text);
-            &fct_show_status_message( 1, $status_text );
+            fct_show_status_message( 1, $status_text );
             if ( $error->is_aborted_by_user ) {
-                &fct_control_main_window( 'show', $present_after_active->get_active );
+                fct_control_main_window( 'show', $present_after_active->get_active );
             }
             else {
-                &fct_control_main_window('show');
+                fct_control_main_window('show');
             }
             return FALSE;
 
@@ -6629,7 +6629,7 @@ else {
             #no valid filename was determined, exit here
             unless ($screenshot_name) {
                 my $response = $sd->dlg_error_message( $d->get("There was an error determining the filename."), $d->get("Failed") );
-                &fct_control_main_window('show');
+                fct_control_main_window('show');
                 return FALSE;
             }
 
@@ -6653,10 +6653,10 @@ else {
                 print "Asking for filename\n"
                   if $sc->get_debug;
 
-                if ( $screenshot_name = &dlg_save_as( undef, undef, $screenshot_name, $screenshot, $quality_value ) ) {
+                if ( $screenshot_name = dlg_save_as( undef, undef, $screenshot_name, $screenshot, $quality_value ) ) {
                     if ( $screenshot_name eq 'user_cancel' ) {
-                        &fct_show_status_message( 1, $d->get("Capture aborted by user") );
-                        &fct_control_main_window( 'show', $present_after_active->get_active );
+                        fct_show_status_message( 1, $d->get("Capture aborted by user") );
+                        fct_control_main_window( 'show', $present_after_active->get_active );
                         return FALSE;
                     }
                     else {
@@ -6666,7 +6666,7 @@ else {
                     }
                 }
                 else {
-                    &fct_control_main_window('show');
+                    fct_control_main_window('show');
                     return FALSE;
                 }
 
@@ -6678,7 +6678,7 @@ else {
 
                 #finally save pixbuf
                 unless ( $sp->save_pixbuf_to_file( $screenshot, $screenshot_name, $filetype_value, $quality_value ) ) {
-                    &fct_control_main_window('show');
+                    fct_control_main_window('show');
                     return FALSE;
                 }
 
@@ -6699,7 +6699,7 @@ else {
                 elsif ( $combobox_im_colors->get_active == 2 ) {
                     $colors = 256;
                 }
-                $screenshot = &fct_imagemagick_perform( 'reduce_colors', $screenshot_name, $colors );
+                $screenshot = fct_imagemagick_perform( 'reduce_colors', $screenshot_name, $colors );
             }
 
             #generate the thumbnail
@@ -6727,7 +6727,7 @@ else {
 
                 #finally save pixbuf
                 unless ( $sp->save_pixbuf_to_file( $screenshot_thumbnail, $screenshot_thumbnail_name, $filetype_value, $quality_value ) ) {
-                    &fct_control_main_window('show');
+                    fct_control_main_window('show');
                     return FALSE;
                 }
 
@@ -6740,13 +6740,13 @@ else {
             unless ( $sc->get_no_session ) {
 
                 #Dont add it to session if it already exists
-                unless ( &fct_is_uri_in_session( $giofile, TRUE ) ) {
+                unless ( fct_is_uri_in_session( $giofile, TRUE ) ) {
 
                     #integrate it into the notebook
-                    $new_key_screenshot = &fct_integrate_screenshot_in_notebook( $giofile, $screenshot, $screenshooter );
+                    $new_key_screenshot = fct_integrate_screenshot_in_notebook( $giofile, $screenshot, $screenshooter );
 
                     #thumbnail as well if present
-                    $new_key_screenshot_thumbnail = &fct_integrate_screenshot_in_notebook( Glib::IO::File::new_for_path($screenshot_thumbnail_name), $screenshot_thumbnail )
+                    $new_key_screenshot_thumbnail = fct_integrate_screenshot_in_notebook( Glib::IO::File::new_for_path($screenshot_thumbnail_name), $screenshot_thumbnail )
                       if $thumbnail_active->get_active;
 
                 }
@@ -6778,13 +6778,13 @@ else {
                     if ($progname_iter) {
                         my $progname_value = $model->get_value( $progname_iter, 2 );
                         my $appname_value  = $model->get_value( $progname_iter, 1 );
-                        &fct_open_with_program( $progname_value, $appname_value );
+                        fct_open_with_program( $progname_value, $appname_value );
                     }
                 }
                 print "screenshot successfully saved to $screenshot_name!\n"
                   if $sc->get_debug;
 
-                &fct_show_status_message( 1, sprintf( $d->get("%s saved"), $session_screens{$new_key_screenshot}->{'short'} ) );
+                fct_show_status_message( 1, sprintf( $d->get("%s saved"), $session_screens{$new_key_screenshot}->{'short'} ) );
 
                 #show pop-up notification
                 if ( $notify_after_active->get_active ) {
@@ -6805,7 +6805,7 @@ else {
                 print "screenshot successfully saved to $screenshot_name, but unable to add the file to session!\n"
                   if $sc->get_debug;
 
-                &fct_show_status_message( 1, sprintf( $d->get("%s saved"), $screenshot_name ) );
+                fct_show_status_message( 1, sprintf( $d->get("%s saved"), $screenshot_name ) );
 
                 #show pop-up notification
                 if ( $notify_after_active->get_active ) {
@@ -6820,18 +6820,18 @@ else {
 
             #show error dialog
             my $response = $sd->dlg_error_message( sprintf( $d->get("The filename %s could not be verified. Maybe it contains unsupported characters."), "'" . $screenshot_name . "'" ), $d->get("Error while taking the screenshot.") );
-            &fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
-            &fct_control_main_window('show');
+            fct_show_status_message( 1, $d->get("Error while taking the screenshot.") );
+            fct_control_main_window('show');
             return FALSE;
 
         }
 
-        &fct_control_main_window( 'show', $present_after_active->get_active );
+        fct_control_main_window( 'show', $present_after_active->get_active );
 
         #Exit Shutter after the first capture has been made.
         #This is useful when using Shutter in scripts.
         if ( $sc->get_exit_after_capture ) {
-            &evt_delete_window( '', 'quit' );
+            evt_delete_window( '', 'quit' );
         }
 
         return TRUE;
@@ -6854,16 +6854,16 @@ else {
 
     sub fct_upload {
 
-        my $key = &fct_get_current_file;
+        my $key = fct_get_current_file();
 
         my @upload_array;
 
         #single file
         if ($key) {
 
-            return FALSE unless &fct_screenshot_exists($key);
+            return FALSE unless fct_screenshot_exists($key);
             push( @upload_array, $key );
-            &dlg_upload(@upload_array);
+            dlg_upload(@upload_array);
 
             #session tab
         }
@@ -6875,21 +6875,21 @@ else {
                     my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
                     if ( defined $iter ) {
                         my $key = $session_start_screen{'first_page'}->{'model'}->get_value( $iter, 2 );
-                        return FALSE unless &fct_screenshot_exists($key);
+                        return FALSE unless fct_screenshot_exists($key);
                         push( @upload_array, $key );
                     }
 
                 },
                 undef
             );
-            &dlg_upload(@upload_array);
+            dlg_upload(@upload_array);
 
         }
 
         #update actions
         #new public links might be available
         foreach my $key (@upload_array) {
-            &fct_update_actions( 1, $key );
+            fct_update_actions( 1, $key );
         }
 
         return TRUE;
@@ -6897,7 +6897,7 @@ else {
 
     sub fct_send {
 
-        my $key = &fct_get_current_file;
+        my $key = fct_get_current_file();
 
         my @files_to_send;
         unless ($key) {
@@ -6929,7 +6929,7 @@ else {
 
     sub fct_email {
 
-        my $key = &fct_get_current_file;
+        my $key = fct_get_current_file();
 
         my @files_to_email;
         unless ($key) {
@@ -6958,7 +6958,7 @@ else {
 
     sub fct_print {
 
-        my $key = &fct_get_current_file;
+        my $key = fct_get_current_file();
 
         my @pages;
         unless ($key) {
@@ -6996,7 +6996,7 @@ else {
         $op->signal_connect(
             'status-changed' => sub {
                 my $op = shift;
-                &fct_show_status_message( 1, $op->get_status_string );
+                fct_show_status_message( 1, $op->get_status_string );
             }
         );
 
@@ -7043,17 +7043,17 @@ else {
         #no program set - exit
         return FALSE unless $app;
 
-        my $key = &fct_get_current_file;
+        my $key = fct_get_current_file();
 
         #single file
         if ($key) {
 
-            return FALSE unless &fct_screenshot_exists($key);
+            return FALSE unless fct_screenshot_exists($key);
 
             #built-in-editor
             if ( $app =~ /shutter/i ) {
-                &fct_draw();
-                &fct_show_status_message( 1, sprintf( $d->get("%s opened with %s"), $session_screens{$key}->{'short'}, $d->get("Built-in Editor") ) );
+                fct_draw();
+                fct_show_status_message( 1, sprintf( $d->get("%s opened with %s"), $session_screens{$key}->{'short'}, $d->get("Built-in Editor") ) );
             }
             else {
 
@@ -7064,7 +7064,7 @@ else {
                 else {
                     $app->launch( $session_screens{$key}->{'long'} );
                 }
-                &fct_show_status_message( 1, sprintf( $d->get("%s opened with %s"), $session_screens{$key}->{'short'}, $app->{'name'} ) );
+                fct_show_status_message( 1, sprintf( $d->get("%s opened with %s"), $session_screens{$key}->{'short'}, $app->{'name'} ) );
             }
 
             #session tab
@@ -7090,7 +7090,7 @@ else {
             );
             if ( @open_files > 0 ) {
                 $app->launch_uris(\@open_files);
-                &fct_show_status_message( 1, $d->get("Opened all files with") . " " . $app->{'name'} );
+                fct_show_status_message( 1, $d->get("Opened all files with") . " " . $app->{'name'} );
             }
         }
 
@@ -7154,10 +7154,10 @@ else {
 
             #check exit code
             if ( $? == 0 ) {
-                &fct_show_status_message( 1, sprintf( $d->get("Successfully applied plugin %s"), "'" . $plugin_name . "'" ) );
+                fct_show_status_message( 1, sprintf( $d->get("Successfully applied plugin %s"), "'" . $plugin_name . "'" ) );
             }
             elsif ( $? / 256 == 1 ) {
-                &fct_show_status_message( 1, sprintf( $d->get("Could not apply plugin %s"), "'" . $plugin_name . "'" ) );
+                fct_show_status_message( 1, sprintf( $d->get("Could not apply plugin %s"), "'" . $plugin_name . "'" ) );
             }
 
             #...if not => simple execute the plugin via system (e.g. shell plugins)
@@ -7202,25 +7202,25 @@ else {
             while ( $plugin_process->poll ) {
                 $plugin_progress->set_text( $plugin_name . " - " . $session_screens{$key}->{'short'} );
                 $plugin_progress->pulse;
-                &fct_update_gui;
+                fct_update_gui();
                 usleep 100000;
             }
 
-            &fct_update_gui;
+            fct_update_gui();
 
             #finally show some status messages
             if ( $plugin_process->exit_status() == 0 ) {
-                &fct_show_status_message( 1, sprintf( $d->get("Successfully applied plugin %s"), "'" . $plugin_name . "'" ) );
+                fct_show_status_message( 1, sprintf( $d->get("Successfully applied plugin %s"), "'" . $plugin_name . "'" ) );
             }
             else {
                 $sd->dlg_error_message( sprintf( $d->get("Error while executing plugin %s."), "'" . $plugin_name . "'" ), $d->get("There was an error executing the plugin."), );
             }
 
             #update session tab manually
-            &fct_update_tab( $key, undef, $session_screens{$key}->{'giofile'} );
+            fct_update_tab( $key, undef, $session_screens{$key}->{'giofile'} );
 
             #setup a new filemonitor, so we get noticed if the file changed
-            &fct_add_file_monitor($key);
+            fct_add_file_monitor($key);
 
         }
 
@@ -7246,7 +7246,7 @@ else {
                 $status->pop($index);
 
                 #show file or session info again
-                &fct_update_info_and_tray();
+                fct_update_info_and_tray();
                 return FALSE;
             }
         );
@@ -7267,7 +7267,7 @@ else {
             }
         }
         else {
-            $key = &fct_get_current_file;
+            $key = fct_get_current_file();
         }
 
         #STATUSBAR AND WINDOW TITLE
@@ -7467,7 +7467,7 @@ else {
                         my $widget = shift;
 
                         $combobox_settings_profiles->set_active( $widget->get_active );
-                        &evt_apply_profile( $widget, $combobox_settings_profiles, $current_profiles_ref );
+                        evt_apply_profile( $widget, $combobox_settings_profiles, $current_profiles_ref );
 
                     }
                 );
@@ -7728,12 +7728,12 @@ else {
                 }
 
                 #update first tab
-                &fct_update_info_and_tray();
+                fct_update_info_and_tray();
 
                 #update menu actions
-                my $current_key = &fct_get_current_file;
+                my $current_key = fct_get_current_file();
                 if ( defined $current_key && $current_key eq $key ) {
-                    &fct_update_actions( 1, $key );
+                    fct_update_actions( 1, $key );
                 }
 
                 return TRUE;
@@ -7756,7 +7756,7 @@ else {
                     if ( $response == 10 || $response == -1 ) {
 
                         $notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
-                        &fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
+                        fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
                           if defined( $session_screens{$key}->{'long'} );
 
                         if ( defined $session_screens{$key}->{'iter'}
@@ -7782,7 +7782,7 @@ else {
                             $sd->dlg_error_message( sprintf( $d->get("Error while saving the image %s."), "'" . $session_screens{$key}->{'short'} . "'" ), sprintf( $d->get("There was an error saving the image to %s."), "'" . $session_screens{$key}->{'folder'} . "'" ), undef, undef, undef, undef, undef, undef, $@ );
 
                             $notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
-                            &fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
+                            fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
                               if defined( $session_screens{$key}->{'long'} );
 
                             if ( defined $session_screens{$key}->{'iter'}
@@ -7793,21 +7793,21 @@ else {
 
                             delete( $session_screens{$key} );
 
-                            &fct_update_info_and_tray();
+                            fct_update_info_and_tray();
                             return FALSE;
 
                         }
 
                         if ( $sp->save_pixbuf_to_file( $pixbuf, $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'} ) ) {
 
-                            &fct_update_tab($key);
+                            fct_update_tab($key);
 
                             #setup a new filemonitor, so we get noticed if the file changed
-                            &fct_add_file_monitor($key);
+                            fct_add_file_monitor($key);
 
-                            &fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("saved") );
+                            fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("saved") );
 
-                            &fct_update_info_and_tray();
+                            fct_update_info_and_tray();
                             return TRUE;
 
                             #resave failed => delete the screenshot
@@ -7815,7 +7815,7 @@ else {
                         else {
 
                             $notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
-                            &fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
+                            fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
                               if defined( $session_screens{$key}->{'long'} );
 
                             if ( defined $session_screens{$key}->{'iter'}
@@ -7848,7 +7848,7 @@ else {
                         $sd->dlg_error_message( sprintf( $d->get("Error while saving the image %s."), "'" . $session_screens{$key}->{'short'} . "'" ), sprintf( $d->get("There was an error saving the image to %s."), "'" . $sdir->get_cache_dir . "'" ), undef, undef, undef, undef, undef, undef, $@ );
 
                         $notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
-                        &fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
+                        fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
                           if defined( $session_screens{$key}->{'long'} );
 
                         if ( defined $session_screens{$key}->{'iter'}
@@ -7859,27 +7859,27 @@ else {
 
                         delete( $session_screens{$key} );
 
-                        &fct_update_info_and_tray();
+                        fct_update_info_and_tray();
                         return FALSE;
 
                     }
 
                     #prepare new filename
                     my ( $short, $folder, $ext ) = fileparse( $session_screens{$key}->{'long'}, qr/\.[^.]*/ );
-                    my $new_giofile = &fct_get_next_filename( $short, $sdir->get_cache_dir, $ext );
+                    my $new_giofile = fct_get_next_filename( $short, $sdir->get_cache_dir, $ext );
                     my $new_filename = $shf->utf8_decode( unescape_string( $new_giofile->get_path ) );
 
                     if ( $sp->save_pixbuf_to_file( $pixbuf, $new_filename, $session_screens{$key}->{'filetype'} ) ) {
 
-                        if ( &fct_update_tab( $key, undef, Glib::IO::File::new_for_path($new_filename), FALSE, 'clear' ) ) {
+                        if ( fct_update_tab( $key, undef, Glib::IO::File::new_for_path($new_filename), FALSE, 'clear' ) ) {
 
                             #setup a new filemonitor, so we get noticed if the file changed
-                            &fct_add_file_monitor($key);
+                            fct_add_file_monitor($key);
                         }
 
-                        &fct_show_status_message( 1, sprintf( $d->get("Image %s was deleted from filesystem"), $new_filename ) );
+                        fct_show_status_message( 1, sprintf( $d->get("Image %s was deleted from filesystem"), $new_filename ) );
 
-                        &fct_update_info_and_tray();
+                        fct_update_info_and_tray();
                         return TRUE;
 
                         #resave failed => delete the screenshot
@@ -7887,7 +7887,7 @@ else {
                     else {
 
                         $notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
-                        &fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
+                        fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
                           if defined( $session_screens{$key}->{'long'} );
 
                         if ( defined $session_screens{$key}->{'iter'}
@@ -7902,7 +7902,7 @@ else {
 
                 }
 
-                &fct_update_info_and_tray();
+                fct_update_info_and_tray();
                 return FALSE;
 
             }    #end if exists
@@ -7913,7 +7913,7 @@ else {
         my $response = $sd->dlg_error_message( sprintf( $d->get("Error while opening image %s."), "'" . $session_screens{$key}->{'long'} . "'" ), $d->get("There was an error opening the image."), undef, undef, undef, undef, undef, undef, $@ );
 
         $notebook->remove_page( $notebook->page_num( $session_screens{$key}->{'tab_child'} ) );    #delete tab
-        &fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
+        fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("removed from session") )
           if defined( $session_screens{$key}->{'long'} );
 
         if ( defined $session_screens{$key}->{'iter'}
@@ -7924,7 +7924,7 @@ else {
 
         delete( $session_screens{$key} );
 
-        &fct_update_info_and_tray();
+        fct_update_info_and_tray();
         return FALSE;
 
     }
@@ -7968,7 +7968,7 @@ else {
             }
 
             #rebuild model with new hash of installed programs...
-            $model = &fct_get_program_model;
+            $model = fct_get_program_model();
             $progname->set_model($model);
 
             #...and try to set last	value
@@ -8214,13 +8214,13 @@ else {
                                 $plugins{$pkey}->{'binary'} = "$dir_name/$name";
 
                                 #name
-                                $plugins{$pkey}->{'name'} = &fct_plugin_get_info( $plugins{$pkey}->{'binary'}, 'name' );
+                                $plugins{$pkey}->{'name'} = fct_plugin_get_info( $plugins{$pkey}->{'binary'}, 'name' );
 
                                 #category
-                                $plugins{$pkey}->{'category'} = &fct_plugin_get_info( $plugins{$pkey}->{'binary'}, 'sort' );
+                                $plugins{$pkey}->{'category'} = fct_plugin_get_info( $plugins{$pkey}->{'binary'}, 'sort' );
 
                                 #tooltip
-                                $plugins{$pkey}->{'tooltip'} = &fct_plugin_get_info( $plugins{$pkey}->{'binary'}, 'tip' );
+                                $plugins{$pkey}->{'tooltip'} = fct_plugin_get_info( $plugins{$pkey}->{'binary'}, 'tip' );
 
                                 #language (shell, perl etc.)
                                 #=> directory name
@@ -8233,7 +8233,7 @@ else {
                                 $plugin_progress->set_text( $plugins{$pkey}->{'binary'} );
 
                                 #refresh gui
-                                &fct_update_gui;
+                                fct_update_gui();
 
                             }
 
@@ -8336,9 +8336,9 @@ else {
 
                         if (   !exists $accounts{$name}
                             || !exists $accounts{$name}->{module}
-                            || $accounts{$name}->{supports_anonymous_upload} ne &fct_upload_plugin_get_info( $ukey, 'supports_anonymous_upload' ) ||
-                               $accounts{$name}->{supports_authorized_upload} ne &fct_upload_plugin_get_info( $ukey, 'supports_authorized_upload' ) ||
-                               $accounts{$name}->{supports_oauth_upload} ne &fct_upload_plugin_get_info( $ukey, 'supports_oauth_upload' ) )
+                            || $accounts{$name}->{supports_anonymous_upload} ne fct_upload_plugin_get_info( $ukey, 'supports_anonymous_upload' ) ||
+                               $accounts{$name}->{supports_authorized_upload} ne fct_upload_plugin_get_info( $ukey, 'supports_authorized_upload' ) ||
+                               $accounts{$name}->{supports_oauth_upload} ne fct_upload_plugin_get_info( $ukey, 'supports_oauth_upload' ) )
                         {
 
                             #show dialog and progress bar
@@ -8351,22 +8351,22 @@ else {
 
                             print "\nINFO: new upload-plugin information detected - $folder$name\n";
 
-                            if ( &fct_upload_plugin_get_info( $ukey, 'module' ) ) {
+                            if ( fct_upload_plugin_get_info( $ukey, 'module' ) ) {
 
                                 # Path
                                 $accounts{$name}->{path} = $ukey;
 
                                 # Module Name
-                                $accounts{$name}->{module} = &fct_upload_plugin_get_info( $ukey, 'module' );
+                                $accounts{$name}->{module} = fct_upload_plugin_get_info( $ukey, 'module' );
 
                                 # URL
-                                $accounts{$name}->{host} = &fct_upload_plugin_get_info( $ukey, 'url' );
+                                $accounts{$name}->{host} = fct_upload_plugin_get_info( $ukey, 'url' );
 
                                 # Folder
                                 $accounts{$name}->{folder} = $folder;
 
                                 # Description
-                                $accounts{$name}->{description} = &fct_plugin_get_info( $ukey, 'description' );
+                                $accounts{$name}->{description} = fct_plugin_get_info( $ukey, 'description' );
 
                                 # Username
                                 $accounts{$name}->{username} = ""
@@ -8380,12 +8380,12 @@ else {
                                 $accounts{$name}->{register_color} = "blue";
 
                                 # Register Text
-                                $accounts{$name}->{register_text} = &fct_upload_plugin_get_info( $ukey, 'registration' );
+                                $accounts{$name}->{register_text} = fct_upload_plugin_get_info( $ukey, 'registration' );
 
                                 # Upload Features
-                                $accounts{$name}->{supports_anonymous_upload}  = &fct_upload_plugin_get_info( $ukey, 'supports_anonymous_upload' );
-                                $accounts{$name}->{supports_authorized_upload} = &fct_upload_plugin_get_info( $ukey, 'supports_authorized_upload' );
-                                $accounts{$name}->{supports_oauth_upload}      = &fct_upload_plugin_get_info( $ukey, 'supports_oauth_upload' );
+                                $accounts{$name}->{supports_anonymous_upload}  = fct_upload_plugin_get_info( $ukey, 'supports_anonymous_upload' );
+                                $accounts{$name}->{supports_authorized_upload} = fct_upload_plugin_get_info( $ukey, 'supports_authorized_upload' );
+                                $accounts{$name}->{supports_oauth_upload}      = fct_upload_plugin_get_info( $ukey, 'supports_oauth_upload' );
 
                                 #refresh the progressbar
                                 $upload_plugin_progress->pulse;
@@ -8398,7 +8398,7 @@ else {
                             }
 
                             #refresh gui
-                            &fct_update_gui;
+                            fct_update_gui();
 
                         }
 
@@ -8770,7 +8770,7 @@ else {
 
         #show main window
         my $menuitem_show_window = Gtk2::MenuItem->new_with_mnemonic( $d->get('S_how main window') );
-        $menuitem_show_window->signal_connect( 'activate', sub { $is_hidden = TRUE; &fct_control_main_window('show'); } );
+        $menuitem_show_window->signal_connect( 'activate', sub { $is_hidden = TRUE; fct_control_main_window('show'); } );
         $menuitem_show_window->set_name('show_window');
         $menuitem_show_window->set_sensitive(TRUE);
 
@@ -8839,7 +8839,7 @@ else {
         }
 
         #take $key (mime) directly
-        my $key = &fct_get_current_file;
+        my $key = fct_get_current_file();
 
         #FIXME - different mime types
         #have different apps registered
@@ -8930,7 +8930,7 @@ else {
             if ($program_item) {
                 $program_item->signal_connect(
                     'activate' => sub {
-                        &fct_open_with_program( $app, $app->get_display_name );
+                        fct_open_with_program( $app, $app->get_display_name );
                     }
                 );
             }
@@ -9018,7 +9018,7 @@ else {
                         $combobox_settings_profiles->set_active($i);
                         $current_profile_indx = $i;
                         if ( $profile eq $combobox_settings_profiles->get_active_text ) {
-                            &evt_apply_profile( $widget, $combobox_settings_profiles, $current_profiles_ref );
+                            evt_apply_profile( $widget, $combobox_settings_profiles, $current_profiles_ref );
                             last;
                         }
                     }
@@ -9405,7 +9405,7 @@ else {
         foreach my $unsaved_file (@unsaved_files) {
             utf8::decode $unsaved_file;
             print $unsaved_file, " checking \n" if $sc->get_debug;
-            unless ( &fct_get_key_by_filename($unsaved_file) ) {
+            unless ( fct_get_key_by_filename($unsaved_file) ) {
                 print $unsaved_file, " deleted \n" if $sc->get_debug;
                 unlink $unsaved_file;
             }
@@ -9492,7 +9492,7 @@ else {
                     #~ print $input."\n";
                     if ( grep( $input == $_, @invalid_codes ) ) {
                         my $char = chr($input);
-                        $char = '&amp;' if $char eq '&';
+                        $char = 'amp();' if $char eq '&';
                         $new_filename_hint->set_markup( "<span size='small'>" . sprintf( $d->get("Reserved character %s is not allowed to be in a filename."), "'" . $char . "'" ) . "</span>" );
                         return TRUE;
                     }
@@ -9579,12 +9579,12 @@ else {
                                 my $response = $sd->dlg_error_message( sprintf( $d->get("Error while renaming the image %s."), "'" . $old_giofile->get_basename . "'" ), sprintf( $d->get("There was an error renaming the image to %s."), "'" . $new_giofile->get_basename . "'" ), undef, undef, undef, undef, undef, undef, $@);
 
 							}
-                                &fct_update_tab( $key, undef, $new_giofile, FALSE, 'block' );
+                                fct_update_tab( $key, undef, $new_giofile, FALSE, 'block' );
 
                                 #setup a new filemonitor, so we get noticed if the file changed
-                                &fct_add_file_monitor($key);
+                                fct_add_file_monitor($key);
 
-                                &fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("renamed") );
+                                fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("renamed") );
 
                                 #change window title
                                 #~ $window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
@@ -9618,12 +9618,12 @@ else {
 								if ($@) {
                                     my $response = $sd->dlg_error_message( sprintf( $d->get("Error while renaming the image %s."), "'" . $old_giofile->get_basename . "'" ), sprintf( $d->get("There was an error renaming the image to %s."), "'" . $new_giofile->get_basename . "'" ), undef, undef, undef, undef, undef, undef, $@ );
 								}
-                                    &fct_update_tab( $key, undef, $new_giofile, FALSE, 'block' );
+                                    fct_update_tab( $key, undef, $new_giofile, FALSE, 'block' );
 
                                     #setup a new filemonitor, so we get noticed if the file changed
-                                    &fct_add_file_monitor($key);
+                                    fct_add_file_monitor($key);
 
-                                    &fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("renamed") );
+                                    fct_show_status_message( 1, $session_screens{$key}->{'long'} . " " . $d->get("renamed") );
 
                                     #change window title
                                     #~ $window->set_title($session_screens{$key}->{'long'}." - ".SHUTTER_NAME);
@@ -9639,10 +9639,10 @@ else {
                                             $session_screens{$searchkey}->{'handle'}->cancel;
                                         }
 
-                                        &fct_update_tab( $searchkey, undef, $new_giofile, FALSE, 'block' );
+                                        fct_update_tab( $searchkey, undef, $new_giofile, FALSE, 'block' );
 
                                         #setup a new filemonitor, so we get noticed if the file changed
-                                        &fct_add_file_monitor($searchkey);
+                                        fct_add_file_monitor($searchkey);
 
                                     }
                                 }
@@ -9738,7 +9738,7 @@ else {
             $fs->set_filter($filter_all);
 
             #get current file
-            my $key = &fct_get_current_file;
+            my $key = fct_get_current_file();
 
             #go to recently used folder
             if ( defined $sc->get_ruof && $shf->folder_exists( $sc->get_ruof ) ) {
@@ -9781,7 +9781,7 @@ else {
         }
 
         #call function to open files - with progress bar etc.
-        &fct_open_files(@new_files);
+        fct_open_files(@new_files);
 
         return TRUE;
     }
@@ -10015,18 +10015,18 @@ else {
 
                                 $session_screens{$key}->{'handle'}->cancel;
                             }
-                            if ( &fct_update_tab( $key, undef, Glib::IO::File::new_for_path($filename), FALSE, 'clear' ) ) {
+                            if ( fct_update_tab( $key, undef, Glib::IO::File::new_for_path($filename), FALSE, 'clear' ) ) {
 
                                 #setup a new filemonitor, so we get noticed if the file changed
-                                &fct_add_file_monitor($key);
+                                fct_add_file_monitor($key);
 
-                                &fct_show_status_message( 1, "$session_screens{ $key }->{ 'long' } " . $d->get("saved") );
+                                fct_show_status_message( 1, "$session_screens{ $key }->{ 'long' } " . $d->get("saved") );
                             }
 
                         }
                         else {
                             if ( $shf->file_exists($filename) ) {
-                                &fct_show_status_message( 1, "$filename " . $d->get("saved") );
+                                fct_show_status_message( 1, "$filename " . $d->get("saved") );
                             }
                         }
 
@@ -10080,28 +10080,28 @@ else {
                                     $session_screens{$key}->{'handle'}->cancel;
                                 }
 
-                                if ( &fct_update_tab( $key, undef, Glib::IO::File::new_for_path($filename), FALSE, 'clear' ) ) {
+                                if ( fct_update_tab( $key, undef, Glib::IO::File::new_for_path($filename), FALSE, 'clear' ) ) {
 
                                     #setup a new filemonitor, so we get noticed if the file changed
-                                    &fct_add_file_monitor($key);
+                                    fct_add_file_monitor($key);
 
                                     #maybe file is in session as well, need to set the handler again ;-)
                                     foreach my $searchkey ( keys %session_screens ) {
                                         next if $key eq $searchkey;
                                         if ( $session_screens{$searchkey}->{'long'} eq $filename ) {
                                             $session_screens{$searchkey}->{'changed'} = TRUE;
-                                            &fct_update_tab( $searchkey, undef, undef, FALSE, 'clear' );
+                                            fct_update_tab( $searchkey, undef, undef, FALSE, 'clear' );
                                         }
                                     }
 
-                                    &fct_show_status_message( 1, "$session_screens{ $key }->{ 'long' } " . $d->get("saved") );
+                                    fct_show_status_message( 1, "$session_screens{ $key }->{ 'long' } " . $d->get("saved") );
 
                                 }
 
                             }
                             else {
                                 if ( $shf->file_exists($filename) ) {
-                                    &fct_show_status_message( 1, "$filename " . $d->get("saved") );
+                                    fct_show_status_message( 1, "$filename " . $d->get("saved") );
                                 }
                             }
 
@@ -10308,7 +10308,7 @@ else {
             #show the progress bar
             $plugin_progress->show;
             $plugin_progress->set_fraction(0);
-            &fct_update_gui;
+            fct_update_gui();
             my $counter = 1;
 
             #call execute_plugin for each file to be processed
@@ -10317,11 +10317,11 @@ else {
                 #update the progress bar and update gui to show changes
                 #~ $plugin_progress->set_text($session_screens{$key}->{'long'});
                 #~ $plugin_progress->set_fraction($counter / scalar @file_to_plugin_keys);
-                #~ &fct_update_gui;
+                #~ fct_update_gui();
 
                 #store data
                 my $data = [ $plugin_value, $plugin_name, $plugin_lang, $key, $plugin_dialog, $plugin_progress ];
-                &fct_execute_plugin( undef, $data );
+                fct_execute_plugin( undef, $data );
 
                 #increase counter and update gui to show updated progress bar
                 $counter++;
@@ -10590,7 +10590,7 @@ else {
                     my $hosting_folder   = $model->get_value( $hosting_iter, 5 );
 
                     $hosting_progress->set_text( sprintf( $d->get("Loading module %s"), $hosting_module ) );
-                    &fct_update_gui;
+                    fct_update_gui();
 
                     #import module
                     eval {
@@ -10620,7 +10620,7 @@ else {
 
                             #set text for progressbar
                             $hosting_progress->set_text("Uploading $file");
-                            &fct_update_gui;
+                            fct_update_gui();
 
                             #upload file
                             my %upload_response = $uploader->upload( $shf->switch_home_in_file($file), $hosting_username, $hosting_password );
@@ -10635,10 +10635,10 @@ else {
                                 }
 
                                 $uploader->show;
-                                &fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
+                                fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
                             }
                             else {
-                                my $response = &dlg_upload_error_message( $upload_response{'status'}, $upload_response{'max_filesize'} );
+                                my $response = dlg_upload_error_message( $upload_response{'status'}, $upload_response{'max_filesize'} );
 
                                 #10 == skip all, 20 == skip, else == cancel
                                 last if $response == 10;
@@ -10649,7 +10649,7 @@ else {
                             $hosting_progress->set_fraction( $counter / @files_to_upload );
 
                             #update gui
-                            &fct_update_gui;
+                            fct_update_gui();
                             $counter++;
                         }
 
@@ -10699,14 +10699,14 @@ else {
                         $hosting_progress->set_text($file);
 
                         #update gui
-                        &fct_update_gui;
+                        fct_update_gui();
                         @upload_response = $uploader->upload( $shf->switch_home_in_file($file) );
 
                         #upload returns FALSE if there is no error
                         unless ( $upload_response[0] ) {
 
                             #everything is fine here
-                            &fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
+                            fct_show_status_message( 1, $file . " " . $d->get("uploaded") );
 
                             #show as notification
                             my $notify = $sc->get_notification_object;
@@ -10752,7 +10752,7 @@ else {
                         $hosting_progress->set_fraction( $counter / @files_to_upload );
 
                         #update gui
-                        &fct_update_gui;
+                        fct_update_gui();
                         $counter++;
                     }    #end foreach
 
@@ -10774,7 +10774,7 @@ else {
                         $hosting_progress->set_text($file);
 
                         #update gui
-                        &fct_update_gui;
+                        fct_update_gui();
 
                         my $source_giofile = Glib::IO::File::new_for_path($file);
 
@@ -10804,7 +10804,7 @@ else {
 
                         #everything is fine here
                         if ( $result eq 'ok' ) {
-								&fct_show_status_message( 1, $file . " " . $d->get("exported") );
+								fct_show_status_message( 1, $file . " " . $d->get("exported") );
 
 								#show as notification
 								my $notify = $sc->get_notification_object;
@@ -10842,7 +10842,7 @@ else {
                                 #check result again
                                 if ( $result eq 'ok' ) {
 
-										&fct_show_status_message( 1, $file . " " . $d->get("exported") );
+										fct_show_status_message( 1, $file . " " . $d->get("exported") );
 
 										#show as notification
 										my $notify = $sc->get_notification_object;
@@ -10851,7 +10851,7 @@ else {
                                 }
                                 else {
 
-                                    my $response = &dlg_upload_error_message_gnome_vfs( $target_giofile, $result );
+                                    my $response = dlg_upload_error_message_gnome_vfs( $target_giofile, $result );
 
                                     #10 == skip all, 20 == skip, 40 == retry, else == cancel
                                     if ( $response == 10 ) {
@@ -10873,7 +10873,7 @@ else {
                         }
                         else {
 
-                            my $response = &dlg_upload_error_message_gnome_vfs( $target_giofile, $result );
+                            my $response = dlg_upload_error_message_gnome_vfs( $target_giofile, $result );
 
                             #10 == skip all, 20 == skip, 40 == retry, else == cancel
                             if ( $response == 10 ) {
@@ -10894,7 +10894,7 @@ else {
                         $hosting_progress->set_fraction( $counter / @files_to_upload );
 
                         #update gui
-                        &fct_update_gui;
+                        fct_update_gui();
                         $counter++;
 
                     }
@@ -10997,7 +10997,7 @@ else {
                 #~ print $input."\n";
                 if ( grep( $input == $_, @invalid_codes ) ) {
                     my $char = chr($input);
-                    $char = '&amp;' if $char eq '&';
+                    $char = 'amp();' if $char eq '&';
                     $new_profile_name_hint->set_markup( "<span size='small'>" . sprintf( $d->get("Reserved character %s is not allowed to be in a filename."), "'" . $char . "'" ) . "</span>" );
                     return TRUE;
                 }
@@ -11052,28 +11052,28 @@ else {
     }
 
     sub fct_zoom_in {
-        my $key = &fct_get_current_file;
+        my $key = fct_get_current_file();
         if ($key) {
             $session_screens{$key}->{'image'}->zoom_in;
         }
     }
 
     sub fct_zoom_out {
-        my $key = &fct_get_current_file;
+        my $key = fct_get_current_file();
         if ($key) {
             $session_screens{$key}->{'image'}->zoom_out;
         }
     }
 
     sub fct_zoom_100 {
-        my $key = &fct_get_current_file;
+        my $key = fct_get_current_file();
         if ($key) {
             $session_screens{$key}->{'image'}->set_zoom(1);
         }
     }
 
     sub fct_zoom_best {
-        my $key = &fct_get_current_file;
+        my $key = fct_get_current_file();
         if ($key) {
             $session_screens{$key}->{'image'}->set_fitting(TRUE);
         }
