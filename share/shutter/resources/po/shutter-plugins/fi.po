@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-10-28 17:52+0100\n"
-"PO-Revision-Date: 2013-04-21 07:25+0000\n"
-"Last-Translator: Jiri Grönroos <Unknown>\n"
+"PO-Revision-Date: 2020-05-20 21:09+0000\n"
+"Last-Translator: Kimmo Kujansuu <Unknown>\n"
 "Language-Team: Finnish <fi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-12-23 22:44+0000\n"
-"X-Generator: Launchpad (build 17286)\n"
+"X-Launchpad-Export-Date: 2020-06-08 09:52+0000\n"
+"X-Generator: Launchpad (build ef9fc486e875d54078fa61cf91e898b895125d89)\n"
 
 #: translate_tmp:27
 msgid "Grayscale"
@@ -31,7 +31,7 @@ msgstr "Tehoste"
 
 #: translate_tmp:29
 msgid "Turn the image into a grayscale image (256 shades)"
-msgstr ""
+msgstr "Muuta kuva harmaasävyille (256 sävyä)"
 
 #: translate_tmp:27
 msgid "Offset"
@@ -39,15 +39,15 @@ msgstr "Siirtymä"
 
 #: translate_tmp:29
 msgid "Give the picture an offset with itself as background"
-msgstr ""
+msgstr "Anna kuvalle siirtymä, jossa se on itse taustalla"
 
 #: translate_tmp:27
 msgid "Raise Border"
-msgstr ""
+msgstr "Nosta reunaa"
 
 #: translate_tmp:29
 msgid "Raise a rectangular 3d-border"
-msgstr ""
+msgstr "Suorakaiteen muotoisen 3d-reunaviivan nostaminen"
 
 #: translate_tmp:27
 msgid "Soft Edges"
@@ -59,11 +59,11 @@ msgstr "Lisää pehmeät reunat kuvan ympärille"
 
 #: translate_tmp:27
 msgid "Sunk Border"
-msgstr ""
+msgstr "Upotettu reunaviiva"
 
 #: translate_tmp:29
 msgid "Add an inverted 3d border to the image"
-msgstr ""
+msgstr "Käänteisen 3d-reunaviivan lisääminen kuvaan"
 
 #: translate_tmp:27
 msgid "Torned Paper"
@@ -98,6 +98,11 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
 msgstr ""
+"Lisää häipyvä heijastus kuvan alapuolelle ja tarkastele sitä perspektiivinä\n"
+"\n"
+"Perustuu Fred Weinhausin skriptiin\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
 
 #: translate_tmp:104
 #: translate_tmp:133
@@ -108,7 +113,7 @@ msgstr "Kierto:"
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "Perseptive rotation around left edge of image"
-msgstr ""
+msgstr "Perseptiivinen kierto kuvan vasemmassa reunassa"
 
 #: translate_tmp:122
 msgid "Fade:"
@@ -117,7 +122,7 @@ msgstr "Häivytys:"
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "Fade percent for mirror image"
-msgstr ""
+msgstr "Peilikuvan häivytyksen prosentti"
 
 #: translate_tmp:140
 msgid "Opacity:"
@@ -126,16 +131,16 @@ msgstr "Peittävyys:"
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "Opacity percent applied to whole mirror image"
-msgstr ""
+msgstr "Peittävyyden prosentti, jota sovelletaan koko peilikuvaan"
 
 #: translate_tmp:158
 msgid "Pef:"
-msgstr ""
+msgstr "Plk:"
 
 #: translate_tmp:165
 #: translate_tmp:172
 msgid "Perspective exaggeration factor"
-msgstr ""
+msgstr "Perspektiivin liioittelukerroin"
 
 #: translate_tmp:176
 msgid "Gap:"
@@ -144,7 +149,7 @@ msgstr "Väli:"
 #: translate_tmp:183
 #: translate_tmp:190
 msgid "Gap between image and mirror in pixels"
-msgstr ""
+msgstr "Kuvan ja peilin välinen ero pikseleinä"
 
 #: translate_tmp:194
 #: translate_tmp:176
@@ -154,7 +159,7 @@ msgstr "Suurenna:"
 #: translate_tmp:201
 #: translate_tmp:208
 msgid "Zoom factor for output image"
-msgstr ""
+msgstr "Suurennuskerroin ajettavalle kuvalle"
 
 #: translate_tmp:212
 #: translate_tmp:236
@@ -207,31 +212,38 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 msgstr ""
+"Ottaa perspektiivin vääristymän käyttöön kuvassa\n"
+"\n"
+"Perustuu Fred Weinhausin skriptiin\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "Rotation around image vertical centerline"
-msgstr ""
+msgstr "Kiertäminen kuvan pystysuuntaisen keskiviivan ympäri"
 
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "Rotation around image horizontal centerline"
-msgstr ""
+msgstr "Kiertäminen kuvan vaakasuuntaisen keskiviivan ympäri"
 
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "Rotation around the image center"
-msgstr ""
+msgstr "Kiertäminen kuvan keskuksen ympäri"
 
 #: translate_tmp:183
 #: translate_tmp:190
 msgid ""
 "Output zoom factor; where value > 1 means zoom in and < 1 means zoom out"
 msgstr ""
+"Ulostulon suurennuskerroin; missä arvo > 1 tarkoittaa lähentämistä ja < 1 "
+"tarkoittaa loitontamista"
 
 #: translate_tmp:204
 msgid "Auto:"
-msgstr ""
+msgstr "Automaattinen:"
 
 #: translate_tmp:226
 #: translate_tmp:233
@@ -247,19 +259,19 @@ msgstr ""
 
 #: translate_tmp:243
 msgid "Sky color"
-msgstr ""
+msgstr "Taivaan väri"
 
 #: translate_tmp:248
 msgid "Choose sky color"
-msgstr ""
+msgstr "Valitse taivaan väri"
 
 #: translate_tmp:62
 msgid "Barrel Distortion"
-msgstr ""
+msgstr "Tynnyrivääristymä"
 
 #: translate_tmp:64
 msgid "Apply a distortion effect to your screenshot"
-msgstr ""
+msgstr "Vääristymätehosteen käyttäminen ruudunkaappauksessa"
 
 #: translate_tmp:93
 msgid "A:"
@@ -315,7 +327,7 @@ msgstr "Koko:"
 #: translate_tmp:111
 #: translate_tmp:118
 msgid "The size or dimension of the border region"
-msgstr ""
+msgstr "Koko tai ulottuvuus reunukselle"
 
 #: translate_tmp:122
 msgid "Density:"
@@ -324,7 +336,7 @@ msgstr "Tiheys:"
 #: translate_tmp:129
 #: translate_tmp:136
 msgid "The frequency of detail in the border"
-msgstr ""
+msgstr "Yksityiskohtien tiheys reunuksessa"
 
 #: translate_tmp:140
 msgid "Curviness:"
@@ -333,7 +345,7 @@ msgstr "Kaarevuus:"
 #: translate_tmp:147
 #: translate_tmp:154
 msgid "The curviness in the border features"
-msgstr ""
+msgstr "Reunuksen kaarevuus on ominaista"
 
 #: translate_tmp:158
 msgid "Granularity:"
@@ -345,6 +357,8 @@ msgid ""
 "The base grain size or pixelization size used to create the detail in the "
 "border"
 msgstr ""
+"Peruspiste tai pikselikoko, jota käytetään yksityiskohtien luomiseen "
+"reunuksessa"
 
 #: translate_tmp:176
 msgid "Pad:"
@@ -376,6 +390,8 @@ msgid ""
 "Make your screenshot look like a polaroid photo, add a caption, and even "
 "rotate it a little"
 msgstr ""
+"Tee ruudunkaappauksestasi polaroidikuva, lisää kuvateksti ja käännä sitä "
+"jopa vähäsen"
 
 #: translate_tmp:99
 #: translate_tmp:93
@@ -392,6 +408,11 @@ msgid ""
 "%d = day\n"
 "%T = time"
 msgstr ""
+"On olemassa useita villejä merkkejä saatavilla, kuten\n"
+"%Y = vuosi\n"
+"%m = kuukausi\n"
+"%d = päivä\n"
+"%T = aika"
 
 #: translate_tmp:116
 #: translate_tmp:110
@@ -427,19 +448,19 @@ msgstr "Seepia"
 
 #: translate_tmp:73
 msgid "Add sepia color toning to the image"
-msgstr ""
+msgstr "Lisää seepia-värisävyt kuvaan"
 
 #: translate_tmp:110
 msgid "Sepia tone"
-msgstr ""
+msgstr "Seepia sävy"
 
 #: translate_tmp:63
 msgid "Hard Shadow"
-msgstr ""
+msgstr "Kova varjostus"
 
 #: translate_tmp:65
 msgid "Add a shadow to the image on a transparent background"
-msgstr ""
+msgstr "Lisää varjo kuvaan läpinäkyvällä taustalla"
 
 #: translate_tmp:94
 msgid "Direction"

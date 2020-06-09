@@ -8,15 +8,15 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2013-05-09 15:47+0000\n"
-"Last-Translator: Jiri Grönroos <Unknown>\n"
+"PO-Revision-Date: 2020-05-15 22:48+0000\n"
+"Last-Translator: Kimmo Kujansuu <Unknown>\n"
 "Language-Team: Finnish <fi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Launchpad-Export-Date: 2014-12-23 22:44+0000\n"
-"X-Generator: Launchpad (build 17286)\n"
+"X-Launchpad-Export-Date: 2020-06-08 09:52+0000\n"
+"X-Generator: Launchpad (build ef9fc486e875d54078fa61cf91e898b895125d89)\n"
 
 #: translate_tmp.pl:883
 msgid "Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature"
@@ -101,7 +101,7 @@ msgstr "Valinnan kaappaus"
 
 #: translate_tmp.pl:1028
 msgid "Window Capture"
-msgstr "Ikkuna kaappaus"
+msgstr "Ikkunakaappaus"
 
 #: translate_tmp.pl:1035
 msgid "Menu/Tooltip Capture"
@@ -171,11 +171,11 @@ msgstr "$h = korkeus\n"
 
 #: translate_tmp.pl:1120
 msgid "$name = multi-purpose (e.g. window title)\n"
-msgstr ""
+msgstr "monikäyttöinen\n"
 
 #: translate_tmp.pl:1120
 msgid "$nb_name = like $name but without blanks in resulting strings\n"
-msgstr ""
+msgstr "monikäyttöinen\n"
 
 #: translate_tmp.pl:1120
 msgid "$profile = name of current profile\n"
@@ -183,11 +183,11 @@ msgstr "$profile = nykyisen profiilin nimi\n"
 
 #: translate_tmp.pl:1120
 msgid "$R = random char (e.g. $RRRR = ag4r)\n"
-msgstr ""
+msgstr "satunnainen merkki\n"
 
 #: translate_tmp.pl:1120
 msgid "%NN = counter"
-msgstr ""
+msgstr "laskuri"
 
 #: translate_tmp.pl:1134
 #: translate_tmp.pl:2981
@@ -332,6 +332,8 @@ msgid ""
 "Generate thumbnail too.\n"
 "select the percentage of the original size for the thumbnail to be"
 msgstr ""
+"Luo myös esikatselukuva\n"
+"aseta esikatselukuvan prosentuaalinen koko suhteessa alkuperäiseen"
 
 #: translate_tmp.pl:1556
 msgid "Border"
@@ -434,6 +436,11 @@ msgid ""
 "named ~/.shutter/shape.conf and put custom values in it. The default values "
 "are stored in %s."
 msgstr ""
+"Shutter käyttää ikkunan muodon määritykseen XShape laajennusosaa, mutta se "
+"ei jossain tapauksissa toimi, esim. compizin kanssa.\n"
+"Kun tämä asetus on valittu, shutter käyttää kiinteää arvoa ikkunan reunojen "
+"pyöristämiseen. Voit korvata oletusarvot asettamalla haluamasi arvot "
+"tiedostoon ~/.shutter/shape.conf. Oletusarvot ovat paikassa %s"
 
 #: translate_tmp.pl:1795
 #: translate_tmp.pl:1796
@@ -452,7 +459,7 @@ msgstr "Kaappaa valikko/työkaluvihje viiveellä n sekuntia"
 
 #: translate_tmp.pl:1841
 msgid "Ignore possibly wrong type hints"
-msgstr ""
+msgstr "Ohita mahdollisesti väärät vihjeet"
 
 #: translate_tmp.pl:1842
 msgid ""
@@ -461,6 +468,10 @@ msgid ""
 "correctly set. By enabling this option Shutter will not insist on the "
 "requested type hint."
 msgstr ""
+"Tyyppivihjevakiot määrittävät ikkunanhallinnalle vihjeitä, jotka ilmaisevat, "
+"minkä tyyppistä toimintoa ikkunalla on. Joskus näitä tyyppivihjeitä ei ole "
+"määritetty oikein. Ottamalla tämän vaihtoehdon Shutter ei vaadi pyydettyä "
+"vihjettä."
 
 #: translate_tmp.pl:1858
 msgid "Virtual browser width"
@@ -499,12 +510,13 @@ msgstr "Näyttää kaikki kuvan läpinäkyvät alueet kuviona"
 msgid ""
 "Displays any transparent parts of the image in a solid color that you specify"
 msgstr ""
+"Näyttää kaikki kuvan läpinäkyvät osat tasaisina väreinä, jotka määrität"
 
 #: translate_tmp.pl:1927
 msgid ""
 "Displays any transparent parts of the image in the background color of the "
 "application"
-msgstr ""
+msgstr "Näyttää kaikki kuvan läpinäkyvät osat sovelluksen taustavärinä"
 
 #: translate_tmp.pl:1951
 msgid "Sort ascending by"
@@ -513,7 +525,7 @@ msgstr "Lajittele nousevasti"
 #: translate_tmp.pl:1954
 #: translate_tmp.pl:1958
 msgid "Key/Time Created"
-msgstr ""
+msgstr "Avain/luonti aika"
 
 #: translate_tmp.pl:1955
 msgid "Sort descending by"
@@ -524,7 +536,7 @@ msgstr "Lajittele laskevasti"
 #: translate_tmp.pl:2019
 #: translate_tmp.pl:2020
 msgid "Configure sort criteria"
-msgstr ""
+msgstr "Määritä lajitteluperusteet"
 
 #: translate_tmp.pl:2027
 #: translate_tmp.pl:2087
@@ -616,6 +628,9 @@ msgid ""
 "Configure a short timeout to give the Xserver a chance to redraw areas that "
 "were obscured by Shutter's windows before taking a screenshot."
 msgstr ""
+"Määritä lyhyt aikakatkaisu, jotta Xserverille annetaan mahdollisuus piirtää "
+"uudelleen alueet, jotka sulkivat Shutterin ikkunat ennen näyttökuvan "
+"ottamista."
 
 #: translate_tmp.pl:2177
 #: translate_tmp.pl:2178
@@ -623,6 +638,8 @@ msgid ""
 "You can either choose the system-wide desktop notifications (e.g. Ubuntu's "
 "Notify-OSD) or Shutter's built-in notification system"
 msgstr ""
+"Voit valita järjestelmän laajuiset työpöytäilmoitukset (esim. Ubuntun Notify-"
+"OSD) tai Shutterin sisäänrakennetun ilmoitusjärjestelmän"
 
 #: translate_tmp.pl:2240
 msgid ""
@@ -800,7 +817,7 @@ msgstr "ei löydy"
 
 #: translate_tmp.pl:4244
 msgid "Error while adding the file monitor."
-msgstr ""
+msgstr "Virhe lisättäessä tiedostoa tarkkailuun."
 
 #: translate_tmp.pl:4765
 msgid "Settings could not be saved!"
@@ -856,7 +873,7 @@ msgstr "Istunnon palautus epäonnistui!"
 #: translate_tmp.pl:5406
 #, perl-format
 msgid "Error while creating the trashinfo file %s."
-msgstr ""
+msgstr "Virhe luotaessa roskakorin tiedot tiedostoa %s."
 
 #: translate_tmp.pl:5418
 #, perl-format
@@ -942,7 +959,7 @@ msgstr "Virhe viimeisintä versiota kopioidessa (%s)."
 #: translate_tmp.pl:5829
 #, perl-format
 msgid "There was an error performing undo on %s."
-msgstr ""
+msgstr "Kumoamisessa %s tapahtui virhe."
 
 #: translate_tmp.pl:5869
 msgid "Last action redone"
@@ -961,11 +978,11 @@ msgstr "Ei liitännäisiä asennettuna"
 #: translate_tmp.pl:6581
 #: translate_tmp.pl:8030
 msgid "There was an error determining the filename."
-msgstr ""
+msgstr "Tiedostonimen määrittämisessä tapahtui virhe."
 
 #: translate_tmp.pl:6473
 msgid "Triggered invalid screenshot action."
-msgstr ""
+msgstr "Käynnisti virheellisen kuvakaappauksen."
 
 #: translate_tmp.pl:6473
 #: translate_tmp.pl:6475
@@ -1132,7 +1149,13 @@ msgid_plural ""
 "monitors detected).\n"
 "Enable it to capture only the current monitor."
 msgstr[0] ""
+"Tämä vaihtoehto on hyödyllinen vain, kun käytät useampaa näyttöä (%d näyttö "
+"havaittu).\n"
+"Ota se käyttöön, jos haluat tallentaa vain nykyisen näytön."
 msgstr[1] ""
+"Tämä vaihtoehto on hyödyllinen vain, kun käytät useampaa näyttöä (%d näytöt "
+"havaittu).\n"
+"Ota se käyttöön, jos haluat tallentaa vain nykyisen näytön."
 
 #: translate_tmp.pl:8537
 msgid "Active Window"
@@ -1217,7 +1240,7 @@ msgstr[1] "Odota enintään %d minuuttia"
 
 #: translate_tmp.pl:8908
 msgid "Shutter will wait indefinitely for the screenshot to capture"
-msgstr ""
+msgstr "Shutter odottaa loputtomasti kuvakaappauksen kaappaamista"
 
 #: translate_tmp.pl:8909
 #: translate_tmp.pl:8910
@@ -1229,7 +1252,11 @@ msgid_plural ""
 "Shutter will wait up to %d seconds for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
+"Shuter odottaa jopa %d sekuntia, jotta näyttökuva voidaan tallentaa ennen "
+"prosessin keskeyttämistä, jos se kestää liian kauan"
 msgstr[1] ""
+"Suljin odottaa jopa %d sekuntia, jotta näyttökuva voidaan tallentaa ennen "
+"prosessin keskeyttämistä, jos se kestää liian kauan"
 
 #: translate_tmp.pl:8911
 #: translate_tmp.pl:8912
@@ -1241,7 +1268,11 @@ msgid_plural ""
 "Shutter will wait up to %d minutes for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
+"Shutter odottaa jopa %d minuuttia, jotta näyttökuva voidaan tallentaa ennen "
+"prosessin keskeyttämistä, jos se kestää liian kauan"
 msgstr[1] ""
+"Suljin odottaa jopa %d minuuttia, jotta näyttökuva voidaan tallentaa ennen "
+"prosessin keskeyttämistä, jos se kestää liian kauan"
 
 #: translate_tmp.pl:9046
 msgid "Host"
@@ -1355,7 +1386,7 @@ msgstr "Virhe nimettäessä uudelleen kuvaa %s."
 #: translate_tmp.pl:9709
 #, perl-format
 msgid "There was an error renaming the image to %s."
-msgstr ""
+msgstr "Kuvan uudelleen nimeämisessä %s tapahtui virhe."
 
 #: translate_tmp.pl:9639
 #: translate_tmp.pl:10099
@@ -1495,7 +1526,11 @@ msgid_plural ""
 "Folder %s is synchronized with Ubuntu One. The selected files will be copied "
 "to that folder before being published."
 msgstr[0] ""
+"Kansio %s synkronoidaan Ubuntu One -kanssa. Valittu tiedosto kopioidaan "
+"kyseiseen kansioon ennen julkaisemista."
 msgstr[1] ""
+"Kansio %s synkronoidaan Ubuntu One -kanssa. Valittut tiedostot kopioidaan "
+"kyseiseen kansioon ennen julkaisemista."
 
 #: translate_tmp.pl:10707
 #: translate_tmp.pl:10739
@@ -1679,8 +1714,10 @@ msgstr ""
 "  Aleksi Kinnunen https://launchpad.net/~aleksi-kinnunen\n"
 "  Christian Hellberg https://launchpad.net/~christian-hellberg\n"
 "  Esa Turtiainen https://launchpad.net/~esa-turtiainen\n"
+"  Jani https://launchpad.net/~z8kprn777v\n"
 "  Jiri Grönroos https://launchpad.net/~jiri-gronroos\n"
 "  Katja Viljakainen https://launchpad.net/~katja-viljakainen\n"
+"  Kimmo Kujansuu https://launchpad.net/~mahtiankka\n"
 "  Mario Kemper (Romario) https://launchpad.net/~mario-kemper\n"
 "  Otto Salminen https://launchpad.net/~o-s\n"
 "  mika makkonen https://launchpad.net/~exergy\n"
@@ -1920,6 +1957,8 @@ msgid ""
 "Set how long Shutter will wait for the screenshot to complete before "
 "aborting the process if it's taking too long"
 msgstr ""
+"Aseta, kuinka kauan Shutter odottaa kuvakaappausta loppuun ennen kuin "
+"keskeytetään prosessi, jos se kestää liian kauan"
 
 #: translate_tmp.pl:233
 msgid "Edit"
@@ -1930,6 +1969,8 @@ msgid ""
 "Use the built-in editor to highlight important fragments of your screenshot "
 "or crop it to a desired size"
 msgstr ""
+"Korosta näyttökuvan tärkeät osat sisäänrakennetulla editorilla tai rajaa se "
+"haluttuun kokoon"
 
 #: translate_tmp.pl:243
 msgid "Export"
@@ -1995,7 +2036,7 @@ msgstr "Kirjautuminen käyttäjätunnuksella %s epäonnistui."
 
 #: translate_tmp.pl:109
 msgid "Cannot change working directory."
-msgstr ""
+msgstr "Työkansiota ei voi muuttaa."
 
 #: translate_tmp.pl:119
 msgid "Command 'put' failed."
@@ -2046,10 +2087,11 @@ msgstr "<b>nuolinäppäimet + ctrl</b> → muuta valinnan kokoa"
 msgid ""
 "Maybe mouse pointer could not be grabbed or the selected area is invalid."
 msgstr ""
+"Ehkä hiiren osoittimella ei voitu tarttua tai valittu alue ei kelpaa."
 
 #: translate_tmp.pl:96
 msgid "Keyboard could not be grabbed."
-msgstr ""
+msgstr "Näppäimistöllä ei voitu tarttua."
 
 #: translate_tmp.pl:105
 msgid "menu"
@@ -2081,12 +2123,12 @@ msgstr "Kuvakaappaus verkkosivustosta epäonnistui"
 #: translate_tmp.pl:153
 #, perl-format
 msgid "No window with name pattern %s detected."
-msgstr ""
+msgstr "Ikkunaa, jonka nimi on %s ei löydy."
 
 #: translate_tmp.pl:163
 #, perl-format
 msgid "Invalid pattern %s detected."
-msgstr ""
+msgstr "Virheellinen malli %s on havaittu."
 
 #: translate_tmp.pl:116
 msgid "No subwindow detected"
@@ -2097,6 +2139,8 @@ msgid ""
 "Maybe this window is using client-side windows (or similar).\n"
 "Shutter is not yet able to query the tree information of such windows."
 msgstr ""
+"Ehkä tässä ikkunassa käytetään asiakaspuolen ikkunoita (tai vastaavia).\n"
+"Shutter ei voi vielä kysyä tällaisten ikkunoiden hakemistopuun tietoja."
 
 #: translate_tmp.pl:81
 msgid "URL to capture"
@@ -2133,7 +2177,7 @@ msgstr "Valitse viivan väri"
 #: translate_tmp.pl:475
 #: translate_tmp.pl:476
 msgid "Adjust stroke color and opacity"
-msgstr ""
+msgstr "Viivan värin ja peittävyyden säätäminen"
 
 #: translate_tmp.pl:482
 #: translate_tmp.pl:4172
@@ -2163,7 +2207,7 @@ msgstr "Lisää kuva"
 #: translate_tmp.pl:617
 #: translate_tmp.pl:618
 msgid "Insert an arbitrary object or file"
-msgstr ""
+msgstr "Mielivaltaisen objektin tai tiedoston lisääminen"
 
 #: translate_tmp.pl:638
 msgid "X"
@@ -2188,15 +2232,15 @@ msgstr "_Rajaa"
 
 #: translate_tmp.pl:854
 msgid "Click-Drag to scale (try Control to scale uniformly)"
-msgstr ""
+msgstr "Skaalaa napsauttamalla (yritä skaalata yhdenmukaisesti)"
 
 #: translate_tmp.pl:857
 msgid "Click-Drag to resize the canvas"
-msgstr ""
+msgstr "Muuta piirtoalueen kokoa vetämällä"
 
 #: translate_tmp.pl:863
 msgid "Click to paint (try Control or Shift for a straight line)"
-msgstr ""
+msgstr "Napsauta maalataksesi (kokeile Control tai Shift suoraan linjaan)"
 
 #: translate_tmp.pl:868
 msgid "Click-Drag to create a new straight line"
@@ -2212,7 +2256,7 @@ msgstr "Napsauta ja vedä luodaksesi uuden suorakulmion"
 
 #: translate_tmp.pl:883
 msgid "Click-Drag to create a new ellipse"
-msgstr ""
+msgstr "Luo uusi ellipsi napsauttamalla ja vetämällä"
 
 #: translate_tmp.pl:888
 msgid "Click-Drag to add a new text area"
@@ -2220,15 +2264,15 @@ msgstr "Napsauta ja vedä luodaksesi uuden tekstialueen"
 
 #: translate_tmp.pl:893
 msgid "Click to censor (try Control or Shift for a straight line)"
-msgstr ""
+msgstr "Sensurointi (kokeile Control tai Shift suoraan viivaan)"
 
 #: translate_tmp.pl:898
 msgid "Click-Drag to create a pixelized region"
-msgstr ""
+msgstr "Luo hämärretty alue napsauttamalla ja vetämällä"
 
 #: translate_tmp.pl:903
 msgid "Click to add an auto-increment shape"
-msgstr ""
+msgstr "Lisää automaattinen muoto napsauttamalla tätä"
 
 #: translate_tmp.pl:1240
 #, perl-format
@@ -2288,11 +2332,11 @@ msgstr "_Palauta oletus"
 
 #: translate_tmp.pl:3940
 msgid "Raise"
-msgstr ""
+msgstr "Nosta"
 
 #: translate_tmp.pl:3965
 msgid "Lower"
-msgstr ""
+msgstr "Siirrä taakse"
 
 #: translate_tmp.pl:4055
 msgid "Unlock"
@@ -2321,11 +2365,11 @@ msgstr "Nuoli"
 
 #: translate_tmp.pl:4314
 msgid "Length"
-msgstr ""
+msgstr "Pituus"
 
 #: translate_tmp.pl:4326
 msgid "Tip length"
-msgstr ""
+msgstr "Kärjen pituus"
 
 #: translate_tmp.pl:4336
 msgid "Display an arrow at the end of the line"
@@ -2386,11 +2430,11 @@ msgstr "Poista nykyinen objekti"
 
 #: translate_tmp.pl:6113
 msgid "Clear canvas"
-msgstr ""
+msgstr "Poista kangas"
 
 #: translate_tmp.pl:6134
 msgid "Abort current mode"
-msgstr ""
+msgstr "Keskeytä nykyinen tila"
 
 #: translate_tmp.pl:6144
 msgid "Close this window"
@@ -2504,7 +2548,7 @@ msgstr "Numero"
 
 #: translate_tmp.pl:6304
 msgid "Add an auto-increment shape to the screenshot"
-msgstr ""
+msgstr "Lisää automaattinen muoto kuvakaappaukseen"
 
 #: translate_tmp.pl:6304
 msgid "Crop"

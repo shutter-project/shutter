@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: gscrot-plugins-bash\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-10-28 17:52+0100\n"
-"PO-Revision-Date: 2013-02-14 06:44+0000\n"
-"Last-Translator: londumas <helion331990@gmail.com>\n"
+"PO-Revision-Date: 2016-08-30 06:10+0000\n"
+"Last-Translator: Phan Hoang <phahoatho@gmail.com>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-12-23 22:44+0000\n"
-"X-Generator: Launchpad (build 17286)\n"
+"X-Launchpad-Export-Date: 2020-06-08 09:52+0000\n"
+"X-Generator: Launchpad (build ef9fc486e875d54078fa61cf91e898b895125d89)\n"
 
 #: translate_tmp:27
 msgid "Grayscale"
@@ -47,7 +47,7 @@ msgstr "Élever une bordure"
 
 #: translate_tmp:29
 msgid "Raise a rectangular 3d-border"
-msgstr "Élever une bordure 3d rectangulaire"
+msgstr "Élever une bordure 3D rectangulaire"
 
 #: translate_tmp:27
 msgid "Soft Edges"
@@ -63,7 +63,7 @@ msgstr "Abaisser la bordure"
 
 #: translate_tmp:29
 msgid "Add an inverted 3d border to the image"
-msgstr "Ajouter une bordure 3d inversée à l'image"
+msgstr "Ajouter une bordure 3D inversée à l'image"
 
 #: translate_tmp:27
 msgid "Torned Paper"
@@ -88,7 +88,7 @@ msgstr "Enlever les bordures vides de l'image"
 
 #: translate_tmp:73
 msgid "3D reflection"
-msgstr "Reflet 3d"
+msgstr "Reflet 3D"
 
 #: translate_tmp:75
 msgid ""
@@ -159,7 +159,7 @@ msgstr "Zoom:"
 #: translate_tmp:201
 #: translate_tmp:208
 msgid "Zoom factor for output image"
-msgstr "Facteur de zoom pour l'image finale"
+msgstr "Facteur de zoom pour l'image en sortie"
 
 #: translate_tmp:212
 #: translate_tmp:236
@@ -186,7 +186,7 @@ msgstr "Choisir une couleur de fond"
 #: translate_tmp:315
 #, perl-format
 msgid "Error while executing plugin %s."
-msgstr "Erreur lors de l'exécution du plugin %s."
+msgstr "Erreur lors de l'exécution du greffon %s."
 
 #: translate_tmp:424
 #: translate_tmp:460
@@ -198,7 +198,7 @@ msgstr "Erreur lors de l'exécution du plugin %s."
 #: translate_tmp:315
 #: translate_tmp:316
 msgid "There was an error executing the plugin."
-msgstr "Une erreur est survenue lors de l'exécution du plugin."
+msgstr "Une erreur est survenue lors de l'exécution du greffon."
 
 #: translate_tmp:73
 msgid "3D rotate"
@@ -212,7 +212,7 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 msgstr ""
-"Appliquer un effet de perspective à une image\n"
+"Applique un effet de perspective à une image\n"
 "\n"
 "Basé sur un script de Fred Weinhaus\n"
 "\n"
@@ -311,9 +311,10 @@ msgid ""
 "Defined by Barrel Correction Distortion, by Helmut Dersch.\n"
 "http://www.all-in-one.ee/~dersch/barrel/barrel.html"
 msgstr ""
-"Le paramètre d décrit la mise à l'échelle linéaire de l'image. Avec les "
-"valeurs d=1, a=0,b=0, et c=0 ne modifie pas l'image. Choisir une autre "
-"valeur pour d modifie l'échelle de l'image par cette valeur."
+"Le paramètre d décrit la mise à l'échelle linéaire de l'image. L'utilisation "
+"de d=1 avec, a=b= c=0 ne modifie pas l'image. Le choix d'une autre valeur de "
+"d modifie l'échelle de l'image de cette valeur. a,b et c distordent l'image. "
+"L'utilisation de valeurs négatives éloigne les points distants du centre."
 
 #: translate_tmp:73
 msgid "Bordereffects"
@@ -423,7 +424,7 @@ msgid ""
 "%d = day\n"
 "%T = time"
 msgstr ""
-"Plusieurs caractères génériques sont disponible, comme\n"
+"Plusieurs caractères de remplacement sont disponibles, comme\n"
 "%Y = année\n"
 "%m = mois\n"
 "%d = jour\n"

@@ -1,0 +1,474 @@
+# Kabyle translation for shutter
+# Copyright (c) 2018 Rosetta Contributors and Canonical Ltd 2018
+# This file is distributed under the same license as the shutter package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: shutter\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2012-10-28 17:52+0100\n"
+"PO-Revision-Date: 2018-11-02 18:48+0000\n"
+"Last-Translator: Yacine Bouklif <yacinebouklif@gmail.com>\n"
+"Language-Team: Kabyle <kab@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2020-06-08 09:52+0000\n"
+"X-Generator: Launchpad (build ef9fc486e875d54078fa61cf91e898b895125d89)\n"
+"Language: kab\n"
+
+#: translate_tmp:27
+msgid "Grayscale"
+msgstr "Iswiren n imelliɣdi"
+
+#: translate_tmp:28
+#: translate_tmp:74
+#: translate_tmp:63
+#: translate_tmp:72
+#: translate_tmp:64
+msgid "Effect"
+msgstr "Asemdu"
+
+#: translate_tmp:29
+msgid "Turn the image into a grayscale image (256 shades)"
+msgstr "Selket tugna ɣer iswiren n imelliɣdi (256 n iswiren)"
+
+#: translate_tmp:27
+msgid "Offset"
+msgstr "Asekḥer"
+
+#: translate_tmp:29
+msgid "Give the picture an offset with itself as background"
+msgstr "Sekḥer tugna ɣef yiman-is am ugilal"
+
+#: translate_tmp:27
+msgid "Raise Border"
+msgstr "Sali iri"
+
+#: translate_tmp:29
+msgid "Raise a rectangular 3d-border"
+msgstr "Sali iri 3D asrem"
+
+#: translate_tmp:27
+msgid "Soft Edges"
+msgstr "Iran ileggaɣen"
+
+#: translate_tmp:29
+msgid "Add soft edges around the image"
+msgstr "Rnu iran ileggaɣen i tugna"
+
+#: translate_tmp:27
+msgid "Sunk Border"
+msgstr "Ṣub iri"
+
+#: translate_tmp:29
+msgid "Add an inverted 3d border to the image"
+msgstr "Rnu iri 3D yettin i tugna"
+
+#: translate_tmp:27
+msgid "Torned Paper"
+msgstr ""
+
+#: translate_tmp:29
+msgid "Add a torn-like border to the image"
+msgstr ""
+
+#: translate_tmp:27
+msgid "Autocrop"
+msgstr "Aɣẓaẓ awurman"
+
+#: translate_tmp:28
+#: translate_tmp:49
+msgid "Tool"
+msgstr "Afecku"
+
+#: translate_tmp:29
+msgid "Remove empty borders from the image"
+msgstr "Kkes iran ilmawen si tugna"
+
+#: translate_tmp:73
+msgid "3D reflection"
+msgstr ""
+
+#: translate_tmp:75
+msgid ""
+"Adds a fading reflection below an image and views it in perspective\n"
+"\n"
+"Based on a script by Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
+msgstr ""
+
+#: translate_tmp:104
+#: translate_tmp:133
+#: translate_tmp:127
+msgid "Rotation:"
+msgstr "Tuzzya:"
+
+#: translate_tmp:111
+#: translate_tmp:118
+msgid "Perseptive rotation around left edge of image"
+msgstr ""
+
+#: translate_tmp:122
+msgid "Fade:"
+msgstr "Axessuy:"
+
+#: translate_tmp:129
+#: translate_tmp:136
+msgid "Fade percent for mirror image"
+msgstr ""
+
+#: translate_tmp:140
+msgid "Opacity:"
+msgstr "Tiḍullest:"
+
+#: translate_tmp:147
+#: translate_tmp:154
+msgid "Opacity percent applied to whole mirror image"
+msgstr ""
+
+#: translate_tmp:158
+msgid "Pef:"
+msgstr ""
+
+#: translate_tmp:165
+#: translate_tmp:172
+msgid "Perspective exaggeration factor"
+msgstr ""
+
+#: translate_tmp:176
+msgid "Gap:"
+msgstr "Tallunt:"
+
+#: translate_tmp:183
+#: translate_tmp:190
+msgid "Gap between image and mirror in pixels"
+msgstr ""
+
+#: translate_tmp:194
+#: translate_tmp:176
+msgid "Zoom:"
+msgstr "Zoom:"
+
+#: translate_tmp:201
+#: translate_tmp:208
+msgid "Zoom factor for output image"
+msgstr "Ameskar n zoom i tugna n tuffɣa"
+
+#: translate_tmp:212
+#: translate_tmp:236
+#: translate_tmp:165
+#: translate_tmp:194
+msgid "Background color"
+msgstr "Ini n ugilal"
+
+#: translate_tmp:217
+#: translate_tmp:241
+#: translate_tmp:170
+#: translate_tmp:199
+msgid "Choose background color"
+msgstr "Fren ini n ugilal"
+
+#: translate_tmp:423
+#: translate_tmp:459
+#: translate_tmp:363
+#: translate_tmp:399
+#: translate_tmp:259
+#: translate_tmp:328
+#: translate_tmp:257
+#: translate_tmp:314
+#: translate_tmp:315
+#, perl-format
+msgid "Error while executing plugin %s."
+msgstr "Tuccḍa deg uselkem n usiɣzef %s."
+
+#: translate_tmp:424
+#: translate_tmp:460
+#: translate_tmp:364
+#: translate_tmp:400
+#: translate_tmp:260
+#: translate_tmp:329
+#: translate_tmp:258
+#: translate_tmp:315
+#: translate_tmp:316
+msgid "There was an error executing the plugin."
+msgstr "Teḍra-d tuccḍa mi yettwaselkem usiɣzef."
+
+#: translate_tmp:73
+msgid "3D rotate"
+msgstr "tuzzya 3D"
+
+#: translate_tmp:75
+msgid ""
+"Applies a perspective distortion to an image\n"
+"\n"
+"Based on a script by Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
+msgstr ""
+
+#: translate_tmp:111
+#: translate_tmp:118
+msgid "Rotation around image vertical centerline"
+msgstr "Tuzzya ɣef izirig alemmas ubdid n tugna"
+
+#: translate_tmp:129
+#: translate_tmp:136
+msgid "Rotation around image horizontal centerline"
+msgstr "Tuzzya ɣef izirig alemmas aglawan n tugna"
+
+#: translate_tmp:147
+#: translate_tmp:154
+msgid "Rotation around the image center"
+msgstr "Tuzzya ɣef wammas n tugna"
+
+#: translate_tmp:183
+#: translate_tmp:190
+msgid ""
+"Output zoom factor; where value > 1 means zoom in and < 1 means zoom out"
+msgstr ""
+"Ameskar n zoom n tuffɣa; azal> 1 anamek-is timerna < 1 anamek-is asenqes"
+
+#: translate_tmp:204
+msgid "Auto:"
+msgstr "Awurman:"
+
+#: translate_tmp:226
+#: translate_tmp:233
+msgid ""
+"off - No automatic adjustment\n"
+"\n"
+"c - Center bounding box in output\n"
+"\n"
+"zc - Zoom to fill and center bounding box in output\n"
+"\n"
+"out - Creates an output image of size needed to hold the transformed image"
+msgstr ""
+
+#: translate_tmp:243
+msgid "Sky color"
+msgstr "Ini n igni"
+
+#: translate_tmp:248
+msgid "Choose sky color"
+msgstr "Fren ini n igni"
+
+#: translate_tmp:62
+msgid "Barrel Distortion"
+msgstr ""
+
+#: translate_tmp:64
+msgid "Apply a distortion effect to your screenshot"
+msgstr "Snes asemdu n uzleg i tuṭṭfa n ugdil"
+
+#: translate_tmp:93
+msgid "A:"
+msgstr ""
+
+#: translate_tmp:97
+msgid "B:"
+msgstr "B:"
+
+#: translate_tmp:101
+msgid "C:"
+msgstr "C:"
+
+#: translate_tmp:105
+msgid "D:"
+msgstr "D:"
+
+#: translate_tmp:112
+#: translate_tmp:119
+#: translate_tmp:126
+#: translate_tmp:133
+#: translate_tmp:140
+#: translate_tmp:147
+#: translate_tmp:154
+#: translate_tmp:161
+msgid ""
+"The parameter d describes the linear scaling of the image. Using d=1, and "
+"a=b=c=0 leaves the image as it is. Choosing other d-values scales the image "
+"by that amount. a,b and c distort the image. Using negative values shifts "
+"distant points away from the center.\n"
+"\n"
+"Defined by Barrel Correction Distortion, by Helmut Dersch.\n"
+"http://www.all-in-one.ee/~dersch/barrel/barrel.html"
+msgstr ""
+
+#: translate_tmp:73
+msgid "Bordereffects"
+msgstr "Isemda n yiri"
+
+#: translate_tmp:75
+msgid ""
+"Create various dispersion-like effects in the border of an image\n"
+"\n"
+"Based on a script by Fred Weinhaus\n"
+"\n"
+"http://www.fmwconcepts.com/imagemagick/bordereffects/index.php"
+msgstr ""
+
+#: translate_tmp:104
+msgid "Size:"
+msgstr "Tiddi:"
+
+#: translate_tmp:111
+#: translate_tmp:118
+msgid "The size or dimension of the border region"
+msgstr "Tiddi neɣ tisekta n temnaḍt n yiri"
+
+#: translate_tmp:122
+msgid "Density:"
+msgstr "Taneẓẓi:"
+
+#: translate_tmp:129
+#: translate_tmp:136
+msgid "The frequency of detail in the border"
+msgstr ""
+
+#: translate_tmp:140
+msgid "Curviness:"
+msgstr "Tizlegi:"
+
+#: translate_tmp:147
+#: translate_tmp:154
+msgid "The curviness in the border features"
+msgstr "Tizelgi deg iferdisen n yiri"
+
+#: translate_tmp:158
+msgid "Granularity:"
+msgstr ""
+
+#: translate_tmp:165
+#: translate_tmp:172
+msgid ""
+"The base grain size or pixelization size used to create the detail in the "
+"border"
+msgstr ""
+
+#: translate_tmp:176
+msgid "Pad:"
+msgstr "Tama:"
+
+#: translate_tmp:183
+#: translate_tmp:190
+msgid "The pad size of constant color around the perimeter of the border"
+msgstr ""
+
+#: translate_tmp:62
+msgid "Negate"
+msgstr "Tti"
+
+#: translate_tmp:64
+msgid "Invert the colors of the image"
+msgstr "Tti initen n tugna"
+
+#: translate_tmp:101
+msgid "Channel"
+msgstr "Arga"
+
+#: translate_tmp:62
+msgid "Polaroid"
+msgstr ""
+
+#: translate_tmp:64
+msgid ""
+"Make your screenshot look like a polaroid photo, add a caption, and even "
+"rotate it a little"
+msgstr ""
+
+#: translate_tmp:99
+#: translate_tmp:93
+msgid "Text:"
+msgstr "Aḍris:"
+
+#: translate_tmp:106
+#: translate_tmp:112
+#: translate_tmp:100
+msgid ""
+"There are several wild-cards available, like\n"
+"%Y = year\n"
+"%m = month\n"
+"%d = day\n"
+"%T = time"
+msgstr ""
+
+#: translate_tmp:116
+#: translate_tmp:110
+msgid "Font size:"
+msgstr "Tiddi n tsefsit:"
+
+#: translate_tmp:120
+#: translate_tmp:114
+msgid "Gravity:"
+msgstr ""
+
+#: translate_tmp:137
+#: translate_tmp:131
+msgid "Stroke color"
+msgstr "Ini n izirig"
+
+#: translate_tmp:142
+#: translate_tmp:136
+msgid "Choose stroke color"
+msgstr "Fren ini n izirig"
+
+#: translate_tmp:45
+msgid "Resize"
+msgstr "Beddel tisekta"
+
+#: translate_tmp:53
+msgid "Resize your screenshot"
+msgstr "Beddel tisekta n tuṭṭfa n ugdil"
+
+#: translate_tmp:71
+msgid "Sepia"
+msgstr ""
+
+#: translate_tmp:73
+msgid "Add sepia color toning to the image"
+msgstr ""
+
+#: translate_tmp:110
+msgid "Sepia tone"
+msgstr ""
+
+#: translate_tmp:63
+msgid "Hard Shadow"
+msgstr ""
+
+#: translate_tmp:65
+msgid "Add a shadow to the image on a transparent background"
+msgstr "Rnu tili i tugna ɣef ugilal afrawan"
+
+#: translate_tmp:94
+msgid "Direction"
+msgstr "Tanila"
+
+#: translate_tmp:110
+#: translate_tmp:117
+msgid "The direction of the shadow"
+msgstr "Tanila n tili"
+
+#: translate_tmp:121
+msgid "Color"
+msgstr "Ini"
+
+#: translate_tmp:126
+msgid "Choose color"
+msgstr "Fren ini"
+
+#: translate_tmp:131
+#: translate_tmp:138
+msgid "The color of the shadow"
+msgstr "Ini n tili"
+
+#: translate_tmp:62
+msgid "Watermark"
+msgstr ""
+
+#: translate_tmp:64
+msgid "Add a custom text watermark to your screenshot"
+msgstr ""
