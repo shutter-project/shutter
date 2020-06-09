@@ -26,7 +26,7 @@ package Shutter::App::AboutDialog;
 #--------------------------------------
 use utf8;
 use strict;
-use Gtk2;
+use Gtk3;
 
 #Glib
 use Glib qw/TRUE FALSE/;
@@ -87,9 +87,9 @@ sub show {
 	}
 	close(ARTCREDITS);
 
-	my $about = Gtk2::AboutDialog->new;
+	my $about = Gtk3::AboutDialog->new;
 	$about->set_logo_icon_name('shutter');
-	if (Gtk2->CHECK_VERSION(2, 12, 0)) {
+	if (Gtk3->CHECK_VERSION(2, 12, 0)) {
 		$about->set_program_name($self->{_sc}->get_appname);
 	} else {
 		$about->set_name($self->{_sc}->get_appname);

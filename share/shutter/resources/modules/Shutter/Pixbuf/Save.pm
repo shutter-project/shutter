@@ -28,7 +28,7 @@ use utf8;
 use strict;
 use warnings;
 
-use Gtk2;
+use Gtk3;
 
 #fileparse and tempfile
 use File::Basename qw/ fileparse dirname basename /;
@@ -140,7 +140,7 @@ sub save_pixbuf_to_file {
 		my $surface = Cairo::PdfSurface->create($filename, $pixbuf->get_width * 0.8, $pixbuf->get_height * 0.8);
 		my $cr      = Cairo::Context->create($surface);
 		$cr->scale(0.8, 0.8);
-		Gtk2::Gdk::Cairo::Context::set_source_pixbuf($cr, $pixbuf, 0, 0);
+		Gtk3::Gdk::Cairo::Context::set_source_pixbuf($cr, $pixbuf, 0, 0);
 		$cr->paint;
 		$cr->show_page;
 
@@ -155,7 +155,7 @@ sub save_pixbuf_to_file {
 		my $surface = Cairo::PsSurface->create($filename, $pixbuf->get_width * 0.8, $pixbuf->get_height * 0.8);
 		my $cr      = Cairo::Context->create($surface);
 		$cr->scale(0.8, 0.8);
-		Gtk2::Gdk::Cairo::Context::set_source_pixbuf($cr, $pixbuf, 0, 0);
+		Gtk3::Gdk::Cairo::Context::set_source_pixbuf($cr, $pixbuf, 0, 0);
 		$cr->paint;
 		$cr->show_page;
 
@@ -170,7 +170,7 @@ sub save_pixbuf_to_file {
 		my $surface = Cairo::SvgSurface->create($filename, $pixbuf->get_width * 0.8, $pixbuf->get_height * 0.8);
 		my $cr      = Cairo::Context->create($surface);
 		$cr->scale(0.8, 0.8);
-		Gtk2::Gdk::Cairo::Context::set_source_pixbuf($cr, $pixbuf, 0, 0);
+		Gtk3::Gdk::Cairo::Context::set_source_pixbuf($cr, $pixbuf, 0, 0);
 		$cr->paint;
 		$cr->show_page;
 

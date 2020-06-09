@@ -37,8 +37,8 @@ use Time::HiRes qw/ time usleep /;
 
 use Shutter::Screenshot::History;
 
-#Glib and Gtk2
-use Gtk2;
+#Glib and Gtk3
+use Gtk3;
 use Glib qw/TRUE FALSE/;
 
 #--------------------------------------
@@ -101,7 +101,7 @@ sub dlg_website {
 	#~ $web_process->redirect_output ("$ENV{'HOME'}/shutter-debug-stdout.log", "$ENV{'HOME'}/shutter-debug-err.log");
 	$web_process->redirect_output($tmpfilename_stdout, $tmpfilename_sterr);
 
-	my $website_dialog = Gtk2::MessageDialog->new($self->{_sc}->get_mainwindow, [qw/modal destroy-with-parent/], 'other', 'none', undef);
+	my $website_dialog = Gtk3::MessageDialog->new($self->{_sc}->get_mainwindow, [qw/modal destroy-with-parent/], 'other', 'none', undef);
 
 	$website_dialog->set_title("Shutter");
 
@@ -110,18 +110,18 @@ sub dlg_website {
 	$website_dialog->set('secondary-text' => $d->get("URL to capture") . ": ");
 
 	if ($self->{_sc}->get_theme->has_icon('web-browser')) {
-		$website_dialog->set('image' => Gtk2::Image->new_from_icon_name('web-browser', 'dialog'));
+		$website_dialog->set('image' => Gtk3::Image->new_from_icon_name('web-browser', 'dialog'));
 	} else {
 		$website_dialog->set('image' =>
-				Gtk2::Image->new_from_pixbuf(Gtk2::Gdk::Pixbuf->new_from_file_at_size($self->{_sc}->get_root . "/share/shutter/resources/icons/web_image.svg", Gtk2::IconSize->lookup('dialog'))));
+				Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size($self->{_sc}->get_root . "/share/shutter/resources/icons/web_image.svg", Gtk3::IconSize->lookup('dialog'))));
 	}
 
 	#cancel button
-	my $cancel_btn = Gtk2::Button->new_from_stock('gtk-cancel');
+	my $cancel_btn = Gtk3::Button->new_from_stock('gtk-cancel');
 
 	#capture button
-	my $execute_btn = Gtk2::Button->new_with_mnemonic($d->get("C_apture"));
-	$execute_btn->set_image(Gtk2::Image->new_from_stock('gtk-execute', 'button'));
+	my $execute_btn = Gtk3::Button->new_with_mnemonic($d->get("C_apture"));
+	$execute_btn->set_image(Gtk3::Image->new_from_stock('gtk-execute', 'button'));
 	$execute_btn->set_sensitive(FALSE);
 	$execute_btn->can_default(TRUE);
 
@@ -130,10 +130,10 @@ sub dlg_website {
 
 	$website_dialog->set_default_response('accept');
 
-	my $website_hbox  = Gtk2::HBox->new();
-	my $website_hbox2 = Gtk2::HBox->new();
+	my $website_hbox  = Gtk3::HBox->new();
+	my $website_hbox2 = Gtk3::HBox->new();
 
-	my $website = Gtk2::Entry->new;
+	my $website = Gtk3::Entry->new;
 	$website->set_activates_default(TRUE);
 
 	#check if url is valid
@@ -147,7 +147,7 @@ sub dlg_website {
 			return FALSE;
 		});
 
-	my $clipboard        = Gtk2::Clipboard->get(Gtk2::Gdk->SELECTION_CLIPBOARD);
+	my $clipboard        = Gtk3::Clipboard->get(Gtk3::Gdk->SELECTION_CLIPBOARD);
 	my $clipboard_string = $clipboard->wait_for_text;
 	print "Content of clipboard is: $clipboard_string\n"
 		if $self->{_sc}->get_debug and defined $clipboard_string;
@@ -171,7 +171,7 @@ sub dlg_website {
 	$website_hbox->pack_start($website, TRUE, TRUE, 12);
 	$website_dialog->vbox->add($website_hbox);
 
-	my $website_progress = Gtk2::ProgressBar->new;
+	my $website_progress = Gtk3::ProgressBar->new;
 	$website_progress->set_no_show_all(TRUE);
 	$website_progress->set_ellipsize('middle');
 	$website_progress->set_orientation('left-to-right');
@@ -249,7 +249,7 @@ sub dlg_website {
 			$website_progress->set_fraction(2 / 3);
 			$self->update_gui();
 
-			eval { $output = Gtk2::Gdk::Pixbuf->new_from_file($tmpfilename) };
+			eval { $output = Gtk3::Gdk::Pixbuf->new_from_file($tmpfilename) };
 			if ($@) {
 
 				#reading stdout from file
@@ -310,10 +310,10 @@ sub dlg_website {
 sub update_gui {
 	my $self = shift;
 
-	while (Gtk2->events_pending) {
-		Gtk2->main_iteration;
+	while (Gtk3->events_pending) {
+		Gtk3->main_iteration;
 	}
-	Gtk2::Gdk->flush;
+	Gtk3::Gdk->flush;
 
 	return TRUE;
 }

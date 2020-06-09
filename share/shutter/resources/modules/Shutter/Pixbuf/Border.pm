@@ -28,7 +28,7 @@ use utf8;
 use strict;
 use warnings;
 
-use Gtk2;
+use Gtk3;
 
 #Glib
 use Glib qw/TRUE FALSE/;
@@ -57,7 +57,7 @@ sub create_border {
 	my $color  = shift;
 
 	#create new pixbuf
-	my $tmp_pbuf = Gtk2::Gdk::Pixbuf->new('rgb', TRUE, 8, $pixbuf->get_width + 2 * $width, $pixbuf->get_height + 2 * $width);
+	my $tmp_pbuf = Gtk3::Gdk::Pixbuf->new('rgb', TRUE, 8, $pixbuf->get_width + 2 * $width, $pixbuf->get_height + 2 * $width);
 
 	#Create a pixel specification
 	my $pixel = 0;

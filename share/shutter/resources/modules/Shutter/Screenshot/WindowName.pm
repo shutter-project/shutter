@@ -32,8 +32,8 @@ use Shutter::Screenshot::WindowXid;
 use Data::Dumper;
 our @ISA = qw(Shutter::Screenshot::WindowXid);
 
-#Glib and Gtk2
-use Gtk2;
+#Glib and Gtk3
+use Gtk3;
 use Glib qw/TRUE FALSE/;
 
 #--------------------------------------

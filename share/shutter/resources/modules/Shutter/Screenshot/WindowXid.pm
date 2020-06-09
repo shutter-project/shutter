@@ -32,8 +32,8 @@ use Shutter::Screenshot::Window;
 use Data::Dumper;
 our @ISA = qw(Shutter::Screenshot::Window);
 
-#Glib and Gtk2
-use Gtk2;
+#Glib and Gtk3
+use Gtk3;
 use Glib qw/TRUE FALSE/;
 
 #--------------------------------------
@@ -58,7 +58,7 @@ sub window_by_xid {
 	my $self = shift;
 	my $xid  = shift;
 
-	my $gdk_window  = Gtk2::Gdk::Window->foreign_new($xid);
+	my $gdk_window  = Gtk3::Gdk::Window->foreign_new($xid);
 	my $wnck_window = Gnome2::Wnck::Window->get($xid);
 
 	#~ print $xid, " - ", $gdk_window, " - ", $wnck_window, "\n";
@@ -70,18 +70,18 @@ sub window_by_xid {
 		my ($xp, $yp, $wp, $hp) = $self->get_window_size($wnck_window, $gdk_window, $self->{_include_border});
 
 		#focus selected window (maybe it is hidden)
-		$gdk_window->focus(Gtk2->get_current_event_time);
-		Gtk2::Gdk->flush;
+		$gdk_window->focus(Gtk3->get_current_event_time);
+		Gtk3::Gdk->flush;
 
 		#A short timeout to give the server a chance to
 		#redraw the area
 		Glib::Timeout->add(
 			$self->{_hide_time},
 			sub {
-				Gtk2->main_quit;
+				Gtk3->main_quit;
 				return FALSE;
 			});
-		Gtk2->main();
+		Gtk3->main();
 
 		my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_pixbuf_from_drawable($self->{_root}, $xp, $yp, $wp, $hp);
 
@@ -109,7 +109,7 @@ sub window_by_xid {
 
 		#set name of the captured window
 		#e.g. for use in wildcards
-		if ($output =~ /Gtk2/) {
+		if ($output =~ /Gtk3/) {
 			$self->{_action_name} = $wnck_window->get_name;
 		}
 
@@ -154,7 +154,7 @@ sub quit {
 	my $self = shift;
 
 	$self->ungrab_pointer_and_keyboard(FALSE, TRUE, FALSE);
-	Gtk2::Gdk->flush;
+	Gtk3::Gdk->flush;
 
 }
 

@@ -37,7 +37,7 @@ use Data::Dumper;
 our @ISA = qw(Shutter::Screenshot::Main);
 
 #Glib
-use Gtk2;
+use Gtk3;
 use Glib qw/TRUE FALSE/;
 
 #--------------------------------------
@@ -76,7 +76,7 @@ sub new {
 		my $compos = $self->{_main_gtk_window}->get_screen->is_composited;
 
 		#higlighter (borderless gtk window)
-		$self->{_highlighter} = Gtk2::Window->new('popup');
+		$self->{_highlighter} = Gtk3::Window->new('popup');
 		if ($compos) {
 			$self->{_highlighter}->set_colormap($self->{_main_gtk_window}->get_screen->get_rgba_colormap);
 		}
@@ -93,7 +93,7 @@ sub new {
 		my $sel_bg    = $style->bg('selected');
 		my $sel_tx    = $style->text('selected');
 		my $font_fam  = $style->font_desc->get_family;
-		my $font_size = $style->font_desc->get_size / Gtk2::Pango->scale;
+		my $font_size = $style->font_desc->get_size / Pango->scale;
 
 		#get current monitor
 		my $mon = $self->get_current_monitor;
@@ -121,11 +121,11 @@ sub new {
 				my $icon = $self->{_c}{'cw'}{'window'}->get_icon;
 
 				#create cairo context
-				my $cr = Gtk2::Gdk::Cairo::Context->create($self->{_highlighter}->window);
+				my $cr = Gtk3::Gdk::Cairo::Context->create($self->{_highlighter}->window);
 
 				#pango layout
-				my $layout = Gtk2::Pango::Cairo::create_layout($cr);
-				$layout->set_width(($w - $icon->get_width - $font_size * 3) * Gtk2::Pango->scale);
+				my $layout = Pango::Cairo::create_layout($cr);
+				$layout->set_width(($w - $icon->get_width - $font_size * 3) * Pango->scale);
 				$layout->set_alignment('left');
 				$layout->set_wrap('char');
 
@@ -137,7 +137,7 @@ sub new {
 					if (scalar @{$self->{_c}{'cw'}{$xwindow}} <= 1) {
 
 						#error icon
-						$icon = Gtk2::Widget::render_icon(Gtk2::Invisible->new, "gtk-dialog-error", 'dialog');
+						$icon = Gtk3::Widget::render_icon(Gtk3::Invisible->new, "gtk-dialog-error", 'dialog');
 
 						#error message
 						my $d = $self->{_sc}->get_gettext;
@@ -201,12 +201,12 @@ sub new {
 							$cr->fill;
 
 							#app icon
-							Gtk2::Gdk::Cairo::Context::set_source_pixbuf($cr, $icon, $xi + $font_size, $yi + $font_size);
+							Gtk3::Gdk::Cairo::Context::set_source_pixbuf($cr, $icon, $xi + $font_size, $yi + $font_size);
 							$cr->paint;
 
 							#draw the pango layout
 							$cr->move_to($xi + $font_size * 2 + $icon->get_width, $yi + $font_size);
-							Gtk2::Pango::Cairo::show_layout($cr, $layout);
+							Pango::Cairo::show_layout($cr, $layout);
 
 						}
 
@@ -233,22 +233,22 @@ sub new {
 						if ($lw <= $w && $lh <= $h) {
 
 							#app icon
-							Gtk2::Gdk::Cairo::Context::set_source_pixbuf($cr, $icon, $xi + $font_size, $yi + $font_size);
+							Gtk3::Gdk::Cairo::Context::set_source_pixbuf($cr, $icon, $xi + $font_size, $yi + $font_size);
 							$cr->paint;
 
 							#draw the pango layout
 							$cr->move_to($xi + $font_size * 2 + $icon->get_width, $yi + $font_size);
-							Gtk2::Pango::Cairo::show_layout($cr, $layout);
+							Pango::Cairo::show_layout($cr, $layout);
 						}
 
 					}
 
-					my $rectangle1 = Gtk2::Gdk::Rectangle->new(0,   0,   $w,     $h);
-					my $rectangle2 = Gtk2::Gdk::Rectangle->new(3,   3,   $w - 6, $h - 6);
-					my $rectangle3 = Gtk2::Gdk::Rectangle->new($xi, $yi, $wi,    $hi);
-					my $shape_region1 = Gtk2::Gdk::Region->rectangle($rectangle1);
-					my $shape_region2 = Gtk2::Gdk::Region->rectangle($rectangle2);
-					my $shape_region3 = Gtk2::Gdk::Region->rectangle($rectangle3);
+					my $rectangle1 = Gtk3::Gdk::Rectangle->new(0,   0,   $w,     $h);
+					my $rectangle2 = Gtk3::Gdk::Rectangle->new(3,   3,   $w - 6, $h - 6);
+					my $rectangle3 = Gtk3::Gdk::Rectangle->new($xi, $yi, $wi,    $hi);
+					my $shape_region1 = Gtk3::Gdk::Region->rectangle($rectangle1);
+					my $shape_region2 = Gtk3::Gdk::Region->rectangle($rectangle2);
+					my $shape_region3 = Gtk3::Gdk::Region->rectangle($rectangle3);
 
 					#Parent window with text and icon
 					if ($self->{_c}{'cw'}{'is_parent'}) {
@@ -369,7 +369,7 @@ sub get_shape {
 	}
 
 	#create a region from the bounding rectangles
-	my $bregion = Gtk2::Gdk::Region->new;
+	my $bregion = Gtk3::Gdk::Region->new;
 	foreach my $r (@r) {
 		my @rect = @{$r};
 
@@ -392,13 +392,13 @@ sub get_shape {
 		}
 
 		print "Current $rect[0],$rect[1],$rect[2],$rect[3]\n" if $self->{_sc}->get_debug;
-		$bregion->union_with_rect(Gtk2::Gdk::Rectangle->new($rect[0], $rect[1], $rect[2], $rect[3]));
+		$bregion->union_with_rect(Gtk3::Gdk::Rectangle->new($rect[0], $rect[1], $rect[2], $rect[3]));
 	}
 
 	if (defined $orig) {
 
 		#create target pixbuf with dimensions if selected/current window
-		my $target = Gtk2::Gdk::Pixbuf->new($orig->get_colorspace, TRUE, 8, $orig->get_width, $orig->get_height);
+		my $target = Gtk3::Gdk::Pixbuf->new($orig->get_colorspace, TRUE, 8, $orig->get_width, $orig->get_height);
 
 		#whole pixbuf is transparent
 		$target->fill(0x00000000);
@@ -446,10 +446,10 @@ sub get_window_size {
 				Glib::Timeout->add(
 					$self->{_hide_time},
 					sub {
-						Gtk2->main_quit;
+						Gtk3->main_quit;
 						return FALSE;
 					});
-				Gtk2->main();
+				Gtk3->main();
 
 				my ($xc, $yc, $wc, $hc) = $self->get_window_size($wnck_window, $gdk_window, $border, TRUE);
 
@@ -470,10 +470,10 @@ sub get_window_size {
 				Glib::Timeout->add(
 					$self->{_hide_time},
 					sub {
-						Gtk2->main_quit;
+						Gtk3->main_quit;
 						return FALSE;
 					});
-				Gtk2->main();
+				Gtk3->main();
 			}
 		}
 	}
@@ -499,7 +499,7 @@ sub update_highlighter {
 		$self->{_highlighter}->show_all;
 		$self->{_highlighter}->queue_draw;
 
-		Gtk2::Gdk->keyboard_grab($self->{_highlighter}->window, 0, Gtk2->get_current_event_time);
+		Gtk3::Gdk->keyboard_grab($self->{_highlighter}->window, 0, Gtk3->get_current_event_time);
 
 		#save last window objects
 		$self->{_c}{'lw'}{'window'}     = $self->{_c}{'cw'}{'window'};
@@ -524,7 +524,7 @@ sub find_current_parent_window {
 
 	foreach my $cwdow (@wnck_windows) {
 
-		my $drawable = Gtk2::Gdk::Window->foreign_new($cwdow->get_xid);
+		my $drawable = Gtk3::Gdk::Window->foreign_new($cwdow->get_xid);
 		if (defined $drawable) {
 
 			#do not detect shutter window when it is hidden
@@ -534,7 +534,7 @@ sub find_current_parent_window {
 
 			my ($xp, $yp, $wp, $hp) = $self->get_window_size($cwdow, $drawable, $self->{_include_border}, TRUE);
 
-			my $wr = Gtk2::Gdk::Region->rectangle(Gtk2::Gdk::Rectangle->new($xp, $yp, $wp, $hp));
+			my $wr = Gtk3::Gdk::Region->rectangle(Gtk3::Gdk::Rectangle->new($xp, $yp, $wp, $hp));
 
 			if (   $cwdow->is_visible_on_workspace($active_workspace)
 				&& $wr->point_in($event->x, $event->y)
@@ -592,7 +592,7 @@ sub find_current_child_window {
 
 	foreach my $kid (reverse @qkids) {
 
-		my $gdk_window = Gtk2::Gdk::Window->foreign_new($kid);
+		my $gdk_window = Gtk3::Gdk::Window->foreign_new($kid);
 		if (defined $gdk_window) {
 
 			#window needs to be viewable and visible
@@ -612,7 +612,7 @@ sub find_current_child_window {
 			($xp, $yp) = $gdk_window->get_origin;
 			next if ($wp * $hp < 4);
 
-			my $sr = Gtk2::Gdk::Region->rectangle(Gtk2::Gdk::Rectangle->new($xp, $yp, $wp, $hp));
+			my $sr = Gtk3::Gdk::Region->rectangle(Gtk3::Gdk::Rectangle->new($xp, $yp, $wp, $hp));
 
 			if ($sr->point_in($event->x, $event->y) && $wp * $hp <= $self->{_min_size}) {
 
@@ -668,7 +668,7 @@ sub find_region_for_window_type {
 
 	foreach my $kid (reverse @qkids) {
 
-		my $gdk_window = Gtk2::Gdk::Window->foreign_new($kid);
+		my $gdk_window = Gtk3::Gdk::Window->foreign_new($kid);
 
 		if (defined $gdk_window) {
 
@@ -693,11 +693,11 @@ sub find_region_for_window_type {
 			#~ print $xp, " - ", $yp, " - ", $wp, " - ", $hp, "\n";
 
 			#create region
-			my $sr = Gtk2::Gdk::Region->rectangle(Gtk2::Gdk::Rectangle->new($xp, $yp, $wp, $hp));
+			my $sr = Gtk3::Gdk::Region->rectangle(Gtk3::Gdk::Rectangle->new($xp, $yp, $wp, $hp));
 
 			#init region
 			unless (defined $self->{_c}{'cw'}{'window_region'}) {
-				$self->{_c}{'cw'}{'window_region'} = Gtk2::Gdk::Region->new;
+				$self->{_c}{'cw'}{'window_region'} = Gtk3::Gdk::Region->new;
 				$self->{_c}{'cw'}{'window_region'}->union($sr);
 			} else {
 				$self->{_c}{'cw'}{'window_region'}->union($sr);
@@ -749,8 +749,8 @@ sub select_window {
 	}
 
 	#draw highlighter if needed
-	if (   (Gtk2::Gdk->pointer_is_grabbed && ($self->{_c}{'lw'}{'gdk_window'} ne $self->{_c}{'cw'}{'gdk_window'}))
-		|| (Gtk2::Gdk->pointer_is_grabbed && $self->{_c}{'ws_init'}))
+	if (   (Gtk3::Gdk->pointer_is_grabbed && ($self->{_c}{'lw'}{'gdk_window'} ne $self->{_c}{'cw'}{'gdk_window'}))
+		|| (Gtk3::Gdk->pointer_is_grabbed && $self->{_c}{'ws_init'}))
 	{
 
 		$self->update_highlighter();
@@ -791,9 +791,9 @@ sub window {
 		$self->{_highlighter}->realize;
 
 		my $grab_counter = 0;
-		while (!Gtk2::Gdk->pointer_is_grabbed && $grab_counter < 100) {
-			Gtk2::Gdk->pointer_grab($self->{_root}, FALSE, [qw/pointer-motion-mask button-press-mask button-release-mask/], undef, Gtk2::Gdk::Cursor->new('GDK_HAND2'), Gtk2->get_current_event_time);
-			Gtk2::Gdk->keyboard_grab($self->{_highlighter}->window, 0, Gtk2->get_current_event_time);
+		while (!Gtk3::Gdk->pointer_is_grabbed && $grab_counter < 100) {
+			Gtk3::Gdk->pointer_grab($self->{_root}, FALSE, [qw/pointer-motion-mask button-press-mask button-release-mask/], undef, Gtk3::Gdk::Cursor->new('GDK_HAND2'), Gtk3->get_current_event_time);
+			Gtk3::Gdk->keyboard_grab($self->{_highlighter}->window, 0, Gtk3->get_current_event_time);
 			$grab_counter++;
 		}
 
@@ -817,14 +817,14 @@ sub window {
 	my ($window_at_pointer, $initx, $inity, $mask) = $self->{_root}->get_pointer;
 
 	#create event for current coordinates
-	my $initevent = Gtk2::Gdk::Event->new('motion-notify');
-	$initevent->set_time(Gtk2->get_current_event_time);
+	my $initevent = Gtk3::Gdk::Event->new('motion-notify');
+	$initevent->set_time(Gtk3->get_current_event_time);
 	$initevent->window($self->{_root});
 	$initevent->x($initx);
 	$initevent->y($inity);
 
 	if (
-		Gtk2::Gdk->pointer_is_grabbed
+		Gtk3::Gdk->pointer_is_grabbed
 		&& !(
 			   $self->{_mode} eq "menu"
 			|| $self->{_mode} eq "tray_menu"
@@ -838,7 +838,7 @@ sub window {
 		#simulate mouse movement
 		$self->select_window($initevent, $active_workspace);
 
-		Gtk2::Gdk::Event->handler_set(
+		Gtk3::Gdk::Event->handler_set(
 			sub {
 				my ($event, $data) = @_;
 				return FALSE unless defined $event;
@@ -847,7 +847,7 @@ sub window {
 				if ($event->type eq 'key-press') {
 					next unless defined $event->keyval;
 
-					if ($event->keyval == Gtk2::Gdk->keyval_from_name('Escape')) {
+					if ($event->keyval == Gtk3::Gdk->keyval_from_name('Escape')) {
 
 						#destroy highlighter window
 						$self->{_highlighter}->destroy;
@@ -886,7 +886,7 @@ sub window {
 
 						#focus selected window (maybe it is hidden)
 						$self->{_c}{'lw'}{'gdk_window'}->focus($event->time);
-						Gtk2::Gdk->flush;
+						Gtk3::Gdk->flush;
 
 						#something went wrong here, no window on screen detected
 					} else {
@@ -925,10 +925,10 @@ sub window {
 					Glib::Timeout->add(
 						$self->{_hide_time},
 						sub {
-							Gtk2->main_quit;
+							Gtk3->main_quit;
 							return FALSE;
 						});
-					Gtk2->main();
+					Gtk3->main();
 
 					my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) =
 						$self->get_pixbuf_from_drawable($self->{_root}, $self->{_c}{'cw'}{'x'}, $self->{_c}{'cw'}{'y'}, $self->{_c}{'cw'}{'width'}, $self->{_c}{'cw'}{'height'});
@@ -965,7 +965,7 @@ sub window {
 
 					#set name of the captured window
 					#e.g. for use in wildcards
-					if ($output =~ /Gtk2/ && defined $self->{_c}{'cw'}{'window'}) {
+					if ($output =~ /Gtk3/ && defined $self->{_c}{'cw'}{'window'}) {
 						$self->{_action_name} = $self->{_c}{'cw'}{'window'}->get_name;
 					}
 
@@ -987,11 +987,11 @@ sub window {
 					$self->select_window($event, $active_workspace);
 
 				} else {
-					Gtk2->main_do_event($event);
+					Gtk3->main_do_event($event);
 				}
 			});
 
-		Gtk2->main;
+		Gtk3->main;
 
 		#pointer not grabbed
 	} else {
@@ -1107,25 +1107,25 @@ sub window {
 
 		if (($self->{_mode} eq "window" || $self->{_mode} eq "tray_window" || $self->{_mode} eq "awindow" || $self->{_mode} eq "tray_awindow")) {
 
-			if ($output =~ /Gtk2/ && defined $self->{_c}{'cw'}{'window'}) {
+			if ($output =~ /Gtk3/ && defined $self->{_c}{'cw'}{'window'}) {
 				$self->{_action_name} = $self->{_c}{'cw'}{'window'}->get_name;
 			}
 
 		} elsif (($self->{_mode} eq "section" || $self->{_mode} eq "tray_section")) {
 
-			if ($output =~ /Gtk2/ && defined $self->{_c}{'cw'}{'window'}) {
+			if ($output =~ /Gtk3/ && defined $self->{_c}{'cw'}{'window'}) {
 				$self->{_action_name} = $self->{_action_name} = $self->{_c}{'cw'}{'window'}->get_name;
 			}
 
 		} elsif (($self->{_mode} eq "menu" || $self->{_mode} eq "tray_menu")) {
 
-			if ($output =~ /Gtk2/) {
+			if ($output =~ /Gtk3/) {
 				$self->{_action_name} = $d->get("Menu");
 			}
 
 		} elsif (($self->{_mode} eq "tooltip" || $self->{_mode} eq "tray_tooltip")) {
 
-			if ($output =~ /Gtk2/) {
+			if ($output =~ /Gtk3/) {
 				$self->{_action_name} = $d->get("Tooltip");
 			}
 
@@ -1173,7 +1173,7 @@ sub redo_capture {
 		if (defined $gxid && defined $wxid) {
 
 			#create windows
-			my $gdk_window  = Gtk2::Gdk::Window->foreign_new($gxid);
+			my $gdk_window  = Gtk3::Gdk::Window->foreign_new($gxid);
 			my $wnck_window = Gnome2::Wnck::Window->get($wxid);
 
 			if (defined $gdk_window && defined $wnck_window) {
@@ -1188,12 +1188,12 @@ sub redo_capture {
 
 					#find parent window
 					my $pxid   = $self->find_wm_window($gxid);
-					my $parent = Gtk2::Gdk::Window->foreign_new($pxid);
+					my $parent = Gtk3::Gdk::Window->foreign_new($pxid);
 					if (defined $parent && $parent) {
 
 						#and focus parent window (maybe it is hidden)
-						$parent->focus(Gtk2->get_current_event_time);
-						Gtk2::Gdk->flush;
+						$parent->focus(Gtk3->get_current_event_time);
+						Gtk3::Gdk->flush;
 					}
 
 				} elsif ($self->{_mode} eq "window" || $self->{_mode} eq "tray_window" || $self->{_mode} eq "awindow" || $self->{_mode} eq "tray_awindow") {
@@ -1205,18 +1205,18 @@ sub redo_capture {
 				}
 
 				#focus selected window (maybe it is hidden)
-				$gdk_window->focus(Gtk2->get_current_event_time);
-				Gtk2::Gdk->flush;
+				$gdk_window->focus(Gtk3->get_current_event_time);
+				Gtk3::Gdk->flush;
 
 				#A short timeout to give the server a chance to
 				#redraw the area
 				Glib::Timeout->add(
 					$self->{_hide_time},
 					sub {
-						Gtk2->main_quit;
+						Gtk3->main_quit;
 						return FALSE;
 					});
-				Gtk2->main();
+				Gtk3->main();
 
 				my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_pixbuf_from_drawable($self->{_root}, $xp, $yp, $wp, $hp);
 
@@ -1279,7 +1279,7 @@ sub quit {
 	my $self = shift;
 
 	$self->ungrab_pointer_and_keyboard(FALSE, TRUE, TRUE);
-	Gtk2::Gdk->flush;
+	Gtk3::Gdk->flush;
 
 }
 
@@ -1287,7 +1287,7 @@ sub quit_eventh_only {
 	my $self = shift;
 
 	$self->ungrab_pointer_and_keyboard(FALSE, TRUE, FALSE);
-	Gtk2::Gdk->flush;
+	Gtk3::Gdk->flush;
 
 }
 

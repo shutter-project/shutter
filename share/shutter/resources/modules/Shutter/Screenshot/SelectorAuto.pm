@@ -68,7 +68,7 @@ sub select_auto {
 	}
 
 	#we don't have a useful string for wildcards (e.g. $name)
-	if ($output =~ /Gtk2/) {
+	if ($output =~ /Gtk3/) {
 		$self->{_action_name} = $d->get("Selection");
 	}
 

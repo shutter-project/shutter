@@ -28,7 +28,7 @@ use utf8;
 use strict;
 use warnings;
 
-use Gtk2;
+use Gtk3;
 
 #Glib
 use Glib qw/TRUE FALSE/;
@@ -55,7 +55,7 @@ sub get_clipbox {
 
 		#~ print $rect->x, " - ", $rect->y, " - ", $rect->width, " - ", $rect->height, "\n";
 		unless (defined $clip) {
-			$clip = Gtk2::Gdk::Rectangle->new($rect->x, $rect->y, $rect->width, $rect->height);
+			$clip = Gtk3::Gdk::Rectangle->new($rect->x, $rect->y, $rect->width, $rect->height);
 		} else {
 			if ($rect->x < $clip->x) {
 				$clip->width($clip->width + $clip->x);
@@ -78,7 +78,7 @@ sub get_clipbox {
 	if (defined $clip) {
 		return $clip;
 	} else {
-		return Gtk2::Gdk::Rectangle->new(0, 0, 0, 0);
+		return Gtk3::Gdk::Rectangle->new(0, 0, 0, 0);
 	}
 
 }
