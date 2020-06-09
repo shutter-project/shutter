@@ -16,13 +16,14 @@
 # with X11-Protocol-Other.  If not, see <http://www.gnu.org/licenses/>.
 
 BEGIN { require 5 }
+
 package X11::Protocol::Ext::XFIXES;
 use X11::Protocol 'padded';
 use strict;
 use Carp;
 
 use vars '$VERSION', '@CARP_NOT';
-$VERSION = 29;
+$VERSION  = 29;
 @CARP_NOT = ('X11::Protocol');
 
 # uncomment this to run the ### lines
@@ -40,461 +41,512 @@ $VERSION = 29;
 #
 # /usr/share/doc/x11proto-core-dev/x11protocol.txt.gz
 
-
 # these not documented yet ...
 use constant CLIENT_MAJOR_VERSION => 5;
 use constant CLIENT_MINOR_VERSION => 0;
 
-
 #------------------------------------------------------------------------------
 # symbolic constants
 
-use constant constants_list =>
-  (XFixesWindowRegionKind => ['Bounding', 'Clip'],
-   XFixesSaveSetMode      => ['Insert', 'Delete'],
-   XFixesSaveSetTarget    => ['Nearest', 'Root'],
-   XFixesSaveSetMap       => ['Map', 'Unmap'],
+use constant constants_list => (
+	XFixesWindowRegionKind => ['Bounding', 'Clip'],
+	XFixesSaveSetMode      => ['Insert',   'Delete'],
+	XFixesSaveSetTarget    => ['Nearest',  'Root'],
+	XFixesSaveSetMap       => ['Map',      'Unmap'],
 
-   XFixesSelectionNotifySubtype => [ 'SetSelectionOwner',
-                                     'SelectionWindowDestroy',
-                                     'SelectionClientClose' ],
-   XFixesCursorNotifySubtype => [ 'DisplayCursor' ],
+	XFixesSelectionNotifySubtype => ['SetSelectionOwner', 'SelectionWindowDestroy', 'SelectionClientClose'],
+	XFixesCursorNotifySubtype    => ['DisplayCursor'],
 
-   # Not sure about these two ...
-   # XFixesSelectionEventMask => [ 'SetSelectionOwner',
-   #                               'SelectionWindowDestroy',
-   #                               'SelectionClientClose' ],
-   # XFixesCursorEventMask     => [ 'DisplayCursor' ],
-  );
+	# Not sure about these two ...
+	# XFixesSelectionEventMask => [ 'SetSelectionOwner',
+	#                               'SelectionWindowDestroy',
+	#                               'SelectionClientClose' ],
+	# XFixesCursorEventMask     => [ 'DisplayCursor' ],
+);
 
 sub _ext_constants_install {
-  my ($X, $constants_arrayref) = @_;
-  foreach (my $i = 0; $i <= $#$constants_arrayref; $i+=2) {
-    my $name = $constants_arrayref->[$i];
-    my $aref = $constants_arrayref->[$i+1];
-    $X->{'ext_const'}->{$name} = $aref;
-    $X->{'ext_const_num'}->{$name} = { X11::Protocol::make_num_hash($aref) };
-  }
+	my ($X, $constants_arrayref) = @_;
+	foreach (my $i = 0 ; $i <= $#$constants_arrayref ; $i += 2) {
+		my $name = $constants_arrayref->[$i];
+		my $aref = $constants_arrayref->[$i + 1];
+		$X->{'ext_const'}->{$name}     = $aref;
+		$X->{'ext_const_num'}->{$name} = {X11::Protocol::make_num_hash($aref)};
+	}
 }
 
 #------------------------------------------------------------------------------
 # events
 
-my $events_arrayref
-  = [ XFixesSelectionNotify =>
-      [ 'xCxxL5',
-        ['subtype','XFixesSelectionNotifySubtype'],
-        'window',
-        ['owner',['None']], # window
-        'selection',        # atom
-        'time',
-        'selection_time',
-      ],
+my $events_arrayref = [
+	XFixesSelectionNotify => [
+		'xCxxL5',
+		['subtype', 'XFixesSelectionNotifySubtype'],
+		'window',
+		['owner', ['None']],    # window
+		'selection',            # atom
+		'time',
+		'selection_time',
+	],
 
-      XFixesCursorNotify =>
-      [ sub {
-          my $X = shift;
-          my $data = shift;
-          ### XFixesCursorNotify unpack: @_
-          my ($subtype, $window, $cursor_serial, $time, $cursor_name)
-            = unpack 'xCxxL4', $data;
-          return (@_,  # base fields
-                  subtype => $X->interp('XFixesCursorNotifySubtype',$subtype),
-                  window  => _interp_none($X,$window), # probably not None though
-                  cursor_serial => $cursor_serial,
-                  time    => _interp_time($time),
-                  # "name" field only in XFIXES 2.0 up, probably pad garbage
-                  # in 1.0, so omit there.  Give it as "cursor_name" since
-                  # plain "name" is the event name.
-                  ($X->{'ext'}->{'XFIXES'}->[3]->{'major'} >= 2
-                   ? (cursor_name => $cursor_name)
-                   : ()));
-        },
-        sub {
-          my ($X, %h) = @_;
-          # "cursor_name" can be omitted as for a 1.0 event
-          return (pack('xCxxL4x12',
-                       $X->num('XFixesCursorNotifySubtype',$h{'subtype'}),
-                       _num_none($h{'window'}),
-                       $h{'cursor_serial'},
-                       _num_time($h{'time'}),
-                       _num_none($h{'cursor_name'} || 0)),
-                  1); # "do_seq" put in sequence number
-        } ],
-    ];
+	XFixesCursorNotify => [
+		sub {
+			my $X    = shift;
+			my $data = shift;
+			### XFixesCursorNotify unpack: @_
+			my ($subtype, $window, $cursor_serial, $time, $cursor_name) = unpack 'xCxxL4', $data;
+			return (
+				@_,             # base fields
+				subtype       => $X->interp('XFixesCursorNotifySubtype', $subtype),
+				window        => _interp_none($X, $window),                           # probably not None though
+				cursor_serial => $cursor_serial,
+				time          => _interp_time($time),
+
+				# "name" field only in XFIXES 2.0 up, probably pad garbage
+				# in 1.0, so omit there.  Give it as "cursor_name" since
+				# plain "name" is the event name.
+				(
+					$X->{'ext'}->{'XFIXES'}->[3]->{'major'} >= 2
+					? (cursor_name => $cursor_name)
+					: ()));
+		},
+		sub {
+			my ($X, %h) = @_;
+
+			# "cursor_name" can be omitted as for a 1.0 event
+			return (pack('xCxxL4x12', $X->num('XFixesCursorNotifySubtype', $h{'subtype'}), _num_none($h{'window'}), $h{'cursor_serial'}, _num_time($h{'time'}), _num_none($h{'cursor_name'} || 0)), 1)
+				;    # "do_seq" put in sequence number
+		}
+	],
+];
 
 sub _ext_events_install {
-  my ($X, $event_num, $events_arrayref) = @_;
-  foreach (my $i = 0; $i <= $#$events_arrayref; $i+=2) {
-    my $name = $events_arrayref->[$i];
-    if (defined (my $already = $X->{'ext_const'}->{'Events'}->[$event_num])) {
-      carp "Event $event_num $already overwritten with $name";
-    }
-    $X->{'ext_const'}->{'Events'}->[$event_num] = $name;
-    $X->{'ext_events'}->[$event_num] = $events_arrayref->[$i+1]; # pack/unpack
-    $event_num++;
-  }
+	my ($X, $event_num, $events_arrayref) = @_;
+	foreach (my $i = 0 ; $i <= $#$events_arrayref ; $i += 2) {
+		my $name = $events_arrayref->[$i];
+		if (defined(my $already = $X->{'ext_const'}->{'Events'}->[$event_num])) {
+			carp "Event $event_num $already overwritten with $name";
+		}
+		$X->{'ext_const'}->{'Events'}->[$event_num] = $name;
+		$X->{'ext_events'}->[$event_num] = $events_arrayref->[$i + 1];    # pack/unpack
+		$event_num++;
+	}
 }
 
 #------------------------------------------------------------------------------
 # requests
 
-my $requests_arrayref =
-  [
-   [ 'XFixesQueryVersion',  # 0
-     sub {
-       my ($X, $major, $minor) = @_;
-       ### XFixesQueryVersion request
-       return pack 'LL', $major, $minor;
-     },
-     sub {
-       my ($X, $data) = @_;
-       ### XFixesQueryVersion reply: "$X"
-       my @ret = unpack 'x8SS', $data;
-       my $self;
-       if ($self = $X->{'ext'}->{'XFIXES'}->[3]) {
-         ($self->{'major'},$self->{'minor'}) = @ret;
-       }
-       return @ret;
-     }],
+my $requests_arrayref = [[
+		'XFixesQueryVersion',    # 0
+		sub {
+			my ($X, $major, $minor) = @_;
+			### XFixesQueryVersion request
+			return pack 'LL', $major, $minor;
+		},
+		sub {
+			my ($X, $data) = @_;
+			### XFixesQueryVersion reply: "$X"
+			my @ret = unpack 'x8SS', $data;
+			my $self;
+			if ($self = $X->{'ext'}->{'XFIXES'}->[3]) {
+				($self->{'major'}, $self->{'minor'}) = @ret;
+			}
+			return @ret;
+		}
+	],
 
-   [ 'XFixesChangeSaveSet',  # 1
-     sub {
-       my ($X, $window, $mode, $target, $map) = @_;
-       return pack ('CCCxL',
-                    $X->num('XFixesSaveSetMode',$mode),
-                    $X->num('XFixesSaveSetTarget',$target),
-                    $X->num('XFixesSaveSetMap',$map),
-                    $window);
-     }],
+	[
+		'XFixesChangeSaveSet',    # 1
+		sub {
+			my ($X, $window, $mode, $target, $map) = @_;
+			return pack('CCCxL', $X->num('XFixesSaveSetMode', $mode), $X->num('XFixesSaveSetTarget', $target), $X->num('XFixesSaveSetMap', $map), $window);
+		}
+	],
 
-   [ 'XFixesSelectSelectionInput',  # 2
-     # ($X, $window, $selection, $event_mask)
-     # nothing special for $event_mask yet
-     \&_request_card32s ],
+	[
+		'XFixesSelectSelectionInput',    # 2
+										 # ($X, $window, $selection, $event_mask)
+										 # nothing special for $event_mask yet
+		\&_request_card32s
+	],
 
-   [ 'XFixesSelectCursorInput',  # 3
-     # ($X, $window, $event_mask) nothing special for $event_mask yet
-     \&_request_card32s ],
+	[
+		'XFixesSelectCursorInput',       # 3
+										 # ($X, $window, $event_mask) nothing special for $event_mask yet
+		\&_request_card32s
+	],
 
-   [ 'XFixesGetCursorImage',  # 4
-     \&_request_empty,
-     sub {
-       my ($X, $data) = @_;
-       # (rootx,rooty, width,height, xhot,yhot, serial, ... then pixels)
-       my @ret = unpack 'x8ssSSSSL', $data;
-       return (@ret,
-               substr ($data, 32, 4*$ret[2]*$ret[3])); # width*height
-     }],
+	[
+		'XFixesGetCursorImage',          # 4
+		\&_request_empty,
+		sub {
+			my ($X, $data) = @_;
 
-   #---------------------------------------------------------------------------
-   # version 2.0
+			# (rootx,rooty, width,height, xhot,yhot, serial, ... then pixels)
+			my @ret = unpack 'x8ssSSSSL', $data;
+			return (@ret, substr($data, 32, 4 * $ret[2] * $ret[3]));    # width*height
+		}
+	],
 
-   [ 'XFixesCreateRegion',   # 5
-     \&_request_region_and_rectangles ],
+	#---------------------------------------------------------------------------
+	# version 2.0
 
-   [ 'XFixesCreateRegionFromBitmap',   # 6
-     \&_request_xids ],
+	[
+		'XFixesCreateRegion',    # 5
+		\&_request_region_and_rectangles
+	],
 
-   [ 'XFixesCreateRegionFromWindow',   # 7
-     sub {
-       my ($X, $region, $window, $kind) = @_;
-       ### XFixesCreateRegionFromWindow: $region, $window, $kind
-       return pack ('LLCxxx',
-                    $region,
-                    $window,
-                    $X->num('XFixesWindowRegionKind',$kind));
-     }],
+	[
+		'XFixesCreateRegionFromBitmap',    # 6
+		\&_request_xids
+	],
 
-   [ 'XFixesCreateRegionFromGC',   # 8
-     \&_request_xids ],
+	[
+		'XFixesCreateRegionFromWindow',    # 7
+		sub {
+			my ($X, $region, $window, $kind) = @_;
+			### XFixesCreateRegionFromWindow: $region, $window, $kind
+			return pack('LLCxxx', $region, $window, $X->num('XFixesWindowRegionKind', $kind));
+		}
+	],
 
-   [ 'XFixesCreateRegionFromPicture',   # 9
-     \&_request_xids ],
+	[
+		'XFixesCreateRegionFromGC',        # 8
+		\&_request_xids
+	],
 
-   [ 'XFixesDestroyRegion',   # 10
-     \&_request_xids ],
+	[
+		'XFixesCreateRegionFromPicture',    # 9
+		\&_request_xids
+	],
 
-   [ 'XFixesSetRegion',   # 11
-     \&_request_region_and_rectangles ],
+	[
+		'XFixesDestroyRegion',              # 10
+		\&_request_xids
+	],
 
-   [ 'XFixesCopyRegion',   #    12
-     \&_request_xids ],
+	[
+		'XFixesSetRegion',                  # 11
+		\&_request_region_and_rectangles
+	],
 
-   [ 'XFixesUnionRegion',   # 13
-     \&_request_xids ],
-   [ 'XFixesIntersectRegion',   # 14
-     \&_request_xids ],
-   [ 'XFixesSubtractRegion',   # 15
-     \&_request_xids ],
+	[
+		'XFixesCopyRegion',                 #    12
+		\&_request_xids
+	],
 
-   [ 'XFixesInvertRegion',   # 16
-     sub {
-       my ($X, $src, $rect, $dst) = @_;
-       return pack 'LssSSL', $src, @$rect, $dst;
-     }],
+	[
+		'XFixesUnionRegion',                # 13
+		\&_request_xids
+	],
+	[
+		'XFixesIntersectRegion',            # 14
+		\&_request_xids
+	],
+	[
+		'XFixesSubtractRegion',             # 15
+		\&_request_xids
+	],
 
-   [ 'XFixesTranslateRegion',   # 17
-     sub {
-       shift; # ($X, $region, $dx, $dy)
-       return pack 'Lss', @_;
-     }],
+	[
+		'XFixesInvertRegion',               # 16
+		sub {
+			my ($X, $src, $rect, $dst) = @_;
+			return pack 'LssSSL', $src, @$rect, $dst;
+		}
+	],
 
-   [ 'XFixesRegionExtents',   # 18
-     \&_request_card32s ], # ($X, $src, $dst)
+	[
+		'XFixesTranslateRegion',            # 17
+		sub {
+			shift;                          # ($X, $region, $dx, $dy)
+			return pack 'Lss', @_;
+		}
+	],
 
-   [ 'XFixesFetchRegion',   # 19
-     \&_request_card32s, # ($X, $region)
-     sub {
-       my ($X, $data) = @_;
-       ### XFixesFetchRegion reply: length($data)
-       my @ret = ([ unpack 'x8ssSS', $data ]);  # bounding
-       for (my $pos = 32; $pos < length($data); $pos+=8) {
-         push @ret, [ unpack 'ssSS', substr($data,$pos,8) ];
-       }
-       return @ret;
-     }],
+	[
+		'XFixesRegionExtents',              # 18
+		\&_request_card32s
+	],                                      # ($X, $src, $dst)
 
-   [ 'XFixesSetGCClipRegion',   # 20
-     \&_request_xid_xy_region], # ($gc, $x, $y, $region)
+	[
+		'XFixesFetchRegion',                # 19
+		\&_request_card32s,                 # ($X, $region)
+		sub {
+			my ($X, $data) = @_;
+			### XFixesFetchRegion reply: length($data)
+			my @ret = ([unpack 'x8ssSS', $data]);    # bounding
+			for (my $pos = 32 ; $pos < length($data) ; $pos += 8) {
+				push @ret, [unpack 'ssSS', substr($data, $pos, 8)];
+			}
+			return @ret;
+		}
+	],
 
-   [ 'XFixesSetWindowShapeRegion',   # 21
-     sub {
-       my ($X, $window, $shape_kind, $x, $y, $region) = @_;
-       # use ShapeKind if SHAPE initialized, otherwise same Bounding and
-       # Clip from XFixesWindowRegionKind
-       my $kind_type = ($X->{'ext_const'}->{'ShapeKind'}
-                        ? 'ShapeKind' : 'XFixesWindowRegionKind');
-       return pack ('LCxxxssL',
-                    $window,
-                    $X->num($kind_type,$shape_kind),
-                    $x,$y,
-                    _num_none ($region));
-     }],
+	[
+		'XFixesSetGCClipRegion',                     # 20
+		\&_request_xid_xy_region
+	],                                               # ($gc, $x, $y, $region)
 
-   [ 'XFixesSetPictureClipRegion',   # 22
-     \&_request_xid_xy_region ],  # ($pict, $x, $y, $region)
+	[
+		'XFixesSetWindowShapeRegion',                # 21
+		sub {
+			my ($X, $window, $shape_kind, $x, $y, $region) = @_;
 
-   [ 'XFixesSetCursorName',   # 23
-     sub {
-       my ($X, $cursor, $str) = @_;
-       ### XFixesSetCursorName request
-       ### $cursor
-       ### $str
-       return pack('LSxx'.padded($str),
-                   $cursor, length($str), $str);
-     }],
+			# use ShapeKind if SHAPE initialized, otherwise same Bounding and
+			# Clip from XFixesWindowRegionKind
+			my $kind_type = ($X->{'ext_const'}->{'ShapeKind'} ? 'ShapeKind' : 'XFixesWindowRegionKind');
+			return pack('LCxxxssL', $window, $X->num($kind_type, $shape_kind), $x, $y, _num_none($region));
+		}
+	],
 
-   [ 'XFixesGetCursorName',   # 24
-     \&_request_xids,
-     sub {
-       my ($X, $data) = @_;
-       ### XFixesGetCursorName reply
-       my ($atom, $len) = unpack 'x8LS', $data;
-       return (_interp_none($X,$atom), substr($data,32,$len));
-     }],
+	[
+		'XFixesSetPictureClipRegion',    # 22
+		\&_request_xid_xy_region
+	],                                   # ($pict, $x, $y, $region)
 
-   [ 'XFixesGetCursorImageAndName',   # 25
-     \&_request_empty,
-     sub {
-       my ($X, $data) = @_;
-       # (x,y, w,h, xhot,yhot, serial, atom, $namelen, ... then pixels+name)
-       my @ret = unpack 'x8ssSSSSLLSxx', $data;
-       my $namelen = pop @ret;
-       my $atom = pop @ret;
-       my $pixelsize = 4 * $ret[2] * $ret[3];
-       return (@ret,
-               substr ($data, 32, $pixelsize),              # pixels
-               _interp_none($X,$atom),
-               substr ($data, 32 + $pixelsize, $namelen));  # name
-     }],
+	[
+		'XFixesSetCursorName',           # 23
+		sub {
+			my ($X, $cursor, $str) = @_;
+			### XFixesSetCursorName request
+			### $cursor
+			### $str
+			return pack('LSxx' . padded($str), $cursor, length($str), $str);
+		}
+	],
 
-   [ 'XFixesChangeCursor',   # 26
-     sub {
-       my ($X, $src, $dst) = @_;
-       return pack 'LL', $src, $dst;
-     }],
+	[
+		'XFixesGetCursorName',    # 24
+		\&_request_xids,
+		sub {
+			my ($X, $data) = @_;
+			### XFixesGetCursorName reply
+			my ($atom, $len) = unpack 'x8LS', $data;
+			return (_interp_none($X, $atom), substr($data, 32, $len));
+		}
+	],
 
-   [ 'XFixesChangeCursorByName',   # 27
-     sub {
-       my ($X, $src, $str) = @_;
-       return pack ('LSxx'.padded($str),
-                    $src, length($str), $str);
-     }],
+	[
+		'XFixesGetCursorImageAndName',    # 25
+		\&_request_empty,
+		sub {
+			my ($X, $data) = @_;
 
+			# (x,y, w,h, xhot,yhot, serial, atom, $namelen, ... then pixels+name)
+			my @ret       = unpack 'x8ssSSSSLLSxx', $data;
+			my $namelen   = pop @ret;
+			my $atom      = pop @ret;
+			my $pixelsize = 4 * $ret[2] * $ret[3];
+			return (
+				@ret,
+				substr($data, 32, $pixelsize),    # pixels
+				_interp_none($X, $atom),
+				substr($data, 32 + $pixelsize, $namelen));                                    # name
+		}
+	],
 
-   #---------------------------------------------------------------------------
-   # version 3.0
+	[
+		'XFixesChangeCursor',                     # 26
+		sub {
+			my ($X, $src, $dst) = @_;
+			return pack 'LL', $src, $dst;
+		}
+	],
 
-   [ 'XFixesExpandRegion',  # 28
-     sub {
-       shift; # $X
-       return pack 'LLSSSS', @_; # $src, $dst, $left,$right, $top,$bottom
-     }],
+	[
+		'XFixesChangeCursorByName',               # 27
+		sub {
+			my ($X, $src, $str) = @_;
+			return pack('LSxx' . padded($str), $src, length($str), $str);
+		}
+	],
 
+	#---------------------------------------------------------------------------
+	# version 3.0
 
-   #---------------------------------------------------------------------------
-   # version 4.0
+	[
+		'XFixesExpandRegion',    # 28
+		sub {
+			shift;               # $X
+			return pack 'LLSSSS', @_;    # $src, $dst, $left,$right, $top,$bottom
+		}
+	],
 
-   ['XFixesHideCursor',  # 29
-    \&_request_xids ],
-   ['XFixesShowCursor',  # 30
-    \&_request_xids ],
+	#---------------------------------------------------------------------------
+	# version 4.0
 
-   #---------------------------------------------------------------------------
-   # version 5.0
+	[
+		'XFixesHideCursor',    # 29
+		\&_request_xids
+	],
+	[
+		'XFixesShowCursor',    # 30
+		\&_request_xids
+	],
 
-   ['XFixesCreatePointerBarrier',  # 31
-    sub {
-      my ($X, $barrier, $drawable, $x1,$y1, $x2,$y2, $directions,
-          @devices) = @_;
-      my $devices = pack 'S*', map{_num_xinputdevice($_)} @devices;
-      ### @devices
-      ### $devices
-      ### format: 'LLssssLxxS'.padded($devices)
-      return pack ('LLssssLxxS'.padded($devices),
-                   $barrier,             # CARD32
-                   $drawable,            # CARD32
-                   $x1,$y1, $x2,$y2,     # INT16 x 4
-                   $directions,          # CARD32
-                   scalar(@devices),     # CARD16 num_devices
-                   $devices);            # packed CARD16s
-    }],
+	#---------------------------------------------------------------------------
+	# version 5.0
 
-   ['XFixesDestroyPointerBarrier',  # 32
-    \&_request_xids ],  # ($X, $barrier)  single barrier to destroy
-  ];
+	[
+		'XFixesCreatePointerBarrier',    # 31
+		sub {
+			my ($X, $barrier, $drawable, $x1, $y1, $x2, $y2, $directions, @devices) = @_;
+			my $devices = pack 'S*', map { _num_xinputdevice($_) } @devices;
+			### @devices
+			### $devices
+			### format: 'LLssssLxxS'.padded($devices)
+			return pack(
+				'LLssssLxxS' . padded($devices),
+				$barrier,     # CARD32
+				$drawable,    # CARD32
+				$x1, $y1, $x2, $y2,    # INT16 x 4
+				$directions,           # CARD32
+				scalar(@devices),      # CARD16 num_devices
+				$devices
+			);                         # packed CARD16s
+		}
+	],
+
+	[
+		'XFixesDestroyPointerBarrier',    # 32
+		\&_request_xids
+	],                                    # ($X, $barrier)  single barrier to destroy
+];
 
 sub _ext_requests_install {
-  my ($X, $request_num, $requests_arrayref) = @_;
+	my ($X, $request_num, $requests_arrayref) = @_;
 
-  $X->{'ext_request'}->{$request_num} = $requests_arrayref;
-  my $href = $X->{'ext_request_num'};
-  my $i;
-  foreach $i (0 .. $#$requests_arrayref) {
-    $href->{$requests_arrayref->[$i]->[0]} = [$request_num, $i];
-  }
+	$X->{'ext_request'}->{$request_num} = $requests_arrayref;
+	my $href = $X->{'ext_request_num'};
+	my $i;
+	foreach $i (0 .. $#$requests_arrayref) {
+		$href->{$requests_arrayref->[$i]->[0]} = [$request_num, $i];
+	}
 }
 
 #------------------------------------------------------------------------------
 
 sub new {
-  my ($class, $X, $request_num, $event_num, $error_num) = @_;
-  ### XFIXES new()
+	my ($class, $X, $request_num, $event_num, $error_num) = @_;
+	### XFIXES new()
 
-  my $self = bless { }, $class;
-  _ext_constants_install ($X, [ $self->constants_list ]);
-  _ext_requests_install ($X, $request_num, $requests_arrayref);
-  _ext_events_install ($X, $event_num, $events_arrayref);
+	my $self = bless {}, $class;
+	_ext_constants_install($X, [$self->constants_list]);
+	_ext_requests_install($X, $request_num, $requests_arrayref);
+	_ext_events_install($X, $event_num, $events_arrayref);
 
-  # the protocol spec says must query version with what we support
-  # need it to know which error types are defined too, as otherwise oughtn't
-  # touch anything at $event_num
-  my ($server_major, $server_minor)
-    = $X->req ('XFixesQueryVersion',
-               CLIENT_MAJOR_VERSION, CLIENT_MINOR_VERSION);
-  $self->{'major'} = $server_major;
-  $self->{'minor'} = $server_minor;
+	# the protocol spec says must query version with what we support
+	# need it to know which error types are defined too, as otherwise oughtn't
+	# touch anything at $event_num
+	my ($server_major, $server_minor) = $X->req('XFixesQueryVersion', CLIENT_MAJOR_VERSION, CLIENT_MINOR_VERSION);
+	$self->{'major'} = $server_major;
+	$self->{'minor'} = $server_minor;
 
-  # Errors
-  _ext_error_install ($X, $error_num,
-                      # version 2.0
-                      ($server_major >= 2 ? ('Region') : ()),
-                      # version 5.0
-                      ($server_major >= 5 ? ('Barrier') : ()));
+	# Errors
+	_ext_error_install(
+		$X, $error_num,
 
-  return $self;
+		# version 2.0
+		($server_major >= 2 ? ('Region') : ()),
+
+		# version 5.0
+		($server_major >= 5 ? ('Barrier') : ()));
+
+	return $self;
 }
 
 sub _request_empty {
-  if (@_ > 1) {
-    croak "No parameters in this request";
-  }
-  return '';
+	if (@_ > 1) {
+		croak "No parameters in this request";
+	}
+	return '';
 }
 
 sub _request_xids {
-  my $X = shift;
-  ### _request_xids(): @_
-  return _request_card32s ($X, map {_num_none($_)} @_);
+	my $X = shift;
+	### _request_xids(): @_
+	return _request_card32s($X, map { _num_none($_) } @_);
 }
+
 sub _request_card32s {
-  shift;
-  ### _request_card32s(): @_
-  return pack 'L*', @_;
+	shift;
+	### _request_card32s(): @_
+	return pack 'L*', @_;
 }
 
 sub _request_xid_xy_region {
-  my ($X, $xid, $x, $y, $region) = @_;
-  return pack ('LLss', $xid, _num_none($region), $x,$y);
+	my ($X, $xid, $x, $y, $region) = @_;
+	return pack('LLss', $xid, _num_none($region), $x, $y);
 }
 
 sub _request_region_and_rectangles {
-  shift; # $X
-  ### _request_region_and_rectangles: @_
-  my $region = shift;
-  ### ret: pack('L',$region) . _pack_rectangles(@_)
-  return pack('L',$region) . _pack_rectangles(@_);
+	shift;    # $X
+	### _request_region_and_rectangles: @_
+	my $region = shift;
+	### ret: pack('L',$region) . _pack_rectangles(@_)
+	return pack('L', $region) . _pack_rectangles(@_);
 }
+
 sub _pack_rectangles {
-  return join ('', map {pack 'ssSS', @$_} @_);
+	return join('', map { pack 'ssSS', @$_ } @_);
 }
 
 sub _num_none {
-  my ($xid) = @_;
-  if (defined $xid && $xid eq 'None') {
-    return 0;
-  } else {
-    return $xid;
-  }
+	my ($xid) = @_;
+	if (defined $xid && $xid eq 'None') {
+		return 0;
+	} else {
+		return $xid;
+	}
 }
+
 sub _interp_none {
-  my ($X, $xid) = @_;
-  if ($X->{'do_interp'} && $xid == 0) {
-    return 'None';
-  } else {
-    return $xid;
-  }
+	my ($X, $xid) = @_;
+	if ($X->{'do_interp'} && $xid == 0) {
+		return 'None';
+	} else {
+		return $xid;
+	}
 }
 
 sub _interp_time {
-  my ($time) = @_;
-  if ($time == 0) {
-    return 'CurrentTime';
-  } else {
-    return $time;
-  }
-}
-sub _num_time {
-  my ($time) = @_;
-  if ($time eq 'CurrentTime') {
-    return 0;
-  } else {
-    return $time;
-  }
+	my ($time) = @_;
+	if ($time == 0) {
+		return 'CurrentTime';
+	} else {
+		return $time;
+	}
 }
 
+sub _num_time {
+	my ($time) = @_;
+	if ($time eq 'CurrentTime') {
+		return 0;
+	} else {
+		return $time;
+	}
+}
 
 sub _num_xinputdevice {
-  my ($device) = @_;
-  if ($device eq 'AllDevices')       { return 0; }
-  if ($device eq 'AllMasterDevices') { return 1; }
-  return $device;
+	my ($device) = @_;
+	if ($device eq 'AllDevices')       { return 0; }
+	if ($device eq 'AllMasterDevices') { return 1; }
+	return $device;
 }
 
 sub _ext_error_install {
-  my $X = shift;  # ($X, $errname1,$errname2,...)
-  ### _ext_error_install: @_
-  my $error_num = shift;
-  my $aref = $X->{'ext_const'}{'Error'}  # copy
-    = [ @{$X->{'ext_const'}{'Error'} || []} ];
-  my $href = $X->{'ext_const_num'}{'Error'}  # copy
-    = { %{$X->{'ext_const_num'}{'Error'} || {}} };
-  my $i;
-  foreach $i (0 .. $#_) {
-    $aref->[$error_num + $i] = $_[$i];
-    $href->{$_[$i]} = $error_num + $i;
-  }
+	my $X = shift;    # ($X, $errname1,$errname2,...)
+	### _ext_error_install: @_
+	my $error_num = shift;
+	my $aref      = $X->{'ext_const'}{'Error'}    # copy
+		= [@{$X->{'ext_const'}{'Error'} || []}];
+	my $href = $X->{'ext_const_num'}{'Error'}     # copy
+		= {%{$X->{'ext_const_num'}{'Error'} || {}}};
+	my $i;
+	foreach $i (0 .. $#_) {
+		$aref->[$error_num + $i] = $_[$i];
+		$href->{$_[$i]} = $error_num + $i;
+	}
 }
 
 1;

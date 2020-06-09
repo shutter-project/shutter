@@ -31,57 +31,57 @@ use warnings;
 use Gtk2;
 
 #Glib
-use Glib qw/TRUE FALSE/; 
+use Glib qw/TRUE FALSE/;
 
 sub new {
 	my $class = shift;
 
 	#constructor
-	my $self = { };
+	my $self = {};
 
 	bless $self, $class;
 	return $self;
 }
 
 sub get_clipbox {
-	my $self 	= shift;
-	my $region 	= shift;
-		
+	my $self   = shift;
+	my $region = shift;
+
 	#store clipbox here
 	my $clip = undef;
-	
+
 	#calculate clipbox
-	foreach my $rect ($region->get_rectangles){
+	foreach my $rect ($region->get_rectangles) {
+
 		#~ print $rect->x, " - ", $rect->y, " - ", $rect->width, " - ", $rect->height, "\n";
-		unless(defined $clip){
+		unless (defined $clip) {
 			$clip = Gtk2::Gdk::Rectangle->new($rect->x, $rect->y, $rect->width, $rect->height);
-		}else{
-			if($rect->x < $clip->x){
-				$clip->width($clip->width+$clip->x);
+		} else {
+			if ($rect->x < $clip->x) {
+				$clip->width($clip->width + $clip->x);
 				$clip->x($rect->x);
 			}
-			if($rect->y < $clip->y){
-				$clip->height($clip->height+$clip->y);
+			if ($rect->y < $clip->y) {
+				$clip->height($clip->height + $clip->y);
 				$clip->y($rect->y);
 			}
-			if($rect->x + $rect->width > $clip->x + $clip->width){
+			if ($rect->x + $rect->width > $clip->x + $clip->width) {
 				$clip->width($rect->x + $rect->width - $clip->x);
 			}
-			if($rect->y + $rect->height > $clip->y + $clip->height){
+			if ($rect->y + $rect->height > $clip->y + $clip->height) {
 				$clip->height($rect->y + $rect->height - $clip->y);
 			}
 		}
 	}
-	
-	#return clip or empty rectangle
-	if(defined $clip){
-		return $clip;
-	}else{
-		return Gtk2::Gdk::Rectangle->new(0,0,0,0);
-	}
-		
-}
 
+	#return clip or empty rectangle
+	if (defined $clip) {
+		return $clip;
+	} else {
+		return Gtk2::Gdk::Rectangle->new(0, 0, 0, 0);
+	}
+
+}
 
 1;
 

@@ -19,7 +19,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ###################################################
-                               
+
 package Shutter::Pixbuf::Border;
 
 #modules
@@ -31,7 +31,7 @@ use warnings;
 use Gtk2;
 
 #Glib
-use Glib qw/TRUE FALSE/; 
+use Glib qw/TRUE FALSE/;
 
 #--------------------------------------
 
@@ -39,45 +39,43 @@ sub new {
 	my $class = shift;
 
 	#constructor
-	my $self = { _common => shift };
+	my $self = {_common => shift};
 
 	bless $self, $class;
 	return $self;
 }
 
 #~ sub DESTROY {
-    #~ my $self = shift;
-    #~ print "$self dying at\n";
-#~ } 
+#~ my $self = shift;
+#~ print "$self dying at\n";
+#~ }
 
 sub create_border {
-	my $self 	= shift;
-	my $pixbuf	= shift;
-	my $width	= shift;
-	my $color	= shift;
-	
+	my $self   = shift;
+	my $pixbuf = shift;
+	my $width  = shift;
+	my $color  = shift;
+
 	#create new pixbuf
-	my $tmp_pbuf = Gtk2::Gdk::Pixbuf->new ('rgb', TRUE, 8, $pixbuf->get_width+2*$width, $pixbuf->get_height+2*$width);	
-	
+	my $tmp_pbuf = Gtk2::Gdk::Pixbuf->new('rgb', TRUE, 8, $pixbuf->get_width + 2 * $width, $pixbuf->get_height + 2 * $width);
+
 	#Create a pixel specification
 	my $pixel = 0;
-	$pixel += ($color->red   / 257) << 24;
+	$pixel += ($color->red / 257) << 24;
 	$pixel += ($color->green / 257) << 16;
-	$pixel += ($color->blue  / 257) <<  8;
+	$pixel += ($color->blue / 257) << 8;
 	$pixel += 255;
-	
+
 	#fill tmp pixbuf
 	$tmp_pbuf->fill($pixel);
-	
+
 	#copy source pixbuf to new pixbuf
-	eval{
-		$pixbuf->copy_area (0, 0, $pixbuf->get_width, $pixbuf->get_height, $tmp_pbuf, $width, $width);
-	};
-	if($@){
+	eval { $pixbuf->copy_area(0, 0, $pixbuf->get_width, $pixbuf->get_height, $tmp_pbuf, $width, $width); };
+	if ($@) {
 		print "create border failed: $@\n" if $self->{_common}->get_debug;
 		return $pixbuf;
 	}
-	
+
 	return $tmp_pbuf;
 }
 

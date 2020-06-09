@@ -33,7 +33,7 @@ use POSIX qw/setlocale/;
 use Locale::gettext;
 
 #Glib
-use Glib qw/TRUE FALSE/; 
+use Glib qw/TRUE FALSE/;
 
 #File
 use File::Spec;
@@ -45,7 +45,7 @@ sub new {
 	my $class = shift;
 
 	#constructor
-	my $self = { _shutter_root => shift, _mainwindow => shift, _appname => shift, _version => shift, _rev => shift, _pid => shift };
+	my $self = {_shutter_root => shift, _mainwindow => shift, _appname => shift, _version => shift, _rev => shift, _pid => shift};
 
 	#vars
 	$self->{_debug_cparam}              = TRUE;
@@ -58,17 +58,18 @@ sub new {
 	$self->{_start_with_extra}          = undef;
 	$self->{_profile_to_start_with}     = undef;
 	$self->{_export_filename}           = undef;
-	$self->{_delay}						= undef;
-	$self->{_include_cursor}			= undef;
-	$self->{_remove_cursor}				= undef;
+	$self->{_delay}                     = undef;
+	$self->{_include_cursor}            = undef;
+	$self->{_remove_cursor}             = undef;
 
 	#Set LC_NUMERIC to C to prevent decimal commas (or anything else)
-	setlocale(LC_NUMERIC, "C");	
-	setlocale( LC_MESSAGES, "" );
+	setlocale(LC_NUMERIC,  "C");
+	setlocale(LC_MESSAGES, "");
+
 	#gettext init
 	$self->{_gettext_object} = Locale::gettext->domain("shutter");
-	$self->{_gettext_object}->dir( $self->{_shutter_root} . "/share/locale" );
-	
+	$self->{_gettext_object}->dir($self->{_shutter_root} . "/share/locale");
+
 	#ENV needed by some plugins
 	$ENV{'SHUTTER_INTL'} = $self->{_shutter_root} . "/share/locale";
 
@@ -88,10 +89,11 @@ sub new {
 
 	#recently used upload tab
 	$self->{_ruu_tab} = 0;
-    #... and details
+
+	#... and details
 	$self->{_ruu_hosting} = 0;
-	$self->{_ruu_places} = 0;
-	$self->{_ruu_u1} = 0;
+	$self->{_ruu_places}  = 0;
+	$self->{_ruu_u1}      = 0;
 
 	#recently used save folder
 	$self->{_rusf} = undef;
@@ -371,7 +373,7 @@ sub get_start_with {
 sub set_start_with {
 	my $self = shift;
 	if (@_) {
-		$self->{_start_with} = shift;
+		$self->{_start_with}       = shift;
 		$self->{_start_with_extra} = shift;
 	}
 	return ($self->{_start_with}, $self->{_start_with_extra});
@@ -444,8 +446,8 @@ sub set_delay {
 
 sub get_current_monitor {
 	my $self = shift;
-	my ( $window_at_pointer, $x, $y, $mask ) = Gtk2::Gdk->get_default_root_window->get_pointer;
-	my $mon = Gtk2::Gdk::Screen->get_default->get_monitor_geometry( Gtk2::Gdk::Screen->get_default->get_monitor_at_point ($x, $y));
+	my ($window_at_pointer, $x, $y, $mask) = Gtk2::Gdk->get_default_root_window->get_pointer;
+	my $mon = Gtk2::Gdk::Screen->get_default->get_monitor_geometry(Gtk2::Gdk::Screen->get_default->get_monitor_at_point($x, $y));
 	return ($mon);
 }
 

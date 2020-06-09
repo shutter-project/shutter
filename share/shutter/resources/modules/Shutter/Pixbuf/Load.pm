@@ -35,7 +35,7 @@ use File::Basename qw/ fileparse dirname basename /;
 use File::Temp qw/ tempfile tempdir /;
 
 #Glib
-use Glib qw/TRUE FALSE/; 
+use Glib qw/TRUE FALSE/;
 
 #--------------------------------------
 
@@ -44,78 +44,77 @@ sub new {
 	my $class = shift;
 
 	#constructor
-	my $self = { _common => shift, _window => shift, _no_error_dialog => shift };
+	my $self = {_common => shift, _window => shift, _no_error_dialog => shift};
 
 	bless $self, $class;
 	return $self;
 }
 
 sub load {
-	my $self 		= shift;
-	my $filename 	= shift;
-	my $width 		= shift;
-	my $height 		= shift;
-	my $sratio 		= shift;
-	my $rotate		= shift;
+	my $self     = shift;
+	my $filename = shift;
+	my $width    = shift;
+	my $height   = shift;
+	my $sratio   = shift;
+	my $rotate   = shift;
 
 	my $pixbuf = undef;
-	eval{
-		if(defined $width && defined $height && defined $sratio){
-			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($filename, $width, $height, $sratio);			
-		}elsif(defined $width && defined $height){
+	eval {
+		if (defined $width && defined $height && defined $sratio) {
+			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($filename, $width, $height, $sratio);
+		} elsif (defined $width && defined $height) {
 			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size($filename, $width, $height);
-		}else{
-			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($filename);			
+		} else {
+			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($filename);
 		}
 	};
+
 	#handle possible error messages
 	if ($@) {
-		
-		unless(defined $self->{_no_error_dialog} && $self->{_no_error_dialog}){
+
+		unless (defined $self->{_no_error_dialog} && $self->{_no_error_dialog}) {
 
 			#import shutter dialogs
 			my $current_window = $self->{_window} || $self->{_common}->get_mainwindow;
-			my $sd = Shutter::App::SimpleDialogs->new( $current_window );
+			my $sd             = Shutter::App::SimpleDialogs->new($current_window);
 
 			#gettext variable
 			my $d = $self->{_common}->get_gettext;
-		
+
 			#parse filename
-			my ( $name, $folder, $type ) = fileparse( $filename, qr/\.[^.]*/ );		
+			my ($name, $folder, $type) = fileparse($filename, qr/\.[^.]*/);
 
 			#nice error dialog, more detailed messages are shown with a gtk2 expander
-			my $response = $sd->dlg_error_message( 
-				sprintf( $d->get("Error while opening image %s."), "'" . $name.$type . "'"),
-				$d->get("There was an error opening the image."),		
-				undef, undef, undef,
-				undef, undef, undef,
-				$@->message
+			my $response = $sd->dlg_error_message(
+				sprintf($d->get("Error while opening image %s."), "'" . $name . $type . "'"),
+				$d->get("There was an error opening the image."),
+				undef, undef, undef, undef, undef, undef, $@->message
 			);
-		
+
 		}
-		
+
 	}
-	
+
 	#read exif and rotate accordingly
-	if($rotate && $pixbuf){
+	if ($rotate && $pixbuf) {
 		$pixbuf = $self->auto_rotate($pixbuf);
 	}
-	
+
 	return $pixbuf;
 }
 
 sub get_option {
-	my $self = shift;
+	my $self   = shift;
 	my $pixbuf = shift;
 	my $option = shift;
 
 	return FALSE unless (defined $pixbuf && defined $option);
 
-	return $pixbuf->get_option($option); 	
+	return $pixbuf->get_option($option);
 }
 
 sub auto_rotate {
-	my $self = shift;
+	my $self   = shift;
 	my $pixbuf = shift;
 
 	my %orientation_flags = (
@@ -129,16 +128,17 @@ sub auto_rotate {
 		8 => 'counterclockwise,-1',
 	);
 	my $option = $self->get_option($pixbuf, 'orientation');
-	if(defined $option && exists $orientation_flags{$option}){
+	if (defined $option && exists $orientation_flags{$option}) {
 		my ($rotate, $flip_horiz) = split ",", $orientation_flags{$option};
+
 		#~ print $option, "\n";
-		if(defined $rotate){
+		if (defined $rotate) {
 			$pixbuf = $pixbuf->rotate_simple($rotate);
 		}
-		if(defined $flip_horiz && $flip_horiz > -1){
+		if (defined $flip_horiz && $flip_horiz > -1) {
 			$pixbuf = $pixbuf->flip($flip_horiz);
 		}
-	}	
+	}
 
 	return $pixbuf;
 }

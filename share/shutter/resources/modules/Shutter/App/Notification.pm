@@ -31,22 +31,22 @@ use warnings;
 use Net::DBus;
 
 #Glib
-use Glib qw/TRUE FALSE/; 
+use Glib qw/TRUE FALSE/;
 
 #--------------------------------------
 
 sub new {
 	my $class = shift;
 
-	my $self = { };
+	my $self = {};
 
 	#Use notifications object
-	eval{
+	eval {
 		$self->{_notifications_service} = Net::DBus->session->get_service('org.freedesktop.Notifications');
-		$self->{_notifications_object} = $self->{_notifications_service}->get_object('/org/freedesktop/Notifications', 'org.freedesktop.Notifications');
+		$self->{_notifications_object}  = $self->{_notifications_service}->get_object('/org/freedesktop/Notifications', 'org.freedesktop.Notifications');
 	};
-	if($@){
-		print "Warning: $@", "\n";	
+	if ($@) {
+		print "Warning: $@", "\n";
 	}
 
 	#last nid
@@ -57,39 +57,39 @@ sub new {
 }
 
 sub show {
-	my $self 	= shift;
+	my $self    = shift;
 	my $summary = shift;
-	my $body 	= shift;
-	my $nid		= shift || $self->{_nid};
+	my $body    = shift;
+	my $nid     = shift || $self->{_nid};
 
 	#notification
-	eval{
-		if(defined $self->{_notifications_object}){
+	eval {
+		if (defined $self->{_notifications_object}) {
 			$self->{_nid} = $self->{_notifications_object}->Notify('Shutter', $nid, "gtk-dialog-info", $summary, $body, [], {}, -1);
 		}
 	};
-	if($@){
-		print "NotifyWarning: $@", "\n";		
+	if ($@) {
+		print "NotifyWarning: $@", "\n";
 	}
-	
+
 	return $self->{_nid};
 }
 
 sub close {
-	my $self 	= shift;
-	my $nid		= shift || $self->{_nid};
-	
+	my $self = shift;
+	my $nid  = shift || $self->{_nid};
+
 	#close notification
-	if($nid){
-		eval{
-			if(defined $self->{_notifications_object}){
+	if ($nid) {
+		eval {
+			if (defined $self->{_notifications_object}) {
 				$self->{_notifications_object}->CloseNotification($nid);
 			}
 		};
-		if($@){
-			print "CloseNotificationWarning: $@", "\n";		
+		if ($@) {
+			print "CloseNotificationWarning: $@", "\n";
 		}
-		return TRUE;	
+		return TRUE;
 	}
 
 	return FALSE;

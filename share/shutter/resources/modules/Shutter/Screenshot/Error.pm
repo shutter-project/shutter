@@ -29,14 +29,14 @@ use strict;
 use warnings;
 
 #Glib
-use Glib qw/TRUE FALSE/; 
+use Glib qw/TRUE FALSE/;
 
 #--------------------------------------
 
 sub new {
 	my $class = shift;
-	
-	my $self = { _sc  => shift, _code => shift, _data => shift, _extra => shift };
+
+	my $self = {_sc => shift, _code => shift, _data => shift, _extra => shift};
 
 	#############
 	# code = 0 - pointer could not be grabbed - or invalid region
@@ -48,7 +48,7 @@ sub new {
 	# code = 6 - gnome-web-photo failed
 	# code = 7 - no window with name xy detected
 	# code = 8 - invalid pattern
-	#############	
+	#############
 
 	bless $self, $class;
 	return $self;
@@ -61,18 +61,18 @@ sub get_error {
 
 sub is_aborted_by_user {
 	my $self = shift;
-	if(defined $self->{_code} && $self->{_code} == 5){
+	if (defined $self->{_code} && $self->{_code} == 5) {
 		return TRUE;
-	}else{
+	} else {
 		return FALSE;
-	}	
+	}
 }
 
 sub is_error {
 	my $self = shift;
-	if(defined $self->{_code} && $self->{_code} =~ /^\d+$/){
+	if (defined $self->{_code} && $self->{_code} =~ /^\d+$/) {
 		return TRUE;
-	}else{
+	} else {
 		return FALSE;
 	}
 }
@@ -80,23 +80,23 @@ sub is_error {
 sub set_error {
 	my $self = shift;
 	if (@_) {
-		$self->{_code} = shift;
-		$self->{_data} = shift;
+		$self->{_code}  = shift;
+		$self->{_data}  = shift;
 		$self->{_extra} = shift;
-	}		
+	}
 	return ($self->{_code}, $self->{_data}, $self->{_extra});
 }
 
 sub show_dialog {
-	my $self = shift;
+	my $self                = shift;
 	my $detailed_error_text = shift || '';
-	
+
 	#load modules at custom path
 	#--------------------------------------
 	require lib;
-	import lib $self->{_sc}->get_root."/share/shutter/resources/modules";
+	import lib $self->{_sc}->get_root . "/share/shutter/resources/modules";
 	require Shutter::App::SimpleDialogs;
-	
+
 	my $sd = Shutter::App::SimpleDialogs->new($self->{_sc}->get_mainwindow);
 
 	#gettext
@@ -106,89 +106,66 @@ sub show_dialog {
 	my $status_text = $d->get("Error while taking the screenshot.");
 
 	#handle error codes
-	if( $self->{_code} == 0 ) {
+	if ($self->{_code} == 0) {
 
 		#show error dialog
-		my $response = $sd->dlg_error_message( 
-			$d->get( "Maybe mouse pointer could not be grabbed or the selected area is invalid." ),
-			$d->get( "Error while taking the screenshot." )
-		);				
-		
-	#keyboard could not be grabbed
-	}elsif( $self->{_code} == 1 ) {
+		my $response = $sd->dlg_error_message($d->get("Maybe mouse pointer could not be grabbed or the selected area is invalid."), $d->get("Error while taking the screenshot."));
 
-		$response = $sd->dlg_error_message( 
-			$d->get( "Keyboard could not be grabbed." ),
-			$d->get( "Error while taking the screenshot." )
-		);
-			
-	#no window with type xy detected
-	}elsif( $self->{_code} == 2 ) {
-		
+		#keyboard could not be grabbed
+	} elsif ($self->{_code} == 1) {
+
+		$response = $sd->dlg_error_message($d->get("Keyboard could not be grabbed."), $d->get("Error while taking the screenshot."));
+
+		#no window with type xy detected
+	} elsif ($self->{_code} == 2) {
+
 		my $type = undef;
-		if ( $self->{_data} eq "menu" ||  $self->{_data} eq "tray_menu" ) {
-			$type = $d->get( "menu" );
-		}elsif ( $self->{_data} eq "tooltip" ||  $self->{_data} eq "tray_tooltip" ) {
-			$type = $d->get( "tooltip" );
+		if ($self->{_data} eq "menu" || $self->{_data} eq "tray_menu") {
+			$type = $d->get("menu");
+		} elsif ($self->{_data} eq "tooltip" || $self->{_data} eq "tray_tooltip") {
+			$type = $d->get("tooltip");
 		}
 
-		$response = $sd->dlg_error_message( 
-			sprintf( $d->get( "No window with type %s detected." ), "'".$type."'"),
-			$d->get( "Error while taking the screenshot." )
-		);
-			
-	#no history object stored
-	}elsif( $self->{_code} == 3 ) {
+		$response = $sd->dlg_error_message(sprintf($d->get("No window with type %s detected."), "'" . $type . "'"), $d->get("Error while taking the screenshot."));
 
-		$response = $sd->dlg_error_message( 
-			$d->get( "There is no last capture that can be redone." ),
-			$d->get( "Error while taking the screenshot." )
-		);
-			
-	#window no longer available
-	}elsif( $self->{_code} == 4 ) {
-		
-		$response = $sd->dlg_error_message( 
-			$d->get( "The window is no longer available." ),
-			$d->get( "Error while taking the screenshot." )
-		);
+		#no history object stored
+	} elsif ($self->{_code} == 3) {
 
-	#user aborted screenshot
-	}elsif ( $self->{_code} == 5 ) {
-		
+		$response = $sd->dlg_error_message($d->get("There is no last capture that can be redone."), $d->get("Error while taking the screenshot."));
+
+		#window no longer available
+	} elsif ($self->{_code} == 4) {
+
+		$response = $sd->dlg_error_message($d->get("The window is no longer available."), $d->get("Error while taking the screenshot."));
+
+		#user aborted screenshot
+	} elsif ($self->{_code} == 5) {
+
 		$status_text = $d->get("Capture aborted by user");
 
-	#gnome-web-photo failed
-	}elsif ( $self->{_code} == 6 ) {
+		#gnome-web-photo failed
+	} elsif ($self->{_code} == 6) {
 
-		$response = $sd->dlg_error_message( $d->get("Unable to capture website"), 
-			$d->get( "Error while taking the screenshot." ),
-			undef, undef, undef, undef, undef, undef,
-			$detailed_error_text 
-		);
-		
+		$response = $sd->dlg_error_message($d->get("Unable to capture website"), $d->get("Error while taking the screenshot."), undef, undef, undef, undef, undef, undef, $detailed_error_text);
+
 		$status_text = $d->get("Unable to capture website");
-			
-	#no window with name $pattern detected
-	}elsif( $self->{_code} == 7 ) {
-		
+
+		#no window with name $pattern detected
+	} elsif ($self->{_code} == 7) {
+
 		my $name_pattern = $self->{_extra};
-		
-		$response = $sd->dlg_error_message( 
-			sprintf( $d->get( "No window with name pattern %s detected." ), "'".$name_pattern."'"),
-			$d->get( "Error while taking the screenshot." )
-		);
-		
-	#invalid pattern
-	}elsif( $self->{_code} == 8 ) {
-		
+
+		$response = $sd->dlg_error_message(sprintf($d->get("No window with name pattern %s detected."), "'" . $name_pattern . "'"), $d->get("Error while taking the screenshot."));
+
+		#invalid pattern
+	} elsif ($self->{_code} == 8) {
+
 		my $name_pattern = $self->{_extra};
-		
-		$response = $sd->dlg_error_message( 
-			sprintf( $d->get( "Invalid pattern %s detected." ), "'".$name_pattern."'"),
-			$d->get( "Error while taking the screenshot." ),
-			undef, undef, undef, undef, undef, undef,
-			$detailed_error_text 
+
+		$response = $sd->dlg_error_message(
+			sprintf($d->get("Invalid pattern %s detected."), "'" . $name_pattern . "'"),
+			$d->get("Error while taking the screenshot."),
+			undef, undef, undef, undef, undef, undef, $detailed_error_text
 		);
 
 	}

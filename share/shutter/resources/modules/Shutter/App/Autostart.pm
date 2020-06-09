@@ -27,16 +27,16 @@ use strict;
 use warnings;
 
 #Glib
-use Glib qw/TRUE FALSE/; 
+use Glib qw/TRUE FALSE/;
 
 sub new {
 	my $class = shift;
 
-	my $self = { };
+	my $self = {};
 
 	#read data
 	binmode DATA, ":utf8";
-	while (my $data = <DATA>){
+	while (my $data = <DATA>) {
 		push @{$self->{_data}}, $data;
 	}
 
@@ -45,35 +45,37 @@ sub new {
 }
 
 sub create_autostart_file {
-	my $self = shift;
-	my $dir = shift; # ~/.config/autostart in most cases
-	my $enabled = shift;
-	my $min = shift;
+	my $self           = shift;
+	my $dir            = shift;    # ~/.config/autostart in most cases
+	my $enabled        = shift;
+	my $min            = shift;
 	my $nonotification = shift;
-	
+
 	#copy in order keep original data
 	my @data = @{$self->{_data}};
-	
-	my $path = $dir."/shutter.desktop";
+
+	my $path = $dir . "/shutter.desktop";
 
 	open FILE, ">:utf8", $path or die $!;
-	foreach my $line (@data){
-		if($line =~ /Exec=shutter<options>/){
+	foreach my $line (@data) {
+		if ($line =~ /Exec=shutter<options>/) {
+
 			#add options
 			my $options = '';
-			$options .= " --min_at_startup" if $min;
+			$options .= " --min_at_startup"  if $min;
 			$options .= " --disable_systray" if $nonotification;
+
 			#remove placeholder
 			$line =~ s/<options>/$options/;
-		}elsif($line =~ /X-GNOME-Autostart-enabled=false/){
+		} elsif ($line =~ /X-GNOME-Autostart-enabled=false/) {
 			$line =~ s/false/true/ if $enabled;
-		}elsif($line =~ /Hidden=true/){
+		} elsif ($line =~ /Hidden=true/) {
 			$line =~ s/true/false/ if $enabled;
 		}
 		print FILE $line;
 	}
-	close FILE or die $!;	
-	
+	close FILE or die $!;
+
 	return TRUE;
 }
 

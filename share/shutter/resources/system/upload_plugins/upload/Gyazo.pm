@@ -26,7 +26,7 @@
 
 package Gyazo;
 
-use lib $ENV{'SHUTTER_ROOT'}.'/share/shutter/resources/modules';
+use lib $ENV{'SHUTTER_ROOT'} . '/share/shutter/resources/modules';
 
 use utf8;
 use strict;
@@ -34,25 +34,24 @@ use POSIX qw/setlocale/;
 use Locale::gettext;
 use Glib qw/TRUE FALSE/;
 
-
 use Shutter::Upload::Shared;
 our @ISA = qw(Shutter::Upload::Shared);
 
 my $d = Locale::gettext->domain("shutter-upload-plugins");
-$d->dir( $ENV{'SHUTTER_INTL'} );
+$d->dir($ENV{'SHUTTER_INTL'});
 
 my %upload_plugin_info = (
-    'module'        => "Gyazo",
-	'url'           => "https://gyazo.com/",
-	'registration'  => "https://gyazo.com/signup",
-	'description'   => $d->get( "Gyazo is an open-source service for sharing screenshots." ),
+	'module'                     => "Gyazo",
+	'url'                        => "https://gyazo.com/",
+	'registration'               => "https://gyazo.com/signup",
+	'description'                => $d->get("Gyazo is an open-source service for sharing screenshots."),
 	'supports_anonymous_upload'  => FALSE,
 	'supports_authorized_upload' => TRUE,
 );
 
-binmode( STDOUT, ":utf8" );
-if ( exists $upload_plugin_info{$ARGV[ 0 ]} ) {
-	print $upload_plugin_info{$ARGV[ 0 ]};
+binmode(STDOUT, ":utf8");
+if (exists $upload_plugin_info{$ARGV[0]}) {
+	print $upload_plugin_info{$ARGV[0]};
 	exit;
 }
 
@@ -62,7 +61,7 @@ sub new {
 	my $class = shift;
 
 	#call constructor of super class (host, debug_cparam, shutter_root, gettext_object, main_gtk_window, ua)
-	my $self = $class->SUPER::new( shift, shift, shift, shift, shift, shift );
+	my $self = $class->SUPER::new(shift, shift, shift, shift, shift, shift);
 
 	bless $self, $class;
 	return $self;
@@ -72,55 +71,51 @@ sub init {
 	my $self = shift;
 
 	#do custom stuff here
-    require WebService::Gyazo::B;
+	require WebService::Gyazo::B;
 
 	return TRUE;
 }
 
 sub upload {
-    my ( $self, $upload_filename, $username, $password ) = @_;
+	my ($self, $upload_filename, $username, $password) = @_;
 
-    #store as object vars
-    $self->{_filename} = $upload_filename;
-    $self->{_username} = $username;
-    $self->{_password} = $password;
+	#store as object vars
+	$self->{_filename} = $upload_filename;
+	$self->{_username} = $username;
+	$self->{_password} = $password;
 
-    utf8::encode $upload_filename;
-    utf8::encode $password;
-    utf8::encode $username;
+	utf8::encode $upload_filename;
+	utf8::encode $password;
+	utf8::encode $username;
 
-    #~ if ( $username ne "" && $password ne "" ) {
+	#~ if ( $username ne "" && $password ne "" ) {
 
-    my $client = WebService::Gyazo::B->new();
+	my $client = WebService::Gyazo::B->new();
 
-    eval {
+	eval {
 
-        my $image = $client->uploadFile($upload_filename);
+		my $image = $client->uploadFile($upload_filename);
 
-        if (!$client->isError) {
-            my $url = $image->getImageUrl();
-            $self->{_links} =
-            +{
-                status => 200,
-                image_url => $url,
-            };
-            print "image_url: $url\n";
-        }
-        else {
-            $self->{_links} =
-            +{
-                status => $client->error(),
-            };
-        }
-    };
+		if (!$client->isError) {
+			my $url = $image->getImageUrl();
+			$self->{_links} = +{
+				status    => 200,
+				image_url => $url,
+			};
+			print "image_url: $url\n";
+		} else {
+			$self->{_links} = +{status => $client->error(),};
+		}
+	};
 
-    if($@){
-        $self->{_links}{'status'} = $@;
-        #~ print "$@\n";
-    }
+	if ($@) {
+		$self->{_links}{'status'} = $@;
 
-    #and return links
-    return %{ $self->{_links} };
+		#~ print "$@\n";
+	}
+
+	#and return links
+	return %{$self->{_links}};
 }
 
 1;

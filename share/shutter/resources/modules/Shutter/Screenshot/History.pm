@@ -29,24 +29,24 @@ use strict;
 use warnings;
 
 #Glib
-use Glib qw/TRUE FALSE/; 
+use Glib qw/TRUE FALSE/;
 
 #--------------------------------------
 
 sub new {
 	my $class = shift;
-	
-	my $self = { _sc  => shift };
+
+	my $self = {_sc => shift};
 
 	#last capture
-	$self->{_drawable} 	= shift;	
-	$self->{_x}			= shift;
-	$self->{_y}			= shift;
-	$self->{_w}			= shift;
-	$self->{_h}			= shift;
-	$self->{_region}	= shift;	
-	$self->{_wxid}		= shift;	
-	$self->{_gxid}		= shift;	
+	$self->{_drawable} = shift;
+	$self->{_x}        = shift;
+	$self->{_y}        = shift;
+	$self->{_w}        = shift;
+	$self->{_h}        = shift;
+	$self->{_region}   = shift;
+	$self->{_wxid}     = shift;
+	$self->{_gxid}     = shift;
 
 	bless $self, $class;
 	return $self;
@@ -60,15 +60,15 @@ sub get_last_capture {
 sub set_last_capture {
 	my $self = shift;
 	if (scalar @_ >= 5) {
-		$self->{_drawable} 	= shift;	
-		$self->{_x}			= shift;
-		$self->{_y}			= shift;
-		$self->{_w}			= shift;
-		$self->{_h}			= shift;
-		$self->{_region}	= shift;	
-		$self->{_wxid}		= shift;
-		$self->{_gxid}		= shift;
-	}else{
+		$self->{_drawable} = shift;
+		$self->{_x}        = shift;
+		$self->{_y}        = shift;
+		$self->{_w}        = shift;
+		$self->{_h}        = shift;
+		$self->{_region}   = shift;
+		$self->{_wxid}     = shift;
+		$self->{_gxid}     = shift;
+	} else {
 		warn "WARNING: Wrong number of arguments in Shutter::Screenshot::History::set_last_capture\n";
 	}
 	return ($self->{_drawable}, $self->{_x}, $self->{_y}, $self->{_w}, $self->{_h}, $self->{_region}, $self->{_wxid}, $self->{_gxid});

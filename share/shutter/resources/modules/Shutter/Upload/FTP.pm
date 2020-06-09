@@ -29,7 +29,7 @@ use URI;
 use URI::Split qw(uri_split);
 
 #Glib
-use Glib qw/TRUE FALSE/; 
+use Glib qw/TRUE FALSE/;
 
 #--------------------------------------
 
@@ -38,7 +38,7 @@ sub new {
 
 	my $self = {
 		_debug_cparam    => shift,
-		_shutter_root     => shift,
+		_shutter_root    => shift,
 		_gettext_object  => shift,
 		_main_gtk_window => shift,
 		_mode            => shift    #active or passive
@@ -63,16 +63,15 @@ sub new {
 }
 
 sub login {
-	my ( $self, $uri, $username, $password ) = @_;
+	my ($self, $uri, $username, $password) = @_;
 
 	#uri should start with ftp:// to parse it correctly
-	$uri = "ftp://" . $uri unless ( $uri =~ /^ftp:\/\// );
+	$uri = "ftp://" . $uri unless ($uri =~ /^ftp:\/\//);
 
 	#split uri
 	my $u = URI->new($uri);
 
-	( $self->{_prot}, $self->{_auth}, $self->{_path}, $self->{_query}, $self->{_frage} )
-		= uri_split($u);
+	($self->{_prot}, $self->{_auth}, $self->{_path}, $self->{_query}, $self->{_frage}) = uri_split($u);
 
 	#get port and host
 	$self->{_auth} =~ /(.*):?([0-9]?)/;
@@ -80,11 +79,8 @@ sub login {
 	$self->{_port} = $2 || 21;
 
 	#check uri and return if anything is missing
-	unless ( $self->{_host} && $self->{_port} ) {
-		return (
-		$self->{_gettext_object}->get("Illegal URI."),
-		"<<ftp://host:port/path>>",
-		undef);
+	unless ($self->{_host} && $self->{_port}) {
+		return ($self->{_gettext_object}->get("Illegal URI."), "<<ftp://host:port/path>>", undef);
 	}
 
 	#store parms as object vars
@@ -100,25 +96,22 @@ sub login {
 		Passive => $self->{_mode},
 		Port    => $self->{_port},
 		Timeout => 10
-		)
-		or return (
-			$self->{_gettext_object}->get("Connection error."),
-			$self->{_gettext_object}->get("Please check your connectivity and try again."),
-			$@);
+	) or return ($self->{_gettext_object}->get("Connection error."), $self->{_gettext_object}->get("Please check your connectivity and try again."), $@);
 
 	#TRY TO LOGIN WITH GIVEN CREDENTIALS
-	$self->{_ftp}->login( $self->{_username}, $self->{_password} )
+	$self->{_ftp}->login($self->{_username}, $self->{_password})
 		or return (
-			sprintf ($self->{_gettext_object}->get("Login with username %s failed."), "'".$self->{_username}."'"),
-			$self->{_gettext_object}->get("Please check your credentials and try again."),
-			$self->{_ftp}->message);
+		sprintf($self->{_gettext_object}->get("Login with username %s failed."), "'" . $self->{_username} . "'"),
+		$self->{_gettext_object}->get("Please check your credentials and try again."),
+		$self->{_ftp}->message
+		);
 
 	#THERE ARE NO ERRORS WHEN ROUTINE RETURNS AT THIS POINT
 	return (FALSE);
 }
 
 sub upload {
-	my ( $self, $upload_filename ) = @_;
+	my ($self, $upload_filename) = @_;
 
 	#store parms as object vars
 	$self->{_filename} = $upload_filename;
@@ -126,22 +119,14 @@ sub upload {
 	utf8::encode $self->{_filename};
 
 	#CHANGE WORKING DIRECTORY USING CWD COMMAND
-	$self->{_ftp}->cwd( $self->{_path} )
-		or return (
-			$self->{_gettext_object}->get("Failed"),
-			$self->{_gettext_object}->get("Cannot change working directory."),
-			$self->{_ftp}->message
-			);
+	$self->{_ftp}->cwd($self->{_path})
+		or return ($self->{_gettext_object}->get("Failed"), $self->{_gettext_object}->get("Cannot change working directory."), $self->{_ftp}->message);
 
 	$self->{_ftp}->binary;
 
 	#UPLOAD FILE
-	$self->{_ftp}->put( $self->{_filename} )
-		or return (
-			$self->{_gettext_object}->get("Failed"),
-			$self->{_gettext_object}->get("Command 'put' failed."), 
-			$self->{_ftp}->message
-		);
+	$self->{_ftp}->put($self->{_filename})
+		or return ($self->{_gettext_object}->get("Failed"), $self->{_gettext_object}->get("Command 'put' failed."), $self->{_ftp}->message);
 
 	#THERE ARE NO ERRORS WHEN ROUTINE RETURNS AT THIS POINT
 	return (FALSE);
