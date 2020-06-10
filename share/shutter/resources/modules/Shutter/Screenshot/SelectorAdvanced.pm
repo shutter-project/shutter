@@ -30,8 +30,8 @@ use utf8;
 use strict;
 use warnings;
 
-use Gtk3::ImageView;
-use Gnome2::Canvas;
+#use Gtk3::ImageView;
+#use Gnome2::Canvas;
 use Shutter::Screenshot::Main;
 use Shutter::Screenshot::History;
 

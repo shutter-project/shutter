@@ -35,9 +35,13 @@ use Glib qw/TRUE FALSE/;
 
 sub new {
 	my $class = shift;
+	my $sc = shift;
 
 	#constructor
-	my $self = {_common => shift};
+	my $self = {
+		_common => $sc,
+		_shf => Shutter::App::HelperFunctions->new($sc),
+	};
 
 	bless $self, $class;
 	return $self;
@@ -68,7 +72,7 @@ sub create_toolbar {
 	#--------------------------------------
 	my $image_select;
 	eval {
-		my $ccursor_pb = Gtk3::Gdk::Cursor->new('left_ptr')->get_image->scale_simple(Gtk3::IconSize->lookup('large-toolbar'), 'bilinear');
+		my $ccursor_pb = Gtk3::Gdk::Cursor->new('left_ptr')->get_image->scale_simple($self->{_shf}->icon_size('large-toolbar'), 'bilinear');
 		$image_select = Gtk3::Image->new_from_pixbuf($ccursor_pb);
 	};
 	if ($@) {
@@ -76,7 +80,7 @@ sub create_toolbar {
 			$image_select = Gtk3::Image->new_from_icon_name('applications-accessories', 'large-toolbar');
 		} else {
 			$image_select =
-				Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/selection.svg", Gtk3::IconSize->lookup('large-toolbar')));
+				Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/selection.svg", $self->{_shf}->icon_size('large-toolbar')));
 		}
 	}
 
@@ -100,7 +104,7 @@ sub create_toolbar {
 	} elsif ($icontheme->has_icon('desktop')) {
 		$image_full = Gtk3::Image->new_from_icon_name('desktop', 'large-toolbar');
 	} else {
-		$image_full = Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/desktop.svg", Gtk3::IconSize->lookup('large-toolbar')));
+		$image_full = Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/desktop.svg", $self->{_shf}->icon_size('large-toolbar')));
 	}
 	$self->{_full} = Gtk3::MenuToolButton->new($image_full, $d->get("Desktop"));
 	$self->{_full}->set_is_important(TRUE);
@@ -119,7 +123,7 @@ sub create_toolbar {
 	#~ $image_awindow = Gtk3::Image->new_from_pixbuf(
 	#~ Gtk3::Gdk::Pixbuf->new_from_file_at_size(
 	#~ "$shutter_root/share/shutter/resources/icons/sel_window_active.svg",
-	#~ Gtk3::IconSize->lookup('large-toolbar')
+	#~ $self->{_shf}->icon_size('large-toolbar')
 	#~ )
 	#~ );
 	#~ }
@@ -137,7 +141,7 @@ sub create_toolbar {
 	if ($icontheme->has_icon('preferences-system-windows')) {
 		$image_window = Gtk3::Image->new_from_icon_name('preferences-system-windows', 'large-toolbar');
 	} else {
-		$image_window = Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/sel_window.svg", Gtk3::IconSize->lookup('large-toolbar')));
+		$image_window = Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/sel_window.svg", $self->{_shf}->icon_size('large-toolbar')));
 	}
 	$self->{_window} = Gtk3::MenuToolButton->new($image_window, $d->get("Window"));
 	$self->{_window}->set_is_important(TRUE);
@@ -152,7 +156,7 @@ sub create_toolbar {
 		$image_window_sect = Gtk3::Image->new_from_icon_name('gdm-xnest', 'large-toolbar');
 	} else {
 		$image_window_sect =
-			Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/sel_window_section.svg", Gtk3::IconSize->lookup('large-toolbar')));
+			Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/sel_window_section.svg", $self->{_shf}->icon_size('large-toolbar')));
 	}
 	$self->{_section} = Gtk3::ToolButton->new($image_window_sect, $d->get("Section"));
 
@@ -167,7 +171,7 @@ sub create_toolbar {
 		$image_window_menu = Gtk3::Image->new_from_icon_name('alacarte', 'large-toolbar');
 	} else {
 		$image_window_menu =
-			Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/sel_window_menu.svg", Gtk3::IconSize->lookup('large-toolbar')));
+			Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/sel_window_menu.svg", $self->{_shf}->icon_size('large-toolbar')));
 	}
 	$self->{_menu} = Gtk3::ToolButton->new($image_window_menu, $d->get("Menu"));
 
@@ -182,7 +186,7 @@ sub create_toolbar {
 		$image_window_tooltip = Gtk3::Image->new_from_icon_name('help-faq', 'large-toolbar');
 	} else {
 		$image_window_tooltip =
-			Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/sel_window_tooltip.svg", Gtk3::IconSize->lookup('large-toolbar')));
+			Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/sel_window_tooltip.svg", $self->{_shf}->icon_size('large-toolbar')));
 	}
 	$self->{_tooltip} = Gtk3::ToolButton->new($image_window_tooltip, $d->get("Tooltip"));
 
@@ -196,7 +200,7 @@ sub create_toolbar {
 	if ($icontheme->has_icon('web-browser')) {
 		$image_web = Gtk3::Image->new_from_icon_name('web-browser', 'large-toolbar');
 	} else {
-		$image_web = Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/web_image.svg", Gtk3::IconSize->lookup('large-toolbar')));
+		$image_web = Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/web_image.svg", $self->{_shf}->icon_size('large-toolbar')));
 	}
 	$self->{_web} = Gtk3::MenuToolButton->new($image_web, $d->get("Web"));
 
@@ -217,7 +221,7 @@ sub create_toolbar {
 	if ($icontheme->has_icon('applications-graphics')) {
 		$image_edit = Gtk3::Image->new_from_icon_name('applications-graphics', 'large-toolbar');
 	} else {
-		$image_edit = Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/draw.svg", Gtk3::IconSize->lookup('large-toolbar')));
+		$image_edit = Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/draw.svg", $self->{_shf}->icon_size('large-toolbar')));
 	}
 	$self->{_edit} = Gtk3::ToolButton->new($image_edit, $d->get("Edit"));
 	$self->{_edit}->set_is_important(TRUE);

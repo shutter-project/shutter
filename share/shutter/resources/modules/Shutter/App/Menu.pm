@@ -35,9 +35,13 @@ use Glib qw/TRUE FALSE/;
 
 sub new {
 	my $class = shift;
+	my $sc = shift;
 
 	#constructor
-	my $self = {_common => shift};
+	my $self = {
+		_common => $sc,
+		_shf => Shutter::App::HelperFunctions->new($sc),
+	};
 
 	bless $self, $class;
 	return $self;
@@ -111,7 +115,7 @@ sub fct_ret_file_menu {
 
 	$self->{_menuitem_open} = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('_Open...'));
 	$self->{_menuitem_open}->set_image(Gtk3::Image->new_from_stock('gtk-open', 'menu'));
-	$self->{_menuitem_open}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<Control>O'), qw/visible/);
+	$self->{_menuitem_open}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Control>O'), qw/visible/);
 	$self->{_menu_file}->append($self->{_menuitem_open});
 
 	$self->{_menuitem_recent} = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('Recent _Files'));
@@ -122,28 +126,28 @@ sub fct_ret_file_menu {
 	#~ $self->{_menuitem_save} = Gtk3::ImageMenuItem->new_with_mnemonic( $d->get('_Save') );
 	#~ $self->{_menuitem_save}->set_image( Gtk3::Image->new_from_stock( 'gtk-save', 'menu' ) );
 	#~ $self->{_menuitem_save}->set_sensitive(FALSE);
-	#~ $self->{_menuitem_save}->add_accelerator( 'activate', $accel_group, Gtk3::Accelerator->parse('<Control>S'), qw/visible/ );
+	#~ $self->{_menuitem_save}->add_accelerator( 'activate', $accel_group, $self->{_shf}->accel('<Control>S'), qw/visible/ );
 	#~ $self->{_menu_file}->append( $self->{_menuitem_save} );
 
 	$self->{_menuitem_save_as} = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('Save _As...'));
 	$self->{_menuitem_save_as}->set_image(Gtk3::Image->new_from_stock('gtk-save-as', 'menu'));
 	$self->{_menuitem_save_as}->set_sensitive(FALSE);
-	$self->{_menuitem_save_as}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<Shift><Control>S'), qw/visible/);
+	$self->{_menuitem_save_as}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Shift><Control>S'), qw/visible/);
 	$self->{_menu_file}->append($self->{_menuitem_save_as});
 
 	#~ $self->{_menuitem_export_svg} = Gtk3::ImageMenuItem->new_with_mnemonic( $d->get('Export to SVG...') );
 	#~ $self->{_menuitem_export_svg}->set_sensitive(FALSE);
-	#~ $self->{_menuitem_export_svg}->add_accelerator( 'activate', $accel_group, Gtk3::Accelerator->parse('<Shift><Alt>G'), qw/visible/ );
+	#~ $self->{_menuitem_export_svg}->add_accelerator( 'activate', $accel_group, $self->{_shf}->accel('<Shift><Alt>G'), qw/visible/ );
 	#~ $self->{_menu_file}->append( $self->{_menuitem_export_svg} );
 
 	$self->{_menuitem_export_pdf} = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('E_xport to PDF...'));
 	$self->{_menuitem_export_pdf}->set_sensitive(FALSE);
-	$self->{_menuitem_export_pdf}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<Shift><Alt>P'), qw/visible/);
+	$self->{_menuitem_export_pdf}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Shift><Alt>P'), qw/visible/);
 	$self->{_menu_file}->append($self->{_menuitem_export_pdf});
 
 	$self->{_menuitem_export_pscript} = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('Export to Post_Script...'));
 	$self->{_menuitem_export_pscript}->set_sensitive(FALSE);
-	$self->{_menuitem_export_pscript}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<Shift><Alt>S'), qw/visible/);
+	$self->{_menuitem_export_pscript}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Shift><Alt>S'), qw/visible/);
 	$self->{_menu_file}->append($self->{_menuitem_export_pscript});
 
 	$self->{_menu_file}->append(Gtk3::SeparatorMenuItem->new);
@@ -158,7 +162,7 @@ sub fct_ret_file_menu {
 
 	$self->{_menuitem_print} = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('_Print...'));
 	$self->{_menuitem_print}->set_image(Gtk3::Image->new_from_stock('gtk-print', 'menu'));
-	$self->{_menuitem_print}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<Control>P'), qw/visible/);
+	$self->{_menuitem_print}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Control>P'), qw/visible/);
 	$self->{_menuitem_print}->set_sensitive(FALSE);
 	$self->{_menu_file}->append($self->{_menuitem_print});
 
@@ -167,26 +171,26 @@ sub fct_ret_file_menu {
 	$self->{_menuitem_email} = Gtk3::ImageMenuItem->new($d->get('Send by E_mail...'));
 	$self->{_menuitem_email}->set_image(Gtk3::Image->new_from_icon_name('mail-send', 'menu'));
 	$self->{_menuitem_email}->set_sensitive(FALSE);
-	$self->{_menuitem_email}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<Shift><Control>E'), qw/visible/);
+	$self->{_menuitem_email}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Shift><Control>E'), qw/visible/);
 	$self->{_menu_file}->append($self->{_menuitem_email});
 
 	$self->{_menu_file}->append(Gtk3::SeparatorMenuItem->new);
 
 	$self->{_menuitem_close} = Gtk3::ImageMenuItem->new_from_stock('gtk-close');
 	$self->{_menuitem_close}->set_sensitive(FALSE);
-	$self->{_menuitem_close}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<Control>W'), qw/visible/);
+	$self->{_menuitem_close}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Control>W'), qw/visible/);
 	$self->{_menu_file}->append($self->{_menuitem_close});
 
 	$self->{_menuitem_close_all} = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('C_lose all'));
 	$self->{_menuitem_close_all}->set_image(Gtk3::Image->new_from_stock('gtk-close', 'menu'));
 	$self->{_menuitem_close_all}->set_sensitive(FALSE);
-	$self->{_menuitem_close_all}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<Shift><Control>W'), qw/visible/);
+	$self->{_menuitem_close_all}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Shift><Control>W'), qw/visible/);
 	$self->{_menu_file}->append($self->{_menuitem_close_all});
 
 	$self->{_menu_file}->append(Gtk3::SeparatorMenuItem->new);
 
 	$self->{_menuitem_quit} = Gtk3::ImageMenuItem->new_from_stock('gtk-quit');
-	$self->{_menuitem_quit}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<Control>Q'), qw/visible/);
+	$self->{_menuitem_quit}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Control>Q'), qw/visible/);
 	$self->{_menu_file}->append($self->{_menuitem_quit});
 
 	return $self->{_menu_file};
@@ -204,30 +208,30 @@ sub fct_ret_edit_menu {
 	$self->{_menu_edit} = Gtk3::Menu->new();
 
 	$self->{_menuitem_undo} = Gtk3::ImageMenuItem->new_from_stock('gtk-undo');
-	$self->{_menuitem_undo}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<Control>Z'), qw/visible/);
+	$self->{_menuitem_undo}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Control>Z'), qw/visible/);
 	$self->{_menuitem_undo}->set_sensitive(FALSE);
 	$self->{_menu_edit}->append($self->{_menuitem_undo});
 
 	$self->{_menuitem_redo} = Gtk3::ImageMenuItem->new_from_stock('gtk-redo');
-	$self->{_menuitem_redo}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<Control>Y'), qw/visible/);
+	$self->{_menuitem_redo}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Control>Y'), qw/visible/);
 	$self->{_menuitem_redo}->set_sensitive(FALSE);
 	$self->{_menu_edit}->append($self->{_menuitem_redo});
 
 	$self->{_menu_edit}->append(Gtk3::SeparatorMenuItem->new);
 
 	$self->{_menuitem_copy} = Gtk3::ImageMenuItem->new_from_stock('gtk-copy');
-	$self->{_menuitem_copy}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<Control>C'), qw/visible/);
+	$self->{_menuitem_copy}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Control>C'), qw/visible/);
 	$self->{_menuitem_copy}->set_sensitive(FALSE);
 	$self->{_menu_edit}->append($self->{_menuitem_copy});
 
 	$self->{_menuitem_copy_filename} = Gtk3::ImageMenuItem->new_from_stock('gtk-copy');
 	$self->{_menuitem_copy_filename}->get_child->set_text_with_mnemonic($d->get('Copy _Filename'));
-	$self->{_menuitem_copy_filename}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<Control><Shift>C'), qw/visible/);
+	$self->{_menuitem_copy_filename}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Control><Shift>C'), qw/visible/);
 	$self->{_menuitem_copy_filename}->set_sensitive(FALSE);
 	$self->{_menu_edit}->append($self->{_menuitem_copy_filename});
 
 	$self->{_menuitem_trash} = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('Move to _Trash'));
-	$self->{_menuitem_trash}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('Delete'), qw/visible/);
+	$self->{_menuitem_trash}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('Delete'), qw/visible/);
 	$self->{_menuitem_trash}->set_image(Gtk3::Image->new_from_icon_name('user-trash', 'menu'));
 	$self->{_menuitem_trash}->set_sensitive(FALSE);
 	$self->{_menu_edit}->append($self->{_menuitem_trash});
@@ -235,7 +239,7 @@ sub fct_ret_edit_menu {
 	$self->{_menu_edit}->append(Gtk3::SeparatorMenuItem->new);
 
 	$self->{_menuitem_select_all} = Gtk3::ImageMenuItem->new_from_stock('gtk-select-all');
-	$self->{_menuitem_select_all}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<Control>A'), qw/visible/);
+	$self->{_menuitem_select_all}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Control>A'), qw/visible/);
 	$self->{_menu_edit}->append($self->{_menuitem_select_all});
 
 	$self->{_menu_edit}->append(Gtk3::SeparatorMenuItem->new);
@@ -246,7 +250,7 @@ sub fct_ret_edit_menu {
 	$self->{_menu_edit}->append(Gtk3::SeparatorMenuItem->new);
 
 	$self->{_menuitem_settings} = Gtk3::ImageMenuItem->new_from_stock('gtk-preferences');
-	$self->{_menuitem_settings}->add_accelerator('activate', $accel_group, Gtk3::Gdk->keyval_from_name('P'), qw/mod1-mask/, qw/visible/);
+	$self->{_menuitem_settings}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Mod1>P'), qw/visible/);
 	$self->{_menu_edit}->append($self->{_menuitem_settings});
 
 	return $self->{_menu_edit};
@@ -270,20 +274,20 @@ sub fct_ret_view_menu {
 	$self->{_menu_view}->append(Gtk3::SeparatorMenuItem->new);
 
 	$self->{_menuitem_zoom_in} = Gtk3::ImageMenuItem->new_from_stock('gtk-zoom-in');
-	$self->{_menuitem_zoom_in}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<control>plus'),   qw/visible/);
-	$self->{_menuitem_zoom_in}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<control>equal'),  qw/visible/);
-	$self->{_menuitem_zoom_in}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<control>KP_Add'), qw/visible/);
+	$self->{_menuitem_zoom_in}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<control>plus'),   qw/visible/);
+	$self->{_menuitem_zoom_in}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<control>equal'),  qw/visible/);
+	$self->{_menuitem_zoom_in}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<control>KP_Add'), qw/visible/);
 	$self->{_menuitem_zoom_in}->set_sensitive(FALSE);
 	$self->{_menu_view}->append($self->{_menuitem_zoom_in});
 
 	$self->{_menuitem_zoom_out} = Gtk3::ImageMenuItem->new_from_stock('gtk-zoom-out');
-	$self->{_menuitem_zoom_out}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<control>minus'),       qw/visible/);
-	$self->{_menuitem_zoom_out}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<control>KP_Subtract'), qw/visible/);
+	$self->{_menuitem_zoom_out}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<control>minus'),       qw/visible/);
+	$self->{_menuitem_zoom_out}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<control>KP_Subtract'), qw/visible/);
 	$self->{_menuitem_zoom_out}->set_sensitive(FALSE);
 	$self->{_menu_view}->append($self->{_menuitem_zoom_out});
 
 	$self->{_menuitem_zoom_100} = Gtk3::ImageMenuItem->new_from_stock('gtk-zoom-100');
-	$self->{_menuitem_zoom_100}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<control>0'), qw/visible/);
+	$self->{_menuitem_zoom_100}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<control>0'), qw/visible/);
 	$self->{_menuitem_zoom_100}->set_sensitive(FALSE);
 	$self->{_menu_view}->append($self->{_menuitem_zoom_100});
 
@@ -296,7 +300,7 @@ sub fct_ret_view_menu {
 	#create an image item from stock to reuse the translated text
 	$self->{_menuitem_fullscreen_image} = Gtk3::ImageMenuItem->new_from_stock('gtk-fullscreen');
 	$self->{_menuitem_fullscreen}       = Gtk3::CheckMenuItem->new_with_label($self->{_menuitem_fullscreen_image}->get_child->get_text);
-	$self->{_menuitem_fullscreen}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('F11'), qw/visible/);
+	$self->{_menuitem_fullscreen}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('F11'), qw/visible/);
 	$self->{_menu_view}->append($self->{_menuitem_fullscreen});
 
 	return $self->{_menu_view};
@@ -314,21 +318,21 @@ sub fct_ret_session_menu {
 	$self->{_menu_session} = Gtk3::Menu->new();
 
 	$self->{_menuitem_back} = Gtk3::ImageMenuItem->new_from_stock('gtk-go-back');
-	$self->{_menuitem_back}->add_accelerator('activate', $accel_group, Gtk3::Gdk->keyval_from_name('Left'), qw/mod1-mask/, qw/visible/);
+	$self->{_menuitem_back}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Mod1>Left'), qw/visible/);
 	$self->{_menu_session}->append($self->{_menuitem_back});
 
 	$self->{_menuitem_forward} = Gtk3::ImageMenuItem->new_from_stock('gtk-go-forward');
-	$self->{_menuitem_forward}->add_accelerator('activate', $accel_group, Gtk3::Gdk->keyval_from_name('Right'), qw/mod1-mask/, qw/visible/);
+	$self->{_menuitem_forward}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Mod1>Right'), qw/visible/);
 	$self->{_menu_session}->append($self->{_menuitem_forward});
 
 	$self->{_menu_session}->append(Gtk3::SeparatorMenuItem->new);
 
 	$self->{_menuitem_first} = Gtk3::ImageMenuItem->new_from_stock('gtk-goto-first');
-	$self->{_menuitem_first}->add_accelerator('activate', $accel_group, Gtk3::Gdk->keyval_from_name('Home'), qw/mod1-mask/, qw/visible/);
+	$self->{_menuitem_first}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Mod1>Home'), qw/visible/);
 	$self->{_menu_session}->append($self->{_menuitem_first});
 
 	$self->{_menuitem_last} = Gtk3::ImageMenuItem->new_from_stock('gtk-goto-last');
-	$self->{_menuitem_last}->add_accelerator('activate', $accel_group, Gtk3::Gdk->keyval_from_name('End'), qw/mod1-mask/, qw/visible/);
+	$self->{_menuitem_last}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Mod1>End'), qw/visible/);
 	$self->{_menu_session}->append($self->{_menuitem_last});
 
 	return $self->{_menu_session};
@@ -350,7 +354,7 @@ sub fct_ret_help_menu {
 		$self->{_menuitem_question}->set_image(Gtk3::Image->new_from_icon_name('lpi-help', 'menu'));
 	} else {
 		$self->{_menuitem_question}
-			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/lpi-help.png", Gtk3::IconSize->lookup('menu'))));
+			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/lpi-help.png", $self->{_shf}->icon_size('menu'))));
 	}
 
 	$self->{_menu_help}->append($self->{_menuitem_question});
@@ -360,7 +364,7 @@ sub fct_ret_help_menu {
 		$self->{_menuitem_translate}->set_image(Gtk3::Image->new_from_icon_name('lpi-translate', 'menu'));
 	} else {
 		$self->{_menuitem_translate}
-			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/lpi-translate.png", Gtk3::IconSize->lookup('menu'))));
+			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/lpi-translate.png", $self->{_shf}->icon_size('menu'))));
 	}
 
 	$self->{_menu_help}->append($self->{_menuitem_translate});
@@ -370,7 +374,7 @@ sub fct_ret_help_menu {
 		$self->{_menuitem_bug}->set_image(Gtk3::Image->new_from_icon_name('lpi-bug', 'menu'));
 	} else {
 		$self->{_menuitem_bug}
-			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/lpi-bug.png", Gtk3::IconSize->lookup('menu'))));
+			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/lpi-bug.png", $self->{_shf}->icon_size('menu'))));
 	}
 
 	$self->{_menu_help}->append($self->{_menuitem_bug});
@@ -378,7 +382,7 @@ sub fct_ret_help_menu {
 	$self->{_menu_help}->append(Gtk3::SeparatorMenuItem->new);
 
 	$self->{_menuitem_about} = Gtk3::ImageMenuItem->new_from_stock('gtk-about');
-	$self->{_menuitem_about}->add_accelerator('activate', $accel_group, Gtk3::Gdk->keyval_from_name('I'), qw/control-mask/, qw/visible/);
+	$self->{_menuitem_about}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Control>I'), qw/visible/);
 	$self->{_menu_help}->append($self->{_menuitem_about});
 
 	return $self->{_menu_help};
@@ -398,7 +402,7 @@ sub fct_ret_new_menu {
 	#redo last capture
 	$self->{_menuitem_redoshot} = Gtk3::ImageMenuItem->new_from_stock('gtk-refresh');
 	$self->{_menuitem_redoshot}->get_child->set_text_with_mnemonic($d->get('_Redo last screenshot'));
-	$self->{_menuitem_redoshot}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('F5'), qw/visible/);
+	$self->{_menuitem_redoshot}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('F5'), qw/visible/);
 	$self->{_menuitem_redoshot}->set_sensitive(FALSE);
 	$self->{_menu_new}->append($self->{_menuitem_redoshot});
 
@@ -408,7 +412,7 @@ sub fct_ret_new_menu {
 	$self->{_menuitem_selection} = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('_Selection'));
 
 	eval {
-		my $ccursor_pb = Gtk3::Gdk::Cursor->new('left_ptr')->get_image->scale_simple(Gtk3::IconSize->lookup('menu'), 'bilinear');
+		my $ccursor_pb = Gtk3::Gdk::Cursor->new('left_ptr')->get_image->scale_simple($self->{_shf}->icon_size('menu'), 'bilinear');
 		$self->{_menuitem_selection}->set_image(Gtk3::Image->new_from_pixbuf($ccursor_pb));
 	};
 	if ($@) {
@@ -416,7 +420,7 @@ sub fct_ret_new_menu {
 			$self->{_menuitem_selection}->set_image(Gtk3::Image->new_from_icon_name('applications-accessories', 'menu'));
 		} else {
 			$self->{_menuitem_selection}
-				->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/selection.svg", Gtk3::IconSize->lookup('menu'))));
+				->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/selection.svg", $self->{_shf}->icon_size('menu'))));
 		}
 	}
 	$self->{_menu_new}->append($self->{_menuitem_selection});
@@ -431,7 +435,7 @@ sub fct_ret_new_menu {
 		$self->{_menuitem_full}->set_image(Gtk3::Image->new_from_icon_name('desktop', 'menu'));
 	} else {
 		$self->{_menuitem_full}
-			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/desktop.svg", Gtk3::IconSize->lookup('menu'))));
+			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/desktop.svg", $self->{_shf}->icon_size('menu'))));
 	}
 	$self->{_menu_new}->append($self->{_menuitem_full});
 
@@ -443,7 +447,7 @@ sub fct_ret_new_menu {
 		$self->{_menuitem_awindow}->set_image(Gtk3::Image->new_from_icon_name('preferences-system-windows', 'menu'));
 	} else {
 		$self->{_menuitem_awindow}
-			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/sel_window_active.svg", Gtk3::IconSize->lookup('menu'))));
+			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/sel_window_active.svg", $self->{_shf}->icon_size('menu'))));
 	}
 	$self->{_menu_new}->append($self->{_menuitem_awindow});
 
@@ -453,7 +457,7 @@ sub fct_ret_new_menu {
 		$self->{_menuitem_window}->set_image(Gtk3::Image->new_from_icon_name('preferences-system-windows', 'menu'));
 	} else {
 		$self->{_menuitem_window}
-			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/sel_window.svg", Gtk3::IconSize->lookup('menu'))));
+			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/sel_window.svg", $self->{_shf}->icon_size('menu'))));
 	}
 	$self->{_menu_new}->append($self->{_menuitem_window});
 
@@ -463,7 +467,7 @@ sub fct_ret_new_menu {
 		$self->{_menuitem_section}->set_image(Gtk3::Image->new_from_icon_name('gdm-xnest', 'menu'));
 	} else {
 		$self->{_menuitem_section}
-			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/sel_window_section.svg", Gtk3::IconSize->lookup('menu'))));
+			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/sel_window_section.svg", $self->{_shf}->icon_size('menu'))));
 	}
 	$self->{_menu_new}->append($self->{_menuitem_section});
 
@@ -473,7 +477,7 @@ sub fct_ret_new_menu {
 		$self->{_menuitem_menu}->set_image(Gtk3::Image->new_from_icon_name('alacarte', 'menu'));
 	} else {
 		$self->{_menuitem_menu}
-			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/sel_window_menu.svg", Gtk3::IconSize->lookup('menu'))));
+			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/sel_window_menu.svg", $self->{_shf}->icon_size('menu'))));
 	}
 	$self->{_menu_new}->append($self->{_menuitem_menu});
 
@@ -483,7 +487,7 @@ sub fct_ret_new_menu {
 		$self->{_menuitem_tooltip}->set_image(Gtk3::Image->new_from_icon_name('help-faq', 'menu'));
 	} else {
 		$self->{_menuitem_tooltip}
-			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/sel_window_tooltip.svg", Gtk3::IconSize->lookup('menu'))));
+			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/sel_window_tooltip.svg", $self->{_shf}->icon_size('menu'))));
 	}
 	$self->{_menu_new}->append($self->{_menuitem_tooltip});
 
@@ -495,7 +499,7 @@ sub fct_ret_new_menu {
 		$self->{_menuitem_web}->set_image(Gtk3::Image->new_from_icon_name('web-browser', 'menu'));
 	} else {
 		$self->{_menuitem_web}
-			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/web_image.svg", Gtk3::IconSize->lookup('menu'))));
+			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/web_image.svg", $self->{_shf}->icon_size('menu'))));
 	}
 	$self->{_menu_new}->append($self->{_menuitem_web});
 
@@ -504,7 +508,7 @@ sub fct_ret_new_menu {
 	#import from clipboard
 	$self->{_menuitem_iclipboard} = Gtk3::ImageMenuItem->new_from_stock('gtk-paste');
 	$self->{_menuitem_iclipboard}->get_child->set_text_with_mnemonic($d->get('Import from clip_board'));
-	$self->{_menuitem_iclipboard}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<Control><Shift>V'), qw/visible/);
+	$self->{_menuitem_iclipboard}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Control><Shift>V'), qw/visible/);
 	$self->{_menu_new}->append($self->{_menuitem_iclipboard});
 
 	$self->{_menu_new}->show_all;
@@ -536,7 +540,7 @@ sub fct_ret_actions_menu {
 	$self->{_menu_actions}->append($self->{_menuitem_show_in_folder});
 
 	$self->{_menuitem_rename} = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('_Rename...'));
-	$self->{_menuitem_rename}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('F2'), qw/visible/) if $accel_group;
+	$self->{_menuitem_rename}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('F2'), qw/visible/) if $accel_group;
 	$self->{_menuitem_rename}->set_image(Gtk3::Image->new_from_stock('gtk-edit', 'menu'));
 	$self->{_menuitem_rename}->set_sensitive(FALSE);
 	$self->{_menuitem_rename}->set_name('item-rename');
@@ -545,14 +549,14 @@ sub fct_ret_actions_menu {
 	$self->{_menu_actions}->append(Gtk3::SeparatorMenuItem->new);
 
 	$self->{_menuitem_send} = Gtk3::ImageMenuItem->new($d->get('_Send To...'));
-	$self->{_menuitem_send}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<Control>S'), qw/visible/);
+	$self->{_menuitem_send}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Control>S'), qw/visible/);
 	$self->{_menuitem_send}->set_image(Gtk3::Image->new_from_icon_name('document-send', 'menu'));
 	$self->{_menuitem_send}->set_sensitive(FALSE);
 	$self->{_menuitem_send}->set_name('item-send');
 	$self->{_menu_actions}->append($self->{_menuitem_send});
 
 	$self->{_menuitem_upload} = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('E_xport...'));
-	$self->{_menuitem_upload}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<Control>U'), qw/visible/) if $accel_group;
+	$self->{_menuitem_upload}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Control>U'), qw/visible/) if $accel_group;
 	$self->{_menuitem_upload}->set_image(Gtk3::Image->new_from_stock('gtk-network', 'menu'));
 	$self->{_menuitem_upload}->set_sensitive(FALSE);
 	$self->{_menuitem_upload}->set_name('item-upload');
@@ -568,12 +572,12 @@ sub fct_ret_actions_menu {
 
 	$self->{_menuitem_draw} = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('_Edit...'));
 	$self->{_menuitem_draw}->set_image(Gtk3::Image->new_from_stock('gtk-edit', 'menu'));
-	$self->{_menuitem_draw}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<Control>E'), qw/visible/) if $accel_group;
+	$self->{_menuitem_draw}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Control>E'), qw/visible/) if $accel_group;
 	if ($icontheme->has_icon('applications-graphics')) {
 		$self->{_menuitem_draw}->set_image(Gtk3::Image->new_from_icon_name('applications-graphics', 'menu'));
 	} else {
 		$self->{_menuitem_draw}
-			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/draw.svg", Gtk3::IconSize->lookup('menu'))));
+			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/draw.svg", $self->{_shf}->icon_size('menu'))));
 	}
 
 	$self->{_menuitem_draw}->set_sensitive(FALSE);
@@ -581,7 +585,7 @@ sub fct_ret_actions_menu {
 	$self->{_menu_actions}->append($self->{_menuitem_draw});
 
 	$self->{_menuitem_plugin} = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('Run a _plugin...'));
-	$self->{_menuitem_plugin}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<Control><Shift>P'), qw/visible/) if $accel_group;
+	$self->{_menuitem_plugin}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Control><Shift>P'), qw/visible/) if $accel_group;
 	$self->{_menuitem_plugin}->set_image(Gtk3::Image->new_from_stock('gtk-execute', 'menu'));
 	$self->{_menuitem_plugin}->set_sensitive(FALSE);
 	$self->{_menuitem_plugin}->set_name('item-plugin');
@@ -590,7 +594,7 @@ sub fct_ret_actions_menu {
 	$self->{_menu_actions}->append(Gtk3::SeparatorMenuItem->new);
 
 	$self->{_menuitem_redoshot_this} = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('Redo _this screenshot'));
-	$self->{_menuitem_redoshot_this}->add_accelerator('activate', $accel_group, Gtk3::Accelerator->parse('<Control>F5'), qw/visible/) if $accel_group;
+	$self->{_menuitem_redoshot_this}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Control>F5'), qw/visible/) if $accel_group;
 	$self->{_menuitem_redoshot_this}->set_image(Gtk3::Image->new_from_stock('gtk-refresh', 'menu'));
 	$self->{_menuitem_redoshot_this}->set_sensitive(FALSE);
 	$self->{_menuitem_redoshot_this}->set_name('item-redoshot');
@@ -678,7 +682,7 @@ sub fct_ret_actions_menu_large {
 		$self->{_menuitem_large_draw}->set_image(Gtk3::Image->new_from_icon_name('applications-graphics', 'menu'));
 	} else {
 		$self->{_menuitem_large_draw}
-			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/draw.svg", Gtk3::IconSize->lookup('menu'))));
+			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/draw.svg", $self->{_shf}->icon_size('menu'))));
 	}
 
 	$self->{_menuitem_large_draw}->set_sensitive(FALSE);

@@ -32,7 +32,9 @@
 use utf8;
 use strict;
 use warnings;
+use diagnostics;
 use 5.10.1;
+use Carp::Always;
 
 #Deal with encoding problem
 use Encode;
@@ -40,21 +42,12 @@ use Encode;
 use File::stat;
 use Number::Bytes::Human;
 
-#Gnome2 libraries
-#use Gnome2;
-#use Gnome2::VFS '-init';
-use Gnome2::Wnck;
-
-#Use AuthenticationManager to handle user credentials easily
-#Gnome2::AuthenticationManager->init;
-
 #Gtk3 and Gtk3::ImageView
 use Gtk3 '-init';
-use Pango;
-use Gtk3::ImageView;
+#use Gtk3::ImageView;
 
 #Use single instance applications
-use Gtk3::Unique;
+#use Gtk3::Unique;
 
 #Glib
 use Glib qw/TRUE FALSE/;
@@ -63,7 +56,12 @@ use Glib::Object::Introspection;
 Glib::Object::Introspection->setup(
 	basename => 'Gio',
 	version  => '2.0',
-	package  => 'Glib::IO'
+	package  => 'Glib::IO',
+);
+Glib::Object::Introspection->setup(
+	basename => 'Wnck',
+	version  => '3.0',
+	package  => 'Wnck',
 );
 
 #filename parsing
@@ -267,7 +265,8 @@ $ENV{'HOME'} = $sdir->get_home_dir;
 
 #--------------------------------------
 
-my $app = Gtk3::UniqueApp->new(
+my $app = Gtk3::Application->new("org.shutter-project.Shutter", ['flags-none']);
+$app = Gtk3::UniqueApp->new(
 	"org.shutter-project.Shutter", undef,
 	select         => 1,
 	full           => 2,
@@ -286,7 +285,7 @@ my $app = Gtk3::UniqueApp->new(
 	include_cursor => 15,
 	remove_cursor  => 16,
 	nosession      => 17,
-);
+) if 0;
 
 #load command line arguments
 #as well as file to open when starting
@@ -294,7 +293,7 @@ my $init_files = $so->get_options;
 my @init_files = @$init_files;
 
 #The application is already running, send it a message
-if ($app->is_running) {
+if (0 && $app->is_running) {
 
 	my ($cmdname, $extra) = $sc->get_start_with;
 	my $profile        = $sc->get_profile_to_start_with;
@@ -384,7 +383,7 @@ if ($app->is_running) {
 } else {
 
 	#Clipboard
-	my $clipboard = Gtk3::Clipboard->get(Gtk3::Gdk->SELECTION_CLIPBOARD);
+	my $clipboard = Gtk3::Clipboard::get($Gtk3::Gdk::SELECTION_CLIPBOARD);
 
 	#Gettext
 	my $d = $sc->get_gettext;
@@ -404,7 +403,7 @@ if ($app->is_running) {
 
 	# Watch the main window and register a handler that will be called each time
 	# that there's a new message.
-	$app->watch_window($window);
+	#$app->watch_window($window);
 	my $app_watch_id = $app->signal_connect(
 		'message-received' => sub {
 			my ($app, $cmd, $message, $time) = @_;
@@ -523,7 +522,7 @@ if ($app->is_running) {
 
 	#main window gui
 	#--------------------------------------
-	$window->set_default_icon_name("shutter");
+	Gtk3::Window::set_default_icon_name("shutter");
 	$window->signal_connect('delete-event' => \&evt_delete_window);
 	$window->set_border_width(0);
 	$window->set_resizable(TRUE);
@@ -531,7 +530,7 @@ if ($app->is_running) {
 	$window->set_default_size(-1, 500);
 
 	#UPDATE WINDOW LIST (signal is connected when GUI is loaded)
-	my $wnck_screen = Gnome2::Wnck::Screen->get_default;
+	my $wnck_screen = Wnck::Screen::get_default();
 	$wnck_screen->force_update;
 
 	#TRAY ICON AND MENU
@@ -553,17 +552,16 @@ if ($app->is_running) {
 			GtkStatusbar::shadow-type = GTK_SHADOW_NONE
 		}
 		widget '*.main-window-statusbar' style 'statusbar-style'"
-	);
+	) if 0;
 
 	my $combobox_status_profiles_label = Gtk3::Label->new($d->get("Profile") . ":");
-	my $combobox_status_profiles       = Gtk3::ComboBox->new_text;
+	my $combobox_status_profiles       = Gtk3::ComboBoxText->new;
 
 	#arrange settings in notebook
 	my $notebook_settings = Gtk3::Notebook->new;
 	$notebook_settings->set_tab_pos('left');
 
 	my $settings_dialog = Gtk3::Dialog->new(SHUTTER_NAME . " - " . $d->get("Preferences"), $window, [qw/modal destroy-with-parent/], 'gtk-close' => 'close');
-	$settings_dialog->set_has_separator(FALSE);
 
 	my $vbox = Gtk3::VBox->new(FALSE, 0);
 	$window->add($vbox);
@@ -575,7 +573,7 @@ if ($app->is_running) {
 	$sm->{_menuitem_open}->signal_connect('activate', \&dlg_open, 'menu_open');
 
 	#recent manager and menu entry
-	$sm->{_menu_recent} = Gtk3::RecentChooserMenu->new_for_manager(Gtk3::RecentManager->get_default);
+	$sm->{_menu_recent} = Gtk3::RecentChooserMenu->new_for_manager(Gtk3::RecentManager::get_default());
 	$sm->{_menu_recent}->set_sort_type('mru');
 	$sm->{_menu_recent}->set_local_only(TRUE);
 	$sm->{_menu_recent}->set_show_numbers(TRUE);
@@ -723,11 +721,11 @@ if ($app->is_running) {
 	unless ($sc->get_disable_systray) {
 
 		if ($appindicator) {
-			$tray = Gtk3::AppIndicator->new("Shutter", "shutter-panel");
+			local $, = ' ';
+			$tray = AppIndicator::Indicator->new("Shutter", "shutter-panel", 'application-status');
 			$tray->set_menu($tray_menu);
-			$tray->set_active();
+			$tray->set_status('active');
 		} else {
-			if (Gtk3->CHECK_VERSION(2, 10, 0)) {
 				$tray = Gtk3::StatusIcon->new();
 
 				$tray->set_from_icon_name("shutter-panel");
@@ -743,21 +741,6 @@ if ($app->is_running) {
 					},
 					$tray
 				);
-			} else {
-
-				my $tray_image = Gtk3::Image->new_from_icon_name('shutter-panel', 'large-toolbar');
-
-				#eventbox with shutter logo
-				$tray_box = Gtk3::EventBox->new;
-				$tray_box->add($tray_image);
-
-				#tray icon
-				require Gtk3::TrayIcon;
-				$tray = Gtk3::TrayIcon->new('Shutter TrayIcon');
-				$tray->add($tray_box);
-				$tray_box->{'hid'} = $tray_box->signal_connect('button_release_event', \&evt_show_systray);
-				$tray->show_all;
-			}
 		}
 
 	}
@@ -958,7 +941,7 @@ if ($app->is_running) {
 
 	#handle profiles
 	#--------------------------------------
-	my $combobox_settings_profiles = Gtk3::ComboBox->new_text;
+	my $combobox_settings_profiles = Gtk3::ComboBoxText->new;
 	my @current_profiles;
 	my $current_index = 0;
 	foreach my $pfile (sort bsd_glob("$ENV{'HOME'}/.shutter/profiles/*.xml")) {
@@ -1220,30 +1203,30 @@ if ($app->is_running) {
 	$scale_box->pack_start($scale,       TRUE,  TRUE, 0);
 
 	#add compatile, writeable file types
-	my $combobox_type = Gtk3::ComboBox->new_text;
+	my $combobox_type = Gtk3::ComboBoxText->new;
 	my ($int_png, $int_jpeg, $int_bmp) = (-1, -1, -1);
 	my $format_counter = 0;
 
-	foreach my $format (Gtk3::Gdk::Pixbuf->get_formats) {
-		if (   $format->{name} eq "jpeg"
-			|| $format->{name} eq "png"
-			|| $format->{name} eq "bmp")
+	foreach my $format (Gtk3::Gdk::Pixbuf::get_formats()) {
+		if (   $format->get_name eq "jpeg"
+			|| $format->get_name eq "png"
+			|| $format->get_name eq "bmp")
 		{
 
 			#we want jpg not jpeg
-			if ($format->{name} eq "jpeg" || $format->{name} eq "jpg") {
-				$combobox_type->append_text("jpg" . " - " . $format->{description});
+			if ($format->get_name eq "jpeg" || $format->get_name eq "jpg") {
+				$combobox_type->append_text("jpg" . " - " . $format->get_description);
 			} else {
-				$combobox_type->append_text($format->{name} . " - " . $format->{description});
+				$combobox_type->append_text($format->get_name . " - " . $format->get_description);
 			}
 
 			#a little ugly here, maybe the values are in alternative order on several machine...
 			#just remember the number when appending, so we can set png as default for example
-			if ($format->{name} eq "jpeg" || $format->{name} eq "jpg") {
+			if ($format->get_name eq "jpeg" || $format->get_name eq "jpg") {
 				$int_jpeg = $format_counter;
-			} elsif ($format->{name} eq "png") {
+			} elsif ($format->get_name eq "png") {
 				$int_png = $format_counter;
-			} elsif ($format->{name} eq "bmp") {
+			} elsif ($format->get_name eq "bmp") {
 				$int_bmp = $format_counter;
 			}
 
@@ -1479,7 +1462,7 @@ if ($app->is_running) {
 	#program
 	#--------------------------------------
 	my $model    = fct_get_program_model();
-	my $progname = Gtk3::ComboBox->new($model);
+	my $progname = Gtk3::ComboBox::new($model);
 
 	#add pixbuf renderer for icon
 	my $renderer_pix = Gtk3::CellRendererPixbuf->new;
@@ -1527,7 +1510,7 @@ if ($app->is_running) {
 
 	#im_colors
 	#--------------------------------------
-	my $combobox_im_colors = Gtk3::ComboBox->new_text;
+	my $combobox_im_colors = Gtk3::ComboBoxText->new;
 	$combobox_im_colors->insert_text(0, $d->get("16 colors   - (4bit) "));
 	$combobox_im_colors->insert_text(1, $d->get("64 colors   - (6bit) "));
 	$combobox_im_colors->insert_text(2, $d->get("256 colors  - (8bit) "));
@@ -1654,9 +1637,9 @@ if ($app->is_running) {
 	}
 
 	if (defined $settings_xml->{'general'}->{'bordereffect_col'}) {
-		$bordereffect_cbtn->set_color(Gtk3::Gdk::Color->parse($settings_xml->{'general'}->{'bordereffect_col'}));
+		$bordereffect_cbtn->set_rgba(Gtk3::Gdk::RGBA::parse($settings_xml->{'general'}->{'bordereffect_col'}));
 	} else {
-		$bordereffect_cbtn->set_color(Gtk3::Gdk::Color->parse('black'));
+		$bordereffect_cbtn->set_rgba(Gtk3::Gdk::RGBA::parse('black'));
 	}
 
 	#end - bordereffect
@@ -1773,7 +1756,7 @@ if ($app->is_running) {
 
 	#window resize
 	#--------------------------------------
-	my ($x, $y, $w, $h) = Gtk3::Gdk->get_default_root_window->get_geometry;
+	my ($x, $y, $w, $h) = Gtk3::Gdk::get_default_root_window->get_geometry;
 
 	my $winresize_active = Gtk3::CheckButton->new_with_label($d->get("Automatically resize window to"));
 	my $winresize_label  = Gtk3::Label->new("x");
@@ -1916,7 +1899,7 @@ if ($app->is_running) {
 	#web width
 	#--------------------------------------
 	my $web_width_label    = Gtk3::Label->new($d->get("Virtual browser width") . ":");
-	my $combobox_web_width = Gtk3::ComboBox->new_text;
+	my $combobox_web_width = Gtk3::ComboBoxText->new;
 	$combobox_web_width->insert_text(0,  "640");
 	$combobox_web_width->insert_text(1,  "800");
 	$combobox_web_width->insert_text(2,  "1024");
@@ -1949,13 +1932,13 @@ if ($app->is_running) {
 
 	#imageview
 	#--------------------------------------
-	my $trans_check  = Gtk3::RadioButton->new(undef,        $d->get("Show as check pattern"));
-	my $trans_custom = Gtk3::RadioButton->new($trans_check, $d->get("Show as custom color:"));
+	my $trans_check  = Gtk3::RadioButton::new(undef,        $d->get("Show as check pattern"));
+	my $trans_custom = Gtk3::RadioButton::new($trans_check, $d->get("Show as custom color:"));
 	my $trans_custom_btn = Gtk3::ColorButton->new();
 	$trans_custom_btn->set_use_alpha(FALSE);
 	$trans_custom_btn->set_title($d->get("Choose fill color"));
 
-	my $trans_backg = Gtk3::RadioButton->new($trans_custom, $d->get("Show as background"));
+	my $trans_backg = Gtk3::RadioButton::new($trans_custom, $d->get("Show as background"));
 
 	$imageview_hbox1->pack_start($trans_check,      FALSE, TRUE, 12);
 	$imageview_hbox2->pack_start($trans_custom,     FALSE, TRUE, 12);
@@ -1963,9 +1946,9 @@ if ($app->is_running) {
 	$imageview_hbox3->pack_start($trans_backg,      FALSE, TRUE, 12);
 
 	if (defined $settings_xml->{'general'}->{'trans_custom_col'}) {
-		$trans_custom_btn->set_color(Gtk3::Gdk::Color->parse($settings_xml->{'general'}->{'trans_custom_col'}));
+		$trans_custom_btn->set_rgba(Gtk3::Gdk::RGBA::parse($settings_xml->{'general'}->{'trans_custom_col'}));
 	} else {
-		$trans_custom_btn->set_color(Gtk3::Gdk::Color->parse('black'));
+		$trans_custom_btn->set_rgba(Gtk3::Gdk::RGBA::parse('black'));
 	}
 
 	if (   defined $settings_xml->{'general'}->{'trans_check'}
@@ -2005,12 +1988,12 @@ if ($app->is_running) {
 	);
 
 	#session view
-	my $session_asc       = Gtk3::RadioButton->new(undef, $d->get("Sort ascending by"));
-	my $session_asc_combo = Gtk3::ComboBox->new_text();
+	my $session_asc       = Gtk3::RadioButton::new(undef, $d->get("Sort ascending by"));
+	my $session_asc_combo = Gtk3::ComboBoxText->new;
 	$session_asc_combo->insert_text(0, $d->get("Filename"));
 	$session_asc_combo->insert_text(1, $d->get("Key/Time Created"));
-	my $session_desc       = Gtk3::RadioButton->new($session_asc, $d->get("Sort descending by"));
-	my $session_desc_combo = Gtk3::ComboBox->new_text();
+	my $session_desc       = Gtk3::RadioButton::new($session_asc, $d->get("Sort descending by"));
+	my $session_desc_combo = Gtk3::ComboBoxText->new;
 	$session_desc_combo->insert_text(0, $d->get("Filename"));
 	$session_desc_combo->insert_text(1, $d->get("Key/Time Created"));
 
@@ -2096,7 +2079,7 @@ if ($app->is_running) {
 	my $notify_ptimeout_active = Gtk3::CheckButton->new_with_label($d->get("Display pop-up notification when using a pre-capture delay"));
 
 	my $ns_label    = Gtk3::Label->new($d->get("Notification agent") . ":");
-	my $combobox_ns = Gtk3::ComboBox->new_text;
+	my $combobox_ns = Gtk3::ComboBoxText->new;
 	$combobox_ns->append_text($d->get("Desktop Notifications"));
 	$combobox_ns->append_text($d->get("Built-In Notifications"));
 
@@ -2299,7 +2282,7 @@ if ($app->is_running) {
 	#connection mode
 	my $ftp_mode_label = Gtk3::Label->new($d->get("Connection mode") . ":");
 
-	my $ftp_mode_combo = Gtk3::ComboBox->new_text;
+	my $ftp_mode_combo = Gtk3::ComboBoxText->new;
 	$ftp_mode_combo->insert_text(0, $d->get("Active mode"));
 	$ftp_mode_combo->insert_text(1, $d->get("Passive mode"));
 	if (defined $settings_xml->{'general'}->{'ftp_mode'}) {
@@ -2633,7 +2616,7 @@ if ($app->is_running) {
 
 	#settings
 	$hbox_settings->pack_start($vbox_settings, TRUE, TRUE, 6);
-	$settings_dialog->vbox->add($hbox_settings);
+	$settings_dialog->get_child->add($hbox_settings);
 	$settings_dialog->set_default_response('apply');
 
 	#~ #iconview
@@ -3970,11 +3953,11 @@ if ($app->is_running) {
 		$notebook->set('scrollable' => TRUE);
 
 		#enable dnd for it
-		$notebook->drag_dest_set('all', ['copy', 'private', 'default', 'move', 'link', 'ask']);
+		#$notebook->drag_dest_set('all', ['copy', 'private', 'default', 'move', 'link', 'ask'], 'ask');
 		$notebook->signal_connect(drag_data_received => \&fct_drop_handler);
 
 		my $target_list = Gtk3::TargetList->new();
-		my $atom_dest   = Gtk3::Gdk::Atom->new('text/uri-list');
+		my $atom_dest   = Gtk3::Gdk::Atom::intern('text/uri-list', FALSE);
 		$target_list->add($atom_dest, 0, 0);
 		$notebook->drag_dest_set_target_list($target_list);
 
@@ -4024,7 +4007,7 @@ if ($app->is_running) {
 		}
 
 		#add to recentmanager
-		Gtk3::RecentManager->get_default->add_item($giofile->get_path);
+		Gtk3::RecentManager::get_default->add_item($giofile->get_path);
 
 		#FIXME
 		my $num_files = $session_start_screen{'first_page'}->{'num_session_files'};
@@ -4086,7 +4069,7 @@ if ($app->is_running) {
 				 ythickness = 0
 			 }
 			 widget '*.tab-close-button' style 'tab-close-button-style'"
-		);
+		) if 0;
 
 		my $tab_label = Gtk3::Label->new($key);
 		$tab_label->set_ellipsize('middle');
@@ -4217,7 +4200,7 @@ if ($app->is_running) {
 				if ($tray->signal_handler_is_connected($tray->{'hid2'})) {
 					$tray->signal_handler_block($tray->{'hid2'});
 				}
-			} elsif ($tray && $tray->isa('Gtk3::AppIndicator')) {
+			} elsif ($tray && $tray->isa('AppIndicator')) {
 				if (Gtk3::AppIndicator->VERSION > 0.12) {
 					$tray->set_passive();
 				}
@@ -4307,8 +4290,8 @@ if ($app->is_running) {
 				if (defined $window->{x} && defined $window->{y});
 
 			$window->show_all;
-			$window->window->focus(Gtk3->get_current_event_time)
-				if defined $window->window;
+			#$window->window->focus(Gtk3->get_current_event_time)
+			#	if defined $window->window;
 			$window->present;
 
 			#set flag
@@ -4408,7 +4391,7 @@ if ($app->is_running) {
 				});
 
 			#dnd
-			$session_screens{$key}->{'image'}->drag_source_set('button1-mask', ['copy'], {'target' => "text/uri-list", 'flags' => [], 'info' => 0});
+			#$session_screens{$key}->{'image'}->drag_source_set('button1-mask', ['copy'], {'target' => "text/uri-list", 'flags' => [], 'info' => 0});
 			$session_screens{$key}->{'image'}->signal_connect(
 				'drag-data-get',
 				sub {
@@ -4450,7 +4433,7 @@ if ($app->is_running) {
 
 			$vbox_tab->pack_start($scrolled_window_image, TRUE, TRUE, 0);
 
-			$vbox->pack_start_defaults($vbox_tab);
+			$vbox->pack_start($vbox_tab, TRUE, TRUE, 0);
 
 			#pack vbox into an event box so we can listen
 			#to various key and button events
@@ -4489,7 +4472,7 @@ if ($app->is_running) {
 			$view_event->signal_connect('button-press-event', \&evt_iconview_button_press, $session_start_screen{'first_page'}->{'view'});
 
 			#dnd
-			$session_start_screen{'first_page'}->{'view'}->enable_model_drag_source('button1-mask', ['copy'], {'target' => "text/uri-list", 'flags' => [], 'info' => 0});
+			#$session_start_screen{'first_page'}->{'view'}->enable_model_drag_source('button1-mask', ['copy'], {'target' => "text/uri-list", 'flags' => [], 'info' => 0});
 			$session_start_screen{'first_page'}->{'view'}->signal_connect(
 				'drag-data-get',
 				sub {
@@ -4516,7 +4499,7 @@ if ($app->is_running) {
 
 			$vbox_tab->pack_start($view_event, TRUE, TRUE, 0);
 
-			$vbox->pack_start_defaults($vbox_tab);
+			$vbox->pack_start($vbox_tab, TRUE, TRUE, 0);
 			$vbox->show_all;
 
 			return $vbox;
@@ -5001,7 +4984,7 @@ if ($app->is_running) {
 			my $icon_pixbuf = undef;
 			my $icon        = 'shutter';
 			if ($sc->get_theme->has_icon($icon)) {
-				my ($iw, $ih) = Gtk3::IconSize->lookup('menu');
+				my ($iw, $ih) = $shf->icon_size('menu');
 				eval { $icon_pixbuf = $sc->get_theme->load_icon($icon, $ih, 'generic-fallback'); };
 				if ($@) {
 					print "\nWARNING: Could not load icon $icon: $@\n";
@@ -5031,7 +5014,7 @@ if ($app->is_running) {
 			my $icon_pixbuf = undef;
 			my $icon        = $app->get_icon;
 			if ($icon) {
-				my ($iw, $ih) = Gtk3::IconSize->lookup('menu');
+				my ($iw, $ih) = $shf->icon_size('menu');
 				eval {
 					my $icon_info = $sc->get_theme->choose_icon($icon->get_names, $ih, []);
 					$icon_pixbuf = $icon_info->load_icon if $icon_info;
@@ -5529,10 +5512,10 @@ if ($app->is_running) {
 
 	sub fct_update_gui {
 
-		while (Gtk3->events_pending) {
-			Gtk3->main_iteration;
+		while (Gtk3::events_pending()) {
+			Gtk3::main_iteration();
 		}
-		Gtk3::Gdk->flush;
+		Gtk3::Gdk::flush();
 
 		return TRUE;
 	}
@@ -7079,12 +7062,10 @@ if ($app->is_running) {
 		if ($combobox_settings_profiles) {
 			if ($tray && $tray->isa('Gtk3::StatusIcon')) {
 				if ($combobox_settings_profiles->get_active_text) {
-					$tray->set_tooltip($d->get("Current profile") . ": " . $combobox_settings_profiles->get_active_text);
+					$tray->set_tooltip_text($d->get("Current profile") . ": " . $combobox_settings_profiles->get_active_text);
 				} else {
-					$tray->set_tooltip(SHUTTER_NAME . " " . SHUTTER_VERSION);
+					$tray->set_tooltip_text(SHUTTER_NAME . " " . SHUTTER_VERSION);
 				}
-			} elsif ($tray && $tray->isa('Gtk3::TrayIcon')) {
-				$tray->set_tooltip_text(SHUTTER_NAME . " " . SHUTTER_VERSION);
 			}
 		}
 
@@ -7223,7 +7204,7 @@ if ($app->is_running) {
 				}
 
 				$combobox_status_profiles_label = Gtk3::Label->new($d->get("Profile") . ":");
-				$combobox_status_profiles       = Gtk3::ComboBox->new_text;
+				$combobox_status_profiles       = Gtk3::ComboBoxText->new;
 				$status->pack_start($combobox_status_profiles_label, FALSE, FALSE, 0);
 				$status->pack_start($combobox_status_profiles,       FALSE, FALSE, 0);
 
@@ -7446,7 +7427,7 @@ if ($app->is_running) {
 				unless ($session_screens{$key}->{'no_thumbnail'}) {
 
 					#update tab icon
-					$thumb = $lp_ne->load($shf->utf8_decode($session_screens{$key}->{'giofile'}->get_path), Gtk3::IconSize->lookup('small-toolbar'));
+					$thumb = $lp_ne->load($shf->utf8_decode($session_screens{$key}->{'giofile'}->get_path), $shf->icon_size('small-toolbar'));
 					$session_screens{$key}->{'tab_icon'}->set_from_pixbuf($thumb);
 				}
 
@@ -7937,10 +7918,10 @@ if ($app->is_running) {
 		my $plugin_progress = Gtk3::ProgressBar->new;
 		$plugin_progress->set_no_show_all(TRUE);
 		$plugin_progress->set_ellipsize('middle');
-		$plugin_progress->set_orientation('left-to-right');
+		$plugin_progress->set_orientation('horizontal');
 		$plugin_progress->set_fraction(0);
 
-		$plugin_dialog->vbox->add($plugin_progress);
+		$plugin_dialog->get_child->add($plugin_progress);
 
 		my @plugin_paths = ("$shutter_root/share/shutter/resources/system/plugins/*/*", "$ENV{'HOME'}/.shutter/plugins/*/*");
 
@@ -7948,7 +7929,7 @@ if ($app->is_running) {
 		# maybe the plugin
 		# does not provide a custom icon
 		my $fb_pixbuf_path = "$shutter_root/share/shutter/resources/icons/executable.svg";
-		my $fb_pixbuf      = $lp->load($fb_pixbuf_path, Gtk3::IconSize->lookup('menu'));
+		my $fb_pixbuf      = $lp->load($fb_pixbuf_path, $shf->icon_size('menu'));
 
 		foreach my $plugin_path (@plugin_paths) {
 			my @plugins = bsd_glob($plugin_path);
@@ -8025,7 +8006,7 @@ if ($app->is_running) {
 								if ($shf->file_exists($plugins{$pkey}->{'binary'} . ".svg"));
 
 							if ($shf->file_exists($plugins{$pkey}->{'pixbuf'})) {
-								$plugins{$pkey}->{'pixbuf_object'} = $lp->load($plugins{$pkey}->{'pixbuf'}, Gtk3::IconSize->lookup('menu'));
+								$plugins{$pkey}->{'pixbuf_object'} = $lp->load($plugins{$pkey}->{'pixbuf'}, $shf->icon_size('menu'));
 							} else {
 								$plugins{$pkey}->{'pixbuf'}        = $fb_pixbuf_path;
 								$plugins{$pkey}->{'pixbuf_object'} = $fb_pixbuf;
@@ -8081,10 +8062,10 @@ if ($app->is_running) {
 		my $upload_plugin_progress = Gtk3::ProgressBar->new;
 		$upload_plugin_progress->set_no_show_all(TRUE);
 		$upload_plugin_progress->set_ellipsize('middle');
-		$upload_plugin_progress->set_orientation('left-to-right');
+		$upload_plugin_progress->set_orientation('horizontal');
 		$upload_plugin_progress->set_fraction(0);
 
-		$upload_plugin_dialog->vbox->add($upload_plugin_progress);
+		$upload_plugin_dialog->get_child->add($upload_plugin_progress);
 
 		#plugins in user-home not supported yet FIXME
 		my @upload_plugin_paths = ("$shutter_root/share/shutter/resources/system/upload_plugins/upload/*");
@@ -8214,7 +8195,7 @@ if ($app->is_running) {
 
 		my $menu_wrksp = Gtk3::Menu->new;
 
-		my $wnck_screen = Gnome2::Wnck::Screen->get_default;
+		my $wnck_screen = Wnck::Screen::get_default();
 		$wnck_screen->force_update();
 
 		#we determine the wm name but on older
@@ -8224,7 +8205,8 @@ if ($app->is_running) {
 		#
 		#this leads to a known problem when switching
 		#the wm => wm_name will still remain the old one
-		my $wm_name = Gtk3::Gdk::Screen->get_default->get_window_manager_name;
+		#but it doesn't work on gtk3
+		my $wm_name;
 		if ($wnck_screen->can('get_window_manager_name')) {
 			$wm_name = $wnck_screen->get_window_manager_name;
 		}
@@ -8310,7 +8292,7 @@ if ($app->is_running) {
 		$menu_wrksp->append($allwspaces_item);
 
 		#monitor flag
-		my $n_mons = Gtk3::Gdk::Screen->get_default->get_n_monitors;
+		my $n_mons = Gtk3::Gdk::Screen::get_default->get_n_monitors;
 
 		#use only current monitor
 		$menu_wrksp->append(Gtk3::SeparatorMenuItem->new);
@@ -8358,7 +8340,7 @@ if ($app->is_running) {
 		if ($icontheme->has_icon('preferences-system-windows')) {
 			$active_window_item_image = Gtk3::Image->new_from_icon_name('preferences-system-windows', 'menu');
 		} else {
-			$active_window_item_image = Gtk3::Image->new_from_pixbuf($lp->load("$shutter_root/share/shutter/resources/icons/sel_window_active.svg", Gtk3::IconSize->lookup('menu')));
+			$active_window_item_image = Gtk3::Image->new_from_pixbuf($lp->load("$shutter_root/share/shutter/resources/icons/sel_window_active.svg", $shf->icon_size('menu')));
 		}
 
 		my $active_window_item = Gtk3::ImageMenuItem->new_with_label($d->get("Active Window"));
@@ -8378,6 +8360,7 @@ if ($app->is_running) {
 
 		#add all windows to menu to capture it directly
 		foreach my $win ($wnck_screen->get_windows_stacked) {
+			next;
 			if ($active_workspace && $win->is_on_workspace($active_workspace)) {
 				my $win_name = $win->get_name;
 				Encode::_utf8_on($win_name);
@@ -8413,14 +8396,14 @@ if ($app->is_running) {
 		#selection
 		my $menuitem_select = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('_Selection'));
 		eval {
-			my $ccursor_pb = Gtk3::Gdk::Cursor->new('left_ptr')->get_image->scale_simple(Gtk3::IconSize->lookup('menu'), 'bilinear');
+			my $ccursor_pb = Gtk3::Gdk::Cursor::new('left_ptr')->get_image->scale_simple($shf->icon_size('menu'), 'bilinear');
 			$menuitem_select->set_image(Gtk3::Image->new_from_pixbuf($ccursor_pb));
 		};
 		if ($@) {
 			if ($traytheme->has_icon('applications-accessories')) {
 				$menuitem_select->set_image(Gtk3::Image->new_from_icon_name('applications-accessories', 'menu'));
 			} else {
-				$menuitem_select->set_image(Gtk3::Image->new_from_pixbuf($lp->load("$shutter_root/share/shutter/resources/icons/selection.svg", Gtk3::IconSize->lookup('menu'))));
+				$menuitem_select->set_image(Gtk3::Image->new_from_pixbuf($lp->load("$shutter_root/share/shutter/resources/icons/selection.svg", $shf->icon_size('menu'))));
 			}
 		}
 		$menuitem_select->signal_connect(
@@ -8435,7 +8418,7 @@ if ($app->is_running) {
 		} elsif ($traytheme->has_icon('desktop')) {
 			$menuitem_full->set_image(Gtk3::Image->new_from_icon_name('desktop', 'menu'));
 		} else {
-			$menuitem_full->set_image(Gtk3::Image->new_from_pixbuf($lp->load("$shutter_root/share/shutter/resources/icons/desktop.svg", Gtk3::IconSize->lookup('menu'))));
+			$menuitem_full->set_image(Gtk3::Image->new_from_pixbuf($lp->load("$shutter_root/share/shutter/resources/icons/desktop.svg", $shf->icon_size('menu'))));
 		}
 		$menuitem_full->signal_connect(
 			activate => \&evt_take_screenshot,
@@ -8449,7 +8432,7 @@ if ($app->is_running) {
 		#~ }else{
 		#~ $menuitem_awindow->set_image(
 		#~ Gtk3::Image->new_from_pixbuf(
-		#~ $lp->load( "$shutter_root/share/shutter/resources/icons/sel_window_active.svg", Gtk3::IconSize->lookup('menu') )
+		#~ $lp->load( "$shutter_root/share/shutter/resources/icons/sel_window_active.svg", $shf->icon_size('menu') )
 		#~ )
 		#~ );
 		#~ }
@@ -8463,7 +8446,7 @@ if ($app->is_running) {
 		if ($traytheme->has_icon('preferences-system-windows')) {
 			$menuitem_window->set_image(Gtk3::Image->new_from_icon_name('preferences-system-windows', 'menu'));
 		} else {
-			$menuitem_window->set_image(Gtk3::Image->new_from_pixbuf($lp->load("$shutter_root/share/shutter/resources/icons/sel_window.svg", Gtk3::IconSize->lookup('menu'))));
+			$menuitem_window->set_image(Gtk3::Image->new_from_pixbuf($lp->load("$shutter_root/share/shutter/resources/icons/sel_window.svg", $shf->icon_size('menu'))));
 		}
 		$menuitem_window->signal_connect(
 			activate => \&evt_take_screenshot,
@@ -8475,7 +8458,7 @@ if ($app->is_running) {
 		if ($traytheme->has_icon('preferences-system-windows')) {
 			$menuitem_window_list->set_image(Gtk3::Image->new_from_icon_name('preferences-system-windows', 'menu'));
 		} else {
-			$menuitem_window_list->set_image(Gtk3::Image->new_from_pixbuf($lp->load("$shutter_root/share/shutter/resources/icons/sel_window.svg", Gtk3::IconSize->lookup('menu'))));
+			$menuitem_window_list->set_image(Gtk3::Image->new_from_pixbuf($lp->load("$shutter_root/share/shutter/resources/icons/sel_window.svg", $shf->icon_size('menu'))));
 		}
 		$menuitem_window_list->set_name('windowlist');
 		$menuitem_window_list->set_submenu(&fct_ret_window_menu);
@@ -8485,7 +8468,7 @@ if ($app->is_running) {
 		if ($traytheme->has_icon('gdm-xnest')) {
 			$menuitem_window_sect->set_image(Gtk3::Image->new_from_icon_name('gdm-xnest', 'menu'));
 		} else {
-			$menuitem_window_sect->set_image(Gtk3::Image->new_from_pixbuf($lp->load("$shutter_root/share/shutter/resources/icons/sel_window_section.svg", Gtk3::IconSize->lookup('menu'))));
+			$menuitem_window_sect->set_image(Gtk3::Image->new_from_pixbuf($lp->load("$shutter_root/share/shutter/resources/icons/sel_window_section.svg", $shf->icon_size('menu'))));
 		}
 		$menuitem_window_sect->signal_connect(
 			activate => \&evt_take_screenshot,
@@ -8497,7 +8480,7 @@ if ($app->is_running) {
 		if ($traytheme->has_icon('alacarte')) {
 			$menuitem_window_menu->set_image(Gtk3::Image->new_from_icon_name('alacarte', 'menu'));
 		} else {
-			$menuitem_window_menu->set_image(Gtk3::Image->new_from_pixbuf($lp->load("$shutter_root/share/shutter/resources/icons/sel_window_menu.svg", Gtk3::IconSize->lookup('menu'))));
+			$menuitem_window_menu->set_image(Gtk3::Image->new_from_pixbuf($lp->load("$shutter_root/share/shutter/resources/icons/sel_window_menu.svg", $shf->icon_size('menu'))));
 		}
 		$menuitem_window_menu->signal_connect(
 			activate => \&evt_take_screenshot,
@@ -8509,7 +8492,7 @@ if ($app->is_running) {
 		if ($traytheme->has_icon('help-faq')) {
 			$menuitem_window_tooltip->set_image(Gtk3::Image->new_from_icon_name('help-faq', 'menu'));
 		} else {
-			$menuitem_window_tooltip->set_image(Gtk3::Image->new_from_pixbuf($lp->load("$shutter_root/share/shutter/resources/icons/sel_window_tooltip.svg", Gtk3::IconSize->lookup('menu'))));
+			$menuitem_window_tooltip->set_image(Gtk3::Image->new_from_pixbuf($lp->load("$shutter_root/share/shutter/resources/icons/sel_window_tooltip.svg", $shf->icon_size('menu'))));
 		}
 		$menuitem_window_tooltip->signal_connect(
 			activate => \&evt_take_screenshot,
@@ -8522,7 +8505,7 @@ if ($app->is_running) {
 		if ($traytheme->has_icon('web-browser')) {
 			$menuitem_web->set_image(Gtk3::Image->new_from_icon_name('web-browser', 'menu'));
 		} else {
-			$menuitem_web->set_image(Gtk3::Image->new_from_pixbuf($lp->load("$shutter_root/share/shutter/resources/icons/web_image.svg", Gtk3::IconSize->lookup('menu'))));
+			$menuitem_web->set_image(Gtk3::Image->new_from_pixbuf($lp->load("$shutter_root/share/shutter/resources/icons/web_image.svg", $shf->icon_size('menu'))));
 		}
 		$menuitem_web->signal_connect(
 			activate => \&evt_take_screenshot,
@@ -8673,7 +8656,7 @@ if ($app->is_running) {
 			my $icon = $app->get_icon;
 			if ($icon && $program_item) {
 				my $icon_pixbuf = undef;
-				my ($iw, $ih) = Gtk3::IconSize->lookup('menu');
+				my ($iw, $ih) = $shf->icon_size('menu');
 				eval {
 					my $icon_info = $sc->get_theme->choose_icon($icon->get_names, $ih, []);
 					$icon_pixbuf = $icon_info->load_icon if $icon_info;
@@ -8798,7 +8781,7 @@ if ($app->is_running) {
 		my $group   = undef;
 		my $counter = 0;
 		foreach my $profile (@{$current_profiles_ref}) {
-			my $profile_item = Gtk3::RadioMenuItem->new($group, $profile);
+			my $profile_item = Gtk3::RadioMenuItem::new($group, $profile);
 			$profile_item->set_active(TRUE)
 				if $profile eq $combobox_settings_profiles->get_active_text;
 			$profile_item->signal_connect(
@@ -8868,10 +8851,10 @@ if ($app->is_running) {
 						if ($shf->file_exists($plugins{$pkey}->{'binary'} . ".svg"));
 
 					if ($shf->file_exists($plugins{$pkey}->{'pixbuf'})) {
-						$plugins{$pkey}->{'pixbuf_object'} = $lp->load($plugins{$pkey}->{'pixbuf'}, Gtk3::IconSize->lookup('menu'));
+						$plugins{$pkey}->{'pixbuf_object'} = $lp->load($plugins{$pkey}->{'pixbuf'}, $shf->icon_size('menu'));
 					} else {
 						$plugins{$pkey}->{'pixbuf'}        = "$shutter_root/share/shutter/resources/icons/executable.svg";
-						$plugins{$pkey}->{'pixbuf_object'} = $lp->load($plugins{$pkey}->{'pixbuf'}, Gtk3::IconSize->lookup('menu'));
+						$plugins{$pkey}->{'pixbuf_object'} = $lp->load($plugins{$pkey}->{'pixbuf'}, $shf->icon_size('menu'));
 					}
 				}
 
@@ -9101,7 +9084,7 @@ if ($app->is_running) {
 		}
 
 		#goocanvas
-		eval { require Goo::Canvas };
+		eval { require Goo::Canvassssss };
 		if ($@) {
 			warn "WARNING: Goo::Canvas/libgoo-canvas-perl is missing --> drawing tool will be disabled!\n\n";
 			$goocanvas = FALSE;
@@ -9115,7 +9098,13 @@ if ($app->is_running) {
 		}
 
 		#libgtk2-appindicator-perl
-		eval { require Gtk3::AppIndicator };
+		eval {
+			Glib::Object::Introspection->setup(
+				basename => 'AppIndicator3xxx',
+				version  => '0.1',
+				package  => 'AppIndicator',
+			);
+		};
 		if ($@) {
 			warn "WARNING: Gtk3::AppIndicator is missing --> there will be no icon showing up in the status bar when running Unity!\n\n";
 			$appindicator = FALSE;

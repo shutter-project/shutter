@@ -81,7 +81,7 @@ sub new {
 
 	#icontheme to determine if icons exist or not
 	#in some cases we deliver fallback icons
-	$self->{_icontheme} = Gtk3::IconTheme->get_default;
+	$self->{_icontheme} = Gtk3::IconTheme::get_default();
 	$self->{_icontheme}->append_search_path($self->{_shutter_root} . "/share/icons");
 
 	#recently used upload tab

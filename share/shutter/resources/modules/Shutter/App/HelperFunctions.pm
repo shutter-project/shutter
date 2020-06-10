@@ -165,4 +165,19 @@ sub usage {
 	return TRUE;
 }
 
+sub icon_size {
+	my $self = shift;
+	my $size = shift;
+	return (16, 16) if $size eq 'menu';
+	return (16, 16) if $size eq 'small-toolbar';
+	return (24, 24) if $size eq 'large-toolbar';
+	die 'unknown icon size'
+}
+
+sub accel {
+	my $self = shift;
+	my $str = shift;
+	Glib::Object::Introspection->invoke('Gtk', undef, 'accelerator_parse', $str);
+}
+
 1;

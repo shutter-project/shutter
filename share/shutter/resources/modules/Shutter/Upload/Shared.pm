@@ -104,13 +104,8 @@ sub create_entry_for_notebook {
 			return FALSE;
 		});
 
-<<<<<<< HEAD
-	my $upload_copy = Gtk2::Button->new;
-	$upload_copy->set_tooltip_text($self->{_gettext_object}->get("Copy this code to clipboard"));
-=======
 	my $upload_copy = Gtk3::Button->new;
-	$tooltips->set_tip($upload_copy, $self->{_gettext_object}->get("Copy this code to clipboard"));
->>>>>>> 98186b79... start gtk3
+	$upload_copy->set_tooltip_text($self->{_gettext_object}->get("Copy this code to clipboard"));
 
 	$upload_copy->set_image(Gtk3::Image->new_from_stock('gtk-copy', 'menu'));
 	$upload_copy->signal_connect(
