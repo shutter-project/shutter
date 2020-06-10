@@ -34,7 +34,7 @@ our @ISA = qw(Shutter::Screenshot::WindowXid);
 
 #Glib and Gtk2
 use Gtk2;
-use Glib qw/TRUE FALSE/; 
+use Glib qw/TRUE FALSE/;
 
 #--------------------------------------
 
@@ -42,48 +42,49 @@ sub new {
 	my $class = shift;
 
 	#call constructor of super class (shutter_common, include_cursor, delay, notify_timeout, include_border, windowresize_active, windowresize_w, windowresize_h, hide_time, mode, autoshape)
-	my $self = $class->SUPER::new( shift, shift, shift, shift, shift, shift, shift, shift, shift, shift, shift );
+	my $self = $class->SUPER::new(shift, shift, shift, shift, shift, shift, shift, shift, shift, shift, shift);
 
 	bless $self, $class;
 	return $self;
 }
 
 #~ sub DESTROY {
-    #~ my $self = shift;
-    #~ print "$self dying at\n";
-#~ } 
-#~ 
+#~ my $self = shift;
+#~ print "$self dying at\n";
+#~ }
+#~
 
 sub window_find_by_name {
-	my $self = shift;
+	my $self         = shift;
 	my $name_pattern = shift;
-	
+
 	my $active_workspace = $self->{_wnck_screen}->get_active_workspace;
-	
+
 	#cycle through all windows
 	my $output = 7;
-	foreach my $win ( $self->{_wnck_screen}->get_windows_stacked ) {
+	foreach my $win ($self->{_wnck_screen}->get_windows_stacked) {
+
 		#ignore shutter window
-		if ( $self->{_sc}->get_mainwindow->window ) {
-			next if ( $win->get_xid == $self->{_sc}->get_mainwindow->window->get_xid );
+		if ($self->{_sc}->get_mainwindow->window) {
+			next if ($win->get_xid == $self->{_sc}->get_mainwindow->window->get_xid);
 		}
+
 		#check if window is on active workspace
-		if ( $active_workspace && $win->is_on_workspace( $active_workspace ) ) {
-			eval{
-				if ( $win->get_name =~ m/$name_pattern/i ) {
+		if ($active_workspace && $win->is_on_workspace($active_workspace)) {
+			eval {
+				if ($win->get_name =~ m/$name_pattern/i) {
 					$output = $self->window_by_xid($win->get_xid);
 					last;
 				}
 			};
-			if($@){
+			if ($@) {
 				$output = 8;
 				$self->{_error_text} = $@;
 			}
 		}
-	}	
-		
+	}
+
 	return $output;
 }
-
 
 1;

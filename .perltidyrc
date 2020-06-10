@@ -1,0 +1,23 @@
+-it=2
+
+# use tabs
+-et=4
+-ci=4
+
+# else on the same line
+-ce
+
+# no extra spaces inside ()
+-bt=2
+-pt=2
+-sbt=2
+
+# don't break comments
+-nolc
+
+# start/end blocks on single line
+-sot
+-sct
+
+# allow more reasonably long lines than 80
+-l=200

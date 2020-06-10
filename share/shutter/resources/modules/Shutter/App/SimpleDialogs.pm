@@ -31,7 +31,7 @@ use warnings;
 use Gtk2;
 
 #Glib
-use Glib qw/TRUE FALSE/; 
+use Glib qw/TRUE FALSE/;
 
 #--------------------------------------
 
@@ -40,57 +40,57 @@ sub new {
 	my $class = shift;
 
 	#constructor
-	my $self = { _window => shift, _gdk_window => shift };
+	my $self = {_window => shift, _gdk_window => shift};
 
 	bless $self, $class;
 	return $self;
 }
 
 sub dlg_info_message {
-	my $self = shift;
-	my $dlg_info_message = shift;
-	my $dlg_info_header = shift;
-	my $button_text_extra1 = shift;
-	my $button_text_extra2 = shift;
-	my $button_text_extra3 = shift;
+	my $self                 = shift;
+	my $dlg_info_message     = shift;
+	my $dlg_info_header      = shift;
+	my $button_text_extra1   = shift;
+	my $button_text_extra2   = shift;
+	my $button_text_extra3   = shift;
 	my $button_widget_extra1 = shift;
 	my $button_widget_extra2 = shift;
 	my $button_widget_extra3 = shift;
-	my $detail_message = shift;
-	my $detail_checkbox = shift;
-	my $content_widget = shift;
-	my $content_widget2 = shift;
+	my $detail_message       = shift;
+	my $detail_checkbox      = shift;
+	my $content_widget       = shift;
+	my $content_widget2      = shift;
 
-	my $info_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/], 'info', 'none', undef );
+	my $info_dialog = Gtk2::MessageDialog->new($self->{_window}, [qw/modal destroy-with-parent/], 'info', 'none', undef);
 
 	$info_dialog->set_title("Shutter");
 
-	$info_dialog->set( 'text' => $dlg_info_header );
+	$info_dialog->set('text' => $dlg_info_header);
 
-	$info_dialog->set( 'secondary-text' => $dlg_info_message );
+	$info_dialog->set('secondary-text' => $dlg_info_message);
 
-	if($content_widget){
+	if ($content_widget) {
 		$info_dialog->get_content_area()->add($content_widget);
 	}
-	if($content_widget2){
+	if ($content_widget2) {
 		$info_dialog->get_content_area()->add($content_widget2);
 	}
 
-	$info_dialog->add_button( $button_text_extra1, 10 ) if $button_text_extra1;
-	$info_dialog->add_button( $button_text_extra2, 20 ) if $button_text_extra2;
-	$info_dialog->add_button( $button_text_extra3, 30 ) if $button_text_extra3;
+	$info_dialog->add_button($button_text_extra1, 10) if $button_text_extra1;
+	$info_dialog->add_button($button_text_extra2, 20) if $button_text_extra2;
+	$info_dialog->add_button($button_text_extra3, 30) if $button_text_extra3;
 
-	$info_dialog->add_action_widget( $button_widget_extra1, 40 ) if $button_widget_extra1;
-	$info_dialog->add_action_widget( $button_widget_extra2, 50 ) if $button_widget_extra2;
-	$info_dialog->add_action_widget( $button_widget_extra3, 60 ) if $button_widget_extra3;
+	$info_dialog->add_action_widget($button_widget_extra1, 40) if $button_widget_extra1;
+	$info_dialog->add_action_widget($button_widget_extra2, 50) if $button_widget_extra2;
+	$info_dialog->add_action_widget($button_widget_extra3, 60) if $button_widget_extra3;
 
 	#show a detailed message (use expander to show it)
-	if($detail_message){
-		my $expander = Gtk2::Expander->new_with_mnemonic ('Show more _details');	
+	if ($detail_message) {
+		my $expander     = Gtk2::Expander->new_with_mnemonic('Show more _details');
 		my $detail_label = Gtk2::Label->new($detail_message);
-		$detail_label->set_width_chars (50);
-		$detail_label->set_line_wrap (TRUE);
-		$detail_label->set_alignment( 0, 0.5 );
+		$detail_label->set_width_chars(50);
+		$detail_label->set_line_wrap(TRUE);
+		$detail_label->set_alignment(0, 0.5);
 		$expander->add($detail_label);
 		my $detail_hbox = Gtk2::HBox->new();
 		$detail_hbox->pack_start(Gtk2::Label->new, FALSE, FALSE, 12);
@@ -100,7 +100,7 @@ sub dlg_info_message {
 
 	#show a detailed message with checkbox
 	my $dcheck = undef;
-	if($detail_checkbox){
+	if ($detail_checkbox) {
 		$dcheck = Gtk2::CheckButton->new_with_mnemonic($detail_checkbox);
 		my $detail_hbox = Gtk2::HBox->new();
 		$detail_hbox->pack_start(Gtk2::Label->new, FALSE, FALSE, 12);
@@ -110,59 +110,59 @@ sub dlg_info_message {
 
 	$info_dialog->show_all;
 
-	if(defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk2::Gdk::Window/){
+	if (defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk2::Gdk::Window/) {
 		$info_dialog->window->set_transient_for($self->{_gdk_window});
-	}else{
+	} else {
 		$info_dialog->set_transient_for($self->{_window});
 	}
 
 	my $info_response = $info_dialog->run;
-	
+
 	#-1 when response is an event, e.g. delete-event
 	$info_response = -1 if $info_response =~ /event/;
-	
+
 	$info_dialog->destroy();
 	return $info_response;
 }
 
 sub dlg_question_message {
-	my $self = shift;
-	my $dlg_question_message 	= shift;
-	my $dlg_question_header 	= shift;
-	my $button_text_extra1 		= shift;
-	my $button_text_extra2 		= shift;
-	my $button_text_extra3 		= shift;
-	my $button_widget_extra1 	= shift;
-	my $button_widget_extra2 	= shift;
-	my $button_widget_extra3 	= shift;
-	my $detail_message 			= shift;
-	my $detail_checkbox 		= shift;
+	my $self                 = shift;
+	my $dlg_question_message = shift;
+	my $dlg_question_header  = shift;
+	my $button_text_extra1   = shift;
+	my $button_text_extra2   = shift;
+	my $button_text_extra3   = shift;
+	my $button_widget_extra1 = shift;
+	my $button_widget_extra2 = shift;
+	my $button_widget_extra3 = shift;
+	my $detail_message       = shift;
+	my $detail_checkbox      = shift;
 
-	my $question_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef );
+	my $question_dialog = Gtk2::MessageDialog->new($self->{_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef);
 
 	$question_dialog->set_title("Shutter");
 
-	$question_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-dialog-question', 'dialog' ) );
+	$question_dialog->set('image' => Gtk2::Image->new_from_stock('gtk-dialog-question', 'dialog'));
 
-	$question_dialog->set( 'text' => $dlg_question_header );
+	$question_dialog->set('text' => $dlg_question_header);
 
-	$question_dialog->set( 'secondary-text' => $dlg_question_message );
+	$question_dialog->set('secondary-text' => $dlg_question_message);
 
-	$question_dialog->add_button( $button_text_extra1, 10 ) if $button_text_extra1;
-	$question_dialog->add_button( $button_text_extra2, 20 ) if $button_text_extra2;
-	$question_dialog->add_button( $button_text_extra3, 30 ) if $button_text_extra3;
+	$question_dialog->add_button($button_text_extra1, 10) if $button_text_extra1;
+	$question_dialog->add_button($button_text_extra2, 20) if $button_text_extra2;
+	$question_dialog->add_button($button_text_extra3, 30) if $button_text_extra3;
 
-	$question_dialog->add_action_widget( $button_widget_extra1, 40 ) if $button_widget_extra1;
-	$question_dialog->add_action_widget( $button_widget_extra2, 50 ) if $button_widget_extra2;
-	$question_dialog->add_action_widget( $button_widget_extra3, 60 ) if $button_widget_extra3;
+	$question_dialog->add_action_widget($button_widget_extra1, 40) if $button_widget_extra1;
+	$question_dialog->add_action_widget($button_widget_extra2, 50) if $button_widget_extra2;
+	$question_dialog->add_action_widget($button_widget_extra3, 60) if $button_widget_extra3;
 
 	#show a detailed message (use expander to show it)
-	if($detail_message){
-		my $expander = Gtk2::Expander->new_with_mnemonic ('Show more _details');	
+	if ($detail_message) {
+		my $expander     = Gtk2::Expander->new_with_mnemonic('Show more _details');
 		my $detail_label = Gtk2::Label->new($detail_message);
-		$detail_label->set_width_chars (50);
-		$detail_label->set_line_wrap (TRUE);
-		$detail_label->set_alignment( 0, 0.5 );
+		$detail_label->set_width_chars(50);
+		$detail_label->set_line_wrap(TRUE);
+		$detail_label->set_alignment(0, 0.5);
 		$expander->add($detail_label);
 		my $detail_hbox = Gtk2::HBox->new();
 		$detail_hbox->pack_start(Gtk2::Label->new, FALSE, FALSE, 12);
@@ -172,7 +172,7 @@ sub dlg_question_message {
 
 	#show a detailed message with checkbox
 	my $dcheck = undef;
-	if($detail_checkbox){
+	if ($detail_checkbox) {
 		$dcheck = Gtk2::CheckButton->new_with_mnemonic($detail_checkbox);
 		my $detail_hbox = Gtk2::HBox->new();
 		$detail_hbox->pack_start(Gtk2::Label->new, FALSE, FALSE, 12);
@@ -182,9 +182,9 @@ sub dlg_question_message {
 
 	$question_dialog->show_all;
 
-	if(defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk2::Gdk::Window/){
+	if (defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk2::Gdk::Window/) {
 		$question_dialog->window->set_transient_for($self->{_gdk_window});
-	}else{
+	} else {
 		$question_dialog->set_transient_for($self->{_window});
 	}
 
@@ -194,52 +194,52 @@ sub dlg_question_message {
 	$question_response = -1 if $question_response =~ /event/;
 
 	$question_dialog->destroy();
-	
-	if(defined $dcheck){
+
+	if (defined $dcheck) {
 		return ($question_response, $dcheck->get_active);
-	}else{
-		return $question_response;	
+	} else {
+		return $question_response;
 	}
 }
 
 sub dlg_error_message {
-	my $self = shift;
-	my $dlg_error_message 		= shift;
-	my $dlg_error_header 		= shift;
-	my $button_text_extra1 		= shift;
-	my $button_text_extra2 		= shift;
-	my $button_text_extra3 		= shift;
-	my $button_widget_extra1 	= shift;
-	my $button_widget_extra2 	= shift;
-	my $button_widget_extra3 	= shift;
-	my $detail_message 			= shift;
-	
-	my $error_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef );
+	my $self                 = shift;
+	my $dlg_error_message    = shift;
+	my $dlg_error_header     = shift;
+	my $button_text_extra1   = shift;
+	my $button_text_extra2   = shift;
+	my $button_text_extra3   = shift;
+	my $button_widget_extra1 = shift;
+	my $button_widget_extra2 = shift;
+	my $button_widget_extra3 = shift;
+	my $detail_message       = shift;
+
+	my $error_dialog = Gtk2::MessageDialog->new($self->{_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef);
 
 	$error_dialog->set_title("Shutter");
 
-	$error_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-dialog-error', 'dialog' ) );
+	$error_dialog->set('image' => Gtk2::Image->new_from_stock('gtk-dialog-error', 'dialog'));
 
-	$error_dialog->set( 'text' => $dlg_error_header );
+	$error_dialog->set('text' => $dlg_error_header);
 
-	$error_dialog->set( 'secondary-text' => $dlg_error_message );
+	$error_dialog->set('secondary-text' => $dlg_error_message);
 
-	$error_dialog->add_button( 'gtk-cancel', 0 );
-	$error_dialog->add_button( $button_text_extra1, 10 ) if $button_text_extra1;
-	$error_dialog->add_button( $button_text_extra2, 20 ) if $button_text_extra2;
-	$error_dialog->add_button( $button_text_extra3, 30 ) if $button_text_extra3;
+	$error_dialog->add_button('gtk-cancel', 0);
+	$error_dialog->add_button($button_text_extra1, 10) if $button_text_extra1;
+	$error_dialog->add_button($button_text_extra2, 20) if $button_text_extra2;
+	$error_dialog->add_button($button_text_extra3, 30) if $button_text_extra3;
 
-	$error_dialog->add_action_widget( $button_widget_extra1, 40 ) if $button_widget_extra1;
-	$error_dialog->add_action_widget( $button_widget_extra2, 50 ) if $button_widget_extra2;
-	$error_dialog->add_action_widget( $button_widget_extra3, 60 ) if $button_widget_extra3;
+	$error_dialog->add_action_widget($button_widget_extra1, 40) if $button_widget_extra1;
+	$error_dialog->add_action_widget($button_widget_extra2, 50) if $button_widget_extra2;
+	$error_dialog->add_action_widget($button_widget_extra3, 60) if $button_widget_extra3;
 
 	#show a detailed message (use expander to show it)
-	if($detail_message){
-		my $expander = Gtk2::Expander->new_with_mnemonic ('Show more _details');	
+	if ($detail_message) {
+		my $expander     = Gtk2::Expander->new_with_mnemonic('Show more _details');
 		my $detail_label = Gtk2::Label->new($detail_message);
-		$detail_label->set_width_chars (50);
-		$detail_label->set_line_wrap (TRUE);
-		$detail_label->set_alignment( 0, 0.5 );
+		$detail_label->set_width_chars(50);
+		$detail_label->set_line_wrap(TRUE);
+		$detail_label->set_alignment(0, 0.5);
 		$expander->add($detail_label);
 		my $detail_hbox = Gtk2::HBox->new();
 		$detail_hbox->pack_start(Gtk2::Label->new, FALSE, FALSE, 12);
@@ -249,9 +249,9 @@ sub dlg_error_message {
 
 	$error_dialog->show_all;
 
-	if(defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk2::Gdk::Window/){
+	if (defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk2::Gdk::Window/) {
 		$error_dialog->window->set_transient_for($self->{_gdk_window});
-	}else{
+	} else {
 		$error_dialog->set_transient_for($self->{_window});
 	}
 
@@ -265,43 +265,43 @@ sub dlg_error_message {
 }
 
 sub dlg_warning_message {
-	my $self = shift;
-	my $dlg_warning_message 	= shift;
-	my $dlg_warning_header 		= shift;
-	my $button_text_extra1 		= shift;
-	my $button_text_extra2 		= shift;
-	my $button_text_extra3 		= shift;
-	my $button_widget_extra1 	= shift;
-	my $button_widget_extra2 	= shift;
-	my $button_widget_extra3 	= shift;
-	my $detail_message 			= shift;
-	
-	my $warning_dialog = Gtk2::MessageDialog->new( $self->{_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef );
+	my $self                 = shift;
+	my $dlg_warning_message  = shift;
+	my $dlg_warning_header   = shift;
+	my $button_text_extra1   = shift;
+	my $button_text_extra2   = shift;
+	my $button_text_extra3   = shift;
+	my $button_widget_extra1 = shift;
+	my $button_widget_extra2 = shift;
+	my $button_widget_extra3 = shift;
+	my $detail_message       = shift;
+
+	my $warning_dialog = Gtk2::MessageDialog->new($self->{_window}, [qw/modal destroy-with-parent/], 'other', 'none', undef);
 
 	$warning_dialog->set_title("Shutter");
 
-	$warning_dialog->set( 'image' => Gtk2::Image->new_from_stock( 'gtk-dialog-warning', 'dialog' ) );
+	$warning_dialog->set('image' => Gtk2::Image->new_from_stock('gtk-dialog-warning', 'dialog'));
 
-	$warning_dialog->set( 'text' => $dlg_warning_header );
+	$warning_dialog->set('text' => $dlg_warning_header);
 
-	$warning_dialog->set( 'secondary-text' => $dlg_warning_message );
+	$warning_dialog->set('secondary-text' => $dlg_warning_message);
 
-	$warning_dialog->add_button( 'gtk-cancel', 0 );
-	$warning_dialog->add_button( $button_text_extra1, 10 ) if $button_text_extra1;
-	$warning_dialog->add_button( $button_text_extra2, 20 ) if $button_text_extra2;
-	$warning_dialog->add_button( $button_text_extra3, 30 ) if $button_text_extra3;
+	$warning_dialog->add_button('gtk-cancel', 0);
+	$warning_dialog->add_button($button_text_extra1, 10) if $button_text_extra1;
+	$warning_dialog->add_button($button_text_extra2, 20) if $button_text_extra2;
+	$warning_dialog->add_button($button_text_extra3, 30) if $button_text_extra3;
 
-	$warning_dialog->add_action_widget( $button_widget_extra1, 40 ) if $button_widget_extra1;
-	$warning_dialog->add_action_widget( $button_widget_extra2, 50 ) if $button_widget_extra2;
-	$warning_dialog->add_action_widget( $button_widget_extra3, 60 ) if $button_widget_extra3;
+	$warning_dialog->add_action_widget($button_widget_extra1, 40) if $button_widget_extra1;
+	$warning_dialog->add_action_widget($button_widget_extra2, 50) if $button_widget_extra2;
+	$warning_dialog->add_action_widget($button_widget_extra3, 60) if $button_widget_extra3;
 
 	#show a detailed message (use expander to show it)
-	if($detail_message){
-		my $expander = Gtk2::Expander->new_with_mnemonic ('Show more _details');	
+	if ($detail_message) {
+		my $expander     = Gtk2::Expander->new_with_mnemonic('Show more _details');
 		my $detail_label = Gtk2::Label->new($detail_message);
-		$detail_label->set_width_chars (50);
-		$detail_label->set_line_wrap (TRUE);
-		$detail_label->set_alignment( 0, 0.5 );
+		$detail_label->set_width_chars(50);
+		$detail_label->set_line_wrap(TRUE);
+		$detail_label->set_alignment(0, 0.5);
 		$expander->add($detail_label);
 		my $detail_hbox = Gtk2::HBox->new();
 		$detail_hbox->pack_start(Gtk2::Label->new, FALSE, FALSE, 12);
@@ -311,9 +311,9 @@ sub dlg_warning_message {
 
 	$warning_dialog->show_all;
 
-	if(defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk2::Gdk::Window/){
+	if (defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk2::Gdk::Window/) {
 		$warning_dialog->window->set_transient_for($self->{_gdk_window});
-	}else{
+	} else {
 		$warning_dialog->set_transient_for($self->{_window});
 	}
 

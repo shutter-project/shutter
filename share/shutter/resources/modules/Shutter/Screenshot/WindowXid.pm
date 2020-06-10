@@ -34,7 +34,7 @@ our @ISA = qw(Shutter::Screenshot::Window);
 
 #Glib and Gtk2
 use Gtk2;
-use Glib qw/TRUE FALSE/; 
+use Glib qw/TRUE FALSE/;
 
 #--------------------------------------
 
@@ -42,64 +42,66 @@ sub new {
 	my $class = shift;
 
 	#call constructor of super class (shutter_common, include_cursor, delay, notify_timeout, include_border, windowresize_active, windowresize_w, windowresize_h, hide_time, mode, autoshape)
-	my $self = $class->SUPER::new( shift, shift, shift, shift, shift, shift, shift, shift, shift, shift, shift );
+	my $self = $class->SUPER::new(shift, shift, shift, shift, shift, shift, shift, shift, shift, shift, shift);
 
 	bless $self, $class;
 	return $self;
 }
 
 #~ sub DESTROY {
-    #~ my $self = shift;
-    #~ print "$self dying at\n";
-#~ } 
-#~ 
+#~ my $self = shift;
+#~ print "$self dying at\n";
+#~ }
+#~
 
 sub window_by_xid {
 	my $self = shift;
 	my $xid  = shift;
 
-	my $gdk_window  = Gtk2::Gdk::Window->foreign_new( $xid );
-	my $wnck_window = Gnome2::Wnck::Window->get( $xid );
-	
+	my $gdk_window  = Gtk2::Gdk::Window->foreign_new($xid);
+	my $wnck_window = Gnome2::Wnck::Window->get($xid);
+
 	#~ print $xid, " - ", $gdk_window, " - ", $wnck_window, "\n";
-	
+
 	my $output = 0;
-	if (defined $gdk_window && defined $wnck_window){
-	
-		my ( $xc, $yc, $wc, $hc ) = $self->get_window_size( $wnck_window, $gdk_window, $self->{_include_border}, TRUE );
-		my ( $xp, $yp, $wp, $hp ) = $self->get_window_size( $wnck_window, $gdk_window, $self->{_include_border} );
+	if (defined $gdk_window && defined $wnck_window) {
+
+		my ($xc, $yc, $wc, $hc) = $self->get_window_size($wnck_window, $gdk_window, $self->{_include_border}, TRUE);
+		my ($xp, $yp, $wp, $hp) = $self->get_window_size($wnck_window, $gdk_window, $self->{_include_border});
 
 		#focus selected window (maybe it is hidden)
 		$gdk_window->focus(Gtk2->get_current_event_time);
 		Gtk2::Gdk->flush;
-	
+
 		#A short timeout to give the server a chance to
 		#redraw the area
-		Glib::Timeout->add ($self->{_hide_time}, sub{		
-			Gtk2->main_quit;
-			return FALSE;	
-		});	
+		Glib::Timeout->add(
+			$self->{_hide_time},
+			sub {
+				Gtk2->main_quit;
+				return FALSE;
+			});
 		Gtk2->main();
-	
+
 		my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) = $self->get_pixbuf_from_drawable($self->{_root}, $xp, $yp, $wp, $hp);
 
-		#save return value to current $output variable 
+		#save return value to current $output variable
 		#-> ugly but fastest and safest solution now
-		$output = $output_new;	
+		$output = $output_new;
 
-		#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)	
-		if($self->{_include_border}){
-			$output = $self->get_shape($xid, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);				
+		#respect rounded corners of wm decorations (metacity for example - does not work with compiz currently)
+		if ($self->{_include_border}) {
+			$output = $self->get_shape($xid, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);
 		}
 
 		#restore window size when autoresizing was used
-		if($self->{_mode} eq "window" || $self->{_mode} eq "tray_window" || $self->{_mode} eq "awindow" || $self->{_mode} eq "tray_awindow"){
-			if(defined $self->{_windowresize} && $self->{_windowresize}) {
-				if($wc != $wp || $hc != $hp){
-					if($self->{_include_border}){
-						$wnck_window->set_geometry ('current', [qw/width height/], $xc, $yc, $wc, $hc);		
-					}else{
-						$gdk_window->resize ($wc, $hc);
+		if ($self->{_mode} eq "window" || $self->{_mode} eq "tray_window" || $self->{_mode} eq "awindow" || $self->{_mode} eq "tray_awindow") {
+			if (defined $self->{_windowresize} && $self->{_windowresize}) {
+				if ($wc != $wp || $hc != $hp) {
+					if ($self->{_include_border}) {
+						$wnck_window->set_geometry('current', [qw/width height/], $xc, $yc, $wc, $hc);
+					} else {
+						$gdk_window->resize($wc, $hc);
 					}
 				}
 			}
@@ -107,7 +109,7 @@ sub window_by_xid {
 
 		#set name of the captured window
 		#e.g. for use in wildcards
-		if($output =~ /Gtk2/){
+		if ($output =~ /Gtk2/) {
 			$self->{_action_name} = $wnck_window->get_name;
 		}
 
@@ -115,23 +117,23 @@ sub window_by_xid {
 		$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->{_root}, $xp, $yp, $wp, $hp, undef, $xid, $xid);
 
 		$self->quit;
-	
-	}else{	
-		$output = 4;	
+
+	} else {
+		$output = 4;
 	}
 
 	return $output;
 }
 
 sub redo_capture {
-	my $self = shift;
+	my $self   = shift;
 	my $output = 3;
-	if(defined $self->{_history}){
+	if (defined $self->{_history}) {
 		my ($last_drawable, $lxp, $lyp, $lwp, $lhp, $lregion, $wxid, $gxid) = $self->{_history}->get_last_capture;
 		($output) = $self->window_by_xid($wxid);
 	}
 	return $output;
-}	
+}
 
 sub get_history {
 	my $self = shift;
@@ -150,8 +152,8 @@ sub get_action_name {
 
 sub quit {
 	my $self = shift;
-	
-	$self->ungrab_pointer_and_keyboard( FALSE, TRUE, FALSE );
+
+	$self->ungrab_pointer_and_keyboard(FALSE, TRUE, FALSE);
 	Gtk2::Gdk->flush;
 
 }

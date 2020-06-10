@@ -35,7 +35,7 @@ use Data::Dumper;
 our @ISA = qw(Shutter::Screenshot::Main);
 
 #Glib
-use Glib qw/TRUE FALSE/; 
+use Glib qw/TRUE FALSE/;
 
 #--------------------------------------
 
@@ -43,50 +43,51 @@ sub new {
 	my $class = shift;
 
 	#call constructor of super class (shutter_common, include_cursor, delay, notify_timeout)
-	my $self = $class->SUPER::new( shift, shift, shift, shift );
+	my $self = $class->SUPER::new(shift, shift, shift, shift);
 
 	bless $self, $class;
 	return $self;
-}	
+}
 
 sub select_auto {
-	my $self 	= shift;
-	my $x		= shift;
-	my $y		= shift;
-	my $width	= shift;
-	my $height	= shift;
+	my $self   = shift;
+	my $x      = shift;
+	my $y      = shift;
+	my $width  = shift;
+	my $height = shift;
 
 	my $d = $self->{_sc}->get_gettext;
-	
+
 	my $output;
 	if ($x && $y && $width && $height) {
-		($output) = $self->get_pixbuf_from_drawable( $self->{_root}, $x, $y, $width, $height );
-	#section not valid
+		($output) = $self->get_pixbuf_from_drawable($self->{_root}, $x, $y, $width, $height);
+
+		#section not valid
 	} else {
 		$output = 0;
 	}
 
 	#we don't have a useful string for wildcards (e.g. $name)
-	if($output =~ /Gtk2/){
+	if ($output =~ /Gtk2/) {
 		$self->{_action_name} = $d->get("Selection");
 	}
-	
+
 	#set history object
-	if($output){
+	if ($output) {
 		$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->{_root}, $x, $y, $width, $height);
 	}
-	
-	return $output;		
+
+	return $output;
 }
 
 sub redo_capture {
-	my $self = shift;
+	my $self   = shift;
 	my $output = 3;
-	if(defined $self->{_history}){
+	if (defined $self->{_history}) {
 		($output) = $self->get_pixbuf_from_drawable($self->{_history}->get_last_capture);
 	}
 	return $output;
-}	
+}
 
 sub get_history {
 	my $self = shift;

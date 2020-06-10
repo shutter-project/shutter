@@ -29,7 +29,7 @@ use strict;
 use Gtk2;
 
 #Glib
-use Glib qw/TRUE FALSE/; 
+use Glib qw/TRUE FALSE/;
 
 #--------------------------------------
 
@@ -38,11 +38,11 @@ sub new {
 	my $class = shift;
 
 	#constructor
-	my $self = { _common => shift };
+	my $self = {_common => shift};
 
 	#import shutter dialogs
 	my $current_window = $self->{_common}->get_mainwindow;
-	$self->{_dialogs} = Shutter::App::SimpleDialogs->new( $current_window );
+	$self->{_dialogs} = Shutter::App::SimpleDialogs->new($current_window);
 
 	#gettext
 	$self->{_d} = $self->{_common}->get_gettext;
@@ -52,98 +52,89 @@ sub new {
 }
 
 sub xdg_open {
-	my ( $self, $dialog, $link, $user_data ) = @_;
+	my ($self, $dialog, $link, $user_data) = @_;
 	my @args = ("xdg-open", "$link");
 	system(@args);
-	if($?){
-		my $response = $self->{_dialogs}->dlg_error_message( 
-			sprintf( $self->{_d}->get("Error while executing %s."), "'xdg-open'"),
-			sprintf( $self->{_d}->get("There was an error executing %s."), "'xdg-open'"),		
-			undef, undef, undef,
-			undef, undef, undef,
-			sprintf( $self->{_d}->get("Exit Code: %d."), $? >> 8)
-		);
-	}		
+	if ($?) {
+		my $response = $self->{_dialogs}->dlg_error_message(
+			sprintf($self->{_d}->get("Error while executing %s."),        "'xdg-open'"),
+			sprintf($self->{_d}->get("There was an error executing %s."), "'xdg-open'"),
+			undef, undef, undef, undef, undef, undef, sprintf($self->{_d}->get("Exit Code: %d."), $? >> 8));
+	}
 }
 
 sub xdg_open_mail {
-	my ( $self, $dialog, $mail, @user_data ) = @_;
+	my ($self, $dialog, $mail, @user_data) = @_;
 
 	my @cmd = 'xdg-email';
 	push @cmd, $mail if $mail;
 	system(@cmd, @user_data);
 
-	if($?){
-		my $response = $self->{_dialogs}->dlg_error_message( 
-			sprintf( $self->{_d}->get("Error while executing %s."), "'xdg-email'"),
-			sprintf( $self->{_d}->get("There was an error executing %s."), "'xdg-email'"),		
-			undef, undef, undef,
-			undef, undef, undef,
-			sprintf( $self->{_d}->get("Exit Code: %d."), $? >> 8)
-		);
-	}		
+	if ($?) {
+		my $response = $self->{_dialogs}->dlg_error_message(
+			sprintf($self->{_d}->get("Error while executing %s."),        "'xdg-email'"),
+			sprintf($self->{_d}->get("There was an error executing %s."), "'xdg-email'"),
+			undef, undef, undef, undef, undef, undef, sprintf($self->{_d}->get("Exit Code: %d."), $? >> 8));
+	}
 }
 
 sub nautilus_sendto {
-	my ( $self, $user_data ) = @_;
+	my ($self, $user_data) = @_;
 	system('nautilus-sendto', $user_data);
-	if($?){
-		my $response = $self->{_dialogs}->dlg_error_message( 
-			sprintf( $self->{_d}->get("Error while executing %s."), "'nautilus-sendto'"),
-			sprintf( $self->{_d}->get("There was an error executing %s."), "'nautilus-sendto'"),		
-			undef, undef, undef,
-			undef, undef, undef,
-			sprintf( $self->{_d}->get("Exit Code: %d."), $? >> 8)
-		);
-	}	
+	if ($?) {
+		my $response = $self->{_dialogs}->dlg_error_message(
+			sprintf($self->{_d}->get("Error while executing %s."),        "'nautilus-sendto'"),
+			sprintf($self->{_d}->get("There was an error executing %s."), "'nautilus-sendto'"),
+			undef, undef, undef, undef, undef, undef, sprintf($self->{_d}->get("Exit Code: %d."), $? >> 8));
+	}
 }
 
 sub file_exists {
-	my ( $self, $filename ) = @_;
+	my ($self, $filename) = @_;
 	return FALSE unless $filename;
 	$filename = $self->switch_home_in_file($filename);
-	return TRUE if ( -f $filename && -r $filename );
+	return TRUE if (-f $filename && -r $filename);
 	return FALSE;
 }
 
 sub folder_exists {
-	my ( $self, $folder ) = @_;
+	my ($self, $folder) = @_;
 	return FALSE unless $folder;
 	$folder = $self->switch_home_in_file($folder);
-	return TRUE if ( -d $folder && -r $folder );
+	return TRUE if (-d $folder && -r $folder);
 	return FALSE;
 }
 
 sub uri_exists {
-	my ( $self, $filename ) = @_;
+	my ($self, $filename) = @_;
 	return FALSE unless $filename;
 	$filename = $self->switch_home_in_file($filename);
-	my $new_giofile = Glib::IO::File::new_for_uri( $filename );
+	my $new_giofile = Glib::IO::File::new_for_uri($filename);
 	return TRUE if $new_giofile->query_exists;
 	return FALSE;
 }
 
 sub file_executable {
-	my ( $self, $filename ) = @_;
+	my ($self, $filename) = @_;
 	return FALSE unless $filename;
 	$filename = $self->switch_home_in_file($filename);
-	return TRUE if ( -x $filename );
+	return TRUE if (-x $filename);
 	return FALSE;
 }
 
 sub switch_home_in_file {
-	my ( $self, $filename ) = @_;
+	my ($self, $filename) = @_;
 	$filename =~ s/^~/$ENV{ HOME }/;    #switch ~ in path to /home/username
 	return $filename;
 }
 
 sub utf8_decode {
-	my $self 	= shift;
-	my $string	= shift;
-	
+	my $self   = shift;
+	my $string = shift;
+
 	#see https://bugs.launchpad.net/shutter/+bug/347821
 	utf8::decode $string;
-	
+
 	return $string;
 }
 

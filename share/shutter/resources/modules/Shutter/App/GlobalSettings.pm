@@ -28,14 +28,14 @@ use utf8;
 use strict;
 
 #Glib
-use Glib qw/TRUE FALSE/; 
+use Glib qw/TRUE FALSE/;
 
 #--------------------------------------
 
 sub new {
 	my $class = shift;
 
-	my $self = { };
+	my $self = {};
 
 	$self->{_png_quality} = undef;
 	$self->{_jpg_quality} = undef;
@@ -47,18 +47,18 @@ sub new {
 #getter / setter
 sub get_png_quality {
 	my $self = shift;
-	if(defined $self->{_png_quality}){
+	if (defined $self->{_png_quality}) {
 		return $self->{_png_quality};
-	}else{
+	} else {
 		return 9;
 	}
 }
 
 sub get_jpg_quality {
 	my $self = shift;
-	if(defined $self->{_jpg_quality}){
+	if (defined $self->{_jpg_quality}) {
 		return $self->{_jpg_quality};
-	}else{
+	} else {
 		return 90;
 	}
 }

@@ -27,20 +27,20 @@ package Shutter::App::Optional::Exif;
 use utf8;
 use strict;
 
-use Glib qw/TRUE FALSE/; 
+use Glib qw/TRUE FALSE/;
 
 #--------------------------------------
 
 sub new {
 	my $class = shift;
 
-	my $self = { };
+	my $self = {};
 
 	#libimage-exiftool-perl
 	eval { require Image::ExifTool };
 	if ($@) {
 		$self->{_exiftool} = FALSE;
-	}else{
+	} else {
 		$self->{_exiftool} = new Image::ExifTool;
 	}
 

@@ -27,12 +27,12 @@ use strict;
 use warnings;
 
 #Glib
-use Glib qw/TRUE FALSE/; 
+use Glib qw/TRUE FALSE/;
 
 sub new {
 	my $class = shift;
 
-	my $self = { };
+	my $self = {};
 
 	bless $self, $class;
 	return $self;
@@ -40,29 +40,29 @@ sub new {
 
 sub create_if_not_exists {
 	my $self = shift;
-	my $dir = shift;
+	my $dir  = shift;
 	mkdir($dir) unless (-d $dir && -r $dir);
 	return $dir;
 }
 
 sub get_root_dir {
 	my $self = shift;
-	return $self->create_if_not_exists(Glib::get_user_cache_dir."/shutter");
+	return $self->create_if_not_exists(Glib::get_user_cache_dir . "/shutter");
 }
 
 sub get_cache_dir {
 	my $self = shift;
-	return $self->create_if_not_exists($self->get_root_dir."/unsaved");
+	return $self->create_if_not_exists($self->get_root_dir . "/unsaved");
 }
 
 sub get_temp_dir {
 	my $self = shift;
-	return $self->create_if_not_exists($self->get_root_dir."/temp");	
+	return $self->create_if_not_exists($self->get_root_dir . "/temp");
 }
 
 sub get_autostart_dir {
 	my $self = shift;
-	return $self->create_if_not_exists(Glib::get_user_config_dir."/autostart");		
+	return $self->create_if_not_exists(Glib::get_user_config_dir . "/autostart");
 }
 
 sub get_home_dir {
@@ -76,6 +76,7 @@ sub get_config_dir {
 }
 
 sub get_settings_dir {
+
 	#not implemented
 }
 
