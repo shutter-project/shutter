@@ -73,9 +73,6 @@ sub new {
 	#ENV needed by some plugins
 	$ENV{'SHUTTER_INTL'} = $self->{_shutter_root} . "/share/locale";
 
-	#tooltips
-	$self->{_tooltips} = Gtk2::Tooltips->new;
-
 	#notification object
 	$self->{_notification};
 
@@ -155,19 +152,6 @@ sub set_gettext {
 sub get_theme {
 	my $self = shift;
 	return $self->{_icontheme};
-}
-
-sub get_tooltips {
-	my $self = shift;
-	return $self->{_tooltips};
-}
-
-sub set_tooltips {
-	my $self = shift;
-	if (@_) {
-		$self->{_tooltips} = shift;
-	}
-	return $self->{_tooltips};
 }
 
 sub get_notification_object {

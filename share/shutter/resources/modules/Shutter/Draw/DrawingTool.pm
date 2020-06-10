@@ -469,9 +469,6 @@ sub show {
 sub setup_bottom_hbox {
 	my $self = shift;
 
-	#Tooltips
-	my $tooltips = $self->{_sc}->get_tooltips;
-
 	my $drawing_bottom_hbox = Gtk2::HBox->new(FALSE, 5);
 
 	#fill color
@@ -482,8 +479,8 @@ sub setup_bottom_hbox {
 	$self->{_fill_color_w}->set_use_alpha(TRUE);
 	$self->{_fill_color_w}->set_title($self->{_d}->get("Choose fill color"));
 
-	$tooltips->set_tip($fill_color_label,      $self->{_d}->get("Adjust fill color and opacity"));
-	$tooltips->set_tip($self->{_fill_color_w}, $self->{_d}->get("Adjust fill color and opacity"));
+	$fill_color_label->set_tooltip_text($self->{_d}->get("Adjust fill color and opacity"));
+	$self->{_fill_color_w}->set_tooltip_text($self->{_d}->get("Adjust fill color and opacity"));
 
 	$drawing_bottom_hbox->pack_start($fill_color_label,      FALSE, FALSE, 5);
 	$drawing_bottom_hbox->pack_start($self->{_fill_color_w}, FALSE, FALSE, 5);
@@ -496,8 +493,8 @@ sub setup_bottom_hbox {
 	$self->{_stroke_color_w}->set_use_alpha(TRUE);
 	$self->{_stroke_color_w}->set_title($self->{_d}->get("Choose stroke color"));
 
-	$tooltips->set_tip($stroke_color_label,      $self->{_d}->get("Adjust stroke color and opacity"));
-	$tooltips->set_tip($self->{_stroke_color_w}, $self->{_d}->get("Adjust stroke color and opacity"));
+	$stroke_color_label->set_tooltip_text($self->{_d}->get("Adjust stroke color and opacity"));
+	$self->{_stroke_color_w}->set_tooltip_text($self->{_d}->get("Adjust stroke color and opacity"));
 
 	$drawing_bottom_hbox->pack_start($stroke_color_label,      FALSE, FALSE, 5);
 	$drawing_bottom_hbox->pack_start($self->{_stroke_color_w}, FALSE, FALSE, 5);
@@ -507,8 +504,8 @@ sub setup_bottom_hbox {
 	$self->{_line_spin_w} = Gtk2::SpinButton->new_with_range(0.5, 20, 0.1);
 	$self->{_line_spin_w}->set_value($self->{_line_width});
 
-	$tooltips->set_tip($linew_label,          $self->{_d}->get("Adjust line width"));
-	$tooltips->set_tip($self->{_line_spin_w}, $self->{_d}->get("Adjust line width"));
+	$linew_label->set_tooltip_text($self->{_d}->get("Adjust line width"));
+	$self->{_line_spin_w}->set_tooltip_text($self->{_d}->get("Adjust line width"));
 
 	$drawing_bottom_hbox->pack_start($linew_label,          FALSE, FALSE, 5);
 	$drawing_bottom_hbox->pack_start($self->{_line_spin_w}, FALSE, FALSE, 5);
@@ -518,8 +515,8 @@ sub setup_bottom_hbox {
 	$self->{_font_btn_w} = Gtk2::FontButton->new();
 	$self->{_font_btn_w}->set_font_name($self->{_font});
 
-	$tooltips->set_tip($font_label,          $self->{_d}->get("Select font family and size"));
-	$tooltips->set_tip($self->{_font_btn_w}, $self->{_d}->get("Select font family and size"));
+	$font_label->set_tooltip_text($self->{_d}->get("Select font family and size"));
+	$self->{_font_btn_w}->set_tooltip_text($self->{_d}->get("Select font family and size"));
 
 	$drawing_bottom_hbox->pack_start($font_label,          FALSE, FALSE, 5);
 	$drawing_bottom_hbox->pack_start($self->{_font_btn_w}, FALSE, FALSE, 5);
@@ -632,8 +629,8 @@ sub setup_bottom_hbox {
 			$self->{_canvas}->window->set_cursor($self->change_cursor_to_current_pixbuf);
 		});
 
-	$tooltips->set_tip($image_label, $self->{_d}->get("Insert an arbitrary object or file"));
-	$tooltips->set_tip($image_btn,   $self->{_d}->get("Insert an arbitrary object or file"));
+	$image_label->set_tooltip_text($self->{_d}->get("Insert an arbitrary object or file"));
+	$image_btn->set_tooltip_text($self->{_d}->get("Insert an arbitrary object or file"));
 
 	$drawing_bottom_hbox->pack_start($image_label, FALSE, FALSE, 5);
 	$drawing_bottom_hbox->pack_start($image_btn,   FALSE, FALSE, 5);
@@ -643,9 +640,6 @@ sub setup_bottom_hbox {
 
 sub setup_right_vbox_c {
 	my $self = shift;
-
-	#Tooltips
-	my $tooltips = $self->{_sc}->get_tooltips;
 
 	my $cropping_bottom_vbox = Gtk2::VBox->new(FALSE, 5);
 

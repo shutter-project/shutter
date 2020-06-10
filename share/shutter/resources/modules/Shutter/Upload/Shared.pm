@@ -105,7 +105,7 @@ sub create_entry_for_notebook {
 		});
 
 	my $upload_copy = Gtk2::Button->new;
-	$tooltips->set_tip($upload_copy, $self->{_gettext_object}->get("Copy this code to clipboard"));
+	$upload_copy->set_tooltip_text($self->{_gettext_object}->get("Copy this code to clipboard"));
 
 	$upload_copy->set_image(Gtk2::Image->new_from_stock('gtk-copy', 'menu'));
 	$upload_copy->signal_connect(
@@ -157,7 +157,7 @@ sub show {
 	my $fnlabel = Gtk2::Label->new($self->{_filename});
 	$fnlabel->set_ellipsize('middle');
 	$fnlabel->set_width_chars(20);
-	$tooltips->set_tip($fnlabel, $self->{_filename});
+	$fnlabel->set_tooltip_text($self->{_filename});
 
 	$self->{_notebook}->append_page($self->create_tab(), $fnlabel);
 
