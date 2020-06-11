@@ -3165,7 +3165,7 @@ if ($app->is_running) {
 									&& defined $session_screens{$ckey}->{'image'})
 								{
 									unless ($session_screens{$ckey}->{'image'}->get_pixbuf) {
-										$session_screens{$ckey}->{'image'}->set_pixbuf($lp->load($session_screens{$key}->{'long'}, undef, undef, undef, TRUE));
+										$session_screens{$ckey}->{'image'}->set_from_pixbuf($lp->load($session_screens{$key}->{'long'}, undef, undef, undef, TRUE));
 									}
 								}
 							}
@@ -3177,7 +3177,7 @@ if ($app->is_running) {
 							&& defined $session_screens{$ckey}->{'image'})
 						{
 							if ($session_screens{$ckey}->{'image'}->get_pixbuf) {
-								$session_screens{$ckey}->{'image'}->set_pixbuf(undef);
+								$session_screens{$ckey}->{'image'}->set_from_pixbuf(undef);
 							}
 						}
 					}
@@ -4352,9 +4352,9 @@ if ($app->is_running) {
 		unless ($is_all) {
 
 			#Gtk2::ImageView - empty at first
-			$session_screens{$key}->{'image'} = Gtk2::ImageView->new();
-			$session_screens{$key}->{'image'}->set_interpolation('tiles');
-			$session_screens{$key}->{'image'}->set_show_frame(FALSE);
+			$session_screens{$key}->{'image'} = Gtk2::Image->new();
+			#$session_screens{$key}->{'image'}->set_interpolation('tiles');
+			#$session_screens{$key}->{'image'}->set_show_frame(FALSE);
 
 			#Sets how the view should draw transparent parts of images with an alpha channel
 			my $color        = $trans_custom_btn->get_color;
@@ -4371,10 +4371,12 @@ if ($app->is_running) {
 				$color_string = sprintf("%02x%02x%02x", $bg->red / 257, $bg->green / 257, $bg->blue / 257);
 			}
 
-			$session_screens{$key}->{'image'}->set_transp($mode, hex $color_string);
+			#$session_screens{$key}->{'image'}->set_transp($mode, hex $color_string);
 
 			#Gtk2::ImageView::ScrollWin packaged in a Gtk2::ScrolledWindow
-			my $scrolled_window_image = Gtk2::ImageView::ScrollWin->new($session_screens{$key}->{'image'});
+			#my $scrolled_window_image = Gtk2::ImageView::ScrollWin->new($session_screens{$key}->{'image'});
+			my $scrolled_window_image = Gtk2::ScrolledWindow->new;
+			$scrolled_window_image->add_with_viewport($session_screens{$key}->{'image'});
 
 			#WORKAROUND
 			#upstream bug
@@ -7355,7 +7357,7 @@ if ($app->is_running) {
 				}
 
 				#setting pixbuf
-				$session_screens{$key}->{'image'}->set_pixbuf($pixbuf);
+				$session_screens{$key}->{'image'}->set_from_pixbuf($pixbuf);
 
 				#UPDATE INFOS
 				#--------------------------------------
