@@ -76,25 +76,20 @@ Actions=Redo;Select;Screen;Window;Active;
 [Desktop Action Redo]
 Name=Redo last screenshot
 Exec=shutter --redo
-OnlyShowIn=Unity;
 
 [Desktop Action Select]
 Name=Capture an area of the screen
 Exec=shutter --select
-OnlyShowIn=Unity;
 
 [Desktop Action Screen]
 Name=Capture the entire screen
 Exec=shutter --full
-OnlyShowIn=Unity;
 
 [Desktop Action Window]
 Name=Select a window to capture
 Exec=shutter --window
-OnlyShowIn=Unity;
 
 [Desktop Action Active]
 Name=Capture the current active window
 Exec=shutter --active
-OnlyShowIn=Unity;
 
