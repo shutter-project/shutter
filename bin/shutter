@@ -392,9 +392,6 @@ if ($app->is_running) {
 	#Page Setup
 	my $pagesetup = undef;
 
-	#Tooltips
-	my $tooltips = $sc->get_tooltips;
-
 	#data structures
 	#--------------------------------------
 	my %plugins;     #hash to store plugin infos
@@ -941,8 +938,8 @@ if ($app->is_running) {
 		$st->{_web}->set_menu(&fct_ret_web_menu);
 		$st->{_web}->signal_connect('show-menu' => \&fct_ret_web_menu);
 	} else {
-		$tooltips->set_tip($st->{_web}, $d->get("gnome-web-photo needs to be installed for this feature"));
-		$st->{_web}->set_arrow_tooltip($tooltips, $d->get("gnome-web-photo needs to be installed for this feature"), '');
+		$st->{_web}->set_tooltip_text($d->get("gnome-web-photo needs to be installed for this feature"));
+		$st->{_web}->set_arrow_tooltip_text($d->get("gnome-web-photo needs to be installed for this feature"));
 		$st->{_web}->set_sensitive(FALSE);
 	}
 
@@ -950,7 +947,7 @@ if ($app->is_running) {
 	if ($goocanvas) {
 		$st->{_edit}->signal_connect('clicked' => \&fct_draw);
 	} else {
-		$tooltips->set_tip($st->{_edit}, $d->get("Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature"));
+		$st->{_edit}->set_tooltip_text($d->get("Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature"));
 	}
 	$st->{_edit}->set_sensitive(FALSE);
 
@@ -983,7 +980,7 @@ if ($app->is_running) {
 		push(@current_profiles, $last_profile_name);
 		$current_index++;
 	}
-	$tooltips->set_tip($combobox_settings_profiles, $d->get("Choose a profile"));
+	$combobox_settings_profiles->set_tooltip_text($d->get("Choose a profile"));
 
 	#set 0 if nothing is selected yet
 	if (!$combobox_settings_profiles->get_active_text) {
@@ -998,7 +995,7 @@ if ($app->is_running) {
 			evt_save_profile($widget, $combobox_settings_profiles, \@current_profiles);
 		});
 	$button_profile_save->set_image(Gtk2::Image->new_from_stock('gtk-save', 'button'));
-	$tooltips->set_tip($button_profile_save, $d->get("Save configuration as profile"));
+	$button_profile_save->set_tooltip_text($d->get("Save configuration as profile"));
 
 	my $button_profile_delete = Gtk2::Button->new;
 	$button_profile_delete->signal_connect(
@@ -1007,7 +1004,7 @@ if ($app->is_running) {
 			evt_delete_profile($widget, $combobox_settings_profiles, \@current_profiles);
 		});
 	$button_profile_delete->set_image(Gtk2::Image->new_from_stock('gtk-delete', 'button'));
-	$tooltips->set_tip($button_profile_delete, $d->get("Delete profile"));
+	$button_profile_delete->set_tooltip_text($d->get("Delete profile"));
 	my $button_profile_apply = Gtk2::Button->new;
 	$button_profile_apply->signal_connect(
 		'clicked' => sub {
@@ -1015,7 +1012,7 @@ if ($app->is_running) {
 			evt_apply_profile($widget, $combobox_settings_profiles, \@current_profiles);
 		});
 	$button_profile_apply->set_image(Gtk2::Image->new_from_stock('gtk-apply', 'button'));
-	$tooltips->set_tip($button_profile_apply, $d->get("Load the selected profile's configuration"));
+	$button_profile_apply->set_tooltip_text($d->get("Load the selected profile's configuration"));
 
 	#--------------------------------------
 
@@ -1195,8 +1192,8 @@ if ($app->is_running) {
 		. $d->get("\$R = random char (e.g. \$RRRR = ag4r)\n")
 		. $d->get("%NN = counter");
 
-	$tooltips->set_tip($filename,       $filename_tooltip_string);
-	$tooltips->set_tip($filename_label, $filename_tooltip_string);
+	$filename->set_tooltip_text($filename_tooltip_string);
+	$filename_label->set_tooltip_text($filename_tooltip_string);
 
 	$filename_box->pack_start($filename_label, FALSE, TRUE, 12);
 	$filename_box->pack_start($filename,       TRUE,  TRUE, 0);
@@ -1216,8 +1213,8 @@ if ($app->is_running) {
 		$scale->set_value($settings_xml->{'general'}->{'quality'});
 	}
 
-	$tooltips->set_tip($scale,       $d->get("Adjust quality/compression value"));
-	$tooltips->set_tip($scale_label, $d->get("Adjust quality/compression value"));
+	$scale->set_tooltip_text($d->get("Adjust quality/compression value"));
+	$scale_label->set_tooltip_text($d->get("Adjust quality/compression value"));
 
 	$scale_box->pack_start($scale_label, FALSE, TRUE, 12);
 	$scale_box->pack_start($scale,       TRUE,  TRUE, 0);
@@ -1299,8 +1296,8 @@ if ($app->is_running) {
 	}
 
 	my $filetype_label = Gtk2::Label->new($d->get("Image format") . ":");
-	$tooltips->set_tip($combobox_type,  $d->get("Select a file format"));
-	$tooltips->set_tip($filetype_label, $d->get("Select a file format"));
+	$combobox_type->set_tooltip_text($d->get("Select a file format"));
+	$filetype_label->set_tooltip_text($d->get("Select a file format"));
 	$filetype_box->pack_start($filetype_label, FALSE, TRUE, 12);
 	$filetype_box->pack_start($combobox_type,  TRUE,  TRUE, 0);
 
@@ -1317,8 +1314,8 @@ if ($app->is_running) {
 		$saveDir_button->set_current_folder(Glib::get_user_special_dir('pictures'));
 	}
 
-	$tooltips->set_tip($saveDir_button, $d->get("Your screenshots will be saved to this directory"));
-	$tooltips->set_tip($saveDir_label,  $d->get("Your screenshots will be saved to this directory"));
+	$saveDir_button->set_tooltip_text($d->get("Your screenshots will be saved to this directory"));
+	$saveDir_label->set_tooltip_text($d->get("Your screenshots will be saved to this directory"));
 	$saveDir_box->pack_start($saveDir_label,  FALSE, TRUE, 12);
 	$saveDir_box->pack_start($saveDir_button, TRUE,  TRUE, 0);
 
@@ -1330,17 +1327,17 @@ if ($app->is_running) {
 	my $save_ask_active = Gtk2::RadioButton->new_with_label(undef, $d->get("Browse for save folder every time"));
 	$save_ask_box->pack_start($save_ask_active, FALSE, TRUE, 12);
 
-	$tooltips->set_tip($save_ask_active, $d->get("Browse for save folder every time"));
+	$save_ask_active->set_tooltip_text($d->get("Browse for save folder every time"));
 
 	my $save_no_active = Gtk2::RadioButton->new_with_label($save_ask_active, $d->get("Do not save file automatically"));
 	$save_no_box->pack_start($save_no_active, FALSE, TRUE, 12);
 
-	$tooltips->set_tip($save_no_active, $d->get("Do not save file automatically"));
+	$save_no_active->set_tooltip_text($d->get("Do not save file automatically"));
 
 	my $save_auto_active = Gtk2::RadioButton->new_with_label($save_ask_active, $d->get("Automatically save file"));
 	$save_auto_box->pack_start($save_auto_active, FALSE, TRUE, 12);
 
-	$tooltips->set_tip($save_auto_active, $d->get("Automatically save file"));
+	$save_auto_active->set_tooltip_text($d->get("Automatically save file"));
 
 	#default state
 	$save_ask_active->set_active(FALSE);
@@ -1373,7 +1370,7 @@ if ($app->is_running) {
 		$image_autocopy_active->set_active(TRUE);
 	}
 
-	$tooltips->set_tip($image_autocopy_active, $d->get("Automatically copy screenshot to clipboard"));
+	$image_autocopy_active->set_tooltip_text($d->get("Automatically copy screenshot to clipboard"));
 
 	#end - image_autocopy
 	#--------------------------------------
@@ -1389,7 +1386,7 @@ if ($app->is_running) {
 		$fname_autocopy_active->set_active(FALSE);
 	}
 
-	$tooltips->set_tip($fname_autocopy_active, $d->get("Automatically copy filename to clipboard"));
+	$fname_autocopy_active->set_tooltip_text($d->get("Automatically copy filename to clipboard"));
 
 	#end - fname_autocopy
 	#--------------------------------------
@@ -1405,7 +1402,7 @@ if ($app->is_running) {
 		$no_autocopy_active->set_active(FALSE);
 	}
 
-	$tooltips->set_tip($no_autocopy_active, $d->get("Do not copy anything to clipboard"));
+	$no_autocopy_active->set_tooltip_text($d->get("Do not copy anything to clipboard"));
 
 	#end - no_autocopy
 	#--------------------------------------
@@ -1437,13 +1434,13 @@ if ($app->is_running) {
 		$delay->set_value(0);
 	}
 
-	$tooltips->set_tip($delay,        $d->get("Wait n seconds before taking a screenshot"));
-	$tooltips->set_tip($delay_label,  $d->get("Wait n seconds before taking a screenshot"));
-	$tooltips->set_tip($delay_vlabel, $d->get("Wait n seconds before taking a screenshot"));
+	$delay->set_tooltip_text($d->get("Wait n seconds before taking a screenshot"));
+	$delay_label->set_tooltip_text($d->get("Wait n seconds before taking a screenshot"));
+	$delay_vlabel->set_tooltip_text($d->get("Wait n seconds before taking a screenshot"));
 
-	$tooltips->set_tip($delay_status,        $d->get("Wait n seconds before taking a screenshot"));
-	$tooltips->set_tip($delay_status_label,  $d->get("Wait n seconds before taking a screenshot"));
-	$tooltips->set_tip($delay_status_vlabel, $d->get("Wait n seconds before taking a screenshot"));
+	$delay_status->set_tooltip_text($d->get("Wait n seconds before taking a screenshot"));
+	$delay_status_label->set_tooltip_text($d->get("Wait n seconds before taking a screenshot"));
+	$delay_status_vlabel->set_tooltip_text($d->get("Wait n seconds before taking a screenshot"));
 
 	$delay_box->pack_start($delay_label,  FALSE, FALSE, 12);
 	$delay_box->pack_start($delay,        FALSE, FALSE, 0);
@@ -1455,14 +1452,14 @@ if ($app->is_running) {
 	#cursor
 	#--------------------------------------
 	my $cursor_status_active = Gtk2::CheckButton->new_with_label($d->get("Include Cursor"));
-	$tooltips->set_tip($cursor_status_active, $d->get("Include cursor when taking a screenshot"));
+	$cursor_status_active->set_tooltip_text($d->get("Include cursor when taking a screenshot"));
 	$cursor_status_active->signal_connect(
 		'toggled' => \&evt_value_changed,
 		'cursor_status_toggled'
 	);
 
 	my $cursor_active = Gtk2::CheckButton->new_with_label($d->get("Include cursor when taking a screenshot"));
-	$tooltips->set_tip($cursor_active, $d->get("Include cursor when taking a screenshot"));
+	$cursor_active->set_tooltip_text($d->get("Include cursor when taking a screenshot"));
 	$cursor_active->signal_connect(
 		'toggled' => \&evt_value_changed,
 		'cursor_toggled'
@@ -1518,9 +1515,9 @@ if ($app->is_running) {
 		$progname_active->set_active(FALSE);
 	}
 	my $progname_label = Gtk2::Label->new($d->get("Open with") . ":");
-	$tooltips->set_tip($progname,        $d->get("Open your screenshot with this program after capturing"));
-	$tooltips->set_tip($progname_active, $d->get("Open your screenshot with this program after capturing"));
-	$tooltips->set_tip($progname_label,  $d->get("Open your screenshot with this program after capturing"));
+	$progname->set_tooltip_text($d->get("Open your screenshot with this program after capturing"));
+	$progname_active->set_tooltip_text($d->get("Open your screenshot with this program after capturing"));
+	$progname_label->set_tooltip_text($d->get("Open your screenshot with this program after capturing"));
 	$progname_box->pack_start($progname_label,  FALSE, TRUE, 12);
 	$progname_box->pack_start($progname_active, FALSE, TRUE, 0);
 	$progname_box->pack_start($progname,        TRUE,  TRUE, 0);
@@ -1559,9 +1556,9 @@ if ($app->is_running) {
 	}
 
 	my $im_colors_label = Gtk2::Label->new($d->get("Reduce colors") . ":");
-	$tooltips->set_tip($combobox_im_colors, $d->get("Automatically reduce colors after taking a screenshot"));
-	$tooltips->set_tip($im_colors_active,   $d->get("Automatically reduce colors after taking a screenshot"));
-	$tooltips->set_tip($im_colors_label,    $d->get("Automatically reduce colors after taking a screenshot"));
+	$combobox_im_colors->set_tooltip_text($d->get("Automatically reduce colors after taking a screenshot"));
+	$im_colors_active->set_tooltip_text($d->get("Automatically reduce colors after taking a screenshot"));
+	$im_colors_label->set_tooltip_text($d->get("Automatically reduce colors after taking a screenshot"));
 	$im_colors_box->pack_start($im_colors_label,    FALSE, TRUE, 12);
 	$im_colors_box->pack_start($im_colors_active,   FALSE, TRUE, 0);
 	$im_colors_box->pack_start($combobox_im_colors, TRUE,  TRUE, 0);
@@ -1596,9 +1593,9 @@ if ($app->is_running) {
 	} else {
 		$thumbnail_active->set_active(FALSE);
 	}
-	$tooltips->set_tip($thumbnail,        $d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be"));
-	$tooltips->set_tip($thumbnail_active, $d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be"));
-	$tooltips->set_tip($thumbnail_label,  $d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be"));
+	$thumbnail->set_tooltip_text($d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be"));
+	$thumbnail_active->set_tooltip_text($d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be"));
+	$thumbnail_label->set_tooltip_text($d->get("Generate thumbnail too.\nselect the percentage of the original size for the thumbnail to be"));
 	$thumbnail_box->pack_start($thumbnail_label,  FALSE, TRUE,  12);
 	$thumbnail_box->pack_start($thumbnail_active, FALSE, FALSE, 0);
 	$thumbnail_box->pack_start($thumbnail,        TRUE,  TRUE,  0);
@@ -1620,12 +1617,12 @@ if ($app->is_running) {
 	$bordereffect_cbtn->set_use_alpha(FALSE);
 	$bordereffect_cbtn->set_title($d->get("Choose border color"));
 
-	$tooltips->set_tip($bordereffect_active, $d->get("Adds a border effect to the screenshot"));
-	$tooltips->set_tip($bordereffect,        $d->get("Adds a border effect to the screenshot"));
-	$tooltips->set_tip($bordereffect_label,  $d->get("Adds a border effect to the screenshot"));
+	$bordereffect_active->set_tooltip_text($d->get("Adds a border effect to the screenshot"));
+	$bordereffect->set_tooltip_text($d->get("Adds a border effect to the screenshot"));
+	$bordereffect_label->set_tooltip_text($d->get("Adds a border effect to the screenshot"));
 
-	$tooltips->set_tip($bordereffect_clabel, $d->get("Choose border color"));
-	$tooltips->set_tip($bordereffect_cbtn,   $d->get("Choose border color"));
+	$bordereffect_clabel->set_tooltip_text($d->get("Choose border color"));
+	$bordereffect_cbtn->set_tooltip_text($d->get("Choose border color"));
 
 	$bordereffect_box->pack_start($bordereffect_label,  FALSE, TRUE,  12);
 	$bordereffect_box->pack_start($bordereffect_active, FALSE, FALSE, 0);
@@ -1675,7 +1672,7 @@ if ($app->is_running) {
 		$zoom_active->set_active(TRUE);
 	}
 
-	$tooltips->set_tip($zoom_active, $d->get("Enable zoom window"));
+	$zoom_active->set_tooltip_text($d->get("Enable zoom window"));
 
 	$zoom_box->pack_start($zoom_active, FALSE, TRUE, 12);
 
@@ -1716,16 +1713,16 @@ if ($app->is_running) {
 		$asel_size2->set_value(0);
 	}
 
-	$tooltips->set_tip($asel_size_label1,  $d->get("Start Selection Tool with a customized selection size"));
-	$tooltips->set_tip($asel_size_label2,  $d->get("Start Selection Tool with a customized selection size"));
-	$tooltips->set_tip($asel_size_label3,  $d->get("Start Selection Tool with a customized selection size"));
-	$tooltips->set_tip($asel_size_label4,  $d->get("Start Selection Tool with a customized selection size"));
-	$tooltips->set_tip($asel_size1,        $d->get("Start Selection Tool with a customized selection size"));
-	$tooltips->set_tip($asel_size2,        $d->get("Start Selection Tool with a customized selection size"));
-	$tooltips->set_tip($asel_size3,        $d->get("Start Selection Tool with a customized selection size"));
-	$tooltips->set_tip($asel_size4,        $d->get("Start Selection Tool with a customized selection size"));
-	$tooltips->set_tip($asel_size_vlabel1, $d->get("Start Selection Tool with a customized selection size"));
-	$tooltips->set_tip($asel_size_vlabel2, $d->get("Start Selection Tool with a customized selection size"));
+	$asel_size_label1->set_tooltip_text($d->get("Start Selection Tool with a customized selection size"));
+	$asel_size_label2->set_tooltip_text($d->get("Start Selection Tool with a customized selection size"));
+	$asel_size_label3->set_tooltip_text($d->get("Start Selection Tool with a customized selection size"));
+	$asel_size_label4->set_tooltip_text($d->get("Start Selection Tool with a customized selection size"));
+	$asel_size1->set_tooltip_text($d->get("Start Selection Tool with a customized selection size"));
+	$asel_size2->set_tooltip_text($d->get("Start Selection Tool with a customized selection size"));
+	$asel_size3->set_tooltip_text($d->get("Start Selection Tool with a customized selection size"));
+	$asel_size4->set_tooltip_text($d->get("Start Selection Tool with a customized selection size"));
+	$asel_size_vlabel1->set_tooltip_text($d->get("Start Selection Tool with a customized selection size"));
+	$asel_size_vlabel2->set_tooltip_text($d->get("Start Selection Tool with a customized selection size"));
 
 	$asel_isize_box->pack_start($asel_size_label1,  FALSE, FALSE, 12);
 	$asel_isize_box->pack_start($asel_size1,        FALSE, FALSE, 0);
@@ -1751,7 +1748,7 @@ if ($app->is_running) {
 		$as_help_active->set_active(TRUE);
 	}
 
-	$tooltips->set_tip($as_help_active, $d->get("Enables the help text"));
+	$as_help_active->set_tooltip_text($d->get("Enables the help text"));
 
 	$as_help_box->pack_start($as_help_active, FALSE, TRUE, 12);
 
@@ -1761,7 +1758,7 @@ if ($app->is_running) {
 	#border
 	#--------------------------------------
 	my $border_active = Gtk2::CheckButton->new_with_label($d->get("Include window decoration when capturing a window"));
-	$tooltips->set_tip($border_active, $d->get("Include window decoration when capturing a window"));
+	$border_active->set_tooltip_text($d->get("Include window decoration when capturing a window"));
 
 	$border_box->pack_start($border_active, FALSE, TRUE, 12);
 
@@ -1802,30 +1799,20 @@ if ($app->is_running) {
 		$winresize_h->set_value(500);
 	}
 
-	$tooltips->set_tip(
-		$winresize_active,
-		$d->get(
-			"This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize.")
+	$winresize_active->set_tooltip_text($d->get(
+		"This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize.")
 	);
-	$tooltips->set_tip(
-		$winresize_w,
-		$d->get(
-			"This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize.")
+	$winresize_w->set_tooltip_text($d->get(
+		"This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize.")
 	);
-	$tooltips->set_tip(
-		$winresize_label,
-		$d->get(
-			"This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize.")
+	$winresize_label->set_tooltip_text($d->get(
+		"This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize.")
 	);
-	$tooltips->set_tip(
-		$winresize_h,
-		$d->get(
-			"This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize.")
+	$winresize_h->set_tooltip_text($d->get(
+		"This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize.")
 	);
-	$tooltips->set_tip(
-		$winresize_vlabel,
-		$d->get(
-			"This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize.")
+	$winresize_vlabel->set_tooltip_text($d->get(
+		"This resizes the window automatically to the specified width and height. This method asks the window manager to resize the window. However, the window manager may not allow the resize.")
 	);
 
 	$winresize_box->pack_start($winresize_active, FALSE, FALSE, 12);
@@ -1847,8 +1834,7 @@ if ($app->is_running) {
 		$autoshape_active->set_active(FALSE);
 	}
 
-	$tooltips->set_tip(
-		$autoshape_active,
+	$autoshape_active->set_tooltip_text(
 		sprintf(
 			$d->get(
 					  "Shutter uses the XShape extension to determine the window's shape, "
@@ -1868,7 +1854,7 @@ if ($app->is_running) {
 	#visible windows only
 	#--------------------------------------
 	my $visible_windows_active = Gtk2::CheckButton->new_with_label($d->get("Select only visible windows"));
-	$tooltips->set_tip($visible_windows_active, $d->get("Select only visible windows"));
+	$visible_windows_active->set_tooltip_text($d->get("Select only visible windows"));
 
 	$visible_windows_box->pack_start($visible_windows_active, FALSE, TRUE, 12);
 
@@ -1898,9 +1884,9 @@ if ($app->is_running) {
 		$menu_delay->set_value(10);
 	}
 
-	$tooltips->set_tip($menu_delay,        $d->get("Capture menu/tooltip after a delay of n seconds"));
-	$tooltips->set_tip($menu_delay_label,  $d->get("Capture menu/tooltip after a delay of n seconds"));
-	$tooltips->set_tip($menu_delay_vlabel, $d->get("Capture menu/tooltip after a delay of n seconds"));
+	$menu_delay->set_tooltip_text($d->get("Capture menu/tooltip after a delay of n seconds"));
+	$menu_delay_label->set_tooltip_text($d->get("Capture menu/tooltip after a delay of n seconds"));
+	$menu_delay_vlabel->set_tooltip_text($d->get("Capture menu/tooltip after a delay of n seconds"));
 
 	$menu_delay_box->pack_start($menu_delay_label,  FALSE, TRUE, 12);
 	$menu_delay_box->pack_start($menu_delay,        FALSE, TRUE, 0);
@@ -1912,9 +1898,7 @@ if ($app->is_running) {
 	#menu/tooltip workaround
 	#--------------------------------------
 	my $menu_waround_active = Gtk2::CheckButton->new_with_label($d->get("Ignore possibly wrong type hints"));
-	$tooltips->set_tip(
-		$menu_waround_active,
-		$d->get(
+	$menu_waround_active->set_tooltip_text($d->get(
 "The type hint constants specify hints for the window manager that indicate what type of function the window has. Sometimes these type hints are not correctly set. By enabling this option Shutter will not insist on the requested type hint."
 		));
 
@@ -1952,9 +1936,9 @@ if ($app->is_running) {
 		$combobox_web_width->set_active(2);
 	}
 
-	$tooltips->set_tip($web_width_label,    $d->get("Virtual browser width when taking a website screenshot"));
-	$tooltips->set_tip($combobox_web_width, $d->get("Virtual browser width when taking a website screenshot"));
-	$tooltips->set_tip($web_width_vlabel,   $d->get("Virtual browser width when taking a website screenshot"));
+	$web_width_label->set_tooltip_text($d->get("Virtual browser width when taking a website screenshot"));
+	$combobox_web_width->set_tooltip_text($d->get("Virtual browser width when taking a website screenshot"));
+	$web_width_vlabel->set_tooltip_text($d->get("Virtual browser width when taking a website screenshot"));
 
 	$web_width_box->pack_start($web_width_label,    FALSE, TRUE, 12);
 	$web_width_box->pack_start($combobox_web_width, FALSE, TRUE, 0);
@@ -1995,9 +1979,9 @@ if ($app->is_running) {
 		$trans_check->set_active(TRUE);
 	}
 
-	$tooltips->set_tip($trans_check,  $d->get("Displays any transparent parts of the image in a check pattern"));
-	$tooltips->set_tip($trans_custom, $d->get("Displays any transparent parts of the image in a solid color that you specify"));
-	$tooltips->set_tip($trans_backg,  $d->get("Displays any transparent parts of the image in the background color of the application"));
+	$trans_check->set_tooltip_text($d->get("Displays any transparent parts of the image in a check pattern"));
+	$trans_custom->set_tooltip_text($d->get("Displays any transparent parts of the image in a solid color that you specify"));
+	$trans_backg->set_tooltip_text($d->get("Displays any transparent parts of the image in the background color of the application"));
 
 	#connect signals after restoring the saved state
 	$trans_check->signal_connect(
@@ -2080,10 +2064,10 @@ if ($app->is_running) {
 			$st->{_sortd}->signal_emit('toggled') if $session_desc->get_active;
 		});
 
-	$tooltips->set_tip($session_asc,        $d->get("Configure sort criteria"));
-	$tooltips->set_tip($session_asc_combo,  $d->get("Configure sort criteria"));
-	$tooltips->set_tip($session_desc,       $d->get("Configure sort criteria"));
-	$tooltips->set_tip($session_desc_combo, $d->get("Configure sort criteria"));
+	$session_asc->set_tooltip_text($d->get("Configure sort criteria"));
+	$session_asc_combo->set_tooltip_text($d->get("Configure sort criteria"));
+	$session_desc->set_tooltip_text($d->get("Configure sort criteria"));
+	$session_desc_combo->set_tooltip_text($d->get("Configure sort criteria"));
 
 	#end - imageview
 	#--------------------------------------
@@ -2149,7 +2133,7 @@ if ($app->is_running) {
 		$fs_active->set_active(FALSE);
 	}
 
-	$tooltips->set_tip($fs_active, $d->get("Start Shutter at login"));
+	$fs_active->set_tooltip_text($d->get("Start Shutter at login"));
 
 	if (defined $settings_xml->{'general'}->{'autofs_min'}) {
 		$fs_min_active->set_active($settings_xml->{'general'}->{'autofs_min'});
@@ -2157,7 +2141,7 @@ if ($app->is_running) {
 		$fs_min_active->set_active(FALSE);
 	}
 
-	$tooltips->set_tip($fs_min_active, $d->get("Hide window on first launch"));
+	$fs_min_active->set_tooltip_text($d->get("Hide window on first launch"));
 
 	if (defined $settings_xml->{'general'}->{'autofs_not'}) {
 		$fs_nonot_active->set_active($settings_xml->{'general'}->{'autofs_not'});
@@ -2165,7 +2149,7 @@ if ($app->is_running) {
 		$fs_nonot_active->set_active(FALSE);
 	}
 
-	$tooltips->set_tip($fs_nonot_active, $d->get("Hide notification icon"));
+	$fs_nonot_active->set_tooltip_text($d->get("Hide notification icon"));
 
 	if (defined $settings_xml->{'general'}->{'autohide'}) {
 		$hide_active->set_active($settings_xml->{'general'}->{'autohide'});
@@ -2173,7 +2157,7 @@ if ($app->is_running) {
 		$hide_active->set_active(TRUE);
 	}
 
-	$tooltips->set_tip($hide_active, $d->get("Autohide main window when taking a screenshot"));
+	$hide_active->set_tooltip_text($d->get("Autohide main window when taking a screenshot"));
 
 	if (defined $settings_xml->{'general'}->{'autohide_time'}) {
 		$hide_time->set_value($settings_xml->{'general'}->{'autohide_time'});
@@ -2181,9 +2165,9 @@ if ($app->is_running) {
 		$hide_time->set_value(400);
 	}
 
-	$tooltips->set_tip($hide_time_label,  $d->get("Configure a short timeout to give the Xserver a chance to redraw areas that were obscured by Shutter's windows before taking a screenshot."));
-	$tooltips->set_tip($hide_time,        $d->get("Configure a short timeout to give the Xserver a chance to redraw areas that were obscured by Shutter's windows before taking a screenshot."));
-	$tooltips->set_tip($hide_time_vlabel, $d->get("Configure a short timeout to give the Xserver a chance to redraw areas that were obscured by Shutter's windows before taking a screenshot."));
+	$hide_time_label->set_tooltip_text($d->get("Configure a short timeout to give the Xserver a chance to redraw areas that were obscured by Shutter's windows before taking a screenshot."));
+	$hide_time->set_tooltip_text($d->get("Configure a short timeout to give the Xserver a chance to redraw areas that were obscured by Shutter's windows before taking a screenshot."));
+	$hide_time_vlabel->set_tooltip_text($d->get("Configure a short timeout to give the Xserver a chance to redraw areas that were obscured by Shutter's windows before taking a screenshot."));
 
 	#If get_exit_after_capture is TRUE, overwrite any saved setting
 	#because presenting the window does not make sense here
@@ -2197,7 +2181,7 @@ if ($app->is_running) {
 		}
 	}
 
-	$tooltips->set_tip($present_after_active, $d->get("Present main window after taking a screenshot"));
+	$present_after_active->set_tooltip_text($d->get("Present main window after taking a screenshot"));
 
 	if (defined $settings_xml->{'general'}->{'notify_after'}) {
 		$notify_after_active->set_active($settings_xml->{'general'}->{'notify_after'});
@@ -2205,7 +2189,7 @@ if ($app->is_running) {
 		$notify_after_active->set_active(TRUE);
 	}
 
-	$tooltips->set_tip($notify_after_active, $d->get("Display pop-up notification after taking a screenshot"));
+	$notify_after_active->set_tooltip_text($d->get("Display pop-up notification after taking a screenshot"));
 
 	if (defined $settings_xml->{'general'}->{'notify_timeout'}) {
 		$notify_timeout_active->set_active($settings_xml->{'general'}->{'notify_timeout'});
@@ -2213,7 +2197,7 @@ if ($app->is_running) {
 		$notify_timeout_active->set_active(TRUE);
 	}
 
-	$tooltips->set_tip($notify_timeout_active, $d->get("Display pop-up notification when using a delay"));
+	$notify_timeout_active->set_tooltip_text($d->get("Display pop-up notification when using a delay"));
 
 	if (defined $settings_xml->{'general'}->{'notify_ptimeout'}) {
 		$notify_ptimeout_active->set_active($settings_xml->{'general'}->{'notify_ptimeout'});
@@ -2221,7 +2205,7 @@ if ($app->is_running) {
 		$notify_ptimeout_active->set_active(TRUE);
 	}
 
-	$tooltips->set_tip($notify_timeout_active, $d->get("Display pop-up notification when using a delay"));
+	$notify_timeout_active->set_tooltip_text($d->get("Display pop-up notification when using a delay"));
 
 	if (defined $settings_xml->{'general'}->{'notify_agent'}) {
 		$combobox_ns->set_active($settings_xml->{'general'}->{'notify_agent'});
@@ -2229,8 +2213,8 @@ if ($app->is_running) {
 		$combobox_ns->set_active(TRUE);
 	}
 
-	$tooltips->set_tip($ns_label,    $d->get("You can either choose the system-wide desktop notifications (e.g. Ubuntu's Notify-OSD) or Shutter's built-in notification system"));
-	$tooltips->set_tip($combobox_ns, $d->get("You can either choose the system-wide desktop notifications (e.g. Ubuntu's Notify-OSD) or Shutter's built-in notification system"));
+	$ns_label->set_tooltip_text($d->get("You can either choose the system-wide desktop notifications (e.g. Ubuntu's Notify-OSD) or Shutter's built-in notification system"));
+	$combobox_ns->set_tooltip_text($d->get("You can either choose the system-wide desktop notifications (e.g. Ubuntu's Notify-OSD) or Shutter's built-in notification system"));
 
 	if (defined $settings_xml->{'general'}->{'close_at_close'}) {
 		$close_at_close_active->set_active($settings_xml->{'general'}->{'close_at_close'});
@@ -2238,7 +2222,7 @@ if ($app->is_running) {
 		$close_at_close_active->set_active(TRUE);
 	}
 
-	$tooltips->set_tip($close_at_close_active, $d->get("Minimize to tray when closing main window"));
+	$close_at_close_active->set_tooltip_text($d->get("Minimize to tray when closing main window"));
 
 	if (defined $settings_xml->{'general'}->{'ask_on_delete'}) {
 		$ask_on_delete_active->set_active($settings_xml->{'general'}->{'ask_on_delete'});
@@ -2246,7 +2230,7 @@ if ($app->is_running) {
 		$ask_on_delete_active->set_active(FALSE);
 	}
 
-	$tooltips->set_tip($ask_on_delete_active, $d->get("Ask before moving files to trash"));
+	$ask_on_delete_active->set_tooltip_text($d->get("Ask before moving files to trash"));
 
 	if (defined $settings_xml->{'general'}->{'delete_on_close'}) {
 		$delete_on_close_active->set_active($settings_xml->{'general'}->{'delete_on_close'});
@@ -2254,7 +2238,7 @@ if ($app->is_running) {
 		$delete_on_close_active->set_active(FALSE);
 	}
 
-	$tooltips->set_tip($delete_on_close_active, $d->get("Move file to trash when closing tab"));
+	$delete_on_close_active->set_tooltip_text($d->get("Move file to trash when closing tab"));
 
 	if (defined $settings_xml->{'general'}->{'ask_on_fs_delete'}) {
 		$ask_on_fs_delete_active->set_active($settings_xml->{'general'}->{'ask_on_fs_delete'});
@@ -2262,7 +2246,7 @@ if ($app->is_running) {
 		$ask_on_fs_delete_active->set_active(FALSE);
 	}
 
-	$tooltips->set_tip($ask_on_fs_delete_active, $d->get("Notify when file was deleted from filesystem"));
+	$ask_on_fs_delete_active->set_tooltip_text($d->get("Notify when file was deleted from filesystem"));
 
 	#end - behavior
 	#--------------------------------------
@@ -2305,9 +2289,9 @@ if ($app->is_running) {
 		$ftp_remote_entry->set_text("ftp://host:port/path");
 	}
 
-	$tooltips->set_tip($ftp_entry_label, $d->get("URI\nExample: ftp://host:port/path"));
+	$ftp_entry_label->set_tooltip_text($d->get("URI\nExample: ftp://host:port/path"));
 
-	$tooltips->set_tip($ftp_remote_entry, $d->get("URI\nExample: ftp://host:port/path"));
+	$ftp_remote_entry->set_tooltip_text($d->get("URI\nExample: ftp://host:port/path"));
 
 	$ftp_hbox1->pack_start($ftp_entry_label,  FALSE, TRUE, 12);
 	$ftp_hbox1->pack_start($ftp_remote_entry, TRUE,  TRUE, 0);
@@ -2324,9 +2308,9 @@ if ($app->is_running) {
 		$ftp_mode_combo->set_active(0);
 	}
 
-	$tooltips->set_tip($ftp_mode_label, $d->get("Connection mode"));
+	$ftp_mode_label->set_tooltip_text($d->get("Connection mode"));
 
-	$tooltips->set_tip($ftp_mode_combo, $d->get("Connection mode"));
+	$ftp_mode_combo->set_tooltip_text($d->get("Connection mode"));
 
 	$ftp_hbox2->pack_start($ftp_mode_label, FALSE, TRUE, 12);
 	$ftp_hbox2->pack_start($ftp_mode_combo, TRUE,  TRUE, 0);
@@ -2341,9 +2325,9 @@ if ($app->is_running) {
 		$ftp_username_entry->set_text("");
 	}
 
-	$tooltips->set_tip($ftp_username_label, $d->get("Username"));
+	$ftp_username_label->set_tooltip_text($d->get("Username"));
 
-	$tooltips->set_tip($ftp_username_entry, $d->get("Username"));
+	$ftp_username_entry->set_tooltip_text($d->get("Username"));
 
 	$ftp_hbox3->pack_start($ftp_username_label, FALSE, TRUE, 12);
 	$ftp_hbox3->pack_start($ftp_username_entry, TRUE,  TRUE, 0);
@@ -2360,9 +2344,9 @@ if ($app->is_running) {
 		$ftp_password_entry->set_text("");
 	}
 
-	$tooltips->set_tip($ftp_password_label, $d->get("Password"));
+	$ftp_password_label->set_tooltip_text($d->get("Password"));
 
-	$tooltips->set_tip($ftp_password_entry, $d->get("Password"));
+	$ftp_password_entry->set_tooltip_text($d->get("Password"));
 
 	$ftp_hbox4->pack_start($ftp_password_label, FALSE, TRUE, 12);
 	$ftp_hbox4->pack_start($ftp_password_entry, TRUE,  TRUE, 0);
@@ -2377,9 +2361,9 @@ if ($app->is_running) {
 		$ftp_wurl_entry->set_text("http://example.com/screenshots");
 	}
 
-	$tooltips->set_tip($ftp_wurl_label, $d->get("Website URL"));
+	$ftp_wurl_label->set_tooltip_text($d->get("Website URL"));
 
-	$tooltips->set_tip($ftp_wurl_entry, $d->get("Website URL"));
+	$ftp_wurl_entry->set_tooltip_text($d->get("Website URL"));
 
 	$ftp_hbox5->pack_start($ftp_wurl_label, FALSE, TRUE, 12);
 	$ftp_hbox5->pack_start($ftp_wurl_entry, TRUE,  TRUE, 0);
@@ -3528,7 +3512,7 @@ if ($app->is_running) {
 					my $prep_url = $url;
 					$prep_url =~ s/_/ /ig;
 					$prep_url = ucfirst $prep_url;
-					$tooltips->set_tip($menuitem_url, $prep_url);
+					$menuitem_url->set_tooltip_text($prep_url);
 
 					$menu_urls->append($menuitem_url);
 				}
@@ -7098,7 +7082,7 @@ if ($app->is_running) {
 					$tray->set_tooltip(SHUTTER_NAME . " " . SHUTTER_VERSION);
 				}
 			} elsif ($tray && $tray->isa('Gtk2::TrayIcon')) {
-				$tooltips->set_tip($tray, SHUTTER_NAME . " " . SHUTTER_VERSION);
+				$tray->set_tooltip_text(SHUTTER_NAME . " " . SHUTTER_VERSION);
 			}
 		}
 
@@ -7402,10 +7386,10 @@ if ($app->is_running) {
 				if (defined $session_screens{$key}->{'is_unsaved'}
 					&& $session_screens{$key}->{'is_unsaved'})
 				{
-					$tooltips->set_tip($session_screens{$key}->{'hbox_tab_label'}, "*" . $session_screens{$key}->{'name'});
+					$session_screens{$key}->{'hbox_tab_label'}->set_tooltip_text("*" . $session_screens{$key}->{'name'});
 					$session_screens{$key}->{'tab_label'}->set_text("[" . $session_screens{$key}->{'tab_indx'} . "] - " . "*" . $session_screens{$key}->{'name'});
 				} else {
-					$tooltips->set_tip($session_screens{$key}->{'hbox_tab_label'}, $session_screens{$key}->{'long'});
+					$session_screens{$key}->{'hbox_tab_label'}->set_tooltip_text($session_screens{$key}->{'long'});
 					$session_screens{$key}->{'tab_label'}->set_text("[" . $session_screens{$key}->{'tab_indx'} . "] - " . $session_screens{$key}->{'short'});
 				}
 
@@ -8340,8 +8324,7 @@ if ($app->is_running) {
 			$current_monitor_active->reparent($menu_wrksp);
 		}
 
-		$tooltips->set_tip(
-			$current_monitor_active,
+		$current_monitor_active->set_tooltip_text(
 			sprintf(
 				$d->nget(
 					"This option is only useful when you are running a multi-monitor system (%d monitor detected).\nEnable it to capture only the current monitor.",
@@ -8381,7 +8364,7 @@ if ($app->is_running) {
 		$active_window_item->set('always_show_image' => TRUE)
 			if Gtk2->CHECK_VERSION(2, 16, 0);
 
-		$tooltips->set_tip($active_window_item, $d->get("Capture the last active window"));
+		$active_window_item->set_tooltip_text($d->get("Capture the last active window"));
 
 		$active_window_item->signal_connect(
 			'activate' => \&evt_take_screenshot,
@@ -8737,9 +8720,8 @@ if ($app->is_running) {
 		$timeout3->set_name("timeout60");
 		$timeout4->set_name("timeout120");
 
-		$tooltips->set_tip($timeout0, $d->get("Shutter will wait indefinitely for the screenshot to capture"));
-		$tooltips->set_tip(
-			$timeout1,
+		$timeout0->set_tooltip_text($d->get("Shutter will wait indefinitely for the screenshot to capture"));
+		$timeout1->set_tooltip_text(
 			sprintf(
 				$d->nget(
 					"Shutter will wait up to %d second for the screenshot to capture before aborting the process if it's taking too long",
@@ -8748,8 +8730,7 @@ if ($app->is_running) {
 				),
 				10
 			));
-		$tooltips->set_tip(
-			$timeout2,
+		$timeout2->set_tooltip_text(
 			sprintf(
 				$d->nget(
 					"Shutter will wait up to %d second for the screenshot to capture before aborting the process if it's taking too long",
@@ -8758,8 +8739,7 @@ if ($app->is_running) {
 				),
 				30
 			));
-		$tooltips->set_tip(
-			$timeout3,
+		$timeout3->set_tooltip_text(
 			sprintf(
 				$d->nget(
 					"Shutter will wait up to %d minute for the screenshot to capture before aborting the process if it's taking too long",
@@ -8768,8 +8748,7 @@ if ($app->is_running) {
 				),
 				1
 			));
-		$tooltips->set_tip(
-			$timeout4,
+		$timeout4->set_tooltip_text(
 			sprintf(
 				$d->nget(
 					"Shutter will wait up to %d minute for the screenshot to capture before aborting the process if it's taking too long",
@@ -10256,9 +10235,9 @@ if ($app->is_running) {
 		my $ftp_remote_entry_dlg = Gtk2::Entry->new;
 		$ftp_remote_entry_dlg->set_text($ftp_remote_entry->get_text);
 
-		$tooltips->set_tip($ftp_entry_label_dlg, $d->get("URI\nExample: ftp://host:port/path"));
+		$ftp_entry_label_dlg->set_tooltip_text($d->get("URI\nExample: ftp://host:port/path"));
 
-		$tooltips->set_tip($ftp_remote_entry_dlg, $d->get("URI\nExample: ftp://host:port/path"));
+		$ftp_remote_entry_dlg->set_tooltip_text($d->get("URI\nExample: ftp://host:port/path"));
 
 		$ftp_hbox1_dlg->pack_start($ftp_remote_entry_dlg, TRUE, TRUE, 10);
 
@@ -10270,9 +10249,9 @@ if ($app->is_running) {
 		$ftp_mode_combo_dlg->insert_text(1, $d->get("Passive mode"));
 		$ftp_mode_combo_dlg->set_active($ftp_mode_combo->get_active);
 
-		$tooltips->set_tip($ftp_mode_label_dlg, $d->get("Connection mode"));
+		$ftp_mode_label_dlg->set_tooltip_text($d->get("Connection mode"));
 
-		$tooltips->set_tip($ftp_mode_combo_dlg, $d->get("Connection mode"));
+		$ftp_mode_combo_dlg->set_tooltip_text($d->get("Connection mode"));
 
 		$ftp_hbox2_dlg->pack_start($ftp_mode_combo_dlg, TRUE, TRUE, 10);
 
@@ -10282,9 +10261,9 @@ if ($app->is_running) {
 		my $ftp_username_entry_dlg = Gtk2::Entry->new;
 		$ftp_username_entry_dlg->set_text($ftp_username_entry->get_text);
 
-		$tooltips->set_tip($ftp_username_label_dlg, $d->get("Username"));
+		$ftp_username_label_dlg->set_tooltip_text($d->get("Username"));
 
-		$tooltips->set_tip($ftp_username_entry_dlg, $d->get("Username"));
+		$ftp_username_entry_dlg->set_tooltip_text($d->get("Username"));
 
 		$ftp_hbox3_dlg->pack_start($ftp_username_entry_dlg, TRUE, TRUE, 10);
 
@@ -10296,9 +10275,9 @@ if ($app->is_running) {
 		$ftp_password_entry_dlg->set_visibility(FALSE);
 		$ftp_password_entry_dlg->set_text($ftp_password_entry->get_text);
 
-		$tooltips->set_tip($ftp_password_label_dlg, $d->get("Password"));
+		$ftp_password_label_dlg->set_tooltip_text($d->get("Password"));
 
-		$tooltips->set_tip($ftp_password_entry_dlg, $d->get("Password"));
+		$ftp_password_entry_dlg->set_tooltip_text($d->get("Password"));
 
 		$ftp_hbox4_dlg->pack_start($ftp_password_entry_dlg, TRUE, TRUE, 10);
 
@@ -10308,9 +10287,9 @@ if ($app->is_running) {
 		my $ftp_wurl_entry_dlg = Gtk2::Entry->new;
 		$ftp_wurl_entry_dlg->set_text($ftp_wurl_entry->get_text);
 
-		$tooltips->set_tip($ftp_wurl_label_dlg, $d->get("Website URL"));
+		$ftp_wurl_label_dlg->set_tooltip_text($d->get("Website URL"));
 
-		$tooltips->set_tip($ftp_wurl_entry_dlg, $d->get("Website URL"));
+		$ftp_wurl_entry_dlg->set_tooltip_text($d->get("Website URL"));
 
 		$ftp_hbox5_dlg->pack_start($ftp_wurl_entry_dlg, TRUE, TRUE, 10);
 

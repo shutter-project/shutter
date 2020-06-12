@@ -50,9 +50,6 @@ sub create_toolbar {
 	my $window       = $self->{_common}->get_mainwindow;
 	my $shutter_root = $self->{_common}->get_root;
 
-	#Tooltips
-	my $tooltips = $self->{_common}->get_tooltips;
-
 	#Icontheme
 	my $icontheme = $self->{_common}->get_theme;
 
@@ -63,7 +60,7 @@ sub create_toolbar {
 
 	#~ $self->{_redoshot}->set_is_important (TRUE);
 
-	$tooltips->set_tip($self->{_redoshot}, $d->get("Redo last screenshot"));
+	$self->{_redoshot}->set_tooltip_text($d->get("Redo last screenshot"));
 
 	#--------------------------------------
 
@@ -91,7 +88,7 @@ sub create_toolbar {
 	#"is_important" property set have labels, an effect known as "priority text"
 	$self->{_select}->set_is_important(TRUE);
 
-	$tooltips->set_tip($self->{_select}, $d->get("Draw a rectangular capture area with your mouse\nto select a specified screen area"), '');
+	$self->{_select}->set_tooltip_text($d->get("Draw a rectangular capture area with your mouse\nto select a specified screen area"));
 
 	#--------------------------------------
 
@@ -108,8 +105,8 @@ sub create_toolbar {
 	$self->{_full} = Gtk2::MenuToolButton->new($image_full, $d->get("Desktop"));
 	$self->{_full}->set_is_important(TRUE);
 
-	$tooltips->set_tip($self->{_full}, $d->get("Take a screenshot of your whole desktop"));
-	$self->{_full}->set_arrow_tooltip($tooltips, $d->get("Capture a specific workspace"), '');
+	$self->{_full}->set_tooltip_text($d->get("Take a screenshot of your whole desktop"));
+	$self->{_full}->set_arrow_tooltip_text($d->get("Capture a specific workspace"));
 
 	#--------------------------------------
 
@@ -129,7 +126,7 @@ sub create_toolbar {
 	#~ $self->{_awindow} = Gtk2::MenuToolButton->new( $image_awindow, $d->get("Window") );
 	#~ $self->{_awindow}->set_is_important (TRUE);
 	#~
-	#~ $tooltips->set_tip( $self->{_awindow}, $d->get("Capture active window") );
+	#~  $self->{_awindow}->set_tooltip_text($d->get("Capture active window") );
 	#~ $self->{_awindow}->set_arrow_tooltip( $tooltips, $d->get("Take a screenshot of a specific window"), '' );
 
 	#--------------------------------------
@@ -145,8 +142,8 @@ sub create_toolbar {
 	$self->{_window} = Gtk2::MenuToolButton->new($image_window, $d->get("Window"));
 	$self->{_window}->set_is_important(TRUE);
 
-	$tooltips->set_tip($self->{_window}, $d->get("Select a window with your mouse"));
-	$self->{_window}->set_arrow_tooltip($tooltips, $d->get("Take a screenshot of a specific window"), '');
+	$self->{_window}->set_tooltip_text($d->get("Select a window with your mouse"));
+	$self->{_window}->set_arrow_tooltip_text($d->get("Take a screenshot of a specific window"));
 
 	#button section
 	#--------------------------------------
@@ -159,7 +156,7 @@ sub create_toolbar {
 	}
 	$self->{_section} = Gtk2::ToolButton->new($image_window_sect, $d->get("Section"));
 
-	$tooltips->set_tip($self->{_section}, $d->get("Captures only a section of the window. You will be able to select any child window by moving the mouse over it"));
+	$self->{_section}->set_tooltip_text($d->get("Captures only a section of the window. You will be able to select any child window by moving the mouse over it"));
 
 	#--------------------------------------
 
@@ -174,7 +171,7 @@ sub create_toolbar {
 	}
 	$self->{_menu} = Gtk2::ToolButton->new($image_window_menu, $d->get("Menu"));
 
-	$tooltips->set_tip($self->{_menu}, $d->get("Select a single menu or cascading menus from any application"));
+	$self->{_menu}->set_tooltip_text($d->get("Select a single menu or cascading menus from any application"));
 
 	#--------------------------------------
 
@@ -189,7 +186,7 @@ sub create_toolbar {
 	}
 	$self->{_tooltip} = Gtk2::ToolButton->new($image_window_tooltip, $d->get("Tooltip"));
 
-	$tooltips->set_tip($self->{_tooltip}, $d->get("Capture a tooltip"));
+	$self->{_tooltip}->set_tooltip_text($d->get("Capture a tooltip"));
 
 	#--------------------------------------
 
@@ -203,8 +200,8 @@ sub create_toolbar {
 	}
 	$self->{_web} = Gtk2::MenuToolButton->new($image_web, $d->get("Web"));
 
-	$tooltips->set_tip($self->{_web}, $d->get("Take a screenshot of a website"));
-	$self->{_web}->set_arrow_tooltip($tooltips, $d->get("Set how long Shutter will wait for the screenshot to complete before aborting the process if it's taking too long"), '');
+	$self->{_web}->set_tooltip_text($d->get("Take a screenshot of a website"));
+	$self->{_web}->set_arrow_tooltip_text($d->get("Set how long Shutter will wait for the screenshot to complete before aborting the process if it's taking too long"));
 
 	#--------------------------------------
 
@@ -225,7 +222,7 @@ sub create_toolbar {
 	$self->{_edit} = Gtk2::ToolButton->new($image_edit, $d->get("Edit"));
 	$self->{_edit}->set_is_important(TRUE);
 
-	$tooltips->set_tip($self->{_edit}, $d->get("Use the built-in editor to highlight important fragments of your screenshot or crop it to a desired size"));
+	$self->{_edit}->set_tooltip_text($d->get("Use the built-in editor to highlight important fragments of your screenshot or crop it to a desired size"));
 
 	#--------------------------------------
 
@@ -235,8 +232,8 @@ sub create_toolbar {
 	$self->{_upload} = Gtk2::MenuToolButton->new($image_upload, $d->get("Export"));
 	$self->{_upload}->set_is_important(TRUE);
 
-	$tooltips->set_tip($self->{_upload}, $d->get("Upload your images to an image hosting service, FTP site or export them to an arbitrary folder"));
-	$self->{_upload}->set_arrow_tooltip($tooltips, $d->get("Show links to previous uploads"), '');
+	$self->{_upload}->set_tooltip_text($d->get("Upload your images to an image hosting service, FTP site or export them to an arbitrary folder"));
+	$self->{_upload}->set_arrow_tooltip_text($d->get("Show links to previous uploads"));
 
 	#--------------------------------------
 
@@ -272,9 +269,6 @@ sub create_btoolbar {
 	my $d            = $self->{_common}->get_gettext;
 	my $window       = $self->{_common}->get_mainwindow;
 	my $shutter_root = $self->{_common}->get_root;
-
-	#Tooltips
-	my $tooltips = $self->{_common}->get_tooltips;
 
 	#Icontheme
 	my $icontheme = $self->{_common}->get_theme;
