@@ -733,12 +733,12 @@ if ($app->is_running) {
 				$tray->set_from_icon_name("shutter-panel");
 				$tray->set_visible(1);
 				$tray->{'hid'} = $tray->signal_connect(
-					'popup-menu' => sub { evt_show_systray_statusicon(); },
+					'popup-menu' => sub { evt_show_systray_statusicon(@_); },
 					$tray
 				);
 				$tray->{'hid2'} = $tray->signal_connect(
 					'activate' => sub {
-						evt_activate_systray_statusicon();
+						evt_activate_systray_statusicon(@_);
 						$tray;
 					},
 					$tray
