@@ -3590,7 +3590,7 @@ if (0 && $app->is_running) {
 				if ($nmenu_entries_tb) {
 					$st->{_upload}->set_menu($menu_links_tb);
 				} else {
-					$st->{_upload}->set_menu(undef);
+					#$st->{_upload}->set_menu(undef);
 				}
 				$st->{_upload}->set_sensitive($n_items);
 
@@ -10154,7 +10154,7 @@ if (0 && $app->is_running) {
 		my $hosting_image = Gtk3::Image->new;
 
 		#set up account combobox
-		my $hosting       = Gtk3::ComboBox->new($model);
+		my $hosting       = Gtk3::ComboBox::new($model);
 		my $renderer_host = Gtk3::CellRendererText->new;
 		$hosting->pack_start($renderer_host, FALSE);
 		$hosting->add_attribute($renderer_host, text => 0);
@@ -10191,7 +10191,7 @@ if (0 && $app->is_running) {
 				. "</span>");
 
 		$pub_hbox1->pack_start(Gtk3::Label->new($d->get("Choose account") . ":"), FALSE, FALSE, 6);
-		$pub_hbox1->pack_start_defaults($hosting);
+		$pub_hbox1->pack_start($hosting, TRUE, TRUE, 0);
 		$pub_hbox_hint->pack_start($pub_hint, TRUE, TRUE, 6);
 		$pub_hbox_hint2->pack_start($pub_hint2, TRUE, TRUE, 6);
 
@@ -10205,10 +10205,10 @@ if (0 && $app->is_running) {
 		#places settings
 		my $pl_hbox1 = Gtk3::HBox->new(FALSE, 0);
 		my $pl_vbox1 = Gtk3::VBox->new(FALSE, 0);
-		my $places_fc = Gtk3::FileChooserButton->new_with_backend("Shutter - " . $d->get("Choose folder"), 'select-folder', 'gnome-vfs');
+		my $places_fc = Gtk3::FileChooserButton->new("Shutter - " . $d->get("Choose folder"), 'select-folder');
 		$places_fc->set('local-only' => FALSE);
 		$pl_hbox1->pack_start(Gtk3::Label->new($d->get("Choose folder") . ":"), FALSE, FALSE, 6);
-		$pl_hbox1->pack_start_defaults($places_fc);
+		$pl_hbox1->pack_start($places_fc, TRUE, TRUE, 0);
 		$pl_vbox1->pack_start($pl_hbox1, FALSE, FALSE, 3);
 
 		#ftp settings
@@ -10235,7 +10235,7 @@ if (0 && $app->is_running) {
 		#connection mode
 		my $ftp_mode_label_dlg = Gtk3::Label->new($d->get("Connection mode") . ":");
 		$ftp_hbox2_dlg->pack_start($ftp_mode_label_dlg, FALSE, TRUE, 10);
-		my $ftp_mode_combo_dlg = Gtk3::ComboBox->new_text;
+		my $ftp_mode_combo_dlg = Gtk3::ComboBoxText->new;
 		$ftp_mode_combo_dlg->insert_text(0, $d->get("Active mode"));
 		$ftp_mode_combo_dlg->insert_text(1, $d->get("Passive mode"));
 		$ftp_mode_combo_dlg->set_active($ftp_mode_combo->get_active);
@@ -10307,16 +10307,22 @@ if (0 && $app->is_running) {
 
 		#setup notebook
 		my $unotebook = Gtk3::Notebook->new;
-		$unotebook->append_page($pub_vbox1,    $d->get("Public hosting"));
-		$unotebook->append_page($ftp_vbox_dlg, "FTP");
-		$unotebook->append_page($pl_vbox1,     $d->get("Places"));
-		$hosting_dialog->vbox->add($unotebook);
+		my $hosting_label = Gtk3::Label->new;
+		$hosting_label->set_text($d->get("Public hosting"));
+		$unotebook->append_page($pub_vbox1,    $hosting_label);
+		my $ftp_label = Gtk3::Label->new;
+		$ftp_label->set_text("FTP");
+		$unotebook->append_page($ftp_vbox_dlg, $ftp_label);
+		my $places_label = Gtk3::Label->new;
+		$places_label->set_text($d->get("Places"));
+		$unotebook->append_page($pl_vbox1,     $places_label);
+		$hosting_dialog->get_child->add($unotebook);
 
 		my $hosting_progress = Gtk3::ProgressBar->new;
 		$hosting_progress->set_no_show_all(TRUE);
 		$hosting_progress->set_ellipsize('middle');
-		$hosting_progress->set_orientation('left-to-right');
-		$hosting_dialog->vbox->add($hosting_progress);
+		$hosting_progress->set_orientation('horizontal');
+		$hosting_dialog->get_child->add($hosting_progress);
 
 		$hosting_dialog->show_all;
 
