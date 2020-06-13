@@ -239,7 +239,6 @@ sub workspace {
 
 	my $output = undef;
 	if ($self->{_current_monitor_only} || $self->{_gdk_screen}->get_n_monitors <= 1) {
-
 		($output) = $self->get_pixbuf_from_drawable($self->get_root_and_current_monitor_geometry);
 
 		#When there are multiple monitors with different resolutions, the visible area

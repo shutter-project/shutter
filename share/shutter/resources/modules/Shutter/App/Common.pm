@@ -430,8 +430,8 @@ sub set_delay {
 
 sub get_current_monitor {
 	my $self = shift;
-	my ($window_at_pointer, $x, $y, $mask) = Gtk3::Gdk->get_default_root_window->get_pointer;
-	my $mon = Gtk3::Gdk::Screen->get_default->get_monitor_geometry(Gtk3::Gdk::Screen->get_default->get_monitor_at_point($x, $y));
+	my ($window_at_pointer, $x, $y, $mask) = Gtk3::Gdk::get_default_root_window->get_pointer;
+	my $mon = Gtk3::Gdk::Screen::get_default->get_monitor_geometry(Gtk3::Gdk::Screen::get_default->get_monitor_at_point($x, $y));
 	return ($mon);
 }
 

@@ -243,8 +243,8 @@ sub dlg_error_message {
 		$expander->add($detail_label);
 		my $detail_hbox = Gtk3::HBox->new();
 		$detail_hbox->pack_start(Gtk3::Label->new, FALSE, FALSE, 12);
-		$detail_hbox->pack_start_defaults($expander);
-		$error_dialog->vbox->add($detail_hbox);
+		$detail_hbox->pack_start($expander, TRUE, TRUE, 0);
+		$error_dialog->get_child->add($detail_hbox);
 	}
 
 	$error_dialog->show_all;

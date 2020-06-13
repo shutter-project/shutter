@@ -37,20 +37,15 @@ use 5.10.1;
 use Carp::Always;
 
 #Deal with encoding problem
+binmode(STDOUT, "encoding(UTF-8)");
 use Encode;
 
 use File::stat;
 use Number::Bytes::Human;
 
-#Gtk3 and Gtk3::ImageView
-use Gtk3 '-init';
-#use Gtk3::ImageView;
-
-#Use single instance applications
-#use Gtk3::Unique;
-
 #Glib
 use Glib qw/TRUE FALSE/;
+use Gtk3 '-init';
 
 use Glib::Object::Introspection;
 Glib::Object::Introspection->setup(
@@ -62,6 +57,11 @@ Glib::Object::Introspection->setup(
 	basename => 'Wnck',
 	version  => '3.0',
 	package  => 'Wnck',
+);
+Glib::Object::Introspection->setup(
+	basename => 'GdkX11',
+	version  => '3.0',
+	package  => 'Gtk3::GdkX11',
 );
 
 #filename parsing
@@ -238,6 +238,8 @@ require Shutter::Upload::FTP;
 #main window
 #--------------------------------------
 my $window = Gtk3::Window->new('toplevel');
+my $x11_window = Gtk3::GdkX11::X11Window::lookup_for_display(
+	$window->get_display, Gtk3::GdkX11::x11_get_default_root_xwindow());
 
 #--------------------------------------
 
@@ -731,12 +733,12 @@ if (0 && $app->is_running) {
 				$tray->set_from_icon_name("shutter-panel");
 				$tray->set_visible(1);
 				$tray->{'hid'} = $tray->signal_connect(
-					'popup-menu' => sub { evt_show_systray_statusicon(); },
+					'popup-menu' => sub { evt_show_systray_statusicon(@_); },
 					$tray
 				);
 				$tray->{'hid2'} = $tray->signal_connect(
 					'activate' => sub {
-						evt_activate_systray_statusicon();
+						evt_activate_systray_statusicon(@_);
 						$tray;
 					},
 					$tray
@@ -1462,7 +1464,7 @@ if (0 && $app->is_running) {
 	#program
 	#--------------------------------------
 	my $model    = fct_get_program_model();
-	my $progname = Gtk3::ComboBox::new($model);
+	my $progname = Gtk3::ComboBox->new_with_model($model);
 
 	#add pixbuf renderer for icon
 	my $renderer_pix = Gtk3::CellRendererPixbuf->new;
@@ -1932,13 +1934,13 @@ if (0 && $app->is_running) {
 
 	#imageview
 	#--------------------------------------
-	my $trans_check  = Gtk3::RadioButton::new(undef,        $d->get("Show as check pattern"));
-	my $trans_custom = Gtk3::RadioButton::new($trans_check, $d->get("Show as custom color:"));
+	my $trans_check  = Gtk3::RadioButton->new_with_label(undef, $d->get("Show as check pattern"));
+	my $trans_custom = Gtk3::RadioButton->new_with_label($trans_check, $d->get("Show as custom color:"));
 	my $trans_custom_btn = Gtk3::ColorButton->new();
 	$trans_custom_btn->set_use_alpha(FALSE);
 	$trans_custom_btn->set_title($d->get("Choose fill color"));
 
-	my $trans_backg = Gtk3::RadioButton::new($trans_custom, $d->get("Show as background"));
+	my $trans_backg = Gtk3::RadioButton->new_with_label($trans_custom, $d->get("Show as background"));
 
 	$imageview_hbox1->pack_start($trans_check,      FALSE, TRUE, 12);
 	$imageview_hbox2->pack_start($trans_custom,     FALSE, TRUE, 12);
@@ -1988,11 +1990,11 @@ if (0 && $app->is_running) {
 	);
 
 	#session view
-	my $session_asc       = Gtk3::RadioButton::new(undef, $d->get("Sort ascending by"));
+	my $session_asc       = Gtk3::RadioButton->new_with_label(undef, $d->get("Sort ascending by"));
 	my $session_asc_combo = Gtk3::ComboBoxText->new;
 	$session_asc_combo->insert_text(0, $d->get("Filename"));
 	$session_asc_combo->insert_text(1, $d->get("Key/Time Created"));
-	my $session_desc       = Gtk3::RadioButton::new($session_asc, $d->get("Sort descending by"));
+	my $session_desc       = Gtk3::RadioButton->new_with_label($session_asc, $d->get("Sort descending by"));
 	my $session_desc_combo = Gtk3::ComboBoxText->new;
 	$session_desc_combo->insert_text(0, $d->get("Filename"));
 	$session_desc_combo->insert_text(1, $d->get("Key/Time Created"));
@@ -2251,9 +2253,7 @@ if (0 && $app->is_running) {
 	#some notes related to uploading
 	my $pub_hint_pref = Gtk3::Label->new();
 	$pub_hint_pref->set_line_wrap(TRUE);
-	if (Gtk3->CHECK_VERSION(2, 9, 0)) {
-		$pub_hint_pref->set_line_wrap_mode('word-char');
-	}
+	$pub_hint_pref->set_line_wrap_mode('word-char');
 
 	$pub_hint_pref->set_markup(
 		"<span size='small'>"
@@ -2814,7 +2814,7 @@ if (0 && $app->is_running) {
 	#keep list of windows up-to-date (tray)
 	Glib::Idle->add(
 		sub {
-			$wnck_screen->signal_connect('window-stacking-changed' => sub { fct_update_tray_menu(); });
+			$wnck_screen->signal_connect('window-stacking-changed' => sub { fct_update_tray_menu(@_); });
 			return FALSE;
 		});
 
@@ -2863,14 +2863,14 @@ if (0 && $app->is_running) {
 				$mode = 'color';
 			} elsif ($trans_backg->get_active) {
 				$mode = 'color';
-				my $bg = $window->get_style->bg('normal');
+				my $bg = $window->get_style_context->get_background_color('normal');
 				$color_string = sprintf("%02x%02x%02x", $bg->red / 257, $bg->green / 257, $bg->blue / 257);
 			}
 
 			#change all imageviews in session
 			foreach my $key (keys %session_screens) {
 				if ($session_screens{$key}->{'image'}) {
-					$session_screens{$key}->{'image'}->set_transp($mode, hex $color_string);
+					#$session_screens{$key}->{'image'}->set_transp($mode, hex $color_string);
 				}
 			}
 
@@ -2996,7 +2996,7 @@ if (0 && $app->is_running) {
 		my $selfcapture = FALSE;
 		if ($data =~ /^shutter_window_direct(.*)/) {
 			my $xid = $1;
-			$selfcapture = TRUE if $xid == $window->window->XID;
+			$selfcapture = TRUE if $xid == $x11_window->get_xid;
 		}
 
 		#hide mainwindow
@@ -4350,7 +4350,7 @@ if (0 && $app->is_running) {
 				$mode = 'color';
 			} elsif ($trans_backg->get_active) {
 				$mode = 'color';
-				my $bg = $window->get_style->bg('normal');
+				my $bg = $window->get_style_context->get_background_color('normal');
 				$color_string = sprintf("%02x%02x%02x", $bg->red / 257, $bg->green / 257, $bg->blue / 257);
 			}
 
@@ -4405,7 +4405,7 @@ if (0 && $app->is_running) {
 
 			#maybe we need to disable dnd to allow scrolling
 			$session_screens{$key}->{'image'}->signal_connect(
-				'expose-event',
+				'draw',
 				sub {
 					my ($view) = @_;
 					my $block_dnd = FALSE;
@@ -4420,6 +4420,7 @@ if (0 && $app->is_running) {
 					if ($block_dnd) {
 						$view->drag_source_unset;
 					} else {
+						#dnd
 						$view->drag_source_set(
 							'button1-mask',
 							['copy'],
@@ -4427,7 +4428,7 @@ if (0 && $app->is_running) {
 								'target' => "text/uri-list",
 								'flags'  => [],
 								'info'   => 0
-							});
+							}) if 0;
 					}
 				});
 
@@ -4547,7 +4548,7 @@ if (0 && $app->is_running) {
 		$settings{'general'}->{'filetype'} = $combobox_type->get_active;
 		$settings{'general'}->{'quality'}  = $scale->get_value();
 		$settings{'general'}->{'filename'} = $filename->get_text();
-		$settings{'general'}->{'folder'}   = $saveDir_button->get_filename();
+		$settings{'general'}->{'folder'}   = Glib::filename_to_unicode($saveDir_button->get_filename());
 
 		#~ print "Pfad ".$saveDir_button->get_filename()."\n";
 		#~ print "Pfad ".$saveDir_button->get_uri()."\n";
@@ -5922,7 +5923,7 @@ if (0 && $app->is_running) {
 		my $filetype_value = undef;
 
 		#folder to save
-		my $folder = $saveDir_button->get_filename || $folder_from_config;
+		my $folder = Glib::filename_to_unicode($saveDir_button->get_filename) || $folder_from_config;
 		if ($save_no_active->get_active) {
 			$folder = $sdir->get_cache_dir;
 		}
@@ -8345,8 +8346,7 @@ if (0 && $app->is_running) {
 
 		my $active_window_item = Gtk3::ImageMenuItem->new_with_label($d->get("Active Window"));
 		$active_window_item->set_image($active_window_item_image);
-		$active_window_item->set('always_show_image' => TRUE)
-			if Gtk3->CHECK_VERSION(2, 16, 0);
+		$active_window_item->set('always_show_image' => TRUE);
 
 		$active_window_item->set_tooltip_text($d->get("Capture the last active window"));
 
@@ -8359,8 +8359,7 @@ if (0 && $app->is_running) {
 		$menu_windows->append(Gtk3::SeparatorMenuItem->new);
 
 		#add all windows to menu to capture it directly
-		foreach my $win ($wnck_screen->get_windows_stacked) {
-			next;
+		foreach my $win (@{$wnck_screen->get_windows_stacked}) {
 			if ($active_workspace && $win->is_on_workspace($active_workspace)) {
 				my $win_name = $win->get_name;
 				Encode::_utf8_on($win_name);
@@ -8373,8 +8372,7 @@ if (0 && $app->is_running) {
 					}
 				}
 				$window_item->set_image(Gtk3::Image->new_from_pixbuf($win->get_mini_icon));
-				$window_item->set('always_show_image' => TRUE)
-					if Gtk3->CHECK_VERSION(2, 16, 0);
+				$window_item->set('always_show_image' => TRUE);
 				$window_item->signal_connect(
 					'activate' => \&evt_take_screenshot,
 					"shutter_window_direct" . $win->get_xid
@@ -8649,8 +8647,7 @@ if (0 && $app->is_running) {
 			# $app->{'id'} =~ s/^(kde4|kde)-//g;
 
 			my $program_item = Gtk3::ImageMenuItem->new_with_label($app->get_display_name);
-			$program_item->set('always_show_image' => TRUE)
-				if Gtk3->CHECK_VERSION(2, 16, 0);
+			$program_item->set('always_show_image' => TRUE);
 			$menu_programs->append($program_item);
 
 			my $icon = $app->get_icon;
@@ -8879,8 +8876,7 @@ if (0 && $app->is_running) {
 			$accounts_tree->remove_column($col);
 		}
 
-		$accounts_tree->set_tooltip_column(9)
-			if Gtk3->CHECK_VERSION(2, 11, 0);
+		$accounts_tree->set_tooltip_column(9);
 
 		#name
 		my $tv_clmn_name_text = Gtk3::TreeViewColumn->new;
@@ -8973,15 +8969,13 @@ if (0 && $app->is_running) {
 
 		#description
 		#tooltip column (show as columns when needed)
-		unless (Gtk3->CHECK_VERSION(2, 12, 0)) {
-			my $tv_clmn_descr_text = Gtk3::TreeViewColumn->new;
-			$tv_clmn_descr_text->set_resizable(TRUE);
-			$tv_clmn_descr_text->set_title($d->get("Description"));
-			my $renderer_descr_effects = Gtk3::CellRendererText->new;
-			$tv_clmn_descr_text->pack_start($renderer_descr_effects, FALSE);
-			$tv_clmn_descr_text->set_attributes($renderer_descr_effects, text => 9);
-			$accounts_tree->append_column($tv_clmn_descr_text);
-		}
+		my $tv_clmn_descr_text = Gtk3::TreeViewColumn->new;
+		$tv_clmn_descr_text->set_resizable(TRUE);
+		$tv_clmn_descr_text->set_title($d->get("Description"));
+		my $renderer_descr_effects = Gtk3::CellRendererText->new;
+		$tv_clmn_descr_text->pack_start($renderer_descr_effects, FALSE);
+		$tv_clmn_descr_text->set_attributes($renderer_descr_effects, text => 9);
+		$accounts_tree->append_column($tv_clmn_descr_text);
 
 		#register
 		my $tv_clmn_pix_text = Gtk3::TreeViewColumn->new;
@@ -9003,8 +8997,7 @@ if (0 && $app->is_running) {
 		#~ }
 
 		#tooltip
-		$effects_tree->set_tooltip_column(3)
-			if Gtk3->CHECK_VERSION(2, 11, 0);
+		$effects_tree->set_tooltip_column(3);
 
 		my $tv_clmn_pix_text = Gtk3::TreeViewColumn->new;
 		$tv_clmn_pix_text->set_resizable(TRUE);
@@ -9033,16 +9026,13 @@ if (0 && $app->is_running) {
 		$tv_clmn_category_text->set_attributes($renderer_category_effects, text => 2);
 		$effects_tree->append_column($tv_clmn_category_text);
 
-		#tooltip column
-		unless (Gtk3->CHECK_VERSION(2, 12, 0)) {
-			my $tv_clmn_descr_text = Gtk3::TreeViewColumn->new;
-			$tv_clmn_descr_text->set_resizable(TRUE);
-			$tv_clmn_descr_text->set_title($d->get("Description"));
-			my $renderer_descr_effects = Gtk3::CellRendererText->new;
-			$tv_clmn_descr_text->pack_start($renderer_descr_effects, FALSE);
-			$tv_clmn_descr_text->set_attributes($renderer_descr_effects, text => 3);
-			$effects_tree->append_column($tv_clmn_descr_text);
-		}
+		my $tv_clmn_descr_text = Gtk3::TreeViewColumn->new;
+		$tv_clmn_descr_text->set_resizable(TRUE);
+		$tv_clmn_descr_text->set_title($d->get("Description"));
+		my $renderer_descr_effects = Gtk3::CellRendererText->new;
+		$tv_clmn_descr_text->pack_start($renderer_descr_effects, FALSE);
+		$tv_clmn_descr_text->set_attributes($renderer_descr_effects, text => 3);
+		$effects_tree->append_column($tv_clmn_descr_text);
 
 		#language
 		my $tv_clmn_lang_text = Gtk3::TreeViewColumn->new;

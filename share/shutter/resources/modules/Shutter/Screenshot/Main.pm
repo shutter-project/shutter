@@ -48,8 +48,11 @@ sub new {
 		_notify_timeout => shift,
 	};
 
+	my $window = Gtk3::Window->new('toplevel');
 	#root window
-	$self->{_root} = Gtk3::Gdk->get_default_root_window;
+	$self->{_root} = Gtk3::GdkX11::X11Window::lookup_for_display(
+		$window->get_display,
+		Gtk3::GdkX11::x11_get_default_root_xwindow());
 	($self->{_root}->{x}, $self->{_root}->{y}, $self->{_root}->{w}, $self->{_root}->{h}) = $self->{_root}->get_geometry;
 	($self->{_root}->{x}, $self->{_root}->{y}) = $self->{_root}->get_origin;
 
@@ -61,11 +64,11 @@ sub new {
 	require Shutter::Geometry::Region;
 
 	#wnck screen
-	$self->{_wnck_screen} = Gnome2::Wnck::Screen->get_default;
+	$self->{_wnck_screen} = Wnck::Screen::get_default();
 	$self->{_wnck_screen}->force_update();
 
 	#gdk screen
-	$self->{_gdk_screen} = Gtk3::Gdk::Screen->get_default;
+	$self->{_gdk_screen} = Gtk3::Gdk::Screen::get_default();
 
 	#gdk display
 	$self->{_gdk_display} = $self->{_gdk_screen}->get_display;
@@ -117,9 +120,9 @@ sub get_root_and_geometry {
 
 sub get_root_and_current_monitor_geometry {
 	my $self       = shift;
-	my $mainwindow = $self->{_sc}->get_mainwindow->window || $self->{_root};
+	my $mainwindow = $self->{_root};
 	my $mon1       = $self->{_gdk_screen}->get_monitor_geometry($self->{_gdk_screen}->get_monitor_at_window($mainwindow));
-	return ($self->{_root}, $mon1->x, $mon1->y, $mon1->width, $mon1->height);
+	return ($self->{_root}, $mon1->{x}, $mon1->{y}, $mon1->{width}, $mon1->{height});
 }
 
 sub get_current_monitor {
@@ -306,11 +309,13 @@ sub get_pixbuf_from_drawable {
 			#get the pixbuf from drawable and save the file
 			eval {
 				if ($width > 0 && $height > 0) {
-					$pixbuf = Gtk3::Gdk::Pixbuf->get_from_drawable($drawable, undef, $x, $y, 0, 0, $width, $height);
+					$pixbuf = Gtk3::Gdk::pixbuf_get_from_window($drawable, $x, $y, $width, $height);
 				}
 			};
 			if ($@) {
+				print $@;
 				$pixbuf = 5;
+				Gtk3->main_quit;
 				return FALSE;
 			}
 

@@ -89,17 +89,17 @@ sub new {
 		$self->{_highlighter}->set_accept_focus(FALSE);
 
 		#obtain current colors and font_desc from the main window
-		my $style     = $self->{_main_gtk_window}->get_style;
-		my $sel_bg    = $style->bg('selected');
-		my $sel_tx    = $style->text('selected');
-		my $font_fam  = $style->font_desc->get_family;
-		my $font_size = $style->font_desc->get_size / Pango->scale;
+		my $style     = $self->{_main_gtk_window}->get_style_context;
+		my $sel_bg    = $style->get_background_color('selected');
+		#my $sel_bg    = $style->bg('selected');
+		my $font_fam  = $style->get_font('normal')->get_family;
+		my $font_size = $style->get_font('normal')->get_size / Pango->scale;
 
 		#get current monitor
 		my $mon = $self->get_current_monitor;
 
 		$self->{_highlighter_expose} = $self->{_highlighter}->signal_connect(
-			'expose-event' => sub {
+			'draw' => sub {
 
 				return FALSE unless $self->{_highlighter}->window;
 

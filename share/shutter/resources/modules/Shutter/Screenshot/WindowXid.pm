@@ -58,10 +58,13 @@ sub window_by_xid {
 	my $self = shift;
 	my $xid  = shift;
 
-	my $gdk_window  = Gtk3::Gdk::Window->foreign_new($xid);
-	my $wnck_window = Gnome2::Wnck::Window->get($xid);
+	my $dummy_window = Gtk3::Window->new('toplevel');
+	my $gdk_window = Gtk3::GdkX11::X11Window->foreign_new_for_display(
+		$dummy_window->get_display, $xid);
 
-	#~ print $xid, " - ", $gdk_window, " - ", $wnck_window, "\n";
+	my $wnck_window = Wnck::Window::get($xid);
+
+	print $xid, " - ", $gdk_window, " - ", $wnck_window, "\n";
 
 	my $output = 0;
 	if (defined $gdk_window && defined $wnck_window) {
@@ -70,8 +73,8 @@ sub window_by_xid {
 		my ($xp, $yp, $wp, $hp) = $self->get_window_size($wnck_window, $gdk_window, $self->{_include_border});
 
 		#focus selected window (maybe it is hidden)
-		$gdk_window->focus(Gtk3->get_current_event_time);
-		Gtk3::Gdk->flush;
+		$gdk_window->focus(Gtk3::get_current_event_time());
+		Gtk3::Gdk::flush();
 
 		#A short timeout to give the server a chance to
 		#redraw the area

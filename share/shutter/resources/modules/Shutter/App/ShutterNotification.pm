@@ -71,9 +71,9 @@ sub new {
 		$self->{_notifications_window}->add($fixed);
 
 		$self->{_notifications_window}->signal_connect(
-			'expose-event' => sub {
+			'draw' => sub {
 
-				return FALSE unless $self->{_notifications_window}->window;
+				return FALSE unless $self->{_notifications_window};
 
 				return FALSE unless $self->{_summary};
 
@@ -91,14 +91,13 @@ sub new {
 				my ($x, $y) = $self->{_notifications_window}->get_position;
 
 				#obtain current colors and font_desc from the main window
-				my $style     = $self->{_sc}->get_mainwindow->get_style;
-				my $sel_bg    = Gtk3::Gdk::Color->parse('#131313');
-				my $sel_tx    = Gtk3::Gdk::Color->parse('white');
-				my $font_fam  = $style->font_desc->get_family;
-				my $font_size = $style->font_desc->get_size / Pango->scale;
+				my $style     = $self->{_sc}->get_mainwindow->get_style_context;
+				my $sel_bg    = Gtk3::Gdk::RGBA::parse('#131313');
+				my $font_fam  = $style->get_font('normal')->get_family;
+				my $font_size = $style->get_font('normal')->get_size / Pango->scale;
 
 				#create cairo context
-				my $cr = Gtk3::Gdk::Cairo::Context->create($self->{_notifications_window}->window);
+				my $cr = Cairo::Context->create($self->{_notifications_window});
 
 				#pango layout
 				my $layout = Pango::Cairo::create_layout($cr);
@@ -159,10 +158,10 @@ sub new {
 				my $mon = $self->{_sc}->get_current_monitor;
 
 				if (defined $self->{_notifications_window}->{'pos'} && $self->{_notifications_window}->{'pos'} == 1) {
-					$self->{_notifications_window}->move($mon->x + $mon->width - 315, $mon->y + 40);
+					$self->{_notifications_window}->move($mon->{x} + $mon->{width} - 315, $mon->{y} + 40);
 					$self->{_notifications_window}->{'pos'} = 0;
 				} else {
-					$self->{_notifications_window}->move($mon->x + $mon->width - 315, $mon->y + $mon->height - 140);
+					$self->{_notifications_window}->move($mon->{x} + $mon->{width} - 315, $mon->{y} + $mon->{height} - 140);
 					$self->{_notifications_window}->{'pos'} = 1;
 				}
 
@@ -222,7 +221,7 @@ sub close {
 		$self->{_body}    = undef;
 	}
 
-	$self->{_notifications_window}->hide_all;
+	$self->{_notifications_window}->hide;
 
 	$self->{_notifications_window}->{'pos'} = undef;
 
