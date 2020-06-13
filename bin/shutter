@@ -9638,7 +9638,7 @@ if (0 && $app->is_running) {
 
 		my $label_save_as_type = Gtk3::Label->new($d->get("Image format") . ":");
 
-		my $combobox_save_as_type = Gtk3::ComboBox->new_text;
+		my $combobox_save_as_type = Gtk3::ComboBoxText->new;
 
 		#add supported formats to combobox
 		my $counter     = 0;
@@ -9971,7 +9971,7 @@ if (0 && $app->is_running) {
 		}
 
 		my $plugin_label = Gtk3::Label->new($d->get("Plugin") . ":");
-		my $plugin       = Gtk3::ComboBox->new($model);
+		my $plugin       = Gtk3::ComboBox->new_with_model($model);
 
 		#plugin description
 		my $plugin_descr      = Gtk3::TextBuffer->new;
@@ -10111,6 +10111,7 @@ if (0 && $app->is_running) {
 
 		my $dlg_header     = $d->get("Upload / Export");
 		my $hosting_dialog = Gtk3::Dialog->new($dlg_header, $window, [qw/modal destroy-with-parent/]);
+		$hosting_dialog->set_default_size(400, 300);
 
 		my $close_button  = $hosting_dialog->add_button('gtk-close',        'close');
 		my $upload_button = $hosting_dialog->add_button($d->get("_Upload"), 'accept');
@@ -10151,10 +10152,8 @@ if (0 && $app->is_running) {
 			}
 		}
 
-		my $hosting_image = Gtk3::Image->new;
-
 		#set up account combobox
-		my $hosting       = Gtk3::ComboBox::new($model);
+		my $hosting       = Gtk3::ComboBox->new_with_model($model);
 		my $renderer_host = Gtk3::CellRendererText->new;
 		$hosting->pack_start($renderer_host, FALSE);
 		$hosting->add_attribute($renderer_host, text => 0);
@@ -10175,10 +10174,8 @@ if (0 && $app->is_running) {
 		my $pub_hint2 = Gtk3::Label->new();
 		$pub_hint->set_line_wrap(TRUE);
 		$pub_hint2->set_line_wrap(TRUE);
-		if (Gtk3->CHECK_VERSION(2, 9, 0)) {
-			$pub_hint->set_line_wrap_mode('word-char');
-			$pub_hint2->set_line_wrap_mode('word-char');
-		}
+		$pub_hint->set_line_wrap_mode('word-char');
+		$pub_hint2->set_line_wrap_mode('word-char');
 
 		$pub_hint->set_markup(
 			"<span size='small'>"

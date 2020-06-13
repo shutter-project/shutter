@@ -51,7 +51,6 @@ sub new {
 	$self->{_password} = undef;
 
 	$self->{_notebook} = Gtk3::Notebook->new;
-	$self->{_notebook}->set(homogeneous => 1);
 	$self->{_notebook}->set_scrollable(TRUE);
 
 	bless $self, $class;
@@ -80,10 +79,7 @@ sub create_entry_for_notebook {
 	my ($self, $field, $value, $sg) = @_;
 
 	#Clipboard
-	my $clipboard = Gtk3::Clipboard->get(Gtk3::Gdk->SELECTION_CLIPBOARD);
-
-	#Tooltips
-	my $tooltips = Gtk3::Tooltips->new;
+	my $clipboard = Gtk3::Clipboard::get($Gtk3::Gdk::SELECTION_CLIPBOARD);
 
 	my $upload_hbox1 = Gtk3::HBox->new(FALSE, 10);
 	my $upload_hbox2 = Gtk3::HBox->new(FALSE, 10);
@@ -134,7 +130,7 @@ sub show_all {
 	my $upload_dialog = Gtk3::Dialog->new($dlg_header, $self->{_main_gtk_window}, [qw/modal destroy-with-parent/], 'gtk-ok' => 'accept');
 	$upload_dialog->set_default_response('accept');
 
-	$upload_dialog->vbox->add($self->{_notebook});
+	$upload_dialog->get_child->add($self->{_notebook});
 	$upload_dialog->show_all;
 	my $upload_response = $upload_dialog->run;
 
@@ -149,9 +145,6 @@ sub show_all {
 
 sub show {
 	my $self = shift;
-
-	#Tooltips
-	my $tooltips = Gtk3::Tooltips->new;
 
 	#Create label for each notebook page
 	my $fnlabel = Gtk3::Label->new($self->{_filename});
