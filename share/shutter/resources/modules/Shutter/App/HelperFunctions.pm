@@ -165,6 +165,7 @@ sub usage {
 	return TRUE;
 }
 
+# to help migration from Gtk2 to Gtk3
 sub icon_size {
 	my $self = shift;
 	my $size = shift;
@@ -174,6 +175,7 @@ sub icon_size {
 	die 'unknown icon size'
 }
 
+# to help migration from Gtk2 to Gtk3
 sub accel {
 	my $self = shift;
 	my $str = shift;
