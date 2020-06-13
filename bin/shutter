@@ -2831,7 +2831,7 @@ if ($app->is_running) {
 	#keep list of windows up-to-date (tray)
 	Glib::Idle->add(
 		sub {
-			$wnck_screen->signal_connect('window-stacking-changed' => sub { fct_update_tray_menu(); });
+			$wnck_screen->signal_connect('window-stacking-changed' => sub { fct_update_tray_menu(@_); });
 			return FALSE;
 		});
 
