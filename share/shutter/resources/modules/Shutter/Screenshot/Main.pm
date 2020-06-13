@@ -148,7 +148,10 @@ sub ungrab_pointer_and_keyboard {
 	Gtk3::Gdk::X11->ungrab_server if $ungrab_server;
 	Gtk3::Gdk::pointer_ungrab(Gtk3::get_current_event_time());
 	Gtk3::Gdk::keyboard_ungrab(Gtk3::get_current_event_time());
-	Gtk3::Gdk::Event::handler_set(undef, undef) if $quit_event_handler;
+	Gtk3::Gdk::Event::handler_set(sub {
+		my $event = shift;
+		Gtk3::main_do_event($event);
+	}) if $quit_event_handler;
 	Gtk3->main_quit if $quit_main;
 
 	return TRUE unless Gtk3::Gdk::pointer_is_grabbed();
