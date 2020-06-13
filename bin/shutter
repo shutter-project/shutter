@@ -238,8 +238,6 @@ require Shutter::Upload::FTP;
 #main window
 #--------------------------------------
 my $window = Gtk3::Window->new('toplevel');
-my $x11_window = Gtk3::GdkX11::X11Window::lookup_for_display(
-	$window->get_display, Gtk3::GdkX11::x11_get_default_root_xwindow());
 
 #--------------------------------------
 
@@ -2996,7 +2994,7 @@ if (0 && $app->is_running) {
 		my $selfcapture = FALSE;
 		if ($data =~ /^shutter_window_direct(.*)/) {
 			my $xid = $1;
-			$selfcapture = TRUE if $xid == $x11_window->get_xid;
+			$selfcapture = TRUE if $xid == $window->get_window->get_xid;
 		}
 
 		#hide mainwindow
@@ -6426,7 +6424,7 @@ if (0 && $app->is_running) {
 				return FALSE;
 			}
 
-			print "New uri after exists check: " . $giofile->get_path . "\n"
+			print "New uri after exists check: " . $shf->utf8_decode($giofile->get_path) . "\n"
 				if $sc->get_debug;
 
 			#manipulate before saving
