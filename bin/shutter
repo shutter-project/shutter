@@ -1162,7 +1162,7 @@ if (0 && $app->is_running) {
 		});
 
 	my $filename_tooltip_string =
-		  $d->get("There are several wildcards available, like\n")
+		$d->get("There are several wildcards available, like\n")
 		. $d->get("%Y = year\n")
 		. $d->get("%m = month\n")
 		. $d->get("%d = day\n")
@@ -1820,7 +1820,7 @@ if (0 && $app->is_running) {
 	$autoshape_active->set_tooltip_text(
 		sprintf(
 			$d->get(
-					  "Shutter uses the XShape extension to determine the window's shape, "
+					"Shutter uses the XShape extension to determine the window's shape, "
 					. "but this does not work under some circumstances, e.g. when running compiz.\n\n"
 					. "When this option is activated Shutter uses fixed parameters to round the window corners. "
 					. "You can overwrite the default parameters by creating a file named ~/.shutter/shape.conf and put custom values in it. "
@@ -4063,12 +4063,12 @@ if (0 && $app->is_running) {
 		#customize the button style
 		Gtk3::Rc->parse_string(
 			"style 'tab-close-button-style' {
-				 GtkWidget::focus-padding = 0
-				 GtkWidget::focus-line-width = 0
-				 xthickness = 0
-				 ythickness = 0
-			 }
-			 widget '*.tab-close-button' style 'tab-close-button-style'"
+				GtkWidget::focus-padding = 0
+				GtkWidget::focus-line-width = 0
+				xthickness = 0
+				ythickness = 0
+			}
+			widget '*.tab-close-button' style 'tab-close-button-style'"
 		) if 0;
 
 		my $tab_label = Gtk3::Label->new($key);
@@ -9723,7 +9723,7 @@ if (0 && $app->is_running) {
 
 				my $choosen_format = $combobox_save_as_type->get_active_text;
 				$choosen_format =~ s/ \-.*//;    #get png or jpeg (jpg) for example
-												 #~ print $choosen_format . "\n";
+												#~ print $choosen_format . "\n";
 
 				#parse filename
 				my ($short, $folder, $ext) = fileparse($filename, qr/\.[^.]*/);
@@ -10994,7 +10994,7 @@ B<Please note:> There are several wildcards available, like
 
 The string is interpretted by strftime. See C<man strftime> for more examples.
 
-B<As an example:> shutter -f -e -o './%y-%m-%d_$w_$h.png' would create a file named '11-10-28_1280_800.png' in the current directory. 
+B<As an example:> shutter -f -e -o './%y-%m-%d_$w_$h.png' would create a file named '11-10-28_1280_800.png' in the current directory.
 
 =item B<-d, --delay=SECONDS>
 
