@@ -82,7 +82,7 @@ sub new {
 
 				#initial position
 				unless (defined $self->{_notifications_window}->{'pos'}) {
-					$self->{_notifications_window}->move($mon->x + $mon->width - 315, $mon->y + $mon->height - 140);
+					$self->{_notifications_window}->move($mon->{x} + $mon->{width} - 315, $mon->{y} + $mon->{height} - 140);
 					$self->{_notifications_window}->{'pos'} = 1;
 				}
 
@@ -97,7 +97,7 @@ sub new {
 				my $font_size = $style->get_font('normal')->get_size / Pango->scale;
 
 				#create cairo context
-				my $cr = Cairo::Context->create($self->{_notifications_window});
+				my $cr = $_[1];
 
 				#pango layout
 				my $layout = Pango::Cairo::create_layout($cr);
@@ -132,7 +132,7 @@ sub new {
 					Gtk3::Gdk::Cairo::Context::set_source_pixbuf($cr, $pixbuf, 0, 0);
 					$cr->paint;
 				} else {
-					$cr->set_source_rgb($sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255);
+					$cr->set_source_rgb($sel_bg->red, $sel_bg->green, $sel_bg->blue);
 					$cr->paint;
 				}
 
