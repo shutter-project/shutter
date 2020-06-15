@@ -1,4 +1,4 @@
-prefix = /usr
+prefix = /usr/local
 
 all:
 	if [ ! -d $(srcdir)share/locale ]; then \
