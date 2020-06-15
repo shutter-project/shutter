@@ -10,10 +10,9 @@ do
 	for POFILE in ${POFOLDER}/*.po
 	do
 		LOCALE=$(echo $(basename $POFILE) | cut -d"." -f1)
-		if [ ! -d $MOPATH/$LOCALE ]
+		if [ ! -d $MOPATH ]
 		then
-			mkdir $MOPATH/$LOCALE
-			mkdir $MOPATH/$LOCALE/LC_MESSAGES
+			mkdir -p $MOPATH/$LOCALE/LC_MESSAGES
 		fi
 		MOFILE=$(basename $POFOLDER)".mo"
 		msgfmt -o $MOPATH/$LOCALE/LC_MESSAGES/$MOFILE $POFILE
