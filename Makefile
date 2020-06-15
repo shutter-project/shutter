@@ -7,7 +7,7 @@ clean:
 	if [ -d $(srcdir)share/locale ]; then \
 		rm -r $(srcdir)share/locale; \
 	fi
-install:
+install: all
 	install -Dm755 $(srcdir)bin/shutter $(prefix)/bin/shutter
 	cp -r $(srcdir)share/ $(prefix)/
 
