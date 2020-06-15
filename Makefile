@@ -1,9 +1,6 @@
 prefix = /usr/local
 
 all:
-	if [ ! -d $(srcdir)share/locale ]; then \
-		mkdir $(srcdir)share/locale; \
-	fi; \
 	./po2mo.sh
 
 clean:
