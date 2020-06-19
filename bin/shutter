@@ -6850,9 +6850,9 @@ if ($app->is_running) {
 
 				#everything is fine -> open it
 				if ($app->supports_uris) {
-					$app->launch($session_screens{$key}->{'giofile'}->get_path);
+					$app->launch_uris([$session_screens{$key}->{'giofile'}->get_uri]);
 				} else {
-					$app->launch($session_screens{$key}->{'long'});
+					$app->launch([$session_screens{$key}->{'giofile'}]);
 				}
 				fct_show_status_message(1, sprintf($d->get("%s opened with %s"), $session_screens{$key}->{'short'}, $app->{'name'}));
 			}
@@ -6870,14 +6870,18 @@ if ($app->is_running) {
 						if ($app->supports_uris) {
 							push @open_files, $session_screens{$key}->{'giofile'}->get_uri;
 						} else {
-							push @open_files, $session_screens{$key}->{'long'};
+							push @open_files, $session_screens{$key}->{'giofile'};
 						}
 					}
 				},
 				undef
 			);
 			if (@open_files > 0) {
-				$app->launch_uris(\@open_files);
+				if ($app->supports_uris) {
+					$app->launch_uris(\@open_files);
+				} else {
+					$app->launch(\@open_files);
+				}
 				fct_show_status_message(1, $d->get("Opened all files with") . " " . $app->{'name'});
 			}
 		}
