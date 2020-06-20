@@ -25,7 +25,7 @@
 use utf8;
 use strict;
 use warnings;
-use Gtk2 '-init';
+use Gtk3 '-init';
 use Image::Magick;
 use POSIX qw/setlocale strftime/;
 use Locale::gettext;
@@ -55,7 +55,7 @@ $d->dir( $ENV{'SHUTTER_INTL'} );
 
 #icontheme to determine if icons exist or not
 #in some cases we deliver fallback icons
-my $icontheme = Gtk2::IconTheme->get_default;
+my $icontheme = Gtk3::IconTheme::get_default();
 $icontheme->append_search_path($ENV{'SHUTTER_ROOT'} . "/share/icons");
 
 #shutter will ask for some infos
@@ -86,18 +86,18 @@ if ( `convert --help | grep caption` =~ /caption/ ) {
 	$use_caption = TRUE;
 }
 
-my $plug = Gtk2::Plug->new( $socket_id );
+my $plug = Gtk3::Plug->new( $socket_id );
 $plug->set_default_icon_name( 'shutter' );
 $plug->set_border_width( 10 );
 
-$plug->signal_connect( destroy => sub { Gtk2->main_quit } );
+$plug->signal_connect( destroy => sub { Gtk3->main_quit } );
 
 #tooltips
-my $tooltips = Gtk2::Tooltips->new;
+my $tooltips = Gtk3::Tooltips->new;
 
 #configure buttons and other needed controls
-my $caption_label = Gtk2::Label->new( $d->get( "Text:" ) );
-my $caption_entry = Gtk2::Entry->new();
+my $caption_label = Gtk3::Label->new( $d->get( "Text:" ) );
+my $caption_entry = Gtk3::Entry->new();
 $caption_entry->set_text( "%c - $filename" );
 
 $tooltips->set_tip(
@@ -113,12 +113,12 @@ $tooltips->set_tip(
 	)
 );
 
-my $pointsize_label = Gtk2::Label->new( $d->get( "Font size:" ) );
-my $pointsize_sbutton = Gtk2::SpinButton->new_with_range( 1, 200, 1 );
+my $pointsize_label = Gtk3::Label->new( $d->get( "Font size:" ) );
+my $pointsize_sbutton = Gtk3::SpinButton->new_with_range( 1, 200, 1 );
 $pointsize_sbutton->set_value( 20 );
 
-my $gravity_label = Gtk2::Label->new( $d->get( "Gravity:" ) );
-my $gravity_combo = Gtk2::ComboBox->new_text;
+my $gravity_label = Gtk3::Label->new( $d->get( "Gravity:" ) );
+my $gravity_combo = Gtk3::ComboBox->new_text;
 $gravity_combo->insert_text( 0, "NorthWest" );
 $gravity_combo->insert_text( 1, "North" );
 $gravity_combo->insert_text( 2, "NorthEast" );
@@ -130,59 +130,59 @@ $gravity_combo->insert_text( 7, "South" );
 $gravity_combo->insert_text( 8, "SouthEast" );
 $gravity_combo->set_active( 4 );
 
-my $angle_label = Gtk2::Label->new( $d->get( "Rotation:" ) );
-my $angle_sbutton = Gtk2::SpinButton->new_with_range( -90, 90, 1 );
+my $angle_label = Gtk3::Label->new( $d->get( "Rotation:" ) );
+my $angle_sbutton = Gtk3::SpinButton->new_with_range( -90, 90, 1 );
 $angle_sbutton->set_value( -5 );
 
-my $stroke_color_label = Gtk2::Label->new( $d->get("Stroke color"). ":" );
-my $stroke_color = Gtk2::ColorButton->new();
-$stroke_color->set_color( Gtk2::Gdk::Color->parse('black') );
+my $stroke_color_label = Gtk3::Label->new( $d->get("Stroke color"). ":" );
+my $stroke_color = Gtk3::ColorButton->new();
+$stroke_color->set_color( Gtk3::Gdk::Color->parse('black') );
 $stroke_color->set_alpha( int( 1.0 * 65535 ) );
 $stroke_color->set_use_alpha(TRUE);
 $stroke_color->set_title( $d->get("Choose stroke color") );
 
-#we define two Gtk2::Image widgets
+#we define two Gtk3::Image widgets
 #to store the screenshot
 #and a throbber that is shown while the changes are processed
 my $preview =
-	Gtk2::Image->new_from_pixbuf(
-	   Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $filename, 300, 300, TRUE ) );
+	Gtk3::Image->new_from_pixbuf(
+	   Gtk3::Gdk::Pixbuf->new_from_file_at_scale( $filename, 300, 300, TRUE ) );
 
 my $preview_throb =
-	Gtk2::Image->new_from_file( $ENV{'SHUTTER_ROOT'}."/share/shutter/resources/icons/throbber.gif" );
+	Gtk3::Image->new_from_file( $ENV{'SHUTTER_ROOT'}."/share/shutter/resources/icons/throbber.gif" );
 
-my $sg = Gtk2::SizeGroup->new ('both');
+my $sg = Gtk3::SizeGroup->new ('both');
 $sg->set ('ignore-hidden' => FALSE);
 $sg->add_widget($preview);
 $sg->add_widget($preview_throb);
 
 
-#we define three Gtk2::Button widgets
+#we define three Gtk3::Button widgets
 #to refresh, save and cancel the plugin's work
-my $refresh_btn = Gtk2::Button->new_from_stock( 'gtk-refresh' );
+my $refresh_btn = Gtk3::Button->new_from_stock( 'gtk-refresh' );
 $refresh_btn->signal_connect( 'clicked', \&fct_imagemagick_polaroid,
 							  'refresh' );
 
-my $save_btn = Gtk2::Button->new_from_stock( 'gtk-save' );
+my $save_btn = Gtk3::Button->new_from_stock( 'gtk-save' );
 $save_btn->signal_connect( 'clicked', \&fct_imagemagick_polaroid, 'save' );
 
-my $cancel_btn = Gtk2::Button->new_from_stock( 'gtk-cancel' );
-$cancel_btn->signal_connect( 'clicked' => sub { Gtk2->main_quit; exit 2; }, 'cancel' );
+my $cancel_btn = Gtk3::Button->new_from_stock( 'gtk-cancel' );
+$cancel_btn->signal_connect( 'clicked' => sub { Gtk3->main_quit; exit 2; }, 'cancel' );
 
 #define the gui layout
-my $vbox_param = Gtk2::VBox->new( TRUE,  10 );
-my $hbox1      = Gtk2::HBox->new( FALSE, 10 );
-my $hbox2      = Gtk2::HBox->new( FALSE, 10 );
-my $hbox3      = Gtk2::HBox->new( FALSE, 10 );
-my $hbox4      = Gtk2::HBox->new( FALSE, 10 );
-my $hbox5      = Gtk2::HBox->new( FALSE, 10 );
+my $vbox_param = Gtk3::VBox->new( TRUE,  10 );
+my $hbox1      = Gtk3::HBox->new( FALSE, 10 );
+my $hbox2      = Gtk3::HBox->new( FALSE, 10 );
+my $hbox3      = Gtk3::HBox->new( FALSE, 10 );
+my $hbox4      = Gtk3::HBox->new( FALSE, 10 );
+my $hbox5      = Gtk3::HBox->new( FALSE, 10 );
 
-my $hbox_row1 = Gtk2::HBox->new( TRUE, 10 );
-my $hbox_row2 = Gtk2::HBox->new( TRUE, 10 );
+my $hbox_row1 = Gtk3::HBox->new( TRUE, 10 );
+my $hbox_row2 = Gtk3::HBox->new( TRUE, 10 );
 
-my $hbox_btn  = Gtk2::HBox->new( TRUE,  10 );
-my $vbox_btn  = Gtk2::VBox->new( FALSE, 10 );
-my $vbox_main = Gtk2::VBox->new( FALSE, 10 );
+my $hbox_btn  = Gtk3::HBox->new( TRUE,  10 );
+my $vbox_btn  = Gtk3::VBox->new( FALSE, 10 );
+my $vbox_main = Gtk3::VBox->new( FALSE, 10 );
 
 #packing
 if ( $use_caption ) {
@@ -258,7 +258,7 @@ Glib::Idle->add (
 undef);
 
 #lets'start
-Gtk2->main;
+Gtk3->main;
 
 ####define your functions here
 
@@ -277,7 +277,7 @@ sub fct_imagemagick_polaroid {
 		#delete temp files
 		unlink $tmpfilename;
 
-		Gtk2->main_quit;
+		Gtk3->main_quit;
 		return TRUE;
 	} else {
 
@@ -298,7 +298,7 @@ sub fct_imagemagick_polaroid {
 		}
 	
 		eval{
-			$preview->set_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
+			$preview->set_from_pixbuf( Gtk3::Gdk::Pixbuf->new_from_file_at_scale(
 										$tmpfilename, 300, 300, TRUE)
 								 	 );
 		};
@@ -320,7 +320,7 @@ sub fct_imagemagick_polaroid {
 			require X11::Protocol;
 			my $x11 = X11::Protocol->new( $ENV{ 'DISPLAY' } );
 			
-			my $plugp = Gtk2::Gdk::Window->foreign_new( &find_wm_window( $x11, $plug->get_id ));
+			my $plugp = Gtk3::Gdk::Window->foreign_new( &find_wm_window( $x11, $plug->get_id ));
 			
 			#show error message
 			my $shutter_dialog = Shutter::App::SimpleDialogs->new($plug, $plugp);
@@ -335,7 +335,7 @@ sub fct_imagemagick_polaroid {
 			#delete temp files
 			unlink $tmpfilename;
 
-			Gtk2->main_quit;
+			Gtk3->main_quit;
 			exit 1;	
 		}
 
@@ -393,10 +393,10 @@ sub apply_effect {
 
 sub fct_update_gui {
 
-	while ( Gtk2->events_pending ) {
-		Gtk2->main_iteration;
+	while ( Gtk3->events_pending ) {
+		Gtk3->main_iteration;
 	}
-	Gtk2::Gdk->flush;
+	Gtk3::Gdk->flush;
 
 	return TRUE;
 }

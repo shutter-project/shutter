@@ -7954,7 +7954,7 @@ if (0 && $app->is_running) {
 							{
 
 								#show dialog and progress bar
-								if (   !$plugin_dialog->window
+								if (   !$plugin_dialog->get_window
 									&& !$plugin_dialog->{destroyed})
 								{
 									$plugin_progress->show;

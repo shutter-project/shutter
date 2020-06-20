@@ -25,7 +25,7 @@
 use utf8;
 use strict;
 use warnings;
-use Gtk2 '-init';
+use Gtk3 '-init';
 use Image::Magick;
 use POSIX qw/setlocale/;
 use Locale::gettext;
@@ -56,7 +56,7 @@ $d->dir( $ENV{'SHUTTER_INTL'} );
 
 #icontheme to determine if icons exist or not
 #in some cases we deliver fallback icons
-my $icontheme = Gtk2::IconTheme->get_default;
+my $icontheme = Gtk3::IconTheme::get_default();
 $icontheme->append_search_path($ENV{'SHUTTER_ROOT'} . "/share/icons");
 
 #shutter will ask for some infos
@@ -81,18 +81,18 @@ my $filetype  = $ARGV[ 4 ];
 #decode filename
 utf8::decode $filename;
 
-my $plug = Gtk2::Plug->new( $socket_id );
+my $plug = Gtk3::Plug->new( $socket_id );
 $plug->set_default_icon_name( 'shutter' );
 $plug->set_border_width( 10 );
 
-$plug->signal_connect( destroy => sub { Gtk2->main_quit } );
+$plug->signal_connect( destroy => sub { Gtk3->main_quit } );
 
 #tooltips
-my $tooltips = Gtk2::Tooltips->new;
+my $tooltips = Gtk3::Tooltips->new;
 
 #configure buttons and other needed controls
-my $direction_label = Gtk2::Label->new( $d->get( "Direction" ). ":" );
-my $direction_combo = Gtk2::ComboBox->new_text;
+my $direction_label = Gtk3::Label->new( $d->get( "Direction" ). ":" );
+my $direction_combo = Gtk3::ComboBox->new_text;
 $direction_combo->insert_text( 0, "NorthWest" );
 $direction_combo->insert_text( 1, "North" );
 $direction_combo->insert_text( 2, "NorthEast" );
@@ -118,9 +118,9 @@ $tooltips->set_tip(
 	)
 );
 
-my $shadow_color_label = Gtk2::Label->new( $d->get("Color"). ":" );
-my $shadow_color = Gtk2::ColorButton->new();
-$shadow_color->set_color( Gtk2::Gdk::Color->parse('#5F5F5F') );
+my $shadow_color_label = Gtk3::Label->new( $d->get("Color"). ":" );
+my $shadow_color = Gtk3::ColorButton->new();
+$shadow_color->set_color( Gtk3::Gdk::Color->parse('#5F5F5F') );
 $shadow_color->set_alpha( int( 1 * 65535 ) );
 $shadow_color->set_use_alpha(FALSE);
 $shadow_color->set_title( $d->get("Choose color") );
@@ -144,50 +144,50 @@ $tooltips->set_tip(
 $direction_label->set_alignment( 0, 0.5 );
 $shadow_color_label->set_alignment( 0, 0.5 );
 
-my $sgl = Gtk2::SizeGroup->new ('both');
+my $sgl = Gtk3::SizeGroup->new ('both');
 $sgl->set ('ignore-hidden' => FALSE);
 $sgl->add_widget($direction_label);
 $sgl->add_widget($shadow_color_label);
 
-#we define two Gtk2::Image widgets
+#we define two Gtk3::Image widgets
 #to store the screenshot
 #and a throbber that is shown while the changes are processed
 my $preview =
-	Gtk2::Image->new_from_pixbuf(
-	   Gtk2::Gdk::Pixbuf->new_from_file_at_scale( $filename, 300, 300, TRUE ) );
+	Gtk3::Image->new_from_pixbuf(
+	   Gtk3::Gdk::Pixbuf->new_from_file_at_scale( $filename, 300, 300, TRUE ) );
 
 my $preview_throb =
-	Gtk2::Image->new_from_file( $ENV{'SHUTTER_ROOT'}."/share/shutter/resources/icons/throbber.gif" );
+	Gtk3::Image->new_from_file( $ENV{'SHUTTER_ROOT'}."/share/shutter/resources/icons/throbber.gif" );
 
-my $sg = Gtk2::SizeGroup->new ('both');
+my $sg = Gtk3::SizeGroup->new ('both');
 $sg->set ('ignore-hidden' => FALSE);
 $sg->add_widget($preview);
 $sg->add_widget($preview_throb);
 
-#we define three Gtk2::Button widgets
+#we define three Gtk3::Button widgets
 #to refresh, save and cancel the plugin's work
-my $refresh_btn = Gtk2::Button->new_from_stock( 'gtk-refresh' );
+my $refresh_btn = Gtk3::Button->new_from_stock( 'gtk-refresh' );
 $refresh_btn->signal_connect( 'clicked', \&fct_imagemagick_shadow, 'refresh' );
 
-my $save_btn = Gtk2::Button->new_from_stock( 'gtk-save' );
+my $save_btn = Gtk3::Button->new_from_stock( 'gtk-save' );
 $save_btn->signal_connect( 'clicked', \&fct_imagemagick_shadow, 'save' );
 
-my $cancel_btn = Gtk2::Button->new_from_stock( 'gtk-cancel' );
-$cancel_btn->signal_connect( 'clicked' => sub { Gtk2->main_quit; exit 2; }, 'cancel' );
+my $cancel_btn = Gtk3::Button->new_from_stock( 'gtk-cancel' );
+$cancel_btn->signal_connect( 'clicked' => sub { Gtk3->main_quit; exit 2; }, 'cancel' );
 
 #define the gui layout
-my $hbox1      = Gtk2::HBox->new( FALSE, 8 );
-my $hbox2      = Gtk2::HBox->new( FALSE, 8 );
+my $hbox1      = Gtk3::HBox->new( FALSE, 8 );
+my $hbox2      = Gtk3::HBox->new( FALSE, 8 );
 
-my $hbox_row1 = Gtk2::HBox->new( TRUE, 8 );
+my $hbox_row1 = Gtk3::HBox->new( TRUE, 8 );
 
-my $vbox_param = Gtk2::VBox->new( FALSE,  8 );
-my $vbox_left = Gtk2::VBox->new( FALSE, 8 );
-my $vbox_right = Gtk2::VBox->new( FALSE, 8 );
+my $vbox_param = Gtk3::VBox->new( FALSE,  8 );
+my $vbox_left = Gtk3::VBox->new( FALSE, 8 );
+my $vbox_right = Gtk3::VBox->new( FALSE, 8 );
 
-my $hbox_btn  = Gtk2::HBox->new( TRUE,  8 );
-my $vbox_btn  = Gtk2::VBox->new( FALSE, 8 );
-my $vbox_main = Gtk2::VBox->new( FALSE, 8 );
+my $hbox_btn  = Gtk3::HBox->new( TRUE,  8 );
+my $vbox_btn  = Gtk3::VBox->new( FALSE, 8 );
+my $vbox_main = Gtk3::VBox->new( FALSE, 8 );
 
 #packing
 $hbox1->pack_start( $shadow_color_label, FALSE, TRUE, 5 );
@@ -246,7 +246,7 @@ Glib::Idle->add (
 undef);
 
 #lets'start
-Gtk2->main;
+Gtk3->main;
 
 
 sub fct_imagemagick_shadow {
@@ -263,7 +263,7 @@ sub fct_imagemagick_shadow {
 		#delete temp files
 		unlink $tmpfilename;
 		
-		Gtk2->main_quit;
+		Gtk3->main_quit;
 		return TRUE;
 	} else {
 
@@ -284,7 +284,7 @@ sub fct_imagemagick_shadow {
 		}
 		
 		eval{
-			$preview->set_from_pixbuf( Gtk2::Gdk::Pixbuf->new_from_file_at_scale(
+			$preview->set_from_pixbuf( Gtk3::Gdk::Pixbuf->new_from_file_at_scale(
 										$tmpfilename, 300, 300, TRUE)
 								 	 );
 		};
@@ -306,7 +306,7 @@ sub fct_imagemagick_shadow {
 			require X11::Protocol;
 			my $x11 = X11::Protocol->new( $ENV{ 'DISPLAY' } );
 			
-			my $plugp = Gtk2::Gdk::Window->foreign_new( &find_wm_window( $x11, $plug->get_id ));
+			my $plugp = Gtk3::Gdk::Window->foreign_new( &find_wm_window( $x11, $plug->get_id ));
 			
 			#show error message
 			my $shutter_dialog = Shutter::App::SimpleDialogs->new($plug, $plugp);
@@ -321,7 +321,7 @@ sub fct_imagemagick_shadow {
 			#delete temp files
 			unlink $tmpfilename;
 
-			Gtk2->main_quit;
+			Gtk3->main_quit;
 			exit 1;	
 		}
 
@@ -390,10 +390,10 @@ sub apply_effect {
 
 sub fct_update_gui {
 
-	while ( Gtk2->events_pending ) {
-		Gtk2->main_iteration;
+	while ( Gtk3->events_pending ) {
+		Gtk3->main_iteration;
 	}
-	Gtk2::Gdk->flush;
+	Gtk3::Gdk->flush;
 
 	return TRUE;
 }
