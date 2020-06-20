@@ -157,9 +157,9 @@ sub escape_path_string {
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1306';
+use constant SHUTTER_REV     => 'Rev.1450';
 use constant SHUTTER_NAME    => 'Shutter';
-use constant SHUTTER_VERSION => '0.94.3';
+use constant SHUTTER_VERSION => '0.95';
 
 #--------------------------------------
 
@@ -3263,7 +3263,7 @@ if ($app->is_running) {
 	}
 
 	sub evt_question {
-		$shf->xdg_open(undef, "https://answers.launchpad.net/shutter", undef);
+		$shf->xdg_open(undef, "https://askubuntu.com/questions/tagged/shutter", undef);
 	}
 
 	sub evt_translate {
@@ -11060,7 +11060,7 @@ Do not add the screenshot to the session. This is useful when using Shutter in s
 If you find a bug in Shutter, you should report it.  But first, you should make sure that it really is a bug, and that it appears in the latest version of Shutter.
 
 The latest version is always available from:
-B<https://launchpad.net/shutter>
+B<https://github.com/shutter-project/shutter/releases>
 
 Once you have determined that a bug actually exists, please report it at github:
 B<https://github.com/shutter-project/shutter/issues/new>
