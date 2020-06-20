@@ -3259,7 +3259,7 @@ if ($app->is_running) {
 	}
 
 	sub evt_bug {
-		$shf->xdg_open(undef, "https://bugs.launchpad.net/shutter", undef);
+		$shf->xdg_open(undef, "https://github.com/shutter-project/shutter/issues", undef);
 	}
 
 	sub evt_question {
@@ -11062,7 +11062,7 @@ If you find a bug in Shutter, you should report it.  But first, you should make 
 The latest version is always available from:
 B<https://launchpad.net/shutter>
 
-Once you have determined that a bug actually exists, please report it at launchpad:
-B<https://bugs.launchpad.net/shutter/+filebug>
+Once you have determined that a bug actually exists, please report it at github:
+B<https://github.com/shutter-project/shutter/issues/new>
 
 =cut
