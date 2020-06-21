@@ -7,29 +7,16 @@ assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+#### Brief summary of issue
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+#### Steps to reproduce the issue
 
-**Terminal output**
-If applicable (for crashes etc.), the output when run from terminal via the `shutter` command (please use code tags).
+1. 
+2. 
+3. 
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+#### Error output
 
-**System information:**
- - Linux Distribution:
- - Desktop Environment:
- - Shutter Version:
 
-**Additional context**
-Add any other context about the problem here.
+#### Extra information, such as Shutter version, operating system and ideas for how to solve:
