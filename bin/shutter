@@ -3259,11 +3259,11 @@ if ($app->is_running) {
 	}
 
 	sub evt_bug {
-		$shf->xdg_open(undef, "https://github.com/shutter-project/shutter/issues", undef);
+		$shf->xdg_open(undef, "https://github.com/shutter-project/shutter/issues/new?labels=bug&template=bug_report.md", undef);
 	}
 
 	sub evt_question {
-		$shf->xdg_open(undef, "https://askubuntu.com/questions/tagged/shutter", undef);
+		$shf->xdg_open(undef, "https://github.com/shutter-project/shutter/issues/new?labels=question&template=question.md", undef);
 	}
 
 	sub evt_translate {
