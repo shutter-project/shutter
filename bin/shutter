@@ -241,29 +241,10 @@ require Shutter::Upload::FTP;
 
 #--------------------------------------
 
-#main window
-#--------------------------------------
-my $window = Gtk3::Window->new('toplevel');
-
-#--------------------------------------
-
-#create app objects
-#--------------------------------------
-my $sc   = Shutter::App::Common->new($shutter_root, $window, SHUTTER_NAME, SHUTTER_VERSION, SHUTTER_REV, $$);
+my $sc   = Shutter::App::Common->new($shutter_root, undef, SHUTTER_NAME, SHUTTER_VERSION, SHUTTER_REV, $$);
 my $shf  = Shutter::App::HelperFunctions->new($sc);
 my $so   = Shutter::App::Options->new($sc, $shf);
 my $sdir = Shutter::App::Directories->new();
-my $sas  = Shutter::App::Autostart->new();
-my $sm   = Shutter::App::Menu->new($sc);
-my $st   = Shutter::App::Toolbar->new($sc);
-my $sd   = Shutter::App::SimpleDialogs->new($window);
-
-my $sp    = Shutter::Pixbuf::Save->new($sc);
-my $lp    = Shutter::Pixbuf::Load->new($sc);
-my $lp_ne = Shutter::Pixbuf::Load->new($sc, undef, TRUE);
-my $hu    = Number::Bytes::Human->new(si => 1);
-
-#--------------------------------------
 
 #set home
 #--------------------------------------
@@ -281,6 +262,27 @@ sub STARTUP {
 	# This is called by $app->run below if another Shutter instance is not running.
 
 	my ($app) = @_;
+	$app->SUPER::STARTUP();
+
+	#main window
+	#--------------------------------------
+	my $window = Gtk3::ApplicationWindow->new($app);
+	#--------------------------------------
+
+	#create app objects
+	#--------------------------------------
+	$sc->set_mainwindow($window);
+	my $sas  = Shutter::App::Autostart->new();
+	my $sm   = Shutter::App::Menu->new($sc);
+	my $st   = Shutter::App::Toolbar->new($sc);
+	my $sd   = Shutter::App::SimpleDialogs->new($window);
+
+	my $sp    = Shutter::Pixbuf::Save->new($sc);
+	my $lp    = Shutter::Pixbuf::Load->new($sc);
+	my $lp_ne = Shutter::Pixbuf::Load->new($sc, undef, TRUE);
+	my $hu    = Number::Bytes::Human->new(si => 1);
+	#--------------------------------------
+
 	#Clipboard
 	my $clipboard = Gtk3::Clipboard::get($Gtk3::Gdk::SELECTION_CLIPBOARD);
 
@@ -2716,7 +2718,7 @@ sub STARTUP {
 			return FALSE;
 		});
 
-	Gtk3->main;
+	#Gtk3->main;
 
 	0;
 
@@ -3131,7 +3133,7 @@ sub STARTUP {
 				#autostart
 				$sas->create_autostart_file($sdir->get_autostart_dir, $fs_active->get_active, $fs_min_active->get_active, $fs_nonot_active->get_active);
 
-				Gtk3->main_quit;
+				$app->quit;
 
 				return FALSE;
 			});
