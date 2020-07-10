@@ -290,7 +290,8 @@ $app = Gtk3::UniqueApp->new(
 #load command line arguments
 #as well as file to open when starting
 my $init_files = $so->get_options;
-my @init_files = @$init_files;
+# accept either path or uri as arguments, but store only uri
+my @init_files = map { Glib::IO::File::new_for_commandline_arg($_)->get_uri } @$init_files;
 
 #The application is already running, send it a message
 if (0 && $app->is_running) {
@@ -6834,9 +6835,9 @@ if (0 && $app->is_running) {
 
 				#everything is fine -> open it
 				if ($app->supports_uris) {
-					$app->launch($session_screens{$key}->{'giofile'}->get_path);
+					$app->launch_uris([$session_screens{$key}->{'giofile'}->get_uri]);
 				} else {
-					$app->launch($session_screens{$key}->{'long'});
+					$app->launch([$session_screens{$key}->{'giofile'}]);
 				}
 				fct_show_status_message(1, sprintf($d->get("%s opened with %s"), $session_screens{$key}->{'short'}, $app->{'name'}));
 			}
@@ -6854,14 +6855,18 @@ if (0 && $app->is_running) {
 						if ($app->supports_uris) {
 							push @open_files, $session_screens{$key}->{'giofile'}->get_uri;
 						} else {
-							push @open_files, $session_screens{$key}->{'long'};
+							push @open_files, $session_screens{$key}->{'giofile'};
 						}
 					}
 				},
 				undef
 			);
 			if (@open_files > 0) {
-				$app->launch_uris(\@open_files);
+				if ($app->supports_uris) {
+					$app->launch_uris(\@open_files);
+				} else {
+					$app->launch(\@open_files);
+				}
 				fct_show_status_message(1, $d->get("Opened all files with") . " " . $app->{'name'});
 			}
 		}
