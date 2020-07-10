@@ -34,7 +34,29 @@ use strict;
 use warnings;
 use diagnostics;
 use 5.10.1;
+
 use Carp::Always;
+
+BEGIN {
+	use Glib::Object::Introspection;
+	Glib::Object::Introspection->setup(
+		basename => 'Gio',
+		version  => '2.0',
+		package  => 'Glib::IO',
+	);
+	Glib::Object::Introspection->setup(
+		basename => 'Wnck',
+		version  => '3.0',
+		package  => 'Wnck',
+	);
+	Glib::Object::Introspection->setup(
+		basename => 'GdkX11',
+		version  => '3.0',
+		package  => 'Gtk3::GdkX11',
+	);
+}
+
+package Shutter::App;
 
 #Deal with encoding problem
 binmode(STDOUT, "encoding(UTF-8)");
@@ -46,23 +68,7 @@ use Number::Bytes::Human;
 #Glib
 use Glib qw/TRUE FALSE/;
 use Gtk3 '-init';
-
-use Glib::Object::Introspection;
-Glib::Object::Introspection->setup(
-	basename => 'Gio',
-	version  => '2.0',
-	package  => 'Glib::IO',
-);
-Glib::Object::Introspection->setup(
-	basename => 'Wnck',
-	version  => '3.0',
-	package  => 'Wnck',
-);
-Glib::Object::Introspection->setup(
-	basename => 'GdkX11',
-	version  => '3.0',
-	package  => 'Gtk3::GdkX11',
-);
+use Glib::Object::Subclass qw/Gtk3::Application/;
 
 #filename parsing
 use POSIX qw/ strftime /;
@@ -265,124 +271,16 @@ $ENV{'HOME'} = $sdir->get_home_dir;
 
 #--------------------------------------
 
-my $app = Gtk3::Application->new("org.shutter-project.Shutter", ['flags-none']);
-$app = Gtk3::UniqueApp->new(
-	"org.shutter-project.Shutter", undef,
-	select         => 1,
-	full           => 2,
-	window         => 3,
-	awindow        => 4,
-	section        => 5,
-	menu           => 6,
-	tooltip        => 7,
-	web            => 8,
-	redoshot       => 9,
-	profile        => 10,
-	fopen          => 11,
-	exitac         => 12,
-	exfilename     => 13,
-	delay          => 14,
-	include_cursor => 15,
-	remove_cursor  => 16,
-	nosession      => 17,
-) if 0;
-
 #load command line arguments
 #as well as file to open when starting
 my $init_files = $so->get_options;
 # accept either path or uri as arguments, but store only uri
 my @init_files = map { Glib::IO::File::new_for_commandline_arg($_)->get_uri } @$init_files;
 
-#The application is already running, send it a message
-if (0 && $app->is_running) {
+sub STARTUP {
+	# This is called by $app->run below if another Shutter instance is not running.
 
-	my ($cmdname, $extra) = $sc->get_start_with;
-	my $profile        = $sc->get_profile_to_start_with;
-	my $exitac         = $sc->get_exit_after_capture;
-	my $exfilename     = $sc->get_export_filename;
-	my $delay          = $sc->get_delay;
-	my $include_cursor = $sc->get_include_cursor;
-	my $remove_cursor  = $sc->get_remove_cursor;
-	my $nosession      = $sc->get_no_session;
-
-	my $cmdid = undef;
-	if (defined $cmdname) {
-		if ($cmdname eq 'select') {
-			$cmdid = 1;
-		} elsif ($cmdname eq 'full') {
-			$cmdid = 2;
-		} elsif ($cmdname eq 'window') {
-			$cmdid = 3;
-		} elsif ($cmdname eq 'awindow') {
-			$cmdid = 4;
-		} elsif ($cmdname eq 'section') {
-			$cmdid = 5;
-		} elsif ($cmdname eq 'menu') {
-			$cmdid = 6;
-		} elsif ($cmdname eq 'tooltip') {
-			$cmdid = 7;
-		} elsif ($cmdname eq 'web') {
-			$cmdid = 8;
-		} elsif ($cmdname eq 'redoshot') {
-			$cmdid = 9;
-		}
-	}
-
-	#change profile in running application
-	if (defined $profile && $profile) {
-		$app->send_message(10, text => $profile);
-	}
-
-	#set exit flag in running application
-	if (defined $exitac && $exitac) {
-		$app->send_message(12, text => '');
-	}
-
-	#set export_filename (parameter -o) in running application
-	if (defined $exfilename && $exfilename) {
-		$app->send_message(13, text => $shf->utf8_decode($exfilename));
-	}
-
-	#change delay in running application
-	if (defined $delay && $delay) {
-		$app->send_message(14, text => $delay);
-	}
-
-	#change include_cursor in running application
-	if (defined $include_cursor && $include_cursor) {
-		$app->send_message(15, text => '');
-	}
-
-	#change remove_cursor in running application
-	if (defined $remove_cursor && $remove_cursor) {
-		$app->send_message(16, text => '');
-	}
-
-	#set nosession flag in running application
-	if (defined $nosession && $nosession) {
-		$app->send_message(17, text => '');
-	}
-
-	#send $cmdid
-	if (defined $cmdid && defined $extra) {
-		$app->send_message($cmdid, text => $extra);
-	} elsif (defined $cmdid) {
-		$app->send_message($cmdid, text => 'shutter');
-	} else {
-
-		#escape all filenames, see Bug #737428
-		my @escaped_filenames;
-		foreach my $file (@init_files) {
-			push @escaped_filenames, escape_string($file);
-		}
-		$app->send_message(11, uris => \@escaped_filenames);
-	}
-
-	print "\nINFO: There is already another instance of Shutter running!\n";
-
-	#Create the single application instance and wait for other requests
-} else {
-
+	my ($app) = @_;
 	#Clipboard
 	my $clipboard = Gtk3::Clipboard::get($Gtk3::Gdk::SELECTION_CLIPBOARD);
 
@@ -405,6 +303,7 @@ if (0 && $app->is_running) {
 	# Watch the main window and register a handler that will be called each time
 	# that there's a new message.
 	#$app->watch_window($window);
+	my @signal_connections;
 	my $app_watch_id = $app->signal_connect(
 		'message-received' => sub {
 			my ($app, $cmd, $message, $time) = @_;
@@ -510,7 +409,7 @@ if (0 && $app->is_running) {
 	fct_init_environment();
 
 	#print debug output
-	&fct_init_debug_output if $sc->get_debug;
+	fct_init_debug_output() if $sc->get_debug;
 
 	#shutdown Shutter carefully when INT or TERM are detected
 	# => save settings
@@ -637,7 +536,7 @@ if (0 && $app->is_running) {
 
 	#screenshot menu
 	#~ $sm->{_menu_actions}->signal_connect( 'focus', sub { $sm->{_menuitem_reopen}->set_submenu(&fct_ret_program_menu); });
-	$sm->{_menuitem_reopen}->set_submenu(&fct_ret_program_menu);
+	$sm->{_menuitem_reopen}->set_submenu(fct_ret_program_menu());
 	$sm->{_menuitem_show_in_folder}->signal_connect('activate', \&fct_show_in_folder);
 	$sm->{_menuitem_rename}->signal_connect('activate', \&fct_rename);
 	$sm->{_menuitem_upload}->signal_connect('activate', \&fct_upload);
@@ -665,7 +564,7 @@ if (0 && $app->is_running) {
 		sub {
 			$sm->{_menuitem_large_reopen}->set_submenu(fct_ret_program_menu($sm->{_menuitem_large_reopen}->get_submenu));
 		});
-	$sm->{_menuitem_large_reopen}->set_submenu(&fct_ret_program_menu);
+	$sm->{_menuitem_large_reopen}->set_submenu(fct_ret_program_menu());
 	$sm->{_menuitem_large_show_in_folder}->signal_connect('activate', \&fct_show_in_folder);
 	$sm->{_menuitem_large_rename}->signal_connect('activate', \&fct_rename);
 	$sm->{_menuitem_large_copy}->signal_connect('activate', \&fct_clipboard, 'image');
@@ -904,13 +803,13 @@ if (0 && $app->is_running) {
 
 	#init menus
 	$st->{_full}->set_menu(fct_ret_workspace_menu(TRUE));
-	$st->{_window}->set_menu(&fct_ret_window_menu);
+	$st->{_window}->set_menu(fct_ret_window_menu());
 
 	#and attach signal handlers
 	$st->{_full}->signal_connect('show-menu' => sub { $st->{_full}->set_menu(fct_ret_workspace_menu(FALSE)) });
 	$st->{_window}->signal_connect('clicked' => \&evt_take_screenshot, 'window');
 
-	$st->{_window}->signal_connect('show-menu' => sub { $st->{_window}->set_menu(&fct_ret_window_menu) });
+	$st->{_window}->signal_connect('show-menu' => sub { $st->{_window}->set_menu(fct_ret_window_menu()) });
 	$st->{_section}->signal_connect('clicked' => \&evt_take_screenshot, 'section');
 	$st->{_menu}->signal_connect('clicked' => \&evt_take_screenshot, 'menu');
 	$st->{_tooltip}->signal_connect('clicked' => \&evt_take_screenshot, 'tooltip');
@@ -919,7 +818,7 @@ if (0 && $app->is_running) {
 	if ($gnome_web_photo) {
 		$st->{_web}->set_sensitive(TRUE);
 		$st->{_web}->signal_connect('clicked' => \&evt_take_screenshot, 'web');
-		$st->{_web}->set_menu(&fct_ret_web_menu);
+		$st->{_web}->set_menu(fct_ret_web_menu());
 		$st->{_web}->signal_connect('show-menu' => \&fct_ret_web_menu);
 	} else {
 		$st->{_web}->set_tooltip_text($d->get("gnome-web-photo needs to be installed for this feature"));
@@ -2580,7 +2479,7 @@ if (0 && $app->is_running) {
 	#not used in a standalone environment
 	if (keys(%plugins) > 0 && !$ENV{PAR_TEMP}) {
 
-		my $effects_tree = Gtk3::TreeView->new_with_model(&fct_load_plugin_tree);
+		my $effects_tree = Gtk3::TreeView->new_with_model(fct_load_plugin_tree());
 		fct_set_model_plugins($effects_tree);
 
 		my $scrolled_plugins_window = Gtk3::ScrolledWindow->new;
@@ -3381,7 +3280,7 @@ if (0 && $app->is_running) {
 
 		#we don't handle selection changes
 		#if we are not in the session tab
-		if (&fct_get_current_file) {
+		if (fct_get_current_file()) {
 
 			return FALSE;
 		}
@@ -3566,7 +3465,7 @@ if (0 && $app->is_running) {
 				#last capture
 				foreach my $child ($tray_menu->get_children) {
 					if ($child->get_name eq 'redoshot') {
-						$child->set_sensitive(&fct_get_last_capture);
+						$child->set_sensitive(fct_get_last_capture());
 						last;
 					}
 				}
@@ -3575,7 +3474,7 @@ if (0 && $app->is_running) {
 				#--------------------------------------
 
 				#last capture
-				$st->{_redoshot}->set_sensitive(&fct_get_last_capture);
+				$st->{_redoshot}->set_sensitive(fct_get_last_capture());
 
 				#goocanvas is optional, don't enable it when not installed
 				if ($goocanvas) {
@@ -4025,7 +3924,7 @@ if (0 && $app->is_running) {
 				$indx = $count;
 			} else {
 				$indx = $num_files + 1;
-				while ($indx < &fct_get_latest_tab_key) {
+				while ($indx < fct_get_latest_tab_key()) {
 					$indx++;
 				}
 
@@ -4187,8 +4086,10 @@ if (0 && $app->is_running) {
 			$sensitive = FALSE;
 
 			#block signals
-			if ($app->signal_handler_is_connected($app_watch_id)) {
-				$app->signal_handler_block($app_watch_id);
+			foreach my $connection (@signal_connections) {
+				if ($app->signal_handler_is_connected($connection)) {
+					$app->signal_handler_block($connection);
+				}
 			}
 
 			#and block status icon handler
@@ -4214,8 +4115,10 @@ if (0 && $app->is_running) {
 			$sensitive = TRUE;
 
 			#attach signal-handler again
-			if ($app->signal_handler_is_connected($app_watch_id)) {
-				$app->signal_handler_unblock($app_watch_id);
+			foreach my $connection (@signal_connections) {
+				if ($app->signal_handler_is_connected($connection)) {
+					$app->signal_handler_unblock($connection);
+				}
 			}
 
 			#and unblock status icon handler
@@ -4262,7 +4165,7 @@ if (0 && $app->is_running) {
 			$st->{_web}->set_sensitive($sensitive) if ($gnome_web_photo);
 
 			#special case: redoshot (toolbar and menu)
-			if (&fct_get_last_capture) {
+			if (fct_get_last_capture()) {
 				$st->{_redoshot}->set_sensitive($sensitive);
 				$sm->{_menuitem_redoshot}->set_sensitive($sensitive);
 			}
@@ -5283,7 +5186,7 @@ if (0 && $app->is_running) {
 
 		#close current tab (unless $key is provided or close_all)
 		unless (defined $action && $action eq 'menu_close_all') {
-			$key = &fct_get_current_file unless $key;
+			$key = fct_get_current_file() unless $key;
 		}
 
 		#single file
@@ -5412,7 +5315,7 @@ if (0 && $app->is_running) {
 
 		#close current tab (unless $key is provided or close_all)
 		unless (defined $action && $action eq 'menu_close_all') {
-			$key = &fct_get_current_file unless $key;
+			$key = fct_get_current_file() unless $key;
 		}
 
 		#single file
@@ -6193,7 +6096,7 @@ if (0 && $app->is_running) {
 			#~ $screenshot = 3;
 			#~ }
 
-			if ($screenshooter = &fct_get_last_capture) {
+			if ($screenshooter = fct_get_last_capture()) {
 
 				#we need to handle menu and tooltip in a special way
 				if ($screenshooter->can('get_mode')) {
@@ -6632,7 +6535,7 @@ if (0 && $app->is_running) {
 		#update window list
 		foreach my $child ($tray_menu->get_children) {
 			if ($child->get_name eq 'windowlist') {
-				$child->set_submenu(&fct_ret_window_menu);
+				$child->set_submenu(fct_ret_window_menu());
 				last;
 			}
 		}
@@ -7057,7 +6960,7 @@ if (0 && $app->is_running) {
 
 			$status->push(1,
 				sprintf($d->nget("%s screenshot", "%s screenshots", scalar(keys(%session_screens))), scalar(keys(%session_screens))) . "  "
-					. $shf->utf8_decode($hu->format(&fct_get_total_size_of_session)));
+					. $shf->utf8_decode($hu->format(fct_get_total_size_of_session())));
 
 		}
 
@@ -8462,7 +8365,7 @@ if (0 && $app->is_running) {
 			$menuitem_window_list->set_image(Gtk3::Image->new_from_pixbuf($lp->load("$shutter_root/share/shutter/resources/icons/sel_window.svg", $shf->icon_size('menu'))));
 		}
 		$menuitem_window_list->set_name('windowlist');
-		$menuitem_window_list->set_submenu(&fct_ret_window_menu);
+		$menuitem_window_list->set_submenu(fct_ret_window_menu());
 
 		#section
 		my $menuitem_window_sect = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('Se_ction'));
@@ -9215,9 +9118,9 @@ if (0 && $app->is_running) {
 		print "\n";
 
 		# The version info stuff appeared in 1.040.
-		print "Glib built for " . join(".", Glib->GET_VERSION_INFO) . ", running with " . join(".", &Glib::major_version, &Glib::minor_version, &Glib::micro_version) . "\n"
+		print "Glib built for " . join(".", Glib->GET_VERSION_INFO) . ", running with " . join(".", Glib::major_version(), Glib::minor_version(), Glib::micro_version()) . "\n"
 			if $Glib::VERSION >= 1.040;
-		print "Gtk3 built for " . join(".", Gtk3->GET_VERSION_INFO) . ", running with " . join(".", &Gtk3::major_version, &Gtk3::minor_version, &Gtk3::micro_version) . "\n"
+		print "Gtk3 built for " . join(".", Gtk3->GET_VERSION_INFO) . ", running with " . join(".", Gtk3::major_version(), Gtk3::minor_version(), Gtk3::micro_version()) . "\n"
 			if $Gtk3::VERSION >= 1.040;
 		print "\n";
 
@@ -10870,6 +10773,121 @@ if (0 && $app->is_running) {
 	}
 
 	#--------------------------------------
+}
+
+package main;
+
+my $app = Shutter::App->new(
+	application_id=>'org.shutter-project.Shutter',
+	flags=>['flags-none']);
+$app = Gtk3::UniqueApp->new(
+	"org.shutter-project.Shutter", undef,
+	select         => 1,
+	full           => 2,
+	window         => 3,
+	awindow        => 4,
+	section        => 5,
+	menu           => 6,
+	tooltip        => 7,
+	web            => 8,
+	redoshot       => 9,
+	profile        => 10,
+	fopen          => 11,
+	exitac         => 12,
+	exfilename     => 13,
+	delay          => 14,
+	include_cursor => 15,
+	remove_cursor  => 16,
+	nosession      => 17,
+) if 0;
+
+$app->run;
+if ($app->get_is_remote) {
+	#The application is already running, send it a message
+
+	my ($cmdname, $extra) = $sc->get_start_with;
+	my $profile        = $sc->get_profile_to_start_with;
+	my $exitac         = $sc->get_exit_after_capture;
+	my $exfilename     = $sc->get_export_filename;
+	my $delay          = $sc->get_delay;
+	my $include_cursor = $sc->get_include_cursor;
+	my $remove_cursor  = $sc->get_remove_cursor;
+	my $nosession      = $sc->get_no_session;
+
+	my $cmdid = undef;
+	if (defined $cmdname) {
+		if ($cmdname eq 'select') {
+			$cmdid = 1;
+		} elsif ($cmdname eq 'full') {
+			$cmdid = 2;
+		} elsif ($cmdname eq 'window') {
+			$cmdid = 3;
+		} elsif ($cmdname eq 'awindow') {
+			$cmdid = 4;
+		} elsif ($cmdname eq 'section') {
+			$cmdid = 5;
+		} elsif ($cmdname eq 'menu') {
+			$cmdid = 6;
+		} elsif ($cmdname eq 'tooltip') {
+			$cmdid = 7;
+		} elsif ($cmdname eq 'web') {
+			$cmdid = 8;
+		} elsif ($cmdname eq 'redoshot') {
+			$cmdid = 9;
+		}
+	}
+
+	#change profile in running application
+	if (defined $profile && $profile) {
+		$app->send_message(10, text => $profile);
+	}
+
+	#set exit flag in running application
+	if (defined $exitac && $exitac) {
+		$app->send_message(12, text => '');
+	}
+
+	#set export_filename (parameter -o) in running application
+	if (defined $exfilename && $exfilename) {
+		$app->send_message(13, text => $shf->utf8_decode($exfilename));
+	}
+
+	#change delay in running application
+	if (defined $delay && $delay) {
+		$app->send_message(14, text => $delay);
+	}
+
+	#change include_cursor in running application
+	if (defined $include_cursor && $include_cursor) {
+		$app->send_message(15, text => '');
+	}
+
+	#change remove_cursor in running application
+	if (defined $remove_cursor && $remove_cursor) {
+		$app->send_message(16, text => '');
+	}
+
+	#set nosession flag in running application
+	if (defined $nosession && $nosession) {
+		$app->send_message(17, text => '');
+	}
+
+	#send $cmdid
+	if (defined $cmdid && defined $extra) {
+		$app->send_message($cmdid, text => $extra);
+	} elsif (defined $cmdid) {
+		$app->send_message($cmdid, text => 'shutter');
+	} else {
+
+		#escape all filenames, see Bug #737428
+		my @escaped_filenames;
+		foreach my $file (@init_files) {
+			push @escaped_filenames, escape_string($file);
+		}
+		$app->send_message(11, uris => \@escaped_filenames);
+	}
+
+	print "\nINFO: There is already another instance of Shutter running!\n";
 }
 
 __END__
