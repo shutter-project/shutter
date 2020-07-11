@@ -304,108 +304,122 @@ sub STARTUP {
 
 	# Watch the main window and register a handler that will be called each time
 	# that there's a new message.
-	#$app->watch_window($window);
 	my @signal_connections;
-	my $app_watch_id = $app->signal_connect(
-		'message-received' => sub {
-			my ($app, $cmd, $message, $time) = @_;
+	my $action;
 
-			#map $cmd id
-			if ($cmd =~ /^-*[0-9]+$/) {
-				if ($cmd == 1) {
-					$cmd = 'select';
-				} elsif ($cmd == 2) {
-					$cmd = 'full';
-				} elsif ($cmd == 3) {
-					$cmd = 'window';
-				} elsif ($cmd == 4) {
-					$cmd = 'awindow';
-				} elsif ($cmd == 5) {
-					$cmd = 'section';
-				} elsif ($cmd == 6) {
-					$cmd = 'menu';
-				} elsif ($cmd == 7) {
-					$cmd = 'tooltip';
-				} elsif ($cmd == 8) {
-					$cmd = 'web';
-				} elsif ($cmd == 9) {
-					$cmd = 'redoshot';
-				} elsif ($cmd == 10) {
-					$cmd = 'profile';
-				} elsif ($cmd == 11) {
-					$cmd = 'fopen';
-				} elsif ($cmd == 12) {
-					$cmd = 'exitac';
-				} elsif ($cmd == 13) {
-					$cmd = 'exfilename';
-				} elsif ($cmd == 14) {
-					$cmd = 'delay';
-				} elsif ($cmd == 15) {
-					$cmd = 'include_cursor';
-				} elsif ($cmd == 16) {
-					$cmd = 'remove_cursor';
-				} elsif ($cmd == 17) {
-					$cmd = 'nosession';
-				} else {
-					$cmd = 'fopen';
-				}
-			}
+	$action = Glib::IO::SimpleAction->new('exitac', '');
+	$app->add_action($action);
+	push @signal_connections, $action->signal_connect('activate'=>sub {
+		$sc->set_exit_after_capture(TRUE);
+	});
 
-			#shutter window is presented automatically, sync our flag
-			$is_hidden = FALSE;
+	$action = Glib::IO::SimpleAction->new('exfilename', 's');
+	$app->add_action($action);
+	push @signal_connections, $action->signal_connect('activate'=>sub {
+		my $arg = $_[1]->get_string;
+		$sc->set_export_filename($arg);
+	});
 
-			if (defined $cmd) {
+	$action = Glib::IO::SimpleAction->new('delay', 's');
+	$app->add_action($action);
+	push @signal_connections, $action->signal_connect('activate'=>sub {
+		my $arg = $_[1]->get_string;
+		$sc->set_delay($arg);
+	});
 
-				#set exit flag
-				if ($cmd eq 'exitac') {
-					$sc->set_exit_after_capture(TRUE);
+	$action = Glib::IO::SimpleAction->new('include_cursor', '');
+	$app->add_action($action);
+	push @signal_connections, $action->signal_connect('activate'=>sub {
+		$sc->set_include_cursor(TRUE);
+		$sc->set_remove_cursor(FALSE);
+	});
 
-					#set export filename
-				} elsif ($cmd eq 'exfilename') {
-					my $arg = defined $message->get ? $message->get_text : "";
-					$sc->set_export_filename($arg);
+	$action = Glib::IO::SimpleAction->new('remove_cursor', '');
+	$app->add_action($action);
+	push @signal_connections, $action->signal_connect('activate'=>sub {
+		$sc->set_remove_cursor(TRUE);
+		$sc->set_include_cursor(FALSE);
+	});
 
-					#set delay
-				} elsif ($cmd eq 'delay') {
-					my $arg = defined $message->get ? $message->get_text : "";
-					$sc->set_delay($arg);
+	$action = Glib::IO::SimpleAction->new('nosession', '');
+	$app->add_action($action);
+	push @signal_connections, $action->signal_connect('activate'=>sub {
+		$sc->set_no_session(TRUE);
+	});
 
-					#set include_cursor flag
-				} elsif ($cmd eq 'include_cursor') {
-					$sc->set_include_cursor(TRUE);
-					$sc->set_remove_cursor(FALSE);
+	$action = Glib::IO::SimpleAction->new('fopen', 'as');
+	$app->add_action($action);
+	push @signal_connections, $action->signal_connect('activate'=>sub {
+		my $args = $_[1]->get('as');
+		if (scalar @$args > 0) {
+			fct_open_files(@$args);
+		}
+		fct_control_main_window('show');
+	});
 
-					#set remove_cursor flag
-				} elsif ($cmd eq 'remove_cursor') {
-					$sc->set_remove_cursor(TRUE);
-					$sc->set_include_cursor(FALSE);
+	$action = Glib::IO::SimpleAction->new('profile', 's');
+	$app->add_action($action);
+	push @signal_connections, $action->signal_connect('activate'=>sub {
+		my $arg = $_[1]->get_string;
+		print "FIXME: switching profiles via IPC is not implemented yet\n";
+	});
 
-					#set nosession flag
-				} elsif ($cmd eq 'nosession') {
-					my $arg = defined $message->get ? $message->get_text : "";
-					$sc->set_no_session($arg);
+	$action = Glib::IO::SimpleAction->new('select', 's');
+	$app->add_action($action);
+	push @signal_connections, $action->signal_connect('activate'=>sub {
+		my $arg = $_[1]->get_string;
+		evt_take_screenshot('global_keybinding', 'select', undef, $arg);
+	});
 
-					#open new files
-				} elsif ($cmd eq 'fopen') {
-					my @init_files = defined $message->get ? $message->get_uris : ();
-					if (scalar @init_files > 0) {
-						fct_open_files(@init_files);
-					}
-					fct_control_main_window('show');
+	$action = Glib::IO::SimpleAction->new('full', '');
+	$app->add_action($action);
+	push @signal_connections, $action->signal_connect('activate'=>sub {
+		evt_take_screenshot('global_keybinding', 'full');
+	});
 
-					#load profile
-				} elsif ($cmd eq 'profile') {
-					print "FIXME: switching profiles via IPC is not implemented yet\n";
+	$action = Glib::IO::SimpleAction->new('window', 's');
+	$app->add_action($action);
+	push @signal_connections, $action->signal_connect('activate'=>sub {
+		my $arg = $_[1]->get_string;
+		evt_take_screenshot('global_keybinding', 'window', undef, $arg);
+	});
 
-					#take screenshot
-				} else {
-					my $arg = defined $message->get ? $message->get_text : "";
-					evt_take_screenshot('global_keybinding', $cmd, undef, $arg);
-				}
-			}
+	$action = Glib::IO::SimpleAction->new('awindow', '');
+	$app->add_action($action);
+	push @signal_connections, $action->signal_connect('activate'=>sub {
+		evt_take_screenshot('global_keybinding', 'awindow');
+	});
 
-			return 'ok';
-		});
+	$action = Glib::IO::SimpleAction->new('section', '');
+	$app->add_action($action);
+	push @signal_connections, $action->signal_connect('activate'=>sub {
+		evt_take_screenshot('global_keybinding', 'section');
+	});
+
+	$action = Glib::IO::SimpleAction->new('menu', '');
+	$app->add_action($action);
+	push @signal_connections, $action->signal_connect('activate'=>sub {
+		evt_take_screenshot('global_keybinding', 'menu');
+	});
+
+	$action = Glib::IO::SimpleAction->new('tooltip', '');
+	$app->add_action($action);
+	push @signal_connections, $action->signal_connect('activate'=>sub {
+		evt_take_screenshot('global_keybinding', 'tooltip');
+	});
+
+	$action = Glib::IO::SimpleAction->new('web', 's');
+	$app->add_action($action);
+	push @signal_connections, $action->signal_connect('activate'=>sub {
+		my $arg = $_[1]->get_string;
+		evt_take_screenshot('global_keybinding', 'web', undef, $arg);
+	});
+
+	$action = Glib::IO::SimpleAction->new('redoshot', '');
+	$app->add_action($action);
+	push @signal_connections, $action->signal_connect('activate'=>sub {
+		evt_take_screenshot('global_keybinding', 'redoshot');
+	});
 
 	#create needed directories etc.
 	fct_init_environment();
@@ -4187,11 +4201,14 @@ sub STARTUP {
 		#this is an unusual method for raising the window
 		#to the top within the stacking order (z-axis)
 		#but it works best here
-		if ($mode eq 'show' && $is_hidden && $present) {
+		if ($mode eq 'show' && $present) {
 
 			#move window to saved position
 			$window->move($window->{x}, $window->{y})
 				if (defined $window->{x} && defined $window->{y});
+
+			#if it's shown already, but behind other windows, without hiding it doesn't show
+			$window->hide;
 
 			$window->show_all;
 			#$window->window->focus(Gtk3->get_current_event_time)
@@ -10782,26 +10799,6 @@ package main;
 my $app = Shutter::App->new(
 	application_id=>'org.shutter-project.Shutter',
 	flags=>['flags-none']);
-$app = Gtk3::UniqueApp->new(
-	"org.shutter-project.Shutter", undef,
-	select         => 1,
-	full           => 2,
-	window         => 3,
-	awindow        => 4,
-	section        => 5,
-	menu           => 6,
-	tooltip        => 7,
-	web            => 8,
-	redoshot       => 9,
-	profile        => 10,
-	fopen          => 11,
-	exitac         => 12,
-	exfilename     => 13,
-	delay          => 14,
-	include_cursor => 15,
-	remove_cursor  => 16,
-	nosession      => 17,
-) if 0;
 
 $app->run;
 if ($app->get_is_remote) {
@@ -10816,77 +10813,63 @@ if ($app->get_is_remote) {
 	my $remove_cursor  = $sc->get_remove_cursor;
 	my $nosession      = $sc->get_no_session;
 
-	my $cmdid = undef;
-	if (defined $cmdname) {
-		if ($cmdname eq 'select') {
-			$cmdid = 1;
-		} elsif ($cmdname eq 'full') {
-			$cmdid = 2;
-		} elsif ($cmdname eq 'window') {
-			$cmdid = 3;
-		} elsif ($cmdname eq 'awindow') {
-			$cmdid = 4;
-		} elsif ($cmdname eq 'section') {
-			$cmdid = 5;
-		} elsif ($cmdname eq 'menu') {
-			$cmdid = 6;
-		} elsif ($cmdname eq 'tooltip') {
-			$cmdid = 7;
-		} elsif ($cmdname eq 'web') {
-			$cmdid = 8;
-		} elsif ($cmdname eq 'redoshot') {
-			$cmdid = 9;
-		}
-	}
-
 	#change profile in running application
 	if (defined $profile && $profile) {
-		$app->send_message(10, text => $profile);
+		$app->activate_action('profile', Glib::Variant->new_string($profile));
 	}
 
 	#set exit flag in running application
 	if (defined $exitac && $exitac) {
-		$app->send_message(12, text => '');
+		$app->activate_action('exitac', Glib::Variant->new(''));
 	}
 
 	#set export_filename (parameter -o) in running application
 	if (defined $exfilename && $exfilename) {
-		$app->send_message(13, text => $shf->utf8_decode($exfilename));
+		$app->activate_action('exfilename', Glib::Variant->new_string($shf->utf8_decode($exfilename)));
 	}
 
 	#change delay in running application
 	if (defined $delay && $delay) {
-		$app->send_message(14, text => $delay);
+		$app->activate_action('delay', Glib::Variant->new_string($delay));
 	}
 
 	#change include_cursor in running application
 	if (defined $include_cursor && $include_cursor) {
-		$app->send_message(15, text => '');
+		$app->activate_action('include_cursor', Glib::Variant->new(''));
 	}
 
 	#change remove_cursor in running application
 	if (defined $remove_cursor && $remove_cursor) {
-		$app->send_message(16, text => '');
+		$app->activate_action('remove_cursor', Glib::Variant->new(''));
 	}
 
 	#set nosession flag in running application
 	if (defined $nosession && $nosession) {
-		$app->send_message(17, text => '');
+		$app->activate_action('nosession', Glib::Variant->new(''));
 	}
 
-	#send $cmdid
-	if (defined $cmdid && defined $extra) {
-		$app->send_message($cmdid, text => $extra);
-	} elsif (defined $cmdid) {
-		$app->send_message($cmdid, text => 'shutter');
+	my %screenshot_cmds = (
+		select => 1,
+		full => 1,
+		window => 1,
+		awindow => 1,
+		section => 1,
+		menu => 1,
+		tooltip => 1,
+		web => 1,
+		redoshot => 1,
+	);
+	if (defined $cmdname && $screenshot_cmds{$cmdname} && defined $extra) {
+		$app->activate_action($cmdname, Glib::Variant->new_string($extra));
+	} elsif (defined $cmdname && $screenshot_cmds{$cmdname}) {
+		$app->activate_action($cmdname, Glib::Variant->new(''));
 	} else {
 
-		#escape all filenames, see Bug #737428
-		my @escaped_filenames;
-		foreach my $file (@init_files) {
-			push @escaped_filenames, escape_string($file);
+		my @variants;
+		foreach my $uri (@init_files) {
+			push @variants, Glib::Variant->new_string($uri);
 		}
-		$app->send_message(11, uris => \@escaped_filenames);
+		$app->activate_action('fopen', Glib::Variant->new_array(undef, \@variants));
 	}
 
 	print "\nINFO: There is already another instance of Shutter running!\n";

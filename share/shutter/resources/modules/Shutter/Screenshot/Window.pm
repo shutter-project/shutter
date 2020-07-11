@@ -656,7 +656,7 @@ sub find_active_window {
 	my $gdk_window = $self->{_gdk_screen}->get_active_window;
 
 	if (defined $gdk_window) {
-		my $wnck_window = Gnome2::Wnck::Window->get($gdk_window->get_xid);
+		my $wnck_window = Wnck::Window::get($gdk_window->get_xid);
 		if (defined $wnck_window) {
 			return ($wnck_window, $gdk_window);
 		}
@@ -1084,7 +1084,7 @@ sub window {
 				my $xid = $self->{_c}{'cw'}{'gdk_window'}->get_xid;
 
 				#do not try this for child windows
-				foreach my $win ($self->{_wnck_screen}->get_windows) {
+				foreach my $win (@{$self->{_wnck_screen}->get_windows}) {
 					if ($win->get_xid == $xid) {
 						$output = $self->get_shape($xid, $output, $l_cropped, $r_cropped, $t_cropped, $b_cropped);
 						last;
@@ -1179,7 +1179,7 @@ sub redo_capture {
 
 			#create windows
 			my $gdk_window  = Gtk3::Gdk::Window->foreign_new($gxid);
-			my $wnck_window = Gnome2::Wnck::Window->get($wxid);
+			my $wnck_window = Wnck::Window::get($wxid);
 
 			if (defined $gdk_window && defined $wnck_window) {
 

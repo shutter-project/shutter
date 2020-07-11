@@ -1,7 +1,6 @@
 imageview
 imageview's transparency setting
 dnd
-remote unique
 appindicator
 css
 upload menu disabling
