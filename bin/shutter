@@ -198,6 +198,8 @@ fct_init_depend();
 require lib;
 import lib "$shutter_root/share/shutter/resources/modules";
 
+require Shutter::ImageView;
+
 #app classes
 require Shutter::App::AboutDialog;
 require Shutter::App::Common;
@@ -3062,7 +3064,7 @@ sub STARTUP {
 									&& defined $session_screens{$ckey}->{'image'})
 								{
 									unless ($session_screens{$ckey}->{'image'}->get_pixbuf) {
-										$session_screens{$ckey}->{'image'}->set_from_pixbuf($lp->load($session_screens{$key}->{'long'}, undef, undef, undef, TRUE));
+										$session_screens{$ckey}->{'image'}->set_pixbuf($lp->load($session_screens{$key}->{'long'}, undef, undef, undef, TRUE), TRUE);
 									}
 								}
 							}
@@ -3074,7 +3076,7 @@ sub STARTUP {
 							&& defined $session_screens{$ckey}->{'image'})
 						{
 							if ($session_screens{$ckey}->{'image'}->get_pixbuf) {
-								$session_screens{$ckey}->{'image'}->set_from_pixbuf(undef);
+								$session_screens{$ckey}->{'image'}->set_pixbuf(undef);
 							}
 						}
 					}
@@ -4256,9 +4258,10 @@ sub STARTUP {
 		unless ($is_all) {
 
 			#Gtk2::ImageView - empty at first
-			$session_screens{$key}->{'image'} = Gtk3::Image->new();
+			$session_screens{$key}->{'image'} = Shutter::ImageView->new();
 			#$session_screens{$key}->{'image'}->set_interpolation('tiles');
 			#$session_screens{$key}->{'image'}->set_show_frame(FALSE);
+			$session_screens{$key}->{'image'}->set_tool('dragger');
 
 			#Sets how the view should draw transparent parts of images with an alpha channel
 			my $color        = $trans_custom_btn->get_color;
@@ -4312,7 +4315,10 @@ sub STARTUP {
 				});
 
 			#dnd
-			#$session_screens{$key}->{'image'}->drag_source_set('button1-mask', ['copy'], {'target' => "text/uri-list", 'flags' => [], 'info' => 0});
+			$session_screens{$key}->{'image'}->drag_source_set(
+				'button1-mask',
+				[Gtk3::TargetEntry->new('text/uri-list', [], 0)],
+				['copy']);
 			$session_screens{$key}->{'image'}->signal_connect(
 				'drag-data-get',
 				sub {
@@ -4320,7 +4326,7 @@ sub STARTUP {
 					if (exists $session_screens{$key}->{'giofile'}
 						&& defined $session_screens{$key}->{'giofile'})
 					{
-						$data->set($data->target, 8, $session_screens{$key}->{'giofile'}->get_uri);
+						$data->set_uris([$session_screens{$key}->{'giofile'}->get_uri]);
 					}
 				});
 
@@ -4344,12 +4350,8 @@ sub STARTUP {
 						#dnd
 						$view->drag_source_set(
 							'button1-mask',
-							['copy'],
-							{
-								'target' => "text/uri-list",
-								'flags'  => [],
-								'info'   => 0
-							}) if 0;
+							[Gtk3::TargetEntry->new('text/uri-list', [], 0)],
+							['copy']);
 					}
 				});
 
@@ -4394,13 +4396,16 @@ sub STARTUP {
 			$view_event->signal_connect('button-press-event', \&evt_iconview_button_press, $session_start_screen{'first_page'}->{'view'});
 
 			#dnd
-			#$session_start_screen{'first_page'}->{'view'}->enable_model_drag_source('button1-mask', ['copy'], {'target' => "text/uri-list", 'flags' => [], 'info' => 0});
+			$session_start_screen{'first_page'}->{'view'}->enable_model_drag_source(
+				'button1-mask',
+				[Gtk3::TargetEntry->new('text/uri-list', [], 0)],
+				['copy']);
 			$session_start_screen{'first_page'}->{'view'}->signal_connect(
 				'drag-data-get',
 				sub {
 					my ($widget, $context, $data, $info, $time) = @_;
 
-					my $target_list;
+					my @target_list;
 					$session_start_screen{'first_page'}->{'view'}->selected_foreach(
 						sub {
 							my ($view, $path) = @_;
@@ -4410,12 +4415,12 @@ sub STARTUP {
 								if (exists $session_screens{$key}->{'giofile'}
 									&& defined $session_screens{$key}->{'giofile'})
 								{
-									$target_list .= $session_screens{$key}->{'giofile'}->get_uri . "\n";
+									push @target_list, $session_screens{$key}->{'giofile'}->get_uri;
 								}
 							}
 						});
 
-					$data->set($data->target, 8, $target_list);
+					$data->set_uris(\@target_list);
 
 				});
 
@@ -7264,7 +7269,7 @@ sub STARTUP {
 				}
 
 				#setting pixbuf
-				$session_screens{$key}->{'image'}->set_from_pixbuf($pixbuf);
+				$session_screens{$key}->{'image'}->set_pixbuf($pixbuf, TRUE);
 
 				#UPDATE INFOS
 				#--------------------------------------
@@ -10761,7 +10766,7 @@ sub STARTUP {
 	sub fct_zoom_best {
 		my $key = fct_get_current_file();
 		if ($key) {
-			$session_screens{$key}->{'image'}->set_fitting(TRUE);
+			$session_screens{$key}->{'image'}->zoom_to_fit();
 		}
 	}
 
