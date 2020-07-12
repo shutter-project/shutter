@@ -31,7 +31,7 @@ use strict;
 use warnings;
 
 #use Gtk3::ImageView;
-#use Gnome2::Canvas;
+use GooCanvas2;
 use Shutter::Screenshot::Main;
 use Shutter::Screenshot::History;
 
@@ -60,11 +60,12 @@ sub new {
 	$self->{_init_h} = shift;
 
 	#view, selector, dragger
-	$self->{_view}     = Gtk3::ImageView->new;
-	$self->{_selector} = Gtk3::ImageView::Tool::Selector->new($self->{_view});
-	$self->{_dragger}  = Gtk3::ImageView::Tool::Dragger->new($self->{_view});
-	$self->{_view}->set_interpolation('tiles');
-	$self->{_view}->set_tool($self->{_selector});
+	$self->{_view}     = Shutter::ImageView->new;
+	$self->{_selector} =  $self->{_view}; #Gtk3::ImageView::Tool::Selector->new($self->{_view});
+	#$self->{_dragger}  = Gtk3::ImageView::Tool::Dragger->new($self->{_view});
+	#$self->{_view}->set_interpolation('tiles');
+	#$self->{_view}->set_tool($self->{_selector});
+	$self->{_view}->set_tool('selector');
 
 	#WORKAROUND
 	#upstream bug
@@ -101,7 +102,7 @@ sub select_advanced {
 	my $d = $self->{_sc}->get_gettext;
 
 	#create pixbuf (root window)
-	my $clean_pixbuf = Gtk3::Gdk::Pixbuf->get_from_drawable($self->{_root}, undef, 0, 0, 0, 0, $self->{_root}->{w}, $self->{_root}->{h});
+	my $clean_pixbuf = Gtk3::Gdk::pixbuf_get_from_window($self->{_root}, 0, 0, $self->{_root}->{w}, $self->{_root}->{h});
 
 	$self->{_view}->set_pixbuf($clean_pixbuf);
 
@@ -117,26 +118,25 @@ sub select_advanced {
 					#right in the middle of both screens, this is pretty ugly
 					my $mon1 = $self->get_current_monitor;
 
-					print "Using monitor: " . $mon1->x . " - " . $mon1->y . " - " . $mon1->width . " - " . $mon1->height . "\n"
+					print "Using monitor: " . $mon1->{x} . " - " . $mon1->{y} . " - " . $mon1->{width} . " - " . $mon1->{height} . "\n"
 						if $self->{_sc}->get_debug;
 
 					#obtain current colors and font_desc from the main window
-					my $style     = $self->{_sc}->get_mainwindow->get_style;
-					my $sel_bg    = Gtk3::Gdk::Color->parse('#131313');
-					my $sel_tx    = $style->text('selected');
-					my $font_fam  = $style->font_desc->get_family;
-					my $font_size = $style->font_desc->get_size / Pango->scale;
+					my $style     = $self->{_sc}->get_mainwindow->get_style_context;
+					my $sel_bg    = Gtk3::Gdk::RGBA::parse('#131313');
+					my $font_fam  = $style->get_font('normal')->get_family;
+					my $font_size = $style->get_font('normal')->get_size / Pango->scale;
 
 					#create cairo context und layout
 					my $surface = Cairo::ImageSurface->create('argb32', $self->{_root}->{w}, $self->{_root}->{h});
 					my $cr      = Cairo::Context->create($surface);
 
 					#set_source_pixbuf
-					Gtk3::Gdk::Cairo::Context::set_source_pixbuf($cr, $clean_pixbuf, 0, 0);
+					Gtk3::Gdk::cairo_set_source_pixbuf($cr, $clean_pixbuf, 0, 0);
 					$cr->paint;
 
 					my $layout = Pango::Cairo::create_layout($cr);
-					$layout->set_width(int($mon1->width / 2) * Pango->scale);
+					$layout->set_width(int($mon1->{width} / 2) * Pango->scale);
 					$layout->set_alignment('left');
 					$layout->set_wrap('word');
 
@@ -163,14 +163,14 @@ sub select_advanced {
 					);
 
 					#draw the rectangle
-					$cr->set_source_rgba($sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255, 0.85);
+					$cr->set_source_rgba($sel_bg->red, $sel_bg->green, $sel_bg->blue, 0.85);
 
 					my ($lw, $lh) = $layout->get_pixel_size;
 
 					my $w = $lw + $size1 * 2;
 					my $h = $lh + $size1 * 2;
-					my $x = int(($mon1->width - $w) / 2) + $mon1->x;
-					my $y = int(($mon1->height - $h) / 2) + $mon1->y;
+					my $x = int(($mon1->{width} - $w) / 2) + $mon1->{x};
+					my $y = int(($mon1->{height} - $h) / 2) + $mon1->{y};
 					my $r = 20;
 
 					$cr->move_to($x + $r, $y);
@@ -194,7 +194,8 @@ sub select_advanced {
 					$surface->write_to_png_stream(
 						sub {
 							my ($closure, $data) = @_;
-							$loader->write($data);
+							$loader->write([map ord, split //, $data]);
+							return TRUE;
 						});
 					$loader->close;
 
@@ -220,12 +221,13 @@ sub select_advanced {
 	$scwin->set_policy('never', 'never');
 
 	#define and setup the canvas
-	my $canvas = Gnome2::Canvas->new();
+	my $canvas = GooCanvas2::Canvas->new();
 	$canvas->set_size_request(105, 105);
 	$canvas->modify_bg('normal', Gtk3::Gdk::Color->new(65535, 65535, 65535));
-	$canvas->set_pixels_per_unit(5);
+	$canvas->set_bounds(-10, -10, $self->{_root}->{w}+10, $self->{_root}->{h}+10);
+	$canvas->set_scale(5);
 
-	my $canvas_root = $canvas->root();
+	my $canvas_root = $canvas->get_root_item();
 	$scwin->add($canvas);
 
 	my $xlabel = Gtk3::Label->new("X: ");
@@ -237,10 +239,10 @@ sub select_advanced {
 	$rlabel->set_max_width_chars(10);
 
 	my $zoom_vbox = Gtk3::VBox->new;
-	$zoom_vbox->pack_start_defaults($scwin);
-	$zoom_vbox->pack_start_defaults($xlabel);
-	$zoom_vbox->pack_start_defaults($ylabel);
-	$zoom_vbox->pack_start_defaults($rlabel);
+	$zoom_vbox->pack_start($scwin, TRUE, TRUE, 0);
+	$zoom_vbox->pack_start($xlabel, TRUE, TRUE, 0);
+	$zoom_vbox->pack_start($ylabel, TRUE, TRUE, 0);
+	$zoom_vbox->pack_start($rlabel, TRUE, TRUE, 0);
 
 	#do some packing
 	$self->{_zoom_window}->add($zoom_vbox);
@@ -250,18 +252,16 @@ sub select_advanced {
 	my $shutter_cursor_pixbuf_frame = Gtk3::Gdk::Pixbuf->new_from_file($self->{_sc}->get_root . "/share/shutter/resources/icons/shutter_cursor_frame.png");
 
 	#create root...
-	my $root_item = Gnome2::Canvas::Item->new(
-		$canvas_root,
-		"Gnome2::Canvas::Pixbuf",
+	my $root_item = GooCanvas2::CanvasImage->new(
+		parent => $canvas_root,
 		x      => 0,
 		y      => 0,
 		pixbuf => $clean_pixbuf
 	);
 
 	#...and cursor icon
-	my $cursor_item = Gnome2::Canvas::Item->new(
-		$canvas_root,
-		"Gnome2::Canvas::Pixbuf",
+	my $cursor_item = GooCanvas2::CanvasImage->new(
+		parent => $canvas_root,
 		x      => 0,
 		y      => 0,
 		pixbuf => $shutter_cursor_pixbuf_frame,
@@ -277,7 +277,8 @@ sub select_advanced {
 	);
 
 	#scroll region
-	$canvas->set_scroll_region($xinit - 9, $yinit - 9, $xinit + 10, $yinit + 10);
+	#$canvas->set_scroll_region($xinit - 9, $yinit - 9, $xinit + 10, $yinit + 10);
+	$canvas->scroll_to($xinit - 9, $yinit - 9);
 
 	#window to manipulate the selection
 	$self->{_prop_window} = $self->select_dialog();
@@ -286,8 +287,7 @@ sub select_advanced {
 	#window that contains the imageview widget
 	$self->{_select_window} = Gtk3::Window->new('popup');
 	$self->{_select_window}->set_type_hint('splashscreen');
-	$self->{_select_window}->set_has_frame(FALSE);
-	$self->{_select_window}->can_focus(TRUE);
+	$self->{_select_window}->set_can_focus(TRUE);
 	$self->{_select_window}->set_accept_focus(TRUE);
 	$self->{_select_window}->set_modal(TRUE);
 	$self->{_select_window}->set_decorated(FALSE);
@@ -335,7 +335,7 @@ sub select_advanced {
 				$self->{_view}->set_zoom(10);
 			} elsif ($self->{_view}->get_zoom > 1) {
 				if ($self->{_zoom_active}) {
-					$self->{_zoom_window}->hide_all;
+					$self->{_zoom_window}->hide;
 				}
 			} else {
 				if ($self->{_zoom_active}) {
@@ -358,7 +358,7 @@ sub select_advanced {
 	Glib::Idle->add(
 		sub {
 			if ($self->{_init_w} && $self->{_init_h}) {
-				$self->{_selector}->set_selection(Gtk3::Gdk::Rectangle->new($self->{_init_x}, $self->{_init_y}, $self->{_init_w}, $self->{_init_h}));
+				$self->{_selector}->set_selection({x=>$self->{_init_x}, y=>$self->{_init_y}, width=>$self->{_init_w}, height=>$self->{_init_h}});
 			}
 			return FALSE;
 		});
@@ -427,17 +427,17 @@ sub select_advanced {
 
 				if ($event->button == 3) {
 					if ($self->{_prop_active}) {
-						Gtk3::Gdk->keyboard_ungrab(Gtk3->get_current_event_time);
-						$self->{_prop_window}->hide_all;
+						Gtk3::Gdk::keyboard_ungrab(Gtk3::get_current_event_time());
+						$self->{_prop_window}->hide;
 						$self->{_prop_active} = FALSE;
-						Gtk3::Gdk->keyboard_grab($self->{_select_window}->window, 0, Gtk3->get_current_event_time);
+						Gtk3::Gdk::keyboard_grab($self->{_select_window}->get_window, 0, Gtk3::get_current_event_time());
 					} else {
-						Gtk3::Gdk->keyboard_ungrab(Gtk3->get_current_event_time);
+						Gtk3::Gdk::keyboard_ungrab(Gtk3::get_current_event_time());
 						my ($window_at_pointer, $x, $y, $mask) = $self->{_root}->get_pointer;
 						$self->{_prop_window}->move($x, $y);
 						$self->{_prop_window}->show_all;
 						$self->{_prop_active} = TRUE;
-						Gtk3::Gdk->keyboard_grab($self->{_prop_window}->window, 0, Gtk3->get_current_event_time);
+						Gtk3::Gdk::keyboard_grab($self->{_prop_window}->get_window, 0, Gtk3::get_current_event_time());
 					}
 				}
 
@@ -453,51 +453,52 @@ sub select_advanced {
 					my ($window_at_pointer, $x, $y, $mask) = $self->{_root}->get_pointer;
 
 					#event coordinates
-					my $ev_x = int($v->x / $self->{_view}->get_zoom + $x / $self->{_view}->get_zoom);
-					my $ev_y = int($v->y / $self->{_view}->get_zoom + $y / $self->{_view}->get_zoom);
+					my $ev_x = int($v->{x} / $self->{_view}->get_zoom + $x / $self->{_view}->get_zoom);
+					my $ev_y = int($v->{y} / $self->{_view}->get_zoom + $y / $self->{_view}->get_zoom);
 
 					#sync cursor with selection
-					my $cursor = $self->{_selector}->cursor_at_point($x, $y);
-					if (defined $s) {
+					if (0 && defined $s) {
+						my $cursor = $self->{_selector}->cursor_at_point($x, $y)->get_cursor_type;
+						print Dumper($cursor);
 
-						my $sx = $s->x;
-						my $sy = $s->y;
-						my $sw = $s->width;
-						my $sh = $s->height;
+						my $sx = $s->{x};
+						my $sy = $s->{y};
+						my $sw = $s->{width};
+						my $sh = $s->{height};
 
-						if ($cursor->type eq 'bottom-right-corner') {
+						if ($cursor eq 'bottom-right-corner') {
 
 							$ev_x = $sx + $sw - 1;
 							$ev_y = $sy + $sh - 1;
 
-						} elsif ($cursor->type eq 'right-side') {
+						} elsif ($cursor eq 'right-side') {
 
 							$ev_x = $sx + $sw - 1;
 
-						} elsif ($cursor->type eq 'top-right-corner') {
+						} elsif ($cursor eq 'top-right-corner') {
 
 							$ev_x = $sx + $sw - 1;
 							$ev_y = $sy;
 
-						} elsif ($cursor->type eq 'top-side') {
+						} elsif ($cursor eq 'top-side') {
 
 							$ev_y = $sy;
 
-						} elsif ($cursor->type eq 'top-left-corner') {
+						} elsif ($cursor eq 'top-left-corner') {
 
 							$ev_x = $sx;
 							$ev_y = $sy;
 
-						} elsif ($cursor->type eq 'left-side') {
+						} elsif ($cursor eq 'left-side') {
 
 							$ev_x = $sx;
 
-						} elsif ($cursor->type eq 'bottom-left-corner') {
+						} elsif ($cursor eq 'bottom-left-corner') {
 
 							$ev_x = $sx;
 							$ev_y = $sy + $sh - 1;
 
-						} elsif ($cursor->type eq 'bottom-side') {
+						} elsif ($cursor eq 'bottom-side') {
 
 							$ev_y = $sy + $sh - 1;
 
@@ -521,11 +522,12 @@ sub select_advanced {
 					#update scroll region
 					#this is significantly faster than
 					#scroll_to
-					$canvas->set_scroll_region($ev_x - 9, $ev_y - 9, $ev_x + 10, $ev_y + 10);
+					#$canvas->set_scroll_region($ev_x - 9, $ev_y - 9, $ev_x + 10, $ev_y + 10);
+					$canvas->scroll_to($ev_x - 9, $ev_y - 9);
 
 					#update zoom_window text
 					if (defined $s) {
-						$rlabel->set_text($s->width . " x " . $s->height);
+						$rlabel->set_text($s->{width} . " x " . $s->{height});
 					} else {
 						$rlabel->set_text("0 x 0");
 					}
@@ -533,16 +535,23 @@ sub select_advanced {
 				}    #zoom active
 
 				#handle key-press
-			} elsif ($event->type eq 'key-press') {
+			}
+		});
 
+	$self->{_key_handler} = $self->{_select_window}->signal_connect(
+		'key-press-event' => sub {
+			my ($window, $event) = @_;
+			return FALSE unless defined $event;
+
+			my $s = $self->{_selector}->get_selection;
 				#where is the pointer currently?
 				my ($window_at_pointer, $x, $y, $mask) = $self->{_root}->get_pointer;
 
 				#toggle zoom window
-				if ($event->keyval == Gtk3::Gdk->keyval_from_name('space')) {
+				if ($event->keyval == Gtk3::Gdk::keyval_from_name('space')) {
 
 					if ($self->{_zoom_active}) {
-						$self->{_zoom_window}->hide_all;
+						$self->{_zoom_window}->hide;
 						$self->{_zoom_active} = FALSE;
 					} elsif ($self->{_view}->get_zoom == 1) {
 						$self->zoom_check_pos();
@@ -550,94 +559,94 @@ sub select_advanced {
 					}
 
 					#toggle prop dialog
-				} elsif ($event->keyval == Gtk3::Gdk->keyval_from_name('Shift_L') || $event->keyval == Gtk3::Gdk->keyval_from_name('Shift_R')) {
+				} elsif ($event->keyval == Gtk3::Gdk::keyval_from_name('Shift_L') || $event->keyval == Gtk3::Gdk::keyval_from_name('Shift_R')) {
 
 					if ($self->{_prop_active}) {
-						Gtk3::Gdk->keyboard_ungrab(Gtk3->get_current_event_time);
-						$self->{_prop_window}->hide_all;
+						Gtk3::Gdk::keyboard_ungrab(Gtk3::get_current_event_time());
+						$self->{_prop_window}->hide;
 						$self->{_prop_active} = FALSE;
-						Gtk3::Gdk->keyboard_grab($self->{_select_window}->window, 0, Gtk3->get_current_event_time);
+						Gtk3::Gdk::keyboard_grab($self->{_select_window}->get_window, 0, Gtk3::get_current_event_time());
 					} else {
-						Gtk3::Gdk->keyboard_ungrab(Gtk3->get_current_event_time);
+						Gtk3::Gdk::keyboard_ungrab(Gtk3::get_current_event_time());
 						my ($window_at_pointer, $x, $y, $mask) = $self->{_root}->get_pointer;
 						$self->{_prop_window}->move($x, $y);
 						$self->{_prop_window}->show_all;
 						$self->{_prop_active} = TRUE;
-						Gtk3::Gdk->keyboard_grab($self->{_prop_window}->window, 0, Gtk3->get_current_event_time);
+						Gtk3::Gdk::keyboard_grab($self->{_prop_window}->get_window, 0, Gtk3::get_current_event_time());
 					}
 
 					#abort screenshot
-				} elsif ($event->keyval == Gtk3::Gdk->keyval_from_name('Escape')) {
+				} elsif ($event->keyval == Gtk3::Gdk::keyval_from_name('Escape')) {
 
 					$self->quit;
 
 					#move / resize selector
-				} elsif ($event->keyval == Gtk3::Gdk->keyval_from_name('Up')) {
+				} elsif ($event->keyval == Gtk3::Gdk::keyval_from_name('Up')) {
 
 					if ($event->state >= 'control-mask' && $s) {
-						$s->height($s->height - 1);
+						$s->{height} -= 1;
 						$self->{_selector}->set_selection($s);
-						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->width + $s->x, $s->height + $s->y);
+						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->{width} + $s->{x}, $s->{height} + $s->{y});
 					} elsif ($event->state >= 'mod1-mask' && $s) {
-						$s->y($s->y - 1);
+						$s->{y} -= 1;
 						$self->{_selector}->set_selection($s);
-						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->x, $s->y);
+						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->{x}, $s->{y});
 					} else {
 						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x, $y - 1);
 					}
 
-				} elsif ($event->keyval == Gtk3::Gdk->keyval_from_name('Down')) {
+				} elsif ($event->keyval == Gtk3::Gdk::keyval_from_name('Down')) {
 
 					if ($event->state >= 'control-mask' && $s) {
-						$s->height($s->height + 1);
+						$s->{height} += 1;
 						$self->{_selector}->set_selection($s);
-						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->width + $s->x, $s->height + $s->y);
+						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->{width} + $s->{x}, $s->{height} + $s->{y});
 					} elsif ($event->state >= 'control-mask') {
-						$self->{_selector}->set_selection(Gtk3::Gdk::Rectangle->new($x, $y, 1, 2));
+						$self->{_selector}->set_selection({x=>$x, y=>$y, width=>1, height=>2});
 						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x + 1, $y + 2);
 					} elsif ($event->state >= 'mod1-mask' && $s) {
-						$s->y($s->y + 1);
+						$s->{y} += 1;
 						$self->{_selector}->set_selection($s);
-						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->x, $s->y);
+						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->{x}, $s->{y});
 					} else {
 						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x, $y + 1);
 					}
 
-				} elsif ($event->keyval == Gtk3::Gdk->keyval_from_name('Left')) {
+				} elsif ($event->keyval == Gtk3::Gdk::keyval_from_name('Left')) {
 
 					if ($event->state >= 'control-mask' && $s) {
-						$s->width($s->width - 1);
+						$s->{width} -= 1;
 						$self->{_selector}->set_selection($s);
-						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->width + $s->x, $s->height + $s->y);
+						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->{width} + $s->{x}, $s->{height} + $s->{y});
 					} elsif ($event->state >= 'mod1-mask' && $s) {
-						$s->x($s->x - 1);
+						$s->{x} -= 1;
 						$self->{_selector}->set_selection($s);
-						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->x, $s->y);
+						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->{x}, $s->{y});
 					} else {
 						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x - 1, $y);
 					}
 
-				} elsif ($event->keyval == Gtk3::Gdk->keyval_from_name('Right')) {
+				} elsif ($event->keyval == Gtk3::Gdk::keyval_from_name('Right')) {
 
 					if ($event->state >= 'control-mask' && $s) {
-						$s->width($s->width + 1);
+						$s->{width} += 1;
 						$self->{_selector}->set_selection($s);
-						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->width + $s->x, $s->height + $s->y);
+						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->{width} + $s->{x}, $s->{height} + $s->{y});
 					} elsif ($event->state >= 'control-mask') {
-						$self->{_selector}->set_selection(Gtk3::Gdk::Rectangle->new($x, $y, 2, 1));
+						$self->{_selector}->set_selection({x=>$x, y=>$y, width=>2, height=>1});
 						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x + 2, $y + 1);
 					} elsif ($event->state >= 'mod1-mask' && $s) {
-						$s->x($s->x + 1);
+						$s->{x} += 1;
 						$self->{_selector}->set_selection($s);
-						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->x, $s->y);
+						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->{x}, $s->{y});
 					} else {
 						$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x + 1, $y);
 					}
 
 					#zoom in
-				} elsif ($event->keyval == Gtk3::Gdk->keyval_from_name('KP_Add')
-					|| $event->keyval == Gtk3::Gdk->keyval_from_name('plus')
-					|| $event->keyval == Gtk3::Gdk->keyval_from_name('equal'))
+				} elsif ($event->keyval == Gtk3::Gdk::keyval_from_name('KP_Add')
+					|| $event->keyval == Gtk3::Gdk::keyval_from_name('plus')
+					|| $event->keyval == Gtk3::Gdk::keyval_from_name('equal'))
 				{
 
 					if ($event->state >= 'control-mask') {
@@ -645,8 +654,8 @@ sub select_advanced {
 					}
 
 					#zoom out
-				} elsif ($event->keyval == Gtk3::Gdk->keyval_from_name('KP_Subtract')
-					|| $event->keyval == Gtk3::Gdk->keyval_from_name('minus'))
+				} elsif ($event->keyval == Gtk3::Gdk::keyval_from_name('KP_Subtract')
+					|| $event->keyval == Gtk3::Gdk::keyval_from_name('minus'))
 				{
 
 					if ($event->state >= 'control-mask') {
@@ -654,14 +663,14 @@ sub select_advanced {
 					}
 
 					#zoom normal
-				} elsif ($event->keyval == Gtk3::Gdk->keyval_from_name('0')) {
+				} elsif ($event->keyval == Gtk3::Gdk::keyval_from_name('0')) {
 
 					if ($event->state >= 'control-mask') {
 						$self->{_view}->set_zoom(1);
 					}
 
 					#take screenshot
-				} elsif ($event->keyval == Gtk3::Gdk->keyval_from_name('Return') || $event->keyval == Gtk3::Gdk->keyval_from_name('KP_Enter')) {
+				} elsif ($event->keyval == Gtk3::Gdk::keyval_from_name('Return') || $event->keyval == Gtk3::Gdk::keyval_from_name('KP_Enter')) {
 
 					$self->{_select_window}->hide;
 					$self->{_zoom_window}->hide;
@@ -681,17 +690,16 @@ sub select_advanced {
 					$self->quit;
 
 				}
-			}
 		});
 
-	my $status = Gtk3::Gdk->keyboard_grab($self->{_select_window}->window, 0, Gtk3->get_current_event_time);
+	my $status = Gtk3::Gdk::keyboard_grab($self->{_select_window}->get_window, 0, Gtk3::get_current_event_time());
 
 	#~ if($status eq 'success'){
 	if ($self->{_zoom_active}) {
 		$self->{_zoom_window}->show_all;
-		$self->{_zoom_window}->window->set_override_redirect(TRUE);
+		$self->{_zoom_window}->get_window->set_override_redirect(TRUE);
 		$self->zoom_check_pos();
-		$self->{_zoom_window}->window->raise;
+		$self->{_zoom_window}->get_window->raise;
 	}
 	Gtk3->main();
 
@@ -714,36 +722,35 @@ sub zoom_check_pos {
 	my ($window_at_pointer, $x, $y, $mask) = $self->{_root}->get_pointer;
 
 	#event coordinates
-	my $ev_x = int($v->x / $self->{_view}->get_zoom + $x / $self->{_view}->get_zoom);
-	my $ev_y = int($v->y / $self->{_view}->get_zoom + $y / $self->{_view}->get_zoom);
+	my $ev_x = int($v->{x} / $self->{_view}->get_zoom + $x / $self->{_view}->get_zoom);
+	my $ev_y = int($v->{y} / $self->{_view}->get_zoom + $y / $self->{_view}->get_zoom);
 
 	my ($zw, $zh) = $self->{_zoom_window}->get_size;
 	my ($zx, $zy) = $self->{_zoom_window}->get_position;
 
 	my $sregion = undef;
 	if (defined $s) {
-		$sregion = Gtk3::Gdk::Region->rectangle(Gtk3::Gdk::Rectangle->new($s->x - 50, $s->y - 50, $s->width + 50, $s->height + 50));
+		$sregion = Cairo::Region->create({x=>$s->{x} - 50, y=>$s->{y} - 50, width=>$s->{width} + 50, height=>$s->{height} + 50});
 	} else {
-		$sregion = Gtk3::Gdk::Region->rectangle(Gtk3::Gdk::Rectangle->new($ev_x - 50, $ev_y - 50, 50, 50));
+		$sregion = Cairo::Region->create({x=>$ev_x - 50, y=>$ev_y - 50, width=>50, height=>50});
 	}
 
-	my $otype = $sregion->rect_in(Gtk3::Gdk::Rectangle->new($zx - 50, $zy - 50, $zw + 50, $zh + 50));
-	if ($otype eq 'in' || $otype eq 'part' || !$self->{_zoom_window}->visible) {
+	my $otype = $sregion->contains_rectangle({x=>$zx - 50, y=>$zy - 50, width=>$zw + 50, height=>$zh + 50});
+	if ($otype eq 'in' || $otype eq 'part' || !$self->{_zoom_window}->get_visible) {
 
 		my $moved = FALSE;
 
 		#possible positions if we need to move the zoom window
 		my @pos = (
-			Gtk3::Gdk::Rectangle->new($self->{_root}->{x},       $self->{_root}->{y},       0, 0),
-			Gtk3::Gdk::Rectangle->new(0,                         $self->{_root}->{h} - $zh, 0, 0),
-			Gtk3::Gdk::Rectangle->new($self->{_root}->{w} - $zw, $self->{_root}->{y},       0, 0),
-			Gtk3::Gdk::Rectangle->new($self->{_root}->{w} - $zw, $self->{_root}->{h} - $zh, 0, 0));
+			{x=>$self->{_root}->{x},       y=>$self->{_root}->{y},     },
+			{x=>0,                         y=>$self->{_root}->{h} - $zh},
+			{x=>$self->{_root}->{w} - $zw, y=>$self->{_root}->{y},     },
+			{x=>$self->{_root}->{w} - $zw, y=>$self->{_root}->{h} - $zh});
 
 		foreach (@pos) {
-
-			my $otypet = $sregion->rect_in(Gtk3::Gdk::Rectangle->new($_->x - 50, $_->y - 50, $zw + 50, $zh + 50));
+			my $otypet = $sregion->contains_rectangle({x=>$_->{x} - 50, y=>$_->{y} - 50, width=>$zw + 50, height=>$zh + 50});
 			if ($otypet eq 'out') {
-				$self->{_zoom_window}->move($_->x, $_->y);
+				$self->{_zoom_window}->move($_->{x}, $_->{y});
 				$self->{_zoom_window}->show_all;
 				$moved = TRUE;
 				last;
@@ -754,7 +761,7 @@ sub zoom_check_pos {
 		#if window could not be moved without covering the selection area
 		unless ($moved) {
 			$moved = FALSE;
-			$self->{_zoom_window}->hide_all;
+			$self->{_zoom_window}->hide;
 		}
 	}
 
@@ -773,17 +780,17 @@ sub adjust_prop_values {
 	my $s = $self->{_selector}->get_selection;
 
 	if ($s) {
-		$self->{_x_spin_w}->set_value($s->x);
-		$self->{_x_spin_w}->set_range(0, $self->{_root}->{w} - $s->width);
+		$self->{_x_spin_w}->set_value($s->{x});
+		$self->{_x_spin_w}->set_range(0, $self->{_root}->{w} - $s->{width});
 
-		$self->{_y_spin_w}->set_value($s->y);
-		$self->{_y_spin_w}->set_range(0, $self->{_root}->{h} - $s->height);
+		$self->{_y_spin_w}->set_value($s->{y});
+		$self->{_y_spin_w}->set_range(0, $self->{_root}->{h} - $s->{height});
 
-		$self->{_width_spin_w}->set_value($s->width);
-		$self->{_width_spin_w}->set_range(0, $self->{_root}->{w} - $s->x);
+		$self->{_width_spin_w}->set_value($s->{width});
+		$self->{_width_spin_w}->set_range(0, $self->{_root}->{w} - $s->{x});
 
-		$self->{_height_spin_w}->set_value($s->height);
-		$self->{_height_spin_w}->set_range(0, $self->{_root}->{h} - $s->y);
+		$self->{_height_spin_w}->set_value($s->{height});
+		$self->{_height_spin_w}->set_range(0, $self->{_root}->{h} - $s->{y});
 	}
 
 	#unblock 'value-change' handlers for widgets
@@ -887,10 +894,10 @@ sub select_dialog {
 			my $event  = shift;
 
 			#toggle zoom window
-			if ($event->keyval == Gtk3::Gdk->keyval_from_name('Space')) {
+			if ($event->keyval == Gtk3::Gdk::keyval_from_name('Space')) {
 
 				if ($self->{_zoom_active}) {
-					$self->{_zoom_window}->hide_all;
+					$self->{_zoom_window}->hide;
 					$self->{_zoom_active} = FALSE;
 				} elsif ($self->{_view}->get_zoom == 1) {
 					$self->zoom_check_pos();
@@ -898,24 +905,24 @@ sub select_dialog {
 				}
 
 				#toggle prop dialog
-			} elsif ($event->keyval == Gtk3::Gdk->keyval_from_name('Shift_L') || $event->keyval == Gtk3::Gdk->keyval_from_name('Shift_R')) {
+			} elsif ($event->keyval == Gtk3::Gdk::keyval_from_name('Shift_L') || $event->keyval == Gtk3::Gdk->keyval_from_name('Shift_R')) {
 
 				if ($self->{_prop_active}) {
-					Gtk3::Gdk->keyboard_ungrab(Gtk3->get_current_event_time);
-					$self->{_prop_window}->hide_all;
+					Gtk3::Gdk::keyboard_ungrab(Gtk3::get_current_event_time());
+					$self->{_prop_window}->hide;
 					$self->{_prop_active} = FALSE;
-					Gtk3::Gdk->keyboard_grab($self->{_select_window}->window, 0, Gtk3->get_current_event_time);
+					Gtk3::Gdk::keyboard_grab($self->{_select_window}->get_window, 0, Gtk3::get_current_event_time());
 				} else {
-					Gtk3::Gdk->keyboard_ungrab(Gtk3->get_current_event_time);
+					Gtk3::Gdk::keyboard_ungrab(Gtk3::get_current_event_time());
 					my ($window_at_pointer, $x, $y, $mask) = $self->{_root}->get_pointer;
 					$self->{_prop_window}->move($x, $y);
 					$self->{_prop_window}->show_all;
 					$self->{_prop_active} = TRUE;
-					Gtk3::Gdk->keyboard_grab($self->{_prop_window}->window, 0, Gtk3->get_current_event_time);
+					Gtk3::Gdk::keyboard_grab($self->{_prop_window}->get_window, 0, Gtk3::get_current_event_time());
 				}
 
 				#abort screenshot
-			} elsif ($event->keyval == Gtk3::Gdk->keyval_from_name('Escape')) {
+			} elsif ($event->keyval == Gtk3::Gdk::keyval_from_name('Escape')) {
 
 				$self->quit;
 
@@ -925,13 +932,13 @@ sub select_dialog {
 
 	my $hide_btn = Gtk3::Button->new_with_mnemonic($d->get("_Hide"));
 	$hide_btn->set_image(Gtk3::Image->new_from_stock('gtk-close', 'button'));
-	$hide_btn->can_default(TRUE);
+	$hide_btn->set_can_default(TRUE);
 	$hide_btn->signal_connect(
 		'clicked' => sub {
-			Gtk3::Gdk->keyboard_ungrab(Gtk3->get_current_event_time);
-			$prop_dialog->hide_all;
+			Gtk3::Gdk::keyboard_ungrab(Gtk3::get_current_event_time());
+			$prop_dialog->hide;
 			$self->{_prop_active} = FALSE;
-			Gtk3::Gdk->keyboard_grab($self->{_select_window}->window, 0, Gtk3->get_current_event_time);
+			Gtk3::Gdk::keyboard_grab($self->{_select_window}->get_window, 0, Gtk3::get_current_event_time());
 		});
 
 	#final_packing
@@ -969,7 +976,7 @@ sub select_dialog {
 
 	$prop_dialog->realize;
 	$prop_dialog->set_transient_for($self->{_select_window});
-	$prop_dialog->window->set_override_redirect(TRUE);
+	$prop_dialog->get_window->set_override_redirect(TRUE);
 
 	return $prop_dialog;
 }
@@ -985,16 +992,16 @@ sub take_screenshot {
 
 	#no delay? then we take a subsection of the pixbuf in memory
 	if ($s && $clean_pixbuf && $self->{_delay} == 0) {
-		$output = $clean_pixbuf->new_subpixbuf($s->x, $s->y, $s->width, $s->height);
+		$output = $clean_pixbuf->new_subpixbuf($s->{x}, $s->{y}, $s->{width}, $s->{height});
 
 		#include cursor
 		if ($self->{_include_cursor}) {
-			$output = $self->include_cursor($s->x, $s->y, $s->width, $s->height, $self->{_root}, $output);
+			$output = $self->include_cursor($s->{x}, $s->{y}, $s->{width}, $s->{height}, $self->{_root}, $output);
 		}
 
 		#if there is a delay != 0 set, we have to wait and get a new pixbuf from the root window
 	} elsif ($s && $self->{_delay} != 0) {
-		($output) = $self->get_pixbuf_from_drawable($self->{_root}, $s->x, $s->y, $s->width, $s->height);
+		($output) = $self->get_pixbuf_from_drawable($self->{_root}, $s->{x}, $s->{y}, $s->{width}, $s->{height});
 
 		#section not valid
 	} else {
@@ -1008,7 +1015,7 @@ sub take_screenshot {
 
 	#set history object
 	if ($s) {
-		$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->{_root}, $s->x, $s->y, $s->width, $s->height);
+		$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->{_root}, $s->{x}, $s->{y}, $s->{width}, $s->{height});
 	}
 
 	return $output;
@@ -1052,6 +1059,7 @@ sub clean {
 	$self->{_view}->signal_handler_disconnect($self->{_view_zoom_handler});
 	$self->{_view}->signal_handler_disconnect($self->{_view_button_handler});
 	$self->{_view}->signal_handler_disconnect($self->{_view_event_handler});
+	$self->{_select_window}->signal_handler_disconnect($self->{_key_handler});
 	$self->{_select_window}->destroy;
 	$self->{_zoom_window}->destroy;
 	$self->{_prop_window}->destroy;
