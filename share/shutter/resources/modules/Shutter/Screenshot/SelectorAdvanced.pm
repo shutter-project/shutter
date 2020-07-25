@@ -30,7 +30,7 @@ use utf8;
 use strict;
 use warnings;
 
-#use Gtk3::ImageView;
+use Gtk3::ImageView;
 use GooCanvas2;
 use Shutter::Screenshot::Main;
 use Shutter::Screenshot::History;
@@ -60,7 +60,7 @@ sub new {
 	$self->{_init_h} = shift;
 
 	#view, selector, dragger
-	$self->{_view}     = Shutter::ImageView->new;
+	$self->{_view}     = Gtk3::ImageView->new;
 	$self->{_selector} =  $self->{_view}; #Gtk3::ImageView::Tool::Selector->new($self->{_view});
 	#$self->{_dragger}  = Gtk3::ImageView::Tool::Dragger->new($self->{_view});
 	#$self->{_view}->set_interpolation('tiles');

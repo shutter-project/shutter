@@ -197,8 +197,9 @@ fct_init_depend();
 #--------------------------------------
 require lib;
 import lib "$shutter_root/share/shutter/resources/modules";
+import lib "$shutter_root/gtk3-imageview-code/lib";
 
-require Shutter::ImageView;
+require Gtk3::ImageView;
 
 #app classes
 require Shutter::App::AboutDialog;
@@ -4258,7 +4259,7 @@ sub STARTUP {
 		unless ($is_all) {
 
 			#Gtk2::ImageView - empty at first
-			$session_screens{$key}->{'image'} = Shutter::ImageView->new();
+			$session_screens{$key}->{'image'} = Gtk3::ImageView->new();
 			#$session_screens{$key}->{'image'}->set_interpolation('tiles');
 			#$session_screens{$key}->{'image'}->set_show_frame(FALSE);
 			$session_screens{$key}->{'image'}->set_tool('dragger');
