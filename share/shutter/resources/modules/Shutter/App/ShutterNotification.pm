@@ -48,7 +48,11 @@ sub new {
 		#notification window (borderless gtk window)
 		$self->{_notifications_window} = Gtk3::Window->new('popup');
 		if ($self->{_sc}->get_mainwindow->get_screen->is_composited) {
-			$self->{_notifications_window}->set_colormap($self->{_sc}->get_mainwindow->get_screen->get_rgba_colormap);
+			my $screen = $self->{_sc}->get_mainwindow->get_screen;
+			# Glib::Object::Introspection doesn't support method call via
+			# cross-package inheritance, call it as a free function instead
+			# (X11Screen inherits from Screen)
+			$self->{_notifications_window}->set_visual(Gtk3::Gdk::Screen::get_rgba_visual($screen) || Gtk3::Gdb::Screen::get_system_visual($screen));
 		}
 
 		$self->{_notifications_window}->set_app_paintable(TRUE);

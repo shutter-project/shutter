@@ -61,11 +61,11 @@ sub new {
 
 	#view, selector, dragger
 	$self->{_view}     = Gtk3::ImageView->new;
-	$self->{_selector} =  $self->{_view}; #Gtk3::ImageView::Tool::Selector->new($self->{_view});
+	$self->{_selector} =  Gtk3::ImageView::Tool::Selector->new($self->{_view});
 	#$self->{_dragger}  = Gtk3::ImageView::Tool::Dragger->new($self->{_view});
 	#$self->{_view}->set_interpolation('tiles');
-	#$self->{_view}->set_tool($self->{_selector});
-	$self->{_view}->set_tool('selector');
+	$self->{_view}->set_tool($self->{_selector});
+	#$self->{_view}->set_tool('selector');
 
 	#WORKAROUND
 	#upstream bug

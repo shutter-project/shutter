@@ -4262,7 +4262,6 @@ sub STARTUP {
 			$session_screens{$key}->{'image'} = Gtk3::ImageView->new();
 			#$session_screens{$key}->{'image'}->set_interpolation('tiles');
 			#$session_screens{$key}->{'image'}->set_show_frame(FALSE);
-			$session_screens{$key}->{'image'}->set_tool('dragger');
 
 			#Sets how the view should draw transparent parts of images with an alpha channel
 			my $color        = $trans_custom_btn->get_color;
@@ -4315,46 +4314,22 @@ sub STARTUP {
 					}
 				});
 
-			#dnd
-			$session_screens{$key}->{'image'}->drag_source_set(
-				'button1-mask',
-				[Gtk3::TargetEntry->new('text/uri-list', [], 0)],
-				['copy']);
-			$session_screens{$key}->{'image'}->signal_connect(
-				'drag-data-get',
+		$session_screens{$key}->{'image'}->signal_connect(
+				'dnd-start',
 				sub {
-					my ($widget, $context, $data, $info, $time) = @_;
-					if (exists $session_screens{$key}->{'giofile'}
-						&& defined $session_screens{$key}->{'giofile'})
-					{
-						$data->set_uris([$session_screens{$key}->{'giofile'}->get_uri]);
-					}
-				});
-
-			#maybe we need to disable dnd to allow scrolling
-			$session_screens{$key}->{'image'}->signal_connect(
-				'draw',
-				sub {
-					my ($view) = @_;
-					my $block_dnd = FALSE;
-					foreach my $child ($scrolled_window_image->get_children) {
-						if ($child =~ /Scrollbar/) {
-							if ($child->visible) {
-								$block_dnd = TRUE;
-								last;
-							}
-						}
-					}
-					if ($block_dnd) {
-						$view->drag_source_unset;
-					} else {
-						#dnd
-						$view->drag_source_set(
-							'button1-mask',
-							[Gtk3::TargetEntry->new('text/uri-list', [], 0)],
-							['copy']);
-					}
-				});
+					my ($view, $x, $y, $button) = @_;
+					my $list = Gtk3::TargetList->new;
+					$list->add_table([Gtk3::TargetEntry->new('text/uri-list', [], 0)]);
+					$view->drag_begin_with_coordinates(
+						$list,
+						['copy'],
+						$button,
+						undef,
+						$x, $y,
+					);
+					return TRUE;
+				}
+			);
 
 			$vbox_tab->pack_start($scrolled_window_image, TRUE, TRUE, 0);
 
