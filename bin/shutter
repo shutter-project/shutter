@@ -291,7 +291,8 @@ my $app = Gtk2::UniqueApp->new(
 #load command line arguments
 #as well as file to open when starting
 my $init_files = $so->get_options;
-my @init_files = @$init_files;
+# accept either path or uri as arguments, but store only uri
+my @init_files = map { Glib::IO::File::new_for_commandline_arg($_)->get_uri } @$init_files;
 
 #The application is already running, send it a message
 if ($app->is_running) {
