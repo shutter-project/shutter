@@ -7831,8 +7831,9 @@ if ($app->is_running) {
 
 			my $filename_template = quotemeta $filename_value;
 
-			#replace %NNN by a regex to search for digits
-			$filename_template =~ s/\\\%N+/(\d+)/g;
+			#replace %NNN by a \d+ regex to search for digits
+			#also take into account conflicted filenames Ex.: "_014(002)"
+			$filename_template =~ s/\\\%N+/(\\d+)(?:\\(\\d+\\))?/g;
 			#store regex to string
 			my $search_pattern = qr/$filename_template\.$filetype_value/;
 
