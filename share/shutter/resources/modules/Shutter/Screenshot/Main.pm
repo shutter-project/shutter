@@ -336,10 +336,10 @@ sub get_pixbuf_from_drawable {
 				#~ my $clipbox = $region->get_clipbox;
 				my $clipbox = $self->get_clipbox($region);
 
-				#~ print "Clipbox: ", $clipbox->width, " - ", $clipbox->height, "\n";
+				print "Clipbox: ", Dumper($region, $clipbox);
 
 				#create target pixbuf with dimension of clipbox
-				my $target = Gtk3::Gdk::Pixbuf->new($pixbuf->get_colorspace, TRUE, 8, $clipbox->width, $clipbox->height);
+				my $target = Gtk3::Gdk::Pixbuf->new($pixbuf->get_colorspace, TRUE, 8, $clipbox->{width}, $clipbox->{height});
 
 				#whole pixbuf is transparent
 				$target->fill(0x00000000);
@@ -347,16 +347,19 @@ sub get_pixbuf_from_drawable {
 				#determine low x and y
 				my $small_x = $self->{_root}->{w};
 				my $small_y = $self->{_root}->{h};
-				foreach my $r ($region->get_rectangles) {
-					$small_x = $r->x if $r->x < $small_x;
-					$small_y = $r->y if $r->y < $small_y;
+				my $len = $region->num_rectangles-1;
+				for my $i (0..$len) {
+					my $r = $region->get_rectangle($i);
+					$small_x = $r->{x} if $r->{x} < $small_x;
+					$small_y = $r->{y} if $r->{y} < $small_y;
 				}
 
 				#copy each rectangle
-				foreach my $r ($region->get_rectangles) {
+				for my $i (0..$len) {
+					my $r = $region->get_rectangle($i);
 
 					#~ print $r->x, " - ", $r->y, " - ", $r->width, " - ", $r->height, "\n";
-					$pixbuf->copy_area($r->x - $small_x, $r->y - $small_y, $r->width, $r->height, $target, $r->x - $small_x, $r->y - $small_y);
+					$pixbuf->copy_area($r->{x} - $small_x, $r->{y} - $small_y, $r->{width}, $r->{height}, $target, $r->{x} - $small_x, $r->{y} - $small_y);
 				}
 				$pixbuf = $target->copy;
 			}
