@@ -1851,6 +1851,9 @@ sub STARTUP {
 
 	#imageview
 	#--------------------------------------
+	my $css_provider_alpha = Gtk3::CssProvider->new;
+	Gtk3::StyleContext::add_provider_for_screen($window->get_screen, $css_provider_alpha, 0);
+
 	my $trans_check  = Gtk3::RadioButton->new_with_label(undef, $d->get("Show as check pattern"));
 	my $trans_custom = Gtk3::RadioButton->new_with_label($trans_check, $d->get("Show as custom color:"));
 	my $trans_custom_btn = Gtk3::ColorButton->new();
@@ -1880,6 +1883,8 @@ sub STARTUP {
 	} else {
 		$trans_check->set_active(TRUE);
 	}
+	# initialize css
+	evt_value_changed(undef, 'transp_toggled');
 
 	$trans_check->set_tooltip_text($d->get("Displays any transparent parts of the image in a check pattern"));
 	$trans_custom->set_tooltip_text($d->get("Displays any transparent parts of the image in a solid color that you specify"));
@@ -2773,24 +2778,22 @@ sub STARTUP {
 			my $color        = $trans_custom_btn->get_color;
 			my $color_string = sprintf("%02x%02x%02x", $color->red / 257, $color->green / 257, $color->blue / 257);
 
-			my $mode;
 			if ($trans_check->get_active) {
-				$mode = 'grid';
+				$css_provider_alpha->load_from_data("
+					.imageview.transparent {
+						background-image: url('$shutter_root/share/shutter/resources/icons/checkers.svg');
+					}
+				");
 			} elsif ($trans_custom->get_active) {
-				$mode = 'color';
+				$css_provider_alpha->load_from_data("
+					.imageview.transparent {
+						background-color: #$color_string;
+					}
+				");
 			} elsif ($trans_backg->get_active) {
-				$mode = 'color';
-				my $bg = $window->get_style_context->get_background_color('normal');
-				$color_string = sprintf("%02x%02x%02x", $bg->red / 257, $bg->green / 257, $bg->blue / 257);
+				$css_provider_alpha->load_from_data("");
 			}
-
-			#change all imageviews in session
-			foreach my $key (keys %session_screens) {
-				if ($session_screens{$key}->{'image'}) {
-					#$session_screens{$key}->{'image'}->set_transp($mode, hex $color_string);
-				}
-			}
-
+			$window->queue_draw;
 		}
 
 		#"cursor_status" toggled
@@ -4277,8 +4280,6 @@ sub STARTUP {
 				my $bg = $window->get_style_context->get_background_color('normal');
 				$color_string = sprintf("%02x%02x%02x", $bg->red / 257, $bg->green / 257, $bg->blue / 257);
 			}
-
-			#$session_screens{$key}->{'image'}->set_transp($mode, hex $color_string);
 
 			#Gtk2::ImageView::ScrollWin packaged in a Gtk2::ScrolledWindow
 			#my $scrolled_window_image = Gtk2::ImageView::ScrollWin->new($session_screens{$key}->{'image'});

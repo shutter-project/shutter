@@ -1,5 +1,4 @@
 imageview
-imageview's transparency setting
 dnd
 appindicator
 css
