@@ -5991,48 +5991,6 @@ if ($app->is_running) {
 			}
 		}
 
-		#get next filename (auto increment using a wild card or manually)
-		my $giofile = undef;
-		if ($sc->get_export_filename) {
-			my ($short, $folder, $ext) = fileparse($shf->switch_home_in_file($shf->utf8_decode($sc->get_export_filename)), qr/\.[^.]*/);
-
-			#set filetype
-			$filetype_value = $ext;
-			$filetype_value =~ s/\.//;
-
-			#prepare filename, parse wild-cards
-			$short = strftime $short, localtime;
-
-			#..remove / and #
-			$short =~ s/(\/|\#)/-/g;
-
-			#relative to abs
-			my $tmp_filename = $folder . $short . $ext;
-			unless (File::Spec->file_name_is_absolute($tmp_filename)) {
-				$tmp_filename = File::Spec->rel2abs($tmp_filename);
-			}
-
-			#...and create an uri
-			$giofile = Glib::IO::File::new_for_path($tmp_filename);
-		} else {
-
-			#prepare filename, parse wild-cards
-			$filename_value = $shf->utf8_decode(strftime $filename_value , localtime);
-
-			#..remove / and #
-			$filename_value =~ s/(\/|\#)/-/g;
-
-			#...and get next filename
-			$giofile = fct_get_next_filename($filename_value, $folder, $filetype_value);
-		}
-
-		#no valid filename was determined, exit here
-		unless ($giofile) {
-			my $response = $sd->dlg_error_message($d->get("There was an error determining the filename."), $d->get("Failed"));
-			fct_control_main_window('show');
-			return FALSE;
-		}
-
 		#fullscreen screenshot
 		if ($data eq "full" || $data eq "tray_full") {
 
@@ -6342,6 +6300,7 @@ if ($app->is_running) {
 		#start postprocessing here
 
 		#...successfully???
+		my $giofile = undef;
 		my $error = Shutter::Screenshot::Error->new($sc, $screenshot, $data, $extra);
 		if ($error->is_error) {
 			my $detailed_error_text = '';
@@ -6358,6 +6317,53 @@ if ($app->is_running) {
 			return FALSE;
 
 		} else {
+			#get next filename (auto increment using a wild card or manually)
+			if ($sc->get_export_filename) {
+				my ($short, $folder, $ext) = fileparse($shf->switch_home_in_file($shf->utf8_decode($sc->get_export_filename)), qr/\.[^.]*/);
+
+				#set filetype
+				$filetype_value = $ext;
+				$filetype_value =~ s/\.//;
+
+				#prepare filename, parse wild-cards
+				$short = strftime $short, localtime;
+
+				#..remove / and #
+				$short =~ s/(\/|\#)/-/g;
+
+				#relative to abs
+				my $tmp_filename = $folder . $short . $ext;
+				unless (File::Spec->file_name_is_absolute($tmp_filename)) {
+					$tmp_filename = File::Spec->rel2abs($tmp_filename);
+				}
+
+				#..replace wildcards by values
+				$tmp_filename = &fct_parse_filename_wildcards($tmp_filename, $screenshooter, $screenshot);
+
+				#...and create an uri
+				$giofile = Glib::IO::File::new_for_path($tmp_filename);
+			} else {
+
+				#prepare filename, parse wild-cards
+				$filename_value = $shf->utf8_decode(strftime $filename_value , localtime);
+
+				#..remove / and #
+				$filename_value =~ s/(\/|\#)/-/g;
+
+				#..replace wildcards by values
+				$filename_value = &fct_parse_filename_wildcards($filename_value, $screenshooter, $screenshot);
+
+				#...and get next filename
+				$giofile = fct_get_next_filename($filename_value, $folder, $filetype_value);
+			}
+
+			#no valid filename was determined, exit here
+			unless ($giofile) {
+				my $response = $sd->dlg_error_message($d->get("There was an error determining the filename."), $d->get("Failed"));
+				fct_control_main_window('show');
+				return FALSE;
+			}
+
 
 			#we have to use the path (e.g. /home/username/file1.png)
 			#so we can save the screenshot_properly
@@ -6369,43 +6375,6 @@ if ($app->is_running) {
 			#(anyway - most users won't have permissions to write to /)
 			$screenshot_name = "/" . $giofile->get_basename
 				unless $screenshot_name;
-
-			print "Parsing wildcards for $screenshot_name\n"
-				if $sc->get_debug;
-
-			#parse width and height
-			my $swidth  = $screenshot->get_width;
-			my $sheight = $screenshot->get_height;
-
-			$screenshot_name =~ s/\$w/$swidth/g;
-			$screenshot_name =~ s/\$h/$sheight/g;
-
-			print "Parsed \$width and \$height: $screenshot_name\n"
-				if $sc->get_debug;
-
-			#parse profile name
-			my $current_pname = $combobox_settings_profiles->get_active_text;
-			$screenshot_name =~ s/\$profile/$current_pname/g;
-
-			print "Parsed \$profile: $screenshot_name\n"
-				if $sc->get_debug;
-
-			#set name
-			#e.g. window or workspace name
-			if (my $action_name = $screenshooter->get_action_name) {
-				utf8::decode $action_name;
-				$action_name     =~ s/(\/|\#|\>|\<|\%|\*)/-/g;
-				$screenshot_name =~ s/\$name/$action_name/g;
-
-				#no blanks (special wildcard)
-				$action_name     =~ s/\ //g;
-				$screenshot_name =~ s/\$nb_name/$action_name/g;
-			} else {
-				$screenshot_name =~ s/(\$name|\$nb_name)/unknown/g;
-			}
-
-			print "Parsed \$name: $screenshot_name\n"
-				if $sc->get_debug;
 
 			#update uri after parsing as well, so we can check if file exists for example
 			$giofile = Glib::IO::File::new_for_path($screenshot_name);
@@ -7763,6 +7732,52 @@ if ($app->is_running) {
 		return TRUE;
 	}
 
+	sub fct_parse_filename_wildcards {
+		my ($filename_value, $screenshooter, $screenshot) = @_;
+
+		my $screenshot_name = $filename_value;
+
+		print "Parsing wildcards for $screenshot_name\n"
+			if $sc->get_debug;
+
+		#parse width and height
+		my $swidth  = $screenshot->get_width;
+		my $sheight = $screenshot->get_height;
+
+		$screenshot_name =~ s/\$w/$swidth/g;
+		$screenshot_name =~ s/\$h/$sheight/g;
+
+		print "Parsed \$width and \$height: $screenshot_name\n"
+			if $sc->get_debug;
+
+		#parse profile name
+		my $current_pname = $combobox_settings_profiles->get_active_text;
+		$screenshot_name =~ s/\$profile/$current_pname/g;
+
+		print "Parsed \$profile: $screenshot_name\n"
+			if $sc->get_debug;
+
+		#set name
+		#e.g. window or workspace name
+		if (my $action_name = $screenshooter->get_action_name) {
+			utf8::decode $action_name;
+			$action_name     =~ s/(\/|\#|\>|\<|\%|\*)/-/g;
+			$screenshot_name =~ s/\$name/$action_name/g;
+
+			#no blanks (special wildcard)
+			$action_name     =~ s/\ //g;
+			$screenshot_name =~ s/\$nb_name/$action_name/g;
+		} else {
+			$screenshot_name =~ s/(\$name|\$nb_name)/unknown/g;
+		}
+
+		print "Parsed \$name: $screenshot_name\n"
+			if $sc->get_debug;
+
+		return $screenshot_name;
+	}
+
+
 	sub fct_get_next_filename {
 		my ($filename_value, $folder, $filetype_value) = @_;
 
@@ -7806,56 +7821,21 @@ if ($app->is_running) {
 			$filename_value =~ s/\$R{1,}/$marks/g;
 		}
 
-		#auto increment
-		if ($filename_value =~ /\%N{1,}/) {
-
+		#auto increment  (%NNN is the pattern for the increment placeholder)
+		if ($filename_value =~ /\%(N{1,})/) {
 			#how many Ns are used? (important for formatting)
-			my $pos_proc  = index($filename_value, "%", 0);
-			my $n_counter = 0;
-			my $last_pos  = $pos_proc;
-			$pos_proc++;
-
-			while ($pos_proc <= length($filename_value)) {
-				$last_pos = index($filename_value, "N", $pos_proc);
-				if ($last_pos != -1 && ($last_pos - $pos_proc <= 1)) {
-					$n_counter++;
-					$pos_proc++;
-				} else {
-					last;
-				}
-			}
+			my $n_counter = length($1);
 
 			#prepare filename
 			print "$n_counter Ns used in wild-card\n" if $sc->get_debug;
-			my $marks = "";
-			my $i     = 0;
 
-			while ($i < $n_counter) {
-				$marks .= '\d';
-				$i++;
-			}
+			my $filename_template = quotemeta $filename_value;
 
-			#switch %Ns to \d
-			$filename_value =~ s/\%N{1,}/$marks/g;
-
-			#construct regex
-			my $first             = index("$filename_value", '\d', 0);
-			my $search_file_start = quotemeta substr($filename_value, 0, $first);
-			my $search_file_end   = quotemeta substr($filename_value, $first + $n_counter * 2, length($filename_value) - $first + $n_counter * 2);
-
+			#replace %NNN by a \d+ regex to search for digits
+			#also take into account conflicted filenames Ex.: "_014(002)"
+			$filename_template =~ s/\\\%N+/(\\d+)(?:\\(\\d+\\))?/g;
 			#store regex to string
-			my $search_pattern = qr/$search_file_start($marks)$search_file_end\.$filetype_value/;
-
-			print "Searching for files with pattern: $search_pattern\n"
-				if $sc->get_debug;
-
-			#shutter's custom wildcards are switched to reg.expressions in this search
-			#($w, $h, $name)
-			$search_pattern =~ s/\\\$w/\\d{1,}/g;
-			$search_pattern =~ s/\\\$h/\\d{1,}/g;
-			$search_pattern =~ s/\\\$profile/.{1,}/g;
-			$search_pattern =~ s/\\\$name/.{1,}/g;
-			$search_pattern =~ s/\\\$nb_name/.{1,}/g;
+			my $search_pattern = qr/$filename_template\.$filetype_value/;
 
 			print "Searching for files with pattern: $search_pattern\n"
 				if $sc->get_debug;
@@ -7895,15 +7875,11 @@ if ($app->is_running) {
 			}
 
 			$next_count = 0 unless $next_count =~ /^(\d+\.?\d*|\.\d+)$/;
-			unless (length($next_count + 1) > $n_counter) {
-				$next_count = sprintf("%0" . $n_counter . "d", $next_count + 1);
-			} else {
-				$next_count = sprintf("%0" . $n_counter . "d", $next_count);
-			}
-			$marks = quotemeta $marks;
+
+			$next_count = sprintf("%0" . $n_counter . "d", $next_count + 1);
 
 			#switch placeholder to $next_count
-			$filename_value =~ s/$marks/$next_count/g;
+			$filename_value =~ s/\%N+/$next_count/g;
 
 		}
 
@@ -11002,7 +10978,7 @@ B<Please note:> There are several wildcards available, like
 
 The string is interpretted by strftime. See C<man strftime> for more examples.
 
-B<As an example:> shutter -f -e -o './%y-%m-%d_$w_$h.png' would create a file named '11-10-28_1280_800.png' in the current directory. 
+B<As an example:> shutter -f -e -o './%y-%m-%d_$w_$h.png' would create a file named '11-10-28_1280_800.png' in the current directory.
 
 =item B<-d, --delay=SECONDS>
 
