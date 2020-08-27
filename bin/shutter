@@ -4131,7 +4131,7 @@ if ($app->is_running) {
 			}
 		}
 
-		if (fct_update_tab($key, $pixbuf, $giofile)) {
+		if (fct_update_tab($key, $pixbuf, $giofile, undef, undef, TRUE)) {
 
 			#setup a filemonitor, so we get noticed if the file changed
 			fct_add_file_monitor($key);
@@ -7250,10 +7250,11 @@ if ($app->is_running) {
 		return FALSE unless $key;
 
 		#optional, e.g.used by fct_integrate...
-		my $pixbuf      = shift;
-		my $giofile     = shift;
-		my $force_thumb = shift;
-		my $xdo         = shift;
+		my $pixbuf        = shift;
+		my $giofile       = shift;
+		my $force_thumb   = shift;
+		my $xdo           = shift;
+		my $no_image_load = shift;
 
 		$session_screens{$key}->{'giofile'} = $giofile if $giofile;
 		$session_screens{$key}->{'mtime'}   = -1
@@ -7308,13 +7309,46 @@ if ($app->is_running) {
 				$mime_type =~ s/image\/x\-apple\-ios\-png/image\/png/;    #FIXME
 				$session_screens{$key}->{'mime_type'} = $mime_type;
 
-				#THUMBNAIL
+				#TAB PREVIEW IMAGE
 				#--------------------------------------
 				#maybe we have a pixbuf already (e.g. after taking a screenshot)
-				unless ($pixbuf) {
-					$pixbuf = $lp_ne->load($session_screens{$key}->{'long'}, undef, undef, undef, TRUE);
-					unless ($pixbuf) {
 
+				unless ($pixbuf) {
+					unless ($no_image_load) {
+						$pixbuf = $lp_ne->load($session_screens{$key}->{'long'}, undef, undef, undef, TRUE);
+
+						unless ($pixbuf) {
+
+							#increment error counter
+							#and go to next try
+							$error_counter++;
+							sleep 1;
+
+							#we need to reset the modification time
+							#because the change would not be
+							#recognized otherwise
+							$session_screens{$key}->{'mtime'} = -1;
+							next;
+						}
+					}
+				}
+
+				my $im_format = undef;
+				my $im_width = undef;
+				my $im_height = undef;
+
+				if (defined $pixbuf) {
+					#setting pixbuf
+					$session_screens{$key}->{'image'}->set_pixbuf($pixbuf);
+
+					$im_width = $pixbuf->get_width;
+					$im_height = $pixbuf->get_height;
+
+				} else {
+					#If image pixbuf was not loaded, get image info without loading it into the memory
+					($im_format, $im_height, $im_width) = Gtk2::Gdk::Pixbuf->get_file_info($session_screens{$key}->{'long'});
+
+					unless ($im_format) {
 						#increment error counter
 						#and go to next try
 						$error_counter++;
@@ -7328,15 +7362,13 @@ if ($app->is_running) {
 					}
 				}
 
-				#setting pixbuf
-				$session_screens{$key}->{'image'}->set_pixbuf($pixbuf);
-
 				#UPDATE INFOS
 				#--------------------------------------
 
 				#get dimensions - using the pixbuf
-				$session_screens{$key}->{'width'}  = $pixbuf->get_width;
-				$session_screens{$key}->{'height'} = $pixbuf->get_height;
+				$session_screens{$key}->{'width'}  = $im_width;
+				$session_screens{$key}->{'height'} = $im_height;
+
 
 				#generate thumbnail if file is not too large
 				#set flag
@@ -7425,17 +7457,21 @@ if ($app->is_running) {
 				#UPDATE FIRST TAB - VIEW
 				#--------------------------------------
 
-				my $thumb_view;
+				my $thumb_view = undef;
 				unless ($session_screens{$key}->{'no_thumbnail'}) {
 					my $max_size = 100;
 
-					#update view icon
-					if (   $session_screens{$key}->{'image'}->get_pixbuf->get_height > $max_size
-						|| $session_screens{$key}->{'image'}->get_pixbuf->get_width > $max_size)
-					{
-						$thumb_view = $lp_ne->load($shf->utf8_decode($session_screens{$key}->{'giofile'}->get_path), $max_size, $max_size);
+					#update first page tab list view thumb icon
+					if ($im_width <= $max_size && $im_height <= $max_size) {
+						if (defined $pixbuf) {
+							$thumb_view = $pixbuf;
+						} else {
+							#If the full image is smaller than max_size in all
+							#the dimensions, no need to resize it.
+							$thumb_view = $lp_ne->load($shf->utf8_decode($session_screens{$key}->{'giofile'}->get_path));
+						}
 					} else {
-						$thumb_view = $session_screens{$key}->{'image'}->get_pixbuf;
+						$thumb_view = $lp_ne->load($shf->utf8_decode($session_screens{$key}->{'giofile'}->get_path), $max_size, $max_size);
 					}
 
 					#update dnd pixbuf
