@@ -4265,6 +4265,7 @@ sub STARTUP {
 			$session_screens{$key}->{'image'} = Gtk3::ImageView->new();
 			#$session_screens{$key}->{'image'}->set_interpolation('tiles');
 			#$session_screens{$key}->{'image'}->set_show_frame(FALSE);
+			$session_screens{$key}->{'image'}->set_fitting(TRUE);
 
 			#Sets how the view should draw transparent parts of images with an alpha channel
 			my $color        = $trans_custom_btn->get_color;
@@ -10743,7 +10744,7 @@ sub STARTUP {
 	sub fct_zoom_best {
 		my $key = fct_get_current_file();
 		if ($key) {
-			$session_screens{$key}->{'image'}->zoom_to_fit();
+			$session_screens{$key}->{'image'}->set_fitting(TRUE);
 		}
 	}
 
