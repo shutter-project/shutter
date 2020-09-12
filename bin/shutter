@@ -3304,7 +3304,9 @@ sub STARTUP {
 			return FALSE;
 		}
 
-		my @sel_items = $view->get_selected_items;
+		my $items = $view->get_selected_items;
+		my @sel_items;
+		@sel_items = @$items if $items;
 
 		#enable/disable menu entry when we are in the session tab and selection changes
 		if (scalar @sel_items == 1) {
@@ -3503,12 +3505,8 @@ sub STARTUP {
 				}
 
 				#upload links
-				my ($nmenu_entries_tb, $menu_links_tb) = fct_ret_upload_links_menu($key, $st->{_upload}->get_menu);
-				if ($nmenu_entries_tb) {
-					$st->{_upload}->set_menu($menu_links_tb);
-				} else {
-					#$st->{_upload}->set_menu(undef);
-				}
+				my (undef, $menu_links_tb) = fct_ret_upload_links_menu($key, $st->{_upload}->get_menu);
+				$st->{_upload}->set_menu($menu_links_tb);
 				$st->{_upload}->set_sensitive($n_items);
 
 				#MENU

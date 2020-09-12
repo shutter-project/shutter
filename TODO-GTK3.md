@@ -1,7 +1,6 @@
 imageview
 dnd (drop from somewhere else)
 css
-upload menu disabling
 xid of itself
 drawing
 TODO: test all the plugins
