@@ -125,7 +125,7 @@ sub dlg_website {
 	my $execute_btn = Gtk3::Button->new_with_mnemonic($d->get("C_apture"));
 	$execute_btn->set_image(Gtk3::Image->new_from_stock('gtk-execute', 'button'));
 	$execute_btn->set_sensitive(FALSE);
-	$execute_btn->can_default(TRUE);
+	$execute_btn->set_can_default(TRUE);
 
 	$website_dialog->add_action_widget($cancel_btn,  'cancel');
 	$website_dialog->add_action_widget($execute_btn, 'accept');

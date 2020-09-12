@@ -333,7 +333,7 @@ sub show {
 
 	#construct an event and create a new image object
 	my $initevent = Gtk3::Gdk::Event->new('motion-notify');
-	$initevent->set_time(Gtk3->get_current_event_time);
+	$initevent->set_time(Gtk3::get_current_event_time());
 	$initevent->window($self->{_drawing_window}->get_window);
 	$initevent->x(int($self->{_canvas_bg_rect}->get('width') / 2));
 	$initevent->y(int($self->{_canvas_bg_rect}->get('height') / 2));
@@ -440,7 +440,7 @@ sub show {
 
 	#STARTUP PROCEDURE
 	#-------------------------------------------------
-	$self->{_drawing_window}->get_window->focus(Gtk3->get_current_event_time);
+	$self->{_drawing_window}->get_window->focus(Gtk3::get_current_event_time());
 
 	$self->adjust_rulers;
 
@@ -1248,7 +1248,7 @@ sub quit {
 
 		#cancel button
 		my $cancel_btn = Gtk3::Button->new_from_stock('gtk-cancel');
-		$cancel_btn->can_default(TRUE);
+		$cancel_btn->set_can_default(TRUE);
 
 		#save button
 		my $save_btn = Gtk3::Button->new_from_stock('gtk-save');
@@ -1709,7 +1709,7 @@ sub save {
 
 			#save bg button
 			my $bg_btn = Gtk3::Button->new_with_mnemonic($self->{_d}->get("_Save Background Color"));
-			$bg_btn->can_default(TRUE);
+			$bg_btn->set_can_default(TRUE);
 
 			$bg_dialog->add_action_widget($cancel_btn, 10);
 			$bg_dialog->add_action_widget($bg_btn,     20);
@@ -2513,8 +2513,8 @@ sub abort_current_mode {
 	my ($self) = @_;
 
 	if ($self->{_current_item}) {
-		$self->{_canvas}->pointer_ungrab($self->{_current_item}, Gtk3->get_current_event_time);
-		$self->{_canvas}->keyboard_ungrab($self->{_current_item}, Gtk3->get_current_event_time);
+		$self->{_canvas}->pointer_ungrab($self->{_current_item}, Gtk3::get_current_event_time());
+		$self->{_canvas}->keyboard_ungrab($self->{_current_item}, Gtk3::get_current_event_time());
 	}
 
 	#~ print "abort_current_mode\n";
@@ -3333,7 +3333,7 @@ sub event_item_on_key_press {
 			#construct an motion-notify event
 			my $mevent = Gtk3::Gdk::Event->new('motion-notify');
 			$mevent->set_state('button2-mask');
-			$mevent->set_time(Gtk3->get_current_event_time);
+			$mevent->set_time(Gtk3::get_current_event_time());
 			$mevent->window($self->{_drawing_window}->get_window);
 
 			#get current x, y values
@@ -3347,22 +3347,22 @@ sub event_item_on_key_press {
 			$curr_item->{dragging_start} = TRUE;
 
 			#move with arrow keys
-			if ($ev->keyval == Gtk3::Gdk->keyval_from_name('Up')) {
+			if ($ev->keyval == Gtk3::Gdk::keyval_from_name('Up')) {
 
 				#~ print $ev->keyval," $old_x,$old_y-up\n";
 				$mevent->x($old_x);
 				$mevent->y($old_y - 1);
-			} elsif ($ev->keyval == Gtk3::Gdk->keyval_from_name('Down')) {
+			} elsif ($ev->keyval == Gtk3::Gdk::keyval_from_name('Down')) {
 
 				#~ print $ev->keyval," $old_x,$old_y-down\n";
 				$mevent->x($old_x);
 				$mevent->y($old_y + 1);
-			} elsif ($ev->keyval == Gtk3::Gdk->keyval_from_name('Left')) {
+			} elsif ($ev->keyval == Gtk3::Gdk::keyval_from_name('Left')) {
 
 				#~ print $ev->keyval," $old_x,$old_y-left\n";
 				$mevent->x($old_x - 1);
 				$mevent->y($old_y);
-			} elsif ($ev->keyval == Gtk3::Gdk->keyval_from_name('Right')) {
+			} elsif ($ev->keyval == Gtk3::Gdk::keyval_from_name('Right')) {
 
 				#~ print $ev->keyval," $old_x,$old_y-right\n";
 				$mevent->x($old_x + 1);
@@ -5580,7 +5580,7 @@ sub event_item_on_button_release {
 
 				#turn into a button-press-event
 				my $initevent = Gtk3::Gdk::Event->new('button-press');
-				$initevent->set_time(Gtk3->get_current_event_time);
+				$initevent->set_time(Gtk3::get_current_event_time());
 				$initevent->window($self->{_drawing_window}->get_window);
 				$initevent->x($ev->x);
 				$initevent->y($ev->y);
@@ -6309,7 +6309,7 @@ sub import_from_dnd {
 
 				#construct an event and create a new image object
 				my $initevent = Gtk3::Gdk::Event->new('motion-notify');
-				$initevent->set_time(Gtk3->get_current_event_time);
+				$initevent->set_time(Gtk3::get_current_event_time());
 				$initevent->window($self->{_drawing_window}->get_window);
 				$initevent->x($x);
 				$initevent->y($y);
@@ -6400,7 +6400,7 @@ sub import_from_filesystem {
 
 			#objects from directory $name
 			my $subdir_item = Gtk3::ImageMenuItem->new_with_label($short);
-			$subdir_item->set('always_show_image' => TRUE) if Gtk3->CHECK_VERSION(2, 16, 0);
+			$subdir_item->set('always_show_image' => TRUE);
 			$subdir_item->set_image(Gtk3::Image->new_from_stock('gtk-directory', 'menu'));
 
 			#add empty menu first
@@ -6446,7 +6446,7 @@ sub import_from_filesystem {
 
 		#init item with filename first
 		my $new_item = Gtk3::ImageMenuItem->new_with_label($short);
-		$new_item->set('always_show_image' => TRUE) if Gtk3->CHECK_VERSION(2, 16, 0);
+		$new_item->set('always_show_image' => TRUE);
 		$menu_objects->append($new_item);
 
 		#sfsdc
@@ -6479,7 +6479,7 @@ sub import_from_filesystem {
 
 		#objects from session
 		my $session_menu_item = Gtk3::ImageMenuItem->new_with_label($self->{_d}->get("Import from session..."));
-		$session_menu_item->set('always_show_image' => TRUE) if Gtk3->CHECK_VERSION(2, 16, 0);
+		$session_menu_item->set('always_show_image' => TRUE);
 		$session_menu_item->set_image(Gtk3::Image->new_from_stock('gtk-index', 'menu'));
 		$session_menu_item->set_submenu($self->import_from_session($button));
 
@@ -6490,7 +6490,7 @@ sub import_from_filesystem {
 
 		#objects from filesystem
 		my $filesystem_menu_item = Gtk3::ImageMenuItem->new_with_label($self->{_d}->get("Import from filesystem..."));
-		$filesystem_menu_item->set('always_show_image' => TRUE) if Gtk3->CHECK_VERSION(2, 16, 0);
+		$filesystem_menu_item->set('always_show_image' => TRUE);
 		$filesystem_menu_item->set_image(Gtk3::Image->new_from_stock('gtk-open', 'menu'));
 		$filesystem_menu_item->signal_connect(
 			'activate' => sub {
@@ -6588,7 +6588,7 @@ sub import_from_utheme {
 
 		#objects from current theme (contexts)
 		my $utheme_ctxt = Gtk3::ImageMenuItem->new_with_label($context);
-		$utheme_ctxt->set('always_show_image' => TRUE) if Gtk3->CHECK_VERSION(2, 16, 0);
+		$utheme_ctxt->set('always_show_image' => TRUE);
 		$utheme_ctxt->set_image(Gtk3::Image->new_from_stock('gtk-directory', 'menu'));
 
 		#add empty menu first
@@ -6651,7 +6651,7 @@ sub import_from_utheme_ctxt {
 
 		#objects from current theme (icons for specific contexts)
 		my $utheme_ctxt_item = Gtk3::ImageMenuItem->new_with_label($icon);
-		$utheme_ctxt_item->set('always_show_image' => TRUE) if Gtk3->CHECK_VERSION(2, 16, 0);
+		$utheme_ctxt_item->set('always_show_image' => TRUE);
 		my $iconinfo = $icontheme->lookup_icon($icon, $size, 'generic-fallback');
 
 		#save filename and generate thumbnail later
@@ -6681,7 +6681,7 @@ sub import_from_session {
 
 		#init item with filename
 		my $screen_menu_item = Gtk3::ImageMenuItem->new_with_label($import_hash{$key}->{'short'});
-		$screen_menu_item->set('always_show_image' => TRUE) if Gtk3->CHECK_VERSION(2, 16, 0);
+		$screen_menu_item->set('always_show_image' => TRUE);
 
 		#set sensitive == FALSE if image eq current file
 		$screen_menu_item->set_sensitive(FALSE)
@@ -6901,7 +6901,7 @@ sub paste_item {
 
 			#construct an event and create a new image object
 			my $initevent = Gtk3::Gdk::Event->new('motion-notify');
-			$initevent->set_time(Gtk3->get_current_event_time);
+			$initevent->set_time(Gtk3::get_current_event_time());
 			$initevent->window($self->{_drawing_window}->get_window);
 
 			#calculate coordinates

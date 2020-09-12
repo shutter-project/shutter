@@ -897,7 +897,7 @@ sub select_dialog {
 				}
 
 				#toggle prop dialog
-			} elsif ($event->keyval == Gtk3::Gdk::keyval_from_name('Shift_L') || $event->keyval == Gtk3::Gdk->keyval_from_name('Shift_R')) {
+			} elsif ($event->keyval == Gtk3::Gdk::keyval_from_name('Shift_L') || $event->keyval == Gtk3::Gdk::keyval_from_name('Shift_R')) {
 
 				if ($self->{_prop_active}) {
 					Gtk3::Gdk::keyboard_ungrab(Gtk3::get_current_event_time());

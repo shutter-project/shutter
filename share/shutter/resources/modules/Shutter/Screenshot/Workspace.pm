@@ -191,7 +191,7 @@ sub workspaces {
 
 		#metacity etc.
 	} else {
-		$active_workspace->activate(Gtk3->get_current_event_time);
+		$active_workspace->activate(Gtk3::get_current_event_time());
 	}
 
 	return $output;
@@ -219,7 +219,7 @@ sub workspace {
 			if ($self->{_selected_workspace} == $space->get_number
 				&& ($no_active_check || $self->{_selected_workspace} != $active_workspace->get_number))
 			{
-				$space->activate(Gtk3->get_current_event_time);
+				$space->activate(Gtk3::get_current_event_time());
 				$wrksp_changed = TRUE;
 			}
 		}
@@ -268,7 +268,7 @@ sub workspace {
 
 		#metacity etc
 		if ($self->{_selected_workspace}) {
-			$active_workspace->activate(Gtk3->get_current_event_time) if $wrksp_changed;
+			$active_workspace->activate(Gtk3::get_current_event_time()) if $wrksp_changed;
 
 			#compiz
 		} else {

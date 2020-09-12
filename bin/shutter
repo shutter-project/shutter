@@ -9152,7 +9152,7 @@ sub STARTUP {
 			#rename button
 			my $rename_btn = Gtk3::Button->new_with_mnemonic($d->get("_Rename"));
 			$rename_btn->set_image(Gtk3::Image->new_from_stock('gtk-save-as', 'button'));
-			$rename_btn->can_default(TRUE);
+			$rename_btn->set_can_default(TRUE);
 
 			$input_dialog->add_button('gtk-cancel', 'reject');
 			$input_dialog->add_action_widget($rename_btn, 'accept');
@@ -9819,7 +9819,7 @@ sub STARTUP {
 		#rename button
 		my $run_btn = Gtk3::Button->new_with_mnemonic($d->get("_Run"));
 		$run_btn->set_image(Gtk3::Image->new_from_stock('gtk-execute', 'button'));
-		$run_btn->can_default(TRUE);
+		$run_btn->set_can_default(TRUE);
 
 		$plugin_dialog->add_button('gtk-cancel', 'reject');
 		$plugin_dialog->add_action_widget($run_btn, 'accept');
