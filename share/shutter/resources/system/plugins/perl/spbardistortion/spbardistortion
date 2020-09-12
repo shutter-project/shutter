@@ -86,9 +86,6 @@ $plug->set_border_width( 10 );
 
 $plug->signal_connect( destroy => sub { Gtk3->main_quit } );
 
-#tooltips
-my $tooltips = Gtk3::Tooltips->new;
-
 #configure buttons and other needed controls
 my $c1_label = Gtk3::Label->new( $d->get( "A:" ) );
 my $c1_sbutton = Gtk3::SpinButton->new_with_range( -1, 1, 0.1 );
@@ -106,57 +103,49 @@ my $c4_label = Gtk3::Label->new( $d->get( "D:" ) );
 my $c4_sbutton = Gtk3::SpinButton->new_with_range( -1, 1, 0.1 );
 $c4_sbutton->set_value( 1.0 );
 
-$tooltips->set_tip(
-	$c1_label,
+$c1_label->set_tooltip_text(
 	$d->get(
 		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
 	)
 );
 
-$tooltips->set_tip(
-	$c1_sbutton,
+	$c1_sbutton->set_tooltip_text(
 	$d->get(
 		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
 	)
 );
 
-$tooltips->set_tip(
-	$c2_label,
+	$c2_label->set_tooltip_text(
 	$d->get(
 		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
 	)
 );
 
-$tooltips->set_tip(
-	$c2_sbutton,
+	$c2_sbutton->set_tooltip_text(
 	$d->get(
 		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
 	)
 );
 
-$tooltips->set_tip(
-	$c3_label,
+	$c3_label->set_tooltip_text(
 	$d->get(
 		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
 	)
 );
 
-$tooltips->set_tip(
-	$c3_sbutton,
+	$c3_sbutton->set_tooltip_text(
 	$d->get(
 		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
 	)
 );
 
-$tooltips->set_tip(
-	$c4_label,
+	$c4_label->set_tooltip_text(
 	$d->get(
 		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
 	)
 );
 
-$tooltips->set_tip(
-	$c4_sbutton,
+	$c4_sbutton->set_tooltip_text(
 	$d->get(
 		"The parameter d describes the linear scaling of the image. Using d=1, and a=b=c=0 leaves the image as it is. Choosing other d-values scales the image by that amount. a,b and c distort the image. Using negative values shifts distant points away from the center.\n\nDefined by Barrel Correction Distortion, by Helmut Dersch.\nhttp://www.all-in-one.ee/~dersch/barrel/barrel.html"
 	)

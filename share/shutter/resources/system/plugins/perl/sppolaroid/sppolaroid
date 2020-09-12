@@ -92,22 +92,17 @@ $plug->set_border_width( 10 );
 
 $plug->signal_connect( destroy => sub { Gtk3->main_quit } );
 
-#tooltips
-my $tooltips = Gtk3::Tooltips->new;
-
 #configure buttons and other needed controls
 my $caption_label = Gtk3::Label->new( $d->get( "Text:" ) );
 my $caption_entry = Gtk3::Entry->new();
 $caption_entry->set_text( "%c - $filename" );
 
-$tooltips->set_tip(
-	$caption_label,
+	$caption_label->set_tooltip_text(
 	$d->get(
 		"There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time"
 	)
 );
-$tooltips->set_tip(
-	$caption_entry,
+	$caption_entry->set_tooltip_text(
 	$d->get(
 		"There are several wild-cards available, like\n%Y = year\n%m = month\n%d = day\n%T = time"
 	)

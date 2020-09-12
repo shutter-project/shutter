@@ -87,9 +87,6 @@ $plug->set_border_width( 10 );
 
 $plug->signal_connect( destroy => sub { Gtk3->main_quit } );
 
-#tooltips
-my $tooltips = Gtk3::Tooltips->new;
-
 #configure buttons and other needed controls
 my $direction_label = Gtk3::Label->new( $d->get( "Direction" ). ":" );
 my $direction_combo = Gtk3::ComboBoxText->new;
@@ -104,15 +101,13 @@ $direction_combo->insert_text( 7, "South" );
 $direction_combo->insert_text( 8, "SouthEast" );
 $direction_combo->set_active( 8 );
 
-$tooltips->set_tip(
-	$direction_label,
+	$direction_label->set_tooltip_text(
 	$d->get(
 		"The direction of the shadow"
 	)
 );
 
-$tooltips->set_tip(
-	$direction_combo,
+	$direction_combo->set_tooltip_text(
 	$d->get(
 		"The direction of the shadow"
 	)
@@ -125,15 +120,13 @@ $shadow_color->set_alpha( int( 1 * 65535 ) );
 $shadow_color->set_use_alpha(FALSE);
 $shadow_color->set_title( $d->get("Choose color") );
 
-$tooltips->set_tip(
-	$shadow_color_label,
+	$shadow_color_label->set_tooltip_text(
 	$d->get(
 		"The color of the shadow"
 	)
 );
 
-$tooltips->set_tip(
-	$shadow_color,
+	$shadow_color->set_tooltip_text(
 	$d->get(
 		"The color of the shadow"
 	)
