@@ -65,7 +65,6 @@ sub new {
 	#$self->{_dragger}  = Gtk3::ImageView::Tool::Dragger->new($self->{_view});
 	#$self->{_view}->set_interpolation('tiles');
 	$self->{_view}->set_tool($self->{_selector});
-	#$self->{_view}->set_tool('selector');
 
 	#WORKAROUND
 	#upstream bug
@@ -817,10 +816,15 @@ sub select_dialog {
 	my $sh = 0;
 
 	if (defined $s) {
-		$sx = $s->x;
-		$sy = $s->y;
-		$sw = $s->width;
-		$sh = $s->height;
+		$sx = $s->{x};
+		$sy = $s->{y};
+		$sw = $s->{width};
+		$sh = $s->{height};
+	}
+
+	sub value_callback {
+		$self->{_selector}
+			->set_selection({x=>$self->{_x_spin_w}->get_value, y=>$self->{_y_spin_w}->get_value, width=>$self->{_width_spin_w}->get_value, height=>$self->{_height_spin_w}->get_value});
 	}
 
 	#X
@@ -828,10 +832,7 @@ sub select_dialog {
 	$self->{_x_spin_w} = Gtk3::SpinButton->new_with_range(0, $self->{_root}->{w}, 1);
 	$self->{_x_spin_w}->set_value($sx);
 	$self->{_x_spin_w_handler} = $self->{_x_spin_w}->signal_connect(
-		'value-changed' => sub {
-			$self->{_selector}
-				->set_selection(Gtk3::Gdk::Rectangle->new($self->{_x_spin_w}->get_value, $self->{_y_spin_w}->get_value, $self->{_width_spin_w}->get_value, $self->{_height_spin_w}->get_value));
-		});
+		'value-changed' => \&value_callback);
 
 	my $xw_hbox = Gtk3::HBox->new(FALSE, 5);
 	$xw_hbox->pack_start($xw_label,          FALSE, FALSE, 5);
@@ -842,10 +843,7 @@ sub select_dialog {
 	$self->{_y_spin_w} = Gtk3::SpinButton->new_with_range(0, $self->{_root}->{h}, 1);
 	$self->{_y_spin_w}->set_value($sy);
 	$self->{_y_spin_w_handler} = $self->{_y_spin_w}->signal_connect(
-		'value-changed' => sub {
-			$self->{_selector}
-				->set_selection(Gtk3::Gdk::Rectangle->new($self->{_x_spin_w}->get_value, $self->{_y_spin_w}->get_value, $self->{_width_spin_w}->get_value, $self->{_height_spin_w}->get_value));
-		});
+		'value-changed' => \&value_callback);
 
 	my $yw_hbox = Gtk3::HBox->new(FALSE, 5);
 	$yw_hbox->pack_start($yw_label,          FALSE, FALSE, 5);
@@ -856,10 +854,7 @@ sub select_dialog {
 	$self->{_width_spin_w} = Gtk3::SpinButton->new_with_range(0, $self->{_root}->{w}, 1);
 	$self->{_width_spin_w}->set_value($sw);
 	$self->{_width_spin_w_handler} = $self->{_width_spin_w}->signal_connect(
-		'value-changed' => sub {
-			$self->{_selector}
-				->set_selection(Gtk3::Gdk::Rectangle->new($self->{_x_spin_w}->get_value, $self->{_y_spin_w}->get_value, $self->{_width_spin_w}->get_value, $self->{_height_spin_w}->get_value));
-		});
+		'value-changed' => \&value_callback);
 
 	my $ww_hbox = Gtk3::HBox->new(FALSE, 5);
 	$ww_hbox->pack_start($widthw_label,          FALSE, FALSE, 5);
@@ -870,10 +865,7 @@ sub select_dialog {
 	$self->{_height_spin_w} = Gtk3::SpinButton->new_with_range(0, $self->{_root}->{h}, 1);
 	$self->{_height_spin_w}->set_value($sh);
 	$self->{_height_spin_w_handler} = $self->{_height_spin_w}->signal_connect(
-		'value-changed' => sub {
-			$self->{_selector}
-				->set_selection(Gtk3::Gdk::Rectangle->new($self->{_x_spin_w}->get_value, $self->{_y_spin_w}->get_value, $self->{_width_spin_w}->get_value, $self->{_height_spin_w}->get_value));
-		});
+		'value-changed' => \&value_callback);
 
 	my $hw_hbox = Gtk3::HBox->new(FALSE, 5);
 	$hw_hbox->pack_start($heightw_label,          FALSE, FALSE, 5);

@@ -176,7 +176,7 @@ sub dlg_website {
 	my $website_progress = Gtk3::ProgressBar->new;
 	$website_progress->set_no_show_all(TRUE);
 	$website_progress->set_ellipsize('middle');
-	$website_progress->set_orientation('left-to-right');
+	$website_progress->set_orientation('horizontal');
 	$website_progress->set_fraction(0);
 	$website_hbox2->pack_start($website_progress, TRUE, TRUE, 12);
 	$website_dialog->get_child->add($website_hbox2);
@@ -312,10 +312,10 @@ sub dlg_website {
 sub update_gui {
 	my $self = shift;
 
-	while (Gtk3->events_pending) {
-		Gtk3->main_iteration;
+	while (Gtk3::events_pending()) {
+		Gtk3::main_iteration();
 	}
-	Gtk3::Gdk->flush;
+	Gtk3::Gdk::flush();
 
 	return TRUE;
 }

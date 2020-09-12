@@ -159,7 +159,7 @@ $plug->add($vbox_main);
 $plug->show_all;
 
 #hide the preview widget at startup 
-$preview->hide_all;
+$preview->hide;
 
 #create tempfile
 my ( $tmpfh, $tmpfilename ) = tempfile();
@@ -210,7 +210,7 @@ sub fct_imagemagick_sepia {
 	}
 	else {
 
-		$preview->hide_all;
+		$preview->hide;
 		$preview_throb->show_all;
 
 		$process->start(
@@ -270,7 +270,7 @@ sub fct_imagemagick_sepia {
 
 		$save_btn->set_sensitive(TRUE);
 		$preview->show_all;
-		$preview_throb->hide_all;
+		$preview_throb->hide;
 
 		return TRUE;
 	}
@@ -298,10 +298,10 @@ sub apply_effect {
 
 sub fct_update_gui {
 
-	while ( Gtk3->events_pending ) {
-		Gtk3->main_iteration;
+	while ( Gtk3::events_pending() ) {
+		Gtk3::main_iteration();
 	}
-	Gtk3::Gdk->flush;
+	Gtk3::Gdk::flush();
 
 	return TRUE;
 }

@@ -1,6 +1,5 @@
 imageview
 dnd (drop from somewhere else)
-appindicator
 css
 upload menu disabling
 xid of itself
@@ -11,3 +10,5 @@ diff with gtk2 version and replace functions which I replaced in some places but
 ssh -X is broken
 SimpleDialogs
 can_default doesn't exist
+interpolation in imageview
+select dialog (RMB) with imageview selector

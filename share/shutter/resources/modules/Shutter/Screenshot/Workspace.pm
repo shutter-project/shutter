@@ -115,7 +115,7 @@ sub workspaces {
 					#capture viewport
 					$pixbuf = $self->workspace(TRUE, TRUE);
 
-					my $rect = Gtk3::Gdk::Rectangle->new($width, $height, $pixbuf->get_width, $pixbuf->get_height);
+					my $rect = {x=>$width, y=>$height, width=>$pixbuf->get_width, height=>$pixbuf->get_height};
 					$wspaces_region->union_with_rect($rect);
 					push @pixbuf_array, $pixbuf;
 					push @rects_array,  $rect;
@@ -128,7 +128,7 @@ sub workspaces {
 				#next row
 				# > set height to clipbox-height
 				# > set width to 0, because we start in column 0 again
-				$height = $sr->get_clipbox($wspaces_region)->height;
+				$height = $sr->get_clipbox($wspaces_region)->{height};
 				$width  = 0;
 
 			}
@@ -149,10 +149,10 @@ sub workspaces {
 			}
 			$column = $space->get_layout_column;
 
-			$height = $sr->get_clipbox($wspaces_region)->height if ($row != $space->get_layout_row);
+			$height = $sr->get_clipbox($wspaces_region)->{height} if ($row != $space->get_layout_row);
 			$row    = $space->get_layout_row;
 
-			my $rect = Gtk3::Gdk::Rectangle->new($width, $height, $pixbuf->get_width, $pixbuf->get_height);
+			my $rect = {x=>$width, y=>$height, width=>$pixbuf->get_width, height=>$pixbuf->get_height};
 			$wspaces_region->union_with_rect($rect);
 			push @pixbuf_array, $pixbuf;
 			push @rects_array,  $rect;
@@ -161,14 +161,14 @@ sub workspaces {
 
 	}
 
-	if ($wspaces_region->get_rectangles) {
-		$output = Gtk3::Gdk::Pixbuf->new('rgb', TRUE, 8, $sr->get_clipbox($wspaces_region)->width, $sr->get_clipbox($wspaces_region)->height);
+	if ($wspaces_region->num_rectangles) {
+		$output = Gtk3::Gdk::Pixbuf->new('rgb', TRUE, 8, $sr->get_clipbox($wspaces_region)->{width}, $sr->get_clipbox($wspaces_region)->{height});
 		$output->fill(0x00000000);
 
 		#copy images to the blank pixbuf
 		my $rect_counter = 0;
 		foreach my $pixbuf (@pixbuf_array) {
-			$pixbuf->copy_area(0, 0, $pixbuf->get_width, $pixbuf->get_height, $output, $rects_array[$rect_counter]->x, $rects_array[$rect_counter]->y);
+			$pixbuf->copy_area(0, 0, $pixbuf->get_width, $pixbuf->get_height, $output, $rects_array[$rect_counter]->{x}, $rects_array[$rect_counter]->{y});
 			$rect_counter++;
 		}
 	}

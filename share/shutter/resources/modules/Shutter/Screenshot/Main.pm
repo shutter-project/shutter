@@ -316,7 +316,6 @@ sub get_pixbuf_from_drawable {
 				}
 			};
 			if ($@) {
-				print $@;
 				$pixbuf = 5;
 				Gtk3->main_quit;
 				return FALSE;
@@ -336,7 +335,7 @@ sub get_pixbuf_from_drawable {
 				#~ my $clipbox = $region->get_clipbox;
 				my $clipbox = $self->get_clipbox($region);
 
-				print "Clipbox: ", Dumper($region, $clipbox);
+				#print "Clipbox: ", Dumper($region, $clipbox);
 
 				#create target pixbuf with dimension of clipbox
 				my $target = Gtk3::Gdk::Pixbuf->new($pixbuf->get_colorspace, TRUE, 8, $clipbox->{width}, $clipbox->{height});
@@ -472,7 +471,7 @@ sub include_cursor {
 		my $y = $cursor_pixbuf_yroot;
 
 		#screenshot dimensions saved in a rect (global x, y)
-		my $scshot = Gtk3::Gdk::Rectangle->new($xp, $yp, $widthp, $heightp);
+		my $scshot = {x=>$xp, y=>$yp, width=>$widthp, height=>$heightp};
 
 		#see 'man xcursor' for a detailed description
 		#of these values
@@ -480,7 +479,7 @@ sub include_cursor {
 		my $yhot = $cursor_pixbuf_yhot;
 
 		#cursor dimensions (global x, y and width and height of the pixbuf)
-		my $cursor = Gtk3::Gdk::Rectangle->new($x, $y, $cursor_pixbuf->get_width, $cursor_pixbuf->get_height);
+		my $cursor = {x=>$x, y=>$y, width=>$cursor_pixbuf->get_width, height=>$cursor_pixbuf->get_height};
 
 		#is the cursor visible in the current screenshot?
 		#(do the rects intersect?)
@@ -498,7 +497,7 @@ sub include_cursor {
 			$dest_x = 0 if $dest_x < 0;
 			$dest_y = 0 if $dest_y < 0;
 
-			$cursor_pixbuf->composite($pixbuf, $dest_x, $dest_y, $cursor->width, $cursor->height, $x - $xp - $xhot, $y - $yp - $yhot, 1.0, 1.0, 'bilinear', 255);
+			$cursor_pixbuf->composite($pixbuf, $dest_x, $dest_y, $cursor->{width}, $cursor->{height}, $x - $xp - $xhot, $y - $yp - $yhot, 1.0, 1.0, 'bilinear', 255);
 
 		}
 	}

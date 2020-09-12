@@ -293,7 +293,7 @@ sub show {
 
 			if ($ev->state >= 'control-mask' && ($ev->direction eq 'up' || $ev->direction eq 'left')) {
 				$self->zoom_in_cb;
-				$canvas->scroll_to(int($ev->x - $alloc->width / 2) / $scale, int($ev->y - $alloc->height / 2) / $scale);
+				$canvas->scroll_to(int($ev->x - $alloc->{width} / 2) / $scale, int($ev->y - $alloc->{height} / 2) / $scale);
 				return TRUE;
 			} elsif ($ev->state >= 'control-mask' && ($ev->direction eq 'down' || $ev->direction eq 'right')) {
 				$self->zoom_out_cb;
@@ -657,15 +657,16 @@ sub setup_right_vbox_c {
 	#get current pixbuf
 	my $pixbuf = $self->{_view}->get_pixbuf || $self->{_drawing_pixbuf};
 
+	sub value_callback {
+		$self->{_selector}->set_selection({x=>$self->{_x_spin_w}->get_value, y=>$self->{_y_spin_w}->get_value, width=>$self->{_width_spin_w}->get_value, height=>$self->{_height_spin_w}->get_value});
+	}
+
 	#X
 	my $xw_label = Gtk3::Label->new($self->{_d}->get("X") . ":");
 	$self->{_x_spin_w} = Gtk3::SpinButton->new_with_range(0, $pixbuf->get_width, 1);
 	$self->{_x_spin_w}->set_value(0);
 	$self->{_x_spin_w_handler} = $self->{_x_spin_w}->signal_connect(
-		'value-changed' => sub {
-			$self->{_selector}
-				->set_selection(Gtk3::Gdk::Rectangle->new($self->{_x_spin_w}->get_value, $self->{_y_spin_w}->get_value, $self->{_width_spin_w}->get_value, $self->{_height_spin_w}->get_value));
-		});
+		'value-changed' => \&value_callback);
 
 	my $xw_hbox = Gtk3::HBox->new(FALSE, 5);
 	$xw_hbox->pack_start($xw_label,          FALSE, FALSE, 5);
@@ -676,10 +677,7 @@ sub setup_right_vbox_c {
 	$self->{_y_spin_w} = Gtk3::SpinButton->new_with_range(0, $pixbuf->get_height, 1);
 	$self->{_y_spin_w}->set_value(0);
 	$self->{_y_spin_w_handler} = $self->{_y_spin_w}->signal_connect(
-		'value-changed' => sub {
-			$self->{_selector}
-				->set_selection(Gtk3::Gdk::Rectangle->new($self->{_x_spin_w}->get_value, $self->{_y_spin_w}->get_value, $self->{_width_spin_w}->get_value, $self->{_height_spin_w}->get_value));
-		});
+		'value-changed' => \&value_callback);
 
 	my $yw_hbox = Gtk3::HBox->new(FALSE, 5);
 	$yw_hbox->pack_start($yw_label,          FALSE, FALSE, 5);
@@ -690,10 +688,7 @@ sub setup_right_vbox_c {
 	$self->{_width_spin_w} = Gtk3::SpinButton->new_with_range(0, $pixbuf->get_width, 1);
 	$self->{_width_spin_w}->set_value(0);
 	$self->{_width_spin_w_handler} = $self->{_width_spin_w}->signal_connect(
-		'value-changed' => sub {
-			$self->{_selector}
-				->set_selection(Gtk3::Gdk::Rectangle->new($self->{_x_spin_w}->get_value, $self->{_y_spin_w}->get_value, $self->{_width_spin_w}->get_value, $self->{_height_spin_w}->get_value));
-		});
+		'value-changed' => \&value_callback);
 
 	my $ww_hbox = Gtk3::HBox->new(FALSE, 5);
 	$ww_hbox->pack_start($widthw_label,          FALSE, FALSE, 5);
@@ -704,10 +699,7 @@ sub setup_right_vbox_c {
 	$self->{_height_spin_w} = Gtk3::SpinButton->new_with_range(0, $pixbuf->get_height, 1);
 	$self->{_height_spin_w}->set_value(0);
 	$self->{_height_spin_w_handler} = $self->{_height_spin_w}->signal_connect(
-		'value-changed' => sub {
-			$self->{_selector}
-				->set_selection(Gtk3::Gdk::Rectangle->new($self->{_x_spin_w}->get_value, $self->{_y_spin_w}->get_value, $self->{_width_spin_w}->get_value, $self->{_height_spin_w}->get_value));
-		});
+		'value-changed' => \&value_callback);
 
 	my $hw_hbox = Gtk3::HBox->new(FALSE, 5);
 	$hw_hbox->pack_start($heightw_label,          FALSE, FALSE, 5);
@@ -749,11 +741,11 @@ sub setup_right_vbox_c {
 				$self->{_drawing_pixbuf}->copy_area(0, 0, $self->{_drawing_pixbuf}->get_width, $self->{_drawing_pixbuf}->get_height, $temp, 0, 0);
 
 				#and create a new subpixbuf from the temp pixbuf
-				my $new_p = $temp->new_subpixbuf($s->x, $s->y, $s->width, $s->height);
+				my $new_p = $temp->new_subpixbuf($s->{x}, $s->{y}, $s->{width}, $s->{height});
 				$self->{_drawing_pixbuf} = $new_p->copy;
 
 				#update bounds and bg_rects
-				$self->{_canvas_bg_rect}->set('width' => $s->width, 'height' => $s->height);
+				$self->{_canvas_bg_rect}->set('width' => $s->{width}, 'height' => $s->{height});
 				$self->handle_bg_rects('update');
 
 				#update canvas and show the new pixbuf
@@ -762,7 +754,7 @@ sub setup_right_vbox_c {
 				#now move all items,
 				#so they are in the right position
 				#~ print $s->x ." - ".$s->y."\n";
-				$self->move_all($s->x, $s->y);
+				$self->move_all($s->{x}, $s->{y});
 
 				#adjust stack order
 				$self->{_canvas_bg}->lower;
@@ -836,17 +828,17 @@ sub adjust_crop_values {
 	my $s = $self->{_selector}->get_selection;
 
 	if ($s) {
-		$self->{_x_spin_w}->set_value($s->x);
-		$self->{_x_spin_w}->set_range(0, $pixbuf->get_width - $s->width);
+		$self->{_x_spin_w}->set_value($s->{x});
+		$self->{_x_spin_w}->set_range(0, $pixbuf->get_width - $s->{width});
 
-		$self->{_y_spin_w}->set_value($s->y);
-		$self->{_y_spin_w}->set_range(0, $pixbuf->get_height - $s->height);
+		$self->{_y_spin_w}->set_value($s->{y});
+		$self->{_y_spin_w}->set_range(0, $pixbuf->get_height - $s->{height});
 
-		$self->{_width_spin_w}->set_value($s->width);
-		$self->{_width_spin_w}->set_range(0, $pixbuf->get_width - $s->x);
+		$self->{_width_spin_w}->set_value($s->{width});
+		$self->{_width_spin_w}->set_range(0, $pixbuf->get_width - $s->{x});
 
-		$self->{_height_spin_w}->set_value($s->height);
-		$self->{_height_spin_w}->set_range(0, $pixbuf->get_height - $s->y);
+		$self->{_height_spin_w}->set_value($s->{height});
+		$self->{_height_spin_w}->set_range(0, $pixbuf->get_height - $s->{y});
 	}
 
 	#unblock 'value-change' handlers for widgets
@@ -991,7 +983,7 @@ sub change_drawing_tool_cb {
 		$self->{_drawing_inner_vbox}->show_all;
 
 		#hide cropping tool
-		$self->{_drawing_inner_vbox_c}->hide_all;
+		$self->{_drawing_inner_vbox_c}->hide;
 
 	}
 
@@ -1110,7 +1102,7 @@ sub change_drawing_tool_cb {
 		$self->{_drawing_inner_vbox_c}->show_all;
 
 		#hide drawing tool widgets
-		$self->{_drawing_inner_vbox}->hide_all;
+		$self->{_drawing_inner_vbox}->hide;
 
 		#focus crop-ok-button
 		$self->{_btn_ok_c}->grab_focus;
@@ -1121,7 +1113,7 @@ sub change_drawing_tool_cb {
 
 		if (exists $self->{_cursors}{$self->{_current_mode_descr}}) {
 			$cursor = Gtk3::Gdk::Cursor->new_from_pixbuf(
-				Gtk3::Gdk::Display->get_default,                          $self->{_cursors}{$self->{_current_mode_descr}},
+				Gtk3::Gdk::Display::get_default(),                          $self->{_cursors}{$self->{_current_mode_descr}},
 				$self->{_cursors}{$self->{_current_mode_descr}}{'x_hot'}, $self->{_cursors}{$self->{_current_mode_descr}}{'y_hot'},
 			);
 		}
@@ -6470,7 +6462,7 @@ sub import_from_filesystem {
 
 		#~ #objects from icontheme
 		#~ if ( Gtk3->CHECK_VERSION( 2, 12, 0 ) ) {
-		#~ my $icontheme = Gtk3::IconTheme->get_default;
+		#~ my $icontheme = Gtk3::IconTheme::get_default();
 		#~
 		#~ my $utheme_item = Gtk3::ImageMenuItem->new_with_label( $self->{_d}->get("Import from current theme...") );
 		#~ $utheme_item->set( 'always_show_image' => TRUE ) if Gtk3->CHECK_VERSION( 2, 16, 0 );
@@ -6844,7 +6836,7 @@ sub change_cursor_to_current_pixbuf {
 	#load file
 	$self->{_current_pixbuf} = $self->{_lp}->load($self->{_current_pixbuf_filename}, undef, undef, undef, TRUE);
 	unless ($self->{_current_pixbuf}) {
-		$cursor = Gtk3::Gdk::Cursor->new_from_pixbuf(Gtk3::Gdk::Display->get_default, Gtk3::Gdk::Pixbuf->new_from_file($self->{_dicons} . '/draw-image.svg'), Gtk3::IconSize->lookup('menu'));
+		$cursor = Gtk3::Gdk::Cursor->new_from_pixbuf(Gtk3::Gdk::Display::get_default(), Gtk3::Gdk::Pixbuf->new_from_file($self->{_dicons} . '/draw-image.svg'), Gtk3::IconSize->lookup('menu'));
 	}
 
 	#very big images usually don't work as a cursor (no error though??)
@@ -6855,15 +6847,15 @@ sub change_cursor_to_current_pixbuf {
 		eval {
 
 			#maximum cursor size
-			my ($cw, $ch) = Gtk3::Gdk::Display->get_default->get_maximal_cursor_size;
+			my ($cw, $ch) = Gtk3::Gdk::Display::get_default->get_maximal_cursor_size;
 
 			#images smaller than max cursor size?
 			# => don't scale to a bigger size
 			if ($cw > $pb_w || $ch > $pb_w) {
-				$cursor = Gtk3::Gdk::Cursor->new_from_pixbuf(Gtk3::Gdk::Display->get_default, $self->{_current_pixbuf}, int($pb_w / 2), int($pb_h / 2));
+				$cursor = Gtk3::Gdk::Cursor->new_from_pixbuf(Gtk3::Gdk::Display::get_default(), $self->{_current_pixbuf}, int($pb_w / 2), int($pb_h / 2));
 			} else {
 				my $cpixbuf = $self->{_lp}->load($self->{_current_pixbuf_filename}, $cw, $ch, TRUE, TRUE);
-				$cursor = Gtk3::Gdk::Cursor->new_from_pixbuf(Gtk3::Gdk::Display->get_default, $cpixbuf, int($cpixbuf->get_width / 2), int($cpixbuf->get_height / 2));
+				$cursor = Gtk3::Gdk::Cursor->new_from_pixbuf(Gtk3::Gdk::Display::get_default(), $cpixbuf, int($cpixbuf->get_width / 2), int($cpixbuf->get_height / 2));
 			}
 
 		};
@@ -6876,7 +6868,7 @@ sub change_cursor_to_current_pixbuf {
 			$self->abort_current_mode;
 		}
 	} else {
-		$cursor = Gtk3::Gdk::Cursor->new_from_pixbuf(Gtk3::Gdk::Display->get_default, Gtk3::Gdk::Pixbuf->new_from_file($self->{_dicons} . '/draw-image.svg'), Gtk3::IconSize->lookup('menu'));
+		$cursor = Gtk3::Gdk::Cursor->new_from_pixbuf(Gtk3::Gdk::Display::get_default(), Gtk3::Gdk::Pixbuf->new_from_file($self->{_dicons} . '/draw-image.svg'), Gtk3::IconSize->lookup('menu'));
 	}
 
 	return $cursor;

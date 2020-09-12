@@ -188,7 +188,7 @@ my $gnome_web_photo = TRUE;
 my $nautilus_sendto = TRUE;
 my $goocanvas       = TRUE;
 my $exiftool        = TRUE;
-my $appindicator    = TRUE;
+my $appindicator    = FALSE; # Gtk3::StatusIcon works better albeit being deprecated in Gtk3
 fct_init_depend();
 
 #--------------------------------------
@@ -454,7 +454,6 @@ sub STARTUP {
 
 	#TRAY ICON AND MENU
 	my $tray      = undef;
-	my $tray_box  = undef;                 #Gtk3::TrayIcon needs and Gtk3::EventBox
 	my $tray_menu = fct_ret_tray_menu();
 
 	#SESSION NOTEBOOK
@@ -1060,7 +1059,7 @@ sub STARTUP {
 			my $filename = shift;
 			my $event    = shift;
 
-			my $input = Gtk3::Gdk->keyval_to_unicode($event->keyval);
+			my $input = Gtk3::Gdk::keyval_to_unicode($event->keyval);
 
 			#invalid input
 			#~ print $input."\n";
@@ -4120,13 +4119,9 @@ sub STARTUP {
 				if ($tray->signal_handler_is_connected($tray->{'hid2'})) {
 					$tray->signal_handler_block($tray->{'hid2'});
 				}
-			} elsif ($tray && $tray->isa('AppIndicator')) {
+			} elsif ($tray && $tray->isa('AppIndicator::Indicator')) {
 				if (Gtk3::AppIndicator->VERSION > 0.12) {
 					$tray->set_passive();
-				}
-			} elsif ($tray) {
-				if ($tray_box->signal_handler_is_connected($tray_box->{'hid'})) {
-					$tray_box->signal_handler_block($tray_box->{'hid'});
 				}
 			}
 
@@ -4149,13 +4144,9 @@ sub STARTUP {
 				if ($tray->signal_handler_is_connected($tray->{'hid2'})) {
 					$tray->signal_handler_unblock($tray->{'hid2'});
 				}
-			} elsif ($tray && $tray->isa('Gtk3::AppIndicator')) {
+			} elsif ($tray && $tray->isa('AppIndicator::Indicator')) {
 				if (Gtk3::AppIndicator->VERSION > 0.12) {
 					$tray->set_active();
-				}
-			} elsif ($tray) {
-				if ($tray_box->signal_handler_is_connected($tray_box->{'hid'})) {
-					$tray_box->signal_handler_unblock($tray_box->{'hid'});
 				}
 			}
 
@@ -5493,7 +5484,7 @@ sub STARTUP {
 
 			if ($mode eq 'image') {
 				my $pixbuf = $lp->load($session_screens{$key}->{'long'});
-				my $rect   = Gtk3::Gdk::Rectangle->new($sr->get_clipbox($clipboard_region)->width, 0, $pixbuf->get_width, $pixbuf->get_height);
+				my $rect   = {x=>$sr->get_clipbox($clipboard_region)->{width}, y=>0, width=>$pixbuf->get_width, height=>$pixbuf->get_height};
 				$clipboard_region->union_with_rect($rect);
 				push @pixbuf_array, $pixbuf;
 				push @rects_array,  $rect;
@@ -5510,7 +5501,7 @@ sub STARTUP {
 		}
 
 		if ($clipboard_region->get_rectangles) {
-			my $clipboard_image = Gtk3::Gdk::Pixbuf->new('rgb', TRUE, 8, $sr->get_clipbox($clipboard_region)->width, $sr->get_clipbox($clipboard_region)->height);
+			my $clipboard_image = Gtk3::Gdk::Pixbuf->new('rgb', TRUE, 8, $sr->get_clipbox($clipboard_region)->{width}, $sr->get_clipbox($clipboard_region)->{height});
 			$clipboard_image->fill(0x00000000);
 
 			#copy images to the blank pixbuf
@@ -9004,16 +8995,16 @@ sub STARTUP {
 			$exiftool = FALSE;
 		}
 
-		#libgtk2-appindicator-perl
+		#dev-libs/libappindicator[introspection]
 		eval {
 			Glib::Object::Introspection->setup(
-				basename => 'AppIndicator3xxx',
+				basename => 'AppIndicator3',
 				version  => '0.1',
 				package  => 'AppIndicator',
 			);
-		};
-		if ($@) {
-			warn "WARNING: Gtk3::AppIndicator is missing --> there will be no icon showing up in the status bar when running Unity!\n\n";
+		} if 0;
+		if (0 && $@) {
+			warn "WARNING: AppIndicator is missing --> there will be no icon showing up in the status bar when running Unity!\n\n";
 			$appindicator = FALSE;
 		}
 
@@ -9180,7 +9171,7 @@ sub STARTUP {
 					my $new_filename = shift;
 					my $event        = shift;
 
-					my $input = Gtk3::Gdk->keyval_to_unicode($event->keyval);
+					my $input = Gtk3::Gdk::keyval_to_unicode($event->keyval);
 
 					#invalid input
 					#~ print $input."\n";
@@ -9955,7 +9946,7 @@ sub STARTUP {
 		my $plugin_progress = Gtk3::ProgressBar->new;
 		$plugin_progress->set_no_show_all(TRUE);
 		$plugin_progress->set_ellipsize('middle');
-		$plugin_progress->set_orientation('left-to-right');
+		$plugin_progress->set_orientation('horizontal');
 		$plugin_dialog->get_child->add($plugin_progress);
 
 		$plugin_dialog->show_all;
@@ -10668,7 +10659,7 @@ sub STARTUP {
 				my $new_profile_name = shift;
 				my $event            = shift;
 
-				my $input = Gtk3::Gdk->keyval_to_unicode($event->keyval);
+				my $input = Gtk3::Gdk::keyval_to_unicode($event->keyval);
 
 				#invalid input
 				#~ print $input."\n";
