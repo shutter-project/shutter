@@ -166,13 +166,14 @@ sub usage {
 }
 
 # to help migration from Gtk2 to Gtk3
+# Native Gtk3::IconSize doesn't work for some reason
 sub icon_size {
 	my $self = shift;
 	my $size = shift;
-	return (16, 16) if $size eq 'menu';
-	return (16, 16) if $size eq 'small-toolbar';
-	return (24, 24) if $size eq 'large-toolbar';
-	die 'unknown icon size'
+	my @result = Glib::Object::Introspection->invoke('Gtk', undef, 'icon_size_lookup', Glib::Object::Introspection->convert_sv_to_enum('Gtk3::IconSize', $size));
+	my $one = shift @result;
+	die "icon_size($size)=$one, @result" if $one != 1;
+	return @result;
 }
 
 # to help migration from Gtk2 to Gtk3

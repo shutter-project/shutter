@@ -92,7 +92,7 @@ my $tooltips = Gtk3::Tooltips->new;
 
 #configure buttons and other needed controls
 my $direction_label = Gtk3::Label->new( $d->get( "Direction" ). ":" );
-my $direction_combo = Gtk3::ComboBox->new_text;
+my $direction_combo = Gtk3::ComboBoxText->new;
 $direction_combo->insert_text( 0, "NorthWest" );
 $direction_combo->insert_text( 1, "North" );
 $direction_combo->insert_text( 2, "NorthEast" );
@@ -201,12 +201,12 @@ $vbox_left->pack_start( $hbox1, FALSE, FALSE, 5);
 $vbox_left->pack_start( $hbox2, FALSE, FALSE, 5);
 
 #preview
-$vbox_right->pack_start_defaults( $preview );
-$vbox_right->pack_start_defaults( $preview_throb );
+$vbox_right->pack_start( $preview,TRUE,TRUE,0 );
+$vbox_right->pack_start( $preview_throb,TRUE,TRUE,0 );
 
 #row 1
-$hbox_row1->pack_start_defaults( $vbox_left );
-$hbox_row1->pack_start_defaults( $vbox_right );
+$hbox_row1->pack_start( $vbox_left,TRUE,TRUE,0 );
+$hbox_row1->pack_start( $vbox_right,TRUE,TRUE,0 );
 
 $vbox_param->pack_start( $hbox_row1, TRUE, TRUE, 5 );
 

@@ -22,6 +22,17 @@
 
 #perl -x -S perltidy -l=0 -b "%f"
 
+# Native Gtk3::IconSize doesn't work for some reason
+# FIXME This package should be cleaned up when fixing DrawingTool
+package Gtk3::IconSize;
+sub lookup {
+	my $self = shift;
+	my $size = shift;
+	Shutter::App::HelperFunctions->icon_size($size);
+}
+
+1;
+
 package Shutter::Draw::DrawingTool;
 
 #modules
@@ -89,7 +100,7 @@ sub new {
 		});
 
 	#clipboard
-	$self->{_clipboard} = Gtk3::Clipboard->get(Gtk3::Gdk->SELECTION_CLIPBOARD);
+	$self->{_clipboard} = Gtk3::Clipboard::get(Gtk3::Gdk::SELECTION_CLIPBOARD);
 
 	#file
 	$self->{_filename}    = undef;
@@ -121,23 +132,23 @@ sub new {
 
 	#drawing colors and line width
 	#general - shown in the bottom hbox
-	$self->{_fill_color}         = Gtk3::Gdk::Color->parse('#0000ff');
+	$self->{_fill_color}         = Gtk3::Gdk::RGBA::parse('#0000ff');
 	$self->{_fill_color_alpha}   = 0.25;
-	$self->{_stroke_color}       = Gtk3::Gdk::Color->parse('#ff0000');
+	$self->{_stroke_color}       = Gtk3::Gdk::RGBA::parse('#ff0000');
 	$self->{_stroke_color_alpha} = 1;
 	$self->{_line_width}         = 3;
 	$self->{_font}               = 'Sans Regular 16';
 
 	#obtain current colors and font_desc from the main window
-	$self->{_style}    = $self->{_sc}->get_mainwindow->get_style;
-	$self->{_style_bg} = $self->{_style}->bg('selected');
+	$self->{_style}    = $self->{_sc}->get_mainwindow->get_style_context;
+	$self->{_style_bg} = $self->{_style}->get_background_color('selected');
 	$self->{_style_tx} = $self->{_style}->text('selected');
 
 	#remember drawing colors, line width and font settings
 	#maybe we have to restore them
-	$self->{_last_fill_color}         = Gtk3::Gdk::Color->parse('#0000ff');
+	$self->{_last_fill_color}         = Gtk3::Gdk::RGBA::parse('#0000ff');
 	$self->{_last_fill_color_alpha}   = 0.25;
-	$self->{_last_stroke_color}       = Gtk3::Gdk::Color->parse('#ff0000');
+	$self->{_last_stroke_color}       = Gtk3::Gdk::RGBA::parse('#ff0000');
 	$self->{_last_stroke_color_alpha} = 1;
 	$self->{_last_line_width}         = 3;
 	$self->{_last_font}               = 'Sans Regular 16';
@@ -185,7 +196,7 @@ sub show {
 
 	#MAIN WINDOW
 	#-------------------------------------------------
-	$self->{_root} = Gtk3::Gdk->get_default_root_window;
+	$self->{_root} = Gtk3::Gdk::get_default_root_window();
 	($self->{_root}->{x}, $self->{_root}->{y}, $self->{_root}->{w}, $self->{_root}->{h}) = $self->{_root}->get_geometry;
 	($self->{_root}->{x}, $self->{_root}->{y}) = $self->{_root}->get_origin;
 
@@ -248,7 +259,7 @@ sub show {
 	$self->{_canvas}->signal_connect(drag_data_received => sub { $self->import_from_dnd(@_) });
 
 	my $target_list = Gtk3::TargetList->new();
-	my $atom1       = Gtk3::Gdk::Atom->new('text/uri-list');
+	my $atom1       = Gtk3::Gdk::Atom::intern('text/uri-list', FALSE);
 	$target_list->add($atom1, 0, 0);
 
 	$self->{_canvas}->drag_dest_set_target_list($target_list);
@@ -262,7 +273,7 @@ sub show {
 		$self->{_canvas}->set('redraw-when-scrolled' => TRUE);
 	}
 
-	#~ my $bg = Gtk3::Gdk::Color->parse('gray');
+	#~ my $bg = Gtk3::Gdk::RGBA::parse('gray');
 	$self->{_canvas}->set(
 		'automatic-bounds'   => FALSE,
 		'bounds-from-origin' => FALSE,
@@ -292,7 +303,7 @@ sub show {
 		});
 
 	#create rectangle to resize the background
-	my $bg_color = $self->create_color(Gtk3::Gdk::Color->parse('gray'), 1.0);
+	my $bg_color = $self->create_color(Gtk3::Gdk::RGBA::parse('gray'), 1.0);
 	$self->{_canvas_bg_rect} = Goo::Canvas::Rect->new(
 		$self->{_canvas}->get_root_item, 0, 0, $self->{_drawing_pixbuf}->get_width, $self->{_drawing_pixbuf}->get_height,
 		'fill-pattern' => $bg_color,
@@ -302,7 +313,7 @@ sub show {
 	);
 
 	#save color
-	$self->{_canvas_bg_rect}{fill_color} = Gtk3::Gdk::Color->parse('gray');
+	$self->{_canvas_bg_rect}{fill_color} = Gtk3::Gdk::RGBA::parse('gray');
 	$self->setup_item_signals($self->{_canvas_bg_rect});
 
 	$self->handle_bg_rects('create');
@@ -323,7 +334,7 @@ sub show {
 	#construct an event and create a new image object
 	my $initevent = Gtk3::Gdk::Event->new('motion-notify');
 	$initevent->set_time(Gtk3->get_current_event_time);
-	$initevent->window($self->{_drawing_window}->window);
+	$initevent->window($self->{_drawing_window}->get_window);
 	$initevent->x(int($self->{_canvas_bg_rect}->get('width') / 2));
 	$initevent->y(int($self->{_canvas_bg_rect}->get('height') / 2));
 
@@ -429,7 +440,7 @@ sub show {
 
 	#STARTUP PROCEDURE
 	#-------------------------------------------------
-	$self->{_drawing_window}->window->focus(Gtk3->get_current_event_time);
+	$self->{_drawing_window}->get_window->focus(Gtk3->get_current_event_time);
 
 	$self->adjust_rulers;
 
@@ -626,7 +637,7 @@ sub setup_bottom_hbox {
 
 	$image_btn->signal_connect(
 		'clicked' => sub {
-			$self->{_canvas}->window->set_cursor($self->change_cursor_to_current_pixbuf);
+			$self->{_canvas}->get_window->set_cursor($self->change_cursor_to_current_pixbuf);
 		});
 
 	$image_label->set_tooltip_text($self->{_d}->get("Insert an arbitrary object or file"));
@@ -1106,7 +1117,7 @@ sub change_drawing_tool_cb {
 
 	}
 
-	if ($self->{_canvas} && $self->{_canvas}->window) {
+	if ($self->{_canvas} && $self->{_canvas}->get_window) {
 
 		if (exists $self->{_cursors}{$self->{_current_mode_descr}}) {
 			$cursor = Gtk3::Gdk::Cursor->new_from_pixbuf(
@@ -1115,7 +1126,7 @@ sub change_drawing_tool_cb {
 			);
 		}
 
-		$self->{_canvas}->window->set_cursor($cursor);
+		$self->{_canvas}->get_window->set_cursor($cursor);
 	}
 
 	return TRUE;
@@ -1192,7 +1203,7 @@ sub adjust_rulers {
 		#modify rulers (e.g. done when scrolling or zooming)
 		if ($self->{_hruler} && $self->{_hruler}) {
 
-			my ($x, $y, $width, $height, $depth) = $self->{_canvas}->window->get_geometry;
+			my ($x, $y, $width, $height, $depth) = $self->{_canvas}->get_window->get_geometry;
 			my $ha = $self->{_scrolled_window}->get_hadjustment->value / $s;
 			my $va = $self->{_scrolled_window}->get_vadjustment->value / $s;
 
@@ -1256,7 +1267,7 @@ sub quit {
 
 		$warn_dialog->set_default_response(20);
 
-		$warn_dialog->vbox->show_all;
+		$warn_dialog->get_child->show_all;
 		my $response = $warn_dialog->run;
 		Glib::Source->remove($id);
 		if ($response == 20) {
@@ -1349,9 +1360,9 @@ sub load_settings {
 			$autoscroll_toggle->set_active($settings_xml->{'drawing'}->{'autoscroll'});
 
 			#drawing colors
-			$self->{_fill_color}         = Gtk3::Gdk::Color->parse($settings_xml->{'drawing'}->{'fill_color'});
+			$self->{_fill_color}         = Gtk3::Gdk::RGBA::parse($settings_xml->{'drawing'}->{'fill_color'});
 			$self->{_fill_color_alpha}   = $settings_xml->{'drawing'}->{'fill_color_alpha'};
-			$self->{_stroke_color}       = Gtk3::Gdk::Color->parse($settings_xml->{'drawing'}->{'stroke_color'});
+			$self->{_stroke_color}       = Gtk3::Gdk::RGBA::parse($settings_xml->{'drawing'}->{'stroke_color'});
 			$self->{_stroke_color_alpha} = $settings_xml->{'drawing'}->{'stroke_color_alpha'};
 
 			#line_width
@@ -1382,8 +1393,8 @@ sub save_settings {
 	my %settings;
 
 	#window size and position
-	if (defined $self->{_drawing_window}->window) {
-		if ($self->{_drawing_window}->window->get_state eq 'GDK_WINDOW_STATE_MAXIMIZED') {
+	if (defined $self->{_drawing_window}->get_window) {
+		if ($self->{_drawing_window}->get_window->get_state eq 'GDK_WINDOW_STATE_MAXIMIZED') {
 			$settings{'drawing'}->{'state'} = 'maximized';
 		}
 	}
@@ -1494,7 +1505,7 @@ sub export_to_file {
 
 	my $label_save_as_type = Gtk3::Label->new($self->{_d}->get("Image format") . ":");
 
-	my $combobox_save_as_type = Gtk3::ComboBox->new_text;
+	my $combobox_save_as_type = Gtk3::ComboBoxText->new;
 
 	#add supported formats to combobox
 	my $counter     = 0;
@@ -1688,7 +1699,7 @@ sub save {
 				'fill-pattern' => $self->create_color($self->{_canvas_bg_rect}{fill_color}, 1.0),
 				'line-width'   => 0,
 			);
-		} elsif ($self->{_canvas_bg_rect}{fill_color}->equal(Gtk3::Gdk::Color->parse('gray'))) {
+		} elsif ($self->{_canvas_bg_rect}{fill_color}->equal(Gtk3::Gdk::RGBA::parse('gray'))) {
 			$self->{_canvas_bg_rect}->set('visibility' => 'hidden');
 		} else {
 
@@ -1713,7 +1724,7 @@ sub save {
 
 			$bg_dialog->set_default_response(20);
 
-			$bg_dialog->vbox->show_all;
+			$bg_dialog->get_child->show_all;
 
 			my $response = $bg_dialog->run;
 			if ($response == 10) {
@@ -1857,7 +1868,7 @@ sub event_item_on_motion_notify {
 	#as does not work when using the censor tool -> deactivate it
 	if ($self->{_current_mode_descr} ne "censor" && $self->{_autoscroll} && ($ev->state >= 'button1-mask' || $ev->state >= 'button2-mask')) {
 
-		my ($x, $y, $width, $height, $depth) = $self->{_canvas}->window->get_geometry;
+		my ($x, $y, $width, $height, $depth) = $self->{_canvas}->get_window->get_geometry;
 		my $s  = $self->{_canvas}->get_scale;
 		my $ha = $self->{_scrolled_window}->get_hadjustment->value;
 		my $va = $self->{_scrolled_window}->get_vadjustment->value;
@@ -3248,9 +3259,9 @@ sub restore_fixed_properties {
 	if ($mode eq "highlighter") {
 
 		#highlighter
-		$self->{_fill_color_w}->set_color(Gtk3::Gdk::Color->parse('#00000000ffff'));
+		$self->{_fill_color_w}->set_color(Gtk3::Gdk::RGBA::parse('#00000000ffff'));
 		$self->{_fill_color_w}->set_alpha(int(0.234683756771191 * 65535));
-		$self->{_stroke_color_w}->set_color(Gtk3::Gdk::Color->parse('#ffffffff0000'));
+		$self->{_stroke_color_w}->set_color(Gtk3::Gdk::RGBA::parse('#ffffffff0000'));
 		$self->{_stroke_color_w}->set_alpha(int(0.499992370489052 * 65535));
 		$self->{_line_spin_w}->set_value(18);
 	} elsif ($mode eq "censor") {
@@ -3331,7 +3342,7 @@ sub event_item_on_key_press {
 			my $mevent = Gtk3::Gdk::Event->new('motion-notify');
 			$mevent->set_state('button2-mask');
 			$mevent->set_time(Gtk3->get_current_event_time);
-			$mevent->window($self->{_drawing_window}->window);
+			$mevent->window($self->{_drawing_window}->get_window);
 
 			#get current x, y values
 			my $old_x = $self->{_items}{$curr_item}->get('x');
@@ -3775,7 +3786,7 @@ sub ret_background_menu {
 					$self->{_canvas_bg_rect}{fill_color} = $col_sel->get_current_color;
 					last;
 				} elsif ($response eq 'reject') {
-					$col_sel->set_current_color(Gtk3::Gdk::Color->parse('gray'));
+					$col_sel->set_current_color(Gtk3::Gdk::RGBA::parse('gray'));
 					$col_sel->set_current_alpha(65535);
 				} else {
 					last;
@@ -4018,7 +4029,7 @@ sub show_item_properties {
 		$frame_general->set_label_widget($label_general);
 		$frame_general->set_shadow_type('none');
 		$frame_general->set_border_width(5);
-		$prop_dialog->vbox->add($frame_general);
+		$prop_dialog->get_child->add($frame_general);
 
 		#line_width
 		my $line_hbox = Gtk3::HBox->new(FALSE, 5);
@@ -4083,7 +4094,7 @@ sub show_item_properties {
 			$frame_numbered->set_label_widget($label_numbered);
 			$frame_numbered->set_shadow_type('none');
 			$frame_numbered->set_border_width(5);
-			$prop_dialog->vbox->add($frame_numbered);
+			$prop_dialog->get_child->add($frame_numbered);
 
 			#current digit
 			my $number_hbox = Gtk3::HBox->new(FALSE, 5);
@@ -4148,7 +4159,7 @@ sub show_item_properties {
 		$frame_arrow->set_label_widget($label_arrow);
 		$frame_arrow->set_shadow_type('none');
 		$frame_arrow->set_border_width(5);
-		$prop_dialog->vbox->add($frame_arrow);
+		$prop_dialog->get_child->add($frame_arrow);
 
 		#arrow_width
 		my $arrow_hbox = Gtk3::HBox->new(FALSE, 5);
@@ -4220,7 +4231,7 @@ sub show_item_properties {
 		$frame_text->set_label_widget($label_text);
 		$frame_text->set_shadow_type('none');
 		$frame_text->set_border_width(5);
-		$prop_dialog->vbox->add($frame_text);
+		$prop_dialog->get_child->add($frame_text);
 
 		#font button
 		my $font_hbox = Gtk3::HBox->new(FALSE, 5);
@@ -4277,21 +4288,21 @@ sub show_item_properties {
 		$textview = Gtk3::TextView->new_with_buffer($text);
 		$textview->can_focus(TRUE);
 		$textview->set_size_request(150, 200);
-		$textview_hbox->pack_start_defaults($textview);
+		$textview_hbox->pack_start($textview, TRUE, TRUE, 0);
 
-		$text_vbox->pack_start_defaults($textview_hbox);
+		$text_vbox->pack_start($textview_hbox, TRUE, TRUE, 0);
 
 		#use font checkbox
 		my $use_font = Gtk3::CheckButton->new_with_label($self->{_d}->get("Use selected font"));
 		$use_font->set_active(FALSE);
 
-		$text_vbox->pack_start_defaults($use_font);
+		$text_vbox->pack_start($use_font, TRUE, TRUE, 0);
 
 		#use font color checkbox
 		my $use_font_color = Gtk3::CheckButton->new_with_label($self->{_d}->get("Use selected font color"));
 		$use_font_color->set_active(FALSE);
 
-		$text_vbox->pack_start_defaults($use_font_color);
+		$text_vbox->pack_start($use_font_color, TRUE, TRUE, 0);
 
 		#apply changes directly
 		$use_font->signal_connect(
@@ -5578,7 +5589,7 @@ sub event_item_on_button_release {
 				#turn into a button-press-event
 				my $initevent = Gtk3::Gdk::Event->new('button-press');
 				$initevent->set_time(Gtk3->get_current_event_time);
-				$initevent->window($self->{_drawing_window}->window);
+				$initevent->window($self->{_drawing_window}->get_window);
 				$initevent->x($ev->x);
 				$initevent->y($ev->y);
 				$self->event_item_on_button_press($oitem, undef, $initevent, TRUE);
@@ -5804,7 +5815,7 @@ sub create_stipple {
 
 	our @stipples;
 	my ($color_name, $stipple_data) = @_;
-	my $color = Gtk3::Gdk::Color->parse($color_name);
+	my $color = Gtk3::Gdk::RGBA::parse($color_name);
 	$stipple_data->[2] = $stipple_data->[14] = $color->red >> 8;
 	$stipple_data->[1] = $stipple_data->[13] = $color->green >> 8;
 	$stipple_data->[0] = $stipple_data->[12] = $color->blue >> 8;
@@ -5834,8 +5845,8 @@ sub create_color {
 	my $color;
 
 	#if it is a color, we do not need to parse it
-	unless ($color_name->isa('Gtk3::Gdk::Color')) {
-		$color = Gtk3::Gdk::Color->parse($color_name);
+	unless ($color_name->isa('Gtk3::Gdk::RGBA')) {
+		$color = Gtk3::Gdk::RGBA::parse($color_name);
 	} else {
 		$color = $color_name;
 	}
@@ -6307,7 +6318,7 @@ sub import_from_dnd {
 				#construct an event and create a new image object
 				my $initevent = Gtk3::Gdk::Event->new('motion-notify');
 				$initevent->set_time(Gtk3->get_current_event_time);
-				$initevent->window($self->{_drawing_window}->window);
+				$initevent->window($self->{_drawing_window}->get_window);
 				$initevent->x($x);
 				$initevent->y($y);
 
@@ -6549,7 +6560,7 @@ sub import_from_filesystem {
 						$self->{_current_pixbuf_filename} = $new_file;
 						$button->set_icon_widget(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size($self->{_dicons} . '/draw-image.svg', Gtk3::IconSize->lookup('menu'))));
 						$button->show_all;
-						$self->{_canvas}->window->set_cursor($self->change_cursor_to_current_pixbuf);
+						$self->{_canvas}->get_window->set_cursor($self->change_cursor_to_current_pixbuf);
 					} else {
 						$self->abort_current_mode;
 					}
@@ -6777,7 +6788,7 @@ sub gen_thumbnail_on_idle {
 							$self->{_current_pixbuf_filename} = $name;
 							$button->set_icon_widget(Gtk3::Image->new_from_pixbuf($small_image->get_pixbuf));
 							$button->show_all;
-							$self->{_canvas}->window->set_cursor($self->change_cursor_to_current_pixbuf);
+							$self->{_canvas}->get_window->set_cursor($self->change_cursor_to_current_pixbuf);
 						});
 				} else {
 					$child->destroy;
@@ -6899,7 +6910,7 @@ sub paste_item {
 			#construct an event and create a new image object
 			my $initevent = Gtk3::Gdk::Event->new('motion-notify');
 			$initevent->set_time(Gtk3->get_current_event_time);
-			$initevent->window($self->{_drawing_window}->window);
+			$initevent->window($self->{_drawing_window}->get_window);
 
 			#calculate coordinates
 			$initevent->x(int($self->{_canvas_bg_rect}->get('width') / 2));
@@ -7010,7 +7021,7 @@ sub create_polyline {
 	if ($highlighter) {
 		$item = Goo::Canvas::Polyline->new_line(
 			$self->{_canvas}->get_root_item, $points[0], $points[1], $points[2], $points[3],
-			'stroke-pattern' => $self->create_color(Gtk3::Gdk::Color->parse('#FFFF00'), 0.5),
+			'stroke-pattern' => $self->create_color(Gtk3::Gdk::RGBA::parse('#FFFF00'), 0.5),
 			'line-width'     => 18,
 			'fill-rule'      => 'CAIRO_FILL_RULE_EVEN_ODD',
 			'line-cap'       => 'CAIRO_LINE_CAP_SQUARE',
@@ -7039,7 +7050,7 @@ sub create_polyline {
 		#set type flag
 		$self->{_items}{$item}{type}               = 'highlighter';
 		$self->{_items}{$item}{uid}                = $self->{_uid}++;
-		$self->{_items}{$item}{stroke_color}       = Gtk3::Gdk::Color->parse('#FFFF00');
+		$self->{_items}{$item}{stroke_color}       = Gtk3::Gdk::RGBA::parse('#FFFF00');
 		$self->{_items}{$item}{stroke_color_alpha} = 0.5;
 	} else {
 

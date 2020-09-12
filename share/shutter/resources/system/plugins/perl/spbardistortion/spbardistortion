@@ -241,21 +241,21 @@ $hbox5->pack_start( $back_color_label, FALSE, TRUE, 5 );
 $hbox5->pack_start( $back_color, TRUE,  TRUE, 5 );
 
 #row 1
-$hbox_row1->pack_start_defaults( $hbox5 );
+$hbox_row1->pack_start( $hbox5, TRUE, TRUE, 0 );
 
 #controls on the left side
-$vbox_left->pack_start_defaults( $hbox1 );
-$vbox_left->pack_start_defaults( $hbox2 );
-$vbox_left->pack_start_defaults( $hbox3 );
-$vbox_left->pack_start_defaults( $hbox4 );
+$vbox_left->pack_start( $hbox1, TRUE, TRUE, 0 );
+$vbox_left->pack_start( $hbox2, TRUE, TRUE, 0 );
+$vbox_left->pack_start( $hbox3, TRUE, TRUE, 0 );
+$vbox_left->pack_start( $hbox4 , TRUE, TRUE, 0);
 
 #preview
-$vbox_right->pack_start_defaults( $preview );
-$vbox_right->pack_start_defaults( $preview_throb );
+$vbox_right->pack_stars( $preview, TRUE, TRUE, 0 );
+$vbox_right->pack_stars( $preview_throb, TRUE, TRUE, 0 );
 
 #row 2
-$hbox_row2->pack_start_defaults( $vbox_left );
-$hbox_row2->pack_start_defaults( $vbox_right );
+$hbox_row2->pack_start( $vbox_left, TRUE, TRUE, 0 );
+$hbox_row2->pack_start( $vbox_right, TRUE, TRUE, 0 );
 
 $vbox_param->pack_start( $hbox_row1, TRUE, TRUE, 5 );
 $vbox_param->pack_start( $hbox_row2, TRUE, TRUE, 5 );

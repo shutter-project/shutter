@@ -112,7 +112,7 @@ my $pointsize_sbutton = Gtk3::SpinButton->new_with_range( 1, 200, 1 );
 $pointsize_sbutton->set_value( int ($width * 0.1) );
 
 my $gravity_label = Gtk3::Label->new( $d->get( "Gravity:" ) );
-my $gravity_combo = Gtk3::ComboBox->new_text;
+my $gravity_combo = Gtk3::ComboBoxText->new;
 $gravity_combo->insert_text( 0, "NorthWest" );
 $gravity_combo->insert_text( 1, "North" );
 $gravity_combo->insert_text( 2, "NorthEast" );
@@ -193,12 +193,12 @@ $hbox4->pack_start( $angle_sbutton, TRUE,  TRUE, 5 );
 $hbox5->pack_start( $stroke_color_label, FALSE, TRUE, 5 );
 $hbox5->pack_start( $stroke_color, FALSE, TRUE, 5 );
 
-$hbox_row1->pack_start_defaults( $hbox1 );
-$hbox_row1->pack_start_defaults( $hbox2 );
+$hbox_row1->pack_start( $hbox1, TRUE, TRUE, 0 );
+$hbox_row1->pack_start( $hbox2, TRUE, TRUE, 0 );
 
-$hbox_row2->pack_start_defaults( $hbox3 );
-$hbox_row2->pack_start_defaults( $hbox4 );
-$hbox_row2->pack_start_defaults( $hbox5 );
+$hbox_row2->pack_start( $hbox3, TRUE, TRUE, 0 );
+$hbox_row2->pack_start( $hbox4 , TRUE, TRUE, 0);
+$hbox_row2->pack_start( $hbox5, TRUE, TRUE, 0 );
 
 $vbox_param->pack_start( $hbox_row1, TRUE, TRUE, 5 );
 $vbox_param->pack_start( $hbox_row2, TRUE, TRUE, 5 );

@@ -45,11 +45,13 @@ use Glib qw/TRUE FALSE/;
 
 sub new {
 	my $class = shift;
+	my $sc = shift;
 
 	my $self = {
-		_sc      => shift,
+		_sc      => $sc,
 		_timeout => shift,
 		_width   => shift,
+		_shf => Shutter::App::HelperFunctions->new($sc),
 	};
 
 	bless $self, $class;
@@ -113,7 +115,7 @@ sub dlg_website {
 		$website_dialog->set('image' => Gtk3::Image->new_from_icon_name('web-browser', 'dialog'));
 	} else {
 		$website_dialog->set('image' =>
-				Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size($self->{_sc}->get_root . "/share/shutter/resources/icons/web_image.svg", Gtk3::IconSize->lookup('dialog'))));
+				Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size($self->{_sc}->get_root . "/share/shutter/resources/icons/web_image.svg", $self->{_shf}->icon_size('dialog'))));
 	}
 
 	#cancel button
@@ -147,7 +149,7 @@ sub dlg_website {
 			return FALSE;
 		});
 
-	my $clipboard        = Gtk3::Clipboard->get(Gtk3::Gdk->SELECTION_CLIPBOARD);
+	my $clipboard        = Gtk3::Clipboard::get($Gtk3::Gdk::SELECTION_CLIPBOARD);
 	my $clipboard_string = $clipboard->wait_for_text;
 	print "Content of clipboard is: $clipboard_string\n"
 		if $self->{_sc}->get_debug and defined $clipboard_string;
@@ -169,7 +171,7 @@ sub dlg_website {
 	}
 
 	$website_hbox->pack_start($website, TRUE, TRUE, 12);
-	$website_dialog->vbox->add($website_hbox);
+	$website_dialog->get_child->add($website_hbox);
 
 	my $website_progress = Gtk3::ProgressBar->new;
 	$website_progress->set_no_show_all(TRUE);
@@ -177,7 +179,7 @@ sub dlg_website {
 	$website_progress->set_orientation('left-to-right');
 	$website_progress->set_fraction(0);
 	$website_hbox2->pack_start($website_progress, TRUE, TRUE, 12);
-	$website_dialog->vbox->add($website_hbox2);
+	$website_dialog->get_child->add($website_hbox2);
 
 	$website_dialog->show_all;
 

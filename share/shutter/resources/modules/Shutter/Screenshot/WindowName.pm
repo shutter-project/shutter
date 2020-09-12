@@ -62,11 +62,11 @@ sub window_find_by_name {
 
 	#cycle through all windows
 	my $output = 7;
-	foreach my $win ($self->{_wnck_screen}->get_windows_stacked) {
+	foreach my $win (@{$self->{_wnck_screen}->get_windows_stacked}) {
 
 		#ignore shutter window
-		if ($self->{_sc}->get_mainwindow->window) {
-			next if ($win->get_xid == $self->{_sc}->get_mainwindow->window->get_xid);
+		if ($self->{_sc}->get_mainwindow->get_window) {
+			next if ($win->get_xid == $self->{_sc}->get_mainwindow->get_window->get_xid);
 		}
 
 		#check if window is on active workspace

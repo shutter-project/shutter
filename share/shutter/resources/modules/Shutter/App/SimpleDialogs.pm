@@ -94,8 +94,8 @@ sub dlg_info_message {
 		$expander->add($detail_label);
 		my $detail_hbox = Gtk3::HBox->new();
 		$detail_hbox->pack_start(Gtk3::Label->new, FALSE, FALSE, 12);
-		$detail_hbox->pack_start_defaults($expander);
-		$info_dialog->vbox->add($detail_hbox);
+		$detail_hbox->pack_start($expander, TRUE, TRUE, 0);
+		$info_dialog->get_child->add($detail_hbox);
 	}
 
 	#show a detailed message with checkbox
@@ -104,14 +104,14 @@ sub dlg_info_message {
 		$dcheck = Gtk3::CheckButton->new_with_mnemonic($detail_checkbox);
 		my $detail_hbox = Gtk3::HBox->new();
 		$detail_hbox->pack_start(Gtk3::Label->new, FALSE, FALSE, 12);
-		$detail_hbox->pack_start_defaults($dcheck);
-		$info_dialog->vbox->add($detail_hbox);
+		$detail_hbox->pack_start($dcheck, TRUE, TRUE, 0);
+		$info_dialog->get_child->add($detail_hbox);
 	}
 
 	$info_dialog->show_all;
 
 	if (defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk3::Gdk::Window/) {
-		$info_dialog->window->set_transient_for($self->{_gdk_window});
+		$info_dialog->get_window->set_transient_for($self->{_gdk_window});
 	} else {
 		$info_dialog->set_transient_for($self->{_window});
 	}
@@ -166,8 +166,8 @@ sub dlg_question_message {
 		$expander->add($detail_label);
 		my $detail_hbox = Gtk3::HBox->new();
 		$detail_hbox->pack_start(Gtk3::Label->new, FALSE, FALSE, 12);
-		$detail_hbox->pack_start_defaults($expander);
-		$question_dialog->vbox->add($detail_hbox);
+		$detail_hbox->pack_start($expander, TRUE, TRUE, 0);
+		$question_dialog->get_child->add($detail_hbox);
 	}
 
 	#show a detailed message with checkbox
@@ -176,14 +176,14 @@ sub dlg_question_message {
 		$dcheck = Gtk3::CheckButton->new_with_mnemonic($detail_checkbox);
 		my $detail_hbox = Gtk3::HBox->new();
 		$detail_hbox->pack_start(Gtk3::Label->new, FALSE, FALSE, 12);
-		$detail_hbox->pack_start_defaults($dcheck);
-		$question_dialog->vbox->add($detail_hbox);
+		$detail_hbox->pack_start($dcheck, TRUE, TRUE, 0);
+		$question_dialog->get_child->add($detail_hbox);
 	}
 
 	$question_dialog->show_all;
 
 	if (defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk3::Gdk::Window/) {
-		$question_dialog->window->set_transient_for($self->{_gdk_window});
+		$question_dialog->get_window->set_transient_for($self->{_gdk_window});
 	} else {
 		$question_dialog->set_transient_for($self->{_window});
 	}
@@ -250,7 +250,7 @@ sub dlg_error_message {
 	$error_dialog->show_all;
 
 	if (defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk3::Gdk::Window/) {
-		$error_dialog->window->set_transient_for($self->{_gdk_window});
+		$error_dialog->get_window->set_transient_for($self->{_gdk_window});
 	} else {
 		$error_dialog->set_transient_for($self->{_window});
 	}
@@ -305,14 +305,14 @@ sub dlg_warning_message {
 		$expander->add($detail_label);
 		my $detail_hbox = Gtk3::HBox->new();
 		$detail_hbox->pack_start(Gtk3::Label->new, FALSE, FALSE, 12);
-		$detail_hbox->pack_start_defaults($expander);
-		$warning_dialog->vbox->add($detail_hbox);
+		$detail_hbox->pack_start($expander, TRUE, TRUE, 0);
+		$warning_dialog->get_child->add($detail_hbox);
 	}
 
 	$warning_dialog->show_all;
 
 	if (defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk3::Gdk::Window/) {
-		$warning_dialog->window->set_transient_for($self->{_gdk_window});
+		$warning_dialog->get_window->set_transient_for($self->{_gdk_window});
 	} else {
 		$warning_dialog->set_transient_for($self->{_window});
 	}

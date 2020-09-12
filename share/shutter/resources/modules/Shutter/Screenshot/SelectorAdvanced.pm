@@ -223,7 +223,7 @@ sub select_advanced {
 	#define and setup the canvas
 	my $canvas = GooCanvas2::Canvas->new();
 	$canvas->set_size_request(105, 105);
-	$canvas->modify_bg('normal', Gtk3::Gdk::Color->new(65535, 65535, 65535));
+	$canvas->modify_bg('normal', Gtk3::Gdk::RGBA::parse('#00000000'));
 	$canvas->set_bounds(-10, -10, $self->{_root}->{w}+10, $self->{_root}->{h}+10);
 	$canvas->set_scale(5);
 

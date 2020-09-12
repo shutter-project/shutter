@@ -100,7 +100,7 @@ my $vbox_main = Gtk3::VBox->new( 0, 10 );
 #configure buttons and other needed controls
 my $negate_label = Gtk3::Label->new( $d->get("Channel") );
 
-my $negate_channel = Gtk3::ComboBox->new_text;
+my $negate_channel = Gtk3::ComboBoxText->new;
 $negate_channel->insert_text( 0, "All" );
 $negate_channel->insert_text( 1, "Alpha" );
 $negate_channel->insert_text( 2, "Black" );

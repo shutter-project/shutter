@@ -2740,8 +2740,6 @@ sub STARTUP {
 			return FALSE;
 		});
 
-	#Gtk3->main;
-
 	0;
 
 	#events
@@ -5015,8 +5013,8 @@ sub STARTUP {
 	sub fct_check_valid_mime_type {
 		my $mime_type = shift;
 
-		foreach my $format (Gtk3::Gdk::Pixbuf->get_formats) {
-			foreach my $mtype (@{$format->{mime_types}}) {
+		foreach my $format (Gtk3::Gdk::Pixbuf::get_formats()) {
+			foreach my $mtype (@{$format->get_mime_types}) {
 				return TRUE if $mtype eq $mime_type;
 				last;
 			}
@@ -5207,7 +5205,7 @@ sub STARTUP {
 				eval {
 
 					#remove from recentmanager
-					Gtk3::RecentManager->get_default->remove_item($session_screens{$key}->{'giofile'}->get_path);
+					Gtk3::RecentManager::get_default->remove_item($session_screens{$key}->{'giofile'}->get_path);
 				};
 			}
 
@@ -5267,7 +5265,7 @@ sub STARTUP {
 							eval {
 
 								#remove from recentmanager
-								Gtk3::RecentManager->get_default->remove_item($session_screens{$key}->{'giofile'}->get_path);
+								Gtk3::RecentManager::get_default->remove_item($session_screens{$key}->{'giofile'}->get_path);
 							};
 						}
 
@@ -6765,14 +6763,13 @@ sub STARTUP {
 			#dialog to show the plugin
 			my $sdialog = Gtk3::Dialog->new($plugin_name, $window, [qw/modal destroy-with-parent/]);
 			$sdialog->set_resizable(FALSE);
-			$sdialog->set_has_separator(FALSE);
 
 			# Ensure that the dialog box is destroyed when the user responds.
 			$sdialog->signal_connect(response => sub { $_[0]->destroy });
 
 			#initiate the socket to draw the contents of the plugin to our dialog
 			my $socket = Gtk3::Socket->new;
-			$sdialog->vbox->add($socket);
+			$sdialog->get_child->add($socket);
 			$socket->signal_connect(
 				'plug-removed' => sub {
 					$sdialog->destroy();
@@ -9230,9 +9227,9 @@ sub STARTUP {
 				$rename_btn->set_sensitive(FALSE);
 			}
 
-			$new_filename_vbox->pack_start_defaults($new_filename);
-			$new_filename_vbox->pack_start_defaults($new_filename_hint);
-			$input_dialog->vbox->add($new_filename_vbox);
+			$new_filename_vbox->pack_start($new_filename, TRUE, TRUE, 0);
+			$new_filename_vbox->pack_start($new_filename_hint, TRUE, TRUE, 0);
+			$input_dialog->get_child->add($new_filename_vbox);
 			$input_dialog->show_all;
 
 			#run dialog
@@ -9417,13 +9414,13 @@ sub STARTUP {
 			$filter_all->set_name($d->get("All compatible image formats"));
 			$fs->add_filter($filter_all);
 
-			foreach my $format (Gtk3::Gdk::Pixbuf->get_formats) {
+			foreach my $format (Gtk3::Gdk::Pixbuf::get_formats) {
 				my $filter = Gtk3::FileFilter->new;
 
 				#add all known formats to the dialog
-				$filter->set_name($format->{name} . " - " . $format->{description});
+				$filter->set_name($format->get_name . " - " . $format->get_description);
 
-				foreach my $ext (@{$format->{extensions}}) {
+				foreach my $ext (@{$format->get_extensions}) {
 					$filter->add_pattern("*." . uc $ext);
 					$filter_all->add_pattern("*." . uc $ext);
 					$filter->add_pattern("*." . $ext);
@@ -9568,24 +9565,24 @@ sub STARTUP {
 			#images
 		} else {
 
-			foreach my $format (Gtk3::Gdk::Pixbuf->get_formats) {
+			foreach my $format (Gtk3::Gdk::Pixbuf::get_formats) {
 
 				#we don't want svg here - this is a dedicated action in the DrawingTool
-				next if !defined $rfiletype && $format->{name} =~ /svg/;
+				next if !defined $rfiletype && $format->get_name =~ /svg/;
 
 				#we have a requested filetype - nothing else will be offered
-				next if defined $rfiletype && $format->{name} ne $rfiletype;
+				next if defined $rfiletype && $format->get_name ne $rfiletype;
 
 				#we want jpg not jpeg
-				if ($format->{name} eq "jpeg" || $format->{name} eq "jpg") {
-					$combobox_save_as_type->insert_text($counter, "jpg" . " - " . $format->{description});
+				if ($format->get_name eq "jpeg" || $format->get_name eq "jpg") {
+					$combobox_save_as_type->insert_text($counter, "jpg" . " - " . $format->get_description);
 				} else {
-					$combobox_save_as_type->insert_text($counter, $format->{name} . " - " . $format->{description});
+					$combobox_save_as_type->insert_text($counter, $format->get_name . " - " . $format->get_description);
 				}
 
 				#set active when mime_type is matching
 				#loop because multiple mime types are registered for fome file formats
-				foreach my $mime (@{$format->{mime_types}}) {
+				foreach my $mime (@{$format->get_mime_types}) {
 
 					if (defined $key) {
 						if ($mime eq $session_screens{$key}->{'mime_type'}
@@ -9629,7 +9626,7 @@ sub STARTUP {
 
 		$combobox_save_as_type->signal_connect(
 			'changed' => sub {
-				my $filename = $fs->get_filename;
+				my $filename = $shf->utf8_decode($fs->get_filename);
 
 				my $choosen_format = $combobox_save_as_type->get_active_text;
 				$choosen_format =~ s/ \-.*//;    #get png or jpeg (jpg) for example
@@ -9657,7 +9654,7 @@ sub STARTUP {
 		my $fs_resp = $fs->run;
 
 		if ($fs_resp eq "accept") {
-			my $filename = $fs->get_filename;
+			my $filename = $shf->utf8_decode($fs->get_filename);
 
 			#parse filename
 			my ($short, $folder, $ext) = fileparse($filename, qr/\.[^.]*/);
@@ -9890,7 +9887,7 @@ sub STARTUP {
 		$plugin_descr_view->set_wrap_mode('word');
 		my $textview_hbox = Gtk3::HBox->new(FALSE, 5);
 		$textview_hbox->set_border_width(8);
-		$textview_hbox->pack_start_defaults($plugin_descr_view);
+		$textview_hbox->pack_start($plugin_descr_view, TRUE, TRUE, 0);
 
 		my $plugin_descr_label = Gtk3::Label->new();
 		$plugin_descr_label->set_markup("<b>" . $d->get("Description") . "</b>");
@@ -9945,21 +9942,21 @@ sub STARTUP {
 		#we try to activate the last executed plugin if that's possible
 		$plugin->set_active_iter($iter_lastex_plugin);
 
-		$plugin_hbox1->pack_start_defaults($plugin);
+		$plugin_hbox1->pack_start($plugin, TRUE, TRUE, 0);
 
-		$plugin_hbox2->pack_start_defaults($plugin_image);
-		$plugin_hbox2->pack_start_defaults($plugin_descr_frame);
+		$plugin_hbox2->pack_start($plugin_image, TRUE, TRUE, 0);
+		$plugin_hbox2->pack_start($plugin_descr_frame, TRUE, TRUE, 0);
 
 		$plugin_vbox1->pack_start($plugin_hbox1, FALSE, TRUE, 1);
 		$plugin_vbox1->pack_start($plugin_hbox2, TRUE,  TRUE, 1);
 
-		$plugin_dialog->vbox->add($plugin_vbox1);
+		$plugin_dialog->get_child->add($plugin_vbox1);
 
 		my $plugin_progress = Gtk3::ProgressBar->new;
 		$plugin_progress->set_no_show_all(TRUE);
 		$plugin_progress->set_ellipsize('middle');
 		$plugin_progress->set_orientation('left-to-right');
-		$plugin_dialog->vbox->add($plugin_progress);
+		$plugin_dialog->get_child->add($plugin_progress);
 
 		$plugin_dialog->show_all;
 
@@ -9979,7 +9976,7 @@ sub STARTUP {
 
 			#disable buttons and combobox
 			$plugin->set_sensitive(FALSE);
-			foreach my $dialog_child ($plugin_dialog->vbox->get_children) {
+			foreach my $dialog_child ($plugin_dialog->get_child->get_children) {
 				$dialog_child->set_sensitive(FALSE)
 					if $dialog_child =~ /Button/;
 			}
@@ -10692,9 +10689,9 @@ sub STARTUP {
 		$new_profile_name->set_text($curr_profile_name)
 			if defined $curr_profile_name;
 
-		$new_profile_name_vbox->pack_start_defaults($new_profile_name);
-		$new_profile_name_vbox->pack_start_defaults($new_profile_name_hint);
-		$profile_dialog->vbox->add($new_profile_name_vbox);
+		$new_profile_name_vbox->pack_start($new_profile_name, TRUE, TRUE, 0);
+		$new_profile_name_vbox->pack_start($new_profile_name_hint, TRUE, TRUE, 0);
+		$profile_dialog->get_child->add($new_profile_name_vbox);
 		$profile_dialog->show_all;
 
 		#run dialog
