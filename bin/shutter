@@ -69,6 +69,7 @@ use Number::Bytes::Human;
 use Glib qw/TRUE FALSE/;
 use Gtk3 '-init';
 use Glib::Object::Subclass qw/Gtk3::Application/;
+use Gtk3::ImageView;
 
 #filename parsing
 use POSIX qw/ strftime /;
@@ -197,9 +198,6 @@ fct_init_depend();
 #--------------------------------------
 require lib;
 import lib "$shutter_root/share/shutter/resources/modules";
-import lib "$shutter_root/gtk3-imageview-code/lib";
-
-require Gtk3::ImageView;
 
 #app classes
 require Shutter::App::AboutDialog;
