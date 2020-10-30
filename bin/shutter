@@ -2776,7 +2776,7 @@ sub STARTUP {
 			if ($trans_check->get_active) {
 				$css_provider_alpha->load_from_data("
 					.imageview.transparent {
-						background-image: url('$shutter_root/share/shutter/resources/icons/checkers.svg');
+						background-image: url('$shutter_root/share/shutter/resources/gui/checkers.svg');
 					}
 				");
 			} elsif ($trans_custom->get_active) {
