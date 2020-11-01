@@ -1958,7 +1958,7 @@ sub event_item_on_motion_notify {
 
 		}
 
-		$self->{_items}{$item}->set('points' => GooCanvas2::Points->new($self->{_items}{$item}{'points'}));
+		$self->{_items}{$item}->set('points' => points_to_canvas_points(@{$self->{_items}{$item}{'points'}}));
 
 		#new item is already on the canvas with small initial size
 		#drawing is like resizing, so set up for resizing
@@ -2687,7 +2687,7 @@ sub store_to_xdo_stack {
 		);
 
 		#polyline specific properties to hash
-	} elsif ($item->isa('GooCanvas2::Polyline')) {
+	} elsif ($item->isa('GooCanvas2::CanvasPolyline')) {
 
 		my $stroke_pattern = $self->create_color($self->{_items}{$item}{stroke_color}, $self->{_items}{$item}{stroke_color}->alpha);
 		my $transform      = $self->{_items}{$item}->get('transform');
@@ -2973,7 +2973,7 @@ sub xdo {
 			);
 
 			#polyline specific properties
-		} elsif ($item->isa('GooCanvas2::Polyline')) {
+		} elsif ($item->isa('GooCanvas2::CanvasPolyline')) {
 
 			#if pattern exists
 			#e.g. censor tool does not have a pattern
@@ -3134,7 +3134,7 @@ sub set_and_save_drawing_properties {
 
 	if (   $item->isa('GooCanvas2::CanvasRect')
 		|| $item->isa('GooCanvas2::Ellipse')
-		|| $item->isa('GooCanvas2::Polyline'))
+		|| $item->isa('GooCanvas2::CanvasPolyline'))
 	{
 
 		#line width
@@ -3990,7 +3990,7 @@ sub show_item_properties {
 	#GENERAL SETTINGS
 	if (   $item->isa('GooCanvas2::CanvasRect')
 		|| $item->isa('GooCanvas2::Ellipse')
-		|| $item->isa('GooCanvas2::Polyline')
+		|| $item->isa('GooCanvas2::CanvasPolyline')
 		|| ($item->isa('GooCanvas2::Text') && defined $self->{_items}{$key}{ellipse}))
 	{
 
@@ -4118,7 +4118,7 @@ sub show_item_properties {
 	}
 
 	#ARROW item
-	if (   $item->isa('GooCanvas2::Polyline')
+	if (   $item->isa('GooCanvas2::CanvasPolyline')
 		&& defined $self->{_items}{$key}{end_arrow}
 		&& defined $self->{_items}{$key}{start_arrow})
 	{
@@ -4621,7 +4621,7 @@ sub apply_properties {
 	}
 
 	#apply polyline options (arrow)
-	if (   $item->isa('GooCanvas2::Polyline')
+	if (   $item->isa('GooCanvas2::CanvasPolyline')
 		&& defined $self->{_items}{$key}{end_arrow}
 		&& defined $self->{_items}{$key}{start_arrow})
 	{
@@ -4665,7 +4665,7 @@ sub apply_properties {
 		$self->{_items}{$key}{arrow_tip_length} = $self->{_items}{$key}{line}->get('arrow-tip-length');
 
 		#apply polyline options (freehand, highlighter)
-	} elsif ($item->isa('GooCanvas2::Polyline')
+	} elsif ($item->isa('GooCanvas2::CanvasPolyline')
 		&& defined $self->{_items}{$key}{stroke_color})
 	{
 		my $stroke_pattern = $self->create_color($stroke_color->get_rgba, $stroke_color->get_rgba->alpha);
@@ -4911,33 +4911,33 @@ sub handle_embedded {
 			#arrow is always and end-arrow
 			if ($self->{_items}{$item}{mirrored_w} < 0 && $self->{_items}{$item}{mirrored_h} < 0) {
 				$self->{_items}{$item}{line}->set(
-					'points' => GooCanvas2::Points->new([
+					'points' => points_to_canvas_points(
 							$self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height'),
-							$self->{_items}{$item}->get('x'),                                        $self->{_items}{$item}->get('y')]
+							$self->{_items}{$item}->get('x'),                                        $self->{_items}{$item}->get('y')
 					),
 					'visibility' => $visibility
 				);
 			} elsif ($self->{_items}{$item}{mirrored_w} < 0) {
 				$self->{_items}{$item}{line}->set(
-					'points' => GooCanvas2::Points->new([
+					'points' => points_to_canvas_points(
 							$self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('y'),
-							$self->{_items}{$item}->get('x'),                                        $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height')]
+							$self->{_items}{$item}->get('x'),                                        $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height')
 					),
 					'visibility' => $visibility
 				);
 			} elsif ($self->{_items}{$item}{mirrored_h} < 0) {
 				$self->{_items}{$item}{line}->set(
-					'points' => GooCanvas2::Points->new([
+					'points' => points_to_canvas_points(
 							$self->{_items}{$item}->get('x'),                                        $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height'),
-							$self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('y')]
+							$self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('y')
 					),
 					'visibility' => $visibility
 				);
 			} else {
 				$self->{_items}{$item}{line}->set(
-					'points' => GooCanvas2::Points->new([
+					'points' => points_to_canvas_points(
 							$self->{_items}{$item}->get('x'),                                        $self->{_items}{$item}->get('y'),
-							$self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height')]
+							$self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height')
 					),
 					'visibility' => $visibility
 				);
@@ -5691,7 +5691,7 @@ sub event_item_on_enter_notify {
 	return TRUE if $self->{_busy};
 
 	if (
-		($item->isa('GooCanvas2::CanvasRect') || $item->isa('GooCanvas2::Ellipse') || $item->isa('GooCanvas2::Text') || $item->isa('GooCanvas2::CanvasImage') || $item->isa('GooCanvas2::Polyline'))
+		($item->isa('GooCanvas2::CanvasRect') || $item->isa('GooCanvas2::Ellipse') || $item->isa('GooCanvas2::Text') || $item->isa('GooCanvas2::CanvasImage') || $item->isa('GooCanvas2::CanvasPolyline'))
 		&& (   $self->{_current_mode_descr} ne "freehand"
 			&& $self->{_current_mode_descr} ne "highlighter"
 			&& $self->{_current_mode_descr} ne "censor")
@@ -5735,7 +5735,7 @@ sub event_item_on_leave_notify {
 	return TRUE if $self->{_busy};
 
 	if (
-		($item->isa('GooCanvas2::CanvasRect') || $item->isa('GooCanvas2::Ellipse') || $item->isa('GooCanvas2::Text') || $item->isa('GooCanvas2::CanvasImage') || $item->isa('GooCanvas2::Polyline'))
+		($item->isa('GooCanvas2::CanvasRect') || $item->isa('GooCanvas2::Ellipse') || $item->isa('GooCanvas2::Text') || $item->isa('GooCanvas2::CanvasImage') || $item->isa('GooCanvas2::CanvasPolyline'))
 		&& (   $self->{_current_mode_descr} ne "freehand"
 			&& $self->{_current_mode_descr} ne "highlighter"
 			&& $self->{_current_mode_descr} ne "censor")
@@ -6915,15 +6915,15 @@ sub paste_item {
 
 			#~ print "Creating Rectangle...\n";
 			$new_item = $self->create_rectangle(undef, $item);
-		} elsif ($item->isa('GooCanvas2::Polyline') && !$child) {
+		} elsif ($item->isa('GooCanvas2::CanvasPolyline') && !$child) {
 
 			#~ print "Creating Polyline...\n";
 			$new_item = $self->create_polyline(undef, $item);
-		} elsif ($child->isa('GooCanvas2::Polyline') && exists $self->{_items}{$item}{stroke_color}) {
+		} elsif ($child->isa('GooCanvas2::CanvasPolyline') && exists $self->{_items}{$item}{stroke_color}) {
 
 			#~ print "Creating Line...\n";
 			$new_item = $self->create_line(undef, $item);
-		} elsif ($child->isa('GooCanvas2::Polyline')) {
+		} elsif ($child->isa('GooCanvas2::CanvasPolyline')) {
 
 			#~ print "Creating Censor...\n";
 			$new_item = $self->create_censor(undef, $item);
@@ -6991,8 +6991,8 @@ sub create_polyline {
 
 	my $item = undef;
 	if ($highlighter) {
-		$item = GooCanvas2::Polyline->new_line(
-			$self->{_canvas}->get_root_item, $points[0], $points[1], $points[2], $points[3],
+		$item = GooCanvas2::CanvasPolyline->new(
+			parent=>$self->{_canvas}->get_root_item, close_path=>FALSE,
 			'stroke-pattern' => $self->create_color(Gtk3::Gdk::RGBA::parse('#FFFF00'), 0.5),
 			'line-width'     => 18,
 			'fill-rule'      => 'CAIRO_FILL_RULE_EVEN_ODD',
@@ -7000,8 +7000,8 @@ sub create_polyline {
 			'line-join'      => 'CAIRO_LINE_JOIN_BEVEL',
 		);
 	} else {
-		$item = GooCanvas2::Polyline->new_line(
-			$self->{_canvas}->get_root_item, $points[0], $points[1], $points[2], $points[3],
+		$item = GooCanvas2::CanvasPolyline->new(
+			parent=>$self->{_canvas}->get_root_item, close_path=>FALSE,
 			'stroke-pattern' => $stroke_pattern,
 			'line-width'     => $line_width,
 			'line-cap'       => 'CAIRO_LINE_CAP_ROUND',
@@ -7014,7 +7014,7 @@ sub create_polyline {
 
 	#need at least 2 points
 	push @{$self->{_items}{$item}{'points'}}, @points;
-	$self->{_items}{$item}->set(points    => GooCanvas2::Points->new($self->{_items}{$item}{'points'}));
+	$self->{_items}{$item}->set(points    => points_to_canvas_points(@{$self->{_items}{$item}{'points'}}));
 	$self->{_items}{$item}->set(transform => $transform) if $transform;
 
 	if ($highlighter) {
@@ -7061,8 +7061,8 @@ sub create_censor {
 	my @stipple_data   = (255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255);
 	my $stroke_pattern = $self->create_stipple('black', \@stipple_data);
 
-	my $item = GooCanvas2::Polyline->new_line(
-		$self->{_canvas}->get_root_item, $points[0], $points[1], $points[2], $points[3],
+	my $item = GooCanvas2::CanvasPolyline->new(
+		parent=>$self->{_canvas}->get_root_item, close_path=>FALSE,
 		'stroke-pattern' => $stroke_pattern,
 		'line-width'     => 14,
 		'line-cap'       => 'CAIRO_LINE_CAP_ROUND',
@@ -7078,7 +7078,7 @@ sub create_censor {
 
 	#need at least 2 points
 	push @{$self->{_items}{$item}{'points'}}, @points;
-	$self->{_items}{$item}->set(points    => GooCanvas2::Points->new($self->{_items}{$item}{'points'}));
+	$self->{_items}{$item}->set(points    => points_to_canvas_points(@{$self->{_items}{$item}{'points'}}));
 	$self->{_items}{$item}->set(transform => $transform) if $transform;
 
 	$self->setup_item_signals($self->{_items}{$item});
@@ -7409,12 +7409,15 @@ sub create_line {
 	$self->{_current_new_item} = $item unless ($copy_item);
 	$self->{_items}{$item} = $item;
 
-	$self->{_items}{$item}{line} = GooCanvas2::Polyline->new_line(
-		$self->{_canvas}->get_root_item,
-		$item->get('x'),
-		$item->get('y'),
-		$item->get('x') + $item->get('width'),
-		$item->get('y') + $item->get('height'),
+	$self->{_items}{$item}{line} = GooCanvas2::CanvasPolyline->new_line(
+		parent=>$self->{_canvas}->get_root_item,
+		close_path=>FALSE,
+		points=>points_to_canvas_points(
+			$item->get('x'),
+			$item->get('y'),
+			$item->get('x') + $item->get('width'),
+			$item->get('y') + $item->get('height'),
+		),
 		'stroke-pattern'   => $stroke_pattern,
 		'line-width'       => $line_width,
 		'line-cap'         => 'CAIRO_LINE_CAP_ROUND',
@@ -7646,6 +7649,16 @@ sub create_rectangle {
 	$self->setup_item_signals_extra($self->{_items}{$item});
 
 	return $item;
+}
+
+sub points_to_canvas_points {
+	my @points = @_;
+	my $num_points = scalar(@points) / 2;
+	my $result = GooCanvas2::CanvasPoints::new(num_points=>$num_points);
+	for (my $i = 0; $i < @points; $i += 2) {
+		$result->set_point($i / 2, $points[$i], $points[$i+1]);
+	}
+	return $result;
 }
 
 1;
