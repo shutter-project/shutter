@@ -8978,7 +8978,7 @@ sub STARTUP {
 		}
 
 		#goocanvas
-		eval { require Goo::Canvassssss };
+		eval { require GooCanvas2 };
 		if ($@) {
 			warn "WARNING: Goo::Canvas/libgoo-canvas-perl is missing --> drawing tool will be disabled!\n\n";
 			$goocanvas = FALSE;

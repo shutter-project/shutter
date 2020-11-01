@@ -44,7 +44,7 @@ use warnings;
 use Gtk3;
 
 use Exporter;
-use Goo::Canvas;
+use GooCanvas2;
 use File::Basename qw/ fileparse dirname basename /;
 use File::Glob qw/ bsd_glob /;
 use File::Temp qw/ tempfile tempdir /;
@@ -59,6 +59,15 @@ use XML::Simple;
 #Glib
 use Glib qw/TRUE FALSE/;
 
+BEGIN {
+	use Glib::Object::Introspection;
+	Glib::Object::Introspection->setup(
+		basename => 'cairo',
+		version  => '1.0',
+		package  => 'Caaa',
+	);
+}
+
 #--------------------------------------
 
 sub new {
@@ -70,7 +79,7 @@ sub new {
 	$self->{_view}     = Gtk3::ImageView->new;
 	$self->{_selector} = Gtk3::ImageView::Tool::Selector->new($self->{_view});
 	$self->{_dragger}  = Gtk3::ImageView::Tool::Dragger->new($self->{_view});
-	$self->{_view}->set_interpolation('tiles');
+	#$self->{_view}->set_interpolation('tiles');
 	$self->{_view}->set_tool($self->{_selector});
 
 	#WORKAROUND
@@ -100,7 +109,7 @@ sub new {
 		});
 
 	#clipboard
-	$self->{_clipboard} = Gtk3::Clipboard::get(Gtk3::Gdk::SELECTION_CLIPBOARD);
+	$self->{_clipboard} = Gtk3::Clipboard::get($Gtk3::Gdk::SELECTION_CLIPBOARD);
 
 	#file
 	$self->{_filename}    = undef;
@@ -133,23 +142,23 @@ sub new {
 	#drawing colors and line width
 	#general - shown in the bottom hbox
 	$self->{_fill_color}         = Gtk3::Gdk::RGBA::parse('#0000ff');
-	$self->{_fill_color_alpha}   = 0.25;
+	$self->{_fill_color}->alpha(0.25);
 	$self->{_stroke_color}       = Gtk3::Gdk::RGBA::parse('#ff0000');
-	$self->{_stroke_color_alpha} = 1;
+	$self->{_stroke_color}->alpha(1);
 	$self->{_line_width}         = 3;
 	$self->{_font}               = 'Sans Regular 16';
 
 	#obtain current colors and font_desc from the main window
 	$self->{_style}    = $self->{_sc}->get_mainwindow->get_style_context;
 	$self->{_style_bg} = $self->{_style}->get_background_color('selected');
-	$self->{_style_tx} = $self->{_style}->text('selected');
+	#$self->{_style_tx} = $self->{_style}->text('selected');
 
 	#remember drawing colors, line width and font settings
 	#maybe we have to restore them
 	$self->{_last_fill_color}         = Gtk3::Gdk::RGBA::parse('#0000ff');
-	$self->{_last_fill_color_alpha}   = 0.25;
+	$self->{_last_fill_color}->alpha(0.25);
 	$self->{_last_stroke_color}       = Gtk3::Gdk::RGBA::parse('#ff0000');
-	$self->{_last_stroke_color_alpha} = 1;
+	$self->{_last_stroke_color}->alpha(1);
 	$self->{_last_line_width}         = 3;
 	$self->{_last_font}               = 'Sans Regular 16';
 
@@ -252,10 +261,10 @@ sub show {
 
 	#CANVAS
 	#-------------------------------------------------
-	$self->{_canvas} = Goo::Canvas->new();
+	$self->{_canvas} = GooCanvas2::Canvas->new();
 
 	#enable dnd for it
-	$self->{_canvas}->drag_dest_set('all', ['copy', 'private', 'default', 'move', 'link', 'ask']);
+	#$self->{_canvas}->drag_dest_set('all', ['copy', 'private', 'default', 'move', 'link', 'ask']);
 	$self->{_canvas}->signal_connect(drag_data_received => sub { $self->import_from_dnd(@_) });
 
 	my $target_list = Gtk3::TargetList->new();
@@ -288,7 +297,7 @@ sub show {
 		'scroll-event' => sub {
 			my ($canvas, $ev) = @_;
 
-			my $alloc = $self->{_canvas}->allocation;
+			my $alloc = $self->{_canvas}->get_allocation;
 			my $scale = $canvas->get_scale;
 
 			if ($ev->state >= 'control-mask' && ($ev->direction eq 'up' || $ev->direction eq 'left')) {
@@ -304,10 +313,10 @@ sub show {
 
 	#create rectangle to resize the background
 	my $bg_color = $self->create_color(Gtk3::Gdk::RGBA::parse('gray'), 1.0);
-	$self->{_canvas_bg_rect} = Goo::Canvas::Rect->new(
-		$self->{_canvas}->get_root_item, 0, 0, $self->{_drawing_pixbuf}->get_width, $self->{_drawing_pixbuf}->get_height,
+	$self->{_canvas_bg_rect} = GooCanvas2::CanvasRect->new(
+		parent=>$self->{_canvas}->get_root_item, x=>0, y=>0, width=>$self->{_drawing_pixbuf}->get_width, height=>$self->{_drawing_pixbuf}->get_height,
 		'fill-pattern' => $bg_color,
-		'line-dash'    => Goo::Canvas::LineDash->new([5, 5]),
+		'line-dash'    => GooCanvas2::CanvasLineDash->newv([5, 5]),
 		'line-width'   => 1,
 		'stroke-color' => 'black',
 	);
@@ -333,7 +342,7 @@ sub show {
 
 	#construct an event and create a new image object
 	my $initevent = Gtk3::Gdk::Event->new('motion-notify');
-	$initevent->set_time(Gtk3::get_current_event_time());
+	$initevent->time(Gtk3::get_current_event_time());
 	$initevent->window($self->{_drawing_window}->get_window);
 	$initevent->x(int($self->{_canvas_bg_rect}->get('width') / 2));
 	$initevent->y(int($self->{_canvas_bg_rect}->get('height') / 2));
@@ -389,22 +398,22 @@ sub show {
 	$self->{_vscroll_hid} = $self->{_scrolled_window}->get_vscrollbar->signal_connect('value-changed' => sub { $self->adjust_rulers });
 
 	#vruler
-	$self->{_vruler} = Gtk3::VRuler->new;
-	$self->{_vruler}->set_metric('pixels');
-	$self->{_vruler}->set_range(0, $self->{_drawing_pixbuf}->get_height, 0, $self->{_drawing_pixbuf}->get_height);
+	#$self->{_vruler} = Gtk3::VRuler->new;
+	#$self->{_vruler}->set_metric('pixels');
+	#$self->{_vruler}->set_range(0, $self->{_drawing_pixbuf}->get_height, 0, $self->{_drawing_pixbuf}->get_height);
 
 	#hruler
-	$self->{_hruler} = Gtk3::HRuler->new;
-	$self->{_hruler}->set_metric('pixels');
-	$self->{_hruler}->set_range(0, $self->{_drawing_pixbuf}->get_width, 0, $self->{_drawing_pixbuf}->get_width);
+	#$self->{_hruler} = Gtk3::HRuler->new;
+	#$self->{_hruler}->set_metric('pixels');
+	#$self->{_hruler}->set_range(0, $self->{_drawing_pixbuf}->get_width, 0, $self->{_drawing_pixbuf}->get_width);
 
 	#create a table for placing the ruler and scrolle window
-	$self->{_table} = new Gtk3::Table(3, 2, FALSE);
+	$self->{_table} = Gtk3::Table->new(3, 2, FALSE);
 
 	#attach scrolled window and rulers to the table
 	$self->{_table}->attach($self->{_scrolled_window}, 1, 2, 1, 2, ['expand', 'fill'], ['expand', 'fill'], 0, 0);
-	$self->{_table}->attach($self->{_hruler}, 1, 2, 0, 1, ['expand', 'shrink', 'fill'], [], 0, 0);
-	$self->{_table}->attach($self->{_vruler}, 0, 1, 1, 2, [], ['fill', 'expand', 'shrink'], 0, 0);
+	#$self->{_table}->attach($self->{_hruler}, 1, 2, 0, 1, ['expand', 'shrink', 'fill'], [], 0, 0);
+	#$self->{_table}->attach($self->{_vruler}, 0, 1, 1, 2, [], ['fill', 'expand', 'shrink'], 0, 0);
 
 	$self->{_bhbox} = $self->setup_bottom_hbox;
 	$self->{_drawing_inner_vbox}->pack_start($self->{_table}, TRUE,  TRUE, 0);
@@ -413,7 +422,9 @@ sub show {
 	#CROPPING TOOL CONTAINER
 	#-------------------------------------------------
 	#scrolled window for the cropping tool
-	$self->{_scrolled_window_c} = Gtk3::ImageView::ScrollWin->new($self->{_view});
+	#$self->{_scrolled_window_c} = Gtk3::ImageView::ScrollWin->new($self->{_view});
+	$self->{_scrolled_window_c} = Gtk3::ScrolledWindow->new;
+	$self->{_scrolled_window_c}->add_with_viewport($self->{_view});
 	($self->{_rframe_c}, $self->{_btn_ok_c}) = $self->setup_right_vbox_c;
 	$self->{_drawing_hbox_c}->pack_start($self->{_scrolled_window_c}, TRUE,  TRUE,  0);
 	$self->{_drawing_hbox_c}->pack_start($self->{_rframe_c},          FALSE, FALSE, 3);
@@ -449,10 +460,8 @@ sub show {
 
 	#remember drawing colors, line width and font settings
 	#maybe we have to restore them
-	$self->{_last_fill_color}         = $self->{_fill_color_w}->get_color;
-	$self->{_last_fill_color_alpha}   = $self->{_fill_color_w}->get_alpha / 65535;
-	$self->{_last_stroke_color}       = $self->{_stroke_color_w}->get_color;
-	$self->{_last_stroke_color_alpha} = $self->{_stroke_color_w}->get_alpha / 65535;
+	$self->{_last_fill_color}         = $self->{_fill_color_w}->get_rgba;
+	$self->{_last_stroke_color}       = $self->{_stroke_color_w}->get_rgba;
 	$self->{_last_line_width}         = $self->{_line_spin_w}->get_value;
 	$self->{_last_font}               = $self->{_font_btn_w}->get_font_name;
 
@@ -485,8 +494,7 @@ sub setup_bottom_hbox {
 	#fill color
 	my $fill_color_label = Gtk3::Label->new($self->{_d}->get("Fill color") . ":");
 	$self->{_fill_color_w} = Gtk3::ColorButton->new();
-	$self->{_fill_color_w}->set_color($self->{_fill_color});
-	$self->{_fill_color_w}->set_alpha(int($self->{_fill_color_alpha} * 65636));
+	$self->{_fill_color_w}->set_rgba($self->{_fill_color});
 	$self->{_fill_color_w}->set_use_alpha(TRUE);
 	$self->{_fill_color_w}->set_title($self->{_d}->get("Choose fill color"));
 
@@ -499,8 +507,7 @@ sub setup_bottom_hbox {
 	#stroke color
 	my $stroke_color_label = Gtk3::Label->new($self->{_d}->get("Stroke color") . ":");
 	$self->{_stroke_color_w} = Gtk3::ColorButton->new();
-	$self->{_stroke_color_w}->set_color($self->{_stroke_color});
-	$self->{_stroke_color_w}->set_alpha(int($self->{_stroke_color_alpha} * 65535));
+	$self->{_stroke_color_w}->set_rgba($self->{_stroke_color});
 	$self->{_stroke_color_w}->set_use_alpha(TRUE);
 	$self->{_stroke_color_w}->set_title($self->{_d}->get("Choose stroke color"));
 
@@ -568,8 +575,7 @@ sub setup_bottom_hbox {
 
 	$self->{_stroke_color_wh} = $self->{_stroke_color_w}->signal_connect(
 		'color-set' => sub {
-			$self->{_stroke_color}       = $self->{_stroke_color_w}->get_color;
-			$self->{_stroke_color_alpha} = $self->{_stroke_color_w}->get_alpha / 65535;
+			$self->{_stroke_color}       = $self->{_stroke_color_w}->get_rgba;
 
 			if ($self->{_current_item}) {
 
@@ -591,8 +597,7 @@ sub setup_bottom_hbox {
 
 	$self->{_fill_color_wh} = $self->{_fill_color_w}->signal_connect(
 		'color-set' => sub {
-			$self->{_fill_color}       = $self->{_fill_color_w}->get_color;
-			$self->{_fill_color_alpha} = $self->{_fill_color_w}->get_alpha / 65636;
+			$self->{_fill_color}       = $self->{_fill_color_w}->get_rgba;
 
 			if ($self->{_current_item}) {
 
@@ -1172,6 +1177,7 @@ sub zoom_normal_cb {
 }
 
 sub adjust_rulers {
+	return TRUE;
 	my ($self, $ev, $item) = @_;
 
 	my $s = $self->{_canvas}->get_scale;
@@ -1352,10 +1358,10 @@ sub load_settings {
 			$autoscroll_toggle->set_active($settings_xml->{'drawing'}->{'autoscroll'});
 
 			#drawing colors
-			$self->{_fill_color}         = Gtk3::Gdk::RGBA::parse($settings_xml->{'drawing'}->{'fill_color'});
-			$self->{_fill_color_alpha}   = $settings_xml->{'drawing'}->{'fill_color_alpha'};
-			$self->{_stroke_color}       = Gtk3::Gdk::RGBA::parse($settings_xml->{'drawing'}->{'stroke_color'});
-			$self->{_stroke_color_alpha} = $settings_xml->{'drawing'}->{'stroke_color_alpha'};
+			$self->{_fill_color}         = Gtk3::Gdk::RGBA::parse($settings_xml->{'drawing'}->{'fill_color'}) // Gtk3::Gdk::RGBA::parse('black');
+			$self->{_fill_color}->alpha($settings_xml->{'drawing'}->{'fill_color_alpha'});
+			$self->{_stroke_color}       = Gtk3::Gdk::RGBA::parse($settings_xml->{'drawing'}->{'stroke_color'}) // Gtk3::Gdk::RGBA::parse('black');
+			$self->{_stroke_color}->alpha($settings_xml->{'drawing'}->{'stroke_color_alpha'});
 
 			#line_width
 			$self->{_line_width} = $settings_xml->{'drawing'}->{'line_width'};
@@ -1412,11 +1418,12 @@ sub save_settings {
 	my $autoscroll_toggle = $self->{_uimanager}->get_widget("/MenuBar/Edit/Autoscroll");
 	$settings{'drawing'}->{'autoscroll'} = $autoscroll_toggle->get_active();
 
+	print $self->{_fill_color}->to_string, "\n";
 	#drawing colors
-	$settings{'drawing'}->{'fill_color'}         = sprintf("#%04x%04x%04x", $self->{_fill_color}->red, $self->{_fill_color}->green, $self->{_fill_color}->blue);
-	$settings{'drawing'}->{'fill_color_alpha'}   = $self->{_fill_color_alpha};
-	$settings{'drawing'}->{'stroke_color'}       = sprintf("#%04x%04x%04x", $self->{_stroke_color}->red, $self->{_stroke_color}->green, $self->{_stroke_color}->blue);
-	$settings{'drawing'}->{'stroke_color_alpha'} = $self->{_stroke_color_alpha};
+	$settings{'drawing'}->{'fill_color'}         = sprintf("#%04x%04x%04x", $self->{_fill_color}->red * 65535, $self->{_fill_color}->green * 65535, $self->{_fill_color}->blue * 65535);
+	$settings{'drawing'}->{'fill_color_alpha'}   = $self->{_fill_color}->alpha;
+	$settings{'drawing'}->{'stroke_color'}       = sprintf("#%04x%04x%04x", $self->{_stroke_color}->red * 65535, $self->{_stroke_color}->green * 65535, $self->{_stroke_color}->blue * 65535);
+	$settings{'drawing'}->{'stroke_color_alpha'} = $self->{_stroke_color}->alpha;
 
 	#line_width
 	$settings{'drawing'}->{'line_width'} = $self->{_line_width};
@@ -1886,7 +1893,7 @@ sub event_item_on_motion_notify {
 	#move
 	if ($item->{dragging} && ($ev->state >= 'button1-mask' || $ev->state >= 'button2-mask')) {
 
-		if ($item->isa('Goo::Canvas::Rect')) {
+		if ($item->isa('GooCanvas2::CanvasRect')) {
 
 			my $new_x = $self->{_items}{$item}->get('x') + $ev->x - $item->{drag_x};
 			my $new_y = $self->{_items}{$item}->get('y') + $ev->y - $item->{drag_y};
@@ -1951,7 +1958,7 @@ sub event_item_on_motion_notify {
 
 		}
 
-		$self->{_items}{$item}->set('points' => Goo::Canvas::Points->new($self->{_items}{$item}{'points'}));
+		$self->{_items}{$item}->set('points' => GooCanvas2::Points->new($self->{_items}{$item}{'points'}));
 
 		#new item is already on the canvas with small initial size
 		#drawing is like resizing, so set up for resizing
@@ -2237,7 +2244,7 @@ sub event_item_on_motion_notify {
 
 	} else {
 
-		if ($item->isa('Goo::Canvas::Rect')) {
+		if ($item->isa('GooCanvas2::CanvasRect')) {
 
 			#embedded item?
 			my $parent = $self->get_parent_item($item);
@@ -2572,10 +2579,10 @@ sub store_to_xdo_stack {
 	my %do_info = ();
 
 	#general properties for ellipse, rectangle, image, text
-	if ($item->isa('Goo::Canvas::Rect') && $item != $self->{_canvas_bg_rect}) {
+	if ($item->isa('GooCanvas2::CanvasRect') && $item != $self->{_canvas_bg_rect}) {
 
-		my $stroke_pattern = $self->create_color($self->{_items}{$item}{stroke_color}, $self->{_items}{$item}{stroke_color_alpha}) if exists $self->{_items}{$item}{stroke_color};
-		my $fill_pattern   = $self->create_color($self->{_items}{$item}{fill_color},   $self->{_items}{$item}{fill_color_alpha})   if exists $self->{_items}{$item}{fill_color};
+		my $stroke_pattern = $self->create_color($self->{_items}{$item}{stroke_color}, $self->{_items}{$item}{stroke_color}->alpha) if exists $self->{_items}{$item}{stroke_color};
+		my $fill_pattern   = $self->create_color($self->{_items}{$item}{fill_color},   $self->{_items}{$item}{fill_color}->alpha)   if exists $self->{_items}{$item}{fill_color};
 		my $line_width     = $self->{_items}{$item}->get('line-width');
 
 		#line
@@ -2636,9 +2643,7 @@ sub store_to_xdo_stack {
 			'width'              => $self->{_items}{$item}->get('width'),
 			'height'             => $self->{_items}{$item}->get('height'),
 			'stroke_color'       => $self->{_items}{$item}{stroke_color},
-			'stroke_color_alpha' => $self->{_items}{$item}{stroke_color_alpha},
 			'fill_color'         => $self->{_items}{$item}{fill_color},
-			'fill_color_alpha'   => $self->{_items}{$item}{fill_color_alpha},
 			'fill-pattern'       => $fill_pattern,
 			'stroke-pattern'     => $stroke_pattern,
 			'line-width'         => $line_width,
@@ -2654,7 +2659,7 @@ sub store_to_xdo_stack {
 			'opt1'               => $opt1,
 		);
 
-	} elsif ($item->isa('Goo::Canvas::Image') && $item == $self->{_canvas_bg}) {
+	} elsif ($item->isa('GooCanvas2::CanvasImage') && $item == $self->{_canvas_bg}) {
 
 		#canvas_bg_image and bg_rect properties
 		%do_info = (
@@ -2668,7 +2673,7 @@ sub store_to_xdo_stack {
 			'opt1'           => $opt1,
 		);
 
-	} elsif ($item->isa('Goo::Canvas::Rect') && $item == $self->{_canvas_bg_rect}) {
+	} elsif ($item->isa('GooCanvas2::CanvasRect') && $item == $self->{_canvas_bg_rect}) {
 
 		#canvas_bg_rect properties
 		%do_info = (
@@ -2682,9 +2687,9 @@ sub store_to_xdo_stack {
 		);
 
 		#polyline specific properties to hash
-	} elsif ($item->isa('Goo::Canvas::Polyline')) {
+	} elsif ($item->isa('GooCanvas2::Polyline')) {
 
-		my $stroke_pattern = $self->create_color($self->{_items}{$item}{stroke_color}, $self->{_items}{$item}{stroke_color_alpha});
+		my $stroke_pattern = $self->create_color($self->{_items}{$item}{stroke_color}, $self->{_items}{$item}{stroke_color}->alpha);
 		my $transform      = $self->{_items}{$item}->get('transform');
 		my $line_width     = $self->{_items}{$item}->get('line-width');
 		my $points         = $self->{_items}{$item}->get('points');
@@ -2786,7 +2791,7 @@ sub xdo {
 	return FALSE unless $item;
 	return FALSE unless $action;
 
-	if ($item->isa('Goo::Canvas::Image') && $item == $self->{_canvas_bg}) {
+	if ($item->isa('GooCanvas2::CanvasImage') && $item == $self->{_canvas_bg}) {
 		$opt1->x($do->{'opt1'}->x * -1);
 		$opt1->y($do->{'opt1'}->y * -1);
 	}
@@ -2827,7 +2832,7 @@ sub xdo {
 	#finally undo the last event
 	if ($action eq 'modify') {
 
-		if ($item->isa('Goo::Canvas::Rect') && $item != $self->{_canvas_bg_rect}) {
+		if ($item->isa('GooCanvas2::CanvasRect') && $item != $self->{_canvas_bg_rect}) {
 
 			$self->{_items}{$item}->set(
 				'x'      => $do->{'x'},
@@ -2855,9 +2860,7 @@ sub xdo {
 
 				#restore color and opacity as well
 				$self->{_items}{$item}{fill_color}         = $do->{'fill_color'};
-				$self->{_items}{$item}{fill_color_alpha}   = $do->{'fill_color_alpha'};
 				$self->{_items}{$item}{stroke_color}       = $do->{'stroke_color'};
-				$self->{_items}{$item}{stroke_color_alpha} = $do->{'stroke_color_alpha'};
 
 			} elsif (exists $self->{_items}{$item}{text}) {
 
@@ -2868,7 +2871,6 @@ sub xdo {
 
 				#restore color and opacity as well
 				$self->{_items}{$item}{stroke_color}       = $do->{'stroke_color'};
-				$self->{_items}{$item}{stroke_color_alpha} = $do->{'stroke_color_alpha'};
 
 			} elsif (exists $self->{_items}{$item}{pixelize}) {
 
@@ -2920,7 +2922,6 @@ sub xdo {
 
 				#restore color and opacity as well
 				$self->{_items}{$item}{stroke_color}       = $do->{'stroke_color'};
-				$self->{_items}{$item}{stroke_color_alpha} = $do->{'stroke_color_alpha'};
 
 			} else {
 
@@ -2932,13 +2933,11 @@ sub xdo {
 
 				#restore color and opacity as well
 				$self->{_items}{$item}{fill_color}         = $do->{'fill_color'};
-				$self->{_items}{$item}{fill_color_alpha}   = $do->{'fill_color_alpha'};
 				$self->{_items}{$item}{stroke_color}       = $do->{'stroke_color'};
-				$self->{_items}{$item}{stroke_color_alpha} = $do->{'stroke_color_alpha'};
 
 			}
 
-		} elsif ($item->isa('Goo::Canvas::Image') && $item == $self->{_canvas_bg}) {
+		} elsif ($item->isa('GooCanvas2::CanvasImage') && $item == $self->{_canvas_bg}) {
 
 			#~ print "xdo canvas_bg\n";
 
@@ -2962,7 +2961,7 @@ sub xdo {
 			#we need to move the shapes
 			$self->move_all($opt1->x, $opt1->y);
 
-		} elsif ($item->isa('Goo::Canvas::Rect') && $item == $self->{_canvas_bg_rect}) {
+		} elsif ($item->isa('GooCanvas2::CanvasRect') && $item == $self->{_canvas_bg_rect}) {
 
 			#~ print "xdo canvas_bg_rect\n";
 
@@ -2974,7 +2973,7 @@ sub xdo {
 			);
 
 			#polyline specific properties
-		} elsif ($item->isa('Goo::Canvas::Polyline')) {
+		} elsif ($item->isa('GooCanvas2::Polyline')) {
 
 			#if pattern exists
 			#e.g. censor tool does not have a pattern
@@ -2988,7 +2987,6 @@ sub xdo {
 				);
 
 				$self->{_items}{$item}{stroke_color}       = $do->{'stroke_color'};
-				$self->{_items}{$item}{stroke_color_alpha} = $do->{'stroke_color_alpha'};
 
 			} else {
 
@@ -3113,10 +3111,8 @@ sub set_and_save_drawing_properties {
 
 		#remember drawing colors, line width and font settings
 		#maybe we have to restore them
-		$self->{_last_fill_color}         = $self->{_fill_color_w}->get_color;
-		$self->{_last_fill_color_alpha}   = $self->{_fill_color_w}->get_alpha / 65535;
-		$self->{_last_stroke_color}       = $self->{_stroke_color_w}->get_color;
-		$self->{_last_stroke_color_alpha} = $self->{_stroke_color_w}->get_alpha / 65535;
+		$self->{_last_fill_color}         = $self->{_fill_color_w}->get_rgba;
+		$self->{_last_stroke_color}       = $self->{_stroke_color_w}->get_rgba;
 		$self->{_last_line_width}         = $self->{_line_spin_w}->get_value;
 		$self->{_last_font}               = $self->{_font_btn_w}->get_font_name;
 
@@ -3136,9 +3132,9 @@ sub set_and_save_drawing_properties {
 
 	#~ print "set_and_save_drawing_properties3\n";
 
-	if (   $item->isa('Goo::Canvas::Rect')
-		|| $item->isa('Goo::Canvas::Ellipse')
-		|| $item->isa('Goo::Canvas::Polyline'))
+	if (   $item->isa('GooCanvas2::CanvasRect')
+		|| $item->isa('GooCanvas2::Ellipse')
+		|| $item->isa('GooCanvas2::Polyline'))
 	{
 
 		#line width
@@ -3150,15 +3146,13 @@ sub set_and_save_drawing_properties {
 
 			#~ print $self->{_items}{$key}{stroke_color}->to_string, "\n";
 
-			$self->{_stroke_color_w}->set_color($self->{_items}{$key}{stroke_color});
-			$self->{_stroke_color_w}->set_alpha(int($self->{_items}{$key}{stroke_color_alpha} * 65535));
+			$self->{_stroke_color_w}->set_rgba($self->{_items}{$key}{stroke_color});
 		}
 
-		if ($item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse')) {
+		if ($item->isa('GooCanvas2::CanvasRect') || $item->isa('GooCanvas2::Ellipse')) {
 
 			#fill color
-			$self->{_fill_color_w}->set_color($self->{_items}{$key}{fill_color});
-			$self->{_fill_color_w}->set_alpha(int($self->{_items}{$key}{fill_color_alpha} * 65535));
+			$self->{_fill_color_w}->set_rgba($self->{_items}{$key}{fill_color});
 
 			#numbered shapes
 			if (exists($self->{_items}{$key}{text})) {
@@ -3188,7 +3182,7 @@ sub set_and_save_drawing_properties {
 			}
 		}
 
-	} elsif ($item->isa('Goo::Canvas::Text')) {
+	} elsif ($item->isa('GooCanvas2::Text')) {
 
 		#determine font description from string
 		my ($attr_list, $text_raw, $accel_char) = Pango->parse_markup($item->get('text'));
@@ -3210,8 +3204,7 @@ sub set_and_save_drawing_properties {
 		}
 
 		#font color
-		$self->{_stroke_color_w}->set_color($self->{_items}{$key}{stroke_color});
-		$self->{_stroke_color_w}->set_alpha(int($self->{_items}{$key}{stroke_color_alpha} * 65535));
+		$self->{_stroke_color_w}->set_rgba($self->{_items}{$key}{stroke_color});
 
 		#apply current font settings to button
 		$self->{_font_btn_w}->set_font_name($self->{_font});
@@ -3220,10 +3213,8 @@ sub set_and_save_drawing_properties {
 
 	#update global values
 	$self->{_line_width}         = $self->{_line_spin_w}->get_value;
-	$self->{_stroke_color}       = $self->{_stroke_color_w}->get_color;
-	$self->{_stroke_color_alpha} = $self->{_stroke_color_w}->get_alpha / 65535;
-	$self->{_fill_color}         = $self->{_fill_color_w}->get_color;
-	$self->{_fill_color_alpha}   = $self->{_fill_color_w}->get_alpha / 65636;
+	$self->{_stroke_color}       = $self->{_stroke_color_w}->get_rgba;
+	$self->{_fill_color}         = $self->{_fill_color_w}->get_rgba;
 	my $font_descr = Pango::FontDescription->from_string($self->{_font_btn_w}->get_font_name);
 	$self->{_font} = $self->{_font_btn_w}->get_font_name;
 
@@ -3251,10 +3242,12 @@ sub restore_fixed_properties {
 	if ($mode eq "highlighter") {
 
 		#highlighter
-		$self->{_fill_color_w}->set_color(Gtk3::Gdk::RGBA::parse('#00000000ffff'));
-		$self->{_fill_color_w}->set_alpha(int(0.234683756771191 * 65535));
-		$self->{_stroke_color_w}->set_color(Gtk3::Gdk::RGBA::parse('#ffffffff0000'));
-		$self->{_stroke_color_w}->set_alpha(int(0.499992370489052 * 65535));
+		my $fill_color = Gtk3::Gdk::RGBA::parse('#00000000ffff');
+		$fill_color->alpha(0.234683756771191);
+		$self->{_fill_color_w}->set_rgba($fill_color);
+		my $stroke_color = Gtk3::Gdk::RGBA::parse('#ffffffff0000');
+		$stroke_color->alpha(0.499992370489052);
+		$self->{_stroke_color_w}->set_rgba($stroke_color);
 		$self->{_line_spin_w}->set_value(18);
 	} elsif ($mode eq "censor") {
 
@@ -3264,10 +3257,8 @@ sub restore_fixed_properties {
 
 	#update global values
 	$self->{_line_width}         = $self->{_line_spin_w}->get_value;
-	$self->{_stroke_color}       = $self->{_stroke_color_w}->get_color;
-	$self->{_stroke_color_alpha} = $self->{_stroke_color_w}->get_alpha / 65535;
-	$self->{_fill_color}         = $self->{_fill_color_w}->get_color;
-	$self->{_fill_color_alpha}   = $self->{_fill_color_w}->get_alpha / 65636;
+	$self->{_stroke_color}       = $self->{_stroke_color_w}->get_rgba;
+	$self->{_fill_color}         = $self->{_fill_color_w}->get_rgba;
 
 	#unblock 'value-change' handlers for widgets
 	$self->{_line_spin_w}->signal_handler_unblock($self->{_line_spin_wh});
@@ -3296,19 +3287,15 @@ sub restore_drawing_properties {
 	$self->{_font_btn_w}->signal_handler_block($self->{_font_btn_wh});
 
 	#restore them
-	$self->{_fill_color_w}->set_color($self->{_last_fill_color});
-	$self->{_fill_color_w}->set_alpha(int($self->{_last_fill_color_alpha} * 65535));
-	$self->{_stroke_color_w}->set_color($self->{_last_stroke_color});
-	$self->{_stroke_color_w}->set_alpha(int($self->{_last_stroke_color_alpha} * 65535));
+	$self->{_fill_color_w}->set_rgba($self->{_last_fill_color});
+	$self->{_stroke_color_w}->set_rgba($self->{_last_stroke_color});
 	$self->{_line_spin_w}->set_value($self->{_last_line_width});
 	$self->{_font_btn_w}->set_font_name($self->{_last_font});
 
 	#update global values
 	$self->{_line_width}         = $self->{_line_spin_w}->get_value;
-	$self->{_stroke_color}       = $self->{_stroke_color_w}->get_color;
-	$self->{_stroke_color_alpha} = $self->{_stroke_color_w}->get_alpha / 65535;
-	$self->{_fill_color}         = $self->{_fill_color_w}->get_color;
-	$self->{_fill_color_alpha}   = $self->{_fill_color_w}->get_alpha / 65636;
+	$self->{_stroke_color}       = $self->{_stroke_color_w}->get_rgba;
+	$self->{_fill_color}         = $self->{_fill_color_w}->get_rgba;
 	my $font_descr = Pango::FontDescription->from_string($self->{_font_btn_w}->get_font_name);
 	$self->{_font} = $self->{_font_btn_w}->get_font_name;
 
@@ -3332,8 +3319,8 @@ sub event_item_on_key_press {
 
 			#construct an motion-notify event
 			my $mevent = Gtk3::Gdk::Event->new('motion-notify');
-			$mevent->set_state('button2-mask');
-			$mevent->set_time(Gtk3::get_current_event_time());
+			$mevent->state('button2-mask');
+			$mevent->time(Gtk3::get_current_event_time());
 			$mevent->window($self->{_drawing_window}->get_window);
 
 			#get current x, y values
@@ -3483,7 +3470,7 @@ sub event_item_on_button_press {
 			#don't move locked item
 			return TRUE if (exists $self->{_items}{$item} && $self->{_items}{$item}{locked});
 
-			if ($item->isa('Goo::Canvas::Rect')) {
+			if ($item->isa('GooCanvas2::CanvasRect')) {
 
 				#real shape => move
 				if (exists $self->{_items}{$item}) {
@@ -3552,7 +3539,7 @@ sub event_item_on_button_press {
 
 			#resizing shape => resize (no real shape)
 			#no polyline modes
-			if (   $item->isa('Goo::Canvas::Rect')
+			if (   $item->isa('GooCanvas2::CanvasRect')
 				&& !exists $self->{_items}{$item}
 				&& $item != $self->{_canvas_bg_rect}
 				&& $self->{_current_mode_descr} ne "freehand"
@@ -3695,7 +3682,7 @@ sub event_item_on_button_press {
 			{
 
 				#some items do not have properties, e.g. images or censor
-				return FALSE if $item->isa('Goo::Canvas::Image') || !exists($self->{_items}{$key}{stroke_color});
+				return FALSE if $item->isa('GooCanvas2::CanvasImage') || !exists($self->{_items}{$key}{stroke_color});
 
 				#~ print $item, $parent, $key, "\n";
 
@@ -3751,18 +3738,13 @@ sub ret_background_menu {
 	$prop_item->set_image(Gtk3::Image->new_from_stock('gtk-select-color', 'menu'));
 	$prop_item->signal_connect(
 		'activate' => sub {
-			my $color_dialog = Gtk3::ColorSelectionDialog->new($self->{_d}->get("Choose fill color"));
-
-			#remove help button
-			$color_dialog->help_button->destroy;
+			my $color_dialog = Gtk3::ColorChooserDialog->new($self->{_d}->get("Choose fill color"));
 
 			#add reset button
 			my $reset_btn = Gtk3::Button->new_with_mnemonic($self->{_d}->get("_Reset to Default"));
 			$color_dialog->add_action_widget($reset_btn, 'reject');
 
-			my $col_sel = $color_dialog->colorsel;
-			$col_sel->set_current_color($self->{_canvas_bg_rect}{fill_color});
-			$col_sel->set_current_alpha(65535);
+			$color_dialog->set_rgba($self->{_canvas_bg_rect}{fill_color});
 
 			$color_dialog->show_all;
 
@@ -3773,13 +3755,12 @@ sub ret_background_menu {
 				if ($response eq 'ok') {
 
 					#apply new color
-					my $new_fill_pattern = $self->create_color($col_sel->get_current_color, 1.0);
+					my $new_fill_pattern = $self->create_color($color_dialog->get_rgba, 1.0);
 					$self->{_canvas_bg_rect}->set('fill-pattern' => $new_fill_pattern);
-					$self->{_canvas_bg_rect}{fill_color} = $col_sel->get_current_color;
+					$self->{_canvas_bg_rect}{fill_color} = $color_dialog->get_rgba;
 					last;
 				} elsif ($response eq 'reject') {
-					$col_sel->set_current_color(Gtk3::Gdk::RGBA::parse('gray'));
-					$col_sel->set_current_alpha(65535);
+					$color_dialog->set_rgba(Gtk3::Gdk::RGBA::parse('gray'));
 				} else {
 					last;
 				}
@@ -3944,7 +3925,7 @@ sub ret_item_menu {
 	$prop_item->set_image(Gtk3::Image->new_from_stock('gtk-properties', 'menu'));
 
 	#some items do not have properties, e.g. images or censor
-	$prop_item->set_sensitive(FALSE) if $item->isa('Goo::Canvas::Image') || !exists($self->{_items}{$key}{stroke_color});
+	$prop_item->set_sensitive(FALSE) if $item->isa('GooCanvas2::CanvasImage') || !exists($self->{_items}{$key}{stroke_color});
 
 	$prop_item->signal_connect(
 		'activate' => sub {
@@ -4007,10 +3988,10 @@ sub show_item_properties {
 
 	#RECT OR ELLIPSE OR NUMBER OR POLYLINE
 	#GENERAL SETTINGS
-	if (   $item->isa('Goo::Canvas::Rect')
-		|| $item->isa('Goo::Canvas::Ellipse')
-		|| $item->isa('Goo::Canvas::Polyline')
-		|| ($item->isa('Goo::Canvas::Text') && defined $self->{_items}{$key}{ellipse}))
+	if (   $item->isa('GooCanvas2::CanvasRect')
+		|| $item->isa('GooCanvas2::Ellipse')
+		|| $item->isa('GooCanvas2::Polyline')
+		|| ($item->isa('GooCanvas2::Text') && defined $self->{_items}{$key}{ellipse}))
 	{
 
 		my $general_vbox = Gtk3::VBox->new(FALSE, 5);
@@ -4035,7 +4016,7 @@ sub show_item_properties {
 		$line_hbox->pack_start($line_spin,   TRUE,  TRUE, 0);
 		$general_vbox->pack_start($line_hbox, FALSE, FALSE, 0);
 
-		if ($item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse')) {
+		if ($item->isa('GooCanvas2::CanvasRect') || $item->isa('GooCanvas2::Ellipse')) {
 
 			#fill color
 			my $fill_color_hbox = Gtk3::HBox->new(FALSE, 5);
@@ -4043,8 +4024,7 @@ sub show_item_properties {
 			my $fill_color_label = Gtk3::Label->new($self->{_d}->get("Fill color") . ":");
 			$fill_color = Gtk3::ColorButton->new();
 
-			$fill_color->set_color($self->{_items}{$key}{fill_color});
-			$fill_color->set_alpha(int($self->{_items}{$key}{fill_color_alpha} * 65535));
+			$fill_color->set_rgba($self->{_items}{$key}{fill_color});
 			$fill_color->set_use_alpha(TRUE);
 			$fill_color->set_title($self->{_d}->get("Choose fill color"));
 
@@ -4063,8 +4043,7 @@ sub show_item_properties {
 			my $stroke_color_label = Gtk3::Label->new($self->{_d}->get("Stroke color") . ":");
 			$stroke_color = Gtk3::ColorButton->new();
 
-			$stroke_color->set_color($self->{_items}{$key}{stroke_color});
-			$stroke_color->set_alpha(int($self->{_items}{$key}{stroke_color_alpha} * 65535));
+			$stroke_color->set_rgba($self->{_items}{$key}{stroke_color});
 			$stroke_color->set_use_alpha(TRUE);
 			$stroke_color->set_title($self->{_d}->get("Choose stroke color"));
 
@@ -4139,7 +4118,7 @@ sub show_item_properties {
 	}
 
 	#ARROW item
-	if (   $item->isa('Goo::Canvas::Polyline')
+	if (   $item->isa('GooCanvas2::Polyline')
 		&& defined $self->{_items}{$key}{end_arrow}
 		&& defined $self->{_items}{$key}{start_arrow})
 	{
@@ -4211,7 +4190,7 @@ sub show_item_properties {
 		$frame_arrow->add($arrow_vbox);
 
 		#simple TEXT item (no numbered ellipse)
-	} elsif ($item->isa('Goo::Canvas::Text')
+	} elsif ($item->isa('GooCanvas2::Text')
 		&& !defined $self->{_items}{$key}{ellipse})
 	{
 
@@ -4261,8 +4240,7 @@ sub show_item_properties {
 		$font_color = Gtk3::ColorButton->new();
 		$font_color->set_use_alpha(TRUE);
 
-		$font_color->set_alpha(int($self->{_items}{$key}{stroke_color_alpha} * 65535));
-		$font_color->set_color($self->{_items}{$key}{stroke_color});
+		$font_color->set_rgba($self->{_items}{$key}{stroke_color});
 		$font_color->set_title($self->{_d}->get("Choose font color"));
 
 		$font_color_hbox->pack_start($font_color_label, FALSE, TRUE, 12);
@@ -4562,10 +4540,8 @@ sub apply_properties {
 		&& $self->{_items}{$key}{type} ne "censor")
 	{
 
-		$self->{_last_fill_color}         = $self->{_fill_color_w}->get_color;
-		$self->{_last_fill_color_alpha}   = $self->{_fill_color_w}->get_alpha / 65535;
-		$self->{_last_stroke_color}       = $self->{_stroke_color_w}->get_color;
-		$self->{_last_stroke_color_alpha} = $self->{_stroke_color_w}->get_alpha / 65535;
+		$self->{_last_fill_color}         = $self->{_fill_color_w}->get_rgba;
+		$self->{_last_stroke_color}       = $self->{_stroke_color_w}->get_rgba;
 		$self->{_last_line_width}         = $self->{_line_spin_w}->get_value;
 		$self->{_last_font}               = $self->{_font_btn_w}->get_font_name;
 
@@ -4580,10 +4556,10 @@ sub apply_properties {
 	}
 
 	#apply rect or ellipse options
-	if ($item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse')) {
+	if ($item->isa('GooCanvas2::CanvasRect') || $item->isa('GooCanvas2::Ellipse')) {
 
-		my $fill_pattern   = $self->create_color($fill_color->get_color,   $fill_color->get_alpha / 65535);
-		my $stroke_pattern = $self->create_color($stroke_color->get_color, $stroke_color->get_alpha / 65535);
+		my $fill_pattern   = $self->create_color($fill_color->get_rgba,   $fill_color->get_rgba->alpha);
+		my $stroke_pattern = $self->create_color($stroke_color->get_rgba, $stroke_color->get_rgba->alpha);
 		$item->set(
 			'line-width'     => $line_spin->get_value,
 			'fill-pattern'   => $fill_pattern,
@@ -4603,9 +4579,9 @@ sub apply_properties {
 
 			my $fill_pattern = undef;
 			if (defined $font_color) {
-				$fill_pattern = $self->create_color($font_color->get_color, $font_color->get_alpha / 65535);
+				$fill_pattern = $self->create_color($font_color->get_rgba, $font_color->get_rgba->alpha);
 			} elsif (defined $stroke_color) {
-				$fill_pattern = $self->create_color($stroke_color->get_color, $stroke_color->get_alpha / 65535);
+				$fill_pattern = $self->create_color($stroke_color->get_rgba, $stroke_color->get_rgba->alpha);
 			}
 
 			my $font_descr = Pango::FontDescription->from_string($font_btn->get_font_name);
@@ -4640,19 +4616,17 @@ sub apply_properties {
 		}
 
 		#save color and opacity as well
-		$self->{_items}{$key}{fill_color}         = $fill_color->get_color;
-		$self->{_items}{$key}{fill_color_alpha}   = $fill_color->get_alpha / 65535;
-		$self->{_items}{$key}{stroke_color}       = $stroke_color->get_color;
-		$self->{_items}{$key}{stroke_color_alpha} = $stroke_color->get_alpha / 65535;
+		$self->{_items}{$key}{fill_color}         = $fill_color->get_rgba;
+		$self->{_items}{$key}{stroke_color}       = $stroke_color->get_rgba;
 	}
 
 	#apply polyline options (arrow)
-	if (   $item->isa('Goo::Canvas::Polyline')
+	if (   $item->isa('GooCanvas2::Polyline')
 		&& defined $self->{_items}{$key}{end_arrow}
 		&& defined $self->{_items}{$key}{start_arrow})
 	{
 
-		my $stroke_pattern = $self->create_color($stroke_color->get_color, $stroke_color->get_alpha / 65535);
+		my $stroke_pattern = $self->create_color($stroke_color->get_rgba, $stroke_color->get_rgba->alpha);
 
 		#these values are only available in the item menu
 		if (   defined $arrowl_spin
@@ -4681,8 +4655,7 @@ sub apply_properties {
 		}
 
 		#save color and opacity as well
-		$self->{_items}{$key}{stroke_color}       = $stroke_color->get_color;
-		$self->{_items}{$key}{stroke_color_alpha} = $stroke_color->get_alpha / 65535;
+		$self->{_items}{$key}{stroke_color}       = $stroke_color->get_rgba;
 
 		#save arrow specific properties
 		$self->{_items}{$key}{end_arrow}        = $self->{_items}{$key}{line}->get('end-arrow');
@@ -4692,25 +4665,24 @@ sub apply_properties {
 		$self->{_items}{$key}{arrow_tip_length} = $self->{_items}{$key}{line}->get('arrow-tip-length');
 
 		#apply polyline options (freehand, highlighter)
-	} elsif ($item->isa('Goo::Canvas::Polyline')
+	} elsif ($item->isa('GooCanvas2::Polyline')
 		&& defined $self->{_items}{$key}{stroke_color})
 	{
-		my $stroke_pattern = $self->create_color($stroke_color->get_color, $stroke_color->get_alpha / 65535);
+		my $stroke_pattern = $self->create_color($stroke_color->get_rgba, $stroke_color->get_rgba->alpha);
 		$item->set(
 			'line-width'     => $line_spin->get_value,
 			'stroke-pattern' => $stroke_pattern,
 		);
 
 		#save color and opacity as well
-		$self->{_items}{$key}{stroke_color}       = $stroke_color->get_color;
-		$self->{_items}{$key}{stroke_color_alpha} = $stroke_color->get_alpha / 65535;
+		$self->{_items}{$key}{stroke_color}       = $stroke_color->get_rgba;
 	}
 
 	#apply text options
-	if ($item->isa('Goo::Canvas::Text')) {
+	if ($item->isa('GooCanvas2::Text')) {
 		my $font_descr = Pango::FontDescription->from_string($font_btn->get_font_name);
 
-		my $fill_pattern = $self->create_color($font_color->get_color, $font_color->get_alpha / 65535);
+		my $fill_pattern = $self->create_color($font_color->get_rgba, $font_color->get_rgba->alpha);
 
 		my $new_text = undef;
 		if ($textview) {
@@ -4741,8 +4713,7 @@ sub apply_properties {
 		$self->handle_embedded('update', $parent);
 
 		#save color and opacity as well
-		$self->{_items}{$key}{stroke_color}       = $font_color->get_color;
-		$self->{_items}{$key}{stroke_color_alpha} = $font_color->get_alpha / 65535;
+		$self->{_items}{$key}{stroke_color}       = $font_color->get_rgba;
 
 	}
 
@@ -4761,11 +4732,11 @@ sub modify_text_in_properties {
 	my $texttag    = Gtk3::TextTag->new;
 
 	if ($use_font->get_active && $use_font_color->get_active) {
-		$texttag->set('font-desc' => $font_descr, 'foreground-gdk' => $font_color->get_color);
+		$texttag->set('font-desc' => $font_descr, 'foreground-rgba' => $font_color->get_rgba);
 	} elsif ($use_font->get_active) {
 		$texttag->set('font-desc' => $font_descr);
 	} elsif ($use_font_color->get_active) {
-		$texttag->set('foreground-gdk' => $font_color->get_color);
+		$texttag->set('foreground-rgba' => $font_color->get_rgba);
 	}
 
 	my $texttagtable = Gtk3::TextTagTable->new;
@@ -4797,7 +4768,7 @@ sub move_all {
 		#real shape
 		if (exists $self->{_items}{$item}) {
 
-			if ($item->isa('Goo::Canvas::Rect')) {
+			if ($item->isa('GooCanvas2::CanvasRect')) {
 
 				$item->set(
 					'x' => $item->get('x') - $x,
@@ -4815,7 +4786,7 @@ sub move_all {
 					$self->handle_rects('update', $item);
 
 					#pixelizer is treated differently
-					if ($child && $child->isa('Goo::Canvas::Image')) {
+					if ($child && $child->isa('GooCanvas2::CanvasImage')) {
 						my $parent = $self->get_parent_item($child);
 
 						if (exists $self->{_items}{$parent}{pixelize}) {
@@ -4940,7 +4911,7 @@ sub handle_embedded {
 			#arrow is always and end-arrow
 			if ($self->{_items}{$item}{mirrored_w} < 0 && $self->{_items}{$item}{mirrored_h} < 0) {
 				$self->{_items}{$item}{line}->set(
-					'points' => Goo::Canvas::Points->new([
+					'points' => GooCanvas2::Points->new([
 							$self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height'),
 							$self->{_items}{$item}->get('x'),                                        $self->{_items}{$item}->get('y')]
 					),
@@ -4948,7 +4919,7 @@ sub handle_embedded {
 				);
 			} elsif ($self->{_items}{$item}{mirrored_w} < 0) {
 				$self->{_items}{$item}{line}->set(
-					'points' => Goo::Canvas::Points->new([
+					'points' => GooCanvas2::Points->new([
 							$self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('y'),
 							$self->{_items}{$item}->get('x'),                                        $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height')]
 					),
@@ -4956,7 +4927,7 @@ sub handle_embedded {
 				);
 			} elsif ($self->{_items}{$item}{mirrored_h} < 0) {
 				$self->{_items}{$item}{line}->set(
-					'points' => Goo::Canvas::Points->new([
+					'points' => GooCanvas2::Points->new([
 							$self->{_items}{$item}->get('x'),                                        $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height'),
 							$self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('y')]
 					),
@@ -4964,7 +4935,7 @@ sub handle_embedded {
 				);
 			} else {
 				$self->{_items}{$item}{line}->set(
-					'points' => Goo::Canvas::Points->new([
+					'points' => GooCanvas2::Points->new([
 							$self->{_items}{$item}->get('x'),                                        $self->{_items}{$item}->get('y'),
 							$self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height')]
 					),
@@ -5123,20 +5094,20 @@ sub handle_bg_rects {
 
 		my $pattern = $self->create_color($self->{_style_bg}, 1);
 
-		$self->{_canvas_bg_rect}{'bottom-side'} = Goo::Canvas::Rect->new(
-			$self->{_canvas}->get_root_item, $middle_h, $bottom, 8, 8,
+		$self->{_canvas_bg_rect}{'bottom-side'} = GooCanvas2::CanvasRect->new(
+			parent=>$self->{_canvas}->get_root_item, x=>$middle_h, y=>$bottom, width=>8, height=>8,
 			'fill-pattern' => $pattern,
 			'line-width'   => 1,
 		);
 
-		$self->{_canvas_bg_rect}{'bottom-right-corner'} = Goo::Canvas::Rect->new(
-			$self->{_canvas}->get_root_item, $right, $bottom, 8, 8,
+		$self->{_canvas_bg_rect}{'bottom-right-corner'} = GooCanvas2::CanvasRect->new(
+			parent=>$self->{_canvas}->get_root_item, x=>$right, y=>$bottom, width=>8, height=>8,
 			'fill-pattern' => $pattern,
 			'line-width'   => 1,
 		);
 
-		$self->{_canvas_bg_rect}{'right-side'} = Goo::Canvas::Rect->new(
-			$self->{_canvas}->get_root_item, $right, $middle_v, 8, 8,
+		$self->{_canvas_bg_rect}{'right-side'} = GooCanvas2::CanvasRect->new(
+			parent=>$self->{_canvas}->get_root_item, x=>$right, y=>$middle_v, width=>8, height=>8,
 			'fill-pattern' => $pattern,
 			'line-width'   => 1,
 		);
@@ -5205,7 +5176,7 @@ sub handle_rects {
 	#get root item
 	my $root = $self->{_canvas}->get_root_item;
 
-	if ($self->{_items}{$item}->isa('Goo::Canvas::Rect')) {
+	if ($self->{_items}{$item}->isa('GooCanvas2::CanvasRect')) {
 
 		my $x      = $self->{_items}{$item}->get('x');
 		my $y      = $self->{_items}{$item}->get('y');
@@ -5223,24 +5194,15 @@ sub handle_rects {
 
 			my $pattern = $self->create_color($self->{_style_bg}, 1);
 
-			$self->{_items}{$item}{'top-side'} = Goo::Canvas::Rect->new(
-				$root, $middle_h, $top, 8, 8,
+			$self->{_items}{$item}{'top-side'} = GooCanvas2::CanvasRect->new(
+				parent=>$root, x=>$middle_h, y=>$top, width=>8, height=>8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 0.5,
 			);
 
-			$self->{_items}{$item}{'top-left-corner'} = Goo::Canvas::Rect->new(
-				$root, $left, $top, 8, 8,
-				'fill-pattern' => $pattern,
-				'visibility'   => 'hidden',
-				'line-width'   => 0.5,
-				'radius-x'     => 8,
-				'radius-y'     => 8,
-			);
-
-			$self->{_items}{$item}{'top-right-corner'} = Goo::Canvas::Rect->new(
-				$root, $right, $top, 8, 8,
+			$self->{_items}{$item}{'top-left-corner'} = GooCanvas2::CanvasRect->new(
+				parent=>$root, x=>$left, y=>$top, width=>8, height=>8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 0.5,
@@ -5248,15 +5210,8 @@ sub handle_rects {
 				'radius-y'     => 8,
 			);
 
-			$self->{_items}{$item}{'bottom-side'} = Goo::Canvas::Rect->new(
-				$root, $middle_h, $bottom, 8, 8,
-				'fill-pattern' => $pattern,
-				'visibility'   => 'hidden',
-				'line-width'   => 0.5,
-			);
-
-			$self->{_items}{$item}{'bottom-left-corner'} = Goo::Canvas::Rect->new(
-				$root, $left, $bottom, 8, 8,
+			$self->{_items}{$item}{'top-right-corner'} = GooCanvas2::CanvasRect->new(
+				parent=>$root, x=>$right, y=>$top, width=>8, height=>8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 0.5,
@@ -5264,8 +5219,15 @@ sub handle_rects {
 				'radius-y'     => 8,
 			);
 
-			$self->{_items}{$item}{'bottom-right-corner'} = Goo::Canvas::Rect->new(
-				$root, $right, $bottom, 8, 8,
+			$self->{_items}{$item}{'bottom-side'} = GooCanvas2::CanvasRect->new(
+				parent=>$root, x=>$middle_h, y=>$bottom, width=>8, height=>8,
+				'fill-pattern' => $pattern,
+				'visibility'   => 'hidden',
+				'line-width'   => 0.5,
+			);
+
+			$self->{_items}{$item}{'bottom-left-corner'} = GooCanvas2::CanvasRect->new(
+				parent=>$root, x=>$left, y=>$bottom, width=>8, height=>8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 0.5,
@@ -5273,15 +5235,24 @@ sub handle_rects {
 				'radius-y'     => 8,
 			);
 
-			$self->{_items}{$item}{'left-side'} = Goo::Canvas::Rect->new(
-				$root, $left - 8, $middle_v, 8, 8,
+			$self->{_items}{$item}{'bottom-right-corner'} = GooCanvas2::CanvasRect->new(
+				parent=>$root, x=>$right, y=>$bottom, width=>8, height=>8,
+				'fill-pattern' => $pattern,
+				'visibility'   => 'hidden',
+				'line-width'   => 0.5,
+				'radius-x'     => 8,
+				'radius-y'     => 8,
+			);
+
+			$self->{_items}{$item}{'left-side'} = GooCanvas2::CanvasRect->new(
+				parent=>$root, x=>$left - 8, y=>$middle_v, width=>8, height=>8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 0.5,
 			);
 
-			$self->{_items}{$item}{'right-side'} = Goo::Canvas::Rect->new(
-				$root, $right, $middle_v, 8, 8,
+			$self->{_items}{$item}{'right-side'} = GooCanvas2::CanvasRect->new(
+				parent=>$root, x=>$right, y=>$middle_v, width=>8, height=>8,
 				'fill-pattern' => $pattern,
 				'visibility'   => 'hidden',
 				'line-width'   => 0.5,
@@ -5469,7 +5440,7 @@ sub event_item_on_button_release {
 		my $deleted = FALSE;
 
 		#set minimum sizes
-		if ($nitem->isa('Goo::Canvas::Rect')) {
+		if ($nitem->isa('GooCanvas2::CanvasRect')) {
 
 			#real shape
 			if (exists $self->{_items}{$nitem}) {
@@ -5580,7 +5551,7 @@ sub event_item_on_button_release {
 
 				#turn into a button-press-event
 				my $initevent = Gtk3::Gdk::Event->new('button-press');
-				$initevent->set_time(Gtk3::get_current_event_time());
+				$initevent->time(Gtk3::get_current_event_time());
 				$initevent->window($self->{_drawing_window}->get_window);
 				$initevent->x($ev->x);
 				$initevent->y($ev->y);
@@ -5615,7 +5586,7 @@ sub event_item_on_button_release {
 		#those items would not be visible on the canvas
 		#we delete them  here
 		my $citem = $self->{_current_item};
-		if ($citem && $citem->isa('Goo::Canvas::Rect')) {
+		if ($citem && $citem->isa('GooCanvas2::CanvasRect')) {
 			if (exists $self->{_items}{$citem}) {
 				if ($self->{_items}{$citem}->get('visibility') eq 'hidden') {
 					if (my $nint = $self->{_canvas}->get_root_item->find_child($citem)) {
@@ -5657,7 +5628,7 @@ sub event_item_on_button_release {
 	#see handle_embedded
 	my $child = $self->get_child_item($self->{_current_item});
 
-	if ($child && $child->isa('Goo::Canvas::Image')) {
+	if ($child && $child->isa('GooCanvas2::CanvasImage')) {
 		my $parent = $self->get_parent_item($child);
 
 		if (exists $self->{_items}{$parent}{pixelize}) {
@@ -5720,7 +5691,7 @@ sub event_item_on_enter_notify {
 	return TRUE if $self->{_busy};
 
 	if (
-		($item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') || $item->isa('Goo::Canvas::Text') || $item->isa('Goo::Canvas::Image') || $item->isa('Goo::Canvas::Polyline'))
+		($item->isa('GooCanvas2::CanvasRect') || $item->isa('GooCanvas2::Ellipse') || $item->isa('GooCanvas2::Text') || $item->isa('GooCanvas2::CanvasImage') || $item->isa('GooCanvas2::Polyline'))
 		&& (   $self->{_current_mode_descr} ne "freehand"
 			&& $self->{_current_mode_descr} ne "highlighter"
 			&& $self->{_current_mode_descr} ne "censor")
@@ -5764,7 +5735,7 @@ sub event_item_on_leave_notify {
 	return TRUE if $self->{_busy};
 
 	if (
-		($item->isa('Goo::Canvas::Rect') || $item->isa('Goo::Canvas::Ellipse') || $item->isa('Goo::Canvas::Text') || $item->isa('Goo::Canvas::Image') || $item->isa('Goo::Canvas::Polyline'))
+		($item->isa('GooCanvas2::CanvasRect') || $item->isa('GooCanvas2::Ellipse') || $item->isa('GooCanvas2::Text') || $item->isa('GooCanvas2::CanvasImage') || $item->isa('GooCanvas2::Polyline'))
 		&& (   $self->{_current_mode_descr} ne "freehand"
 			&& $self->{_current_mode_descr} ne "highlighter"
 			&& $self->{_current_mode_descr} ne "censor")
@@ -5822,8 +5793,13 @@ sub create_stipple {
 
 sub create_alpha {
 	my $self    = shift;
-	my $pattern = Cairo::SolidPattern->create_rgba(0, 0, 0, 0);
-	return Goo::Cairo::Pattern->new($pattern);
+	# TODO: avoid going through pattern
+	my $color = Gtk3::Gdk::RGBA::parse('#000000');
+	$color->alpha(0);
+	my $rect = GooCanvas2::CanvasRect->new(
+		'fill-color-gdk-rgba' => $color,
+	);
+	return $rect->get('fill-pattern');
 }
 
 sub create_color {
@@ -5840,12 +5816,16 @@ sub create_color {
 	unless ($color_name->isa('Gtk3::Gdk::RGBA')) {
 		$color = Gtk3::Gdk::RGBA::parse($color_name);
 	} else {
-		$color = $color_name;
+		$color = $color_name->copy;
 	}
+	$color->alpha($alpha);
 
-	my $pattern = Cairo::SolidPattern->create_rgba($color->red / 257 / 255, $color->green / 257 / 255, $color->blue / 257 / 255, $alpha);
-
-	return Goo::Cairo::Pattern->new($pattern);
+	# TODO: set fill-color-gdk-rgba directly, without going through pattern
+	my $rect = GooCanvas2::CanvasRect->new(
+		'fill-color-gdk-rgba' => $color,
+	);
+	my $pattern = $rect->get('fill-pattern');
+	return $pattern;
 }
 
 #ui related stuff
@@ -6309,7 +6289,7 @@ sub import_from_dnd {
 
 				#construct an event and create a new image object
 				my $initevent = Gtk3::Gdk::Event->new('motion-notify');
-				$initevent->set_time(Gtk3::get_current_event_time());
+				$initevent->time(Gtk3::get_current_event_time());
 				$initevent->window($self->{_drawing_window}->get_window);
 				$initevent->x($x);
 				$initevent->y($y);
@@ -6901,7 +6881,7 @@ sub paste_item {
 
 			#construct an event and create a new image object
 			my $initevent = Gtk3::Gdk::Event->new('motion-notify');
-			$initevent->set_time(Gtk3::get_current_event_time());
+			$initevent->time(Gtk3::get_current_event_time());
 			$initevent->window($self->{_drawing_window}->get_window);
 
 			#calculate coordinates
@@ -6931,35 +6911,35 @@ sub paste_item {
 		my $child = $self->get_child_item($item);
 
 		my $new_item = undef;
-		if ($item->isa('Goo::Canvas::Rect') && !$child) {
+		if ($item->isa('GooCanvas2::CanvasRect') && !$child) {
 
 			#~ print "Creating Rectangle...\n";
 			$new_item = $self->create_rectangle(undef, $item);
-		} elsif ($item->isa('Goo::Canvas::Polyline') && !$child) {
+		} elsif ($item->isa('GooCanvas2::Polyline') && !$child) {
 
 			#~ print "Creating Polyline...\n";
 			$new_item = $self->create_polyline(undef, $item);
-		} elsif ($child->isa('Goo::Canvas::Polyline') && exists $self->{_items}{$item}{stroke_color}) {
+		} elsif ($child->isa('GooCanvas2::Polyline') && exists $self->{_items}{$item}{stroke_color}) {
 
 			#~ print "Creating Line...\n";
 			$new_item = $self->create_line(undef, $item);
-		} elsif ($child->isa('Goo::Canvas::Polyline')) {
+		} elsif ($child->isa('GooCanvas2::Polyline')) {
 
 			#~ print "Creating Censor...\n";
 			$new_item = $self->create_censor(undef, $item);
-		} elsif ($child->isa('Goo::Canvas::Ellipse')) {
+		} elsif ($child->isa('GooCanvas2::Ellipse')) {
 
 			#~ print "Creating Ellipse...\n";
 			$new_item = $self->create_ellipse(undef, $item);
-		} elsif ($child->isa('Goo::Canvas::Text')) {
+		} elsif ($child->isa('GooCanvas2::Text')) {
 
 			#~ print "Creating Text...\n";
 			$new_item = $self->create_text(undef, $item);
-		} elsif ($child->isa('Goo::Canvas::Image') && exists $self->{_items}{$item}{pixelize}) {
+		} elsif ($child->isa('GooCanvas2::CanvasImage') && exists $self->{_items}{$item}{pixelize}) {
 
 			#~ print "Creating Pixelize...\n";
 			$new_item = $self->create_pixel_image(undef, $item);
-		} elsif ($child->isa('Goo::Canvas::Image')) {
+		} elsif ($child->isa('GooCanvas2::CanvasImage')) {
 
 			#~ print "Creating Image...\n";
 			$new_item = $self->create_image(undef, $item);
@@ -6990,7 +6970,7 @@ sub create_polyline {
 	my $highlighter = shift;
 
 	my @points         = ();
-	my $stroke_pattern = $self->create_color($self->{_stroke_color}, $self->{_stroke_color_alpha});
+	my $stroke_pattern = $self->create_color($self->{_stroke_color}, $self->{_stroke_color}->alpha);
 	my $transform;
 	my $line_width = $self->{_line_width};
 
@@ -7004,14 +6984,14 @@ sub create_polyline {
 			push @points, $_ + 20;
 		}
 
-		$stroke_pattern = $self->create_color($self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha});
+		$stroke_pattern = $self->create_color($self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color}->alpha);
 		$transform      = $self->{_items}{$copy_item}->get('transform');
 		$line_width     = $self->{_items}{$copy_item}->get('line_width');
 	}
 
 	my $item = undef;
 	if ($highlighter) {
-		$item = Goo::Canvas::Polyline->new_line(
+		$item = GooCanvas2::Polyline->new_line(
 			$self->{_canvas}->get_root_item, $points[0], $points[1], $points[2], $points[3],
 			'stroke-pattern' => $self->create_color(Gtk3::Gdk::RGBA::parse('#FFFF00'), 0.5),
 			'line-width'     => 18,
@@ -7020,7 +7000,7 @@ sub create_polyline {
 			'line-join'      => 'CAIRO_LINE_JOIN_BEVEL',
 		);
 	} else {
-		$item = Goo::Canvas::Polyline->new_line(
+		$item = GooCanvas2::Polyline->new_line(
 			$self->{_canvas}->get_root_item, $points[0], $points[1], $points[2], $points[3],
 			'stroke-pattern' => $stroke_pattern,
 			'line-width'     => $line_width,
@@ -7034,7 +7014,7 @@ sub create_polyline {
 
 	#need at least 2 points
 	push @{$self->{_items}{$item}{'points'}}, @points;
-	$self->{_items}{$item}->set(points    => Goo::Canvas::Points->new($self->{_items}{$item}{'points'}));
+	$self->{_items}{$item}->set(points    => GooCanvas2::Points->new($self->{_items}{$item}{'points'}));
 	$self->{_items}{$item}->set(transform => $transform) if $transform;
 
 	if ($highlighter) {
@@ -7043,14 +7023,13 @@ sub create_polyline {
 		$self->{_items}{$item}{type}               = 'highlighter';
 		$self->{_items}{$item}{uid}                = $self->{_uid}++;
 		$self->{_items}{$item}{stroke_color}       = Gtk3::Gdk::RGBA::parse('#FFFF00');
-		$self->{_items}{$item}{stroke_color_alpha} = 0.5;
+		$self->{_items}{$item}{stroke_color}->alpha(0.5);
 	} else {
 
 		#set type flag
 		$self->{_items}{$item}{type}               = 'freehand';
 		$self->{_items}{$item}{uid}                = $self->{_uid}++;
 		$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
-		$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
 	}
 
 	$self->setup_item_signals($self->{_items}{$item});
@@ -7082,7 +7061,7 @@ sub create_censor {
 	my @stipple_data   = (255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255);
 	my $stroke_pattern = $self->create_stipple('black', \@stipple_data);
 
-	my $item = Goo::Canvas::Polyline->new_line(
+	my $item = GooCanvas2::Polyline->new_line(
 		$self->{_canvas}->get_root_item, $points[0], $points[1], $points[2], $points[3],
 		'stroke-pattern' => $stroke_pattern,
 		'line-width'     => 14,
@@ -7099,7 +7078,7 @@ sub create_censor {
 
 	#need at least 2 points
 	push @{$self->{_items}{$item}{'points'}}, @points;
-	$self->{_items}{$item}->set(points    => Goo::Canvas::Points->new($self->{_items}{$item}{'points'}));
+	$self->{_items}{$item}->set(points    => GooCanvas2::Points->new($self->{_items}{$item}{'points'}));
 	$self->{_items}{$item}->set(transform => $transform) if $transform;
 
 	$self->setup_item_signals($self->{_items}{$item});
@@ -7113,22 +7092,26 @@ sub create_pixel_image {
 	my $ev        = shift;
 	my $copy_item = shift;
 
-	my @dimensions = (0, 0, 0, 0);
+	my ($x, $y, $width, $height) = (0, 0, 0, 0);
 
 	#use event coordinates and selected color
 	if ($ev) {
-		@dimensions = ($ev->x, $ev->y, 0, 0);
+		$x = $ev->x;
+		$y = $ev->y;
 
 		#use source item coordinates and item color
 	} elsif ($copy_item) {
-		@dimensions = ($copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height'));
+		$x = $copy_item->get('x') + 20;
+		$y = $copy_item->get('y') + 20;
+		$width = $copy_item->get('width');
+		$height = $copy_item->get('height');
 	}
 
 	my $pattern = $self->create_alpha;
-	my $item    = Goo::Canvas::Rect->new(
-		$self->{_canvas}->get_root_item, @dimensions,
+	my $item    = GooCanvas2::CanvasRect->new(
+		parent=>$self->{_canvas}->get_root_item, x=>$x, y=>$y, width=>$width, height=>$height,
 		'fill-pattern' => $pattern,
-		'line-dash'    => Goo::Canvas::LineDash->new([5, 5]),
+		'line-dash'    => GooCanvas2::CanvasLineDash->newv([5, 5]),
 		'line-width'   => 1,
 		'stroke-color' => 'gray',
 	);
@@ -7142,11 +7125,11 @@ sub create_pixel_image {
 	#whole pixbuf is transparent
 	$blank->fill(0x00000000);
 
-	$self->{_items}{$item}{pixelize} = Goo::Canvas::Image->new(
-		$self->{_canvas}->get_root_item,
-		$blank,
-		$item->get('x'),
-		$item->get('y'),
+	$self->{_items}{$item}{pixelize} = GooCanvas2::CanvasImage->new(
+		parent=>$self->{_canvas}->get_root_item,
+		pixbuf=>$blank,
+		x=>$item->get('x'),
+		y=>$item->get('y'),
 		'width'  => 2,
 		'height' => 2,
 	);
@@ -7185,7 +7168,7 @@ sub create_image {
 	my $copy_item            = shift;
 	my $force_orig_size_init = shift;
 
-	my @dimensions = (0, 0, 0, 0);
+	my ($x, $y, $width, $height) = (0, 0, 0, 0);
 
 	#use event coordinates
 	if ($ev) {
@@ -7194,26 +7177,28 @@ sub create_image {
 		#and use the original image size
 		#dnd for example
 		if ($force_orig_size_init) {
-			@dimensions = (
-				$ev->x - int($self->{_current_pixbuf}->get_width / 2),
-				$ev->y - int($self->{_current_pixbuf}->get_height / 2),
-				$self->{_current_pixbuf}->get_width,
-				$self->{_current_pixbuf}->get_height
-			);
+			$x = $ev->x - int($self->{_current_pixbuf}->get_width / 2);
+			$y = $ev->y - int($self->{_current_pixbuf}->get_height / 2);
+			$width = $self->{_current_pixbuf}->get_width;
+			$height = $self->{_current_pixbuf}->get_height;
 		} else {
-			@dimensions = ($ev->x, $ev->y, 0, 0);
+			$x = $ev->x;
+			$y = $ev->y;
 		}
 
 		#use source item coordinates
 	} elsif ($copy_item) {
-		@dimensions = ($copy_item->get('x') + 20, $copy_item->get('y') + 20, $self->{_items}{$copy_item}->get('width'), $self->{_items}{$copy_item}->get('height'));
+		$x = $copy_item->get('x') + 20;
+		$y = $copy_item->get('y') + 20;
+		$width = $self->{_items}{$copy_item}->get('width');
+		$height = $self->{_items}{$copy_item}->get('height');
 	}
 
 	my $pattern = $self->create_alpha;
-	my $item    = Goo::Canvas::Rect->new(
-		$self->{_canvas}->get_root_item, @dimensions,
+	my $item    = GooCanvas2::CanvasRect->new(
+		parent=>$self->{_canvas}->get_root_item, x=>$x, y=>$y, width=>$width, height=>$height,
 		'fill-pattern' => $pattern,
-		'line-dash'    => Goo::Canvas::LineDash->new([5, 5]),
+		'line-dash'    => GooCanvas2::CanvasLineDash->newv([5, 5]),
 		'line-width'   => 1,
 		'stroke-color' => 'gray',
 	);
@@ -7229,11 +7214,11 @@ sub create_image {
 		$self->{_items}{$item}{orig_pixbuf_filename} = $self->{_items}{$copy_item}{orig_pixbuf_filename};
 	}
 
-	$self->{_items}{$item}{image} = Goo::Canvas::Image->new(
-		$self->{_canvas}->get_root_item,
-		$self->{_items}{$item}{orig_pixbuf},
-		$item->get('x'),
-		$item->get('y'),
+	$self->{_items}{$item}{image} = GooCanvas2::CanvasImage->new(
+		parent=>$self->{_canvas}->get_root_item,
+		pixbuf=>$self->{_items}{$item}{orig_pixbuf},
+		x=>$item->get('x'),
+		y=>$item->get('y'),
 		'width'  => 2,
 		'height' => 2,
 	);
@@ -7278,28 +7263,32 @@ sub create_text {
 	my $ev        = shift;
 	my $copy_item = shift;
 
-	my @dimensions     = (0, 0, 0, 0);
-	my $stroke_pattern = $self->create_color($self->{_stroke_color}, $self->{_stroke_color_alpha});
+	my ($x, $y, $width, $height)     = (0, 0, 0, 0);
+	my $stroke_pattern = $self->create_color($self->{_stroke_color}, $self->{_stroke_color}->alpha);
 	my $text           = $self->{_d}->get('New text...');
 	my $line_width     = $self->{_line_width};
 
 	#use event coordinates and selected color
 	if ($ev) {
-		@dimensions = ($ev->x, $ev->y, 0, 0);
+		$x = $ev->x;
+		$y = $ev->y;
 
 		#use source item coordinates and item color
 	} elsif ($copy_item) {
-		@dimensions     = ($copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height'));
-		$stroke_pattern = $self->create_color($self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha});
+		$x = $copy_item->get('x') + 20;
+		$y = $copy_item->get('y') + 20;
+		$width = $copy_item->get('width');
+		$height = $copy_item->get('height');
+		$stroke_pattern = $self->create_color($self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color}->alpha);
 		$text           = $self->{_items}{$copy_item}{text}->get('text');
 		$line_width     = $self->{_items}{$copy_item}{text}->get('line-width');
 	}
 
 	my $pattern = $self->create_alpha;
-	my $item    = Goo::Canvas::Rect->new(
-		$self->{_canvas}->get_root_item, @dimensions,
+	my $item    = GooCanvas2::CanvasRect->new(
+		parent=>$self->{_canvas}->get_root_item, x=>$x, y=>$y, width=>$width, height=>$height,
 		'fill-pattern' => $pattern,
-		'line-dash'    => Goo::Canvas::LineDash->new([5, 5]),
+		'line-dash'    => GooCanvas2::CanvasLineDash->newv([5, 5]),
 		'line-width'   => 1,
 		'stroke-color' => 'gray',
 	);
@@ -7307,7 +7296,7 @@ sub create_text {
 	$self->{_current_new_item} = $item unless ($copy_item);
 	$self->{_items}{$item} = $item;
 
-	$self->{_items}{$item}{text} = Goo::Canvas::Text->new(
+	$self->{_items}{$item}{text} = GooCanvas2::Text->new(
 		$self->{_canvas}->get_root_item, "<span font_desc='" . $self->{_font} . "' >" . $text . "</span>",
 		$item->get('x'),
 		$item->get('y'),
@@ -7349,7 +7338,6 @@ sub create_text {
 	$self->{_items}{$item}{uid}  = $self->{_uid}++;
 
 	$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
-	$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
 
 	#create rectangles
 	$self->handle_rects('create', $item);
@@ -7374,8 +7362,8 @@ sub create_line {
 	my $end_arrow   = shift;
 	my $start_arrow = shift;
 
-	my @dimensions     = (0, 0, 0, 0);
-	my $stroke_pattern = $self->create_color($self->{_stroke_color}, $self->{_stroke_color_alpha});
+	my ($x, $y, $width, $height)     = (0, 0, 0, 0);
+	my $stroke_pattern = $self->create_color($self->{_stroke_color}, $self->{_stroke_color}->alpha);
 	my $line_width     = $self->{_line_width};
 	my $mirrored_w     = 0;
 	my $mirrored_h     = 0;
@@ -7387,12 +7375,16 @@ sub create_line {
 
 	#use event coordinates and selected color
 	if ($ev) {
-		@dimensions = ($ev->x, $ev->y, 0, 0);
+		$x = $ev->x;
+		$y = $ev->y;
 
 		#use source item coordinates and item color
 	} elsif ($copy_item) {
-		@dimensions     = ($copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height'));
-		$stroke_pattern = $self->create_color($self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha});
+		$x = $copy_item->get('x') + 20;
+		$y = $copy_item->get('y') + 20;
+		$width = $copy_item->get('width');
+		$height = $copy_item->get('height');
+		$stroke_pattern = $self->create_color($self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color}->alpha);
 		$line_width     = $self->{_items}{$copy_item}{line}->get('line-width');
 		$mirrored_w     = $self->{_items}{$copy_item}{mirrored_w};
 		$mirrored_h     = $self->{_items}{$copy_item}{mirrored_h};
@@ -7406,10 +7398,10 @@ sub create_line {
 	}
 
 	my $pattern = $self->create_alpha;
-	my $item    = Goo::Canvas::Rect->new(
-		$self->{_canvas}->get_root_item, @dimensions,
+	my $item    = GooCanvas2::CanvasRect->new(
+		parent=>$self->{_canvas}->get_root_item, x=>$x, y=>$y, width=>$width, height=>$height,
 		'fill-pattern' => $pattern,
-		'line-dash'    => Goo::Canvas::LineDash->new([5, 5]),
+		'line-dash'    => GooCanvas2::CanvasLineDash->newv([5, 5]),
 		'line-width'   => 1,
 		'stroke-color' => 'gray',
 	);
@@ -7417,7 +7409,7 @@ sub create_line {
 	$self->{_current_new_item} = $item unless ($copy_item);
 	$self->{_items}{$item} = $item;
 
-	$self->{_items}{$item}{line} = Goo::Canvas::Polyline->new_line(
+	$self->{_items}{$item}{line} = GooCanvas2::Polyline->new_line(
 		$self->{_canvas}->get_root_item,
 		$item->get('x'),
 		$item->get('y'),
@@ -7453,7 +7445,6 @@ sub create_line {
 	$self->{_items}{$item}{mirrored_h} = $mirrored_h;
 
 	$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
-	$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
 
 	#create rectangles
 	$self->handle_rects('create', $item);
@@ -7477,29 +7468,33 @@ sub create_ellipse {
 	my $copy_item = shift;
 	my $numbered  = shift;
 
-	my @dimensions     = (0, 0, 0, 0);
-	my $stroke_pattern = $self->create_color($self->{_stroke_color}, $self->{_stroke_color_alpha});
-	my $fill_pattern   = $self->create_color($self->{_fill_color}, $self->{_fill_color_alpha});
+	my ($x, $y, $width, $height)     = (0, 0, 0, 0);
+	my $stroke_pattern = $self->create_color($self->{_stroke_color}, $self->{_stroke_color}->alpha);
+	my $fill_pattern   = $self->create_color($self->{_fill_color}, $self->{_fill_color}->alpha);
 	my $line_width     = $self->{_line_width};
 
 	#use event coordinates and selected color
 	if ($ev) {
-		@dimensions = ($ev->x, $ev->y, 0, 0);
+		$x = $ev->x;
+		$y = $ev->y;
 
 		#use source item coordinates and item color
 	} elsif ($copy_item) {
-		@dimensions     = ($copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height'));
-		$stroke_pattern = $self->create_color($self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha});
-		$fill_pattern   = $self->create_color($self->{_items}{$copy_item}{fill_color}, $self->{_items}{$copy_item}{fill_color_alpha});
+		$x = $copy_item->get('x') + 20;
+		$y = $copy_item->get('y') + 20;
+		$width = $copy_item->get('width');
+		$height = $copy_item->get('height');
+		$stroke_pattern = $self->create_color($self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color}->alpha);
+		$fill_pattern   = $self->create_color($self->{_items}{$copy_item}{fill_color}, $self->{_items}{$copy_item}{fill_color}->alpha);
 		$line_width     = $self->{_items}{$copy_item}{ellipse}->get('line-width');
 		$numbered       = TRUE if exists $self->{_items}{$copy_item}{text};
 	}
 
 	my $pattern = $self->create_alpha;
-	my $item    = Goo::Canvas::Rect->new(
-		$self->{_canvas}->get_root_item, @dimensions,
+	my $item    = GooCanvas2::Rect->new(
+		parent=>$self->{_canvas}->get_root_item, x=>$x, y=>$y, width=>$width, height=>$height,
 		'fill-pattern' => $pattern,
-		'line-dash'    => Goo::Canvas::LineDash->new([5, 5]),
+		'line-dash'    => GooCanvas2::CanvasLineDash->newv([5, 5]),
 		'line-width'   => 1,
 		'stroke-color' => 'gray',
 	);
@@ -7507,7 +7502,7 @@ sub create_ellipse {
 	$self->{_current_new_item} = $item unless ($copy_item);
 	$self->{_items}{$item} = $item;
 
-	$self->{_items}{$item}{ellipse} = Goo::Canvas::Ellipse->new(
+	$self->{_items}{$item}{ellipse} = GooCanvas2::Ellipse->new(
 		$self->{_canvas}->get_root_item, $item->get('x'), $item->get('y'), $item->get('width'),
 		$item->get('height'),
 		'fill-pattern'   => $fill_pattern,
@@ -7521,7 +7516,7 @@ sub create_ellipse {
 		my $number = $self->get_highest_auto_digit();
 		$number++;
 
-		$self->{_items}{$item}{text} = Goo::Canvas::Text->new(
+		$self->{_items}{$item}{text} = GooCanvas2::Text->new(
 			$self->{_canvas}->get_root_item, "<span font_desc='" . $self->{_font} . "' >" . $number . "</span>",
 			$self->{_items}{$item}{ellipse}->get('center-x'),
 			$self->{_items}{$item}{ellipse}->get('center-y'),
@@ -7578,9 +7573,7 @@ sub create_ellipse {
 
 	#save color and opacity as well
 	$self->{_items}{$item}{fill_color}         = $self->{_fill_color};
-	$self->{_items}{$item}{fill_color_alpha}   = $self->{_fill_color_alpha};
 	$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
-	$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
 
 	#create rectangles
 	$self->handle_rects('create', $item);
@@ -7608,25 +7601,29 @@ sub create_rectangle {
 	my $ev        = shift;
 	my $copy_item = shift;
 
-	my @dimensions     = (0, 0, 0, 0);
-	my $stroke_pattern = $self->create_color($self->{_stroke_color}, $self->{_stroke_color_alpha});
-	my $fill_pattern   = $self->create_color($self->{_fill_color}, $self->{_fill_color_alpha});
+	my ($x, $y, $width, $height)     = (0, 0, 0, 0);
+	my $stroke_pattern = $self->create_color($self->{_stroke_color}, $self->{_stroke_color}->alpha);
+	my $fill_pattern   = $self->create_color($self->{_fill_color}, $self->{_fill_color}->alpha);
 	my $line_width     = $self->{_line_width};
 
 	#use event coordinates and selected color
 	if ($ev) {
-		@dimensions = ($ev->x, $ev->y, 0, 0);
+		$x = $ev->x;
+		$y = $ev->y;
 
 		#use source item coordinates and item color
 	} elsif ($copy_item) {
-		@dimensions     = ($copy_item->get('x') + 20, $copy_item->get('y') + 20, $copy_item->get('width'), $copy_item->get('height'));
-		$stroke_pattern = $self->create_color($self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color_alpha});
-		$fill_pattern   = $self->create_color($self->{_items}{$copy_item}{fill_color}, $self->{_items}{$copy_item}{fill_color_alpha});
+		$x = $copy_item->get('x') + 20;
+		$y = $copy_item->get('y') + 20;
+		$width = $copy_item->get('width');
+		$height = $copy_item->get('height');
+		$stroke_pattern = $self->create_color($self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color}->alpha);
+		$fill_pattern   = $self->create_color($self->{_items}{$copy_item}{fill_color}, $self->{_items}{$copy_item}{fill_color}->alpha);
 		$line_width     = $self->{_items}{$copy_item}->get('line-width');
 	}
 
-	my $item = Goo::Canvas::Rect->new(
-		$self->{_canvas}->get_root_item, @dimensions,
+	my $item = GooCanvas2::CanvasRect->new(
+		parent=>$self->{_canvas}->get_root_item, x=>$x, y=>$y, width=>$width, height=>$height,
 		'fill-pattern'   => $fill_pattern,
 		'stroke-pattern' => $stroke_pattern,
 		'line-width'     => $line_width,
@@ -7640,9 +7637,7 @@ sub create_rectangle {
 	$self->{_items}{$item}{uid}  = $self->{_uid}++;
 
 	$self->{_items}{$item}{fill_color}         = $self->{_fill_color};
-	$self->{_items}{$item}{fill_color_alpha}   = $self->{_fill_color_alpha};
 	$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
-	$self->{_items}{$item}{stroke_color_alpha} = $self->{_stroke_color_alpha};
 
 	#create rectangles
 	$self->handle_rects('create', $item);
