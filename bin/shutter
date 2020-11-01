@@ -1849,7 +1849,6 @@ sub STARTUP {
 	#imageview
 	#--------------------------------------
 	my $css_provider_alpha = Gtk3::CssProvider->new;
-	Gtk3::StyleContext::add_provider_for_screen($window->get_screen, $css_provider_alpha, 0);
 
 	my $trans_check  = Gtk3::RadioButton->new_with_label(undef, $d->get("Show as check pattern"));
 	my $trans_custom = Gtk3::RadioButton->new_with_label($trans_check, $d->get("Show as custom color:"));
@@ -2786,7 +2785,7 @@ sub STARTUP {
 					}
 				");
 			} elsif ($trans_backg->get_active) {
-				$css_provider_alpha->load_from_data("");
+				$css_provider_alpha->load_from_data(" ");
 			}
 			$window->queue_draw;
 		}
@@ -4251,6 +4250,7 @@ sub STARTUP {
 			#$session_screens{$key}->{'image'}->set_interpolation('tiles');
 			#$session_screens{$key}->{'image'}->set_show_frame(FALSE);
 			$session_screens{$key}->{'image'}->set_fitting(TRUE);
+			$session_screens{$key}->{'image'}->get_style_context->add_provider($css_provider_alpha, 0);
 
 			#Sets how the view should draw transparent parts of images with an alpha channel
 			my $color        = $trans_custom_btn->get_color;
@@ -9401,7 +9401,7 @@ sub STARTUP {
 			$filter_all->set_name($d->get("All compatible image formats"));
 			$fs->add_filter($filter_all);
 
-			foreach my $format (Gtk3::Gdk::Pixbuf::get_formats) {
+			foreach my $format (Gtk3::Gdk::Pixbuf::get_formats()) {
 				my $filter = Gtk3::FileFilter->new;
 
 				#add all known formats to the dialog
@@ -9552,7 +9552,7 @@ sub STARTUP {
 			#images
 		} else {
 
-			foreach my $format (Gtk3::Gdk::Pixbuf::get_formats) {
+			foreach my $format (Gtk3::Gdk::Pixbuf::get_formats()) {
 
 				#we don't want svg here - this is a dedicated action in the DrawingTool
 				next if !defined $rfiletype && $format->get_name =~ /svg/;

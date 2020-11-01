@@ -65,7 +65,7 @@ BEGIN {
 		basename => 'cairo',
 		version  => '1.0',
 		package  => 'Caaa',
-	);
+	) if 0;
 }
 
 #--------------------------------------
@@ -74,6 +74,7 @@ sub new {
 	my $class = shift;
 
 	my $self = {_sc => shift};
+	$self->{_shf} = Shutter::App::HelperFunctions->new($self->{_sc});
 
 	#view, selector, dragger
 	$self->{_view}     = Gtk3::ImageView->new;
@@ -81,6 +82,8 @@ sub new {
 	$self->{_dragger}  = Gtk3::ImageView::Tool::Dragger->new($self->{_view});
 	#$self->{_view}->set_interpolation('tiles');
 	$self->{_view}->set_tool($self->{_selector});
+	$self->{_view_css_provider_alpha} = Gtk3::CssProvider->new;
+	$self->{_view}->get_style_context->add_provider($self->{_view_css_provider_alpha}, 0);
 
 	#WORKAROUND
 	#upstream bug
@@ -1099,8 +1102,13 @@ sub change_drawing_tool_cb {
 
 		#adjust transp color
 		my $color_string =
-			sprintf("%02x%02x%02x", $self->{_canvas_bg_rect}{fill_color}->red / 257, $self->{_canvas_bg_rect}{fill_color}->green / 257, $self->{_canvas_bg_rect}{fill_color}->blue / 257);
-		$self->{_view}->set_transp('color', hex $color_string);
+			sprintf("%02x%02x%02x", $self->{_canvas_bg_rect}{fill_color}->red * 257, $self->{_canvas_bg_rect}{fill_color}->green / 257, $self->{_canvas_bg_rect}{fill_color}->blue / 257);
+			$color_string = $self->{_canvas_bg_rect}{fill_color}->to_string;
+		$self->{_view_css_provider_alpha}->load_from_data("
+			.imageview.transparent {
+				background-color: $color_string;
+			}
+		");
 
 		$self->{_view}->show_all;
 
@@ -1418,7 +1426,6 @@ sub save_settings {
 	my $autoscroll_toggle = $self->{_uimanager}->get_widget("/MenuBar/Edit/Autoscroll");
 	$settings{'drawing'}->{'autoscroll'} = $autoscroll_toggle->get_active();
 
-	print $self->{_fill_color}->to_string, "\n";
 	#drawing colors
 	$settings{'drawing'}->{'fill_color'}         = sprintf("#%04x%04x%04x", $self->{_fill_color}->red * 65535, $self->{_fill_color}->green * 65535, $self->{_fill_color}->blue * 65535);
 	$settings{'drawing'}->{'fill_color_alpha'}   = $self->{_fill_color}->alpha;
@@ -1525,24 +1532,24 @@ sub export_to_file {
 		#images
 	} else {
 
-		foreach (Gtk3::Gdk::Pixbuf->get_formats) {
+		foreach my $format (Gtk3::Gdk::Pixbuf::get_formats()) {
 
 			#we don't want svg here - this is a dedicated action in the DrawingTool
-			next if !defined $rfiletype && $_->{name} =~ /svg/;
+			next if !defined $rfiletype && $format->get_name =~ /svg/;
 
 			#we have a requested filetype - nothing else will be offered
-			next if defined $rfiletype && $_->{name} ne $rfiletype;
+			next if defined $rfiletype && $format->get_name ne $rfiletype;
 
 			#we want jpg not jpeg
-			if ($_->{name} eq "jpeg" || $_->{name} eq "jpg") {
-				$combobox_save_as_type->insert_text($counter, "jpg" . " - " . $_->{description});
+			if ($format->get_name eq "jpeg" || $format->get_name eq "jpg") {
+				$combobox_save_as_type->insert_text($counter, "jpg" . " - " . $format->get_description);
 			} else {
-				$combobox_save_as_type->insert_text($counter, $_->{name} . " - " . $_->{description});
+				$combobox_save_as_type->insert_text($counter, $format->get_name . " - " . $format->get_description);
 			}
 
 			#set active when mime_type is matching
 			#loop because multiple mime types are registered for fome file formats
-			foreach my $mime (@{$_->{mime_types}}) {
+			foreach my $mime (@{$format->get_mime_types}) {
 				$combobox_save_as_type->set_active($counter)
 					if $mime eq $self->{'_mimetype'} || defined $rfiletype;
 
@@ -1567,7 +1574,7 @@ sub export_to_file {
 
 	$combobox_save_as_type->signal_connect(
 		'changed' => sub {
-			my $filename = $fs->get_filename;
+			my $filename = $self->{_shf}->utf8_decode($fs->get_filename);
 
 			my $choosen_format = $combobox_save_as_type->get_active_text;
 			$choosen_format =~ s/ \-.*//;    #get png or jpeg (jpg) for example
@@ -1595,7 +1602,7 @@ sub export_to_file {
 	my $fs_resp = $fs->run;
 
 	if ($fs_resp eq "accept") {
-		my $filename = $fs->get_filename;
+		my $filename = $self->{_shf}->utf8_decode($fs->get_filename);
 
 		#parse filename
 		my ($short, $folder, $ext) = fileparse($filename, qr/\.[^.]*/);
@@ -1779,7 +1786,8 @@ sub save {
 		$surface->write_to_png_stream(
 			sub {
 				my ($closure, $data) = @_;
-				$loader->write($data);
+				$loader->write([map ord, split //, $data]);
+				return TRUE;
 			});
 		$loader->close;
 		my $pixbuf = $loader->get_pixbuf;
@@ -2409,7 +2417,8 @@ sub get_pixelated_pixbuf_from_canvas {
 	$surface->write_to_png_stream(
 		sub {
 			my ($closure, $data) = @_;
-			$loader->write($data);
+			$loader->write([map ord, split //, $data]);
+			return TRUE;
 		});
 	$loader->close;
 
@@ -2689,7 +2698,10 @@ sub store_to_xdo_stack {
 		#polyline specific properties to hash
 	} elsif ($item->isa('GooCanvas2::CanvasPolyline')) {
 
-		my $stroke_pattern = $self->create_color($self->{_items}{$item}{stroke_color}, $self->{_items}{$item}{stroke_color}->alpha);
+		my $stroke_pattern;
+		if (defined $self->{_items}{$item}{stroke_color}) {
+			$stroke_pattern = $self->create_color($self->{_items}{$item}{stroke_color}, $self->{_items}{$item}{stroke_color}->alpha);
+		}
 		my $transform      = $self->{_items}{$item}->get('transform');
 		my $line_width     = $self->{_items}{$item}->get('line-width');
 		my $points         = $self->{_items}{$item}->get('points');
@@ -3133,7 +3145,7 @@ sub set_and_save_drawing_properties {
 	#~ print "set_and_save_drawing_properties3\n";
 
 	if (   $item->isa('GooCanvas2::CanvasRect')
-		|| $item->isa('GooCanvas2::Ellipse')
+		|| $item->isa('GooCanvas2::CanvasEllipse')
 		|| $item->isa('GooCanvas2::CanvasPolyline'))
 	{
 
@@ -3149,7 +3161,7 @@ sub set_and_save_drawing_properties {
 			$self->{_stroke_color_w}->set_rgba($self->{_items}{$key}{stroke_color});
 		}
 
-		if ($item->isa('GooCanvas2::CanvasRect') || $item->isa('GooCanvas2::Ellipse')) {
+		if ($item->isa('GooCanvas2::CanvasRect') || $item->isa('GooCanvas2::CanvasEllipse')) {
 
 			#fill color
 			$self->{_fill_color_w}->set_rgba($self->{_items}{$key}{fill_color});
@@ -3182,7 +3194,7 @@ sub set_and_save_drawing_properties {
 			}
 		}
 
-	} elsif ($item->isa('GooCanvas2::Text')) {
+	} elsif ($item->isa('GooCanvas2::CanvasText')) {
 
 		#determine font description from string
 		my ($attr_list, $text_raw, $accel_char) = Pango->parse_markup($item->get('text'));
@@ -3989,9 +4001,9 @@ sub show_item_properties {
 	#RECT OR ELLIPSE OR NUMBER OR POLYLINE
 	#GENERAL SETTINGS
 	if (   $item->isa('GooCanvas2::CanvasRect')
-		|| $item->isa('GooCanvas2::Ellipse')
+		|| $item->isa('GooCanvas2::CanvasEllipse')
 		|| $item->isa('GooCanvas2::CanvasPolyline')
-		|| ($item->isa('GooCanvas2::Text') && defined $self->{_items}{$key}{ellipse}))
+		|| ($item->isa('GooCanvas2::CanvasText') && defined $self->{_items}{$key}{ellipse}))
 	{
 
 		my $general_vbox = Gtk3::VBox->new(FALSE, 5);
@@ -4016,7 +4028,7 @@ sub show_item_properties {
 		$line_hbox->pack_start($line_spin,   TRUE,  TRUE, 0);
 		$general_vbox->pack_start($line_hbox, FALSE, FALSE, 0);
 
-		if ($item->isa('GooCanvas2::CanvasRect') || $item->isa('GooCanvas2::Ellipse')) {
+		if ($item->isa('GooCanvas2::CanvasRect') || $item->isa('GooCanvas2::CanvasEllipse')) {
 
 			#fill color
 			my $fill_color_hbox = Gtk3::HBox->new(FALSE, 5);
@@ -4190,7 +4202,7 @@ sub show_item_properties {
 		$frame_arrow->add($arrow_vbox);
 
 		#simple TEXT item (no numbered ellipse)
-	} elsif ($item->isa('GooCanvas2::Text')
+	} elsif ($item->isa('GooCanvas2::CanvasText')
 		&& !defined $self->{_items}{$key}{ellipse})
 	{
 
@@ -4256,7 +4268,7 @@ sub show_item_properties {
 		my $textview_hbox = Gtk3::HBox->new(FALSE, 5);
 		$textview_hbox->set_border_width(5);
 		$textview = Gtk3::TextView->new_with_buffer($text);
-		$textview->can_focus(TRUE);
+		$textview->set_can_focus(TRUE);
 		$textview->set_size_request(150, 200);
 		$textview_hbox->pack_start($textview, TRUE, TRUE, 0);
 
@@ -4556,7 +4568,7 @@ sub apply_properties {
 	}
 
 	#apply rect or ellipse options
-	if ($item->isa('GooCanvas2::CanvasRect') || $item->isa('GooCanvas2::Ellipse')) {
+	if ($item->isa('GooCanvas2::CanvasRect') || $item->isa('GooCanvas2::CanvasEllipse')) {
 
 		my $fill_pattern   = $self->create_color($fill_color->get_rgba,   $fill_color->get_rgba->alpha);
 		my $stroke_pattern = $self->create_color($stroke_color->get_rgba, $stroke_color->get_rgba->alpha);
@@ -4679,7 +4691,7 @@ sub apply_properties {
 	}
 
 	#apply text options
-	if ($item->isa('GooCanvas2::Text')) {
+	if ($item->isa('GooCanvas2::CanvasText')) {
 		my $font_descr = Pango::FontDescription->from_string($font_btn->get_font_name);
 
 		my $fill_pattern = $self->create_color($font_color->get_rgba, $font_color->get_rgba->alpha);
@@ -5691,7 +5703,7 @@ sub event_item_on_enter_notify {
 	return TRUE if $self->{_busy};
 
 	if (
-		($item->isa('GooCanvas2::CanvasRect') || $item->isa('GooCanvas2::Ellipse') || $item->isa('GooCanvas2::Text') || $item->isa('GooCanvas2::CanvasImage') || $item->isa('GooCanvas2::CanvasPolyline'))
+		($item->isa('GooCanvas2::CanvasRect') || $item->isa('GooCanvas2::CanvasEllipse') || $item->isa('GooCanvas2::CanvasText') || $item->isa('GooCanvas2::CanvasImage') || $item->isa('GooCanvas2::CanvasPolyline'))
 		&& (   $self->{_current_mode_descr} ne "freehand"
 			&& $self->{_current_mode_descr} ne "highlighter"
 			&& $self->{_current_mode_descr} ne "censor")
@@ -5735,7 +5747,7 @@ sub event_item_on_leave_notify {
 	return TRUE if $self->{_busy};
 
 	if (
-		($item->isa('GooCanvas2::CanvasRect') || $item->isa('GooCanvas2::Ellipse') || $item->isa('GooCanvas2::Text') || $item->isa('GooCanvas2::CanvasImage') || $item->isa('GooCanvas2::CanvasPolyline'))
+		($item->isa('GooCanvas2::CanvasRect') || $item->isa('GooCanvas2::CanvasEllipse') || $item->isa('GooCanvas2::CanvasText') || $item->isa('GooCanvas2::CanvasImage') || $item->isa('GooCanvas2::CanvasPolyline'))
 		&& (   $self->{_current_mode_descr} ne "freehand"
 			&& $self->{_current_mode_descr} ne "highlighter"
 			&& $self->{_current_mode_descr} ne "censor")
@@ -5775,6 +5787,11 @@ sub event_item_on_leave_notify {
 
 sub create_stipple {
 	my $self = shift;
+	my $pixbuf = Gtk3::Gdk::Pixbuf->new_from_file($self->{_sc}{_shutter_root} . '/share/shutter/resources/gui/stipple.png');
+	my $rect = GooCanvas2::CanvasRect->new(
+		'fill-pixbuf' => $pixbuf,
+	);
+	return $rect->get('fill-pattern');
 
 	our @stipples;
 	my ($color_name, $stipple_data) = @_;
@@ -6335,9 +6352,9 @@ sub check_valid_mime_type {
 	my $self      = shift;
 	my $mime_type = shift;
 
-	foreach (Gtk3::Gdk::Pixbuf->get_formats) {
-		foreach (@{$_->{mime_types}}) {
-			return TRUE if $_ eq $mime_type;
+	foreach my $format (Gtk3::Gdk::Pixbuf::get_formats()) {
+		foreach my $mime (@{$format->get_mime_types}) {
+			return TRUE if $mime_type eq $mime_type;
 			last;
 		}
 	}
@@ -6506,14 +6523,14 @@ sub import_from_filesystem {
 				$filter_all->set_name($self->{_d}->get("All compatible image formats"));
 				$fs->add_filter($filter_all);
 
-				foreach (Gtk3::Gdk::Pixbuf->get_formats) {
+				foreach my $format (Gtk3::Gdk::Pixbuf::get_formats()) {
 					my $filter = Gtk3::FileFilter->new;
-					$filter->set_name($_->{name} . " - " . $_->{description});
-					foreach (@{$_->{extensions}}) {
-						$filter->add_pattern("*." . uc $_);
-						$filter_all->add_pattern("*." . uc $_);
-						$filter->add_pattern("*." . $_);
-						$filter_all->add_pattern("*." . $_);
+					$filter->set_name($format->get_name . " - " . $format->get_description);
+					foreach my $ext (@{$format->get_extensions}) {
+						$filter->add_pattern("*." . uc $ext);
+						$filter_all->add_pattern("*." . uc $ext);
+						$filter->add_pattern("*." . $ext);
+						$filter_all->add_pattern("*." . $ext);
 					}
 					$fs->add_filter($filter);
 				}
@@ -6927,11 +6944,11 @@ sub paste_item {
 
 			#~ print "Creating Censor...\n";
 			$new_item = $self->create_censor(undef, $item);
-		} elsif ($child->isa('GooCanvas2::Ellipse')) {
+		} elsif ($child->isa('GooCanvas2::CanvasEllipse')) {
 
 			#~ print "Creating Ellipse...\n";
 			$new_item = $self->create_ellipse(undef, $item);
-		} elsif ($child->isa('GooCanvas2::Text')) {
+		} elsif ($child->isa('GooCanvas2::CanvasText')) {
 
 			#~ print "Creating Text...\n";
 			$new_item = $self->create_text(undef, $item);
@@ -7296,12 +7313,12 @@ sub create_text {
 	$self->{_current_new_item} = $item unless ($copy_item);
 	$self->{_items}{$item} = $item;
 
-	$self->{_items}{$item}{text} = GooCanvas2::Text->new(
-		$self->{_canvas}->get_root_item, "<span font_desc='" . $self->{_font} . "' >" . $text . "</span>",
-		$item->get('x'),
-		$item->get('y'),
-		-1,
-		'nw',
+	$self->{_items}{$item}{text} = GooCanvas2::CanvasText->new(
+		parent=>$self->{_canvas}->get_root_item, text=>"<span font_desc='" . $self->{_font} . "' >" . $text . "</span>",
+		x=>$item->get('x'),
+		y=>$item->get('y'),
+		width=>-1,
+		anchor=>'nw',
 		'use-markup'   => TRUE,
 		'fill-pattern' => $stroke_pattern,
 		'line-width'   => $line_width,
@@ -7409,7 +7426,7 @@ sub create_line {
 	$self->{_current_new_item} = $item unless ($copy_item);
 	$self->{_items}{$item} = $item;
 
-	$self->{_items}{$item}{line} = GooCanvas2::CanvasPolyline->new_line(
+	$self->{_items}{$item}{line} = GooCanvas2::CanvasPolyline->new(
 		parent=>$self->{_canvas}->get_root_item,
 		close_path=>FALSE,
 		points=>points_to_canvas_points(
@@ -7494,7 +7511,7 @@ sub create_ellipse {
 	}
 
 	my $pattern = $self->create_alpha;
-	my $item    = GooCanvas2::Rect->new(
+	my $item    = GooCanvas2::CanvasRect->new(
 		parent=>$self->{_canvas}->get_root_item, x=>$x, y=>$y, width=>$width, height=>$height,
 		'fill-pattern' => $pattern,
 		'line-dash'    => GooCanvas2::CanvasLineDash->newv([5, 5]),
@@ -7505,9 +7522,9 @@ sub create_ellipse {
 	$self->{_current_new_item} = $item unless ($copy_item);
 	$self->{_items}{$item} = $item;
 
-	$self->{_items}{$item}{ellipse} = GooCanvas2::Ellipse->new(
-		$self->{_canvas}->get_root_item, $item->get('x'), $item->get('y'), $item->get('width'),
-		$item->get('height'),
+	$self->{_items}{$item}{ellipse} = GooCanvas2::CanvasEllipse->new(
+		parent=>$self->{_canvas}->get_root_item, x=>$item->get('x'), y=>$item->get('y'), width=>$item->get('width'),
+		height=>$item->get('height'),
 		'fill-pattern'   => $fill_pattern,
 		'stroke-pattern' => $stroke_pattern,
 		'line-width'     => $line_width,
@@ -7519,12 +7536,12 @@ sub create_ellipse {
 		my $number = $self->get_highest_auto_digit();
 		$number++;
 
-		$self->{_items}{$item}{text} = GooCanvas2::Text->new(
-			$self->{_canvas}->get_root_item, "<span font_desc='" . $self->{_font} . "' >" . $number . "</span>",
-			$self->{_items}{$item}{ellipse}->get('center-x'),
-			$self->{_items}{$item}{ellipse}->get('center-y'),
-			-1,
-			'GTK_ANCHOR_CENTER',
+		$self->{_items}{$item}{text} = GooCanvas2::CanvasText->new(
+			parent=>$self->{_canvas}->get_root_item, text=>"<span font_desc='" . $self->{_font} . "' >" . $number . "</span>",
+			x=>$self->{_items}{$item}{ellipse}->get('center-x'),
+			y=>$self->{_items}{$item}{ellipse}->get('center-y'),
+			width=>-1,
+			anchor=> 'center',
 			'use-markup'   => TRUE,
 			'fill-pattern' => $stroke_pattern,
 			'line-width'   => $line_width,
