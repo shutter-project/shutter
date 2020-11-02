@@ -179,6 +179,8 @@ sub new {
 
 	$self->{_start_time} = undef;
 
+	$self->{_stipple_pixbuf} = Gtk3::Gdk::Pixbuf->new_from_file($self->{_sc}{_shutter_root} . '/share/shutter/resources/gui/stipple.png');
+
 	bless $self, $class;
 
 	return $self;
@@ -5785,40 +5787,6 @@ sub event_item_on_leave_notify {
 	return TRUE;
 }
 
-sub create_stipple {
-	my $self = shift;
-	my $pixbuf = Gtk3::Gdk::Pixbuf->new_from_file($self->{_sc}{_shutter_root} . '/share/shutter/resources/gui/stipple.png');
-	my $rect = GooCanvas2::CanvasRect->new(
-		'fill-pixbuf' => $pixbuf,
-	);
-	return $rect->get('fill-pattern');
-
-	our @stipples;
-	my ($color_name, $stipple_data) = @_;
-	my $color = Gtk3::Gdk::RGBA::parse($color_name);
-	$stipple_data->[2] = $stipple_data->[14] = $color->red >> 8;
-	$stipple_data->[1] = $stipple_data->[13] = $color->green >> 8;
-	$stipple_data->[0] = $stipple_data->[12] = $color->blue >> 8;
-	my $stipple_str = join('', map { chr } @$stipple_data);
-	push @stipples, \$stipple_str;    # make $stipple_str refcnt increase
-	my $surface = Cairo::ImageSurface->create_for_data($stipple_str, 'argb32', 2, 2, 8);
-	my $pattern = Cairo::SurfacePattern->create($surface);
-	$pattern->set_extend('repeat');
-
-	return Goo::Cairo::Pattern->new($pattern);
-}
-
-sub create_alpha {
-	my $self    = shift;
-	# TODO: avoid going through pattern
-	my $color = Gtk3::Gdk::RGBA::parse('#000000');
-	$color->alpha(0);
-	my $rect = GooCanvas2::CanvasRect->new(
-		'fill-color-gdk-rgba' => $color,
-	);
-	return $rect->get('fill-pattern');
-}
-
 sub create_color {
 	my $self       = shift;
 	my $color_name = shift;
@@ -7075,12 +7043,9 @@ sub create_censor {
 		$transform = $self->{_items}{$copy_item}->get('transform');
 	}
 
-	my @stipple_data   = (255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255);
-	my $stroke_pattern = $self->create_stipple('black', \@stipple_data);
-
 	my $item = GooCanvas2::CanvasPolyline->new(
 		parent=>$self->{_canvas}->get_root_item, close_path=>FALSE,
-		'stroke-pattern' => $stroke_pattern,
+		'stroke-pixbuf' => $self->{_stipple_pixbuf},
 		'line-width'     => 14,
 		'line-cap'       => 'CAIRO_LINE_CAP_ROUND',
 		'line-join'      => 'CAIRO_LINE_JOIN_ROUND',
@@ -7124,10 +7089,9 @@ sub create_pixel_image {
 		$height = $copy_item->get('height');
 	}
 
-	my $pattern = $self->create_alpha;
 	my $item    = GooCanvas2::CanvasRect->new(
 		parent=>$self->{_canvas}->get_root_item, x=>$x, y=>$y, width=>$width, height=>$height,
-		'fill-pattern' => $pattern,
+		'fill-color-rgba' => 0,
 		'line-dash'    => GooCanvas2::CanvasLineDash->newv([5, 5]),
 		'line-width'   => 1,
 		'stroke-color' => 'gray',
@@ -7211,10 +7175,9 @@ sub create_image {
 		$height = $self->{_items}{$copy_item}->get('height');
 	}
 
-	my $pattern = $self->create_alpha;
 	my $item    = GooCanvas2::CanvasRect->new(
 		parent=>$self->{_canvas}->get_root_item, x=>$x, y=>$y, width=>$width, height=>$height,
-		'fill-pattern' => $pattern,
+		'fill-color-rgba' => 0,
 		'line-dash'    => GooCanvas2::CanvasLineDash->newv([5, 5]),
 		'line-width'   => 1,
 		'stroke-color' => 'gray',
@@ -7301,10 +7264,9 @@ sub create_text {
 		$line_width     = $self->{_items}{$copy_item}{text}->get('line-width');
 	}
 
-	my $pattern = $self->create_alpha;
 	my $item    = GooCanvas2::CanvasRect->new(
 		parent=>$self->{_canvas}->get_root_item, x=>$x, y=>$y, width=>$width, height=>$height,
-		'fill-pattern' => $pattern,
+		'fill-color-rgba' => 0,
 		'line-dash'    => GooCanvas2::CanvasLineDash->newv([5, 5]),
 		'line-width'   => 1,
 		'stroke-color' => 'gray',
@@ -7414,10 +7376,9 @@ sub create_line {
 		$arrow_tip_length = $self->{_items}{$copy_item}{arrow_tip_length};
 	}
 
-	my $pattern = $self->create_alpha;
 	my $item    = GooCanvas2::CanvasRect->new(
 		parent=>$self->{_canvas}->get_root_item, x=>$x, y=>$y, width=>$width, height=>$height,
-		'fill-pattern' => $pattern,
+		'fill-color-rgba' => 0,
 		'line-dash'    => GooCanvas2::CanvasLineDash->newv([5, 5]),
 		'line-width'   => 1,
 		'stroke-color' => 'gray',
@@ -7510,10 +7471,9 @@ sub create_ellipse {
 		$numbered       = TRUE if exists $self->{_items}{$copy_item}{text};
 	}
 
-	my $pattern = $self->create_alpha;
 	my $item    = GooCanvas2::CanvasRect->new(
 		parent=>$self->{_canvas}->get_root_item, x=>$x, y=>$y, width=>$width, height=>$height,
-		'fill-pattern' => $pattern,
+		'fill-color-rgba' => 0,
 		'line-dash'    => GooCanvas2::CanvasLineDash->newv([5, 5]),
 		'line-width'   => 1,
 		'stroke-color' => 'gray',
