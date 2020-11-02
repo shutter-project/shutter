@@ -154,6 +154,7 @@ sub new {
 	#obtain current colors and font_desc from the main window
 	$self->{_style}    = $self->{_sc}->get_mainwindow->get_style_context;
 	$self->{_style_bg} = $self->{_style}->get_background_color('selected');
+	$self->{_style_bg}->alpha(1);
 	#$self->{_style_tx} = $self->{_style}->text('selected');
 
 	#remember drawing colors, line width and font settings
@@ -317,10 +318,9 @@ sub show {
 		});
 
 	#create rectangle to resize the background
-	my $bg_color = $self->create_color(Gtk3::Gdk::RGBA::parse('gray'), 1.0);
 	$self->{_canvas_bg_rect} = GooCanvas2::CanvasRect->new(
 		parent=>$self->{_canvas}->get_root_item, x=>0, y=>0, width=>$self->{_drawing_pixbuf}->get_width, height=>$self->{_drawing_pixbuf}->get_height,
-		'fill-pattern' => $bg_color,
+		'fill-color-gdk-rgba' => Gtk3::Gdk::RGBA::parse('gray'),
 		'line-dash'    => GooCanvas2::CanvasLineDash->newv([5, 5]),
 		'line-width'   => 1,
 		'stroke-color' => 'black',
@@ -1103,9 +1103,7 @@ sub change_drawing_tool_cb {
 		$self->{_view}->set_zoom(1);
 
 		#adjust transp color
-		my $color_string =
-			sprintf("%02x%02x%02x", $self->{_canvas_bg_rect}{fill_color}->red * 257, $self->{_canvas_bg_rect}{fill_color}->green / 257, $self->{_canvas_bg_rect}{fill_color}->blue / 257);
-			$color_string = $self->{_canvas_bg_rect}{fill_color}->to_string;
+		my $color_string = $self->{_canvas_bg_rect}{fill_color}->to_string;
 		$self->{_view_css_provider_alpha}->load_from_data("
 			.imageview.transparent {
 				background-color: $color_string;
@@ -1704,7 +1702,7 @@ sub save {
 		#we need to support more formats here I think
 		if ($filetype eq 'jpeg' || $filetype eq 'jpg' || $filetype eq 'bmp') {
 			$self->{_canvas_bg_rect}->set(
-				'fill-pattern' => $self->create_color($self->{_canvas_bg_rect}{fill_color}, 1.0),
+				'fill-color-gdk-rgba' => $self->{_canvas_bg_rect}{fill_color},
 				'line-width'   => 0,
 			);
 		} elsif ($self->{_canvas_bg_rect}{fill_color}->equal(Gtk3::Gdk::RGBA::parse('gray'))) {
@@ -1739,7 +1737,7 @@ sub save {
 				$self->{_canvas_bg_rect}->set('visibility' => 'hidden');
 			} elsif ($response == 20) {
 				$self->{_canvas_bg_rect}->set(
-					'fill-pattern' => $self->create_color($self->{_canvas_bg_rect}{fill_color}, 1.0),
+					'fill-color-gdk-rgba' => $self->{_canvas_bg_rect}{fill_color},
 					'line-width'   => 0,
 				);
 			}
@@ -1799,7 +1797,7 @@ sub save {
 
 			#update the canvas_rect again
 			$self->{_canvas_bg_rect}->set(
-				'fill-pattern' => $self->create_color($self->{_canvas_bg_rect}{fill_color}, 1.0),
+				'fill-color-gdk-rgba' => $self->{_canvas_bg_rect}{fill_color},
 				'line-width'   => 1,
 				'visibility'   => 'visible',
 
@@ -2592,8 +2590,8 @@ sub store_to_xdo_stack {
 	#general properties for ellipse, rectangle, image, text
 	if ($item->isa('GooCanvas2::CanvasRect') && $item != $self->{_canvas_bg_rect}) {
 
-		my $stroke_pattern = $self->create_color($self->{_items}{$item}{stroke_color}, $self->{_items}{$item}{stroke_color}->alpha) if exists $self->{_items}{$item}{stroke_color};
-		my $fill_pattern   = $self->create_color($self->{_items}{$item}{fill_color},   $self->{_items}{$item}{fill_color}->alpha)   if exists $self->{_items}{$item}{fill_color};
+		my $stroke_color = $self->{_items}{$item}{stroke_color};
+		my $fill_color   = $self->{_items}{$item}{fill_color};
 		my $line_width     = $self->{_items}{$item}->get('line-width');
 
 		#line
@@ -2655,8 +2653,6 @@ sub store_to_xdo_stack {
 			'height'             => $self->{_items}{$item}->get('height'),
 			'stroke_color'       => $self->{_items}{$item}{stroke_color},
 			'fill_color'         => $self->{_items}{$item}{fill_color},
-			'fill-pattern'       => $fill_pattern,
-			'stroke-pattern'     => $stroke_pattern,
 			'line-width'         => $line_width,
 			'mirrored_w'         => $mirrored_w,
 			'mirrored_h'         => $mirrored_h,
@@ -2700,10 +2696,6 @@ sub store_to_xdo_stack {
 		#polyline specific properties to hash
 	} elsif ($item->isa('GooCanvas2::CanvasPolyline')) {
 
-		my $stroke_pattern;
-		if (defined $self->{_items}{$item}{stroke_color}) {
-			$stroke_pattern = $self->create_color($self->{_items}{$item}{stroke_color}, $self->{_items}{$item}{stroke_color}->alpha);
-		}
 		my $transform      = $self->{_items}{$item}->get('transform');
 		my $line_width     = $self->{_items}{$item}->get('line-width');
 		my $points         = $self->{_items}{$item}->get('points');
@@ -2712,7 +2704,7 @@ sub store_to_xdo_stack {
 			'item'           => $self->{_items}{$item},
 			'action'         => $action,
 			'points'         => $points,
-			'stroke-pattern' => $stroke_pattern,
+			'stroke_color'   => $self->{_items}{$item}{stroke_color},
 			'line-width'     => $line_width,
 			'transform'      => $transform,
 			'opt1'           => $opt1,
@@ -2806,8 +2798,8 @@ sub xdo {
 	return FALSE unless $action;
 
 	if ($item->isa('GooCanvas2::CanvasImage') && $item == $self->{_canvas_bg}) {
-		$opt1->x($do->{'opt1'}->x * -1);
-		$opt1->y($do->{'opt1'}->y * -1);
+		$opt1->{x} = $do->{'opt1'}->{x} * -1;
+		$opt1->{y} = $do->{'opt1'}->{y} * -1;
 	}
 
 	#create reverse action
@@ -2858,8 +2850,8 @@ sub xdo {
 			if (exists $self->{_items}{$item}{ellipse}) {
 
 				$self->{_items}{$item}{ellipse}->set(
-					'fill-pattern'   => $do->{'fill-pattern'},
-					'stroke-pattern' => $do->{'stroke-pattern'},
+					'fill-color-gdk-rgba'   => $do->{'fill_color'},
+					'stroke-color-gdk-rgba' => $do->{'stroke_color'},
 					'line-width'     => $do->{'line-width'},
 				);
 
@@ -2867,7 +2859,7 @@ sub xdo {
 				if (exists $self->{_items}{$item}{text}) {
 					$self->{_items}{$item}{text}->set(
 						'text'         => $do->{'text'},
-						'fill-pattern' => $do->{'stroke-pattern'},
+						'fill-color-gdk-rgba' => $do->{'stroke_color'},
 					);
 					$self->{_items}{$item}{text}{digit} = $do->{'digit'};
 				}
@@ -2880,7 +2872,7 @@ sub xdo {
 
 				$self->{_items}{$item}{text}->set(
 					'text'         => $do->{'text'},
-					'fill-pattern' => $do->{'stroke-pattern'},
+					'fill-color-gdk-rgba' => $do->{'stroke_color'},
 				);
 
 				#restore color and opacity as well
@@ -2921,8 +2913,8 @@ sub xdo {
 				$self->{_items}{$item}{arrow_tip_length} = $do->{'arrow-tip-length'};
 
 				$self->{_items}{$item}{line}->set(
-					'fill-pattern'     => $do->{'fill-pattern'},
-					'stroke-pattern'   => $do->{'stroke-pattern'},
+					'fill-color-gdk-rgba'   => $do->{'fill_color'},
+					'stroke-color-gdk-rgba' => $do->{'stroke_color'},
 					'line-width'       => $do->{'line-width'},
 					'end-arrow'        => $self->{_items}{$item}{end_arrow},
 					'start-arrow'      => $self->{_items}{$item}{start_arrow},
@@ -2940,8 +2932,8 @@ sub xdo {
 			} else {
 
 				$self->{_items}{$item}->set(
-					'fill-pattern'   => $do->{'fill-pattern'},
-					'stroke-pattern' => $do->{'stroke-pattern'},
+					'fill-color-gdk-rgba'   => $do->{'fill_color'},
+					'stroke-color-gdk-rgba' => $do->{'stroke_color'},
 					'line-width'     => $do->{'line-width'},
 				);
 
@@ -2973,7 +2965,7 @@ sub xdo {
 			);
 
 			#we need to move the shapes
-			$self->move_all($opt1->x, $opt1->y);
+			$self->move_all($opt1->{x}, $opt1->{y});
 
 		} elsif ($item->isa('GooCanvas2::CanvasRect') && $item == $self->{_canvas_bg_rect}) {
 
@@ -2994,7 +2986,7 @@ sub xdo {
 			if ($do->{'stroke-pattern'}) {
 
 				$self->{_items}{$item}->set(
-					'stroke-pattern' => $do->{'stroke-pattern'},
+					'stroke-color-gdk-rgba' => $do->{'stroke_color'},
 					'line-width'     => $do->{'line-width'},
 					'points'         => $do->{'points'},
 					'transform'      => $do->{'transform'},
@@ -3521,8 +3513,7 @@ sub event_item_on_button_press {
 					}
 
 					#restore style pattern
-					my $pattern = $self->create_color($self->{_style_bg}, 1);
-					$item->set('fill-pattern' => $pattern);
+					$item->set('fill-color-gdk-rgba' => $self->{_style_bg});
 
 				}
 
@@ -3585,8 +3576,7 @@ sub event_item_on_button_press {
 				}
 
 				#restore style pattern
-				my $pattern = $self->create_color($self->{_style_bg}, 1);
-				$item->set('fill-pattern' => $pattern);
+				$item->set('fill-color-gdk-rgba' => $self->{_style_bg});
 
 				#~ print "grab keyboard and pointer focus for $item\n";
 
@@ -3769,9 +3759,9 @@ sub ret_background_menu {
 				if ($response eq 'ok') {
 
 					#apply new color
-					my $new_fill_pattern = $self->create_color($color_dialog->get_rgba, 1.0);
-					$self->{_canvas_bg_rect}->set('fill-pattern' => $new_fill_pattern);
 					$self->{_canvas_bg_rect}{fill_color} = $color_dialog->get_rgba;
+					$self->{_canvas_bg_rect}{fill_color}->alpha(1);
+					$self->{_canvas_bg_rect}->set('fill-color-gdk-rgba', $self->{_canvas_bg_rect}{fill_color});
 					last;
 				} elsif ($response eq 'reject') {
 					$color_dialog->set_rgba(Gtk3::Gdk::RGBA::parse('gray'));
@@ -4572,12 +4562,10 @@ sub apply_properties {
 	#apply rect or ellipse options
 	if ($item->isa('GooCanvas2::CanvasRect') || $item->isa('GooCanvas2::CanvasEllipse')) {
 
-		my $fill_pattern   = $self->create_color($fill_color->get_rgba,   $fill_color->get_rgba->alpha);
-		my $stroke_pattern = $self->create_color($stroke_color->get_rgba, $stroke_color->get_rgba->alpha);
 		$item->set(
 			'line-width'     => $line_spin->get_value,
-			'fill-pattern'   => $fill_pattern,
-			'stroke-pattern' => $stroke_pattern
+			'fill-color-gdk-rgba' => $fill_color->get_rgba,
+			'stroke-color-gdk-rgba' => $stroke_color->get_rgba,
 		);
 
 		#special shapes like numbered ellipse (digit changed)
@@ -4591,17 +4579,17 @@ sub apply_properties {
 				$digit = $self->{_items}{$key}{text}{digit};
 			}
 
-			my $fill_pattern = undef;
+			my $fill_color = undef;
 			if (defined $font_color) {
-				$fill_pattern = $self->create_color($font_color->get_rgba, $font_color->get_rgba->alpha);
+				$fill_color = $font_color->get_rgba;
 			} elsif (defined $stroke_color) {
-				$fill_pattern = $self->create_color($stroke_color->get_rgba, $stroke_color->get_rgba->alpha);
+				$fill_color = $stroke_color->get_rgba;
 			}
 
 			my $font_descr = Pango::FontDescription->from_string($font_btn->get_font_name);
 			$self->{_items}{$key}{text}->set(
 				'text'         => "<span font_desc=' " . $font_btn->get_font_name . " ' >" . $digit . "</span>",
-				'fill-pattern' => $fill_pattern,
+				'fill-color-gdk-rgba' => $fill_color,
 			);
 
 			#adjust parent rectangle
@@ -4640,8 +4628,6 @@ sub apply_properties {
 		&& defined $self->{_items}{$key}{start_arrow})
 	{
 
-		my $stroke_pattern = $self->create_color($stroke_color->get_rgba, $stroke_color->get_rgba->alpha);
-
 		#these values are only available in the item menu
 		if (   defined $arrowl_spin
 			&& defined $arrow_spin
@@ -4651,7 +4637,7 @@ sub apply_properties {
 		{
 			$item->set(
 				'line-width'       => $line_spin->get_value,
-				'stroke-pattern'   => $stroke_pattern,
+				'stroke-color-gdk-rgba'   => $stroke_color->get_rgba,
 				'end-arrow'        => $end_arrow->get_active,
 				'start-arrow'      => $start_arrow->get_active,
 				'arrow-length'     => $arrowl_spin->get_value,
@@ -4662,7 +4648,7 @@ sub apply_properties {
 		} else {
 			$item->set(
 				'line-width'     => $line_spin->get_value,
-				'stroke-pattern' => $stroke_pattern,
+				'stroke-color-gdk-rgba'   => $stroke_color->get_rgba,
 				'end-arrow'      => $self->{_items}{$key}{line}->get('end-arrow'),
 				'start-arrow'    => $self->{_items}{$key}{line}->get('start-arrow'),
 			);
@@ -4682,10 +4668,9 @@ sub apply_properties {
 	} elsif ($item->isa('GooCanvas2::CanvasPolyline')
 		&& defined $self->{_items}{$key}{stroke_color})
 	{
-		my $stroke_pattern = $self->create_color($stroke_color->get_rgba, $stroke_color->get_rgba->alpha);
 		$item->set(
 			'line-width'     => $line_spin->get_value,
-			'stroke-pattern' => $stroke_pattern,
+			'stroke-color-gdk-rgba'   => $stroke_color->get_rgba,
 		);
 
 		#save color and opacity as well
@@ -4695,8 +4680,6 @@ sub apply_properties {
 	#apply text options
 	if ($item->isa('GooCanvas2::CanvasText')) {
 		my $font_descr = Pango::FontDescription->from_string($font_btn->get_font_name);
-
-		my $fill_pattern = $self->create_color($font_color->get_rgba, $font_color->get_rgba->alpha);
 
 		my $new_text = undef;
 		if ($textview) {
@@ -4713,7 +4696,7 @@ sub apply_properties {
 			'text'         => "<span font_desc=' " . $font_btn->get_font_name . " ' >" . Glib::Markup::escape_text($new_text) . "</span>",
 			'width'        => -1,
 			'use-markup'   => TRUE,
-			'fill-pattern' => $fill_pattern
+			'fill-color-gdk-rgba' => $font_color->get_rgba,
 		);
 
 		#adjust parent rectangle
@@ -5106,23 +5089,22 @@ sub handle_bg_rects {
 
 	if ($action eq 'create') {
 
-		my $pattern = $self->create_color($self->{_style_bg}, 1);
 
 		$self->{_canvas_bg_rect}{'bottom-side'} = GooCanvas2::CanvasRect->new(
 			parent=>$self->{_canvas}->get_root_item, x=>$middle_h, y=>$bottom, width=>8, height=>8,
-			'fill-pattern' => $pattern,
+			'fill-color-gdk-rgba' => $self->{_style_bg},
 			'line-width'   => 1,
 		);
 
 		$self->{_canvas_bg_rect}{'bottom-right-corner'} = GooCanvas2::CanvasRect->new(
 			parent=>$self->{_canvas}->get_root_item, x=>$right, y=>$bottom, width=>8, height=>8,
-			'fill-pattern' => $pattern,
+			'fill-color-gdk-rgba' => $self->{_style_bg},
 			'line-width'   => 1,
 		);
 
 		$self->{_canvas_bg_rect}{'right-side'} = GooCanvas2::CanvasRect->new(
 			parent=>$self->{_canvas}->get_root_item, x=>$right, y=>$middle_v, width=>8, height=>8,
-			'fill-pattern' => $pattern,
+			'fill-color-gdk-rgba' => $self->{_style_bg},
 			'line-width'   => 1,
 		);
 
@@ -5206,18 +5188,16 @@ sub handle_rects {
 
 		if ($action eq 'create') {
 
-			my $pattern = $self->create_color($self->{_style_bg}, 1);
-
 			$self->{_items}{$item}{'top-side'} = GooCanvas2::CanvasRect->new(
 				parent=>$root, x=>$middle_h, y=>$top, width=>8, height=>8,
-				'fill-pattern' => $pattern,
+				'fill-color-gdk-rgba' => $self->{_style_bg},
 				'visibility'   => 'hidden',
 				'line-width'   => 0.5,
 			);
 
 			$self->{_items}{$item}{'top-left-corner'} = GooCanvas2::CanvasRect->new(
 				parent=>$root, x=>$left, y=>$top, width=>8, height=>8,
-				'fill-pattern' => $pattern,
+				'fill-color-gdk-rgba' => $self->{_style_bg},
 				'visibility'   => 'hidden',
 				'line-width'   => 0.5,
 				'radius-x'     => 8,
@@ -5226,7 +5206,7 @@ sub handle_rects {
 
 			$self->{_items}{$item}{'top-right-corner'} = GooCanvas2::CanvasRect->new(
 				parent=>$root, x=>$right, y=>$top, width=>8, height=>8,
-				'fill-pattern' => $pattern,
+				'fill-color-gdk-rgba' => $self->{_style_bg},
 				'visibility'   => 'hidden',
 				'line-width'   => 0.5,
 				'radius-x'     => 8,
@@ -5235,14 +5215,14 @@ sub handle_rects {
 
 			$self->{_items}{$item}{'bottom-side'} = GooCanvas2::CanvasRect->new(
 				parent=>$root, x=>$middle_h, y=>$bottom, width=>8, height=>8,
-				'fill-pattern' => $pattern,
+				'fill-color-gdk-rgba' => $self->{_style_bg},
 				'visibility'   => 'hidden',
 				'line-width'   => 0.5,
 			);
 
 			$self->{_items}{$item}{'bottom-left-corner'} = GooCanvas2::CanvasRect->new(
 				parent=>$root, x=>$left, y=>$bottom, width=>8, height=>8,
-				'fill-pattern' => $pattern,
+				'fill-color-gdk-rgba' => $self->{_style_bg},
 				'visibility'   => 'hidden',
 				'line-width'   => 0.5,
 				'radius-x'     => 8,
@@ -5251,7 +5231,7 @@ sub handle_rects {
 
 			$self->{_items}{$item}{'bottom-right-corner'} = GooCanvas2::CanvasRect->new(
 				parent=>$root, x=>$right, y=>$bottom, width=>8, height=>8,
-				'fill-pattern' => $pattern,
+				'fill-color-gdk-rgba' => $self->{_style_bg},
 				'visibility'   => 'hidden',
 				'line-width'   => 0.5,
 				'radius-x'     => 8,
@@ -5260,14 +5240,14 @@ sub handle_rects {
 
 			$self->{_items}{$item}{'left-side'} = GooCanvas2::CanvasRect->new(
 				parent=>$root, x=>$left - 8, y=>$middle_v, width=>8, height=>8,
-				'fill-pattern' => $pattern,
+				'fill-color-gdk-rgba' => $self->{_style_bg},
 				'visibility'   => 'hidden',
 				'line-width'   => 0.5,
 			);
 
 			$self->{_items}{$item}{'right-side'} = GooCanvas2::CanvasRect->new(
 				parent=>$root, x=>$right, y=>$middle_v, width=>8, height=>8,
-				'fill-pattern' => $pattern,
+				'fill-color-gdk-rgba' => $self->{_style_bg},
 				'visibility'   => 'hidden',
 				'line-width'   => 0.5,
 			);
@@ -5728,14 +5708,12 @@ sub event_item_on_enter_notify {
 			|| $self->{_canvas_bg_rect}{'bottom-right-corner'} == $item)
 		{
 
-			my $pattern = $self->create_color('red', 1);
-			$item->set('fill-pattern' => $pattern);
+			$item->set('fill-color' => 'red');
 
 			#resizing shape
 		} else {
 
-			my $pattern = $self->create_color('red', 1);
-			$item->set('fill-pattern' => $pattern);
+			$item->set('fill-color' => 'red');
 
 		}
 	}
@@ -5772,45 +5750,17 @@ sub event_item_on_leave_notify {
 			|| $self->{_canvas_bg_rect}{'bottom-right-corner'} == $item)
 		{
 
-			my $pattern = $self->create_color($self->{_style_bg}, 1);
-			$item->set('fill-pattern' => $pattern);
+			$item->set('fill-color-gdk-rgba' => $self->{_style_bg});
 
 			#resizing shape
 		} else {
 
-			my $pattern = $self->create_color($self->{_style_bg}, 1);
-			$item->set('fill-pattern' => $pattern);
+			$item->set('fill-color-gdk-rgba' => $self->{_style_bg});
 
 		}
 	}
 
 	return TRUE;
-}
-
-sub create_color {
-	my $self       = shift;
-	my $color_name = shift;
-	my $alpha      = shift;
-
-	return FALSE unless defined $color_name;
-	return FALSE unless defined $alpha;
-
-	my $color;
-
-	#if it is a color, we do not need to parse it
-	unless ($color_name->isa('Gtk3::Gdk::RGBA')) {
-		$color = Gtk3::Gdk::RGBA::parse($color_name);
-	} else {
-		$color = $color_name->copy;
-	}
-	$color->alpha($alpha);
-
-	# TODO: set fill-color-gdk-rgba directly, without going through pattern
-	my $rect = GooCanvas2::CanvasRect->new(
-		'fill-color-gdk-rgba' => $color,
-	);
-	my $pattern = $rect->get('fill-pattern');
-	return $pattern;
 }
 
 #ui related stuff
@@ -6955,7 +6905,7 @@ sub create_polyline {
 	my $highlighter = shift;
 
 	my @points         = ();
-	my $stroke_pattern = $self->create_color($self->{_stroke_color}, $self->{_stroke_color}->alpha);
+	my $stroke_color = $self->{_stroke_color};
 	my $transform;
 	my $line_width = $self->{_line_width};
 
@@ -6969,16 +6919,18 @@ sub create_polyline {
 			push @points, $_ + 20;
 		}
 
-		$stroke_pattern = $self->create_color($self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color}->alpha);
+		$stroke_color = $self->{_items}{$copy_item}{stroke_color};
 		$transform      = $self->{_items}{$copy_item}->get('transform');
 		$line_width     = $self->{_items}{$copy_item}->get('line_width');
 	}
 
 	my $item = undef;
 	if ($highlighter) {
+		$stroke_color = Gtk3::Gdk::RGBA::parse('#FFFF00');
+		$stroke_color->alpha(0.5);
 		$item = GooCanvas2::CanvasPolyline->new(
 			parent=>$self->{_canvas}->get_root_item, close_path=>FALSE,
-			'stroke-pattern' => $self->create_color(Gtk3::Gdk::RGBA::parse('#FFFF00'), 0.5),
+			'stroke-color-gdk-rgba' => $stroke_color,
 			'line-width'     => 18,
 			'fill-rule'      => 'CAIRO_FILL_RULE_EVEN_ODD',
 			'line-cap'       => 'CAIRO_LINE_CAP_SQUARE',
@@ -6987,7 +6939,7 @@ sub create_polyline {
 	} else {
 		$item = GooCanvas2::CanvasPolyline->new(
 			parent=>$self->{_canvas}->get_root_item, close_path=>FALSE,
-			'stroke-pattern' => $stroke_pattern,
+			'stroke-color-gdk-rgba' => $stroke_color,
 			'line-width'     => $line_width,
 			'line-cap'       => 'CAIRO_LINE_CAP_ROUND',
 			'line-join'      => 'CAIRO_LINE_JOIN_ROUND',
@@ -7244,7 +7196,7 @@ sub create_text {
 	my $copy_item = shift;
 
 	my ($x, $y, $width, $height)     = (0, 0, 0, 0);
-	my $stroke_pattern = $self->create_color($self->{_stroke_color}, $self->{_stroke_color}->alpha);
+	my $stroke_color = $self->{_stroke_color};
 	my $text           = $self->{_d}->get('New text...');
 	my $line_width     = $self->{_line_width};
 
@@ -7259,7 +7211,7 @@ sub create_text {
 		$y = $copy_item->get('y') + 20;
 		$width = $copy_item->get('width');
 		$height = $copy_item->get('height');
-		$stroke_pattern = $self->create_color($self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color}->alpha);
+		$stroke_color = $self->{_items}{$copy_item}{stroke_color};
 		$text           = $self->{_items}{$copy_item}{text}->get('text');
 		$line_width     = $self->{_items}{$copy_item}{text}->get('line-width');
 	}
@@ -7282,7 +7234,7 @@ sub create_text {
 		width=>-1,
 		anchor=>'nw',
 		'use-markup'   => TRUE,
-		'fill-pattern' => $stroke_pattern,
+		'fill-color-gdk-rgba' => $stroke_color,
 		'line-width'   => $line_width,
 	);
 
@@ -7342,7 +7294,7 @@ sub create_line {
 	my $start_arrow = shift;
 
 	my ($x, $y, $width, $height)     = (0, 0, 0, 0);
-	my $stroke_pattern = $self->create_color($self->{_stroke_color}, $self->{_stroke_color}->alpha);
+	my $stroke_color = $self->{_stroke_color};
 	my $line_width     = $self->{_line_width};
 	my $mirrored_w     = 0;
 	my $mirrored_h     = 0;
@@ -7363,7 +7315,7 @@ sub create_line {
 		$y = $copy_item->get('y') + 20;
 		$width = $copy_item->get('width');
 		$height = $copy_item->get('height');
-		$stroke_pattern = $self->create_color($self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color}->alpha);
+		$stroke_color = $self->{_items}{$copy_item}{stroke_color};
 		$line_width     = $self->{_items}{$copy_item}{line}->get('line-width');
 		$mirrored_w     = $self->{_items}{$copy_item}{mirrored_w};
 		$mirrored_h     = $self->{_items}{$copy_item}{mirrored_h};
@@ -7396,7 +7348,7 @@ sub create_line {
 			$item->get('x') + $item->get('width'),
 			$item->get('y') + $item->get('height'),
 		),
-		'stroke-pattern'   => $stroke_pattern,
+		'stroke-color-gdk-rgba'   => $stroke_color,
 		'line-width'       => $line_width,
 		'line-cap'         => 'CAIRO_LINE_CAP_ROUND',
 		'line-join'        => 'CAIRO_LINE_JOIN_ROUND',
@@ -7450,8 +7402,8 @@ sub create_ellipse {
 	my $numbered  = shift;
 
 	my ($x, $y, $width, $height)     = (0, 0, 0, 0);
-	my $stroke_pattern = $self->create_color($self->{_stroke_color}, $self->{_stroke_color}->alpha);
-	my $fill_pattern   = $self->create_color($self->{_fill_color}, $self->{_fill_color}->alpha);
+	my $stroke_color = $self->{_stroke_color};
+	my $fill_color   = $self->{_fill_color};
 	my $line_width     = $self->{_line_width};
 
 	#use event coordinates and selected color
@@ -7465,8 +7417,8 @@ sub create_ellipse {
 		$y = $copy_item->get('y') + 20;
 		$width = $copy_item->get('width');
 		$height = $copy_item->get('height');
-		$stroke_pattern = $self->create_color($self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color}->alpha);
-		$fill_pattern   = $self->create_color($self->{_items}{$copy_item}{fill_color}, $self->{_items}{$copy_item}{fill_color}->alpha);
+		$stroke_color = $self->{_items}{$copy_item}{stroke_color};
+		$fill_color   = $self->{_items}{$copy_item}{fill_color};
 		$line_width     = $self->{_items}{$copy_item}{ellipse}->get('line-width');
 		$numbered       = TRUE if exists $self->{_items}{$copy_item}{text};
 	}
@@ -7485,8 +7437,8 @@ sub create_ellipse {
 	$self->{_items}{$item}{ellipse} = GooCanvas2::CanvasEllipse->new(
 		parent=>$self->{_canvas}->get_root_item, x=>$item->get('x'), y=>$item->get('y'), width=>$item->get('width'),
 		height=>$item->get('height'),
-		'fill-pattern'   => $fill_pattern,
-		'stroke-pattern' => $stroke_pattern,
+		'fill-color-gdk-rgba'   => $fill_color,
+		'stroke-color-gdk-rgba' => $stroke_color,
 		'line-width'     => $line_width,
 	);
 
@@ -7503,7 +7455,7 @@ sub create_ellipse {
 			width=>-1,
 			anchor=> 'center',
 			'use-markup'   => TRUE,
-			'fill-pattern' => $stroke_pattern,
+			'fill-color-gdk-rgba'   => $stroke_color,
 			'line-width'   => $line_width,
 		);
 
@@ -7582,8 +7534,8 @@ sub create_rectangle {
 	my $copy_item = shift;
 
 	my ($x, $y, $width, $height)     = (0, 0, 0, 0);
-	my $stroke_pattern = $self->create_color($self->{_stroke_color}, $self->{_stroke_color}->alpha);
-	my $fill_pattern   = $self->create_color($self->{_fill_color}, $self->{_fill_color}->alpha);
+	my $stroke_color = $self->{_stroke_color};
+	my $fill_color   = $self->{_fill_color};
 	my $line_width     = $self->{_line_width};
 
 	#use event coordinates and selected color
@@ -7597,15 +7549,15 @@ sub create_rectangle {
 		$y = $copy_item->get('y') + 20;
 		$width = $copy_item->get('width');
 		$height = $copy_item->get('height');
-		$stroke_pattern = $self->create_color($self->{_items}{$copy_item}{stroke_color}, $self->{_items}{$copy_item}{stroke_color}->alpha);
-		$fill_pattern   = $self->create_color($self->{_items}{$copy_item}{fill_color}, $self->{_items}{$copy_item}{fill_color}->alpha);
+		$stroke_color = $self->{_items}{$copy_item}{stroke_color};
+		$fill_color   = $self->{_items}{$copy_item}{fill_color};
 		$line_width     = $self->{_items}{$copy_item}->get('line-width');
 	}
 
 	my $item = GooCanvas2::CanvasRect->new(
 		parent=>$self->{_canvas}->get_root_item, x=>$x, y=>$y, width=>$width, height=>$height,
-		'fill-pattern'   => $fill_pattern,
-		'stroke-pattern' => $stroke_pattern,
+		'fill-color-gdk-rgba'   => $fill_color,
+		'stroke-color-gdk-rgba' => $stroke_color,
 		'line-width'     => $line_width,
 	);
 
