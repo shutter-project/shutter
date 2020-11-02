@@ -2769,9 +2769,6 @@ sub STARTUP {
 		if ($data eq "transp_toggled") {
 
 			#Sets how the view should draw transparent parts of images with an alpha channel
-			my $color        = $trans_custom_btn->get_color;
-			my $color_string = sprintf("%02x%02x%02x", $color->red / 257, $color->green / 257, $color->blue / 257);
-
 			if ($trans_check->get_active) {
 				$css_provider_alpha->load_from_data("
 					.imageview.transparent {
@@ -2779,9 +2776,10 @@ sub STARTUP {
 					}
 				");
 			} elsif ($trans_custom->get_active) {
+				my $color_string = $trans_custom_btn->get_rgba->to_string;
 				$css_provider_alpha->load_from_data("
 					.imageview.transparent {
-						background-color: #$color_string;
+						background-color: $color_string;
 					}
 				");
 			} elsif ($trans_backg->get_active) {
@@ -4252,21 +4250,6 @@ sub STARTUP {
 			$session_screens{$key}->{'image'}->set_fitting(TRUE);
 			$session_screens{$key}->{'image'}->get_style_context->add_provider($css_provider_alpha, 0);
 
-			#Sets how the view should draw transparent parts of images with an alpha channel
-			my $color        = $trans_custom_btn->get_color;
-			my $color_string = sprintf("%02x%02x%02x", $color->red / 257, $color->green / 257, $color->blue / 257);
-
-			my $mode;
-			if ($trans_check->get_active) {
-				$mode = 'grid';
-			} elsif ($trans_custom->get_active) {
-				$mode = 'color';
-			} elsif ($trans_backg->get_active) {
-				$mode = 'color';
-				my $bg = $window->get_style_context->get_background_color('normal');
-				$color_string = sprintf("%02x%02x%02x", $bg->red / 257, $bg->green / 257, $bg->blue / 257);
-			}
-
 			#Gtk2::ImageView::ScrollWin packaged in a Gtk2::ScrolledWindow
 			#my $scrolled_window_image = Gtk2::ImageView::ScrollWin->new($session_screens{$key}->{'image'});
 			my $scrolled_window_image = Gtk3::ScrolledWindow->new;
@@ -4746,7 +4729,7 @@ sub STARTUP {
 					$trans_check->set_active($settings_xml->{'general'}->{'trans_check'});
 					$trans_custom->set_active($settings_xml->{'general'}->{'trans_custom'});
 					if (defined $settings_xml->{'general'}->{'trans_custom_col'}) {
-						$trans_custom_btn->set_color(Gtk3::Gdk::Color->parse($settings_xml->{'general'}->{'trans_custom_col'}));
+						$trans_custom_btn->set_rgba(Gtk3::Gdk::RGBA::parse($settings_xml->{'general'}->{'trans_custom_col'}));
 					}
 					$trans_backg->set_active($settings_xml->{'general'}->{'trans_backg'});
 
