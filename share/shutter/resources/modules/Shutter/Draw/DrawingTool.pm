@@ -59,15 +59,6 @@ use XML::Simple;
 #Glib
 use Glib qw/TRUE FALSE/;
 
-BEGIN {
-	use Glib::Object::Introspection;
-	Glib::Object::Introspection->setup(
-		basename => 'cairo',
-		version  => '1.0',
-		package  => 'Caaa',
-	) if 0;
-}
-
 #--------------------------------------
 
 sub new {
