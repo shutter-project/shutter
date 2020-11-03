@@ -71,7 +71,6 @@ sub new {
 	$self->{_view}     = Gtk3::ImageView->new;
 	$self->{_selector} = Gtk3::ImageView::Tool::Selector->new($self->{_view});
 	$self->{_dragger}  = Gtk3::ImageView::Tool::Dragger->new($self->{_view});
-	#$self->{_view}->set_interpolation('tiles');
 	$self->{_view}->set_tool($self->{_selector});
 	$self->{_view_css_provider_alpha} = Gtk3::CssProvider->new;
 	$self->{_view}->get_style_context->add_provider($self->{_view_css_provider_alpha}, 0);
@@ -97,8 +96,12 @@ sub new {
 	#ignore zoom values greater 10 (see: #654185)
 	$self->{_view}->signal_connect(
 		'zoom-changed' => sub {
-			if ($self->{_view}->get_zoom > 10) {
-				$self->{_view}->set_zoom(10);
+			my ($view, $zoom) = @_;
+			if ($zoom >= 1) {
+				$view->set_interpolation('nearest');
+				$view->set_zoom(10) if $zoom > 10;
+			} else {
+				$view->set_interpolation('bilinear');
 			}
 		});
 
@@ -1990,7 +1993,13 @@ sub event_item_on_motion_notify {
 		$self->{_items}{$item}{'bottom-right-corner'}->{res_x}    = $ev->x;
 		$self->{_items}{$item}{'bottom-right-corner'}->{res_y}    = $ev->y;
 		$self->{_items}{$item}{'bottom-right-corner'}->{resizing} = TRUE;
-		$self->{_canvas}->pointer_grab($self->{_items}{$item}{'bottom-right-corner'}, ['pointer-motion-mask', 'button-release-mask'], undef, $ev->time);
+		eval {
+			$self->{_canvas}->pointer_grab($self->{_items}{$item}{'bottom-right-corner'}, ['pointer-motion-mask', 'button-release-mask'], undef, $ev->time);
+		};
+		if ($@) {
+			# workaround for https://gitlab.gnome.org/GNOME/goocanvas/-/merge_requests/8
+			$self->{_canvas}->pointer_grab($self->{_items}{$item}{'bottom-right-corner'}, ['pointer-motion-mask', 'button-release-mask'], Gtk3::Gdk::Cursor->new('left-ptr'), $ev->time);
+		}
 
 		#add to undo stack
 		$self->store_to_xdo_stack($item, 'create', 'undo');
@@ -2208,7 +2217,13 @@ sub event_item_on_motion_notify {
 				#~ $self->{_canvas}->pointer_grab( $self->{_items}{$curr_item}{$oppo}, [ 'pointer-motion-mask', 'button-release-mask' ], Gtk3::Gdk::Cursor->new($oppo), $ev->time );
 				#~ }
 
-				$self->{_canvas}->pointer_grab($self->{_items}{$curr_item}{$oppo}, ['pointer-motion-mask', 'button-release-mask'], undef, $ev->time);
+				eval {
+					$self->{_canvas}->pointer_grab($self->{_items}{$curr_item}{$oppo}, ['pointer-motion-mask', 'button-release-mask'], undef, $ev->time);
+				};
+				if ($@) {
+					# workaround for https://gitlab.gnome.org/GNOME/goocanvas/-/merge_requests/8
+					$self->{_canvas}->pointer_grab($self->{_items}{$curr_item}{$oppo}, ['pointer-motion-mask', 'button-release-mask'], Gtk3::Gdk::Cursor->new('left-ptr'), $ev->time);
+				}
 
 				$self->handle_embedded('mirror', $curr_item, $new_width, $new_height);
 
@@ -3527,7 +3542,13 @@ sub event_item_on_button_press {
 			#~ print "grab keyboard and pointer focus for $item\n";
 
 			#grab keyboard and pointer focus
-			$self->{_canvas}->pointer_grab($item, ['pointer-motion-mask', 'button-release-mask'], $cursor, $ev->time);
+			eval {
+				$self->{_canvas}->pointer_grab($item, ['pointer-motion-mask', 'button-release-mask'], $cursor, $ev->time);
+			};
+			if ($@) {
+				# workaround for https://gitlab.gnome.org/GNOME/goocanvas/-/merge_requests/8
+				$self->{_canvas}->pointer_grab($item, ['pointer-motion-mask', 'button-release-mask'], Gtk3::Gdk::Cursor->new('left-ptr'), $ev->time);
+			}
 			$self->{_canvas}->grab_focus($item);
 
 			#current mode not equal 'select' and no polyline
@@ -3572,7 +3593,13 @@ sub event_item_on_button_press {
 				#~ print "grab keyboard and pointer focus for $item\n";
 
 				#grab keyboard and pointer focus
-				$self->{_canvas}->pointer_grab($item, ['pointer-motion-mask', 'button-release-mask'], $cursor, $ev->time);
+				eval {
+					$self->{_canvas}->pointer_grab($item, ['pointer-motion-mask', 'button-release-mask'], $cursor, $ev->time);
+				};
+				if ($@) {
+					# workaround for https://gitlab.gnome.org/GNOME/goocanvas/-/merge_requests/8
+					$self->{_canvas}->pointer_grab($item, ['pointer-motion-mask', 'button-release-mask'], Gtk3::Gdk::Cursor->new('left-ptr'), $ev->time);
+				}
 				$self->{_canvas}->grab_focus($item);
 
 				#create new item

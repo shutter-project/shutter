@@ -63,7 +63,7 @@ sub new {
 	$self->{_view}     = Gtk3::ImageView->new;
 	$self->{_selector} =  Gtk3::ImageView::Tool::Selector->new($self->{_view});
 	#$self->{_dragger}  = Gtk3::ImageView::Tool::Dragger->new($self->{_view});
-	#$self->{_view}->set_interpolation('tiles');
+	$self->{_view}->set_interpolation('nearest');
 	$self->{_view}->set_tool($self->{_selector});
 
 	#WORKAROUND
@@ -150,7 +150,7 @@ sub select_advanced {
 
 					my $text3 =
 						  $d->get("<b>shift/right-click</b> → selection dialog on/off") . "\n"
-						. $d->get("<b>ctrl + scrollwheel</b> → zoom in/out") . "\n"
+						. $d->get("<b>scrollwheel</b> → zoom in/out") . "\n"
 						. $d->get("<b>space</b> → zoom window on/off") . "\n"
 						. $d->get("<b>cursor keys</b> → move cursor") . "\n"
 						. $d->get("<b>cursor keys + alt</b> → move selection") . "\n"
@@ -257,6 +257,10 @@ sub select_advanced {
 		y      => 0,
 		pixbuf => $clean_pixbuf
 	);
+	eval {
+		# eval is workaround for https://gitlab.gnome.org/GNOME/goocanvas/-/merge_requests/9
+		$root_item->get('pattern')->set_filter('nearest');
+	};
 
 	#...and cursor icon
 	my $cursor_item = GooCanvas2::CanvasImage->new(
@@ -265,6 +269,10 @@ sub select_advanced {
 		y      => 0,
 		pixbuf => $shutter_cursor_pixbuf_frame,
 	);
+	eval {
+		# eval is workaround for https://gitlab.gnome.org/GNOME/goocanvas/-/merge_requests/9
+		$cursor_item->get('pattern')->set_filter('nearest');
+	};
 
 	#starting point
 	my ($window_at_pointer, $xinit, $yinit, $mask) = $self->{_root}->get_pointer;
@@ -328,16 +336,18 @@ sub select_advanced {
 	#ignore zoom values smaller 1
 	$self->{_view_zoom_handler} = $self->{_view}->signal_connect(
 		'zoom-changed' => sub {
-			if ($self->{_view}->get_zoom < 1) {
-				$self->{_view}->set_zoom(1);
-			} elsif ($self->{_view}->get_zoom > 10) {
-				$self->{_view}->set_zoom(10);
-			} elsif ($self->{_view}->get_zoom > 1) {
-				if ($self->{_zoom_active}) {
-					$self->{_zoom_window}->hide;
-				}
+			my ($view, $zoom) = @_;
+			if ($zoom >= 1) {
+				$view->set_interpolation('nearest');
+				$view->set_zoom(10) if $zoom > 10;
 			} else {
-				if ($self->{_zoom_active}) {
+				$view->set_interpolation('bilinear');
+				$view->set_zoom(1);
+			}
+			if ($self->{_zoom_active}) {
+				if ($zoom > 1) {
+					$self->{_zoom_window}->hide;
+				} else {
 					$self->{_zoom_window}->show_all;
 					$self->zoom_check_pos();
 				}
@@ -345,7 +355,7 @@ sub select_advanced {
 
 			#hide help text when zoomed
 			if ($self->{_selector_init_zoom} == 1) {
-				$self->{_view}->set_pixbuf($clean_pixbuf, FALSE);
+				$view->set_pixbuf($clean_pixbuf, FALSE);
 				$self->{_selector_init} = FALSE;
 			} else {
 				$self->{_selector_init_zoom}++;

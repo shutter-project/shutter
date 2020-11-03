@@ -4245,7 +4245,6 @@ sub STARTUP {
 
 			#Gtk2::ImageView - empty at first
 			$session_screens{$key}->{'image'} = Gtk3::ImageView->new();
-			#$session_screens{$key}->{'image'}->set_interpolation('tiles');
 			#$session_screens{$key}->{'image'}->set_show_frame(FALSE);
 			$session_screens{$key}->{'image'}->set_fitting(TRUE);
 			$session_screens{$key}->{'image'}->get_style_context->add_provider($css_provider_alpha, 0);
@@ -4284,7 +4283,7 @@ sub STARTUP {
 					}
 				});
 
-		$session_screens{$key}->{'image'}->signal_connect(
+			$session_screens{$key}->{'image'}->signal_connect(
 				'dnd-start',
 				sub {
 					my ($view, $x, $y, $button) = @_;
@@ -4298,6 +4297,17 @@ sub STARTUP {
 						$x, $y,
 					);
 					return TRUE;
+				}
+			);
+			$session_screens{$key}->{'image'}->signal_connect(
+				'zoom-changed',
+				sub {
+					my ($view, $zoom) = @_;
+					if ($zoom >= 1) {
+						$view->set_interpolation('nearest');
+					} else {
+						$view->set_interpolation('bilinear');
+					}
 				}
 			);
 
