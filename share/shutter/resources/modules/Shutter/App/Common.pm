@@ -180,6 +180,7 @@ sub set_globalsettings_object {
 	return $self->{_globalsettings};
 }
 
+# filename
 sub get_rusf {
 	my $self = shift;
 	return $self->{_rusf};
@@ -193,6 +194,7 @@ sub set_rusf {
 	return $self->{_rusf};
 }
 
+# uri
 sub get_ruof {
 	my $self = shift;
 	return $self->{_ruof};

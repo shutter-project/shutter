@@ -9556,7 +9556,7 @@ if ($app->is_running) {
 
 			#go to recently used folder
 			if (defined $sc->get_ruof && $shf->folder_exists($sc->get_ruof)) {
-				$fs->set_current_folder($sc->get_ruof);
+				$fs->set_current_folder_uri($sc->get_ruof);
 			} else {
 				if ($key) {
 					$fs->set_filename($session_screens{$key}->{'long'});
@@ -9570,7 +9570,7 @@ if ($app->is_running) {
 			my $fs_resp = $fs->run;
 
 			if ($fs_resp eq "accept") {
-				@new_files = $fs->get_filenames;
+				@new_files = $fs->get_uris;
 
 				#keep folder in mind
 				if ($new_files[0]) {
