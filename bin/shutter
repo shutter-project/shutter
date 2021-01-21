@@ -7991,7 +7991,7 @@ sub STARTUP {
 						{
 
 							#show dialog and progress bar
-							if (   !$upload_plugin_dialog->window
+							if (   !$upload_plugin_dialog->get_window
 								&& !$upload_plugin_dialog->{destroyed})
 							{
 								$upload_plugin_progress->show;
