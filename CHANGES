@@ -1,3 +1,18 @@
+shutter (0.95)
+
+* almost fully dropped the dependency on the outdated Perl Gnome2 library
+* updated translations
+
+* removed dependencies:
+
+    --  Arch: gnome-perl, gnome-vfs-perl
+    --  Debian: libgnome2-perl, libgnome2-vfs-perl
+
+* new dependencies:
+
+    --  Arch: perl-number-bytes-human, perl-glib-object-introspection
+    --  Debian: libnumber-bytes-human-perl, libglib-object-introspection-perl
+
 shutter (0.94.3)
 
 This is another bugfix release which ensures functionality with Perl 5.30. Bugs fixed:
