@@ -8,38 +8,36 @@ msgstr ""
 "Project-Id-Version: shutter\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2012-10-28 17:52+0100\n"
-"PO-Revision-Date: 2014-03-28 14:44+0000\n"
-"Last-Translator: rob <linuxned@gmail.com>\n"
+"PO-Revision-Date: 2021-02-12 17:54+0100\n"
+"Last-Translator: Heimen Stoffels <vistausss@outlook.com>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2020-06-08 09:52+0000\n"
-"X-Generator: Launchpad (build ef9fc486e875d54078fa61cf91e898b895125d89)\n"
+"X-Generator: Poedit 2.4.2\n"
+"Language: nl\n"
 
 #: translate_tmp:27
 msgid "Grayscale"
 msgstr "Grijstinten"
 
-#: translate_tmp:28
-#: translate_tmp:74
-#: translate_tmp:63
-#: translate_tmp:72
+#: translate_tmp:28 translate_tmp:74 translate_tmp:63 translate_tmp:72
 #: translate_tmp:64
 msgid "Effect"
 msgstr "Effect"
 
 #: translate_tmp:29
 msgid "Turn the image into a grayscale image (256 shades)"
-msgstr "Verander de afbeelding in een afbeelding in grijstinten (256 tinten)"
+msgstr "Verander de afbeelding in een afbeelding met grijstinten (256 tinten)"
 
 #: translate_tmp:27
 msgid "Offset"
-msgstr "Verplaatsing"
+msgstr "Compensatie"
 
 #: translate_tmp:29
 msgid "Give the picture an offset with itself as background"
-msgstr "Geef de afbeelding een verschuiving met zichzelf als achtergrond"
+msgstr "Geef de afbeelding een compensatie met zichzelf als achtergrond"
 
 #: translate_tmp:27
 msgid "Raise Border"
@@ -63,7 +61,7 @@ msgstr "Verzonken rand"
 
 #: translate_tmp:29
 msgid "Add an inverted 3d border to the image"
-msgstr "Voeg een omgekeerde 3D rand toe aan de afbeelding"
+msgstr "Voeg een omgekeerde 3D-rand toe aan de afbeelding"
 
 #: translate_tmp:27
 msgid "Torned Paper"
@@ -71,16 +69,15 @@ msgstr "Gescheurd papier"
 
 #: translate_tmp:29
 msgid "Add a torn-like border to the image"
-msgstr "Voeg een gescheurdlijkende rand aan de afbeelding toe"
+msgstr "Voeg een gescheurde rand toe aan de afbeelding"
 
 #: translate_tmp:27
 msgid "Autocrop"
 msgstr "Automatisch bijsnijden"
 
-#: translate_tmp:28
-#: translate_tmp:49
+#: translate_tmp:28 translate_tmp:49
 msgid "Tool"
-msgstr "Hulpmiddel"
+msgstr "Gereedschap"
 
 #: translate_tmp:29
 msgid "Remove empty borders from the image"
@@ -98,112 +95,86 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
 msgstr ""
-"Voegt een vervagende reflectie onder aan de afbeelding toe en plaatst deze "
-"in perspectief\n"
+"Voegt een vervagende reflectie onderaan de afbeelding toe en plaatst deze in "
+"perspectief\n"
 "\n"
-"Gebaseerd op een script door Fred Weinhaus\n"
+"Gebaseerd op een script van Fred Weinhaus\n"
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Dreflection/index.php"
 
-#: translate_tmp:104
-#: translate_tmp:133
-#: translate_tmp:127
+#: translate_tmp:104 translate_tmp:133 translate_tmp:127
 msgid "Rotation:"
-msgstr "Rotatie:"
+msgstr "Draaien:"
 
-#: translate_tmp:111
-#: translate_tmp:118
+#: translate_tmp:111 translate_tmp:118
 msgid "Perseptive rotation around left edge of image"
-msgstr "Perspectiefrotatie om linkerkant van het beeld"
+msgstr "Perspectiefdraaiing om linkerkant van het beeld"
 
 #: translate_tmp:122
 msgid "Fade:"
-msgstr "Vervaging:"
+msgstr "Vervagen:"
 
-#: translate_tmp:129
-#: translate_tmp:136
+#: translate_tmp:129 translate_tmp:136
 msgid "Fade percent for mirror image"
-msgstr "Vervagingspercentage voor afspiegeling"
+msgstr "Vervagingspercentage voor gespiegelde afbeelding"
 
 #: translate_tmp:140
 msgid "Opacity:"
-msgstr "Ondoorschijnendheid:"
+msgstr "Ondoorzichtigheid:"
 
-#: translate_tmp:147
-#: translate_tmp:154
+#: translate_tmp:147 translate_tmp:154
 msgid "Opacity percent applied to whole mirror image"
-msgstr "Percentage ondoorschijnendheid toegepast op hele spiegelafbeelding"
+msgstr ""
+"Percentage ondoorzichtigheid toegepast op gehele gespiegelde afbeelding"
 
 #: translate_tmp:158
 msgid "Pef:"
 msgstr "Pef:"
 
-#: translate_tmp:165
-#: translate_tmp:172
+#: translate_tmp:165 translate_tmp:172
 msgid "Perspective exaggeration factor"
-msgstr "Perspectief overdrijvingsfactor"
+msgstr "Perspectief-overdrijvingsfactor"
 
 #: translate_tmp:176
 msgid "Gap:"
-msgstr "Tussenruimte"
+msgstr "Ruimte:"
 
-#: translate_tmp:183
-#: translate_tmp:190
+#: translate_tmp:183 translate_tmp:190
 msgid "Gap between image and mirror in pixels"
-msgstr "Ruimte tussen afbeelding en afspiegeling in pixels"
+msgstr "Ruimte tussen de afbeelding en gespiegelde afbeelding (in pixels)"
 
-#: translate_tmp:194
-#: translate_tmp:176
+#: translate_tmp:194 translate_tmp:176
 msgid "Zoom:"
-msgstr "Zoom:"
+msgstr "Zoomniveau:"
 
-#: translate_tmp:201
-#: translate_tmp:208
+#: translate_tmp:201 translate_tmp:208
 msgid "Zoom factor for output image"
-msgstr "Zoomfactor voor resulterende afbeelding"
+msgstr "Zoomniveau van resulterende afbeelding"
 
-#: translate_tmp:212
-#: translate_tmp:236
-#: translate_tmp:165
-#: translate_tmp:194
+#: translate_tmp:212 translate_tmp:236 translate_tmp:165 translate_tmp:194
 msgid "Background color"
 msgstr "Achtergrondkleur"
 
-#: translate_tmp:217
-#: translate_tmp:241
-#: translate_tmp:170
-#: translate_tmp:199
+#: translate_tmp:217 translate_tmp:241 translate_tmp:170 translate_tmp:199
 msgid "Choose background color"
-msgstr "Kies achtergrondkleur"
+msgstr "Kies een achtergrondkleur"
 
-#: translate_tmp:423
-#: translate_tmp:459
-#: translate_tmp:363
-#: translate_tmp:399
-#: translate_tmp:259
-#: translate_tmp:328
-#: translate_tmp:257
-#: translate_tmp:314
+#: translate_tmp:423 translate_tmp:459 translate_tmp:363 translate_tmp:399
+#: translate_tmp:259 translate_tmp:328 translate_tmp:257 translate_tmp:314
 #: translate_tmp:315
 #, perl-format
 msgid "Error while executing plugin %s."
-msgstr "Fout bij het uitvoeren van plug-in %s."
+msgstr "De plug-in, %s, kan niet worden uitgevoerd."
 
-#: translate_tmp:424
-#: translate_tmp:460
-#: translate_tmp:364
-#: translate_tmp:400
-#: translate_tmp:260
-#: translate_tmp:329
-#: translate_tmp:258
-#: translate_tmp:315
+#: translate_tmp:424 translate_tmp:460 translate_tmp:364 translate_tmp:400
+#: translate_tmp:260 translate_tmp:329 translate_tmp:258 translate_tmp:315
 #: translate_tmp:316
 msgid "There was an error executing the plugin."
 msgstr "Er is een fout opgetreden bij het uitvoeren van de plug-in."
 
 #: translate_tmp:73
 msgid "3D rotate"
-msgstr "3D roteren"
+msgstr "3D-draaien"
 
 #: translate_tmp:75
 msgid ""
@@ -213,41 +184,34 @@ msgid ""
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 msgstr ""
-"Past een perspectieve afwijking toe op de afbeelding\n"
+"Past een perspectiefafwijking toe op de afbeelding\n"
 "\n"
-"Gebaseerd op een script door Fred Weinhaus\n"
+"Gebaseerd op een script van Fred Weinhaus\n"
 "\n"
 "http://www.fmwconcepts.com/imagemagick/3Drotate/index.php"
 
-#: translate_tmp:111
-#: translate_tmp:118
+#: translate_tmp:111 translate_tmp:118
 msgid "Rotation around image vertical centerline"
-msgstr "Rotatie rond de verticale centrale as van de afbeelding"
+msgstr "Draaiing rond de verticale centrale as van de afbeelding"
 
-#: translate_tmp:129
-#: translate_tmp:136
+#: translate_tmp:129 translate_tmp:136
 msgid "Rotation around image horizontal centerline"
-msgstr "Rotatie rond de horizontale centrale as van de afbeelding"
+msgstr "Draaiing rond de horizontale centrale as van de afbeelding"
 
-#: translate_tmp:147
-#: translate_tmp:154
+#: translate_tmp:147 translate_tmp:154
 msgid "Rotation around the image center"
-msgstr "Rotatie rond het centraal punt van de afbeelding"
+msgstr "Draaiing rond de centrale as van de afbeelding"
 
-#: translate_tmp:183
-#: translate_tmp:190
+#: translate_tmp:183 translate_tmp:190
 msgid ""
 "Output zoom factor; where value > 1 means zoom in and < 1 means zoom out"
-msgstr ""
-"Resulterende zoomfactor; waar waarde > 1 inzoomen en een waarde < 1 "
-"uitzoomen betekent"
+msgstr "Resulterend zoomniveau (waarde > 1 = inzoomen; waarde < 1 = uitzoomen)"
 
 #: translate_tmp:204
 msgid "Auto:"
 msgstr "Automatisch:"
 
-#: translate_tmp:226
-#: translate_tmp:233
+#: translate_tmp:226 translate_tmp:233
 msgid ""
 "off - No automatic adjustment\n"
 "\n"
@@ -263,8 +227,8 @@ msgstr ""
 "\n"
 "zc - Zoom om omvattend kader te vullen en te centreren in uitvoer\n"
 "\n"
-"out - Creëert een uitvoerafbeelding met een omvang benodigd om de afbeelding "
-"te bevatten"
+"out - Stelt een uitvoerafbeelding met een omvang benodigd om de afbeelding "
+"te bevatten samen"
 
 #: translate_tmp:243
 msgid "Sky color"
@@ -272,7 +236,7 @@ msgstr "Luchtkleur"
 
 #: translate_tmp:248
 msgid "Choose sky color"
-msgstr "Kies luchtkleur"
+msgstr "Kies een luchtkleur"
 
 #: translate_tmp:62
 msgid "Barrel Distortion"
@@ -280,7 +244,7 @@ msgstr "Tunnelvervorming"
 
 #: translate_tmp:64
 msgid "Apply a distortion effect to your screenshot"
-msgstr "Pas een vervormingseffect toe op uw schermafdruk"
+msgstr "Pas een vervormingseffect toe op uw schermfoto"
 
 #: translate_tmp:93
 msgid "A:"
@@ -298,14 +262,8 @@ msgstr "C:"
 msgid "D:"
 msgstr "D:"
 
-#: translate_tmp:112
-#: translate_tmp:119
-#: translate_tmp:126
-#: translate_tmp:133
-#: translate_tmp:140
-#: translate_tmp:147
-#: translate_tmp:154
-#: translate_tmp:161
+#: translate_tmp:112 translate_tmp:119 translate_tmp:126 translate_tmp:133
+#: translate_tmp:140 translate_tmp:147 translate_tmp:154 translate_tmp:161
 msgid ""
 "The parameter d describes the linear scaling of the image. Using d=1, and "
 "a=b=c=0 leaves the image as it is. Choosing other d-values scales the image "
@@ -315,11 +273,11 @@ msgid ""
 "Defined by Barrel Correction Distortion, by Helmut Dersch.\n"
 "http://www.all-in-one.ee/~dersch/barrel/barrel.html"
 msgstr ""
-"De parameter d beschrijft een lineaire schaling van de afbeelding. "
-"Gebruikmakend van d=1, en a=b=c=0 blijft de afbeelding zoals ze is. Een "
-"andere d-waarde schaalt de afbeelding met die hoeveelheid. a,b en c "
-"vervormen de afbeelding. Gebruik van negatieve waarden verplaatst het "
-"afstandspunt weg van het midden.\n"
+"De aanvullende optie 'd' beschrijft een lineaire schaling van de afbeelding. "
+"Bij d=1 en a=b=c=0 blijft de afbeelding zoals deze is. Een andere d-waarde "
+"schaalt de afbeelding met die hoeveelheid. a,b en c vervormen de afbeelding. "
+"Gebruik van negatieve waarden verplaatst het afstandspunt weg van het "
+"midden.\n"
 "\n"
 "Gedefinieerd door Barrel Correction Distortion, door Helmut Dersch.\n"
 "http://www.all-in-one.ee/~dersch/barrel/barrel.html"
@@ -338,7 +296,7 @@ msgid ""
 msgstr ""
 "Maak verschillende dispersie-achtige effecten in de rand van een afbeelding\n"
 "\n"
-"Gebaseerd op een script door Fred Weinhaus\n"
+"Gebaseerd op een script van Fred Weinhaus\n"
 "\n"
 "http://www.fmwconcepts.com/imagemagick/bordereffects/index.php"
 
@@ -346,8 +304,7 @@ msgstr ""
 msgid "Size:"
 msgstr "Grootte:"
 
-#: translate_tmp:111
-#: translate_tmp:118
+#: translate_tmp:111 translate_tmp:118
 msgid "The size or dimension of the border region"
 msgstr "De grootte of dimensie van het randgebied"
 
@@ -355,39 +312,35 @@ msgstr "De grootte of dimensie van het randgebied"
 msgid "Density:"
 msgstr "Dichtheid:"
 
-#: translate_tmp:129
-#: translate_tmp:136
+#: translate_tmp:129 translate_tmp:136
 msgid "The frequency of detail in the border"
 msgstr "De detailfrequentie in de rand"
 
 #: translate_tmp:140
 msgid "Curviness:"
-msgstr "Krommingsmate:"
+msgstr "Kromming:"
 
-#: translate_tmp:147
-#: translate_tmp:154
+#: translate_tmp:147 translate_tmp:154
 msgid "The curviness in the border features"
-msgstr "De krommingsmate in de randeigenschappen"
+msgstr "De hoeveelheid kromming in de randeigenschappen"
 
 #: translate_tmp:158
 msgid "Granularity:"
-msgstr "Korrelgrootte"
+msgstr "Korrelgrootte:"
 
-#: translate_tmp:165
-#: translate_tmp:172
+#: translate_tmp:165 translate_tmp:172
 msgid ""
 "The base grain size or pixelization size used to create the detail in the "
 "border"
 msgstr ""
 "De basiskorrelgrootte of afmeting van grove pixels, gebruikt om de "
-"detaillering in de rand te creëren"
+"detaillering in de rand te maken"
 
 #: translate_tmp:176
 msgid "Pad:"
 msgstr "Opvullen:"
 
-#: translate_tmp:183
-#: translate_tmp:190
+#: translate_tmp:183 translate_tmp:190
 msgid "The pad size of constant color around the perimeter of the border"
 msgstr ""
 "De opvullingsafmeting, bestaande uit constante kleur, rondom de buitenrand"
@@ -398,7 +351,7 @@ msgstr "Negatief"
 
 #: translate_tmp:64
 msgid "Invert the colors of the image"
-msgstr "Inverteer de kleuren van de afbeeldingen"
+msgstr "Draai de kleuren van de afbeelding om"
 
 #: translate_tmp:101
 msgid "Channel"
@@ -413,17 +366,14 @@ msgid ""
 "Make your screenshot look like a polaroid photo, add a caption, and even "
 "rotate it a little"
 msgstr ""
-"Laat je schermafdruk er uit zien als een polaroidfoto, voeg een onderschrift "
-"toe en roteer het zelfs een beetje"
+"Laat uw schermfoto eruitzien als een polaroidfoto, voeg een onderschrift toe "
+"en draai het zelfs een beetje"
 
-#: translate_tmp:99
-#: translate_tmp:93
+#: translate_tmp:99 translate_tmp:93
 msgid "Text:"
 msgstr "Tekst:"
 
-#: translate_tmp:106
-#: translate_tmp:112
-#: translate_tmp:100
+#: translate_tmp:106 translate_tmp:112 translate_tmp:100
 msgid ""
 "There are several wild-cards available, like\n"
 "%Y = year\n"
@@ -431,39 +381,35 @@ msgid ""
 "%d = day\n"
 "%T = time"
 msgstr ""
-"Er zijn verschillende jokers beschikbaar, zoals:\n"
+"Er zijn verschillende jokertekens beschikbaar, zoals:\n"
 "%Y = jaar\n"
 "%m = maand\n"
 "%d = dag\n"
 "%T = tijd"
 
-#: translate_tmp:116
-#: translate_tmp:110
+#: translate_tmp:116 translate_tmp:110
 msgid "Font size:"
 msgstr "Lettergrootte:"
 
-#: translate_tmp:120
-#: translate_tmp:114
+#: translate_tmp:120 translate_tmp:114
 msgid "Gravity:"
-msgstr "Gravitatie:"
+msgstr "Zwaarte:"
 
-#: translate_tmp:137
-#: translate_tmp:131
+#: translate_tmp:137 translate_tmp:131
 msgid "Stroke color"
 msgstr "Lijnkleur"
 
-#: translate_tmp:142
-#: translate_tmp:136
+#: translate_tmp:142 translate_tmp:136
 msgid "Choose stroke color"
-msgstr "Kies lijnkleur"
+msgstr "Kies een lijnkleur"
 
 #: translate_tmp:45
 msgid "Resize"
-msgstr "Verander formaat"
+msgstr "Formaat aanpassen"
 
 #: translate_tmp:53
 msgid "Resize your screenshot"
-msgstr "Verander het formaat van uw schermafdruk"
+msgstr "Verander het formaat van uw schermfoto"
 
 #: translate_tmp:71
 msgid "Sepia"
@@ -471,11 +417,11 @@ msgstr "Sepia"
 
 #: translate_tmp:73
 msgid "Add sepia color toning to the image"
-msgstr "Voeg sepia kleurtonen toe aan de afbeelding"
+msgstr "Voeg sepia-kleurtonen toe aan de afbeelding"
 
 #: translate_tmp:110
 msgid "Sepia tone"
-msgstr "Sepia kleurtoon"
+msgstr "Sepia-kleurtoon"
 
 #: translate_tmp:63
 msgid "Hard Shadow"
@@ -483,15 +429,13 @@ msgstr "Harde schaduw"
 
 #: translate_tmp:65
 msgid "Add a shadow to the image on a transparent background"
-msgstr ""
-"Voeg een schaduw toe aan de afbeelding op een transparante achtergrond"
+msgstr "Voeg een schaduw toe aan de afbeelding op een doorzichtige achtergrond"
 
 #: translate_tmp:94
 msgid "Direction"
 msgstr "Richting"
 
-#: translate_tmp:110
-#: translate_tmp:117
+#: translate_tmp:110 translate_tmp:117
 msgid "The direction of the shadow"
 msgstr "De richting van de schaduw"
 
@@ -501,10 +445,9 @@ msgstr "Kleur"
 
 #: translate_tmp:126
 msgid "Choose color"
-msgstr "Kies kleur"
+msgstr "Kies een kleur"
 
-#: translate_tmp:131
-#: translate_tmp:138
+#: translate_tmp:131 translate_tmp:138
 msgid "The color of the shadow"
 msgstr "De schaduwkleur"
 
@@ -514,4 +457,4 @@ msgstr "Watermerk"
 
 #: translate_tmp:64
 msgid "Add a custom text watermark to your screenshot"
-msgstr "Voeg een aangepaste tekstwatermerk toe aan uw schermafdruk"
+msgstr "Voeg een aangepast watermerk toe aan uw schermfoto"
