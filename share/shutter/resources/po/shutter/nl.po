@@ -6,48 +6,42 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gscrot\n"
-"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-12-18 16:48+0100\n"
-"PO-Revision-Date: 2015-04-24 16:35+0000\n"
-"Last-Translator: Pieter Van den Berghe <Unknown>\n"
+"PO-Revision-Date: 2021-02-12 15:06+0100\n"
+"Last-Translator: Heimen Stoffels <vistausss@outlook.com>\n"
 "Language-Team: Dutch <nl@li.org>\n"
+"Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Launchpad-Export-Date: 2020-06-08 09:52+0000\n"
-"X-Generator: Launchpad (build ef9fc486e875d54078fa61cf91e898b895125d89)\n"
+"X-Generator: Poedit 2.4.2\n"
 
-#: translate_tmp.pl:476
-#: translate_tmp.pl:2590
-#: translate_tmp.pl:7396
+#: translate_tmp.pl:476 translate_tmp.pl:2590 translate_tmp.pl:7396
 msgid "Profile"
 msgstr "Profiel"
 
-#: translate_tmp.pl:483
-#: translate_tmp.pl:4122
+#: translate_tmp.pl:483 translate_tmp.pl:4122
 msgid "Preferences"
 msgstr "Voorkeuren"
 
-#: translate_tmp.pl:873
-#: translate_tmp.pl:874
+#: translate_tmp.pl:873 translate_tmp.pl:874
 msgid "gnome-web-photo needs to be installed for this feature"
-msgstr ""
-"gnome-web-photo dient geïnstalleerd te zijn voor deze functionaliteit"
+msgstr "Installeer gnome-web-photo om deze functie te gebruiken"
 
 #: translate_tmp.pl:883
 msgid "Goo::Canvas/libgoo-canvas-perl needs to be installed for this feature"
-msgstr ""
-"Goo::Canvas/libgoo-canvas-perl dient geïnstalleerd te zijn voor deze "
-"functionaliteit"
+msgstr "Installeer Goo::Canvas/libgoo-canvas-perl om deze functie te gebruiken"
 
 #: translate_tmp.pl:916
 msgid "Choose a profile"
-msgstr "Selecteer een profiel"
+msgstr "Kies een profiel"
 
 #: translate_tmp.pl:932
 msgid "Save configuration as profile"
-msgstr "Configuratie opslaan als profiel"
+msgstr "Instellingen opslaan als profiel"
 
 #: translate_tmp.pl:942
 msgid "Delete profile"
@@ -55,11 +49,9 @@ msgstr "Profiel verwijderen"
 
 #: translate_tmp.pl:951
 msgid "Load the selected profile's configuration"
-msgstr "Configuratie van geselecteerd profiel laden"
+msgstr "Laad de instellingen van het geselecteerde profiel"
 
-#: translate_tmp.pl:958
-#: translate_tmp.pl:1231
-#: translate_tmp.pl:9907
+#: translate_tmp.pl:958 translate_tmp.pl:1231 translate_tmp.pl:9907
 #: translate_tmp.pl:1513
 msgid "Image format"
 msgstr "Afbeeldingsformaat"
@@ -78,7 +70,7 @@ msgstr "Venstervoorkeuren"
 
 #: translate_tmp.pl:986
 msgid "Notifications"
-msgstr "Notificaties"
+msgstr "Meldingen"
 
 #: translate_tmp.pl:993
 msgid "Trash"
@@ -86,32 +78,31 @@ msgstr "Prullenbak"
 
 #: translate_tmp.pl:1000
 msgid "Gnome-Keybinding"
-msgstr "Gnome-toetsenbinding"
+msgstr "Gnome-sneltoetsen"
 
-#: translate_tmp.pl:1007
-#: translate_tmp.pl:2383
+#: translate_tmp.pl:1007 translate_tmp.pl:2383
 msgid "Actions"
-msgstr "Handelingen"
+msgstr "Acties"
 
 #: translate_tmp.pl:1014
 msgid "Capture"
-msgstr "Opname"
+msgstr "Schermfoto"
 
 #: translate_tmp.pl:1021
 msgid "Selection Capture"
-msgstr "Selectieopname"
+msgstr "Selectiefoto"
 
 #: translate_tmp.pl:1028
 msgid "Window Capture"
-msgstr "Vensteropname"
+msgstr "Vensterfoto"
 
 #: translate_tmp.pl:1035
 msgid "Menu/Tooltip Capture"
-msgstr "Menu/tekstballon-opname"
+msgstr "Menu-/Hulpballonfoto"
 
 #: translate_tmp.pl:1042
 msgid "Website Capture"
-msgstr "Websiteopname"
+msgstr "Websitefoto"
 
 #: translate_tmp.pl:1049
 msgid "Accounts"
@@ -123,24 +114,20 @@ msgstr "FTP (bestandsoverdrachtprotocol)"
 
 #: translate_tmp.pl:1063
 msgid "Transparent Parts"
-msgstr "Transparante delen"
+msgstr "Doorzichtige delen"
 
 #: translate_tmp.pl:1070
 msgid "Session View"
 msgstr "Sessieweergave"
 
-#: translate_tmp.pl:1078
-#: translate_tmp.pl:1953
-#: translate_tmp.pl:1957
+#: translate_tmp.pl:1078 translate_tmp.pl:1953 translate_tmp.pl:1957
 msgid "Filename"
 msgstr "Bestandsnaam"
 
-#: translate_tmp.pl:1105
-#: translate_tmp.pl:9535
-#: translate_tmp.pl:11326
+#: translate_tmp.pl:1105 translate_tmp.pl:9535 translate_tmp.pl:11326
 #, perl-format
 msgid "Reserved character %s is not allowed to be in a filename."
-msgstr "Het gereserveerde teken %s is niet toegestaan in een bestandsnaam."
+msgstr "Het gereserveerde teken '%s' is niet toegestaan in een bestandsnaam."
 
 #: translate_tmp.pl:1120
 msgid "There are several wildcards available, like\n"
@@ -173,12 +160,13 @@ msgstr "$h = hoogte\n"
 
 #: translate_tmp.pl:1120
 msgid "$name = multi-purpose (e.g. window title)\n"
-msgstr "$name = multifunctioneel (bv. venstertitel)\n"
+msgstr "$name = multifunctioneel (bijv. venstertitel)\n"
 
 #: translate_tmp.pl:1120
 msgid "$nb_name = like $name but without blanks in resulting strings\n"
 msgstr ""
-"$nb_name = net als $name maar zonder blanco's in resulterende strings\n"
+"$nb_name = net als $name, maar zonder witruimten in resulterende "
+"tekenreeksen\n"
 
 #: translate_tmp.pl:1120
 msgid "$profile = name of current profile\n"
@@ -192,18 +180,15 @@ msgstr "$R = willekeurig teken (bijv. $RRRR = ag4r)\n"
 msgid "%NN = counter"
 msgstr "%NN = teller"
 
-#: translate_tmp.pl:1134
-#: translate_tmp.pl:2981
+#: translate_tmp.pl:1134 translate_tmp.pl:2981
 msgid "Compression"
 msgstr "Compressie"
 
-#: translate_tmp.pl:1143
-#: translate_tmp.pl:1144
+#: translate_tmp.pl:1143 translate_tmp.pl:1144
 msgid "Adjust quality/compression value"
-msgstr "Pas kwaliteit/compressiewaarde aan"
+msgstr "Kwaliteit/Compressiewaarde aanpassen"
 
-#: translate_tmp.pl:1232
-#: translate_tmp.pl:1233
+#: translate_tmp.pl:1232 translate_tmp.pl:1233
 msgid "Select a file format"
 msgstr "Kies een bestandsformaat"
 
@@ -211,59 +196,45 @@ msgstr "Kies een bestandsformaat"
 msgid "Directory"
 msgstr "Map"
 
-#: translate_tmp.pl:1243
-#: translate_tmp.pl:10477
-#: translate_tmp.pl:10479
-#: translate_tmp.pl:10497
-#: translate_tmp.pl:10498
+#: translate_tmp.pl:1243 translate_tmp.pl:10477 translate_tmp.pl:10479
+#: translate_tmp.pl:10497 translate_tmp.pl:10498
 msgid "Choose folder"
 msgstr "Kies een map"
 
-#: translate_tmp.pl:1251
-#: translate_tmp.pl:1252
+#: translate_tmp.pl:1251 translate_tmp.pl:1252
 msgid "Your screenshots will be saved to this directory"
-msgstr "Uw schermafdrukken worden in deze map opgeslagen"
+msgstr "Uw schermfoto's worden in deze map opgeslagen"
 
-#: translate_tmp.pl:1261
-#: translate_tmp.pl:1264
+#: translate_tmp.pl:1261 translate_tmp.pl:1264
 msgid "Browse for save folder every time"
-msgstr "Elke keer naar bewaarmap bladeren"
+msgstr "Map kiezen na maken van schermfoto"
 
-#: translate_tmp.pl:1266
-#: translate_tmp.pl:1269
+#: translate_tmp.pl:1266 translate_tmp.pl:1269
 msgid "Do not save file automatically"
 msgstr "Bestand niet automatisch opslaan"
 
-#: translate_tmp.pl:1271
-#: translate_tmp.pl:1274
+#: translate_tmp.pl:1271 translate_tmp.pl:1274
 msgid "Automatically save file"
 msgstr "Bestand automatisch opslaan"
 
-#: translate_tmp.pl:1298
-#: translate_tmp.pl:1308
+#: translate_tmp.pl:1298 translate_tmp.pl:1308
 msgid "Automatically copy screenshot to clipboard"
-msgstr "Schermafdruk automatisch naar het klembord kopiëren"
+msgstr "Schermfoto automatisch kopiëren naar klembord"
 
-#: translate_tmp.pl:1315
-#: translate_tmp.pl:1325
+#: translate_tmp.pl:1315 translate_tmp.pl:1325
 msgid "Automatically copy filename to clipboard"
 msgstr "Bestandsnaam automatisch naar het klembord kopiëren"
 
-#: translate_tmp.pl:1332
-#: translate_tmp.pl:1342
+#: translate_tmp.pl:1332 translate_tmp.pl:1342
 msgid "Do not copy anything to clipboard"
-msgstr "Niets naar het klembord kopiëren"
+msgstr "Niets kopiëren naar het klembord"
 
 #: translate_tmp.pl:1351
 msgid "Delay"
 msgstr "Wachttijd"
 
-#: translate_tmp.pl:1353
-#: translate_tmp.pl:1362
-#: translate_tmp.pl:1815
-#: translate_tmp.pl:2892
-#: translate_tmp.pl:2898
-#: translate_tmp.pl:2903
+#: translate_tmp.pl:1353 translate_tmp.pl:1362 translate_tmp.pl:1815
+#: translate_tmp.pl:2892 translate_tmp.pl:2898 translate_tmp.pl:2903
 msgid "second"
 msgid_plural "seconds"
 msgstr[0] "seconde"
@@ -271,36 +242,28 @@ msgstr[1] "seconden"
 
 #: translate_tmp.pl:1360
 msgid "Capture after a delay of"
-msgstr "Maak opname na een wachttijd van"
+msgstr "Schermfoto maken na een wachttijd van"
 
-#: translate_tmp.pl:1375
-#: translate_tmp.pl:1376
-#: translate_tmp.pl:1377
-#: translate_tmp.pl:1379
-#: translate_tmp.pl:1380
-#: translate_tmp.pl:1381
+#: translate_tmp.pl:1375 translate_tmp.pl:1376 translate_tmp.pl:1377
+#: translate_tmp.pl:1379 translate_tmp.pl:1380 translate_tmp.pl:1381
 msgid "Wait n seconds before taking a screenshot"
-msgstr "Wacht n seconden vóór maken van schermafdruk"
+msgstr "Wacht x seconden vóór het maken van een schermfoto"
 
 #: translate_tmp.pl:1392
 msgid "Include Cursor"
-msgstr "Muisaanwijzer toevoegen"
+msgstr "Cursor vastleggen"
 
-#: translate_tmp.pl:1393
-#: translate_tmp.pl:1399
-#: translate_tmp.pl:1400
+#: translate_tmp.pl:1393 translate_tmp.pl:1399 translate_tmp.pl:1400
 msgid "Include cursor when taking a screenshot"
-msgstr "Muisaanwijzer toevoegen aan de schermafdruk"
+msgstr "Toon de cursor op de schermfoto"
 
 #: translate_tmp.pl:1458
 msgid "Open with"
 msgstr "Openen met"
 
-#: translate_tmp.pl:1459
-#: translate_tmp.pl:1460
-#: translate_tmp.pl:1461
+#: translate_tmp.pl:1459 translate_tmp.pl:1460 translate_tmp.pl:1461
 msgid "Open your screenshot with this program after capturing"
-msgstr "Open uw schermafdruk na het maken met dit programma"
+msgstr "Open uw schermfoto na het maken met dit programma"
 
 #: translate_tmp.pl:1472
 msgid "16 colors   - (4bit) "
@@ -318,38 +281,29 @@ msgstr "256 kleuren - (8bit) "
 msgid "Reduce colors"
 msgstr "Aantal kleuren verminderen"
 
-#: translate_tmp.pl:1502
-#: translate_tmp.pl:1503
-#: translate_tmp.pl:1504
+#: translate_tmp.pl:1502 translate_tmp.pl:1503 translate_tmp.pl:1504
 msgid "Automatically reduce colors after taking a screenshot"
 msgstr ""
-"Vermindert het aantal kleuren automatisch na het maken van een schermafdruk"
+"Vermindert het aantal kleuren automatisch na het maken van een schermfoto"
 
 #: translate_tmp.pl:1514
 msgid "Thumbnail"
-msgstr "Miniatuurafbeelding"
+msgstr "Miniatuur"
 
-#: translate_tmp.pl:1541
-#: translate_tmp.pl:1542
-#: translate_tmp.pl:1543
+#: translate_tmp.pl:1541 translate_tmp.pl:1542 translate_tmp.pl:1543
 msgid ""
 "Generate thumbnail too.\n"
 "select the percentage of the original size for the thumbnail to be"
 msgstr ""
-"Genereer tevens een miniatuurafbeelding.\n"
-"kies het percentage van het origineel voor de afmeting van de "
-"miniatuurafbeelding"
+"Maak tevens een miniatuurvoorbeeld.\n"
+"Kies het percentage van het origineel voor de afmeting van de miniatuur."
 
 #: translate_tmp.pl:1556
 msgid "Border"
 msgstr "Rand"
 
-#: translate_tmp.pl:1558
-#: translate_tmp.pl:1641
-#: translate_tmp.pl:1642
-#: translate_tmp.pl:1737
-#: translate_tmp.pl:1871
-#: translate_tmp.pl:7233
+#: translate_tmp.pl:1558 translate_tmp.pl:1641 translate_tmp.pl:1642
+#: translate_tmp.pl:1737 translate_tmp.pl:1871 translate_tmp.pl:7233
 msgid "pixels"
 msgstr "pixels"
 
@@ -357,78 +311,63 @@ msgstr "pixels"
 msgid "Color"
 msgstr "Kleur"
 
-#: translate_tmp.pl:1563
-#: translate_tmp.pl:1569
-#: translate_tmp.pl:1570
+#: translate_tmp.pl:1563 translate_tmp.pl:1569 translate_tmp.pl:1570
 msgid "Choose border color"
-msgstr "Kies randkleur"
+msgstr "Kies een randkleur"
 
-#: translate_tmp.pl:1565
-#: translate_tmp.pl:1566
-#: translate_tmp.pl:1567
+#: translate_tmp.pl:1565 translate_tmp.pl:1566 translate_tmp.pl:1567
 msgid "Adds a border effect to the screenshot"
-msgstr "Voegt een randeffect toe aan de schermafdruk"
+msgstr "Voegt een randeffect toe aan de schermfoto"
 
-#: translate_tmp.pl:1615
-#: translate_tmp.pl:1624
+#: translate_tmp.pl:1615 translate_tmp.pl:1624
 msgid "Enable zoom window"
-msgstr "Venster zoomen inschakelen"
+msgstr "Vensterzoom gebruiken"
 
 #: translate_tmp.pl:1633
 msgid "Start with selection size of"
-msgstr "Begin met selectiegrootte van"
+msgstr "Beginnen met selectiegrootte van"
 
 #: translate_tmp.pl:1635
 msgid "at"
 msgstr "tot"
 
-#: translate_tmp.pl:1669
-#: translate_tmp.pl:1670
-#: translate_tmp.pl:1671
-#: translate_tmp.pl:1672
-#: translate_tmp.pl:1673
-#: translate_tmp.pl:1674
-#: translate_tmp.pl:1675
-#: translate_tmp.pl:1676
-#: translate_tmp.pl:1677
+#: translate_tmp.pl:1669 translate_tmp.pl:1670 translate_tmp.pl:1671
+#: translate_tmp.pl:1672 translate_tmp.pl:1673 translate_tmp.pl:1674
+#: translate_tmp.pl:1675 translate_tmp.pl:1676 translate_tmp.pl:1677
 #: translate_tmp.pl:1678
 msgid "Start Selection Tool with a customized selection size"
 msgstr "Selectie met aangepaste grootte beginnen"
 
 #: translate_tmp.pl:1696
 msgid "Show help text"
-msgstr "Helptekst tonen"
+msgstr "Uitleg tonen"
 
 #: translate_tmp.pl:1705
 msgid "Enables the help text"
-msgstr "Schakelt de helptekst in"
+msgstr "Schakelt de hulptekst in"
 
-#: translate_tmp.pl:1714
-#: translate_tmp.pl:1715
+#: translate_tmp.pl:1714 translate_tmp.pl:1715
 msgid "Include window decoration when capturing a window"
-msgstr "Vensterdecoratie meenemen bij het maken van een vensteropname"
+msgstr "Vensterdecoratie tonen schermfoto op van venster"
 
 #: translate_tmp.pl:1733
 msgid "Automatically resize window to"
 msgstr "Venstergrootte automatisch aanpassen naar"
 
-#: translate_tmp.pl:1760
-#: translate_tmp.pl:1761
-#: translate_tmp.pl:1762
-#: translate_tmp.pl:1763
-#: translate_tmp.pl:1764
+#: translate_tmp.pl:1760 translate_tmp.pl:1761 translate_tmp.pl:1762
+#: translate_tmp.pl:1763 translate_tmp.pl:1764
 msgid ""
 "This resizes the window automatically to the specified width and height. "
 "This method asks the window manager to resize the window. However, the "
 "window manager may not allow the resize."
 msgstr ""
-"Dit zal de schermgrootte aanpassen naar de aangegeven breedte en hoogte. "
-"Deze methode zal het vensterbeheer vragen om de schermgrootte aan te passen, "
-"het is echter wel mogelijk dat het vensterbeheer dit niet toestaat."
+"Hiermee wordt de schermgrootte aangepast naar de opgegeven breedte en "
+"hoogte. Deze methode vraagt het vensterbeheer om de schermgrootte aan te "
+"passen, maar het is mogelijk dat het vensterbeheer dit niet toestaat."
 
 #: translate_tmp.pl:1777
 msgid "Force rounded window corners"
-msgstr "Ronde vensterhoeken forceren"
+msgstr "Ronde vensterhoeken afdwingen"
 
 #: translate_tmp.pl:1786
 #, perl-format
@@ -441,29 +380,26 @@ msgid ""
 "named ~/.shutter/shape.conf and put custom values in it. The default values "
 "are stored in %s."
 msgstr ""
-"Shutter gebruikt de XShape-extensie om de schermvorm te achterhalen, maar "
-"onder bepaalde omstandigheden werkt dit niet, b.v. wanneer compiz draait.\n"
+"Shutter gebruikt de XShape-uitbreiding om de schermvorm te achterhalen, maar "
+"onder bepaalde omstandigheden werkt dit niet, bijv. als Compiz draait.\n"
 "\n"
-"Wanneer deze optie is geactiveerd zal Shutter gebruikmaken van vastgelegde "
-"parameters om de schermhoeken rond te maken. U kunt de standaardparameters "
-"overschrijven door een nieuw bestand \"~/.shutter/shape.conf\" aan te maken "
-"en hierin de aangepaste waardes op te nemen. De standaardwaardes zijn "
+"Als deze optie is ingeschakeld, maakt Shutter gebruik van op aanvullende "
+"opties om de schermhoeken rond te maken. U kunt de standaardopties "
+"overschrijven door een nieuw bestand '~/.shutter/shape.conf' aan te maken en "
+"hierin de aangepaste waarden op te geven. De standaardwaarden zijn "
 "opgeslagen in %s."
 
-#: translate_tmp.pl:1795
-#: translate_tmp.pl:1796
+#: translate_tmp.pl:1795 translate_tmp.pl:1796
 msgid "Select only visible windows"
 msgstr "Alleen zichtbare vensters selecteren"
 
 #: translate_tmp.pl:1813
 msgid "Pre-Capture Delay"
-msgstr "Vertraging voor een opname"
+msgstr "Wachttijd vóór maken van schermfoto"
 
-#: translate_tmp.pl:1828
-#: translate_tmp.pl:1829
-#: translate_tmp.pl:1830
+#: translate_tmp.pl:1828 translate_tmp.pl:1829 translate_tmp.pl:1830
 msgid "Capture menu/tooltip after a delay of n seconds"
-msgstr "Opname maken van menu/infotekst na een vertraging van n seconden"
+msgstr "Schermfoto maken van menu/hulpballon na een wachttijd van x seconden"
 
 #: translate_tmp.pl:1841
 msgid "Ignore possibly wrong type hints"
@@ -478,183 +414,156 @@ msgid ""
 msgstr ""
 "Dit zijn hints van het vensterbeheer die aangeven welke functie een venster "
 "heeft. Soms zijn deze hints niet correct ingesteld. Door deze optie in te "
-"schakelen zal Shutter de hints niet weergeven."
+"schakelen, toont Shutter de hints niet."
 
 #: translate_tmp.pl:1858
 msgid "Virtual browser width"
 msgstr "Virtuele webbrowserbreedte"
 
-#: translate_tmp.pl:1880
-#: translate_tmp.pl:1881
-#: translate_tmp.pl:1882
+#: translate_tmp.pl:1880 translate_tmp.pl:1881 translate_tmp.pl:1882
 msgid "Virtual browser width when taking a website screenshot"
-msgstr "Virtuele webbrowserbreedte bij het maken van een websiteschermafdruk"
+msgstr ""
+"Virtuele webbrowserbreedte bij het maken van een schermfoto van een website"
 
 #: translate_tmp.pl:1893
 msgid "Show as check pattern"
-msgstr "In een geruit patroon tonen"
+msgstr "Schaakbordpatroon gebruiken"
 
 #: translate_tmp.pl:1894
 msgid "Show as custom color:"
-msgstr "In een aangepaste kleur tonen"
+msgstr "Tonen als aangepaste kleur:"
 
-#: translate_tmp.pl:1897
-#: translate_tmp.pl:459
-#: translate_tmp.pl:3881
+#: translate_tmp.pl:1897 translate_tmp.pl:459 translate_tmp.pl:3881
 #: translate_tmp.pl:4192
 msgid "Choose fill color"
-msgstr "Kies opvulkleur"
+msgstr "Kies een opvulkleur"
 
 #: translate_tmp.pl:1899
 msgid "Show as background"
-msgstr "Als achtergrond tonen"
+msgstr "Tonen als achtergrond"
 
 #: translate_tmp.pl:1925
 msgid "Displays any transparent parts of the image in a check pattern"
-msgstr ""
-"Geeft alle transparante delen van de afbeelding weer in een geruit patroon"
+msgstr "Toont alle doorzichtige delen van de afbeelding in een geruit patroon"
 
 #: translate_tmp.pl:1926
 msgid ""
 "Displays any transparent parts of the image in a solid color that you specify"
 msgstr ""
-"Geeft alle transparante delen van de afbeelding weer in een effen kleur die "
-"u zelf kiest"
+"Toont alle doorzichtige delen van de afbeelding in een door u gekozen effen "
+"kleur"
 
 #: translate_tmp.pl:1927
 msgid ""
 "Displays any transparent parts of the image in the background color of the "
 "application"
 msgstr ""
-"Geeft alle transparante delen van de afbeelding weer in de achtergrondkleur "
-"van de toepassing"
+"Toont alle doorzichtige delen van de afbeelding in de achtergrondkleur van "
+"de toepassing"
 
 #: translate_tmp.pl:1951
 msgid "Sort ascending by"
 msgstr "Oplopend sorteren op"
 
-#: translate_tmp.pl:1954
-#: translate_tmp.pl:1958
+#: translate_tmp.pl:1954 translate_tmp.pl:1958
 msgid "Key/Time Created"
-msgstr "Sleutel / Creatietijd"
+msgstr "Sleutel/Aanmaaktijd"
 
 #: translate_tmp.pl:1955
 msgid "Sort descending by"
 msgstr "Aflopend sorteren op"
 
-#: translate_tmp.pl:2017
-#: translate_tmp.pl:2018
-#: translate_tmp.pl:2019
+#: translate_tmp.pl:2017 translate_tmp.pl:2018 translate_tmp.pl:2019
 #: translate_tmp.pl:2020
 msgid "Configure sort criteria"
-msgstr "Sorteercriteria configureren"
+msgstr "Sorteercriteria instellen"
 
-#: translate_tmp.pl:2027
-#: translate_tmp.pl:2087
+#: translate_tmp.pl:2027 translate_tmp.pl:2087
 msgid "Start Shutter at login"
-msgstr "Shutter starten bij aanmelden"
+msgstr "Shutter automatisch opstarten"
 
-#: translate_tmp.pl:2028
-#: translate_tmp.pl:2096
+#: translate_tmp.pl:2028 translate_tmp.pl:2096
 msgid "Hide window on first launch"
-msgstr "Venster verbergen bij eerste start"
+msgstr "Venster verbergen na eerste opstart"
 
-#: translate_tmp.pl:2029
-#: translate_tmp.pl:2105
+#: translate_tmp.pl:2029 translate_tmp.pl:2105
 msgid "Hide notification icon"
-msgstr "Notificatiepictogram verbergen"
+msgstr "Systeemvakpictogram verbergen"
 
-#: translate_tmp.pl:2031
-#: translate_tmp.pl:2114
+#: translate_tmp.pl:2031 translate_tmp.pl:2114
 msgid "Autohide main window when taking a screenshot"
-msgstr ""
-"Hoofdvenster automatisch verbergen bij het maken van een schermafdruk"
+msgstr "Hoofdvenster automatisch verbergen na maken van schermfoto"
 
 #: translate_tmp.pl:2032
 msgid "Redraw Delay"
-msgstr "Vertraging voor hertekenen"
+msgstr "Wachttijd vóór hertekenen"
 
-#: translate_tmp.pl:2035
-#: translate_tmp.pl:2908
+#: translate_tmp.pl:2035 translate_tmp.pl:2908
 msgid "millisecond"
 msgid_plural "milliseconds"
 msgstr[0] "milliseconde"
 msgstr[1] "milliseconden"
 
-#: translate_tmp.pl:2041
-#: translate_tmp.pl:2141
+#: translate_tmp.pl:2041 translate_tmp.pl:2141
 msgid "Present main window after taking a screenshot"
-msgstr "Hoofdvenster tonen na het maken van een schermafdruk"
+msgstr "Hoofdvenster tonen na maken van schermfoto"
 
-#: translate_tmp.pl:2042
-#: translate_tmp.pl:2187
+#: translate_tmp.pl:2042 translate_tmp.pl:2187
 msgid "Minimize to tray when closing main window"
-msgstr "Minimaliseren naar paneel bij sluiten hoofdvenster"
+msgstr "Minimaliseren naar systeemvak in plaats van afsluiten"
 
-#: translate_tmp.pl:2044
-#: translate_tmp.pl:2150
+#: translate_tmp.pl:2044 translate_tmp.pl:2150
 msgid "Display pop-up notification after taking a screenshot"
-msgstr "Pop-upnotificatie tonen na het maken van een schermafdruk"
+msgstr "Pop-upmelding tonen na maken van schermfoto"
 
-#: translate_tmp.pl:2045
-#: translate_tmp.pl:2159
-#: translate_tmp.pl:2168
+#: translate_tmp.pl:2045 translate_tmp.pl:2159 translate_tmp.pl:2168
 msgid "Display pop-up notification when using a delay"
-msgstr "Pop-upnotificatie tonen bij gebruik van een vertraging"
+msgstr "Pop-upmelding tonen bij gebruik van wachttijd"
 
 #: translate_tmp.pl:2046
 msgid "Display pop-up notification when using a pre-capture delay"
-msgstr ""
-"Pop-upnotificatie tonen bij gebruik van een vertraging voor een opname"
+msgstr "Pop-upmelding tonen bij gebruik van wachttijd"
 
 #: translate_tmp.pl:2048
 msgid "Notification agent"
-msgstr "Notificatietoepassing"
+msgstr "Meldingsdienst"
 
 #: translate_tmp.pl:2050
 msgid "Desktop Notifications"
-msgstr "Bureaubladnotificaties"
+msgstr "Systeemmeldingen"
 
 #: translate_tmp.pl:2051
 msgid "Built-In Notifications"
-msgstr "Ingebouwde notificaties"
+msgstr "Ingebouwde meldingsballonnen"
 
-#: translate_tmp.pl:2058
-#: translate_tmp.pl:2196
+#: translate_tmp.pl:2058 translate_tmp.pl:2196
 msgid "Ask before moving files to trash"
-msgstr "Vragen voordat bestanden naar de prullenbak verplaatst worden"
+msgstr "Vragen alvorens bestanden te verplaatsen naar de prullenbak"
 
-#: translate_tmp.pl:2059
-#: translate_tmp.pl:2205
+#: translate_tmp.pl:2059 translate_tmp.pl:2205
 msgid "Move file to trash when closing tab"
-msgstr "Bestand naar prullenbak verplaatsen bij het sluiten van tabblad"
+msgstr "Bestand naar prullenbak verplaatsen na sluiten van tabblad"
 
-#: translate_tmp.pl:2060
-#: translate_tmp.pl:2214
+#: translate_tmp.pl:2060 translate_tmp.pl:2214
 msgid "Notify when file was deleted from filesystem"
-msgstr ""
-"Notificatie geven wanneer bestand uit het bestandssysteem verwijderd is"
+msgstr "Melding tonen als bestand verwijderd is van het bestandssysteem"
 
-#: translate_tmp.pl:2123
-#: translate_tmp.pl:2124
-#: translate_tmp.pl:2125
+#: translate_tmp.pl:2123 translate_tmp.pl:2124 translate_tmp.pl:2125
 msgid ""
 "Configure a short timeout to give the Xserver a chance to redraw areas that "
 "were obscured by Shutter's windows before taking a screenshot."
 msgstr ""
-"Stel een korte time-out in om de Xserver een kans te geven gebieden, waarvan "
-"de zichtbaarheid verhinderd werd door het venster van Shutter, te hertekenen "
-"voordat er een schermafdruk gemaakt wordt."
+"Stel een korte tussenpoos in om de Xserver een kans te geven gebieden, "
+"waarvan de zichtbaarheid verhinderd werd door het venster van Shutter, te "
+"hertekenen voordat er een schermfoto wordt gemaakt."
 
-#: translate_tmp.pl:2177
-#: translate_tmp.pl:2178
+#: translate_tmp.pl:2177 translate_tmp.pl:2178
 msgid ""
 "You can either choose the system-wide desktop notifications (e.g. Ubuntu's "
 "Notify-OSD) or Shutter's built-in notification system"
 msgstr ""
-"U hebt de keuze tussen bureaubladnotificaties voor het hele "
-"besturingssysteem (bv. Ubuntu's notificatie-OSD), of het ingebouwde "
-"notificatiesysteem van Shutter zelf"
+"U hebt de keuze tussen systeemmeldingen, ofwel het standaard meldingssysteem "
+"(bijv. Ubuntu's Notify-OSD), of het ingebouwde meldingssysteem van Shutter."
 
 #: translate_tmp.pl:2240
 msgid ""
@@ -662,76 +571,54 @@ msgid ""
 "your credentials above. Plugins with OAuth support are configured "
 "automatically the first time you use them."
 msgstr ""
-"<b>Let op:</b> Wanneer een plug-in geautoriseerd uploaden toestaat dan kunt "
-"u uw gegevens hierboven invoeren. Plug-ins die OAuth ondersteunen worden "
-"automatisch geconfigureerd wanneer u ze voor de eerste keer gebruikt."
+"<b>Let op:</b> als een plug-in geautoriseerd uploaden toestaat, dan kunt u "
+"uw gegevens hierboven invoeren. Plug-ins die OAuth ondersteunen worden "
+"automatisch ingesteld zodra u ze voor de eerste keer gebruikt."
 
-#: translate_tmp.pl:2243
-#: translate_tmp.pl:10547
+#: translate_tmp.pl:2243 translate_tmp.pl:10547
 msgid "URI"
 msgstr "URI"
 
-#: translate_tmp.pl:2253
-#: translate_tmp.pl:2255
-#: translate_tmp.pl:10552
+#: translate_tmp.pl:2253 translate_tmp.pl:2255 translate_tmp.pl:10552
 #: translate_tmp.pl:10554
 msgid ""
 "URI\n"
 "Example: ftp://host:port/path"
 msgstr ""
 "URI\n"
-"Voorbeeld: ftp://host:port/path"
+"Voorbeeld: ftp://host:poort/pad"
 
-#: translate_tmp.pl:2261
-#: translate_tmp.pl:2273
-#: translate_tmp.pl:2275
-#: translate_tmp.pl:10559
-#: translate_tmp.pl:10566
-#: translate_tmp.pl:10568
+#: translate_tmp.pl:2261 translate_tmp.pl:2273 translate_tmp.pl:2275
+#: translate_tmp.pl:10559 translate_tmp.pl:10566 translate_tmp.pl:10568
 msgid "Connection mode"
 msgstr "Verbindingswijze"
 
-#: translate_tmp.pl:2264
-#: translate_tmp.pl:10562
+#: translate_tmp.pl:2264 translate_tmp.pl:10562
 msgid "Active mode"
 msgstr "Actieve modus"
 
-#: translate_tmp.pl:2265
-#: translate_tmp.pl:10563
+#: translate_tmp.pl:2265 translate_tmp.pl:10563
 msgid "Passive mode"
 msgstr "Passieve modus"
 
-#: translate_tmp.pl:2281
-#: translate_tmp.pl:2291
-#: translate_tmp.pl:2293
-#: translate_tmp.pl:9055
-#: translate_tmp.pl:10573
-#: translate_tmp.pl:10578
+#: translate_tmp.pl:2281 translate_tmp.pl:2291 translate_tmp.pl:2293
+#: translate_tmp.pl:9055 translate_tmp.pl:10573 translate_tmp.pl:10578
 #: translate_tmp.pl:10580
 msgid "Username"
 msgstr "Gebruikersnaam"
 
-#: translate_tmp.pl:2299
-#: translate_tmp.pl:2311
-#: translate_tmp.pl:2313
-#: translate_tmp.pl:9083
-#: translate_tmp.pl:10585
-#: translate_tmp.pl:10592
+#: translate_tmp.pl:2299 translate_tmp.pl:2311 translate_tmp.pl:2313
+#: translate_tmp.pl:9083 translate_tmp.pl:10585 translate_tmp.pl:10592
 #: translate_tmp.pl:10594
 msgid "Password"
 msgstr "Wachtwoord"
 
-#: translate_tmp.pl:2319
-#: translate_tmp.pl:2329
-#: translate_tmp.pl:2331
-#: translate_tmp.pl:10599
-#: translate_tmp.pl:10604
-#: translate_tmp.pl:10606
+#: translate_tmp.pl:2319 translate_tmp.pl:2329 translate_tmp.pl:2331
+#: translate_tmp.pl:10599 translate_tmp.pl:10604 translate_tmp.pl:10606
 msgid "Website URL"
-msgstr "Website-URL"
+msgstr "Website-url"
 
-#: translate_tmp.pl:2343
-#: translate_tmp.pl:4162
+#: translate_tmp.pl:2343 translate_tmp.pl:4162
 msgid "Main"
 msgstr "Algemeen"
 
@@ -765,31 +652,27 @@ msgid_plural "pixels"
 msgstr[0] "pixel"
 msgstr[1] "pixels"
 
-#: translate_tmp.pl:2967
-#: translate_tmp.pl:2974
+#: translate_tmp.pl:2967 translate_tmp.pl:2974
 msgid "Quality"
 msgstr "Kwaliteit"
 
 #: translate_tmp.pl:3051
 msgid "Please activate the menu you want to capture"
-msgstr "Activeer het menu dat u wilt opnemen"
+msgstr "Open het menu dat u wilt vastleggen"
 
 #: translate_tmp.pl:3054
 msgid "Please activate the tooltip you want to capture"
-msgstr "Activeer de infotekst die u wilt opnemen"
+msgstr "Toon de hulpballon die u wilt vastleggen"
 
-#: translate_tmp.pl:3063
-#: translate_tmp.pl:3074
-#: translate_tmp.pl:198
+#: translate_tmp.pl:3063 translate_tmp.pl:3074 translate_tmp.pl:198
 #: translate_tmp.pl:206
 #, perl-format
 msgid "Screenshot will be taken in %s second"
 msgid_plural "Screenshot will be taken in %s seconds"
-msgstr[0] "Schermafdruk wordt gemaakt na %s seconde"
-msgstr[1] "Schermafdruk wordt gemaakt na %s seconden"
+msgstr[0] "De schermfoto wordt over %s seconde gemaakt"
+msgstr[1] "De schermfoto wordt over %s seconden gemaakt"
 
-#: translate_tmp.pl:3355
-#: translate_tmp.pl:9147
+#: translate_tmp.pl:3355 translate_tmp.pl:9147
 msgid "Register"
 msgstr "Registreren"
 
@@ -797,20 +680,13 @@ msgstr "Registreren"
 msgid "Profile deleted"
 msgstr "Profiel verwijderd"
 
-#: translate_tmp.pl:3968
-#: translate_tmp.pl:3969
+#: translate_tmp.pl:3968 translate_tmp.pl:3969
 msgid "Profile could not be deleted"
-msgstr "Profiel kon niet verwijderd worden"
+msgstr "Het profiel kan niet worden verwijderd"
 
-#: translate_tmp.pl:3968
-#: translate_tmp.pl:5682
-#: translate_tmp.pl:5911
-#: translate_tmp.pl:6088
-#: translate_tmp.pl:6170
-#: translate_tmp.pl:6581
-#: translate_tmp.pl:7090
-#: translate_tmp.pl:10339
-#: translate_tmp.pl:108
+#: translate_tmp.pl:3968 translate_tmp.pl:5682 translate_tmp.pl:5911
+#: translate_tmp.pl:6088 translate_tmp.pl:6170 translate_tmp.pl:6581
+#: translate_tmp.pl:7090 translate_tmp.pl:10339 translate_tmp.pl:108
 #: translate_tmp.pl:118
 msgid "Failed"
 msgstr "Mislukt"
@@ -818,99 +694,90 @@ msgstr "Mislukt"
 #: translate_tmp.pl:3987
 #, perl-format
 msgid "Profile %s loaded successfully"
-msgstr "Profiel %s met succes geladen"
+msgstr "Het profiel, %s, is geladen"
 
-#: translate_tmp.pl:4016
-#: translate_tmp.pl:7240
+#: translate_tmp.pl:4016 translate_tmp.pl:7240
 msgid "Session"
 msgstr "Sessie"
 
-#: translate_tmp.pl:4035
-#: translate_tmp.pl:5365
+#: translate_tmp.pl:4035 translate_tmp.pl:5365
 msgid "not found"
 msgstr "niet gevonden"
 
 #: translate_tmp.pl:4244
 msgid "Error while adding the file monitor."
-msgstr "Fout bij het toevoegen van de bestandsobservatie."
+msgstr "Fout bij het toevoegen van de bestandsmonitor."
 
 #: translate_tmp.pl:4765
 msgid "Settings could not be saved!"
-msgstr "Instellingen opslaan mislukt!"
+msgstr "De instellingen kunnen niet worden opgeslagen!"
 
 #: translate_tmp.pl:4768
 msgid "Settings saved successfully!"
-msgstr "Instellingen succesvol opgeslagen!"
+msgstr "De instellingen zijn opgeslagen!"
 
 #: translate_tmp.pl:4794
 msgid "Session could not be saved!"
-msgstr "Sessie opslaan mislukt!"
+msgstr "De sessie kan niet worden opgeslagen!"
 
 #: translate_tmp.pl:4823
 msgid "Account-settings could not be saved!"
-msgstr "Accountinstellingen opslaan mislukt!"
+msgstr "De accountinstellingen kunnen niet worden opgeslagen!"
 
 #: translate_tmp.pl:5057
 msgid "Settings could not be restored!"
-msgstr "Instellingen herstellen mislukt!"
+msgstr "De instellingen kunnen niet worden hersteld!"
 
 #: translate_tmp.pl:5061
 msgid "Settings loaded successfully"
-msgstr "Instellingen succesvol geladen"
+msgstr "De instellingen zijn geladen"
 
-#: translate_tmp.pl:5088
-#: translate_tmp.pl:7010
+#: translate_tmp.pl:5088 translate_tmp.pl:7010
 msgid "Built-in Editor"
-msgstr "Ingebouwde editor"
+msgstr "Ingebouwde bewerker"
 
 #: translate_tmp.pl:5142
 msgid "Account-settings could not be restored!"
-msgstr "Accountinstellingen herstellen mislukt!"
+msgstr "De accountinstellingen kunnen niet worden hersteld!"
 
-#: translate_tmp.pl:5239
-#: translate_tmp.pl:5337
+#: translate_tmp.pl:5239 translate_tmp.pl:5337
 msgid "opened"
 msgstr "geopend"
 
-#: translate_tmp.pl:5242
-#: translate_tmp.pl:5340
-#: translate_tmp.pl:7846
-#: translate_tmp.pl:61
-#: translate_tmp.pl:7032
+#: translate_tmp.pl:5242 translate_tmp.pl:5340 translate_tmp.pl:7846
+#: translate_tmp.pl:61 translate_tmp.pl:7032
 #, perl-format
 msgid "Error while opening image %s."
-msgstr "Fout bij het openen van afbeelding %s."
+msgstr "%s kan niet worden geopend."
 
 #: translate_tmp.pl:5353
 msgid "Session could not be restored!"
-msgstr "Sessie herstellen mislukt!"
+msgstr "De sessie kan niet worden hersteld!"
 
 #: translate_tmp.pl:5406
 #, perl-format
 msgid "Error while creating the trashinfo file %s."
-msgstr "Fout bij het maken van het prullenbakinformatiebestand %s."
+msgstr "Fout bij het maken van het prullenbakinformatiebestand '%s'."
 
 #: translate_tmp.pl:5418
 #, perl-format
 msgid "Error while moving the file %s to trash."
-msgstr "Fout bij het verplaatsen van het bestand %s naar de prullenbak"
+msgstr "'%s' kan niet worden verplaatst naar de prullenbak."
 
 #: translate_tmp.pl:5424
 #, perl-format
 msgid "Error while removing the file %s from disk."
-msgstr "Fout bij het verwijderen van het bestand %s van de harde schijf"
+msgstr "'%s' kan niet worden verwijderd van de schijf."
 
 #: translate_tmp.pl:5442
 #, perl-format
 msgid "Are you sure you want to move %s to the trash?"
-msgstr "Bent u zeker dat u %s naar de prullenbak wilt verplaatsen?"
+msgstr "Weet u zeker dat u '%s' wilt verplaatsen naar de prullenbak?"
 
-#: translate_tmp.pl:5442
-#: translate_tmp.pl:5491
-#: translate_tmp.pl:209
+#: translate_tmp.pl:5442 translate_tmp.pl:5491 translate_tmp.pl:209
 #: translate_tmp.pl:710
 msgid "Move to _Trash"
-msgstr "Naar _prullenbak verplaatsen"
+msgstr "Verplaatsen naar _prullenbak"
 
 #: translate_tmp.pl:5456
 msgid "deleted"
@@ -919,120 +786,102 @@ msgstr "verwijderd"
 #: translate_tmp.pl:5491
 msgid "Are you sure you want to move the selected files to the trash?"
 msgstr ""
-"Bent u zeker dat u de geselecteerde bestanden naar de prullenbak wilt "
-"verplaatsen?"
+"Weet u zeker dat u de geselecteerde bestanden wilt verplaatsen naar de "
+"prullenbak?"
 
-#: translate_tmp.pl:5495
-#: translate_tmp.pl:5529
-#: translate_tmp.pl:5634
+#: translate_tmp.pl:5495 translate_tmp.pl:5529 translate_tmp.pl:5634
 msgid "No screenshots selected"
-msgstr "Geen schermafdrukken geselecteerd"
+msgstr "Geen schermfoto's geselecteerd"
 
 #: translate_tmp.pl:5547
 msgid "Selected screenshots deleted"
-msgstr "Geselecteerde schermafdrukken verwijderd"
+msgstr "De geselecteerde schermfoto's zijn verwijderd"
 
-#: translate_tmp.pl:5583
-#: translate_tmp.pl:7692
-#: translate_tmp.pl:7718
-#: translate_tmp.pl:7751
-#: translate_tmp.pl:7784
-#: translate_tmp.pl:7823
+#: translate_tmp.pl:5583 translate_tmp.pl:7692 translate_tmp.pl:7718
+#: translate_tmp.pl:7751 translate_tmp.pl:7784 translate_tmp.pl:7823
 #: translate_tmp.pl:7849
 msgid "removed from session"
 msgstr "verwijderd uit sessie"
 
 #: translate_tmp.pl:5652
 msgid "Selected screenshots removed"
-msgstr "Geselecteerde schermafdrukken verwijderd"
+msgstr "De geselecteerde schermfoto's zijn verwijderd"
 
-#: translate_tmp.pl:5682
-#: translate_tmp.pl:6088
+#: translate_tmp.pl:5682 translate_tmp.pl:6088
 msgid "No valid filetype specified"
 msgstr "Geen geldig bestandstype opgegeven"
 
 #: translate_tmp.pl:5698
 msgid "There is no image data in the clipboard to paste"
-msgstr "Het klembord bevat geen te plakken afbeelingsinformatie."
+msgstr "Het klembord bevat geen te plakken afbeeldingsinformatie"
 
 #: translate_tmp.pl:5759
 msgid "Selected filenames copied to clipboard"
-msgstr "Geselecteerde bestandsnamen naar klembord gekopieerd"
+msgstr "De geselecteerde bestandsnamen zijn gekopieerd"
 
 #: translate_tmp.pl:5774
 msgid "Selected images copied to clipboard"
-msgstr "Geselecteerde afbeeldingen naar klembord gekopieerd"
+msgstr "De geselecteerde afbeeldingen zijn gekopieerd"
 
 #: translate_tmp.pl:5821
 msgid "Last action undone"
-msgstr "Laatste bewerking ongedaan gemaakt"
+msgstr "De recentste bewerking is ongedaan gemaakt"
 
-#: translate_tmp.pl:5829
-#: translate_tmp.pl:5877
+#: translate_tmp.pl:5829 translate_tmp.pl:5877
 #, perl-format
 msgid "Error while copying last version (%s)."
-msgstr "Fout tijdens kopiëren laatste versie (%s)."
+msgstr "De nieuwste versie, %s, kan niet worden gekopieerd."
 
 #: translate_tmp.pl:5829
 #, perl-format
 msgid "There was an error performing undo on %s."
-msgstr "Fout tijdens het ongedaan maken van %s."
+msgstr ""
+"Er is een fout opgetreden tijdens het ongedaan maken van een bewerking op "
+"'%s'."
 
 #: translate_tmp.pl:5869
 msgid "Last action redone"
-msgstr "Laatste actie opnieuw gedaan"
+msgstr "De recentste bewerking is opnieuw uitgevoerd"
 
 #: translate_tmp.pl:5877
 #, perl-format
 msgid "There was an error performing redo on %s."
-msgstr "Er is een fout opgetreden bij het opnieuw maken van %s."
+msgstr ""
+"Er is een fout opgetreden tijdens het opnieuw uitvoeren van een bewerking op "
+"'%s'."
 
 #: translate_tmp.pl:5911
 msgid "No plugin installed"
 msgstr "Er zijn geen plug-ins geïnstalleerd"
 
-#: translate_tmp.pl:6170
-#: translate_tmp.pl:6581
-#: translate_tmp.pl:8030
+#: translate_tmp.pl:6170 translate_tmp.pl:6581 translate_tmp.pl:8030
 msgid "There was an error determining the filename."
 msgstr "Er is een fout opgetreden bij het vaststellen van de bestandsnaam."
 
 #: translate_tmp.pl:6473
 msgid "Triggered invalid screenshot action."
-msgstr "Veroorzaakte ongeldige schermafdrukactie."
+msgstr "Er is ongeldige schermfoto-actie aangeroepen."
 
-#: translate_tmp.pl:6473
-#: translate_tmp.pl:6475
-#: translate_tmp.pl:6773
-#: translate_tmp.pl:6774
-#: translate_tmp.pl:81
-#: translate_tmp.pl:89
-#: translate_tmp.pl:97
-#: translate_tmp.pl:112
-#: translate_tmp.pl:120
-#: translate_tmp.pl:128
-#: translate_tmp.pl:140
-#: translate_tmp.pl:154
+#: translate_tmp.pl:6473 translate_tmp.pl:6475 translate_tmp.pl:6773
+#: translate_tmp.pl:6774 translate_tmp.pl:81 translate_tmp.pl:89
+#: translate_tmp.pl:97 translate_tmp.pl:112 translate_tmp.pl:120
+#: translate_tmp.pl:128 translate_tmp.pl:140 translate_tmp.pl:154
 #: translate_tmp.pl:164
 msgid "Error while taking the screenshot."
-msgstr "Fout tijdens het maken van de schermafdruk."
+msgstr "Er is een fout opgetreden tijdens het maken van de schermfoto."
 
-#: translate_tmp.pl:6608
-#: translate_tmp.pl:134
+#: translate_tmp.pl:6608 translate_tmp.pl:134
 msgid "Capture aborted by user"
-msgstr "Opname afgebroken door gebruiker"
+msgstr "Het maken van de schermfoto is afgebroken"
 
-#: translate_tmp.pl:6738
-#: translate_tmp.pl:6759
+#: translate_tmp.pl:6738 translate_tmp.pl:6759
 #, perl-format
 msgid "%s saved"
-msgstr "%s opgeslagen"
+msgstr "'%s' is opgeslagen"
 
-#: translate_tmp.pl:6746
-#: translate_tmp.pl:6749
-#: translate_tmp.pl:6764
+#: translate_tmp.pl:6746 translate_tmp.pl:6749 translate_tmp.pl:6764
 msgid "Screenshot saved"
-msgstr "Schermafdruk opgeslagen"
+msgstr "De schermfoto is opgeslagen"
 
 #: translate_tmp.pl:6773
 #, perl-format
@@ -1040,35 +889,32 @@ msgid ""
 "The filename %s could not be verified. Maybe it contains unsupported "
 "characters."
 msgstr ""
-"Bestandsnaam %s kon niet geverifieerd worden. Mogelijk bevat het niet-"
+"De bestandsnaam, %s, kan niet worden geverifieerd. Mogelijk bevat het niet-"
 "ondersteunde tekens."
 
-#: translate_tmp.pl:7010
-#: translate_tmp.pl:7021
+#: translate_tmp.pl:7010 translate_tmp.pl:7021
 #, perl-format
 msgid "%s opened with %s"
-msgstr "%s geopend met %s"
+msgstr "'%s' is geopend met %s"
 
 #: translate_tmp.pl:7047
 msgid "Opened all files with"
-msgstr "Alle bestanden geopend met"
+msgstr "Alle bestanden zijn geopend met"
 
-#: translate_tmp.pl:7090
-#: translate_tmp.pl:7109
+#: translate_tmp.pl:7090 translate_tmp.pl:7109
 #, perl-format
 msgid "Could not apply plugin %s"
-msgstr "Kon plug-in %s niet toepassen"
+msgstr "De plug-in, %s, kan niet worden toegepast"
 
-#: translate_tmp.pl:7106
-#: translate_tmp.pl:7158
+#: translate_tmp.pl:7106 translate_tmp.pl:7158
 #, perl-format
 msgid "Successfully applied plugin %s"
-msgstr "Plug-in %s succesvol toegepast"
+msgstr "De plug-in, %s, is toegepast"
 
 #: translate_tmp.pl:7161
 #, perl-format
 msgid "Error while executing plugin %s."
-msgstr "Fout bij het uitvoeren van plug-in %s."
+msgstr "De plug-in, %s, kan niet worden uitgevoerd."
 
 #: translate_tmp.pl:7161
 msgid "There was an error executing the plugin."
@@ -1078,8 +924,8 @@ msgstr "Er is een fout opgetreden bij het uitvoeren van de plug-in."
 #, perl-format
 msgid "%s screenshot"
 msgid_plural "%s screenshots"
-msgstr[0] "%s schermafdruk"
-msgstr[1] "%s schermafdrukken"
+msgstr[0] "%s schermfoto"
+msgstr[1] "%s schermfoto's"
 
 #: translate_tmp.pl:7251
 msgid "Current profile"
@@ -1087,74 +933,65 @@ msgstr "Huidig profiel"
 
 #: translate_tmp.pl:7686
 msgid "Try to resave the file?"
-msgstr "Opnieuw proberen het bestand op te slaan?"
+msgstr "Wilt u nogmaals proberen het bestand op te slaan?"
 
 #: translate_tmp.pl:7686
 #, perl-format
 msgid "Image %s was not found on disk"
-msgstr "Afbeelding %s niet gevonden op de schijf"
+msgstr "'%s' is niet aangetroffen op de schijf"
 
-#: translate_tmp.pl:7715
-#: translate_tmp.pl:7781
-#: translate_tmp.pl:189
+#: translate_tmp.pl:7715 translate_tmp.pl:7781 translate_tmp.pl:189
 #, perl-format
 msgid "Error while saving the image %s."
-msgstr "Fout bij het opslaan van afbeelding %s."
+msgstr "Er is een fout opgetreden bij het opslaan van '%s'."
 
-#: translate_tmp.pl:7715
-#: translate_tmp.pl:7781
-#: translate_tmp.pl:190
+#: translate_tmp.pl:7715 translate_tmp.pl:7781 translate_tmp.pl:190
 #, perl-format
 msgid "There was an error saving the image to %s."
-msgstr "Er is een fout opgetreden bij opslaan van de afbeelding naar %s."
+msgstr "Er is een fout opgetreden bij het opslaan van de afbeelding in '%s'."
 
-#: translate_tmp.pl:7741
-#: translate_tmp.pl:10069
-#: translate_tmp.pl:10075
-#: translate_tmp.pl:10143
-#: translate_tmp.pl:10150
+#: translate_tmp.pl:7741 translate_tmp.pl:10069 translate_tmp.pl:10075
+#: translate_tmp.pl:10143 translate_tmp.pl:10150
 msgid "saved"
 msgstr "opgeslagen"
 
 #: translate_tmp.pl:7813
 #, perl-format
 msgid "Image %s was deleted from filesystem"
-msgstr "Afbeelding %s is verwijderd uit het bestandssysteem"
+msgstr "'%s' is verwijderd van het bestandssysteem"
 
-#: translate_tmp.pl:7846
-#: translate_tmp.pl:62
-#: translate_tmp.pl:7032
+#: translate_tmp.pl:7846 translate_tmp.pl:62 translate_tmp.pl:7032
 msgid "There was an error opening the image."
 msgstr "Er is een fout opgetreden bij het openen van de afbeelding."
 
 #: translate_tmp.pl:8030
 #, perl-format
 msgid "Error while opening directory %s."
-msgstr "Fout bij het openen van map %s."
+msgstr "Er is een fout opgetreden bij het openen van '%s'."
 
 #: translate_tmp.pl:8099
 msgid "Updating plugin information"
-msgstr "Plug-ininformatie bijwerken"
+msgstr "Bezig met bijwerken van plug-in-informatie"
 
 #: translate_tmp.pl:8104
 msgid "Please wait while Shutter updates the plugin information"
-msgstr "Even geduld, de plug-ininformatie wordt bijgewerkt"
+msgstr "De plug-in-informatie wordt bijgewerkt"
 
 #: translate_tmp.pl:8246
 msgid "Updating upload plugin information"
-msgstr "Uploadplug-ininformatie bijwerken"
+msgstr "Bezig met bijwerken van uploadplug-in-informatie"
 
 #: translate_tmp.pl:8251
 msgid "Please wait while Shutter updates the upload plugin information"
-msgstr "Even geduld, de uploadplug-ininformatie wordt bijgewerkt"
+msgstr "De uploadplug-in-informatie wordt bijgewerkt"
 
 #: translate_tmp.pl:8482
 msgid "Capture All Workspaces"
-msgstr "Opname maken van alle werkbladen"
+msgstr "Alle werkbladen vastleggen"
 
 #: translate_tmp.pl:8495
 msgid "Limit to current monitor"
-msgstr "Beperk tot huidig beeldscherm"
+msgstr "Beperken tot huidig beeldscherm"
 
 #: translate_tmp.pl:8508
 #, perl-format
@@ -1167,104 +1004,91 @@ msgid_plural ""
 "monitors detected).\n"
 "Enable it to capture only the current monitor."
 msgstr[0] ""
-"Deze optie is alleen handig bij een systeem met meer beeldschermen (%d "
+"Deze optie is alleen nuttig op een systeem met meerdere beeldschermen (%d "
 "beeldscherm gedetecteerd).\n"
-"Schakel deze optie in om alleen een opname van het huidige beeldscherm te "
-"maken."
+"Schakel deze optie in om alleen een schermfoto van het huidige beeldscherm "
+"te maken."
 msgstr[1] ""
-"Deze optie is alleen handig bij een systeem met meer beeldschermen (%d "
+"Deze optie is alleen nuttig op een systeem met meerdere beeldschermen (%d "
 "beeldschermen gedetecteerd).\n"
-"Schakel deze optie in om alleen een opname van het huidige beeldscherm te "
-"maken."
+"Schakel deze optie in om alleen een schermfoto van het huidige beeldscherm "
+"te maken."
 
 #: translate_tmp.pl:8537
 msgid "Active Window"
-msgstr "Actieve venster"
+msgstr "Actief venster"
 
 #: translate_tmp.pl:8542
 msgid "Capture the last active window"
-msgstr "Opname maken van het laatst actieve venster"
+msgstr "Maak een schermfoto van het vorige actieve venster"
 
-#: translate_tmp.pl:8585
-#: translate_tmp.pl:403
+#: translate_tmp.pl:8585 translate_tmp.pl:403
 msgid "_Selection"
 msgstr "_Selectie"
 
-#: translate_tmp.pl:8604
-#: translate_tmp.pl:429
+#: translate_tmp.pl:8604 translate_tmp.pl:429
 msgid "_Desktop"
-msgstr "_Bureaublad"
+msgstr "Bureaubla_d"
 
 #: translate_tmp.pl:8636
 msgid "Window _under Cursor"
-msgstr "Venster _onder cursor"
+msgstr "Venster onder c_ursor"
 
-#: translate_tmp.pl:8649
-#: translate_tmp.pl:459
+#: translate_tmp.pl:8649 translate_tmp.pl:459
 msgid "Select W_indow"
 msgstr "_Venster selecteren"
 
-#: translate_tmp.pl:8660
-#: translate_tmp.pl:472
+#: translate_tmp.pl:8660 translate_tmp.pl:472
 msgid "Se_ction"
 msgstr "Se_ctie"
 
-#: translate_tmp.pl:8673
-#: translate_tmp.pl:488
+#: translate_tmp.pl:8673 translate_tmp.pl:488
 msgid "_Menu"
 msgstr "_Menu"
 
-#: translate_tmp.pl:8686
-#: translate_tmp.pl:504
+#: translate_tmp.pl:8686 translate_tmp.pl:504
 msgid "_Tooltip"
-msgstr "Info_tekst"
+msgstr "Hulp_ballon"
 
-#: translate_tmp.pl:8699
-#: translate_tmp.pl:522
+#: translate_tmp.pl:8699 translate_tmp.pl:522
 msgid "_Web"
-msgstr "_Web"
+msgstr "_Online"
 
 #: translate_tmp.pl:8713
 msgid "S_how main window"
-msgstr "Hoofdvenster _tonen"
+msgstr "_Hoofdvenster tonen"
 
-#: translate_tmp.pl:8719
-#: translate_tmp.pl:395
+#: translate_tmp.pl:8719 translate_tmp.pl:395
 msgid "_Redo last screenshot"
-msgstr "Laatste schermafdruk op_nieuw maken"
+msgstr "_Recentste schermfoto opnieuw maken"
 
-#: translate_tmp.pl:8730
-#: translate_tmp.pl:223
+#: translate_tmp.pl:8730 translate_tmp.pl:223
 msgid "_Quick profile select"
 msgstr "_Snelle profielselectie"
 
 #: translate_tmp.pl:8896
 msgid "Wait indefinitely"
-msgstr "Wacht voor onbepaalde tijd"
+msgstr "Onbepaalde tijd wachten"
 
-#: translate_tmp.pl:8897
-#: translate_tmp.pl:8898
+#: translate_tmp.pl:8897 translate_tmp.pl:8898
 #, perl-format
 msgid "Wait max %d second"
 msgid_plural "Wait max %d seconds"
-msgstr[0] "Wacht maximaal %d seconde"
-msgstr[1] "Wacht maximaal %d seconden"
+msgstr[0] "Maximaal %d seconde wachten"
+msgstr[1] "Maximaal %d seconden wachten"
 
-#: translate_tmp.pl:8899
-#: translate_tmp.pl:8900
+#: translate_tmp.pl:8899 translate_tmp.pl:8900
 #, perl-format
 msgid "Wait max %d minute"
 msgid_plural "Wait max %d minutes"
-msgstr[0] "Wacht maximaal %d minuut"
-msgstr[1] "Wacht maximaal %d minuten"
+msgstr[0] "Maximaal %d minuut wachten"
+msgstr[1] "Maximaal %d minuten wachten"
 
 #: translate_tmp.pl:8908
 msgid "Shutter will wait indefinitely for the screenshot to capture"
-msgstr ""
-"Shutter zal voor onbepaalde tijd wachten tot de schermafdruk gemaakt is"
+msgstr "Shutter zal voor onbepaalde tijd wachten tot de schermfoto gemaakt is"
 
-#: translate_tmp.pl:8909
-#: translate_tmp.pl:8910
+#: translate_tmp.pl:8909 translate_tmp.pl:8910
 #, perl-format
 msgid ""
 "Shutter will wait up to %d second for the screenshot to capture before "
@@ -1273,14 +1097,13 @@ msgid_plural ""
 "Shutter will wait up to %d seconds for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
-"Als het maken van een schermafdruk te lang duurt, zal Shutter %d seconde "
-"wachten voordat het proces afgebroken wordt"
+"Als het maken van de schermfoto te lang duurt, zal Shutter %d seconde "
+"wachten voordat het proces wordt afgebroken"
 msgstr[1] ""
-"Als het maken van een schermafdruk te lang duurt, zal Shutter %d seconden "
-"wachten voordat het proces afgebroken wordt"
+"Als het maken van de schermfoto te lang duurt, zal Shutter %d seconden "
+"wachten voordat het proces wordt afgebroken"
 
-#: translate_tmp.pl:8911
-#: translate_tmp.pl:8912
+#: translate_tmp.pl:8911 translate_tmp.pl:8912
 #, perl-format
 msgid ""
 "Shutter will wait up to %d minute for the screenshot to capture before "
@@ -1289,11 +1112,11 @@ msgid_plural ""
 "Shutter will wait up to %d minutes for the screenshot to capture before "
 "aborting the process if it's taking too long"
 msgstr[0] ""
-"Als het maken van een schermafdruk te lang duurt, zal Shutter %d minuut "
-"wachten voordat het proces afgebroken wordt"
+"Als het maken van de schermfoto te lang duurt, zal Shutter %d minuut wachten "
+"voordat het proces wordt afgebroken"
 msgstr[1] ""
-"Als het maken van een schermafdruk te lang duurt, zal Shutter %d minuten "
-"wachten voordat het proces afgebroken wordt"
+"Als het maken van de schermfoto te lang duurt, zal Shutter %d minuten "
+"wachten voordat het proces wordt afgebroken"
 
 #: translate_tmp.pl:9046
 msgid "Host"
@@ -1305,15 +1128,13 @@ msgstr "Anoniem uploaden"
 
 #: translate_tmp.pl:9120
 msgid "Authorized Upload"
-msgstr "Geautoriseerde upload"
+msgstr "Geautoriseerd uploaden"
 
 #: translate_tmp.pl:9127
 msgid "OAuth Upload"
 msgstr "OAuth-upload"
 
-#: translate_tmp.pl:9138
-#: translate_tmp.pl:9199
-#: translate_tmp.pl:10262
+#: translate_tmp.pl:9138 translate_tmp.pl:9199 translate_tmp.pl:10262
 msgid "Description"
 msgstr "Beschrijving"
 
@@ -1337,24 +1158,23 @@ msgstr "Taal"
 msgid "Path"
 msgstr "Pad"
 
-#: translate_tmp.pl:9271
-#: translate_tmp.pl:10636
+#: translate_tmp.pl:9271 translate_tmp.pl:10636
 msgid "Ubuntu One"
 msgstr "Ubuntu One"
 
 #: translate_tmp.pl:9280
 msgid "Successfully published"
-msgstr "Succesvol gepubliceerd"
+msgstr "De schermfoto is gepubliceerd"
 
 #: translate_tmp.pl:9280
 #, perl-format
 msgid "The file %s was successfully published: %s"
-msgstr "Het bestand %s is succesvol gepubliceerd: %s"
+msgstr "'%s' is gepubliceerd: %s"
 
 #: translate_tmp.pl:9283
 #, perl-format
 msgid "%s published"
-msgstr "%s gepubliceerd"
+msgstr "'%s' is gepubliceerd"
 
 #: translate_tmp.pl:9296
 msgid "Unpublished"
@@ -1366,22 +1186,21 @@ msgid ""
 "The file %s is no longer published. The external link is not available "
 "anymore."
 msgstr ""
-"Het bestand %s is niet meer gepubliceerd. De externe link is niet meer "
-"beschikbaar."
+"'%s' is niet meer gepubliceerd - de externe link is niet meer beschikbaar."
 
 #: translate_tmp.pl:9299
 #, perl-format
 msgid "The file %s is no longer published."
-msgstr "Het bestand %s is niet meer gepubliceerd."
+msgstr "'%s' is niet meer gepubliceerd."
 
 #: translate_tmp.pl:9498
 msgid "Rename"
-msgstr "Hernoemen"
+msgstr "Naam wijzigen"
 
 #: translate_tmp.pl:9502
 #, perl-format
 msgid "Rename image %s"
-msgstr "Hernoem afbeelding %s"
+msgstr "Bestandsnaam van '%s' wijzigen"
 
 #: translate_tmp.pl:9504
 msgid "New filename"
@@ -1389,72 +1208,57 @@ msgstr "Nieuwe bestandsnaam"
 
 #: translate_tmp.pl:9507
 msgid "_Rename"
-msgstr "He_rnoemen"
+msgstr "_Naam wijzigen"
 
-#: translate_tmp.pl:9622
-#: translate_tmp.pl:9665
+#: translate_tmp.pl:9622 translate_tmp.pl:9665
 msgid "renamed"
-msgstr "hernoemd"
+msgstr "de naam is gewijzigd"
 
-#: translate_tmp.pl:9630
-#: translate_tmp.pl:9673
-#: translate_tmp.pl:9709
+#: translate_tmp.pl:9630 translate_tmp.pl:9673 translate_tmp.pl:9709
 #, perl-format
 msgid "Error while renaming the image %s."
-msgstr "Fout bij hernoemen van de afbeelding %s."
+msgstr "Er is een fout opgetreden bij het wijzigen van de naam van '%s'."
 
-#: translate_tmp.pl:9630
-#: translate_tmp.pl:9673
-#: translate_tmp.pl:9709
+#: translate_tmp.pl:9630 translate_tmp.pl:9673 translate_tmp.pl:9709
 #, perl-format
 msgid "There was an error renaming the image to %s."
-msgstr ""
-"Er is een fout opgetreden bij het hernoemen van de afbeelding naar %s."
+msgstr "Er is een fout opgetreden bij het wijzigen van de naam naar '%s'."
 
-#: translate_tmp.pl:9639
-#: translate_tmp.pl:10099
-#: translate_tmp.pl:11116
-#: translate_tmp.pl:11358
-#: translate_tmp.pl:1636
+#: translate_tmp.pl:9639 translate_tmp.pl:10099 translate_tmp.pl:11116
+#: translate_tmp.pl:11358 translate_tmp.pl:1636
 msgid "_Replace"
-msgstr "_Vervangen"
+msgstr "Ve_rvangen"
 
-#: translate_tmp.pl:9644
-#: translate_tmp.pl:10102
-#: translate_tmp.pl:11130
+#: translate_tmp.pl:9644 translate_tmp.pl:10102 translate_tmp.pl:11130
 #: translate_tmp.pl:1639
 #, perl-format
 msgid ""
 "The image already exists in %s. Replacing it will overwrite its contents."
 msgstr ""
-"De afbeelding bestaat al in %s. Vervangen overschrijft het huidige bestand."
+"De afbeelding is al opgeslagen is %s. Vervangen overschrijft het huidige "
+"bestand."
 
-#: translate_tmp.pl:9644
-#: translate_tmp.pl:10102
-#: translate_tmp.pl:11130
+#: translate_tmp.pl:9644 translate_tmp.pl:10102 translate_tmp.pl:11130
 #: translate_tmp.pl:1639
 #, perl-format
 msgid "An image named %s already exists. Do you want to replace it?"
-msgstr "Een afbeelding genaamd %s bestaat al. Wilt u deze vervangen?"
+msgstr "Er is al een afbeelding genaamd '%s'. Wilt u deze vervangen?"
 
 #: translate_tmp.pl:9709
 msgid "Invalid Filename"
 msgstr "Ongeldige bestandsnaam"
 
-#: translate_tmp.pl:9733
-#: translate_tmp.pl:6653
+#: translate_tmp.pl:9733 translate_tmp.pl:6653
 msgid "Choose file to open"
-msgstr "Kies bestand om te openen"
+msgstr "Kies het te openen bestand"
 
-#: translate_tmp.pl:9765
-#: translate_tmp.pl:6683
+#: translate_tmp.pl:9765 translate_tmp.pl:6683
 msgid "All compatible image formats"
 msgstr "Alle compatibele bestandsformaten"
 
-#: translate_tmp.pl:9849
-#: translate_tmp.pl:1457
+#: translate_tmp.pl:9849 translate_tmp.pl:1457
 msgid "Choose a location to save to"
-msgstr "Kies een locatie om naar op te slaan"
+msgstr "Kies een opslaglocatie"
 
 #: translate_tmp.pl:10195
 msgid "Choose a plugin"
@@ -1462,7 +1266,7 @@ msgstr "Kies een plug-in"
 
 #: translate_tmp.pl:10200
 msgid "_Run"
-msgstr "_Uitvoeren"
+msgstr "Uitvoe_ren"
 
 #: translate_tmp.pl:10249
 msgid "Plugin"
@@ -1474,10 +1278,9 @@ msgstr "Geen plug-in opgegeven"
 
 #: translate_tmp.pl:10390
 msgid "Upload / Export"
-msgstr "Uploaden / Exporteren"
+msgstr "Uploaden/Exporteren"
 
-#: translate_tmp.pl:10394
-#: translate_tmp.pl:10646
+#: translate_tmp.pl:10394 translate_tmp.pl:10646
 msgid "_Upload"
 msgstr "_Uploaden"
 
@@ -1496,8 +1299,8 @@ msgid ""
 "after closing this dialog."
 msgstr ""
 "Kies één van de accounts hierboven en klik op <i>Uploaden</i>. De "
-"uploadlinks zullen, na het afsluiten van deze dialoog, beschikbaar blijven "
-"in het <i>rechtermuisknopmenu</i> van de schermafdruk."
+"uploadlinks zullen, na het afsluiten van dit venster, beschikbaar blijven in "
+"het <i>rechtermuisknopmenu</i> van de schermfoto."
 
 #: translate_tmp.pl:10460
 msgid ""
@@ -1505,13 +1308,12 @@ msgid ""
 "enter your credentials in preferences first to make it appear in the list "
 "above."
 msgstr ""
-"<b>Let op:</b> Wanneer een plug-in alleen geautoriseerd uploaden toestaat "
-"dan dient u eerst uw gegevens in de voorkeuren in te voeren, om deze "
-"zichtbaar te maken in de lijst hierboven."
+"<b>Let op:</b> als een plug-in alleen geautoriseerd uploaden toestaat, dan "
+"dient u eerst uw inloggegevens in te voeren in de voorkeuren."
 
 #: translate_tmp.pl:10462
 msgid "Choose account"
-msgstr "Kies account"
+msgstr "Kies een account"
 
 #: translate_tmp.pl:10490
 msgid "Status"
@@ -1533,13 +1335,11 @@ msgstr "_Exporteren"
 msgid "_Publish"
 msgstr "_Publiceren"
 
-#: translate_tmp.pl:10682
-#: translate_tmp.pl:164
+#: translate_tmp.pl:10682 translate_tmp.pl:164
 msgid "Disconnected"
 msgstr "Verbinding verbroken"
 
-#: translate_tmp.pl:10706
-#: translate_tmp.pl:10738
+#: translate_tmp.pl:10706 translate_tmp.pl:10738
 #, perl-format
 msgid ""
 "Folder %s is synchronized with Ubuntu One. The selected file will be copied "
@@ -1548,15 +1348,14 @@ msgid_plural ""
 "Folder %s is synchronized with Ubuntu One. The selected files will be copied "
 "to that folder before being published."
 msgstr[0] ""
-"De synchronisatie van map %s met Ubuntu One is voltooid. Het geselecteerde "
+"De synchronisatie van '%s' met Ubuntu One is voltooid. Het geselecteerde "
 "bestand zal, voordat het gepubliceerd wordt, gekopieerd worden naar deze map."
 msgstr[1] ""
-"De synchronisatie van map %s met Ubuntu One is voltooid. De geselecteerde "
+"De synchronisatie van '%s' met Ubuntu One is voltooid. Het geselecteerde "
 "bestanden zullen, voordat deze gepubliceerd worden, gekopieerd worden naar "
 "deze map."
 
-#: translate_tmp.pl:10707
-#: translate_tmp.pl:10739
+#: translate_tmp.pl:10707 translate_tmp.pl:10739
 msgid ""
 "<b>Please note:</b> The selected file will be published in a background "
 "process. You will be notified when the process has finished."
@@ -1564,22 +1363,20 @@ msgid_plural ""
 "<b>Please note:</b> The selected files will be published in a background "
 "process. You will be notified when the process has finished."
 msgstr[0] ""
-"<b>Let op:</b> Het geselecteerde bestand zal op de achtergrond gepubliceerd "
-"worden. Er zal een notificatie verschijnen wanneer dit gereed is."
+"<b>Let op:</b> het geselecteerde bestand zal op de achtergrond worden "
+"gepubliceerd. Na afloop wordt er een melding getoond."
 msgstr[1] ""
-"<b>Let op:</b> De geselecteerde bestanden zullen op de achtergrond "
-"gepubliceerd worden. Er zal een notificatie verschijnen wanneer dit gereed "
-"is."
+"<b>Let op:</b> de geselecteerde bestanden zullen op de achtergrond worden "
+"gepubliceerd. Na afloop wordt er een melding getoond."
 
-#: translate_tmp.pl:10711
-#: translate_tmp.pl:10743
+#: translate_tmp.pl:10711 translate_tmp.pl:10743
 #, perl-format
 msgid ""
 "Folder %s is not synchronized with Ubuntu One. Please choose an alternative "
 "folder."
 msgstr ""
-"De synchronisatie van map %s met Ubuntu One is niet voltooid. Kies a.u.b. "
-"een andere map."
+"De synchronisatie van '%s' met Ubuntu One is niet afgerond. Kies een andere "
+"map."
 
 #: translate_tmp.pl:10762
 msgid "Ubuntu One service cannot be found."
@@ -1590,120 +1387,101 @@ msgid ""
 "/publicfiles is not available. Your Ubuntu One installation seems to be out "
 "of date."
 msgstr ""
-"/publicfiles is niet beschikbaar. Uw installatie van Ubuntu One lijkt "
-"verouderd te zijn."
+"/publicfiles is niet beschikbaar. Uw Ubuntu One-installatie lijkt verouderd "
+"te zijn."
 
 #: translate_tmp.pl:10778
 msgid ""
 "Net::DBus::GLib/libnet-dbus-glib-perl needs to be installed for this feature"
 msgstr ""
-"Net::DBus::GLib/libnet-dbus-glib-perl dient voor deze functionaliteit "
-"geïnstalleerd te zijn"
+"Installeer Net::DBus::GLib/libnet-dbus-glib-perl om deze functie te gebruiken"
 
 #: translate_tmp.pl:10846
 #, perl-format
 msgid "Loading module %s"
-msgstr "Module %s wordt geladen"
+msgstr "Bezig met laden van module '%s'"
 
 #: translate_tmp.pl:10859
 #, perl-format
 msgid "Error while executing upload plugin %s."
-msgstr "Fout bij het uitvoeren van uploadplug-in %s."
+msgstr "De uploadplug-in '%s' kan niet worden uitgevoerd."
 
 #: translate_tmp.pl:10859
 msgid "There was an error executing the upload plugin."
 msgstr "Er is een fout opgetreden bij het uitvoeren van de uploadplug-in."
 
-#: translate_tmp.pl:10892
-#: translate_tmp.pl:10963
-#: translate_tmp.pl:11078
+#: translate_tmp.pl:10892 translate_tmp.pl:10963 translate_tmp.pl:11078
 #: translate_tmp.pl:11155
 msgid "uploaded"
 msgstr "geüpload"
 
-#: translate_tmp.pl:10967
-#: translate_tmp.pl:11082
-#: translate_tmp.pl:11159
+#: translate_tmp.pl:10967 translate_tmp.pl:11082 translate_tmp.pl:11159
 msgid "Successfully uploaded"
-msgstr "Upload geslaagd"
+msgstr "Uploaden voltooid"
 
-#: translate_tmp.pl:10967
-#: translate_tmp.pl:11082
-#: translate_tmp.pl:11159
+#: translate_tmp.pl:10967 translate_tmp.pl:11082 translate_tmp.pl:11159
 #, perl-format
 msgid "The file %s was successfully uploaded."
-msgstr "Het bestand %s is succesvol geüpload."
+msgstr "'%s' is geüpload."
 
-#: translate_tmp.pl:10987
-#: translate_tmp.pl:11130
-#: translate_tmp.pl:11265
-#: translate_tmp.pl:11281
-#: translate_tmp.pl:11284
+#: translate_tmp.pl:10987 translate_tmp.pl:11130 translate_tmp.pl:11265
+#: translate_tmp.pl:11281 translate_tmp.pl:11284
 msgid "Skip all"
 msgstr "Alles overslaan"
 
-#: translate_tmp.pl:10987
-#: translate_tmp.pl:11130
-#: translate_tmp.pl:11265
-#: translate_tmp.pl:11281
-#: translate_tmp.pl:11284
+#: translate_tmp.pl:10987 translate_tmp.pl:11130 translate_tmp.pl:11265
+#: translate_tmp.pl:11281 translate_tmp.pl:11284
 msgid "Skip"
 msgstr "Overslaan"
 
-#: translate_tmp.pl:10987
-#: translate_tmp.pl:11284
+#: translate_tmp.pl:10987 translate_tmp.pl:11284
 msgid "Retry"
 msgstr "Opnieuw proberen"
 
-#: translate_tmp.pl:11071
-#: translate_tmp.pl:11148
+#: translate_tmp.pl:11071 translate_tmp.pl:11148
 msgid "exported"
 msgstr "geëxporteerd"
 
-#: translate_tmp.pl:11075
-#: translate_tmp.pl:11152
+#: translate_tmp.pl:11075 translate_tmp.pl:11152
 msgid "Successfully exported"
-msgstr "Succesvol geëxporteerd"
+msgstr "Exporteren voltooid"
 
-#: translate_tmp.pl:11075
-#: translate_tmp.pl:11152
+#: translate_tmp.pl:11075 translate_tmp.pl:11152
 #, perl-format
 msgid "The file %s was successfully exported."
-msgstr "Het bestand %s is succesvol geëxporteerd."
+msgstr "'%s' is geëxporteerd."
 
-#: translate_tmp.pl:11089
-#: translate_tmp.pl:11166
+#: translate_tmp.pl:11089 translate_tmp.pl:11166
 #, perl-format
 msgid "Publishing %s..."
-msgstr "%s wordt gepubliceerd..."
+msgstr "Bezig met publiceren van %s..."
 
 #: translate_tmp.pl:11262
 msgid "_Retry"
-msgstr "_Opnieuw proberen"
+msgstr "Opnieuw p_roberen"
 
 #: translate_tmp.pl:11265
 #, perl-format
 msgid "Error while copying the image %s."
-msgstr "Fout bij het kopiëren van de afbeelding %s."
+msgstr "'%s' kan niet worden gekopieerd."
 
 #: translate_tmp.pl:11265
 #, perl-format
 msgid "There was an error copying the image into %s."
 msgstr ""
-"Er is een fout opgetreden bij het kopiëren van de afbeelding naar %s."
+"Er is een fout opgetreden bij het kopiëren van de afbeelding naar '%s'."
 
-#: translate_tmp.pl:11278
-#: translate_tmp.pl:90
+#: translate_tmp.pl:11278 translate_tmp.pl:90
 msgid "Please check your credentials and try again."
-msgstr "Controleer uw gegevens en probeer het opnieuw."
+msgstr "Controleer uw inloggegevens en probeer het opnieuw."
 
 #: translate_tmp.pl:11278
 msgid "Error while login"
-msgstr "Fout bij aanmelden"
+msgstr "Inlogfout"
 
 #: translate_tmp.pl:11281
 msgid "Maximum filesize reached"
-msgstr "Maximum bestandsgrootte bereikt"
+msgstr "De maximumbestandsgrootte is bereikt"
 
 #: translate_tmp.pl:11281
 msgid "Error while uploading"
@@ -1720,7 +1498,7 @@ msgstr "Fout bij verbinden"
 
 #: translate_tmp.pl:11298
 msgid "Save current preferences as new profile"
-msgstr "De huidige voorkeuren opslaan als nieuw profiel"
+msgstr "Huidige voorkeuren opslaan als nieuw profiel"
 
 #: translate_tmp.pl:11300
 msgid "New profile name"
@@ -1728,12 +1506,12 @@ msgstr "Nieuwe profielnaam"
 
 #: translate_tmp.pl:11361
 msgid "Replacing it will overwrite its contents."
-msgstr "Het vervangen zal de inhoud overschrijven."
+msgstr "Vervangen zal de inhoud overschrijven."
 
 #: translate_tmp.pl:11361
 #, perl-format
 msgid "A profile named %s already exists. Do you want to replace it?"
-msgstr "Een profiel genaamd %s bestaat al. Wilt u deze vervangen?"
+msgstr "Er is al een profiel genaamd '%s'. Wilt u dit vervangen?"
 
 #: translate_tmp.pl:79
 msgid "translator-credits"
@@ -1763,28 +1541,25 @@ msgstr ""
 "  rob https://launchpad.net/~rvdb\n"
 "  user109519 https://launchpad.net/~cumulus-007"
 
-#: translate_tmp.pl:34
-#: translate_tmp.pl:6033
+#: translate_tmp.pl:34 translate_tmp.pl:6033
 msgid "_File"
 msgstr "_Bestand"
 
-#: translate_tmp.pl:39
-#: translate_tmp.pl:6034
+#: translate_tmp.pl:39 translate_tmp.pl:6034
 msgid "_Edit"
-msgstr "Be_werken"
+msgstr "B_ewerken"
 
-#: translate_tmp.pl:44
-#: translate_tmp.pl:6036
+#: translate_tmp.pl:44 translate_tmp.pl:6036
 msgid "_View"
 msgstr "_Beeld"
 
 #: translate_tmp.pl:49
 msgid "_Screenshot"
-msgstr "_Schermafdruk"
+msgstr "_Schermfoto"
 
 #: translate_tmp.pl:54
 msgid "_Go"
-msgstr "_Gaan"
+msgstr "_Ga"
 
 #: translate_tmp.pl:59
 msgid "_Help"
@@ -1802,15 +1577,13 @@ msgstr "_Recente bestanden"
 msgid "Save _As..."
 msgstr "Opslaan _als…"
 
-#: translate_tmp.pl:114
-#: translate_tmp.pl:6182
+#: translate_tmp.pl:114 translate_tmp.pl:6182
 msgid "E_xport to PDF..."
-msgstr "E_xporteren als PDF..."
+msgstr "E_xporteren naar pdf..."
 
-#: translate_tmp.pl:119
-#: translate_tmp.pl:6192
+#: translate_tmp.pl:119 translate_tmp.pl:6192
 msgid "Export to Post_Script..."
-msgstr "Exporteren als Post_Script..."
+msgstr "Exporteren naar post_script..."
 
 #: translate_tmp.pl:129
 msgid "Page Set_up"
@@ -1828,82 +1601,73 @@ msgstr "Verzenden via e-_mail..."
 msgid "C_lose all"
 msgstr "Alles sl_uiten"
 
-#: translate_tmp.pl:204
-#: translate_tmp.pl:705
+#: translate_tmp.pl:204 translate_tmp.pl:705
 msgid "Copy _Filename"
 msgstr "_Bestandsnaam kopiëren"
 
 #: translate_tmp.pl:246
 msgid "Show Navigation _Toolbar"
-msgstr "Navigatie_werkbalk tonen"
+msgstr "Navigatiewerkbalk _tonen"
 
 #: translate_tmp.pl:328
 msgid "Get Help Online..."
-msgstr "Online hulp verkrijgen..."
+msgstr "Online-hulp verkrijgen..."
 
 #: translate_tmp.pl:343
 msgid "Translate this Application..."
-msgstr "Deze toepassing vertalen…"
+msgstr "Shutter vertalen…"
 
 #: translate_tmp.pl:358
 msgid "Report a Problem"
-msgstr "Een probleem melden"
+msgstr "Probleem melden"
 
 #: translate_tmp.pl:446
 msgid "_Active Window"
-msgstr "_Actieve venster"
+msgstr "_Actief venster"
 
 #: translate_tmp.pl:538
 msgid "Import from clip_board"
-msgstr "Importeren vanuit klem_bord"
+msgstr "Importeren van klem_bord"
 
-#: translate_tmp.pl:558
-#: translate_tmp.pl:655
+#: translate_tmp.pl:558 translate_tmp.pl:655
 msgid "Open wit_h"
 msgstr "Openen me_t"
 
-#: translate_tmp.pl:565
-#: translate_tmp.pl:662
+#: translate_tmp.pl:565 translate_tmp.pl:662
 msgid "Show in _folder"
 msgstr "Tonen in _map"
 
-#: translate_tmp.pl:572
-#: translate_tmp.pl:669
+#: translate_tmp.pl:572 translate_tmp.pl:669
 msgid "_Rename..."
-msgstr "He_rnoemen…"
+msgstr "_Naam wijzigen..."
 
-#: translate_tmp.pl:581
-#: translate_tmp.pl:677
+#: translate_tmp.pl:581 translate_tmp.pl:677
 msgid "_Send To..."
 msgstr "_Verzenden naar..."
 
-#: translate_tmp.pl:590
-#: translate_tmp.pl:685
+#: translate_tmp.pl:590 translate_tmp.pl:685
 msgid "E_xport..."
 msgstr "E_xporteren…"
 
-#: translate_tmp.pl:597
-#: translate_tmp.pl:691
+#: translate_tmp.pl:597 translate_tmp.pl:691
 msgid "Public URLs"
-msgstr "Publieke URL's"
+msgstr "Publieke url's"
 
-#: translate_tmp.pl:605
-#: translate_tmp.pl:718
+#: translate_tmp.pl:605 translate_tmp.pl:718
 msgid "_Edit..."
-msgstr "Be_werken…"
+msgstr "B_ewerken…"
 
 #: translate_tmp.pl:622
 msgid "Run a _plugin..."
-msgstr "Een _plug-in uitvoeren..."
+msgstr "_Plug-in uitvoeren..."
 
-#: translate_tmp.pl:631
-#: translate_tmp.pl:742
+#: translate_tmp.pl:631 translate_tmp.pl:742
 msgid "Redo _this screenshot"
-msgstr "_Deze schermafdruk opnieuw maken"
+msgstr "Schermfo_to opnieuw maken"
 
 #: translate_tmp.pl:734
 msgid "Run a _Plugin..."
-msgstr "Een _plug-in uitvoeren..."
+msgstr "_Plug-in uitvoeren..."
 
 #: translate_tmp.pl:37
 msgid "Redo"
@@ -1911,11 +1675,9 @@ msgstr "Opnieuw"
 
 #: translate_tmp.pl:40
 msgid "Redo last screenshot"
-msgstr "Laatste schermafdruk opnieuw maken"
+msgstr "Recentste schermfoto opnieuw maken"
 
-#: translate_tmp.pl:63
-#: translate_tmp.pl:46
-#: translate_tmp.pl:793
+#: translate_tmp.pl:63 translate_tmp.pl:46 translate_tmp.pl:793
 msgid "Selection"
 msgstr "Selectie"
 
@@ -1924,8 +1686,8 @@ msgid ""
 "Draw a rectangular capture area with your mouse\n"
 "to select a specified screen area"
 msgstr ""
-"Teken een rechthoekig opnamegebied met uw muis\n"
-"om een deel van het scherm te kiezen"
+"Teken een rechthoekig gebied met uw muis\n"
+"om een deel van het scherm te selecteren"
 
 #: translate_tmp.pl:89
 msgid "Desktop"
@@ -1933,11 +1695,11 @@ msgstr "Bureaublad"
 
 #: translate_tmp.pl:92
 msgid "Take a screenshot of your whole desktop"
-msgstr "Schermafdruk maken van uw gehele bureaublad"
+msgstr "Maak een schermfoto van uw gehele bureaublad"
 
 #: translate_tmp.pl:93
 msgid "Capture a specific workspace"
-msgstr "Opname maken van een bepaald werkblad"
+msgstr "Bepaald werkblad vastleggen"
 
 #: translate_tmp.pl:131
 msgid "Window"
@@ -1949,7 +1711,7 @@ msgstr "Selecteer een venster met uw muis"
 
 #: translate_tmp.pl:135
 msgid "Take a screenshot of a specific window"
-msgstr "Schermafdruk maken van een bepaald venster"
+msgstr "Maak een schermfoto van een bepaald venster"
 
 #: translate_tmp.pl:150
 msgid "Section"
@@ -1960,43 +1722,40 @@ msgid ""
 "Captures only a section of the window. You will be able to select any child "
 "window by moving the mouse over it"
 msgstr ""
-"Maak alleen opname van een deel van het venster. U kunt elk subvenster "
-"kiezen door de muis erover te bewegen"
+"Maak alleen een foto van een deel van het venster. U kunt elk onderliggend "
+"venster kiezen door de muis erover te bewegen"
 
-#: translate_tmp.pl:170
-#: translate_tmp.pl:1095
+#: translate_tmp.pl:170 translate_tmp.pl:1095
 msgid "Menu"
 msgstr "Menu"
 
 #: translate_tmp.pl:173
 msgid "Select a single menu or cascading menus from any application"
-msgstr "Selecteer een enkel menu of onderliggende menu's van een programma"
+msgstr "Selecteer een enkel menu of onderliggende menu's van een toepassing"
 
-#: translate_tmp.pl:190
-#: translate_tmp.pl:1101
+#: translate_tmp.pl:190 translate_tmp.pl:1101
 msgid "Tooltip"
-msgstr "Infotekst"
+msgstr "Hulpballon"
 
 #: translate_tmp.pl:193
 msgid "Capture a tooltip"
-msgstr "Opname maken van een infotekst"
+msgstr "Maak een schermfoto van een hulpballon"
 
 #: translate_tmp.pl:209
 msgid "Web"
-msgstr "Web"
+msgstr "Website"
 
-#: translate_tmp.pl:211
-#: translate_tmp.pl:79
+#: translate_tmp.pl:211 translate_tmp.pl:79
 msgid "Take a screenshot of a website"
-msgstr "Schermafdruk maken van een website"
+msgstr "Maak een schermafdruk van een website"
 
 #: translate_tmp.pl:212
 msgid ""
 "Set how long Shutter will wait for the screenshot to complete before "
 "aborting the process if it's taking too long"
 msgstr ""
-"Geef aan hoelang Shutter moet wachten voordat het proces afgebroken wordt "
-"als het maken van een schermafdruk te lang duurt"
+"Geef aan hoe lang Shutter moet wachten voordat het proces wordt afgebroken "
+"als het maken van een schermfoto te lang duurt"
 
 #: translate_tmp.pl:233
 msgid "Edit"
@@ -2007,8 +1766,8 @@ msgid ""
 "Use the built-in editor to highlight important fragments of your screenshot "
 "or crop it to a desired size"
 msgstr ""
-"Gebruik de ingebouwde editor om belangrijke delen van uw schermafdruk uit te "
-"lichten of naar een gewenste afmeting bij te snijden"
+"Gebruik de ingebouwde bewerker om belangrijke delen van uw schermfoto uit te "
+"lichten of bij te snijden"
 
 #: translate_tmp.pl:243
 msgid "Export"
@@ -2019,33 +1778,27 @@ msgid ""
 "Upload your images to an image hosting service, FTP site or export them to "
 "an arbitrary folder"
 msgstr ""
-"Upload uw afbeeldingen naar een afbeeldingshostingdienst, FTP-site of "
+"Upload uw afbeeldingen naar een afbeeldingshostingdienst, ftp-site of "
 "exporteer ze naar een map van uw keuze"
 
 #: translate_tmp.pl:247
 msgid "Show links to previous uploads"
 msgstr "Links naar vorige uploads tonen"
 
-#: translate_tmp.pl:33
-#: translate_tmp.pl:47
-#: translate_tmp.pl:61
+#: translate_tmp.pl:33 translate_tmp.pl:47 translate_tmp.pl:61
 #, perl-format
 msgid "Error while executing %s."
-msgstr "Fout tijdens het uitvoeren van %s."
+msgstr "Fout bij uitvoeren van %s."
 
-#: translate_tmp.pl:34
-#: translate_tmp.pl:48
-#: translate_tmp.pl:62
+#: translate_tmp.pl:34 translate_tmp.pl:48 translate_tmp.pl:62
 #, perl-format
 msgid "There was an error executing %s."
 msgstr "Er is een fout opgetreden tijdens het uitvoeren van %s."
 
-#: translate_tmp.pl:37
-#: translate_tmp.pl:51
-#: translate_tmp.pl:65
+#: translate_tmp.pl:37 translate_tmp.pl:51 translate_tmp.pl:65
 #, perl-format
 msgid "Exit Code: %d."
-msgstr "Beëindigingscode: %d."
+msgstr "Afsluitcode: %d."
 
 #: translate_tmp.pl:167
 msgid "Synchronization complete"
@@ -2053,11 +1806,11 @@ msgstr "Synchronisatie voltooid"
 
 #: translate_tmp.pl:169
 msgid "Synchronization in progress..."
-msgstr "Synchronisatie bezig..."
+msgstr "Bezig met synchroniseren..."
 
 #: translate_tmp.pl:62
 msgid "Illegal URI."
-msgstr "Ongeldige URI."
+msgstr "Ongeldige uri."
 
 #: translate_tmp.pl:82
 msgid "Connection error."
@@ -2070,19 +1823,19 @@ msgstr "Controleer uw verbinding en probeer het opnieuw."
 #: translate_tmp.pl:89
 #, perl-format
 msgid "Login with username %s failed."
-msgstr "Aanmelden met gebruikersnaam %s mislukt."
+msgstr "Het inloggen met de gebruikersnaam '%s' is mislukt."
 
 #: translate_tmp.pl:109
 msgid "Cannot change working directory."
-msgstr "De werkmap kan niet gewijzigd worden."
+msgstr "De werkmap kan niet worden gewijzigd."
 
 #: translate_tmp.pl:119
 msgid "Command 'put' failed."
-msgstr "Opdracht 'put' mislukt."
+msgstr "De opdracht 'put' is mislukt."
 
 #: translate_tmp.pl:87
 msgid "Copy this code to clipboard"
-msgstr "Deze code naar het klembord kopiëren"
+msgstr "Code kopiëren naar klembord"
 
 #: translate_tmp.pl:112
 #, perl-format
@@ -2096,20 +1849,20 @@ msgstr "Teken een vierkant gebied met de muis."
 #: translate_tmp.pl:122
 msgid "To take a screenshot, press the Enter key. Press Esc to quit."
 msgstr ""
-"Druk op de Enter-toets om een schermafdruk te maken. Druk op Esc om te "
-"stoppen."
+"Druk op de Enter-toets om een schermfoto te maken - druk op Esc om af te "
+"breken."
 
 #: translate_tmp.pl:124
 msgid "<b>shift/right-click</b> → selection dialog on/off"
-msgstr "<b>shift/rechtermuistoets</b> → selectiedialoogvenster aan/uit"
+msgstr "<b>shift/rechtermuisknop</b> → selectievenster aan/uit"
 
 #: translate_tmp.pl:124
 msgid "<b>ctrl + scrollwheel</b> → zoom in/out"
-msgstr "<b>ctrl + scrolwieltje</b> → in-/uitzoomen"
+msgstr "<b>ctrl + scrollwieltje</b> → in-/uitzoomen"
 
 #: translate_tmp.pl:124
 msgid "<b>space</b> → zoom window on/off"
-msgstr "<b>spatie</b> → venster zoomen aan/uit"
+msgstr "<b>spatiebalk</b> → vensterzoom aan/uit"
 
 #: translate_tmp.pl:124
 msgid "<b>cursor keys</b> → move cursor"
@@ -2127,12 +1880,12 @@ msgstr "<b>cursortoetsen + ctrl</b> → selectiegrootte aanpassen"
 msgid ""
 "Maybe mouse pointer could not be grabbed or the selected area is invalid."
 msgstr ""
-"Misschien kon de muisaanwijzer niet overgenomen worden of is het "
-"geselecteerde gebied ongeldig."
+"Wellicht kon de cursor niet worden overgenomen of is het geselecteerde "
+"gebied ongeldig."
 
 #: translate_tmp.pl:96
 msgid "Keyboard could not be grabbed."
-msgstr "Toetsenbord kon niet overgenomen worden."
+msgstr "Het toetsenbord kan niet worden overgenomen."
 
 #: translate_tmp.pl:105
 msgid "menu"
@@ -2140,116 +1893,104 @@ msgstr "menu"
 
 #: translate_tmp.pl:107
 msgid "tooltip"
-msgstr "Infotekst"
+msgstr "hulpballon"
 
 #: translate_tmp.pl:111
 #, perl-format
 msgid "No window with type %s detected."
-msgstr "Geen venster met type %s gedetecteerd."
+msgstr "Er is geen venster van het type '%s' gedetecteerd."
 
 #: translate_tmp.pl:119
 msgid "There is no last capture that can be redone."
-msgstr "Er is geen laatste opname die opnieuw genomen kan worden."
+msgstr "Er is geen recente schermfoto die opnieuw kan worden gemaakt."
 
 #: translate_tmp.pl:127
 msgid "The window is no longer available."
-msgstr "Het venster is niet langer beschikbaar."
+msgstr "Het venster is niet meer beschikbaar."
 
-#: translate_tmp.pl:139
-#: translate_tmp.pl:145
+#: translate_tmp.pl:139 translate_tmp.pl:145
 msgid "Unable to capture website"
-msgstr "Kan geen opname maken van website"
+msgstr "De website kan niet worden vastgelegd"
 
 #: translate_tmp.pl:153
 #, perl-format
 msgid "No window with name pattern %s detected."
-msgstr "Geen venster met patroon %s gevonden."
+msgstr "Er is geen venster met het naampatroon '%s' gedetecteerd."
 
 #: translate_tmp.pl:163
 #, perl-format
 msgid "Invalid pattern %s detected."
-msgstr "Ongeldig patroon %s ontdekt."
+msgstr "Ongeldig patroon '%s' ontdekt."
 
 #: translate_tmp.pl:116
 msgid "No subwindow detected"
-msgstr "Geen subvenster gedetecteerd"
+msgstr "Geen onderliggend venster gedetecteerd"
 
 #: translate_tmp.pl:117
 msgid ""
 "Maybe this window is using client-side windows (or similar).\n"
 "Shutter is not yet able to query the tree information of such windows."
 msgstr ""
-"Misschien maakt het venster gebruik van client-side vensters (of "
+"Wellicht maakt het venster gebruik van client-sidevensters (of "
 "soortgelijk).\n"
-"Shutter is nog niet in staat de boominformatie van dergelijke vensters op te "
-"vragen."
+"Shutter is nog niet in staat om de boominformatie van dergelijke vensters op "
+"te vragen."
 
 #: translate_tmp.pl:81
 msgid "URL to capture"
-msgstr "URL om opname van te maken"
+msgstr "De vast te leggen url"
 
 #: translate_tmp.pl:98
 msgid "C_apture"
-msgstr "Opn_emen"
+msgstr "V_astleggen"
 
 #: translate_tmp.pl:157
 msgid "Workspaces"
 msgstr "Werkbladen"
 
-#: translate_tmp.pl:454
-#: translate_tmp.pl:4186
+#: translate_tmp.pl:454 translate_tmp.pl:4186
 msgid "Fill color"
 msgstr "Opvulkleur"
 
-#: translate_tmp.pl:461
-#: translate_tmp.pl:462
+#: translate_tmp.pl:461 translate_tmp.pl:462
 msgid "Adjust fill color and opacity"
 msgstr "Opvulkleur en dekking aanpassen"
 
-#: translate_tmp.pl:468
-#: translate_tmp.pl:4206
+#: translate_tmp.pl:468 translate_tmp.pl:4206
 msgid "Stroke color"
 msgstr "Lijnkleur"
 
-#: translate_tmp.pl:473
-#: translate_tmp.pl:4212
+#: translate_tmp.pl:473 translate_tmp.pl:4212
 msgid "Choose stroke color"
-msgstr "Kies lijnkleur"
+msgstr "Kies een lijnkleur"
 
-#: translate_tmp.pl:475
-#: translate_tmp.pl:476
+#: translate_tmp.pl:475 translate_tmp.pl:476
 msgid "Adjust stroke color and opacity"
 msgstr "Lijnkleur en dekking aanpassen"
 
-#: translate_tmp.pl:482
-#: translate_tmp.pl:4172
+#: translate_tmp.pl:482 translate_tmp.pl:4172
 msgid "Line width"
 msgstr "Lijnbreedte"
 
-#: translate_tmp.pl:486
-#: translate_tmp.pl:487
+#: translate_tmp.pl:486 translate_tmp.pl:487
 msgid "Adjust line width"
 msgstr "Lijnbreedte aanpassen"
 
-#: translate_tmp.pl:493
-#: translate_tmp.pl:4249
-#: translate_tmp.pl:4375
+#: translate_tmp.pl:493 translate_tmp.pl:4249 translate_tmp.pl:4375
 msgid "Font"
 msgstr "Lettertype"
 
-#: translate_tmp.pl:497
-#: translate_tmp.pl:498
+#: translate_tmp.pl:497 translate_tmp.pl:498
 msgid "Select font family and size"
-msgstr "Kies lettertype en -grootte"
+msgstr "Kies een lettertype en -grootte"
 
 #: translate_tmp.pl:504
 msgid "Insert image"
 msgstr "Afbeelding invoegen"
 
-#: translate_tmp.pl:617
-#: translate_tmp.pl:618
+#: translate_tmp.pl:617 translate_tmp.pl:618
 msgid "Insert an arbitrary object or file"
-msgstr "Een willekeurig object of bestand invoegen"
+msgstr "Willekeurig object of bestand invoegen"
 
 #: translate_tmp.pl:638
 msgid "X"
@@ -2259,8 +2000,7 @@ msgstr "X"
 msgid "Y"
 msgstr "Y"
 
-#: translate_tmp.pl:666
-#: translate_tmp.pl:4302
+#: translate_tmp.pl:666 translate_tmp.pl:4302
 msgid "Width"
 msgstr "Breedte"
 
@@ -2274,8 +2014,7 @@ msgstr "_Bijsnijden"
 
 #: translate_tmp.pl:854
 msgid "Click-Drag to scale (try Control to scale uniformly)"
-msgstr ""
-"Klik en sleep om te schalen (probeer Control om in verhouding te schalen)"
+msgstr "Klik en sleep om te schalen (gebruik Ctrl om in verhouding te schalen)"
 
 #: translate_tmp.pl:857
 msgid "Click-Drag to resize the canvas"
@@ -2284,7 +2023,7 @@ msgstr "Klik en sleep om de grootte van het canvas aan te passen"
 #: translate_tmp.pl:863
 msgid "Click to paint (try Control or Shift for a straight line)"
 msgstr ""
-"Klik om te schilderen (probeer Control of Shift voor een rechte lijn)"
+"Klik om te schilderen (gebruik Ctrl of Shift om een rechte lijn te trekken)"
 
 #: translate_tmp.pl:868
 msgid "Click-Drag to create a new straight line"
@@ -2309,11 +2048,11 @@ msgstr "Klik en sleep om een nieuw tekstveld toe te voegen"
 #: translate_tmp.pl:893
 msgid "Click to censor (try Control or Shift for a straight line)"
 msgstr ""
-"Klik om te censureren (probeer Control of Shift voor een rechte lijn)"
+"Klik om te censureren (gebruik Ctrl of Shift om een rechte lijn te trekken)"
 
 #: translate_tmp.pl:898
 msgid "Click-Drag to create a pixelized region"
-msgstr "Klik en sleep om een gebied van grove pixels te creëren"
+msgstr "Klik en sleep om een gebied met grove pixels te maken"
 
 #: translate_tmp.pl:903
 msgid "Click to add an auto-increment shape"
@@ -2322,7 +2061,7 @@ msgstr "Klik om een automatisch groter wordende vorm toe te voegen"
 #: translate_tmp.pl:1240
 #, perl-format
 msgid "Save the changes to image %s before closing?"
-msgstr "Wijzigingen naar afbeelding %s opslaan alvorens af te sluiten?"
+msgstr "Wilt u de wijzigingen aan '%s' opslaan alvorens af te sluiten?"
 
 #: translate_tmp.pl:1256
 msgid "Close"
@@ -2334,16 +2073,15 @@ msgstr "_Niet opslaan"
 
 #: translate_tmp.pl:1323
 #, perl-format
-msgid ""
-"If you don't save the image, changes from the last minute will be lost"
+msgid "If you don't save the image, changes from the last minute will be lost"
 msgid_plural ""
 "If you don't save the image, changes from the last %d minutes will be lost"
 msgstr[0] ""
-"Als u de afbeelding niet opslaat gaan de wijzigingen van de laatste minuut "
-"verloren"
+"Als u de afbeelding niet opslaat, dan gaan de wijzigingen van de laatste "
+"minuut verloren"
 msgstr[1] ""
-"Als u de afbeelding niet opslaat gaan de wijzigingen van de laatste %d "
-"minuten verloren"
+"Als u de afbeelding niet opslaat, dan gaan de wijzigingen van de afgelopen "
+"%d minuten verloren"
 
 #: translate_tmp.pl:1720
 msgid "Do you want to save the changed background color?"
@@ -2354,8 +2092,8 @@ msgid ""
 "The background is likely to be transparent if you decide to ignore the "
 "background color."
 msgstr ""
-"De achtergrond wordt waarschijnlijk transparant als u beslist de "
-"achtergrondkleur te negeren"
+"Als u beslist de achtergrondkleur te negeren, dan wordt deze mogelijk "
+"doorzichtig."
 
 #: translate_tmp.pl:1723
 msgid "Save Background Color"
@@ -2375,7 +2113,7 @@ msgstr "Achtergrondkleur wijzigen..."
 
 #: translate_tmp.pl:3887
 msgid "_Reset to Default"
-msgstr "_Standaardinstellingen terugzetten"
+msgstr "_Standaardwaarden"
 
 #: translate_tmp.pl:3940
 msgid "Raise"
@@ -2395,7 +2133,7 @@ msgstr "Vergrendelen"
 
 #: translate_tmp.pl:4084
 msgid "Edit Preferences..."
-msgstr "Voorkeuren bewerken..."
+msgstr "Voorkeuren aanpassen..."
 
 #: translate_tmp.pl:4227
 msgid "Numbering"
@@ -2405,8 +2143,7 @@ msgstr "Nummering"
 msgid "Current value"
 msgstr "Huidige waarde"
 
-#: translate_tmp.pl:4292
-#: translate_tmp.pl:6304
+#: translate_tmp.pl:4292 translate_tmp.pl:6304
 msgid "Arrow"
 msgstr "Pijl"
 
@@ -2416,36 +2153,35 @@ msgstr "Lengte"
 
 #: translate_tmp.pl:4326
 msgid "Tip length"
-msgstr "Infotekstlengte"
+msgstr "Hulpballonlengte"
 
 #: translate_tmp.pl:4336
 msgid "Display an arrow at the end of the line"
-msgstr "Geef een pijl aan het einde van de lijn weer"
+msgstr "Toon een pijl aan het einde van de lijn"
 
 #: translate_tmp.pl:4338
 msgid "Display an arrow at the start of the line"
-msgstr "Geef een pijl aan het begin van de lijn weer"
+msgstr "Toon een pijl aan het begin van de lijn"
 
-#: translate_tmp.pl:4365
-#: translate_tmp.pl:6304
+#: translate_tmp.pl:4365 translate_tmp.pl:6304
 msgid "Text"
 msgstr "Tekst"
 
 #: translate_tmp.pl:4404
 msgid "Font color"
-msgstr "Lettertypekleur"
+msgstr "Letterkleur"
 
 #: translate_tmp.pl:4410
 msgid "Choose font color"
-msgstr "Kies lettertypekleur"
+msgstr "Kies een letterkleur"
 
 #: translate_tmp.pl:4432
 msgid "Use selected font"
-msgstr "Geselecteerde lettertype gebruiken"
+msgstr "Gekozen lettertype gebruiken"
 
 #: translate_tmp.pl:4438
 msgid "Use selected font color"
-msgstr "Geselecteerde lettertypekleur gebruiken"
+msgstr "Gekozen letterkleur gebruiken"
 
 #: translate_tmp.pl:6035
 msgid "_Tools"
@@ -2453,23 +2189,23 @@ msgstr "_Gereedschap"
 
 #: translate_tmp.pl:6042
 msgid "Undo last action"
-msgstr "Laatste bewerking ongedaan maken"
+msgstr "Recentste bewerking ongedaan maken"
 
 #: translate_tmp.pl:6053
 msgid "Do again the last undone action"
-msgstr "De laatst ongedaan gemaakte bewerking opnieuw doen"
+msgstr "Recentste bewerking opnieuw uitvoeren"
 
 #: translate_tmp.pl:6064
 msgid "Copy selection to clipboard"
-msgstr "Selectie naar het klembord kopiëren"
+msgstr "Selectie kopiëren naar klembord"
 
 #: translate_tmp.pl:6078
 msgid "Cut selection to clipboard"
-msgstr "Selectie naar het klembord knippen"
+msgstr "Selectie knippen naar klembord"
 
 #: translate_tmp.pl:6093
 msgid "Paste objects from clipboard"
-msgstr "Objecten uit het klembord plakken"
+msgstr "Objecten van klembord plakken"
 
 #: translate_tmp.pl:6103
 msgid "Delete current object"
@@ -2477,15 +2213,15 @@ msgstr "Huidige object verwijderen"
 
 #: translate_tmp.pl:6113
 msgid "Clear canvas"
-msgstr "Wis canvas"
+msgstr "Canvas wissen"
 
 #: translate_tmp.pl:6134
 msgid "Abort current mode"
-msgstr "Huidige modus beëindigen"
+msgstr "Huidige modus afsluiten"
 
 #: translate_tmp.pl:6144
 msgid "Close this window"
-msgstr "Sluit dit venster"
+msgstr "Venster sluiten"
 
 #: translate_tmp.pl:6154
 msgid "Save image"
@@ -2493,27 +2229,27 @@ msgstr "Afbeelding opslaan"
 
 #: translate_tmp.pl:6162
 msgid "Export to _File..."
-msgstr "Exporteren als _bestand..."
+msgstr "Exporteren naar _bestand..."
 
 #: translate_tmp.pl:6164
 msgid "Export to File..."
-msgstr "Exporteren als bestand..."
+msgstr "Exporteren naar bestand..."
 
 #: translate_tmp.pl:6172
 msgid "_Export to SVG..."
-msgstr "_Exporteren als SVG..."
+msgstr "_Exporteren naar svg..."
 
 #: translate_tmp.pl:6174
 msgid "Export to SVG..."
-msgstr "Exporteren als SVG..."
+msgstr "Exporteren naar svg..."
 
 #: translate_tmp.pl:6184
 msgid "Export to PDF..."
-msgstr "Exporteren als PDF..."
+msgstr "Exporteren naar pdf..."
 
 #: translate_tmp.pl:6194
 msgid "Export to PostScript..."
-msgstr "Exporteren als PostScript..."
+msgstr "Exporteren naar postscript..."
 
 #: translate_tmp.pl:6265
 msgid "Automatic scrolling"
@@ -2525,11 +2261,11 @@ msgstr "Kies"
 
 #: translate_tmp.pl:6304
 msgid "Select item to move or resize it"
-msgstr "Kies onderdeel om het te verplaatsen of van grootte te veranderen"
+msgstr "Kies het te verplaatsen of herschalen onderdeel"
 
 #: translate_tmp.pl:6304
 msgid "Freehand"
-msgstr "Uit vrije hand"
+msgstr "Vrije hand"
 
 #: translate_tmp.pl:6304
 msgid "Draw a freehand line"
@@ -2569,7 +2305,7 @@ msgstr "Teken een ellips"
 
 #: translate_tmp.pl:6304
 msgid "Add some text to the screenshot"
-msgstr "Tekst toevoegen aan de schermafdruk"
+msgstr "Tekst toevoegen aan schermfoto"
 
 #: translate_tmp.pl:6304
 msgid "Censor"
@@ -2577,17 +2313,17 @@ msgstr "Censureren"
 
 #: translate_tmp.pl:6304
 msgid "Censor portions of your screenshot to hide private data"
-msgstr "Delen van uw schermafdruk censureren om privégegevens te verbergen"
+msgstr "Censureer delen van uw schermfoto om privégegevens te verbergen"
 
 #: translate_tmp.pl:6304
 msgid "Pixelize"
-msgstr "Grove pixels maken"
+msgstr "Grove pixels toevoegen"
 
 #: translate_tmp.pl:6304
 msgid "Pixelize selected areas of your screenshot to hide private data"
 msgstr ""
-"Grove pixels van geselecteerd gebied in uw schermafdruk maken om "
-"privégegevens te verbergen"
+"Voeg grove pixels toe aan een geselecteerd gebied om privégegevens te "
+"verbergen"
 
 #: translate_tmp.pl:6304
 msgid "Number"
@@ -2595,7 +2331,7 @@ msgstr "Nummer"
 
 #: translate_tmp.pl:6304
 msgid "Add an auto-increment shape to the screenshot"
-msgstr "Een automatisch groter wordende vorm toevoegen aan de schermafdruk"
+msgstr "Voeg een automatisch groter wordende vorm toe"
 
 #: translate_tmp.pl:6304
 msgid "Crop"
@@ -2603,24 +2339,23 @@ msgstr "Bijsnijden"
 
 #: translate_tmp.pl:6304
 msgid "Crop your screenshot"
-msgstr "Uw schermafdruk bijsnijden"
+msgstr "Snijd uw schermfoto bij"
 
-#: translate_tmp.pl:6559
-#: translate_tmp.pl:6756
+#: translate_tmp.pl:6559 translate_tmp.pl:6756
 msgid "No icon was found"
 msgstr "Er is geen pictogram gevonden"
 
 #: translate_tmp.pl:6621
 msgid "Import from current theme..."
-msgstr "Importeren vanuit het huidige thema…"
+msgstr "Importeren uit huidig thema…"
 
 #: translate_tmp.pl:6635
 msgid "Import from session..."
-msgstr "Importeren vanuit sessie…"
+msgstr "Importeren uit sessie…"
 
 #: translate_tmp.pl:6646
 msgid "Import from filesystem..."
-msgstr "Importeren vanuit bestandssysteem…"
+msgstr "Importeren van bestandssysteem…"
 
 #: translate_tmp.pl:7460
 msgid "New text..."
