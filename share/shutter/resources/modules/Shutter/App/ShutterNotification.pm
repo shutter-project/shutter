@@ -133,7 +133,7 @@ sub new {
 
 				if ($self->{_sc}->get_mainwindow->get_screen->is_composited) {
 					$cr->set_source_rgba(1.0, 1.0, 1.0, 0);
-					Gtk3::Gdk::Cairo::Context::set_source_pixbuf($cr, $pixbuf, 0, 0);
+					Gtk3::Gdk::cairo_set_source_pixbuf($cr, $pixbuf, 0, 0);
 					$cr->paint;
 				} else {
 					$cr->set_source_rgb($sel_bg->red, $sel_bg->green, $sel_bg->blue);

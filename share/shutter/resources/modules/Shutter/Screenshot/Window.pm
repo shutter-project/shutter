@@ -78,7 +78,6 @@ sub new {
 		#higlighter (borderless gtk window)
 		$self->{_highlighter} = Gtk3::Window->new('popup');
 		if ($compos) {
-			$self->{_highlighter}->set_colormap($self->{_main_gtk_window}->get_screen->get_rgba_colormap);
 			my $screen = $self->{_main_gtk_window}->get_screen;
 			# Glib::Object::Introspection doesn't support method call via
 			# cross-package inheritance, call it as a free function instead

@@ -6649,7 +6649,7 @@ sub STARTUP {
 						$cr->scale(min($scale_x, $scale_y), min($scale_x, $scale_y));
 					}
 
-					Gtk3::Gdk::Cairo::Context::set_source_pixbuf($cr, $pixbuf, 0, 0);
+					Gtk3::Gdk::cairo_set_source_pixbuf($cr, $pixbuf, 0, 0);
 
 				}
 
