@@ -10,3 +10,4 @@ ssh -X is broken
 SimpleDialogs
 interpolation in imageview
 selection: cursor XY stickiness to edges
+hidpi
