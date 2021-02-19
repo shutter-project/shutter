@@ -45,6 +45,7 @@ use Gtk3;
 
 use Exporter;
 use GooCanvas2;
+use GooCanvas2::CairoTypes;
 use File::Basename qw/ fileparse dirname basename /;
 use File::Glob qw/ bsd_glob /;
 use File::Temp qw/ tempfile tempdir /;

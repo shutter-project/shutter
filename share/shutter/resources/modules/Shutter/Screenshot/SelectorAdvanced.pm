@@ -32,6 +32,7 @@ use warnings;
 
 use Gtk3::ImageView;
 use GooCanvas2;
+use GooCanvas2::CairoTypes;
 use Shutter::Screenshot::Main;
 use Shutter::Screenshot::History;
 
@@ -257,10 +258,7 @@ sub select_advanced {
 		y      => 0,
 		pixbuf => $clean_pixbuf
 	);
-	eval {
-		# eval is workaround for https://gitlab.gnome.org/GNOME/goocanvas/-/merge_requests/9
-		$root_item->get('pattern')->set_filter('nearest');
-	};
+	GooCanvas2::CairoTypes::cairoize_pattern($root_item->get('pattern'))->set_filter('nearest');
 
 	#...and cursor icon
 	my $cursor_item = GooCanvas2::CanvasImage->new(
@@ -269,10 +267,7 @@ sub select_advanced {
 		y      => 0,
 		pixbuf => $shutter_cursor_pixbuf_frame,
 	);
-	eval {
-		# eval is workaround for https://gitlab.gnome.org/GNOME/goocanvas/-/merge_requests/9
-		$cursor_item->get('pattern')->set_filter('nearest');
-	};
+	GooCanvas2::CairoTypes::cairoize_pattern($cursor_item->get('pattern'))->set_filter('nearest');
 
 	#starting point
 	my ($window_at_pointer, $xinit, $yinit, $mask) = $self->{_root}->get_pointer;
