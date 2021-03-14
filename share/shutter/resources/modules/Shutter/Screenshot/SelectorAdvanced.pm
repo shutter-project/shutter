@@ -280,7 +280,7 @@ sub select_advanced {
 
 	#scroll region
 	#$canvas->set_scroll_region($xinit - 9, $yinit - 9, $xinit + 10, $yinit + 10);
-	$canvas->scroll_to($xinit - 9, $yinit - 9);
+	$canvas->scroll_to($xinit - 10, $yinit - 10);
 
 	#window to manipulate the selection
 	$self->{_prop_window} = $self->select_dialog();
@@ -527,7 +527,7 @@ sub select_advanced {
 					#this is significantly faster than
 					#scroll_to
 					#$canvas->set_scroll_region($ev_x - 9, $ev_y - 9, $ev_x + 10, $ev_y + 10);
-					$canvas->scroll_to($ev_x - 9, $ev_y - 9);
+					$canvas->scroll_to($ev_x - 10, $ev_y - 10);
 
 					#update zoom_window text
 					if (defined $s) {
