@@ -60,6 +60,8 @@ sub new {
 	$self->{_init_w} = shift;
 	$self->{_init_h} = shift;
 
+	$self->{_dpi_scale} = Gtk3::Window->new('toplevel')->get('scale-factor');
+
 	#view, selector, dragger
 	$self->{_view}     = Gtk3::ImageView->new;
 	$self->{_selector} =  Gtk3::ImageView::Tool::Selector->new($self->{_view});
@@ -125,10 +127,10 @@ sub select_advanced {
 					my $style     = $self->{_sc}->get_mainwindow->get_style_context;
 					my $sel_bg    = Gtk3::Gdk::RGBA::parse('#131313');
 					my $font_fam  = $style->get_font('normal')->get_family;
-					my $font_size = $style->get_font('normal')->get_size / Pango->scale;
+					my $font_size = $style->get_font('normal')->get_size * $self->{_dpi_scale} / Pango->scale;
 
 					#create cairo context und layout
-					my $surface = Cairo::ImageSurface->create('argb32', $self->{_root}->{w}, $self->{_root}->{h});
+					my $surface = Cairo::ImageSurface->create('argb32', $self->{_root}->{w}*$self->{_dpi_scale}, $self->{_root}->{h}*$self->{_dpi_scale});
 					my $cr      = Cairo::Context->create($surface);
 
 					#set_source_pixbuf
@@ -136,7 +138,7 @@ sub select_advanced {
 					$cr->paint;
 
 					my $layout = Pango::Cairo::create_layout($cr);
-					$layout->set_width(int($mon1->{width} / 2) * Pango->scale);
+					$layout->set_width(int($mon1->{width} * $self->{_dpi_scale} / 2) * Pango->scale);
 					$layout->set_alignment('left');
 					$layout->set_wrap('word');
 
@@ -169,9 +171,9 @@ sub select_advanced {
 
 					my $w = $lw + $size1 * 2;
 					my $h = $lh + $size1 * 2;
-					my $x = int(($mon1->{width} - $w) / 2) + $mon1->{x};
-					my $y = int(($mon1->{height} - $h) / 2) + $mon1->{y};
-					my $r = 20;
+					my $x = int(($mon1->{width}*$self->{_dpi_scale} - $w) / 2) + $mon1->{x};
+					my $y = int(($mon1->{height}*$self->{_dpi_scale} - $h) / 2) + $mon1->{y};
+					my $r = 20*$self->{_dpi_scale};
 
 					$cr->move_to($x + $r, $y);
 					$cr->line_to($x + $w - $r, $y);
@@ -224,7 +226,7 @@ sub select_advanced {
 	my $canvas = GooCanvas2::Canvas->new();
 	$canvas->set_size_request(105, 105);
 	$canvas->modify_bg('normal', Gtk3::Gdk::RGBA::parse('#00000000'));
-	$canvas->set_bounds(-10, -10, $self->{_root}->{w}+10, $self->{_root}->{h}+10);
+	$canvas->set_bounds(-10*$self->{_dpi_scale}, -10*$self->{_dpi_scale}, ($self->{_root}->{w}+10)*$self->{_dpi_scale}, ($self->{_root}->{h}+10)*$self->{_dpi_scale});
 	$canvas->set_scale(5);
 
 	my $canvas_root = $canvas->get_root_item();
@@ -457,8 +459,9 @@ sub select_advanced {
 					my ($window_at_pointer, $x, $y, $mask) = $self->{_root}->get_pointer;
 
 					#event coordinates
-					my $ev_x = int($v->{x} / $self->{_view}->get_zoom + $x / $self->{_view}->get_zoom);
-					my $ev_y = int($v->{y} / $self->{_view}->get_zoom + $y / $self->{_view}->get_zoom);
+					my $zoom = $self->{_view}->get_zoom;
+					my $ev_x = int($v->{x} / $zoom + $x * $self->{_dpi_scale} / $zoom);
+					my $ev_y = int($v->{y} / $zoom + $y * $self->{_dpi_scale} / $zoom);
 
 					#sync cursor with selection
 					if (0 && defined $s) {
@@ -726,20 +729,25 @@ sub zoom_check_pos {
 	my ($window_at_pointer, $x, $y, $mask) = $self->{_root}->get_pointer;
 
 	#event coordinates
-	my $ev_x = int($v->{x} / $self->{_view}->get_zoom + $x / $self->{_view}->get_zoom);
-	my $ev_y = int($v->{y} / $self->{_view}->get_zoom + $y / $self->{_view}->get_zoom);
+	my $zoom = $self->{_view}->get_zoom;
+	my $ev_x = int($v->{x} / $zoom + $x * $self->{_dpi_scale} / $zoom);
+	my $ev_y = int($v->{y} / $zoom + $y * $self->{_dpi_scale} / $zoom);
 
 	my ($zw, $zh) = $self->{_zoom_window}->get_size;
 	my ($zx, $zy) = $self->{_zoom_window}->get_position;
 
+	my $distance = 50 * $self->{_dpi_scale};
+	my $zzw = $zw * $self->{_dpi_scale} + $distance;
+	my $zzh = $zh * $self->{_dpi_scale} + $distance;
+
 	my $sregion = undef;
 	if (defined $s) {
-		$sregion = Cairo::Region->create({x=>$s->{x} - 50, y=>$s->{y} - 50, width=>$s->{width} + 50, height=>$s->{height} + 50});
+		$sregion = Cairo::Region->create({x=>$s->{x}, y=>$s->{y}, width=>$s->{width} + $distance, height=>$s->{height} + $distance});
 	} else {
-		$sregion = Cairo::Region->create({x=>$ev_x - 50, y=>$ev_y - 50, width=>50, height=>50});
+		$sregion = Cairo::Region->create({x=>$ev_x, y=>$ev_y, width=>$distance, height=>$distance});
 	}
 
-	my $otype = $sregion->contains_rectangle({x=>$zx - 50, y=>$zy - 50, width=>$zw + 50, height=>$zh + 50});
+	my $otype = $sregion->contains_rectangle({x=>$zx, y=>$zy, width=>$zzw, height=>$zzh});
 	if ($otype eq 'in' || $otype eq 'part' || !$self->{_zoom_window}->get_visible) {
 
 		my $moved = FALSE;
@@ -747,12 +755,12 @@ sub zoom_check_pos {
 		#possible positions if we need to move the zoom window
 		my @pos = (
 			{x=>$self->{_root}->{x},       y=>$self->{_root}->{y},     },
-			{x=>0,                         y=>$self->{_root}->{h} - $zh},
+			{x=>$self->{_root}->{x},       y=>$self->{_root}->{h} - $zh},
 			{x=>$self->{_root}->{w} - $zw, y=>$self->{_root}->{y},     },
 			{x=>$self->{_root}->{w} - $zw, y=>$self->{_root}->{h} - $zh});
 
 		foreach (@pos) {
-			my $otypet = $sregion->contains_rectangle({x=>$_->{x} - 50, y=>$_->{y} - 50, width=>$zw + 50, height=>$zh + 50});
+			my $otypet = $sregion->contains_rectangle({x=>$_->{x}*$self->{_dpi_scale}, y=>$_->{y}*$self->{_dpi_scale}, width=>$zzw, height=>$zzh});
 			if ($otypet eq 'out') {
 				$self->{_zoom_window}->move($_->{x}, $_->{y});
 				$self->{_zoom_window}->show_all;
