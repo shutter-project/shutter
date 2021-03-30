@@ -6192,7 +6192,7 @@ sub setup_uimanager {
 		  <menuitem action = 'Cut'/>
 		  <menuitem action = 'Paste'/>
 		  <menuitem action = 'Delete'/>
-		  <menuitem action = 'Clear'/>			  
+		  <menuitem action = 'Clear'/>
 		  <separator/>
 		  <menuitem action = 'Stop'/>
 		  <separator/>
@@ -6215,11 +6215,11 @@ sub setup_uimanager {
 		  <menuitem action='Crop'/>
 		</menu>
 		<menu action = 'View'>
-		  <menuitem action = 'ControlEqual'/>	
-		  <menuitem action = 'ControlKpAdd'/>	
+		  <menuitem action = 'ControlEqual'/>
+		  <menuitem action = 'ControlKpAdd'/>
 		  <menuitem action = 'ZoomIn'/>
 		  <menuitem action = 'ZoomOut'/>
-		  <menuitem action = 'ControlKpSub'/>		  
+		  <menuitem action = 'ControlKpSub'/>
 		  <menuitem action = 'ZoomNormal'/>
 		  <separator/>
 		  <menuitem action = 'Fullscreen'/>
@@ -6240,8 +6240,8 @@ sub setup_uimanager {
 		<toolitem action='Copy'/>
 		<toolitem action='Cut'/>
 		<toolitem action='Paste'/>
-		<toolitem action='Delete'/>		
-		<toolitem action='Clear'/>		
+		<toolitem action='Delete'/>
+		<toolitem action='Clear'/>
 	  </toolbar>
 	  <toolbar name = 'ToolBarDrawing'>
 		<toolitem action='Select'/>
@@ -6258,7 +6258,7 @@ sub setup_uimanager {
 		<toolitem action='Number'/>
 		<separator/>
 		<toolitem action='Crop'/>
-	  </toolbar>  
+	  </toolbar>
 	</ui>";
 
 	eval { $uimanager->add_ui_from_string($ui_info) };
@@ -6409,7 +6409,9 @@ sub import_from_filesystem {
 
 			#and populate later (performance)
 			$subdir_item->{'nid'} = $subdir_item->signal_connect(
-				'activate' => sub {
+                # Weird Ubuntu case: activate doest seem to triggered
+                # Therefore we replace activate by show, it isn't the most accurate but it does the trick.
+                'show' => sub {
 					$subdir_item->set_image(Gtk2::Image->new_from_file($self->{_icons} . "/throbber_16x16.gif"));
 					my $submenu = $self->import_from_filesystem($button, $subdir_item, $dobjects . "/$short");
 
