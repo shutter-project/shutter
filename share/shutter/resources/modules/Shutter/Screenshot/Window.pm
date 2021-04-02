@@ -68,6 +68,7 @@ sub new {
 
 	#main window
 	$self->{_main_gtk_window} = $self->{_sc}->get_mainwindow;
+	$self->{_dpi_scale} = $self->{_main_gtk_window}->get('scale-factor');
 
 	#only used when selecting a window
 	if (defined $self->{_mode} && $self->{_mode} =~ m/(window|section)/ig) {
@@ -95,7 +96,6 @@ sub new {
 		#obtain current colors and font_desc from the main window
 		my $style     = $self->{_main_gtk_window}->get_style_context;
 		my $sel_bg    = $style->get_background_color('selected');
-		#my $sel_bg    = $style->bg('selected');
 		my $font_fam  = $style->get_font('normal')->get_family;
 		my $font_size = $style->get_font('normal')->get_size / Pango->scale;
 
@@ -107,7 +107,7 @@ sub new {
 				return FALSE unless $self->{_highlighter}->get_window;
 
 				#Place window and resize it
-				$self->{_highlighter}->get_window->move_resize($self->{_c}{'cw'}{'x'} - 3, $self->{_c}{'cw'}{'y'} - 3, $self->{_c}{'cw'}{'width'} + 6, $self->{_c}{'cw'}{'height'} + 6);
+				$self->{_highlighter}->get_window->move_resize($self->{_c}{'cw'}{'x'} / $self->{_dpi_scale} - 3, $self->{_c}{'cw'}{'y'} / $self->{_dpi_scale} - 3, $self->{_c}{'cw'}{'width'} / $self->{_dpi_scale} + 6, $self->{_c}{'cw'}{'height'} / $self->{_dpi_scale} + 6);
 
 				print $self->{_c}{'cw'}{'window'}->get_name, "\n" if $self->{_sc}->get_debug;
 
@@ -547,7 +547,7 @@ sub find_current_parent_window {
 			});
 
 			if (   $cwdow->is_visible_on_workspace($active_workspace)
-				&& $wr->contains_point($event->x, $event->y)
+				&& $wr->contains_point($event->x * $self->{_dpi_scale}, $event->y * $self->{_dpi_scale})
 				&& $wp * $hp <= $self->{_min_size})
 			{
 
@@ -745,7 +745,7 @@ sub select_window {
 	my $type_hint = shift;
 
 	#root window size is minimum at startup
-	$self->{_min_size} = $self->{_root}->{w} * $self->{_root}->{h};
+	$self->{_min_size} = $self->{_root}->{w} * $self->{_root}->{h} * $self->{_dpi_scale} * $self->{_dpi_scale};
 
 	#if there is no window already selected
 	unless ($self->{_c}{'ws'}) {
@@ -762,7 +762,6 @@ sub select_window {
 	if (   (Gtk3::Gdk::pointer_is_grabbed() && ($self->{_c}{'lw'}{'gdk_window'} ne $self->{_c}{'cw'}{'gdk_window'}))
 		|| (Gtk3::Gdk::pointer_is_grabbed() && $self->{_c}{'ws_init'}))
 	{
-
 		$self->update_highlighter();
 
 		#reset flag
@@ -816,7 +815,7 @@ sub window {
 	$self->{_c}{'lw'}{'gdk_window'} = 0;
 
 	#root window size is minimum at startup
-	$self->{_min_size}              = $self->{_root}->{w} * $self->{_root}->{h};
+	$self->{_min_size}              = $self->{_root}->{w} * $self->{_root}->{h} * $self->{_dpi_scale} * $self->{_dpi_scale};
 	$self->{_c}{'cw'}{'gdk_window'} = $self->{_root};
 	$self->{_c}{'cw'}{'x'}          = $self->{_root}->{x};
 	$self->{_c}{'cw'}{'y'}          = $self->{_root}->{y};
@@ -941,7 +940,7 @@ sub window {
 					Gtk3->main();
 
 					my ($output_new, $l_cropped, $r_cropped, $t_cropped, $b_cropped) =
-						$self->get_pixbuf_from_drawable($self->{_root}, $self->{_c}{'cw'}{'x'}, $self->{_c}{'cw'}{'y'}, $self->{_c}{'cw'}{'width'}, $self->{_c}{'cw'}{'height'});
+						$self->get_pixbuf_from_drawable($self->{_root}, $self->{_c}{'cw'}{'x'} / $self->{_dpi_scale}, $self->{_c}{'cw'}{'y'} / $self->{_dpi_scale}, $self->{_c}{'cw'}{'width'}/$self->{_dpi_scale}, $self->{_c}{'cw'}{'height'}/$self->{_dpi_scale});
 
 					#save return value to current $output variable
 					#-> ugly but fastest and safest solution now
