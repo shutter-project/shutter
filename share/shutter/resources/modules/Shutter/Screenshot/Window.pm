@@ -703,15 +703,13 @@ sub find_region_for_window_type {
 			#~ print $xp, " - ", $yp, " - ", $wp, " - ", $hp, "\n";
 
 			#create region
-			my $sr = Cairo::Region->create({x=>$xp, y=>$yp, width=>$wp, height=>$hp});
+			my $sr = Cairo::Region->create({x=>$xp, y=>$yp, width=>$wp * $self->{_dpi_scale}, height=>$hp * $self->{_dpi_scale}});
 
 			#init region
 			unless (defined $self->{_c}{'cw'}{'window_region'}) {
 				$self->{_c}{'cw'}{'window_region'} = Cairo::Region->create;
-				$self->{_c}{'cw'}{'window_region'}->union($sr);
-			} else {
-				$self->{_c}{'cw'}{'window_region'}->union($sr);
 			}
+			$self->{_c}{'cw'}{'window_region'}->union($sr);
 
 			#store clipbox geometry
 			#~ my $cbox = $self->{_c}{'cw'}{'window_region'}->get_clipbox;
