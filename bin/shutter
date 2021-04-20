@@ -4300,6 +4300,13 @@ sub STARTUP {
 				}
 			);
 			$session_screens{$key}->{'image'}->signal_connect(
+				'drag-data-get',
+				sub {
+					my ($widget, $context, $data, $info, $time) = @_;
+					$data->set_uris([$session_screens{$key}->{'giofile'}->get_uri]);
+				}
+			);
+			$session_screens{$key}->{'image'}->signal_connect(
 				'zoom-changed',
 				sub {
 					my ($view, $zoom) = @_;
