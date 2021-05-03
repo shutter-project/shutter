@@ -265,14 +265,18 @@ sub show {
 	$self->{_canvas} = GooCanvas2::Canvas->new();
 
 	#enable dnd for it
-	#$self->{_canvas}->drag_dest_set('all', ['copy', 'private', 'default', 'move', 'link', 'ask']);
+	$self->{_canvas}->drag_dest_set('all', [Gtk3::TargetEntry->new('text/uri-list', [], 0)], 'copy');
 	$self->{_canvas}->signal_connect(drag_data_received => sub { $self->import_from_dnd(@_) });
-
-	my $target_list = Gtk3::TargetList->new();
-	my $atom1       = Gtk3::Gdk::Atom::intern('text/uri-list', FALSE);
-	$target_list->add($atom1, 0, 0);
-
-	$self->{_canvas}->drag_dest_set_target_list($target_list);
+	$self->{_canvas}->signal_connect(drag_motion => sub {
+		my ($view, $ctx, $x, $y, $time) = @_;
+		for my $target (@{$ctx->list_targets}) {
+			if ($target->name eq 'text/uri-list') {
+				Gtk3::Gdk::drag_status($ctx, 'copy', $time);
+				return TRUE;
+			}
+		}
+		return FALSE;
+	});
 
 	#'redraw-when-scrolled' to reduce the flicker of static items
 	#
@@ -6209,18 +6213,20 @@ sub setup_uimanager {
 
 sub import_from_dnd {
 	my ($self, $widget, $context, $x, $y, $selection, $info, $time) = @_;
-	my $type = $selection->target->name;
-	my $data = $selection->data;
+	my $type = $selection->get_target->name;
 	return unless $type eq 'text/uri-list';
+	my $data = $selection->get_data;
+	$data = join('', map { chr } @$data);
 
 	my @files = grep defined($_), split /[\r\n]+/, $data;
 
 	my @valid_files;
-	foreach (@files) {
-		my ($mime_type) = Glib::Object::Introspection->invoke('Gio', undef, 'content_type_guess', $_);
+	foreach my $file (@files) {
+		my $giofile = Glib::IO::File::new_for_uri($file);
+		my ($mime_type) = Glib::Object::Introspection->invoke('Gio', undef, 'content_type_guess', $giofile->get_path);
 		$mime_type =~ s/image\/x\-apple\-ios\-png/image\/png/;    #FIXME
 		if ($mime_type && $self->check_valid_mime_type($mime_type)) {
-			push @valid_files, $_;
+			push @valid_files, $file;
 		}
 	}
 
@@ -6234,8 +6240,8 @@ sub import_from_dnd {
 		foreach (@valid_files) {
 
 			#transform uri to path
-			my $new_uri  = Glib::IO::File::new_for_uri($self->utf8_decode(main::unescape_string($_)));
-			my $new_file = $self->utf8_decode(main::unescape_string($new_uri->get_path));
+			my $new_uri  = Glib::IO::File::new_for_uri($_);
+			my $new_file = $new_uri->get_path;
 
 			$self->{_current_pixbuf} = $self->{_lp}->load($new_file, undef, undef, undef, TRUE);
 			if ($self->{_current_pixbuf}) {
@@ -6267,11 +6273,11 @@ sub import_from_dnd {
 		$self->{_current_new_item} = undef;
 
 	} else {
-		$context->finish(0, 0, $time);
+		Gtk3::drag_finish($context, 0, 0, $time);
 		return FALSE;
 	}
 
-	$context->finish(1, 0, $time);
+	Gtk3::drag_finish($context, 1, 0, $time);
 	return TRUE;
 }
 

@@ -3863,13 +3863,18 @@ sub STARTUP {
 		$notebook->set('scrollable' => TRUE);
 
 		#enable dnd for it
-		#$notebook->drag_dest_set('all', ['copy', 'private', 'default', 'move', 'link', 'ask'], 'ask');
+		$notebook->drag_dest_set('all', [Gtk3::TargetEntry->new('text/uri-list', [], 0)], 'link');
 		$notebook->signal_connect(drag_data_received => \&fct_drop_handler);
-
-		my $target_list = Gtk3::TargetList->new();
-		my $atom_dest   = Gtk3::Gdk::Atom::intern('text/uri-list', FALSE);
-		$target_list->add($atom_dest, 0, 0);
-		$notebook->drag_dest_set_target_list($target_list);
+		$notebook->signal_connect(drag_motion => sub {
+			my ($view, $ctx, $x, $y, $time) = @_;
+			for my $target (@{$ctx->list_targets}) {
+				if ($target->name eq 'text/uri-list') {
+					Gtk3::Gdk::drag_status($ctx, 'link', $time);
+					return TRUE;
+				}
+			}
+			return FALSE;
+		});
 
 		#packing and first page
 		my $hbox_first_label = Gtk3::HBox->new(FALSE, 0);
@@ -4970,15 +4975,17 @@ sub STARTUP {
 
 	sub fct_drop_handler {
 		my ($widget, $context, $x, $y, $selection, $info, $time) = @_;
-		my $type = $selection->target->name;
-		my $data = $selection->data;
+		my $type = $selection->get_target->name;
 		return unless $type eq 'text/uri-list';
+		my $data = $selection->get_data;
+		$data = join('', map { chr } @$data);
 
 		my @files = grep defined($_), split /[\r\n]+/, $data;
 
 		my @valid_files;
 		foreach my $file (@files) {
-			my ($mime_type) = Glib::Object::Introspection->invoke('Gio', undef, 'content_type_guess', $file);
+			my $giofile = Glib::IO::File::new_for_uri($file);
+			my ($mime_type) = Glib::Object::Introspection->invoke('Gio', undef, 'content_type_guess', $giofile->get_path);
 			$mime_type =~ s/image\/x\-apple\-ios\-png/image\/png/;    #FIXME
 			if ($mime_type && fct_check_valid_mime_type($mime_type)) {
 				push @valid_files, $file;
@@ -4988,13 +4995,12 @@ sub STARTUP {
 		#open all valid files
 		if (@valid_files) {
 			fct_open_files(@valid_files);
+			Gtk3::drag_finish($context, 1, 0, $time);
+			return TRUE;
 		} else {
-			$context->finish(0, 0, $time);
+			Gtk3::drag_finish($context, 0, 0, $time);
 			return FALSE;
 		}
-
-		$context->finish(1, 0, $time);
-		return TRUE;
 	}
 
 	sub fct_check_valid_mime_type {

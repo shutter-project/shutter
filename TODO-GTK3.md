@@ -1,4 +1,3 @@
-dnd (drop from somewhere else): ->drag_dest_set
 css
 xid of itself
 drawing: rulers
