@@ -462,14 +462,6 @@ sub STARTUP {
 	my $status = Gtk3::Statusbar->new;
 	$status->set_name('main-window-statusbar');
 
-	#customize the statusbar style
-	Gtk3::Rc->parse_string(
-		"style 'statusbar-style' {
-			GtkStatusbar::shadow-type = GTK_SHADOW_NONE
-		}
-		widget '*.main-window-statusbar' style 'statusbar-style'"
-	) if 0;
-
 	my $combobox_status_profiles_label = Gtk3::Label->new($d->get("Profile") . ":");
 	my $combobox_status_profiles       = Gtk3::ComboBoxText->new;
 
@@ -3974,17 +3966,6 @@ sub STARTUP {
 		$tab_close_button->set_relief('none');
 		$tab_close_button->set_image($close_icon);
 		$tab_close_button->set_name('tab-close-button');
-
-		#customize the button style
-		Gtk3::Rc->parse_string(
-			"style 'tab-close-button-style' {
-				GtkWidget::focus-padding = 0
-				GtkWidget::focus-line-width = 0
-				xthickness = 0
-				ythickness = 0
-			}
-			widget '*.tab-close-button' style 'tab-close-button-style'"
-		) if 0;
 
 		my $tab_label = Gtk3::Label->new($key);
 		$tab_label->set_ellipsize('middle');

@@ -1,4 +1,3 @@
-css
 xid of itself
 drawing: rulers
 TODO: test all the plugins
