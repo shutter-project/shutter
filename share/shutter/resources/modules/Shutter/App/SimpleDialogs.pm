@@ -110,7 +110,7 @@ sub dlg_info_message {
 
 	$info_dialog->show_all;
 
-	if (defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk3::Gdk::Window/) {
+	if (defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk3::Gdk::Window|Gtk3::GdkX11::X11Window/) {
 		$info_dialog->get_window->set_transient_for($self->{_gdk_window});
 	} else {
 		$info_dialog->set_transient_for($self->{_window});
@@ -182,7 +182,7 @@ sub dlg_question_message {
 
 	$question_dialog->show_all;
 
-	if (defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk3::Gdk::Window/) {
+	if (defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk3::Gdk::Window|Gtk3::GdkX11::X11Window/) {
 		$question_dialog->get_window->set_transient_for($self->{_gdk_window});
 	} else {
 		$question_dialog->set_transient_for($self->{_window});
@@ -249,7 +249,7 @@ sub dlg_error_message {
 
 	$error_dialog->show_all;
 
-	if (defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk3::Gdk::Window/) {
+	if (defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk3::Gdk::Window|Gtk3::GdkX11::X11Window/) {
 		$error_dialog->get_window->set_transient_for($self->{_gdk_window});
 	} else {
 		$error_dialog->set_transient_for($self->{_window});
@@ -311,7 +311,7 @@ sub dlg_warning_message {
 
 	$warning_dialog->show_all;
 
-	if (defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk3::Gdk::Window/) {
+	if (defined $self->{_gdk_window} && $self->{_gdk_window} =~ /Gtk3::Gdk::Window|Gtk3::GdkX11::X11Window/) {
 		$warning_dialog->get_window->set_transient_for($self->{_gdk_window});
 	} else {
 		$warning_dialog->set_transient_for($self->{_window});

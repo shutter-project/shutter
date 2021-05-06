@@ -4703,7 +4703,7 @@ sub STARTUP {
 					$bordereffect->set_value($settings_xml->{'general'}->{'bordereffect'});
 					$bordereffect_active->set_active($settings_xml->{'general'}->{'bordereffect_active'});
 					if (defined $settings_xml->{'general'}->{'bordereffect_col'}) {
-						$bordereffect_cbtn->set_color(Gtk3::Gdk::Color->parse($settings_xml->{'general'}->{'bordereffect_col'}));
+						$bordereffect_cbtn->set_rgba(Gtk3::Gdk::RGBA::parse($settings_xml->{'general'}->{'bordereffect_col'}));
 					}
 
 					#advanced settings

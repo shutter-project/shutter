@@ -25,6 +25,16 @@
 use utf8;
 use strict;
 use warnings;
+
+BEGIN {
+	use Glib::Object::Introspection;
+	Glib::Object::Introspection->setup(
+		basename => 'GdkX11',
+		version  => '3.0',
+		package  => 'Gtk3::GdkX11',
+	);
+}
+
 use Gtk3 '-init';
 use Image::Magick;
 use POSIX qw/setlocale/;
@@ -82,7 +92,6 @@ my $filetype  = $ARGV[ 4 ];
 utf8::decode $filename;
 
 my $plug = Gtk3::Plug->new( $socket_id );
-$plug->set_default_icon_name( 'shutter' );
 $plug->set_border_width( 10 );
 
 $plug->signal_connect( destroy => sub { Gtk3->main_quit } );
@@ -115,7 +124,7 @@ $direction_combo->set_active( 8 );
 
 my $shadow_color_label = Gtk3::Label->new( $d->get("Color"). ":" );
 my $shadow_color = Gtk3::ColorButton->new();
-$shadow_color->set_color( Gtk3::Gdk::Color->parse('#5F5F5F') );
+$shadow_color->set_rgba( Gtk3::Gdk::RGBA::parse('#5F5F5F') );
 $shadow_color->set_alpha( int( 1 * 65535 ) );
 $shadow_color->set_use_alpha(FALSE);
 $shadow_color->set_title( $d->get("Choose color") );
@@ -299,7 +308,7 @@ sub fct_imagemagick_shadow {
 			require X11::Protocol;
 			my $x11 = X11::Protocol->new( $ENV{ 'DISPLAY' } );
 			
-			my $plugp = Gtk3::Gdk::Window->foreign_new( &find_wm_window( $x11, $plug->get_id ));
+			my $plugp = Gtk3::GdkX11::X11Window->foreign_new_for_display(Gtk3::Gdk::Display::get_default(), find_wm_window( $x11, $plug->get_id ));
 			
 			#show error message
 			my $shutter_dialog = Shutter::App::SimpleDialogs->new($plug, $plugp);

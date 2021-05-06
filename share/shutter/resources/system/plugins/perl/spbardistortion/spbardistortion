@@ -25,6 +25,16 @@
 use utf8;
 use strict;
 use warnings;
+
+BEGIN {
+	use Glib::Object::Introspection;
+	Glib::Object::Introspection->setup(
+		basename => 'GdkX11',
+		version  => '3.0',
+		package  => 'Gtk3::GdkX11',
+	);
+}
+
 use Gtk3 '-init';
 use Image::Magick;
 use POSIX qw/setlocale/;
@@ -81,7 +91,6 @@ my $filetype  = $ARGV[ 4 ];
 utf8::decode $filename;
 
 my $plug = Gtk3::Plug->new( $socket_id );
-$plug->set_default_icon_name( 'shutter' );
 $plug->set_border_width( 10 );
 
 $plug->signal_connect( destroy => sub { Gtk3->main_quit } );
@@ -153,7 +162,7 @@ $c1_label->set_tooltip_text(
 
 my $back_color_label = Gtk3::Label->new( $d->get("Background color"). ":" );
 my $back_color = Gtk3::ColorButton->new();
-$back_color->set_color( Gtk3::Gdk::Color->parse('gray') );
+$back_color->set_rgba( Gtk3::Gdk::RGBA::parse('gray') );
 $back_color->set_alpha( int( 0 * 65535 ) );
 $back_color->set_use_alpha(TRUE);
 $back_color->set_title( $d->get("Choose background color") );
@@ -239,8 +248,8 @@ $vbox_left->pack_start( $hbox3, TRUE, TRUE, 0 );
 $vbox_left->pack_start( $hbox4 , TRUE, TRUE, 0);
 
 #preview
-$vbox_right->pack_stars( $preview, TRUE, TRUE, 0 );
-$vbox_right->pack_stars( $preview_throb, TRUE, TRUE, 0 );
+$vbox_right->pack_start( $preview, TRUE, TRUE, 0 );
+$vbox_right->pack_start( $preview_throb, TRUE, TRUE, 0 );
 
 #row 2
 $hbox_row2->pack_start( $vbox_left, TRUE, TRUE, 0 );
@@ -344,7 +353,7 @@ sub fct_imagemagick_bardistortion {
 			require X11::Protocol;
 			my $x11 = X11::Protocol->new( $ENV{ 'DISPLAY' } );
 			
-			my $plugp = Gtk3::Gdk::Window->foreign_new( &find_wm_window( $x11, $plug->get_id ));
+			my $plugp = Gtk3::GdkX11::X11Window->foreign_new_for_display(Gtk3::Gdk::Display::get_default(), find_wm_window( $x11, $plug->get_id ));
 			
 			#show error message
 			my $shutter_dialog = Shutter::App::SimpleDialogs->new($plug, $plugp);

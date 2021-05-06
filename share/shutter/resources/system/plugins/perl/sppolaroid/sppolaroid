@@ -25,6 +25,16 @@
 use utf8;
 use strict;
 use warnings;
+
+BEGIN {
+	use Glib::Object::Introspection;
+	Glib::Object::Introspection->setup(
+		basename => 'GdkX11',
+		version  => '3.0',
+		package  => 'Gtk3::GdkX11',
+	);
+}
+
 use Gtk3 '-init';
 use Image::Magick;
 use POSIX qw/setlocale strftime/;
@@ -87,7 +97,6 @@ if ( `convert --help | grep caption` =~ /caption/ ) {
 }
 
 my $plug = Gtk3::Plug->new( $socket_id );
-$plug->set_default_icon_name( 'shutter' );
 $plug->set_border_width( 10 );
 
 $plug->signal_connect( destroy => sub { Gtk3->main_quit } );
@@ -131,7 +140,7 @@ $angle_sbutton->set_value( -5 );
 
 my $stroke_color_label = Gtk3::Label->new( $d->get("Stroke color"). ":" );
 my $stroke_color = Gtk3::ColorButton->new();
-$stroke_color->set_color( Gtk3::Gdk::Color->parse('black') );
+$stroke_color->set_rgba( Gtk3::Gdk::RGBA::parse('black') );
 $stroke_color->set_alpha( int( 1.0 * 65535 ) );
 $stroke_color->set_use_alpha(TRUE);
 $stroke_color->set_title( $d->get("Choose stroke color") );
@@ -315,7 +324,7 @@ sub fct_imagemagick_polaroid {
 			require X11::Protocol;
 			my $x11 = X11::Protocol->new( $ENV{ 'DISPLAY' } );
 			
-			my $plugp = Gtk3::Gdk::Window->foreign_new( &find_wm_window( $x11, $plug->get_id ));
+			my $plugp = Gtk3::GdkX11::X11Window->foreign_new_for_display(Gtk3::Gdk::Display::get_default(), find_wm_window( $x11, $plug->get_id ));
 			
 			#show error message
 			my $shutter_dialog = Shutter::App::SimpleDialogs->new($plug, $plugp);
