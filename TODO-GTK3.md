@@ -1,4 +1,3 @@
-xid of itself
 drawing: rulers
 TODO: test all the plugins
 foreign_new in plugins
