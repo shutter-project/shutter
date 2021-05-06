@@ -7814,6 +7814,9 @@ sub STARTUP {
 		$plugin_progress->set_fraction(0);
 
 		$plugin_dialog->get_child->add($plugin_progress);
+		my $current_plugin = Gtk3::Label->new("");
+		$current_plugin->set_line_wrap(TRUE);
+		$plugin_dialog->get_child->add($current_plugin);
 
 		my @plugin_paths = ("$shutter_root/share/shutter/resources/system/plugins/*/*", "$ENV{'HOME'}/.shutter/plugins/*/*");
 
@@ -7876,7 +7879,7 @@ sub STARTUP {
 
 								#refresh the progressbar
 								$plugin_progress->pulse;
-								$plugin_progress->set_text($plugins{$pkey}->{'binary'});
+								$current_plugin->set_text($plugins{$pkey}->{'binary'});
 
 								#refresh gui
 								fct_update_gui();
@@ -7958,6 +7961,9 @@ sub STARTUP {
 		$upload_plugin_progress->set_fraction(0);
 
 		$upload_plugin_dialog->get_child->add($upload_plugin_progress);
+		my $current_plugin = Gtk3::Label->new("");
+		$current_plugin->set_line_wrap(TRUE);
+		$upload_plugin_dialog->get_child->add($current_plugin);
 
 		#plugins in user-home not supported yet FIXME
 		my @upload_plugin_paths = ("$shutter_root/share/shutter/resources/system/upload_plugins/upload/*");
@@ -8032,7 +8038,7 @@ sub STARTUP {
 
 								#refresh the progressbar
 								$upload_plugin_progress->pulse;
-								$upload_plugin_progress->set_text($accounts{$name}->{path});
+								$current_plugin->set_text($accounts{$name}->{path});
 
 							} else {
 								print "\nERROR: upload-plugin exists but does not work properly - $folder$name\n";
