@@ -25,7 +25,7 @@
 use utf8;
 use strict;
 use warnings;
-use Gtk2 '-init';
+use Gtk3 '-init';
 use Image::Magick;
 use POSIX qw/setlocale/;
 use Locale::gettext;
@@ -64,10 +64,10 @@ my $filetype  = $ARGV[4];
 #decode filename
 utf8::decode $filename;
 
-my $plug = Gtk2::Plug->new($socket_id);
+my $plug = Gtk3::Plug->new($socket_id);
 $plug->set_border_width(10);
 
-$plug->signal_connect( destroy => sub { Gtk2->main_quit } );
+$plug->signal_connect( destroy => sub { Gtk3->main_quit } );
 
 #variables used in this plugin
 my $ratio       = $width / $height;
@@ -75,20 +75,20 @@ my $last_width  = $width;
 my $last_height = $height;
 
 #define the gui layout
-my $hbox      = Gtk2::HBox->new( 0, 10 );
-my $hbox_btn  = Gtk2::HBox->new( 0, 10 );
-my $vbox_lbl  = Gtk2::VBox->new( 0, 10 );
-my $vbox_btn  = Gtk2::VBox->new( 0, 10 );
-my $vbox_main = Gtk2::VBox->new( 0, 10 );
+my $hbox      = Gtk3::HBox->new( 0, 10 );
+my $hbox_btn  = Gtk3::HBox->new( 0, 10 );
+my $vbox_lbl  = Gtk3::VBox->new( 0, 10 );
+my $vbox_btn  = Gtk3::VBox->new( 0, 10 );
+my $vbox_main = Gtk3::VBox->new( 0, 10 );
 
 #configure buttons and other needed controls
-my $aspect_btn = Gtk2::ToggleButton->new;
-$aspect_btn->set_image( Gtk2::Image->new_from_file("$Bin/Locked.svg") );
+my $aspect_btn = Gtk3::ToggleButton->new;
+$aspect_btn->set_image( Gtk3::Image->new_from_file("$Bin/Locked.svg") );
 $aspect_btn->set_active(TRUE);
 $aspect_btn->signal_connect( 'toggled', \&aspect_toggled, 'toggled' );
 
-my $width_btn  = Gtk2::SpinButton->new_with_range( 1, 10000, 1 );
-my $height_btn = Gtk2::SpinButton->new_with_range( 1, 10000, 1 );
+my $width_btn  = Gtk3::SpinButton->new_with_range( 1, 10000, 1 );
+my $height_btn = Gtk3::SpinButton->new_with_range( 1, 10000, 1 );
 
 #set initial values delivered by gscrot
 $width_btn->set_value($width);
@@ -100,7 +100,7 @@ my $w_sign =
 my $h_sign =
   $height_btn->signal_connect( 'value-changed', \&value_changed, 'height' );
 
-my $resize_operator = Gtk2::ComboBox->new_text;
+my $resize_operator = Gtk3::ComboBoxText->new;
 $resize_operator->insert_text( 0, "Resize" );
 $resize_operator->insert_text( 1, "Thumbnail" );
 $resize_operator->insert_text( 2, "Sample" );
@@ -108,15 +108,15 @@ $resize_operator->insert_text( 3, "Scale" );
 $resize_operator->insert_text( 4, "AdaptiveResize" );
 $resize_operator->set_active(0);
 
-my $save_btn = Gtk2::Button->new_from_stock('gtk-save');
+my $save_btn = Gtk3::Button->new_from_stock('gtk-save');
 $save_btn->signal_connect( 'clicked', \&fct_imagemagick_resize, 'save' );
 
-my $cancel_btn = Gtk2::Button->new_from_stock('gtk-cancel');
-$cancel_btn->signal_connect( 'clicked' => sub { Gtk2->main_quit }, 'cancel' );
+my $cancel_btn = Gtk3::Button->new_from_stock('gtk-cancel');
+$cancel_btn->signal_connect( 'clicked' => sub { Gtk3->main_quit }, 'cancel' );
 
 #packing
-$vbox_lbl->pack_start( Gtk2::Label->new("Width:"),  TRUE, TRUE, 0 );
-$vbox_lbl->pack_start( Gtk2::Label->new("Height:"), TRUE, TRUE, 0 );
+$vbox_lbl->pack_start( Gtk3::Label->new("Width:"),  TRUE, TRUE, 0 );
+$vbox_lbl->pack_start( Gtk3::Label->new("Height:"), TRUE, TRUE, 0 );
 $vbox_btn->pack_start( $width_btn,                  TRUE, TRUE, 0 );
 $vbox_btn->pack_start( $height_btn,                 TRUE, TRUE, 0 );
 $hbox->pack_start( $vbox_lbl,                       TRUE, TRUE, 0 );
@@ -134,7 +134,7 @@ $plug->add($vbox_main);
 $plug->show_all;
 
 #lets'start
-Gtk2->main;
+Gtk3->main;
 
 ####define your functions here
 sub value_changed {
@@ -165,10 +165,10 @@ sub value_changed {
 
 sub aspect_toggled {
 	if ( $aspect_btn->get_active ) {
-		$aspect_btn->set_image( Gtk2::Image->new_from_file("$Bin/Locked.svg") );
+		$aspect_btn->set_image( Gtk3::Image->new_from_file("$Bin/Locked.svg") );
 		return TRUE;
 	}
-	$aspect_btn->set_image( Gtk2::Image->new_from_file("$Bin/Unlocked.svg") );
+	$aspect_btn->set_image( Gtk3::Image->new_from_file("$Bin/Unlocked.svg") );
 	return TRUE;
 }
 
@@ -183,7 +183,7 @@ sub fct_imagemagick_resize {
 	
 	undef $image;
 	
-	Gtk2->main_quit;
+	Gtk3->main_quit;
 	return TRUE;
 }
 

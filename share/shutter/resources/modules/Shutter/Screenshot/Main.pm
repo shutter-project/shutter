@@ -48,8 +48,11 @@ sub new {
 		_notify_timeout => shift,
 	};
 
+	my $window = Gtk3::Window->new('toplevel');
 	#root window
-	$self->{_root} = Gtk2::Gdk->get_default_root_window;
+	$self->{_root} = Gtk3::GdkX11::X11Window::lookup_for_display(
+		$window->get_display,
+		Gtk3::GdkX11::x11_get_default_root_xwindow());
 	($self->{_root}->{x}, $self->{_root}->{y}, $self->{_root}->{w}, $self->{_root}->{h}) = $self->{_root}->get_geometry;
 	($self->{_root}->{x}, $self->{_root}->{y}) = $self->{_root}->get_origin;
 
@@ -61,11 +64,11 @@ sub new {
 	require Shutter::Geometry::Region;
 
 	#wnck screen
-	$self->{_wnck_screen} = Gnome2::Wnck::Screen->get_default;
+	$self->{_wnck_screen} = Wnck::Screen::get_default();
 	$self->{_wnck_screen}->force_update();
 
 	#gdk screen
-	$self->{_gdk_screen} = Gtk2::Gdk::Screen->get_default;
+	$self->{_gdk_screen} = Gtk3::Gdk::Screen::get_default();
 
 	#gdk display
 	$self->{_gdk_display} = $self->{_gdk_screen}->get_display;
@@ -117,9 +120,9 @@ sub get_root_and_geometry {
 
 sub get_root_and_current_monitor_geometry {
 	my $self       = shift;
-	my $mainwindow = $self->{_sc}->get_mainwindow->window || $self->{_root};
+	my $mainwindow = $self->{_root};
 	my $mon1       = $self->{_gdk_screen}->get_monitor_geometry($self->{_gdk_screen}->get_monitor_at_window($mainwindow));
-	return ($self->{_root}, $mon1->x, $mon1->y, $mon1->width, $mon1->height);
+	return ($self->{_root}, $mon1->{x}, $mon1->{y}, $mon1->{width}, $mon1->{height});
 }
 
 sub get_current_monitor {
@@ -131,7 +134,7 @@ sub get_current_monitor {
 
 sub get_monitor_region {
 	my $self   = shift;
-	my $region = Gtk2::Gdk::Region->new;
+	my $region = Gtk3::Gdk::Region->new;
 	for (my $i = 0 ; $i < $self->{_gdk_screen}->get_n_monitors ; $i++) {
 		$region->union_with_rect($self->{_gdk_screen}->get_monitor_geometry($i));
 	}
@@ -142,13 +145,16 @@ sub ungrab_pointer_and_keyboard {
 	my ($self, $ungrab_server, $quit_event_handler, $quit_main) = @_;
 
 	#ungrab pointer and keyboard
-	Gtk2::Gdk::X11->ungrab_server if $ungrab_server;
-	Gtk2::Gdk->pointer_ungrab(Gtk2->get_current_event_time);
-	Gtk2::Gdk->keyboard_ungrab(Gtk2->get_current_event_time);
-	Gtk2::Gdk::Event->handler_set(undef, undef) if $quit_event_handler;
-	Gtk2->main_quit if $quit_main;
+	Gtk3::Gdk::X11->ungrab_server if $ungrab_server;
+	Gtk3::Gdk::pointer_ungrab(Gtk3::get_current_event_time());
+	Gtk3::Gdk::keyboard_ungrab(Gtk3::get_current_event_time());
+	Gtk3::Gdk::Event::handler_set(sub {
+		my $event = shift;
+		Gtk3::main_do_event($event);
+	}) if $quit_event_handler;
+	Gtk3->main_quit if $quit_main;
 
-	return TRUE unless Gtk2::Gdk->pointer_is_grabbed;
+	return TRUE unless Gtk3::Gdk::pointer_is_grabbed();
 	return FALSE;
 }
 
@@ -204,7 +210,7 @@ sub ungrab_pointer_and_keyboard {
 #~
 #~ my $append_res = `$append_cmd`;
 #~
-#~ my $app_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($tmpfilename_fin);
+#~ my $app_pixbuf = Gtk3::Gdk::Pixbuf->new_from_file($tmpfilename_fin);
 #~ print $app_pixbuf."\n";
 #~ return ($app_pixbuf, 0, 0, 0, 0);
 #~
@@ -306,11 +312,12 @@ sub get_pixbuf_from_drawable {
 			#get the pixbuf from drawable and save the file
 			eval {
 				if ($width > 0 && $height > 0) {
-					$pixbuf = Gtk2::Gdk::Pixbuf->get_from_drawable($drawable, undef, $x, $y, 0, 0, $width, $height);
+					$pixbuf = Gtk3::Gdk::pixbuf_get_from_window($drawable, $x, $y, $width, $height);
 				}
 			};
 			if ($@) {
 				$pixbuf = 5;
+				Gtk3->main_quit;
 				return FALSE;
 			}
 
@@ -328,10 +335,10 @@ sub get_pixbuf_from_drawable {
 				#~ my $clipbox = $region->get_clipbox;
 				my $clipbox = $self->get_clipbox($region);
 
-				#~ print "Clipbox: ", $clipbox->width, " - ", $clipbox->height, "\n";
+				#print "Clipbox: ", Dumper($region, $clipbox);
 
 				#create target pixbuf with dimension of clipbox
-				my $target = Gtk2::Gdk::Pixbuf->new($pixbuf->get_colorspace, TRUE, 8, $clipbox->width, $clipbox->height);
+				my $target = Gtk3::Gdk::Pixbuf->new($pixbuf->get_colorspace, TRUE, 8, $clipbox->{width}, $clipbox->{height});
 
 				#whole pixbuf is transparent
 				$target->fill(0x00000000);
@@ -339,25 +346,28 @@ sub get_pixbuf_from_drawable {
 				#determine low x and y
 				my $small_x = $self->{_root}->{w};
 				my $small_y = $self->{_root}->{h};
-				foreach my $r ($region->get_rectangles) {
-					$small_x = $r->x if $r->x < $small_x;
-					$small_y = $r->y if $r->y < $small_y;
+				my $len = $region->num_rectangles-1;
+				for my $i (0..$len) {
+					my $r = $region->get_rectangle($i);
+					$small_x = $r->{x} if $r->{x} < $small_x;
+					$small_y = $r->{y} if $r->{y} < $small_y;
 				}
 
 				#copy each rectangle
-				foreach my $r ($region->get_rectangles) {
+				for my $i (0..$len) {
+					my $r = $region->get_rectangle($i);
 
 					#~ print $r->x, " - ", $r->y, " - ", $r->width, " - ", $r->height, "\n";
-					$pixbuf->copy_area($r->x - $small_x, $r->y - $small_y, $r->width, $r->height, $target, $r->x - $small_x, $r->y - $small_y);
+					$pixbuf->copy_area($r->{x} - $small_x, $r->{y} - $small_y, $r->{width}, $r->{height}, $target, $r->{x} - $small_x, $r->{y} - $small_y);
 				}
 				$pixbuf = $target->copy;
 			}
 
-			Gtk2->main_quit;
+			Gtk3->main_quit;
 			return FALSE;
 		});
 
-	Gtk2->main();
+	Gtk3->main();
 
 	return ($pixbuf, $l_cropped, $r_cropped, $t_cropped, $b_cropped);
 }
@@ -414,7 +424,7 @@ sub include_cursor {
 		}
 
 		if ($width > 1 && $height > 1) {
-			$cursor_pixbuf = Gtk2::Gdk::Pixbuf->new_from_data($data, 'rgb', 1, 8, $width, $height - 1, 4 * $width);
+			$cursor_pixbuf = Gtk3::Gdk::Pixbuf->new_from_data($data, 'rgb', 1, 8, $width, $height - 1, 4 * $width);
 
 			$cursor_pixbuf_xhot = $xhot;
 			$cursor_pixbuf_yhot = $yhot;
@@ -431,14 +441,14 @@ sub include_cursor {
 
 		my ($window_at_pointer, $root_x, $root_y, $mask) = $gdk_window->get_pointer;
 
-		my $cursor = Gtk2::Gdk::Cursor->new('GDK_LEFT_PTR');
+		my $cursor = Gtk3::Gdk::Cursor->new('GDK_LEFT_PTR');
 		$cursor_pixbuf = $cursor->get_image;
 
 		#try to use default cursor if there was an error
 		unless ($cursor_pixbuf) {
 			warn "WARNING: There was an error while getting the default cursor image - using one of our image files\n";
 			my $icons_path = $self->{_sc}->get_root . "/share/shutter/resources/icons";
-			eval { $cursor_pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($icons_path . "/Normal.cur"); };
+			eval { $cursor_pixbuf = Gtk3::Gdk::Pixbuf->new_from_file($icons_path . "/Normal.cur"); };
 			if ($@) {
 				warn "ERROR: There was an error while loading the image file: $@\n";
 			}
@@ -461,7 +471,7 @@ sub include_cursor {
 		my $y = $cursor_pixbuf_yroot;
 
 		#screenshot dimensions saved in a rect (global x, y)
-		my $scshot = Gtk2::Gdk::Rectangle->new($xp, $yp, $widthp, $heightp);
+		my $scshot = {x=>$xp, y=>$yp, width=>$widthp, height=>$heightp};
 
 		#see 'man xcursor' for a detailed description
 		#of these values
@@ -469,7 +479,7 @@ sub include_cursor {
 		my $yhot = $cursor_pixbuf_yhot;
 
 		#cursor dimensions (global x, y and width and height of the pixbuf)
-		my $cursor = Gtk2::Gdk::Rectangle->new($x, $y, $cursor_pixbuf->get_width, $cursor_pixbuf->get_height);
+		my $cursor = {x=>$x, y=>$y, width=>$cursor_pixbuf->get_width, height=>$cursor_pixbuf->get_height};
 
 		#is the cursor visible in the current screenshot?
 		#(do the rects intersect?)
@@ -487,7 +497,7 @@ sub include_cursor {
 			$dest_x = 0 if $dest_x < 0;
 			$dest_y = 0 if $dest_y < 0;
 
-			$cursor_pixbuf->composite($pixbuf, $dest_x, $dest_y, $cursor->width, $cursor->height, $x - $xp - $xhot, $y - $yp - $yhot, 1.0, 1.0, 'bilinear', 255);
+			$cursor_pixbuf->composite($pixbuf, $dest_x, $dest_y, $cursor->{width}, $cursor->{height}, $x - $xp - $xhot, $y - $yp - $yhot, 1.0, 1.0, 'bilinear', 255);
 
 		}
 	}

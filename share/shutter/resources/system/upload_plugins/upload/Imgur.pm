@@ -124,7 +124,7 @@ sub setup {
 	#Authentication
 	my $login_link = 'https://api.imgur.com/oauth2/authorize?response_type=pin&client_id=' . $self->{_config}->{client_id};
 
-	my $pin_entry = Gtk2::Entry->new();
+	my $pin_entry = Gtk3::Entry->new();
 	my $pin       = '';
 	$pin_entry->signal_connect(
 		changed => sub {
@@ -134,7 +134,7 @@ sub setup {
 	my $response = $sd->dlg_info_message(
 		$d->get("Please click on the button below to authorize with Imgur. Input the PIN you receive and press 'Apply' when you are done."),
 		$d->get("Authorize with Imgur"),
-		'gtk-cancel', 'gtk-apply', undef, undef, undef, undef, undef, undef, Gtk2::LinkButton->new($login_link, $d->get("Authorize")), $pin_entry,
+		'gtk-cancel', 'gtk-apply', undef, undef, undef, undef, undef, undef, Gtk3::LinkButton->new($login_link, $d->get("Authorize")), $pin_entry,
 	);
 	if ($response == 20) {
 

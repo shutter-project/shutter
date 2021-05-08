@@ -26,7 +26,7 @@ package Shutter::App::Common;
 #--------------------------------------
 use utf8;
 use strict;
-use Gtk2;
+use Gtk3;
 
 #Gettext and filename parsing
 use POSIX qw/setlocale/;
@@ -81,7 +81,7 @@ sub new {
 
 	#icontheme to determine if icons exist or not
 	#in some cases we deliver fallback icons
-	$self->{_icontheme} = Gtk2::IconTheme->get_default;
+	$self->{_icontheme} = Gtk3::IconTheme::get_default();
 	$self->{_icontheme}->append_search_path($self->{_shutter_root} . "/share/icons");
 
 	#recently used upload tab
@@ -432,8 +432,8 @@ sub set_delay {
 
 sub get_current_monitor {
 	my $self = shift;
-	my ($window_at_pointer, $x, $y, $mask) = Gtk2::Gdk->get_default_root_window->get_pointer;
-	my $mon = Gtk2::Gdk::Screen->get_default->get_monitor_geometry(Gtk2::Gdk::Screen->get_default->get_monitor_at_point($x, $y));
+	my ($window_at_pointer, $x, $y, $mask) = Gtk3::Gdk::get_default_root_window->get_pointer;
+	my $mon = Gtk3::Gdk::Screen::get_default->get_monitor_geometry(Gtk3::Gdk::Screen::get_default->get_monitor_at_point($x, $y));
 	return ($mon);
 }
 

@@ -28,7 +28,7 @@ use utf8;
 use strict;
 use warnings;
 
-use Gtk2;
+use Gtk3;
 
 #fileparse and tempfile
 use File::Basename qw/ fileparse dirname basename /;
@@ -61,11 +61,11 @@ sub load {
 	my $pixbuf = undef;
 	eval {
 		if (defined $width && defined $height && defined $sratio) {
-			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_scale($filename, $width, $height, $sratio);
+			$pixbuf = Gtk3::Gdk::Pixbuf->new_from_file_at_scale($filename, $width, $height, $sratio);
 		} elsif (defined $width && defined $height) {
-			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file_at_size($filename, $width, $height);
+			$pixbuf = Gtk3::Gdk::Pixbuf->new_from_file_at_size($filename, $width, $height);
 		} else {
-			$pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($filename);
+			$pixbuf = Gtk3::Gdk::Pixbuf->new_from_file($filename);
 		}
 	};
 

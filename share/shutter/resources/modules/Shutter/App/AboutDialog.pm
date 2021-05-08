@@ -26,7 +26,7 @@ package Shutter::App::AboutDialog;
 #--------------------------------------
 use utf8;
 use strict;
-use Gtk2;
+use Gtk3;
 
 #Glib
 use Glib qw/TRUE FALSE/;
@@ -69,39 +69,35 @@ sub show {
 	}
 	close(GPL);
 
-	my $all_dev = "";
+	my @all_dev;
 	open(DEVCREDITS, "$shutter_root/share/shutter/resources/credits/dev")
 		or die $!;
 	while (my $dev = <DEVCREDITS>) {
+		chomp $dev;
 		utf8::decode $dev;
-		$all_dev .= $dev;
+		push @all_dev, $dev;
 	}
 	close(DEVCREDITS);
 
-	my $all_art = "";
+	my @all_art;
 	open(ARTCREDITS, "$shutter_root/share/shutter/resources/credits/art")
 		or die $!;
 	while (my $art = <ARTCREDITS>) {
+		chomp $art;
 		utf8::decode $art;
-		$all_art .= $art;
+		push @all_art, $art;
 	}
 	close(ARTCREDITS);
 
-	my $about = Gtk2::AboutDialog->new;
+	my $about = Gtk3::AboutDialog->new;
 	$about->set_logo_icon_name('shutter');
-	if (Gtk2->CHECK_VERSION(2, 12, 0)) {
-		$about->set_program_name($self->{_sc}->get_appname);
-	} else {
-		$about->set_name($self->{_sc}->get_appname);
-	}
+	$about->set_program_name($self->{_sc}->get_appname);
 	$about->set_version($self->{_sc}->get_version);
-	$about->set_url_hook(sub { $shf->xdg_open(@_) });
 
 	#~ $about->set_website_label("Shutter-Website");
-	$about->set_website("http://shutter-project.org");
-	$about->set_email_hook(sub { $shf->xdg_open_mail(@_) });
-	$about->set_authors($all_dev);
-	$about->set_artists($all_art);
+	$about->set_website("https://shutter-project.org");
+	$about->set_authors(\@all_dev);
+	$about->set_artists(\@all_art);
 	$about->set_translator_credits($d->get("translator-credits"));
 	$about->set_copyright($all_hint);
 	$about->set_license($all_gpl);

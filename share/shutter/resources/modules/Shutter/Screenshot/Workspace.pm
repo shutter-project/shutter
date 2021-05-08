@@ -78,7 +78,7 @@ sub workspaces {
 	my $output = undef;
 	my $pixbuf = undef;
 
-	my $wspaces_region = Gtk2::Gdk::Region->new;
+	my $wspaces_region = Gtk3::Gdk::Region->new;
 	my @pixbuf_array;
 	my @rects_array;
 	my $row    = 0;
@@ -115,7 +115,7 @@ sub workspaces {
 					#capture viewport
 					$pixbuf = $self->workspace(TRUE, TRUE);
 
-					my $rect = Gtk2::Gdk::Rectangle->new($width, $height, $pixbuf->get_width, $pixbuf->get_height);
+					my $rect = {x=>$width, y=>$height, width=>$pixbuf->get_width, height=>$pixbuf->get_height};
 					$wspaces_region->union_with_rect($rect);
 					push @pixbuf_array, $pixbuf;
 					push @rects_array,  $rect;
@@ -128,7 +128,7 @@ sub workspaces {
 				#next row
 				# > set height to clipbox-height
 				# > set width to 0, because we start in column 0 again
-				$height = $sr->get_clipbox($wspaces_region)->height;
+				$height = $sr->get_clipbox($wspaces_region)->{height};
 				$width  = 0;
 
 			}
@@ -149,10 +149,10 @@ sub workspaces {
 			}
 			$column = $space->get_layout_column;
 
-			$height = $sr->get_clipbox($wspaces_region)->height if ($row != $space->get_layout_row);
+			$height = $sr->get_clipbox($wspaces_region)->{height} if ($row != $space->get_layout_row);
 			$row    = $space->get_layout_row;
 
-			my $rect = Gtk2::Gdk::Rectangle->new($width, $height, $pixbuf->get_width, $pixbuf->get_height);
+			my $rect = {x=>$width, y=>$height, width=>$pixbuf->get_width, height=>$pixbuf->get_height};
 			$wspaces_region->union_with_rect($rect);
 			push @pixbuf_array, $pixbuf;
 			push @rects_array,  $rect;
@@ -161,14 +161,14 @@ sub workspaces {
 
 	}
 
-	if ($wspaces_region->get_rectangles) {
-		$output = Gtk2::Gdk::Pixbuf->new('rgb', TRUE, 8, $sr->get_clipbox($wspaces_region)->width, $sr->get_clipbox($wspaces_region)->height);
+	if ($wspaces_region->num_rectangles) {
+		$output = Gtk3::Gdk::Pixbuf->new('rgb', TRUE, 8, $sr->get_clipbox($wspaces_region)->{width}, $sr->get_clipbox($wspaces_region)->{height});
 		$output->fill(0x00000000);
 
 		#copy images to the blank pixbuf
 		my $rect_counter = 0;
 		foreach my $pixbuf (@pixbuf_array) {
-			$pixbuf->copy_area(0, 0, $pixbuf->get_width, $pixbuf->get_height, $output, $rects_array[$rect_counter]->x, $rects_array[$rect_counter]->y);
+			$pixbuf->copy_area(0, 0, $pixbuf->get_width, $pixbuf->get_height, $output, $rects_array[$rect_counter]->{x}, $rects_array[$rect_counter]->{y});
 			$rect_counter++;
 		}
 	}
@@ -181,7 +181,7 @@ sub workspaces {
 
 	#set name of the captured workspace
 	#e.g. for use in wildcards
-	if ($output =~ /Gtk2/) {
+	if ($output =~ /Gtk3/) {
 		$self->{_action_name} = $d->get("Workspaces");
 	}
 
@@ -191,7 +191,7 @@ sub workspaces {
 
 		#metacity etc.
 	} else {
-		$active_workspace->activate(Gtk2->get_current_event_time);
+		$active_workspace->activate(Gtk3::get_current_event_time());
 	}
 
 	return $output;
@@ -219,7 +219,7 @@ sub workspace {
 			if ($self->{_selected_workspace} == $space->get_number
 				&& ($no_active_check || $self->{_selected_workspace} != $active_workspace->get_number))
 			{
-				$space->activate(Gtk2->get_current_event_time);
+				$space->activate(Gtk3::get_current_event_time());
 				$wrksp_changed = TRUE;
 			}
 		}
@@ -239,7 +239,6 @@ sub workspace {
 
 	my $output = undef;
 	if ($self->{_current_monitor_only} || $self->{_gdk_screen}->get_n_monitors <= 1) {
-
 		($output) = $self->get_pixbuf_from_drawable($self->get_root_and_current_monitor_geometry);
 
 		#When there are multiple monitors with different resolutions, the visible area
@@ -263,13 +262,13 @@ sub workspace {
 
 		#set name of the captured workspace
 		#e.g. for use in wildcards
-		if ($output =~ /Gtk2/) {
+		if ($output =~ /Gtk3/) {
 			$self->{_action_name} = $self->{_wnck_screen}->get_active_workspace->get_name;
 		}
 
 		#metacity etc
 		if ($self->{_selected_workspace}) {
-			$active_workspace->activate(Gtk2->get_current_event_time) if $wrksp_changed;
+			$active_workspace->activate(Gtk3::get_current_event_time()) if $wrksp_changed;
 
 			#compiz
 		} else {

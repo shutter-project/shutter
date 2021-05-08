@@ -130,7 +130,7 @@ sub setup {
 		my $response = $sd->dlg_info_message(
 			$d->get("Please click on the button below to authorize with Dropbox. Press 'Apply' when you are done."),
 			$d->get("Authorize with Dropbox"),
-			'gtk-cancel', 'gtk-apply', undef, undef, undef, undef, undef, undef, Gtk2::LinkButton->new($login_link, $d->get("Authorize")),
+			'gtk-cancel', 'gtk-apply', undef, undef, undef, undef, undef, undef, Gtk3::LinkButton->new($login_link, $d->get("Authorize")),
 		);
 		if ($response == 20) {
 

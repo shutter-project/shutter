@@ -26,7 +26,7 @@ package Shutter::App::HelperFunctions;
 #--------------------------------------
 use utf8;
 use strict;
-use Gtk2;
+use Gtk3;
 
 #Glib
 use Glib qw/TRUE FALSE/;
@@ -163,6 +163,24 @@ sub usage {
 		. "--help (displays this help)\n";
 
 	return TRUE;
+}
+
+# to help migration from Gtk2 to Gtk3
+# Native Gtk3::IconSize doesn't work for some reason
+sub icon_size {
+	my $self = shift;
+	my $size = shift;
+	my @result = Glib::Object::Introspection->invoke('Gtk', undef, 'icon_size_lookup', Glib::Object::Introspection->convert_sv_to_enum('Gtk3::IconSize', $size));
+	my $one = shift @result;
+	die "icon_size($size)=$one, @result" if $one != 1;
+	return @result;
+}
+
+# to help migration from Gtk2 to Gtk3
+sub accel {
+	my $self = shift;
+	my $str = shift;
+	Glib::Object::Introspection->invoke('Gtk', undef, 'accelerator_parse', $str);
 }
 
 1;

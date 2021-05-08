@@ -31,9 +31,9 @@ use warnings;
 #Glib
 use Glib qw/TRUE FALSE/;
 
-#Gtk2 and Pango
-use Gtk2;
-use Gtk2::Pango;
+#Gtk3 and Pango
+use Gtk3;
+use Pango;
 
 #--------------------------------------
 
@@ -46,9 +46,13 @@ sub new {
 	eval {
 
 		#notification window (borderless gtk window)
-		$self->{_notifications_window} = Gtk2::Window->new('popup');
+		$self->{_notifications_window} = Gtk3::Window->new('popup');
 		if ($self->{_sc}->get_mainwindow->get_screen->is_composited) {
-			$self->{_notifications_window}->set_colormap($self->{_sc}->get_mainwindow->get_screen->get_rgba_colormap);
+			my $screen = $self->{_sc}->get_mainwindow->get_screen;
+			# Glib::Object::Introspection doesn't support method call via
+			# cross-package inheritance, call it as a free function instead
+			# (X11Screen inherits from Screen)
+			$self->{_notifications_window}->set_visual(Gtk3::Gdk::Screen::get_rgba_visual($screen) || Gtk3::Gdb::Screen::get_system_visual($screen));
 		}
 
 		$self->{_notifications_window}->set_app_paintable(TRUE);
@@ -60,20 +64,20 @@ sub new {
 		$self->{_notifications_window}->add_events('GDK_ENTER_NOTIFY_MASK');
 
 		#shape the window
-		my $pixbuf = Gtk2::Gdk::Pixbuf->new_from_file($self->{_sc}->get_root . "/share/shutter/resources/icons/notify.svg");
+		my $pixbuf = Gtk3::Gdk::Pixbuf->new_from_file($self->{_sc}->get_root . "/share/shutter/resources/icons/notify.svg");
 
 		#~ my ($pixmap, $mask) = $pixbuf->render_pixmap_and_mask (1);
 		#~ $self->{_notifications_window}->shape_combine_mask($mask, 0, 0);
 
 		#add a widget to control size of the window
-		my $fixed = Gtk2::Fixed->new;
+		my $fixed = Gtk3::Fixed->new;
 		$fixed->set_size_request(300, 120);
 		$self->{_notifications_window}->add($fixed);
 
 		$self->{_notifications_window}->signal_connect(
-			'expose-event' => sub {
+			'draw' => sub {
 
-				return FALSE unless $self->{_notifications_window}->window;
+				return FALSE unless $self->{_notifications_window};
 
 				return FALSE unless $self->{_summary};
 
@@ -82,7 +86,7 @@ sub new {
 
 				#initial position
 				unless (defined $self->{_notifications_window}->{'pos'}) {
-					$self->{_notifications_window}->move($mon->x + $mon->width - 315, $mon->y + $mon->height - 140);
+					$self->{_notifications_window}->move($mon->{x} + $mon->{width} - 315, $mon->{y} + $mon->{height} - 140);
 					$self->{_notifications_window}->{'pos'} = 1;
 				}
 
@@ -91,26 +95,25 @@ sub new {
 				my ($x, $y) = $self->{_notifications_window}->get_position;
 
 				#obtain current colors and font_desc from the main window
-				my $style     = $self->{_sc}->get_mainwindow->get_style;
-				my $sel_bg    = Gtk2::Gdk::Color->parse('#131313');
-				my $sel_tx    = Gtk2::Gdk::Color->parse('white');
-				my $font_fam  = $style->font_desc->get_family;
-				my $font_size = $style->font_desc->get_size / Gtk2::Pango->scale;
+				my $style     = $self->{_sc}->get_mainwindow->get_style_context;
+				my $sel_bg    = Gtk3::Gdk::RGBA::parse('#131313');
+				my $font_fam  = $style->get_font('normal')->get_family;
+				my $font_size = $style->get_font('normal')->get_size / Pango->scale;
 
 				#create cairo context
-				my $cr = Gtk2::Gdk::Cairo::Context->create($self->{_notifications_window}->window);
+				my $cr = $_[1];
 
 				#pango layout
-				my $layout = Gtk2::Pango::Cairo::create_layout($cr);
-				$layout->set_width(($w - 30) * Gtk2::Pango->scale);
+				my $layout = Pango::Cairo::create_layout($cr);
+				$layout->set_width(($w - 30) * Pango->scale);
 
-				if (Gtk2::Pango->CHECK_VERSION(1, 20, 0)) {
-					$layout->set_height(($h - 20) * Gtk2::Pango->scale);
+				if (Pango->CHECK_VERSION(1, 20, 0)) {
+					$layout->set_height(($h - 20) * Pango->scale);
 				} else {
 					warn "WARNING: \$layout->set_height is not available - outdated Pango version\n";
 				}
 
-				if (Gtk2::Pango->CHECK_VERSION(1, 6, 0)) {
+				if (Pango->CHECK_VERSION(1, 6, 0)) {
 					$layout->set_ellipsize('middle');
 				} else {
 					warn "WARNING: \$layout->set_ellipsize is not available - outdated Pango version\n";
@@ -130,10 +133,10 @@ sub new {
 
 				if ($self->{_sc}->get_mainwindow->get_screen->is_composited) {
 					$cr->set_source_rgba(1.0, 1.0, 1.0, 0);
-					Gtk2::Gdk::Cairo::Context::set_source_pixbuf($cr, $pixbuf, 0, 0);
+					Gtk3::Gdk::cairo_set_source_pixbuf($cr, $pixbuf, 0, 0);
 					$cr->paint;
 				} else {
-					$cr->set_source_rgb($sel_bg->red / 257 / 255, $sel_bg->green / 257 / 255, $sel_bg->blue / 257 / 255);
+					$cr->set_source_rgb($sel_bg->red, $sel_bg->green, $sel_bg->blue);
 					$cr->paint;
 				}
 
@@ -142,7 +145,7 @@ sub new {
 				#get layout size
 				my ($lw, $lh) = $layout->get_pixel_size;
 				$cr->move_to(($w - $lw) / 2, ($h - $lh) / 2);
-				Gtk2::Pango::Cairo::show_layout($cr, $layout);
+				Pango::Cairo::show_layout($cr, $layout);
 
 				return TRUE;
 			});
@@ -159,10 +162,10 @@ sub new {
 				my $mon = $self->{_sc}->get_current_monitor;
 
 				if (defined $self->{_notifications_window}->{'pos'} && $self->{_notifications_window}->{'pos'} == 1) {
-					$self->{_notifications_window}->move($mon->x + $mon->width - 315, $mon->y + 40);
+					$self->{_notifications_window}->move($mon->{x} + $mon->{width} - 315, $mon->{y} + 40);
 					$self->{_notifications_window}->{'pos'} = 0;
 				} else {
-					$self->{_notifications_window}->move($mon->x + $mon->width - 315, $mon->y + $mon->height - 140);
+					$self->{_notifications_window}->move($mon->{x} + $mon->{width} - 315, $mon->{y} + $mon->{height} - 140);
 					$self->{_notifications_window}->{'pos'} = 1;
 				}
 
@@ -222,7 +225,7 @@ sub close {
 		$self->{_body}    = undef;
 	}
 
-	$self->{_notifications_window}->hide_all;
+	$self->{_notifications_window}->hide;
 
 	$self->{_notifications_window}->{'pos'} = undef;
 
