@@ -391,11 +391,12 @@ sub STARTUP {
 		evt_take_screenshot('global_keybinding', 'awindow');
 	});
 
-	$action = Glib::IO::SimpleAction->new('section', '');
-	$app->add_action($action);
-	push @signal_connections, $action->signal_connect('activate'=>sub {
-		evt_take_screenshot('global_keybinding', 'section');
-	});
+	# No sections for now: https://github.com/shutter-project/shutter/issues/25
+	#$action = Glib::IO::SimpleAction->new('section', '');
+	#$app->add_action($action);
+	#push @signal_connections, $action->signal_connect('activate'=>sub {
+	#	evt_take_screenshot('global_keybinding', 'section');
+	#});
 
 	$action = Glib::IO::SimpleAction->new('menu', '');
 	$app->add_action($action);
@@ -501,7 +502,7 @@ sub STARTUP {
 	$sm->{_menuitem_full}->signal_connect('activate', \&evt_take_screenshot, 'full');
 	$sm->{_menuitem_awindow}->signal_connect('activate', \&evt_take_screenshot, 'awindow');
 	$sm->{_menuitem_window}->signal_connect('activate', \&evt_take_screenshot, 'window');
-	$sm->{_menuitem_section}->signal_connect('activate', \&evt_take_screenshot, 'section');
+	#$sm->{_menuitem_section}->signal_connect('activate', \&evt_take_screenshot, 'section');
 	$sm->{_menuitem_menu}->signal_connect('activate', \&evt_take_screenshot, 'menu');
 	$sm->{_menuitem_tooltip}->signal_connect('activate', \&evt_take_screenshot, 'tooltip');
 	$sm->{_menuitem_iclipboard}->signal_connect('activate', \&fct_clipboard_import);
@@ -818,7 +819,7 @@ sub STARTUP {
 	$st->{_window}->signal_connect('clicked' => \&evt_take_screenshot, 'window');
 
 	$st->{_window}->signal_connect('show-menu' => sub { $st->{_window}->set_menu(fct_ret_window_menu()) });
-	$st->{_section}->signal_connect('clicked' => \&evt_take_screenshot, 'section');
+	#$st->{_section}->signal_connect('clicked' => \&evt_take_screenshot, 'section');
 	$st->{_menu}->signal_connect('clicked' => \&evt_take_screenshot, 'menu');
 	$st->{_tooltip}->signal_connect('clicked' => \&evt_take_screenshot, 'tooltip');
 
@@ -4146,7 +4147,7 @@ sub STARTUP {
 			$sm->{_menuitem_selection}->set_sensitive($sensitive);
 			$sm->{_menuitem_full}->set_sensitive($sensitive);
 			$sm->{_menuitem_window}->set_sensitive($sensitive);
-			$sm->{_menuitem_section}->set_sensitive($sensitive);
+			#$sm->{_menuitem_section}->set_sensitive($sensitive);
 			$sm->{_menuitem_menu}->set_sensitive($sensitive);
 			$sm->{_menuitem_tooltip}->set_sensitive($sensitive);
 			$sm->{_menuitem_web}->set_sensitive($sensitive)
@@ -4157,7 +4158,7 @@ sub STARTUP {
 			$st->{_select}->set_sensitive($sensitive);
 			$st->{_full}->set_sensitive($sensitive);
 			$st->{_window}->set_sensitive($sensitive);
-			$st->{_section}->set_sensitive($sensitive);
+			#$st->{_section}->set_sensitive($sensitive);
 			$st->{_menu}->set_sensitive($sensitive);
 			$st->{_tooltip}->set_sensitive($sensitive);
 			$st->{_web}->set_sensitive($sensitive) if ($gnome_web_photo);
@@ -8367,16 +8368,17 @@ sub STARTUP {
 		$menuitem_window_list->set_submenu(fct_ret_window_menu());
 
 		#section
-		my $menuitem_window_sect = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('Se_ction'));
-		if ($traytheme->has_icon('gdm-xnest')) {
-			$menuitem_window_sect->set_image(Gtk3::Image->new_from_icon_name('gdm-xnest', 'menu'));
-		} else {
-			$menuitem_window_sect->set_image(Gtk3::Image->new_from_pixbuf($lp->load("$shutter_root/share/shutter/resources/icons/sel_window_section.svg", $shf->icon_size('menu'))));
-		}
-		$menuitem_window_sect->signal_connect(
-			activate => \&evt_take_screenshot,
-			'tray_section'
-		);
+		# No sections for now: https://github.com/shutter-project/shutter/issues/25
+		#my $menuitem_window_sect = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('Se_ction'));
+		#if ($traytheme->has_icon('gdm-xnest')) {
+		#	$menuitem_window_sect->set_image(Gtk3::Image->new_from_icon_name('gdm-xnest', 'menu'));
+		#} else {
+		#	$menuitem_window_sect->set_image(Gtk3::Image->new_from_pixbuf($lp->load("$shutter_root/share/shutter/resources/icons/sel_window_section.svg", $shf->icon_size('menu'))));
+		#}
+		#$menuitem_window_sect->signal_connect(
+		#	activate => \&evt_take_screenshot,
+		#	'tray_section'
+		#);
 
 		#menu
 		my $menuitem_window_menu = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('_Menu'));
@@ -8460,7 +8462,8 @@ sub STARTUP {
 		#~ $menu_tray->append($menuitem_awindow);
 		$menu_tray->append($menuitem_window);
 		$menu_tray->append($menuitem_window_list);
-		$menu_tray->append($menuitem_window_sect);
+		# No sections for now: https://github.com/shutter-project/shutter/issues/25
+		#$menu_tray->append($menuitem_window_sect);
 		$menu_tray->append($menuitem_window_menu);
 		$menu_tray->append($menuitem_window_tooltip);
 
@@ -10833,7 +10836,8 @@ if ($app->get_is_remote) {
 		full => 1,
 		window => 1,
 		awindow => 1,
-		section => 1,
+		# No sections for now: https://github.com/shutter-project/shutter/issues/25
+		#section => 1,
 		menu => 1,
 		tooltip => 1,
 		web => 1,
@@ -10914,10 +10918,6 @@ Select a window to capture. Providing a NAME_PATTERN (Perl-style regex) ist opti
 =item B<-a, --active>
 
 Capture the current active window.
-
-=item B<--section>
-
-Capture a section. You will be able to select any child window by moving the mouse over it.
 
 =item B<-m, --menu>
 

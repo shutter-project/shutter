@@ -462,14 +462,15 @@ sub fct_ret_new_menu {
 	$self->{_menu_new}->append($self->{_menuitem_window});
 
 	#section
-	$self->{_menuitem_section} = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('Se_ction'));
-	if ($icontheme->has_icon('gdm-xnest')) {
-		$self->{_menuitem_section}->set_image(Gtk3::Image->new_from_icon_name('gdm-xnest', 'menu'));
-	} else {
-		$self->{_menuitem_section}
-			->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/sel_window_section.svg", $self->{_shf}->icon_size('menu'))));
-	}
-	$self->{_menu_new}->append($self->{_menuitem_section});
+	# No sections for now: https://github.com/shutter-project/shutter/issues/25
+	#$self->{_menuitem_section} = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('Se_ction'));
+	#if ($icontheme->has_icon('gdm-xnest')) {
+	#	$self->{_menuitem_section}->set_image(Gtk3::Image->new_from_icon_name('gdm-xnest', 'menu'));
+	#} else {
+	#	$self->{_menuitem_section}
+	#		->set_image(Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/sel_window_section.svg", $self->{_shf}->icon_size('menu'))));
+	#}
+	#$self->{_menu_new}->append($self->{_menuitem_section});
 
 	#menu
 	$self->{_menuitem_menu} = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('_Menu'));

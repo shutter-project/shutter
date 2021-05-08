@@ -150,17 +150,18 @@ sub create_toolbar {
 	$self->{_window}->set_arrow_tooltip_text($d->get("Take a screenshot of a specific window"));
 
 	#button section
+	# No sections for now: https://github.com/shutter-project/shutter/issues/25
 	#--------------------------------------
-	my $image_window_sect;
-	if ($icontheme->has_icon('gdm-xnest')) {
-		$image_window_sect = Gtk3::Image->new_from_icon_name('gdm-xnest', 'large-toolbar');
-	} else {
-		$image_window_sect =
-			Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/sel_window_section.svg", $self->{_shf}->icon_size('large-toolbar')));
-	}
-	$self->{_section} = Gtk3::ToolButton->new($image_window_sect, $d->get("Section"));
+	#my $image_window_sect;
+	#if ($icontheme->has_icon('gdm-xnest')) {
+	#	$image_window_sect = Gtk3::Image->new_from_icon_name('gdm-xnest', 'large-toolbar');
+	#} else {
+	#	$image_window_sect =
+	#		Gtk3::Image->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file_at_size("$shutter_root/share/shutter/resources/icons/sel_window_section.svg", $self->{_shf}->icon_size('large-toolbar')));
+	#}
+	#$self->{_section} = Gtk3::ToolButton->new($image_window_sect, $d->get("Section"));
 
-	$self->{_section}->set_tooltip_text($d->get("Captures only a section of the window. You will be able to select any child window by moving the mouse over it"));
+	#$self->{_section}->set_tooltip_text($d->get("Captures only a section of the window. You will be able to select any child window by moving the mouse over it"));
 
 	#--------------------------------------
 
@@ -252,7 +253,7 @@ sub create_toolbar {
 	#~ $self->{_toolbar}->insert( Gtk3::SeparatorToolItem->new, -1 );
 	#~ $self->{_toolbar}->insert( $self->{_aindow},             -1 );
 	$self->{_toolbar}->insert($self->{_window},  -1);
-	$self->{_toolbar}->insert($self->{_section}, -1);
+	#$self->{_toolbar}->insert($self->{_section}, -1);
 	$self->{_toolbar}->insert($self->{_menu},    -1);
 	$self->{_toolbar}->insert($self->{_tooltip}, -1);
 
