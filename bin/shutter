@@ -2941,6 +2941,10 @@ sub STARTUP {
 			my $scd_text;
 			if ($data eq "menu" || $data eq "tray_menu") {
 				$scd_text = $d->get("Please activate the menu you want to capture");
+				if ($ENV{GDK_SCALE} > 1) {
+					my $sd = Shutter::App::SimpleDialogs->new;
+					$sd->dlg_info_message("Capturing a cascading menu is known to be broken with HiDPI.\nPlease unset GDK_SCALE variable and restart Shutter.\nPlease follow https://github.com/shutter-project/shutter/issues/326 and send us the patch\nWill attempt capturing it anyway...", undef, 'gtk-ok');
+				}
 			} elsif ($data eq "tooltip" || $data eq "tray_tooltip") {
 				$scd_text = $d->get("Please activate the tooltip you want to capture");
 			}
@@ -3005,6 +3009,10 @@ sub STARTUP {
 					return FALSE;
 				});
 		} else {
+			if (($data eq "section" || $data eq "tray_section") && $ENV{GDK_SCALE} > 1) {
+				my $sd = Shutter::App::SimpleDialogs->new;
+				$sd->dlg_info_message("Capturing a window section is known to be broken with HiDPI.\nPlease unset GDK_SCALE variable and restart Shutter.\nPlease follow https://github.com/shutter-project/shutter/issues/326 and send us the patch\nWill attempt capturing it anyway...", undef, 'gtk-ok');
+			}
 
 			#A short timeout to give the server a chance to
 			#redraw the area that was obscured by our dialog.
