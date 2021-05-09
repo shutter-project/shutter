@@ -3966,7 +3966,7 @@ sub STARTUP {
 
 		#setup tab label (thumb, preview etc.)
 		my $hbox_tab_label = Gtk3::HBox->new(FALSE, 0);
-		my $close_icon     = Gtk3::Image->new_from_icon_name('gtk-close', 'menu');
+		my $close_icon     = Gtk3::Image->new_from_icon_name('window-close', 'menu');
 
 		$session_screens{$key}->{'tab_icon'} = Gtk3::Image->new;
 
@@ -6392,6 +6392,7 @@ sub STARTUP {
 					$new_key_screenshot_thumbnail = fct_integrate_screenshot_in_notebook(Glib::IO::File::new_for_path($screenshot_thumbnail_name), $screenshot_thumbnail)
 						if $thumbnail_active->get_active;
 
+					$session_screens{$new_key_screenshot}->{'image'}->set_fitting(TRUE);
 				}
 			}
 
