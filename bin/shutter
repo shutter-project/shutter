@@ -7214,7 +7214,7 @@ sub STARTUP {
 
 				} else {
 					#If image pixbuf was not loaded, get image info without loading it into the memory
-					($im_format, $im_height, $im_width) = Gtk3::Gdk::Pixbuf::get_file_info($session_screens{$key}->{'long'});
+					($im_format, $im_width, $im_height) = Gtk3::Gdk::Pixbuf::get_file_info($session_screens{$key}->{'long'});
 
 					unless ($im_format) {
 						#increment error counter
