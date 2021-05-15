@@ -68,6 +68,7 @@ sub new {
 	#$self->{_dragger}  = Gtk3::ImageView::Tool::Dragger->new($self->{_view});
 	$self->{_view}->set_interpolation('nearest');
 	$self->{_view}->set_tool($self->{_selector});
+	$self->{_view}->set('zoom-step', 1.2);
 
 	#WORKAROUND
 	#upstream bug

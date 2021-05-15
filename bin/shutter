@@ -69,7 +69,7 @@ use Number::Bytes::Human;
 use Glib qw/TRUE FALSE/;
 use Gtk3 '-init';
 use Glib::Object::Subclass qw/Gtk3::Application/;
-use Gtk3::ImageView 7;
+use Gtk3::ImageView 9;
 
 #filename parsing
 use POSIX qw/ strftime /;
@@ -4243,6 +4243,7 @@ sub STARTUP {
 			#$session_screens{$key}->{'image'}->set_show_frame(FALSE);
 			$session_screens{$key}->{'image'}->set_fitting(TRUE);
 			$session_screens{$key}->{'image'}->get_style_context->add_provider($css_provider_alpha, 0);
+			$session_screens{$key}->{'image'}->set('zoom-step', 1.2);
 
 			#Gtk2::ImageView::ScrollWin packaged in a Gtk2::ScrolledWindow
 			#my $scrolled_window_image = Gtk2::ImageView::ScrollWin->new($session_screens{$key}->{'image'});

@@ -75,6 +75,7 @@ sub new {
 	$self->{_view}->set_tool($self->{_selector});
 	$self->{_view_css_provider_alpha} = Gtk3::CssProvider->new;
 	$self->{_view}->get_style_context->add_provider($self->{_view_css_provider_alpha}, 0);
+	$self->{_view}->set('zoom-step', 1.2);
 
 	#WORKAROUND
 	#upstream bug
