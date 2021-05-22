@@ -3,7 +3,6 @@
 ###################################################
 #
 #  Copyright (C) 2008-2013 Mario Kemper <mario.kemper@gmail.com>
-#  Copyright (C) 2020-2021 Google LLC, contributed by Alexey Sokolov <sokolov@google.com>
 #
 #  This file is part of Shutter.
 #
@@ -163,9 +162,9 @@ sub escape_path_string {
 #define constants
 #--------------------------------------
 use constant MAX_ERROR       => 5;
-use constant SHUTTER_REV     => 'Rev.1450';
+use constant SHUTTER_REV     => 'Rev.1547';
 use constant SHUTTER_NAME    => 'Shutter';
-use constant SHUTTER_VERSION => '0.95';
+use constant SHUTTER_VERSION => '0.96';
 
 #--------------------------------------
 
