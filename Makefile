@@ -8,8 +8,8 @@ clean:
 		rm -r $(srcdir)share/locale; \
 	fi
 install: all
-	install -Dm755 $(srcdir)COPYING $(prefix)/share/doc/shutter/COPYING
-	install -Dm755 $(srcdir)README $(prefix)/share/doc/shutter/README
+	install -Dm644 $(srcdir)COPYING $(prefix)/share/doc/shutter/COPYING
+	install -Dm644 $(srcdir)README $(prefix)/share/doc/shutter/README
 	install -Dm755 $(srcdir)bin/shutter $(prefix)/bin/shutter
 	cp -r $(srcdir)share/ $(prefix)/
 
