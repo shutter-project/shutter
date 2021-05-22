@@ -7758,7 +7758,7 @@ sub STARTUP {
 					next unless $fileinfo->get_file_type eq 'regular';
 
 					#does the current file match the pattern?
-					print "Comparing $fname\n" if $sc->get_debug;
+					# print "Comparing $fname\n" if $sc->get_debug;
 					if ($fname =~ $search_pattern) {
 						my $curr_value = $1;
 						if ($curr_value && $curr_value > $next_count) {
