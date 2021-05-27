@@ -471,7 +471,7 @@ sub include_cursor {
 		my $y = $cursor_pixbuf_yroot;
 
 		#screenshot dimensions saved in a rect (global x, y)
-		my $scshot = {x=>$xp, y=>$yp, width=>$widthp, height=>$heightp};
+		my $scshot = Cairo::Region->create({x=>$xp, y=>$yp, width=>$widthp, height=>$heightp});
 
 		#see 'man xcursor' for a detailed description
 		#of these values
@@ -483,7 +483,7 @@ sub include_cursor {
 
 		#is the cursor visible in the current screenshot?
 		#(do the rects intersect?)
-		if ($cursor = $scshot->intersect($cursor)) {
+		if ($scshot->intersect_rectangle($cursor) eq 'success') {
 
 			#calculate dest_x, dest_y
 			#be careful here when subtracting xhot and yhot,
