@@ -5471,7 +5471,7 @@ sub STARTUP {
 		}
 
 		my $clipboard_string = undef;
-		my $clipboard_region = Gtk3::Gdk::Region->new;
+		my $clipboard_region = Cairo::Region->create;
 		my @pixbuf_array;
 		my @rects_array;
 		foreach my $key (@clipboard_array) {
@@ -5479,7 +5479,7 @@ sub STARTUP {
 			if ($mode eq 'image') {
 				my $pixbuf = $lp->load($session_screens{$key}->{'long'});
 				my $rect   = {x=>$sr->get_clipbox($clipboard_region)->{width}, y=>0, width=>$pixbuf->get_width, height=>$pixbuf->get_height};
-				$clipboard_region->union_with_rect($rect);
+				$clipboard_region->union_rectangle($rect);
 				push @pixbuf_array, $pixbuf;
 				push @rects_array,  $rect;
 			} else {
@@ -5494,14 +5494,14 @@ sub STARTUP {
 			fct_show_status_message(1, $d->get("Selected filenames copied to clipboard"));
 		}
 
-		if ($clipboard_region->get_rectangles) {
+		if ($clipboard_region->num_rectangles) {
 			my $clipboard_image = Gtk3::Gdk::Pixbuf->new('rgb', TRUE, 8, $sr->get_clipbox($clipboard_region)->{width}, $sr->get_clipbox($clipboard_region)->{height});
 			$clipboard_image->fill(0x00000000);
 
 			#copy images to the blank pixbuf
 			my $rect_counter = 0;
 			foreach my $pixbuf (@pixbuf_array) {
-				$pixbuf->copy_area(0, 0, $pixbuf->get_width, $pixbuf->get_height, $clipboard_image, $rects_array[$rect_counter]->x, 0);
+				$pixbuf->copy_area(0, 0, $pixbuf->get_width, $pixbuf->get_height, $clipboard_image, $rects_array[$rect_counter]->{x}, 0);
 				$rect_counter++;
 			}
 

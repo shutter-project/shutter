@@ -78,7 +78,7 @@ sub workspaces {
 	my $output = undef;
 	my $pixbuf = undef;
 
-	my $wspaces_region = Gtk3::Gdk::Region->new;
+	my $wspaces_region = Cairo::Region->new;
 	my @pixbuf_array;
 	my @rects_array;
 	my $row    = 0;
@@ -116,7 +116,7 @@ sub workspaces {
 					$pixbuf = $self->workspace(TRUE, TRUE);
 
 					my $rect = {x=>$width, y=>$height, width=>$pixbuf->get_width, height=>$pixbuf->get_height};
-					$wspaces_region->union_with_rect($rect);
+					$wspaces_region->union_rectangle($rect);
 					push @pixbuf_array, $pixbuf;
 					push @rects_array,  $rect;
 
@@ -153,7 +153,7 @@ sub workspaces {
 			$row    = $space->get_layout_row;
 
 			my $rect = {x=>$width, y=>$height, width=>$pixbuf->get_width, height=>$pixbuf->get_height};
-			$wspaces_region->union_with_rect($rect);
+			$wspaces_region->union_rectangle($rect);
 			push @pixbuf_array, $pixbuf;
 			push @rects_array,  $rect;
 

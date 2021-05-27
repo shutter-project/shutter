@@ -134,9 +134,9 @@ sub get_current_monitor {
 
 sub get_monitor_region {
 	my $self   = shift;
-	my $region = Gtk3::Gdk::Region->new;
+	my $region = Cairo::Region->new;
 	for (my $i = 0 ; $i < $self->{_gdk_screen}->get_n_monitors ; $i++) {
-		$region->union_with_rect($self->{_gdk_screen}->get_monitor_geometry($i));
+		$region->union_rectangle($self->{_gdk_screen}->get_monitor_geometry($i));
 	}
 	return $region;
 }
