@@ -190,7 +190,7 @@ my $gnome_web_photo = TRUE;
 my $nautilus_sendto = TRUE;
 my $goocanvas       = TRUE;
 my $exiftool        = TRUE;
-my $appindicator    = FALSE; # Gtk3::StatusIcon works better albeit being deprecated in Gtk3
+my $appindicator    = TRUE;
 fct_init_depend();
 
 #--------------------------------------
@@ -630,29 +630,34 @@ sub STARTUP {
 	#command line param set to disable tray icon?
 	unless ($sc->get_disable_systray) {
 
-		if ($appindicator) {
-			local $, = ' ';
+		$tray = Gtk3::StatusIcon->new();
+		$tray->set_from_icon_name("shutter-panel");
+		$tray->set_visible(1);
+
+		fct_update_gui();
+
+		if ($tray->is_embedded) {
+			$tray->{'hid'} = $tray->signal_connect(
+				'popup-menu' => sub { evt_show_systray_statusicon(@_); },
+				$tray
+			);
+			$tray->{'hid2'} = $tray->signal_connect(
+				'activate' => sub {
+					evt_activate_systray_statusicon(@_);
+					$tray;
+				},
+				$tray
+			);
+		} else {
+			$tray = undef;
+		}
+
+		if ($appindicator && !defined $tray) {
+			# Fallback to AppIndicator. This one doesn't allow left-click signal, but it seems to be the only option for Gnome on Ubuntu 21.04...
 			$tray = AppIndicator::Indicator->new("Shutter", "shutter-panel", 'application-status');
 			$tray->set_menu($tray_menu);
 			$tray->set_status('active');
-		} else {
-				$tray = Gtk3::StatusIcon->new();
-
-				$tray->set_from_icon_name("shutter-panel");
-				$tray->set_visible(1);
-				$tray->{'hid'} = $tray->signal_connect(
-					'popup-menu' => sub { evt_show_systray_statusicon(@_); },
-					$tray
-				);
-				$tray->{'hid2'} = $tray->signal_connect(
-					'activate' => sub {
-						evt_activate_systray_statusicon(@_);
-						$tray;
-					},
-					$tray
-				);
 		}
-
 	}
 
 	#--------------------------------------
@@ -3107,7 +3112,7 @@ sub STARTUP {
 
 		if (   $data ne "quit"
 			&& $close_at_close_active->get_active
-			&& !$sc->get_disable_systray)
+			&& $tray)
 		{
 			$window->hide;
 			$is_hidden = TRUE;
@@ -9005,8 +9010,8 @@ sub STARTUP {
 				version  => '0.1',
 				package  => 'AppIndicator',
 			);
-		} if 0;
-		if (0 && $@) {
+		};
+		if ($@) {
 			warn "WARNING: AppIndicator is missing --> there will be no icon showing up in the status bar when running Unity!\n\n";
 			$appindicator = FALSE;
 		}
