@@ -78,7 +78,7 @@ sub workspaces {
 	my $output = undef;
 	my $pixbuf = undef;
 
-	my $wspaces_region = Cairo::Region->new;
+	my $wspaces_region = Cairo::Region->create;
 	my @pixbuf_array;
 	my @rects_array;
 	my $row    = 0;
