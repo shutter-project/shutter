@@ -450,7 +450,7 @@ sub STARTUP {
 
 	#UPDATE WINDOW LIST (signal is connected when GUI is loaded)
 	my $wnck_screen = Wnck::Screen::get_default();
-	$wnck_screen->force_update;
+	$wnck_screen->force_update if $wnck_screen;
 
 	#TRAY ICON AND MENU
 	my $tray      = undef;
@@ -2733,9 +2733,7 @@ sub STARTUP {
 		sub {
 			$wnck_screen->signal_connect('window-stacking-changed' => sub { fct_update_tray_menu(@_); });
 			return FALSE;
-		});
-
-	0;
+		}) if $wnck_screen;
 
 	#events
 	#--------------------------------------
@@ -8111,6 +8109,10 @@ sub STARTUP {
 		my $menu_wrksp = Gtk3::Menu->new;
 
 		my $wnck_screen = Wnck::Screen::get_default();
+		unless ($wnck_screen) {
+			$current_monitor_active = Gtk3::CheckMenuItem->new_with_label($d->get("Limit to current monitor"));
+			return $menu_wrksp;
+		}
 		$wnck_screen->force_update();
 
 		#we determine the wm name but on older
@@ -8246,6 +8248,7 @@ sub STARTUP {
 	sub fct_ret_window_menu {
 
 		my $menu_windows = Gtk3::Menu->new;
+		return $menu_windows unless $wnck_screen;
 
 		my $active_workspace = $wnck_screen->get_active_workspace;
 		my $icontheme        = $sc->get_theme;
