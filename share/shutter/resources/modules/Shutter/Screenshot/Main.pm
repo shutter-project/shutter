@@ -134,7 +134,7 @@ sub get_current_monitor {
 
 sub get_monitor_region {
 	my $self   = shift;
-	my $region = Cairo::Region->new;
+	my $region = Cairo::Region->create;
 	for (my $i = 0 ; $i < $self->{_gdk_screen}->get_n_monitors ; $i++) {
 		$region->union_rectangle($self->{_gdk_screen}->get_monitor_geometry($i));
 	}
