@@ -1217,10 +1217,13 @@ sub STARTUP {
 	#--------------------------------------
 	my $saveDir_label  = Gtk3::Label->new($d->get("Directory") . ":");
 	my $saveDir_button = Gtk3::FileChooserButton->new("Shutter - " . $d->get("Choose folder"), 'select-folder');
-	if (defined $settings_xml->{'general'}->{'folder'}) {
-		$saveDir_button->set_current_folder($settings_xml->{'general'}->{'folder'});
-	} else {
-		$saveDir_button->set_current_folder(Glib::get_user_special_dir('pictures'));
+	for my $saveDir_dir ($settings_xml->{'general'}->{'folder'},
+		Glib::get_user_special_dir('pictures'),
+		Glib::get_home_dir()) {
+		if (defined $saveDir_dir) {
+			$saveDir_button->set_current_folder($saveDir_dir);
+			last;
+		}
 	}
 
 	$saveDir_button->set_tooltip_text($d->get("Your screenshots will be saved to this directory"));
