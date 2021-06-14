@@ -67,6 +67,7 @@ use File::stat;
 use Number::Bytes::Human;
 
 #Glib
+use Pango;
 use Glib qw/TRUE FALSE/;
 use Gtk3 '-init';
 use Glib::Object::Subclass qw/Gtk3::Application/;
