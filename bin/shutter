@@ -425,6 +425,12 @@ sub STARTUP {
 		evt_take_screenshot('global_keybinding', 'redoshot');
 	});
 
+	$action = Glib::IO::SimpleAction->new('showmainwindow', '');
+	$app->add_action($action);
+	push @signal_connections, $action->signal_connect('activate'=>sub {
+		fct_control_main_window('show');
+	});
+
 	#create needed directories etc.
 	fct_init_environment();
 
@@ -10893,13 +10899,15 @@ if ($app->get_is_remote) {
 		$app->activate_action($cmdname, Glib::Variant->new_string($extra));
 	} elsif (defined $cmdname && $screenshot_cmds{$cmdname}) {
 		$app->activate_action($cmdname, Glib::Variant->new(''));
-	} else {
+	} elsif (@init_files) {
 
 		my @variants;
 		foreach my $uri (@init_files) {
 			push @variants, Glib::Variant->new_string($uri);
 		}
 		$app->activate_action('fopen', Glib::Variant->new_array(undef, \@variants));
+	} else {
+		$app->activate_action('showmainwindow', Glib::Variant->new(''));
 	}
 
 	print "\nINFO: There is already another instance of Shutter running!\n";
