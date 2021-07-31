@@ -10443,13 +10443,15 @@ sub STARTUP {
 							$notify->show($d->get("Successfully uploaded"), sprintf($d->get("The file %s was successfully uploaded."), $file));
 
 							#copy website url to clipboard
-							if ($ftp_wurl_entry_dlg->get_text) {
-								my $wuri = Glib::IO::File::new_for_path($ftp_wurl_entry_dlg->get_text);
-
+							my $uri = $ftp_wurl_entry_dlg->get_text;
+							if ($uri) {
 								my ($short, $folder, $ext) = fileparse($file, qr/\.[^.]*/);
-								$wuri = $wuri->append_file_name($short . $ext);
-								$clipboard->set_text($wuri->to_string);
-								print "copied URI ", $wuri->to_string, " to clipboard\n"
+								if ($uri !~ m|/$|) {
+									$uri .= '/';
+								}
+								$uri .= $short . $ext;
+								$clipboard->set_text($uri);
+								print "copied URI ", $uri, " to clipboard\n"
 									if $sc->get_debug;
 							}
 
