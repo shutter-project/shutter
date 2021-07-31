@@ -3758,7 +3758,7 @@ sub STARTUP {
 			eval { $ssettings = Gtk3::PrintSettings->new_from_file("$ENV{ HOME }/.shutter/printing.xml"); };
 		}
 
-		$pagesetup = Gtk3::Print->run_page_setup_dialog($window, $pagesetup, $ssettings);
+		($pagesetup) = Glib::Object::Introspection->invoke('Gtk', undef, 'print_run_page_setup_dialog', $window, $pagesetup, $ssettings);
 
 		return TRUE;
 	}
@@ -6656,7 +6656,7 @@ sub STARTUP {
 		my $op = Gtk3::PrintOperation->new;
 		$op->set_job_name(SHUTTER_NAME . " - " . SHUTTER_VERSION . " - " . localtime);
 		$op->set_n_pages(scalar @pages);
-		$op->set_unit('pixel');
+		$op->set_unit('none'); # aka pixel
 		$op->set_show_progress(TRUE);
 		$op->set_default_page_setup($pagesetup);
 
