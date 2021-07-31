@@ -35,6 +35,7 @@ use GooCanvas2;
 use GooCanvas2::CairoTypes;
 use Shutter::Screenshot::Main;
 use Shutter::Screenshot::History;
+use Shutter::Screenshot::ImageViewSelector;
 
 use Data::Dumper;
 our @ISA = qw(Shutter::Screenshot::Main);
@@ -64,7 +65,7 @@ sub new {
 
 	#view, selector, dragger
 	$self->{_view}     = Gtk3::ImageView->new;
-	$self->{_selector} =  Gtk3::ImageView::Tool::Selector->new($self->{_view});
+	$self->{_selector} =  Shutter::Screenshot::ImageViewSelector->new($self->{_view});
 	#$self->{_dragger}  = Gtk3::ImageView::Tool::Dragger->new($self->{_view});
 	$self->{_view}->set_interpolation('nearest');
 	$self->{_view}->set_tool($self->{_selector});
@@ -150,7 +151,7 @@ sub select_advanced {
 
 					my $text1 = $d->get("Draw a rectangular area using the mouse.");
 
-					my $text2 = $d->get("To take a screenshot, press the Enter key. Press Esc to quit.");
+					my $text2 = $d->get("To take a screenshot, double-click or press the Enter key.\nPress Esc to abort.");
 
 					my $text3 =
 						  $d->get("<b>shift/right-click</b> → selection dialog on/off") . "\n"
