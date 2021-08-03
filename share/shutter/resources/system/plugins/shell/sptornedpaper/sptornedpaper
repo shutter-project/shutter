@@ -51,9 +51,10 @@ FILE="${1}"
 
 # Generate torned effect
 
-convert "${FILE}" \( +clone -threshold -1 -virtual-pixel black \
+convert "${FILE}" \
+\( +clone -alpha extract -virtual-pixel black \
 -spread 10 -blur 0x3 -threshold 50% -spread 1 -blur 0x.7 \) \
-+matte -compose Copy_Opacity -composite "${FILE}"
+-alpha off -compose Copy_Opacity -composite "${FILE}"
 
 
 # Add hard shadow
