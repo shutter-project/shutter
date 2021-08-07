@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<application>
+<component type="desktop-application">
   <id>org.shutterproject.shutter</id>
-  <launchable type="desktop">shutter.desktop</launchable>
+  <launchable type="desktop-id">shutter.desktop</launchable>
   <metadata_license>CC0-1.0</metadata_license>
   <license>GPL-3.0+</license>
   <description>
@@ -27,4 +27,4 @@
     <screenshot>https://shutter-project.org/wp-content/uploads/key_feature_036.png</screenshot>
     <screenshot>https://shutter-project.org/wp-content/uploads/key_feature_073.png</screenshot>
   </screenshots>
-</application>
+</component>
