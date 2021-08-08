@@ -71,7 +71,7 @@ use Pango;
 use Glib qw/TRUE FALSE/;
 use Gtk3 '-init';
 use Glib::Object::Subclass qw/Gtk3::Application/;
-use Gtk3::ImageView 9;
+use Gtk3::ImageView 10;
 
 #filename parsing
 use POSIX qw/ strftime /;
