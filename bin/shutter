@@ -9494,7 +9494,7 @@ sub STARTUP {
 			my $fs_resp = $fs->run;
 
 			if ($fs_resp eq "accept") {
-				@new_files = $fs->get_uris;
+				@new_files = @{$fs->get_uris};
 
 				#keep folder in mind
 				if ($new_files[0]) {
