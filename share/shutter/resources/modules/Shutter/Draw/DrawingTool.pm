@@ -1210,8 +1210,8 @@ sub adjust_rulers {
 		if ($self->{_hruler} && $self->{_hruler}) {
 
 			my ($x, $y, $width, $height, $depth) = $self->{_canvas}->get_window->get_geometry;
-			my $ha = $self->{_scrolled_window}->get_hadjustment->value / $s;
-			my $va = $self->{_scrolled_window}->get_vadjustment->value / $s;
+			my $ha = $self->{_scrolled_window}->get_hadjustment->get_value / $s;
+			my $va = $self->{_scrolled_window}->get_vadjustment->get_value / $s;
 
 			$self->{_hruler}->set_range($ha, $ha + $width / $s,  0, $hmax_size);
 			$self->{_vruler}->set_range($va, $va + $height / $s, 0, $vmax_size);
@@ -1877,8 +1877,8 @@ sub event_item_on_motion_notify {
 
 		my ($x, $y, $width, $height, $depth) = $self->{_canvas}->get_window->get_geometry;
 		my $s  = $self->{_canvas}->get_scale;
-		my $ha = $self->{_scrolled_window}->get_hadjustment->value;
-		my $va = $self->{_scrolled_window}->get_vadjustment->value;
+		my $ha = $self->{_scrolled_window}->get_hadjustment->get_value;
+		my $va = $self->{_scrolled_window}->get_vadjustment->get_value;
 
 		#autoscroll
 		if (   $ev->x > ($ha / $s + $width / $s - 100 / $s)
