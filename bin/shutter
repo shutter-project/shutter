@@ -458,6 +458,7 @@ sub STARTUP {
 	#UPDATE WINDOW LIST (signal is connected when GUI is loaded)
 	my $wnck_screen = Wnck::Screen::get_default();
 	$wnck_screen->force_update if $wnck_screen;
+	my $x11_supported = $wnck_screen ? 1 : 0;
 
 	#TRAY ICON AND MENU
 	my $tray      = undef;
@@ -514,6 +515,12 @@ sub STARTUP {
 	$sm->{_menuitem_menu}->signal_connect('activate', \&evt_take_screenshot, 'menu');
 	$sm->{_menuitem_tooltip}->signal_connect('activate', \&evt_take_screenshot, 'tooltip');
 	$sm->{_menuitem_iclipboard}->signal_connect('activate', \&fct_clipboard_import);
+
+	unless ($x11_supported) {
+		for my $name ('selection', 'full', 'awindow', 'window', 'menu', 'tooltip') {
+			$sm->{"_menuitem_$name"}->set_sensitive(FALSE);
+		}
+	}
 
 	#gnome web photo is optional, don't enable it when gnome-web-photo is not in PATH
 	if ($gnome_web_photo) {
@@ -859,7 +866,7 @@ sub STARTUP {
 	$st->{_upload}->signal_connect('clicked' => \&fct_upload);
 	$st->{_upload}->set_sensitive(FALSE);
 
-	unless ($wnck_screen) {
+	unless ($x11_supported) {
 		my $tooltip = $d->get("Can't take screenshots without X11 server");
 		for my $name ('_select', '_full', '_window', '_menu', '_tooltip') {
 			$st->{$name}->set_sensitive(FALSE);
@@ -2959,7 +2966,7 @@ sub STARTUP {
 			#unblock signal handler
 			fct_control_signals('unblock');
 			return TRUE;
-		} elsif (!defined $wnck_screen) {
+		} elsif (!$x11_supported) {
 			my $sd = Shutter::App::SimpleDialogs->new;
 			$sd->dlg_error_message($d->get("Can't take screenshots without X11 server"), $d->get("Failed"));
 			fct_control_signals('unblock');
@@ -4176,10 +4183,10 @@ sub STARTUP {
 
 		#enable/disable controls
 		if ($st->{_select} && $sm->{_menuitem_selection}) {
-			# if $wnck_screen is undefined, we are on Wayland, and all these buttons are already disabled and should stay disabled
+			# if $x11_supported is false, we are on Wayland, and all these buttons are already disabled and should stay disabled
 
 			#menu
-			if ($wnck_screen) {
+			if ($x11_supported) {
 				$sm->{_menuitem_selection}->set_sensitive($sensitive);
 				$sm->{_menuitem_full}->set_sensitive($sensitive);
 				$sm->{_menuitem_window}->set_sensitive($sensitive);
@@ -4192,7 +4199,7 @@ sub STARTUP {
 			$sm->{_menuitem_iclipboard}->set_sensitive($sensitive);
 
 			#toolbar
-			if ($wnck_screen) {
+			if ($x11_supported) {
 				$st->{_select}->set_sensitive($sensitive);
 				$st->{_full}->set_sensitive($sensitive);
 				$st->{_window}->set_sensitive($sensitive);
@@ -8345,7 +8352,7 @@ sub STARTUP {
 
 		#selection
 		my $menuitem_select = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('_Selection'));
-		$menuitem_select->set_sensitive($wnck_screen);
+		$menuitem_select->set_sensitive($x11_supported);
 		eval {
 			my $ccursor_pb = Gtk3::Gdk::Cursor::new('left_ptr')->get_image->scale_simple($shf->icon_size('menu'), 'bilinear');
 			$menuitem_select->set_image(Gtk3::Image->new_from_pixbuf($ccursor_pb));
@@ -8364,7 +8371,7 @@ sub STARTUP {
 
 		#full screen
 		my $menuitem_full = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('_Desktop'));
-		$menuitem_full->set_sensitive($wnck_screen);
+		$menuitem_full->set_sensitive($x11_supported);
 		if ($traytheme->has_icon('user-desktop')) {
 			$menuitem_full->set_image(Gtk3::Image->new_from_icon_name('user-desktop', 'menu'));
 		} elsif ($traytheme->has_icon('desktop')) {
@@ -8395,7 +8402,7 @@ sub STARTUP {
 
 		#window
 		my $menuitem_window = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('Window _under Cursor'));
-		$menuitem_window->set_sensitive($wnck_screen);
+		$menuitem_window->set_sensitive($x11_supported);
 		if ($traytheme->has_icon('preferences-system-windows')) {
 			$menuitem_window->set_image(Gtk3::Image->new_from_icon_name('preferences-system-windows', 'menu'));
 		} else {
@@ -8408,7 +8415,7 @@ sub STARTUP {
 
 		#window list
 		my $menuitem_window_list = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('Select W_indow'));
-		$menuitem_window_list->set_sensitive($wnck_screen);
+		$menuitem_window_list->set_sensitive($x11_supported);
 		if ($traytheme->has_icon('preferences-system-windows')) {
 			$menuitem_window_list->set_image(Gtk3::Image->new_from_icon_name('preferences-system-windows', 'menu'));
 		} else {
@@ -8432,7 +8439,7 @@ sub STARTUP {
 
 		#menu
 		my $menuitem_window_menu = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('_Menu'));
-		$menuitem_window_menu->set_sensitive($wnck_screen);
+		$menuitem_window_menu->set_sensitive($x11_supported);
 		if ($traytheme->has_icon('alacarte')) {
 			$menuitem_window_menu->set_image(Gtk3::Image->new_from_icon_name('alacarte', 'menu'));
 		} else {
@@ -8445,7 +8452,7 @@ sub STARTUP {
 
 		#tooltip
 		my $menuitem_window_tooltip = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('_Tooltip'));
-		$menuitem_window_tooltip->set_sensitive($wnck_screen);
+		$menuitem_window_tooltip->set_sensitive($x11_supported);
 		if ($traytheme->has_icon('help-faq')) {
 			$menuitem_window_tooltip->set_image(Gtk3::Image->new_from_icon_name('help-faq', 'menu'));
 		} else {
