@@ -48,6 +48,7 @@ sub new {
 	# code = 6 - gnome-web-photo failed
 	# code = 7 - no window with name xy detected
 	# code = 8 - invalid pattern
+	# code = 9 - other error
 	#############
 
 	bless $self, $class;
@@ -168,6 +169,8 @@ sub show_dialog {
 			undef, undef, undef, undef, undef, undef, $detailed_error_text
 		);
 
+	} elsif ($self->{_code} == 9) {
+		$response = $sd->dlg_error_message($d->get("Unable to capture"), $d->get("Error while taking the screenshot."), undef, undef, undef, undef, undef, undef, $detailed_error_text);
 	}
 
 	return ($response, $status_text);

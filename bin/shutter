@@ -232,6 +232,7 @@ if ($goocanvas) {
 #screenshot classes
 require Shutter::Screenshot::SelectorAdvanced;
 require Shutter::Screenshot::SelectorAuto;
+require Shutter::Screenshot::Wayland;
 require Shutter::Screenshot::Workspace;
 require Shutter::Screenshot::Web;
 require Shutter::Screenshot::Window;
@@ -517,7 +518,7 @@ sub STARTUP {
 	$sm->{_menuitem_iclipboard}->signal_connect('activate', \&fct_clipboard_import);
 
 	unless ($x11_supported) {
-		for my $name ('selection', 'full', 'awindow', 'window', 'menu', 'tooltip') {
+		for my $name ('selection', 'awindow', 'window', 'menu', 'tooltip') {
 			$sm->{"_menuitem_$name"}->set_sensitive(FALSE);
 		}
 	}
@@ -868,7 +869,7 @@ sub STARTUP {
 
 	unless ($x11_supported) {
 		my $tooltip = $d->get("Can't take screenshots without X11 server");
-		for my $name ('_select', '_full', '_window', '_menu', '_tooltip') {
+		for my $name ('_select', '_window', '_menu', '_tooltip') {
 			$st->{$name}->set_sensitive(FALSE);
 			$st->{$name}->set_tooltip_text($tooltip);
 		}
@@ -2966,7 +2967,7 @@ sub STARTUP {
 			#unblock signal handler
 			fct_control_signals('unblock');
 			return TRUE;
-		} elsif (!$x11_supported) {
+		} elsif (!$x11_supported && $data ne "full" && $data ne "tray_full") {
 			my $sd = Shutter::App::SimpleDialogs->new;
 			$sd->dlg_error_message($d->get("Can't take screenshots without X11 server"), $d->get("Failed"));
 			fct_control_signals('unblock');
@@ -4188,7 +4189,6 @@ sub STARTUP {
 			#menu
 			if ($x11_supported) {
 				$sm->{_menuitem_selection}->set_sensitive($sensitive);
-				$sm->{_menuitem_full}->set_sensitive($sensitive);
 				$sm->{_menuitem_window}->set_sensitive($sensitive);
 				#$sm->{_menuitem_section}->set_sensitive($sensitive);
 				$sm->{_menuitem_menu}->set_sensitive($sensitive);
@@ -4201,7 +4201,6 @@ sub STARTUP {
 			#toolbar
 			if ($x11_supported) {
 				$st->{_select}->set_sensitive($sensitive);
-				$st->{_full}->set_sensitive($sensitive);
 				$st->{_window}->set_sensitive($sensitive);
 				#$st->{_section}->set_sensitive($sensitive);
 				$st->{_menu}->set_sensitive($sensitive);
@@ -5914,11 +5913,17 @@ sub STARTUP {
 			$screenshooter = Shutter::Screenshot::Workspace->new(
 				$sc, $include_cursor, $delay_value,
 				$notify_timeout_active->get_active,
-				$wnck_screen->get_active_workspace,
+				$wnck_screen ? $wnck_screen->get_active_workspace : undef,
 				undef, undef, $current_monitor_active->get_active
 			);
 
-			$screenshot = $screenshooter->workspace();
+			if ($ENV{XDG_SESSION_TYPE} eq "wayland" || 1) {
+				# TODO: support kwin directly, because it has more features than the xdg portal
+				$screenshot = Shutter::Screenshot::Wayland::xdg_portal($screenshooter);
+			} else {
+
+				$screenshot = $screenshooter->workspace();
+			}
 
 			#window
 		} elsif ($data eq "window"
@@ -8371,7 +8376,6 @@ sub STARTUP {
 
 		#full screen
 		my $menuitem_full = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('_Desktop'));
-		$menuitem_full->set_sensitive($x11_supported);
 		if ($traytheme->has_icon('user-desktop')) {
 			$menuitem_full->set_image(Gtk3::Image->new_from_icon_name('user-desktop', 'menu'));
 		} elsif ($traytheme->has_icon('desktop')) {
