@@ -10846,8 +10846,13 @@ my $app = Shutter::App->new(
 	application_id=>'org.shutter-project.Shutter',
 	flags=>['flags-none']);
 
-$app->run;
-if ($app->get_is_remote) {
+$app->signal_connect('notify::is-registered'=>sub {
+	if (!$app->get_is_registered) {
+		return;
+	}
+	if (!$app->get_is_remote) {
+		return;
+	}
 	#The application is already running, send it a message
 
 	my ($cmdname, $extra) = $sc->get_start_with;
@@ -10922,7 +10927,9 @@ if ($app->get_is_remote) {
 	}
 
 	print "\nINFO: There is already another instance of Shutter running!\n";
-}
+});
+
+$app->run;
 
 __END__
 
