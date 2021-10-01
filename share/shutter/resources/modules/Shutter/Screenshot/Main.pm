@@ -48,47 +48,45 @@ sub new {
 		_notify_timeout => shift,
 	};
 
-	my $window = Gtk3::Window->new('toplevel');
-	#root window
-	$self->{_root} = Gtk3::GdkX11::X11Window::lookup_for_display(
-		$window->get_display,
-		Gtk3::GdkX11::x11_get_default_root_xwindow());
-	($self->{_root}->{x}, $self->{_root}->{y}, $self->{_root}->{w}, $self->{_root}->{h}) = $self->{_root}->get_geometry;
-	($self->{_root}->{x}, $self->{_root}->{y}) = $self->{_root}->get_origin;
-
-	#import modules
-	require lib;
-	import lib $self->{_sc}->get_root . "/share/shutter/resources/modules";
-
-	#shutter region module
-	require Shutter::Geometry::Region;
-
-	#wnck screen
-	$self->{_wnck_screen} = Wnck::Screen::get_default();
-	$self->{_wnck_screen}->force_update();
-
 	#gdk screen
 	$self->{_gdk_screen} = Gtk3::Gdk::Screen::get_default();
 
 	#gdk display
 	$self->{_gdk_display} = $self->{_gdk_screen}->get_display;
 
-	#we determine the wm name but on older
-	#version of libwnck (or the bindings)
-	#the needed method is not available
-	#in this case we use gdk to do it
-	#
-	#this leads to a known problem when switching
-	#the wm => wm_name will still remain the old one
-	$self->{_wm_manager_name} = $self->{_gdk_screen}->get_window_manager_name;
-	if ($self->{_wnck_screen}->can('get_window_manager_name')) {
-		$self->{_wm_manager_name} = $self->{_wnck_screen}->get_window_manager_name;
-	}
+	my $window = Gtk3::Window->new('toplevel');
+	#root window
+	eval {
+		$self->{_root} = Gtk3::GdkX11::X11Window::lookup_for_display(
+			$window->get_display,
+			Gtk3::GdkX11::x11_get_default_root_xwindow());
+		($self->{_root}->{x}, $self->{_root}->{y}, $self->{_root}->{w}, $self->{_root}->{h}) = $self->{_root}->get_geometry;
+		($self->{_root}->{x}, $self->{_root}->{y}) = $self->{_root}->get_origin;
 
-	#workspaces
-	$self->{_workspaces} = ();
-	for (my $wcount = 0 ; $wcount < $self->{_wnck_screen}->get_workspace_count ; $wcount++) {
-		push(@{$self->{_workspaces}}, $self->{_wnck_screen}->get_workspace($wcount));
+		#wnck screen
+		$self->{_wnck_screen} = Wnck::Screen::get_default();
+		$self->{_wnck_screen}->force_update();
+
+		#we determine the wm name but on older
+		#version of libwnck (or the bindings)
+		#the needed method is not available
+		#in this case we use gdk to do it
+		#
+		#this leads to a known problem when switching
+		#the wm => wm_name will still remain the old one
+		$self->{_wm_manager_name} = $self->{_gdk_screen}->get_window_manager_name;
+		if ($self->{_wnck_screen}->can('get_window_manager_name')) {
+			$self->{_wm_manager_name} = $self->{_wnck_screen}->get_window_manager_name;
+		}
+
+		#workspaces
+		$self->{_workspaces} = ();
+		for (my $wcount = 0 ; $wcount < $self->{_wnck_screen}->get_workspace_count ; $wcount++) {
+			push(@{$self->{_workspaces}}, $self->{_wnck_screen}->get_workspace($wcount));
+		}
+	};
+	if ($@) {
+		# it's wayland
 	}
 
 	bless $self, $class;
