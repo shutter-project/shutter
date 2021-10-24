@@ -5917,7 +5917,7 @@ sub STARTUP {
 				undef, undef, $current_monitor_active->get_active
 			);
 
-			if ($ENV{XDG_SESSION_TYPE} eq "wayland" || 1) {
+			if ($ENV{XDG_SESSION_TYPE} eq "wayland") {
 				# TODO: support kwin directly, because it has more features than the xdg portal
 				$screenshot = Shutter::Screenshot::Wayland::xdg_portal($screenshooter);
 			} else {
