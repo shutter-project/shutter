@@ -1320,12 +1320,19 @@ sub update_warning_text {
 
 	my $minutes = int((time - $self->{_start_time}) / 60);
 	$minutes = 1 if $minutes == 0;
-	$warn_dialog->set(
-		'secondary-text' =>
-			sprintf($self->{_d}->nget("If you don't save the image, changes from the last minute will be lost", "If you don't save the image, changes from the last %d minutes will be lost", $minutes),
-			$minutes,)
-			. "."
+
+	my $txt = $self->{_d}->nget(
+		"If you don't save the image, changes from the last minute will be lost",
+		"If you don't save the image, changes from the last %d minutes will be lost",
+		$minutes
 	);
+
+	$txt = sprintf($txt, $minutes) if $minutes > 1;
+
+	$warn_dialog->set(
+		'secondary-text' => "$txt."
+	);
+
 	return TRUE;
 }
 
