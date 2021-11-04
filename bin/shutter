@@ -4152,6 +4152,10 @@ sub STARTUP {
 				if ($tray->signal_handler_is_connected($tray->{'hid2'})) {
 					$tray->signal_handler_block($tray->{'hid2'});
 				}
+			} elsif ($tray && $tray->isa('AppIndicator::Indicator')) {
+				if (defined Gtk3::AppIndicator->VERSION && Gtk3::AppIndicator->VERSION > 0.12) {
+					$tray->set_passive();
+				}
 			}
 		} elsif ($action eq 'unblock') {
 
@@ -4171,6 +4175,10 @@ sub STARTUP {
 				}
 				if ($tray->signal_handler_is_connected($tray->{'hid2'})) {
 					$tray->signal_handler_unblock($tray->{'hid2'});
+				}
+			} elsif ($tray && $tray->isa('AppIndicator::Indicator')) {
+				if (defined Gtk3::AppIndicator->VERSION && Gtk3::AppIndicator->VERSION > 0.12) {
+					$tray->set_active();
 				}
 			}
 		}
