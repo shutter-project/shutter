@@ -116,6 +116,8 @@ use Proc::Simple;
 #sort lexically, but sort numeral parts numerically
 use Sort::Naturally;
 
+use English;
+
 sub escape_string {
 	return $_[0];
 
@@ -203,6 +205,7 @@ import lib "$shutter_root/share/shutter/resources/modules";
 #app classes
 require Shutter::App::AboutDialog;
 require Shutter::App::Common;
+require Shutter::App::NewCommon;
 require Shutter::App::GlobalSettings;
 require Shutter::App::SimpleDialogs;
 require Shutter::App::HelperFunctions;
@@ -245,6 +248,14 @@ require Shutter::Upload::FTP;
 #--------------------------------------
 
 my $sc   = Shutter::App::Common->new($shutter_root, undef, SHUTTER_NAME, SHUTTER_VERSION, SHUTTER_REV, $$);
+my $sc_new = Shutter::App::NewCommon->new(
+	shutter_root => $shutter_root,
+	mainwindow => undef,
+	appname => SHUTTER_NAME,
+	version => SHUTTER_VERSION,
+	rev => SHUTTER_REV,
+	pid => $PID
+);
 my $shf  = Shutter::App::HelperFunctions->new($sc);
 my $so   = Shutter::App::Options->new($sc, $shf);
 my $sdir = Shutter::App::Directories->new();
