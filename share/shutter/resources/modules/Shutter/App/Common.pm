@@ -74,10 +74,10 @@ sub new {
 	$ENV{'SHUTTER_INTL'} = $self->{_shutter_root} . "/share/locale";
 
 	#notification object
-	$self->{_notification};
+	$self->{_notification} = undef;
 
 	#globalsettings object
-	$self->{_globalsettings};
+	$self->{_globalsettings} = undef;
 
 	#icontheme to determine if icons exist or not
 	#in some cases we deliver fallback icons
