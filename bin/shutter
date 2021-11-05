@@ -93,7 +93,7 @@ use List::Util qw/ max min /;
 use XML::Simple;
 
 #DBus message system
-use Net::DBus qw/ dbus_string dbus_boolean /;
+use Net::DBus;
 
 #HTTP Status code processing
 use HTTP::Status;
@@ -180,7 +180,6 @@ if ($ENV{PAR_TEMP}) {
 	$shutter_root = $1;
 }
 
-my $shutter_path = $Bin . "/shutter";
 $ENV{'SHUTTER_ROOT'} = $shutter_root;    #used by some plugins
 
 #--------------------------------------
@@ -2768,6 +2767,10 @@ sub STARTUP {
 	#--------------------------------------
 	sub evt_value_changed {
 		my ($widget, $data) = @_;
+
+		# a small workaround when the widget is undef
+		$widget ||= "undef";
+
 		print "\n$data was emitted by widget $widget\n"
 			if $sc->get_debug;
 
@@ -4150,11 +4153,8 @@ sub STARTUP {
 					$tray->signal_handler_block($tray->{'hid2'});
 				}
 			} elsif ($tray && $tray->isa('AppIndicator::Indicator')) {
-				if (Gtk3::AppIndicator->VERSION > 0.12) {
-					$tray->set_passive();
-				}
+				$tray->set_status('passive');
 			}
-
 		} elsif ($action eq 'unblock') {
 
 			$sensitive = TRUE;
@@ -4175,11 +4175,8 @@ sub STARTUP {
 					$tray->signal_handler_unblock($tray->{'hid2'});
 				}
 			} elsif ($tray && $tray->isa('AppIndicator::Indicator')) {
-				if (Gtk3::AppIndicator->VERSION > 0.12) {
-					$tray->set_active();
-				}
+				$tray->set_status('active');
 			}
-
 		}
 
 		#enable/disable controls
