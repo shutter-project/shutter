@@ -54,16 +54,9 @@ has global_settings => ( is => "rw", lazy => 1 );
 #icontheme to determine if icons exist or not
 #in some cases we deliver fallback icons
 has icontheme => (
-    is      => "ro",
+    is      => "rw",
     lazy    => 1,
-    builder => sub {
-        my $self = shift;
-
-        my $theme = Gtk3::IconTheme::get_default();
-        $theme->append_search_path( $self->shutter_root . "/share/icons" );
-
-        return $theme;
-    },
+    builder => "_setup_icontheme",
 );
 
 #recently used upload tab
@@ -89,6 +82,15 @@ sub BUILD {
     setlocale( LC_MESSAGES, "" );
 
     $ENV{'SHUTTER_INTL'} = $args->{shutter_root} . "/share/locale";
+}
+
+sub _setup_icontheme {
+    my $self = shift;
+
+    my $theme = Gtk3::IconTheme::get_default();
+    $theme->append_search_path( $self->shutter_root . "/share/icons" );
+
+    return $theme;
 }
 
 sub get_current_monitor {

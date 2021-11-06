@@ -250,7 +250,7 @@ require Shutter::Upload::FTP;
 my $sc   = Shutter::App::Common->new($shutter_root, undef, SHUTTER_NAME, SHUTTER_VERSION, SHUTTER_REV, $$);
 my $sc_new = Shutter::App::NewCommon->new(
 	shutter_root => $shutter_root,
-	mainwindow => undef,
+	main_window => undef,
 	appname => SHUTTER_NAME,
 	version => SHUTTER_VERSION,
 	rev => SHUTTER_REV,

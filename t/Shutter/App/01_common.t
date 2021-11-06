@@ -3,14 +3,16 @@ use strict;
 use warnings;
 
 use Locale::gettext;
-use Test::More;
+use Test::More tests => 3;
 use Test::MockModule;
+use Glib qw/ TRUE FALSE /;
+
+use constant MOCKED_ICONTHEME_VALUE => "FOO BAR BAZ";
 
 require_ok( _get_package() );
 
 subtest "Create common object" => sub {
-    plan skip_all => "no env TEST_APP_SHUTTER_PATH found"
-        unless $ENV{TEST_APP_SHUTTER_PATH};
+    plan skip_all => "no env TEST_APP_SHUTTER_PATH found" unless $ENV{TEST_APP_SHUTTER_PATH};
 
     my $mock = Test::MockModule->new( _get_package() );
     $mock->mock( "_setup_icontheme", sub { } );
@@ -25,14 +27,15 @@ subtest "Create common object" => sub {
 
     ok( defined $sc, "Object defined" );
     isa_ok( $sc, _get_package() );
+    ok( exists $ENV{SHUTTER_INTL}, "defined SHUTTER_INTL" );
+    is( $ENV{SHUTTER_INTL}, $sc->get_root . "/share/locale", '$ENV{SHUTTER_INTL} has a right value' );
 };
 
-subtest "Test getters and setters" => sub {
-    plan skip_all => "no env TEST_APP_SHUTTER_PATH found"
-        unless $ENV{TEST_APP_SHUTTER_PATH};
+subtest "Getters and setters" => sub {
+    plan skip_all => "no env TEST_APP_SHUTTER_PATH found" unless $ENV{TEST_APP_SHUTTER_PATH};
 
     my $mock = Test::MockModule->new( _get_package() );
-    $mock->mock( "_setup_icontheme", sub { my $self = shift; $self->{_icontheme} = "foo bar baz" } );
+    $mock->mock( "_setup_icontheme", sub { } );
 
     my $root     = $ENV{TEST_APP_SHUTTER_PATH};
     my $name     = "shutter";
@@ -55,14 +58,136 @@ subtest "Test getters and setters" => sub {
         is( $sc->get_mainwindow, "AAAA", "main_window is filed" );
     };
 
+    subtest "icontheme" => sub {
+        my $mock = Test::MockModule->new( _get_package() );
+        $mock->mock( "_setup_icontheme", \&_get_setup_icontheme );
+
+        my $sc = _get_common_object( $root, undef, $name, $version, $revision, $pid );
+        ok( defined $sc, "Object defined" );
+
+        is( $sc->get_theme, MOCKED_ICONTHEME_VALUE, "icontheme has a value" );
+    };
+
     subtest "gettext_object" => sub {
-        plan skip_all => "Later";
+        ok( defined $sc->get_gettext );
+        isa_ok( $sc->get_gettext, "Locale::gettext" );
     };
 
     subtest "notification_object" => sub {
         is( $sc->get_notification_object, undef, "notification_object is null" );
         $sc->set_notification_object(1);
         is( $sc->get_notification_object, 1, "notification_object is filled" );
+    };
+
+    subtest "globalsettings_object" => sub {
+        is( $sc->get_globalsettings_object, undef, "globalsettings_object is null" );
+        $sc->set_globalsettings_object( { foo => 1, bar => 2 } );
+        ok( defined $sc->get_globalsettings_object,       "globalsettings_object is filled" );
+        ok( ref $sc->get_globalsettings_object eq "HASH", "globalsettings_object is filled by proper structure" );
+        ok( $sc->get_globalsettings_object->{foo} == 1,   "check first parameter" );
+        ok( $sc->get_globalsettings_object->{bar} == 2,   "check second parameter" );
+    };
+
+    subtest "rusf" => sub {
+        is( $sc->get_rusf, undef, "rusf is null" );
+        $sc->set_rusf(1);
+        is( $sc->get_rusf, 1, "rusf is filled" );
+    };
+
+    subtest "ruof" => sub {
+        is( $sc->get_ruof, undef, "ruof is null" );
+        $sc->set_ruof(0);
+        is( $sc->get_ruof, 0, "ruof is filled" );
+    };
+
+    subtest "ruu_tab" => sub {
+        is( $sc->get_ruu_tab, 0, "ruu_tab is zero" );
+        $sc->set_ruu_tab(1);
+        is( $sc->get_ruu_tab, 1, "ruu_tab is changed" );
+    };
+
+    subtest "ruu_hosting" => sub {
+        is( $sc->get_ruu_hosting, 0, "ruu_hosting is zero" );
+        $sc->set_ruu_hosting(1);
+        is( $sc->get_ruu_hosting, 1, "ruu_hosting is changed" );
+    };
+
+    subtest "ruu_places" => sub {
+        is( $sc->get_ruu_places, 0, "ruu_places is zero" );
+        $sc->set_ruu_places(1);
+        is( $sc->get_ruu_places, 1, "ruu_places is changed" );
+    };
+
+    subtest "debug" => sub {
+        is( $sc->get_debug, TRUE, "debug is enabled by default" );
+        $sc->set_debug(FALSE);
+        is( $sc->get_debug, FALSE, "debug is disabled" );
+    };
+
+    subtest "clear_cache" => sub {
+        is( $sc->get_clear_cache, FALSE, "clear_cache is disabled by default" );
+        $sc->set_clear_cache(TRUE);
+        is( $sc->get_clear_cache, TRUE, "clear_cache is enabled" );
+    };
+
+    subtest "min" => sub {
+        is( $sc->get_min, FALSE, "min is disabled by default" );
+        $sc->set_min(TRUE);
+        is( $sc->get_min, TRUE, "min is enabled" );
+    };
+
+    subtest "disable_systray" => sub {
+        is( $sc->get_disable_systray, FALSE, "disable_systray is disabled by default" );
+        $sc->set_disable_systray(TRUE);
+        is( $sc->get_disable_systray, TRUE, "disable_systray is enabled" );
+    };
+
+    subtest "exit_after_capture" => sub {
+        is( $sc->get_exit_after_capture, FALSE, "exit_after_capture is disabled by default" );
+        $sc->set_exit_after_capture(TRUE);
+        is( $sc->get_exit_after_capture, TRUE, "exit_after_capture is enabled" );
+    };
+
+    subtest "no_session" => sub {
+        is( $sc->get_no_session, FALSE, "no_session is disabled by default" );
+        $sc->set_no_session(TRUE);
+        is( $sc->get_no_session, TRUE, "no_session is enabled" );
+    };
+
+    subtest "start_with" => sub {
+        my ( $start_with, $start_with_extra ) = $sc->get_start_with;
+
+        is( $start_with,       undef, "start_with is null" );
+        is( $start_with_extra, undef, "start_with_extra is null" );
+
+        $sc->set_start_with( "foo", "bar" );
+
+        ( $start_with, $start_with_extra ) = $sc->get_start_with;
+
+        is( $start_with,       "foo", "start_with is filled" );
+        is( $start_with_extra, "bar", "start_with_extra is filled" );
+    };
+
+    subtest "profile_to_start_with" => sub {
+        is( $sc->get_profile_to_start_with, undef, "profile_to_start_with is null" );
+        $sc->set_profile_to_start_with(1);
+        is( $sc->get_profile_to_start_with, 1, "profile_to_start_with is filled" );
+    };
+
+    subtest "export_filename" => sub {
+        plan skip_all => "Later";
+    };
+
+    subtest "include_cursor" => sub {
+        plan skip_all => "Later";
+    };
+
+    subtest "remove_cursor" => sub {
+        plan skip_all => "Later";
+    };
+
+    subtest "delay" => sub {
+        plan skip_all => "Later";
     };
 };
 
@@ -87,4 +212,14 @@ sub _get_common_object {
     }
 
     return Shutter::App::Common->new( $root, $main_window, $name, $version, $revision, $pid );
+}
+
+sub _get_setup_icontheme {
+    my $self = shift;
+
+    if ( $ENV{TEST_APP_NEW_COMMON} ) {
+        return MOCKED_ICONTHEME_VALUE;
+    }
+
+    $self->{_icontheme} = MOCKED_ICONTHEME_VALUE;
 }
