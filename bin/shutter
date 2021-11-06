@@ -205,7 +205,6 @@ import lib "$shutter_root/share/shutter/resources/modules";
 #app classes
 require Shutter::App::AboutDialog;
 require Shutter::App::Common;
-require Shutter::App::NewCommon;
 require Shutter::App::GlobalSettings;
 require Shutter::App::SimpleDialogs;
 require Shutter::App::HelperFunctions;
@@ -247,8 +246,8 @@ require Shutter::Upload::FTP;
 
 #--------------------------------------
 
-my $sc   = Shutter::App::Common->new($shutter_root, undef, SHUTTER_NAME, SHUTTER_VERSION, SHUTTER_REV, $$);
-my $sc_new = Shutter::App::NewCommon->new(
+# my $sc   = Shutter::App::Common->new($shutter_root, undef, SHUTTER_NAME, SHUTTER_VERSION, SHUTTER_REV, $$);
+my $sc = Shutter::App::Common->new(
 	shutter_root => $shutter_root,
 	main_window => undef,
 	appname => SHUTTER_NAME,

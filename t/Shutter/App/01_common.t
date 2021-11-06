@@ -170,56 +170,65 @@ subtest "Getters and setters" => sub {
 
     subtest "profile_to_start_with" => sub {
         is( $sc->get_profile_to_start_with, undef, "profile_to_start_with is null" );
-        $sc->set_profile_to_start_with(1);
-        is( $sc->get_profile_to_start_with, 1, "profile_to_start_with is filled" );
+        $sc->set_profile_to_start_with("foo");
+        is( $sc->get_profile_to_start_with, "foo", "profile_to_start_with is filled" );
     };
 
     subtest "export_filename" => sub {
-        plan skip_all => "Later";
+        is( $sc->get_export_filename, undef, "export_filename is null" );
+        $sc->set_export_filename("foo");
+        is( $sc->get_export_filename, "foo", "export_filename is filled" );
     };
 
     subtest "include_cursor" => sub {
-        plan skip_all => "Later";
+        is( $sc->get_include_cursor, undef, "include_cursor is null" );
+        $sc->set_include_cursor(TRUE);
+        is( $sc->get_include_cursor, TRUE, "include_cursor is filled" );
     };
 
     subtest "remove_cursor" => sub {
-        plan skip_all => "Later";
+        is( $sc->get_remove_cursor, undef, "remove_cursor is null" );
+        $sc->set_remove_cursor(FALSE);
+        is( $sc->get_remove_cursor, FALSE, "remove_cursor is filled" );
     };
 
     subtest "delay" => sub {
-        plan skip_all => "Later";
+        is( $sc->get_delay, undef, "delay is null" );
+        $sc->set_delay(15);
+        is( $sc->get_delay, 15, "delay is filled" );
     };
 };
 
 done_testing();
 
 sub _get_package {
-    return $ENV{TEST_APP_NEW_COMMON} ? "Shutter::App::NewCommon" : "Shutter::App::Common";
+    return $ENV{TEST_APP_OLD_COMMON} ? "Shutter::App::OldCommon" : "Shutter::App::Common";
 }
 
 sub _get_common_object {
     my ( $root, $main_window, $name, $version, $revision, $pid ) = @_;
 
-    if ( $ENV{TEST_APP_NEW_COMMON} ) {
-        return Shutter::App::NewCommon->new(
-            shutter_root => $root,
-            main_window  => $main_window,
-            appname      => $name,
-            version      => $version,
-            rev          => $revision,
-            pid          => $pid
-        );
+    if ( $ENV{TEST_APP_OLD_COMMON} ) {
+        return Shutter::App::OldCommon->new( $root, $main_window, $name, $version, $revision, $pid );
     }
 
-    return Shutter::App::Common->new( $root, $main_window, $name, $version, $revision, $pid );
+    return Shutter::App::Common->new(
+        shutter_root => $root,
+        main_window  => $main_window,
+        appname      => $name,
+        version      => $version,
+        rev          => $revision,
+        pid          => $pid
+    );
 }
 
 sub _get_setup_icontheme {
     my $self = shift;
 
-    if ( $ENV{TEST_APP_NEW_COMMON} ) {
-        return MOCKED_ICONTHEME_VALUE;
+    if ( $ENV{TEST_APP_OLD_COMMON} ) {
+        $self->{_icontheme} = MOCKED_ICONTHEME_VALUE;
+        return;
     }
 
-    $self->{_icontheme} = MOCKED_ICONTHEME_VALUE;
+    return MOCKED_ICONTHEME_VALUE;
 }
