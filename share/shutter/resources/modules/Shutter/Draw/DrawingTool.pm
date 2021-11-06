@@ -176,7 +176,7 @@ sub new {
 
 	$self->{_start_time} = undef;
 
-	$self->{_stipple_pixbuf} = Gtk3::Gdk::Pixbuf->new_from_file($self->{_sc}{_shutter_root} . '/share/shutter/resources/gui/stipple.png');
+	$self->{_stipple_pixbuf} = Gtk3::Gdk::Pixbuf->new_from_file($self->{_sc}->get_root . '/share/shutter/resources/gui/stipple.png');
 
 	bless $self, $class;
 
