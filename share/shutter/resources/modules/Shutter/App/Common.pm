@@ -1,6 +1,7 @@
 ###################################################
 #
 #  Copyright (C) 2008-2013 Mario Kemper <mario.kemper@gmail.com>
+#  Copyright (C) 2021 Alexander Ruzhnikov <ruzhnikov85@gmail.com>
 #
 #  This file is part of Shutter.
 #
@@ -22,419 +23,171 @@
 
 package Shutter::App::Common;
 
-#modules
-#--------------------------------------
 use utf8;
-use strict;
+use Moo;
 use Gtk3;
 
 #Gettext and filename parsing
-use POSIX qw/setlocale/;
+use POSIX qw/ setlocale /;
 use Locale::gettext;
 
 #Glib
-use Glib qw/TRUE FALSE/;
+use Glib qw/ TRUE FALSE /;
 
-#File
-use File::Spec;
+has shutter_root => ( is => "ro", required => 1 );
+has main_window  => ( is => "rw", required => 1 );
+has appname      => ( is => "ro", required => 1 );
+has version      => ( is => "ro", required => 1 );
+has rev          => ( is => "ro", required => 1 );
+has pid          => ( is => "ro", required => 1 );
 
-#--------------------------------------
+has debug              => ( is => "rw", default => sub {TRUE} );
+has clear_cache        => ( is => "rw", default => sub {FALSE} );
+has min                => ( is => "rw", default => sub {FALSE} );
+has disable_systray    => ( is => "rw", default => sub {FALSE} );
+has exit_after_capture => ( is => "rw", default => sub {FALSE} );
+has no_session         => ( is => "rw", default => sub {FALSE} );
 
-##################public subs##################
-sub new {
-	my $class = shift;
+# private attributes
+has _start_with       => ( is => "rw", lazy => 1 );
+has _start_with_extra => ( is => "rw", lazy => 1 );
 
-	#constructor
-	my $self = {_shutter_root => shift, _mainwindow => shift, _appname => shift, _version => shift, _rev => shift, _pid => shift};
+has profile_to_start_with => ( is => "rw", lazy => 1 );
+has export_filename       => ( is => "rw", lazy => 1 );
+has delay                 => ( is => "rw", lazy => 1 );
+has include_cursor        => ( is => "rw", lazy => 1 );
+has remove_cursor         => ( is => "rw", lazy => 1 );
 
-	#vars
-	$self->{_debug_cparam}              = TRUE;
-	$self->{_clear_cache}               = FALSE;
-	$self->{_min_cparam}                = FALSE;
-	$self->{_disable_systray_cparam}    = FALSE;
-	$self->{_exit_after_capture_cparam} = FALSE;
-	$self->{_no_session_cparam}         = FALSE;
-	$self->{_start_with}                = undef;
-	$self->{_start_with_extra}          = undef;
-	$self->{_profile_to_start_with}     = undef;
-	$self->{_export_filename}           = undef;
-	$self->{_delay}                     = undef;
-	$self->{_include_cursor}            = undef;
-	$self->{_remove_cursor}             = undef;
+has gettext_object => (
+    is      => "rw",
+    lazy    => 1,
+    builder => sub {
+        my $self = shift;
 
-	#Set LC_NUMERIC to C to prevent decimal commas (or anything else)
-	setlocale(LC_NUMERIC,  "C");
-	setlocale(LC_MESSAGES, "");
+        my $l = Locale::gettext->domain("shutter");
+        $l->dir( $self->shutter_root . "/share/locale" );
 
-	#gettext init
-	$self->{_gettext_object} = Locale::gettext->domain("shutter");
-	$self->{_gettext_object}->dir($self->{_shutter_root} . "/share/locale");
+        return $l;
+    },
+);
 
-	#ENV needed by some plugins
-	$ENV{'SHUTTER_INTL'} = $self->{_shutter_root} . "/share/locale";
+has notification    => ( is => "rw", lazy => 1 );
+has global_settings => ( is => "rw", lazy => 1 );
 
-	#notification object
-	$self->{_notification};
+#icontheme to determine if icons exist or not
+#in some cases we deliver fallback icons
+has icontheme => (
+    is      => "rw",
+    lazy    => 1,
+    builder => "_setup_icontheme",
+);
 
-	#globalsettings object
-	$self->{_globalsettings};
+#recently used upload tab
+has ruu_tab => ( is => "rw", default => sub {0} );
 
-	#icontheme to determine if icons exist or not
-	#in some cases we deliver fallback icons
-	$self->{_icontheme} = Gtk3::IconTheme::get_default();
-	$self->{_icontheme}->append_search_path($self->{_shutter_root} . "/share/icons");
+#... and details
+has ruu_hosting => ( is => "rw", default => sub {0} );
+has ruu_places  => ( is => "rw", default => sub {0} );
 
-	#recently used upload tab
-	$self->{_ruu_tab} = 0;
+# TODO: this attribute looks like isn't used. Consider to remove it later
+has ruu_u1 => ( is => "rw", default => sub {0} );
 
-	#... and details
-	$self->{_ruu_hosting} = 0;
-	$self->{_ruu_places}  = 0;
-	$self->{_ruu_u1}      = 0;
+#recently used save folder
+has rusf => ( is => "rw", lazy => 1 );
 
-	#recently used save folder
-	$self->{_rusf} = undef;
+#recently used open folder
+has ruof => ( is => "rw", lazy => 1 );
 
-	#recently used open folder
-	$self->{_ruof} = undef;
+sub BUILD {
+    my ( $self, $args ) = @_;
 
-	bless $self, $class;
-	return $self;
+    setlocale( LC_NUMERIC,  "C" );
+    setlocale( LC_MESSAGES, "" );
+
+    $ENV{'SHUTTER_INTL'} = $args->{shutter_root} . "/share/locale";
 }
 
-#getter / setter
-sub get_root {
-	my $self = shift;
-	return $self->{_shutter_root};
-}
+sub _setup_icontheme {
+    my $self = shift;
 
-sub get_pid {
-	my $self = shift;
-	return $self->{_pid};
-}
+    my $theme = Gtk3::IconTheme::get_default();
+    $theme->append_search_path( $self->shutter_root . "/share/icons" );
 
-sub set_pid {
-	my $self = shift;
-	if (@_) {
-		$self->{_pid} = shift;
-	}
-	return $self->{_pid};
-}
-
-sub get_appname {
-	my $self = shift;
-	return $self->{_appname};
-}
-
-sub get_version {
-	my $self = shift;
-	return $self->{_version};
-}
-
-sub get_rev {
-	my $self = shift;
-	return $self->{_rev};
-}
-
-sub get_gettext {
-	my $self = shift;
-	return $self->{_gettext_object};
-}
-
-sub set_gettext {
-	my $self = shift;
-	if (@_) {
-		$self->{_gettext_object} = shift;
-	}
-	return $self->{_gettext_object};
-}
-
-sub get_theme {
-	my $self = shift;
-	return $self->{_icontheme};
-}
-
-sub get_notification_object {
-	my $self = shift;
-	return $self->{_notification};
-}
-
-sub set_notification_object {
-	my $self = shift;
-	if (@_) {
-		$self->{_notification} = shift;
-	}
-	return $self->{_notification};
-}
-
-sub get_globalsettings_object {
-	my $self = shift;
-	return $self->{_globalsettings};
-}
-
-sub set_globalsettings_object {
-	my $self = shift;
-	if (@_) {
-		$self->{_globalsettings} = shift;
-	}
-	return $self->{_globalsettings};
-}
-
-# filename
-sub get_rusf {
-	my $self = shift;
-	return $self->{_rusf};
-}
-
-sub set_rusf {
-	my $self = shift;
-	if (@_) {
-		$self->{_rusf} = shift;
-	}
-	return $self->{_rusf};
-}
-
-# uri
-sub get_ruof {
-	my $self = shift;
-	return $self->{_ruof};
-}
-
-sub set_ruof {
-	my $self = shift;
-	if (@_) {
-		$self->{_ruof} = shift;
-	}
-	return $self->{_ruof};
-}
-
-sub get_ruu_tab {
-	my $self = shift;
-	return $self->{_ruu_tab};
-}
-
-sub set_ruu_tab {
-	my $self = shift;
-	if (@_) {
-		$self->{_ruu_tab} = shift;
-	}
-	return $self->{_ruu_tab};
-}
-
-sub get_ruu_hosting {
-	my $self = shift;
-	return $self->{_ruu_hosting};
-}
-
-sub get_ruu_places {
-	my $self = shift;
-	return $self->{_ruu_places};
-}
-
-sub get_ruu_u1 {
-	my $self = shift;
-	return $self->{_ruu_u1};
-}
-
-sub set_ruu_hosting {
-	my $self = shift;
-	if (@_) {
-		$self->{_ruu_hosting} = shift;
-	}
-	return $self->{_ruu_hosting};
-}
-
-sub set_ruu_places {
-	my $self = shift;
-	if (@_) {
-		$self->{_ruu_places} = shift;
-	}
-	return $self->{_ruu_places};
-}
-
-sub set_ruu_u1 {
-	my $self = shift;
-	if (@_) {
-		$self->{_ruu_u1} = shift;
-	}
-	return $self->{_ruu_u1};
-}
-
-sub get_debug {
-	my $self = shift;
-	return $self->{_debug_cparam};
-}
-
-sub set_debug {
-	my $self = shift;
-	if (@_) {
-		$self->{_debug_cparam} = shift;
-	}
-	return $self->{_debug_cparam};
-}
-
-sub get_clear_cache {
-	my $self = shift;
-	return $self->{_clear_cache};
-}
-
-sub set_clear_cache {
-	my $self = shift;
-	if (@_) {
-		$self->{_clear_cache} = shift;
-	}
-	return $self->{_clear_cache};
-}
-
-sub get_mainwindow {
-	my $self = shift;
-	return $self->{_mainwindow};
-}
-
-sub set_mainwindow {
-	my $self = shift;
-	if (@_) {
-		$self->{_mainwindow} = shift;
-	}
-	return $self->{_mainwindow};
-}
-
-sub get_min {
-	my $self = shift;
-	return $self->{_min_cparam};
-}
-
-sub set_min {
-	my $self = shift;
-	if (@_) {
-		$self->{_min_cparam} = shift;
-	}
-	return $self->{_min_cparam};
-}
-
-sub get_disable_systray {
-	my $self = shift;
-	return $self->{_disable_systray_cparam};
-}
-
-sub set_disable_systray {
-	my $self = shift;
-	if (@_) {
-		$self->{_disable_systray_cparam} = shift;
-	}
-	return $self->{_disable_systray_cparam};
-}
-
-sub get_exit_after_capture {
-	my $self = shift;
-	return $self->{_exit_after_capture_cparam};
-}
-
-sub set_exit_after_capture {
-	my $self = shift;
-	if (@_) {
-		$self->{_exit_after_capture_cparam} = shift;
-	}
-	return $self->{_exit_after_capture_cparam};
-}
-
-sub get_no_session {
-	my $self = shift;
-	return $self->{_no_session_cparam};
-}
-
-sub set_no_session {
-	my $self = shift;
-	if (@_) {
-		$self->{_no_session_cparam} = shift;
-	}
-	return $self->{_no_session_cparam};
-}
-
-sub get_start_with {
-	my $self = shift;
-	return ($self->{_start_with}, $self->{_start_with_extra});
-}
-
-sub set_start_with {
-	my $self = shift;
-	if (@_) {
-		$self->{_start_with}       = shift;
-		$self->{_start_with_extra} = shift;
-	}
-	return ($self->{_start_with}, $self->{_start_with_extra});
-}
-
-sub get_profile_to_start_with {
-	my $self = shift;
-	return $self->{_profile_to_start_with};
-}
-
-sub set_profile_to_start_with {
-	my $self = shift;
-	if (@_) {
-		$self->{_profile_to_start_with} = shift;
-	}
-	return $self->{_profile_to_start_with};
-}
-
-sub get_export_filename {
-	my $self = shift;
-	return $self->{_export_filename};
-}
-
-sub set_export_filename {
-	my $self = shift;
-	if (@_) {
-		$self->{_export_filename} = shift;
-	}
-	return $self->{_export_filename};
-}
-
-sub get_include_cursor {
-	my $self = shift;
-	return $self->{_include_cursor};
-}
-
-sub set_include_cursor {
-	my $self = shift;
-	if (@_) {
-		$self->{_include_cursor} = shift;
-	}
-	return $self->{_include_cursor};
-}
-
-sub get_remove_cursor {
-	my $self = shift;
-	return $self->{_remove_cursor};
-}
-
-sub set_remove_cursor {
-	my $self = shift;
-	if (@_) {
-		$self->{_remove_cursor} = shift;
-	}
-	return $self->{_remove_cursor};
-}
-
-sub get_delay {
-	my $self = shift;
-	return $self->{_delay};
-}
-
-sub set_delay {
-	my $self = shift;
-	if (@_) {
-		$self->{_delay} = shift;
-	}
-	return $self->{_delay};
+    return $theme;
 }
 
 sub get_current_monitor {
-	my $self = shift;
-	my ($window_at_pointer, $x, $y, $mask) = Gtk3::Gdk::get_default_root_window->get_pointer;
-	my $mon = Gtk3::Gdk::Screen::get_default->get_monitor_geometry(Gtk3::Gdk::Screen::get_default->get_monitor_at_point($x, $y));
-	return ($mon);
+    my $self = shift;
+
+    my ( $window_at_pointer, $x, $y, $mask ) = Gtk3::Gdk::get_default_root_window->get_pointer;
+    my $mon = Gtk3::Gdk::Screen::get_default->get_monitor_geometry(
+        Gtk3::Gdk::Screen::get_default->get_monitor_at_point( $x, $y ) );
+
+    return ($mon);
 }
+
+# Methods that used in old realization and needed for backward compatibility
+
+sub get_root                  { shift->shutter_root }
+sub get_appname               { shift->appname }
+sub get_version               { shift->version }
+sub get_rev                   { shift->rev }
+sub get_gettext               { shift->gettext_object }
+sub get_theme                 { shift->icontheme }
+sub get_notification_object   { shift->notification }
+sub set_notification_object   { shift->notification(shift) if @_ }
+sub get_globalsettings_object { shift->global_settings }
+sub set_globalsettings_object { shift->global_settings(shift) if @_ }
+sub get_rusf                  { shift->rusf }
+sub set_rusf                  { shift->rusf(shift) if @_ }
+sub get_ruof                  { shift->ruof }
+sub set_ruof                  { shift->ruof(shift) if @_ }
+sub get_ruu_tab               { shift->ruu_tab }
+sub set_ruu_tab               { shift->ruu_tab(shift) if @_ }
+sub get_ruu_hosting           { shift->ruu_hosting }
+sub set_ruu_hosting           { shift->ruu_hosting(shift) if @_ }
+sub get_ruu_places            { shift->ruu_places }
+sub set_ruu_places            { shift->ruu_places(shift) if @_ }
+sub get_debug                 { shift->debug }
+sub set_debug                 { shift->debug(shift) if @_ }
+sub get_clear_cache           { shift->clear_cache }
+sub set_clear_cache           { shift->clear_cache(shift) if @_ }
+sub get_mainwindow            { shift->main_window }
+sub set_mainwindow            { shift->main_window(shift) if @_ }
+sub get_min                   { shift->min }
+sub set_min                   { shift->min(shift) if @_ }
+sub get_disable_systray       { shift->disable_systray }
+sub set_disable_systray       { shift->disable_systray(shift) if @_ }
+sub get_exit_after_capture    { shift->exit_after_capture }
+sub set_exit_after_capture    { shift->exit_after_capture(shift) if @_ }
+sub get_no_session            { shift->no_session }
+sub set_no_session            { shift->no_session(shift) if @_ }
+
+sub get_start_with {
+    my $self = shift;
+    return ( $self->_start_with, $self->_start_with_extra );
+}
+
+sub set_start_with {
+    my $self = shift;
+
+    if (@_) {
+        $self->_start_with(shift);
+        $self->_start_with_extra(shift);
+    }
+
+    return ( $self->_start_with, $self->_start_with_extra );
+}
+
+sub get_profile_to_start_with { shift->profile_to_start_with }
+sub set_profile_to_start_with { shift->profile_to_start_with(shift) if @_ }
+sub get_export_filename       { shift->export_filename }
+sub set_export_filename       { shift->export_filename(shift) if @_ }
+sub get_include_cursor        { shift->include_cursor }
+sub set_include_cursor        { shift->include_cursor(shift) if @_ }
+sub get_remove_cursor         { shift->remove_cursor }
+sub set_remove_cursor         { shift->remove_cursor(shift) if @_ }
+sub get_delay                 { shift->delay }
+sub set_delay                 { shift->delay(shift) if @_ }
 
 1;
