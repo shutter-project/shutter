@@ -126,7 +126,7 @@ sub get_current_monitor {
     return ($mon);
 }
 
-# Methods that used in old realization and needed for backward compatibility
+# Methods that were used in the old implementation and needed for backward compatibility
 
 sub get_root                  { shift->shutter_root }
 sub get_appname               { shift->appname }

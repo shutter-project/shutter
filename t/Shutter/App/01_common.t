@@ -9,12 +9,12 @@ use Glib qw/ TRUE FALSE /;
 
 use constant MOCKED_ICONTHEME_VALUE => "FOO BAR BAZ";
 
-require_ok( _get_package() );
+require_ok( "Shutter::App::Common" );
 
 subtest "Create common object" => sub {
     plan skip_all => "no env TEST_APP_SHUTTER_PATH found" unless $ENV{TEST_APP_SHUTTER_PATH};
 
-    my $mock = Test::MockModule->new( _get_package() );
+    my $mock = Test::MockModule->new( "Shutter::App::Common" );
     $mock->mock( "_setup_icontheme", sub { } );
 
     my $root     = $ENV{TEST_APP_SHUTTER_PATH};
@@ -26,7 +26,7 @@ subtest "Create common object" => sub {
     my $sc = _get_common_object( $root, undef, $name, $version, $revision, $pid );
 
     ok( defined $sc, "Object defined" );
-    isa_ok( $sc, _get_package() );
+    isa_ok( $sc, "Shutter::App::Common" );
     ok( exists $ENV{SHUTTER_INTL}, "defined SHUTTER_INTL" );
     is( $ENV{SHUTTER_INTL}, $sc->get_root . "/share/locale", '$ENV{SHUTTER_INTL} has a right value' );
 };
@@ -34,7 +34,7 @@ subtest "Create common object" => sub {
 subtest "Getters and setters" => sub {
     plan skip_all => "no env TEST_APP_SHUTTER_PATH found" unless $ENV{TEST_APP_SHUTTER_PATH};
 
-    my $mock = Test::MockModule->new( _get_package() );
+    my $mock = Test::MockModule->new( "Shutter::App::Common" );
     $mock->mock( "_setup_icontheme", sub { } );
 
     my $root     = $ENV{TEST_APP_SHUTTER_PATH};
@@ -45,7 +45,7 @@ subtest "Getters and setters" => sub {
 
     my $sc = _get_common_object( $root, undef, $name, $version, $revision, $pid );
 
-    isa_ok( $sc, _get_package() );
+    isa_ok( $sc, "Shutter::App::Common" );
 
     is( $sc->get_root,    $root,     "get_root" );
     is( $sc->get_appname, $name,     "get_appname" );
@@ -59,8 +59,8 @@ subtest "Getters and setters" => sub {
     };
 
     subtest "icontheme" => sub {
-        my $mock = Test::MockModule->new( _get_package() );
-        $mock->mock( "_setup_icontheme", \&_get_setup_icontheme );
+        my $mock = Test::MockModule->new( "Shutter::App::Common" );
+        $mock->mock( "_setup_icontheme", sub { MOCKED_ICONTHEME_VALUE } );
 
         my $sc = _get_common_object( $root, undef, $name, $version, $revision, $pid );
         ok( defined $sc, "Object defined" );
@@ -201,16 +201,9 @@ subtest "Getters and setters" => sub {
 
 done_testing();
 
-sub _get_package {
-    return $ENV{TEST_APP_OLD_COMMON} ? "Shutter::App::OldCommon" : "Shutter::App::Common";
-}
 
 sub _get_common_object {
     my ( $root, $main_window, $name, $version, $revision, $pid ) = @_;
-
-    if ( $ENV{TEST_APP_OLD_COMMON} ) {
-        return Shutter::App::OldCommon->new( $root, $main_window, $name, $version, $revision, $pid );
-    }
 
     return Shutter::App::Common->new(
         shutter_root => $root,
@@ -222,13 +215,3 @@ sub _get_common_object {
     );
 }
 
-sub _get_setup_icontheme {
-    my $self = shift;
-
-    if ( $ENV{TEST_APP_OLD_COMMON} ) {
-        $self->{_icontheme} = MOCKED_ICONTHEME_VALUE;
-        return;
-    }
-
-    return MOCKED_ICONTHEME_VALUE;
-}
