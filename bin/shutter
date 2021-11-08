@@ -116,6 +116,8 @@ use Proc::Simple;
 #sort lexically, but sort numeral parts numerically
 use Sort::Naturally;
 
+use English;
+
 sub escape_string {
 	return $_[0];
 
@@ -244,7 +246,15 @@ require Shutter::Upload::FTP;
 
 #--------------------------------------
 
-my $sc   = Shutter::App::Common->new($shutter_root, undef, SHUTTER_NAME, SHUTTER_VERSION, SHUTTER_REV, $$);
+# my $sc   = Shutter::App::Common->new($shutter_root, undef, SHUTTER_NAME, SHUTTER_VERSION, SHUTTER_REV, $$);
+my $sc = Shutter::App::Common->new(
+	shutter_root => $shutter_root,
+	main_window => undef,
+	appname => SHUTTER_NAME,
+	version => SHUTTER_VERSION,
+	rev => SHUTTER_REV,
+	pid => $PID
+);
 my $shf  = Shutter::App::HelperFunctions->new($sc);
 my $so   = Shutter::App::Options->new($sc, $shf);
 my $sdir = Shutter::App::Directories->new();
