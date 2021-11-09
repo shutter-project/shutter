@@ -2,6 +2,7 @@ use 5.010;
 use strict;
 use warnings;
 
+use Gtk3;    # to escape warnings "Too late to run INIT block"
 use Locale::gettext;
 use Test::More tests => 3;
 use Test::MockModule;
@@ -9,12 +10,12 @@ use Glib qw/ TRUE FALSE /;
 
 use constant MOCKED_ICONTHEME_VALUE => "FOO BAR BAZ";
 
-require_ok( "Shutter::App::Common" );
+require_ok("Shutter::App::Common");
 
 subtest "Create common object" => sub {
     plan skip_all => "no env TEST_APP_SHUTTER_PATH found" unless $ENV{TEST_APP_SHUTTER_PATH};
 
-    my $mock = Test::MockModule->new( "Shutter::App::Common" );
+    my $mock = Test::MockModule->new("Shutter::App::Common");
     $mock->mock( "_setup_icontheme", sub { } );
 
     my $root     = $ENV{TEST_APP_SHUTTER_PATH};
@@ -34,7 +35,7 @@ subtest "Create common object" => sub {
 subtest "Getters and setters" => sub {
     plan skip_all => "no env TEST_APP_SHUTTER_PATH found" unless $ENV{TEST_APP_SHUTTER_PATH};
 
-    my $mock = Test::MockModule->new( "Shutter::App::Common" );
+    my $mock = Test::MockModule->new("Shutter::App::Common");
     $mock->mock( "_setup_icontheme", sub { } );
 
     my $root     = $ENV{TEST_APP_SHUTTER_PATH};
@@ -59,8 +60,8 @@ subtest "Getters and setters" => sub {
     };
 
     subtest "icontheme" => sub {
-        my $mock = Test::MockModule->new( "Shutter::App::Common" );
-        $mock->mock( "_setup_icontheme", sub { MOCKED_ICONTHEME_VALUE } );
+        my $mock = Test::MockModule->new("Shutter::App::Common");
+        $mock->mock( "_setup_icontheme", sub {MOCKED_ICONTHEME_VALUE} );
 
         my $sc = _get_common_object( $root, undef, $name, $version, $revision, $pid );
         ok( defined $sc, "Object defined" );
@@ -200,7 +201,6 @@ subtest "Getters and setters" => sub {
 };
 
 done_testing();
-
 
 sub _get_common_object {
     my ( $root, $main_window, $name, $version, $revision, $pid ) = @_;
