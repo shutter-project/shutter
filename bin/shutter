@@ -246,7 +246,6 @@ require Shutter::Upload::FTP;
 
 #--------------------------------------
 
-# my $sc   = Shutter::App::Common->new($shutter_root, undef, SHUTTER_NAME, SHUTTER_VERSION, SHUTTER_REV, $$);
 my $sc = Shutter::App::Common->new(
 	shutter_root => $shutter_root,
 	main_window => undef,
@@ -257,11 +256,10 @@ my $sc = Shutter::App::Common->new(
 );
 my $shf  = Shutter::App::HelperFunctions->new($sc);
 my $so   = Shutter::App::Options->new($sc, $shf);
-my $sdir = Shutter::App::Directories->new();
 
 #set home
 #--------------------------------------
-$ENV{'HOME'} = $sdir->get_home_dir;
+$ENV{'HOME'} = Shutter::App::Directories::get_home_dir();
 
 #--------------------------------------
 
@@ -442,7 +440,8 @@ sub STARTUP {
 	});
 
 	#create needed directories etc.
-	fct_init_environment();
+	# fct_init_environment();
+	Shutter::App::Directories::create_hidden_home_dir_if_not_exist();
 
 	#print debug output
 	fct_init_debug_output() if $sc->get_debug;
@@ -3199,7 +3198,12 @@ sub STARTUP {
 					if $combobox_settings_profiles->get_active != -1;
 
 				#autostart
-				$sas->create_autostart_file($sdir->get_autostart_dir, $fs_active->get_active, $fs_min_active->get_active, $fs_nonot_active->get_active);
+				$sas->create_autostart_file(
+					Shutter::App::Directories::get_autostart_dir(),
+					$fs_active->get_active,
+					$fs_min_active->get_active,
+					$fs_nonot_active->get_active
+				);
 
 				$app->quit;
 
@@ -3761,7 +3765,12 @@ sub STARTUP {
 			if $combobox_settings_profiles->get_active != -1;
 
 		#autostart
-		$sas->create_autostart_file($sdir->get_autostart_dir, $fs_active->get_active, $fs_min_active->get_active, $fs_nonot_active->get_active);
+		$sas->create_autostart_file(
+			Shutter::App::Directories::get_autostart_dir(),
+			$fs_active->get_active,
+			$fs_min_active->get_active,
+			$fs_nonot_active->get_active
+		);
 
 		#we need to update the first tab here
 		#because the profile might have changed
@@ -3856,7 +3865,12 @@ sub STARTUP {
 			fct_save_settings($new_profile_name);
 
 			#autostart
-			$sas->create_autostart_file($sdir->get_autostart_dir, $fs_active->get_active, $fs_min_active->get_active, $fs_nonot_active->get_active);
+			$sas->create_autostart_file(
+				Shutter::App::Directories::get_autostart_dir(),
+				$fs_active->get_active,
+				$fs_min_active->get_active,
+				$fs_nonot_active->get_active
+			);
 		}
 		return TRUE;
 	}
@@ -5863,7 +5877,7 @@ sub STARTUP {
 		#folder to save
 		my $folder = Glib::filename_to_unicode($saveDir_button->get_filename) || $folder_from_config;
 		if ($save_no_active->get_active) {
-			$folder = $sdir->get_cache_dir;
+			$folder = Shutter::App::Directories::get_cache_dir();
 		}
 
 		#screenshot(pixbuf) and screenshot name
@@ -7308,7 +7322,7 @@ sub STARTUP {
 				}
 
 				#update is_unsaved flag
-				if ($session_screens{$key}->{'folder'} eq $sdir->get_cache_dir) {
+				if ($session_screens{$key}->{'folder'} eq Shutter::App::Directories::get_cache_dir()) {
 					$session_screens{$key}->{'is_unsaved'} = TRUE;
 				} else {
 					$session_screens{$key}->{'is_unsaved'} = FALSE;
@@ -7548,7 +7562,7 @@ sub STARTUP {
 
 						$sd->dlg_error_message(
 							sprintf($d->get("Error while saving the image %s."),           "'" . $session_screens{$key}->{'short'} . "'"),
-							sprintf($d->get("There was an error saving the image to %s."), "'" . $sdir->get_cache_dir . "'"),
+							sprintf($d->get("There was an error saving the image to %s."), "'" . Shutter::App::Directories::get_cache_dir() . "'"),
 							undef, undef, undef, undef, undef, undef, $@
 						);
 
@@ -7571,7 +7585,7 @@ sub STARTUP {
 
 					#prepare new filename
 					my ($short, $folder, $ext) = fileparse($session_screens{$key}->{'long'}, qr/\.[^.]*/);
-					my $new_giofile  = fct_get_next_filename($short, $sdir->get_cache_dir, $ext);
+					my $new_giofile  = fct_get_next_filename($short, Shutter::App::Directories::get_cache_dir(), $ext);
 					my $new_filename = $shf->utf8_decode(unescape_string($new_giofile->get_path));
 
 					if ($sp->save_pixbuf_to_file($pixbuf, $new_filename, $session_screens{$key}->{'filetype'})) {
@@ -9165,7 +9179,7 @@ sub STARTUP {
 
 		#delete all files in this folder
 		#except the ones that are in the current session
-		my @unsaved_files = bsd_glob($sdir->get_cache_dir . "/*");
+		my @unsaved_files = bsd_glob(Shutter::App::Directories::get_cache_dir() . "/*");
 		foreach my $unsaved_file (@unsaved_files) {
 			utf8::decode $unsaved_file;
 			print $unsaved_file, " checking \n" if $sc->get_debug;
