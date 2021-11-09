@@ -440,7 +440,6 @@ sub STARTUP {
 	});
 
 	#create needed directories etc.
-	# fct_init_environment();
 	Shutter::App::Directories::create_hidden_home_dir_if_not_exist();
 
 	#print debug output
@@ -9160,19 +9159,6 @@ sub STARTUP {
 		}
 
 		return $curr_value;
-	}
-
-	sub fct_init_environment {
-
-		#is there already a .shutter folder?
-		mkdir("$ENV{ 'HOME' }/.shutter")
-			unless (-d "$ENV{ 'HOME' }/.shutter");
-
-		#...and a profiles folder?
-		mkdir "$ENV{'HOME'}/.shutter/profiles"
-			unless (-d "$ENV{'HOME'}/.shutter/profiles");
-
-		return TRUE;
 	}
 
 	sub fct_init_unsaved_files {
