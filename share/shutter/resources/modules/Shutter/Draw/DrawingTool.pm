@@ -60,6 +60,8 @@ use XML::Simple;
 #Glib
 use Glib qw/TRUE FALSE/;
 
+require Shutter::App::Directories;
+
 #--------------------------------------
 
 sub new {
@@ -1472,7 +1474,6 @@ sub export_to_file {
 	);
 
 	my $shutter_hfunct = Shutter::App::HelperFunctions->new($self->{_sc});
-	my $shutter_dir    = Shutter::App::Directories->new();
 
 	#parse filename
 	my ($short, $folder, $ext) = fileparse($self->{_filename}, qr/\.[^.]*/);
@@ -1482,7 +1483,7 @@ sub export_to_file {
 		$fs->set_current_folder($self->{_sc}->get_rusf);
 		$fs->set_current_name($short . $ext);
 	} elsif (defined $self->{_is_unsaved} && $self->{_is_unsaved}) {
-		$fs->set_current_folder($shutter_dir->get_home_dir);
+		$fs->set_current_folder(Shutter::App::Directories::get_home_dir());
 		$fs->set_current_name($short . $ext);
 	} else {
 		$fs->set_current_folder($folder);
