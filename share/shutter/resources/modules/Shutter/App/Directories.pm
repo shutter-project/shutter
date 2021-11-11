@@ -38,7 +38,7 @@ use constant {
     PROFILES_DIR       => "profiles"
 };
 
-sub create_if_not_exists : prototype($) {
+sub create_if_not_exists {
     my $dir = shift;
 
     mkdir $dir unless -d $dir && -r $dir;
