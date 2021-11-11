@@ -1,6 +1,7 @@
 ###################################################
 #
 #  Copyright (C) 2008-2013 Mario Kemper <mario.kemper@gmail.com>
+#  Copyright (C) 2021 Alexander Ruzhnikov <ruzhnikov85@gmail.com>
 #
 #  This file is part of Shutter.
 #
@@ -22,62 +23,56 @@
 
 package Shutter::App::Directories;
 
-use utf8;
+use 5.010;
 use strict;
 use warnings;
 
-#Glib
-use Glib qw/TRUE FALSE/;
+use Glib qw/ TRUE /;
 
-sub new {
-	my $class = shift;
-
-	my $self = {};
-
-	bless $self, $class;
-	return $self;
-}
+use constant {
+    SHUTTER_DIR        => "shutter",
+    UNSAVED_DIR        => "unsaved",
+    TEMP_DIR           => "temp",
+    AUTOSTART_DIR      => "autostart",
+    HIDDEN_SHUTTER_DIR => ".shutter",
+    PROFILES_DIR       => "profiles"
+};
 
 sub create_if_not_exists {
-	my $self = shift;
-	my $dir  = shift;
-	mkdir($dir) unless (-d $dir && -r $dir);
-	return $dir;
+    my $dir = shift;
+
+    mkdir $dir unless -d $dir && -r $dir;
+
+    return $dir;
 }
 
 sub get_root_dir {
-	my $self = shift;
-	return $self->create_if_not_exists(Glib::get_user_cache_dir . "/shutter");
+    return create_if_not_exists( Glib::get_user_cache_dir . "/" . SHUTTER_DIR );
 }
 
 sub get_cache_dir {
-	my $self = shift;
-	return $self->create_if_not_exists($self->get_root_dir . "/unsaved");
+    return create_if_not_exists( get_root_dir() . "/" . UNSAVED_DIR );
 }
 
 sub get_temp_dir {
-	my $self = shift;
-	return $self->create_if_not_exists($self->get_root_dir . "/temp");
+    return create_if_not_exists( get_root_dir() . "/" . TEMP_DIR );
 }
 
 sub get_autostart_dir {
-	my $self = shift;
-	return $self->create_if_not_exists(Glib::get_user_config_dir . "/autostart");
+    return create_if_not_exists( Glib::get_user_config_dir . "/" . AUTOSTART_DIR );
 }
 
-sub get_home_dir {
-	my $self = shift;
-	return Glib::get_home_dir;
-}
+sub get_home_dir   {Glib::get_home_dir}
+sub get_config_dir {Glib::get_user_config_dir}
 
-sub get_config_dir {
-	my $self = shift;
-	return Glib::get_user_config_dir;
-}
+sub create_hidden_home_dir_if_not_exist {
+    my $hidden_dir          = $ENV{HOME} . "/" . HIDDEN_SHUTTER_DIR;
+    my $hidden_profiles_dir = "$hidden_dir" . "/" . PROFILES_DIR;
 
-sub get_settings_dir {
+    mkdir $hidden_dir          unless -d $hidden_dir;
+    mkdir $hidden_profiles_dir unless -d $hidden_profiles_dir;
 
-	#not implemented
+    return TRUE;
 }
 
 1;
