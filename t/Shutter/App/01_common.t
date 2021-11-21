@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use Gtk3;    # to escape warnings "Too late to run INIT block"
-use Locale::gettext;
+
 use Test::More tests => 3;
 use Glib qw/ TRUE FALSE /;
 
@@ -61,7 +61,7 @@ subtest "Getters and setters" => sub {
     subtest "icontheme" => sub {
         ok( defined $sc->icontheme, "icontheme defined" );
         isa_ok( $sc->icontheme, "Gtk3::IconTheme" );
-        ok ( $sc->icontheme->has_icon("shutter"), "has icon 'shutter'" );
+        ok( $sc->icontheme->has_icon("shutter"), "has icon 'shutter'" );
     };
 
     subtest "gettext_object" => sub {
@@ -198,7 +198,7 @@ subtest "Getters and setters" => sub {
         my $mon = $sc->get_current_monitor;
 
         ok( defined $mon, "found current monitor" );
-        for my $attribute ( qw/ x y width height / ) {
+        for my $attribute (qw/ x y width height /) {
             ok( exists $mon->{$attribute}, "attribute '$attribute' exists" );
         }
     };
