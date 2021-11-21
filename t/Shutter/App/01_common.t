@@ -35,8 +35,9 @@ subtest "Create common object" => sub {
 subtest "Getters and setters" => sub {
     plan skip_all => "no env TEST_APP_SHUTTER_PATH found" unless $ENV{TEST_APP_SHUTTER_PATH};
 
-    my $mock = Test::MockModule->new("Shutter::App::Common");
-    $mock->mock( "_setup_icontheme", sub { } );
+    require Test::Window;
+
+    my $w = Test::Window::simple_window();
 
     my $root     = $ENV{TEST_APP_SHUTTER_PATH};
     my $name     = "shutter";
@@ -60,13 +61,9 @@ subtest "Getters and setters" => sub {
     };
 
     subtest "icontheme" => sub {
-        my $mock = Test::MockModule->new("Shutter::App::Common");
-        $mock->mock( "_setup_icontheme", sub {MOCKED_ICONTHEME_VALUE} );
-
-        my $sc = _get_common_object( $root, undef, $name, $version, $revision, $pid );
-        ok( defined $sc, "Object defined" );
-
-        is( $sc->get_theme, MOCKED_ICONTHEME_VALUE, "icontheme has a value" );
+        ok( defined $sc->icontheme, "icontheme defined" );
+        isa_ok( $sc->icontheme, "Gtk3::IconTheme" );
+        ok ( $sc->icontheme->has_icon("shutter"), "has icon 'shutter'" );
     };
 
     subtest "gettext_object" => sub {
@@ -197,6 +194,15 @@ subtest "Getters and setters" => sub {
         is( $sc->get_delay, undef, "delay is null" );
         $sc->set_delay(15);
         is( $sc->get_delay, 15, "delay is filled" );
+    };
+
+    subtest "get_current_monitor" => sub {
+        my $mon = $sc->get_current_monitor;
+
+        ok( defined $mon, "found current monitor" );
+        for my $attribute ( qw/ x y width height / ) {
+            ok( exists $mon->{$attribute}, "attribute '$attribute' exists" );
+        }
     };
 };
 
