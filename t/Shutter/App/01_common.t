@@ -5,18 +5,18 @@ use warnings;
 use Gtk3;    # to escape warnings "Too late to run INIT block"
 use Locale::gettext;
 use Test::More tests => 3;
-use Test::MockModule;
 use Glib qw/ TRUE FALSE /;
 
 use constant MOCKED_ICONTHEME_VALUE => "FOO BAR BAZ";
+
+require Test::Window;
 
 require_ok("Shutter::App::Common");
 
 subtest "Create common object" => sub {
     plan skip_all => "no env TEST_APP_SHUTTER_PATH found" unless $ENV{TEST_APP_SHUTTER_PATH};
 
-    my $mock = Test::MockModule->new("Shutter::App::Common");
-    $mock->mock( "_setup_icontheme", sub { } );
+    my $w = Test::Window::simple_window();
 
     my $root     = $ENV{TEST_APP_SHUTTER_PATH};
     my $name     = "shutter";
@@ -34,8 +34,6 @@ subtest "Create common object" => sub {
 
 subtest "Getters and setters" => sub {
     plan skip_all => "no env TEST_APP_SHUTTER_PATH found" unless $ENV{TEST_APP_SHUTTER_PATH};
-
-    require Test::Window;
 
     my $w = Test::Window::simple_window();
 
