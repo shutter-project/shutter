@@ -17,7 +17,7 @@ sub setup {
 
     my $uimanager = Gtk3::UIManager->new;
 
-    #keyboard accel_group
+    # keyboard accel_group
     my $accelgroup = $uimanager->get_accel_group;
     $self->app->drawing_window->add_accel_group($accelgroup);
 
