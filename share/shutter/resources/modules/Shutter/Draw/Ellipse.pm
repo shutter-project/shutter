@@ -6,14 +6,15 @@ use strictures 2;
 
 use GooCanvas2;
 use Glib qw/ TRUE FALSE /;
+
 use constant POSITION_INDENT => 20;
 
 has app       => ( is => "ro", required => 1 );
 has event     => ( is => "rw", lazy     => 1 );
 has copy_item => ( is => "rw", lazy     => 1 );
 has numbered  => ( is => "rw", lazy     => 1 );
-has x         => ( is => "rw", default  => sub {0} );
-has y         => ( is => "rw", default  => sub {0} );
+has X         => ( is => "rw", default  => sub {0} );
+has Y         => ( is => "rw", default  => sub {0} );
 has width     => ( is => "rw", default  => sub {0} );
 has height    => ( is => "rw", default  => sub {0} );
 
@@ -44,7 +45,7 @@ sub setup {
         # set type flag
         $item->{type} = 'ellipse';
         $item->{uid}  = $self->app->uid;
-        $self->app->increment_uid;
+        $self->app->increase_uid;
     }
 
     # save color and opacity as well
@@ -76,11 +77,11 @@ sub _setup_item_ellipse {
     my ( $self, $item ) = @_;
 
     $item->{ellipse} = GooCanvas2::CanvasEllipse->new(
-        parent                  => $self->app->canvas->get_root_item,
-        x                       => $self->x,
-        y                       => $self->y,
-        width                   => $self->width,
-        height                  => $self->height,
+        'parent'                => $self->app->canvas->get_root_item,
+        'x'                     => $self->X,
+        'y'                     => $self->Y,
+        'width'                 => $self->width,
+        'height'                => $self->height,
         'fill-color-gdk-rgba'   => $self->fill_color,
         'stroke-color-gdk-rgba' => $self->stroke_color,
         'line-width'            => $self->line_width,
@@ -93,12 +94,12 @@ sub _setup_ellipse_numbered {
     my $number = $self->app->get_highest_auto_digit + 1;
 
     my $txt = GooCanvas2::CanvasText->new(
-        parent                => $self->app->canvas->get_root_item,
-        text                  => "<span font_desc='" . $self->app->font . "' >" . $number . "</span>",
-        x                     => $item->{ellipse}->get('center-x'),
-        y                     => $item->{ellipse}->get('center-y'),
-        width                 => -1,
-        anchor                => 'center',
+        'parent'              => $self->app->canvas->get_root_item,
+        'text'                => "<span font_desc='" . $self->app->font . "' >" . $number . "</span>",
+        'x'                   => $item->{ellipse}->get('center-x'),
+        'y'                   => $item->{ellipse}->get('center-y'),
+        'width'               => -1,
+        'anchor'              => 'center',
         'use-markup'          => TRUE,
         'fill-color-gdk-rgba' => $self->stroke_color,
         'line-width'          => $self->line_width,
@@ -110,7 +111,7 @@ sub _setup_ellipse_numbered {
     $item->{type} = 'number';
     $item->{uid}  = $self->app->uid;
 
-    $self->app->increment_uid;
+    $self->app->increase_uid;
 
     #adjust parent rectangle if numbered ellipse
     my $tb = $txt->get_bounds;
@@ -123,8 +124,8 @@ sub _setup_ellipse_numbered {
     $qs += $item->{ellipse}->get('line-width') + 5;
 
     $item->set(
-        'x'          => $self->copy_item ? $self->x + POSITION_INDENT : $self->x - $qs,
-        'y'          => $self->copy_item ? $self->y + POSITION_INDENT : $self->y - $qs,
+        'x'          => $self->copy_item ? ( $self->X + POSITION_INDENT ) : ( $self->X - $qs ),
+        'y'          => $self->copy_item ? ( $self->Y + POSITION_INDENT ) : ( $self->Y - $qs ),
         'width'      => $qs,
         'height'     => $qs,
         'visibility' => 'hidden',
@@ -137,11 +138,11 @@ sub _check_event_and_copy_item {
     my $self = shift;
 
     if ( $self->event ) {
-        $self->x( $self->event->x );
-        $self->y( $self->event->y );
+        $self->X( $self->event->x );
+        $self->Y( $self->event->y );
     } elsif ( $self->copy_item ) {
-        $self->x( $self->copy_item->get('x') + POSITION_INDENT );
-        $self->y( $self->copy_item->get('y') + POSITION_INDENT );
+        $self->X( $self->copy_item->get('x') + POSITION_INDENT );
+        $self->Y( $self->copy_item->get('y') + POSITION_INDENT );
 
         $self->width( $self->copy_item->get('width') );
         $self->height( $self->copy_item->get('height') );
@@ -158,11 +159,11 @@ sub _create_item {
     my $self = shift;
 
     my $item = GooCanvas2::CanvasRect->new(
-        parent            => $self->app->canvas->get_root_item,
-        x                 => $self->x,
-        y                 => $self->y,
-        width             => $self->width,
-        height            => $self->height,
+        'parent'          => $self->app->canvas->get_root_item,
+        'x'               => $self->X,
+        'y'               => $self->Y,
+        'width'           => $self->width,
+        'height'          => $self->height,
         'fill-color-rgba' => 0,
         'line-dash'       => GooCanvas2::CanvasLineDash->newv( [ 5, 5 ] ),
         'line-width'      => 1,
