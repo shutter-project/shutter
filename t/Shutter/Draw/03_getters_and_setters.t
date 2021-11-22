@@ -38,7 +38,7 @@ subtest "only getters" => sub {
 
     my $dt = Shutter::Draw::DrawingTool->new($sc);
 
-    # TODO: fix it later. This attribute("_d") is being setting up during invocation of the method "show",
+    # TODO: fix it later. This attribute("_d") is being set up during invocation of the method "show",
     # and we should fairly call this method when the code base will be improved enough.
     $dt->{_d} = $sc->gettext_object;
 
@@ -97,47 +97,96 @@ subtest "getters and setters" => sub {
     };
 
     subtest "current_copy_item" => sub {
-        plan skip_all => "later";
+        is( $dt->current_copy_item, $dt->{_current_copy_item}, "getter of 'current_copy_item'" );
+        ok( !defined $dt->current_copy_item, "initial value of current_copy_item" );
+
+        $dt->current_copy_item( { foo => 1, bar => 2, baz => 3 } );
+        is( $dt->current_copy_item, $dt->{_current_copy_item}, "getter of 'current_copy_item'" );
+        ok( ref $dt->current_copy_item eq "HASH", "value of current_copy_item has been changed" );
     };
 
     subtest "current_item" => sub {
-        plan skip_all => "later";
+        is( $dt->current_item, $dt->{_current_item}, "getter of 'current_item'" );
+        ok( !defined $dt->current_item, "initial value of current_item" );
+
+        $dt->current_item( { foo => 1, bar => 2, baz => 3 } );
+        is( $dt->current_item, $dt->{_current_item}, "getter of 'current_item'" );
+        ok( ref $dt->current_item eq "HASH", "value of current_item has been changed" );
     };
 
     subtest "current_new_item" => sub {
-        plan skip_all => "later";
+        is( $dt->current_new_item, $dt->{_current_new_item}, "getter of 'current_new_item'" );
+        ok( !defined $dt->current_new_item, "initial value of current_new_item" );
+
+        $dt->current_new_item( { foo => 1, bar => 2, baz => 3 } );
+        is( $dt->current_new_item, $dt->{_current_new_item}, "getter of 'current_new_item'" );
+        ok( ref $dt->current_new_item eq "HASH", "value of current_new_item has been changed" );
     };
 
     subtest "canvas_bg" => sub {
-        plan skip_all => "later";
+        ok( ! exists $dt->{_canvas_bg}, "_canvas_bg doesn't exist" );
+        ok( ! defined $dt->canvas_bg, "canvas_bg getter returns undef" );
     };
 
     subtest "factory" => sub {
-        plan skip_all => "later";
+        is( $dt->factory, $dt->{_factory}, "getter of 'factory'" );
+        ok( !defined $dt->factory, "initial value of factory" );
+
+        $dt->factory( Gtk3::IconFactory->new );
+        is( $dt->factory, $dt->{_factory}, "getter of 'factory'" );
+        isa_ok( $dt->factory, "Gtk3::IconFactory" );
     };
 
     subtest "autoscroll" => sub {
-        plan skip_all => "later";
+        is( $dt->autoscroll, $dt->{_autoscroll}, "getter of 'autoscroll'" );
+        is( $dt->autoscroll, FALSE,              "initial value of autoscroll" );
+
+        $dt->autoscroll(TRUE);
+        is( $dt->autoscroll, $dt->{_autoscroll}, "getter of 'autoscroll'" );
+        is( $dt->autoscroll, TRUE,               "value of autoscroll has been changed" );
     };
 
     subtest "stroke_color" => sub {
-        plan skip_all => "later";
+        is( $dt->stroke_color, $dt->{_stroke_color}, "getter of 'stroke_color'" );
+        isa_ok( $dt->stroke_color, "Gtk3::Gdk::RGBA" );
+
+        my $new_value = Gtk3::Gdk::RGBA::parse('#0000ff');
+        $dt->stroke_color($new_value);
+
+        is( $dt->stroke_color, $new_value,           "new value of stroke_color" );
+        is( $dt->stroke_color, $dt->{_stroke_color}, "getter of 'stroke_color'" );
     };
 
     subtest "fill_color" => sub {
-        plan skip_all => "later";
+        is( $dt->fill_color, $dt->{_fill_color}, "getter of 'fill_color'" );
+        isa_ok( $dt->fill_color, "Gtk3::Gdk::RGBA" );
+
+        my $new_value = Gtk3::Gdk::RGBA::parse('#ff0000');
+        $dt->fill_color($new_value);
+
+        is( $dt->fill_color, $new_value,         "new value of fill_color" );
+        is( $dt->fill_color, $dt->{_fill_color}, "getter of 'fill_color'" );
     };
 
     subtest "line_width" => sub {
-        plan skip_all => "later";
+        is( $dt->line_width, $dt->{_line_width}, "getter of 'line_width'" );
+        ok( defined $dt->line_width, "line_width is not empty" );
     };
 
     subtest "font" => sub {
-        plan skip_all => "later";
+        is( $dt->font, $dt->{_font}, "getter of 'font'" );
+        ok( defined $dt->font, "font is not empty" );
     };
 
     subtest "uid" => sub {
-        plan skip_all => "later";
+        is( $dt->uid, $dt->{_uid}, "getter of 'uid'" );
+        ok( defined $dt->uid, "uid is defined" );
+
+        my $last_value = $dt->uid;
+        is( $last_value, $dt->uid, "uid wasn't changed" );
+        $dt->increase_uid;
+
+        ok( $dt->uid - $last_value == 1, "uid has been increased" );
     };
 };
 
