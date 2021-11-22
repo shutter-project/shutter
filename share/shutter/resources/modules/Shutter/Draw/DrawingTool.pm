@@ -41,6 +41,10 @@ use utf8;
 use strict;
 use warnings;
 
+use constant {
+	DEFAULT_FONT => "Sans Regular 16"
+};
+
 use Gtk3;
 
 use Exporter;
@@ -151,7 +155,7 @@ sub new {
 	$self->{_stroke_color}       = Gtk3::Gdk::RGBA::parse('#ff0000');
 	$self->{_stroke_color}->alpha(1);
 	$self->{_line_width}         = 3;
-	$self->{_font}               = 'Sans Regular 16';
+	$self->{_font}               = DEFAULT_FONT;
 
 	#obtain current colors and font_desc from the main window
 	$self->{_style}    = $self->{_sc}->get_mainwindow->get_style_context;
@@ -166,7 +170,7 @@ sub new {
 	$self->{_last_stroke_color}       = Gtk3::Gdk::RGBA::parse('#ff0000');
 	$self->{_last_stroke_color}->alpha(1);
 	$self->{_last_line_width}         = 3;
-	$self->{_last_font}               = 'Sans Regular 16';
+	$self->{_last_font}               = DEFAULT_FONT;
 
 	#some status variables
 	$self->{_busy}                    = undef;
@@ -7089,15 +7093,9 @@ sub font {
 	return $self->{_font};
 }
 
-sub uid {
-	my $self = shift;
-	$self->{_uid} = shift if scalar @_;
-	return $self->{_uid};
-}
+sub uid { shift->{_uid} }
 
-sub increment_uid {
-	shift->{_uid}++;
-}
+sub increase_uid { shift->{_uid}++ }
 
 1;
 
