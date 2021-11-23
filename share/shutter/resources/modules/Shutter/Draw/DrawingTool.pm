@@ -7097,5 +7097,7 @@ sub uid { shift->{_uid} }
 
 sub increase_uid { shift->{_uid}++ }
 
+sub uimanager { shift->{_uimanager} }
+
 1;
 
