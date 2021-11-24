@@ -39,7 +39,7 @@ subtest "only getters" => sub {
     my $dt = Shutter::Draw::DrawingTool->new($sc);
 
     # TODO: fix it later. This attribute("_d") is being set up during invocation of the method "show",
-    # and we should fairly call this method when the code base will be improved enough.
+    # and we should fairly call this method here when the code base will be improved enough.
     $dt->{_d} = $sc->gettext_object;
 
     is( $dt->gettext, $sc->get_gettext, "gettext" );
