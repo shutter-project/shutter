@@ -1,10 +1,10 @@
-use 5.020;
+use 5.020;    # List::Util >= 1.33
 use strict;
 use warnings;
 
-use List::Util qw/ all first /;
+use List::Util qw/ all /;
 
-use Gtk3;    # to escape warnings "Too late to run INIT block"
+use Gtk3;     # to escape warnings "Too late to run INIT block"
 use Gtk3::ImageView 10;
 use Glib qw/ TRUE FALSE /;
 use Test::More;
@@ -27,7 +27,7 @@ subtest "simply create uimanager" => sub {
     is( $uimanager->app, $app, "check uimanager's app" );
 };
 
-subtest "setup uimanager" => sub {
+subtest "internal methods" => sub {
     plan skip_all => "no env TEST_APP_SHUTTER_PATH found" unless $ENV{TEST_APP_SHUTTER_PATH};
 
     my $w  = Test::Window::simple_window();
@@ -130,8 +130,8 @@ subtest "setup uimanager" => sub {
         is( $drawing_group->get_name, "drawing", "name of drawing_group" );
         ok( scalar( $drawing_group->list_actions ) > 0, "list of actions is not empty" );
 
-        for my $action ( qw/ Select Highlighter Arrow Censor Crop / ) {
-            my $action_object = $drawing_group->get_action( $action );
+        for my $action (qw/ Select Highlighter Arrow Censor Crop /) {
+            my $action_object = $drawing_group->get_action($action);
 
             ok( defined $action_object, "has the action '$action'" );
             isa_ok( $action_object, "Gtk3::RadioAction" );
@@ -141,13 +141,32 @@ subtest "setup uimanager" => sub {
     subtest "get_ui_info" => sub {
         my $ui_info = $uimanager->_get_ui_info;
 
-        ok( $ui_info, "ui_info is not empty" );
+        ok( $ui_info,                          "ui_info is not empty" );
         ok( $ui_info =~ m/\s+<ui>.+<\/ui>$/ms, "structure of ui_info" );
     };
+};
 
-    subtest "setup" => sub {
-        plan skip_all => "later";
-    };
+subtest "setup" => sub {
+    plan skip_all => "no env TEST_APP_SHUTTER_PATH found" unless $ENV{TEST_APP_SHUTTER_PATH};
+
+    my $w  = Test::Window::simple_window();
+    my $sc = Test::Common::get_common_object();
+    $sc->set_mainwindow($w);
+
+    my $dt = Shutter::Draw::DrawingTool->new($sc);
+
+    $dt->{_d}              = $sc->gettext_object;
+    $dt->{_dicons}         = $sc->get_root . "/share/shutter/resources/icons/drawing_tool";
+    $dt->{_icons}          = $sc->get_root . "/share/shutter/resources/icons";
+    $dt->{_drawing_window} = Gtk3::Window->new('toplevel');
+
+    my $uimanager = Shutter::Draw::UIManager->new( app => $dt )->setup;
+
+    ok( defined $uimanager, "defined uimanager" );
+    isa_ok( $uimanager, "Gtk3::UIManager" );
+
+    my @action_groups = $uimanager->get_action_groups;
+    is( scalar @action_groups, 3, "number of action groups" );
 };
 
 done_testing();
