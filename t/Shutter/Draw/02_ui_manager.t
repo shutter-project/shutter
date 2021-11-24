@@ -7,10 +7,11 @@ use List::Util qw/ all /;
 use Gtk3;     # to escape warnings "Too late to run INIT block"
 use Gtk3::ImageView 10;
 use Glib qw/ TRUE FALSE /;
-use Test::More;
+use Test::More tests => 4;
 
 require Test::Window;
 require Test::Common;
+require Test::SimpleApp;
 
 require Shutter::App::SimpleDialogs;
 require Shutter::App::HelperFunctions;
@@ -20,7 +21,7 @@ require Shutter::Draw::DrawingTool;
 require_ok("Shutter::Draw::UIManager");
 
 subtest "simply create uimanager" => sub {
-    my $app       = SimpleApp->new;
+    my $app       = Test::SimpleApp->new;
     my $uimanager = Shutter::Draw::UIManager->new( app => $app );
 
     ok( defined $uimanager, "uimanager defined" );
@@ -170,5 +171,3 @@ subtest "setup" => sub {
 };
 
 done_testing();
-
-package SimpleApp { use Moo };
