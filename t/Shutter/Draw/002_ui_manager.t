@@ -161,15 +161,13 @@ subtest "setup" => sub {
     $dt->{_icons}          = $sc->get_root . "/share/shutter/resources/icons";
     $dt->{_drawing_window} = Gtk3::Window->new('toplevel');
 
-    my $uimanager = Shutter::Draw::UIManager->new( app => $dt )->setup;
+    my $uimanager = $dt->setup_uimanager;
 
     ok( defined $uimanager, "defined uimanager" );
     isa_ok( $uimanager, "Gtk3::UIManager" );
 
     my @action_groups = $uimanager->get_action_groups;
     is( scalar @action_groups, 3, "number of action groups" );
-
-    say Gtk3::IconTheme->has_icon("menu");
 };
 
 done_testing();
