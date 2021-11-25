@@ -168,6 +168,8 @@ subtest "setup" => sub {
 
     my @action_groups = $uimanager->get_action_groups;
     is( scalar @action_groups, 3, "number of action groups" );
+
+    say Gtk3::IconTheme->has_icon("menu");
 };
 
 done_testing();
