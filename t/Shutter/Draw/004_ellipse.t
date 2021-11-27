@@ -64,10 +64,16 @@ subtest "internal methods" => sub {
         ok( defined $item, "item is defined" );
         isa_ok( $item, "GooCanvas2::CanvasRect" );
 
-        is( $item->get("x"),      $ellipse->X,      "item's X" );
-        is( $item->get("y"),      $ellipse->Y,      "item's Y" );
-        is( $item->get("width"),  $ellipse->width,  "item's width" );
-        is( $item->get("height"), $ellipse->height, "item's height" );
+        is( $item->get("parent"),          $dt->canvas->get_root_item, "item's parent" );
+        is( $item->get("x"),               $ellipse->X,                "item's X" );
+        is( $item->get("y"),               $ellipse->Y,                "item's Y" );
+        is( $item->get("width"),           $ellipse->width,            "item's width" );
+        is( $item->get("height"),          $ellipse->height,           "item's height" );
+        is( $item->get("line-width"),      1,                          "item's line-width" );
+        is( $item->get("fill-color-rgba"), 0,                          "item's fill-color-rgba" );
+
+        ok( $item->get("line-dash"), "there's line-dash" );
+        isa_ok( $item->get("line-dash"), "GooCanvas2::CanvasLineDash" );
     }
 };
 
