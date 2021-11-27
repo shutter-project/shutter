@@ -64,8 +64,7 @@ use XML::Simple;
 #Glib
 use Glib qw/TRUE FALSE/;
 
-use Shutter::Draw::Utils qw/points_to_canvas_points/;
-
+require Shutter::Draw::Utils;
 require Shutter::App::Directories;
 require Shutter::Draw::UIManager;
 require Shutter::Draw::Ellipse;
@@ -1982,7 +1981,7 @@ sub event_item_on_motion_notify {
 
 		}
 
-		$self->{_items}{$item}->set('points' => points_to_canvas_points(@{$self->{_items}{$item}{'points'}}));
+		$self->{_items}{$item}->set('points' => Shutter::Draw::Utils::points_to_canvas_points(@{$self->{_items}{$item}{'points'}}));
 
 		#new item is already on the canvas with small initial size
 		#drawing is like resizing, so set up for resizing
@@ -4888,7 +4887,7 @@ sub handle_embedded {
 			#arrow is always and end-arrow
 			if ($self->{_items}{$item}{mirrored_w} < 0 && $self->{_items}{$item}{mirrored_h} < 0) {
 				$self->{_items}{$item}{line}->set(
-					'points' => points_to_canvas_points(
+					'points' => Shutter::Draw::Utils::points_to_canvas_points(
 							$self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height'),
 							$self->{_items}{$item}->get('x'),                                        $self->{_items}{$item}->get('y')
 					),
@@ -4896,7 +4895,7 @@ sub handle_embedded {
 				);
 			} elsif ($self->{_items}{$item}{mirrored_w} < 0) {
 				$self->{_items}{$item}{line}->set(
-					'points' => points_to_canvas_points(
+					'points' => Shutter::Draw::Utils::points_to_canvas_points(
 							$self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('y'),
 							$self->{_items}{$item}->get('x'),                                        $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height')
 					),
@@ -4904,7 +4903,7 @@ sub handle_embedded {
 				);
 			} elsif ($self->{_items}{$item}{mirrored_h} < 0) {
 				$self->{_items}{$item}{line}->set(
-					'points' => points_to_canvas_points(
+					'points' => Shutter::Draw::Utils::points_to_canvas_points(
 							$self->{_items}{$item}->get('x'),                                        $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height'),
 							$self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('y')
 					),
@@ -4912,7 +4911,7 @@ sub handle_embedded {
 				);
 			} else {
 				$self->{_items}{$item}{line}->set(
-					'points' => points_to_canvas_points(
+					'points' => Shutter::Draw::Utils::points_to_canvas_points(
 							$self->{_items}{$item}->get('x'),                                        $self->{_items}{$item}->get('y'),
 							$self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height')
 					),
@@ -6515,7 +6514,7 @@ sub create_polyline {
 
 	#need at least 2 points
 	push @{$self->{_items}{$item}{'points'}}, @points;
-	$self->{_items}{$item}->set(points    => points_to_canvas_points(@{$self->{_items}{$item}{'points'}}));
+	$self->{_items}{$item}->set(points    => Shutter::Draw::Utils::points_to_canvas_points(@{$self->{_items}{$item}{'points'}}));
 	$self->{_items}{$item}->set(transform => $transform) if $transform;
 
 	if ($highlighter) {
@@ -6576,7 +6575,7 @@ sub create_censor {
 
 	#need at least 2 points
 	push @{$self->{_items}{$item}{'points'}}, @points;
-	$self->{_items}{$item}->set(points    => points_to_canvas_points(@{$self->{_items}{$item}{'points'}}));
+	$self->{_items}{$item}->set(points    => Shutter::Draw::Utils::points_to_canvas_points(@{$self->{_items}{$item}{'points'}}));
 	$self->{_items}{$item}->set(transform => $transform) if $transform;
 
 	$self->setup_item_signals($self->{_items}{$item});
@@ -6906,7 +6905,7 @@ sub create_line {
 	$self->{_items}{$item}{line} = GooCanvas2::CanvasPolyline->new(
 		parent=>$self->{_canvas}->get_root_item,
 		close_path=>FALSE,
-		points=>points_to_canvas_points(
+		points => Shutter::Draw::Utils::points_to_canvas_points(
 			$item->get('x'),
 			$item->get('y'),
 			$item->get('x') + $item->get('width'),
