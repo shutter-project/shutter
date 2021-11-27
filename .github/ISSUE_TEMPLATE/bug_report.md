@@ -19,4 +19,4 @@ assignees: ''
 #### Error output
 
 
-#### Extra information, such as Shutter version, operating system and ideas for how to solve:
+#### Extra information, such as Shutter version, display server in use (Xorg or Wayland), operating system and ideas for how to solve:
