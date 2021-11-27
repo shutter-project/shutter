@@ -67,7 +67,6 @@ use Glib qw/TRUE FALSE/;
 require Shutter::Draw::Utils;
 require Shutter::App::Directories;
 require Shutter::Draw::UIManager;
-require Shutter::Draw::Ellipse;
 
 #--------------------------------------
 
@@ -6959,9 +6958,136 @@ sub create_line {
 }
 
 sub create_ellipse {
-	my ( $self, $event, $copy_item, $numbered ) = @_;
+	my $self      = shift;
+	my $ev        = shift;
+	my $copy_item = shift;
+	my $numbered  = shift;
 
-	return Shutter::Draw::Ellipse->new( app => $self )->setup( $event, $copy_item, $numbered );
+	my ($x, $y, $width, $height)     = (0, 0, 0, 0);
+	my $stroke_color = $self->{_stroke_color};
+	my $fill_color   = $self->{_fill_color};
+	my $line_width     = $self->{_line_width};
+
+	#use event coordinates and selected color
+	if ($ev) {
+		$x = $ev->x;
+		$y = $ev->y;
+
+		#use source item coordinates and item color
+	} elsif ($copy_item) {
+		$x = $copy_item->get('x') + 20;
+		$y = $copy_item->get('y') + 20;
+		$width = $copy_item->get('width');
+		$height = $copy_item->get('height');
+		$stroke_color = $self->{_items}{$copy_item}{stroke_color};
+		$fill_color   = $self->{_items}{$copy_item}{fill_color};
+		$line_width     = $self->{_items}{$copy_item}{ellipse}->get('line-width');
+		$numbered       = TRUE if exists $self->{_items}{$copy_item}{text};
+	}
+
+	my $item    = GooCanvas2::CanvasRect->new(
+		parent=>$self->{_canvas}->get_root_item, x=>$x, y=>$y, width=>$width, height=>$height,
+		'fill-color-rgba' => 0,
+		'line-dash'    => GooCanvas2::CanvasLineDash->newv([5, 5]),
+		'line-width'   => 1,
+		'stroke-color' => 'gray',
+	);
+
+	$self->{_current_new_item} = $item unless ($copy_item);
+	$self->{_items}{$item} = $item;
+
+	$self->{_items}{$item}{ellipse} = GooCanvas2::CanvasEllipse->new(
+		parent=>$self->{_canvas}->get_root_item, x=>$item->get('x'), y=>$item->get('y'), width=>$item->get('width'),
+		height=>$item->get('height'),
+		'fill-color-gdk-rgba'   => $fill_color,
+		'stroke-color-gdk-rgba' => $stroke_color,
+		'line-width'     => $line_width,
+	);
+
+	#numbered ellipse
+	if ($numbered) {
+
+		my $number = $self->get_highest_auto_digit();
+		$number++;
+
+		$self->{_items}{$item}{text} = GooCanvas2::CanvasText->new(
+			parent=>$self->{_canvas}->get_root_item, text=>"<span font_desc='" . $self->{_font} . "' >" . $number . "</span>",
+			x=>$self->{_items}{$item}{ellipse}->get('center-x'),
+			y=>$self->{_items}{$item}{ellipse}->get('center-y'),
+			width=>-1,
+			anchor=> 'center',
+			'use-markup'   => TRUE,
+			'fill-color-gdk-rgba'   => $stroke_color,
+			'line-width'   => $line_width,
+		);
+
+		#save used number
+		$self->{_items}{$item}{text}{digit} = $number;
+
+		#set type flag
+		$self->{_items}{$item}{type} = 'number';
+		$self->{_items}{$item}{uid}  = $self->{_uid}++;
+
+		#adjust parent rectangle if numbered ellipse
+		my $tb = $self->{_items}{$item}{text}->get_bounds;
+
+		#keep ratio = 1
+		my $qs = abs($tb->x1 - $tb->x2);
+		$qs = abs($tb->y1 - $tb->y2) if abs($tb->y1 - $tb->y2) > abs($tb->x1 - $tb->x2);
+
+		#add line width of parent ellipse
+		$qs += $self->{_items}{$item}{ellipse}->get('line-width') + 5;
+
+		if ($copy_item) {
+			$self->{_items}{$item}->set(
+				'x'          => $self->{_items}{$item}->get('x') + 20,
+				'y'          => $self->{_items}{$item}->get('y') + 20,
+				'width'      => $qs,
+				'height'     => $qs,
+				'visibility' => 'hidden',
+			);
+		} else {
+			$self->{_items}{$item}->set(
+				'x'          => $self->{_items}{$item}->get('x') - $qs,
+				'y'          => $self->{_items}{$item}->get('y') - $qs,
+				'width'      => $qs,
+				'height'     => $qs,
+				'visibility' => 'hidden',
+			);
+		}
+
+		$self->handle_embedded('hide', $item);
+
+	} else {
+
+		#set type flag
+		$self->{_items}{$item}{type} = 'ellipse';
+		$self->{_items}{$item}{uid}  = $self->{_uid}++;
+	}
+
+	#save color and opacity as well
+	$self->{_items}{$item}{fill_color}         = $self->{_fill_color};
+	$self->{_items}{$item}{stroke_color}       = $self->{_stroke_color};
+
+	#create rectangles
+	$self->handle_rects('create', $item);
+	if ($copy_item) {
+		$self->handle_embedded('update', $item);
+		$self->handle_rects('hide', $item);
+	}
+
+	if ($numbered) {
+		$self->setup_item_signals($self->{_items}{$item}{text});
+		$self->setup_item_signals_extra($self->{_items}{$item}{text});
+	}
+
+	$self->setup_item_signals($self->{_items}{$item}{ellipse});
+	$self->setup_item_signals_extra($self->{_items}{$item}{ellipse});
+
+	$self->setup_item_signals($self->{_items}{$item});
+	$self->setup_item_signals_extra($self->{_items}{$item});
+
+	return $item;
 }
 
 sub create_rectangle {
