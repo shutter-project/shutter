@@ -7,10 +7,6 @@ use warnings;
 use Gtk3;
 use GooCanvas2;
 
-our @EXPORT_OK = qw/ points_to_canvas_points /;
-
-use Exporter;
-
 sub points_to_canvas_points {
     my @points = @_;
 
