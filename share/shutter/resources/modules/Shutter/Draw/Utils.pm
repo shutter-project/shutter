@@ -33,7 +33,7 @@ sub points_to_canvas_points {
     my @points = @_;
 
     my $num_points = scalar(@points) / 2;
-    my $result     = GooCanvas2::CanvasPoints->new( num_points => $num_points );
+    my $result     = GooCanvas2::CanvasPoints::new( num_points => $num_points );
 
     for ( my $i = 0; $i < @points; $i += 2 ) {
         $result->set_point( $i / 2, $points[$i], $points[ $i + 1 ] );
