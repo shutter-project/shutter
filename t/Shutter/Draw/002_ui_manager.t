@@ -7,7 +7,8 @@ use List::Util qw/ all /;
 use Gtk3;     # to escape warnings "Too late to run INIT block"
 use Gtk3::ImageView 10;
 use Glib qw/ TRUE FALSE /;
-use Test::More tests => 4;
+use Test::More tests => 5;
+use Test::MockModule;
 
 require Test::Window;
 require Test::Common;
@@ -24,6 +25,7 @@ subtest "simply create uimanager" => sub {
     my $app       = Test::SimpleApp->new;
     my $uimanager = Shutter::Draw::UIManager->new( app => $app );
 
+    can_ok( $uimanager, "setup" );
     ok( defined $uimanager, "uimanager defined" );
     is( $uimanager->app, $app, "check uimanager's app" );
 };
@@ -145,6 +147,34 @@ subtest "internal methods" => sub {
         ok( $ui_info,                          "ui_info is not empty" );
         ok( $ui_info =~ m/\s+<ui>.+<\/ui>$/ms, "structure of ui_info" );
     };
+};
+
+subtest "get wrong ui_info" => sub {
+    plan skip_all => "no env TEST_APP_SHUTTER_PATH found" unless $ENV{TEST_APP_SHUTTER_PATH};
+
+    my $w  = Test::Window::simple_window();
+    my $sc = Test::Common::get_common_object();
+    $sc->set_mainwindow($w);
+
+    my $dt = Shutter::Draw::DrawingTool->new($sc);
+
+    $dt->{_d}              = $sc->gettext_object;
+    $dt->{_dicons}         = $sc->get_root . "/share/shutter/resources/icons/drawing_tool";
+    $dt->{_icons}          = $sc->get_root . "/share/shutter/resources/icons";
+    $dt->{_drawing_window} = Gtk3::Window->new('toplevel');
+
+    my $mock = Test::MockModule->new("Shutter::Draw::UIManager");
+    $mock->mock( "_get_ui_info", sub { return "foo bar baz" } );
+
+    my $error;
+    eval {
+        $dt->setup_uimanager;
+        1;
+    } or do {
+        $error = $@;
+    };
+
+    like( $error, qr/Unable to create menus/, "error to create UI menu" );
 };
 
 subtest "setup" => sub {
