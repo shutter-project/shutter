@@ -23,7 +23,6 @@
 package Shutter::Draw::UIManager;
 
 use Moo;
-use strictures 2;
 use Gtk3;
 use Glib qw/ TRUE FALSE /;
 
