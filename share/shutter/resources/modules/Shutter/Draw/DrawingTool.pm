@@ -2319,7 +2319,7 @@ sub get_opposite_rect {
 	foreach (keys %{$self->{_items}{$item}}) {
 
 		#fancy resizing using our little resize boxes
-		if ($rect == $self->{_items}{$item}{$_}) {
+		if ($rect eq $self->{_items}{$item}{$_}) {
 
 			if ($_ eq 'top-left-corner') {
 
