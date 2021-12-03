@@ -1,0 +1,20 @@
+requires "Gtk3";
+requires "Pango";
+requires "Glib";
+requires "Gtk3::ImageView";
+requires "Number::Bytes::Human";
+requires "XML::Simple";
+requires "Net::DBus";
+requires "HTTP::Status";
+requires "Digest::MD5";
+requires "Proc::Simple";
+requires "Sort::Naturally";
+requires "GooCanvas2";
+requires "Image::Magick";
+requires "Locale::gettext";
+requires "Proc::Killfam";
+requires "File::Which";
+requires "File::Copy::Recursive";
+requires "Moo", ">= 2.0";
+
+test_requires "Test::MockModule";
