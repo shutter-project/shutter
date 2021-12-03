@@ -24,7 +24,6 @@ package Shutter::Draw::Ellipse;
 
 use 5.010;
 use Moo;
-use strictures 2;
 
 use GooCanvas2;
 use Glib qw/ TRUE FALSE /;
