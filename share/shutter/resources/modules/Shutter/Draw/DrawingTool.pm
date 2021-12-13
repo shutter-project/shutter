@@ -41,6 +41,10 @@ use utf8;
 use strict;
 use warnings;
 
+use constant {
+	DEFAULT_FONT => "Sans Regular 16"
+};
+
 use Gtk3;
 
 use Exporter;
@@ -60,7 +64,9 @@ use XML::Simple;
 #Glib
 use Glib qw/TRUE FALSE/;
 
+require Shutter::Draw::Utils;
 require Shutter::App::Directories;
+require Shutter::Draw::UIManager;
 
 #--------------------------------------
 
@@ -147,7 +153,7 @@ sub new {
 	$self->{_stroke_color}       = Gtk3::Gdk::RGBA::parse('#ff0000');
 	$self->{_stroke_color}->alpha(1);
 	$self->{_line_width}         = 3;
-	$self->{_font}               = 'Sans Regular 16';
+	$self->{_font}               = DEFAULT_FONT;
 
 	#obtain current colors and font_desc from the main window
 	$self->{_style}    = $self->{_sc}->get_mainwindow->get_style_context;
@@ -162,7 +168,7 @@ sub new {
 	$self->{_last_stroke_color}       = Gtk3::Gdk::RGBA::parse('#ff0000');
 	$self->{_last_stroke_color}->alpha(1);
 	$self->{_last_line_width}         = 3;
-	$self->{_last_font}               = 'Sans Regular 16';
+	$self->{_last_font}               = DEFAULT_FONT;
 
 	#some status variables
 	$self->{_busy}                    = undef;
@@ -1974,7 +1980,7 @@ sub event_item_on_motion_notify {
 
 		}
 
-		$self->{_items}{$item}->set('points' => points_to_canvas_points(@{$self->{_items}{$item}{'points'}}));
+		$self->{_items}{$item}->set('points' => Shutter::Draw::Utils::points_to_canvas_points(@{$self->{_items}{$item}{'points'}}));
 
 		#new item is already on the canvas with small initial size
 		#drawing is like resizing, so set up for resizing
@@ -2313,7 +2319,7 @@ sub get_opposite_rect {
 	foreach (keys %{$self->{_items}{$item}}) {
 
 		#fancy resizing using our little resize boxes
-		if ($rect == $self->{_items}{$item}{$_}) {
+		if ($rect eq $self->{_items}{$item}{$_}) {
 
 			if ($_ eq 'top-left-corner') {
 
@@ -4880,7 +4886,7 @@ sub handle_embedded {
 			#arrow is always and end-arrow
 			if ($self->{_items}{$item}{mirrored_w} < 0 && $self->{_items}{$item}{mirrored_h} < 0) {
 				$self->{_items}{$item}{line}->set(
-					'points' => points_to_canvas_points(
+					'points' => Shutter::Draw::Utils::points_to_canvas_points(
 							$self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height'),
 							$self->{_items}{$item}->get('x'),                                        $self->{_items}{$item}->get('y')
 					),
@@ -4888,7 +4894,7 @@ sub handle_embedded {
 				);
 			} elsif ($self->{_items}{$item}{mirrored_w} < 0) {
 				$self->{_items}{$item}{line}->set(
-					'points' => points_to_canvas_points(
+					'points' => Shutter::Draw::Utils::points_to_canvas_points(
 							$self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('y'),
 							$self->{_items}{$item}->get('x'),                                        $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height')
 					),
@@ -4896,7 +4902,7 @@ sub handle_embedded {
 				);
 			} elsif ($self->{_items}{$item}{mirrored_h} < 0) {
 				$self->{_items}{$item}{line}->set(
-					'points' => points_to_canvas_points(
+					'points' => Shutter::Draw::Utils::points_to_canvas_points(
 							$self->{_items}{$item}->get('x'),                                        $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height'),
 							$self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('y')
 					),
@@ -4904,7 +4910,7 @@ sub handle_embedded {
 				);
 			} else {
 				$self->{_items}{$item}{line}->set(
-					'points' => points_to_canvas_points(
+					'points' => Shutter::Draw::Utils::points_to_canvas_points(
 							$self->{_items}{$item}->get('x'),                                        $self->{_items}{$item}->get('y'),
 							$self->{_items}{$item}->get('x') + $self->{_items}{$item}->get('width'), $self->{_items}{$item}->get('y') + $self->{_items}{$item}->get('height')
 					),
@@ -5739,425 +5745,7 @@ sub event_item_on_leave_notify {
 sub setup_uimanager {
 	my $self = shift;
 
-	$self->{_factory} = Gtk3::IconFactory->new();
-	$self->{_factory}->add('shutter-ellipse',     Gtk3::IconSet->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file($self->{_dicons} . '/draw-ellipse.png')));
-	$self->{_factory}->add('shutter-eraser',      Gtk3::IconSet->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file($self->{_dicons} . '/draw-eraser.png')));
-	$self->{_factory}->add('shutter-freehand',    Gtk3::IconSet->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file($self->{_dicons} . '/draw-freehand.png')));
-	$self->{_factory}->add('shutter-highlighter', Gtk3::IconSet->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file($self->{_dicons} . '/draw-highlighter.png')));
-	$self->{_factory}->add('shutter-pointer',     Gtk3::IconSet->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file($self->{_dicons} . '/draw-pointer.png')));
-	$self->{_factory}->add('shutter-rectangle',   Gtk3::IconSet->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file($self->{_dicons} . '/draw-rectangle.png')));
-	$self->{_factory}->add('shutter-line',        Gtk3::IconSet->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file($self->{_dicons} . '/draw-line.png')));
-	$self->{_factory}->add('shutter-arrow',       Gtk3::IconSet->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file($self->{_dicons} . '/draw-arrow.png')));
-	$self->{_factory}->add('shutter-text',        Gtk3::IconSet->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file($self->{_dicons} . '/draw-text.png')));
-	$self->{_factory}->add('shutter-censor',      Gtk3::IconSet->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file($self->{_dicons} . '/draw-censor.png')));
-	$self->{_factory}->add('shutter-pixelize',    Gtk3::IconSet->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file($self->{_dicons} . '/draw-pixelize.png')));
-	$self->{_factory}->add('shutter-number',      Gtk3::IconSet->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file($self->{_dicons} . '/draw-number.png')));
-	$self->{_factory}->add('shutter-crop',        Gtk3::IconSet->new_from_pixbuf(Gtk3::Gdk::Pixbuf->new_from_file($self->{_dicons} . '/transform-crop.png')));
-
-	#~ $self->{_factory}->add( 'shutter-mime-pdf', Gtk3::IconSet->new_from_pixbuf( Gtk3::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/mime-pdf.svg') ) );
-	#~ $self->{_factory}->add( 'shutter-mime-svg', Gtk3::IconSet->new_from_pixbuf( Gtk3::Gdk::Pixbuf->new_from_file($self->{_dicons}.'/mime-svg.svg') ) );
-	$self->{_factory}->add_default();
-
-	my @main_actions = (
-		["File",  undef, $self->{_d}->get("_File")],
-		["Edit",  undef, $self->{_d}->get("_Edit")],
-		["Tools", undef, $self->{_d}->get("_Tools")],
-		["View",  undef, $self->{_d}->get("_View")],
-		[
-			"Undo",
-			'gtk-undo',
-			undef,
-			"<control>Z",
-			$self->{_d}->get("Undo last action"),
-			sub {
-				$self->abort_current_mode;
-				$self->xdo('undo', 'ui');
-			}
-		],
-		[
-			"Redo",
-			'gtk-redo',
-			undef,
-			"<control>Y",
-			$self->{_d}->get("Do again the last undone action"),
-			sub {
-				$self->abort_current_mode;
-				$self->xdo('redo', 'ui');
-			}
-		],
-		[
-			"Copy",
-			'gtk-copy',
-			undef,
-			"<control>C",
-			$self->{_d}->get("Copy selection to clipboard"),
-			sub {
-
-				#clear clipboard
-				$self->{_clipboard}->set_text("");
-				$self->{_cut}               = FALSE;
-				$self->{_current_copy_item} = $self->{_current_item};
-			}
-		],
-		[
-			"Cut",
-			'gtk-cut',
-			undef,
-			"<control>X",
-			$self->{_d}->get("Cut selection to clipboard"),
-			sub {
-
-				#clear clipboard
-				$self->{_clipboard}->set_text("");
-				$self->{_cut}               = TRUE;
-				$self->{_current_copy_item} = $self->{_current_item};
-				$self->clear_item_from_canvas($self->{_current_copy_item});
-			}
-		],
-		[
-			"Paste",
-			'gtk-paste',
-			undef,
-			"<control>V",
-			$self->{_d}->get("Paste objects from clipboard"),
-			sub {
-				$self->paste_item($self->{_current_copy_item}, $self->{_cut});
-				$self->{_cut} = FALSE;
-			}
-		],
-		[
-			"Delete",
-			'gtk-delete',
-			undef, "Delete",
-			$self->{_d}->get("Delete current object"),
-			sub {
-				$self->clear_item_from_canvas($self->{_current_item});
-			}
-		],
-		[
-			"Clear",
-			'gtk-clear',
-			undef,
-			"<control>Delete",
-			$self->{_d}->get("Clear canvas"),
-			sub {
-
-				#store items to delete in temporary hash
-				#sort them uid
-				my %time_hash;
-				foreach (keys %{$self->{_items}}) {
-					next if (exists $self->{_items}{$_}{image} && $self->{_items}{$_}{image} == $self->{_canvas_bg});
-					$time_hash{$self->{_items}{$_}{uid}} = $self->{_items}{$_};
-				}
-
-				#delete items
-				foreach (sort keys %time_hash) {
-					$self->clear_item_from_canvas($time_hash{$_});
-				}
-			}
-		],
-		[
-			"Stop",
-			'gtk-stop',
-			undef, "Escape",
-			$self->{_d}->get("Abort current mode"),
-			sub {
-				$self->abort_current_mode;
-			}
-		],
-		[
-			"Close",
-			'gtk-close',
-			undef,
-			"<control>Q",
-			$self->{_d}->get("Close this window"),
-			sub {
-				$self->quit(TRUE);
-			}
-		],
-		[
-			"Save",
-			'gtk-save',
-			undef,
-			"<control>S",
-			$self->{_d}->get("Save image"),
-			sub {
-				$self->save(), $self->quit(FALSE);
-			}
-		],
-		[
-			"ExportTo",
-			'gtk-save-as',
-			$self->{_d}->get("Export to _File..."),
-			"<Shift><Control>E",
-			$self->{_d}->get("Export to File..."),
-			sub {
-				$self->export_to_file();
-			}
-		],
-		[
-			"ExportToSvg",
-			undef,
-			$self->{_d}->get("_Export to SVG..."),
-			"<Shift><Alt>V",
-			$self->{_d}->get("Export to SVG..."),
-			sub {
-				$self->export_to_svg();
-			}
-		],
-		[
-			"ExportToPdf",
-			undef,
-			$self->{_d}->get("E_xport to PDF..."),
-			"<Shift><Alt>P",
-			$self->{_d}->get("Export to PDF..."),
-			sub {
-				$self->export_to_pdf();
-			}
-		],
-		[
-			"ExportToPS",
-			undef,
-			$self->{_d}->get("Export to Post_Script..."),
-			"<Shift><Alt>S",
-			$self->{_d}->get("Export to PostScript..."),
-			sub {
-				$self->export_to_ps();
-			}
-		],
-		[
-			"ZoomIn",
-			'gtk-zoom-in',
-			undef,
-			"<control>plus",
-			undef,
-			sub {
-				$self->zoom_in_cb($self);
-			}
-		],
-		[
-			"ControlEqual",
-			'gtk-zoom-in',
-			undef,
-			"<control>equal",
-			undef,
-			sub {
-				$self->zoom_in_cb($self);
-			}
-		],
-		[
-			"ControlKpAdd",
-			'gtk-zoom-in',
-			undef,
-			"<control>KP_Add",
-			undef,
-			sub {
-				$self->zoom_in_cb($self);
-			}
-		],
-		[
-			"ZoomOut",
-			'gtk-zoom-out',
-			undef,
-			"<control>minus",
-			undef,
-			sub {
-				$self->zoom_out_cb($self);
-			}
-		],
-		[
-			"ControlKpSub",
-			'gtk-zoom-out',
-			undef,
-			"<control>KP_Subtract",
-			undef,
-			sub {
-				$self->zoom_out_cb($self);
-			}
-		],
-		[
-			"ZoomNormal",
-			'gtk-zoom-100',
-			undef,
-			"<control>0",
-			undef,
-			sub {
-				$self->zoom_normal_cb($self);
-			}
-		],
-	);
-
-	my @toggle_actions = ([
-			"Autoscroll",
-			undef,
-			$self->{_d}->get("Automatic scrolling"),
-			undef, undef,
-			sub {
-				my $widget = shift;
-
-				if ($widget->get_active) {
-					$self->{_autoscroll} = TRUE;
-				} else {
-					$self->{_autoscroll} = FALSE;
-				}
-
-				#'redraw-when-scrolled' to reduce the flicker of static items
-				#
-				#this property is not available in older versions
-				#it was added to goocanvas on Mon Nov 17 10:28:07 2008 UTC
-				#http://svn.gnome.org/viewvc/goocanvas?view=revision&revision=28
-				if ($self->{_canvas} && $self->{_canvas}->find_property('redraw-when-scrolled')) {
-					$self->{_canvas}->set('redraw-when-scrolled' => !$self->{_autoscroll});
-				}
-			}
-		],
-		[
-			"Fullscreen",
-			'gtk-fullscreen',
-			undef, "F11", undef,
-			sub {
-				my $action = shift;
-
-				if ($action->get_active) {
-					$self->{_drawing_window}->fullscreen;
-				} else {
-					$self->{_drawing_window}->unfullscreen;
-				}
-			}
-		]);
-
-	my @drawing_actions = (
-		["Select",      'shutter-pointer',     $self->{_d}->get("Select"),      "<alt>0",       $self->{_d}->get("Select item to move or resize it"),                                10],
-		["Freehand",    'shutter-freehand',    $self->{_d}->get("Freehand"),    "<alt>1",       $self->{_d}->get("Draw a freehand line"),                                            20],
-		["Highlighter", 'shutter-highlighter', $self->{_d}->get("Highlighter"), "<alt>2",       $self->{_d}->get("Highlighter"),                                                     30],
-		["Line",        'shutter-line',        $self->{_d}->get("Line"),        "<alt>3",       $self->{_d}->get("Draw a straight line"),                                            40],
-		["Arrow",       'shutter-arrow',       $self->{_d}->get("Arrow"),       "<alt>4",       $self->{_d}->get("Draw an arrow"),                                                   50],
-		["Rect",        'shutter-rectangle',   $self->{_d}->get("Rectangle"),   "<alt>5",       $self->{_d}->get("Draw a rectangle"),                                                60],
-		["Ellipse",     'shutter-ellipse',     $self->{_d}->get("Ellipse"),     "<alt>6",       $self->{_d}->get("Draw a ellipse"),                                                  70],
-		["Text",        'shutter-text',        $self->{_d}->get("Text"),        "<alt>7",       $self->{_d}->get("Add some text to the screenshot"),                                 80],
-		["Censor",      'shutter-censor',      $self->{_d}->get("Censor"),      "<alt>8",       $self->{_d}->get("Censor portions of your screenshot to hide private data"),         90],
-		["Pixelize",    'shutter-pixelize',    $self->{_d}->get("Pixelize"),    "<alt><ctrl>8", $self->{_d}->get("Pixelize selected areas of your screenshot to hide private data"), 100],
-		["Number",      'shutter-number',      $self->{_d}->get("Number"),      "<alt>9",       $self->{_d}->get("Add an auto-increment shape to the screenshot"),                   110],
-		["Crop",        'shutter-crop',        $self->{_d}->get("Crop"),        "<alt>c",       $self->{_d}->get("Crop your screenshot"),                                            120]);
-
-	my $uimanager = Gtk3::UIManager->new();
-
-	#keyboard accel_group
-	my $accelgroup = $uimanager->get_accel_group;
-	$self->{_drawing_window}->add_accel_group($accelgroup);
-
-	# Setup the main group.
-	my $main_group = Gtk3::ActionGroup->new("main");
-	$main_group->add_actions(\@main_actions);
-
-	#setup the menu toggle group
-	my $toggle_group = Gtk3::ActionGroup->new("toggle");
-	$toggle_group->add_toggle_actions(\@toggle_actions);
-
-	# Setup the drawing group.
-	my $drawing_group = Gtk3::ActionGroup->new("drawing");
-	$drawing_group->add_radio_actions(\@drawing_actions, 10, sub { my $action = shift; $self->change_drawing_tool_cb($action); });
-
-	$uimanager->insert_action_group($main_group,    0);
-	$uimanager->insert_action_group($toggle_group,  0);
-	$uimanager->insert_action_group($drawing_group, 0);
-
-	my $ui_info = "
-	<ui>
-	  <menubar name = 'MenuBar'>
-		<menu action = 'File'>
-		  <menuitem action = 'Save'/>
-		  <menuitem action = 'ExportTo'/>
-		  <menuitem action = 'ExportToSvg'/>
-		  <menuitem action = 'ExportToPdf'/>
-		  <menuitem action = 'ExportToPS'/>
-		  <separator/>
-		  <menuitem action = 'Close'/>
-		</menu>
-		<menu action = 'Edit'>
-		  <menuitem action = 'Undo'/>
-		  <menuitem action = 'Redo'/>
-		  <separator/>
-		  <menuitem action = 'Copy'/>
-		  <menuitem action = 'Cut'/>
-		  <menuitem action = 'Paste'/>
-		  <menuitem action = 'Delete'/>
-		  <menuitem action = 'Clear'/>			  
-		  <separator/>
-		  <menuitem action = 'Stop'/>
-		  <separator/>
-		  <menuitem action = 'Autoscroll'/>
-		</menu>
-		<menu action = 'Tools'>
-		  <menuitem action='Select'/>
-		  <separator/>
-	      <menuitem action='Freehand'/>
-		  <menuitem action='Highlighter'/>
-		  <menuitem action='Line'/>
-		  <menuitem action='Arrow'/>
-		  <menuitem action='Rect'/>
-		  <menuitem action='Ellipse'/>
-		  <menuitem action='Text'/>
-		  <menuitem action='Censor'/>
-		  <menuitem action='Pixelize'/>
-		  <menuitem action='Number'/>
-		  <separator/>
-		  <menuitem action='Crop'/>
-		</menu>
-		<menu action = 'View'>
-		  <menuitem action = 'ControlEqual'/>	
-		  <menuitem action = 'ControlKpAdd'/>	
-		  <menuitem action = 'ZoomIn'/>
-		  <menuitem action = 'ZoomOut'/>
-		  <menuitem action = 'ControlKpSub'/>		  
-		  <menuitem action = 'ZoomNormal'/>
-		  <separator/>
-		  <menuitem action = 'Fullscreen'/>
-		</menu>
-	  </menubar>
-	  <toolbar name = 'ToolBar'>
-		<toolitem action='Close'/>
-		<toolitem action='Save'/>
-		<toolitem action='ExportTo'/>
-		<separator/>
-		<toolitem action='ZoomIn'/>
-		<toolitem action='ZoomOut'/>
-		<toolitem action='ZoomNormal'/>
-		<separator/>
-		<toolitem action='Undo'/>
-		<toolitem action='Redo'/>
-		<separator/>
-		<toolitem action='Copy'/>
-		<toolitem action='Cut'/>
-		<toolitem action='Paste'/>
-		<toolitem action='Delete'/>		
-		<toolitem action='Clear'/>		
-	  </toolbar>
-	  <toolbar name = 'ToolBarDrawing'>
-		<toolitem action='Select'/>
-		<separator/>
-		<toolitem action='Freehand'/>
-		<toolitem action='Highlighter'/>
-		<toolitem action='Line'/>
-		<toolitem action='Arrow'/>
-		<toolitem action='Rect'/>
-		<toolitem action='Ellipse'/>
-		<toolitem action='Text'/>
-		<toolitem action='Censor'/>
-		<toolitem action='Pixelize'/>
-		<toolitem action='Number'/>
-		<separator/>
-		<toolitem action='Crop'/>
-	  </toolbar>  
-	</ui>";
-
-	eval { $uimanager->add_ui_from_string($ui_info) };
-
-	if ($@) {
-		die "Unable to create menus: $@\n";
-	}
-
-	return $uimanager;
+	return Shutter::Draw::UIManager->new( app => $self )->setup;
 }
 
 sub import_from_dnd {
@@ -6925,7 +6513,7 @@ sub create_polyline {
 
 	#need at least 2 points
 	push @{$self->{_items}{$item}{'points'}}, @points;
-	$self->{_items}{$item}->set(points    => points_to_canvas_points(@{$self->{_items}{$item}{'points'}}));
+	$self->{_items}{$item}->set(points    => Shutter::Draw::Utils::points_to_canvas_points(@{$self->{_items}{$item}{'points'}}));
 	$self->{_items}{$item}->set(transform => $transform) if $transform;
 
 	if ($highlighter) {
@@ -6986,7 +6574,7 @@ sub create_censor {
 
 	#need at least 2 points
 	push @{$self->{_items}{$item}{'points'}}, @points;
-	$self->{_items}{$item}->set(points    => points_to_canvas_points(@{$self->{_items}{$item}{'points'}}));
+	$self->{_items}{$item}->set(points    => Shutter::Draw::Utils::points_to_canvas_points(@{$self->{_items}{$item}{'points'}}));
 	$self->{_items}{$item}->set(transform => $transform) if $transform;
 
 	$self->setup_item_signals($self->{_items}{$item});
@@ -7316,7 +6904,7 @@ sub create_line {
 	$self->{_items}{$item}{line} = GooCanvas2::CanvasPolyline->new(
 		parent=>$self->{_canvas}->get_root_item,
 		close_path=>FALSE,
-		points=>points_to_canvas_points(
+		points => Shutter::Draw::Utils::points_to_canvas_points(
 			$item->get('x'),
 			$item->get('y'),
 			$item->get('x') + $item->get('width'),
@@ -7554,15 +7142,87 @@ sub create_rectangle {
 	return $item;
 }
 
-sub points_to_canvas_points {
-	my @points = @_;
-	my $num_points = scalar(@points) / 2;
-	my $result = GooCanvas2::CanvasPoints::new(num_points=>$num_points);
-	for (my $i = 0; $i < @points; $i += 2) {
-		$result->set_point($i / 2, $points[$i], $points[$i+1]);
-	}
-	return $result;
+
+# getters and setters
+
+sub gettext { shift->{_d} }
+sub dicons { shift->{_dicons} }
+sub icons { shift->{_icons} }
+sub clipboard { shift->{_clipboard} }
+sub items { shift->{_items} }
+sub drawing_window { shift->{_drawing_window} }
+sub canvas { shift->{_canvas} }
+
+sub cut {
+	my $self = shift;
+	$self->{_cut} = shift if scalar @_;
+	return $self->{_cut};
 }
+sub current_copy_item {
+	my $self = shift;
+	$self->{_current_copy_item} = shift if scalar @_;
+	return $self->{_current_copy_item};
+}
+
+sub current_item {
+	my $self = shift;
+	$self->{_current_item} = shift if scalar @_;
+	return $self->{_current_item};
+}
+
+sub current_new_item {
+	my $self = shift;
+	$self->{_current_new_item} = shift if scalar @_;
+	return $self->{_current_new_item};
+}
+
+sub canvas_bg {
+	my $self = shift;
+	$self->{_canvas_bg} = shift if scalar @_;
+	return $self->{_canvas_bg};
+}
+
+sub factory {
+	my $self = shift;
+	$self->{_factory} = shift if scalar @_;
+	return $self->{_factory};
+}
+
+sub autoscroll {
+	my $self = shift;
+	$self->{_autoscroll} = shift if scalar @_;
+	return $self->{_autoscroll};
+}
+
+sub stroke_color {
+	my $self = shift;
+	$self->{_stroke_color} = shift if scalar @_;
+	return $self->{_stroke_color};
+}
+
+sub fill_color {
+	my $self = shift;
+	$self->{_fill_color} = shift if scalar @_;
+	return $self->{_fill_color};
+}
+
+sub line_width {
+	my $self = shift;
+	$self->{_line_width} = shift if scalar @_;
+	return $self->{_line_width};
+}
+
+sub font {
+	my $self = shift;
+	$self->{_font} = shift if scalar @_;
+	return $self->{_font};
+}
+
+sub uid { shift->{_uid} }
+
+sub increase_uid { shift->{_uid}++ }
+
+sub uimanager { shift->{_uimanager} }
 
 1;
 
