@@ -22,7 +22,7 @@ jobs:
             procps librsvg2-2 libproc-processtable-perl libpath-class-perl libjson-perl libjson-maybexs-perl \
             libfile-which-perl libfile-spec-perl libfile-basedir-perl libfile-copy-recursive-perl \
             libproc-simple-perl libsort-naturally-perl libnumber-bytes-human-perl libglib-object-introspection-perl \
-            libcairo2-dev
+            libcairo2-dev libpango1.0-dev
             
           curl -L http://cpanmin.us | perl - --sudo App::cpanminus
           sudo cpanm --installdeps --notest .
