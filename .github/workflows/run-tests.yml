@@ -14,7 +14,11 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v2
-
-      # Runs a single command using the runners shell
+      
+      - name: Install deps
+        run: |
+          curl -L http://cpanmin.us | perl - --sudo App::cpanminus
+          sudo cpanm --installdeps --notest .
+          
       - name: Run tests
         run: TEST_APP_SHUTTER_PATH=$(pwd) prove -I share/shutter/resources/modules/ -I t/lib t -r
