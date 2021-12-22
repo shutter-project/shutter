@@ -21,8 +21,10 @@ jobs:
             libwww-perl libnet-dbus-perl imagemagick perlmagick libx11-protocol-perl librsvg2-common xdg-utils \
             procps librsvg2-2 libproc-processtable-perl libpath-class-perl libjson-perl libjson-maybexs-perl \
             libfile-which-perl libfile-spec-perl libfile-basedir-perl libfile-copy-recursive-perl \
-            libproc-simple-perl libsort-naturally-perl libnumber-bytes-human-perl libglib-object-introspection-perl            curl -L http://cpanmin.us | perl - --sudo App::cpanminus
-          
+            libproc-simple-perl libsort-naturally-perl libnumber-bytes-human-perl libglib-object-introspection-perl \
+            libcairo2-dev
+            
+          curl -L http://cpanmin.us | perl - --sudo App::cpanminus
           sudo cpanm --installdeps --notest .
           
       - name: Run tests
