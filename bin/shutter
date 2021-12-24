@@ -8681,11 +8681,11 @@ sub STARTUP {
 
 		my $menu_web = Gtk3::Menu->new;
 
-		my $timeout0 = Gtk3::RadioMenuItem->new(undef, $d->get("Wait indefinitely"));
-		my $timeout1 = Gtk3::RadioMenuItem->new($timeout0, sprintf($d->nget("Wait max %d second", "Wait max %d seconds", 10), 10));
-		my $timeout2 = Gtk3::RadioMenuItem->new($timeout0, sprintf($d->nget("Wait max %d second", "Wait max %d seconds", 10), 30));
-		my $timeout3 = Gtk3::RadioMenuItem->new($timeout0, sprintf($d->nget("Wait max %d minute", "Wait max %d minutes", 1), 1));
-		my $timeout4 = Gtk3::RadioMenuItem->new($timeout0, sprintf($d->nget("Wait max %d minute", "Wait max %d minutes", 2), 2));
+		my $timeout0 = Gtk3::RadioMenuItem->new_with_label(undef, $d->get("Wait indefinitely"));
+		my $timeout1 = Gtk3::RadioMenuItem->new_with_label($timeout0, sprintf($d->nget("Wait max %d second", "Wait max %d seconds", 10), 10));
+		my $timeout2 = Gtk3::RadioMenuItem->new_with_label($timeout0, sprintf($d->nget("Wait max %d second", "Wait max %d seconds", 10), 30));
+		my $timeout3 = Gtk3::RadioMenuItem->new_with_label($timeout0, sprintf($d->nget("Wait max %d minute", "Wait max %d minutes", 1), 1));
+		my $timeout4 = Gtk3::RadioMenuItem->new_with_label($timeout0, sprintf($d->nget("Wait max %d minute", "Wait max %d minutes", 2), 2));
 
 		$timeout0->set_name("timeout0");
 		$timeout1->set_name("timeout10");
