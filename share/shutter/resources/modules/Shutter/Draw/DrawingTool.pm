@@ -4209,7 +4209,7 @@ sub show_item_properties {
 
 		#determine font description from string
 		my ($attr_list, $text_raw, $accel_char) = Pango->parse_markup($item->get('text'));
-		my ($font_desc) = $attr_list->get_iterator->get_font;
+		my ($font_desc) = Pango::FontDescription->from_string($self->{_font});
 
 		$font_hbox->pack_start($font_label, FALSE, TRUE,  12);
 		$font_hbox->pack_start($font_btn,   TRUE,  TRUE,  0);
