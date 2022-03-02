@@ -33,6 +33,8 @@ jobs:
           sudo cpanm --sudo --notest GooCanvas2::CairoTypes
           
       - name: Run tests
+        env:
+          TEST_APP_SHUTTER_PATH: $(pwd)
         uses: GabrielBB/xvfb-action@v1
         with:
-          run: TEST_APP_SHUTTER_PATH=$(pwd) prove -I share/shutter/resources/modules/ -I t/lib t -r
+          run: prove -I share/shutter/resources/modules/ -I t/lib t -r
