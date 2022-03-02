@@ -34,7 +34,7 @@ jobs:
           
       - name: Run tests
         env:
-          TEST_APP_SHUTTER_PATH: $(pwd)
+          TEST_APP_SHUTTER_PATH: ${{ pwd }}
         uses: GabrielBB/xvfb-action@v1
         with:
           run: prove -I share/shutter/resources/modules/ -I t/lib t -r
