@@ -29,8 +29,8 @@ jobs:
             
           curl -L http://cpanmin.us | perl - --sudo App::cpanminus
           sudo cpanm --installdeps --notest .
-          sudo cpanm --installdeps --notest Gtk3::ImageView
-          sudo cpanm --installdeps --notest GooCanvas2::CairoTypes
+          sudo cpanm --sudo --notest Gtk3::ImageView
+          sudo cpanm --sudo --notest GooCanvas2::CairoTypes
           
       - name: Run tests
         run: TEST_APP_SHUTTER_PATH=$(pwd) prove -I share/shutter/resources/modules/ -I t/lib t -r
