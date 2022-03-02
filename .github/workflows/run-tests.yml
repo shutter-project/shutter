@@ -17,12 +17,15 @@ jobs:
       
       - name: Install deps
         run: |
-          sudo apt install libglib-perl liblocale-gettext-perl libxml-simple-perl libwww-mechanize-perl \
-            libwww-perl libnet-dbus-perl imagemagick perlmagick libx11-protocol-perl librsvg2-common xdg-utils \
-            procps librsvg2-2 libproc-processtable-perl libpath-class-perl libjson-perl libjson-maybexs-perl \
-            libfile-which-perl libfile-spec-perl libfile-basedir-perl libfile-copy-recursive-perl \
-            libproc-simple-perl libsort-naturally-perl libnumber-bytes-human-perl libglib-object-introspection-perl \
-            libcairo2-dev libpango1.0-dev
+          sudo apt install  gir1.2-ayatanaappindicator3-0.1 gir1.2-wnck-3.0 imagemagick \
+          libcarp-always-perl libfile-basedir-perl libfile-copy-recursive-perl libfile-which-perl \
+          libglib-object-introspection-perl libglib-perl libgoocanvas2-cairotypes-perl libgoocanvas2-perl\
+          libgtk3-imageview-perl libgtk3-perl libimage-exiftool-perl libimage-magick-perl \
+          libjson-maybexs-perl libjson-perl liblocale-gettext-perl liblwp-protocol-https-perl \
+          libnet-dbus-perl libnet-dbus-glib-perl libnet-oauth-perl libnumber-bytes-human-perl \
+          libpango-perl libpath-class-perl libproc-processtable-perl libproc-simple-perl \
+          libreadonly-perl librsvg2-common libsort-naturally-perl libwww-mechanize-perl libwww-perl \
+          libx11-protocol-other-perl libx11-protocol-perl libxml-simple-perl procps xdg-utils
             
           curl -L http://cpanmin.us | perl - --sudo App::cpanminus
           sudo cpanm --installdeps --notest .
