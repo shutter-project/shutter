@@ -17,7 +17,7 @@ jobs:
       
       - name: Install deps
         run: |
-          sudo apt install  gir1.2-ayatanaappindicator3-0.1 gir1.2-wnck-3.0 imagemagick \
+          sudo apt install cpanminus gir1.2-ayatanaappindicator3-0.1 gir1.2-wnck-3.0 imagemagick \
           libcarp-always-perl libfile-basedir-perl libfile-copy-recursive-perl libfile-which-perl \
           libglib-object-introspection-perl libglib-perl libgoocanvas2-perl libgoocanvas-2.0-dev \
           libgtk3-perl libimage-exiftool-perl libimage-magick-perl \
@@ -27,7 +27,6 @@ jobs:
           libreadonly-perl librsvg2-common libsort-naturally-perl libwww-mechanize-perl libwww-perl \
           libx11-protocol-other-perl libx11-protocol-perl libxml-simple-perl procps xdg-utils
             
-          curl -L http://cpanmin.us | perl - --sudo App::cpanminus
           sudo cpanm --installdeps --notest .
           sudo cpanm --sudo --notest Gtk3::ImageView
           sudo cpanm --sudo --notest GooCanvas2::CairoTypes
