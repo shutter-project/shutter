@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Install deps
+        run: |
+          sudo apt update
+          sudo apt install cpanminus gir1.2-ayatanaappindicator3-0.1 gir1.2-wnck-3.0 imagemagick \
+          libcarp-always-perl libfile-basedir-perl libfile-copy-recursive-perl libfile-which-perl \
+          libglib-object-introspection-perl libglib-perl libgoocanvas2-perl libgoocanvas-2.0-dev \
+          libgtk3-perl libimage-exiftool-perl libimage-magick-perl \
+          libjson-maybexs-perl libjson-perl liblocale-gettext-perl liblwp-protocol-https-perl \
+          libnet-dbus-perl libnet-dbus-glib-perl libnet-oauth-perl libnumber-bytes-human-perl \
+          libpango-perl libpath-class-perl libproc-processtable-perl libproc-simple-perl \
+          libreadonly-perl librsvg2-common libsort-naturally-perl libwww-mechanize-perl libwww-perl \
+          libx11-protocol-other-perl libx11-protocol-perl libxml-simple-perl procps xdg-utils
+            
+          sudo cpanm --installdeps --notest .
+          sudo cpanm --sudo --notest Gtk3::ImageView
+          sudo cpanm --sudo --notest GooCanvas2::CairoTypes
+          
+      - name: Run tests
+        env:
+          TEST_APP_SHUTTER_PATH: ${{ env.GITHUB_WORKSPACE }}
+        uses: GabrielBB/xvfb-action@v1
+        with:
+          run: prove -I share/shutter/resources/modules/ -I t/lib t -r
