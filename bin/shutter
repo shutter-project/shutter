@@ -8769,7 +8769,7 @@ sub STARTUP {
 		my $group   = undef;
 		my $counter = 0;
 		foreach my $profile (@{$current_profiles_ref}) {
-			my $profile_item = Gtk3::RadioMenuItem::new($group, $profile);
+			my $profile_item = Gtk3::RadioMenuItem::new_with_label($group, $profile, $profile);
 			$profile_item->set_active(TRUE)
 				if $profile eq $combobox_settings_profiles->get_active_text;
 			$profile_item->signal_connect(
