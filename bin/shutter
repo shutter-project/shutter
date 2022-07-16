@@ -892,7 +892,7 @@ sub STARTUP {
 	my $combobox_settings_profiles = Gtk3::ComboBoxText->new;
 	my @current_profiles;
 	my $current_index = 0;
-	foreach my $pfile (sort bsd_glob("$ENV{'HOME'}/.shutter/profiles/*.xml")) {
+	foreach my $pfile (sort +bsd_glob("$ENV{'HOME'}/.shutter/profiles/*.xml")) {
 		utf8::decode $pfile;
 		next
 			if $pfile =~ /\_accounts.xml/;    #accounts file - we are looking for "real" profiles
