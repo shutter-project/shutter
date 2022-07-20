@@ -3885,7 +3885,7 @@ sub STARTUP {
 			unless ($shf->file_exists("$ENV{'HOME'}/.shutter/profiles/" . $active_text . ".xml")
 				|| $shf->file_exists("$ENV{'HOME'}/.shutter/profiles/" . $active_text . "_accounts.xml"))
 			{
-				$combobox_settings_profiles->remove_text($active_index);
+				$combobox_settings_profiles->remove($active_index);
 				$combobox_settings_profiles->set_active($combobox_settings_profiles->get_active + 1);
 				$current_profile_indx = $combobox_settings_profiles->get_active;
 
