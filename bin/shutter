@@ -7715,6 +7715,13 @@ sub STARTUP {
 
 		print "Parsing wildcards for $screenshot_name\n"
 			if $sc->get_debug;
+		
+		# $screenshot is undefined if the selection width or height is zero 
+		unless ($screenshot) {
+			my $response = $sd->dlg_error_message($d->get("Error: selection width or height is zero, please retry!"), $d->get("Failed"));
+			fct_control_main_window('show');
+			return FALSE;
+		}
 
 		#parse width and height
 		my $swidth  = $screenshot->get_width;
