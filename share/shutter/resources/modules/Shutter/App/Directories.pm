@@ -30,11 +30,11 @@ use warnings;
 use Glib qw/ TRUE /;
 
 use constant {
-    SHUTTER_DIR        => "shutter",
-    UNSAVED_DIR        => "unsaved",
-    TEMP_DIR           => "temp",
-    AUTOSTART_DIR      => "autostart",
-    PROFILES_DIR       => "profiles"
+    SHUTTER_DIR   => "shutter",
+    UNSAVED_DIR   => "unsaved",
+    TEMP_DIR      => "temp",
+    AUTOSTART_DIR => "autostart",
+    PROFILES_DIR  => "profiles"
 };
 
 sub create_if_not_exists {
