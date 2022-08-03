@@ -260,6 +260,7 @@ my $so   = Shutter::App::Options->new($sc, $shf);
 #set home
 #--------------------------------------
 $ENV{'HOME'} = Shutter::App::Directories::get_home_dir();
+$ENV{'CONFIG'} = Shutter::App::Directories::get_config_dir();
 
 #--------------------------------------
 
@@ -892,7 +893,7 @@ sub STARTUP {
 	my $combobox_settings_profiles = Gtk3::ComboBoxText->new;
 	my @current_profiles;
 	my $current_index = 0;
-	foreach my $pfile (sort bsd_glob("$ENV{'HOME'}/.shutter/profiles/*.xml")) {
+	foreach my $pfile (sort bsd_glob("$ENV{'CONFIG'}/shutter/profiles/*.xml")) {
 		utf8::decode $pfile;
 		next
 			if $pfile =~ /\_accounts.xml/;    #accounts file - we are looking for "real" profiles
@@ -2758,7 +2759,7 @@ sub STARTUP {
 
 	#load saved settings
 	#--------------------------------------
-	my $folder_to_save = $settings_xml->{'general'}->{'folder'} || $ENV{'HOME'};
+	my $folder_to_save = $settings_xml->{'general'}->{'folder'} || $ENV{'CONFIG'};
 	my ($cmdname, $extra) = $sc->get_start_with;
 	if ($cmdname && $folder_to_save) {
 		evt_take_screenshot('global_keybinding', $cmdname, $folder_to_save, $extra);
@@ -3879,11 +3880,11 @@ sub STARTUP {
 		if ($combobox_settings_profiles->get_active_text) {
 			my $active_text  = $combobox_settings_profiles->get_active_text;
 			my $active_index = $combobox_settings_profiles->get_active;
-			unlink("$ENV{'HOME'}/.shutter/profiles/" . $active_text . ".xml");
-			unlink("$ENV{'HOME'}/.shutter/profiles/" . $active_text . "_accounts.xml");
+			unlink("$ENV{'CONFIG'}/shutter/profiles/" . $active_text . ".xml");
+			unlink("$ENV{'CONFIG'}/shutter/profiles/" . $active_text . "_accounts.xml");
 
-			unless ($shf->file_exists("$ENV{'HOME'}/.shutter/profiles/" . $active_text . ".xml")
-				|| $shf->file_exists("$ENV{'HOME'}/.shutter/profiles/" . $active_text . "_accounts.xml"))
+			unless ($shf->file_exists("$ENV{'CONFIG'}/shutter/profiles/" . $active_text . ".xml")
+				|| $shf->file_exists("$ENV{'CONFIG'}/shutter/profiles/" . $active_text . "_accounts.xml"))
 			{
 				$combobox_settings_profiles->remove_text($active_index);
 				$combobox_settings_profiles->set_active($combobox_settings_profiles->get_active + 1);
@@ -7900,7 +7901,7 @@ sub STARTUP {
 		$current_plugin->set_line_wrap(TRUE);
 		$plugin_dialog->get_child->add($current_plugin);
 
-		my @plugin_paths = ("$shutter_root/share/shutter/resources/system/plugins/*/*", "$ENV{'HOME'}/.shutter/plugins/*/*");
+		my @plugin_paths = ("$shutter_root/share/shutter/resources/system/plugins/*/*", "$ENV{'CONFIG'}/shutter/plugins/*/*");
 
 		#fallback icon
 		# maybe the plugin
@@ -10773,7 +10774,7 @@ sub STARTUP {
 		if ($profile_response eq 'accept') {
 			my $entered_name = $new_profile_name->get_text;
 
-			if ($shf->file_exists("$ENV{'HOME'}/.shutter/profiles/$entered_name.xml")) {
+			if ($shf->file_exists("$ENV{'CONFIG'}/shutter/profiles/$entered_name.xml")) {
 
 				#ask the user to replace the profile
 				#replace button

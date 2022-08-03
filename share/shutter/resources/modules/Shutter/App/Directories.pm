@@ -30,12 +30,11 @@ use warnings;
 use Glib qw/ TRUE /;
 
 use constant {
-    SHUTTER_DIR        => "shutter",
-    UNSAVED_DIR        => "unsaved",
-    TEMP_DIR           => "temp",
-    AUTOSTART_DIR      => "autostart",
-    HIDDEN_SHUTTER_DIR => ".shutter",
-    PROFILES_DIR       => "profiles"
+    SHUTTER_DIR   => "shutter",
+    UNSAVED_DIR   => "unsaved",
+    TEMP_DIR      => "temp",
+    AUTOSTART_DIR => "autostart",
+    PROFILES_DIR  => "profiles"
 };
 
 sub create_if_not_exists {
@@ -66,7 +65,7 @@ sub get_home_dir   {Glib::get_home_dir}
 sub get_config_dir {Glib::get_user_config_dir}
 
 sub create_hidden_home_dir_if_not_exist {
-    my $hidden_dir          = $ENV{HOME} . "/" . HIDDEN_SHUTTER_DIR;
+    my $hidden_dir          = Glib::get_user_config_dir . "/" . SHUTTER_DIR;
     my $hidden_profiles_dir = "$hidden_dir" . "/" . PROFILES_DIR;
 
     mkdir $hidden_dir          unless -d $hidden_dir;

@@ -13,6 +13,7 @@ require_ok("Shutter::App::Directories");
     # do not pollute /home with these tests
     my $local_home = tempdir( CLEANUP => 1 );
     local $ENV{HOME} = $local_home;
+    local $ENV{CONFIG} = $local_home . "/.config";
 
     subtest "create_if_not_exists" => sub {
         my $dir = tempdir( CLEANUP => 1 ) . "/foo";
@@ -72,7 +73,7 @@ require_ok("Shutter::App::Directories");
     };
 
     subtest "create_hidden_home_dir_if_not_exist" => sub {
-        my $hidden_dir   = $ENV{HOME} . "/" . Shutter::App::Directories->HIDDEN_SHUTTER_DIR;
+        my $hidden_dir   = $ENV{CONFIG} . "/" . Shutter::App::Directories->SHUTTER_DIR;
         my $profiles_dir = $hidden_dir . "/" . Shutter::App::Directories->PROFILES_DIR;
 
         ok( !-d $hidden_dir,   "hidden dir doesn't exist" );
