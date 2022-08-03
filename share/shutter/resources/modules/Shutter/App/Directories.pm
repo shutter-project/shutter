@@ -34,7 +34,6 @@ use constant {
     UNSAVED_DIR        => "unsaved",
     TEMP_DIR           => "temp",
     AUTOSTART_DIR      => "autostart",
-    HIDDEN_SHUTTER_DIR => ".shutter",
     PROFILES_DIR       => "profiles"
 };
 
