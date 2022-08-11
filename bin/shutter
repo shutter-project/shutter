@@ -1081,7 +1081,7 @@ sub STARTUP {
 
 	#do some input validation
 	#here are all invalid char codes
-	my @invalid_codes = (47, 92, 63, 42, 58, 124, 34, 60, 62, 44, 59, 35, 38);
+	my @invalid_codes = (47, 92);
 	my $filename_hint = Gtk3::Label->new;
 	$filename_hint->set_no_show_all(TRUE);
 	$filename->signal_connect(
@@ -9244,7 +9244,7 @@ sub STARTUP {
 			$new_filename->set_activates_default(TRUE);
 
 			#here are all invalid char codes
-			my @invalid_codes = (47, 92, 63, 37, 42, 58, 124, 34, 60, 62, 44, 59, 35, 38);
+			my @invalid_codes = (47, 92);
 			$new_filename->signal_connect(
 				'key-press-event' => sub {
 					my $new_filename = shift;
@@ -10734,7 +10734,7 @@ sub STARTUP {
 		$new_profile_name->set_activates_default(TRUE);
 
 		#here are all invalid char codes
-		my @invalid_codes = (47, 92, 63, 37, 42, 58, 124, 34, 60, 62, 44, 59, 35, 38);
+		my @invalid_codes = (47, 92);
 		$new_profile_name->signal_connect(
 			'key-press-event' => sub {
 				my $new_profile_name = shift;
