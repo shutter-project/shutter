@@ -892,7 +892,7 @@ sub STARTUP {
 	my $combobox_settings_profiles = Gtk3::ComboBoxText->new;
 	my @current_profiles;
 	my $current_index = 0;
-	foreach my $pfile (sort bsd_glob("$ENV{'HOME'}/.shutter/profiles/*.xml")) {
+	foreach my $pfile (sort +bsd_glob("$ENV{'HOME'}/.shutter/profiles/*.xml")) {
 		utf8::decode $pfile;
 		next
 			if $pfile =~ /\_accounts.xml/;    #accounts file - we are looking for "real" profiles
@@ -3885,7 +3885,7 @@ sub STARTUP {
 			unless ($shf->file_exists("$ENV{'HOME'}/.shutter/profiles/" . $active_text . ".xml")
 				|| $shf->file_exists("$ENV{'HOME'}/.shutter/profiles/" . $active_text . "_accounts.xml"))
 			{
-				$combobox_settings_profiles->remove_text($active_index);
+				$combobox_settings_profiles->remove($active_index);
 				$combobox_settings_profiles->set_active($combobox_settings_profiles->get_active + 1);
 				$current_profile_indx = $combobox_settings_profiles->get_active;
 
@@ -8769,7 +8769,7 @@ sub STARTUP {
 		my $group   = undef;
 		my $counter = 0;
 		foreach my $profile (@{$current_profiles_ref}) {
-			my $profile_item = Gtk3::RadioMenuItem::new($group, $profile);
+			my $profile_item = Gtk3::RadioMenuItem->new_with_label($group, $profile);
 			$profile_item->set_active(TRUE)
 				if $profile eq $combobox_settings_profiles->get_active_text;
 			$profile_item->signal_connect(
