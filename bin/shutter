@@ -1079,35 +1079,10 @@ sub STARTUP {
 		$filename->set_text("\$name_\%NNN");
 	}
 
-	#do some input validation
-	#here are all invalid char codes
-	my @invalid_codes = (47, 92, 63, 42, 58, 124, 34, 60, 62, 44, 59, 35, 38);
 	my $filename_hint = Gtk3::Label->new;
 	$filename_hint->set_no_show_all(TRUE);
-	$filename->signal_connect(
-		'key-press-event' => sub {
-			my $filename = shift;
-			my $event    = shift;
 
-			my $input = Gtk3::Gdk::keyval_to_unicode($event->keyval);
-
-			#invalid input
-			#~ print $input."\n";
-			if (grep($input == $_, @invalid_codes)) {
-				my $char = chr($input);
-				$char = 'amp();' if $char eq '&';
-				$filename_hint->set_markup("<span size='small'>" . sprintf($d->get("Reserved character %s is not allowed to be in a filename."), "'" . $char . "'") . "</span>");
-
-				$filename_hint->show;
-				return TRUE;
-			} else {
-
-				#clear possible message when valid char is entered
-				$filename_hint->set_markup("<span size='small'></span>");
-				$filename_hint->hide;
-				return FALSE;
-			}
-		});
+	fct_validate_filename($filename, $filename_hint);
 
 	my $filename_tooltip_string =
 		$d->get("There are several wildcards available, like\n")
@@ -5590,6 +5565,33 @@ sub STARTUP {
 		return TRUE;
 	}
 
+	sub fct_validate_filename{
+		$filename	= shift;
+		$filename_hint	= shift;
+		my @invalid_codes = (47, 92);
+		$filename->signal_connect(
+			'key-press-event' => sub {
+				my $filename	= shift;
+				my $event	= shift;
+
+				my $input = Gtk3::Gdk::keyval_to_unicode($event->keyval);
+
+				#invalid input
+				#~ print $input."\n";
+				if (grep($input == $_, @invalid_codes)) {
+					my $char = chr($input);
+					$char = 'amp();' if $char eq '&';
+					$filename_hint->set_markup("<span size='small'>" . sprintf($d->get("Reserved character %s is not allowed to be in a filename."), "'" . $char . "'") . "</span>");
+					return TRUE;
+				} else {
+
+					#clear possible message when valid char is entered
+					$filename_hint->set_markup("<span size='small'></span>");
+					return FALSE;
+				}
+			});
+	}
+
 	sub fct_undo {
 
 		my $key = fct_get_current_file();
@@ -9250,29 +9252,7 @@ sub STARTUP {
 			my $new_filename      = Gtk3::Entry->new();
 			$new_filename->set_activates_default(TRUE);
 
-			#here are all invalid char codes
-			my @invalid_codes = (47, 92, 63, 37, 42, 58, 124, 34, 60, 62, 44, 59, 35, 38);
-			$new_filename->signal_connect(
-				'key-press-event' => sub {
-					my $new_filename = shift;
-					my $event        = shift;
-
-					my $input = Gtk3::Gdk::keyval_to_unicode($event->keyval);
-
-					#invalid input
-					#~ print $input."\n";
-					if (grep($input == $_, @invalid_codes)) {
-						my $char = chr($input);
-						$char = 'amp();' if $char eq '&';
-						$new_filename_hint->set_markup("<span size='small'>" . sprintf($d->get("Reserved character %s is not allowed to be in a filename."), "'" . $char . "'") . "</span>");
-						return TRUE;
-					} else {
-
-						#clear possible message when valid char is entered
-						$new_filename_hint->set_markup("<span size='small'></span>");
-						return FALSE;
-					}
-				});
+			fct_validate_filename($new_filename, $new_filename_hint);
 
 			#parse filename
 			my ($short, $folder, $ext) = fileparse($session_screens{$key}->{'long'}, qr/\.[^.]*/);
@@ -10740,29 +10720,7 @@ sub STARTUP {
 		my $new_profile_name      = Gtk3::Entry->new();
 		$new_profile_name->set_activates_default(TRUE);
 
-		#here are all invalid char codes
-		my @invalid_codes = (47, 92, 63, 37, 42, 58, 124, 34, 60, 62, 44, 59, 35, 38);
-		$new_profile_name->signal_connect(
-			'key-press-event' => sub {
-				my $new_profile_name = shift;
-				my $event            = shift;
-
-				my $input = Gtk3::Gdk::keyval_to_unicode($event->keyval);
-
-				#invalid input
-				#~ print $input."\n";
-				if (grep($input == $_, @invalid_codes)) {
-					my $char = chr($input);
-					$char = 'amp();' if $char eq '&';
-					$new_profile_name_hint->set_markup("<span size='small'>" . sprintf($d->get("Reserved character %s is not allowed to be in a filename."), "'" . $char . "'") . "</span>");
-					return TRUE;
-				} else {
-
-					#clear possible message when valid char is entered
-					$new_profile_name_hint->set_markup("<span size='small'></span>");
-					return FALSE;
-				}
-			});
+		fct_validate_filename($new_profile_name, $new_profile_name_hint);
 
 		#show name of current profile
 		$new_profile_name->set_text($curr_profile_name)
