@@ -828,6 +828,13 @@ sub STARTUP {
 		fct_check_installed_upload_plugins();
 	}
 
+	unless ($x11_supported) {
+		my $wayland_warning = Gtk3::Label->new;
+		$wayland_warning->set_line_wrap(TRUE);
+		$wayland_warning->set_markup($d->get("Wayland support is limited, for more advanced screenshots please switch back to Xorg. Click <a href='https://github.com/shutter-project/shutter/issues/187'>here</a> for details."));
+		$vbox->pack_start($wayland_warning, FALSE, TRUE, 0);
+	}
+
 	$vbox->pack_start($st->create_toolbar, FALSE, TRUE, 0);
 
 	$st->{_redoshot}->signal_connect('clicked' => \&evt_take_screenshot, 'redoshot');
