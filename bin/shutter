@@ -470,6 +470,8 @@ sub STARTUP {
 
 	#TRAY ICON AND MENU
 	my $tray      = undef;
+	my $tray_libappindicator = undef;
+	my $tray_legacy = undef;
 	my $tray_menu = fct_ret_tray_menu();
 
 	#SESSION NOTEBOOK
@@ -651,35 +653,13 @@ sub STARTUP {
 	#--------------------------------------
 	#command line param set to disable tray icon?
 	unless ($sc->get_disable_systray) {
-
-		$tray = Gtk3::StatusIcon->new();
-		$tray->set_from_icon_name("shutter-panel");
-		$tray->set_visible(1);
-
-		fct_update_gui();
-
-		if ($tray->is_embedded) {
-			$tray->{'hid'} = $tray->signal_connect(
-				'popup-menu' => sub { evt_show_systray_statusicon(@_); },
-				$tray
-			);
-			$tray->{'hid2'} = $tray->signal_connect(
-				'activate' => sub {
-					evt_activate_systray_statusicon(@_);
-					$tray;
-				},
-				$tray
-			);
-		} else {
-			$tray = undef;
-		}
-
-		if ($appindicator && !defined $tray) {
-			# Fallback to AppIndicator. This one doesn't allow left-click signal, but it seems to be the only option for Gnome on Ubuntu 21.04...
-			$tray = AppIndicator::Indicator->new("Shutter", "shutter-panel", 'application-status');
-			$tray->set_menu($tray_menu);
-			$tray->set_status('active');
-		}
+		fct_try_init_tray();
+		Glib::Timeout->add(10000, sub {
+			if (!$tray_legacy || !$tray_legacy->is_embedded) {
+				fct_try_init_tray();
+			}
+			return TRUE;
+		});
 	}
 
 	#--------------------------------------
@@ -3907,6 +3887,48 @@ sub STARTUP {
 
 	#functions
 	#--------------------------------------
+
+	sub fct_try_init_tray {
+		$tray_legacy = Gtk3::StatusIcon->new();
+		$tray_legacy->set_from_icon_name("shutter-panel");
+		$tray_legacy->set_visible(1);
+
+		fct_update_gui();
+
+		if ($tray_legacy->is_embedded) {
+			if ($tray_libappindicator) {
+				$tray_libappindicator->set_status('passive');
+				$tray_libappindicator = undef;
+			}
+			$tray = $tray_legacy;
+			$tray->{'hid'} = $tray->signal_connect(
+				'popup-menu' => sub { evt_show_systray_statusicon(@_); },
+				$tray
+			);
+			$tray->{'hid2'} = $tray->signal_connect(
+				'activate' => sub {
+					evt_activate_systray_statusicon(@_);
+					$tray;
+				},
+				$tray
+			);
+		} else {
+			$tray_legacy = undef;
+
+			if ($appindicator && !$tray_libappindicator) {
+				# Fallback to AppIndicator. This one doesn't allow left-click signal, but it seems to be the only option for Gnome on Ubuntu 21.04...
+				$tray_libappindicator = AppIndicator::Indicator->new("Shutter", "shutter-panel", 'application-status');
+				$tray_libappindicator->set_menu($tray_menu);
+				$tray_libappindicator->set_status('active');
+			}
+
+			if ($tray_libappindicator) {
+				$tray = $tray_libappindicator;
+			} else {
+				$tray = undef;
+			}
+		}
+	}
 
 	sub fct_create_session_notebook {
 
