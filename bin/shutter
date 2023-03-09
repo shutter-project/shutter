@@ -7193,14 +7193,14 @@ sub STARTUP {
 			#tray menu
 			foreach my $child ($tray_menu->get_children) {
 				if ($child->get_name eq 'quicks') {
-					$child->remove_submenu;
+					$child->set_submenu(undef);
 					$child->set_sensitive(FALSE);
 					last;
 				}
 			}
 
 			#main menu
-			$sm->{_menuitem_quicks}->remove_submenu;
+			$sm->{_menuitem_quicks}->set_submenu(undef);
 			$sm->{_menuitem_quicks}->set_sensitive(FALSE);
 
 			#and statusbar
