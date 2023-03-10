@@ -15,7 +15,7 @@ install: all
 
 uninstall:
 	rm $(prefix)/bin/shutter
-	rm $(prefix)/share/appdata/shutter.appdata.xml
+	rm $(prefix)/share/metainfo/shutter.metainfo.xml
 	rm $(prefix)/share/applications/shutter.desktop
 	rm -r $(prefix)/share/doc/shutter/
 	rm $(prefix)/share/man/man1/shutter.1.gz
