@@ -3913,6 +3913,7 @@ sub STARTUP {
 				$tray
 			);
 		} else {
+			$tray_legacy->set_visible(0);
 			$tray_legacy = undef;
 
 			if ($appindicator && !$tray_libappindicator) {
