@@ -18,7 +18,7 @@ uninstall:
 	rm $(prefix)/share/metainfo/shutter.metainfo.xml
 	rm $(prefix)/share/applications/shutter.desktop
 	rm -r $(prefix)/share/doc/shutter/
-	rm $(prefix)/share/man/man1/shutter.1.gz
+	rm $(prefix)/share/man/man1/shutter.1
 	rm $(prefix)/share/pixmaps/shutter.png
 	rm -r $(prefix)/share/shutter/
 	rm $(prefix)/share/icons/HighContrast/scalable/apps/shutter.svg

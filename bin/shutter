@@ -3913,6 +3913,7 @@ sub STARTUP {
 				$tray
 			);
 		} else {
+			$tray_legacy->set_visible(0);
 			$tray_legacy = undef;
 
 			if ($appindicator && !$tray_libappindicator) {
@@ -9218,6 +9219,11 @@ sub STARTUP {
 
 		print "\nINFO: gathering system information...";
 		print "\n";
+		print "\n";
+		print "Shutter ";
+		print SHUTTER_VERSION;
+		print ' ';
+		print SHUTTER_REV;
 		print "\n";
 
 		#kernel info
