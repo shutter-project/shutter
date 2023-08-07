@@ -5601,7 +5601,7 @@ sub STARTUP {
 		my @invalid_codes = (47, 92);
 		$myfilename->signal_connect(
 			'key-press-event' => sub {
-				shift(@_);
+				shift;
 				my $event = shift;
 
 				my $input = Gtk3::Gdk::keyval_to_unicode($event->keyval);
