@@ -4731,7 +4731,7 @@ sub STARTUP {
 					$filename->set_text($settings_xml->{'general'}->{'filename'});
 
 					utf8::decode $settings_xml->{'general'}->{'folder'};
-					$saveDir_button->set_current_folder($settings_xml->{'general'}->{'folder'});
+					$saveDir_button->set_filename($settings_xml->{'general'}->{'folder'});
 
 					$save_auto_active->set_active($settings_xml->{'general'}->{'save_auto'});
 					$save_ask_active->set_active($settings_xml->{'general'}->{'save_ask'});
