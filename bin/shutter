@@ -8653,6 +8653,11 @@ sub STARTUP {
 		# https://developer.gnome.org/gio/stable/GAppInfo.html
 		my $apps = Glib::IO::AppInfo::get_recommended_for_type($mime_type);
 
+		# $apps is undefined if Glib::IO::AppInfo::get_recommended_for_type fails
+		unless (defined $apps) {
+			return $menu_programs;
+		}
+
 		#no apps determined!
 		unless (scalar @$apps) {
 			$sm->{_menuitem_reopen}->set_sensitive(FALSE);
