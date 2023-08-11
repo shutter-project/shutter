@@ -4953,6 +4953,11 @@ sub STARTUP {
 		#get applications
 		my $apps = Glib::IO::AppInfo::get_recommended_for_type('image/png');
 
+		# $apps is undefined if Glib::IO::AppInfo::get_recommended_for_type fails
+		unless (defined $apps) {
+			return $model;
+		}
+
 		#no apps determined!
 		unless (scalar @$apps) {
 			return $model;
@@ -8655,6 +8660,8 @@ sub STARTUP {
 
 		# $apps is undefined if Glib::IO::AppInfo::get_recommended_for_type fails
 		unless (defined $apps) {
+			$sm->{_menuitem_reopen}->set_sensitive(FALSE);
+			$sm->{_menuitem_large_reopen}->set_sensitive(FALSE);
 			return $menu_programs;
 		}
 
