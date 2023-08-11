@@ -4808,7 +4808,7 @@ sub STARTUP {
 
 					#advanced settings
 					$zoom_active->set_active($settings_xml->{'general'}->{'zoom_active'});
-
+					$as_help_active->set_active($settings_xml->{'general'}->{'as_help_active'});
 					$as_confirmation_necessary->set_active($settings_xml->{'general'}->{'as_confirmation_necessary'});
 
 					$asel_size3->set_value($settings_xml->{'general'}->{'asel_x'});
