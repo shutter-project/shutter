@@ -713,6 +713,7 @@ sub STARTUP {
 
 	my $zoom_box            = Gtk3::HBox->new(FALSE, 0);
 	my $as_help_box         = Gtk3::HBox->new(FALSE, 0);
+	my $as_confirmation_box         = Gtk3::HBox->new(FALSE, 0);
 	my $asel_isize_box      = Gtk3::HBox->new(FALSE, 0);
 	my $asel_isize_box2     = Gtk3::HBox->new(FALSE, 0);
 	my $border_box          = Gtk3::HBox->new(FALSE, 0);
@@ -1650,6 +1651,23 @@ sub STARTUP {
 
 	#end - show help text when using advanced selection tool
 	#--------------------------------------
+	
+	#confirmation is necessary in selection tool
+	#--------------------------------------
+	my $as_confirmation_necessary = Gtk3::CheckButton->new_with_label($d->get("Confirmation necessary"));
+
+	if (defined $settings_xml->{'general'}->{'as_confirmation_necessary'}) {
+		$as_confirmation_necessary->set_active($settings_xml->{'general'}->{'as_confirmation_necessary'});
+	} else {
+		$as_confirmation_necessary->set_active(TRUE);
+	}
+
+	$as_confirmation_necessary->set_tooltip_text($d->get("Pressing the enter key or doubleclicking is necessary to take the screenshot"));
+
+	$as_confirmation_box->pack_start($as_confirmation_necessary, FALSE, TRUE, 12);
+
+	#end - show help text when using advanced selection tool
+	#--------------------------------------
 
 	#border
 	#--------------------------------------
@@ -2351,10 +2369,11 @@ sub STARTUP {
 	$sg_asel2->add_widget($asel_size_label2);
 	$sg_asel2->add_widget($asel_size_label4);
 
-	$sel_capture_vbox->pack_start($zoom_box,        FALSE, TRUE, 3);
-	$sel_capture_vbox->pack_start($as_help_box,     FALSE, TRUE, 3);
-	$sel_capture_vbox->pack_start($asel_isize_box,  FALSE, TRUE, 3);
-	$sel_capture_vbox->pack_start($asel_isize_box2, FALSE, TRUE, 3);
+	$sel_capture_vbox->pack_start($zoom_box,						FALSE, TRUE, 3);
+	$sel_capture_vbox->pack_start($as_help_box,					FALSE, TRUE, 3);
+	$sel_capture_vbox->pack_start($as_confirmation_box, FALSE, TRUE, 3);
+	$sel_capture_vbox->pack_start($asel_isize_box,			FALSE, TRUE, 3);
+	$sel_capture_vbox->pack_start($asel_isize_box2,			FALSE, TRUE, 3);
 	$sel_capture_frame->add($sel_capture_vbox);
 
 	$window_capture_vbox->pack_start($border_box,          FALSE, TRUE, 3);
@@ -4556,6 +4575,7 @@ sub STARTUP {
 		#advanced
 		$settings{'general'}->{'zoom_active'}      = $zoom_active->get_active();
 		$settings{'general'}->{'as_help_active'}   = $as_help_active->get_active();
+		$settings{'general'}->{'as_confirmation_necessary'}   = $as_confirmation_necessary->get_active();
 		$settings{'general'}->{'asel_x'}           = $asel_size3->get_value();
 		$settings{'general'}->{'asel_y'}           = $asel_size4->get_value();
 		$settings{'general'}->{'asel_w'}           = $asel_size1->get_value();
@@ -4789,7 +4809,7 @@ sub STARTUP {
 					#advanced settings
 					$zoom_active->set_active($settings_xml->{'general'}->{'zoom_active'});
 
-					$as_help_active->set_active($settings_xml->{'general'}->{'as_help_active'});
+					$as_confirmation_necessary->set_active($settings_xml->{'general'}->{'as_confirmation_necessary'});
 
 					$asel_size3->set_value($settings_xml->{'general'}->{'asel_x'});
 					$asel_size4->set_value($settings_xml->{'general'}->{'asel_y'});
@@ -6037,7 +6057,7 @@ sub STARTUP {
 				$screenshooter = Shutter::Screenshot::SelectorAdvanced->new(
 					$sc,                      $include_cursor,        $delay_value,                $notify_timeout_active->get_active,
 					$zoom_active->get_active, $hide_time->get_value,  $as_help_active->get_active, $asel_size3->get_value,
-					$asel_size4->get_value,   $asel_size1->get_value, $asel_size2->get_value,
+					$asel_size4->get_value,   $asel_size1->get_value, $asel_size2->get_value,			 $as_confirmation_necessary->get_active,
 				);
 
 				$screenshot = $screenshooter->select_advanced();
