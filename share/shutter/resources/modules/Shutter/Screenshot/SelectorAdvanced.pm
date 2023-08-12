@@ -448,7 +448,7 @@ sub select_advanced {
 						Gtk3::Gdk::keyboard_grab($self->{_prop_window}->get_window, 0, Gtk3::get_current_event_time());
 					}
 				} elsif ($event->button == 1) {
-					unless ($self->{_confirmation_necessary}) {
+					if (not $self->{_confirmation_necessary}) {
 						$self->{_select_window}->hide;
 						$self->{_zoom_window}->hide;
 						$self->{_prop_window}->hide;
