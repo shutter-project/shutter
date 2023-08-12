@@ -5601,13 +5601,13 @@ sub STARTUP {
 	}
 
 	sub fct_validate_filename{
-		$filename	= shift;
-		$filename_hint	= shift;
+		my $myfilename	= shift;
+		my $myfilename_hint	= shift;
 		my @invalid_codes = (47, 92);
-		$filename->signal_connect(
+		$myfilename->signal_connect(
 			'key-press-event' => sub {
-				my $filename	= shift;
-				my $event	= shift;
+				shift;
+				my $event = shift;
 
 				my $input = Gtk3::Gdk::keyval_to_unicode($event->keyval);
 
@@ -5616,12 +5616,12 @@ sub STARTUP {
 				if (grep($input == $_, @invalid_codes)) {
 					my $char = chr($input);
 					$char = 'amp();' if $char eq '&';
-					$filename_hint->set_markup("<span size='small'>" . sprintf($d->get("Reserved character %s is not allowed to be in a filename."), "'" . $char . "'") . "</span>");
+					$myfilename_hint->set_markup("<span size='small'>" . sprintf($d->get("Reserved character %s is not allowed to be in a filename."), "'" . $char . "'") . "</span>");
 					return TRUE;
 				} else {
 
 					#clear possible message when valid char is entered
-					$filename_hint->set_markup("<span size='small'></span>");
+					$myfilename_hint->set_markup("<span size='small'></span>");
 					return FALSE;
 				}
 			});
