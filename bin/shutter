@@ -7789,9 +7789,10 @@ sub STARTUP {
 
 		#set name
 		#e.g. window or workspace name
-		$screenshot_name =~ s/(\$name|\$nb_name)/unknown/g;
 		if ($x11_supported) {
+			print "DEBUG1\n";
 			if (my $action_name = $screenshooter->get_action_name) {
+				print "DEBUG2: $action_name\n";
 				utf8::decode $action_name;
 				$action_name     =~ s/(\/|\#|\>|\<|\%|\*)/-/g;
 				$screenshot_name =~ s/\$name/$action_name/g;
@@ -7799,7 +7800,11 @@ sub STARTUP {
 				#no blanks (special wildcard)
 				$action_name     =~ s/\ //g;
 				$screenshot_name =~ s/\$nb_name/$action_name/g;
+			} else {
+				$screenshot_name =~ s/(\$name|\$nb_name)/unknown/g;
 			}
+		} else {
+			$screenshot_name =~ s/(\$name|\$nb_name)/unknown/g;
 		}
 
 		print "Parsed \$name: $screenshot_name\n"
