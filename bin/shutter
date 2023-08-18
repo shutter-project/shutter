@@ -837,7 +837,9 @@ sub STARTUP {
 	$st->{_full}->signal_connect('clicked' => \&evt_take_screenshot, 'full');
 
 	#init menus
-	$st->{_full}->set_menu(fct_ret_workspace_menu(TRUE));
+	if ($x11_supported){
+		$st->{_full}->set_menu(fct_ret_workspace_menu(TRUE));
+	}
 	$st->{_window}->set_menu(fct_ret_window_menu());
 
 	#and attach signal handlers
