@@ -7792,9 +7792,7 @@ sub STARTUP {
 		#set name
 		#e.g. window or workspace name
 		if ($x11_supported) {
-			print "DEBUG1\n";
 			if (my $action_name = $screenshooter->get_action_name) {
-				print "DEBUG2: $action_name\n";
 				utf8::decode $action_name;
 				$action_name     =~ s/(\/|\#|\>|\<|\%|\*)/-/g;
 				$screenshot_name =~ s/\$name/$action_name/g;
