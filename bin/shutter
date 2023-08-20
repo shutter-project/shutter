@@ -464,13 +464,10 @@ sub STARTUP {
 	$window->set_default_size(-1, 500);
 
 	#UPDATE WINDOW LIST (signal is connected when GUI is loaded)
-	my $x11_supported;
+
+	my $x11_supported = 1;
 	if ($ENV{XDG_SESSION_TYPE} eq "wayland") {
 		$x11_supported = 0;
-	} elsif ($ENV{XDG_SESSION_TYPE} eq "x11") {
-		$x11_supported = 1;
-	} else {
-		print "ERROR: Unable to determine XDG_SESSION_TYPE!\n";
 	}
 
 	my $wnck_screen;
