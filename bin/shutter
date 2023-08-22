@@ -233,6 +233,7 @@ if ($goocanvas) {
 #screenshot classes
 require Shutter::Screenshot::SelectorAdvanced;
 require Shutter::Screenshot::SelectorAuto;
+require Shutter::Screenshot::SelectorWayland;
 require Shutter::Screenshot::Wayland;
 require Shutter::Screenshot::Workspace;
 require Shutter::Screenshot::Web;
@@ -535,7 +536,7 @@ sub STARTUP {
 	$sm->{_menuitem_iclipboard}->signal_connect('activate', \&fct_clipboard_import);
 
 	unless ($x11_supported) {
-		for my $name ('selection', 'awindow', 'window', 'menu', 'tooltip') {
+		for my $name ('awindow', 'window', 'menu', 'tooltip') {
 			$sm->{"_menuitem_$name"}->set_sensitive(FALSE);
 		}
 	}
@@ -873,12 +874,12 @@ sub STARTUP {
 
 	unless ($x11_supported) {
 		my $tooltip = $d->get("Can't take screenshots without X11 server");
-		for my $name ('_select', '_window', '_menu', '_tooltip') {
+		for my $name ('_window', '_menu', '_tooltip') {
 			$st->{$name}->set_sensitive(FALSE);
 			$st->{$name}->set_tooltip_text($tooltip);
 		}
-		for my $name ('_full', '_window') {
-			$st->{$name}->set_arrow_tooltip_text($tooltip);
+		for my $name ('_full', '_select', '_window') {
+#DEBUG			$st->{$name}->set_arrow_tooltip_text($tooltip);
 		}
 	}
 
@@ -2950,13 +2951,14 @@ sub STARTUP {
 			#unblock signal handler
 			fct_control_signals('unblock');
 			return TRUE;
-		} elsif (!$x11_supported && $data ne "full" && $data ne "tray_full") {
-			my $sd = Shutter::App::SimpleDialogs->new;
-			$sd->dlg_error_message($d->get("Can't take screenshots without X11 server"), $d->get("Failed"));
-			fct_control_signals('unblock');
-			fct_control_main_window('show');
-			return TRUE;
 		}
+# 		elsif (!$x11_supported && $data ne "full" && $data ne "tray_full") {
+# 			my $sd = Shutter::App::SimpleDialogs->new;
+# 			$sd->dlg_error_message($d->get("Can't take screenshots without X11 server"), $d->get("Failed"));
+# 			fct_control_signals('unblock');
+# 			fct_control_main_window('show');
+# 			return TRUE;
+# 		}
 
 		if ($data eq "menu"
 			|| $data eq "tray_menu"
@@ -4218,38 +4220,36 @@ sub STARTUP {
 		}
 
 		#enable/disable controls
-		if ($st->{_select} && $sm->{_menuitem_selection}) {
-			# if $x11_supported is false, we are on Wayland, and all these buttons are already disabled and should stay disabled
 
-			#menu
-			if ($x11_supported) {
-				$sm->{_menuitem_selection}->set_sensitive($sensitive);
-				$sm->{_menuitem_window}->set_sensitive($sensitive);
-				#$sm->{_menuitem_section}->set_sensitive($sensitive);
-				$sm->{_menuitem_menu}->set_sensitive($sensitive);
-				$sm->{_menuitem_tooltip}->set_sensitive($sensitive);
-			}
-			$sm->{_menuitem_web}->set_sensitive($sensitive)
-				if ($gnome_web_photo);
-			$sm->{_menuitem_iclipboard}->set_sensitive($sensitive);
-
-			#toolbar
-			if ($x11_supported) {
-				$st->{_select}->set_sensitive($sensitive);
-				$st->{_window}->set_sensitive($sensitive);
-				#$st->{_section}->set_sensitive($sensitive);
-				$st->{_menu}->set_sensitive($sensitive);
-				$st->{_tooltip}->set_sensitive($sensitive);
-			}
-			$st->{_web}->set_sensitive($sensitive) if ($gnome_web_photo);
-
-			#special case: redoshot (toolbar and menu)
-			if (fct_get_last_capture()) {
-				$st->{_redoshot}->set_sensitive($sensitive);
-				$sm->{_menuitem_redoshot}->set_sensitive($sensitive);
-			}
-
+		#menu
+		$sm->{_menuitem_selection}->set_sensitive($sensitive);
+		if ($x11_supported) {
+			$sm->{_menuitem_window}->set_sensitive($sensitive);
+			#$sm->{_menuitem_section}->set_sensitive($sensitive);
+			$sm->{_menuitem_menu}->set_sensitive($sensitive);
+			$sm->{_menuitem_tooltip}->set_sensitive($sensitive);
 		}
+		$sm->{_menuitem_web}->set_sensitive($sensitive)
+			if ($gnome_web_photo);
+		$sm->{_menuitem_iclipboard}->set_sensitive($sensitive);
+
+		#toolbar
+#DEBUG		$st->{_select}->set_sensitive($sensitive);
+		if ($x11_supported) {
+			$st->{_window}->set_sensitive($sensitive);
+			$st->{_section}->set_sensitive($sensitive);
+			$st->{_menu}->set_sensitive($sensitive);
+			$st->{_tooltip}->set_sensitive($sensitive);
+		}
+		$st->{_web}->set_sensitive($sensitive) if ($gnome_web_photo);
+
+		#special case: redoshot (toolbar and menu)
+		if (fct_get_last_capture()) {
+			$st->{_redoshot}->set_sensitive($sensitive);
+			$sm->{_menuitem_redoshot}->set_sensitive($sensitive);
+		}
+
+
 
 		return TRUE;
 	}
@@ -6047,14 +6047,17 @@ sub STARTUP {
 				$screenshot = $screenshooter->select_auto($coords[0], $coords[1], $coords[2], $coords[3]);
 
 			} else {
+				if ($x11_supported) {
+					$screenshooter = Shutter::Screenshot::SelectorAdvanced->new(
+						$sc,                      $include_cursor,        $delay_value,                $notify_timeout_active->get_active,
+						$zoom_active->get_active, $hide_time->get_value,  $as_help_active->get_active, $asel_size3->get_value,
+						$asel_size4->get_value,   $asel_size1->get_value, $asel_size2->get_value,
+					);
 
-				$screenshooter = Shutter::Screenshot::SelectorAdvanced->new(
-					$sc,                      $include_cursor,        $delay_value,                $notify_timeout_active->get_active,
-					$zoom_active->get_active, $hide_time->get_value,  $as_help_active->get_active, $asel_size3->get_value,
-					$asel_size4->get_value,   $asel_size1->get_value, $asel_size2->get_value,
-				);
-
-				$screenshot = $screenshooter->select_advanced();
+					$screenshot = $screenshooter->select_advanced();
+				} else {
+					$screenshot = Shutter::Screenshot::SelectorWayland::xdg_portal($screenshooter);
+				}
 
 			}
 
@@ -7761,8 +7764,8 @@ sub STARTUP {
 
 		print "Parsing wildcards for $screenshot_name\n"
 			if $sc->get_debug;
-		
-		# $screenshot is undefined if the selection width or height is zero 
+
+		# $screenshot is undefined if the selection width or height is zero
 		unless ($screenshot) {
 			my $response = $sd->dlg_error_message($d->get("Error: selection width or height is zero, please retry!"), $d->get("Failed"));
 			fct_control_main_window('show');
@@ -8437,7 +8440,7 @@ sub STARTUP {
 
 		#selection
 		my $menuitem_select = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('_Selection'));
-		$menuitem_select->set_sensitive($x11_supported);
+		$menuitem_select->set_sensitive(TRUE);
 		eval {
 			my $ccursor_pb = Gtk3::Gdk::Cursor::new('left_ptr')->get_image->scale_simple($shf->icon_size('menu'), 'bilinear');
 			$menuitem_select->set_image(Gtk3::Image->new_from_pixbuf($ccursor_pb));
