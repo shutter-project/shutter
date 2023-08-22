@@ -4466,6 +4466,9 @@ sub STARTUP {
 
 	sub fct_save_settings {
 		my ($profilename) = @_;
+		
+		#tells if settings are sane
+		my $settings_sane = 1;
 
 		#settings file
 		my $settingsfile = "$ENV{ HOME }/.shutter/settings.xml";
@@ -4502,7 +4505,15 @@ sub STARTUP {
 		#main
 		$settings{'general'}->{'filetype'} = $combobox_type->get_active;
 		$settings{'general'}->{'quality'}  = $scale->get_value();
-		$settings{'general'}->{'filename'} = $filename->get_text();
+		if ($filename->get_text() =~ "\%NN" || $filename->get_text() =~ "\%T") {
+			$settings{'general'}->{'filename'} = $filename->get_text();
+		} else {
+			if (defined $profilename) {
+				$sd->dlg_error_message($@, $d->get("Settings could not be saved! Please make sure that the filename contains a wildcard like \%NN or \%T!"));
+				evt_show_settings();
+			}
+			$settings_sane = 0;
+		}
 		$settings{'general'}->{'folder'}   = Glib::filename_to_unicode($saveDir_button->get_filename());
 
 		#~ print "Pfad ".$saveDir_button->get_filename()."\n";
@@ -4624,14 +4635,22 @@ sub STARTUP {
 
 		#settings
 		eval {
-			my ($tmpfh, $tmpfilename) = tempfile(UNLINK => 1);
-			XMLout(\%settings, OutputFile => $tmpfilename);
+			# only write settings to file, if they are sane
+			if ($settings_sane) {
+				my ($tmpfh, $tmpfilename) = tempfile(UNLINK => 1);
+				XMLout(\%settings, OutputFile => $tmpfilename);
 
-			#and finally move the file
-			mv($tmpfilename, $settingsfile);
+				#and finally move the file
+				mv($tmpfilename, $settingsfile);
+			} else {
+				die "Please correct your settings!\n\n";
+			}
 		};
 		if ($@) {
-			$sd->dlg_error_message($@, $d->get("Settings could not be saved!"));
+			if ($settings_sane) {
+				# eval died due to file writing error, not bad settings, show an error message
+				$sd->dlg_error_message($@, $d->get("Settings could not be saved!"));
+			}
 		} else {
 			fct_show_status_message(1, $d->get("Settings saved successfully!"));
 		}
