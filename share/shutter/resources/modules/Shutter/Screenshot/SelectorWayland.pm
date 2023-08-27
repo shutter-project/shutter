@@ -19,12 +19,11 @@ sub xdg_portal {
 	my $pixbuf;
 	my $output;
 
-	#eval {
+	eval {
 		my $portal_service = $bus->get_service('org.freedesktop.portal.Desktop');
 		my $portal = $portal_service->get_object('/org/freedesktop/portal/desktop', 'org.freedesktop.portal.Screenshot');
 
 		my $num;
-		my $output;
 		my $cb = sub {
 			($num, $output) = @_;
 			$reactor->shutdown;
@@ -60,7 +59,7 @@ sub xdg_portal {
 
 		$output = take_screenshot($s, $pixbuf);
 		$giofile->delete;
-	#};
+	};
 	if ($@) {
 		$screenshooter->{_error_text} = $@;
 		return 9;
