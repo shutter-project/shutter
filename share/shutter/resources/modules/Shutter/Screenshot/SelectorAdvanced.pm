@@ -59,6 +59,7 @@ sub new {
 	$self->{_init_y} = shift;
 	$self->{_init_w} = shift;
 	$self->{_init_h} = shift;
+	$self->{_confirmation_necessary} = shift;
 
 	$self->{_dpi_scale} = Gtk3::Window->new('toplevel')->get('scale-factor');
 
@@ -445,6 +446,25 @@ sub select_advanced {
 						$self->{_prop_window}->show_all;
 						$self->{_prop_active} = TRUE;
 						Gtk3::Gdk::keyboard_grab($self->{_prop_window}->get_window, 0, Gtk3::get_current_event_time());
+					}
+				} elsif ($event->button == 1) {
+					if (not $self->{_confirmation_necessary}) {
+						$self->{_select_window}->hide;
+						$self->{_zoom_window}->hide;
+						$self->{_prop_window}->hide;
+
+						#A short timeout to give the server a chance to
+						#redraw the area
+						Glib::Timeout->add(
+							$self->{_hide_time},
+							sub {
+								Gtk3->main_quit;
+								return FALSE;
+							});
+						Gtk3->main();
+
+						$output = $self->take_screenshot($s, $clean_pixbuf);
+						$self->quit;
 					}
 				}
 
