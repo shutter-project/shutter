@@ -39,6 +39,7 @@ sub new {
 
 	$self->{_png_quality} = undef;
 	$self->{_jpg_quality} = undef;
+	$self->{_webp_quality} = undef;
 
 	bless $self, $class;
 	return $self;
@@ -63,6 +64,15 @@ sub get_jpg_quality {
 	}
 }
 
+sub get_webp_quality {
+	my $self = shift;
+	if (defined $self->{_webp_quality}) {
+		return $self->{_webp_quality};
+	} else {
+		return 98;
+	}
+}
+
 sub set_png_quality {
 	my $self = shift;
 	if (@_) {
@@ -79,10 +89,19 @@ sub set_jpg_quality {
 	return $self->{_jpg_quality};
 }
 
+sub set_webp_quality {
+	my $self = shift;
+	if (@_) {
+		$self->{_webp_quality} = shift;
+	}
+	return $self->{_webp_quality};
+}
+
 sub clear_quality_settings {
 	my $self = shift;
 	$self->{_jpg_quality} = undef;
 	$self->{_png_quality} = undef;
+	$self->{_webp_quality} = undef;
 }
 
 1;

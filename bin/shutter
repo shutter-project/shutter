@@ -2864,7 +2864,10 @@ sub STARTUP {
 			} elsif ($combobox_type->get_active_text =~ /jpg/) {
 				$settings->set_jpg_quality($scale->get_value);
 			} elsif ($combobox_type->get_active_text =~ /png/) {
-				$settings->set_png_quality($scale->get_value);
+				$settings->set_jpg_quality($scale->get_value);
+			} elsif ($combobox_type->get_active_text =~ /webp/) {
+				print $scale->get_value . "\n\n\n";
+				$settings->set_webp_quality($scale->get_value);
 			} else {
 				$settings->clear_quality_settings();
 			}
@@ -2904,6 +2907,12 @@ sub STARTUP {
 				$scale->set_range(0, 9);
 				$scale->set_value(9);
 				$scale_label->set_text($d->get("Compression") . ":");
+			} elsif ($combobox_type->get_active_text =~ /webp/) {
+				$scale->set_sensitive(TRUE);
+				$scale_label->set_sensitive(TRUE);
+				$scale->set_range(0, 100);
+				$scale->set_value(98);
+				$scale_label->set_text($d->get("Quality") . ":");
 			} else {
 				$scale->set_sensitive(FALSE);
 				$scale_label->set_sensitive(FALSE);
@@ -9727,6 +9736,8 @@ sub STARTUP {
 							} elsif ($mime eq "image/png" && $ext eq ".png") {
 								$combobox_save_as_type->set_active($counter);
 							} elsif ($mime eq "image/bmp" && $ext eq ".bmp") {
+								$combobox_save_as_type->set_active($counter);
+							} elsif ($mime eq "image/webp" && $ext eq ".webp") {
 								$combobox_save_as_type->set_active($counter);
 							}
 						}
