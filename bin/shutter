@@ -1115,13 +1115,14 @@ sub STARTUP {
 
 	#add compatile, writeable file types
 	my $combobox_type = Gtk3::ComboBoxText->new;
-	my ($int_png, $int_jpeg, $int_bmp) = (-1, -1, -1);
+	my ($int_png, $int_jpeg, $int_bmp, $int_webp) = (-1, -1, -1);
 	my $format_counter = 0;
 
 	foreach my $format (Gtk3::Gdk::Pixbuf::get_formats()) {
 		if (   $format->get_name eq "jpeg"
 			|| $format->get_name eq "png"
-			|| $format->get_name eq "bmp")
+			|| $format->get_name eq "bmp"
+			|| $format->get_name eq "webp")
 		{
 
 			#we want jpg not jpeg
@@ -1139,6 +1140,8 @@ sub STARTUP {
 				$int_png = $format_counter;
 			} elsif ($format->get_name eq "bmp") {
 				$int_bmp = $format_counter;
+			} elsif ($format->get_name eq "webp") {
+				$int_webp = $format_counter;
 			}
 
 			$format_counter++;
@@ -1180,7 +1183,7 @@ sub STARTUP {
 	} else {
 
 		#we will try to set a default value in this order
-		foreach my $cformat (@{[$int_png, $int_jpeg, $int_bmp]}) {
+		foreach my $cformat (@{[$int_png, $int_jpeg, $int_bmp, $int_webp]}) {
 			if ($cformat > -1) {
 				$combobox_type->set_active($cformat);
 				last;
