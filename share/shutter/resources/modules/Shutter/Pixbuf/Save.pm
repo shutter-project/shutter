@@ -129,7 +129,7 @@ sub save_pixbuf_to_file {
 
 		print "Saving file $filename, $filetype, $quality\n" if $self->{_common}->get_debug;
 
-		eval { $pixbuf->save($filename, $filetype, "tEXt::Software" => "Shutter", compression => $quality); };
+		eval { $pixbuf->save($filename, $filetype, "tEXt::Software" => "Shutter", quality => $quality); };
 	} elsif ($filetype eq 'bmp') {
 		eval { $pixbuf->save($filename, $filetype); };
 	} elsif ($filetype eq 'webp') {
