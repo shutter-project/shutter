@@ -2866,7 +2866,6 @@ sub STARTUP {
 			} elsif ($combobox_type->get_active_text =~ /png/) {
 				$settings->set_jpg_quality($scale->get_value);
 			} elsif ($combobox_type->get_active_text =~ /webp/) {
-				print $scale->get_value . "\n\n\n";
 				$settings->set_webp_quality($scale->get_value);
 			} else {
 				$settings->clear_quality_settings();
