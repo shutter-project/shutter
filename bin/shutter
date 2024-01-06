@@ -6314,6 +6314,15 @@ sub STARTUP {
 		#start postprocessing here
 
 		#...successfully???
+		
+		# $screenshot is undefined if the selection width or height is zero
+		# Actually this should be handled by Shutter::Screenshot::Error but fails for an area with zero width or height for some reason
+		unless ($screenshot) {
+			my $response = $sd->dlg_error_message($d->get("Error: selection width or height is zero, please retry!"), $d->get("Failed"));
+			fct_control_main_window('show');
+			return FALSE;
+		}
+
 		my $giofile = undef;
 		my $error = Shutter::Screenshot::Error->new($sc, $screenshot, $data, $extra);
 		if ($error->is_error) {
@@ -7788,13 +7797,6 @@ sub STARTUP {
 		print "Parsing wildcards for $screenshot_name\n"
 			if $sc->get_debug;
 		
-		# $screenshot is undefined if the selection width or height is zero 
-		unless ($screenshot) {
-			my $response = $sd->dlg_error_message($d->get("Error: selection width or height is zero, please retry!"), $d->get("Failed"));
-			fct_control_main_window('show');
-			return FALSE;
-		}
-
 		#parse width and height
 		my $swidth  = $screenshot->get_width;
 		my $sheight = $screenshot->get_height;
