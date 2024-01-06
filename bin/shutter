@@ -4521,7 +4521,13 @@ sub STARTUP {
 		#main
 		$settings{'general'}->{'filetype'} = $combobox_type->get_active;
 		$settings{'general'}->{'quality'}  = $scale->get_value();
-		$settings{'general'}->{'filename'} = $filename->get_text();
+		if ($filename->get_text() =~ "\%NN" || $filename->get_text() =~ "\%T") {
+			$settings{'general'}->{'filename'} = $filename->get_text();
+		} else {
+			$sd->dlg_error_message($@, $d->get("Settings could not be saved! Please make sure that the filename contains a wildcard like \%NN or \%T!"));
+			evt_show_settings();
+			return 1;
+		}
 		$settings{'general'}->{'folder'}   = Glib::filename_to_unicode($saveDir_button->get_filename());
 
 		#~ print "Pfad ".$saveDir_button->get_filename()."\n";
