@@ -464,9 +464,17 @@ sub STARTUP {
 	$window->set_default_size(-1, 500);
 
 	#UPDATE WINDOW LIST (signal is connected when GUI is loaded)
-	my $wnck_screen = Wnck::Screen::get_default();
-	$wnck_screen->force_update if $wnck_screen;
-	my $x11_supported = $wnck_screen ? 1 : 0;
+
+	my $x11_supported = 1;
+	if ($ENV{XDG_SESSION_TYPE} eq "wayland") {
+		$x11_supported = 0;
+	}
+
+	my $wnck_screen;
+	if ($x11_supported) {
+		$wnck_screen = Wnck::Screen::get_default();
+		$wnck_screen->force_update if $wnck_screen;
+	}
 
 	#TRAY ICON AND MENU
 	my $tray      = undef;
@@ -827,7 +835,9 @@ sub STARTUP {
 	$st->{_full}->signal_connect('clicked' => \&evt_take_screenshot, 'full');
 
 	#init menus
-	$st->{_full}->set_menu(fct_ret_workspace_menu(TRUE));
+	if ($x11_supported){
+		$st->{_full}->set_menu(fct_ret_workspace_menu(TRUE));
+	}
 	$st->{_window}->set_menu(fct_ret_window_menu());
 
 	#and attach signal handlers
@@ -4542,8 +4552,9 @@ sub STARTUP {
 		$settings{'general'}->{'delay'}          = $delay->get_value();
 
 		#wrksp -> submenu
-		$settings{'general'}->{'current_monitor_active'} = $current_monitor_active->get_active;
-
+		if ($x11_supported) {
+			$settings{'general'}->{'current_monitor_active'} = $current_monitor_active->get_active;
+		}
 		#determining timeout
 		if ($gnome_web_photo) {
 			my $web_menu = $st->{_web}->get_menu;
@@ -5993,22 +6004,20 @@ sub STARTUP {
 		#fullscreen screenshot
 		if ($data eq "full" || $data eq "tray_full") {
 
-			$screenshooter = Shutter::Screenshot::Workspace->new(
-				$sc, $include_cursor, $delay_value,
-				$notify_timeout_active->get_active,
-				$wnck_screen ? $wnck_screen->get_active_workspace : undef,
-				undef, undef, $current_monitor_active->get_active
-			);
-
-			if ($ENV{XDG_SESSION_TYPE} eq "wayland") {
+			if ($x11_supported) {
+				$screenshooter = Shutter::Screenshot::Workspace->new(
+					$sc, $include_cursor, $delay_value,
+					$notify_timeout_active->get_active,
+					$wnck_screen ? $wnck_screen->get_active_workspace : undef,
+					undef, undef, $current_monitor_active->get_active
+				);
+				$screenshot = $screenshooter->workspace();
+			} else {
 				# TODO: support kwin directly, because it has more features than the xdg portal
 				$screenshot = Shutter::Screenshot::Wayland::xdg_portal($screenshooter);
-			} else {
-
-				$screenshot = $screenshooter->workspace();
 			}
 
-			#window
+		#window
 		} elsif ($data eq "window"
 			|| $data eq "tray_window"
 			|| $data eq "awindow"
@@ -7805,14 +7814,18 @@ sub STARTUP {
 
 		#set name
 		#e.g. window or workspace name
-		if (my $action_name = $screenshooter->get_action_name) {
-			utf8::decode $action_name;
-			$action_name     =~ s/(\/|\#|\>|\<|\%|\*)/-/g;
-			$screenshot_name =~ s/\$name/$action_name/g;
+		if ($x11_supported) {
+			if (my $action_name = $screenshooter->get_action_name) {
+				utf8::decode $action_name;
+				$action_name     =~ s/(\/|\#|\>|\<|\%|\*)/-/g;
+				$screenshot_name =~ s/\$name/$action_name/g;
 
-			#no blanks (special wildcard)
-			$action_name     =~ s/\ //g;
-			$screenshot_name =~ s/\$nb_name/$action_name/g;
+				#no blanks (special wildcard)
+				$action_name     =~ s/\ //g;
+				$screenshot_name =~ s/\$nb_name/$action_name/g;
+			} else {
+				$screenshot_name =~ s/(\$name|\$nb_name)/unknown/g;
+			}
 		} else {
 			$screenshot_name =~ s/(\$name|\$nb_name)/unknown/g;
 		}
@@ -8244,6 +8257,9 @@ sub STARTUP {
 		my $init = shift;
 
 		my $menu_wrksp = Gtk3::Menu->new;
+		unless ($x11_supported) {
+			return $menu_wrksp;
+		}
 
 		my $wnck_screen = Wnck::Screen::get_default();
 		unless ($wnck_screen) {
