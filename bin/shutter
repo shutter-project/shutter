@@ -1125,13 +1125,14 @@ sub STARTUP {
 
 	#add compatile, writeable file types
 	my $combobox_type = Gtk3::ComboBoxText->new;
-	my ($int_png, $int_jpeg, $int_bmp) = (-1, -1, -1);
+	my ($int_png, $int_jpeg, $int_bmp, $int_webp) = (-1, -1, -1, -1);
 	my $format_counter = 0;
 
 	foreach my $format (Gtk3::Gdk::Pixbuf::get_formats()) {
 		if (   $format->get_name eq "jpeg"
 			|| $format->get_name eq "png"
-			|| $format->get_name eq "bmp")
+			|| $format->get_name eq "bmp"
+			|| $format->get_name eq "webp")
 		{
 
 			#we want jpg not jpeg
@@ -1149,6 +1150,8 @@ sub STARTUP {
 				$int_png = $format_counter;
 			} elsif ($format->get_name eq "bmp") {
 				$int_bmp = $format_counter;
+			} elsif ($format->get_name eq "webp") {
+				$int_webp = $format_counter;
 			}
 
 			$format_counter++;
@@ -1190,7 +1193,7 @@ sub STARTUP {
 	} else {
 
 		#we will try to set a default value in this order
-		foreach my $cformat (@{[$int_png, $int_jpeg, $int_bmp]}) {
+		foreach my $cformat (@{[$int_png, $int_jpeg, $int_bmp, $int_webp]}) {
 			if ($cformat > -1) {
 				$combobox_type->set_active($cformat);
 				last;
@@ -2871,7 +2874,9 @@ sub STARTUP {
 			} elsif ($combobox_type->get_active_text =~ /jpg/) {
 				$settings->set_jpg_quality($scale->get_value);
 			} elsif ($combobox_type->get_active_text =~ /png/) {
-				$settings->set_png_quality($scale->get_value);
+				$settings->set_jpg_quality($scale->get_value);
+			} elsif ($combobox_type->get_active_text =~ /webp/) {
+				$settings->set_webp_quality($scale->get_value);
 			} else {
 				$settings->clear_quality_settings();
 			}
@@ -2911,6 +2916,12 @@ sub STARTUP {
 				$scale->set_range(0, 9);
 				$scale->set_value(9);
 				$scale_label->set_text($d->get("Compression") . ":");
+			} elsif ($combobox_type->get_active_text =~ /webp/) {
+				$scale->set_sensitive(TRUE);
+				$scale_label->set_sensitive(TRUE);
+				$scale->set_range(0, 100);
+				$scale->set_value(98);
+				$scale_label->set_text($d->get("Quality") . ":");
 			} else {
 				$scale->set_sensitive(FALSE);
 				$scale_label->set_sensitive(FALSE);
@@ -9748,6 +9759,8 @@ sub STARTUP {
 							} elsif ($mime eq "image/png" && $ext eq ".png") {
 								$combobox_save_as_type->set_active($counter);
 							} elsif ($mime eq "image/bmp" && $ext eq ".bmp") {
+								$combobox_save_as_type->set_active($counter);
+							} elsif ($mime eq "image/webp" && $ext eq ".webp") {
 								$combobox_save_as_type->set_active($counter);
 							}
 						}
