@@ -8442,6 +8442,13 @@ sub STARTUP {
 		$menu_windows->append(Gtk3::SeparatorMenuItem->new);
 
 		#add all windows to menu to capture it directly
+
+		print "\n\n\nDEBUG\n\n\n";
+		print $wnck_screen;
+		print "\n\n\nDEBUG\n\n\n";
+		print @{$wnck_screen->get_windows_stacked};
+		print "\n\n\nDEBUG\n\n\n";
+
 		foreach my $win (@{$wnck_screen->get_windows_stacked}) {
 			if ($active_workspace && $win->is_on_workspace($active_workspace)) {
 				my $win_name = $win->get_name;
