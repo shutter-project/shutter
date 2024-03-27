@@ -56,7 +56,10 @@ sub create_autostart_file {
 
 	my $path = $dir . "/shutter.desktop";
 
-	open FILE, ">:utf8", $path or die $!;
+	open FILE, ">:utf8", $path or do {
+		warn "WARNING: can not create/update file $path: $!\n";
+		return FALSE;
+	};
 	foreach my $line (@data) {
 		if ($line =~ /Exec=shutter<options>/) {
 
@@ -74,7 +77,7 @@ sub create_autostart_file {
 		}
 		print FILE $line;
 	}
-	close FILE or die $!;
+	close FILE or warn "WARNING: close $path fail: $!\n";
 
 	return TRUE;
 }
