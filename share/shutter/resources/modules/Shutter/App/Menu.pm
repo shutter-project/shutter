@@ -139,6 +139,11 @@ sub fct_ret_file_menu {
 	#~ $self->{_menuitem_export_svg}->set_sensitive(FALSE);
 	#~ $self->{_menuitem_export_svg}->add_accelerator( 'activate', $accel_group, $self->{_shf}->accel('<Shift><Alt>G'), qw/visible/ );
 	#~ $self->{_menu_file}->append( $self->{_menuitem_export_svg} );
+ 
+	$self->{_menuitem_export_b64} = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('Export to Base64...'));
+	$self->{_menuitem_export_b64}->set_sensitive(FALSE);
+	$self->{_menuitem_export_b64}->add_accelerator('activate', $accel_group, $self->{_shf}->accel('<Shift><Alt>B'), qw/visible/);
+	$self->{_menu_file}->append($self->{_menuitem_export_b64});
 
 	$self->{_menuitem_export_pdf} = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('E_xport to PDF...'));
 	$self->{_menuitem_export_pdf}->set_sensitive(FALSE);
