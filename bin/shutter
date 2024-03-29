@@ -5551,6 +5551,7 @@ sub STARTUP {
 			#save pixbuf to tempfile and integrate it
 			if ($sp->save_pixbuf_to_file($image, $tmpfilename, $filetype_value)) {
 				my $new_key = fct_integrate_screenshot_in_notebook(Glib::IO::File::new_for_path($tmpfilename), $image);
+				$session_screens{$new_key}->{'image'}->set_fitting(TRUE);
 			}
 
 		} else {
