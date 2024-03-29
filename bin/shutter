@@ -65,7 +65,6 @@ use Encode;
 
 use File::stat;
 use Number::Bytes::Human;
-use Data::UUID;
 
 #Glib
 use Pango;
@@ -5544,18 +5543,15 @@ sub STARTUP {
 			
 			#determine current file type (name - description)
 			$combobox_type->get_active_text =~ /(.*) -/;
-			my $filetype_value = $1;			
+			my $filetype_value = $1;
 			unless ($filetype_value) {
 				$sd->dlg_error_message($d->get("No valid filetype specified"), $d->get("Failed"));
 				fct_control_main_window('show');
 				return FALSE;
 			}
 			
-			#generate unique random filename
-			my $ug = Data::UUID->new;
-			my $uuid = $ug->create();
-			my $short = $ug->to_string($uuid);
-			$short = "clipboard-import-" . $short;
+			#generate random filename
+			my $short = "clipboard-import-" . int(rand(10000000000));
 
 			#relative to abs
 			my $tmpfilename = $folder ."/" . $short ."." . $filetype_value;
