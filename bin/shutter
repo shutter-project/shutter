@@ -65,6 +65,7 @@ use Encode;
 
 use File::stat;
 use Number::Bytes::Human;
+use Data::UUID;
 
 #Glib
 use Pango;
@@ -5535,19 +5536,32 @@ sub STARTUP {
 		my $image = $clipboard->wait_for_image;
 		if (defined $image) {
 
+			#folder to save
+			my $folder = Glib::filename_to_unicode($saveDir_button->get_filename) ;
+			if ($save_no_active->get_active) {
+				$folder = Shutter::App::Directories::get_cache_dir();
+			}
+			
 			#determine current file type (name - description)
 			$combobox_type->get_active_text =~ /(.*) -/;
-			my $filetype_value = $1;
+			my $filetype_value = $1;			
 			unless ($filetype_value) {
 				$sd->dlg_error_message($d->get("No valid filetype specified"), $d->get("Failed"));
 				fct_control_main_window('show');
 				return FALSE;
 			}
+			
+			#generate unique random filename
+			my $ug = Data::UUID->new;
+			my $uuid = $ug->create();
+			my $short = $ug->to_string($uuid);
 
-			#create tempfile
-			my ($tmpfh, $tmpfilename) = tempfile(UNLINK => 1);
-			$tmpfilename .= "." . $filetype_value;
-
+			#relative to abs
+			my $tmpfilename = $folder ."/" . $short ."." . $filetype_value;
+			unless (File::Spec->file_name_is_absolute($tmpfilename)) {
+				$tmpfilename = File::Spec->rel2abs($tmpfilename);
+			}
+			
 			#save pixbuf to tempfile and integrate it
 			if ($sp->save_pixbuf_to_file($image, $tmpfilename, $filetype_value)) {
 				my $new_key = fct_integrate_screenshot_in_notebook(Glib::IO::File::new_for_path($tmpfilename), $image);
