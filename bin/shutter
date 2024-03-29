@@ -5555,6 +5555,7 @@ sub STARTUP {
 			my $ug = Data::UUID->new;
 			my $uuid = $ug->create();
 			my $short = $ug->to_string($uuid);
+			$short = "clipboard-import-" . $short;
 
 			#relative to abs
 			my $tmpfilename = $folder ."/" . $short ."." . $filetype_value;
