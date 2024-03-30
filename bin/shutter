@@ -5535,6 +5535,12 @@ sub STARTUP {
 		my $image = $clipboard->wait_for_image;
 		if (defined $image) {
 
+			#folder to save
+			my $folder = Glib::filename_to_unicode($saveDir_button->get_filename) ;
+			if ($save_no_active->get_active) {
+				$folder = Shutter::App::Directories::get_cache_dir();
+			}
+			
 			#determine current file type (name - description)
 			$combobox_type->get_active_text =~ /(.*) -/;
 			my $filetype_value = $1;
@@ -5543,14 +5549,20 @@ sub STARTUP {
 				fct_control_main_window('show');
 				return FALSE;
 			}
+			
+			#generate random filename
+			my $short = "clipboard-import-" . int(rand(10000000000));
 
-			#create tempfile
-			my ($tmpfh, $tmpfilename) = tempfile(UNLINK => 1);
-			$tmpfilename .= "." . $filetype_value;
-
+			#relative to abs
+			my $tmpfilename = $folder ."/" . $short ."." . $filetype_value;
+			unless (File::Spec->file_name_is_absolute($tmpfilename)) {
+				$tmpfilename = File::Spec->rel2abs($tmpfilename);
+			}
+			
 			#save pixbuf to tempfile and integrate it
 			if ($sp->save_pixbuf_to_file($image, $tmpfilename, $filetype_value)) {
 				my $new_key = fct_integrate_screenshot_in_notebook(Glib::IO::File::new_for_path($tmpfilename), $image);
+				$session_screens{$new_key}->{'image'}->set_fitting(TRUE);
 			}
 
 		} else {
