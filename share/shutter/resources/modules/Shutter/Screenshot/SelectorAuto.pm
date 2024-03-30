@@ -59,7 +59,7 @@ sub select_auto {
 	my $d = $self->{_sc}->get_gettext;
 
 	my $output;
-	if ($x && $y && $width && $height) {
+	if ($x>=0 && $y>=0 && $width && $height) {
 		($output) = $self->get_pixbuf_from_drawable($self->{_root}, $x, $y, $width, $height);
 
 		#section not valid
