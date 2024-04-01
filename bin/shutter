@@ -535,7 +535,7 @@ sub STARTUP {
 	$sm->{_menuitem_iclipboard}->signal_connect('activate', \&fct_clipboard_import);
 
 	unless ($x11_supported) {
-		for my $name ('selection', 'awindow', 'window', 'menu', 'tooltip') {
+		for my $name ('awindow', 'window', 'menu', 'tooltip') {
 			$sm->{"_menuitem_$name"}->set_sensitive(FALSE);
 		}
 	}
@@ -874,7 +874,7 @@ sub STARTUP {
 
 	unless ($x11_supported) {
 		my $tooltip = $d->get("Can't take screenshots without X11 server");
-		for my $name ('_select', '_window', '_menu', '_tooltip') {
+		for my $name ('_window', '_menu', '_tooltip') {
 			$st->{$name}->set_sensitive(FALSE);
 			$st->{$name}->set_tooltip_text($tooltip);
 		}
@@ -2980,7 +2980,7 @@ sub STARTUP {
 			#unblock signal handler
 			fct_control_signals('unblock');
 			return TRUE;
-		} elsif (!$x11_supported && $data ne "full" && $data ne "tray_full") {
+		} elsif (!$x11_supported && $data ne "full" && $data ne "tray_full" && $data ne "select" && $data ne "tray_select") {
 			my $sd = Shutter::App::SimpleDialogs->new;
 			$sd->dlg_error_message($d->get("Can't take screenshots without X11 server"), $d->get("Failed"));
 			fct_control_signals('unblock');
@@ -4252,8 +4252,8 @@ sub STARTUP {
 			# if $x11_supported is false, we are on Wayland, and all these buttons are already disabled and should stay disabled
 
 			#menu
+			$sm->{_menuitem_selection}->set_sensitive($sensitive);
 			if ($x11_supported) {
-				$sm->{_menuitem_selection}->set_sensitive($sensitive);
 				$sm->{_menuitem_window}->set_sensitive($sensitive);
 				#$sm->{_menuitem_section}->set_sensitive($sensitive);
 				$sm->{_menuitem_menu}->set_sensitive($sensitive);
@@ -4264,8 +4264,8 @@ sub STARTUP {
 			$sm->{_menuitem_iclipboard}->set_sensitive($sensitive);
 
 			#toolbar
+			$st->{_select}->set_sensitive($sensitive);
 			if ($x11_supported) {
-				$st->{_select}->set_sensitive($sensitive);
 				$st->{_window}->set_sensitive($sensitive);
 				#$st->{_section}->set_sensitive($sensitive);
 				$st->{_menu}->set_sensitive($sensitive);
@@ -8488,7 +8488,6 @@ sub STARTUP {
 
 		#selection
 		my $menuitem_select = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('_Selection'));
-		$menuitem_select->set_sensitive($x11_supported);
 		eval {
 			my $ccursor_pb = Gtk3::Gdk::Cursor::new('left_ptr')->get_image->scale_simple($shf->icon_size('menu'), 'bilinear');
 			$menuitem_select->set_image(Gtk3::Image->new_from_pixbuf($ccursor_pb));
