@@ -8443,6 +8443,8 @@ sub STARTUP {
 
 		#add all windows to menu to capture it directly
 
+		return $menu_windows unless $wnck_screen->get_windows_stacked;
+
 		print "\n\n\nDEBUG\n\n\n";
 		print $wnck_screen;
 		print "\n\n\nDEBUG\n\n\n";
