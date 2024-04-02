@@ -32,6 +32,7 @@ use warnings;
 
 use Shutter::Screenshot::Main;
 use Shutter::Screenshot::History;
+use File::Temp qw/ tempfile tempdir /;
 
 use Data::Dumper;
 our @ISA = qw(Shutter::Screenshot::Main);
@@ -70,14 +71,23 @@ sub select_gnome_wayland {
 		$cmdcursor = "";
 	}
 	
-	my $fn = "/tmp/shutter-gnome-screenshot-tmp.png";
+	#A short timeout to give the server a chance to
+	#redraw the area
+	Glib::Timeout->add(
+		$self->{_hide_time},
+		sub {
+			Gtk3->main_quit;
+			return FALSE;
+		});
+	Gtk3->main();	
+	 
+	my $fh = File::Temp->new();
+	my $tmpfilename = $fh->filename;
 	
-	system("gnome-screenshot", "-a", "-f", $fn, "-d", $self->{_delay}, $cmdcursor);
-	
-
+	system("gnome-screenshot", "-a", "-f", $tmpfilename, "-d", $self->{_delay}, $cmdcursor);
 	
 	my $image = Gtk3::Image->new();
-	$image->set_from_file($fn);
+	$image->set_from_file($tmpfilename);
 	$output = $image->get_pixbuf();
 
 	my $d = $self->{_sc}->get_gettext;
