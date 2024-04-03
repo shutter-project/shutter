@@ -1,0 +1,12 @@
+[package]
+name = "shutter-rust"
+version = "0.999.1"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+gtk = { version = "0.8.1", package = "gtk4", features = ["v4_12"] }
+
+[build-dependencies]
+glib-build-tools = "0.19.0"
