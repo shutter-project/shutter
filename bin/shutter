@@ -233,6 +233,7 @@ if ($goocanvas) {
 #screenshot classes
 require Shutter::Screenshot::SelectorAdvanced;
 require Shutter::Screenshot::SelectorGnomeWayland;
+require Shutter::Screenshot::SelectorSlurpWayland;
 require Shutter::Screenshot::SelectorAuto;
 require Shutter::Screenshot::Wayland;
 require Shutter::Screenshot::Workspace;
@@ -468,12 +469,16 @@ sub STARTUP {
 
 	my $x11_supported = 1;
 	my $gnome_screenshot = 0;
+	my $slurp = 0;
 	
 	if ($ENV{XDG_SESSION_TYPE} eq "wayland") {
 		$x11_supported = 0;
 		if (index(lc($ENV{XDG_CURRENT_DESKTOP}),"gnome") != -1 && -e "/usr/bin/gnome-screenshot") {
 			$gnome_screenshot = 1;
 			print "\n\n\n GNOME SCREENSHOT UNDER GNOME FOUND\n\n\n"; #DEBUG
+		} elsif (index(lc($ENV{XDG_CURRENT_DESKTOP}),"gnome") == -1 && -e "/usr/bin/slurp") {
+			$slurp = 1;
+			print "\n\n\n SLURP UNDER NON-GNOME FOUND\n\n\n"; #DEBUG
 		}
 	}
 
@@ -6106,25 +6111,31 @@ sub STARTUP {
 
 				if ($gnome_screenshot) {
 					
-						print "\n\n\n We will be using gnome-screenshot!\n\n\n"; #DEBUG
-						
-						$screenshooter = Shutter::Screenshot::SelectorGnomeWayland->new(
-							$sc,                     		$include_cursor,        $delay_value,               
-							$notify_timeout_active->get_active, 	$hide_time->get_value,
-						);
+					print "\n\n\n We will be using gnome-screenshot!\n\n\n"; #DEBUG
+					
+					$screenshooter = Shutter::Screenshot::SelectorGnomeWayland->new(
+						$sc,                     		$include_cursor,        $delay_value,               
+						$notify_timeout_active->get_active, 	$hide_time->get_value,
+					);
 
-						$screenshot = $screenshooter->select_gnome_wayland();
+					$screenshot = $screenshooter->select_gnome_wayland();
 										
-					} else {
+				} elsif ($slurp) {
+				
+					print "\n\n\n We will be using slurp!\n\n\n"; #DEBUG
+				
+					$screenshot = Shutter::Screenshot::SelectorWayland::xdg_portal($screenshooter);
+				
+				} else {
 
-						$screenshooter = Shutter::Screenshot::SelectorAdvanced->new(
-							$sc,                      $include_cursor,        $delay_value,                $notify_timeout_active->get_active,
-							$zoom_active->get_active, $hide_time->get_value,  $as_help_active->get_active, $asel_size3->get_value,
-							$asel_size4->get_value,   $asel_size1->get_value, $asel_size2->get_value,			 $as_confirmation_necessary->get_active,
-						);
+					$screenshooter = Shutter::Screenshot::SelectorAdvanced->new(
+						$sc,                      $include_cursor,        $delay_value,                $notify_timeout_active->get_active,
+						$zoom_active->get_active, $hide_time->get_value,  $as_help_active->get_active, $asel_size3->get_value,
+						$asel_size4->get_value,   $asel_size1->get_value, $asel_size2->get_value,			 $as_confirmation_necessary->get_active,
+					);
 
-						$screenshot = $screenshooter->select_advanced();
-					}
+					$screenshot = $screenshooter->select_advanced();
+				}
 
 			}
 
