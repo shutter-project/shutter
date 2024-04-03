@@ -6124,7 +6124,7 @@ sub STARTUP {
 				
 					print "\n\n\n We will be using slurp!\n\n\n"; #DEBUG
 				
-					$screenshot = Shutter::Screenshot::SelectorWayland::xdg_portal($screenshooter);
+					$screenshot = Shutter::Screenshot::SelectorSlurpWayland::xdg_portal($screenshooter);
 				
 				} else {
 
