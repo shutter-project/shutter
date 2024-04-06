@@ -1,4 +1,5 @@
 mod mainwindow;
+mod settings;
 
 use gtk::prelude::*;
 use gtk::{gio, glib};
@@ -57,6 +58,10 @@ fn cmdline(app: &gtk::Application, cmd: &gio::ApplicationCommandLine) -> i32 {
 
 fn startup(app: &gtk::Application) {
     println!("startup");
+
+    let settings = settings::Settings::load();
+    println!("{:?}", settings);
+
     // Create a window and set the title
 
     let window = mainwindow::MainWindow::new(app);

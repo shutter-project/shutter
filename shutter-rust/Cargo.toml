@@ -6,7 +6,11 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+anyhow = "1.0.81"
 gtk = { version = "0.8.1", package = "gtk4", features = ["v4_12"] }
+quick-xml = { version = "0.31.0", features = ["serialize"] }
+serde = { version = "1.0.197", features = ["derive"] }
+xdg = "2.5.2"
 
 [build-dependencies]
 glib-build-tools = "0.19.0"
