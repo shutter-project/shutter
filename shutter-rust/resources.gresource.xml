@@ -2,6 +2,7 @@
 <gresources>
 	<gresource prefix="/org/shutter-project/Shutter/Rust/">
 		<file compressed="true" preprocess="xml-stripblanks">mainwindow.ui</file>
+		<file compressed="true" preprocess="xml-stripblanks">editorwindow.ui</file>
 	</gresource>
 	<gresource prefix="/org/shutter-project/Shutter/Rust/gtk/">
 		<file compressed="true" preprocess="xml-stripblanks">menus.ui</file>

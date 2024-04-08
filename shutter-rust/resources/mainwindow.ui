@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<interface>
+<interface domain="shutter">
 	<template class="MyGtkAppWindow" parent="GtkApplicationWindow">
 		<property name="title">My GTK App</property>
 		<child>
@@ -27,7 +27,7 @@
 							</child>
 							<child>
 								<object class="GtkButton">
-									<property name="label" translatable="1">Search</property>
+									<property name="label" translatable="1">Selection</property>
 									<property name="icon-name">edit-find</property>
 									<property name="action-name">win.search</property>
 									<property name="tooltip-text" translatable="1">Search for it</property>

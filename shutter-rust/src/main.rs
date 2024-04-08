@@ -1,4 +1,5 @@
 mod mainwindow;
+mod editorwindow;
 mod settings;
 
 use gtk::prelude::*;
@@ -76,4 +77,7 @@ fn startup(app: &gtk::Application) {
 
     // Present window
     window.present();
+
+    let editor = editorwindow::EditorWindow::new(app);
+    editor.present();
 }

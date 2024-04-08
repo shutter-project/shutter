@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface domain="shutter">
+	<template class="MyEditorWindow" parent="GtkWindow">
+		<property name="title">My GTK App</property>
+		<child>
+			<object class="GtkBox" id="button">
+				<property name="orientation">1</property>
+				<child>
+					<object class="GtkToggleButton">
+						<property name="label" translatable="1">Selection</property>
+						<property name="icon-name">document-new</property>
+						<property name="tooltip-text" translatable="1">Selection</property>
+						<property name="action-name">editor.tool</property>
+						<property name="action-target">"select"</property>
+					</object>
+				</child>
+				<child>
+					<object class="GtkToggleButton">
+						<property name="label" translatable="1">Arrow</property>
+						<property name="icon-name">mail-unread</property>
+						<property name="tooltip-text" translatable="1">Arrow</property>
+						<property name="action-name">editor.tool</property>
+						<property name="action-target">"arrow"</property>
+					</object>
+				</child>
+				<child>
+					<object class="GtkToggleButton">
+						<property name="label" translatable="1">Pixelize</property>
+						<property name="icon-name">collapse</property>
+						<property name="tooltip-text" translatable="1">Pixelize</property>
+						<property name="action-name">editor.tool</property>
+						<property name="action-target">"pixelize"</property>
+					</object>
+				</child>
+				<child>
+					<object class="GtkToggleButton">
+						<property name="label" translatable="1">Rectangle</property>
+						<property name="icon-name">institution</property>
+						<property name="tooltip-text" translatable="1">Rectangle</property>
+						<property name="action-name">editor.tool</property>
+						<property name="action-target">"rectangle"</property>
+					</object>
+				</child>
+			</object>
+		</child>
+	</template>
+</interface>
