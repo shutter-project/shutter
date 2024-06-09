@@ -36,6 +36,8 @@ use warnings;
 use diagnostics;
 use 5.10.1;
 
+use Devel::Leak::Object qw{ GLOBAL_bless };
+
 use Carp::Always;
 
 BEGIN {
