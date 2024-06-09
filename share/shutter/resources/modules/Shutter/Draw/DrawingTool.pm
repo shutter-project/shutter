@@ -79,7 +79,7 @@ sub new {
 	#view, selector, dragger
 	$self->{_view}     = Gtk3::ImageView->new;
 	$self->{_selector} = Gtk3::ImageView::Tool::Selector->new($self->{_view});
-	$self->{_dragger}  = Gtk3::ImageView::Tool::Dragger->new($self->{_view});
+	# $self->{_dragger}  = Gtk3::ImageView::Tool::Dragger->new($self->{_view});
 	$self->{_view}->set_tool($self->{_selector});
 	$self->{_view_css_provider_alpha} = Gtk3::CssProvider->new;
 	$self->{_view}->get_style_context->add_provider($self->{_view_css_provider_alpha}, 0);
