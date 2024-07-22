@@ -2950,6 +2950,10 @@ sub STARTUP {
 			$selfcapture = TRUE if $xid == $window->get_window->get_xid;
 		}
 
+		#control whether the redraw delay is necessary
+		my $redraw_delay = FALSE;
+		my $redraw_delay_value = 0;
+
 		#hide mainwindow
 		if (   $hide_active->get_active
 			&& $data ne "web"
@@ -2959,6 +2963,7 @@ sub STARTUP {
 		{
 
 			fct_control_main_window('hide');
+			$redraw_delay = TRUE;
 
 		} else {
 
@@ -3070,10 +3075,19 @@ sub STARTUP {
 				$sd->dlg_info_message("Capturing a window section is known to be broken with HiDPI.\nPlease unset GDK_SCALE variable and restart Shutter.\nPlease follow https://github.com/shutter-project/shutter/issues/326 and send us the patch\nWill attempt capturing it anyway...", undef, 'gtk-ok');
 			}
 
+			#set redraw delay to give the tray menu some time to hide
+			if ($data =~ m/tray/) {
+				$redraw_delay = TRUE;
+			}
+
+			if ($redraw_delay) {
+				$redraw_delay_value = $hide_time->get_value;
+			}
+
 			#A short timeout to give the server a chance to
 			#redraw the area that was obscured by our dialog.
 			Glib::Timeout->add(
-				$hide_time->get_value,
+				$redraw_delay_value,
 				sub {
 					fct_take_screenshot($widget, $data, $folder_from_config, $extra);
 
