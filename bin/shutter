@@ -5945,6 +5945,7 @@ sub STARTUP {
 				$session_screens{$key}->{'name'}, $session_screens{$key}->{'is_unsaved'}, \%session_screens
 			);
 		}
+		undef $drawing_tool;
 
 		#~ &fct_control_main_window ('show');
 
@@ -6654,6 +6655,7 @@ sub STARTUP {
 			evt_delete_window('', 'quit');
 		}
 
+		undef $screenshooter;
 		return TRUE;
 	}
 
