@@ -5944,8 +5944,8 @@ sub STARTUP {
 				$session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'},   $session_screens{$key}->{'mime_type'},
 				$session_screens{$key}->{'name'}, $session_screens{$key}->{'is_unsaved'}, \%session_screens
 			);
-		}
 		undef $drawing_tool;
+		}
 
 		#~ &fct_control_main_window ('show');
 
