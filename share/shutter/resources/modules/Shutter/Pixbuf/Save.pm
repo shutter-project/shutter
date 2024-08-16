@@ -148,6 +148,25 @@ sub save_pixbuf_to_file {
 		print "Saving file $filename, $filetype, $quality\n" if $self->{_common}->get_debug;
 
 		eval { $pixbuf->save($filename, $filetype, "tEXt::Software" => "Shutter", quality => $quality); };
+
+	
+	} elsif ($filetype eq 'avif') {
+
+		#get quality value from settings if not set
+		if (my $settings = $self->{_common}->get_globalsettings_object) {
+			if (defined $settings->get_avif_quality) {
+				$quality = $settings->get_avif_quality;
+			} else {
+				$quality = 68;
+			}
+		} else {
+			$quality = 68;
+		}
+
+		print "Saving file $filename, $filetype, $quality\n" if $self->{_common}->get_debug;
+
+		eval { $pixbuf->save($filename, $filetype, quality => $quality); };
+
 	} elsif ($filetype eq 'pdf') {
 
 		print "Saving file $filename, $filetype\n" if $self->{_common}->get_debug;

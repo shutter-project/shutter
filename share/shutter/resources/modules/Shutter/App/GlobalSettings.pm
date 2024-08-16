@@ -40,7 +40,8 @@ sub new {
 	$self->{_png_quality} = undef;
 	$self->{_jpg_quality} = undef;
 	$self->{_webp_quality} = undef;
-
+	$self->{_avif_quality} = undef;
+	
 	bless $self, $class;
 	return $self;
 }
@@ -73,6 +74,15 @@ sub get_webp_quality {
 	}
 }
 
+sub get_avif_quality {
+	my $self = shift;
+	if (defined $self->{_avif_quality}) {
+		return $self->{_avif_quality};
+	} else {
+		return 68;
+	}
+}
+
 sub set_png_quality {
 	my $self = shift;
 	if (@_) {
@@ -95,6 +105,14 @@ sub set_webp_quality {
 		$self->{_webp_quality} = shift;
 	}
 	return $self->{_webp_quality};
+}
+
+sub set_avif_quality {
+	my $self = shift;
+	if (@_) {
+		$self->{_avif_quality} = shift;
+	}
+	return $self->{_avif_quality};
 }
 
 sub clear_quality_settings {
