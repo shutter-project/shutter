@@ -2841,15 +2841,15 @@ sub STARTUP {
 				$sc->set_globalsettings_object($settings);
 			}
 			if ($combobox_type->get_active_text =~ /jpeg/) {
-				$settings->set_jpg_quality($scale->get_value);
+				$settings->set_image_quality("jpg", $scale->get_value);
 			} elsif ($combobox_type->get_active_text =~ /jpg/) {
-				$settings->set_jpg_quality($scale->get_value);
+				$settings->set_image_quality("jpg", $scale->get_value);
 			} elsif ($combobox_type->get_active_text =~ /png/) {
-				$settings->set_png_quality($scale->get_value);
+				$settings->set_image_quality("png", $scale->get_value);
 			} elsif ($combobox_type->get_active_text =~ /webp/) {
-				$settings->set_webp_quality($scale->get_value);
+				$settings->set_image_quality("webp", $scale->get_value);
 			} elsif ($combobox_type->get_active_text =~ /avif/) {
-				$settings->set_avif_quality($scale->get_value);
+				$settings->set_image_quality("avif", $scale->get_value);
 			} else {
 				$settings->clear_quality_settings();
 			}
