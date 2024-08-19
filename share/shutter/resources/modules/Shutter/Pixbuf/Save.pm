@@ -49,9 +49,31 @@ sub new {
 	my $current_window = $self->{_window} || $self->{_common}->get_mainwindow;
 	$self->{_dialogs} = Shutter::App::SimpleDialogs->new($current_window);
 	$self->{_lp}      = Shutter::Pixbuf::Load->new($self->{_common}, $current_window);
+	$self->{_quality} = undef;
 
 	bless $self, $class;
 	return $self;
+}
+
+sub set_quality_setting {
+		my $self = shift;
+		my $filetype = shift;
+		my $default_image_quality = (
+			"png" => 9,
+			"jpg" => 90,
+			"webp" => 98,
+			"avif" => 68
+		);
+		#get quality value from settings if not set
+		if (my $settings = $self->{_common}->get_globalsettings_object) {
+			if (defined $settings->get_image_quality($filetype)) {
+				$self->{_quality} = $settings->get_image_quality($filetype);
+			} else {
+				$self->{_quality} = default_image_quality{$filetype};
+			}
+		} else {
+			$self->{_quality} = default_image_quality{$filetype};
+		}
 }
 
 sub save_pixbuf_to_file {
@@ -60,6 +82,8 @@ sub save_pixbuf_to_file {
 	my $filename = shift;
 	my $filetype = shift;
 	my $quality  = shift;
+	
+	$self->{_quality} = $quality;
 
 	#gettext variable
 	my $d = $self->{_common}->get_gettext;
@@ -81,22 +105,13 @@ sub save_pixbuf_to_file {
 	#currently this is bmp, jpeg (jpg), png and ico (ico is not useful here)
 	my $imagemagick_result = undef;
 	if ($filetype eq 'jpeg' || $filetype eq 'jpg') {
+	
+		set_quality_setting($filetype);
 
-		#get quality value from settings if not set
-		if (my $settings = $self->{_common}->get_globalsettings_object) {
-			if (defined $settings->get_image_quality("jpg")) {
-				$quality = $settings->get_image_quality("jpg");
-			} else {
-				$quality = 90;
-			}
-		} else {
-			$quality = 90;
-		}
-
-		print "Saving file $filename, $filetype, $quality\n" if $self->{_common}->get_debug;
+		print "Saving file $filename, $filetype, " . $self->{_quality} . "\n" if $self->{_common}->get_debug;
 
 		eval {
-			$pixbuf->save($filename, 'jpeg', quality => $quality);
+			$pixbuf->save($filename, 'jpeg', quality => $self->{_quality});
 
 			#FIXME: NOT COVERED BY BINDINGS YET (we use Image::ExifTool instead)
 			#~ $pixbuf->set_option( 'orientation' => $option );
@@ -116,56 +131,29 @@ sub save_pixbuf_to_file {
 		};
 	} elsif ($filetype eq 'png') {
 
-		#get quality value from settings if not set
-		if (my $settings = $self->{_common}->get_globalsettings_object) {
-			if (defined $settings->get_image_quality("png")) {
-				$quality = $settings->get_image_quality("png");
-			} else {
-				$quality = 9;
-			}
-		} else {
-			$quality = 9;
-		}
+		set_quality_setting($filetype);
 
-		print "Saving file $filename, $filetype, $quality\n" if $self->{_common}->get_debug;
+		print "Saving file $filename, $filetype, " . $self->{_quality} . "\n" if $self->{_common}->get_debug;
 
-		eval { $pixbuf->save($filename, $filetype, "tEXt::Software" => "Shutter", compression => $quality); };
+		eval { $pixbuf->save($filename, $filetype, "tEXt::Software" => "Shutter", compression => $self->{_quality}); };
 	} elsif ($filetype eq 'bmp') {
 		eval { $pixbuf->save($filename, $filetype); };
 	} elsif ($filetype eq 'webp') {
 
-		#get quality value from settings if not set
-		if (my $settings = $self->{_common}->get_globalsettings_object) {
-			if (defined $settings->get_image_quality("webp")) {
-				$quality = $settings->get_image_quality("webp");
-			} else {
-				$quality = 98;
-			}
-		} else {
-			$quality = 98;
-		}
+		set_quality_setting($filetype);
 
-		print "Saving file $filename, $filetype, $quality\n" if $self->{_common}->get_debug;
+		print "Saving file $filename, $filetype, " . $self->{_quality} . "\n" if $self->{_common}->get_debug;
 
-		eval { $pixbuf->save($filename, $filetype, "tEXt::Software" => "Shutter", quality => $quality); };
+		eval { $pixbuf->save($filename, $filetype, "tEXt::Software" => "Shutter", quality => $self->{_quality}); };
 
 	
 	} elsif ($filetype eq 'avif') {
 
-		#get quality value from settings if not set
-		if (my $settings = $self->{_common}->get_globalsettings_object) {
-			if (defined $settings->get_image_quality("avif")) {
-				$quality = $settings->get_image_quality("avif");
-			} else {
-				$quality = 68;
-			}
-		} else {
-			$quality = 68;
-		}
+		set_quality_setting($filetype);
 
-		print "Saving file $filename, $filetype, $quality\n" if $self->{_common}->get_debug;
+		print "Saving file $filename, $filetype, " . $self->{_quality} . "\n" if $self->{_common}->get_debug;
 
-		eval { $pixbuf->save($filename, $filetype, quality => $quality); };
+		eval { $pixbuf->save($filename, $filetype, quality => $self->{_quality}); };
 
 	} elsif ($filetype eq 'pdf') {
 
@@ -214,7 +202,7 @@ sub save_pixbuf_to_file {
 
 	} else {
 
-		print "Saving file $filename, $filetype, $quality (using fallback-mode)\n" if $self->{_common}->get_debug;
+		print "Saving file $filename, $filetype, $self->{_quality} (using fallback-mode)\n" if $self->{_common}->get_debug;
 
 		#save pixbuf to tempfile
 		my ($tmpfh, $tmpfilename) = tempfile();
