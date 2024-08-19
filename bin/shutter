@@ -2871,36 +2871,25 @@ sub STARTUP {
 
 		#filetype changed
 		if ($data eq "type_changed") {
+			$scale->set_sensitive(TRUE);
+			$scale_label->set_sensitive(TRUE);
+			$scale_label->set_text($d->get("Quality") . ":");
 			if ($combobox_type->get_active_text =~ /jpeg/) {
-				$scale->set_sensitive(TRUE);
-				$scale_label->set_sensitive(TRUE);
 				$scale->set_range(1, 100);
 				$scale->set_value(90);
-				$scale_label->set_text($d->get("Quality") . ":");
 			} elsif ($combobox_type->get_active_text =~ /jpg/) {
-				$scale->set_sensitive(TRUE);
-				$scale_label->set_sensitive(TRUE);
 				$scale->set_range(1, 100);
 				$scale->set_value(90);
-				$scale_label->set_text($d->get("Quality") . ":");
 			} elsif ($combobox_type->get_active_text =~ /png/) {
-				$scale->set_sensitive(TRUE);
-				$scale_label->set_sensitive(TRUE);
 				$scale->set_range(0, 9);
 				$scale->set_value(9);
 				$scale_label->set_text($d->get("Compression") . ":");
 			} elsif ($combobox_type->get_active_text =~ /webp/) {
-				$scale->set_sensitive(TRUE);
-				$scale_label->set_sensitive(TRUE);
 				$scale->set_range(0, 100);
 				$scale->set_value(98);
-				$scale_label->set_text($d->get("Quality") . ":");
 			} elsif ($combobox_type->get_active_text =~ /avif/) {
-				$scale->set_sensitive(TRUE);
-				$scale_label->set_sensitive(TRUE);
 				$scale->set_range(0, 100);
 				$scale->set_value(68);
-				$scale_label->set_text($d->get("Quality") . ":");
 			} else {
 				$scale->set_sensitive(FALSE);
 				$scale_label->set_sensitive(FALSE);
