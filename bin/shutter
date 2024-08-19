@@ -1125,42 +1125,27 @@ sub STARTUP {
 
 	#add compatile, writeable file types
 	my $combobox_type = Gtk3::ComboBoxText->new;
-	my ($int_png, $int_jpeg, $int_bmp, $int_webp, $int_avif) = (-1, -1, -1, -1, -1);
-	my $format_counter = 0;
+	my @supported_formats;
 
 	foreach my $format (Gtk3::Gdk::Pixbuf::get_formats()) {
-		if (   $format->get_name eq "jpeg"
-			|| $format->get_name eq "png"
-			|| $format->get_name eq "bmp"
-			|| $format->get_name eq "webp"
-			|| $format->get_name eq "avif")
+		my $format_name = $format->get_name;
+		if ( $format_name eq "jpeg"
+			|| $format_name eq "png"
+			|| $format_name eq "bmp"
+			|| $format_name eq "webp"
+			|| $format_name eq "avif")
 		{
 
 			#we want jpg not jpeg
-			if ($format->get_name eq "jpeg" || $format->get_name eq "jpg") {
-				$combobox_type->append_text("jpg" . " - " . $format->get_description);
-			} else {
-				$combobox_type->append_text($format->get_name . " - " . $format->get_description);
+			if ($format_name eq "jpeg" || $format_name eq "jpg") {
+				$format_name = "jpg";
 			}
-
-			#a little ugly here, maybe the values are in alternative order on several machine...
-			#just remember the number when appending, so we can set png as default for example
-			if ($format->get_name eq "jpeg" || $format->get_name eq "jpg") {
-				$int_jpeg = $format_counter;
-			} elsif ($format->get_name eq "png") {
-				$int_png = $format_counter;
-			} elsif ($format->get_name eq "bmp") {
-				$int_bmp = $format_counter;
-			} elsif ($format->get_name eq "webp") {
-				$int_webp = $format_counter;
-			} elsif ($format->get_name eq "avif") {
-				$int_webp = $format_counter;
-			}
-
-			$format_counter++;
-
+			
+			$combobox_type->append_text($format_name . " - " . $format->get_description);
+			push(@supported_formats, $format_name);
 		}
 	}
+	
 	$combobox_type->signal_connect(
 		'changed' => \&evt_value_changed,
 		'type_changed'
@@ -1171,23 +1156,8 @@ sub STARTUP {
 	);
 
 	if (defined $settings_xml->{'general'}->{'filetype'}) {
-
-		#migration from gscrot to shutter
-		#maybe we can drop this in future releases
-		# 0 := jpeg (jpg)
-		# 1 := png
-		unless (defined $settings_xml->{'general'}->{'app_version'}) {
-			if ($settings_xml->{'general'}->{'filetype'} == 0) {
-				$combobox_type->set_active($int_jpeg);
-			} elsif ($settings_xml->{'general'}->{'filetype'} == 1) {
-				$combobox_type->set_active($int_png);
-			}
-
-			#shutter
-		} else {
-			$combobox_type->set_active($settings_xml->{'general'}->{'filetype'});
-		}
-
+		$combobox_type->set_active($settings_xml->{'general'}->{'filetype'});
+	
 		#set saved quality/compression value if there is one
 		if (defined $settings_xml->{'general'}->{'quality'}) {
 			$scale->set_value($settings_xml->{'general'}->{'quality'});
@@ -1196,11 +1166,9 @@ sub STARTUP {
 	} else {
 
 		#we will try to set a default value in this order
-		foreach my $cformat (@{[$int_png, $int_jpeg, $int_bmp, $int_webp, $int_avif]}) {
-			if ($cformat > -1) {
-				$combobox_type->set_active($cformat);
+		foreach my $i (0 .. $#supported_formats) {
+				$combobox_type->set_active($i);
 				last;
-			}
 		}
 
 	}
@@ -4767,22 +4735,7 @@ sub STARTUP {
 				$settings_xml = XMLin(IO::File->new($settingsfile));
 
 				if ($data eq 'profile_load') {
-
-					#migration from gscrot to shutter
-					#maybe we can drop this in future releases
-					# 0 := jpeg
-					# 1 := png
-					unless (defined $settings_xml->{'general'}->{'app_version'}) {
-						if ($settings_xml->{'general'}->{'filetype'} == 0) {
-							$combobox_type->set_active($int_jpeg);
-						} elsif ($settings_xml->{'general'}->{'filetype'} == 1) {
-							$combobox_type->set_active($int_png);
-						}
-
-						#shutter
-					} else {
-						$combobox_type->set_active($settings_xml->{'general'}->{'filetype'});
-					}
+					$combobox_type->set_active($settings_xml->{'general'}->{'filetype'});
 
 					#main
 					$scale->set_value($settings_xml->{'general'}->{'quality'});
