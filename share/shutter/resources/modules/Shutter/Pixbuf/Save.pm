@@ -84,8 +84,8 @@ sub save_pixbuf_to_file {
 
 		#get quality value from settings if not set
 		if (my $settings = $self->{_common}->get_globalsettings_object) {
-			if (defined $settings->set_image_quality("jpg")) {
-				$quality = $settings->set_image_quality("jpg");
+			if (defined $settings->get_image_quality("jpg")) {
+				$quality = $settings->get_image_quality("jpg");
 			} else {
 				$quality = 90;
 			}
@@ -118,8 +118,8 @@ sub save_pixbuf_to_file {
 
 		#get quality value from settings if not set
 		if (my $settings = $self->{_common}->get_globalsettings_object) {
-			if (defined $settings->set_image_quality("png")) {
-				$quality = $settings->set_image_quality("png");
+			if (defined $settings->get_image_quality("png")) {
+				$quality = $settings->get_image_quality("png");
 			} else {
 				$quality = 9;
 			}
@@ -136,8 +136,8 @@ sub save_pixbuf_to_file {
 
 		#get quality value from settings if not set
 		if (my $settings = $self->{_common}->get_globalsettings_object) {
-			if (defined $settings->set_image_quality("webp")) {
-				$quality = $settings->set_image_quality("webp");
+			if (defined $settings->get_image_quality("webp")) {
+				$quality = $settings->get_image_quality("webp");
 			} else {
 				$quality = 98;
 			}
@@ -154,8 +154,8 @@ sub save_pixbuf_to_file {
 
 		#get quality value from settings if not set
 		if (my $settings = $self->{_common}->get_globalsettings_object) {
-			if (defined $settings->set_image_quality("avif")) {
-				$quality = $settings->set_image_quality("avif");
+			if (defined $settings->get_image_quality("avif")) {
+				$quality = $settings->get_image_quality("avif");
 			} else {
 				$quality = 68;
 			}
