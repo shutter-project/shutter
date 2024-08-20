@@ -70,10 +70,10 @@ sub set_quality_setting {
 			if (defined $settings->get_image_quality($filetype)) {
 				$self->{_quality} = $settings->get_image_quality($filetype);
 			} else {
-				$self->{_quality} = default_image_quality{$filetype};
+				$self->{_quality} = $default_image_quality->{$filetype};
 			}
 		} else {
-			$self->{_quality} = default_image_quality{$filetype};
+			$self->{_quality} = $default_image_quality->{$filetype};
 		}
 }
 
