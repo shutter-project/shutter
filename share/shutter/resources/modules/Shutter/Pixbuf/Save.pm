@@ -173,19 +173,7 @@ sub save_pixbuf_to_file {
 
 		eval { $pixbuf->save($filename, $filetype, quality => $self->{_quality}); };
 
-	} elsif ($filetype eq 'pdf') {
-
-		$self->save_pdf_ps_svg($filename, $pixbuf);
-
-		print "Saving file $filename, $filetype\n" if $self->{_common}->get_debug;
-
-	} elsif ($filetype eq 'ps') {
-
-		$self->save_pdf_ps_svg($filename, $pixbuf);
-
-		print "Saving file $filename, $filetype\n" if $self->{_common}->get_debug;
-
-	} elsif ($filetype eq 'svg') {
+	} elsif ($filetype eq 'pdf' || $filetype eq 'ps' || $filetype eq 'svg') {
 
 		$self->save_pdf_ps_svg($filename, $pixbuf);
 
