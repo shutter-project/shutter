@@ -37,19 +37,19 @@ sub new {
 
 	my $self = {};
 
-	$self->{_image_quality} = (
+	$self->{_image_quality} = {
 		"png" => undef,
 		"jpg" => undef,
 		"webp" => undef,
 		"avif" => undef
-	);
+	};
 
-	$self->{_default_image_quality} = (
+	$self->{_default_image_quality} = {
 		"png" => 9,
 		"jpg" => 90,
 		"webp" => 98,
 		"avif" => 68
-	);
+	};
 
 	bless $self, $class;
 	return $self;
@@ -78,12 +78,12 @@ sub set_image_quality {
 
 sub clear_quality_settings {
 	my $self = shift;
-	$self->{_image_quality} = (
+	$self->{_image_quality} = {
 		"png" => undef,
 		"jpg" => undef,
 		"webp" => undef,
 		"avif" => undef
-	);
+	};
 }
 
 1;

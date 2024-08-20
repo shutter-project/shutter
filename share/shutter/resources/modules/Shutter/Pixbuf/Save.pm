@@ -58,12 +58,12 @@ sub new {
 sub set_quality_setting {
 		my $self = shift;
 		my $filetype = shift;
-		my $default_image_quality = (
+		my $default_image_quality = {
 			"png" => 9,
 			"jpg" => 90,
 			"webp" => 98,
 			"avif" => 68
-		);
+		};
 
 		#get quality value from settings if not set
 		if (my $settings = $self->{_common}->get_globalsettings_object) {
