@@ -9719,15 +9719,11 @@ sub STARTUP {
 						#Fix Bug #966159
 						if (defined $rfilename) {
 							my ($short, $folder, $ext) = fileparse($rfilename, qr/\.[^.]*/);
-							if ($mime eq "image/jpeg" && $ext eq ".jpg") {
-								$combobox_save_as_type->set_active($counter);
-							} elsif ($mime eq "image/png" && $ext eq ".png") {
-								$combobox_save_as_type->set_active($counter);
-							} elsif ($mime eq "image/bmp" && $ext eq ".bmp") {
-								$combobox_save_as_type->set_active($counter);
-							} elsif ($mime eq "image/webp" && $ext eq ".webp") {
-								$combobox_save_as_type->set_active($counter);
-							} elsif ($mime eq "image/avif" && $ext eq ".avif") {
+							if ($mime eq "image/jpeg" && $ext eq ".jpg"
+								|| $mime eq "image/png" && $ext eq ".png"
+								|| $mime eq "image/bmp" && $ext eq ".bmp"
+								|| $mime eq "image/webp" && $ext eq ".webp"
+								|| $mime eq "image/avif" && $ext eq ".avif") {
 								$combobox_save_as_type->set_active($counter);
 							}
 						}
