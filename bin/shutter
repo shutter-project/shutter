@@ -8441,15 +8441,14 @@ sub STARTUP {
 		$menu_windows->append($active_window_item);
 		$menu_windows->append(Gtk3::SeparatorMenuItem->new);
 
+		# Check if we can retrieve the list of stacked windows first, otherwise we will run into a crash, see issue 659
+		
+		unless ($wnck_screen->get_windows_stacked) {
+			print "ERROR: The window list could not be retrieved and has been disabled, see https://github.com/shutter-project/shutter/issues/659";
+			return $menu_windows;
+		}
+
 		#add all windows to menu to capture it directly
-
-		return $menu_windows unless $wnck_screen->get_windows_stacked;
-
-		print "\n\n\nDEBUG\n\n\n";
-		print $wnck_screen;
-		print "\n\n\nDEBUG\n\n\n";
-		print @{$wnck_screen->get_windows_stacked};
-		print "\n\n\nDEBUG\n\n\n";
 
 		foreach my $win (@{$wnck_screen->get_windows_stacked}) {
 			if ($active_workspace && $win->is_on_workspace($active_workspace)) {
