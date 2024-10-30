@@ -5,11 +5,8 @@ use warnings;
 
 use Test::More;
 use Test::Strict;
-use Test2::AsyncSubtest;
 
 use FindBin qw/$Bin/;
-use POSIX qw( waitpid WNOHANG );
-use Time::HiRes qw( sleep );
 
 # Check syntax, use strict and use warnings on all perl files
 
