@@ -8,6 +8,10 @@ use Locale::gettext;
 use Test::More;
 use Test::MockModule;
 
+use POSIX qw(locale_h);
+use locale;
+setlocale(LC_MESSAGES, 'C'); # Allow non-English developers to match error messages
+
 require_ok('Shutter::Draw::DrawingTool');
 
 my $mock = Test::MockModule->new("Shutter::Draw::DrawingTool");
