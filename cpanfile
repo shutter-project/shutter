@@ -18,3 +18,4 @@ requires "File::Copy::Recursive";
 requires "Moo", ">= 2.0";
 
 test_requires "Test::MockModule";
+test_requires "Test2::AsyncSubtest";

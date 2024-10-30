@@ -26,6 +26,7 @@ package Shutter::App::HelperFunctions;
 #--------------------------------------
 use utf8;
 use strict;
+use warnings;
 use Gtk3;
 
 #Glib

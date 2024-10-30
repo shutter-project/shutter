@@ -24,6 +24,7 @@ package Shutter::Upload::FTP;
 
 use utf8;
 use strict;
+use warnings;
 use Net::FTP;
 use URI;
 use URI::Split qw(uri_split);

@@ -26,6 +26,7 @@ package Shutter::App::Optional::Exif;
 #--------------------------------------
 use utf8;
 use strict;
+use warnings;
 
 use Glib qw/TRUE FALSE/;
 

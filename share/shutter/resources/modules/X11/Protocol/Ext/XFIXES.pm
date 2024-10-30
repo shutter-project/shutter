@@ -20,6 +20,7 @@ BEGIN { require 5 }
 package X11::Protocol::Ext::XFIXES;
 use X11::Protocol 'padded';
 use strict;
+use warnings;
 use Carp;
 
 use vars '$VERSION', '@CARP_NOT';
