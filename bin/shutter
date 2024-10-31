@@ -232,6 +232,8 @@ if ($goocanvas) {
 
 #screenshot classes
 require Shutter::Screenshot::SelectorAdvanced;
+require Shutter::Screenshot::SelectorGnomeWayland;
+require Shutter::Screenshot::SelectorSlurpWayland;
 require Shutter::Screenshot::SelectorAuto;
 require Shutter::Screenshot::Wayland;
 require Shutter::Screenshot::Workspace;
@@ -466,8 +468,18 @@ sub STARTUP {
 	#UPDATE WINDOW LIST (signal is connected when GUI is loaded)
 
 	my $x11_supported = 1;
+	my $gnome_screenshot = 0;
+	my $slurp = 0;
+	
 	if ($ENV{XDG_SESSION_TYPE} eq "wayland") {
 		$x11_supported = 0;
+		if (index(lc($ENV{XDG_CURRENT_DESKTOP}),"gnome") != -1 && -e "/usr/bin/gnome-screenshot") {
+			$gnome_screenshot = 1;
+			print "\n\n\n GNOME SCREENSHOT UNDER GNOME FOUND\n\n\n"; #DEBUG
+		} elsif (index(lc($ENV{XDG_CURRENT_DESKTOP}),"gnome") == -1 && -e "/usr/bin/slurp") {
+			$slurp = 1;
+			print "\n\n\n SLURP UNDER NON-GNOME FOUND\n\n\n"; #DEBUG
+		}
 	}
 
 	my $wnck_screen;
@@ -535,7 +547,7 @@ sub STARTUP {
 	$sm->{_menuitem_iclipboard}->signal_connect('activate', \&fct_clipboard_import);
 
 	unless ($x11_supported) {
-		for my $name ('selection', 'awindow', 'window', 'menu', 'tooltip') {
+		for my $name ('awindow', 'window', 'menu', 'tooltip') {
 			$sm->{"_menuitem_$name"}->set_sensitive(FALSE);
 		}
 	}
@@ -874,7 +886,7 @@ sub STARTUP {
 
 	unless ($x11_supported) {
 		my $tooltip = $d->get("Can't take screenshots without X11 server");
-		for my $name ('_select', '_window', '_menu', '_tooltip') {
+		for my $name ('_window', '_menu', '_tooltip') {
 			$st->{$name}->set_sensitive(FALSE);
 			$st->{$name}->set_tooltip_text($tooltip);
 		}
@@ -2980,7 +2992,7 @@ sub STARTUP {
 			#unblock signal handler
 			fct_control_signals('unblock');
 			return TRUE;
-		} elsif (!$x11_supported && $data ne "full" && $data ne "tray_full") {
+		} elsif (!$x11_supported && $data ne "full" && $data ne "tray_full" && $data ne "select" && $data ne "tray_select") {
 			my $sd = Shutter::App::SimpleDialogs->new;
 			$sd->dlg_error_message($d->get("Can't take screenshots without X11 server"), $d->get("Failed"));
 			fct_control_signals('unblock');
@@ -4252,8 +4264,8 @@ sub STARTUP {
 			# if $x11_supported is false, we are on Wayland, and all these buttons are already disabled and should stay disabled
 
 			#menu
+			$sm->{_menuitem_selection}->set_sensitive($sensitive);
 			if ($x11_supported) {
-				$sm->{_menuitem_selection}->set_sensitive($sensitive);
 				$sm->{_menuitem_window}->set_sensitive($sensitive);
 				#$sm->{_menuitem_section}->set_sensitive($sensitive);
 				$sm->{_menuitem_menu}->set_sensitive($sensitive);
@@ -4264,8 +4276,8 @@ sub STARTUP {
 			$sm->{_menuitem_iclipboard}->set_sensitive($sensitive);
 
 			#toolbar
+			$st->{_select}->set_sensitive($sensitive);
 			if ($x11_supported) {
-				$st->{_select}->set_sensitive($sensitive);
 				$st->{_window}->set_sensitive($sensitive);
 				#$st->{_section}->set_sensitive($sensitive);
 				$st->{_menu}->set_sensitive($sensitive);
@@ -6097,13 +6109,33 @@ sub STARTUP {
 
 			} else {
 
-				$screenshooter = Shutter::Screenshot::SelectorAdvanced->new(
-					$sc,                      $include_cursor,        $delay_value,                $notify_timeout_active->get_active,
-					$zoom_active->get_active, $hide_time->get_value,  $as_help_active->get_active, $asel_size3->get_value,
-					$asel_size4->get_value,   $asel_size1->get_value, $asel_size2->get_value,			 $as_confirmation_necessary->get_active,
-				);
+				if ($gnome_screenshot) {
+					
+					print "\n\n\n We will be using gnome-screenshot!\n\n\n"; #DEBUG
+					
+					$screenshooter = Shutter::Screenshot::SelectorGnomeWayland->new(
+						$sc,                     		$include_cursor,        $delay_value,               
+						$notify_timeout_active->get_active, 	$hide_time->get_value,
+					);
 
-				$screenshot = $screenshooter->select_advanced();
+					$screenshot = $screenshooter->select_gnome_wayland();
+										
+				} elsif ($slurp) {
+				
+					print "\n\n\n We will be using slurp!\n\n\n"; #DEBUG
+				
+					$screenshot = Shutter::Screenshot::SelectorSlurpWayland::xdg_portal($screenshooter);
+				
+				} else {
+
+					$screenshooter = Shutter::Screenshot::SelectorAdvanced->new(
+						$sc,                      $include_cursor,        $delay_value,                $notify_timeout_active->get_active,
+						$zoom_active->get_active, $hide_time->get_value,  $as_help_active->get_active, $asel_size3->get_value,
+						$asel_size4->get_value,   $asel_size1->get_value, $asel_size2->get_value,			 $as_confirmation_necessary->get_active,
+					);
+
+					$screenshot = $screenshooter->select_advanced();
+				}
 
 			}
 
@@ -8496,7 +8528,6 @@ sub STARTUP {
 
 		#selection
 		my $menuitem_select = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('_Selection'));
-		$menuitem_select->set_sensitive($x11_supported);
 		eval {
 			my $ccursor_pb = Gtk3::Gdk::Cursor::new('left_ptr')->get_image->scale_simple($shf->icon_size('menu'), 'bilinear');
 			$menuitem_select->set_image(Gtk3::Image->new_from_pixbuf($ccursor_pb));
