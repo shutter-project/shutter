@@ -25,6 +25,7 @@ package Shutter::Upload::Shared;
 
 use utf8;
 use strict;
+use warnings;
 use POSIX qw/setlocale/;
 use Locale::gettext;
 use Glib qw/TRUE FALSE/;
