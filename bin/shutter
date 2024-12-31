@@ -383,10 +383,11 @@ my $wnck_screen;
 my $x11_supported;
 my $zoom_active;
 #data structures
-	#--------------------------------------
-	my %plugins;     #hash to store plugin infos
-	my %accounts;    #hash to store account infos
-	my %settings;    #hash to store settings
+	#-------------------------------------------------------
+	my %plugins;    	#hash to store plugin infos
+	my %accounts;   	#hash to store account infos
+	my %settings;    	#hash to store settings
+	my @supported_formats;	#hash to store available supported file formats
 
 sub STARTUP {
 	# This is called by $app->run below if another Shutter instance is not running.
@@ -1233,8 +1234,7 @@ sub STARTUP {
 	$scale_box->pack_start($scale,       TRUE,  TRUE, 0);
 
 	#add compatile, writeable file types
-	my $combobox_type = Gtk3::ComboBoxText->new;
-	my @supported_formats;
+	$combobox_type = Gtk3::ComboBoxText->new;
 
 	foreach my $format (Gtk3::Gdk::Pixbuf::get_formats()) {
 		my $format_name = $format->get_name;
