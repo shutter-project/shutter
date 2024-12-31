@@ -49,9 +49,49 @@ sub new {
 	my $current_window = $self->{_window} || $self->{_common}->get_mainwindow;
 	$self->{_dialogs} = Shutter::App::SimpleDialogs->new($current_window);
 	$self->{_lp}      = Shutter::Pixbuf::Load->new($self->{_common}, $current_window);
+	$self->{_quality} = undef;
 
 	bless $self, $class;
 	return $self;
+}
+
+sub set_quality_setting {
+		my $self = shift;
+		my $filetype = shift;
+		my $default_image_quality = {
+			"png" => 9,
+			"jpg" => 90,
+			"webp" => 98,
+			"avif" => 68
+		};
+
+		#get quality value from settings if not set
+		if (my $settings = $self->{_common}->get_globalsettings_object) {
+			if (defined $settings->get_image_quality($filetype)) {
+				$self->{_quality} = $settings->get_image_quality($filetype);
+			} else {
+				$self->{_quality} = $default_image_quality->{$filetype};
+			}
+		} else {
+			$self->{_quality} = $default_image_quality->{$filetype};
+		}
+}
+
+sub save_pdf_ps_svg {
+	my $self = shift;
+	my $filename = shift;
+	my $pixbuf = shift;
+	
+	#0.8? => 72 / 90 dpi
+	my $surface = Cairo::SvgSurface->create($filename, $pixbuf->get_width * 0.8, $pixbuf->get_height * 0.8);
+	my $cr      = Cairo::Context->create($surface);
+	$cr->scale(0.8, 0.8);
+	Gtk3::Gdk::cairo_set_source_pixbuf($cr, $pixbuf, 0, 0);
+	$cr->paint;
+	$cr->show_page;
+
+	undef $surface;
+	undef $cr;
 }
 
 sub save_pixbuf_to_file {
@@ -60,6 +100,8 @@ sub save_pixbuf_to_file {
 	my $filename = shift;
 	my $filetype = shift;
 	my $quality  = shift;
+	
+	$self->{_quality} = $quality;
 
 	#gettext variable
 	my $d = $self->{_common}->get_gettext;
@@ -81,22 +123,13 @@ sub save_pixbuf_to_file {
 	#currently this is bmp, jpeg (jpg), png and ico (ico is not useful here)
 	my $imagemagick_result = undef;
 	if ($filetype eq 'jpeg' || $filetype eq 'jpg') {
+	
+		$self->set_quality_setting($filetype);
 
-		#get quality value from settings if not set
-		if (my $settings = $self->{_common}->get_globalsettings_object) {
-			if (defined $settings->get_jpg_quality) {
-				$quality = $settings->get_jpg_quality;
-			} else {
-				$quality = 90;
-			}
-		} else {
-			$quality = 90;
-		}
-
-		print "Saving file $filename, $filetype, $quality\n" if $self->{_common}->get_debug;
+		print "Saving file $filename, $filetype, " . $self->{_quality} . "\n" if $self->{_common}->get_debug;
 
 		eval {
-			$pixbuf->save($filename, 'jpeg', quality => $quality);
+			$pixbuf->save($filename, 'jpeg', quality => $self->{_quality});
 
 			#FIXME: NOT COVERED BY BINDINGS YET (we use Image::ExifTool instead)
 			#~ $pixbuf->set_option( 'orientation' => $option );
@@ -116,86 +149,39 @@ sub save_pixbuf_to_file {
 		};
 	} elsif ($filetype eq 'png') {
 
-		#get quality value from settings if not set
-		if (my $settings = $self->{_common}->get_globalsettings_object) {
-			if (defined $settings->get_png_quality) {
-				$quality = $settings->get_png_quality;
-			} else {
-				$quality = 9;
-			}
-		} else {
-			$quality = 9;
-		}
+		$self->set_quality_setting($filetype);
 
-		print "Saving file $filename, $filetype, $quality\n" if $self->{_common}->get_debug;
+		print "Saving file $filename, $filetype, " . $self->{_quality} . "\n" if $self->{_common}->get_debug;
 
-		eval { $pixbuf->save($filename, $filetype, "tEXt::Software" => "Shutter", compression => $quality); };
+		eval { $pixbuf->save($filename, $filetype, "tEXt::Software" => "Shutter", compression => $self->{_quality}); };
 	} elsif ($filetype eq 'bmp') {
 		eval { $pixbuf->save($filename, $filetype); };
 	} elsif ($filetype eq 'webp') {
 
-		#get quality value from settings if not set
-		if (my $settings = $self->{_common}->get_globalsettings_object) {
-			if (defined $settings->get_webp_quality) {
-				$quality = $settings->get_webp_quality;
-			} else {
-				$quality = 98;
-			}
-		} else {
-			$quality = 98;
-		}
+		$self->set_quality_setting($filetype);
 
-		print "Saving file $filename, $filetype, $quality\n" if $self->{_common}->get_debug;
+		print "Saving file $filename, $filetype, " . $self->{_quality} . "\n" if $self->{_common}->get_debug;
 
-		eval { $pixbuf->save($filename, $filetype, "tEXt::Software" => "Shutter", quality => $quality); };
-	} elsif ($filetype eq 'pdf') {
+		eval { $pixbuf->save($filename, $filetype, "tEXt::Software" => "Shutter", quality => $self->{_quality}); };
 
-		print "Saving file $filename, $filetype\n" if $self->{_common}->get_debug;
+	
+	} elsif ($filetype eq 'avif') {
 
-		#0.8? => 72 / 90 dpi
-		my $surface = Cairo::PdfSurface->create($filename, $pixbuf->get_width * 0.8, $pixbuf->get_height * 0.8);
-		my $cr      = Cairo::Context->create($surface);
-		$cr->scale(0.8, 0.8);
-		Gtk3::Gdk::cairo_set_source_pixbuf($cr, $pixbuf, 0, 0);
-		$cr->paint;
-		$cr->show_page;
+		$self->set_quality_setting($filetype);
 
-		undef $surface;
-		undef $cr;
+		print "Saving file $filename, $filetype, " . $self->{_quality} . "\n" if $self->{_common}->get_debug;
 
-	} elsif ($filetype eq 'ps') {
+		eval { $pixbuf->save($filename, $filetype, quality => $self->{_quality}); };
+
+	} elsif ($filetype eq 'pdf' || $filetype eq 'ps' || $filetype eq 'svg') {
+
+		$self->save_pdf_ps_svg($filename, $pixbuf);
 
 		print "Saving file $filename, $filetype\n" if $self->{_common}->get_debug;
-
-		#0.8? => 72 / 90 dpi
-		my $surface = Cairo::PsSurface->create($filename, $pixbuf->get_width * 0.8, $pixbuf->get_height * 0.8);
-		my $cr      = Cairo::Context->create($surface);
-		$cr->scale(0.8, 0.8);
-		Gtk3::Gdk::cairo_set_source_pixbuf($cr, $pixbuf, 0, 0);
-		$cr->paint;
-		$cr->show_page;
-
-		undef $surface;
-		undef $cr;
-
-	} elsif ($filetype eq 'svg') {
-
-		print "Saving file $filename, $filetype\n" if $self->{_common}->get_debug;
-
-		#0.8? => 72 / 90 dpi
-		my $surface = Cairo::SvgSurface->create($filename, $pixbuf->get_width * 0.8, $pixbuf->get_height * 0.8);
-		my $cr      = Cairo::Context->create($surface);
-		$cr->scale(0.8, 0.8);
-		Gtk3::Gdk::cairo_set_source_pixbuf($cr, $pixbuf, 0, 0);
-		$cr->paint;
-		$cr->show_page;
-
-		undef $surface;
-		undef $cr;
 
 	} else {
 
-		print "Saving file $filename, $filetype, $quality (using fallback-mode)\n" if $self->{_common}->get_debug;
+		print "Saving file $filename, $filetype, $self->{_quality} (using fallback-mode)\n" if $self->{_common}->get_debug;
 
 		#save pixbuf to tempfile
 		my ($tmpfh, $tmpfilename) = tempfile();

@@ -383,10 +383,11 @@ my $wnck_screen;
 my $x11_supported;
 my $zoom_active;
 #data structures
-	#--------------------------------------
-	my %plugins;     #hash to store plugin infos
-	my %accounts;    #hash to store account infos
-	my %settings;    #hash to store settings
+	#-------------------------------------------------------
+	my %plugins;    	#hash to store plugin infos
+	my %accounts;   	#hash to store account infos
+	my %settings;    	#hash to store settings
+	my @supported_formats;	#hash to store available supported file formats
 
 sub STARTUP {
 	# This is called by $app->run below if another Shutter instance is not running.
@@ -1234,39 +1235,26 @@ sub STARTUP {
 
 	#add compatile, writeable file types
 	$combobox_type = Gtk3::ComboBoxText->new;
-	($int_png, $int_jpeg, $int_bmp, $int_webp) = (-1, -1, -1, -1);
-	my $format_counter = 0;
 
 	foreach my $format (Gtk3::Gdk::Pixbuf::get_formats()) {
-		if (   $format->get_name eq "jpeg"
-			|| $format->get_name eq "png"
-			|| $format->get_name eq "bmp"
-			|| $format->get_name eq "webp")
+		my $format_name = $format->get_name;
+		if ( $format_name eq "jpeg"
+			|| $format_name eq "png"
+			|| $format_name eq "bmp"
+			|| $format_name eq "webp"
+			|| $format_name eq "avif")
 		{
 
 			#we want jpg not jpeg
-			if ($format->get_name eq "jpeg" || $format->get_name eq "jpg") {
-				$combobox_type->append_text("jpg" . " - " . $format->get_description);
-			} else {
-				$combobox_type->append_text($format->get_name . " - " . $format->get_description);
+			if ($format_name eq "jpeg" || $format_name eq "jpg") {
+				$format_name = "jpg";
 			}
-
-			#a little ugly here, maybe the values are in alternative order on several machine...
-			#just remember the number when appending, so we can set png as default for example
-			if ($format->get_name eq "jpeg" || $format->get_name eq "jpg") {
-				$int_jpeg = $format_counter;
-			} elsif ($format->get_name eq "png") {
-				$int_png = $format_counter;
-			} elsif ($format->get_name eq "bmp") {
-				$int_bmp = $format_counter;
-			} elsif ($format->get_name eq "webp") {
-				$int_webp = $format_counter;
-			}
-
-			$format_counter++;
-
+			
+			$combobox_type->append_text($format_name . " - " . $format->get_description);
+			push(@supported_formats, $format_name);
 		}
 	}
+	
 	$combobox_type->signal_connect(
 		'changed' => \&evt_value_changed,
 		'type_changed'
@@ -1277,23 +1265,8 @@ sub STARTUP {
 	);
 
 	if (defined $settings_xml->{'general'}->{'filetype'}) {
-
-		#migration from gscrot to shutter
-		#maybe we can drop this in future releases
-		# 0 := jpeg (jpg)
-		# 1 := png
-		unless (defined $settings_xml->{'general'}->{'app_version'}) {
-			if ($settings_xml->{'general'}->{'filetype'} == 0) {
-				$combobox_type->set_active($int_jpeg);
-			} elsif ($settings_xml->{'general'}->{'filetype'} == 1) {
-				$combobox_type->set_active($int_png);
-			}
-
-			#shutter
-		} else {
-			$combobox_type->set_active($settings_xml->{'general'}->{'filetype'});
-		}
-
+		$combobox_type->set_active($settings_xml->{'general'}->{'filetype'});
+	
 		#set saved quality/compression value if there is one
 		if (defined $settings_xml->{'general'}->{'quality'}) {
 			$scale->set_value($settings_xml->{'general'}->{'quality'});
@@ -1302,11 +1275,9 @@ sub STARTUP {
 	} else {
 
 		#we will try to set a default value in this order
-		foreach my $cformat (@{[$int_png, $int_jpeg, $int_bmp, $int_webp]}) {
-			if ($cformat > -1) {
-				$combobox_type->set_active($cformat);
+		foreach my $i (0 .. $#supported_formats) {
+				$combobox_type->set_active($i);
 				last;
-			}
 		}
 
 	}
@@ -2981,13 +2952,15 @@ sub STARTUP {
 				$sc->set_globalsettings_object($settings);
 			}
 			if ($combobox_type->get_active_text =~ /jpeg/) {
-				$settings->set_jpg_quality($scale->get_value);
+				$settings->set_image_quality("jpg", $scale->get_value);
 			} elsif ($combobox_type->get_active_text =~ /jpg/) {
-				$settings->set_jpg_quality($scale->get_value);
+				$settings->set_image_quality("jpg", $scale->get_value);
 			} elsif ($combobox_type->get_active_text =~ /png/) {
-				$settings->set_png_quality($scale->get_value);
+				$settings->set_image_quality("png", $scale->get_value);
 			} elsif ($combobox_type->get_active_text =~ /webp/) {
-				$settings->set_webp_quality($scale->get_value);
+				$settings->set_image_quality("webp", $scale->get_value);
+			} elsif ($combobox_type->get_active_text =~ /avif/) {
+				$settings->set_image_quality("avif", $scale->get_value);
 			} else {
 				$settings->clear_quality_settings();
 			}
@@ -3009,30 +2982,25 @@ sub STARTUP {
 
 		#filetype changed
 		if ($data eq "type_changed") {
+			$scale->set_sensitive(TRUE);
+			$scale_label->set_sensitive(TRUE);
+			$scale_label->set_text($d->get("Quality") . ":");
 			if ($combobox_type->get_active_text =~ /jpeg/) {
-				$scale->set_sensitive(TRUE);
-				$scale_label->set_sensitive(TRUE);
 				$scale->set_range(1, 100);
 				$scale->set_value(90);
-				$scale_label->set_text($d->get("Quality") . ":");
 			} elsif ($combobox_type->get_active_text =~ /jpg/) {
-				$scale->set_sensitive(TRUE);
-				$scale_label->set_sensitive(TRUE);
 				$scale->set_range(1, 100);
 				$scale->set_value(90);
-				$scale_label->set_text($d->get("Quality") . ":");
 			} elsif ($combobox_type->get_active_text =~ /png/) {
-				$scale->set_sensitive(TRUE);
-				$scale_label->set_sensitive(TRUE);
 				$scale->set_range(0, 9);
 				$scale->set_value(9);
 				$scale_label->set_text($d->get("Compression") . ":");
 			} elsif ($combobox_type->get_active_text =~ /webp/) {
-				$scale->set_sensitive(TRUE);
-				$scale_label->set_sensitive(TRUE);
 				$scale->set_range(0, 100);
 				$scale->set_value(98);
-				$scale_label->set_text($d->get("Quality") . ":");
+			} elsif ($combobox_type->get_active_text =~ /avif/) {
+				$scale->set_range(0, 100);
+				$scale->set_value(68);
 			} else {
 				$scale->set_sensitive(FALSE);
 				$scale_label->set_sensitive(FALSE);
@@ -4867,22 +4835,7 @@ sub STARTUP {
 				$settings_xml = XMLin(IO::File->new($settingsfile));
 
 				if ($data eq 'profile_load') {
-
-					#migration from gscrot to shutter
-					#maybe we can drop this in future releases
-					# 0 := jpeg
-					# 1 := png
-					unless (defined $settings_xml->{'general'}->{'app_version'}) {
-						if ($settings_xml->{'general'}->{'filetype'} == 0) {
-							$combobox_type->set_active($int_jpeg);
-						} elsif ($settings_xml->{'general'}->{'filetype'} == 1) {
-							$combobox_type->set_active($int_png);
-						}
-
-						#shutter
-					} else {
-						$combobox_type->set_active($settings_xml->{'general'}->{'filetype'});
-					}
+					$combobox_type->set_active($settings_xml->{'general'}->{'filetype'});
 
 					#main
 					$scale->set_value($settings_xml->{'general'}->{'quality'});
@@ -9885,13 +9838,11 @@ sub STARTUP {
 						#Fix Bug #966159
 						if (defined $rfilename) {
 							my ($short, $folder, $ext) = fileparse($rfilename, qr/\.[^.]*/);
-							if ($mime eq "image/jpeg" && $ext eq ".jpg") {
-								$combobox_save_as_type->set_active($counter);
-							} elsif ($mime eq "image/png" && $ext eq ".png") {
-								$combobox_save_as_type->set_active($counter);
-							} elsif ($mime eq "image/bmp" && $ext eq ".bmp") {
-								$combobox_save_as_type->set_active($counter);
-							} elsif ($mime eq "image/webp" && $ext eq ".webp") {
+							if ($mime eq "image/jpeg" && $ext eq ".jpg"
+								|| $mime eq "image/png" && $ext eq ".png"
+								|| $mime eq "image/bmp" && $ext eq ".bmp"
+								|| $mime eq "image/webp" && $ext eq ".webp"
+								|| $mime eq "image/avif" && $ext eq ".avif") {
 								$combobox_save_as_type->set_active($counter);
 							}
 						}

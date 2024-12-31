@@ -38,71 +38,53 @@ sub new {
 
 	my $self = {};
 
-	$self->{_png_quality} = undef;
-	$self->{_jpg_quality} = undef;
-	$self->{_webp_quality} = undef;
+	$self->{_image_quality} = {
+		"png" => undef,
+		"jpg" => undef,
+		"webp" => undef,
+		"avif" => undef
+	};
+
+	$self->{_default_image_quality} = {
+		"png" => 9,
+		"jpg" => 90,
+		"webp" => 98,
+		"avif" => 68
+	};
 
 	bless $self, $class;
 	return $self;
 }
 
 #getter / setter
-sub get_png_quality {
+
+sub get_image_quality {
 	my $self = shift;
-	if (defined $self->{_png_quality}) {
-		return $self->{_png_quality};
+	my $format = shift;
+	if (defined $self->{_image_quality}{$format}) {
+		return $self->{_image_quality}{$format};
 	} else {
-		return 9;
+		return $self->{_default_image_quality}{$format};
 	}
 }
 
-sub get_jpg_quality {
+sub set_image_quality {
 	my $self = shift;
-	if (defined $self->{_jpg_quality}) {
-		return $self->{_jpg_quality};
-	} else {
-		return 90;
-	}
-}
-
-sub get_webp_quality {
-	my $self = shift;
-	if (defined $self->{_webp_quality}) {
-		return $self->{_webp_quality};
-	} else {
-		return 98;
-	}
-}
-
-sub set_png_quality {
-	my $self = shift;
+	my $format = shift;
 	if (@_) {
-		$self->{_png_quality} = shift;
+		$self->{_image_quality}{$format} = shift;
 	}
-	return $self->{_png_quality};
-}
-
-sub set_jpg_quality {
-	my $self = shift;
-	if (@_) {
-		$self->{_jpg_quality} = shift;
-	}
-	return $self->{_jpg_quality};
-}
-
-sub set_webp_quality {
-	my $self = shift;
-	if (@_) {
-		$self->{_webp_quality} = shift;
-	}
-	return $self->{_webp_quality};
+	return $self->{_image_quality}{$format};
 }
 
 sub clear_quality_settings {
 	my $self = shift;
-	$self->{_jpg_quality} = undef;
-	$self->{_png_quality} = undef;
-	$self->{_webp_quality} = undef;
+	$self->{_image_quality} = {
+		"png" => undef,
+		"jpg" => undef,
+		"webp" => undef,
+		"avif" => undef
+	};
 }
 
 1;
