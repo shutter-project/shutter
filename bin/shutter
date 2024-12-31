@@ -269,6 +269,125 @@ my $init_files = $so->get_options;
 # accept either path or uri as arguments, but store only uri
 my @init_files = map { Glib::IO::File::new_for_commandline_arg($_)->get_uri } @$init_files;
 
+my @signal_connections;
+#hash of screenshots during session
+my %session_screens;
+my %session_start_screen;
+my $accounts_model;
+my $accounts_tree;
+my $app;
+my $as_confirmation_necessary;
+my $as_help_active;
+my $asel_size1;
+my $asel_size2;
+my $asel_size3;
+my $asel_size4;
+my $ask_on_delete_active;
+my $ask_on_fs_delete_active;
+my $autoshape_active;
+my $border_active;
+my $bordereffect_active;
+my $bordereffect_cbtn;
+my $bordereffect_vlabel;
+my $bordereffect;
+my $clipboard;
+my $close_at_close_active;
+my $combobox_im_colors;
+my $combobox_ns;
+my $combobox_settings_profiles;
+my $combobox_status_profiles_label;
+my $combobox_status_profiles;
+my $combobox_type;
+my $combobox_web_width;
+my $css_provider_alpha;
+my $current_monitor_active;
+my $current_profile_indx;
+my $cursor_active;
+my $cursor_status_active;
+my $d;
+my $delay_status_vlabel;
+my $delay_status;
+my $delay_vlabel;
+my $delay;
+my $delete_on_close_active;
+my $filename;
+my $fname_autocopy_active;
+my $fs_active;
+my $fs_min_active;
+my $fs_nonot_active;
+my $ftp_mode_combo;
+my $ftp_password_entry;
+my $ftp_remote_entry;
+my $ftp_username_entry;
+my $ftp_wurl_entry;
+my $hide_active;
+my $hide_time_vlabel;
+my $hide_time;
+my $hu;
+my $im_colors_active;
+my $image_autocopy_active;
+my $int_jpeg;
+my $int_png;
+my $int_bmp;
+my $int_webp;
+my $is_hidden;
+my $lp_ne;
+my $lp;
+my $menu_delay_vlabel;
+my $menu_delay;
+my $menu_waround_active;
+my $nav_toolbar;
+my $no_autocopy_active;
+my $notebook;
+my $notify_after_active;
+my $notify_ptimeout_active;
+my $notify_timeout_active;
+my $pagesetup;
+my $present_after_active;
+my $progname_active;
+my $progname;
+my $sas;
+my $save_ask_active;
+my $save_auto_active;
+my $save_no_active;
+my $saveDir_button;
+my $scale_label;
+my $scale;
+my $sd;
+my $session_asc_combo;
+my $session_asc;
+my $session_desc_combo;
+my $session_desc;
+my $settings_dialog;
+my $settings_xml;
+my $sm;
+my $sp;
+my $st;
+my $status;
+my $thumbnail_active;
+my $thumbnail;
+my $trans_backg;
+my $trans_check;
+my $trans_custom_btn;
+my $trans_custom;
+my $tray_libappindicator;
+my $tray_legacy;
+my $tray_menu;
+my $tray;
+my $visible_windows_active;
+my $window;
+my $winresize_active;
+my $winresize_h;
+my $winresize_w;
+my $wnck_screen;
+my $x11_supported;
+my $zoom_active;
+#data structures
+	#--------------------------------------
+	my %plugins;     #hash to store plugin infos
+	my %accounts;    #hash to store account infos
+	my %settings;    #hash to store settings
+
 sub STARTUP {
 	# This is called by $app->run below if another Shutter instance is not running.
 
@@ -277,45 +396,39 @@ sub STARTUP {
 
 	#main window
 	#--------------------------------------
-	my $window = Gtk3::ApplicationWindow->new($app);
+	$window = Gtk3::ApplicationWindow->new($app);
 	#--------------------------------------
 
 	#create app objects
 	#--------------------------------------
 	$sc->set_mainwindow($window);
-	my $sas  = Shutter::App::Autostart->new();
-	my $sm   = Shutter::App::Menu->new($sc);
-	my $st   = Shutter::App::Toolbar->new($sc);
-	my $sd   = Shutter::App::SimpleDialogs->new($window);
+	$sas  = Shutter::App::Autostart->new();
+	$sm   = Shutter::App::Menu->new($sc);
+	$st   = Shutter::App::Toolbar->new($sc);
+	$sd   = Shutter::App::SimpleDialogs->new($window);
 
-	my $sp    = Shutter::Pixbuf::Save->new($sc);
-	my $lp    = Shutter::Pixbuf::Load->new($sc);
-	my $lp_ne = Shutter::Pixbuf::Load->new($sc, undef, TRUE);
-	my $hu    = Number::Bytes::Human->new(si => 1);
+	$sp    = Shutter::Pixbuf::Save->new($sc);
+	$lp    = Shutter::Pixbuf::Load->new($sc);
+	$lp_ne = Shutter::Pixbuf::Load->new($sc, undef, TRUE);
+	$hu    = Number::Bytes::Human->new(si => 1);
 	#--------------------------------------
 
 	#Clipboard
-	my $clipboard = Gtk3::Clipboard::get($Gtk3::Gdk::SELECTION_CLIPBOARD);
+	$clipboard = Gtk3::Clipboard::get($Gtk3::Gdk::SELECTION_CLIPBOARD);
 
 	#Gettext
-	my $d = $sc->get_gettext;
+	$d = $sc->get_gettext;
 
 	#Page Setup
-	my $pagesetup = undef;
+	$pagesetup = undef;
 
-	#data structures
-	#--------------------------------------
-	my %plugins;     #hash to store plugin infos
-	my %accounts;    #hash to store account infos
-	my %settings;    #hash to store settings
 
 	#HELPERS
-	my $current_profile_indx = 0;       #current profile index
-	my $is_hidden            = TRUE;    #main window hidden flag
+	$current_profile_indx = 0;       #current profile index
+	$is_hidden            = TRUE;    #main window hidden flag
 
 	# Watch the main window and register a handler that will be called each time
 	# that there's a new message.
-	my @signal_connections;
 	my $action;
 
 	$action = Glib::IO::SimpleAction->new('exitac', '');
@@ -450,10 +563,6 @@ sub STARTUP {
 	$SIG{INT}  = sub { evt_delete_window('', 'quit') };
 	$SIG{TERM} = sub { evt_delete_window('', 'quit') };
 
-	#hash of screenshots during session
-	my %session_screens;
-	my %session_start_screen;
-
 	#main window gui
 	#--------------------------------------
 	Gtk3::Window::set_default_icon_name("shutter");
@@ -464,40 +573,40 @@ sub STARTUP {
 	$window->set_default_size(-1, 500);
 
 	#UPDATE WINDOW LIST (signal is connected when GUI is loaded)
-
-	my $x11_supported = 1;
+	
+	$x11_supported = 1;
+	
 	if ($ENV{XDG_SESSION_TYPE} eq "wayland") {
 		$x11_supported = 0;
 	}
 
-	my $wnck_screen;
 	if ($x11_supported) {
 		$wnck_screen = Wnck::Screen::get_default();
 		$wnck_screen->force_update if $wnck_screen;
 	}
 
 	#TRAY ICON AND MENU
-	my $tray      = undef;
-	my $tray_libappindicator = undef;
-	my $tray_legacy = undef;
-	my $tray_menu = fct_ret_tray_menu();
+	$tray      = undef;
+	$tray_libappindicator = undef;
+	$tray_legacy = undef;
+	$tray_menu = fct_ret_tray_menu();
 
 	#SESSION NOTEBOOK
-	my $notebook = Gtk3::Notebook->new;
+	$notebook = Gtk3::Notebook->new;
 	$notebook = fct_create_session_notebook();
 
 	#STATUSBAR
-	my $status = Gtk3::Statusbar->new;
+	$status = Gtk3::Statusbar->new;
 	$status->set_name('main-window-statusbar');
 
-	my $combobox_status_profiles_label = Gtk3::Label->new($d->get("Profile") . ":");
-	my $combobox_status_profiles       = Gtk3::ComboBoxText->new;
+	$combobox_status_profiles_label = Gtk3::Label->new($d->get("Profile") . ":");
+	$combobox_status_profiles       = Gtk3::ComboBoxText->new;
 
 	#arrange settings in notebook
 	my $notebook_settings = Gtk3::Notebook->new;
 	$notebook_settings->set_tab_pos('left');
 
-	my $settings_dialog = Gtk3::Dialog->new(SHUTTER_NAME . " - " . $d->get("Preferences"), $window, [qw/modal destroy-with-parent/], 'gtk-close' => 'close');
+	$settings_dialog = Gtk3::Dialog->new(SHUTTER_NAME . " - " . $d->get("Preferences"), $window, [qw/modal destroy-with-parent/], 'gtk-close' => 'close');
 
 	my $vbox = Gtk3::VBox->new(FALSE, 0);
 	$window->add($vbox);
@@ -780,7 +889,7 @@ sub STARTUP {
 
 	#load settings
 	#--------------------------------------
-	my $settings_xml = fct_load_settings("start");
+  $settings_xml = fct_load_settings("start");
 
 	#load accounts for hosting services
 	fct_load_accounts();
@@ -831,7 +940,7 @@ sub STARTUP {
 
 	$st->{_select}->signal_connect('clicked' => \&evt_take_screenshot, 'select');
 
-	my $current_monitor_active = undef;
+	$current_monitor_active = undef;
 	$st->{_full}->signal_connect('clicked' => \&evt_take_screenshot, 'full');
 
 	#init menus
@@ -887,7 +996,7 @@ sub STARTUP {
 
 	#handle profiles
 	#--------------------------------------
-	my $combobox_settings_profiles = Gtk3::ComboBoxText->new;
+	$combobox_settings_profiles = Gtk3::ComboBoxText->new;
 	my @current_profiles;
 	my $current_index = 0;
 	foreach my $pfile (sort +bsd_glob("$ENV{'HOME'}/.shutter/profiles/*.xml")) {
@@ -1070,7 +1179,7 @@ sub STARTUP {
 	#--------------------------------------
 	my $filename_label = Gtk3::Label->new($d->get("Filename") . ":");
 
-	my $filename = Gtk3::Entry->new;
+	$filename = Gtk3::Entry->new;
 	if (defined $settings_xml->{'general'}->{'filename'}) {
 		$filename->set_text($settings_xml->{'general'}->{'filename'});
 	} else {
@@ -1107,8 +1216,8 @@ sub STARTUP {
 
 	#filetype and scale
 	#--------------------------------------
-	my $scale       = Gtk3::HScale->new_with_range(0, 9, 1);
-	my $scale_label = Gtk3::Label->new($d->get("Compression") . ":");
+	$scale       = Gtk3::HScale->new_with_range(0, 9, 1);
+	$scale_label = Gtk3::Label->new($d->get("Compression") . ":");
 	$scale->set_value_pos('right');
 	$scale->set_value(1);
 
@@ -1185,7 +1294,7 @@ sub STARTUP {
 	#saveDir
 	#--------------------------------------
 	my $saveDir_label  = Gtk3::Label->new($d->get("Directory") . ":");
-	my $saveDir_button = Gtk3::FileChooserButton->new("Shutter - " . $d->get("Choose folder"), 'select-folder');
+	$saveDir_button = Gtk3::FileChooserButton->new("Shutter - " . $d->get("Choose folder"), 'select-folder');
 	for my $saveDir_dir ($settings_xml->{'general'}->{'folder'},
 		Glib::get_user_special_dir('pictures'),
 		Glib::get_home_dir()) {
@@ -1205,17 +1314,17 @@ sub STARTUP {
 
 	#save options
 	#--------------------------------------
-	my $save_ask_active = Gtk3::RadioButton->new_with_label(undef, $d->get("Browse for save folder every time"));
+	$save_ask_active = Gtk3::RadioButton->new_with_label(undef, $d->get("Browse for save folder every time"));
 	$save_ask_box->pack_start($save_ask_active, FALSE, TRUE, 12);
 
 	$save_ask_active->set_tooltip_text($d->get("Browse for save folder every time"));
 
-	my $save_no_active = Gtk3::RadioButton->new_with_label($save_ask_active, $d->get("Do not save file automatically"));
+	$save_no_active = Gtk3::RadioButton->new_with_label($save_ask_active, $d->get("Do not save file automatically"));
 	$save_no_box->pack_start($save_no_active, FALSE, TRUE, 12);
 
 	$save_no_active->set_tooltip_text($d->get("Do not save file automatically"));
 
-	my $save_auto_active = Gtk3::RadioButton->new_with_label($save_ask_active, $d->get("Automatically save file"));
+	$save_auto_active = Gtk3::RadioButton->new_with_label($save_ask_active, $d->get("Automatically save file"));
 	$save_auto_box->pack_start($save_auto_active, FALSE, TRUE, 12);
 
 	$save_auto_active->set_tooltip_text($d->get("Automatically save file"));
@@ -1242,7 +1351,7 @@ sub STARTUP {
 
 	#image_autocopy
 	#--------------------------------------
-	my $image_autocopy_active = Gtk3::RadioButton->new_with_label(undef, $d->get("Automatically copy screenshot to clipboard"));
+	$image_autocopy_active = Gtk3::RadioButton->new_with_label(undef, $d->get("Automatically copy screenshot to clipboard"));
 	$image_autocopy_box->pack_start($image_autocopy_active, FALSE, TRUE, 12);
 
 	if (defined $settings_xml->{'general'}->{'image_autocopy'}) {
@@ -1258,7 +1367,7 @@ sub STARTUP {
 
 	#fname_autocopy
 	#--------------------------------------
-	my $fname_autocopy_active = Gtk3::RadioButton->new_with_label($image_autocopy_active, $d->get("Automatically copy filename to clipboard"));
+	$fname_autocopy_active = Gtk3::RadioButton->new_with_label($image_autocopy_active, $d->get("Automatically copy filename to clipboard"));
 	$fname_autocopy_box->pack_start($fname_autocopy_active, FALSE, TRUE, 12);
 
 	if (defined $settings_xml->{'general'}->{'fname_autocopy'}) {
@@ -1274,7 +1383,7 @@ sub STARTUP {
 
 	#no_autocopy
 	#--------------------------------------
-	my $no_autocopy_active = Gtk3::RadioButton->new_with_label($image_autocopy_active, $d->get("Do not copy anything to clipboard"));
+	$no_autocopy_active = Gtk3::RadioButton->new_with_label($image_autocopy_active, $d->get("Do not copy anything to clipboard"));
 	$no_autocopy_box->pack_start($no_autocopy_active, FALSE, TRUE, 12);
 
 	if (defined $settings_xml->{'general'}->{'no_autocopy'}) {
@@ -1293,8 +1402,8 @@ sub STARTUP {
 
 	#delay statusbar
 	my $delay_status_label  = Gtk3::Label->new($d->get("Delay") . ":");
-	my $delay_status        = Gtk3::SpinButton->new_with_range(0, 99, 1);
-	my $delay_status_vlabel = Gtk3::Label->new($d->nget("second", "seconds", $delay_status->get_value));
+	$delay_status        = Gtk3::SpinButton->new_with_range(0, 99, 1);
+	$delay_status_vlabel = Gtk3::Label->new($d->nget("second", "seconds", $delay_status->get_value));
 	$delay_status->signal_connect(
 		'value-changed' => \&evt_value_changed,
 		'delay_status_changed'
@@ -1302,8 +1411,8 @@ sub STARTUP {
 
 	#delay settings dialog
 	my $delay_label  = Gtk3::Label->new($d->get("Capture after a delay of"));
-	my $delay        = Gtk3::SpinButton->new_with_range(0, 99, 1);
-	my $delay_vlabel = Gtk3::Label->new($d->nget("second", "seconds", $delay->get_value));
+	$delay        = Gtk3::SpinButton->new_with_range(0, 99, 1);
+	$delay_vlabel = Gtk3::Label->new($d->nget("second", "seconds", $delay->get_value));
 	$delay->signal_connect(
 		'value-changed' => \&evt_value_changed,
 		'delay_changed'
@@ -1332,14 +1441,14 @@ sub STARTUP {
 
 	#cursor
 	#--------------------------------------
-	my $cursor_status_active = Gtk3::CheckButton->new_with_label($d->get("Include Cursor"));
+	$cursor_status_active = Gtk3::CheckButton->new_with_label($d->get("Include Cursor"));
 	$cursor_status_active->set_tooltip_text($d->get("Include cursor when taking a screenshot"));
 	$cursor_status_active->signal_connect(
 		'toggled' => \&evt_value_changed,
 		'cursor_status_toggled'
 	);
 
-	my $cursor_active = Gtk3::CheckButton->new_with_label($d->get("Include cursor when taking a screenshot"));
+	$cursor_active = Gtk3::CheckButton->new_with_label($d->get("Include cursor when taking a screenshot"));
 	$cursor_active->set_tooltip_text($d->get("Include cursor when taking a screenshot"));
 	$cursor_active->signal_connect(
 		'toggled' => \&evt_value_changed,
@@ -1360,7 +1469,7 @@ sub STARTUP {
 	#program
 	#--------------------------------------
 	my $model    = fct_get_program_model();
-	my $progname = Gtk3::ComboBox->new_with_model($model);
+	$progname = Gtk3::ComboBox->new_with_model($model);
 
 	#add pixbuf renderer for icon
 	my $renderer_pix = Gtk3::CellRendererPixbuf->new;
@@ -1384,7 +1493,7 @@ sub STARTUP {
 		$progname->set_active(0);
 	}
 
-	my $progname_active = Gtk3::CheckButton->new;
+	$progname_active = Gtk3::CheckButton->new;
 	$progname_active->set_active(TRUE);
 	$progname_active->signal_connect(
 		'toggled' => \&evt_value_changed,
@@ -1408,7 +1517,7 @@ sub STARTUP {
 
 	#im_colors
 	#--------------------------------------
-	my $combobox_im_colors = Gtk3::ComboBoxText->new;
+  $combobox_im_colors = Gtk3::ComboBoxText->new;
 	$combobox_im_colors->insert_text(0, $d->get("16 colors   - (4bit) "));
 	$combobox_im_colors->insert_text(1, $d->get("64 colors   - (6bit) "));
 	$combobox_im_colors->insert_text(2, $d->get("256 colors  - (8bit) "));
@@ -1423,7 +1532,7 @@ sub STARTUP {
 		$combobox_im_colors->set_active(2);
 	}
 
-	my $im_colors_active = Gtk3::CheckButton->new;
+	$im_colors_active = Gtk3::CheckButton->new;
 	$im_colors_active->set_active(TRUE);
 	$im_colors_active->signal_connect(
 		'toggled' => \&evt_value_changed,
@@ -1450,7 +1559,7 @@ sub STARTUP {
 	#thumbnail
 	#--------------------------------------
 	my $thumbnail_label = Gtk3::Label->new($d->get("Thumbnail") . ":");
-	my $thumbnail       = Gtk3::HScale->new_with_range(1, 100, 1);
+	$thumbnail       = Gtk3::HScale->new_with_range(1, 100, 1);
 	$thumbnail->signal_connect(
 		'value-changed' => \&evt_value_changed,
 		'thumbnail_changed'
@@ -1462,7 +1571,7 @@ sub STARTUP {
 	} else {
 		$thumbnail->set_value(50);
 	}
-	my $thumbnail_active = Gtk3::CheckButton->new;
+  $thumbnail_active = Gtk3::CheckButton->new;
 	$thumbnail_active->set_active(TRUE);
 	$thumbnail_active->signal_connect(
 		'toggled' => \&evt_value_changed,
@@ -1486,15 +1595,15 @@ sub STARTUP {
 
 	#bordereffect
 	#--------------------------------------
-	my $bordereffect_active = Gtk3::CheckButton->new;
+	$bordereffect_active = Gtk3::CheckButton->new;
 	$bordereffect_active->set_active(TRUE);
 
 	my $bordereffect_label  = Gtk3::Label->new($d->get("Border") . ":");
-	my $bordereffect        = Gtk3::SpinButton->new_with_range(1, 100, 1);
-	my $bordereffect_vlabel = Gtk3::Label->new($d->get("pixels"));
+	$bordereffect        = Gtk3::SpinButton->new_with_range(1, 100, 1);
+	$bordereffect_vlabel = Gtk3::Label->new($d->get("pixels"));
 
 	my $bordereffect_clabel = Gtk3::Label->new($d->get("Color") . ":");
-	my $bordereffect_cbtn   = Gtk3::ColorButton->new();
+	$bordereffect_cbtn   = Gtk3::ColorButton->new();
 	$bordereffect_cbtn->set_use_alpha(FALSE);
 	$bordereffect_cbtn->set_title($d->get("Choose border color"));
 
@@ -1545,7 +1654,7 @@ sub STARTUP {
 
 	#zoom window
 	#--------------------------------------
-	my $zoom_active = Gtk3::CheckButton->new_with_label($d->get("Enable zoom window"));
+	$zoom_active = Gtk3::CheckButton->new_with_label($d->get("Enable zoom window"));
 
 	if (defined $settings_xml->{'general'}->{'zoom_active'}) {
 		$zoom_active->set_active($settings_xml->{'general'}->{'zoom_active'});
@@ -1566,10 +1675,10 @@ sub STARTUP {
 	my $asel_size_label2  = Gtk3::Label->new("x");
 	my $asel_size_label3  = Gtk3::Label->new($d->get("at"));
 	my $asel_size_label4  = Gtk3::Label->new(",");
-	my $asel_size1        = Gtk3::SpinButton->new_with_range(0, 10000, 1);
-	my $asel_size2        = Gtk3::SpinButton->new_with_range(0, 10000, 1);
-	my $asel_size3        = Gtk3::SpinButton->new_with_range(0, 10000, 1);
-	my $asel_size4        = Gtk3::SpinButton->new_with_range(0, 10000, 1);
+	$asel_size1        = Gtk3::SpinButton->new_with_range(0, 10000, 1);
+	$asel_size2        = Gtk3::SpinButton->new_with_range(0, 10000, 1);
+	$asel_size3        = Gtk3::SpinButton->new_with_range(0, 10000, 1);
+	$asel_size4        = Gtk3::SpinButton->new_with_range(0, 10000, 1);
 	my $asel_size_vlabel1 = Gtk3::Label->new($d->get("pixels"));
 	my $asel_size_vlabel2 = Gtk3::Label->new($d->get("pixels"));
 
@@ -1621,7 +1730,7 @@ sub STARTUP {
 
 	#show help text when using advanced selection tool
 	#--------------------------------------
-	my $as_help_active = Gtk3::CheckButton->new_with_label($d->get("Show help text"));
+	$as_help_active = Gtk3::CheckButton->new_with_label($d->get("Show help text"));
 
 	if (defined $settings_xml->{'general'}->{'as_help_active'}) {
 		$as_help_active->set_active($settings_xml->{'general'}->{'as_help_active'});
@@ -1638,7 +1747,7 @@ sub STARTUP {
 	
 	#confirmation is necessary in selection tool
 	#--------------------------------------
-	my $as_confirmation_necessary = Gtk3::CheckButton->new_with_label($d->get("Confirmation necessary"));
+	$as_confirmation_necessary = Gtk3::CheckButton->new_with_label($d->get("Confirmation necessary"));
 
 	if (defined $settings_xml->{'general'}->{'as_confirmation_necessary'}) {
 		$as_confirmation_necessary->set_active($settings_xml->{'general'}->{'as_confirmation_necessary'});
@@ -1655,7 +1764,7 @@ sub STARTUP {
 
 	#border
 	#--------------------------------------
-	my $border_active = Gtk3::CheckButton->new_with_label($d->get("Include window decoration when capturing a window"));
+	$border_active = Gtk3::CheckButton->new_with_label($d->get("Include window decoration when capturing a window"));
 	$border_active->set_tooltip_text($d->get("Include window decoration when capturing a window"));
 
 	$border_box->pack_start($border_active, FALSE, TRUE, 12);
@@ -1673,10 +1782,10 @@ sub STARTUP {
 	#--------------------------------------
 	my ($x, $y, $w, $h) = Gtk3::Gdk::get_default_root_window->get_geometry;
 
-	my $winresize_active = Gtk3::CheckButton->new_with_label($d->get("Automatically resize window to"));
+	$winresize_active = Gtk3::CheckButton->new_with_label($d->get("Automatically resize window to"));
 	my $winresize_label  = Gtk3::Label->new("x");
-	my $winresize_w      = Gtk3::SpinButton->new_with_range(0, $w, 1);
-	my $winresize_h      = Gtk3::SpinButton->new_with_range(0, $h, 1);
+	$winresize_w      = Gtk3::SpinButton->new_with_range(0, $w, 1);
+	$winresize_h      = Gtk3::SpinButton->new_with_range(0, $h, 1);
 	my $winresize_vlabel = Gtk3::Label->new($d->get("pixels"));
 
 	if (defined $settings_xml->{'general'}->{'winresize_active'}) {
@@ -1724,7 +1833,7 @@ sub STARTUP {
 
 	#window autoshape
 	#--------------------------------------
-	my $autoshape_active = Gtk3::CheckButton->new_with_label($d->get("Force rounded window corners"));
+	$autoshape_active = Gtk3::CheckButton->new_with_label($d->get("Force rounded window corners"));
 
 	if (defined $settings_xml->{'general'}->{'autoshape_active'}) {
 		$autoshape_active->set_active($settings_xml->{'general'}->{'autoshape_active'});
@@ -1751,7 +1860,7 @@ sub STARTUP {
 
 	#visible windows only
 	#--------------------------------------
-	my $visible_windows_active = Gtk3::CheckButton->new_with_label($d->get("Select only visible windows"));
+	$visible_windows_active = Gtk3::CheckButton->new_with_label($d->get("Select only visible windows"));
 	$visible_windows_active->set_tooltip_text($d->get("Select only visible windows"));
 
 	$visible_windows_box->pack_start($visible_windows_active, FALSE, TRUE, 12);
@@ -1769,8 +1878,8 @@ sub STARTUP {
 	#--------------------------------------
 	#delay settings dialog
 	my $menu_delay_label  = Gtk3::Label->new($d->get("Pre-Capture Delay") . ":");
-	my $menu_delay        = Gtk3::SpinButton->new_with_range(1, 99, 1);
-	my $menu_delay_vlabel = Gtk3::Label->new($d->nget("second", "seconds", $delay->get_value));
+	$menu_delay        = Gtk3::SpinButton->new_with_range(1, 99, 1);
+	$menu_delay_vlabel = Gtk3::Label->new($d->nget("second", "seconds", $delay->get_value));
 	$menu_delay->signal_connect(
 		'value-changed' => \&evt_value_changed,
 		'menu_delay_changed'
@@ -1795,7 +1904,7 @@ sub STARTUP {
 
 	#menu/tooltip workaround
 	#--------------------------------------
-	my $menu_waround_active = Gtk3::CheckButton->new_with_label($d->get("Ignore possibly wrong type hints"));
+	$menu_waround_active = Gtk3::CheckButton->new_with_label($d->get("Ignore possibly wrong type hints"));
 	$menu_waround_active->set_tooltip_text($d->get(
 "The type hint constants specify hints for the window manager that indicate what type of function the window has. Sometimes these type hints are not correctly set. By enabling this option Shutter will not insist on the requested type hint."
 		));
@@ -1814,7 +1923,7 @@ sub STARTUP {
 	#web width
 	#--------------------------------------
 	my $web_width_label    = Gtk3::Label->new($d->get("Virtual browser width") . ":");
-	my $combobox_web_width = Gtk3::ComboBoxText->new;
+	$combobox_web_width = Gtk3::ComboBoxText->new;
 	$combobox_web_width->insert_text(0,  "640");
 	$combobox_web_width->insert_text(1,  "800");
 	$combobox_web_width->insert_text(2,  "1024");
@@ -1847,15 +1956,15 @@ sub STARTUP {
 
 	#imageview
 	#--------------------------------------
-	my $css_provider_alpha = Gtk3::CssProvider->new;
+	$css_provider_alpha = Gtk3::CssProvider->new;
 
-	my $trans_check  = Gtk3::RadioButton->new_with_label(undef, $d->get("Show as check pattern"));
-	my $trans_custom = Gtk3::RadioButton->new_with_label($trans_check, $d->get("Show as custom color:"));
-	my $trans_custom_btn = Gtk3::ColorButton->new();
+	$trans_check  = Gtk3::RadioButton->new_with_label(undef, $d->get("Show as check pattern"));
+	$trans_custom = Gtk3::RadioButton->new_with_label($trans_check, $d->get("Show as custom color:"));
+	$trans_custom_btn = Gtk3::ColorButton->new();
 	$trans_custom_btn->set_use_alpha(FALSE);
 	$trans_custom_btn->set_title($d->get("Choose fill color"));
 
-	my $trans_backg = Gtk3::RadioButton->new_with_label($trans_custom, $d->get("Show as background"));
+	$trans_backg = Gtk3::RadioButton->new_with_label($trans_custom, $d->get("Show as background"));
 
 	$imageview_hbox1->pack_start($trans_check,      FALSE, TRUE, 12);
 	$imageview_hbox2->pack_start($trans_custom,     FALSE, TRUE, 12);
@@ -1907,12 +2016,12 @@ sub STARTUP {
 	);
 
 	#session view
-	my $session_asc       = Gtk3::RadioButton->new_with_label(undef, $d->get("Sort ascending by"));
-	my $session_asc_combo = Gtk3::ComboBoxText->new;
+	$session_asc       = Gtk3::RadioButton->new_with_label(undef, $d->get("Sort ascending by"));
+	$session_asc_combo = Gtk3::ComboBoxText->new;
 	$session_asc_combo->insert_text(0, $d->get("Filename"));
 	$session_asc_combo->insert_text(1, $d->get("Key/Time Created"));
-	my $session_desc       = Gtk3::RadioButton->new_with_label($session_asc, $d->get("Sort descending by"));
-	my $session_desc_combo = Gtk3::ComboBoxText->new;
+	$session_desc       = Gtk3::RadioButton->new_with_label($session_asc, $d->get("Sort descending by"));
+	$session_desc_combo = Gtk3::ComboBoxText->new;
 	$session_desc_combo->insert_text(0, $d->get("Filename"));
 	$session_desc_combo->insert_text(1, $d->get("Key/Time Created"));
 
@@ -1976,29 +2085,29 @@ sub STARTUP {
 
 	#behavior
 	#--------------------------------------
-	my $fs_active       = Gtk3::CheckButton->new_with_label($d->get("Start Shutter at login"));
-	my $fs_min_active   = Gtk3::CheckButton->new_with_label($d->get("Hide window on first launch"));
-	my $fs_nonot_active = Gtk3::CheckButton->new_with_label($d->get("Hide notification icon"));
+	$fs_active       = Gtk3::CheckButton->new_with_label($d->get("Start Shutter at login"));
+	$fs_min_active   = Gtk3::CheckButton->new_with_label($d->get("Hide window on first launch"));
+	$fs_nonot_active = Gtk3::CheckButton->new_with_label($d->get("Hide notification icon"));
 
-	my $hide_active      = Gtk3::CheckButton->new_with_label($d->get("Autohide main window when taking a screenshot"));
+	$hide_active      = Gtk3::CheckButton->new_with_label($d->get("Autohide main window when taking a screenshot"));
 	my $hide_time_label  = Gtk3::Label->new($d->get("Redraw Delay") . ":");
-	my $hide_time_vlabel = Gtk3::Label->new;
-	my $hide_time        = Gtk3::SpinButton->new_with_range(100, 1000, 50);
+	$hide_time_vlabel = Gtk3::Label->new;
+	$hide_time        = Gtk3::SpinButton->new_with_range(100, 1000, 50);
 	$hide_time_vlabel->set_text($d->nget("millisecond", "milliseconds", $hide_time->get_value));
 	$hide_time->signal_connect(
 		'value-changed' => \&evt_value_changed,
 		'hide_time_changed'
 	);
 
-	my $present_after_active  = Gtk3::CheckButton->new_with_label($d->get("Present main window after taking a screenshot"));
-	my $close_at_close_active = Gtk3::CheckButton->new_with_label($d->get("Minimize to tray when closing main window"));
+	$present_after_active  = Gtk3::CheckButton->new_with_label($d->get("Present main window after taking a screenshot"));
+	$close_at_close_active = Gtk3::CheckButton->new_with_label($d->get("Minimize to tray when closing main window"));
 
-	my $notify_after_active    = Gtk3::CheckButton->new_with_label($d->get("Display pop-up notification after taking a screenshot"));
-	my $notify_timeout_active  = Gtk3::CheckButton->new_with_label($d->get("Display pop-up notification when using a delay"));
-	my $notify_ptimeout_active = Gtk3::CheckButton->new_with_label($d->get("Display pop-up notification when using a pre-capture delay"));
+	$notify_after_active    = Gtk3::CheckButton->new_with_label($d->get("Display pop-up notification after taking a screenshot"));
+	$notify_timeout_active  = Gtk3::CheckButton->new_with_label($d->get("Display pop-up notification when using a delay"));
+	$notify_ptimeout_active = Gtk3::CheckButton->new_with_label($d->get("Display pop-up notification when using a pre-capture delay"));
 
 	my $ns_label    = Gtk3::Label->new($d->get("Notification agent") . ":");
-	my $combobox_ns = Gtk3::ComboBoxText->new;
+	$combobox_ns = Gtk3::ComboBoxText->new;
 	$combobox_ns->append_text($d->get("Desktop Notifications"));
 	$combobox_ns->append_text($d->get("Built-In Notifications"));
 
@@ -2007,9 +2116,9 @@ sub STARTUP {
 		'ns_changed'
 	);
 
-	my $ask_on_delete_active    = Gtk3::CheckButton->new_with_label($d->get("Ask before moving files to trash"));
-	my $delete_on_close_active  = Gtk3::CheckButton->new_with_label($d->get("Move file to trash when closing tab"));
-	my $ask_on_fs_delete_active = Gtk3::CheckButton->new_with_label($d->get("Notify when file was deleted from filesystem"));
+	$ask_on_delete_active    = Gtk3::CheckButton->new_with_label($d->get("Ask before moving files to trash"));
+	$delete_on_close_active  = Gtk3::CheckButton->new_with_label($d->get("Move file to trash when closing tab"));
+	$ask_on_fs_delete_active = Gtk3::CheckButton->new_with_label($d->get("Notify when file was deleted from filesystem"));
 
 	$fs_active_hbox->pack_start($fs_active, FALSE, TRUE, 12);
 	$fs_min_active_hbox->pack_start($fs_min_active, FALSE, TRUE, 12);
@@ -2155,10 +2264,10 @@ sub STARTUP {
 
 	#accounts
 	#--------------------------------------
-	my $accounts_model = undef;
+	$accounts_model = undef;
 	fct_load_accounts_tree();
 
-	my $accounts_tree = Gtk3::TreeView->new_with_model($accounts_model);
+	$accounts_tree = Gtk3::TreeView->new_with_model($accounts_model);
 
 	$accounts_tree->signal_connect(
 		'row-activated' => \&evt_accounts,
@@ -2182,7 +2291,7 @@ sub STARTUP {
 	#ftp uri
 	my $ftp_entry_label = Gtk3::Label->new($d->get("URI") . ":");
 
-	my $ftp_remote_entry = Gtk3::Entry->new;
+	$ftp_remote_entry = Gtk3::Entry->new;
 	if (defined $settings_xml->{'general'}->{'ftp_uri'}) {
 		$ftp_remote_entry->set_text($settings_xml->{'general'}->{'ftp_uri'});
 	} else {
@@ -2199,7 +2308,7 @@ sub STARTUP {
 	#connection mode
 	my $ftp_mode_label = Gtk3::Label->new($d->get("Connection mode") . ":");
 
-	my $ftp_mode_combo = Gtk3::ComboBoxText->new;
+	$ftp_mode_combo = Gtk3::ComboBoxText->new;
 	$ftp_mode_combo->insert_text(0, $d->get("Active mode"));
 	$ftp_mode_combo->insert_text(1, $d->get("Passive mode"));
 	if (defined $settings_xml->{'general'}->{'ftp_mode'}) {
@@ -2218,7 +2327,7 @@ sub STARTUP {
 	#username
 	my $ftp_username_label = Gtk3::Label->new($d->get("Username") . ":");
 
-	my $ftp_username_entry = Gtk3::Entry->new;
+	$ftp_username_entry = Gtk3::Entry->new;
 	if (defined $settings_xml->{'general'}->{'ftp_username'}) {
 		$ftp_username_entry->set_text($settings_xml->{'general'}->{'ftp_username'});
 	} else {
@@ -2235,7 +2344,7 @@ sub STARTUP {
 	#password
 	my $ftp_password_label = Gtk3::Label->new($d->get("Password") . ":");
 
-	my $ftp_password_entry = Gtk3::Entry->new;
+	$ftp_password_entry = Gtk3::Entry->new;
 	$ftp_password_entry->set_invisible_char("*");
 	$ftp_password_entry->set_visibility(FALSE);
 	if (defined $settings_xml->{'general'}->{'ftp_password'}) {
@@ -2254,7 +2363,7 @@ sub STARTUP {
 	#website url
 	my $ftp_wurl_label = Gtk3::Label->new($d->get("Website URL") . ":");
 
-	my $ftp_wurl_entry = Gtk3::Entry->new;
+	$ftp_wurl_entry = Gtk3::Entry->new;
 	if (defined $settings_xml->{'general'}->{'ftp_wurl'}) {
 		$ftp_wurl_entry->set_text($settings_xml->{'general'}->{'ftp_wurl'});
 	} else {
@@ -2569,7 +2678,7 @@ sub STARTUP {
 	$vbox->pack_start($notebook, TRUE, TRUE, 0);
 
 	#bottom toolbar
-	my $nav_toolbar = $st->create_btoolbar;
+	$nav_toolbar = $st->create_btoolbar;
 	$vbox->pack_start($nav_toolbar, FALSE, FALSE, 0);
 
 	#signal handler
@@ -2735,6 +2844,8 @@ sub STARTUP {
 			$wnck_screen->signal_connect('window-stacking-changed' => sub { fct_update_tray_menu(@_); });
 			return FALSE;
 		}) if $wnck_screen;
+
+}
 
 	#events
 	#--------------------------------------
@@ -8406,7 +8517,15 @@ sub STARTUP {
 		$menu_windows->append($active_window_item);
 		$menu_windows->append(Gtk3::SeparatorMenuItem->new);
 
+		# Check if we can retrieve the list of stacked windows first, otherwise we will run into a crash, see issue 659
+		
+		unless ($wnck_screen->get_windows_stacked) {
+			print "ERROR: The window list could not be retrieved and has been disabled, see https://github.com/shutter-project/shutter/issues/659";
+			return $menu_windows;
+		}
+
 		#add all windows to menu to capture it directly
+
 		foreach my $win (@{$wnck_screen->get_windows_stacked}) {
 			if ($active_workspace && $win->is_on_workspace($active_workspace)) {
 				my $win_name = $win->get_name;
@@ -10888,11 +11007,11 @@ sub STARTUP {
 	}
 
 	#--------------------------------------
-}
+
 
 package main;
 
-my $app = Shutter::App->new(
+$app = Shutter::App->new(
 	application_id=>'org.shutter-project.Shutter',
 	flags=>['flags-none']);
 

@@ -13,7 +13,7 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       
       - name: Install deps
         run: |
@@ -35,6 +35,4 @@ jobs:
       - name: Run tests
         env:
           TEST_APP_SHUTTER_PATH: ${{ env.GITHUB_WORKSPACE }}
-        uses: GabrielBB/xvfb-action@v1
-        with:
-          run: prove -I share/shutter/resources/modules/ -I t/lib t -r
+        run: xvfb-run --auto-servernum prove -I share/shutter/resources/modules/ -I t/lib t -r

@@ -26,6 +26,7 @@ package Shutter::App::Toolbar;
 #--------------------------------------
 use utf8;
 use strict;
+use warnings;
 use Gtk3;
 
 #Glib

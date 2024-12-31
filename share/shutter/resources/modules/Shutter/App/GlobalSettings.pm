@@ -26,6 +26,7 @@ package Shutter::App::GlobalSettings;
 #--------------------------------------
 use utf8;
 use strict;
+use warnings;
 
 #Glib
 use Glib qw/TRUE FALSE/;
