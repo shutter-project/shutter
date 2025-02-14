@@ -2425,7 +2425,7 @@ sub get_pixelated_pixbuf_from_canvas {
 	my $sh     = $item->get('height');
 
 	#create surface and cairo context
-	my $surface = Cairo::ImageSurface->create('argb32', $bounds->x1 + $sw, $bounds->y1 + $sh);
+	my $surface = Cairo::ImageSurface->create('rgb24', $bounds->x1 + $sw, $bounds->y1 + $sh);
 	my $cr      = Cairo::Context->create($surface);
 
 	#hide rects and image
