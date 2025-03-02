@@ -1,3 +1,19 @@
+shutter (0.99.6)
+
+
+Bug fixes:
+
+* Fixed sporadic crash on startup due to wrong usage of libwnck. The ability to take screenshot of a window is currently broken, but that's better than not starting at all.
+* Fixed Pixelate tool in Draw to decrease leaking of data from under pixelation
+* Fixed quality setting of PNG images
+
+New features:
+
+* Added AVIF format support
+
+New optional dependency for AVIF support: Gdk Pixbuf loader from libavif (https://github.com/AOMediaCodec/libavif), e.g. libavif-gdk-pixbuf (https://packages.debian.org/sid/libavif-gdk-pixbuf) in Debian, or as part of `libavif` package in some other distros.
+
+
 shutter (0.99.5)
 
 Bug fixes:
