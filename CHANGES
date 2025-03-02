@@ -1,3 +1,140 @@
+shutter (0.99.5)
+
+Bug fixes:
+
+* Fixed loading and saving profiles
+* Fixed the editor being unavailable under some circumstances
+* Fixed crash when selection has zero width or height
+* Check to prevent user setting a filename pattern without wildcards, which lead to crashes
+* Fixed crash on Wayland under some circumstances
+* Fixed crash when the autostart .desktop file is not writable
+* Fixed handling images pasted from clipboard: they are now handled the same as screenshots made by Shutter itself, rather than being put into /tmp
+* Fixed error when using the -s option with a zero coordinate for the selection origin
+
+New features:
+
+* Added WebP support
+* In Selection mode added an option to take screenshot on releasing the mouse button without confirmation
+
+New optional dependency for WebP support: webp-pixbuf-loader (https://github.com/aruiz/webp-pixbuf-loader)
+
+
+shutter (0.99.4)
+
+Two further bugs have been fixed after the recent 0.99.3 release:
+
+* Fix not appearing tray icon on system startup under rare circumstances
+* Fix crash on launch for new installs
+
+
+shutter (0.99.3)
+
+After a long time there is another bugfix release:
+
+* Improved code quality a bit, added a few unit tests (thanks to Alexander Ruzhnikov!)
+* Fixed font size in the editor
+* Fixed loading of profiles
+* Fixed crash when taking too small screenshots
+* Fixed appearance of the web capture button
+* Fixed XML schema of AppData
+* Allow more valid character in filenames
+* Removed dysfunctional upload plugins
+* Added a visible warning about limited functionality on Wayland
+
+New dependency: Moo (https://metacpan.org/pod/Moo)
+
+Dropped dependencies: libwww-mechanize-perl, libwww-perl, libnet-oauth-perl
+
+
+
+shutter (0.99.2)
+
+Fix for previous version. Removal of debug code which was accidentally left, resulting in wayland-specific code to be executed for X11 system.
+
+
+shutter (0.99.1)
+
+A small fix-mostly release.
+
+The fix is the compatibility with GLib 2.70. GLib strictened the way how GApplication is initialized, and Shutter apparently was doing it incorrectly before, resulting in inability to run Shutter again to bring up the main window, or to take screenshots from command line. The fix works with older GLib as well.
+
+The new feature is a rudimentary Wayland support. Don't get too excited about it yet. All it does is it asks the compositor to let user take the screenshot, and user will be presented with some implementation-defined UI to select the window or area, which we cannot control at all. Maybe the limitations will be lifted in future, but no promises. Also there are multiple cases where it doesn't work, e.g.:
+
+* The compositor doesn't even support XDG Desktop Portal API (https://flatpak.github.io/xdg-desktop-portal/portal-docs.html#gdbus-org.freedesktop.portal.Screenshot)
+* The backend for the XDG Desktop Portal API doesn't match the compositor running, e.g.  Gnome's portal backend cannot take screenshot on KDE, and instead it silently does nothing
+
+We can't even meaningfully handle these cases, other than adding a huge timeout to the call, because perhaps the user is just taking time interacting the UI shown by the portal backend.
+
+Finally, dependency on Gtk3::ImageView is bumped to v10: the improved selection tool added in Shutter 0.98 got moved upstream.
+
+
+shutter (0.99)
+
+* Fixed several more regressions of the Gtk3 switch:
+  * Fixed File->Open dialog
+  * Fixed Autoscroll option of the Draw tool
+* Added support for `gir1.2-ayatanaappindicator3`, because some distros don't have `gir1.2-appindicator3` anymore. If neither of AppIndicator3 nor AyatanaAppIndicator3 is available, on some DEs you will miss the tray icon, so it's recommended to have at least one of these 2 libraries installed.
+* Fixed schema of the appdata XML, use https in URLs in it
+* Added search keywords to the shutter.desktop file
+* Icons cleanup
+  * Dropped a copy of the whole Tango icon set, which was usable from the Draw Tool. Any icon can still be imported from the the local disk, including even Tango ones if they are installed
+  * Fixed shutter icon size
+  * Removed duplication of the same icons
+  * Removed logo images for dropped image hosters
+
+shutter (0.98)
+
+Fixes:
+* show main window when launching Shutter and an instance is already running
+* in selection mode allow to move the selection
+* in selection mode allow to trigger the screenshot with doubleclick 
+* fix the Print button
+* when uploading a screenshot via FTP, copying the URL to clipboard is now functional
+* fix the "Torn paper" and "Watermark" plugins
+
+
+shutter (0.97)
+
+Crash fixes:
+* when doing screenshot if "include cursor" is set
+* when using text annotation tools in the editor
+* when launching on Wayland. Note that the screenshot functionality is still not available on Wayland yet
+* when using a DE without a dedicated Pictures/ directory
+
+Additionally:
+* the tray icon wasn't shown on Gnome, making it impossible to interact with the app after the main window is closed/hidden
+  * if both libappindicator is not available and the legacy tray icon doesn't work (it's not supported by gnome), closing the window will now terminate the application rather than hiding it to the non-existing tray
+* copy to clipboard didn't work
+* capturing full screen on multiple screens didn't work
+
+shutter (0.96)
+
+Drops dependency on Gtk2, and starts depending on Gtk3 instead.
+
+More specifically, these perl dependencies are gone:
+* Gtk2
+* Gtk2::ImageView
+* Gtk2::Unique
+* Gtk2::AppIndicator
+* Gnome2::Wnck
+* Goo::Canvas
+
+These dependencies are new:
+* [Carp:::Always](https://metacpan.org/pod/Carp::Always)
+* [Gtk3](https://metacpan.org/pod/Gtk3)
+* [Gtk3::ImageView](https://metacpan.org/pod/Gtk3::ImageView) >= 9
+* [GooCanvas2](https://metacpan.org/pod/GooCanvas2) (unlike old Goo::Canvas, this one is not optional anymore)
+* [GooCanvas2::CairoTypes](https://metacpan.org/pod/GooCanvas2::CairoTypes)
+* [Pango](https://metacpan.org/pod/Pango)
+* [libwnck-3](https://gitlab.gnome.org/GNOME/libwnck), used via Glib Object Introspection
+
+The feature of taking a section of window is removed (or, rather, commented out), because it didn't work with the way how modern Qt and Gtk were drawing their windows anyway.
+
+Possible issues:
+* Multiple screens might or might not be broken
+* HiDPI screens might do screenshot of a nested menu in a wrong place
+
+
 shutter (0.95)
 
 * almost fully dropped the dependency on the outdated Perl Gnome2 library
