@@ -41,7 +41,7 @@ has version      => ( is => "ro", required => 1 );
 has rev          => ( is => "ro", required => 1 );
 has pid          => ( is => "ro", required => 1 );
 
-has debug              => ( is => "rw", default => sub {TRUE} );
+has debug              => ( is => "rw", default => sub {FALSE} );
 has clear_cache        => ( is => "rw", default => sub {FALSE} );
 has min                => ( is => "rw", default => sub {FALSE} );
 has disable_systray    => ( is => "rw", default => sub {FALSE} );
