@@ -252,7 +252,8 @@ my $sc = Shutter::App::Common->new(
 	appname => SHUTTER_NAME,
 	version => SHUTTER_VERSION,
 	rev => SHUTTER_REV,
-	pid => $PID
+	pid => $PID,
+	debug => 0
 );
 my $shf  = Shutter::App::HelperFunctions->new($sc);
 my $so   = Shutter::App::Options->new($sc, $shf);
