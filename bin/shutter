@@ -3298,7 +3298,7 @@ sub STARTUP {
 	}
 
 	sub evt_question {
-		$shf->xdg_open(undef, "https://github.com/shutter-project/shutter/issues/new?labels=question&template=question.md", undef);
+		$shf->xdg_open(undef, "https://shutter-project.org/faq-help/", undef);
 	}
 
 	sub evt_translate {
