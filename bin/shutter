@@ -116,6 +116,9 @@ use Proc::Simple;
 #sort lexically, but sort numeral parts numerically
 use Sort::Naturally;
 
+#for Base64 export
+use MIME::Base64 ('encode_base64');
+
 use English;
 
 sub escape_string {
@@ -662,6 +665,7 @@ sub STARTUP {
 	$sm->{_menuitem_save_as}->signal_connect('activate', \&evt_save_as, 'menu_save_as');
 
 	#~ $sm->{_menuitem_export_svg}->signal_connect( 'activate', \&evt_save_as, 'menu_export_svg' );
+	$sm->{_menuitem_export_b64}->signal_connect('activate', \&evt_save_as, 'menu_export_b64');
 	$sm->{_menuitem_export_pdf}->signal_connect('activate', \&evt_save_as, 'menu_export_pdf');
 	$sm->{_menuitem_export_pscript}->signal_connect('activate', \&evt_save_as, 'menu_export_ps');
 	$sm->{_menuitem_print}->signal_connect('activate', \&fct_print, 'menu_print');
@@ -3661,6 +3665,7 @@ sub STARTUP {
 				$sm->{_menuitem_save_as}->set_sensitive($n_items);
 
 				#~ $sm->{_menuitem_export_svg}->set_sensitive($n_items);
+				$sm->{_menuitem_export_b64}->set_sensitive($n_items);
 				$sm->{_menuitem_export_pdf}->set_sensitive($n_items);
 				$sm->{_menuitem_export_pscript}->set_sensitive($n_items);
 				$sm->{_menuitem_pagesetup}->set_sensitive($n_items);
@@ -3908,6 +3913,8 @@ sub STARTUP {
 		my $rfiletype = undef;
 		if ($data eq 'menu_export_svg') {
 			$rfiletype = 'svg';
+		} elsif ($data eq 'menu_export_b64') {
+			$rfiletype = 'b64';
 		} elsif ($data eq 'menu_export_ps') {
 			$rfiletype = 'ps';
 		} elsif ($data eq 'menu_export_pdf') {
@@ -9781,7 +9788,11 @@ sub STARTUP {
 		#change extension related to the requested filetype
 		if (defined $rfiletype && defined $rfilename) {
 			my ($short, $folder, $ext) = fileparse($rfilename, qr/\.[^.]*/);
-			$fs->set_current_name($short . "." . $rfiletype);
+			if ($rfiletype eq 'b64') {
+				$fs->set_current_name($short . $ext . "." . $rfiletype);
+			} else {
+				$fs->set_current_name($short . "." . $rfiletype);
+			}
 		}
 
 		my $extra_hbox = Gtk3::HBox->new;
@@ -9803,6 +9814,11 @@ sub STARTUP {
 		} elsif (defined $rfiletype && $rfiletype eq 'ps') {
 
 			$combobox_save_as_type->insert_text($counter, "ps - PostScript");
+			$combobox_save_as_type->set_active(0);
+
+		} elsif (defined $rfiletype && $rfiletype eq 'b64') {
+
+			$combobox_save_as_type->insert_text($counter, "b64 - Base64");
 			$combobox_save_as_type->set_active(0);
 
 			#images
@@ -9913,54 +9929,70 @@ sub STARTUP {
 
 			unless ($shf->file_exists($filename)) {
 
-				#get pixbuf from param
-				my $pixbuf = $rpixbuf;
-				unless ($pixbuf) {
+				if ($rfiletype eq 'b64') {
 
-					#or load pixbuf from existing file
-					$pixbuf = $lp_ne->load($rfilename);
-				}
+					open (IMAGE, $rfilename) || die "$!";
+					binmode(IMAGE);
+					local $/;
+					my $file_contents = <IMAGE>;
+					close IMAGE;
+					open (B64, ">$filename") || die $!;
+					print B64 encode_base64($file_contents);
+					close B64;
+					print "Exported file $filename, b64\n";
+	
+				} else {
+	
+					#get pixbuf from param
+					my $pixbuf = $rpixbuf;
+					unless ($pixbuf) {
 
-				#save as (pixbuf, new_filename, filetype, quality - auto here, old_filename)
-				if ($sp->save_pixbuf_to_file($pixbuf, $filename, $choosen_format, $rquality)) {
-
-					if ($key) {
-
-						#do not try to update when exporting to pdf or ps
-						unless (defined $rfiletype
-							&& ($rfiletype eq 'pdf' || $rfiletype eq 'ps'))
-						{
-
-							#cancel handle
-							if (exists $session_screens{$key}->{'handle'}) {
-
-								$session_screens{$key}->{'handle'}->cancel;
-							}
-							if (fct_update_tab($key, undef, Glib::IO::File::new_for_path($filename), FALSE, 'clear')) {
-
-								#setup a new filemonitor, so we get noticed if the file changed
-								fct_add_file_monitor($key);
-
-								fct_show_status_message(1, "$session_screens{ $key }->{ 'long' } " . $d->get("saved"));
-							}
-
-						} else {
-							if ($shf->file_exists($filename)) {
-								fct_show_status_message(1, "$filename " . $d->get("saved"));
-							}
-						}
-
+						#or load pixbuf from existing file
+						$pixbuf = $lp_ne->load($rfilename);
 					}
 
-					#successfully saved
-					$fs->destroy();
-					return $filename;
+					#save as (pixbuf, new_filename, filetype, quality - auto here, old_filename)
+					if ($sp->save_pixbuf_to_file($pixbuf, $filename, $choosen_format, $rquality)) {
 
-				} else {
+						if ($key) {
 
-					#error while saving
-					$fs->destroy();
-					return FALSE;
+							#do not try to update when exporting to pdf or ps
+							unless (defined $rfiletype
+								&& ($rfiletype eq 'pdf' || $rfiletype eq 'ps'))
+							{
+
+								#cancel handle
+								if (exists $session_screens{$key}->{'handle'}) {
+
+									$session_screens{$key}->{'handle'}->cancel;
+								}
+								if (fct_update_tab($key, undef, Glib::IO::File::new_for_path($filename), FALSE, 'clear')) {
+
+									#setup a new filemonitor, so we get noticed if the file changed
+									fct_add_file_monitor($key);
+
+									fct_show_status_message(1, "$session_screens{ $key }->{ 'long' } " . $d->get("saved"));
+								}
+
+							} else {
+								if ($shf->file_exists($filename)) {
+									fct_show_status_message(1, "$filename " . $d->get("saved"));
+								}
+							}
+
+						}
+
+						#successfully saved
+						$fs->destroy();
+						return $filename;
+
+					} else {
+
+						#error while saving
+						$fs->destroy();
+						return FALSE;
+
+					}
 
 				}
 
@@ -9978,68 +10010,80 @@ sub STARTUP {
 				);
 
 				if ($response == 40) {
+					if ($rfiletype eq 'b64') {
 
-					#get pixbuf from param
-					my $pixbuf = $rpixbuf;
-					unless ($pixbuf) {
+						open (IMAGE, $rfilename) || die "$!";
+						binmode(IMAGE);
+						local $/;
+						my $file_contents = <IMAGE>;
+						close IMAGE;
+						open (B64, ">$filename") || die $!;
+						print B64 encode_base64($file_contents);
+						close B64;
+						print "Exported file $filename, b64\n";
+	
+					} else {
+						#get pixbuf from param
+						my $pixbuf = $rpixbuf;
+						unless ($pixbuf) {
 
-						#or load pixbuf from existing file
-						$pixbuf = $lp_ne->load($rfilename);
-					}
+							#or load pixbuf from existing file
+							$pixbuf = $lp_ne->load($rfilename);
+						}
 
-					if ($sp->save_pixbuf_to_file($pixbuf, $filename, $choosen_format, $rquality)) {
+						if ($sp->save_pixbuf_to_file($pixbuf, $filename, $choosen_format, $rquality)) {
 
-						if ($key) {
+							if ($key) {
 
-							#do not try to update when exporting to pdf
-							unless (defined $rfiletype
-								&& ($rfiletype eq 'pdf' || $rfiletype eq 'ps'))
-							{
+								#do not try to update when exporting to pdf
+								unless (defined $rfiletype
+									&& ($rfiletype eq 'pdf' || $rfiletype eq 'ps'))
+								{
 
-								#cancel handle
-								if (exists $session_screens{$key}->{'handle'}) {
+									#cancel handle
+									if (exists $session_screens{$key}->{'handle'}) {
 
-									$session_screens{$key}->{'handle'}->cancel;
-								}
-
-								if (fct_update_tab($key, undef, Glib::IO::File::new_for_path($filename), FALSE, 'clear')) {
-
-									#setup a new filemonitor, so we get noticed if the file changed
-									fct_add_file_monitor($key);
-
-									#maybe file is in session as well, need to set the handler again ;-)
-									foreach my $searchkey (keys %session_screens) {
-										next if $key eq $searchkey;
-										if ($session_screens{$searchkey}->{'long'} eq $filename) {
-											$session_screens{$searchkey}->{'changed'} = TRUE;
-											fct_update_tab($searchkey, undef, undef, FALSE, 'clear');
-										}
+										$session_screens{$key}->{'handle'}->cancel;
 									}
 
-									fct_show_status_message(1, "$session_screens{ $key }->{ 'long' } " . $d->get("saved"));
+									if (fct_update_tab($key, undef, Glib::IO::File::new_for_path($filename), FALSE, 'clear')) {
 
+										#setup a new filemonitor, so we get noticed if the file changed
+										fct_add_file_monitor($key);
+
+										#maybe file is in session as well, need to set the handler again ;-)
+										foreach my $searchkey (keys %session_screens) {
+											next if $key eq $searchkey;
+											if ($session_screens{$searchkey}->{'long'} eq $filename) {
+												$session_screens{$searchkey}->{'changed'} = TRUE;
+												fct_update_tab($searchkey, undef, undef, FALSE, 'clear');
+											}
+										}
+
+										fct_show_status_message(1, "$session_screens{ $key }->{ 'long' } " . $d->get("saved"));
+
+									}
+
+								} else {
+									if ($shf->file_exists($filename)) {
+										fct_show_status_message(1, "$filename " . $d->get("saved"));
+									}
 								}
 
-							} else {
-								if ($shf->file_exists($filename)) {
-									fct_show_status_message(1, "$filename " . $d->get("saved"));
-								}
-							}
+							}    #end if $key
 
-						}    #end if $key
+							#successfully saved
+							$fs->destroy();
+							return $filename;
 
-						#successfully saved
-						$fs->destroy();
-						return $filename;
+						} else {
 
-					} else {
+							#error while saving
+							$fs->destroy();
+							return FALSE;
 
-						#error while saving
-						$fs->destroy();
-						return FALSE;
-
+						}
 					}
-
 				} else {
 
 					#user cancelled overwrite
