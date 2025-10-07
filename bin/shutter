@@ -774,6 +774,9 @@ sub STARTUP {
 		fct_try_init_tray();
 		Glib::Timeout->add(10000, sub {
 			if (!$tray_legacy || !$tray_legacy->is_embedded) {
+				if ($tray_legacy) {
+					$tray_legacy->set_visible(0);
+				}
 				fct_try_init_tray();
 			}
 			return TRUE;
