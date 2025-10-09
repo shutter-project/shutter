@@ -856,17 +856,17 @@ sub select_dialog {
 		$sh = $s->{height};
 	}
 
-	sub value_callback {
+	my $value_callback = sub {
 		$self->{_selector}
 			->set_selection({x=>$self->{_x_spin_w}->get_value, y=>$self->{_y_spin_w}->get_value, width=>$self->{_width_spin_w}->get_value, height=>$self->{_height_spin_w}->get_value});
-	}
+	};
 
 	#X
 	my $xw_label = Gtk3::Label->new($d->get("X") . ":");
 	$self->{_x_spin_w} = Gtk3::SpinButton->new_with_range(0, $self->{_root}->{w}, 1);
 	$self->{_x_spin_w}->set_value($sx);
 	$self->{_x_spin_w_handler} = $self->{_x_spin_w}->signal_connect(
-		'value-changed' => \&value_callback);
+		'value-changed' => $value_callback);
 
 	my $xw_hbox = Gtk3::HBox->new(FALSE, 5);
 	$xw_hbox->pack_start($xw_label,          FALSE, FALSE, 5);
@@ -877,7 +877,7 @@ sub select_dialog {
 	$self->{_y_spin_w} = Gtk3::SpinButton->new_with_range(0, $self->{_root}->{h}, 1);
 	$self->{_y_spin_w}->set_value($sy);
 	$self->{_y_spin_w_handler} = $self->{_y_spin_w}->signal_connect(
-		'value-changed' => \&value_callback);
+		'value-changed' => $value_callback);
 
 	my $yw_hbox = Gtk3::HBox->new(FALSE, 5);
 	$yw_hbox->pack_start($yw_label,          FALSE, FALSE, 5);
@@ -888,7 +888,7 @@ sub select_dialog {
 	$self->{_width_spin_w} = Gtk3::SpinButton->new_with_range(0, $self->{_root}->{w}, 1);
 	$self->{_width_spin_w}->set_value($sw);
 	$self->{_width_spin_w_handler} = $self->{_width_spin_w}->signal_connect(
-		'value-changed' => \&value_callback);
+		'value-changed' => $value_callback);
 
 	my $ww_hbox = Gtk3::HBox->new(FALSE, 5);
 	$ww_hbox->pack_start($widthw_label,          FALSE, FALSE, 5);
@@ -899,7 +899,7 @@ sub select_dialog {
 	$self->{_height_spin_w} = Gtk3::SpinButton->new_with_range(0, $self->{_root}->{h}, 1);
 	$self->{_height_spin_w}->set_value($sh);
 	$self->{_height_spin_w_handler} = $self->{_height_spin_w}->signal_connect(
-		'value-changed' => \&value_callback);
+		'value-changed' => $value_callback);
 
 	my $hw_hbox = Gtk3::HBox->new(FALSE, 5);
 	$hw_hbox->pack_start($heightw_label,          FALSE, FALSE, 5);
