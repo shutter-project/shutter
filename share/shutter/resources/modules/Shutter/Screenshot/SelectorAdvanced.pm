@@ -129,7 +129,7 @@ sub select_advanced {
 					my $style     = $self->{_sc}->get_mainwindow->get_style_context;
 					my $sel_bg    = Gtk3::Gdk::RGBA::parse('#131313');
 					my $font_fam  = $style->get_font('normal')->get_family;
-					my $font_size = $style->get_font('normal')->get_size * $self->{_dpi_scale} / Pango->scale;
+					my $font_size = $style->get_font('normal')->get_size * $self->{_dpi_scale} / Pango::SCALE;
 
 					#create cairo context und layout
 					my $surface = Cairo::ImageSurface->create('argb32', $self->{_root}->{w}*$self->{_dpi_scale}, $self->{_root}->{h}*$self->{_dpi_scale});
@@ -140,7 +140,7 @@ sub select_advanced {
 					$cr->paint;
 
 					my $layout = Pango::Cairo::create_layout($cr);
-					$layout->set_width(int($mon1->{width} * $self->{_dpi_scale} / 2) * Pango->scale);
+					$layout->set_width(int($mon1->{width} * $self->{_dpi_scale} / 2) * Pango::SCALE);
 					$layout->set_alignment('left');
 					$layout->set_wrap('word');
 

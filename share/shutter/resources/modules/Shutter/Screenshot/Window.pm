@@ -97,7 +97,7 @@ sub new {
 		my $style     = $self->{_main_gtk_window}->get_style_context;
 		my $sel_bg    = $style->get_background_color('selected');
 		my $font_fam  = $style->get_font('normal')->get_family;
-		my $font_size = $style->get_font('normal')->get_size / Pango->scale;
+		my $font_size = $style->get_font('normal')->get_size / Pango::SCALE;
 
 		#get current monitor
 		my $mon = $self->get_current_monitor;
@@ -128,7 +128,7 @@ sub new {
 
 				#pango layout
 				my $layout = Pango::Cairo::create_layout($cr);
-				$layout->set_width(($w - $icon->get_width - $font_size * 3) * Pango->scale);
+				$layout->set_width(($w - $icon->get_width - $font_size * 3) * Pango::SCALE);
 				$layout->set_alignment('left');
 				$layout->set_wrap('char');
 

@@ -31,9 +31,8 @@ use warnings;
 #Glib
 use Glib qw/TRUE FALSE/;
 
-#Gtk3 and Pango
+#Gtk3
 use Gtk3;
-use Pango;
 
 #--------------------------------------
 
@@ -98,26 +97,18 @@ sub new {
 				my $style     = $self->{_sc}->get_mainwindow->get_style_context;
 				my $sel_bg    = Gtk3::Gdk::RGBA::parse('#131313');
 				my $font_fam  = $style->get_font('normal')->get_family;
-				my $font_size = $style->get_font('normal')->get_size / Pango->scale;
+				my $font_size = $style->get_font('normal')->get_size / Pango::SCALE;
 
 				#create cairo context
 				my $cr = $_[1];
 
 				#pango layout
 				my $layout = Pango::Cairo::create_layout($cr);
-				$layout->set_width(($w - 30) * Pango->scale);
+				$layout->set_width(($w - 30) * Pango::SCALE);
 
-				if (Pango->CHECK_VERSION(1, 20, 0)) {
-					$layout->set_height(($h - 20) * Pango->scale);
-				} else {
-					warn "WARNING: \$layout->set_height is not available - outdated Pango version\n";
-				}
+				$layout->set_height(($h - 20) * Pango::SCALE);
 
-				if (Pango->CHECK_VERSION(1, 6, 0)) {
-					$layout->set_ellipsize('middle');
-				} else {
-					warn "WARNING: \$layout->set_ellipsize is not available - outdated Pango version\n";
-				}
+				$layout->set_ellipsize('middle');
 
 				$layout->set_alignment('left');
 				$layout->set_wrap('word-char');

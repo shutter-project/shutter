@@ -55,6 +55,11 @@ BEGIN {
 		version  => '3.0',
 		package  => 'Gtk3::GdkX11',
 	);
+	Glib::Object::Introspection->setup(
+		basename => 'PangoCairo',
+		version  => '1.0',
+		package  => 'Pango::Cairo',
+	);
 }
 
 package Shutter::App;
@@ -67,7 +72,6 @@ use File::stat;
 use Number::Bytes::Human;
 
 #Glib
-use Pango;
 use Glib qw/TRUE FALSE/;
 use Gtk3 '-init';
 use Glib::Object::Subclass qw/Gtk3::Application/;
