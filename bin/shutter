@@ -415,7 +415,7 @@ sub STARTUP {
 	#--------------------------------------
 
 	#Clipboard
-	$clipboard = Gtk3::Clipboard::get($Gtk3::Gdk::SELECTION_CLIPBOARD);
+	$clipboard = Gtk3::Clipboard::get(Gtk3::Gdk::Atom::intern("clipboard", FALSE));
 
 	#Gettext
 	$d = $sc->get_gettext;
