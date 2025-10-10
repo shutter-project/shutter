@@ -7583,7 +7583,8 @@ sub STARTUP {
 					}
 
 					#update dnd pixbuf
-					$session_screens{$key}->{'image'}->drag_source_set_icon_pixbuf($thumb_view);
+					#FIXME do not work, seems not supported by ImageView. Just comment out to avoid Gtk-CRITICAL
+					#$session_screens{$key}->{'image'}->drag_source_set_icon_pixbuf($thumb_view);
 				} else {
 					$thumb_view = Gtk3::Gdk::Pixbuf->new('rgb', TRUE, 8, 5, 5);
 					$thumb_view->fill(0x00000000);
@@ -11015,6 +11016,9 @@ $app = Shutter::App->new(
 	application_id=>'org.shutter-project.Shutter',
 	flags=>['flags-none']);
 
+$app->signal_connect('activate'=> sub {
+	# boring GLib-GIO-WARNING if absent.
+});
 $app->signal_connect('notify::is-registered'=>sub {
 	if (!$app->get_is_registered) {
 		return;
