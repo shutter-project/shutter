@@ -432,7 +432,7 @@ sub STARTUP {
 	# that there's a new message.
 	my $action;
 
-	$action = Glib::IO::SimpleAction->new('exitac', '');
+	$action = Glib::IO::SimpleAction->new('exitac', undef);
 	$app->add_action($action);
 	push @signal_connections, $action->signal_connect('activate'=>sub {
 		$sc->set_exit_after_capture(TRUE);
@@ -452,21 +452,21 @@ sub STARTUP {
 		$sc->set_delay($arg);
 	});
 
-	$action = Glib::IO::SimpleAction->new('include_cursor', '');
+	$action = Glib::IO::SimpleAction->new('include_cursor', undef);
 	$app->add_action($action);
 	push @signal_connections, $action->signal_connect('activate'=>sub {
 		$sc->set_include_cursor(TRUE);
 		$sc->set_remove_cursor(FALSE);
 	});
 
-	$action = Glib::IO::SimpleAction->new('remove_cursor', '');
+	$action = Glib::IO::SimpleAction->new('remove_cursor', undef);
 	$app->add_action($action);
 	push @signal_connections, $action->signal_connect('activate'=>sub {
 		$sc->set_remove_cursor(TRUE);
 		$sc->set_include_cursor(FALSE);
 	});
 
-	$action = Glib::IO::SimpleAction->new('nosession', '');
+	$action = Glib::IO::SimpleAction->new('nosession', undef);
 	$app->add_action($action);
 	push @signal_connections, $action->signal_connect('activate'=>sub {
 		$sc->set_no_session(TRUE);
@@ -496,7 +496,7 @@ sub STARTUP {
 		evt_take_screenshot('global_keybinding', 'select', undef, $arg);
 	});
 
-	$action = Glib::IO::SimpleAction->new('full', '');
+	$action = Glib::IO::SimpleAction->new('full', undef);
 	$app->add_action($action);
 	push @signal_connections, $action->signal_connect('activate'=>sub {
 		evt_take_screenshot('global_keybinding', 'full');
@@ -509,26 +509,26 @@ sub STARTUP {
 		evt_take_screenshot('global_keybinding', 'window', undef, $arg);
 	});
 
-	$action = Glib::IO::SimpleAction->new('awindow', '');
+	$action = Glib::IO::SimpleAction->new('awindow', undef);
 	$app->add_action($action);
 	push @signal_connections, $action->signal_connect('activate'=>sub {
 		evt_take_screenshot('global_keybinding', 'awindow');
 	});
 
 	# No sections for now: https://github.com/shutter-project/shutter/issues/25
-	#$action = Glib::IO::SimpleAction->new('section', '');
+	#$action = Glib::IO::SimpleAction->new('section', undef);
 	#$app->add_action($action);
 	#push @signal_connections, $action->signal_connect('activate'=>sub {
 	#	evt_take_screenshot('global_keybinding', 'section');
 	#});
 
-	$action = Glib::IO::SimpleAction->new('menu', '');
+	$action = Glib::IO::SimpleAction->new('menu', undef);
 	$app->add_action($action);
 	push @signal_connections, $action->signal_connect('activate'=>sub {
 		evt_take_screenshot('global_keybinding', 'menu');
 	});
 
-	$action = Glib::IO::SimpleAction->new('tooltip', '');
+	$action = Glib::IO::SimpleAction->new('tooltip', undef);
 	$app->add_action($action);
 	push @signal_connections, $action->signal_connect('activate'=>sub {
 		evt_take_screenshot('global_keybinding', 'tooltip');
@@ -541,13 +541,13 @@ sub STARTUP {
 		evt_take_screenshot('global_keybinding', 'web', undef, $arg);
 	});
 
-	$action = Glib::IO::SimpleAction->new('redoshot', '');
+	$action = Glib::IO::SimpleAction->new('redoshot', undef);
 	$app->add_action($action);
 	push @signal_connections, $action->signal_connect('activate'=>sub {
 		evt_take_screenshot('global_keybinding', 'redoshot');
 	});
 
-	$action = Glib::IO::SimpleAction->new('showmainwindow', '');
+	$action = Glib::IO::SimpleAction->new('showmainwindow', undef);
 	$app->add_action($action);
 	push @signal_connections, $action->signal_connect('activate'=>sub {
 		fct_control_main_window('show');
@@ -11040,7 +11040,7 @@ $app->signal_connect('notify::is-registered'=>sub {
 
 	#set exit flag in running application
 	if (defined $exitac && $exitac) {
-		$app->activate_action('exitac', Glib::Variant->new(''));
+		$app->activate_action('exitac', undef);
 	}
 
 	#set export_filename (parameter -o) in running application
@@ -11055,17 +11055,17 @@ $app->signal_connect('notify::is-registered'=>sub {
 
 	#change include_cursor in running application
 	if (defined $include_cursor && $include_cursor) {
-		$app->activate_action('include_cursor', Glib::Variant->new(''));
+		$app->activate_action('include_cursor', undef);
 	}
 
 	#change remove_cursor in running application
 	if (defined $remove_cursor && $remove_cursor) {
-		$app->activate_action('remove_cursor', Glib::Variant->new(''));
+		$app->activate_action('remove_cursor', undef);
 	}
 
 	#set nosession flag in running application
 	if (defined $nosession && $nosession) {
-		$app->activate_action('nosession', Glib::Variant->new(''));
+		$app->activate_action('nosession', undef);
 	}
 
 	my %screenshot_cmds = (
@@ -11083,7 +11083,7 @@ $app->signal_connect('notify::is-registered'=>sub {
 	if (defined $cmdname && $screenshot_cmds{$cmdname} && defined $extra) {
 		$app->activate_action($cmdname, Glib::Variant->new_string($extra));
 	} elsif (defined $cmdname && $screenshot_cmds{$cmdname}) {
-		$app->activate_action($cmdname, Glib::Variant->new(''));
+		$app->activate_action($cmdname, undef);
 	} elsif (@init_files) {
 
 		my @variants;
@@ -11092,7 +11092,7 @@ $app->signal_connect('notify::is-registered'=>sub {
 		}
 		$app->activate_action('fopen', Glib::Variant->new_array(undef, \@variants));
 	} else {
-		$app->activate_action('showmainwindow', Glib::Variant->new(''));
+		$app->activate_action('showmainwindow', undef);
 	}
 
 	print "\nINFO: There is already another instance of Shutter running!\n";
