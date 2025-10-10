@@ -155,7 +155,7 @@ sub new {
 
 				#remove old handler
 				if (defined $self->{_enter_notify_timeout}) {
-					Glib::Source->remove($self->{_enter_notify_timeout});
+					Glib::Source->remove($self->{_enter_notify_timeout}) if $self->{_enter_notify_timeout};
 				}
 
 				#current monitor
@@ -173,6 +173,8 @@ sub new {
 					100,
 					sub {
 						$self->show($self->{_summary}, $self->{_body});
+						$self->{_enter_notify_timeout} = 0;
+						return FALSE;
 					});
 
 				return FALSE;
@@ -195,7 +197,7 @@ sub show {
 
 	#remove old handler
 	if (defined $self->{_notifications_timeout}) {
-		Glib::Source->remove($self->{_notifications_timeout});
+		Glib::Source->remove($self->{_notifications_timeout}) if $self->{_notifications_timeout};
 	}
 
 	#set body and summary
@@ -210,6 +212,8 @@ sub show {
 		3000,
 		sub {
 			$self->close;
+			$self->{_notifications_timeout} = 0;
+			return FALSE;
 		});
 
 	return 0;
