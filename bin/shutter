@@ -57,6 +57,23 @@ BEGIN {
 	);
 }
 
+package Gtk3::ImageViewCustom;
+
+use Gtk3::ImageView;
+use Glib::Object::Subclass Gtk3::ImageView::, properties => [
+	# override minium zoom
+	Glib::ParamSpec->float(
+		'zoom',		#name
+		'zoom',		#nick
+		'zoom level',	#blurb
+		0.0001,		#minium, tuned to fit 4K/8K modern display
+		100,		#maximum
+		1.0,		#default
+		[qw/readable writable/],
+	),
+];
+
+
 package Shutter::App;
 
 #Deal with encoding problem
@@ -71,7 +88,6 @@ use Pango;
 use Glib qw/TRUE FALSE/;
 use Gtk3 '-init';
 use Glib::Object::Subclass qw/Gtk3::Application/;
-use Gtk3::ImageView 10;
 
 #filename parsing
 use POSIX qw/ strftime /;
@@ -4428,7 +4444,7 @@ sub STARTUP {
 		unless ($is_all) {
 
 			#Gtk2::ImageView - empty at first
-			$session_screens{$key}->{'image'} = Gtk3::ImageView->new();
+			$session_screens{$key}->{'image'} = Gtk3::ImageViewCustom->new();
 			#$session_screens{$key}->{'image'}->set_show_frame(FALSE);
 			$session_screens{$key}->{'image'}->set_fitting(TRUE);
 			$session_screens{$key}->{'image'}->get_style_context->add_provider($css_provider_alpha, 0);
