@@ -1,7 +1,7 @@
 requires "Gtk3";
 requires "Pango";
 requires "Glib";
-requires "Gtk3::ImageView";
+requires "Gtk3::ImageView", ">= 10";
 requires "Number::Bytes::Human";
 requires "XML::Simple";
 requires "Net::DBus";

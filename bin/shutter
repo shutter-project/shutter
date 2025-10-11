@@ -59,7 +59,7 @@ BEGIN {
 
 package Gtk3::ImageViewCustom;
 
-use Gtk3::ImageView;
+use Gtk3::ImageView 10;
 use Glib::Object::Subclass Gtk3::ImageView::, properties => [
 	# override minium zoom
 	Glib::ParamSpec->float(
