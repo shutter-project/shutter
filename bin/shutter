@@ -7089,10 +7089,8 @@ sub STARTUP {
 		my $status_text = shift;
 
 		$status->pop($index);
-		if (defined $session_start_screen{'first_page'}->{'statusbar_timer'}) {
-			if ($session_start_screen{'first_page'}->{'statusbar_timer'}) {
-				Glib::Source->remove($session_start_screen{'first_page'}->{'statusbar_timer'});
-			}
+		if ($session_start_screen{'first_page'}->{'statusbar_timer'}) {
+			Glib::Source->remove($session_start_screen{'first_page'}->{'statusbar_timer'});
 		}
 		$status->push($index, $status_text);
 

@@ -154,8 +154,8 @@ sub new {
 			'enter-notify-event' => sub {
 
 				#remove old handler
-				if (defined $self->{_enter_notify_timeout}) {
-					Glib::Source->remove($self->{_enter_notify_timeout}) if $self->{_enter_notify_timeout};
+				if ($self->{_enter_notify_timeout}) {
+					Glib::Source->remove($self->{_enter_notify_timeout});
 				}
 
 				#current monitor
@@ -196,8 +196,8 @@ sub show {
 	my $self = shift;
 
 	#remove old handler
-	if (defined $self->{_notifications_timeout}) {
-		Glib::Source->remove($self->{_notifications_timeout}) if $self->{_notifications_timeout};
+	if ($self->{_notifications_timeout}) {
+		Glib::Source->remove($self->{_notifications_timeout});
 	}
 
 	#set body and summary
