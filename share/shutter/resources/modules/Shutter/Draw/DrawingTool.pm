@@ -1308,7 +1308,7 @@ sub quit {
 	$self->{_drawing_window}->destroy if $self->{_drawing_window};
 
 	#remove statusbar timer
-	Glib::Source->remove($self->{_drawing_statusbar}->{statusbar_timer}) if defined $self->{_drawing_statusbar}->{statusbar_timer};
+	#Glib::Source->remove($self->{_drawing_statusbar}->{statusbar_timer}) if defined $self->{_drawing_statusbar}->{statusbar_timer};
 
 	#delete hash entries to avoid any
 	#possible circularity

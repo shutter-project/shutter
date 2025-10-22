@@ -7089,10 +7089,8 @@ sub STARTUP {
 		my $status_text = shift;
 
 		$status->pop($index);
-		if (defined $session_start_screen{'first_page'}->{'statusbar_timer'}) {
-			if ($session_start_screen{'first_page'}->{'statusbar_timer'}) {
-				Glib::Source->remove($session_start_screen{'first_page'}->{'statusbar_timer'});
-			}
+		if ($session_start_screen{'first_page'}->{'statusbar_timer'}) {
+			Glib::Source->remove($session_start_screen{'first_page'}->{'statusbar_timer'});
 		}
 		$status->push($index, $status_text);
 
@@ -7101,6 +7099,8 @@ sub STARTUP {
 			3000,
 			sub {
 				$status->pop($index);
+				# avoid remove non-exist source
+				$session_start_screen{'first_page'}->{'statusbar_timer'} = 0;
 
 				#show file or session info again
 				fct_update_info_and_tray();
