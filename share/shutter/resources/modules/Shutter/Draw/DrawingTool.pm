@@ -632,7 +632,7 @@ sub setup_bottom_hbox {
 
 	$self->{_font_btn_wh} = $self->{_font_btn_w}->signal_connect(
 		'font-set' => sub {
-			my $font_descr = Pango::FontDescription->from_string($self->{_font_btn_w}->get_font_name);
+			my $font_descr = Pango::FontDescription::from_string($self->{_font_btn_w}->get_font_name);
 			$self->{_font} = $self->{_font_btn_w}->get_font_name;
 
 			if ($self->{_current_item}) {
@@ -3190,8 +3190,9 @@ sub set_and_save_drawing_properties {
 			if (exists($self->{_items}{$key}{text})) {
 
 				#determine font description from string
-				my ($attr_list, $text_raw, $accel_char) = Pango->parse_markup($self->{_items}{$key}{text}->get('text'));
-				my $font_desc = $attr_list->get_iterator->get_font;
+				my ($ret, $attr_list, $text_raw, $accel_char) = Pango::parse_markup($self->{_items}{$key}{text}->get('text'), -1, 0);
+				my $font_desc = Pango::FontDescription->new();
+				$attr_list->get_iterator->get_font($font_desc);
 
 				#apply current font settings to button
 				$self->{_font_btn_w}->set_font_name($font_desc ? $font_desc->to_string : $self->{_font});
@@ -3202,8 +3203,9 @@ sub set_and_save_drawing_properties {
 	} elsif ($item->isa('GooCanvas2::CanvasText')) {
 
 		#determine font description from string
-		my ($attr_list, $text_raw, $accel_char) = Pango->parse_markup($item->get('text'));
-		my $font_desc = $attr_list->get_iterator->get_font;
+		my ($ret, $attr_list, $text_raw, $accel_char) = Pango::parse_markup($item->get('text'), -1, 0);
+		my $font_desc = Pango::FontDescription->new();
+		$attr_list->get_iterator->get_font($font_desc);
 
 		#font color
 		$self->{_stroke_color_w}->set_rgba($self->{_items}{$key}{stroke_color});
@@ -3217,7 +3219,7 @@ sub set_and_save_drawing_properties {
 	$self->{_line_width}         = $self->{_line_spin_w}->get_value;
 	$self->{_stroke_color}       = $self->{_stroke_color_w}->get_rgba;
 	$self->{_fill_color}         = $self->{_fill_color_w}->get_rgba;
-	my $font_descr = Pango::FontDescription->from_string($self->{_font_btn_w}->get_font_name);
+	my $font_descr = Pango::FontDescription::from_string($self->{_font_btn_w}->get_font_name);
 	$self->{_font} = $self->{_font_btn_w}->get_font_name;
 
 	#unblock 'value-change' handlers for widgets
@@ -3298,7 +3300,7 @@ sub restore_drawing_properties {
 	$self->{_line_width}         = $self->{_line_spin_w}->get_value;
 	$self->{_stroke_color}       = $self->{_stroke_color_w}->get_rgba;
 	$self->{_fill_color}         = $self->{_fill_color_w}->get_rgba;
-	my $font_descr = Pango::FontDescription->from_string($self->{_font_btn_w}->get_font_name);
+	my $font_descr = Pango::FontDescription::from_string($self->{_font_btn_w}->get_font_name);
 	$self->{_font} = $self->{_font_btn_w}->get_font_name;
 
 	#unblock 'value-change' handlers for widgets
@@ -4098,8 +4100,9 @@ sub show_item_properties {
 			$font_btn = Gtk3::FontButton->new();
 
 			#determine font description from string
-			my ($attr_list, $text_raw, $accel_char) = Pango->parse_markup($self->{_items}{$key}{text}->get('text'));
-			my ($font_desc) = $attr_list->get_iterator->get_font;
+			my ($ret, $attr_list, $text_raw, $accel_char) = Pango::parse_markup($self->{_items}{$key}{text}->get('text'), -1, 0);
+			my $font_desc = Pango::FontDescription->new();
+			$attr_list->get_iterator->get_font($font_desc);
 
 			#apply current font settings to button
 			$font_btn->set_font_name($font_desc ? $font_desc->to_string : $self->{_font});
@@ -4208,8 +4211,8 @@ sub show_item_properties {
 		$font_btn = Gtk3::FontButton->new();
 
 		#determine font description from string
-		my ($attr_list, $text_raw, $accel_char) = Pango->parse_markup($item->get('text'));
-		my ($font_desc) = Pango::FontDescription->from_string($self->{_font});
+		my ($ret, $attr_list, $text_raw, $accel_char) = Pango::parse_markup($item->get('text'), -1, 0);
+		my ($font_desc) = Pango::FontDescription::from_string($self->{_font});
 
 		$font_hbox->pack_start($font_label, FALSE, TRUE,  12);
 		$font_hbox->pack_start($font_btn,   TRUE,  TRUE,  0);
@@ -4564,7 +4567,7 @@ sub apply_properties {
 				$fill_color = $stroke_color->get_rgba;
 			}
 
-			my $font_descr = Pango::FontDescription->from_string($font_btn->get_font_name);
+			my $font_descr = Pango::FontDescription::from_string($font_btn->get_font_name);
 			$self->{_items}{$key}{text}->set(
 				'text'         => "<span font_desc=' " . $font_btn->get_font_name . " ' >" . $digit . "</span>",
 				'fill-color-gdk-rgba' => $fill_color,
@@ -4657,7 +4660,7 @@ sub apply_properties {
 
 	#apply text options
 	if ($item->isa('GooCanvas2::CanvasText')) {
-		my $font_descr = Pango::FontDescription->from_string($font_btn->get_font_name);
+		my $font_descr = Pango::FontDescription::from_string($font_btn->get_font_name);
 
 		my $new_text = undef;
 		if ($textview) {
@@ -4666,7 +4669,7 @@ sub apply_properties {
 		} else {
 
 			#determine font description and text from string
-			my ($attr_list, $text_raw, $accel_char) = Pango->parse_markup($item->get('text'));
+			my ($ret, $attr_list, $text_raw, $accel_char) = Pango::parse_markup($item->get('text'), -1, 0);
 			$new_text = $text_raw;
 		}
 
@@ -4703,7 +4706,7 @@ sub modify_text_in_properties {
 	my $use_font       = shift;
 	my $use_font_color = shift;
 
-	my $font_descr = Pango::FontDescription->from_string($font_btn->get_font_name);
+	my $font_descr = Pango::FontDescription::from_string($font_btn->get_font_name);
 	my $texttag    = Gtk3::TextTag->new;
 
 	if ($use_font->get_active && $use_font_color->get_active) {
