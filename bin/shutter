@@ -4478,13 +4478,14 @@ sub STARTUP {
 					my ($view, $x, $y, $button) = @_;
 					my $list = Gtk3::TargetList->new;
 					$list->add_table([Gtk3::TargetEntry->new('text/uri-list', [], 0)]);
-					$view->drag_begin_with_coordinates(
+					my $ctx = $view->drag_begin_with_coordinates(
 						$list,
 						['copy'],
 						$button,
 						undef,
 						$x, $y,
 					);
+					Gtk3::drag_set_icon_pixbuf($ctx, $view->{thumb}, 0, 0);
 					return TRUE;
 				}
 			);
@@ -7587,7 +7588,7 @@ sub STARTUP {
 					}
 
 					#update dnd pixbuf
-					$session_screens{$key}->{'image'}->drag_source_set_icon_pixbuf($thumb_view);
+					$session_screens{$key}->{'image'}->{thumb} = $thumb_view;
 				} else {
 					$thumb_view = Gtk3::Gdk::Pixbuf->new('rgb', TRUE, 8, 5, 5);
 					$thumb_view->fill(0x00000000);
