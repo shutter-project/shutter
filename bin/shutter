@@ -1217,21 +1217,23 @@ sub STARTUP {
 	fct_validate_filename($filename, $filename_hint);
 
 	my $filename_tooltip_string =
-		$d->get("There are several wildcards available, like\n")
-		. $d->get("%Y = year\n")
-		. $d->get("%m = month\n")
-		. $d->get("%d = day\n")
-		. $d->get("%T = time\n")
+		$d->get("There are several wildcards available.\n")
+		. $d->get("Wild cards provided by Shutter are:\n")
 		. $d->get("\$w = width\n")
 		. $d->get("\$h = height\n")
 		. $d->get("\$name = multi-purpose (e.g. window title)\n")
 		. $d->get("\$nb_name = like \$name but without blanks in resulting strings\n")
 		. $d->get("\$profile = name of current profile\n")
 		. $d->get("\$R = random char (e.g. \$RRRR = ag4r)\n")
-		. $d->get("%NN = counter");
-
-	$filename->set_tooltip_text($filename_tooltip_string);
-	$filename_label->set_tooltip_text($filename_tooltip_string);
+		. $d->get("%NN = counter\n")
+		. $d->get("Additionally, there are date related wildcards:\n")
+		. $d->get("%Y = year\n")
+		. $d->get("%m = month\n")
+		. $d->get("%d = day\n")
+		. $d->get("%T = time\n")
+		. $d->get("Further wildcards are documented in <i>man strftime</i>.");
+	$filename->set_tooltip_markup($filename_tooltip_string);
+	$filename_label->set_tooltip_markup($filename_tooltip_string);
 
 	$filename_box->pack_start($filename_label, FALSE, TRUE, 12);
 	$filename_box->pack_start($filename,       TRUE,  TRUE, 0);
@@ -11282,12 +11284,10 @@ Specify a filename to save the screenshot to (overwrites any profile-related set
 
 B<Supported image formats:> You can save to any popular image format (e.g. jpeg, png, gif, bmp). Additionally it is possible to save to pdf, ps or svg.
 
-B<Please note:> There are several wildcards available, like
+B<Please note:> There are several wildcards available.
 
- %Y = year
- %m = month
- %d = day
- %T = time
+Wild cards provided by Shutter are:
+
  $w = width
  $h = height
  $name = multi-purpose (e.g. window title)
@@ -11296,6 +11296,13 @@ B<Please note:> There are several wildcards available, like
  $R = random char (e.g. $RRRR = ag4r)
  %NN = counter
 
+Additionally, there are date related wildcards:
+
+ %Y = year
+ %m = month
+ %d = day
+ %T = time
+ 
 The string is interpretted by strftime. See C<man strftime> for more examples.
 
 B<As an example:> shutter -f -e -o './%y-%m-%d_$w_$h.png' would create a file named '11-10-28_1280_800.png' in the current directory.
