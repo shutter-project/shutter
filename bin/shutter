@@ -473,7 +473,33 @@ sub STARTUP {
 	my $wnck_screen;
 	if ($x11_supported) {
 		$wnck_screen = Wnck::Screen::get_default();
-		$wnck_screen->force_update if $wnck_screen;
+	}
+
+	if ($wnck_screen) {
+		$wnck_screen->signal_connect('window-manager-changed' => sub {
+			$st->{_full}->set_menu(fct_ret_workspace_menu(FALSE));
+		});
+
+		$wnck_screen->signal_connect('viewports-changed' => sub {
+			$st->{_full}->set_menu(fct_ret_workspace_menu(FALSE));
+		});
+
+		$wnck_screen->signal_connect('workspace-created' => sub {
+			$st->{_full}->set_menu(fct_ret_workspace_menu(FALSE));
+		});
+
+		$wnck_screen->signal_connect('workspace-destroyed' => sub {
+			$st->{_full}->set_menu(fct_ret_workspace_menu(FALSE));
+		});
+
+		$wnck_screen->signal_connect('active-workspace-changed' => sub {
+			$st->{_full}->set_menu(fct_ret_workspace_menu(FALSE));
+		});
+
+		$wnck_screen->signal_connect('window-stacking-changed' => sub {
+			$st->{_window}->set_menu(fct_ret_window_menu());
+			fct_update_tray_menu(@_);
+		});
 	}
 
 	#TRAY ICON AND MENU
@@ -841,10 +867,8 @@ sub STARTUP {
 	$st->{_window}->set_menu(fct_ret_window_menu());
 
 	#and attach signal handlers
-	$st->{_full}->signal_connect('show-menu' => sub { $st->{_full}->set_menu(fct_ret_workspace_menu(FALSE)) });
 	$st->{_window}->signal_connect('clicked' => \&evt_take_screenshot, 'window');
 
-	$st->{_window}->signal_connect('show-menu' => sub { $st->{_window}->set_menu(fct_ret_window_menu()) });
 	#$st->{_section}->signal_connect('clicked' => \&evt_take_screenshot, 'section');
 	$st->{_menu}->signal_connect('clicked' => \&evt_take_screenshot, 'menu');
 	$st->{_tooltip}->signal_connect('clicked' => \&evt_take_screenshot, 'tooltip');
@@ -2757,13 +2781,6 @@ sub STARTUP {
 	if ($cmdname && $folder_to_save) {
 		evt_take_screenshot('global_keybinding', $cmdname, $folder_to_save, $extra);
 	}
-
-	#keep list of windows up-to-date (tray)
-	Glib::Idle->add(
-		sub {
-			$wnck_screen->signal_connect('window-stacking-changed' => sub { fct_update_tray_menu(@_); });
-			return FALSE;
-		}) if $wnck_screen;
 
 	#events
 	#--------------------------------------
@@ -8279,7 +8296,6 @@ sub STARTUP {
 			$current_monitor_active = Gtk3::CheckMenuItem->new_with_label($d->get("Limit to current monitor"));
 			return $menu_wrksp;
 		}
-		$wnck_screen->force_update();
 
 		#we determine the wm name but on older
 		#version of libwnck (or the bindings)
@@ -8443,11 +8459,11 @@ sub STARTUP {
 
 		#add all windows to menu to capture it directly
 
-		print "\n\n\nDEBUG\n\n\n";
-		print $wnck_screen;
-		print "\n\n\nDEBUG\n\n\n";
-		print @{$wnck_screen->get_windows_stacked};
-		print "\n\n\nDEBUG\n\n\n";
+		unless ($wnck_screen->get_windows_stacked) {
+			print "\n\n\nERROR: The window list could not be retrieved and has been disabled, see https://github.com/shutter-project/shutter/issues/659\n\n\n";
+			$menu_windows->show_all;
+ 			return $menu_windows;
+ 		}
 
 		foreach my $win (@{$wnck_screen->get_windows_stacked}) {
 			if ($active_workspace && $win->is_on_workspace($active_workspace)) {
