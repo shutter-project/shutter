@@ -362,7 +362,7 @@ sub apply_effect {
 
 	my $command2 = "composite " . $tmpfilename . 
 		" -gravity " . $gravity_combo->get_active_text . 
-		" " . $filename . " " . $tmpfilename2;
+		" " . "\"$filename\"" . " " . $tmpfilename2;
 	my $output2 = `$command2`;
 }
 
