@@ -4310,6 +4310,12 @@ sub STARTUP {
 
 						if ($event eq 'deleted') {
 
+							my $v = $session_screens{$key};
+							if ($v && -e $v->{'giofile'}->get_path) {
+								print "deleted - $key exists ignored\n" if $sc->get_debug;
+								return;
+							}
+
 							$handle->cancel;
 
 							if (exists $session_screens{$key}) {
