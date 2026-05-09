@@ -303,7 +303,7 @@ sub show {
 	    my ($cname, $folder, $type) = fileparse($cursor_path, qr/\.[^.]*/);
 	    my $pixbuf = Gtk3::Gdk::Pixbuf->new_from_file($cursor_path);
 
-	    if (!$pixbuf) {
+		if (!$pixbuf) {
 			print "ERROR: Failed to load pixbuf from $cursor_path\n";
 			next;
 		}
@@ -1201,7 +1201,7 @@ sub change_drawing_tool_cb {
 
 	if ($self->{_canvas} && $self->{_canvas}->get_window) {
 
-	    if (exists $self->{_cursors}{$self->{_current_mode_descr}}) {
+		if (exists $self->{_cursors}{$self->{_current_mode_descr}}) {
 		my $cursor_data = $self->{_cursors}{$self->{_current_mode_descr}};
         
 		$cursor = Gtk3::Gdk::Cursor->new_from_pixbuf(
