@@ -1,5 +1,20 @@
-shutter (0.99.6)
+shutter (0.99.7)
 
+Bug fixes:
+
+* Duplicated tray icon in rare cases
+* PDF and PS export were broken
+* Increased maximal marker tool thickness in Drawing Tool for better usage on high-res screens
+* Drawing Tool not launching with gdk-pixbuf2 >2.44.4
+* Screenshot preview not refreshing after editing screenshot with Drawing Tool
+
+New features:
+
+* Added set of light icons in Drawing Tool for better visibility with dark GTK themes
+* Added Georgian translation
+
+
+shutter (0.99.6)
 
 Bug fixes:
 
