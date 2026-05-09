@@ -8470,6 +8470,8 @@ sub STARTUP {
 		my $wm_name;
 		if ($wnck_screen->can('get_window_manager_name')) {
 			$wm_name = $wnck_screen->get_window_manager_name;
+		} else {
+			$wm_name = "unknown";
 		}
 
 		my $active_workspace = $wnck_screen->get_active_workspace;
