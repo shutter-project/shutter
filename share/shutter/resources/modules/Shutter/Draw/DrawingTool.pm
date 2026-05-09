@@ -196,7 +196,8 @@ sub new {
 #~ print "$self dying at\n";
 #~ }
 
-# Workaround for broken xpm parsing in glycin
+# Workaround for broken xpm parsing in glycin:
+# https://gitlab.gnome.org/GNOME/glycin/-/work_items/291
 sub parse_xpm_hotspot {
     my ($xpm_path) = @_;
     my ($x_hot, $y_hot);
@@ -219,7 +220,7 @@ sub parse_xpm_hotspot {
                 $x_hot = $xh;
                 $y_hot = $yh;
             } else {
-                print "DEBUG: No hotspot in header\n";
+                print "DEBUG: No hotspot in header in $xpm_path\n";
             }
 
             last;  # Header is on the first data line
@@ -302,10 +303,13 @@ sub show {
 	    my ($cname, $folder, $type) = fileparse($cursor_path, qr/\.[^.]*/);
 	    my $pixbuf = Gtk3::Gdk::Pixbuf->new_from_file($cursor_path);
 
-	    if ($pixbuf) {
+	    if (!$pixbuf) {
+			print "ERROR: Failed to load pixbuf from $cursor_path\n";
+			next;
+		}
 		my $width = $pixbuf->get_width();
 		my $height = $pixbuf->get_height();
-
+		
 		# Parse hotspot from file
 		my ($x_hot, $y_hot) = parse_xpm_hotspot($cursor_path);
 
@@ -315,13 +319,10 @@ sub show {
 
 		# Store as a hash with pixbuf and hotspot data
 		$self->{_cursors}{$cname} = {
-		    'pixbuf' => $pixbuf,
-		    'x_hot'  => $x_hot,
-		    'y_hot'  => $y_hot,
+			'pixbuf' => $pixbuf,
+			'x_hot'  => $x_hot,
+			'y_hot'  => $y_hot,
 		};
-	    } else {
-		print "ERROR: Failed to load pixbuf\n";
-	    }
 	}
 
 	#setu ui
@@ -1197,7 +1198,7 @@ sub change_drawing_tool_cb {
 		$self->{_btn_ok_c}->grab_focus;
 
 	}
-	
+
 	if ($self->{_canvas} && $self->{_canvas}->get_window) {
 
 	    if (exists $self->{_cursors}{$self->{_current_mode_descr}}) {
