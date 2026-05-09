@@ -196,6 +196,41 @@ sub new {
 #~ print "$self dying at\n";
 #~ }
 
+# Workaround for broken xpm parsing in glycin:
+# https://gitlab.gnome.org/GNOME/glycin/-/work_items/291
+sub parse_xpm_hotspot {
+    my ($xpm_path) = @_;
+    my ($x_hot, $y_hot);
+
+    open my $fh, '<', $xpm_path or do {
+        print "ERROR: Cannot open $xpm_path: $!\n";
+        return (undef, undef);
+    };
+
+    while (my $line = <$fh>) {
+        chomp($line);
+
+        # Look for the XPM header line with format:
+        # "width height ncolors chars_per_pixel [x_hot y_hot]"
+        # Example: "32 32 3 1 4 4"
+        if ($line =~ /"(\d+)\s+(\d+)\s+(\d+)\s+(\d+)(?:\s+(\d+)\s+(\d+))?/) {
+            my ($width, $height, $ncolors, $cpp, $xh, $yh) = ($1, $2, $3, $4, $5, $6);
+
+            if (defined($xh) && defined($yh)) {
+                $x_hot = $xh;
+                $y_hot = $yh;
+            } else {
+                print "DEBUG: No hotspot in header in $xpm_path\n";
+            }
+
+            last;  # Header is on the first data line
+        }
+    }
+    close $fh;
+
+    return ($x_hot, $y_hot);
+}
+
 sub show {
 	my $self = shift;
 
@@ -265,13 +300,29 @@ sub show {
 	#http://www.inkscape.org
 	my @cursors = bsd_glob($self->{_dicons} . "/cursor/*");
 	foreach my $cursor_path (@cursors) {
-		my ($cname, $folder, $type) = fileparse($cursor_path, qr/\.[^.]*/);
-		$self->{_cursors}{$cname} = Gtk3::Gdk::Pixbuf->new_from_file($cursor_path);
+	    my ($cname, $folder, $type) = fileparse($cursor_path, qr/\.[^.]*/);
+	    my $pixbuf = Gtk3::Gdk::Pixbuf->new_from_file($cursor_path);
 
-		#see 'man xcursor' for a detailed description
-		#of these values
-		$self->{_cursors}{$cname}{'x_hot'} = $self->{_cursors}{$cname}->get_option('x_hot');
-		$self->{_cursors}{$cname}{'y_hot'} = $self->{_cursors}{$cname}->get_option('y_hot');
+		if (!$pixbuf) {
+			print "ERROR: Failed to load pixbuf from $cursor_path\n";
+			next;
+		}
+		my $width = $pixbuf->get_width();
+		my $height = $pixbuf->get_height();
+		
+		# Parse hotspot from file
+		my ($x_hot, $y_hot) = parse_xpm_hotspot($cursor_path);
+
+		# Fallback to center if not found
+		$x_hot //= $width / 2;
+		$y_hot //= $height / 2;
+
+		# Store as a hash with pixbuf and hotspot data
+		$self->{_cursors}{$cname} = {
+			'pixbuf' => $pixbuf,
+			'x_hot'  => $x_hot,
+			'y_hot'  => $y_hot,
+		};
 	}
 
 	#setu ui
@@ -1151,13 +1202,17 @@ sub change_drawing_tool_cb {
 	if ($self->{_canvas} && $self->{_canvas}->get_window) {
 
 		if (exists $self->{_cursors}{$self->{_current_mode_descr}}) {
-			$cursor = Gtk3::Gdk::Cursor->new_from_pixbuf(
-				Gtk3::Gdk::Display::get_default(),                          $self->{_cursors}{$self->{_current_mode_descr}},
-				$self->{_cursors}{$self->{_current_mode_descr}}{'x_hot'}, $self->{_cursors}{$self->{_current_mode_descr}}{'y_hot'},
-			);
-		}
+		my $cursor_data = $self->{_cursors}{$self->{_current_mode_descr}};
+        
+		$cursor = Gtk3::Gdk::Cursor->new_from_pixbuf(
+		    Gtk3::Gdk::Display::get_default(),
+		    $cursor_data->{'pixbuf'},
+		    $cursor_data->{'x_hot'}, 
+		    $cursor_data->{'y_hot'},
+		);
+	    }
 
-		$self->{_canvas}->get_window->set_cursor($cursor);
+	    $self->{_canvas}->get_window->set_cursor($cursor);
 	}
 
 	return TRUE;
