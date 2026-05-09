@@ -595,33 +595,6 @@ sub STARTUP {
 		$wnck_screen = Wnck::Screen::get_default();
 	}
 
-	if ($wnck_screen) {
-		$wnck_screen->signal_connect('window-manager-changed' => sub {
-			$st->{_full}->set_menu(fct_ret_workspace_menu(FALSE));
-		});
-
-		$wnck_screen->signal_connect('viewports-changed' => sub {
-			$st->{_full}->set_menu(fct_ret_workspace_menu(FALSE));
-		});
-
-		$wnck_screen->signal_connect('workspace-created' => sub {
-			$st->{_full}->set_menu(fct_ret_workspace_menu(FALSE));
-		});
-
-		$wnck_screen->signal_connect('workspace-destroyed' => sub {
-			$st->{_full}->set_menu(fct_ret_workspace_menu(FALSE));
-		});
-
-		$wnck_screen->signal_connect('active-workspace-changed' => sub {
-			$st->{_full}->set_menu(fct_ret_workspace_menu(FALSE));
-		});
-
-		$wnck_screen->signal_connect('window-stacking-changed' => sub {
-			$st->{_window}->set_menu(fct_ret_window_menu());
-			fct_update_tray_menu(@_);
-		});
-	}
-
 	#TRAY ICON AND MENU
 	$tray      = undef;
 	$tray_libappindicator = undef;
@@ -1032,6 +1005,33 @@ sub STARTUP {
 		for my $name ('_full', '_window') {
 			$st->{$name}->set_arrow_tooltip_text($tooltip);
 		}
+	}
+
+	if ($wnck_screen) {
+		$wnck_screen->signal_connect('window-manager-changed' => sub {
+			$st->{_full}->set_menu(fct_ret_workspace_menu(FALSE));
+		});
+
+		$wnck_screen->signal_connect('viewports-changed' => sub {
+			$st->{_full}->set_menu(fct_ret_workspace_menu(FALSE));
+		});
+
+		$wnck_screen->signal_connect('workspace-created' => sub {
+			$st->{_full}->set_menu(fct_ret_workspace_menu(FALSE));
+		});
+
+		$wnck_screen->signal_connect('workspace-destroyed' => sub {
+			$st->{_full}->set_menu(fct_ret_workspace_menu(FALSE));
+		});
+
+		$wnck_screen->signal_connect('active-workspace-changed' => sub {
+			$st->{_full}->set_menu(fct_ret_workspace_menu(FALSE));
+		});
+
+		$wnck_screen->signal_connect('window-stacking-changed' => sub {
+			$st->{_window}->set_menu(fct_ret_window_menu());
+			fct_update_tray_menu(@_);
+		});
 	}
 
 	#--------------------------------------
@@ -8467,11 +8467,10 @@ sub STARTUP {
 		#this leads to a known problem when switching
 		#the wm => wm_name will still remain the old one
 		#but it doesn't work on gtk3
-		my $wm_name;
+		my $wm_name = "unknown";
 		if ($wnck_screen->can('get_window_manager_name')) {
-			$wm_name = $wnck_screen->get_window_manager_name;
-		} else {
-			$wm_name = "unknown";
+			my $retrieved_wm = $wnck_screen->get_window_manager_name;
+			$wm_name = $retrieved_wm if $retrieved_wm && $retrieved_wm ne "";
 		}
 
 		my $active_workspace = $wnck_screen->get_active_workspace;
@@ -8568,7 +8567,7 @@ sub STARTUP {
 			}
 			$menu_wrksp->append($current_monitor_active);
 		} else {
-			$current_monitor_active->reparent($menu_wrksp);
+			$current_monitor_active->reparent($menu_wrksp) if defined $current_monitor_active;
 		}
 
 		$current_monitor_active->set_tooltip_text(
@@ -8579,12 +8578,12 @@ sub STARTUP {
 					$n_mons
 				),
 				$n_mons
-			));
+			)) if defined $current_monitor_active;
 		if ($n_mons > 1) {
 			$current_monitor_active->set_sensitive(TRUE);
 		} else {
-			$current_monitor_active->set_active(FALSE);
-			$current_monitor_active->set_sensitive(FALSE);
+			$current_monitor_active->set_active(FALSE) if defined $current_monitor_active;
+			$current_monitor_active->set_sensitive(FALSE) if defined $current_monitor_active;
 		}
 
 		$menu_wrksp->show_all();
