@@ -1202,14 +1202,14 @@ sub change_drawing_tool_cb {
 	if ($self->{_canvas} && $self->{_canvas}->get_window) {
 
 		if (exists $self->{_cursors}{$self->{_current_mode_descr}}) {
-		my $cursor_data = $self->{_cursors}{$self->{_current_mode_descr}};
+			my $cursor_data = $self->{_cursors}{$self->{_current_mode_descr}};
         
-		$cursor = Gtk3::Gdk::Cursor->new_from_pixbuf(
-		    Gtk3::Gdk::Display::get_default(),
-		    $cursor_data->{'pixbuf'},
-		    $cursor_data->{'x_hot'}, 
-		    $cursor_data->{'y_hot'},
-		);
+			$cursor = Gtk3::Gdk::Cursor->new_from_pixbuf(
+		    	Gtk3::Gdk::Display::get_default(),
+		    	$cursor_data->{'pixbuf'},
+		    	$cursor_data->{'x_hot'}, 
+		    	$cursor_data->{'y_hot'},
+			);
 	    }
 
 	    $self->{_canvas}->get_window->set_cursor($cursor);
