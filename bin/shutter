@@ -655,7 +655,9 @@ sub STARTUP {
 	$sm->{_menuitem_iclipboard}->signal_connect('activate', \&fct_clipboard_import);
 
 	unless ($x11_supported) {
-		for my $name ('selection', 'awindow', 'window', 'menu', 'tooltip') {
+		# on Wayland selection/window/awindow go through the interactive XDG portal;
+		# only menu/tooltip capture stay disabled (not supported by the portal)
+		for my $name ('menu', 'tooltip') {
 			$sm->{"_menuitem_$name"}->set_sensitive(FALSE);
 		}
 	}
@@ -1000,11 +1002,13 @@ sub STARTUP {
 	$st->{_upload}->set_sensitive(FALSE);
 
 	unless ($x11_supported) {
+		# on Wayland _select/_window use the interactive XDG portal; menu/tooltip stay disabled
 		my $tooltip = $d->get("Can't take screenshots without X11 server");
-		for my $name ('_select', '_window', '_menu', '_tooltip') {
+		for my $name ('_menu', '_tooltip') {
 			$st->{$name}->set_sensitive(FALSE);
 			$st->{$name}->set_tooltip_text($tooltip);
 		}
+		# dropdown menus (workspace list / window list) still need X11 to enumerate
 		for my $name ('_full', '_window') {
 			$st->{$name}->set_arrow_tooltip_text($tooltip);
 		}
@@ -3128,7 +3132,10 @@ sub STARTUP {
 			#unblock signal handler
 			fct_control_signals('unblock');
 			return TRUE;
-		} elsif (!$x11_supported && $data ne "full" && $data ne "tray_full") {
+		} elsif (!$x11_supported
+			&& $data !~ /^(tray_)?(full|select|window|awindow)$/) {
+			# full/select/window/awindow are served via the XDG portal on Wayland;
+			# everything else (menu, tooltip, ...) still needs X11
 			my $sd = Shutter::App::SimpleDialogs->new;
 			$sd->dlg_error_message($d->get("Can't take screenshots without X11 server"), $d->get("Failed"));
 			fct_control_signals('unblock');
@@ -6183,8 +6190,14 @@ sub STARTUP {
 			}
 		}
 
+		#wayland: route selection/window/active to the compositor's interactive picker
+		if (!$x11_supported
+			&& $data =~ /^(tray_)?(select|window|awindow)$/) {
+
+			$screenshot = Shutter::Screenshot::Wayland::xdg_portal($screenshooter, 1);
+
 		#fullscreen screenshot
-		if ($data eq "full" || $data eq "tray_full") {
+		} elsif ($data eq "full" || $data eq "tray_full") {
 
 			if ($x11_supported) {
 				$screenshooter = Shutter::Screenshot::Workspace->new(
@@ -8655,7 +8668,8 @@ sub STARTUP {
 
 		#selection
 		my $menuitem_select = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('_Selection'));
-		$menuitem_select->set_sensitive($x11_supported);
+		# served via interactive XDG portal on Wayland too
+		$menuitem_select->set_sensitive(TRUE);
 		eval {
 			my $ccursor_pb = Gtk3::Gdk::Cursor::new('left_ptr')->get_image->scale_simple($shf->icon_size('menu'), 'bilinear');
 			$menuitem_select->set_image(Gtk3::Image->new_from_pixbuf($ccursor_pb));
@@ -8704,7 +8718,8 @@ sub STARTUP {
 
 		#window
 		my $menuitem_window = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('Window _under Cursor'));
-		$menuitem_window->set_sensitive($x11_supported);
+		# served via interactive XDG portal on Wayland too
+		$menuitem_window->set_sensitive(TRUE);
 		if ($traytheme->has_icon('preferences-system-windows')) {
 			$menuitem_window->set_image(Gtk3::Image->new_from_icon_name('preferences-system-windows', 'menu'));
 		} else {
