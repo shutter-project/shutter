@@ -1,13 +1,19 @@
 use utf8;
 use strict;
 use warnings;
-use Net::DBus;
 use Net::DBus::Reactor;
+use Net::DBus;
 
 package Shutter::Screenshot::Wayland;
 
 sub xdg_portal {
 	my $screenshooter = shift;
+	my $interactive = shift;
+	my $target = shift;
+
+	# Fall back to fullscreen
+	$target = 1 unless defined $target;
+
 	my $reactor = Net::DBus::Reactor->main;
 	my $bus = Net::DBus->find;
 	my $me = $bus->get_unique_name;
@@ -31,15 +37,28 @@ sub xdg_portal {
 		$token =~ s/\.//g;
 		my $request = $portal_service->get_object("/org/freedesktop/portal/desktop/request/$me/$token", 'org.freedesktop.portal.Request');
 		my $conn = $request->connect_to_signal(Response => $cb);
-		my $request_path = $portal->Screenshot('', {handle_token=>$token});
+
+		my %options = (handle_token => $token);
+
+		$options{interactive} = Net::DBus::dbus_boolean($interactive);
+		if ($interactive eq 0) {
+			$options{target} = Net::DBus::dbus_uint32($target);
+		}
+
+		my $request_path = $portal->Screenshot('', \%options);
+
 		if ($request->get_object_path ne $request_path) {
 			$request->disconnect_from_signal(Response => $conn);
 			$request = $portal_service->get_object($request_path, 'org.freedesktop.portal.Request');
 			$conn = $request->connect_to_signal(Response => $cb);
 		}
+
 		$reactor->run;
+
 		$request->disconnect_from_signal(Response => $conn);
 		if ($num != 0) {
+			# portal Response: 1 = user cancelled -> treat as abort (code 5), not error
+			return 5 if $num == 1;
 			$screenshooter->{_error_text} = "Response $num from XDG portal";
 			return 9;
 		}
