@@ -597,14 +597,23 @@ sub STARTUP {
 		#	4: Area (corresponds "select")
 		#	8: Active Window (corresponds "awindow")
 		# See: https://github.com/flatpak/xdg-desktop-portal/pull/1981
-		my $raw = Net::DBus->session
-			->get_service("org.freedesktop.portal.Desktop")
-			->get_object("/org/freedesktop/portal/desktop")
-			->as_interface("org.freedesktop.DBus.Properties")
-			->Get("org.freedesktop.portal.Screenshot", "AvailableTargets");
-		my $val = (ref($raw) && $raw->can('value')) ? $raw->value : $raw;
-		my $targets = (ref($val) eq 'ARRAY') ? $val : [];
-		%supported_targets = map { $_ => 1 } @$targets;
+        my $targets_raw;
+        eval {
+            $targets_raw = Net::DBus->session
+                ->get_service("org.freedesktop.portal.Desktop")
+                ->get_object("/org/freedesktop/portal/desktop")
+                ->as_interface("org.freedesktop.DBus.Properties")
+                ->Get("org.freedesktop.portal.Screenshot", "AvailableTargets");
+        };
+        if ($@) {
+            # Fehler aufgetreten (Eigenschaft existiert nicht) -> Hash leeren
+            %supported_targets = ();
+        } else {
+            # Eigenschaft existiert -> Werte normal verarbeiten
+            my $targets_val = (ref($targets_raw) && $targets_raw->can('value')) ? $targets_raw->value : $targets_raw;
+            my $targets = (ref($targets_val) eq 'ARRAY') ? $targets_val : [];
+            %supported_targets = map { $_ => 1 } @$targets;
+        }
 	}
 
 	if ($x11_supported) {
