@@ -604,14 +604,18 @@ sub STARTUP {
                 ->as_interface("org.freedesktop.DBus.Properties")
                 ->Get("org.freedesktop.portal.Screenshot", "AvailableTargets");
         };
+
         if ($@) {
-            # Fehler aufgetreten (Eigenschaft existiert nicht) -> Hash leeren
             %supported_targets = ();
         } else {
-            # Eigenschaft existiert -> Werte normal verarbeiten
-            my $targets_val = (ref($targets_raw) && $targets_raw->can('value')) ? $targets_raw->value : $targets_raw;
-            my $targets = (ref($targets_val) eq 'ARRAY') ? $targets_val : [];
-            %supported_targets = map { $_ => 1 } @$targets;
+            if (defined $targets_raw) {
+                $supported_targets{'1'} = 1 if ($targets_raw & 1);
+                $supported_targets{'2'} = 1 if ($targets_raw & 2);
+                $supported_targets{'4'} = 1 if ($targets_raw & 4);
+                $supported_targets{'8'} = 1 if ($targets_raw & 8);
+            } else {
+                %supported_targets = ();
+            }
         }
 	}
 
