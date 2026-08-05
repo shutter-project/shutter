@@ -1752,10 +1752,15 @@ modes are currently experimental, your desktop environment might fall back to an
 	#--------------------------------------
 	$zoom_active = Gtk3::CheckButton->new_with_label($d->get("Enable zoom window"));
 
-	if (defined $settings_xml->{'general'}->{'zoom_active'}) {
-		$zoom_active->set_active($settings_xml->{'general'}->{'zoom_active'});
+	if ($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'zoom_active'}) {
+			$zoom_active->set_active($settings_xml->{'general'}->{'zoom_active'});
+		} else {
+			$zoom_active->set_active(TRUE);
+		}
 	} else {
-		$zoom_active->set_active(TRUE);
+		$zoom_active->set_active(FALSE);
+		$zoom_active->set_sensitive(FALSE);
 	}
 
 	$zoom_active->set_tooltip_text($d->get("Enable zoom window"));
@@ -1778,25 +1783,32 @@ modes are currently experimental, your desktop environment might fall back to an
 	my $asel_size_vlabel1 = Gtk3::Label->new($d->get("pixels"));
 	my $asel_size_vlabel2 = Gtk3::Label->new($d->get("pixels"));
 
-	if (defined $settings_xml->{'general'}->{'asel_x'}) {
-		$asel_size3->set_value($settings_xml->{'general'}->{'asel_x'});
+	if ($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'asel_x'}) {
+			$asel_size3->set_value($settings_xml->{'general'}->{'asel_x'});
+		} else {
+			$asel_size3->set_value(0);
+		}
+		if (defined $settings_xml->{'general'}->{'asel_y'}) {
+			$asel_size4->set_value($settings_xml->{'general'}->{'asel_y'});
+		} else {
+			$asel_size4->set_value(0);
+		}
+		if (defined $settings_xml->{'general'}->{'asel_w'}) {
+			$asel_size1->set_value($settings_xml->{'general'}->{'asel_w'});
+		} else {
+			$asel_size1->set_value(0);
+		}
+		if (defined $settings_xml->{'general'}->{'asel_h'}) {
+			$asel_size2->set_value($settings_xml->{'general'}->{'asel_h'});
+		} else {
+			$asel_size2->set_value(0);
+		}
 	} else {
-		$asel_size3->set_value(0);
-	}
-	if (defined $settings_xml->{'general'}->{'asel_y'}) {
-		$asel_size4->set_value($settings_xml->{'general'}->{'asel_y'});
-	} else {
-		$asel_size4->set_value(0);
-	}
-	if (defined $settings_xml->{'general'}->{'asel_w'}) {
-		$asel_size1->set_value($settings_xml->{'general'}->{'asel_w'});
-	} else {
-		$asel_size1->set_value(0);
-	}
-	if (defined $settings_xml->{'general'}->{'asel_h'}) {
-		$asel_size2->set_value($settings_xml->{'general'}->{'asel_h'});
-	} else {
-		$asel_size2->set_value(0);
+		$asel_size1->set_sensitive(FALSE);
+		$asel_size2->set_sensitive(FALSE);
+		$asel_size3->set_sensitive(FALSE);
+		$asel_size4->set_sensitive(FALSE);
 	}
 
 	$asel_size_label1->set_tooltip_text($d->get("Start Selection Tool with a customized selection size"));
@@ -1828,10 +1840,15 @@ modes are currently experimental, your desktop environment might fall back to an
 	#--------------------------------------
 	$as_help_active = Gtk3::CheckButton->new_with_label($d->get("Show help text"));
 
-	if (defined $settings_xml->{'general'}->{'as_help_active'}) {
-		$as_help_active->set_active($settings_xml->{'general'}->{'as_help_active'});
+	if ($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'as_help_active'}) {
+			$as_help_active->set_active($settings_xml->{'general'}->{'as_help_active'});
+		} else {
+			$as_help_active->set_active(TRUE);
+		}
 	} else {
-		$as_help_active->set_active(TRUE);
+		$as_help_active->set_active(FALSE);
+		$as_help_active->set_sensitive(FALSE);
 	}
 
 	$as_help_active->set_tooltip_text($d->get("Enables the help text"));
@@ -1845,10 +1862,15 @@ modes are currently experimental, your desktop environment might fall back to an
 	#--------------------------------------
 	$as_confirmation_necessary = Gtk3::CheckButton->new_with_label($d->get("Confirmation necessary"));
 
-	if (defined $settings_xml->{'general'}->{'as_confirmation_necessary'}) {
-		$as_confirmation_necessary->set_active($settings_xml->{'general'}->{'as_confirmation_necessary'});
+	if ($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'as_confirmation_necessary'}) {
+			$as_confirmation_necessary->set_active($settings_xml->{'general'}->{'as_confirmation_necessary'});
+		} else {
+			$as_confirmation_necessary->set_active(TRUE);
+		}
 	} else {
-		$as_confirmation_necessary->set_active(TRUE);
+		$as_confirmation_necessary->set_active(FALSE);
+		$as_confirmation_necessary->set_sensitive(FALSE);
 	}
 
 	$as_confirmation_necessary->set_tooltip_text($d->get("Pressing the enter key or doubleclicking is necessary to take the screenshot"));
@@ -1865,10 +1887,15 @@ modes are currently experimental, your desktop environment might fall back to an
 
 	$border_box->pack_start($border_active, FALSE, TRUE, 12);
 
-	if (defined $settings_xml->{'general'}->{'border'}) {
-		$border_active->set_active($settings_xml->{'general'}->{'border'});
+	if ($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'border'}) {
+			$border_active->set_active($settings_xml->{'general'}->{'border'});
+		} else {
+			$border_active->set_active(TRUE);
+		}
 	} else {
 		$border_active->set_active(TRUE);
+		$border_active->set_sensitive(FALSE);
 	}
 
 	#end - border
@@ -1884,22 +1911,29 @@ modes are currently experimental, your desktop environment might fall back to an
 	$winresize_h      = Gtk3::SpinButton->new_with_range(0, $h, 1);
 	my $winresize_vlabel = Gtk3::Label->new($d->get("pixels"));
 
-	if (defined $settings_xml->{'general'}->{'winresize_active'}) {
-		$winresize_active->set_active($settings_xml->{'general'}->{'winresize_active'});
+	if ($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'winresize_active'}) {
+			$winresize_active->set_active($settings_xml->{'general'}->{'winresize_active'});
+		} else {
+			$winresize_active->set_active(FALSE);
+		}
+
+		if (defined $settings_xml->{'general'}->{'winresize_w'}) {
+			$winresize_w->set_value($settings_xml->{'general'}->{'winresize_w'});
+		} else {
+			$winresize_w->set_value(500);
+		}
+
+		if (defined $settings_xml->{'general'}->{'winresize_h'}) {
+			$winresize_h->set_value($settings_xml->{'general'}->{'winresize_h'});
+		} else {
+			$winresize_h->set_value(500);
+		}
 	} else {
 		$winresize_active->set_active(FALSE);
-	}
-
-	if (defined $settings_xml->{'general'}->{'winresize_w'}) {
-		$winresize_w->set_value($settings_xml->{'general'}->{'winresize_w'});
-	} else {
-		$winresize_w->set_value(500);
-	}
-
-	if (defined $settings_xml->{'general'}->{'winresize_h'}) {
-		$winresize_h->set_value($settings_xml->{'general'}->{'winresize_h'});
-	} else {
-		$winresize_h->set_value(500);
+		$winresize_active->set_sensitive(FALSE);
+		$winresize_h->set_sensitive(FALSE);
+		$winresize_w->set_sensitive(FALSE);
 	}
 
 	$winresize_active->set_tooltip_text($d->get(
@@ -1931,10 +1965,15 @@ modes are currently experimental, your desktop environment might fall back to an
 	#--------------------------------------
 	$autoshape_active = Gtk3::CheckButton->new_with_label($d->get("Force rounded window corners"));
 
-	if (defined $settings_xml->{'general'}->{'autoshape_active'}) {
-		$autoshape_active->set_active($settings_xml->{'general'}->{'autoshape_active'});
+	if ($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'autoshape_active'}) {
+			$autoshape_active->set_active($settings_xml->{'general'}->{'autoshape_active'});
+		} else {
+			$autoshape_active->set_active(FALSE);
+		}
 	} else {
 		$autoshape_active->set_active(FALSE);
+		$autoshape_active->set_sensitive(FALSE);
 	}
 
 	$autoshape_active->set_tooltip_text(
@@ -1961,10 +2000,15 @@ modes are currently experimental, your desktop environment might fall back to an
 
 	$visible_windows_box->pack_start($visible_windows_active, FALSE, TRUE, 12);
 
-	if (defined $settings_xml->{'general'}->{'visible_windows'}) {
-		$visible_windows_active->set_active($settings_xml->{'general'}->{'visible_windows'});
+	if ($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'visible_windows'}) {
+			$visible_windows_active->set_active($settings_xml->{'general'}->{'visible_windows'});
+		} else {
+			$visible_windows_active->set_active(FALSE);
+		}
 	} else {
 		$visible_windows_active->set_active(FALSE);
+		$visible_windows_active->set_sensitive(FALSE);
 	}
 
 	#end - visible windows only
@@ -1981,10 +2025,15 @@ modes are currently experimental, your desktop environment might fall back to an
 		'menu_delay_changed'
 	);
 
-	if (defined $settings_xml->{'general'}->{'menu_delay'}) {
-		$menu_delay->set_value($settings_xml->{'general'}->{'menu_delay'});
+	if ($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'menu_delay'}) {
+			$menu_delay->set_value($settings_xml->{'general'}->{'menu_delay'});
+		} else {
+			$menu_delay->set_value(10);
+		}
 	} else {
-		$menu_delay->set_value(10);
+		$menu_delay->set_value(0);
+		$menu_delay->set_sensitive(FALSE);
 	}
 
 	$menu_delay->set_tooltip_text($d->get("Capture menu/tooltip after a delay of n seconds"));
@@ -2007,10 +2056,15 @@ modes are currently experimental, your desktop environment might fall back to an
 
 	$menu_waround_box->pack_start($menu_waround_active, FALSE, TRUE, 12);
 
-	if (defined $settings_xml->{'general'}->{'menu_waround'}) {
-		$menu_waround_active->set_active($settings_xml->{'general'}->{'menu_waround'});
+	if ($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'menu_waround'}) {
+			$menu_waround_active->set_active($settings_xml->{'general'}->{'menu_waround'});
+		} else {
+			$menu_waround_active->set_active(TRUE);
+		}
 	} else {
-		$menu_waround_active->set_active(TRUE);
+		$menu_waround_active->set_active(FALSE);
+		$menu_waround_active->set_sensitive(FALSE);
 	}
 
 	#end - menu/tooltip workaround
@@ -2033,12 +2087,17 @@ modes are currently experimental, your desktop environment might fall back to an
 	$combobox_web_width->insert_text(10, "2048");
 	my $web_width_vlabel = Gtk3::Label->new($d->get("pixels"));
 
-	if (defined $settings_xml->{'general'}->{'web_width'}) {
-		$combobox_web_width->set_active($settings_xml->{'general'}->{'web_width'});
+	if ($gnome_web_photo) {
+		if (defined $settings_xml->{'general'}->{'web_width'}) {
+			$combobox_web_width->set_active($settings_xml->{'general'}->{'web_width'});
+		} else {
+			$combobox_web_width->set_active(2);
+		}
 	} else {
-		$combobox_web_width->set_active(2);
+		$combobox_web_width->set_active(FALSE);
+		$combobox_web_width->set_sensitive(FALSE);
 	}
-
+	
 	$web_width_label->set_tooltip_text($d->get("Virtual browser width when taking a website screenshot"));
 	$combobox_web_width->set_tooltip_text($d->get("Virtual browser width when taking a website screenshot"));
 	$web_width_vlabel->set_tooltip_text($d->get("Virtual browser width when taking a website screenshot"));
