@@ -1542,7 +1542,7 @@ modes are currently experimental, your desktop environment might fall back to an
 			$cursor_active->set_active(FALSE);
 		}
 	} else {
-		$cursor_active->set_active(TRUE);
+		$cursor_active->set_active(FALSE);
 		$cursor_active->set_sensitive(FALSE);
 	}
 	#end - cursor
