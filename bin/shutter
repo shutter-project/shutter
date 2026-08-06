@@ -1474,7 +1474,10 @@ modes are currently experimental, your desktop environment might fall back to an
 		'value-changed' => \&evt_value_changed,
 		'delay_status_changed'
 	);
-
+	unless($x11_supported) {
+		$delay_status->set_sensitive(FALSE);
+	}
+	
 	#delay settings dialog
 	my $delay_label  = Gtk3::Label->new($d->get("Capture after a delay of"));
 	$delay        = Gtk3::SpinButton->new_with_range(0, 99, 1);
@@ -1484,10 +1487,15 @@ modes are currently experimental, your desktop environment might fall back to an
 		'delay_changed'
 	);
 
-	if (defined $settings_xml->{'general'}->{'delay'}) {
-		$delay->set_value($settings_xml->{'general'}->{'delay'});
+	if($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'delay'}) {
+			$delay->set_value($settings_xml->{'general'}->{'delay'});
+		} else {
+			$delay->set_value(0);
+		}
 	} else {
 		$delay->set_value(0);
+		$delay->set_sensitive(FALSE);
 	}
 
 	$delay->set_tooltip_text($d->get("Wait n seconds before taking a screenshot"));
@@ -1514,6 +1522,10 @@ modes are currently experimental, your desktop environment might fall back to an
 		'cursor_status_toggled'
 	);
 
+	unless($x11_supported) {
+		$cursor_status_active->set_sensitive(FALSE);
+	}
+
 	$cursor_active = Gtk3::CheckButton->new_with_label($d->get("Include cursor when taking a screenshot"));
 	$cursor_active->set_tooltip_text($d->get("Include cursor when taking a screenshot"));
 	$cursor_active->signal_connect(
@@ -1523,12 +1535,16 @@ modes are currently experimental, your desktop environment might fall back to an
 
 	$cursor_box->pack_start($cursor_active, FALSE, TRUE, 12);
 
-	if (defined $settings_xml->{'general'}->{'cursor'}) {
-		$cursor_active->set_active($settings_xml->{'general'}->{'cursor'});
+	if($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'cursor'}) {
+			$cursor_active->set_active($settings_xml->{'general'}->{'cursor'});
+		} else {
+			$cursor_active->set_active(FALSE);
+		}
 	} else {
-		$cursor_active->set_active(FALSE);
+		$cursor_active->set_active(TRUE);
+		$cursor_active->set_sensitive(FALSE);
 	}
-
 	#end - cursor
 	#--------------------------------------
 
