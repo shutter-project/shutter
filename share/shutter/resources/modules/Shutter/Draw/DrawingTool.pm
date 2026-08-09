@@ -240,7 +240,8 @@ sub show {
 	$self->{_name}        = shift;
 	$self->{_is_unsaved}  = shift;
 	$self->{_import_hash} = shift;
-	my $icon_theme = shift;
+	my $icon_theme	      = shift;
+	$self->{_cp_to_cb_on_save}  = shift;
 
 	#gettext
 	$self->{_d} = $self->{_sc}->get_gettext;
@@ -1895,8 +1896,11 @@ sub save {
 
 		#save pixbuf to file
 		my $pixbuf_save = Shutter::Pixbuf::Save->new($self->{_sc}, $self->{_drawing_window});
+		#save pixbuf to clipboard
+		if ($self->{_cp_to_cb_on_save}) {
+			$self->{_clipboard}->set_image($pixbuf);
+		}
 		return $pixbuf_save->save_pixbuf_to_file($pixbuf, $filename, $filetype);
-
 	}
 
 }
