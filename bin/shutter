@@ -815,8 +815,7 @@ sub STARTUP {
 	my $file_vbox    = Gtk3::VBox->new(FALSE, 0);
 	my $save_vbox    = Gtk3::VBox->new(FALSE, 0);
 	my $capture_vbox = Gtk3::VBox->new(FALSE, 0);
-	my $drawing_tool_icons_vbox    = Gtk3::VBox->new(FALSE, 0);
-	my $drawing_tool_save_to_clipboard_vbox    = Gtk3::VBox->new(FALSE, 0);
+	my $drawing_tool_vbox    = Gtk3::VBox->new(FALSE, 0);
 
 	my $scale_box                           = Gtk3::HBox->new(FALSE, 0);
 	my $filetype_box                        = Gtk3::HBox->new(FALSE, 0);
@@ -2487,11 +2486,11 @@ sub STARTUP {
 	$capture_vbox->pack_start($delay_box,  TRUE,  TRUE, 3);
 	$capture_frame->add($capture_vbox);
 
-	$drawing_tool_icons_vbox->pack_start($drawing_tool_light_icons_box,    TRUE,  TRUE, 3);
-    $drawing_tool_icons_vbox->pack_start($drawing_tool_dark_icons_box,     TRUE,  TRUE, 3);
-    $drawing_tool_icons_vbox->pack_start($drawing_tool_auto_icons_box,     TRUE,  TRUE, 3);
-	$drawing_tool_icons_vbox->pack_start($drawing_tool_save_to_clipboard_box,    TRUE,  TRUE, 3);	
-    $drawing_tool_frame->add($drawing_tool_icons_vbox);
+	$drawing_tool_vbox->pack_start($drawing_tool_light_icons_box,    TRUE,  TRUE, 3);
+    $drawing_tool_vbox->pack_start($drawing_tool_dark_icons_box,     TRUE,  TRUE, 3);
+    $drawing_tool_vbox->pack_start($drawing_tool_auto_icons_box,     TRUE,  TRUE, 3);
+	$drawing_tool_vbox->pack_start($drawing_tool_save_to_clipboard_box,    TRUE,  TRUE, 3);	
+    $drawing_tool_frame->add($drawing_tool_vbox);
 	
 	#all labels = one size
 	$scale_label->set_alignment(0, 0.5);
@@ -4739,7 +4738,7 @@ sub STARTUP {
 		$settings{'general'}->{'drawing_tool_light_icons'}      = $drawing_tool_light_icons_active->get_active();
 		$settings{'general'}->{'drawing_tool_dark_icons'}       = $drawing_tool_dark_icons_active->get_active();
 		$settings{'general'}->{'drawing_tool_auto_icons'}       = $drawing_tool_auto_icons_active->get_active();
-		$settings{'general'}->{'drawing_tool_auto_icons'}       = $drawing_tool_auto_icons_active->get_active();
+		$settings{'general'}->{'drawing_tool_save_to_clipboard'}= $drawing_tool_save_to_clipboard_active->get_active();
 		#wrksp -> submenu
 		if ($x11_supported) {
 			$settings{'general'}->{'current_monitor_active'} = $current_monitor_active->get_active;
