@@ -4167,8 +4167,7 @@ sub STARTUP {
 		}
 
 		#check mime type
-		my ($mime_type) = Glib::Object::Introspection->invoke('Gio', undef, 'content_type_guess', $giofile->get_path);
-		$mime_type =~ s/image\/x\-apple\-ios\-png/image\/png/;    #FIXME
+		my $mime_type = fct_get_mime_type($giofile);
 		if ($mime_type =~ m/(pdf|ps|svg)/ig) {
 
 			#not a supported mime type
@@ -5245,8 +5244,7 @@ sub STARTUP {
 		my @valid_files;
 		foreach my $file (@files) {
 			my $giofile = Glib::IO::File::new_for_uri($file);
-			my ($mime_type) = Glib::Object::Introspection->invoke('Gio', undef, 'content_type_guess', $giofile->get_path);
-			$mime_type =~ s/image\/x\-apple\-ios\-png/image\/png/;    #FIXME
+			my $mime_type = fct_get_mime_type($giofile);
 			if ($mime_type && fct_check_valid_mime_type($mime_type)) {
 				push @valid_files, $file;
 			}
@@ -5261,6 +5259,13 @@ sub STARTUP {
 			Gtk3::drag_finish($context, 0, 0, $time);
 			return FALSE;
 		}
+	}
+	
+	sub fct_get_mime_type {
+		my $giofile = shift;
+		my ($mime_type) = Glib::Object::Introspection->invoke('Gio', undef, 'content_type_guess', $giofile->get_path);
+		$mime_type =~ s/image\/x\-apple\-ios\-png/image\/png/;    #FIXME
+		return $mime_type;
 	}
 
 	sub fct_check_valid_mime_type {
@@ -6101,6 +6106,7 @@ sub STARTUP {
 				$session_screens{$key}->{'name'}, $session_screens{$key}->{'is_unsaved'}, \%session_screens,
 				$drawing_tool_icons
 			);
+			print "\n\nDEBUG: $session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'},   $session_screens{$key}->{'mime_type'}, $session_screens{$key}->{'name'}, $session_screens{$key}->{'is_unsaved'}, \%session_screens, $drawing_tool_icons	\n\n";
 		}
 
 		#~ &fct_control_main_window ('show');
@@ -7508,8 +7514,7 @@ sub STARTUP {
 				$session_screens{$key}->{'name'} =~ s/\.$session_screens{$key}->{'filetype'}//g;
 
 				#mime type
-				my ($mime_type) = Glib::Object::Introspection->invoke('Gio', undef, 'content_type_guess', $session_screens{$key}->{'giofile'}->get_path);
-				$mime_type =~ s/image\/x\-apple\-ios\-png/image\/png/;    #FIXME
+				my $mime_type = fct_get_mime_type($session_screens{$key}->{'giofile'});
 				$session_screens{$key}->{'mime_type'} = $mime_type;
 
 				#TAB PREVIEW IMAGE
