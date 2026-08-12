@@ -47,36 +47,35 @@ use Glib qw/TRUE FALSE/;
 sub new {
 	my $class = shift;
 
-	#call constructor of super class (shutter_common, include_cursor, delay, notify_timeout)
+	# Call the constructor of the superclass (Shutter::Screenshot::Main)
 	my $self = $class->SUPER::new(shift, shift, shift, shift);
 
-	$self->{_zoom_active} = shift;
-	$self->{_hide_time}   = shift;    #a short timeout to give the server a chance to redraw the area that was obscured
-	$self->{_show_help}   = shift;    #hide help text?
+	# Initialize interactive behavior and helper flags
+	$self->{_zoom_active}            = shift; # Determines if magnifier tool is active at start
+	$self->{_hide_time}              = shift; # Timeout allowing the server to redraw obscured screen portions
+	$self->{_show_help}              = shift; # Toggle flag for the introductory shortcut guide panel
 
-	#initial selection size
-	$self->{_init_x} = shift;
-	$self->{_init_y} = shift;
-	$self->{_init_w} = shift;
-	$self->{_init_h} = shift;
-	$self->{_confirmation_necessary} = shift;
+	# Set initial geometry constraints for the selection area
+	$self->{_init_x}                 = shift;
+	$self->{_init_y}                 = shift;
+	$self->{_init_w}                 = shift;
+	$self->{_init_h}                 = shift;
+	$self->{_confirmation_necessary} = shift; # If true, user must confirm via Enter key
 
+	# Query and calculate the system's monitor scale factor for HiDPI support
 	my $scale = 1;
 	eval {
 		$scale = $self->{_select_window}->get_scale_factor if $self->{_select_window};
 	};
 	$self->{_dpi_scale} = $scale || 1;
 
+	# Create the independent Popup window container for the magnifier lens preview
 	$self->{_zoom_window} = Gtk3::Window->new('popup');
 	$self->{_zoom_window}->set_decorated(0);
 	$self->{_zoom_window}->set_keep_above(1);
 	$self->{_zoom_window}->set_modal(0);
 
-	$self->{_select_window} = Gtk3::Window->new('popup');
-	$self->{_select_window}->set_decorated(0);
-	$self->{_select_window}->set_keep_above(1);
-	$self->{_select_window}->set_modal(1);
-
+	# Setup the layout inside the magnifier popup
 	my $zoom_vbox = Gtk3::VBox->new(0, 4);
 	$self->{_zoom_window}->add($zoom_vbox);
 
@@ -84,59 +83,75 @@ sub new {
 	$scwin->set_policy('never', 'never');
 	$zoom_vbox->pack_start($scwin, 1, 1, 0);
 	
-	$self->{_x_label} = Gtk3::Label->new("X: 0");
-	$self->{_y_label} = Gtk3::Label->new("Y: 0");
+	# Instantiate coordinate context descriptors
+	$self->{_x_label}    = Gtk3::Label->new("X: 0");
+	$self->{_y_label}    = Gtk3::Label->new("Y: 0");
 	$self->{_size_label} = Gtk3::Label->new("0 x 0");
 
 	$zoom_vbox->pack_start($self->{_x_label}, 0, 0, 0);
 	$zoom_vbox->pack_start($self->{_y_label}, 0, 0, 0);
 	$zoom_vbox->pack_start($self->{_size_label}, 0, 0, 0);
 
-
+	# Create the drawing lens canvas area for pixel zooming
 	$self->{_zoom_area} = Gtk3::DrawingArea->new;
-	$self->{_zoom_area}->set_size_request(100, 100);
+	$self->{_zoom_area}->set_size_request(160, 160);
 	$scwin->add($self->{_zoom_area});
 
+	# Create the primary full-screen workspace window
+	$self->{_select_window} = Gtk3::Window->new('popup');
+	$self->{_select_window}->set_decorated(0);
+	$self->{_select_window}->set_keep_above(1);
+	$self->{_select_window}->set_modal(1);
+
+	# Create the main full-screen interaction canvas
 	$self->{_canvas} = Gtk3::DrawingArea->new;
 
+	# Use a Gtk3::Overlay container to layer floating dialog elements on top of the canvas
 	my $overlay = Gtk3::Overlay->new();
 	$overlay->add($self->{_canvas});
 	
+	# Instantiate and append the dimension property dialog panel into the overlay
 	$self->{_prop_window} = $self->select_dialog();
 	$overlay->add_overlay($self->{_prop_window});
 	
+	# Lock the coordinate control panel statically to the bottom-right viewport corner
 	$self->{_prop_window}->set_halign('end');
 	$self->{_prop_window}->set_valign('end');
-	
 	$self->{_prop_window}->set_margin_right(20);
 	$self->{_prop_window}->set_margin_bottom(20);
 	
+	# Start concealed until explicitly requested via Shift or Right-click
 	$self->{_prop_window}->hide();
 	$self->{_prop_active} = 0;
 
+	# Bind the configured overlay workspace layout to the primary window shell
 	$self->{_select_window}->add($overlay);
 
+	# PRIMARY CANVAS DRAW SIGNAL: Renders base snapshot and rubberband marquee selection
 	$self->{_selector_handler} = $self->{_canvas}->signal_connect(draw => sub {
 		my ($widget, $cr) = @_;
 		
+		# 1. Render the captured raw desktop image layer
 		if (defined $self->{_screenshot_pixbuf}) {
 			Gtk3::Gdk::cairo_set_source_pixbuf($cr, $self->{_screenshot_pixbuf}, 0, 0);
 			$cr->paint;
 		}
 
+		# 2. Render the selection geometry boundary pathing accents
 		if (defined $self->{_state} && defined $self->{_state}->{sel}) {
 			my $s = $self->{_state}->{sel};
 			
-			my ($r, $g, $b)  = (0.5, 0.5, 0.5);
+			# Fallback gray accent rule parameters
+			my ($r, $g, $b) = (0.5, 0.5, 0.5);
 
+			# Safely tap into the current GTK theme context stylesheet parameters
 			eval {
 				my $context = $widget->get_style_context();
-				
 				$context->save();
+				# Match the desktop's native selection indicator tint values (rubberband class)
 				$context->add_class('rubberband');
 				
 				my $rgba = $context->get_background_color('normal');
-				
 				if (defined $rgba) {
 					$r = $rgba->red;
 					$g = $rgba->green;
@@ -145,21 +160,24 @@ sub new {
 				$context->restore();
 			};
 
+			# 3. Draw the solid rectangular bounding outline strokes
 			$cr->set_source_rgba($r, $g, $b, 1.0); 
 			$cr->set_line_width(2.0);
 			$cr->rectangle($s->{x}, $s->{y}, $s->{width}, $s->{height});
 			$cr->stroke;
 
+			# 4. Fill the rectangle selection interior with a soft accent mask tint
 			$cr->set_source_rgba($r, $g, $b, 0.15); 
 			$cr->rectangle($s->{x}, $s->{y}, $s->{width}, $s->{height});
 			$cr->fill;
 		}
 
-		return 0;
+		return 0; # Signal draw execution finalized
 	});
 
 	return $self;
 }
+
 
 
 #~ sub DESTROY {
@@ -167,18 +185,24 @@ sub new {
 #~ print "$self dying at\n";
 #~ }
 
+
+# =========================================================================
+# MAIN ROUTINE: INTERACTIVE ADVANCED SELECTOR SCREENSHOT MODE
+# =========================================================================
 sub select_advanced {
 	my $self = shift;
 
 	my $output = 5;
 	my $d = $self->{_sc}->get_gettext;
 
+	# Freeze the desktop layout view by capturing the root window buffer maps
 	my $clean_pixbuf = Gtk3::Gdk::pixbuf_get_from_window(
 		$self->{_root}, 0, 0, $self->{_root}->{w}, $self->{_root}->{h}
 	);
 
 	$self->{_screenshot_pixbuf} = $clean_pixbuf;
 
+	# Initialize global selector session data tracking context mappings
 	$self->{_state} = {
 		pixbuf   => $clean_pixbuf,
 		zoom     => 5,
@@ -189,14 +213,12 @@ sub select_advanced {
 	};
 	my $state = $self->{_state};
 
-
+	# Query the hardware pointing device vectors variables configurations on load
 	my ($window_at_pointer, $xinit, $yinit, $mask) = $self->{_root}->get_pointer;
 	$state->{cursor_x} = $xinit;
 	$state->{cursor_y} = $yinit;
 
-	my $scwin = Gtk3::ScrolledWindow->new();
-	$scwin->set_policy('never', 'never');
-
+	# Configure primary workspace interaction canvas parameters
 	my $canvas = $self->{_canvas};
 	$canvas->set_can_focus(TRUE);
 	$canvas->add_events([
@@ -209,14 +231,12 @@ sub select_advanced {
 		)
 	]);
 
-
-	# zoom preview
+	# Retrieve shared zoom viewer layout labels references pointers
 	my $xlabel = $self->{_x_label};
 	my $ylabel = $self->{_y_label};
 	my $rlabel = $self->{_size_label};
 
-	my $zoom_vbox = Gtk3::VBox->new(FALSE, 0);
-
+	# Configure magnifier window parameters layout rules
 	$self->{_zoom_window}->set_type_hint('splashscreen');
 	$self->{_zoom_window}->set_can_focus(TRUE);
 	$self->{_zoom_window}->set_accept_focus(TRUE);
@@ -225,6 +245,7 @@ sub select_advanced {
 	$self->{_zoom_window}->set_keep_above(TRUE);
 	$self->{_zoom_window}->move($self->{_root}->{x}, $self->{_root}->{y});
 
+	# Configure primary workspace selection window behaviors
 	$self->{_select_window}->set_type_hint('splashscreen');
 	$self->{_select_window}->set_can_focus(TRUE);
 	$self->{_select_window}->set_accept_focus(TRUE);
@@ -236,23 +257,15 @@ sub select_advanced {
 	$self->{_select_window}->resize($self->{_root}->{w}, $self->{_root}->{h});
 	$self->{_select_window}->move($self->{_root}->{x}, $self->{_root}->{y});
 	
+	# Keep coordinate control properties widgets hidden initially
 	if (defined $self->{_prop_window}) {
 		$self->{_prop_window}->hide;
 		$self->{_prop_active} = 0;
 	}
 
-	$self->{_canvas}->set_can_focus(TRUE);
-	$self->{_canvas}->add_events([
-		qw(
-			button-press-mask
-			button-release-mask
-			pointer-motion-mask
-			key-press-mask
-			scroll-mask
-		)
-	]);
-
-	# usage hint
+	# -------------------------------------------------------------------------
+	# INITIALIZE INTRODUCTION USER GUIDE OVERLAY
+	# -------------------------------------------------------------------------
 	$self->{_help_label} = undef;
 
 	if (($self->{_init_w} < 1 || $self->{_init_h} < 1) && $self->{_show_help}) {
@@ -279,8 +292,9 @@ sub select_advanced {
 			"<span foreground='#CCCCCC' size='medium'>$text3</span>"
 		);
 
+		# Leverage Frame structures for seamless CSS backdrop processing in GTK3
 		my $help_frame = Gtk3::Frame->new();
-		$help_frame->set_shadow_type('none'); # Alten Standard-Rahmen abschalten
+		$help_frame->set_shadow_type('none');
 		$help_frame->add($help_lbl);
 
 		my $help_box = Gtk3::EventBox->new();
@@ -306,6 +320,7 @@ sub select_advanced {
 		$box_css->load_from_data(".shutter-transparent-box { background-color: transparent; }");
 		$box_context->add_provider($box_css, 600);
 
+		# Symmetrically center the overlay on the current monitor layout map bounds
 		$help_box->set_halign('center');
 		$help_box->set_valign('center');
 
@@ -319,6 +334,7 @@ sub select_advanced {
 		$self->{_help_label} = $help_box;
 	}
 
+	# Realize window configurations pipelines
 	$self->{_select_window}->show_all;
 	
 	$self->{_prop_window}->hide if defined $self->{_prop_window};
@@ -326,13 +342,16 @@ sub select_advanced {
 
 	$self->{_select_window}->present;
 
+	# Set the initial targeting reticle layout cursor icon descriptor
 	if (defined $self->{_canvas}->get_window()) {
 		my $gdk_win = $self->{_canvas}->get_window();
 		my $cur = Gtk3::Gdk::Cursor->new_from_name($gdk_win->get_display(), 'crosshair');
 		$gdk_win->set_cursor($cur) if defined $cur;
 	}
 
-	# helper for redraws
+	# -------------------------------------------------------------------------
+	# ANONYMOUS INTERACTION SCREEN REDRAW METHOD
+	# -------------------------------------------------------------------------
 	my $queue_redraw = sub {
 		if (defined $self->{_canvas}) {
 			$self->{_canvas}->queue_draw;
@@ -342,6 +361,9 @@ sub select_advanced {
 		}
 	};
 
+	# -------------------------------------------------------------------------
+	# RENDERING SIGNAL: DETAIL PIPELINE MAGNIFIER (Zoom Area Draw Pipeline)
+	# -------------------------------------------------------------------------
 	$self->{_zoom_area}->signal_connect(
 		'draw',
 		sub {
@@ -374,12 +396,14 @@ sub select_advanced {
 
 			my $crop = $pixbuf->new_subpixbuf($src_x, $src_y, $crop_w, $crop_h);
 
+			# Scale cropped sub-image to draw a pixelated detail context layer
 			$cr->save;
 			$cr->scale($zoom, $zoom);
 			Gtk3::Gdk::cairo_set_source_pixbuf($cr, $crop, 0, 0);
 			$cr->paint;
 			$cr->restore;
 
+			# Render magnifier tactical grid target indicators hairs lines
 			my $mid_x = int($allocated_w / 2);
 			my $mid_y = int($allocated_h / 2);
 
@@ -393,6 +417,7 @@ sub select_advanced {
 
 			my $half_pixel = $zoom / 2;
 
+			# Render disconnected intersecting crosshairs lines targeting paths
 			$cr->move_to(0, $mid_y);
 			$cr->line_to($mid_x - $half_pixel, $mid_y);
 			
@@ -407,10 +432,13 @@ sub select_advanced {
 
 			$cr->stroke;
 
-			return FALSE;
+			return FALSE; # Propagate draw state execution updates
 		}
 	);
 
+	# -------------------------------------------------------------------------
+	# ANONYMOUS INTERACTION TEXT HUD DISPLAY STRINGS REFRESH HANDLERS
+	# -------------------------------------------------------------------------
 	my $set_cursor_text = sub {
 		my ($x, $y) = @_;
 		$xlabel->set_text("X: " . (int($x) + 1));
@@ -439,6 +467,7 @@ sub select_advanced {
 		$self->{_zoom_window}->hide   if defined $self->{_zoom_window};
 		$self->{_prop_window}->hide   if defined $self->{_prop_window};
 
+		# Defer the main loop termination briefly to allow the display server to catch up
 		Glib::Timeout->add($self->{_hide_time}, sub {
 			Gtk3->main_quit;
 			return FALSE;
@@ -449,31 +478,33 @@ sub select_advanced {
 		$self->quit;
 	};
 
-
-	# initial help-state
+	# Setup initial helper constraints tracker states
 	$self->{_selector_init} = $self->{_show_help} ? TRUE : FALSE;
 	$self->{_selector_init_zoom} = 0;
 
+	# -------------------------------------------------------------------------
+	# INTERACTION EVENT STATE VARIABLES (Marquee Dragging, Moving & Resizing)
+	# -------------------------------------------------------------------------
 	my $is_dragging     = 0;
 	my $is_moving_rect  = 0;
-	my $is_resizing     = ''; # directions can be as follows: 'n', 's', 'w', 'e', 'nw', 'ne', 'sw', 'se'
+	my $is_resizing     = ''; # Holds direction strings: 'n', 's', 'w', 'e', 'nw', 'ne', 'sw', 'se'
 	
-	my ($start_x, $start_y) = (0, 0);
+	my ($start_x, $start_y)   = (0, 0);
 	my ($offset_x, $offset_y) = (0, 0);
 	
+	# Proximity handle padding context (6 pixels scaled for HiDPI)
 	my $handle_size = 6 * ($self->{_dpi_scale} // 1);
 
-	# helper to get which edge or corner is targeted by the mouse pointer
+	# Helper sub to detect if the pointer sits near any edge or corner of the marquee
 	my $get_resize_edge = sub {
 		my ($mx, $my) = @_;
 		my $s = $self->{_state}->{sel};
 		return '' unless (defined $s && $s->{width} > 0 && $s->{height} > 0);
 
-		my $x1 = $s->{x};
-		my $y1 = $s->{y};
-		my $x2 = $s->{x} + $s->{width};
-		my $y2 = $s->{y} + $s->{height};
+		my $x1 = $s->{x};          my $y1 = $s->{y};
+		my $x2 = $s->{x} + $s->{width}; my $y2 = $s->{y} + $s->{height};
 
+		# Discard checks if mouse is too far outside the marquee buffer zone
 		return '' if ($mx < $x1 - $handle_size || $mx > $x2 + $handle_size ||
 		              $my < $y1 - $handle_size || $my > $y2 + $handle_size);
 
@@ -482,6 +513,7 @@ sub select_advanced {
 		my $near_w = (abs($mx - $x1) <= $handle_size);
 		my $near_e = (abs($mx - $x2) <= $handle_size);
 
+		# Corner detection takes strict priority over line edge paths
 		return 'nw' if ($near_n && $near_w);
 		return 'ne' if ($near_n && $near_e);
 		return 'sw' if ($near_s && $near_w);
@@ -489,11 +521,14 @@ sub select_advanced {
 		return 'n'  if ($near_n && $mx >= $x1 && $mx <= $x2);
 		return 's'  if ($near_s && $mx >= $x1 && $mx <= $x2);
 		return 'w'  if ($near_w && $my >= $y1 && $my <= $y2);
-		return 'e'  if ($near_e && $my >= $y1 && $my <= $y2);
+		return 'e'  if ($near_e && $mx >= $x1 && $mx <= $x2);
 
 		return '';
 	};
 
+	# =========================================================================
+	# BUTTON PRESS EVENT: Mouse clicks initiate actions based on pointer location
+	# =========================================================================
 	$self->{_view_button_handler} = $self->{_canvas}->signal_connect('button-press-event' => sub {
 		my ($widget, $event) = @_;
 		return FALSE unless defined $event;
@@ -501,30 +536,29 @@ sub select_advanced {
 		if ($event->button == 1) { 
 			my $mx = int($event->x);
 			my $my = int($event->y);
-			my $s = $self->{_state}->{sel};
+			my $s  = $self->{_state}->{sel};
 
+			# Check if clicking a resize handle edge
 			my $edge = $get_resize_edge->($mx, $my);
 
 			if ($edge ne '') {
 				$is_resizing = $edge;
-				$start_x = $mx;
-				$start_y = $my;
+				$start_x = $mx; $start_y = $my;
 			} elsif (defined $s && $s->{width} > 0 && $s->{height} > 0 &&
 				$mx >= $s->{x} && $mx <= ($s->{x} + $s->{width}) &&
 				$my >= $s->{y} && $my <= ($s->{y} + $s->{height})) {
 				
+				# Clicking inside marquee activates reposition/moving mode
 				$is_moving_rect = 1;
 				$offset_x = $mx - $s->{x};
 				$offset_y = $my - $s->{y};
 			} else {
+				# Clicking empty background constructs a brand new marquee bounds area
 				$is_dragging = 1;
-				$start_x = $mx;
-				$start_y = $my;
+				$start_x = $mx; $start_y = $my;
 
-				if (defined $self->{_help_label}) {
-					$self->{_help_label}->hide;
-				}
-
+				# Suppress welcoming overlay help banner text immediately
+				$self->{_help_label}->hide if defined $self->{_help_label};
 				$self->{_state}->{sel} = { x => $start_x, y => $start_y, width => 0, height => 0 };
 			}
 			$queue_redraw->();
@@ -532,6 +566,10 @@ sub select_advanced {
 		return TRUE;
 	});
 
+
+	# =========================================================================
+	# MOTION NOTIFY EVENT: Mouse movements recalculate geometric states and cursors
+	# =========================================================================
 	$self->{_view_event_handler} = $self->{_canvas}->signal_connect('motion-notify-event' => sub {
 		my ($widget, $event) = @_;
 		return FALSE unless defined $event;
@@ -543,16 +581,16 @@ sub select_advanced {
 		$self->{_state}->{cursor_y} = $my;
 		$set_cursor_text->($mx, $my) if defined $set_cursor_text;
 
-		if (defined $self->{_zoom_window} && $self->{_zoom_window}->get_visible && $self->can('zoom_check_pos')) {
-			$self->zoom_check_pos();
-		}
+		# Safely trigger magnifier displacement check pipeline
+		$self->zoom_check_pos() if (defined $self->{_zoom_window} && $self->{_zoom_window}->get_visible && $self->can('zoom_check_pos'));
 
+		# --- CONTEXTUAL MOUSE CURSOR SHAPE EVALUATION ---
 		if (defined $widget->get_window()) {
 			my $gdk_window = $widget->get_window();
 			my $display    = $gdk_window->get_display();
-			my $s = $self->{_state}->{sel};
+			my $s          = $self->{_state}->{sel};
 			
-			my $cursor_type = 'crosshair';
+			my $cursor_type = 'crosshair'; # Target crosshair default
 
 			my $active_edge = $is_resizing ne '' ? $is_resizing : $get_resize_edge->($mx, $my);
 
@@ -563,11 +601,11 @@ sub select_advanced {
 				);
 				$cursor_type = $cursors{$active_edge};
 			} elsif ($is_moving_rect) {
-				$cursor_type = 'grabbing';
+				$cursor_type = 'grabbing'; # Hand grabs down tight while shifting positions
 			} elsif (defined $s && $s->{width} > 0 && $s->{height} > 0) {
 				if ($mx >= $s->{x} && $mx <= ($s->{x} + $s->{width}) &&
 					$my >= $s->{y} && $my <= ($s->{y} + $s->{height})) {
-					$cursor_type = 'grab';
+					$cursor_type = 'grab'; # Hovering inside marquee presents open palm
 				}
 			}
 
@@ -575,6 +613,7 @@ sub select_advanced {
 			$gdk_window->set_cursor($new_cursor) if defined $new_cursor;
 		}
 
+		# --- COMPUTE INTERACTIVE COORDINATE ADJUSTMENTS ---
 		if ($is_dragging) { 
 			my $x = $mx < $start_x ? $mx : $start_x;
 			my $y = $my < $start_y ? $my : $start_y;
@@ -586,11 +625,9 @@ sub select_advanced {
 		} elsif ($is_moving_rect) {
 			my $s = $self->{_state}->{sel};
 			if (defined $s) {
-				my $new_x = $mx - $offset_x;
-				my $new_y = $my - $offset_y;
-
-				$new_x = 0 if $new_x < 0;
-				$new_y = 0 if $new_y < 0;
+				my $new_x = $mx - $offset_x; my $new_y = $my - $offset_y;
+				$new_x = 0 if $new_x < 0;   $new_y = 0 if $new_y < 0;
+				
 				my $max_x = $self->{_root}->{w} - $s->{width};
 				my $max_y = $self->{_root}->{h} - $s->{height};
 				$new_x = $max_x if $new_x > $max_x;
@@ -609,14 +646,14 @@ sub select_advanced {
 				if ($is_resizing =~ /n/ && $my < $y2) { $y1 = $my; }
 				if ($is_resizing =~ /s/ && $my > $y1) { $y2 = $my; }
 
-				$s->{x} = $x1;
-				$s->{y} = $y1;
+				$s->{x} = $x1; $s->{y} = $y1;
 				$s->{width}  = $x2 - $x1;
 				$s->{height} = $y2 - $y1;
 				$update_size_text->() if defined $update_size_text;
 			}
 		}
 
+		# Feed numerical widget entry values live when sidebar panels are currently active
 		if (($is_dragging || $is_moving_rect || $is_resizing ne '') && $self->{_prop_active}) {
 			my $s = $self->{_state}->{sel};
 			if (defined $s) {
@@ -641,18 +678,22 @@ sub select_advanced {
 		return TRUE;
 	});
 
+
+	# =========================================================================
+	# BUTTON RELEASE EVENT: Mouse releases finalize drag operations
+	# =========================================================================
 	$self->{_view_release_handler} = $self->{_canvas}->signal_connect('button-release-event' => sub {
 		my ($widget, $event) = @_;
 		return FALSE unless defined $event;
+
+		# Context Right click opens or closes parameters configuration settings
 		if ($event->button == 3) {
 			if (defined $self->{_prop_window}) {
 				if ($self->{_prop_active}) {
 					$self->{_prop_window}->hide;
 					$self->{_prop_active} = 0;
 				} else {
-					my $mx = int($event->x);
-					my $my = int($event->y);
-
+					my $mx = int($event->x); my $my = int($event->y);
 					if (defined $self->{_state} && defined $self->{_state}->{sel}) {
 						my $s = $self->{_state}->{sel};
 						$self->{_x_spin_w}->set_value(int($s->{x}))      if defined $self->{_x_spin_w};
@@ -662,16 +703,10 @@ sub select_advanced {
 					} else {
 						$self->{_x_spin_w}->set_value($mx) if defined $self->{_x_spin_w};
 						$self->{_y_spin_w}->set_value($my) if defined $self->{_y_spin_w};
-						$self->{_width_spin_w}->set_value(0)  if defined $self->{_width_spin_w};
-						$self->{_height_spin_w}->set_value(0) if defined $self->{_height_spin_w};
 					}
-					
 					$self->{_prop_window}->show_all;
 					$self->{_prop_active} = 1;
-					
-					if (defined $self->{_x_spin_w}) {
-						$self->{_x_spin_w}->grab_focus;
-					}
+					$self->{_x_spin_w}->grab_focus if defined $self->{_x_spin_w};
 				}
 			}
 		} elsif ($event->button == 1) { 
@@ -684,28 +719,69 @@ sub select_advanced {
 				$finish_capture->();
 			}
 		}
-
 		return TRUE;
 	});
 
-
-
-	# --- keyboard ---
+	# =========================================================================
+	# KEY PRESS EVENT: Full hardware layout keyboard input interceptor pipeline
+	# =========================================================================
 	$self->{_key_handler} = $self->{_select_window}->signal_connect('key-press-event' => sub {
 		my ($window, $event) = @_;
 		return FALSE unless defined $event;
 
-		my $state = $self->{_state};
-		my $s = $state->{sel};
+		my $state_obj = $self->{_state};
+		my $s = $state_obj->{sel};
 		my ($window_at_pointer, $x, $y, $mask) = $self->{_root}->get_pointer;
-
+		
+		# Resolve text based representation mapping names for intercepted physical keypresses
 		my $keyname = Gtk3::Gdk::keyval_name($event->keyval);
 
+		# ---------------------------------------------------------------------
+		# CRITICAL FIX: FREE TYPING PATH & VALUES UPDATE ON ENTER
+		# ---------------------------------------------------------------------
+		if ($self->{_prop_active}) {
+			# Allow normal text typing, deletions and navigations to bypass interception
+			if ($keyname =~ /^[0-9]$/ || $keyname eq 'BackSpace' || $keyname eq 'Delete' || 
+			    $keyname eq 'Left'    || $keyname eq 'Right'     || $keyname eq 'period') {
+				return FALSE; 
+			}
+
+			# Intercept Return/Enter while the dialog is active to commit values instead of shooting
+			if ($keyname eq 'Return' || $keyname eq 'KP_Enter') {
+				# Force all spin buttons to flush their current text buffers into numerical values
+				$self->{_x_spin_w}->update()      if defined $self->{_x_spin_w};
+				$self->{_y_spin_w}->update()      if defined $self->{_y_spin_w};
+				$self->{_width_spin_w}->update()  if defined $self->{_width_spin_w};
+				$self->{_height_spin_w}->update() if defined $self->{_height_spin_w};
+
+				# Extract values safely beforehand to prevent inline syntax errors
+				my $val_x = defined $self->{_x_spin_w} ? int($self->{_x_spin_w}->get_value) : 0;
+				my $val_y = defined $self->{_y_spin_w} ? int($self->{_y_spin_w}->get_value) : 0;
+				my $val_w = defined $self->{_width_spin_w} ? int($self->{_width_spin_w}->get_value) : 0;
+				my $val_h = defined $self->{_height_spin_w} ? int($self->{_height_spin_w}->get_value) : 0;
+
+				# Manually reshape the selection state with the fresh values
+				$self->{_state}->{sel} = {
+					x      => $val_x,
+					y      => $val_y,
+					width  => $val_w,
+					height => $val_h,
+				};
+
+				# Force canvas updates to visualize the new geometry instantly
+				$self->{_canvas}->queue_draw    if defined $self->{_canvas};
+				$self->{_zoom_area}->queue_draw if defined $self->{_zoom_area};
+
+				return TRUE; # Stop event propagation here to prevent taking the screenshot!
+			}
+		}
+		# ---------------------------------------------------------------------
+
+		# Shift action triggers settings viewport toggles
 		if ($keyname eq 'Shift_L' || $keyname eq 'Shift_R') {
 			if (defined $self->{_prop_window}) {
 				if ($self->{_prop_active}) {
-					$self->{_prop_window}->hide;
-					$self->{_prop_active} = 0;
+					$self->{_prop_window}->hide; $self->{_prop_active} = 0;
 				} else {
 					if (defined $s) {
 						$self->{_x_spin_w}->set_value(int($s->{x}))      if defined $self->{_x_spin_w};
@@ -713,12 +789,8 @@ sub select_advanced {
 						$self->{_width_spin_w}->set_value(int($s->{width}))   if defined $self->{_width_spin_w};
 						$self->{_height_spin_w}->set_value(int($s->{height})) if defined $self->{_height_spin_w};
 					}
-					$self->{_prop_window}->show_all;
-					$self->{_prop_active} = 1;
-					
-					if (defined $self->{_x_spin_w}) {
-						$self->{_x_spin_w}->grab_focus;
-					}
+					$self->{_prop_window}->show_all; $self->{_prop_active} = 1;
+					$self->{_x_spin_w}->grab_focus if defined $self->{_x_spin_w};
 				}
 				$queue_redraw->() if defined $queue_redraw;
 				return TRUE;
@@ -728,114 +800,56 @@ sub select_advanced {
 		my $has_ctrl = $event->state & 'control-mask';
 		my $has_alt  = $event->state & 'mod1-mask';
 
-		my $kv_space    = Gtk3::Gdk::keyval_from_name('space');
-		my $kv_escape   = Gtk3::Gdk::keyval_from_name('Escape');
-		my $kv_up       = Gtk3::Gdk::keyval_from_name('Up');
-		my $kv_down     = Gtk3::Gdk::keyval_from_name('Down');
-		my $kv_left     = Gtk3::Gdk::keyval_from_name('Left');
-		my $kv_right    = Gtk3::Gdk::keyval_from_name('Right');
-		my $kv_add      = Gtk3::Gdk::keyval_from_name('KP_Add');
-		my $kv_plus     = Gtk3::Gdk::keyval_from_name('plus');
-		my $kv_equal    = Gtk3::Gdk::keyval_from_name('equal');
-		my $kv_sub      = Gtk3::Gdk::keyval_from_name('KP_Subtract');
-		my $kv_minus    = Gtk3::Gdk::keyval_from_name('minus');
-		my $kv_zero     = Gtk3::Gdk::keyval_from_name('0');
-		my $kv_return   = Gtk3::Gdk::keyval_from_name('Return');
-		my $kv_kp_enter = Gtk3::Gdk::keyval_from_name('KP_Enter');
-
-		if ($event->keyval == $kv_space) {
+		# Space toggles magnifier lens active visualization frames
+		if ($keyname eq 'space' || $keyname eq 'Space') {
 			if (defined $self->{_zoom_window} && $self->{_zoom_window}->get_visible) {
-				$self->{_zoom_window}->hide;
-				$self->{_zoom_active} = FALSE;
+				$self->{_zoom_window}->hide; $self->{_zoom_active} = FALSE;
 			} else {
 				$self->{_zoom_active} = TRUE;
 				$self->zoom_check_pos() if $self->can('zoom_check_pos');
 				$self->{_zoom_window}->show_all if defined $self->{_zoom_window};
 			}
-			$queue_redraw->() if defined $queue_redraw;
 			return TRUE;
-
-		} elsif ($event->keyval == $kv_escape) {
+		} elsif ($keyname eq 'Escape') {
 			$self->quit;
-
-		} elsif ($event->keyval == $kv_up) {
-			if ($has_ctrl && $s) {
-				$s->{height} -= 1;
-				$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->{width} + $s->{x}, $s->{height} + $s->{y});
-			} elsif ($has_alt && $s) {
-				$s->{y} -= 1;
-				$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->{x}, $s->{y});
-			} else {
-				$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x, $y - 1);
-			}
-
-		} elsif ($event->keyval == $kv_down) {
-			if ($has_ctrl && $s) {
-				$s->{height} += 1;
-				$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->{width} + $s->{x}, $s->{height} + $s->{y});
-			} elsif ($has_ctrl) {
-				$state->{sel} = { x => $x, y => $y, width => 1, height => 2 };
-				$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x + 1, $y + 2);
-			} elsif ($has_alt && $s) {
-				$s->{y} += 1;
-				$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->{x}, $s->{y});
-			} else {
-				$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x, $y + 1);
-			}
-
-		} elsif ($event->keyval == $kv_left) {
-			if ($has_ctrl && $s) {
-				$s->{width} -= 1;
-				$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->{width} + $s->{x}, $s->{height} + $s->{y});
-			} elsif ($has_alt && $s) {
-				$s->{x} -= 1;
-				$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->{x}, $s->{y});
-			} else {
-				$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x - 1, $y);
-			}
-
-		} elsif ($event->keyval == $kv_right) {
-			if ($has_ctrl && $s) {
-				$s->{width} += 1;
-				$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->{width} + $s->{x}, $s->{height} + $s->{y});
-			} elsif ($has_ctrl) {
-				$state->{sel} = { x => $x, y => $y, width => 2, height => 1 };
-				$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x + 2, $y + 1);
-			} elsif ($has_alt && $s) {
-				$s->{x} += 1;
-				$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $s->{x}, $s->{y});
-			} else {
-				$self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x + 1, $y);
-			}
-
-		} elsif ($event->keyval == $kv_add || $event->keyval == $kv_plus || $event->keyval == $kv_equal) {
-			$state->{zoom}++ if $has_ctrl;
-
-		} elsif ($event->keyval == $kv_sub || $event->keyval == $kv_minus) {
-			$state->{zoom}-- if $has_ctrl;
-			$state->{zoom} = 1 if $state->{zoom} < 1;
-
-		} elsif ($event->keyval == $kv_zero) {
-			$state->{zoom} = 1 if $has_ctrl;
-
-		} elsif ($event->keyval == $kv_return || $event->keyval == $kv_kp_enter) {
-			if (defined $s) {
-				$finish_capture->();
-			}
+			return TRUE;
+		} elsif ($keyname eq 'Up') {
+			if ($has_ctrl && $s) { $s->{height} -= 1; }
+			elsif ($has_alt && $s) { $s->{y} -= 1; }
+			else { $self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x, $y - 1); }
+		} elsif ($keyname eq 'Down') {
+			if ($has_ctrl && $s) { $s->{height} += 1; }
+			elsif ($has_alt && $s) { $s->{y} += 1; }
+			else { $self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x, $y + 1); }
+		} elsif ($keyname eq 'Left') {
+			if ($has_ctrl && $s) { $s->{width} -= 1; }
+			elsif ($has_alt && $s) { $s->{x} -= 1; }
+			else { $self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x - 1, $y); }
+		} elsif ($keyname eq 'Right') {
+			if ($has_ctrl && $s) { $s->{width} += 1; }
+			elsif ($has_alt && $s) { $s->{x} += 1; }
+			else { $self->{_gdk_display}->warp_pointer($self->{_gdk_screen}, $x + 1, $y); }
+		} elsif ($keyname eq 'KP_Add' || $keyname eq 'plus' || $keyname eq 'equal') {
+			$state_obj->{zoom}++ if $has_ctrl;
+		} elsif ($keyname eq 'KP_Subtract' || $keyname eq 'minus') {
+			$state_obj->{zoom}-- if $has_ctrl; $state_obj->{zoom} = 1 if $state_obj->{zoom} < 1;
+		} elsif ($keyname eq '0') {
+			$state_obj->{zoom} = 1 if $has_ctrl;
+		} elsif ($keyname eq 'Return' || $keyname eq 'KP_Enter') {
+			$finish_capture->() if defined $s;
 		}
 
-		$queue_redraw->() if defined $queue_redraw;
+		$self->{_canvas}->queue_draw if defined $self->{_canvas};
 		return TRUE;
 	});
 
-
-	# initial selection
+	# Apply initial selection parameters asynchronously on main loop activation idle cycles
 	Glib::Idle->add(sub {
 		if ($self->{_init_w} && $self->{_init_h}) {
 			$state->{sel} = {
-				x => $self->{_init_x},
-				y => $self->{_init_y},
-				width => $self->{_init_w},
+				x      => $self->{_init_x},
+				y      => $self->{_init_y},
+				width  => $self->{_init_w},
 				height => $self->{_init_h},
 			};
 			$queue_redraw->();
@@ -843,91 +857,115 @@ sub select_advanced {
 		return FALSE;
 	});
 
-	# grab keyboard
-	my $status = Gtk3::Gdk::keyboard_grab($self->{_select_window}->get_window, 0, Gtk3::get_current_event_time());
+	# Intercept hardware layout keyboard inputs hooks strictly on the overlay viewport window node
+	my $status = Gtk3::Gdk::keyboard_grab($self->{_select_window}->get_window, FALSE, Gtk3::get_current_event_time());
 
+	# Synchronize magnifier initialization visibility states rules
 	if ($self->{_zoom_active}) {
 		$self->{_zoom_window}->show_all;
-		$self->{_zoom_window}->get_window->set_override_redirect(TRUE);
 		$self->zoom_check_pos();
 		$self->{_zoom_window}->get_window->raise;
 	}
 
-	Gtk3->main();
+	Gtk3::main();
 	return $output;
 }
 
 
+# =========================================================================
+# LENS POSITIONING BOUNDS REGULATOR (Magnifier Window Collision Avoidance)
+# =========================================================================
 sub zoom_check_pos {
 	my $self = shift;
 
+	# Guard: Abort immediately if the magnifier window doesn't exist or is hidden
 	return FALSE unless defined $self->{_zoom_window};
 	return FALSE unless $self->{_zoom_window}->get_visible;
 
+	# Query the real, absolute screen coordinates of the hardware mouse pointer
 	my ($window_at_pointer, $ev_x, $ev_y, $mask) = $self->{_root}->get_pointer;
 
+	# Retrieve the current screen dimensions and positioning of the magnifier window
 	my ($zw, $zh) = $self->{_zoom_window}->get_size;
 	my ($zx, $zy) = $self->{_zoom_window}->get_position;
 
+	# Define a safety buffer padding context (50 pixels scaled for HiDPI support)
 	my $distance = 50 * ($self->{_dpi_scale} // 1);
 	
+	# Construct an expanded safety collision box boundary around the current magnifier position
 	my $box_x1 = $zx - $distance;
 	my $box_y1 = $zy - $distance;
 	my $box_x2 = $zx + $zw + $distance;
 	my $box_y2 = $zy + $zh + $distance;
 
+	# Collision Check: If the hardware cursor penetrates the expanded safety box
 	if ($ev_x >= $box_x1 && $ev_x <= $box_x2 && $ev_y >= $box_y1 && $ev_y <= $box_y2) {
 		
+		# Define target layout screen corner positions (Strict Shutter clockwise order sequence)
 		my @pos = (
-			{x => $self->{_root}->{x},       y => $self->{_root}->{y}},       # 1. Oben links
-			{x => $self->{_root}->{x},       y => $self->{_root}->{h} - $zh}, # 2. Unten links
-			{x => $self->{_root}->{w} - $zw, y => $self->{_root}->{h} - $zh}, # 3. Unten rechts
-			{x => $self->{_root}->{w} - $zw, y => $self->{_root}->{y}},       # 4. Oben rechts
+			{x => $self->{_root}->{x},       y => $self->{_root}->{y}},       # 1. Top-Left
+			{x => $self->{_root}->{x},       y => $self->{_root}->{h} - $zh}, # 2. Bottom-Left
+			{x => $self->{_root}->{w} - $zw, y => $self->{_root}->{h} - $zh}, # 3. Bottom-Right
+			{x => $self->{_root}->{w} - $zw, y => $self->{_root}->{y}},       # 4. Top-Right
 		);
 
+		# Iterate through available corners to discover the first non-colliding location
 		foreach my $p (@pos) {
 			my $p_box_x1 = $p->{x} - $distance;
 			my $p_box_y1 = $p->{y} - $distance;
 			my $p_box_x2 = $p->{x} + $zw + $distance;
 			my $p_box_y2 = $p->{y} + $zh + $distance;
 
+			# If the cursor does NOT collide with this specific corner's safety area
 			if (!($ev_x >= $p_box_x1 && $ev_x <= $p_box_x2 && $ev_y >= $p_box_y1 && $ev_y <= $p_box_y2)) {
+				# Instantly move the magnifier window to the safe screen corner location
 				$self->{_zoom_window}->move($p->{x}, $p->{y});
 				$self->{_zoom_window}->queue_draw;
-				return TRUE;
+				return TRUE; # Rotation successful, break routine pipeline
 			}
 		}
 	}
 
-	return TRUE;
+	return TRUE; # Frame processing complete
 }
 
-
+# =========================================================================
+# PROPERTY BOUNDS REGULATOR (Updates SpinButton limits and values safely)
+# =========================================================================
 sub adjust_prop_values {
 	my $self = shift;
 
+	# Guard: Abort immediately if session state tracking object is missing
 	return unless defined $self->{_state};
 
+	# Retrieve current active selection geometry coordinates and bounds map
 	my $s = $self->{_state}->{sel};
 
 	if (defined $s) {
+		# Temporarily detach interactive widget event signals listeners channels
+		# This prevents circular recursive updates loops while modifying values via code
 		$self->{_x_spin_w}->signal_handler_block($self->{_x_spin_w_handler})           if defined $self->{_x_spin_w_handler};
 		$self->{_y_spin_w}->signal_handler_block($self->{_y_spin_w_handler})           if defined $self->{_y_spin_w_handler};
 		$self->{_width_spin_w}->signal_handler_block($self->{_width_spin_w_handler})   if defined $self->{_width_spin_w_handler};
 		$self->{_height_spin_w}->signal_handler_block($self->{_height_spin_w_handler}) if defined $self->{_height_spin_w_handler};
 
+		# 1. Update X coordinate positioning input and recalculate maximum slide range
 		$self->{_x_spin_w}->set_value(int($s->{x})) if defined $self->{_x_spin_w};
 		$self->{_x_spin_w}->set_range(0, int($self->{_root}->{w} - $s->{width})) if defined $self->{_x_spin_w};
 
+		# 2. Update Y coordinate positioning input and recalculate maximum slide range
 		$self->{_y_spin_w}->set_value(int($s->{y})) if defined $self->{_y_spin_w};
 		$self->{_y_spin_w}->set_range(0, int($self->{_root}->{h} - $s->{height})) if defined $self->{_y_spin_w};
 
+		# 3. Update width dimension input and constrain range to remaining space on the right
 		$self->{_width_spin_w}->set_value(int($s->{width})) if defined $self->{_width_spin_w};
 		$self->{_width_spin_w}->set_range(0, int($self->{_root}->{w} - $s->{x})) if defined $self->{_width_spin_w};
 
+		# 4. Update height dimension input and constrain range to remaining space underneath
 		$self->{_height_spin_w}->set_value(int($s->{height})) if defined $self->{_height_spin_w};
 		$self->{_height_spin_w}->set_range(0, int($self->{_root}->{h} - $s->{y})) if defined $self->{_height_spin_w};
 
+		# Re-attach the numerical spin entries alert listeners to unlock user input processing
 		$self->{_x_spin_w}->signal_handler_unblock($self->{_x_spin_w_handler})           if defined $self->{_x_spin_w_handler};
 		$self->{_y_spin_w}->signal_handler_unblock($self->{_y_spin_w_handler})           if defined $self->{_y_spin_w_handler};
 		$self->{_width_spin_w}->signal_handler_unblock($self->{_width_spin_w_handler})   if defined $self->{_width_spin_w_handler};
@@ -936,26 +974,30 @@ sub adjust_prop_values {
 }
 
 
+# =========================================================================
+# CONTROL DIALOG CONFIGURATOR (Builds the inline floating numeric input overlay)
+# =========================================================================
 sub select_dialog {
 	my $self = shift;
 
+	# Retrieve the standard translation module handle for Shutter
 	my $d = $self->{_sc}->get_gettext;
 
+	# Check the active state context safely
 	my $state = $self->{_state};
 	my $s = defined $state ? $state->{sel} : undef;
 
-	my $sx = 0;
-	my $sy = 0;
-	my $sw = 0;
-	my $sh = 0;
+	# Initialize geometry default buffers
+	my $sx = 0; my $sy = 0;
+	my $sw = 0; my $sh = 0;
 
+	# Populate initialization dimensions if a marquee selection area is predefined
 	if (defined $s) {
-		$sx = $s->{x};
-		$sy = $s->{y};
-		$sw = $s->{width};
-		$sh = $s->{height};
+		$sx = $s->{x};     $sy = $s->{y};
+		$sw = $s->{width}; $sh = $s->{height};
 	}
 
+	# Centralized entry callback triggered upon any spin button modifications
 	my $value_callback = sub {
 		if (defined $self->{_state}) {
 			$self->{_state}->{sel} = {
@@ -964,91 +1006,87 @@ sub select_dialog {
 				width  => int($self->{_width_spin_w}->get_value),
 				height => int($self->{_height_spin_w}->get_value),
 			};
-			$self->{_canvas}->queue_draw if defined $self->{_canvas};
+			# Instantly enforce redraw operations across workspace components
+			$self->{_canvas}->queue_draw    if defined $self->{_canvas};
 			$self->{_zoom_area}->queue_draw if defined $self->{_zoom_area};
 		}
 	};
 
-	# x coordinate
+	# 1. Coordinate configuration inputs setup: X parameter row
 	my $xw_label = Gtk3::Label->new($d->get("X") . ":");
 	$self->{_x_spin_w} = Gtk3::SpinButton->new_with_range(0, $self->{_root}->{w}, 1);
 	$self->{_x_spin_w}->set_value($sx);
-	$self->{_x_spin_w_handler} = $self->{_x_spin_w}->signal_connect(
-		'value-changed' => $value_callback);
+	$self->{_x_spin_w_handler} = $self->{_x_spin_w}->signal_connect('value-changed' => $value_callback);
 
 	my $xw_hbox = Gtk3::HBox->new(FALSE, 5);
 	$xw_hbox->pack_start($xw_label,          FALSE, FALSE, 5);
 	$xw_hbox->pack_start($self->{_x_spin_w}, FALSE, FALSE, 5);
 
-	# y coordinate
+	# 2. Coordinate configuration inputs setup: Y parameter row
 	my $yw_label = Gtk3::Label->new($d->get("Y") . ":");
 	$self->{_y_spin_w} = Gtk3::SpinButton->new_with_range(0, $self->{_root}->{h}, 1);
 	$self->{_y_spin_w}->set_value($sy);
-	$self->{_y_spin_w_handler} = $self->{_y_spin_w}->signal_connect(
-		'value-changed' => $value_callback);
+	$self->{_y_spin_w_handler} = $self->{_y_spin_w}->signal_connect('value-changed' => $value_callback);
 
 	my $yw_hbox = Gtk3::HBox->new(FALSE, 5);
 	$yw_hbox->pack_start($yw_label,          FALSE, FALSE, 5);
 	$yw_hbox->pack_start($self->{_y_spin_w}, FALSE, FALSE, 5);
 
-	# width
+	# 3. Coordinate configuration inputs setup: Width parameter row
 	my $widthw_label = Gtk3::Label->new($d->get("Width") . ":");
 	$self->{_width_spin_w} = Gtk3::SpinButton->new_with_range(0, $self->{_root}->{w}, 1);
 	$self->{_width_spin_w}->set_value($sw);
-	$self->{_width_spin_w_handler} = $self->{_width_spin_w}->get_value_as_int; # Hilfswert
-	$self->{_width_spin_w_handler} = $self->{_width_spin_w}->signal_connect(
-		'value-changed' => $value_callback);
+	# Cleared the unused 'get_value_as_int' temporary zombie assignment line here during refactoring
+	$self->{_width_spin_w_handler} = $self->{_width_spin_w}->signal_connect('value-changed' => $value_callback);
 
 	my $ww_hbox = Gtk3::HBox->new(FALSE, 5);
 	$ww_hbox->pack_start($widthw_label,          FALSE, FALSE, 5);
 	$ww_hbox->pack_start($self->{_width_spin_w}, FALSE, FALSE, 5);
 
-	# height
+	# 4. Coordinate configuration inputs setup: Height parameter row
 	my $heightw_label = Gtk3::Label->new($d->get("Height") . ":");
 	$self->{_height_spin_w} = Gtk3::SpinButton->new_with_range(0, $self->{_root}->{h}, 1);
 	$self->{_height_spin_w}->set_value($sh);
-	$self->{_height_spin_w_handler} = $self->{_height_spin_w}->signal_connect(
-		'value-changed' => $value_callback);
+	$self->{_height_spin_w_handler} = $self->{_height_spin_w}->signal_connect('value-changed' => $value_callback);
 
 	my $hw_hbox = Gtk3::HBox->new(FALSE, 5);
 	$hw_hbox->pack_start($heightw_label,          FALSE, FALSE, 5);
 	$hw_hbox->pack_start($self->{_height_spin_w}, FALSE, FALSE, 5);
 
+	# Construct an EventBox as the core parent layer container to receive background styles safely
 	my $prop_dialog = Gtk3::EventBox->new();
-
-	# fixed size
-	$prop_dialog->set_size_request(180, 160);
-	
+	$prop_dialog->set_size_request(180, 160); # Lock panel viewport dimensions to a fixed size bounding box
 	$prop_dialog->override_background_color('normal', Gtk3::Gdk::RGBA->new(0.9, 0.9, 0.9, 1.0));
 	$prop_dialog->set_focus_on_click(TRUE);
 
+	# Initialize panel close/dismiss interface control
 	my $hide_btn = Gtk3::Button->new_with_mnemonic($d->get("_Hide"));
 	$hide_btn->set_image(Gtk3::Image->new_from_stock('gtk-close', 'button'));
 	$hide_btn->set_can_default(TRUE);
 	$hide_btn->signal_connect(
 		'clicked' => sub {
 			$prop_dialog->hide;
-			$self->{_prop_active} = FALSE;
+			$self->{_prop_active} = 0; # Set to integer 0 for full code state synchronization
 		});
 
+	# Equalize label text layouts settings fields alignments
 	$xw_label->set_xalign(0);     $xw_label->set_yalign(0.5);
 	$yw_label->set_xalign(0);     $yw_label->set_yalign(0.5);
 	$widthw_label->set_xalign(0);  $widthw_label->set_yalign(0.5);
 	$heightw_label->set_xalign(0); $heightw_label->set_yalign(0.5);
 
+	# Group label widgets horizontally to align the starting inputs borders symmetrically
 	my $sg_main = Gtk3::SizeGroup->new('horizontal');
-	$sg_main->add_widget($xw_label);
-	$sg_main->add_widget($yw_label);
-	$sg_main->add_widget($widthw_label);
-	$sg_main->add_widget($heightw_label);
+	$sg_main->add_widget($xw_label);     $sg_main->add_widget($yw_label);
+	$sg_main->add_widget($widthw_label); $sg_main->add_widget($heightw_label);
 
+	# Construct structural packaging containers layout tree
 	my $vbox = Gtk3::VBox->new(FALSE, 5);
-	$vbox->pack_start($xw_hbox,  FALSE, FALSE, 3);
-	$vbox->pack_start($yw_hbox,  FALSE, FALSE, 3);
-	$vbox->pack_start($ww_hbox,  FALSE, FALSE, 3);
-	$vbox->pack_start($hw_hbox,  FALSE, FALSE, 3);
+	$vbox->pack_start($xw_hbox,  FALSE, FALSE, 3); $vbox->pack_start($yw_hbox,  FALSE, FALSE, 3);
+	$vbox->pack_start($ww_hbox,  FALSE, FALSE, 3); $vbox->pack_start($hw_hbox,  FALSE, FALSE, 3);
 	$vbox->pack_start($hide_btn, FALSE, FALSE, 3);
 
+	# Embed layouts into an elegant localized layout frame element
 	my $frame_label = Gtk3::Label->new;
 	$frame_label->set_markup("<b>" . $d->get("Selection") . "</b>");
 
@@ -1064,80 +1102,106 @@ sub select_dialog {
 }
 
 
+# =========================================================================
+# CAPTURE PIPELINE EVALUATOR (Extracts and processes the final cropped image)
+# =========================================================================
 sub take_screenshot {
 	my $self         = shift;
-	my $s            = shift;
-	my $clean_pixbuf = shift;
+	my $s            = shift; # Selection geometric coordinates map
+	my $clean_pixbuf = shift; # Raw full screen desktop capture cache
 
 	my $d = $self->{_sc}->get_gettext;
-
 	my $output;
 
-	#no delay? then we take a subsection of the pixbuf in memory
+	# Scenario A: Immediate capture (No delay) -> crop the cached memory pixbuf
 	if ($s && $clean_pixbuf && $self->{_delay} == 0) {
 		$output = $clean_pixbuf->new_subpixbuf($s->{x}, $s->{y}, $s->{width}, $s->{height});
 
-		#include cursor
+		# Layer the hardware mouse pointer cursor into the cropped region if requested
 		if ($self->{_include_cursor}) {
 			$output = $self->include_cursor($s->{x}, $s->{y}, $s->{width}, $s->{height}, $self->{_root}, $output);
 		}
 
-		#if there is a delay != 0 set, we have to wait and get a new pixbuf from the root window
+	# Scenario B: Delayed capture -> wait for timeout and fetch a fresh root drawable buffer
 	} elsif ($s && $self->{_delay} != 0) {
 		($output) = $self->get_pixbuf_from_drawable($self->{_root}, $s->{x}, $s->{y}, $s->{width}, $s->{height});
 
-		#section not valid
+	# Scenario C: Aborted or invalid layout state parameters
 	} else {
 		$output = 0;
 	}
 
-	#we don't have a useful string for wildcards (e.g. $name)
+	# Set localized human-readable component name descriptor fallback metadata
 	if ($output =~ /Gtk3/) {
 		$self->{_action_name} = $d->get("Selection");
 	}
 
-	#set history object
+	# Push selection geometries snapshots states into Shutter's history tracking system
 	if ($s) {
-		$self->{_history} = Shutter::Screenshot::History->new($self->{_sc}, $self->{_root}, $s->{x}, $s->{y}, $s->{width}, $s->{height});
+		$self->{_history} = Shutter::Screenshot::History->new(
+			$self->{_sc}, $self->{_root}, $s->{x}, $s->{y}, $s->{width}, $s->{height}
+		);
 	}
 
-	return $output;
+	return $output; # Returns the ready-to-save Gtk3::Gdk::Pixbuf object
 }
 
+
+# =========================================================================
+# HISTORY REPLAY INTERFACE (Re-runs the exact last coordinate capture clip)
+# =========================================================================
 sub redo_capture {
 	my $self   = shift;
-	my $output = 3;
+	my $output = 3; # Default error signal bit handler fallback
+	
+	# If a historical coordinates footprint map object is available
 	if (defined $self->{_history}) {
+		# Query a fresh drawable capture segment matching the exact cached boundary bounds
 		($output) = $self->get_pixbuf_from_drawable($self->{_history}->get_last_capture);
 	}
 	return $output;
 }
 
+# =========================================================================
+# GETTER ACCESS PIPELINES (Read-only metadata endpoints)
+# =========================================================================
 sub get_history {
 	my $self = shift;
-	return $self->{_history};
+	return $self->{_history}; # Returns Shutter's active History tracking module instance
 }
 
 sub get_error_text {
 	my $self = shift;
-	return $self->{_error_text};
+	# Safely returns the logged exception buffer string or an empty string for graceful escapes
+	return $self->{_error_text} // "";
 }
 
 sub get_action_name {
 	my $self = shift;
-	return $self->{_action_name};
+	return $self->{_action_name}; # Returns active localized user activity name tag
 }
 
+# =========================================================================
+# DESTRUCTOR CLOSURE PIPELINES (Gracefully tears down server grabs and windows)
+# =========================================================================
 sub quit {
 	my $self = shift;
 
+	# Safely lift active input target lockups constraints on server device layers
 	eval { $self->ungrab_pointer_and_keyboard(FALSE, FALSE, TRUE); };
+	
+	# Execute absolute memory purge routine
 	$self->clean;
 }
 
+
+# =========================================================================
+# MEMORY CLEANUP & DEALLOCATION ROUTINE (Prevents memory leaks in GTK3)
+# =========================================================================
 sub clean {
 	my $self = shift;
 
+	# 1. Safely disconnect active event handlers from the primary drawing canvas
 	if (defined $self->{_canvas}) {
 		if (defined $self->{_selector_handler} && $self->{_selector_handler} > 0) {
 			eval { $self->{_canvas}->signal_handler_disconnect($self->{_selector_handler}); };
@@ -1160,16 +1224,19 @@ sub clean {
 		}
 	}
 
+	# 2. Disconnect render loop handler from the magnifier zoom area
 	if (defined $self->{_zoom_area} && defined $self->{_view_zoom_handler} && $self->{_view_zoom_handler} > 0) {
 		eval { $self->{_zoom_area}->signal_handler_disconnect($self->{_view_zoom_handler}); };
 		$self->{_view_zoom_handler} = undef;
 	}
 
+	# 3. Disconnect global hardware hotkey interceptor from the primary window
 	if (defined $self->{_select_window} && defined $self->{_key_handler} && $self->{_key_handler} > 0) {
 		eval { $self->{_select_window}->signal_handler_disconnect($self->{_key_handler}); };
 		$self->{_key_handler} = undef;
 	}
 
+	# 4. Destroy window architectures and drop references for garbage collection
 	if (defined $self->{_select_window}) {
 		$self->{_select_window}->destroy;
 		$self->{_select_window} = undef;
@@ -1185,9 +1252,9 @@ sub clean {
 		$self->{_prop_window} = undef;
 	}
 
-	$self->{_canvas} = undef;
+	# 5. Clear remaining underlying widget handles completely
+	$self->{_canvas}    = undef;
 	$self->{_zoom_area} = undef;
 }
-
 
 1;
