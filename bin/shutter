@@ -777,24 +777,6 @@ sub STARTUP {
 
 	#--------------------------------------
 
-	#trayicon
-	#--------------------------------------
-	#command line param set to disable tray icon?
-	unless ($sc->get_disable_systray) {
-		fct_try_init_tray();
-		Glib::Timeout->add(10000, sub {
-			if (!$tray_legacy || !$tray_legacy->is_embedded) {
-				if ($tray_legacy) {
-					$tray_legacy->set_visible(0);
-				}
-				fct_try_init_tray();
-			}
-			return TRUE;
-		});
-	}
-
-	#--------------------------------------
-
 	#settings
 	#--------------------------------------
 	my $vbox_settings  = Gtk3::VBox->new(FALSE, 12);
@@ -907,7 +889,30 @@ sub STARTUP {
 
 	#load settings
 	#--------------------------------------
-  $settings_xml = fct_load_settings("start");
+	$settings_xml = fct_load_settings("start");
+
+	#trayicon
+	#--------------------------------------
+	#command line param set to disable tray icon?
+	if (defined $settings_xml->{'general'}->{'autofs_not'}
+		&& $settings_xml->{'general'}->{'autofs_not'} eq '1') {
+		$sc->set_disable_systray(TRUE);
+	}
+	
+	unless ($sc->get_disable_systray) {
+		fct_try_init_tray();
+		Glib::Timeout->add(10000, sub {
+			if (!$tray_legacy || !$tray_legacy->is_embedded) {
+				if ($tray_legacy) {
+					$tray_legacy->set_visible(0);
+				}
+				fct_try_init_tray();
+			}
+			return TRUE;
+		});
+	}
+
+	#--------------------------------------
 
 	#load accounts for hosting services
 	fct_load_accounts();
