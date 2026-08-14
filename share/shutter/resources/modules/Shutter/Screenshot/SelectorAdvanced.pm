@@ -1050,12 +1050,22 @@ sub select_dialog {
 		}
 	};
 
+	# -------------------------------------------------------------------------
+	# DYNAMIC SYMMETRY: Compute max character width from screen real estate
+	# -------------------------------------------------------------------------
+	# Dynamically determine the maximum character length based on screen resolution
+	my $max_dimension = $self->{_root}->{w} > $self->{_root}->{h} ? $self->{_root}->{w} : $self->{_root}->{h};
+	my $char_width    = length(int($max_dimension));
+	
+	# Enforce a sensible minimum width of 4 characters just to be visually uniform
+	$char_width = 4 if $char_width < 4;
+
 	# 1. Coordinate configuration inputs setup: X parameter row
 	my $xw_label = Gtk3::Label->new($d->get("X") . ":");
-	# Initialize with a safe dynamic ceiling right away
 	my $init_max_x = $self->{_root}->{w} - $sw;
 	$self->{_x_spin_w} = Gtk3::SpinButton->new_with_range(0, $init_max_x > 0 ? $init_max_x : $self->{_root}->{w}, 1);
 	$self->{_x_spin_w}->set_value($sx);
+	$self->{_x_spin_w}->set_width_chars($char_width); # Force uniform alignment length
 	$self->{_x_spin_w_handler} = $self->{_x_spin_w}->signal_connect('value-changed' => $value_callback);
 
 	my $xw_hbox = Gtk3::HBox->new(FALSE, 5);
@@ -1067,6 +1077,7 @@ sub select_dialog {
 	my $init_max_y = $self->{_root}->{h} - $sh;
 	$self->{_y_spin_w} = Gtk3::SpinButton->new_with_range(0, $init_max_y > 0 ? $init_max_y : $self->{_root}->{h}, 1);
 	$self->{_y_spin_w}->set_value($sy);
+	$self->{_y_spin_w}->set_width_chars($char_width); # Force uniform alignment length
 	$self->{_y_spin_w_handler} = $self->{_y_spin_w}->signal_connect('value-changed' => $value_callback);
 
 	my $yw_hbox = Gtk3::HBox->new(FALSE, 5);
@@ -1078,6 +1089,7 @@ sub select_dialog {
 	my $init_max_w = $self->{_root}->{w} - $sx;
 	$self->{_width_spin_w} = Gtk3::SpinButton->new_with_range(0, $init_max_w > 0 ? $init_max_w : $self->{_root}->{w}, 1);
 	$self->{_width_spin_w}->set_value($sw);
+	$self->{_width_spin_w}->set_width_chars($char_width); # Force uniform alignment length
 	$self->{_width_spin_w_handler} = $self->{_width_spin_w}->signal_connect('value-changed' => $value_callback);
 
 	my $ww_hbox = Gtk3::HBox->new(FALSE, 5);
@@ -1089,6 +1101,7 @@ sub select_dialog {
 	my $init_max_h = $self->{_root}->{h} - $sy;
 	$self->{_height_spin_w} = Gtk3::SpinButton->new_with_range(0, $init_max_h > 0 ? $init_max_h : $self->{_root}->{h}, 1);
 	$self->{_height_spin_w}->set_value($sh);
+	$self->{_height_spin_w}->set_width_chars($char_width); # Force uniform alignment length
 	$self->{_height_spin_w_handler} = $self->{_height_spin_w}->signal_connect('value-changed' => $value_callback);
 
 	my $hw_hbox = Gtk3::HBox->new(FALSE, 5);
@@ -1139,9 +1152,65 @@ sub select_dialog {
 
 	$frame->add($vbox);
 	$prop_dialog->add($frame);
+	# -------------------------------------------------------------------------
+	# INTERFACE LAYOUT ALIGNMENT: Dynamic mouse positioning via safe margin shifts
+	# -------------------------------------------------------------------------
+	# Static cache variables to freeze the very first pristine size measurement
+	my ($cached_w, $cached_h);
 
+	# Connect to the show signal to position the box at the exact moment it is toggled
+	$prop_dialog->signal_connect('show' => sub {
+		my $widget = shift;
+		
+		# CRITICAL GTK3 FIX: Force the alignment to 'start' so margins act as real coordinates
+		$widget->set_halign('start');
+		$widget->set_valign('start');
+
+		# Safe Fallback Coordinates
+		my $mx = 100;
+		my $my = 100;
+
+		# Retrieve the verified precise cursor vectors directly from Shutter's active session state
+		if (defined $self->{_state}) {
+			$mx = $self->{_state}->{cursor_x} // 100;
+			$my = $self->{_state}->{cursor_y} // 100;
+		}
+		
+		# PROGRAMMATIC METRICS: Query the current theme engine size
+		my ($min_req, $nat_req) = $widget->get_preferred_size();
+		my $raw_w = (defined $nat_req && $nat_req->width > 0)  ? $nat_req->width  : 200;
+		my $raw_h = (defined $nat_req && $nat_req->height > 0) ? $nat_req->height : 250;
+
+		# Lock the size parameters on the very first execution before margins bloat the layout
+		if (!defined $cached_w || !defined $cached_h) {
+			$cached_w = $raw_w;
+			$cached_h = $raw_h;
+		}
+
+		# Use the safely cached dimensions for boundary calculations
+		my $w = $cached_w;
+		my $h = $cached_h;
+		my $pad = 15; # Safe padding in pixels to prevent edge clipping
+
+		# Calculate coordinates with a safety margin when flipping at the edges
+		my $target_x = ($mx + $w > $self->{_root}->{w}) ? ($mx - $w - $pad) : $mx;
+		my $target_y = ($my + $h > $self->{_root}->{h}) ? ($my - $h - $pad) : $my;
+
+		# Enforce absolute safety boundaries using standard clamping thresholds
+		$target_x = 0 if $target_x < 0;
+		$target_y = 0 if $target_y < 0;
+		$target_x = 32760 if $target_x > 32760;
+		$target_y = 32760 if $target_y > 32760;
+
+		# Safely apply coordinates as padding margins inside the overlay container
+		$widget->set_margin_left($target_x);
+		$widget->set_margin_top($target_y);
+	});
+
+	# Return the original dialogue box widget directly so Shutter's references match perfectly
 	return $prop_dialog;
 }
+
 
 
 # =========================================================================
