@@ -6296,32 +6296,29 @@ modes are currently experimental, your desktop environment might fall back to an
 
 		#wayland: route selection/window/active to xdg-desktop-portal
 		if (!$x11_supported) {
+			
 			# For some period of time desktops won't support non-interactive targets, we need to deal with it.
-			my $target;
-			my $interactive;
-			# For fullscreen capture just use plain xdg_portal
+			my $target; # capture mode sent to xdg-portal
+			my $interactive; # whether to use the desktop environment's GUI (only for the time till DEs support non-interactive calls)
+
 			if ($data eq "full" || $data eq "tray_full") {
-				$screenshot = Shutter::Screenshot::Wayland::xdg_portal($screenshooter);
-			} else {
-				# For each non-trivial capture mode (window, active window, selection) define a target 
-				# to try and call the non-interactive portal interface
-				if ($data eq "window" || $data eq "tray_window") {
-					$target="window";
-				} elsif ($data eq "awindow" || $data eq "tray_awindow") {
-					$target="awindow";
-				} elsif ($data eq "select" || $data eq "tray_select") {
-					$target="select";
-				}
-				# For the target chosen by user check if it is supported non-interactively.
-				# If unsupported, fall back to an interactive call which makes use of the
-				# DE's interactive tool.
-				if ($supported_targets{$target}) {
-					$interactive=0;
-				} else {
-					$interactive=1;
-				}
-				$screenshot = Shutter::Screenshot::Wayland::xdg_portal($screenshooter, $interactive, $target);
+				$target="full";
+			} elsif ($data eq "window" || $data eq "tray_window") {
+				$target="window";
+			} elsif ($data eq "awindow" || $data eq "tray_awindow") {
+				$target="awindow";
+			} elsif ($data eq "select" || $data eq "tray_select") {
+				$target="select";
 			}
+			# For the target chosen by user check if it is supported non-interactively.
+			# If unsupported, fall back to an interactive call which makes use of the
+			# DE's interactive tool.
+			if ($supported_targets{$target}) {
+				$interactive=0;
+			} else {
+				$interactive=1;
+			}
+			$screenshot = Shutter::Screenshot::Wayland::xdg_portal($screenshooter, $interactive, $target);
 		} else {
 			#fullscreen screenshot
 			if ($data eq "full" || $data eq "tray_full") {
