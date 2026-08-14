@@ -8,8 +8,8 @@ package Shutter::Screenshot::Wayland;
 
 sub xdg_portal {
 	my $screenshooter = shift;
-	my $interactive = shift;
-	my $target = shift;
+	my $interactive = shift; # whether to use the desktop environment's GUI (only for the time till DEs support non-interactive calls)
+	my $target = shift; # screenshot mode (full, select, window, awindow) to send to xdg-portal
 
 	# Fall back to fullscreen
 	$target = 1 unless defined $target;
