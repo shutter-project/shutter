@@ -969,6 +969,9 @@ sub STARTUP {
 	#init menus
 	if ($x11_supported){
 		$st->{_full}->set_menu(fct_ret_workspace_menu(TRUE));
+	} elsif (Gtk3::Gdk::Screen::get_default->get_n_monitors > 1) {
+		#Wayland: offer per-monitor capture through the "full" dropdown
+		$st->{_full}->set_menu(fct_ret_workspace_menu(TRUE));
 	}
 	$st->{_window}->set_menu(fct_ret_window_menu());
 
@@ -3133,7 +3136,7 @@ sub STARTUP {
 			#unblock signal handler
 			fct_control_signals('unblock');
 			return TRUE;
-		} elsif (!$x11_supported && $data ne "full" && $data ne "tray_full") {
+		} elsif (!$x11_supported && $data ne "full" && $data ne "tray_full" && $data !~ /^shutter_monitor_direct/ && $data !~ /^redoshot/) {
 			my $sd = Shutter::App::SimpleDialogs->new;
 			$sd->dlg_error_message($d->get("Can't take screenshots without X11 server"), $d->get("Failed"));
 			fct_control_signals('unblock');
@@ -6189,7 +6192,11 @@ sub STARTUP {
 		}
 
 		#fullscreen screenshot
-		if ($data eq "full" || $data eq "tray_full") {
+		if ($data eq "full" || $data eq "tray_full" || $data =~ /^shutter_monitor_direct(\d+)/) {
+
+			#on Wayland a single monitor can be requested via the "full" dropdown
+			my $monitor = ($data =~ /^shutter_monitor_direct(\d+)/) ? $1 : undef;
+			$data = "full" if defined $monitor;
 
 			if ($x11_supported) {
 				$screenshooter = Shutter::Screenshot::Workspace->new(
@@ -6201,7 +6208,8 @@ sub STARTUP {
 				$screenshot = $screenshooter->workspace();
 			} else {
 				# TODO: support kwin directly, because it has more features than the xdg portal
-				$screenshot = Shutter::Screenshot::Wayland::xdg_portal($screenshooter);
+				$screenshooter = Shutter::Screenshot::Wayland->new($sc, $monitor);
+				$screenshot    = $screenshooter->capture;
 			}
 
 		#window
@@ -8447,6 +8455,24 @@ sub STARTUP {
 
 		my $menu_wrksp = Gtk3::Menu->new;
 		unless ($x11_supported) {
+
+			#On Wayland we can't enumerate workspaces via libwnck, but we can still
+			#offer to capture a single monitor by cropping the portal screenshot.
+			my $gdk_screen = Gtk3::Gdk::Screen::get_default;
+			my $n_mons     = $gdk_screen->get_n_monitors;
+			if ($n_mons > 1) {
+				for (my $i = 0 ; $i < $n_mons ; $i++) {
+					my $geo   = $gdk_screen->get_monitor_geometry($i);
+					my $plug  = eval { $gdk_screen->get_monitor_plug_name($i) };
+					my $label = $plug
+						? sprintf("%s (%dx%d)", $plug, $geo->{width}, $geo->{height})
+						: sprintf($d->get("Monitor %d (%dx%d)"), $i + 1, $geo->{width}, $geo->{height});
+					my $mon_item = Gtk3::MenuItem->new_with_label($label);
+					$mon_item->signal_connect('activate' => \&evt_take_screenshot, "shutter_monitor_direct$i");
+					$menu_wrksp->append($mon_item);
+				}
+				$menu_wrksp->show_all;
+			}
 			return $menu_wrksp;
 		}
 
