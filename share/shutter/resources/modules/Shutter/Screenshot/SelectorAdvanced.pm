@@ -172,8 +172,74 @@ sub new {
 			$cr->fill;
 		}
 
-		return 0; # Signal draw execution finalized
-	});
+		# -------------------------------------------------------------------------
+		# DRAW OVERLAY LAYER: Render dynamic native help instructions box on context
+		# -------------------------------------------------------------------------
+		if ($self->{_show_help_overlay}) {
+			my $allocated_w = $widget->get_allocated_width;
+			my $allocated_h = $widget->get_allocated_height;
+
+			# Ensure gettext handle is locally accessible for translations
+			my $d = $self->{_sc}->get_gettext;
+			my $text1 = $d->get("Draw a rectangular area using the mouse.");
+			my $text2 = $d->get("To take a screenshot, double-click or press the Enter key.\nPress Esc to abort.");
+			my $text3 =
+					$d->get("<b>shift/right-click</b> → selection dialog on/off") . "\n"
+				. $d->get("<b>scrollwheel</b> → zoom in/out") . "\n"
+				. $d->get("<b>space</b> → zoom window on/off") . "\n"
+				. $d->get("<b>cursor keys</b> → move cursor") . "\n"
+				. $d->get("<b>cursor keys + alt</b> → move selection") . "\n"
+				. $d->get("<b>cursor keys + ctrl</b> → resize selection");
+
+			# Create layout and assign structured markup blocks
+			my $layout = $widget->create_pango_layout("");
+			$layout->set_markup(
+				"<span foreground='#FFFFFF' size='xx-large' weight='bold'>$text1</span>\n" .
+				"<span foreground='#E0E0E0' size='large'>$text2</span>\n\n" .
+				"<span foreground='#CCCCCC' size='medium'>$text3</span>"
+			);
+			
+			# Restrict max text layout bounds width (e.g., 550px) to force wrapping
+			my $max_text_width = 550;
+			$layout->set_width($max_text_width * Pango::SCALE);
+			$layout->set_wrap('word-char');
+
+			# Query exact geometric dimensions parsed by the layout engine
+			my ($text_w, $text_h) = $layout->get_pixel_size();
+
+			# Configure bounding box dimensions with symmetrical 30px padding
+			my $padding = 30;
+			my $box_w   = $text_w + ($padding * 2);
+			my $box_h   = $text_h + ($padding * 2);
+
+			# Center the dynamic card based on current allocation bounds
+			my $box_x = int(($allocated_w - $box_w) / 2);
+			my $box_y = int(($allocated_h - $box_h) / 2);
+
+			# Draw backdrop card using specific hex color structure (rgba: 19, 19, 19, 0.85)
+			$cr->save();
+			$cr->set_source_rgba(0.074, 0.074, 0.074, 0.85);
+			my $radius = 20;
+			$cr->new_sub_path();
+			$cr->arc($box_x + $box_w - $radius, $box_y + $radius, $radius, -1.5708, 0);
+			$cr->arc($box_x + $box_w - $radius, $box_y + $box_h - $radius, $radius, 0, 1.5708);
+			$cr->arc($box_x + $radius, $box_y + $box_h - $radius, $radius, 1.5708, 3.1416);
+			$cr->arc($box_x + $radius, $box_y + $radius, $radius, 3.1416, 4.7124);
+			$cr->close_path();
+			$cr->fill();
+			$cr->restore();
+
+			# Execute final surface text blitting inside the padded region
+			$cr->save();
+			$cr->move_to($box_x + $padding, $box_y + $padding);
+			Pango::Cairo::show_layout($cr, $layout);
+			$cr->restore();
+			}
+
+
+			# (Hier steht dein bereits existierendes 'return FALSE;')
+			return FALSE;
+		});
 
 	return $self;
 }
@@ -264,75 +330,15 @@ sub select_advanced {
 	}
 
 	# -------------------------------------------------------------------------
-	# INITIALIZE INTRODUCTION USER GUIDE OVERLAY
+	# INITIALIZE INTRODUCTION USER GUIDE OVERLAY (Cairo status flag configuration)
 	# -------------------------------------------------------------------------
-	$self->{_help_label} = undef;
+	$self->{_show_help_overlay} = 0;
 
 	if (($self->{_init_w} < 1 || $self->{_init_h} < 1) && $self->{_show_help}) {
-		my $mon1 = $self->get_current_monitor;
-		
-		my $text1 = $d->get("Draw a rectangular area using the mouse.");
-		my $text2 = $d->get("To take a screenshot, double-click or press the Enter key.\nPress Esc to abort.");
-		my $text3 =
-			  $d->get("<b>shift/right-click</b> → selection dialog on/off") . "\n"
-			. $d->get("<b>scrollwheel</b> → zoom in/out") . "\n"
-			. $d->get("<b>space</b> → zoom window on/off") . "\n"
-			. $d->get("<b>cursor keys</b> → move cursor") . "\n"
-			. $d->get("<b>cursor keys + alt</b> → move selection") . "\n"
-			. $d->get("<b>cursor keys + ctrl</b> → resize selection");
-
-		my $help_lbl = Gtk3::Label->new();
-		$help_lbl->set_use_markup(TRUE);
-		$help_lbl->set_justify('left');
-		$help_lbl->set_line_wrap(TRUE);
-		$help_lbl->set_max_width_chars(60);
-		$help_lbl->set_markup(
-			"<span foreground='#FFFFFF' size='xx-large' weight='bold'>$text1</span>\n" .
-			"<span foreground='#E0E0E0' size='large'>$text2</span>\n\n" .
-			"<span foreground='#CCCCCC' size='medium'>$text3</span>"
-		);
-
-		# Leverage Frame structures for seamless CSS backdrop processing in GTK3
-		my $help_frame = Gtk3::Frame->new();
-		$help_frame->set_shadow_type('none');
-		$help_frame->add($help_lbl);
-
-		my $help_box = Gtk3::EventBox->new();
-		$help_box->set_visible_window(TRUE); 
-		$help_box->add($help_frame);
-
-		my $context = $help_frame->get_style_context();
-		$context->add_class('shutter-help-frame');
-
-		my $css_provider = Gtk3::CssProvider->new();
-		$css_provider->load_from_data(
-			".shutter-help-frame { " .
-			"  background-color: rgba(19, 19, 19, 0.85); " .
-			"  border-radius: 20px; " .
-			"  padding: 30px; " .
-			"}"
-		);
-		$context->add_provider($css_provider, 600);
-
-		my $box_context = $help_box->get_style_context();
-		$box_context->add_class('shutter-transparent-box');
-		my $box_css = Gtk3::CssProvider->new();
-		$box_css->load_from_data(".shutter-transparent-box { background-color: transparent; }");
-		$box_context->add_provider($box_css, 600);
-
-		# Symmetrically center the overlay on the current monitor layout map bounds
-		$help_box->set_halign('center');
-		$help_box->set_valign('center');
-
-		if (defined $self->{_canvas}) {
-			my $overlay_parent = $self->{_canvas}->get_parent();
-			if (defined $overlay_parent && $overlay_parent->isa('Gtk3::Overlay')) {
-				$overlay_parent->add_overlay($help_box);
-			}
-		}
-
-		$self->{_help_label} = $help_box;
+		$self->{_show_help_overlay} = 1;
 	}
+	$self->{_help_label} = undef; # Deprecated window widget instance tracker
+
 
 	# Realize window configurations pipelines
 	$self->{_select_window}->show_all;
@@ -557,10 +563,11 @@ sub select_advanced {
 				$is_dragging = 1;
 				$start_x = $mx; $start_y = $my;
 
-				# Suppress welcoming overlay help banner text immediately
-				$self->{_help_label}->hide if defined $self->{_help_label};
+				# Clear the Cairo rendering flag to dim the help card instantly
+				$self->{_show_help_overlay} = 0;
 				$self->{_state}->{sel} = { x => $start_x, y => $start_y, width => 0, height => 0 };
 			}
+
 			$queue_redraw->();
 		}
 		return TRUE;
@@ -966,9 +973,9 @@ sub adjust_prop_values {
 		$self->{_height_spin_w}->set_range(0, int($self->{_root}->{h} - $s->{y})) if defined $self->{_height_spin_w};
 
 		# Re-attach the numerical spin entries alert listeners to unlock user input processing
-		$self->{_x_spin_w}->signal_handler_unblock($self->{_x_spin_w_handler})           if defined $self->{_x_spin_w_handler};
-		$self->{_y_spin_w}->signal_handler_unblock($self->{_y_spin_w_handler})           if defined $self->{_y_spin_w_handler};
-		$self->{_width_spin_w}->signal_handler_unblock($self->{_width_spin_w_handler})   if defined $self->{_width_spin_w_handler};
+		$self->{_x_spin_w}->signal_handler_unblock($self->{_x_spin_w_handler}) if defined $self->{_x_spin_w_handler};
+		$self->{_y_spin_w}->signal_handler_unblock($self->{_y_spin_w_handler}) if defined $self->{_y_spin_w_handler};
+		$self->{_width_spin_w}->signal_handler_unblock($self->{_width_spin_w_handler}) if defined $self->{_width_spin_w_handler};
 		$self->{_height_spin_w}->signal_handler_unblock($self->{_height_spin_w_handler}) if defined $self->{_height_spin_w_handler};
 	}
 }
