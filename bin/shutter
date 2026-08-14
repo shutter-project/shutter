@@ -317,6 +317,7 @@ my $delete_on_close_active;
 my $drawing_tool_auto_icons_active;
 my $drawing_tool_dark_icons_active;
 my $drawing_tool_light_icons_active;
+my $drawing_tool_save_to_clipboard_active;
 my $filename;
 my $fname_autocopy_active;
 my $fs_active;
@@ -796,7 +797,7 @@ sub STARTUP {
 	my $file_vbox    = Gtk3::VBox->new(FALSE, 0);
 	my $save_vbox    = Gtk3::VBox->new(FALSE, 0);
 	my $capture_vbox = Gtk3::VBox->new(FALSE, 0);
-	my $drawing_tool_icons_vbox    = Gtk3::VBox->new(FALSE, 0);
+	my $drawing_tool_vbox    = Gtk3::VBox->new(FALSE, 0);
 
 	my $scale_box                           = Gtk3::HBox->new(FALSE, 0);
 	my $filetype_box                        = Gtk3::HBox->new(FALSE, 0);
@@ -813,6 +814,7 @@ sub STARTUP {
 	my $drawing_tool_light_icons_box        = Gtk3::HBox->new(FALSE, 0);
 	my $drawing_tool_dark_icons_box         = Gtk3::HBox->new(FALSE, 0);
 	my $drawing_tool_auto_icons_box         = Gtk3::HBox->new(FALSE, 0);
+	my $drawing_tool_save_to_clipboard_box  = Gtk3::HBox->new(FALSE, 0);
 
 	#actions
 	my $actions_vbox = Gtk3::VBox->new(FALSE, 0);
@@ -1532,6 +1534,22 @@ sub STARTUP {
 	}
 
 	#end - drawing tool custom icons
+	#--------------------------------------
+
+	#drawing_tool_save_to_clipboard_active
+	#--------------------------------------
+	$drawing_tool_save_to_clipboard_active = Gtk3::CheckButton->new_with_label($d->get("Automatically copy screenshot to clipboard when saving"));
+	$drawing_tool_save_to_clipboard_box->pack_start($drawing_tool_save_to_clipboard_active, FALSE, TRUE, 12);
+
+	if (defined $settings_xml->{'general'}->{'drawing_tool_save_to_clipboard'}) {
+		$drawing_tool_save_to_clipboard_active->set_active($settings_xml->{'general'}->{'drawing_tool_save_to_clipboard'});
+	} else {
+		$drawing_tool_save_to_clipboard_active->set_active(FALSE);
+	}
+
+	$drawing_tool_save_to_clipboard_active->set_tooltip_text($d->get("Automatically copy screenshot to the clipboard when saving the image in the Drawing Tool"));
+
+	#end - drawing_tool_save_to_clipboard_active
 	#--------------------------------------
 
 	#program
@@ -2473,11 +2491,12 @@ sub STARTUP {
 	$capture_vbox->pack_start($delay_box,  TRUE,  TRUE, 3);
 	$capture_frame->add($capture_vbox);
 
-        $drawing_tool_icons_vbox->pack_start($drawing_tool_light_icons_box,    TRUE,  TRUE, 3);
-        $drawing_tool_icons_vbox->pack_start($drawing_tool_dark_icons_box,     TRUE,  TRUE, 3);
-        $drawing_tool_icons_vbox->pack_start($drawing_tool_auto_icons_box,     TRUE,  TRUE, 3);
-        $drawing_tool_frame->add($drawing_tool_icons_vbox);
-
+	$drawing_tool_vbox->pack_start($drawing_tool_light_icons_box,    TRUE,  TRUE, 3);
+    $drawing_tool_vbox->pack_start($drawing_tool_dark_icons_box,     TRUE,  TRUE, 3);
+    $drawing_tool_vbox->pack_start($drawing_tool_auto_icons_box,     TRUE,  TRUE, 3);
+	$drawing_tool_vbox->pack_start($drawing_tool_save_to_clipboard_box,    TRUE,  TRUE, 3);	
+    $drawing_tool_frame->add($drawing_tool_vbox);
+	
 	#all labels = one size
 	$scale_label->set_alignment(0, 0.5);
 	$filetype_label->set_alignment(0, 0.5);
@@ -2493,7 +2512,7 @@ sub STARTUP {
 	$vbox_basic->pack_start($file_frame,            FALSE, TRUE, 3);
 	$vbox_basic->pack_start($save_frame,            FALSE, TRUE, 3);
 	$vbox_basic->pack_start($capture_frame,         FALSE, TRUE, 3);
-        $vbox_basic->pack_start($drawing_tool_frame,    FALSE, TRUE, 3);
+	$vbox_basic->pack_start($drawing_tool_frame,    FALSE, TRUE, 3);
 	$vbox_basic->set_border_width(5);
 
 	#settings actions tab
@@ -4724,6 +4743,7 @@ sub STARTUP {
 		$settings{'general'}->{'drawing_tool_light_icons'}      = $drawing_tool_light_icons_active->get_active();
 		$settings{'general'}->{'drawing_tool_dark_icons'}       = $drawing_tool_dark_icons_active->get_active();
 		$settings{'general'}->{'drawing_tool_auto_icons'}       = $drawing_tool_auto_icons_active->get_active();
+		$settings{'general'}->{'drawing_tool_save_to_clipboard'}= $drawing_tool_save_to_clipboard_active->get_active();
 		#wrksp -> submenu
 		if ($x11_supported) {
 			$settings{'general'}->{'current_monitor_active'} = $current_monitor_active->get_active;
@@ -6104,7 +6124,7 @@ sub STARTUP {
 			$drawing_tool->show(
 				$session_screens{$key}->{'long'}, $session_screens{$key}->{'filetype'},   $session_screens{$key}->{'mime_type'},
 				$session_screens{$key}->{'name'}, $session_screens{$key}->{'is_unsaved'}, \%session_screens,
-				$drawing_tool_icons
+				$drawing_tool_icons,              $drawing_tool_save_to_clipboard_active->get_active
 			);
 		}
 
