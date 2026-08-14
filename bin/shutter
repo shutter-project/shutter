@@ -371,6 +371,7 @@ my $sm;
 my $sp;
 my $st;
 my $status;
+my $supported_targets;
 my $thumbnail_active;
 my $thumbnail;
 my $trans_backg;
@@ -395,7 +396,6 @@ my $zoom_active;
 	my %accounts;   	#hash to store account infos
 	my %settings;    	#hash to store settings
 	my @supported_formats;	#hash to store available supported file formats
-	my %supported_targets;	#hash to store available targets for xdg-desktop-portal
 sub STARTUP {
 	# This is called by $app->run below if another Shutter instance is not running.
 
@@ -589,34 +589,20 @@ sub STARTUP {
 	
 	if ($ENV{XDG_SESSION_TYPE} eq "wayland") {
 		$x11_supported = 0;
-		# Get targets supported by xdg-desktop-portal and hash them into %supported_targets
+		# Get targets supported by xdg-desktop-portal
 		# Possible targets are: 
 		#	1: Screen (corresponds "full")
 		#	2: Window (corresponds "window")
 		#	4: Area (corresponds "select")
 		#	8: Active Window (corresponds "awindow")
 		# See: https://github.com/flatpak/xdg-desktop-portal/pull/1981
-        my $targets_raw;
         eval {
-            $targets_raw = Net::DBus->session
+            $supported_targets = Net::DBus->session
                 ->get_service("org.freedesktop.portal.Desktop")
                 ->get_object("/org/freedesktop/portal/desktop")
                 ->as_interface("org.freedesktop.DBus.Properties")
                 ->Get("org.freedesktop.portal.Screenshot", "AvailableTargets");
         };
-
-        if ($@) {
-            %supported_targets = ();
-        } else {
-            if (defined $targets_raw) {
-                $supported_targets{'full'} = 1 if ($targets_raw & 1);
-                $supported_targets{'window'} = 1 if ($targets_raw & 2);
-                $supported_targets{'select'} = 1 if ($targets_raw & 4);
-                $supported_targets{'awindow'} = 1 if ($targets_raw & 8);
-            } else {
-                %supported_targets = ();
-            }
-        }
 	}
 
 	if ($x11_supported) {
@@ -6296,24 +6282,24 @@ modes are currently experimental, your desktop environment might fall back to an
 
 		#wayland: route selection/window/active to xdg-desktop-portal
 		if (!$x11_supported) {
-			
+
 			# For some period of time desktops won't support non-interactive targets, we need to deal with it.
 			my $target; # capture mode sent to xdg-portal
 			my $interactive; # whether to use the desktop environment's GUI (only for the time till DEs support non-interactive calls)
 
 			if ($data eq "full" || $data eq "tray_full") {
-				$target="full";
+				$target=1;
 			} elsif ($data eq "window" || $data eq "tray_window") {
-				$target="window";
+				$target=2;
 			} elsif ($data eq "awindow" || $data eq "tray_awindow") {
-				$target="awindow";
+				$target=8;
 			} elsif ($data eq "select" || $data eq "tray_select") {
-				$target="select";
+				$target=4;
 			}
 			# For the target chosen by user check if it is supported non-interactively.
 			# If unsupported, fall back to an interactive call which makes use of the
 			# DE's interactive tool.
-			if ($supported_targets{$target}) {
+			if ($supported_targets & $target) {
 				$interactive=0;
 			} else {
 				$interactive=1;
