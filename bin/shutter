@@ -610,10 +610,10 @@ sub STARTUP {
             %supported_targets = ();
         } else {
             if (defined $targets_raw) {
-                $supported_targets{'1'} = 1 if ($targets_raw & 1);
-                $supported_targets{'2'} = 1 if ($targets_raw & 2);
-                $supported_targets{'4'} = 1 if ($targets_raw & 4);
-                $supported_targets{'8'} = 1 if ($targets_raw & 8);
+                $supported_targets{'full'} = 1 if ($targets_raw & 1);
+                $supported_targets{'window'} = 1 if ($targets_raw & 2);
+                $supported_targets{'select'} = 1 if ($targets_raw & 4);
+                $supported_targets{'awindow'} = 1 if ($targets_raw & 8);
             } else {
                 %supported_targets = ();
             }
@@ -6336,11 +6336,11 @@ modes are currently experimental, your desktop environment might fall back to an
 				# For each non-trivial capture mode (window, active window, selection) define a target 
 				# to try and call the non-interactive portal interface
 				if ($data eq "window" || $data eq "tray_window") {
-					$target=2;
+					$target="window";
 				} elsif ($data eq "awindow" || $data eq "tray_awindow") {
-					$target=8
+					$target="awindow";
 				} elsif ($data eq "select" || $data eq "tray_select") {
-					$target=4;
+					$target="select";
 				}
 				# For the target chosen by user check if it is supported non-interactively.
 				# If unsupported, fall back to an interactive call which makes use of the
