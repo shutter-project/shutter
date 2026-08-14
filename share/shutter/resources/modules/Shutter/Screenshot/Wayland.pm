@@ -14,6 +14,20 @@ sub xdg_portal {
 	# Fall back to fullscreen
 	$target = 1 unless defined $target;
 
+	# We need to go back to numerical values to pass them to xdg-portal
+	if ($target eq "full") {
+		$target = 1;
+	} elsif ($target eq "window") {
+		$target = 2;
+	} elsif ($target eq "select") {
+		$target = 4;
+	} elsif ($target eq "awindow") {
+		$target = 8;
+	} else {
+		$target = 1;
+	}
+
+
 	my $reactor = Net::DBus::Reactor->main;
 	my $bus = Net::DBus->find;
 	my $me = $bus->get_unique_name;
