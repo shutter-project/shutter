@@ -337,8 +337,6 @@ sub select_advanced {
 	if (($self->{_init_w} < 1 || $self->{_init_h} < 1) && $self->{_show_help}) {
 		$self->{_show_help_overlay} = 1;
 	}
-	$self->{_help_label} = undef; # Deprecated window widget instance tracker
-
 
 	# Realize window configurations pipelines
 	$self->{_select_window}->show_all;
@@ -1005,14 +1003,47 @@ sub select_dialog {
 	}
 
 	# Centralized entry callback triggered upon any spin button modifications
-	my $value_callback = sub {
+	my $value_callback;
+	$value_callback = sub {
 		if (defined $self->{_state}) {
+			# 1. Read out currently requested integer values from the inputs
+			my $current_x = int($self->{_x_spin_w}->get_value);
+			my $current_y = int($self->{_y_spin_w}->get_value);
+			my $current_w = int($self->{_width_spin_w}->get_value);
+			my $current_h = int($self->{_height_spin_w}->get_value);
+
+			# 2. Block recursion safely by temporarily turning off signal listeners
+			$self->{_x_spin_w}->signal_handler_block($self->{_x_spin_w_handler});
+			$self->{_y_spin_w}->signal_handler_block($self->{_y_spin_w_handler});
+			$self->{_width_spin_w}->signal_handler_block($self->{_width_spin_w_handler});
+			$self->{_height_spin_w}->signal_handler_block($self->{_height_spin_w_handler});
+
+			# 3. Mathematically adjust maximum thresholds dynamically (Clamping)
+			my $max_w = $self->{_root}->{w} - $current_x;
+			my $max_h = $self->{_root}->{h} - $current_y;
+			my $max_x = $self->{_root}->{w} - $current_w;
+			my $max_y = $self->{_root}->{h} - $current_h;
+
+			# 4. Enforce new ranges on the spin buttons on-the-fly
+			$self->{_x_spin_w}->set_range(0, $max_x > 0 ? $max_x : 0);
+			$self->{_y_spin_w}->set_range(0, $max_y > 0 ? $max_y : 0);
+			$self->{_width_spin_w}->set_range(0, $max_w > 0 ? $max_w : 0);
+			$self->{_height_spin_w}->set_range(0, $max_h > 0 ? $max_h : 0);
+
+			# 5. Restore safe boundary configurations back inside internal state tracker
 			$self->{_state}->{sel} = {
 				x      => int($self->{_x_spin_w}->get_value),
 				y      => int($self->{_y_spin_w}->get_value),
 				width  => int($self->{_width_spin_w}->get_value),
 				height => int($self->{_height_spin_w}->get_value),
 			};
+
+			# 6. Reactivate signal listeners to catch next modifications
+			$self->{_x_spin_w}->signal_handler_unblock($self->{_x_spin_w_handler});
+			$self->{_y_spin_w}->signal_handler_unblock($self->{_y_spin_w_handler});
+			$self->{_width_spin_w}->signal_handler_unblock($self->{_width_spin_w_handler});
+			$self->{_height_spin_w}->signal_handler_unblock($self->{_height_spin_w_handler});
+
 			# Instantly enforce redraw operations across workspace components
 			$self->{_canvas}->queue_draw    if defined $self->{_canvas};
 			$self->{_zoom_area}->queue_draw if defined $self->{_zoom_area};
@@ -1021,7 +1052,9 @@ sub select_dialog {
 
 	# 1. Coordinate configuration inputs setup: X parameter row
 	my $xw_label = Gtk3::Label->new($d->get("X") . ":");
-	$self->{_x_spin_w} = Gtk3::SpinButton->new_with_range(0, $self->{_root}->{w}, 1);
+	# Initialize with a safe dynamic ceiling right away
+	my $init_max_x = $self->{_root}->{w} - $sw;
+	$self->{_x_spin_w} = Gtk3::SpinButton->new_with_range(0, $init_max_x > 0 ? $init_max_x : $self->{_root}->{w}, 1);
 	$self->{_x_spin_w}->set_value($sx);
 	$self->{_x_spin_w_handler} = $self->{_x_spin_w}->signal_connect('value-changed' => $value_callback);
 
@@ -1031,7 +1064,8 @@ sub select_dialog {
 
 	# 2. Coordinate configuration inputs setup: Y parameter row
 	my $yw_label = Gtk3::Label->new($d->get("Y") . ":");
-	$self->{_y_spin_w} = Gtk3::SpinButton->new_with_range(0, $self->{_root}->{h}, 1);
+	my $init_max_y = $self->{_root}->{h} - $sh;
+	$self->{_y_spin_w} = Gtk3::SpinButton->new_with_range(0, $init_max_y > 0 ? $init_max_y : $self->{_root}->{h}, 1);
 	$self->{_y_spin_w}->set_value($sy);
 	$self->{_y_spin_w_handler} = $self->{_y_spin_w}->signal_connect('value-changed' => $value_callback);
 
@@ -1041,9 +1075,9 @@ sub select_dialog {
 
 	# 3. Coordinate configuration inputs setup: Width parameter row
 	my $widthw_label = Gtk3::Label->new($d->get("Width") . ":");
-	$self->{_width_spin_w} = Gtk3::SpinButton->new_with_range(0, $self->{_root}->{w}, 1);
+	my $init_max_w = $self->{_root}->{w} - $sx;
+	$self->{_width_spin_w} = Gtk3::SpinButton->new_with_range(0, $init_max_w > 0 ? $init_max_w : $self->{_root}->{w}, 1);
 	$self->{_width_spin_w}->set_value($sw);
-	# Cleared the unused 'get_value_as_int' temporary zombie assignment line here during refactoring
 	$self->{_width_spin_w_handler} = $self->{_width_spin_w}->signal_connect('value-changed' => $value_callback);
 
 	my $ww_hbox = Gtk3::HBox->new(FALSE, 5);
@@ -1052,7 +1086,8 @@ sub select_dialog {
 
 	# 4. Coordinate configuration inputs setup: Height parameter row
 	my $heightw_label = Gtk3::Label->new($d->get("Height") . ":");
-	$self->{_height_spin_w} = Gtk3::SpinButton->new_with_range(0, $self->{_root}->{h}, 1);
+	my $init_max_h = $self->{_root}->{h} - $sy;
+	$self->{_height_spin_w} = Gtk3::SpinButton->new_with_range(0, $init_max_h > 0 ? $init_max_h : $self->{_root}->{h}, 1);
 	$self->{_height_spin_w}->set_value($sh);
 	$self->{_height_spin_w_handler} = $self->{_height_spin_w}->signal_connect('value-changed' => $value_callback);
 
