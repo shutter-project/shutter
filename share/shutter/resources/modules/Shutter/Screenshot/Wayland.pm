@@ -40,10 +40,11 @@ sub xdg_portal {
 
 		my %options = (handle_token => $token);
 
-		$options{interactive} = Net::DBus::dbus_boolean($interactive);
-		if ($interactive eq 0) {
-			$options{target} = Net::DBus::dbus_uint32($target);
-		}
+		# set the interactive flag unless xdg-portal doesn't support non-interactive calls and we want full-screen capture
+		$options{interactive} = Net::DBus::dbus_boolean($interactive) unless $interactive eq 1 && $target eq 1;
+
+		# only define a target if xdg-portal supports non-interactive calls
+		$options{target} = Net::DBus::dbus_uint32($target) if $interactive ne 1;
 
 		my $request_path = $portal->Screenshot('', \%options);
 
