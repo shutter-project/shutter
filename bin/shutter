@@ -6660,7 +6660,7 @@ modes are currently experimental, your desktop environment might fall back to an
 				}
 
 				#..replace wildcards by values
-				$tmp_filename = &fct_parse_filename_wildcards($tmp_filename, $screenshooter, $screenshot);
+				$tmp_filename = &fct_parse_filename_wildcards($tmp_filename, $screenshooter, $screenshot, $data);
 
 				#...and create an uri
 				$giofile = Glib::IO::File::new_for_path($tmp_filename);
@@ -6673,7 +6673,7 @@ modes are currently experimental, your desktop environment might fall back to an
 				$filename_value =~ s/(\/|\#)/-/g;
 
 				#..replace wildcards by values
-				$filename_value = &fct_parse_filename_wildcards($filename_value, $screenshooter, $screenshot);
+				$filename_value = &fct_parse_filename_wildcards($filename_value, $screenshooter, $screenshot, $data);
 
 				#...and get next filename
 				$giofile = fct_get_next_filename($filename_value, $folder, $filetype_value);
@@ -8089,7 +8089,7 @@ modes are currently experimental, your desktop environment might fall back to an
 	}
 
 	sub fct_parse_filename_wildcards {
-		my ($filename_value, $screenshooter, $screenshot) = @_;
+		my ($filename_value, $screenshooter, $screenshot, $capture_mode) = @_;
 
 		my $screenshot_name = $filename_value;
 
@@ -8115,20 +8115,42 @@ modes are currently experimental, your desktop environment might fall back to an
 
 		#set name
 		#e.g. window or workspace name
-		if ($x11_supported) {
-			if (my $action_name = $screenshooter->get_action_name) {
-				utf8::decode $action_name;
-				$action_name     =~ s/(\/|\#|\>|\<|\%|\*)/-/g;
-				$screenshot_name =~ s/\$name/$action_name/g;
+		my $resolved_action_name = undef;
 
-				#no blanks (special wildcard)
-				$action_name     =~ s/\ //g;
-				$screenshot_name =~ s/\$nb_name/$action_name/g;
-			} else {
-				$screenshot_name =~ s/(\$name|\$nb_name)/unknown/g;
+		if ($x11_supported) {
+			# Get action name from X11 screenshooter if available
+			if (my $action_name = $screenshooter->get_action_name) {
+				$resolved_action_name = $action_name;
 			}
 		} else {
-			$screenshot_name =~ s/(\$name|\$nb_name)/unknown/g;
+			# Wayland fallback using predefined translations
+			if (defined $capture_mode) {
+				if ($capture_mode eq "full" || $capture_mode eq "tray_full") {
+					$resolved_action_name = $d->get("Workspaces");
+				} elsif ($capture_mode eq "window" || $capture_mode eq "tray_window" || $capture_mode eq "awindow" || $capture_mode eq "tray_awindow") {
+					$resolved_action_name = $d->get("Window");
+				} elsif ($capture_mode eq "select" || $capture_mode eq "tray_select") {
+					my $selection_text = $d->get("Selection");
+					if (defined $swidth && defined $sheight) {
+						$resolved_action_name = "${selection_text}_${swidth}x${sheight}";
+					} else {
+						$resolved_action_name = $selection_text;
+					}
+				}
+			}
+		}
+
+		# Unified processing for both X11 and Wayland strings
+		if ($resolved_action_name) {
+			utf8::decode $resolved_action_name;
+			$resolved_action_name =~ s/(\/|\#|\>|\<|\%|\*)/-/g;
+			$screenshot_name      =~ s/\$name/$resolved_action_name/g;
+
+			#no blanks (special wildcard)
+			$resolved_action_name =~ s/\ //g;
+			$screenshot_name      =~ s/\$nb_name/$resolved_action_name/g;
+		} else {
+			$screenshot_name      =~ s/(\$name|\$nb_name)/unknown/g;
 		}
 
 		print "Parsed \$name: $screenshot_name\n"
