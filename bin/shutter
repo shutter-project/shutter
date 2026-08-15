@@ -6315,7 +6315,7 @@ modes are currently experimental, your desktop environment might fall back to an
 
 			# For some period of time desktops won't support non-interactive targets, we need to deal with it.
 			my $target; # capture mode sent to xdg-portal
-			my $interactive; # whether to use the desktop environment's GUI (only for the time till DEs support non-interactive calls)
+			my $interactive=1; # whether to use the desktop environment's GUI (only for the time till DEs support non-interactive calls)
 
 			if ($data eq "full" || $data eq "tray_full") {
 				$target=1;
@@ -6329,10 +6329,10 @@ modes are currently experimental, your desktop environment might fall back to an
 			# For the target chosen by user check if it is supported non-interactively.
 			# If unsupported, fall back to an interactive call which makes use of the
 			# DE's interactive tool.
-			if ($supported_targets & $target) {
-				$interactive=0;
-			} else {
-				$interactive=1;
+			if (defined $supported_targets) {
+				if ($supported_targets & $target) {
+					$interactive=0;
+				}
 			}
 			$screenshot = Shutter::Screenshot::Wayland::xdg_portal($screenshooter, $interactive, $target);
 		} else {
