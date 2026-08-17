@@ -988,6 +988,9 @@ modes are currently experimental, your desktop environment might fall back to an
 	#init menus
 	if ($x11_supported){
 		$st->{_full}->set_menu(fct_ret_workspace_menu(TRUE));
+	} elsif (Gtk3::Gdk::Screen::get_default->get_n_monitors > 1) {
+		#Wayland: offer per-monitor capture through the "full" dropdown
+		$st->{_full}->set_menu(fct_ret_workspace_menu(TRUE));
 	}
 	$st->{_window}->set_menu(fct_ret_window_menu());
 
@@ -3247,9 +3250,11 @@ modes are currently experimental, your desktop environment might fall back to an
 			fct_control_signals('unblock');
 			return TRUE;
 		} elsif (!$x11_supported
-			&& $data !~ /^(tray_)?(full|select|window|awindow)$/) {
-			# full/select/window/awindow are served via the XDG portal on Wayland;
-			# everything else (menu, tooltip, ...) still needs X11
+            && $data !~ /^(tray_)?(full|select|window|awindow)$/
+            && $data !~ /^shutter_monitor_direct/
+            && $data !~ /^redoshot/) {
+            # full/select/window/awindow/monitor/redo are served via the XDG portal or supported on Wayland;
+            # everything else (menu, tooltip, ...) still needs X11
 			my $sd = Shutter::App::SimpleDialogs->new;
 			$sd->dlg_error_message($d->get("Can't take screenshots without X11 server"), $d->get("Failed"));
 			fct_control_signals('unblock');
@@ -6297,67 +6302,58 @@ modes are currently experimental, your desktop environment might fall back to an
 			$delay_value = 0;
 		}
 
-		#cursor
-		if ($sc->get_include_cursor) {
-			$include_cursor = $sc->get_include_cursor;
-		} elsif ($sc->get_remove_cursor) {
-			$include_cursor = FALSE;
+		#wayland: route selection/window/active/monitor to xdg-desktop-portal
+        if (!$x11_supported) {
+
+            #on Wayland a single monitor can be requested via the "full" dropdown
+            my $monitor = ($data =~ /^shutter_monitor_direct(\d+)/) ? $1 : undef;
+            $data = "full" if defined $monitor;
+
+            # For some period of time desktops won't support non-interactive targets, we need to deal with it.
+            my $target; # capture mode sent to xdg-portal
+            my $interactive = 1; # whether to use the desktop environment's GUI (only for the time till DEs support non-interactive calls)
+
+            if ($data eq "full" || $data eq "tray_full") {
+                $target = 1;
+            } elsif ($data eq "window" || $data eq "tray_window") {
+                $target = 2;
+            } elsif ($data eq "awindow" || $data eq "tray_awindow") {
+                $target = 8;
+            } elsif ($data eq "select" || $data eq "tray_select") {
+                $target = 4;
+            }
+
+            # For the target chosen by user check if it is supported non-interactively.
+            # If unsupported, fall back to an interactive call which makes use of the
+            # DE's interactive tool.
+            if (defined $supported_targets) {
+                if ($supported_targets & $target) {
+                    $interactive = 0;
+                }
+            }
+
+            # screen mode from PR #828: 1 (full screen), 2 (current monitor)
+            my $screen_mode = (defined $monitor || $current_monitor_active->get_active) ? 2 : 1;
+
+            $screenshot = Shutter::Screenshot::Wayland::xdg_portal(
+                $screenshooter,
+                interactive => $interactive,
+                target      => $target,
+                screen_mode => $screen_mode
+            );
 		} else {
-			if ($cursor_active->get_active) {
-				$include_cursor = $cursor_active->get_active;
-			} else {
-				$include_cursor = FALSE;
-			}
-		}
+            #fullscreen screenshot
+            if ($data eq "full" || $data eq "tray_full" || $data =~ /^shutter_monitor_direct(\d+)/) {
+                $screenshooter = Shutter::Screenshot::Workspace->new(
+                    $sc, $include_cursor, $delay_value,
+                    $notify_timeout_active->get_active,
+                    $wnck_screen ? $wnck_screen->get_active_workspace : undef,
+                    undef, undef, $current_monitor_active->get_active
+                );
+                $screenshot = $screenshooter->workspace();
 
-		#wayland: route selection/window/active to xdg-desktop-portal
-		if (!$x11_supported) {
-
-			# For some period of time desktops won't support non-interactive targets, we need to deal with it.
-			my $target; # capture mode sent to xdg-portal
-			my $interactive=1; # whether to use the desktop environment's GUI (only for the time till DEs support non-interactive calls)
-
-			if ($data eq "full" || $data eq "tray_full") {
-				$target=1;
-			} elsif ($data eq "window" || $data eq "tray_window") {
-				$target=2;
-			} elsif ($data eq "awindow" || $data eq "tray_awindow") {
-				$target=8;
-			} elsif ($data eq "select" || $data eq "tray_select") {
-				$target=4;
-			}
-			# For the target chosen by user check if it is supported non-interactively.
-			# If unsupported, fall back to an interactive call which makes use of the
-			# DE's interactive tool.
-			if (defined $supported_targets) {
-				if ($supported_targets & $target) {
-					$interactive=0;
-				}
-			}
-			$screenshot = Shutter::Screenshot::Wayland::xdg_portal($screenshooter, $interactive, $target);
-		} else {
-			#fullscreen screenshot
-			if ($data eq "full" || $data eq "tray_full") {
-				$screenshooter = Shutter::Screenshot::Workspace->new(
-					$sc, $include_cursor, $delay_value,
-					$notify_timeout_active->get_active,
-					$wnck_screen ? $wnck_screen->get_active_workspace : undef,
-					undef, undef, $current_monitor_active->get_active
-				);
-				$screenshot = $screenshooter->workspace();
-			#window
-			} elsif ($data eq "window"
-				|| $data eq "tray_window"
-				|| $data eq "awindow"
-				|| $data eq "tray_awindow"
-				|| $data eq "section"
-				|| $data eq "tray_section"
-				|| $data eq "menu"
-				|| $data eq "tray_menu"
-				|| $data eq "tooltip"
-				|| $data eq "tray_tooltip")
-			{
-
+                #selection
+            } elsif ($data eq "select" || $data eq "tray_select") {
 				#control some wm related settings
 				my $curr_value = fct_control_wm_settings('start');
 
@@ -8610,6 +8606,24 @@ modes are currently experimental, your desktop environment might fall back to an
 
 		my $menu_wrksp = Gtk3::Menu->new;
 		unless ($x11_supported) {
+
+			#On Wayland we can't enumerate workspaces via libwnck, but we can still
+			#offer to capture a single monitor by cropping the portal screenshot.
+			my $gdk_screen = Gtk3::Gdk::Screen::get_default;
+			my $n_mons     = $gdk_screen->get_n_monitors;
+			if ($n_mons > 1) {
+				for (my $i = 0 ; $i < $n_mons ; $i++) {
+					my $geo   = $gdk_screen->get_monitor_geometry($i);
+					my $plug  = eval { $gdk_screen->get_monitor_plug_name($i) };
+					my $label = $plug
+						? sprintf("%s (%dx%d)", $plug, $geo->{width}, $geo->{height})
+						: sprintf($d->get("Monitor %d (%dx%d)"), $i + 1, $geo->{width}, $geo->{height});
+					my $mon_item = Gtk3::MenuItem->new_with_label($label);
+					$mon_item->signal_connect('activate' => \&evt_take_screenshot, "shutter_monitor_direct$i");
+					$menu_wrksp->append($mon_item);
+				}
+				$menu_wrksp->show_all;
+			}
 			return $menu_wrksp;
 		}
 
