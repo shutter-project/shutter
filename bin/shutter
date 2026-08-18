@@ -3306,7 +3306,7 @@ sub STARTUP {
 					return FALSE;
 				});
 		} else {
-			-Glib::Timeout->add(50, # Add 50ms timeout to give Wayland enough time for mapping the widget
+			Glib::Timeout->add(50, # Add 50ms timeout to give Wayland enough time for mapping the widget
 				sub {
 					fct_update_info_and_tray("session");
 					return FALSE;
@@ -4131,10 +4131,9 @@ sub STARTUP {
 			);
 		} else {
 			if ($tray_legacy) {
-            $tray_legacy->set_visible(0);
-            $tray_legacy = undef;
-		}
-
+				$tray_legacy->set_visible(0);
+				$tray_legacy = undef;
+			}
 
 			if ($appindicator && !$tray_libappindicator) {
 				# Fallback to AppIndicator. This one doesn't allow left-click signal, but it seems to be the only option for Gnome on Ubuntu 21.04...
