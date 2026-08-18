@@ -13,27 +13,15 @@ use Shutter::Screenshot::History;
 sub new {
 	my $class = shift;
 	my $self = {
-		_sc      => shift,
-		_monitor => shift,    #undef captures the whole desktop
-	};
+		_sc     		=> shift,
+		_interactive 	=> shift,	# whether to use the desktop environment's GUI (only for the time till DEs support non-interactive calls)
+		_target  		=> shift,	# screenshot mode (full, select, window, awindow) to send to xdg-portal
+		_screen_mode	=> shift,	# whether we are in a multimonitor setup
+		_monitor		=> shift,  	# undef captures the whole desktop
+		};
 	$self->{_gdk_screen} = Gtk3::Gdk::Screen::get_default();
 	bless $self, $class;
 	return $self;
-}
-
-sub capture {
-	my $self = shift;
-
-	my $pixbuf = xdg_portal($self);
-	return $pixbuf unless ref($pixbuf) && $pixbuf->isa('Gtk3::Gdk::Pixbuf');
-
-	if (defined $self->{_monitor}) {
-		$pixbuf = crop_to_monitor($pixbuf, $self->{_gdk_screen}, $self->{_monitor});
-	}
-
-	#a history marker makes this capture repeatable through redoshot
-	$self->{_history} = Shutter::Screenshot::History->new($self->{_sc});
-	return $pixbuf;
 }
 
 sub redo_capture {
@@ -53,12 +41,10 @@ sub get_error_text {
 }
 
 sub xdg_portal {
+	my $self = shift;
 	my $screenshooter = shift;
-	my $interactive = shift; # whether to use the desktop environment's GUI (only for the time till DEs support non-interactive calls)
-	my $target = shift; # screenshot mode (full, select, window, awindow) to send to xdg-portal
-
 	# Fall back to fullscreen
-	$target = 1 unless defined $target;
+	$self->{_target} = 1 unless defined $self->{_target};
 
 	my $reactor = Net::DBus::Reactor->main;
 	my $bus = Net::DBus->find;
@@ -88,10 +74,10 @@ sub xdg_portal {
 		my %options = (handle_token => $token);
 
 		# set the interactive flag unless xdg-portal doesn't support non-interactive calls and we want full-screen capture
-		$options{interactive} = Net::DBus::dbus_boolean($interactive) unless $interactive eq 1 && $target eq 1;
+		$options{interactive} = Net::DBus::dbus_boolean($self->{_interactive}) unless $self->{_interactive} eq 1 && $self->{_target} eq 1;
 
 		# only define a target if xdg-portal supports non-interactive calls
-		$options{target} = Net::DBus::dbus_uint32($target) if $interactive ne 1;
+		$options{target} = Net::DBus::dbus_uint32($self->{_target}) if $self->{_interactive} ne 1;
 
 		my $request_path = $portal->Screenshot('', \%options);
 
@@ -119,8 +105,15 @@ sub xdg_portal {
 		my $giofile = Glib::IO::File::new_for_uri($output->{uri});
 		print "xdg portal: got file ".$giofile->get_path."\n";
 		$pixbuf = Gtk3::Gdk::Pixbuf->new_from_file($giofile->get_path);
+
 		$giofile->delete;
 	};
+	if (defined $self->{_monitor}) {
+		$pixbuf = crop_to_monitor($pixbuf, $self->{_gdk_screen}, $self->{_monitor});
+	}
+
+	#a history marker makes this capture repeatable through redoshot
+	$self->{_history} = Shutter::Screenshot::History->new($self->{_sc});
 	if ($@) {
 		$screenshooter->{_error_text} = $@;
 		return 9;

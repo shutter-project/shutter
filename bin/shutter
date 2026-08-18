@@ -6332,15 +6332,12 @@ modes are currently experimental, your desktop environment might fall back to an
                 }
             }
 
-            # screen mode from PR #828: 1 (full screen), 2 (current monitor)
+			# screen mode from PR #828: 1 (full screen), 2 (current monitor)
 			my $is_current_monitor = (defined $current_monitor_active && $current_monitor_active->get_active) ? 1 : 0;
 			my $screen_mode = (defined $monitor || $is_current_monitor) ? 2 : 1;
-            $screenshot = Shutter::Screenshot::Wayland::xdg_portal(
-                $screenshooter,
-                $interactive,
-                $target,
-                $screen_mode
-            );
+
+			$screenshooter = Shutter::Screenshot::Wayland->new($sc, $interactive, $target, $screen_mode, $monitor);
+            $screenshot = Shutter::Screenshot::Wayland::xdg_portal($screenshooter);
 		} else {
             #fullscreen screenshot
             if ($data eq "full" || $data eq "tray_full" || $data =~ /^shutter_monitor_direct(\d+)/) {
