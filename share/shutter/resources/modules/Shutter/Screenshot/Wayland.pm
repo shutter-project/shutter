@@ -43,6 +43,7 @@ sub get_error_text {
 sub xdg_portal {
 	my $self = shift;
 	my $screenshooter = shift;
+	my $d = $self->{_sc}->get_gettext;
 	# Fall back to fullscreen
 	$self->{_target} = 1 unless defined $self->{_target};
 
@@ -123,6 +124,25 @@ sub xdg_portal {
 		return 9;
 	}
 
+	# get name
+	if ($self->{_target} eq 1) {
+		if (defined $self->{_monitor}) {
+			$self->{_action_name} = $self->{_gdk_screen}->get_monitor_plug_name($self->{_monitor});
+		} else {
+			$self->{_action_name} = $d->get("Workspaces");
+		}
+	} elsif ($self->{_target} eq 2 || $self->{_target} eq 8) {
+		$self->{_action_name} = $d->get("Window");
+	} elsif ($self->{_target} eq 4) {
+		my $selection_text = $d->get("Selection");
+		my $swidth  = $pixbuf->get_width;
+		my $sheight = $pixbuf->get_height;
+		if (defined $swidth && defined $sheight) {
+			$self->{_action_name} = "${selection_text}_${swidth}x${sheight}";
+		} else {
+			$self->{_action_name} = $selection_text;
+		}
+	}
 	return $pixbuf;
 }
 
@@ -158,6 +178,11 @@ sub crop_to_monitor {
 	my $cropped = Gtk3::Gdk::Pixbuf->new('rgb', $pixbuf->get_has_alpha, 8, $w, $h);
 	$pixbuf->copy_area($x, $y, $w, $h, $cropped, 0, 0);
 	return $cropped;
+}
+
+sub get_action_name {
+	my $self = shift;
+	return $self->{_action_name};
 }
 
 1;

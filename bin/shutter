@@ -8139,27 +8139,8 @@ modes are currently experimental, your desktop environment might fall back to an
 		#e.g. window or workspace name
 		my $resolved_action_name = undef;
 
-		if ($x11_supported) {
-			# Get action name from X11 screenshooter if available
-			if (my $action_name = $screenshooter->get_action_name) {
-				$resolved_action_name = $action_name;
-			}
-		} else {
-			# Wayland fallback using predefined translations
-			if (defined $capture_mode) {
-				if ($capture_mode eq "full" || $capture_mode eq "tray_full") {
-					$resolved_action_name = $d->get("Workspaces");
-				} elsif ($capture_mode eq "window" || $capture_mode eq "tray_window" || $capture_mode eq "awindow" || $capture_mode eq "tray_awindow") {
-					$resolved_action_name = $d->get("Window");
-				} elsif ($capture_mode eq "select" || $capture_mode eq "tray_select") {
-					my $selection_text = $d->get("Selection");
-					if (defined $swidth && defined $sheight) {
-						$resolved_action_name = "${selection_text}_${swidth}x${sheight}";
-					} else {
-						$resolved_action_name = $selection_text;
-					}
-				}
-			}
+		if (my $action_name = $screenshooter->get_action_name) {
+			$resolved_action_name = $action_name;
 		}
 
 		# Unified processing for both X11 and Wayland strings
