@@ -988,11 +988,11 @@ modes are currently experimental, your desktop environment might fall back to an
 	#init menus
 	if ($x11_supported){
 		$st->{_full}->set_menu(fct_ret_workspace_menu(TRUE));
+		$st->{_window}->set_menu(fct_ret_window_menu());
 	} elsif (Gtk3::Gdk::Screen::get_default->get_n_monitors > 1) {
-		#Wayland: offer per-monitor capture through the "full" dropdown
+		#Wayland: offer per-monitor capture through the "full" dropdown, no window list available
 		$st->{_full}->set_menu(fct_ret_workspace_menu(TRUE));
 	}
-	$st->{_window}->set_menu(fct_ret_window_menu());
 
 	#and attach signal handlers
 	$st->{_full}->signal_connect('show-menu' => sub { $st->{_full}->set_menu(fct_ret_workspace_menu(FALSE)) });
