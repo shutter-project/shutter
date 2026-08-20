@@ -102,7 +102,7 @@ sub xdg_portal {
             return;
         }
 		my $giofile = Glib::IO::File::new_for_uri($output->{uri});
-		print "xdg portal: got temp file ".$giofile->get_path."\n" if $sc->get_debug;
+		print "xdg portal: got temp file ".$giofile->get_path."\n" if $self->{_sc}->get_debug;
 		$pixbuf = Gtk3::Gdk::Pixbuf->new_from_file($giofile->get_path);
 
 		$giofile->delete;
