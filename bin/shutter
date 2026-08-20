@@ -6337,7 +6337,7 @@ modes are currently experimental, your desktop environment might fall back to an
 			my $screen_mode = (defined $monitor || $is_current_monitor) ? 2 : 1;
 
 			$screenshooter = Shutter::Screenshot::Wayland->new($sc, $interactive, $target, $screen_mode, $monitor);
-            $screenshot = Shutter::Screenshot::Wayland::xdg_portal($screenshooter);
+            $screenshot = $screenshooter->xdg_portal();
 		} else {
             #fullscreen screenshot
             if ($data eq "full" || $data eq "tray_full" || $data =~ /^shutter_monitor_direct(\d+)/) {

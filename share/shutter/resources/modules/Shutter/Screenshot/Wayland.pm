@@ -42,7 +42,6 @@ sub get_error_text {
 
 sub xdg_portal {
 	my $self = shift;
-	my $screenshooter = shift;
 	my $d = $self->{_sc}->get_gettext;
 	# Fall back to fullscreen
 	$self->{_target} = 1 unless defined $self->{_target};
@@ -116,11 +115,11 @@ sub xdg_portal {
 	#a history marker makes this capture repeatable through redoshot
 	$self->{_history} = Shutter::Screenshot::History->new($self->{_sc});
 	if ($@) {
-		$screenshooter->{_error_text} = $@;
+		$self->{_error_text} = $@;
 		return 9;
 	}
 	if (defined $portal_error) {
-		$screenshooter->{_error_text} = $portal_error;
+		$self->{_error_text} = $portal_error;
 		return 9;
 	}
 
