@@ -16,7 +16,6 @@ sub new {
 		_sc     		=> shift,
 		_interactive 	=> shift,	# whether to use the desktop environment's GUI (only for the time till DEs support non-interactive calls)
 		_target  		=> shift,	# screenshot mode (full, select, window, awindow) to send to xdg-portal
-		_screen_mode	=> shift,	# whether we are in a multimonitor setup
 		_monitor		=> shift,  	# undef captures the whole desktop
 		};
 	$self->{_gdk_screen} = Gtk3::Gdk::Screen::get_default();
