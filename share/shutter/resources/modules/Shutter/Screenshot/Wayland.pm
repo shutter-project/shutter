@@ -26,7 +26,7 @@ sub new {
 sub redo_capture {
 	my $self = shift;
 	return 3 unless defined $self->{_history};
-	return $self->capture;
+	return $self->xdg_portal;
 }
 
 sub get_history {
@@ -102,7 +102,7 @@ sub xdg_portal {
             return;
         }
 		my $giofile = Glib::IO::File::new_for_uri($output->{uri});
-		print "xdg portal: got file ".$giofile->get_path."\n";
+		print "xdg portal: got temp file ".$giofile->get_path."\n" if $sc->get_debug;
 		$pixbuf = Gtk3::Gdk::Pixbuf->new_from_file($giofile->get_path);
 
 		$giofile->delete;

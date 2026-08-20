@@ -6303,37 +6303,68 @@ modes are currently experimental, your desktop environment might fall back to an
 		}
 
 		#wayland: route selection/window/active/monitor to xdg-desktop-portal
-        if (!$x11_supported) {
-
-            #on Wayland a single monitor can be requested via the "full" dropdown
-            my $monitor = ($data =~ /^shutter_monitor_direct(\d+)/) ? $1 : undef;
-            $data = "full" if defined $monitor;
-
-            # For some period of time desktops won't support non-interactive targets, we need to deal with it.
-            my $target; # capture mode sent to xdg-portal
-            my $interactive = 1; # whether to use the desktop environment's GUI (only for the time till DEs support non-interactive calls)
-
-            if ($data eq "full" || $data eq "tray_full") {
-                $target = 1;
-            } elsif ($data eq "window" || $data eq "tray_window") {
-                $target = 2;
-            } elsif ($data eq "awindow" || $data eq "tray_awindow") {
-                $target = 8;
-            } elsif ($data eq "select" || $data eq "tray_select") {
-                $target = 4;
-            }
-
-            # For the target chosen by user check if it is supported non-interactively.
-            # If unsupported, fall back to an interactive call which makes use of the
-            # DE's interactive tool.
-            if (defined $supported_targets) {
-                if ($supported_targets & $target) {
-                    $interactive = 0;
+		if (!$x11_supported) {
+			if ($data eq "redoshot") {
+                if ($screenshooter = fct_get_last_capture()) {
+                    $screenshot = $screenshooter->redo_capture;
+                } else {
+                    $screenshot = 3;
                 }
-            }
 
-			$screenshooter = Shutter::Screenshot::Wayland->new($sc, $interactive, $target, $monitor);
-            $screenshot = $screenshooter->xdg_portal();
+            } elsif ($data eq "redoshot_this") {
+                my $key = fct_get_current_file();
+
+                unless (defined $key) {
+                    $session_start_screen{'first_page'}->{'view'}->selected_foreach(
+                        sub {
+                            my ($view, $path) = @_;
+                            my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
+                            if (defined $iter) {
+                                $key = $session_start_screen{'first_page'}->{'model'}->get_value($iter, 2);
+                            }
+                        },
+                        undef
+                    );
+                }
+
+                if (defined $key && exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}) {
+                    $screenshooter = $session_screens{$key}->{'history'};
+                    $screenshot = $screenshooter->redo_capture;
+                } else {
+                    $screenshot = 3;
+                }
+
+            } else {
+				#on Wayland a single monitor can be requested via the "full" dropdown
+				my $monitor = ($data =~ /^shutter_monitor_direct(\d+)/) ? $1 : undef;
+				$data = "full" if defined $monitor;
+
+				# For some period of time desktops won't support non-interactive targets, we need to deal with it.
+				my $target; # capture mode sent to xdg-portal
+				my $interactive = 1; # whether to use the desktop environment's GUI (only for the time till DEs support non-interactive calls)
+
+				if ($data eq "full" || $data eq "tray_full") {
+					$target = 1;
+				} elsif ($data eq "window" || $data eq "tray_window") {
+					$target = 2;
+				} elsif ($data eq "awindow" || $data eq "tray_awindow") {
+					$target = 8;
+				} elsif ($data eq "select" || $data eq "tray_select") {
+					$target = 4;
+				}
+
+				# For the target chosen by user check if it is supported non-interactively.
+				# If unsupported, fall back to an interactive call which makes use of the
+				# DE's interactive tool.
+				if (defined $supported_targets) {
+					if ($supported_targets & $target) {
+						$interactive = 0;
+					}
+				}
+
+				$screenshooter = Shutter::Screenshot::Wayland->new($sc, $interactive, $target, $monitor);
+				$screenshot = $screenshooter->xdg_portal();
+			}
 		} else {
             #fullscreen screenshot
             if ($data eq "full" || $data eq "tray_full" || $data =~ /^shutter_monitor_direct(\d+)/) {
