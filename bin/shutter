@@ -2299,6 +2299,10 @@ modes are currently experimental, your desktop environment might fall back to an
 		'ns_changed'
 	);
 
+	unless ($x11_supported) {
+		$combobox_ns->set_sensitive(FALSE);
+	}
+
 	$ask_on_delete_active    = Gtk3::CheckButton->new_with_label($d->get("Ask before moving files to trash"));
 	$delete_on_close_active  = Gtk3::CheckButton->new_with_label($d->get("Move file to trash when closing tab"));
 	$ask_on_fs_delete_active = Gtk3::CheckButton->new_with_label($d->get("Notify when file was deleted from filesystem"));
@@ -2401,7 +2405,10 @@ modes are currently experimental, your desktop environment might fall back to an
 
 	$notify_timeout_active->set_tooltip_text($d->get("Display pop-up notification when using a delay"));
 
-	if (defined $settings_xml->{'general'}->{'notify_agent'}) {
+	if (!$x11_supported) {
+		# Wayland: Use desktop's notification system, because Shutter's one is broken
+		$combobox_ns->set_active(FALSE);
+	} elsif (defined $settings_xml->{'general'}->{'notify_agent'}) {
 		$combobox_ns->set_active($settings_xml->{'general'}->{'notify_agent'});
 	} else {
 		$combobox_ns->set_active(TRUE);
