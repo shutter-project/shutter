@@ -197,6 +197,7 @@ my $nautilus_sendto = TRUE;
 my $goocanvas       = TRUE;
 my $exiftool        = TRUE;
 my $appindicator    = TRUE;
+my $pathclass		= TRUE;
 fct_init_depend();
 
 #--------------------------------------
@@ -8516,6 +8517,9 @@ modes are currently experimental, your desktop environment might fall back to an
 						#parse filename
 						my ($name, $folder, $type) = fileparse($ukey, qr/\.[^.]*/);
 
+						#skip Imgur if optional dependency Path::Class not met
+						next if ($name eq 'Imgur' && !$pathclass);
+
 						#~ print $name, $folder, $type, "\n";
 
 						if (   !exists $accounts{$name}
@@ -9567,6 +9571,13 @@ modes are currently experimental, your desktop environment might fall back to an
 		if ($@) {
 			warn "WARNING: Image::ExifTool is missing --> writing Exif information will be disabled!\n\n";
 			$exiftool = FALSE;
+		}
+
+        #Path::Class
+		eval { require Path::Class };
+		if ($@) {
+			warn "WARNING: Path::Class is missing --> uploading to Imgur will be disabled!\n\n";
+			$pathclass = FALSE;
 		}
 
 		#dev-libs/libappindicator[introspection]
