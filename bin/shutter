@@ -372,6 +372,7 @@ my $sm;
 my $sp;
 my $st;
 my $status;
+my $supported_targets;
 my $thumbnail_active;
 my $thumbnail;
 my $trans_backg;
@@ -396,7 +397,6 @@ my $zoom_active;
 	my %accounts;   	#hash to store account infos
 	my %settings;    	#hash to store settings
 	my @supported_formats;	#hash to store available supported file formats
-
 sub STARTUP {
 	# This is called by $app->run below if another Shutter instance is not running.
 
@@ -590,6 +590,20 @@ sub STARTUP {
 	
 	if ($ENV{XDG_SESSION_TYPE} eq "wayland") {
 		$x11_supported = 0;
+		# Get targets supported by xdg-desktop-portal
+		# Possible targets are: 
+		#	1: Screen (corresponds "full")
+		#	2: Window (corresponds "window")
+		#	4: Area (corresponds "select")
+		#	8: Active Window (corresponds "awindow")
+		# See: https://github.com/flatpak/xdg-desktop-portal/pull/1981
+        eval {
+            $supported_targets = Net::DBus->session
+                ->get_service("org.freedesktop.portal.Desktop")
+                ->get_object("/org/freedesktop/portal/desktop")
+                ->as_interface("org.freedesktop.DBus.Properties")
+                ->Get("org.freedesktop.portal.Screenshot", "AvailableTargets");
+        };
 	}
 
 	if ($x11_supported) {
@@ -656,7 +670,9 @@ sub STARTUP {
 	$sm->{_menuitem_iclipboard}->signal_connect('activate', \&fct_clipboard_import);
 
 	unless ($x11_supported) {
-		for my $name ('selection', 'awindow', 'window', 'menu', 'tooltip') {
+		# on Wayland selection/window/awindow go through the XDG portal;
+		# only menu/tooltip capture stay disabled (not supported by the portal)
+		for my $name ('menu', 'tooltip') {
 			$sm->{"_menuitem_$name"}->set_sensitive(FALSE);
 		}
 	}
@@ -954,7 +970,8 @@ sub STARTUP {
 	unless ($x11_supported) {
 		my $wayland_warning = Gtk3::Label->new;
 		$wayland_warning->set_line_wrap(TRUE);
-		$wayland_warning->set_markup($d->get("Wayland support is limited, for more advanced screenshots please switch back to Xorg. Click <a href='https://github.com/shutter-project/shutter/issues/187'>here</a> for details."));
+		$wayland_warning->set_markup($d->get("Wayland support is limited, for more advanced screenshots please switch back to Xorg. Click <a href='https://github.com/shutter-project/shutter/issues/187'>here</a> for details. Selection and window  
+modes are currently experimental, your desktop environment might fall back to an interactive mode chooser or full screen capture."));
 		$vbox->pack_start($wayland_warning, FALSE, TRUE, 0);
 	}
 
@@ -971,8 +988,11 @@ sub STARTUP {
 	#init menus
 	if ($x11_supported){
 		$st->{_full}->set_menu(fct_ret_workspace_menu(TRUE));
+		$st->{_window}->set_menu(fct_ret_window_menu());
+	} elsif (Gtk3::Gdk::Screen::get_default->get_n_monitors > 1) {
+		#Wayland: offer per-monitor capture through the "full" dropdown, no window list available
+		$st->{_full}->set_menu(fct_ret_workspace_menu(TRUE));
 	}
-	$st->{_window}->set_menu(fct_ret_window_menu());
 
 	#and attach signal handlers
 	$st->{_full}->signal_connect('show-menu' => sub { $st->{_full}->set_menu(fct_ret_workspace_menu(FALSE)) });
@@ -1007,11 +1027,13 @@ sub STARTUP {
 	$st->{_upload}->set_sensitive(FALSE);
 
 	unless ($x11_supported) {
+		# on Wayland _select/_window use the XDG portal; menu/tooltip stay disabled
 		my $tooltip = $d->get("Can't take screenshots without X11 server");
-		for my $name ('_select', '_window', '_menu', '_tooltip') {
+		for my $name ('_menu', '_tooltip') {
 			$st->{$name}->set_sensitive(FALSE);
 			$st->{$name}->set_tooltip_text($tooltip);
 		}
+		# dropdown menus (workspace list / window list) still need X11 to enumerate
 		for my $name ('_full', '_window') {
 			$st->{$name}->set_arrow_tooltip_text($tooltip);
 		}
@@ -1441,7 +1463,10 @@ sub STARTUP {
 		'value-changed' => \&evt_value_changed,
 		'delay_status_changed'
 	);
-
+	unless($x11_supported) {
+		$delay_status->set_sensitive(FALSE);
+	}
+	
 	#delay settings dialog
 	my $delay_label  = Gtk3::Label->new($d->get("Capture after a delay of"));
 	$delay        = Gtk3::SpinButton->new_with_range(0, 99, 1);
@@ -1451,10 +1476,15 @@ sub STARTUP {
 		'delay_changed'
 	);
 
-	if (defined $settings_xml->{'general'}->{'delay'}) {
-		$delay->set_value($settings_xml->{'general'}->{'delay'});
+	if($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'delay'}) {
+			$delay->set_value($settings_xml->{'general'}->{'delay'});
+		} else {
+			$delay->set_value(0);
+		}
 	} else {
 		$delay->set_value(0);
+		$delay->set_sensitive(FALSE);
 	}
 
 	$delay->set_tooltip_text($d->get("Wait n seconds before taking a screenshot"));
@@ -1481,6 +1511,10 @@ sub STARTUP {
 		'cursor_status_toggled'
 	);
 
+	unless($x11_supported) {
+		$cursor_status_active->set_sensitive(FALSE);
+	}
+
 	$cursor_active = Gtk3::CheckButton->new_with_label($d->get("Include cursor when taking a screenshot"));
 	$cursor_active->set_tooltip_text($d->get("Include cursor when taking a screenshot"));
 	$cursor_active->signal_connect(
@@ -1490,12 +1524,16 @@ sub STARTUP {
 
 	$cursor_box->pack_start($cursor_active, FALSE, TRUE, 12);
 
-	if (defined $settings_xml->{'general'}->{'cursor'}) {
-		$cursor_active->set_active($settings_xml->{'general'}->{'cursor'});
+	if($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'cursor'}) {
+			$cursor_active->set_active($settings_xml->{'general'}->{'cursor'});
+		} else {
+			$cursor_active->set_active(FALSE);
+		}
 	} else {
 		$cursor_active->set_active(FALSE);
+		$cursor_active->set_sensitive(FALSE);
 	}
-
 	#end - cursor
 	#--------------------------------------
 
@@ -1742,10 +1780,15 @@ sub STARTUP {
 	#--------------------------------------
 	$zoom_active = Gtk3::CheckButton->new_with_label($d->get("Enable zoom window"));
 
-	if (defined $settings_xml->{'general'}->{'zoom_active'}) {
-		$zoom_active->set_active($settings_xml->{'general'}->{'zoom_active'});
+	if ($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'zoom_active'}) {
+			$zoom_active->set_active($settings_xml->{'general'}->{'zoom_active'});
+		} else {
+			$zoom_active->set_active(TRUE);
+		}
 	} else {
-		$zoom_active->set_active(TRUE);
+		$zoom_active->set_active(FALSE);
+		$zoom_active->set_sensitive(FALSE);
 	}
 
 	$zoom_active->set_tooltip_text($d->get("Enable zoom window"));
@@ -1768,25 +1811,32 @@ sub STARTUP {
 	my $asel_size_vlabel1 = Gtk3::Label->new($d->get("pixels"));
 	my $asel_size_vlabel2 = Gtk3::Label->new($d->get("pixels"));
 
-	if (defined $settings_xml->{'general'}->{'asel_x'}) {
-		$asel_size3->set_value($settings_xml->{'general'}->{'asel_x'});
+	if ($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'asel_x'}) {
+			$asel_size3->set_value($settings_xml->{'general'}->{'asel_x'});
+		} else {
+			$asel_size3->set_value(0);
+		}
+		if (defined $settings_xml->{'general'}->{'asel_y'}) {
+			$asel_size4->set_value($settings_xml->{'general'}->{'asel_y'});
+		} else {
+			$asel_size4->set_value(0);
+		}
+		if (defined $settings_xml->{'general'}->{'asel_w'}) {
+			$asel_size1->set_value($settings_xml->{'general'}->{'asel_w'});
+		} else {
+			$asel_size1->set_value(0);
+		}
+		if (defined $settings_xml->{'general'}->{'asel_h'}) {
+			$asel_size2->set_value($settings_xml->{'general'}->{'asel_h'});
+		} else {
+			$asel_size2->set_value(0);
+		}
 	} else {
-		$asel_size3->set_value(0);
-	}
-	if (defined $settings_xml->{'general'}->{'asel_y'}) {
-		$asel_size4->set_value($settings_xml->{'general'}->{'asel_y'});
-	} else {
-		$asel_size4->set_value(0);
-	}
-	if (defined $settings_xml->{'general'}->{'asel_w'}) {
-		$asel_size1->set_value($settings_xml->{'general'}->{'asel_w'});
-	} else {
-		$asel_size1->set_value(0);
-	}
-	if (defined $settings_xml->{'general'}->{'asel_h'}) {
-		$asel_size2->set_value($settings_xml->{'general'}->{'asel_h'});
-	} else {
-		$asel_size2->set_value(0);
+		$asel_size1->set_sensitive(FALSE);
+		$asel_size2->set_sensitive(FALSE);
+		$asel_size3->set_sensitive(FALSE);
+		$asel_size4->set_sensitive(FALSE);
 	}
 
 	$asel_size_label1->set_tooltip_text($d->get("Start Selection Tool with a customized selection size"));
@@ -1818,10 +1868,15 @@ sub STARTUP {
 	#--------------------------------------
 	$as_help_active = Gtk3::CheckButton->new_with_label($d->get("Show help text"));
 
-	if (defined $settings_xml->{'general'}->{'as_help_active'}) {
-		$as_help_active->set_active($settings_xml->{'general'}->{'as_help_active'});
+	if ($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'as_help_active'}) {
+			$as_help_active->set_active($settings_xml->{'general'}->{'as_help_active'});
+		} else {
+			$as_help_active->set_active(TRUE);
+		}
 	} else {
-		$as_help_active->set_active(TRUE);
+		$as_help_active->set_active(FALSE);
+		$as_help_active->set_sensitive(FALSE);
 	}
 
 	$as_help_active->set_tooltip_text($d->get("Enables the help text"));
@@ -1835,10 +1890,15 @@ sub STARTUP {
 	#--------------------------------------
 	$as_confirmation_necessary = Gtk3::CheckButton->new_with_label($d->get("Confirmation necessary"));
 
-	if (defined $settings_xml->{'general'}->{'as_confirmation_necessary'}) {
-		$as_confirmation_necessary->set_active($settings_xml->{'general'}->{'as_confirmation_necessary'});
+	if ($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'as_confirmation_necessary'}) {
+			$as_confirmation_necessary->set_active($settings_xml->{'general'}->{'as_confirmation_necessary'});
+		} else {
+			$as_confirmation_necessary->set_active(TRUE);
+		}
 	} else {
-		$as_confirmation_necessary->set_active(TRUE);
+		$as_confirmation_necessary->set_active(FALSE);
+		$as_confirmation_necessary->set_sensitive(FALSE);
 	}
 
 	$as_confirmation_necessary->set_tooltip_text($d->get("Pressing the enter key or doubleclicking is necessary to take the screenshot"));
@@ -1855,10 +1915,15 @@ sub STARTUP {
 
 	$border_box->pack_start($border_active, FALSE, TRUE, 12);
 
-	if (defined $settings_xml->{'general'}->{'border'}) {
-		$border_active->set_active($settings_xml->{'general'}->{'border'});
+	if ($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'border'}) {
+			$border_active->set_active($settings_xml->{'general'}->{'border'});
+		} else {
+			$border_active->set_active(TRUE);
+		}
 	} else {
 		$border_active->set_active(TRUE);
+		$border_active->set_sensitive(FALSE);
 	}
 
 	#end - border
@@ -1874,22 +1939,29 @@ sub STARTUP {
 	$winresize_h      = Gtk3::SpinButton->new_with_range(0, $h, 1);
 	my $winresize_vlabel = Gtk3::Label->new($d->get("pixels"));
 
-	if (defined $settings_xml->{'general'}->{'winresize_active'}) {
-		$winresize_active->set_active($settings_xml->{'general'}->{'winresize_active'});
+	if ($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'winresize_active'}) {
+			$winresize_active->set_active($settings_xml->{'general'}->{'winresize_active'});
+		} else {
+			$winresize_active->set_active(FALSE);
+		}
+
+		if (defined $settings_xml->{'general'}->{'winresize_w'}) {
+			$winresize_w->set_value($settings_xml->{'general'}->{'winresize_w'});
+		} else {
+			$winresize_w->set_value(500);
+		}
+
+		if (defined $settings_xml->{'general'}->{'winresize_h'}) {
+			$winresize_h->set_value($settings_xml->{'general'}->{'winresize_h'});
+		} else {
+			$winresize_h->set_value(500);
+		}
 	} else {
 		$winresize_active->set_active(FALSE);
-	}
-
-	if (defined $settings_xml->{'general'}->{'winresize_w'}) {
-		$winresize_w->set_value($settings_xml->{'general'}->{'winresize_w'});
-	} else {
-		$winresize_w->set_value(500);
-	}
-
-	if (defined $settings_xml->{'general'}->{'winresize_h'}) {
-		$winresize_h->set_value($settings_xml->{'general'}->{'winresize_h'});
-	} else {
-		$winresize_h->set_value(500);
+		$winresize_active->set_sensitive(FALSE);
+		$winresize_h->set_sensitive(FALSE);
+		$winresize_w->set_sensitive(FALSE);
 	}
 
 	$winresize_active->set_tooltip_text($d->get(
@@ -1921,10 +1993,15 @@ sub STARTUP {
 	#--------------------------------------
 	$autoshape_active = Gtk3::CheckButton->new_with_label($d->get("Force rounded window corners"));
 
-	if (defined $settings_xml->{'general'}->{'autoshape_active'}) {
-		$autoshape_active->set_active($settings_xml->{'general'}->{'autoshape_active'});
+	if ($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'autoshape_active'}) {
+			$autoshape_active->set_active($settings_xml->{'general'}->{'autoshape_active'});
+		} else {
+			$autoshape_active->set_active(FALSE);
+		}
 	} else {
 		$autoshape_active->set_active(FALSE);
+		$autoshape_active->set_sensitive(FALSE);
 	}
 
 	$autoshape_active->set_tooltip_text(
@@ -1951,10 +2028,15 @@ sub STARTUP {
 
 	$visible_windows_box->pack_start($visible_windows_active, FALSE, TRUE, 12);
 
-	if (defined $settings_xml->{'general'}->{'visible_windows'}) {
-		$visible_windows_active->set_active($settings_xml->{'general'}->{'visible_windows'});
+	if ($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'visible_windows'}) {
+			$visible_windows_active->set_active($settings_xml->{'general'}->{'visible_windows'});
+		} else {
+			$visible_windows_active->set_active(FALSE);
+		}
 	} else {
 		$visible_windows_active->set_active(FALSE);
+		$visible_windows_active->set_sensitive(FALSE);
 	}
 
 	#end - visible windows only
@@ -1971,10 +2053,15 @@ sub STARTUP {
 		'menu_delay_changed'
 	);
 
-	if (defined $settings_xml->{'general'}->{'menu_delay'}) {
-		$menu_delay->set_value($settings_xml->{'general'}->{'menu_delay'});
+	if ($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'menu_delay'}) {
+			$menu_delay->set_value($settings_xml->{'general'}->{'menu_delay'});
+		} else {
+			$menu_delay->set_value(10);
+		}
 	} else {
-		$menu_delay->set_value(10);
+		$menu_delay->set_value(0);
+		$menu_delay->set_sensitive(FALSE);
 	}
 
 	$menu_delay->set_tooltip_text($d->get("Capture menu/tooltip after a delay of n seconds"));
@@ -1997,10 +2084,15 @@ sub STARTUP {
 
 	$menu_waround_box->pack_start($menu_waround_active, FALSE, TRUE, 12);
 
-	if (defined $settings_xml->{'general'}->{'menu_waround'}) {
-		$menu_waround_active->set_active($settings_xml->{'general'}->{'menu_waround'});
+	if ($x11_supported) {
+		if (defined $settings_xml->{'general'}->{'menu_waround'}) {
+			$menu_waround_active->set_active($settings_xml->{'general'}->{'menu_waround'});
+		} else {
+			$menu_waround_active->set_active(TRUE);
+		}
 	} else {
-		$menu_waround_active->set_active(TRUE);
+		$menu_waround_active->set_active(FALSE);
+		$menu_waround_active->set_sensitive(FALSE);
 	}
 
 	#end - menu/tooltip workaround
@@ -2023,12 +2115,17 @@ sub STARTUP {
 	$combobox_web_width->insert_text(10, "2048");
 	my $web_width_vlabel = Gtk3::Label->new($d->get("pixels"));
 
-	if (defined $settings_xml->{'general'}->{'web_width'}) {
-		$combobox_web_width->set_active($settings_xml->{'general'}->{'web_width'});
+	if ($gnome_web_photo) {
+		if (defined $settings_xml->{'general'}->{'web_width'}) {
+			$combobox_web_width->set_active($settings_xml->{'general'}->{'web_width'});
+		} else {
+			$combobox_web_width->set_active(2);
+		}
 	} else {
-		$combobox_web_width->set_active(2);
+		$combobox_web_width->set_active(FALSE);
+		$combobox_web_width->set_sensitive(FALSE);
 	}
-
+	
 	$web_width_label->set_tooltip_text($d->get("Virtual browser width when taking a website screenshot"));
 	$combobox_web_width->set_tooltip_text($d->get("Virtual browser width when taking a website screenshot"));
 	$web_width_vlabel->set_tooltip_text($d->get("Virtual browser width when taking a website screenshot"));
@@ -2202,6 +2299,10 @@ sub STARTUP {
 		'ns_changed'
 	);
 
+	unless ($x11_supported) {
+		$combobox_ns->set_sensitive(FALSE);
+	}
+
 	$ask_on_delete_active    = Gtk3::CheckButton->new_with_label($d->get("Ask before moving files to trash"));
 	$delete_on_close_active  = Gtk3::CheckButton->new_with_label($d->get("Move file to trash when closing tab"));
 	$ask_on_fs_delete_active = Gtk3::CheckButton->new_with_label($d->get("Notify when file was deleted from filesystem"));
@@ -2304,7 +2405,10 @@ sub STARTUP {
 
 	$notify_timeout_active->set_tooltip_text($d->get("Display pop-up notification when using a delay"));
 
-	if (defined $settings_xml->{'general'}->{'notify_agent'}) {
+	if (!$x11_supported) {
+		# Wayland: Use desktop's notification system, because Shutter's one is broken
+		$combobox_ns->set_active(FALSE);
+	} elsif (defined $settings_xml->{'general'}->{'notify_agent'}) {
 		$combobox_ns->set_active($settings_xml->{'general'}->{'notify_agent'});
 	} else {
 		$combobox_ns->set_active(TRUE);
@@ -3152,7 +3256,12 @@ sub STARTUP {
 			#unblock signal handler
 			fct_control_signals('unblock');
 			return TRUE;
-		} elsif (!$x11_supported && $data ne "full" && $data ne "tray_full") {
+		} elsif (!$x11_supported
+            && $data !~ /^(tray_)?(full|select|window|awindow)$/
+            && $data !~ /^shutter_monitor_direct/
+            && $data !~ /^redoshot/) {
+            # full/select/window/awindow/monitor/redo are served via the XDG portal or supported on Wayland;
+            # everything else (menu, tooltip, ...) still needs X11
 			my $sd = Shutter::App::SimpleDialogs->new;
 			$sd->dlg_error_message($d->get("Can't take screenshots without X11 server"), $d->get("Failed"));
 			fct_control_signals('unblock');
@@ -6200,326 +6309,361 @@ sub STARTUP {
 			$delay_value = 0;
 		}
 
-		#cursor
-		if ($sc->get_include_cursor) {
-			$include_cursor = $sc->get_include_cursor;
-		} elsif ($sc->get_remove_cursor) {
-			$include_cursor = FALSE;
+		#wayland: route selection/window/active/monitor to xdg-desktop-portal
+		if (!$x11_supported) {
+			if ($data eq "redoshot") {
+                if ($screenshooter = fct_get_last_capture()) {
+                    $screenshot = $screenshooter->redo_capture;
+                } else {
+                    $screenshot = 3;
+                }
+
+            } elsif ($data eq "redoshot_this") {
+                my $key = fct_get_current_file();
+
+                unless (defined $key) {
+                    $session_start_screen{'first_page'}->{'view'}->selected_foreach(
+                        sub {
+                            my ($view, $path) = @_;
+                            my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
+                            if (defined $iter) {
+                                $key = $session_start_screen{'first_page'}->{'model'}->get_value($iter, 2);
+                            }
+                        },
+                        undef
+                    );
+                }
+
+                if (defined $key && exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}) {
+                    $screenshooter = $session_screens{$key}->{'history'};
+                    $screenshot = $screenshooter->redo_capture;
+                } else {
+                    $screenshot = 3;
+                }
+
+            } else {
+				#on Wayland a single monitor can be requested via the "full" dropdown
+				my $monitor = ($data =~ /^shutter_monitor_direct(\d+)/) ? $1 : undef;
+				$data = "full" if defined $monitor;
+
+				# For some period of time desktops won't support non-interactive targets, we need to deal with it.
+				my $target; # capture mode sent to xdg-portal
+				my $interactive = 1; # whether to use the desktop environment's GUI (only for the time till DEs support non-interactive calls)
+
+				if ($data eq "full" || $data eq "tray_full") {
+					$target = 1;
+				} elsif ($data eq "window" || $data eq "tray_window") {
+					$target = 2;
+				} elsif ($data eq "awindow" || $data eq "tray_awindow") {
+					$target = 8;
+				} elsif ($data eq "select" || $data eq "tray_select") {
+					$target = 4;
+				}
+
+				# For the target chosen by user check if it is supported non-interactively.
+				# If unsupported, fall back to an interactive call which makes use of the
+				# DE's interactive tool.
+				if (defined $supported_targets) {
+					if ($supported_targets & $target) {
+						$interactive = 0;
+					}
+				}
+
+				$screenshooter = Shutter::Screenshot::Wayland->new($sc, $interactive, $target, $monitor);
+				$screenshot = $screenshooter->xdg_portal();
+			}
 		} else {
-			if ($cursor_active->get_active) {
-				$include_cursor = $cursor_active->get_active;
-			} else {
-				$include_cursor = FALSE;
-			}
-		}
+            #fullscreen screenshot
+            if ($data eq "full" || $data eq "tray_full" || $data =~ /^shutter_monitor_direct(\d+)/) {
+                $screenshooter = Shutter::Screenshot::Workspace->new(
+                    $sc, $include_cursor, $delay_value,
+                    $notify_timeout_active->get_active,
+                    $wnck_screen ? $wnck_screen->get_active_workspace : undef,
+                    undef, undef, $current_monitor_active->get_active
+                );
+                $screenshot = $screenshooter->workspace();
 
-		#fullscreen screenshot
-		if ($data eq "full" || $data eq "tray_full") {
+                #selection
+            } elsif ($data eq "select" || $data eq "tray_select") {
+				#control some wm related settings
+				my $curr_value = fct_control_wm_settings('start');
 
-			if ($x11_supported) {
-				$screenshooter = Shutter::Screenshot::Workspace->new(
-					$sc, $include_cursor, $delay_value,
-					$notify_timeout_active->get_active,
-					$wnck_screen ? $wnck_screen->get_active_workspace : undef,
-					undef, undef, $current_monitor_active->get_active
-				);
-				$screenshot = $screenshooter->workspace();
-			} else {
-				# TODO: support kwin directly, because it has more features than the xdg portal
-				$screenshot = Shutter::Screenshot::Wayland::xdg_portal($screenshooter);
-			}
+				if (defined $extra && $extra) {
 
-		#window
-		} elsif ($data eq "window"
-			|| $data eq "tray_window"
-			|| $data eq "awindow"
-			|| $data eq "tray_awindow"
-			|| $data eq "section"
-			|| $data eq "tray_section"
-			|| $data eq "menu"
-			|| $data eq "tray_menu"
-			|| $data eq "tooltip"
-			|| $data eq "tray_tooltip")
-		{
+					$screenshooter = Shutter::Screenshot::WindowName->new(
+						$sc,                        $include_cursor,               $delay_value,            $notify_timeout_active->get_active,
+						$border_active->get_active, $winresize_active->get_active, $winresize_w->get_value, $winresize_h->get_value,
+						$hide_time->get_value,      $data,                         $autoshape_active->get_active
+					);
 
-			#control some wm related settings
-			my $curr_value = fct_control_wm_settings('start');
+					$screenshot = $screenshooter->window_find_by_name($extra);
 
-			if (defined $extra && $extra) {
+				} else {
 
-				$screenshooter = Shutter::Screenshot::WindowName->new(
+					$screenshooter = Shutter::Screenshot::Window->new(
+						$sc,                                 $include_cursor,               $delay_value,                  $notify_timeout_active->get_active,
+						$border_active->get_active,          $winresize_active->get_active, $winresize_w->get_value,       $winresize_h->get_value,
+						$hide_time->get_value,               $data,                         $autoshape_active->get_active, $is_hidden,
+						$visible_windows_active->get_active, $menu_waround_active->get_active
+					);
+
+					$screenshot = $screenshooter->window();
+
+				}
+
+				#control some wm related settings
+				if (defined $curr_value && $curr_value != -1) {
+					fct_control_wm_settings('stop', $curr_value);
+				}
+
+				#selection
+			} elsif ($data eq "select" || $data eq "tray_select") {
+
+				if (defined $extra && $extra) {
+
+					my @coords = split(',', $extra);
+
+					$screenshooter = Shutter::Screenshot::SelectorAuto->new($sc, $include_cursor, $delay_value, $notify_timeout_active->get_active,);
+
+					$screenshot = $screenshooter->select_auto($coords[0], $coords[1], $coords[2], $coords[3]);
+
+				} else {
+
+					$screenshooter = Shutter::Screenshot::SelectorAdvanced->new(
+						$sc,                      $include_cursor,        $delay_value,                $notify_timeout_active->get_active,
+						$zoom_active->get_active, $hide_time->get_value,  $as_help_active->get_active, $asel_size3->get_value,
+						$asel_size4->get_value,   $asel_size1->get_value, $asel_size2->get_value,			 $as_confirmation_necessary->get_active,
+					);
+
+					$screenshot = $screenshooter->select_advanced();
+
+				}
+
+				#web
+			} elsif ($data eq "web" || $data eq "tray_web") {
+
+				my $website_width = 1024;
+				if ($combobox_web_width->get_active_text =~ /(\d+)/) {
+					$website_width = $1;
+				}
+
+				print "\nvirtual website width: $website_width\n"
+					if $sc->get_debug;
+
+				#determine timeout
+				my $web_menu = $st->{_web}->get_menu;
+				my @timeouts = $web_menu->get_children;
+				my $timeout  = undef;
+				foreach my $to (@timeouts) {
+					if ($to->get_active) {
+						$timeout = $to->get_name;
+						$timeout =~ /([0-9]+)/;
+						$timeout = $1;
+						print $timeout. "\n" if $sc->get_debug;
+					}
+				}
+
+				$screenshooter = Shutter::Screenshot::Web->new($sc, $timeout, $website_width);
+				$screenshot    = $screenshooter->dlg_website($extra);
+
+				#window by xid
+			} elsif ($data =~ /^shutter_window_direct(.*)/) {
+
+				my $xid = $1;
+				print "Selected xid: $xid\n" if $sc->get_debug;
+
+				#control some wm related settings
+				my $curr_value = fct_control_wm_settings('start');
+
+				#change mode (imitating selecting a window by mouse)
+				$data = "window";
+
+				$screenshooter = Shutter::Screenshot::WindowXid->new(
 					$sc,                        $include_cursor,               $delay_value,            $notify_timeout_active->get_active,
 					$border_active->get_active, $winresize_active->get_active, $winresize_w->get_value, $winresize_h->get_value,
 					$hide_time->get_value,      $data,                         $autoshape_active->get_active
 				);
 
-				$screenshot = $screenshooter->window_find_by_name($extra);
+				$screenshot = $screenshooter->window_by_xid($xid);
 
-			} else {
-
-				$screenshooter = Shutter::Screenshot::Window->new(
-					$sc,                                 $include_cursor,               $delay_value,                  $notify_timeout_active->get_active,
-					$border_active->get_active,          $winresize_active->get_active, $winresize_w->get_value,       $winresize_h->get_value,
-					$hide_time->get_value,               $data,                         $autoshape_active->get_active, $is_hidden,
-					$visible_windows_active->get_active, $menu_waround_active->get_active
-				);
-
-				$screenshot = $screenshooter->window();
-
-			}
-
-			#control some wm related settings
-			if (defined $curr_value && $curr_value != -1) {
-				fct_control_wm_settings('stop', $curr_value);
-			}
-
-			#selection
-		} elsif ($data eq "select" || $data eq "tray_select") {
-
-			if (defined $extra && $extra) {
-
-				my @coords = split(',', $extra);
-
-				$screenshooter = Shutter::Screenshot::SelectorAuto->new($sc, $include_cursor, $delay_value, $notify_timeout_active->get_active,);
-
-				$screenshot = $screenshooter->select_auto($coords[0], $coords[1], $coords[2], $coords[3]);
-
-			} else {
-
-				$screenshooter = Shutter::Screenshot::SelectorAdvanced->new(
-					$sc,                      $include_cursor,        $delay_value,                $notify_timeout_active->get_active,
-					$zoom_active->get_active, $hide_time->get_value,  $as_help_active->get_active, $asel_size3->get_value,
-					$asel_size4->get_value,   $asel_size1->get_value, $asel_size2->get_value,			 $as_confirmation_necessary->get_active,
-				);
-
-				$screenshot = $screenshooter->select_advanced();
-
-			}
-
-			#web
-		} elsif ($data eq "web" || $data eq "tray_web") {
-
-			my $website_width = 1024;
-			if ($combobox_web_width->get_active_text =~ /(\d+)/) {
-				$website_width = $1;
-			}
-
-			print "\nvirtual website width: $website_width\n"
-				if $sc->get_debug;
-
-			#determine timeout
-			my $web_menu = $st->{_web}->get_menu;
-			my @timeouts = $web_menu->get_children;
-			my $timeout  = undef;
-			foreach my $to (@timeouts) {
-				if ($to->get_active) {
-					$timeout = $to->get_name;
-					$timeout =~ /([0-9]+)/;
-					$timeout = $1;
-					print $timeout. "\n" if $sc->get_debug;
+				#control some wm related settings
+				if (defined $curr_value && $curr_value != -1) {
+					fct_control_wm_settings('stop', $curr_value);
 				}
-			}
 
-			$screenshooter = Shutter::Screenshot::Web->new($sc, $timeout, $website_width);
-			$screenshot    = $screenshooter->dlg_website($extra);
+			} elsif ($data =~ /^shutter_wrksp_direct/) {
 
-			#window by xid
-		} elsif ($data =~ /^shutter_window_direct(.*)/) {
+				#we need to handle different wm, e.g. metacity, compiz here
+				my $selected_workspace = undef;
+				my $vpx                = undef;
+				my $vpy                = undef;
 
-			my $xid = $1;
-			print "Selected xid: $xid\n" if $sc->get_debug;
+				#compiz
+				if ($data =~ /compiz(\d*)x(\d*)/) {
+					$vpx = $1;
+					$vpy = $2;
+					print "Sel. Viewport: $vpx, $vpy\n" if $sc->get_debug;
 
-			#control some wm related settings
-			my $curr_value = fct_control_wm_settings('start');
+					#metacity etc.
+				} elsif ($data =~ /shutter_wrksp_direct(.*)/) {
+					$selected_workspace = $1;
+					print "Sel. Workspace: $selected_workspace\n"
+						if $sc->get_debug;
 
-			#change mode (imitating selecting a window by mouse)
-			$data = "window";
+					#all workspaces
+				} elsif ($data =~ /shutter_wrksp_all/) {
+					print "Capturing all workspaces\n"
+						if $sc->get_debug;
+					$selected_workspace = 'all';
+				}
 
-			$screenshooter = Shutter::Screenshot::WindowXid->new(
-				$sc,                        $include_cursor,               $delay_value,            $notify_timeout_active->get_active,
-				$border_active->get_active, $winresize_active->get_active, $winresize_w->get_value, $winresize_h->get_value,
-				$hide_time->get_value,      $data,                         $autoshape_active->get_active
-			);
+				$screenshooter =
+					Shutter::Screenshot::Workspace->new($sc, $include_cursor, $delay_value, $notify_timeout_active->get_active, $selected_workspace, $vpx, $vpy, $current_monitor_active->get_active);
 
-			$screenshot = $screenshooter->window_by_xid($xid);
+				if ($selected_workspace eq 'all') {
+					$screenshot = $screenshooter->workspaces();
+				} else {
+					$screenshot = $screenshooter->workspace();
+				}
 
-			#control some wm related settings
-			if (defined $curr_value && $curr_value != -1) {
-				fct_control_wm_settings('stop', $curr_value);
-			}
+			} elsif ($data eq "redoshot") {
 
-		} elsif ($data =~ /^shutter_wrksp_direct/) {
+				#~ my $key = fct_get_last_capture();
+				#~ if(defined $key && exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}){
+				#~ $screenshooter = $session_screens{$key}->{'history'};
+				#~ $screenshot = $screenshooter->redo_capture;
+				#~ }else{
+				#~ $screenshot = 3;
+				#~ }
 
-			#we need to handle different wm, e.g. metacity, compiz here
-			my $selected_workspace = undef;
-			my $vpx                = undef;
-			my $vpy                = undef;
+				if ($screenshooter = fct_get_last_capture()) {
 
-			#compiz
-			if ($data =~ /compiz(\d*)x(\d*)/) {
-				$vpx = $1;
-				$vpy = $2;
-				print "Sel. Viewport: $vpx, $vpy\n" if $sc->get_debug;
+					#we need to handle menu and tooltip in a special way
+					if ($screenshooter->can('get_mode')) {
+						if (my $mode = $screenshooter->get_mode) {
 
-				#metacity etc.
-			} elsif ($data =~ /shutter_wrksp_direct(.*)/) {
-				$selected_workspace = $1;
-				print "Sel. Workspace: $selected_workspace\n"
-					if $sc->get_debug;
+							#control some wm related settings
+							my $curr_value = undef;
+							if (($mode eq "window" || $mode eq "tray_window" || $mode eq "awindow" || $mode eq "tray_awindow" || $mode eq "section" || $mode eq "tray_section")) {
+								$curr_value = fct_control_wm_settings('start');
+							}
 
-				#all workspaces
-			} elsif ($data =~ /shutter_wrksp_all/) {
-				print "Capturing all workspaces\n"
-					if $sc->get_debug;
-				$selected_workspace = 'all';
-			}
+							if ($mode eq "menu" || $mode eq "tray_menu") {
+								$st->{_menu}->signal_emit('clicked');
+								return FALSE;
+							} elsif ($mode eq "tooltip" || $mode eq "tray_tooltip") {
+								$st->{_tooltip}->signal_emit('clicked');
+								return FALSE;
+							} else {
+								$screenshot = $screenshooter->redo_capture;
+							}
 
-			$screenshooter =
-				Shutter::Screenshot::Workspace->new($sc, $include_cursor, $delay_value, $notify_timeout_active->get_active, $selected_workspace, $vpx, $vpy, $current_monitor_active->get_active);
+							#control some wm related settings
+							if (($mode eq "window" || $mode eq "tray_window" || $mode eq "awindow" || $mode eq "tray_awindow" || $mode eq "section" || $mode eq "tray_section")) {
+								if (defined $curr_value && $curr_value != -1) {
+									fct_control_wm_settings('stop', $curr_value);
+								}
+							}
 
-			if ($selected_workspace eq 'all') {
-				$screenshot = $screenshooter->workspaces();
-			} else {
-				$screenshot = $screenshooter->workspace();
-			}
-
-		} elsif ($data eq "redoshot") {
-
-			#~ my $key = fct_get_last_capture();
-			#~ if(defined $key && exists $session_screens{$key}->{'history'} && defined $session_screens{$key}->{'history'}){
-			#~ $screenshooter = $session_screens{$key}->{'history'};
-			#~ $screenshot = $screenshooter->redo_capture;
-			#~ }else{
-			#~ $screenshot = 3;
-			#~ }
-
-			if ($screenshooter = fct_get_last_capture()) {
-
-				#we need to handle menu and tooltip in a special way
-				if ($screenshooter->can('get_mode')) {
-					if (my $mode = $screenshooter->get_mode) {
-
-						#control some wm related settings
-						my $curr_value = undef;
-						if (($mode eq "window" || $mode eq "tray_window" || $mode eq "awindow" || $mode eq "tray_awindow" || $mode eq "section" || $mode eq "tray_section")) {
-							$curr_value = fct_control_wm_settings('start');
-						}
-
-						if ($mode eq "menu" || $mode eq "tray_menu") {
-							$st->{_menu}->signal_emit('clicked');
-							return FALSE;
-						} elsif ($mode eq "tooltip" || $mode eq "tray_tooltip") {
-							$st->{_tooltip}->signal_emit('clicked');
-							return FALSE;
+							#window by xid
 						} else {
-							$screenshot = $screenshooter->redo_capture;
-						}
 
-						#control some wm related settings
-						if (($mode eq "window" || $mode eq "tray_window" || $mode eq "awindow" || $mode eq "tray_awindow" || $mode eq "section" || $mode eq "tray_section")) {
+							#control some wm related settings
+							my $curr_value = fct_control_wm_settings('start');
+							$screenshot = $screenshooter->redo_capture;
+
+							#control some wm related settings
 							if (defined $curr_value && $curr_value != -1) {
 								fct_control_wm_settings('stop', $curr_value);
 							}
 						}
-
-						#window by xid
 					} else {
-
-						#control some wm related settings
-						my $curr_value = fct_control_wm_settings('start');
 						$screenshot = $screenshooter->redo_capture;
-
-						#control some wm related settings
-						if (defined $curr_value && $curr_value != -1) {
-							fct_control_wm_settings('stop', $curr_value);
-						}
 					}
 				} else {
-					$screenshot = $screenshooter->redo_capture;
+					$screenshot = 3;
 				}
-			} else {
-				$screenshot = 3;
-			}
 
-		} elsif ($data eq "redoshot_this") {
+			} elsif ($data eq "redoshot_this") {
 
-			#get current screenshot (current notebook page)
-			my $key = fct_get_current_file();
+				#get current screenshot (current notebook page)
+				my $key = fct_get_current_file();
 
-			#or get the selected screenshot in the view
-			unless (defined $key) {
-				$session_start_screen{'first_page'}->{'view'}->selected_foreach(
-					sub {
-						my ($view, $path) = @_;
-						my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
-						if (defined $iter) {
-							$key = $session_start_screen{'first_page'}->{'model'}->get_value($iter, 2);
-						}
-					},
-					undef
-				);
-			}
+				#or get the selected screenshot in the view
+				unless (defined $key) {
+					$session_start_screen{'first_page'}->{'view'}->selected_foreach(
+						sub {
+							my ($view, $path) = @_;
+							my $iter = $session_start_screen{'first_page'}->{'model'}->get_iter($path);
+							if (defined $iter) {
+								$key = $session_start_screen{'first_page'}->{'model'}->get_value($iter, 2);
+							}
+						},
+						undef
+					);
+				}
 
-			if (   defined $key
-				&& exists $session_screens{$key}->{'history'}
-				&& defined $session_screens{$key}->{'history'})
-			{
-				$screenshooter = $session_screens{$key}->{'history'};
+				if (   defined $key
+					&& exists $session_screens{$key}->{'history'}
+					&& defined $session_screens{$key}->{'history'})
+				{
+					$screenshooter = $session_screens{$key}->{'history'};
 
-				#we need to handle menu and tooltip in a special way
-				if ($screenshooter->can('get_mode')) {
-					if (my $mode = $screenshooter->get_mode) {
+					#we need to handle menu and tooltip in a special way
+					if ($screenshooter->can('get_mode')) {
+						if (my $mode = $screenshooter->get_mode) {
 
-						#control some wm related settings
-						my $curr_value = undef;
-						if (($mode eq "window" || $mode eq "tray_window" || $mode eq "awindow" || $mode eq "tray_awindow" || $mode eq "section" || $mode eq "tray_section")) {
-							$curr_value = fct_control_wm_settings('start');
-						}
+							#control some wm related settings
+							my $curr_value = undef;
+							if (($mode eq "window" || $mode eq "tray_window" || $mode eq "awindow" || $mode eq "tray_awindow" || $mode eq "section" || $mode eq "tray_section")) {
+								$curr_value = fct_control_wm_settings('start');
+							}
 
-						if ($mode eq "menu" || $mode eq "tray_menu") {
-							$st->{_menu}->signal_emit('clicked');
-							return FALSE;
-						} elsif ($mode eq "tooltip" || $mode eq "tray_tooltip") {
-							$st->{_tooltip}->signal_emit('clicked');
-							return FALSE;
+							if ($mode eq "menu" || $mode eq "tray_menu") {
+								$st->{_menu}->signal_emit('clicked');
+								return FALSE;
+							} elsif ($mode eq "tooltip" || $mode eq "tray_tooltip") {
+								$st->{_tooltip}->signal_emit('clicked');
+								return FALSE;
+							} else {
+								$screenshot = $screenshooter->redo_capture;
+							}
+
+							#control some wm related settings
+							if (($mode eq "window" || $mode eq "tray_window" || $mode eq "awindow" || $mode eq "tray_awindow" || $mode eq "section" || $mode eq "tray_section")) {
+								if (defined $curr_value && $curr_value != -1) {
+									fct_control_wm_settings('stop', $curr_value);
+								}
+							}
+
+							#window by xid
 						} else {
-							$screenshot = $screenshooter->redo_capture;
-						}
 
-						#control some wm related settings
-						if (($mode eq "window" || $mode eq "tray_window" || $mode eq "awindow" || $mode eq "tray_awindow" || $mode eq "section" || $mode eq "tray_section")) {
+							#control some wm related settings
+							my $curr_value = fct_control_wm_settings('start');
+							$screenshot = $screenshooter->redo_capture;
+
+							#control some wm related settings
 							if (defined $curr_value && $curr_value != -1) {
 								fct_control_wm_settings('stop', $curr_value);
 							}
 						}
-
-						#window by xid
 					} else {
-
-						#control some wm related settings
-						my $curr_value = fct_control_wm_settings('start');
 						$screenshot = $screenshooter->redo_capture;
-
-						#control some wm related settings
-						if (defined $curr_value && $curr_value != -1) {
-							fct_control_wm_settings('stop', $curr_value);
-						}
 					}
 				} else {
-					$screenshot = $screenshooter->redo_capture;
+					$screenshot = 3;
 				}
+
 			} else {
-				$screenshot = 3;
+
+				#show error dialog
+				my $response = $sd->dlg_error_message($d->get("Triggered invalid screenshot action."), $d->get("Error while taking the screenshot."));
+
+				fct_show_status_message(1, $d->get("Error while taking the screenshot."));
+				fct_control_main_window('show');
+				return FALSE;
 			}
-
-		} else {
-
-			#show error dialog
-			my $response = $sd->dlg_error_message($d->get("Triggered invalid screenshot action."), $d->get("Error while taking the screenshot."));
-
-			fct_show_status_message(1, $d->get("Error while taking the screenshot."));
-			fct_control_main_window('show');
-			return FALSE;
 		}
 
 		#screenshot was taken at this stage...
@@ -6573,7 +6717,7 @@ sub STARTUP {
 				}
 
 				#..replace wildcards by values
-				$tmp_filename = &fct_parse_filename_wildcards($tmp_filename, $screenshooter, $screenshot);
+				$tmp_filename = &fct_parse_filename_wildcards($tmp_filename, $screenshooter, $screenshot, $data);
 
 				#...and create an uri
 				$giofile = Glib::IO::File::new_for_path($tmp_filename);
@@ -6586,7 +6730,7 @@ sub STARTUP {
 				$filename_value =~ s/(\/|\#)/-/g;
 
 				#..replace wildcards by values
-				$filename_value = &fct_parse_filename_wildcards($filename_value, $screenshooter, $screenshot);
+				$filename_value = &fct_parse_filename_wildcards($filename_value, $screenshooter, $screenshot, $data);
 
 				#...and get next filename
 				$giofile = fct_get_next_filename($filename_value, $folder, $filetype_value);
@@ -8001,7 +8145,7 @@ sub STARTUP {
 	}
 
 	sub fct_parse_filename_wildcards {
-		my ($filename_value, $screenshooter, $screenshot) = @_;
+		my ($filename_value, $screenshooter, $screenshot, $capture_mode) = @_;
 
 		my $screenshot_name = $filename_value;
 
@@ -8027,20 +8171,23 @@ sub STARTUP {
 
 		#set name
 		#e.g. window or workspace name
-		if ($x11_supported) {
-			if (my $action_name = $screenshooter->get_action_name) {
-				utf8::decode $action_name;
-				$action_name     =~ s/(\/|\#|\>|\<|\%|\*)/-/g;
-				$screenshot_name =~ s/\$name/$action_name/g;
+		my $resolved_action_name = undef;
 
-				#no blanks (special wildcard)
-				$action_name     =~ s/\ //g;
-				$screenshot_name =~ s/\$nb_name/$action_name/g;
-			} else {
-				$screenshot_name =~ s/(\$name|\$nb_name)/unknown/g;
-			}
+		if (my $action_name = $screenshooter->get_action_name) {
+			$resolved_action_name = $action_name;
+		}
+
+		# Unified processing for both X11 and Wayland strings
+		if ($resolved_action_name) {
+			utf8::decode $resolved_action_name;
+			$resolved_action_name =~ s/(\/|\#|\>|\<|\%|\*)/-/g;
+			$screenshot_name      =~ s/\$name/$resolved_action_name/g;
+
+			#no blanks (special wildcard)
+			$resolved_action_name =~ s/\ //g;
+			$screenshot_name      =~ s/\$nb_name/$resolved_action_name/g;
 		} else {
-			$screenshot_name =~ s/(\$name|\$nb_name)/unknown/g;
+			$screenshot_name      =~ s/(\$name|\$nb_name)/unknown/g;
 		}
 
 		print "Parsed \$name: $screenshot_name\n"
@@ -8471,6 +8618,24 @@ sub STARTUP {
 
 		my $menu_wrksp = Gtk3::Menu->new;
 		unless ($x11_supported) {
+
+			#On Wayland we can't enumerate workspaces via libwnck, but we can still
+			#offer to capture a single monitor by cropping the portal screenshot.
+			my $gdk_screen = Gtk3::Gdk::Screen::get_default;
+			my $n_mons     = $gdk_screen->get_n_monitors;
+			if ($n_mons > 1) {
+				for (my $i = 0 ; $i < $n_mons ; $i++) {
+					my $geo   = $gdk_screen->get_monitor_geometry($i);
+					my $plug  = eval { $gdk_screen->get_monitor_plug_name($i) };
+					my $label = $plug
+						? sprintf("%s (%dx%d)", $plug, $geo->{width}, $geo->{height})
+						: sprintf($d->get("Monitor %d (%dx%d)"), $i + 1, $geo->{width}, $geo->{height});
+					my $mon_item = Gtk3::MenuItem->new_with_label($label);
+					$mon_item->signal_connect('activate' => \&evt_take_screenshot, "shutter_monitor_direct$i");
+					$menu_wrksp->append($mon_item);
+				}
+				$menu_wrksp->show_all;
+			}
 			return $menu_wrksp;
 		}
 
@@ -8684,7 +8849,8 @@ sub STARTUP {
 
 		#selection
 		my $menuitem_select = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('_Selection'));
-		$menuitem_select->set_sensitive($x11_supported);
+		# served via interactive XDG portal on Wayland too
+		$menuitem_select->set_sensitive(TRUE);
 		eval {
 			my $ccursor_pb = Gtk3::Gdk::Cursor::new('left_ptr')->get_image->scale_simple($shf->icon_size('menu'), 'bilinear');
 			$menuitem_select->set_image(Gtk3::Image->new_from_pixbuf($ccursor_pb));
@@ -8733,7 +8899,8 @@ sub STARTUP {
 
 		#window
 		my $menuitem_window = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('Window _under Cursor'));
-		$menuitem_window->set_sensitive($x11_supported);
+		# served via interactive XDG portal on Wayland too
+		$menuitem_window->set_sensitive(TRUE);
 		if ($traytheme->has_icon('preferences-system-windows')) {
 			$menuitem_window->set_image(Gtk3::Image->new_from_icon_name('preferences-system-windows', 'menu'));
 		} else {
