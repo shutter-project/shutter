@@ -1721,7 +1721,6 @@ modes are currently experimental, your desktop environment might fall back to an
 	#bordereffect
 	#--------------------------------------
 	$bordereffect_active = Gtk3::CheckButton->new;
-	$bordereffect_active->set_active(TRUE);
 
 	my $bordereffect_label  = Gtk3::Label->new($d->get("Border") . ":");
 	$bordereffect        = Gtk3::SpinButton->new_with_range(1, 100, 1);
@@ -3373,7 +3372,7 @@ modes are currently experimental, your desktop environment might fall back to an
 
 		my $key = fct_get_file_by_index($int);
 		if ($key) {
-			Glib::Idle->add(
+			Glib::Timeout->add(50, # Add 50ms timeout to give Wayland enough time for mapping the widget
 				sub {
 
 					#is key still current page?
@@ -3417,7 +3416,7 @@ modes are currently experimental, your desktop environment might fall back to an
 					return FALSE;
 				});
 		} else {
-			Glib::Idle->add(
+			Glib::Timeout->add(50, # Add 50ms timeout to give Wayland enough time for mapping the widget
 				sub {
 					fct_update_info_and_tray("session");
 					return FALSE;
@@ -3450,7 +3449,7 @@ modes are currently experimental, your desktop environment might fall back to an
 			return TRUE;
 		}
 
-		Glib::Idle->add(
+		Glib::Timeout->add(50, # Add 50ms timeout to give Wayland enough time for mapping the widget
 			sub {
 
 				#hide window and block sontrols
@@ -4211,13 +4210,19 @@ modes are currently experimental, your desktop environment might fall back to an
 	#--------------------------------------
 
 	sub fct_try_init_tray {
-		$tray_legacy = Gtk3::StatusIcon->new();
-		$tray_legacy->set_from_icon_name("shutter-panel");
-		$tray_legacy->set_visible(1);
+		if ($x11_supported) {
+             $tray_legacy = Gtk3::StatusIcon->new();
+             $tray_legacy->set_from_icon_name("shutter-panel");
+             $tray_legacy->set_visible(1);
+        } else {
+			 $tray_legacy = undef;
+        }
+
 
 		fct_update_gui();
 
-		if ($tray_legacy->is_embedded) {
+		if ($tray_legacy && $tray_legacy->is_embedded) {
+
 			if ($tray_libappindicator) {
 				$tray_libappindicator->set_status('passive');
 				$tray_libappindicator = undef;
@@ -4235,8 +4240,10 @@ modes are currently experimental, your desktop environment might fall back to an
 				$tray
 			);
 		} else {
-			$tray_legacy->set_visible(0);
-			$tray_legacy = undef;
+			if ($tray_legacy) {
+				$tray_legacy->set_visible(0);
+				$tray_legacy = undef;
+			}
 
 			if ($appindicator && !$tray_libappindicator) {
 				# Fallback to AppIndicator. This one doesn't allow left-click signal, but it seems to be the only option for Gnome on Ubuntu 21.04...
