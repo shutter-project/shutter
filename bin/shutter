@@ -6383,8 +6383,18 @@ modes are currently experimental, your desktop environment might fall back to an
                 );
                 $screenshot = $screenshooter->workspace();
 
-                #selection
-            } elsif ($data eq "select" || $data eq "tray_select") {
+			#window
+			} elsif ($data eq "window"
+				|| $data eq "tray_window"
+				|| $data eq "awindow"
+				|| $data eq "tray_awindow"
+				|| $data eq "section"
+				|| $data eq "tray_section"
+				|| $data eq "menu"
+				|| $data eq "tray_menu"
+				|| $data eq "tooltip"
+				|| $data eq "tray_tooltip")
+			{
 				#control some wm related settings
 				my $curr_value = fct_control_wm_settings('start');
 
