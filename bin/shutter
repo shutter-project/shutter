@@ -198,6 +198,7 @@ my $goocanvas       = TRUE;
 my $exiftool        = TRUE;
 my $appindicator    = TRUE;
 my $pathclass		= TRUE;
+my $xapp_supported	= TRUE;
 fct_init_depend();
 
 #--------------------------------------
@@ -380,9 +381,11 @@ my $trans_backg;
 my $trans_check;
 my $trans_custom_btn;
 my $trans_custom;
+my $tray_click_locked = 0;
 my $tray_libappindicator;
 my $tray_legacy;
 my $tray_menu;
+my $tray_xapp;
 my $tray;
 my $visible_windows_active;
 my $window;
@@ -3560,19 +3563,47 @@ modes are currently experimental, your desktop environment might fall back to an
 		return TRUE;
 	}
 
-	sub evt_activate_systray_statusicon {
-		my ($widget, $data, $tray) = @_;
-		if ($sc->get_debug) {
-			print "\n$data was emitted by widget $widget\n";
-		}
+    sub evt_activate_systray_statusicon {
+        my ($widget, $data, $tray) = @_;
 
-		unless ($is_hidden) {
-			fct_control_main_window('hide');
-		} else {
-			fct_control_main_window('show');
-		}
-		return TRUE;
-	}
+        #debounce: ignore double events triggered by buggy panels using GTK timeout
+        if ($tray_click_locked) {
+            return TRUE;
+        }
+
+        #lock the click for 250 milliseconds
+        $tray_click_locked = 1;
+        Glib::Timeout->add(250, sub {
+            $tray_click_locked = 0;
+            return FALSE; # FALSE means the timeout is removed and doesn't repeat
+        });
+
+        #check actual window visibility
+        my $is_really_visible = $window->get_visible();
+        my $is_iconified = 0;
+
+        #under x11 a window can be visible but iconified to the taskbar
+        if ($window->get_window()) {
+            my $state = $window->get_window()->get_state();
+            if ($state >= 'iconified') {
+                $is_iconified = 1;
+            }
+        }
+
+        #hide if visible and not iconified
+        if ($is_really_visible && !$is_iconified) {
+            fct_control_main_window('hide');
+        } 
+        #show in all other cases (hidden or iconified)
+        else {
+            fct_control_main_window('show');
+
+            #force window manager to bring window to front
+            $window->present(); 
+        }
+
+        return TRUE;
+    }
 
 	sub evt_accounts {
 		my ($tree, $path, $column) = @_;
@@ -4210,55 +4241,74 @@ modes are currently experimental, your desktop environment might fall back to an
 	#--------------------------------------
 
 	sub fct_try_init_tray {
-		if ($x11_supported) {
-             $tray_legacy = Gtk3::StatusIcon->new();
-             $tray_legacy->set_from_icon_name("shutter-panel");
-             $tray_legacy->set_visible(1);
+        
+        # If we already have an active tray instance, do NOTHING. 
+        # This prevents spawning multiple icons when fct_try_init_tray is called repeatedly.
+        return if ($tray);
+
+        my $prefer_legacy_on_x11 = ($x11_supported && !$ENV{WAYLAND_DISPLAY});
+
+        if ($prefer_legacy_on_x11) {
+            # Init legacy Gtk3 status icon for pure X11 (only once)
+            if ($x11_supported && !$tray_legacy) {
+                 $tray_legacy = Gtk3::StatusIcon->new();
+                 $tray_legacy->set_from_icon_name("shutter-panel");
+                 $tray_legacy->set_visible(1);
+                 $tray = $tray_legacy;
+            }
         } else {
-			 $tray_legacy = undef;
+            # Try to init XApp status icon first for Wayland/Cinnamon (only once)
+            if ($xapp_supported && !$tray_xapp) {
+                 $tray_xapp = eval { XApp::StatusIcon->new() };
+                 if ($tray_xapp) {
+                     $tray_xapp->set_name("Shutter");
+                     $tray_xapp->set_icon_name("shutter-panel");
+                     $tray_xapp->set_secondary_menu($tray_menu); 
+                     $tray = $tray_xapp;
+                 }
+            }
         }
 
+        fct_update_gui();
 
-		fct_update_gui();
+        # Connect signals only if we successfully established a tray and haven't connected yet
+        if ($tray) {
+            if ($tray->isa('XApp::StatusIcon')) {
+                unless (defined $tray->{'hid2'}) {
+                    $tray->{'hid2'} = $tray->signal_connect(
+                        'activate' => sub {
+                            evt_activate_systray_statusicon(@_);
+                            $tray;
+                        },
+                        $tray
+                    );
+                }
+            } elsif ($tray->isa('Gtk3::StatusIcon')) {
+                unless (defined $tray->{'hid'}) {
+                    $tray->{'hid'} = $tray->signal_connect(
+                        'popup-menu' => sub { evt_show_systray_statusicon(@_); },
+                        $tray
+                    );
+                }
+                unless (defined $tray->{'hid2'}) {
+                    $tray->{'hid2'} = $tray->signal_connect(
+                        'activate' => sub {
+                            evt_activate_systray_statusicon(@_);
+                            $tray;
+                        },
+                        $tray
+                    );
+                }
+            }
+        } elsif ($appindicator && !$tray_libappindicator) {
+            # Fallback to AppIndicator if nothing else worked
+            $tray_libappindicator = AppIndicator::Indicator->new("Shutter", "shutter-panel", 'application-status');
+            $tray_libappindicator->set_menu($tray_menu);
+            $tray_libappindicator->set_status('active');
+            $tray = $tray_libappindicator;
+        }
+    }
 
-		if ($tray_legacy && $tray_legacy->is_embedded) {
-
-			if ($tray_libappindicator) {
-				$tray_libappindicator->set_status('passive');
-				$tray_libappindicator = undef;
-			}
-			$tray = $tray_legacy;
-			$tray->{'hid'} = $tray->signal_connect(
-				'popup-menu' => sub { evt_show_systray_statusicon(@_); },
-				$tray
-			);
-			$tray->{'hid2'} = $tray->signal_connect(
-				'activate' => sub {
-					evt_activate_systray_statusicon(@_);
-					$tray;
-				},
-				$tray
-			);
-		} else {
-			if ($tray_legacy) {
-				$tray_legacy->set_visible(0);
-				$tray_legacy = undef;
-			}
-
-			if ($appindicator && !$tray_libappindicator) {
-				# Fallback to AppIndicator. This one doesn't allow left-click signal, but it seems to be the only option for Gnome on Ubuntu 21.04...
-				$tray_libappindicator = AppIndicator::Indicator->new("Shutter", "shutter-panel", 'application-status');
-				$tray_libappindicator->set_menu($tray_menu);
-				$tray_libappindicator->set_status('active');
-			}
-
-			if ($tray_libappindicator) {
-				$tray = $tray_libappindicator;
-			} else {
-				$tray = undef;
-			}
-		}
-	}
 
 	sub fct_create_session_notebook {
 
@@ -4506,17 +4556,17 @@ modes are currently experimental, your desktop environment might fall back to an
 				}
 			}
 
-			#and block status icon handler
-			if ($tray && $tray->isa('Gtk3::StatusIcon')) {
-				if ($tray->signal_handler_is_connected($tray->{'hid'})) {
-					$tray->signal_handler_block($tray->{'hid'});
-				}
-				if ($tray->signal_handler_is_connected($tray->{'hid2'})) {
-					$tray->signal_handler_block($tray->{'hid2'});
-				}
-			} elsif ($tray && $tray->isa('AppIndicator::Indicator')) {
-				$tray->set_status('passive');
-			}
+            #and block status icon handler for legacy and xapp
+            if ($tray && ($tray->isa('Gtk3::StatusIcon') || $tray->isa('XApp::StatusIcon'))) {
+                if (defined $tray->{'hid'} && $tray->signal_handler_is_connected($tray->{'hid'})) {
+                    $tray->signal_handler_block($tray->{'hid'});
+                }
+                if (defined $tray->{'hid2'} && $tray->signal_handler_is_connected($tray->{'hid2'})) {
+                    $tray->signal_handler_block($tray->{'hid2'});
+                }
+            } elsif ($tray && $tray->isa('AppIndicator::Indicator')) {
+                $tray->set_status('passive');
+            }
 		} elsif ($action eq 'unblock') {
 
 			$sensitive = TRUE;
@@ -4528,17 +4578,17 @@ modes are currently experimental, your desktop environment might fall back to an
 				}
 			}
 
-			#and unblock status icon handler
-			if ($tray && $tray->isa('Gtk3::StatusIcon')) {
-				if ($tray->signal_handler_is_connected($tray->{'hid'})) {
-					$tray->signal_handler_unblock($tray->{'hid'});
-				}
-				if ($tray->signal_handler_is_connected($tray->{'hid2'})) {
-					$tray->signal_handler_unblock($tray->{'hid2'});
-				}
-			} elsif ($tray && $tray->isa('AppIndicator::Indicator')) {
-				$tray->set_status('active');
-			}
+            #and unblock status icon handler for legacy and xapp
+            if ($tray && ($tray->isa('Gtk3::StatusIcon') || $tray->isa('XApp::StatusIcon'))) {
+                if (defined $tray->{'hid'} && $tray->signal_handler_is_connected($tray->{'hid'})) {
+                    $tray->signal_handler_unblock($tray->{'hid'});
+                }
+                if (defined $tray->{'hid2'} && $tray->signal_handler_is_connected($tray->{'hid2'})) {
+                    $tray->signal_handler_unblock($tray->{'hid2'});
+                }
+            } elsif ($tray && $tray->isa('AppIndicator::Indicator')) {
+                $tray->set_status('active');
+            }
 		}
 
 		#enable/disable controls
@@ -7444,16 +7494,26 @@ modes are currently experimental, your desktop environment might fall back to an
 		}
 
 		#TRAY TOOLTIP
-		#--------------------------------------
-		if ($combobox_settings_profiles) {
-			if ($tray && $tray->isa('Gtk3::StatusIcon')) {
-				if ($combobox_settings_profiles->get_active_text) {
-					$tray->set_tooltip_text($d->get("Current profile") . ": " . $combobox_settings_profiles->get_active_text);
-				} else {
-					$tray->set_tooltip_text(SHUTTER_NAME . " " . SHUTTER_VERSION);
-				}
-			}
-		}
+        #--------------------------------------
+        if ($combobox_settings_profiles) {
+            if ($tray && ($tray->isa('Gtk3::StatusIcon') || $tray->isa('XApp::StatusIcon'))) {
+                
+                #determine the string that SHOULD be shown
+                my $new_tooltip_text = "";
+                if ($combobox_settings_profiles->get_active_text) {
+                    $new_tooltip_text = $d->get("Current profile") . ": " . $combobox_settings_profiles->get_active_text;
+                } else {
+                    $new_tooltip_text = SHUTTER_NAME . " " . SHUTTER_VERSION;
+                }
+                
+                #only update the tray (and trigger dbus) if the text actually changed
+                if (!defined $tray->{'_cached_tooltip'} || $tray->{'_cached_tooltip'} ne $new_tooltip_text) {
+                    
+                    $tray->set_tooltip_text($new_tooltip_text);
+                    $tray->{'_cached_tooltip'} = $new_tooltip_text; #save to cache
+                }
+            }
+        }
 
 		return TRUE;
 	}
@@ -9580,6 +9640,19 @@ modes are currently experimental, your desktop environment might fall back to an
 			$exiftool = FALSE;
 		}
 
+		#xapp-statusicon
+        eval {
+            Glib::Object::Introspection->setup(
+                basename => 'XApp',
+                version  => '1.0',
+                package  => 'XApp',
+            );
+        };
+        if ($@) {
+             warn "WARNING: XApp is missing --> falling back to legacy StatusIcon or AppIndicator for system tray!\n\n";
+            $xapp_supported = FALSE;
+        }
+		
         #Path::Class
 		eval { require Path::Class };
 		if ($@) {
