@@ -4295,22 +4295,20 @@ modes are currently experimental, your desktop environment might fall back to an
 
 		my $res = Shutter::App::StatusNotifier->init(
 			$app,
-			icon_name       => 'shutter',
-			icon_theme_path => "$shutter_root/share/icons/hicolor",
-			title           => SHUTTER_NAME,
-			tooltip_text    => SHUTTER_NAME . " " . SHUTTER_VERSION,
-
-            # left mouse button click
-            on_activate     => sub {
-                eval {
-                    if ($is_hidden) {
-                        fct_control_main_window('show');
-                    } else {
-                        fct_control_main_window('hide');
-                    }
-                };
-            }
-        );
+			icon_name        => 'shutter-panel',
+			icon_theme_path  => "$shutter_root/share/icons/hicolor/scalable/apps",
+			title            => SHUTTER_NAME,
+			tooltip_text     => SHUTTER_NAME . " " . SHUTTER_VERSION,
+			on_activate      => sub {
+					eval {
+						if ($is_hidden) {
+							fct_control_main_window('show');
+						} else {
+							fct_control_main_window('hide');
+						}
+					};
+				}
+			);
 
         if ($res) {
             $sni_initialized = 1;

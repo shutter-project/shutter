@@ -54,6 +54,8 @@ my $sni_xml = <<"XML";
     <property name="ItemIsMenu" type="b" access="read"/>
     <property name="Menu" type="o" access="read"/>
     <property name="ToolTip" type="(sa(iiay)ss)" access="read"/>
+    <signal name="NewIcon"/>
+    <signal name="NewStatus"/>
     <signal name="NewToolTip"/>
   </interface>
 </node>
@@ -253,6 +255,17 @@ sub _trigger_layout_update {
     warn "[DBUS-ERROR] LayoutUpdated failed: $@\n" if $@;
 }
 
+sub _trigger_icon_update {
+    return unless $active && $dbus_conn;
+
+    eval {
+        $dbus_conn->emit_signal(
+            undef, '/StatusNotifierItem', 'org.kde.StatusNotifierItem', 'NewIcon', undef
+        );
+    };
+    warn "[DBUS-ERROR] NewIcon signal failed: $@\n" if $@;
+}
+
 sub _trigger_item_property_update {
     my ($id, $prop_name, $prop_variant) = @_;
 
@@ -386,42 +399,37 @@ sub init {
                     };
                     warn "[DBUS-ERROR] GetLayout failed: $@\n" if $@;
                 }
-                elsif ($method eq 'GetGroupProperties') {
+		        elsif ($method eq 'GetProperty') {
+                    eval {
+                        my $id   = $params->get_child_value(0)->get_int32();
+                        my $name = $params->get_child_value(1)->get_string();
+                        my $props_hash = _get_item_props_hash($id);   
+                        my $val_variant = exists $props_hash->{$name}
+                            ? $props_hash->{$name}
+                            : Glib::Variant->new_string('');
+
+                        $invocation->return_value(Glib::Variant->new_tuple([
+                            Glib::Variant->new_variant($val_variant)
+                        ]));
+                    };
+                    warn "[DBUS-ERROR] GetProperty failed: $@\n" if $@;
+                }
+		        elsif ($method eq 'GetGroupProperties') {
                     eval {
                         my $ids_var = $params->get_child_value(0);
-                        my $n = $ids_var->n_children();
+                        my $n       = $ids_var->n_children();
                         my @props_array;
 
                         for (my $i = 0; $i < $n; $i++) {
                             my $id = $ids_var->get_child_value($i)->get_int32();
                             if (exists $MENU_ITEMS{$id} || $id == 0) {
-                                # Wir pushen hier ein reines Array-Ref mit exakt 2 Elementen [ Integer, HashRef ]
+                                # WICHTIG: Ein nativ geschachteltes Perl-Array [ integer, hash_ref ]
                                 push @props_array, [ int($id), _get_item_props_hash($id) ];
                             }
                         }
+
                         $invocation->return_value(Glib::Variant->new_tuple([
                             Glib::Variant->new('a(ia{sv})', \@props_array)
-                        ]));
-                    };
-                    warn "[DBUS-ERROR] GetGroupProperties failed: $@\n" if $@;
-                }
-                elsif ($method eq 'GetGroupProperties') {
-                    eval {
-                        my $ids_var = $params->get_child_value(0);
-                        my $n = $ids_var->n_children();
-                        my @props_tuples;
-
-                        for (my $i = 0; $i < $n; $i++) {
-                            my $id = $ids_var->get_child_value($i)->get_int32();
-                            if (exists $MENU_ITEMS{$id} || $id == 0) {
-                                push @props_tuples, Glib::Variant->new_tuple([
-                                    Glib::Variant->new_int32($id),
-                                    _make_item_props($id)
-                                ]);
-                            }
-                        }
-                        $invocation->return_value(Glib::Variant->new_tuple([
-                            Glib::Variant->new('a(ia{sv})', \@props_tuples)
                         ]));
                     };
                     warn "[DBUS-ERROR] GetGroupProperties failed: $@\n" if $@;
@@ -466,7 +474,6 @@ sub init {
                             _process_menu_event($id, $event_id);
                         }
 
-                        # EventGroup erwartet ein Array von Fehler-IDs als Rückgabe (leer = keine Fehler)
                         $invocation->return_value(Glib::Variant->new_tuple([
                             Glib::Variant->new('a(i)', [])
                         ]));
@@ -499,6 +506,7 @@ sub init {
         );
 
         $active = 1;
+        _trigger_icon_update();
     };
 
     if ($@) {
