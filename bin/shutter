@@ -5086,7 +5086,7 @@ modes are currently experimental, your desktop environment might fall back to an
 					$settings_xml->{'general'}->{'folder_force'} = TRUE;
 
 					#wrksp -> submenu
-					$current_monitor_active->set_active($settings_xml->{'general'}->{'current_monitor_active'});
+					$current_monitor_active->set_active($settings_xml->{'general'}->{'current_monitor_active'}) if defined $current_monitor_active;
 
 					#determining timeout
 					my $web_menu = $st->{_web}->get_menu;
