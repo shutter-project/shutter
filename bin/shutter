@@ -221,6 +221,7 @@ require Shutter::App::Notification;
 require Shutter::App::ShutterNotification;
 require Shutter::App::Toolbar;
 require Shutter::App::Optional::Exif;
+require Shutter::App::StatusNotifier;
 
 #region
 require Shutter::Geometry::Region;
@@ -370,6 +371,11 @@ my $session_desc;
 my $settings_dialog;
 my $settings_xml;
 my $sm;
+my $sni_status = "Active";
+my $sni_initialized = 0;
+#SNI tray menu entry variables
+my ($tray_show_window, $tray_redoshot, $tray_select, $tray_desktop,
+     $tray_window, $tray_preferences, $tray_about, $tray_quit);
 my $sp;
 my $st;
 my $status;
@@ -3827,6 +3833,8 @@ modes are currently experimental, your desktop environment might fall back to an
 						last;
 					}
 				}
+				# SNI tray
+				$tray_redoshot->set_enabled(1);
 
 				#TOOLBAR
 				#--------------------------------------
@@ -4209,56 +4217,181 @@ modes are currently experimental, your desktop environment might fall back to an
 	#functions
 	#--------------------------------------
 
-	sub fct_try_init_tray {
-		if ($x11_supported) {
-             $tray_legacy = Gtk3::StatusIcon->new();
-             $tray_legacy->set_from_icon_name("shutter-panel");
-             $tray_legacy->set_visible(1);
+	sub fct_create_tray_items {
+		return if $tray_show_window;
+
+		# Funktion aus dem Modul referenzieren
+		my $create_item = \&Shutter::App::StatusNotifier::create_item;
+
+		$tray_show_window = $create_item->(
+			label   => $d->get('S_how main window') || 'Show main window',
+			onclick => sub { $is_hidden = TRUE; fct_control_main_window('show'); }
+		);
+
+		$tray_redoshot = $create_item->(
+			label   => $d->get('_Redo last screenshot') || 'Redo last screenshot',
+			icon    => 'view-refresh',
+			enabled => 0,
+			onclick => sub { evt_take_screenshot(undef, 'redoshot'); }
+		);
+
+		$tray_select = $create_item->(
+			label   => $d->get('_Selection') || 'Selection',
+			icon    => 'applications-accessories',
+			onclick => sub { evt_take_screenshot(undef, 'tray_select'); }
+		);
+
+		$tray_desktop = $create_item->(
+			label   => $d->get('_Desktop') || 'Desktop',
+			icon    => 'user-desktop',
+			onclick => sub { evt_take_screenshot(undef, 'tray_full'); }
+		);
+
+		$tray_window = $create_item->(
+			label   => $d->get('Window _under Cursor') || 'Window under Cursor',
+			icon    => 'preferences-system-windows',
+			onclick => sub { evt_take_screenshot(undef, 'tray_window'); }
+		);
+
+		$tray_preferences = $create_item->(
+			label   => $d->get('Preferences') || 'Preferences',
+			icon    => 'preferences-system',
+			onclick => sub { evt_show_settings(undef); }
+		);
+
+		$tray_about = $create_item->(
+			label   => $d->get('About') || 'About',
+			icon    => 'help-about',
+			onclick => sub { evt_about(undef); }
+		);
+
+		$tray_quit = $create_item->(
+			label   => $d->get('_Quit') || 'Quit',
+			icon    => 'application-exit',
+			onclick => sub { evt_delete_window('', 'quit'); }
+		);
+	}
+
+	sub fct_build_sni_menu {
+        my @menu_items = (
+            $tray_show_window,
+            $tray_redoshot,
+            $tray_select,
+            $tray_desktop,
+            $tray_window,
+            $tray_preferences,
+            $tray_about,
+            $tray_quit
+        );
+
+        Shutter::App::StatusNotifier::set_menu(\@menu_items);
+    }
+
+	sub fct_init_sni_gdbus {
+        return 1 if $sni_initialized;
+
+        # initialize menu items
+        fct_create_tray_items();
+
+		my $res = Shutter::App::StatusNotifier->init(
+			$app,
+			icon_name       => 'shutter',
+			icon_theme_path => "$shutter_root/share/icons/hicolor",
+			title           => SHUTTER_NAME,
+			tooltip_text    => SHUTTER_NAME . " " . SHUTTER_VERSION,
+
+            # left mouse button click
+            on_activate     => sub {
+                eval {
+                    if ($is_hidden) {
+                        fct_control_main_window('show');
+                    } else {
+                        fct_control_main_window('hide');
+                    }
+                };
+            }
+        );
+
+        if ($res) {
+            $sni_initialized = 1;
+        }
+        return $res;
+    }
+
+	sub fct_set_sni_status {
+        my ($status) = @_;
+        $sni_status = $status;
+        eval {
+            my $conn = $app->get_dbus_connection();
+            if ($conn) {
+                $conn->emit_signal(
+                    undef,
+                    '/StatusNotifierItem',
+                    'org.kde.StatusNotifierItem',
+                    'NewStatus',
+                    Glib::Variant->new('(s)', [$sni_status])
+                );
+            }
+        };
+    }
+
+    sub fct_try_init_tray {
+        if ($x11_supported) {
+            $tray_legacy = Gtk3::StatusIcon->new();
+            $tray_legacy->set_from_icon_name("shutter-panel");
+            $tray_legacy->set_visible(1);
         } else {
-			 $tray_legacy = undef;
+            $tray_legacy = undef;
         }
 
+        fct_update_gui();
 
-		fct_update_gui();
+        if ($tray_legacy && $tray_legacy->is_embedded) {
 
-		if ($tray_legacy && $tray_legacy->is_embedded) {
+            if ($tray_libappindicator) {
+                $tray_libappindicator->set_status('passive');
+                $tray_libappindicator = undef;
+            }
+            $tray = $tray_legacy;
 
-			if ($tray_libappindicator) {
-				$tray_libappindicator->set_status('passive');
-				$tray_libappindicator = undef;
-			}
-			$tray = $tray_legacy;
-			$tray->{'hid'} = $tray->signal_connect(
-				'popup-menu' => sub { evt_show_systray_statusicon(@_); },
-				$tray
-			);
-			$tray->{'hid2'} = $tray->signal_connect(
-				'activate' => sub {
-					evt_activate_systray_statusicon(@_);
-					$tray;
-				},
-				$tray
-			);
-		} else {
-			if ($tray_legacy) {
-				$tray_legacy->set_visible(0);
-				$tray_legacy = undef;
-			}
+            $tray->{'hid'} = $tray->signal_connect(
+                'popup-menu' => sub { evt_show_systray_statusicon(@_); },
+                $tray
+            );
+            $tray->{'hid2'} = $tray->signal_connect(
+                'activate' => sub {
+                    evt_activate_systray_statusicon(@_);
+                    $tray;
+                },
+                $tray
+            );
+        } else {
+            if ($tray_legacy) {
+                $tray_legacy->set_visible(0);
+                $tray_legacy = undef;
+            }
 
-			if ($appindicator && !$tray_libappindicator) {
-				# Fallback to AppIndicator. This one doesn't allow left-click signal, but it seems to be the only option for Gnome on Ubuntu 21.04...
-				$tray_libappindicator = AppIndicator::Indicator->new("Shutter", "shutter-panel", 'application-status');
-				$tray_libappindicator->set_menu($tray_menu);
-				$tray_libappindicator->set_status('active');
-			}
+            # Try starting SNI via D-Bus first (KDE/Wayland with left-click support)
+            if (fct_init_sni_gdbus()) {
 
-			if ($tray_libappindicator) {
-				$tray = $tray_libappindicator;
-			} else {
-				$tray = undef;
-			}
-		}
-	}
+                # --- D-Bus menu setup ---
+                fct_build_sni_menu();
+                # ---------------------------
+
+                fct_set_sni_status('Active');
+                $tray = 'SNI';
+            }
+            # Fallback to AppIndicator if SNI fails
+            elsif ($appindicator && !$tray_libappindicator) {
+                $tray_libappindicator = AppIndicator::Indicator->new("Shutter", "shutter-panel", 'application-status');
+                $tray_libappindicator->set_menu($tray_menu);
+                $tray_libappindicator->set_status('active');
+                $tray = $tray_libappindicator;
+            } else {
+                $tray = $tray_libappindicator || undef;
+            }
+        }
+    }
 
 	sub fct_create_session_notebook {
 
@@ -6258,7 +6391,7 @@ modes are currently experimental, your desktop environment might fall back to an
 	sub fct_take_screenshot {
 		my ($widget, $data, $folder_from_config, $extra) = @_;
 
-		print "\n$data was emitted by widget $widget\n"
+		print "\n$data was emitted by widget " . ($widget // 'SNI/DBus (tray menu)') . "\n"
 			if $sc->get_debug;
 
 		#quality
@@ -7446,12 +7579,16 @@ modes are currently experimental, your desktop environment might fall back to an
 		#TRAY TOOLTIP
 		#--------------------------------------
 		if ($combobox_settings_profiles) {
-			if ($tray && $tray->isa('Gtk3::StatusIcon')) {
-				if ($combobox_settings_profiles->get_active_text) {
-					$tray->set_tooltip_text($d->get("Current profile") . ": " . $combobox_settings_profiles->get_active_text);
-				} else {
-					$tray->set_tooltip_text(SHUTTER_NAME . " " . SHUTTER_VERSION);
-				}
+			my $active_text = $combobox_settings_profiles->get_active_text;
+			my $tooltip_text = (defined $active_text && length $active_text)
+				? $d->get("Current profile") . ": " . $active_text
+				: SHUTTER_NAME . " " . SHUTTER_VERSION;
+
+			if ($tray && ref($tray) && $tray->isa('Gtk3::StatusIcon')) {
+				$tray->set_tooltip_text($tooltip_text);
+			}
+			elsif ($sni_initialized) {
+				Shutter::App::StatusNotifier->set_tooltip_text(SHUTTER_NAME, $tooltip_text);
 			}
 		}
 
