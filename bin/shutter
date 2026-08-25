@@ -3834,7 +3834,7 @@ modes are currently experimental, your desktop environment might fall back to an
 					}
 				}
 				# SNI tray
-				$tray_redoshot->set_enabled(1);
+				$tray_redoshot->set_enabled(1) if defined $tray_redoshot;
 
 				#TOOLBAR
 				#--------------------------------------
