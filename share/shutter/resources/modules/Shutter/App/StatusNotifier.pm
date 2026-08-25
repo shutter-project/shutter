@@ -85,6 +85,10 @@ my $dbusmenu_xml = <<"XML";
       <arg type="v" name="data" direction="in"/>
       <arg type="u" name="timestamp" direction="in"/>
     </method>
+    <method name="EventGroup">
+      <arg type="a(isvu)" name="events" direction="in"/>
+      <arg type="a(i)" name="idErrors" direction="out"/>
+    </method>
     <method name="AboutToShow">
       <arg type="i" name="id" direction="in"/>
       <arg type="b" name="needUpdate" direction="out"/>
@@ -178,6 +182,58 @@ sub _add_items_to_tree {
     }
 }
 
+sub _get_item_props_hash {
+    my ($id) = @_;
+    my $item = $MENU_ITEMS{$id};
+    my %props;
+
+    # Mark as submenu if it's the root node or contains children
+    if ($id == 0 || (exists $MENU_CHILDREN{$id} && @{$MENU_CHILDREN{$id}})) {
+        $props{'children-display'} = Glib::Variant->new_string('submenu');
+    }
+
+    return \%props if $id == 0 || !$item;
+
+    my $is_obj = blessed($item) && $item->isa('Shutter::App::StatusNotifier::MenuItem');
+
+    my $label   = $is_obj ? $item->label : $item->{label};
+    my $type    = $is_obj ? $item->type : $item->{type};
+    my $icon    = $is_obj ? $item->icon : $item->{icon};
+    my $enabled = $is_obj ? $item->is_enabled : ($item->{enabled} // 1);
+    my $visible = $is_obj ? $item->is_visible : ($item->{visible} // 1);
+
+    $props{'label'} = Glib::Variant->new_string($label) if defined $label;
+    $props{'type'}  = Glib::Variant->new_string($type)  if defined $type;
+
+    $enabled = ($enabled && $enabled ne 'false' && $enabled ne '0') ? 1 : 0;
+    $props{'enabled'} = Glib::Variant->new_boolean($enabled);
+
+    $visible = ($visible && $visible ne 'false' && $visible ne '0') ? 1 : 0;
+    $props{'visible'} = Glib::Variant->new_boolean($visible);
+
+    $props{'icon-name'} = Glib::Variant->new_string($icon) if defined $icon && $icon ne '';
+
+    return \%props;
+}
+
+sub _process_menu_event {
+    my ($id, $event_id) = @_;
+    
+    # Hilfreicher Debug-Output für die Konsole:
+    # warn "[DBUS-DEBUG] Event received: '$event_id' for item ID $id\n";
+
+    if ($event_id eq 'clicked' && exists $MENU_ITEMS{$id}) {
+        my $item = $MENU_ITEMS{$id};
+        my $cb = (blessed($item) && $item->isa('Shutter::App::StatusNotifier::MenuItem'))
+                 ? $item->callback
+                 : $item->{onclick};
+
+        if ($cb) {
+            Glib::Idle->add(sub { $cb->($id); return 0; });
+        }
+    }
+}
+
 sub _trigger_layout_update {
     my ($parent_id) = @_;
     $parent_id //= 0;
@@ -234,37 +290,7 @@ sub _trigger_tooltip_update {
 
 sub _make_item_props {
     my ($id) = @_;
-    my $item = $MENU_ITEMS{$id};
-    my %props;
-
-    # Mark as submenu if it's the root node or contains children
-    if ($id == 0 || (exists $MENU_CHILDREN{$id} && @{$MENU_CHILDREN{$id}})) {
-        $props{'children-display'} = Glib::Variant->new_string('submenu');
-    }
-
-    return Glib::Variant->new('a{sv}', \%props) if $id == 0 || !$item;
-
-    my $is_obj = blessed($item) && $item->isa('Shutter::App::StatusNotifier::MenuItem');
-
-    my $label   = $is_obj ? $item->label : $item->{label};
-    my $type    = $is_obj ? $item->type : $item->{type};
-    my $icon    = $is_obj ? $item->icon : $item->{icon};
-    my $enabled = $is_obj ? $item->is_enabled : ($item->{enabled} // 1);
-    my $visible = $is_obj ? $item->is_visible : ($item->{visible} // 1);
-
-    $props{'label'} = Glib::Variant->new_string($label) if defined $label;
-    $props{'type'}  = Glib::Variant->new_string($type)  if defined $type;
-
-    # Boolean normalization for D-Bus
-    $enabled = ($enabled && $enabled ne 'false' && $enabled ne '0') ? 1 : 0;
-    $props{'enabled'} = Glib::Variant->new_boolean($enabled);
-
-    $visible = ($visible && $visible ne 'false' && $visible ne '0') ? 1 : 0;
-    $props{'visible'} = Glib::Variant->new_boolean($visible);
-
-    $props{'icon-name'} = Glib::Variant->new_string($icon) if defined $icon && $icon ne '';
-
-    return Glib::Variant->new('a{sv}', \%props);
+    return Glib::Variant->new('a{sv}', _get_item_props_hash($id));
 }
 
 sub _make_item_struct {
@@ -358,6 +384,26 @@ sub init {
                             $layout
                         ]));
                     };
+                    warn "[DBUS-ERROR] GetLayout failed: $@\n" if $@;
+                }
+                elsif ($method eq 'GetGroupProperties') {
+                    eval {
+                        my $ids_var = $params->get_child_value(0);
+                        my $n = $ids_var->n_children();
+                        my @props_array;
+
+                        for (my $i = 0; $i < $n; $i++) {
+                            my $id = $ids_var->get_child_value($i)->get_int32();
+                            if (exists $MENU_ITEMS{$id} || $id == 0) {
+                                # Wir pushen hier ein reines Array-Ref mit exakt 2 Elementen [ Integer, HashRef ]
+                                push @props_array, [ int($id), _get_item_props_hash($id) ];
+                            }
+                        }
+                        $invocation->return_value(Glib::Variant->new_tuple([
+                            Glib::Variant->new('a(ia{sv})', \@props_array)
+                        ]));
+                    };
+                    warn "[DBUS-ERROR] GetGroupProperties failed: $@\n" if $@;
                 }
                 elsif ($method eq 'GetGroupProperties') {
                     eval {
@@ -378,6 +424,7 @@ sub init {
                             Glib::Variant->new('a(ia{sv})', \@props_tuples)
                         ]));
                     };
+                    warn "[DBUS-ERROR] GetGroupProperties failed: $@\n" if $@;
                 }
                 elsif ($method eq 'AboutToShow') {
                     eval {
@@ -393,24 +440,38 @@ sub init {
                             Glib::Variant->new_boolean($needs_update)
                         ]));
                     };
+                    warn "[DBUS-ERROR] AboutToShow failed: $@\n" if $@;
                 }
                 elsif ($method eq 'Event') {
                     eval {
-                        my $id = $params->get_child_value(0)->get_int32();
+                        my $id       = $params->get_child_value(0)->get_int32();
                         my $event_id = $params->get_child_value(1)->get_string();
 
-                        if ($event_id eq 'clicked' && exists $MENU_ITEMS{$id}) {
-                            my $item = $MENU_ITEMS{$id};
-                            my $cb = (blessed($item) && $item->isa('Shutter::App::StatusNotifier::MenuItem'))
-                                     ? $item->callback
-                                     : $item->{onclick};
+                        _process_menu_event($id, $event_id);
 
-                            if ($cb) {
-                                Glib::Idle->add(sub { $cb->($id); return 0; });
-                            }
-                        }
                         $invocation->return_value(Glib::Variant->new_tuple([]));
                     };
+                    warn "[DBUS-ERROR] Event failed: $@\n" if $@;
+                }
+                elsif ($method eq 'EventGroup') {
+                    eval {
+                        my $events_var = $params->get_child_value(0);
+                        my $n = $events_var->n_children();
+
+                        for (my $i = 0; $i < $n; $i++) {
+                            my $event_struct = $events_var->get_child_value($i);
+                            my $id       = $event_struct->get_child_value(0)->get_int32();
+                            my $event_id = $event_struct->get_child_value(1)->get_string();
+
+                            _process_menu_event($id, $event_id);
+                        }
+
+                        # EventGroup erwartet ein Array von Fehler-IDs als Rückgabe (leer = keine Fehler)
+                        $invocation->return_value(Glib::Variant->new_tuple([
+                            Glib::Variant->new('a(i)', [])
+                        ]));
+                    };
+                    warn "[DBUS-ERROR] EventGroup failed: $@\n" if $@;
                 }
                 else {
                     eval { $invocation->return_value(Glib::Variant->new_tuple([])); };
