@@ -141,6 +141,10 @@ sub update_submenu {
 
     return unless exists $MENU_CHILDREN{$parent_id};
 
+    if (my $old_children = $MENU_CHILDREN{$parent_id}) {
+        delete $MENU_ITEMS{$_} for @$old_children;
+    }
+
     $MENU_CHILDREN{$parent_id} = [];
     _add_items_to_tree($parent_id, $items_array_ref);
     _trigger_layout_update($parent_id) if $active;
@@ -278,8 +282,8 @@ sub _trigger_item_property_update {
             [ int($id), { $prop_name => $prop_variant } ]
         ]);
 
-        # Array for removed properties, usually empty. Signature 'a(ias)'.
-        my $removed_array = Glib::Variant->new('a(ias)', []);
+        # Array for removed properties, usually empty. Signature 'a(ia(s))'.
+        my $removed_array = Glib::Variant->new('a(ia(s))', []);
 
         my $sig_params = Glib::Variant->new_tuple([$updated_array, $removed_array]);
 
@@ -371,7 +375,12 @@ sub init {
                 return Glib::Variant->new_int32(0) if $prop eq 'WindowId';
                 return Glib::Variant->new_object_path($current_menu_path) if $prop eq 'Menu';
                 if ($prop eq 'ToolTip') {
-                    return Glib::Variant->new('(sa(iiay)ss)', [$tooltip_icon, [], $tooltip_title, $tooltip_text]);
+                    return Glib::Variant->new_tuple([
+                        Glib::Variant->new_string($tooltip_icon),
+                        Glib::Variant->new('a(iiay)', []),
+                        Glib::Variant->new_string($tooltip_title),
+                        Glib::Variant->new_string($tooltip_text)
+                    ]);
                 }
                 return undef;
             },
