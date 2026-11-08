@@ -3312,16 +3312,23 @@ sub STARTUP {
 				}
 			}    #notify not activated
 
-			#capture with delay
-			Glib::Timeout->add(
-				$menu_delay->get_value * 1000,
-				sub {
-					fct_take_screenshot($widget, $data, $folder_from_config, $extra);
+			if (!$x11_supported) {
+				# The portal backend owns this wait so the capture request cannot
+				# race the delayed activation of the menu or tooltip.
+				fct_take_screenshot($widget, $data, $folder_from_config, $extra);
+				fct_control_signals('unblock');
+			} else {
+				#capture with delay
+				Glib::Timeout->add(
+					$menu_delay->get_value * 1000,
+					sub {
+						fct_take_screenshot($widget, $data, $folder_from_config, $extra);
 
-					#unblock signal handler
-					fct_control_signals('unblock');
-					return FALSE;
-				});
+						#unblock signal handler
+						fct_control_signals('unblock');
+						return FALSE;
+					});
+			}
 		} else {
 			if (($data eq "section" || $data eq "tray_section") && $ENV{GDK_SCALE} > 1) {
 				my $sd = Shutter::App::SimpleDialogs->new;

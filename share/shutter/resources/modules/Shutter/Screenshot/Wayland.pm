@@ -28,11 +28,6 @@ sub new {
 sub redo_capture {
 	my $self = shift;
 	return 3 unless defined $self->{_history};
-	if (defined $self->{_popup_mode}) {
-		# The initial request uses the application's menu/tooltip countdown.
-		# Repeats need the same opportunity to reopen the transient popup.
-		$self->wait_for_popup;
-	}
 	return $self->xdg_portal;
 }
 
@@ -66,6 +61,10 @@ sub get_error_text {
 sub xdg_portal {
 	my $self = shift;
 	my $d = $self->{_sc}->get_gettext;
+	# Delay portal capture until the transient menu or tooltip is visible.
+	# This must happen in the Wayland backend: an outer GTK timer can hand the
+	# portal an already-rendered desktop before the popup has appeared.
+	$self->wait_for_popup if defined $self->{_popup_mode};
 	# Fall back to fullscreen
 	$self->{_target} = 1 unless defined $self->{_target};
 

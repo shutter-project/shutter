@@ -32,7 +32,7 @@ sub select_region {
 	$dialog->set_response_sensitive('ok', 0);
 
 	my $content = $dialog->get_content_area;
-	my $label = Gtk3::Label->new($d->get("Drag around the menu or tooltip in this frozen screenshot, then confirm."));
+	my $label = Gtk3::Label->new($d->get("Drag a selection rectangle to choose the menu or tooltip, then confirm."));
 	$label->set_line_wrap(1);
 	$content->pack_start($label, 0, 0, 8);
 	my $view = Gtk3::ImageView->new;
