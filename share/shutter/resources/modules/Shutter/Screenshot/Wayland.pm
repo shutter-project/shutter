@@ -18,6 +18,8 @@ sub new {
 		_target  		=> shift,	# screenshot mode (full, select, window, awindow) to send to xdg-portal
 		_monitor		=> shift,  	# undef captures the whole desktop
 		};
+	$self->{_popup_mode} = shift;
+	$self->{_repeat_delay} = shift;
 	$self->{_gdk_screen} = Gtk3::Gdk::Screen::get_default();
 	bless $self, $class;
 	return $self;
@@ -27,6 +29,23 @@ sub redo_capture {
 	my $self = shift;
 	return 3 unless defined $self->{_history};
 	return $self->xdg_portal;
+}
+
+# Menus and tooltips cannot be enumerated through the screenshot portal.
+# Capture the desktop before presenting any selection UI.
+sub popup_mode {
+	my ($mode) = @_;
+	return unless defined $mode;
+	return $1 if $mode =~ /^(?:tray_)?(menu|tooltip)$/;
+	return;
+}
+
+sub wait_for_popup {
+	my $self = shift;
+	my $loop = Glib::MainLoop->new;
+	my $delay = $self->{_repeat_delay} || 10;
+	Glib::Timeout->add($delay * 1000, sub { $loop->quit; return 0; });
+	$loop->run;
 }
 
 sub get_history {
@@ -42,6 +61,10 @@ sub get_error_text {
 sub xdg_portal {
 	my $self = shift;
 	my $d = $self->{_sc}->get_gettext;
+	# Delay portal capture until the transient menu or tooltip is visible.
+	# This must happen in the Wayland backend: an outer GTK timer can hand the
+	# portal an already-rendered desktop before the popup has appeared.
+	$self->wait_for_popup if defined $self->{_popup_mode};
 	# Fall back to fullscreen
 	$self->{_target} = 1 unless defined $self->{_target};
 
@@ -53,6 +76,8 @@ sub xdg_portal {
 
 	my $pixbuf;
 	my $portal_error;
+	my $cancelled;
+	delete $self->{_error_text};
 
 	eval {
 		my $portal_service = $bus->get_service('org.freedesktop.portal.Desktop');
@@ -78,6 +103,9 @@ sub xdg_portal {
 		# only define a target if xdg-portal supports non-interactive calls
 		$options{target} = Net::DBus::dbus_uint32($self->{_target}) if $self->{_interactive} ne 1;
 
+		# An interactive chooser could dismiss the menu or tooltip before capture.
+		$options{interactive} = Net::DBus::dbus_boolean(0) if defined $self->{_popup_mode};
+
 		my $request_path = $portal->Screenshot('', \%options);
 
 		if ($request->get_object_path ne $request_path) {
@@ -92,7 +120,8 @@ sub xdg_portal {
 		if (!defined $num || $num != 0) {
             if (defined $num && $num == 1) {
                 # portal Response: 1 = user cancelled -> treat as abort (code 5), not error
-                return 5;
+                $cancelled = 1;
+                return;
             }
             $portal_error = "Response " . (defined $num ? $num : "timeout") . " from XDG portal";
             return;
@@ -107,23 +136,40 @@ sub xdg_portal {
 
 		$giofile->delete;
 	};
-	if (defined $self->{_monitor}) {
-		$pixbuf = crop_to_monitor($pixbuf, $self->{_gdk_screen}, $self->{_monitor});
-	}
-
-	#a history marker makes this capture repeatable through redoshot
-	$self->{_history} = Shutter::Screenshot::History->new($self->{_sc});
-	if ($@) {
-		$self->{_error_text} = $@;
+	# A return inside eval only leaves that block. Handle cancellation and
+	# errors before accessing the pixbuf or recording a successful capture.
+	my $exception = $@;
+	if ($exception) {
+		$self->{_error_text} = $exception;
 		return 9;
 	}
+	return 5 if $cancelled;
 	if (defined $portal_error) {
 		$self->{_error_text} = $portal_error;
 		return 9;
 	}
 
+	if (defined $self->{_monitor}) {
+		$pixbuf = crop_to_monitor($pixbuf, $self->{_gdk_screen}, $self->{_monitor});
+	}
+
+	if (defined $self->{_popup_mode}) {
+		my $selected = eval { $self->select_popup($pixbuf) };
+		if ($@) {
+			$self->{_error_text} = $@;
+			return 9;
+		}
+		return 5 unless defined $selected;
+		$pixbuf = $selected;
+	}
+
+	#a history marker makes this capture repeatable through redoshot
+	$self->{_history} = Shutter::Screenshot::History->new($self->{_sc});
+
 	# get name
-	if ($self->{_target} eq 1) {
+	if (defined $self->{_popup_mode}) {
+		$self->{_action_name} = $self->{_popup_mode} eq 'menu' ? $d->get("Menu") : $d->get("Tooltip");
+	} elsif ($self->{_target} eq 1) {
 		if (defined $self->{_monitor}) {
 			$self->{_action_name} = $self->{_gdk_screen}->get_monitor_plug_name($self->{_monitor});
 		} else {
@@ -142,6 +188,14 @@ sub xdg_portal {
 		}
 	}
 	return $pixbuf;
+}
+
+# Select from the captured pixels, not the live desktop: moving the pointer
+# or opening this dialog can no longer dismiss the captured popup.
+sub select_popup {
+	my ($self, $pixbuf) = @_;
+	require Shutter::Screenshot::Popup;
+	return Shutter::Screenshot::Popup::select_region($self->{_sc}, $pixbuf);
 }
 
 #The XDG portal always returns the whole desktop spanning every monitor. Crop

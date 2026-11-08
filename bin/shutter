@@ -670,14 +670,6 @@ sub STARTUP {
 	$sm->{_menuitem_tooltip}->signal_connect('activate', \&evt_take_screenshot, 'tooltip');
 	$sm->{_menuitem_iclipboard}->signal_connect('activate', \&fct_clipboard_import);
 
-	unless ($x11_supported) {
-		# on Wayland selection/window/awindow go through the XDG portal;
-		# only menu/tooltip capture stay disabled (not supported by the portal)
-		for my $name ('menu', 'tooltip') {
-			$sm->{"_menuitem_$name"}->set_sensitive(FALSE);
-		}
-	}
-
 	#gnome web photo is optional, don't enable it when gnome-web-photo is not in PATH
 	if ($gnome_web_photo) {
 		$sm->{_menuitem_web}->set_sensitive(TRUE);
@@ -969,11 +961,9 @@ sub STARTUP {
 	}
 
 	unless ($x11_supported) {
-		my $wayland_warning = Gtk3::Label->new;
-		$wayland_warning->set_line_wrap(TRUE);
-		$wayland_warning->set_markup($d->get("Wayland support is limited, for more advanced screenshots please switch back to Xorg. Click <a href='https://github.com/shutter-project/shutter/issues/187'>here</a> for details. Selection and window  
-modes are currently experimental, your desktop environment might fall back to an interactive mode chooser or full screen capture."));
-		$vbox->pack_start($wayland_warning, FALSE, TRUE, 0);
+		my $wayland_info = Gtk3::Label->new($d->get("Available capture modes on Wayland depend on your desktop environment. Some modes require manual selection."));
+		$wayland_info->set_line_wrap(TRUE);
+		$vbox->pack_start($wayland_info, FALSE, TRUE, 0);
 	}
 
 	$vbox->pack_start($st->create_toolbar, FALSE, TRUE, 0);
@@ -1028,15 +1018,8 @@ modes are currently experimental, your desktop environment might fall back to an
 	$st->{_upload}->set_sensitive(FALSE);
 
 	unless ($x11_supported) {
-		# on Wayland _select/_window use the XDG portal; menu/tooltip stay disabled
-		my $tooltip = $d->get("Can't take screenshots without X11 server");
 		for my $name ('_menu', '_tooltip') {
-			$st->{$name}->set_sensitive(FALSE);
-			$st->{$name}->set_tooltip_text($tooltip);
-		}
-		# dropdown menus (workspace list / window list) still need X11 to enumerate
-		for my $name ('_full', '_window') {
-			$st->{$name}->set_arrow_tooltip_text($tooltip);
+			$st->{$name}->set_tooltip_text($d->get("Capture after a delay, then select the menu or tooltip in the frozen screenshot"));
 		}
 	}
 
@@ -2053,15 +2036,10 @@ modes are currently experimental, your desktop environment might fall back to an
 		'menu_delay_changed'
 	);
 
-	if ($x11_supported) {
-		if (defined $settings_xml->{'general'}->{'menu_delay'}) {
-			$menu_delay->set_value($settings_xml->{'general'}->{'menu_delay'});
-		} else {
-			$menu_delay->set_value(10);
-		}
+	if (defined $settings_xml->{'general'}->{'menu_delay'} && $settings_xml->{'general'}->{'menu_delay'} > 0) {
+		$menu_delay->set_value($settings_xml->{'general'}->{'menu_delay'});
 	} else {
-		$menu_delay->set_value(0);
-		$menu_delay->set_sensitive(FALSE);
+		$menu_delay->set_value(10);
 	}
 
 	$menu_delay->set_tooltip_text($d->get("Capture menu/tooltip after a delay of n seconds"));
@@ -3257,11 +3235,10 @@ modes are currently experimental, your desktop environment might fall back to an
 			fct_control_signals('unblock');
 			return TRUE;
 		} elsif (!$x11_supported
-            && $data !~ /^(tray_)?(full|select|window|awindow)$/
+            && $data !~ /^(tray_)?(full|select|window|awindow|menu|tooltip)$/
             && $data !~ /^shutter_monitor_direct/
             && $data !~ /^redoshot/) {
-            # full/select/window/awindow/monitor/redo are served via the XDG portal or supported on Wayland;
-            # everything else (menu, tooltip, ...) still needs X11
+            # Supported captures use the XDG portal; other modes still need X11.
 			my $sd = Shutter::App::SimpleDialogs->new;
 			$sd->dlg_error_message($d->get("Can't take screenshots without X11 server"), $d->get("Failed"));
 			fct_control_signals('unblock');
@@ -3278,7 +3255,7 @@ modes are currently experimental, your desktop environment might fall back to an
 			my $scd_text;
 			if ($data eq "menu" || $data eq "tray_menu") {
 				$scd_text = $d->get("Please activate the menu you want to capture");
-				if ($ENV{GDK_SCALE} > 1) {
+				if ($x11_supported && $ENV{GDK_SCALE} > 1) {
 					my $sd = Shutter::App::SimpleDialogs->new;
 					$sd->dlg_info_message("Capturing a cascading menu is known to be broken with HiDPI.\nPlease unset GDK_SCALE variable and restart Shutter.\nPlease follow https://github.com/shutter-project/shutter/issues/326 and send us the patch\nWill attempt capturing it anyway...", undef, 'gtk-ok');
 				}
@@ -3335,16 +3312,23 @@ modes are currently experimental, your desktop environment might fall back to an
 				}
 			}    #notify not activated
 
-			#capture with delay
-			Glib::Timeout->add(
-				$menu_delay->get_value * 1000,
-				sub {
-					fct_take_screenshot($widget, $data, $folder_from_config, $extra);
+			if (!$x11_supported) {
+				# The portal backend owns this wait so the capture request cannot
+				# race the delayed activation of the menu or tooltip.
+				fct_take_screenshot($widget, $data, $folder_from_config, $extra);
+				fct_control_signals('unblock');
+			} else {
+				#capture with delay
+				Glib::Timeout->add(
+					$menu_delay->get_value * 1000,
+					sub {
+						fct_take_screenshot($widget, $data, $folder_from_config, $extra);
 
-					#unblock signal handler
-					fct_control_signals('unblock');
-					return FALSE;
-				});
+						#unblock signal handler
+						fct_control_signals('unblock');
+						return FALSE;
+					});
+			}
 		} else {
 			if (($data eq "section" || $data eq "tray_section") && $ENV{GDK_SCALE} > 1) {
 				my $sd = Shutter::App::SimpleDialogs->new;
@@ -4543,28 +4527,24 @@ modes are currently experimental, your desktop environment might fall back to an
 
 		#enable/disable controls
 		if ($st->{_select} && $sm->{_menuitem_selection}) {
-			# if $x11_supported is false, we are on Wayland, and all these buttons are already disabled and should stay disabled
+			# These capture modes are supported on both X11 and Wayland.
 
 			#menu
-			if ($x11_supported) {
-				$sm->{_menuitem_selection}->set_sensitive($sensitive);
-				$sm->{_menuitem_window}->set_sensitive($sensitive);
-				#$sm->{_menuitem_section}->set_sensitive($sensitive);
-				$sm->{_menuitem_menu}->set_sensitive($sensitive);
-				$sm->{_menuitem_tooltip}->set_sensitive($sensitive);
-			}
+			$sm->{_menuitem_selection}->set_sensitive($sensitive);
+			$sm->{_menuitem_window}->set_sensitive($sensitive);
+			#$sm->{_menuitem_section}->set_sensitive($sensitive);
+			$sm->{_menuitem_menu}->set_sensitive($sensitive);
+			$sm->{_menuitem_tooltip}->set_sensitive($sensitive);
 			$sm->{_menuitem_web}->set_sensitive($sensitive)
 				if ($gnome_web_photo);
 			$sm->{_menuitem_iclipboard}->set_sensitive($sensitive);
 
 			#toolbar
-			if ($x11_supported) {
-				$st->{_select}->set_sensitive($sensitive);
-				$st->{_window}->set_sensitive($sensitive);
-				#$st->{_section}->set_sensitive($sensitive);
-				$st->{_menu}->set_sensitive($sensitive);
-				$st->{_tooltip}->set_sensitive($sensitive);
-			}
+			$st->{_select}->set_sensitive($sensitive);
+			$st->{_window}->set_sensitive($sensitive);
+			#$st->{_section}->set_sensitive($sensitive);
+			$st->{_menu}->set_sensitive($sensitive);
+			$st->{_tooltip}->set_sensitive($sensitive);
 			$st->{_web}->set_sensitive($sensitive) if ($gnome_web_photo);
 
 			#special case: redoshot (toolbar and menu)
@@ -6358,7 +6338,8 @@ modes are currently experimental, your desktop environment might fall back to an
 				my $target; # capture mode sent to xdg-portal
 				my $interactive = 1; # whether to use the desktop environment's GUI (only for the time till DEs support non-interactive calls)
 
-				if ($data eq "full" || $data eq "tray_full") {
+				my $popup_mode = Shutter::Screenshot::Wayland::popup_mode($data);
+				if ($data eq "full" || $data eq "tray_full" || defined $popup_mode) {
 					$target = 1;
 				} elsif ($data eq "window" || $data eq "tray_window") {
 					$target = 2;
@@ -6377,7 +6358,7 @@ modes are currently experimental, your desktop environment might fall back to an
 					}
 				}
 
-				$screenshooter = Shutter::Screenshot::Wayland->new($sc, $interactive, $target, $monitor);
+				$screenshooter = Shutter::Screenshot::Wayland->new($sc, $interactive, $target, $monitor, $popup_mode, $menu_delay->get_value);
 				$screenshot = $screenshooter->xdg_portal();
 			}
 		} else {
@@ -8958,7 +8939,7 @@ modes are currently experimental, your desktop environment might fall back to an
 
 		#menu
 		my $menuitem_window_menu = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('_Menu'));
-		$menuitem_window_menu->set_sensitive($x11_supported);
+		$menuitem_window_menu->set_sensitive(TRUE);
 		if ($traytheme->has_icon('alacarte')) {
 			$menuitem_window_menu->set_image(Gtk3::Image->new_from_icon_name('alacarte', 'menu'));
 		} else {
@@ -8971,7 +8952,7 @@ modes are currently experimental, your desktop environment might fall back to an
 
 		#tooltip
 		my $menuitem_window_tooltip = Gtk3::ImageMenuItem->new_with_mnemonic($d->get('_Tooltip'));
-		$menuitem_window_tooltip->set_sensitive($x11_supported);
+		$menuitem_window_tooltip->set_sensitive(TRUE);
 		if ($traytheme->has_icon('help-faq')) {
 			$menuitem_window_tooltip->set_image(Gtk3::Image->new_from_icon_name('help-faq', 'menu'));
 		} else {
